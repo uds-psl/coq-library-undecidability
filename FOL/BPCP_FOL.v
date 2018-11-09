@@ -7,8 +7,8 @@ Require Export PCP Deduction.
 Section validity.
 
   Notation u := 0. Notation v := 1.
-  Variable R : BSRS.
   Context {b : logic}.
+  Variable R : BSRS.
 
   Definition prep (x : string bool) (t : term) : term := fold_right t_f t x.
   Definition iprep domain eta {I : interp domain eta} (x : list bool) (y : domain) := fold_right i_f y x.

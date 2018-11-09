@@ -42,11 +42,13 @@ Notation "∀ v ; phi" := (All v phi) (at level 56, right associativity).
 Notation "⊥" := (Fal).
 Notation "¬ phi" := (phi --> ⊥) (at level 20).
 
-Fixpoint impl b (A : list (form b)) phi :=
+Section fixb. Variable b : logic.
+Fixpoint impl (A : list (form b)) phi :=
   match A with
   | [] => phi
   | psi :: A => Impl psi (impl A phi)
   end.
+End fixb.
 
 Notation "A ==> phi" := (impl A phi) (right associativity, at level 55).
 
