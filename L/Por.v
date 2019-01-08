@@ -1,4 +1,4 @@
-From L Require Import InterpreterResults.
+From Undecidability.L Require Import InterpreterResults.
 
 (** ** Parallel or *)
 
@@ -86,7 +86,7 @@ Proof with eauto.
     rewrite !E_correct, Eq. destruct (eval k t); solveeq.
 Qed.
 
-From L Require Import DecidableRecognisable.
+From Undecidability.L Require Import DecidableRecognisable.
 
 (** ** Post's theorem *)
 

@@ -1,4 +1,4 @@
-From PCP Require Import Definitions.
+Require Import Undecidability.PCP.Definitions.
 
 (** * SR to MPCP *)
 

@@ -1,4 +1,4 @@
-From PCP Require Export Prelim.
+Require Export PCP.Prelim.
 
 
 (** *Some basic things concerning lists *)

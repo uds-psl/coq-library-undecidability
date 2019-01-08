@@ -1,6 +1,6 @@
 (** * FOL Reductions *)
 
-Require Export PCP Deduction.
+Require Export FOL.PCP Deduction.
 
 (** ** Validity *)
 

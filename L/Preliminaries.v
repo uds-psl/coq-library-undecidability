@@ -151,6 +151,11 @@ Proof.
   intros x y. hnf. decide equality.
 Defined.
 
+Instance prod_eq_dec X Y : eq_dec X -> eq_dec Y -> eq_dec (X * Y).
+Proof.
+  intros ? ? ? ?. hnf. decide equality. eapply X1. eapply X0.
+Defined.
+
 Instance nat_le_dec (x y : nat) : dec (x <= y) := 
   le_dec x y.
 

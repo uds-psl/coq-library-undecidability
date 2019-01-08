@@ -1,4 +1,4 @@
-Require Import Definitions.
+Require Import ILL.Definitions.
 
 (** ** BPCP reduces to iBPCP *)
 

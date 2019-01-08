@@ -1,4 +1,4 @@
-From PCP Require Import Prelim.
+Require Import Undecidability.PCP.Prelim.
 
 (** * TM to SRH *)
 

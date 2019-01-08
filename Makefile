@@ -1,18 +1,14 @@
-TOPTARGETS := all clean
+all: Makefile.coq
+	+make -f Makefile.coq all
 
-SUBDIRSW := $(wildcard */.)
-SUBDIRS := $(filter-out website/. , $(SUBDIRSW))
+html: Makefile.coq
+	+make -f Makefile.coq html
 
-all: $(SUBDIRS)
+clean: Makefile.coq
+	+make -f Makefile.coq clean
+	rm -f Makefile.coq
 
-clean: $(SUBDIRS)
-	rm -f website/*.html
+Makefile.coq: _CoqProject
+	coq_makefile -f _CoqProject -o Makefile.coq
 
-html: $(SUBDIRS)
-	mv */html/*.html website
-	rm -rf */html
-
-$(SUBDIRS):
-	$(MAKE) -C $@ $(MAKECMDGOALS)
-
-.PHONY: all clean html $(SUBDIRS)
+.PHONY: all html clean

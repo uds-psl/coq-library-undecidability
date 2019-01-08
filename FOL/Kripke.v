@@ -1,6 +1,6 @@
 (** * Kripke Semantics *)
 
-Require Export Deduction.
+Require Export FOL.Deduction.
 
 (** ** Kripke Models *)
 

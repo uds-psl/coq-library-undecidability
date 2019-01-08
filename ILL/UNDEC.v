@@ -9,7 +9,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import Definitions.
+Require Import ILL.Definitions.
 Require Import bsm_defs mm_defs eill ill.
 
 Require Import PCP_BPCP BPCP_iBPCP iBPCP_BSM BSM_MM MM_EILL EILL_ILL.

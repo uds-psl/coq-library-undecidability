@@ -1,4 +1,4 @@
-From L Require Import Interpreter Encodings.
+From Undecidability.L Require Import Interpreter Encodings.
 
 Definition test (u : term) := forall n, u (enc n) ▷ T \/ u (enc n) ▷ F.
 Definition satis u n := u (enc n) ▷ T.

@@ -1,6 +1,6 @@
 (** ** TM to SR with finite types *)
 
-Require Import Prelim singleTM.
+Require Import Undecidability.PCP.Prelim singleTM.
 
 (* ** More preliminary lemmas *)
 
@@ -572,7 +572,7 @@ Section Fix_TM.
 
 End Fix_TM.
 
-Require Import Definitions.
+Require Import PCP.Definitions.
 
 Theorem reduction_reach_sr : Reach ⪯ SR_fin.
 Proof. exists (fun S

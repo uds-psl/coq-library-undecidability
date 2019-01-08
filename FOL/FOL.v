@@ -1,6 +1,6 @@
 (** * First-Order Logic *)
 
-Require Export PCP.
+Require Export Undecidability.FOL.PCP.
 
 (** ** Syntax *)
 

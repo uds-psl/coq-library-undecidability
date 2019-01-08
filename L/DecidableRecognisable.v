@@ -1,4 +1,4 @@
-From L Require Import Encodings.
+From Undecidability.L Require Import Encodings.
 
 Implicit Types s t u v : term.
 Implicit Types p q : term -> Prop.

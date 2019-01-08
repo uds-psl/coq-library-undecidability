@@ -9,7 +9,7 @@
 
 Require Import List Arith Omega.
 
-Require Import Definitions.
+Require Import ILL.Definitions.
 
 Require Import utils pos vec. 
 Require Import subcode sss. 

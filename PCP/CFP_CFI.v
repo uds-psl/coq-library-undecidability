@@ -1,4 +1,4 @@
-Require Import Definitions Post_CFG.
+Require Import PCP.Definitions Post_CFG.
 
 (** * CFP to CFI *)
 

@@ -6,7 +6,9 @@
    - Acknowlegments: Sigurd Schneider, Dominik Kirst, Yannick Forster
  *)
 
-Require Export Bool Omega List Setoid Morphisms Tactics.
+From Undecidability.L Require Import Tactics.
+
+Require Export Bool Omega List Setoid Morphisms.
 
 Global Set Implicit Arguments. 
 Global Unset Strict Implicit.
@@ -298,7 +300,7 @@ Coercion bool2Prop (b : bool) := if b then True else False.
 Lemma bool_Prop_true b :
   b = true -> b.
 Proof.
-  intros A. rewrite A. exact I.
+  intros A. rewrite A. cbn. eauto.
 Qed.
 
 Lemma bool_Prop_false b :

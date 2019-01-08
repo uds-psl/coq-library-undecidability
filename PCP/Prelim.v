@@ -6,7 +6,7 @@
    - Acknowlegments: Sigurd Schneider, Dominik Kirst, Yannick Forster
  *)
 
-Require Export Bool Omega List Setoid Morphisms Tactics.
+Require Export Bool Omega List Setoid Morphisms.
 
 Global Set Implicit Arguments. 
 Global Unset Strict Implicit.

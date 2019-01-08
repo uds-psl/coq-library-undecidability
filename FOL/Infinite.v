@@ -1,6 +1,6 @@
 (** * Infinite Data Types *)
 
-Require Import Prelim MarkovPost.
+Require Import FOL.Prelim MarkovPost.
 
 (** ** Definition of infinite and generating types *)
 

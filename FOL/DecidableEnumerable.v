@@ -1,6 +1,6 @@
 (** * Decidability and Enumerability *)
 
-Require Export Prelim.
+Require Export FOL.Prelim.
 
 
 (* ** Definitions *)

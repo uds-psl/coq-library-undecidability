@@ -1,6 +1,6 @@
 (** * Additional results not mentioned in the paper *)
 
-From L Require Import Encodings.
+From Undecidability.L Require Import Encodings.
 
 (** ** Natural numbers *)
 
@@ -28,7 +28,7 @@ Qed.
 
 (** ** Trivial and finite classes are decidable *)
 
-Require Import DecidableRecognisable Enumerable.
+From Undecidability.L Require Import DecidableRecognisable Enumerable.
 
 Lemma decidable_ext p q : (forall x, p x <-> q x) -> decidable p -> decidable q.
 Proof.

@@ -1,4 +1,4 @@
-Require Import Definitions Prelim.
+Require Import PCP.Definitions PCP.Prelim.
 
 (** * Post grammars are context-free *)
 
