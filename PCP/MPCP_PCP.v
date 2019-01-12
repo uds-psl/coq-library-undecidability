@@ -67,7 +67,7 @@ Section MPCP_PCP.
       rewrite <- H3. firstorder.
   Qed.
 
-  Lemma tau1_inv a B z :
+  Lemma tau1_inv (a : nat) B z :
     tau1 B = a :: z ->
     exists x y, (a :: x, y) el B.
   Proof.
@@ -88,7 +88,7 @@ Section MPCP_PCP.
       rewrite H2. right. eapply sym_word_R; eauto.
   Qed.
 
-  Lemma tau2_inv a B z :
+  Lemma tau2_inv (a : nat) B z :
     tau2 B = a :: z ->
     exists x y, (y, a :: x) el B.
   Proof.
@@ -107,7 +107,7 @@ Section MPCP_PCP.
     - inv Hm. now edestruct fresh_spec; eauto.
     - cbn in Hm. destruct x, y; try firstorder congruence.
       + destruct (tau1_inv Hm) as (x' & y' & ? ).
-        assert ( (s :: x') / y' el P) as [] % P_inv_top by firstorder.
+        assert ( (n :: x') / y' el P) as [] % P_inv_top by firstorder.
         eapply sym_word_R; eauto.        
       + cbn -[fresh] in Hm. symmetry in Hm. destruct (tau2_inv Hm) as (x' & y' & ? ).
         assert ( y' / (# :: x') el P) as [] % P_inv_bot by firstorder.

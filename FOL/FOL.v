@@ -1,6 +1,6 @@
 (** * First-Order Logic *)
 
-Require Export Undecidability.FOL.PCP.
+From Undecidability Require Export Shared.Prelim FOL.Reductions Problems.PCP.
 
 (** ** Syntax *)
 

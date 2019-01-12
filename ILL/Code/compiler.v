@@ -216,5 +216,3 @@ Section linker.
   Qed.
 
 End linker.
-
-Check compiler_subcode.

@@ -1,6 +1,6 @@
 (** ** TM to SR with finite types *)
 
-Require Import Undecidability.PCP.Prelim singleTM.
+Require Import singleTM .
 
 (* ** More preliminary lemmas *)
 

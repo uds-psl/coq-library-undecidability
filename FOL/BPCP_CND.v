@@ -163,7 +163,7 @@ Section BPCP_CND.
   Lemma BPCP_to_CND :
     BPCP R -> [] ⊢C (F R).
   Proof.
-    intros H. now apply BPCP_prv'.
+    intros H. rewrite BPCP_BPCP' in *. now apply BPCP_prv'.
   Qed.
 
   Lemma impl_trans A phi :
@@ -178,7 +178,7 @@ Section BPCP_CND.
     intros H % Double % soundness.
     specialize (H _ _ (IB R) (fun _ => nil)).
     unfold F, F1, F2 in H. rewrite !impl_trans, !map_map, !impl_sat in H. cbn in H.
-    eapply H.
+    eapply BPCP_BPCP'.  eapply H.
     - intros ? [(x,y) [<- ?] ] % in_map_iff ?. cbn in *. eapply H1.
       left. now rewrite !IB_enc.
     - intros ? [(x,y) [<- ?] ] % in_map_iff ? ? ? ?. cbn in *. eapply H1. intros.

@@ -1,4 +1,4 @@
-Require Export PCP.Prelim.
+Require Export Problems.PCP Shared.Prelim Problems.Reduction.
 
 
 (** *Some basic things concerning lists *)
@@ -33,20 +33,10 @@ Qed.
 
 (** * Definitions *)
 
-Definition reduces X Y (p : X -> Prop) (q : Y -> Prop) := exists f : X -> Y, forall x, p x <-> q (f x).
-Notation "p ⪯ q" := (reduces p q) (at level 50).
-
-Lemma reduces_transitive X Y Z (p : X -> Prop) (q : Y -> Prop) (r : Z -> Prop) :
-  p ⪯ q -> q ⪯ r -> p ⪯ r.
-Proof.
-  intros [f ?] [g ?]. exists (fun x => g (f x)). firstorder.
-Qed.
-
 Definition symbol := nat.
-Definition string := list symbol.
-Definition card : Type := string * string.
-Definition stack := list card.
-Definition SRS := stack.
+Definition string := (string nat).
+Definition card : Type := (card nat).
+Definition stack := stack nat.
 Notation "x / y" := (x,y).
 
 Implicit Types a b : symbol.
@@ -57,18 +47,6 @@ Implicit Types A R P : stack.
 Coercion sing (n : nat) := [n].
 
 (** ** Post Correspondence Problem *)
-
-Fixpoint tau1 (A : stack) :=
-  match A with
-  | [] => []
-  | (x / y) :: A => x ++ tau1 A
-  end.
-
-Fixpoint tau2 (A : stack) :=
-  match A with
-  | [] => []
-  | (x / y) :: A => y ++ tau2 A
-  end.
 
 Lemma tau1_app A B : tau1 (A ++ B) = tau1 A ++ tau1 B.
 Proof.
@@ -176,7 +154,10 @@ Lemma sym_map X (f : X -> card) l Sigma :
 Proof.
   intros. induction l as [ | ]; cbn in *.
   - firstorder.
-  - pose proof (H a). destruct _. repeat eapply incl_app; eauto. 
+  - pose proof (H a). destruct _. repeat eapply incl_app.
+    + eapply app_incl_l, H0. eauto.
+    + eapply app_incl_l, app_incl_R; eauto.
+    + eauto.
 Qed. 
 
 Lemma sym_word_l R u v  :
@@ -202,10 +183,7 @@ Lemma sym_mono A P :
 Proof.
   induction A as [ | (x,y) ]; cbn; intros.
   - firstorder.
-  - repeat eapply incl_app.
-    + eapply sym_word_l. firstorder.
-    + eapply sym_word_R. firstorder.
-    + firstorder.
+  - repeat eapply incl_app; eauto.
 Qed.
 
 
@@ -213,14 +191,16 @@ Lemma tau1_sym A : tau1 A <<= sym A.
 Proof.
   induction A as [ | (x & y) ].
   - firstorder.
-  - cbn. eauto.
+  - cbn. intros ? [ | ] % in_app_iff. eapply in_app_iff. eauto.
+    rewrite !in_app_iff. eauto.
 Qed.
 
 Lemma tau2_sym A : tau2 A <<= sym A.
 Proof.
   induction A as [ | (x & y) ].
   - firstorder.
-  - cbn. eauto.
+  - cbn. cbn. intros ? [ | ] % in_app_iff. eapply in_app_iff. eauto.
+    rewrite !in_app_iff. eauto.
 Qed.  
 
 
@@ -229,8 +209,10 @@ Lemma rewt_sym R x y Sigma:
 Proof.
   intros. induction H1.
   - eauto.
-  - inv H1. eapply IHrewt. repeat eapply incl_app; eauto.
-    intros ? ?. eapply H. eapply sym_word_R; eauto.
+  - inv H1. eapply IHrewt. repeat eapply incl_app.
+    + eapply app_incl_l. eauto.
+    + rewrite <- H. eapply sym_word_R. eauto.
+    + eapply app_incl_R, app_incl_R. eauto.
 Qed.
 
 (** *** Fresh symbols *)
@@ -255,7 +237,7 @@ Qed.
 
 Definition SRH '(R, x, a) := exists y, rewt R x y /\ a el y.
 Definition SR '(R, x, y) := rewt R x y.
-Definition PCP P := exists A : SRS, A <<= P /\ A <> [] /\ tau1 A = tau2 A.
+(* Definition PCP P := exists A : SRS, A <<= P /\ A <> [] /\ tau1 A = tau2 A. *)
 Definition MPCP '((x,y), P) := exists A : SRS, A <<= x/y :: P /\ x ++ tau1 A = y ++ tau2 A.
 Definition CFP '(R, a) := exists A : SRS, A <<= R /\ A <> [] /\ sigma a A = rev (sigma a A).
 Definition CFI '(R1, R2, a) := exists A1 A2, A1 <<= R1 /\ A2 <<= R2 /\ A1 <> [] /\ A2 <> [] /\ sigma a A1 = sigma a A2.

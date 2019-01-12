@@ -15,8 +15,10 @@ Section SRH_SR.
   Proof.
     unfold P. rewrite !sym_app. eapply incl_app; [ | eapply incl_app].
     - eauto.
-    - eapply sym_map. cbn. eauto. 
-    - eapply sym_map. cbn. eauto.
+    - eapply sym_map. cbn. intros ? [-> | [ | ] % in_app_iff] ? [ | [ | ]]; subst; eauto.
+      inv H. eauto. inv H0. inv H0. eauto. eauto. inv H0. eauto. inv H1.
+    - eapply sym_map. cbn. intros ? [-> | [ | ] % in_app_iff] ? [ | [ | ]]; subst; eauto.
+      inv H. eauto. inv H0. inv H0. eauto. eauto. inv H0. eauto. inv H1.
   Qed.
 
   Lemma rewt_a0_L x :

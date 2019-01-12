@@ -1,4 +1,4 @@
-Require Import Undecidability.PCP.Prelim.
+Require Export Undecidability.Shared.Prelim.
 
 (** * TM to SRH *)
 

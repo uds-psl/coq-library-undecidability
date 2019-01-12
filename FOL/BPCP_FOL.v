@@ -55,7 +55,7 @@ Section validity.
       i_f b s := b :: s ;
       i_e := nil;
       i_P u v := derivable R u v ;
-      i_Q := BPCP R
+      i_Q := BPCP' R
     |}.
 
   Lemma IB_prep rho s t :
@@ -100,7 +100,7 @@ Section validity.
   Qed.
 
   Lemma IB_F rho :
-    rho ⊨ F -> BPCP R.
+    rho ⊨ F -> BPCP' R.
   Proof.
     intros H. unfold F in H. rewrite !impl_sat in H. eapply H.
     - eapply IB_F1.
@@ -122,7 +122,7 @@ Section validity.
   Theorem BPCP_valid :
     BPCP R <-> valid F.
   Proof.
-    split.
+    rewrite BPCP_BPCP'. split.
     - intros [u H] D eta I rho.
       eapply (@drv_val _ _ I) in H. unfold F. cbn in *.
       rewrite !impl_sat in *. cbn in *.
@@ -163,7 +163,7 @@ Section validity.
   Qed.
 
   Lemma BPCP_prv' s :
-    BPCP R -> @prv s b nil F.
+    BPCP' R -> @prv s b nil F.
   Proof.
     intros [u H].
     apply drv_prv with (s:=s) in H. unfold F.
@@ -178,9 +178,9 @@ End validity.
 Theorem BPCP_prv R :
   BPCP R <-> nil ⊢M (F R).
 Proof.
-  split.
+  rewrite BPCP_BPCP'. split.
   - apply BPCP_prv'.
-  - intros H % soundness. now apply (BPCP_valid R).
+  - intros H % soundness. eapply BPCP_BPCP'. now apply (BPCP_valid R).
 Qed.
 
 (** ** Satisfiability *)
@@ -195,10 +195,10 @@ Qed.
 Theorem BPCP_satis R :
   ~ BPCP R <-> satis (¬ F R).
 Proof.
-  split.
+  rewrite BPCP_BPCP'. split.
   - intros H. exists _, (fun _ => nil), (IB R), (fun _ => nil).
     intros H'. cbn. apply H, (IB_F H').
-  - intros H1 H2 % (BPCP_valid R (b:=full)).
+  - rewrite <- BPCP_BPCP'. intros H1 H2 % (BPCP_valid R (b:=full)).
     apply (valid_satis H2), H1.
 Qed.
 

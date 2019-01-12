@@ -5,17 +5,17 @@ Feel free to contribute or start using the problems!
 
 ## Existing undecidable problems
 
-- Post correspondence problem (`PCP` in `PCP/Definitions.v`)
-- Halting problem for Turing machines (`Halt` in `PCP/singleTM.v`)
-- Halting problem for Minsky machines (`MM_HALTING` in `ILL/Mm/mm_defs.v`)
-- Halting problem for binary stack machines (`BSM_HALTING` in `ILL/Bsm/bsm_defs.v`)
-- Halting problem for the call-by-value lambda-calculus (`eva` in `L/L.v`)
-- String rewriting (`SR` in `PCP/Definitions.v`)
-- Entailment in elementary intuitionistic linear logic (`EILL_PROVABILITY` in `ILL/Ll/eill.v`)
-- Entailment in intuitionistic linear logic (`ILL_PROVABILITY` in `ILL/Ll/ill.v`)
-- Provability in minimal (intuitionistic, classical) first-order logic (`prv` in `FOL/Deduction.v`)
-- Validity in minimal (intuitionistic, classical) first-order logic (`valid` in `FOL/Semantics.v`, `kvalid` in `FOL/Kripke.v`)
-- Satisfiability in intuitionistic (classical) first-order logic (`satis` in `FOL/Semantics.v`, `ksatis` in `FOL/Kripke.v`)
+- Post correspondence problem (`PCP` in `Problems/PCP.v`)
+- Halting problem for Turing machines (`Halt` in `Problems/TM.v`)
+- Halting problem for Minsky machines (`MM_HALTING` in `Problems/MM.v`)
+- Halting problem for binary stack machines (`BSM_HALTING` in `Problems/BSM.v`)
+- Halting problem for the call-by-value lambda-calculus (`eva` in `Problems/L.v`)
+- String rewriting (`SR` in `Problems/SR.v`)
+- Entailment in elementary intuitionistic linear logic (`EILL_PROVABILITY` in `Problems/ILL.v`)
+- Entailment in intuitionistic linear logic (`ILL_PROVABILITY` in `Problems/ILL.v`)
+- Provability in minimal (intuitionistic, classical) first-order logic (`prv` in `Problems/FOL.v`)
+- Validity in minimal (intuitionistic, classical) first-order logic (`valid` in `Problems/FOL.v`, `kvalid` in `Problems/FOL.v`)
+- Satisfiability in intuitionistic (classical) first-order logic (`satis` in `Problems/FOL.v`, `ksatis` in `Problems/FOL.v`)
 
 ## How to build
 
@@ -29,8 +29,8 @@ Feel free to contribute or start using the problems!
 
 - Verification of PCP-Related Computational Reductions in Coq. Yannick Forster, Edith Heiter, and Gert Smolka. ITP 2018. Subdirectory `PCP`. https://ps.uni-saarland.de/extras/PCP 
 - Towards a library of formalised undecidable problems in Coq: The undecidability of intuitionistic linear logic. Yannick Forster and Dominique Larchey-Wendling. LOLA 2018. Subdirectory `ILL`. https://www.ps.uni-saarland.de/~forster/downloads/LOLA-2018-coq-library-undecidability.pdf 
--  Certified Undecidability of Intuitionistic Linear Logic via Binary Stack Machines and Minsky Machines. Yannick Forster and Dominique Larchey-Wendling. submitted for review. Subdirectory `ILL`. http://uds-psl.github.io/ill-undecidability/
--  On Synthetic Undecidability in Coq, with an Application to the Entscheidungsproblem. Yannick Forster, Dominik Kirst, and Gert Smolka. submitted for review. Subdirectory `FOL`. https://www.ps.uni-saarland.de/extras/fol-undec
+-  Certified Undecidability of Intuitionistic Linear Logic via Binary Stack Machines and Minsky Machines. Yannick Forster and Dominique Larchey-Wendling. CPP '19. Subdirectory `ILL`. http://uds-psl.github.io/ill-undecidability/
+-  On Synthetic Undecidability in Coq, with an Application to the Entscheidungsproblem. Yannick Forster, Dominik Kirst, and Gert Smolka. CPP '19. Subdirectory `FOL`. https://www.ps.uni-saarland.de/extras/fol-undec
 - Call-by-Value Lambda Calculus as a Model of Computation in Coq. Yannick Forster and Gert Smolka. Journal of Automated Reasoning (2018). https://www.ps.uni-saarland.de/extras/L-computability/
 
 ## How to contribute

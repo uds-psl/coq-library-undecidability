@@ -62,7 +62,7 @@ Section SR_to_MPCP.
     x <<= Sigma -> x ≻* y0 -> exists A, A <<= P /\ tau1 A = x ++ [#] ++ tau2 A.
   Proof.
     intros. revert H. pattern x; refine (rewt_induct _ _ H0).
-    - exists [e]. cbn. firstorder.
+    - exists [e]. cbn. firstorder. now simpl_list.
     - clear x H0. intros. inv H. destruct H1 as (A & ? & ?). repeat eapply incl_app; eauto.
       exists (cards x1 ++ [(u / v)] ++ cards y1 ++ [ [#] / [#] ] ++ A). split.
       + repeat (eapply incl_app); unfold P; eauto using cards_subset, rew_subset.
@@ -100,7 +100,7 @@ Section SR_to_MPCP.
       + cbn -[fresh] in *. rename x1 into a. destruct x.
         * inversion H2. edestruct hash_sig; eauto.
         * inv H2.
-          replace (y ++ s :: x) with ((y ++ [s]) ++ x) by now simpl_list.
+          replace (y ++ n :: x) with ((y ++ [n]) ++ x) by now simpl_list.
           eapply IHA; eauto. simpl_list. eassumption.
   Qed.
 

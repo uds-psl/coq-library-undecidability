@@ -1,15 +1,6 @@
 (** * Many-One Reductions *)
 
-Require Export DecidableEnumerable.
-
-Definition reduces X Y (p : X -> Prop) (q : Y -> Prop) := exists f : X -> Y, forall x, p x <-> q (f x).
-Notation "p ⪯ q" := (reduces p q) (at level 50).
-
-Lemma reduces_transitive X Y Z (p : X -> Prop) (q : Y -> Prop) (r : Z -> Prop) :
-  p ⪯ q -> q ⪯ r -> p ⪯ r.
-Proof.
-  intros [f ?] [g ?]. exists (fun x => g (f x)). firstorder.
-Qed.
+Require Export Problems.Reduction DecidableEnumerable.
 
 Lemma dec_red X (p : X -> Prop) Y (q : Y -> Prop) :
   p ⪯ q -> decidable q -> decidable p.

@@ -1,6 +1,6 @@
 (** * Tarski Semantics *)
 
-Require Export FOL.
+Require Export Undecidability.FOL.FOL.
 
 (** ** Variables and Substitutions *)
 

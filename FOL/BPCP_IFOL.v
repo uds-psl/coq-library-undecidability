@@ -14,9 +14,9 @@ Section kvalidity.
   Theorem BPCP_kprv :
     BPCP R <-> nil ⊢I (F R).
   Proof.
-    split.
+    rewrite BPCP_BPCP'. split.
     - apply BPCP_prv'.
-    - intros H % ksoundness'. now apply (BPCP_valid R), kvalid_valid.
+    - intros H % ksoundness'. rewrite <- BPCP_BPCP'. now apply (BPCP_valid R), kvalid_valid.
   Qed.
 
   Theorem BPCP_kvalid :
