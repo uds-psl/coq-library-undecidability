@@ -5,17 +5,17 @@ Feel free to contribute or start using the problems!
 
 ## Existing undecidable problems
 
-- Post correspondence problem (`PCP` in `Problems/PCP.v`)
-- Halting problem for Turing machines (`Halt` in `Problems/TM.v`)
-- Halting problem for Minsky machines (`MM_HALTING` in `Problems/MM.v`)
-- Halting problem for binary stack machines (`BSM_HALTING` in `Problems/BSM.v`)
-- Halting problem for the call-by-value lambda-calculus (`eva` in `Problems/L.v`)
-- String rewriting (`SR` in `Problems/SR.v`)
-- Entailment in elementary intuitionistic linear logic (`EILL_PROVABILITY` in `Problems/ILL.v`)
-- Entailment in intuitionistic linear logic (`ILL_PROVABILITY` in `Problems/ILL.v`)
-- Provability in minimal (intuitionistic, classical) first-order logic (`prv` in `Problems/FOL.v`)
-- Validity in minimal (intuitionistic, classical) first-order logic (`valid` in `Problems/FOL.v`, `kvalid` in `Problems/FOL.v`)
-- Satisfiability in intuitionistic (classical) first-order logic (`satis` in `Problems/FOL.v`, `ksatis` in `Problems/FOL.v`)
+- Post correspondence problem (`PCP` in [`Problems/PCP.v`](Problems/PCP.v))
+- Halting problem for Turing machines (`Halt` in [`Problems/TM.v`](Problems/TM.v))
+- Halting problem for Minsky machines (`MM_HALTING` in [`Problems/MM.v`](Problems/MM.v))
+- Halting problem for Binary Stack Machines (`BSM_HALTING` in [`Problems/BSM.v`](Problems/BSM.v))
+- Halting problem for the call-by-value lambda-calculus (`eva` in [`Problems/L.v`](Problems/L.v))
+- String rewriting (`SR` in [`Problems/SR.v`](Problems/SR.v))
+- Entailment in Elementary Intuitionistic Linear Logic (`EILL_PROVABILITY` in [`Problems/ILL.v`](Problems/ILL.v))
+- Entailment in Intuitionistic Linear Logic (`ILL_PROVABILITY` in [`Problems/ILL.v`](Problems/ILL.v))
+- Provability in Minimal (Intuitionistic, Classical) First-Order Logic (`prv` in [`Problems/FOL.v`](Problems/FOL.v))
+- Validity in Minimal (Intuitionistic, Classical) First-Order Logic (`valid` in [`Problems/FOL.v`](Problems/FOL.v), `kvalid` in [`Problems/FOL.v`](Problems/FOL.v))
+- Satisfiability in Intuitionistic (Classical) First-Order Logic (`satis` in [`Problems/FOL.v`](Problems/FOL.v), `ksatis` in [`Problems/FOL.v`](Problems/FOL.v))
 
 ## How to build
 
