@@ -22,14 +22,14 @@ Section vector.
     | vec_nil  : vec 0
     | vec_cons : forall n, X -> vec n -> vec (S n).
 
-  Let vec_split_type n := 
+  Let vec_decomp_type n := 
     match n with
       | 0   => Prop
       | S n => (X * vec n)%type
     end.
 
-  Definition vec_split n (v : vec n) : vec_split_type n :=
-    match v in vec k return vec_split_type k with
+  Definition vec_decomp n (v : vec n) :=
+    match v in vec k return vec_decomp_type k with
       | vec_nil  => False
       | @vec_cons n x v => (x,v)
     end.
@@ -183,11 +183,115 @@ Arguments vec_nil { X }.
 
 Infix "##" := vec_cons (at level 60, right associativity).
 
-Fixpoint vec_map X Y (f : X -> Y) n (v : vec X n) :=
-  match v with 
-    | vec_nil => vec_nil
-    | x ## v  => f x ## vec_map f v 
-  end.
+Section vec_app_split.
+
+  Variable (X : Type) (n m : nat).
+
+  Definition vec_app (v : vec X n) (w : vec X m) : vec X (n+m).
+  Proof. 
+    apply vec_set_pos; intros p.
+    destruct (pos_both _ _ p) as [ q | q ]; refine (vec_pos _ q); assumption.
+  Defined.
+
+  Definition vec_split (v : vec X (n+m)) : vec X n * vec X m.
+  Proof.
+    split; apply vec_set_pos; intros p; refine (vec_pos v _).
+    + apply pos_left, p.
+    + apply pos_right, p.
+  Defined.
+
+  Fact vec_app_split u : let (v,w) := vec_split u in vec_app v w = u.
+  Proof.
+    case_eq (vec_split u); intros v w; unfold vec_split, vec_app; intros H.
+    injection H; clear H; intros Hw Hv.
+    apply vec_pos_ext; unfold vec_app; simpl.
+    intros p; rewrite vec_pos_set. 
+    case_eq (pos_both n m p); intros q Hq.
+    + rewrite <- Hv, vec_pos_set; f_equal.
+      apply f_equal with (f := @pos_lr _ _) in Hq.
+      simpl in Hq; rewrite <- Hq; apply pos_lr_both.
+    + rewrite <- Hw, vec_pos_set; f_equal.
+      apply f_equal with (f := @pos_lr _ _) in Hq.
+      simpl in Hq; rewrite <- Hq; apply pos_lr_both.
+  Qed.
+
+  Fact vec_split_app v w : vec_split (vec_app v w) = (v,w).
+  Proof.
+    unfold vec_split, vec_app; f_equal; apply vec_pos_ext; intros p; repeat rewrite vec_pos_set.
+    + rewrite pos_both_left; auto.
+    + rewrite pos_both_right; auto.
+  Qed.
+
+  Fact vec_pos_app_left v w i : vec_pos (vec_app v w) (pos_left _ i) = vec_pos v i.
+  Proof. unfold vec_app; rewrite vec_pos_set, pos_both_left; auto. Qed.
+
+  Fact vec_pos_app_right v w i : vec_pos (vec_app v w) (pos_right _ i) = vec_pos w i.
+  Proof. unfold vec_app; rewrite vec_pos_set, pos_both_right; auto. Qed.
+
+End vec_app_split.
+
+Fact vec_app_nil X n v : @vec_app X 0 n vec_nil v = v.
+Proof.
+  apply vec_pos_ext; unfold vec_app; simpl; intros p.
+  rewrite vec_pos_set; auto.
+Qed.
+
+Fact vec_app_cons X n m x v w : @vec_app X (S n) m (x##v) w = x##vec_app v w.
+Proof.
+  apply vec_pos_ext; unfold vec_app; intros p.
+  rewrite vec_pos_set; simpl in p.
+  analyse pos p.
+  + simpl; auto.
+  + simpl vec_pos at 3; rewrite vec_pos_set.
+    simpl pos_both.
+    destruct (pos_both n m p); auto.
+Qed.
+
+Section vec_map.
+
+  Variable (X Y : Type) (f : X -> Y). 
+
+  Fixpoint vec_map n (v : vec X n) :=
+    match v with 
+      | vec_nil => vec_nil
+      | x ## v  => f x ## vec_map v 
+    end.
+
+End vec_map.
+
+Section vec_map2.
+
+  (* Definitions taken from stdlib *)
+  
+  Definition case0 {A} (P:vec A 0 -> Type) (H:P (@vec_nil A)) v:P v :=
+    match v with
+    |vec_nil => H
+    |_ => fun devil => False_ind (@IDProp) devil (* subterm !!! *)
+    end.
+
+  Definition caseS' {A} {n : nat} (v : vec A (S n)) : forall (P : vec A (S n) -> Type)
+                                                      (H : forall h t, P (h ## t)), P v :=
+    match v with
+    | h ## t => fun P H => H h t
+    | _ => fun devil => False_rect (@IDProp) devil
+    end.
+
+  Definition rect2 {A B} (P:forall {n}, vec A n -> vec B n -> Type)
+             (bas : P vec_nil vec_nil) (recvec : forall {n v1 v2}, P v1 v2 ->
+                                                              forall a b, P (a ## v1) (b ## v2)) :=
+    fix rect2_fix {n} (v1 : vec A n) : forall v2 : vec B n, P v1 v2 :=
+      match v1 with
+      | vec_nil => fun v2 => case0 _ bas v2
+      | @vec_cons _ n' h1 t1 => fun v2 =>
+                                 caseS' v2 (fun v2' => P (h1##t1) v2') (fun h2 t2 => recvec (rect2_fix t1 t2) h1 h2)
+      end.
+
+  Definition vec_map2 {A B C} (g:A -> B -> C) :
+    forall (n : nat), vec A n -> vec B n -> vec C n :=
+    @rect2 _ _ (fun n _ _ => vec C n) (@vec_nil C) (fun _ _ _ H a b => (g a b) ## H).
+  Global Arguments vec_map2 {A B C} g {n} v1 v2.
+
+End vec_map2.
 
 Fact vec_pos_map X Y (f : X -> Y) n (v : vec X n) p : vec_pos (vec_map f v) p = f (vec_pos v p).
 Proof.
@@ -287,7 +391,12 @@ Tactic Notation "rew" "vec" :=
     | |- context[ vec_plus ?x vec_zero ] => rewrite (vec_plus_comm x vec_zero); rewrite vec_zero_plus with (v := x)
     | |- vec_plus ?x ?y = vec_plus ?y ?x => apply vec_plus_comm
   end; auto.
-  
+
+Tactic Notation "vec" "split" hyp(v) "with" ident(n) :=
+  rewrite (vec_head_tail v); generalize (vec_head v) (vec_tail v); clear v; intros n v.
+
+Tactic Notation "vec" "nil" hyp(v) := rewrite (vec_0_nil v).
+
 Fact vec_zero_S n : @vec_zero (S n) = 0##vec_zero.
 Proof. auto. Qed.
 
@@ -473,3 +582,71 @@ Proof.
   exists vec_nil; auto.
   exists (x##v); simpl; f_equal; auto.
 Qed.
+
+Fact vec_reif X n (R : pos n -> X -> Prop) : (forall p, ex (R p)) -> exists v, forall p, R p (vec_pos v p).
+Proof.
+  intros H.
+  apply pos_reification in H.
+  destruct H as (f & Hf).
+  exists (vec_set_pos f).
+  intro; rewrite vec_pos_set; trivial.
+Qed.
+
+Fact vec_reif_t X n (R : pos n -> X -> Prop) : (forall p, sig (R p)) -> { v | forall p, R p (vec_pos v p) }.
+Proof.
+  intros H.
+  apply pos_reif_t in H.
+  destruct H as (f & Hf).
+  exists (vec_set_pos f).
+  intro; rewrite vec_pos_set; trivial.
+Qed.
+
+Section fun2vec.
+
+  Variable X : Type.
+
+  Fixpoint fun2vec i n f : vec X _ :=
+    match n with 
+      | 0   => vec_nil
+      | S n => f i##fun2vec (S i) n f
+    end.
+
+  Fact fun2vec_id i n f : fun2vec i n f = vec_set_pos (fun p => f (i+pos2nat p)).
+  Proof.
+    revert i; induction n as [ | n IHn ]; intros i; simpl; f_equal; auto.
+    rewrite IHn.
+    apply vec_pos_ext; intros; do 2 rewrite vec_pos_set; f_equal.
+    rewrite pos2nat_nxt; omega.
+  Qed.
+
+  Fact fun2vec_lift i n f : fun2vec i n (fun j => f (S j)) = fun2vec (S i) n f.
+  Proof. revert i f; induction n; intros; simpl; f_equal; auto. Qed.
+
+  Fact vec_pos_fun2vec i n f p : vec_pos (fun2vec i n f) p = f (i+pos2nat p).
+  Proof. rewrite fun2vec_id, vec_pos_set; auto. Qed.
+
+  Definition vec2fun n (v : vec X n) x i := 
+    match le_lt_dec n i with
+      | left  _ => x
+      | right H => vec_pos v (nat2pos H)
+    end.
+
+  Fact fun2vec_vec2fun n v x : fun2vec 0 n (@vec2fun n v x) = v.
+  Proof.
+    apply vec_pos_ext.
+    intros p; rewrite vec_pos_fun2vec; simpl.
+    unfold vec2fun.
+    generalize (pos2nat_prop p).
+    destruct (le_lt_dec n (pos2nat p)); try omega. 
+    rewrite nat2pos_pos2nat; auto.
+  Qed.
+
+  Fact vec2fun_fun2vec n f x i : i < n -> @vec2fun n (fun2vec 0 n f) x i = f i.
+  Proof.
+    intros H.
+    unfold vec2fun.
+    destruct (le_lt_dec n i); try omega.
+    rewrite vec_pos_fun2vec, pos2nat_nat2pos; auto.
+  Qed. 
+
+End fun2vec.

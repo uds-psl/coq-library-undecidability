@@ -63,9 +63,42 @@ Section list_an.
     revert a; induction n as [ | n IHn ]; simpl; intros a; [ | rewrite IHn ]; omega. 
   Qed.
 
+  Fact map_S_list_an a n : map S (list_an a n) = list_an (S a) n.
+  Proof. revert a; induction n; simpl; intro; f_equal; auto. Qed.
+
+  Fact list_an_app_inv a n l r : list_an a n = l++r -> l = list_an a (length l) /\ r = list_an (a+length l) (length r).
+  Proof.
+    revert a l r; induction n as [ | n IHn ]; intros a l r; simpl.
+    + destruct l; destruct r; intros; auto; discriminate.
+    + destruct l as [ | x l ]; simpl; intros H1.
+      * split; auto.
+        rewrite <- H1; simpl; rewrite Nat.add_0_r, list_an_length; auto.
+      * injection H1; clear H1; intros H1 H0.
+        apply IHn in H1; destruct H1; split; f_equal; auto.
+        rewrite H1 at 1; f_equal; omega.
+  Qed.
+
 End list_an.
 
 Hint Rewrite list_an_length : length_db.
+
+Definition list_fun_inv X (l : list X) (x : X) : { f : nat -> X | l = map f (list_an 0 (length l)) }.
+Proof.
+  induction l as [ | y l IHl ].
+  + exists (fun _ => x); auto.
+  + destruct IHl as (f & Hf).
+    exists (fun i => match i with 0 => y | S i => f i end); simpl.
+    f_equal.
+    rewrite Hf, <- map_S_list_an, map_length, list_an_length, map_map; auto.
+Qed.
+
+Fact list_upper_bound (l : list nat) : { m | forall x, In x l -> x < m }.
+Proof.
+  induction l as [ | x l (m & Hm) ].
+  + exists 0; simpl; tauto.
+  + exists (1+x+m); intros y [ [] | H ]; simpl; try omega.
+    generalize (Hm _ H); intros; omega.
+Qed.
 
 Section list_injective.
 
@@ -139,6 +172,12 @@ Section iter.
   Fact iter_plus x a b : iter x (a+b) = iter (iter x a) b.
   Proof. revert x; induction a; intros x; simpl; auto. Qed.
 
+  Fact iter_swap x n : iter (f x) n = f (iter x n).
+  Proof. 
+    change (iter (f x) n) with (iter x (1+n)).
+    rewrite plus_comm, iter_plus; auto.
+  Qed.
+
 End iter.
 
 Fixpoint list_repeat X (x : X) n :=
@@ -171,11 +210,6 @@ Proof. induction ll; simpl; f_equal; auto. Qed.
 
 Fact map_cst_rev  X Y (y : Y) ll : map (fun _ : X => y) (rev ll) = map (fun _ => y) ll.
 Proof. do 2 rewrite map_cst_repeat; rewrite rev_length; auto. Qed.
-
-Fact flat_map_app X Y (f : X -> list Y) l1 l2 : flat_map f (l1++l2) = flat_map f l1 ++ flat_map f l2.
-Proof.
-  induction l1; simpl; auto; solve list eq; f_equal; auto.
-Qed.
 
 Fact In_perm X (x : X) l : In x l -> exists m, x::m ~p l.
 Proof.
@@ -254,6 +288,33 @@ Proof.
   inversion H4; subst; rewrite <- app_nil_end; auto.
   inversion H4; subst; destruct H2; apply in_or_app; right; left; auto.
 Qed.
+
+Section flat_map.
+
+  Variable (X Y : Type) (f : X -> list Y).
+
+  Fact flat_map_app l1 l2 : flat_map f (l1++l2) = flat_map f l1 ++ flat_map f l2.
+  Proof.
+    induction l1; simpl; auto; solve list eq; f_equal; auto.
+  Qed.
+
+  Fact flat_map_app_inv l r1 y r2 : flat_map f l = r1++y::r2 -> exists l1 m1 x m2 l2, l = l1++x::l2 /\ f x = m1++y::m2 
+                                                                  /\ r1 = flat_map f l1++m1 /\ r2 = m2++flat_map f l2. 
+  Proof.
+    revert r1 y r2.
+    induction l as [ | x l IHl ]; intros r1 y r2 H.
+    + destruct r1; discriminate.
+    + simpl in H.
+      apply list_app_cons_eq_inv in H.
+      destruct H as [ (m & Hm1 & Hm2) | (m & Hm1 & Hm2) ].
+      - apply IHl in Hm2.
+        destruct Hm2 as (l1 & m1 & x' & m2 & l2 & G1 & G2 & G3 & G4); subst.
+        exists (x::l1), m1, x', m2, l2; simpl; repeat (split; auto).
+        rewrite app_ass; auto.
+      - exists nil, r1, x, m, l; auto.
+  Qed.
+
+End flat_map.
 
 Definition prefix X (l ll : list X) := exists r, ll = l++r.
   
@@ -605,6 +666,13 @@ Proof.
   apply in_app_or in Hx; firstorder.
 Qed.
 
+Fact Forall_cons_inv X (P : X -> Prop) x ll : Forall P (x::ll) <-> P x /\ Forall P ll.
+Proof.
+  split.
+  + inversion 1; auto.
+  + constructor; tauto.
+Qed.
+
 Fact Forall_rev X (P : X -> Prop) ll : Forall P ll -> Forall P (rev ll).
 Proof.
   induction 1 as [ | x ll Hll IH ].
@@ -612,4 +680,34 @@ Proof.
   simpl.
   apply Forall_app; split; auto.
 Qed.
+
+Fact Forall_map X Y (f : X -> Y) (P : Y -> Prop) ll : Forall P (map f ll) <-> Forall (fun x => P (f x)) ll.
+Proof.
+  split.
+  + induction ll; simpl; try rewrite Forall_cons_inv; constructor; tauto.
+  + induction 1; simpl; constructor; auto.
+Qed.
+
+Fact Forall_forall_map X (f : nat -> X) n l (P : X -> Prop) :
+           l = map f (list_an 0 n) -> (forall i, i < n -> P (f i)) <-> Forall P l.
+Proof.
+  intros Hl; rewrite Forall_forall.
+  split.
+  + intros H x; rewrite Hl, in_map_iff.
+    intros (y & ? & H1).
+    apply list_an_spec in H1; subst; apply H; omega.
+  + intros H x Hx; apply H; rewrite Hl, in_map_iff.
+    exists x; split; auto; apply list_an_spec; omega.
+Qed.
+
+Fact Forall_impl X (P Q : X -> Prop) ll : (forall x, In x ll -> P x -> Q x) -> Forall P ll -> Forall Q ll.
+Proof.
+  intros H; induction 1 as [ | x ll Hx Hll IH ]; constructor.
+  + apply H; simpl; auto.
+  + apply IH; intros ? ?; apply H; simpl; auto.
+Qed.
+
+Fact Forall_filter X (P : X -> Prop) (f : X -> bool) ll : Forall P ll -> Forall P (filter f ll).
+Proof. induction 1; simpl; auto; destruct (f x); auto. Qed.
+
 

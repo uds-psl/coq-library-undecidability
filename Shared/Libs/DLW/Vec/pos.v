@@ -9,6 +9,8 @@
 
 Require Import List Arith Omega.
 
+Require Import utils.
+
 Set Implicit Arguments.
 
 Inductive pos : nat -> Set :=
@@ -134,8 +136,91 @@ Ltac pos_inv p :=
 
 Tactic Notation "invert" "pos" hyp(H) := pos_inv H; simpl.
 
+Ltac analyse_pos p := 
+  match type of p with
+    | pos 0     => pos_inv p
+    | pos (S _) => pos_inv p; [ | try analyse_pos p ]
+  end. 
+
+Tactic Notation "analyse" "pos" hyp(p) := analyse_pos p.
+
 Definition pos_O_any X : pos 0 -> X.
 Proof. intro p; invert pos p. Qed.
+
+Fixpoint pos_left n m (p : pos n) : pos (n+m) :=
+  match p with
+    | pos_fst   => pos_fst
+    | pos_nxt p => pos_nxt (pos_left m p)
+  end.
+
+Fixpoint pos_right n m : pos m -> pos (n+m) :=
+  match n with 
+    | 0   => fun x => x
+    | S n => fun p => pos_nxt (pos_right n p)
+  end.
+
+Definition pos_both n m : pos (n+m) -> pos n + pos m.
+Proof.
+  induction n as [ | n IHn ]; intros p.
+  + right; exact p.
+  + simpl in p; pos_inv p.
+    * left; apply pos_fst.
+    * destruct (IHn p) as [ a | b ].
+      - left; apply (pos_nxt a).
+      - right; apply b.
+Defined.
+
+Definition pos_lr n m : pos n + pos m -> pos (n+m).
+Proof.
+  intros [ p | p ]; revert p.
+  + apply pos_left.
+  + apply pos_right.
+Defined.
+
+Fact pos_both_left n m p : @pos_both n m (@pos_left n m p) = inl p.
+Proof.
+  induction p as [ | n p IHp ]; simpl; auto.
+  rewrite IHp; auto.
+Qed.
+
+Fact pos_both_right n m p : @pos_both n m (@pos_right n m p) = inr p.
+Proof.
+  revert p; induction n as [ | n IHn]; intros p; simpl; auto.
+  rewrite IHn; auto.
+Qed.
+
+(** A bijection between pos n + pos m <-> pos (n+m) **)
+
+Fact pos_both_lr n m p : @pos_both n m (pos_lr p) = p.
+Proof.
+  destruct p as [ p | p ].
+  + apply pos_both_left.
+  + apply pos_both_right.
+Qed.
+
+Fact pos_lr_both n m p : pos_lr (@pos_both n m p) = p.
+Proof.
+  revert p; induction n as [ | n IHn ]; intros p; auto.
+  simpl in p; pos_inv p; simpl; auto.
+  specialize (IHn p).
+  destruct (pos_both n m p); simpl in *; f_equal; auto.
+Qed.
+
+Section pos_left_right_rect.
+
+  Variable (n m : nat) (P : pos (n+m) -> Type).
+
+  Hypothesis (HP1 : forall p, P (pos_left _ p))
+             (HP2 : forall p, P (pos_right _ p)).
+
+  Theorem pos_left_right_rect : forall p, P p.
+  Proof.
+    intros p.
+    rewrite <- pos_lr_both.
+    generalize (pos_both n m p); clear p; intros [|]; simpl; auto.
+  Qed.
+
+End pos_left_right_rect.
 
 Fixpoint pos_list n : list (pos n) :=
   match n with
@@ -282,7 +367,7 @@ Section pos_nat.
   Fact pos2nat_inj n (p q : pos n) : pos2nat p = pos2nat q -> p = q.
   Proof.
     revert q.
-    induction p as [ n p | n p IHp ]; intros q; invert pos q; simpl; auto; try discriminate 1.
+    induction p as [ n | n p IHp ]; intros q; invert pos q; simpl; auto; try discriminate 1.
     intros H; f_equal; apply IHp; injection H; trivial.
   Qed.
 
@@ -304,7 +389,16 @@ Section pos_nat.
   
   Fact pos2nat_nxt n p : pos2nat (@pos_nxt n p) = S (pos2nat p).
   Proof. auto. Qed. 
-  
+
+  Fact pos2nat_left n m p : pos2nat (@pos_left n m p) = pos2nat p.
+  Proof. induction p; simpl; auto. Qed.
+
+  Fact pos2nat_right n m p : pos2nat (@pos_right n m p) = n+pos2nat p.
+  Proof.
+    revert m p; induction n as [ | n IHn ]; intros m p; auto.
+    simpl pos_right; simpl plus; rewrite pos2nat_nxt; f_equal; auto.
+  Qed.
+
   Fixpoint pos_sub n (p : pos n) { struct p } : forall m, n < m -> pos m.
   Proof.
     destruct p as [ | n p ]; intros [ | m ] Hm.
@@ -323,6 +417,17 @@ Section pos_nat.
   Qed.
   
 End pos_nat.
+
+Global Opaque pos_nat.
+
+Fact pos_list2nat n : map (@pos2nat n) (pos_list n) = list_an 0 n.
+Proof.
+  induction n as [ | n IHn ]; simpl; f_equal.
+  rewrite <- (map_S_list_an 0), <- IHn.
+  do 2 rewrite map_map.
+  apply map_ext.
+  intros; rewrite pos2nat_nxt; auto.
+Qed.
 
 Section pos_prod.
   
@@ -352,5 +457,4 @@ Section pos_prod.
   Qed.
   
 End pos_prod.
-
 

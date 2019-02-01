@@ -5,6 +5,32 @@
 COQDOCFLAGS = "--charset utf-8 --parse-comments -s --with-header ./website/resources/header.html --with-footer ./website/resources/footer.html --index indexpage"
 
 Shared/Prelim.v
+
+Shared/Libs/DLW/Utils/focus.v
+Shared/Libs/DLW/Utils/utils_tac.v
+Shared/Libs/DLW/Utils/list_focus.v
+Shared/Libs/DLW/Utils/utils_list.v
+Shared/Libs/DLW/Utils/utils_nat.v
+Shared/Libs/DLW/Utils/utils_string.v
+Shared/Libs/DLW/Utils/utils.v
+Shared/Libs/DLW/Utils/bool_nat.v
+Shared/Libs/DLW/Utils/bool_list.v
+Shared/Libs/DLW/Utils/bounded_quantification.v
+Shared/Libs/DLW/Utils/sorting.v
+Shared/Libs/DLW/Utils/utils_decidable.v
+Shared/Libs/DLW/Utils/gcd.v
+Shared/Libs/DLW/Utils/prime.v
+Shared/Libs/DLW/Utils/binomial.v
+Shared/Libs/DLW/Utils/sums.v
+Shared/Libs/DLW/Utils/php.v
+Shared/Libs/DLW/Utils/interval.v
+Shared/Libs/DLW/Utils/rel_iter.v
+Shared/Libs/DLW/Utils/power_decomp.v
+
+
+Shared/Libs/DLW/Vec/pos.v
+Shared/Libs/DLW/Vec/vec.v
+
 Problems/Reduction.v
 Problems/PCP.v
 
@@ -52,18 +78,6 @@ ILL/Definitions.v
 ILL/PCP_BPCP.v
 ILL/BPCP_iBPCP.v
 
-ILL/Utils/focus.v
-
-ILL/Utils/utils_tac.v
-ILL/Utils/list_focus.v
-ILL/Utils/utils_list.v
-ILL/Utils/utils_nat.v
-ILL/Utils/utils_string.v
-ILL/Utils/utils.v
-
-ILL/Vec/pos.v
-ILL/Vec/vec.v
-
 ILL/Code/subcode.v
 ILL/Code/sss.v
 ILL/Code/compiler.v
@@ -94,6 +108,8 @@ ILL/EILL_ILL.v
 ILL/MM_EILL.v
 
 ILL/UNDEC.v
+
+#H10/
 
 Problems/FOL.v
 Problems/cbvLambda.v
