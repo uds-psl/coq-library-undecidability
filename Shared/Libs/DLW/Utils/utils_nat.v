@@ -13,6 +13,92 @@ Require Import list_focus utils_tac utils_list.
 
 Set Implicit Arguments.
 
+Section fin_reif.
+
+  Variable (X : Type) (R : nat -> X -> Prop).
+
+  Fact fin_reif n : (forall i, i < n -> exists x, R i x)
+                 -> exists s, forall i (Hi : i < n), R i (s i Hi).
+  Proof.
+    revert R; induction n as [ | n IHn ]; intros R HR.
+    + assert (s : forall x, x < 0 -> X) by (intros; omega).
+      exists s; intros; omega.
+    + destruct (HR 0) as (x & Hx); try omega.
+      destruct IHn with (R := fun i x => R (S i) x) as (s & Hs).
+      { intros; apply HR; omega. }
+      exists (fun i => match i with 0 => fun _ => x | S i => fun Hi => s i (lt_S_n i n Hi) end).
+      intros [ | i ] Hi; simpl; auto.
+  Qed.
+
+End fin_reif.
+
+Fact fin_reif_nat (R : nat -> nat -> Prop) n :
+         (forall i, i < n -> ex (R i)) -> exists s, forall i, i < n -> R i (s i).
+Proof.
+  intros HR.
+  apply fin_reif in HR.
+  destruct HR as (s & Hs).
+  exists (fun i => match le_lt_dec n i with left _ => 0 | right H => s _ H end).
+  intros i Hi; destruct (le_lt_dec n i); auto; omega.
+Qed.
+
+Section bounded_search.
+
+  Theorem bounded_search m (P : nat -> Type) :
+        (forall n, n < m -> P n + (P n -> False))
+     -> { n : nat & (n < m) * P n }%type + { forall n, n < m -> P n -> False }.
+  Proof.
+    revert P; induction m as [ | m IHm ]; intros P HP.
+    + right; intros; omega.
+    + destruct (HP 0) as [ H0 | H0 ]; try omega.
+      * left; exists 0; split; auto; omega.
+      * destruct IHm with (P := fun n => P (S n)) as [ (n & H1 & H2) | H1 ].
+        - intros; apply HP; omega.
+        - left; exists (S n); split; auto; omega.
+        - right; intros [ | n ] Hn; auto.
+          apply H1; omega.
+  Qed.
+
+  Lemma bounded_min (P : nat -> Prop) : 
+        (forall x, P x \/ ~ P x) 
+     -> forall n, (exists k, k < n /\ P k /\ forall i, i < k -> ~ P i) \/ forall k, k < n -> ~ P k.
+  Proof.
+    intros HP.
+    induction n as [ | n IHn ].
+    + right; intros; omega.
+    + destruct IHn as [ (k & H1 & H2 & H3) | H ].
+      * left; exists k; repeat split; auto; omega.
+      * destruct (HP n).
+        - left; exists n; repeat split; auto.
+        - right; intros k Hk.
+          destruct (eq_nat_dec k n); subst; auto. 
+          apply H; omega.
+  Qed.
+
+  Lemma minimize (P : nat -> Prop) : (forall x, P x \/ ~ P x) -> (exists n, P n) -> exists n, P n /\ forall i, i < n -> ~ P i.
+  Proof.
+    intros HP (n & Hn).
+    destruct (@bounded_min _ HP (S n)) as [ (k & H1 & H2 & H3) | H ].
+    + exists k; split; auto.
+    + exfalso; apply H with n; auto.
+  Qed.
+   
+  Lemma first_non_zero (f : nat -> nat) n : f 0 = 0 -> f n <> 0 -> exists i, i < n /\ (forall k, k <= i -> f k = 0) /\ f (i+1) <> 0.
+  Proof.
+    intros H0 H1.
+    destruct (@minimize (fun i => f i <> 0)) as (i & H2 & H3).
+    + intro; destruct (eq_nat_dec (f x) 0); omega.
+    + exists n; auto.
+    + assert (i <> 0) as Hi by (intro; subst; destruct H2; auto).
+      exists (i-1); split; [ | split ].
+      * destruct (le_lt_dec i n) as [ | H4 ]; try omega.
+        apply H3 in H4; destruct H4; auto.
+      * intros k Hk; generalize (H3 k); intros; omega.
+      * replace (i-1+1) with i by omega; auto.
+  Qed.
+
+End bounded_search.
+
 Fact interval_dec a b i : { a <= i < b } + { i < a \/ b <= i }.
 Proof.
   destruct (le_lt_dec b i).
@@ -22,8 +108,25 @@ Proof.
   right; omega.
 Qed.
 
+(* Fact interval_dec a b n : { a <= n < b } + { ~ a <= n < b }.
+Proof.
+  destruct (le_lt_dec a n).
+  2: right; omega.
+  destruct (le_lt_dec b n).
+  1: right; omega.
+  left; omega.
+Qed. *)
+
+
 Definition lsum := fold_right plus 0.
 Definition lmax := fold_right max 0.
+
+Fact lmax_spec l x : lmax l <= x <-> Forall (fun y => y <= x) l.
+Proof.
+  revert x; induction l as [ | y l IHl ]; simpl.
+  + split; auto; try omega.
+  + intros x; rewrite Forall_cons_inv, <- IHl, Nat.max_lub_iff; tauto.
+Qed.
 
 Fact lsum_app l r : lsum (l++r) = lsum l+lsum r.
 Proof.
@@ -341,3 +444,105 @@ Proof.
   spec in H0; repeat split; auto; intro; omega.
 Qed.
 
+Theorem nat_rev_ind (P : nat -> Prop) (HP : forall n, P (S n) -> P n) x y : x <= y -> P y -> P x.
+Proof. induction 1; auto. Qed.
+
+Section nat_rev_bounded_ind.
+
+  Variables (k : nat) (P : nat -> Prop) (HP : forall n, S n <= k -> P (S n) -> P n).
+  
+  Fact nat_rev_bounded_ind x y : x <= y <= k -> P y -> P x.
+  Proof.
+    intros H1 H2.
+    refine (proj1 (@nat_rev_ind (fun n => P n /\ n <= k) _ x y _ _)).
+    clear x y H1 H2; intros n (H1 & H2); split; auto;omega.
+    omega.
+    split; auto; omega.
+  Qed.
+
+End nat_rev_bounded_ind.
+
+Section nat_minimize.
+
+  Variable P : nat -> Prop.
+  Hypothesis HP : forall n, { P n } + { ~ P n }.
+
+  Local Inductive bar_min (n : nat) : Prop :=
+    | in_bar_min_0 : P n -> bar_min n
+    | in_bar_min_1 : bar_min (S n) -> bar_min n.
+
+  Section nat_min.
+
+    Let min_rec : forall n, bar_min n -> { m | P m /\ forall x, P x -> x < n \/ m <= x }.
+    Proof.
+      refine (fix loop n Hn := match HP n with
+        | left H  => exist _ n _
+        | right H => match loop (S n) _ with
+          | exist _ m Hm => exist _ m _
+        end
+      end).
+      * split; auto; intros; omega.
+      * destruct Hn; auto; destruct H; auto.
+      * destruct Hm as [ H1 H2 ]; split; auto.
+        intros x Hx; specialize (H2 x Hx).
+        destruct (eq_nat_dec x n).
+        - subst; tauto.
+        - omega.
+    Qed.
+
+    Definition min_dec : (exists n, P n) -> { m | P m /\ forall x, P x -> m <= x }.
+    Proof.
+      intros H.
+      destruct (@min_rec 0) as (m & H1 & H2).
+      * destruct H as (n & Hn).
+        apply in_bar_min_0 in Hn.
+        revert Hn; apply nat_rev_ind.
+        apply in_bar_min_1.
+        omega.
+      * exists m; split; auto.
+        intros x Hx; specialize (H2 _ Hx); omega.
+    Defined.
+
+  End nat_min.
+
+  Fact first_which : (exists x, P x) -> { m | P m /\ forall x, x < m -> ~ P x }.
+  Proof.
+    intros H.
+    destruct (min_dec H) as (m & H1 & H2).
+    exists m; split; auto.
+    intros x Hx H3.
+    apply H2 in H3.
+    omega.
+  Qed.
+
+End nat_minimize.
+
+Section first_which_ni.
+
+  Variable P : nat -> Prop.
+
+  Fact bounded_search_ni n : (forall i, i < n -> P i \/ ~ P i) -> (forall i, i < n -> ~ P i) \/ exists i, i < n /\ P i /\ forall j, j < i -> ~ P j.
+  Proof.
+    revert P; induction n as [ | n IHn ]; intros P HP.
+    + left; intros; omega.
+    + destruct (HP 0) as [ H | H ]; try omega.
+      - right; exists 0; split; try omega; split; auto; intros; omega.
+      - destruct IHn with (P := fun n => P (S n)) as [ H1 | (x & H1 & H2 & H3) ].
+        * intros; apply HP; omega.
+        * left; intros [] ?; auto; apply H1; omega.
+        * right; exists (S x); split; try omega; split; auto.
+          intros [] ?; auto; apply H3; omega.
+  Qed.
+  
+  Hypothesis HP : forall n, P n \/ ~ P n.
+
+  Fact first_which_ni : (exists x, P x) -> exists m, P m /\ forall x, x < m -> ~ P x.
+  Proof.
+    intros (n & Hn).
+    destruct (@bounded_search_ni (S n)) as [ H1 | (m & H1 & H2 & H3) ].
+    + intros; auto.
+    + contradict Hn; apply H1; omega.
+    + exists m; auto.
+  Qed.
+
+End first_which_ni.
