@@ -109,7 +109,15 @@ ILL/MM_EILL.v
 
 ILL/UNDEC.v
 
-#H10/
+H10/ArithLibs/matrix.v
+H10/ArithLibs/Zp.v
+H10/ArithLibs/luca.v
+
+H10/Matija/alpha.v
+H10/Matija/expo_diophantine.v
+H10/Matija/cipher.v
+H10/Dio/dio_logic.v
+
 
 Problems/FOL.v
 Problems/cbvLambda.v
