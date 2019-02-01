@@ -102,30 +102,32 @@ Section diophantine_expressions.
 
 End diophantine_expressions.
 
+Definition dio_expr t := { e | forall ν, de_eval ν e = t ν }.
+
+Notation 𝔻P := dio_expr.
+
 Section dio_expr.
 
   (* How to analyse meta-level diophantine expressions *)
 
   Implicit Types r t : (nat -> nat) -> nat.
 
-  Definition dio_expr t := { e | forall ν, de_eval ν e = t ν }.
-
-  Fact dio_expr_var i : dio_expr (fun v => v i).
+  Fact dio_expr_var i : 𝔻P (fun v => v i).
   Proof. exists (de_var i); simpl; auto. Defined.
 
-  Fact dio_expr_cst c : dio_expr (fun _ => c).
+  Fact dio_expr_cst c : 𝔻P (fun _ => c).
   Proof. exists (de_cst c); simpl; auto. Defined.
 
-  Fact dio_expr_plus r t : dio_expr r -> dio_expr t -> dio_expr (fun ν => r ν + t ν).
+  Fact dio_expr_plus r t : 𝔻P r -> 𝔻P t -> 𝔻P (fun ν => r ν + t ν).
   Proof. intros (e1 & H1) (e2 & H2); exists (de_add e1 e2); simpl; auto. Defined.
   
-  Fact dio_expr_mult r t : dio_expr r -> dio_expr t -> dio_expr (fun ν => r ν * t ν).
+  Fact dio_expr_mult r t : 𝔻P r -> 𝔻P t -> 𝔻P (fun ν => r ν * t ν).
   Proof. intros (e1 & H1) (e2 & H2); exists (de_mul e1 e2); simpl; auto. Defined.
 
-  Fact dio_expr_ren t ρ : dio_expr t -> dio_expr (fun ν => t (fun i => ν (ρ i))).
+  Fact dio_expr_ren t ρ : 𝔻P t -> 𝔻P (fun ν => t (fun i => ν (ρ i))).
   Proof. intros (e & He); exists (de_ren ρ e); intros; rewrite de_eval_ren, He; tauto. Defined.
 
-  Fact dio_expr_subst t σ : dio_expr t -> dio_expr (fun ν => t (fun i => de_eval ν (σ i))).
+  Fact dio_expr_subst t σ : 𝔻P t -> 𝔻P (fun ν => t (fun i => de_eval ν (σ i))).
   Proof. intros (e & He); exists (de_subst σ e); intros; rewrite de_eval_subst, He; tauto. Defined.
 
 End dio_expr.
@@ -338,6 +340,9 @@ Section examples.
 
 End examples.
 
+Definition dio_rel R := { f | forall ν, df_pred f ν <-> R ν }.
+Notation 𝔻R := dio_rel.
+
 Section dio_rel.
 
   (** How to analyse diophantine relations ... these are proved by
@@ -345,65 +350,65 @@ Section dio_rel.
   
   Implicit Types R S : (nat -> nat) -> Prop.
 
-  Definition dio_rel R := { f | forall ν, df_pred f ν <-> R ν }.
-
-  Fact dio_rel_True : dio_rel (fun _ => True).
+  Fact dio_rel_True : 𝔻R (fun _ => True).
   Proof.
     exists df_true.
     intros; rewrite df_true_spec; tauto.
   Defined.
 
-  Fact dio_rel_False : dio_rel (fun _ => False).
+  Fact dio_rel_False : 𝔻R (fun _ => False).
   Proof.
     exists df_false.
     intros; rewrite df_false_spec; tauto.
   Defined.
 
-  Fact dio_rel_eq r t : dio_expr r -> dio_expr t -> dio_rel (fun ν => r ν = t ν).
+  Fact dio_rel_eq r t : 𝔻P r -> 𝔻P t -> 𝔻R (fun ν => r ν = t ν).
   Proof.
     intros (e1 & H1) (e2 & H2); exists (df_atm e1 e2).
     intros; rewrite df_pred_atm, H1, H2; tauto.
   Defined.
 
-  Fact dio_rel_le r t : dio_expr r -> dio_expr t -> dio_rel (fun ν => r ν <= t ν).
+  Fact dio_rel_le r t : 𝔻P r -> 𝔻P t -> 𝔻R (fun ν => r ν <= t ν).
   Proof. 
     intros (e1 & H1) (e2 & H2); exists (df_le e1 e2).
     intro; rewrite df_le_spec, H1, H2; tauto.
   Defined.
 
-  Fact dio_rel_lt r t : dio_expr r -> dio_expr t -> dio_rel (fun ν => r ν < t ν).
+  Fact dio_rel_lt r t : 𝔻P r -> 𝔻P t -> 𝔻R (fun ν => r ν < t ν).
   Proof. 
     intros (e1 & H1) (e2 & H2); exists (df_lt e1 e2).
     intro; rewrite df_lt_spec, H1, H2; tauto.
   Defined.
 
-  Fact dio_rel_neq r t : dio_expr r -> dio_expr t -> dio_rel (fun ν => r ν <> t ν).
+  Fact dio_rel_neq r t : 𝔻P r -> 𝔻P t -> 𝔻R (fun ν => r ν <> t ν).
   Proof.
     intros (e1 & H1) (e2 & H2); exists (df_neq e1 e2).
     intros; rewrite df_neq_spec, H1, H2; tauto.
   Defined.
 
-  Fact dio_rel_div r t : dio_expr r -> dio_expr t -> dio_rel (fun ν => divides (r ν) (t ν)).
+  Fact dio_rel_div r t : 𝔻P r -> 𝔻P t -> 𝔻R (fun ν => divides (r ν) (t ν)).
   Proof.
     intros (e1 & H1) (e2 & H2); exists (df_div e1 e2).
     intros; rewrite df_div_spec, H1, H2; tauto.
   Defined.
 
-  Fact dio_rel_conj R S : dio_rel R -> dio_rel S -> dio_rel (fun ν => R ν /\ S ν).
+  Fact dio_rel_conj R S : 𝔻R R -> 𝔻R S -> 𝔻R (fun ν => R ν /\ S ν).
   Proof.
     intros (fR & H1) (fS & H2).
     exists (df_conj fR fS); intros v.
     rewrite df_pred_conj, H1, H2; tauto.
   Defined.
 
-  Fact dio_rel_disj R S : dio_rel R -> dio_rel S -> dio_rel (fun ν => R ν \/ S ν).
+  Fact dio_rel_disj R S : 𝔻R R -> 𝔻R S -> 𝔻R (fun ν => R ν \/ S ν).
   Proof.
     intros (fR & H1) (fS & H2).
     exists (df_disj fR fS); intros v.
     rewrite df_pred_disj, H1, H2; tauto.
   Defined.
 
-  Fact dio_rel_exst (K : nat -> (nat -> nat) -> Prop) : dio_rel (fun v => K (v 0) (fun n => v (S n))) -> dio_rel (fun ν => exists x, K x ν).
+  Fact dio_rel_exst (K : nat -> (nat -> nat) -> Prop) : 
+                   𝔻R (fun v => K (v 0) (fun n => v (S n))) 
+      -> 𝔻R (fun ν => exists x, K x ν).
   Proof.
     intros (f & Hf).
     exists (df_exst f); intros v.
@@ -411,19 +416,19 @@ Section dio_rel.
     split; intros (n & Hn); exists n; revert Hn; rewrite Hf; simpl; auto.
   Defined.
 
-  Lemma dio_rel_equiv R S : (forall ν, S ν <-> R ν) -> dio_rel R -> dio_rel S.
+  Lemma dio_rel_equiv R S : (forall ν, S ν <-> R ν) -> 𝔻R R -> 𝔻R S.
   Proof. 
     intros H (f & Hf); exists f; intro; rewrite Hf, H; tauto.
   Defined.
 
-  Lemma dio_rel_ren R f : dio_rel R -> dio_rel (fun v => R (fun n => v (f n))).
+  Lemma dio_rel_ren R f : 𝔻R R -> 𝔻R (fun v => R (fun n => v (f n))).
   Proof.
     intros (r & HR).
     exists (df_ren f r).
     intros; rewrite df_pred_ren, HR; tauto.
   Defined.
 
-  Lemma dio_rel_subst R f : dio_rel R -> dio_rel (fun v => R (fun n => de_eval v (f n))).
+  Lemma dio_rel_subst R f : 𝔻R R -> 𝔻R (fun v => R (fun n => de_eval v (f n))).
   Proof.
     intros (r & HR).
     exists (df_subst f r).
@@ -460,10 +465,7 @@ Section more_examples.
         apply div_rem_spec2; omega.
   Qed.
   
-  Lemma dio_rel_ndivides x y : 
-            dio_expr x 
-         -> dio_expr y 
-         -> dio_rel (fun ν => ~ divides (x ν) (y ν)).
+  Lemma dio_rel_ndivides x y : 𝔻P x -> 𝔻P y -> 𝔻R (fun ν => ~ divides (x ν) (y ν)).
   Proof.
     intros.
     apply dio_rel_equiv with (1 := fun v => ndivides_eq (x v) (y v)).
@@ -487,11 +489,8 @@ Section more_examples.
       * symmetry; apply rem_prop with n; auto.
   Qed.
  
-  Lemma dio_rel_remainder p x r :
-            dio_expr p 
-         -> dio_expr x
-         -> dio_expr r  
-         -> dio_rel (fun ν => r ν = rem (x ν) (p ν)).
+  Lemma dio_rel_remainder p x r : 𝔻P p -> 𝔻P x -> 𝔻P r  
+                               -> 𝔻R (fun ν => r ν = rem (x ν) (p ν)).
   Proof.
     intros.
     apply dio_rel_equiv with (1 := fun v => rem_equiv (p v) (x v) (r v)).
@@ -509,11 +508,8 @@ Section more_examples.
     + intros (? & ? & ?); subst; auto.
   Qed.
 
-  Lemma dio_rel_congruence x y p : 
-            dio_expr x 
-         -> dio_expr y
-         -> dio_expr p  
-         -> dio_rel (fun ν => rem (x ν) (p ν) = rem (y ν) (p ν)).
+  Lemma dio_rel_congruence x y p : 𝔻P x -> 𝔻P y -> 𝔻P p  
+                                -> 𝔻R (fun ν => rem (x ν) (p ν) = rem (y ν) (p ν)).
   Proof.
     intros.
     apply dio_rel_equiv with (1 := fun v => congr_equiv (x v) (y v) (p v)).
@@ -530,10 +526,7 @@ Section more_examples.
     + intros (? & ? & ?); subst; auto.
   Qed.
 
-  Lemma dio_rel_not_divides x p : 
-            dio_expr x 
-         -> dio_expr p  
-         -> dio_rel (fun ν => ~ divides (x ν) (p ν)).
+  Lemma dio_rel_not_divides x p : 𝔻P x -> 𝔻P p -> 𝔻R (fun ν => ~ divides (x ν) (p ν)).
   Proof.
     intros.
     apply dio_rel_equiv with (1 := fun v => not_divides_eq (x v) (p v)).

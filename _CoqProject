@@ -116,7 +116,17 @@ H10/ArithLibs/luca.v
 H10/Matija/alpha.v
 H10/Matija/expo_diophantine.v
 H10/Matija/cipher.v
+
 H10/Dio/dio_logic.v
+H10/Dio/dio_elem.v
+H10/Dio/dio_single.v
+H10/Dio/dio_expo.v
+H10/Dio/dio_binary.v
+H10/Dio/dio_cipher.v
+H10/Dio/dio_bounded.v
+H10/Dio/dio_rt_closure.v
+
+
 
 
 Problems/FOL.v
