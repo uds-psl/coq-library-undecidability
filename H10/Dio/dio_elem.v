@@ -736,12 +736,3 @@ End diophantine_system.
 
 (* Check dio_formula_elem.
 Print Assumptions dio_formula_elem. *)
-
-(** An elementary diophantine problem is a list of elementary diophantine
-    constraints and a valuation for the parameters. The question is whether
-    there exists a valuation for the variables that satisfies all the constraints
-    simultaneously *)
-
-Definition DIO_ELEM_PROBLEM := list dio_constraint.
-Definition DIO_ELEM_SAT (l : DIO_ELEM_PROBLEM) := exists φ, Forall (dc_eval φ (fun _ => 0)) l.
-

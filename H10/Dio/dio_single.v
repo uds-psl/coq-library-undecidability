@@ -203,14 +203,6 @@ Arguments dp_comp {V P}.
 Notation dp_add := (dp_comp do_add).
 Notation dp_mul := (dp_comp do_mul).
 
-Definition DIO_EQ_PROBLEM := { n : nat & dio_single (pos n) (pos 0) }%type.
-
-Definition DIO_EQ_SAT : DIO_EQ_PROBLEM -> Prop.
-Proof.
-  intros (n & p & q).
-  apply (dio_single_pred (p,q)), pos_O_any.
-Defined.
-
 Section dio_elem_dio_poly.
 
   Let dp_2xy u v : dio_polynomial nat nat := dp_mul (dp_nat 2) (dp_mul u v).

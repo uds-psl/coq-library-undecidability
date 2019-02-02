@@ -16,6 +16,11 @@ Feel free to contribute or start using the problems!
 - Provability in Minimal (Intuitionistic, Classical) First-Order Logic (`prv` in [`Problems/FOL.v`](Problems/FOL.v))
 - Validity in Minimal (Intuitionistic, Classical) First-Order Logic (`valid` in [`Problems/FOL.v`](Problems/FOL.v), `kvalid` in [`Problems/FOL.v`](Problems/FOL.v))
 - Satisfiability in Intuitionistic (Classical) First-Order Logic (`satis` in [`Problems/FOL.v`](Problems/FOL.v), `ksatis` in [`Problems/FOL.v`](Problems/FOL.v))
+- Halting problem for FRACTRAN programs (`FRACTRAN_REG_HALTING` in [`Problems/FRACTRAN.v`](Problems/FRACTRAN.v))
+- Satisfiability for elementary diophantine constraints (`DIO_ELEM_SAT` 
+  in [`Problems/DIOPHANTINE.v`](Problems/DIOPHANTINE.v))
+- Hilbert's 10th problem, i.e. solvability of a single diophantine equation (`H10` in 
+  in [`Problems/DIOPHANTINE.v`](Problems/DIOPHANTINE.v))
 
 ## How to build
 
@@ -48,3 +53,4 @@ Feel free to contribute or start using the problems!
 - Dominik Kirst (@dominik-kirst)
 - Dominique Larchey-Wendling (@DmxLarchey)
 - Gert Smolka
+

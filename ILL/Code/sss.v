@@ -388,6 +388,17 @@ Section Small_Step_Semantics.
 
   Notation "P // x ↓" := (sss_terminates P x).
 
+  Fact subcode_sss_terminates_instr P i st1 st2 : 
+            i // st1 -1> st2
+        ->  (fst st1,i::nil) <sc P
+        ->  P // st2 ↓
+        ->  P // st1 ↓.
+  Proof.
+    intros H1 H2 (st3 & H3 & H4).
+    exists st3; split; auto.
+    revert H1 H2 H3; apply subcode_sss_compute_instr.
+  Qed.
+
   (* No computation is possible *)
   
   Definition sss_stall ii st := forall st', ~ ii // st -1> st'.
@@ -586,7 +597,20 @@ Section Small_Step_Semantics.
     destruct H3 as (q & ? & H3).
     exists q; split; auto; omega.
   Qed.
-  
+
+  Fact subcode_sss_terminates_inv P Q st st1 :
+           Q // st ↓
+        -> P <sc Q
+        -> P // st ~~> st1
+        -> Q // st1 ↓.
+  Proof.
+    intros (st3 & (k & H1) & H2) H3 ((p & H4) & H5).
+    destruct subcode_sss_subcode_inv with (2 := H3) (3 := H4) (4 := H1)
+      as (q & _ & H6).
+    1: revert H2; apply subcode_out_code; auto.
+    exists st3; split; auto; exists q; auto.
+  Qed.
+
   Fact subcode_sss_progress_inv P Q p st1 st2 st3 :
            out_code (fst st3) P 
         -> P <sc Q

@@ -96,7 +96,8 @@ ILL/iBPCP_BSM.v
 ILL/Mm/mm_defs.v
 ILL/Mm/mm_utils.v
 ILL/Mm/mm_comp.v
-ILL/Mm/mm_comp_old.v
+#ILL/Mm/mm_no_self.v
+#ILL/Mm/mm_comp_old.v
 
 ILL/BSM_MM.v
 
@@ -108,6 +109,12 @@ ILL/EILL_ILL.v
 ILL/MM_EILL.v
 
 ILL/UNDEC.v
+
+H10/Fractran/prime_seq.v
+H10/Fractran/fractran_defs.v
+H10/Fractran/fractran_dio.v
+H10/Fractran/mm_no_self.v
+H10/Fractran/mm_fractran.v
 
 H10/ArithLibs/matrix.v
 H10/ArithLibs/Zp.v
@@ -126,8 +133,11 @@ H10/Dio/dio_cipher.v
 H10/Dio/dio_bounded.v
 H10/Dio/dio_rt_closure.v
 
-
-
+H10/HALT_MM.v
+H10/MM_FRACTRAN.v
+H10/FRACTRAN_DIO.v
+H10/H10.v
+H10/DPRM.v
 
 Problems/FOL.v
 Problems/cbvLambda.v
@@ -136,7 +146,10 @@ Problems/SR.v
 Problems/MM.v
 Problems/BSM.v
 Problems/ILL.v
+Problems/FRACTRAN.v
+Problems/DIOPHANTINE.v
 
+Reductions/TM_to_SRH.v  
 Reductions/SRH_to_SR.v  
 Reductions/SR_to_MPCP.v 
 Reductions/MPCP_to_PCP.v

@@ -190,6 +190,18 @@ Section simulator.
       exists (i2,v2); auto.
     Qed.
 
+    Definition bsm_mm_sim := snd Q.
+
+    Theorem bsm_mm_sim_spec : (iP,cP) /BSM/ (iP,v) ↓ <-> (1,bsm_mm_sim) /MM/ (1,w) ↓.
+    Proof.
+      rewrite <- (proj1 Hlnk) at 1.
+      rewrite <- surjective_pairing.
+      split; auto.
+      intros H.
+      destruct (Q_spec1 H) as (w' & H1 & _).
+      exists (code_end Q, w'); auto.
+    Qed.
+
     Let iE := code_end Q.
 
     (** We complete (iQ,cQ) with some code nullifying all variables except tmp1 & tmp2 *)
@@ -260,4 +272,10 @@ Section simulator.
 
 End simulator.
 
-Check bsm_mm_spec.
+Theorem bsm_mm_compiler_1 n i (P : list (bsm_instr n)) :
+  { Q : list (mm_instr (2+n)) | forall v, (i,P) /BSM/ (i,v) ↓ <-> (1,Q) /MM/ (1,0##0##vec_map stack_enc v) ↓ }.
+Proof. exists (bsm_mm_sim i P); apply bsm_mm_sim_spec. Qed.
+
+Theorem bsm_mm_compiler_2 n i (P : list (bsm_instr n)) :
+  { Q : list (mm_instr (2+n)) | forall v, (i,P) /BSM/ (i,v) ↓ <-> (1,Q) /MM/ (1,0##0##vec_map stack_enc v) ~~> (0,vec_zero) }.
+Proof. exists (bsm_mm i P); apply bsm_mm_spec. Qed.

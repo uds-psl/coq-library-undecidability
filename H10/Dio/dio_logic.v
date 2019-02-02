@@ -544,6 +544,23 @@ Eval compute in proj1_sig (dio_rel_not_divides (dio_expr_var 0) (dio_expr_var 1)
 
 *)
 
+Section dio_rel_compose.
+
+  Variable (f : (nat -> nat) -> nat) (R : nat -> (nat -> nat) -> Prop).
+  Hypothesis (Hf : 𝔻R (fun ν => ν 0 = f (fun x => ν (S x)))) 
+             (HR : 𝔻R (fun ν => R (ν 0) (fun x => ν (S x)))).
+
+  Lemma dio_rel_compose : 𝔻R (fun ν => R (f ν) ν).
+  Proof.
+    apply dio_rel_equiv with (R := fun v => exists y, y = f v /\ R y v).
+    + intros v; split.
+      * exists (f v); auto.
+      * intros (? & -> & ?); auto.
+    + dio_rel_auto.
+  Defined.
+
+End dio_rel_compose.
+
 Section multiple_exists.
 
   Fixpoint df_mexists n f :=
@@ -593,13 +610,6 @@ Section multiple_exists.
   Qed.
 
 End multiple_exists.
-
-(** A diophantine logic satisfiability question is given
-    a diophantine logic formula f, is it satisfiable when
-    all its parameters are set to 0 *)
-
-Definition DIO_LOGIC_PROBLEM := dio_formula.
-Definition DIO_LOGIC_SAT (f : DIO_LOGIC_PROBLEM) := df_pred f (fun _ => 0).
 
 
 

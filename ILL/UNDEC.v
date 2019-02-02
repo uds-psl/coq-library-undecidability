@@ -34,20 +34,37 @@ Require Import PCP_BPCP BPCP_iBPCP iBPCP_BSM BSM_MM MM_EILL EILL_ILL.
        is it provable in G_ILL ? (see Ll/ill.v)
  *)
 
-Check PCP_BPCP.                     Print Assumptions PCP_BPCP.
-Check BPCP_iBPCP.                   Print Assumptions BPCP_iBPCP.
-Check iBPCP_BSM_HALTING.            Print Assumptions iBPCP_BSM_HALTING.
-Check BSM_MM_HALTING.               Print Assumptions BSM_MM_HALTING.
-Check MM_HALTING_EILL_PROVABILITY.  Print Assumptions MM_HALTING_EILL_PROVABILITY.
-Check EILL_ILL_PROVABILITY.         Print Assumptions EILL_ILL_PROVABILITY.
+Check PCP_BPCP.                           Print Assumptions PCP_BPCP.
+Check BPCP_iBPCP.                         Print Assumptions BPCP_iBPCP.
+Check iBPCP_BSM_HALTING.                  Print Assumptions iBPCP_BSM_HALTING.
+Check BSM_MM_HALTING.                     Print Assumptions BSM_MM_HALTING.
+Check BSM_MM_HALTS_ON_ZERO.               Print Assumptions BSM_MM_HALTS_ON_ZERO.
+Check MM_HALTS_ON_ZERO_EILL_PROVABILITY.  Print Assumptions MM_HALTS_ON_ZERO_EILL_PROVABILITY.
+Check EILL_ILL_PROVABILITY.               Print Assumptions EILL_ILL_PROVABILITY.
 
-Theorem ILL_undec : PCP ⪯ ILL_PROVABILITY.
+Theorem PCP_BSM_HALTING : PCP ⪯ BSM_HALTING.
 Proof.
   eapply reduces_transitive. exact PCP_BPCP.
   eapply reduces_transitive. exact BPCP_iBPCP.
-  eapply reduces_transitive. exact iBPCP_BSM_HALTING.
-  eapply reduces_transitive. exact BSM_MM_HALTING.
-  eapply reduces_transitive. exact MM_HALTING_EILL_PROVABILITY.
+  exact iBPCP_BSM_HALTING.
+Qed.
+
+Theorem PCP_MM_HALTS_ON_ZERO : PCP ⪯ MM_HALTS_ON_ZERO.
+Proof.
+  eapply reduces_transitive. exact PCP_BSM_HALTING.
+  exact BSM_MM_HALTS_ON_ZERO.
+Qed.
+
+Theorem PCP_MM_HALTING : PCP ⪯ MM_HALTING.
+Proof.
+  eapply reduces_transitive. exact PCP_BSM_HALTING.
+  exact BSM_MM_HALTING.
+Qed.
+
+Theorem PCP_ILL : PCP ⪯ ILL_PROVABILITY.
+Proof.
+  eapply reduces_transitive. exact PCP_MM_HALTS_ON_ZERO.
+  eapply reduces_transitive. exact MM_HALTS_ON_ZERO_EILL_PROVABILITY.
   exact EILL_ILL_PROVABILITY.
 Qed.
 

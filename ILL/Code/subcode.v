@@ -40,11 +40,20 @@ Section subcode.
   Arguments in_code i P /.
   Arguments out_code i P /.
   Arguments subcode P Q /.
-  
+ 
   Fact in_out_code_dec i P : { in_code i P } + { out_code i P }.
   Proof. destruct P as (n,c); simpl; apply interval_dec. Qed.
   
   Infix "<sc" := subcode (at level 70, no associativity).
+
+  Fact subcode_cons_inj i ρ δ P : (i,ρ::nil) <sc P -> (i,δ::nil) <sc P -> ρ = δ.
+  Proof.
+    destruct P as (j, P).
+    intros (l1 & r1 & H1 & H2) (l2 & r2 & H3 & H4).
+    rewrite H1 in H3.
+    apply list_app_inj, proj2 in H3; try omega.
+    inversion H3; trivial.
+  Qed.
 
   Fact subcode_length P Q : P <sc Q -> code_start Q <= code_start P /\ code_end P <= code_end Q.
   Proof.
@@ -52,6 +61,11 @@ Section subcode.
    intros (l & r & H1 & H2).
    apply f_equal with (f := @length _) in H1.
    revert H1; rew length; split; omega.
+  Qed.
+
+  Fact subcode_length' P Q : P <sc Q -> length (snd P) <= length (snd Q).
+  Proof.
+    revert P Q; intros [] [] (? & ? & ? & ?); simpl; subst; rew length; omega.
   Qed.
 
   Fact subcode_length_le : forall P Q, P <sc Q -> fst Q <= fst P 
@@ -125,6 +139,26 @@ Section subcode.
     exists a, l, r; split; auto; omega.
   Qed.
 
+  Fact subcode_app_invert_right j Q1 Q2 i I : 
+        (i,I::nil) <sc (j,Q1++Q2) -> (i,I::nil) <sc (j,Q1)
+                                  \/ (i,I::nil) <sc (length Q1+j,Q2).
+  Proof.
+    intros (l & r & H1 & H2); simpl in *.
+    apply list_app_cons_eq_inv in H1.
+    destruct H1 as [ (m & G1 & G2) | (m & G1 & G2) ]; subst.
+    + right; exists m, r; rew length; split; auto; omega.
+    + left; exists l, m; rew length; split; auto; omega.
+  Qed.
+
+  Fact subcode_cons_invert_right j J Q i I : 
+        (i,I::nil) <sc (j,J::Q) -> i = j /\ I = J
+                                \/ (i,I::nil) <sc (S j,Q).
+  Proof.
+    intros ([ | K l ] & r & H1 & H2); simpl in *.
+    + inversion H1; left; split; auto; omega.
+    + right; inversion H1; exists l, r; split; auto; omega.
+  Qed.
+
   Variable Q : code.
 
   Fact subcode_app_inv i j a l r : j = i+length l -> (i,l++a++r) <sc Q -> (j,a) <sc Q.
@@ -146,6 +180,13 @@ Section subcode.
     solve list eq.
   Qed.
 
+  Fact subcode_cons_invert_left i I l : (i,I::l) <sc Q -> (i,I::nil) <sc Q /\ (S i,l) <sc Q.
+  Proof.
+    intros H1; split.
+    + revert H1; apply subcode_cons_inv with (a := _::nil); auto.
+    + revert H1; apply subcode_snoc_inv with (l := _::nil); simpl; omega.
+  Qed.
+
 End subcode.
 
 Arguments code_start {X} P /.
@@ -155,6 +196,7 @@ Arguments out_code {X} i P /.
 Arguments subcode {X} P Q /.
 
 Infix "<sc" := subcode (at level 70, no associativity).
+
 
 (* Solve many subcode goals looking for a solution into hyps *)
       
