@@ -59,6 +59,12 @@ Fixpoint encode_mm_instr m i (l : list (mm_instr m)) : list (nat * nat) :=
   | DEC u j :: l => encode_dec i u j :: encode_dec2 i u j :: encode_mm_instr (S i) l
   end.
 
+Fact encode_mm_instr_app m i l r : @encode_mm_instr m i (l++r) = encode_mm_instr i l++encode_mm_instr (length l+i) r.
+Proof.
+  revert i; induction l as [ | [ u | u j ] l IHl ]; intros i; simpl; auto; f_equal;
+    specialize (IHl (S i)); simpl in IHl; rewrite IHl; do 2 f_equal; [ | f_equal ]; omega.
+Qed.
+
 Fact encode_mm_instr_regular n i l : Forall (fun c => fst c <> 0 /\ snd c <> 0) (@encode_mm_instr n i l).
 Proof.
   revert i; induction l as [ | [ u | u j ] l IHl ]; intros i; simpl.
@@ -68,6 +74,50 @@ Proof.
   + constructor; [ | constructor ]; auto; split; unfold encode_dec, encode_dec2; simpl.
     2: apply Nat.neq_mul_0; split.
     all: apply prime_neq_0; apply nthprime_prime.
+Qed.
+
+Fact encode_mm_instr_regular' n i l : fractran_regular (@encode_mm_instr n i l).
+Proof.
+  generalize (@encode_mm_instr_regular n i l); apply Forall_impl; tauto.
+Qed.
+
+Fact encode_mm_instr_in_inv n i P el c er : 
+          @encode_mm_instr n i P = el++c::er
+       -> exists l rho r, P = l++rho::r
+                       /\ ( (exists u, rho = INC u 
+                                    /\ c = encode_inc (length l+i) u 
+                                    /\ el = encode_mm_instr i l
+                                    /\ er = encode_mm_instr (S (length l)+i) r) 
+                         \/ (exists u j, rho = DEC u j 
+                                     /\ (c = encode_dec (length l+i) u j
+                                      /\ el = encode_mm_instr i l
+                                      /\ er = encode_dec2 (length l+i) u j::encode_mm_instr (S (length l)+i) r
+                                      \/ c = encode_dec2 (length l+i) u j
+                                      /\ el = encode_mm_instr i l++encode_dec (length l+i) u j::nil
+                                      /\ er = encode_mm_instr (S (length l)+i) r)) ).
+Proof.
+  revert i el c er; induction P as [ | [ u | u j ] P IHP ]; simpl; intros i el c er H.
+  + destruct el; discriminate.
+  + Check list_cons_app_cons_eq_inv.
+destruct list_cons_app_cons_eq_inv with (1 := H)
+      as (-> & .
+
+ destruct H as [ <- | H ].
+    * exists nil, (INC u), P; split; auto; left; exists u; split; auto.
+    * destruct IHP with (1 := H) as (l & rho & r & -> & H1).
+      exists (INC u::l), rho, r; split; auto.
+      destruct H1 as [ (v & -> & ->) | (v & j & -> & [ -> | -> ]) ].
+      - left; exists v; split; auto; f_equal; simpl; omega.
+      - right; exists v, j; split; auto; left; f_equal; simpl; omega.
+      - right; exists v, j; split; auto; right; f_equal; simpl; omega.
+  + destruct H as [ <- | [ <- | H ] ].
+    1,2: exists nil, (DEC u j), P; split; auto; right; exists u, j; split; auto.
+    destruct IHP with (1 := H) as (l & rho & r & -> & H1).
+    exists (DEC u j::l), rho, r; split; auto.
+    destruct H1 as [ (v & -> & ->) | (v & j' & -> & [ -> | -> ]) ].
+    - left; exists v; split; auto; f_equal; simpl; omega.
+    - right; exists v, j'; split; auto; left; f_equal;simpl; omega.
+    - right; exists v, j'; split; auto; right; f_equal;simpl; omega.
 Qed.
 
 Local Notation divides_mult_inv := prime_div_mult.
@@ -195,6 +245,27 @@ Proof.
   - reflexivity.
   - destruct st2. eapply one_step_forward in H1; eauto.
 Qed.
+
+Lemma one_step_backward m i P i1 v1 st :
+     @mm_no_self_loops m (i, P)
+  -> encode_mm_instr i P /F/ @encode_state m (i1,v1) → st 
+  -> exists i2 v2, st = @encode_state m (i2,v2)
+                /\ (i, P) /MM/ (i1, v1) → (i2,v2).
+Proof.
+  intros H1 H2.
+  Check fractran_step_inv.
+  destruct fractran_step_inv with (1 := H2)
+    as (l & p & q & r & H3 & H4 & H5).
+  Check encode_mm_instr_in_inv.
+  destruct encode_mm_instr_in_inv
+   
+  
+  intros H1 H2.
+   destruct step_inv with (2 := H2)
+        as (i2 & v2 & ->); auto.
+   apply one_step_backward in H2; eauto.
+Qed.
+
 
 Ltac list_without L v :=
   match L with

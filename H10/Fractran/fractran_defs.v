@@ -29,6 +29,8 @@ Section fractran.
     | in_ft_1 : forall p q l x y, ~ divides q (p*x) -> l // x → y -> (p,q)::l // x → y
   where "l // x → y" := (fractran_step l x y).
 
+  Definition fractran_regular l := Forall (fun c => snd c <> 0) l.
+
   Fact fractran_step_nil_inv x y : nil // x → y <-> False.
   Proof. split; inversion 1. Qed.
 
@@ -46,7 +48,22 @@ Section fractran.
     apply le_antisym; apply mult_S_le_reg_l with q; omega.
   Qed.
 
-  Corollary fractran_step_fun l x y1 y2 : Forall (fun c => snd c <> 0) l -> l // x → y1 -> l // x → y2 -> y1 = y2.
+  Lemma fractran_step_inv P x y : 
+            P // x → y 
+         -> exists l p q r, P = l++(p,q)::r 
+                         /\ (forall u v, In (u,v) l -> ~ divides v (u*x))
+                         /\ q*y=p*x.
+  Proof.
+    induction 1 as [ p q P x y H | u v P x y H1 H2 IH2 ].
+    + exists nil, p, q, P; simpl; tauto.
+    + destruct IH2 as (l & p & q & r & -> & H4 & H5).
+      exists ((u,v)::l), p, q, r; simpl; msplit 2; auto.
+      intros ? ? [ H | H ]; auto; inversion H; subst; auto.
+  Qed. 
+
+  (* Regular FRACTRAN programs define a deterministic step relation *)
+
+  Lemma fractran_step_fun l x y1 y2 : fractran_regular l -> l // x → y1 -> l // x → y2 -> y1 = y2.
   Proof.
     intros H1 H2 ; revert H2 H1 y2.
     induction 1 as [ p q l x y1 H1 | p q l x y1 H1 H2 IH2 ]; 
@@ -60,7 +77,34 @@ Section fractran.
     + destruct H1; exists y2; rewrite <- H3; ring.
     + apply Forall_cons_inv, proj2 in H0; auto.
   Qed.
- 
+
+  (* Regular FRACTRAN programs deefine a linearly bounded step relation 
+     The bound computed in the following proofs is very lazy. 
+     Indeed we choose p1+...+pn whereas ideally,
+     one could choose max(ceil(pi/qi)) where l = [p1/q1;...;pn/qn] *)
+  
+  Lemma fractran_step_bound l : fractran_regular l -> { k | forall x y, l // x → y -> y <= k*x }.
+  Proof.
+    unfold fractran_regular.
+    induction l as [ | (p,q) l IHl ].
+    + intros _; exists 1; auto.
+      intros ? ? H; exfalso; revert H; apply fractran_step_nil_inv.
+    + intros H; rewrite Forall_cons_inv in H; simpl in H.
+      destruct H as (Hq & H).
+      destruct (IHl H) as (k & H2).
+      exists (p+k).
+      intros x y Hxy.
+      apply fractran_step_cons_inv in Hxy.
+      destruct Hxy as [ Hxy | (_ & Hxy) ].
+      * rewrite Nat.mul_add_distr_r, <- Hxy.
+        destruct q; simpl; try omega.
+        generalize (q*y) (k*x); intros; omega.
+      * apply le_trans with (1 := H2 _ _ Hxy).
+        apply mult_le_compat; omega.
+  Qed.
+
+
+  
   (** the computation is stopped at x, no step is possible from x *)
 
   Definition fractran_stop l x := forall z, ~ l // x → z.
@@ -120,29 +164,6 @@ Section fractran.
   Definition FRACTRAN_PROBLEM := (list (nat*nat) * nat)%type.
   Definition FRACTRAN_HALTING (P : FRACTRAN_PROBLEM) := let (l,x) := P in fractran_terminates l x.
  
-  (* Fractran step is a linearly bounded relation *)
-
-  Definition fractran_regular l := Forall (fun c => snd c <> 0) l.
-  
-  Lemma fractran_step_bound l : fractran_regular l -> { k | forall x y, l // x → y -> y <= k*x }.
-  Proof.
-    unfold fractran_regular.
-    induction l as [ | (p,q) l IHl ].
-    + intros _; exists 1; auto.
-      intros ? ? H; exfalso; revert H; apply fractran_step_nil_inv.
-    + intros H; rewrite Forall_cons_inv in H; simpl in H.
-      destruct H as (Hq & H).
-      destruct (IHl H) as (k & H2).
-      exists (p+k).
-      intros x y Hxy.
-      apply fractran_step_cons_inv in Hxy.
-      destruct Hxy as [ Hxy | (_ & Hxy) ].
-      * rewrite Nat.mul_add_distr_r, <- Hxy.
-        destruct q; simpl; try omega.
-        generalize (q*y) (k*x); intros; omega.
-      * apply le_trans with (1 := H2 _ _ Hxy).
-        apply mult_le_compat; omega.
-  Qed.
 
   (* Now we treat the cases where (_,0) occurs in l *)
 
