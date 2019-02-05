@@ -98,27 +98,48 @@ Fact encode_mm_instr_in_inv n i P el c er :
 Proof.
   revert i el c er; induction P as [ | [ u | u j ] P IHP ]; simpl; intros i el c er H.
   + destruct el; discriminate.
-  + Check list_cons_app_cons_eq_inv.
-destruct list_cons_app_cons_eq_inv with (1 := H)
-      as (-> & .
-
- destruct H as [ <- | H ].
-    * exists nil, (INC u), P; split; auto; left; exists u; split; auto.
-    * destruct IHP with (1 := H) as (l & rho & r & -> & H1).
-      exists (INC u::l), rho, r; split; auto.
-      destruct H1 as [ (v & -> & ->) | (v & j & -> & [ -> | -> ]) ].
-      - left; exists v; split; auto; f_equal; simpl; omega.
-      - right; exists v, j; split; auto; left; f_equal; simpl; omega.
-      - right; exists v, j; split; auto; right; f_equal; simpl; omega.
-  + destruct H as [ <- | [ <- | H ] ].
-    1,2: exists nil, (DEC u j), P; split; auto; right; exists u, j; split; auto.
-    destruct IHP with (1 := H) as (l & rho & r & -> & H1).
-    exists (DEC u j::l), rho, r; split; auto.
-    destruct H1 as [ (v & -> & ->) | (v & j' & -> & [ -> | -> ]) ].
-    - left; exists v; split; auto; f_equal; simpl; omega.
-    - right; exists v, j'; split; auto; left; f_equal;simpl; omega.
-    - right; exists v, j'; split; auto; right; f_equal;simpl; omega.
+  + destruct list_cons_app_cons_eq_inv with (1 := H)
+      as [ (-> & <- & <-) | (em & -> & E) ].
+    1:{ exists nil, (INC u), P; split; auto; left; exists u; simpl; auto. }
+    clear H; destruct IHP with (1 := E) 
+      as (l & rho & r & -> & [ (p & -> & -> & -> & ->) 
+                             | (p & j & -> & [ (-> & -> & ->) | (-> & -> & ->) ]) ] ). 
+    * exists (INC u::l), (INC p), r; split; auto.
+      left; exists p; msplit 3; auto; f_equal; simpl; omega.
+    * exists (INC u::l), (DEC p j), r; split; auto.
+      right; exists p, j; split; auto.
+      left; msplit 2; simpl; auto; f_equal; try omega.
+      all: f_equal; omega.
+    * exists (INC u::l), (DEC p j), r; split; auto.
+      right; exists p, j; split; auto.
+      right; msplit 2; simpl; auto; f_equal; try omega.
+      do 3 f_equal; omega.
+  + destruct list_cons_app_cons_eq_inv with (1 := H)
+      as [ (-> & <- & <-) | (em & -> & E) ].
+    1:{ exists nil, (DEC u j), P; split; auto.
+        right; exists u, j; split; auto. }
+    clear H; rename E into H.
+    destruct list_cons_app_cons_eq_inv with (1 := H)
+      as [ (-> & <- & <-) | (em' & -> & E) ].
+    1:{ exists nil, (DEC u j), P; split; auto.
+        right; exists u, j; split; auto. }
+    clear H.
+    destruct IHP with (1 := E) 
+        as (l & rho & r & -> & [ (p & -> & -> & -> & ->) 
+                               | (p & k & -> & [ (-> & -> & ->) | (-> & -> & ->) ]) ] ). 
+    * exists (DEC u j::l), (INC p), r; split; auto.
+      left; exists p; msplit 3; auto; f_equal; simpl; omega.
+    * exists (DEC u j::l), (DEC p k), r; split; simpl; auto.
+      right; exists p, k; split; auto.
+      left; msplit 2; simpl; auto; f_equal; try omega.
+      all: f_equal; omega.
+    * exists (DEC u j::l), (DEC p k), r; split; simpl; auto.
+      right; exists p, k; split; auto.
+      right; msplit 2; simpl; auto; f_equal; try omega.
+      do 4 f_equal; omega.
 Qed.
+
+Check encode_mm_instr_in_inv.
 
 Local Notation divides_mult_inv := prime_div_mult.
 
@@ -246,6 +267,30 @@ Proof.
   - destruct st2. eapply one_step_forward in H1; eauto.
 Qed.
 
+Fact divides_from_eq x y t : x*y = t -> divides x t.
+Proof. exists y; subst; ring. Qed.
+
+Fact prime_div_mult3 p x y z : prime p -> divides p (x*y*z) -> divides p x \/ divides p y \/ divides p z.
+Proof.
+  intros H1 H2.
+  apply prime_div_mult in H2; auto.
+  destruct H2 as [ H2 | ]; auto.
+  apply prime_div_mult in H2; tauto.
+Qed.
+
+Fact prime_div_mult4 p w x y z : prime p -> divides p (w*x*y*z) -> divides p w \/ divides p x \/ divides p y \/ divides p z.
+Proof.
+  intros H1 H2.
+  apply prime_div_mult3 in H2; auto.
+  destruct H2 as [ H2 | H2 ]; try tauto.
+  apply prime_div_mult in H2; tauto.
+Qed.
+
+Local Hint Resolve encode_mm_instr_regular'.
+
+(** The divisibility results are no so complicated when
+    we do not need to show that encode_state is injective ... *)
+
 Lemma one_step_backward m i P i1 v1 st :
      @mm_no_self_loops m (i, P)
   -> encode_mm_instr i P /F/ @encode_state m (i1,v1) → st 
@@ -253,19 +298,67 @@ Lemma one_step_backward m i P i1 v1 st :
                 /\ (i, P) /MM/ (i1, v1) → (i2,v2).
 Proof.
   intros H1 H2.
-  Check fractran_step_inv.
   destruct fractran_step_inv with (1 := H2)
-    as (l & p & q & r & H3 & H4 & H5).
-  Check encode_mm_instr_in_inv.
-  destruct encode_mm_instr_in_inv
-   
-  
-  intros H1 H2.
-   destruct step_inv with (2 := H2)
-        as (i2 & v2 & ->); auto.
-   apply one_step_backward in H2; eauto.
+    as (el & p & q & er & H3 & H4 & H5).
+  destruct encode_mm_instr_in_inv with (1 := H3)
+    as (l & rho & r & -> & [ (a & -> & Hpq & -> & ->) 
+                           | (a & j & -> & [ (Hpq & -> & ->) | (Hpq & -> & ->) ] ) ]);
+    clear H3; simpl in Hpq.
+  * unfold encode_inc, encode_state in Hpq, H5; inversion Hpq; subst p q; clear Hpq.
+    simpl in H5; apply divides_from_eq in H5; repeat rewrite mult_assoc in H5.
+    assert (i1 = length l+i) as H6.
+    { apply prime_div_mult4 in H5; auto.
+      destruct H5 as [ H5 | [ H5 | [ H5 | H5 ] ] ].
+      + apply primestream_divides in H5; omega.
+      + apply ps_qs_div in H5; tauto.
+      + apply primestream_divides in H5; omega.
+      + apply ps_exp in H5; tauto. }
+    destruct mm_sss_total with (ii := INC a) (s := (i1,v1))
+      as ((i2 & v2) & H7).
+    exists i2, v2.
+    assert ((i, l++INC a::r) /MM/ (i1,v1) → (i2,v2)) as H8.
+    { apply in_sss_step; auto; simpl; omega. }
+    split; auto.
+    apply one_step_forward in H8; auto.
+    revert H2 H8; apply fractran_step_fun; auto.
+  * unfold encode_dec, encode_state in Hpq, H5; inversion Hpq; subst p q; clear Hpq.
+    simpl in H5; repeat rewrite mult_assoc in H5.
+    rewrite <- mult_assoc in H5; apply divides_from_eq in H5. 
+    assert (i1 = length l+i) as H6.
+    { apply prime_div_mult3 in H5; auto.
+      destruct H5 as [ H5 | [ H5 | H5 ] ].
+      + apply primestream_divides in H5; omega.
+      + apply primestream_divides in H5; omega.
+      + apply ps_exp in H5; tauto. }
+    destruct mm_sss_total with (ii := DEC a j) (s := (i1,v1))
+      as ((i2 & v2) & H7).
+    exists i2, v2.
+    assert ((i, l++DEC a j::r) /MM/ (i1,v1) → (i2,v2)) as H8.
+    { apply in_sss_step; auto; simpl; omega. }
+    split; auto.
+    apply one_step_forward in H8; auto.
+    revert H2 H8; apply fractran_step_fun; auto.
+  * unfold encode_dec, encode_state in Hpq, H5; inversion Hpq; subst p q; clear Hpq.
+    simpl in H5; clear H4.
+    assert (j <> length l + i) as H6.
+    { intro; subst j; red in H1. 
+      apply (H1 (length l+i) a); auto. }
+    simpl in H5; repeat rewrite mult_assoc in H5; apply divides_from_eq in H5. 
+    assert (i1 = length l+i) as H7.
+    { apply prime_div_mult3 in H5; auto.
+      destruct H5 as [ H5 | [ H5 | H5 ] ].
+      + apply primestream_divides in H5; omega.
+      + apply primestream_divides in H5; omega.
+      + apply ps_exp in H5; tauto. }
+    destruct mm_sss_total with (ii := DEC a j) (s := (i1,v1))
+      as ((i2 & v2) & H8).
+    exists i2, v2.
+    assert ((i, l++DEC a j::r) /MM/ (i1,v1) → (i2,v2)) as H9.
+    { apply in_sss_step; auto; simpl; omega. }
+    split; auto.
+    apply one_step_forward in H9; auto.
+    revert H2 H9; apply fractran_step_fun; auto.
 Qed.
-
 
 Ltac list_without L v :=
   match L with
