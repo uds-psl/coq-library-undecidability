@@ -12,7 +12,7 @@ Require Import ILL.Definitions singleTM.
 Require Import utils_tac pos vec.
 Require Import mm_defs fractran_defs dio_logic dio_elem dio_single.
 
-Require Import HALT_MM MM_FRACTRAN FRACTRAN_DIO.
+Require Import HALT_MM MM_FRACTRAN FRACTRAN_DIO UNDEC.
 
 Set Implicit Arguments.
 
@@ -51,17 +51,37 @@ Section DIO_SINGLE_SAT_H10.
 
 End DIO_SINGLE_SAT_H10.
 
-Theorem Hilberts_Tenth : Halt ⪯ H10.
+Theorem Fractran_UNDEC : Halt ⪯ FRACTRAN_REG_HALTING.
 Proof.
   eapply reduces_transitive. exact MM_HALTING_undec.
-  eapply reduces_transitive. exact MM_FRACTRAN_REG_HALTING.
-  eapply reduces_transitive. exact FRACTRAN_REG_HALTING_DIO_LOGIC_SAT.
-  eapply reduces_transitive. exact DIO_LOGIC_ELEM_SAT.
-  eapply reduces_transitive. exact DIO_ELEM_SINGLE_SAT.
-  exact DIO_SINGLE_SAT_H10.
+  exact MM_FRACTRAN_REG_HALTING.
 Qed.
 
-Check Hilberts_Tenth.
+Theorem Hilberts_Tenth : Halt ⪯ PCP
+                      /\ PCP ⪯ MM_HALTING
+                      /\ MM_HALTING ⪯ FRACTRAN_REG_HALTING
+                      /\ FRACTRAN_REG_HALTING ⪯ DIO_LOGIC_SAT
+                      /\ DIO_LOGIC_SAT ⪯ DIO_ELEM_SAT
+                      /\ DIO_ELEM_SAT ⪯ DIO_SINGLE_SAT
+                      /\ DIO_SINGLE_SAT ⪯ H10.
+Proof.
+  msplit 6.
+  + apply Halt_PCP.
+  + apply PCP_MM_HALTING.
+  + apply MM_FRACTRAN_REG_HALTING.
+  + apply FRACTRAN_REG_HALTING_DIO_LOGIC_SAT.
+  + apply DIO_LOGIC_ELEM_SAT.
+  + apply DIO_ELEM_SINGLE_SAT.
+  + apply DIO_SINGLE_SAT_H10.
+Qed.
+
+Theorem H10_undec : Halt ⪯ H10.
+Proof.
+  repeat (eapply reduces_transitive; [ apply Hilberts_Tenth | ]).
+  apply reduces_reflexive.
+Qed.
+
+Check H10_undec.
 Print Assumptions Hilberts_Tenth.
   
     
