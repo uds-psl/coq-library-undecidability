@@ -236,9 +236,64 @@ Tactic Notation "mm" "sss" "stop" := exists 0; apply sss_steps_0; auto.
 
 Definition MM_PROBLEM := { n : nat & { P : list (mm_instr n) & vec nat n } }.
 
+Local Notation "i // s -1> t" := (@mm_sss _ i s t).
 Local Notation "P // s ~~> t" := (sss_output (@mm_sss _) P s t).
+Local Notation "P // s ↓" := (sss_terminates (@mm_sss _) P s). 
 
-Definition MM_HALTING (P : MM_PROBLEM) := 
+Definition MM_HALTS_ON_ZERO (P : MM_PROBLEM) := 
   match P with existT _ n (existT _ P v) => (1,P) // (1,v) ~~> (0,vec_zero) end.
+
+Definition MM_HALTING (P : MM_PROBLEM) :=
+  match P with existT _ n (existT _ P v) => (1, P) // (1, v) ↓ end.
+
+Section mm_special_ind.
+
+  Variables (n : nat) (P : nat*list (mm_instr n)) (se : nat * vec nat n)
+            (Q : nat * vec nat n -> Prop).
+
+  Hypothesis (HQ0 : Q se)
+             (HQ1 : forall i ρ v j w,   (i,ρ::nil) <sc P
+                                     -> ρ // (i,v) -1> (j,w)
+                                     -> P // (j,w) ->> se
+                                     -> Q (j,w)
+                                     -> Q (i,v)).
+
+  Theorem mm_special_ind s : P // s ->> se -> Q s.
+  Proof.
+    intros (q & H1); revert s H1.
+    induction q as [ | q IHq ]; intros s Hs.
+    + apply sss_steps_0_inv in Hs; subst; apply HQ0.
+    + apply sss_steps_S_inv' in Hs.
+      destruct Hs as ((j,w) & (j' & l & ρ & r & u & G1 & G2 & G3) & Hs2); subst s P.
+      apply HQ1 with (i := j'+length l) (2 := G3); auto.
+      exists q; auto.
+  Qed.
+
+End mm_special_ind.
+
+Section mm_term_ind.
+
+  Variables (n : nat) (P : nat*list (mm_instr n)) (se : nat * vec nat n)
+            (Q : nat * vec nat n -> Prop).
+
+  Hypothesis (HQ0 : out_code (fst se) P -> Q se)
+             (HQ1 : forall i ρ v j w,    (i,ρ::nil) <sc P
+                                     -> ρ // (i,v) -1> (j,w)
+                                     -> P // (j,w) ~~> se
+                                     -> Q (j,w)
+                                     -> Q (i,v)).
+
+  Theorem mm_term_ind s : P // s ~~> se -> Q s.
+  Proof.
+    intros (H1 & H2).
+    revert s H1; apply mm_special_ind; auto.
+    intros i rho v j w' H1 H3 H4.
+    apply HQ1 with (1 := H1); auto.
+    split; auto.
+  Qed.
+
+End mm_term_ind.
+
+
 
 
