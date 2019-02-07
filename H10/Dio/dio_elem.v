@@ -699,7 +699,7 @@ Section diophantine_system.
   Fact df_weigth_2_size f : df_weight_2 f <= 3*df_size f.
   Proof. induction f; simpl in *; omega. Qed.
 
-  Theorem dio_repr_at_form n f : dio_repr_at (df_pred f) n (df_weight_1 f) (df_weight_2 f).
+  Lemma dio_repr_at_form n f : dio_repr_at (df_pred f) n (df_weight_1 f) (df_weight_2 f).
   Proof.
     revert n;
     induction f as [ a b | f IHf g IHg | f IHf g IHg | f IHf ]; intros n; simpl df_pred; simpl df_weight_1; simpl df_weight_2.
@@ -714,9 +714,9 @@ Section diophantine_system.
       most 4*s variables and such that df_pred f ν is equivalent to 
       the simultaneous satisfiability at ν of all the elementary constraints in l *)
 
-  Corollary dio_formula_elem f : { l | length l <= 1+3*df_size f
-                                    /\ (forall c x, In c l -> dc_vars c x -> x < 4*df_size f)  
-                                    /\  forall ν, df_pred f ν <-> exists φ, Forall (dc_eval φ ν) l }.
+  Theorem dio_formula_elem f : { l | length l <= 1+3*df_size f
+                                 /\ (forall c x, In c l -> dc_vars c x -> x < 4*df_size f)  
+                                 /\  forall ν, df_pred f ν <-> exists φ, Forall (dc_eval φ ν) l }.
   Proof.
     destruct (dio_repr_at_form 0 f) as [l r H0 H1 H2 H3 H4].
     exists ((r,dee_nat 0) :: l); split; [ | split ]; simpl length; try omega.

@@ -52,12 +52,23 @@ Definition encode_inc n  i (u : pos n) := (ps (i + 1) * qs u, ps i).
 Definition encode_dec n  i (u : pos n) (_ : nat) := (ps (i + 1), ps i * qs u).
 Definition encode_dec2 n i (u : pos n) j := (ps j, ps i).
 
+Definition encode_one_instr m i (rho : mm_instr m) :=
+  match rho with
+    | INC u   => encode_inc i u :: nil
+    | DEC u j => encode_dec i u j :: encode_dec2 i u j :: nil
+  end.
+
 Fixpoint encode_mm_instr m i (l : list (mm_instr m)) : list (nat * nat) :=
   match l with
-  | nil          => nil
-  | INC u   :: l => encode_inc i u                        :: encode_mm_instr (S i) l
-  | DEC u j :: l => encode_dec i u j :: encode_dec2 i u j :: encode_mm_instr (S i) l
+    | nil          => nil
+    | rho :: l => encode_one_instr i rho ++ encode_mm_instr (S i) l
   end.
+
+Fact encode_mm_instr_app m i l r : @encode_mm_instr m i (l++r) = encode_mm_instr i l++encode_mm_instr (length l+i) r.
+Proof.
+  revert i; induction l as [ | rho l IHl ]; intros i; simpl; auto; rewrite IHl, app_ass.
+  do 3 f_equal; omega.
+Qed.
 
 Fact encode_mm_instr_regular n i l : Forall (fun c => fst c <> 0 /\ snd c <> 0) (@encode_mm_instr n i l).
 Proof.
@@ -68,6 +79,26 @@ Proof.
   + constructor; [ | constructor ]; auto; split; unfold encode_dec, encode_dec2; simpl.
     2: apply Nat.neq_mul_0; split.
     all: apply prime_neq_0; apply nthprime_prime.
+Qed.
+
+Fact encode_mm_instr_regular' n i l : fractran_regular (@encode_mm_instr n i l).
+Proof.
+  generalize (@encode_mm_instr_regular n i l); apply Forall_impl; tauto.
+Qed.
+
+Fact encode_mm_instr_in_inv n i P el c er : 
+          @encode_mm_instr n i P = el++c::er
+       -> exists l rho r, P = l++rho::r /\ In c (encode_one_instr (length l+i) rho).
+Proof.
+  revert i el c er; induction P as [ | rho P IHP ]; simpl; intros i el c er H.
+  + destruct el; discriminate.
+  + destruct list_app_cons_eq_inv with (1 := H)
+      as [ (m & H1 & H2) | (m & H1 & H2) ].
+    * destruct IHP with (1 := H2) as (l & rho' & r & G1 & G2).
+      exists (rho::l), rho', r; subst; split; auto.
+      eq goal G2; do 2 f_equal; simpl; omega.
+    * exists nil, rho, P; split; simpl; auto.
+      rewrite <- H1; apply in_or_app; simpl; auto.
 Qed.
 
 Local Notation divides_mult_inv := prime_div_mult.
@@ -196,224 +227,74 @@ Proof.
   - destruct st2. eapply one_step_forward in H1; eauto.
 Qed.
 
-Ltac list_without L v :=
-  match L with
-  | ?L * v => list_without L v
-  | v * ?L => list_without L v
-  | ?L * ?R => let l := list_without L v in
-              let r := list_without R v in constr:(l * r)
-  | ?L => constr:(L)
-  end.
+(** The divisibility results are no so complicated when
+    we do not need to show that encode_state is injective ... *)
 
-Ltac factorout H v :=
-  match type of H with ?L = ?R =>
-                       let L := list_without L v in
-                       let R := list_without R v in
-                       let H' := fresh "H" in
-                       rename H into H';
-                       assert (H : L = R); [ eapply Nat.mul_cancel_l with v; [ eauto | ring_simplify; ring_simplify in H'; (rewrite H' || rewrite <- H'); ring] | ]; clear H'
-  end.
+Local Fact divides_from_eq x y t : x*y = t -> divides x t.
+Proof. exists y; subst; ring. Qed.
 
-Lemma mm_no_self_loops_cons n i a P : mm_no_self_loops   (i, a :: P) 
-                                  -> @mm_no_self_loops n (1 + i, P).
+Local Fact prime_div_mult3 p x y z : prime p -> divides p (x*y*z) -> divides p x \/ divides p y \/ divides p z.
 Proof.
-  intros ? ? ? ?. 
-  eapply (H i0 x). 
-  now eapply subcode_cons.
-Qed. 
-
-Hint Resolve mm_no_self_loops_cons.
-
-Lemma one_step_backward m i P i1 v1 i2 v2 :
-     @mm_no_self_loops m (i, P) 
-  -> encode_mm_instr i P /F/  encode_state (i1,v1) → encode_state (i2,v2)
-  ->              (i, P) /MM/ (i1, v1)           → (i2,v2).
-Proof with eauto; try omega.
-  revert i i1 i2 v1 v2.  induction P; intros i i1 i2 v1 v2 HP H; cbn; inv H.
-  all: destruct a; inv H0. all:unfold encode_state, fst, snd in *. all: try ring_simplify in H1.
-  all: try ring_simplify in H2.
-  - assert (i = i1) as ->. {
-      match type of H1 with _ = ?r => assert (divides (ps i) r) end.
-      rewrite <- H1. exists (ps i2 * exp 0 v2). ring.
-      eapply divides_mult_inv in H as [[[ | ] % divides_mult_inv | ] % divides_mult_inv | ]...
-      + eapply primestream_divides in H. omega.
-      + now eapply ps_qs_div in H.
-      + eauto using primestream_divides.
-      + now eapply ps_exp in H.
-    } ring_simplify  in H1.
-    factorout H1 (ps i1).
-    
-    assert (i2 = i1 + 1) as ->. {
-      assert (divides (ps i2) (ps (i1 + 1) * qs p0 * exp 0 v1)).
-      rewrite <- H1. exists (exp 0 v2). ring.
-      eapply divides_mult_inv in H as [[ | ] % divides_mult_inv | ]...
-      + eapply primestream_divides in H; eauto.
-      + now eapply ps_qs_div in H.
-      + now eapply ps_exp in H.
-    } clear IHP.
-
-    factorout H1 (ps (i1 + 1)).
-    rewrite <- exp_inv_inc in H1. eapply exp_inj in H1 as ->.
-    
-    exists i1,[],(INC p0), P, v1. repeat split; try f_equal.
-    cbn. omega. replace (i1 + 1) with (1 + i1) by omega. econstructor.
-  - assert (i = i1) as ->.
-    { match type of H1 with _ = ?r => assert (divides (ps i) r) end.
-      rewrite <- H1. exists (qs p0 * ps i2 * exp 0 v2). ring.
-      eapply divides_mult_inv in H as [[ | ] % divides_mult_inv | ]...
-      + eapply primestream_divides in H...
-      + eapply primestream_divides in H...
-      + eapply ps_exp in H...
-    } factorout H1 (ps i1).
-
-    assert (i2 = i1 + 1) as ->. {
-      match type of H1 with _ = ?r => assert (divides (ps i2) r) end.
-      rewrite <- H1. exists (qs p0 * exp 0 v2). ring.
-      eapply divides_mult_inv in H as [ | ]... 
-      + eapply primestream_divides in H...
-      + eapply ps_exp in H...
-    } clear IHP. factorout H1 (ps (i1 + 1)).
-    symmetry in H1. rewrite <- exp_inv_inc in H1. eapply exp_inj in H1 as ->.
-
-    eexists i1,[], (DEC p0 n), P, _. repeat split; try f_equal.
-    cbn. omega. replace (i1 + 1) with (1 + i1) by omega.
-    pose proof (@in_mm_sss_dec_1 _ i1 p0 n (vec_change v2 p0 (S (vec_pos v2 p0))) (vec_pos v2 p0)).
-    rewrite vec_change_eq in H... specialize (H eq_refl).
-    now rewrite vec_change_idem, vec_change_same in H.
-  - eapply IHP in H2. all: try now (cbn in *; omega).
-    destruct H2 as (k & l & [ u | u j ] & r & v & ? & ? & ?).
-    + inv H. inv H0. inv H2. 
-      exists i. exists (INC p0 :: l). exists (INC u). exists r. exists v.
-      cbn. repeat split. f_equal. omega.
-      econstructor.
-    + inv H. inv H0. inv H2. 
-      * exists i. exists (INC p0 :: l). exists (DEC u i2). exists r. exists v2.
-        cbn. repeat split. f_equal. omega.
-        econstructor. eauto.
-      * exists i. exists (INC p0 :: l). exists (DEC u j). exists r. exists v.
-        cbn. repeat split. f_equal. omega.
-        econstructor. eauto.
-    + eauto.
-  -  unfold encode_dec2 in H2. cbn in H2. inv H2.
-     * assert (i = i1) as ->.
-       { match type of H6 with _ = ?r => assert (divides (ps i) r) end.
-         rewrite <- H6. exists (ps i2 * exp 0 v2). ring. ring_simplify in H.
-         eapply divides_mult_inv in H as [[|] % divides_mult_inv | ]...
-         + eapply primestream_divides in H... subst.
-           edestruct (HP n p0)...
-         + eapply primestream_divides in H...
-         + eapply ps_exp in H...
-       } factorout H6 (ps i1).
-
-       assert (i2 = n) as ->. {
-         match type of H6 with _ = ?r => assert (divides (ps i2) r) end.
-         rewrite <- H6. exists (exp 0 v2). ring.
-         eapply divides_mult_inv in H as [ | ]...
-         + eapply primestream_divides in H... 
-         + eapply ps_exp in H...
-       } clear IHP.
-       rewrite Nat.mul_cancel_l in H6...
-
-       eapply exp_inj in H6 as ->.
-
-       eexists i1,[], (DEC p0 n), P, _. repeat split; try f_equal.
-       cbn. omega. eapply in_mm_sss_dec_0.
-
-       destruct (gt_0_eq (vec_pos v1 p0)); try omega.
-       eapply qs_encode_state with (i := i1 + 1) in H. destruct H1.
-       destruct H.
-       exists x. ring_simplify. repeat rewrite <- mult_assoc. rewrite <- H.
-       unfold encode_state, fst, snd. ring.
-     * eapply IHP in H7. subst.
-       destruct H7 as (k & l & [ u | u j ] & r & v & ? & ? & ?).
-       -- inv H. inv H0. inv H2.
-          exists i. exists (DEC p0 n :: l). exists (INC u). exists r. exists v.
-          cbn. repeat split. f_equal. omega.
-          econstructor.
-       -- inv H. inv H0. inv H2.
-          ++ exists i. exists (DEC p0 n :: l). exists (DEC u i2). exists r. exists v2.
-             cbn. repeat split. f_equal. omega.
-             econstructor. eauto.
-          ++ exists i. exists (DEC p0 n :: l). exists (DEC u j). exists r. exists v.
-             cbn. repeat split. f_equal. omega.
-             econstructor. eauto.
-       -- eauto.
+  intros H1 H2.
+  apply prime_div_mult in H2; auto.
+  destruct H2 as [ H2 | ]; auto.
+  apply prime_div_mult in H2; tauto.
 Qed.
 
-Lemma step_inv m i P i1 (v1 : vec nat m) st :
-     @mm_no_self_loops m (i,P) 
-  -> encode_mm_instr i P /F/ encode_state (i1,v1) → st 
-  -> exists i2 v2, st = @encode_state m (i2,v2).
-Proof with eauto; try omega.
-  intros HP ?. revert i H HP. induction P; intros i H0 HP.
-  - cbn in H0. inv H0.
-  - cbn in H0. inv H0.
-    + destruct a; inv H.
-      * exists (i + 1), (vec_change v1 p0 (S (v1 #> p0))).
-        unfold encode_state in H1.
-        assert (i = i1) as ->. {
-          match type of H1 with _ = ?r => assert (divides (ps i) r) end.
-          rewrite <- H1. exists st. ring.
-          eapply divides_mult_inv in H as [ [|] % divides_mult_inv | [|] % divides_mult_inv ]...
-          + eapply primestream_divides in H...
-          + eapply ps_qs_div in H...
-          + eapply primestream_divides in H...
-          + eapply ps_exp in H...
-        } unfold fst, snd in *; ring_simplify  in H1.
-        factorout H1 (ps i1). subst.
-        unfold encode_state, fst, snd. rewrite vec_prod_mult. replace (p0 + 0) with (0 + p0) by omega.
-        cbn. ring.
-      * unfold encode_state, fst, snd in H1.
-        assert (i = i1) as ->. {
-          match type of H1 with _ = ?r => assert (divides (ps i) r) end.
-          rewrite <- H1. exists (qs p0 * st). ring.
-          eapply divides_mult_inv in H as [ | [|] % divides_mult_inv ]...
-          + eapply primestream_divides in H...
-          + eapply primestream_divides in H...
-          + eapply ps_exp in H...
-        } 
-        factorout H1 (ps i1).
-
-        assert (v1 #> p0 > 0). {
-          eapply qs_encode_state.
-          match type of H1 with _ = ?r => assert (divides (qs p0) r) end.
-          rewrite <- H1. exists st. ring. eapply H.
-        }
-        destruct (v1 #> p0) eqn:E. inv H.
-        
-        exists (i1+1), (vec_change v1 p0 n0).
-        eapply Nat.mul_cancel_l. 2:rewrite H1. eauto.
-        unfold encode_state, fst, snd. ring_simplify.
-        rewrite <- !mult_assoc. rewrite Nat.mul_cancel_l. 2:eauto.
-        rewrite <- (vec_prod_div _ _ _ E). replace (p0 + 0) with (0 + p0) by omega.
-        cbn. ring.
-    + destruct a; inv H.
-      * eapply IHP in H2...
-      * inv H2.
-        -- unfold encode_state, fst, snd in H6.
-           assert (i = i1) as ->. {
-             match type of H6 with _ = ?r => assert (divides (ps i) r) end.
-             rewrite <- H6. exists st. ring.
-             eapply divides_mult_inv in H as [  | [|] % divides_mult_inv ]...
-             + eapply primestream_divides in H. subst. destruct (HP n p0)...
-             + eapply primestream_divides in H...
-             + eapply ps_exp in H...
-           } 
-           factorout H6 (ps i1). subst.
-           unfold encode_state, fst, snd. eexists; eauto.
-        -- eapply IHP in H7...
+Local Fact prime_div_mult4 p w x y z : prime p -> divides p (w*x*y*z) -> divides p w \/ divides p x \/ divides p y \/ divides p z.
+Proof.
+  intros H1 H2.
+  apply prime_div_mult3 in H2; auto.
+  destruct H2 as [ H2 | H2 ]; try tauto.
+  apply prime_div_mult in H2; tauto.
 Qed.
 
-Lemma step_backward m i P i1 v1 st :
+Local Hint Resolve encode_mm_instr_regular'.
+
+Lemma one_step_backward m i P i1 v1 st :
      @mm_no_self_loops m (i, P)
   -> encode_mm_instr i P /F/ @encode_state m (i1,v1) → st 
   -> exists i2 v2, st = @encode_state m (i2,v2)
                 /\ (i, P) /MM/ (i1, v1) → (i2,v2).
 Proof.
   intros H1 H2.
-   destruct step_inv with (2 := H2)
-        as (i2 & v2 & ->); auto.
-   apply one_step_backward in H2; eauto.
+  destruct fractran_step_inv with (1 := H2)
+    as (el & p & q & er & H3 & H4 & H5).
+  unfold encode_state in H5; simpl in H5.
+  destruct encode_mm_instr_in_inv with (1 := H3)
+    as (l & rho & r & -> & G2).
+  assert (i1 = length l+i) as E.
+  { unfold encode_one_instr in G2.
+    destruct rho as [ u | u j ]; unfold encode_inc, encode_dec, encode_dec2 in G2;
+      [ destruct G2 as [ G2 | [] ] | destruct G2 as [ G2 | [ G2 | [] ] ] ]; 
+      inversion G2; subst p q; clear G2;
+      repeat rewrite mult_assoc in H5.
+    * apply divides_from_eq, prime_div_mult4 in H5; auto.
+      destruct H5 as [ H5 | [ H5 | [ H5 | H5 ] ] ].
+      + apply primestream_divides in H5; omega.
+      + apply ps_qs_div in H5; tauto.
+      + apply primestream_divides in H5; omega.
+      + apply ps_exp in H5; tauto.
+    * rewrite <- mult_assoc in H5.
+      apply divides_from_eq, prime_div_mult3 in H5; auto.
+      destruct H5 as [ H5 | [ H5 | H5 ] ].
+      + apply primestream_divides in H5; omega.
+      + apply primestream_divides in H5; omega.
+      + apply ps_exp in H5; tauto.
+    * apply divides_from_eq, prime_div_mult3 in H5; auto.
+      destruct H5 as [ H5 | [ H5 | H5 ] ].
+      + apply primestream_divides in H5.
+        exfalso; apply (H1 j u); auto.
+      + apply primestream_divides in H5; omega.
+      + apply ps_exp in H5; tauto. }
+  destruct mm_sss_total with (ii := rho) (s := (i1,v1))
+    as ((i2 & v2) & H7).
+  exists i2, v2.
+  assert ((i, l++rho::r) /MM/ (i1,v1) → (i2,v2)) as H8.
+  { apply in_sss_step; auto; simpl; omega. }
+  split; auto.
+  apply one_step_forward in H8; auto.
+  revert H2 H8; apply fractran_step_fun; auto.
 Qed.
 
 Lemma steps_backward m i P i1 v1 k st :
@@ -426,15 +307,12 @@ Proof.
   revert i1 v1 st; induction k as [ | k IHk ]; intros i1 v1 st H; simpl in H.
   - subst; exists i1, v1; split; auto; constructor.
   - destruct H as (st1 & H2 & H3).
-    destruct step_backward with (2 := H2)
+    destruct one_step_backward with (2 := H2)
       as (i2 & v2 & -> & H5); auto.
     destruct IHk with (1 := H3) as (i3 & v3 & ? & ->).
     exists i3, v3; split; auto.
     constructor 2 with (i2,v2); auto.
 Qed.
-
-(** DLW: I did rewrite that proof to be sure I did not miss
-    an argument for the paper *)
 
 Theorem mm_fractran_simulation n P v :
      @mm_no_self_loops n (1, P) 
@@ -447,7 +325,7 @@ Proof.
     exists (encode_state (j,w)); split.
     * exists k; apply steps_forward in H1; auto.
     * intros x Hx.
-      destruct step_backward with (2 := Hx)
+      destruct one_step_backward with (2 := Hx)
         as (i2 & v2 & -> & ?); auto.
       revert H; apply sss_out_step_stall; auto.
   + intros (st & (k & H1) & H2).

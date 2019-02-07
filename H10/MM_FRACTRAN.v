@@ -19,26 +19,24 @@ Require Import fractran_defs prime_seq mm_fractran.
 
 Set Implicit Arguments.
 
-(** Given a regular FRACTRAN program and a starting state, does it terminate *)
+(** Given a FRACTRAN program and a starting state, does it terminate *)
 
-Definition FRACTRAN_REG_PROBLEM := { l : list (nat*nat) & { _ : nat | fractran_regular l } }%type.
+Definition FRACTRAN_PROBLEM := (list (nat*nat) * nat)%type.
 
-Definition FRACTRAN_REG_HALTING (P : FRACTRAN_REG_PROBLEM) : Prop.
+Definition FRACTRAN_HALTING (P : FRACTRAN_PROBLEM) : Prop.
 Proof.
-  destruct P as (l & x & _).
+  destruct P as (l & x).
   exact (l /F/ x ↓).
 Defined.
 
-(** Given a regular FRACTRAN program and a starting vector [v1,...,vn],
+(** Given a FRACTRAN program and a starting vector [v1,...,vn],
     does the program terminate starting from p1 * q1^v1 * ... qn^vn *)
 
-Definition FRACTRAN_ALT_PROBLEM := { n : nat & 
-                                   { l :list (nat*nat) & 
-                                   { _ : vec nat n | fractran_regular l } } }%type.
+Definition FRACTRAN_ALT_PROBLEM := (list (nat*nat) * { n : nat & vec nat n })%type.
 
-Definition FRACTRAN_ALT_HALTING (P : FRACTRAN_ALT_PROBLEM) : Prop.
+Definition FRACTRAN_ALT_HALTING : FRACTRAN_ALT_PROBLEM -> Prop.
 Proof.
-  destruct P as (n & l & v & _).
+  intros (l & n & v).
   exact (l /F/ ps 1 * exp 1 v ↓).
 Defined.
 
@@ -48,7 +46,9 @@ Section MM_HALTING_FRACTRAN_ALT_HALTING.
   Proof.
     intros (n & P & v); red.
     destruct (mm_fractran_n P) as (l & H1 & _).
-    exists n, l, v; apply H1.
+    split. 
+    + exact l. 
+    + exists n; exact v.
   Defined.
 
   Theorem MM_FRACTRAN_ALT_HALTING : MM_HALTING ⪯ FRACTRAN_ALT_HALTING.
@@ -59,27 +59,26 @@ Section MM_HALTING_FRACTRAN_ALT_HALTING.
 
 End MM_HALTING_FRACTRAN_ALT_HALTING.
 
-Section FRACTRAN_ALT_HALTING_REG_HALTING.
+Section FRACTRAN_ALT_HALTING_HALTING.
 
-  Let f : FRACTRAN_ALT_PROBLEM -> FRACTRAN_REG_PROBLEM.
+  Let f : FRACTRAN_ALT_PROBLEM -> FRACTRAN_PROBLEM.
   Proof.
-    intros (n & l & v & H).
-    exists l, (ps 1 * exp 1 v); apply H.
+    intros (l & n & v).
+    exact (l,(ps 1 * exp 1 v)).
   Defined.
 
-  Theorem FRACTRAN_ALT_HALTING_REG_HALTING : FRACTRAN_ALT_HALTING ⪯ FRACTRAN_REG_HALTING.
+  Theorem FRACTRAN_ALT_HALTING_HALTING : FRACTRAN_ALT_HALTING ⪯ FRACTRAN_HALTING.
   Proof. 
-    exists f; intros (n & P & v & H); simpl; tauto.
+    exists f; intros (n & P & v); simpl; tauto.
   Qed.
 
-End FRACTRAN_ALT_HALTING_REG_HALTING.
+End FRACTRAN_ALT_HALTING_HALTING.
 
-Corollary MM_FRACTRAN_REG_HALTING : MM_HALTING ⪯ FRACTRAN_REG_HALTING.
+Corollary MM_FRACTRAN_HALTING : MM_HALTING ⪯ FRACTRAN_HALTING.
 Proof.
   eapply reduces_transitive. apply MM_FRACTRAN_ALT_HALTING.
-  exact FRACTRAN_ALT_HALTING_REG_HALTING.
+  exact FRACTRAN_ALT_HALTING_HALTING.
 Qed.
 
-Check MM_FRACTRAN_REG_HALTING.
-Print Assumptions MM_FRACTRAN_REG_HALTING.
-   
+Check MM_FRACTRAN_HALTING.
+Print Assumptions MM_FRACTRAN_HALTING.

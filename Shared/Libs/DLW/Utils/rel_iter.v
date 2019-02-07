@@ -8,7 +8,7 @@
 (**************************************************************)
 
 Require Import Arith Nat Omega.
-Require Import gcd prime binomial sums.
+Require Import utils_tac gcd prime binomial sums.
 
 Set Implicit Arguments.
 
@@ -194,3 +194,95 @@ Section rel_iter_bound.
   Proof. split; auto. Qed.
 
 End rel_iter_bound.
+
+Section rel_iter_seq.
+
+  Variable (R : nat -> nat -> Prop).
+
+  (** q represents a basis big enough so that all the sequence x=x0 R x1 R ... R xn = y can be
+      encoded as the digits of c in base q *)
+
+  Definition rel_iter_seq n x y := exists q c, is_seq R c q n /\ is_digit c q 0 x /\ is_digit c q n y.
+
+  Lemma rel_iter_seq_iter n x y : rel_iter_seq n x y -> rel_iter R n x y.
+  Proof.
+    revert y; induction n as [ | n IHn ]; intros y.
+    * intros (q & c & H2 & H3 & H4).
+      red in H2.
+      simpl; revert H3 H4; apply is_digit_fun.
+    * rewrite rel_iter_S.
+      intros (q & c & H2 & H3 & H4).
+      red in H2.
+      assert (0 < q) as Hq.
+      { destruct H3; omega. }
+      assert (exists z, is_digit c q n z) as H6.
+      { exists (rem (div c (power n q)) q).
+        split.
+        + apply div_rem_spec2; omega.
+        + exists (div (div c (power n q)) q), (rem c (power n q)); split.
+          2: apply div_rem_spec2; red; rewrite power_0_inv; omega.
+          rewrite <- div_rem_spec1 with (p := q).
+          apply div_rem_spec1. }
+      destruct H6 as (z & H6); exists z; split.
+      + apply IHn.
+        exists q, c; msplit 2; auto.
+        intros i Hi; apply H2; omega.
+      + destruct (H2 n) as (u & v & G1 & G2 & G3); auto.
+        rewrite is_digit_fun with (1 := H4) (2 := G2),
+                is_digit_fun with (1 := H6) (2 := G1); auto.
+  Qed.
+
+  Notation power := (mscal mult 1).
+  Notation "∑" := (msum plus 0).
+
+  Lemma rel_iter_iter_seq n x y : rel_iter R n x y -> rel_iter_seq n x y.
+  Proof.
+    intros H.
+    apply rel_iter_sequence in H.
+    destruct H as (f & H1 & H2 & H3).
+    assert (exists q, forall i, i <= n -> f i < q) as Hq.
+    { clear H1 H2 H3.
+      revert f; induction n as [ | n IHn ]; intros f.
+      + exists (S (f 0)); intros [ | ] ?; omega.
+      + destruct IHn with (f := fun i => (f (S i))) as (q & Hq).
+        exists (1+f 0+q); intros [ | i ] Hi; try omega.
+        generalize (Hq i); intros; omega. }
+    destruct Hq as (q & Hfq).
+    assert (q <> 0) as Hq. 
+    { generalize (Hfq 0); intros; omega. }
+    set (c := ∑ (S n) (fun i => f i * power i q)).
+    assert (forall i, i <= n -> is_digit c q i (f i)) as Hc.
+    { intros i Hi; split; auto.
+      + exists (∑ (n-i) (fun j => f (1+i+j) * power j q)),
+               (∑  i    (fun i => f i * power i q)); split.
+        2: apply sum_power_lt; auto; intros; apply Hfq; omega.
+        unfold c; replace (S n) with (i+S (n - i)) by omega.
+        rewrite msum_plus, plus_comm; f_equal; auto. 
+        rewrite msum_ext with (g := fun k => power i q*(f (i+k)*power k q)).
+        * rewrite sum_0n_scal_l, mult_comm; f_equal.
+          rewrite msum_S, plus_comm; f_equal.
+          2: simpl; rewrite Nat.mul_1_r; f_equal; omega.
+          rewrite (mult_comm _ q), <- sum_0n_scal_l.
+          apply msum_ext.
+          intros j _.
+          replace (i+S j) with (1+i+j) by omega.
+          rewrite power_S; ring.
+        * intros j _; rewrite power_plus; ring. }
+    exists q, c; msplit 2.
+    + intros i Hi; exists (f i), (f (S i)).
+      split; [ | split ].
+      * apply Hc; omega.
+      * apply Hc; omega.
+      * apply H3; auto.
+    + rewrite <- H1; apply Hc; omega.
+    + rewrite <- H2; apply Hc; omega.
+  Qed.
+
+  Hint Resolve rel_iter_seq_iter rel_iter_iter_seq.
+
+  (* A characterization of fun n x y => rel_iter R n x y with a diophantine formula *)
+
+  Theorem rel_iter_seq_equiv n x y : rel_iter R n x y <-> rel_iter_seq n x y.
+  Proof. split; auto. Qed.
+
+End rel_iter_seq.

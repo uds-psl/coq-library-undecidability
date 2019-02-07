@@ -352,7 +352,9 @@ Section dio_poly_pos.
       destruct o; f_equal; auto.
   Qed.
 
-  Theorem dio_poly_eq_pos (e : dio_single nat P) : { m : nat & { p' : dio_polynomial (pos m) P & { q' | forall ν, dio_single_pred e ν <-> dio_single_pred (p',q') ν } } }.
+  Theorem dio_poly_eq_pos (e : dio_single nat P) : { m : nat 
+                                                 & { p' : dio_polynomial (pos m) P 
+                                                 & { q' | forall ν, dio_single_pred e ν <-> dio_single_pred (p',q') ν } } }.
   Proof.
     destruct e as (p,q).
     destruct (list_upper_bound (dp_var_list p++dp_var_list q)) as (m & Hm).

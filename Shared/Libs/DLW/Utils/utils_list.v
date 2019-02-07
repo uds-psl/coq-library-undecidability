@@ -245,6 +245,16 @@ Proof.
   inversion H2; subst.
   right; exists m; auto.
 Qed.
+
+Fact list_cons_app_cons_eq_inv X (l2 r1 r2 : list X) x y :
+       x::r1 = l2++y::r2 -> (l2 = nil /\ x = y /\ r1 = r2) 
+                          + { m | l2 = x::m /\ r1 = m++y::r2 }.
+Proof.
+  intros H.
+  destruct l2 as [ | z m ]; simpl in H.
+  + left; inversion H; auto.
+  + right; exists m; inversion H; auto.
+Qed.
  
 Fact list_app_inj X (l1 l2 r1 r2 : list X) : length l1 = length l2 -> l1++r1 = l2++r2 -> l1 = l2 /\ r1 = r2.
 Proof.

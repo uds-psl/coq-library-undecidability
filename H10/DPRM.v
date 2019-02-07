@@ -37,12 +37,11 @@ Section DPRM_n.
 
   (* There is a FRACTRAN program simulating R *)
 
-  Let reg_FRACTRAN : { l | Forall (fun c => snd c <> 0) l
-                    /\ forall v, R v <-> l /F/ ps 1 * exp 1 v ↓ }.
+  Let FRACTRAN : { l | forall v, R v <-> l /F/ ps 1 * exp 1 v ↓ }.
   Proof.
     destruct HR as (m & Q & HQ).
-    destruct mm_fractran_n with (P := Q) as (l & H1 & Hl).
-    exists l; split; auto. 
+    destruct mm_fractran_n with (P := Q) as (l & _ & Hl).
+    exists l. 
     intros x; rewrite HQ, Hl.
     rewrite exp_app, exp_zero, Nat.mul_1_r; tauto.
   Qed.
@@ -51,8 +50,8 @@ Section DPRM_n.
 
   Theorem DPRM_n : diophantine_n R.
   Proof.
-    destruct reg_FRACTRAN as (l & H1 & Hl).
-    clear reg_FRACTRAN HR.
+    destruct FRACTRAN as (l & Hl).
+    clear FRACTRAN HR.
     destruct FRACTRAN_HALTING_on_exp_diophantine with n l as (f & Hf); auto.
     destruct (dio_formula_elem f) as (ll & _ & _ & G3).
     destruct (dio_elem_equation ll) as (c & _ & G4).

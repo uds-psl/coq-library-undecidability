@@ -64,24 +64,21 @@ Defined.
 
 Section df_rel_iter.
 
-  (** we show that for a linearly bounded diophantine binary relation R,
+  (** we show that for a diophantine binary relation R,
       the iterator fun n x y => rel_iter R n x y is also diophantine
       using the rel_iter_bounded characterization as:
 
-        rel_iter R n x y <-> exists q c, x*power k n < q /\ is_seq R c q n /\ is_digit c q 0 x /\ is_digit c q n y. *)
+        rel_iter R n x y <-> exists q c, is_seq R c q n /\ is_digit c q 0 x /\ is_digit c q n y. *)
 
-  Variable (R : nat -> nat -> Prop) (k : nat)
-           (Hk : forall x y, R x y -> y <= k*x)
-           (HR : dio_rel (fun ν => R (ν 1) (ν 0))).
+  Variable (R : nat -> nat -> Prop) (HR : dio_rel (fun ν => R (ν 1) (ν 0))).
 
   Lemma dio_rel_rel_iter n x y : 
                   𝔻P n -> 𝔻P x -> 𝔻P y
       -> 𝔻R (fun ν => rel_iter R (n ν) (x ν) (y ν)).
   Proof.
     intros Hn Hx Hy.
-    apply dio_rel_equiv with (1 := fun v => rel_iter_bound_equiv R k Hk (n v) (x v) (y v)).
+    apply dio_rel_equiv with (1 := fun v => rel_iter_seq_equiv R (n v) (x v) (y v)).
     dio_rel_auto.
-    apply dio_rel_power_subst with (R := fun p v => _ * p < _); auto.
   Defined.
 
   Hint Resolve dio_rel_rel_iter.
@@ -94,5 +91,5 @@ End df_rel_iter.
 
 Hint Resolve dio_rel_rel_iter.
 
-Check dio_rel_rel_iter.
-Print Assumptions dio_rel_rel_iter.
+Check dio_rel_rt.
+Print Assumptions dio_rel_rt.

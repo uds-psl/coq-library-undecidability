@@ -37,14 +37,9 @@ Section fractran_dio.
   (* Hence Fractan step* (refl. trans. closure) is diophantine *)
 
   Theorem dio_rel_fractran_rt l x y : 
-             Forall (fun c => snd c <> 0) l 
-          -> 𝔻P x
-          -> 𝔻P y
-          -> 𝔻R (fun ν => fractran_compute l (x ν) (y ν)).
+                     𝔻P x -> 𝔻P y -> 𝔻R (fun ν => fractran_compute l (x ν) (y ν)).
   Proof.
-    intros Hl Hx Hy.
-    destruct (fractran_step_bound Hl) as (k & Hk).
-    apply dio_rel_exst, dio_rel_rel_iter with (1 := Hk); auto.
+    intros; apply dio_rel_exst, dio_rel_rel_iter; auto.
   Defined.
 
   (* Fractran stop is a diophantine relation *)
@@ -66,64 +61,15 @@ Section fractran_dio.
 
   (* Hence Halting from the value x is diophantine *)
 
-  Theorem FRACTRAN_HALTING_diophantine_1 ll x : 
-           fractran_regular ll 
-        -> 𝔻P x 
-        -> 𝔻R (fun ν => FRACTRAN_HALTING (ll,x ν)).
+  Theorem FRACTRAN_HALTING_on_diophantine ll x :
+                      𝔻P x -> 𝔻R (fun ν => FRACTRAN_HALTING (ll,x ν)).
   Proof.
     intros; apply dio_rel_exst, dio_rel_conj; auto.
   Defined.
 
-  Theorem FRACTRAN_HALTING_diophantine_0 ll : 
-           fractran_regular ll 
-        -> 𝔻R (fun ν => FRACTRAN_HALTING (ll,ν 0)).
+  Theorem FRACTRAN_HALTING_diophantine_0 ll : 𝔻R (fun ν => FRACTRAN_HALTING (ll,ν 0)).
   Proof.
-    intros; apply FRACTRAN_HALTING_diophantine_1; auto.
-  Defined.
-
-  Notation remove_zero_den := (fun l : list (nat*nat) => filter (fun c => if eq_nat_dec (snd c) 0 then false else true) l).
-
-  Let remove_zero_den_Forall l : fractran_regular (remove_zero_den l).
-  Proof.
-    unfold fractran_regular.
-    induction l as [ | (p,q) ]; simpl; auto.
-    destruct (eq_nat_dec q 0); auto.
-  Qed.
-
-  Hint Resolve FRACTRAN_HALTING_diophantine_1.
-
-  (* We can also show the result for arbitrary Fractran programs
-     but the proof is more complicated in that case *)
-
-  Theorem FRACTRAN_HALTING_on_diophantine ll x : 𝔻P x -> 𝔻R (fun ν => FRACTRAN_HALTING (ll,x ν)).
-  Proof.
-    intros Hx.
-    destruct (FRACTAN_cases ll) as [ [ [ H1 | H1 ] | (p & mm & H1 & H2 & H3 & H4) ] | (p & q & mm & H1 & H2 & H3 & H4 & H5) ].
-    + exists df_false; intros v; rewrite FRACTRAN_HALTING_0_num, df_false_spec; tauto.
-    + apply FRACTRAN_HALTING_diophantine_1; trivial.
-    + destruct FRACTRAN_HALTING_diophantine_0 with (ll := remove_zero_den ll) as (f & Hf).
-      { apply remove_zero_den_Forall. }
-      assert (forall ν, FRACTRAN_HALTING (ll, x ν) <-> x ν <> 0 /\ FRACTRAN_HALTING (remove_zero_den ll, x ν)
-                                                   \/  x ν = 0 /\  exists y, y <> 0 /\ FRACTRAN_HALTING (remove_zero_den ll, y)) as H5.
-      { intros v; subst ll.
-        destruct (eq_nat_dec (x v) 0) as [ H | H ].
-        + rewrite H, FRACTRAN_HALTING_hard; auto.
-          split.
-          * intros (y & G1 & G2); right; split; auto; exists y; split; auto.
-            rewrite <- FRACTRAN_HALTING_l_1_no_zero_den; auto; discriminate.
-          * intros [ ([] & _) | (_ & y & G1 & G2) ]; auto.
-            exists y; split; auto.
-            apply FRACTRAN_HALTING_l_1_no_zero_den; auto; try discriminate.
-        + rewrite <- FRACTRAN_HALTING_l_1_no_zero_den; auto; try discriminate.
-          split; tauto. }
-      apply dio_rel_equiv with (1 := H5); dio_rel_auto.
-    + assert (forall ν, FRACTRAN_HALTING (ll, x ν) <-> x ν <> 0 /\ FRACTRAN_HALTING (remove_zero_den ll, x ν)) as H6.
-      { intros v; subst ll.
-        destruct (eq_nat_dec (x v) 0) as [ H | H ].
-        * rewrite H, FRACTRAN_HALTING_on_zero_first_no_zero_den; auto.
-          split; tauto; omega.
-        * rewrite  FRACTRAN_HALTING_l_1_no_zero_den; auto; try discriminate; tauto. }
-       apply dio_rel_equiv with (1 := H6); dio_rel_auto.
+    intros; apply FRACTRAN_HALTING_on_diophantine; auto.
   Defined.
 
   Theorem FRACTRAN_HALTING_diophantine l x : 𝔻R (fun _ => FRACTRAN_HALTING (l,x)).
@@ -140,12 +86,9 @@ Proof.
   + rewrite power_S; f_equal; auto.
 Qed.
 
-Theorem FRACTRAN_HALTING_dio_single l x :
-     fractran_regular l
-  -> { e : dio_single nat Empty_set | l /F/ x ↓ <-> dio_single_pred e (fun _ => 0) }.
+Theorem FRACTRAN_HALTING_dio_single l x : { e : dio_single nat Empty_set | l /F/ x ↓ <-> dio_single_pred e (fun _ => 0) }.
 Proof.
-  intros Hl.
-  generalize (@FRACTRAN_HALTING_diophantine_1 _ (fun _ => x) Hl); intros H1.
+  generalize (@FRACTRAN_HALTING_on_diophantine l (fun _ => x)); intros H1.
   spec in H1; auto.
   destruct dio_rel_single with (1 := H1) as ((p,q) & He).
   unfold FRACTRAN_HALTING in He.
@@ -208,12 +151,11 @@ End exp_diophantine.
 
 Hint Resolve exp_diophantine.
 
-Theorem FRACTRAN_HALTING_on_exp_diophantine n l : 
-     fractran_regular l -> 𝔻R (fun ν => l /F/ ps 1 * exp 1 (fun2vec 0 n ν) ↓).
+Theorem FRACTRAN_HALTING_on_exp_diophantine n l :  
+                     𝔻R (fun ν => l /F/ ps 1 * exp 1 (fun2vec 0 n ν) ↓).
 Proof.
-  intros Hl.
   apply dio_rel_compose with (R := fun x v => l /F/ x ↓); auto.
-  apply FRACTRAN_HALTING_diophantine_1; auto.
+  apply FRACTRAN_HALTING_on_diophantine; auto.
 Qed.
 
 Check FRACTRAN_HALTING_on_exp_diophantine.
