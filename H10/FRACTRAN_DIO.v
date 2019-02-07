@@ -29,26 +29,28 @@ Proof.
   exact (df_pred A v).
 Defined.
 
-Section FRACTRAN_REG_HALTING_DIO_LOGIC_SAT.
+Section FRACTRAN_HALTING_DIO_LOGIC_SAT.
 
-  Let f : FRACTRAN_REG_PROBLEM -> DIO_LOGIC_PROBLEM.
+  Let f : FRACTRAN_PROBLEM -> DIO_LOGIC_PROBLEM.
   Proof.
-    intros (l & x & H).
-    destruct FRACTRAN_HALTING_diophantine_1 with (1 := H) (x := fun _ : nat -> nat => x)
+    intros (l & x).
+    destruct FRACTRAN_HALTING_on_diophantine with (ll := l) (x := fun _ : nat -> nat => x)
       as (A & HA).
     + auto.
     + exact (A, fun _ => 0).
   Defined.
 
-  Theorem FRACTRAN_REG_HALTING_DIO_LOGIC_SAT : FRACTRAN_REG_HALTING ⪯ DIO_LOGIC_SAT.
+  Opaque FRACTRAN_HALTING_on_diophantine.
+
+  Theorem FRACTRAN_HALTING_DIO_LOGIC_SAT : FRACTRAN_HALTING ⪯ DIO_LOGIC_SAT.
   Proof.
     exists f.
-    intros (l & x & H); simpl.
-    destruct FRACTRAN_HALTING_diophantine_1 with (1 := H) as (A & HA); simpl.
+    intros (l & x); simpl.
+    destruct FRACTRAN_HALTING_on_diophantine with (ll := l) as (A & HA); simpl.
     unfold DIO_LOGIC_SAT; rewrite HA; tauto.
   Qed.
 
-End FRACTRAN_REG_HALTING_DIO_LOGIC_SAT.
+End FRACTRAN_HALTING_DIO_LOGIC_SAT.
 
 (** An elementary diophantine problem is a list of elementary diophantine
     constraints and a valuation for the parameters. The question is whether

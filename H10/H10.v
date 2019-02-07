@@ -51,16 +51,16 @@ Section DIO_SINGLE_SAT_H10.
 
 End DIO_SINGLE_SAT_H10.
 
-Theorem Fractran_UNDEC : Halt ⪯ FRACTRAN_REG_HALTING.
+Theorem Fractran_UNDEC : Halt ⪯ FRACTRAN_HALTING.
 Proof.
   eapply reduces_transitive. exact MM_HALTING_undec.
-  exact MM_FRACTRAN_REG_HALTING.
+  exact MM_FRACTRAN_HALTING.
 Qed.
 
 Theorem Hilberts_Tenth : Halt ⪯ PCP
                       /\ PCP ⪯ MM_HALTING
-                      /\ MM_HALTING ⪯ FRACTRAN_REG_HALTING
-                      /\ FRACTRAN_REG_HALTING ⪯ DIO_LOGIC_SAT
+                      /\ MM_HALTING ⪯ FRACTRAN_HALTING
+                      /\ FRACTRAN_HALTING ⪯ DIO_LOGIC_SAT
                       /\ DIO_LOGIC_SAT ⪯ DIO_ELEM_SAT
                       /\ DIO_ELEM_SAT ⪯ DIO_SINGLE_SAT
                       /\ DIO_SINGLE_SAT ⪯ H10.
@@ -68,8 +68,8 @@ Proof.
   msplit 6.
   + apply Halt_PCP.
   + apply PCP_MM_HALTING.
-  + apply MM_FRACTRAN_REG_HALTING.
-  + apply FRACTRAN_REG_HALTING_DIO_LOGIC_SAT.
+  + apply MM_FRACTRAN_HALTING.
+  + apply FRACTRAN_HALTING_DIO_LOGIC_SAT.
   + apply DIO_LOGIC_ELEM_SAT.
   + apply DIO_ELEM_SINGLE_SAT.
   + apply DIO_SINGLE_SAT_H10.
