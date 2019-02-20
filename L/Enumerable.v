@@ -1,5 +1,5 @@
 From Undecidability.L Require Import DecidableRecognisable InterpreterResults.
-
+Open Scope list_scope.
 Implicit Types s t : term.
 
 (** * Enumerable classes *)
@@ -155,7 +155,7 @@ Qed.
 Fixpoint L n :=
   match n with
   | 0 => [ ]
-  | S n => L n ++ var n :: map_pro app (L n) (L n) ++ map lambda (L n)
+  | S n => L n ++ var n :: map_pro L.app (L n) (L n) ++ map lambda (L n)
   end.
 
 Lemma length_L n : |L n| >= n.

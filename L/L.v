@@ -1,3 +1,4 @@
+Require Export String.
 From Undecidability.L Require Export Preliminaries.
 
 (** * Definition of L *)
