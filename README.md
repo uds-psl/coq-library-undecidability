@@ -19,7 +19,7 @@ Feel free to contribute or start using the problems!
 - Halting problem for FRACTRAN programs (`FRACTRAN_REG_HALTING` in [`Problems/FRACTRAN.v`](Problems/FRACTRAN.v))
 - Satisfiability for elementary diophantine constraints (`DIO_ELEM_SAT` 
   in [`Problems/DIOPHANTINE.v`](Problems/DIOPHANTINE.v))
-- Hilbert's 10th problem, i.e. solvability of a single diophantine equation (`H10` in 
+- [Hilbert's 10th problem](https://uds-psl.github.io/H10), i.e. solvability of a single diophantine equation (`H10` in 
   in [`Problems/DIOPHANTINE.v`](Problems/DIOPHANTINE.v))
 
 ## How to build
