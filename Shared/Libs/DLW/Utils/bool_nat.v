@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Bitwise operations on nat *)
+
 Require Import Arith Nat Omega List Bool Setoid.
 Require Import utils_tac utils_list utils_nat bool_list gcd sums power_decomp.
 

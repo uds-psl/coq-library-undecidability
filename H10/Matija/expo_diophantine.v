@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Exponentiation is Diophantine *)
+
 Require Import Arith Omega Eqdep_dec ZArith.
 
 Require Import utils_tac gcd sums Zp alpha.

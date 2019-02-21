@@ -13,20 +13,20 @@ Shared/Libs/DLW/Utils/utils_list.v
 Shared/Libs/DLW/Utils/utils_nat.v
 Shared/Libs/DLW/Utils/utils_string.v
 Shared/Libs/DLW/Utils/utils.v
-Shared/Libs/DLW/Utils/bool_nat.v
-Shared/Libs/DLW/Utils/bool_list.v
-Shared/Libs/DLW/Utils/bounded_quantification.v
 Shared/Libs/DLW/Utils/sorting.v
 Shared/Libs/DLW/Utils/utils_decidable.v
+Shared/Libs/DLW/Utils/interval.v
+
+Shared/Libs/DLW/Utils/sums.v
+Shared/Libs/DLW/Utils/binomial.v
+Shared/Libs/DLW/Utils/bool_list.v
+Shared/Libs/DLW/Utils/bool_nat.v
 Shared/Libs/DLW/Utils/gcd.v
 Shared/Libs/DLW/Utils/prime.v
-Shared/Libs/DLW/Utils/binomial.v
-Shared/Libs/DLW/Utils/sums.v
-Shared/Libs/DLW/Utils/php.v
-Shared/Libs/DLW/Utils/interval.v
-Shared/Libs/DLW/Utils/rel_iter.v
 Shared/Libs/DLW/Utils/power_decomp.v
-
+Shared/Libs/DLW/Utils/bounded_quantification.v
+Shared/Libs/DLW/Utils/php.v
+Shared/Libs/DLW/Utils/rel_iter.v
 
 Shared/Libs/DLW/Vec/pos.v
 Shared/Libs/DLW/Vec/vec.v
@@ -110,19 +110,18 @@ ILL/MM_EILL.v
 
 ILL/UNDEC.v
 
+H10/Fractran/mm_no_self.v
 H10/Fractran/prime_seq.v
 H10/Fractran/fractran_defs.v
-H10/Fractran/fractran_dio.v
-H10/Fractran/mm_no_self.v
 H10/Fractran/mm_fractran.v
 
-H10/ArithLibs/matrix.v
 H10/ArithLibs/Zp.v
+H10/ArithLibs/matrix.v
 H10/ArithLibs/luca.v
-
 H10/Matija/alpha.v
 H10/Matija/expo_diophantine.v
 H10/Matija/cipher.v
+
 
 H10/Dio/dio_logic.v
 H10/Dio/dio_elem.v
@@ -132,6 +131,8 @@ H10/Dio/dio_binary.v
 H10/Dio/dio_cipher.v
 H10/Dio/dio_bounded.v
 H10/Dio/dio_rt_closure.v
+
+H10/Fractran/fractran_dio.v
 
 H10/HALT_MM.v
 H10/MM_FRACTRAN.v

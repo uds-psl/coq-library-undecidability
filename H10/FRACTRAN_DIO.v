@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** FRACTRAN reduces to Diophantine logic *)
+
 Require Import List Arith Omega.
 
 Require Import ILL.Definitions.

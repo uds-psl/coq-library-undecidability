@@ -9,6 +9,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Two infinite sequences of primes *)
+
 Require Import List Arith Omega Permutation.
 
 Require Import utils_tac utils_list utils_nat gcd prime rel_iter pos vec.

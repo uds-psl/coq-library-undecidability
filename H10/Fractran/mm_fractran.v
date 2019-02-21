@@ -9,6 +9,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Compiler from MM to FRACTRAN *)
+
 Require Import List Arith Omega Permutation.
 
 Import ListNotations.

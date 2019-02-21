@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Prime numbers *)
+
 Require Import List Arith Omega Permutation.
 
 Require Import utils_tac utils_list utils_nat gcd sums.

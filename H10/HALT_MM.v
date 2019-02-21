@@ -7,6 +7,9 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** * Main undecidability results and DPRM theorem *)
+(** ** HALT reduces to MM *)
+
 Require Import ILL.Definitions.
 
 Require Import utils_tac pos vec mm_defs.

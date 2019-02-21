@@ -9,6 +9,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** MM reduces to FRACTRAN *)
+
 Require Import List Arith Omega.
 
 Require Import ILL.Definitions.

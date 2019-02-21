@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Solutions of Pell's equation *)
+
 Require Import Arith Omega Eqdep_dec ZArith.
 
 Require Import utils_tac gcd prime binomial sums matrix Zp.

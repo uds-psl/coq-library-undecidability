@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Euclidian division and Bezout's identity *)
+
 Require Import List Arith Omega Permutation.
 
 Require Import utils_tac utils_list.

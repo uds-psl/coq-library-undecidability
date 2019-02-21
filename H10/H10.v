@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Hilbert's tenth problem is undecidable *)
+
 Require Import ILL.Definitions singleTM.
 
 Require Import utils_tac pos vec.

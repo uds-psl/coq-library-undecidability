@@ -7,6 +7,10 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** * Shared libraries *)
+
+(** ** Finitary sums and products over monoids *)
+
 Require Import List Arith Omega Eqdep_dec ZArith.
 
 Require Import utils_tac utils_list binomial.

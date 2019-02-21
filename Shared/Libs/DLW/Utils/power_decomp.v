@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Base p representation *)
+
 Require Import Arith Nat Omega.
 Require Import utils_tac gcd rel_iter sums.
 

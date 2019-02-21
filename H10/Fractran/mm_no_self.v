@@ -7,6 +7,9 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** * Minsky machines to FRACTRAN programs *)
+(** ** Removal of self-loops in MMs *)
+
 Require Import List Arith Omega.
 
 Require Import utils pos vec. 

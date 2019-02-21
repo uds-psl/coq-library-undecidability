@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Matric computation *)
+
 Require Import Arith Omega Eqdep_dec ZArith.
 
 Require Import utils_tac gcd prime binomial sums.

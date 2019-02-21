@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** The DPRM theorem *)
+
 Require Import List Arith Omega.
 
 Require Import utils_tac utils_list sums pos vec.

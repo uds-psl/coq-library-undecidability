@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Reification for bounded quantification *)
+
 Require Import Arith Omega.
 
 Set Implicit Arguments.

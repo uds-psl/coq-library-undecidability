@@ -9,6 +9,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Pidgeon hole principle *)
+
 Require Import Arith Omega List Permutation.
 
 Require Import utils_tac utils_list.

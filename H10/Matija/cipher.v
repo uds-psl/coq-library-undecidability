@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Sparse ciphers *)
+
 Require Import Arith Nat Omega List Bool Setoid.
 Require Import utils_tac gcd sums rel_iter bool_nat power_decomp.
 

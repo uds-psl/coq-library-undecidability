@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Binomial theorem *)
+
 Require Import Arith Omega.
 
 Require Import utils_tac gcd.

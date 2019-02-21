@@ -3,6 +3,8 @@ all: Makefile.coq
 
 html: Makefile.coq
 	+make -f Makefile.coq html
+	mv html/*.html website
+	rm -rf html
 
 clean: Makefile.coq
 	+make -f Makefile.coq clean

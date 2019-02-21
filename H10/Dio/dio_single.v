@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Single Diophantine equations *)
+
 Require Import List Arith Omega Nat.
 
 Require Import utils_tac utils_list sums pos vec. 

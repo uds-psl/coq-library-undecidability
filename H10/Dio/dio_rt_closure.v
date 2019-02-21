@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Reflexive transitive closure is Diophantine *)
+
 Require Import Arith Nat Omega List Bool.
 
 Require Import utils_tac utils_list rel_iter sums.

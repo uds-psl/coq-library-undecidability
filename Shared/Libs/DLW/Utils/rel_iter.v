@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Iteration of binary relations *)
+
 Require Import Arith Nat Omega.
 Require Import utils_tac gcd prime binomial sums.
 

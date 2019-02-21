@@ -7,6 +7,9 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** * Object-level representation of Diophantine equations *)
+(** ** Diophantine logic *)
+
 Require Import Arith Nat Omega.
 Require Import gcd.
 

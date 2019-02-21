@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Definition of FRACTRAN *)
+
 Require Import List Arith Omega.
 
 Require Import utils_tac utils_list utils_nat gcd rel_iter pos vec.

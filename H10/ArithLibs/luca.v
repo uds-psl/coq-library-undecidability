@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Luca's theorem *)
+
 Require Import Arith Nat Omega Lia List.
 Require Import utils_tac gcd prime binomial sums Zp rel_iter.
 
@@ -151,8 +153,8 @@ Section fact.
       we get n-k = (N-K)*p + (n0-k0) and
 
         expo K     p * fact K     * φ K      k0     * Ψ K
-      * expo (N-K) p * fact (N-K) * φ (N-K) (n0-k0) * Ψ (N-K)
-      * binomial n k 
+      .* expo (N-K) p * fact (N-K) * φ (N-K) (n0-k0) * Ψ (N-K)
+      .* binomial n k 
       = expo N p     * fact N     * φ N      n0     * Ψ N.
 
       hence, simplifying by expo N p  we get
@@ -176,8 +178,8 @@ Section fact.
       we have n-k = (N-(K+1))*p + (p-(k0-n0)) and
 
         expo K         p * fact K         * φ K          k0         * Ψ K
-      * expo (N-(K+1)) p * fact (N-(K+1)) * φ (N-(K+1)) (p-(k0-n0)) * Ψ (N-(K+1))
-      * binomial n k 
+      .* expo (N-(K+1)) p * fact (N-(K+1)) * φ (N-(K+1)) (p-(k0-n0)) * Ψ (N-(K+1))
+      .* binomial n k 
       = expo N p     * fact N     * φ N      n0     * Ψ N.
 
       hence

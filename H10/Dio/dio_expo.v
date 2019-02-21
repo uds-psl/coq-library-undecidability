@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Object-level encoding of exponential *)
+
 Require Import Arith Nat Omega List.
 Require Import utils_tac sums rel_iter binomial. 
 Require Import alpha expo_diophantine dio_logic.

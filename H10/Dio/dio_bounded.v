@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Object-level encoding of bounded universal quantification III *)
+
 Require Import Arith Nat Omega List Bool.
 
 Require Import utils_tac utils_list sums bounded_quantification.

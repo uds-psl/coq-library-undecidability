@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Elementary diophantine constraints *)
+
 Require Import List Arith Nat Omega.
 Require Import utils_list gcd prime dio_logic.
 

@@ -7,6 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** Object-level encoding of bounded universal quantification I *)
+
 Require Import Arith Nat Omega List Bool Setoid.
 Require Import utils_tac gcd prime binomial sums bool_nat luca.
 Require Import cipher dio_logic dio_expo.

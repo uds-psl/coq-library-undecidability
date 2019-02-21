@@ -7,6 +7,9 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** * Arithmetic libraries for Matiyasevich's theorems *)
+(** ** Modular arithmetic *)
+
 Require Import Arith Omega Eqdep_dec ZArith List Permutation.
 
 Require Import utils_tac utils_list gcd prime binomial sums matrix php.
