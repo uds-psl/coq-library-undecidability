@@ -28,7 +28,9 @@ Feel free to contribute or start using the problems!
 - `make all` builds all subprojects by calling `make all` of the corresponding subproject's makefile
 - `make html` generates clickable coqdoc `.html` in the `website` subdirectory
 - `make clean` removes all build files and `.html` files
+<!---
 - the `gh-pages` branch contains a snapshot of the `html` files and this `README` file and is accessible under `uds-psl.github.io/coq-library-undecidability`
+-->
 
 ## Published work and technical reports
 
