@@ -82,6 +82,6 @@ Proof.
 Qed.
 
 Check H10_undec.
-Print Assumptions Hilberts_Tenth.
+Print Assumptions H10_undec.
   
     
