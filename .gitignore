@@ -5,3 +5,4 @@
 *Makefile.coq
 *Makefile.coq.conf
 *.coqdeps.d
+*.lia.cache
