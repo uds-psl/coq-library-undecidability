@@ -14,7 +14,9 @@
        the DEC instruction jumps when not zero instead of when zero 
 
     Compare mm_sss  (ILL/Mm/mm_defs.v)
-    and     mm2_sss (./mm2_defs.v)                   *)
+    and     mm2_sss (./mm2_defs.v)                   
+
+    The reduction goes via regular FRACTRAN termination *)
 
 Require Import ILL.Definitions.
 
