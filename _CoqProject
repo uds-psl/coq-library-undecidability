@@ -110,6 +110,11 @@ ILL/MM_EILL.v
 
 ILL/UNDEC.v
 
+MM2/mm2_defs.v
+MM2/mm2_utils.v
+MM2/fractran_mm2.v
+MM2/MM_MM2.v
+
 H10/Fractran/mm_no_self.v
 H10/Fractran/prime_seq.v
 H10/Fractran/fractran_defs.v

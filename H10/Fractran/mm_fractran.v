@@ -344,16 +344,25 @@ Proof.
       subst P; apply in_sss_step; auto.
 Qed.
 
-Theorem mm_fractran_n n (P : list (mm_instr n)) : 
-        { l |  Forall (fun c => snd c <> 0) l
+Theorem mm_fractran_not_zero n (P : list (mm_instr n)) : 
+        { l |  Forall (fun c => fst c <> 0 /\ snd c <> 0) l
             /\ forall v, (1,P) /MM/ (1,v) ↓ <-> l /F/ ps 1 * exp 1 v ↓ }.
 Proof.
    destruct mm_remove_self_loops with (P := P) as (Q & H1 & _ & H2).
    exists (encode_mm_instr 1 Q); split. 
-   + generalize (encode_mm_instr_regular 1 Q); apply Forall_impl; intros; tauto.
+   + apply encode_mm_instr_regular.
    + intros x.
      rewrite H2, mm_fractran_simulation; auto.
      simpl exp; rewrite Nat.add_0_r; tauto.
+Qed.
+
+Theorem mm_fractran_n n (P : list (mm_instr n)) : 
+        { l |  Forall (fun c => snd c <> 0) l
+            /\ forall v, (1,P) /MM/ (1,v) ↓ <-> l /F/ ps 1 * exp 1 v ↓ }.
+Proof.
+   destruct (mm_fractran_not_zero P) as (l & H1 & H2).
+   exists l; split; auto.
+   revert H1; apply Forall_impl; intros; tauto.
 Qed.
 
 Theorem mm_fractran n (P : list (mm_instr (S n))) : 
