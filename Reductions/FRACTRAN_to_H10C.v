@@ -11,10 +11,8 @@ Require Import Arith Omega Max.
 
 Require Import ILL.Definitions.
 
-Require Import utils pos vec.
-Require Import fractran_defs dio_logic dio_elem dio_single.
-
-Require Import MM_FRACTRAN FRACTRAN_DIO UNDEC H10C.
+Require Import utils dio_logic dio_elem.
+Require Import FRACTRAN_DIO H10C.
 
 Set Implicit Arguments.
 
@@ -195,3 +193,6 @@ Print Assumptions DIO_ELEM_H10C_SAT.
 Check FRACTRAN_HALTING_DIO_LOGIC_SAT.
 Check DIO_LOGIC_ELEM_SAT.
  
+
+
+
