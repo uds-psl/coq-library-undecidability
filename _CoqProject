@@ -150,6 +150,7 @@ Problems/cbvLambda.v
 Problems/TM.v
 Problems/SR.v
 Problems/MM.v
+Problems/MM2.v
 Problems/BSM.v
 Problems/ILL.v
 Problems/FRACTRAN.v
