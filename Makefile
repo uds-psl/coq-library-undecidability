@@ -6,6 +6,12 @@ html: Makefile.coq
 	mv html/*.html website
 	rm -rf html
 
+install: Makefile.coq
+	+make -f Makefile.coq install
+
+uninstall: Makefile.coq
+	+make -f Makefile.coq uninstall
+
 clean: Makefile.coq
 	+make -f Makefile.coq clean
 	rm -f Makefile.coq Makefile.coq.conf
