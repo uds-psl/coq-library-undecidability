@@ -23,6 +23,7 @@ Feel free to contribute or start using the problems!
   in [`Problems/DIOPHANTINE.v`](Problems/DIOPHANTINE.v))
 - [Hilbert's 10th problem](https://uds-psl.github.io/H10), i.e. solvability of a single diophantine equation (`H10` in 
   in [`Problems/DIOPHANTINE.v`](Problems/DIOPHANTINE.v))
+- Satisfiability of elementary Diophantine constraints of the form `x=1`, `x=y+z` or `x=y.z` without parameters (`H10C_SAT` in [`Problems/H10C.v`](Problems/H10C.v))
 
 ## How to build
 

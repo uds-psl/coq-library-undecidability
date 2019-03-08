@@ -294,7 +294,7 @@ Section enum_enumerable.
         destruct (pairs_retract (m, n)) as [k]. exists k. unfold ofNat. now rewrite H0.
       + unfold ofNat in *. destruct R_nat_nat as [ [] | ].
         eapply nth_error_In in H. eauto. inv H.
-  Qed.
+  Defined.
   
 End enum_enumerable.
 
@@ -407,7 +407,7 @@ Section enumerable_list.
   Global Instance enumerable_list (LX : enumT X) : enumT (list X).
   Proof.
     exists (T_list LX). apply T_list_cum. apply T_list_el.
-  Qed.
+  Defined.
 
 End enumerable_list.
 
