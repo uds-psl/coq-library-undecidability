@@ -13,7 +13,13 @@ Set Implicit Arguments.
 
 Section self_contained_mm2.
 
-  (* For instructions: INC{A,B} | DEC{A,B} j *)
+  (** Two counters Minsky machines. Counters are named A and B
+
+      For instructions: INC{A,B} | DEC{A,B} j 
+
+      j is a conditional jump PC index which occurs
+      when the counter has non-zero value 
+  *)
 
   Inductive mm2_instr : Set :=
     | mm2_inc_a : mm2_instr
@@ -37,12 +43,12 @@ Section self_contained_mm2.
    *)
 
   Inductive mm2_atom : mm2_instr -> mm2_state -> mm2_state -> Prop :=
-    | in_mm2s_inc_a  : forall i a b,   mm2_inc_a    // (i,(a,b))   ⇢ (1+i, (S a, b))
-    | in_mm2s_inc_b  : forall i a b,   mm2_inc_b    // (i,(a,b))   ⇢ (1+i, (a, S b))
-    | in_mm2s_dec_aS : forall i j a b, mm2_dec_a j  // (i,(S a,b)) ⇢ (j,   (a, b))
-    | in_mm2s_dec_bS : forall i j a b, mm2_dec_b j  // (i,(a,S b)) ⇢ (j,   (a, b))
-    | in_mm2s_dec_a0 : forall i j b,   mm2_dec_a j  // (i,(0,b))   ⇢ (1+i, (0, b))
-    | in_mm2s_dec_b0 : forall i j a,   mm2_dec_b j  // (i,(a,0))   ⇢ (1+i, (a, 0))
+    | in_mm2s_inc_a  : forall i   a b, mm2_inc_a   // (i,(  a,  b)) ⇢ (1+i,(S a,  b))
+    | in_mm2s_inc_b  : forall i   a b, mm2_inc_b   // (i,(  a,  b)) ⇢ (1+i,(  a,S b))
+    | in_mm2s_dec_aS : forall i j a b, mm2_dec_a j // (i,(S a,  b)) ⇢ (  j,(  a,  b))
+    | in_mm2s_dec_bS : forall i j a b, mm2_dec_b j // (i,(  a,S b)) ⇢ (  j,(  a,  b))
+    | in_mm2s_dec_a0 : forall i j   b, mm2_dec_a j // (i,(  0,  b)) ⇢ (1+i,(  0,  b))
+    | in_mm2s_dec_b0 : forall i j a,   mm2_dec_b j // (i,(  a,  0)) ⇢ (1+i,(  a,  0))
   where "ρ // x ⇢ y" := (mm2_atom ρ x y).
 
   (** instruction ρ occurs at PC index i in the program (1,P) *)
