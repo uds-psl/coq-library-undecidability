@@ -149,6 +149,7 @@ Problems/BSM.v
 Problems/ILL.v
 Problems/FRACTRAN.v
 Problems/DIOPHANTINE.v
+Problems/H10C.v
 
 Reductions/TM_to_SRH.v  
 Reductions/SRH_to_SR.v  
@@ -159,3 +160,5 @@ Reductions/BPCP_to_BSM.v
 Reductions/BSM_to_MM.v  
 Reductions/MM_to_ILL.v  
 Reductions/BPCP_to_FOL.v
+Reductions/MM_to_FRACTRAN.v
+Reductions/FRACTRAN_to_H10C.v
