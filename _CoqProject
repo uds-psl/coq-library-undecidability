@@ -110,10 +110,9 @@ ILL/MM_EILL.v
 
 ILL/UNDEC.v
 
-MM2/mm2_defs.v
-MM2/mm2_utils.v
-MM2/fractran_mm2.v
-MM2/MM_MM2.v
+MM/mma_defs.v
+MM/mma_utils.v
+MM/fractran_mma.v
 
 H10/Fractran/mm_no_self.v
 H10/Fractran/prime_seq.v
@@ -165,3 +164,5 @@ Reductions/BPCP_to_BSM.v
 Reductions/BSM_to_MM.v  
 Reductions/MM_to_ILL.v  
 Reductions/BPCP_to_FOL.v
+Reductions/MM_to_MMA2.v
+Reductions/MMA2_to_MM2.v

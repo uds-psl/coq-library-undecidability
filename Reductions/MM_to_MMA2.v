@@ -8,13 +8,13 @@
 (**************************************************************)
 
 (** A Coq computable reduction from n-registers MM termination
-    to 2-registers MM2 termination. Beware that the semantics
-    of MM2 is a bit different than the semantics of MM: 
+    to 2-registers MMA termination. Beware that the semantics
+    of MMA is a bit different than the semantics of MM: 
 
        the DEC instruction jumps when not zero instead of when zero 
 
     Compare mm_sss  (ILL/Mm/mm_defs.v)
-    and     mm2_sss (./mm2_defs.v)                   
+    and     mma_sss (MM/mma_defs.v)                   
 
     The reduction goes via regular FRACTRAN termination *)
 
@@ -23,44 +23,41 @@ Require Import ILL.Definitions.
 Require Import utils_tac pos vec.
 Require Import sss mm_defs.
 Require Import fractran_defs prime_seq mm_fractran. 
-Require Import mm2_defs fractran_mm2.
+Require Import mma_defs fractran_mma.
 
 Set Implicit Arguments.
 
 Local Notation "P /MM/ s ↓" := (sss_terminates (@mm_sss _) P s) (at level 70, no associativity). 
-Local Notation "P /MM2/ s ↓" := (sss_terminates (@mm2_sss 2) P s) (at level 70, no associativity). 
+Local Notation "P /MMA/ s ↓" := (sss_terminates (@mma_sss 2) P s) (at level 70, no associativity). 
 
-Theorem mm_mm2 n (P : list (mm_instr n)) : 
-              {   Q : list (mm_instr 2) 
-              & { f : vec nat n -> vec nat 2 
-                | forall v, (1,P) /MM/ (1,v) ↓ <-> (1,Q) /MM2/ (1,f v) ↓ } }.
+Theorem mm_mma2 n (P : list (mm_instr n)) : 
+               {   Q : list (mm_instr 2) 
+               & { f : vec nat n -> vec nat 2 
+                 | forall v, (1,P) /MM/ (1,v) ↓ <-> (1,Q) /MMA/ (1,f v) ↓ } }.
 Proof.
   destruct (mm_fractran_not_zero P) as (l & H1 & H2).
-  exists (fractran_mm2 l), (fun v => ps 1 * exp 1 v ## 0 ## vec_nil).
+  exists (fractran_mma l), (fun v => ps 1 * exp 1 v ## 0 ## vec_nil).
   intros v; rewrite H2.
-  apply fractran_mm2_reduction; trivial.
+  apply fractran_mma_reduction; trivial.
 Qed.
 
-Definition MM2_PROBLEM := (list (mm_instr 2) * vec nat 2)%type.
-Definition MM2_HALTING (P : MM2_PROBLEM) := (1,fst P) /MM2/ (1,snd P) ↓.
+Section MM_MMA2.
 
-Section MM_MM2.
-
-  Let f : MM_PROBLEM -> MM2_PROBLEM.
+  Let f : MM_PROBLEM -> MMA2_PROBLEM.
   Proof.
     intros (n & P & v).
-    destruct (mm_mm2 P) as (Q & f & H).
+    destruct (mm_mma2 P) as (Q & f & H).
     exact (Q, f v).
   Defined.
 
-  Theorem MM_MM2_HALTING : MM_HALTING ⪯ MM2_HALTING.
+  Theorem MM_MMA2_HALTING : MM_HALTING ⪯ MMA2_HALTING.
   Proof.
     exists f. 
-    intros (n & P & v); simpl; unfold MM2_HALTING.
-    destruct (mm_mm2 P) as (Q & g & H); simpl; auto.
+    intros (n & P & v); simpl; unfold MMA2_HALTING.
+    destruct (mm_mma2 P) as (Q & g & H); simpl; auto.
   Qed.
 
-End MM_MM2.
+End MM_MMA2.
 
-Check MM_MM2_HALTING.
-Print Assumptions MM_MM2_HALTING.
+Check MM_MMA2_HALTING.
+Print Assumptions MM_MMA2_HALTING.

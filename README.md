@@ -8,6 +8,8 @@ Feel free to contribute or start using the problems!
 - Post correspondence problem (`PCP` in [`Problems/PCP.v`](Problems/PCP.v))
 - Halting problem for Turing machines (`Halt` in [`Problems/TM.v`](Problems/TM.v))
 - Halting problem for Minsky machines (`MM_HALTING` in [`Problems/MM.v`](Problems/MM.v))
+- Halting problem for two counters Minsky machines (`MM2_HALTING` in [`Problems/MM2.v`](Problems/MM2.v)) with 
+  self-contained explanations
 - Halting problem for Binary Stack Machines (`BSM_HALTING` in [`Problems/BSM.v`](Problems/BSM.v))
 - Halting problem for the call-by-value lambda-calculus (`eva` in [`Problems/L.v`](Problems/L.v))
 - String rewriting (`SR` in [`Problems/SR.v`](Problems/SR.v))
