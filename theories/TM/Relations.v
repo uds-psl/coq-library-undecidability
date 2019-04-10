@@ -1,5 +1,5 @@
-Require Import Shared.Base Shared.FiniteTypes TM.Prelim.
-Require Import Shared.Vectors.Vectors.
+Require Import PslBase.Base PslBase.FiniteTypes TM.Prelim.
+Require Import PslBase.Vectors.Vectors.
 
 (** * Relations *)
 

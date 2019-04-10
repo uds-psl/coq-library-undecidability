@@ -2,12 +2,12 @@
 
 (** This file imports all shared libraries and defines [loop], lemmas about [loop], and some auxiliay functions. *)
 
-Require Export Shared.FiniteTypes.FinTypes Shared.FiniteTypes.BasicFinTypes Shared.FiniteTypes.CompoundFinTypes Shared.FiniteTypes.VectorFin.
-Require Export Shared.Vectors.FinNotation.
-Require Export Shared.Retracts.
-Require Export Shared.Inhabited.
-Require Export Shared.Base.
-Require Export Shared.Vectors.Vectors Shared.Vectors.VectorDupfree.
+Require Export PslBase.FiniteTypes.FinTypes PslBase.FiniteTypes.BasicFinTypes PslBase.FiniteTypes.CompoundFinTypes PslBase.FiniteTypes.VectorFin.
+Require Export PslBase.Vectors.FinNotation.
+Require Export PslBase.Retracts.
+Require Export PslBase.Inhabited.
+Require Export PslBase.Base.
+Require Export PslBase.Vectors.Vectors PslBase.Vectors.VectorDupfree.
 
 Require Export smpl.Smpl.
 

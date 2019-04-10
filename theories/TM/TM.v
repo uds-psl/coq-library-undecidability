@@ -3,7 +3,7 @@
 (** Definitions of tapes and (unlabelled) multi-tape Turing machines from Asperti, Riciotti "A formalization of multi-tape Turing machines" (2015) and the accompanying Matita code. *)
 
 Require Export TM.Prelim TM.Relations.
-Require Import Shared.Vectors.Vectors.
+Require Import PslBase.Vectors.Vectors.
 
 
 Section Fix_Sigma.

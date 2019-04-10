@@ -1,5 +1,5 @@
 Require Export TM.TM.
-Require Import Shared.FiniteTypes.DepPairs EqdepFacts.
+Require Import PslBase.FiniteTypes.DepPairs EqdepFacts.
 
 (** * Switch Combinator *)
 

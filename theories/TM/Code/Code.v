@@ -1,6 +1,6 @@
 Require Import TM.Prelim.
 Require Import Coq.Lists.List.
-Require Import Shared.Bijection. (* [injective] *)
+Require Import PslBase.Bijection. (* [injective] *)
 
 
 (** * Codable Class **)

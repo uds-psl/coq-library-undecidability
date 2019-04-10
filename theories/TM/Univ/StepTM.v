@@ -1,5 +1,5 @@
 Require Import ProgrammingTools.
-Require Import Shared.Bijection. (* [injective] *)
+Require Import PslBase.Bijection. (* [injective] *)
 
 
 Require Import Basic.Duo.

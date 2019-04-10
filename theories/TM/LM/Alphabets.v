@@ -1,6 +1,6 @@
 Require Import TM.Prelim.
 Require Import TM.Code.Code.
-Require Import Semantics.
+Require Import TM.LM.Semantics.
 
 (** * Alphabets *)
 

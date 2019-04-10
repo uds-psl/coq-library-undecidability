@@ -1,3 +1,7 @@
+-R ../external/smpl/theories/ smpl
+-I ../external/smpl/src/
+-R ../external/uds-psl-base PslBase
+
 -R . Undecidability
 
 -install none
@@ -139,6 +143,96 @@ H10/MM_FRACTRAN.v
 H10/FRACTRAN_DIO.v
 H10/H10.v
 H10/DPRM.v
+
+
+# Basics
+TM/Prelim.v
+TM/Relations.v
+TM/TM.v
+TM/ArithPrelim.v
+
+# Basic Machines
+TM/Basic/Basic.v
+TM/Basic/Null.v
+TM/Basic/Mono.v
+TM/Basic/Duo.v
+
+# Programming combinators
+TM/Combinators/Combinators.v
+TM/Combinators/Switch.v
+TM/Combinators/SequentialComposition.v
+TM/Combinators/If.v
+TM/Combinators/While.v
+TM/Combinators/StateWhile.v
+TM/Combinators/Mirror.v
+
+# Machine Lifting
+TM/Lifting/Lifting.v
+TM/Lifting/LiftTapes.v
+TM/Lifting/LiftAlphabet.v
+
+# Compound Machines
+TM/Compound/TMTac.v
+TM/Compound/Multi.v
+TM/Compound/WriteString.v
+TM/Compound/MoveToSymbol.v
+TM/Compound/CopySymbols.v
+TM/Compound/Shift.v
+TM/Compound/Compare.v
+
+# Programming
+TM/Code/Code.v
+TM/Code/CodeTM.v
+TM/Code/WriteValue.v
+TM/Code/ChangeAlphabet.v
+TM/Code/Copy.v
+TM/Code/CompareValue.v
+TM/Code/ProgrammingTools.v
+
+# Casees and constructors
+TM/Code/CaseNat.v
+TM/Code/CaseSum.v
+TM/Code/CaseList.v
+TM/Code/CaseFin.v
+TM/Code/CasePair.v
+
+# Programming case studies
+#TM/Code/SumTM.v
+TM/Code/NatTM.v
+TM/Code/ListTM.v
+
+# Abstract Machine simulator
+TM/LM/Semantics.v
+TM/LM/SizeAnalysis.v
+TM/LM/Alphabets.v
+TM/LM/CaseCom.v
+TM/LM/LookupTM.v
+TM/LM/JumpTargetTM.v
+TM/LM/StepTM.v
+TM/LM/HaltingProblem.v
+
+# Multi-Tape to Single-Tape Compiler
+TM/Single/EncodeTapes.v
+TM/Single/StepTM.v
+
+# Univ
+TM/Univ/LookupAssociativeListTM.v
+TM/Univ/StepTM.v
+
+# PrettyBounds
+TM/PrettyBounds/PrettyBounds.v
+TM/PrettyBounds/MaxList.v
+TM/PrettyBounds/BaseCode.v
+TM/PrettyBounds/UnivBounds.v
+TM/PrettyBounds/LMBounds.v
+TM/PrettyBounds/M2MBounds.v
+
+TM/PrettyBounds/SpaceBounds.v
+TM/PrettyBounds/BaseCodeSpace.v
+TM/PrettyBounds/UnivSpaceBounds.v
+
+# Multi-Univ Simulation Theorem
+TM/MultiUnivTimeSpaceSimulation.v
 
 Problems/FOL.v
 Problems/cbvLambda.v

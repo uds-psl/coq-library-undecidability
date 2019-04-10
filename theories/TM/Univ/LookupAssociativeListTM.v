@@ -1,4 +1,4 @@
-Require Import Shared.Bijection. (* [injective] *)
+Require Import PslBase.Bijection. (* [injective] *)
 Require Import ProgrammingTools.
 Require Import TM.Code.CompareValue.
 Require Import TM.Code.CasePair TM.Code.CaseList.
