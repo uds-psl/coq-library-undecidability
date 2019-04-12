@@ -1,4 +1,4 @@
-From Undecidability.L Require Export Tactics.
+Require Export L.Tactics.
 
 (** * Scott encoding of numbers *)
 

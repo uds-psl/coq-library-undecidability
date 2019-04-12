@@ -1,6 +1,17 @@
 (** ** TM to SR with finite types *)
 
 Require Import singleTM .
+Require Import PslBase.FiniteTypes.BasicDefinitions.
+
+Lemma map_app_inv X Y (f : X -> Y) x y z :
+  map f x = y ++ z -> exists x' x'', x = x' ++ x'' /\ map f x' = y /\ map f x'' = z.
+Proof.
+  revert x; induction y; cbn; intros.
+  - exists [], x. firstorder.
+  - destruct x; inv H.
+    destruct (IHy _ H2) as (x' & x'' & -> & <- & <-).
+    exists (x :: x'), (x''). firstorder.
+Qed.
 
 (* ** More preliminary lemmas *)
 
@@ -575,11 +586,14 @@ End Fix_TM.
 Require Import PCP.Definitions.
 
 Theorem reduction_reach_sr : Reach ⪯ SR_fin.
-Proof. exists (fun S
-                      => existT (fun (sig:finType) => (prod (prod (srs sig) (list sig)) (list sig)))
-                               (rsig_finType (projT1 (projT2 S)))
-                               (reduction_reach_rewrite (projT2 (projT2 S)))).
-       intros [sig [M [c1 c2]]]. unfold Reach, SR.  cbn. apply reach_rewrite.
+Proof.
+  unshelve eexists.
+  - intros [sig [M [c1 c2]]]. 
+    exists (rsig_finType M).
+    exact (reduction_reach_rewrite (c1, c2)).
+  - intros [sig [M [c1 c2]]]. 
+    unfold Reach, SR. cbn.
+    apply reach_rewrite.
 Qed.
 
 (** ** SR with finite types to SR *)
@@ -588,7 +602,7 @@ Definition trans_R (Sigma : finType) (R : srs Sigma) :=
   map (fun '(x,y) => (map (@index Sigma) x, map (@index Sigma) y)) R.
 
 Lemma red_rew     (Sigma : finType) (R : srs Sigma) (x0 y : list Sigma) :
-    rew' R x0 y <-> rew (trans_R R) (map (index (X:=Sigma)) x0) (map (index (X:=Sigma)) y).
+    rew' R x0 y <-> rew (trans_R R) (map (index (F:=Sigma)) x0) (map (index (F:=Sigma)) y).
 Proof.
   split.
   - intros []. cbn. autorewrite with list. econstructor.
@@ -598,17 +612,18 @@ Proof.
     unfold trans_R in H2. eapply in_map_iff in H2 as ([] & ? & ?). inv H0.
     rewrite <- !map_app in H1. enough (l = y' /\ x0' ++ l0 ++ y'' =  y) as [-> <-].
     now econstructor.
-    + split; eapply map_inj; eauto using inj_index.
+    + split; eapply map_inj; eauto; intros ? ?; eapply injective_index.
 Qed.    
 
 
 Lemma rew_inv    (Sigma : finType) (R : srs Sigma) (x0 : list Sigma) y' :
-    rew (trans_R R) (map (index (X:=Sigma)) x0) y' -> exists y, y' = (map (index (X:=Sigma)) y).
+    rew (trans_R R) (map (index (F:=Sigma)) x0) y' -> exists y, y' = (map (index (F:=Sigma)) y).
 Proof.
   inversion 1; subst. unfold trans_R in H1. eapply in_map_iff in H1 as ([] & ? & ?). inv H1.
   symmetry in H0. eapply map_app_inv in H0 as (x0' & x0'' & ? & ? & (y' & y'' & ? & ? & ?) % map_app_inv ); subst.
-  rewrite map_inj in H4; eauto using inj_index. subst.
-  eexists. rewrite <- !map_app. reflexivity.
+  rewrite map_inj in H4. 1:{ subst.
+                             eexists. rewrite <- !map_app. reflexivity. }
+  intros ? ?; eauto using injective_index.
 Qed.
 
 Lemma nrewt_ind_left :
@@ -620,7 +635,7 @@ Proof.
 Qed.
 
 Lemma rewt_inv    (Sigma : finType) (R : srs Sigma) (x0 : list Sigma) y' :
-    rewt (trans_R R) (map (index (X:=Sigma)) x0) y' -> exists y, y' = (map (index (X:=Sigma)) y) /\ rewt' R x0 y.
+    rewt (trans_R R) (map (index (F:=Sigma)) x0) y' -> exists y, y' = (map (index (F:=Sigma)) y) /\ rewt' R x0 y.
 Proof.
   intros. induction H using nrewt_ind_left.
   - eauto using rewt'. 
@@ -629,13 +644,13 @@ Proof.
 Qed.
 
 Lemma red_rewt    (Sigma : finType) (R : srs Sigma) (x0 y : list Sigma) :
-    rewt' R x0 y <-> rewt (trans_R R) (map (index (X:=Sigma)) x0) (map (index (X:=Sigma)) y).
+    rewt' R x0 y <-> rewt (trans_R R) (map (index (F:=Sigma)) x0) (map (index (F:=Sigma)) y).
 Proof.
   split.
   - induction 1. reflexivity.
     eapply red_rew in H. eauto using rewt.
   - intros. eapply rewt_inv in H as (? & ? & ?). enough (x = y). subst. eassumption.
-    eapply map_inj; eauto using inj_index.
+    eapply map_inj; eauto; intros ? ?; eauto using injective_index.
 Qed.
 
 Lemma reduction : SR_fin ⪯ SR.
@@ -672,7 +687,7 @@ Proof.
     pose proof H.
     eapply rewrite_steps_halt in H as [? ->].
     eapply in_map_iff in H1 as (? & <- & ?). eapply in_map_iff in H2 as (? & ? & ?).
-    eapply inj_index in H1 as ->. eapply in_map_iff in H as (? & <- & ?).
+    eapply injective_index in H1 as ->. eapply in_map_iff in H as (? & <- & ?).
     eapply halting in H. eapply mk_srconf_state in H2. subst.
     exists x. cbn. intuition. 
     eapply reach_rewrite. eassumption.
@@ -685,9 +700,9 @@ Lemma rewt_R_fresh (R : SRS) (x : string) (A l : list symbol) :
 Proof.
   induction 1 using nrewt_ind_left; intros.
   - reflexivity.
-  - inv H0. eapply in_app_iff in H2 as [|].
+  - inv H0. eapply in_app_iff in H2 as [ | ].
     + eapply rewt_left. eapply IHrewt.
-      * intros [ | [|] % in_app_iff ] %in_app_iff; eapply H1; eauto.
+      * intros [ | [ | ] % in_app_iff ] %in_app_iff; eapply H1; eauto.
         eapply sym_word_l in H2; eauto. edestruct fresh_spec with (l := sym R ++ x); eauto.
       * eauto using rew.
     + eapply in_map_iff in H0 as (? & ? & ?). inv H0. destruct H1; eauto.
@@ -703,8 +718,8 @@ Proof.
     + eauto.
   -  revert H0. induction H using nrewt_ind_left; intros.
     + edestruct fresh_spec with (l := sym R ++ x); eauto.
-    + edestruct (@in_dec nat (ltac:(intros; decide equality)) (fresh (sym R ++ x)) y).
-      firstorder. inv H0. eapply in_app_iff in H2 as [|].
+    + edestruct (list_in_dec (fresh (sym R ++ x)) y). exact _.
+      firstorder. inv H0. eapply in_app_iff in H2 as [ | ].
       * destruct n. rewrite !in_app_iff in H1. intuition; eauto.
         eapply sym_word_R in H1; eauto. edestruct fresh_spec with (l := sym R ++ x); eauto.
       * eapply in_map_iff in H0 as (? & ? & ?); inv H0. exists (x0 ++ [x1] ++ y0).
@@ -715,4 +730,3 @@ Lemma Halt_SRH : Halt ⪯ SRH.
 Proof.
   eapply reduces_transitive. eapply halt_SRH'. eapply SRH'_SRH.
 Qed.
-

@@ -1,4 +1,4 @@
-From Undecidability.L Require Import Tactics Encodings DecidableRecognisable.
+From Undecidability Require Import L.Tactics Encodings DecidableRecognisable.
 Implicit Type p : term -> Prop.
 Implicit Types s t u : term.
 

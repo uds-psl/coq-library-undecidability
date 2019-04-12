@@ -1,4 +1,4 @@
-From Undecidability.FOL Require Export Semantics Kripke Deduction.
+From Undecidability Require Export FOL.Semantics FOL.Kripke FOL.Deduction.
 
 (* Definitions concerning first-order logic *)
 

@@ -1,6 +1,6 @@
 (** * Natural Deduction *)
 
-Require Export Semantics.
+Require Export FOL.Semantics.
 
 (** ** Definition *)
 
