@@ -1,8 +1,10 @@
--R ../external/smpl/theories/ smpl
--I ../external/smpl/src/
--R ../external/uds-psl-base PslBase
+-Q "../external/smpl/theories/" smpl
+-I "../external/smpl/src/"
+-Q "../external/uds-psl-base" PslBase
+-Q "../external/template-coq/template-coq/theories/" Template
+-I "../external/template-coq/template-coq/src"
 
--R . Undecidability
+-Q . Undecidability
 
 -install none
 -arg -w -arg -notation-overridden,-redundant-canonical-projection,-several-object-files,cannot-define-projection,records,unused-intro-pattern,tactics
@@ -51,21 +53,6 @@ FOL/BPCP_IFOL.v
 FOL/BPCP_CND.v
 FOL/Weakening.v
 FOL/Infinite.v
-
-L/Preliminaries.v
-L/L.v
-L/Tactics.v
-L/Encodings.v
-L/DecidableRecognisable.v
-L/Rice.v
-L/Interpreter.v
-L/Choose.v
-L/InterpreterResults.v
-L/Por.v
-L/Enumerable.v
-L/Markov.v
-L/Reduction.v
-L/Extras.v
 
 PCP/Definitions.v
 PCP/SRH_SR.v
@@ -234,8 +221,96 @@ TM/PrettyBounds/UnivSpaceBounds.v
 # Multi-Univ Simulation Theorem
 TM/MultiUnivTimeSpaceSimulation.v
 
+L/Prelim/MoreBase.v
+L/Prelim/ARS.v
+L/Prelim/StringBase.v
+L/Prelim/MoreList.v
+
+L/L.v
+
+L/Tactics/Computable.v
+L/Tactics/ComputableTime.v
+
+L/Tactics/LTactics.v
+
+L/Tactics/Extract.v
+L/Tactics/GenEncode.v
+
+L/Tactics/Lbeta_nonrefl.v
+L/Tactics/Lproc.v
+L/Tactics/Lbeta.v
+L/Tactics/Reflection.v
+L/Tactics/LClos.v
+L/Tactics/LClos_Eval.v
+L/Tactics/Lrewrite.v
+L/Tactics/Lsimpl.v
+
+L/Tactics/ComputableTactics.v
+L/Tactics/ComputableDemo.v
+
+L/Tactics/mixedTactics.v
+
+L/Datatypes/LUnit.v
+L/Datatypes/LBool.v
+L/Datatypes/Lists.v
+L/Datatypes/LNat.v
+L/Datatypes/LOptions.v
+L/Datatypes/LProd.v
+L/Datatypes/LBinNums.v
+L/Datatypes/LTerm.v
+
+L/Functions/Equality.v
+L/Functions/Encoding.v
+L/Functions/Proc.v
+L/Functions/Size.v
+L/Functions/Subst.v
+L/Functions/Eval.v
+L/Functions/IterupN.v
+
+L/Functions/EnumInt.v
+L/Functions/Unenc.v
+L/Functions/Ackermann.v
+
+L/TM/TMEncoding.v
+L/Reductions/TM_to_L.v
+
+L/Reductions/SRH_SR_computable.v
+L/Reductions/SR_MPCP_computable.v
+L/Reductions/MPCP_PCP_computable.v
+L/Reductions/PCP_CFG_computable.v
+L/Reductions/H10_to_L.v
+
+L/Complexity/ResourceMeasures.v
+L/Complexity/SpaceBoundsTime.v
+
+L/AbstractMachines/Programs.v
+L/AbstractMachines/AbstractSubstMachine.v
+L/AbstractMachines/AbstractHeapMachine.v
+L/AbstractMachines/UnfoldHeap.v
+L/AbstractMachines/FunctionalDefinitions.v
+L/AbstractMachines/Computable/Shared.v
+L/AbstractMachines/Computable/HeapMachine.v
+L/AbstractMachines/Computable/SubstMachine.v
+
+L/Computability/Acceptability.v
+#L/Computability/AD.v
+L/Computability/Computability.v
+#L/Computability/DA.v
+L/Computability/Decidability.v
+L/Computability/Enum.v
+L/Computability/Fixpoints.v
+#L/Computability/MoreAcc.v
+L/Computability/MuRec.v
+L/Computability/Partial.v
+L/Computability/Por.v
+#L/Computability/RE.v
+L/Computability/Rice.v
+L/Computability/Scott.v
+L/Computability/Seval.v
+L/Computability/Synthetic.v
+
+
 Problems/FOL.v
-Problems/cbvLambda.v
 Problems/TM.v
 Problems/SR.v
 Problems/MM.v

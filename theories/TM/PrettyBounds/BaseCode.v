@@ -1,8 +1,8 @@
 (** * PrettyBounds for Machines in TM/Code *)
 
-Require Export TM.PrettyBounds.PrettyBounds.
-Require Export TM.Code.ProgrammingTools.
-Require Export TM.Code.ListTM TM.Code.CaseList TM.Code.CaseNat TM.Code.CaseSum.
+From Undecidability Require Export TM.PrettyBounds.PrettyBounds.
+From Undecidability Require Export TM.Code.ProgrammingTools.
+From Undecidability Require Export TM.Code.ListTM TM.Code.CaseList TM.Code.CaseNat TM.Code.CaseSum.
 
 
 (** We want to give proofs without building constants/the need to manually unfold "_ <=( _ ) _" *)
@@ -409,7 +409,7 @@ Proof. destruct o; cbn; omega. Qed.
 
 (** *** CasePair *)
 
-Require Import CasePair.
+From Undecidability Require Import CasePair.
 
 Section CasePair_steps_nice.
   Variable (sigX X : Type) (cX : codable sigX X).
@@ -426,7 +426,7 @@ End CasePair_steps_nice.
 
 (** *** CaseSum and CaseOption *)
 
-Require Import CaseSum.
+From Undecidability Require Import CaseSum.
 
 Section CaseSum_steps_nice.
 
@@ -471,7 +471,7 @@ Qed.
 
 
 (** *** CompareValue(s) *)
-Require Import Code.CompareValue.
+From Undecidability Require Import Code.CompareValue.
 
 Section CompareValues_nice.
 

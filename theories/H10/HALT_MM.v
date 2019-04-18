@@ -10,11 +10,13 @@
 (** * Main undecidability results and DPRM theorem *)
 (** ** HALT reduces to MM *)
 
-Require Import ILL.Definitions.
+From Undecidability Require Import ILL.Definitions.
 
-Require Import utils_tac pos vec mm_defs.
+From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac.
+From Undecidability.ILL.Mm Require Import mm_defs.
 
-Require Import UNDEC.
+From Undecidability.ILL Require Import UNDEC.
 
 From Undecidability.PCP Require Import singleTM TM_SRH SRH_SR SR_MPCP MPCP_PCP.
 

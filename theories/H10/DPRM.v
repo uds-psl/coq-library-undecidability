@@ -11,9 +11,13 @@
 
 Require Import List Arith Omega.
 
-Require Import utils_tac utils_list sums pos vec.
-Require Import sss mm_defs fractran_defs fractran_dio mm_fractran prime_seq.
-Require Import dio_logic dio_elem dio_single.
+
+From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list sums.
+From Undecidability.ILL.Code Require Import sss.
+From Undecidability.ILL.Mm   Require Import mm_defs.
+From Undecidability.H10.Fractran Require Import fractran_dio mm_fractran prime_seq.
+From Undecidability.H10.Dio Require Import dio_logic dio_elem dio_single.
 
 Set Implicit Arguments.
 

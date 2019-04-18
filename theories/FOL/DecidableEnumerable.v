@@ -1,6 +1,6 @@
 (** * Decidability and Enumerability *)
 
-Require Export Shared.Prelim.
+From Undecidability Require Export Shared.Prelim.
 
 
 (* ** Definitions *)

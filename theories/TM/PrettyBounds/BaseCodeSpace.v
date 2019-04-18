@@ -1,9 +1,9 @@
 (** * Case Study: Place usage for list machines *)
 
-Require Import ProgrammingTools.
-Require Export SpaceBounds PrettyBounds.
-Require Import CaseNat CaseList.
-Require Import ListTM.
+From Undecidability Require Import ProgrammingTools.
+From Undecidability Require Export SpaceBounds PrettyBounds.
+From Undecidability Require Import CaseNat CaseList.
+From Undecidability Require Import ListTM.
 
 
 (** This really ougth to be global *)

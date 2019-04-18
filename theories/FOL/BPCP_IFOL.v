@@ -1,6 +1,6 @@
 (** * Intuitionistic FOL *)
 
-Require Import Kripke FOL.BPCP_FOL.
+From Undecidability.FOL Require Import Kripke BPCP_FOL.
 
 (** ** Reductions *)
 

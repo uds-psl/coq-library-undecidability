@@ -9,11 +9,11 @@
 
 Require Import List Arith Omega.
 
-Require Import ILL.Definitions.
+From Undecidability Require Import ILL.Definitions.
 
-Require Import utils pos vec. 
-Require Import subcode sss. 
-Require Import tiles_solvable bsm_defs bsm_pcp.
+From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec. 
+From Undecidability.ILL.Code Require Import subcode sss. 
+From Undecidability.ILL.Bsm Require Import tiles_solvable bsm_defs bsm_pcp.
 
 Fact tile_concat_itau ln lt : tile_concat ln lt = (itau1 lt (rev ln), itau2 lt (rev ln)).
 Proof.

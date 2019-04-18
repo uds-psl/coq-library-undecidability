@@ -9,9 +9,9 @@
 
 Require Import List Arith Omega.
 
-Require Import ILL.Definitions.
+From Undecidability Require Import ILL.Definitions.
 
-Require Import ill eill. 
+From Undecidability.ILL.Ll Require Import ill eill. 
 
 Section EILL_ILL.
 

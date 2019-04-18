@@ -1,8 +1,8 @@
 (** * PrettyBound for Univ *)
 
 
-Require Import TM.PrettyBounds.PrettyBounds.
-Require Import TM.PrettyBounds.BaseCode.
+From Undecidability Require Import TM.PrettyBounds.PrettyBounds.
+From Undecidability Require Import TM.PrettyBounds.BaseCode.
 
 
 Lemma Encode_list_hasSize_gt_length (sigX X : Type) (cX : codable sigX X) (xs : list X) :
@@ -18,7 +18,7 @@ Proof. apply Nat.lt_le_incl. apply Encode_list_hasSize_gt_length. Qed.
 
 
 (* Don't [Import] it globally here, or there will be name clashes with LM Lookup *)
-Require Univ.LookupAssociativeListTM Univ.StepTM.
+From Undecidability Require Univ.LookupAssociativeListTM Univ.StepTM.
 
 
 Module Univ_nice.

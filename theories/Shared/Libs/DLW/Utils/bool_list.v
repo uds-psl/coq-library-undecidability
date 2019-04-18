@@ -10,7 +10,7 @@
 (** ** Bitwise operations on nat as list bool *)
 
 Require Import List Omega Bool Setoid.
-Require Import utils_tac.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac.
 
 Set Implicit Arguments.
 

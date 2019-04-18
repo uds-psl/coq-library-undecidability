@@ -20,3 +20,8 @@ Makefile.coq: _CoqProject
 	coq_makefile -f _CoqProject -o Makefile.coq
 
 .PHONY: all html clean
+
+dummy:
+
+%.vo: Makefile.coq dummy
+	+make -f Makefile.coq $@

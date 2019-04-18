@@ -1,6 +1,6 @@
 (** * Weakening *)
 
-Require Import Deduction.
+From Undecidability.FOL Require Import Deduction.
 
 Fixpoint ren_t (rho : nat -> nat) t :=
   match t with

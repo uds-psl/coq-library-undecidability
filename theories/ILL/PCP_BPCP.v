@@ -1,4 +1,4 @@
-Require Import ILL.Definitions.
+From Undecidability Require Import ILL.Definitions.
 
 (** ** PCP reduces to BPCP *)
 

@@ -10,7 +10,8 @@
 (** ** Elementary diophantine constraints *)
 
 Require Import List Arith Nat Omega.
-Require Import utils_list gcd prime dio_logic.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils_list gcd prime.
+From Undecidability.H10.Dio Require Import dio_logic.
 
 Set Implicit Arguments.
 

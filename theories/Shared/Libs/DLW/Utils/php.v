@@ -13,7 +13,7 @@
 
 Require Import Arith Omega List Permutation.
 
-Require Import utils_tac utils_list.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list.
 
 Set Implicit Arguments.
 

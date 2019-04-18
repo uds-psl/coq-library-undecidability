@@ -11,8 +11,8 @@
 
 Require Import Arith Nat Omega List Bool.
 
-Require Import utils_tac utils_list rel_iter sums.
-Require Import dio_logic dio_expo dio_bounded.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list rel_iter sums.
+From Undecidability.H10.Dio Require Import dio_logic dio_expo dio_bounded.
 
 Set Implicit Arguments.
 

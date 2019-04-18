@@ -13,11 +13,12 @@
 
 Require Import List Arith Omega.
 
-Require Import ILL.Definitions.
+From Undecidability Require Import ILL.Definitions.
 
-Require Import pos vec.
-Require Import sss subcode mm_defs.
-Require Import fractran_defs prime_seq mm_fractran.
+From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
+From Undecidability.ILL.Code Require Import sss subcode.
+From Undecidability.ILL.Mm   Require Import mm_defs.
+From Undecidability.H10.Fractran Require Import fractran_defs mm_fractran prime_seq.
 
 Set Implicit Arguments.
 

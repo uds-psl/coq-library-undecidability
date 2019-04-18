@@ -10,8 +10,10 @@
 (** ** Object-level encoding of bounded universal quantification I *)
 
 Require Import Arith Nat Omega List Bool Setoid.
-Require Import utils_tac gcd prime binomial sums bool_nat luca.
-Require Import cipher dio_logic dio_expo.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac gcd prime binomial sums bool_nat.
+From Undecidability.H10.ArithLibs Require Import luca.
+From Undecidability.H10.Matija Require Import cipher.
+From Undecidability.H10.Dio Require Import dio_logic dio_expo.
 
 Set Implicit Arguments.
 

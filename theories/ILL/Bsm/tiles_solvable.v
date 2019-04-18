@@ -9,7 +9,8 @@
 
 Require Import List Arith Max Omega Wellfounded Bool.
 
-Require Import utils list_bool.
+From Undecidability.Shared.Libs.DLW Require Import Utils.utils.
+From Undecidability.ILL.Bsm Require Import list_bool.
 
 Set Implicit Arguments.
 

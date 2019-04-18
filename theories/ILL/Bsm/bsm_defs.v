@@ -9,9 +9,9 @@
 
 Require Import List Arith Omega Bool.
 
-Require Import utils pos vec. 
-Require Import subcode sss.
-Require Import list_bool.
+From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec.
+From Undecidability.ILL.Code Require Import subcode sss.
+From Undecidability.ILL.Bsm Require Import list_bool.
 
 Set Implicit Arguments.
 

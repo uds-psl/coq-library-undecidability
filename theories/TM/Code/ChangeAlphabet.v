@@ -1,5 +1,5 @@
-Require Import TM.Prelim TM.Code.CodeTM.
-Require Import TM.Lifting.LiftAlphabet.
+From Undecidability Require Import TM.Prelim TM.Code.CodeTM.
+From Undecidability Require Import TM.Lifting.LiftAlphabet.
 
 
 (** * Alphabet-lift for "programmed" Turing Machines *)

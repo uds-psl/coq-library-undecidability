@@ -1,7 +1,7 @@
 (** * Machines that compute list functions *)
 
-Require Import ProgrammingTools.
-Require Import CaseNat CaseList CaseSum. (* [TM.Code.CaseSum] contains [Constr_Some] and [Constr_None]. *)
+From Undecidability Require Import ProgrammingTools.
+From Undecidability Require Import CaseNat CaseList CaseSum. (* [TM.Code.CaseSum] contains [Constr_Some] and [Constr_None]. *)
 
 
 Local Arguments skipn { A } !n !l.
@@ -583,7 +583,7 @@ Arguments Nth'_size {sigX X cX} : simpl never.
 
 
 
-Require Import TM.Basic.Mono TM.Code.Copy.
+From Undecidability Require Import TM.Basic.Mono TM.Code.Copy.
 
 
 

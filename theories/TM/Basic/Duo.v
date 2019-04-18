@@ -1,6 +1,6 @@
 (** * Primitive Two-tape machines *)
 
-Require Import TM.TM.
+From Undecidability Require Import TM.TM.
 
 
 (** ** Read two symbols *)

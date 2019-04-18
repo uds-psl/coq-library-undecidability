@@ -1,6 +1,6 @@
-Require Export TM.Prelim TM.TM TM.Code.Code.
-Require Export TM.Lifting.Lifting.
-Require Export TM.Combinators.Combinators.
+From Undecidability Require Export TM.Prelim TM.TM TM.Code.Code.
+From Undecidability Require Export TM.Lifting.Lifting.
+From Undecidability Require Export TM.Combinators.Combinators.
 
 (** * Value-Containing *)
 

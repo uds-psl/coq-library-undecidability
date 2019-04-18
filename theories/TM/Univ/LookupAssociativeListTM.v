@@ -1,7 +1,7 @@
 Require Import PslBase.Bijection. (* [injective] *)
-Require Import ProgrammingTools.
-Require Import TM.Code.CompareValue.
-Require Import TM.Code.CasePair TM.Code.CaseList.
+From Undecidability Require Import ProgrammingTools.
+From Undecidability Require Import TM.Code.CompareValue.
+From Undecidability Require Import TM.Code.CasePair TM.Code.CaseList.
 
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.

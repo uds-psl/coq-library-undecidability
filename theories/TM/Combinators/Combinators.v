@@ -1,7 +1,7 @@
 (** * Combinators *)
 
 (** Export Modules for Combinators *)
-Require Export Switch If SequentialComposition StateWhile While Mirror.
+From Undecidability Require Export Switch If SequentialComposition StateWhile While Mirror.
 
 (** ** Simple Combinators *)
 

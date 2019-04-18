@@ -11,8 +11,9 @@
 
 Require Import List Arith Omega Nat.
 
-Require Import utils_tac utils_list sums pos vec. 
-Require Import dio_logic dio_elem.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list sums.
+From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec. 
+From Undecidability.H10.Dio Require Import dio_logic dio_elem.
 
 Set Implicit Arguments.
 

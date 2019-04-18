@@ -1,4 +1,4 @@
-Require Import Shared.Prelim.
+Require Import Undecidability.Shared.Prelim.
 
 (** ** Traditional Definition *)
 

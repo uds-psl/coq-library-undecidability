@@ -1,6 +1,6 @@
 (** * Post's Theorem and Markov's Principle *)
 
-Require Export DecidableEnumerable.
+From Undecidability.FOL Require Export DecidableEnumerable.
 Require Import ConstructiveEpsilon.
 
 Definition stable P := ~~ P -> P.

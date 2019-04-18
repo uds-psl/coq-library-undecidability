@@ -1,6 +1,6 @@
 (** * Constructors and Deconstructors for Finite Types *)
 
-Require Import ProgrammingTools.
+From Undecidability Require Import ProgrammingTools.
 
 Section CaseFin.
 

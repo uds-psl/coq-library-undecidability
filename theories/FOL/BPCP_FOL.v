@@ -1,6 +1,6 @@
 (** * FOL Reductions *)
 
-Require Export FOL.PCP Deduction.
+From Undecidability.FOL Require Export PCP Deduction.
 
 (** ** Validity *)
 

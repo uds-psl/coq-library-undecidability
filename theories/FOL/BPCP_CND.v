@@ -1,6 +1,6 @@
 (** * Classical Natural Deduction *)
 
-Require Export BPCP_FOL.
+From Undecidability Require Export BPCP_FOL.
 
 (** ** Double Negation Translation *)
 

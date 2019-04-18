@@ -1,5 +1,5 @@
-Require Import TM.Prelim TM.TM.
-Require Import TM.Lifting.LiftTapes. (* for [simpl_not_in] *)
+From Undecidability Require Import TM.Prelim TM.TM.
+From Undecidability Require Import TM.Lifting.LiftTapes. (* for [simpl_not_in] *)
 
 (** * Tactics that help verifying complex machines *)
 

@@ -1,6 +1,6 @@
 (** ** TM to SR with finite types *)
 
-Require Import singleTM .
+From Undecidability.PCP Require Import singleTM.
 Require Import PslBase.FiniteTypes.BasicDefinitions.
 
 Lemma map_app_inv X Y (f : X -> Y) x y z :
@@ -583,7 +583,7 @@ Section Fix_TM.
 
 End Fix_TM.
 
-Require Import PCP.Definitions.
+From Undecidability Require Import PCP.Definitions.
 
 Theorem reduction_reach_sr : Reach ⪯ SR_fin.
 Proof.

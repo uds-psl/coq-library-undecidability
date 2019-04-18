@@ -10,7 +10,7 @@
 (** ** Bitwise operations on nat *)
 
 Require Import Arith Nat Omega List Bool Setoid.
-Require Import utils_tac utils_list utils_nat bool_list gcd sums power_decomp.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list utils_nat bool_list gcd sums power_decomp.
 
 Set Implicit Arguments.
 

@@ -1,6 +1,6 @@
 (** * Kripke Semantics *)
 
-Require Export FOL.Deduction.
+From Undecidability Require Export FOL.Deduction.
 
 (** ** Kripke Models *)
 

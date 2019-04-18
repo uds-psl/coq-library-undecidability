@@ -10,7 +10,9 @@
 (** ** Luca's theorem *)
 
 Require Import Arith Nat Omega Lia List.
-Require Import utils_tac gcd prime binomial sums Zp rel_iter.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac gcd prime binomial sums rel_iter.
+From Undecidability.H10.ArithLibs Require Import Zp.
+
 
 Set Implicit Arguments.
 

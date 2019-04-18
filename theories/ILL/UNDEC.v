@@ -9,10 +9,12 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import ILL.Definitions.
-Require Import bsm_defs mm_defs eill ill.
+From Undecidability Require Import ILL.Definitions.
+From Undecidability.ILL.Bsm Require Import bsm_defs.
+From Undecidability.ILL.Mm Require Import mm_defs.
+From Undecidability.ILL.Ll Require Import eill ill.
 
-Require Import PCP_BPCP BPCP_iBPCP iBPCP_BSM BSM_MM MM_EILL EILL_ILL.
+From Undecidability.ILL Require Import PCP_BPCP BPCP_iBPCP iBPCP_BSM BSM_MM MM_EILL EILL_ILL.
 
 (** * List of all results *)
 

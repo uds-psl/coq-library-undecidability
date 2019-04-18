@@ -1,6 +1,6 @@
 (** * Constructors and Deconstructors for Pair Types *)
 
-Require Import ProgrammingTools.
+From Undecidability Require Import ProgrammingTools.
 
 (* TODO: ~> base *)
 Lemma pair_eq (A B : Type) (a1 a2 : A) (b1 b2 : B) :

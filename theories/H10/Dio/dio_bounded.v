@@ -11,9 +11,9 @@
 
 Require Import Arith Nat Omega List Bool.
 
-Require Import utils_tac utils_list sums bounded_quantification.
-Require Import cipher.
-Require Import dio_logic dio_cipher dio_elem.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list sums bounded_quantification.
+From Undecidability.H10.Matija Require Import cipher.
+From Undecidability.H10.Dio Require Import dio_logic dio_cipher dio_elem.
 
 Set Implicit Arguments.
 

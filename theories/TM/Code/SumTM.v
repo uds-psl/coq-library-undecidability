@@ -1,4 +1,4 @@
-Require Import ProgrammingTools CaseSum.
+From Undecidability Require Import ProgrammingTools CaseSum.
 
 (**
 If there are two function [f1 : X -> Z] and [f2 : Y -> Z], then there is only one canonical way to define a function [map_sum : X + Y -> Z]. This machine operator takes machines [M1] and [M2] that compute the functions [f] and [g]; and defines a machine [Map_sum] that computes [map_sum].

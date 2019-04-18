@@ -10,7 +10,7 @@
 (** ** Base p representation *)
 
 Require Import Arith Nat Omega.
-Require Import utils_tac gcd rel_iter sums.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac gcd rel_iter sums.
 
 Set Implicit Arguments.
 

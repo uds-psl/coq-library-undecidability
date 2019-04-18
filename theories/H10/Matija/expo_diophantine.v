@@ -11,7 +11,9 @@
 
 Require Import Arith Omega Eqdep_dec ZArith.
 
-Require Import utils_tac gcd sums Zp alpha.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac gcd sums.
+From Undecidability.H10.ArithLibs Require Import Zp.
+From Undecidability.H10.Matija Require Import alpha.
 
 Set Implicit Arguments.
 

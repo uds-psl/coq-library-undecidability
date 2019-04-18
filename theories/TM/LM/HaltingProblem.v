@@ -1,7 +1,7 @@
 (** * Reduction of the Halting Problem of the Heap Machine to the Halting Problem of Turing Machines *)
 
-Require Import ProgrammingTools.
-Require Import LM.Semantics LM.Alphabets LM.StepTM.
+From Undecidability Require Import ProgrammingTools.
+From Undecidability Require Import LM.Semantics LM.Alphabets LM.StepTM.
 
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.

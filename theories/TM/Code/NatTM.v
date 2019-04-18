@@ -1,5 +1,5 @@
-Require Import TM.Code.ProgrammingTools.
-Require Import TM.Code.CaseNat.
+From Undecidability Require Import TM.Code.ProgrammingTools.
+From Undecidability Require Import TM.Code.CaseNat.
 
 
 (** * Machines that compte natural functions *)

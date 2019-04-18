@@ -10,7 +10,7 @@
 (* Require Import Arith Omega Max List. *)
 
 Require Import Arith Omega List Permutation.
-Require Import utils pos.
+From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos.
 
 Set Implicit Arguments.
 

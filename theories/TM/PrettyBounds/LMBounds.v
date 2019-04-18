@@ -1,12 +1,12 @@
 (** * PrettyBounds for LM *)
 
-Require Import TM.PrettyBounds.PrettyBounds.
-Require Import TM.PrettyBounds.BaseCode.
-Require Import TM.PrettyBounds.MaxList.
+From Undecidability Require Import TM.PrettyBounds.PrettyBounds.
+From Undecidability Require Import TM.PrettyBounds.BaseCode.
+From Undecidability Require Import TM.PrettyBounds.MaxList.
 
-Require Import TM.LM.Semantics TM.LM.Alphabets.
-Require Import TM.LM.CaseCom.
-Require Import TM.LM.JumpTargetTM.
+From Undecidability Require Import TM.LM.Semantics TM.LM.Alphabets.
+From Undecidability Require Import TM.LM.CaseCom.
+From Undecidability Require Import TM.LM.JumpTargetTM.
 
 
 
@@ -385,7 +385,7 @@ End JumpTarget_steps_nice.
 Print Assumptions JumpTarget_steps_nice.JumpTarget_steps_nice.
 
 
-Require Import LM.LookupTM.
+From Undecidability Require Import LM.LookupTM.
 
 
 (** ** LM Lookup *)
@@ -664,8 +664,8 @@ End LM_Lookup_nice.
 Print Assumptions LM_Lookup_nice.Lookup_steps_nice.
 
 
-Require Import LM.StepTM LM.HaltingProblem.
-Require Import LM.SizeAnalysis.
+From Undecidability Require Import LM.StepTM LM.HaltingProblem.
+From Undecidability Require Import LM.SizeAnalysis.
 
 Module LM.
   Import JumpTarget_steps_nice LM_Lookup_nice.

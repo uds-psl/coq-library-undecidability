@@ -1,9 +1,9 @@
-Require Export PrettyBounds.
+From Undecidability Require Export PrettyBounds.
 
-Require Export Code.CaseNat.
-Require Export Code.CasePair.
+From Undecidability Require Export Code.CaseNat.
+From Undecidability Require Export Code.CasePair.
 
-Require Export TM.Code.CodeTM TM.Code.Copy.
+From Undecidability Require Export TM.Code.CodeTM TM.Code.Copy.
 
 
 (* This definition doesn't work, because we need the quantifier for all values after [(s: nat)] *)
@@ -13,9 +13,9 @@ Definition dominatedWith_vec (n : nat) (f : Vector.t (nat->nat) n) (g : Vector.t
 *)
 
 
-Require Import ListTM CaseList.
+From Undecidability Require Import ListTM CaseList.
 
-Require Export MaxList.
+From Undecidability Require Export MaxList.
 
 
 Fixpoint sum_list_rec (s : nat) (xs : list nat) :=

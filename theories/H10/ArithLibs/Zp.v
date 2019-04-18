@@ -12,7 +12,8 @@
 
 Require Import Arith Omega Eqdep_dec ZArith List Permutation.
 
-Require Import utils_tac utils_list gcd prime binomial sums matrix php.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list gcd prime binomial sums php.
+From Undecidability.H10.ArithLibs Require Import matrix.
 
 Set Implicit Arguments.
 

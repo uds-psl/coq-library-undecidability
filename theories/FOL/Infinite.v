@@ -1,6 +1,6 @@
 (** * Infinite Data Types *)
 
-Require Import Shared.Prelim MarkovPost.
+From Undecidability Require Import Shared.Prelim FOL.MarkovPost.
 
 (** ** Definition of infinite and generating types *)
 

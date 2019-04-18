@@ -9,9 +9,11 @@
 
 Require Import List Permutation Arith Omega.
 
-Require Import utils pos vec. 
-Require Import subcode sss mm_defs.
-Require Import ill eill.
+
+From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec.
+From Undecidability.ILL.Code Require Import subcode sss.
+From Undecidability.ILL.Mm Require Import mm_defs mm_utils.
+From Undecidability.ILL.Ll Require Import ill eill.
 
 Set Implicit Arguments.
 

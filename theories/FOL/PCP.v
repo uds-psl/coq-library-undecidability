@@ -1,6 +1,6 @@
 (** * Post Correspondence Problem *)
 
-Require Export Reductions Problems.PCP.
+From Undecidability Require Export Reductions Problems.PCP.
 
 Lemma stack_discrete :
   discrete (stack bool).

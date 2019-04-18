@@ -1,8 +1,8 @@
 (** * Heap Lookup *)
 
-Require Import TM.Code.ProgrammingTools.
-Require Import TM.LM.Semantics TM.LM.Alphabets.
-Require Import TM.Code.ListTM TM.Code.CasePair TM.Code.CaseSum TM.Code.CaseNat.
+From Undecidability Require Import TM.Code.ProgrammingTools.
+From Undecidability Require Import TM.LM.Semantics TM.LM.Alphabets.
+From Undecidability Require Import TM.Code.ListTM TM.Code.CasePair TM.Code.CaseSum TM.Code.CaseNat.
 
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.

@@ -1,9 +1,7 @@
 Require Export Undecidability.Shared.Prelim.
 Require Export PslBase.FiniteTypes.
-Require Export TM.LM.HaltingProblem.
-Require Export TM.TM.
+From Undecidability Require Export TM.LM.HaltingProblem. TM.TM. Problems.Reduction.
 Require Import Equations.Equations.
-Require Import Problems.Reduction.
 
 Derive Signature for vector.
 
@@ -256,7 +254,7 @@ Definition single_TM_halt : { sig : _ & (mTM sig 1) * (tapes sig 1)}%type -> Pro
 Equations (noeqns) f_config A B : TM.mconfig A B 1 -> mconfig A B :=
   { f_config (TM.mk_mconfig a [|b|]) := mk_mconfig a b }.
 
-Require Import TM.Prelim.
+From Undecidability Require Import TM.Prelim.
 
 Lemma TM_conv : single_TM_halt ⪯ Halt.
 Proof.

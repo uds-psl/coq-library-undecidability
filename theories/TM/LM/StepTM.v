@@ -1,9 +1,9 @@
 (** * Step Machine of the Heap Machine Simulator *)
 
-Require Import TM.Code.ProgrammingTools.
-Require Import TM.LM.Semantics TM.LM.Alphabets.
-Require Import TM.LM.CaseCom TM.LM.LookupTM TM.LM.JumpTargetTM.
-Require Import TM.Code.ListTM TM.Code.CaseList TM.Code.CasePair TM.Code.CaseSum.
+From Undecidability Require Import TM.Code.ProgrammingTools.
+From Undecidability Require Import TM.LM.Semantics TM.LM.Alphabets.
+From Undecidability Require Import TM.LM.CaseCom TM.LM.LookupTM TM.LM.JumpTargetTM.
+From Undecidability Require Import TM.Code.ListTM TM.Code.CaseList TM.Code.CasePair TM.Code.CaseSum.
 
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.

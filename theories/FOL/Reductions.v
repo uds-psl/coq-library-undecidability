@@ -1,6 +1,6 @@
 (** * Many-One Reductions *)
 
-Require Export Problems.Reduction DecidableEnumerable.
+From Undecidability Require Export Problems.Reduction DecidableEnumerable.
 
 Lemma dec_red X (p : X -> Prop) Y (q : Y -> Prop) :
   p ⪯ q -> decidable q -> decidable p.

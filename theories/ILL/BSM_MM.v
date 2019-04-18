@@ -9,11 +9,12 @@
 
 Require Import List Arith Omega.
 
-Require Import ILL.Definitions.
+From Undecidability Require Import ILL.Definitions.
 
-Require Import utils pos vec. 
-Require Import subcode sss. 
-Require Import list_bool bsm_defs mm_defs mm_utils mm_comp.
+From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec. 
+From Undecidability.ILL.Code Require Import subcode sss.
+From Undecidability.ILL.Mm Require Import mm_defs mm_utils mm_comp.
+From Undecidability.ILL.Bsm Require Import bsm_defs list_bool.
 
 Local Notation "P '/BSM/' s ↓" := (sss_terminates (@bsm_sss _) P s) (at level 70, no associativity).
 Local Notation "P '/MM/' s ~~> t" := (sss_output (@mm_sss _) P s t) (at level 70, no associativity).

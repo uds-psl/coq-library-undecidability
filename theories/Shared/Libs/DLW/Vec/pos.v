@@ -9,7 +9,7 @@
 
 Require Import List Arith Omega.
 
-Require Import utils.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils.
 
 Set Implicit Arguments.
 

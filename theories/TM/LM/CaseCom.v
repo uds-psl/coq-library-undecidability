@@ -1,8 +1,8 @@
 (** * Constructors and Deconstructors for Comens *)
 
-Require Import ProgrammingTools.
-Require Import TM.Code.CaseNat TM.Code.CaseSum TM.Code.CaseFin.
-Require Import TM.LM.Semantics TM.LM.Alphabets.
+From Undecidability Require Import ProgrammingTools.
+From Undecidability Require Import TM.Code.CaseNat TM.Code.CaseSum TM.Code.CaseFin.
+From Undecidability Require Import TM.LM.Semantics TM.LM.Alphabets.
 
 Definition CaseCom : pTM sigCom^+ (option ACom) 1 :=
   If (CaseSum _ _)

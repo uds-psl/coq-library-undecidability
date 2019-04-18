@@ -11,7 +11,7 @@
 (** ** Diophantine logic *)
 
 Require Import Arith Nat Omega.
-Require Import gcd.
+From Undecidability.Shared.Libs.DLW.Utils Require Import gcd.
 
 Set Implicit Arguments.
 

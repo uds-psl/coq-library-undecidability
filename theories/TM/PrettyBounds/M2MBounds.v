@@ -1,11 +1,11 @@
 (** * Bounds For M2M *)
 
 
-Require Import TM.PrettyBounds.PrettyBounds.
-Require Import TM.PrettyBounds.BaseCode.
+From Undecidability Require Import TM.PrettyBounds.PrettyBounds.
+From Undecidability Require Import TM.PrettyBounds.BaseCode.
 
-Require Import TM.Single.StepTM.
-Require Import TM.Single.EncodeTapes.
+From Undecidability Require Import TM.Single.StepTM.
+From Undecidability Require Import TM.Single.EncodeTapes.
 
 
 

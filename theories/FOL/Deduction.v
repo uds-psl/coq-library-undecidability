@@ -1,6 +1,6 @@
 (** * Natural Deduction *)
 
-Require Export FOL.Semantics.
+From Undecidability Require Export FOL.Semantics.
 
 (** ** Definition *)
 

@@ -1,13 +1,13 @@
 (** * Theorem: Univ can simulate multi-tape Turing machines with polynominal time and linear space overhead *)
 
-Require Import ProgrammingTools.
-Require Import TM.Univ.StepTM. (* [Univ] for single-tape Turing machines *)
-Require Import TM.Single.EncodeTapes TM.Single.StepTM. (* Compiler for multi-tape Turing machines to single-tape Turing machines *)
+From Undecidability Require Import TM.Code.ProgrammingTools.
+From Undecidability Require Import TM.Univ.StepTM. (* [Univ] for single-tape Turing machines *)
+From Undecidability Require Import TM.Single.EncodeTapes TM.Single.StepTM. (* Compiler for multi-tape Turing machines to single-tape Turing machines *)
 
-Require Import PrettyBounds.
-Require UnivBounds.
-Require UnivSpaceBounds.
-Require M2MBounds.
+From Undecidability Require Import PrettyBounds.
+From Undecidability Require UnivBounds.
+From Undecidability Require UnivSpaceBounds.
+From Undecidability Require M2MBounds.
 
 Require Import Derive.
 
@@ -25,9 +25,8 @@ Lemma vector_const_cons (X : Type) (n : nat) (x : X) :
   Vector.const x (S n) = x ::: Vector.const x n.
 Proof. cbn. reflexivity. Qed.
 *)
-
-
-Require Import MaxList.
+             
+From Undecidability Require Import MaxList.
 
 
 (** Technical compatibility lemma: Coq's standard library is soo inconsistent... *)

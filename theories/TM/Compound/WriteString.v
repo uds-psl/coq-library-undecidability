@@ -1,6 +1,6 @@
-Require Import TM.TM TM.Basic.Mono TM.Combinators.Combinators TM.Compound.Multi.
+From Undecidability Require Import TM.TM TM.Basic.Mono TM.Combinators.Combinators TM.Compound.Multi.
 Require Import List.
-Require Import TMTac.
+From Undecidability Require Import TMTac.
 
 (** Useful for running time stuff *)
 Local Arguments plus : simpl never.

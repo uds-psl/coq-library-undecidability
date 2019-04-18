@@ -1,7 +1,7 @@
-Require Import CodeTM.
-Require Import Basic.Mono.
-Require Import TM.Compound.WriteString.
-Require Import TMTac.
+From Undecidability Require Import CodeTM.
+From Undecidability Require Import Basic.Mono.
+From Undecidability Require Import TM.Compound.WriteString.
+From Undecidability Require Import TMTac.
 
 (* TODO: ~> Base *)
 

@@ -9,7 +9,8 @@
 
 Require Import List Permutation Arith Omega.
 
-Require Import utils pos vec ill.
+From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec.
+From Undecidability.ILL.Ll Require Import ill.
 
 Set Implicit Arguments.
 

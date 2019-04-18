@@ -9,7 +9,7 @@
 
 Require Import List Arith Max Omega Wellfounded Bool.
 
-Require Import list_focus utils_tac utils_list.
+From Undecidability.Shared.Libs.DLW.Utils Require Import list_focus utils_tac utils_list.
 
 Set Implicit Arguments.
 

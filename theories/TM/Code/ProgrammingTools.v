@@ -1,6 +1,6 @@
-Require Export CodeTM Copy ChangeAlphabet WriteValue.
-Require Export TMTac.
-Require Export Basic.Mono Compound.Multi.
+From Undecidability Require Export CodeTM Copy ChangeAlphabet WriteValue.
+From Undecidability Require Export TMTac.
+From Undecidability Require Export Basic.Mono Compound.Multi.
 
 (** * All tools for programming Turing machines *)
 

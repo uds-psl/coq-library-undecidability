@@ -1,4 +1,5 @@
-Require Import Definitions.
+
+From Undecidability.PCP Require Import Definitions.
 
      (* spec    proof comments *)
      (*   24       40      632 pcp_cfg.v *)

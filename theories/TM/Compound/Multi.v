@@ -1,10 +1,10 @@
-Require Import TM.Prelim.
-Require Import TM.TM.
-Require Import TM.Basic.Basic.
-Require Import TM.Combinators.Combinators.
-Require Import TM.Lifting.Lifting.
+From Undecidability Require Import TM.Prelim.
+From Undecidability Require Import TM.TM.
+From Undecidability Require Import TM.Basic.Basic.
+From Undecidability Require Import TM.Combinators.Combinators.
+From Undecidability Require Import TM.Lifting.Lifting.
 
-Require Import TM.Compound.TMTac.
+From Undecidability Require Import TM.Compound.TMTac.
 
 (** * Simple compound multi-tape Machines *)
 

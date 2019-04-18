@@ -11,7 +11,7 @@
 
 Require Import Arith Omega.
 
-Require Import utils_tac gcd.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac gcd.
 
 Set Implicit Arguments.
 

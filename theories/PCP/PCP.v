@@ -1,4 +1,4 @@
-Require Import Prelim. 
+From Undecidability.PCP Require Import Prelim. 
 
 (** ** PCP and MPCP *)
 

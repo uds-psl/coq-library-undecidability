@@ -13,7 +13,7 @@
 
 Require Import List Arith Omega Eqdep_dec ZArith.
 
-Require Import utils_tac utils_list binomial.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list binomial.
 
 Set Implicit Arguments.
 

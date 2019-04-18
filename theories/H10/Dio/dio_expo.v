@@ -10,8 +10,9 @@
 (** ** Object-level encoding of exponential *)
 
 Require Import Arith Nat Omega List.
-Require Import utils_tac sums rel_iter binomial. 
-Require Import alpha expo_diophantine dio_logic.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac sums rel_iter binomial. 
+From Undecidability.H10.Matija Require Import alpha expo_diophantine.
+From Undecidability.H10.Dio Require Import dio_logic.
 
 Set Implicit Arguments.
 

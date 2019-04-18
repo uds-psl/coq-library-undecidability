@@ -1,12 +1,12 @@
 Require Import FunInd.
 
-Require Import TM.Code.Copy.
-Require Import TM.Code.CodeTM.
-Require Import TM.Compound.Compare.
-Require Import TM.Basic.Basic.
-Require Import TM.Combinators.Combinators.
-Require Import TM.Compound.TMTac TM.Compound.Multi.
-Require Import TM.Lifting.LiftTapes.
+From Undecidability Require Import TM.Code.Copy.
+From Undecidability Require Import TM.Code.CodeTM.
+From Undecidability Require Import TM.Compound.Compare.
+From Undecidability Require Import TM.Basic.Basic.
+From Undecidability Require Import TM.Combinators.Combinators.
+From Undecidability Require Import TM.Compound.TMTac TM.Compound.Multi.
+From Undecidability Require Import TM.Lifting.LiftTapes.
 
 
 Local Arguments plus : simpl never.

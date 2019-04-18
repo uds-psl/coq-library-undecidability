@@ -1,10 +1,10 @@
-Require Import ProgrammingTools.
+From Undecidability Require Import TM.Code.ProgrammingTools.
 Require Import PslBase.Bijection. (* [injective] *)
 
 
-Require Import Basic.Duo.
-Require Import Code.CaseFin Code.CaseList Code.CasePair.
-Require Import Univ.LookupAssociativeListTM.
+From Undecidability Require Import Basic.Duo.
+From Undecidability Require Import Code.CaseFin Code.CaseList Code.CasePair.
+From Undecidability Require Import Univ.LookupAssociativeListTM.
 
 
 Local Arguments plus : simpl never.

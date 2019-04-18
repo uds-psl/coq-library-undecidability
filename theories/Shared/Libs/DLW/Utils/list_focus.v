@@ -10,8 +10,7 @@
 Require Import List.
 Require Import Permutation.
 
-Require Import focus utils_tac.
-
+From Undecidability.Shared.Libs.DLW.Utils Require Import focus utils_tac.
 (*
 
 Ltac change_goal expr :=

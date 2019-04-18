@@ -1,4 +1,4 @@
-Require Export Shared.Prelim.
+Require Export Undecidability.Shared.Prelim.
 
 Definition reduces X Y (p : X -> Prop) (q : Y -> Prop) := exists f : X -> Y, forall x, p x <-> q (f x).
 Notation "p ⪯ q" := (reduces p q) (at level 50).

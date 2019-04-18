@@ -7,10 +7,5 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Export focus.
-Require Export utils_tac.
-Require Export list_focus.
-Require Export utils_list.
-Require Export utils_nat.
-Require Export utils_string.
+From Undecidability.Shared.Libs.DLW.Utils Require Export focus utils_tac list_focus utils_list utils_nat utils_string.
 

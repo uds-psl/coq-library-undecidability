@@ -1,8 +1,8 @@
-Require Import TM.Prelim.
-Require Import TM.Basic.Basic.
-Require Import TM.Combinators.Combinators.
-Require Import TM.Compound.TMTac.
-Require Import TM.Compound.Multi.
+From Undecidability Require Import TM.Prelim.
+From Undecidability Require Import TM.Basic.Basic.
+From Undecidability Require Import TM.Combinators.Combinators.
+From Undecidability Require Import TM.Compound.TMTac.
+From Undecidability Require Import TM.Compound.Multi.
 
 Require Import FunInd.
 Require Import Recdef.

@@ -1,6 +1,6 @@
-Require Import TM.Prelim.
-Require Import TM.Code.Code.
-Require Import TM.LM.Semantics.
+From Undecidability Require Import TM.Prelim.
+From Undecidability Require Import TM.Code.Code.
+From Undecidability Require Import TM.LM.Semantics.
 
 (** * Alphabets *)
 

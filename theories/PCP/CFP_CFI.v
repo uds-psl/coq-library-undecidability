@@ -1,4 +1,4 @@
-Require Import PCP.Definitions Post_CFG.
+From Undecidability.PCP Require Import Definitions Post_CFG.
 
 (** * CFP to CFI *)
 

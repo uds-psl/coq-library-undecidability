@@ -1,12 +1,12 @@
 (** * Space Analysis for Univ *)
 
-Require Import ProgrammingTools.
-Require Import BaseCodeSpace.
+From Undecidability Require Import ProgrammingTools.
+From Undecidability Require Import BaseCodeSpace.
 
-Require Import CaseList CasePair.
+From Undecidability Require Import CaseList CasePair.
 
 
-Require Import Univ.LookupAssociativeListTM.
+From Undecidability Require Import Univ.LookupAssociativeListTM.
 
 
 Lemma max_list_rec_map_monotone' (X : Type) (s0 s1 : nat) (xs : list X) (f0 f1 : X -> nat) :
@@ -147,8 +147,8 @@ End Lookup_size_nice.
 Local Arguments Lookup_size : simpl never.
 
 
-Require Import Univ.StepTM.
-Require Import UnivBounds. (* We may need some lemmas from here *)
+From Undecidability Require Import Univ.StepTM.
+From Undecidability Require Import UnivBounds. (* We may need some lemmas from here *)
 Import Univ_nice.
 
 

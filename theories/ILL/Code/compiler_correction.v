@@ -11,7 +11,9 @@
 
 Require Import List Arith Omega.
 
-Require Import utils subcode sss bsm_defs compiler.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils.
+From Undecidability.ILL.Code Require Import sss compiler.
+From Undecidability.ILL.Bsm Require Import bsm_defs.
 
 
 (** ** Semantic Correctness of Compiled Code *)
