@@ -10,7 +10,7 @@
 (** ** Sparse ciphers *)
 
 Require Import Arith Nat Omega List Bool Setoid.
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac gcd sums rel_iter bool_nat power_decomp.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac gcd sums rel_iter bool_nat power_decomp prime.
 
 Set Implicit Arguments.
 

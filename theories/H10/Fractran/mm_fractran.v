@@ -16,7 +16,7 @@ Require Import List Arith Omega Permutation.
 Import ListNotations.
 
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils utils_tac utils_list utils_nat gcd rel_iter.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils utils_tac utils_list utils_nat gcd rel_iter prime.
 From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
 From Undecidability.ILL.Code Require Import sss subcode.
 From Undecidability.ILL.Mm Require Import mm_defs.

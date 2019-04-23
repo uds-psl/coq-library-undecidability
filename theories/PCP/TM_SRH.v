@@ -1,7 +1,7 @@
 (** ** TM to SR with finite types *)
 
 From Undecidability.PCP Require Import singleTM.
-Require Import PslBase.FiniteTypes.BasicDefinitions.
+Require Import PslBase.FiniteTypes.BasicDefinitions PslBase.EqDec.
 
 Lemma map_app_inv X Y (f : X -> Y) x y z :
   map f x = y ++ z -> exists x' x'', x = x' ++ x'' /\ map f x' = y /\ map f x'' = z.
@@ -16,7 +16,7 @@ Qed.
 (* ** More preliminary lemmas *)
 
 Lemma inductive_count (S:eqType) (Y:eqType) A (s:S) n (f: S -> Y):
-Injective f -> count A s = n -> count (map (fun a:S => f a) A) (f s) = n.
+  Injective f -> count A s = n -> count (map (fun a:S => f a) A) (f s) = n.
 Proof.
 intros inj. revert n. induction A; intros n HC.
 - destruct n; try discriminate HC. reflexivity.
@@ -304,22 +304,21 @@ Section Fix_TM.
      list (list rsig * list rsig) :=
     match old,new,m with
     |None,None,L => [([state q1; #],[state q2; #])] ++ (get_rules_left q1 q2 None None)
-    |None,None,N => [([state q1; #],[state q2; #]);([state q1; $],[state q2; $])]
+    |None,None,TM.N => [([state q1; #],[state q2; #]);([state q1; $],[state q2; $])]
     |None,None,R => [([state q1; #;$],[state q2; #;$]); ([state q1; $],[state q2; $])]
                      ++ (get_rules_right q1 q2)
     |None,Some b,L => [([state q1; #],[state q2; #; sym b])] ++ (get_rules_left q1 q2 None (Some b))
-    |None,Some b,N => [([state q1; #],[#; state q2; sym b]); ([state q1; $],[state q2; sym b; $])]
+    |None,Some b,TM.N => [([state q1; #],[#; state q2; sym b]); ([state q1; $],[state q2; sym b; $])]
     |None,Some b,R => [([state q1; #],[#; sym b; state q2]); ([state q1; $],[sym b; state q2; $])]
     |Some a,None,L => [([#;state q1; sym a],[state q2; #; sym a])]
                        ++ (get_rules_left q1 q2 (Some a) None)
-    |Some a,None,N => [([state q1; sym a],[state q2; sym a])]
+    |Some a,None,TM.N => [([state q1; sym a],[state q2; sym a])]
     |Some a,None,R => [([state q1; sym a],[sym a; state q2])]
     |Some a,Some b,L => [([#; state q1; sym a],[state q2; #; sym b])]
                          ++ (get_rules_left q1 q2 (Some a) (Some b))
-    |Some a,Some b,N => [([state q1; sym a],[state q2; sym b])]
+    |Some a,Some b,TM.N => [([state q1; sym a],[state q2; sym b])]
     |Some a,Some b,R => [([state q1; sym a],[sym b; state q2])]
     end.
-
 
  
    Definition TMrules : list (list rsig * list rsig) :=

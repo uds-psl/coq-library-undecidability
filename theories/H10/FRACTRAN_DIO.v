@@ -16,7 +16,7 @@ From Undecidability Require Import ILL.Definitions.
 From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac.
 From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
 From Undecidability.H10.Fractran Require Import fractran_defs fractran_dio.
-From Undecidability.H10.Dio Require Import dio_elem dio_single.
+From Undecidability.H10.Dio Require Import dio_elem dio_single dio_logic.
 From Undecidability.H10 Require Import MM_FRACTRAN.
 
 Set Implicit Arguments.

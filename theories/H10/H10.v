@@ -9,12 +9,12 @@
 
 (** ** Hilbert's tenth problem is undecidable *)
 
-From Undecidability.ILL Require Import Definitions.
+From Undecidability.ILL Require Import Definitions UNDEC.
 From Undecidability.PCP Require Import singleTM.
 From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
 From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac.
-rom Undecidability.ILL.Mm   Require Import mm_defs.
-From Undecidability.H10.Fractran Require Import fractran_defs.
+From Undecidability.ILL.Mm   Require Import mm_defs.
+From Undecidability.H10 Require Import FRACTRAN_DIO HALT_MM MM_FRACTRAN Fractran.fractran_defs.
 From Undecidability.H10.Dio Require Import dio_logic dio_elem dio_single.
 
 Set Implicit Arguments.

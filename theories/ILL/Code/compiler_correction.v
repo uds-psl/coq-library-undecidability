@@ -12,7 +12,7 @@
 Require Import List Arith Omega.
 
 From Undecidability.Shared.Libs.DLW.Utils Require Import utils.
-From Undecidability.ILL.Code Require Import sss compiler.
+From Undecidability.ILL.Code Require Import sss compiler subcode.
 From Undecidability.ILL.Bsm Require Import bsm_defs.
 
 

@@ -1,9 +1,9 @@
 Require Export Undecidability.Shared.Prelim.
 Require Export PslBase.FiniteTypes.
-From Undecidability Require Export TM.LM.HaltingProblem. TM.TM. Problems.Reduction.
-Require Import Equations.Equations.
+From Undecidability Require Export TM.LM.HaltingProblem TM.TM Problems.Reduction.
+Require Import Equations.Equations Vector.
 
-Derive Signature for vector.
+Derive Signature for Vector.t.
 
 (** * TM to SRH *)
 

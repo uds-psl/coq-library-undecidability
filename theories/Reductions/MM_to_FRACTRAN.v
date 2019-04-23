@@ -9,10 +9,11 @@
 
 Require Import Arith Omega Max.
 
-Require Import ILL.Definitions.
+From Undecidability Require Import ILL.Definitions.
 
-Require Import utils pos vec mm_defs fractran_defs.
-Require Import MM_FRACTRAN.
+From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec.
+Require Import Undecidability.ILL.Mm.mm_defs Undecidability.H10.Fractran.fractran_defs.
+Require Import Undecidability.H10.MM_FRACTRAN.
 
 Check MM_FRACTRAN_HALTING.
 Print Assumptions MM_FRACTRAN_HALTING.
