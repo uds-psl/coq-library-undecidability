@@ -3,7 +3,7 @@ all: Makefile.coq
 
 html: Makefile.coq
 	+make -f Makefile.coq html
-	mv html/*.html website
+	mv html/*.html ../website
 	rm -rf html
 
 install: Makefile.coq
