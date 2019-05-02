@@ -309,6 +309,13 @@ L/Computability/Scott.v
 L/Computability/Seval.v
 L/Computability/Synthetic.v
 
+LAM/BaseExtension.v
+LAM/Prelims.v
+LAM/AbstractSim.v
+LAM/LM.v
+LAM/LM_code.v
+LAM/LM_lin.v
+LAM/Red_L_to_LM_Lin.v
 
 Problems/FOL.v
 Problems/TM.v

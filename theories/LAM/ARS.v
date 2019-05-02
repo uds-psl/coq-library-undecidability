@@ -1,16 +1,11 @@
-(** ** Abstract Reduction Systems *)
-(** from Semantics Lecture at Programming Systems Lab, https://www.ps.uni-saarland.de/courses/sem-ws13/ *)
+(** * Abstract Reduction Systems, from Semantics Lecture at Programming Systems Lab, https://www.ps.uni-saarland.de/courses/sem-ws13/ *)
 
-Require Export PslBase.Base.
+Require Export Base.
 
-Module ARSNotations.
-  Notation "p '<=1' q" := (forall x, p x -> q x) (at level 70).
-  Notation "p '=1' q" := (p <=1 q /\ q <=1 p) (at level 70).
-  Notation "R '<=2' S" := (forall x y, R x y -> S x y) (at level 70).
-  Notation "R '=2' S"  := (R <=2 S /\ S <=2 R) (at level 70).
-End ARSNotations.
-
-Import ARSNotations.
+Notation "p '<=1' q" := (forall x, p x -> q x) (at level 70).
+Notation "p '=1' q" := (p <=1 q /\ q <=1 p) (at level 70).
+Notation "R '<=2' S" := (forall x y, R x y -> S x y) (at level 70).
+Notation "R '=2' S"  := (R <=2 S /\ S <=2 R) (at level 70).
 
 (** Relational composition *)
 
@@ -32,6 +27,7 @@ Section FixX.
   Definition symmetric R := forall x y, R x y -> R y x.
   Definition transitive R := forall x y z, R x y -> R y z -> R x z.
   Definition functional R := forall x y z, R x y -> R x z -> y = z.
+
 
   (** Reflexive transitive closure *)
 
@@ -288,27 +284,7 @@ Section FixX.
       econstructor; split; eassumption.
   Qed.
 
-  Lemma uniform_confluent_noloop R x y:
-    uniform_confluent R ->
-    star R x y -> (forall y', ~ R y y') ->
-    ~exists z k, star R x z /\ pow R (S k) z z.
-  Proof.
-    intros UC (k0&R0)%star_pow Term (z&k1&R1&RL).
-    induction R1 in k0,RL,R0|-*.
-    -edestruct parametrized_confluence with (m:=k0) (n:=S k1 + k0) as (i0&i1&?&?&?&?&?&?).
-     1,2:eassumption.
-     now eapply pow_add;eexists;split;eassumption.
-     destruct i0. destruct i1.
-     +now omega.
-     +destruct H2 as (?&?&_). edestruct Term. eauto.
-     +destruct H1 as (?&?&_). edestruct Term. eauto.
-    -edestruct parametrized_semi_confluence with (R:=R) (2:= R0) as (i0&?&?&?&?&?&?&?). 1,2:eassumption.
-     destruct i0. 2:{ destruct H2 as (?&?&_). edestruct Term. eauto. }
-     cbn in H2;inv H2.
-     eapply IHR1. all:eauto.
-  Qed.
-  
- Lemma uc_terminal R x y z n:
+  Lemma uc_terminal R x y z n:
     uniform_confluent R ->
     R x y ->
     pow R n x z ->
@@ -341,40 +317,3 @@ Section FixX.
 End FixX.
 
 Existing Instance star_PO.
-
-(** A notion of a reduction sequence which keeps track of the largest occuring state *)
-
-Inductive redWithMaxSize {X} (size:X -> nat) (step : X -> X -> Prop): nat -> X -> X -> Prop:=
-  redWithMaxSizeR m s: m = size s -> redWithMaxSize size step m s s 
-| redWithMaxSizeC s s' t m m': step s s' -> redWithMaxSize size step m' s' t -> m = max (size s) m' -> redWithMaxSize size step m s t.
-
-Lemma redWithMaxSize_ge X size step (s t:X) m:
-  redWithMaxSize size step m s t -> size s<= m /\ size t <= m.
-Proof.
-  induction 1;subst;firstorder (repeat eapply Nat.max_case_strong; try omega).
-Qed.
-
-Lemma redWithMaxSize_trans X size step (s t u:X) m1 m2 m3:
- redWithMaxSize size step m1 s t -> redWithMaxSize size step m2 t u -> max m1 m2 = m3 -> redWithMaxSize size step m3 s u.
-Proof.
-  induction 1 in m2,u,m3|-*;intros.
-  -specialize (redWithMaxSize_ge H0) as [].
-   revert H1;
-     repeat eapply Nat.max_case_strong; subst m;intros. all:replace m3 with m2 by omega. all:eauto.
-  - specialize (redWithMaxSize_ge H0) as [].
-    specialize (redWithMaxSize_ge H2) as [].
-    eassert (H1':=Max.le_max_l _ _);rewrite H3 in H1'.
-    eassert (H2':=Max.le_max_r _ _);rewrite H3 in H2'.
-    econstructor. eassumption.
-     
-    eapply IHredWithMaxSize. eassumption. reflexivity.
-    subst m;revert H3;repeat eapply Nat.max_case_strong;intros;try omega. 
-Qed.
-
-Lemma redWithMaxSize_star {X} f (step : X -> X -> Prop) n x y:
-  redWithMaxSize f step n x y -> star step x y.
-Proof.
-  induction 1;eauto using star.
-Qed.
-
-
