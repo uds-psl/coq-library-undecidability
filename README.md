@@ -6,7 +6,8 @@ Feel free to contribute or start using the problems!
 ## Existing undecidable problems
 
 - Post correspondence problem (`PCP` in [`Problems/PCP.v`](Problems/PCP.v))
-- Halting problem for Turing machines (`Halt` in [`Problems/TM.v`](Problems/TM.v))
+- Halting problem for single-tape Turing machines (`Halt` in [`Problems/TM.v`](Problems/TM.v)
+- Halting problem for multi-tape Turing machines (`Halt` in [`Problems/mTM.v`](Problems/TM.v))
 - Halting problem for Minsky machines (`MM_HALTING` in [`Problems/MM.v`](Problems/MM.v))
 - Halting problem for Binary Stack Machines (`BSM_HALTING` in [`Problems/BSM.v`](Problems/BSM.v))
 - Halting problem for the call-by-value lambda-calculus (`eva` in [`Problems/L.v`](Problems/L.v))
@@ -36,6 +37,7 @@ Feel free to contribute or start using the problems!
 ## Published work and technical reports
 
 - Hilbert's Tenth Problem in Coq. Dominique Larchey-Wendling and Yannick Forster. Technical report. Subdirectory `H10`. https://uds-psl.github.io/H10
+- A certifying extraction with time bounds from Coq to call-by-value lambda-calculus. Technical report. Subdirectory `L`. https://github.com/uds-psl/certifying-extraction-with-time-bounds
 - Certified Undecidability of Intuitionistic Linear Logic via Binary Stack Machines and Minsky Machines. Yannick Forster and Dominique Larchey-Wendling. CPP '19. Subdirectory `ILL`. http://uds-psl.github.io/ill-undecidability/
 - On Synthetic Undecidability in Coq, with an Application to the Entscheidungsproblem. Yannick Forster, Dominik Kirst, and Gert Smolka. CPP '19. Subdirectory `FOL`. https://www.ps.uni-saarland.de/extras/fol-undec
 - Towards a library of formalised undecidable problems in Coq: The undecidability of intuitionistic linear logic. Yannick Forster and Dominique Larchey-Wendling. LOLA 2018. Subdirectory `ILL`. https://www.ps.uni-saarland.de/~forster/downloads/LOLA-2018-coq-library-undecidability.pdf 
@@ -55,6 +57,8 @@ Feel free to contribute or start using the problems!
 - Yannick Forster
 - Edith Heiter
 - Dominik Kirst 
+- Fabian Kunze
 - Dominique Larchey-Wendling
 - Gert Smolka
+- Maximilian Wuttke
 
