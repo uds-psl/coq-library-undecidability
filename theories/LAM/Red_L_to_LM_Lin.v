@@ -347,6 +347,10 @@ Definition eva s := exists t, eval s t.
 Definition evaLin sigma := exists tau, evaluates step sigma tau.
 
 
+Definition L_halt := eva.
+Definition L_halt_closed : { s : term | closed s} -> Prop :=
+  fun '(exist _ s _) => eva s.
+
 Lemma red_halt_L_to_LM_Lin s:
   closed s -> eva s <-> evaLin (init s).
 Proof.
@@ -360,3 +364,20 @@ Proof.
    eapply soundness in E as (?&?&?&?&?&?). all:eauto.
 Qed.
 
+Lemma LM_halting_LM_halting : L_halt_closed ⪯ evaLin.
+Proof.
+  eexists (fun '(exist _ s _ ) => _). intros [s].
+  cbn; now eapply red_halt_L_to_LM_Lin.
+Qed.
+
+Require Import Undecidability.L.Functions.Encoding Undecidability.L.Functions.Eval Undecidability.L.Tactics.LTactics.
+
+Lemma red_L_halt_closed :
+  L_halt ⪯ L_halt_closed.
+Proof.
+  unshelve eexists.
+  - intros s. exists (Eval (enc s)). unfold Eval. Lproc. 
+  - cbn. intros s. unfold L_halt. split; intros (t & Ht).
+    + eapply eval_converges. edestruct Eval_converges. eapply H. eauto.
+    + eapply eval_converges. eapply Eval_converges. eapply Seval.eval_converges. eauto.
+Qed.
