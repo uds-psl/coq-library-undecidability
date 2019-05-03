@@ -1,4 +1,4 @@
-From Undecidability.L Require Import L.
+From Undecidability.L Require Import L Seval.
 From Undecidability.LAM Require Import Prelims LM_lin LM.
 
 (** ** Direct correctness proof  *)
@@ -161,51 +161,50 @@ Lemma completeness' s t s0 P a T V H:
             /\ star step (((compile s0++P)!a)::T,V,H)
                   (tailRecursion P a T,g::V,H') /\ extended H H'.
 Proof.
-  intros Ev R.
+  intros (n&Ev)%eval_seval R.
   induction Ev in s0,P,a,T,V,H,R |-*.
   -inversion R.
-(*    +subst k s s0. clear H0 R. rename P0 into Q,H3 into R. *)
-(*     rewrite Nat.sub_0_r in H1. *)
-(*     eexists (Q ! b),H. *)
-(*     repeat split. *)
-(*     *eauto using reprC. *)
-(*     *cbn [compile]. eapply R_star. now econstructor.  *)
-(*     *hnf. tauto. *)
-(*    +subst k s' s0. clear R. rename H3 into R. *)
-(*     eexists (compile s1 ! a),H. *)
-(*     repeat split. *)
-(*     *eauto using reprC,reprP,unfolds. *)
-(*     *cbn [compile Datatypes.app]; autorewrite with list;cbn [Datatypes.app]. *)
-(*      apply R_star. constructor. apply jumpTarget_correct. *)
-(*     *hnf. tauto. *)
-(*   -inv R.  *)
-(*    {exfalso. inv H2. inv H3. }  *)
-(*    rename t0 into t1. rename H4 into I__s, H5 into I__t. *)
-(*    cbn [compile List.app]; autorewrite with list; cbn [List.app].  *)
-(*    specialize (IHEv1 _ (compile t1 ++ appT ::P) _ T V _ I__s) *)
-(*      as ([P__temp a2]&Heap1&rep1&R1&Ext1). *)
-(*    inv rep1. inv H4. inv H6. rename H3 into I__s'. *)
-(*    apply (unfolds_extend Ext1) in I__t. *)
-(*    specialize (IHEv2 _ (appT ::P) _ T ((compile s2!a2)::V) _ I__t) *)
-(*      as (g__t&Heap2&rep2&R2&Ext2). *)
-(*    edestruct (put Heap2 (heapEntryC g__t a2)) as [Heap2' a2'] eqn:eq. *)
-(*    assert (Ext2' := (put_extends eq)). *)
-(*    apply ( reprC_extend Ext2') in rep2. *)
-(*    apply ( unfolds_extend Ext2) in I__s'. apply ( unfolds_extend Ext2') in I__s'. *)
+   +subst k s0 s'. clear H0 R. rename P0 into Q,H3 into R,H1 into lookup_eq.
+    rewrite Nat.sub_0_r in lookup_eq.
+    eexists (Q ! b),H.
+    repeat split.
+    *eauto using reprC.
+    *cbn [compile]. eapply R_star. now econstructor.
+    *hnf. tauto.
+   +subst k s' s0. clear R. rename H3 into R.
+    eexists (compile s1 ! a),H.
+    repeat split.
+    *eauto using reprC,reprP,unfolds.
+    *cbn [compile Datatypes.app]; autorewrite with list;cbn [Datatypes.app].
+     apply R_star. constructor. apply jumpTarget_correct.
+    *hnf. tauto.
+  -inv R.
+   {exfalso. inv H2. inv H3. }
+   rename t0 into t1. rename H4 into I__s, H5 into I__t.
+   cbn [compile List.app]; autorewrite with list; cbn [List.app].
+   specialize (IHEv1 _ (compile t1 ++ appT ::P) _ T V _ I__s)
+     as ([P__temp a2]&Heap1&rep1&R1&Ext1).
+   inv rep1. inv H4. inv H6. rename H3 into I__s'.
+   apply (unfolds_extend Ext1) in I__t.
+   specialize (IHEv2 _ (appT ::P) _ T ((compile s2!a2)::V) _ I__t)
+     as (g__t&Heap2&rep2&R2&Ext2).
+   edestruct (put Heap2 (heapEntryC g__t a2)) as [Heap2' a2'] eqn:eq.
+   assert (Ext2' := (put_extends eq)).
+   apply ( reprC_extend Ext2') in rep2.
+   apply ( unfolds_extend Ext2) in I__s'. apply ( unfolds_extend Ext2') in I__s'.
 
-(*    specialize (unfolds_subst (get_current eq) rep2 I__s') as I__subst. *)
-(*    edestruct (IHEv3 _ [] _ (tailRecursion P a T) V _ I__subst) as (g__u&Heap3&rep3&R3&Ext3). *)
-(*    eexists g__u,Heap3.  *)
-(*    split;[ | split]. *)
-(*    +eassumption. *)
-(*    +rewrite R1,tailRecursion_compile,R2. cbn. *)
-(*     eapply starC. *)
-(*     {apply step_beta. eassumption. } *)
-(*     autorewrite with list in R3. *)
-(*     exact R3. *)
-(*    +rewrite Ext1,Ext2,Ext2',Ext3. reflexivity. *)
-(* Qed. *)
-Admitted.
+   specialize (unfolds_subst (get_current eq) rep2 I__s') as I__subst.
+   edestruct (IHEv3 _ [] _ (tailRecursion P a T) V _ I__subst) as (g__u&Heap3&rep3&R3&Ext3).
+   eexists g__u,Heap3.
+   split;[ | split].
+   +eassumption.
+   +rewrite R1,tailRecursion_compile,R2. cbn.
+    eapply starC.
+    {apply step_beta. eassumption. }
+    autorewrite with list in R3.
+    exact R3.
+   +rewrite Ext1,Ext2,Ext2',Ext3. reflexivity.
+Qed.
 
 Definition init s :state := ([(compile s!0)],[],[]).
 
@@ -285,7 +284,7 @@ Proof.
     -eapply unfolds_extend. 2:eassumption. now rewrite Ext2,Ext3.
    }
    cbn in R3'.
-   inv Rg3. inv H1.
+   inv Rg3. inv H1. inv H2.
    eexists (k11+(k21+(1+k31))),k32,_,_,_.
    repeat eexists.
    +omega.
@@ -298,26 +297,25 @@ Proof.
     *eassumption.
    +eassumption.
    +eassumption.
-(*    +econstructor. all:eauto using eval, unfolds. *)
-(*    +now rewrite Ext1,Ext2,Ext3. *)
-(*    +eassumption. *)
-(*   -inv Unf.  *)
-(*    assert (exists k', k = 1 + k') as (k'&->). *)
-(*    {destruct k. 2:eauto. exfalso. *)
-(*     inv R. eapply Ter. cbn. econstructor. autorewrite with list. eapply jumpTarget_correct. } *)
-(*    apply pow_add in R as (?&R1&R2). *)
-(*    apply rcomp_1 in R1. inv R1. *)
-(*    autorewrite with list in H8. cbn in H8. rewrite jumpTarget_correct in H8. inv H8. *)
-(*    eexists 1,k',_,_,_. *)
-(*    repeat esplit. *)
-(*    +cbn. constructor. autorewrite with list. apply jumpTarget_correct. *)
-(*    +congruence. *)
-(*    +eauto. *)
-(*    +constructor. *)
-(*    +reflexivity. *)
-(*    +eauto using unfolds. *)
-(* Qed. *)
-Admitted.
+   + rewrite Ev1,Ev2,stepApp,Ev3. reflexivity.
+   +now rewrite Ext1,Ext2,Ext3.
+   +eauto using unfolds.
+  -inv Unf.
+   assert (exists k', k = 1 + k') as (k'&->).
+   {destruct k. 2:eauto. exfalso.
+    inv R. eapply Ter. cbn. econstructor. autorewrite with list. eapply jumpTarget_correct. }
+   apply pow_add in R as (?&R1&R2).
+   apply rcomp_1 in R1. inv R1.
+   autorewrite with list in H8. cbn in H8. rewrite jumpTarget_correct in H8. inv H8.
+   eexists 1,k',_,_,_.
+   repeat esplit.
+   +cbn. constructor. autorewrite with list. apply jumpTarget_correct.
+   +congruence.
+   +eauto.
+   +constructor.
+   +reflexivity.
+   +eauto using unfolds.
+Qed.
     
 Lemma soundness s sigma:
   closed s -> 
@@ -334,8 +332,8 @@ Proof.
    {destruct k2. eauto. exfalso.
     destruct R2 as (?&R'&?). inv R'. }
    inv R2.
-   repeat eexists. all:eauto.
-Admitted.
+   eexists _,_,_. eauto.
+Qed.
 
 (** ** Reduction *)
 
