@@ -1,4 +1,6 @@
-From Undecidability Require Import TM.Prelim TM.Relations TM.LM.Semantics.
+From Undecidability Require Import TM.Prelim TM.Relations.
+From Undecidability.LAM Require Import LM_heap_def.
+
 Require Import FunInd.
 
 Fixpoint sum (A:list nat) :=

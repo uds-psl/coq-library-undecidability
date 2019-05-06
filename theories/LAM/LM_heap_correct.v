@@ -1,33 +1,58 @@
 From Undecidability.L Require Import L Seval.
-From Undecidability.LAM Require Import Prelims LM_lin LM.
-
+From Undecidability.LAM Require Import Prelims.
+From Undecidability.LAM Require Import LM_heap_def.
 (** ** Direct correctness proof  *)
 
+(** *** Definition compile/representation *)
+Fixpoint compile (s: L.term) : Pro :=
+  match s with
+    var x => [varT x]
+  | app s t => compile s ++ compile t ++ [appT]
+  | lam s => lamT :: compile s ++ [retT]
+  end.
 
 Inductive reprP : Pro -> term -> Prop :=
   reprPC s : reprP (compile s) (lam s).
 
-Lemma get_current H m H' alpha : put H m = (H', alpha) -> get H' alpha = Some m.
+(** *** Correctnes Heap-interaction *)
+
+Definition extended (H H' : Heap) := forall alpha m, nth_error H alpha = Some m -> nth_error H' alpha = Some m.
+
+
+Lemma get_current H m H' alpha : put H m = (alpha,H') -> nth_error H' alpha = Some m.
   Proof.
-    unfold put, get. intros [= <- <-].
+    unfold put. intros [= <- <-].
     rewrite nth_error_app2. now rewrite <- minus_n_n. reflexivity.
   Qed.
 
-  Lemma put_extends H H' m b: put H m = (H',b) -> extended H H'.
+  Lemma put_extends H H' m b: put H m = (b,H') -> extended H H'.
   Proof.
-    unfold extended,get,put.
+    unfold extended,put.
     intros [= <- <-] ? ? ?. rewrite nth_error_app1;eauto using nth_error_Some_lt.
   Qed.
 
   Lemma tailRecursion_compile s P a T:
-    tailRecursion (compile s ++ P) a T = ((compile s ++ P)!a)::T.
+    tailRecursion (a,compile s ++ P) T = ((a,compile s ++ P))::T.
   Proof.
     induction s in P,T|-*.
-    all:cbn.
+    all:cbn [compile].
     1,3:easy.
-    rewrite <- app_assoc. rewrite IHs1. now autorewrite with list.
+    rewrite <- !app_assoc. rewrite IHs1. now autorewrite with list.
   Qed.
 
+
+Lemma jumpTarget_correct s c: jumpTarget 0 [] (compile s ++ retT::c) = Some (compile s,c).
+Proof.
+  change (Some (compile s,c)) with (jumpTarget 0 ([]++compile s) (retT::c)).
+  generalize 0.
+  generalize (retT::c) as c'. clear c.
+  generalize (@nil Com) as c. 
+  induction s;intros c' c l.
+  -reflexivity.
+  -cbn. autorewrite with list. rewrite IHs1,IHs2. cbn. now autorewrite with list. 
+  -cbn. autorewrite with list. rewrite IHs. cbn. now autorewrite with list.
+Qed.
+  
 (** *** Unfolding *)
 
 Inductive unfolds H a: nat -> term -> term -> Prop :=
@@ -36,7 +61,7 @@ Inductive unfolds H a: nat -> term -> term -> Prop :=
     unfolds H a k (var n) (var n)
 | unfoldsBound k b P s s' n:
     n >= k ->
-    lookup H a (n-k) = Some (P!b) ->
+    lookup H a (n-k) = Some (b,P) ->
     reprP P s ->
     unfolds H b 0 s s' ->
     unfolds H a k (var n) s'
@@ -60,14 +85,14 @@ Proof.
 Qed.
 
 
-Inductive reprC : list heapEntry -> clos -> term -> Prop :=
+Inductive reprC : Heap -> _ -> term -> Prop :=
   reprCC H P s a s' :
     reprP P s ->
     unfolds H a 0 s s' ->
-    reprC H (P!a) s'.
+    reprC H (a,P) s'.
 
 Lemma unfolds_subst' H s s' t' a a' k g:
-  get H a' = Some (heapEntryC g a) ->
+  nth_error (A:=HEntr) H a' = Some (Some (g,a)) ->
   reprC H g t' ->
   unfolds H a (S k) s s' ->
   unfolds H a' k s (subst s' k t').
@@ -84,7 +109,7 @@ Proof.
    +decide _. econstructor; eauto. omega.
     econstructor. omega.
   -rename s into u.
-   assert (H':lookup H a' (n-k) = Some (P!b)).
+   assert (H':lookup H a' (n-k) = Some (b,P)).
    {destruct n. omega. rewrite Nat.sub_succ_l. cbn. rewrite H1. now rewrite Nat.sub_succ in H2. omega. }
    rewrite bound_closed_k.
    2:{ eapply bound_ge with (k:=0). 2:omega. now eauto using unfolds_bound. }
@@ -96,7 +121,7 @@ Qed.
 
 
 Lemma unfolds_subst H s s' t' a a' g:
-  get H a' = Some (heapEntryC g a) ->
+  nth_error H a' = Some (Some (g,a)) ->
   reprC H g t' ->
   unfolds H a 1 s s' ->
   unfolds H a' 0 s (subst s' 0 t').
@@ -129,7 +154,7 @@ Lemma lookup_extend H H' a x g:
 Proof.
   induction x in H,H',a,g|-*;intros H1 H2.
   all:cbn in H2|-*.
-  all:destruct get as [[]|]eqn:H3.
+  all:destruct nth_error as [[[]|]|]eqn:H3.
   all:try congruence.
   all:try rewrite (H1 _ _ H3).
   all:try congruence.
@@ -158,21 +183,21 @@ Qed.
 Lemma completeness' s t s0 P a T V H:
   eval s t -> unfolds H a 0 s0 s ->
   exists g H', reprC H' g t
-            /\ star step (((compile s0++P)!a)::T,V,H)
-                  (tailRecursion P a T,g::V,H') /\ extended H H'.
+            /\ star step ((a,compile s0++P)::T,V,H)
+                  (tailRecursion (a,P) T,g::V,H') /\ extended H H'.
 Proof.
   intros (n&Ev)%eval_seval R.
   induction Ev in s0,P,a,T,V,H,R |-*.
   -inversion R.
    +subst k s0 s'. clear H0 R. rename P0 into Q,H3 into R,H1 into lookup_eq.
     rewrite Nat.sub_0_r in lookup_eq.
-    eexists (Q ! b),H.
+    eexists (b,Q),H.
     repeat split.
     *eauto using reprC.
     *cbn [compile]. eapply R_star. now econstructor.
     *hnf. tauto.
    +subst k s' s0. clear R. rename H3 into R.
-    eexists (compile s1 ! a),H.
+    eexists (a,compile s1),H.
     repeat split.
     *eauto using reprC,reprP,unfolds.
     *cbn [compile Datatypes.app]; autorewrite with list;cbn [Datatypes.app].
@@ -183,18 +208,18 @@ Proof.
    rename t0 into t1. rename H4 into I__s, H5 into I__t.
    cbn [compile List.app]; autorewrite with list; cbn [List.app].
    specialize (IHEv1 _ (compile t1 ++ appT ::P) _ T V _ I__s)
-     as ([P__temp a2]&Heap1&rep1&R1&Ext1).
+     as ([a2 P__temp]&Heap1&rep1&R1&Ext1).
    inv rep1. inv H4. inv H6. rename H3 into I__s'.
    apply (unfolds_extend Ext1) in I__t.
-   specialize (IHEv2 _ (appT ::P) _ T ((compile s2!a2)::V) _ I__t)
+   specialize (IHEv2 _ (appT ::P) _ T ((a2,compile s2)::V) _ I__t)
      as (g__t&Heap2&rep2&R2&Ext2).
-   edestruct (put Heap2 (heapEntryC g__t a2)) as [Heap2' a2'] eqn:eq.
+   edestruct (put Heap2 (Some(g__t,a2))) as [a2' Heap2'] eqn:eq.
    assert (Ext2' := (put_extends eq)).
    apply ( reprC_extend Ext2') in rep2.
    apply ( unfolds_extend Ext2) in I__s'. apply ( unfolds_extend Ext2') in I__s'.
 
    specialize (unfolds_subst (get_current eq) rep2 I__s') as I__subst.
-   edestruct (IHEv3 _ [] _ (tailRecursion P a T) V _ I__subst) as (g__u&Heap3&rep3&R3&Ext3).
+   edestruct (IHEv3 _ [] _ (tailRecursion (a,P) T) V _ I__subst) as (g__u&Heap3&rep3&R3&Ext3).
    eexists g__u,Heap3.
    split;[ | split].
    +eassumption.
@@ -206,7 +231,7 @@ Proof.
    +rewrite Ext1,Ext2,Ext2',Ext3. reflexivity.
 Qed.
 
-Definition init s :state := ([(compile s!0)],[],[]).
+Definition init s :state := ([(0,compile s)],[],[]).
 
 Lemma completeness s t:
   eval s t -> closed s ->
@@ -227,15 +252,16 @@ Qed.
 (** *** BS soundness *)
 
 Lemma soundness' s0 s P a T V H k sigma:
-  evaluatesIn step k (((compile s0++P)!a)::T,V,H) sigma ->
+  evaluatesIn step k ((a,compile s0++P)::T,V,H) sigma ->
   unfolds H a 0 s0 s ->
   exists k1 k2 g H' t, k = k1 + k2
-                  /\ pow step k1 (((compile s0++P)!a)::T,V,H) (tailRecursion P a T,g::V,H')
-                  /\ evaluatesIn step k2 (tailRecursion P a T,g::V,H') sigma
+                  /\ pow step k1 ((a,compile s0++P)::T,V,H) (tailRecursion (a,P) T,g::V,H')
+                  /\ evaluatesIn step k2 (tailRecursion (a,P) T,g::V,H') sigma
                   /\ eval s t
                   /\ extended H H'
                   /\ reprC H' g t.
 Proof.
+  unfold HClos in *.
   revert s s0 P a T V H.
   induction k as [k IH] using lt_wf_ind .
   intros s s0 P a T V H [R Ter] Unf.
@@ -246,11 +272,11 @@ Proof.
     inv R. eapply Ter. econstructor. rewrite Nat.sub_0_r in *. eassumption. }
    apply pow_add in R as (?&R1&R2).
    apply rcomp_1 in R1. inv R1.
-   rewrite Nat.sub_0_r in *.
+   rewrite Nat.sub_0_r in *. rewrite H12 in H2. inv H2. 
    inv H3. inv H5.
    repeat esplit.
    +cbn. constructor. eassumption.
-   +congruence.
+   +eassumption.
    +eauto.
    + reflexivity.
    +reflexivity.
@@ -274,7 +300,7 @@ Proof.
    apply pow_add in R' as (?&R2'&R3).
    apply rcomp_1 in R2'. inv R2'.
    specialize (put_extends H14) as Ext3.
-   edestruct IH with (P:=@nil Tok) as (k31&k32&g3&H'3&t3&eq3&R31&[R3' _]&Ev3&Ext4&Rg3).
+   edestruct IH with (P:=@nil Com) as (k31&k32&g3&H'3&t3&eq3&R31&[R3' _]&Ev3&Ext4&Rg3).
    2:now autorewrite with list;split;[exact R3|].
    now omega.
    {
@@ -310,7 +336,7 @@ Proof.
    eexists 1,k',_,_,_.
    repeat esplit.
    +cbn. constructor. autorewrite with list. apply jumpTarget_correct.
-   +congruence.
+   +eassumption.
    +eauto.
    +constructor.
    +reflexivity.
@@ -324,7 +350,7 @@ Lemma soundness s sigma:
 Proof.
   intros cs [R Ter].
   eapply star_pow in R as [k R].
-  edestruct soundness' with (P:=@nil Tok) as (k1&k2&g&H&t&eq&R1&[R2 _]&Ev&_&Rgt).
+  edestruct soundness' with (P:=@nil Com) as (k1&k2&g&H&t&eq&R1&[R2 _]&Ev&_&Rgt).
   -split. rewrite app_nil_r. all:eassumption.
   -apply bound_unfolds_id. eapply closed_dcl. eassumption.
   -cbn in R2.
@@ -333,49 +359,4 @@ Proof.
     destruct R2 as (?&R'&?). inv R'. }
    inv R2.
    eexists _,_,_. eauto.
-Qed.
-
-(** ** Reduction *)
-
-Definition reduces X Y (p : X -> Prop) (q : Y -> Prop) := exists f : X -> Y, forall x, p x <-> q (f x).
-Notation "p ⪯ q" := (reduces p q) (at level 50).
-
-Definition eva s := exists t, eval s t.
-
-Definition evaLin sigma := exists tau, evaluates step sigma tau.
-
-
-Definition L_halt := eva.
-Definition L_halt_closed : { s : term | closed s} -> Prop :=
-  fun '(exist _ s _) => eva s.
-
-Lemma red_halt_L_to_LM_Lin s:
-  closed s -> eva s <-> evaLin (init s).
-Proof.
-  intros ?.
-  unfold eva, evaLin.
-  split.
-  -intros (t&R). eapply completeness in R as (g&Hp&_&R). 2:easy.
-   eexists. split. eassumption.
-   intros ? H'. inv H'.
-  -intros (?&E).
-   eapply soundness in E as (?&?&?&?&?&?). all:eauto.
-Qed.
-
-Lemma LM_halting_LM_halting : L_halt_closed ⪯ evaLin.
-Proof.
-  eexists (fun '(exist _ s _ ) => _). intros [s].
-  cbn; now eapply red_halt_L_to_LM_Lin.
-Qed.
-
-Require Import Undecidability.L.Functions.Encoding Undecidability.L.Functions.Eval Undecidability.L.Tactics.LTactics.
-
-Lemma red_L_halt_closed :
-  L_halt ⪯ L_halt_closed.
-Proof.
-  unshelve eexists.
-  - intros s. exists (Eval (enc s)). unfold Eval. Lproc. 
-  - cbn. intros s. unfold L_halt. split; intros (t & Ht).
-    + eapply eval_converges. edestruct Eval_converges. eapply H. eauto.
-    + eapply eval_converges. eapply Eval_converges. eapply Seval.eval_converges. eauto.
 Qed.

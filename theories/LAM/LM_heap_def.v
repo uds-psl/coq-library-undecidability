@@ -4,7 +4,6 @@ From Undecidability Require Import TM.Prelim TM.Relations.
 Require Import FunInd.
 
 
-(** Types *)
 Definition Var := nat.
 Inductive Com := varT (n : Var) | appT | lamT | retT.
 Definition Pro := list Com.
@@ -82,6 +81,8 @@ Section Semantics.
       step ((a, (varT n :: P)) :: T, V, H) (tailRecursion (a, P) T, g :: V, H)
   .
 
+  (** ** Auxilliary Definitions *)
+
   Definition halt_state (s : state) : Prop :=
     forall s', ~ step s s'.
 
@@ -103,6 +104,8 @@ Section Semantics.
 
   Definition halts_k (s : state) (k : nat) : Prop :=
     exists s', steps_k k s s' /\ halt_state s'.
+
+  (** *** Functional Characterisation *)
 
   Definition step_fun : state -> option state :=
     fun '(T, V, H) =>

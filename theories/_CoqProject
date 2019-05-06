@@ -188,16 +188,6 @@ TM/Code/CasePair.v
 TM/Code/NatTM.v
 TM/Code/ListTM.v
 
-# Abstract Machine simulator
-TM/LM/Semantics.v
-TM/LM/SizeAnalysis.v
-TM/LM/Alphabets.v
-TM/LM/CaseCom.v
-TM/LM/LookupTM.v
-TM/LM/JumpTargetTM.v
-TM/LM/StepTM.v
-TM/LM/HaltingProblem.v
-
 # Multi-Tape to Single-Tape Compiler
 TM/Single/EncodeTapes.v
 TM/Single/StepTM.v
@@ -211,7 +201,6 @@ TM/PrettyBounds/PrettyBounds.v
 TM/PrettyBounds/MaxList.v
 TM/PrettyBounds/BaseCode.v
 TM/PrettyBounds/UnivBounds.v
-TM/PrettyBounds/LMBounds.v
 TM/PrettyBounds/M2MBounds.v
 
 TM/PrettyBounds/SpaceBounds.v
@@ -309,13 +298,22 @@ L/Computability/Scott.v
 L/Computability/Seval.v
 L/Computability/Synthetic.v
 
+#Reduction L to TM with abstract Heap Machine
 LAM/BaseExtension.v
 LAM/Prelims.v
-LAM/AbstractSim.v
-LAM/LM.v
-LAM/LM_code.v
-LAM/LM_lin.v
-LAM/Red_L_to_LM_Lin.v
+LAM/LM_heap_def.v
+LAM/LM_heap_correct.v
+LAM/L_to_TM.v
+# Abstract Machine simulator
+LAM/TM/SizeAnalysis.v
+LAM/TM/Alphabets.v
+LAM/TM/CaseCom.v
+LAM/TM/LookupTM.v
+LAM/TM/JumpTargetTM.v
+LAM/TM/StepTM.v
+LAM/TM/HaltingProblem.v
+LAM/TM/LMBounds.v
+
 
 Problems/FOL.v
 Problems/TM.v
@@ -326,6 +324,7 @@ Problems/ILL.v
 Problems/FRACTRAN.v
 Problems/DIOPHANTINE.v
 Problems/H10C.v
+Problems/cbvLambda.v
 
 Reductions/TM_to_SRH.v  
 Reductions/SRH_to_SR.v  
