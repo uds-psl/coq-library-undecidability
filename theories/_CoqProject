@@ -303,7 +303,6 @@ LAM/BaseExtension.v
 LAM/Prelims.v
 LAM/LM_heap_def.v
 LAM/LM_heap_correct.v
-LAM/L_to_TM.v
 # Abstract Machine simulator
 LAM/TM/SizeAnalysis.v
 LAM/TM/Alphabets.v
