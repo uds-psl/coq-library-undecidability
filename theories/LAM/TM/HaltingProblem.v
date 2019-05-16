@@ -1,7 +1,8 @@
 (** * Reduction of the Halting Problem of the Heap Machine to the Halting Problem of Turing Machines *)
 
 From Undecidability Require Import ProgrammingTools.
-From Undecidability Require Import LM.Semantics LM.Alphabets LM.StepTM.
+From Undecidability.LAM Require Import LM_heap_def TM.Alphabets TM.StepTM.
+From Undecidability.Problems Require Import TM.
 
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
@@ -198,12 +199,8 @@ Definition initTapes : state -> tapes sigStep^+ 11 :=
   fun '(T,V,H) => initValue _ _ T ::: initValue _ _ V ::: initValue _ _ H ::: Vector.const (initRight _) 8.
 
 
-Definition Halts {sig: finType} {n: nat} (M : mTM sig n) (t : tapes sig n) :=
-  exists outc k, loopM (initc M t) k = Some outc.
-
-
 Theorem HaltingProblem s :
-  halts s <-> Halts (projT1 Loop) (initTapes s).
+  halts s <-> HaltsTM (projT1 Loop) (initTapes s).
 Proof.
   destruct s as ((T&V)&Heap). split.
   {

@@ -1,7 +1,7 @@
 (** * Heap Lookup *)
 
 From Undecidability Require Import TM.Code.ProgrammingTools.
-From Undecidability Require Import TM.LM.Semantics TM.LM.Alphabets.
+From Undecidability.LAM Require Import LM_heap_def TM.Alphabets.
 From Undecidability Require Import TM.Code.ListTM TM.Code.CasePair TM.Code.CaseSum TM.Code.CaseNat.
 
 Local Arguments plus : simpl never.

@@ -2,7 +2,7 @@
 
 From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import TM.Code.CaseNat TM.Code.CaseSum TM.Code.CaseFin.
-From Undecidability Require Import TM.LM.Semantics TM.LM.Alphabets.
+From Undecidability.LAM Require Import LM_heap_def TM.Alphabets.
 
 Definition CaseCom : pTM sigCom^+ (option ACom) 1 :=
   If (CaseSum _ _)
