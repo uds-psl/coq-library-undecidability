@@ -29,7 +29,7 @@ Feel free to contribute or start using the problems!
 
 - The subprojects are currently in subdirectories in `theories`, roughly corresponding to papers or theses covering them.
 - External libraries are in the `external` directory
-- `git submodules init` initialises the external libraries
+- `git submodule init && git submodule update` initialises the external libraries
 - You need to install the [Equations](https://mattam82.github.io/Coq-Equations/) package for Coq, see the page for detailed instructions
 - `make all` builds all subprojects by calling `make all` of the corresponding subproject's makefile
 - `make html` generates clickable coqdoc `.html` in the `website` subdirectory
