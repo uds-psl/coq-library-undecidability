@@ -254,12 +254,12 @@ Definition single_TM_halt : { sig : _ & (mTM sig 1) * (tapes sig 1)}%type -> Pro
 Equations (noeqns) f_config A B : TM.mconfig A B 1 -> mconfig A B :=
   { f_config (TM.mk_mconfig a [|b|]) := mk_mconfig a b }.
 
-From Undecidability Require Import TM.Prelim.
+From Undecidability Require Import TM.Prelim Problems.TM.
 
-Lemma TM_conv : single_TM_halt ⪯ Halt.
+Lemma TM_conv : HaltTM 1 ⪯ Halt.
 Proof.
   unshelve eexists.
-  - intros [sig [[] t]]. do 2 depelim t.
+  - intros [sig [] t]. do 2 depelim t.
     exists sig. econstructor.
     + intros []. destruct (trans0 (e, [| o |])) eqn:E.
       do 2 depelim t.
@@ -267,7 +267,7 @@ Proof.
     + exact start0.
     + exact halt0.
     + exact h.
-  - intros [sig [[] t]]. cbn. do 2 depelim t; cbn.
+  - intros [sig [] t]. cbn. do 2 depelim t; cbn.
     unfold Halt. rewrite <- TM_terminates_Halt. cbn.
     split.
     + intros (? & ? & ?). 
@@ -295,7 +295,3 @@ Proof.
         cbn. destruct (trans0 (cstate1, [|current ctape1|])) eqn:E.
         depelim t. depelim t. reflexivity.
 Qed.
-
-Inductive test (m n : nat) : Type :=
-  B : test m (n + 1) -> test m n.
-
