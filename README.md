@@ -29,7 +29,7 @@ Feel free to contribute or start using the problems!
 
 ### Required packages
 
-You need `Coq 8.8.1` or `8.8.2` built on OCAML `>= 4.02.3` and the [Equations](https://mattam82.github.io/Coq-Equations/) package for Coq. If you're using opam 2 you can use the following commands to install the dependencies on a new switch:
+You need `Coq 8.8.1` or `8.8.2` built on OCAML `> 4.02.3` and the [Equations](https://mattam82.github.io/Coq-Equations/) package for Coq. If you're using opam 2 you can use the following commands to install the dependencies on a new switch:
 
 ```
 opam switch create coq-library-undecidability 4.07.1+flambda
