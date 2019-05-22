@@ -27,14 +27,32 @@ Feel free to contribute or start using the problems!
 
 ## How to build
 
-- The subprojects are currently in subdirectories in `theories`, roughly corresponding to papers or theses covering them.
-- External libraries are in the `external` directory
-- `git submodule init && git submodule update` initialises the external libraries
-- You need to install the [Equations](https://mattam82.github.io/Coq-Equations/) package for Coq, see the page for detailed instructions
-- `make all` builds all subprojects by calling `make all` of the corresponding subproject's makefile
+### Required packages
+
+You need `Coq 8.8.1` or `8.8.2` built on OCAML `>= 4.02.3` and the [Equations](https://mattam82.github.io/Coq-Equations/) package for Coq. If you're using opam 2 you can use the following commands to install the dependencies on a new switch:
+
+```
+opam switch create coq-library-undecidability 4.07.1+flambda
+eval $(opam env)
+opam install . --deps-only
+```
+
+### Build external libraries
+
+The Undecidability libraries depends on several external libraries. Initialise and build them once as follows:
+
+``` sh
+git submodule init
+git submodule update
+make deps
+```
+
+### Building the undecidability library
+
+- `make all` builds the library
 - `make html` generates clickable coqdoc `.html` in the `website` subdirectory
 - `make clean` removes all build files in `theories` and `.html` files in the `website` directory
-- `make realclean` also removes all build files in the `external` directory
+- `make realclean` also removes all build files in the `external` directory. You have to run `make deps` again after this.
 
 ## Published work and technical reports
 
