@@ -19,7 +19,7 @@ remove: [
 depends: [
   "coq" {>= "8.8" & < "8.9"}
   "coq-equations" {= "1.2+8.8" | = "1.2+8.9"}
-  "ocaml" {>= "4.02.3"}
+  "ocaml" {> "4.02.3"}
 ]
 
 synopsis: "A library of undecidable problems in Coq"
