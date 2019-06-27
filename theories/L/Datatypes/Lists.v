@@ -13,7 +13,7 @@ Section Fix_X.
   
   (* now we must register the non-constant constructors*)
   
-  Global Instance termT_cons : computableTime (@cons X) (fun a aT => (1,fun A AT => (1,tt))).
+  Global Instance termT_cons : computableTime' (@cons X) (fun a aT => (1,fun A AT => (1,tt))).
   Proof using intX.
     extract constructor.
     solverec.
@@ -25,13 +25,13 @@ Section Fix_X.
   (* Qed. *)
   
 
-  Global Instance termT_append : computableTime (@List.app X) (fun A _ => (5,fun B _ => (length A * 16 +4,tt))).
+  Global Instance termT_append : computableTime' (@List.app X) (fun A _ => (5,fun B _ => (length A * 16 +4,tt))).
   Proof  using intX.
     extract.
     solverec.
   Qed.
 
-  Global Instance term_filter: computableTime (@filter X) (fun p pT => (1,fun l _ => (fold_right (fun x res => 16 + res + fst (pT x tt)) 8 l ,tt))).
+  Global Instance term_filter: computableTime' (@filter X) (fun p pT => (1,fun l _ => (fold_right (fun x res => 16 + res + fst (pT x tt)) 8 l ,tt))).
   Proof using intX.
     change (filter (A:=X)) with ((fun (f : X -> bool) =>
                                     fix filter (l : list X) : list X := match l with
@@ -48,7 +48,7 @@ Section Fix_X.
     computable using t.
   Defined.
 
-  Global Instance term_nth : computableTime (@nth X) (fun n _ => (5,fun l lT => (1,fun d _ => (n*20+9,tt)))). 
+  Global Instance term_nth : computableTime' (@nth X) (fun n _ => (5,fun l lT => (1,fun d _ => (n*20+9,tt)))). 
   Proof using intX.
     extract.
     solverec.
@@ -75,7 +75,7 @@ Section Fix_X.
       *constructor. tauto.
   Qed.
 
-  Global Instance term_inb: computableTime inb (fun eq eqT => (5,fun x _ => (1,fun l _ =>
+  Global Instance term_inb: computableTime' inb (fun eq eqT => (5,fun x _ => (1,fun l _ =>
                                         (fold_right (fun x' res => callTime2 eqT x' x
                                                                 + res + 17) 4 l ,tt)))).
   Proof.
@@ -117,7 +117,7 @@ End Fix_X.
 
 Hint Resolve list_enc_correct : Lrewrite.
   
-Instance term_map (X Y:Type) (Hx : registered X) (Hy:registered Y): computableTime (@map X Y) (fun f fT => (1,fun l _ => (fold_right (fun x res => fst (fT x tt) + res + 12) 8 l,tt))).
+Instance term_map (X Y:Type) (Hx : registered X) (Hy:registered Y): computableTime' (@map X Y) (fun f fT => (1,fun l _ => (fold_right (fun x res => fst (fT x tt) + res + 12) 8 l,tt))).
 Proof.
   extract.
   solverec.
@@ -129,22 +129,22 @@ Proof.
 Defined.
 
 
-Instance termT_nth_error (X:Type) (Hx : registered X): computableTime (@nth_error X) (fun A _ => (5,fun n _ => (min n (length A)*15 + 10,tt))).
+Instance termT_nth_error (X:Type) (Hx : registered X): computableTime' (@nth_error X) (fun A _ => (5,fun n _ => (min n (length A)*15 + 10,tt))).
 Proof.
   extract. solverec.
 Qed.
 
-Instance termT_length X `{registered X} : computableTime (@length X) (fun A _ => ((length A)*11+8,tt)).
+Instance termT_length X `{registered X} : computableTime' (@length X) (fun A _ => ((length A)*11+8,tt)).
 extract. solverec.
 Qed.
 
-Instance termT_rev_append X `{registered X}: computableTime (@rev_append X) (fun l _ => (5,fun res _ => (length l*13+4,tt))).
+Instance termT_rev_append X `{registered X}: computableTime' (@rev_append X) (fun l _ => (5,fun res _ => (length l*13+4,tt))).
 extract.
 recRel_prettify.
 solverec.
 Qed.
 
-Instance termT_rev X `{registered X}: computableTime (@rev X) (fun l _ => (length l*13+10,tt)).
+Instance termT_rev X `{registered X}: computableTime' (@rev X) (fun l _ => (length l*13+10,tt)).
 eapply computableTimeExt with (x:= fun l => rev_append l []).
 {intro. rewrite rev_alt. reflexivity. }
 extract. solverec.
@@ -187,7 +187,7 @@ Section int.
     | _,_ => 9
     end.
   
-  Global Instance term_list_eqb : computableTime (list_eqb (X:=X))
+  Global Instance term_list_eqb : computableTime' (list_eqb (X:=X))
                                                    (fun _ eqbT => (1,(fun A _ => (5,fun B _ => (list_eqbTime eqbT A B,tt))))).
   Proof.
     extract.
@@ -204,7 +204,19 @@ Section int.
      {cbn. intuition. }
      cbn - [callTime2]. setoid_rewrite IHA.
      rewrite H'. ring_simplify. intuition.
-  Qed.             
+  Qed.
+
+  
+  Lemma list_eqbTime_bound_r (eqbT : timeComplexity (X -> X -> bool)) (A B : list X) f:
+    (forall (x y:X), callTime2 eqbT x y <= f y) ->
+    list_eqbTime eqbT A B <= sumn (map f B) + 9 + length B * 22.
+  Proof.
+    intros H.
+    induction A in B|-*;unfold list_eqbTime;fold list_eqbTime. now Lia.lia.
+    destruct B.
+    -cbn. Lia.lia.
+    -rewrite H,IHA. cbn [length map sumn]. Lia.lia.
+  Qed.
   
 End int.
 

@@ -28,7 +28,7 @@ Local Lemma Ack_pos n m : 0 < ackermann n m.
 Qed.
 
 Lemma termT_ackermann :
-  computableTime ackermann
+  computableTime' ackermann
                  (fun x _ =>
                     (14,
                      fun y _ =>

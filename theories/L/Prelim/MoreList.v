@@ -1,4 +1,4 @@
-Require Import PslBase.Base.
+Require Import PslBase.Base Lia.
 (** Nats smaller than n *)
 
 Fixpoint natsLess n : list nat :=
@@ -64,4 +64,31 @@ Proof.
   rewrite natsLess_S at 2. cbn. rewrite map_app. cbn.
   rewrite map_map. cbn in IHn.
   rewrite IHn. rewrite <- minus_n_O. reflexivity.
+Qed.
+
+
+Definition maxl := fold_right max 0.
+Lemma maxl_leq n l: n el l -> n <= maxl l.
+Proof.
+  induction l;cbn.
+  -easy.
+  -intros [->|]. all:apply Nat.max_case_strong;try intuition Lia.lia.
+Qed.
+
+Lemma maxl_leq_l c l :
+  (forall n, n el l -> n <= c) -> maxl l <= c.
+Proof.
+  induction l;cbn. Lia.lia. 
+  intros H. eapply Nat.max_lub_iff;split. all:eauto.  
+Qed.
+
+Lemma maxl_app l l': maxl (l++l') = max (maxl l) (maxl l').
+Proof.
+  induction l;cbn;Lia.lia.
+Qed.
+
+Lemma maxl_rev l: maxl (rev l) = maxl l.
+Proof.
+  unfold maxl. rewrite fold_left_rev_right. rewrite fold_symmetric. 2,3:now intros;Lia.lia.
+  induction l;cbn;try Lia.lia.
 Qed.

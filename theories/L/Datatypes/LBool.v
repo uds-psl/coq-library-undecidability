@@ -12,34 +12,33 @@ Hint Resolve bool_enc_correct : Lrewrite.
 
 (* register thefunctional constructors (not neccessary here) *)
 (*
-Instance true_term : computableTime true tt.
+Instance true_term : computableTime' true tt.
 Proof.
   extract constructor.
   solverec.
 Qed.
 
-Instance false_term : computableTime false tt.
+Instance false_term : computableTime' false tt.
 Proof.
   extract constructor.
   solverec.
 Qed.*)
 
-Instance term_negb : computableTime negb (fun _ _ => (4,tt)).
+Instance term_negb : computableTime' negb (fun _ _ => (4,tt)).
 Proof.
   extract.
   solverec.
 Qed.
 
-Instance term_andb : computableTime andb (fun _ _ => (1,fun _ _ => (4,tt))).
+Instance term_andb : computableTime' andb (fun _ _ => (1,fun _ _ => (4,tt))).
 Proof.
   extract.
   solverec.
 Qed.
 
-Instance term_orb : computableTime orb (fun _ _ => (1,fun _ _ => (4,tt))).
+Instance term_orb : computableTime' orb (fun _ _ => (1,fun _ _ => (4,tt))).
 Proof.
   extract.
   solverec.
 Qed.
 
-Definition b := 5.

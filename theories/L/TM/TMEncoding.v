@@ -28,12 +28,12 @@ Qed.
 Section finType_eqb.
   Local Existing Instance registered_finType.
 
-  Global Instance term_index (F:finType): computableTime (@index F) (fun _ _=> (1, tt)).
+  Global Instance term_index (F:finType): computableTime' (@index F) (fun _ _=> (1, tt)).
   Proof.
     apply cast_computableTime.
   Qed.
 
-  Global Instance term_eqb (X:finType) : computableTime (finType_eqb (X:=X)) (fun x _ => (1,fun y _ => (17 * Init.Nat.min (index x) (index y) + 17,tt))).
+  Global Instance term_eqb (X:finType) : computableTime' (finType_eqb (X:=X)) (fun x _ => (1,fun y _ => (17 * Init.Nat.min (index x) (index y) + 17,tt))).
   Proof.
     extract.
     solverec.
@@ -87,7 +87,7 @@ Definition lookupTime {X Y} `{registered X} (eqbT : timeComplexity (X ->X ->bool
 
 
 Global Instance term_lookup X Y `{registered X} `{registered Y}:
-  computableTime (@lookup X Y) (fun eqb T__eqb => (1, fun x _ => (5, fun l _ => (1, fun d _ => (lookupTime T__eqb x l,tt))))).
+  computableTime' (@lookup X Y) (fun eqb T__eqb => (1, fun x _ => (5, fun l _ => (1, fun d _ => (lookupTime T__eqb x l,tt))))).
 extract. unfold lookupTime. solverec.
 Qed.
 
@@ -115,14 +115,14 @@ Proof.
     subst. f_equal. eapply IHx. eassumption.
 Defined.
 
-Instance term_to_list X `{registered X} n : computableTime (Vector.to_list (A:=X) (n:=n)) (fun _ _ => (1,tt)).
+Instance term_to_list X `{registered X} n : computableTime' (Vector.to_list (A:=X) (n:=n)) (fun _ _ => (1,tt)).
 Proof.
   apply cast_computableTime.
 Qed.
 
 Instance term_vector_map X Y `{registered X} `{registered Y} n (f:X->Y) fT:
-  computableTime f fT ->
-  computableTime (VectorDef.map f (n:=n))
+  computableTime' f fT ->
+  computableTime' (VectorDef.map f (n:=n))
                  (fun l _ => (fold_right (fun (x0 : X) (res : nat) => fst (fT x0 tt) + res + 12) 8 l + 3,tt)).
 Proof.
   intros ?.
@@ -163,7 +163,7 @@ Fixpoint time_map2 {X Y Z} `{registered X} `{registered Y} `{registered Z} (gT :
   | _,_ => 9
   end.
 Instance term_map2 n A B C `{registered A} `{registered B} `{registered C} (g:A -> B -> C) gT:
-  computableTime g gT-> computableTime (Vector.map2 g (n:=n)) (fun l1 _ => (1,fun l2 _ => (time_map2 gT (Vector.to_list l1) (Vector.to_list l2) +8,tt))).
+  computableTime' g gT-> computableTime' (Vector.map2 g (n:=n)) (fun l1 _ => (1,fun l2 _ => (time_map2 gT (Vector.to_list l1) (Vector.to_list l2) +8,tt))).
 Proof.
   intros ?.
   computable_casted_result.
@@ -172,7 +172,7 @@ Proof.
                 t1::t,a1::a => g t1 a1 :: f t a
               | _,_ => []
               end)).
-  assert (computableTime f (fun l1 _ => (5,fun l2 _ => (time_map2 gT l1 l2,tt)))).
+  assert (computableTime' f (fun l1 _ => (5,fun l2 _ => (time_map2 gT l1 l2,tt)))).
   {subst f; extract.
 
 
@@ -215,58 +215,58 @@ Section fix_sig.
 
     (**Internalize constructors **)
 
-    Global Instance term_leftof : computableTime (@leftof sig) (fun _ _ => (1, fun _ _ => (1,tt))).
+    Global Instance term_leftof : computableTime' (@leftof sig) (fun _ _ => (1, fun _ _ => (1,tt))).
     Proof.
       extract constructor.
       solverec.
     Qed.
 
-    Global Instance term_rightof : computableTime (@rightof sig) (fun _ _ => (1, fun _ _ => (1,tt))).
+    Global Instance term_rightof : computableTime' (@rightof sig) (fun _ _ => (1, fun _ _ => (1,tt))).
     Proof.
       extract constructor. solverec.
     Qed.
 
-    Global Instance term_midtape : computableTime (@midtape sig) (fun _ _ => (1, fun _ _ => (1,fun _ _ => (1,tt)))).
+    Global Instance term_midtape : computableTime' (@midtape sig) (fun _ _ => (1, fun _ _ => (1,fun _ _ => (1,tt)))).
     Proof.
       extract constructor. solverec.
     Qed.
 
-    Global Instance term_tape_move_left' : computableTime (@tape_move_left' sig) (fun _ _ => (1, fun _ _ => (1,fun _ _ => (12,tt)))).
+    Global Instance term_tape_move_left' : computableTime' (@tape_move_left' sig) (fun _ _ => (1, fun _ _ => (1,fun _ _ => (12,tt)))).
     Proof.
       extract. solverec.
     Qed.
 
-    Global Instance term_tape_move_left : computableTime (@tape_move_left sig) (fun _ _ => (23,tt)).
+    Global Instance term_tape_move_left : computableTime' (@tape_move_left sig) (fun _ _ => (23,tt)).
     Proof.
       extract. solverec.
     Qed.
 
-    Global Instance term_tape_move_right' : computableTime (@tape_move_right' sig) (fun _ _ => (1, fun _ _ => (1,fun _ _ => (12,tt)))).
+    Global Instance term_tape_move_right' : computableTime' (@tape_move_right' sig) (fun _ _ => (1, fun _ _ => (1,fun _ _ => (12,tt)))).
     Proof.
       extract. solverec.
     Qed.
 
-    Global Instance term_tape_move_right : computableTime (@tape_move_right sig) (fun _ _ => (23,tt)).
+    Global Instance term_tape_move_right : computableTime' (@tape_move_right sig) (fun _ _ => (23,tt)).
     Proof.
       extract. solverec.
     Qed.
 
-    Global Instance term_tape_move : computableTime (@tape_move sig) (fun _ _ => (1,fun _ _ => (48,tt))).
+    Global Instance term_tape_move : computableTime' (@tape_move sig) (fun _ _ => (1,fun _ _ => (48,tt))).
     Proof.
       extract. solverec.
     Qed.
 
-    Global Instance term_left : computableTime (@left sig) (fun _ _ => (10,tt)).
+    Global Instance term_left : computableTime' (@left sig) (fun _ _ => (10,tt)).
     Proof.
       extract. solverec.
     Qed.
 
-    Global Instance term_right : computableTime (@right sig) (fun _ _ => (10,tt)).
+    Global Instance term_right : computableTime' (@right sig) (fun _ _ => (10,tt)).
     Proof.
       extract. solverec.
     Qed.
 
-    Global Instance term_tape_write : computableTime (@tape_write sig) ((fun _ _ => (1,fun _ _ => (28,tt)))).
+    Global Instance term_tape_write : computableTime' (@tape_write sig) ((fun _ _ => (1,fun _ _ => (28,tt)))).
     Proof.
       extract. solverec.
     Qed.
@@ -281,26 +281,26 @@ Section fix_sig.
     register_inj.
   Defined.
 
-  Global Instance term_mconfigAsPair (B : finType) `{registered B} n: computableTime (@mconfigAsPair B n) (fun _ _ => (1,tt)).
+  Global Instance term_mconfigAsPair (B : finType) `{registered B} n: computableTime' (@mconfigAsPair B n) (fun _ _ => (1,tt)).
   Proof.
     apply cast_computableTime.
   Qed.
 
-  Global Instance term_cstate (B : finType) `{registered B} n: computableTime (@cstate sig B n) (fun _ _ => (7,tt)).
+  Global Instance term_cstate (B : finType) `{registered B} n: computableTime' (@cstate sig B n) (fun _ _ => (7,tt)).
   Proof.
     apply computableTimeExt with (x:=fun x => fst (mconfigAsPair x)).
     2:{extract. solverec. }
     intros [];reflexivity.
   Qed.
 
-  Global Instance term_ctapes (B : finType) `{registered B} n: computableTime (@ctapes sig B n) (fun _ _ => (7,tt)).
+  Global Instance term_ctapes (B : finType) `{registered B} n: computableTime' (@ctapes sig B n) (fun _ _ => (7,tt)).
   Proof.
     apply computableTimeExt with (x:=fun x => snd (mconfigAsPair x)).
     2:{extract. solverec. }
     intros [];reflexivity.
   Qed.
 
-  Global Instance registered_mk_mconfig (B : finType) `{registered B} n: computableTime (@mk_mconfig sig B n) (fun _ _ => (1,fun _ _ => (3,tt))).
+  Global Instance registered_mk_mconfig (B : finType) `{registered B} n: computableTime' (@mk_mconfig sig B n) (fun _ _ => (1,fun _ _ => (3,tt))).
   Proof.
     computable_casted_result.
     extract. solverec.
@@ -329,7 +329,7 @@ Fixpoint loopTime {X} `{registered X} f (fT: timeComplexity (X -> X)) (p: X -> b
   end.
 
 Instance term_loop A `{registered A} :
-  computableTime (@loop A)
+  computableTime' (@loop A)
                  (fun f fT => (1,fun p pT => (1,fun a _ => (5,fun k _ =>(loopTime f fT p pT a k,tt))))).
 Proof.
   extract.
@@ -348,8 +348,8 @@ Section loopM.
 
 
   Instance term_vector_eqb X `{registered X} (n' m:nat) (eqb:X->X->bool) eqbT:
-    computableTime eqb eqbT
-    -> computableTime
+    computableTime' eqb eqbT
+    -> computableTime'
         (VectorEq.eqb eqb (A:=X) (n:=n') (m:=m))
         (fun A _ => (1,fun B _ => (list_eqbTime eqbT (Vector.to_list A) (Vector.to_list B) + 9,tt))).
   Proof.
@@ -370,7 +370,7 @@ Section loopM.
   Definition transTime := (length (elem (states M) )*17 + n * 17 * (length ( elem sig )+ 4) + 71) * length (funTable (trans (m:=M))) + 16.
 
   (** *** Computability of transition relation *)
-  Instance term_trans : computableTime (trans (m:=M)) (fun _ _ => (transTime,tt)).
+  Instance term_trans : computableTime' (trans (m:=M)) (fun _ _ => (transTime,tt)).
   Proof.
     pose (t:= (funTable (trans (m:=M)))).
     apply computableTimeExt with (x:= fun c => lookup (prod_eqb finType_eqb (Vector.eqb (LOptions.option_eqb finType_eqb))) c t (start M,Vector.const (None,N) _)).
@@ -398,13 +398,13 @@ Section loopM.
     apply prod_eqb_spec. apply finType_eqb_reflect. apply vector_eqb_spec,LOptions.option_eqb_spec,finType_eqb_reflect.
   Qed.
 
-  Instance term_current: computableTime ((current (sig:=sig))) (fun _ _ => (10,tt)).
+  Instance term_current: computableTime' ((current (sig:=sig))) (fun _ _ => (10,tt)).
   Proof.
     extract.
     solverec.
   Qed.
 
-  Instance term_current_chars: computableTime (current_chars (sig:=sig) (n:=n))  (fun _ _ => (n * 22 +12,tt)).
+  Instance term_current_chars: computableTime' (current_chars (sig:=sig) (n:=n))  (fun _ _ => (n * 22 +12,tt)).
   Proof.
     extract.
     solverec.
@@ -418,13 +418,13 @@ Section loopM.
     mk_mconfig news (doAct_multi (ctapes c) actions).
 
 
-  Instance term_doAct: computableTime (doAct (sig:=sig)) (fun _ _ => (1,fun _ _ => (89,tt))).
+  Instance term_doAct: computableTime' (doAct (sig:=sig)) (fun _ _ => (1,fun _ _ => (89,tt))).
   Proof.
     extract.
     solverec.
   Qed.
 
-  Instance term_doAct_multi: computableTime (doAct_multi (n:=n) (sig:=sig)) (fun _ _ => (1,fun _ _ =>(n * 108 + 19,tt))).
+  Instance term_doAct_multi: computableTime' (doAct_multi (n:=n) (sig:=sig)) (fun _ _ => (1,fun _ _ =>(n * 108 + 19,tt))).
   Proof.
     extract.
     solverec.
@@ -434,7 +434,7 @@ Section loopM.
   Qed.
 
 
-  Instance term_step' : computableTime (step (M:=M)) (fun _ _ => (n* 130+ transTime + 64,tt)).
+  Instance term_step' : computableTime' (step (M:=M)) (fun _ _ => (n* 130+ transTime + 64,tt)).
   Proof.
     extract.
     solverec.
@@ -442,7 +442,7 @@ Section loopM.
 
   Definition haltTime := length (funTable (halt (m:=M))) * (length (elem (states M)) * 17 + 37) + 12.
 
-  Instance term_halt : computableTime (halt (m:=M)) (fun _ _ => (haltTime,tt)).
+  Instance term_halt : computableTime' (halt (m:=M)) (fun _ _ => (haltTime,tt)).
   Proof.
     pose (t:= (funTable (halt (m:=M)))).
     apply computableTimeExt with (x:= fun c => lookup finType_eqb c t false).
@@ -460,7 +460,7 @@ Section loopM.
     apply finType_eqb_reflect.
   Qed.
 
-  Instance term_haltConf : computableTime (haltConf (M:=M)) (fun _ _ => (haltTime+8,tt)).
+  Instance term_haltConf : computableTime' (haltConf (M:=M)) (fun _ _ => (haltTime+8,tt)).
   Proof.
     extract.
     solverec.
@@ -470,7 +470,7 @@ Section loopM.
   Global Instance term_loopM :
     let c1 := (haltTime + n*130 + transTime + 85) in
     let c2 := 15 + haltTime in
-    computableTime (loopM (M:=M)) (fun _ _ => (5,fun k _ => (c1 * k + c2,tt))).
+    computableTime' (loopM (M:=M)) (fun _ _ => (5,fun k _ => (c1 * k + c2,tt))).
   Proof.
     unfold loopM. (* as loop is already an registered instance, this here is a bit out of the scope. Therefore, we unfold manually here. *)
     extract.

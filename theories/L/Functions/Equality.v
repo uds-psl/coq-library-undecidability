@@ -29,9 +29,9 @@ Fixpoint term_eqb s t :=
   | _,_ => false
   end.
 
-Instance term_term_eqb : computable term_eqb.
+Instance term_termT_eqb : computableTime' term_eqb (fun s _ => (5,fun t _ => (min (size s) (size t) * 28,tt))).
 Proof.
-  extract.
+  extract. solverec.
 Defined.
 
 

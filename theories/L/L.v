@@ -55,7 +55,7 @@ Coercion app : term >-> Funclass.
 
 (* Use Eval simpl in (term) when defining an term using convert.
 This converts while defining and therefore makes all later steps faster.
-See "important terms" belowI
+See "important terms" below
 
 Also: remember to give the type of combinators explicitly becuase we want to use the coercion!
 (e.g. "Definition R:term := ..." )*) 
@@ -524,6 +524,15 @@ Definition eval s t := s >* t /\ lambda t.
 Notation "s '⇓' t" := (eval s t) (at level 51).
 Hint Unfold eval.
 
+Lemma eval_unique s v1 v2 :
+  s ⇓ v1 -> s ⇓ v2 -> v1 = v2.
+Proof.
+  intros (R1&L1) (R2&L2).
+  eapply unique_normal_forms.
+  1-2:eassumption.
+  now rewrite <-R1,R2.
+Qed.
+
 Instance eval_star_subrelation : subrelation eval (star step).
 Proof.
   now intros ? ? [].
@@ -552,6 +561,18 @@ Notation "s '⇓(<=' l ')' t" := (evalLe l s t) (at level 50, format "s  '⇓(<=
 Instance evalLe_eval_subrelation i: subrelation (evalLe i) eval.
 Proof.
   intros ? ? [[? []] ?]. split. eapply pow_star_subrelation. all:eauto. 
+Qed.
+
+Lemma evalLe_evalIn s t k:
+  s ⇓(<=k) t -> exists k', k' <= k /\ s ⇓(k') t.
+Proof.
+  unfold evalLe,redLe,evalIn. firstorder.
+Qed.
+
+Lemma evalIn_evalLe s t k k':
+  k' <= k -> s ⇓(k') t -> s ⇓(<=k) t.
+Proof.
+  unfold evalLe,redLe,evalIn. firstorder.
 Qed.
 
 Instance evalIn_evalLe_subrelation i: subrelation (evalIn i) (evalLe i).

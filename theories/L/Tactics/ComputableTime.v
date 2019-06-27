@@ -33,11 +33,16 @@ Class computableTime {X : Type} (ty : TT X) (x : X) evalTime: Type :=
 
 Existing Instance extT|4.
 
+Hint Mode computableTime + - + -: typeclass_instances. (* treat argument as input and force evar-freeness*)
+
 Global Arguments computableTime {X} {ty} x.
 Global Arguments extT {X} {ty} x {_ computableTime} : simpl never.
 Global Arguments extTCorrect {X} ty x {_ computableTime} : simpl never.
 Definition evalTime X ty x evalTime (computableTime : @computableTime X ty x evalTime):=evalTime.
 Global Arguments evalTime {X} {ty} x {evalTime computableTime}.
+
+(** A Notation to allow inference of the TT parameter for function types. Coq checks that functions only appear at positions where functions are allowed before it inferes holes, so t complains that f "is a product while it is expected to be '@timeComplexity (forall _ : _, _) ?ty'". *)
+Notation "'computableTime'' f" := (@computableTime _ ltac:(let t:=type of f in refine (_ : TT t);exact _) f) (at level 0,only parsing).
 
 Local Fixpoint notHigherOrder t (ty : TT t) :=
   match ty with
@@ -222,9 +227,28 @@ Qed.
     
 Definition cnst {X} (x:X):nat. exact 0. Qed.
  
-  
-
-Definition callTime2 {X Y Z} `{registered X} `{registered Y} `{registered Z}
-           (fT : timeComplexity (X -> Y -> Z)) x y : nat :=
+Definition callTime2 X Y
+           (fT : X -> unit -> nat * (Y -> unit -> nat * unit)) x y : nat :=
   let '(k,f):= fT x tt in k + fst (f y tt).
-Arguments callTime2 / {_ _ _ _ _ _}.
+Arguments callTime2 / {_ _}.
+
+
+Fixpoint timeComplexity_leq (t : Type) (tt : TT t) {struct tt} : timeComplexity t -> timeComplexity t -> Prop :=
+  match tt in (TT t) return timeComplexity t -> timeComplexity t -> Prop with
+  | ! t0 => fun _ _ => True
+  | @TyArr t1 t2 _ tt2 =>
+    fun f f' : timeComplexity (_ -> _) => forall (x:t1) xT, (fst (f x xT)) <= (fst (f' x xT)) /\ timeComplexity_leq (snd (f x xT)) (snd (f' x xT))
+  end.
+
+Lemma computesTime_timeLeq X (tt : TT X) x s fT fT':
+  timeComplexity_leq fT fT' -> computesTime tt x s fT -> computesTime tt x s fT'.
+Proof.
+  induction tt in x,s,fT,fT' |-*;intros eq.
+  -inv eq. tauto.
+  -cbn in eq|-*. intros [H1 H2]. split. 1:tauto.
+   intros y t yT ints.
+   specialize (H2 y t yT ints ) as (v&R&H2).
+   exists v. specialize (eq y yT) as (Hleq&?). split.
+   +rewrite <- Hleq. eassumption.
+   +eauto.
+Qed.

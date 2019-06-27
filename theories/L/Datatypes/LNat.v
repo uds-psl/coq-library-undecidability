@@ -7,37 +7,42 @@ Require Import Nat Undecidability.L.Datatypes.LBool.
 Run TemplateProgram (tmGenEncode "nat_enc" nat).
 Hint Resolve nat_enc_correct : Lrewrite.
 
-Instance termT_S : computableTime S (fun _ _ => (1,tt)).
+Instance termT_S : computableTime' S (fun _ _ => (1,tt)).
 Proof.
   extract constructor.
   solverec.
 Defined.
 
-Instance termT_pred : computableTime pred (fun _ _ => (5,tt)).
+Instance termT_pred : computableTime' pred (fun _ _ => (5,tt)).
 Proof.
   extract.
   solverec.
 Defined.
 
-Instance termT_plus' : computableTime add (fun x xT => (5,(fun y yT => (11*x+4,tt)))).
+Instance termT_plus' : computableTime' add (fun x xT => (5,(fun y yT => (11*x+4,tt)))).
 Proof.
   extract.
   fold add. solverec.
 Defined.
 
-Instance termT_mult : computableTime mult (fun x xT => (5,(fun y yT => (x * (11 * y) + 19*x+ 4,tt)))).
+Instance termT_mult : computableTime' mult (fun x xT => (5,(fun y yT => (x * (11 * y) + 19*x+ 4,tt)))).
 Proof.
   extract.
   fold mul. solverec.
 Defined.
 
-Instance termT_leb : computableTime leb (fun x xT => (5,(fun y yT => (x*14 + 4,tt)))).
+Instance term_sub : computableTime' Nat.sub (fun n _ => (5,fun m _ => (min n m*14 + 8,tt)) ).
+Proof.
+  extract. recRel_prettify_arith. solverec.
+Qed.
+
+Instance termT_leb : computableTime' leb (fun x xT => (5,(fun y yT => (min x y*14 + 8,tt)))).
 Proof.
   extract.
   solverec.
 Defined.
 
-Instance termT_nat_eqb: computableTime Nat.eqb (fun x xT => (5,(fun y yT => ((min x y)*17 + 9,tt)))).
+Instance termT_nat_eqb: computableTime' Nat.eqb (fun x xT => (5,(fun y yT => ((min x y)*17 + 9,tt)))).
 Proof.
   extract.
   solverec.
@@ -76,10 +81,21 @@ Proof.
   - right. intros [n A]. rewrite A in H. rewrite unenc_correct in H. inv H.
 Qed.
 
+Lemma size_nat_enc n :
+  size (nat_enc n) = n * 4 + 4.
+Proof.
+  induction n;cbn [size nat_enc] in *. all:solverec.
+Qed.
+
+Lemma size_nat_enc_r n :
+  n <= size (nat_enc n).
+Proof.
+  induction n;cbn [size nat_enc] in *. all:solverec.
+Qed.
 
 
 (* This is an example for an function in which the run-time of the fix itself is not constant (in add, the fix on the first argument always returns an function in ~5 steps)*)
-(* Instance termT_testId : computableTime (fix f x := *)
+(* Instance termT_testId : computableTime' (fix f x := *)
 (*                                             match x with *)
 (*                                               0 => 0 *)
 (*                                             | S x => S (f x) *)

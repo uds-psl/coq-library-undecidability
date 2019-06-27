@@ -1,5 +1,5 @@
 From Undecidability.L.Datatypes Require Import LProd LOptions.
-From Undecidability.L Require Import Tactics.LTactics Datatypes.LBinNums.
+From Undecidability.L Require Import Tactics.LTactics Datatypes.LBinNums Functions.BinNums Functions.BinNumsCompare.
 
 
 Definition iterupN {X} i max x f :=
@@ -16,9 +16,7 @@ Proof.
    edestruct (N.ltb_spec0 n max). exfalso;Lia.lia.
    rewrite (proj2 (N.sub_0_le _ _)). 2:Lia.lia. reflexivity.
   -(* Todo:generalize over internal state*)
-Admitted.
-   
-  
+Admitted.  
 
 Lemma iterupN_geq {X} i max {x:X} f :
   (i >= max)%N -> iterupN i max x f = x.
@@ -32,7 +30,80 @@ Proof.
   intros H. rewrite iterupN_eq. destruct (N.ltb_spec0 i max). all:easy.
 Qed.
 
-Instance term_iterupN X `{H:registered X} : computable (iterupN (X:=X)).
+(* Instance term_iterupN X `{H:registered X} : *)
+(*   computableTime' (iterupN (X:=X)) (fun i (_:unit) => *)
+(*                                      (5,fun max (_:unit) => *)
+(*                                           (1,fun x (_:unit) => *)
+(*                                                (1,fun f (fT: _ -> unit -> (nat * (_ -> unit -> (nat *unit)))) => (cnst (i,x),tt))))). *)
+(* Proof. *)
+(*   pose (s := rho (λ F i max x f, (!!(extT N.ltb) i max) (λ _ , F (!!(extT N.succ) i) max (f i x) f) (λ _ , x) I)). *)
+(*   cbv [convert TH minus] in s. *)
+  
+(*   exists s. unfold s. Intern.recRem P. *)
+(*   eapply computesTimeExpStart. now Lproc. *)
+(*   eexists. *)
+(*   eapply computesTimeExpStep. 2:now Lsimpl. reflexivity. now Lproc. *)
+(*   intros i iExt iT iExts. cbn in iExts. subst iExt. *)
+
+(*   eexists. *)
+(*   eapply computesTimeExpStep. *)
+(*   2:{Intern.recStepUnnamed. now Lsimpl. } *)
+(*   reflexivity. now Lproc. *)
+(*   intros max yExt yT yExts. cbn in yExts. subst yExt. *)
+(*   cbn [fst snd]. *)
+
+(*   remember ((max - i)%N) as d eqn:eqd. *)
+(*   revert i max eqd. *)
+(*   induction d using N.peano_rect. *)
+(*   all:intros i max eqd. *)
+(*   all:eexists. *)
+(*   all:eapply computesTimeExpStep. *)
+(*   2,6:now Intern.recStepUnnamed; Lsimpl. *)
+(*   1,4:reflexivity. *)
+(*   1,3:Lproc. *)
+
+(*   all:intros x xExt xT xExts. *)
+(*   all:hnf in xExts; subst xExt. *)
+(*   all:cbn [fst snd]. *)
+
+(*   all:eexists. *)
+(*   all:eapply computesTimeExpStep. *)
+(*   2,6:now Intern.recStepUnnamed; Lsimpl. *)
+(*   1,4:reflexivity. *)
+(*   1,3:Lproc. *)
+  
+
+(*   all:intros f fExt fT fExts. *)
+(*   all:change fExt with (@extT _ _ f _  (Build_computableTime' fExts)). *)
+(*   2: apply f_equal with (f:=N.pred) in eqd;rewrite N.pred_succ,<- N.sub_succ_r in eqd. *)
+(*   all:eexists;split. *)
+(*   all:cbn [fst snd]. *)
+(*   1,2:assert (N.ltb i max = false) by (apply N.ltb_ge;Lia.lia). *)
+(*   1,3:eapply le_evalLe_proper;[ | reflexivity..| ]. *)
+(*   2:{ Intern.recStepUnnamed. Lsimpl. Intern.extractCorrectCrush_new. congruence. } *)
+(*   {rewrite H2. cbn[fst snd]. ring_simplify. admit. } *)
+(*   2:{ Intern.recStepUnnamed. Lsimpl. Intern.extractCorrectCrush_new. } *)
+(*   2:{ rewrite H2. rewrite iterupN_geq. easy.  Lia.lia. } *)
+(*   2:{ destruct (N.ltb_spec0 i max). *)
+(*       -rewrite iterupN_lt. all:easy. *)
+(*       -rewrite iterupN_geq. all:easy. *)
+(*   } *)
+(*   recRel_prettify2. *)
+(*   all:cbn [fst snd]. *)
+(*     :unfold iterupN. repeat Intern.cstep. *)
+(*   2,3:hnf. *)
+(*   {rewrite } *)
+(*   intros. *)
+(*   destruct (NIntern.rexStepInit P. .ltb_spec0 i max). *)
+(*   rewrite iterupN_lt. 2:easy. *)
+(*   reflexivity. *)
+(*   rewrite iterupN_geq. all:easy. *)
+(*   Unshelve. all:now try constructor;try exact _;try eauto;try exact 0. *)
+(* Qed. *)
+
+
+Instance term_iterupN X `{H:registered X} :
+  computable (iterupN (X:=X)).
 Proof.
   pose (s := rho (λ F i max x f, (!!(ext N.ltb) i max) (λ _ , F (!!(ext N.succ) i) max (f i x) f) (λ _ , x) I)).
   cbv [convert TH minus] in s.
@@ -69,7 +140,7 @@ Proof.
   1,2:assert (N.ltb i max = false) by (apply N.ltb_ge;Lia.lia).
   1:{Intern.extractCorrectCrush_new. congruence. }
   {rewrite H3. rewrite iterupN_geq. 2:Lia.lia. reflexivity. }
-  {Intern.extractCorrectCrush_new. } 
+  {Intern.extractCorrectCrush_new. }
   intros.
   destruct (N.ltb_spec0 i max).
   rewrite iterupN_lt. 2:easy.

@@ -505,7 +505,7 @@ Lemma recRel_prettify_rel X R (x x' y y' : X):
   firstorder congruence.
 Qed.
 
-Ltac recRel_ring_simplify :=
+Ltac recRel_ring_simplify_arith_enterRel :=
   lazymatch goal with
     |- _ -> ?R ?x ?y =>
     let X := type of x in
@@ -513,17 +513,16 @@ Ltac recRel_ring_simplify :=
     let y' := fresh "y'" in
     evar (x' : X);
     evar (y' : X);
-    refine (@recRel_prettify_rel X R x x' y y' _ _);
-    ring_simplify;try subst x';try subst y';reflexivity
+    refine (@recRel_prettify_rel X R x x' y y' _ _);subst x' y'
   end.
 
-Ltac recRel_descend_step :=
+Ltac recRel_prettify_arith_step :=
   progress
     lazymatch goal with
-    | |- _ -> (True -> _) =>
+    (*| |- _ -> (True -> _) =>
       refine (@recRel_prettify_drop _ _ _ _)
     | |- _ -> (_ /\ True) =>
-      refine (@recRel_prettify_conj_drop_r _ _ _  Logic.I _)
+      refine (@recRel_prettify_conj_drop_r _ _ _  Logic.I _)*)
     | |- _ -> (_ /\ _) =>
       refine (@recRel_prettify_conj _ _ _ _ _ _)
     | |- _ -> (forall (x:?t),@?P x) =>
@@ -533,18 +532,56 @@ Ltac recRel_descend_step :=
     | |- _ -> match ?x with _ => _ end =>
       let t := type of x in
       refine (_:(((fun y : t => ltac:(destruct y)) x : Prop) -> _));
-      destruct x
+
+      lazymatch t with
+        nat => destruct x;
+            [(* workarround to remove 0 from the context of the evar as this gets generalized in an ugly way*)
+            lazymatch goal with
+              |- ?G -> _ =>
+              let H := fresh in
+              pose G as H; instantiate (1:=ltac:(clear x)) in (Value of H); subst H
+            end|]   
+      | _ => destruct x
+      end
+                     
     | |- _ -> (?x <= ?y)%nat =>
-      recRel_ring_simplify
+      recRel_ring_simplify_arith_enterRel
+    | |- match ?x with _ => _ end = ?evar =>
+      let t := type of x in
+      refine (_:(_ = ((fun y : t => ltac:(destruct y)) x)));
+
+      lazymatch t with
+        nat => destruct x;
+            [(* workarround to remove 0 from the context of the evar as this gets generalized in an ugly way*)
+            lazymatch goal with
+              |- _ = ?G =>
+              let H := fresh in
+              pose G as H; instantiate (1:=ltac:(clear x)) in (Value of H); subst H
+            end|]   
+      | _ => destruct x
+      end
+    | |- ?x = ?evar =>
+      ring_simplify x;
+      let rec patternMatches:= lazymatch goal with
+                                 |- context C [match _ with _ => _ end] =>
+                                 let C' := constr:(fun y => ltac:(let C' := context C[y] in exact C')) in
+                                 refine (@eq_rect _ _ C' _ _ _);[patternMatches|symmetry]
+                               | |- _ => reflexivity
+                               end
+      in patternMatches
     | |- _ -> _ => exact (@impl_Reflexive _)
+    | |- _ => idtac "DEBUG";print_goal
     end.
 
-Ltac recRel_descend := repeat recRel_descend_step;[>idtac "recRel_descend could not simplify";shelve..].
+Ltac recRel_prettify_arith_loop := repeat recRel_prettify_arith_step;[>idtac "recRel_prettify_arith_step";shelve..].
 
-Ltac recRel_prettify_prepare := cbn [id fst snd]; (*reduce casts & projections from complexity functions*)
-  eapply Basics.apply.
-Ltac recRel_prettify :=
-  recRel_prettify_prepare;[recRel_descend|cbn beta].
+Ltac recRel_prettify_arith_prepare := cbn [id fst snd]; (*reduce casts & projections from complexity functions*)
+                                      eapply Basics.apply.
+
+Ltac recRel_prettify_arith :=
+  recRel_prettify_arith_prepare;[recRel_prettify_arith_loop|cbn beta].
+
+Ltac recRel_prettify := recRel_prettify_arith.
 
  Ltac recRel_prettify2 :=
       cbn [timeComplexity fst snd] in *;
@@ -574,11 +611,9 @@ Proof.
   computable using t.
 Qed.
 
-Notation "'computableTime' f" := (@computableTime _ ltac:(let t:=type of f in refine (_ : TT t);exact _) f) (at level 0,only parsing).
-
 Lemma cast_computableTime X Y `{registered Y} (cast : X -> Y) (Hc : injective cast):
   let _ := registerAs cast Hc in
-  computableTime cast (fun _ _ => (1,tt)).
+  computableTime' cast (fun _ _ => (1,tt)).
 Proof.
   cbn.
   pose (t:=lam 0).

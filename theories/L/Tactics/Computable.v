@@ -12,6 +12,8 @@ Class registered (X : Type) := mk_registered
     inj_enc : injective enc (* encoding is injective *)
   }.
 
+Hint Mode registered + : typeclass_instances. (* treat argument as input and force evar-freeness*)
+
 Arguments enc : simpl never.  (* Never unfold with cbn/simpl *)
 
 (** ** Correctness *)
@@ -29,6 +31,8 @@ Existing Instance TyArr.
   
 Arguments TyB _ {_}.
 Arguments TyArr {_} {_} _ _.
+
+Hint Mode TT + : typeclass_instances. (* treat argument as input and force evar-freeness*)
 
 Notation "! X" := (TyB X) (at level 69).
 Notation "X ~> Y" := (TyArr X Y) (right associativity, at level 70).
@@ -58,6 +62,8 @@ Class computable X {ty : TT X} (x : X) : Type :=
     ext : extracted x;
     extCorrect : computes ty x ext;
   }.
+
+Hint Mode computable + - +: typeclass_instances. (* treat argument as input and force evar-freeness*)
 
 Existing Instance ext | 5.
 

@@ -1,5 +1,5 @@
-From Undecidability.L Require Import L.
-From Undecidability.L.AbstractMachines Require Import Programs AbstractHeapMachine AbstractSubstMachine.
+From Undecidability.L Require Import L Programs.
+From Undecidability.L.AbstractMachines Require AbstractHeapMachineDef AbstractSubstMachine.
 
 (** ** Functional definitions of the abstract machines *)
 
@@ -15,10 +15,10 @@ Section SubstMachine.
       let '(d,Q',k) :=
           match t with
             varT k' => if k' =? k then (sizeQ,None,Some k)
-                      else (N.of_nat (sizeT (varT k')),Some (varT k'),Some k)
-          | appT => (1%N,Some appT,Some k)
-          | lamT => (1%N,Some lamT,Some (1 + k))
-          | retT => (1%N,Some retT,if (k =? 0) then None else (Some (k-1)))
+                      else (N.of_nat (sizeT (varT k')),Some t,Some k)
+          | appT => (1%N,Some t,Some k)
+          | lamT => (1%N,Some t,Some (1 + k))
+          | retT => (1%N,Some t,if (k =? 0) then None else (Some (k-1)))
           end
       in
       let curSize : N := (d + curSize)%N in
@@ -137,25 +137,48 @@ End SubstMachine.
 
 Section HeapMachine.
   
-  Import AbstractHeapMachine.
-  Definition heapStep '(T,V,H) :=
-    match T,V with
-      (lamT :: P ,a) :: T, _ =>
-      match jumpTarget 0 [] P with
-        Some (Q,P') => Some ((P', a) :: T, (Q, a) :: V, H)
+  Import AbstractHeapMachineDef.
+  Definition heapStep '(T,V,H) : option (list task * list clos * list heapEntry) :=
+    match T with
+    | closT (lam s, a) :: T =>
+      Some (T, (s,a)::V, H)
+    | appT :: T =>
+      match V with
+        g :: (s, b) :: V =>
+        let '(H',c) := put H (heapEntryC g b) in
+        Some (closT (s, c) :: T, V, H')
       | _ => None
       end
-    | (appT :: P, a) :: T, g :: (Q, b) :: V =>
-      let '(H',c) := put H (heapEntryC g b) in
-      Some ((Q, c) :: (P, a) :: T, V, H')
-    | (varT x :: P, a) :: T, _ =>
+    | closT (var x, a) :: T =>
       match lookup H a x with
-      | Some g => Some ((P, a) :: T, g :: V, H)
+      | Some g => Some (T, g :: V, H)
       | _ => None
       end
-    | ([], a) :: T, _ => Some (T, V, H)
-    | _,_ => None
+    | closT (app s t, a) :: T =>
+      Some (closT (s, a) :: closT (t, a) :: appT :: T, V,H)
+    | [] => None
     end.
+
+
+  
+  Tactic Notation "destruct" "*" "eqn" :=
+    let E := fresh "eq" in destruct * eqn:E.
+  
+  Lemma heapStep_sound: computesRel heapStep AbstractHeapMachineDef.step.
+  Proof.
+    intros x. unfold heapStep.
+    repeat (destruct * eqn;subst;
+            try match goal with
+                  H : Some _ = Some _ |- _ => inv H
+                | H : (_,_) = (_,_) |- _ => inv H
+                | H : _ :: _ = _ :: _ |- _ => inv H
+                | H : closT _ = closT _ |- _ => inv H
+                | H : lam _ = lam _ |- _ => inv H
+
+                end;
+            eauto using AbstractHeapMachineDef.step).
+    all:intros ? R'. all:inv R'. all:congruence.
+  Qed.
 
 End HeapMachine.
   

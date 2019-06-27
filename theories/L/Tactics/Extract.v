@@ -436,7 +436,7 @@ Fixpoint head_of_const (t : term) :=
 Definition tmUnfoldTerm {A}(a:A) :=
   t <- tmQuote a;;
   match head_of_const t with
-  | Some h => tmEval (unfold (name_after_dot h)) a >>=tmQuote
+  | Some h => tmEval (unfold h) a >>=tmQuote
   | _ => ret t
   end.
 

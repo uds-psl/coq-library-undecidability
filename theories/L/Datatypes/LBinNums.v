@@ -1,96 +1,124 @@
-From Undecidability.L Require Import Tactics.LTactics Datatypes.LUnit Datatypes.LBool Tactics.GenEncode.
+From Undecidability.L Require Import Tactics.LTactics Datatypes.LUnit Datatypes.LBool Datatypes.LNat.
 Require Import BinNums.
+Require Import Undecidability.L.Tactics.GenEncode.
 
-Section BinPos.
-  Import BinPos.Pos.
-
-  Run TemplateProgram (tmGenEncode "positive_enc" positive).
-  Hint Resolve positive_enc_correct : Lrewrite.
-  
-  Global Instance termT_Pos_xI : computableTime xI (fun x _ => (1,tt)).
-  extract constructor. solverec.
-  Qed.
-
-  Global Instance termT_Pos_xO : computableTime xO (fun x _ => (1,tt)).
-  extract constructor. solverec.
-  Qed.
-
-  Global Instance termT_Pos_succ : computableTime succ (fun x _ => (size_nat x*11,tt)).
-  extract. solverec.
-  Qed.
-
-  Fixpoint addC (c:bool) (x : positive) {struct x}: positive -> positive:=
-    (if c then  
-       match x with
-      | p~1 => fun y => match y with
-                    | q~1 => (addC true p q)~1
-                    | q~0 => (addC true p q)~0
-                    | 1 => (succ p)~1
-                    end
-      | p~0 => fun y => match y with
-                    | q~1 => (addC true p q)~0
-                    | q~0 => (addC false p q)~1
-                    | 1 => (succ p)~0
-                    end
-      | 1 => fun y => match y with
-                  | q~1 => (succ q)~1
-                  | q~0 => (succ q)~0
-                  | 1 => 3
-                  end
-      end
-    else
-      match x with
-      | p~1 => fun y => match y with
-                    | q~1 => (addC true p q)~0
-                    | q~0 => (addC false p q)~1
-                    | 1 => (succ p)~0
-                    end
-      | p~0 => fun y => match y with
-                    | q~1 => (addC false p q)~1
-                    | q~0 => (addC false p q)~0
-                    | 1 => p~1
-                    end
-      | 1 => fun y => match y with
-                  | q~1 => (succ q)~0
-                  | q~0 => q~1
-                  | 1 => 2
-                  end
-       end)%positive.
-
-  Lemma addC_ext_eq : extEq addC (fun b => if b then add_carry else add).
-  Proof.
-    intros b x y. induction x in b,y|-*;destruct b,y;cbn;try rewrite !IHx. all:reflexivity.
-  Qed.
-
-  Global Instance termT_Pos_addC: computableTime addC (fun b _ => (5%nat,fun x _ => (11%nat,fun y _ => (12*(size_nat x + size_nat y),tt)))).
-  extract. solverec.
-  Qed.
-
-  Global Instance termT_Pos_add: computableTime Pos.add (fun x _ => (17%nat,fun y _ => (12*(size_nat x + size_nat y),tt))).
-  Proof.
-    eapply computableTimeExt with (x:= (fun x => addC false x)).
-    -hnf;repeat intro;eapply addC_ext_eq.
-    -extract. solverec.
-  Qed.
-
-End BinPos.
+(** ** Encoding of positive binary numbers *)
+Run TemplateProgram (tmGenEncode "positive_enc" positive).
 Hint Resolve positive_enc_correct : Lrewrite.
 
-
-Run TemplateProgram (tmGenEncode "N_enc" N).
-Hint Resolve N_enc_correct : Lrewrite.
-
-Instance termT_N_NPos : computableTime Npos (fun x _ => (1,tt)).
-  extract constructor. solverec.
+Global Instance termT_Pos_xI : computableTime' xI (fun x _ => (1,tt)).
+extract constructor. solverec.
 Qed.
 
-Import N.
-Instance termT_N_add: computableTime N.add (fun x _ => (1,fun y _ => (12*(N.size_nat x + N.size_nat y) + 27 ,tt))).
+Global Instance termT_Pos_xO : computableTime' xO (fun x _ => (1,tt)).
+extract constructor. solverec.
+Qed.
+
+Global Instance termT_Pos_succ : computableTime' Pos.succ (fun x _ => (Pos.size_nat x*11,tt)).
 extract. solverec.
 Qed.
 
-Instance term_N_ltb : computable N.ltb.
-Admitted.
+(** ** Encoding of natural binary numbers *)
+Run TemplateProgram (tmGenEncode "N_enc" N).
+Hint Resolve N_enc_correct : Lrewrite.
 
-Instance term_N_succ : computable N.succ.
-Admitted.
+Instance termT_N_NPos : computableTime' Npos (fun x _ => (1,tt)).
+  extract constructor. solverec.
+Qed.
+
+(** *** basic functions *)
+
+Lemma pos_size_eq_log2 n : Pos.size_nat n = Nat.log2 (Pos.to_nat n) + 1.
+Proof.
+  induction n;cbn.
+  3:reflexivity.
+  all:rewrite IHn.
+  2:{rewrite Pos2Nat.inj_xO. rewrite Nat.log2_double. 2:now apply Pos2Nat.is_pos. now Lia.lia. }
+  {rewrite Pos2Nat.inj_xI.
+   transitivity (S (S (Nat.log2 (Pos.to_nat n)))). Lia.lia.
+   rewrite <- Nat.log2_succ_double. 2:now apply Pos2Nat.is_pos. rewrite Nat.add_1_r. Lia.nia. }
+Qed. 
+
+Lemma pos_size_nat_eq n: Pos.size_nat n = Pos.to_nat (Pos.size n).
+Proof.
+  induction n;cbn.
+  3:reflexivity.
+  all:rewrite IHn.
+  all:now rewrite Pos2Nat.inj_succ.
+Qed.
+
+Lemma pos_size_nat_leq n : Pos.size_nat n <= Pos.to_nat n.
+Proof. 
+  rewrite pos_size_nat_eq. apply Pos2Nat.inj_le.
+  induction n;cbn. 3:reflexivity. all:Lia.lia.
+Qed.
+
+Lemma Pos_size_nat_leq p : (Pos.size p <= p)%positive.
+Proof.
+  induction p. all:cbn. all:try Lia.lia.
+Qed.
+
+Lemma N_size_nat_leq' n : (N.size n <= n)%N.
+Proof.
+  destruct n. now reflexivity.
+  cbn. apply Pos_size_nat_leq.
+Qed.
+
+Lemma N_size_nat_eq n : N.size_nat n = N.to_nat (N.size n).
+Proof.
+  destruct n. reflexivity.
+  cbn. apply pos_size_nat_eq.
+Qed.
+
+Lemma N_size_nat_leq n : (N.size_nat (N.of_nat n)) <= n.
+Proof.
+  rewrite N_size_nat_eq.
+  etransitivity. 2:rewrite <- Nnat.Nat2N.id;reflexivity.
+  eapply Nat.compare_le_iff. rewrite <- Nnat.N2Nat.inj_compare. apply N_size_nat_leq'.
+Qed.
+
+
+(* One probably could do better by repeated halving (O(n)) *)
+Definition time_N_of_nat n := n* 20 + n*Nat.log2 n*11.
+
+Local Arguments Nat.log2 : simpl never.
+
+Instance term_Pos_of_succ_nat : computableTime' Pos.of_succ_nat (fun n _ => (time_N_of_nat n +8,tt)).
+  extract. solverec. fold Pos.of_succ_nat. unfold time_N_of_nat.
+  rewrite pos_size_eq_log2,SuccNat2Pos.id_succ.
+  change (1 + n) with (S n).
+  rewrite (Nat.log2_le_mono n (S n)). all:Lia.nia.
+Qed.
+
+Instance term_N_of_nat : computableTime' N.of_nat (fun n _ => (time_N_of_nat n+ 4,tt)).
+Proof.
+  extract. solverec. unfold time_N_of_nat.
+  rewrite (Nat.log2_le_mono n (S n)).
+  all:ring_simplify. all:Lia.nia.
+Qed.
+
+Arguments time_N_of_nat : simpl never.
+
+Instance term_N_succ : computableTime' N.succ (fun x _ => (N.size_nat x * 11 + 6,tt)).
+Proof.
+  extract. solverec.
+Qed.
+
+Lemma N_size_nat_monotone n n' : (n <= n')%N -> N.size_nat n <= N.size_nat n'.
+Proof.
+  intros ?. destruct (N.eqb_spec n n'). now subst.
+  destruct n, n'. all:cbn in *. all:try Lia.lia. apply Pos.size_nat_monotone. Lia.lia. 
+Qed.
+Lemma N_size_nat_add_leq x y : N.size_nat (x+y) <= 1 + max (N.size_nat x) (N.size_nat y).
+Proof.
+  destruct x,y;cbn. 1-3:Lia.nia.
+  rewrite !pos_size_eq_log2.
+  destruct (@Pos.leb_spec0 p p0).
+  2:rename n into l;apply Pos.lt_nle,Pos.lt_le_incl in l. 
+  all:setoid_rewrite l at 1.
+  replace (p0 + p0)%positive with (2*p0)%positive;[|Lia.lia].
+  2:  replace (p + p)%positive with (2*p)%positive;[|Lia.lia].
+  all:rewrite Pos2Nat.inj_mul.
+  all:change (Pos.to_nat 2) with 2.
+  all:rewrite Nat.log2_double;[|now eauto using Pos2Nat.is_pos]. all:Lia.lia.
+Qed.

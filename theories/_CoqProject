@@ -218,6 +218,7 @@ L/Prelim/MoreBase.v
 L/Prelim/ARS.v
 L/Prelim/StringBase.v
 L/Prelim/MoreList.v
+L/Prelim/LoopSum.v
 
 L/L.v
 
@@ -249,8 +250,11 @@ L/Datatypes/Lists.v
 L/Datatypes/LNat.v
 L/Datatypes/LOptions.v
 L/Datatypes/LProd.v
+L/Datatypes/LSum.v
 L/Datatypes/LBinNums.v
 L/Datatypes/LTerm.v
+L/Datatypes/LComparison.v
+
 
 L/Functions/Equality.v
 L/Functions/Encoding.v
@@ -259,6 +263,12 @@ L/Functions/Size.v
 L/Functions/Subst.v
 L/Functions/Eval.v
 L/Functions/IterupN.v
+L/Functions/LoopSum.v
+L/Functions/UnboundIteration.v
+L/Functions/BinNums.v
+L/Functions/BinNumsAdd.v
+L/Functions/BinNumsSub.v
+L/Functions/BinNumsCompare.v
 
 L/Functions/EnumInt.v
 L/Functions/Unenc.v
@@ -279,11 +289,17 @@ L/Complexity/SpaceBoundsTime.v
 L/AbstractMachines/Programs.v
 L/AbstractMachines/AbstractSubstMachine.v
 L/AbstractMachines/AbstractHeapMachine.v
+L/AbstractMachines/AbstractHeapMachineDef.v
+L/AbstractMachines/LargestVar.v
 L/AbstractMachines/UnfoldHeap.v
 L/AbstractMachines/FunctionalDefinitions.v
+L/AbstractMachines/UnfoldTailRec.v
 L/AbstractMachines/Computable/Shared.v
 L/AbstractMachines/Computable/HeapMachine.v
 L/AbstractMachines/Computable/SubstMachine.v
+L/AbstractMachines/Computable/Unfolding.v
+L/AbstractMachines/Computable/Lookup.v
+L/AbstractMachines/Computable/LargestVar.v
 
 L/Computability/Acceptability.v
 #L/Computability/AD.v

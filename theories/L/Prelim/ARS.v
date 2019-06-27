@@ -5,9 +5,9 @@ Require Export PslBase.Base.
 
 Module ARSNotations.
   Notation "p '<=1' q" := (forall x, p x -> q x) (at level 70).
-  Notation "p '=1' q" := (p <=1 q /\ q <=1 p) (at level 70).
+  Notation "p '=1' q" := (forall x, p x <-> q x) (at level 70).
   Notation "R '<=2' S" := (forall x y, R x y -> S x y) (at level 70).
-  Notation "R '=2' S"  := (R <=2 S /\ S <=2 R) (at level 70).
+  Notation "R '=2' S"  := (forall x y, R x y <-> S x y) (at level 70).
 End ARSNotations.
 
 Import ARSNotations.
@@ -23,6 +23,9 @@ Definition rcomp X Y Z (R : X -> Y -> Prop) (S : Y -> Z -> Prop)
 Require Import Arith.
 Definition pow X R n : X -> X -> Prop := it (rcomp R) n eq.
 
+Definition functional {X Y} (R: X -> Y -> Prop) := forall x y1 y2, R x y1 -> R x y2 -> y1 = y2.
+Definition terminal {X Y} (R: X -> Y -> Prop) x:= forall y, ~ R x y.
+
 Section FixX.
   Variable X : Type.
   Implicit Types R S : X -> X -> Prop.
@@ -31,7 +34,8 @@ Section FixX.
   Definition reflexive R := forall x, R x x.
   Definition symmetric R := forall x y, R x y -> R y x.
   Definition transitive R := forall x y z, R x y -> R y z -> R x z.
-  Definition functional R := forall x y z, R x y -> R x z -> y = z.
+
+
 
   (** Reflexive transitive closure *)
 
@@ -39,7 +43,6 @@ Section FixX.
   | starR x : star R x x
   | starC x y z : R x y -> star R y z -> star R x z.
 
-  Definition terminal R x:= forall y, ~ R x y.
   Definition evaluates R x y := star R x y /\ terminal R y.
 
   (* Making first argument a non-uniform parameter doesn't simplify the induction principle. *)
@@ -196,6 +199,12 @@ Section FixX.
 
   Definition uniform_confluent (R : X -> X -> Prop ) := forall s t1 t2, R s t1 -> R s t2 -> t1 = t2 \/ exists u, R t1 u /\ R t2 u.
 
+  Lemma functional_uc R :
+    functional R -> uniform_confluent R.
+  Proof.
+    intros F ? ? ? H1 H2. left. eapply F. all:eauto.
+  Qed.
+
   Lemma pow_add R n m (s t : X) : pow R (n + m) s t <-> rcomp (pow R n) (pow R m) s t.
   Proof.
     revert m s t; induction n; intros m s t.
@@ -224,12 +233,12 @@ Section FixX.
   
   Lemma eq_ref : forall (R : X -> X -> Prop), R =2 R.
   Proof.
-    split; intros s t; tauto.
+    split; tauto.
   Qed.
   
   Lemma rcomp_1 (R : X -> X -> Prop): R =2 pow R 1.
   Proof.
-    split; intros s t; unfold pow in *; simpl in *; intros H.
+    intros s t; split;unfold pow in *; simpl in *; intros H.
     - econstructor. split; eauto.
     - destruct H as [u [H1 H2]]; subst u; eassumption.
   Qed.
@@ -377,4 +386,63 @@ Proof.
   induction 1;eauto using star.
 Qed.
 
+Lemma terminal_noRed {X} (R:X->X->Prop) x y :
+  terminal R x -> star R x y -> x = y.
+Proof.
+  intros ? R'. inv R'. easy. edestruct H. eassumption.
+Qed.
 
+Lemma unique_normal_forms {X} (R:X->X->Prop) x y:
+  confluent R -> ecl R x y -> terminal R x -> terminal R y -> x = y.
+Proof.
+  intros CR%confluent_CR E T1 T2.
+  specialize (CR _ _ E) as (z&R1&R2).
+  apply terminal_noRed in R1. apply terminal_noRed in R2. 2-3:eassumption. congruence.
+Qed.
+
+Instance ecl_Equivalence {X} (R:X->X->Prop) : Equivalence (ecl R).
+Proof.
+  split.
+  -constructor.
+  -apply ecl_sym.
+  -apply ecl_trans.
+Qed.
+
+Instance star_ecl_subrel {X} (R:X->X->Prop) : subrelation (star R) (ecl R).
+Proof.
+  intro. eapply star_ecl.
+Qed.
+
+Instance pow_ecl_subrel {X} (R:X->X->Prop) n : subrelation (pow R n) (ecl R).
+Proof.
+  intros ? ? H%pow_star. now rewrite H.
+Qed.
+
+Lemma uniform_confluence_parameterized_terminal (X : Type) (R : X -> X -> Prop) (m n : nat) (s t1 t2 : X):
+  uniform_confluent R -> terminal R t1 ->
+  pow R m s t1 -> pow R n s t2 -> exists n', pow R n' t2 t1 /\ m = n + n'.
+Proof.
+  intros H1 H2 H3 H4.
+  specialize (parametrized_confluence H1 H3 H4) as (n0&n'&?&?&?&R'&?&?).
+  destruct n0.
+  -inv R'. exists n'. intuition.
+  -exfalso. destruct R' as (?&?&?). eapply H2. eauto.
+Qed.
+
+Lemma uniform_confluence_parameterized_both_terminal (X : Type) (R : X -> X -> Prop) (n1 n2 : nat) (s t1 t2 : X):
+  uniform_confluent R -> terminal R t1 -> terminal R t2 ->
+  pow R n1 s t1 -> pow R n2 s t2 -> n1=n2 /\ t1 = t2.
+Proof.
+  intros H1 H2 H2' H3 H4.
+  specialize (parametrized_confluence H1 H3 H4) as (n0&n'&?&?&?&R'&R''&?).
+  destruct n0. destruct n'.
+  -inv R'. inv H5. split;first [omega | easy].
+  -exfalso. destruct R'' as (?&?&?). eapply H2'. eauto.
+  -exfalso. destruct R' as (?&?&?). eapply H2. eauto.
+Qed.
+
+Definition computesRel {X Y} (f : X -> option Y) (R:X -> Y -> Prop) :=
+  forall x, match f x with
+         Some y => R x y
+       | None => terminal R x
+       end.

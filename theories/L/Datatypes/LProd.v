@@ -8,24 +8,24 @@ Section Fix_XY.
 
   Variable X Y:Type.
   
-  Variable intX : registered X.
-  Variable intY : registered Y.
+  Context {intX : registered X}.
+  Context {intY : registered Y}.
 
   Run TemplateProgram (tmGenEncode "prod_enc" (X * Y)).
   Hint Resolve prod_enc_correct : Lrewrite.
   
   (* now we must register the constructors*)
-  Global Instance term_pair : computableTime (@pair X Y) (fun _ _ => (1,fun _ _ => (1,tt))).
+  Global Instance term_pair : computableTime' (@pair X Y) (fun _ _ => (1,fun _ _ => (1,tt))).
   Proof.
     extract constructor. solverec. 
   Defined.
 
-  Global Instance term_fst : computableTime (@fst X Y) (fun _ _ => (5,tt)).
+  Global Instance term_fst : computableTime' (@fst X Y) (fun _ _ => (5,tt)).
   Proof.
     extract. solverec.
   Defined.
 
-  Global Instance term_snd : computableTime (@snd X Y) (fun _ _ => (5,tt)).
+  Global Instance term_snd : computableTime' (@snd X Y) (fun _ _ => (5,tt)).
   Proof.
     extract. solverec.
   Defined.
@@ -47,7 +47,7 @@ Section Fix_XY.
 
   
   Global Instance term_prod_eqb :
-    computableTime prod_eqb
+    computableTime' prod_eqb
                      (fun _ eqT1 =>
                         (1,fun _ eqT2 =>
                              (1,fun x _ =>
@@ -65,6 +65,14 @@ Section Fix_XY.
   Proof.
     extract. 
   Defined.
+
+  
+  Lemma size_prod (w:X*Y):
+    size (enc w) = size (enc (fst w)) + size (enc (snd w)) + 4.
+  Proof.
+    destruct w. unfold enc. now cbn.
+  Qed.
+
   
 End Fix_XY.
 

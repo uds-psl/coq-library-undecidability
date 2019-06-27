@@ -289,7 +289,7 @@ Definition stutterSimulatedWith {X Y} (stepX: X -> X -> Prop) (stepY: Y -> Y -> 
 
 Definition stutterTerminal Y P stepY (y:Y):= exists y', stutterStep P stepY y y' /\ terminal stepY y'.
 
-Definition stutterTerminalSensitive X Y stepX stepY (sim :X->Y->Prop) :=
+Definition stutterTerminalSensitive X Y (stepX : X -> X -> Prop) stepY (sim :X->Y->Prop) :=
   forall x y, sim x y -> terminal stepX x -> stutterTerminal (sim x) stepY y.
 
 Definition star_preserves X (R:X->X-> Prop) (P:X->Prop):

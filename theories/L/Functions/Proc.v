@@ -9,9 +9,9 @@ match t with
 | lam s => boundb (S k) s
 end.
 
-Instance term_boundb : computable boundb.
+Instance term_boundb : computableTime' boundb (fun _ _ => (5,fun s _ => (size s * 31+9,tt))).
 Proof.
-  extract.
+  extract. solverec.
 Defined.
 
 Lemma boundb_spec k t : Bool.reflect (bound k t) (boundb k t).
@@ -35,9 +35,10 @@ Lemma closedb_spec s : Bool.reflect (closed s) (closedb s).
   destruct (boundb_spec 0 s);constructor; rewrite closed_dcl;auto.
 Qed.
 
-Instance term_closedb : computable closedb.
+Instance termT_closedb : computableTime' closedb (fun s _ => (size s * 31+15,tt)).
 Proof.
-  exact _.
+  change closedb with (fun x => boundb 0 x).
+  extract. solverec.
 Defined.
 
 
@@ -47,9 +48,9 @@ match t with
 | _ => false
 end.
 
-Instance term_lambdab : computable lambdab.
+Instance term_lambdab : computableTime' lambdab (fun _ _ => (11,tt)).
 Proof.
-  extract.
+  extract. solverec.
 Defined.
 
 Lemma lambdab_spec t : Bool.reflect (lambda t) (lambdab t).

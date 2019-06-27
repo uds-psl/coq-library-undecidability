@@ -47,7 +47,7 @@ Section PaperExample.
   Print cnst.
 
   (** Comming up with the conditions for the time bound *)
-  Goal forall fT, computableTime orb fT.
+  Goal forall fT, computableTime' orb fT.
     intros.
     extractAs s.
     computable_using_noProof s.
@@ -61,11 +61,11 @@ Section PaperExample.
 
   (** Finding the Time Bound *)
   
-  Goal computableTime orb (fun _ _ => (cnst "c1",fun _ _ => (cnst "c2",tt))).
+  Goal computableTime' orb (fun _ _ => (cnst "c1",fun _ _ => (cnst "c2",tt))).
     extract. solverec. (* Now the values are clear *)
   Abort.
 
-  Goal computableTime orb (fun _ _ => (1,fun _ _ => (3,tt))).
+  Goal computableTime' orb (fun _ _ => (1,fun _ _ => (3,tt))).
     extract. solverec.
   Abort.
   
@@ -140,7 +140,7 @@ Section PaperExample.
   (*comming up with the condition *)
 
    Lemma termT_map A B (Rx : registered A)  (Ry: registered B):
-    computableTime (@map A B) (fun f fT => (cnst "c",fun xs _ => (cnst ("f",xs),tt))).
+    computableTime' (@map A B) (fun f fT => (cnst "c",fun xs _ => (cnst ("f",xs),tt))).
     extractAs s.
     computable_using_noProof s.
     cstep.
@@ -151,12 +151,12 @@ Section PaperExample.
   (* comming up with the time bound *)
 
   Lemma termT_map A B (Rx : registered A)  (Ry: registered B):
-    computableTime (@map A B) (fun f fT => (cnst "c",fun xs _ => (cnst ("f",xs),tt))).
+    computableTime' (@map A B) (fun f fT => (cnst "c",fun xs _ => (cnst ("f",xs),tt))).
     extract. solverec.
   Abort.
 
   Lemma term_map (X Y:Type) (Hx : registered X) (Hy:registered Y):
-    computableTime (@map X Y)
+    computableTime' (@map X Y)
                    (fun f fT => (1,fun l _ => (fold_right (fun x res => fst (fT x tt) + res + 12) 8 l,tt))).
   Proof.
     extract.
@@ -180,10 +180,5 @@ Proof.
   compute auto. 
 Qed.
    *)
-
-  Instance term_nat_eqb : computable Nat.eqb.
-  Proof.
-    extract. fold Nat.eqb. repeat ComputableTactics.Intern.cstep. 
-  Defined.
 
 End demo.

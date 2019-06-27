@@ -1,4 +1,4 @@
-From Undecidability.L Require Import L AbstractMachines.Programs AbstractMachines.AbstractHeapMachine.
+From Undecidability.L Require Import L AbstractMachines.Programs AbstractMachines.AbstractHeapMachineDef.
 (** *** Bonus:  Unfolding on Programs *)
 
 (** We define a function f to unfold a closure, needed for the Turing machine M_unf. *)
@@ -7,139 +7,112 @@ Section UnfoldPro.
 
   Variable H : list heapEntry.
 
-  Fixpoint f (P:Pro) a k fuel {struct fuel}: option Pro :=
+  Fixpoint unfoldC fuel (s:term) a k {struct fuel}: option term :=
     match fuel with
       0 => None
     | S fuel =>
-      match P,k with
-       (* [retT],0 => Some [retT] *)
-      | retT::P,S k =>
-        match f P a k fuel with
-          Some P' => Some (retT::P')
+      match s with
+      | app s t =>
+        match unfoldC fuel s a k, unfoldC fuel t a k with
+          Some s',Some t' => Some (s' t')
+        | _,_ => None
+        end
+      | lam s => 
+        match unfoldC fuel s a (S k) with
+          Some s' => Some (lam s')
         | _ => None
         end
-      | appT::P,_ =>
-        match f P a k fuel with
-          Some P' => Some (appT::P')
-        | _ => None
-        end
-      | lamT::P,_ =>
-        match f P a (S k) fuel with
-          Some P' => Some (lamT::P')
-        | _ => None
-        end
-      | varT n::P,_ =>
-        if Dec (n >= k) then 
+      | var n =>
+        if leb k n then 
           match lookup H a (n-k) with
-            Some (Q,b) =>
-            match f Q b 1 fuel,f P a k fuel with
-              Some Q', Some P' => 
-              Some (lamT::Q'++retT::P')
-            | _,_ => None
+            Some (s,b) =>
+            match unfoldC fuel s b 1 with
+              Some s' => Some (lam s')
+            | _ => None
             end 
           | _ => None
           end
         else
-          match f P a k fuel with
-            Some P' => 
-            Some (varT n::P')
-          | _ => None
-          end
-      |[],_ => Some []
-      |_,_ => None
-      end      
+          Some (var n)
+      end
     end.
 
-  Lemma f_mono P a k n n' :
-    n <= n' -> f P a k n <> None -> f P a k n' = f P a k n.
+  Lemma unfoldC_mono s a k n n' :
+    n <= n' -> unfoldC n s a k <> None -> unfoldC n' s a k = unfoldC n s a k.
   Proof.
-    induction n in P,a,k,n'|-*. now cbn.
+    induction n in s,a,k,n'|-*. now cbn.
     destruct n'. now omega.
     intros leq eq. cbn in eq|-*.
     repeat (let eq := fresh "eq" in destruct _ eqn:eq).
     all:try congruence.
-    all:  repeat match goal with
+    all: repeat lazymatch goal with
             _ : S ?n <= S ?n', 
-                H : (f ?P ?a ?k ?n' = _) ,
-                    H' : (f ?P ?a ?k ?n = _)
-            |- _ => rewrite IHn in H;[ | omega | congruence]
+                H : (unfoldC ?n ?P ?a ?k  = _) ,
+                    H' : (unfoldC ?n' ?P ?a ?k = _)
+            |- _ => rewrite IHn in H';[ | omega | congruence]
                     end.
     all:congruence.
   Qed.
+
+  Fixpoint depth s : nat :=
+    match s with
+      app s t => S (max (depth s) (depth t))
+    | lam s => S (depth s)
+    | _ => 1
+    end.
   
-  Lemma f_correct' Q Q' a k s s' n:
+  Lemma unfoldC_correct a k s s':
     unfolds H a k s s' ->
-    f Q a k n = Some Q' -> 
-    exists n', f (compile s++Q) a k n' = Some (compile s' ++ Q').
+    unfoldC (depth s') s a k = Some s'.
   Proof.
-    induction s' in Q',Q,a,k,s,n |- *;intros H' eq.
-    inv H'.
-    - exists (S n). cbn. decide _. omega.
-      now rewrite eq.
-    - cbn. exfalso. inv H2. inv H3.
-    - inv H'.
-      {exfalso.  inv H2. inv H3. }
-      cbn [compile].
-      autorewrite with list.
-      edestruct IHs'2 with (Q:=appT::Q) (n:=S n) as [n2 eq2]. 1:eassumption.
-      cbn. now rewrite eq.
-      edestruct IHs'1 as [n1 eq1]. 1:eassumption.
-      2:{
-        eexists. erewrite eq1. reflexivity.
-      }
-      eassumption.
-    -inv H'.
-     +inv H2. inv H3.
-      edestruct IHs' with (n:=1)(Q:=@nil Tok) as [n1 eq1]. eassumption.
-      reflexivity.
-      autorewrite with list in eq1.
-      exists (S (max n n1)).
-      cbn. decide _. 2:omega. rewrite H1. erewrite f_mono.
-      rewrite eq1. erewrite f_mono. rewrite eq.
-      autorewrite with list. reflexivity.
-      1,3:now apply Nat.max_case_strong;omega.
-      1-2:congruence.
-     + cbn.        edestruct IHs' as [n1 eq1].
-       3:{eexists (S _).
-       cbn. 
-       autorewrite with list.
-       cbn. rewrite eq1. reflexivity. }
-       eassumption.
-       instantiate (1 := S n).
-       cbn. rewrite eq. now destruct Q.
+    induction 1. all:cbn.
+    1,2: (destruct (Nat.leb_spec0 k n); try omega);[].
+    - easy.
+    -rewrite H1, IHunfolds. all:easy.
+    -rewrite IHunfolds. easy.
+    -erewrite unfoldC_mono. 3:now rewrite IHunfolds1. 2:now Lia.lia.
+     rewrite IHunfolds1. 
+     erewrite unfoldC_mono. 3:now rewrite IHunfolds2. 2:now Lia.lia.
+     rewrite IHunfolds2. easy.
   Qed.
 
-  Lemma f_correct a s s' k:
-    unfolds H a k s s' ->
-    exists n', f (compile s) a k n' = Some (compile s').
-  Proof.
-    intros H'.
-    specialize (f_correct' (n:=1) (Q:=@nil Tok) (Q':=@nil Tok) H') as [n eq].
-    reflexivity.
-    autorewrite with list in eq.
-    eexists. rewrite eq. reflexivity.
-  Qed.
-  
-
-  Lemma f_correct_final P a s:
+  Lemma unfoldC_correct_final P a s:
     reprC H (P,a) s ->
-    exists t, s = lam t /\ exists n, f P a 1 n = Some (compile t).
+    exists t, s = lam t /\ exists n, unfoldC n P a 1 = Some t.
   Proof.
-    intros H'. inv H'. inv H4. inv H6.
-    specialize (f_correct H2) as eq. eauto.
+    intros H'. inv H'.
+    specialize (unfoldC_correct H5) as eq. eauto.
   Qed.
-  
+
+  Lemma unfoldsC_correct2 n s a k s':
+    unfoldC n s a k = Some s'
+    -> unfolds H a k s s'.
+  Proof.
+    induction n in a,s,s',k|-*. now inversion 1.
+    cbn.
+    destruct s. 1:destruct (Nat.leb_spec0 k n0).
+    all:repeat (let eq := fresh "eq" in destruct _ eqn:eq);intros [= <-];subst.
+    all: repeat lazymatch goal with
+                   H : (unfoldC ?n ?P ?a ?k  = Some _) 
+            |- _ => apply IHn in H
+                    end.
+     all:eauto using unfolds,not_ge.
+  Qed.
 End UnfoldPro.
 
 Lemma unfolds_inj H k s a s1 s2 :
   unfolds H k s a s1 -> unfolds H k s a s2 -> s1=s2.
 Proof.
+  (* intros (n1&eq1)%unfoldC_correct (n2&eq2)%unfoldC_correct.
+  enough (unfoldC H a k s n1 = unfoldC H a k s n2) by congruence.
+  specialize unfoldC_mono with (n':= max n1 n2) (n:= min n1 n2).
+  eapply Max.max_case_strong;eapply Min.min_case_strong;intros ? ?.
+  all:try (replace n2 with n1 in * by omega;congruence).
+  all:intros ->. all:easy. *)
+  
   induction 1 in s2|-*;intros H';inv H';try congruence;try omega.
-  -apply IHunfolds.
-   replace b with b0 in * by congruence.
-   inv H2. inv H7.
-   replace s1 with s in * by (apply compile_inj;congruence). tauto.
-  -f_equal. apply IHunfolds. auto.
+  -rewrite H1 in H5. inv H5. f_equal. eauto.
+  -f_equal. eauto.
   -f_equal. all:auto.
-Qed.    
+Qed.
 

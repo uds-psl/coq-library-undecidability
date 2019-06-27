@@ -4,25 +4,25 @@ From Undecidability.L Require Import Tactics.LTactics Datatypes.LBool Tactics.Ge
 Section Fix_X.
   Variable X:Type.
   Variable intX : registered X.
-  
-  
+
+
   Run TemplateProgram (tmGenEncode "option_enc" (option X)).
   Hint Resolve option_enc_correct : Lrewrite.
-  
+
   (* now we must register the non-constant constructors*)
-  
-  Global Instance term_Some : computableTime (@Some X) (fun _ _ => (1,tt)).
+
+  Global Instance term_Some : computableTime' (@Some X) (fun _ _ => (1,tt)).
   Proof.
     extract constructor.
     solverec.
   Defined.
 
-  Lemma oenc_correct_some s (v : term) : lambda v -> enc s == ext (@Some X) v -> exists s', s = Some s' /\ v = enc s'.
-  Proof. 
+  Lemma oenc_correct_some (s: option X) (v : term) : lambda v -> enc s == ext (@Some X) v -> exists s', s = Some s' /\ v = enc s'.
+  Proof.
     intros lam_v H. unfold ext in H;cbn in H. unfold extT in H; cbn in H. redStep in H.
     apply unique_normal_forms in H;[|Lproc..]. destruct s;simpl in H.
     -injection H;eauto.
-    -discriminate H. 
+    -discriminate H.
   Qed.
        
 
@@ -46,7 +46,7 @@ Section option_eqb.
   Variable eqb : X -> X -> bool.
   Variable spec : forall x y, reflect (x = y) (eqb x y).
 
-  Definition option_eqb (A B : option X) := 
+  Definition option_eqb (A B : option X) :=
     match A,B with
     | None,None => true
     | Some x, Some y => eqb x y
@@ -65,8 +65,10 @@ Section int.
   Variable X:Type.
   Context {HX : registered X}.
 
-  Global Instance term_option_eqb : computableTime (@option_eqb X)
-                                                   (fun eqb eqbT => (1, fun a _ => (1,fun b _ => (match a,b with Some a, Some b => callTime2 eqbT a b + 10 | _,_ => 8 end,tt)))).
+  Global Instance term_option_eqb : computableTime' (@option_eqb X)
+                                                    (fun eqb eqbT => (1, fun a _ => (1,fun b _ => (match a,b with
+                                                                                            Some a, Some b => callTime2 eqbT a b + 10
+                                                                                          | _,_ => 8 end,tt)))). cbn.
   Proof.
     extract. solverec.
   Defined.
