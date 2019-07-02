@@ -311,7 +311,7 @@ Definition tmExtractConstr (def : ident) {A : Type} (a : A) :=
 (** *** Extracting terms from Coq to L *)
 
 Notation "↑ env" := (fun n => match n with 0 => 0 | S n => S (env n) end) (at level 10).
-
+(*
 Local Definition error {A} (a:A) := 1000.
 Opaque error.
 
@@ -350,6 +350,32 @@ Definition tmDependentArgs x:=
   | Ast.tLambda _ _ _ => (*tmPrint ("tmDependentArgs currently assumes that abstractions on head position mean there are no parametric arguments");;*)ret 0
   | _ => (*tmPrint ("tmDependentArgs not supported");;*)ret 0
   end.
+ *)
+
+Fixpoint inferHead' (s:Ast.term) (revArg R: list Ast.term) : TemplateMonad (L.term * list Ast.term)  :=
+  s' <- tmEval cbn (if forallb (fun _ => false) revArg then s else Ast.tApp s (rev revArg));;
+  s' <- tmUnquote s';;
+  s'' <- tmEval cbn (my_projT2 s');;
+  res <- tmInferInstance None (extracted (A:=my_projT1 s') s'');;
+  match res with
+    Some s'' => ret (s'',R) 
+  | None => match R with
+           | [] => tmPrint ("could not infer any instance for initial segment of ",s'')
+                          ;;tmFail "Could not extract in inferHead'"
+           | r::R => inferHead' s (r::revArg) R
+           end
+  end.
+  
+(* Tries to infer an extracted instance for all initial segments of the term, or to give *)
+Definition inferHead (s:Ast.term) (R:list Ast.term) : TemplateMonad ((L.term + Ast.term) * list Ast.term)  :=
+  match s with
+    Ast.tConst _ _ |
+  Ast.tConstruct _ _ _ =>
+  res <- inferHead' s [] R;;
+      let '(s',R):= res in
+      ret (inl s',R)
+  | _ => ret (inr s,R)
+  end.
 
 Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad L.term :=
   match fuel with 0 => tmFail "out of fuel" | S fuel =>
@@ -364,11 +390,14 @@ Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad 
     t <- extract (fun n => S (env n)) (Ast.tLambda nm ty s) fuel ;;
     ret (rho t)
   | Ast.tApp s R =>
-    params <- tmDependentArgs s;;
-    if params =? 0 then
-      t <- extract env s fuel;;
-      monad_fold_left (fun t1 s2 => t2 <- extract env s2 fuel ;; ret (app t1 t2)) R t
-    else
+    res <- inferHead s R;;
+    let '(res,R') := res in
+    t <- (match res with
+            inl s' => ret s'
+          | inr s => extract env s fuel
+          end);;
+      monad_fold_left (fun t1 s2 => t2 <- extract env s2 fuel ;; ret (app t1 t2)) R' t
+    (*else
       let (P, L) := (firstn params R,skipn params R)  in
       s' <- tmEval cbv (Ast.tApp s P);;
          (if closedn 0 s' then ret tt else tmPrint ("Can't extract ",s);;tmFail "The term contains variables as type parameters.");;
@@ -377,7 +406,7 @@ Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad 
       nm <- (tmEval cbv (String.append (name_of s) "_term") >>= tmFreshName) ;;
       i <- tmTryInfer nm (Some cbn) (extracted a') ;;
       let t := (@int_ext _ _ i) in
-      monad_fold_left (fun t1 s2 => t2 <- extract env s2 fuel ;; ret (app t1 t2)) L t                             
+      monad_fold_left (fun t1 s2 => t2 <- extract env s2 fuel ;; ret (app t1 t2)) L t  *)                           
   | Ast.tConst n _ =>
     a <- tmUnquote s ;;
     a' <- tmEval cbn (my_projT2 a);;

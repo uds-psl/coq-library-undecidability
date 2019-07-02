@@ -26,7 +26,7 @@ Section Fix_X.
   
 
   Global Instance termT_append : computableTime' (@List.app X) (fun A _ => (5,fun B _ => (length A * 16 +4,tt))).
-  Proof  using intX.
+  Proof using intX.
     extract.
     solverec.
   Qed.
