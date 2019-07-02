@@ -254,10 +254,14 @@ L/Datatypes/LSum.v
 L/Datatypes/LBinNums.v
 L/Datatypes/LTerm.v
 L/Datatypes/LComparison.v
+L/Datatypes/LFinType.v
+L/Datatypes/LVector.v
+L/Datatypes/LDepPair.v
 
 
 L/Functions/Equality.v
 L/Functions/Encoding.v
+L/Functions/Decoding.v
 L/Functions/Proc.v
 L/Functions/Size.v
 L/Functions/Subst.v
@@ -269,12 +273,16 @@ L/Functions/BinNums.v
 L/Functions/BinNumsAdd.v
 L/Functions/BinNumsSub.v
 L/Functions/BinNumsCompare.v
+L/Functions/FinTypeLookup.v
+
 
 L/Functions/EnumInt.v
 L/Functions/Unenc.v
 L/Functions/Ackermann.v
 
 L/TM/TMEncoding.v
+L/TM/TMinL.v
+L/TM/TapeFuns.v
 L/Reductions/TM_to_L.v
 
 L/Reductions/SRH_SR_computable.v
@@ -299,7 +307,9 @@ L/AbstractMachines/Computable/HeapMachine.v
 L/AbstractMachines/Computable/SubstMachine.v
 L/AbstractMachines/Computable/Unfolding.v
 L/AbstractMachines/Computable/Lookup.v
-L/AbstractMachines/Computable/LargestVar.v
+L/AbstractMachines/Computable/UnivDecTime.v
+L/AbstractMachines/Computable/EvalForTime.v
+L/AbstractMachines/Computable/EvalForTimeBool.v        
 
 L/Computability/Acceptability.v
 #L/Computability/AD.v

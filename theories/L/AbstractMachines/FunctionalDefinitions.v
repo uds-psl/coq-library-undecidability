@@ -1,5 +1,6 @@
 From Undecidability.L Require Import L Programs.
 From Undecidability.L.AbstractMachines Require AbstractHeapMachineDef AbstractSubstMachine.
+Import AbstractHeapMachineDef.clos_notation.
 
 (** ** Functional definitions of the abstract machines *)
 

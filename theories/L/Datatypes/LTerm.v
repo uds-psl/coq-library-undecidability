@@ -22,15 +22,17 @@ Proof.
 Defined.
 
 
-Lemma size_term_enc s :
-  size (term_enc s) <= size s *11.
+Lemma size_term_enc (s:term) :
+  size (enc s) <= size s *11.
 Proof.
-  induction s;cbn [size term_enc]. rewrite size_nat_enc. all:solverec.
+  induction s;cbv [enc registered_term_enc] in *. all:cbn [size term_enc] in *.
+  rewrite size_nat_enc. all:solverec.
 Qed.
 
 
-Lemma size_term_enc_r s :
-  size s <= size (term_enc s).
+Lemma size_term_enc_r (s:term) :
+  size s <= size (enc s).
 Proof.
-  induction s;cbn [size term_enc]. rewrite <- size_nat_enc_r. all:solverec.
+  induction s;cbv [enc registered_term_enc] in *. all:cbn [size term_enc] in *.
+  rewrite <- size_nat_enc_r. all:solverec.
 Qed.

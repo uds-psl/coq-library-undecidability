@@ -5,7 +5,7 @@ Notation "A '.[' i  ']'" := (elAt A i) (no associativity, at level 50).
 Fixpoint appCross A B :=
 match A with
 | nil => nil
-| a :: A => appCross A B ++ map (app a) B
+| a :: A => map (app a) B ++ appCross A B 
 end.
 
 Fixpoint T n := 
@@ -33,7 +33,7 @@ Lemma appCross_correct A B s t : (s el A /\ t el B) <-> (app s t) el appCross A 
 Proof.
   split.
   - induction A; simpl; intuition; subst; eauto using in_map. 
-  - induction A; simpl; try rewrite in_app_iff in *; intros H; try tauto; destruct H as [H1 | H2]; intuition; rewrite in_map_iff in *; destruct H2; destruct H; [left|]; congruence. 
+  - induction A; simpl; try rewrite in_app_iff in *; intros H; try tauto; destruct H as [H1 | H2]; intuition; rewrite in_map_iff in *; destruct H1; destruct H; [left|]; congruence. 
 Qed.
 
 Lemma T_var n : #n el T n.
@@ -136,10 +136,11 @@ Qed.
 Lemma appCross_dupfree A B : dupfree A -> dupfree B -> dupfree (appCross A B).
 Proof with eauto using dupfree; intuition.
   induction 1; intros dpf_B; simpl...
-  eapply dupfree_app... eapply disjoint_forall. intros y Hy. 
-  destruct (appCross_app Hy) as [y1 [y2 Hyy]]; subst. eapply appCross_correct in Hy.
-  intros D. eapply in_map_iff in D. destruct D as [d [D1 D2]]. inv D1...
-  eapply dupfree_map... congruence. 
+  eapply dupfree_app...
+  -eapply disjoint_forall. intros y D Hy. 
+  edestruct (appCross_app Hy) as [y1 [y2 Hyy]]; subst. eapply appCross_correct in Hy as []. 
+  eapply in_map_iff in D. destruct D as [d [D1 D2]]. inv D1...
+  -eapply dupfree_map... congruence. 
 Qed.
 
 Lemma dupfree_T : forall n, dupfree (T n).
@@ -352,4 +353,4 @@ Proof.
   destruct (nth_error (C n) n); Lsimpl.
   intros; Lproc. intros; Lproc.
 Qed.  
-*)
+ *) 

@@ -1,4 +1,4 @@
-From Undecidability.L Require Export Por Decidability Lbeta_nonrefl.
+From Undecidability.L Require Export LTerm Por Decidability Lbeta_nonrefl.
 
 (** * Definition of L-acceptability *)
 

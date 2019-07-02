@@ -116,12 +116,24 @@ Section Fix_X.
 End Fix_X.
 
 Hint Resolve list_enc_correct : Lrewrite.
+
+Fixpoint map_time {X} (fT:X -> nat) xs :=
+  match xs with
+    [] => 8
+  | x :: xs => fT x + map_time fT xs + 12
+  end.
   
-Instance term_map (X Y:Type) (Hx : registered X) (Hy:registered Y): computableTime' (@map X Y) (fun f fT => (1,fun l _ => (fold_right (fun x res => fst (fT x tt) + res + 12) 8 l,tt))).
+Instance term_map (X Y:Type) (Hx : registered X) (Hy:registered Y): computableTime' (@map X Y) (fun _ fT => (1,fun l _ => (map_time (fun x => fst (fT x tt)) l,tt))).
 Proof.
   extract.
   solverec.
 Defined.
+
+Lemma map_time_const {X} c (xs:list X):
+  map_time (fun _ => c) xs = length xs * (c + 12) + 8.
+Proof.
+  induction xs;cbn. all:lia.
+Qed.
 
 Instance term_map_noTime (X Y:Type) (Hx : registered X) (Hy:registered Y): computable (@map X Y).
 Proof.
@@ -238,4 +250,17 @@ Section list_prod.
   Qed.
 
 End list_prod.
+
+
+Lemma size_list X `{registered X} (l:list X):
+  size (enc l) = sumn (map (fun x => size (enc x) + 5) l)+ 4.
+Proof.
+  change (enc l) with (list_enc l).
+  induction l.
+  -easy.
+  -cbn [list_enc map sumn size].
+   change ((match H with
+            | @mk_registered _ enc _ _ => enc
+            end a)) with (enc a). solverec. 
+Qed.
   

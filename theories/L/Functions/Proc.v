@@ -1,4 +1,4 @@
-From Undecidability.L Require Export Computability.Decidability Datatypes.LNat L.
+From Undecidability.L Require Import Computability.Decidability Datatypes.LNat L.
 
 (** ** Decidabiity of closedness, boundedness and procness *)
 

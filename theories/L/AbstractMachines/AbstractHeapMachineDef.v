@@ -78,10 +78,12 @@ Section Lin.
   Definition init s :state := ([closT (s,0)],[],[]).
 
 End Lin.
-Notation clos := (term * nat)%type.
+
+Module clos_notation.
+  Notation clos := (term * nat)%type.
+End clos_notation.
+Import clos_notation.
 Hint Transparent state.
-
-
 
 Definition largestVarC : clos -> nat := (fun '(s,_) => largestVar s).
 

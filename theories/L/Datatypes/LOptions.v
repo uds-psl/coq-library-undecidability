@@ -3,7 +3,7 @@ From Undecidability.L Require Import Tactics.LTactics Datatypes.LBool Tactics.Ge
 (** ** Encoding of option type *)
 Section Fix_X.
   Variable X:Type.
-  Variable intX : registered X.
+  Context `{intX : registered X}.
 
 
   Run TemplateProgram (tmGenEncode "option_enc" (option X)).
@@ -80,4 +80,16 @@ Definition isSome {T} (u : option T) := match u with Some _ => true | _ => false
 Instance term_isSome {T} `{registered T} : computable (@isSome T).
 Proof.
   extract.
+Qed.
+
+
+Lemma size_option X `{registered X} (l:option X):
+  size (enc l) = match l with Some x => size (enc x) + 5 | _ => 3 end.
+Proof.
+  change (enc l) with (option_enc l).
+  destruct l. all:cbn [option_enc map sumn size].
+  change ((match H with
+           | @mk_registered _ enc _ _ => enc
+           end x)) with (enc x).
+  all:lia. 
 Qed.

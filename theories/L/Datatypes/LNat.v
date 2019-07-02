@@ -48,6 +48,17 @@ Proof.
   solverec.
 Defined.
 
+
+Instance termT_pow:
+  computableTime' Init.Nat.pow   (fun (x : nat) _ => (5,fun (n : nat) _ => (n* (x*19+x^n*11+19) + 5, tt))).
+Proof.
+  extract. fold Nat.pow. solverec.
+  decide (1<=x2).
+  1:Lia.nia. replace x2 with 0 by lia. ring_simplify.
+  decide (1<=n). now rewrite Nat.pow_0_l;Lia.nia.
+  Lia.nia.
+Qed.
+
 (* now some more encoding-related properties:*)
 
 Fixpoint nat_unenc (s : term) :=
@@ -81,16 +92,16 @@ Proof.
   - right. intros [n A]. rewrite A in H. rewrite unenc_correct in H. inv H.
 Qed.
 
-Lemma size_nat_enc n :
-  size (nat_enc n) = n * 4 + 4.
+Lemma size_nat_enc (n:nat) :
+  size (enc n) = n * 4 + 4.
 Proof.
-  induction n;cbn [size nat_enc] in *. all:solverec.
+  induction n;cbv [enc registered_nat_enc] in *. all:cbn [size nat_enc] in *. all:solverec.
 Qed.
 
-Lemma size_nat_enc_r n :
-  n <= size (nat_enc n).
+Lemma size_nat_enc_r (n:nat) :
+  n <= size (enc n).
 Proof.
-  induction n;cbn [size nat_enc] in *. all:solverec.
+    induction n;cbv [enc registered_nat_enc] in *. all:cbn [size nat_enc] in *. all:solverec.
 Qed.
 
 

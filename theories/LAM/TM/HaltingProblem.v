@@ -33,23 +33,6 @@ Fixpoint Loop_size (T V : list HClos) (H : Heap) (k : nat) {struct k} : Vector.t
     end
   end.
 
-(*
-Lemma Loop_size_eq T V H k :
-  Loop_size T V H k =
-  match k with
-  | 0 => Step_size T V H
-  | S k' =>
-    match step_fun (T, V, H) with
-    | Some (T',V',H') =>
-      if is_halt_state (T',V',H')
-      then Step_size T V H >>> Step_size T' V' H'
-      else Step_size T V H >>> Loop_size T' V' H' k'
-    | _ => Step_size T V H
-    end
-  end.
-Proof. now destruct k. Qed.
-*)
-
 Lemma step_k_inv T V H T2 V2 H2 k :
   steps_k k (T, V, H) (T2, V2, H2) ->
   (k=0/\T=T2/\V=V2/\H=H2) \/

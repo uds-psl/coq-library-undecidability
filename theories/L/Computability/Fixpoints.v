@@ -1,4 +1,4 @@
-From Undecidability.L Require Export Functions.Encoding Tactics.Lbeta_nonrefl.
+From Undecidability.L Require Export LTactics LTerm Functions.Encoding Tactics.Lbeta_nonrefl.
 
 (** * First Fixed Point Theorem *)
 

@@ -1,5 +1,6 @@
 From Undecidability.L Require Import L  Complexity.ResourceMeasures AbstractMachines.LargestVar.
 From Undecidability.L Require Export AbstractMachines.AbstractHeapMachineDef.
+Import AbstractHeapMachineDef.clos_notation.
 
 Require Import Lia.
 
@@ -465,6 +466,18 @@ Section Analysis.
                 | _ => simpl_list;cbn; eauto 5 ;
                       try now (rewrite <- Nat.le_add_r; eauto 5)
                 end).
+  Qed.
+
+  Lemma largestVarH_leq : largestVarH H <= largestVar s0.
+    edestruct subterm_property as (_&_&H').
+    apply largestVarH_bound. intros [] ? H''%(H' _ _).
+    eapply subterm_lam_inv in H''.
+    eapply subterm_largestVar. easy.
+  Qed.
+
+  Lemma largestVarC_V_leq : forall g, g el V -> largestVarC g <= largestVar s0.
+    edestruct subterm_property as (_&H'&_).
+    intros [] H''. apply H' in H''.  eapply subterm_lam_inv in H''. eapply subterm_largestVar. easy.
   Qed.
   
   (** *** Space *)

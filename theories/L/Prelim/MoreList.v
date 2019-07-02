@@ -66,7 +66,6 @@ Proof.
   rewrite IHn. rewrite <- minus_n_O. reflexivity.
 Qed.
 
-
 Definition maxl := fold_right max 0.
 Lemma maxl_leq n l: n el l -> n <= maxl l.
 Proof.

@@ -55,7 +55,7 @@ Definition hd {X : Type} (l : list X) : TemplateMonad X :=
 Definition tmTypeOf (s : Ast.term) :=
   u <- tmUnquote s ;;
     tmEval hnf (my_projT1 u) >>= tmQuote.
-
+Set Printing Universes.
 (** Try to infer instance, otherwise make lemma *)
 Definition tmTryInfer (n : ident) (red : option reductionStrategy) (A : Type) : TemplateMonad A :=
   r <- tmInferInstance red A ;;

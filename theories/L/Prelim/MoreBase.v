@@ -53,3 +53,11 @@ Proof.
 Qed.
 
 Definition maxP (P:nat -> Prop) m := P m /\ (forall m', P m' -> m' <= m). 
+
+Lemma sumn_le_bound l c :
+  (forall n, n el l -> n <= c) -> sumn l <= length l * c.
+Proof.
+  induction l;cbn. easy.
+  intros H.
+  rewrite <- IHl,<- H. all:now eauto.
+Qed.

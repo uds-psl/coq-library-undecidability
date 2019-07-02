@@ -5,9 +5,9 @@ From Undecidability.L.Functions Require Import Encoding Equality.
 From Undecidability.L.Datatypes Require Import LNat Lists LProd.
 
 (** ** Enumeratibility of L-terms *)
-Instance term_appCross : computable appCross.
+Instance term_appCross : computableTime' appCross (fun A _ => (5,fun B _ => (length A * length B * 29 + length A * 30 +  4,tt))).
 Proof.
-  extract.
+  extract. solverec. fold appCross;rewrite map_time_const,map_length. Lia.nia.
 Defined.
 
 Instance term_exh_size : computable exh_size.

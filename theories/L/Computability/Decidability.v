@@ -1,4 +1,4 @@
-From Undecidability.L Require Export Functions.Encoding Datatypes.LBool L.
+From Undecidability.L Require Export Tactics.LTactics Functions.Encoding Datatypes.LBool L.
 
 (** * Definition of L-decidability *)
 
