@@ -48,7 +48,7 @@ Definition tmMatchCorrect (A : Type) : Core.TemplateMonad Prop :=
                                (((fun s => mkAppList s C) (tRel (args + 2 * (num - i) - 1)))))
            ) ;;
    E' <- Core.tmInferInstance None (registered A);;
-   E <- tmGetOption E' "failed" ;;        
+   E <- tmGetMyOption E' "failed" ;;        
    t' <- ret (@enc A E);;
    l <- tmQuote t';;
    encn <- ret (tApp l [tRel (2*num) ]) ;;

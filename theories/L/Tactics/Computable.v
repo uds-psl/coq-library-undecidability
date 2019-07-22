@@ -5,6 +5,7 @@ Require Import PslBase.Bijection String.
 
 (* Typeclass for registering types *)
 
+
 Class registered (X : Type) := mk_registered
   {
     enc :> encodable X ; (* the encoding function for X *)

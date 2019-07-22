@@ -60,8 +60,8 @@ Definition tmTypeOf (s : Ast.term) :=
 Definition tmTryInfer (n : ident) (red : option reductionStrategy) (A : Type) : TemplateMonad A :=
   r <- tmInferInstance red A ;;
     match r with
-    | Some i => ret i
-    | None =>
+    | mySome _ i => ret i
+    | myNone _ =>
       A' <- match red with Some red => ret A | None => ret A end;;
 
          (* term <- tmQuote A';; *)
@@ -180,6 +180,14 @@ Definition tmGetOption {X} (o : option X) (err : string) : TemplateMonad X :=
   match o with
   | Some x => ret x
   | None => tmFail err
+  end.
+
+
+
+Definition tmGetMyOption {X} (o : myOption X) (err : string) : TemplateMonad X :=
+  match o with
+  | mySome _ x => ret x
+  | myNone _  => tmFail err
   end.
 
 Definition mkFixMatch (f x : ident) (t1 t2 : Ast.term) (cases : nat -> list term -> TemplateMonad term) :=
@@ -358,12 +366,18 @@ Fixpoint inferHead' (s:Ast.term) (revArg R: list Ast.term) : TemplateMonad (L.te
   s'' <- tmEval cbn (my_projT2 s');;
   res <- tmInferInstance None (extracted (A:=my_projT1 s') s'');;
   match res with
-    Some s'' => ret (s'',R) 
-  | None => match R with
-           | [] => tmPrint ("could not infer any instance for initial segment of ",s'')
-                          ;;tmFail "Could not extract in inferHead'"
-           | r::R => inferHead' s (r::revArg) R
-           end
+    mySome _ s'' => ret (s'',R) 
+  | myNone _ =>
+    let doSplit := match R with
+                    | [] => false
+                    |  r :: R => if closedn 0 r then true else false 
+                    end
+    in
+    match doSplit,R with
+      true,r::R => inferHead' s (r::revArg) R
+    | _,_ =>  tmPrint ("could not infer any instance for initial segment of ",s''," with further arguments ",R)
+                     ;;tmFail "Could not extract in inferHead'"
+    end
   end.
   
 (* Tries to infer an extracted instance for all initial segments of the term, or to give *)
