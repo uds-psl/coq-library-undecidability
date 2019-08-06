@@ -23,7 +23,7 @@ Qed.
 Instance term_vector_map X Y `{registered X} `{registered Y} n (f:X->Y) fT:
   computableTime' f fT ->
   computableTime' (VectorDef.map f (n:=n))
-                 (fun l _ => (map_time (fun x=> fst (fT x tt)) l + 3,tt)).
+                 (fun l _ => (map_time (fun x=> fst (fT x tt)) (Vector.to_list l) + 3,tt)).
 Proof.
   intros ?.
   computable_casted_result.
@@ -113,7 +113,7 @@ Proof.
 Qed.
 
 
-Lemma to_list_length X n0 (l:Vector.t X n0) :length l = n0.
+Lemma to_list_length X n0 (l:Vector.t X n0) :length (Vector.to_list l) = n0.
 Proof.
   induction l. reflexivity. rewrite <- IHl at 3. reflexivity.
 Qed.

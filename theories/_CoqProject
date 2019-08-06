@@ -309,7 +309,7 @@ L/AbstractMachines/Computable/Unfolding.v
 L/AbstractMachines/Computable/Lookup.v
 L/AbstractMachines/Computable/UnivDecTime.v
 L/AbstractMachines/Computable/EvalForTime.v
-L/AbstractMachines/Computable/EvalForTimeBool.v        
+L/AbstractMachines/Computable/EvalForTimeBool.v
 
 L/Computability/Acceptability.v
 #L/Computability/AD.v
