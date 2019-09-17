@@ -110,7 +110,7 @@ Section LJD.
         * now apply (IH' psi0 eq_refl adm0 atk'0).
   Qed.
 
-  Lemma esoundsess phi :
+  Lemma esoundness phi :
     nil ⊢D (fun psi => psi = phi) -> evalid _ phi.
   Proof.
     inversion 1; subst.

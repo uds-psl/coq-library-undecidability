@@ -158,4 +158,11 @@ Section KSoundness.
     intros Hexp (A & HA1 & HA2) D M HM u rho HT. apply (ksoundness Hexp HA2 HM).
     firstorder.
   Qed.
+
 End KSoundness.
+
+Lemma ksoundness' {Sigma : Signature} A phi :
+  A ⊢IE phi -> A ⊫KS phi.
+Proof.
+  apply ksoundness. intros _. firstorder.
+Qed.

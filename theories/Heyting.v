@@ -318,6 +318,9 @@ Section CHAProperty.
   
 End CHAProperty.
 
+
+
+
 (** ** MacNeille Completion *)
 
 Structure HeytingMorphism (HA1 HA2 : HeytingAlgebra) (F : HA1 -> HA2) : Type :=

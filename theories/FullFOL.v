@@ -41,6 +41,19 @@ Ltac inv H :=
 Section FullFOL.
   Context {Sigma : Signature}.
 
+  Lemma var_subst phi :
+    phi[var_term] = phi.
+  Proof.
+    now asimpl.
+  Qed.
+
+  Lemma var_subst_L A :
+    [phi[var_term] | phi ∈ A] = A.
+  Proof.
+    induction A; cbn; trivial.
+    now rewrite var_subst, IHA.
+  Qed.
+
   Definition form_shift n := var_term (S n).
   Notation "↑" := form_shift.
 

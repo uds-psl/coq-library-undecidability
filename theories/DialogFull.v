@@ -166,7 +166,6 @@ Section DialogFull.
   Qed.
 
 
-
   Hint Constructors fprv.
 
   Ltac Hatk_inv H := apply H; intros ?; inversion 1; subst; cbn; intuition.
@@ -221,4 +220,11 @@ Section DialogFull.
   Proof.
     intros H. apply (Dprv_fprv' H). now intros ? ? ->. 
   Qed.
+
+  Corollary evalid_fprv phi :
+    evalid form_rules phi -> [] ⊢f phi.
+  Proof.
+    intros H. now apply Dprv_fprv, ecompleteness.
+  Qed.
+  
 End DialogFull.

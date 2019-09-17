@@ -65,7 +65,8 @@ Section ND_def.
     Theorem Weak A B phi :
       A ⊢ phi -> A <<= B -> B ⊢ phi.
     Proof.
-      intros H. revert B. induction H; intros B HB; try unshelve (solve [econstructor; intuition]); try now econstructor.
+      intros H. revert B.
+      induction H; intros B HB; try unshelve (solve [econstructor; intuition]); try now econstructor.
       - eapply AllI; eauto using incl_map.
       - eapply ExE; eauto using incl_map.
     Qed.
@@ -122,17 +123,6 @@ Section ND_def.
         comp; decide (n = m); comp; congruence.
     Qed.
 
-    Lemma nameless_equiv A phi n :
-      unused_L n A -> unused (S n) phi -> ((A ⊢ phi[(var_term n)..]) <-> [phi[↑] | phi ∈ A] ⊢ phi).
-    Proof.
-      intros HL Hphi. split.
-      - intros H % (subst_Weak (cycle_shift n)). rewrite cycle_shift_subject,
-          (map_ext_in _ (subst_form form_shift)) in H. 1,3: assumption. intros ? ? % HL.
-        now apply cycle_shift_shift.
-      - intros H % (subst_Weak ((var_term n)..)). rewrite map_map in *. rewrite (map_ext _ id), map_id in H.
-        assumption. now intuition comp.
-    Qed.
-
     Lemma nameless_equiv_all A phi n :
       unused_L n A -> unused (S n) phi -> ((A ⊢ phi[(var_term n)..]) <-> [phi[↑] | phi ∈ A] ⊢ phi).
     Proof.
@@ -156,6 +146,25 @@ Section ND_def.
         rewrite map_map, (map_ext _ id), map_id in H.
         + now asimpl in H.
         + intros. now comp.
+    Qed.
+
+    Lemma nameless_equiv_all' A phi :
+      exists t, A ⊢ phi[t..] <-> [p[↑] | p ∈ A] ⊢ phi.
+    Proof.
+      destruct (find_unused_L (phi::A)) as [n HN].
+      exists (var_term n). apply nameless_equiv_all.
+      - intros psi H. apply HN; auto.
+      - apply HN; auto.
+    Qed.
+
+    Lemma nameless_equiv_ex' A phi psi :
+      exists t, (psi[t..]::A) ⊢ phi <-> (psi::[p[↑] | p ∈ A]) ⊢ phi[↑].
+    Proof.
+      destruct (find_unused_L (phi::psi::A)) as [n HN].
+      exists (var_term n). apply nameless_equiv_ex.
+      - intros theta H. apply HN; auto.
+      - apply HN; auto.
+      - apply HN; auto.
     Qed.
     
   End Weakening.

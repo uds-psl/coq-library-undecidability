@@ -200,6 +200,12 @@ Section Tarski.
     Qed.
   End Soundness.
 
+  Fact Soundness' A phi :
+    A ⊢CE phi -> valid_L SM A phi.
+  Proof.
+    intros H. eapply Soundness; eauto. firstorder. firstorder.
+  Qed.
+
   (* **** Model properties *)
 
   Lemma valid_T_standard_dm T phi C :
