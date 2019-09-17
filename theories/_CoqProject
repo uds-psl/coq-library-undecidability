@@ -39,9 +39,9 @@ FullFOL.v
 FullND.v
 FullSequent.v
 
+Heyting.v
+Lindenbaum.v
+
 Sorensen.v
 DialogFragment.v
 DialogFull.v
-
-Heyting.v
-Lindenbaum.v
