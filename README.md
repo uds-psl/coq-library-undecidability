@@ -1,10 +1,14 @@
-# Hilbert's tenth problem in Coq
+# Completeness Theorems for First-Order Logic Analysed in Constructive Type Theory
 
-Yannick Forster, Dominik Kirst, Dominik Wehr
+Yannick Forster <forster@ps.uni-saarland>
+Dominik Kirst <kirst@ps.uni-saarland.de>
+Dominik Wehr <s8dowehr@stud.uni-saarland.de>
 
-This is the Coq formalisation of the paper ["On Synthetic Undecidability in Coq, with an Application to the Entscheidungsproblem"](https://www.ps.uni-saarland.de/extras/fol-undec/).
+This is the Coq formalisation of the paper ["Completeness Theorems for First-Order Logic Analysed in Constructive Type Theory"](https://www.ps.uni-saarland.de/extras/fol-undec/).
 
 ## How to compile the code
+
+You can simply type `make`.
 
 The files are tested to compile with
 
@@ -19,7 +23,7 @@ coq-equations 1.2~beta2+8.8
 
 ```
 
-To install this dependencies, it is easiest to use opam:
+To install this dependencies, it is easiest to use `opam`:
 
 ``` shell
 opam switch create coq.8.8.2 4.07.0
