@@ -1,3 +1,7 @@
+(** * On  Markov's Principle  *)
+
+(** ** BPCP reduces to ND *)
+
 (* * FOL Reductions *)
 
 From Undecidability.FOL Require Export PCP.
@@ -35,7 +39,6 @@ Section validity.
   Definition Pr x y := @Pred min_sig P (cons x (cons y nil)).
   
   Definition F1 := List.map (fun '(x,y) => Pr (enc x) (enc y)) R.
-  Coercion var_term : nat >-> term.
     
   Definition F2 := List.map (fun '(x, y) => All (All (Impl (Pr (var_term 1) (var_term 0)) (Pr (prep x (var_term 1)) (prep y (var_term 0)))))) R.
   Definition F3 := All (Pr 0 0 --> Pred Q nil).

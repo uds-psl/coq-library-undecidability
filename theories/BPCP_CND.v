@@ -1,4 +1,4 @@
-(* * Classical Natural Deduction *)
+(** ** BPCP reduces to classical ND *)
 
 From Undecidability.FOLC Require Export ND BPCP_FOL GenTarski.
 

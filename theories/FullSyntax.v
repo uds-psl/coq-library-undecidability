@@ -1,4 +1,5 @@
-(* *** Full Syntax **)
+(** * Preliminaries FOL  *)
+(** ** Syntax of FOL **)
 
 From Undecidability.FOLC Require Export unscoped.
 

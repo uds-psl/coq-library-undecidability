@@ -1,4 +1,4 @@
-(* *** Formula Enumeration *)
+(** ** Enumeration of formulas and ND *)
 
 From Undecidability.FOLC Require Export FOL.
 

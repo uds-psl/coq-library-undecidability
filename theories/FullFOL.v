@@ -1,4 +1,4 @@
-(* *** Full Syntax Operations & Properties *)
+(** ** Operations & Properties of FOL *)
 
 
 From Equations Require Import Equations.
@@ -7,7 +7,7 @@ From Undecidability.FOL  Require Export DecidableEnumerable.
 From Undecidability.FOLC Require Export FullSyntax.
 Require Export Lia.
 
-Coercion var_term : fin >-> term.
+(* Coercion var_term : fin >-> term. *)
 
 Notation "phi --> psi" := (Impl phi psi) (right associativity, at level 55).
 Notation "phi ∧ psi" := (Conj phi psi) (right associativity, at level 55).
@@ -21,6 +21,7 @@ Notation vector := Vector.t.
 Import Vector.
 Arguments nil {A}.
 Arguments cons {A} _ {n}.
+Derive Signature for vector.
 
 (* **** Tactics *)
 
@@ -135,7 +136,7 @@ Section FullFOL.
   Lemma strong_term_ind' (p : term -> Type) :
     (forall x, p (var_term x)) -> (forall F v, (Forall p v) -> p (Func F v)) -> forall (t : term), p t.
   Proof.
-    intros f1 f2. fix 1. destruct t as [n|F v].
+    intros f1 f2. fix strong_term_ind' 1. destruct t as [n|F v].
     - apply f1.
     - apply f2. induction v.
       + econstructor.

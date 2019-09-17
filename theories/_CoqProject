@@ -17,16 +17,22 @@ Syntax.v
 FOL.v
 ND.v
 
-Enumeration.v
-Stability.v
 GenConstructions.v
+Enumeration.v
 GenTarski.v
 Consistency.v
 GenCompleteness.v
+Stability.v
 
 Kripke.v
 Gentzen.v
 KripkeCompleteness.v
+
+BPCP_FOL.v
+BPCP_CND.v
+Extend.v
+LEnum.v
+Markov.v
 
 FullSyntax.v
 FullFOL.v
@@ -39,9 +45,3 @@ DialogFull.v
 
 Heyting.v
 Lindenbaum.v
-
-BPCP_FOL.v
-BPCP_CND.v
-Extend.v
-LEnum.v
-Markov.v

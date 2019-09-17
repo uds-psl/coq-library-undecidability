@@ -1,6 +1,8 @@
 From Undecidability.FOL Require Export DecidableEnumerable.
 
-(* * Dialogue Semantics *)
+(** * Dialogue Semantics *)
+
+(** ** Soundness and completeness for E-Dialoagues  *)
 
 (* ** Generalized Intuitionistic E-Completeness *)
 

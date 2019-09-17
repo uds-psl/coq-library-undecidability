@@ -1,3 +1,5 @@
+(** ** Connections to MPL  *)
+
 From Undecidability.FOLC Require Import Extend BPCP_CND LEnum.
 From Undecidability.L Require Import Synthetic Lists LOptions.
 
@@ -57,9 +59,9 @@ Proof.
     eapply dnt_to_CE.
 Qed.
 
-Section enum_inj.
+Require Import ConstructiveEpsilon.
 
-  Require Import ConstructiveEpsilon.
+Section enum_inj.
 
   Variable (X : Type) (XD : eq_dec X) (H : enumT X).
 

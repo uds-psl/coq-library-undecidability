@@ -1,4 +1,4 @@
-(* ** Constructive Analysis of Completeness Theorems **)
+(** ** Completeness **)
 
 From Undecidability.FOLC Require Export Gentzen.
 From Undecidability.FOLC Require Export Kripke.

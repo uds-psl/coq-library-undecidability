@@ -1,4 +1,4 @@
-(* *** Translating between LJT and LJD *)
+(** ** Translating between LJT and LJD *)
 
 From Undecidability.FOLC Require Import Sorensen.
 From Undecidability.FOLC Require Import Gentzen.

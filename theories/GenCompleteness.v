@@ -3,7 +3,9 @@ From Undecidability.FOLC Require Export Consistency.
 From Undecidability.FOLC Require Export GenTarski.
 From Undecidability.FOLC Require Import Stability.
 
-(* *** Standard Models **)
+(** ** Completeness *)
+
+(* ** Standard Models **)
 
 Section Completeness.
   Context {Sigma : Signature}.

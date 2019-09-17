@@ -1,12 +1,11 @@
-(* * Heyting Semantics *)
+(** * Algebraic Semantics *)
 
 Set Implicit Arguments.
 Unset Strict Implicit.
 Require Export Setoid Morphisms.
+Require Export Coq.Program.Basics.
 
-
-
-(* ** Heyting Algebras *)
+(** ** Heyting Algebras *)
 
 Class HeytingAlgebra : Type :=
   {
@@ -155,7 +154,6 @@ Section HAProperty.
     firstorder.
   Qed.
 
-  Require Export Coq.Program.Basics.
   
   Global Instance subrelation_HA_flip : subrelation equiv_HA (flip R).
   Proof.
@@ -320,7 +318,7 @@ Section CHAProperty.
   
 End CHAProperty.
 
-(* ** MacNeille Completion *)
+(** ** MacNeille Completion *)
 
 Structure HeytingMorphism (HA1 HA2 : HeytingAlgebra) (F : HA1 -> HA2) : Type :=
   {

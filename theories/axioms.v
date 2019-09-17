@@ -1,6 +1,8 @@
 (* Version: 23.04. *)
 
-(* * Axiomatic Assumptions
+(** * Preliminaries by Autosubst *)
+
+(** ** Axiomatic Assumptions
     For our development, we have to extend Coq with _functional extensionality_.
 *)
 

@@ -1,4 +1,4 @@
-(* ** Normal Sequent Calculus **)
+(** ** Normal Sequent Calculus **)
 
 From Equations Require Import Equations.
 From Undecidability.FOLC Require Export ND.

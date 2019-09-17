@@ -1,3 +1,5 @@
+(** ** Signature Extension  *)
+
 From Equations Require Import Equations.
 From Undecidability.FOLC Require Export Gentzen.
 
@@ -27,13 +29,9 @@ Fixpoint embed_term Σ Σ' (inj : Signature_inj Σ Σ') (t : @term Σ) : @term �
 Fixpoint embed Σ Σ' (inj : Signature_inj Σ Σ') (phi : @form Σ) : @form Σ' :=
   match phi with
     Fal => Fal
-  (* | Top => Top *)
   | Pred P v => Pred (I_Preds inj P) (cast (Vector.map (embed_term inj) v) (ar_inj_Preds inj P))
   | Impl φ1 φ2 => Impl (embed inj φ1) (embed inj φ2)
-  (* | Conj φ1 φ2 => Conj (embed inj φ1) (embed inj φ2) *)
-  (* | Disj φ1 φ2 => Disj (embed inj φ1) (embed inj φ2) *)
   | All phi => All (embed inj phi)
-  (* | Ex phi => Ex (embed inj phi) *)
   end.
 
 Notation make_subst rho := (fun n => var_term (rho n)).
@@ -84,10 +82,6 @@ Proof.
     eapply ext_form. 
     intros. unfold funcomp.
     destruct x; now rewrite ?embed_subst_term. 
-  (* - f_equal. rewrite IHphi. *)
-  (*   eapply ext_form.  *)
-  (*   intros. unfold funcomp. *)
-  (*   destruct x; now rewrite ?embed_subst_term.      *)
 Qed.
 
 Lemma prv_embed Σ Σ' (inj : Signature_inj Σ Σ') A phi :
@@ -103,86 +97,8 @@ Proof.
     rewrite embed_subst.
     erewrite ext_form. eassumption.
     now destruct x.
-  (* - eapply ExI with (t0 := embed_term inj t). *)
-  (*   rewrite embed_subst in *. *)
-  (*   unfold subst1, Subst_form. *)
-  (*   erewrite ext_form. eassumption. *)
-  (*   now destruct x. *)
-  (* - eapply ExE. eassumption. *)
-  (*   rewrite map_map in *. *)
-  (*   rewrite embed_subst in *. *)
-  (*   unfold subst1, Subst_form. *)
-  (*   erewrite map_ext, ext_form. *)
-  (*   + eassumption. *)
-  (*   + now destruct x. *)
-  (*   + intros; cbn. now erewrite embed_subst. *)
   - eapply Ctx. eapply in_map_iff; eauto.
 Qed.
-
-(* Lemma sprv_embed b Σ Σ' (inj : Signature_inj Σ Σ') A psi phi : *)
-(*   sprv b A psi phi -> sprv b (map (embed inj) A) (option_map (embed inj) psi) (embed inj phi). *)
-(* Proof. *)
-(*   Hint Constructors sprv. *)
-(*   induction 1; cbn in *; eauto 2. *)
-(*   - eapply Contr. eauto. eapply in_map_iff; eauto. *)
-(*   - eapply AllR. rewrite map_map in *. *)
-(*     erewrite map_ext. eassumption. *)
-(*     intros. unfold form_shift. *)
-(*     now rewrite embed_subst. *)
-(*   - rewrite embed_subst in IHsprv. *)
-(*     erewrite ext_form with (tauterm := (embed_term inj t)..) in IHsprv. *)
-(*     2: now intros []. *)
-(*     now eapply AllL with (t0 := embed_term inj t) in IHsprv. *)
-(*   (* - eapply ExI with (t0 := embed_term inj t). *) *)
-(*   (*   rewrite embed_subst in *. *) *)
-(*   (*   unfold subst1, Subst_form. *) *)
-(*   (*   erewrite ext_form. eassumption. *) *)
-(*   (*   now destruct x. *) *)
-(*   (* - eapply ExE. eassumption. *) *)
-(*   (*   rewrite map_map in *. *) *)
-(*   (*   rewrite embed_subst in *. *) *)
-(*   (*   unfold subst1, Subst_form. *) *)
-(*   (*   erewrite map_ext, ext_form. *) *)
-(*   (*   + eassumption. *) *)
-(*   (*   + now destruct x. *) *)
-(*   (*   + intros; cbn. now erewrite embed_subst. *) *)
-(* Qed. *)
-
-(* Require Import Equations.Prop.DepElim. *)
-
-(* Lemma sprv_embed_inv b Σ Σ' (inj : Signature_inj Σ Σ') A psi phi : *)
-(*   sprv b (map (embed inj) A) (option_map (embed inj) psi) (embed inj phi) -> sprv b A psi phi. *)
-(* Proof. *)
-(*   intros. generalize_by_eqs H.  intros. inversion H0. clear H0. *)
-(*   induction H in psi, A, phi, H3, H4, H5, H6 |- *; cbn; subst. *)
-(*   - destruct psi; cbn in *; try congruence. *)
-(*     eapply in_map_iff in H0 as (? & <- & ?). *)
-(*     eapply Contr. 2:eauto. eauto. *)
-(*   - destruct psi, phi; cbn in *; try congruence. *)
-(*     inv H6. *)
-(*     eapply IR. eauto. *)
-(*   - destruct psi, phi; cbn in *; try congruence. *)
-(*     inv H6. *)
-(*     eapply AllR. eapply IHsprv; eauto. *)
-(*     rewrite !map_map. eapply map_ext. *)
-(*     intros. eapply embed_subst. *)
-(*   - destruct psi; cbn in *; try congruence. *)
-(*     eapply Absurd. eapply IHsprv; eauto. *)
-(*   - destruct psi; cbn in *; try congruence. inv H5. *)
-(*     admit. *)
-(*   - destruct psi; try destruct f; cbn in *; try congruence. inv H5. *)
-(*     eapply IL. eauto. eauto. *)
-(*   - destruct psi; try destruct f; cbn in *; try congruence. inv H5. *)
-(*     eapply AllL. eapply IHsprv; eauto. *)
-(*     cbn. f_equal. rewrite embed_subst. eapply ext_form. *)
-(*     intros []. cbn. 2:reflexivity. *)
-    
-(*     rewrite !map_map. eapply map_ext. *)
-(*     intros. eapply embed_subst. *)
-  
-(* Admitted. *)
-
-(* Arguments term _ : clear implicits. *)
 
 Section Tarski.
 
@@ -195,9 +111,7 @@ Section Tarski.
   Instance RI : @interp Σ' D :=
     {|
       i_F := @i_F _ _ I ;
-      i_P P v := False ; (* match R_Preds inj P with Some P' => *)
-                  (*                        match Nat.eq_dec (pred_ar P) (pred_ar P') with left E => *)
-                  (*                        @i_P _ _ I P' (cast v E) | right _ => False end | None => False end; *)
+      i_P P v := False ;
       i_f f v := match R_Funcs inj f with Some f' =>
                                          match Nat.eq_dec (fun_ar f) (fun_ar f') with left E =>
                                          @i_f _ _ I f' (cast v E) | right _ => d end | None => d end;

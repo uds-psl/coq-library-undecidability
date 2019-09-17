@@ -1,6 +1,6 @@
-(* * Tarski Semantics *)
+(** * Tarski Semantics *)
 
-(* ** Generalized Theory Extension **)
+(** ** Generalized Theory Extension **)
 
 From Undecidability.FOLC Require Export ND.
 

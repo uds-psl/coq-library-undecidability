@@ -1,7 +1,7 @@
 From Undecidability.FOLC Require Import ND.
 From Undecidability.FOLC Require Import GenTarski.
 
-(* ** Constructive Analysis *)
+(** ** Constructive Analysis *)
 
 Definition stable P := ~ ~ P -> P.
 

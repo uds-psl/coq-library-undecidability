@@ -1,4 +1,4 @@
-(* ** Natural Deduction *)
+(** ** Natural Deduction for FOL* *)
 
 From Undecidability.FOLC Require Export FOL.
 

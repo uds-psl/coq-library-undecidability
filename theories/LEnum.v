@@ -1,4 +1,4 @@
-(* * Nla  *)
+(** ** ND is L-enumerable *)
 
 From Undecidability.L Require Import Eval.
 From Undecidability.FOLC Require Import Extend FOL.
@@ -269,8 +269,6 @@ Fixpoint subst_term'' (b : bool)  (sigmaterm : (fin)  -> term' ) (s : term' ) : 
   | App' s1 s2 => App' (subst_term'' true sigmaterm s1) (subst_term'' false sigmaterm s2)
   end.
 
-Compute (subst_term'' false (fun _ => var_term' 3) (App' (var_term' 0) (var_term' 1))).
-
 Definition up_term_term'   (sigma : (fin)  -> term' ) : _ :=
   (scons) ((var_term') (var_zero)) ((funcomp) (subst_term' ((funcomp) (var_term' ) (shift))) sigma).
 
@@ -292,7 +290,6 @@ Inductive sprvie : list form' -> option form' -> form' -> Prop :=
 | ieAx A phi : sprvie A (Some phi) phi
 | ieIL A phi psi xi : sprvie A None phi -> sprvie A (Some psi) xi -> sprvie A (Some (Impl' phi psi)) xi
 | ieAllL A phi v t psi : wf v t -> sprvie A (Some (subst_form' (t .: var_term') phi)) psi -> sprvie A (Some (All' phi)) psi.
-Arguments sprvie _ _.
 
 Hint Constructors sprvie.
 
@@ -725,7 +722,7 @@ Qed.
 Instance term_subst_form' : computable subst_form'.
 Proof.
   unfold subst_form'.
-  extract. Unshelve. Focus 3.
+  extract. Unshelve. 3:{
   split. Lrewrite_generateGoals. 1-5:reflexivity.
     lazymatch goal with
     |- ?s >* ?t =>
@@ -744,7 +741,7 @@ Proof.
     6:  eapply IHP; eauto. 
     Unshelve. 4:{
       eapply extCorrect. }
-    Lrewrite. reflexivity. Lproc.
+    Lrewrite. reflexivity. Lproc. }
     Intern.cstep.
 Qed.
 
@@ -787,9 +784,6 @@ Fixpoint L_seq n (A : list form') (psi : option form') : list form' :=
                 | _ => []
                 end
   end.
-Unset Printing Notations.
-Print L_seq.
-Set Printing Notations.
 
 Instance term_L_seq : computable L_seq.
 Proof.
@@ -798,6 +792,11 @@ Qed.
 
 Opaque in_dec.
 
+Lemma bool_true_Prop: forall b : bool, b -> b = true.
+Proof.
+  destruct b; firstorder.
+Qed.
+        
 Lemma enum_sprv A psi : enum (sprvie A psi) (fun n => L_seq n A psi).
 Proof with try (eapply cum_ge' with (L := fun n => L_seq n _ _ ); eauto; omega); try (eapply cum_ge'; eauto; omega).
   repeat split.
@@ -839,12 +838,7 @@ Proof with try (eapply cum_ge' with (L := fun n => L_seq n _ _ ); eauto; omega);
            | [H : _ el _ :: _ |- _ ] => destruct H
            end; (try intuition); subst).
       destruct f; inv_collect; eauto.
-      * Lemma bool_true_Prop: forall b : bool, b -> b = true.
-        Proof.
-          destruct b; firstorder.
-        Qed.
-
-        eapply bool_true_Prop in H0. rewrite <- reflect_iff in H0. 2: eapply in_eqb_spec.
+      * eapply bool_true_Prop in H0. rewrite <- reflect_iff in H0. 2: eapply in_eqb_spec.
         eauto.
       * econstructor. 2: eauto. eapply enum_wf. eauto.
       * econstructor. 2: eauto. eapply enum_wf. eauto.

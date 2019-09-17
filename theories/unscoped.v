@@ -1,4 +1,4 @@
-(* ** First-Order Logic *)
+(** ** Basic definitions for substiutions *)
 
 (* Version: 19.09. *)
 

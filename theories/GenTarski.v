@@ -1,4 +1,4 @@
-(* ** Constructive Analysis of Completeness Theorems *)
+(** ** Definition of Tarski Semantics *)
 
 (* *** Tarki Models **)
 
@@ -136,7 +136,7 @@ Section Tarski.
     Qed.
   End Substs.
 
-  (* **** Soundness **)
+  (** ** Soundness **)
 
   Lemma semantic_dm D {I : interp D} rho phi :
     EM I -> (rho ⊨ ¬ ¬ phi) -> rho ⊨ phi.

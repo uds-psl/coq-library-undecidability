@@ -1,6 +1,4 @@
-(* ** Full Intuitionistic First-Order Completeness *)
-
-(* *** Full Intuitionistic Sequent Calculus *)
+(** ** Intuitionistic Sequent Calculus *)
 
 From Undecidability.FOLC Require Export FullFOL.
 

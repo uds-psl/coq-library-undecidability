@@ -1,4 +1,4 @@
-(* **** Consistency *)
+(** ** Consistency *)
 
 From Undecidability.FOLC Require Export ND.
 

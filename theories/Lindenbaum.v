@@ -1,5 +1,3 @@
-(* * Heyting Semantics *)
-
 From Equations Require Import Equations.
 From Undecidability.FOLC Require Export FullND Heyting.
 
@@ -47,7 +45,7 @@ End CHAEval.
 
 
 
-(* ** Soundness *)
+(** ** Soundness *)
 
 Section Soundness.
 
@@ -123,7 +121,7 @@ End Soundness.
 
       
 
-(* ** Lindenbaum Algebra *)
+(** ** Lindenbaum Algebra *)
 
 Instance lb_alg : HeytingAlgebra.
 Proof.
@@ -175,7 +173,7 @@ Definition lb_Pr P v : lb_calg :=
   
 
 
-(* ** Completeness *)
+(** ** Completeness *)
 
 Lemma nameless_equiv_all' A phi :
   exists t, A ⊢IE phi[t..] <-> [p[↑] | p ∈ A] ⊢IE phi.
