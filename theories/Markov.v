@@ -52,11 +52,6 @@ Proof.
     eapply eval_converges. eapply seval_eval. eapply eva_seval. eauto.
 Qed.
 
-Lemma bool_true_Prop: forall b : bool, b -> b = true.
-Proof.
-  destruct b; firstorder.
-Qed.
-
 Lemma enum_halt : enumerable L.converges.
 Proof.
   eapply enum_count with f. econstructor.
@@ -70,8 +65,6 @@ Proof.
     + intros [m H]. induction m.
       * inv H.
       * cbn in *. inv_collect.
-        eapply bool_true_Prop in H.
-        eapply Dec_true in H.
         eapply converges_eva. eauto.        
 Qed.        
       
@@ -142,6 +135,20 @@ Proof.
     intros. exists 0. destruct x; eauto.  
 Qed.
 
+Fact stable_red X Y (p : X -> Prop) (q : Y -> Prop) :
+  p ⪯ q -> (forall y, stable (q y)) -> (forall x, stable (p x)).
+Proof.
+  intros [f H] H' x. unfold stable.
+  repeat rewrite H. apply H'.
+Qed.
+
+Corollary halt_cprv_stable :
+  (forall x, stable (cprv x)) -> MPL.
+Proof.
+  unfold MPL. apply stable_red.
+  eapply halt_cprv.
+Qed.
+
 Definition iprv (a : {Sigma & (discrete_sig Sigma * enumerable_sig Sigma * list form * form)%type }) := match a with (existT _ Sigma (H1, H2, Gamma, phi)) => @prv Sigma intu expl Gamma phi end.
 
 Lemma cprv_iprv :
@@ -154,6 +161,12 @@ Proof.
     split.
     eapply dnt_to_IE.
     eapply dnt_to_CE.
+Qed.
+
+Corollary cprv_iprv_stable :
+  (forall x, stable (iprv x)) -> (forall x, stable (cprv x)).
+Proof.
+  apply stable_red. eapply cprv_iprv.
 Qed.
 
 Require Import ConstructiveEpsilon.
@@ -230,7 +243,7 @@ Lemma iprv_maxprv :
 Proof.
   unshelve eexists.
   - intros (Sigma & [[[] A] phi]).
-    exact (map (embed (inj e d)) A, embed (inj e d) phi).
+    exact (List.map (embed (inj e d)) A, embed (inj e d) phi).
   - intros (Sigma & [[[] A] phi]). cbn.
     split; intros.
     + now eapply prv_embed.
@@ -270,4 +283,11 @@ Proof.
   - eapply L_enumerable_enum.
     exists L_sprvie. split. econstructor. exact _.
     eapply enum_sprvie.
+Qed.
+
+Corollary iprv_halt_stable :
+  MPL -> (forall x, stable (iprv x)).
+Proof.
+  unfold MPL. apply stable_red.
+  eapply iprv_halt.
 Qed.
