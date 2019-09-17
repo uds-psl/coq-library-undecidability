@@ -1,8 +1,6 @@
 # Completeness Theorems for First-Order Logic Analysed in Constructive Type Theory
 
-Yannick Forster <forster@ps.uni-saarland>
-Dominik Kirst <kirst@ps.uni-saarland.de>
-Dominik Wehr <s8dowehr@stud.uni-saarland.de>
+Yannick Forster <forster@ps.uni-saarland>, Dominik Kirst <kirst@ps.uni-saarland.de>, Dominik Wehr <s8dowehr@stud.uni-saarland.de>
 
 This is the Coq formalisation of the paper ["Completeness Theorems for First-Order Logic Analysed in Constructive Type Theory"](https://www.ps.uni-saarland.de/extras/fol-undec/).
 
