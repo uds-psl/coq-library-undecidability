@@ -1,10 +1,10 @@
-(** * FOL Reductions *)
+(* * FOL Reductions *)
 
 From Undecidability.FOL Require Export PCP.
 From Undecidability.FOLC Require Export ND GenTarski.
 Require Import Equations.Prop.DepElim.
 
-(** ** Validity *)
+(* ** Validity *)
 
 Section validity.
 
@@ -167,7 +167,7 @@ Section validity.
       now intros [].
   Qed.
 
-  (** ** Provability *)
+  (* ** Provability *)
 
   (* Hint Resolve enc_vars. *)
 
@@ -222,7 +222,7 @@ Proof.
     intros; congruence. firstorder.
 Qed.
 
-(* (** ** Satisfiability *) *)
+(* (* ** Satisfiability *) *)
 
 (* Lemma valid_satis phi : *)
 (*   valid phi -> ~ satis (¬ phi). *)
@@ -243,7 +243,7 @@ Qed.
 
 
 
-(* (** ** Corollaries *) *)
+(* (* ** Corollaries *) *)
 
 (* Lemma form_discrete {b : logic} : *)
 (*   discrete (form b). *)
@@ -318,7 +318,7 @@ Qed.
 
 
 
-(* (** ** Non-Standard Model *) *)
+(* (* ** Non-Standard Model *) *)
 
 (* Module NonStan. Section Nonstan. *)
 

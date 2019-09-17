@@ -1,9 +1,9 @@
-(** * Kripke Semantics *)
+(* * Kripke Semantics *)
 
 From Undecidability.FOLC Require Export ND.
 From Undecidability.FOLC Require Export GenTarski.
 
-(** ** Kripke Models *)
+(* ** Kripke Models *)
 
 Section Kripke.
   Context {Sigma : Signature}.
@@ -121,7 +121,7 @@ Notation "A ⊫KS phi" := (kvalid_L kstandard A phi) (at level 20).
 Notation "A ⊫KBL phi" := (kvalid_L kbottomless A phi) (at level 20).
 Arguments ksat {_ _} _ _ _ _,  {_ } _ _ _ _ _.
 
-(** **** Soundness **)
+(* **** Soundness **)
 
 Section KSoundness.
   Context {Sigma : Signature} {b : bottom}.

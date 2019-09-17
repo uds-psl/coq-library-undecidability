@@ -1,8 +1,8 @@
 From Undecidability.FOL Require Export DecidableEnumerable.
 
-(** * Dialogue Semantics *)
+(* * Dialogue Semantics *)
 
-(** ** Generalized Intuitionistic E-Completeness *)
+(* ** Generalized Intuitionistic E-Completeness *)
 
 Definition ocons X (o : option X) A :=
   match o with
@@ -19,7 +19,7 @@ Proof.
   - assumption.
 Qed.
 
-(** *** Generalized Intuitionistic E-Dialogues *)
+(* *** Generalized Intuitionistic E-Dialogues *)
 
 Class rule_set (f : Type) :=
   {
@@ -70,7 +70,7 @@ Section EGame.
     justified nil phi /\ forall A c, opening phi A c -> ewin_strat A c.
 End EGame.
 
-(** *** Dialogical Sequent Calculus *)
+(* *** Dialogical Sequent Calculus *)
 
 Section LJD.
   Variable f : Type.
@@ -90,7 +90,7 @@ Section LJD.
       Dprv A T.
   Notation "A '⊢D' T" := (Dprv A T) (at level 30).
 
-(** *** Soundness and Completeness *)
+(* *** Soundness and Completeness *)
 
   Lemma Dprv_ewin A T :
     A ⊢D T -> forall phi adm (atk : attack phi adm), (forall psi, T psi -> defense atk psi) -> ewin_strat A (C atk).
@@ -205,9 +205,9 @@ Section LJD.
 End LJD.
 Notation "A '⊢D' T" := (Dprv _ A T) (at level 30).
 
-(** ** Generalized Intuitionistic D-Completeness *)
+(* ** Generalized Intuitionistic D-Completeness *)
 
-(** *** Generalized Intuitionistic D-Dialogues *)
+(* *** Generalized Intuitionistic D-Dialogues *)
 
 Section DGame.
   Variable f : Type.
@@ -267,7 +267,7 @@ Section DGame.
   Qed.
 End DGame.
 
-(** *** Soundness and Completeness **)
+(* *** Soundness and Completeness **)
 
 Section SGame.
   Variable f : Type.

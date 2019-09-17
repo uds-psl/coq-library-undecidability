@@ -1,6 +1,6 @@
-(** ** Constructive Analysis of Completeness Theorems *)
+(* ** Constructive Analysis of Completeness Theorems *)
 
-(** *** Tarki Models **)
+(* *** Tarki Models **)
 
 From Undecidability.FOLC Require Export ND.
 From Undecidability.FOLC Require Export Enumeration.
@@ -8,7 +8,7 @@ From Undecidability.FOLC Require Export Enumeration.
 Section Tarski.
   Context {Sigma : Signature}.
 
-  (** **** Semantic notions *)
+  (* **** Semantic notions *)
 
   Section Semantics.
     Variable domain : Type.
@@ -65,7 +65,7 @@ Section Tarski.
   Notation "T ⊫E phi" := (valid_T EM T phi) (at level 50).
   Notation "T ⊫M phi" := (valid_T BLM T phi) (at level 50).
 
-  (** **** Model relationships **)
+  (* **** Model relationships **)
 
   Lemma valid_T_subsumption (C C' : constraint) T phi :
     con_subs C C' -> valid_T C T phi -> valid_T C' T phi.
@@ -85,7 +85,7 @@ Section Tarski.
     firstorder.
   Qed.
 
-  (** **** Substitution properties **)
+  (* **** Substitution properties **)
 
   Section Substs.
     Variable D : Type.
@@ -136,7 +136,7 @@ Section Tarski.
     Qed.
   End Substs.
 
-  (** **** Soundness **)
+  (* **** Soundness **)
 
   Lemma semantic_dm D {I : interp D} rho phi :
     EM I -> (rho ⊨ ¬ ¬ phi) -> rho ⊨ phi.
@@ -200,7 +200,7 @@ Section Tarski.
     Qed.
   End Soundness.
 
-  (** **** Model properties *)
+  (* **** Model properties *)
 
   Lemma valid_T_standard_dm T phi C :
     con_subs SM C -> ~ (~ valid_T C T phi) -> valid_T C T phi.
@@ -218,7 +218,7 @@ Notation "T ⊫S phi" := (valid_T SM T phi) (at level 50).
 Notation "T ⊫E phi" := (valid_T EM T phi) (at level 50).
 Notation "T ⊫M phi" := (valid_T BLM T phi) (at level 50).
 
-(** **** Signature Extensions & Closing Validity **)
+(* **** Signature Extensions & Closing Validity **)
 
 Section SigExt.
   Variable D : Type.
@@ -408,7 +408,7 @@ Section ClosingValidity.
   Qed.
 End ClosingValidity.
 
-(** **** Closing and Big Implication **)
+(* **** Closing and Big Implication **)
 
 Section ClosingBigImp.
   Context {Sigma : Signature}.

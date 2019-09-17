@@ -1,4 +1,4 @@
-(** ** First-Order Logic *)
+(* ** First-Order Logic *)
 
 (* Version: 19.09. *)
 
@@ -21,7 +21,7 @@ Definition funcomp {X Y Z} (g : Y -> Z) (f : X -> Y)  :=
   fun x => g (f x).
 
 
-(** **** Type classes for renamings. *)
+(* **** Type classes for renamings. *)
 
 Class Ren1 (X1  : Type) (Y Z : Type) :=
   ren1 : X1 -> Y -> Z.
@@ -54,7 +54,7 @@ Notation "⟨ xi1 ; xi2 ⟩" := (ren2 xi1 xi2) (at level 1, left associativity, 
 
 
 
-(** **** Type Classes for Substiution *)
+(* **** Type Classes for Substiution *)
 
 Class Subst1 (X1 : Type) (Y Z: Type) :=
   subst1 : X1 -> Y -> Z.
@@ -167,7 +167,7 @@ Tactic Notation "fsimpl" "in" "*" :=
   fsimpl; fsimplc.
 
 
-(** **** Notations *)
+(* **** Notations *)
 
 (* Notation "s , sigma" := (scons s sigma) (at level 60, format "s ,  sigma", right associativity) : subst_scope. *)
 

@@ -1,4 +1,4 @@
-(** * Heyting Semantics *)
+(* * Heyting Semantics *)
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -6,7 +6,7 @@ Require Export Setoid Morphisms.
 
 
 
-(** ** Heyting Algebras *)
+(* ** Heyting Algebras *)
 
 Class HeytingAlgebra : Type :=
   {
@@ -206,7 +206,7 @@ Notation is_sup P sup :=
 
 Hint Resolve Meet2 Meet3.
 
-(** ** Complete Heyting Algebras *)
+(* ** Complete Heyting Algebras *)
 
 Class CompleteHeytingAlgebra : Type :=
   {
@@ -320,7 +320,7 @@ Section CHAProperty.
   
 End CHAProperty.
 
-(** ** MacNeille Completion *)
+(* ** MacNeille Completion *)
 
 Structure HeytingMorphism (HA1 HA2 : HeytingAlgebra) (F : HA1 -> HA2) : Type :=
   {

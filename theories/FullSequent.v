@@ -1,6 +1,6 @@
-(** ** Full Intuitionistic First-Order Completeness *)
+(* ** Full Intuitionistic First-Order Completeness *)
 
-(** *** Full Intuitionistic Sequent Calculus *)
+(* *** Full Intuitionistic Sequent Calculus *)
 
 From Undecidability.FOLC Require Export FullFOL.
 
@@ -30,7 +30,7 @@ Section FullSequent.
 
   Hint Constructors fprv.
 
-  (** **** Context management and Weakening *)
+  (* **** Context management and Weakening *)
 
   Lemma ctx_out A A' phi psi :
     (phi :: A ++ A') ⊢f psi -> (A ++ phi :: A') ⊢f psi.
@@ -80,7 +80,7 @@ Section FullSequent.
     - now apply AllR,IHfprv, incl_map.
   Qed.
 
-  (** **** Renaming Weakening and Nameless Equivalence *)
+  (* **** Renaming Weakening and Nameless Equivalence *)
 
   Theorem subst_Weak A phi xi :
     A ⊢f phi -> [phi[xi] | phi ∈ A] ⊢f phi[xi].
@@ -138,7 +138,7 @@ Section FullSequent.
       1: now asimpl in H. intros; now comp.
   Qed.
 
-  (** **** Big Or Lemmas *)
+  (* **** Big Or Lemmas *)
 
   Fixpoint big_or (A : list form) : form :=
     match A with

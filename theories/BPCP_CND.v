@@ -1,8 +1,8 @@
-(** * Classical Natural Deduction *)
+(* * Classical Natural Deduction *)
 
 From Undecidability.FOLC Require Export ND BPCP_FOL GenTarski.
 
-(** ** Double Negation Translation *)
+(* ** Double Negation Translation *)
 
 Existing Instance min_sig.
 
@@ -104,7 +104,7 @@ Proof.
   eapply Double'. 
 Qed.
 
-(** ** Reduction **)
+(* ** Reduction **)
     
 Section BPCP_CND.
 
@@ -149,7 +149,7 @@ End BPCP_CND.
 
 
 
-(** ** Corollaries **)
+(* ** Corollaries **)
 
 Corollary cprv_red :
   BPCP ⪯ @prv min_sig class expl List.nil.

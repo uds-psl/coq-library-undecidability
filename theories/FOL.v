@@ -1,4 +1,4 @@
-(** *** Fragment Syntax Operations & Properties *)
+(* *** Fragment Syntax Operations & Properties *)
 
 
 From Equations Require Import Equations.
@@ -7,7 +7,7 @@ From Undecidability.FOL  Require Export DecidableEnumerable.
 From Undecidability.FOLC Require Export Syntax.
 Require Export Lia.
 
-(** **** Notation *)
+(* **** Notation *)
 
 Notation "phi --> psi" := (Impl phi psi) (right associativity, at level 55).
 Notation "∀ phi" := (All phi) (at level 56, right associativity).
@@ -20,7 +20,7 @@ Import Vector.
 Arguments nil {A}.
 Arguments cons {A} _ {n}.
 
-(** **** Tactics *)
+(* **** Tactics *)
 
 Ltac capply H := eapply H; try eassumption.
 Ltac comp := repeat (progress (cbn in *; autounfold in *; asimpl in *)).
@@ -38,7 +38,7 @@ Ltac inv H :=
 Section FOL.
   Context {Sigma : Signature}.
 
-  (** **** Subformula *)
+  (* **** Subformula *)
 
   Inductive sf : form -> form -> Prop :=
   | SImplL phi psi : sf phi (phi --> psi)
@@ -59,7 +59,7 @@ Section FOL.
     intros phi. pose proof (sf_acc phi ids) as H. now asimpl in H.
   Qed.
 
-  (** **** Formula size *)
+  (* **** Formula size *)
 
   Fixpoint size (phi : form ) :=
     match phi with
@@ -100,7 +100,7 @@ Section FOL.
       cbn. rewrite subst_size. lia.
   Qed.
 
-  (** **** Forall and Vector.t technology **)
+  (* **** Forall and Vector.t technology **)
 
   Inductive Forall (A : Type) (P : A -> Type) : forall n, vector A n -> Type :=
   | Forall_nil : Forall P (@Vector.nil A)
@@ -129,7 +129,7 @@ Section FOL.
     - intros. apply f2. intros t. induction 1; inv X; eauto.
   Qed.  
   
-  (** **** Unused variable **)
+  (* **** Unused variable **)
 
   Inductive unused_term (n : nat) : term -> Prop :=
   | uft_var m : n <> m -> unused_term n (var_term m)
@@ -208,7 +208,7 @@ Section FOL.
     | a :: A' => a --> (big_imp A' phi)
     end.
 
-  (** **** Substituting unused variables *)
+  (* **** Substituting unused variables *)
 
   Definition shift_P P n :=
     match n with
@@ -307,7 +307,7 @@ Section FOL.
       * right. constructor. unfold "↑". congruence.
   Qed.
 
-  (** **** Theories *)
+  (* **** Theories *)
 
   Definition theory := form -> Prop.
   Definition contains phi (T : theory) := T phi.
@@ -405,7 +405,7 @@ Hint Resolve contains_nil contains_cons contains_cons2 contains_app : contains_t
 Hint Resolve contains_extend1 contains_extend2 contains_extend3 : contains_theory.
 Ltac use_theory A := exists A; split; [eauto 15 with contains_theory|].
 
-(** **** Enumerability *)
+(* **** Enumerability *)
 
 Fixpoint vecs_from X (A : list X) (n : nat) : list (vector X n) :=
   match n with
@@ -524,7 +524,7 @@ Section Enumerability.
   Defined.
 End Enumerability.
 
-(** **** Equality deciders *)
+(* **** Equality deciders *)
 
 Lemma dec_vec_in X n (v : vector X n) :
   (forall x, vec_in x v -> forall y, dec (x = y)) -> forall v', dec (v = v').
@@ -560,7 +560,7 @@ Section EqDec.
   Qed.
 End EqDec.
 
-(** **** Subterm relation *)
+(* **** Subterm relation *)
 
 Section Subterm.
   Context {Sigma : Signature}.
@@ -579,7 +579,7 @@ Section Subterm.
   | stA phi : subterm_form t[↑] phi -> subterm_form t (∀ phi).
 End Subterm.
 
-(** **** Signature extension *)
+(* **** Signature extension *)
 
 Section SigExt.
   Hint Unfold axioms.funcomp.

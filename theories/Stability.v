@@ -1,7 +1,7 @@
 From Undecidability.FOLC Require Import ND.
 From Undecidability.FOLC Require Import GenTarski.
 
-(** ** Constructive Analysis *)
+(* ** Constructive Analysis *)
 
 Definition stable P := ~ ~ P -> P.
 
@@ -37,7 +37,7 @@ Section PropT.
 End PropT.
 
 Section StabilityClasses.
-  (** **** Double Negation Elimination *)
+  (* **** Double Negation Elimination *)
 
   Section DN.
     Definition DN := forall P, stable P.
@@ -64,7 +64,7 @@ Section StabilityClasses.
     Qed.
   End DN.
 
-  (** **** Synthetic Markov's Principle *)
+  (* **** Synthetic Markov's Principle *)
 
   Section SyntMP.
     Definition tsat (f : nat -> bool) := exists n, f n = true.
@@ -142,7 +142,7 @@ Section StabilityClasses.
     Qed.
   End SyntMP.
 
-  (** **** Object Markov's Principle *)
+  (* **** Object Markov's Principle *)
 
   Section ObjMP.
     Definition fin_T : stab_class := fun Sig T => exists A, forall phi, phi ∈ T <-> phi el A.

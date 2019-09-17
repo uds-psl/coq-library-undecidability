@@ -1,6 +1,6 @@
-(** * Tarski Semantics *)
+(* * Tarski Semantics *)
 
-(** ** Generalized Theory Extension **)
+(* ** Generalized Theory Extension **)
 
 From Undecidability.FOLC Require Export ND.
 
@@ -19,7 +19,7 @@ Section GenCons.
 
   Definition econsistent T T' := T' ⊩G ⊥ -> T ⊩G ⊥.
 
-  (** **** Union *)
+  (* **** Union *)
 
   Section Union.
     Variable f : nat -> theory.
@@ -59,7 +59,7 @@ Section GenCons.
     Qed.
   End Union.
 
-  (** **** Explosion *)
+  (* **** Explosion *)
 
   Section Explosion.
     Variable T : theory.
@@ -123,7 +123,7 @@ Section GenCons.
 
   End Explosion. 
 
-  (** **** Proving with explosion axioms *)
+  (* **** Proving with explosion axioms *)
 
   Notation "¬ phi" := (phi --> GBot) (at level 20).
   Notation "∃ phi" := (¬ ∀ ¬ phi) (at level 56, right associativity).
@@ -202,7 +202,7 @@ Section GenCons.
     - oexists (var_term 0). ointros. oindirect. clean_GBot. oapply 2. oexists (var_term 0). clean_GBot. ctx.
   Qed.
 
-  (** **** Henkin *)
+  (* **** Henkin *)
 
   Section Henkin.
     Variable T : theory.
@@ -295,7 +295,7 @@ Section GenCons.
     Qed.
   End Henkin.
 
-  (** **** Omega *)
+  (* **** Omega *)
 
   Section Omega.
     Variable e : nat -> form.
@@ -419,7 +419,7 @@ Section GenCons.
   End Omega.
 End GenCons.
 
-(** **** Conclusion *)
+(* **** Conclusion *)
 
 Section Composition.
   Context {Sigma : Signature}.

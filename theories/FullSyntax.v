@@ -1,4 +1,4 @@
-(** *** Full Syntax **)
+(* *** Full Syntax **)
 
 From Undecidability.FOLC Require Export unscoped.
 

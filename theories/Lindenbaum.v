@@ -1,9 +1,9 @@
-(** * Heyting Semantics *)
+(* * Heyting Semantics *)
 
 From Equations Require Import Equations.
 From Undecidability.FOLC Require Export FullND Heyting.
 
-(** ** Heyting Evaluation *)
+(* ** Heyting Evaluation *)
 
 Section Lindenbaum.
 
@@ -47,7 +47,7 @@ End CHAEval.
 
 
 
-(** ** Soundness *)
+(* ** Soundness *)
 
 Section Soundness.
 
@@ -123,7 +123,7 @@ End Soundness.
 
       
 
-(** ** Lindenbaum Algebra *)
+(* ** Lindenbaum Algebra *)
 
 Instance lb_alg : HeytingAlgebra.
 Proof.
@@ -175,7 +175,7 @@ Definition lb_Pr P v : lb_calg :=
   
 
 
-(** ** Completeness *)
+(* ** Completeness *)
 
 Lemma nameless_equiv_all' A phi :
   exists t, A ⊢IE phi[t..] <-> [p[↑] | p ∈ A] ⊢IE phi.
@@ -247,7 +247,7 @@ Admitted.*)
 
 
 
-(** ** Summary *)
+(* ** Summary *)
 
 Definition hentail A phi :=
   forall (HA : CompleteHeytingAlgebra) (HP : forall P, Vector.t term (pred_ar P) -> HA), hsat_L HP A <= hsat HP phi.
@@ -271,7 +271,7 @@ Qed.
 
 
 
-(*** Boolean algebras ***)
+(** Boolean algebras ***)
 
 Definition boolean' (HA : HeytingAlgebra) :=
   forall x : HA, Impl (Impl x Bot) Bot <= x.

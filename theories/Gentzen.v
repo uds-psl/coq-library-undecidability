@@ -1,4 +1,4 @@
-(** ** Normal Sequent Calculus **)
+(* ** Normal Sequent Calculus **)
 
 From Equations Require Import Equations.
 From Undecidability.FOLC Require Export ND.
@@ -62,9 +62,9 @@ Section Gentzen.
     Qed.
   End Weakening.
 
-  (** **** Normalization *)
+  (* **** Normalization *)
   
-  (** We redefine sprv and prv in Type so we define predicates on them. *)
+  (* We redefine sprv and prv in Type so we define predicates on them. *)
   Inductive tsprv : forall (b : bottom), list form -> option form -> form -> Type :=
   | TContr {b} A phi psi : tsprv b A (Some phi) psi -> phi el A -> tsprv b A None psi
   | TIR {b} A phi psi : tsprv b (phi :: A) None psi -> tsprv b A None (phi --> psi)
@@ -172,7 +172,7 @@ Section Gentzen.
     Qed.
   End Soundness.
 
-  (** **** Enumerability of Sequents *)
+  (* **** Enumerability of Sequents *)
   Section Enumerability.
     Context {HdF : eq_dec Funcs} {HdP : eq_dec Preds}.
     Context {HeF : enumT Funcs} {HeP : enumT Preds}.

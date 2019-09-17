@@ -1,8 +1,8 @@
-(** *** Formula Enumeration *)
+(* *** Formula Enumeration *)
 
 From Undecidability.FOLC Require Export FOL.
 
-(** **** Helper machinery **)
+(* **** Helper machinery **)
 
 Lemma flat_map_app {X Y} A B (f : X -> list Y) :
   flat_map f (A ++ B) = flat_map f A ++ flat_map f B.
@@ -42,7 +42,7 @@ Proof.
       * right. apply IHA. now exists n.
 Qed.
 
-(** **** Unused variables in the enumeration *)
+(* **** Unused variables in the enumeration *)
 
 Section L_T_unused.
   Context {Sigma : Signature}.
@@ -99,7 +99,7 @@ Section L_T_unused.
   Qed.
 End L_T_unused.
 
-(** **** Single value enumeration *)
+(* **** Single value enumeration *)
 
 Section Enumeration.
   Variable X : Type.
@@ -141,7 +141,7 @@ Section Enumeration.
   Qed.
 End Enumeration.
 
-(** **** Single step enumeration for formulas *)
+(* **** Single step enumeration for formulas *)
 
 Section L_T_Enumeration.
   Context {Sigma : Signature}.

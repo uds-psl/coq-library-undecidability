@@ -3,7 +3,7 @@ From Undecidability.FOLC Require Export Consistency.
 From Undecidability.FOLC Require Export GenTarski.
 From Undecidability.FOLC Require Import Stability.
 
-(** *** Standard Models **)
+(* *** Standard Models **)
 
 Section Completeness.
   Context {Sigma : Signature}.
@@ -129,7 +129,7 @@ Section Completeness.
     Qed.
   End MPStrongCompleteness.
 
-(** *** Exploding Models **)
+(* *** Exploding Models **)
 
   Section ExplodingCompletenes.
     Variables (T : theory) (phi : form).
@@ -156,7 +156,7 @@ Section Completeness.
     Qed.
   End ExplodingCompletenes.
 
-(** *** Minimal Models **)
+(* *** Minimal Models **)
 
   Section FragmentModel.
     Variable T : theory.
@@ -230,7 +230,7 @@ Section Completeness.
   End FragmentCompleteness.
 End Completeness.
 
-(** ** Extending the Completeness Results *)
+(* ** Extending the Completeness Results *)
 
 Section FiniteCompleteness.
   Context {Sigma : Signature}.

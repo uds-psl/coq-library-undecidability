@@ -1,10 +1,10 @@
 (* Version: 23.04. *)
 
-(** * Axiomatic Assumptions
+(* * Axiomatic Assumptions
     For our development, we have to extend Coq with _functional extensionality_.
 *)
 
-(** ** Functional Extensionality
+(* ** Functional Extensionality
     We import the axiom from the Coq Standard Library and derive a utility tactic to make the assumption practically usable.
 *)
 Require Import Coq.Logic.FunctionalExtensionality.
@@ -24,7 +24,7 @@ Ltac fext := nointr repeat (
      refine (@forall_extensionalityS _ _ _ _)); intro
   end).
 
-(** ** Propositional Extensionality
+(* ** Propositional Extensionality
     We state the axiom of _propositional extensionality_ directly and use it to prove _proof irrelevance_.
 *)
 Axiom pext : forall P Q : Prop, (P <-> Q) -> (P = Q).
@@ -36,13 +36,13 @@ Qed.
 
 
 
-(** **** Functor Instances *)
+(* **** Functor Instances *)
 
 Definition funcomp {X Y Z} (g : Y -> Z) (f : X -> Y)  :=
   fun x => g (f x).
 
 
-(** **** Vector Instance *)
+(* **** Vector Instance *)
 Require Export Vector.
 
 Definition vec_ext {A B n} {f g : A -> B} :
@@ -65,7 +65,7 @@ Proof.
   cbn. rewrite <- H. f_equal. apply IHxs.
 Defined.
 
-(** **** List Instance *)
+(* **** List Instance *)
 Require Export List.
 
 Definition list_ext {A B} {f g : A -> B} :
@@ -90,7 +90,7 @@ Defined.
 
 
 
-(** **** Prod Instance *)
+(* **** Prod Instance *)
 
 Definition prod_map {A B C D} (f : A -> C) (g : B -> D) (p : A * B) :
   C * D.
@@ -118,7 +118,7 @@ Proof.
 Defined.
 
 
-(** **** Function Instance *)
+(* **** Function Instance *)
 
 Definition cod X A:  Type :=  X -> A.
 

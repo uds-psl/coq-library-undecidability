@@ -1,4 +1,4 @@
-(** * Natural Deduction *)
+(* * Natural Deduction *)
 
 From Undecidability.FOLC Require Export FullFOL.
 
@@ -17,7 +17,7 @@ Section ND_def.
 
   Reserved Notation "A ⊢ phi" (at level 61).
   
-  (** ** Definition *)
+  (* ** Definition *)
 
   Implicit Type p : peirce.
   Implicit Type b : bottom.
@@ -225,7 +225,7 @@ Notation "T ⊩CE phi" := (@tprv _ class expl T phi) (at level 30).
 Notation "T ⊩CL phi" := (@tprv _ class lconst T phi) (at level 30).
 Notation "T ⊩IE phi" := (@tprv _ intu expl T phi) (at level 30).
 
-(** ** Proof Tacticts *)
+(* ** Proof Tacticts *)
 
 Ltac ointro_all :=
   match goal with
@@ -311,7 +311,7 @@ Proof.
   - oexists (var_term 0). ointros. oindirect. oapply 2. oexists (var_term 0). ctx.
 Qed.
 
-(** ** Theory manipulation *)
+(* ** Theory manipulation *)
 
 Section TheoryManipulation.
   Context {Sigma : Signature}.
@@ -347,7 +347,7 @@ Section TheoryManipulation.
   Qed.
 End TheoryManipulation.
 
-(** ** Refutation completeness *)
+(* ** Refutation completeness *)
 
 Section RefutationComp.
   Context {Sigma : Signature}.
@@ -362,7 +362,7 @@ Section RefutationComp.
   Qed.
 End RefutationComp.
 
-(** ** Double Negation Translation *)
+(* ** Double Negation Translation *)
 
 Section DNT.
   Context {Sigma : Signature}.

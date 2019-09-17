@@ -1,4 +1,4 @@
-(** *** Fragment Syntax **)
+(* *** Fragment Syntax **)
 
 From Undecidability.FOLC Require Export unscoped.
 

@@ -1,4 +1,4 @@
-(** *** Translating between LJ and LJD *)
+(* *** Translating between LJ and LJD *)
 
 From Undecidability.FOLC Require Export Sorensen.
 From Undecidability.FOLC Require Export FullSequent.

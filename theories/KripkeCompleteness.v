@@ -1,11 +1,11 @@
-(** ** Constructive Analysis of Completeness Theorems **)
+(* ** Constructive Analysis of Completeness Theorems **)
 
 From Undecidability.FOLC Require Export Gentzen.
 From Undecidability.FOLC Require Export Kripke.
 From Undecidability.FOLC Require Export GenCompleteness.
 From Undecidability.FOLC Require Export Stability.
 
-(** *** Exploding and Minimal Models *)
+(* *** Exploding and Minimal Models *)
 
 Section KripkeCompleteness.
   Context {Sigma : Signature}.
@@ -104,7 +104,7 @@ Section KripkeCompleteness.
     Qed.
   End BottomlessCompleteness.
 
-(** *** Standard Models *)
+(* *** Standard Models *)
 
   Section StandardCompleteness.
     Context {HdF : eq_dec Funcs} {HdP : eq_dec Preds}.

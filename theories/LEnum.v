@@ -1,4 +1,4 @@
-(** * Nla  *)
+(* * Nla  *)
 
 From Undecidability.L Require Import Eval.
 From Undecidability.FOLC Require Import Extend FOL.
