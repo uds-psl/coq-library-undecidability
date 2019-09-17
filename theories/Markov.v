@@ -1,9 +1,106 @@
 (** ** Connections to MPL  *)
 
-From Undecidability.FOLC Require Import Extend BPCP_CND LEnum.
-From Undecidability.L Require Import Synthetic Lists LOptions.
+From Undecidability.FOL Require Import MarkovPost.
+From Undecidability.L Require Import Synthetic Lists LOptions Seval.
 
 From Undecidability.Reductions Require Import L_to_mTM mTM_to_TM TM_to_SRH SRH_to_SR SR_to_MPCP MPCP_to_PCP PCP_to_BPCP.
+
+Definition MPL := forall s, stable (L.converges s).
+
+Instance enumT_term : enumT term.
+Proof.
+  exists (fix f n := match n with
+               | 0 => []
+               | S n => f n ++ [ var m | m ∈ L_T n]
+                         ++ [ lam s | s ∈ f n ]
+                         ++ [ app s t | (s,t) ∈ (f n × f n) ]
+               end).
+  - eauto.
+  - intros. induction x.
+    + destruct (el_T n) as [m]. exists (S m). cbn. in_app 2.
+      in_collect n. eapply cum_ge'; eauto; omega.
+    + destruct (IHx1) as [m1]. destruct (IHx2) as [m2].
+      exists (1 + m1 + m2). cbn. in_app 4.
+      in_collect (x1, x2). eapply cum_ge'; eauto; omega.
+      eapply cum_ge'; eauto; omega.
+    + destruct (IHx) as [m1]. 
+      exists (1 + m1). cbn. in_app 3.
+      in_collect x. eapply cum_ge'; eauto; omega.
+Qed.
+
+Instance eq_dec_term : eq_dec L.term.
+Proof.
+  intros ? ?. hnf. repeat decide equality.  
+Qed.
+
+Instance help : forall n s, Prelim.dec (eva n s <> None).
+Proof.
+  intros. eapply not_dec. eapply option_eq_dec. exact _.
+Qed.
+
+Fixpoint f n :=
+  match n with
+  | 0 => []
+  | S n => f n ++ [ s | (s, m) ∈ (@L_T _ enumT_term n × @L_T _ enumT_nat n), eva m s <> None ]
+  end.
+
+Lemma converges_eva s : L.converges s <-> exists n, eva n s <> None.
+Proof.
+  split.
+  - intros [t [n H % seval_eva] % eval_seval] % Eval.eval_converges. exists n. congruence.
+  - intros [n H]. destruct (eva n s) eqn:Ht; try congruence.
+    eapply eval_converges. eapply seval_eval. eapply eva_seval. eauto.
+Qed.
+
+Lemma bool_true_Prop: forall b : bool, b -> b = true.
+Proof.
+  destruct b; firstorder.
+Qed.
+
+Lemma enum_halt : enumerable L.converges.
+Proof.
+  eapply enum_count with f. econstructor.
+  - eauto.
+  - intros s. split.
+    + intros [n H] % converges_eva.
+      destruct (el_T n) as [m1], (el_T s) as [m2]. exists (1 + m1 + m2).
+      cbn. in_app 2. in_collect (s, n).
+      eapply cum_ge'; eauto; omega.
+      eapply cum_ge'; eauto; omega.
+    + intros [m H]. induction m.
+      * inv H.
+      * cbn in *. inv_collect.
+        eapply bool_true_Prop in H.
+        eapply Dec_true in H.
+        eapply converges_eva. eauto.        
+Qed.        
+      
+Lemma MP_MPL :
+  MP -> MPL.
+Proof.
+  intros. unfold MPL. intros. eapply MP_enum_stable.
+  - eassumption.
+  - eapply enum_halt.
+  - unfold discrete. eapply decidable_iff. econstructor.
+    intros []. hnf. repeat decide equality.
+Qed.
+
+Definition IP := forall (X : Prop) (P : nat -> Prop), (X -> exists n, P n) -> exists n, X -> P n.
+
+Definition halting_dec := forall s, (L.converges s) \/ ~ (L.converges s).
+
+Lemma MPL_independent : IP -> MPL -> halting_dec. 
+Proof.
+  intros H1 H2 s.
+  assert (exists n, forall k, eva k s <> None -> eva n s <> None) as [n Hn].
+  - specialize (H2 s). unfold stable in H2. rewrite converges_eva in H2. apply H1 in H2 as [n Hn].
+    exists n. intros k H. apply Hn. intros H'. apply H'. now exists k.
+  - destruct (eva n s) eqn : H.
+    + left. eapply converges_eva. exists n. congruence.
+    + right. intros [k Hk % Hn] % converges_eva. congruence.
+Qed.
+
+From Undecidability.FOLC Require Import Extend BPCP_CND LEnum.
 
 Definition enumerable_sig (Sigma : Signature) := (enumT Funcs * enumT Preds) % type.
 Definition discrete_sig (Sigma : Signature) := ((eq_dec Funcs) * (eq_dec Preds)) % type.
