@@ -1,0 +1,47 @@
+-Q "../coq-library-undecidability/external/template-coq/template-coq/theories" Template
+-Q "../coq-library-undecidability/external/uds-psl-base" PslBase
+-Q "../coq-library-undecidability/external/smpl/theories" smpl
+-I "../coq-library-undecidability/external/smpl/src"
+-I "../coq-library-undecidability/external/template-coq/template-coq/src"
+
+-Q "../coq-library-undecidability/theories/" Undecidability
+-Q . Undecidability.FOLC
+-install none
+-arg -w -arg -notation-overridden,-redundant-canonical-projection,-several-object-files,cannot-define-projection,records,unused-intro-pattern,tactics
+COQDOCFLAGS = "--charset utf-8 --parse-comments -s --with-header ../website/resources/header.html --with-footer ../website/resources/footer.html --index indexpage"
+
+axioms.v
+unscoped.v
+
+Syntax.v
+FOL.v
+ND.v
+
+Enumeration.v
+Stability.v
+GenConstructions.v
+GenTarski.v
+Consistency.v
+GenCompleteness.v
+
+Kripke.v
+Gentzen.v
+KripkeCompleteness.v
+
+FullSyntax.v
+FullFOL.v
+FullND.v
+FullSequent.v
+
+Sorensen.v
+DialogFragment.v
+DialogFull.v
+
+Heyting.v
+Lindenbaum.v
+
+BPCP_FOL.v
+BPCP_CND.v
+Extend.v
+LEnum.v
+Markov.v
