@@ -36,4 +36,6 @@ install:
 - opam list
 
 script:
- - make -j ${NJOBS}
+ - cd external/template-coq && ./configure.sh local && cd ../..
+ - make -j ${NJOBS} external
+ - make -j ${NJOBS} theories
