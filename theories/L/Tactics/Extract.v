@@ -70,7 +70,7 @@ Definition tmTryInfer (n : ident) (red : option reductionStrategy) (A : Type) : 
          tmPrint "Did not find an instance for ";;
          (tmPrint A');;
          (tmEval cbv ("open obligation " ++ n ++ " for it. You might want to register a instance before and rerun this.") >>= tmPrint);;
-         tmLemmaRed n red A
+         tmLemma n A
     end.
 
 (** Generate a name for a quoted term *)
@@ -201,7 +201,7 @@ Definition mkFixMatch (f x : ident) (t1 t2 : Ast.term) (cases : nat -> list term
                                                 body)) 0] 0).
 
 Definition encode_arguments (B : term) (a i : nat) A_j :=
-    if eq_term init_graph B A_j
+    if eq_term uGraph.init_graph B A_j
     then (* insert a recursive call *)
       ret (tApp (tRel (S a)) [tRel (a - i -1)])
     else (* insert a call to the appropriate encoding function *)
@@ -417,7 +417,6 @@ Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad 
     n <- (tmEval cbv (String.append (name_of s) "_term") >>= tmFreshName) ;;
     i <- tmTryInfer n (Some cbn) (extracted a') ;; 
       ret (@int_ext _ _ i)
-  | tMeta _ =>     tmFail "tMeta is not supported"
   | tEvar _ _ =>   tmFail "tEvar is not supported"
   | tSort _ =>     tmFail "tSort is not supported"
   | tCast _ _ _ => tmFail "tCast is not supported"

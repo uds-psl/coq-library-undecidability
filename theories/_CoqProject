@@ -404,4 +404,4 @@ Reductions/BPCP_to_FOL.v
 Reductions/MM_to_FRACTRAN.v
 Reductions/FRACTRAN_to_H10C.v
 Reductions/L_to_mTM.v
-
+Reductions/mTM_to_TM.v
