@@ -282,12 +282,12 @@ Proof.
       * intros. cbn. depelim x. depelim ctapes. depelim ctapes. cbn in *.
         unfold step, TM.step. cbn.
         destruct (trans0 (cstate1, [|current h1|])) eqn:E.
-        depelim t. depelim t. cbn. rewrite E. reflexivity.
+        depelim t. depelim t. cbn. unfold current_chars. cbn. rewrite E. reflexivity.
     + intros (? & ? & ?).
       cbn in *. destruct x0.
       exists (TM.mk_mconfig cstate0 [| ctape0 |]), x.
       unfold TM.loopM, loopM in *.
-      eapply (loop_lift (lift := fun '(mk_mconfig a b) => @TM.mk_mconfig sig states0 1 a [| b |])) in H.
+      eapply (loop_lift (lift := fun '(mk_mconfig a b) => @TM.mk_mconfig sig states0 1 a [| b |])) in H. cbn.
       rewrite <- H.
       f_equal.
       * now intros [].
