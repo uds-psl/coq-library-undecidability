@@ -37,5 +37,5 @@ install:
 
 script:
  - cd external/template-coq && ./configure.sh local && cd ../..
- - make -j ${NJOBS} external
- - make -j ${NJOBS} theories
+ - make -j ${NJOBS} deps
+ - make -j ${NJOBS} all
