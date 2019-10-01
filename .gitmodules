@@ -1,9 +1,6 @@
 [submodule "external/smpl"]
 	path = external/smpl
 	url = https://github.com/sigurdschneider/smpl.git
-[submodule "external/metacoq"]
-	path = external/template-coq
-	url = https://github.com/MetaCoq/metacoq.git
 [submodule "external/base-library"]
 	path = external/uds-psl-base
 	url = https://github.com/uds-psl/base-library.git

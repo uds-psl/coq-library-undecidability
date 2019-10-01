@@ -20,6 +20,7 @@ env:
   - FINDLIB_VER="1.8.0"
   - COQ_VER="8.8.2"
   - EQUATIONS_VER="1.2+8.8"
+  - METACOQ_VAR="1.0~alpha+8.8"
   
 install:
 - curl -sL https://raw.githubusercontent.com/ocaml/opam/master/shell/install.sh > install.sh
@@ -32,10 +33,9 @@ install:
 - eval $(opam config env)
 - opam config list
 - opam repo add coq-released https://coq.inria.fr/opam/released || echo "coq-released registered"
-- opam install -j ${NJOBS} -y camlp5.${CAMLP5_VER} ocamlfind.${FINDLIB_VER} coq.${COQ_VER} coq-equations.${EQUATIONS_VER}
+- opam install -j ${NJOBS} -y camlp5.${CAMLP5_VER} ocamlfind.${FINDLIB_VER} coq.${COQ_VER} coq-equations.${EQUATIONS_VER} coq-metacoq.${METACOQ_VER}
 - opam list
 
 script:
- - cd external/template-coq && ./configure.sh local && cd ../..
  - make -j ${NJOBS} deps
  - make -j ${NJOBS} all
