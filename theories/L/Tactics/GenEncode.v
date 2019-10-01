@@ -1,5 +1,5 @@
 From Undecidability.L Require Import L Tactics.Computable Tactics.ComputableTactics Tactics.Extract.
-From Template Require Import All TemplateMonad.Core Ast.
+From MetaCoq.Template Require Import All TemplateMonad.Core Ast.
 
 Import MonadNotation String.
 Open Scope string_scope.

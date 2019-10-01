@@ -1,8 +1,9 @@
-deps:
-	+make -C external all
 
 all:
 	+make -C theories all
+
+deps:
+	+make -C external all
 
 clean:
 	+make -C theories clean
