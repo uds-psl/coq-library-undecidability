@@ -1,7 +1,7 @@
 -Q "../external/smpl/theories/" smpl
 -I "../external/smpl/src/"
 -Q "../external/uds-psl-base" PslBase
--Q "../external/template-coq/template-coq/theories/" Template
+-Q "../external/template-coq/template-coq/theories/" MetaCoq
 -I "../external/template-coq/template-coq/src"
 
 -Q . Undecidability
