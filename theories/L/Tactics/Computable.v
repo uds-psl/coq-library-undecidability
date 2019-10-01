@@ -151,7 +151,7 @@ Qed.
 
 Fixpoint extEq t {tt:TT t} : t -> t -> Prop:=
   match tt with
-    TyB _ => eq
+    TyB _ _ => eq
   | @TyArr t1 t2 tt1 tt2 => fun f f' => forall (x : t1), extEq (f x) (f' x)
   end.
 
@@ -195,22 +195,22 @@ Arguments registerAs {_ _ _} _ _.
 
 Fixpoint changeResType t1 t2 (tt1:TT t1) (tt2 : TT t2) : {t & TT t}:=
   match tt1 with
-    TyB _ => existT _ t2 tt2
-  | TyArr tt11 tt12 =>
+    TyB _ _ => existT _ t2 tt2
+  | TyArr _ _ tt11 tt12 =>
     existT _ _ (TyArr tt11 (projT2 (changeResType tt12 tt2)))
   end.
 
 Fixpoint resType t1 (tt1 : TT t1) : {t & registered t} :=
   match tt1 with
     @TyB _ R => existT _ _ R
-  | TyArr _ t2 => resType t2
+  | TyArr _ _ _ t2 => resType t2
   end.
 
 Fixpoint insertCast t1 (tt1 : TT t1) Y (R: registered Y) {struct tt1}:
   forall (cast : projT1 (resType tt1) -> Y) (f : t1), projT1 (changeResType tt1 (TyB Y)) :=
   match tt1 with
-    TyB _ => fun cast x => cast x
-  | TyArr tt11 tt12 => fun cast f x=> (insertCast (tt1:=tt12) R cast (f x))
+    TyB _ _ => fun cast x => cast x
+  | TyArr _ _ tt11 tt12 => fun cast f x=> (insertCast (tt1:=tt12) R cast (f x))
   end.
 
 

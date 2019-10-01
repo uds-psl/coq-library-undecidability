@@ -41,8 +41,8 @@ Global Arguments evalTime {X} {ty} x {evalTime computableTime}.
 
 Local Fixpoint notHigherOrder t (ty : TT t) :=
   match ty with
-    TyArr (TyB _) ty2 => notHigherOrder ty2 
-  | TyB _ => True
+    TyArr _ _ (TyB _ _) ty2 => notHigherOrder ty2 
+  | TyB _ _ => True
   | _ => False
   end.
 
@@ -200,7 +200,7 @@ Fixpoint changeResType_TimeComplexity t1 (tt1 : TT t1) Y {R: registered Y} {stru
   forall (fT: timeComplexity t1) , @timeComplexity _ (projT2 (changeResType tt1 (TyB Y))):= (
   match tt1 with
     @TyB t1 tt1 => fun fT => fT
-  | TyArr tt11 tt12 => fun fT x xT => (fst (fT x xT),changeResType_TimeComplexity (snd (fT x xT)))
+  | TyArr _ _ tt11 tt12 => fun fT x xT => (fst (fT x xT),changeResType_TimeComplexity (snd (fT x xT)))
   end).
 
 Lemma cast_registeredAs_TimeComplexity t1 (tt1 : TT t1) Y (R: registered Y) fT (cast : projT1 (resType tt1) -> Y) (f:t1)

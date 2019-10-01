@@ -1,5 +1,5 @@
 From Undecidability.L Require Import L Prelim.StringBase.
-From MetaCoq Require Import Template.All.
+From MetaCoq Require Import Template.All Checker.kernel.Checker.
 Require Import PslBase.Base. 
 Require Import String Ascii.
 
@@ -200,6 +200,8 @@ Definition mkFixMatch (f x : ident) (t1 t2 : Ast.term) (cases : nat -> list term
                                                 (tRel 0)
                                                 body)) 0] 0).
 
+Existing Instance config.default_checker_flags.
+
 Definition encode_arguments (B : term) (a i : nat) A_j :=
     if eq_term uGraph.init_graph B A_j
     then (* insert a recursive call *)
@@ -360,7 +362,7 @@ Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad 
   | Ast.tLambda _ _ s =>
     t <- extract (↑ env) s fuel ;;
       ret (lam t)
-  | Ast.tFix [BasicAst.mkdef _ nm ty s _] _ =>
+  | Ast.tFix [BasicAst.mkdef nm ty s _] _ =>
     t <- extract (fun n => S (env n)) (Ast.tLambda nm ty s) fuel ;;
     ret (rho t)
   | Ast.tApp s R =>

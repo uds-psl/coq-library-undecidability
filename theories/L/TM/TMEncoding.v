@@ -314,7 +314,7 @@ Definition Halt' Sigma n (M: mTM Sigma n) (start: mconfig Sigma (states M) n) :=
   exists (f: mconfig _ (states M) _), halt (cstate f)=true /\ exists k, loopM start k = Some f.
 
 Definition Halt :{ '(Sigma, n) : _ & mTM Sigma n & tapes Sigma n} -> _ :=
-  fun '(existT2 _ _ (Sigma, n) M tp) =>
+  fun '(existT2 (Sigma, n) M tp) =>
     exists (f: mconfig _ (states M) _), halt (cstate f) = true
                                    /\ exists k, loopM (mk_mconfig (start M) tp) k = Some f.
 
