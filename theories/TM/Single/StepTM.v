@@ -1,5 +1,7 @@
 (* Require Import Combinators.Combinators Multi Basic.Mono TMTac. *)
 From Undecidability Require Import ProgrammingTools.
+From Undecidability Require Import ArithPrelim.
+
 From Undecidability Require Import TM.Compound.Shift.
 
 From Undecidability Require Import EncodeTapes.
@@ -1462,21 +1464,21 @@ Section ToSingleTape.
     Definition DoWrite (d : option move) (s : sig) : pTM sigSim unit 1 :=
       match d with
       | Some L => (* [leftof] ~> shift left and change boundary symbol to [LeftBlank false] *)
-        Shift_L (inl UNKNOWN);;
+        Shift_L (fun _ => false) (inl UNKNOWN);;
         MoveToSymbol isReturnMarker id;;
         WriteMove (inr (sigList_X (MarkedSymbol s))) L;;
         WriteMove (inr (sigList_X (LeftBlank false))) R
       | Some R => (* [rightof] ~> shift right and change boundary symbol to [RightBlank false] *)
-        Shift (inl UNKNOWN);;
+        Shift (fun _ => false) (inl UNKNOWN);;
         MoveToSymbol_L isReturnMarker id;;
         WriteMove (inr (sigList_X (MarkedSymbol s))) R;;
         WriteMove (inr (sigList_X (RightBlank false))) L
       | Some N => (* [midtape] ~> just write the symbol *)
         Write (inr (sigList_X (MarkedSymbol s)))
       | None => (* [midtape] ~> we need to shift left and right and insert [RightBlank false] and [LeftBlank false] *)
-        Shift (inl UNKNOWN);;
+        Shift (fun _ => false) (inl UNKNOWN);;
         MoveToSymbol_L isReturnMarker id;;
-        Shift_L (inr (sigList_X (MarkedSymbol s)));;
+        Shift_L (fun _ => false) (inr (sigList_X (MarkedSymbol s)));;
         MoveToSymbol isReturnMarker id;;
         WriteMove (inr (sigList_X (LeftBlank false))) R;;
         Move R;;
@@ -1491,7 +1493,7 @@ Section ToSingleTape.
         clear H1 tmid1. clear H2.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp. simpl_tape.
         unfold atCons_current_leftof in HCons. TMSimp. clear HCons tin tmid0 H0 tmid H tout. cbn.
-        rewrite app_comm_cons. rewrite Shift_L_fun_correct_midtape.
+        rewrite app_comm_cons. rewrite Shift_L_fun_correct_midtape; auto.
         rewrite app_comm_cons'. rewrite MoveToSymbol_correct_midtape; cbn; auto.
         - hnf. cbn. f_equal. f_equal. rewrite map_id, rev_app_distr; cbn; cbv [id].
           rewrite rev_app_distr. cbn. rewrite rev_involutive. reflexivity.
@@ -1503,7 +1505,7 @@ Section ToSingleTape.
         clear H1 tmid1. clear H2.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp. simpl_tape.
         unfold atCons_current_rightof in HCons. TMSimp. clear HCons tin tmid0 H0 tmid H tout. cbn.
-        rewrite Shift_fun_correct_midtape.
+        rewrite Shift_fun_correct_midtape; auto.
         rewrite app_comm_cons'. rewrite MoveToSymbol_L_correct_midtape; cbn; auto.
         - hnf. cbn. f_equal. f_equal. rewrite map_id, rev_app_distr; cbn. now rewrite rev_involutive.
         - intros ? [ (?&<-&?) % in_rev % in_map_iff | [ <- | ] ] % in_app_iff; cbn; auto.
@@ -1519,9 +1521,9 @@ Section ToSingleTape.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp.
         unfold atCons_current_niltape in HCons. TMSimp.
         clear HCons tout H5 tmid4 H4 tmid3 H3 tmid2 H2 tmid1 H1 tmid0 H0 tmid H tin.
-        simpl_tape. rewrite Shift_fun_correct_midtape. cbn.
+        simpl_tape. rewrite Shift_fun_correct_midtape; auto. cbn.
         rewrite app_comm_cons'. rewrite MoveToSymbol_L_correct_midtape; cbn; auto.
-        + rewrite app_comm_cons. rewrite Shift_L_fun_correct_midtape. cbn.
+        + rewrite app_comm_cons. rewrite Shift_L_fun_correct_midtape; auto; cbn.
           rewrite map_rev, rev_involutive, !map_id. rewrite MoveToSymbol_correct_midtape; cbn; auto.
           * simpl_tape. rewrite !map_id. cbv [id]. cbn. rewrite !rev_app_distr. cbn.
             hnf. cbn. rewrite <- !map_rev. rewrite !rev_involutive. reflexivity.
@@ -1550,10 +1552,10 @@ Section ToSingleTape.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir.
         unfold atCons_current_leftof in HCons. TMSimp; clear HCons tin.
         exists (16 + 4 * length (encode_list _ tps1)), (20 + 4 * length (encode_list _ tps1)). repeat split.
-        { simpl_list; cbn. rewrite removelast_length. omega. }
+        { rewrite Shift_steps_local. simpl_list; cbn. rewrite removelast_length. omega. }
         { omega. }
         intros tmid [] ->. exists (16 + 4 * length (encode_list _ tps1)), 3. repeat split.
-        { rewrite app_comm_cons. rewrite Shift_L_fun_correct_midtape. rewrite app_comm_cons'. rewrite MoveToSymbol_steps_midtape; cbn; auto.
+        { rewrite app_comm_cons. rewrite Shift_L_fun_correct_midtape; auto. rewrite app_comm_cons'. rewrite MoveToSymbol_steps_midtape; cbn; auto.
           simpl_list. rewrite removelast_length. cbn. omega. }
         { omega. }
         intros ? [] ?. exists 1, 1. repeat split. reflexivity. reflexivity. intros _ _ _. reflexivity.
@@ -1563,10 +1565,10 @@ Section ToSingleTape.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir.
         unfold atCons_current_rightof in HCons. TMSimp; clear HCons tin.
         exists (16 + 4 * length (encode_list _ tps2)), (20 + 4 * length (encode_list _ tps2)). repeat split.
-        { simpl_list; cbn. omega. }
+        { rewrite Shift_steps_local. simpl_list; cbn. omega. }
         { omega. }
         intros tmid [] ->. exists (16 + 4 * length (encode_list _ tps2)), 3. repeat split.
-        { rewrite app_comm_cons. rewrite Shift_fun_correct_midtape. rewrite app_comm_cons'. rewrite MoveToSymbol_L_steps_midtape; cbn; auto.
+        { rewrite app_comm_cons. rewrite Shift_fun_correct_midtape; auto. rewrite app_comm_cons'. rewrite MoveToSymbol_L_steps_midtape; cbn; auto.
           simpl_list. cbn. omega. }
         { omega. }
         intros ? [] ?. exists 1, 1. repeat split. reflexivity. reflexivity. intros _ _ _. reflexivity.
@@ -1578,18 +1580,18 @@ Section ToSingleTape.
         intros tin k (tps1&tps2&tp&HDir&HCons&Hk). cbn in *.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir.
         unfold atCons_current_niltape in HCons. TMSimp; clear HCons tin.
-        rewrite Shift_fun_correct_midtape. cbn.
+        rewrite Shift_fun_correct_midtape; auto. cbn.
         exists (16 + 4 * length (encode_list _ tps2)), (56 + 8 * length (encode_list _ tps1) + 4 * length (encode_list _ tps2)). repeat split; try omega.
-        { simpl_list. cbn. omega. }
+        { rewrite Shift_steps_local. simpl_list. cbn. omega. }
         intros tmid [] ->. exists (16 + 4 * length (encode_list _ tps2)), (39 + 8 * length (encode_list _ tps1)). repeat split; try omega.
         { rewrite app_comm_cons. rewrite app_comm_cons'. rewrite MoveToSymbol_L_steps_midtape; cbn; auto. simpl_list. cbn. omega. }
         intros tmid0 [] ->.
         rewrite app_comm_cons. rewrite app_comm_cons'. rewrite MoveToSymbol_L_correct_midtape; cbn; auto.
         2: { intros ? [ (?&<-&?) % in_rev % in_map_iff | [ <- | ] ] % in_app_iff; cbn; auto. }
         exists (16 + 4 * length (encode_list _ tps1)), (22 + 4 * length (encode_list _ tps1)). repeat split; try omega.
-        { simpl_list. cbn. rewrite removelast_length. omega. }
+        { rewrite Shift_steps_local. simpl_list. cbn. rewrite removelast_length. omega. }
         intros tmid1 [] ->. exists (16 + 4 * length (encode_list _ tps1)), (5). repeat split; try omega.
-        { rewrite app_comm_cons. rewrite Shift_L_fun_correct_midtape. rewrite MoveToSymbol_steps_midtape; cbn; auto.
+        { rewrite app_comm_cons. rewrite Shift_L_fun_correct_midtape; auto. rewrite MoveToSymbol_steps_midtape; cbn; auto.
           simpl_list. rewrite removelast_length. cbn. omega. }
         (* constant time *)
         intros ? [] ?. exists 1, 3. repeat split. reflexivity. reflexivity. intros ? ? ?. exists 1, 1. repeat split. reflexivity. reflexivity. intros _ _ _. reflexivity.

@@ -211,7 +211,6 @@ Section Nth.
 End Nth.
 *)
 
-  
 (** ** Other Implementation of [nth_error] *)
 
 Section Nth'.
@@ -335,7 +334,7 @@ Section Nth'.
         exists CaseNat_steps, (CaseList_steps_cons x). repeat split; cbn; auto.
         intros tmid b (H&HInj1); TMSimp. modpon H. destruct b; cbn in *; auto; simpl_surject.
         { eexists; repeat split; simpl_surject; eauto. }
-      - (* [n = S n'] and [l = nil] *) 
+      - (* [n = S n'] and [l = nil] *)
         exists (CaseNat_steps), (S (CaseList_steps_nil)). repeat split; try omega.
         intros tmid b (HCaseNat&HCaseNatInj); TMSimp. modpon HCaseNat. destruct b; auto. simpl_surject.
         exists (CaseList_steps_nil), 0. repeat split; try omega.
@@ -410,7 +409,7 @@ Section Nth'.
     | O, x :: l' => Nth'_Step_steps l n (* return *)
     | O, nil => Nth'_Step_steps l n (* only [CaseNat] and [If] *)
     end.
-  
+
 
   Definition Nth'_Loop_T : tRel sig^+ 3 :=
     fun tin k => exists (l : list X) (n : nat),
@@ -419,7 +418,7 @@ Section Nth'.
         isRight tin[@Fin2] /\
         Nth'_Loop_steps l n <= k.
 
-  
+
   Lemma Nth'_Loop_Terminates : projT1 Nth'_Loop ↓ Nth'_Loop_T.
   Proof.
     eapply TerminatesIn_monotone.
@@ -573,13 +572,195 @@ Section Nth'.
       }
     }
   Qed.
-  
+
 
 End Nth'.
 
 
 Arguments Nth'_steps {sigX X cX} : simpl never.
 Arguments Nth'_size {sigX X cX} : simpl never.
+
+(** Reverse a list *)
+Section Rev.
+  (* Reversing is just consing and deconsing. We don't save the original list. *)
+
+  Variable (sig sigX : finType) (X : Type) (cX : codable sigX X).
+
+  Definition Rev_Step : pTM (sigList sigX)^+ (option unit) 3 :=
+    If (CaseList _ @[|Fin0;Fin2|])
+       (Return (Constr_cons _ @[|Fin1; Fin2|];; Reset _ @[|Fin2|]) None)
+       (Return (ResetEmpty1 _ @[|Fin0|]) (Some tt)).
+
+  Definition Rev_Step_size (xs : list X) :=
+    match xs with
+    | nil => [| ResetEmpty1_size; id; id |]
+    | x :: xs' => [| CaseList_size0 x; Constr_cons_size x; CaseList_size1 x >> Reset_size x |]
+    end.
+
+  Definition Rev_Step_Rel : pRel (sigList sigX)^+ (option unit) 3 :=
+    fun tin '(yout, tout) =>
+      forall (xs ys : list X) (sx sy sz : nat),
+        let size := Rev_Step_size xs in
+        tin[@Fin0] ≃(;sx) xs ->
+        tin[@Fin1] ≃(;sy) ys ->
+        isRight_size tin[@Fin2] sz ->
+        match yout, xs with
+        | (Some tt), nil =>
+          isRight_size tout[@Fin0] (size@>Fin0 sx) /\
+          tout[@Fin1] ≃(;size@>Fin1 sy) ys /\
+          isRight_size tout[@Fin2] (size@>Fin2 sz)
+        | None, x :: xs' =>
+          tout[@Fin0] ≃(;size@>Fin0 sx) xs' /\
+          tout[@Fin1] ≃(;size@>Fin1 sy) x :: ys /\
+          isRight_size tout[@Fin2] (size@>Fin2 sz)
+        | _, _ => False
+        end.
+
+  Lemma Rev_Step_Realise : Rev_Step ⊨ Rev_Step_Rel.
+  Proof.
+    eapply Realise_monotone.
+    { unfold Rev_Step. TM_Correct.
+      - apply Reset_Realise with (X := X).
+      - eapply RealiseIn_Realise. apply ResetEmpty1_Sem with (X := list X). }
+    {
+      intros tin (yout, tout) H. cbn. intros xs ys sx sy sz Hxs Hys Hright. destruct H as [H|H]; TMSimp.
+      - modpon H. destruct xs as [ | x xs]; cbn in *; auto. TMSimp. modpon H0. modpon H1. repeat split; auto.
+      - modpon H. destruct xs as [ | x xs]; cbn in *; auto. TMSimp. modpon H0. repeat split; auto.
+    }
+  Qed.
+
+  Definition Rev_Step_steps (xs : list X) : nat :=
+    match xs with
+    | nil => 1 + CaseList_steps xs + ResetEmpty1_steps
+    | x :: xs' => 2 + CaseList_steps xs + Constr_cons_steps x + Reset_steps x
+    end.
+
+  Definition Rev_Step_T : tRel (sigList sigX)^+ 3 :=
+    fun tin k => exists (xs ys : list X),
+        tin[@Fin0] ≃ xs /\ tin[@Fin1] ≃ ys /\ isRight tin[@Fin2] /\ Rev_Step_steps xs <= k.
+
+  Lemma Rev_Step_Terminates : projT1 Rev_Step ↓ Rev_Step_T.
+  Proof.
+    eapply TerminatesIn_monotone.
+    { unfold Rev_Step. TM_Correct.
+      - apply Reset_Terminates with (X := X).
+      - eapply RealiseIn_TerminatesIn. apply ResetEmpty1_Sem with (X := X). }
+    {
+      intros tin k. intros (xs&ys&Hxs&Hys&Hright&Hk). destruct xs; cbn in *.
+      - eexists (CaseList_steps _), ResetEmpty1_steps. repeat split; try omega; eauto.
+        intros tmid b (H1&H1Inj); TMSimp. modpon H1. destruct b; cbn in *; auto.
+      - exists (CaseList_steps (x::xs)), (1 + Constr_cons_steps x + Reset_steps x). repeat split; try omega; eauto.
+        intros tmid b (H&HInj); TMSimp. modpon H. destruct b; cbn in *; auto. modpon H.
+        exists (Constr_cons_steps x), (Reset_steps x). repeat split; try omega; eauto.
+        intros tmid0 [] (?H&?HInj); TMSimp. modpon H1. TMSimp. eexists; split; eauto.
+    }
+  Qed.
+
+
+  Definition Rev_Loop := While Rev_Step.
+
+  Fixpoint Rev_Loop_size (xs : list X) : Vector.t (nat->nat) 3 :=
+    match xs with
+    | nil => Rev_Step_size xs
+    | x :: xs' => Rev_Step_size xs >>> Rev_Loop_size xs'
+    end.
+
+  Definition Rev_Loop_Rel : pRel (sigList sigX)^+ unit 3 :=
+    fun tin '(yout, tout) =>
+      forall (xs ys : list X) (sx sy sz : nat),
+        let size := Rev_Loop_size xs in
+        tin[@Fin0] ≃(;sx) xs ->
+        tin[@Fin1] ≃(;sy) ys ->
+        isRight_size tin[@Fin2] sz ->
+        isRight_size tout[@Fin0] (size@>Fin0 sx) /\
+        tout[@Fin1] ≃(;size@>Fin1 sy) rev xs ++ ys /\
+        isRight_size tout[@Fin2] (size@>Fin2 sz).
+
+  Lemma Rev_Loop_Realise : Rev_Loop ⊨ Rev_Loop_Rel.
+  Proof.
+    eapply Realise_monotone.
+    { unfold Rev_Loop. TM_Correct.
+      - apply Rev_Step_Realise. }
+    {
+      apply WhileInduction; intros.
+      - TMSimp. intros. modpon HLastStep. destruct xs as [ | x xs]; cbn in *; auto.
+      - TMSimp. intros. modpon HStar. destruct xs as [ | x xs]; cbn in *; auto. modpon HStar.
+        modpon HLastStep. simpl_list. repeat split; auto.
+    }
+  Qed.
+
+  Fixpoint Rev_Loop_steps (xs : list X) : nat :=
+    match xs with
+    | nil => Rev_Step_steps xs
+    | x :: xs' => 1 + Rev_Step_steps xs + Rev_Loop_steps xs'
+    end.
+
+  Definition Rev_Loop_T : tRel (sigList sigX)^+ 3 :=
+    fun tin k => exists (xs ys : list X),
+        tin[@Fin0] ≃ xs /\ tin[@Fin1] ≃ ys /\ isRight tin[@Fin2] /\ Rev_Loop_steps xs <= k.
+
+  Lemma Rev_Loop_Terminates : projT1 Rev_Loop ↓ Rev_Loop_T.
+  Proof.
+    eapply TerminatesIn_monotone.
+    { unfold Rev_Loop. TM_Correct.
+      - apply Rev_Step_Realise.
+      - apply Rev_Step_Terminates. }
+    { apply WhileCoInduction; intros.
+      destruct HT as (xs&ys&Hxs&Hys&Hright&Hk).
+      exists (Rev_Step_steps xs). repeat split.
+      - hnf; eauto 6.
+      - intros ymid tmid H. cbn in *. modpon H. destruct ymid as [ [] | ].
+        + destruct xs as [ | x xs]; cbn in *; auto.
+        + destruct xs as [ | x xs]; cbn in *; auto. modpon H.
+          exists (Rev_Loop_steps xs). repeat split; try omega.
+          hnf; eauto 6.
+    }
+  Qed.
+
+
+  Definition Rev := Constr_nil _ @[|Fin1|];; Rev_Loop.
+
+  Definition Rev_size (xs : list X) := [| Rev_Loop_size xs @>Fin0; pred >> Rev_Loop_size xs @>Fin1; Rev_Loop_size xs @>Fin2 |].
+
+  Definition Rev_Rel : pRel (sigList sigX)^+ unit 3 :=
+    fun tin '(yout, tout) =>
+      forall (xs : list X) (s0 s1 s2 : nat),
+        let size := Rev_size xs in
+        tin[@Fin0] ≃(;s0) xs ->
+        isRight_size tin[@Fin1] s1 ->
+        isRight_size tin[@Fin2] s2 ->
+        isRight_size tout[@Fin0] (size@>Fin0 s0) /\
+        tout[@Fin1] ≃(;size@>Fin1 s1) rev xs /\
+        isRight_size tout[@Fin2] (size@>Fin2 s2).
+
+  Lemma Rev_Realise : Rev ⊨ Rev_Rel.
+  Proof.
+    eapply Realise_monotone.
+    { unfold Rev. TM_Correct.
+      - apply Rev_Loop_Realise. }
+    { intros tin ([], tout) H. TMSimp. intros. modpon H. modpon H0.
+      repeat split; auto. contains_ext. now simpl_list. }
+  Qed.
+
+  Definition Rev_steps (xs : list X) := 1 + Constr_nil_steps + Rev_Loop_steps xs.
+
+  Definition Rev_T : tRel (sigList sigX)^+ 3 :=
+    fun tin k => exists (xs : list X),
+        tin[@Fin0] ≃ xs /\ isRight tin[@Fin1] /\ isRight tin[@Fin2] /\ Rev_steps xs <= k.
+
+  Lemma Rev_Terminates : projT1 Rev ↓ Rev_T.
+  Proof.
+    eapply TerminatesIn_monotone.
+    { unfold Rev. TM_Correct.
+      - apply Rev_Loop_Terminates. }
+    { intros tin k (xs&Hxs&Hright1&Hright2&Hk).
+      exists (Constr_nil_steps), (Rev_Loop_steps xs). repeat split; hnf; eauto.
+      intros tmid [] (H&HInj); TMSimp. modpon H. hnf. do 2 eexists; repeat split; TMSimp; eauto. }
+  Qed.
+
+
+End Rev.
+
 
 
 
@@ -626,7 +807,7 @@ Section ListStuff.
     xs <> nil ->
     removelast (x :: xs) = x :: removelast xs.
   Proof. intros. change (x :: xs) with ([x] ++ xs). now rewrite removelast_app. Qed.
-    
+
 
   (* TODO: -> base *)
   Corollary removelast_length (xs : list X) :
@@ -639,7 +820,7 @@ Section ListStuff.
 
 End ListStuff.
 
-  
+
 (** ** Append *)
 
 (** I simply copy memory instead of using constructors/deconstructors. The former approach is maybe easier, but I want to use fewer internal tapes. *)
@@ -721,7 +902,7 @@ Section Append.
     }
   Qed.
 
-      
+
 
   Definition App'_steps {sigX X : Type} {cX : codable sigX X} (xs : list X) :=
     29 + 12 * size _ xs.
@@ -761,8 +942,8 @@ Section Append.
       }
     }
   Qed.
-    
-    
+
+
   Definition App : pTM sigList^+ unit 3 :=
     LiftTapes (CopyValue _) [|Fin1; Fin2|];;
     LiftTapes (App') [|Fin0; Fin2|].
@@ -789,11 +970,11 @@ Section Append.
 
   Definition App_steps {sigX X : Type} {cX : codable sigX X} (xs ys : list X) :=
     55 + 12 * size _ xs + 12 * size _ ys.
-    
+
 
   Definition App_T : tRel sigList^+ 3 :=
     fun tin k => exists (xs ys : list X), tin[@Fin0] ≃ xs /\ tin[@Fin1] ≃ ys /\ isRight tin[@Fin2] /\ App_steps xs ys <= k.
-  
+
   Lemma App_Terminates : projT1 App ↓ App_T.
   Proof.
     eapply TerminatesIn_monotone.
@@ -810,7 +991,7 @@ Section Append.
       hnf. cbn. do 2 eexists. repeat split; eauto.
     }
   Qed.
-        
+
 End Append.
 
 
@@ -909,7 +1090,7 @@ Section Lenght.
         now intros _ _ _.
     }
   Qed.
-  
+
 
   Definition Length_Loop := While Length_Step.
 
@@ -919,7 +1100,7 @@ Section Lenght.
     | nil => [|id;id;id|]
     | x :: xs' => Length_Step_size x >>> Length_Loop_size xs'
     end.
-  
+
 
   Definition Length_Loop_Rel : pRel sig^+ unit 3 :=
     ignoreParam (
@@ -980,7 +1161,7 @@ Section Lenght.
         eexists (Length_Loop_steps xs'). repeat split; try omega. hnf. exists xs', (S n). repeat split; eauto.
     }
   Qed.
-  
+
 
   Definition Length : pTM sig^+ unit 4 :=
     LiftTapes (CopyValue _) [|Fin0; Fin3|];;
@@ -1030,7 +1211,7 @@ Section Lenght.
 
   Definition Length_T : tRel sig^+ 4 :=
     fun tin k => exists (xs : list X), tin[@Fin0] ≃ xs /\ isRight tin[@Fin1] /\ isRight tin[@Fin2] /\ isRight tin[@Fin3] /\ Length_steps xs <= k.
-  
+
   Lemma Length_Terminates : projT1 Length ↓ Length_T.
   Proof.
     eapply TerminatesIn_monotone.
