@@ -41,7 +41,8 @@ Section KripkeCompleteness.
       ((forall B psi, A <<= B -> B ;; phi[rho] ⊢s psi -> B ⊢S psi) -> rho ⊨(A, K_ctx) phi).
     Proof.
       revert A rho; enough ((forall A rho, rho ⊨( A, K_ctx) phi -> A ⊢S phi[rho]) /\
-                          (forall A rho, (forall B psi, A <<= B -> B;; phi[rho] ⊢s psi -> B ⊢S psi) -> rho ⊨( A, K_ctx) phi)) by intuition.
+                          (forall A rho, (forall B psi, A <<= B -> B;; phi[rho] ⊢s psi -> B ⊢S psi)
+                                  -> rho ⊨( A, K_ctx) phi)) by intuition.
       induction phi as [|t1 t2|phi [IHphi1 IHphi2] psi [IHpsi1 IHpsi2]|phi [IHphi1 IHphi2]]; cbn; asimpl; split; intros A rho.
       - tauto.
       - eauto.
@@ -50,13 +51,23 @@ Section KripkeCompleteness.
       - intros Hsat. apply IR, IHpsi1. apply Hsat, IHphi2. 1: intuition. eauto.
       - intros H B HB Hphi % IHphi1. apply IHpsi2. intros C xi HC Hxi. apply H.
         1: now transitivity B. eauto using seq_Weak.
-      - intros Hsat. apply AllR. pose (phi' := subst_form (var_term 0 .: (rho >> subst_term (S >> var_term))) phi).
-        destruct (find_unused_L (phi' :: A)). eapply seq_nameless_equiv with (n := x) (phi0 := phi').
+      - intros Hsat. apply AllR.
+        pose (phi' := subst_form (var_term 0 .: (rho >> subst_term (S >> var_term))) phi).
+        destruct (find_unused_L (phi' :: A)).
+        eapply seq_nameless_equiv with (n := x) (phi0 := phi').
         + intros xi Hxi. apply u. constructor. intuition.
         + apply u. omega. intuition.
         + asimpl. apply IHphi1. rewrite ksat_ext. 2: reflexivity. now apply Hsat.
       - intros H t. apply IHphi2. intros B psi HB Hpsi. apply H. assumption.
         apply AllL with (t0 := t). now asimpl in *.
+    Qed.
+
+    Lemma K_ctx_constraint :
+      (if b then kexploding else kbottomless) term K_ctx.
+    Proof.
+      destruct b eqn : Hb; try now intros.
+      intros A rho phi v B HB. apply K_ctx_correct.
+      intros B' psi HB' Hprv. comp. subst. eauto using seq_Weak.
     Qed.
 
     Corollary K_ctx_sprv A rho phi :
@@ -85,8 +96,7 @@ Section KripkeCompleteness.
       intros H % seq_ND. apply K_ctx_subst.
       eapply ksoundness with (C := if b then kexploding else kbottomless); eauto.
       - destruct b. firstorder. discriminate.
-      - destruct b eqn : Hb; try now intros. intros B rho' P v B' HB. apply K_ctx_correct.
-        intros B'' psi HB' Hprv. comp. subst. eauto using seq_Weak.
+      - apply K_ctx_constraint.
       - cbn in H. intros psi HP. apply K_ctx_correct.
         intros B theta H1 H2. eapply Contr; eauto.
         specialize (idSubst_form (fun n : fin => var_term n)) with (s:=psi).
@@ -105,8 +115,7 @@ Section KripkeCompleteness.
     Lemma K_ctx_exploding :
       kexploding (@K_ctx expl).
     Proof.
-      intros A rho P v B HB. apply K_ctx_ksat.
-      intros B' psi HB' Hprv. comp. eauto using seq_Weak.
+      apply (@K_ctx_constraint expl).
     Qed.
 
     Lemma K_exp_completeness A phi :
@@ -122,6 +131,15 @@ Section KripkeCompleteness.
     Proof.
       intros H % seq_ND. apply @ksoundness with (b := expl). 2: apply H. firstorder.
     Qed.
+
+    Fact SE_cut A phi psi :
+      A ⊢SE phi -> A;;phi ⊢sE psi -> A ⊢SE psi.
+    Proof.
+      intros H1 % seq_ND H2 % seq_ND; cbn in *.
+      apply H2 in H1. apply K_exp_completeness.
+      apply @ksoundness with (b := expl); firstorder.
+    Qed.
+    
   End ExplodingCompleteness.
 
   Section BottomlessCompleteness.
@@ -231,7 +249,8 @@ Section KripkeCompleteness.
     Proof.
       intros H. apply (K_std_correct A rho phi).
       intros B psi H1 H2 H3. apply H. intros H'.
-      apply H3. 
+      apply H3. eapply SE_cut; try eassumption.
+      now apply (seq_Weak H').
     Qed.
 
     Corollary K_std_ksat A rho phi :
