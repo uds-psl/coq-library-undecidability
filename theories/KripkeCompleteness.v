@@ -65,6 +65,34 @@ Section KripkeCompleteness.
       now destruct (K_ctx_correct A rho phi).
     Qed.
 
+    Lemma eval_id t :
+      eval (fun n : fin => var_term n) t = t.
+    Proof.
+      induction t using strong_term_ind; comp; asimpl; try congruence. f_equal.
+      erewrite vec_map_ext; try apply H. now apply vec_id.
+    Qed.
+
+    Lemma K_ctx_subst A phi rho :
+      rho ⊨( A, K_ctx) phi <-> (fun n => var_term n) ⊨( A, K_ctx) phi[rho].
+    Proof.
+      rewrite (ksat_comp A (fun n : fin => var_term n) rho phi).
+      apply ksat_ext. intros x. asimpl. now rewrite eval_id.
+    Qed.
+
+    Fact K_ctx_sprv' A rho phi :
+      A ⊢S phi[rho] -> rho ⊨(A, K_ctx) phi.
+    Proof.
+      intros H % seq_ND. apply K_ctx_subst.
+      eapply ksoundness with (C := if b then kexploding else kbottomless); eauto.
+      - destruct b. firstorder. discriminate.
+      - destruct b eqn : Hb; try now intros. intros B rho' P v B' HB. apply K_ctx_correct.
+        intros B'' psi HB' Hprv. comp. subst. eauto using seq_Weak.
+      - cbn in H. intros psi HP. apply K_ctx_correct.
+        intros B theta H1 H2. eapply Contr; eauto.
+        specialize (idSubst_form (fun n : fin => var_term n)) with (s:=psi).
+        intros H'. apply H1. now rewrite <- H' in HP.
+    Qed.
+
     Corollary K_ctx_ksat A rho phi :
       (forall B psi, A <<= B -> B ;; phi[rho] ⊢s psi -> B ⊢S psi) -> rho ⊨(A, K_ctx) phi.
     Proof.
@@ -155,7 +183,7 @@ Section KripkeCompleteness.
 
     Lemma K_std_correct (A : cons_ctx) rho phi :
       (rho ⊨(A, K_std) phi -> ~ ~ A ⊢SC phi[rho]) /\
-      ((forall B psi, A <<=C B -> B ;; phi[rho] ⊢sC psi -> B ⊢SC psi) -> rho ⊨(A, K_std) phi).
+      ((forall B psi, A <<=C B -> B ;; phi[rho] ⊢sC psi -> ~ ~ B ⊢SC psi) -> rho ⊨(A, K_std) phi).
     Proof.
       revert A rho; enough ((forall A rho, rho ⊨( A, K_std) phi -> ~ ~ A ⊢SC phi[rho])
                           /\ (forall A rho, (forall B psi, A <<=C B -> B;; phi[rho] ⊢sC psi -> ~ ~ B ⊢SC psi)
@@ -198,8 +226,16 @@ Section KripkeCompleteness.
       now destruct (K_std_correct A rho phi).
     Qed.
 
+    Corollary K_std_sprv' A rho phi :
+       ~ ~ A ⊢SC phi[rho] -> rho ⊨(A, K_std) phi.
+    Proof.
+      intros H. apply (K_std_correct A rho phi).
+      intros B psi H1 H2 H3. apply H. intros H'.
+      apply H3. 
+    Qed.
+
     Corollary K_std_ksat A rho phi :
-      (forall B psi, A <<=C B -> B ;; phi[rho] ⊢sC psi -> B ⊢SC psi) -> rho ⊨(A, K_std) phi.
+      (forall B psi, A <<=C B -> B ;; phi[rho] ⊢sC psi -> ~ ~ B ⊢SC psi) -> rho ⊨(A, K_std) phi.
     Proof.
       now destruct (K_std_correct A rho phi).
     Qed.
