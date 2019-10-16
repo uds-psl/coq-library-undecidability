@@ -40,8 +40,9 @@ Section KripkeCompleteness.
       (rho ⊨(A, K_ctx ) phi -> A ⊢S phi[rho]) /\
       ((forall B psi, A <<= B -> B ;; phi[rho] ⊢s psi -> B ⊢S psi) -> rho ⊨(A, K_ctx) phi).
     Proof.
-      revert A rho; enough ((forall A rho, rho ⊨( A, K_ctx) phi -> A ⊢S phi[rho]) /\ (forall A rho, (forall B psi, A <<= B -> B;; phi[rho] ⊢s psi -> B ⊢S psi) -> rho ⊨( A, K_ctx) phi)) by intuition.
-      induction phi as [| t1 t2 | phi [IHphi1 IHphi2] psi [IHpsi1 IHpsi2] | phi [IHphi1 IHphi2]]; cbn; asimpl; split; intros A rho.
+      revert A rho; enough ((forall A rho, rho ⊨( A, K_ctx) phi -> A ⊢S phi[rho]) /\
+                          (forall A rho, (forall B psi, A <<= B -> B;; phi[rho] ⊢s psi -> B ⊢S psi) -> rho ⊨( A, K_ctx) phi)) by intuition.
+      induction phi as [|t1 t2|phi [IHphi1 IHphi2] psi [IHpsi1 IHpsi2]|phi [IHphi1 IHphi2]]; cbn; asimpl; split; intros A rho.
       - tauto.
       - eauto.
       - now rewrite (vec_ext (fun x => universal_interp_eval rho x)).
@@ -72,6 +73,7 @@ Section KripkeCompleteness.
   End Contexts.
 
   Section ExplodingCompleteness.
+
     Lemma K_ctx_exploding :
       kexploding (@K_ctx expl).
     Proof.
@@ -145,14 +147,10 @@ Section KripkeCompleteness.
       - abstract (cctx; firstorder).
     Defined.
 
-    Lemma nsprv_cons A phi :
-      (forall H, (exist cons A H) ⊢SC phi) -> ~ ~ A ⊢SE phi.
+    Lemma K_std_standard :
+      kstandard K_std.
     Proof.
-      intros Hsat H.
-      assert (HA : ~ ~ (A ⊢SE ⊥ \/ ~ A ⊢SE ⊥)) by tauto.
-      apply HA. clear HA. intros [HA|HA].
-      - apply H. apply Absurd. assumption.
-      - apply H, (Hsat HA).
+      intros []. cbn. trivial.
     Qed.
 
     Lemma K_std_correct (A : cons_ctx) rho phi :
@@ -204,12 +202,6 @@ Section KripkeCompleteness.
       (forall B psi, A <<=C B -> B ;; phi[rho] ⊢sC psi -> B ⊢SC psi) -> rho ⊨(A, K_std) phi.
     Proof.
       now destruct (K_std_correct A rho phi).
-    Qed.
-
-    Lemma K_std_standard :
-      kstandard K_std.
-    Proof.
-      intros []. cbn. trivial.
     Qed.
 
     Lemma K_std_completeness A phi :
