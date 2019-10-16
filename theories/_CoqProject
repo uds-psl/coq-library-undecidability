@@ -178,7 +178,7 @@ TM/Code/Copy.v
 TM/Code/CompareValue.v
 TM/Code/ProgrammingTools.v
 
-# Casees and constructors
+# Cases and constructors
 TM/Code/CaseNat.v
 TM/Code/CaseSum.v
 TM/Code/CaseList.v
@@ -189,6 +189,18 @@ TM/Code/CasePair.v
 #TM/Code/SumTM.v
 TM/Code/NatTM.v
 TM/Code/ListTM.v
+
+# Binary Numbers
+TM/Code/BinNumbers/EncodeBinNumbers.v
+TM/Code/BinNumbers/PosDefinitions.v
+TM/Code/BinNumbers/PosPointers.v
+TM/Code/BinNumbers/PosHelperMachines.v
+TM/Code/BinNumbers/PosIncrementTM.v
+TM/Code/BinNumbers/PosCompareTM.v
+TM/Code/BinNumbers/PosShiftTM.v
+TM/Code/BinNumbers/PosAddTM.v
+TM/Code/BinNumbers/PosMultTM.v
+TM/Code/BinNumbers/NTM.v
 
 # Multi-Tape to Single-Tape Compiler
 TM/Single/EncodeTapes.v

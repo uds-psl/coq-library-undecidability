@@ -139,7 +139,7 @@ End Encode_map_comp.
 
 Hint Rewrite Encode_map_id Encode_map_comp : encode_comp.
 
-  
+
 
 (** Builds simple retract functions like [sigSum -> option sigX] in the form
 [fun x => match x with constructor_name y => Retr_g y | _ => None] *)
@@ -196,7 +196,7 @@ Proof.
   revert y. induction A as [ | a A IH]; intros; cbn in *; auto.
   decide (y = f a) as [-> | ?]; auto. now contradiction (H a).
 Qed.
-  
+
 
 Section Encode_sum.
   Variable (X Y : Type).
@@ -214,7 +214,7 @@ Section Encode_sum.
   Global Instance Retract_sigSum_Y (sigX sigY tau : Type) (f : Retract sigY tau) : Retract sigY (sigSum sigX tau).
   Proof. build_simple_retract. Defined.
 
-  
+
   Global Instance sigSum_dec (sigX sigY : Type) (decX: eq_dec sigX) (decY: eq_dec sigY) :
     eq_dec (sigSum sigX sigY) := ltac:(build_eq_dec).
 
@@ -233,7 +233,7 @@ Section Encode_sum.
     - rewrite <- !countSplit. rewrite !countMap_zero. omega. all: congruence.
   Qed.
 
-  
+
   Variable (sigX sigY : Type).
   Hypothesis (cX : codable sigX X) (cY : codable sigY Y).
 
@@ -251,7 +251,7 @@ Section Encode_sum.
        | inl x => S (size cX x)
        | inr y => S (size cY y)
     end.
-  
+
   Lemma Encode_sum_hasSize s :
     size Encode_sum s = Encode_sum_size s.
   Proof. cbn. destruct s; cbn; cbv [Encode_sum_size]; rewrite map_length; reflexivity. Qed.
@@ -312,7 +312,7 @@ Section Encode_pair.
 
   Global Instance sigPair_dec (sigX sigY : Type) (decX: eq_dec sigX) (decY: eq_dec sigY) :
     eq_dec (sigPair sigX sigY) := ltac:(build_eq_dec).
-  
+
   Global Instance sigPair_fin (sigX sigY : finType) : finTypeC (EqType (sigPair sigX sigY)).
   Proof.
     split with (enum := map sigPair_X enum ++ map sigPair_Y enum). intros [x|y]; cbn; f_equal.
@@ -327,7 +327,7 @@ Section Encode_pair.
   Qed.
 
   Variable (sigX sigY: Type) (X Y: Type) (cX : codable sigX X) (cY : codable sigY Y).
-  
+
   Global Instance Encode_pair : codable (sigPair sigX sigY) (X*Y) :=
     {|
       encode '(x,y) := Encode_map _ _ x ++ Encode_map _ _ y;
@@ -343,7 +343,7 @@ Section Encode_pair.
     intros HX HY. intros [x1 y1] [x2 y2] H; cbn in *.
     apply map_app_map_seperate in H as [-> % HX -> % HY]; auto; congruence.
   Qed.
-  
+
 End Encode_pair.
 
 Arguments sigPair_X {sigX sigY}. Arguments sigPair_Y {sigX sigY}.
@@ -541,7 +541,7 @@ Section Encode_list.
     | nil => 1
     | x :: xs' => S (size cX x + Encode_list_size xs')
     end.
-  
+
   Lemma Encode_list_hasSize (xs : list X) : size _ xs = Encode_list_size xs.
   Proof.
     induction xs as [ | x xs IH]; cbn; f_equal.
@@ -637,7 +637,7 @@ Section Encode_nat.
 
   Lemma Encode_nat_hasSize n : size _ n = S n.
   Proof. cbn. rewrite app_length, repeat_length. cbn. omega. Qed.
-  
+
   Corollary Encode_nat_eq_nil n :
     Encode_nat n <> nil.
   Proof. intros H % length_zero_iff_nil. fold (size _ n) in H. rewrite Encode_nat_hasSize in H. omega. Qed.
@@ -655,7 +655,6 @@ Check FinType(EqType sigNat).
 
 
 
-    
 (** Test Playground *)
 
 (*
