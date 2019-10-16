@@ -5,11 +5,11 @@ Feel free to contribute or start using the problems!
 
 ## Existing undecidable problems
 
-- Post correspondence problem (`PCP` in [`Problems/PCP.v`](theories/Problems/PCP.v))
+- Post correspondence problem (`PCP` in [`Problems/PCP.v`](theories/Problems/PCP.v)), `**good seed**`
 - Halting problems for single-tape and multi-tape Turing machines (`Halt` in [`Problems/TM.v`](theories/Problems/TM.v))
 - Halting problem for Minsky machines (`MM_HALTING` in [`Problems/MM.v`](theories/Problems/MM.v))
 - Halting problem for two counters Minsky machines (`MM2_HALTING` in [`Problems/MM2.v`](theories/Problems/MM2.v)) with 
-  self-contained explanations
+  self-contained explanations, `**good seed**`
 - Halting problem for Binary Stack Machines (`BSM_HALTING` in [`Problems/BSM.v`](theories/Problems/BSM.v))
 - Halting problem for the call-by-value lambda-calculus (`eva` in [`Problems/L.v`](theories/Problems/L.v))
 - String rewriting (`SR` in [`Problems/SR.v`](theories/Problems/SR.v))
@@ -18,12 +18,12 @@ Feel free to contribute or start using the problems!
 - Provability in Minimal (Intuitionistic, Classical) First-Order Logic (`prv` in [`Problems/FOL.v`](theories/Problems/FOL.v))
 - Validity in Minimal (Intuitionistic, Classical) First-Order Logic (`valid` in [`Problems/FOL.v`](theories/Problems/FOL.v), `kvalid` in [`Problems/FOL.v`](theories/Problems/FOL.v))
 - Satisfiability in Intuitionistic (Classical) First-Order Logic (`satis` in [`Problems/FOL.v`](theories/Problems/FOL.v), `ksatis` in [`Problems/FOL.v`](theories/Problems/FOL.v))
-- Halting problem for FRACTRAN programs (`FRACTRAN_REG_HALTING` in [`Problems/FRACTRAN.v`](theories/Problems/FRACTRAN.v))
+- Halting problem for FRACTRAN programs (`FRACTRAN_REG_HALTING` in [`Problems/FRACTRAN.v`](theories/Problems/FRACTRAN.v)), `**good seed**`
 - Satisfiability for elementary diophantine constraints (`DIO_ELEM_SAT` 
   in [`Problems/DIOPHANTINE.v`](theories/Problems/DIOPHANTINE.v))
 - [Hilbert's 10th problem](https://uds-psl.github.io/H10), i.e. solvability of a single diophantine equation (`H10` in 
   in [`Problems/DIOPHANTINE.v`](theories/Problems/DIOPHANTINE.v))
-- Satisfiability of elementary Diophantine constraints of the form `x=1`, `x=y+z` or `x=y.z` without parameters (`H10C_SAT` in [`Problems/H10C.v`](theories/Problems/H10C.v))
+- Satisfiability of elementary Diophantine constraints of the form `x=1`, `x=y+z` or `x=y.z` without parameters (`H10C_SAT` in [`Problems/H10C.v`](theories/Problems/H10C.v)), `**good seed**`
 
 ## How to build
 
