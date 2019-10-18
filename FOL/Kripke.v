@@ -127,11 +127,11 @@ Notation "rho '⊩(' u , M , eta ')' phi" := (@ksat _ eta M _ u rho phi) (at lev
 
 (** ** Connection to Tarski Semantics *)
 
-Program Instance interp_kripke {domain eta} (I : interp domain eta) : kmodel  eta :=
+Instance interp_kripke {domain eta} (I : interp domain eta) : kmodel  eta :=
   {| nodes := unit ; reachable u v := True |}.
-(*coq 8.10 workaround*)
-Next Obligation.
- apply emb_refl.
+Proof.
+  all: try abstract tauto.
+  intros. apply emb_refl.
 Defined.
 
 Lemma kripke_tarski domain eta (b : logic) (I : interp domain eta) rho phi :

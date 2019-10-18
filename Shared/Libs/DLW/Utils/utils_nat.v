@@ -467,7 +467,7 @@ Section nat_minimize.
   Variable P : nat -> Prop.
   Hypothesis HP : forall n, { P n } + { ~ P n }.
 
-  Inductive bar_min (n : nat) : Prop :=
+  Local Inductive bar_min (n : nat) : Prop :=
     | in_bar_min_0 : P n -> bar_min n
     | in_bar_min_1 : bar_min (S n) -> bar_min n.
 
