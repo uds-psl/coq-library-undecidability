@@ -298,5 +298,130 @@ Section KripkeCompleteness.
       intros psi Hpsi % HT'. apply (ksat_mon Hv Hpsi).
     Qed.
   End MPRequired.
+
+
+
+
+  Section Theories.
+    Context {b : bottom}.
+    Context {HF : eq_dec Funcs} {HP : eq_dec Preds}.
+
+    Notation "T ⊢ST phi" := (stprv T phi) (at level 20).
+    Notation "T ;; psi ⊢sT phi" := (exists A, A ⊏ T /\ A ;; psi ⊢s phi) (at level 20).
+
+    Instance K_th : kmodel term :=
+      {|
+        reachable := subset_T ;
+        k_interp := universal_interp ;
+        k_P := fun T P v => T ⊢ST (Pred P v) ;
+        k_Bot := fun T => T ⊢ST ⊥
+      |}.
+    Proof.
+      all: abstract (firstorder).
+    Defined.
+
+    Lemma IR_th T phi psi :
+      (T ⋄ phi) ⊢ST psi -> T ⊢ST (phi --> psi).
+    Proof.
+      intros (A & HA1 & HA2). exists (rem A phi); split.
+      - intros f [[] % HA1 Hf2] % in_rem_iff; subst; intuition.
+      - eapply IR, seq_Weak. 1: apply HA2. transitivity (phi :: A). 1: eauto. apply rem_equi.
+    Qed.
+
+    Lemma IL_th T phi psi theta :
+      T ⊢ST phi -> T;; psi ⊢sT theta -> T;; phi --> psi ⊢sT theta.
+    Proof.
+      intros (A & H1 & H2) (B & H3 & H4).
+      exists (A++B). split.
+      - intros phi' [H|H] % in_app_iff; auto.
+      - apply IL; eauto using seq_Weak.
+    Qed.
+
+    Lemma Contr_th T phi psi :
+      T;; phi ⊢sT psi -> T phi -> T ⊢ST psi.
+    Proof.
+      intros (A & HA1 & HA2) H. exists (phi::A). split; try intuition.
+      apply Contr with phi; auto. apply seq_Weak with A; auto.
+    Qed.
+    
+    Lemma AllL_th T phi psi t :
+       T;; phi[t..] ⊢sT psi -> T;; ∀ phi ⊢sT psi.
+    Proof.
+      firstorder eauto using AllL. exists P.
+
+    Lemma K_th_correct (T : theory) rho phi :
+      (rho ⊨(T, K_th ) phi -> T ⊢ST phi[rho]) /\
+      ((forall T' psi, T ⊑ T' -> T';; phi[rho] ⊢sT psi -> T' ⊢ST psi) -> rho ⊨(T, K_th) phi).
+    Proof.
+      revert T rho; enough ((forall T rho, rho ⊨(T, K_th ) phi -> T ⊢ST phi[rho]) /\
+                          (forall T rho, (forall T' psi, T ⊑ T' -> T';; phi[rho] ⊢sT psi -> T' ⊢ST psi) -> rho ⊨(T, K_th) phi)) by intuition.
+      induction phi as [|t1 t2|phi [IHphi1 IHphi2] psi [IHpsi1 IHpsi2]|phi [IHphi1 IHphi2]]; cbn; asimpl; split; intros T rho.
+      - tauto.
+      - firstorder.
+      - now rewrite (vec_ext (fun x => universal_interp_eval rho x)).
+      - rewrite (vec_ext (fun x => universal_interp_eval rho x)). firstorder.
+      - intros Hsat. apply IR_th, IHpsi1. apply Hsat, IHphi2. 1: firstorder.
+        intros T' theta H1 H2. eapply Contr_th; eauto. apply H1. intuition.
+      - intros H B HB Hphi % IHphi1. apply IHpsi2. intros C xi HC Hxi. apply H.
+        1: now transitivity B. apply IL_th; firstorder.
+      - (*intros Hsat. apply AllR.
+        pose (phi' := subst_form (var_term 0 .: (rho >> subst_term (S >> var_term))) phi).
+        destruct (find_unused_L (phi' :: A)).
+        eapply seq_nameless_equiv with (n := x) (phi0 := phi').
+        + intros xi Hxi. apply u. constructor. intuition.
+        + apply u. omega. intuition.
+        + asimpl. apply IHphi1. rewrite ksat_ext. 2: reflexivity. now apply Hsat.*)
+        admit.
+      - intros H t. apply IHphi2. intros B psi HB Hpsi. apply H. assumption.
+        apply AllL with (t0 := t). now asimpl in *.
+    Qed.
+
+    Lemma K_ctx_constraint :
+      (if b then kexploding else kbottomless) term K_ctx.
+    Proof.
+      destruct b eqn : Hb; try now intros.
+      intros A rho phi v B HB. apply K_ctx_correct.
+      intros B' psi HB' Hprv. comp. subst. eauto using seq_Weak.
+    Qed.
+
+    Corollary K_ctx_sprv A rho phi :
+      rho ⊨(A, K_ctx) phi -> A ⊢S phi[rho].
+    Proof.
+      now destruct (K_ctx_correct A rho phi).
+    Qed.
+
+    Lemma eval_id t :
+      eval (fun n : fin => var_term n) t = t.
+    Proof.
+      induction t using strong_term_ind; comp; asimpl; try congruence. f_equal.
+      erewrite vec_map_ext; try apply H. now apply vec_id.
+    Qed.
+
+    Lemma K_ctx_subst A phi rho :
+      rho ⊨( A, K_ctx) phi <-> (fun n => var_term n) ⊨( A, K_ctx) phi[rho].
+    Proof.
+      rewrite (ksat_comp A (fun n : fin => var_term n) rho phi).
+      apply ksat_ext. intros x. asimpl. now rewrite eval_id.
+    Qed.
+
+    Fact K_ctx_sprv' A rho phi :
+      A ⊢S phi[rho] -> rho ⊨(A, K_ctx) phi.
+    Proof.
+      intros H % seq_ND. apply K_ctx_subst.
+      eapply ksoundness with (C := if b then kexploding else kbottomless); eauto.
+      - destruct b. firstorder. discriminate.
+      - apply K_ctx_constraint.
+      - cbn in H. intros psi HP. apply K_ctx_correct.
+        intros B theta H1 H2. eapply Contr; eauto.
+        specialize (idSubst_form (fun n : fin => var_term n)) with (s:=psi).
+        intros H'. apply H1. now rewrite <- H' in HP.
+    Qed.
+
+    Corollary K_ctx_ksat A rho phi :
+      (forall B psi, A <<= B -> B ;; phi[rho] ⊢s psi -> B ⊢S psi) -> rho ⊨(A, K_ctx) phi.
+    Proof.
+      now destruct (K_ctx_correct A rho phi).
+    Qed.
+  End Contexts.
   
 End KripkeCompleteness.
