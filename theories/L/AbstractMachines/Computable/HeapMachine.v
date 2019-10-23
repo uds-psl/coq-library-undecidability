@@ -4,6 +4,7 @@ From Undecidability.L.Datatypes Require Import LNat LProd Lists LOptions.
 From Undecidability.L Require AbstractHeapMachine.
 From Undecidability.L Require Import AbstractMachines.Computable.Shared.
 From Undecidability.L.Tactics Require Import LTactics.
+Require Import List.
 
 (** *** Heap Machine *)
 

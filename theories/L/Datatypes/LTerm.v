@@ -1,5 +1,6 @@
 From Undecidability.L.Tactics Require Import LTactics GenEncode.
 From Undecidability.L.Datatypes Require Export LNat.
+From Undecidability.L Require Export L.
 
 (** ** Encoding for L-terms *)
 Run TemplateProgram (tmGenEncode "term_enc" term).

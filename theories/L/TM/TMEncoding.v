@@ -1,6 +1,7 @@
 From Undecidability.L.Tactics Require Import LTactics GenEncode.
 From Undecidability.L.Datatypes Require Import LNat Lists LProd.
 From Undecidability.L.Computability Require Import MuRec.
+Require Import List.
 
 From Undecidability Require Import TM.TM.
 Require Import PslBase.FiniteTypes.FinTypes.

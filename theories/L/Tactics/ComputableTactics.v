@@ -574,7 +574,7 @@ Proof.
   computable using t.
 Qed.
 
-Notation "'computableTime' f" := (@computableTime _ ltac:(let t:=type of f in refine (_ : TT t);exact _) f) (at level 0,only parsing).
+Notation "'computableTime' f" := ( @computableTime _ ltac:(let t:=type of f in refine (_ : TT t);exact _) f) (at level 0,only parsing).
 
 Lemma cast_computableTime X Y `{registered Y} (cast : X -> Y) (Hc : injective cast):
   let _ := registerAs cast Hc in

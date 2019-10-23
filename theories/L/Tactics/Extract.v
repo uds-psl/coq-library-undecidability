@@ -367,7 +367,7 @@ Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad 
     ret (rho t)
   | Ast.tApp s R =>
     params <- tmDependentArgs s;;
-    if params =? 0 then
+    if Nat.eqb params  0 then
       t <- extract env s fuel;;
       monad_fold_left (fun t1 s2 => t2 <- extract env s2 fuel ;; ret (app t1 t2)) R t
     else

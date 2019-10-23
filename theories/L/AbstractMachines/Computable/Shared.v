@@ -2,6 +2,7 @@ From Undecidability.L Require Import L.
 From Undecidability.L.AbstractMachines Require Import Programs FunctionalDefinitions.
 From Undecidability.L.Datatypes Require Import LNat LProd Lists LOptions.
 From Undecidability.L.Tactics Require Import LTactics.
+Require Export List.
 
 (** * Computability in L *)
 (** *** Encoding for Tokens *)

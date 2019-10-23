@@ -1,7 +1,8 @@
 From Undecidability.L Require Import L Tactics.Computable Tactics.ComputableTactics Tactics.Extract.
 From MetaCoq.Template Require Import All TemplateMonad.Core Ast.
+Require Export String List.
 
-Import MonadNotation String.
+Import MonadNotation.
 Open Scope string_scope.
 
 (** *** Generation of encoding functions *)
