@@ -1,22 +1,10 @@
-all: Makefile.coq
-	+make -f Makefile.coq all
+all:
+	+make -C theories all
 
-html: Makefile.coq
-	+make -f Makefile.coq html
-	mv html/*.html website
-	rm -rf html
+clean:
+	+make -C theories clean
 
-install: Makefile.coq
-	+make -f Makefile.coq install
+html:
+	+make -C theories website
 
-uninstall: Makefile.coq
-	+make -f Makefile.coq uninstall
-
-clean: Makefile.coq
-	+make -f Makefile.coq clean
-	rm -f Makefile.coq Makefile.coq.conf
-
-Makefile.coq: _CoqProject
-	coq_makefile -f _CoqProject -o Makefile.coq
-
-.PHONY: all html clean
+.PHONY: all html clean 
