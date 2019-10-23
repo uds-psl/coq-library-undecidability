@@ -188,7 +188,7 @@ Definition encode_bound : MsetU_PROBLEM :=
     [ 
       (x ⊍ y, •[0] ⊍ (h x)); 
       (y ⊍ (x ⊍ z) ⊍ (x ⊍ z), 0 ⊍ (h (x ⊍ z)));
-      (0 ⩀ (x ⊍ y), •[0] ⩀ x)
+      (0 ⩀ (x ⊍ y), •[0] ⩀ (x ⊍ y))
     ].
 
 
@@ -299,7 +299,7 @@ Tactic Notation "induction" "on" hyp(x) "with" "measure" uconstr(f) :=
 
 (* forces B to contain small elements *)
 (* second constraint of encode bound *)
-Lemma element_bound_spec A B n : 
+Lemma element_bound_lt_spec A B n : 
   [n] ++ A ++ A ≡ B ++ (map S A) -> Forall (fun m => n >= m) B.
 Proof.
   case: (gt_0_eq (length A)); first last.
@@ -324,28 +324,32 @@ Proof.
   by move=> [+].
 Qed.
 
-
-Lemma second_constraint A B n : 
-  [n] ++ ((seq 0 n) ++ A) ++ ((seq 0 n) ++ A) ≡ B ++ (map S ((seq 0 n) ++ A)) -> 
-  exists C, A ≡ [n] ++ C /\ Forall (fun m => n > m) C.
+Lemma in_seq {a n} : a < n -> In a (seq 0 n).
 Proof.
-(* use max A *)
 Admitted.
 
-Require Import ListFacts.
-Require Import UserTactics.
+Lemma in_intersect {a A B} : In a (mset_intersect A B) <-> (In a A /\ In a B).
+Proof.
+Admitted.
 
-Lemma third_constraint A n : mset_intersect A (seq 0 n) ≡ [0] ->
-  Forall (fun m => n > m) A -> Forall (fun m => 0 = m) A.
+(* forces B to contain zeroes *)
+(* third constraint of encode bound *)
+Lemma element_bound_eq_spec A n : mset_intersect A (seq 0 n) ≡ mset_intersect [0] (seq 0 n) ->
+  Forall (fun a => n > a) A -> Forall (fun a => 0 = a) A.
 Proof.
   move => *.
-  case: (Forall_dec (fun m => 0 = m) _ A). admit.
-  done.
-  rewrite <- Exists_Forall_neg.
-
+  case: (Forall_dec (fun m => 0 = m) _ A) => //. 
+    by apply: Nat.eq_dec.
+  rewrite <- Exists_Forall_neg; first last.
+    move=> x. case: (Nat.eq_dec 0 x); by auto.
   move/Exists_exists => [a [? ?]]. exfalso.
-  grab Forall. move/Forall_forall /(_ _ ltac:(eassumption)). admit. (* doable *)
-Admitted.
+  grab Forall. move /Forall_forall /(_ a ltac:(assumption)).
+  move=> ?. have: a < n by lia.
+  move /in_seq => ?.
+  grab mset_eq. move /eq_in_iff /(_ a).
+  rewrite ? in_intersect.
+  by firstorder.
+Qed.
 
 
 
