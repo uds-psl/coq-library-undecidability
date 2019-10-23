@@ -3,6 +3,7 @@ all:
 
 clean:
 	+make -C theories clean
+	rm -rf ./website/*.html
 
 html:
 	+make -C theories website
