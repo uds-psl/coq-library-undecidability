@@ -17,9 +17,10 @@ remove: [
   ["rm" "-R" "%{lib}%/coq/user-contrib/Undecidability"]
 ]
 depends: [
-  "coq" {>= "8.8" & < "8.9"}
+  "coq" {>= "8.8" & < "8.10"}
   "coq-equations" {= "1.2+8.8" | = "1.2+8.9"}
   "ocaml" {> "4.02.3"}
+  "coq-metacoq" {="1.0~alpha+8.8" | = "1.0~alpha+8.9" }
 ]
 
 synopsis: "A library of undecidable problems in Coq"
