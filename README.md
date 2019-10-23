@@ -27,9 +27,12 @@ Feel free to contribute or start using the problems!
 
 ## How to build
 
+If you can use `opam 2` on your system, you can follow the instructions here.
+If you cannot use `opam 2`, you can use the `noopam` branch of this repository, which has no dependencies, but less available problems.
+
 ### Required packages
 
-You need `Coq 8.8.1`, `8.8.2` or `8.9.1` built on OCAML `> 4.02.3` and the [Equations](https://mattam82.github.io/Coq-Equations/) package for Coq. If you're using opam 2 you can use the following commands to install the dependencies on a new switch:
+You need `Coq 8.8.1`, `8.8.2` or `8.9.1` built on OCAML `> 4.02.3`, the [Equations](https://mattam82.github.io/Coq-Equations/) package and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. If you're using opam 2 you can use the following commands to install the dependencies on a new switch:
 
 ```
 opam switch create coq-library-undecidability 4.07.1+flambda
@@ -42,8 +45,7 @@ opam install . --deps-only
 The Undecidability libraries depends on several external libraries. Initialise and build them once as follows:
 
 ``` sh
-git submodule init
-git submodule update
+git submodule update --init --recursive
 make deps
 ```
 
@@ -67,7 +69,7 @@ make deps
 
 ## How to contribute
 
-- Fork the project.
+- Fork the project on GitHub.
 - Create a new subdirectory for your project and add your files.
 - Add a license for your project.
 - Edit the "Existing undecidable problems" and the "Contributors" section in this file
@@ -81,5 +83,6 @@ make deps
 - Fabian Kunze
 - Dominique Larchey-Wendling
 - Gert Smolka
+- Simon Spies
 - Maximilian Wuttke
 
