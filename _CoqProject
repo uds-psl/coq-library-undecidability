@@ -144,6 +144,10 @@ H10/FRACTRAN_DIO.v
 H10/H10.v
 H10/DPRM.v
 
+MsetU/Facts.v
+MsetU/UserTactics.v
+MsetU/ListFacts.v
+
 Problems/FOL.v
 Problems/cbvLambda.v
 Problems/TM.v
