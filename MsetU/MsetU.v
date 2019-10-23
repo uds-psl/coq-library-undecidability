@@ -14,8 +14,10 @@
     where ≡ is equality up to permutation 
   *)
 
+Require Import Arith.
 Require Import List.
 Import ListNotations.
+
 
 Set Implicit Arguments.
 
@@ -26,12 +28,18 @@ Inductive mset : Set :=
   | mset_cap : mset -> mset -> mset
   | mset_h : mset -> mset.
 
+(*
 (* list equality up to permutation *)
 Fixpoint mset_eq (A B : list nat) : Prop := 
   match A with
   | [] => B = []
   | (n :: A) => exists (B1 B2 : list nat), B = B1 ++ (n :: B2) /\ (mset_eq A (B1 ++ B2))
   end.
+*)
+
+(* list equality up to permutation *)
+Definition mset_eq (A B : list nat) : Prop := 
+  forall c, In c A \/ In c B -> count_occ Nat.eq_dec A c = count_occ Nat.eq_dec B c.
 Notation "A ≡ B" := (mset_eq A B) (at level 65).
 
 (* removes the first occurrence of n in A, fails otherwise *)
@@ -91,25 +99,87 @@ Require Import Psatz.
 
 Require Import Facts.
 Require Import ListFacts.
-
+Require Import UserTactics.
 
 Set Implicit Arguments.
 Set Maximal Implicit Insertion.
 
-Lemma eq_length {A B} : A ≡ B -> length A = length B.
-Proof.
-  elim : A B.
-  - by move=> B ->.
-  - move=> n A IH B. rewrite /mset_eq -/mset_eq. move=> [B1 [B2 [-> +]]].
-    move /IH => /= ->. rewrite ? app_length => /=. by lia.
-Qed.  
-  
+(*
+Notation "n .+1" := (Datatypes.S n) (at level 2, left associativity, format "n .+1").
+Notation "n .-1" := (Nat.pred n) (at level 2, left associativity, format "n .-1").
+*)
+
+(* list facts *)
+
 Lemma singleton_length {X : Type} {A : list X} : length A = 1 -> exists a, A = [a].
 Proof.
   case : A.
   - done.
   - move => a A /=. case. move /length_zero_iff_nil => ->. by eexists.
 Qed.
+
+Lemma exists_max {A} : length A > 0 -> exists a, In a A /\ Forall (fun b => a >= b) A.
+Proof.
+Admitted.
+
+
+Section Mset.
+
+  Lemma eq_length {A B} : A ≡ B -> length A = length B.
+  Admitted.
+(*
+Proof.
+  elim : A B.
+  - by move=> B ->.
+  - move=> n A IH B. rewrite /mset_eq -/mset_eq. move=> [B1 [B2 [-> +]]].
+    move /IH => /= ->. rewrite ? app_length => /=. by lia.
+Qed.  
+  *)
+
+  Lemma eq_in {A B} : A ≡ B -> forall c, (In c A <-> In c B).
+  Proof.
+  Admitted.
+  
+  Lemma eq_refl {A} : A ≡ A.
+  Proof.
+    done.
+  Qed.
+  
+  Lemma eq_symm {A B} : A ≡ B -> B ≡ A.
+  Proof.
+    by firstorder.
+  Qed.
+  
+  Lemma mset_eq_trans {A B C} : A ≡ B -> B ≡ C -> A ≡ C.
+  Proof.
+    move /copy => [/eq_in + +] /copy [/eq_in + +].
+    by firstorder.
+  Qed.
+
+  (*
+  Lemma eq_app {A B} : A ++ B ≡ B ++ A.
+  Proof.
+  Admitted.
+
+  Lemma eq_cons {a A} : a :: A ≡ A ++ [a].
+  Proof.
+    rewrite -/(app [a] A). by apply: eq_app.
+  Qed.
+  *)
+
+  Lemma eq_consE {a A B} : (a :: A) ≡ B -> exists B1 B2, B = B1 ++ (a :: B2) /\ A ≡ (B1 ++ B2).
+  Proof.
+  Admitted.
+
+  Lemma eq_cons_iff {a A B} : (a :: A) ≡ (a :: B) <-> A ≡ B.
+  Proof.
+  Admitted.
+
+
+  Lemma eq_nilE {A} : [] ≡ A -> A = [].
+  Proof.
+  Admitted.
+End Mset.
 
 
 (* satisfied iff variable 0 is evaluated to repeat 0 (pow 2 n) for n > 0 *)
@@ -121,34 +191,9 @@ Definition encode_bound : MsetU_PROBLEM :=
       (0 ⩀ (x ⊍ y), •[0] ⩀ x)
     ].
 
-Lemma exists_max {A} : length A > 0 -> exists a, In a A /\ Forall (fun b => a >= b) A.
-Proof.
-Admitted.
 
-Lemma mset_eq_spec {A B} : A ≡ B <-> forall c, In c A \/ In c B -> count_occ Nat.eq_dec A c = count_occ Nat.eq_dec B c.
-Proof.
-Admitted.
 
-Lemma mset_eq_in {A B} : A ≡ B -> forall c, (In c A <-> In c B).
-Proof.
-Admitted.
 
-Lemma mset_eq_refl {A} : A ≡ A.
-Proof.
-  by apply /mset_eq_spec.
-Qed.
-
-Lemma mset_eq_symm {A B} : A ≡ B -> B ≡ A.
-Proof.
-  rewrite ? mset_eq_spec. by firstorder.
-Qed.
-
-Lemma mset_eq_trans {A B C} : A ≡ B -> B ≡ C -> A ≡ C.
-Proof.
-  move /copy => [/mset_eq_in + +] /copy [/mset_eq_in + +].
-  rewrite ? mset_eq_spec.
-  by firstorder.
-Qed.
 
 Lemma count_occ_app {X : Type} {D : forall x y : X, {x = y} + {x <> y}} {A B c}:
   count_occ D (A ++ B) c = count_occ D A c + count_occ D B c.
@@ -161,15 +206,7 @@ Proof.
   rewrite /count_occ /is_left. by case: (D a c).
 Qed.
 
-Lemma mset_eq_app {A B} : A ++ B ≡ B ++ A.
-Proof.
-  rewrite ? mset_eq_spec.
-Admitted.
 
-Lemma mset_eq_cons {a A} : a :: A ≡ A ++ [a].
-Proof.
-  rewrite -/(app [a] A). by apply: mset_eq_app.
-Qed.
 
 Lemma eq_lr {A B A' B'}:
   A ≡ A' -> B ≡ B' -> (A ≡ B) = (A' ≡ B').
@@ -184,7 +221,20 @@ Admitted.
 
 (* solves trivial multiset equalities *)
 Ltac mset_eq_trivial := 
-  apply /mset_eq_spec => ? ?; rewrite ? (count_occ_app, count_occ_cons, count_occ_nil); by lia.
+  move=> ? ?; rewrite ? (count_occ_app, count_occ_cons, count_occ_nil); by lia.
+
+
+Lemma seq_last start length : seq start (S length) = (seq start length) ++ [start + length].
+Proof.
+  elim : length start.
+    move => * /=. f_equal. by lia.
+  move => length IH start /=. f_equal.
+  have -> : start + S length = (S start) + length by lia.
+  by apply : IH.
+Qed.
+
+Lemma cons_length {X : Type} {a : X} {A : list X} : length (a :: A) = 1 + length A.
+Proof. done. Qed.
 
 Lemma seq_spec A B : A ++ B ≡ [0] ++ (map S A) ->
   exists n, A ≡ seq 0 n /\ B = [n].
@@ -199,50 +249,41 @@ Proof.
   move => A. move lA : (length A) => k.
   case: k lA.
     move /length_zero_iff_nil => ? _. subst A.
-    move=> n /=. move=> [? [? [+ /app_eq_nil [? ?]]]].
+    move=> n /=. move /eq_consE => [? [? [+ /eq_nilE /app_eq_nil [? ?]]]].
     subst => /=. by case=> <-.
   move=> k lA.
   have [m [+ ?]] := @exists_max A (ltac:(lia)).
   move /(in_split _ _) => [A1 [A2 ?]]. subst A.
   move=> IH n.
-  have: n = 1+m. admit. (*doable*)
+  move /copy => [H +].
+  have: n = 1+m.
+    move : H. rewrite ? map_app map_cons. rewrite /mset_eq.
+    move /(_ (S m)).
+    apply: unnest.
+      rewrite ? (in_app_iff, in_cons_iff). by auto.
+    have: In (S m) (0 :: map S A1 ++ S m :: map S A2).
+      rewrite ? (in_app_iff, in_cons_iff). by auto.
+    move /(count_occ_In Nat.eq_dec). 
+    apply: swap. move=> <-.
+    move /(count_occ_In Nat.eq_dec).
+    rewrite in_app_iff. case.
+      grab Forall. move /Forall_forall. move=> + H. move /(_ _ H). by lia.
+    rewrite /In /plus. by case.
   move=> ?. subst n.
-
-  simpl.
-  under (eq_lr (A' := []) (B' := [])).
-
-  Opaque mset_eq.
-
-  under (eq_lr (A' := []) (B' := [])).
-  rewrite /mset_eq.
-  all: rewrite -/mset_eq.
-
-  have Hl : (A1 ++ m :: A2) ++ [1 + m] ≡ (1 + m) :: (A1 ++ A2) ++ [m].
+  under (eq_lr (A' := (1 + m) :: (A1 ++ A2) ++ [m]) (B' := (1 + m) :: 0 :: map S (A1 ++ A2))).
+  all: rewrite -/(mset_eq _ _).
     by mset_eq_trivial.
-  have Hr : 0 :: map S (A1 ++ m :: A2) ≡ (1 + m) :: 0 :: (map S (A1 ++ A2)).
-    rewrite ? map_app map_cons. rewrite /plus. by mset_eq_trivial.
-  
-  rewrite (eq_lr Hl Hr). move=> /=.
-    
-    rewrite ? count_occ_app count_occ_cons.
-    rewrite ? count_occ_cons.
-    rewrite ? count_occ_app count_occ_cons. rewrite ? count_occ_app count_occ_cons.
-    
-    by lia.
-  move=> Heql. under (eq_lr Heql).
-    rewrite ? in_app_iff in_cons_iff.
-
-  under (eq_lr mset_eq_app mset_eq_refl).
-
-  move /mset_eq_trans.
-  
-  rewrite map_app map_cons.
-  
-  move => H.
-  suff : (B1 ++ B2 ≡ seq 0 m).
-  admit.
-  apply : IH. admit.
-  admit.
+    rewrite ? map_app map_cons /plus. by mset_eq_trivial.
+  move /eq_cons_iff /IH.
+  apply: unnest.
+    move: lA. rewrite ? app_length cons_length. by lia.
+  move => ?.
+  under (eq_lr (A' := m :: (A1 ++ A2)) (B' := m :: (seq 0 m))).
+  all: rewrite -/(mset_eq _ _).
+    by mset_eq_trivial.
+    rewrite seq_last /plus. by mset_eq_trivial.
+  by apply /eq_cons_iff.
+Qed.
 
 Lemma first_constraint_1 x y ϕ : MsetU_SAT_ϕ ϕ [(x ⊍ y, h y ⊍ •[0])] -> exists (n : nat), mset_sem ϕ x = [n].
 Proof.
