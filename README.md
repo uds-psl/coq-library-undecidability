@@ -14,6 +14,6 @@ See the `master` branch for an overview of problems in the library, a contributi
 
 You need to have Coq `8.8.1`, `8.8.2` or `8.9.1`. You don't need any external libraries or tools.
 
-- `make all` builds all subprojects by calling `make all` of the corresponding subproject's makefile
+- `make all` builds the library
 - `make html` generates clickable coqdoc `.html` in the `website` subdirectory
 - `make clean` removes all build files and `.html` files
