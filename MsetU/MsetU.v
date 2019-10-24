@@ -178,6 +178,13 @@ Qed.
   Proof.
   Admitted.
 
+  Lemma eq_app_iff {A B C} : (A ++ B) ≡ (A ++ C) <-> B ≡ C.
+  Proof.
+  Admitted.
+
+  Lemma eq_map_iff {f} {A B}: map f A ≡ map f B <-> A ≡ B.
+  Proof.
+  Admitted.
 
   Lemma eq_nilE {A} : [] ≡ A -> A = [].
   Proof.
@@ -302,7 +309,6 @@ Lemma mset_intersect_eq {A B C} : B ≡ C -> mset_intersect A B = mset_intersect
 Proof.
 Admitted.
 
-
 Tactic Notation "induction" "on" hyp(x) "with" "measure" uconstr(f) :=
   let H := fresh in pose H := f; pattern x in H; 
   match goal with [H := ?f x |- _] => (clear H; elim/(measure_ind f) : x) end.
@@ -384,26 +390,96 @@ Proof.
   grab Forall. apply /Forall_impl => *. by lia.
 Qed.
 
+Lemma intersect_repeat {a n A} : n > 0 -> In a A -> mset_intersect (repeat a n) A = [a].
+Proof.
+Admitted.
+
+
+Lemma seq_succ {m n} : seq m (S n) = m :: (seq (S m) n).
+Proof.
+  done.
+Qed.
+
+
+Lemma flat_map_cons {X Y : Type} {f : X -> list Y} {a A} : 
+  flat_map f (a :: A) = (f a) ++ (flat_map f A).
+Proof.
+  done.
+Qed.
+
+Lemma repeat_succ {X : Type} {x : X} {n} : repeat x (S n) = x :: repeat x n.
+Proof.
+  done.
+Qed.
+
+Lemma repeat_add {X : Type} {x : X} {m n} : repeat x (m + n) = repeat x m ++ repeat x n.
+Proof.
+Admitted.
+
+Lemma repeat_eq_length {X : Type} {x : X} {m n} : (m = n) <-> (repeat x m = repeat x n).
+Proof.
+Admitted.
+
+Lemma repeat_map {X Y: Type} {f: X -> Y} {x: X} {n} : repeat (f x) n = map f (repeat x n).
+Proof.
+Admitted.
+
+(* there is a solution that substitutes variable 0 by a multiset of size 2^n containing 0s *)
 Lemma encode_bound_sat ϕ n : 
     let x := 1 in
     let y := 2 in 
     let z := 3 in 
-    ϕ 0 = repeat 0 (Nat.pow 2 n) -> ϕ x = [n] -> ϕ y = seq 0 n -> 
-    ϕ z = flat_map (fun i => repeat i (Nat.pred (Nat.pow 2 (n-i)))) (seq 0 n) ->
+    ϕ 0 = repeat 0 (Nat.pow 2 n) -> ϕ x = seq 0 n -> ϕ y = [n] -> 
+    ϕ z = flat_map (fun i => repeat i (Nat.pred (Nat.pow 2 ((Nat.pred n)-i)))) (seq 0 n) ->
     mset_sat ϕ encode_bound.
   Proof.
-    rewrite /encode_bound /MsetU_SAT_ϕ2. rewrite ? Forall_cons_iff.
-    move : (3) => z. move : (2) => y. move : (1) => x. move=> /=.
+    rewrite /encode_bound /mset_sat. rewrite ? Forall_cons_iff => /=.
     move=> -> -> -> ->.
     split.
-      admit. (* easy *)
+      rewrite <- seq_last. by rewrite seq_shift.
     split.
-      admit. (* hard *)  
+      elim: n.
+        done.
+      pose A k m n := flat_map (fun i : nat => repeat i (Nat.pred (2 ^ (k - i)))) (seq m n).
+      move=> n IH. rewrite -/(A _ _ _) in IH.
+      rewrite ? seq_succ flat_map_cons Nat.sub_0_r Nat.pred_succ.
+      
+      rewrite -/(A _ _ _).
+      under (eq_lr _ eq_refl (A' := 
+        repeat 0 (2 ^ S n) ++ (([S n] ++ (seq 1 n) ++ A n 1 n) ++ (seq 1 n) ++ A n 1 n))).
+      all: rewrite -/(mset_eq _ _).
+        have -> : repeat 0 (2 ^ S n) = (0 :: repeat 0 (Nat.pred (2 ^ n))) ++ (0 :: repeat 0 (Nat.pred (2 ^ n))).
+          rewrite <- ? repeat_succ. rewrite <- repeat_add. apply /repeat_eq_length.
+          have : Nat.pow 2 n <> 0 by apply: Nat.pow_nonzero.
+          move=> /=. by lia.
+        by mset_eq_trivial.
+      apply /eq_app_iff.
+      rewrite <- seq_shift.
+      have: A n 1 n = map S (A (Nat.pred n) 0 n).
+        rewrite /A ? flat_map_concat_map. rewrite <- seq_shift. rewrite concat_map.
+        rewrite ? map_map. f_equal.
+        apply: map_ext => a. rewrite repeat_map.
+        do 4 f_equal. by lia.
+      have -> : [S n] = map S [n] by done.
+      move=> ->. rewrite <- ? map_app.
+      apply /eq_map_iff.
+      under (eq_lr IH eq_refl).
+        rewrite -/(mset_eq _ _). rewrite map_app.
+        have -> : repeat 0 (2 ^ n) = 0 :: repeat 0 (Nat.pred (2 ^ n)).
+          rewrite <- repeat_succ. f_equal.
+          have : Nat.pow 2 n <> 0 by apply: Nat.pow_nonzero.
+          by lia.
+        by mset_eq_trivial.
     split.
-      admit. (* easy *)
+      case: n.
+        done.
+      move=> n /=. rewrite /(mset_intersect []). rewrite intersect_repeat.
+        have : Nat.pow 2 n <> 0 by apply: Nat.pow_nonzero. 
+        by lia.
+      by left.
+      done.
     done.
-Admitted.
-
+Qed.
 
 
 Definition encode_nat (u : nat) : MsetU_PROBLEM :=
