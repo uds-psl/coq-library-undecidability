@@ -147,6 +147,11 @@ Qed.
   Proof.
     done.
   Qed.
+
+  Lemma eq_eq {A B}: A = B -> A ≡ B.
+  Proof.
+    by move=> ->.
+  Qed.
   
   Lemma eq_symm {A B} : A ≡ B -> B ≡ A.
   Proof.
@@ -222,7 +227,7 @@ Proof.
 Qed.
 
 Lemma eq_lr {A B A' B'}:
-  A ≡ A' -> B ≡ B' -> (A ≡ B) = (A' ≡ B').
+  A ≡ A' -> B ≡ B' -> (A ≡ B) <-> (A' ≡ B').
 Admitted.
 
 Lemma app_cons_spec {X : Type} {a : X} {A : list X} : a :: A = (locked [a]) ++ A.
@@ -570,6 +575,31 @@ Proof.
   move /eq_map_iff. move /IH.
   move: HB => /eq_length. rewrite app_length map_length repeat_length.
   by nia.
+Qed.
+
+(* there exist solutions for quasi-square contraints *)
+Lemma quasi_square_sat {n}:
+  let A := flat_map (fun i => repeat i ((Nat.pred n) - i)) (seq 0 n) in
+  (seq 0 n) ++ A ≡ (repeat 0 n) ++ (map S A).
+Proof.
+  move=> A. subst A.
+  elim: n.
+    by done.
+  move=> n IH /=.
+  apply /eq_cons_iff. rewrite ? Nat.sub_0_r.
+  under (eq_lr _ eq_refl (A' := repeat 0 n ++ seq 1 n ++ flat_map (fun i : nat => repeat i (n - i)) (seq 1 n))).
+  all: rewrite -/(mset_eq _ _).
+    by mset_eq_trivial.
+  apply /eq_app_iff. 
+  move: IH => /(eq_map_iff (f := S)).
+  
+  rewrite <- seq_shift. rewrite ? flat_map_concat_map.
+  rewrite ? map_app concat_map. rewrite ? map_map.
+  move /(eq_lr _ _). apply.
+  - apply /eq_app_iff. apply: eq_eq. f_equal. apply: map_ext => a.
+    rewrite repeat_map. do 2 f_equal. by lia.
+  - apply /eq_app_iff. apply: eq_eq. do 2 f_equal. apply: map_ext => a.
+    rewrite repeat_map. do 2 f_equal. by lia. 
 Qed.
 
 
