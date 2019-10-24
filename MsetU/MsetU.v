@@ -104,6 +104,9 @@ Require Import UserTactics.
 Set Implicit Arguments.
 Set Maximal Implicit Insertion.
 
+Arguments mset_eq !A !B.
+Arguments mset_intersect !A !B.
+
 (*
 Notation "n .+1" := (Datatypes.S n) (at level 2, left associativity, format "n .+1").
 Notation "n .-1" := (Nat.pred n) (at level 2, left associativity, format "n .-1").
@@ -218,9 +221,6 @@ Admitted.
 Lemma app_cons_spec {X : Type} {a : X} {A : list X} : a :: A = (locked [a]) ++ A.
 Proof. by rewrite -lock. Qed.
 
-Lemma eq_head {c A B} : (c :: A) ≡ (c :: B) -> A ≡ B.
-Proof.
-Admitted.
 
 (* solves trivial multiset equalities *)
 Ltac mset_eq_trivial := 
@@ -247,6 +247,14 @@ Lemma eq_Forall_iff {A B} : A ≡ B -> forall P, (Forall P A <-> Forall P B).
 Proof.
 Admitted.
 
+Lemma nil_or_ex_max (A : list nat) : A = [] \/ exists a, In a A /\ Forall (fun b => a >= b) A.
+Proof.
+  case: A.
+    by left.
+  move=> ? ?. right. apply: exists_max => /=. by lia.
+Qed.
+  
+
 (* forces instance to be a sequence *)
 (* first constraint of encode bound *)
 Lemma seq_spec A B : A ++ B ≡ [0] ++ (map S A) ->
@@ -258,14 +266,11 @@ Proof.
   move /singleton_length => [n ? Heq]. subst B. 
   exists n. constructor => //.
   move: n Heq.
-  elim /(measure_ind (@length nat)) : A.
-  move => A. move lA : (length A) => k.
-  case: k lA.
-    move /length_zero_iff_nil => ? _. subst A.
-    move=> n /=. move /eq_consE => [? [? [+ /eq_nilE /app_eq_nil [? ?]]]].
+  elim /(measure_ind (@length nat)) : A => A.
+  case: (nil_or_ex_max A).
+    move=> -> _ n /=. move /eq_consE => [? [? [+ /eq_nilE /app_eq_nil [? ?]]]].
     subst => /=. by case=> <-.
-  move=> k lA.
-  have [m [+ ?]] := @exists_max A (ltac:(lia)).
+  move=> [m [+ ?]].
   move /(in_split _ _) => [A1 [A2 ?]]. subst A.
   move=> IH n.
   move /copy => [H +].
@@ -284,7 +289,7 @@ Proof.
     rewrite ? map_app map_cons /plus. by mset_eq_trivial.
   move /eq_cons_iff /IH.
   apply: unnest.
-    move: lA. rewrite ? app_length cons_length. by lia.
+    rewrite ? app_length cons_length. by lia.
   move => ?.
   under (eq_lr (A' := m :: (A1 ++ A2)) (B' := m :: (seq 0 m))).
   all: rewrite -/(mset_eq _ _).
@@ -292,6 +297,11 @@ Proof.
     rewrite seq_last /plus. by mset_eq_trivial.
   by apply /eq_cons_iff.
 Qed.
+
+Lemma mset_intersect_eq {A B C} : B ≡ C -> mset_intersect A B = mset_intersect A C.
+Proof.
+Admitted.
+
 
 Tactic Notation "induction" "on" hyp(x) "with" "measure" uconstr(f) :=
   let H := fresh in pose H := f; pattern x in H; 
@@ -302,12 +312,12 @@ Tactic Notation "induction" "on" hyp(x) "with" "measure" uconstr(f) :=
 Lemma element_bound_lt_spec A B n : 
   [n] ++ A ++ A ≡ B ++ (map S A) -> Forall (fun m => n >= m) B.
 Proof.
-  case: (gt_0_eq (length A)); first last.
-    move /Nat.eq_sym_iff /length_zero_iff_nil ->.
+  case: (nil_or_ex_max A).
+    move=> ->.
     rewrite ? app_nil_r. move /eq_consE => [? [? [+ +]]].
     move=> ->. move /eq_nilE /app_eq_nil => [-> ->].
     by constructor.
-  move /exists_max => [a [? ?]].
+  move=> [a [? ?]].
   move /copy => [/eq_in_iff /(_ (S a)) /iffRL].
   apply: unnest.
     rewrite ? in_app_iff in_map_iff. by eauto.
@@ -323,6 +333,7 @@ Proof.
     1-2: grab Forall; apply /Forall_impl; move => *; by lia.
   by move=> [+].
 Qed.
+
 
 Lemma in_seq {a n} : a < n -> In a (seq 0 n).
 Proof.
@@ -351,7 +362,27 @@ Proof.
   by firstorder.
 Qed.
 
-
+(* any solution of encode_bound substitutes variable 0 by a multiset of 0s *)
+Lemma encode_bound_spec ϕ : mset_sat ϕ encode_bound -> Forall (fun a => 0 = a) (ϕ 0).
+Proof.
+  rewrite /encode_bound /mset_sat.
+  rewrite ? Forall_cons_iff. move=> [+ [+ [+ _]]].
+  
+  move=> /=.
+  move: (ϕ 3) => D. move: (ϕ 2) => C. move: (ϕ 1) => B. move: (ϕ 0) => A.
+  move /seq_spec => [n [? HB]]. subst C.
+  move /element_bound_lt_spec => ?.
+  have HBn: B ++ [n] ≡ seq 0 (1+n).
+    rewrite seq_last => /=.
+    under (eq_lr (A' := [n] ++ B) (B' := [n] ++ seq 0 n)).
+    all: rewrite -/(mset_eq _ _).
+      by mset_eq_trivial.
+      by mset_eq_trivial.
+      by apply /eq_cons_iff.
+  rewrite ? (mset_intersect_eq HBn).
+  move /element_bound_eq_spec. apply.
+  grab Forall. apply /Forall_impl => *. by lia.
+Qed.
 
 Lemma encode_bound_sat ϕ n : 
     let x := 1 in
@@ -359,7 +390,7 @@ Lemma encode_bound_sat ϕ n :
     let z := 3 in 
     ϕ 0 = repeat 0 (Nat.pow 2 n) -> ϕ x = [n] -> ϕ y = seq 0 n -> 
     ϕ z = flat_map (fun i => repeat i (Nat.pred (Nat.pow 2 (n-i)))) (seq 0 n) ->
-    MsetU_SAT_ϕ2 ϕ encode_bound.
+    mset_sat ϕ encode_bound.
   Proof.
     rewrite /encode_bound /MsetU_SAT_ϕ2. rewrite ? Forall_cons_iff.
     move : (3) => z. move : (2) => y. move : (1) => x. move=> /=.
@@ -373,24 +404,7 @@ Lemma encode_bound_sat ϕ n :
     done.
 Admitted.
 
-Lemma encode_bound_spec ϕ : MsetU_SAT_ϕ2 ϕ encode_bound -> Forall (fun a => 0 = a) (ϕ 0).
-Proof.
-  rewrite /encode_bound /MsetU_SAT_ϕ2.
-  rewrite ? Forall_cons_iff. move=> [+ [+ [+ _]]].
 
-  move => /=.
-  move: (ϕ 3) => C. move: (ϕ 2) => B. move: (ϕ 1) => A. move: (ϕ 0) => X.
-  have: exists n, A = [n] /\ B = seq 0 n. admit. (* here I NEED that B = seq 0 n*)
-  move=> [n ?]. subst A. move=> _.
-  have: Forall (fun a => n > a) (B ++ C). admit. move=> ?.
-  have: Forall (fun a => n >= a) X. admit. move=> ?.
-  move=> _. case: (mset_try_remove 0 B).
-  move=> _. grab Forall. elim: X.
-  admit.
-  move => a X IH. rewrite ? Forall_cons_iff. move=> [? ?].
-  move=> /=.
-
-Admitted.
 
 Definition encode_nat (u : nat) : MsetU_PROBLEM :=
   let x := 1+u in
