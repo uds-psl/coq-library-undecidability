@@ -481,6 +481,115 @@ Lemma encode_bound_sat ϕ n :
     done.
 Qed.
 
+Lemma eq_h {A}: A ≡ map S A -> A = [].
+Proof.
+Admitted.
+
+Lemma app_eq_head_r {a A B C} : A ++ B ≡ a :: C -> not (In a A) -> exists D, B ≡ a :: D.
+Proof.
+  move /eq_in_iff /(_ a) /iffRL. apply: unnest.
+    by left.
+  move /in_app_iff. case.
+    by done.
+  move /(in_split _ _) => [A1 [A2 ->]] _.
+  exists (A1 ++ A2). by mset_eq_trivial.  
+Qed.
+
+
+Lemma eq_map_app_r {A B C}: A ++ B ≡ map S C -> exists D, B ≡ map S D.
+Proof.
+  elim: B A C.
+    move=> *. by exists [].
+  move=> b B IH A C /=. move /copy => [/eq_in_iff]. move /(_ b) /iffLR.
+  apply: unnest.
+    rewrite in_app_iff in_cons_iff. by firstorder.
+  move /in_map_iff => [b' [?]]. subst b.
+  move /(in_split _) => [C1 [C2 ?]]. subst C.
+  rewrite map_app map_cons.
+  under (eq_lr (A' := S b' :: (A ++ B)) (B' := S b' :: (map S C1 ++ map S C2))).
+    1-2: by mset_eq_trivial.
+  move /eq_cons_iff. rewrite <- map_app. move /IH => [C HC].
+  exists (b' :: C).
+  by apply /eq_cons_iff.
+Qed.
+
+
+Lemma eq_mapE {A B}: A ≡ map S B -> exists C, A = map S C.
+Proof.
+  elim: B A.
+    move=> A /=. move /eq_symm /eq_nilE ->. by exists [].
+  move=> a B IH A /=. move /copy => [/eq_in_iff]. move /(_ (S a)) /iffRL.
+  apply: unnest.
+    by left.
+  move /(in_split _) => [A1 [A2 ?]]. subst A.
+  under (eq_lr _ eq_refl (A' := S a :: (A1 ++ A2))).
+    by mset_eq_trivial.
+  move /eq_cons_iff /IH => [C HC].
+  (* now we are talking equalities *)
+Admitted.
+
+(*A ++ B = map f C -> exists A' B', A = map f A' /\ B = map B'.*)
+
+Lemma contains_repeat {n A B C} : map S B ++ A ≡ repeat 0 n ++ map S C -> exists D, A ≡ repeat 0 n ++ (map S D).
+Proof.
+  elim: n A.
+    move=> A /=. by apply /eq_map_app_r.
+  move=> n IH A /=. move /copy => [/app_eq_head_r]. apply: unnest.
+    by move /in_map_iff => [? [?]].
+  move=> [D ?].
+  under (eq_lr _ eq_refl (A' := map S B ++ (0 :: D))).
+    rewrite -/(mset_eq _ _). by apply /eq_app_iff.
+  under (eq_lr _ eq_refl (A' := 0 :: (map S B ++ D))).
+    by mset_eq_trivial.
+  move /eq_cons_iff /IH. move=> [D' ?].
+  exists D'.
+  under (eq_lr (A' := 0 :: D) (B' := 0 :: D)).
+  all: rewrite -/(mset_eq _ _) => //.
+  by apply /eq_cons_iff /eq_symm.
+Qed.
+
+(* forces multiset size to be n*(n-1)/2 *)
+Lemma quasi_square_spec {n A} : (seq 0 n) ++ A ≡ (repeat 0 n) ++ (map S A) -> 
+  (length A) + (length A) + n = n * n.
+Proof.
+  elim: n A.
+    by move=> A /= /eq_h ->.
+  move=> n IH A.
+  move=> /= /eq_cons_iff.
+  move /copy => [H].
+  rewrite <- seq_shift. move /contains_repeat.
+  move=> [B HB]. move: H.
+  move=> /=.
+  under (eq_lr (A' := seq 1 n ++ (repeat 0 n ++ map S B)) (B' := repeat 0 n ++ map S (repeat 0 n ++ map S B))).
+  all: rewrite -/(mset_eq _ _).
+    by apply /eq_app_iff.
+    by apply /eq_app_iff /eq_map_iff.
+  under (eq_lr _ eq_refl (A' := repeat 0 n ++ seq 1 n ++ map S B)).
+    by mset_eq_trivial.
+  move /eq_app_iff. rewrite <- seq_shift. rewrite <- map_app.
+  move /eq_map_iff. move /IH.
+  move: HB => /eq_length. rewrite app_length map_length repeat_length.
+  by nia.
+Qed.
+
+
+Definition encode_square_aux (u : nat) : MsetU_PROBLEM :=
+  let x := 6+u in
+  let y := 7+u in 
+  let z := 8+u in 
+  let v := 9+u in
+  let w := 10+u in
+  [
+    (x ⊍ y, h y ⊍ '[0]);
+    (y ⊍ z, h z ⊍ u);
+    (z ⊍ w, h w ⊍ t); (*2*|t| = |u|*|u|-|u|*)
+    (t ⊍ t ⊍ u, mset_var v)
+  ].
+
+
+
+Obsolete
+
 
 Definition encode_nat (u : nat) : MsetU_PROBLEM :=
   let x := 1+u in
