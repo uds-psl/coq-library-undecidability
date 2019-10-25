@@ -1697,7 +1697,3 @@ Section sums.
   End inc_seq.
 
 End sums.  
-
-Check Code_plus_spec.
-Check Code_mult_spec.
-Check CodeNat_dio.

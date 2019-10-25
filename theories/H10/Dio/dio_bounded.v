@@ -421,9 +421,6 @@ Proof.
   simpl; split; intros H n Hn; apply H; revert Hn; rewrite Ha; auto.
 Defined.
 
-Check dio_rel_fall_lt.
-Print Assumptions dio_rel_fall_lt.
-
 Hint Resolve dio_rel_fall_lt.
 
 Theorem dio_rel_fall_lt_bound a (K : nat -> nat -> (nat -> nat) -> Prop) : 

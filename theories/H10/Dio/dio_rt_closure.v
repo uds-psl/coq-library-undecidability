@@ -92,6 +92,3 @@ Section df_rel_iter.
 End df_rel_iter.
 
 Hint Resolve dio_rel_rel_iter.
-
-Check dio_rel_rt.
-Print Assumptions dio_rel_rt.
