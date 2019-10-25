@@ -161,6 +161,3 @@ Proof.
   apply dio_rel_compose with (R := fun x v => l /F/ x ↓); auto.
   apply FRACTRAN_HALTING_on_diophantine; auto.
 Qed.
-
-Check FRACTRAN_HALTING_on_exp_diophantine.
-Print Assumptions FRACTRAN_HALTING_on_exp_diophantine.

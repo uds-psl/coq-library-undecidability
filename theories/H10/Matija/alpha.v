@@ -918,9 +918,6 @@ Proof.
   + apply alpha_nat_divides_k_ge_1; auto.
 Qed.
 
-Check alpha_nat_divisibility_1.
-Print Assumptions alpha_nat_divisibility_1.
-
 Section divisibility_2.
 
   Variable (b : nat) (Hb : 2 <= b) (k : nat) (Hk : k <> 0).
@@ -1102,9 +1099,6 @@ Proof.
   * apply alpha_nat_divides_2_pos; omega.
 Qed.
 
-Check alpha_nat_divisibility_2.
-Print Assumptions alpha_nat_divisibility_2.
-
 Section congruence_1.
 
   Variable (b1 b2 : nat) (Hb1 : 2 <= b1) (Hb2 : 2 <= b2)
@@ -1150,9 +1144,6 @@ Proof.
   replace b with ((b-2)+2) at 1 by omega.
   apply rem_erase with 1; omega.
 Qed.
-
-Check alpha_nat_congruence_0.
-Check alpha_nat_congruence_1.
 
 Section congruence_2.
 

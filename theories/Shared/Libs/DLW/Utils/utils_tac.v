@@ -7,22 +7,13 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import Arith List Wellfounded.
+Require Import Arith List Wellfounded Extraction.
 
 Set Implicit Arguments.
 
 Definition eqdec X := forall x y : X, { x = y } + { x <> y }.
 
 Definition swap {X Y} (c : X * Y) := let (x,y) := c in (y,x).
-
-Theorem measure_rect X (m : X -> nat) (P : X -> Type) :
-      (forall x, (forall y, m y < m x -> P y) -> P x) -> forall x, P x.
-Proof. 
-  apply well_founded_induction_type, wf_inverse_image, lt_wf.
-Qed.
-
-Tactic Notation "induction" "on" hyp(x) "as" ident(IH) "with" "measure" uconstr(f) :=
-  pattern x; revert x; apply measure_rect with (m := fun x => f); intros x IH.
 
 Tactic Notation "eq" "goal" hyp(H) := 
   match goal with 
@@ -58,27 +49,6 @@ Ltac msplit n :=
     | S ?n => split; [ | msplit n ]
    end.
 
-Tactic Notation "define" ident(f) "of" hyp(n) hyp(m) "as" uconstr(t)  :=
-  match type of n with ?N =>  
-    match type of m with ?M  => pose (f (n:N) (m:M) := t) end end.
-
-Tactic Notation "induction" "on" hyp(x) hyp(y) "as" ident(IH) "with" "measure" uconstr(f) :=
-  generalize I; intro IH;
-  let mes := fresh "measure" in let rel := fresh "relation" in let loop := fresh "loop" in
-  let u := fresh "u" in let u' := fresh x in let Hu := fresh "Hu" in 
-  let v := fresh "v" in let v' := fresh y in let Hv := fresh "Hv" 
-  in clear IH; 
-     define mes of x y as (f : nat);
-     set (rel u v := mes (fst u) (snd u) < mes (fst v) (snd v)); unfold fst, snd in rel;
-     pattern x, y; match goal with
-       |- ?T _ _ => 
-       refine ((fix loop u v (Hu : Acc rel (u,v)) { struct Hu } : T u v := _) x y _);
-       [ assert (forall u' v', rel (u',v') (u,v) -> T u' v') as IH;
-         [ intros u' v' Hv; apply (loop u' v'), (Acc_inv Hu), Hv 
-         | unfold rel, mes in *; clear mes rel Hu loop x y; rename u into x; rename v into y ]
-       | unfold rel; apply wf_inverse_image, lt_wf ]
-     end.
-
 Section forall_equiv.
 
   Variable (X : Type) (A P Q : X -> Prop) (HPQ : forall n, A n -> P n <-> Q n).
@@ -101,3 +71,74 @@ Section exists_equiv.
 
 End exists_equiv.
 
+Section measure_rect_123.
+
+  Section measure_rect.
+
+    Variable (X : Type) (m : X -> nat) (P : X -> Type).
+
+    Hypothesis F : forall x, (forall y, m y < m x -> P y) -> P x.
+
+    Definition measure_rect x : P x.
+    Proof.
+      cut (Acc (fun x y => m x < m y) x).
+      + revert x.
+        refine (fix loop x H := @F x (fun x' H' => loop x' _)).
+        apply (Acc_inv H), H'.
+      + apply wf_inverse_image with (f := m), lt_wf.
+    Defined.
+
+  End measure_rect.
+
+  Section measure_rect2.
+
+    Variable (X Y : Type) (m : X -> Y -> nat) (P : X -> Y -> Type).
+
+    Hypothesis F : forall x y, (forall x' y', m x' y' < m x y -> P x' y') -> P x y.
+
+    Let m' (c : X * Y) := match c with (x,y) => m x y end.
+    Let R c d := m' c < m' d.
+
+    Definition measure_rect2 x y : P x y.
+    Proof.
+      cut (Acc R (x,y)).
+      + revert x y.
+        refine (fix loop x y H := @F x y (fun x' y' H' => loop x' y' _)).
+        apply (Acc_inv H), H'.
+      + apply wf_inverse_image with (f := m'), lt_wf.
+    Defined.
+
+  End measure_rect2.
+
+  Section measure_rect3.
+
+    Variable (X Y Z : Type) (m : X -> Y -> Z -> nat) (P : X -> Y -> Z -> Type).
+
+    Hypothesis F : forall x y z, (forall x' y' z', m x' y' z' < m x y z -> P x' y' z') -> P x y z.
+
+    Let m' (c : X * Y * Z) := match c with (x,y,z) => m x y z end.
+    Let R c d := m' c < m' d.
+
+    Definition measure_rect3 x y z : P x y z.
+    Proof.
+      cut (Acc R (x,y,z)).
+      + revert x y z.
+        refine (fix loop x y z H := @F x y z (fun x' y' z' H' => loop x' y' z' _)).
+        apply (Acc_inv H), H'.
+      + apply wf_inverse_image with (f := m'), lt_wf.
+    Defined.
+
+  End measure_rect3.
+
+End measure_rect_123.
+
+Extraction Inline measure_rect measure_rect2 measure_rect3.
+
+Tactic Notation "induction" "on" hyp(x) "as" ident(IH) "with" "measure" uconstr(f) :=
+  pattern x; revert x; apply measure_rect with (m := fun x => f); intros x IH.
+
+Tactic Notation "induction" "on" hyp(x) hyp(y) "as" ident(IH) "with" "measure" uconstr(f) :=
+  pattern x, y; revert x y; apply measure_rect2 with (m := fun x y => f); intros x y IH.
+
+Tactic Notation "induction" "on" hyp(x) hyp(y) hyp(z) "as" ident(IH) "with" "measure" uconstr(f) :=
+  pattern x, y, z; revert x y z; apply measure_rect3 with (m := fun x y z => f); intros x y z IH.
