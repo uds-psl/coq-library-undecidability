@@ -1,7 +1,7 @@
 (** ** Operations & Properties of FOL* *)
 
 
-From Equations Require Import Equations.
+Require Import Equations.Equations Equations.Prop.DepElim.
 From Undecidability.FOL  Require Export DecidableEnumerable.
 From Undecidability.FOLP Require Export Syntax.
 Require Export Lia.
