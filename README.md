@@ -37,6 +37,7 @@ If you cannot use `opam 2`, you can use the `noopam` branch of this repository, 
 You need `Coq 8.8.1`, `8.8.2` or `8.9.1` built on OCAML `> 4.02.3`, the [Equations](https://mattam82.github.io/Coq-Equations/) package and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. If you're using opam 2 you can use the following commands to install the dependencies on a new switch:
 
 ```
+opam repo add coq-released https://coq.inria.fr/opam/released
 opam switch create coq-library-undecidability 4.07.1+flambda
 eval $(opam env)
 opam repo add coq-released https://coq.inria.fr/opam/released
