@@ -10,7 +10,7 @@ From Undecidability Require Import TM.Lifting.LiftAlphabet.
 Generalizable All Variables.
 
 Section SurjectInject.
-  Variable (sig tau : finType).
+  Variable (sig tau : Type).
   Variable def : sig.
   Variable retr : Retract sig tau.
 
@@ -71,14 +71,14 @@ Qed.
 
 
 Section MapCode.
-  Variable sig tau : finType.
+  Variable sig tau : Type.
   Variable retr : Retract sig tau.
 
   Variable (sigX X : Type) (cX : codable sigX X) (I_x : Retract sigX sig) (I : Retract sig tau).
 
-  Global Instance Retract_plus : Retract (sig^+) (tau^+) := Retract_sum _ _.
-  Notation "'f''" := (@Retr_f (sig^+) (tau^+) Retract_plus).
-  Notation "'g''" := (@Retr_g (sig^+) (tau^+) Retract_plus).
+  Global Instance Retract_plus : Retract (boundary + sig) (boundary + tau) := Retract_sum _ _.
+  Notation "'f''" := (@Retr_f (boundary+sig) (boundary+tau) Retract_plus).
+  Notation "'g''" := (@Retr_g (boundary+sig) (boundary+tau) Retract_plus).
 
   Local Arguments Retr_f {X Y} (Retract).
   Local Arguments Retr_g {X Y} (Retract).
@@ -101,7 +101,7 @@ Section MapCode.
     erewrite mapTape_ext. apply mapTape_id. intros a. retract_adjoint. reflexivity.
   Qed.
 
-  Lemma contains_size_translate_sig (s : nat) (x : X) (t : tape (sig^+)) :
+  Lemma contains_size_translate_sig (s : nat) (x : X) (t : tape (boundary+sig)) :
     t ≃(;s) x <-> (injectTape t) ≃(;s) x.
   Proof.
     split; intros (r1&HCode&Hs); subst; cbn in *; hnf.
@@ -121,7 +121,7 @@ Section MapCode.
       + unfold surjectSymbols. rewrite map_length in Hs. simpl_list. lia.
   Qed.
 
-  Corollary contains_translate_sig (x : X) (t : tape (sig^+)) :
+  Corollary contains_translate_sig (x : X) (t : tape (boundary+sig)) :
     t ≃ x <-> (injectTape t) ≃ x.
   Proof.
     split; intros.
@@ -130,7 +130,7 @@ Section MapCode.
     - eapply tape_contains_size_contains. apply contains_size_translate_sig. contains_ext.
   Qed.
 
-  Lemma contains_size_translate_tau1 (x : X) (s : nat) (t : tape (tau^+)) :
+  Lemma contains_size_translate_tau1 (x : X) (s : nat) (t : tape (boundary+tau)) :
     t ≃(;s) x -> surjectTape t ≃(;s) x.
   Proof.
     intros (ls&HCode&Hs). cbn in *. subst. cbn. rewrite !map_map.
@@ -140,14 +140,14 @@ Section MapCode.
     - now simpl_list.
   Qed.
 
-  Corollary contains_translate_tau1 (x : X) (t : tape (tau^+)) :
+  Corollary contains_translate_tau1 (x : X) (t : tape (boundary+tau)) :
     t ≃ x -> surjectTape t ≃ x.
   Proof.
     intros. eapply tape_contains_size_contains. apply contains_size_translate_tau1. contains_ext.
   Qed.
     
 
-  Lemma surject_inject_inr (x : boundary) (str : list tau^+) (code : list sig) :
+  Lemma surject_inject_inr (x : boundary) (str : list (boundary+tau)) (code : list sig) :
     surjectSymbols (inl x) Retract_plus str = map inr code ->
     exists str' : list tau, str = map inr str' /\ map (Retr_g I) str' = map Some code.
   Proof.
@@ -156,15 +156,15 @@ Section MapCode.
     - destruct code as [ | c code']; cbn in *; inv H.
       destruct s; cbn in *; inv H1.
       specialize (IH _ _ H2) as (str''&->&IH). rewrite <- IH.
-      exists (e :: str''). cbn. split. auto. f_equal.
-      unfold surject, retract_sum_g in H0. destruct (Retr_g I e) eqn:E; inv H0; auto.
+      exists (t :: str''). cbn. split. auto. f_equal.
+      unfold surject, retract_sum_g in H0. destruct (Retr_g I t) eqn:E; inv H0; auto.
   Qed.
 
   Lemma in_encode_retract (x : X) :
     forall t' : tau, t' el Encode_map cX _ x -> exists s' : sig, Retr_g I t' = Some s'.
   Proof. cbn. intros t' (?&<-&?) % in_map_iff. unfold retr_comp_f. cbn. retract_adjoint. eauto. Qed.
 
-  Lemma contains_size_translate_tau2 (x : X) (s : nat) (t : tape (tau^+)) :
+  Lemma contains_size_translate_tau2 (x : X) (s : nat) (t : tape (boundary+tau)) :
     surjectTape t ≃(;s) x ->
     t ≃(;s) x.
   Proof.
@@ -172,7 +172,7 @@ Section MapCode.
     eapply mapTape_inv_midtape in HCode as (ls'&m'&rs'&->&->&HCode1&HCode2).
     repeat econstructor; cbn in *. f_equal.
     - unfold surject in HCode1. destruct m'; cbn in *. cbv [id] in *. now inv HCode1.
-      destruct (Retr_g I e); inv HCode1.
+      destruct (Retr_g I t); inv HCode1.
     - symmetry in HCode2.
       change (surjectSymbols (inl UNKNOWN) Retract_plus rs' = map inr (Encode_map cX _ x) ++ [inl STOP]) in HCode2.
       eapply surject_app in HCode2 as (str1&str2&->&L1&L2).
@@ -180,13 +180,13 @@ Section MapCode.
       eapply inject_surject in L2 as ->; eauto.
       + f_equal. unfold injectSymbols. cbn. rewrite !map_map. eapply List.map_ext. intros. cbn. reflexivity.
       + unfold surjectSymbols in L2. eapply map_eq_cons in L2 as (t & ? & -> & ? & -> % map_eq_nil').
-        unfold surject in H. destruct t; cbn in *; swap 1 2. destruct (Retr_g I e); inv H. inv H.
+        unfold surject in H. destruct t; cbn in *; swap 1 2. destruct (Retr_g I t); inv H. inv H.
         intros [ | ]; intros [ | ]; try congruence; auto. inv H. eexists. cbn. reflexivity.
       + intros [ | ]; intros He; cbn; eauto.
-        destruct (Retr_g I e) eqn:E1; cbn; eauto. exfalso.
+        destruct (Retr_g I t) eqn:E1; cbn; eauto. exfalso.
         pose proof surject_inject_inr L1 as (str1'&->&L3).
         apply in_map_iff in He as (?&HETmp&HE); inv HETmp.
-        enough (e el (Encode_map cX _ x)) as L4.
+        enough (t el (Encode_map cX _ x)) as L4.
         {
           pose proof in_encode_retract L4 as (?&?). congruence.
         }
@@ -199,22 +199,22 @@ Section MapCode.
     - now rewrite map_length in Hs.
   Qed.
 
-  Corollary contains_translate_tau2 (x : X) (t : tape (tau^+)) :
+  Corollary contains_translate_tau2 (x : X) (t : tape (boundary+tau)) :
     surjectTape t ≃ x ->
     t ≃ x.
   Proof.
     intros. eapply tape_contains_size_contains. apply contains_size_translate_tau2. contains_ext.
   Qed.
 
-  Corollary contains_size_translate_tau (x : X) (s : nat) (t : tape (tau^+)) :
+  Corollary contains_size_translate_tau (x : X) (s : nat) (t : tape (boundary+tau)) :
     surjectTape t ≃(;s) x <-> t ≃(;s) x.
   Proof. split; auto using contains_size_translate_tau1, contains_size_translate_tau2. Qed.
 
-  Corollary contains_translate_tau (x : X) (t : tape (tau^+)) :
+  Corollary contains_translate_tau (x : X) (t : tape (boundary+tau)) :
     surjectTape t ≃ x <-> t ≃ x.
   Proof. split; auto using contains_translate_tau1, contains_translate_tau2. Qed.
 
-  Corollary contains_size_translate_eq (t1 t2 : tape (tau^+)) (s : nat) (x : X) :
+  Corollary contains_size_translate_eq (t1 t2 : tape (boundary+tau)) (s : nat) (x : X) :
     surjectTape t1 = surjectTape t2 ->
     t1 ≃(;s) x -> t2 ≃(;s) x.
   Proof.
@@ -223,28 +223,28 @@ Section MapCode.
     rewrite <- HEq. now eapply contains_size_translate_tau1 in HEnc.
   Qed.
 
-  Corollary contains_translate_eq (t1 t2 : tape (tau^+)) (x : X) :
+  Corollary contains_translate_eq (t1 t2 : tape (boundary+tau)) (x : X) :
     surjectTape t1 = surjectTape t2 ->
     t1 ≃ x -> t2 ≃ x.
   Proof.
     intros. eapply tape_contains_size_contains. eapply contains_size_translate_eq; eauto.
   Qed.
 
-  Lemma surjectTape_isRight_size (t : tape (tau^+)) (s : nat) :
-    isRight_size t s -> isRight_size (surjectTape t) s.
-  Proof. unfold surjectTape. apply mapTape_isRight_size. Qed.
+  Lemma surjectTape_isVoid_size (t : tape (boundary+tau)) (s : nat) :
+    isVoid_size t s -> isVoid_size (surjectTape t) s.
+  Proof. unfold surjectTape. apply mapTape_isVoid_size. Qed.
 
-  Lemma surjectTape_isRight'_size (t : tape (tau^+)) (s : nat) :
-    isRight_size (surjectTape t) s -> isRight_size t s.
-  Proof. unfold surjectTape. apply mapTape_isRight_size. Qed.
+  Lemma surjectTape_isVoid'_size (t : tape (boundary+tau)) (s : nat) :
+    isVoid_size (surjectTape t) s -> isVoid_size t s.
+  Proof. unfold surjectTape. apply mapTape_isVoid_size. Qed.
 
-  Lemma surjectTape_isRight (t : tape (tau^+)) :
-    isRight t -> isRight (surjectTape t).
-  Proof. unfold surjectTape. apply mapTape_isRight. Qed.
+  Lemma surjectTape_isVoid (t : tape (boundary+tau)) :
+    isVoid t -> isVoid (surjectTape t).
+  Proof. unfold surjectTape. apply mapTape_isVoid. Qed.
 
-  Lemma surjectTape_isRight' (t : tape (tau^+)) :
-    isRight (surjectTape t) -> isRight t.
-  Proof. unfold surjectTape. apply mapTape_isRight. Qed.
+  Lemma surjectTape_isVoid' (t : tape (boundary+tau)) :
+    isVoid (surjectTape t) -> isVoid t.
+  Proof. unfold surjectTape. apply mapTape_isVoid. Qed.
 
 End MapCode.
 
@@ -278,11 +278,11 @@ Ltac simpl_surject_step :=
   | [ H : surjectTape _ _ ?t ≃ _ |- _ ] => apply contains_translate_tau2 in H
   | [ |- surjectTape _ _ ?t ≃(;?n) _ ] => apply contains_size_translate_tau1
   | [ H : surjectTape _ _ ?t ≃(;?n) _ |- _ ] => apply contains_size_translate_tau2 in H
-  (* [isRight] and [isRight_size] *)
-  | [ |- isRight (surjectTape _ _ ?t) ] => apply surjectTape_isRight
-  | [ H : isRight (surjectTape _ _ ?t) |- _ ] => apply surjectTape_isRight' in H
-  | [ |- isRight_size (surjectTape _ _ ?t) ?n ] => apply surjectTape_isRight_size
-  | [ H : isRight_size (surjectTape _ _ ?t) ?n |- _ ] => apply surjectTape_isRight'_size in H
+  (* [isVoid] and [isVoid_size] *)
+  | [ |- isVoid (surjectTape _ _ ?t) ] => apply surjectTape_isVoid
+  | [ H : isVoid (surjectTape _ _ ?t) |- _ ] => apply surjectTape_isVoid' in H
+  | [ |- isVoid_size (surjectTape _ _ ?t) ?n ] => apply surjectTape_isVoid_size
+  | [ H : isVoid_size (surjectTape _ _ ?t) ?n |- _ ] => apply surjectTape_isVoid'_size in H
   end.
 
 Ltac simpl_surject := repeat simpl_surject_step.

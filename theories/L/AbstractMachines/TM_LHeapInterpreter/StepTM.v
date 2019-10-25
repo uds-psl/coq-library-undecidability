@@ -8,7 +8,7 @@ From Undecidability Require Import TM.Code.ListTM TM.Code.CaseList TM.Code.CaseP
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 
-Local Hint Resolve isRight_isRight_size : core.
+Local Hint Resolve isVoid_isVoid_size : core.
 
 
 (** Here we compose the [Lookup] and [JumpTarget] machines. *)
@@ -282,8 +282,6 @@ Section StepMachine.
         - generalize (HInt Fin0) (HJumpTarget2 Fin0); generalize (HJumpTarget2 Fin1); generalize (HJumpTarget2 Fin2); cbn; TMSimp_goal.
           intros; simpl_surject.
           destruct_fin i; TMSimp_goal; cbn; auto.
-          + isRight_mono. cbn. now rewrite !vector_tl_nth.
-          + isRight_mono. cbn. now rewrite !vector_tl_nth.
       }
       { (* Else, i.e. [jumpTarget 0 [] = None] *)
         modpon H.
@@ -618,8 +616,6 @@ Section StepMachine.
           modpon HConsClos.
           repeat split; auto.
           - intros i; destruct_fin i; cbn; auto; TMSimp_goal; auto.
-            + isRight_mono. cbn. now rewrite !vector_tl_nth.
-            + isRight_mono. cbn. now rewrite !vector_tl_nth.
         }
         { modpon H5. destruct V'; auto. }
       }
@@ -774,7 +770,7 @@ Section StepMachine.
         modpon HLookup. destruct HLookup as (g&HLookup); modpon HLookup. rewrite HLookup.
         modpon HCons. modpon HReset.
         eexists; repeat split; eauto.
-        - intros i; destruct_fin i; auto; TMSimp_goal; cbn; rewrite !vector_tl_nth; auto.
+        - intros i; destruct_fin i; auto; TMSimp_goal; cbn; auto.
       }
       { now modpon H. }
     }
@@ -944,11 +940,9 @@ Section StepMachine.
             - cbn. destruct HStepLam as (jump_P&jump_Q&HStepLam); modpon HStepLam.
               do 3 eexists. repeat split; eauto.
               + econstructor. eauto.
-              + contains_ext. now rewrite !vector_tl_nth.
-              + contains_ext. now rewrite !vector_tl_nth.
               + generalize (HStepLam4 Fin0); generalize (HStepLam4 Fin1); generalize (HStepLam4 Fin2); generalize (HStepLam4 Fin3); generalize (HStepLam4 Fin4); generalize (HStepLam4 Fin5); generalize (HStepLam4 Fin6); cbn; TMSimp_goal; intros.
                 cbn.
-                destruct_fin i; TMSimp_goal; cbn; auto; try rewrite HStepLam0 by vector_not_in; TMSimp_goal; try rewrite !vector_tl_nth; auto.
+                destruct_fin i; TMSimp_goal; cbn; auto; try rewrite HStepLam0 by vector_not_in; TMSimp_goal; auto.
                 * apply HInt.
             - cbn. split; auto. intros s' HStep. inv HStep. congruence.
           }
@@ -966,7 +960,7 @@ Section StepMachine.
               do 3 eexists. repeat split; eauto.
               + econstructor. reflexivity.
               + generalize (HStepApp2 Fin0); generalize (HStepApp2 Fin1); generalize (HStepApp2 Fin2); generalize (HStepApp2 Fin3); generalize (HStepApp2 Fin4); generalize (HStepApp2 Fin5); generalize (HStepApp2 Fin6); generalize (HStepApp2 Fin7); cbn; TMSimp_goal; intros.
-                destruct_fin i; TMSimp_goal; cbn; auto; try rewrite HStepLam0 by vector_not_in; TMSimp_goal; try rewrite !vector_tl_nth; auto.
+                destruct_fin i; TMSimp_goal; cbn; auto; try rewrite HStepLam0 by vector_not_in; TMSimp_goal; auto.
             - split; auto. intros s' HStep. now inv HStep.
           }
           { (* varT *)
@@ -975,12 +969,9 @@ Section StepMachine.
             - destruct HStepVar as (g&HStepVar); modpon HStepVar.
               do 3 eexists; repeat split; eauto.
               + econstructor; eauto.
-              + contains_ext. now rewrite !vector_tl_nth.
-              + contains_ext. now rewrite !vector_tl_nth.
               + generalize (HStepVar4 Fin0); generalize (HStepVar4 Fin1); generalize (HStepVar4 Fin2); generalize (HStepVar4 Fin3); generalize (HStepVar4 Fin4); cbn; TMSimp_goal; intros.
                 simpl_not_in. destruct_fin i; cbn; auto; TMSimp_goal; auto.
-                all: try rewrite !vector_tl_nth; try apply HInt.
-                all: isRight_mono.
+                all: eauto.
             - split; auto. intros s' HStep. inv HStep. congruence.
           }
         }

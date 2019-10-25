@@ -242,6 +242,10 @@ H10/H10_undec.v
 H10/H10Z_undec.v
 
 
+# Turing Machines (Maxi)
+#################
+
+
 # Basics
 TM/Util/Prelim.v
 TM/Util/Relations.v
@@ -330,8 +334,26 @@ TM/Univ/StepTM.v
 TM/PrettyBounds/MaxList.v
 TM/PrettyBounds/SizeBounds.v
 
+
 TM/Reductions/mTM_to_TM.v
 TM/TM_undec.v
+
+# Layer for Hoare Logic
+TM/Hoare/Hoare.v
+TM/Hoare/HoareLogic.v
+TM/Hoare/HoareCombinators.v
+TM/Hoare/HoareRegister.v
+TM/Hoare/HoareTactics.v
+TM/Hoare/HoareExamples.v
+TM/Hoare/HoareNth.v
+TM/Hoare/HoareStdLib.v
+
+# Univ with Hoare
+TM/Univ/HoareLookupAssociativeListTM.v
+TM/Univ/HoareUniv.v
+
+#########
+
 L/Prelim/MoreBase.v
 L/Prelim/ARS.v
 L/Prelim/StringBase.v

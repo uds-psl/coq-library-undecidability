@@ -254,7 +254,7 @@ Definition Max_Rel : pRel sigPos^+ comparison 3 :=
     forall (p0 p1 : positive),
       tin[@Fin0] ≃ p0 ->
       tin[@Fin1] ≃ p1 ->
-      isRight tin[@Fin2] ->
+      isVoid tin[@Fin2] ->
       tout[@Fin0] ≃ p0 /\
       tout[@Fin1] ≃ p1 /\
       tout[@Fin2] ≃ Pos.max p0 p1 /\

@@ -154,7 +154,7 @@ Section CaseOption.
                 tin ≃(;s) o ->
                 match yout, o with
                 | true, Some x => tout ≃(;CaseOption_size_Some s) x
-                | false, None => isRight_size tout (CaseOption_size_None s)
+                | false, None => isVoid_size tout (CaseOption_size_None s)
                 | _, _ => False
                 end).
 
@@ -268,7 +268,7 @@ Section CaseOption.
       (ignoreParam
          (fun tin tout =>
             forall (s : nat),
-              isRight_size tin s ->
+              isVoid_size tin s ->
               tout ≃(; pred s) None)).
 
   Definition Constr_None : pTM tau^+ unit 1 := WriteValue [ sigOption_None ].

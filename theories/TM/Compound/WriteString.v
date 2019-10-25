@@ -1,6 +1,7 @@
 From Undecidability Require Import TM.Util.TM_facts TM.Basic.Mono TM.Combinators.Combinators TM.Compound.Multi.
 Require Import List.
 From Undecidability Require Import TMTac.
+From Coq Require Import List.
 
 (** Useful for running time stuff *)
 Local Arguments plus : simpl never.

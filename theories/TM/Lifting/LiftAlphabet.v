@@ -26,9 +26,9 @@ Section lift_sigma_tau.
   Definition surjectTapes : tapes tau n -> tapes sig n :=
     Vector.map (surjectTape g def).
   
-  Definition lift_sigma_tau_Rel (Rmove : Rel (tapes sig n) (F * tapes sig n)) :
+  Definition lift_sigma_tau_Rel (R : Rel (tapes sig n) (F * tapes sig n)) :
     Rel (tapes tau n) (F * tapes tau n) :=
-    fun tin '(yout,tout) => Rmove (surjectTapes tin) (yout, surjectTapes tout).
+    fun tin '(yout,tout) => R (surjectTapes tin) (yout, surjectTapes tout).
 
   Definition lift_sigma_tau_T (T : Rel (Vector.t (tape sig) n) nat) :
     Rel (Vector.t (tape tau) n) nat :=
@@ -44,7 +44,7 @@ Arguments surjectTapes {n sig tau} (g) def !t.
 Hint Rewrite surjectTapes_nth : tape.
 
 
-Arguments lift_sigma_tau_Rel {n sig tau} (g def) {F} (Rmove) x y /.
+Arguments lift_sigma_tau_Rel {n sig tau} (g def) {F} (R) x y /.
 Arguments lift_sigma_tau_T {n sig tau} (g def T) x y /.
 
 
@@ -173,9 +173,9 @@ Section LiftAlphabet.
     - intros ? _. apply LiftAlphabet_comp_step.
   Qed.
 
-  Lemma LiftAlphabet_Realise (Rmove : Rel (tapes sig n) (F * tapes sig n)) :
-    pMSig ⊨ Rmove ->
-    LiftAlphabet ⊨ lift_sigma_tau_Rel Retr_g def Rmove.
+  Lemma LiftAlphabet_Realise (R : Rel (tapes sig n) (F * tapes sig n)) :
+    pMSig ⊨ R ->
+    LiftAlphabet ⊨ lift_sigma_tau_Rel Retr_g def R.
   Proof.
     intros H. intros t i outc Hloop. unfold lift_sigma_tau_Rel. hnf in H.
     specialize (H (surjectTapes Retr_g def t) i (mk_mconfig (cstate outc) (surjectTapes Retr_g def (ctapes outc)))).
@@ -201,9 +201,9 @@ Section LiftAlphabet.
     eapply LiftAlphabet_unlift; eauto.
   Qed.
 
-  Lemma LiftAlphabet_RealiseIn (Rmove : Rel (tapes sig n) (F * tapes sig n)) (k : nat) :
-    pMSig ⊨c(k) Rmove ->
-    LiftAlphabet ⊨c(k) lift_sigma_tau_Rel Retr_g def Rmove.
+  Lemma LiftAlphabet_RealiseIn (R : Rel (tapes sig n) (F * tapes sig n)) (k : nat) :
+    pMSig ⊨c(k) R ->
+    LiftAlphabet ⊨c(k) lift_sigma_tau_Rel Retr_g def R.
   Proof.
     intros [H1 H2] % Realise_total. eapply Realise_total. split; cbn in *.
     - now eapply LiftAlphabet_Realise.

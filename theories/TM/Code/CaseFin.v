@@ -19,7 +19,7 @@ Section CaseFin.
   Local Existing Instance Encode_Finite.
 
   Definition CaseFin_Rel : pRel sig^+ sig 1 :=
-    fun tin '(yout, tout) => forall (x : sig) (s : nat), tin[@Fin0] ≃(;s) x -> isRight_size tout[@Fin0] (S(S(s))) /\ yout = x.
+    fun tin '(yout, tout) => forall (x : sig) (s : nat), tin[@Fin0] ≃(;s) x -> isVoid_size tout[@Fin0] (S(S(s))) /\ yout = x.
 
   Definition CaseFin_steps := 5.
 

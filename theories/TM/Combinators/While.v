@@ -147,19 +147,19 @@ Section While.
 
   (** ** Correctness of [While] *)
 
-  Variable Rmove : pRel sig (option F) n.
+  Variable R : pRel sig (option F) n.
 
   Inductive While_Rel : pRel sig F n :=
   | While_Rel''_one :
-      forall tin yout tout, Rmove tin (Some yout, tout) -> While_Rel tin (yout, tout)
+      forall tin yout tout, R tin (Some yout, tout) -> While_Rel tin (yout, tout)
   | While_Rel''_loop :
       forall tin tmid yout tout,
-        Rmove tin (None, tmid) ->
+        R tin (None, tmid) ->
         While_Rel tmid (yout, tout) ->
         While_Rel tin (yout, tout).
 
   Lemma While_Realise :
-    pM ⊨ Rmove -> While ⊨ While_Rel.
+    pM ⊨ R -> While ⊨ While_Rel.
   Proof.
     intros HRel. hnf in HRel; hnf. intros t k; revert t. apply complete_induction with (x := k); clear k; intros k IH. intros tin c3 HLoop.
     apply While_split in HLoop as (k1&k2&c2&HLoop1&HLoop2&Hk).
@@ -179,14 +179,14 @@ Section While.
     Variable (T T' : Rel (tapes sig n) nat).
 
     Lemma While_TerminatesIn_ind :
-      pM ⊨ Rmove ->
+      pM ⊨ R ->
       projT1 pM ↓ T' ->
       (forall (tin : tapes sig n) (k : nat),
           T tin k ->
           exists k1,
             T' tin k1 /\
-            (forall ymid tmid, Rmove tin (Some ymid, tmid) -> k1 <= k) /\
-            (forall tmid, Rmove tin (None, tmid) -> exists k2, T tmid k2 /\ 1 + k1 + k2 <= k)) ->
+            (forall ymid tmid, R tin (Some ymid, tmid) -> k1 <= k) /\
+            (forall tmid, R tin (None, tmid) -> exists k2, T tmid k2 /\ 1 + k1 + k2 <= k)) ->
       WhileTM ↓T.
     Proof.
       intros Realise_M Term_M Hyp tin i. revert tin. apply complete_induction with (x:=i); clear i; intros i IH tin.
@@ -212,14 +212,14 @@ Section While.
     | While_T_intro tin k k1 :
         T tin k1 ->
         (forall tmid ymid,
-            Rmove tin (Some ymid, tmid) -> k1 <= k) ->
+            R tin (Some ymid, tmid) -> k1 <= k) ->
         (forall tmid,
-            Rmove tin (None, tmid) ->
+            R tin (None, tmid) ->
             exists k2, While_T tmid k2 /\ 1 + k1 + k2 <= k) ->
         While_T tin k.
 
     Lemma While_TerminatesIn :
-      pM ⊨ Rmove ->
+      pM ⊨ R ->
       projT1 pM ↓ T ->
       WhileTM ↓ While_T.
     Proof.
@@ -259,7 +259,7 @@ End WhileInduction.
 Section WhileCoInduction.
   Variable (sig : finType) (n : nat) (F : finType).
 
-  Variable Rmove : pRel sig (option F) n.
+  Variable R : pRel sig (option F) n.
   Variable T T' : tRel sig n.
 
   Lemma WhileCoInduction :
@@ -267,12 +267,12 @@ Section WhileCoInduction.
         exists k1,
           T' tin k1 /\
           forall (ymid : option F) tmid,
-            Rmove tin (ymid, tmid) ->
+            R tin (ymid, tmid) ->
             match ymid with
             | Some _ => k1 <= k
             | None => exists k2, T tmid k2 /\ 1 + k1 + k2 <= k
             end) ->
-    T <<=2 While_T Rmove T'.
+    T <<=2 While_T R T'.
   Proof.
     intros. cofix IH. intros tin k HT. specialize H with (1 := HT) as (k1&H1&H2). econstructor; eauto.
     - intros tmid ymid HR. specialize (H2 (Some ymid) tmid); cbn in *. auto.
@@ -287,12 +287,12 @@ Section OtherWhileRel.
 
   Variable (sig : finType) (n : nat) (F : finType).
 
-  Variable Rmove : Rel (tapes sig n) (option F * tapes sig n).
+  Variable R : Rel (tapes sig n) (option F * tapes sig n).
 
   Definition While_Rel' : pRel sig F n :=
-    (star (Rmove |_ None)) ∘ ⋃_y (Rmove |_(Some y)) ||_y.
+    (star (R |_ None)) ∘ ⋃_y (R |_(Some y)) ||_y.
 
-  Goal While_Rel Rmove =2 While_Rel'.
+  Goal While_Rel R =2 While_Rel'.
   Proof.
     unfold While_Rel'. split.
     {

@@ -5,7 +5,7 @@ From Undecidability Require Import BinNumbers.EncodeBinNumbers.
 From Undecidability Require Import Code.CaseSum. (* [CaseOption] *)
 
 From Undecidability Require Import ArithPrelim.
-Require Import BinNums.
+From Coq Require Import BinNums.
 
 Local Open Scope N_scope.
 
@@ -16,7 +16,7 @@ Definition WriteNumber (n : N) : pTM sigN^+ unit 1 := WriteValue (encode n).
 
 Definition WriteNumber_Rel (n : N) : pRel sigN^+ unit 1:=
   fun tin '(_, tout) =>
-    isRight tin[@Fin0] ->
+    isVoid tin[@Fin0] ->
     tout[@Fin0] ≃ n.
 
 Definition WriteNumber_steps (n : N) : nat := 2 * Encode_N_size n + 3.
@@ -38,7 +38,7 @@ Definition Constr_N0 : pTM sigN^+ unit 1 := WriteNumber 0.
 
 Definition Constr_N0_Rel : pRel sigN^+ unit 1:=
   fun tin '(_, tout) =>
-    isRight tin[@Fin0] ->
+    isVoid tin[@Fin0] ->
     tout[@Fin0] ≃ 0.
 
 Definition Constr_N0_steps : nat := Eval cbn in WriteNumber_steps 0.
@@ -188,7 +188,7 @@ Definition Add_N_Rel : pRel sigN^+ unit 3 :=
     forall (x y : N),
       tin[@Fin0] ≃ x ->
       tin[@Fin1] ≃ y ->
-      isRight tin[@Fin2] ->
+      isVoid tin[@Fin2] ->
       tout[@Fin0] ≃ x /\
       tout[@Fin1] ≃ y /\
       tout[@Fin2] ≃ x+y.
@@ -238,7 +238,7 @@ Definition Mult_N_Rel : pRel sigN^+ unit 3 :=
     forall (x y : N),
       tin[@Fin0] ≃ x ->
       tin[@Fin1] ≃ y ->
-      isRight tin[@Fin2] ->
+      isVoid tin[@Fin2] ->
       tout[@Fin0] ≃ x /\
       tout[@Fin1] ≃ y /\
       tout[@Fin2] ≃ x*y.

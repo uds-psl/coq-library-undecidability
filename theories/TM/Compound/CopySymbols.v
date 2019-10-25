@@ -4,8 +4,8 @@ From Undecidability Require Import TM.Combinators.Combinators.
 From Undecidability Require Import TM.Compound.TMTac TM.Compound.Multi.
 From Undecidability Require Import TM.Lifting.LiftTapes.
 
-Require Import FunInd.
-Require Import Recdef.
+From Coq Require Import FunInd.
+From Coq Require Import Recdef.
 
 (** * Copy Symbols from t0 to t1 *)
 

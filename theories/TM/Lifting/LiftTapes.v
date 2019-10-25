@@ -23,10 +23,10 @@ Section LiftTapes_Rel.
   Definition not_index (i : Fin.t n) : Prop :=
     ~ Vector.In i I.
 
-  Variable (Rmove : pRel sig F m).
+  Variable (R : pRel sig F m).
 
   Definition LiftTapes_select_Rel : pRel sig F n :=
-    fun t '(y, t') => Rmove (select I t) (y, select I t').
+    fun t '(y, t') => R (select I t) (y, select I t').
 
   Definition LiftTapes_eq_Rel : pRel sig F n :=
     ignoreParam (fun t t' => forall i : Fin.t n, not_index i -> t'[@i] = t[@i]).
@@ -41,9 +41,9 @@ Section LiftTapes_Rel.
 End LiftTapes_Rel.
 
 Arguments not_index : simpl never.
-Arguments LiftTapes_select_Rel {sig F m n} I Rmove x y /.
+Arguments LiftTapes_select_Rel {sig F m n} I R x y /.
 Arguments LiftTapes_eq_Rel {sig F m n} I x y /.
-Arguments LiftTapes_Rel {sig F m n } I Rmove x y /.
+Arguments LiftTapes_Rel {sig F m n } I R x y /.
 Arguments LiftTapes_T {sig m n} I T x y /.          
 
 
@@ -55,16 +55,102 @@ Proof. now destruct_vector. Qed.
 
 
 Section Fill.
+
+  Fixpoint lookup_index_vector {m n : nat} (I : Vector.t (Fin.t n) m) : Fin.t n -> option (Fin.t m) :=
+    match I with
+    | Vector.nil _ => fun (i : Fin.t n) => None
+    | Vector.cons _ i' m' I' =>
+      fun (i : Fin.t n) =>
+        if Fin.eqb i i' then Some Fin0
+        else match lookup_index_vector I' i with
+             | Some j => Some (Fin.FS j)
+             | None => None
+             end
+    end.
+
+  Lemma Some_inj (X : Type) (x y : X) :
+    Some x = Some y -> x = y.
+  Proof. congruence. Qed.
+
+  Lemma lookup_index_vector_Some (m n : nat) (I : Vector.t (Fin.t n) m) (i : Fin.t n) (j : Fin.t m) :
+    dupfree I ->
+    I[@j] = i ->
+    lookup_index_vector I i = Some j.
+  Proof.
+    induction 1 as [ | m i' I' H1 H2 IH]; intros Heq; cbn in *.
+    - contradict (fin_destruct_O j).
+    - destruct (Fin.eqb i i') eqn:Eqb; cbn in *.
+      + f_equal. apply Fin.eqb_eq in Eqb as ->.
+        pose proof (fin_destruct_S j) as [(j'&->) | ->]; cbn in *.
+        * exfalso. contradict H1. eapply vect_nth_In; eauto.
+        * reflexivity.
+      + destruct (lookup_index_vector I' i) as [j' | ] eqn:El.
+        * pose proof (fin_destruct_S j) as [(j''&->) | ->]; cbn in *.
+          -- specialize IH with (1 := Heq). apply Some_inj in IH as ->. reflexivity.
+          -- subst. enough (Fin.eqb i i = true) by congruence. now apply Fin.eqb_eq.
+        * exfalso. pose proof (fin_destruct_S j) as [(j''&->) | ->]; cbn in *.
+          -- specialize IH with (1 := Heq). congruence.
+          -- subst. enough (Fin.eqb i i = true) by congruence. now apply Fin.eqb_eq.
+  Qed.
+
+  Lemma lookup_index_vector_Some' (m n : nat) (I : Vector.t (Fin.t n) m) (i : Fin.t n) (j : Fin.t m) :
+    lookup_index_vector I i = Some j ->
+    I[@j] = i.
+  Proof.
+    revert i j. induction I as [ | i' n' I' IH ]; intros i j Hj.
+    - destruct_fin j.
+    - pose proof (fin_destruct_S j) as [(j'&->) | ->]; cbn in *.
+      + destruct (Fin.eqb i i'); inv Hj.
+        destruct (lookup_index_vector I' i) as [ j'' | ] eqn:Ej''.
+        * apply Some_inj in H0. apply Fin.FS_inj in H0 as ->. now apply IH.
+        * congruence.
+      + destruct (Fin.eqb i i') eqn:Ei'.
+        * now apply Fin.eqb_eq in Ei'.
+        * destruct (lookup_index_vector I' i) as [ j'' | ] eqn:Ej''.
+          -- congruence.
+          -- congruence.
+  Qed.
+
+  Lemma lookup_index_vector_None (m n : nat) (I : Vector.t (Fin.t n) m) (i : Fin.t n) :
+    (~ Vector.In i I) ->
+    lookup_index_vector I i = None.
+  Proof.
+    intros HNotIn.
+    destruct (lookup_index_vector I i) eqn:E; auto.
+    exfalso. apply lookup_index_vector_Some' in E.
+    contradict HNotIn. eapply vect_nth_In; eauto.
+  Qed.
+
+
+
   Variable X : Type.
 
   (** Replace the elements of [init] of which the index is in [I] with the element in [V] of that index. *)
-  Fixpoint fill {m n : nat} (I : Vector.t (Fin.t n) m) : forall (init : Vector.t X n) (V : Vector.t X m), Vector.t X n :=
-    match I with
-    | Vector.nil _ => fun init V => init
-    | Vector.cons _ i m' I' =>
-      fun init V =>
-        Vector.replace (fill I' init (Vector.tl V)) i (V[@Fin0])
-    end.
+  Definition fill {m n : nat} (I : Vector.t (Fin.t n) m) (init : Vector.t X n) (V : Vector.t X m) : Vector.t X n := 
+    tabulate (fun i => match lookup_index_vector I i with
+                    | Some j => V[@j]
+                    | None => init[@i]
+                    end).
+
+  Section Test.
+    Variable (a b x y z : X).
+
+    (** The following goals should hold by computation *)
+    Goal fill [|Fin0; Fin1|] [|x;y;z|] [|a;b|] = [|a;b;z|].
+    Proof. cbn. reflexivity. Qed.
+
+    Goal fill [|Fin2; Fin1|] [|x;y;z|] [|a;b|] = [|x;b;a|].
+    Proof. cbn. reflexivity. Qed.
+
+    Goal fill [|Fin1; Fin0|] [|x;y;z|] [|a;b|] = [|b;a;z|]. (* [a] and [b] are swapped, [z] is unchanged. *)
+    Proof. cbn. reflexivity. Qed.
+
+    (** This didn't hold (by computation) for the old version with replacement *)
+    Goal forall (ss : Vector.t X 3), fill [|Fin0; Fin1|] ss [|a;b|] = [|a;b; ss[@Fin2]|].
+    Proof. intros. cbn. reflexivity. Qed.
+
+  End Test.
+  
 
   Variable m n : nat.
   Implicit Types (i : Fin.t n) (j : Fin.t m).
@@ -75,62 +161,24 @@ Section Fill.
     I[@j] = i ->
     (fill I init V)[@i] = V[@j].
   Proof.
-    intros HDup Heq. revert V. induction HDup as [ | m index I' H1 H2 IH]; intros; cbn in *.
-    - exfalso. clear i Heq V. now apply fin_destruct_O in j.
-    - pose proof destruct_vector_cons V as (v&V'&->).
-      pose proof fin_destruct_S j as [(j'&?) | ? ]; cbn in *; subst; cbn in *.
-      + decide (index = I'[@j']) as [ -> | Hneq].
-        * contradict H1. eapply vect_nth_In; eauto.
-        * rewrite replace_nth2; auto.
-      + apply replace_nth.
+    intros HDup Heq.
+    unfold fill. simpl_vector.
+    erewrite lookup_index_vector_Some; eauto.
   Qed.
-
-  (* Not needed *)
-  (*
-  Corollary select_fill I init V :
-    dupfree I ->
-    select I (fill I init V) = V.
-  Proof. intros H. unfold select. apply Vector.eq_nth_iff. intros p ? <-. erewrite Vector.nth_map; eauto. erewrite fill_correct_nth; eauto. Qed.
-
-  Lemma fill_select_nth I init (i : Fin.t n) :
-    dupfree I ->
-    (fill I init (select I init))[@i] = init[@i].
-  Proof.
-    intros. induction H as [ | m index I H1 H2 IH]; cbn in *.
-    - reflexivity.
-    - decide (index = i) as [->|d].
-      + now rewrite replace_nth.
-      + rewrite <- IH. now rewrite replace_nth2.
-  Qed.
-
-  Corollary fill_select I t :
-    dupfree I ->
-    fill I t (select I t) = t.
-  Proof.
-    intros H. apply Vector.eq_nth_iff. intros p ? <-. now apply fill_select_nth.
-  Qed.
-   *)
 
   Lemma fill_not_index I init V (i : Fin.t n) :
-    dupfree I ->
     not_index I i ->
     (fill I init V)[@i] = init[@i].
   Proof.
-    intros HDupfree. revert V i. induction HDupfree as [ | m index I' H1 H2 IH]; intros; cbn in *.
-    - reflexivity.
-    - pose proof destruct_vector_cons V as (v&V'&->).
-      unfold not_index in *.
-      decide (index = i) as [ -> | Hneq].
-      + exfalso. contradict H. constructor.
-      + rewrite replace_nth2; eauto. apply IH; auto.
-        { intros ?. contradict H. now constructor. }
+    intros HNotIn. unfold not_index in HNotIn.
+    unfold fill. simpl_vector.
+    erewrite lookup_index_vector_None; eauto.
   Qed.
 
   Definition fill_default I (def : X) V :=
     fill I (Vector.const def n) V.
 
   Corollary fill_default_not_index I V def i :
-    dupfree I ->
     not_index I i ->
     (fill_default I def V)[@i] = def.
   Proof. intros. unfold fill_default. rewrite fill_not_index; auto. apply Vector.const_nth. Qed.
@@ -242,9 +290,9 @@ Section LiftNM.
     intros. now apply LiftTapes_comp_eq.
   Qed.
 
-  Lemma LiftTapes_Realise (Rmove : Rel (tapes sig m) (F * tapes sig m)) :
-    pM ⊨ Rmove ->
-    LiftTapes ⊨ LiftTapes_Rel I Rmove.
+  Lemma LiftTapes_Realise (R : Rel (tapes sig m) (F * tapes sig m)) :
+    pM ⊨ R ->
+    LiftTapes ⊨ LiftTapes_Rel I R.
   Proof.
     intros H. split.
     - apply (H (select I t) k (selectConf outc)).
@@ -276,9 +324,9 @@ Section LiftNM.
     pose proof (@LiftTapes_unlift k (initc LiftTapes_TM initTapes) outc H) as (X&X'&->). eauto.
   Qed.
 
-  Lemma LiftTapes_RealiseIn Rmove k :
-    pM ⊨c(k) Rmove ->
-    LiftTapes ⊨c(k) LiftTapes_Rel I Rmove.
+  Lemma LiftTapes_RealiseIn R k :
+    pM ⊨c(k) R ->
+    LiftTapes ⊨c(k) LiftTapes_Rel I R.
   Proof.
     intros (H1&H2) % Realise_total. apply Realise_total. split.
     - now apply LiftTapes_Realise.
@@ -367,6 +415,8 @@ End AddTapes.
 
 
 (** * Tactic Support *)
+
+(* TODO: Some of this is probably deprecated, e.g. the [app_tapes] stuff *)
 
 
 Lemma smpl_dupfree_helper1 (n : nat) :

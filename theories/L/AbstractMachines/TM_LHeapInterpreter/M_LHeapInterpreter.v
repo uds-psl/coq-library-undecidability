@@ -68,7 +68,7 @@ Definition Loop_Rel : pRel sigStep^+ unit 11 :=
           tin[@Fin0] ≃(;s0) T ->
           tin[@Fin1] ≃(;s1) V ->
           tin[@Fin2] ≃(;s2) H ->
-          (forall i : Fin.t 8, isRight_size tin[@FinR 3 i] sr[@i]) ->
+          (forall i : Fin.t 8, isVoid_size tin[@FinR 3 i] sr[@i]) ->
           exists T' V' H' (k : nat),
             let size := Loop_size T V H k in
             steps_k k (T,V,H) (T',V',H') /\
@@ -78,7 +78,7 @@ Definition Loop_Rel : pRel sigStep^+ unit 11 :=
               tout[@Fin0] ≃(; size @> Fin0 s0) @nil HClos /\
               tout[@Fin1] ≃(; size @> Fin1 s1) V' /\
               tout[@Fin2] ≃(; size @> Fin2 s2) H' /\
-              (forall i : Fin.t 8, isRight_size tout[@FinR 3 i] (size @>(FinR 3 i) sr[@i]))
+              (forall i : Fin.t 8, isVoid_size tout[@FinR 3 i] (size @>(FinR 3 i) sr[@i]))
             | _ => True
             end
     ).
@@ -105,7 +105,7 @@ Proof.
       do 3 eexists. exists (1 + k). repeat split. apply pow_add. do 2 eexists. rewrite <- rcomp_1. 1-3:now eauto.
       destruct T2; auto; modpon HLastStep1. repeat split; auto.
       all: try solve [ contains_ext; now erewrite Loop_size_step by eauto ].
-      - intros i. specialize HLastStep4 with (i := i). isRight_mono.
+      - intros i. specialize HLastStep4 with (i := i). isVoid_mono.
         destruct_fin i; cbn -[Loop_size]; now erewrite Loop_size_step by eauto.
     }
   }
@@ -133,7 +133,7 @@ Definition Loop_T : tRel sigStep^+ 11 :=
       tin[@Fin0] ≃ T /\
       tin[@Fin1] ≃ V /\
       tin[@Fin2] ≃ H /\
-      (forall i : Fin.t 8, isRight tin[@FinR 3 i]) /\
+      (forall i : Fin.t 8, isVoid tin[@FinR 3 i]) /\
       Loop_steps T V H k <= i.
 
 
@@ -149,7 +149,7 @@ Proof.
     { hnf. do 3 eexists; repeat split; eauto. }
     intros ymid tmid HStep. cbn in HStep. modpon HStep.
     { instantiate (1 := [|_;_;_;_;_;_;_;_|]).
-      intros i0. specialize HInt with (i := i0). isRight_mono; cbn. destruct_fin i0; cbn; constructor.
+      intros i0. specialize HInt with (i := i0). isVoid_mono; cbn. destruct_fin i0; cbn; constructor.
     }
     destruct ymid as [ () | ]. 
     - destruct HStep as (HStep&_).
@@ -167,12 +167,12 @@ Proof.
           exists (Step_steps T1 V1 Heap1). split.
           -- do 3 eexists. eexists 0. cbn -[step_fun]. repeat split; eauto.
              ++ econstructor; eauto.
-             ++ intros i0. specialize HStep3 with (i := i0). isRight_mono.
+             ++ intros i0. specialize HStep3 with (i := i0). isVoid_mono.
           -- lia.
         * exists (Loop_steps T1 V1 Heap1 k). split.
           -- do 3 eexists. exists k. repeat split; eauto.
              ++ econstructor; eauto.
-             ++ intros i0. specialize HStep3 with (i := i0). isRight_mono.
+             ++ intros i0. specialize HStep3 with (i := i0). isVoid_mono.
           -- lia.
   }
 Qed.
@@ -194,7 +194,7 @@ Proof.
     { cbn. hnf. do 4 eexists; repeat split; cbn; eauto.
       1: hnf; eauto.
       1-3: apply initValue_contains.
-      intros i; destruct_fin i; cbn; apply initRight_isRight.
+      intros i; destruct_fin i; cbn; apply initRight_isVoid.
     }
     hnf. destruct outc as [q' t']. 
     exists q', t'. eapply TM_eval_iff. eauto.
@@ -205,7 +205,7 @@ Proof.
     pose proof Loop_Realise HLoop as HLoopRel. hnf in HLoopRel. modpon HLoopRel.
     1-3: apply initValue_contains_size.
     instantiate (1 := [|_;_;_;_;_;_;_;_|]).
-    - intros i; destruct_fin i; cbn; eapply initRight_isRight_size.
+    - intros i; destruct_fin i; cbn; eapply initRight_isVoid_size.
     - destruct HLoopRel as (T'&V'&H'&k'&HStep&HTerm&_). cbn in *. hnf. eauto.
       apply steps_k_steps in HStep. eauto.
   }

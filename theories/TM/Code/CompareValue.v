@@ -1,4 +1,4 @@
-Require Import FunInd.
+From Coq Require Import FunInd.
 
 From Undecidability Require Import TM.Code.Copy.
 From Undecidability Require Import TM.Code.CodeTM.
