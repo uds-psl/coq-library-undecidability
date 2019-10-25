@@ -1,7 +1,7 @@
 Set Implicit Arguments.
 
 From Equations Require Import Equations.
-Require Import List Lia Arith Wf Morphisms.
+Require Import List Lia Arith Wf Morphisms Program.Program.
 From Undecidability.HOU Require Import std.std unification.unification calculus.calculus concon.concon.
 Import ListNotations.
 
