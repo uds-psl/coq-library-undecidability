@@ -1,5 +1,6 @@
 From Undecidability Require Export TM.TM.
-Require Import PslBase.FiniteTypes.DepPairs EqdepFacts.
+From PslBase Require Import FiniteTypes.DepPairs.
+From Coq Require Import EqdepFacts.
 
 (** * Switch Combinator *)
 
@@ -216,6 +217,22 @@ Section Switch.
     specialize HRel1 with (1 := HLoop1).
     specialize H with (1 := HRel1).
     specialize (HTerm2 _ _ _ H) as (c2&HLoop2).
+    pose proof Switch_merge HLoop1 HLoop2 as HLoop.
+    exists (lift_confR c2). eapply loop_monotone; eauto. omega.
+  Qed.
+
+
+  (** This is a stronger version where we can choose the running time of [Mf] depending on the output label of [M1]. This is usually not needed. *)
+  Lemma Switch_TerminatesIn' (R1 : Rel _ (F * _)) T1 T2 :
+    pM1 ⊨ R1 -> M1 ↓ T1 -> (forall f : F, Mf f ↓(T2 f)) ->
+    projT1 Switch ↓ (fun tin i => exists i1, T1 tin i1 /\ forall tout yout, R1 tin (yout, tout) -> exists i2, 1 + i1 + i2 <= i /\ T2 yout tout i2).
+  Proof.
+    unfold Switch. intros HRel1 HTerm1 HTerm2. hnf in HRel1, HTerm1.
+    hnf. intros t k (i1&HT1&H).
+    specialize HTerm1 with (1 := HT1) as (c1&HLoop1).
+    specialize HRel1 with (1 := HLoop1).
+    specialize H with (1 := HRel1) as (i2&Hi&HT2).
+    unfold TerminatesIn in HTerm2. specialize HTerm2 with (1 := HT2) as (c2&HLoop2).
     pose proof Switch_merge HLoop1 HLoop2 as HLoop.
     exists (lift_confR c2). eapply loop_monotone; eauto. omega.
   Qed.

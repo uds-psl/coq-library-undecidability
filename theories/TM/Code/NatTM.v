@@ -160,8 +160,8 @@ Definition Add_Main_Rel : pRel sigNat^+ unit 4 :=
         forall m n sm sn s2 s3,
           tin [@Fin0] ≃(;sm) m ->
           tin [@Fin1] ≃(;sn) n ->
-          isRight_size tin[@Fin2] s2 ->
-          isRight_size tin[@Fin3] s3 ->
+          isVoid_size tin[@Fin2] s2 ->
+          isVoid_size tin[@Fin3] s3 ->
           tout[@Fin0] ≃(;sm) m /\
           tout[@Fin1] ≃(;sn) n /\
           tout[@Fin2] ≃(; s2 - (S (size _ n)) - m) m + n /\
@@ -199,12 +199,12 @@ Definition Add_Rel : pRel sigNat^+ unit 4 :=
        forall (m : nat) (n : nat) (sx sy so s3 : nat),
          tin[@Fin0] ≃(;sx) m ->
          tin[@Fin1] ≃(;sy) n ->
-         isRight_size tin[@Fin2] so ->
-         isRight_size tin[@Fin3] s3 ->
+         isVoid_size tin[@Fin2] so ->
+         isVoid_size tin[@Fin3] s3 ->
          tout[@Fin0] ≃(;sx) m /\ (* First input value stayes unchanged *)
          tout[@Fin1] ≃(;sy) n /\ (* Second input value stayes unchanged *)
          tout[@Fin2] ≃(;Add_space2 m n so) (m + n) /\
-         isRight_size tout[@Fin3] (Add_space3 m s3)
+         isVoid_size tout[@Fin3] (Add_space3 m s3)
     ).
 
 Lemma Add_Computes : Add ⊨ Add_Rel.
@@ -279,7 +279,7 @@ Definition Add_Main_steps m n := 85 + 12 * n + 22 * m.
 (* [37 + 12 * m] for [CopyValue] (m) *)
 (* [9 + 10 * m] for [Add_Loop] *)
 
-Definition Add_Main_T : tRel sigNat^+ 4 := fun tin k => exists m n, tin[@Fin0] ≃ m /\ tin[@Fin1] ≃ n /\ isRight tin[@Fin2] /\ isRight tin[@Fin3] /\ Add_Main_steps m n <= k.
+Definition Add_Main_T : tRel sigNat^+ 4 := fun tin k => exists m n, tin[@Fin0] ≃ m /\ tin[@Fin1] ≃ n /\ isVoid tin[@Fin2] /\ isVoid tin[@Fin3] /\ Add_Main_steps m n <= k.
 
 Lemma Add_Main_Terminates :
   projT1 Add_Main ↓ Add_Main_T.
@@ -314,7 +314,7 @@ Qed.
 Definition Add_steps m n := 98 + 12 * n + 22 * m.
 (* Additional [12] steps for [Reset], and [1] for [Seq] *)
 
-Definition Add_T : tRel sigNat^+ 4 := fun tin k => exists m n, tin[@Fin0] ≃ m /\ tin[@Fin1] ≃ n /\ isRight tin[@Fin2] /\ isRight tin[@Fin3] /\ Add_steps m n <= k.
+Definition Add_T : tRel sigNat^+ 4 := fun tin k => exists m n, tin[@Fin0] ≃ m /\ tin[@Fin1] ≃ n /\ isVoid tin[@Fin2] /\ isVoid tin[@Fin3] /\ Add_steps m n <= k.
 
 Lemma Add_Terminates :
   projT1 Add ↓ Add_T.
@@ -421,21 +421,21 @@ Definition Mult_Step_Rel : pRel sigNat^+ (option unit) 5 :=
       tin[@Fin0] ≃(;sm) m' ->
       tin[@Fin1] ≃(;sn) n ->
       tin[@Fin2] ≃(;sc) c ->
-      isRight_size tin[@Fin3] s3 ->
-      isRight_size tin[@Fin4] s4 ->
+      isVoid_size tin[@Fin3] s3 ->
+      isVoid_size tin[@Fin4] s4 ->
       match yout, m' with
       | (Some tt), O => (* return *)
         tout[@Fin0] ≃(;sm) m' /\
         tout[@Fin1] ≃(;sn) n /\
         tout[@Fin2] ≃(;sc) c /\
-        isRight_size tout[@Fin3] s3 /\
-        isRight_size tout[@Fin4] s4
+        isVoid_size tout[@Fin3] s3 /\
+        isVoid_size tout[@Fin4] s4
       | None, S m'' => (* continue *)
         tout[@Fin0] ≃(;S sm) m'' /\
         tout[@Fin1] ≃(;sn) n /\
         tout[@Fin2] ≃(;sc-n) n + c /\
-        isRight_size tout[@Fin3] (2 + n + c + Add_space2 n c s3)  /\
-        isRight_size tout[@Fin4] (Add_space3 n s4)
+        isVoid_size tout[@Fin3] (2 + n + c + Add_space2 n c s3)  /\
+        isVoid_size tout[@Fin4] (Add_space3 n s4)
       | _, _ => False
       end.
 
@@ -456,7 +456,7 @@ Proof.
       modpon HAdd. modpon HMove.
       repeat split; auto.
       + contains_ext. unfold MoveValue_size_y. rewrite !Encode_nat_hasSize. omega.
-      + isRight_mono. unfold Add_space2. unfold MoveValue_size_x. rewrite Encode_nat_hasSize. omega.
+      + isVoid_mono. unfold Add_space2. unfold MoveValue_size_x. rewrite Encode_nat_hasSize. omega.
     - modpon H. destruct m' as [ | m']; auto.
   }
 Qed.
@@ -476,13 +476,13 @@ Definition Mult_Loop_Rel : pRel sigNat^+ unit 5 :=
           tin[@Fin0] ≃(;sm) m' ->
           tin[@Fin1] ≃(;sn) n ->
           tin[@Fin2] ≃(;sc) c ->
-          isRight_size tin[@Fin3] s3 ->
-          isRight_size tin[@Fin4] s4 ->
+          isVoid_size tin[@Fin3] s3 ->
+          isVoid_size tin[@Fin4] s4 ->
           tout[@Fin0] ≃(;sm+m') 0 /\
           tout[@Fin1] ≃(;sn) n /\
           tout[@Fin2] ≃(;sc-m'*n) m' * n + c /\
-          isRight_size tout[@Fin3] (Mult_Loop_space34 m' n c s3 s4)[@Fin0] /\
-          isRight_size tout[@Fin4] (Mult_Loop_space34 m' n c s3 s4)[@Fin1]
+          isVoid_size tout[@Fin3] (Mult_Loop_space34 m' n c s3 s4)[@Fin0] /\
+          isVoid_size tout[@Fin4] (Mult_Loop_space34 m' n c s3 s4)[@Fin1]
     ).
 
 
@@ -532,15 +532,15 @@ Definition Mult_Main_Rel : pRel sigNat^+ unit 6 :=
         forall (m n : nat) (sm sn so s3 s4 s5 : nat),
           tin[@Fin0] ≃(;sm) m ->
           tin[@Fin1] ≃(;sn) n ->
-          isRight_size tin[@Fin2] so ->
-          isRight_size tin[@Fin3] s3 ->
-          isRight_size tin[@Fin4] s4 ->
-          isRight_size tin[@Fin5] s5 ->
+          isVoid_size tin[@Fin2] so ->
+          isVoid_size tin[@Fin3] s3 ->
+          isVoid_size tin[@Fin4] s4 ->
+          isVoid_size tin[@Fin5] s5 ->
           tout[@Fin0] ≃(;sm) m /\
           tout[@Fin1] ≃(;sn) n /\
           tout[@Fin2] ≃(;so-m*n) m * n /\
-          isRight_size tout[@Fin3] ((Mult_Loop_space34 m n 0 s3 s4)[@Fin0]) /\
-          isRight_size tout[@Fin4] ((Mult_Loop_space34 m n 0 s3 s4)[@Fin1]) /\
+          isVoid_size tout[@Fin3] ((Mult_Loop_space34 m n 0 s3 s4)[@Fin0]) /\
+          isVoid_size tout[@Fin4] ((Mult_Loop_space34 m n 0 s3 s4)[@Fin1]) /\
           tout[@Fin5] ≃(;s5+m) 0
     ).
 
@@ -570,16 +570,16 @@ Definition Mult_Rel : pRel sigNat^+ unit 6 :=
        forall (m : nat) (n : nat) (sm sn so s3 s4 s5 : nat),
          tin[@Fin0] ≃(;sm) m ->
          tin[@Fin1] ≃(;sn) n ->
-         isRight_size tin[@Fin2] so ->
-         isRight_size tin[@Fin3] s3 ->
-         isRight_size tin[@Fin4] s4 ->
-         isRight_size tin[@Fin5] s5 ->
+         isVoid_size tin[@Fin2] so ->
+         isVoid_size tin[@Fin3] s3 ->
+         isVoid_size tin[@Fin4] s4 ->
+         isVoid_size tin[@Fin5] s5 ->
          tout[@Fin0] ≃(;sm) m /\
          tout[@Fin1] ≃(;sn) n /\
          tout[@Fin2] ≃(;so-m*n) m * n /\
-         isRight_size tout[@Fin3] ((Mult_Loop_space34 m n 0 s3 s4)[@Fin0]) /\
-         isRight_size tout[@Fin4] ((Mult_Loop_space34 m n 0 s3 s4)[@Fin1]) /\
-         isRight_size tout[@Fin5] (S (S (m + s5)))
+         isVoid_size tout[@Fin3] ((Mult_Loop_space34 m n 0 s3 s4)[@Fin0]) /\
+         isVoid_size tout[@Fin4] ((Mult_Loop_space34 m n 0 s3 s4)[@Fin1]) /\
+         isVoid_size tout[@Fin5] (S (S (m + s5)))
     ).
 
 
@@ -597,7 +597,7 @@ Proof.
     rename H into HMain, H0 into HReset.
     modpon HMain. modpon HReset.
     repeat split; auto.
-    {  isRight_mono. unfold Reset_size. rewrite !Encode_nat_hasSize. cbn. omega. }
+    {  isVoid_mono. unfold Reset_size. rewrite !Encode_nat_hasSize. cbn. omega. }
   }
 Qed.
 
@@ -621,8 +621,8 @@ Lemma Mult_Step_Terminates :
               tin[@Fin0] ≃ m' /\
               tin[@Fin1] ≃ n /\
               tin[@Fin2] ≃ c /\
-              isRight tin[@Fin3] /\
-              isRight tin[@Fin4] /\
+              isVoid tin[@Fin3] /\
+              isVoid tin[@Fin4] /\
               Mult_Step_steps m' n c <= k).
 Proof.
   eapply TerminatesIn_monotone.
@@ -664,8 +664,8 @@ Lemma Mult_Loop_Terminates :
               tin[@Fin0] ≃ m' /\
               tin[@Fin1] ≃ n /\
               tin[@Fin2] ≃ c /\
-              isRight tin[@Fin3] /\
-              isRight tin[@Fin4] /\
+              isVoid tin[@Fin3] /\
+              isVoid tin[@Fin4] /\
               Mult_Loop_steps m' n c <= i).
 Proof.
   eapply TerminatesIn_monotone.
@@ -704,7 +704,7 @@ Definition Mult_Main_steps m n := 44 + 12 * m + Mult_Loop_steps m n 0.
 
 
 
-Definition Mult_Main_T : tRel sigNat^+ 6 := fun tin k => exists m n, tin[@Fin0] ≃ m /\ tin[@Fin1] ≃ n /\ isRight tin[@Fin2] /\ (forall i : Fin.t 3, isRight tin[@FinR 3 i]) /\ Mult_Main_steps m n <= k.
+Definition Mult_Main_T : tRel sigNat^+ 6 := fun tin k => exists m n, tin[@Fin0] ≃ m /\ tin[@Fin1] ≃ n /\ isVoid tin[@Fin2] /\ (forall i : Fin.t 3, isVoid tin[@FinR 3 i]) /\ Mult_Main_steps m n <= k.
   
 Lemma Mult_Main_Terminates : projT1 Mult_Main ↓ Mult_Main_T.
 Proof.
@@ -730,7 +730,7 @@ Qed.
 
 Definition Mult_steps m n := 13 + Mult_Main_steps m n.
 
-Definition Mult_T : tRel sigNat^+ 6 := fun tin k => exists m n, tin[@Fin0] ≃ m /\ tin[@Fin1] ≃ n /\ isRight tin[@Fin2] /\ (forall i : Fin.t 3, isRight tin[@FinR 3 i]) /\ Mult_steps m n <= k.
+Definition Mult_T : tRel sigNat^+ 6 := fun tin k => exists m n, tin[@Fin0] ≃ m /\ tin[@Fin1] ≃ n /\ isVoid tin[@Fin2] /\ (forall i : Fin.t 3, isVoid tin[@FinR 3 i]) /\ Mult_steps m n <= k.
   
 Lemma Mult_Terminates : projT1 Mult ↓ Mult_T.
 Proof.

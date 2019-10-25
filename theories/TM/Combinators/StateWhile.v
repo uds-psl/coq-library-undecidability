@@ -1,5 +1,6 @@
 From Undecidability Require Export TM.TM.
-Require Import PslBase.FiniteTypes.DepPairs EqdepFacts.
+From PslBase Require Import FiniteTypes.DepPairs.
+From Coq Require Import EqdepFacts.
 
 Section StateWhile.
 

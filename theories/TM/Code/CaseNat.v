@@ -79,7 +79,7 @@ Section CaseNat.
     Definition Constr_O_size := pred >> pred.
 
     Definition O_Rel : Rel (tapes sigNat^+ 1) (unit * tapes sigNat^+ 1) :=
-      fun tin '(_, tout) => forall sn, isRight_size tin[@Fin0] sn -> tout[@Fin0] ≃(;Constr_O_size sn) O.
+      fun tin '(_, tout) => forall sn, isVoid_size tin[@Fin0] sn -> tout[@Fin0] ≃(;Constr_O_size sn) O.
 
     Definition Constr_O : pTM sigNat^+ unit 1 := WriteValue [ sigNat_O ].
 

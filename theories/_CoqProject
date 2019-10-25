@@ -205,6 +205,10 @@ H10/H10Z.v
 H10C/h10c_defs.v
 H10C/h10c_utils.v
 
+# Turing Machines (Maxi)
+#################
+
+
 # Basics
 TM/Prelim.v
 TM/Relations.v
@@ -297,6 +301,24 @@ TM/PrettyBounds/UnivSpaceBounds.v
 
 # Multi-Univ Simulation Theorem
 TM/MultiUnivTimeSpaceSimulation.v
+
+# Layer for Hoare Logic
+TM/Hoare/Hoare.v
+TM/Hoare/HoareLogic.v
+TM/Hoare/HoareCombinators.v
+TM/Hoare/HoareRegister.v
+TM/Hoare/HoareTactics.v
+TM/Hoare/HoareExamples.v
+TM/Hoare/HoareNth.v
+TM/Hoare/HoareStdLib.v
+
+# Univ with Hoare
+TM/Univ/HoareLookupAssociativeListTM.v
+TM/Univ/HoareUniv.v
+
+#########
+
+
 
 L/Prelim/MoreBase.v
 L/Prelim/ARS.v

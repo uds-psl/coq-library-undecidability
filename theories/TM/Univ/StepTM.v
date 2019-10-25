@@ -1,5 +1,5 @@
-From Undecidability Require Import TM.Code.ProgrammingTools.
-Require Import PslBase.Bijection. (* [injective] *)
+From Undecidability Require Import ProgrammingTools.
+From PslBase Require Import Bijection. (* [injective] *)
 
 
 From Undecidability Require Import Basic.Duo.
@@ -223,7 +223,7 @@ Section Univ.
         fun tin tout =>
           forall (tp : tape sigM) (s : nat),
             containsWorkingTape tin[@Fin0] tp ->
-            isRight_size tin[@Fin1] s ->
+            isVoid_size tin[@Fin1] s ->
             containsWorkingTape tout[@Fin0] tp /\
             tout[@Fin1] ≃(retr_sigCurrentSymbol_sig; ReadCurrent_size s) current tp).
 
@@ -272,7 +272,7 @@ Section Univ.
            containsWorkingTape tin[@Fin0] tp ->
            tin[@Fin1] ≃(retr_act_sig; s) a ->
            containsWorkingTape tout[@Fin0] (doAct tp a) /\
-           isRight_size tout[@Fin1] (size s)).
+           isVoid_size tout[@Fin1] (size s)).
 
   Definition DoAction'_steps := 7.
 
@@ -305,9 +305,9 @@ Section Univ.
       (fun tin tout =>
          forall (q : nat) (s0 s1 : nat),
            tin[@Fin0] ≃(retr_sigCurrentStateNumber_sig; s0) q ->
-           isRight_size tin[@Fin1] s1 ->
+           isVoid_size tin[@Fin1] s1 ->
            tout[@Fin0] ≃(retr_sigCurrentState_sig; SetFinal_size@>Fin0 s0) (final, q) /\
-           isRight_size tout[@Fin1] (SetFinal_size@>Fin1 s1)).
+           isVoid_size tout[@Fin1] (SetFinal_size@>Fin1 s1)).
 
   Lemma SetFinal_Realise (final : bool) : SetFinal final ⊨ SetFinal_Rel final.
   Proof.
@@ -326,7 +326,7 @@ Section Univ.
   Definition SetFinal_steps := 2 + WriteValue_steps 1 + Constr_pair_steps true + ResetEmpty1_steps.
 
   Definition SetFinal_T : tRel sig^+ 2 :=
-    fun tin k => exists (q:nat), tin[@Fin0] ≃(retr_sigCurrentStateNumber_sig) q /\ isRight tin[@Fin1] /\ SetFinal_steps <= k.
+    fun tin k => exists (q:nat), tin[@Fin0] ≃(retr_sigCurrentStateNumber_sig) q /\ isVoid tin[@Fin1] /\ SetFinal_steps <= k.
 
   Lemma SetFinal_Terminates final : projT1 (SetFinal final) ↓ SetFinal_T.
   Proof.
@@ -369,9 +369,9 @@ Section Univ.
       forall (M : mTM sigM 1) (q : states M) (s0 s1 : nat),
         let size := IsFinal_size in
         containsState_size tin[@Fin0] q s0 ->
-        isRight_size tin[@Fin1] s1 ->
+        isVoid_size tin[@Fin1] s1 ->
         containsState_size tout[@Fin0] q s0 /\
-        isRight_size tout[@Fin1] (size s1) /\
+        isVoid_size tout[@Fin1] (size s1) /\
         yout = halt q.
 
   Definition IsFinal : pTM sig^+ bool 2 :=
@@ -401,7 +401,7 @@ Section Univ.
   Definition IsFinal_steps (final : bool) := 2 + CasePair_steps (final) + CaseFin_steps + SetFinal_steps.
 
   Definition IsFinal_T : tRel sig^+ 2 :=
-    fun tin k => exists (M : mTM sigM 1) (q : states M), containsState tin[@Fin0] q /\ isRight tin[@Fin1] /\ IsFinal_steps (halt q) <= k.
+    fun tin k => exists (M : mTM sigM 1) (q : states M), containsState tin[@Fin0] q /\ isVoid tin[@Fin1] /\ IsFinal_steps (halt q) <= k.
 
   Lemma IsFinal_Terminates : projT1 IsFinal ↓ IsFinal_T.
   Proof.
@@ -507,19 +507,19 @@ Section Univ.
         containsWorkingTape tin[@Fin0] tp ->
         containsTrans_size tin[@Fin1] M s1 ->
         containsState_size tin[@Fin2] q s2 ->
-        (forall (i : Fin.t 3), isRight_size tin[@FinR 3 i] sr[@i]) ->
+        (forall (i : Fin.t 3), isVoid_size tin[@FinR 3 i] sr[@i]) ->
         match yout, halt q with
         | Some tt, true =>
           containsWorkingTape tout[@Fin0] tp /\
           containsTrans_size tout[@Fin1] M (size@>Fin1 s1) /\
           containsState_size tout[@Fin2] q (size@>Fin2 s2) /\
-          (forall (i : Fin.t 3), isRight_size tout[@FinR 3 i] (size@>(FinR 3 i) sr[@i]))
+          (forall (i : Fin.t 3), isVoid_size tout[@FinR 3 i] (size@>(FinR 3 i) sr[@i]))
         | None, false =>
           let (q', tp') := step (mk_mconfig q [|tp|]) in
           containsWorkingTape tout[@Fin0] tp'[@Fin0] /\
           containsTrans_size tout[@Fin1] M (size@>Fin1 s1) /\
           containsState_size tout[@Fin2] q'(size@>Fin2 s2) /\
-          (forall (i : Fin.t 3), isRight_size tout[@FinR 3 i] (size@>(FinR 3 i) sr[@i]))
+          (forall (i : Fin.t 3), isVoid_size tout[@FinR 3 i] (size@>(FinR 3 i) sr[@i]))
         | _, _ => False
         end.
 
@@ -585,7 +585,7 @@ Section Univ.
         specialize (HCaseResult (acts[@Fin0], (halt q', index q'))). modpon HCaseResult. modpon HDoAction.
         modpon HTranslate. cbn in *.
         repeat split; eauto.
-        - unfold containsState_size. contains_ext. rewrite !vector_tl_nth. unfold finType_CS.
+        - unfold containsState_size. contains_ext.
           apply Nat.eq_le_incl. now repeat f_equal. (* use assumption about the step *)
         - intros i; destruct_fin i; cbn; TMSimp_goal; auto.
       }
@@ -627,7 +627,7 @@ Section Univ.
         containsWorkingTape tin[@Fin0] tp /\
         containsTrans tin[@Fin1] M /\
         containsState tin[@Fin2] q /\
-        (forall (i : Fin.t 3), isRight tin[@FinR 3 i]) /\
+        (forall (i : Fin.t 3), isVoid tin[@FinR 3 i]) /\
         Univ_Step_steps q tp <= k.
   
   Lemma Univ_Step_Terminates : projT1 Univ_Step ↓ Univ_Step_T.
@@ -672,7 +672,7 @@ Section Univ.
       { hnf; cbn. do 3 eexists; repeat split; eauto. apply HRight. }
       intros tmid ymid (HIsFinal&HIsFinalInj); TMSimp. modpon HIsFinal; eauto.
       { unfold containsState, containsState_size in *. contains_ext. }
-      { apply isRight_isRight_size; auto. }
+      { apply isVoid_isVoid_size; auto. }
       subst. unfold Univ_Step_steps_IsFinal. destruct (halt q).
       { (* halting state *) eauto. }
       { (* no halting state *)
@@ -694,8 +694,8 @@ Section Univ.
         { hnf; cbn. eexists. exists (current tp, (halt q, index q)). repeat split; simpl_surject; eauto. }
         intros tmid3 ymid3 (HLookup&HLookupInj); TMSimp. modpon HLookup.
         { simpl_surject. unfold containsTrans in *. contains_ext. }
-        { simpl_surject. apply isRight_isRight_size; eauto. }
-        { simpl_surject. apply isRight_isRight_size; eauto. }
+        { simpl_surject. apply isVoid_isVoid_size; eauto. }
+        { simpl_surject. apply isVoid_isVoid_size; eauto. }
         rewrite lookup_graph in HLookup. cbn in *. rewrite E in HLookup.
         destruct ymid3; auto. modpon HLookup.
         exists (Univ_Step_steps_CasePair acts[@Fin0]), (1 + DoAction'_steps + Univ_Step_steps_Translate q'). repeat split; try omega.
@@ -730,14 +730,14 @@ Section Univ.
         containsWorkingTape tin[@Fin0] tp ->
         containsTrans_size tin[@Fin1] M s1 ->
         containsState_size tin[@Fin2] q s2 ->
-        (forall (i : Fin.t 3), isRight_size tin[@FinR 3 i] sr[@i]) ->
+        (forall (i : Fin.t 3), isVoid_size tin[@FinR 3 i] sr[@i]) ->
         exists k (oconf : mconfig sigM (states M) 1),
           let size := Univ_size tp q k in
           loopM (mk_mconfig q [|tp|]) k = Some oconf /\
           containsWorkingTape tout[@Fin0] (ctapes oconf)[@Fin0] /\
           containsTrans_size tout[@Fin1] M              (size@>Fin1 s1) /\
           containsState_size tout[@Fin2] (cstate oconf) (size@>Fin2 s2) /\
-          (forall (i : Fin.t 3), isRight_size tout[@FinR 3 i] (size@>(FinR 3 i) sr[@i])).
+          (forall (i : Fin.t 3), isVoid_size tout[@FinR 3 i] (size@>(FinR 3 i) sr[@i])).
 
   Lemma Univ_Realise : Univ ⊨ Univ_Rel.
   Proof.
@@ -773,7 +773,7 @@ Section Univ.
         containsWorkingTape tin[@Fin0] tp /\
         containsTrans tin[@Fin1] M /\
         containsState tin[@Fin2] q /\
-        (forall (i : Fin.t 3), isRight tin[@FinR 3 i]) /\
+        (forall (i : Fin.t 3), isVoid tin[@FinR 3 i]) /\
         loopM (mk_mconfig q [|tp|]) k' = Some (mk_mconfig q' [|tp'|]) /\
         Univ_steps q tp k' <= k.
 
@@ -808,7 +808,7 @@ Section Univ.
         + rewrite E in HLoop. unfold step, haltConf, current_chars in HLoop, Hk; cbn in *. rewrite E' in HLoop, Hk. rewrite E in Hk. simpl_vector in *. cbn in *.
           exists (Univ_steps q'' (doAct tp act) k'). split.
           * hnf. do 6 eexists; repeat split; eauto.
-            intros i. specialize (HStep2 i). isRight_mono.
+            intros i. specialize (HStep2 i). isVoid_mono.
           * omega.
     }
   Qed.

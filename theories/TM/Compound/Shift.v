@@ -4,8 +4,8 @@ From Undecidability Require Import TM.Combinators.Combinators.
 From Undecidability Require Import TM.Compound.TMTac.
 From Undecidability Require Import TM.Compound.Multi.
 
-Require Import FunInd.
-Require Import Recdef.
+From Coq Require Import FunInd.
+From Coq Require Import Recdef.
 
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.

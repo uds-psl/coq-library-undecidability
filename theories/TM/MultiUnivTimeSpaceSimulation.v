@@ -1,16 +1,16 @@
 (** * Theorem: Univ can simulate multi-tape Turing machines with polynominal time and linear space overhead *)
 
-From Undecidability Require Import TM.Code.ProgrammingTools.
+From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import TM.Univ.StepTM. (* [Univ] for single-tape Turing machines *)
 From Undecidability Require Import TM.Single.EncodeTapes TM.Single.StepTM. (* Compiler for multi-tape Turing machines to single-tape Turing machines *)
 
-From Undecidability Require Import PrettyBounds PrettyBounds.SizeBounds MaxList.
+From Undecidability Require Import PrettyBounds.
 From Undecidability Require UnivBounds.
 From Undecidability Require UnivSpaceBounds.
 From Undecidability Require M2MBounds.
 From Undecidability Require Import TM.VectorPrelim.
 
-Require Import Derive.
+From Coq Require Import Derive.
 
 
 Local Arguments loopM {_ _} _ _ _.
@@ -27,6 +27,32 @@ Lemma vector_const_cons (X : Type) (n : nat) (x : X) :
 Proof. cbn. reflexivity. Qed.
 *)
 
+
+From Undecidability Require Import MaxList.
+
+
+(** Technical compatibility lemma: Coq's standard library is soo inconsistent... *)
+Lemma fold_left_vector_to_list (X Y : Type) (n : nat) (f : Y -> X -> Y) (v : Vector.t X n) (a : Y) :
+  Vector.fold_left f a v = fold_left f (vector_to_list v) a.
+Proof. revert a. induction v as [ | x n v IH]; intros; cbn in *; f_equal; auto. Qed.
+
+Lemma max_list_rec_eq_foldl (a : nat) (xs : list nat) :
+  fold_left max xs a = max_list_rec a xs.
+Proof.
+  revert a. induction xs as [ | x xs IH]; intros; cbn in *.
+  - reflexivity.
+  - rewrite IH. rewrite !max_list_rec_max. nia.
+Qed.
+
+Lemma sizeOfmTapes_max_list_map (sig : Type) (n : nat) (T : tapes sig n) :
+  sizeOfmTapes T = max_list_map (@sizeOfTape _) (vector_to_list T).
+Proof.
+  unfold sizeOfmTapes.
+  rewrite fold_left_vector_to_list.
+  rewrite <- vector_to_list_map.
+  unfold max_list_map, max_list.
+  apply max_list_rec_eq_foldl.
+Qed.
 
 Lemma max_list_rec_repeat (a : nat) (s : nat) (n : nat) :
   n <> 0 ->
@@ -57,6 +83,26 @@ Qed.
 Lemma vector_const_to_list (X : Type) (a : X) (n : nat) :
   vector_to_list (Vector.const a n) = repeat a n.
 Proof. induction n; intros; cbn in *; now f_equal. Qed.
+
+Lemma vector_to_list_In (X : Type) (n : nat) (xs : Vector.t X n) (x : X) :
+  In x (vector_to_list xs) <-> Vector.In x xs.
+Proof.
+  split.
+  - induction xs as [ | y n xs IH]; intros; cbn in *.
+    + auto.
+    + destruct H as [ <- | H].
+      * now constructor.
+      * now constructor; auto.
+  - induction xs as [ | y n xs IH]; intros; cbn in *.
+    + inv H.
+    + apply In_cons in H as [<- | H].
+      * now constructor.
+      * now constructor; auto.
+Qed.
+
+Lemma sizeOfmTapes_upperBound (sig : Type) (n : nat) (tps : tapes sig n) :
+  forall t, Vector.In t tps -> sizeOfTape t <= sizeOfmTapes tps.
+Proof. intros. rewrite sizeOfmTapes_max_list_map. apply max_list_map_ge. now apply vector_to_list_In. Qed.
 
 
 (*
@@ -169,26 +215,26 @@ Section InitUniv.
     containsWorkingTape _ (makeUnivTapes M tp)[@Fin0] tp /\
     containsTrans_size _ (makeUnivTapes M tp)[@Fin1] M 0 /\
     containsState_size _ (makeUnivTapes M tp)[@Fin2] (start M) 0 /\
-    (forall (i : Fin.t 3), isRight_size (makeUnivTapes M tp)[@FinR 3 i] 0).
+    (forall (i : Fin.t 3), isVoid_size (makeUnivTapes M tp)[@FinR 3 i] 0).
   Proof.
     unfold makeUnivTapes. cbn. split; [ | split; [ | split ]].
     - apply makeUnivWorkingTape_correct.
     - apply makeUnivGraphTape_correct_size.
     - apply makeUnivStartStateTape_correct_size.
-    - intros i; destruct_fin i; cbn; apply initRight_isRight_size.
+    - intros i; destruct_fin i; cbn; apply initRight_isVoid_size.
   Qed.
 
   Lemma makeUnivTapes_correct (M : mTM sigM 1) (tp : tape sigM) :
     containsWorkingTape _ (makeUnivTapes M tp)[@Fin0] tp /\
     containsTrans _ (makeUnivTapes M tp)[@Fin1] M /\
     containsState _ (makeUnivTapes M tp)[@Fin2] (start M) /\
-    (forall (i : Fin.t 3), isRight (makeUnivTapes M tp)[@FinR 3 i]).
+    (forall (i : Fin.t 3), isVoid (makeUnivTapes M tp)[@FinR 3 i]).
   Proof.
     unfold makeUnivTapes. cbn. split; [ | split; [ | split ]].
     - apply makeUnivWorkingTape_correct.
     - apply makeUnivGraphTape_correct.
     - apply makeUnivStartStateTape_correct.
-    - intros i; destruct_fin i; cbn; apply initRight_isRight.
+    - intros i; destruct_fin i; cbn; apply initRight_isVoid.
   Qed.
 
 
@@ -330,8 +376,8 @@ Section MakeSingleTape.
     setoid_rewrite Encode_tapes_hasSize. now ring_simplify.
   Qed.
 
-  Lemma isRight_size_hasSize (tp : tape sigM) (s : nat) :
-    isRight_size tp s ->
+  Lemma isVoid_size_hasSize (tp : tape sigM) (s : nat) :
+    isVoid_size tp s ->
     Encode_tape_size tp <= s + 3.
   Proof. intros (x&ls&->&Hs). cbn. simpl_list; cbn. ring_simplify. now rewrite Hs. Qed.
 
@@ -469,7 +515,7 @@ End M2M_Retract.
 
 
 Section MoreDominationLemmas.
-  
+
   Lemma dominatedWith_add' (c1 c2 : nat) (A B C D : nat) :
     A <=(c1) C ->
     B <=(c2) D ->
@@ -531,15 +577,14 @@ Section U.
   Existing Instance retr_sigSimTape_sigUniv.
   Definition Univ : pTM sigUniv unit 6 := @Univ sigM sigUniv' retr_sigSimGraph_sigUniv retr_sigSimTape_sigUniv.
 
-  (*
   Check Univ : pTM sigUniv unit 6.
   Check Univ : pTM sigUniv'^+ unit 6.
-*)
+
 
   (** The single-tape version of [Univ] for alphabet [sigM] *)
   Definition U := ToSingleTape Univ.
   Definition sigU := ltac:(lazymatch type of U with pTM ?sigU _ _ => exact sigU end).
-(*  Check U : pTM sigU unit 1. *)
+  Check U : pTM sigU unit 1.
 
 
   (*
@@ -560,14 +605,14 @@ Section U.
     containsWorkingTape _ T_univ[@Fin0] T /\
     containsTrans _ T_univ[@Fin1] M /\
     containsState _ T_univ[@Fin2] q /\
-    (forall (i : Fin.t 3), isRight T_univ[@FinR 3 i]).
+    (forall (i : Fin.t 3), isVoid T_univ[@FinR 3 i]).
 
   (** Variant with size. Note that [s_Univ[@Fin0]] is irrelevant. *)
   Definition contains_conf_Univ_size (M : mTM sigM 1) (T_univ : tapes sigUniv 6) (q : states M) (T : tape sigM) (s_Univ : Vector.t nat 6) : Prop :=
     containsWorkingTape _ T_univ[@Fin0] T /\
     containsTrans_size _ T_univ[@Fin1] M s_Univ[@Fin1] /\
     containsState_size _ T_univ[@Fin2] q s_Univ[@Fin2] /\
-    (forall (i : Fin.t 3), isRight_size T_univ[@FinR 3 i] s_Univ[@FinR 3 i]).
+    (forall (i : Fin.t 3), isVoid_size T_univ[@FinR 3 i] s_Univ[@FinR 3 i]).
 
   Lemma contains_conf_Univ_size_contains_conf_Univ (M : mTM sigM 1) (T_univ : tapes sigUniv 6) (q : states M) (T : tape sigM) (s_Univ : Vector.t nat 6) :
     contains_conf_Univ_size T_univ q T s_Univ ->
@@ -577,7 +622,7 @@ Section U.
     - apply H0.
     - eapply containsTrans_size_containsTrans; eauto.
     - eapply containsState_size_containsState; eauto.
-    - intros. eapply isRight_size_isRight. apply H3.
+    - intros. eapply isVoid_size_isVoid. apply H3.
   Qed.
 
   Definition contains_conf_U' (M : mTM sigM 1) (t : tape sigU) (T_univ : tapes sigUniv 6) (q : states M) (T : tape sigM) : Prop :=
@@ -611,7 +656,7 @@ Section U.
     - repeat split.
       + cbn. apply makeUnivGraphTape_correct_size.
       + cbn. apply makeUnivStartStateTape_correct_size.
-      + intros i. cbn. destruct_fin i; cbn; apply initRight_isRight_size.
+      + intros i. cbn. destruct_fin i; cbn; apply initRight_isVoid_size.
   Qed.
 
 
@@ -678,10 +723,10 @@ Section U.
   (** Because the asymtopic behaviour of [fp] only depends on the size of the tapes, we will just insert bogus tapes with the corresponding tapes size. *)
   Definition f (M : mTM sigM 1) : nat * nat -> nat := fun '(k, s) => fp M (bogus_tape s) k.
 *)
-(*
+
   Check (projT1 U) : mTM sigU 1.
   Check forall (tp tp' : tape sigU), terminates (projT1 U) [|tp|] 42 [|tp'|].
-*)
+
   (** [fp] is literally only another definition for [U_steps] *)
   Lemma fp_eq : forall M (T : tape sigM) k, fp M T k = U_steps (makeUnivTapes _ _ M T) (start M) T k.
   Proof. intros. reflexivity. Qed.
@@ -721,6 +766,7 @@ Section U.
       apply dominatedWith_solve. enough (1 <= size (graph_of_TM M)) by nia. apply UnivBounds.Univ_nice.Encode_graph_hasSize_ge1.
     - apply (proj2_sig (UnivBounds.Univ_nice.Univ_steps_nice)).
   Qed.
+
 
   (** Throw away all constants that depend on [M] *)
   Lemma fp_nice3 M :
@@ -817,7 +863,7 @@ Section U.
       specialize Univ_correct with (M := projT1 pM) (tp := T) (q := q_M).
 
       modpon Univ_correct. (* This needs a bit help, because there are sizes involved *)
-      { instantiate (1 := [|_;_;_|]). intros i; specialize (HConf4 i); destruct_fin i; cbn in *; isRight_mono. }
+      { instantiate (1 := [|_;_;_|]). intros i; specialize (HConf4 i); destruct_fin i; cbn in *; isVoid_mono. }
 
       cbn in Univ_correct. destruct Univ_correct as (k_M&oconf_M&M_term&Univ_oconfCont1&Univ_oconfCont2&Univ_oconfCont3&Univ_oconfCont4).
       destruct oconf_M as [qout_M Ts']. pose proof vector_1_eta Ts' as (T'&->).
@@ -828,16 +874,14 @@ Section U.
         { apply Univ_oconfCont1. }
         { unfold containsTrans, containsTrans_size in *. contains_ext. }
         { unfold containsState, containsState_size in *. contains_ext. }
-        { intros i; specialize (Univ_oconfCont4 i); destruct_fin i; cbn in *; isRight_mono. }
+        { intros i; specialize (Univ_oconfCont4 i); destruct_fin i; cbn in *; isVoid_mono. }
     }
   Qed.
 
 
   (** We only do space-analysis for [Univ] now, because the size of the [sigU] tapes is directly determined by the tapes of [Univ] *)
-  (* )Check UnivSpaceBounds.Univ_size_nice'. *)
+  Check UnivSpaceBounds.Univ_size_nice'.
 
-
-  (* TODO: Maybe simplify this space bound a bit: every tape of [Univ], except the object tape, is bounded by a constant (that depends on M). *)
 
 End U.
 
@@ -889,7 +933,7 @@ Section MakeSingleTape_Bounded_by_sizeOfmTapes.
   Variable (sig : finType) (n : nat).
 
   (** We've already proven that [sizeOfTape (makeSingleTape T)] is the sum of the tape sizes (plus some constant) *)
-  (* )Check makeSingleTape_sizeOfTape. *)
+  Check makeSingleTape_sizeOfTape.
 
   Lemma tam (T : tapes sig n) :
     max_list_map (fun t : tape sig => Encode_tape_size t + 1) (vector_to_list T) <= sizeOfmTapes T + 3.
@@ -971,7 +1015,7 @@ Section UnivMultiTimeSpaceTheorem.
 
   Notation pM' := (ToSingleTape pM).
   Notation M' := (projT1 pM').
-  (* )Check M' : mTM sigM' 1. *)
+  Check M' : mTM sigM' 1.
 
   Notation "'castState' q" := (q : (states (projT1 pM))) (at level 1).
 
@@ -1118,13 +1162,13 @@ Section UnivMultiTimeSpaceTheorem.
         subst T' k'. nia.
     - apply dominatedWith_add_r; [ | nia].
       eapply dominatedWith_trans.
-      apply (proj2_sig M2MBounds.Loop_steps_nice).
+      apply (proj2_sig (M2MBounds.Loop_steps_nice)).
       apply dominatedWith_solve. subst k'. nia.
   Qed.
 
   (** Simplify [sizeOfTape (makeSingleTape T)] *)
 
-  (* )Check makeSingleTape_sizeOfmTapes. *)
+  Check makeSingleTape_sizeOfmTapes.
 
   Lemma Mfp_nice3 :
     {c : nat | forall (T : tapes sigM n) (k : nat),
@@ -1274,25 +1318,25 @@ Section UnivMultiTimeSpaceTheorem.
       all: apply dominatedWith_solve; omega.
     - apply dominatedWith_solve. apply Nat.eq_le_incl. symmetry. apply Encode_tape_hasSize.
   Qed.
-    
+
 
   Lemma makeUnivWorkingTape_sizeOfTape_nice :
     { c | forall (T : tapes sigM n), sizeOfTape (makeUnivWorkingTape (retr_sigSimTape_sigUniv sigM') (makeSingleTape T)) <=(c) sizeOfmTapes T + 1 }.
   Proof.
     eexists. intros. eapply dominatedWith_trans. apply (proj2_sig (@tape_sizeOfTape_nice _)).
-    eapply dominatedWith_trans. 
+    eapply dominatedWith_trans.
     rewrite makeUnivWorkingTape_size.
     apply (proj2_sig (@tape_size_nice _)).
     domWith_approx.
-    eapply dominatedWith_trans. 
+    eapply dominatedWith_trans.
     - setoid_rewrite makeSingleTape_sizeOfmTapes.
       domWith_approx. instantiate (1 := sizeOfmTapes T + 1). all: domWith_approx.
     - domWith_approx.
   Qed.
 
 
-(*  Print UnivSpaceBounds.Univ_size_bound. *)
-    
+  Print UnivSpaceBounds.Univ_size_bound.
+
 
   (** We need to bound the size of the [sigMU] tape *)
 
@@ -1344,9 +1388,9 @@ Section UnivMultiTimeSpaceTheorem.
     setoid_rewrite (containsTrans_size_hasSize HT1).
     setoid_rewrite (containsState_size_hasSize HT2).
     pose proof (HT3 Fin1) as HT4. pose proof (HT3 Fin2) as HT5. specialize (HT3 Fin0). cbn in HT3,HT4,HT5.
-    rewrite (isRight_size_hasSize HT3).
-    rewrite (isRight_size_hasSize HT4).
-    rewrite (isRight_size_hasSize HT5).
+    rewrite (isVoid_size_hasSize HT3).
+    rewrite (isVoid_size_hasSize HT4).
+    rewrite (isVoid_size_hasSize HT5).
     ring_simplify.
     unfold contains_conf_MU_size_exact_size.
     cbn [Vector.nth Vector.caseS]. reflexivity.
@@ -1388,7 +1432,7 @@ Section UnivMultiTimeSpaceTheorem.
     intros (H0&H1&H2&H3&H4). repeat split; auto.
     - unfold containsTrans_size, containsTrans in *. simpl_vector. contains_ext.
     - unfold containsState_size, containsState in *. simpl_vector. contains_ext.
-    - intros i; specialize (H4 i); destruct_fin i; simpl_vector; isRight_mono.
+    - intros i; specialize (H4 i); destruct_fin i; simpl_vector; isVoid_mono.
   Qed.
 
 
@@ -1450,7 +1494,7 @@ Section UnivMultiTimeSpaceTheorem.
         + apply makeUnivWorkingTape_correct.
         + apply makeUnivGraphTape_correct_size.
         + apply makeUnivStartStateTape_correct_size.
-        + intros i; destruct_fin i; cbn; apply initRight_isRight_size.
+        + intros i; destruct_fin i; cbn; apply initRight_isVoid_size.
     }
     (* We got another proof that [M] halts. But this is not a problem *)
     pose proof loop_injective M_halts M_halts'. symmetry in H. inv H.
@@ -1465,7 +1509,5 @@ Section UnivMultiTimeSpaceTheorem.
 
 End UnivMultiTimeSpaceTheorem.
 
-(*
 Print Assumptions EndTheorem1.
 Print Assumptions EndTheorem2.
-*)

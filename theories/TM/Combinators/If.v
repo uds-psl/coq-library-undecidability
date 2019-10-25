@@ -44,6 +44,29 @@ Section If.
       intros tout b HRel. specialize (HT2 tout b HRel). destruct b; auto.
   Qed.
 
+
+  (** Strong version. Usually not needed *)
+  Lemma If_TerminatesIn' R1 T1 T2 T3 :
+    pM1 ⊨ R1 ->
+    projT1 pM1 ↓ T1 ->
+    projT1 pM2 ↓ T2 ->
+    projT1 pM3 ↓ T3 ->
+    projT1 If ↓ (fun tin i => exists i1, T1 tin i1 /\
+                                    forall tout (b:bool),
+                                      R1 tin (b, tout) ->
+                                      if b then exists i2, 1 + i1 + i2 <= i /\ T2 tout i2 
+                                           else exists i3, 1 + i1 + i3 <= i /\ T3 tout i3).
+  Proof.
+    intros HRelalise HTerm1 HTerm2 HTerm3.
+    eapply TerminatesIn_monotone.
+    - eapply Switch_TerminatesIn'; cbn; eauto. instantiate (1 := fun f => if f then T2 else T3). intros [ | ]; cbn; auto.
+    - intros tin k (i1&HT1&H). exists i1. split.
+      + assumption.
+      + intros tout yout HR1. specialize H with (1 := HR1). destruct yout.
+        * destruct H as (i2&H&H'). eauto.
+        * destruct H as (i3&H&H'). eauto.
+  Qed.
+
   
   Lemma If_RealiseIn R1 R2 R3 k1 k2 k3 :
     pM1 ⊨c(k1) R1 ->

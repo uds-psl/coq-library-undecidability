@@ -1,10 +1,11 @@
+(* From Undecidability Require Import Combinators.Combinators Multi Basic.Mono TMTac. *)
 From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import ArithPrelim.
-
 From Undecidability Require Import TM.Compound.Shift.
+From Undecidability Require Import TM.VectorPrelim.
 
-From Undecidability Require Import EncodeTapes TM.VectorPrelim.
-Require Import FunInd.
+From Undecidability Require Import EncodeTapes.
+From Coq Require Import FunInd.
 
 
 Local Set Printing Coercions.
@@ -20,7 +21,7 @@ Compute Vector.to_list _. (1 ::: _).
 *)
 
 
-(* MOVE TODO This should go to TM/TM.v *)
+(* TODO This should go to TM/TM.v *)
 
 Lemma tape_move_niltape (sig : Type) (m : move) :
   tape_move (niltape sig) m = niltape sig.
@@ -61,7 +62,7 @@ Proof.
 Qed.
 
 
-(* MOVE TODO: ~> somewhere else *)
+(* TODO: ~> somewhere else *)
 Lemma vector_to_list_inj (X : Type) (n : nat) (xs ys : Vector.t X n) :
   vector_to_list xs = vector_to_list ys -> xs = ys.
 Proof.
@@ -70,15 +71,11 @@ Proof.
   - destruct_vector. cbn in *. inv H. f_equal. auto.
 Qed.
 
-Definition fin_to_nat (n : nat) (i : Fin.t n) : nat := proj1_sig (Fin.to_nat i).
-Module FinCoercion.
-  Coercion fin_to_nat : Fin.t >-> nat. 
-  Export Set Printing Coercions.
-End FinCoercion.
-
-Import FinCoercion.
 
 Section Fin.
+
+  Global Coercion fin_to_nat (n : nat) (i : Fin.t n) : nat := proj1_sig (Fin.to_nat i).
+  Global Set Printing Coercions.
 
   Lemma fin_to_nat_lt (n : nat) (i : Fin.t n) : fin_to_nat i < n.
   Proof. unfold fin_to_nat. destruct (Fin.to_nat i). cbn. auto. Qed.
@@ -151,9 +148,9 @@ Section Fin.
 
   (* Arguments finMax (n) H : clear implicits. *)
 
-  (* Compute finMax (ltac:(congruence) : 1 <> 0). *)
-  (* Compute finMax (ltac:(congruence) : 10 <> 0). *)
-  (* Compute finMax' 99. *)
+  Compute finMax (ltac:(congruence) : 1 <> 0).
+  Compute finMax (ltac:(congruence) : 10 <> 0).
+  Compute finMax' 99.
 
   Definition finMin (n : nat) : n <> 0 -> Fin.t n.
   Proof.
@@ -203,8 +200,8 @@ Section Fin.
   Definition finSucc' (n : nat) (i : Fin.t (S n)) (H : i <> finMax' n) : Fin.t (S n).
   Proof. unshelve eapply finSucc with (i := i). apply Nat.neq_succ_0. apply H. Defined.
 
-  (* Compute @finSucc 5 Fin0 _ _. *)
-  (* Compute finSucc' (_ : Fin4 <> finMax' 10). *)
+  Compute @finSucc 5 Fin0 _ _.
+  Compute finSucc' (_ : Fin4 <> finMax' 10).
 
 
   Fixpoint finSucc_opt (n : nat) (i : Fin.t n) {struct i} : option (Fin.t n).
@@ -220,13 +217,13 @@ Section Fin.
         * apply None.
   Defined.
 
-  (* Compute eq_refl : @finSucc_opt 1 Fin0 = None. *)
-  (* Compute eq_refl : @finSucc_opt 2 Fin0 = Some Fin1. *)
-  (* Compute eq_refl : @finSucc_opt 2 Fin1 = None. *)
-  (* Compute eq_refl : @finSucc_opt 3 Fin1 = Some Fin2. *)
-  (* Compute eq_refl : @finSucc_opt 3 Fin0 = Some Fin1. *)
-  (* Compute eq_refl : @finSucc_opt 8 Fin7 = None. *)
-  (* Compute eq_refl : @finSucc_opt 9 Fin7 = Some Fin8. *)
+  Compute eq_refl : @finSucc_opt 1 Fin0 = None.
+  Compute eq_refl : @finSucc_opt 2 Fin0 = Some Fin1.
+  Compute eq_refl : @finSucc_opt 2 Fin1 = None.
+  Compute eq_refl : @finSucc_opt 3 Fin1 = Some Fin2.
+  Compute eq_refl : @finSucc_opt 3 Fin0 = Some Fin1.
+  Compute eq_refl : @finSucc_opt 8 Fin7 = None.
+  Compute eq_refl : @finSucc_opt 9 Fin7 = Some Fin8.
 
   Lemma finSucc_opt_Some (n : nat) (i : Fin.t n) :
     S (fin_to_nat i) < n ->
@@ -2364,4 +2361,4 @@ Section ToSingleTape.
 End ToSingleTape.
 
 
-(* Print Assumptions ToSingleTape_Realise'. *)
+Print Assumptions ToSingleTape_Realise'.

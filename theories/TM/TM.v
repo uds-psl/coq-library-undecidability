@@ -3,7 +3,7 @@
 (** Definitions of tapes and (unlabelled) multi-tape Turing machines from Asperti, Riciotti "A formalization of multi-tape Turing machines" (2015) and the accompanying Matita code. *)
 
 From Undecidability Require Export TM.Prelim TM.Relations.
-Require Import PslBase.Vectors.Vectors.
+From PslBase Require Import Vectors.Vectors.
 
 
 Section Fix_Sigma.
@@ -768,7 +768,7 @@ Section Semantics.
   Notation "M '⊨' R" := (Realise M R) (no associativity, at level 30, format "M  '⊨'  R").
 
   (** Realisation is monotone *)
-  Lemma Realise_monotone n (F : finType) (pM : pTM F n) R R' :
+  Lemma Realise_monotone n (F : Type) (pM : pTM F n) R R' :
     pM ⊨ R' -> R' <<=2 R -> pM ⊨ R.
   Proof. firstorder. Qed.
 
@@ -802,11 +802,11 @@ Section Semantics.
   
 
   (** Realisation plus termination in constant time *)
-  Definition RealiseIn n (F : finType) (pM : pTM F n) (R : pRel sig F n) (k : nat) :=
+  Definition RealiseIn n (F : Type) (pM : pTM F n) (R : pRel sig F n) (k : nat) :=
     forall input, exists outc, loopM (initc (projT1 pM) input) k = Some outc /\ R input ((projT2 pM (cstate outc)), ctapes outc).
   Notation "M '⊨c(' k ')' R" := (RealiseIn M R k) (no associativity, at level 45, format "M  '⊨c(' k ')'  R").
 
-  Lemma RealiseIn_monotone n (F : finType) (pM : pTM F n) (R R' : pRel sig F n) k k' :
+  Lemma RealiseIn_monotone n (F : Type) (pM : pTM F n) (R R' : pRel sig F n) k k' :
     pM ⊨c(k') R' -> k' <= k -> R' <<=2 R -> pM ⊨c(k) R.
   Proof.
     unfold RealiseIn. intros H1 H2 H3 input.
@@ -816,13 +816,13 @@ Section Semantics.
     - intuition.
   Qed.
 
-  Lemma RealiseIn_monotone' n (F : finType) (pM : pTM F n) (R : pRel sig F n) k k' :
+  Lemma RealiseIn_monotone' n (F : Type) (pM : pTM F n) (R : pRel sig F n) k k' :
     pM ⊨c(k') R -> k' <= k -> pM ⊨c(k) R.
   Proof.
     intros H1 H2. eapply RealiseIn_monotone. eapply H1. assumption. firstorder.
   Qed.
 
-  Lemma RealiseIn_split n (F : finType) (pM : pTM F n) R1 R2 (k : nat) :
+  Lemma RealiseIn_split n (F : Type) (pM : pTM F n) R1 R2 (k : nat) :
     pM ⊨c(k) R1 /\ pM ⊨c(k) R2 <-> pM ⊨c(k) R1 ∩ R2.
   Proof.
     split; swap 1 2; [ intros H | intros (H1&H2)]; repeat intros ?. hnf; firstorder eauto.
@@ -830,7 +830,7 @@ Section Semantics.
     pose proof loop_injective H1 H2 as <-. exists outc. split; hnf; eauto.
   Qed.
   
-  Lemma Realise_total n (F : finType) (pM : { M : mTM n & states M -> F }) R k :
+  Lemma Realise_total n (F : Type) (pM : { M : mTM n & states M -> F }) R k :
     pM ⊨ R /\ projT1 pM ↓ (fun _ i => k <= i) <-> pM ⊨c(k) R.
   Proof.
     split.
@@ -848,18 +848,18 @@ Section Semantics.
         exists x. eapply loop_monotone; eauto.
   Qed.
 
-  Lemma RealiseIn_Realise n (F : finType) (pM : pTM F n) R k :
+  Lemma RealiseIn_Realise n (F : Type) (pM : pTM F n) R k :
     pM ⊨c(k) R -> pM ⊨ R.
   Proof. now intros (?&?) % Realise_total. Qed.
 
-  Lemma RealiseIn_TerminatesIn n (F : finType) (pM : { M : mTM n & states M -> F }) R k :
+  Lemma RealiseIn_TerminatesIn n (F : Type) (pM : { M : mTM n & states M -> F }) R k :
     pM ⊨c(k) R -> projT1 pM ↓ (fun tin l => k <= l). 
   Proof.
     intros HRel. hnf. intros tin l HSteps. hnf in HRel. specialize (HRel tin) as (outc&HLoop&Rloop).
     exists outc. eapply loop_monotone; eauto.
   Qed.
   
-  Lemma Realise_strengthen n (F : finType) (pM : pTM F n) R1 R2 :
+  Lemma Realise_strengthen n (F : Type) (pM : pTM F n) R1 R2 :
     Realise pM R2 -> Realise pM R1 -> Realise pM (R1 ∩ R2).
   Proof.
     intros HwR HR t. firstorder.
@@ -870,7 +870,7 @@ Section Semantics.
 
   Section Canonical_Correctness.
     Variable (n : nat).
-    Variable (F : finType).
+    Variable (F : Type).
     Variable (pM : pTM F n).
 
     Definition Canonical_Rel : pRel sig F n :=
@@ -946,7 +946,7 @@ End Test_def.
 Definition execTM (sig : finType) (n : nat) (M : mTM sig n) (tapes : tapes sig n) (k : nat) :=
   option_map (@ctapes _ _ _) (loopM (initc M tapes) k).
 
-Definition execTM_p (sig : finType) (n : nat) (F : finType) (pM : { M : mTM sig n & states M -> F }) (tapes : tapes sig n) (k : nat) :=
+Definition execTM_p (sig : finType) (n : nat) (F : Type) (pM : { M : mTM sig n & states M -> F }) (tapes : tapes sig n) (k : nat) :=
   option_map (fun x => (ctapes x, projT2 pM (cstate x))) (loopM (initc (projT1 pM) tapes) k ).
 
 
