@@ -31,8 +31,8 @@ Set Implicit Arguments.
 Local Notation "P /MM/ s ↓" := (sss_terminates (@mm_sss _) P s) (at level 70, no associativity). 
 Local Notation "P /MMA/ s ↓" := (sss_terminates (@mma_sss 2) P s) (at level 70, no associativity). 
 
-Theorem mm_mma2 n (P : list (mm_instr n)) : 
-               {   Q : list (mm_instr 2) 
+Theorem mm_mma2 n (P : list (mm_instr (pos n))) : 
+               {   Q : list (mm_instr (pos 2)) 
                & { f : vec nat n -> vec nat 2 
                  | forall v, (1,P) /MM/ (1,v) ↓ <-> (1,Q) /MMA/ (1,f v) ↓ } }.
 Proof.

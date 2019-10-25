@@ -110,7 +110,7 @@ Section Minsky.
 
   (* k is a position outside the program were execution has to stop *)
    
-  Variable (P : nat*(list (mm_instr n))) (k : nat) (Hk : out_code k P).
+  Variable (P : nat*(list (mm_instr (pos n)))) (k : nat) (Hk : out_code k P).
 
   (* This encodes P into EILL commands 
   

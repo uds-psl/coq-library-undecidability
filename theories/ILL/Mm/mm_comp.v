@@ -272,9 +272,9 @@ Section simulator.
 End simulator.
 
 Theorem bsm_mm_compiler_1 n i (P : list (bsm_instr n)) :
-  { Q : list (mm_instr (2+n)) | forall v, (i,P) /BSM/ (i,v) ↓ <-> (1,Q) /MM/ (1,0##0##vec_map stack_enc v) ↓ }.
+  { Q : list (mm_instr (pos (2+n))) | forall v, (i,P) /BSM/ (i,v) ↓ <-> (1,Q) /MM/ (1,0##0##vec_map stack_enc v) ↓ }.
 Proof. exists (bsm_mm_sim i P); apply bsm_mm_sim_spec. Qed.
 
 Theorem bsm_mm_compiler_2 n i (P : list (bsm_instr n)) :
-  { Q : list (mm_instr (2+n)) | forall v, (i,P) /BSM/ (i,v) ↓ <-> (1,Q) /MM/ (1,0##0##vec_map stack_enc v) ~~> (0,vec_zero) }.
+  { Q : list (mm_instr (pos (2+n))) | forall v, (i,P) /BSM/ (i,v) ↓ <-> (1,Q) /MM/ (1,0##0##vec_map stack_enc v) ~~> (0,vec_zero) }.
 Proof. exists (bsm_mm i P); apply bsm_mm_spec. Qed.

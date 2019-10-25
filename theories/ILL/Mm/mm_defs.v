@@ -12,6 +12,7 @@ Require Import List Arith Omega.
 
 From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec.
 From Undecidability.ILL.Code Require Import subcode sss.
+From Undecidability.MM Require Export mm_instr.
 
 Set Implicit Arguments.
 
@@ -30,13 +31,13 @@ Local Notation "e [ v / x ]" := (vec_change e x v).
 
   *)
 
-Inductive mm_instr n : Set :=
+(* Inductive mm_instr n : Set :=
   | mm_inc : pos n -> mm_instr n
   | mm_dec : pos n -> nat -> mm_instr n
   .
 
 Notation INC := mm_inc.
-Notation DEC := mm_dec.
+Notation DEC := mm_dec. *)
 
 (** ** Semantics for MM *)
 
@@ -48,7 +49,7 @@ Section Minsky_Machine.
 
   (* Minsky machine small step semantics *)
 
-  Inductive mm_sss : mm_instr n -> mm_state -> mm_state -> Prop :=
+  Inductive mm_sss : mm_instr (pos n) -> mm_state -> mm_state -> Prop :=
     | in_mm_sss_inc   : forall i x v,                   INC x   // (i,v) -1> (1+i,v[(S (v#>x))/x])
     | in_mm_sss_dec_0 : forall i x k v,   v#>x = O   -> DEC x k // (i,v) -1> (k,v)
     | in_mm_sss_dec_1 : forall i x k v u, v#>x = S u -> DEC x k // (i,v) -1> (1+i,v[u/x])
@@ -235,7 +236,7 @@ Tactic Notation "mm" "sss" "stop" := exists 0; apply sss_steps_0; auto.
    to a very specific halting problem. Starting from (1,v), does the
    MM halt at state (0,vec_zero) *)
 
-Definition MM_PROBLEM := { n : nat & { P : list (mm_instr n) & vec nat n } }.
+Definition MM_PROBLEM := { n : nat & { P : list (mm_instr (pos n)) & vec nat n } }.
 
 Local Notation "i // s -1> t" := (@mm_sss _ i s t).
 Local Notation "P // s ~~> t" := (sss_output (@mm_sss _) P s t).
@@ -249,7 +250,7 @@ Definition MM_HALTING (P : MM_PROBLEM) :=
 
 Section mm_special_ind.
 
-  Variables (n : nat) (P : nat*list (mm_instr n)) (se : nat * vec nat n)
+  Variables (n : nat) (P : nat*list (mm_instr (pos n))) (se : nat * vec nat n)
             (Q : nat * vec nat n -> Prop).
 
   Hypothesis (HQ0 : Q se)
@@ -274,7 +275,7 @@ End mm_special_ind.
 
 Section mm_term_ind.
 
-  Variables (n : nat) (P : nat*list (mm_instr n)) (se : nat * vec nat n)
+  Variables (n : nat) (P : nat*list (mm_instr (pos n))) (se : nat * vec nat n)
             (Q : nat * vec nat n -> Prop).
 
   Hypothesis (HQ0 : out_code (fst se) P -> Q se)
