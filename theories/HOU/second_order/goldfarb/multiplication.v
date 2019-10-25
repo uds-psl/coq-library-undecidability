@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import List Lia.
+Require Import List Lia Program.Program.
 From Undecidability.HOU Require Import std.std axioms.
 Require Import RelationClasses Morphisms Wf Init.Nat Setoid.
 From Undecidability.HOU Require Import calculus.calculus unification.unification second_order.goldfarb.encoding.
