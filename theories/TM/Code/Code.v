@@ -1,6 +1,6 @@
 From Undecidability Require Import TM.Prelim.
-Require Import Coq.Lists.List.
-Require Import PslBase.Bijection. (* [injective] *)
+From Coq Require Import Lists.List.
+From PslBase Require Import Bijection. (* [injective] *)
 
 
 (** * Codable Class **)

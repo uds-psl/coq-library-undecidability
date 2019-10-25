@@ -1,4 +1,4 @@
-Require Import PslBase.Bijection. (* [injective] *)
+From PslBase Require Import Bijection. (* [injective] *)
 From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import TM.Code.CompareValue.
 From Undecidability Require Import TM.Code.CasePair TM.Code.CaseList.
@@ -64,23 +64,23 @@ Section LookupAssociativeList.
         let size := Lookup_Step_size xs x in
         tin[@Fin0] ≃(;s0) xs ->
         tin[@Fin1] ≃(;s1) x ->
-        isRight_size tin[@Fin2] s2 -> isRight_size tin[@Fin3] s3 ->
+        isVoid_size tin[@Fin2] s2 -> isVoid_size tin[@Fin3] s3 ->
         match xs with
         | nil => yout = Some false /\
-                isRight_size tout[@Fin0] (size@>Fin0 s0) /\
+                isVoid_size tout[@Fin0] (size@>Fin0 s0) /\
                 tout[@Fin1] ≃(;size@>Fin1 s1) x /\
-                isRight_size tout[@Fin2] (size@>Fin2 s2) /\ isRight_size tout[@Fin3] (size@>Fin3 s3)
+                isVoid_size tout[@Fin2] (size@>Fin2 s2) /\ isVoid_size tout[@Fin3] (size@>Fin3 s3)
         | (x', y) :: xs' =>
           if Dec (x = x')
           then yout = Some true /\
-               isRight_size tout[@Fin0] (size@>Fin0 s0) /\
+               isVoid_size tout[@Fin0] (size@>Fin0 s0) /\
                tout[@Fin1] ≃(;size@>Fin1 s1) y /\
-               isRight_size tout[@Fin2] (size@>Fin2 s2) /\
-               isRight_size tout[@Fin3] (size@>Fin3 s3)
+               isVoid_size tout[@Fin2] (size@>Fin2 s2) /\
+               isVoid_size tout[@Fin3] (size@>Fin3 s3)
           else yout = None /\
                tout[@Fin0] ≃(;size@>Fin0 s0) xs' /\
                tout[@Fin1] ≃(;size@>Fin1 s1) x /\
-               isRight_size tout[@Fin2] (size@>Fin2 s2) /\ isRight_size tout[@Fin3] (size@>Fin3 s3)
+               isVoid_size tout[@Fin2] (size@>Fin2 s2) /\ isVoid_size tout[@Fin3] (size@>Fin3 s3)
         end.
 
   Lemma Lookup_Step_Realise : Lookup_Step ⊨ Lookup_Step_Rel.
@@ -132,7 +132,7 @@ Section LookupAssociativeList.
       exists (xs : list (X*Y)) (x : X),
         tin[@Fin0] ≃ xs /\
         tin[@Fin1] ≃ x /\
-        isRight tin[@Fin2] /\ isRight tin[@Fin3] /\
+        isVoid tin[@Fin2] /\ isVoid tin[@Fin3] /\
         Lookup_Step_steps xs x <= k.
 
   Lemma Lookup_Step_Terminates : projT1 Lookup_Step ↓ Lookup_Step_T.
@@ -199,18 +199,18 @@ Section LookupAssociativeList.
         let size := Lookup_Loop_size xs x in
         tin[@Fin0] ≃(;s0) xs ->
         tin[@Fin1] ≃(;s1) x ->
-        isRight_size tin[@Fin2] s2 -> isRight_size tin[@Fin3] s3 ->
+        isVoid_size tin[@Fin2] s2 -> isVoid_size tin[@Fin3] s3 ->
         match yout, lookup x xs with
         | true, Some y =>
-          isRight_size tout[@Fin0] (size@>Fin0 s0) /\
+          isVoid_size tout[@Fin0] (size@>Fin0 s0) /\
           tout[@Fin1] ≃(;size@>Fin1 s1) y /\
-          isRight_size tout[@Fin2] (size@>Fin2 s2) /\
-          isRight_size tout[@Fin3] (size@>Fin3 s3)
+          isVoid_size tout[@Fin2] (size@>Fin2 s2) /\
+          isVoid_size tout[@Fin3] (size@>Fin3 s3)
         | false, None =>
-          isRight_size tout[@Fin0] (size@>Fin0 s0) /\
+          isVoid_size tout[@Fin0] (size@>Fin0 s0) /\
           tout[@Fin1] ≃(;size@>Fin1 s1) x /\
-          isRight_size tout[@Fin2] (size@>Fin2 s2) /\
-          isRight_size tout[@Fin3] (size@>Fin3 s3)
+          isVoid_size tout[@Fin2] (size@>Fin2 s2) /\
+          isVoid_size tout[@Fin3] (size@>Fin3 s3)
         | _, _ => False
         end.
 
@@ -245,7 +245,7 @@ Section LookupAssociativeList.
       exists (xs : list (X*Y)) (x : X),
         tin[@Fin0] ≃ xs /\
         tin[@Fin1] ≃ x /\
-        isRight tin[@Fin2] /\ isRight tin[@Fin3] /\
+        isVoid tin[@Fin2] /\ isVoid tin[@Fin3] /\
         Lookup_Loop_steps x xs <= k.
 
   Lemma Lookup_Loop_Terminates : projT1 Lookup_Loop ↓ Lookup_Loop_T.
@@ -281,20 +281,20 @@ Section LookupAssociativeList.
         let size := Lookup_size xs x in
         tin[@Fin0] ≃(;s0) xs ->
         tin[@Fin1] ≃(;s1) x ->
-        isRight_size tin[@Fin2] s2 -> isRight_size tin[@Fin3] s3 -> isRight_size tin[@Fin4] s4 ->
+        isVoid_size tin[@Fin2] s2 -> isVoid_size tin[@Fin3] s3 -> isVoid_size tin[@Fin4] s4 ->
         match yout, lookup x xs with
         | true, Some y =>
           tout[@Fin0] ≃(;size@>Fin0 s0) xs /\
           tout[@Fin1] ≃(;size@>Fin1 s1) y /\
-          isRight_size tout[@Fin2] (size@>Fin2 s2) /\
-          isRight_size tout[@Fin3] (size@>Fin3 s3) /\
-          isRight_size tout[@Fin4] (size@>Fin4 s4)
+          isVoid_size tout[@Fin2] (size@>Fin2 s2) /\
+          isVoid_size tout[@Fin3] (size@>Fin3 s3) /\
+          isVoid_size tout[@Fin4] (size@>Fin4 s4)
         | false, None =>
           tout[@Fin0] ≃(;size@>Fin0 s0) xs /\
           tout[@Fin1] ≃(;size@>Fin1 s1) x /\
-          isRight_size tout[@Fin2] (size@>Fin2 s2) /\
-          isRight_size tout[@Fin3] (size@>Fin3 s3) /\
-          isRight_size tout[@Fin4] (size@>Fin4 s4)
+          isVoid_size tout[@Fin2] (size@>Fin2 s2) /\
+          isVoid_size tout[@Fin3] (size@>Fin3 s3) /\
+          isVoid_size tout[@Fin4] (size@>Fin4 s4)
         | _, _ => False
         end.
 
@@ -317,7 +317,7 @@ Section LookupAssociativeList.
       exists (xs : list (X*Y)) (x : X),
         tin[@Fin0] ≃ xs /\
         tin[@Fin1] ≃ x /\
-        isRight tin[@Fin2] /\ isRight tin[@Fin3] /\ isRight tin[@Fin4] /\
+        isVoid tin[@Fin2] /\ isVoid tin[@Fin3] /\ isVoid tin[@Fin4] /\
         Lookup_steps x xs <= k.
 
   Lemma Lookup_Terminates : projT1 Lookup ↓ Lookup_T.

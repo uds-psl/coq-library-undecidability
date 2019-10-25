@@ -110,7 +110,7 @@ Section WriteValue.
     fun tin '(_, tout) =>
       forall (x:X) (s0:nat),
         encode x = str ->
-        isRight_size tin[@Fin0] s0 ->
+        isVoid_size tin[@Fin0] s0 ->
         tout[@Fin0] ≃(;WriteValue_size cX x s0) x.
 
   Definition WriteValue_steps (l : nat) := 3 + 2 * l.

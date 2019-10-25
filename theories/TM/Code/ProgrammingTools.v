@@ -4,7 +4,7 @@ From Undecidability Require Export Basic.Mono Compound.Multi.
 
 (** * All tools for programming Turing machines *)
 
-(** All Coq modules in that the user programms Turing machine should [Require Import TM.Code.ProgrammingTools]. The module should additionally require and import the modules containing the constructor and deconstructor machines, e.g. [Require Import TM.Code.CaseNat], etc. *)
+(** All Coq modules in that the user programms Turing machine should [From Undecidability Require Import TM.Code.ProgrammingTools]. The module should additionally require and import the modules containing the constructor and deconstructor machines, e.g. [Require Import TM.Code.CaseNat], etc. *)
 
 
 
@@ -21,7 +21,7 @@ Ltac modpon H :=
           (simpl_surject;
            solve [ eauto
                  | contains_ext
-                 | isRight_mono
+                 | isVoid_mono
                  ]
           )
       then idtac (* "solved premise of type" X *);

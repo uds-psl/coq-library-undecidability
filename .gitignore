@@ -1,3 +1,11 @@
+// Editor files
+\#*#
+*~
+*.tmp
+*.sw*
+.*
+
+// Coq files
 *.aux
 *.vo
 *.v.d

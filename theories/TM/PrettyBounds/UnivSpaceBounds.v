@@ -135,7 +135,7 @@ Section Lookup_size_nice.
     (forall (s3 : nat), Lookup_size xs x @>Fin3 s3              = max_list_rec s3 (map (fun p => size (fst p) + 1) (lookup_hd x xs))) /\ (* [Fin3] *)
     (forall (s4 : nat), Lookup_size xs x @>Fin4 s4              = max s4 (size xs + 1)). (* Copy >> [Fin0] *)
   Proof.
-    intros. unfold Lookup_size; cbn. rewrite !vector_tl_nth. repeat split; intros.
+    intros. unfold Lookup_size; cbn. repeat split; intros.
     - now projk_rewrite (Lookup_Loop_size_nice H) 1.
     - now projk_rewrite (Lookup_Loop_size_nice H) 2.
     - now projk_rewrite (Lookup_Loop_size_nice H) 3.
@@ -345,7 +345,7 @@ Section Univ_nice.
     (forall (s5 : nat), space @>Fin5 s5                            = Univ_Step_size_bound5 s5).
   Proof.
     cbn.
-    unfold Univ_Step_size; cbn. rewrite !vector_tl_nth.
+    unfold Univ_Step_size; cbn.
     pose proof lookup_graph tp q as LLookup.
     destruct trans as [q' act] eqn:E.
     intros HHalt. rewrite HHalt in *.

@@ -1,6 +1,6 @@
 (** * Copying Machines and Helper functions for verifying machines using [CopySymbols] ane [MoveToSymbol] *)
 
-Require Import FunInd.
+From Coq Require Import FunInd.
 
 From Undecidability Require Import TM.Code.CodeTM.
 From Undecidability Require Export TM.Compound.CopySymbols TM.Compound.MoveToSymbol.
@@ -11,7 +11,7 @@ From Undecidability Require Import TM.Compound.TMTac TM.Compound.Multi.
 From Undecidability Require Import TM.Lifting.LiftAlphabet.
 
 
-Generalizable All Variables.
+Local Generalizable All Variables.
 
 
 (* Don't simplify [skipn (S n) xs]; only, if the number and the lists are constructors *)
@@ -396,7 +396,7 @@ Section Move.
       (fun tin tout =>
          forall (s : nat) (x:X),
            tin[@Fin0] ≃(;s) x ->
-           isRight_size tout[@Fin0] (Reset_size _ x s)).
+           isVoid_size tout[@Fin0] (Reset_size _ x s)).
 
   Lemma MoveRight_Realise : MoveRight ⊨ MoveRight_Rel.
   Proof.
@@ -432,7 +432,7 @@ Section Move.
     { unfold Reset. eapply MoveRight_Realise. }
     {
       intros tin ((), tout) H. intros x s HEncX.
-      TMSimp. eapply tape_contains_rev_size_isRight; eauto.
+      TMSimp. eapply tape_contains_rev_size_isVoid; eauto.
     }
   Qed.
 
@@ -480,7 +480,7 @@ Section Move.
           forall (s : nat) (x : X),
             tin[@Fin0] ≃(;s) x ->
             cX x = nil ->
-            isRight_size tout[@Fin0] (ResetEmpty_size s)
+            isVoid_size tout[@Fin0] (ResetEmpty_size s)
         ).
 
   Definition ResetEmpty_steps := 1.
@@ -508,7 +508,7 @@ Section Move.
           forall (x : X) (s : nat),
             tin[@Fin0] ≃(;s) x ->
             size cX x = 1 ->
-            isRight_size tout[@Fin0] (ResetEmpty1_size s)).
+            isVoid_size tout[@Fin0] (ResetEmpty1_size s)).
 
   Definition ResetEmpty1_steps := 3.
 
@@ -548,7 +548,7 @@ Section CopyValue.
         fun tin tout =>
           forall (x:X) (sx s1 : nat),
             tin[@Fin0] ≃(;sx) x ->
-            isRight_size tin[@Fin1] s1 ->
+            isVoid_size tin[@Fin1] s1 ->
             tout[@Fin0] ≃(;sx) x /\
             tout[@Fin1] ≃(;CopyValue_size _ x s1) x
       ).
@@ -625,7 +625,7 @@ Section MoveValue.
           forall (x : X) (y : Y) (sx sy : nat),
             tin[@Fin0] ≃(;sx) x ->
             tin[@Fin1] ≃(;sy) y ->
-            isRight_size tout[@Fin0] (MoveValue_size_x x sx) /\
+            isVoid_size tout[@Fin0] (MoveValue_size_x x sx) /\
             tout[@Fin1] ≃(;MoveValue_size_y x y sy) x).
 
   Lemma MoveValue_Realise : MoveValue ⊨ MoveValue_Rel.

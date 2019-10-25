@@ -60,12 +60,12 @@ Section Nth.
       forall (l : list X) (n : nat),
         tin[@Fin0] ≃ l ->
         tin[@Fin1] ≃ n ->
-        isRight tin[@Fin2] ->
+        isVoid tin[@Fin2] ->
         match yout, n, l with
         | None, S n', x :: l' => (* Recursion case *)
           tout[@Fin0] ≃ l' /\
           tout[@Fin1] ≃ n' /\
-          isRight tout[@Fin2] (* continue *)
+          isVoid tout[@Fin2] (* continue *)
         | Some tt, S n', nil => (* list to short *)
           tout[@Fin0] ≃ l /\
           tout[@Fin1] ≃ n' /\
@@ -153,7 +153,7 @@ Section Nth.
          forall l (n : nat),
            tin[@Fin0] ≃ l ->
            tin[@Fin1] ≃ n ->
-           isRight tin[@Fin2] ->
+           isVoid tin[@Fin2] ->
            tout[@Fin0] ≃ skipn (S n) l /\
            tout[@Fin1] ≃ n - (S (length l)) /\
            tout[@Fin2] ≃ nth_error l n).
@@ -241,12 +241,12 @@ Section Nth'.
       forall (l : list X) (n : nat) (s0 s1 s2 : nat),
         tin[@Fin0] ≃(;s0) l ->
         tin[@Fin1] ≃(;s1) n ->
-        isRight_size tin[@Fin2] s2 ->
+        isVoid_size tin[@Fin2] s2 ->
         match yout, n, l with
         | None, S n', x :: l' => (* Recursion case *)
           tout[@Fin0] ≃(;(Nth'_Step_size n l)[@Fin0] s0) l' /\
           tout[@Fin1] ≃(;(Nth'_Step_size n l)[@Fin1] s1) n' /\
-          isRight_size tout[@Fin2] ((Nth'_Step_size n l)[@Fin2] s2) (* continue *)
+          isVoid_size tout[@Fin2] ((Nth'_Step_size n l)[@Fin2] s2) (* continue *)
         | Some true, 0, x::l' => (* return value *)
           tout[@Fin0] ≃(;(Nth'_Step_size n l)[@Fin0] s0) l' /\
           tout[@Fin1] ≃(;(Nth'_Step_size n l)[@Fin1] s1) 0 /\
@@ -254,11 +254,11 @@ Section Nth'.
         | Some false, 0, nil => (* list to short *)
           tout[@Fin0] ≃(;(Nth'_Step_size n l)[@Fin0] s0) nil /\
           tout[@Fin1] ≃(;(Nth'_Step_size n l)[@Fin1] s1) 0 /\
-          isRight_size tout[@Fin2] ((Nth'_Step_size n l)[@Fin2] s2)
+          isVoid_size tout[@Fin2] ((Nth'_Step_size n l)[@Fin2] s2)
         | Some false, S n', nil => (* list to short *)
           tout[@Fin0] ≃(;(Nth'_Step_size n l)[@Fin0] s0) nil /\
           tout[@Fin1] ≃(;(Nth'_Step_size n l)[@Fin1] s1) n' /\
-          isRight_size tout[@Fin2] ((Nth'_Step_size n l)[@Fin2] s2)
+          isVoid_size tout[@Fin2] ((Nth'_Step_size n l)[@Fin2] s2)
         | _, _, _ => False
         end.
 
@@ -313,7 +313,7 @@ Section Nth'.
 
   Definition Nth'_Step_T : tRel sig^+ 3 :=
     fun tin k => exists (l : list X) (n : nat),
-        tin[@Fin0] ≃ l /\ tin[@Fin1] ≃ n /\ isRight tin[@Fin2] /\
+        tin[@Fin0] ≃ l /\ tin[@Fin1] ≃ n /\ isVoid tin[@Fin2] /\
         Nth'_Step_steps l n <= k.
 
 
@@ -362,7 +362,7 @@ Section Nth'.
       forall (l:list X) (n : nat) (s0 s1 s2 : nat),
           tin[@Fin0] ≃(;s0) l ->
           tin[@Fin1] ≃(;s1) n ->
-          isRight_size tin[@Fin2] s2 ->
+          isVoid_size tin[@Fin2] s2 ->
           match yout with
           | true =>
             exists (x : X),
@@ -374,7 +374,7 @@ Section Nth'.
             nth_error l n = None /\
             tout[@Fin0] ≃(;(Nth'_Loop_size n l)[@Fin0]s0) skipn (S n) l /\
             tout[@Fin1] ≃(;(Nth'_Loop_size n l)[@Fin1]s1) n - (S (length l)) /\
-            isRight_size tout[@Fin2] ((Nth'_Loop_size n l)[@Fin2]s2)
+            isVoid_size tout[@Fin2] ((Nth'_Loop_size n l)[@Fin2]s2)
           end.
 
 
@@ -415,7 +415,7 @@ Section Nth'.
     fun tin k => exists (l : list X) (n : nat),
         tin[@Fin0] ≃ l /\
         tin[@Fin1] ≃ n /\
-        isRight tin[@Fin2] /\
+        isVoid tin[@Fin2] /\
         Nth'_Loop_steps l n <= k.
 
 
@@ -474,22 +474,22 @@ Section Nth'.
       forall (l : list X) (n : nat) s0 s1 s2 s3,
         tin[@Fin0] ≃(;s0) l ->
         tin[@Fin1] ≃(;s1) n ->
-        isRight_size tin[@Fin2] s2 ->
-        isRight_size tin[@Fin3] s3 ->
+        isVoid_size tin[@Fin2] s2 ->
+        isVoid_size tin[@Fin3] s3 ->
         match yout with
         | true =>
           exists (x : X),
           nth_error l n = Some x /\
           tout[@Fin0] ≃(;(Nth'_size l n)[@Fin0]s0) l /\
-          isRight_size tout[@Fin1] ((Nth'_size l n)[@Fin1]s1) /\
+          isVoid_size tout[@Fin1] ((Nth'_size l n)[@Fin1]s1) /\
           tout[@Fin2] ≃(;(Nth'_size l n)[@Fin2]s2) x /\
-          isRight_size tout[@Fin3] ((Nth'_size l n)[@Fin3]s3)
+          isVoid_size tout[@Fin3] ((Nth'_size l n)[@Fin3]s3)
         | false =>
           nth_error l n = None /\
           tout[@Fin0] ≃(;(Nth'_size l n)[@Fin0]s0) l /\
-          isRight_size tout[@Fin1] ((Nth'_size l n)[@Fin1]s1) /\
-          isRight_size tout[@Fin2] ((Nth'_size l n)[@Fin2]s2) /\
-          isRight_size tout[@Fin3] ((Nth'_size l n)[@Fin3]s3)
+          isVoid_size tout[@Fin1] ((Nth'_size l n)[@Fin1]s1) /\
+          isVoid_size tout[@Fin2] ((Nth'_size l n)[@Fin2]s2) /\
+          isVoid_size tout[@Fin3] ((Nth'_size l n)[@Fin3]s3)
         end.
 
   Lemma Nth'_Realise : Nth' ⊨ Nth'_Rel.
@@ -526,7 +526,7 @@ Section Nth'.
     fun tin k => exists (l : list X) (n : nat),
         tin[@Fin0] ≃ l /\
         tin[@Fin1] ≃ n /\
-        isRight tin[@Fin2] /\ isRight tin[@Fin3] /\
+        isVoid tin[@Fin2] /\ isVoid tin[@Fin3] /\
         Nth'_steps l n <= k.
 
   Lemma Nth'_Terminates : projT1 Nth' ↓ Nth'_T.
@@ -580,6 +580,7 @@ End Nth'.
 Arguments Nth'_steps {sigX X cX} : simpl never.
 Arguments Nth'_size {sigX X cX} : simpl never.
 
+
 (** Reverse a list *)
 Section Rev.
   (* Reversing is just consing and deconsing. We don't save the original list. *)
@@ -603,16 +604,16 @@ Section Rev.
         let size := Rev_Step_size xs in
         tin[@Fin0] ≃(;sx) xs ->
         tin[@Fin1] ≃(;sy) ys ->
-        isRight_size tin[@Fin2] sz ->
+        isVoid_size tin[@Fin2] sz ->
         match yout, xs with
         | (Some tt), nil =>
-          isRight_size tout[@Fin0] (size@>Fin0 sx) /\
+          isVoid_size tout[@Fin0] (size@>Fin0 sx) /\
           tout[@Fin1] ≃(;size@>Fin1 sy) ys /\
-          isRight_size tout[@Fin2] (size@>Fin2 sz)
+          isVoid_size tout[@Fin2] (size@>Fin2 sz)
         | None, x :: xs' =>
           tout[@Fin0] ≃(;size@>Fin0 sx) xs' /\
           tout[@Fin1] ≃(;size@>Fin1 sy) x :: ys /\
-          isRight_size tout[@Fin2] (size@>Fin2 sz)
+          isVoid_size tout[@Fin2] (size@>Fin2 sz)
         | _, _ => False
         end.
 
@@ -637,7 +638,7 @@ Section Rev.
 
   Definition Rev_Step_T : tRel (sigList sigX)^+ 3 :=
     fun tin k => exists (xs ys : list X),
-        tin[@Fin0] ≃ xs /\ tin[@Fin1] ≃ ys /\ isRight tin[@Fin2] /\ Rev_Step_steps xs <= k.
+        tin[@Fin0] ≃ xs /\ tin[@Fin1] ≃ ys /\ isVoid tin[@Fin2] /\ Rev_Step_steps xs <= k.
 
   Lemma Rev_Step_Terminates : projT1 Rev_Step ↓ Rev_Step_T.
   Proof.
@@ -671,10 +672,10 @@ Section Rev.
         let size := Rev_Loop_size xs in
         tin[@Fin0] ≃(;sx) xs ->
         tin[@Fin1] ≃(;sy) ys ->
-        isRight_size tin[@Fin2] sz ->
-        isRight_size tout[@Fin0] (size@>Fin0 sx) /\
+        isVoid_size tin[@Fin2] sz ->
+        isVoid_size tout[@Fin0] (size@>Fin0 sx) /\
         tout[@Fin1] ≃(;size@>Fin1 sy) rev xs ++ ys /\
-        isRight_size tout[@Fin2] (size@>Fin2 sz).
+        isVoid_size tout[@Fin2] (size@>Fin2 sz).
 
   Lemma Rev_Loop_Realise : Rev_Loop ⊨ Rev_Loop_Rel.
   Proof.
@@ -697,7 +698,7 @@ Section Rev.
 
   Definition Rev_Loop_T : tRel (sigList sigX)^+ 3 :=
     fun tin k => exists (xs ys : list X),
-        tin[@Fin0] ≃ xs /\ tin[@Fin1] ≃ ys /\ isRight tin[@Fin2] /\ Rev_Loop_steps xs <= k.
+        tin[@Fin0] ≃ xs /\ tin[@Fin1] ≃ ys /\ isVoid tin[@Fin2] /\ Rev_Loop_steps xs <= k.
 
   Lemma Rev_Loop_Terminates : projT1 Rev_Loop ↓ Rev_Loop_T.
   Proof.
@@ -727,11 +728,11 @@ Section Rev.
       forall (xs : list X) (s0 s1 s2 : nat),
         let size := Rev_size xs in
         tin[@Fin0] ≃(;s0) xs ->
-        isRight_size tin[@Fin1] s1 ->
-        isRight_size tin[@Fin2] s2 ->
-        isRight_size tout[@Fin0] (size@>Fin0 s0) /\
+        isVoid_size tin[@Fin1] s1 ->
+        isVoid_size tin[@Fin2] s2 ->
+        isVoid_size tout[@Fin0] (size@>Fin0 s0) /\
         tout[@Fin1] ≃(;size@>Fin1 s1) rev xs /\
-        isRight_size tout[@Fin2] (size@>Fin2 s2).
+        isVoid_size tout[@Fin2] (size@>Fin2 s2).
 
   Lemma Rev_Realise : Rev ⊨ Rev_Rel.
   Proof.
@@ -746,7 +747,7 @@ Section Rev.
 
   Definition Rev_T : tRel (sigList sigX)^+ 3 :=
     fun tin k => exists (xs : list X),
-        tin[@Fin0] ≃ xs /\ isRight tin[@Fin1] /\ isRight tin[@Fin2] /\ Rev_steps xs <= k.
+        tin[@Fin0] ≃ xs /\ isVoid tin[@Fin1] /\ isVoid tin[@Fin2] /\ Rev_steps xs <= k.
 
   Lemma Rev_Terminates : projT1 Rev ↓ Rev_T.
   Proof.
@@ -973,7 +974,7 @@ Section Append.
 
 
   Definition App_T : tRel sigList^+ 3 :=
-    fun tin k => exists (xs ys : list X), tin[@Fin0] ≃ xs /\ tin[@Fin1] ≃ ys /\ isRight tin[@Fin2] /\ App_steps xs ys <= k.
+    fun tin k => exists (xs ys : list X), tin[@Fin0] ≃ xs /\ tin[@Fin1] ≃ ys /\ isVoid tin[@Fin2] /\ App_steps xs ys <= k.
 
   Lemma App_Terminates : projT1 App ↓ App_T.
   Proof.
@@ -1026,16 +1027,16 @@ Section Lenght.
       forall (xs : list X) (n : nat) (s0 s1 s2 : nat),
         tin[@Fin0] ≃(;s0) xs ->
         tin[@Fin1] ≃(;s1) n ->
-        isRight_size tin[@Fin2] s2 ->
+        isVoid_size tin[@Fin2] s2 ->
         match yout, xs with
         | (Some tt), nil => (* break *)
           tout[@Fin0] ≃(;s0) nil /\
           tout[@Fin1] ≃(;s1) n /\
-          isRight_size tout[@Fin2] s2
+          isVoid_size tout[@Fin2] s2
         | None, x :: xs' => (* continue *)
           tout[@Fin0] ≃(; (Length_Step_size x)[@Fin0]s0) xs' /\
           tout[@Fin1] ≃(; (Length_Step_size x)[@Fin1]s1) S n /\
-          isRight_size tout[@Fin2] ((Length_Step_size x)[@Fin2]s2)
+          isVoid_size tout[@Fin2] ((Length_Step_size x)[@Fin2]s2)
         | _, _ => False
         end.
 
@@ -1067,7 +1068,7 @@ Section Lenght.
     end.
 
   Definition Length_Step_T : tRel sig^+ 3 :=
-    fun tin k => exists (xs : list X) (n : nat), tin[@Fin0] ≃ xs /\ tin[@Fin1] ≃ n /\ isRight tin[@Fin2] /\ Length_Step_steps xs <= k.
+    fun tin k => exists (xs : list X) (n : nat), tin[@Fin0] ≃ xs /\ tin[@Fin1] ≃ n /\ isVoid tin[@Fin2] /\ Length_Step_steps xs <= k.
 
   Lemma Length_Step_Terminates : projT1 Length_Step ↓ Length_Step_T.
   Proof.
@@ -1108,10 +1109,10 @@ Section Lenght.
           forall (xs : list X) (n : nat) (s0 s1 s2:nat),
             tin[@Fin0] ≃(;s0) xs ->
             tin[@Fin1] ≃(;s1) n ->
-            isRight_size tin[@Fin2] s2 ->
+            isVoid_size tin[@Fin2] s2 ->
             tout[@Fin0] ≃(; (Length_Loop_size xs)[@Fin0]s0) nil /\
             tout[@Fin1] ≃(; (Length_Loop_size xs)[@Fin1]s1) n + length xs /\
-            isRight_size tout[@Fin2] ((Length_Loop_size xs)[@Fin2]s2)
+            isVoid_size tout[@Fin2] ((Length_Loop_size xs)[@Fin2]s2)
       ).
 
 
@@ -1146,7 +1147,7 @@ Section Lenght.
     end.
 
   Definition Length_Loop_T : tRel sig^+ 3 :=
-    fun tin k => exists (xs : list X) (n : nat), tin[@Fin0] ≃ xs /\ tin[@Fin1] ≃ n /\ isRight tin[@Fin2] /\ Length_Loop_steps xs <= k.
+    fun tin k => exists (xs : list X) (n : nat), tin[@Fin0] ≃ xs /\ tin[@Fin1] ≃ n /\ isVoid tin[@Fin2] /\ Length_Loop_steps xs <= k.
 
   Lemma Length_Loop_Terminates : projT1 Length_Loop ↓ Length_Loop_T.
   Proof.
@@ -1181,13 +1182,13 @@ Section Lenght.
         fun tin tout =>
           forall (xs : list X) (s0 s1 s2 s3 : nat),
             tin[@Fin0] ≃(;s0) xs ->
-            isRight_size tin[@Fin1] s1 ->
-            isRight_size tin[@Fin2] s2 ->
-            isRight_size tin[@Fin3] s3 ->
+            isVoid_size tin[@Fin1] s1 ->
+            isVoid_size tin[@Fin2] s2 ->
+            isVoid_size tin[@Fin3] s3 ->
             tout[@Fin0] ≃(; (Length_size xs)[@Fin0]s0) xs /\
             tout[@Fin1] ≃(; (Length_size xs)[@Fin1]s1) length xs /\
-            isRight_size tout[@Fin2] ((Length_size xs)[@Fin2]s2) /\
-            isRight_size tout[@Fin3] ((Length_size xs)[@Fin3]s3)
+            isVoid_size tout[@Fin2] ((Length_size xs)[@Fin2]s2) /\
+            isVoid_size tout[@Fin3] ((Length_size xs)[@Fin3]s3)
       ).
 
 
@@ -1210,7 +1211,7 @@ Section Lenght.
   Definition Length_steps {sigX X : Type} {cX : codable sigX X} (xs : list X) := 36 + 12 * size _ xs + Length_Loop_steps xs.
 
   Definition Length_T : tRel sig^+ 4 :=
-    fun tin k => exists (xs : list X), tin[@Fin0] ≃ xs /\ isRight tin[@Fin1] /\ isRight tin[@Fin2] /\ isRight tin[@Fin3] /\ Length_steps xs <= k.
+    fun tin k => exists (xs : list X), tin[@Fin0] ≃ xs /\ isVoid tin[@Fin1] /\ isVoid tin[@Fin2] /\ isVoid tin[@Fin3] /\ Length_steps xs <= k.
 
   Lemma Length_Terminates : projT1 Length ↓ Length_T.
   Proof.

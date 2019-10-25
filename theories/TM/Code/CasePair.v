@@ -45,7 +45,7 @@ Section CasePair.
         fun tin tout =>
           forall (p : X * Y) (s0 s1 : nat),
             tin[@Fin0] ≃(;s0) p ->
-            isRight_size tin[@Fin1] s1 ->
+            isVoid_size tin[@Fin1] s1 ->
             tout[@Fin0] ≃(;CasePair_size0 (fst p) s0) snd p /\
             tout[@Fin1] ≃(;CasePair_size1 (fst p) s1) fst p
       ).
@@ -77,8 +77,8 @@ Section CasePair.
           split.
           * hnf. eexists. split. simpl_tape. cbn. rewrite EY. cbn. f_equal.
             { rewrite tl_length; simpl_list; cbn. unfold CasePair_size0, size. omega. }
-          * hnf. eexists. simpl_tape. rewrite rev_involutive, List.map_map. cbn. f_equal. rewrite (isRight_size_right HRight). cbn. f_equal. split. now rewrite List.map_map.
-            { simpl_list. rewrite skipn_length, tl_length. unfold CasePair_size1, size. pose proof (isRight_size_left HRight). omega. }
+          * hnf. eexists. simpl_tape. rewrite rev_involutive, List.map_map. cbn. f_equal. rewrite (isVoid_size_right HRight). cbn. f_equal. split. now rewrite List.map_map.
+            { simpl_list. rewrite skipn_length, tl_length. unfold CasePair_size1, size. pose proof (isVoid_size_left HRight). omega. }
         + rewrite List.map_map. now intros ? (?&<-&?) % in_rev % in_map_iff.
         + rewrite List.map_map. now intros ? (?&<-&?) % in_map_iff.
       - rewrite MoveToSymbol_correct_midtape in HCopy; cbn in *; auto.
@@ -90,8 +90,8 @@ Section CasePair.
           split.
           * hnf. eexists. split. simpl_tape. cbn. rewrite EY. cbn. f_equal.
             { rewrite tl_length; simpl_list; cbn. unfold CasePair_size0, size. omega. }
-          * hnf. eexists. simpl_tape. rewrite rev_involutive, List.map_map. cbn. f_equal. rewrite (isRight_size_right HRight). cbn. f_equal. split. now rewrite List.map_map.
-            { simpl_list. rewrite skipn_length, tl_length. unfold CasePair_size1, size. pose proof (isRight_size_left HRight). omega. }
+          * hnf. eexists. simpl_tape. rewrite rev_involutive, List.map_map. cbn. f_equal. rewrite (isVoid_size_right HRight). cbn. f_equal. split. now rewrite List.map_map.
+            { simpl_list. rewrite skipn_length, tl_length. unfold CasePair_size1, size. pose proof (isVoid_size_left HRight). omega. }
         + rewrite List.map_map. now intros ? (?&<-&?) % in_rev % in_map_iff.
         + rewrite List.map_map. now intros ? (?&<-&?) % in_map_iff.
     }

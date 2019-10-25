@@ -10,24 +10,24 @@ From Undecidability Require Export TM.Combinators.Combinators.
 (** Tape proposition that says that the pointer is on (but not off) the right-most symbol *)
 Section IsRight.
 
-  Definition isRight (sig : Type) (t : tape sig) :=
+  Definition isVoid (sig : Type) (t : tape sig) :=
     exists x rs, t = midtape rs x nil.
 
-   Definition isRight_size (sig : Type) (t : tape sig) (s : nat) :=
+   Definition isVoid_size (sig : Type) (t : tape sig) (s : nat) :=
     exists x rs, t = midtape rs x nil /\ |rs| <= s.
 
 
-   Lemma isRight_size_isRight (sig : Type) (t : tape sig) (s : nat) :
-     isRight_size t s -> isRight t.
+   Lemma isVoid_size_isVoid (sig : Type) (t : tape sig) (s : nat) :
+     isVoid_size t s -> isVoid t.
    Proof. intros (x&rs&->&_). hnf. eauto. Qed.
 
-  Lemma isRight_size_monotone (sig : Type) (t : tape sig) (s1 s2 : nat) :
-    isRight_size t s1 -> s1 <= s2 -> isRight_size t s2.
+  Lemma isVoid_size_monotone (sig : Type) (t : tape sig) (s1 s2 : nat) :
+    isVoid_size t s1 -> s1 <= s2 -> isVoid_size t s2.
   Proof. intros (x&rs&->&Hr) Hs. exists x, rs. split. eauto. omega. Qed.
 
   
-  Lemma mapTape_isRight_size (sig tau : Type) (t : tape sig) (s : nat) (f : sig -> tau) :
-    isRight_size (mapTape f t) s <-> isRight_size t s.
+  Lemma mapTape_isVoid_size (sig tau : Type) (t : tape sig) (s : nat) (f : sig -> tau) :
+    isVoid_size (mapTape f t) s <-> isVoid_size t s.
   Proof.
     split.
     - intros (r1&r2&H&Hs). destruct t; cbn in *; inv H. rewrite map_length in Hs.
@@ -35,8 +35,8 @@ Section IsRight.
     - intros (r1&r2&->&Hs). hnf. cbn. do 2 eexists; repeat split; eauto. now simpl_list.
   Qed.
 
-  Lemma mapTape_isRight (sig tau : Type) (t : tape sig) (f : sig -> tau) :
-    isRight (mapTape f t) <-> isRight t.
+  Lemma mapTape_isVoid (sig tau : Type) (t : tape sig) (f : sig -> tau) :
+    isVoid (mapTape f t) <-> isVoid t.
   Proof.
     split.
     - intros (r1&r2&H). destruct t; cbn in *; inv H.
@@ -44,42 +44,42 @@ Section IsRight.
     - intros (r1&r2&->). hnf. cbn. eauto.
   Qed.
 
-  Lemma isRight_right (sig : Type) (t : tape sig) :
-    isRight t -> right t = nil.
+  Lemma isVoid_right (sig : Type) (t : tape sig) :
+    isVoid t -> right t = nil.
   Proof. now intros (x&rs&->). Qed.
 
-  Lemma isRight_size_right (sig : Type) (t : tape sig) (s1 : nat) :
-    isRight_size t s1 -> right t = nil.
-  Proof. eauto using isRight_right, isRight_size_isRight. Qed.
+  Lemma isVoid_size_right (sig : Type) (t : tape sig) (s1 : nat) :
+    isVoid_size t s1 -> right t = nil.
+  Proof. eauto using isVoid_right, isVoid_size_isVoid. Qed.
 
-  Lemma isRight_size_left (sig : Type) (t : tape sig) (s1 : nat) :
-    isRight_size t s1 -> length (left t) <= s1.
+  Lemma isVoid_size_left (sig : Type) (t : tape sig) (s1 : nat) :
+    isVoid_size t s1 -> length (left t) <= s1.
   Proof. now intros (x&r1&->&H1). Qed.
 
-  Lemma isRight_isRight_size (sig : Type) (t : tape sig) :
-    isRight t -> isRight_size t (| tape_local_l t|).
+  Lemma isVoid_isVoid_size (sig : Type) (t : tape sig) :
+    isVoid t -> isVoid_size t (| tape_local_l t|).
   Proof. intros (x&r2&->). cbn. hnf. eauto. Qed.
 
-  Lemma isRight_size_sizeOfTape (sig : Type) (t : tape sig) (s : nat) :
-    isRight_size t s ->
+  Lemma isVoid_size_sizeOfTape (sig : Type) (t : tape sig) (s : nat) :
+    isVoid_size t s ->
     sizeOfTape t <= 1 + s.
   Proof. intros [m (r1&->&H)]. cbn. simpl_list; cbn. omega. Qed.
 
 End IsRight.
 
-Ltac isRight_mono :=
+Ltac isVoid_mono :=
   lazymatch goal with
-  | [ H : isRight_size ?t ?s1 |- isRight_size ?t ?s2 ] =>
-    apply isRight_size_monotone with (1 := H); eauto; simpl_comp; try omega
-  | [ H : isRight_size ?t ?s1 |- isRight ?t ] =>
-    apply isRight_size_isRight with (1 := H)
-  | [ H : isRight ?t |- isRight_size ?t ?s2 ] =>
-    eapply isRight_size_monotone;
-    [ apply (isRight_isRight_size H) | eauto; simpl_comp; try omega ]
-  | [ H : isRight ?t |- isRight ?t ] =>
+  | [ H : isVoid_size ?t ?s1 |- isVoid_size ?t ?s2 ] =>
+    apply isVoid_size_monotone with (1 := H); eauto; simpl_comp; try omega
+  | [ H : isVoid_size ?t ?s1 |- isVoid ?t ] =>
+    apply isVoid_size_isVoid with (1 := H)
+  | [ H : isVoid ?t |- isVoid_size ?t ?s2 ] =>
+    eapply isVoid_size_monotone;
+    [ apply (isVoid_isVoid_size H) | eauto; simpl_comp; try omega ]
+  | [ H : isVoid ?t |- isVoid ?t ] =>
     apply H
   end.
-Hint Extern 10 => isRight_mono.
+Hint Extern 10 => isVoid_mono.
 
 
 
@@ -127,14 +127,14 @@ Section Fix_Sig.
       exists r1, t = midtape (map inr (rev (Encode_map _ _ x)) ++ inl START :: r1) (inl STOP) nil /\
             length r1 <= s.
 
-    Lemma tape_contains_rev_isRight t x :
+    Lemma tape_contains_rev_isVoid t x :
       tape_contains_rev t x ->
-      isRight t.
+      isVoid t.
     Proof. intros (r1&->). repeat econstructor. Qed.
 
-    Lemma tape_contains_rev_size_isRight t x s :
+    Lemma tape_contains_rev_size_isVoid t x s :
       tape_contains_rev_size t x s ->
-      isRight_size t (S (size _ x + s)).
+      isVoid_size t (S (size _ x + s)).
     Proof.
       intros (r1&->&Hs). hnf.
       do 2 eexists. repeat split. simpl_list. cbn. unfold size. simpl_list. omega.
@@ -234,10 +234,10 @@ Section Fix_Sig.
 
     Definition initRight : tape sig^+ := midtape nil (inl STOP) nil.
 
-    Lemma initRight_isRight_size : isRight_size (initRight) 0.
+    Lemma initRight_isVoid_size : isVoid_size (initRight) 0.
     Proof. repeat econstructor. Qed.
 
-    Lemma initRight_isRight : isRight initRight.
+    Lemma initRight_isVoid : isVoid initRight.
     Proof. repeat econstructor. Qed.
 
   End InitTape.
@@ -320,3 +320,9 @@ Notation "f '@>>' I" := (injectSizeFun f I) (at level 41).
 
 (** You can write [ f1 @>> I1 >>> f2 @>>> I2], which is equivialent to [(f1 @>> I1) >>> (f2 @>> I2)], i.e. we lift [f1] with [I2] and compose this with the lifting of [f2]. *)
 (* FIXME: this doesn't work yet. Use parenthesis *)
+
+
+
+(** Compatibility notations *)
+Notation "'isRight'" := (isVoid) (only parsing).
+Notation "'isRight_size'" := (isVoid_size) (only parsing).

@@ -102,7 +102,7 @@ Section CaseList.
           forall ls rs (x : X) (l : list X) (s1 : nat),
             tin[@Fin0] = midtape (inl START :: ls) (inr sigList_cons)
                                  (map inr (Encode_map _ _ x) ++ map inr (Encode_map _ _ l) ++ inl STOP :: rs) ->
-            isRight_size tin[@Fin1] s1 ->
+            isVoid_size tin[@Fin1] s1 ->
             tout[@Fin0] = tin[@Fin0] /\
             tout[@Fin1] ≃(; s1 - (S (size _ x))) x).
             
@@ -141,11 +141,11 @@ Section CaseList.
     fun tin '(yout, tout) =>
       forall (l : list X) (s0 s1 : nat),
         tin[@Fin0] ≃(;s0) l ->
-        isRight_size tin[@Fin1] s1 ->
+        isVoid_size tin[@Fin1] s1 ->
         match yout, l with
         | false, nil =>
           tout[@Fin0] ≃(;s0) nil /\
-          isRight_size tout[@Fin1] s1
+          isVoid_size tout[@Fin1] s1
         | true, x :: l' =>
           tout[@Fin0] ≃(; CaseList_size0 x s0) l' /\
           tout[@Fin1] ≃(; CaseList_size1 x s1) x
@@ -254,7 +254,7 @@ Section CaseList.
            (fun tin k =>
               exists l : list X,
                 tin[@Fin0] ≃ l /\
-                isRight tin[@Fin1] /\
+                isVoid tin[@Fin1] /\
                 CaseList_steps l <= k).
   Proof.
     unfold CaseList_steps, CaseList_steps_cons, CaseList_steps_nil. eapply TerminatesIn_monotone.
@@ -288,7 +288,7 @@ Section CaseList.
         intros tmid3 () H3'. 
         rewrite !map_map, map_app, <- app_assoc in H3'.
         setoid_rewrite map_map in H3'.
-        specialize H3' with (1 := eq_refl) (2 := isRight_isRight_size HRight). TMSimp.
+        specialize H3' with (1 := eq_refl) (2 := isVoid_isVoid_size HRight). TMSimp.
         exists (6 + 4 * size cX x), 3. repeat split; try omega.
         { do 4 eexists; repeat split; eauto. now rewrite !map_map. }
         intros tmid4 () (H4&HInj4); TMSimp.
@@ -356,7 +356,7 @@ Section CaseList.
 
 
   Definition Constr_nil_Rel : pRel (sigList sigX)^+ unit 1 :=
-    Mk_R_p (ignoreParam (fun tin tout => forall (s : nat), isRight_size tin s -> tout ≃(; pred s) nil)).
+    Mk_R_p (ignoreParam (fun tin tout => forall (s : nat), isVoid_size tin s -> tout ≃(; pred s) nil)).
 
 
   Definition Constr_nil_steps := 5.
