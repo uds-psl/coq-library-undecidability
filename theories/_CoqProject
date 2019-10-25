@@ -349,44 +349,44 @@ HOU/std/std.v
 HOU/axioms.v
 HOU/unscoped.v
 
-HOU/calculus/terms.v
-HOU/calculus/prelim.v
-HOU/calculus/syntax.v
-HOU/calculus/semantics.v
-HOU/calculus/equivalence.v
-HOU/calculus/typing.v
-HOU/calculus/order.v
-HOU/calculus/terms_extension.v
-HOU/calculus/confluence.v
-HOU/calculus/normalisation.v
-HOU/calculus/evaluator.v
-HOU/calculus/calculus.v
+# HOU/calculus/terms.v
+# HOU/calculus/prelim.v
+# HOU/calculus/syntax.v
+# HOU/calculus/semantics.v
+# HOU/calculus/equivalence.v
+# HOU/calculus/typing.v
+# HOU/calculus/order.v
+# HOU/calculus/terms_extension.v
+# HOU/calculus/confluence.v
+# HOU/calculus/normalisation.v
+# HOU/calculus/evaluator.v
+# HOU/calculus/calculus.v
 
-HOU/unification/higher_order_unification.v
-HOU/unification/systemunification.v
-HOU/unification/nth_order_unification.v
-HOU/unification/enumerability.v
-HOU/unification/unification.v
+# HOU/unification/higher_order_unification.v
+# HOU/unification/systemunification.v
+# HOU/unification/nth_order_unification.v
+# HOU/unification/enumerability.v
+# HOU/unification/unification.v
 
-HOU/third_order/pcp.v
-HOU/third_order/encoding.v
-HOU/third_order/simplified.v
-HOU/third_order/huet.v
+# HOU/third_order/pcp.v
+# HOU/third_order/encoding.v
+# HOU/third_order/simplified.v
+# HOU/third_order/huet.v
 
-HOU/second_order/diophantine_equations.v
-HOU/second_order/dowek/encoding.v
-HOU/second_order/dowek/reduction.v
-HOU/second_order/goldfarb/encoding.v
-HOU/second_order/goldfarb/multiplication.v
-HOU/second_order/goldfarb/reduction.v
-HOU/second_order/goldfarb/motivation.v
+# HOU/second_order/diophantine_equations.v
+# HOU/second_order/dowek/encoding.v
+# HOU/second_order/dowek/reduction.v
+# HOU/second_order/goldfarb/encoding.v
+# HOU/second_order/goldfarb/multiplication.v
+# HOU/second_order/goldfarb/reduction.v
+# HOU/second_order/goldfarb/motivation.v
 
-HOU/concon/conservativity.v
-HOU/concon/constants.v
-HOU/concon/enumerability.v
-HOU/concon/concon.v
+# HOU/concon/conservativity.v
+# HOU/concon/constants.v
+# HOU/concon/enumerability.v
+# HOU/concon/concon.v
 
-HOU/firstorder.v
+# HOU/firstorder.v
 
 
 
