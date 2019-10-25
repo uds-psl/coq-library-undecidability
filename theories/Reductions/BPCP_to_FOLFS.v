@@ -3,8 +3,8 @@
 Require Import Equations.Equations.
 Require Import Lia.
 
-Require Import Problems.PCP.
-Require Import Problems.FOLFS.
+From Undecidability Require Import Problems.PCP.
+From Undecidability Require Import Problems.FOLFS.
 
 
 
