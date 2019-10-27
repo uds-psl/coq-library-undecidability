@@ -31,6 +31,8 @@ Shared/Libs/DLW/Utils/power_decomp.v
 Shared/Libs/DLW/Utils/bounded_quantification.v
 Shared/Libs/DLW/Utils/php.v
 Shared/Libs/DLW/Utils/rel_iter.v
+Shared/Libs/DLW/Utils/crt.v
+
 
 Shared/Libs/DLW/Vec/pos.v
 Shared/Libs/DLW/Vec/vec.v
