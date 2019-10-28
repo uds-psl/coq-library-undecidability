@@ -12,54 +12,53 @@
 Require Import List Arith Omega Permutation Extraction.
 
 From Undecidability.Shared.Libs.DLW.Utils 
-  Require Import utils_tac utils_list gcd
+  Require Import utils_tac utils_list utils_nat gcd
                  prime binomial.
 From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
 
 Set Implicit Arguments.
 
-Section Informative_CRT.
+Section Informative_Chinese_Remainder_theorems.
 
-  Fact divides_is_gcd a b c : divides a b -> is_gcd b c 1 -> is_gcd a c 1.
-  Proof.
-    intros H1 H2; msplit 2; try apply divides_1.
-    intros k H3 H4.
-    apply H2; auto.
-    apply divides_trans with a; auto.
-  Qed.
+  Hint Resolve divides_refl divides_mult divides_mult_r.
 
-  Fact rel_prime_mult a b c : is_gcd a c 1 -> is_gcd b c 1 -> is_gcd (a*b) c 1.
-  Proof.
-    intros H1 H2; msplit 2; try apply divides_1.
-    intros k H3 H4.
-    apply H2; auto.
-    apply is_rel_prime_div with (2 := H3).
-    apply is_gcd_sym in H1.
-    revert H1; apply divides_is_gcd; auto.
-  Qed.
+  Section Binary.
 
-  Fact divides_rem_rem p q a : divides p q -> rem (rem a q) p = rem a p.
-  Proof.
-    destruct (eq_nat_dec p 0) as [ Hp | Hp ].
-    { intros (k & ->); subst; rewrite mult_0_r.
-      repeat rewrite rem_0; auto. }
-    intros H.
-    generalize (div_rem_spec1 a q); intros H1.
-    destruct H as (k & ->).
-    rewrite H1 at 2.
-    rewrite plus_comm.
-    apply rem_plus_div; auto.
-    do 2 apply divides_mult.
-    apply divides_refl.
-  Qed.
- 
-  Fact divides_rem_congr p q a b : divides p q -> rem a q = rem b q -> rem a p = rem b p.
-  Proof.
-    intros H1 H2.
-    rewrite <- (divides_rem_rem a H1),
-            <- (divides_rem_rem b H1).
-    f_equal; auto.
-  Qed.
+    Variable (u v a b : nat) (Hu : u <> 0) (Hv : v <> 0) (Huv : is_gcd u v 1).
+
+    Theorem CRT_bin_informative : { w | rem w u = rem a u /\ rem w v = rem b v /\ 2 < w }.
+    Proof.
+      destruct bezout_rel_prime with (1 := Huv) as (x & y & H1).
+      assert (rem (x*u) v = rem 1 v) as H2.
+      { rewrite rem_plus_div with (a := 1) (b := u*v); auto.
+        rewrite <- H1; apply rem_plus_div; auto. }
+      assert (rem (y*v) u = rem 1 u) as H3.
+      { rewrite rem_plus_div with (a := 1) (b := u*v); auto.
+        rewrite <- H1, plus_comm.
+        apply rem_plus_div; auto. }
+      exists (3*(u*v)+a*(y*v)+b*(x*u)); msplit 2.
+      + rewrite <- rem_plus_rem, (mult_assoc b).
+        rewrite rem_scal with (k := b*x), rem_diag; auto.
+        rewrite Nat.mul_0_r, rem_of_0, Nat.add_0_r.
+        rewrite <- rem_plus_rem, rem_scal, H3, <- rem_scal, Nat.mul_1_r.
+        rewrite rem_plus_rem, plus_comm.
+        symmetry; apply rem_plus_div; auto.
+      + rewrite <- plus_assoc, (plus_comm (a*_)), plus_assoc.
+        rewrite <- rem_plus_rem, (mult_assoc a).
+        rewrite rem_scal with (k := a*y), rem_diag; auto.
+        rewrite Nat.mul_0_r, rem_of_0, Nat.add_0_r.
+        rewrite <- rem_plus_rem, rem_scal, H2, <- rem_scal, Nat.mul_1_r.
+        rewrite rem_plus_rem, plus_comm.
+        symmetry; apply rem_plus_div; auto.
+      + apply lt_le_trans with (3*1); try omega.
+        do 2 apply le_trans with (2 := le_plus_l _ _).
+        apply mult_le_compat_l.
+        cut (u*v <> 0).
+        * generalize (u*v); intros; omega.
+        * intros G; apply mult_is_O in G; omega.
+    Qed.
+
+  End Binary.
 
   Theorem CRT_informative n (m v : vec nat n) : 
               (forall p, vec_pos m p <> 0)
@@ -105,28 +104,18 @@ Section Informative_CRT.
         - apply Hw with (p := pos_nxt _).
   Qed.
 
-End Informative_CRT.
+End Informative_Chinese_Remainder_theorems.
+
+Theorem CRT u v a b : u <> 0 -> v <> 0 -> is_gcd u v 1 -> exists w, rem w u = rem a u /\ rem w v = rem b v /\ 2 < w.
+Proof.
+  intros Hu Hv H.
+  destruct (@CRT_bin_informative u v a b) as (w & ?); auto.
+  exists w; auto.
+Qed.
 
 Section sequence_of_coprimes.
 
-  Fact divides_n_fact_n n : 0 < n -> divides n (fact n).
-  Proof.
-    destruct n as [ | n ]; try omega; intros _.
-    apply divides_mult_r, divides_refl.
-  Qed.
-
-  Fact divides_fact_S n : divides (fact n) (fact (S n)).
-  Proof. apply divides_mult, divides_refl. Qed.
-
-  Fact divides_fact n i : 0 < i <= n -> divides i (fact n).
-  Proof.
-    intros (H1 & H2); revert H2.
-    induction 1 as [ | n H2 IH2 ].
-    + apply divides_n_fact_n; auto.
-    + apply divides_trans with (1 := IH2), divides_fact_S.
-  Qed.   
-
-  Theorem seq_of_coprimes n i j : i < j <= n -> is_gcd (1+i*fact n) (1+j*fact n) 1.
+  Let seq_of_coprimes_lt n i j : i < j <= n -> is_gcd (1+i*fact n) (1+j*fact n) 1.
   Proof.
     intros (H1 & H2).
     apply no_common_prime_is_coprime; try discriminate.
@@ -150,5 +139,59 @@ Section sequence_of_coprimes.
     apply divides_le in H5; omega.
   Qed.
 
+  Theorem seq_of_coprimes n i j : 
+          i <= n 
+       -> j <= n
+       -> i <> j
+       -> is_gcd (1+i*fact n) (1+j*fact n) 1.
+  Proof.
+    intros H1 H2 H3.
+    destruct (lt_eq_lt_dec i j) as [ [] | ]; try tauto;
+      [ | apply is_gcd_sym ]; apply seq_of_coprimes_lt; omega.
+  Qed.
+
 End sequence_of_coprimes.
 
+Section Godel_beta.
+
+  (** Gödel Beta function and its "inverse" as a Coq function
+      for the reduction H10C -> termination of one particular µ-rec function *) 
+
+  Definition godel_beta a b n := rem a (S ((S n)*b)).
+
+  Theorem godel_beta_inv n (v : vec nat n) : 
+     { a : nat & { b | forall p, godel_beta a b (pos2nat p) = vec_pos v p } }.
+  Proof.
+    set (j := S (lmax (n :: vec_list v))).
+    assert (n < j) as Hm1.
+    { apply le_n_S, lmax_prop; left; auto. }
+    assert (forall p, vec_pos v p < j) as Hm2.
+    { intros p; apply le_n_S, lmax_prop.
+      right; apply vec_list_In. }
+    revert Hm1 Hm2; generalize j; clear j.
+    intros j Hj1 Hj2.
+    set (m := vec_set_pos (fun p : pos n => 1+(S (pos2nat p)*fact j))).
+    destruct (CRT_informative m v) as (w & Hw).
+    + intros p; unfold m; rewrite vec_pos_set; discriminate.
+    + intros p q H; unfold m; repeat rewrite vec_pos_set.
+      apply seq_of_coprimes.
+      * generalize (pos2nat_prop p); omega.
+      * generalize (pos2nat_prop q); omega.
+      * contradict H; inversion H.
+        apply pos2nat_inj; auto.
+    + exists w, (fact j).
+      intros p; unfold godel_beta.
+      generalize (Hw p); unfold m; repeat rewrite vec_pos_set.
+      intros E; unfold plus in E; rewrite E.
+      apply rem_idem.
+      apply lt_le_trans with (1 := Hj2 _).
+      apply le_trans with (S (1*j)); try omega.
+      apply le_n_S, mult_le_compat; try omega.
+      apply divides_le.
+      * generalize (fact_gt_0 j); omega.
+      * apply divides_n_fact_n; omega.
+  Qed.
+ 
+End Godel_beta.
+
+Check godel_beta_inv.

@@ -10,7 +10,7 @@
 Require Import Arith Eqdep_dec Omega.
 
 From Undecidability.Shared.Libs.DLW.Utils 
-  Require Import utils_tac utils_nat gcd sums.
+  Require Import utils_tac utils_nat gcd crt sums.
 
 From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
 
@@ -1020,7 +1020,7 @@ Section utils.
   Section ra_decomp.
 
     (* given n, find a such that S n = 2^a*(2*b+1) 
-       to get a bijection n -> nat * nat *)
+       to get a bijection nat -> nat * nat *)
 
     (* first, given n, find the first a such that 2^(S a) does not divide S n *)
 
@@ -1196,6 +1196,135 @@ Section utils.
 
   Opaque ra_decomp_l ra_decomp_r ra_recomp.
 
+  Section ra_godel_beta.
+
+    Definition ra_godel_beta : recalg 3.
+    Proof.
+      apply ra_comp with (1 := ra_rem).
+      refine (_##_##vec_nil).
+      + apply (ra_proj pos0).
+      + apply ra_comp with (1 := ra_succ).
+        refine (_##vec_nil).
+        * apply ra_comp with (1 := ra_mult).
+          refine (_##_##vec_nil).
+          - apply ra_comp with (1 := ra_succ).
+            refine (_##vec_nil).
+            apply (ra_proj pos2).
+          - apply (ra_proj pos1).
+    Defined.
+
+    Fact ra_godel_beta_prim : prim_rec ra_godel_beta.
+    Proof.
+      simpl; split; auto.
+      repeat (intros p; analyse pos p; simpl; split; auto).
+    Qed.
+ 
+    Fact ra_godel_beta_val a b n : ⟦ra_godel_beta⟧ (a##b##n##vec_nil) (godel_beta a b n).
+    Proof.
+      simpl.
+      exists (a##S ((S n)*b)##vec_nil); split.
+      + apply ra_rem_val; discriminate.
+      + intro p; analyse pos p; simpl.
+        { cbv; auto. }
+        exists (((S n)*b)##vec_nil); split.
+        { red; simpl; auto. }
+        intro p; analyse pos p; simpl.
+        exists (S n##b##vec_nil); split.
+        { apply ra_mult_val. }
+        intro p; analyse pos p; simpl.
+        * exists (n##vec_nil); split.
+          { cbv; auto. }
+          intro p; analyse pos p; simpl.
+          cbv; auto.
+        * cbv; auto.
+    Qed.
+
+    Fact ra_godel_beta_rel v e : ⟦ra_godel_beta⟧ v e <-> e = godel_beta (vec_pos v pos0) (vec_pos v pos1) (vec_pos v pos2).
+    Proof.
+      vec split v with a; vec split v with b; vec split v with n; vec nil v.
+      split.
+      + intros H; apply ra_rel_fun with (1 := H), ra_godel_beta_val; auto.
+      + intros; subst; apply ra_godel_beta_val; auto.
+    Qed.
+
+  End ra_godel_beta.
+
+  Hint Resolve ra_godel_beta_prim.
+ 
+  Opaque ra_godel_beta.
+
+  Definition beta a n := godel_beta (decomp_l a) (decomp_r a) n.
+
+  (** beta can enumerate ANY vector of ANY length by wisely choosing
+      the parameter a *)
+
+  Lemma beta_inv n (v : vec _ n) : { a | forall p, beta a (pos2nat p) = vec_pos v p }.
+  Proof.
+    destruct (godel_beta_inv v) as (a & b & H).
+    exists (recomp a b); intro p; unfold beta.
+    rewrite decomp_l_recomp, decomp_r_recomp; auto.
+  Qed.
+
+  Lemma beta_fun_inv n f : { a | forall p, p < n -> f p = beta a p }.
+  Proof.
+    destruct beta_inv with (v := vec_set_pos (fun p : pos n => f (pos2nat p)))
+      as (a & Ha).
+    exists a; intros p Hp.
+    specialize (Ha (nat2pos Hp)).
+    rewrite vec_pos_set, pos2nat_nat2pos in Ha.
+    auto.
+  Qed.
+
+  Section ra_beta.
+
+    Definition ra_beta : recalg 2.
+    Proof.
+      apply ra_comp with (1 := ra_godel_beta).
+      refine (_##_##_##vec_nil).
+      + apply ra_comp with (1 := ra_decomp_l).
+        refine (_##vec_nil).
+        apply (ra_proj pos0).
+      + apply ra_comp with (1 := ra_decomp_r).
+        refine (_##vec_nil).
+        apply (ra_proj pos0).
+      + apply (ra_proj pos1).
+    Defined.
+
+    Fact ra_beta_prim : prim_rec ra_beta.
+    Proof.
+      simpl; split; auto.
+      repeat (intros p; analyse pos p; simpl; split; auto).
+    Qed.
+
+    Fact ra_beta_val a n : ⟦ra_beta⟧ (a##n##vec_nil) (beta a n).
+    Proof.
+      simpl.
+      exists (decomp_l a##decomp_r a##n##vec_nil); split.
+      { apply ra_godel_beta_val. }
+      intro p; analyse pos p; simpl.
+      + exists (a##vec_nil); split.
+        { apply ra_decomp_l_val. }
+        intro p; analyse pos p; cbv; auto.
+      + exists (a##vec_nil); split.
+        { apply ra_decomp_r_val. }
+        intro p; analyse pos p; cbv; auto.
+      + cbv; auto.
+    Qed.
+
+    Fact ra_beta_rel v e : ⟦ra_beta⟧ v e <-> e = beta (vec_pos v pos0) (vec_pos v pos1).
+    Proof.
+      vec split v with a; vec split v with n; vec nil v.
+      split.
+      + intros H; apply ra_rel_fun with (1 := H), ra_beta_val; auto.
+      + intros; subst; apply ra_beta_val; auto.
+    Qed.
+
+  End ra_beta.
+
+  Hint Resolve ra_beta_prim.
+ 
+  Opaque ra_beta.
+
   Fixpoint inject n (v : vec nat n) : nat :=
     match v with
       | vec_nil => 0
@@ -1287,6 +1416,7 @@ End utils.
 Opaque ra_cst_n ra_pred ra_plus ra_minus ra_mult ra_ite
        ra_div ra_rem ra_div2 ra_mod2 ra_pow2 ra_notdiv_pow2
        ra_decomp_l ra_decomp_l ra_decomp_r ra_recomp
+       ra_godel_beta ra_beta
        ra_inject ra_project.
 
 Hint Resolve ra_cst_n_prim ra_iter_n_prim ra_iter_prim
@@ -1296,4 +1426,5 @@ Hint Resolve ra_cst_n_prim ra_iter_n_prim ra_iter_prim
              ra_div_prim ra_rem_prim ra_div2_prim ra_mod2_prim 
              ra_pow2_prim ra_notdiv_pow2_prim
              ra_decomp_l_prim ra_decomp_r_prim ra_recomp_prim
+             ra_godel_beta_prim ra_beta_prim
              ra_project_prim ra_inject_prim.

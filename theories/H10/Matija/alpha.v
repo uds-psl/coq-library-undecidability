@@ -11,7 +11,7 @@
 
 Require Import Arith Omega Eqdep_dec ZArith.
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac gcd prime binomial sums.
+From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac gcd prime crt binomial sums.
 From Undecidability.H10.ArithLibs Require Import matrix Zp.
 
 Set Implicit Arguments.

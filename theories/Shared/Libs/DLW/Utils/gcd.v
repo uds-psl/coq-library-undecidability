@@ -401,6 +401,14 @@ Section bezout.
   Fact is_rel_prime_div_r p q k : is_gcd p q 1 -> p div k*q -> p div k.
   Proof. rewrite mult_comm; apply is_rel_prime_div. Qed.
 
+  Fact divides_is_gcd a b c : divides a b -> is_gcd b c 1 -> is_gcd a c 1.
+  Proof.
+    intros H1 H2; msplit 2; try apply divides_1.
+    intros k H3 H4.
+    apply H2; auto.
+    apply divides_trans with a; auto.
+  Qed.
+
   Fact is_rel_prime_lcm p q : is_gcd p q 1 -> is_lcm p q (p*q).
   Proof.
     intros H.
@@ -869,6 +877,29 @@ Section rem.
 
 End rem.
 
+Fact divides_rem_rem p q a : divides p q -> rem (rem a q) p = rem a p.
+Proof.
+  destruct (eq_nat_dec p 0) as [ Hp | Hp ].
+  { intros (k & ->); subst; rewrite mult_0_r.
+    repeat rewrite rem_0; auto. }
+  intros H.
+  generalize (div_rem_spec1 a q); intros H1.
+  destruct H as (k & ->).
+  rewrite H1 at 2.
+  rewrite plus_comm.
+  apply rem_plus_div; auto.
+  do 2 apply divides_mult.
+  apply divides_refl.
+Qed.
+ 
+Fact divides_rem_congr p q a b : divides p q -> rem a q = rem b q -> rem a p = rem b p.
+Proof.
+  intros H1 H2.
+  rewrite <- (divides_rem_rem a H1),
+          <- (divides_rem_rem b H1).
+  f_equal; auto.
+Qed.
+
 Fact div_by_p_lt p n : 2 <= p -> n <> 0 -> div n p < n.
 Proof.
   intros H1 H2.
@@ -930,50 +961,4 @@ Section rem_2.
 End rem_2.
 
 Local Hint Resolve divides_mult divides_mult_r divides_refl.
-
-Section Chinese_remainder_theorem.
-
-  Variable (u v a b : nat) (Hu : u <> 0) (Hv : v <> 0) (Huv : is_gcd u v 1).
-
-  Theorem CRT_bin_informative : { w | rem w u = rem a u /\ rem w v = rem b v /\ 2 < w }.
-  Proof.
-    destruct bezout_rel_prime with (1 := Huv) as (x & y & H1).
-    assert (rem (x*u) v = rem 1 v) as H2.
-    { rewrite rem_plus_div with (a := 1) (b := u*v); auto.
-      rewrite <- H1; apply rem_plus_div; auto. }
-    assert (rem (y*v) u = rem 1 u) as H3.
-    { rewrite rem_plus_div with (a := 1) (b := u*v); auto.
-      rewrite <- H1, plus_comm.
-      apply rem_plus_div; auto. }
-    exists (3*(u*v)+a*(y*v)+b*(x*u)).
-    msplit 2.
-    + rewrite <- rem_plus_rem, (mult_assoc b).
-      rewrite rem_scal with (k := b*x), rem_diag; auto.
-      rewrite Nat.mul_0_r, rem_of_0, Nat.add_0_r.
-      rewrite <- rem_plus_rem, rem_scal, H3, <- rem_scal, Nat.mul_1_r.
-      rewrite rem_plus_rem, plus_comm.
-      symmetry; apply rem_plus_div; auto.
-    + rewrite <- plus_assoc, (plus_comm (a*_)), plus_assoc.
-      rewrite <- rem_plus_rem, (mult_assoc a).
-      rewrite rem_scal with (k := a*y), rem_diag; auto.
-      rewrite Nat.mul_0_r, rem_of_0, Nat.add_0_r.
-      rewrite <- rem_plus_rem, rem_scal, H2, <- rem_scal, Nat.mul_1_r.
-      rewrite rem_plus_rem, plus_comm.
-      symmetry; apply rem_plus_div; auto.
-    + apply lt_le_trans with (3*1); try omega.
-      do 2 apply le_trans with (2 := le_plus_l _ _).
-      apply mult_le_compat_l.
-      cut (u*v <> 0).
-      * generalize (u*v); intros; omega.
-      * intros G; apply mult_is_O in G; omega.
-  Qed.
-
-End Chinese_remainder_theorem.
-
-Theorem CRT u v a b : u <> 0 -> v <> 0 -> is_gcd u v 1 -> exists w, rem w u = rem a u /\ rem w v = rem b v /\ 2 < w.
-Proof.
-  intros Hu Hv H.
-  destruct (@CRT_bin_informative u v a b) as (w & ?); auto.
-  exists w; auto.
-Qed.
 

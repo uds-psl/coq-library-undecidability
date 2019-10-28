@@ -87,6 +87,19 @@ Section Recursive_algorithms.
     where "[| f |]" := (@recalg_rec_type _ f).
 
   End recalg_rec_type.
+
+  Definition ra_size k : recalg k -> nat.
+  Proof.
+    induction 1 as [ | | | | k i Hf Hg | k Hf Hg | k Hf ]
+      using recalg_rec_type.
+    + exact 1.
+    + exact 1.
+    + exact 1.
+    + exact 1.
+    + exact (1+Hf+vec_sum Hg).
+    + exact (1+Hf+Hg).
+    + exact (1+Hf).
+  Defined. 
   
   Section recalg_inj.
  

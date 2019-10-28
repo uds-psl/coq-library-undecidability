@@ -21,6 +21,89 @@ Set Implicit Arguments.
 
 *)
 
+Section list_choose_d.
+
+  Variable (X : Type) (P Q : X -> Prop).
+
+  Theorem list_choose_d l : (forall x, In x l -> P x \/ Q x)
+                           -> (exists x, In x l /\ P x)
+                           \/ forall x, In x l -> Q x.
+  Proof.
+    induction l as [ | x l IHl ]; intros Hl.
+    + right; intros _ [].
+    + destruct (Hl x) as [ H1 | H1 ].
+      * left; auto.
+      * left; exists x; simpl; auto.
+      * destruct IHl as [ (y & H2 & H3) | H2 ].
+        - intros; apply Hl; right; auto.
+        - left; exists y; simpl; auto.
+        - right; intros ? [ <- | ]; auto.
+  Qed.
+
+End list_choose_d.
+
+Section bounded_choose_d.
+
+  Variable (P Q : nat -> Prop).
+
+  Theorem bounded_choose_d n : (forall x, x < n -> P x \/ Q x)
+                           -> (exists x, x < n /\ P x)
+                           \/ forall x, x < n -> Q x.
+  Proof.
+    intros H.
+    destruct list_choose_d with (P := P) (Q := Q) (l := list_an 0 n)
+      as [ (x & H1 & H2) | H1 ].
+    + intro; rewrite list_an_spec; intro; apply H; omega.
+    + left; exists x; split; auto.
+      apply list_an_spec in H1; omega.
+    + right; intros x Hx; apply H1, list_an_spec; omega.
+  Qed. 
+
+End bounded_choose_d.
+
+Section bounded_min.
+
+  Variable (P Q : nat -> Prop).
+
+  Theorem bounded_min_d n :   (forall x, x < n -> P x \/ Q x)
+                           -> (exists x, x < n /\ P x /\ forall y, y < x -> Q y)
+                           \/ forall x, x < n -> Q x.
+  Proof.
+    induction n as [ | n IHn ]; intros Hn.
+    + right; intros; omega.
+    + destruct IHn as [ (x & H1 & H2 & H3) | H1 ].
+      * intros; apply Hn; omega.
+      * left; exists x; msplit 2; auto; omega.
+      * destruct (Hn n); auto.
+        - left; exists n; msplit 2; auto.
+        - right; intros x Hx.
+          destruct (eq_nat_dec x n); subst; auto.
+          apply H1; omega.
+  Qed.
+
+End bounded_min.
+
+Section list_choose_dep.
+
+  Variable (X : Type) (P Q : X -> Prop).
+
+  Theorem list_choose_dep l : (forall x, In x l -> { P x } + { Q x })
+                           -> { x | In x l /\ P x }
+                            + { forall x, In x l -> Q x }.
+  Proof.
+    induction l as [ | x l IHl ]; intros Hl.
+    + right; intros _ [].
+    + destruct (Hl x) as [ H1 | H1 ].
+      * left; auto.
+      * left; exists x; simpl; auto.
+      * destruct IHl as [ (y & H2 & H3) | H2 ].
+        - intros; apply Hl; right; auto.
+        - left; exists y; simpl; auto.
+        - right; intros ? [ <- | ]; auto.
+  Qed.
+
+End list_choose_dep.
+
 Section sinc_decidable.
 
   Variable (P : nat -> Prop)

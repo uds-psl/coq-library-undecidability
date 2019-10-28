@@ -115,6 +115,7 @@ MuRec/ra_dio_poly.v
 MuRec/ra_mm_env.v
 MuRec/ra_mm.v
 MuRec/ra_comp.v
+MuRec/ra_bounded.v
 
 H10/Fractran/mm_no_self.v
 H10/Fractran/prime_seq.v
@@ -426,6 +427,7 @@ Reductions/BSM_to_MM.v
 Reductions/MM_to_ILL.v  
 Reductions/BPCP_to_FOL.v
 Reductions/DIO_MUREC.v
+Reductions/H10C_RA_UNIV.v
 Reductions/MUREC_MM.v
 Reductions/MMA2_to_MM2.v
 Reductions/MM_to_MMA2.v
