@@ -11,7 +11,6 @@
 
 Require Import List Arith Omega.
 
-
 From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec Utils.utils_tac Utils.utils_list Utils.utils_nat gcd rel_iter.
 
 Set Implicit Arguments.
@@ -105,8 +104,6 @@ Section fractran.
       * apply le_trans with (1 := H2 _ _ Hxy).
         apply mult_le_compat; omega.
   Qed.
-
-
   
   (** the computation is stopped at x, no step is possible from x *)
 
@@ -180,6 +177,24 @@ Section fractran.
   Qed.
 
   Section zero_cases.
+
+    Fact fractran_zero_num_step l : Exists (fun c => fst c = 0) l -> forall x, exists y, l // x → y. 
+    Proof.
+      induction 1 as [ (p,q) l Hl | (p,q) l Hl IHl ]; simpl in Hl.
+      + intros x; exists 0; subst; constructor; omega.
+      + intros x.
+        destruct (divides_dec (p*x) q) as [ (y & Hy) | C ].
+        * exists y; constructor; rewrite Hy, mult_comm; auto.
+        * destruct (IHl x) as (y & Hy); exists y; constructor 2; auto.
+    Qed.
+
+    Lemma FRACTRAN_HALTING_zero_num l x : Exists (fun c => fst c = 0) l -> FRACTRAN_HALTING (l,x) <-> False.
+    Proof.
+      intros H; split; try tauto.
+      intros (y & _ & H3). 
+      destruct fractran_zero_num_step with (1 := H) (x := y) as (z & Hz). 
+      apply H3 with (1 := Hz).
+    Qed.
 
     Fact fractran_step_head_not_zero p q l y : q <> 0 -> (p,q)::l // 0 → y -> y = 0.
     Proof.
@@ -403,5 +418,3 @@ Section fractran.
 End fractran.
 
 Notation "l '/F/' x ↓ " := (fractran_terminates l x) (at level 70, no associativity).
-
-

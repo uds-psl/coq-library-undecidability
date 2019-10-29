@@ -392,6 +392,7 @@ Section ra_univ.
     + apply ra_iter_h10c_val_1.
       destruct H2 as (c & H1 & H2).
       rewrite Hlc in H1.
+      unfold nat_h10lc in H1.
       apply in_map_iff in H1.
       destruct H1 as (p & H1 & _).
       exists (pos2nat p); split.

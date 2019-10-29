@@ -43,6 +43,30 @@ Section Fractran_with_two_counters.
   Let Hsrc_dst : src <> dst.    Proof. discriminate. Qed.
   Let Hdst_src : dst <> src.    Proof. discriminate. Qed.
 
+  Section mma_loop.
+
+    Definition mma_loop := INC src :: DEC src 1 :: nil.
+
+    Fact mma_loop_loop v : (1,mma_loop) /MM2/ (1,v) -+> (1,v).
+    Proof.
+      unfold mma_loop.
+      mma sss INC with src.
+      mma sss DEC S with src 1 (v#>src); rew vec.
+      mma sss stop.
+    Qed.
+
+    Theorem mma_loop_spec v : ~ (1,mma_loop) /MM2/ (1,v) ↓.
+    Proof.
+      intros (w & (k & Hk) & H2); revert w Hk H2.
+      induction on k as IHk with measure k; intros w Hk Hw.
+      destruct subcode_sss_progress_inv with (4 := mma_loop_loop v) (5 := Hk)
+        as (q & H1 & H2); auto.
+      { apply mma_sss_fun. }
+      apply IHk with (1 := H1) (2 := H2); auto.
+    Qed.
+  
+  End mma_loop.
+
   Section mma_fractran_one.
 
     (* FRACTRAN computation, try one fraction a/b *)
@@ -259,5 +283,37 @@ Section Fractran_with_two_counters.
 
 End Fractran_with_two_counters.
 
-Check fractran_mma.
-Check fractran_mma_reduction.
+Section fractran_mma_reg_reduction.
+
+  Variables (ll : list (nat*nat)).
+
+  Let reduction : { P | Forall (fun c => snd c <> 0) ll -> forall x, ll /F/ x ↓ <-> (1,P) /MM2/ (1,x##0##vec_nil) ↓ }.
+  Proof.
+    destruct (Forall_Exists_dec (fun c : nat * nat => fst c <> 0)) with (l := ll) as [ H | H ].
+    + intros (x,?); simpl; destruct (eq_nat_dec x 0); subst; auto. 
+    + exists (fractran_mma ll); intros Hll x.
+      apply fractran_mma_reduction.
+      revert H Hll; repeat rewrite Forall_forall; firstorder.
+    + rewrite Exists_exists in H.
+      exists mma_loop; intros Hll.
+      destruct H as ((x,y) & H1 & H2); simpl in H2.
+      replace x with 0 in H1 by omega; clear H2.
+      intros n; split.
+      * intros H; exfalso.
+        revert H; apply FRACTRAN_HALTING_zero_num.
+        apply Exists_exists; exists (0,y); auto.
+      * intros H; exfalso; revert H; apply mma_loop_spec.
+  Qed.
+  
+  Definition fractran_reg_mma := proj1_sig reduction.
+
+  Theorem fractran_reg_mma_reduction : 
+                       Forall (fun c => snd c <> 0) ll 
+          -> forall x, ll /F/ x ↓ 
+                   <-> (1,fractran_reg_mma) /MM2/ (1,x##0##vec_nil) ↓.
+  Proof. apply (proj2_sig reduction). Qed.
+
+End fractran_mma_reg_reduction.
+
+Check fractran_reg_mma.
+Check fractran_reg_mma_reduction.

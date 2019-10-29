@@ -25,10 +25,18 @@ Set Implicit Arguments.
 (** Given a FRACTRAN program and a starting state, does it terminate *)
 
 Definition FRACTRAN_PROBLEM := (list (nat*nat) * nat)%type.
+Definition FRACTRAN_REG_PROBLEM := 
+  { l : list (nat*nat) & { _ : nat | Forall (fun c => snd c <> 0) l } }.
 
 Definition FRACTRAN_HALTING (P : FRACTRAN_PROBLEM) : Prop.
 Proof.
   destruct P as (l & x).
+  exact (l /F/ x ↓).
+Defined.
+
+Definition FRACTRAN_REG_HALTING (P : FRACTRAN_REG_PROBLEM) : Prop.
+Proof.
+  destruct P as (l & x & _).
   exact (l /F/ x ↓).
 Defined.
 
@@ -85,3 +93,41 @@ Qed.
 
 Check MM_FRACTRAN_HALTING.
 Print Assumptions MM_FRACTRAN_HALTING.
+
+Section MM_HALTING_FRACTRAN_REG_HALTING.
+
+  Let f : MM_PROBLEM -> FRACTRAN_REG_PROBLEM.
+  Proof.
+    intros (n & P & v); red.
+    destruct (mm_fractran_n P) as (l & H1 & _).
+    exists l, (ps 1 * exp 1 v); assumption.
+  Defined. 
+ 
+  Theorem MM_FRACTRAN_REG_HALTING : MM_HALTING ⪯ FRACTRAN_REG_HALTING.
+  Proof.
+    exists f; intros (n & P & v); simpl.
+    destruct (mm_fractran_n P) as (l & H1 & H2); simpl; auto.
+  Qed.
+
+End MM_HALTING_FRACTRAN_REG_HALTING.
+
+Check MM_FRACTRAN_REG_HALTING.
+Print Assumptions MM_FRACTRAN_REG_HALTING.
+
+Section FRACTRAN_REG_FRACTRAN_HALTING.
+
+  Let f : FRACTRAN_REG_PROBLEM -> FRACTRAN_PROBLEM.
+  Proof.
+    intros (l & v & _); exact (l,v).
+  Defined.
+
+  Theorem FRACTRAN_REG_FRACTRAN_HALTING : FRACTRAN_REG_HALTING ⪯ FRACTRAN_HALTING.
+  Proof.
+    exists f; intros (n & P & v); simpl; tauto.
+  Qed.
+
+End FRACTRAN_REG_FRACTRAN_HALTING.
+
+Check FRACTRAN_REG_FRACTRAN_HALTING.
+Print Assumptions FRACTRAN_REG_FRACTRAN_HALTING.
+
