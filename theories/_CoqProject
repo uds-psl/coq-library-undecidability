@@ -102,6 +102,17 @@ ILL/UNDEC.v
 MM/mma_defs.v
 MM/mma_utils.v
 MM/fractran_mma.v
+MM/env.v
+MM/mm_instr.v
+MM/mm_env_utils.v
+
+MuRec/recalg.v
+MuRec/ra_utils.v
+MuRec/ra_enum.v
+MuRec/ra_dio_poly.v
+MuRec/ra_mm_env.v
+MuRec/ra_mm.v
+MuRec/ra_comp.v
 
 H10/Fractran/mm_no_self.v
 H10/Fractran/prime_seq.v
@@ -402,6 +413,7 @@ Problems/FOL.v
 Problems/TM.v
 Problems/SR.v
 Problems/MM.v
+Problems/MM2.v
 Problems/BSM.v
 Problems/ILL.v
 Problems/FRACTRAN.v
@@ -419,6 +431,10 @@ Reductions/BPCP_to_BSM.v
 Reductions/BSM_to_MM.v  
 Reductions/MM_to_ILL.v  
 Reductions/BPCP_to_FOL.v
+Reductions/DIO_MUREC.v
+Reductions/MUREC_MM.v
+Reductions/MMA2_to_MM2.v
+Reductions/MM_to_MMA2.v
 Reductions/MM_to_FRACTRAN.v
 Reductions/FRACTRAN_to_H10C.v
 Reductions/L_to_mTM.v

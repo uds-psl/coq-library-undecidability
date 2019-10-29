@@ -12,7 +12,6 @@
 
 Require Import List Arith Omega.
 
-
 From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec.
 From Undecidability.ILL.Code Require Import subcode sss.
 From Undecidability.ILL.Mm Require Import mm_defs.
@@ -33,7 +32,7 @@ Local Notation "P // s ↓" := (sss_terminates (@mm_sss _) P s).
 
 Section self_loops.
 
-  Variables (n : nat) (P : list (mm_instr n)).
+  Variables (n : nat) (P : list (mm_instr (pos n))).
 
   Lemma mm_self_loop_no_term_1 i x s v : 
               (i,DEC x i::nil) <sc (1,P) 
@@ -89,9 +88,9 @@ Section no_self_loops.
 
   Variables (n : nat).
 
-  Definition mm_no_self_loops (Q : nat * list (mm_instr n)) := forall i x, ~ (i,DEC x i::nil) <sc Q.
+  Definition mm_no_self_loops (Q : nat * list (mm_instr (pos n))) := forall i x, ~ (i,DEC x i::nil) <sc Q.
 
-  Implicit Types (P Q : list (mm_instr n)).
+  Implicit Types (P Q : list (mm_instr (pos n))).
 
   Fact mm_no_self_loops_app i P Q : mm_no_self_loops (i,P) 
                                  -> mm_no_self_loops (length P +i,Q)
@@ -119,9 +118,9 @@ Section remove_self_loops.
 
   Variables (n : nat).
 
-  Implicit Types (P Q : list (mm_instr n)).
+  Implicit Types (P Q : list (mm_instr (pos n))).
 
-  Let f k i (ρ : mm_instr n) := 
+  Let f k i (ρ : mm_instr (pos n)) := 
     match ρ with
       | INC x   => INC (pos_nxt x)
       | DEC x j => DEC (pos_nxt x) (if eq_nat_dec i j     then 1+k 
@@ -190,11 +189,12 @@ Section remove_self_loops.
     destruct (le_lt_dec k q); omega.
   Qed.
 
-  Variable P : list (mm_instr n).
+  Variable P : list (mm_instr (pos n)).
 
   Notation lP := (length P).
 
-  Let R : list (mm_instr (S n)) := DEC pos0 0 
+  Let R : list (mm_instr (pos (S n))) := 
+                                   DEC pos0 0 
                                 :: DEC pos0 (3+lP)
                                 :: DEC pos0 (2+lP)
                                 :: nil.

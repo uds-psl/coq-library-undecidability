@@ -57,13 +57,13 @@ Definition encode_inc n  i (u : pos n) := (ps (i + 1) * qs u, ps i).
 Definition encode_dec n  i (u : pos n) (_ : nat) := (ps (i + 1), ps i * qs u).
 Definition encode_dec2 n i (u : pos n) j := (ps j, ps i).
 
-Definition encode_one_instr m i (rho : mm_instr m) :=
+Definition encode_one_instr m i (rho : mm_instr (pos m)) :=
   match rho with
     | INC u   => encode_inc i u :: nil
     | DEC u j => encode_dec i u j :: encode_dec2 i u j :: nil
   end.
 
-Fixpoint encode_mm_instr m i (l : list (mm_instr m)) : list (nat * nat) :=
+Fixpoint encode_mm_instr m i (l : list (mm_instr (pos m))) : list (nat * nat) :=
   match l with
     | nil          => nil
     | rho :: l => encode_one_instr i rho ++ encode_mm_instr (S i) l
@@ -347,7 +347,7 @@ Proof.
       subst P; apply in_sss_step; auto.
 Qed.
 
-Theorem mm_fractran_not_zero n (P : list (mm_instr n)) : 
+Theorem mm_fractran_not_zero n (P : list (mm_instr (pos n))) : 
         { l |  Forall (fun c => fst c <> 0 /\ snd c <> 0) l
             /\ forall v, (1,P) /MM/ (1,v) ↓ <-> l /F/ ps 1 * exp 1 v ↓ }.
 Proof.
@@ -359,7 +359,7 @@ Proof.
      simpl exp; rewrite Nat.add_0_r; tauto.
 Qed.
 
-Theorem mm_fractran_n n (P : list (mm_instr n)) : 
+Theorem mm_fractran_n n (P : list (mm_instr (pos n))) : 
         { l |  Forall (fun c => snd c <> 0) l
             /\ forall v, (1,P) /MM/ (1,v) ↓ <-> l /F/ ps 1 * exp 1 v ↓ }.
 Proof.
@@ -368,7 +368,7 @@ Proof.
    revert H1; apply Forall_impl; intros; tauto.
 Qed.
 
-Theorem mm_fractran n (P : list (mm_instr (S n))) : 
+Theorem mm_fractran n (P : list (mm_instr (pos (S n)))) : 
      { l | forall x, (1,P) /MM/ (1,x##vec_zero) ↓ <-> l /F/ ps 1 * qs 1^x ↓ }.
 Proof.
    destruct mm_fractran_n with (P := P) as (l & _ & Hl).

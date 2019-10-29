@@ -25,12 +25,14 @@ Local Notation "e [ v / x ]" := (vec_change e x v).
     Minsky machine has n registers and there are just two instructions
  
     1/ INC x   : increment register x by 1
-    2/ DEC x k : decrement register x by 1 if x > 0 and jump to k
+    2/ DEC x k : if x > 0 then decrement register x by 1 and jump to k
+
+    If no jump occurs, then implicitly, the jump is to the next instruction
 
     We show that they simulated FRACTRAN
   *)
 
-(** ** Semantics for MM2 based on vectors *)
+(** ** Semantics for MMA based on vectors *)
 
 Section Minsky_Machine_alternate.
 
@@ -38,7 +40,7 @@ Section Minsky_Machine_alternate.
 
   (* Minsky machine small step semantics *)
 
-  Inductive mma_sss : mm_instr n -> mm_state n -> mm_state n -> Prop :=
+  Inductive mma_sss : mm_instr (pos n) -> mm_state _ -> mm_state _ -> Prop :=
     | in_mma_sss_inc   : forall i x v,                   INC x   // (i,v) -1> (1+i,v[(S (v#>x))/x])
     | in_mma_sss_dec_0 : forall i x k v,   v#>x = O   -> DEC x k // (i,v) -1> (1+i,v)
     | in_mma_sss_dec_1 : forall i x k v u, v#>x = S u -> DEC x k // (i,v) -1> (k,v[u/x])
@@ -214,7 +216,7 @@ Tactic Notation "mma" "sss" "DEC" "S" "with" uconstr(a) uconstr(b) uconstr(c) :=
     
 Tactic Notation "mma" "sss" "stop" := exists 0; apply sss_steps_0; auto.
 
-Definition MMA2_PROBLEM := (list (mm_instr 2) * vec nat 2)%type.
+Definition MMA2_PROBLEM := (list (mm_instr (pos 2)) * vec nat 2)%type.
 Definition MMA2_HALTING (P : MMA2_PROBLEM) := (1,fst P) // (1,snd P) ↓.
 
 

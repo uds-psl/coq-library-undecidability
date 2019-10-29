@@ -11,7 +11,6 @@
 
 Require Import List Arith Omega.
 
-
 From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
 From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list sums.
 From Undecidability.ILL.Code Require Import sss.
@@ -28,7 +27,7 @@ Local Notation "'⟦' p '⟧'" := (fun φ ν => dp_eval φ ν p).
 (** Definitions of n-ary recursive enumerable predicates *)
 
 Definition mm_recognisable_n n (R : vec nat n -> Prop) := 
-  { m & { M : list (mm_instr (n+m)) | forall v, R v <-> (1,M) /MM/ (1,vec_app v vec_zero) ↓ } }.
+  { m & { M : list (mm_instr (pos (n+m))) | forall v, R v <-> (1,M) /MM/ (1,vec_app v vec_zero) ↓ } }.
 
 Definition diophantine_n n (R : vec nat n -> Prop) :=
   { m : nat &
