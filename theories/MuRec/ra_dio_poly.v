@@ -14,7 +14,7 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
 
-From Undecidability.MuRec Require Import recalg ra_utils.
+From Undecidability.MuRec Require Import recalg ra_utils recomp ra_recomp.
 
 From Undecidability.H10.Dio Require Import dio_single.
 
@@ -267,7 +267,6 @@ Section dio_ra_enum.
       destruct H3 as (w & H3 & H5).
       generalize (H5 pos0); revert H3; clear H5.
       vec split w with d; vec nil w; clear w; simpl; intros H3 H5.
-      red in H3; simpl in H3.
       apply ra_project_rel in H5; simpl in H5.
       destruct H4 as (w & H4 & _); red in H4; clear w.
       destruct H2 as (w & H2 & H6).

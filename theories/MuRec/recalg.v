@@ -473,6 +473,11 @@ Section relational_semantics.
 
 End relational_semantics.
 
+Arguments s_zero v x /.
+Arguments s_cst c v x /.
+Arguments s_proj {k} p v x /.
+Arguments s_succ v x /.
+
 Definition MUREC_PROBLEM := recalg 0.
 Definition MUREC_HALTING : MUREC_PROBLEM -> Prop.
 Proof. intros f; exact (ex (ra_rel f vec_nil)). Defined.

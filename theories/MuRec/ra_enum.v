@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import Arith Eqdep_dec Omega.
+Require Import Arith Omega.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_nat utils_decidable.
@@ -24,36 +24,50 @@ Section ra_min_extra.
 
   Variable (n : nat) (f : recalg (S n)) (v : vec nat n).
 
-  Hypothesis Hf : forall x, ⟦f⟧ (x##v) 0 \/ ⟦f⟧ (x##v) 1.
+  Hypothesis Hf : forall x, ex (⟦f⟧ (x##v)).
 
-  Theorem ra_min_ex : ex (⟦ra_min f⟧ v) <-> exists x, ⟦f⟧ (x##v) 0.
+  Theorem ra_min_extra : ex (⟦ra_min f⟧ v) <-> exists x, ⟦f⟧ (x##v) 0.
   Proof.
     split.
     + intros (x & H1 & H2); exists x; auto.
     + intros (x & Hx).
       destruct bounded_min_d with (P := fun x => ⟦f⟧ (x##v) 0)
-                                  (Q := fun x => ⟦f⟧ (x##v) 1)
+                                  (Q := fun x => exists k, ⟦f⟧ (x##v) (S k))
                                   (n := S x)
         as [ (m & H1 & H2 & H3) | H1 ]; auto.
+      * intros y _; destruct (Hf y) as ([ | k ] & Hk); auto.
+        right; exists k; auto.
       * exists m; split; auto.
-        intros i Hi; exists 0; auto.
-      * specialize (H1 _ (le_refl _)).
-        generalize (ra_rel_fun _ _ _ _ Hx H1); discriminate.
+      * destruct (H1 _ (le_refl _)) as (k & Hk).
+        generalize (ra_rel_fun _ _ _ _ Hx Hk); discriminate.
   Qed.
 
 End ra_min_extra.
+
+Section ra_min_extra'.
+
+  Variable (n : nat) (f : recalg (S n)) (v : vec nat n).
+
+  Hypothesis Hf : forall x, ⟦f⟧ (x##v) 0 \/ ⟦f⟧ (x##v) 1.
+
+  Theorem ra_min_ex : ex (⟦ra_min f⟧ v) <-> exists x, ⟦f⟧ (x##v) 0.
+  Proof.
+    apply ra_min_extra.
+    intros x; destruct (Hf x); firstorder.
+  Qed.
+
+End ra_min_extra'.
 
 Section ra_enum.
 
   Variables (k : nat) (f : recalg (S k)).
 
   Let a : recalg (S (S k)).
-  Proof. 
-    apply ra_comp with (1 := f).
-    refine (_##_).
-    + apply (ra_proj pos0). 
+  Proof.
+    ra root f.
+    + ra arg pos0.
     + apply vec_set_pos; intros p.
-      apply (ra_proj (pos_nxt (pos_nxt p))). 
+      ra arg (pos_nxt (pos_nxt p)).
   Defined.
 
   Let Ha v x : ⟦a⟧ v x <-> ⟦f⟧ (vec_pos v pos0##vec_tail (vec_tail v)) x.
@@ -63,23 +77,22 @@ Section ra_enum.
     split.
     + intros (w & H1 & H2); revert H1 H2.
       vec split w with y; intros H1 H2.
-      generalize (H2 pos0); simpl; intros H3; red in H3; subst.
+      generalize (H2 pos0); simpl; intros H3; subst.
       eq goal H1; do 2 f_equal.
       apply vec_pos_ext; intros p.
       specialize (H2 (pos_nxt p)); simpl in H2.
-      rewrite vec_pos_map, vec_pos_set in H2; simpl in H2; red in H2.
+      rewrite vec_pos_map, vec_pos_set in H2; simpl in H2.
       rewrite <- H2; repeat rewrite vec_pos_tail; auto.      
     + vec split v with p; vec split v with q; simpl; intros H. 
       exists (p##v); split; auto.
       intros y; analyse pos y; simpl; auto.
-      * red; auto.
-      * rewrite vec_pos_map, vec_pos_set; simpl.
-        red; simpl; auto.
+      rewrite vec_pos_map, vec_pos_set; simpl; auto.
   Qed.
   
   Let b : recalg (S (S k)).
   Proof.
-    apply ra_comp with (1 := ra_succ), (ra_proj pos1##vec_nil).
+    ra root ra_succ.
+    ra arg pos1.
   Defined.
 
   Let Hb v x : ⟦b⟧ v x <-> x = S (vec_pos v pos1).
@@ -87,17 +100,18 @@ Section ra_enum.
     unfold b; simpl; split.
     + intros (w & H1 & H2); revert H1 H2.
       vec split w with y; vec nil w; intros H1 H2.
-      specialize (H2 pos0); simpl in H2; red in H2; subst; auto.
-    + intros H; exists (vec_pos v pos1##vec_nil); subst; split; auto.
-      * red; auto.
-      * intros p; analyse pos p; simpl; red; auto.
+      specialize (H2 pos0); simpl in H2; subst; auto.
+    + intros H; exists (vec_pos v pos1##vec_nil); subst; split; simpl; auto.
+      pos split; simpl; auto.
   Qed.
 
   Opaque a b.
 
   Let g : recalg (S (S k)).
   Proof.
-    apply ra_comp with (1 := ra_eq), (a##b##vec_nil).
+    ra root ra_eq.
+    + exact a.
+    + exact b.
   Defined.
 
   Hypothesis Hf : forall v, exists x, ⟦f⟧ v x.

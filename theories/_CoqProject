@@ -110,17 +110,25 @@ MM/mm_env_utils.v
 
 MuRec/recalg.v
 MuRec/ra_utils.v
+MuRec/beta.v
+MuRec/recomp.v
+MuRec/prim_min.v
+MuRec/ra_recomp.v
+MuRec/ra_godel_beta.v
 MuRec/ra_enum.v
+MuRec/ra_univ.v
+
 MuRec/ra_dio_poly.v
 MuRec/ra_mm_env.v
 MuRec/ra_mm.v
-MuRec/ra_comp.v
-MuRec/ra_bounded.v
+MuRec/ra_simul.v
+
 
 H10/Fractran/mm_no_self.v
 H10/Fractran/prime_seq.v
 H10/Fractran/fractran_defs.v
 H10/Fractran/mm_fractran.v
+H10/Fractran/fractran_dio.v
 
 H10/ArithLibs/Zp.v
 H10/ArithLibs/matrix.v
@@ -139,14 +147,14 @@ H10/Dio/dio_cipher.v
 H10/Dio/dio_bounded.v
 H10/Dio/dio_rt_closure.v
 
-H10/Fractran/fractran_dio.v
-
 H10/HALT_MM.v
 H10/MM_FRACTRAN.v
 H10/FRACTRAN_DIO.v
 H10/H10.v
 H10/DPRM.v
 
+H10C/h10c_defs.v
+H10C/h10c_utils.v
 
 # Basics
 TM/Prelim.v
@@ -415,6 +423,7 @@ Problems/ILL.v
 Problems/FRACTRAN.v
 Problems/DIOPHANTINE.v
 Problems/H10C.v
+Problems/RA_UNIV.v
 Problems/cbvLambda.v
 
 Reductions/TM_to_SRH.v  
