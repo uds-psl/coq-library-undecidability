@@ -74,8 +74,8 @@ Definition bstring_step n (L : list (bstring n)) :=
 Definition bcast n s (H : |s| <= n) : bstring n :=
   exist _ _ H.
 
-Lemma listable_bstring n :
-  listable (bstring n).
+Lemma listable_bstring' n :
+  { L | forall s : bstring n, s el L }.
 Proof.
   induction n.
   - exists [bnil 0]. intros [s H].
@@ -92,6 +92,12 @@ Proof.
       split; trivial. now apply bstring_eq.
 Qed.
 
+Lemma listable_bstring n :
+  listable (bstring n).
+Proof.
+  exists (proj1_sig (listable_bstring' n)). apply proj2_sig.
+Qed.
+
 
 
 
@@ -104,7 +110,31 @@ Definition make_sig (T : what -> nat -> Type) : Signature :=
      Preds := {n & T pred n} ;
      pred_ar := @projT1 _ _ |}.
 
-Inductive finsat_sig' : what -> nat -> Type :=
+Inductive finsat_Funcs :=
+| f : bool -> finsat_Funcs
+| e : finsat_Funcs
+| dum : finsat_Funcs.
+
+Inductive finsat_Preds :=
+| P : finsat_Preds
+| less : finsat_Preds
+| equiv : finsat_Preds.
+
+Definition finsat_fun_ar func :=
+  match func with   
+  | f b => 1
+  | e => 0
+  | dum => 0
+  end.
+
+Definition finsat_pred_ar pred :=
+  match pred with   
+  | P => 2
+  | less => 2
+  | equiv => 2
+  end.
+
+(*Inductive finsat_sig' : what -> nat -> Type :=
 | f : bool -> finsat_sig' func 1
 | e : finsat_sig' func 0
 | dum : finsat_sig' func 0
@@ -112,19 +142,26 @@ Inductive finsat_sig' : what -> nat -> Type :=
 | less : finsat_sig' pred 2
 | equiv : finsat_sig' pred 2.
 
-Instance finsat_sig : Signature := make_sig finsat_sig'.
+Instance finsat_sig : Signature := make_sig finsat_sig'.*)
+
+Instance finsat_sig : Signature :=
+  {| Funcs := finsat_Funcs ;
+     fun_ar := finsat_fun_ar ;
+     Preds := finsat_Preds ;
+     pred_ar := finsat_pred_ar |}.
+  
 
 Definition i_f domain {I : interp domain} : bool -> domain -> domain :=
-  fun b x => (FullTarski.i_f (f := existT _ 1 (f b))) (Vector.cons x Vector.nil).
+  fun b x => (FullTarski.i_f (f := f b)) (Vector.cons x Vector.nil).
 
 Definition i_e domain {I : interp domain} : domain :=
-  (FullTarski.i_f (f := existT _ 0 e)) Vector.nil.
+  (FullTarski.i_f (f := e)) Vector.nil.
 
 Definition i_P domain {I : interp domain} : domain -> domain -> Prop :=
-  fun x y => (FullTarski.i_P (P := existT _ 2 P)) (Vector.cons x (Vector.cons y Vector.nil)).
+  fun x y => (FullTarski.i_P (P := P)) (Vector.cons x (Vector.cons y Vector.nil)).
 
 Notation i_equiv x y :=
-  ((FullTarski.i_P (P := existT _ 2 equiv)) (Vector.cons x (Vector.cons y Vector.nil))).
+  ((FullTarski.i_P (P := equiv)) (Vector.cons x (Vector.cons y Vector.nil))).
 
 Fixpoint iprep domain {I : interp domain} (x : list bool) (y : domain) :=
   match x with
@@ -146,11 +183,17 @@ Section FIB.
   Definition obstring n :=
     option (bstring n).
 
+  Lemma listable_obstring' n :
+    { L | forall s : obstring n, s el L }.
+  Proof.
+    destruct (listable_bstring' n) as [L HL]. exists (None :: map Some L).
+    intros [x|]; trivial. right. apply in_map, HL.
+  Qed.
+
   Lemma listable_obstring n :
     listable (obstring n).
   Proof.
-    destruct (listable_bstring n) as [L HL]. exists (None :: map Some L).
-    intros [x|]; trivial. right. apply in_map, HL.
+    exists (proj1_sig (listable_obstring' n)). apply proj2_sig.
   Qed.
 
   Notation obcast H := (Some (bcast H)).
@@ -179,11 +222,11 @@ Section FIB.
   Global Instance FIB n : interp (obstring n).
   Proof.
     split.
-    - intros [k H]; cbn. inversion H; subst.
-      + intros v. exact (ccons H0 (Vector.hd v)).
+    - intros []; cbn.
+      + intros v. exact (ccons b (Vector.hd v)).
       + intros _. exact (Some (bnil n)).
       + intros _. exact None.
-    - intros [k H]; cbn. inversion H; subst.
+    - intros []; cbn.
       + intros v. exact (cdrv (Vector.hd v) (Vector.hd (Vector.tl v))).
       + intros v. exact (sub (Vector.hd v) (Vector.hd (Vector.tl v))).
       + intros v. exact (eq (Vector.hd v) (Vector.hd (Vector.tl v))).
@@ -403,10 +446,10 @@ Section Conv.
   Variable I : interp D.
 
   Notation sub x y :=
-    ((FullTarski.i_P (P := existT _ 2 less)) (Vector.cons x (Vector.cons y Vector.nil))).
+    ((FullTarski.i_P (P := less)) (Vector.cons x (Vector.cons y Vector.nil))).
 
   Notation dum :=
-    ((FullTarski.i_f (f := existT _ 0 dum)) Vector.nil).
+    ((FullTarski.i_f (f := dum)) Vector.nil).
 
   Hypothesis HP : forall x y, i_P x y -> x <> dum /\ y <> dum.
 
@@ -541,13 +584,13 @@ Definition finsat phi :=
 Section Reduction.
 
   Notation "# x" := (var_term x) (at level 2).
-  Definition t_f b x := Func (existT _ 1 (f b)) (Vector.cons x Vector.nil).
-  Definition t_e := Func (existT _ 0 e) Vector.nil.
-  Definition t_dum := Func (existT _ 0 dum) Vector.nil.
-  Definition f_P x y := Pred (existT _ 2 P) (Vector.cons x (Vector.cons y Vector.nil)).
-  Notation "x ≡ y" := (Pred (existT _ 2 equiv) (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
+  Definition t_f b x := Func (f b) (Vector.cons x Vector.nil).
+  Definition t_e := Func e Vector.nil.
+  Definition t_dum := Func dum Vector.nil.
+  Definition f_P x y := Pred P (Vector.cons x (Vector.cons y Vector.nil)).
+  Notation "x ≡ y" := (Pred equiv (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
   Notation "x ≢ y" := (¬ (x ≡ y)) (at level 20).
-  Notation "x ≺ y" := (Pred (existT _ 2 less) (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
+  Notation "x ≺ y" := (Pred less (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
 
   Fixpoint tprep (x : list bool) (y : term) :=
     match x with
@@ -739,11 +782,30 @@ Section CdrvDec.
     apply and_dec; eauto. apply (dec_transfer (@subi_sub s t)), subi_dec.
   Qed.
 
-  Definition FIB_dec' n L phi rho :
-    (forall s : obstring n, s el L) -> dec (sat _ _ (@FIB R n) rho phi).
+  Instance bstring_discrete n (s t : bstring n) :
+    dec (s = t).
   Proof.
-    intros HL. induction phi in rho |- *; eauto.
-    - destruct P0 as [k Hk]. admit.
+    destruct s as [s Hs], t as [t Ht].
+    decide (s = t) as [<-|H].
+    - left. f_equal. apply le_irrel.
+    - right. intros H'. congruence.
+  Qed.
+
+  Definition obstring_discrete n (s t : obstring n) :
+    dec (s = t).
+  Proof.
+    exact _.
+  Qed.
+
+  Definition FIB_dec' n phi rho :
+    dec (sat _ _ (@FIB R n) rho phi).
+  Proof.
+    destruct (listable_obstring' n) as [L HL].
+    induction phi in rho |- *; eauto.
+    - destruct P0; cbn.
+      + apply cdrv_dec.
+      + apply sub_dec.
+      + apply obstring_discrete.
     - destruct (@list_forall_dec (obstring n) L (fun x => sat _ _ (@FIB R n) (x .: rho) phi)) as [H|H].
       + intros s. apply IHphi.
       + left. intros x. apply H, HL.
@@ -754,8 +816,7 @@ Section CdrvDec.
       + left. destruct H as [s H]. exists s. apply H.
       + right. intros [s H']. apply H.
         exists s. split; trivial.
-  Admitted.
-    
+  Qed.
 
 End CdrvDec.
 
