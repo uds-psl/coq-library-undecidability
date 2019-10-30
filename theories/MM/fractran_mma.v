@@ -314,6 +314,3 @@ Section fractran_mma_reg_reduction.
   Proof. apply (proj2_sig reduction). Qed.
 
 End fractran_mma_reg_reduction.
-
-Check fractran_reg_mma.
-Check fractran_reg_mma_reduction.

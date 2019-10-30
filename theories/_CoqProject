@@ -410,6 +410,14 @@ HOU/concon/concon.v
 
 HOU/firstorder.v
 
+FOLP/axioms.v
+FOLP/unscoped.v
+FOLP/Syntax.v
+FOLP/FOL.v
+FOLP/FullSyntax.v
+FOLP/FullFOL.v
+FOLP/FullTarski.v
+FOLP/Input.v
 
 Problems/FOL.v
 Problems/TM.v
@@ -423,6 +431,7 @@ Problems/DIOPHANTINE.v
 Problems/H10C.v
 Problems/RA_UNIV.v
 Problems/cbvLambda.v
+Problems/FOLFS.v
 
 Reductions/TM_to_SRH.v  
 Reductions/SRH_to_SR.v  
@@ -443,3 +452,4 @@ Reductions/FRACTRAN_to_MMA2.v
 Reductions/FRACTRAN_to_H10C.v
 Reductions/L_to_mTM.v
 Reductions/mTM_to_TM.v
+Reductions/BPCP_to_FOLFS.v
