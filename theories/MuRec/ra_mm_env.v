@@ -1140,4 +1140,3 @@ Section ra_compiler.
 
 End ra_compiler.
 
-Check ra_mm_env_simulator.

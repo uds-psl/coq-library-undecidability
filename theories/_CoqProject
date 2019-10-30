@@ -411,8 +411,6 @@ HOU/concon/concon.v
 HOU/firstorder.v
 
 
-
-
 Problems/FOL.v
 Problems/TM.v
 Problems/SR.v
@@ -441,6 +439,7 @@ Reductions/MUREC_MM.v
 Reductions/MMA2_to_MM2.v
 Reductions/MM_to_MMA2.v
 Reductions/MM_to_FRACTRAN.v
+Reductions/FRACTRAN_to_MMA2.v
 Reductions/FRACTRAN_to_H10C.v
 Reductions/L_to_mTM.v
 Reductions/mTM_to_TM.v

@@ -302,5 +302,3 @@ Section ra_mm_comp.
 
 End ra_mm_comp.
 
-Check ra_mm_compiler.
-Print Assumptions ra_mm_compiler.
