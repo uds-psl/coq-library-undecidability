@@ -98,17 +98,26 @@ Proof.
   exists (proj1_sig (listable_bstring' n)). apply proj2_sig.
 Qed.
 
+Definition obstring n :=
+  option (bstring n).
+
+Lemma listable_obstring' n :
+  { L | forall s : obstring n, s el L }.
+Proof.
+  destruct (listable_bstring' n) as [L HL]. exists (None :: map Some L).
+  intros [x|]; trivial. right. apply in_map, HL.
+Qed.
+
+Lemma listable_obstring n :
+  listable (obstring n).
+Proof.
+  exists (proj1_sig (listable_obstring' n)). apply proj2_sig.
+Qed.
+
 
 
 
 (** ** Signature used in the proof *)
-
-Inductive what := pred | func.
-Definition make_sig (T : what -> nat -> Type) : Signature :=
-  {| Funcs := {n & T func n} ;
-     fun_ar := @projT1 _ _ ;
-     Preds := {n & T pred n} ;
-     pred_ar := @projT1 _ _ |}.
 
 Inductive finsat_Funcs :=
 | f : bool -> finsat_Funcs
@@ -133,16 +142,6 @@ Definition finsat_pred_ar pred :=
   | less => 2
   | equiv => 2
   end.
-
-(*Inductive finsat_sig' : what -> nat -> Type :=
-| f : bool -> finsat_sig' func 1
-| e : finsat_sig' func 0
-| dum : finsat_sig' func 0
-| P : finsat_sig' pred 2
-| less : finsat_sig' pred 2
-| equiv : finsat_sig' pred 2.
-
-Instance finsat_sig : Signature := make_sig finsat_sig'.*)
 
 Instance finsat_sig : Signature :=
   {| Funcs := finsat_Funcs ;
@@ -179,22 +178,6 @@ Definition ienc domain {I : interp domain} (x : list bool) := iprep x i_e.
 Section FIB.
   
   Variable R : BSRS.
-
-  Definition obstring n :=
-    option (bstring n).
-
-  Lemma listable_obstring' n :
-    { L | forall s : obstring n, s el L }.
-  Proof.
-    destruct (listable_bstring' n) as [L HL]. exists (None :: map Some L).
-    intros [x|]; trivial. right. apply in_map, HL.
-  Qed.
-
-  Lemma listable_obstring n :
-    listable (obstring n).
-  Proof.
-    exists (proj1_sig (listable_obstring' n)). apply proj2_sig.
-  Qed.
 
   Notation obcast H := (Some (bcast H)).
 
@@ -433,6 +416,151 @@ End FIB.
 
 
 
+(** ** Decidability of standard models *)
+
+Section CdrvDec.
+
+  Variable R : BSRS.
+
+  (* cdrv is decidable *)
+
+  Fixpoint derivations n :=
+    match n with
+    | O => R
+    | S n => derivations n ++
+            flat_map (fun p => [(fst p ++ fst q) / (snd p ++ snd q) | q ∈ derivations n]) R
+    end.
+
+  Lemma derivations_drv n s t :
+    s/t el derivations n -> derivable R s t.
+  Proof.
+    revert s t. induction n; intros s t.
+    - cbn. now constructor.
+    - intros [H|H] % in_app_iff; try now apply IHn.
+      apply in_flat_map in H as [ [u v] [H1 H2] ]. fold derivations in H2.
+      apply in_map_iff in H2 as [ [u' v'] [H2 H3] ].
+      injection H2. intros <- <-. constructor 2; trivial. now apply IHn.
+  Qed.
+
+  Lemma derivations_cum :
+    cumulative (derivations).
+  Proof.
+    intros n. cbn. eauto.
+  Qed.
+
+  Hint Resolve derivations_cum.
+
+  Lemma derivations_S s t u v n :
+    s/t el R -> u/v el derivations n -> (s++u)/(t++v) el derivations (S n).
+  Proof.
+    intros H1 H2.
+    apply in_app_iff; fold derivations. right.
+    apply in_flat_map. exists (s/t). split; trivial.
+    apply in_map_iff. now exists (u/v).
+  Qed.        
+
+  Lemma drv_derivations s t :
+    derivable R s t -> s/t el derivations (|s| + |t|).
+  Proof.
+    induction 1.
+    - apply (cum_ge' (n:=0)); trivial. lia.
+    - destruct x as [|b x], y as [|c y]; trivial; rewrite !app_length.
+      all: apply (cum_ge' (n:=S(|u|+|v|))); trivial.
+      all: try (cbn; lia). all: now apply derivations_S.
+  Qed.
+
+  Definition cdrv_dec n s t :
+    dec (@cdrv R n s t).
+  Proof.
+    destruct s as [ [s HT]|], t as [ [t HS]|]; cbn; auto.
+    destruct (list_in_dec (s/t) (derivations (|s| + |t|)) _) as [H|H].
+    - left. apply (derivations_drv H).
+    - right. intros H'. apply H, drv_derivations, H'.
+  Defined.
+
+  (* sub is decidable *)
+
+  Inductive subi s : string bool -> Prop :=
+  | subi1 : subi s s
+  | subi2 t b : subi s t -> subi s (b::t).
+
+  Definition subi_dec s t :
+    dec (subi s t).
+  Proof.
+    induction t.
+    - destruct s.
+      + left. constructor.
+      + right. inversion 1.
+    - destruct (IHt) as [H|H].
+      + left. now constructor.
+      + assert (dec (s = a::t)) as [->|H1] by eauto.
+        * left. constructor.
+        * right. inversion 1; subst; eauto.
+  Qed.
+
+  Lemma subi_sub s t :
+    subi s t <-> exists s' : list bool, t = s' ++ s.
+  Proof.
+    split.
+    - induction 1.
+      + now exists nil.
+      + destruct IHsubi as [s' ->]. now exists (b::s').
+    - intros [s' ->]. induction s'; now constructor.
+  Qed.
+
+  Definition sub_dec n s t :
+    dec (@sub n s t).
+  Proof.
+    destruct s as [ [s HT]|], t as [ [t HS]|]; cbn; auto.
+    apply and_dec; eauto. apply (dec_transfer (@subi_sub s t)), subi_dec.
+  Qed.
+
+  Instance bstring_discrete n (s t : bstring n) :
+    dec (s = t).
+  Proof.
+    destruct s as [s Hs], t as [t Ht].
+    decide (s = t) as [<-|H].
+    - left. f_equal. apply le_irrel.
+    - right. intros H'. congruence.
+  Qed.
+
+  Definition obstring_discrete n (s t : obstring n) :
+    dec (s = t).
+  Proof.
+    exact _.
+  Qed.
+
+  Definition FIB_dec n rho phi :
+    dec (sat _ _ (@FIB R n) rho phi).
+  Proof.
+    destruct (listable_obstring' n) as [L HL].
+    induction phi in rho |- *; eauto.
+    - destruct P0; cbn.
+      + apply cdrv_dec.
+      + apply sub_dec.
+      + apply obstring_discrete.
+    - destruct (@list_forall_dec (obstring n) L (fun x => sat _ _ (@FIB R n) (x .: rho) phi)) as [H|H].
+      + intros s. apply IHphi.
+      + left. intros x. apply H, HL.
+      + right. intros H'. apply H.
+        intros s _. apply H'.
+    - destruct (@list_exists_dec (obstring n) L (fun x => sat _ _ (@FIB R n) (x .: rho) phi)) as [H|H].
+      + intros s. apply IHphi.
+      + left. destruct H as [s H]. exists s. apply H.
+      + right. intros [s H']. apply H.
+        exists s. split; trivial.
+  Qed.
+
+  Lemma FIB_decidable n rho :
+    decidable (fun phi => sat _ _ (@FIB R n) rho phi).
+  Proof.
+    apply decidable_iff. constructor. apply FIB_dec.
+  Qed.
+
+End CdrvDec.
+
+
+
 
 (** ** Axiomatisation of finite standard models *)
 
@@ -576,10 +704,8 @@ End Conv.
 
 
 
-(** ** Axioms stated as a concrete first-order formula *)
 
-Definition finsat phi :=
-  exists D (I : interp D) rho, listable D /\ (forall x y, i_equiv x y <-> eq x y) /\ rho ⊨ phi.
+(** ** Axioms stated as a concrete first-order formula *)
 
 Section Reduction.
 
@@ -635,11 +761,12 @@ Section Reduction.
   (* Verification of the reduction *)
 
   Theorem finsat_reduction R :
-    BPCP' R <-> finsat (finsat_formula R).
+    BPCP' R <-> @finsat finsat_sig equiv eq_refl (finsat_formula R).
   Proof.
     split; intros H.
     - apply BPCP_P in H as [n [s H]]. exists (obstring n), (@FIB R n), (fun _ => None).
       split; try apply listable_obstring. cbn.
+      split. apply FIB_decidable.
       split. reflexivity.
       split. apply (@FIB_HP R).
       split. apply FIB_HS1.
@@ -657,9 +784,9 @@ Section Reduction.
         left. cbn. now rewrite !tprep_eval.
       + exists (ax_HI' (a/b)). split; try now apply in_map.
         right. exists a', b'. cbn. now rewrite !tprep_eval.
-    - destruct H as (D & I & rho & HF & HE & H1 & H2 & H3 & H4 &
+    - destruct H as (D & I & rho & HF & _ & HE & H1 & H2 & H3 & H4 &
                      H5 & H6 & H7 & H8 & H9 & H10 & H11 & s & H12).
-      cbn in *.
+      unfold i_eqp in HE. cbn in HE. cbn in *.
       eapply P_BPCP with (x:=s); trivial.
       + cbn in H1. intros x y. specialize (H1 x y). now rewrite !HE in H1.
       + cbn in H4, H5. intros b x. specialize (H4 x). specialize (H5 x).
@@ -679,146 +806,6 @@ Section Reduction.
   Qed.
 
 End Reduction.
-
-
-
-
-(** ** Decidability *)
-
-Section CdrvDec.
-
-  Variable R : BSRS.
-
-  (* cdrv is decidable *)
-
-  Fixpoint derivations n :=
-    match n with
-    | O => R
-    | S n => derivations n ++
-            flat_map (fun p => [(fst p ++ fst q) / (snd p ++ snd q) | q ∈ derivations n]) R
-    end.
-
-  Lemma derivations_drv n s t :
-    s/t el derivations n -> derivable R s t.
-  Proof.
-    revert s t. induction n; intros s t.
-    - cbn. now constructor.
-    - intros [H|H] % in_app_iff; try now apply IHn.
-      apply in_flat_map in H as [ [u v] [H1 H2] ]. fold derivations in H2.
-      apply in_map_iff in H2 as [ [u' v'] [H2 H3] ].
-      injection H2. intros <- <-. constructor 2; trivial. now apply IHn.
-  Qed.
-
-  Lemma derivations_cum :
-    cumulative (derivations).
-  Proof.
-    intros n. cbn. eauto.
-  Qed.
-
-  Hint Resolve derivations_cum.
-
-  Lemma derivations_S s t u v n :
-    s/t el R -> u/v el derivations n -> (s++u)/(t++v) el derivations (S n).
-  Proof.
-    intros H1 H2.
-    apply in_app_iff; fold derivations. right.
-    apply in_flat_map. exists (s/t). split; trivial.
-    apply in_map_iff. now exists (u/v).
-  Qed.        
-
-  Lemma drv_derivations s t :
-    derivable R s t -> s/t el derivations (|s| + |t|).
-  Proof.
-    induction 1.
-    - apply (cum_ge' (n:=0)); trivial. lia.
-    - destruct x as [|b x], y as [|c y]; trivial; rewrite !app_length.
-      all: apply (cum_ge' (n:=S(|u|+|v|))); trivial.
-      all: try (cbn; lia). all: now apply derivations_S.
-  Qed.
-
-  Definition cdrv_dec n s t :
-    dec (@cdrv R n s t).
-  Proof.
-    destruct s as [ [s HT]|], t as [ [t HS]|]; cbn; auto.
-    destruct (list_in_dec (s/t) (derivations (|s| + |t|)) _) as [H|H].
-    - left. apply (derivations_drv H).
-    - right. intros H'. apply H, drv_derivations, H'.
-  Defined.
-
-  (* sub is decidable *)
-
-  Inductive subi s : string bool -> Prop :=
-  | subi1 : subi s s
-  | subi2 t b : subi s t -> subi s (b::t).
-
-  Definition subi_dec s t :
-    dec (subi s t).
-  Proof.
-    induction t.
-    - destruct s.
-      + left. constructor.
-      + right. inversion 1.
-    - destruct (IHt) as [H|H].
-      + left. now constructor.
-      + assert (dec (s = a::t)) as [->|H1] by eauto.
-        * left. constructor.
-        * right. inversion 1; subst; eauto.
-  Qed.
-
-  Lemma subi_sub s t :
-    subi s t <-> exists s' : list bool, t = s' ++ s.
-  Proof.
-    split.
-    - induction 1.
-      + now exists nil.
-      + destruct IHsubi as [s' ->]. now exists (b::s').
-    - intros [s' ->]. induction s'; now constructor.
-  Qed.
-
-  Definition sub_dec n s t :
-    dec (@sub n s t).
-  Proof.
-    destruct s as [ [s HT]|], t as [ [t HS]|]; cbn; auto.
-    apply and_dec; eauto. apply (dec_transfer (@subi_sub s t)), subi_dec.
-  Qed.
-
-  Instance bstring_discrete n (s t : bstring n) :
-    dec (s = t).
-  Proof.
-    destruct s as [s Hs], t as [t Ht].
-    decide (s = t) as [<-|H].
-    - left. f_equal. apply le_irrel.
-    - right. intros H'. congruence.
-  Qed.
-
-  Definition obstring_discrete n (s t : obstring n) :
-    dec (s = t).
-  Proof.
-    exact _.
-  Qed.
-
-  Definition FIB_dec' n phi rho :
-    dec (sat _ _ (@FIB R n) rho phi).
-  Proof.
-    destruct (listable_obstring' n) as [L HL].
-    induction phi in rho |- *; eauto.
-    - destruct P0; cbn.
-      + apply cdrv_dec.
-      + apply sub_dec.
-      + apply obstring_discrete.
-    - destruct (@list_forall_dec (obstring n) L (fun x => sat _ _ (@FIB R n) (x .: rho) phi)) as [H|H].
-      + intros s. apply IHphi.
-      + left. intros x. apply H, HL.
-      + right. intros H'. apply H.
-        intros s _. apply H'.
-    - destruct (@list_exists_dec (obstring n) L (fun x => sat _ _ (@FIB R n) (x .: rho) phi)) as [H|H].
-      + intros s. apply IHphi.
-      + left. destruct H as [s H]. exists s. apply H.
-      + right. intros [s H']. apply H.
-        exists s. split; trivial.
-  Qed.
-
-End CdrvDec.
 
   
 
