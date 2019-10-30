@@ -193,5 +193,3 @@ Section Godel_beta.
   Qed.
  
 End Godel_beta.
-
-Check godel_beta_inv.

@@ -439,6 +439,3 @@ Section PHP_rel.
 
 End PHP_rel.
 
-Check PHP_rel.
-
-

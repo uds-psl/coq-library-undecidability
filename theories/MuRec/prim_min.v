@@ -38,7 +38,6 @@ Section prim_min.
 
   Let min_f n : f n = 0 -> { k | k <= n /\ f k = 0 /\ forall i, i < k -> f i <> 0 }.
   Proof.
-    Check first_which. 
     intros Hn.
     destruct first_which with (P := fun i => f i = 0) as (k & H1 & H2). 
     + intros; apply eq_nat_dec.

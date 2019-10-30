@@ -210,10 +210,12 @@ Section DIO_ELEM_H10C_SAT.
 
 End DIO_ELEM_H10C_SAT.
 
+(*
 Print h10c.
 Print h10c_sem.
 Print H10C_PROBLEM.
 Print H10C_SAT.
+*)
 
 Check DIO_ELEM_H10C_SAT.
 Print Assumptions DIO_ELEM_H10C_SAT.

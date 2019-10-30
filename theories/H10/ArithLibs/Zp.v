@@ -1103,9 +1103,6 @@ Proof.
       apply divides_not_0_interval in Hq; omega.
 Qed.
 
-Check Wilson_theorem.
-Print Assumptions Wilson_theorem.
-
 Section Z2Zp_morphishm.
 
   Variable (p : nat) (Hp : p <> 0).

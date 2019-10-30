@@ -43,8 +43,10 @@ Defined.
 
 Hint Resolve dio_rel_expo.
  
+(*
 Check dio_rel_expo.
 Print Assumptions dio_rel_expo.
+*)
 
 Fact dio_rel_expo_size : df_size (proj1_sig (dio_rel_expo (dio_expr_var 0) (dio_expr_var 1) (dio_expr_var 2))) = 1689.
 Proof. reflexivity. Qed.
@@ -75,8 +77,10 @@ End df_digit.
 
 Hint Resolve dio_rel_is_digit.
 
+(*
 Check dio_rel_is_digit.
 Eval compute in df_size (proj1_sig (dio_rel_is_digit (dio_expr_var 0) (dio_expr_var 1) (dio_expr_var 2) (dio_expr_var 3))).
+*)
 
 Section df_binomial.
 
@@ -166,5 +170,7 @@ Section df_binomial.
 
 End df_binomial.
 
+(*
 Check dio_rel_binomial.
 Eval compute in df_size (proj1_sig (dio_rel_binomial (dio_expr_var 0) (dio_expr_var 1) (dio_expr_var 2))).
+*)

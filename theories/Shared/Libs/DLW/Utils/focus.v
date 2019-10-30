@@ -110,6 +110,7 @@ Section test.
   Variable x y z : list X.
   Variable a b c : X.
 
+(*
   Goal True.
     let rr := lrev (1::2::3::4::nil) in idtac rr.
     let rr := lflat ((x++a::nil++nil)++b::z++y++a::nil) in idtac rr.
@@ -124,6 +125,7 @@ Section test.
     let rr := focus_elt a (c::(x++a::nil++nil)++b::z++y++c::nil) in idtac rr.
     auto.
   Qed.
+ *)
 
 End test.
 
