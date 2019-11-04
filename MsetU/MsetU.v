@@ -415,7 +415,51 @@ Proof.
   rewrite -/(mset_eq _ _). by apply /eq_cons_iff.
 Qed.
  
-    
+(* forces elements of A to be either zero or large enough *)
+Lemma bound_spec {n A B} : (mset_intersect (seq 0 n) A) ++ B ≡ [0] -> Forall (fun a => a = 0 \/ n <= a) A.
+Proof.
+  move /eq_in => Heq.
+  case: (Forall_dec (fun a : nat => a = 0 \/ n <= a) _ A) => //.
+    case. 
+      left; by left.
+    move=> m.
+    case: (le_lt_dec n (S m)) => ?.
+      left; by right.
+    right. by lia.
+  rewrite <- Exists_Forall_neg; first last.
+    move=> ?. by lia.
+  move/Exists_exists => [a [? ?]]. exfalso.
+  have ?: 0 <> a by lia. have: a < n by lia.
+  move /in_seq=> ?.
+  have H: In a (mset_intersect (seq 0 n) A) by rewrite in_intersect.
+  move: (Heq a) => /iffLR. rewrite in_app_iff.
+  apply: unnest. by left.
+  by case.
+Qed.
+
+Lemma bound_sat_aux {m n l} : m > 0 -> mset_intersect (seq m n) (repeat 0 l) = [].
+Proof.
+  elim: n m l.
+    by done.
+  move=> n IH m l Hm. rewrite /seq -/seq /mset_intersect -/mset_intersect.
+  have: mset_try_remove m (repeat 0 l) = None.
+    elim: l=> //.
+    move=> a IH' /=.
+    inspect_eqb. by rewrite IH'.
+  move=> ->. apply /IH. by lia.
+Qed.
+
+(* bound constraints are satisfied *)
+Lemma bound_sat {n} : (mset_intersect (seq 0 n) (repeat 0 n)) ++ (if n is 0 then [0] else []) ≡ [0].
+Proof.
+  case: n.
+    by done.
+  move=> n /=. rewrite app_nil_r. apply /eq_cons_iff.
+  apply: eq_eq. by apply: bound_sat_aux.
+Qed.
+
+
+
 (* forces B to be a n zeroes and A to be of length in proportion to n squared *)
 Lemma nat_spec n A B : (seq 0 n) ++ A ≡ B ++ (map S A) -> 
   Forall (fun b => b = 0 \/ n <= b) B -> B = repeat 0 n /\ length A + length A + n = n * n.
@@ -441,10 +485,41 @@ Proof.
   move: HA' => /eq_length. rewrite app_length seq_length. by lia. 
 Qed.
 
+(* there exist solutions for nat contraints *)
+Lemma nat_sat {n}:
+  let A := flat_map (fun i => repeat i ((Nat.pred n) - i)) (seq 0 n) in
+  (seq 0 n) ++ A ≡ (repeat 0 n) ++ (map S A).
+Proof.
+  move=> A. subst A.
+  elim: n.
+    by done.
+  move=> n IH /=.
+  apply /eq_cons_iff. rewrite ? Nat.sub_0_r.
+  under (eq_lr _ eq_refl (A' := repeat 0 n ++ seq 1 n ++ flat_map (fun i : nat => repeat i (n - i)) (seq 1 n))).
+  all: rewrite -/(mset_eq _ _).
+    by mset_eq_trivial.
+  apply /eq_app_iff. 
+  move: IH => /(eq_map_iff (f := S)).
+  
+  rewrite <- seq_shift. rewrite ? flat_map_concat_map.
+  rewrite ? map_app concat_map. rewrite ? map_map.
+  move /(eq_lr _ _). apply.
+  - apply /eq_app_iff. apply: eq_eq. f_equal. apply: map_ext => a.
+    rewrite repeat_map. do 2 f_equal. by lia.
+  - apply /eq_app_iff. apply: eq_eq. do 2 f_equal. apply: map_ext => a.
+    rewrite repeat_map. do 2 f_equal. by lia. 
+Qed.
+
+
 
 Tactic Notation "induction" "on" hyp(x) "with" "measure" uconstr(f) :=
   let H := fresh in pose H := f; pattern x in H; 
   match goal with [H := ?f x |- _] => (clear H; elim/(measure_ind f) : x) end.
+
+(*
+  OLD CODE
+*)
+
 
 (* forces B to contain small elements *)
 (* second constraint of encode bound *)
