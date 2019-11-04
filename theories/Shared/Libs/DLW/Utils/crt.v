@@ -191,5 +191,15 @@ Section Godel_beta.
       * generalize (fact_gt_0 j); omega.
       * apply divides_n_fact_n; omega.
   Qed.
+
+  Corollary godel_beta_fun_inv n f : { a : _ & { b | forall p, p < n -> f p = godel_beta a b p } }.
+  Proof.
+    destruct godel_beta_inv with (v := vec_set_pos (fun p : pos n => f (pos2nat p)))
+       as (a & b & H).
+    exists a, b; intros p Hp.
+    specialize (H (nat2pos Hp)).
+    rewrite vec_pos_set, pos2nat_nat2pos in H.
+    auto.
+  Qed.
  
 End Godel_beta.

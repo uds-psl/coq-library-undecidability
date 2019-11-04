@@ -108,5 +108,7 @@ Section ra_beta.
 End ra_beta.
 
 Hint Resolve ra_beta_prim_rec ra_beta_val.
+
+Eval compute in ra_size ra_rem.
  
 

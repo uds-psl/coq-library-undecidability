@@ -13,7 +13,7 @@ From Undecidability.Shared.Libs.DLW.Vec
   Require Import vec.
 
 From Undecidability.MuRec 
-  Require Import recalg ra_univ.
+  Require Import recalg ra_univ ra_univ_andrej.
 
 Set Implicit Arguments.
 
@@ -31,8 +31,11 @@ Local Notation "'⟦' f '⟧'" := (@ra_rel _ f) (at level 0).
     can simulate the solvability of any list of elementary 
     Diophantine constraints, making it undecidable *)
 
-Check ra_univ.
+Check ra_size ra_univ.
 Eval compute in ra_size ra_univ.
+Check ra_size ra_univ_ad.
+Eval compute in ra_size ra_univ_ad.
 
 Definition RA_UNIV_PROBLEM := nat.
 Definition RA_UNIV_HALT (n : RA_UNIV_PROBLEM) : Prop := ex (⟦ra_univ⟧ (n##vec_nil)).
+Definition RA_UNIV_AD_HALT (n : RA_UNIV_PROBLEM) : Prop := ex (⟦ra_univ_ad⟧ (n##vec_nil)).

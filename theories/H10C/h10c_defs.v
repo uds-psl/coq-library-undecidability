@@ -29,3 +29,19 @@ Definition h10c_sem c φ :=
     | h10c_mult x y z => φ x * φ y = φ z
   end.
 
+(** Elementary Diophantine constraints w/o parameters
+    and with only one constraint, studied by
+    A. Dudenhefner
+
+         1 + x + y * y = z
+
+  *)
+
+Definition h10uc := (nat * nat * nat)%type.
+
+Definition h10uc_sem (c : h10uc) φ :=
+  match c with 
+    | (x,y,z) => 1 + φ x + φ y * φ y = φ z
+  end.
+
+

@@ -10,7 +10,7 @@
 Require Import List.
 
 From Undecidability.MuRec 
-  Require Import recalg ra_univ.
+  Require Import recalg ra_univ ra_univ_andrej.
 
 From Undecidability.Problems 
   Require Import H10C RA_UNIV.
@@ -56,4 +56,24 @@ Qed.
 Check H10C_SAT_RA_UNIV_HALT.
 Print Assumptions H10C_SAT_RA_UNIV_HALT.
 
- 
+(** We build a similar one based on Andrej Dudenhefner
+    type of H10 constraints, ie 1+x+y*y = z *)
+
+Definition H10UC_RA_UNIV_AD : H10UC_PROBLEM -> RA_UNIV_PROBLEM.
+Proof.
+  intros lc.
+  destruct (nat_h10luc_surj lc) as (k & Hk).
+  exact k.
+Defined.
+
+Theorem H10UC_SAT_RA_UNIV_AD_HALT : H10UC_SAT ⪯  RA_UNIV_AD_HALT.
+Proof.
+  exists H10UC_RA_UNIV_AD; intros lc.
+  unfold H10UC_RA_UNIV_AD.
+  destruct (nat_h10luc_surj lc) as (k & Hk).
+  symmetry; apply ra_univ_ad_spec; auto.
+Qed.
+
+Check H10UC_SAT_RA_UNIV_AD_HALT.
+Print Assumptions H10UC_SAT_RA_UNIV_AD_HALT.
+
