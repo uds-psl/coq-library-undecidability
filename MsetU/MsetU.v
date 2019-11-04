@@ -194,6 +194,19 @@ Qed.
   Lemma eq_nilE {A} : [] ≡ A -> A = [].
   Proof.
   Admitted.
+
+  Lemma eq_singletonE {a A} : [a] ≡ A -> A = [a].
+  Proof.
+  Admitted.
+
+  Lemma eq_repeatE {a A n} : repeat a n ≡ A -> A = repeat a n.
+  Proof.
+  Admitted.
+
+  Lemma eq_mapE {A} : map S A ≡ A -> A = [].
+  Proof.
+  Admitted.
+  
 End Mset.
 
 
@@ -265,10 +278,56 @@ Proof.
     by left.
   move=> ? ?. right. apply: exists_max => /=. by lia.
 Qed.
-  
+
+Lemma mset_intersect_eq {A B C} : B ≡ C -> mset_intersect A B = mset_intersect A C.
+Proof.
+Admitted.
+
+Lemma in_seq {a n} : a < n -> In a (seq 0 n).
+Proof.
+Admitted.
+
+Lemma in_intersect {a A B} : In a (mset_intersect A B) <-> (In a A /\ In a B).
+Proof.
+Admitted.
+
+Lemma intersect_repeat {a n A} : n > 0 -> In a A -> mset_intersect (repeat a n) A = [a].
+Proof.
+Admitted.
+
+
+Lemma seq_succ {m n} : seq m (S n) = m :: (seq (S m) n).
+Proof.
+  done.
+Qed.
+
+
+Lemma flat_map_cons {X Y : Type} {f : X -> list Y} {a A} : 
+  flat_map f (a :: A) = (f a) ++ (flat_map f A).
+Proof.
+  done.
+Qed.
+
+Lemma repeat_succ {X : Type} {x : X} {n} : repeat x (S n) = x :: repeat x n.
+Proof.
+  done.
+Qed.
+
+Lemma repeat_add {X : Type} {x : X} {m n} : repeat x (m + n) = repeat x m ++ repeat x n.
+Proof.
+Admitted.
+
+Lemma repeat_eq_length {X : Type} {x : X} {m n} : (m = n) <-> (repeat x m = repeat x n).
+Proof.
+Admitted.
+
+Lemma repeat_map {X Y: Type} {f: X -> Y} {x: X} {n} : repeat (f x) n = map f (repeat x n).
+Proof.
+Admitted.
 
 (* forces instance to be a sequence *)
 (* first constraint of encode bound *)
+(* type 1 constraint *)
 Lemma seq_spec A B : A ++ B ≡ [0] ++ (map S A) ->
   exists n, A ≡ seq 0 n /\ B = [n].
 Proof.
@@ -310,9 +369,78 @@ Proof.
   by apply /eq_cons_iff.
 Qed.
 
-Lemma mset_intersect_eq {A B C} : B ≡ C -> mset_intersect A B = mset_intersect A C.
+(* type 1 constraint satisfied by any sequence *)
+Lemma seq_sat n : (seq 0 n) ++ [n] ≡ [0] ++ (map S (seq 0 n)).
 Proof.
-Admitted.
+  rewrite seq_shift - seq_last. 
+  by apply: eq_refl.
+Qed.
+
+(* auxiliary lemma for nat_spec *)
+Lemma nat_spec_aux n A B C : C ++ (n :: A) ≡ B ++ (map S A) -> 
+  Forall (fun b => b = 0 \/ n < b) B -> 
+  exists A' B', A ≡ (seq 0 n) ++ A' /\ B ≡ 0 :: B' /\ C ++ A' ≡ B' ++ (map S A').
+Proof.
+  elim: n A B.
+    move=> A B /copy [/eq_in_iff /(_ 0) /iffLR].
+    apply: unnest. 
+      apply /in_app_iff. right. by firstorder done. 
+    move /in_app_iff. case; first last.
+      move /in_map_iff=> [? [? ?]]. by lia.
+    move /(@in_split _ _) => [B1 [B2 ->]].
+    under (eq_lr _ _ (A' := 0 :: (C ++ A)) (B' := 0 :: ((B1 ++  B2) ++ map S A))).
+      by mset_eq_trivial.
+      by mset_eq_trivial.
+    move /eq_cons_iff => H _. exists A, (B1 ++ B2).
+    split=> //. split=> //.
+    by mset_eq_trivial.
+  move=> n IH A B /copy [/eq_in_iff /(_ (S n)) /iffLR].
+  apply: unnest. 
+    apply /in_app_iff. right. by firstorder done.
+  move /in_app_iff. case.
+    move=> H _ /Forall_forall => /(_ _ H). by lia.
+  move /in_map_iff=> [n' [+ +]]. case=> ?. subst n'.
+  move /(@in_split _ _) => [A1 [A2 ?]]. subst A.
+  under (eq_lr (A' := S n :: (C ++ (n :: (A1 ++ A2)))) (B' := S n :: (B ++ map S (A1 ++ A2)))).
+    by mset_eq_trivial.
+    move=> c. rewrite ? map_app map_cons. move: c. by mset_eq_trivial.
+  move /eq_cons_iff => /IH + ?. apply: unnest.
+    grab Forall. apply /Forall_impl. move=> ?. by lia.
+  move=> [A' [B' [? [? ?]]]]. exists A', B'.
+  split=> //.
+  rewrite seq_last.
+  under (eq_lr (A' := n :: (A1 ++ A2)) (B' := n :: (seq 0 n ++ A'))).
+    by mset_eq_trivial.
+    rewrite /plus. by mset_eq_trivial.
+  rewrite -/(mset_eq _ _). by apply /eq_cons_iff.
+Qed.
+ 
+    
+(* forces B to be a n zeroes and A to be of length in proportion to n squared *)
+Lemma nat_spec n A B : (seq 0 n) ++ A ≡ B ++ (map S A) -> 
+  Forall (fun b => b = 0 \/ n <= b) B -> B = repeat 0 n /\ length A + length A + n = n * n.
+Proof.
+  elim: n A B.
+    move=> A B /copy [/eq_length] /=. rewrite ? app_length map_length.
+    move=> ?. have: length B = 0 by lia. move /length_zero_iff_nil.
+    move=> ->. rewrite /app. by move /eq_symm /eq_mapE => ->.
+  move=> n IH A B. rewrite seq_last /plus -/plus.
+  under (eq_lr _ eq_refl (A' := seq 0 n ++ (n :: A))).
+    by mset_eq_trivial.
+  move /nat_spec_aux => + H. apply: unnest.
+    move: H. apply /Forall_impl => ?. by lia.
+  move=> [A' [B' [HA' [HB']]]]. move /IH.
+  apply: unnest.
+    move: HB' => /eq_Forall_iff. move /(_ (fun b : nat => b = 0 \/ n <= b)) /iffLR.
+    apply: unnest.
+      grab Forall. apply /Forall_impl. move=> ?. by lia.
+    move /Forall_cons_iff=> [_].
+    apply /Forall_impl. move=> ?. by lia.
+  move=> [? ?]. subst B'. move : HB'. rewrite -/(repeat 0 (S n)).
+  move /eq_symm /eq_repeatE => ?. split=> //.
+  move: HA' => /eq_length. rewrite app_length seq_length. by lia. 
+Qed.
+
 
 Tactic Notation "induction" "on" hyp(x) "with" "measure" uconstr(f) :=
   let H := fresh in pose H := f; pattern x in H; 
@@ -346,13 +474,7 @@ Proof.
 Qed.
 
 
-Lemma in_seq {a n} : a < n -> In a (seq 0 n).
-Proof.
-Admitted.
 
-Lemma in_intersect {a A B} : In a (mset_intersect A B) <-> (In a A /\ In a B).
-Proof.
-Admitted.
 
 (* forces B to contain zeroes *)
 (* third constraint of encode bound *)
@@ -395,39 +517,7 @@ Proof.
   grab Forall. apply /Forall_impl => *. by lia.
 Qed.
 
-Lemma intersect_repeat {a n A} : n > 0 -> In a A -> mset_intersect (repeat a n) A = [a].
-Proof.
-Admitted.
 
-
-Lemma seq_succ {m n} : seq m (S n) = m :: (seq (S m) n).
-Proof.
-  done.
-Qed.
-
-
-Lemma flat_map_cons {X Y : Type} {f : X -> list Y} {a A} : 
-  flat_map f (a :: A) = (f a) ++ (flat_map f A).
-Proof.
-  done.
-Qed.
-
-Lemma repeat_succ {X : Type} {x : X} {n} : repeat x (S n) = x :: repeat x n.
-Proof.
-  done.
-Qed.
-
-Lemma repeat_add {X : Type} {x : X} {m n} : repeat x (m + n) = repeat x m ++ repeat x n.
-Proof.
-Admitted.
-
-Lemma repeat_eq_length {X : Type} {x : X} {m n} : (m = n) <-> (repeat x m = repeat x n).
-Proof.
-Admitted.
-
-Lemma repeat_map {X Y: Type} {f: X -> Y} {x: X} {n} : repeat (f x) n = map f (repeat x n).
-Proof.
-Admitted.
 
 (* there is a solution that substitutes variable 0 by a multiset of size 2^n containing 0s *)
 Lemma encode_bound_sat ϕ n : 
