@@ -251,6 +251,9 @@ Proof. by rewrite -lock. Qed.
 Ltac mset_eq_trivial := 
   move=> ? ?; rewrite ? (count_occ_app, count_occ_cons, count_occ_nil); unlock; by lia.
 
+Lemma Forall_nil_iff {X: Type} {P: X -> Prop} : Forall P [] <-> True.
+Proof. by constructor. Qed.
+
 
 Lemma seq_last start length : seq start (S length) = (seq start length) ++ [start + length].
 Proof.
@@ -459,7 +462,6 @@ Proof.
 Qed.
 
 
-
 (* forces B to be a n zeroes and A to be of length in proportion to n squared *)
 Lemma nat_spec n A B : (seq 0 n) ++ A ≡ B ++ (map S A) -> 
   Forall (fun b => b = 0 \/ n <= b) B -> B = repeat 0 n /\ length A + length A + n = n * n.
@@ -510,6 +512,69 @@ Proof.
     rewrite repeat_map. do 2 f_equal. by lia. 
 Qed.
 
+
+
+Definition encode_nat (x: nat) : MsetU_PROBLEM :=
+  let xx := 1+9*x in
+  let Ax := 2+9*x in
+  let Bx := 3+9*x in
+  let Cx := 4+9*x in
+  let Dx := 5+9*x in
+  let Ex := 6+9*x in
+  let Fx := 7+9*x in
+  let x := 9*x in
+    [
+      (Ax ⊍ Bx, •[0] ⊍ (h Ax)); (* Ax = seq 0 (φ x) *)
+      ((Ax ⩀ x) ⊍ Cx, •[0]); (* bounding constraints *)
+      (Ax ⊍ Dx, x ⊍ (h Dx)); (* x is solved by n zeroes *)
+      ((Ax ⩀ xx) ⊍ Ex, •[0]); (* bounding constraints *)
+      (Dx ⊍ Fx, xx ⊍ (h Fx)) (* xx is solved by sets of size proportional to the squared size of x *)
+    ].
+
+Lemma encode_nat_spec {φ x} : mset_sat φ (encode_nat x) -> 
+  length (φ (1 + 9*x)) + length (φ (1 + 9*x)) + length (φ (9*x)) = length (φ (9*x)) * length (φ (9*x)).
+Proof.
+  rewrite /mset_sat /encode_nat.
+  rewrite ? Forall_cons_iff Forall_nil_iff /mset_sem.
+  move=> [+ [+ [+ [+ [+ _]]]]].
+  move: (φ (9*x))=> X. move: (φ (1 + 9*x))=> XX. 
+  move: (φ (2 + 9*x))=> A. move: (φ (3 + 9*x))=> B.
+  move: (φ (4 + 9*x))=> C. move: (φ (5 + 9*x))=> D. 
+  move: (φ (6 + 9*x))=> E. move: (φ (7 + 9*x))=> F.
+
+  move /seq_spec => [n [Hseq _]].
+  move=> _. (*TODO have ≡ seq instead of = seq*)
+  under (eq_lr _ eq_refl (A' := (seq 0 n) ++ D)).
+    rewrite -/(mset_eq _ _).
+    under (eq_lr (A' := D ++ A) (B' := D ++ seq 0 n)).
+      by mset_eq_trivial.
+      by mset_eq_trivial.
+    rewrite -/(mset_eq _ _). by apply /eq_app_iff.
+  move /nat_spec. apply: unnest.
+  admit. (* needs previous assumption *)
+  move=> [/copy [+ ?] ?]. 
+  move /(f_equal (@length nat)). rewrite repeat_length => ?.
+  move=> _. (*TODO have ≡ seq instead of = seq*)
+  move /eq_length. rewrite ? app_length map_length.
+  by lia.
+Admitted.
+
+(* represent constraints of shape 1 + x + y * y = z *)
+Definition encode_constraint x y z := 
+  encode_nat x ++ encode_nat y ++ encode_nat z ++ 
+  let x := 9*x in
+  let yy := 1+9*y in
+  let y := 9*y in
+  let z := 9*z in
+  [ (•[0] ⊍ x ⊍ yy ⊍ yy ⊍ y, mset_var z) ].
+
+
+
+Lemma encode_constraint_spec {φ x y z} : mset_sat φ (encode_constraint x y z) -> 
+  1 + length (φ (9*x)) + length(φ (9*y)) * length(φ (9*y)) = length(φ (9*z)).
+Proof.
+  rewrite /encode_constraint /mset_sat.
+  rewrite ? (mset_s)
 
 
 Tactic Notation "induction" "on" hyp(x) "with" "measure" uconstr(f) :=
