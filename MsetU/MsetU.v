@@ -160,10 +160,10 @@ Qed.
   
   Lemma eq_symm {A B} : A ≡ B -> B ≡ A.
   Proof.
-    by firstorder.
+    by firstorder done.
   Qed.
   
-
+  
 
   (*
   Lemma eq_app {A B} : A ++ B ≡ B ++ A.
@@ -211,22 +211,31 @@ Qed.
 
   Lemma mset_eq_trans {A B C} : A ≡ B -> B ≡ C -> A ≡ C.
   Proof.
-    move /copy => [/eq_in_iff + +] /copy [/eq_in_iff + +].
-    by firstorder.
+    move /copy => [/eq_in_iff HAB +] /copy [/eq_in_iff HBC +].
+    rewrite /mset_eq => + + c.
+    move=> /(_ c) + /(_ c).
+    rewrite HAB HBC.
+    clear. move=> + + H. move=> /(_ H) + /(_ H).
+    by move=> -> ->.
   Qed.
 
   Lemma eq_Forall_iff {A B} : A ≡ B -> forall P, (Forall P A <-> Forall P B).
   Proof.
     move /eq_in_iff => H P.
-    rewrite ? Forall_forall. constructor; by firstorder.
+    rewrite ? Forall_forall. constructor; by firstorder done.
   Qed.
 
   Lemma eq_lr {A B A' B'}:
     A ≡ A' -> B ≡ B' -> (A ≡ B) <-> (A' ≡ B').
-  Admitted.
-  
+  Proof.
+    move=> HA HB. constructor.
+    - move /mset_eq_trans. move /(_ _ HB). 
+      move /(mset_eq_trans _). by move /(_ _ (eq_symm HA)). 
+    - move /mset_eq_trans. move /(_ _ (eq_symm HB)). 
+      move /(mset_eq_trans _). by move /(_ _ HA).
+  Qed. 
 
-
+  Print Assumptions eq_lr.
 
   Lemma count_occ_app {X : Type} {D : forall x y : X, {x = y} + {x <> y}} {A B c}:
     count_occ D (A ++ B) c = count_occ D A c + count_occ D B c.
@@ -259,12 +268,49 @@ Qed.
   Proof. by constructor. Qed.
 
 
-  Lemma eq_mapE {A} : map S A ≡ A -> A = [].
+  Lemma or_arg {P Q R: Prop} : (P \/ Q -> R) <-> (P -> R) /\ (Q -> R).
   Proof.
-  Admitted.
+    by firstorder done.
+  Qed.
+
+  Lemma or_idemp {P: Prop} : (P \/ P) <-> P.
+  Proof.
+    by tauto.
+  Qed.
 
   Lemma eq_appI {A B A' B'} : A ≡ A' -> B ≡ B' -> A ++ B ≡ A' ++ B'.
   Proof.
+    move=> /copy [/eq_in_iff HAA'] + /copy [/eq_in_iff HBB'].
+    rewrite /mset_eq => + + c. move=> /(_ c) + /(_ c).
+    rewrite ? in_app_iff ? count_occ_app.
+    rewrite - ? HAA' - ? HBB' ? or_idemp.
+    move=> HA HB. case.
+      move /HA => ->.
+    (*
+    have H2A := iffLR (count_occ_not_In Nat.eq_dec A c).
+    have H2B := iffLR (count_occ_not_In Nat.eq_dec B c).
+    have H2B' := iffLR (count_occ_not_In Nat.eq_dec B' c).
+    have := (in_dec Nat.eq_dec c A).
+    have := (in_dec Nat.eq_dec c A').
+    have := (in_dec Nat.eq_dec c B).
+    have := (in_dec Nat.eq_dec c B').
+    case=> HcB'; case=> HcB; case=> HcA'; case=> HcA.
+    all: try (have -> := HA HcA).
+    all: try (have -> := HB HcB).
+    all: try (have -> := H2A HcA).
+    all: try (have -> := H2B HcB).
+    all: try (have -> := H2A' HcA').
+    all: try (have -> := H2B' HcB').
+    all: try lia.
+    all: move=> _.
+    1-3: firstorder lia.
+    all: auto.
+    all: firstorder auto.
+    firstorder auto.
+
+    case; case.
+      move=> H. move: (HAA' (or_introl H)) => ->.
+      *)
   Admitted.
 
   (* solves trivial multiset equalities *)
@@ -356,7 +402,9 @@ Proof.
   elim: A.
     by left.
   move=> a A. case.
-    move=> ->. right. exists a. by firstorder.
+    move=> ->. right. exists a. split.
+      by left.
+    by constructor.
   move=> [b [Hb1 Hb2]]. right.
   case: (le_lt_dec a b)=> ?.
   - exists b. split.
@@ -369,6 +417,15 @@ Proof.
     move: Hb2. apply /Forall_impl => ?. by lia.
 Qed.
 
+Lemma eq_mapE {A} : map S A ≡ A -> A = [].
+Proof.
+  case (nil_or_ex_max A).
+    done.
+  move=> [a [Ha /Forall_forall HA]] /eq_in_iff /(_ (S a)) /iffLR.
+  rewrite in_map_iff. apply: unnest.
+    by exists a.
+  move /HA. by lia.
+Qed.
 
 Lemma mset_intersect_eq {A B C} : B ≡ C -> mset_intersect A B = mset_intersect A C.
 Proof.
