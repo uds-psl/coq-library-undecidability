@@ -201,5 +201,29 @@ Section Godel_beta.
     rewrite vec_pos_set, pos2nat_nat2pos in H.
     auto.
   Qed.
+
+  Theorem godel_beta_fun_inv_triples n f : 
+     { a : _ & { b | forall p, p < n -> f p = (godel_beta a b (  3*p),
+                                               godel_beta a b (1+3*p),
+                                               godel_beta a b (2+3*p)) } }.
+  Proof.
+    assert (H3 : 3 <> 0) by omega.
+    set (g n := match rem n 3, f (div n 3) with
+      | 0, (x,_,_) => x
+      | 1, (_,y,_) => y
+      | _, (_,_,z) => z
+    end).
+    destruct (godel_beta_fun_inv (3*n) g) as (a & b & Hab).
+    exists a, b; intros p Hp.
+    rewrite mult_comm.
+    do 2 rewrite (plus_comm _ (p*_)).
+    replace (p*3) with (p*3+0) at 1 by omega.
+    rewrite <- (Hab (p*3+0)), <- (Hab (p*3+1)), <- (Hab (p*3+2)); try omega.
+    unfold g.
+    do 3 rewrite (rem_erase p 3 _ eq_refl).
+    repeat (rewrite rem_idem; try omega).
+    repeat (rewrite (@div_prop (p*3+_) 3 _ _ eq_refl); try omega).
+    destruct (f p) as ((?,?),?); auto.
+  Qed.
  
 End Godel_beta.

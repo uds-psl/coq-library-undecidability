@@ -25,9 +25,6 @@ Set Implicit Arguments.
 
 Local Notation "'⟦' f '⟧'" := (@ra_rel _ f) (at level 0).
 
-Check godel_beta.
-Check godel_beta_inv.
-
 Definition h10uc_eq a' b' (c : nat*nat*nat) :=
   match c with (x,y,z) => 
     let vx := godel_beta a' b' x in
@@ -60,18 +57,26 @@ Definition nat_h10luc k :=
 Fact nat_h10luc_surj lc : { k | lc = nat_h10luc k }.
 Proof.
   destruct (list_vec lc) as (v & <-).
-  generalize (length lc) v; clear lc v.
-  intros n v.
-  set (l  := vec_list v).
-  set (l3 := flat_map (fun c => match c with (x,y,z) => x::y::z::nil end) l).
-  destruct (list_vec l3) as (w & Hw).
-  destruct godel_beta_inv with (v := w) as (a & b & Hab).
+  set (n := length lc).
+  set (f p := match le_lt_dec n p with
+    | left _   => (0,0,0)
+    | right Hp => vec_pos v (nat2pos Hp)
+  end).
+  destruct godel_beta_fun_inv_triples with (n := n) (f := f)
+    as (a & b & Hab).
   exists (recomp (recomp a b) n).
-  unfold nat_h10luc.
-  repeat rewrite decomp_l_recomp;
+  unfold nat_h10luc. 
+  repeat (rewrite decomp_l_recomp).
   repeat rewrite decomp_r_recomp.
-  admit.
-Admitted.
+  rewrite map_pos_list_vec; f_equal.
+  apply vec_pos_ext; intros p; rewrite vec_pos_set.
+  unfold idx_h10uc; rewrite <- Hab; auto.
+  2: apply pos2nat_prop.
+  unfold f, n.
+  destruct (le_lt_dec (length lc) (pos2nat p)) as [ H | H ].
+  + generalize (pos2nat_prop p); try omega.
+  + rewrite nat2pos_pos2nat; auto.
+Qed. 
 
 Section ra_h10uc.
 
@@ -159,8 +164,6 @@ End ra_h10uc.
 
 Hint Resolve ra_h10uc_prim_rec ra_h10uc_val.
 Opaque ra_h10uc.
-
-Check ra_h10uc_val.
 
 Section ra_iter_h10uc.
 
@@ -307,9 +310,6 @@ End ra_iter_h10uc.
 
 Hint Resolve ra_iter_h10uc_prim_rec.
 Opaque ra_iter_h10uc.
-
-Check ra_iter_h10uc_val_0.
-Check ra_iter_h10uc_val_1.
 
 Section ra_univ_ad.
 
