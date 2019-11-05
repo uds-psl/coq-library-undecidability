@@ -206,6 +206,10 @@ Qed.
   Lemma eq_mapE {A} : map S A ≡ A -> A = [].
   Proof.
   Admitted.
+
+  Lemma eq_appI {A B A' B'} : A ≡ A' -> B ≡ B' -> A ++ B ≡ A' ++ B'.
+  Proof.
+  Admitted.
   
 End Mset.
 
@@ -537,6 +541,27 @@ Proof.
     rewrite repeat_map. do 2 f_equal. by lia. 
 Qed.
 
+(* [0] ++ [0,1] ++ [0,1,2] ++ ...*)
+Definition pyramid n := flat_map (seq 0) (seq 0 n).
+
+Lemma nat_sat_pyramid {n}: (seq 0 n) ++ (pyramid n) ≡ (repeat 0 n) ++ (map S (pyramid n)).
+Proof.
+  elim: n.
+    by done.
+  move=> n IH.
+  rewrite /pyramid ? seq_last ? /plus. 
+  rewrite ? flat_map_concat_map map_app concat_app.
+  rewrite - ? flat_map_concat_map -/(pyramid _).
+  rewrite map_app /flat_map ? app_nil_r /repeat -/(repeat _ n).
+  rewrite - seq_last seq_shift.
+  under (eq_lr 
+    (A' := seq 0 (S n) ++ (seq 0 n ++ pyramid n)) 
+    (B' := (0 :: seq 1 n) ++ (repeat 0 n ++ map S (pyramid n)))).
+    by mset_eq_trivial.
+    by mset_eq_trivial.
+  rewrite -/(mset_eq _ _). by apply /eq_app_iff.
+Qed.
+
 
 
 Definition encode_nat (x: nat) : MsetU_PROBLEM :=
@@ -580,6 +605,70 @@ Proof.
   by lia.
 Qed.
 
+Lemma pyramid_shuffle {n} : seq 0 n ++ pyramid n ≡ repeat 0 n ++ map S (pyramid n).
+Proof.
+  elim: n.
+    done.
+  move=> n IH.
+  rewrite /pyramid seq_last /plus flat_map_concat_map map_app concat_app.
+  rewrite -flat_map_concat_map -/(pyramid _).
+  rewrite ? map_app. cbn. rewrite ? app_nil_r.
+  rewrite seq_shift.
+  under (eq_lr 
+    (A' := (seq 0 n ++ [n]) ++ (seq 0 n ++ pyramid n)) 
+    (B' := (0 :: seq 1 n) ++ (repeat 0 n ++ map S (pyramid n)))).
+    by mset_eq_trivial.
+    by mset_eq_trivial.
+  rewrite -/(mset_eq _ _).
+  rewrite -seq_last -/(seq _ (S n)).
+  by apply /eq_app_iff.
+Qed.
+
+Lemma encode_nat_sat_aux {n} : 
+  pyramid n ++ flat_map pyramid (seq 0 n) ≡ repeat 0 (length (pyramid n)) ++ (map S (flat_map pyramid (seq 0 n))).
+Proof.
+  elim: n.
+    by done.
+  move=> n IH.
+  rewrite /pyramid ? seq_last /plus ? (flat_map_concat_map, map_app, concat_app, app_length).
+  rewrite - ? flat_map_concat_map -/pyramid -/(pyramid _).
+  rewrite ? repeat_add seq_length.
+  cbn. rewrite ? app_nil_r.
+  under (eq_lr 
+    (A' := (pyramid n ++ flat_map pyramid (seq 0 n)) ++ (seq 0 n ++ pyramid n))
+    (B' := (repeat 0 (length (pyramid n)) ++ map S (flat_map pyramid (seq 0 n))) ++ (repeat 0 n ++ map S (pyramid n)))).
+    by mset_eq_trivial.
+    by mset_eq_trivial.
+  rewrite -/(mset_eq _ _).
+  apply: eq_appI.
+    done.
+  by apply: pyramid_shuffle.
+Qed.
+
+Lemma encode_nat_sat {φ x n} : 
+  φ (9*x) = repeat 0 n ->
+  φ (1+9*x) = repeat 0 (length (pyramid n)) ->
+  φ (2+9*x) = seq 0 n ->
+  φ (3+9*x) = [n] ->
+  φ (4+9*x) = (if n is 0 then [0] else []) ->
+  φ (5+9*x) = pyramid n ->
+  φ (6+9*x) = flat_map pyramid (seq 0 n) ->
+  mset_sat φ (encode_nat x).
+Proof.
+  rewrite /encode_nat /mset_sat ? Forall_cons_iff Forall_nil_iff /mset_sem.
+  move=> -> -> -> -> -> -> ->.
+  split. 
+    by apply: seq_sat.
+  split.
+    by apply: @bound_sat.
+  split.
+    by apply: nat_sat_pyramid.
+  split.
+    by apply: encode_nat_sat_aux.
+  done.
+Qed.
+
+
 (* represent constraints of shape 1 + x + y * y = z *)
 Definition encode_constraint x y z := 
   encode_nat x ++ encode_nat y ++ encode_nat z ++ 
@@ -590,12 +679,20 @@ Definition encode_constraint x y z :=
   [ (•[0] ⊍ x ⊍ yy ⊍ yy ⊍ y, mset_var z) ].
 
 
-
+ 
+(* if mset constraint has a solution, then uniform diophantine constraint is satisfied *)
 Lemma encode_constraint_spec {φ x y z} : mset_sat φ (encode_constraint x y z) -> 
   1 + length (φ (9*x)) + length(φ (9*y)) * length(φ (9*y)) = length(φ (9*z)).
 Proof.
-  rewrite /encode_constraint /mset_sat.
-  rewrite ? (mset_s)
+  rewrite /encode_constraint /mset_sat. rewrite ? (Forall_app_iff).
+  move => [/encode_nat_spec ? [/encode_nat_spec ? [ /encode_nat_spec ?]]].
+  rewrite Forall_cons_iff Forall_nil_iff /mset_sem. move => [+ _].
+  move /eq_length. rewrite ? app_length.
+  have -> : (length [0] = 1) by done.
+  by lia.
+Qed.
+
+
 
 
 Tactic Notation "induction" "on" hyp(x) "with" "measure" uconstr(f) :=
