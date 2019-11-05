@@ -220,7 +220,19 @@ Print Assumptions DIO_ELEM_H10C_SAT.
 
 Check FRACTRAN_HALTING_DIO_LOGIC_SAT.
 Check DIO_LOGIC_ELEM_SAT.
- 
 
 
+From Undecidability.Problems Require Import TM.
+From Undecidability.H10 Require Import H10.
 
+(* undecidability of H10C *)
+Theorem H10C_undec : Halt ⪯ H10C_SAT.
+Proof.
+  apply (reduces_transitive Fractran_UNDEC).
+  apply (reduces_transitive FRACTRAN_HALTING_DIO_LOGIC_SAT).
+  apply (reduces_transitive DIO_LOGIC_ELEM_SAT).
+  apply DIO_ELEM_H10C_SAT.
+Qed.
+
+Check H10C_undec.
+Print Assumptions H10C_undec.
