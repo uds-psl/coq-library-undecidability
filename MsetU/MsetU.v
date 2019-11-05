@@ -210,7 +210,7 @@ Qed.
   Lemma eq_appI {A B A' B'} : A ≡ A' -> B ≡ B' -> A ++ B ≡ A' ++ B'.
   Proof.
   Admitted.
-  
+
 End Mset.
 
 
@@ -645,18 +645,20 @@ Proof.
   by apply: pyramid_shuffle.
 Qed.
 
+Definition encode_nat_vars φ x n : Prop :=
+  φ (9*x) = repeat 0 n /\
+  φ (1+9*x) = repeat 0 (length (pyramid n)) /\
+  φ (2+9*x) = seq 0 n /\
+  φ (3+9*x) = [n] /\
+  φ (4+9*x) = (if n is 0 then [0] else []) /\
+  φ (5+9*x) = pyramid n /\
+  φ (6+9*x) = flat_map pyramid (seq 0 n).
+
 Lemma encode_nat_sat {φ x n} : 
-  φ (9*x) = repeat 0 n ->
-  φ (1+9*x) = repeat 0 (length (pyramid n)) ->
-  φ (2+9*x) = seq 0 n ->
-  φ (3+9*x) = [n] ->
-  φ (4+9*x) = (if n is 0 then [0] else []) ->
-  φ (5+9*x) = pyramid n ->
-  φ (6+9*x) = flat_map pyramid (seq 0 n) ->
-  mset_sat φ (encode_nat x).
+  encode_nat_vars φ x n -> mset_sat φ (encode_nat x).
 Proof.
-  rewrite /encode_nat /mset_sat ? Forall_cons_iff Forall_nil_iff /mset_sem.
-  move=> -> -> -> -> -> -> ->.
+  rewrite /encode_nat_vars /encode_nat /mset_sat ? Forall_cons_iff Forall_nil_iff /mset_sem.
+  do 6 (move=> [->]). move=> ->.
   split. 
     by apply: seq_sat.
   split.
@@ -668,7 +670,6 @@ Proof.
   done.
 Qed.
 
-
 (* represent constraints of shape 1 + x + y * y = z *)
 Definition encode_constraint x y z := 
   encode_nat x ++ encode_nat y ++ encode_nat z ++ 
@@ -678,8 +679,6 @@ Definition encode_constraint x y z :=
   let z := 9*z in
   [ (•[0] ⊍ x ⊍ yy ⊍ yy ⊍ y, mset_var z) ].
 
-
- 
 (* if mset constraint has a solution, then uniform diophantine constraint is satisfied *)
 Lemma encode_constraint_spec {φ x y z} : mset_sat φ (encode_constraint x y z) -> 
   1 + length (φ (9*x)) + length(φ (9*y)) * length(φ (9*y)) = length(φ (9*z)).
@@ -692,7 +691,28 @@ Proof.
   by lia.
 Qed.
 
-
+Lemma encode_constraint_sat {φ x y z xn yn zn} : 
+  encode_nat_vars φ x xn -> encode_nat_vars φ y yn -> encode_nat_vars φ z zn ->
+  1 + xn + yn * yn = zn -> mset_sat φ (encode_constraint x y z).
+Proof.
+  move=> /copy [/encode_nat_sat ? Hx].
+  move=> /copy [/encode_nat_sat ? Hy].
+  move=> /copy [/encode_nat_sat ? Hz].
+  rewrite /encode_constraint /mset_sat ? Forall_app_iff Forall_cons_iff Forall_nil_iff.
+  move=> Hxyz.
+  do 3 (split; [done|]).
+  rewrite /mset_sem.
+  move: Hx Hy Hz. rewrite /encode_nat_vars. move=> [-> _] [-> [-> _]] [-> _].
+  split; first last.
+    done.
+  have ->: [0] = repeat 0 1 by done.
+  rewrite - ? repeat_add. apply: eq_eq.
+  f_equal. subst zn. clear. elim: yn.
+    cbn. by lia.
+  move=> yn IH. rewrite /pyramid seq_last /(plus 0 _) flat_map_concat_map map_app concat_app.
+  rewrite -flat_map_concat_map -/(pyramid _).
+  cbn. rewrite ? app_length seq_length. cbn. by lia.
+Qed.
 
 
 Tactic Notation "induction" "on" hyp(x) "with" "measure" uconstr(f) :=
