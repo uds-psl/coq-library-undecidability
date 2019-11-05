@@ -93,6 +93,8 @@ Definition MsetU_SAT_ϕ (ϕ : nat -> list nat) (l : MsetU_PROBLEM) :=
 Definition mset_sat (ϕ : nat -> list nat) (l : MsetU_PROBLEM) := 
   Forall (fun '(A, B) => (mset_sem ϕ A) ≡ (mset_sem ϕ B)) l.
 
+
+
 Require Import ssreflect ssrbool ssrfun.
 Require Import PeanoNat.
 Require Import Psatz.
@@ -106,6 +108,13 @@ Set Maximal Implicit Insertion.
 
 Arguments mset_eq !A !B.
 Arguments mset_intersect !A !B.
+
+Lemma mset_satP {φ l} : mset_sat φ l <-> (forall (A B : mset), In (A, B) l -> (mset_sem φ A) ≡ (mset_sem φ B)).
+Proof.
+  rewrite /mset_sat Forall_forall. constructor.
+  - move=> H A B. apply /H.
+  - move=> H [A B]. apply /H.
+Qed.
 
 (*
 Notation "n .+1" := (Datatypes.S n) (at level 2, left associativity, format "n .+1").
@@ -556,30 +565,31 @@ Qed.
 Opaque embed unembed.
 
 Definition encode_nat (x: nat) : MsetU_PROBLEM :=
-  let xx := 1+9*x in
-  let Ax := 2+9*x in
-  let Bx := 3+9*x in
-  let Cx := 4+9*x in
-  let Dx := 5+9*x in
-  let Ex := 6+9*x in
-  let x := 9*x in
+  let X := embed (x, 0) in
+  let XX := embed (x, 1) in
+  let Ax := embed (x, 2) in
+  let Bx := embed (x, 3) in
+  let Cx := embed (x, 4) in
+  let Dx := embed (x, 5) in
+  let Ex := embed (x, 6) in
     [
       (Ax ⊍ Bx, •[0] ⊍ (h Ax)); (* Ax = seq 0 (φ x) *)
-      ((Ax ⩀ x) ⊍ Cx, •[0]); (* bounding constraints *)
-      (Ax ⊍ Dx, x ⊍ (h Dx)); (* x is solved by n zeroes *)
-      (Dx ⊍ Ex, xx ⊍ (h Ex)) (* xx is solved by sets of size proportional to the squared size of x *)
+      ((Ax ⩀ X) ⊍ Cx, •[0]); (* bounding constraints *)
+      (Ax ⊍ Dx, X ⊍ (h Dx)); (* X is solved by n zeroes *)
+      (Dx ⊍ Ex, XX ⊍ (h Ex)) (* XX is solved by sets of size proportional to the squared size of X *)
     ].
 
 Lemma encode_nat_spec {φ x} : mset_sat φ (encode_nat x) -> 
-  length (φ (1 + 9*x)) + length (φ (1 + 9*x)) + length (φ (9*x)) = length (φ (9*x)) * length (φ (9*x)).
+  length (φ (embed (x, 1))) + length (φ (embed (x, 1))) + length (φ (embed (x, 0))) = 
+    length (φ (embed (x, 0))) * length (φ (embed (x, 0))).
 Proof.
   rewrite /mset_sat /encode_nat.
   rewrite ? Forall_cons_iff Forall_nil_iff /mset_sem.
   move=> [+ [+ [+ [+ _]]]].
-  move: (φ (9*x))=> X. move: (φ (1 + 9*x))=> XX. 
-  move: (φ (2 + 9*x))=> A. move: (φ (3 + 9*x))=> B.
-  move: (φ (4 + 9*x))=> C. move: (φ (5 + 9*x))=> D. 
-  move: (φ (6 + 9*x))=> E.
+  move: (φ (embed (x, 0)))=> X. move: (φ (embed (x, 1)))=> XX. 
+  move: (φ (embed (x, 2)))=> A. move: (φ (embed (x, 3)))=> B.
+  move: (φ (embed (x, 4)))=> C. move: (φ (embed (x, 5)))=> D. 
+  move: (φ (embed (x, 6)))=> E.
 
   move /seq_spec => [n [Hseq _]].
   move /bound_spec => /(_ _ ltac:(eassumption)) HX.
@@ -637,13 +647,13 @@ Proof.
 Qed.
 
 Definition encode_nat_vars φ x n : Prop :=
-  φ (9*x) = repeat 0 n /\
-  φ (1+9*x) = repeat 0 (length (pyramid n)) /\
-  φ (2+9*x) = seq 0 n /\
-  φ (3+9*x) = [n] /\
-  φ (4+9*x) = (if n is 0 then [0] else []) /\
-  φ (5+9*x) = pyramid n /\
-  φ (6+9*x) = flat_map pyramid (seq 0 n).
+  φ (embed (x, 0)) = repeat 0 n /\
+  φ (embed (x, 1)) = repeat 0 (length (pyramid n)) /\
+  φ (embed (x, 2)) = seq 0 n /\
+  φ (embed (x, 3)) = [n] /\
+  φ (embed (x, 4)) = (if n is 0 then [0] else []) /\
+  φ (embed (x, 5)) = pyramid n /\
+  φ (embed (x, 6)) = flat_map pyramid (seq 0 n).
 
 Lemma encode_nat_sat {φ x n} : 
   encode_nat_vars φ x n -> mset_sat φ (encode_nat x).
@@ -664,15 +674,15 @@ Qed.
 (* represent constraints of shape 1 + x + y * y = z *)
 Definition encode_constraint x y z := 
   encode_nat x ++ encode_nat y ++ encode_nat z ++ 
-  let x := 9*x in
-  let yy := 1+9*y in
-  let y := 9*y in
-  let z := 9*z in
+  let x := embed (x, 0) in
+  let yy := embed (y, 1) in
+  let y := embed (y, 0) in
+  let z := embed (z, 0) in
   [ (•[0] ⊍ x ⊍ yy ⊍ yy ⊍ y, mset_var z) ].
 
 (* if mset constraint has a solution, then uniform diophantine constraint is satisfied *)
 Lemma encode_constraint_spec {φ x y z} : mset_sat φ (encode_constraint x y z) -> 
-  1 + length (φ (9*x)) + length(φ (9*y)) * length(φ (9*y)) = length(φ (9*z)).
+  1 + length (φ (embed (x, 0))) + length(φ (embed (y, 0))) * length(φ (embed (y, 0))) = length(φ (embed (z, 0))).
 Proof.
   rewrite /encode_constraint /mset_sat. rewrite ? (Forall_app_iff).
   move => [/encode_nat_spec ? [/encode_nat_spec ? [ /encode_nat_spec ?]]].
@@ -716,14 +726,52 @@ Lemma H10UC_to_MsetU : H10UC_SAT ⪯ MsetU_SAT.
 Proof.
   exists (flat_map encode_h10uc).
   move=> h10ucs. constructor.
-  - move=> [φ Hφ]. exists (fun x => ) elim: h10ucs.
-      exists (fun _ => []). move=> ? ?. by case.
-    move=> [[x y] z] h10ucs IH. 
+  - move=> [φ Hφ]. 
+    pose ψ := (fun x => 
+      match unembed x with
+      | (x, 0) => repeat 0 (φ x)
+      | (x, 1) => repeat 0 (length (pyramid (φ x)))
+      | (x, 2) => seq 0 (φ x)
+      | (x, 3) => [(φ x)]
+      | (x, 4) =>  (if (φ x) is 0 then [0] else [])
+      | (x, 5) => pyramid (φ x)
+      | (x, 6) => flat_map pyramid (seq 0 (φ x))
+      | _ => []
+      end).
+    exists ψ.
+    elim: h10ucs Hφ.
       done.
-  rewrite /reduces.
-  move=> h10ucs.
+    move=> [[x y] z] h10cs IH.
+    move /Forall_forall. rewrite Forall_cons_iff. move=> [Hxyz /Forall_forall /IH].
+    move=> {}IH A B.
+    rewrite /flat_map -/(flat_map _) in_app_iff. case; first last.
+      by apply /IH.
+    rewrite /encode_h10uc.
+    have := @encode_constraint_sat ψ x y z (φ x) (φ y) (φ z).
+    apply: unnest.
+      rewrite /encode_nat_vars.
+      firstorder (by rewrite /ψ embed_unembed).
+    apply: unnest.
+      rewrite /encode_nat_vars.
+      firstorder (by rewrite /ψ embed_unembed).
+    apply: unnest.
+      rewrite /encode_nat_vars.
+      firstorder (by rewrite /ψ embed_unembed).
+    apply: unnest.
+      done.
+    rewrite /mset_sat Forall_forall. apply.
+  - move=> [φ]. rewrite - mset_satP /mset_sat. move=> Hφ.
+    pose ψ := (fun x => length (φ (embed (x, 0)))).
+    exists ψ.
+    rewrite - Forall_forall.
+    elim: h10ucs Hφ.
+      done.
+    move=> [[x y] z] h10ucs IH. rewrite /flat_map -/(flat_map _) Forall_app_iff.
+    rewrite /(encode_h10uc _).
+    move=> [/encode_constraint_spec Hxyz /IH ?].
+    by constructor.
+Qed.
 
-MsetU_PROBLEM
 
 
 Tactic Notation "induction" "on" hyp(x) "with" "measure" uconstr(f) :=
