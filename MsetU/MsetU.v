@@ -130,9 +130,6 @@ Proof.
   - move => a A /=. case. move /length_zero_iff_nil => ->. by eexists.
 Qed.
 
-Lemma exists_max {A} : length A > 0 -> exists a, In a A /\ Forall (fun b => a >= b) A.
-Proof.
-Admitted.
 
 (*
 Section Mset.
@@ -183,13 +180,7 @@ Qed.
   Proof.
   Admitted.
 
-  Lemma eq_cons_iff {a A B} : (a :: A) ≡ (a :: B) <-> A ≡ B.
-  Proof.
-  Admitted.
 
-  Lemma eq_app_iff {A B C} : (A ++ B) ≡ (A ++ C) <-> B ≡ C.
-  Proof.
-  Admitted.
 
   Lemma eq_map_iff {f} {A B}: map f A ≡ map f B <-> A ≡ B.
   Proof.
@@ -280,6 +271,30 @@ Qed.
   Ltac mset_eq_trivial := 
     move=> ? ?; rewrite ? (count_occ_app, count_occ_cons, count_occ_nil); unlock; by lia.
       
+
+  Lemma eq_cons_iff {a A B} : (a :: A) ≡ (a :: B) <-> A ≡ B.
+  Proof.
+    rewrite /mset_eq. constructor.
+    all: move=> H c; move: {H}(H c); rewrite ? count_occ_cons ? in_cons_iff; unlock.
+    all: rewrite Nat.add_cancel_l.
+      by firstorder done.
+    move=> H. case: (in_dec Nat.eq_dec c (A ++ B)).
+      by move /in_app_iff /H => ->.
+    rewrite in_app_iff.
+    have HA := iffLR (count_occ_not_In Nat.eq_dec A c).
+    have HB := iffLR (count_occ_not_In Nat.eq_dec B c).
+    by move /Decidable.not_or=> [/HA -> /HB ->].
+  Qed.
+
+
+  Lemma eq_app_iff {A B C} : (A ++ B) ≡ (A ++ C) <-> B ≡ C.
+  Proof.
+    elim: A.
+      done.
+    move=> a A IH /=.
+    by rewrite eq_cons_iff.
+  Qed.
+
   Lemma eq_length {A B} : A ≡ B -> length A = length B.
     elim /(measure_ind (@length nat)) : A B.
     case.
@@ -336,13 +351,24 @@ Lemma cons_length {X : Type} {a : X} {A : list X} : length (a :: A) = 1 + length
 Proof. done. Qed.
 
 
-
 Lemma nil_or_ex_max (A : list nat) : A = [] \/ exists a, In a A /\ Forall (fun b => a >= b) A.
 Proof.
-  case: A.
+  elim: A.
     by left.
-  move=> ? ?. right. apply: exists_max => /=. by lia.
+  move=> a A. case.
+    move=> ->. right. exists a. by firstorder.
+  move=> [b [Hb1 Hb2]]. right.
+  case: (le_lt_dec a b)=> ?.
+  - exists b. split.
+      by right.
+    by constructor.
+  - exists a. split.
+      by left.
+    constructor.
+      done.
+    move: Hb2. apply /Forall_impl => ?. by lia.
 Qed.
+
 
 Lemma mset_intersect_eq {A B C} : B ≡ C -> mset_intersect A B = mset_intersect A C.
 Proof.
