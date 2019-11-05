@@ -445,30 +445,6 @@ Proof.
   by case.
 Qed.
 
-(*
-(* forces elements of A to be either zero or large enough *)
-Lemma bound_spec {n A B} : (mset_intersect (seq 0 n) A) ++ B ≡ [0] -> Forall (fun a => a = 0 \/ n <= a) A.
-Proof.
-  move /eq_in => Heq.
-  case: (Forall_dec (fun a : nat => a = 0 \/ n <= a) _ A) => //.
-    case. 
-      left; by left.
-    move=> m.
-    case: (le_lt_dec n (S m)) => ?.
-      left; by right.
-    right. by lia.
-  rewrite <- Exists_Forall_neg; first last.
-    move=> ?. by lia.
-  move/Exists_exists => [a [? ?]]. exfalso.
-  have ?: 0 <> a by lia. have: a < n by lia.
-  move /in_seq=> ?.
-  have H: In a (mset_intersect (seq 0 n) A) by rewrite in_intersect.
-  move: (Heq a) => /iffLR. rewrite in_app_iff.
-  apply: unnest. by left.
-  by case.
-Qed.
-*)
-
 Lemma bound_sat_aux {m n l} : m > 0 -> mset_intersect (seq m n) (repeat 0 l) = [].
 Proof.
   elim: n m l.
@@ -562,7 +538,22 @@ Proof.
   rewrite -/(mset_eq _ _). by apply /eq_app_iff.
 Qed.
 
+Require NatNat.
 
+Definition embed xy := NatNat.nat2_to_nat xy.
+Definition unembed n := NatNat.nat_to_nat2 n.
+
+Lemma embed_unembed {xy} : unembed (embed xy) = xy.
+Proof.
+  apply: NatNat.nat_nat2_cancel.  
+Qed.
+
+Lemma unembed_embed {n} : embed (unembed n) = n.
+Proof.
+  apply: NatNat.nat2_nat_cancel.  
+Qed.
+
+Opaque embed unembed.
 
 Definition encode_nat (x: nat) : MsetU_PROBLEM :=
   let xx := 1+9*x in
@@ -713,6 +704,26 @@ Proof.
   rewrite -flat_map_concat_map -/(pyramid _).
   cbn. rewrite ? app_length seq_length. cbn. by lia.
 Qed.
+
+
+Require Import Problems.Reduction.
+Require Import Problems.H10UC.
+
+
+Definition encode_h10uc '(x, y, z) := encode_constraint x y z.
+
+Lemma H10UC_to_MsetU : H10UC_SAT ⪯ MsetU_SAT.
+Proof.
+  exists (flat_map encode_h10uc).
+  move=> h10ucs. constructor.
+  - move=> [φ Hφ]. exists (fun x => ) elim: h10ucs.
+      exists (fun _ => []). move=> ? ?. by case.
+    move=> [[x y] z] h10ucs IH. 
+      done.
+  rewrite /reduces.
+  move=> h10ucs.
+
+MsetU_PROBLEM
 
 
 Tactic Notation "induction" "on" hyp(x) "with" "measure" uconstr(f) :=

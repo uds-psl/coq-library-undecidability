@@ -147,6 +147,7 @@ H10/DPRM.v
 MsetU/Facts.v
 MsetU/UserTactics.v
 MsetU/ListFacts.v
+MsetU/NatNat.v
 
 Problems/FOL.v
 Problems/cbvLambda.v
