@@ -39,7 +39,7 @@ Fixpoint mset_eq (A B : list nat) : Prop :=
 
 (* list equality up to permutation *)
 Definition mset_eq (A B : list nat) : Prop := 
-  forall c, In c A \/ In c B -> count_occ Nat.eq_dec A c = count_occ Nat.eq_dec B c.
+  forall c, count_occ Nat.eq_dec A c = count_occ Nat.eq_dec B c.
 Notation "A ≡ B" := (mset_eq A B) (at level 65).
 
 (* removes the first occurrence of n in A, fails otherwise *)
@@ -193,10 +193,10 @@ Qed.
   Proof.
     rewrite /mset_eq => H c. constructor=> Hc.
     - have := iffLR (count_occ_In Nat.eq_dec A c) Hc.
-      move: (H c (or_introl Hc)) => ->.
+      move: (H c) => ->.
       by move /(count_occ_In Nat.eq_dec B c).
     - have := iffLR (count_occ_In Nat.eq_dec B c) Hc.
-      move: (H c (or_intror Hc)) => <-.
+      move: (H c) => <-.
       by move /(count_occ_In Nat.eq_dec A c).
   Qed.
 
@@ -211,11 +211,8 @@ Qed.
 
   Lemma mset_eq_trans {A B C} : A ≡ B -> B ≡ C -> A ≡ C.
   Proof.
-    move /copy => [/eq_in_iff HAB +] /copy [/eq_in_iff HBC +].
     rewrite /mset_eq => + + c.
     move=> /(_ c) + /(_ c).
-    rewrite HAB HBC.
-    clear. move=> + + H. move=> /(_ H) + /(_ H).
     by move=> -> ->.
   Qed.
 
@@ -235,12 +232,14 @@ Qed.
       move /(mset_eq_trans _). by move /(_ _ HA).
   Qed. 
 
-  Print Assumptions eq_lr.
 
   Lemma count_occ_app {X : Type} {D : forall x y : X, {x = y} + {x <> y}} {A B c}:
     count_occ D (A ++ B) c = count_occ D A c + count_occ D B c.
   Proof.
-  Admitted.
+    elim: A B.
+      done.
+    move=> a A IH B /=. rewrite IH. by case: (D a c).
+  Qed.
   
   (*
   Lemma count_occ_cons {X : Type} {D : forall x y : X, {x = y} + {x <> y}} {A a c}:
@@ -280,56 +279,20 @@ Qed.
 
   Lemma eq_appI {A B A' B'} : A ≡ A' -> B ≡ B' -> A ++ B ≡ A' ++ B'.
   Proof.
-    move=> /copy [/eq_in_iff HAA'] + /copy [/eq_in_iff HBB'].
     rewrite /mset_eq => + + c. move=> /(_ c) + /(_ c).
-    rewrite ? in_app_iff ? count_occ_app.
-    rewrite - ? HAA' - ? HBB' ? or_idemp.
-    move=> HA HB. case.
-      move /HA => ->.
-    (*
-    have H2A := iffLR (count_occ_not_In Nat.eq_dec A c).
-    have H2B := iffLR (count_occ_not_In Nat.eq_dec B c).
-    have H2B' := iffLR (count_occ_not_In Nat.eq_dec B' c).
-    have := (in_dec Nat.eq_dec c A).
-    have := (in_dec Nat.eq_dec c A').
-    have := (in_dec Nat.eq_dec c B).
-    have := (in_dec Nat.eq_dec c B').
-    case=> HcB'; case=> HcB; case=> HcA'; case=> HcA.
-    all: try (have -> := HA HcA).
-    all: try (have -> := HB HcB).
-    all: try (have -> := H2A HcA).
-    all: try (have -> := H2B HcB).
-    all: try (have -> := H2A' HcA').
-    all: try (have -> := H2B' HcB').
-    all: try lia.
-    all: move=> _.
-    1-3: firstorder lia.
-    all: auto.
-    all: firstorder auto.
-    firstorder auto.
-
-    case; case.
-      move=> H. move: (HAA' (or_introl H)) => ->.
-      *)
-  Admitted.
+    rewrite ? count_occ_app. by move=> -> ->.
+  Qed.
 
   (* solves trivial multiset equalities *)
   Ltac mset_eq_trivial := 
-    move=> ? ?; rewrite ? (count_occ_app, count_occ_cons, count_occ_nil); unlock; by lia.
+    move=> ?; rewrite ? (count_occ_app, count_occ_cons, count_occ_nil); unlock; by lia.
       
 
   Lemma eq_cons_iff {a A B} : (a :: A) ≡ (a :: B) <-> A ≡ B.
   Proof.
     rewrite /mset_eq. constructor.
     all: move=> H c; move: {H}(H c); rewrite ? count_occ_cons ? in_cons_iff; unlock.
-    all: rewrite Nat.add_cancel_l.
-      by firstorder done.
-    move=> H. case: (in_dec Nat.eq_dec c (A ++ B)).
-      by move /in_app_iff /H => ->.
-    rewrite in_app_iff.
-    have HA := iffLR (count_occ_not_In Nat.eq_dec A c).
-    have HB := iffLR (count_occ_not_In Nat.eq_dec B c).
-    by move /Decidable.not_or=> [/HA -> /HB ->].
+    all: by rewrite Nat.add_cancel_l.
   Qed.
 
 
