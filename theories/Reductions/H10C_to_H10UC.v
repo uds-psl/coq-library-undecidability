@@ -1,9 +1,23 @@
+(* 
+  Autor(s):
+    Andrej Dudenhefner (1) 
+  Affiliation(s):
+    (1) Saarland Informatics Campus, Saarland University, Saarbrücken, Germany
+*)
+
+(* 
+  Reduction from:
+    Elementary Diophantine constraint satisfiability (H10C)
+  to:
+    Uniform Diophantine constraint satisfiability (H10UC)
+*)
+
 Require Import ssreflect ssrbool ssrfun.
 Require Import List.
 Import ListNotations.
-Require Import Psatz.
+Require Import PeanoNat Psatz.
 
-From Undecidability.Problems Require Import H10C H10UC Reduction.
+From Undecidability Require Import Problems.H10C Problems.H10UC Problems.Reduction.
 
 Set Maximal Implicit Insertion.
 
@@ -46,60 +60,35 @@ End ListFacts.
 (* bijections between nat and nat * nat *)
 Section NatNat.
 
-Definition big_sum (n : nat) : nat := 
-  nat_rect (fun _ => nat) 0 (fun i m => m + (S i)) n.
-
-Lemma big_sum_0 {n} : big_sum n = 0 -> n = 0.
-Proof.
-  case: n => //=. move => n ?. by lia.
-Qed.
+(* 0 + 1 + ... + n *)
+Definition big_sum (n : nat) : nat := nat_rec _ 0 (fun i m => m + (S i)) n.
 
 (* bijection from nat * nat to nat *)
-Definition nat2_to_nat (a : nat * nat) : nat :=
-  match a with
-  | (x, y) => (big_sum (x+y)) + y
-  end.
+Definition nat2_to_nat '(x, y) : nat := (big_sum (x + y)) + y.
 
-Definition next_nat2 (a : nat * nat) : nat * nat :=
-  match a with
-  | (0, y) => (S y, 0)
-  | (S x, y) => (x, S y)
-  end.
+Definition next_nat2 '(x, y) : nat * nat :=
+  if x is S x then (x, S y) else (S y, 0).
 
 (* bijection from nat to nat * nat *)
 Definition nat_to_nat2 (n : nat) : nat * nat :=
   Nat.iter n next_nat2 (0, 0).
 
-Lemma add_x_0 {x}: x + 0 = x.
-Proof. by lia. Qed.
-
-Lemma add_x_S {x y}: x + (S y) = (S x) + y.
-Proof. by lia. Qed.
-
-Lemma add_x_y_0 {x y}: x + y = 0 -> x = 0 /\ y = 0.
-Proof. by lia. Qed.
-
-
 Lemma nat_nat2_cancel : cancel nat2_to_nat nat_to_nat2.
 Proof.
-  move=> a.
-  move Hn: (nat2_to_nat a) => n.
+  move=> a. move Hn: (nat2_to_nat a) => n.
   elim: n a Hn.
-    move=> [? ?] /add_x_y_0 [/big_sum_0 ? ?] /=.
-    f_equal; by lia.
-
-  move=> n IH [x y]. case: y => [| y] /=. case: x => [| x] //=.
-  all: rewrite ? (add_x_0, add_x_S); case.
+    case; case=> [|a]; case=> [|b]=> /=; by [|lia].
+  move=> n IH [x y]. case: y => [|y] /=. case: x => [|x] //=.
+  all: rewrite ? (Nat.add_0_r, Nat.add_succ_r); case.
     rewrite -/(nat2_to_nat (0, x)). by move /IH ->.
   rewrite -/(nat2_to_nat (S x, y)). by move /IH ->.
 Qed.
-
 
 Lemma nat2_nat_cancel : cancel nat_to_nat2 nat2_to_nat.
 Proof.
   elim => //=.
   move => n. move : (nat_to_nat2 n) => [+ ?].
-  case => /= => [|?]; rewrite ? (add_x_0, add_x_S) => /=; by lia.
+  case => /= => [|?]; rewrite ? (Nat.add_0_r, Nat.add_succ_r) => /=; by lia.
 Qed.
 
 End NatNat.
@@ -474,8 +463,8 @@ Qed.
 
 Check H10C_SAT_to_H10UC_SAT.
 
-From Undecidability.Problems Require Import TM.
-Require Import FRACTRAN_to_H10C.
+From Undecidability Require Import Problems.TM.
+From Undecidability Require Import Reductions.FRACTRAN_to_H10C.
 
 (* undecidability of H10UC *)
 Theorem H10UC_undec : Halt ⪯ H10UC_SAT.

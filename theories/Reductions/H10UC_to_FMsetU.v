@@ -20,7 +20,7 @@ Require Import Arith Psatz.
 Require Import List.
 Import ListNotations.
 
-From Undecidability.Problems Require Import FMsetU.
+From Undecidability Require Import Problems.FMsetU Problems.H10UC Problems.Reduction.
 
 Notation "t ⊍ u" := (mset_term_plus t u) (at level 40).
 Notation "t ⩀ u" := (mset_term_cap t u) (at level 39).
@@ -716,15 +716,11 @@ Proof.
   cbn. rewrite ? app_length seq_length. cbn. by lia.
 Qed.
 
-
-Require Import Problems.Reduction.
-Require Import Problems.H10UC.
-
 (* encode a single H10UC constraint as a list of FMsetU constraints *)
 Definition encode_h10uc '(x, y, z) := encode_constraint x y z.
 
 (* many-one reduction from H10UC to FMsetU *)
-Theorem H10UC_to_MsetU : H10UC_SAT ⪯ FMsetU_SAT.
+Theorem H10UC_to_FMsetU : H10UC_SAT ⪯ FMsetU_SAT.
 Proof.
   exists (flat_map encode_h10uc).
   move=> h10ucs. constructor.
@@ -774,18 +770,17 @@ Proof.
     by constructor.
 Qed.
 
-Check H10UC_to_MsetU.
+Check H10UC_to_FMsetU.
 
-From Undecidability.Problems Require Import TM.
-From Undecidability.Reductions Require Import H10C_to_H10UC.
+From Undecidability Require Import Problems.TM.
+From Undecidability Require Import Reductions.H10C_to_H10UC.
 
 (* undecidability of FMsetU *)
 Theorem FMsetU_undec : Halt ⪯ FMsetU_SAT.
 Proof.
   apply (reduces_transitive H10UC_undec).
-  apply H10UC_to_MsetU.
+  apply H10UC_to_FMsetU.
 Qed.
 
 Check FMsetU_undec.
 Print Assumptions FMsetU_undec.
-
