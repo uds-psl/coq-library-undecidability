@@ -9,7 +9,7 @@
   Reduction from:
     Uniform H10 constraint satisfiability (H10UC)
   to:
-    Finite multiset constraint unification (FMsetU)
+    Finite multiset constraint solvability (FMsetC)
   
   References:
     [1] Paliath Narendran: Solving Linear Equations over Polynomial Semirings.
@@ -20,7 +20,7 @@ Require Import Arith Psatz.
 Require Import List.
 Import ListNotations.
 
-From Undecidability Require Import Problems.FMsetU Problems.H10UC Problems.Reduction.
+From Undecidability Require Import Problems.FMsetC Problems.H10UC Problems.Reduction.
 
 Notation "t ⊍ u" := (mset_term_plus t u) (at level 40).
 Notation "t ⩀ u" := (mset_term_cap t u) (at level 39).
@@ -56,7 +56,7 @@ Set Maximal Implicit Insertion.
 Arguments mset_eq !A !B.
 Arguments mset_intersect !A !B.
 
-Definition mset_sat (φ : nat -> list nat) (l : FMsetU_PROBLEM) := 
+Definition mset_sat (φ : nat -> list nat) (l : FMsetC_PROBLEM) := 
   Forall (fun '(A, B) => (mset_sem φ A) ≡ (mset_sem φ B)) l.
 
 Lemma mset_satP {φ l} : mset_sat φ l <-> (forall (A B : mset_term), In (A, B) l -> (mset_sem φ A) ≡ (mset_sem φ B)).
@@ -373,7 +373,7 @@ Qed.
 
 (* 
   auxiliary soundness and completeness lemmas 
-  for the reduction from H10UC to FMsetU
+  for the reduction from H10UC to FMsetC
 *)
 
 (* forces instance to be a sequence *)
@@ -568,7 +568,7 @@ Lemma embed_unembed {xy} : unembed (embed xy) = xy.
 Proof. apply: NatNat.nat_nat2_cancel. Qed.
 
 (* each n : nat is represented by a multiset containing n zeroes *)
-Definition encode_nat (x: nat) : FMsetU_PROBLEM :=
+Definition encode_nat (x: nat) : FMsetC_PROBLEM :=
   let X := embed (x, 0) in
   let XX := embed (x, 1) in
   let Ax := embed (x, 2) in
@@ -716,11 +716,11 @@ Proof.
   cbn. rewrite ? app_length seq_length. cbn. by lia.
 Qed.
 
-(* encode a single H10UC constraint as a list of FMsetU constraints *)
+(* encode a single H10UC constraint as a list of FMsetC constraints *)
 Definition encode_h10uc '(x, y, z) := encode_constraint x y z.
 
-(* many-one reduction from H10UC to FMsetU *)
-Theorem H10UC_to_FMsetU : H10UC_SAT ⪯ FMsetU_SAT.
+(* many-one reduction from H10UC to FMsetC *)
+Theorem H10UC_to_FMsetC : H10UC_SAT ⪯ FMsetC_SAT.
 Proof.
   exists (flat_map encode_h10uc).
   move=> h10ucs. constructor.
@@ -770,17 +770,17 @@ Proof.
     by constructor.
 Qed.
 
-Check H10UC_to_FMsetU.
+Check H10UC_to_FMsetC.
 
 From Undecidability Require Import Problems.TM.
 From Undecidability Require Import Reductions.H10C_to_H10UC.
 
-(* undecidability of FMsetU *)
-Theorem FMsetU_undec : Halt ⪯ FMsetU_SAT.
+(* undecidability of FMsetC *)
+Theorem FMsetC_undec : Halt ⪯ FMsetC_SAT.
 Proof.
   apply (reduces_transitive H10UC_undec).
-  apply H10UC_to_FMsetU.
+  apply H10UC_to_FMsetC.
 Qed.
 
-Check FMsetU_undec.
-Print Assumptions FMsetU_undec.
+Check FMsetC_undec.
+Print Assumptions FMsetC_undec.

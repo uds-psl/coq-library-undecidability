@@ -7,10 +7,10 @@
 
 (* 
   Problem:
-    Finite multiset constraint unification (FMsetU)
+    Finite multiset constraint solvability (FMsetC)
 
-  Finite multiset constratins with one constant 0 and one unary constructor h
-  A finite multiset A is represented by a list of elements.
+  Finite multisets with one constant 0 and one unary constructor h
+  A finite multiset A is represented by a list of its elements.
   The element (h^n 0) is represented by the natural number n.
 
   Terms t, u:
@@ -20,7 +20,7 @@
   Constraints:
     t ≐ u 
 
-  FMsetU:
+  FMsetC:
     Given a list (t₁ ≐ u₁),...,(tₙ ≐ uₙ) of constraints,
     is there a valuation φ : nat -> list nat such that
     φ(t₁) ≡ φ(u₁),..., φ(tₙ) ≡ φ(uₙ),
@@ -77,8 +77,8 @@ Fixpoint mset_sem (φ : nat -> list nat) (A : mset_term) : list nat :=
   end.
 
 (* list of constraints *)
-Definition FMsetU_PROBLEM := list (mset_term * mset_term).
+Definition FMsetC_PROBLEM := list (mset_term * mset_term).
 
 (* is there a valuation φ that satisfies all contraints *)
-Definition FMsetU_SAT (l : FMsetU_PROBLEM) := 
+Definition FMsetC_SAT (l : FMsetC_PROBLEM) := 
   exists (φ : nat -> list nat), forall (A B : mset_term), In (A, B) l -> (mset_sem φ A) ≡ (mset_sem φ B).
