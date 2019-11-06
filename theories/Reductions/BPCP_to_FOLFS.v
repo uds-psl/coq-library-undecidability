@@ -420,7 +420,10 @@ End FIB.
 
 Section CdrvDec.
 
-  Variable R : BSRS.
+  Section CdrvDec'.
+
+  Variable X : Type.
+  Variable R : stack X.
 
   (* cdrv is decidable *)
 
@@ -469,11 +472,15 @@ Section CdrvDec.
       all: try (cbn; lia). all: now apply derivations_S.
   Qed.
 
+  End CdrvDec'.
+
+  Variable R : BSRS.
+
   Definition cdrv_dec n s t :
     dec (@cdrv R n s t).
   Proof.
     destruct s as [ [s HT]|], t as [ [t HS]|]; cbn; auto.
-    destruct (list_in_dec (s/t) (derivations (|s| + |t|)) _) as [H|H].
+    destruct (list_in_dec (s/t) (derivations R (|s| + |t|)) _) as [H|H].
     - left. apply (derivations_drv H).
     - right. intros H'. apply H, drv_derivations, H'.
   Defined.
