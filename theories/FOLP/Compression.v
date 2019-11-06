@@ -62,12 +62,12 @@ Section Compression.
   Definition index_nat P :=
     proj1_sig (to_nat (index P)).
   
-  Definition encode_v P (v : vector term (pred_ar P)) :=
-    Vector.cons (var_term (index_nat P)) (fill (convert_v v) (var_term 0) (pred_max_spec P)).
+  Definition encode_v P (v : vector term (pred_ar P)) (n : nat) :=
+    Vector.cons (var_term (n + index_nat P)) (fill (convert_v v) (var_term 0) (pred_max_spec P)).
 
   Fixpoint encode' (n : nat) (phi : @form Sigma) : @form compress_sig :=
     match phi with
-    | Pred P v => @Pred compress_sig tt (encode_v v)
+    | Pred P v => @Pred compress_sig tt (encode_v v n)
     | Fal => Fal
     | Impl phi psi => Impl (encode' n phi) (encode' n psi)
     | Conj phi psi => Conj (encode' n phi) (encode' n psi)
@@ -75,6 +75,39 @@ Section Compression.
     | Ex phi => Ex (encode' (S n) phi)
     | All phi => All (encode' (S n) phi)
     end.
+
+  Definition encode phi :=
+    encode' 0 phi.
+
+
+
+  Section compr_to_uncompr.
+
+    Variables (D : Type) (I : @interp compress_sig D ) (rho : nat -> D) (phi : @form Sigma).
+    Hypothesis HI : rho ⊨ encode phi.
+
+    Definition translate_v P (v : vector D (pred_ar P)) :=
+      Vector.cons (rho (index_nat P)) (fill v (rho 0) (pred_max_spec P)).
+
+    Instance uncompr_interp :
+      @interp Sigma D.
+    Proof.
+      split.
+      - apply I.
+      - intros P v. exact (@i_P _ _ I tt (translate_v v)).
+    Defined.
+
+    Theorem compr_to_uncompr rho' psi :
+      rho' ⊨ psi <-> rho' ⊨ encode psi.
+    Proof.
+      induction psi in rho' |- *; cbn in *; trivial; try reflexivity.
+      - unfold translate_v. f_equal. admit.
+      - specialize (IHpsi1 rho'). specialize (IHpsi2 rho'). tauto.
+      - specialize (IHpsi1 rho'). specialize (IHpsi2 rho'). tauto.
+      - specialize (IHpsi1 rho'). specialize (IHpsi2 rho'). tauto.
+      - 
+
+  End compr_to_uncompr.
 
 
 End Compression.
