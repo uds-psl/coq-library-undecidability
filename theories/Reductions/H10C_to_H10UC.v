@@ -7,9 +7,9 @@
 
 (* 
   Reduction from:
-    Elementary Diophantine constraint satisfiability (H10C)
+    Elementary Diophantine constraint solvability (H10C)
   to:
-    Uniform Diophantine constraint satisfiability (H10UC)
+    Uniform Diophantine constraint solvability (H10UC)
 *)
 
 Require Import ssreflect ssrbool ssrfun.

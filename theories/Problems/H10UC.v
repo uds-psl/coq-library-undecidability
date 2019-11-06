@@ -7,7 +7,7 @@
 
 (* 
   Problem:
-    Uniform Diophantine constraint satisfiability (H10UC)
+    Uniform Diophantine constraint solvability (H10UC)
 
   A uniform Diophantine constraint has the shape 
     1 + x + y * y ≐ z

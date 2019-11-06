@@ -7,7 +7,7 @@
 
 (* 
   Reduction from:
-    Uniform H10 constraint satisfiability (H10UC)
+    Uniform H10 constraint solvability (H10UC)
   to:
     Finite multiset constraint solvability (FMsetC)
   
