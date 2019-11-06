@@ -161,6 +161,7 @@ Problems/FRACTRAN.v
 Problems/DIOPHANTINE.v
 Problems/H10C.v
 Problems/H10UC.v
+Problems/FMsetU.v
 
 Reductions/TM_to_SRH.v  
 Reductions/SRH_to_SR.v  
