@@ -6,25 +6,10 @@
 *)
 
 (* 
-  Problem:
+  Reduction from:
+    Uniform H10 constraint satisfiability (H10UC)
+  to:
     Finite multiset constraint unification (FMsetU)
-
-  Finite multiset constratins with one constant 0 and one unary constructor h
-  A finite multiset A is represented by a list of elements.
-  The element (h^n 0) is represented by the natural number n.
-
-  Terms t, u:
-    t, u ::= n : list nat | x : nat | t ⊍ u | t ⩀ u | h (t)
-    where x ranges over multiset variables
-  
-  Constraints:
-    t ≐ u 
-
-  FMsetU:
-    Given a list (t₁ ≐ u₁),...,(tₙ ≐ uₙ) of constraints,
-    is there a valuation φ : nat -> list nat such that
-    φ(t₁) ≡ φ(u₁),..., φ(tₙ) ≡ φ(uₙ),
-    where ≡ is equality up to permutation?
   
   References:
     [1] Paliath Narendran: Solving Linear Equations over Polynomial Semirings.
@@ -85,9 +70,9 @@ Qed.
 
 Lemma singleton_length {X : Type} {A : list X} : length A = 1 -> exists a, A = [a].
 Proof.
-  case : A.
-  - done.
-  - move => a A /=. case. move /length_zero_iff_nil => ->. by eexists.
+  case: A.
+    done.
+  move => a A /=. case. move /length_zero_iff_nil => ->. by eexists.
 Qed.
 
 Lemma nil_or_ex_max (A : list nat) : A = [] \/ exists a, In a A /\ Forall (fun b => a >= b) A.
@@ -137,6 +122,11 @@ Proof.
   move=> [? ?]. by constructor.
 Qed.
 
+Lemma Forall_singleton_iff {X: Type} {P: X -> Prop} {x} : Forall P [x] <-> P x.
+Proof.
+  rewrite Forall_cons_iff. by constructor; [case |].
+Qed.
+
 Lemma Forall_app_iff {T: Type} {P: T -> Prop} {A B}: Forall P (A ++ B) <-> Forall P A /\ Forall P B.
 Proof.
   elim: A.
@@ -145,16 +135,15 @@ Proof.
   by tauto.
 Qed.
 
+(* usage: rewrite ? Forall_norm *)
+Definition Forall_norm := (@Forall_app_iff, @Forall_singleton_iff, @Forall_cons_iff, @Forall_nil_iff).
+
 (* seq facts *)
 Lemma seq_last start length : seq start (S length) = (seq start length) ++ [start + length].
 Proof.
-  elim : length start.
-    move => * /=. f_equal. by lia.
-  move => length IH start /=. f_equal.
-  have -> : start + S length = (S start) + length by lia.
-  by apply : IH.
+  have -> : S length = length + 1 by lia.
+  by rewrite seq_app.
 Qed.
-
 
 (* repeat facts *)
 Lemma repeat_add {X : Type} {x : X} {m n} : repeat x (m + n) = repeat x m ++ repeat x n.
@@ -199,10 +188,8 @@ Proof.
 Qed.
 
 End NatNat.
-(*
-Section Mset.
-*)
 
+(* eq facts *)
   Lemma eq_refl {A} : A ≡ A.
   Proof.
     done.
@@ -261,26 +248,22 @@ Section Mset.
       move /(eq_trans _). by move /(_ _ HA).
   Qed. 
 
-
   Lemma eq_appI {A B A' B'} : A ≡ A' -> B ≡ B' -> A ++ B ≡ A' ++ B'.
   Proof.
     rewrite /mset_eq => + + c. move=> /(_ c) + /(_ c).
     rewrite ? count_occ_app. by move=> -> ->.
   Qed.
 
-  
   (* solves trivial multiset equalities *)
-  Ltac mset_eq_trivial := 
+  Ltac eq_trivial := 
     move=> ?; rewrite ? (count_occ_app, count_occ_cons, count_occ_nil); unlock; by lia.
       
-
   Lemma eq_cons_iff {a A B} : (a :: A) ≡ (a :: B) <-> A ≡ B.
   Proof.
     rewrite /mset_eq. constructor.
     all: move=> H c; move: {H}(H c); rewrite ? count_occ_cons ? in_cons_iff; unlock.
     all: by rewrite Nat.add_cancel_l.
   Qed.
-
 
   Lemma eq_app_iff {A B C} : (A ++ B) ≡ (A ++ C) <-> B ≡ C.
   Proof.
@@ -298,12 +281,11 @@ Section Mset.
       by left.
     move /(@in_split _ _) => [B1 [B2 ->]].
     under (eq_lr eq_refl (B' := a :: (B1 ++ B2))).
-      by mset_eq_trivial.
+      by eq_trivial.
     move /eq_cons_iff. move /IH. apply: unnest.
       done.
     rewrite ? app_length => /=. by lia.
   Qed.
-
 
   Lemma eq_repeatE {a A n} : repeat a n ≡ A -> A = repeat a n.
   Proof.
@@ -325,11 +307,6 @@ Section Mset.
     by move /eq_repeatE.
   Qed.
 
-  
-(*End Mset.
-*)
-
-
 Lemma eq_mapE {A} : map S A ≡ A -> A = [].
 Proof.
   case (nil_or_ex_max A).
@@ -340,6 +317,8 @@ Proof.
   move /HA. by lia.
 Qed.
 
+
+(* mset facts *)
 Lemma try_remove_in {a A} : In a A -> exists B, mset_try_remove a A = Some B /\ A ≡ (a :: B).
 Proof.
   elim: A.
@@ -356,7 +335,7 @@ Proof.
     rewrite (iffRL (Nat.eqb_neq a b) (ltac:(lia))).
     by rewrite HaB.
   under (eq_lr eq_refl (B' := b :: (a :: B))).
-    by mset_eq_trivial.
+    by eq_trivial.
   rewrite -/(mset_eq _ _). by apply /eq_cons_iff.
 Qed.
 
@@ -386,14 +365,16 @@ Proof.
   by lia.
 Qed.
 
-
 Lemma in_intersectI {a A B} : In a A -> In a B -> In a (mset_intersect A B).
 Proof.
   rewrite ? (count_occ_In Nat.eq_dec) mset_intersectP.
   by lia.
 Qed.
 
-
+(* 
+  auxiliary soundness and completeness lemmas 
+  for the reduction from H10UC to FMsetU
+*)
 
 (* forces instance to be a sequence *)
 (* first constraint of encode bound *)
@@ -425,16 +406,16 @@ Proof.
   move=> ?. subst n.
   under (eq_lr (A' := (1 + m) :: (A1 ++ A2) ++ [m]) (B' := (1 + m) :: 0 :: map S (A1 ++ A2))).
   all: rewrite -/(mset_eq _ _).
-    by mset_eq_trivial.
-    rewrite ? map_app map_cons /plus. by mset_eq_trivial.
+    by eq_trivial.
+    rewrite ? map_app map_cons /plus. by eq_trivial.
   move /eq_cons_iff /IH.
   apply: unnest.
     rewrite ? app_length => /=. by lia.
   move => ?.
   under (eq_lr (A' := m :: (A1 ++ A2)) (B' := m :: (seq 0 m))).
   all: rewrite -/(mset_eq _ _).
-    by mset_eq_trivial.
-    rewrite seq_last /plus. by mset_eq_trivial.
+    by eq_trivial.
+    rewrite seq_last /plus. by eq_trivial.
   by apply /eq_cons_iff.
 Qed.
 
@@ -458,11 +439,11 @@ Proof.
       move /in_map_iff=> [? [? ?]]. by lia.
     move /(@in_split _ _) => [B1 [B2 ->]].
     under (eq_lr _ _ (A' := 0 :: (C ++ A)) (B' := 0 :: ((B1 ++  B2) ++ map S A))).
-      by mset_eq_trivial.
-      by mset_eq_trivial.
+      by eq_trivial.
+      by eq_trivial.
     move /eq_cons_iff => H _. exists A, (B1 ++ B2).
     split=> //. split=> //.
-    by mset_eq_trivial.
+    by eq_trivial.
   move=> n IH A B /copy [/eq_in_iff /(_ (S n)) /iffLR].
   apply: unnest. 
     apply /in_app_iff. right. by firstorder done.
@@ -471,16 +452,16 @@ Proof.
   move /in_map_iff=> [n' [+ +]]. case=> ?. subst n'.
   move /(@in_split _ _) => [A1 [A2 ?]]. subst A.
   under (eq_lr (A' := S n :: (C ++ (n :: (A1 ++ A2)))) (B' := S n :: (B ++ map S (A1 ++ A2)))).
-    by mset_eq_trivial.
-    move=> c. rewrite ? map_app map_cons. move: c. by mset_eq_trivial.
+    by eq_trivial.
+    move=> c. rewrite ? map_app map_cons. move: c. by eq_trivial.
   move /eq_cons_iff => /IH + HB. apply: unnest.
     move: HB. apply /Forall_impl. move=> ?. by lia.
   move=> [A' [B' [? [? ?]]]]. exists A', B'.
   split=> //.
   rewrite seq_last.
   under (eq_lr (A' := n :: (A1 ++ A2)) (B' := n :: (seq 0 n ++ A'))).
-    by mset_eq_trivial.
-    rewrite /plus. by mset_eq_trivial.
+    by eq_trivial.
+    rewrite /plus. by eq_trivial.
   rewrite -/(mset_eq _ _). by apply /eq_cons_iff.
 Qed.
 
@@ -531,7 +512,6 @@ Proof.
   apply: eq_eq. by apply: bound_sat_aux.
 Qed.
 
-
 (* forces B to be a n zeroes and A to be of length in proportion to n squared *)
 Lemma nat_spec n A B : (seq 0 n) ++ A ≡ B ++ (map S A) -> 
   Forall (fun b => b = 0 \/ n <= b) B -> B = repeat 0 n /\ length A + length A + n = n * n.
@@ -542,7 +522,7 @@ Proof.
     move=> ->. rewrite /app. by move /eq_symm /eq_mapE => ->.
   move=> n IH A B. rewrite seq_last /plus -/plus.
   under (eq_lr _ eq_refl (A' := seq 0 n ++ (n :: A))).
-    by mset_eq_trivial.
+    by eq_trivial.
   move /nat_spec_aux => + HB. apply: unnest.
     move: HB. apply /Forall_impl => ?. by lia.
   move=> [A' [B' [HA' [HB']]]]. move /IH.
@@ -556,7 +536,6 @@ Proof.
   move /eq_symm /eq_repeatE => ?. split=> //.
   move: HA' => /eq_length. rewrite app_length seq_length. by lia. 
 Qed.
-
 
 (* [0] ++ [0,1] ++ [0,1,2] ++ ...*)
 Definition pyramid n := flat_map (seq 0) (seq 0 n).
@@ -575,8 +554,8 @@ Proof.
   under (eq_lr 
     (A' := seq 0 (S n) ++ (seq 0 n ++ pyramid n)) 
     (B' := (0 :: seq 1 n) ++ (repeat 0 n ++ map S (pyramid n)))).
-    by mset_eq_trivial.
-    by mset_eq_trivial.
+    by eq_trivial.
+    by eq_trivial.
   rewrite -/(mset_eq _ _). by apply /eq_app_iff.
 Qed.
 
@@ -609,8 +588,8 @@ Lemma encode_nat_spec {φ x} : mset_sat φ (encode_nat x) ->
     length (φ (embed (x, 0))) * length (φ (embed (x, 0))).
 Proof.
   rewrite /mset_sat /encode_nat.
-  rewrite ? Forall_cons_iff Forall_nil_iff /mset_sem.
-  move=> [+ [+ [+ [+ _]]]].
+  rewrite ? Forall_norm /mset_sem.
+  move=> [+ [+ [+]]].
   move: (φ (embed (x, 0)))=> X. move: (φ (embed (x, 1)))=> XX. 
   move: (φ (embed (x, 2)))=> A. move: (φ (embed (x, 3)))=> B.
   move: (φ (embed (x, 4)))=> C. move: (φ (embed (x, 5)))=> D. 
@@ -621,8 +600,8 @@ Proof.
   under (eq_lr _ eq_refl (A' := (seq 0 n) ++ D)).
     rewrite -/(mset_eq _ _).
     under (eq_lr (A' := D ++ A) (B' := D ++ seq 0 n)).
-      by mset_eq_trivial.
-      by mset_eq_trivial.
+      by eq_trivial.
+      by eq_trivial.
     rewrite -/(mset_eq _ _). by apply /eq_app_iff.
   move /nat_spec => /(_ ltac:(assumption)).
   move=> [/copy [+ ?] ?]. 
@@ -643,8 +622,8 @@ Proof.
   under (eq_lr 
     (A' := (seq 0 n ++ [n]) ++ (seq 0 n ++ pyramid n)) 
     (B' := (0 :: seq 1 n) ++ (repeat 0 n ++ map S (pyramid n)))).
-    by mset_eq_trivial.
-    by mset_eq_trivial.
+    by eq_trivial.
+    by eq_trivial.
   rewrite -/(mset_eq _ _).
   rewrite -seq_last -/(seq _ (S n)).
   by apply /eq_app_iff.
@@ -663,8 +642,8 @@ Proof.
   under (eq_lr 
     (A' := (pyramid n ++ flat_map pyramid (seq 0 n)) ++ (seq 0 n ++ pyramid n))
     (B' := (repeat 0 (length (pyramid n)) ++ map S (flat_map pyramid (seq 0 n))) ++ (repeat 0 n ++ map S (pyramid n)))).
-    by mset_eq_trivial.
-    by mset_eq_trivial.
+    by eq_trivial.
+    by eq_trivial.
   rewrite -/(mset_eq _ _).
   apply: eq_appI.
     done.
@@ -683,7 +662,7 @@ Definition encode_nat_vars φ x n : Prop :=
 Lemma encode_nat_sat {φ x n} : 
   encode_nat_vars φ x n -> mset_sat φ (encode_nat x).
 Proof.
-  rewrite /encode_nat_vars /encode_nat /mset_sat ? Forall_cons_iff Forall_nil_iff /mset_sem.
+  rewrite /encode_nat_vars /encode_nat /mset_sat ? Forall_norm /mset_sem.
   do 6 (move=> [->]). move=> ->.
   split. 
     by apply: seq_sat.
@@ -691,9 +670,7 @@ Proof.
     by apply: @bound_sat.
   split.
     by apply: nat_sat.
-  split.
-    by apply: encode_nat_sat_aux.
-  done.
+  by apply: encode_nat_sat_aux.
 Qed.
 
 (* represent constraints of shape 1 + x + y * y = z *)
@@ -705,14 +682,13 @@ Definition encode_constraint x y z :=
   let z := embed (z, 0) in
   [ (•[0] ⊍ x ⊍ yy ⊍ yy ⊍ y, mset_term_var z) ].
 
-
 (* if mset constraint has a solution, then uniform diophantine constraint is satisfied *)
 Lemma encode_constraint_spec {φ x y z} : mset_sat φ (encode_constraint x y z) -> 
   1 + length (φ (embed (x, 0))) + length(φ (embed (y, 0))) * length(φ (embed (y, 0))) = length(φ (embed (z, 0))).
 Proof.
   rewrite /encode_constraint /mset_sat. rewrite ? (Forall_app_iff).
   move => [/encode_nat_spec ? [/encode_nat_spec ? [ /encode_nat_spec ?]]].
-  rewrite Forall_cons_iff Forall_nil_iff /mset_sem. move => [+ _].
+  rewrite Forall_norm /mset_sem.
   move /eq_length. rewrite ? app_length.
   have -> : (length [0] = 1) by done.
   by lia.
@@ -726,13 +702,11 @@ Proof.
   move=> /copy [/encode_nat_sat ? Hx].
   move=> /copy [/encode_nat_sat ? Hy].
   move=> /copy [/encode_nat_sat ? Hz].
-  rewrite /encode_constraint /mset_sat ? Forall_app_iff Forall_cons_iff Forall_nil_iff.
+  rewrite /encode_constraint /mset_sat ? Forall_app_iff Forall_singleton_iff.
   move=> Hxyz.
   do 3 (split; [done|]).
   rewrite /mset_sem.
   move: Hx Hy Hz. rewrite /encode_nat_vars. move=> [-> _] [-> [-> _]] [-> _].
-  split; first last.
-    done.
   have ->: [0] = repeat 0 1 by done.
   rewrite - ? repeat_add. apply: eq_eq.
   f_equal. subst zn. clear. elim: yn.
@@ -746,10 +720,11 @@ Qed.
 Require Import Problems.Reduction.
 Require Import Problems.H10UC.
 
-
+(* encode a single H10UC constraint as a list of FMsetU constraints *)
 Definition encode_h10uc '(x, y, z) := encode_constraint x y z.
 
-Lemma H10UC_to_MsetU : H10UC_SAT ⪯ FMsetU_SAT.
+(* many-one reduction from H10UC to FMsetU *)
+Theorem H10UC_to_MsetU : H10UC_SAT ⪯ FMsetU_SAT.
 Proof.
   exists (flat_map encode_h10uc).
   move=> h10ucs. constructor.
@@ -799,9 +774,18 @@ Proof.
     by constructor.
 Qed.
 
-Print Assumptions H10UC_to_MsetU.
-(*
-Tactic Notation "induction" "on" hyp(x) "with" "measure" uconstr(f) :=
-  let H := fresh in pose H := f; pattern x in H; 
-  match goal with [H := ?f x |- _] => (clear H; elim/(measure_ind f) : x) end.
-*)
+Check H10UC_to_MsetU.
+
+From Undecidability.Problems Require Import TM.
+From Undecidability.Reductions Require Import H10C_to_H10UC.
+
+(* undecidability of FMsetU *)
+Theorem FMsetU_undec : Halt ⪯ FMsetU_SAT.
+Proof.
+  apply (reduces_transitive H10UC_undec).
+  apply H10UC_to_MsetU.
+Qed.
+
+Check FMsetU_undec.
+Print Assumptions FMsetU_undec.
+
