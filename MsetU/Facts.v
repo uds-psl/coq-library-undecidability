@@ -18,14 +18,14 @@ Qed.
 Arguments measure_ind {X}.
 
 
-(*transforms a goal (A -> B) -> C into goals A and B -> C*)
+(* transforms a goal (A -> B) -> C into goals A and B -> C *)
 Lemma unnest : forall (A B C : Prop), A -> (B -> C) -> (A -> B) -> C.
 Proof. auto. Qed.
 
-(*duplicates argument*)
+(* duplicates argument *)
 Lemma copy {A : Prop} : A -> A * A.
 Proof. done. Qed.
 
-(*swaps first two arguments*)
+(* swaps first two arguments *)
 Lemma swap (P Q R : Prop) : (P -> Q -> R) -> (Q -> P -> R).
 Proof. by auto. Qed.

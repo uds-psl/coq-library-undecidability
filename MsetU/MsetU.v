@@ -37,8 +37,8 @@ Require Import List.
 Import ListNotations.
 
 
-Require Import Facts.
-Require Import ListFacts.
+(*Require Import Facts.*)
+(*Require Import ListFacts.*)
 Require Import UserTactics.
 
 
@@ -51,6 +51,26 @@ Notation "• l" := (mset_term_const l) (at level 38, format "• l").
 
 Coercion mset_term_var : nat >-> mset_term.
 
+Section Facts.
+
+  (* induction principle wrt. a decreasing measure f *)
+  (* example: elim /(measure_ind length) : l. *)
+  Lemma measure_ind {X: Type} (f: X -> nat) (P: X -> Prop) : 
+    (forall x, (forall y, f y < f x -> P y) -> P x) -> forall (x : X), P x.
+  Proof.
+    apply : well_founded_ind.
+    apply : Wf_nat.well_founded_lt_compat. move => *. by eassumption.
+  Qed.
+
+  (* transforms a goal (A -> B) -> C into goals A and B -> C *)
+  Lemma unnest {A B C: Prop} : A -> (B -> C) -> (A -> B) -> C.
+  Proof. auto. Qed.
+
+  (* duplicates argument *)
+  Lemma copy {A: Prop} : A -> A * A.
+  Proof. done. Qed.
+
+End Facts.
 
 Set Implicit Arguments.
 Set Maximal Implicit Insertion.
@@ -108,9 +128,29 @@ Proof.
   rewrite /count_occ /is_left -lock. by case: (D a c).
 Qed.
 
+(* In facts *)
+Lemma in_cons_iff : forall {A : Type} {a b : A} {l : list A}, In b (a :: l) <-> (a = b \/ In b l).
+Proof. by constructor. Qed.
+
 (* Forall facts *)
 Lemma Forall_nil_iff {X: Type} {P: X -> Prop} : Forall P [] <-> True.
 Proof. by constructor. Qed.
+
+Lemma Forall_cons_iff {T: Type} {P: T -> Prop} {a l} :
+  Forall P (a :: l) <-> P a /\ Forall P l.
+Proof.
+  constructor. 
+    move=> H. by inversion H.
+  move=> [? ?]. by constructor.
+Qed.
+
+Lemma Forall_app_iff {T: Type} {P: T -> Prop} {A B}: Forall P (A ++ B) <-> Forall P A /\ Forall P B.
+Proof.
+  elim: A.
+    constructor; by [|case].
+  move=> ? ? IH /=. rewrite ? Forall_cons_iff ? IH.
+  by tauto.
+Qed.
 
 (* seq facts *)
 Lemma seq_last start length : seq start (S length) = (seq start length) ++ [start + length].
@@ -326,8 +366,6 @@ Qed.
 
 
 
-
-
 (* forces instance to be a sequence *)
 (* first constraint of encode bound *)
 (* type 1 constraint *)
@@ -493,6 +531,7 @@ Qed.
 (* [0] ++ [0,1] ++ [0,1,2] ++ ...*)
 Definition pyramid n := flat_map (seq 0) (seq 0 n).
 
+(* nat containstraints are satisfied using pyramid *)
 Lemma nat_sat {n}: (seq 0 n) ++ (pyramid n) ≡ (repeat 0 n) ++ (map S (pyramid n)).
 Proof.
   elim: n.
@@ -513,21 +552,15 @@ Qed.
 
 Require NatNat.
 
+(* embedding provides fresh auxiliary variables *)
 Definition embed xy := NatNat.nat2_to_nat xy.
 Definition unembed n := NatNat.nat_to_nat2 n.
-
-Lemma embed_unembed {xy} : unembed (embed xy) = xy.
-Proof.
-  apply: NatNat.nat_nat2_cancel.  
-Qed.
-
-Lemma unembed_embed {n} : embed (unembed n) = n.
-Proof.
-  apply: NatNat.nat2_nat_cancel.  
-Qed.
-
 Opaque embed unembed.
 
+Lemma embed_unembed {xy} : unembed (embed xy) = xy.
+Proof. apply: NatNat.nat_nat2_cancel. Qed.
+
+(* each n : nat is represented by a multiset containing n zeroes *)
 Definition encode_nat (x: nat) : FMsetU_PROBLEM :=
   let X := embed (x, 0) in
   let XX := embed (x, 1) in
@@ -644,6 +677,7 @@ Definition encode_constraint x y z :=
   let z := embed (z, 0) in
   [ (•[0] ⊍ x ⊍ yy ⊍ yy ⊍ y, mset_term_var z) ].
 
+
 (* if mset constraint has a solution, then uniform diophantine constraint is satisfied *)
 Lemma encode_constraint_spec {φ x y z} : mset_sat φ (encode_constraint x y z) -> 
   1 + length (φ (embed (x, 0))) + length(φ (embed (y, 0))) * length(φ (embed (y, 0))) = length(φ (embed (z, 0))).
@@ -656,6 +690,7 @@ Proof.
   by lia.
 Qed.
 
+(* if uniform diophantine constraint is satisfied, then mset constraint has a solution *)
 Lemma encode_constraint_sat {φ x y z xn yn zn} : 
   encode_nat_vars φ x xn -> encode_nat_vars φ y yn -> encode_nat_vars φ z zn ->
   1 + xn + yn * yn = zn -> mset_sat φ (encode_constraint x y z).

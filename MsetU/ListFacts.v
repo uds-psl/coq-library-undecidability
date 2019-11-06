@@ -13,9 +13,7 @@ Set Maximal Implicit Insertion.
 Require Import UserTactics.
 
 Lemma in_cons_iff : forall {A : Type} {a b : A} {l : list A}, In b (a :: l) <-> (a = b \/ In b l).
-Proof.
-auto with *.
-Qed.
+Proof. by constructor. Qed.
 
 Section ForallFacts.
 
@@ -29,29 +27,24 @@ case => //.
 intros; grab Forall; inversion; assumption.
 Qed.
 
+Lemma Forall_cons_iff {a l} :
+  Forall P (a :: l) <-> P a /\ Forall P l.
+Proof.
+  constructor. 
+    move=> H. by inversion H.
+  move=> [? ?]. by constructor.
+Qed.
 
 Lemma Forall_app_iff : forall (A B : list T), Forall P (A ++ B) <-> Forall P A /\ Forall P B.
 Proof.
-elim; first by firstorder done.
-intros * => IH.
-intros.
-constructor.
-inversion.
-firstorder (by constructor).
-move => [HP1 HP2].
-inversion_clear HP1.
-rewrite <- app_comm_cons.
-firstorder (by constructor).
+move=> A B. elim: A.
+constructor; by [|case].
+move=> ? ? IH /=. rewrite ? Forall_cons_iff ? IH.
+by tauto.
 Qed.
 
 
-Lemma Forall_cons_iff : forall (l : list T) (a : T),
-  Forall P (a :: l) <-> P a /\ Forall P l.
-Proof.
-intros. split.
-by inversion.
-case. intros. by constructor.
-Qed.
+
 
 Lemma Forall_In : forall (A : list T) (a : T), In a A -> Forall P A -> P a.
 Proof.
