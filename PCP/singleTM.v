@@ -1,4 +1,4 @@
-Require Export Undecidability.Shared.Prelim.
+Require Import Undecidability.Shared.Prelim.
 
 (** * TM to SRH *)
 

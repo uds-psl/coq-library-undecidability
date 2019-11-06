@@ -1,5 +1,6 @@
 (** ** TM to SR with finite types *)
 
+Require Import Undecidability.Shared.Prelim.
 Require Import singleTM .
 
 (* ** More preliminary lemmas *)
