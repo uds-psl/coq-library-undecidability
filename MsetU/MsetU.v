@@ -46,7 +46,7 @@ Notation "A ≡ B" := (mset_eq A B) (at level 65).
 Fixpoint mset_try_remove (n : nat) (A : list nat) : option (list nat) :=
   match A with
   | [] => None
-  | (m :: A) => if Nat.eqb n m then Some A else option_map (cons n) (mset_try_remove n A)
+  | (m :: A) => if Nat.eqb n m then Some A else option_map (cons m) (mset_try_remove n A)
   end.
 
 (* intersection of two multisets *)
@@ -390,9 +390,60 @@ Proof.
   move /HA. by lia.
 Qed.
 
+Lemma try_remove_in {a A} : In a A -> exists B, mset_try_remove a A = Some B /\ A ≡ (a :: B).
+Proof.
+  elim: A.
+    done.
+  move=> b A IH. rewrite in_cons_iff.
+  case: (Nat.eq_dec b a).
+    move=> ? ?. subst b. exists A. split.
+      rewrite /mset_try_remove. by inspect_eqb.
+    done.
+  move=> ?. case.
+    done.
+  move /IH => [B [HaB HAB]]. exists (b :: B). split.
+    rewrite /mset_try_remove -/mset_try_remove. inspect_eqb.
+    by rewrite HaB.
+  under (eq_lr eq_refl (B' := b :: (a :: B))).
+    by mset_eq_trivial.
+  rewrite -/(mset_eq _ _). by apply /eq_cons_iff.
+Qed.
+
+Lemma try_remove_not_in {a A} : not (In a A) -> mset_try_remove a A = None.
+Proof.
+  elim: A.
+    done.
+  move=> b A IH. rewrite in_cons_iff.
+  rewrite /mset_try_remove -/mset_try_remove.  
+  move /Decidable.not_or => [? /IH ->].
+  by inspect_eqb.
+Qed.
+
+Lemma mset_intersectP {A B c} : 
+  (count_occ Nat.eq_dec (mset_intersect A B) c) = min (count_occ Nat.eq_dec A c) (count_occ Nat.eq_dec B c).
+Proof.
+  elim: A B.
+    done.
+  move=> a A IH B. case: (in_dec Nat.eq_dec a B).
+    move /try_remove_in => [B' [HBB' /(_ c) ->]].
+    rewrite /mset_intersect -/mset_intersect HBB' /=.
+    case: (Nat.eq_dec a c)=> ?; rewrite IH; by lia.
+  rewrite /mset_intersect -/mset_intersect. move=> /copy [/try_remove_not_in -> ?].
+  rewrite IH => /=. case: (Nat.eq_dec a c)=> ?; first last.
+    done.
+  subst a. have -> := iffLR (count_occ_not_In Nat.eq_dec _ _) ltac:(eassumption).
+  by lia.
+Qed.
+
+(*
 Lemma mset_intersect_eq {A B C} : B ≡ C -> mset_intersect A B = mset_intersect A C.
 Proof.
+  elim: A B C.
+    done.
+  move=> a A IH B C /copy [/eq_in_iff /(_ a) HInBC] HBC.
+  rewrite /mset_intersect -/mset_intersect.
 Admitted.
+*)
 
 Lemma in_seq {a n} : a < n -> In a (seq 0 n).
 Proof.
@@ -405,9 +456,52 @@ Proof.
   move=> ->. right. by left.
 Qed.
 
+(*
+Lemma intersectP {A B C} : mset_intersect A B = C -> 
+  forall c, count_occ Nat.eq_dec C c = min (count_occ Nat.eq_dec A c) (count_occ Nat.eq_dec B c).
+Proof.
+  elim: A B C.
+    move=> B C. by move=> <-.
+  move=> a A IH B C. rewrite /mset_intersect -/mset_intersect.
+  elim: B C.
+    move=> C /= /IH + c. move=> /(_ c) -> /=. by rewrite ? Nat.min_0_r.
+  move=> b B IH2 C. rewrite /mset_try_remove -/mset_try_remove.
+  case: (Nat.eq_dec a b) => ?; inspect_eqb.
+    subst b. case: C.
+      done.
+    move=> c C. case=> ?. subst c.
+    move=> /IH + c. move=> /(_ c). rewrite /count_occ -/(count_occ _).
+    move=> ->. by case: (Nat.eq_dec a c).
+Admitted.
+*)
+
+
+Lemma in_intersectI {a A B} : In a A -> In a B -> In a (mset_intersect A B).
+Proof.
+  rewrite ? (count_occ_In Nat.eq_dec) mset_intersectP.
+  by lia.
+Qed.
+
+(*
+Lemma in_intersectI {a A B} : In a A -> In a B -> In a (mset_intersect A B).
+Proof.
+  elim: A B.
+    done.
+  move=> b A IH B. move /in_cons_iff. case.
+    move=> -> /try_remove_in [C]. rewrite /mset_intersect -/mset_intersect.
+    move=> ->. by left.
+  move=> /IH H /H{H}. => ? ?. rewrite /mset_intersect -/mset_intersect.
+  case: (mset_try_remove b B).
+    move=> C. right. apply: IH. 
+    move /
+Admitted.
+*)
+
+(*
 Lemma in_intersect {a A B} : In a (mset_intersect A B) <-> (In a A /\ In a B).
 Proof.
 Admitted.
+*)
 
 Lemma intersect_repeat {a n A} : n > 0 -> In a A -> mset_intersect (repeat a n) A = [a].
 Proof.
@@ -552,7 +646,7 @@ Proof.
   move/Exists_exists => [a [? ?]]. exfalso.
   have ?: 0 <> a by lia. have: a < n by lia.
   move /in_seq => H. move: HC => /eq_in_iff /(_ a) /iffRL /(_ H){H} => ?.
-  have H: In a (mset_intersect C A) by rewrite in_intersect.
+  have H: In a (mset_intersect C A) by apply: in_intersectI.
   move: (Heq a) => /iffLR. rewrite in_app_iff.
   apply: unnest. by left.
   by case.
