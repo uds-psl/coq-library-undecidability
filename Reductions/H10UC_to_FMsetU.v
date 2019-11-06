@@ -31,16 +31,9 @@
       LICS 1996: 466-472, doi: 10.1109/LICS.1996.561463
 *)
 Require Import ssreflect ssrbool ssrfun.
-Require Import Arith.
-Require Import Psatz.
+Require Import Arith Psatz.
 Require Import List.
 Import ListNotations.
-
-
-(*Require Import Facts.*)
-(*Require Import ListFacts.*)
-Require Import UserTactics.
-
 
 From Undecidability.Problems Require Import FMsetU.
 
@@ -171,6 +164,66 @@ Proof.
   move=> m IH. cbn. by f_equal.
 Qed.
 
+(* bijection between nat and nat * nat *)
+Module NatNat.
+
+Definition big_sum (n : nat) : nat := 
+  nat_rect (fun _ => nat) 0 (fun i m => m + (S i)) n.
+
+Lemma big_sum_0 {n} : big_sum n = 0 -> n = 0.
+Proof.
+  case: n => //=. move => n ?. by lia.
+Qed.
+
+(* bijection from nat * nat to nat *)
+Definition nat2_to_nat (a : nat * nat) : nat :=
+  match a with
+  | (x, y) => (big_sum (x+y)) + y
+  end.
+
+Definition next_nat2 (a : nat * nat) : nat * nat :=
+  match a with
+  | (0, y) => (S y, 0)
+  | (S x, y) => (x, S y)
+  end.
+
+(* bijection from nat to nat * nat *)
+Definition nat_to_nat2 (n : nat) : nat * nat :=
+  Nat.iter n next_nat2 (0, 0).
+
+Lemma add_x_0 {x}: x + 0 = x.
+Proof. by lia. Qed.
+
+Lemma add_x_S {x y}: x + (S y) = (S x) + y.
+Proof. by lia. Qed.
+
+Lemma add_x_y_0 {x y}: x + y = 0 -> x = 0 /\ y = 0.
+Proof. by lia. Qed.
+
+
+Lemma nat_nat2_cancel : cancel nat2_to_nat nat_to_nat2.
+Proof.
+  move=> a.
+  move Hn: (nat2_to_nat a) => n.
+  elim: n a Hn.
+    move=> [? ?] /add_x_y_0 [/big_sum_0 ? ?] /=.
+    f_equal; by lia.
+
+  move=> n IH [x y]. case: y => [| y] /=. case: x => [| x] //=.
+  all: rewrite ? (add_x_0, add_x_S); case.
+    rewrite -/(nat2_to_nat (0, x)). by move /IH ->.
+  rewrite -/(nat2_to_nat (S x, y)). by move /IH ->.
+Qed.
+
+
+Lemma nat2_nat_cancel : cancel nat_to_nat2 nat2_to_nat.
+Proof.
+  elim => //=.
+  move => n. move : (nat_to_nat2 n) => [+ ?].
+  case => /= => [|?]; rewrite ? (add_x_0, add_x_S) => /=; by lia.
+Qed.
+
+End NatNat.
 (*
 Section Mset.
 *)
@@ -319,12 +372,13 @@ Proof.
   move=> b A IH. rewrite in_cons_iff.
   case: (Nat.eq_dec b a).
     move=> ? ?. subst b. exists A. split.
-      rewrite /mset_try_remove. by inspect_eqb.
+      rewrite /mset_try_remove. by rewrite Nat.eqb_refl.
     done.
   move=> ?. case.
     done.
   move /IH => [B [HaB HAB]]. exists (b :: B). split.
-    rewrite /mset_try_remove -/mset_try_remove. inspect_eqb.
+    rewrite /mset_try_remove -/mset_try_remove. 
+    rewrite (iffRL (Nat.eqb_neq a b) (ltac:(lia))).
     by rewrite HaB.
   under (eq_lr eq_refl (B' := b :: (a :: B))).
     by mset_eq_trivial.
@@ -338,7 +392,7 @@ Proof.
   move=> b A IH. rewrite in_cons_iff.
   rewrite /mset_try_remove -/mset_try_remove.  
   move /Decidable.not_or => [? /IH ->].
-  by inspect_eqb.
+  by rewrite (iffRL (Nat.eqb_neq a b) (ltac:(lia))).
 Qed.
 
 Lemma mset_intersectP {A B c} : 
@@ -381,7 +435,7 @@ Proof.
   elim /(measure_ind (@length nat)) : A => A.
   case: (nil_or_ex_max A).
     move=> -> _ n /= /eq_singletonE. by case=> <-.
-  move=> [m [+ ?]].
+  move=> [m [+ Hm]].
   move /(in_split _ _) => [A1 [A2 ?]]. subst A.
   move=> IH n.
   move /copy => [H +].
@@ -391,7 +445,7 @@ Proof.
     apply: unnest. 
       rewrite ? (in_app_iff, in_cons_iff, map_app, map_cons). by auto.
     rewrite in_app_iff. case.
-      grab Forall. move /Forall_forall. move=> + H. move /(_ _ H). by lia.
+      move: Hm => /Forall_forall. move=> + H. move /(_ _ H). by lia.
     rewrite /In /plus. by case.
   move=> ?. subst n.
   under (eq_lr (A' := (1 + m) :: (A1 ++ A2) ++ [m]) (B' := (1 + m) :: 0 :: map S (A1 ++ A2))).
@@ -444,8 +498,8 @@ Proof.
   under (eq_lr (A' := S n :: (C ++ (n :: (A1 ++ A2)))) (B' := S n :: (B ++ map S (A1 ++ A2)))).
     by mset_eq_trivial.
     move=> c. rewrite ? map_app map_cons. move: c. by mset_eq_trivial.
-  move /eq_cons_iff => /IH + ?. apply: unnest.
-    grab Forall. apply /Forall_impl. move=> ?. by lia.
+  move /eq_cons_iff => /IH + HB. apply: unnest.
+    move: HB. apply /Forall_impl. move=> ?. by lia.
   move=> [A' [B' [? [? ?]]]]. exists A', B'.
   split=> //.
   rewrite seq_last.
@@ -488,7 +542,8 @@ Proof.
   have: mset_try_remove m (repeat 0 l) = None.
     elim: l=> //.
     move=> a IH' /=.
-    inspect_eqb. by rewrite IH'.
+    rewrite (iffRL (Nat.eqb_neq m 0) (ltac:(lia))).
+    by rewrite IH'.
   move=> ->. apply /IH. by lia.
 Qed.
 
@@ -513,13 +568,13 @@ Proof.
   move=> n IH A B. rewrite seq_last /plus -/plus.
   under (eq_lr _ eq_refl (A' := seq 0 n ++ (n :: A))).
     by mset_eq_trivial.
-  move /nat_spec_aux => + H. apply: unnest.
-    move: H. apply /Forall_impl => ?. by lia.
+  move /nat_spec_aux => + HB. apply: unnest.
+    move: HB. apply /Forall_impl => ?. by lia.
   move=> [A' [B' [HA' [HB']]]]. move /IH.
   apply: unnest.
     move: HB' => /eq_Forall_iff. move /(_ (fun b : nat => b = 0 \/ n <= b)) /iffLR.
     apply: unnest.
-      grab Forall. apply /Forall_impl. move=> ?. by lia.
+      move: HB. apply /Forall_impl. move=> ?. by lia.
     move /Forall_cons_iff=> [_].
     apply /Forall_impl. move=> ?. by lia.
   move=> [? ?]. subst B'. move : HB'. rewrite -/(repeat 0 (S n)).
@@ -549,8 +604,6 @@ Proof.
     by mset_eq_trivial.
   rewrite -/(mset_eq _ _). by apply /eq_app_iff.
 Qed.
-
-Require NatNat.
 
 (* embedding provides fresh auxiliary variables *)
 Definition embed xy := NatNat.nat2_to_nat xy.

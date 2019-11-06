@@ -144,11 +144,6 @@ H10/FRACTRAN_DIO.v
 H10/H10.v
 H10/DPRM.v
 
-MsetU/Facts.v
-MsetU/UserTactics.v
-MsetU/ListFacts.v
-MsetU/NatNat.v
-
 Problems/FOL.v
 Problems/cbvLambda.v
 Problems/TM.v
@@ -177,3 +172,4 @@ Reductions/MMA2_to_MM2.v
 Reductions/MM_to_FRACTRAN.v
 Reductions/FRACTRAN_to_H10C.v
 Reductions/H10C_to_H10UC.v
+Reductions/H10UC_to_FMsetU.v
