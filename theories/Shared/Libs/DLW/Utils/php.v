@@ -128,6 +128,8 @@ Section pigeon_list.
   
   Fact list_hd_cons_inv x l : list_has_dup (x::l) -> In x l \/ list_has_dup l.
   Proof. inversion 1; subst; auto. Qed.
+
+  Definition list_has_dup_cons_inv := list_hd_cons_inv.
   
   Fact list_has_dup_app_left l m : list_has_dup m -> list_has_dup (l++m).
   Proof. induction l; simpl; auto; constructor 2; auto. Qed.
@@ -186,6 +188,8 @@ Section pigeon_list.
       constructor 1; apply in_or_app; right.
       constructor 1; reflexivity.
   Qed.
+
+  Definition list_has_dup_equiv := list_has_dup_eq_duplicates.
 
   Fact repeat_choice_two x m : Forall (eq x) m -> (exists m', m = x::x::m') \/ m = nil \/ m = x::nil.
   Proof.
@@ -290,14 +294,21 @@ Section pigeon_list.
       and it does not find where is the duplicate
     *)
 
+  Theorem finite_php_dup l m : length l < length m 
+                            -> incl m l 
+                            -> list_has_dup m.
+  Proof.
+    intros H1 H2.
+    destruct (@length_le_and_incl_implies_dup_or_perm l m) as [ | H3 ]; auto; try omega.
+    apply Permutation_length in H3; omega.
+  Qed. 
+
   Theorem finite_pigeon_hole l m : 
          length l < length m 
       -> incl m l 
       -> exists x aa bb cc, m = aa++x::bb++x::cc.
   Proof.
-    intros H1 H2; apply list_has_dup_eq_duplicates.
-    destruct (@length_le_and_incl_implies_dup_or_perm l m) as [ | H3 ]; auto;
-      [ | apply Permutation_length in H3 ]; omega.
+    intros; apply list_has_dup_eq_duplicates, finite_php_dup with l; auto.
   Qed.
 
   Theorem partition_intersection l m k : 

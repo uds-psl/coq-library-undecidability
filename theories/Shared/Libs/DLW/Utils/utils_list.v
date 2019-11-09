@@ -326,6 +326,33 @@ Section flat_map.
 
 End flat_map.
 
+Section list_in_map.
+
+  Variable (X Y : Type).
+
+  Fixpoint list_in_map l : (forall x, @In X x l -> Y) -> list Y.
+  Proof.
+    refine (match l with
+      | nil  => fun _ => nil
+      | x::l => fun f => f x _ :: @list_in_map l _
+    end).
+    + left; auto.
+    + intros y Hy; apply (f y); right; auto.
+  Defined.
+
+  Theorem In_list_in_map l f x (Hx : In x l) : In (f x Hx) (list_in_map l f).
+  Proof.
+    revert f x Hx.
+    induction l as [ | x l IHl ]; intros f y Hy.
+    + destruct Hy.
+    + destruct Hy as [ -> | Hy ].
+      * left; auto.
+      * right.
+        apply (IHl (fun z Hz => f z (or_intror Hz))).
+  Qed.
+
+End list_in_map.
+
 Definition prefix X (l ll : list X) := exists r, ll = l++r.
   
 Infix "<p" := (@prefix _) (at level 70, no associativity).
@@ -519,6 +546,23 @@ Section list_first_dec.
   Qed.
   
 End list_first_dec.
+
+Section list_dec.
+
+  Variable (X : Type) (P Q : X -> Prop) (H : forall x, { P x } + { Q x }).
+  
+  Theorem list_dec l : { x | In x l /\ P x } + { forall x, In x l -> Q x }.
+  Proof.
+    induction l as [ | x l IHl ].
+    + right; intros _ [].
+    + destruct (H x) as [ Hx | Hx ].
+      1: { left; exists x; simpl; auto. }
+      destruct IHl as [ (y & H1 & H2) | H1 ].
+      * left; exists y; split; auto; right; auto.
+      * right; intros ? [ -> | ? ]; auto.
+  Qed.
+
+End list_dec.
 
 Section map.
 

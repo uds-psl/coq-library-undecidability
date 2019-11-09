@@ -1,0 +1,364 @@
+(**************************************************************)
+(*   Copyright Dominique Larchey-Wendling [*]                 *)
+(*                                                            *)
+(*                             [*] Affiliation LORIA -- CNRS  *)
+(**************************************************************)
+(*      This file is distributed under the terms of the       *)
+(*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
+(**************************************************************)
+
+Require Import List Arith Lia.
+
+From Undecidability.Shared.Libs.DLW.Utils
+  Require Import utils_tac utils_list utils_nat finite.
+
+From Undecidability.Shared.Libs.DLW.Wf
+  Require Import acc_irr.
+
+From Undecidability.Shared.Libs.DLW.Vec 
+  Require Import pos vec.
+
+From Undecidability.TRAKHTENBROT
+  Require Import notations.
+
+Set Implicit Arguments.
+
+(** Then first order terms with signature *)
+
+Section first_order_terms.
+
+  Variable (var sym : Type)        (* a type of variables and symbols *)
+           (sym_ar : sym -> nat).  (* arities for symbols *)
+
+  Unset Elimination Schemes.       (* we do not want the autogen recursors *)
+
+  (** The Type of first order terms over signature s *)
+
+  Inductive fo_term : Type :=
+    | in_var : var -> fo_term
+    | in_fot : forall s, vec fo_term (sym_ar s) -> fo_term.
+
+  Set Elimination Schemes.
+
+  Section fo_term_rect.
+
+    (** We build a Type level dependent recursor together with
+        a fixpoint equation *)
+
+    Let sub_fo_term x t := 
+      match t with 
+        | in_var _    => False 
+        | @in_fot s v => in_vec x v 
+      end.  
+
+    (** This proof has to be carefully crafted for guardness *)
+ 
+    Let Fixpoint Acc_sub_fo_term t : Acc sub_fo_term t.
+    Proof.
+      destruct t as [ x | s v ]; constructor 1; simpl.
+      + intros _ [].
+      + intros x.
+        revert v; generalize (sym_ar s).
+        induction v as [ | n y w IHw ].
+        * destruct 1.
+        * intros [ H | H ].
+          - rewrite <- H; apply Acc_sub_fo_term.
+          - apply IHw, H.
+    Qed.
+
+    (** This is a Type level (_rect) dependent recursor with induction
+        hypothesis using Prop level in_vec *) 
+
+    Variable (P   : fo_term -> Type)
+             (HP0 : forall x, P (in_var x))
+             (IHP : forall s v, (forall t, in_vec t v -> P t) -> P (@in_fot s v)).
+
+    Let Fixpoint Fix_IHP t (Ht : Acc sub_fo_term t) { struct Ht } : P t :=
+      match t as t' return Acc sub_fo_term t'-> P t' with
+        | in_var x    => fun _  => HP0 x
+        | @in_fot s v => fun Ht => @IHP s v (fun x Hx => @Fix_IHP x (Acc_inv Ht _ Hx))
+      end Ht.
+
+    Let Fix_IHP_fix t Ht :
+        @Fix_IHP t Ht 
+      = match t as t' return Acc sub_fo_term t' -> _ with 
+          | in_var x    => fun _   => HP0 x
+          | @in_fot s v => fun Ht' => @IHP s v (fun y H => Fix_IHP (Acc_inv Ht' H)) 
+        end Ht.
+    Proof. destruct Ht; reflexivity. Qed.
+
+    Definition fo_term_rect t : P t.
+    Proof. apply Fix_IHP with (1 := Acc_sub_fo_term t). Defined.
+
+    Hypothesis IHP_ext : forall s v f g, (forall y H, f y H = g y H) -> @IHP s v f = IHP v g.
+
+    Let Fix_IHP_Acc_irr : forall t f g, @Fix_IHP t f = Fix_IHP g.
+    Proof.
+      apply Acc_irrelevance.
+      intros [] f g H; auto; apply IHP_ext; auto.
+    Qed.
+
+    Theorem fo_term_rect_fix s v : 
+            fo_term_rect (@in_fot s v) = @IHP s v (fun t _ => fo_term_rect t).
+    Proof.
+      unfold fo_term_rect at 1.
+      rewrite Fix_IHP_fix.
+      apply IHP_ext.
+      intros; apply Fix_IHP_Acc_irr.
+    Qed.
+
+  End fo_term_rect.
+
+  Definition fo_term_rec (P : _ -> Set) := @fo_term_rect P.
+  Definition fo_term_ind (P : _ -> Prop) := @fo_term_rect P.
+
+  Section fo_term_recursion.
+
+    (** We specialize the general recursor to fixed output type.
+        The fixpoint equation does not require extensionality anymore *)
+
+    Variable (X : Type)
+             (F0 : var -> X)
+             (F  : forall s, vec fo_term (sym_ar s) -> vec X (sym_ar s) -> X).
+
+    Definition fo_term_recursion : fo_term -> X.
+    Proof.
+      induction 1 as [ x | s v IHv ].
+      + exact (F0 x).
+      + apply (@F s v).
+        apply vec_in_map with (1 := IHv).
+    Defined.
+
+    Theorem fo_term_recursion_fix_0 x :
+      fo_term_recursion (in_var x) = F0 x.
+    Proof. reflexivity. Qed.
+
+    Theorem fo_term_recursion_fix_1 s v :
+      fo_term_recursion (@in_fot s v) = F v (vec_map fo_term_recursion v).
+    Proof.
+      unfold fo_term_recursion at 1.
+      rewrite fo_term_rect_fix; f_equal.
+      + rewrite vec_in_map_vec_map_eq; auto.
+      + intros; f_equal; apply vec_in_map_ext; auto.
+    Qed.
+
+  End fo_term_recursion.
+
+  (** We can now define eg the size of terms easily with the
+      corresponding fixpoint equation *)
+
+  Section fo_size_dep.
+
+    Variable cost : sym -> nat.
+
+    Definition fo_term_size : fo_term -> nat.
+    Proof.
+      apply fo_term_recursion.
+      + intros _; exact 1.
+      + intros s _ v.
+        exact (cost s+vec_sum v).
+    Defined.
+
+    Fact fo_term_size_fix_0 x : 
+         fo_term_size (in_var x) = 1.
+    Proof. apply fo_term_recursion_fix_0. Qed.
+  
+    Fact fo_term_size_fix_1 s v :
+         fo_term_size (@in_fot s v) = cost s + vec_sum (vec_map fo_term_size v).
+    Proof. apply fo_term_recursion_fix_1. Qed.
+
+  End fo_size_dep.
+
+  Definition fo_term_vars : fo_term -> list var.
+  Proof.
+    apply fo_term_recursion.
+    + intros x; exact (x::nil).
+    + intros s _ w.
+      apply vec_list in w.
+      revert w; apply concat.
+  Defined.
+
+  Fact fo_term_vars_fix_0 x : fo_term_vars (in_var x) = x :: nil.
+  Proof. apply fo_term_recursion_fix_0. Qed.
+
+  Fact fo_term_vars_fix_2 s v : fo_term_vars (@in_fot s v) = concat (vec_list (vec_map fo_term_vars v)).
+  Proof. apply fo_term_recursion_fix_1. Qed.
+
+  Fact fo_term_vars_fix_1 s v : fo_term_vars (@in_fot s v) = flat_map fo_term_vars (vec_list v).
+  Proof.
+    rewrite fo_term_vars_fix_2, vec_list_vec_map, <- flat_map_concat_map; auto.
+  Qed.
+ 
+End first_order_terms.
+
+Arguments in_var { var sym sym_ar }.
+
+Create HintDb fo_term_db.
+Tactic Notation "rew" "fot" := autorewrite with fo_term_db.
+
+Hint Rewrite fo_term_vars_fix_0 fo_term_vars_fix_1 : fo_term_db.
+
+Section fo_term_subst.
+
+  Variable (sym : Type) (sym_ar : sym -> nat)
+           (X Y : Type).
+
+  Implicit Type (σ : X -> fo_term Y sym_ar).
+
+  Definition fo_term_subst σ : fo_term X sym_ar -> fo_term Y sym_ar.
+  Proof.
+    apply fo_term_recursion.
+    + apply σ.
+    + intros s _ w; exact (in_fot s w).
+  Defined.
+
+  Notation "t ⟬ σ ⟭" := (fo_term_subst σ t).
+
+  Fact fo_term_subst_fix_0 σ x : (in_var x)⟬σ⟭  = σ x.
+  Proof. apply fo_term_recursion_fix_0. Qed.
+
+  Fact fo_term_subst_fix_1 σ s v : (in_fot s v)⟬σ⟭ 
+                                  = in_fot s (vec_map (fo_term_subst σ) v).
+  Proof. apply fo_term_recursion_fix_1. Qed.
+
+  Opaque fo_term_subst.
+
+  Global Hint Rewrite fo_term_subst_fix_0 fo_term_subst_fix_1 : fo_term_db.
+
+  Fact fo_term_subst_ext f g t : 
+     (forall x, In x (fo_term_vars t) -> f x = g x) -> t⟬f⟭ = t⟬g⟭.
+  Proof.
+    induction t as [ | s v IHv ]; intros Hfg; rew fot.
+    + apply Hfg; rew fot; simpl; auto.
+    + f_equal; apply vec_map_ext.
+      intros; apply IHv; auto.
+      intros y Hy; apply Hfg; rew fot. 
+      apply in_flat_map; exists x.
+      rewrite <- in_vec_list; tauto.
+  Qed.
+
+  Section map.
+
+    Variable (f : X -> Y).
+
+    Definition fo_term_map : fo_term X sym_ar -> fo_term Y sym_ar.
+    Proof.
+      apply fo_term_recursion.
+      + intros x; exact (in_var (f x)).
+      + intros s _ w; exact (in_fot s w).
+    Defined.
+
+    Fact fo_term_map_fix_0 x : 
+         fo_term_map (in_var x) = in_var (f x).
+    Proof. apply fo_term_recursion_fix_0. Qed.
+
+    Fact fo_term_map_fix_1 s v : 
+         fo_term_map (in_fot s v) = in_fot s (vec_map fo_term_map v).
+    Proof. apply fo_term_recursion_fix_1. Qed.
+
+  End map.
+
+  Opaque fo_term_map.
+
+  Hint Rewrite fo_term_map_fix_0 fo_term_map_fix_1 : fo_term_db.
+
+  Fact fo_term_subst_map f t : t⟬fun x => in_var (f x)⟭ = fo_term_map f t.
+  Proof. induction t; rew fot; f_equal. Qed.
+
+  Fact fo_term_map_ext f g t : (forall x, In x (fo_term_vars t) -> f x = g x)
+                             -> fo_term_map f t = fo_term_map g t.
+  Proof.
+    intros Hfg. 
+    do 2 rewrite <- fo_term_subst_map.
+    apply fo_term_subst_ext.
+    intros; f_equal; auto.
+  Qed.
+
+End fo_term_subst.
+
+Opaque fo_term_map fo_term_subst.
+
+Hint Rewrite fo_term_subst_fix_0 fo_term_subst_fix_1
+             fo_term_map_fix_0 fo_term_map_fix_1 : fo_term_db.
+
+Notation "t ⟬ σ ⟭" := (fo_term_subst σ t).
+
+Section fo_term_subst_comp.
+
+  Variables (sym : Type) (sym_ar : sym -> nat) (X Y Z : Type) 
+            (f : X -> fo_term Y sym_ar) 
+            (g : Y -> fo_term Z sym_ar).
+
+  Fact fo_term_subst_comp t : t⟬f⟭ ⟬g⟭ = t⟬fun x => (f x)⟬g⟭ ⟭ . 
+  Proof.
+    induction t; rew fot; auto; rew fot.
+    rewrite vec_map_map; f_equal.
+    apply vec_map_ext; auto.
+  Qed.
+
+End fo_term_subst_comp.
+
+Hint Rewrite fo_term_subst_comp : fo_term_db.
+
+Definition fo_term_subst_lift s ar (σ : nat -> @fo_term nat s ar) n :=
+  match n with 
+    | 0   => in_var 0
+    | S n => fo_term_map S (fo_term_subst σ (in_var n))
+  end.
+
+Arguments fo_term_subst_lift {s ar } σ n /.
+
+Notation "⇡ σ" := (fo_term_subst_lift σ).
+
+Section semantics.
+
+  Variable (sym : Type) (sym_ar : sym -> nat) (X : Type)
+           (M : Type) (sem_sym : forall s, vec M (sym_ar s) -> M).
+
+  Notation 𝕋 := (fo_term X sym_ar).
+
+  Implicit Type φ : X -> M.
+
+  Definition fo_term_sem φ : 𝕋 -> M.
+  Proof.
+    apply fo_term_recursion.
+    + exact φ.
+    + intros s _ w; exact (sem_sym w).
+  Defined.
+
+  Notation "⟦ t ⟧" := (fun φ => @fo_term_sem φ t).
+
+  Fact fo_term_sem_fix_0 φ n : ⟦in_var n⟧ φ = φ n.
+  Proof. apply fo_term_recursion_fix_0. Qed.
+
+  Fact fo_terl_sem_fix_1 φ s v : ⟦in_fot s v⟧ φ = sem_sym (vec_map (fun t => ⟦t⟧ φ) v).
+  Proof. apply fo_term_recursion_fix_1. Qed.
+
+  Opaque fo_term_sem.
+
+  Hint Rewrite fo_term_sem_fix_0 fo_terl_sem_fix_1 : fo_term_db.
+
+  Fact fo_term_sem_ext t φ ψ : 
+        (forall n, In n (fo_term_vars t) -> φ n = ψ n) -> ⟦t⟧ φ = ⟦t⟧ ψ.
+  Proof.
+    revert φ ψ; induction t as [ n | s v IHv ]; intros phi psy H; rew fot.
+    + apply H; simpl; auto.
+    + f_equal; apply vec_map_ext.
+      intros x Hx; apply IHv; auto.
+      intros n Hn; apply H; rew fot.
+      apply in_flat_map; exists x; split; auto.
+      apply in_vec_list; auto.
+  Qed.
+
+  Fact fo_term_sem_subst φ σ t : ⟦t⟬σ⟭⟧ φ = ⟦t⟧ (fun n => ⟦σ n⟧ φ).
+  Proof.
+    induction t; rew fot; f_equal; auto.
+    rewrite vec_map_map.
+    apply vec_map_ext; intros; auto.
+  Qed.
+
+End semantics.
+
+Opaque fo_term_sem.
+
+Hint Rewrite fo_term_sem_fix_0 fo_terl_sem_fix_1 fo_term_sem_subst : fo_term_db.

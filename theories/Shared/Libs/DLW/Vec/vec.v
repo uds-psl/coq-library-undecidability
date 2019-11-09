@@ -10,6 +10,7 @@
 (* Require Import Arith Omega Max List. *)
 
 Require Import Arith Omega List Permutation.
+
 From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos.
 
 Set Implicit Arguments.
@@ -163,7 +164,29 @@ Section vector.
     end.
     
   Fact vec_list_length n v : length (@vec_list n v) = n.
-  Proof. induction v; simpl; f_equal; auto. Qed.
+  Proof. induction v; simpl; f_equal; auto. Defined.
+
+  Fixpoint list_vec (l : list X) : vec (length l) := 
+    match l with 
+      | nil  => vec_nil
+      | x::l => vec_cons x (list_vec l)
+    end.
+
+  Fact list_vec_iso l : vec_list (list_vec l) = l.
+  Proof. induction l; simpl; f_equal; auto. Qed.
+
+  (* The other part needs a transport *)
+
+  Fact vec_list_iso n v : list_vec (@vec_list n v) = eq_rect_r _ v (vec_list_length v).
+  Proof. 
+    induction v; simpl; f_equal; auto.
+    rewrite IHv; unfold eq_rect_r; simpl.
+    generalize (length (vec_list v)) (vec_list_length v).
+    intros; subst; cbv; auto.
+  Qed.
+
+  Definition list_vec_full l : { v : vec (length l) | vec_list v = l }.
+  Proof. exists (list_vec l); apply list_vec_iso. Qed.
 
   Fact vec_list_inv n v x : In x (@vec_list n v) -> exists p, x = vec_pos v p.
   Proof.
@@ -174,6 +197,17 @@ Section vector.
     destruct IHl as (p & Hp); auto.
     subst; exists (pos_nxt p); auto.
   Qed.
+
+  Variable x : X.
+
+  Fixpoint in_vec n (v : vec n) : Prop :=
+    match v with
+      | vec_nil      => False
+      | vec_cons y v => y = x \/ in_vec v
+    end.
+
+  Fact in_vec_list n v : @in_vec n v <-> In x (vec_list v).
+  Proof. induction v; simpl; tauto. Qed.
 
 End vector.
 
@@ -249,15 +283,53 @@ Qed.
 
 Section vec_map.
 
-  Variable (X Y : Type) (f : X -> Y). 
+  Variable (X Y : Type).
 
-  Fixpoint vec_map n (v : vec X n) :=
-    match v with 
-      | vec_nil => vec_nil
-      | x ## v  => f x ## vec_map v 
-    end.
+  Section vec_map_def.
+
+    Variable (f : X -> Y).
+
+    Fixpoint vec_map n (v : vec X n) :=
+      match v with 
+        | vec_nil => vec_nil
+        | x ## v  => f x ## vec_map v 
+      end.
+
+  End vec_map_def.
+
+  Fixpoint vec_in_map n v : (forall x, @in_vec X x n v -> Y) -> vec Y n.
+  Proof.
+    refine (match v with
+      | vec_nil      => fun _ => vec_nil
+      | vec_cons x v => fun f => vec_cons (f x _) (@vec_in_map _ v _)
+    end).
+    + left; auto.
+    + intros y Hy; apply (f y); right; auto.
+  Defined.
+
+  Fact vec_in_map_vec_map_eq f n v : @vec_in_map n v (fun x _ => f x) = vec_map f v.
+  Proof. induction v; simpl; f_equal; auto. Qed.
+
+  Fact vec_in_map_ext n v f g : (forall x Hx, @f x Hx = @g x Hx) 
+                             -> @vec_in_map n v f = vec_in_map v g.
+  Proof. revert f g; induction v; simpl; intros; f_equal; auto. Qed.
+
+  Fact vec_map_ext f g n v : (forall x, in_vec x v -> f x = g x) 
+                          -> @vec_map f n v = vec_map g v.
+  Proof.
+    intros H.
+    do 2 rewrite <- vec_in_map_vec_map_eq.
+    apply vec_in_map_ext, H.
+  Qed.
+
+  Fact vec_list_vec_map (f : X -> Y) n v : vec_list (@vec_map f n v) = map f (vec_list v).
+  Proof. induction v; simpl; f_equal; auto. Qed.
 
 End vec_map.
+
+Fact vec_map_map X Y Z (f : X -> Y) (g : Y -> Z) n (v : vec _ n) :
+          vec_map g (vec_map f v) = vec_map (fun x => g (f x)) v.
+Proof. induction v; simpl; f_equal; auto. Qed. 
 
 Section vec_map2.
 
@@ -298,7 +370,6 @@ Proof.
   revert p; induction v; intros p; pos_inv p; simpl; auto.
 Qed.
 
-  
 Section vec_plus.
 
   Variable n : nat.
@@ -574,13 +645,6 @@ Proof.
   revert g; induction v; intro; simpl; auto.
   rewrite map_app; f_equal; auto.
   rewrite map_list_repeat; auto.
-Qed.
-
-Definition list_vec X (l : list X) : { v : vec X (length l) | vec_list v = l }.
-Proof.
-  induction l as [ | x l (v & Hv) ]; simpl.
-  exists vec_nil; auto.
-  exists (x##v); simpl; f_equal; auto.
 Qed.
 
 Fact vec_reif X n (R : pos n -> X -> Prop) : (forall p, ex (R p)) -> exists v, forall p, R p (vec_pos v p).

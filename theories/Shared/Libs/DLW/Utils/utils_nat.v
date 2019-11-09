@@ -7,11 +7,49 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Max Omega Wellfounded Bool.
+Require Import List Arith Max Omega Wellfounded Bool Eqdep_dec.
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import list_focus utils_tac utils_list.
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import list_focus utils_tac utils_list.
 
 Set Implicit Arguments.
+
+Section le_lt_pirr.
+
+  (** lt and lt are proof irrelevant *)
+
+  (* a dependent induction principle for le *)
+  
+  Scheme le_indd := Induction for le Sort Prop.
+
+  Theorem le_pirr x y (H1 H2 : x <= y) : H1 = H2.
+  Proof.
+    revert H2.
+    induction H1 as [ | m H1 IH ] using le_indd; intro H2.
+
+    change (le_n x) with (eq_rect _ (fun n' => x <= n') (le_n x) _ eq_refl).
+    generalize (eq_refl x).
+    pattern x at 2 4 6 10, H2. 
+    case H2; [intro E | intros m l E].
+    rewrite UIP_dec with (p1 := E) (p2 := eq_refl); auto.
+    apply eq_nat_dec.
+    contradiction (le_Sn_n m); subst; auto.
+    
+    change (le_S x m H1) with (eq_rect _ (fun n' => x <= n') (le_S x m H1) _ eq_refl).
+    generalize (eq_refl (S m)).
+    pattern (S m) at 1 3 4 6, H2.
+    case H2; [intro E | intros p H3 E].
+    contradiction (le_Sn_n m); subst; auto.
+    injection E; intro; subst.
+    rewrite (IH H3).
+    rewrite UIP_dec with (p1 := E) (p2 := eq_refl); auto.
+    apply eq_nat_dec.
+  Qed.
+
+  Fact lt_pirr x y (H1 H2 : x < y) : H1 = H2.
+  Proof. simpl; intros; apply le_pirr. Qed.
+
+End le_lt_pirr.
 
 Section fin_reif.
 

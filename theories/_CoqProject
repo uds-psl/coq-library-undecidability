@@ -31,9 +31,17 @@ Shared/Libs/DLW/Utils/power_decomp.v
 Shared/Libs/DLW/Utils/bounded_quantification.v
 Shared/Libs/DLW/Utils/php.v
 Shared/Libs/DLW/Utils/rel_iter.v
+Shared/Libs/DLW/Utils/finite.v
 
 Shared/Libs/DLW/Vec/pos.v
 Shared/Libs/DLW/Vec/vec.v
+Shared/Libs/DLW/Vec/fin_quotient.v
+
+Shared/Libs/DLW/Wf/acc_irr.v
+Shared/Libs/DLW/Wf/measure_ind.v
+Shared/Libs/DLW/Wf/wf_chains.v
+Shared/Libs/DLW/Wf/wf_finite.v
+Shared/Libs/DLW/Wf/wf_incl.v
 
 Problems/Reduction.v
 Problems/PCP.v
@@ -234,6 +242,16 @@ TM/PrettyBounds/UnivSpaceBounds.v
 
 # Multi-Univ Simulation Theorem
 TM/MultiUnivTimeSpaceSimulation.v
+
+#Full Trakhtenbrot with single binary rel
+TRAKHTENBROT/notations.v
+TRAKHTENBROT/bpcp.v
+TRAKHTENBROT/fol_ops.v
+TRAKHTENBROT/fo_terms.v
+TRAKHTENBROT/fo_logic.v
+TRAKHTENBROT/fol_bpcp.v
+TRAKHTENBROT/fol_extra.v
+
 
 L/Prelim/MoreBase.v
 L/Prelim/ARS.v
