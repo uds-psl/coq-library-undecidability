@@ -9,6 +9,9 @@
 
 Require Import List Arith Nat Lia Max Wellfounded Coq.Setoids.Setoid.
 
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_list.
+
 From Undecidability.Shared.Libs.DLW.Wf 
   Require Import wf_finite wf_chains.
 
@@ -55,7 +58,15 @@ Section axioms.
   Proof. unfold incl; auto. Qed.
 
   Fact incl_choose x y : { z | z ∈ x /\ z ∉ y } + { x ⊆ y }.
-  Proof. (* by list_dec on lX *) Admitted.
+  Proof.
+    set (P z := z ∈ x /\ z ∉ y).
+    set (Q z := z ∈ x -> z ∈ y).
+    destruct list_dec with (P := P) (Q := Q) (l := lX)
+      as [ (z & _ & H2 & H3) | H ]; unfold P, Q in *; clear P Q.
+    + intros z; destruct (Rdec z x); destruct (Rdec z y); tauto.
+    + left; exists z; auto.
+    + right; intros z; apply H; auto.
+  Qed.  
 
   Fact incl_dec x y : { x ⊆ y } + { ~ x ⊆ y }.
   Proof.
