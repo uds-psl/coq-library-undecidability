@@ -908,7 +908,15 @@ Section btree.
   Qed.
 
   (* I wonder whether the proof of this important result could
-     be split *)
+     be split 
+
+     The proof can be done by generalising seteq.v
+     to contraction under an equivalence (instead of @eq)
+     This would avoid using decidable equality and would
+     allow for the development of HF-Sets with UR-elements
+     over a non-decidable type
+
+   *)
 
   Lemma bti_equiv s t : s ⊆ t -> t ⊆ s -> s ≈ t.
   Proof.
