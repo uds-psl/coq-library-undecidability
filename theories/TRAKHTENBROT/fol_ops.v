@@ -45,11 +45,11 @@ Definition fol_quant_sem X q (P : X -> Prop) :=
 
 Arguments fol_quant_sem X q P /.
 
-Fact fol_quant_sem_ext X (P Q : X -> Prop) : 
+Fact fol_quant_sem_ext X q (P Q : X -> Prop) : 
         (forall x, P x <-> Q x) 
-      -> forall q, fol_quant_sem q P <-> fol_quant_sem q Q.
+      -> fol_quant_sem q P <-> fol_quant_sem q Q.
 Proof.
-  intros H []; simpl.
+  revert q; intros [] H; simpl.
   + split; intros (k & ?); exists k; apply H; auto.
   + split; intros ? k; apply H; auto. 
 Qed.
