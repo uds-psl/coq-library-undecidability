@@ -30,6 +30,7 @@ Shared/Libs/DLW/Utils/prime.v
 Shared/Libs/DLW/Utils/power_decomp.v
 Shared/Libs/DLW/Utils/bounded_quantification.v
 Shared/Libs/DLW/Utils/php.v
+Shared/Libs/DLW/Utils/seteq.v
 Shared/Libs/DLW/Utils/rel_iter.v
 Shared/Libs/DLW/Utils/finite.v
 
