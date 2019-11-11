@@ -236,12 +236,7 @@ Section pigeon_list.
   (** length_le_and_incl_implies_dup_or_perm is a generalisation of the PHP
       for which the inductive case works w/o needing decidable equality  
 
-      But I know, I should find a better name for it ...
-
-      If  m is longer than l 
-      and m is (set) included in l
-      then either it has a duplicate 
-               or it is permutable with l
+      A shorter proof
 
       The proof is by measure induction on length l
    *)
@@ -252,39 +247,18 @@ Section pigeon_list.
          -> list_has_dup m \/ m ~p l.
   Proof.
     revert m; induction on l as IHl with measure (length l); revert l IHl.
-    intros [ | x l ] IHl [ | y m ]; simpl; intros H1 H2; auto; try omega;
-      try (destruct (H2 y); simpl; auto; fail).
-    apply le_S_n in H1.
-    apply incl_left_right_php in H2.
-    destruct H2 as [  H2 
-                 | [ (H2 & H3) 
-                 | [ (H2 & H3) 
-                   | (H2 & m' & H3 & H4) ] ] ]; auto; try subst y.
-    * destruct IHl with (3 := H3); auto.
-      left; apply in_list_hd1; auto.
-    * destruct IHl with (3 := H3); auto.
-      + left; apply in_list_hd1; auto.
-      + left; apply in_list_hd0; revert H2.
-        apply Permutation_in, Permutation_sym; auto.
-    * apply perm_in_head in H2; destruct H2 as (l' & Hl').
-      apply Permutation_sym in H3.
-      apply perm_incl_right with (1 := Hl'), 
-            incl_right_cons_choose in H4.
-      destruct H4 as [ H4 | H4 ].
-      + left; apply in_list_hd0, Permutation_in with (1 := H3); right; auto.
-      + destruct IHl with (3 := H4) as [ H5 | H5 ].
-        - apply Permutation_length in Hl'; simpl in Hl' |- *; omega.
-        - apply Permutation_length in Hl'.
-          apply Permutation_length in H3.
-          simpl in Hl', H3; omega.
-        - left; apply perm_list_has_dup in H3; apply in_list_hd1; auto.
-        - { right; apply Permutation_trans with (y::x::m').
-            + apply perm_skip, Permutation_sym; auto.
-            + apply Permutation_trans with (1 := perm_swap _ _ _),
-                    perm_skip, Permutation_sym,
-                    Permutation_trans with (1 := Hl'),
-                    perm_skip, Permutation_sym; auto. }
-  Qed.
+    intros [ | x l ] IHl m; simpl; intros H1 H2; auto.
+    + destruct m as [ | y ]; auto; destruct (H2 y); simpl; auto.
+    + destruct incl_right_cons_incl_or_lhd_or_perm with (1 := H2)
+        as [ H3 | [ H3 | (m' & H3 & H4) ] ]; auto.
+      * destruct IHl with (3 := H3) as [ | H ]; try (simpl; omega); auto.
+        apply Permutation_length in H; omega.
+      * destruct IHl with (3 := H4) as [ H | H ]; try (simpl; omega).
+        - apply Permutation_length in H3; simpl in H3; omega.
+        - left; apply perm_list_has_dup with (1 := Permutation_sym H3).
+          constructor 2; auto.
+        - right; apply perm_trans with (1 := H3); auto.
+  Qed. 
 
   (** If  m is strictly longer than l 
       and m is (set) included in l
