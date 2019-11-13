@@ -252,6 +252,7 @@ TRAKHTENBROT/fo_terms.v
 TRAKHTENBROT/fo_logic.v
 TRAKHTENBROT/fol_bpcp.v
 TRAKHTENBROT/fol_extra.v
+TRAKHTENBROT/Sig3_Sig2.v
 TRAKHTENBROT/hfs.v
 
 

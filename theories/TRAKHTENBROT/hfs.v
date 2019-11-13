@@ -127,6 +127,8 @@ Section axioms.
 
   Definition is_pair p x y := forall a, a ∈ p <-> a ≈ x \/ a ≈ y.
 
+  Definition is_triple t x y z := forall a, a ∈ t <-> a ≈ x \/ a ≈ y \/ a ≈ z.
+
   Fact is_pair_comm p x y : is_pair p x y -> is_pair p y x.
   Proof. unfold is_pair; apply forall_equiv; intro; tauto. Qed.
 
@@ -139,9 +141,26 @@ Section axioms.
     rewrite H1, H2, H3; tauto.
   Qed.
 
+  Add Parametric Morphism: (is_triple) with signature 
+     (equiv) ==> (equiv) ==> (equiv) ==> (equiv) ==> (iff) as is_triple_congr.
+  Proof.
+    intros p q H1 x x' H2 y y' H3 z z' H4.
+    unfold is_triple.
+    apply forall_equiv; intros a.
+    rewrite H1, H2, H3, H4; tauto.
+  Qed.
+
   Fact is_pair_fun p q x y : is_pair p x y -> is_pair q x y -> p ≈ q.
   Proof.
     intros H1 H2; red in H1, H2; intro; 
+    rewrite H1, H2; tauto.
+  Qed.
+
+  Fact is_triple_fun r t x y z : is_triple r x y z 
+                              -> is_triple t x y z 
+                              -> r ≈ t.
+  Proof.
+    intros H1 H2; red in H1, H2; intro;
     rewrite H1, H2; tauto.
   Qed.
 
@@ -162,6 +181,93 @@ Section axioms.
   Proof.
     intros H1 H2; generalize (is_pair_inj H1 H2); tauto.
   Qed.
+
+  (** Replace the big disj with permutation up-to equivalence *)
+
+
+  Ltac collect_equiv :=
+   repeat match goal with 
+     | H : _ ≈ _ |- _ => revert H
+   end.
+
+  Ltac symetry :=
+    repeat match goal with
+      | |- (?x ≈ ?y) -> _ => let H := fresh in intro H; generalize (equiv_sym H); intro
+    end. 
+
+  Ltac eliminate :=
+    repeat match goal with
+      | |- True -> _ => intros _
+      | |- (?x ≈ ?x) -> _ => intros _
+      | |- (?x ≈ ?y) -> _ => let H := fresh in intro H; rewrite H; clear H
+    end. 
+
+  Fact id_rew x : x ≈ x <-> True.
+  Proof. split; auto. Qed.
+
+  Fact True_or_rewl (A : Prop) : A \/ True <-> True.
+  Proof. tauto. Qed.
+
+  Fact True_or_rewr (A : Prop) : True \/ A <-> True.
+  Proof. tauto. Qed.
+
+  Fact True_and_rewl (A : Prop) : A /\ True <-> A.
+  Proof. tauto. Qed.
+
+  Fact True_and_rewr (A : Prop) : True /\ A <-> A.
+  Proof. tauto. Qed.
+
+  Ltac rsimpl := 
+    repeat rewrite id_rew; 
+    repeat (rewrite True_or_rewl  || rewrite True_or_rewr || 
+            rewrite True_and_rewl || rewrite True_and_rewr).
+
+  Ltac myintro :=
+    match goal with
+      | |- True -> _ => intros _ 
+      | |- ?a \/ ?b \/ ?c -> _ => let H := fresh in intros [ H | [ H | H ]]; rewrite H
+    end.
+(*
+  The idea of encoding a triple as {{x},{x,y},{x,y,z}} seems to generates
+  too many cases to show bijections
+
+  Fact is_triple_inj p x y z x' y' z' : 
+              is_triple p x y z  
+           -> is_triple p x' y' z'
+           -> x ≈ y' /\ y ≈ x' /\ z ≈ z'
+           \/ x ≈ x' /\ y ≈ z' /\ z ≈ y'
+           \/ x ≈ z' /\ y ≈ y' /\ z ≈ x'
+
+           \/ x ≈ x' /\ y ≈ y' /\ z ≈ z'
+           \/ x ≈ y' /\ y ≈ z' /\ z ≈ x'
+           \/ x ≈ z' /\ y ≈ x' /\ z ≈ y'
+
+           \/ x ≈ x' /\ x ≈ y' /\ y ≈ z' /\ z ≈ z'
+           \/ x ≈ x' /\ x ≈ z' /\ y ≈ y' /\ z ≈ y'
+           \/ x ≈ y' /\ x ≈ z' /\ y ≈ x' /\ z ≈ x'
+           \/ x ≈ x' /\ z ≈ x' /\ y ≈ y' /\ y ≈ z'.
+  Proof.
+    unfold is_triple; intros H1 H2.
+    generalize (proj1 (H2 x)) (proj1 (H2 y)) (proj1 (H2 z)); rewrite H1, H1, H1, equiv_refl_True, equiv_refl_True, equiv_refl_True.
+    generalize (proj1 (H1 x')) (proj1 (H1 y')) (proj1 (H1 z')); rewrite H2, H2, H2, equiv_refl_True, equiv_refl_True, equiv_refl_True.
+    clear H1 H2.
+    repeat match goal with 
+     |- (_ -> ?t) -> _ => let H := fresh in let G := fresh in intros H; assert (G : t); [ apply H; auto | ]; clear H
+    end.
+    repeat match goal with H: _ \/ _ \/ _ |- _ => revert H end.
+    repeat (myintro; rsimpl; auto).
+    myintro.
+    
+    do 6 (intros [|[]]; auto; collect_equiv; eliminate; repeat rewrite id_rew; try tauto). [|[]] [|[]] [|[]] [|[]] [|[]]; auto; collect_equiv.
+    eliminate.
+    eliminate.
+    find_trans.
+     match goal with
+      | H : ?x ≈ ?y |- context[?x ≈ ?y] => rewrite (@id_rew x y); auto
+     end.
+  Qed.
+*)
+
 
   Definition is_opair p x y := exists a b, is_pair a x x /\ is_pair b x y /\ is_pair p a b.
 
@@ -198,6 +304,36 @@ Section axioms.
       generalize (is_pair_inj H2 G1) (is_pair_inj H1 G2).
       intros [ (E3 & E4) | (E3 & E4) ] [ (E5 & E6) | (E5 & E6) ];
         rewrite E4, <- E5; auto.
+  Qed.
+
+  Definition is_otriple t x y z := exists p, is_opair p x y /\ is_opair t p z.
+ 
+  Add Parametric Morphism: (is_otriple) with signature 
+     (equiv) ==> (equiv) ==> (equiv) ==> (equiv) ==> (iff) as is_otriple_congr.
+  Proof.
+    intros p q H1 x x' H2 y y' H3 z z' H4.
+    unfold is_otriple.
+    apply exists_equiv; intros t.
+    rewrite H1, H2, H3, H4; tauto.
+  Qed.
+
+  Fact is_otriple_fun p q x y z : is_otriple p x y z -> is_otriple q x y z -> p ≈ q.
+  Proof.
+    intros (t1 & H1 & H2) (t2 & H3 & H4).
+    generalize (is_opair_fun H1 H3); intros E.
+    rewrite E in H2.
+    apply (is_opair_fun H2 H4).
+  Qed.
+
+  Fact is_otriple_inj t x y z x' y' z' : 
+             is_otriple t x y z 
+          -> is_otriple t x' y' z' 
+          -> x ≈ x' /\ y ≈ y' /\ z ≈ z'.
+  Proof.
+    intros (p & H1 & H2) (q & H3 & H4).
+    destruct (is_opair_inj H2 H4) as (H5 & H6).
+    rewrite H5 in H1.
+    generalize (is_opair_inj H1 H3); tauto.
   Qed.
 
   Definition has_pairs (l : X) :=
