@@ -66,7 +66,6 @@ Section Sig3_Sig2.
                                       ⟑ Σ2_is_opair (S p)  0    (S z).
 
   Definition Σ2_is_triple_in r x y z := ∃ Σ2_is_otriple 0 (S x) (S y) (S z) ⟑ 0 ∈ (S r).
- 
 
   Definition Σ3_var : fo_term nat (ar_syms Σ3) -> nat.
   Proof.
@@ -100,6 +99,23 @@ Section Sig3_Sig2.
                                             -> R c c' 
                                             -> fom_rels M3 tt (a##b##c##ø)
                                            <-> fol_sem M2 ψ↑r↑a'↑b'↑c' (Σ2_is_triple_in 3 2 1 0).
+
+  (** Notice the following in HR4, the value of ψ is arbitrary *)
+
+  Fact Σ2_is_triple_in_vars r x y z : incl (fol_vars (Σ2_is_triple_in r x y z)) (r::x::y::z::nil).
+  Proof. intros a; simpl; tauto. Qed.
+
+  Fact Σ2_is_triple_in_equiv r x y z φ ψ :
+               fol_sem M2 φ↑r↑x↑y↑z (Σ2_is_triple_in 3 2 1 0)
+           <-> fol_sem M2 ψ↑r↑x↑y↑z (Σ2_is_triple_in 3 2 1 0).
+  Proof.
+    apply fol_sem_ext.
+    intros n Hn.
+    apply Σ2_is_triple_in_vars in Hn.
+    revert Hn.
+    repeat (intros [ <- | H ]; [ simpl; auto | revert H ]).
+    simpl; tauto.
+  Qed.
 
   Theorem Σ3_Σ2_correct (A : fol_form Σ3) l r φ ψ :
             HR1 (ψ l) (ψ r) -> HR2 (ψ l) (ψ r) -> HR4 (ψ l) (ψ r)
