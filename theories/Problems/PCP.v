@@ -89,3 +89,16 @@ Proof.
   - intros (? & ? & ? & ?). econstructor. eapply BPCP_derivable. eauto.
   - intros []. edestruct (derivable_BPCP H) as (? & ? & ? & ? & ?). subst. exists x. eauto.
 Qed.
+
+(*
+  Problem:
+    Binary modified Post correspondence problem (BMPCP)
+
+  BMPCP:
+    Given a pair (x, y) of binary strings and 
+    a list P of pairs of binary strings,
+    is there a list A = [(x₁, y₁),...,(xₙ, yₙ)] of pairs of binary strings such that
+    x ++ x₁ ++ ... ++ xₙ = y ++ y₁ ++ ... yₙ?
+    
+*)
+Definition BMPCP '((x,y), P) := exists A : BSRS, A <<= x/y :: P /\ x ++ tau1 A = y ++ tau2 A.

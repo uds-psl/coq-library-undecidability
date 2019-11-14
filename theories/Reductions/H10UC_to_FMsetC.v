@@ -941,7 +941,7 @@ Proof.
 Qed.
 
 Check H10UC_to_FMsetC.
-(*Print Assumptions H10UC_to_FMsetC.*)
+(* Print Assumptions H10UC_to_FMsetC. *)
 
 From Undecidability Require Import Problems.TM.
 From Undecidability Require Import Reductions.H10C_to_H10UC.
@@ -954,4 +954,4 @@ Proof.
 Qed.
 
 Check FMsetC_undec.
-Print Assumptions FMsetC_undec.
+(* Print Assumptions FMsetC_undec. *)

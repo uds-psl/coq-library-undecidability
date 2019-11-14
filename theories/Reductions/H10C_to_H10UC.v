@@ -474,4 +474,4 @@ Proof.
 Qed.
   
 Check H10UC_undec.
-Print Assumptions H10UC_undec.
+(* Print Assumptions H10UC_undec. *)
