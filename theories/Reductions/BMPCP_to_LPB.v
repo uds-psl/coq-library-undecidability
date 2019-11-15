@@ -9,7 +9,7 @@
   Reduction from:
     Binary modified Post correspondence problem (BMPCP)
   to:
-    Recognizing axiomatizations of in Hilber-style calculi (LPB)
+    Recognizing axiomatizations of Hilber-style calculi (LPB)
 
   References:
     [1] Grigoriy V. Bokov: Undecidable problems for propositional calculi with implication. 
@@ -535,7 +535,7 @@ Qed.
 
 From Undecidability Require Import Problems.Reduction.
 
-Lemma BMPCP_to_LPB : BMPCP ⪯ LPB.
+Theorem BMPCP_to_LPB : BMPCP ⪯ LPB.
 Proof.
   exists (fun '((v, w), P) => exist _ (Γ v w P) Γ_allowed).
   intros [[v w] P]. constructor.
@@ -549,7 +549,7 @@ Check BMPCP_to_LPB.
 From Undecidability Require Import Problems.TM.
 From Undecidability.PCP Require TM_SRH SRH_SR SR_MPCP MPCP_BMPCP.
 
-Lemma LPB_undec : Halt ⪯ LPB.
+Theorem LPB_undec : Halt ⪯ LPB.
 Proof.
   apply (reduces_transitive TM_SRH.Halt_SRH).
   apply (reduces_transitive SRH_SR.reduction).

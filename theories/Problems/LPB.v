@@ -7,7 +7,7 @@
 
 (* 
   Problem:
-    Recognizing axiomatizations of in Hilber-style calculi (LPB)
+    Recognizing axiomatizations of Hilbert-style calculi (LPB)
     (Linial-Post theorem, strengthened by Bokov [1,2])
 
   LPB:

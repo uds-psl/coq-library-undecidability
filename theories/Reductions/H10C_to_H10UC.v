@@ -273,7 +273,7 @@ Qed.
 
 (* needs 35 fresh variables *)
 (* x = x + z if
-  1 + (y + y) + (1 + z) * (1 + z) = 1 + (1 + (x + x)) * z * z *)
+  1 + (y + y) + (1 + z) * (1 + z) = 1 + (1 + (x + x)) + z * z *)
 Definition express_sum (x y z: nat) (f: nat -> nat) := 
   (express_succ (f 33) z f) ++ 
   (express_double (f 32) y (fun i => f (3+i))) ++ 
