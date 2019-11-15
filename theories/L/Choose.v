@@ -3,7 +3,7 @@ From Undecidability.L Require Import Interpreter Encodings.
 Definition test (u : term) := forall n, u (enc n) ▷ T \/ u (enc n) ▷ F.
 Definition satis u n := u (enc n) ▷ T.
 
-Hint Unfold test.
+Hint Unfold test : core.
 
 Section fix_u.
 
@@ -11,7 +11,7 @@ Section fix_u.
   Hypothesis proc_u : proc u.
   Hypothesis test_u : test u.
 
-  Definition H := rho (.\"H", "n", "u"; "u" "n" (.\ "_"; "n") (.\ "_"; "H" (!Succ "n") "u") !I).
+  Definition H := rho (convert (.\"H", "n", "u"; "u" "n" (.\ "_"; "n") (.\ "_"; "H" (!Succ "n") "u") !I)).
   Hint Unfold H : cbv.
 
   Lemma H_rec n : H (enc n) u ≻^+ u (enc n) (lambda (enc n)) (lambda (H (Succ (enc n)) u)) I.

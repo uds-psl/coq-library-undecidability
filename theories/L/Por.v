@@ -2,9 +2,9 @@ From Undecidability.L Require Import InterpreterResults.
 
 (** ** Parallel or *)
 
-Definition H (s t : term) : term := Eval cbv in (.\ "z"; !E "z" !s !(lambda T) (!E "z" !t !(lambda T) !F)).
-Definition O : term := Eval cbv in .\ "x", "y";
-                        (.\ "z"; !E "z" "x" !(lambda T) (!E "z" "y" !(lambda F) !I)) (!C !(H 2 1)).
+Definition H (s t : term) : term := Eval cbv in convert (.\ "z"; !E "z" !s !(lambda T) (!E "z" !t !(lambda T) !F)).
+Definition O : term := Eval cbv in convert (.\ "x", "y";
+                        (.\ "z"; !E "z" "x" !(lambda T) (!E "z" "y" !(lambda F) !I)) (!C !(H 2 1))).
 
 Lemma H_proc s t : proc (H (tenc s) (tenc t)).
 Proof.

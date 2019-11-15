@@ -50,7 +50,7 @@ Proof.
   pose (q := fun s => exists n, s = var n /\ eval n t <> None).
   
   assert (decp : decidable q). {
-    exists (.\ "s" ; "s" (.\ "n" ; !E "n" !(tenc t) !(lambda T) !F) !(lambda (lambda F)) !(lambda F)).
+    exists (convert (.\ "s" ; "s" (.\ "n" ; !E "n" !(tenc t) !(lambda T) !F) !(lambda (lambda F)) !(lambda F))).
     split; value. intros s.
     cbn. destruct s.
     - destruct (eval n t) eqn:Eq.

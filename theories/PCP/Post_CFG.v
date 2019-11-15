@@ -61,7 +61,7 @@ Section CFGs.
 
   Inductive rew_cfg : cfg -> list sig -> list sig -> Prop:=
   |rewR R x a y v : (a,v) el rules R -> rew_cfg R (x++[a]++y) (x++v++y).
-  Hint Constructors rew_cfg.
+  Hint Constructors rew_cfg : core.
 
   Lemma rewrite_sing R a x :
     (a, x) el rules R -> rew_cfg R [a] x.
@@ -72,7 +72,7 @@ Section CFGs.
   Inductive rewt (S: cfg) (x: list sig) : list sig -> Prop :=
   |rewtRefl : rewt S x x
   |rewtRule y z : rewt S x y -> rew_cfg S y z -> rewt S x z.
-  Hint Constructors rewt.
+  Hint Constructors rewt : core.
 
   Global Instance rewtTrans R :
     PreOrder (rewt R).

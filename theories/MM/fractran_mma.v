@@ -30,7 +30,7 @@ Local Notation "l /F/ x → y" := (fractran_step l x y) (at level 70, no associa
 
 Section Fractran_with_two_counters.
 
-  Hint Resolve subcode_refl.
+  Hint Resolve subcode_refl : core.
   Hint Rewrite mma_null_length mma_transfert_length mma_incs_length mma_decs_copy_length 
                mma_mult_cst_length mma_decs_length mma_mod_cst_length mma_div_cst_length : length_db.
 

@@ -11,7 +11,9 @@
 
 Require Import List Arith Omega.
 
-Require Import utils subcode sss bsm_defs compiler.
+Require Import utils.
+
+Require Import subcode sss bsm_defs compiler.
 
 
 (** ** Semantic Correctness of Compiled Code *)

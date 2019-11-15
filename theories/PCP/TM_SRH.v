@@ -67,12 +67,12 @@ Section string_rewriting.
 
   Inductive rew' : srs -> list sig -> list sig -> Prop:=
   |rewR R x u y v : (u,v) el R -> rew' R (x++u++y) (x++v++y).
-  Hint Constructors rew'. 
+  Hint Constructors rew' : core. 
 
   Inductive rewt' (S: srs) (x: list sig) : list sig -> Prop :=
   |rewt'Refl : rewt' S x x
   |rewt'Rule y z : rew' S x y -> rewt' S y z -> rewt' S x z.
-  Hint Constructors rewt'.
+  Hint Constructors rewt' : core.
 
   Instance rewt'Trans R :
     PreOrder (rewt' R).
@@ -716,4 +716,3 @@ Lemma Halt_SRH : Halt ⪯ SRH.
 Proof.
   eapply reduces_transitive. eapply halt_SRH'. eapply SRH'_SRH.
 Qed.
-

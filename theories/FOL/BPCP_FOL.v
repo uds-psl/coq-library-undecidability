@@ -132,7 +132,7 @@ Section validity.
 
   (** ** Provability *)
 
-  Hint Resolve enc_vars.
+  Hint Resolve enc_vars : core.
 
   Definition ctx_S :=
     F3 :: rev F2 ++ rev F1.
@@ -212,7 +212,7 @@ Proof.
   apply discrete_iff. constructor. apply eq_dec_form.
 Qed.
 
-Hint Resolve stack_enum form_discrete.
+Hint Resolve stack_enum form_discrete : core.
 
 Definition UA :=
   ~ enumerable (compl BPCP).

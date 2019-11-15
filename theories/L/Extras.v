@@ -6,7 +6,7 @@ From Undecidability.L Require Import Encodings.
 
 (** *** Predecessor and multiplication *)
 
-Definition Pred : term := .\"n"; "n" !Zero (.\"n"; "n").
+Definition Pred : term := convert (.\"n"; "n" !Zero (.\"n"; "n")).
 
 Hint Unfold Pred : cbv.
 
@@ -15,7 +15,7 @@ Proof.
   destruct n; solveeq.
 Qed.
 
-Definition Mul := rho (.\ "Mul", "m", "n"; "m" !Zero (.\ "m"; !Add "n" ("Mul" "m" "n"))).
+Definition Mul := rho (convert (.\ "Mul", "m", "n"; "m" !Zero (.\ "m"; !Add "n" ("Mul" "m" "n")))).
 
 Lemma Mul_correct m n :
   Mul (enc n) (enc m) ≡ enc (n * m).
@@ -71,7 +71,7 @@ Qed.
 
 Theorem FirstFixedPoint (s : term) :  closed s -> exists t, closed t /\ s t ≡ t.
 Proof.
-  pose (A := .\ "x"; !s ("x" "x")).
+  pose (A := convert (.\ "x"; !s ("x" "x"))).
   pose (t := A A).
   exists t. split;[subst t A;value|].
   symmetry. cbv. solvered.

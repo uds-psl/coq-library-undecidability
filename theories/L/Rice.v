@@ -7,7 +7,7 @@ Implicit Types s t u : term.
 (** ** Closedness is decidable *)
 
 Definition Leb := Eval cbn in
-      rho (.\ "leb", "m", "n"; "m" !T (.\ "m'"; "n" !F (.\ "n'"; "leb" "m'" "n'"))).
+      rho (convert (.\ "leb", "m", "n"; "m" !T (.\ "m'"; "n" !F (.\ "n'"; "leb" "m'" "n'")))).
 
 Hint Unfold Leb: cbv.
 
@@ -22,7 +22,7 @@ Qed.
 
 Hint Rewrite Leb_correct : Lcorrect.
 
-Definition Lt : term := .\ "m", "n"; !Leb (!Succ "m") "n".
+Definition Lt : term := convert (.\ "m", "n"; !Leb (!Succ "m") "n").
 
 Lemma Lt_correct n k : Lt (enc n) (enc k) ≡ benc (Nat.ltb n k).
 Proof.
@@ -32,10 +32,10 @@ Proof.
 Qed.
 
 Definition Bound := Eval cbn in
-      rho (.\ "d", "k", "t";
+      rho (convert (.\ "d", "k", "t";
            "t" (.\ "n"; !Lt "n" "k")
                (.\ "s", "t"; ("d" "k" "s") ("d" "k" "t") !F)
-               (.\ "s"; "d" (!Succ "k") "s")).
+               (.\ "s"; "d" (!Succ "k") "s"))).
 
 Lemma Bound_correct k s : Bound (enc k) (tenc s) ≡ benc (bound k s).
 Proof.

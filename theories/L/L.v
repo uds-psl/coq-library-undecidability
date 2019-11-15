@@ -10,13 +10,13 @@ Inductive term : Type :=
 | lambda (s : term).
 
 Definition lam s := exists t, s = lambda t.
-Hint Unfold lam.
+Hint Unfold lam : core.
 
 Lemma lambda_lam s : lam (lambda s).
 Proof.
   now exists s.
 Qed.
-Hint Resolve lambda_lam.
+Hint Resolve lambda_lam : core.
 
 Fixpoint size t :=
   match t with
@@ -33,7 +33,7 @@ Proof.
   intros ? ?; hnf; repeat decide equality.
 Defined.
 
-Hint Resolve term_eq_dec.
+Hint Resolve term_eq_dec : core.
 
 (** ** Named abstractions *)
 
@@ -62,7 +62,7 @@ end.
 Coercion bvar : string >-> bterm.
 Coercion bapp : bterm >-> Funclass.
 Definition convert := convert' [].
-Coercion convert : bterm >-> term.
+(* Coercion convert : bterm >-> term. *)
 
 Arguments convert /.
 
@@ -130,11 +130,11 @@ Qed.
 
 (** ** Named procedures *)
 
-Definition I : term := .\"x"; "x".
-Definition T : term := .\"x","y"; "x".
-Definition F : term := .\"x","y"; "y".
+Definition I : term := convert (.\"x"; "x").
+Definition T : term := convert (.\"x","y"; "x").
+Definition F : term := convert (.\"x","y"; "y").
 
-Definition omega : term := .\"x"; "x" "x".
+Definition omega : term := convert (.\"x"; "x" "x").
 Definition Omega := omega omega.
 Definition D: term := lambda (omega omega).
 
@@ -144,12 +144,12 @@ Inductive evaluates : term -> term -> Prop :=
   evaluates_lam s : evaluates (lambda s) (lambda s)
 | evaluates_app s t u v w : evaluates s (lambda u) -> evaluates t v -> evaluates (subst u 0 v) w ->
                             evaluates (s t) w.
-Hint Constructors evaluates.
+Hint Constructors evaluates : core.
 
 Notation "s '▷' t" := (evaluates s t) (at level 50).
 
 Definition eva s := exists t, evaluates s t.
-Hint Unfold eva.
+Hint Unfold eva : core.
 
 Lemma evaluates_abst s t : s ▷ t -> lam t.
 Proof.
@@ -243,7 +243,7 @@ Inductive step : term -> term -> Prop :=
 | stepAppL s s' t  : s ≻ s' -> app s t ≻ app s' t
 where "s '≻' t" := (step s t).
 
-Hint Constructors step.
+Hint Constructors step : core.
 
 Ltac inv_step :=
   match goal with
@@ -262,7 +262,7 @@ Inductive stepn : nat -> term -> term -> Prop :=
   stepn_refl s : stepn 0 s s
 | stepn_step s u t n : step s u -> stepn n u t -> stepn (S n) s t.
 
-Hint Constructors step star stepn evaluates.
+Hint Constructors step star stepn evaluates : core.
 
 Instance star_trans : Transitive star.
 Proof.
@@ -325,7 +325,7 @@ Qed.
 (** ** Recursion operator *)
 
 Definition C := .\ "x", "y"; "y" (.\ "z"; "x" "x" "y" "z").
-Definition rho s : term := Eval cbv in .\ "x" ; C C !s "x".
+Definition rho s : term := Eval cbv in convert (.\ "x" ; C C !s "x").
 
 Lemma rho_lam s : lam (rho s).
 Proof.
@@ -428,7 +428,7 @@ Inductive equiv : term -> term -> Prop :=
   | eqTrans s t u: s ≡ t -> t ≡ u -> s ≡ u
 where "s '≡' t" := (equiv s t).
 
-Hint Constructors equiv.
+Hint Constructors equiv : core.
 
 (* *** Properties of the equivalence relation *)
 

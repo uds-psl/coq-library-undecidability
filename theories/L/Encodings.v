@@ -27,8 +27,8 @@ Proof.
   eapply unique_normal_forms in H; value. subst. eapply enc_injective; congruence.
 Qed.
 
-Definition Zero : term := .\"z","s"; "z".
-Definition Succ : term := .\"n","z","s"; "s" "n".
+Definition Zero : term := convert (.\"z","s"; "z").
+Definition Succ : term := convert (.\"n","z","s"; "s" "n").
 
 Hint Unfold Zero Succ : cbv.
 
@@ -37,7 +37,7 @@ Proof.
   solvered.
 Qed.
 
-Definition Add  := Eval cbn in rho (.\ "a", "n", "m"; "n" "m" (.\"n"; !Succ ("a" "n" "m"))).
+Definition Add  := Eval cbn in rho (convert (.\ "a", "n", "m"; "n" "m" (.\"n"; !Succ ("a" "n" "m")))).
 
 Hint Unfold Add : cbv.
 
@@ -79,9 +79,9 @@ Proof.
   eapply unique_normal_forms in H; value. eapply tenc_injective. congruence.
 Qed.
 
-Definition Var : term := .\"n";     .\"v","a","l"; "v" "n".
-Definition App : term := .\"s","t"; .\"v","a","l"; "a" "s" "t".
-Definition Lam : term := .\"s";     .\"v","a","l"; "l" "s".
+Definition Var : term := convert (.\"n";     .\"v","a","l"; "v" "n").
+Definition App : term := convert (.\"s","t"; .\"v","a","l"; "a" "s" "t").
+Definition Lam : term := convert (.\"s";     .\"v","a","l"; "l" "s").
 
 Lemma Var_correct n : Var (enc n) ≡ tenc (n).
 Proof.
@@ -98,19 +98,19 @@ Proof.
   solveeq.
 Qed.
 
-Definition N := rho ( .\"N", "n"; "n"
+Definition N := rho (convert ( .\"N", "n"; "n"
    !(tenc Zero)
-   (.\"n"; !Lam (!Lam (!App !(tenc 0) ("N" "n"))))).
+   (.\"n"; !Lam (!Lam (!App !(tenc 0) ("N" "n")))))).
 
 Lemma N_correct n : N (enc n) ≡ tenc(enc n).
 Proof.
   induction n; solveeq.
 Qed.
 
-Definition Q := Eval cbn in rho ( .\"Q", "s"; "s"
+Definition Q := Eval cbn in rho (convert ( .\"Q", "s"; "s"
    (.\"n";     !Lam (!Lam (!Lam (!App !(tenc 2) (!N "n")))))
    (.\"s","t"; !Lam (!Lam (!Lam (!App (!App !(tenc 1) ("Q" "s")) ("Q" "t")))))
-   (.\"s";     !Lam (!Lam (!Lam (!App !(tenc 0) ("Q" "s"))))) ).
+   (.\"s";     !Lam (!Lam (!Lam (!App !(tenc 0) ("Q" "s"))))) )).
 
 Lemma Q_correct s : Q (tenc s) ≡ tenc(tenc s).
 Proof.

@@ -218,4 +218,4 @@ Ltac subcode_tac :=
 
 (* Add it to auto so that fam sss * will try it to solve the subcode goal it generates *)
 
-Hint Extern 4 (subcode _ _) => subcode_tac.
+Hint Extern 4 (subcode _ _) => subcode_tac : core.

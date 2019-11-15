@@ -62,11 +62,11 @@ Tactic Notation "decide" constr(p) "as" simple_intropattern(i) :=
 
 (* Hints for auto concerning dec *)
 
-Hint Unfold dec.
+Hint Unfold dec : core.
 Hint Extern 4 =>     
 match goal with
   | [  |- dec ?p ] => exact (decision p)
-end.
+end : core.
 
 (* Improves type class inference *)
 
@@ -166,7 +166,7 @@ Instance nat_le_dec (x y : nat) : dec (x <= y) :=
 Definition equi X (A B : list X) : Prop :=
   incl A B /\ incl B A.
 
-Hint Unfold equi.
+Hint Unfold equi : core.
 
 Export ListNotations.
 Notation "| A |" := (length A) (at level 65).
@@ -264,7 +264,7 @@ We use the following facts from the standard library List.
 - [in_map_iff :  y el map f A <-> exists x, f x = y /\ x el A]
 *)
 
-Hint Resolve in_eq in_nil in_cons in_or_app.
+Hint Resolve in_eq in_nil in_cons in_or_app : core.
 
 Lemma in_sing X (x y : X) :
   x el [y] -> x = y.
@@ -288,14 +288,14 @@ Proof. simpl. intros [[]|D] E; congruence. Qed.
 -- [incl_app : A <<= C -> B <<= C -> A++B <<= C]
 -*)
 
-Hint Resolve incl_refl incl_tl incl_cons incl_appl incl_appr incl_app.
+Hint Resolve incl_refl incl_tl incl_cons incl_appl incl_appr incl_app : core.
 
 Lemma incl_nil X (A : list X) :
   nil <<= A.
 
 Proof. intros x []. Qed.
 
-Hint Resolve incl_nil.
+Hint Resolve incl_nil : core.
 
 Lemma incl_map X Y A B (f : X -> Y) :
   A <<= B -> map f A <<= map f B.
@@ -348,7 +348,7 @@ Section Inclusion.
 
 End Inclusion.
 
-Hint Resolve incl_shift.
+Hint Resolve incl_shift : core.
 
 Definition inclp (X : Type) (A : list X) (p : X -> Prop) : Prop :=
   forall x, x el A -> p x.
@@ -582,7 +582,7 @@ Section Removal.
 
 End Removal.
 
-Hint Resolve rem_not_in rem_incl rem_mono rem_cons rem_cons' rem_app rem_in rem_neq.
+Hint Resolve rem_not_in rem_incl rem_mono rem_cons rem_cons' rem_app rem_in rem_neq : core.
 
 (* * Duplicate-free lists *)
 

@@ -11,7 +11,7 @@ Definition cprv := @prv class full.
 Instance iUnit P : interp unit (fun _ => tt) :=
   {| i_f _ _ := tt ; i_e := tt ; i_P _ _ := True ; i_Q := P  |}.
 
-Hint Constructors prv.
+Hint Constructors prv : core.
 
 Fixpoint cast {b} (phi : form b) : form full :=
   match phi with

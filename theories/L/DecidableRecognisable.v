@@ -31,11 +31,11 @@ Definition union p q := fun t => p t \/ q t.
 
 (** ** Decidable classes are closed under union, intersection and complement *)
 
-Definition tcompl (u : term) : term := .\"x"; (!u "x") !F !T.
+Definition tcompl (u : term) : term := convert (.\"x"; (!u "x") !F !T).
 
-Definition tintersection u v : term := .\"x"; (!u "x") (!v "x") !F.
+Definition tintersection u v : term := convert (.\"x"; (!u "x") (!v "x") !F).
 
-Definition tunion u v : term := .\"x"; (!u "x") !T (!v "x").
+Definition tunion u v : term := convert (.\"x"; (!u "x") !T (!v "x")).
 
 Lemma decidable_intersection p q : decidable p -> decidable q -> decidable (intersection p q).
 Proof. 
@@ -71,7 +71,7 @@ Qed.
 
 (** ** Recognisable classes are closed under intersection *)
 
-Definition recinter u v : term := .\"x"; !F (!u "x") (!v "x").
+Definition recinter u v : term := convert (.\"x"; !F (!u "x") (!v "x")).
 Hint Unfold recinter : cbv.
 
 Lemma recinter_correct u v s : closed u -> closed v -> eva (recinter u v (tenc s)) <-> eva ( u (tenc s)) /\ eva (v (tenc s)).
@@ -118,7 +118,7 @@ Qed.
 Theorem SecondFixedPoint (s : term) : closed s -> exists t, closed t /\ s (tenc t) ≡ t.
 Proof.
   intros cls_s.
-  pose (C := (.\ "x"; !s (!App "x" (!Q "x"))) : term). cbn in C.
+  pose (C := convert (.\ "x"; !s (!App "x" (!Q "x"))) : term). cbn in C.
   pose (t := C (tenc C)).
   exists t. split; [subst t C; value|].
   symmetry. unfold t, C.

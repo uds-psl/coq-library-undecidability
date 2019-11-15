@@ -133,7 +133,7 @@ Ltac solveeq := simplify_goal; now repeat redL.
 Ltac solvered := solveeq.
 
 
-Definition Y : term := Eval cbn in .\ "f"; (.\ "x"; "f" ("x" "x")) (.\ "x"; "f" ("x" "x")).
+Definition Y : term := Eval cbn in convert (.\ "f"; (.\ "x"; "f" ("x" "x")) (.\ "x"; "f" ("x" "x"))).
 
 Lemma Y_spec u : proc u -> Y u ≡ u (Y u).
 Proof.

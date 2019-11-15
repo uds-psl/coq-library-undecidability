@@ -6,8 +6,8 @@ From Undecidability.L Require Export L Encodings Interpreter Choose.
 
 (** *** Encoding of options *)
 
-Definition none : term := .\"s", "n"; "n".
-Definition some : term := .\"t", "s", "n"; "s" "t".
+Definition none : term := convert (.\"s", "n"; "n").
+Definition some : term := convert (.\"t", "s", "n"; "s" "t").
 
 Hint Unfold some none : cbv.
 
@@ -67,7 +67,7 @@ Proof.
 Qed.  
 
 (** *** Equality of encoded natural numbers *)
-Definition EqN := rho (.\"EqN", "n", "m"; "n" ("m" !T !(lambda F)) (.\"n"; "m" !F (.\"m"; "EqN" "n" "m"))).
+Definition EqN := rho (convert (.\"EqN", "n", "m"; "n" ("m" !T !(lambda F)) (.\"n"; "m" !F (.\"m"; "EqN" "n" "m")))).
 
 Hint Unfold EqN: cbv.
 
@@ -82,9 +82,9 @@ Qed.
 
 (** *** Substitution *)
 
-Definition Subst := rho (.\ "Subst", "s", "k", "u"; "s" (.\"n"; !EqN "n" "k" "u" (!Var "n"))
+Definition Subst := rho (convert (.\ "Subst", "s", "k", "u"; "s" (.\"n"; !EqN "n" "k" "u" (!Var "n"))
                                                      (.\"s1", "s2"; !App ("Subst" "s1" "k" "u") ("Subst" "s2" "k" "u"))
-                                                     (.\"s1"; !Lam ("Subst" "s1" (!Succ "k") "u")) ).
+                                                     (.\"s1"; !Lam ("Subst" "s1" (!Succ "k") "u")) )).
 
 Hint Unfold Subst : cbv.
 
@@ -103,7 +103,7 @@ Qed.
 (** *** Step-indexed self-interpreter *)
 
 Definition E := Eval cbv in
-                 rho (.\ "Eval","n","u";"u"
+                 rho (convert (.\ "Eval","n","u";"u"
                    (.\"";!none)
                    (.\"s","t"; "n" !none 
                                    (.\"n"; "Eval" "n" "s" 
@@ -114,7 +114,7 @@ Definition E := Eval cbv in
                                                            (.\"s"; "Eval" "n" (!Subst "s" !Zero "t")))
                                                  !none)
                                            !none))
-                   (.\"s"; !some (!Lam "s"))).
+                   (.\"s"; !some (!Lam "s")))).
 
 Definition cLam s := lambda(lambda(lambda(0 s))).
 Hint Unfold cLam : cbv. 
@@ -234,8 +234,8 @@ Qed.
 
 (** ** Self-interpreter *)
 
-Definition H s : term := Eval cbv in (.\ "y"; !E "y" !s !(lambda T) !F).
-Definition U : term := Eval cbv in .\ "x"; !E !(C (H 1)) "x" !I !I.
+Definition H s : term := Eval cbv in convert (.\ "y"; !E "y" !s !(lambda T) !F).
+Definition U : term := Eval cbv in convert (.\ "x"; !E !(C (H 1)) "x" !I !I).
 
 Lemma U_rec s : U (tenc s) ≡ E (C (H (tenc s))) (tenc s) I I.
 Proof.

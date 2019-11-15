@@ -11,9 +11,9 @@ Definition enumerable p := exists u, proc u /\ (forall n, u(enc n) ≡ none \/ e
 
 (** *** Equality of encoded terms *)
 
-Definition Eq := rho (.\ "Eq", "s", "t"; "s" (.\"n";        "t" (.\"m"; !EqN "n" "m") !(lambda (lambda F)) !(lambda F))
+Definition Eq := rho (convert (.\ "Eq", "s", "t"; "s" (.\"n";        "t" (.\"m"; !EqN "n" "m") !(lambda (lambda F)) !(lambda F))
                                            (.\"s1", "s2"; "t" !(lambda F) (.\"t1","t2"; ("Eq" "s1" "t1") ("Eq" "s2" "t2") !F) !(lambda F))
-                                           (.\"s1";       "t" !(lambda F) !(lambda (lambda F)) (.\"t1"; "Eq" "s1" "t1")) ).
+                                           (.\"s1";       "t" !(lambda F) !(lambda (lambda F)) (.\"t1"; "Eq" "s1" "t1")))).
 Hint Unfold Eq : cbv.
 
 Definition term_eq_bool s t := if decision (s = t) then true else false.
@@ -54,7 +54,7 @@ Section Fix_f.
   Hypothesis total_u : forall n, u (enc n) ≡ none \/ exists s, u (enc n) ≡ oenc (Some s).
 
   Definition Re : term := Eval cbv in
-        .\ "s"; !C (.\ "n"; !u "n" (.\ "t"; !Eq "s" "t") !F).
+        convert (.\ "s"; !C (.\ "n"; !u "n" (.\ "t"; !Eq "s" "t") !F)).
 
   Lemma Re_proc :
     proc Re.
@@ -67,12 +67,12 @@ Section Fix_f.
     solveeq.
   Qed.
 
-  Lemma H_proc s : proc (.\ "n"; !u "n" (.\ "t"; !Eq !(tenc s) "t") !F).
+  Lemma H_proc s : proc (convert (.\ "n"; !u "n" (.\ "t"; !Eq !(tenc s) "t") !F)).
   Proof.
     value.
   Qed.
 
-  Lemma H_test s : test (.\ "n"; !u "n" (.\ "t"; !Eq !(tenc s) "t") !F).
+  Lemma H_test s : test (convert (.\ "n"; !u "n" (.\ "t"; !Eq !(tenc s) "t") !F)).
   Proof.
     intros n. cbn. rewrite H_rec.
     destruct (total_u n) as [ | [] ].
@@ -252,8 +252,8 @@ Section Fix_X.
     | a::A => lambda(lambda (0 (enc a) (lenc A)))
     end.
 
-  Definition Nil : term := .\ "n", "c"; "n".
-  Definition Cons: term := .\ "a", "A", "n", "c"; "c" "a" "A".
+  Definition Nil : term := convert (.\ "n", "c"; "n").
+  Definition Cons: term := convert (.\ "a", "A", "n", "c"; "c" "a" "A").
 
   Lemma lenc_proc A : proc (lenc A).
   Proof.
@@ -267,8 +267,8 @@ Section Fix_X.
     solveeq.
   Qed.
 
-  Definition Append := rho (.\ "app", "A", "B";
-                            "A" "B" (.\"a", "A"; !Cons "a" ("app" "A" "B"))).
+  Definition Append := rho (convert (.\ "app", "A", "B";
+                            "A" "B" (.\"a", "A"; !Cons "a" ("app" "A" "B")))).
 
   Hint Unfold Append : cbv.
 
@@ -279,8 +279,8 @@ Section Fix_X.
 
   Definition sim (F : term) f := proc F /\ forall x, F (enc x) ≡ (enc (f x)).
 
-  Definition Map := rho (.\ "map", "F", "A";
-                         "A" !Nil (.\"a", "A"; !Cons ("F" "a") ("map" "F" "A"))).
+  Definition Map := rho (convert (.\ "map", "F", "A";
+                         "A" !Nil (.\"a", "A"; !Cons ("F" "a") ("map" "F" "A")))).
 
   Hint Unfold sim Map : cbv.
 
@@ -295,8 +295,8 @@ Section Fix_X.
 
   Definition sim2 (F : term) f := proc F /\ forall x y, F (enc x) (enc y) ≡ (enc (f x y)).
 
-  Definition Map_pro := rho (.\ "map_pro", "f", "A", "B";
-                               "A" !Nil (.\"a", "A"; !Append ("map_pro" "f" "A" "B") (!Map (.\"y" ; "f" "a" "y") "B"))).
+  Definition Map_pro := rho (convert (.\ "map_pro", "f", "A", "B";
+                               "A" !Nil (.\"a", "A"; !Append ("map_pro" "f" "A" "B") (!Map (.\"y" ; "f" "a" "y") "B")))).
 
   Goal proc Map_pro.
   Proof.
@@ -316,9 +316,9 @@ Section Fix_X.
       split; value. intros. specialize (H1 a x). solveeq.      
   Qed.
 
-  Definition Nth := rho (.\ "nth", "n", "A";
+  Definition Nth := rho (convert (.\ "nth", "n", "A";
                          "n" ("A" !none (.\ "a", "A"; !some "a"))
-                             (.\"n"; ("A" !none (.\"a", "A"; "nth" "n" "A"))) ).
+                             (.\"n"; ("A" !none (.\"a", "A"; "nth" "n" "A"))))).
 
   Definition onatenc x := match x with None => none | Some x => (lambda(lambda(1 (enc x)))) end.
 
@@ -333,8 +333,8 @@ Section Fix_X.
 
 End Fix_X.
 
-Definition L_term := rho (.\ "L", "n";
-                            "n" !Nil (.\ "n"; !Append ("L" "n") (!Cons (!Var "n") (!Append (!Map_pro !App ("L" "n") ("L" "n")) (!Map !Lam ("L" "n")))))).
+Definition L_term := rho (convert (.\ "L", "n";
+                            "n" !Nil (.\ "n"; !Append ("L" "n") (!Cons (!Var "n") (!Append (!Map_pro !App ("L" "n") ("L" "n")) (!Map !Lam ("L" "n"))))))).
 
 Lemma L_term_correct n : L_term (enc n) ≡ lenc tenc (L n).
 Proof.
@@ -348,7 +348,7 @@ Proof.
     + split. value. exact Lam_correct.
 Qed.
 
-Definition OfNat : term := .\ "n" ; !Nth "n" (!L_term (!Succ ("n"))).
+Definition OfNat : term := convert (.\ "n" ; !Nth "n" (!L_term (!Succ ("n")))).
 
 Lemma OfNat_correct n : OfNat (enc n) ≡ oenc (R n).
 Proof.
@@ -372,9 +372,9 @@ Proof.
   destruct enumerable_all as (Enum & pE & TE & HE).  
   intros [u [proc_u Hu]]. 
 
-  pose (v := (.\ "n"; !Enum "n" (.\ "u"; "u" !(lambda none) (.\ "t", "s"; "t" (.\ "n"; !E "n" (!App !(tenc u) (!Q "s")) (.\ "_"; !some "s") !none) !(lambda (lambda none)) !(lambda none)) !(lambda none)) !none) : term).
+  pose (v := convert (.\ "n"; !Enum "n" (.\ "u"; "u" !(lambda none) (.\ "t", "s"; "t" (.\ "n"; !E "n" (!App !(tenc u) (!Q "s")) (.\ "_"; !some "s") !none) !(lambda (lambda none)) !(lambda none)) !(lambda none)) !none) : term).
   cbn -[none App Q some] in v.
-  assert (Hv : forall n, v (enc n) ≡ Enum (enc n) (.\ "u"; "u" !(lambda none) (.\ "t", "s"; "t" (.\ "n"; !E "n" (!App !(tenc u) (!Q "s")) (.\ "_"; !some "s") !none) !(lambda (lambda none)) !(lambda none)) !(lambda none)) !none) by (intros; solvered).
+  assert (Hv : forall n, v (enc n) ≡ Enum (enc n) (convert (.\ "u"; "u" !(lambda none) (.\ "t", "s"; "t" (.\ "n"; !E "n" (!App !(tenc u) (!Q "s")) (.\ "_"; !some "s") !none) !(lambda (lambda none)) !(lambda none)) !(lambda none))) (convert (!none))) by (intros; solvered).
   exists v.
   repeat split; value.
   - intros n. destruct (TE n) as [ | H]; try  destruct H as ([ | t1 s | ] & H & _).

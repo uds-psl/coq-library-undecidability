@@ -60,8 +60,8 @@ Existing Instance class | 0.
 Canonical Structure finType_CS (X : Type) {p : eq_dec X} {class : finTypeC (EqType X)} : finType := FinType (EqType X).
 
 Definition elem (F: finType) := @enum (type F) (class F).
-Hint Unfold elem.
-Hint Unfold class.
+Hint Unfold elem : core.
+Hint Unfold class : core.
 
 Ltac dec := repeat (destruct Dec).
 
@@ -80,8 +80,8 @@ Proof.
   apply countIn.  pose proof (enum_ok x) as H. unfold elem. omega.
 Qed.
 
-Hint Resolve elem_spec.
-Hint Resolve enum_ok.
+Hint Resolve elem_spec : core.
+Hint Resolve enum_ok : core.
 
 Lemma countSplit (X: eqType) (A B: list X) (x: X)  : count A x + count B x = count (A ++ B) x.
 Proof.
@@ -366,7 +366,7 @@ we are on the right extremity of a non-empty tape (right overflow). *)
   Inductive reach (M: sTM) : mconfig (states M) ->  mconfig (states M) -> Prop :=
   |reachI c : reach c c
   |reachS c d: reach (step c) d -> (halt (cstate c) = false) -> reach c d.
-  Hint Constructors reach.
+  Hint Constructors reach : core.
 
  
   Definition Halt' (M: sTM) (start: mconfig (states M)) :=
@@ -397,4 +397,3 @@ Definition Reach (S: (sigT (fun (sig:finType) =>
                                                           (mconfig sig (states M))))))) :=
   let (c1,c2) := (projT2 (projT2 S)) in
   reach c1 c2. 
-     

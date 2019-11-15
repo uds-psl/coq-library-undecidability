@@ -248,7 +248,7 @@ Fixpoint L_ded {b} {s : nd} (A : list (form b)) (n : nat) : list (form b) :=
 Opaque in_dec.
 Opaque enumT_nat.
 
-Hint Constructors prv.
+Hint Constructors prv : core.
 
 Lemma enum_prv b s A : enum (@prv s b A) (L_ded A).
 Proof with try (eapply cum_ge'; eauto; omega).
