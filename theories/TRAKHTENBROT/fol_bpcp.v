@@ -136,9 +136,9 @@ Section bpcp.
     Let fin_X : finite_t X.
     Proof. apply finite_t_option, finite_t_list, finite_t_bool. Qed.
 
-    Definition bpcp_model : fo_model Σbpcp.
+    Definition bpcp_model : fo_model Σbpcp X.
     Proof.
-      exists X.
+      exists.
       + intros []; simpl.
         * intros v.
           case_eq (vec_head v).
@@ -376,7 +376,7 @@ Section bpcp.
 
     Theorem BPCP_sat : fo_form_fin_SAT phi_R.
     Proof.
-      exists bpcp_model, fin_X, sem_pred_dec, φ; split; auto.
+      exists X, bpcp_model, fin_X, sem_pred_dec, φ; split; auto.
       unfold phi_R; repeat (split; auto).
     Qed.
 
@@ -384,7 +384,7 @@ Section bpcp.
 
   Section fin_sat_BPCP.
 
-    Variable (M : fo_model Σbpcp) (HM : finite M).
+    Variable (X : Type) (M : fo_model Σbpcp X) (HM : finite X).
      
     Print fo_model.
 
@@ -401,7 +401,7 @@ Section bpcp.
       + rew fot; f_equal; simpl; f_equal; auto.
     Qed.
 
-    Variable (φ : nat -> M) (model : ⟪ phi_R ⟫ φ).
+    Variable (φ : nat -> X) (model : ⟪ phi_R ⟫ φ).
 
     Notation ε := (@sem_sym fe ø).
     Notation "⋇" := (@sem_sym fs ø).
@@ -645,7 +645,7 @@ Section bpcp.
 
   Theorem fin_sat_BPCP : fo_form_fin_SAT phi_R -> exists l, pcp_hand lc l l.
   Proof.
-    intros (M & fM & dM & phi & Hphi).
+    intros (X & M & fM & dM & phi & Hphi).
     apply model_implies_pcp_hand with (M := M) (φ := phi); auto.
     apply finite_t_finite; auto.
   Qed.

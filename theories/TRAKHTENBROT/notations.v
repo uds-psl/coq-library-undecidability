@@ -50,16 +50,21 @@ Reserved Notation "x ⪧ y" (at level 2, right associativity, format "x ⪧ y").
 Reserved Notation "x → y" (at level 2, right associativity, format "x → y").
 
 Reserved Notation "⟬ s , t ⟭" (at level 1, format "⟬ s , t ⟭").
-Reserved Notation "x ∪ y" (at level 59, left associativity).
+Reserved Notation "x ∪ y" (at level 52, left associativity).
 
   (* Infix Binary rels *)
 
-Reserved Notation "x ≈ y" (at level 70, no associativity).
-Reserved Notation "x ≉ y" (at level 70, no associativity).
-Reserved Notation "x ≾ y" (at level 70, no associativity).
-Reserved Notation "x ∈ y" (at level 70, no associativity).
+(*Reserved Notation "x ≈ y" (at level 70, no associativity). *)
+Reserved Notation "x ≉ y" (at level 70, no associativity). 
+Reserved Notation "x ≾ y" (at level 70, no associativity). 
+(* Reserved Notation "x ∈ y" (at level 70, no associativity). *)
 Reserved Notation "x ∉ y" (at level 70, no associativity).
 Reserved Notation "x ⋷ y" (at level 70, no associativity).
-Reserved Notation "x ≺ y" (at level 70, no associativity).
-Reserved Notation "x ⊆ y" (at level 70, no associativity).
+(* Reserved Notation "x ≺ y" (at level 70, no associativity). *)
+(* Reserved Notation "x ⊆ y" (at level 70, no associativity). *)
+
+  Reserved Notation "x ∈ y" (at level 59, no associativity).
+  Reserved Notation "x ≈ y" (at level 59, no associativity).
+  Reserved Notation "x ⊆ y" (at level 59, no associativity). 
+
 

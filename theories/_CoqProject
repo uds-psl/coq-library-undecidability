@@ -256,6 +256,7 @@ TRAKHTENBROT/Sig3_Sig2.v
 TRAKHTENBROT/hfs.v
 TRAKHTENBROT/membership.v
 TRAKHTENBROT/discrete.v
+TRAKHTENBROT/fin_upto.v
 
 
 L/Prelim/MoreBase.v

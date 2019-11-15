@@ -19,7 +19,7 @@ From Undecidability.Shared.Libs.DLW.Wf
   Require Import wf_finite.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations fol_ops fo_terms fo_logic hfs.
+  Require Import notations fol_ops fo_terms fo_logic membership.
 
 Set Implicit Arguments.
 
@@ -34,15 +34,15 @@ Defined.
 
 Section Sig3_Sig2.
 
-  Reserved Notation "x ∈ y" (at level 59, no associativity).
+(*  Reserved Notation "x ∈ y" (at level 59, no associativity).
   Reserved Notation "x ≈ y" (at level 59, no associativity).
-  Reserved Notation "x ⊆ y" (at level 59, no associativity).
+  Reserved Notation "x ⊆ y" (at level 59, no associativity). *)
 
   Notation Σ2 := (Σrel 2).
   Notation Σ3 := (Σrel 3).
  
-  Variable M2 : fo_model Σ2.
-  Variable M3 : fo_model Σ3.
+  Variable (X : Type) (M2 : fo_model Σ2 X).
+  Variable (Y : Type) (M3 : fo_model Σ3 Y).
 
   Check fol_atom Σ2 tt.
 
@@ -109,15 +109,15 @@ Section Sig3_Sig2.
 
   Notation P := (fun x y z => fom_rels M3 tt (x##y##z##ø)).
 
-  Variable R : M3 -> M2 -> Prop.
+  Variable R : Y -> X -> Prop.
 
   (** R represent for M3 = { x | x in l } and M2 the relation 
 
            fun x y => proj1_sig x ≈ y  *)
 
-  Definition HR1 (l r : M2) := forall x, exists y, fom_rels M2 tt (y##l##ø) /\ R x y.
-  Definition HR2 (l r : M2) := forall y, fom_rels M2 tt (y##l##ø) -> exists x, R x y.
-  Definition HR4 (l r : M2) := forall a b c a' b' c',
+  Definition HR1 (l r : X) := forall x, exists y, fom_rels M2 tt (y##l##ø) /\ R x y.
+  Definition HR2 (l r : X) := forall y, fom_rels M2 tt (y##l##ø) -> exists x, R x y.
+  Definition HR4 (l r : X) := forall a b c a' b' c',
                                                R a a'
                                             -> R b b'
                                             -> R c c' 
@@ -233,24 +233,24 @@ Section Sig3_Sig2.
 
 End Sig3_Sig2.
 
-Definition SAT Σ (A : fol_form Σ) := exists (M : fo_model Σ) φ, fol_sem M φ A.
+Definition SAT Σ (A : fol_form Σ) := exists X (M : fo_model Σ X) φ, fol_sem M φ A.
 
 Section SAT2_SAT3.
 
   Section nested.
 
     Variables (A : fol_form (Σrel 3))
-              (M2 : fo_model (Σrel 2))
-              (ψ : nat -> M2)
+              (X : Type) (M2 : fo_model (Σrel 2) X)
+              (ψ : nat -> X)
               (HA : fol_sem M2 ψ (Σ3_Σ2_enc A)).
 
     Let mem := m2_member M2.
 
     (** Beware that model is NOT finite ... unless one assumes more *)
 
-    Let M3 : fo_model (Σrel 3).
+    Let M3 : fo_model (Σrel 3) (sig (fun x => mem x (ψ 0))).
     Proof.
-      exists (sig (fun x => mem x (ψ 0))).
+      exists.
       + intros [].
       + intros [] v.
         simpl in v.
@@ -260,7 +260,7 @@ Section SAT2_SAT3.
         * exact (proj1_sig (vec_head (vec_tail (vec_tail v)))).
     Defined.
 
-    Let R (x : M3) (y : M2) := proj1_sig x = y.
+    Let R (x : {x | mem x (ψ 0)}) (y : X) := proj1_sig x = y.
 
     Local Lemma SAT2_to_SAT3 : SAT A.
     Proof.
@@ -270,10 +270,10 @@ Section SAT2_SAT3.
       destruct H2 as (x0 & H0).
       set (phi := fun n : nat => 
         match in_dec eq_nat_dec n (fol_vars A⦃fun v : nat => in_var (2 + v)⦄) with 
-          | left H  => (exist _ (ψ n) (H3 _ H) : M3)
-          | right _ => (exist _ x0 H0 : M3)
+          | left H  => (exist _ (ψ n) (H3 _ H) : {x | mem x (ψ 0)})
+          | right _ => (exist _ x0 H0 : {x | mem x (ψ 0)})
         end).
-      exists M3, (fun n => phi (2+n)).
+      exists {x | mem x (ψ 0)}, M3, (fun n => phi (2+n)).
       rewrite <- Σ3_Σ2_correct with (φ := phi) (R := R) in H4.
       + rewrite fol_sem_subst in H4.
         revert H4; apply fol_sem_ext; intro; rew fot; auto.
@@ -291,8 +291,8 @@ Section SAT2_SAT3.
 
   Theorem SAT2_SAT3 A : SAT (Σ3_Σ2_enc A) -> SAT A.
   Proof.
-    intros (M2 & psy & HA).
-    apply SAT2_to_SAT3 with M2 psy; auto.
+    intros (X & M2 & psy & HA).
+    apply SAT2_to_SAT3 with X M2 psy; auto.
   Qed.
 
 End SAT2_SAT3.
@@ -302,14 +302,17 @@ Section SAT3_SAT2.
   Section nested.
 
     Variables (A : fol_form (Σrel 3))
-              (M3 : fo_model (Σrel 3))
-              (M3_fin : finite_t M3)
+              (X : Type) (M3 : fo_model (Σrel 3) X)
+              (M3_fin : finite_t X)
               (M3_dec : fo_model_dec M3)
-              (φ : nat -> M3)
+              (φ : nat -> X)
               (HA : fol_sem M3 φ A).
 
     (** we need to build a map pos n -> set *)
-    
+
+  End nested.
+
+End SAT3_SAT2.
     
 
 

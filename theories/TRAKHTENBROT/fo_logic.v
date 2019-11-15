@@ -125,16 +125,14 @@ End fol_subst.
 
 Notation "A ⦃ σ ⦄" := (fol_subst σ A).
 
-Record fo_model Σ := {
-  fom_type :> Type;
-  fom_syms : forall s, vec fom_type (ar_syms Σ s) -> fom_type;
-  fom_rels : forall s, vec fom_type (ar_rels Σ s) -> Prop }.
+Record fo_model Σ (X : Type) := {
+  fom_syms : forall s, vec X (ar_syms Σ s) -> X;
+  fom_rels : forall s, vec X (ar_rels Σ s) -> Prop }.
 
 Section fol_semantics.
 
-  Variable (Σ : fo_signature) (M : fo_model Σ).
+  Variable (Σ : fo_signature) (X : Type) (M : fo_model Σ X).
 
-  Notation X := (fom_type M).
   Notation sem_sym := (fom_syms M _).
   Notation sem_pred := (fom_rels M _).
 
@@ -255,4 +253,4 @@ End fol_semantics.
     and a valuation φ : nat -> M in which A is satisfied *)
 
 Definition fo_form_fin_SAT Σ A := 
-  exists (M : fo_model Σ)  (_ : finite_t M) (_ : fo_model_dec M) φ, fol_sem M φ A.
+  exists X (M : fo_model Σ X)  (_ : finite_t X) (_ : fo_model_dec M) φ, fol_sem M φ A.

@@ -51,6 +51,18 @@ Section finite.
     firstorder.
   Qed.
 
+  Fact finite_t_map X Y (f : X -> Y) :
+           (forall y, exists x, f x = y) 
+        -> finite_t X 
+        -> finite_t Y.
+  Proof.
+    intros H (l & Hl).
+    exists (map f l).
+    intros y.
+    destruct (H y) as (x & <-).
+    apply in_map_iff; exists x; auto.
+  Qed.
+
   Fact Forall_reif_t X l (P : X -> Prop) : Forall P l -> { m : list (sig P) | map (@proj1_sig _ _) m = l }.
   Proof.
     induction l as [ | x l IHl ].
@@ -176,6 +188,18 @@ Section finite.
     exists (None :: map Some lX).
     intros [x|]; simpl; auto.
     right; apply in_map_iff; exists x; auto.
+  Qed.
+
+  Theorem finite_t_vec X n : finite_t X -> finite_t (vec X n).
+  Proof.
+    intros HX.
+    induction n as [ | n IHn ].
+    + exists (vec_nil :: nil).
+      intros v; vec nil v; simpl; auto.
+    + apply finite_t_map with (f := fun c => vec_cons (fst c) (snd c)).
+      * intros v; vec split v with x.
+        exists (x,v); auto.
+      * apply finite_t_prod; auto.
   Qed.
 
   Section dec.

@@ -252,6 +252,8 @@ Section btree.
 
   Section establishing_decidability.
 
+    Reserved Notation "x ≺ y" (at level 70, no associativity).
+
     Inductive bt_lt : bt -> bt -> Prop :=
       | in_btlt_0 : forall s t,                   ∅ ≺ s⪧t 
       | in_btlt_1 : forall s s' t t', s ≺ s' -> s⪧t ≺ s'⪧t'
@@ -632,7 +634,7 @@ Section btree.
         right; exists s'; auto.
   Qed.
 
-  Notation "x ⊆ y" := (forall u, u ∈ x -> u ∈ y) (at level 70).
+  Notation "x ⊆ y" := (forall u, u ∈ x -> u ∈ y) (*at level 70*).
 
   Add Parametric Morphism: (fun x y => x ⊆ y) with signature 
        (bt_equiv) ==> (bt_equiv) ==> (iff) as bti_congr.
@@ -1912,6 +1914,7 @@ Section bt_model3.
   Check s.
 
   Let phi (y : Y) := s (proj1_sig y).
+(*
 
   Theorem bt_m3_m2 : exists (Y : Type) (_ : finite_t Y) (mem : Y -> Y -> Prop) (xl xr : Y) 
                              (phi : X -> Y) 
@@ -2026,7 +2029,7 @@ Section bt_model3.
 
 
   
-  Definition 
+  Definition *)
 
   (** Now how to encode the model given by k-ary relation over a finite
       set of cardinal n
@@ -2061,32 +2064,6 @@ Section bt_model3.
 
   (** We have computed the transitive closure, spec'ed and proved finite *)  
 
-  Section HF_struct.
-
-    (** this is not needed and relates to ITP 2016 *)
-
-    Fact HF_cntr s t : s⪧s⪧t ≈ s⪧t.
-    Proof. auto. Qed.
-
-    Fact HF_comm s t u : s⪧t⪧u ≈ t⪧s⪧u. 
-    Proof. auto. Qed.
-
-    Fact HF_empty s t : s⪧t ≉ ∅. 
-    Proof. apply bte_discr. Qed.
-
-    Fact HF_choice s t u : s⪧t⪧u ≈ t⪧u -> s ≈ t \/ s⪧u ≈ u.
-    Proof. apply btm_inv. Qed.
-
-    Variable P : bt -> Type.
-
-    Hypothesis (HP0 : forall s t, s ≈ t -> P s -> P t)
-               (HP1 : P ∅)
-               (HP2 : forall s t, P s -> P t -> P (s⪧t)).
-
-    Theorem HF_rect : forall t, P t.
-    Proof. apply bt_rect; auto. Qed.
-
-  End HF_struct.
 
   Check btm_depth.
   Check btm_finite_t.
@@ -2107,4 +2084,4 @@ Section bt_model3.
   Check bt_enc_tuple_0.
   Check bt_enc_tuple.
 
-End btree.
+End bt_model3.

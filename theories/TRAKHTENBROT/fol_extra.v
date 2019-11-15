@@ -49,11 +49,11 @@ Section Σbpcp_Σ2.
 
   Notation f_ := (fun b x => @in_fot _ _ _ (fb b) (x##ø) : term).
 
-  Variable M : fo_model Σbpcp.
+  Variable (X : Type) (M : fo_model Σbpcp X).
 
-  Definition K : fo_model Σ2.
+  Definition K : fo_model Σ2 X.
   Proof.
-    exists M.
+    exists.
     + intros [].
     + intros [ [ b | | ] | r ]; simpl; intros v;
         set (x := vec_head v); set (y := vec_head (vec_tail v)).

@@ -16,7 +16,7 @@ From Undecidability.Shared.Libs.DLW.Vec
   Require Import pos fin_quotient vec.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations fol_ops fo_terms fo_logic.
+  Require Import notations fol_ops fo_terms fo_logic fin_upto.
 
 Set Implicit Arguments.
 
@@ -26,6 +26,32 @@ Local Definition exists_equiv X := @fol_quant_sem_ext X fol_ex.
 Local Notation " e '#>' x " := (vec_pos e x).
 Local Notation " e [ v / x ] " := (vec_change e x v).
 
+Section map_vec_pos_equiv.
+
+  Variable (X : Type) (R : X -> X -> Prop)
+           (Y : Type) (T : Y -> Y -> Prop)
+           (T_refl : forall y, T y y)
+           (T_trans : forall x y z, T x y -> T y z -> T x z). 
+
+  Theorem map_vec_pos_equiv n (f : vec X n -> Y) : 
+           (forall p v x y, R x y -> T (f (v[x/p])) (f (v[y/p])))
+        -> forall v w, (forall p, R (v#>p) (w#>p)) -> T (f v) (f w).
+  Proof.
+    revert f; induction n as [ | n IHn ]; intros f Hf v w H.
+    + vec nil v; vec nil w; auto.
+    + unfold transitive in T_trans.
+      apply T_trans with (y := f (v[(w#>pos0)/pos0])).
+      * rewrite <- (vec_change_same v pos0) at 1; auto.
+      * revert H.
+        vec split v with a; vec split w with b; intros H; simpl.
+        apply IHn with (f := fun v => f(b##v)).
+        - intros p q x y Hxy.
+          apply (Hf (pos_nxt p) (b##q)); auto.
+        - intros p; apply (H (pos_nxt p)).
+  Qed. 
+
+End map_vec_pos_equiv.
+
 Section gfp.
 
   Variable (M : Type). 
@@ -34,7 +60,7 @@ Section gfp.
 
   Notation "R ⊆ T" := (forall x y, R x y -> T x y).
 
-  Notation "R 'o' T" := (fun x z => exists y, R x y /\ T y z) (at level 60).
+  Notation "R 'o' T" := (fun x z => exists y, R x y /\ T y z) (at level 58).
 
   Let incl_trans R S T : R ⊆ S -> S ⊆ T -> R ⊆ T.
   Proof. firstorder. Qed.
@@ -169,23 +195,105 @@ Section gfp.
   (** For the decidability of gfp, we need the finiteness
       so that gfp = i n for a sufficiently large n *)
 
+  (** There is a list lR of relations which contains every
+      i n upto equivalence (because X is finite_t)
+
+      By the (generalized) PHP, for n greater than
+      the length of lR, one can find a duplicate
+      in the list [i 0; ...;i n] ie a < b <= n such
+      that i a ~ T1 ~ T2 ~ i b
+
+      Then one can deduce i a ~ i (S a) ~ gfp *)
+
+  Let i_dup n m : n < m -> i n ⊆ i m -> forall k, n <= k -> forall x y, gfp x y <-> i k x y.
+  Proof.
+    intros H1 H2.
+    generalize (i_decr H1) (i_S n); rewrite iS; intros H3 H4.
+    generalize (incl_trans _ _ _ H2 H3); intros H5.
+    assert (forall p, i n ⊆ i (p+n)) as H6.
+    { induction p as [ | p IHp ]; auto.
+      simpl plus; rewrite iS.
+      apply incl_trans with (1 := H5), HF0; auto. }
+    intros k Hk x y; split; auto.
+    intros H a.
+    destruct (le_lt_dec a k).
+    + revert H; apply i_decr; auto.
+    + replace a with (a-n+n) by lia.
+      apply H6.
+      revert H; apply i_decr; auto.
+  Qed.
+ 
+  Let gfp_finite_dec b : (exists n m, n < m <= b /\ i n ⊆ i m) -> dec gfp.
+  Proof.
+    intros H.
+    assert (forall x y, gfp x y <-> i b x y) as H1.
+    { destruct H as (n & m & H1 & H2). 
+      apply i_dup with (2 := H2); auto; try lia. }
+    intros x y.
+    destruct (i_dec b x y); [ left | right ]; rewrite H1; auto.
+  Qed.
+
+  Variable HF6 : finite_t M.
+
+  Theorem gfp_decidable : dec gfp.
+  Proof.
+    destruct finite_t_weak_dec_rels with (1 := HF6)
+      as (mR & HmR).
+    set (l := map i (list_an 0 (S (length mR)))).
+    apply (@gfp_finite_dec (S (length mR))).
+    destruct php_upto 
+      with (R := fun R T => forall x y, R x y <-> T x y)
+           (l := l) (m := mR)
+      as (a & R & b & T & c & H1 & H2).
+    + intros R S H ? ?; rewrite H; tauto.
+    + intros R S T H1 H2 ? ?; rewrite H1, H2; tauto.
+    + intros R HR.
+      apply in_map_iff in HR.
+      destruct HR as (n & <- & _).
+      destruct (HmR (i n)) as (T & H1 & H2).
+      * intros x y; destruct (i_dec n x y); tauto.
+      * exists T; auto.
+    + unfold l; rewrite map_length, list_an_length; auto.
+    + unfold l in H1.
+      apply map_middle_inv in H1.
+      destruct H1 as (a' & n & r' & H1 & H3 & H4 & H5).
+      apply map_middle_inv in H5.
+      destruct H5 as (b' & m & c' & H5 & H6 & H7 & H8).
+      exists n, m; rewrite H4, H7; split; try (intros ? ?; apply H2).
+      clear H3 H4 H6 H7 H8 H2; subst r'.
+      generalize H1; intros H2.
+      apply f_equal with (f := @length _) in H2.
+      rewrite list_an_length, app_length in H2.
+      simpl in H2; rewrite app_length in H2; simpl in H2.
+      apply list_an_app_inv in H1.
+      destruct H1 as (_ & H1); simpl in H1.
+      injection H1; clear H1; intros H1 H3.
+      symmetry in H1.
+      apply list_an_app_inv in H1.
+      destruct H1 as (_ & H1); simpl in H1.
+      injection H1; clear H1; intros _ H1.
+      lia.
+  Qed.
+
 End gfp.
 
 Section discrete_quotient.
 
   Variables (Σ : fo_signature) 
-            (M : fo_model Σ)  
-            (fin : finite_t M) 
+            (HΣs : finite_t (syms Σ))
+            (HΣr : finite_t (rels Σ))
+            (X : Type) (M : fo_model Σ X)  
+            (fin : finite_t X) 
             (dec : fo_model_dec M)
-            (φ : nat -> M).
+            (φ : nat -> X).
 
-  Implicit Type (R T : M -> M -> Prop).
+  Implicit Type (R T : X -> X -> Prop).
 
   (** Construction of the greatest fixpoint of the following operator *)
 
   Let fom_op R x y :=
-       (forall s (v : vec M (ar_syms Σ s)) p, R (fom_syms M s (v[x/p])) (fom_syms M s (v[y/p]))) 
-    /\ (forall s (v : vec M (ar_rels Σ s)) p, fom_rels M s (v[x/p]) <-> fom_rels M s (v[y/p])).
+       (forall s (v : vec _ (ar_syms Σ s)) p, R (fom_syms M s (v[x/p])) (fom_syms M s (v[y/p]))) 
+    /\ (forall s (v : vec _ (ar_rels Σ s)) p, fom_rels M s (v[x/p]) <-> fom_rels M s (v[y/p])).
 
   Let fom_op_mono R T : (forall x y, R x y -> T x y) -> (forall x y, fom_op R x y -> fom_op T x y).
   Proof.
@@ -250,10 +358,97 @@ Section discrete_quotient.
   Proof. intros; apply fom_eq_fix; auto. Qed. 
     
   Fact fom_eq_rels x y s v p : x ≃ y -> fom_rels M s (v[x/p]) <-> fom_rels M s (v[y/p]).
-  Proof. intros; apply fom_eq_fix; auto. Qed. 
+  Proof. intros; apply fom_eq_fix; auto. Qed.
 
-  Fact fom_eq_dec x y : { x ≃ y } + { ~ x ≃ y }.
-  Proof. Admitted.
+  Hint Resolve fom_eq_refl fom_eq_sym fom_eq_trans fom_eq_syms fom_eq_rels.
+
+  Theorem fom_eq_syms_full s v w : (forall p, v#>p ≃ w#>p) -> fom_syms M s v ≃ fom_syms M s w.
+  Proof. apply map_vec_pos_equiv; eauto. Qed.
+
+  Theorem fom_eq_rels_full s v w : (forall p, v#>p ≃ w#>p) -> fom_rels M s v <-> fom_rels M s w.
+  Proof. apply map_vec_pos_equiv; eauto; tauto. Qed.
+
+  Hint Resolve finite_t_vec finite_t_pos. 
+
+  (** And because the signature is finite (ie the symbols and relations) 
+                  the model M is finite and composed of decidable relations 
+
+      We do have a decidable equivalence here *) 
+ 
+  Fact fom_eq_dec : forall x y, { x ≃ y } + { ~ x ≃ y }.
+  Proof.
+    apply gfp_decidable; auto.
+    intros R HR x y.
+    apply (fol_bin_sem_dec fol_conj).
+    + do 3 (apply (fol_quant_sem_dec fol_fa); auto; intros).
+    + do 3 (apply (fol_quant_sem_dec fol_fa); auto; intros).
+      apply (fol_bin_sem_dec fol_conj); 
+        apply (fol_bin_sem_dec fol_imp); auto.
+  Qed.
+
+  Hint Resolve fom_eq_dec.
+
+  (** And now we can build a discrete model with this equivalence 
+
+      There is a (full) surjection from a discrete model based
+      on pos n to M which preserves the semantics
+
+    *)
+
+  Section build_the_model.
+
+    Let l := proj1_sig fin.
+    Let Hl : forall x, In x l := proj2_sig fin.
+
+
+    Let Q : fin_quotient fom_eq.
+    Proof.
+      apply decidable_EQUIV_fin_quotient with (l := l); eauto.
+    Qed.
+
+    Let n := fq_size Q.
+    Let cls := fq_class Q.
+    Let repr := fq_repr Q.
+    Let E1 p : cls (repr p) = p.           Proof. apply fq_surj. Qed.
+    Let E2 x y : x ≃ y <-> cls x = cls y.  Proof. apply fq_equiv. Qed.
+
+    Let Md : fo_model Σ (pos n).
+    Proof.
+      exists.
+      + intros s v; apply cls, (fom_syms M s), (vec_map repr v).
+      + intros s v; apply (fom_rels M s), (vec_map repr v).
+    Defined.
+
+    Theorem fo_fin_model_discretize : 
+      { n : nat & 
+        { Md : fo_model Σ (pos n) &
+          {_ : fo_model_dec Md & 
+            { i : X -> pos n &
+              { j : pos n -> X |
+                  (forall x, i (j x) = x)
+               /\ (forall s v, i (fom_syms M s v) = fom_syms Md s (vec_map i v))
+               /\ (forall s v, fom_rels M s v <-> fom_rels Md s (vec_map i v))
+                 } } } } }.
+    Proof.
+      exists n, Md; exists.
+      { intros x y; simpl; apply dec. }
+      exists cls, repr; msplit 2; auto.
+      + intros s v; simpl.
+        apply E2.
+        apply fom_eq_syms_full.
+        intros p; rewrite vec_map_map, vec_pos_map.
+        apply E2; rewrite E1; auto.
+      + intros s v; simpl.
+        apply fom_eq_rels_full.
+        intros p; rewrite vec_map_map, vec_pos_map.
+        apply E2; rewrite E1; auto.
+    Qed.
+
+  End build_the_model.
 
 End discrete_quotient.
+
+Check fo_fin_model_discretize.
+Print Assumptions fo_fin_model_discretize.
+
 
