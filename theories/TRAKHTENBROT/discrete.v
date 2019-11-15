@@ -153,6 +153,22 @@ Section gfp.
   Fact gfp_fix x y : F gfp x y <-> gfp x y.
   Proof. split; auto. Qed.
 
+  (** This is for decidability *)
+
+  Let dec R := forall x y, { R x y } + { ~ R x y }.
+
+  Variable HF5 : forall R, dec R -> dec (F R).
+
+  Let i_dec n : dec (i n).
+  Proof.
+    induction n as [ | n IHn ].
+    + rewrite i0; left; auto.
+    + rewrite iS; apply HF5; auto.
+  Qed.
+
+  (** For the decidability of gfp, we need the finiteness
+      so that gfp = i n for a sufficiently large n *)
+
 End gfp.
 
 Section discrete_quotient.
