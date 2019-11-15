@@ -451,4 +451,80 @@ End discrete_quotient.
 Check fo_fin_model_discretize.
 Print Assumptions fo_fin_model_discretize.
 
+Section model_equiv.
+
+  Variable (Σ : fo_signature) 
+           (X : Type) (M : fo_model Σ X) 
+           (Y : Type) (K : fo_model Σ Y) 
+           (i : X -> Y) (j : Y -> X) (E : forall x, i (j x) = x)
+           (Hs : forall s v, i (fom_syms M s v) = fom_syms K s (vec_map i v))
+           (Hr : forall s v, fom_rels M s v <-> fom_rels K s (vec_map i v)).
+
+  Theorem fo_model_project_equiv A phi psi :
+           (forall n, i (phi n) = psi n) 
+        -> fol_sem M phi A <-> fol_sem K psi A.
+  Proof.
+    revert phi psi.
+    induction A as [ | s | b A HA B HB | q A HA ]; try (simpl; tauto); intros phi psi E'.
+    + simpl; rewrite Hr, vec_map_map.
+      match goal with |- ?x <-> ?y => cut (x = y); [ intros ->; tauto | ] end.
+      f_equal; apply vec_map_ext; intros t _; clear s v.
+      induction t as [ k | s v ]; rew fot; auto.
+      rewrite Hs, vec_map_map; f_equal.
+      apply vec_map_ext; auto.
+    + apply fol_bin_sem_ext; auto.
+    + destruct q; simpl; split.
+      * intros (x & Hx).
+        exists (i x).
+        revert Hx; apply HA.
+        intros []; simpl; auto.
+      * intros (y & Hy).
+        exists (j y).
+        revert Hy; apply HA.
+        intros []; simpl; auto.
+      * intros H y. 
+        generalize (H (j y)); apply HA.
+        intros []; simpl; auto.
+      * intros H x. 
+        generalize (H (i x)); apply HA.
+        intros []; simpl; auto.
+  Qed.
+
+End model_equiv.
+
+Definition discrete X := forall x y : X, { x = y } + { x <> y }.
+
+Definition fo_form_fin_discr_dec_SAT_in Σ A X := 
+  exists (M : fo_model Σ X)  (_ : finite_t X) (_ : discrete X) (_ : fo_model_dec M)  φ, fol_sem M φ A.
+
+Definition fo_form_fin_dec_SAT_in Σ A X := 
+  exists (M : fo_model Σ X)  (_ : finite_t X) (_ : fo_model_dec M)  φ, fol_sem M φ A.
+
+Section discrete_removal.
+
+  (** Provided the signature has finitely (listable) many functional symbols 
+      and finitely many relational symbols, satisfiability of A in a finite
+      and decidable model implies satisfiability of A in a finite, decidable
+      and discrete model, in fact in a model based on the finite type (pos n) *)
+
+  Theorem fo_discrete_removal Σ (Hs : finite_t (syms Σ)) (Hr : finite_t (rels Σ)) A :
+             (exists X, @fo_form_fin_dec_SAT_in Σ A X)
+          -> (exists n, @fo_form_fin_discr_dec_SAT_in Σ A (pos n)).
+  Proof.
+    intros (X & M & Hfin & Hdec & phi & HA).
+    destruct (fo_fin_model_discretize Hs Hr Hfin Hdec)
+      as (n & Md & Mdec & i & j & E1 & E2 & E3).
+    set (psy n := i (phi n)).
+    exists n, Md, (finite_t_pos _), (@pos_eq_dec _), Mdec, psy.
+    revert HA.
+    apply fo_model_project_equiv with (1 := E1); auto.
+  Qed.
+
+End discrete_removal.
+
+Print fo_form_fin_dec_SAT_in.
+Print fo_form_fin_discr_dec_SAT_in.
+
+Check fo_discrete_removal.
+Print Assumptions fo_discrete_removal.
 
