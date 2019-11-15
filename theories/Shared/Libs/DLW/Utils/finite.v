@@ -12,6 +12,9 @@ Require Import List Arith Lia.
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat.
 
+From Undecidability.Shared.Libs.DLW.Vec
+  Require Import pos vec.
+
 From Undecidability.Shared.Libs.DLW.Wf 
   Require Import acc_irr.
 
@@ -48,6 +51,37 @@ Section finite.
     firstorder.
   Qed.
 
+  Fact Forall_reif_t X l (P : X -> Prop) : Forall P l -> { m : list (sig P) | map (@proj1_sig _ _) m = l }.
+  Proof.
+    induction l as [ | x l IHl ].
+    + exists nil; auto.
+    + intros H; rewrite Forall_cons_inv in H.
+      destruct H as (H1 & H2).
+      destruct (IHl H2) as (m & Hm).
+      exists (exist _ x H1 :: m); simpl; f_equal; auto.
+  Qed.
+
+  Fact fin_t_finite_t X (P : X -> Prop) (Pirr : forall x (H1 H2 : P x), H1 = H2) :
+         fin_t P -> finite_t (sig P).
+  Proof.
+    intros (l & Hl).
+    destruct (@Forall_reif_t _ l P) as (m & Hm).
+    + rewrite Forall_forall; intro; apply Hl.
+    + exists m.
+      intros (x & Hx).
+      generalize Hx; intros H.
+      rewrite Hl, <- Hm, in_map_iff in Hx.
+      destruct Hx as (y & <- & Hy).
+      eq goal Hy; f_equal.
+      destruct y; simpl; f_equal; apply Pirr.
+  Qed.
+
+  Fact fin_t_equiv X (P Q : X -> Prop) : (forall x, P x <-> Q x) -> fin_t P -> fin_t Q.
+  Proof.
+    intros H (l & Hl); exists l.
+    intro; rewrite <- H, Hl; tauto.
+  Qed.
+
   Fixpoint list_prod X Y (l : list X) (m : list Y) :=
     match l with
       | nil  => nil
@@ -68,6 +102,12 @@ Section finite.
   Proof.
     intros (l & Hl) (m & Hm).
     exists (list_prod l m); intro; rewrite list_prod_spec, Hl, Hm; tauto.
+  Qed.
+
+  Fact finite_t_prod X Y : finite_t X -> finite_t Y -> finite_t (X*Y).
+  Proof.
+    intros (l & Hl) (m & Hm); exists (list_prod l m).
+    intros []; apply list_prod_spec; auto.
   Qed.
 
   Fact finite_prod X Y : finite X -> finite Y -> finite (X*Y).
@@ -198,6 +238,9 @@ Section finite.
       intros; auto.
   Qed.
 
+  Fact finite_t_pos n : finite_t (pos n).
+  Proof. exists (pos_list n); apply pos_list_prop. Qed.
+
 End finite.
 
 Theorem exists_dec_fin_t X (P Q : X -> Prop) 
@@ -210,3 +253,62 @@ Proof.
   + right; intros (x & Hx); apply (Hl x); split; auto.
   + left; exists x; apply Hl; simpl; auto.
 Qed.
+
+Definition surj_t (X Y : Type) := { s : X -> Y | forall y, exists x, y = s x }.
+
+Fact surj_t_compose X Y Z : surj_t X Y -> surj_t Y Z -> surj_t X Z.
+Proof. 
+  intros (f & Hf) (g & Hg); exists (fun x => g (f x)).
+  intros z.
+  destruct (Hg z) as (y & Hy).
+  destruct (Hf y) as (x & Hx).
+  exists x; subst; auto.
+Qed.
+
+Fact finite_t_surj_t X Y : surj_t X Y -> finite_t X -> finite_t Y.
+Proof.
+  intros [ s E ] (l & Hl).
+  exists (map s l).
+  intros y; rewrite in_map_iff. 
+  destruct (E y) as (x & ?); exists x; auto. 
+Qed.
+
+Fact finite_t_pos_equiv X : (finite_t X -> { n : _ & surj_t (pos n) X })
+                          * ({ n : _ & surj_t (pos n) X } -> finite_t X).
+Proof.
+  split.
+  + intros (l & Hl).
+    exists (length l).
+    destruct (list_vec_full l) as (v & Hv).
+    rewrite <- Hv in Hl.
+    generalize (length l) v Hl.
+    clear l v Hl Hv.
+    intros n v H.
+    exists (vec_pos v).
+    intros x; apply (vec_list_inv _ _ (H x)).
+  + intros (n & Hn).
+    generalize (finite_t_pos n).
+    apply finite_t_surj_t; auto.
+Qed.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

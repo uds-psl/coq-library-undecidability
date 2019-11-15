@@ -458,3 +458,19 @@ Section pos_prod.
   
 End pos_prod.
 
+Fact pos_dec_reif n (P : pos n -> Prop) (HP : forall p, { P p } + { ~ P p }) : ex P -> sig P.
+Proof.
+  revert P HP.
+  induction n as [ | n IHn ]; intros P HP H.
+  + exfalso; destruct H as (p & _); invert pos p.
+  + destruct (HP pos0) as [ H0 | H0 ].
+    { exists pos0; auto. }
+    destruct (IHn (fun p => P (pos_nxt p))) as (q & Hq).
+    * intros; apply HP.
+    * destruct H as (p & Hp); invert pos p.
+      - tauto.
+      - exists p; auto.
+    * exists (pos_nxt q); auto.
+Qed. 
+   
+

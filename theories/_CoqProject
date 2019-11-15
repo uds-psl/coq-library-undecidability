@@ -254,6 +254,8 @@ TRAKHTENBROT/fol_bpcp.v
 TRAKHTENBROT/fol_extra.v
 TRAKHTENBROT/Sig3_Sig2.v
 TRAKHTENBROT/hfs.v
+TRAKHTENBROT/membership.v
+TRAKHTENBROT/discrete.v
 
 
 L/Prelim/MoreBase.v

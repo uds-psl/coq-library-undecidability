@@ -36,3 +36,30 @@ Fixpoint env_lift {X} (φ : nat -> X) k n { struct n } :=
   end.
 
 Notation "phi ↑ k" := (env_lift phi k).
+
+(* Unary ops *)
+
+Reserved Notation "⌞ x ⌟" (at level 1, format "⌞ x ⌟").
+Reserved Notation "↓ x"   (at level 1, format "↓ x").
+Reserved Notation "x †"   (at level 1, format "x †").
+
+(* Infix Binary ops *)
+ 
+Reserved Notation "x ∙ y"  (at level 2, right associativity, format "x ∙ y").
+Reserved Notation "x ⪧ y" (at level 2, right associativity, format "x ⪧ y").
+Reserved Notation "x → y" (at level 2, right associativity, format "x → y").
+
+Reserved Notation "⟬ s , t ⟭" (at level 1, format "⟬ s , t ⟭").
+Reserved Notation "x ∪ y" (at level 59, left associativity).
+
+  (* Infix Binary rels *)
+
+Reserved Notation "x ≈ y" (at level 70, no associativity).
+Reserved Notation "x ≉ y" (at level 70, no associativity).
+Reserved Notation "x ≾ y" (at level 70, no associativity).
+Reserved Notation "x ∈ y" (at level 70, no associativity).
+Reserved Notation "x ∉ y" (at level 70, no associativity).
+Reserved Notation "x ⋷ y" (at level 70, no associativity).
+Reserved Notation "x ≺ y" (at level 70, no associativity).
+Reserved Notation "x ⊆ y" (at level 70, no associativity).
+

@@ -178,6 +178,9 @@ Section iter.
     rewrite plus_comm, iter_plus; auto.
   Qed.
 
+  Fact iter_S x n : iter x (S n) = f (iter x n).
+  Proof. apply iter_swap. Qed.
+
 End iter.
 
 Fixpoint list_repeat X (x : X) n :=

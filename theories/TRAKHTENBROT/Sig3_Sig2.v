@@ -246,6 +246,8 @@ Section SAT2_SAT3.
 
     Let mem := m2_member M2.
 
+    (** Beware that model is NOT finite ... unless one assumes more *)
+
     Let M3 : fo_model (Σrel 3).
     Proof.
       exists (sig (fun x => mem x (ψ 0))).
@@ -287,7 +289,7 @@ Section SAT2_SAT3.
 
   End nested.
 
-  Theorem SAT3_SAT2 A : SAT (Σ3_Σ2_enc A) -> SAT A.
+  Theorem SAT2_SAT3 A : SAT (Σ3_Σ2_enc A) -> SAT A.
   Proof.
     intros (M2 & psy & HA).
     apply SAT2_to_SAT3 with M2 psy; auto.
@@ -295,4 +297,25 @@ Section SAT2_SAT3.
 
 End SAT2_SAT3.
 
-Check SAT3_SAT2.
+Section SAT3_SAT2.
+ 
+  Section nested.
+
+    Variables (A : fol_form (Σrel 3))
+              (M3 : fo_model (Σrel 3))
+              (M3_fin : finite_t M3)
+              (M3_dec : fo_model_dec M3)
+              (φ : nat -> M3)
+              (HA : fol_sem M3 φ A).
+
+    (** we need to build a map pos n -> set *)
+    
+    
+
+
+  
+
+  
+
+
+Check SAT2_SAT3.

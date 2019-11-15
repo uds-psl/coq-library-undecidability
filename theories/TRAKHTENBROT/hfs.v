@@ -7,418 +7,26 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Nat Lia Max Wellfounded Coq.Setoids.Setoid.
+Require Import List Arith Nat Lia Max Wellfounded Coq.Setoids.Setoid Eqdep_dec Bool.
 
 From Undecidability.Shared.Libs.DLW.Utils 
-  Require Import utils_list.
+  Require Import utils_tac utils_list finite.
+
+From Undecidability.Shared.Libs.DLW.Vec 
+  Require Import pos fin_quotient.
 
 From Undecidability.Shared.Libs.DLW.Wf 
   Require Import wf_finite wf_chains.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations fol_ops.
+  Require Import notations fol_ops membership.
 
 Set Implicit Arguments.
 
 Local Definition forall_equiv X := @fol_quant_sem_ext X fol_fa.
 Local Definition exists_equiv X := @fol_quant_sem_ext X fol_ex.
 
-Section axioms.
-
-  Reserved Notation "⟬ s , t ⟭" (at level 1, format "⟬ s , t ⟭").
-  Reserved Notation "x ∪ y" (at level 61, left associativity).
-
-  Reserved Notation "x ≈ y" (at level 70, no associativity).
-  Reserved Notation "x ≉ y" (at level 70, no associativity).
-  Reserved Notation "x ∈ y" (at level 70, no associativity).
-  Reserved Notation "x ∉ y" (at level 70, no associativity).
-  Reserved Notation "x ⊆ y" (at level 70, no associativity).
-
-  Variable (X : Type) (R : X -> X -> Prop).
-
-  Infix "∈" := R.
-  Notation "x ∉ y" := (~ x ∈ y).
-
-  Definition m2_incl x y := forall a, a ∈ x -> a ∈ y.
-  Definition m2_equiv x y := forall a, a ∈ x <-> a ∈ y.
-
-  Infix "⊆" := m2_incl.
-  Infix "≈" := m2_equiv. 
-  Notation "x ≉ y" := (~ x ≈ y).
-
-  (** Hypothesis on the model *)
-
-  Variable (Rdec : forall x y, { x ∈ y } + { x ∉ y })
-           (lX : list X) (HX : forall x, In x lX).
-
-  Fact m2_incl_refl x : x ⊆ x.
-  Proof. red; auto. Qed.
-
-  Fact m2_incl_trans x y z : x ⊆ y -> y ⊆ z -> x ⊆ z.
-  Proof. unfold m2_incl; auto. Qed.
-
-  Fact m2_incl_choose x y : { z | z ∈ x /\ z ∉ y } + { x ⊆ y }.
-  Proof.
-    set (P z := z ∈ x /\ z ∉ y).
-    set (Q z := z ∈ x -> z ∈ y).
-    destruct list_dec with (P := P) (Q := Q) (l := lX)
-      as [ (z & _ & H2 & H3) | H ]; unfold P, Q in *; clear P Q.
-    + intros z; destruct (Rdec z x); destruct (Rdec z y); tauto.
-    + left; exists z; auto.
-    + right; intros z; apply H; auto.
-  Qed.  
-
-  Fact m2_incl_dec x y : { x ⊆ y } + { ~ x ⊆ y }.
-  Proof.
-    destruct (m2_incl_choose x y) as [ (?&?&?) |]; auto.
-  Qed.
-
-  Fact m2_equiv_eq x y : x ≈ y <-> x ⊆ y /\ y ⊆ x.
-  Proof. firstorder. Qed.
-  
-  Fact m2_equiv_dec x y : { x ≈ y } + { x ≉ y }.
-  Proof.
-    destruct (m2_incl_dec x y); [ destruct (m2_incl_dec y x) | ].
-    1: left; apply m2_equiv_eq; auto. 
-    all: right; rewrite m2_equiv_eq; tauto.
-  Qed.
-
-  Fact m2_equiv_refl_True x : x ≈ x <-> True.
-  Proof. unfold m2_equiv; tauto. Qed.
-
-  Fact m2_equiv_refl x : x ≈ x.
-  Proof. unfold m2_equiv; tauto. Qed.
-
-  Fact m2_equiv_sym x y : x ≈ y -> y ≈ x.
-  Proof. do 2 rewrite m2_equiv_eq; tauto. Qed.
-
-  Fact m2_equiv_trans x y z : x ≈ y -> y ≈ z -> x ≈ z.
-  Proof. repeat rewrite m2_equiv_eq; unfold m2_incl; intros [] []; split; auto. Qed.
-
-  Add Parametric Relation: (X) (m2_equiv)
-      reflexivity proved by m2_equiv_refl
-      symmetry proved by m2_equiv_sym
-      transitivity proved by m2_equiv_trans
-    as m2_equiv_rst.
-
-  Hint Resolve m2_equiv_refl m2_equiv_sym.
-
-  (* A first FOL axiom: sets are characterized by their elements *)
-
-  Definition m2_member_ext := forall x y z, x ≈ y -> x ∈ z -> y ∈ z.
-
-  Variable (m2_ax_ext : m2_member_ext).
-
-  Fact m2_equiv_mem x y : x ≈ y -> forall z, x ∈ z <-> y ∈ z.
-  Proof. split; apply m2_ax_ext; auto. Qed.
-  
-   Add Parametric Morphism: (R) with signature 
-     (m2_equiv) ==> (m2_equiv) ==> (iff) as mem_congr.
-  Proof.
-    intros x y H1 a b H2; red in H1, H2; split;
-     rewrite <- H2; apply m2_ax_ext; auto.
-  Qed.
-
-  Add Parametric Morphism: (fun x y => x ⊆ y) with signature 
-     (m2_equiv) ==> (m2_equiv) ==> (iff) as is_incl_congr.
-  Proof.
-    intros x y H1 a b H2; split; intros H z.
-    + rewrite <- H1, <- H2; auto.
-    + rewrite H1, H2; auto.
-  Qed.
-
-  Definition m2_is_pair p x y := forall a, a ∈ p <-> a ≈ x \/ a ≈ y.
-
-  Definition m2_is_triple t x y z := forall a, a ∈ t <-> a ≈ x \/ a ≈ y \/ a ≈ z.
-
-  Fact m2_is_pair_comm p x y : m2_is_pair p x y -> m2_is_pair p y x.
-  Proof. unfold m2_is_pair; apply forall_equiv; intro; tauto. Qed.
-
-  Add Parametric Morphism: (m2_is_pair) with signature 
-     (m2_equiv) ==> (m2_equiv) ==> (m2_equiv) ==> (iff) as is_pair_congr.
-  Proof.
-    intros p q H1 x x' H2 y y' H3.
-    apply forall_equiv; intros a.
-    rewrite H1, H2, H3; tauto.
-  Qed.
-
-  Add Parametric Morphism: (m2_is_triple) with signature 
-     (m2_equiv) ==> (m2_equiv) ==> (m2_equiv) ==> (m2_equiv) ==> (iff) as is_triple_congr.
-  Proof.
-    intros p q H1 x x' H2 y y' H3 z z' H4.
-    apply forall_equiv; intros a.
-    rewrite H1, H2, H3, H4; tauto.
-  Qed.
-
-  Fact m2_is_pair_fun p q x y : m2_is_pair p x y -> m2_is_pair q x y -> p ≈ q.
-  Proof.
-    intros H1 H2; red in H1, H2; intro; 
-    rewrite H1, H2; tauto.
-  Qed.
-
-  Fact m2_is_triple_fun r t x y z : m2_is_triple r x y z 
-                                 -> m2_is_triple t x y z 
-                                 -> r ≈ t.
-  Proof.
-    intros H1 H2; red in H1, H2; intro;
-    rewrite H1, H2; tauto.
-  Qed.
-
-  Fact m2_is_pair_inj p x y x' y' : m2_is_pair p x y 
-                                 -> m2_is_pair p x' y' 
-                                 -> x ≈ x' /\ y ≈ y'
-                                 \/ x ≈ y' /\ y ≈ x'.
-  Proof.
-    unfold m2_is_pair; intros H1 H2.
-    generalize (proj1 (H2 x)) (proj1 (H2 y)); rewrite H1, H1, m2_equiv_refl_True, m2_equiv_refl_True.
-    generalize (proj1 (H1 x')) (proj1 (H1 y')); rewrite H2, H2, m2_equiv_refl_True, m2_equiv_refl_True.
-    intros [] [] [] []; auto.
-  Qed.
-
-  Fact m2_is_pair_inj' p x y : m2_is_pair p x x 
-                            -> m2_is_pair p y y
-                            -> x ≈ y.
-  Proof.
-    intros H1 H2; generalize (m2_is_pair_inj H1 H2); tauto.
-  Qed.
-
-  (** Replace the big disj with permutation up-to equivalence *)
-
-  (**
-
-  Ltac collect_equiv :=
-   repeat match goal with 
-     | H : _ ≈ _ |- _ => revert H
-   end.
-
-  Ltac symetry :=
-    repeat match goal with
-      | |- (?x ≈ ?y) -> _ => let H := fresh in intro H; generalize (equiv_sym H); intro
-    end. 
-
-  Ltac eliminate :=
-    repeat match goal with
-      | |- True -> _ => intros _
-      | |- (?x ≈ ?x) -> _ => intros _
-      | |- (?x ≈ ?y) -> _ => let H := fresh in intro H; rewrite H; clear H
-    end. 
-
-  Fact id_rew x : x ≈ x <-> True.
-  Proof. split; auto. Qed.
-
-  Fact True_or_rewl (A : Prop) : A \/ True <-> True.
-  Proof. tauto. Qed.
-
-  Fact True_or_rewr (A : Prop) : True \/ A <-> True.
-  Proof. tauto. Qed.
-
-  Fact True_and_rewl (A : Prop) : A /\ True <-> A.
-  Proof. tauto. Qed.
-
-  Fact True_and_rewr (A : Prop) : True /\ A <-> A.
-  Proof. tauto. Qed.
-
-  Ltac rsimpl := 
-    repeat rewrite id_rew; 
-    repeat (rewrite True_or_rewl  || rewrite True_or_rewr || 
-            rewrite True_and_rewl || rewrite True_and_rewr).
-
-  Ltac myintro :=
-    match goal with
-      | |- True -> _ => intros _ 
-      | |- ?a \/ ?b \/ ?c -> _ => let H := fresh in intros [ H | [ H | H ]]; rewrite H
-    end.
-
-  The idea of encoding a triple as {{x},{x,y},{x,y,z}} seems to generates
-  too many cases to show bijections
-
-  Fact is_triple_inj p x y z x' y' z' : 
-              is_triple p x y z  
-           -> is_triple p x' y' z'
-           -> x ≈ y' /\ y ≈ x' /\ z ≈ z'
-           \/ x ≈ x' /\ y ≈ z' /\ z ≈ y'
-           \/ x ≈ z' /\ y ≈ y' /\ z ≈ x'
-
-           \/ x ≈ x' /\ y ≈ y' /\ z ≈ z'
-           \/ x ≈ y' /\ y ≈ z' /\ z ≈ x'
-           \/ x ≈ z' /\ y ≈ x' /\ z ≈ y'
-
-           \/ x ≈ x' /\ x ≈ y' /\ y ≈ z' /\ z ≈ z'
-           \/ x ≈ x' /\ x ≈ z' /\ y ≈ y' /\ z ≈ y'
-           \/ x ≈ y' /\ x ≈ z' /\ y ≈ x' /\ z ≈ x'
-           \/ x ≈ x' /\ z ≈ x' /\ y ≈ y' /\ y ≈ z'.
-  Proof.
-    unfold is_triple; intros H1 H2.
-    generalize (proj1 (H2 x)) (proj1 (H2 y)) (proj1 (H2 z)); rewrite H1, H1, H1, equiv_refl_True, equiv_refl_True, equiv_refl_True.
-    generalize (proj1 (H1 x')) (proj1 (H1 y')) (proj1 (H1 z')); rewrite H2, H2, H2, equiv_refl_True, equiv_refl_True, equiv_refl_True.
-    clear H1 H2.
-    repeat match goal with 
-     |- (_ -> ?t) -> _ => let H := fresh in let G := fresh in intros H; assert (G : t); [ apply H; auto | ]; clear H
-    end.
-    repeat match goal with H: _ \/ _ \/ _ |- _ => revert H end.
-    repeat (myintro; rsimpl; auto).
-    myintro.
-    
-    do 6 (intros [|[]]; auto; collect_equiv; eliminate; repeat rewrite id_rew; try tauto). [|[]] [|[]] [|[]] [|[]] [|[]]; auto; collect_equiv.
-    eliminate.
-    eliminate.
-    find_trans.
-     match goal with
-      | H : ?x ≈ ?y |- context[?x ≈ ?y] => rewrite (@id_rew x y); auto
-     end.
-  Qed.
-*)
-
-
-  Definition m2_is_opair p x y := exists a b, m2_is_pair a x x /\ m2_is_pair b x y /\ m2_is_pair p a b.
-
-  Add Parametric Morphism: (m2_is_opair) with signature 
-     (m2_equiv) ==> (m2_equiv) ==> (m2_equiv) ==> (iff) as m2_is_opair_congr.
-  Proof.
-    intros p q H1 x x' H2 y y' H3.
-    apply exists_equiv; intros a.
-    apply exists_equiv; intros b.
-    rewrite H1, H2, H3; tauto.
-  Qed.
-
-  Fact m2_is_opair_fun p q x y : m2_is_opair p x y -> m2_is_opair q x y -> p ≈ q.
-  Proof.
-    intros (a & b & H1 & H2 & H3) (u & v & G1 & G2 & G3).
-    generalize (m2_is_pair_fun H1 G1) (m2_is_pair_fun H2 G2); intros E1 E2.
-    rewrite E1, E2 in H3.
-    revert H3 G3; apply m2_is_pair_fun.
-  Qed.
-
-  Fact m2_is_opair_inj p x y x' y' : m2_is_opair p x y 
-                                  -> m2_is_opair p x' y' 
-                                  -> x ≈ x' /\ y ≈ y'.
-  Proof.
-    intros (a & b & H1 & H2 & H3) (u & v & G1 & G2 & G3).
-    generalize (m2_is_pair_inj H3 G3); intros [ (E1 & E2) | (E1 & E2) ].
-    + rewrite E1 in H1; rewrite E2 in H2.
-      generalize (m2_is_pair_inj' H1 G1); intros E; split; auto.
-      rewrite E in H2.
-      generalize (m2_is_pair_inj H2 G2); intros [ | (E3 & E4) ]; try tauto.
-      rewrite E4; auto.
-    + rewrite E1 in H1; rewrite E2 in H2.
-      generalize (m2_is_pair_inj H2 G1) (m2_is_pair_inj H1 G2).
-      intros [ (E3 & E4) | (E3 & E4) ] [ (E5 & E6) | (E5 & E6) ];
-        rewrite E4, <- E5; auto.
-  Qed.
-
-  Definition m2_is_otriple t x y z := exists p, m2_is_opair p x y /\ m2_is_opair t p z.
- 
-  Add Parametric Morphism: (m2_is_otriple) with signature 
-     (m2_equiv) ==> (m2_equiv) ==> (m2_equiv) ==> (m2_equiv) ==> (iff) as m2_is_otriple_congr.
-  Proof.
-    intros p q H1 x x' H2 y y' H3 z z' H4.
-    unfold m2_is_otriple.
-    apply exists_equiv; intros t.
-    rewrite H1, H2, H3, H4; tauto.
-  Qed.
-
-  Fact m2_is_otriple_fun p q x y z : m2_is_otriple p x y z -> m2_is_otriple q x y z -> p ≈ q.
-  Proof.
-    intros (t1 & H1 & H2) (t2 & H3 & H4).
-    generalize (m2_is_opair_fun H1 H3); intros E.
-    rewrite E in H2.
-    apply (m2_is_opair_fun H2 H4).
-  Qed.
-
-  Fact m2_is_otriple_inj t x y z x' y' z' : 
-             m2_is_otriple t x y z 
-          -> m2_is_otriple t x' y' z' 
-          -> x ≈ x' /\ y ≈ y' /\ z ≈ z'.
-  Proof.
-    intros (p & H1 & H2) (q & H3 & H4).
-    destruct (m2_is_opair_inj H2 H4) as (H5 & H6).
-    rewrite H5 in H1.
-    generalize (m2_is_opair_inj H1 H3); tauto.
-  Qed.
-
-  Definition m2_has_pairs (l : X) :=
-     forall x y, x ∈ l -> y ∈ l -> exists p, m2_is_pair p x y.
-
-  Definition m2_has_otriples (l : X) :=
-    forall x y z, x ∈ l -> y ∈ l -> z ∈ l -> exists t, m2_is_otriple t x y z.
-
-  Definition m2_is_otriple_in r x y z :=
-    exists t, m2_is_otriple t x y z /\ t ∈ r.
-
-  Definition m2_powset (l m : X) := forall x, x ∈ m <-> x ⊆ l.
-
-  Add Parametric Morphism: (m2_powset) with signature 
-     (m2_equiv) ==> (m2_equiv) ==> (iff) as m2_is_powset_congr.
-  Proof.
-    intros x y H1 a b H2; unfold m2_powset.
-    apply forall_equiv; intro.
-    rewrite H1, H2; tauto.
-  Qed.
-
-  (** First order axioms *)
-
-  Variable (empty : exists x, forall y, y ∉ x).
- 
-  Variable (l0 l1 l2 l3 : X).     (** a layered model of level 4 *)
-  Variable (pset1 : m2_powset l0 l1)
-           (pset2 : m2_powset l1 l2)
-           (pset3 : m2_powset l2 l3)
-           (hp0 : m2_has_pairs l0)   (** pairs at every level below 3 *)
-           (hp1 : m2_has_pairs l1)
-           (hp2 : m2_has_pairs l2).
-
-  Fact m2_is_pair_layer p x y l pl : x ∈ l -> y ∈ l -> m2_is_pair p x y -> m2_powset l pl -> p ∈ pl.
-  Proof.
-    intros H1 H2 H3 H4; apply H4; red in H3.
-    intros k; rewrite H3; intros [ H | H ]; rewrite H; auto.
-  Qed.
-
-  Fact m2_is_opair_l2 p x y : x ∈ l0 -> y ∈ l0 -> m2_is_opair p x y -> p ∈ l2.
-  Proof.
-    intros H1 H2 (a & b & H3 & H4 & H5).
-    apply m2_is_pair_layer with (4 := pset1) in H3; auto.
-    apply m2_is_pair_layer with (4 := pset1) in H4; auto.
-    apply m2_is_pair_layer with (4 := pset2) in H5; auto.
-  Qed.
-   
-  Variable (r : X) (Hr : r ∈ l3). (** r encodes a binary relation *)
-
-  Definition m2_P x y := x ∈ l0 /\ y ∈ l0 /\ exists c, c ∈ r /\ m2_is_opair c x y. 
-
-  (** We want to show that (encode A) satisfied in this model
-           -> A true in the model where P as defined above 
-                is the binary relation *)
-
-End axioms. 
-
 Section btree.
-
-  (* Unary ops *)
-
-  Reserved Notation "⌞ x ⌟" (at level 0, format "⌞ x ⌟").
-  Reserved Notation "↓ x"   (at level 1, format "↓ x").
-  Reserved Notation "x †"   (at level 1, format "x †").
-
-  Reserved Notation "⟬ s , t ⟭" (at level 1, format "⟬ s , t ⟭").
-
-  (* Infix Binary ops *)
- 
-  Reserved Notation "x ∙ y"  (at level 2, right associativity, format "x ∙ y").
-  Reserved Notation "x ⪧ y" (at level 2, right associativity, format "x ⪧ y").
-  Reserved Notation "x → y" (at level 2, right associativity, format "x → y").
-
-  Reserved Notation "x ∪ y" (at level 61, left associativity).
-
-  (* Infix Binary rels *)
-
-  Reserved Notation "x ≈ y" (at level 70, no associativity).
-  Reserved Notation "x ≉ y" (at level 70, no associativity).
-  Reserved Notation "x ≾ y" (at level 70, no associativity).
-  Reserved Notation "x ∈ y" (at level 70, no associativity).
-  Reserved Notation "x ∉ y" (at level 70, no associativity).
-  Reserved Notation "x ⋷ y" (at level 70, no associativity).
-  Reserved Notation "x ≺ y" (at level 70, no associativity).
-  Reserved Notation "x ⊆ y" (at level 70, no associativity).
 
   (* ⌞ ⌟ ∅ ⪧ ≈ ≉ ∈ ∉ ⋷  ≾ ≺ ε ∙ ∊ *)
 
@@ -455,16 +63,15 @@ Section btree.
   Fact bt_eq_dec (s t : bt) : { s = t } + { s <> t }.
   Proof. decide equality. Qed.
 
+  Fact bt_eq_pirr (s t : bt) (H1 H2 : s = t) : H1 = H2.
+  Proof. apply UIP_dec, bt_eq_dec. Qed.
+
   Fixpoint bt_depth t :=
     match t with
       | ∅   => 0
       | r⪧s => max (S ⌞r⌟) ⌞s⌟
     end
   where "⌞ t ⌟" := (bt_depth t).
-
-  Print bt_depth.
-
-  Check (fun x => ⌞x⌟).
 
   (* ⌞ ⌟ ∅ ⪧ ≈ *)
 
@@ -492,6 +99,18 @@ Section btree.
   Fact bte_sym x y : x ≈ y <-> y ≈ x.
   Proof. split; auto. Qed.
 
+  Global Add Parametric Relation: (bt) (bt_equiv)
+      reflexivity proved by bte_refl
+      symmetry proved by in_bte_sym
+      transitivity proved by bte_trans
+    as bte_rst.
+
+  Global Add Parametric Morphism: (bt_node) with signature 
+       (bt_equiv) ==> (bt_equiv) ==> (bt_equiv) as bt_node_congr.
+  Proof.
+    intros x y H1 a b H2; auto.
+  Qed.
+
   Fact bte_leaf_eq s t : s ≈ t -> (s = ∅ <-> t = ∅).
   Proof. induction 1; try tauto; split; discriminate. Qed.
 
@@ -511,7 +130,9 @@ Section btree.
 
   (* s belongs to t if adding s to t does not change t *)
 
-  Notation "s ∈ t" := (s⪧t ≈ t).
+  Definition bt_mem s t := s⪧t ≈ t.
+
+  Infix "∈" := bt_mem.
   Notation "s ∉ t" := (~ s ∈ t).
 
   (* ⌞ ⌟ ∅ ⪧ ≈  ∈ ⋷  *)
@@ -592,7 +213,7 @@ Section btree.
       apply bte_trans with (2 := H1),
             bte_trans with (2 := H2); auto.
     Qed.
-
+  
     Fact btm_inv_0 s : s ∈ ∅ <-> False.
     Proof. split; try tauto; apply bte_discr. Qed.
 
@@ -603,12 +224,25 @@ Section btree.
         destruct (@bte_rincl _ _ H u) as (v & H1 & ?); auto.
         revert H1; rewrite btrm_inv; intros [ <- | ]; auto.
         right; apply bte_trans with (v⪧t); auto.
+        apply btrm_btm; auto.
       + intros [ H | H ].
         * apply btm_congr_l with s; auto.
         * apply bte_trans with (1 := in_bte_comm _ _ _); auto.
     Qed.
 
   End establishing_membership_inversion.
+
+  Global Add Parametric Morphism: (bt_mem) with signature 
+       (bt_equiv) ==> (bt_equiv) ==> (iff) as bte_congr.
+  Proof.
+    intros x y H1 a b H2; split; intros H.
+    + apply btm_congr_l with (1 := H1),
+            btm_congr_r with (1 := H2); auto.
+    + rewrite bte_sym in H1.
+      rewrite bte_sym in H2.
+      apply btm_congr_l with (1 := H1),
+            btm_congr_r with (1 := H2); auto.
+  Qed.
 
   Tactic Notation "btm" "simpl" :=
     repeat match goal with
@@ -798,8 +432,8 @@ Section btree.
       Proof.
         induction t as [ | s t IHt ] using bt_rect'; intros Ht.
         + right; intros ?; btm simpl.
-        + destruct (Ht s) as [ H | H ]; auto.
-          * left; exists s; auto.
+        + destruct (Ht s) as [ H | H ]; btm simpl; auto.
+          * left; exists s; btm simpl; auto.
           * destruct IHt as [ (x & H1 & H2) | H1 ].
             - intros x Hx; apply Ht; btm simpl.
             - left; exists x; btm simpl.
@@ -838,7 +472,7 @@ Section btree.
       + exists ∅; intros s; btm simpl.
       + destruct Ht as (t' & H').
         * intros x Hx; apply HP; btm simpl.
-        * destruct (HP s) as [ H | H ]; auto.
+        * destruct (HP s) as [ H | H ]; btm simpl; auto.
           - exists (s⪧t'); intros x; btm simpl.
             rewrite H'.
             split; try tauto.
@@ -862,8 +496,7 @@ Section btree.
         destruct (btm_dec x s) as [ H2 | H2 ]; try (exfalso; tauto). 
         * destruct (IHs H2) as (t & H3 & H4).
           exists t; split; auto.
-          apply bte_trans with (y⪧x⪧t); auto.
-          btm simpl.
+          rewrite <- H1, H3; auto.
         * exists s; auto.
         * destruct (IHs H2) as (t & H3 & H4).
           exists (y⪧t); split; auto.
@@ -965,8 +598,8 @@ Section btree.
           - rewrite max_r; auto.
         * exists (ls++s::nil); split.
           - apply chain_list_app with (1 := H1).
-            constructor 2 with (s⪧t); auto.
-            constructor.
+            constructor 2 with (s⪧t); auto; btm simpl.
+            constructor; auto.
           - rewrite app_length; simpl.
             rewrite max_l; lia.
     Qed.
@@ -1000,6 +633,14 @@ Section btree.
   Qed.
 
   Notation "x ⊆ y" := (forall u, u ∈ x -> u ∈ y) (at level 70).
+
+  Add Parametric Morphism: (fun x y => x ⊆ y) with signature 
+       (bt_equiv) ==> (bt_equiv) ==> (iff) as bti_congr.
+  Proof.
+    intros x y H1 a b H2; split; intros H z.
+    + rewrite <- H2, <- H1; apply H.
+    + rewrite H1, H2; apply H.
+  Qed.
 
   Fact bti_inv_0 x : x ⊆ ∅ <-> x = ∅.
   Proof.
@@ -1076,7 +717,7 @@ Section btree.
           apply Hs.
           ++ apply bti_trans with (2 := H1); auto.
           ++ apply bti_trans with (1 := H2), btm_bti; auto.
-        - assert (x ∈ y⪧t) as H4 by (apply H1; auto).
+        - assert (x ∈ y⪧t) as H4 by (apply H1; auto; btm simpl).
           destruct btm_partition with (1 := H4)
             as (u & H5 & H6).
           assert (s ≈ u) as H7.
@@ -1162,6 +803,12 @@ Section btree.
     do 2 rewrite bt_cup_spec.
     rewrite H1, H2; tauto.
   Qed.
+
+  Add Parametric Morphism: (bt_cup) with signature 
+       (bt_equiv) ==> (bt_equiv) ==> (bt_equiv) as bt_cup_congr.
+  Proof.
+    intros; apply bt_cup_mono; auto.
+  Qed.
  
   Fact bt_cup_incl s t x : s ∪ t ⊆ x <-> s ⊆ x /\ t ⊆ x.
   Proof.
@@ -1201,6 +848,12 @@ Section btree.
       * apply bte_trans with s'; auto.
   Qed.
 
+  Add Parametric Morphism: (bt_tc) with signature 
+       (bt_equiv) ==> (bt_equiv) as bt_tc_congr.
+  Proof.
+    intros; apply bte_ext; intro; apply bt_tc_congr_r; auto.
+  Qed.
+ 
   (** The transitive closure is composed of the x st x ∈ ... ∈ t *)
 
   Theorem bt_tc_spec t x : x ∈ ↓t <-> exists n, ∈-chain (S n) x t.
@@ -1221,7 +874,7 @@ Section btree.
           ++ btm simpl.
           ++ constructor.
         - exists (S n).
-          apply chain_snoc with s; auto.
+          apply chain_snoc with s; auto; btm simpl.
         - exists n; apply btm_chain_comp; auto.
       * intros (n & H).
         apply chain_snoc_inv in H.
@@ -1331,7 +984,7 @@ Section btree.
       intros (k & Hk & _); revert Hk; rewrite btm_inv_0; auto.
     + rewrite btm_inv; split.
       * intros [ H | H ].
-        - exists s; split; auto.
+        - exists s; split; auto; btm simpl.
         - rewrite Ht in H.
           destruct H as (k & ? & ?).
           exists k; split; auto.
@@ -1368,6 +1021,38 @@ Section btree.
     intros H2 z Hz.
     apply H2 in H1.
     revert Hz H1; apply H.
+  Qed.
+
+  Fact bt_pow_trans_incl t : bt_transitive t -> t ⊆ bt_pow t.
+  Proof.
+    intros Ht.
+    intros x Hx.
+    apply bt_pow_spec; intros y Hy.
+    revert Hx; apply Ht; auto.
+  Qed.
+
+  Fact bt_pow_iter_trans t n : bt_transitive t -> bt_transitive (iter bt_pow t n)
+                                               /\ t ⊆ iter bt_pow t n.
+  Proof.
+    revert t; induction n as [ | n IHn ]; simpl; intros t Ht; auto; split.
+    + apply IHn, bt_pow_transitive; auto.
+    + destruct (IHn _ (bt_pow_transitive Ht)) as [ _ H ].
+      apply bti_trans with (2 := H), bt_pow_trans_incl; auto.
+  Qed.
+
+  Fact bt_pow_iter_mono t t' n : t ⊆ t' -> iter bt_pow t n ⊆ iter bt_pow t' n.
+  Proof.
+    revert t t'; induction n as [ | n IHn ]; simpl; auto; intros t t' H.
+    apply IHn; intro; do 2 rewrite bt_pow_spec.
+    intro; apply bti_trans with t; auto.
+  Qed.
+ 
+  Fact bt_pow_iter_le t n m : n <= m -> bt_transitive t -> iter bt_pow t n ⊆ iter bt_pow t m.
+  Proof.
+    intros H; revert H t.
+    induction 1 as [ | m Hm IHm ]; auto; intros t Ht.
+    apply bti_trans with (1 := IHm _ Ht); simpl.
+    apply bt_pow_iter_mono, bt_pow_trans_incl; auto.
   Qed.
 
   (** We start workin with pairs *)
@@ -1440,6 +1125,12 @@ Section btree.
     end; split; auto; 
     try (apply bte_trans with s); auto;
     try (apply bte_trans with s'); auto.
+  Qed.
+
+  Add Parametric Morphism: (bt_pair) with signature 
+       (bt_equiv) ==> (bt_equiv) ==> (bt_equiv) as bt_pair_congr.
+  Proof.
+    intros; apply bt_pair_equiv; auto.
   Qed.
 
   (** FOL encoding a triples belonging to a set *)
@@ -1515,7 +1206,827 @@ Section btree.
     + intros z; btm simpl; intros [ Hz | [ Hz | [] ] ];
         [ revert Hx | revert Hy ]; apply btm_congr_l; auto.
   Qed.
+
+  Fixpoint bt_level (t : bt) :=
+    match t with
+      | ∅   => ∅
+      | a⪧t => (a⪧∅)⪧(bt_level t)
+    end.
+
+  Fact bt_level_spec x t : x ∈ bt_level t <-> exists a, a ∈ t /\ x ≈ a⪧∅.
+  Proof.
+    revert x; induction t as [ | a t IHt ] using bt_rect'; intros x; simpl; btm simpl.
+    + split; try tauto; intros (a & H & _); revert H; btm simpl.
+    + rewrite IHt; split.
+      * intros [ H | (b & H1 & H2) ].
+        - exists a; auto; btm simpl.
+        - exists b; auto.
+      * intros (b & H1 & H2); revert H1; btm simpl.
+        intros [ H | H ].
+        - left; apply bte_trans with (1 := H2); auto.
+        - right; exists b; auto.
+  Qed.
+
+  Fact bt_level_empty t : ∅ ∉ bt_level t.
+  Proof.
+    rewrite bt_level_spec.
+    intros (a & _ & H).
+    apply bte_sym, bte_discr in H; auto.
+  Qed.
+
+  Fact bt_level_inv_incl t1 t2 : bt_level t1 ⊆ bt_level t2 -> t1 ⊆ t2.
+  Proof.
+    intros H x Hx.
+    specialize (H (x⪧∅)).
+    do 2 rewrite bt_level_spec in H.
+    destruct H as (a & H1 & H2).
+    { exists x; auto. }
+    rewrite bt_sg_inv in H2.
+    revert H1; apply btm_congr_l; auto.
+  Qed.
+
+  Fact bt_level_inj t1 t2 : bt_level t1 ≈ bt_level t2 -> t1 ≈ t2.
+  Proof.
+    do 2 rewrite bte_incl_equiv.
+    intros []; split; apply bt_level_inv_incl; auto.
+  Qed.
+
+  Fixpoint pos_embed_bt n (p : pos n) : bt :=
+    match p with
+      | pos0      => ∅
+      | pos_nxt q => ∅⪧(bt_level (pos_embed_bt q))
+    end.
+
+  Fact pos_embed_bt_inj n (p q : pos n) : pos_embed_bt p ≈ pos_embed_bt q -> p = q.
+  Proof.
+    revert q; induction p as [ n | n p Hp ]; intros q; invert pos q; auto.
+    + intros H; apply bte_sym, bte_discr in H; tauto.
+    + intros H; apply bte_discr in H; tauto.
+    + intros H.
+      f_equal; apply Hp, bt_level_inj.
+      apply bte_ext.
+      rewrite bte_ext in H.
+      intros x; split; intros Hx.
+      * specialize (proj1 (H x)); btm simpl.
+        intros [ H1 | H1 ]; auto.
+        contradict Hx.
+        generalize (bt_level_empty (pos_embed_bt p)).
+        intros G1 G2; apply G1; revert G2.
+        apply btm_congr_l; auto.
+      * specialize (proj2 (H x)); btm simpl.
+        intros [ H1 | H1 ]; auto.
+        contradict Hx.
+        generalize (bt_level_empty (pos_embed_bt q)).
+        intros G1 G2; apply G1; revert G2.
+        apply btm_congr_l; auto.
+  Qed.
+
+  (** We have an embedding of pos n into bt *)
+
+  Theorem pos_embed_bt_spec n (p q : pos n) : pos_embed_bt p ≈ pos_embed_bt q <-> p = q.
+  Proof.
+    split.
+    + apply pos_embed_bt_inj.
+    + intros []; auto.
+  Qed.
+
+  Check t.
+
+  Definition list2bt := fold_right (fun x y => x⪧y) ∅.
+
+  Fact list2bt_spec l x : x ∈ list2bt l <-> exists y, x ≈ y /\ In y l.
+  Proof.
+    revert x; induction l as [ | x l IHl ]; intros y; simpl; btm simpl.
+    + split; try tauto; intros (_ & _ & []).
+    + rewrite IHl; split.
+      * intros [ H | (z & H1 & H2) ].
+        - exists x; auto.
+        - exists z; split; auto.
+      * intros (z & H1 & [ -> | H2 ]); auto.
+        right; exists z; auto.
+  Qed.
+  
+  Definition bt_card n := list2bt (map (@pos_embed_bt _) (pos_list n)).
+
+  Fact bt_card_spec n x : x ∈ bt_card n <-> exists p, x ≈ @pos_embed_bt n p.
+  Proof.
+    unfold bt_card; rewrite list2bt_spec; split.
+    + intros (y & H1 & H2); revert H2; rewrite in_map_iff.
+      intros (p & <- & _); exists p; auto.
+    + intros (p & Hp).
+      exists (pos_embed_bt p); split; auto.
+      apply in_map_iff; exists p; split; auto.
+      apply pos_list_prop.
+  Qed.
+
+  Fact bt_card_spec_t n x : x ∈ bt_card n -> { p | x ≈ @pos_embed_bt n p }.
+  Proof.
+    intros Hx; generalize (proj1 (bt_card_spec _ _) Hx).
+    apply pos_dec_reif.
+    intro; apply bte_dec.
+  Qed.
+
+  Definition bt_card_surj n x Hx := proj1_sig (@bt_card_spec_t n x Hx).
+ 
+  Fact bt_card_surj_spec n x Hx : x ≈ pos_embed_bt (@bt_card_surj n x Hx).
+  Proof. apply (proj2_sig (@bt_card_spec_t n x Hx)). Qed.
+
+  Definition hfs : Set := sig (fun t => bt_norm t = t).
+
+  Definition bt_cls (t : bt) : hfs.
+  Proof. exists (bt_norm t); apply bt_norm_idem. Defined.
+
+  Arguments bt_cls t /.
+
+  Definition hfs_repr (s : hfs) := proj1_sig s.
+
+  Fact bt_norm_exist x y (E : x = y) (H1 : bt_norm x = x) (H2 : bt_norm y = y) : exist _ x H1 = exist _ y H2 :> hfs.
+  Proof. subst; f_equal; apply bt_eq_pirr. Qed.
+
+  Fact bt_cls_hfs_repr s : bt_cls (hfs_repr s) = s.
+  Proof.
+    destruct s as (t & Ht); simpl.
+    apply bt_norm_exist, Ht.
+  Qed.
+  
+  Fact hfs_repr_bt_cls t : hfs_repr (bt_cls t) ≈ t.
+  Proof. apply bt_norm_eq. Qed.
+
+  Notation cls := bt_cls.
+  Notation repr := hfs_repr.
+
+  Fact bt_cls_eq_norm s t : bt_cls s = bt_cls t <-> bt_norm s = bt_norm t.
+  Proof.
+    simpl; split.
+    + inversion 1; auto.
+    + intro; apply bt_norm_exist; auto.
+  Qed.
+
+  Fact bt_cls_equiv s t : bt_cls s = bt_cls t <-> s ≈ t.
+  Proof.
+    rewrite bt_cls_eq_norm; split; apply bte_norm_iff.
+  Qed.
+
+  Fact bt_cls_hfs_repr_iff t s : cls t = s <-> t ≈ repr s.
+  Proof.
+    rewrite <- (bt_cls_hfs_repr s) at 1.
+    apply bt_cls_equiv.
+  Qed.
+
+  Definition hfs_eq_dec : forall (s t : hfs), { s = t } + { s <> t }.
+  Proof.
+    intros (s & Hs) (t & Ht).
+    destruct (bt_eq_dec s t) as [ H | H ].
+    + left; subst; f_equal; apply bt_eq_pirr.
+    + right; contradict H; inversion H; auto.
+  Qed.
+
+  Definition hfs_mem s t := bt_mem (repr s) (repr t). 
+ 
+  Infix "∈" := hfs_mem.
+
+  Arguments hfs_mem s t /.
+
+  Fact btm_cls_repr t s : cls t ∈ s <-> bt_mem t (repr s).
+  Proof.
+    generalize (bt_norm_eq t). 
+    simpl; split; apply btm_congr_l; auto.
+  Qed.
+
+  Fact btm_repr_cls t s : t ∈ cls s <-> bt_mem (repr t) s.
+  Proof.
+    generalize (bt_norm_eq s). 
+    simpl; split; apply btm_congr_r; auto.
+  Qed.
+
+  Fact hfs_mem_btm s t : cls s ∈ cls t <-> bt_mem s t.
+  Proof. rewrite btm_repr_cls, hfs_repr_bt_cls; tauto. Qed.
+
+  Fact hfs_mem_repr s t : s ∈ t <-> bt_mem (repr s) (repr t).
+  Proof. tauto. Qed.
+   
+  Fact hfs_mem_ext s t : s = t <-> forall x, x ∈ s <-> x ∈ t.
+  Proof.
+    rewrite <- (bt_cls_hfs_repr s), <- (bt_cls_hfs_repr t), bt_cls_equiv; simpl.
+    rewrite bte_ext; split; intros H.
+    + revert s t H; intros (s & Hs) (t & Ht) H (x & Hx); simpl in *.
+      rewrite Hs, Ht; auto.
+    + revert s t H; intros (s & Hs) (t & Ht) H x; simpl in *.
+      rewrite Hs, Ht in H.
+      specialize (H (bt_cls x)).
+      rewrite (hfs_repr_bt_cls x) in H; auto.
+  Qed.
+
+  Fact hfs_mem_fin_t t : fin_t (fun s => s ∈ t).
+  Proof.
+    destruct (btm_finite_t (repr t)) as (l & Hl).
+    exists (map cls l).
+    intros x; simpl; rewrite Hl, in_map_iff; split.
+    + intros (s & H1 & H2).
+      exists s; split; auto.
+      rewrite bt_cls_hfs_repr_iff; auto.
+    + intros (s & H1 & H2).
+      exists s; split; auto.
+      rewrite bt_cls_hfs_repr_iff in H1; auto.
+  Qed.
+
+  Fact hfs_mem_dec : forall s t, { s ∈ t } + { ~ s ∈ t }.
+  Proof.
+    intros (s & ?) (t & ?); simpl; apply btm_dec.
+  Qed.
+
+  Definition hfs_empty : hfs := exist _ ∅ eq_refl.
+
+  Fact hfs_empty_prop : forall x, ~ x ∈ hfs_empty.
+  Proof. 
+    intros (x & ?); simpl; btm simpl.
+  Qed.
+
+  Fact hfs_empty_spec x : x ∈ hfs_empty <-> False.
+  Proof.
+    split; try tauto; apply hfs_empty_prop.
+  Qed.
+
+  Definition hfs_cons x t := cls ((repr x)⪧(repr t)).
+  
+  Fact hfs_cons_spec y x t : y ∈ hfs_cons x t <-> y = x \/ y ∈ t.
+  Proof.
+    unfold hfs_cons.
+    rewrite btm_repr_cls; btm simpl.
+    apply (fol_bin_sem_ext fol_disj).
+    + rewrite <- bt_cls_hfs_repr_iff, bt_cls_hfs_repr; tauto.
+    + tauto.
+  Qed.
+
+  Opaque hfs_empty hfs_cons hfs_mem.
+
+  Theorem hfs_comprehension X (P : X -> Prop) (f : X -> hfs) : 
+            fin_t P 
+         -> { s | forall a, a ∈ s <-> exists x, P x /\ f x = a }.
+  Proof.
+    intros (l & Hl).
+    assert { s | forall a, a ∈ s <-> exists x, In x l /\ f x = a } as H.
+    { exists (fold_right (fun x => hfs_cons (f x)) hfs_empty l).
+      clear Hl; intros a.
+      induction l as [ | x l IHl ]; simpl.
+      + rewrite hfs_empty_spec; split; try tauto.
+        intros (? & [] & _).
+      + rewrite hfs_cons_spec, IHl; split.
+        * intros [ -> | (y & ? & <-) ].
+          - exists x; auto.
+          - exists y; auto.
+        * intros (y & [ -> | ? ] & <-); auto.
+          right; exists y; auto. }
+    destruct H as (s & Hs).
+    exists s; intro a; rewrite Hs.
+    apply exists_equiv; intro; rewrite Hl; tauto.
+  Qed.
+
+  (** This is the decidable comprehension *)  
+
+  Fact hfs_select t (P : hfs -> Prop) : 
+           (forall x, x ∈ t -> { P x } + { ~ P x })
+        -> { s | forall x, x ∈ s <-> x ∈ t /\ P x }.
+  Proof.
+    intros H.
+    destruct btm_select with (P := fun x => P (cls x)) (t := repr t)
+      as (s & Hs).
+    + intros x y E.
+      apply bt_cls_equiv in E.
+      rewrite E; auto.
+    + intros x Hx.
+      apply H, btm_cls_repr; auto.
+    + exists (bt_cls s); intros x.
+      rewrite btm_repr_cls, Hs, bt_cls_hfs_repr; tauto.
+  Qed.
+
+  Check t.
+
+  Definition hfs_pow t := cls (bt_pow (repr t)).
+
+  Notation "x ⊆ y" := (forall u, u ∈ x -> u ∈ y).
+
+  Fact hfs_incl_refl r : r ⊆ r.
+  Proof. apply m2_incl_refl. Qed.
+
+  Fact hfs_incl_trans r s t : r ⊆ s -> s ⊆ t -> r ⊆ t.
+  Proof. apply m2_incl_trans. Qed.
+
+  Fact hfs_incl_ext s t : s = t <-> s ⊆ t /\ t ⊆ s.
+  Proof.
+    split.
+    + intros []; auto.
+    + rewrite hfs_mem_ext; intros []; split; auto.
+  Qed.
+   
+  Fact hfs_pow_spec s x : x ∈ hfs_pow s <-> x ⊆ s.
+  Proof.
+    unfold hfs_pow.
+    rewrite btm_repr_cls, bt_pow_spec.
+    split.
+    + intros H z Hz. 
+      rewrite <- (bt_cls_hfs_repr z).
+      apply btm_cls_repr, H; auto.
+    + intros H z.
+      specialize (H (cls z)).
+      do 2 rewrite btm_cls_repr in H; auto.
+  Qed.
+
+  Definition hfs_transitive t := forall u v, u ∈ v -> v ∈ t -> u ∈ t.
+
+  Fact bt_hfs_transitive t : hfs_transitive t <-> bt_transitive (repr t).
+  Proof.
+    split.
+    + intros H u v G.
+      do 2 rewrite <- btm_cls_repr.
+      apply H.
+      rewrite btm_cls_repr, hfs_repr_bt_cls; auto.
+    + intros H u v G.
+      do 2 rewrite hfs_mem_repr.
+      apply H; auto.
+  Qed.
+  
+  Definition hfs_tc t := cls (bt_tc (repr t)).
+
+  Fact hfs_tc_trans t : hfs_transitive (hfs_tc t).
+  Proof.
+    intros u v; unfold hfs_tc.
+    do 2 rewrite btm_repr_cls.
+    rewrite hfs_mem_repr.
+    apply bt_tc_trans.
+  Qed.
+
+  Fact hfs_tc_incl t : t ⊆ hfs_tc t.
+  Proof.
+    unfold hfs_tc.
+    intros x Hx.
+    rewrite btm_repr_cls.
+    apply bt_tc_incr; auto.
+  Qed.
+
+  Fact hfs_pow_trans t : hfs_transitive t -> hfs_transitive (hfs_pow t).
+  Proof.
+    unfold hfs_pow; intros H u v.
+    do 2 rewrite btm_repr_cls.
+    rewrite hfs_mem_repr.
+    apply bt_pow_transitive.
+    apply bt_hfs_transitive; auto.
+  Qed.
+
+  Definition hfs_card n := cls (bt_card n).
+
+  Definition hfs_pos n (p : pos n) := cls (pos_embed_bt p).
+  
+  Fact hfs_pos_card n x : x ∈ hfs_card n <-> exists p, x = @hfs_pos n p.
+  Proof.
+    unfold hfs_pos, hfs_card.
+    rewrite btm_repr_cls, bt_card_spec.
+    apply exists_equiv; intros p.
+    rewrite <- bt_cls_equiv, bt_cls_hfs_repr; tauto.
+  Qed.
+
+  Definition hfs_card_pos n x : x ∈ hfs_card n -> pos n.
+  Proof.
+    intros H.
+    apply (@bt_card_surj n (repr x)).
+    rewrite <- btm_repr_cls; assumption.
+  Defined.
+
+  Fact hfs_card_pos_spec n x Hx : x = hfs_pos (@hfs_card_pos n x Hx).
+  Proof.
+    unfold hfs_card_pos, hfs_pos.
+    symmetry; rewrite bt_cls_hfs_repr_iff.
+    rewrite <- bt_card_surj_spec; auto.
+  Qed.
+
+  Fact hfs_pos_inj n p q : @hfs_pos n p = hfs_pos q -> p = q.
+  Proof.
+    unfold hfs_pos.
+    rewrite bt_cls_equiv.
+    apply pos_embed_bt_inj.
+  Qed.
+
+  Fact hfs_card_pos_pirr n x H1 H2 : @hfs_card_pos n x H1 = @hfs_card_pos n x H2.
+  Proof. apply hfs_pos_inj; do 2 rewrite <- hfs_card_pos_spec; auto. Qed.
+
+  (** There is a surjective map from some t to pos n *)
+
+  Fact hfs_surj_t n : { t & { s : forall x, x ∈ t -> pos n | 
+                             (forall p, exists x Hx, p = s x Hx)
+                          /\ (forall x H1 H2, s x H1 = s x H2) } }.
+  Proof.
+    exists (hfs_card n), (@hfs_card_pos n); split.
+    + intros p; exists (hfs_pos p).
+      assert (hfs_pos p ∈ hfs_card n) as H.
+      { apply hfs_mem_btm, bt_card_spec; exists p; auto. }
+      exists H.
+      apply hfs_pos_inj.
+      rewrite <- hfs_card_pos_spec; auto.
+    + intros; apply hfs_card_pos_pirr.
+  Qed.
+
+  (** Given a finite set type, there is a surjective map from a hfs to that type *)
+
+  Theorem hfs_surj_finite_t X : 
+           finite_t X 
+        -> { t & { s : forall x, x ∈ t -> X | 
+                (forall p, exists x Hx, p = s x Hx)
+             /\ (forall x H1 H2, s x H1 = s x H2) } }.
+  Proof.
+    intros HX.
+    apply finite_t_pos_equiv in HX.
+    destruct HX as (n & Hn).
+    destruct (hfs_surj_t n) as (t & s & Hs & H).
+    destruct Hn as (s' & Hs').
+    exists t.
+    exists (fun x Hx => s' (s x Hx)); split.
+    + intros x.
+      destruct (Hs' x) as (p & Hp).
+      destruct (Hs p) as (u & Hu & H').
+      subst; exists u, Hu; auto.
+    + intros; f_equal; auto.
+  Qed.
+
+  Theorem hfs_finite_t_transitive X : 
+        X -> finite_t X -> { l : hfs & { s : hfs -> X | hfs_transitive l /\ forall x, exists a, a ∈ l /\ x = s a } }.
+  Proof.
+    intros x0 HX.
+    destruct (hfs_surj_finite_t HX) as (u & s & Hs1 & Hs2).
+    set (s' a  :=
+      match hfs_mem_dec a u with
+        | left  H => @s a H
+        | right _ => x0
+      end).
+    exists (hfs_tc u), s'; split.
+    + apply  hfs_tc_trans.
+    + intros x.
+      unfold s'.
+      destruct (Hs1 x) as (a & Ha & E).
+      exists a.
+      destruct (hfs_mem_dec a u) as [ H | H ]; try tauto; split.
+      * revert H; apply hfs_tc_incl.
+      * rewrite E; apply Hs2.
+  Qed.
+
+  Opaque hfs_pow.
+
+  Fact hfs_pow_trans_incr t : hfs_transitive t -> t ⊆ hfs_pow t.
+  Proof.
+    intros Ht z H; apply hfs_pow_spec.
+    intros u Hu; revert Hu H; apply Ht.
+  Qed.
+
+  Fact hfs_pow_mono s t : s ⊆ t -> hfs_pow s ⊆ hfs_pow t.
+  Proof. 
+    intros H x; do 2 rewrite hfs_pow_spec.
+    intros G z Hz; apply H, G; auto.
+  Qed.
+
+  Fact hfs_iter_pow_mono s t n : s ⊆ t -> iter hfs_pow s n ⊆ iter hfs_pow t n.
+  Proof.
+    revert s t; induction n as [ | n IHn ]; simpl; intros s t Hst; auto.
+    apply IHn, hfs_pow_mono, Hst.
+  Qed.
+
+  Fact hfs_iter_pow_trans s n : hfs_transitive s -> hfs_transitive (iter hfs_pow s n).
+  Proof.
+    revert s; induction n as [ | n IHn ]; intros s Hs; simpl; auto.
+    apply IHn, hfs_pow_trans; auto.
+  Qed.
+ 
+  Fact hfs_iter_pow_le t n m : n <= m -> hfs_transitive t -> iter hfs_pow t n ⊆ iter hfs_pow t m.
+  Proof.
+    intros H; revert H t.
+    induction 1 as [ | m H IH ]; auto; intros t Ht.
+    apply hfs_incl_trans with (1 := IH _ Ht); simpl.
+    apply hfs_iter_pow_mono, hfs_pow_trans_incr, Ht.
+  Qed.
+
+  Opaque hfs_cons.
+
+  Definition hfs_pair (r s : hfs) : hfs := hfs_cons r (hfs_cons s hfs_empty).
+
+  Fact hfs_pair_spec r s x : x ∈ hfs_pair r s <-> x = r \/ x = s.
+  Proof.
+    unfold hfs_pair.
+    do 2 rewrite hfs_cons_spec.
+    rewrite hfs_empty_spec; tauto.
+  Qed.
+
+  Opaque hfs_pair.
+
+  Fact hfs_pair_pow r s t : r ∈ t -> s ∈ t -> hfs_pair r s ∈ hfs_pow t.
+  Proof.
+    rewrite hfs_pow_spec.
+    intros H1 H2 x.
+    rewrite hfs_pair_spec.
+    intros [ -> | -> ]; auto.
+  Qed.
+
+  Fact hfs_pair_mem_l a b : a ∈ hfs_pair a b.
+  Proof. apply hfs_pair_spec; auto. Qed.
+  
+  Fact hfs_pair_mem_r a b : b ∈ hfs_pair a b.
+  Proof. apply hfs_pair_spec; auto. Qed.
+ 
+  Fact hfs_pair_inj a b x y : hfs_pair a b = hfs_pair x y 
+                           -> a = x /\ b = y
+                           \/ a = y /\ b = x.
+  Proof.
+    intros E.
+    generalize (hfs_pair_mem_l a b) (hfs_pair_mem_r a b)
+               (hfs_pair_mem_l x y) (hfs_pair_mem_r x y).
+    rewrite <- E, E at 1 2.
+    do 4 rewrite hfs_pair_spec.
+    do 4 intros [[]|[]]; auto.
+  Qed.
+
+  Definition hfs_opair r s := hfs_pair (hfs_pair r r) (hfs_pair r s).
+
+  Notation "⟬ x , y ⟭" := (hfs_opair x y).
+
+  Fact hfs_opair_inj a b x y : ⟬a,b⟭ = ⟬x,y⟭ -> a = x /\ b = y.
+  Proof.
+    unfold hfs_opair.
+    intros H.
+    apply hfs_pair_inj in H.
+    destruct H as [ (H1 & H2) | (H1 & H2) ];
+      apply hfs_pair_inj in H1; apply hfs_pair_inj in H2; 
+      revert H1 H2;
+      do 2 intros [ [] | [] ]; subst; auto.
+  Qed.
+
+  Fact hfs_opair_spec a b x y : ⟬a,b⟭ = ⟬x,y⟭ <-> a = x /\ b = y.
+  Proof.
+    split.
+    + apply hfs_opair_inj.
+    + intros [ [] [] ]; auto.
+  Qed.
+
+End btree.
+
+Section bt_model3.
+
+  Variable (X : Type) (HX : finite_t X) (psy : nat -> X). 
+
+  Let x0 : X. Proof. exact(psy 0). Qed.
+
+  Infix "∈" := hfs_mem.
+  Notation "x ⊆ y" := (forall u, u ∈ x -> u ∈ y).
+  Notation "⟬ x , y ⟭" := (hfs_opair x y).
+
+  (** First a surjective map from some transitive set l to X *)
+
+  Let l := projT1 (hfs_finite_t_transitive x0 HX).
+  Let s := proj1_sig (projT2 (hfs_finite_t_transitive x0 HX)).
+  Let Hl : hfs_transitive l.                     
+  Proof. apply (proj2_sig (projT2 (hfs_finite_t_transitive x0 HX))). Qed.
+  Let Hs : forall x, exists a, a ∈ l /\ x = s a. 
+  Proof. apply (proj2_sig (projT2 (hfs_finite_t_transitive x0 HX))). Qed.
+
+  (** Now we build P^5 l that contains all the set of triples of l *)
+
+  Let p := iter hfs_pow l 5.
+
+  Let Hp1 : hfs_transitive p.
+  Proof. apply hfs_iter_pow_trans; auto. Qed.
+
+  Let Hp2 : l ∈ p.
+  Proof.
+    apply hfs_iter_pow_le with (n := 1); simpl; auto.
+    apply hfs_pow_spec; auto.
+  Qed.
+
+  Let Hp3 x y : x ∈ l -> y ∈ l -> ⟬x,y⟭  ∈ iter hfs_pow l 2.
+  Proof.
+    intros Hx Hy.
+    do 2 apply hfs_pair_pow; auto.
+  Qed.
+
+  Let Hp4 x y : x ∈ l -> y ∈ l -> ⟬x,y⟭  ∈ p.
+  Proof.
+    intros Hx Hy.
+    generalize (Hp3 Hx Hy).
+    apply hfs_iter_pow_le; auto.
+  Qed.
+   
+  Let Hp5 x y z : x ∈ l -> y ∈ l -> z ∈ l -> ⟬⟬x,y⟭,z⟭  ∈ iter hfs_pow l 4.
+  Proof.
+    intros Hx Hy Hz.
+    repeat apply hfs_pair_pow; auto.
+    apply hfs_iter_pow_le with (n := 0) (m := 2); auto.
+  Qed.
+
+  Let Hp6 x y z : x ∈ l -> y ∈ l -> z ∈ l -> ⟬⟬x,y⟭,z⟭  ∈ p.
+  Proof.
+    intros Hx Hy Hz.
+    generalize (Hp5 Hx Hy Hz).
+    apply hfs_iter_pow_le; auto.
+  Qed.
+
+  Variable (R : X -> X -> X -> Prop).
+  Hypothesis HR : forall x y z, { R x y z } + { ~ R x y z }.
+
+  Hint Resolve finite_t_prod hfs_mem_fin_t.
+
+  Let encode_R : { r | r ∈ p /\ forall x y z, R x y z 
+                            <-> exists a b c, x = s a /\ a ∈ l
+                                           /\ y = s b /\ b ∈ l
+                                           /\ z = s c /\ c ∈ l
+                                           /\ ⟬⟬a,b⟭,c⟭  ∈ r }.
+  Proof.
+    set (P t := let a := fst (fst t) in
+                let b := snd (fst t) in
+                let c := snd t
+                in R (s a) (s b) (s c) /\ ((a ∈ l /\ b ∈ l) /\ c ∈ l)).
+    set (f t := match t with ((a,b),c) => ⟬⟬a,b⟭,c⟭  end).
+    destruct hfs_comprehension with (P := P) (f := f) as (r & Hr).
+    + apply fin_t_dec.
+      * intros; apply HR.
+      * apply fin_t_prod with (P := fun t => fst t ∈ l /\ snd t ∈ l) (Q := fun x => x ∈ l); auto.
+        apply fin_t_prod with (P := fun x => x ∈ l) (Q := fun x => x ∈ l); auto.
+    + exists r; split.
+      * apply hfs_pow_spec; intros x; rewrite Hr.
+        intros (((a,b),c) & (H1 & (H2 & H3) & H4) & <-).
+        unfold f; apply Hp5; auto.
+      * intros x y z; split.
+        - intros H.
+          destruct (Hs x) as (a & H1 & H2).
+          destruct (Hs y) as (b & H3 & H4).
+          destruct (Hs z) as (c & H5 & H6).
+          exists a, b, c; msplit 6; auto.
+          apply Hr.
+          exists ((a,b),c); split; auto.
+          red; simpl; subst; tauto.
+        - intros (a & b & c & -> & ? & -> & ? & -> & ? & G).
+          apply Hr in G.
+          destruct G as (((u,v),w) & (G1 & _) & G2).
+          unfold f in G2.
+          do 2 rewrite hfs_opair_spec in G2.
+          destruct G2 as ((->&->)&->); auto.
+  Qed.
+
+  Let r := proj1_sig encode_R.
+  
+  Let Hr1 : r ∈ p.
+  Proof. apply (proj2_sig encode_R). Qed.
+
+  Let Hr2 x y z : R x y z <-> exists a b c, x = s a /\ a ∈ l
+                                         /\ y = s b /\ b ∈ l
+                                         /\ z = s c /\ c ∈ l
+                                         /\ ⟬⟬a,b⟭,c⟭  ∈ r.
+  Proof. apply (proj2_sig encode_R). Qed.
+
+  Let p_bool x := if hfs_mem_dec x p then true else false.
+
+  Let p_bool_spec x : x ∈ p <-> p_bool x = true.
+  Proof.   
+    unfold p_bool.
+    destruct (hfs_mem_dec x p); split; try tauto; discriminate.
+  Qed.
+
+  Let Y := sig (fun x => p_bool x = true).
+
+  Let HY : finite_t Y.
+  Proof. 
+    apply fin_t_finite_t.
+    + intros; apply UIP_dec, bool_dec.
+    + generalize (hfs_mem_fin_t p); apply fin_t_equiv.
+      intros x; auto.
+  Qed.
+ 
+  Let mem (x y : Y) := proj1_sig x ∈ proj1_sig y.
+
+  Let xl : Y.
+  Proof. 
+    exists l; apply p_bool_spec, Hp2.
+  Defined.
+
+  Let xr : Y.
+  Proof. 
+    exists r; apply p_bool_spec, Hr1.
+  Defined.
+
+  Check psy.
+
+  Check s.
+
+  Let phi (y : Y) := s (proj1_sig y).
+
+  Theorem bt_m3_m2 : exists (Y : Type) (_ : finite_t Y) (mem : Y -> Y -> Prop) (xl xr : Y) 
+                             (phi : X -> Y) 
+                             (_ : forall x y, { mem x y } + { ~ mem x y }),
+                             m2_member_ext mem
+                          /\ m2_has_otriples mem xl
+                          /\ (forall a, mem (phi a) xl)
+                          /\ (forall a b c, R a b c <-> m2_is_otriple_in mem xr (phi a) (phi b) (phi c)).
+    Proof.
+      destruct (btm_finite_t p) as (ll & Hll).
+      set (K x y := x ≈ y /\ y ∈ p).
+      destruct (@decibable_PER_fp_quotient _ ll K) as [ m cls repr G1 G2 G3 ]; unfold K.
+      + intros x; rewrite Hll; split.
+        * intros (_ & y & H1 & H2).
+          exists y; rewrite Hll. 
+          msplit 2; auto; exists y; auto.
+        * intros (y & H1 & H2 & _); split; auto.
+          exists y; auto.
+      + split.
+        * intros x y (H1 & H2); split; auto.
+          revert H2; apply btm_congr_l; auto.
+        * intros x y z (H1 & H2) (H3 & H4); split; auto.
+          apply bte_trans with y; auto.
+      + intros x y; destruct (bte_dec x y); destruct (btm_dec y p); tauto.
+      + assert (forall t, t ∈ p -> { j | cls t = Some j }) as G4.
+        1: { intros t Ht; case_eq (cls t).
+             + intros j Hj; exists j; auto.
+             + intros H; exfalso; revert H; rewrite <- G2; intros []; split; auto. }
+        destruct (G4 _ Hp1) as (xl & Hxl).
+        destruct (G4 _ Hr1) as (xr & Hxr).
+        exists (pos m), (finite_t_pos _), (fun x y => repr x ∈ repr y), xl, xr.
+        set (phi x := proj1_sig (G4 _ (Hi2 x))).
+        assert (Hphi : forall x, cls (i x) = Some (phi x)).
+        1: { intro; apply (proj2_sig (G4 _ _)). }
+        generalize phi Hphi; clear phi Hphi; intros phi Hphi.
+        assert (Hrepr : forall x, repr x ∈ p).
+        1: { intros x. 
+             generalize (proj2 (G3 (repr x) (repr x))).
+             rewrite G1.
+             intros []; auto; split; auto; discriminate. }
+        assert (G5 : forall u c, cls u = Some c <-> u ≈ repr c).
+        { intros u c; split.
+          + intros H; apply G3; rewrite G1, H; split; auto; discriminate.
+          + intros H; rewrite <- G1; apply G3; red; split; auto. }
+        exists phi, (fun x y => bte_dec _ _); msplit 3.
+        * intros x y z H.
+          red in H.
+          apply btm_congr_l, bte_ext.
+          intros u; split; intros F.
+          - destruct (G4 u) as (j & Hj).
+            { apply Hp0 with (1 := F); auto. }
+            rewrite G5, bte_sym in Hj.
+            apply btm_congr_l with (1 := Hj), H.
+            revert F; apply btm_congr_l; auto.
+          - destruct (G4 u) as (j & Hj).
+            { apply Hp0 with (1 := F); auto. }
+            rewrite G5, bte_sym in Hj.
+            apply btm_congr_l with (1 := Hj), H.
+            revert F; apply btm_congr_l; auto.
+        * intros x y z Hx Hy Hz.
+          admit.
+        * intros x.
+          generalize (Hphi x).
+          rewrite G5; intros H.
+          rewrite G5 in Hxl.
+          apply btm_congr_l with (1 := H).
+          apply btm_congr_r with (1 := Hxl); auto.
+        * intros a b c; rewrite Hr2.
+          generalize (Hphi a) (Hphi b) (Hphi c).
+          repeat rewrite G5.
+          intros H1 H2 H3.
+          split.
+          - intros H.
+            destruct (G4 _ (Hp0 H Hr1)) as (t & Ht).
+            rewrite G5 in Ht.
+            apply G5 in Hxr.
+            exists t; rewrite <- Ht, <- Hxr; split; auto.
+            destruct (G4 _ (Hp2' (Hi1 a) (Hi1 b))) as (u & Hu).
+            rewrite G5 in Hu.
+            exists u; split.
+            ++ red.
+            
+          
+
+            red.
+            Check (Hp2 (Hi1 a) (Hi1 b) (Hi1 c)).
+          rewrite H1, H2, H3.
+          generalize (phi a) (phi b) (phi c); clear a b c H1 H2 H3.
+          intros a b c.
+          split.
+          - intros H.
+            exists (⟬repr a,⟬repr b,repr c⟭⟭).
+
+            assert (u = repr j) as Hu.
+            { generalize Hj; intros F1.
+              rewrite <- G1 in Hj.
+               
+              apply G3 in Hj.
+          Check (repr
+          Check (proj1 (bte_ext _ _)).
+ unfold m2_equiv. rewrite <- bte_ext.
     
+
+               .
+        
+          
+ exists x.
+              
+
+
+ 
+
+
+  
+  Definition 
 
   (** Now how to encode the model given by k-ary relation over a finite
       set of cardinal n
