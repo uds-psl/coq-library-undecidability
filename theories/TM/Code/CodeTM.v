@@ -83,7 +83,7 @@ Hint Extern 10 => isVoid_mono : core.
 
 
 
-(** We add these three symbols the alphabets of every machine. [START] is the first symbol of the encoding and [END] is always the right-most symbol. [UNKNOWN] is always ignored (it is needed for the alphabet-lift). *)
+(** We add these three symbols the alphabets of every machine. [START] is the first symbol of the encoding and [STOP] is always the right-most symbol. [UNKNOWN] is always ignored (it serves as the default symbol for the alphabet-lift, see [ChangeAlphabet]). *)
 Inductive boundary : Type :=
 | START   : boundary
 | STOP    : boundary

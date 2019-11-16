@@ -140,6 +140,8 @@ Hint Resolve tspec_single_Contains_size_Contains.
 Notation "t ≃≃ S" := (tspec S t) (at level 70, no associativity).
 
 
+
+
 Lemma Triple_SpecFalse {sig : finType} {n : nat} {F : Type} (pM : pTM sig^+ F n) Q :
   Triple (tspec SpecFalse) pM Q.
 Proof. cbn. apply Triple_False. Qed.
@@ -148,22 +150,46 @@ Lemma TripleT_SpecFalse {sig : finType} {n : nat} {F : Type} (k : nat) (pM : pTM
   TripleT (tspec SpecFalse) k pM Q.
 Proof. cbn. apply TripleT_False. Qed.
 
-Lemma not_SpecFalse {sig : Type} {n : nat} (t : tapes (boundary+sig) n) :
+Lemma tspec_not_SpecFalse {sig : Type} {n : nat} (t : tapes (boundary+sig) n) :
   t ≃≃ SpecFalse -> False.
 Proof. cbn. auto. Qed.
 
-Lemma not_SpecFalse_withSpace {sig : Type} {n : nat} (t : tapes (boundary+sig) n) (ss : Vector.t nat n) :
+Lemma tspec_not_SpecFalse_withSpace {sig : Type} {n : nat} (t : tapes (boundary+sig) n) (ss : Vector.t nat n) :
   t ≃≃ withSpace SpecFalse ss -> False.
 Proof. cbn. auto. Qed.
 
 
+Hint Immediate Triple_SpecFalse TripleT_SpecFalse.
+
+
+
+(* TODO: [SpecFalse] could be defined in the same manner. We could then remove the unhandy [SpecVector] constructor. *)
+Definition SpecTrue {sig : Type} {n : nat} : Spec sig n := SpecVector (Vector.const (Custom (fun _ => True)) n).
+Arguments SpecTrue : simpl never.
+
+Lemma tspec_SpecTrue {sig : finType} {n : nat} (t : tapes sig^+ n) :
+  t ≃≃ SpecTrue.
+Proof. cbn. intros i. unfold tspec_single, SpecTrue. cbn. now rewrite Vector.const_nth. Qed.
+
+
+Lemma tspec_SpecTrue_withSpace {sig : finType} {n : nat} (t : tapes sig^+ n) (ss : Vector.t nat n) :
+  t ≃≃ withSpace SpecTrue ss.
+Proof. cbn. intros i. unfold tspec_single, SpecTrue. now rewrite nth_map2', Vector.const_nth. Qed.
+
+Hint Immediate tspec_SpecTrue tspec_SpecTrue_withSpace.
+
+
+Lemma Triple_SpecTrue {sig : finType} {n : nat} {F : Type} (pM : pTM sig^+ F n) P :
+  Triple P pM (fun _ => tspec SpecTrue).
+Proof. eapply Consequence_post. apply Triple_True. auto. Qed.
+
+
 Arguments tspec : simpl never.
-Hint Resolve Triple_SpecFalse TripleT_SpecFalse.
 
 Hint Extern 4 =>
      lazymatch goal with
-     | [H : _ ≃≃ SpecFalse |- _] => exfalso; now eapply not_SpecFalse in H
-     | [H : _ ≃≃ withSpace SpecFalse _ |- _] => exfalso; now eapply not_SpecFalse_withSpace in H
+     | [H : _ ≃≃ SpecFalse |- _] => exfalso; now eapply tspec_not_SpecFalse in H
+     | [H : _ ≃≃ withSpace SpecFalse _ |- _] => exfalso; now eapply tspec_not_SpecFalse_withSpace in H
      end.
 
 Goal forall t : tapes sigNat^+ 4,

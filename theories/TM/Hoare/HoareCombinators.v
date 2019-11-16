@@ -197,7 +197,9 @@ Lemma Seq_SpecT_strong (sig : finType) (n : nat) (F1 F2 : finType) (pM1 : pTM si
 Proof. (* We need the same hack here as in the partital correctness lemma. *)
   intros H1 H2 H3.
   split.
-  - eapply Seq_Spec; eauto.
+  - eapply Seq_Spec.
+    + apply H1.
+    + cbn. apply H2.
   - eapply TerminatesIn_monotone.
     {
       apply Seq_TerminatesIn'. (* We need the stronger version here *)
@@ -269,7 +271,10 @@ Lemma If_SpecT (sig : finType) (n : nat) (F : finType) (pM1 : pTM sig bool n) (p
   TripleT P k (If pM1 pM2 pM3) R.
 Proof.
   intros H1 H2 H3 H4. split.
-  - eapply If_Spec; eauto.
+  - eapply If_Spec.
+    + apply H1.
+    + apply H2.
+    + apply H3.
   - eapply TerminatesIn_monotone.
     { apply If_TerminatesIn'. (* We need the strong version of [If_TerminatesIn] here! *)
       - apply H1.
@@ -354,7 +359,9 @@ Lemma Switch_SpecT (sig : finType) (n : nat) (F1 F2 : finType) (pM1 : pTM sig F1
 Proof.
   intros H1 H2 H3.
   split.
-  - eapply Switch_Spec; eauto.
+  - eapply Switch_Spec.
+    + apply H1.
+    + apply H2.
   - eapply TerminatesIn_monotone.
     + apply Switch_TerminatesIn.
       * apply H1.
@@ -375,7 +382,9 @@ Lemma Switch_SpecT_strong (sig : finType) (n : nat) (F1 F2 : finType) (pM1 : pTM
 Proof.
   intros H1 H2 H3.
   split.
-  - eapply Switch_Spec; eauto.
+  - eapply Switch_Spec.
+    + apply H1.
+    + apply H2.
   - eapply TerminatesIn_monotone.
     + apply Switch_TerminatesIn'.
       * apply H1.
