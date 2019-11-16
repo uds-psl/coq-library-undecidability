@@ -27,9 +27,11 @@ Local Notation ø := vec_nil.
 
 Definition Σrel (n : nat) : fo_signature.
 Proof.
-  exists Empty_set unit.
-  + exact (fun _ => 0).
-  + exact (fun _ => n).
+  exists Empty_set      (* No function or constant symbols *)
+         unit           (* And one n-ary relational symbol *)
+         .
+  + exact (fun _ => 0). (* Value does not matter here *)
+  + exact (fun _ => n). (* The n-ary relation *)
 Defined.
 
 Section Sig3_Sig2.
@@ -39,6 +41,13 @@ Section Sig3_Sig2.
  
   Variable (X : Type) (M2 : fo_model Σ2 X).
   Variable (Y : Type) (M3 : fo_model Σ3 Y).
+
+  (** Can we define FO shapes and reify meta-level into FOL automagically
+      like what was done for H10 ? 
+
+      May be not very useful since the encoding is straightforward
+      most of the time 
+    *)
 
   Notation "x ∈ y" := (fol_atom Σ2 tt (£x##£y##ø)).
  
@@ -83,10 +92,13 @@ Section Sig3_Sig2.
   Fact Σ2_is_otriple_in_spec r x y z ψ : ⟪Σ2_is_otriple_in r x y z⟫ ψ = m2_is_otriple_in m2_member (ψ r) (ψ x) (ψ y) (ψ z).
   Proof. reflexivity. Qed.
 
+  (* Terms are just variables in Σrel *)
+
   Definition Σ3_var : fo_term nat (ar_syms Σ3) -> nat.
-  Proof.
-    intros [ n | [] ]; exact n.
-  Defined.
+  Proof. intros [ n | [] ]; exact n. Defined.
+
+  (* We bound quantification inside hf-set l ∈ p and r ∈ p represent a set 
+     of ordered triples corresponding to M3 *)
 
   Fixpoint Σ3_Σ2 (l r : nat) (A : fol_form Σ3) : fol_form Σ2 :=
     match A with
@@ -103,20 +115,23 @@ Section Sig3_Sig2.
 
   Variable R : Y -> X -> Prop.
 
-  (** R represent for M3 = { x | x in l } and M2 the relation 
+  (** R represent a relation  M3 <~> M2 = { x | x ∈ p } which
+      ensures the soundness & completeness of the encoding
+      These are the conditions for correctness 
 
-           fun x y => proj1_sig x ≈ y  *)
+      HR1 : R is onto from M3 to { x | x ∈ l }
+      HR2 : R is onto from { x | x ∈ l } to M3
+      HR3 : R relates the ternary relation in M3 
+            and the ternary relation <_,_,_> ∈ r in M2
+
+    *)
 
   Let HR1 (l r : X) := forall x, exists y, fom_rels M2 tt (y##l##ø) /\ R x y.
   Let HR2 (l r : X) := forall y, fom_rels M2 tt (y##l##ø) -> exists x, R x y.
-  Let HR4 (l r : X) := forall a b c a' b' c',
-                                               R a a'
-                                            -> R b b'
-                                            -> R c c' 
-                                            -> fom_rels M3 tt (a##b##c##ø)
-                                           <-> m2_is_otriple_in m2_member r a' b' c'.
-
-  (** Notice the following in HR4, the value of ψ is arbitrary *)
+  Let HR3 (l r : X) := forall a b c a' b' c',
+            R a a' -> R b b' -> R c c' 
+         -> fom_rels M3 tt (a##b##c##ø)
+        <-> m2_is_otriple_in m2_member r a' b' c'.
 
   Fact Σ2_is_otriple_in_vars r x y z : incl (fol_vars (Σ2_is_otriple_in r x y z)) (r::x::y::z::nil).
   Proof. intros a; simpl; tauto. Qed.
@@ -135,8 +150,12 @@ Section Sig3_Sig2.
 
   Notation "⟪ A ⟫'" := (fun φ => fol_sem M3 φ A) (at level 1, format "⟪ A ⟫'").
 
-  Theorem Σ3_Σ2_correct (A : fol_form Σ3) l r φ ψ :
-            HR1 (ψ l) (ψ r) -> HR2 (ψ l) (ψ r) -> HR4 (ψ l) (ψ r)
+  (* The correctness lemma *)
+ 
+  Lemma Σ3_Σ2_correct (A : fol_form Σ3) l r φ ψ :
+            HR1 (ψ l) (ψ r) 
+         -> HR2 (ψ l) (ψ r) 
+         -> HR3 (ψ l) (ψ r)
         -> (forall x, In x (fol_vars A) -> R (φ x) (ψ x))
         -> ⟪ A ⟫' φ <-> ⟪Σ3_Σ2 l r A⟫ ψ.
   Proof.
@@ -183,6 +202,9 @@ Section Sig3_Sig2.
          rewrite (@H4 _ _ _ (psy a) (psy b) (psy c)); auto. }
   Qed.
 
+  (** The formula stating any free variable in list lv has to
+      be interpreted by some element ∈ l *)
+
   Definition Σ2_list_in l lv := let f x A := x ∈ l ⟑ A in fold_right f (⊥⤑⊥) lv.
 
   Fact Σ2_list_in_spec l lv ψ : ⟪Σ2_list_in l lv⟫ ψ 
@@ -197,6 +219,13 @@ Section Sig3_Sig2.
         - apply H; auto.
         - apply IH; intros; apply H; auto.
   Qed.
+
+  (** The FO set-theoretic axioms we need to add are minimal:
+         - ∈ must be extensional (of course, this is a set-theoretic model)
+         - ordered triples encoded in the usual way should exists for elements ∈ l 
+         - l should not be the empty set 
+         - and free variables of A (lifted twice) should be interpreted in l
+   *)
 
   Definition Σ2_extensional := ∀∀∀ 2 ≈ 1 ⤑ 2 ∈ 0 ⤑ 1 ∈ 0.
 
@@ -216,9 +245,14 @@ Section Sig3_Sig2.
 
   Variable A : fol_form Σ3.
 
+  (** We make some space for l and r *)
+
   Let B := fol_subst (fun v => £ (2+v)) A.
   Let l := 0.
   Let r := 1.
+
+  (* Notice that Σ3_Σ2 A has two more free variables than A,
+     that could be quantified existentially over if needed *)
 
   Definition Σ3_Σ2_enc := Σ2_extensional ⟑ Σ2_non_empty l
                         ⟑ Σ2_list_in l (fol_vars B) ⟑ Σ3_Σ2 l r B.
@@ -315,8 +349,8 @@ Section SAT2_SAT3.
 
   End nested.
 
-  Theorem SAT2_SAT3 A : (exists X, fo_form_fin_dec_SAT_in (Σ3_Σ2_enc A) X)
-                     -> (exists Y, fo_form_fin_dec_SAT_in A Y).
+  Theorem SAT2_SAT3 A : fo_form_fin_dec_SAT (Σ3_Σ2_enc A)
+                     -> fo_form_fin_dec_SAT A.
   Proof.
     intros (X & M2 & H1 & H2 & psy & H3).
     apply SAT2_to_SAT3 with X M2 psy; auto.
