@@ -198,6 +198,16 @@ Tactic Notation "rew" "fot" := autorewrite with fo_term_db.
 
 Hint Rewrite fo_term_vars_fix_0 fo_term_vars_fix_1 : fo_term_db.
 
+Fact flat_map_flat_map X Y Z (f : X -> list Y) (g : Y -> list Z) l : 
+       flat_map g (flat_map f l) = flat_map (fun x => flat_map g (f x)) l.
+Proof.
+  induction l; simpl; auto.
+  rewrite flat_map_app; f_equal; auto.
+Qed.
+
+Fact flat_map_single X Y (f : X -> Y) l : flat_map (fun x => f x::nil) l = map f l.
+Proof. induction l; simpl; f_equal; auto. Qed.
+
 Section fo_term_subst.
 
   Variable (sym : Type) (sym_ar : sym -> nat)
@@ -272,6 +282,27 @@ Section fo_term_subst.
     do 2 rewrite <- fo_term_subst_map.
     apply fo_term_subst_ext.
     intros; f_equal; auto.
+  Qed.
+
+ 
+  Fact fo_term_vars_subst f t : fo_term_vars (t⟬f⟭) = flat_map (fun n => fo_term_vars (f n)) (fo_term_vars t).
+  Proof.
+    induction t as [ n | s v IHv ]; rew fot; auto.
+    + simpl; rewrite <- app_nil_end; auto.
+    + rewrite vec_list_vec_map.
+      rewrite flat_map_flat_map.
+      rewrite flat_map_concat_map, map_map, <- flat_map_concat_map.
+      do 2 rewrite flat_map_concat_map; f_equal.
+      apply map_ext_in; intros x Hx.
+      rewrite IHv; auto.
+      apply in_vec_list; auto.
+  Qed.
+
+  Fact fo_term_vars_map f t : fo_term_vars (fo_term_map f t) = map f (fo_term_vars t).
+  Proof.
+    rewrite <- fo_term_subst_map, fo_term_vars_subst.
+    generalize (fo_term_vars t); clear t.
+    induction l; simpl; f_equal; auto.
   Qed.
 
 End fo_term_subst.

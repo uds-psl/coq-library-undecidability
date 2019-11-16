@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Bool Lia.
+Require Import List Arith Bool Lia Eqdep_dec.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
@@ -19,7 +19,7 @@ From Undecidability.Shared.Libs.DLW.Wf
   Require Import wf_finite.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations fol_ops fo_terms fo_logic membership.
+  Require Import notations fol_ops fo_terms fo_logic membership hfs discrete.
 
 Set Implicit Arguments.
 
@@ -115,9 +115,9 @@ Section Sig3_Sig2.
 
            fun x y => proj1_sig x ≈ y  *)
 
-  Definition HR1 (l r : X) := forall x, exists y, fom_rels M2 tt (y##l##ø) /\ R x y.
-  Definition HR2 (l r : X) := forall y, fom_rels M2 tt (y##l##ø) -> exists x, R x y.
-  Definition HR4 (l r : X) := forall a b c a' b' c',
+  Let HR1 (l r : X) := forall x, exists y, fom_rels M2 tt (y##l##ø) /\ R x y.
+  Let HR2 (l r : X) := forall y, fom_rels M2 tt (y##l##ø) -> exists x, R x y.
+  Let HR4 (l r : X) := forall a b c a' b' c',
                                                R a a'
                                             -> R b b'
                                             -> R c c' 
@@ -240,15 +240,37 @@ Section SAT2_SAT3.
   Section nested.
 
     Variables (A : fol_form (Σrel 3))
-              (X : Type) (M2 : fo_model (Σrel 2) X)
+              (X : Type) 
+              (M2 : fo_model (Σrel 2) X)
+              (M2fin : finite_t X)
+              (M2dec : fo_model_dec M2)
               (ψ : nat -> X)
               (HA : fol_sem M2 ψ (Σ3_Σ2_enc A)).
 
     Let mem := m2_member M2.
 
+    Let mem_dec : forall x y, { mem x y } + { ~ mem x y }.
+    Proof. intros x y; apply (@M2dec tt). Qed.
+
     (** Beware that model is NOT finite ... unless one assumes more *)
 
-    Let M3 : fo_model (Σrel 3) (sig (fun x => mem x (ψ 0))).
+    Let P x := (if mem_dec x (ψ 0) then true else false) = true.
+
+    Let HP0 x : P x  <-> mem x (ψ 0).
+    Proof.
+      unfold P.
+      destruct (mem_dec x (ψ 0)); split; try tauto; discriminate.
+    Qed.
+
+    Let HP1 : finite_t (sig P).
+    Proof.
+      apply fin_t_finite_t.
+      + intros; apply UIP_dec, bool_dec.
+      + apply finite_t_fin_t_dec; auto.
+        intro; apply bool_dec.
+    Qed.
+
+    Let M3 : fo_model (Σrel 3) (sig P).
     Proof.
       exists.
       + intros [].
@@ -260,25 +282,37 @@ Section SAT2_SAT3.
         * exact (proj1_sig (vec_head (vec_tail (vec_tail v)))).
     Defined.
 
-    Let R (x : {x | mem x (ψ 0)}) (y : X) := proj1_sig x = y.
+    Let M3_dec : fo_model_dec M3.
+    Proof. intros [] v; apply m2_is_otriple_in_dec; auto. Qed.
 
-    Local Lemma SAT2_to_SAT3 : SAT A.
+    Let R (x : sig P) (y : X) := proj1_sig x = y.
+
+    Local Lemma SAT2_to_SAT3 : exists Y, fo_form_fin_dec_SAT_in A Y.
     Proof.
+      exists (sig P).
       destruct HA as (H1 & H2 & H3 & H4).
       rewrite Σ2_non_empty_spec in H2.
       rewrite Σ2_list_in_spec in H3.
+      revert H3 H4; set (B := A⦃fun v : nat => in_var (2 + v)⦄); intros H3 H4.
+      assert (H5 : forall n, In n (fol_vars B) -> P (ψ n)).
+      { intros; apply HP0, H3; auto. }
       destruct H2 as (x0 & H0).
+      generalize H0; intros H2.
+      apply HP0 in H0.
       set (phi := fun n : nat => 
-        match in_dec eq_nat_dec n (fol_vars A⦃fun v : nat => in_var (2 + v)⦄) with 
-          | left H  => (exist _ (ψ n) (H3 _ H) : {x | mem x (ψ 0)})
-          | right _ => (exist _ x0 H0 : {x | mem x (ψ 0)})
+        match in_dec eq_nat_dec n (fol_vars B) with 
+          | left H  => (exist _ (ψ n) (H5 _ H) : sig P)
+          | right _ => (exist _ x0 H0 : sig P)
         end).
-      exists {x | mem x (ψ 0)}, M3, (fun n => phi (2+n)).
+      exists M3, HP1, M3_dec, (fun n => phi (2+n)).
+      unfold B in *; clear B.
       rewrite <- Σ3_Σ2_correct with (φ := phi) (R := R) in H4.
       + rewrite fol_sem_subst in H4.
         revert H4; apply fol_sem_ext; intro; rew fot; auto.
       + intros (x & Hx); exists x; unfold R; simpl; split; auto.
-      + intros x Hx; exists (exist _ x Hx); red; simpl; auto.
+        apply HP0 in Hx; auto.
+      + intros x Hx; apply HP0 in Hx.
+        exists (exist _ x Hx); red; simpl; auto.
       + intros (a & Ha) (b & Hb) (c & Hc) a' b' c'; unfold R; simpl.
         intros <- <- <-; tauto.
       + intros n Hn; red.
@@ -289,36 +323,88 @@ Section SAT2_SAT3.
 
   End nested.
 
-  Theorem SAT2_SAT3 A : SAT (Σ3_Σ2_enc A) -> SAT A.
+  Theorem SAT2_SAT3 A : (exists X, fo_form_fin_dec_SAT_in (Σ3_Σ2_enc A) X)
+                     -> (exists Y, fo_form_fin_dec_SAT_in A Y).
   Proof.
-    intros (X & M2 & psy & HA).
+    intros (X & M2 & H1 & H2 & psy & H3).
     apply SAT2_to_SAT3 with X M2 psy; auto.
   Qed.
 
 End SAT2_SAT3.
 
 Section SAT3_SAT2.
- 
+
+  Section bin_rel_Σ2.
+
+    Variable (X : Type) (R : X -> X -> Prop).
+
+    Definition bin_rel_Σ2 : fo_model (Σrel 2) X.
+    Proof.
+      exists; intros [].
+      intros v; apply R.
+      + exact (vec_head v).
+      + exact (vec_head (vec_tail v)).
+    Defined.
+
+    Hypothesis HR : forall x y, { R x y } + { ~ R x y }.
+
+    Fact bin_rel_Σ2_dec : fo_model_dec bin_rel_Σ2.
+    Proof. intros [] v; apply HR. Qed.
+
+  End bin_rel_Σ2.
+
   Section nested.
 
     Variables (A : fol_form (Σrel 3))
               (X : Type) (M3 : fo_model (Σrel 3) X)
-              (M3_fin : finite_t X)
+              (X_fin : finite_t X)
+              (X_discr : discrete X)
               (M3_dec : fo_model_dec M3)
               (φ : nat -> X)
               (HA : fol_sem M3 φ A).
 
-    (** we need to build a map pos n -> set *)
+    Let R a b c := fom_rels M3 tt (a##b##c##ø).
+
+    Local Lemma SAT3_to_SAT2 : exists Y, fo_form_fin_dec_SAT_in (Σ3_Σ2_enc A) Y.
+    Proof.
+      destruct bt_m3_m2 with (R := R)
+        as (Y & H1 & mem & l & r & i & s & 
+            H2 & H3 & H4 & H5 & H6 & H7 & H8); auto.
+      + apply φ, 0.
+      + intros; apply M3_dec.
+      + exists Y, (bin_rel_Σ2 mem), H1, (bin_rel_Σ2_dec _ H2), 
+        (fun n => match n with 
+           | 0 => l
+           | 1 => r
+           | S (S n) => i (φ n)
+         end).
+        unfold Σ3_Σ2_enc; msplit 3; auto.
+        * exists (i (φ 0)); simpl; rew fot; simpl; auto.
+        * apply Σ2_list_in_spec.
+          intros n; simpl.
+          rewrite fol_vars_map, in_map_iff.
+          intros (m & <- & ?); auto.
+        * rewrite <- Σ3_Σ2_correct with (M3 := M3) (R := fun x y => y = i x) 
+            (φ := fun n => match n with 0 => φ 0 | 1 => φ 1 | S (S n) => φ n end); auto.
+          - rewrite fol_sem_subst.
+            revert HA; apply fol_sem_ext.
+            intros; simpl; rew fot; auto.
+          - intros x; exists (i x); split; auto; apply H5.
+          - intros a b c ? ? ? -> -> ->; apply H8.
+          - intros n; rewrite fol_vars_map, in_map_iff.
+            intros (m & <- & Hm); simpl; auto.
+    Qed.
 
   End nested.
 
+  Theorem SAT3_SAT2 A : (exists X, fo_form_fin_discr_dec_SAT_in A X)
+                     -> (exists Y, fo_form_fin_dec_SAT_in (Σ3_Σ2_enc A) Y).
+  Proof.
+    intros (X & M3 & H1 & H2 & H4 & psy & H5).
+    apply SAT3_to_SAT2 with X M3 psy; auto.
+  Qed.
+
 End SAT3_SAT2.
-    
 
-
-  
-
-  
-
-
-Check SAT2_SAT3.
+Check SAT2_SAT3. Print Assumptions SAT2_SAT3.
+Check SAT3_SAT2. Print Assumptions SAT3_SAT2.

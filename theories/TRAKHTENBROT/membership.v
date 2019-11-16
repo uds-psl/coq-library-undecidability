@@ -10,7 +10,7 @@
 Require Import List Arith Nat Lia Max Wellfounded Coq.Setoids.Setoid.
 
 From Undecidability.Shared.Libs.DLW.Utils 
-  Require Import utils_tac utils_list.
+  Require Import utils_tac utils_list finite.
 
 From Undecidability.TRAKHTENBROT
   Require Import notations fol_ops.
@@ -33,8 +33,10 @@ Section membership.
 
   (** Hypothesis on the model *)
 
-  Variable (Rdec : forall x y, { x ∈ y } + { x ∉ y })
-           (lX : list X) (HX : forall x, In x lX).
+  Variable (Rdec : forall x y, { x ∈ y } + { x ∉ y }) (Xfin : finite_t X).
+
+  Let lX : list X := proj1_sig Xfin.
+  Let HX : forall x, In x lX := proj2_sig Xfin.
 
   Fact m2_incl_refl x : x ⊆ x.
   Proof. red; auto. Qed.
@@ -67,6 +69,8 @@ Section membership.
     1: left; apply m2_equiv_eq; auto. 
     all: right; rewrite m2_equiv_eq; tauto.
   Qed.
+
+  Hint Resolve m2_equiv_dec.
 
   Fact m2_equiv_refl_True x : x ≈ x <-> True.
   Proof. unfold m2_equiv; tauto. Qed.
@@ -114,8 +118,6 @@ Section membership.
 
   Definition m2_is_pair p x y := forall a, a ∈ p <-> a ≈ x \/ a ≈ y.
 
-  Definition m2_is_triple t x y z := forall a, a ∈ t <-> a ≈ x \/ a ≈ y \/ a ≈ z.
-
   Fact m2_is_pair_comm p x y : m2_is_pair p x y -> m2_is_pair p y x.
   Proof. unfold m2_is_pair; apply forall_equiv; intro; tauto. Qed.
 
@@ -127,25 +129,9 @@ Section membership.
     rewrite H1, H2, H3; tauto.
   Qed.
 
-  Add Parametric Morphism: (m2_is_triple) with signature 
-     (m2_equiv) ==> (m2_equiv) ==> (m2_equiv) ==> (m2_equiv) ==> (iff) as is_triple_congr.
-  Proof.
-    intros p q H1 x x' H2 y y' H3 z z' H4.
-    apply forall_equiv; intros a.
-    rewrite H1, H2, H3, H4; tauto.
-  Qed.
-
   Fact m2_is_pair_fun p q x y : m2_is_pair p x y -> m2_is_pair q x y -> p ≈ q.
   Proof.
     intros H1 H2; red in H1, H2; intro; 
-    rewrite H1, H2; tauto.
-  Qed.
-
-  Fact m2_is_triple_fun r t x y z : m2_is_triple r x y z 
-                                 -> m2_is_triple t x y z 
-                                 -> r ≈ t.
-  Proof.
-    intros H1 H2; red in H1, H2; intro;
     rewrite H1, H2; tauto.
   Qed.
 
@@ -165,6 +151,34 @@ Section membership.
                             -> x ≈ y.
   Proof.
     intros H1 H2; generalize (m2_is_pair_inj H1 H2); tauto.
+  Qed.
+
+  Fact m2_is_pair_dec p x y : { m2_is_pair p x y } + { ~ m2_is_pair p x y }.
+  Proof. 
+    unfold m2_is_pair.
+    apply (fol_quant_sem_dec fol_fa); auto; intros u.
+    apply fol_equiv_dec; auto.
+    apply (fol_bin_sem_dec fol_disj); auto.
+  Qed.
+
+  Hint Resolve m2_is_pair_dec.
+
+  Definition m2_is_triple t x y z := forall a, a ∈ t <-> a ≈ x \/ a ≈ y \/ a ≈ z.
+
+  Add Parametric Morphism: (m2_is_triple) with signature 
+     (m2_equiv) ==> (m2_equiv) ==> (m2_equiv) ==> (m2_equiv) ==> (iff) as is_triple_congr.
+  Proof.
+    intros p q H1 x x' H2 y y' H3 z z' H4.
+    apply forall_equiv; intros a.
+    rewrite H1, H2, H3, H4; tauto.
+  Qed.
+
+  Fact m2_is_triple_fun r t x y z : m2_is_triple r x y z 
+                                 -> m2_is_triple t x y z 
+                                 -> r ≈ t.
+  Proof.
+    intros H1 H2; red in H1, H2; intro;
+    rewrite H1, H2; tauto.
   Qed.
 
   (** Replace the big disj with permutation up-to equivalence *)
@@ -291,6 +305,15 @@ Section membership.
         rewrite E4, <- E5; auto.
   Qed.
 
+  Fact m2_is_opair_dec p x y : { m2_is_opair p x y } + { ~ m2_is_opair p x y }.
+  Proof.
+    unfold m2_is_opair.
+    do 2 (apply (fol_quant_sem_dec fol_ex); auto; intro).
+    repeat (apply (fol_bin_sem_dec fol_conj); auto).
+  Qed.
+
+  Hint Resolve m2_is_opair_dec.
+
   Definition m2_is_otriple t x y z := exists p, m2_is_opair p x y /\ m2_is_opair t p z.
  
   Add Parametric Morphism: (m2_is_otriple) with signature 
@@ -321,6 +344,14 @@ Section membership.
     generalize (m2_is_opair_inj H1 H3); tauto.
   Qed.
 
+  Fact m2_is_otriple_dec p x y z : { m2_is_otriple p x y z } + { ~ m2_is_otriple p x y z }.
+  Proof.
+    apply (fol_quant_sem_dec fol_ex); auto; intro.
+    repeat (apply (fol_bin_sem_dec fol_conj); auto).
+  Qed.
+
+  Hint Resolve m2_is_otriple_dec.
+
   Definition m2_has_pairs (l : X) :=
      forall x y, x ∈ l -> y ∈ l -> exists p, m2_is_pair p x y.
 
@@ -329,6 +360,12 @@ Section membership.
 
   Definition m2_is_otriple_in r x y z :=
     exists t, m2_is_otriple t x y z /\ t ∈ r.
+
+  Fact m2_is_otriple_in_dec r x y z : { m2_is_otriple_in r x y z } + { ~ m2_is_otriple_in r x y z }.
+  Proof.
+    apply (fol_quant_sem_dec fol_ex); auto; intro.
+    repeat (apply (fol_bin_sem_dec fol_conj); auto).
+  Qed.
 
   Definition m2_powset (l m : X) := forall x, x ∈ m <-> x ⊆ l.
 

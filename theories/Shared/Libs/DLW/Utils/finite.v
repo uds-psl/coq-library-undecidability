@@ -221,6 +221,15 @@ Section finite.
 
   End dec.
 
+  Fact finite_t_fin_t_dec (X : Type) (P : X -> Prop) (Pdec : forall x, { P x } + { ~ P x }) :
+         finite_t X -> fin_t P.
+  Proof. 
+    intros H.
+    apply finite_t_fin_t_eq in H.
+    apply fin_t_dec with (1 := Pdec) in H.
+    revert H; apply fin_t_equiv; tauto.
+  Qed.
+
   Section list_reif.
 
     Variable (X Y : Type) (eqX_dec : forall x y : X, { x = y } + { x <> y })

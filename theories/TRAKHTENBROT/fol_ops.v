@@ -37,6 +37,11 @@ Fact fol_bin_sem_dec b A B :
     -> { fol_bin_sem b A B } + { ~ fol_bin_sem b A B }.
 Proof. revert b; intros [] HA HB; simpl; tauto. Qed.
 
+Fact fol_equiv_dec A B : 
+       { A } + { ~ A } -> { B } + { ~ B } 
+    -> { A <-> B } + { ~ (A <-> B) }.
+Proof. tauto. Qed.
+
 Definition fol_quant_sem X q (P : X -> Prop) :=
   match q with
     | fol_ex => ex P

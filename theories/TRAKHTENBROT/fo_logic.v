@@ -94,6 +94,31 @@ Section fol_subst.
       apply in_flat_map; exists (S n); simpl; auto. 
   Qed.
 
+  Fact fol_vars_subst σ (A : 𝔽) : fol_vars (A⦃σ⦄) = flat_map (fun x => fo_term_vars (σ x)) (fol_vars A).
+  Proof.
+    revert σ; induction A as [ | s r | b A HA B HB | q A HA ]; intros phi; auto.
+    + simpl fol_vars.
+      rewrite vec_list_vec_map.
+      rewrite flat_map_flat_map.
+      do 2 rewrite flat_map_concat_map.
+      rewrite map_map; f_equal.
+      apply map_ext; intros x.
+      rewrite fo_term_vars_subst; auto.
+    + simpl; rewrite flat_map_app; f_equal; auto.
+    + simpl; rewrite HA.
+      do 2 rewrite flat_map_flat_map.
+      do 2 rewrite flat_map_concat_map; f_equal.
+      apply map_ext_in; intros [ | x ] Hx; simpl; auto.
+      rewrite fo_term_vars_map; rew fot.
+      rewrite flat_map_concat_map, map_map.
+      rewrite <- flat_map_concat_map.
+      rewrite <- app_nil_end.
+      rewrite flat_map_single, map_id; auto.
+  Qed.
+
+  Fact fol_vars_map σ (A : 𝔽) : fol_vars (A⦃fun n => £(σ n)⦄) = map σ (fol_vars A).
+  Proof. rewrite fol_vars_subst, <- flat_map_single; auto. Qed.
+
   Definition fol_bigop c A := fold_right (@fol_bin Σ c) A.
 
   Fact fol_subst_bigop c l A σ : (fol_bigop c A l)⦃σ⦄ = fol_bigop c (A⦃σ⦄) (map (fol_subst σ) l).

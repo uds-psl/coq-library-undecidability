@@ -820,6 +820,12 @@ Section btree.
 
   Definition bt_transitive t := forall u v, u ∈ v -> v ∈ t -> u ∈ t.
 
+  Fact bt_transitive_incl u t : bt_transitive t -> u ∈ t -> u ⊆ t.
+  Proof.
+    intros H H1 x H2.
+    revert H2 H1; apply H.
+  Qed.
+
   Fixpoint bt_tc t := 
     match t with 
       | ∅   => ∅
@@ -1250,6 +1256,117 @@ Section btree.
     intros []; split; apply bt_level_inv_incl; auto.
   Qed.
 
+  (** We build the usual embedding of nat into bt *)
+
+  Fixpoint nat2bt n : bt :=
+    match n with 
+      | 0   => ∅
+      | S n => (nat2bt n)⪧(nat2bt n)
+    end.
+
+  Fact nat2bt_transitive n : bt_transitive (nat2bt n).
+  Proof.
+    induction n as [ | n IHn ]; simpl.
+    + intros ? ?; btm simpl.
+    + intros a b; btm simpl.
+      intros H1 [ H2 | H3 ]; right.
+      * rewrite <- H2; auto.
+      * revert H1 H3; apply IHn.
+  Qed.
+
+  Hint Resolve nat2bt_transitive.
+
+  Fact nat2bt_mono n m : n <= m -> nat2bt n ⊆ nat2bt m.
+  Proof.
+    induction 1 as [ | m Hm IHm ]; auto.
+    apply bti_trans with (1 := IHm).
+    apply bt_transitive_incl; auto.
+    simpl; btm simpl.
+  Qed.
+
+  Local Lemma nat2bt_inv_full m x : x ∈ nat2bt m -> { n | n < m /\ x ≈ nat2bt n }.
+  Proof.
+    revert x; induction m as [ | m IHm ]; intros x; simpl; btm simpl.
+    + intro E; exfalso; revert E; btm simpl.
+    + intros H; rewrite btm_inv in H.
+      destruct (bte_dec x (nat2bt m)) as [ H1 | H1 ].
+      * exists m; split; auto.
+      * destruct (IHm x) as (n & H2 & H3); try tauto.
+        exists n; split; auto; lia.
+  Qed.
+
+  Definition bt2nat n x Hx := proj1_sig (@nat2bt_inv_full n x Hx).
+  
+  Fact bt2nat_lt n x Hx : @bt2nat n x Hx < n.
+  Proof. apply (proj2_sig (@nat2bt_inv_full n x Hx)). Qed.
+
+  Fact bt2nat_fix n x Hx : nat2bt (@bt2nat n x Hx) ≈ x.
+  Proof. apply bte_sym, (proj2_sig (@nat2bt_inv_full n x Hx)). Qed. 
+
+  Fact nat2bt_inj n m : nat2bt n ≈ nat2bt m -> n = m.
+  Proof.
+    revert m; induction n as [ | n IHn ]; intros [ | m ]; simpl; auto.
+    + intros H; symmetry in H; apply bte_discr in H; tauto.
+    + intros H; apply bte_discr in H; tauto.
+    + intros H; rewrite bte_ext in H.
+      f_equal; apply IHn; clear IHn.
+      generalize (proj1 (H (nat2bt n)))
+                 (proj2 (H (nat2bt m))); btm simpl.
+      intros [H0 | H0] [H1 | H1]; auto.
+      apply btm_depth in H0.
+      apply btm_depth in H1.
+      lia.
+  Qed.
+
+  Hint Resolve nat2bt_mono.
+
+  Fact nat2bt_order_iso n m : nat2bt n ⊆ nat2bt m <-> n <= m.
+  Proof.
+    split; eauto.
+    intros H.
+    destruct (le_lt_dec m n); try lia.
+    cut (n = m); try lia.
+    apply nat2bt_inj, bti_equiv; eauto.
+  Qed.
+
+  Fact nat2bt_strict n m : nat2bt n ∈ nat2bt m <-> n < m.
+  Proof.
+    split.
+    + intros H.
+      destruct (le_lt_dec m n) as [ H1 | ]; auto.
+      generalize (nat2bt_mono H1 H); intros H2.
+      apply btm_depth in H2; lia.
+    + intros H; apply (nat2bt_mono H).
+      simpl; btm simpl. 
+  Qed.
+
+  (** And now a bijection between pos n and nat2bt n *)
+
+  Definition pos2bt n (p : pos n) := nat2bt (pos2nat p).
+
+  Fact pos2bt_in n p : @pos2bt n p ∈ nat2bt n.
+  Proof. apply nat2bt_strict, pos2nat_prop. Qed.
+  
+  Definition bt2pos_full n x : x ∈ nat2bt n -> { p | x ≈ @pos2bt n p }.
+  Proof.
+    intros Hx.
+    assert (bt2nat _ Hx < n).
+    { apply nat2bt_strict; rewrite bt2nat_fix; auto. }
+    exists (nat2pos H); unfold pos2bt; rewrite pos2nat_nat2pos.
+    rewrite bt2nat_fix; auto.
+  Qed.
+  
+  Definition bt2pos n x Hx := proj1_sig (@bt2pos_full n x Hx).
+  
+  Fact bt2pos_fix n x Hx : pos2bt (@bt2pos n x Hx) ≈ x.
+  Proof. apply bte_sym, (proj2_sig (@bt2pos_full n x Hx)). Qed.
+
+  Fact pos2bt_inj n p q : @pos2bt n p ≈ pos2bt q -> p = q.
+  Proof. intro H; apply pos2nat_inj, nat2bt_inj, H. Qed. 
+
+  (** We have our bijection ... the later one is another
+      but do not give a transitive set *)
+ 
   Fixpoint pos_embed_bt n (p : pos n) : bt :=
     match p with
       | pos0      => ∅
@@ -1568,18 +1685,32 @@ Section btree.
     apply bt_hfs_transitive; auto.
   Qed.
 
-  Definition hfs_card n := cls (bt_card n).
+  Definition hfs_card n := cls (nat2bt n).
 
-  Definition hfs_pos n (p : pos n) := cls (pos_embed_bt p).
+  Fact hfs_card_transitive n : hfs_transitive (hfs_card n).
+  Proof. 
+    unfold hfs_card.
+    apply bt_hfs_transitive.
+    intros ? ?.
+    rewrite hfs_repr_bt_cls.
+    apply nat2bt_transitive.
+  Qed.
+
+  Definition hfs_pos n (p : pos n) := cls (pos2bt p).
 
   Fact hfs_pos_card n x : x ∈ hfs_card n <-> exists p, x = @hfs_pos n p.
   Proof.
     unfold hfs_pos, hfs_card.
-    rewrite btm_repr_cls, bt_card_spec.
-    apply exists_equiv; intros p.
-    rewrite <- bt_cls_equiv, bt_cls_hfs_repr; tauto.
+    rewrite btm_repr_cls; split.
+    + intros Hx.
+      exists (bt2pos _ Hx).
+      symmetry; apply bt_cls_hfs_repr_iff.
+      rewrite bt2pos_fix; auto.
+    + intros (p & ->).
+      rewrite hfs_repr_bt_cls.
+      apply pos2bt_in.
   Qed.
-
+ 
   Fact hfs_pos_prop n p : @hfs_pos n p ∈ hfs_card n.
   Proof.
     apply hfs_pos_card; exists p; auto.
@@ -1588,39 +1719,40 @@ Section btree.
   Definition hfs_card_pos n x : x ∈ hfs_card n -> pos n.
   Proof.
     intros H.
-    apply (@bt_card_surj n (repr x)).
-    rewrite <- btm_repr_cls; assumption.
+    apply btm_repr_cls in H.
+    apply (bt2pos _ H).
   Defined.
-
 
   Fact hfs_card_pos_spec n x Hx : x = hfs_pos (@hfs_card_pos n x Hx).
   Proof.
     unfold hfs_card_pos, hfs_pos.
-    symmetry; rewrite bt_cls_hfs_repr_iff.
-    rewrite <- bt_card_surj_spec; auto.
+    symmetry; apply bt_cls_hfs_repr_iff.
+    rewrite bt2pos_fix; auto.
   Qed.
 
   Fact hfs_pos_inj n p q : @hfs_pos n p = hfs_pos q -> p = q.
   Proof.
     unfold hfs_pos.
     rewrite bt_cls_equiv.
-    apply pos_embed_bt_inj.
+    apply pos2bt_inj.
   Qed.
 
   Fact hfs_card_pos_pirr n x H1 H2 : @hfs_card_pos n x H1 = @hfs_card_pos n x H2.
   Proof. apply hfs_pos_inj; do 2 rewrite <- hfs_card_pos_spec; auto. Qed.
 
-  (** There is a bijective map from pos n <-> _ ∈ t *)
+  (** There is a bijective map from pos n <-> _ ∈ t where t is transitive *)
 
   Fact hfs_bij_t n : { t : hfs & 
                        { f : pos n -> hfs & 
                          { g : forall x, x ∈ t -> pos n |
-                                (forall p, f p ∈ t)
+                                hfs_transitive t
+                             /\ (forall p, f p ∈ t)
                              /\ (forall p H, g (f p) H = p) 
                              /\ forall x H, f (g x H) = x } } }.
   Proof.
     exists (hfs_card n), (@hfs_pos _), 
-           (@hfs_card_pos _); msplit 2.
+           (@hfs_card_pos _); msplit 3.
+    + apply hfs_card_transitive.
     + apply hfs_pos_prop.
     + intros p H; apply hfs_pos_inj; rewrite <- hfs_card_pos_spec; auto.
     + intros; rewrite <- hfs_card_pos_spec; auto.
@@ -1635,7 +1767,7 @@ Section btree.
     exists (hfs_card n), (@hfs_card_pos n); split.
     + intros p; exists (hfs_pos p).
       assert (hfs_pos p ∈ hfs_card n) as H.
-      { apply hfs_mem_btm, bt_card_spec; exists p; auto. }
+      { apply hfs_mem_btm, pos2bt_in. }
       exists H.
       apply hfs_pos_inj.
       rewrite <- hfs_card_pos_spec; auto.
@@ -1677,20 +1809,21 @@ Section btree.
                     { g : pos (S n) -> hfs |
                       hfs_transitive l
                    /\ (forall p, g p ∈ l)
+                   /\ (forall x, x ∈ l -> exists p, x = g p)
                    /\ (forall p, f (g p) = p) } } }.
   Proof.
-    destruct (hfs_bij_t (S n)) as (u & i & j & H1 & H2 & H3).
+    destruct (hfs_bij_t (S n)) as (u & i & j & H1 & H2 & H3 & H4).
     set (f x  := 
       match hfs_mem_dec x u with
         | left  H => @j _ H
         | right _ => pos0
       end).
-    exists (hfs_tc u), f, i; msplit 2.
-    + apply hfs_tc_trans.
-    + intro; apply hfs_tc_incl; auto.
+    exists u, f, i; msplit 3; auto.
+    + intros x Hx.
+      exists (j x Hx); rewrite H4; auto.
     + intros p; unfold f.
       destruct (hfs_mem_dec (i p) u) as [ H | H ].
-      * rewrite H2; auto.
+      * rewrite H3; auto.
       * destruct H; auto.
   Qed.
 
@@ -1841,6 +1974,7 @@ Section bt_model3.
                     { g : X -> hfs |
                       hfs_transitive l
                    /\ (forall p, g p ∈ l)
+                   /\ (forall x, x ∈ l -> exists p, x = g p)
                    /\ (forall p, f (g p) = p) } } }.
   Proof.
     destruct (finite_t_discrete_bij_t_pos Xfin)
@@ -1849,9 +1983,12 @@ Section bt_model3.
          generalize (f x0); intro p; invert pos p. }
     destruct Hn as (f & g & H1 & H2).
     destruct (hfs_pos_n_transitive n) 
-      as (l & g' & f' & G1 & G2 & G3).
-    exists l, (fun x => g (g' x)), (fun x => f' (f x)); msplit 2; auto.
-    intros p; rewrite G3; auto.
+      as (l & g' & f' & G1 & G2 & G3 & G4).
+    exists l, (fun x => g (g' x)), (fun x => f' (f x)); msplit 3; auto.
+    + intros x Hx.
+      destruct (G3 x Hx) as (p & Hp).
+      exists (g p); rewrite H2; auto.
+    + intros p; rewrite G4; auto.
   Qed.
 
   (** First a surjective map from some transitive set l to X *)
@@ -1865,6 +2002,8 @@ Section bt_model3.
   Let Hs : forall x, s (i x) = x. 
   Proof. apply (proj2_sig (projT2 (projT2 (X_surj_hfs)))). Qed.
   Let Hi : forall x, i x ∈ l. 
+  Proof. apply (proj2_sig (projT2 (projT2 (X_surj_hfs)))). Qed.
+  Let Hi' : forall s, s ∈ l -> exists x, s = i x.
   Proof. apply (proj2_sig (projT2 (projT2 (X_surj_hfs)))). Qed.
 
   (** Now we build P^5 l that contains all the set of triples of l *)
@@ -2088,7 +2227,7 @@ Section bt_model3.
     generalize (Hi x) Hp2; apply Hp1.
   Defined.
 
-  Let Hi' x : mem (i' x) yl.
+  Let Hi'' x : mem (i' x) yl.
   Proof. unfold i', yl, mem; simpl; auto. Qed.
 
   Let s' (y : Y) : X := s (proj1_sig y).
@@ -2099,13 +2238,14 @@ Section bt_model3.
                              m2_member_ext mem
                           /\ m2_has_otriples mem yl
                           /\ (forall x, mem (i x) yl)
+                          /\ (forall y, mem y yl -> exists x, y = i x)
                           /\ (forall x, s (i x) = x) 
                           /\ (forall a b c, R a b c <-> m2_is_otriple_in mem yr (i a) (i b) (i c)).
   Proof.
     exists Y, HY, mem, yl, yr, i', s'.
     exists.
     { intros (a & ?) (b & ?); unfold mem; simpl; apply hfs_mem_dec. }
-    msplit 4.
+    msplit 5.
     + intros (u & Hu) (v & Hv) (w & Hw); unfold mem; simpl.
       unfold m2_equiv; simpl; intros H.
       cut (u = v); [ intros []; auto | ].
@@ -2120,10 +2260,13 @@ Section bt_model3.
         apply (H (exist _ x H')); auto.
     + auto.
     + auto.
+    + intros y Hy; unfold i'.
+      destruct (Hi' Hy) as (x & Hx).
+      exists x; apply eqY; simpl; auto.
     + intros x; unfold i', s'; simpl; auto.
     + intros a b c; unfold m2_is_otriple_in.
       unfold m2_has_otriples in has_triples.
-      destruct (has_triples (Hi' a) (Hi' b) (Hi' c)) as (t & H2).
+      destruct (has_triples (Hi'' a) (Hi'' b) (Hi'' c)) as (t & H2).
       split.
       * intros H; exists t; split; auto.
         destruct t as (t & H1); unfold yr, mem; simpl.
