@@ -47,6 +47,14 @@ Proof. hnf. firstorder. Qed.
 Hint Resolve TripleT_False : core.
 
 
+Lemma Triple_True {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n) P :
+  Triple P pM (fun _ _ => True).
+Proof. hnf. firstorder. Qed.
+
+Hint Resolve Triple_True : core.
+
+
+
 (** *** Conversion lemmas from realisation to Hoare triples *)
 
 Lemma Realise_Triple {sig : finType} {n : nat} {F : Type} (P : Assert sig n) (pM : pTM sig F n) (Q : F -> Assert sig n) (R : pRel sig F n) :
