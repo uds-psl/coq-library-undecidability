@@ -263,6 +263,9 @@ Definition SAT Σ (A : fol_form Σ) := exists X (M : fo_model Σ X) φ, fol_sem 
 
 Section SAT2_SAT3.
 
+  (** We show the easy implication, any model of Σ3_Σ2_enc A
+     gives rise to a model of A *)
+
   Section nested.
 
     Variables (A : fol_form (Σrel 3))
@@ -359,6 +362,9 @@ Section SAT2_SAT3.
 End SAT2_SAT3.
 
 Section SAT3_SAT2.
+
+  (** This is the hard implication. From a model of A, 
+      build a model of Σ3_Σ2_enc A in hereditary finite sets *)
 
   Section bin_rel_Σ2.
 
