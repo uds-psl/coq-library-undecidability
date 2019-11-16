@@ -281,8 +281,6 @@ Section SAT2_SAT3.
     Let mem_dec : forall x y, { mem x y } + { ~ mem x y }.
     Proof. intros x y; apply (@M2dec tt). Qed.
 
-    (** Beware that model is NOT finite ... unless one assumes more *)
-
     Let P x := (if mem_dec x (ψ 0) then true else false) = true.
 
     Let HP0 x : P x  <-> mem x (ψ 0).
