@@ -17,9 +17,6 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-Local Definition forall_equiv X := @fol_quant_sem_ext X fol_fa.
-Local Definition exists_equiv X := @fol_quant_sem_ext X fol_ex.
-
 Section membership.
 
   Variable (X : Type) (R : X -> X -> Prop).

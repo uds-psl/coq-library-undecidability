@@ -20,8 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-Local Definition forall_equiv X := @fol_quant_sem_ext X fol_fa.
-Local Definition exists_equiv X := @fol_quant_sem_ext X fol_ex.
+Definition discrete X := forall x y : X, { x = y } + { x <> y }.
 
 Local Notation " e '#>' x " := (vec_pos e x).
 Local Notation " e [ v / x ] " := (vec_change e x v).
@@ -491,8 +490,6 @@ Section model_equiv.
   Qed.
 
 End model_equiv.
-
-Definition discrete X := forall x y : X, { x = y } + { x <> y }.
 
 Definition fo_form_fin_discr_dec_SAT_in Σ A X := 
   exists (M : fo_model Σ X)  (_ : finite_t X) (_ : discrete X) (_ : fo_model_dec M)  φ, fol_sem M φ A.

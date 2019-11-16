@@ -190,6 +190,9 @@ Section finite.
     right; apply in_map_iff; exists x; auto.
   Qed.
 
+  Fact finite_t_pos n : finite_t (pos n).
+  Proof. exists (pos_list n); apply pos_list_prop. Qed.
+
   Theorem finite_t_vec X n : finite_t X -> finite_t (vec X n).
   Proof.
     intros HX.
@@ -242,12 +245,47 @@ Section finite.
             end).
           intros z Hz.
           destruct (eqX_dec x z); subst; auto.
+    Qed.
+
+    Theorem list_reif_t (l : list X) :
+            (forall x, In x l -> sig (R x))
+         -> { f | forall x (Hx : In x l), R x (f x Hx) }.
+    Proof.
+      induction l as [ | x l IHl ]; intros Hl.
+      + exists (fun x (Hx : @In X x nil) => False_rect Y Hx).
+        intros _ [].
+      + destruct (Hl x) as (y & Hy); simpl; auto.
+        destruct IHl as (f & Hf).
+        * intros; apply Hl; simpl; auto.
+        * assert (forall z, In z (x::l) -> x <> z -> In z l) as H1.
+          { intros z [ -> | ] ?; tauto. }
+          exists (fun z Hz => 
+            match eqX_dec x z with
+              | left   _ => y
+              | right  H => f z (H1 _ Hz H)
+            end).
+          intros z Hz.
+          destruct (eqX_dec x z); subst; auto.
     Qed.  
  
   End list_reif.
 
   (** Will be useful to reify total relations into actual functions
       over finite and discrete domains *)
+
+  Theorem finite_t_reif X Y (R : X -> Y -> Prop) : 
+                              (forall x y : X, { x = y } + { x <> y })
+                           -> finite_t X
+                           -> (forall x : X, sig (R x))
+                           -> { f | forall x, R x (f x) }.
+  Proof.
+    intros H1 (l & H2) H3.
+    destruct list_reif_t with (1 := H1) (R := R) (l := l)
+      as (f & Hf).
+    + intros; auto.
+    + exists (fun x => f x (H2 x)).
+      intros; auto.
+  Qed.
 
   Theorem finite_reif X Y R : (forall x y : X, { x = y } + { x <> y })
                            -> finite X
@@ -262,9 +300,6 @@ Section finite.
       intros; auto.
   Qed.
 
-  Fact finite_t_pos n : finite_t (pos n).
-  Proof. exists (pos_list n); apply pos_list_prop. Qed.
-
 End finite.
 
 Theorem exists_dec_fin_t X (P Q : X -> Prop) 
@@ -277,6 +312,8 @@ Proof.
   + right; intros (x & Hx); apply (Hl x); split; auto.
   + left; exists x; apply Hl; simpl; auto.
 Qed.
+
+Definition bij_t (X Y : Type) := { i : X -> Y & { j | (forall x, j (i x) = x) /\ forall y, i (j y) = y } }.
 
 Definition surj_t (X Y : Type) := { s : X -> Y | forall y, exists x, y = s x }.
 
@@ -315,20 +352,44 @@ Proof.
     apply finite_t_surj_t; auto.
 Qed.
 
+Fact NoDup_vec_list X n v : NoDup (@vec_list X n v) -> forall p q, vec_pos v p = vec_pos v q -> p = q.
+Proof.
+  induction v as [ | n x v IHv ]; intros H p q.
+  + invert pos p.
+  + simpl in H; rewrite NoDup_cons_iff in H.
+    destruct H as [ H1 H2 ].
+    invert pos p; invert pos q; intros E; auto.
+    1,2: destruct H1; subst; apply in_vec_list, in_vec_pos.
+    f_equal; apply IHv; auto.
+Qed.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+Fact finite_t_discrete_bij_t_pos X : 
+        finite_t X
+     -> (forall x y : X, { x = y } + { x <> y })
+     -> { n : nat & bij_t X (pos n) }.
+Proof. 
+  intros (l' & Hl') D.
+  generalize (NoDup_nodup D l') (nodup_In D l').
+  set (l := nodup D l'); intros H1 H2.
+  assert (Hl : forall x, In x l) by (intro; apply H2, Hl').
+  revert H1 Hl.
+  generalize l; clear l l' Hl' H2.
+  intros l Hl1 Hl2.
+  exists (length l).
+  destruct (list_vec_full l) as (v & Hv).
+  rewrite <- Hv in Hl1, Hl2.
+  assert (forall x, in_vec x v) by (intro; apply in_vec_list; auto).
+  generalize (NoDup_vec_list _ Hl1).
+  clear Hl1 Hv.
+  revert v H Hl2.
+  generalize (length l); clear l.
+  intros n v H1 H2 H3.
+  destruct (finite_t_reif (fun x p => vec_pos v p = x) D) as 
+    (f & Hf).
+  + exists (vec_list v); auto.
+  + intro; apply in_vec_dec_inv; auto.
+  + exists f, (vec_pos v); split; auto.
+Qed.
 
 
 

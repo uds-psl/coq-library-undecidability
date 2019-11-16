@@ -211,6 +211,26 @@ Section vector.
 
 End vector.
 
+Fact in_vec_pos X n (v : vec X n) p : in_vec (vec_pos v p) v.
+Proof.
+  revert p; induction v; intros p; invert pos p; auto.
+Qed.
+
+Fact in_vec_dec_inv X n (v : vec X n) : 
+        (forall x y : X, { x = y } + { x <> y })
+     -> forall x, in_vec x v -> { p | vec_pos v p = x }.
+Proof.
+  intros dec.
+  induction v as [ | n x v IHv ].
+  + intros _ [].
+  + intros y Hy.
+    destruct (dec x y) as [ H | H ].
+    * exists pos0; auto.
+    * destruct (IHv y) as (p & Hp).
+      - destruct Hy; tauto.
+      - exists (pos_nxt p); auto.
+Qed.
+
 (* notations *)
 
 Arguments vec_nil { X }.

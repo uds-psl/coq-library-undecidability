@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Lia.
+Require Import List.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_list finite.
@@ -53,6 +53,9 @@ Proof.
   + split; intros (k & ?); exists k; apply H; auto.
   + split; intros ? k; apply H; auto. 
 Qed.
+
+Notation forall_equiv := (@fol_quant_sem_ext _ fol_fa).
+Notation exists_equiv := (@fol_quant_sem_ext _ fol_ex).
 
 Fact fol_quant_sem_dec X q (P : X -> Prop) : 
        finite_t X 
