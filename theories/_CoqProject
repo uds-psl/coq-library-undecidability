@@ -246,20 +246,22 @@ TM/MultiUnivTimeSpaceSimulation.v
 
 #Full Trakhtenbrot with single binary rel
 TRAKHTENBROT/notations.v
+TRAKHTENBROT/gfp.v
+TRAKHTENBROT/fin_upto.v
 TRAKHTENBROT/bpcp.v
+TRAKHTENBROT/btree.v
+TRAKHTENBROT/btree_extra.v
+TRAKHTENBROT/hfs.v
+TRAKHTENBROT/rel3_hfs.v
 TRAKHTENBROT/fol_ops.v
 TRAKHTENBROT/fo_terms.v
 TRAKHTENBROT/fo_logic.v
+TRAKHTENBROT/membership.v
 TRAKHTENBROT/fol_bpcp.v
 TRAKHTENBROT/fol_extra.v
 TRAKHTENBROT/Sig3_Sig2.v
-TRAKHTENBROT/hfs.v
-TRAKHTENBROT/membership.v
-TRAKHTENBROT/gfp.v
 TRAKHTENBROT/discrete.v
-TRAKHTENBROT/fin_upto.v
 TRAKHTENBROT/reductions.v
-
 
 L/Prelim/MoreBase.v
 L/Prelim/ARS.v

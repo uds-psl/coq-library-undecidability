@@ -19,7 +19,7 @@ From Undecidability.Shared.Libs.DLW.Wf
   Require Import wf_finite.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations fol_ops fo_terms fo_logic membership hfs (*discrete*).
+  Require Import notations fol_ops fo_terms fo_logic membership hfs rel3_hfs.
 
 Set Implicit Arguments.
 
@@ -34,17 +34,11 @@ Defined.
 
 Section Sig3_Sig2.
 
-(*  Reserved Notation "x ∈ y" (at level 59, no associativity).
-  Reserved Notation "x ≈ y" (at level 59, no associativity).
-  Reserved Notation "x ⊆ y" (at level 59, no associativity). *)
-
   Notation Σ2 := (Σrel 2).
   Notation Σ3 := (Σrel 3).
  
   Variable (X : Type) (M2 : fo_model Σ2 X).
   Variable (Y : Type) (M3 : fo_model Σ3 Y).
-
-  Check fol_atom Σ2 tt.
 
   Notation "x ∈ y" := (fol_atom Σ2 tt (£x##£y##ø)).
  
@@ -66,8 +60,6 @@ Section Sig3_Sig2.
   Fact Σ2_equiv_spec x y ψ : ⟪Σ2_equiv x y⟫ ψ = m2_equiv m2_member (ψ x) (ψ y).
   Proof. reflexivity. Qed. 
  
-  (* is_otriple t x y z := exists p, is_opair p x y /\ is_opair t p z. *)
-
   Definition Σ2_is_pair p x y : fol_form Σ2 := ∀ 0 ∈ (S p) ↔ 0 ≈ S x ⟇ 0 ≈ S y.
 
   Fact Σ2_is_pair_spec p x y ψ : ⟪Σ2_is_pair p x y⟫ ψ = m2_is_pair m2_member (ψ p) (ψ x) (ψ y).
@@ -367,7 +359,7 @@ Section SAT3_SAT2.
 
     Local Lemma SAT3_to_SAT2 : exists Y, fo_form_fin_dec_SAT_in (Σ3_Σ2_enc A) Y.
     Proof.
-      destruct bt_m3_m2 with (R := R)
+      destruct rel3_hfs with (R := R)
         as (Y & H1 & mem & l & r & i & s & 
             H2 & H3 & H4 & H5 & H6 & H7 & H8); auto.
       + apply φ, 0.
@@ -405,6 +397,3 @@ Section SAT3_SAT2.
   Qed.
 
 End SAT3_SAT2.
-
-Check SAT2_SAT3. Print Assumptions SAT2_SAT3.
-Check SAT3_SAT2. Print Assumptions SAT3_SAT2.
