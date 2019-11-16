@@ -374,7 +374,7 @@ Section bpcp.
       exists (Some (exist _ l (lt_n_Sn _))); simpl; auto.
     Qed.
 
-    Theorem BPCP_sat : fo_form_fin_SAT phi_R.
+    Theorem BPCP_sat : fo_form_fin_dec_SAT phi_R.
     Proof.
       exists X, bpcp_model, fin_X, sem_pred_dec, φ; split; auto.
       unfold phi_R; repeat (split; auto).
@@ -645,29 +645,9 @@ Section bpcp.
 
   Theorem fin_sat_BPCP : fo_form_fin_SAT phi_R -> exists l, pcp_hand lc l l.
   Proof.
-    intros (X & M & fM & dM & phi & Hphi).
+    intros (X & M & fM  & phi & Hphi).
     apply model_implies_pcp_hand with (M := M) (φ := phi); auto.
     apply finite_t_finite; auto.
   Qed.
 
 End bpcp.
-
-Section reduction.
-
-  Definition BPCP_input := list (list bool * list bool).
-  Definition FIN_SAT_input := fol_form Σbpcp.
-
-  Definition BPCP_problem (lc : BPCP_input) := exists l, pcp_hand lc l l.
-  Definition FIN_SAT_problem (A : FIN_SAT_input) := fo_form_fin_SAT A.
- 
-  Theorem BPCP_FIN_SAT : exists f, forall x : BPCP_input, BPCP_problem x <-> FIN_SAT_problem (f x).
-  Proof.
-    exists phi_R; intros lc; split.
-    + intros (l & Hl); revert Hl; apply BPCP_sat.
-    + apply fin_sat_BPCP.
-  Qed.
-
-End reduction.
-
-Check BPCP_FIN_SAT.
-Print Assumptions BPCP_FIN_SAT.

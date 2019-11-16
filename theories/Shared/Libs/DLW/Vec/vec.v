@@ -734,3 +734,28 @@ Section fun2vec.
   Qed. 
 
 End fun2vec.
+
+Section map_vec_pos_equiv.
+
+  Variable (X : Type) (R : X -> X -> Prop)
+           (Y : Type) (T : Y -> Y -> Prop)
+           (T_refl : forall y, T y y)
+           (T_trans : forall x y z, T x y -> T y z -> T x z). 
+
+  Theorem map_vec_pos_equiv n (f : vec X n -> Y) : 
+           (forall p v x y, R x y -> T (f (v[x/p])) (f (v[y/p])))
+        -> forall v w, (forall p, R (v#>p) (w#>p)) -> T (f v) (f w).
+  Proof.
+    revert f; induction n as [ | n IHn ]; intros f Hf v w H.
+    + vec nil v; vec nil w; auto.
+    + apply T_trans with (y := f (v[(w#>pos0)/pos0])).
+      * rewrite <- (vec_change_same v pos0) at 1; auto.
+      * revert H.
+        vec split v with a; vec split w with b; intros H; simpl.
+        apply IHn with (f := fun v => f(b##v)).
+        - intros p q x y Hxy.
+          apply (Hf (pos_nxt p) (b##q)); auto.
+        - intros p; apply (H (pos_nxt p)).
+  Qed. 
+
+End map_vec_pos_equiv.

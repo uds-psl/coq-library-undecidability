@@ -19,7 +19,7 @@ From Undecidability.Shared.Libs.DLW.Wf
   Require Import wf_finite.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations fol_ops fo_terms fo_logic membership hfs discrete.
+  Require Import notations fol_ops fo_terms fo_logic membership hfs (*discrete*).
 
 Set Implicit Arguments.
 
@@ -28,7 +28,7 @@ Local Notation ø := vec_nil.
 Definition Σrel (n : nat) : fo_signature.
 Proof.
   exists Empty_set unit.
-  + intros [].
+  + exact (fun _ => 0).
   + exact (fun _ => n).
 Defined.
 
@@ -397,10 +397,10 @@ Section SAT3_SAT2.
 
   End nested.
 
-  Theorem SAT3_SAT2 A : (exists X, fo_form_fin_discr_dec_SAT_in A X)
-                     -> (exists Y, fo_form_fin_dec_SAT_in (Σ3_Σ2_enc A) Y).
+  Theorem SAT3_SAT2 A : fo_form_fin_discr_dec_SAT A
+                     -> fo_form_fin_dec_SAT (Σ3_Σ2_enc A).
   Proof.
-    intros (X & M3 & H1 & H2 & H4 & psy & H5).
+    intros (X & H1 & M3 & H2 & H4 & psy & H5).
     apply SAT3_to_SAT2 with X M3 psy; auto.
   Qed.
 

@@ -138,6 +138,8 @@ Section btree.
 
     (* A restricted definition of membership, not up to equivalence *)
 
+    Reserved Notation "x ⋷ y" (at level 70, no associativity).
+
     Inductive bt_restr_mem : bt -> bt -> Prop :=
       | in_btrm_0 : forall s t,            s ⋷ s⪧t
       | in_btrm_1 : forall s t u, s ⋷ u -> s ⋷ t⪧u
