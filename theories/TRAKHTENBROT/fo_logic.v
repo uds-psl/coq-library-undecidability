@@ -68,6 +68,22 @@ Section fol_subst.
                            (fol_vars A) 
     end.
 
+  Fixpoint fol_syms (A : 𝔽) :=
+    match A with
+      | ⊥              => nil
+      | fol_atom _ p v => flat_map (@fo_term_syms _ _ _) (vec_list v)
+      | fol_bin c A B  => fol_syms A ++ fol_syms B
+      | fol_quant q A  => fol_syms A 
+    end.
+
+  Fixpoint fol_rels (A : 𝔽) :=
+    match A with
+      | ⊥              => nil
+      | fol_atom _ p v => p::nil
+      | fol_bin c A B  => fol_rels A ++ fol_rels B
+      | fol_quant q A  => fol_rels A 
+    end.
+
   Fixpoint fol_subst σ (A : 𝔽) :=
     match A with
       | ⊥              => ⊥

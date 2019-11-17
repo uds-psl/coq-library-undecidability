@@ -62,6 +62,30 @@ Qed.
 Notation forall_equiv := (@fol_quant_sem_ext _ fol_fa).
 Notation exists_equiv := (@fol_quant_sem_ext _ fol_ex).
 
+Fact forall_list_sem_dec X (P : X -> Prop) (l : list X) :  
+       (forall x, { P x } + { ~ P x }) 
+    -> { forall x, In x l -> P x } + { ~ forall x, In x l -> P x }.
+Proof.
+  intros H. 
+  destruct list_dec with (P := fun x => ~ P x) (Q := P) (l := l)
+      as [ (x & H1 & H2) | H1 ].
+  + firstorder.
+  + right; contradict H2; auto.
+  + left; intros x; apply H1; auto.
+Qed.
+
+Fact exists_list_sem_dec X (P : X -> Prop) (l : list X) :  
+       (forall x, { P x } + { ~ P x }) 
+    -> { exists x, In x l /\ P x } + { ~ exists x, In x l /\ P x }.
+Proof.
+  intros H. 
+  destruct list_dec with (P := P) (Q := fun x => ~ P x) (l := l)
+      as [ (x & H1 & H2) | H1 ]; auto.
+  + left; firstorder.
+  + right; intros (y & Hy).
+    apply (H1 y); tauto.
+Qed.
+
 Fact fol_quant_sem_dec X q (P : X -> Prop) : 
        finite_t X 
     -> (forall x, { P x } + { ~ P x }) 
@@ -69,16 +93,8 @@ Fact fol_quant_sem_dec X q (P : X -> Prop) :
 Proof.
   intros (lX & HlX). 
   revert q; intros [] H; simpl.
-  + destruct list_dec with (1 := H) (l := lX)
-      as [ (x & H1 & H2) | H1 ].
-    * left; firstorder.
-    * right; intros (y & Hy).
-      apply (H1 y); auto.
-  + destruct list_dec with (P := fun x => ~ P x) (Q := P) (l := lX)
-      as [ (x & H1 & H2) | H1 ].
-    * firstorder.
-    * right; contradict H2; auto.
-    * left; intros x; apply H1; auto.
+  + destruct exists_list_sem_dec with (l := lX) (1 := H); firstorder.
+  + destruct forall_list_sem_dec with (l := lX) (1 := H); firstorder.
 Qed.
 
 

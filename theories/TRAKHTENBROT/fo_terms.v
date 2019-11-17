@@ -188,7 +188,27 @@ Section first_order_terms.
   Proof.
     rewrite fo_term_vars_fix_2, vec_list_vec_map, <- flat_map_concat_map; auto.
   Qed.
- 
+
+  Definition fo_term_syms : fo_term -> list sym.
+  Proof. 
+    apply fo_term_recursion.
+    + intro; exact nil.
+    + intros s _ w.
+      apply vec_list in w.
+      exact (s::concat w).
+  Defined.
+
+  Fact fo_term_syms_fix_0 x : fo_term_syms (in_var x) = nil.
+  Proof. apply fo_term_recursion_fix_0. Qed.
+
+  Fact fo_term_syms_fix_2 s v : fo_term_syms (@in_fot s v) = s::concat (vec_list (vec_map fo_term_syms v)).
+  Proof. apply fo_term_recursion_fix_1. Qed.
+
+  Fact fo_term_syms_fix_1 s v : fo_term_syms (@in_fot s v) = s::flat_map fo_term_syms (vec_list v).
+  Proof.
+    rewrite fo_term_syms_fix_2, vec_list_vec_map, <- flat_map_concat_map; auto.
+  Qed.
+
 End first_order_terms.
 
 Arguments in_var { var sym sym_ar }.
@@ -196,7 +216,8 @@ Arguments in_var { var sym sym_ar }.
 Create HintDb fo_term_db.
 Tactic Notation "rew" "fot" := autorewrite with fo_term_db.
 
-Hint Rewrite fo_term_vars_fix_0 fo_term_vars_fix_1 : fo_term_db.
+Hint Rewrite fo_term_vars_fix_0 fo_term_vars_fix_1 
+             fo_term_syms_fix_0 fo_term_syms_fix_1 : fo_term_db.
 
 Fact flat_map_flat_map X Y Z (f : X -> list Y) (g : Y -> list Z) l : 
        flat_map g (flat_map f l) = flat_map (fun x => flat_map g (f x)) l.
@@ -284,7 +305,6 @@ Section fo_term_subst.
     intros; f_equal; auto.
   Qed.
 
- 
   Fact fo_term_vars_subst f t : fo_term_vars (t⟬f⟭) = flat_map (fun n => fo_term_vars (f n)) (fo_term_vars t).
   Proof.
     induction t as [ n | s v IHv ]; rew fot; auto.
@@ -304,6 +324,35 @@ Section fo_term_subst.
     generalize (fo_term_vars t); clear t.
     induction l; simpl; f_equal; auto.
   Qed.
+
+  Fact fo_term_syms_map f t : fo_term_syms (fo_term_map f t) = fo_term_syms t.
+  Proof.
+    induction t as [ n | s v IHv ]; rew fot; auto; f_equal.
+    do 2 rewrite flat_map_concat_map; f_equal.
+    rewrite vec_list_vec_map, map_map.
+    apply map_ext_in.
+    intros x Hx; apply IHv, in_vec_list; auto.
+  Qed.
+
+(*
+
+  The identity is going to be complicated only permutation will do
+  the syms in the substitution are those in the original term + all
+  those occuring in the substitution on the variables in t 
+
+  Fact fo_term_syms_subst f t : fo_term_vars (t⟬f⟭) = flat_map (fun n => fo_term_syms (f n)) (fo_term_vars t).
+  Proof.
+    induction t as [ n | s v IHv ]; rew fot; auto.
+    + simpl; rewrite <- app_nil_end; auto.
+    + rewrite vec_list_vec_map.
+      rewrite flat_map_flat_map.
+      rewrite flat_map_concat_map, map_map, <- flat_map_concat_map.
+      do 2 rewrite flat_map_concat_map; f_equal.
+      apply map_ext_in; intros x Hx.
+      rewrite IHv; auto.
+      apply in_vec_list; auto.
+  Qed.
+*)
 
 End fo_term_subst.
 
