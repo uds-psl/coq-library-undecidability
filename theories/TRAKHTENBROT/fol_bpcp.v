@@ -19,7 +19,7 @@ From Undecidability.Shared.Libs.DLW.Wf
   Require Import wf_finite.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations bpcp fol_ops fo_terms fo_logic.
+  Require Import notations bpcp fol_ops fo_terms fo_logic fo_sat.
 
 Set Implicit Arguments.
 
@@ -409,27 +409,27 @@ Section bpcp.
 
     Let P x y := @sem_pred p_P (x##y##ø).
     Notation "x ⪡ y" := (@sem_pred p_lt (x##y##ø)) (at level 70).
-    Notation "x ≋ y" := (@sem_pred p_eq (x##y##ø)) (at level 70).
+    Notation "x ≅ y" := (@sem_pred p_eq (x##y##ø)) (at level 70).
 
-    Let lt_pair u v x y    := (  u ⪡ x /\ v ≋ y
-                                \/ v ⪡ y /\ u ≋ x
+    Let lt_pair u v x y    := (  u ⪡ x /\ v ≅ y
+                                \/ v ⪡ y /\ u ≅ x
                                 \/ u ⪡ x /\ v ⪡ y ).
 
     (** The axiom interpreted directly gives us properties of the model *)
 
-    Let HP x y : P x y -> ~ x ≋ ⋇ /\ ~ y ≋ ⋇.
+    Let HP x y : P x y -> ~ x ≅ ⋇ /\ ~ y ≅ ⋇.
     Proof. apply model. Qed.
 
-    Let Hfb_1 b x : ~ f b x ≋ ε.
+    Let Hfb_1 b x : ~ f b x ≅ ε.
     Proof. destruct b; apply model. Qed.
 
-    Let Hfb_2 b x y : ~ f b x ≋ ⋇ -> f b x ≋ f b y -> x ≋ y.
+    Let Hfb_2 b x y : ~ f b x ≅ ⋇ -> f b x ≅ f b y -> x ≅ y.
     Proof. destruct b; revert x y; apply model. Qed.
 
-    Let Hfb_3 x y : f true x ≋ f false y -> f true x ≋ ⋇ /\ f false y ≋ ⋇.
+    Let Hfb_3 x y : f true x ≅ f false y -> f true x ≅ ⋇ /\ f false y ≅ ⋇.
     Proof. apply model. Qed.
 
-    Let Hfb_4 b : f b ⋇ ≋ ⋇.
+    Let Hfb_4 b : f b ⋇ ≅ ⋇.
     Proof. 
       destruct model as (_ & _ & H & _).
       destruct H as (_ & _ & _ & _ & H1 & H2 & _ ).
@@ -442,29 +442,29 @@ Section bpcp.
     Let Hlt_trans x y z : x ⪡ y -> y ⪡ z -> x ⪡ z.
     Proof. apply model. Qed.
 
-    Let Heq_refl x : x ≋ x.
+    Let Heq_refl x : x ≅ x.
     Proof. revert x; apply model. Qed.
   
-    Let Heq_sym x y : x ≋ y -> y ≋ x.
+    Let Heq_sym x y : x ≅ y -> y ≅ x.
     Proof. apply model. Qed.
 
-    Let Heq_trans x y z : x ≋ y -> y ≋ z -> x ≋ z.
+    Let Heq_trans x y z : x ≅ y -> y ≅ z -> x ≅ z.
     Proof. apply model. Qed.
 
-    Let Heq_congr_1 b x y : x ≋ y -> f b x ≋ f b y.
+    Let Heq_congr_1 b x y : x ≅ y -> f b x ≅ f b y.
     Proof. destruct b; apply model. Qed.
 
-    Let Heq_congr_2 x y x' y' : x ≋ x' -> y ≋ y' -> P x y -> P x' y'.
+    Let Heq_congr_2 x y x' y' : x ≅ x' -> y ≅ y' -> P x y -> P x' y'.
     Proof. apply model. Qed.
 
-    Let Heq_congr_3 x y x' y' : x ≋ x' -> y ≋ y' -> x ⪡ y -> x' ⪡ y'.
+    Let Heq_congr_3 x y x' y' : x ≅ x' -> y ≅ y' -> x ⪡ y -> x' ⪡ y'.
     Proof. apply model. Qed.
    
     Let sb_app l x := ⟦ lb_app l (£0) ⟧ (φ↑x).
 
     Let Hsimul x y : P x y -> exists s t, In (s,t) lc 
-                                     /\ ( x ≋ sb_app s ε /\ y ≋ sb_app t ε
-                                      \/  exists u v, P u v /\ x ≋ sb_app s u /\ y ≋ sb_app t v
+                                     /\ ( x ≅ sb_app s ε /\ y ≅ sb_app t ε
+                                      \/  exists u v, P u v /\ x ≅ sb_app s u /\ y ≅ sb_app t v
                                                    /\ lt_pair u v x y ).
     Proof.
       intros H.
@@ -517,13 +517,13 @@ Section bpcp.
 
     (* Ok we have all the ops in the model ... let us prove some real stuff *)
 
-    Let Hfb_5 b x : x ≋ ⋇ -> f b x ≋ ⋇.
+    Let Hfb_5 b x : x ≅ ⋇ -> f b x ≅ ⋇.
     Proof. 
       intros H; apply Heq_congr_1 with (b := b) in H.
       apply Heq_trans with (1 := H), Hfb_4.
     Qed.
 
-    Let sb_app_congr_1 l x y : x ≋ y -> sb_app l x ≋ sb_app l y.
+    Let sb_app_congr_1 l x y : x ≅ y -> sb_app l x ≅ sb_app l y.
     Proof.
       intros H; unfold sb_app.
       induction l as [ | b l IHl ]; simpl; rew fot.
@@ -537,7 +537,7 @@ Section bpcp.
     Let sb_app_nil x : sb_app nil x = x.
     Proof. auto. Qed.
 
-    Let sb_app_inj l m : ~ sb_app l ε ≋ ⋇ -> sb_app l ε ≋ sb_app m ε -> l = m.
+    Let sb_app_inj l m : ~ sb_app l ε ≅ ⋇ -> sb_app l ε ≅ sb_app m ε -> l = m.
     Proof.
       revert m; induction l as [ | [] l IH ]; intros [ | [] m ] H E; auto.
       + rewrite sb_app_fb, sb_app_nil in E.
@@ -572,7 +572,7 @@ Section bpcp.
           rewrite sb_app_fb; auto.
     Qed.
 
-    Let sb_app_congr l m x y z : x ≋ sb_app l y -> y ≋ sb_app m z -> x ≋ sb_app (l++m) z.
+    Let sb_app_congr l m x y z : x ≅ sb_app l y -> y ≅ sb_app m z -> x ≅ sb_app (l++m) z.
     Proof.
       intros H1 H2.
       unfold sb_app.
@@ -581,18 +581,18 @@ Section bpcp.
       apply Heq_trans with (1 := H1).
       apply Heq_trans with (1 := H2).
       unfold sb_app.
-      match goal with |- ?a ≋ ?b => cut (a=b); [ intros -> | ]; auto end.
+      match goal with |- ?a ≅ ?b => cut (a=b); [ intros -> | ]; auto end.
       apply fo_term_sem_ext.
       intros n; rewrite fot_vars_lb_app; simpl; intros [ <- | [] ].
       auto.
     Qed. 
 
     Ltac mysolve :=
-      match goal with 
+      match goal with
         | H1 : ?x ⪡ ?y, H2 : ?y ⪡ ?z |- ?x ⪡ ?z => revert H2; apply Hlt_trans
-        | H1 : ?x ≋ ?y, H2 : ?y ⪡ ?z |- ?x ⪡ ?z => revert H2; apply Heq_congr_3
-        | H1 : ?x ⪡ ?y, H2 : ?y ≋ ?z |- ?x ⪡ ?z => revert H1; apply Heq_congr_3
-        | H1 : ?x ≋ ?y, H2 : ?y ≋ ?z |- ?x ≋ ?z => revert H2; apply Heq_trans
+        | H1 : ?x ≅ ?y, H2 : ?y ⪡ ?z |- ?x ⪡ ?z => revert H2; apply Heq_congr_3
+        | H1 : ?x ⪡ ?y, H2 : ?y ≅ ?z |- ?x ⪡ ?z => revert H1; apply Heq_congr_3
+        | H1 : ?x ≅ ?y, H2 : ?y ≅ ?z |- ?x ≅ ?z => revert H2; apply Heq_trans
       end; auto.
 
     Let Hlt_wf : well_founded (fun p q => match p, q with (u,v), (x,y) => lt_pair u v x y end).
@@ -610,7 +610,7 @@ Section bpcp.
     Qed.
 
     Let P_implies_pcp_hand c : match c with (x,y) => 
-           P x y -> exists s t, x ≋ sb_app s ε /\ y ≋ sb_app t ε /\ pcp_hand lc s t 
+           P x y -> exists s t, x ≅ sb_app s ε /\ y ≅ sb_app t ε /\ pcp_hand lc s t 
          end.
     Proof.
       induction c as [ (x,y) IH ] using (well_founded_induction Hlt_wf).

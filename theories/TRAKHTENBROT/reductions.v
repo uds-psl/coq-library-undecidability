@@ -21,7 +21,7 @@ From Undecidability.Shared.Libs.DLW.Wf
   Require Import wf_finite.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations fol_ops fo_terms fo_logic discrete Sig3_Sig2 
+  Require Import notations fol_ops fo_terms fo_logic fo_sat discrete Sig3_Sig2 
                  bpcp fol_bpcp.
 
 Set Implicit Arguments.

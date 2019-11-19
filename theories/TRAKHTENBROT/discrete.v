@@ -10,13 +10,13 @@
 Require Import List Arith Nat Lia Relations.
 
 From Undecidability.Shared.Libs.DLW.Utils 
-  Require Import utils_tac utils_list finite.
+  Require Import utils_tac utils_list utils_nat finite.
 
 From Undecidability.Shared.Libs.DLW.Vec 
   Require Import pos vec fin_quotient.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations fol_ops fo_terms fo_logic gfp.
+  Require Import notations gfp fol_ops fo_terms fo_logic fo_sat.
 
 Set Implicit Arguments.
 
@@ -25,7 +25,7 @@ Local Notation " e [ v / x ] " := (vec_change e x v).
 
 Section discrete_quotient.
 
-  (** We assume a finite signature, a finite and decidable model and a valuation 
+  (** We assume a finite sub-signature, a finite and decidable model and a valuation 
       and we build the greatest bisimulation for this model, establishing that it
       is decidable and thus we can quotient the model under this bisim obtaining
       a discrete model which is "equivalent" *)
@@ -33,8 +33,6 @@ Section discrete_quotient.
   Variables (Σ : fo_signature)
             (ls : list (syms Σ))
             (lr : list (rels Σ))
-            (*HΣs : finite_t (syms Σ)*)
-            (*HΣr : finite_t (rels Σ)*)
             (X : Type) (M : fo_model Σ X)  
             (fin : finite_t X) 
             (dec : fo_model_dec M)
@@ -114,7 +112,7 @@ Section discrete_quotient.
   Theorem fom_eq_rels_full s v w : In s lr -> (forall p, v#>p ≡ w#>p) -> fom_rels M s v <-> fom_rels M s w.
   Proof. intro; apply map_vec_pos_equiv; eauto; tauto. Qed.
 
-  Hint Resolve finite_t_vec finite_t_pos. 
+  Hint Resolve finite_t_vec finite_t_pos.
 
   (** And because the signature is finite (ie the symbols and relations) 
                   the model M is finite and composed of decidable relations 
@@ -135,6 +133,128 @@ Section discrete_quotient.
   Qed.
 
   Hint Resolve fom_eq_dec.
+
+  Section fol_characterization.
+
+    (** We show that the greatest bisimulation is equivalent to FOL undistinguishability ie 
+        This result is purely for the sake of completeness of the discription of fom_eq,
+        it is not used in the reduction below 
+
+        It state that x and y are bisimilar iff the is no interpretation of a FO formula 
+        with one free variable that can distinguish x from y *)
+
+    Hint Resolve fom_eq_syms_full fom_eq_rels_full.
+
+    Let fom_eq_fol_charac1 A phi psi : 
+            (forall n, In n (fol_vars A) -> phi n ≡ psi n)
+         -> incl (fol_syms A) ls
+         -> incl (fol_rels A) lr
+         -> fol_sem M phi A <-> fol_sem M psi A.
+    Proof.
+      intros Hp; apply fo_model_simulation with (R := fom_eq); auto;
+        intros a; exists a; auto.
+    Qed.
+
+    Let R x y := forall A φ, incl (fol_syms A) ls
+                               -> incl (fol_rels A) lr
+                               -> fol_sem M (φ↑x) A <-> fol_sem M (φ↑y) A.
+
+    (** Can this be restricted to FO formula where only £0 is free ? *)
+
+    Theorem fom_eq_fol_characterization x y : 
+            x ≡ y <-> forall A φ, incl (fol_syms A) ls
+                               -> incl (fol_rels A) lr
+                               -> fol_sem M (φ↑x) A <-> fol_sem M (φ↑y) A.
+    Proof.
+      split.
+      + intros H A phi.
+        apply fom_eq_fol_charac1.
+        intros [ | n ] _; simpl; auto.
+      + revert x y; apply gfp_greatest with (R := R); unfold R; clear R; auto.
+        intros x y H; split.
+        * intros s Hs v p A phi H1 H2.
+          set (a := ar_syms Σ).
+          set (w  := vec_set_pos (fun q => £ (S (pos2nat q))) : vec (fo_term _ a) (a s)).
+          set (sigma n := match n with
+            | 0   => in_fot s (w[(£0)/p]) 
+            | S n => £ (S n+a s)
+          end).
+          set (B := A⦃sigma⦄).
+          set (psi n := match le_lt_dec (a s) n with
+            | left _           => phi (n - a s)
+            | right H => v#>(nat2pos H)
+          end).
+          assert (forall z, fol_sem M psi↑z B <-> fol_sem M phi↑(fom_syms M s (v[z/p])) A) as E.
+          { intros z; unfold B; unfold a in *.
+            rewrite fol_sem_subst; apply fol_sem_ext.
+            intros [ | n ] Hn; simpl; rew fot.
+            + f_equal; apply vec_pos_ext; intros q.
+              rewrite vec_pos_map.
+              destruct (pos_eq_dec p q); subst; rew vec; rew fot; simpl.
+              unfold w; rewrite vec_pos_set; rew fot; simpl.
+              unfold psi.
+              generalize (pos2nat_prop q); intros C.
+              destruct (le_lt_dec (ar_syms Σ s) (pos2nat q)) as [ | H4 ]; auto.
+              - exfalso; lia.
+              - rewrite nat2pos_pos2nat; auto.
+            + unfold psi; simpl.
+              destruct (le_lt_dec (ar_syms Σ s) (n + ar_syms Σ s)); try (exfalso; lia).
+              f_equal; lia. }
+          unfold a in *.
+          do 2 rewrite <- E; apply H; auto.
+          - unfold B.
+            intros s' Hs'; revert s' Hs'; apply Forall_forall.
+            apply fol_syms_subst.
+            ++ unfold sigma; intros [ | n ] Hn; rew fot; auto.
+               constructor; auto.
+               apply Forall_forall; intros z; rewrite in_flat_map.
+               intros (t & G1 & G2).
+               apply H1.
+               apply in_vec_list in G1.
+               apply in_vec_inv in G1.
+               destruct G1 as (q & <-).
+               unfold w in G2; revert G2.
+               destruct (pos_eq_dec p q); rew vec; simpl; try tauto.
+               rewrite vec_pos_set; simpl; tauto.
+            ++ apply Forall_forall, H1.
+          - unfold B; rewrite fol_rels_subst; auto.
+        * intros r Hr v p.
+          set (a := ar_rels Σ).
+          set (w := vec_set_pos (fun q => £ (S (pos2nat q))) : vec (fo_term _ (ar_syms Σ)) (a r)).
+          set (A := fol_atom _ _ (w[(£0)/p])).
+          set (psi n := match le_lt_dec (a r) n with
+            | left _  => x
+            | right H => v#>(nat2pos H)
+          end).
+          assert (forall z, fol_sem M psi↑z A <-> fom_rels M r (v[z/p])) as E.
+          { intros z; unfold A; unfold a in *; simpl.
+            match goal with |- ?x <-> ?y => cut (x = y); [ intros ->; tauto | f_equal ] end.
+            apply vec_pos_ext; intros q.
+            rewrite vec_pos_map.
+            destruct (pos_eq_dec p q); subst; rew vec; rew fot; simpl.
+            unfold w; rewrite vec_pos_set; rew fot; simpl.
+            unfold psi.
+            generalize (pos2nat_prop q); intros C.
+            destruct (le_lt_dec (ar_rels Σ r) (pos2nat q)) as [ | H4 ]; auto.
+            + exfalso; lia.
+            + rewrite nat2pos_pos2nat; auto. }
+          unfold a in *.
+          do 2 rewrite <- E; apply H; auto.
+          - unfold A; simpl.
+            intros s; rewrite in_flat_map.
+            intros (t & G1 & G2).
+            apply in_vec_list, in_vec_inv in G1.
+            destruct G1 as (q & <-).
+            revert G2; unfold w.
+            destruct (pos_eq_dec p q); rew vec; simpl; try tauto.
+            rewrite vec_pos_set; simpl; tauto.
+          - unfold A; intros ? [ <- | [] ]; auto. 
+    Qed.
+
+  End fol_characterization.
+
+  Check fom_eq_fol_characterization.
+
 
   (** And now we can build a discrete model with this equivalence 
 

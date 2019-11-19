@@ -40,6 +40,11 @@ Section finite.
     split; intros (l & ?); exists l; firstorder.
   Qed.
 
+  Fact finite_fin_eq X : finite X <-> fin (fun _ : X => True).
+  Proof.
+    split; intros (l & ?); exists l; firstorder.
+  Qed.
+
   Fact fin_t_map X Y (f : X -> Y) (P Q : _ -> Prop) : 
              (forall y, Q y <-> exists x, f x = y /\ P x)
           -> @fin_t X P
@@ -400,9 +405,99 @@ Proof.
   + exists f, (vec_pos v); split; auto.
 Qed.
 
+Section finite_t_ex_sig.
 
+  Variable (X : Type) (P : X -> Prop) (Pdec : forall x, { P x } + { ~ P x }).
 
+  Fact list_ex_sig l : (exists x, In x l /\ P x) -> { x | In x l /\ P x }.
+  Proof.
+    induction l as [ | x l IHl ]; intros H.
+    + exfalso; destruct H as (_ & [] & _).
+    + destruct (Pdec x) as [ H1 | H1 ].
+      * exists x; simpl; auto.
+      * destruct IHl as (y & H2 & H3).
+        - destruct H as (y & [ -> | Hy ] & ?); firstorder.
+        - exists y; simpl; auto.
+  Qed.
+ 
+  Fact fin_t_ex_sig (Q : X -> Prop) : 
+          fin_t Q -> (exists x, Q x /\ P x) -> { x | Q x /\ P x }.
+  Proof.
+    intros (l & Hl) H.
+    destruct (list_ex_sig l) as (x & H1 & H2).
+    + destruct H as (x & ? & ?); exists x; rewrite <- Hl; auto.
+    + exists x; rewrite Hl; auto.
+  Qed.
 
+  Fact finite_t_ex_sig : finite_t X -> ex P -> sig P. 
+  Proof.
+    intros (l & Hl) H.
+    destruct (list_ex_sig l) as (x & H1 & H2); firstorder.
+  Qed.
 
+End finite_t_ex_sig.
+
+(** Reification of a total relation into a function,
+    ie this is relational choice over a finite co-domain
+    with a decidable relation *)
+
+Definition finite_t_rel2_dec_reif X Y (R : X -> Y -> Prop) :
+        (forall x y, { R x y } + { ~ R x y })
+     -> finite_t Y
+     -> (forall x, ex (R x))
+     -> { f | forall x, R x (f x) }.
+Proof.
+  intros H1 H2 H3.
+  exists (fun x => proj1_sig (finite_t_ex_sig (H1 x) H2 (H3 x))).
+  intros x; apply (proj2_sig (finite_t_ex_sig (H1 x) H2 (H3 x))).
+Qed.
+
+(** On discrete and finite types, one can weakly reify weak decidability into strong decidability 
+    But I do not think this could be done with weak discreteness, weakly decidable equality *)
+
+Definition list_weak_dec X (l : list X) (Q : X -> Prop) : 
+             (forall x y, In x l -> In y l -> { x = y } + { x <> y } ) 
+          -> (forall x, In x l -> Q x \/ ~ Q x)
+          -> inhabited (forall x, In x l -> { Q x } + { ~ Q x }).
+Proof. 
+  induction l as [ | x l IHl ]; intros D H.
+  1: { exists; intros _ []. }
+  destruct IHl as [ f ].
+  + intros; apply D; simpl; auto.
+  + intros; apply H; simpl; auto.
+  + destruct (H x) as [ Hx | Hx ]; simpl; auto. 
+    * exists; intros y Hy.
+      destruct (D x y) as [ H1 | H1 ]; simpl; auto.
+      - left; subst; auto.
+      - apply f; destruct Hy; auto; tauto.
+    * exists; intros y Hy.
+      destruct (D x y) as [ H1 | H1 ]; simpl; auto.
+      - right; subst; auto.
+      - apply f; destruct Hy; auto; tauto.
+Qed.
+
+Fact fin_weak_dec X (P Q : X -> Prop) :
+      (forall x y : X, P x -> P y -> { x = y } + { x <> y } )
+   -> fin P 
+   -> (forall x, P x -> Q x \/ ~ Q x)
+   -> inhabited (forall x, P x -> { Q x } + { ~ Q x }).
+Proof.
+  intros H1 (l & Hl) H2.
+  destruct (list_weak_dec l Q) as [ f ].
+  + intros; apply H1; apply Hl; auto.
+  + intros; apply H2; apply Hl; auto.
+  + exists; intros; apply f, Hl; auto.
+Qed.
+
+Fact finite_weak_dec X (P : X -> Prop) :
+       finite X
+    -> (forall x y : X, { x = y } + { x <> y })
+    -> (forall x, P x \/ ~ P x)
+    -> inhabited (forall x, { P x } + { ~ P x }).
+Proof.
+  intros H1 H2 H3.
+  apply finite_fin_eq in H1.
+  destruct fin_weak_dec with (Q := P) (2 := H1); auto.
+Qed.
 
 

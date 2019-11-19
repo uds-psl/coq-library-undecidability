@@ -256,6 +256,7 @@ TRAKHTENBROT/rel3_hfs.v
 TRAKHTENBROT/fol_ops.v
 TRAKHTENBROT/fo_terms.v
 TRAKHTENBROT/fo_logic.v
+TRAKHTENBROT/fo_sat.v
 TRAKHTENBROT/membership.v
 TRAKHTENBROT/fol_bpcp.v
 TRAKHTENBROT/fol_extra.v

@@ -135,10 +135,89 @@ Section fol_subst.
   Fact fol_vars_map σ (A : 𝔽) : fol_vars (A⦃fun n => £(σ n)⦄) = map σ (fol_vars A).
   Proof. rewrite fol_vars_subst, <- flat_map_single; auto. Qed.
 
+  Fact fol_syms_subst P σ (A : 𝔽) : 
+        (forall n, In n (fol_vars A) -> Forall P (fo_term_syms (σ n)))  
+     -> Forall P (fol_syms A) -> Forall P (fol_syms (A⦃σ⦄)).
+  Proof.
+    revert σ.
+    induction A as [ | s r | b A HA B HB | q A HA ]; intros f Hf H; simpl; auto.
+    + rewrite Forall_forall in H |- *.
+      intros s'; rewrite in_flat_map.
+      intros (t & Ht); revert Ht.
+      rewrite vec_list_vec_map, in_map_iff.
+      intros ((t' & <- & H1) & H2).
+      revert s' H2; apply Forall_forall.
+      apply fo_term_syms_subst.
+      simpl in H, Hf.
+      * intros n Hn; apply Hf, in_flat_map.
+        exists t'; auto.
+      * apply Forall_forall; intros s' Hs'.
+        apply H, in_flat_map; exists t'; auto.
+    + simpl in H; rewrite Forall_app in H.
+      rewrite Forall_app; split.
+      * apply HA; try tauto.
+        intros; apply Hf, in_or_app; auto.
+      * apply HB; try tauto.
+        intros; apply Hf, in_or_app; auto.
+    + simpl in H; apply HA; auto.
+      intros [ | n ]; simpl; rew fot; auto.
+      rewrite fo_term_syms_map; intros Hn. 
+      apply Hf, in_flat_map.
+      exists (S n); simpl; auto.
+  Qed.
+
+  Fact fol_rels_subst σ (A : 𝔽) : fol_rels (A⦃σ⦄) = fol_rels A.
+  Proof.
+    revert σ.
+    induction A as [ | s r | b A HA B HB | q A HA ]; intros f; simpl; auto.
+    rewrite HA, HB; auto.
+  Qed.
+
   Definition fol_bigop c A := fold_right (@fol_bin Σ c) A.
 
   Fact fol_subst_bigop c l A σ : (fol_bigop c A l)⦃σ⦄ = fol_bigop c (A⦃σ⦄) (map (fol_subst σ) l).
   Proof. induction l; simpl; f_equal; auto. Qed.
+
+  (** ∀ ... ∀ A  and  ∃ ... ∃ A *)
+
+  Fixpoint fol_mquant q n (A : 𝔽) := 
+    match n with 
+      | 0   => A
+      | S n => fol_quant q (fol_mquant q n A)
+    end.
+
+  Fact fol_mquant_plus q a b A : fol_mquant q (a+b) A = fol_mquant q a (fol_mquant q b A).
+  Proof. induction a; simpl; f_equal; auto. Qed.
+  
+  Fact fol_mquant_S q n A : fol_mquant q (S n) A = fol_mquant q n (fol_quant q A).
+  Proof. 
+    replace (S n) with (n+1) by lia.
+    apply fol_mquant_plus.
+  Qed.
+
+  (** (Free) variables in ∀ ... ∀ A  and  ∃ ... ∃ A *)
+
+  Fact fol_vars_mquant q n (A : 𝔽) :
+        fol_vars (fol_mquant q n A)
+      = flat_map (fun i => if le_lt_dec n i then (i-n::nil) else nil) (fol_vars A).
+  Proof.
+    revert A; induction n as [ | n IHn ]; intros A.
+    + simpl; rewrite <- map_id at 1; rewrite <- flat_map_single.
+      do 2 rewrite flat_map_concat_map; f_equal; apply map_ext.
+      intro a; destruct (le_lt_dec 0 a); f_equal; lia.
+    + rewrite fol_mquant_S. 
+      rewrite IHn; simpl fol_vars; rewrite flat_map_flat_map.
+      do 2 rewrite flat_map_concat_map; f_equal; apply map_ext.
+      intros [ | a ]; auto; simpl flat_map.
+      rewrite <- app_nil_end.
+      destruct (le_lt_dec n a); destruct (le_lt_dec (S n) (S a)); auto; lia.
+  Qed.
+ 
+  Fact fol_syms_mquant q n A : fol_syms (fol_mquant q n A) = fol_syms A.
+  Proof. induction n; simpl; auto. Qed.
+
+  Fact fol_rels_mquant q n A : fol_rels (fol_mquant q n A) = fol_rels A.
+  Proof. induction n; simpl; auto. Qed.
 
   (** This theorem is the important one that shows substitutions do compose 
       hence De Bruijn notation are handled correctly by substitutions *)
@@ -218,6 +297,57 @@ Section fol_semantics.
       * intros H; split; intros; apply H; auto.
   Qed.
 
+  Fixpoint env_vlift φ n (v : vec X n) :=
+    match v with
+      | ø    => φ
+      | x##v => (env_vlift φ v)↑x
+    end.
+
+  Fact env_vlift_fix0 φ n (v : vec X n) p : env_vlift φ v (pos2nat p) = vec_pos v p.
+  Proof.
+    revert φ p; induction v as [ | n x v IHv ]; intros phi p; auto.
+    + invert pos p.
+    + invert pos p.
+      * rewrite pos2nat_fst; auto.
+      * rewrite pos2nat_nxt; simpl; auto.
+  Qed.
+
+  Fact env_vlift_fix1 φ n (v : vec X n) k : env_vlift φ v (k+n) = φ k.
+  Proof.
+    revert φ k; induction v as [ | n x v IHv ]; intros phi k; simpl; auto.
+    replace (k+S n) with (S (k+n)) by lia; simpl; auto.
+  Qed.
+
+  (** The semantics of ∀ ... ∀ A *)
+
+  Fact fol_sem_mforall n A φ : ⟪fol_mquant fol_fa n A⟫ φ 
+                           <-> forall v : vec X n, ⟪A⟫ (env_vlift φ v).
+  Proof.
+    revert A φ; induction n as [ | n IHn ]; intros A phi.
+    + split.
+      * intros H v; vec nil v; simpl; auto.
+      * intros H; apply (H ø).
+    + rewrite fol_mquant_S, IHn; split.
+      * intros H v; vec split v with x; apply (H v).
+      * intros H v; intros x; apply (H (x##v)).
+  Qed.
+
+  (** The semantics of ∃ ... ∃ A *)
+
+  Fact fol_sem_mexists n A φ : ⟪fol_mquant fol_ex n A⟫ φ 
+                           <-> exists v : vec X n, ⟪A⟫ (env_vlift φ v).
+  Proof.
+    revert A φ; induction n as [ | n IHn ]; intros A phi.
+    + split.
+      * intros H; exists ø; auto.
+      * intros (v & Hv); revert Hv; vec nil v; auto.
+    + rewrite fol_mquant_S, IHn; split.
+      * intros (v & x & Hv).
+        exists (x##v); auto.
+      * intros (v & Hv); revert Hv; vec split v with x.
+        exists v, x; auto.
+  Qed.
+
   (** Semantics depends only on occuring variables *)
 
   Fact fol_sem_ext φ ψ A : (forall n, In n (fol_vars A) -> φ n = ψ n) -> ⟪A⟫ φ <-> ⟪A⟫ ψ.
@@ -288,41 +418,154 @@ Section fol_semantics.
 
 End fol_semantics.
 
-Section satisfiability.
+Section fo_model_simulation.
 
-  Variable (Σ : fo_signature) (A : fol_form Σ).
+  (** We state a general simulation result for models on a given 
+      formula build on a bounded list of symbols. The statement
+      is so general that the proof is just obvious ;-) *)
 
-  (** A first order formula over signature Σ is finitely satisfiable over
-      type X if there exists a model M interpreting the signature Σ over type X
-      which is both finite (strongly listable) and strongly decidable,
-      and a valuation φ : nat -> X in which A is satisfied *)
+  Variables  (Σ : fo_signature) (ls : list (syms Σ)) (lr : list (rels Σ))
+             (X : Type) (M : fo_model Σ X)
+             (Y : Type) (N : fo_model Σ Y)
+             (R : X -> Y -> Prop).
 
-  Definition fo_form_fin_SAT_in X := 
-    exists (M : fo_model Σ X)  
-           (_ : finite_t X) 
-           (φ : nat -> X), 
-           fol_sem M φ A.
+  Infix "⋈" := R (at level 70, no associativity). 
 
-  Definition fo_form_fin_dec_SAT_in X := 
-    exists (M : fo_model Σ X)  
-           (_ : finite_t X) 
-           (_ : fo_model_dec M) 
-           (φ : nat -> X), 
-           fol_sem M φ A.
+  Hypothesis (Hs : forall s v w, In s ls 
+                              -> (forall p, vec_pos v p ⋈ vec_pos w p)
+                              -> fom_syms M s v ⋈ fom_syms N s w)
+             (Hr : forall s v w, In s lr 
+                              -> (forall p, vec_pos v p ⋈ vec_pos w p)
+                              -> fom_rels M s v <-> fom_rels N s w).
+  
+  Notation "⟦ t ⟧" := (fun φ => fo_term_sem (fom_syms M) φ t).
+  Notation "⟦ t ⟧'" := (fun φ => fo_term_sem (fom_syms N) φ t) (at level 1, format "⟦ t ⟧'").
 
-  Definition fo_form_fin_discr_dec_SAT_in X := 
-    exists (_ : discrete X), 
-           fo_form_fin_dec_SAT_in X.
+  Notation "⟪ A ⟫" := (fun φ => fol_sem M φ A).
+  Notation "⟪ A ⟫'" := (fun φ => fol_sem N φ A) (at level 1, format "⟪ A ⟫'").
 
-  Definition fo_form_fin_SAT := ex fo_form_fin_SAT_in.
-  Definition fo_form_fin_dec_SAT := ex fo_form_fin_dec_SAT_in.
-  Definition fo_form_fin_discr_dec_SAT := ex fo_form_fin_discr_dec_SAT_in.
+  Let fo_term_simulation t φ ψ :
+           (forall n : nat, In n (fo_term_vars t) -> φ n ⋈ ψ n) 
+        -> incl (fo_term_syms t) ls
+        -> ⟦t⟧ φ ⋈ ⟦t⟧' ψ.
+  Proof.
+    revert φ ψ.
+    induction t as [ k | s v IH ]; intros phi psi Hv Hls; rew fot; auto.
+    + apply Hv; simpl; auto.
+    + apply Hs.
+      * apply Hls; simpl; auto.
+      * intros p; do 2 rewrite vec_pos_map.
+        apply IH.
+        - apply in_vec_pos.
+        - intros n Hn.
+          apply Hv; rew fot.
+          apply in_flat_map.
+          exists (vec_pos v p); split; auto.
+          apply in_vec_list, in_vec_pos.
+        - apply incl_tran with (2 := Hls).
+          intros s' Hs'; rew fot.
+          right; apply in_flat_map.
+          exists (vec_pos v p); split; auto.
+          apply in_vec_list, in_vec_pos.
+  Qed.
 
-  Fact fo_form_fin_discr_dec_SAT_fin_dec : fo_form_fin_discr_dec_SAT -> fo_form_fin_dec_SAT.
-  Proof. intros (X & _ & ?); exists X; trivial. Qed.
+  Hypothesis (Hsim1 : forall x, exists y, x ⋈ y)
+             (Hsim2 : forall y, exists x, x ⋈ y).
 
-  Fact fo_form_fin_dec_SAT_fin : fo_form_fin_dec_SAT -> fo_form_fin_SAT.
-  Proof. intros (X & M & H & _ & ?); exists X, M, H; trivial. Qed.
+  Theorem fo_model_simulation A φ ψ :
+           (forall n : nat, In n (fol_vars A) -> φ n ⋈ ψ n) 
+        -> incl (fol_syms A) ls
+        -> incl (fol_rels A) lr
+        -> ⟪A⟫ φ <-> ⟪A⟫' ψ.
+  Proof.
+    revert φ ψ.
+    induction A as [ | r | b A HA B HB | q A HA ]; intros phi psi Hp Hs1 Hr1; simpl; try tauto.
+    + apply Hr.
+      * apply Hr1; simpl; auto.
+      * intros p; do 2 rewrite vec_pos_map.
+        apply fo_term_simulation.
+        - intros n Hn; apply Hp; simpl.
+          apply in_flat_map.
+          exists (vec_pos v p); split; auto.
+          apply in_vec_list, in_vec_pos.
+        - apply incl_tran with (2 := Hs1).
+          intros s' Hs'; simpl.
+          apply in_flat_map.
+          exists (vec_pos v p); split; auto.
+          apply in_vec_list, in_vec_pos.
+    + apply fol_bin_sem_ext; [ apply HA | apply HB ].
+      1,4: intros; apply Hp; simpl; apply in_or_app; auto.
+      1,3: apply incl_tran with (2 := Hs1); intros ? ?; apply in_or_app; auto.
+      1,2: apply incl_tran with (2 := Hr1); intros ? ?; apply in_or_app; auto.
+    + destruct q; simpl; split.
+      * intros (x & Hx).
+        destruct (Hsim1 x) as (y & Hy); exists y.
+        revert Hx; apply HA.
+        - intros []; simpl; auto.
+          intros; apply Hp, in_flat_map.
+          exists (S n); simpl; auto.
+        - apply incl_tran with (2 := Hs1), incl_refl.
+        - apply incl_tran with (2 := Hr1), incl_refl.
+      * intros (y & Hy).
+        destruct (Hsim2 y) as (x & Hx); exists x.
+        revert Hy; apply HA.
+        - intros []; simpl; auto.
+          intros; apply Hp, in_flat_map.
+          exists (S n); simpl; auto.
+        - apply incl_tran with (2 := Hs1), incl_refl.
+        - apply incl_tran with (2 := Hr1), incl_refl.
+      * intros H y.
+        destruct (Hsim2 y) as (x & Hx).
+        generalize (H x); apply HA.
+        - intros []; simpl; auto.
+          intros; apply Hp, in_flat_map.
+          exists (S n); simpl; auto.
+        - apply incl_tran with (2 := Hs1), incl_refl.
+        - apply incl_tran with (2 := Hr1), incl_refl.
+      * intros H x.
+        destruct (Hsim1 x) as (y & Hy).
+        generalize (H y); apply HA.
+        - intros []; simpl; auto.
+          intros; apply Hp, in_flat_map.
+          exists (S n); simpl; auto.
+        - apply incl_tran with (2 := Hs1), incl_refl.
+        - apply incl_tran with (2 := Hr1), incl_refl.
+  Qed.
 
-End satisfiability.
+End fo_model_simulation.
+
+Check fo_model_simulation.
+
+Section fo_model_projection.
+
+  (** We specialize the previous simulation result on simulation
+      obtained as surjective projections *)
+
+  Variable (Σ : fo_signature) (ls : list (syms Σ)) (lr : list (rels Σ))
+           (X : Type) (M : fo_model Σ X) (φ : nat -> X) 
+           (Y : Type) (N : fo_model Σ Y) (ψ : nat -> Y)
+           (i : X -> Y) (j : Y -> X) (E : forall x, i (j x) = x)
+           (Hs : forall s v, In s ls -> i (fom_syms M s v) = fom_syms N s (vec_map i v))
+           (Hr : forall s v, In s lr -> fom_rels M s v <-> fom_rels N s (vec_map i v)).
+
+  Theorem fo_model_projection A : 
+           (forall n, In n (fol_vars A) -> i (φ n) = ψ n)
+        -> incl (fol_syms A) ls 
+        -> incl (fol_rels A) lr
+        -> fol_sem M φ A <-> fol_sem N ψ A.
+  Proof.
+    apply fo_model_simulation with (R := fun x y => i x = y).
+    + intros s v w Hs1 H; rewrite Hs; auto.
+      f_equal; apply vec_pos_ext; intros; rewrite vec_pos_map; auto.
+    + intros s v w Hr1 H; rewrite Hr; auto.
+      match goal with |- ?x <-> ?y => cut (x = y); [ intros ->; tauto | ] end.
+      f_equal; apply vec_pos_ext; intros; rewrite vec_pos_map; auto.
+    + intros x; exists (i x); auto.
+    + intros y; exists (j y); auto.
+  Qed.
+
+End fo_model_projection.
+
+Check fo_model_projection.
+
 

@@ -151,19 +151,6 @@ Section bte_chains.
 
 End bte_chains.
 
-Fact bt_tc_mono s t : s ⊆ t -> ↓s ⊆ ↓t.
-Proof.
-  intros H x.
-
-  do 2 rewrite bt_tc_spec.
-  intros (n & Hn).
-  apply chain_snoc_inv in Hn.
-  destruct Hn as (y & H1 & H2).
-  exists n; apply chain_snoc with y; auto.
-Qed.
-
-Hint Resolve bt_tc_incr bt_tc_mono bt_tc_trans.
-
 Fact bt_trans_chain n x y t : bt_transitive t -> ∈-chain n x y -> y ∈ t -> x ∈ t. 
 Proof.
   intros Ht; induction 1 as [ | n x y z H1 H2 IH2 ]; auto.
@@ -171,16 +158,6 @@ Proof.
 Qed.
 
 Hint Resolve bt_trans_chain.
-
-Fact bt_tc_idem t : ↓(↓t) ⊆ ↓t.
-Proof.
-  intros x; rewrite bt_tc_spec.
-  intros (n & Hn).
-  apply chain_snoc_inv in Hn.
-  destruct Hn as (y & H1 & H2).
-  revert H1 H2.
-  apply bt_trans_chain; auto.
-Qed.
 
 
   (*  (** Is this really needed *)

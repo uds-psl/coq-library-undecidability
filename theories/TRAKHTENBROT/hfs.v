@@ -113,6 +113,11 @@ Section hfs.
       rewrite (hfs_repr_bt_cls x) in H; auto.
   Qed.
 
+  Fact hfs_mem_wf : well_founded hfs_mem.
+  Proof. unfold hfs_mem; apply wf_inverse_image, btm_wf. Qed.
+
+  Definition hfs_rect := well_founded_induction_type hfs_mem_wf.
+
   Fact hfs_mem_fin_t t : fin_t (fun s => s ∈ t).
   Proof.
     destruct (btm_finite_t (repr t)) as (l & Hl).

@@ -17,6 +17,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+Check finite_t_fin_t_eq.
+
 Section gfp.
 
   Variable (M : Type). 
@@ -120,6 +122,16 @@ Section gfp.
     + intros x y z H1 H2; apply gfp_trans; exists y; auto.
     + intros x y; apply gfp_sym.
   Qed.
+
+  Fact gfp_greatest R : R ⊆ F R -> R ⊆ gfp.
+  Proof.
+    intros HR x y H n.
+    revert x y H.
+    induction n as [ | n IHn ].
+    + now auto.
+    + apply incl_trans with (1 := HR).
+      rewrite iS; apply HF0; auto.
+  Qed. 
 
   Let gfp_fix1 : F gfp ⊆ gfp.
   Proof.

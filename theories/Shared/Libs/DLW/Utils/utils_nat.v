@@ -171,6 +171,12 @@ Proof.
   induction l as [ | x l IHl ]; simpl; auto; rewrite IHl; omega.
 Qed.
 
+Fact lmax_prop l x : In x l -> x <= lmax l.
+Proof.
+  specialize (proj1 (lmax_spec l _) (le_refl _)).
+  rewrite Forall_forall; auto.
+Qed.
+
 Section new.
 
   Definition nat_new l := S (lmax l).

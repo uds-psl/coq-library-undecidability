@@ -7,6 +7,17 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** This file is mainly a complete re-implementation of the
+    paper of Katrin Stark & Gert Smolka
+
+          Finite Sets in Constructive Type Theory  
+
+    Some automation of my own is added
+    together with an injection nat2bt : nat -> bt/≈
+    and a bijection pos2bt : pos n <-> { x | x ∈ nat2bt n }
+
+*)
+
 Require Import List Arith Lia Max Wellfounded Setoid Eqdep_dec.
 
 From Undecidability.Shared.Libs.DLW.Utils 
@@ -23,11 +34,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(* Section btree. *)
-
-  (* ⌞ ⌟ ∅ ⪧ ≈ ≉ ∈ ∉ ⋷  ≾ ≺ ε ∙ ∊ *)
-
-  Inductive bt : Set := bt_leaf | bt_node : bt -> bt -> bt.
+Inductive bt : Set := bt_leaf | bt_node : bt -> bt -> bt.
 
 Local Notation "∅" := bt_leaf.  (* Empty set *)
 Local Infix "⪧" := bt_node.     (* x⪧s is {x} ∪ s *)
@@ -284,6 +291,8 @@ Section bte_depth.
   Qed.
 
 End bte_depth.
+
+Definition btree_wf_rect := well_founded_induction_type btm_wf.
 
 Section establishing_decidability.
 
@@ -565,6 +574,9 @@ Proof. intros H1 H2 k Hx; apply H2, H1; auto. Qed.
 Fact bti_comp s t : t ⊆ s⪧t.
 Proof. intro; rewrite btm_inv; auto. Qed.
 
+Fact bti_0 x : ∅ ⊆ x.
+Proof. intro; btm simpl. Qed.
+
 Fact bti_inv_0 x : x ⊆ ∅ <-> x = ∅.
 Proof.
   split; intros H; subst; auto.
@@ -594,7 +606,7 @@ Proof.
   generalize (H2 _ Hz); apply btm_congr_r; auto.
 Qed.
 
-Hint Resolve bti_refl bti_comp bti_mono_r.
+Hint Resolve bti_0 bti_refl bti_comp bti_mono_r.
 
 Lemma bti_dec s t : { s ⊆ t } + { ~ s ⊆ t }.
 Proof.
@@ -708,16 +720,14 @@ Proof. intro; rewrite bt_cup_spec; auto. Qed.
 
 Hint Resolve bt_cup_left bt_cup_right.
 
-Fact bt_cup_mono s s' t t' : s ≈ s' -> t ≈ t' -> s ∪ t ≈ s' ∪ t'.
+Add Parametric Morphism: (bt_cup) with signature 
+       (bt_equiv) ==> (bt_equiv) ==> (bt_equiv) as bt_cup_congr.
 Proof.
+  intros s s' H t t'; revert H.
   do 3 rewrite bte_ext; intros H1 H2 x.
   do 2 rewrite bt_cup_spec.
   rewrite H1, H2; tauto.
 Qed.
-
-Add Parametric Morphism: (bt_cup) with signature 
-       (bt_equiv) ==> (bt_equiv) ==> (bt_equiv) as bt_cup_congr.
-Proof. intros; apply bt_cup_mono; auto. Qed.
  
 Fact bt_cup_incl s t x : s ∪ t ⊆ x <-> s ⊆ x /\ t ⊆ x.
 Proof.
@@ -725,6 +735,14 @@ Proof.
   + intros H; split; apply bti_trans with (2 := H); auto.
   + intros [] z; rewrite bt_cup_spec; intros []; auto.
 Qed.
+
+Fact bt_cup_mono s s' t t' : s ⊆ s' -> t ⊆ t' -> s ∪ t ⊆ s' ∪ t'.
+Proof.
+  intros H1 H2 x; do 2 rewrite bt_cup_spec.
+  intros [ H | H ]; [ left | right ]; revert H; auto.
+Qed.
+
+Hint Resolve bt_cup_mono.
 
 (** We compute the transitive closure *)
 
@@ -743,6 +761,72 @@ Fixpoint bt_tc t :=
   end
 where "↓ t" := (bt_tc t).
 
+(** ↓t contains t *)
+
+Fact bt_tc_incr t : t ⊆ ↓t.
+Proof.
+  intro; induction t; simpl; auto; btm simpl.
+  rewrite bt_cup_spec; tauto.
+Qed.
+
+Hint Resolve bt_tc_incr.
+
+(** ↓t is transitive *)
+
+Theorem bt_tc_trans t : bt_transitive ↓t.
+Proof.
+  induction t as [ | s Hs t Ht ]; simpl; intros u v H1; btm simpl; intros H2.
+  rewrite bt_cup_spec in H2.
+  rewrite bt_cup_spec.
+  destruct H2 as [ H2 | [ H2 | H2 ] ].
+  + rewrite H2 in H1; right; left; auto; apply bt_tc_incr; auto.
+  + right; left; revert H2; apply Hs; auto.
+  + right; right; revert H2; apply Ht; auto.
+Qed.
+
+Hint Resolve bt_tc_trans.
+
+(** ↓s is the least transitive containing s *)
+
+Fact bt_tc_incl_transitive s t : bt_transitive t -> s ⊆ t -> ↓s ⊆ t.
+Proof.
+  intros H.
+  induction s as [ | u Hu v Hv ]; simpl; auto.
+  intros H1 x; btm simpl; rewrite bt_cup_spec.
+  intros [ H2 | [ H2 | H2 ] ].
+  + rewrite H2; apply H1; btm simpl.
+  + revert H2; apply Hu.
+    intros a Ha; apply H with (1 := Ha), H1; btm simpl.
+  + revert H2; apply Hv; intros ? ?; apply H1; btm simpl.
+Qed.
+
+(** Hence it is a closure operator, ie as already proved, increasing
+    but also monotonic *)
+
+Fact bt_tc_mono s t : s ⊆ t -> ↓s ⊆ ↓t.
+Proof.
+  intros H.
+  apply bt_tc_incl_transitive; auto.
+  apply bti_trans with (1 := H); auto.
+Qed.
+
+(** And idempotent *)
+
+Fact bt_tc_idem t : (↓↓t) ⊆ ↓t.
+Proof. apply bt_tc_incl_transitive; auto. Qed.
+
+Hint Resolve bt_tc_mono bt_tc_idem.
+
+(** It is nice to set union *)
+   
+Fact bt_tc_cup s t : ↓(s ∪ t) ⊆ ↓s ∪ ↓t.
+Proof.
+  apply bt_tc_incl_transitive; auto.
+  intros x y; do 2 rewrite bt_cup_spec.
+  intros H [ H1 | H1 ]; [ left | right ]; 
+    revert H H1; apply bt_tc_trans.
+Qed.
+
 Fact bt_tc_congr_l u v t : u ≈ v -> u ∈ ↓t -> v ∈ ↓t.
 Proof.
   revert u v; induction t using bt_rect'; simpl; 
@@ -751,44 +835,18 @@ Qed.
 
 Fact bt_tc_congr_r u s t : s ≈ t -> u ∈ ↓s <-> u ∈ ↓t.
 Proof.
-  intros H; revert H u. 
-  induction 1 as [ | s t | r s t H1 IH1 H2 IH2 | s t | s t u 
-                 | s s' t t' H1 IH1 H2 IH2 ]; intros v; try tauto.
-  + symmetry; auto.
-  + rewrite IH1; auto.
-  + simpl; repeat (btm simpl || rewrite bt_cup_spec); tauto.
-  + simpl; repeat (btm simpl || rewrite bt_cup_spec); tauto.
-  + simpl; repeat (btm simpl || rewrite bt_cup_spec).
-    rewrite IH1, IH2; split; intros [ H | [] ]; auto; left.
-    * apply bte_trans with s; auto.
-    * apply bte_trans with s'; auto.
+  intros H; revert u.
+  rewrite bte_incl_equiv in H; destruct H.
+  apply bte_ext, bti_equiv; auto.
 Qed.
-
-Fact bt_tc_incr t : t ⊆ ↓t.
-Proof.
-  intro; induction t; simpl; auto; btm simpl.
-  rewrite bt_cup_spec; tauto.
-Qed.
-
-Theorem bt_tc_trans t : bt_transitive ↓t.
-Proof.
-  induction t as [ | s Hs t Ht ]; simpl; intros u v H1; btm simpl; intros H2.
-  rewrite bt_cup_spec in H2.
-  rewrite bt_cup_spec.
-  destruct H2 as [ H2 | [ H2 | H2 ] ].
-  + right; left; apply bt_tc_congr_r with (1 := H2).
-    apply bt_tc_incr; auto.
-  + right; left; revert H2; apply Hs; auto.
-  + right; right; revert H2; apply Ht; auto.
-Qed.
-
-Hint Resolve bt_tc_incr bt_tc_trans.
 
 Add Parametric Morphism: (bt_tc) with signature 
      (bt_equiv) ==> (bt_equiv) as bt_tc_congr.
 Proof. intros; apply bte_ext; intro; apply bt_tc_congr_r; auto. Qed.
 
 Section bt_pow.
+
+  (** We build the power set *)
 
   (** Computes x {t1,...,tk} => {{x} ∪ t1,...,{x} ∪ tk **)
 

@@ -19,7 +19,7 @@ From Undecidability.Shared.Libs.DLW.Wf
   Require Import wf_finite.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations fol_ops fo_terms fo_logic membership hfs rel3_hfs.
+  Require Import notations fol_ops fo_terms fo_logic fo_sat membership hfs rel3_hfs.
 
 Set Implicit Arguments.
 

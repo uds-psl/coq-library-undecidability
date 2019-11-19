@@ -216,6 +216,15 @@ Proof.
   revert p; induction v; intros p; invert pos p; auto.
 Qed.
 
+Fact in_vec_inv X n (v : vec X n) x : in_vec x v -> exists p, vec_pos v p = x.
+Proof.
+  induction v as [ | n y v IHv ]; simpl in_vec; try tauto.
+  intros [ -> | H ].
+  + exists pos0; auto.
+  + destruct (IHv H) as (p & <-).
+    exists (pos_nxt p); auto.
+Qed.
+
 Fact in_vec_dec_inv X n (v : vec X n) : 
         (forall x y : X, { x = y } + { x <> y })
      -> forall x, in_vec x v -> { p | vec_pos v p = x }.

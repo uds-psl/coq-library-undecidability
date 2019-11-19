@@ -340,19 +340,32 @@ Section fo_term_subst.
   the syms in the substitution are those in the original term + all
   those occuring in the substitution on the variables in t 
 
-  Fact fo_term_syms_subst f t : fo_term_vars (t⟬f⟭) = flat_map (fun n => fo_term_syms (f n)) (fo_term_vars t).
-  Proof.
-    induction t as [ n | s v IHv ]; rew fot; auto.
-    + simpl; rewrite <- app_nil_end; auto.
-    + rewrite vec_list_vec_map.
-      rewrite flat_map_flat_map.
-      rewrite flat_map_concat_map, map_map, <- flat_map_concat_map.
-      do 2 rewrite flat_map_concat_map; f_equal.
-      apply map_ext_in; intros x Hx.
-      rewrite IHv; auto.
-      apply in_vec_list; auto.
-  Qed.
+  We show the weaker 
 *)
+
+  Fact fo_term_syms_subst P f t : 
+        (forall n, In n (fo_term_vars t) -> Forall P (fo_term_syms (f n)))  
+     -> Forall P (fo_term_syms t) -> Forall P (fo_term_syms (t⟬f⟭)).
+  Proof.
+    induction t as [ n | s v IH ]; intros H1 H2; rew fot.
+    + apply H1; simpl; auto.
+    + constructor.
+      * rewrite Forall_forall in H2; apply H2; rew fot; left; auto.
+      * rewrite Forall_forall; intros x; rewrite in_flat_map.
+        intros (s' & H3 & H4).
+        rewrite vec_list_vec_map, in_map_iff in H3.
+        destruct H3 as (t & <- & H3).
+        apply in_vec_list in H3.
+        revert x H4; apply Forall_forall, IH; auto.
+        - intros; apply H1; rew fot; apply in_flat_map.
+          exists t; split; auto. 
+          apply in_vec_list; auto.
+        - revert H2; do 2 rewrite Forall_forall.
+          intros H2 x Hx; apply H2; rew fot.
+          right; apply in_flat_map.
+          exists t; split; auto.
+          apply in_vec_list; auto.
+  Qed.
 
 End fo_term_subst.
 
