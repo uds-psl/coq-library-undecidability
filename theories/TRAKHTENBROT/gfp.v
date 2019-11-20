@@ -200,24 +200,21 @@ Section gfp.
       revert H; apply i_decr; auto.
   Qed.
  
-  Let gfp_finite_dec b : (exists n m, n < m <= b /\ i n ⊆ i m) -> dec gfp.
+  Let gfp_finite b : (exists n m, n < m <= b /\ i n ⊆ i m) -> (forall x y, gfp x y <-> i b x y).
   Proof.
-    intros H.
-    assert (forall x y, gfp x y <-> i b x y) as H1.
-    { destruct H as (n & m & H1 & H2). 
-      apply i_dup with (2 := H2); auto; try lia. }
-    intros x y.
-    destruct (i_dec b x y); [ left | right ]; rewrite H1; auto.
+    intros (n & m & H1 & H2). 
+    apply i_dup with (2 := H2); auto; try lia.
   Qed.
 
   Variable HF6 : finite_t M.
 
-  Theorem gfp_decidable : dec gfp.
+  Theorem gfp_finite_t : { n | forall x y, gfp x y <-> i n x y }.
   Proof.
     destruct finite_t_weak_dec_rels with (1 := HF6)
       as (mR & HmR).
+    exists (S (length mR)).
     set (l := map i (list_an 0 (S (length mR)))).
-    apply (@gfp_finite_dec (S (length mR))).
+    apply (@gfp_finite (S (length mR))).
     destruct php_upto 
       with (R := fun R T => forall x y, R x y <-> T x y)
            (l := l) (m := mR)
@@ -252,4 +249,11 @@ Section gfp.
       lia.
   Qed.
 
+  Theorem gfp_decidable : dec gfp.
+  Proof.
+    destruct gfp_finite_t as (n & Hn).
+    intros x y.
+    destruct (i_dec n x y); [ left | right ]; rewrite Hn; tauto.
+  Qed.
+  
 End gfp.

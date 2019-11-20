@@ -20,6 +20,31 @@ Tactic Notation "rew" "length" "in" hyp(H) := autorewrite with length_db in H.
 
 Infix "~p" := (@Permutation _) (at level 70).
 
+Section In_t.
+
+  Variable (X : Type).
+
+  Fixpoint In_t (x : X) l : Type :=
+    match l with
+      | nil  => False
+      | y::l => ((y = x) + In_t x l)%type
+    end.
+
+  Fact In_t_In x l : In_t x l -> In x l.
+  Proof. induction l; simpl; tauto. Qed.
+
+  Fact In_In_t x l (P : Prop) : (In_t x l -> P) -> In x l -> P.
+  Proof.
+    induction l as [ | y l IHl ].
+    + intros _ [].
+    + intros H1 [ -> | H2 ]. 
+      * apply H1; simpl; auto.
+      * apply IHl; auto.
+        intros; apply H1; simpl; auto.
+  Qed.
+
+End In_t.
+
 Section length.
    
   Variable X : Type.
@@ -352,6 +377,15 @@ Section list_in_map.
       * left; auto.
       * right.
         apply (IHl (fun z Hz => f z (or_intror Hz))).
+  Qed.
+
+  Theorem In_list_in_map_inv l f y : In y (list_in_map l f) -> exists x Hx, y = f x Hx.
+  Proof.
+    revert f y; induction l as [ | x l IHl ]; intros f y; simpl; try tauto.
+    intros [ H | H ].
+    + now exists x, (or_introl eq_refl).
+    + destruct IHl with (1 := H) as (z & Hz & E).
+      now exists z, (or_intror Hz).
   Qed.
 
 End list_in_map.

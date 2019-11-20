@@ -30,6 +30,9 @@ Proof.
   intros E1 E2; destruct b; simpl; tauto.
 Qed. 
 
+Fact fol_equiv_ext (P Q : Prop) : P = Q -> P <-> Q.
+Proof. intros []; tauto. Qed.
+
 Arguments fol_bin_sem b /.
 
 Fact fol_bin_sem_dec b A B : 
