@@ -16,7 +16,7 @@ From Undecidability.Shared.Libs.DLW.Vec
   Require Import pos vec fin_quotient.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations gfp fol_ops fo_terms fo_logic fo_sat.
+  Require Import notations gfp fol_ops fo_terms fo_logic fo_definable fo_sat.
 
 Set Implicit Arguments.
 
@@ -30,23 +30,59 @@ Section discrete_quotient.
       is decidable and thus we can quotient the model under this bisim obtaining
       a discrete model which is "equivalent" *)
 
-  Variables (Σ : fo_signature)
-            (ls : list (syms Σ))
-            (lr : list (rels Σ))
-            (X : Type) (M : fo_model Σ X)  
-            (fin : finite_t X) 
-            (dec : fo_model_dec M)
-            (φ : nat -> X).
+  Variables (Σ : fo_signature) (ls : list (syms Σ)) (lr : list (rels Σ))
+            (X : Type) (fin : finite_t X) 
+            (M : fo_model Σ X) (dec : fo_model_dec M).
 
   Implicit Type (R T : X -> X -> Prop).
 
-  (** Construction of the greatest fixpoint of the following operator *)
+  (** Construction of the greatest fixpoint of the following operator fom_op.
+      Any prefixpoint R ⊆ fom_op R is a simulation for the model
+    *)
 
   Let fom_op R x y :=
        (forall s, In s ls -> forall (v : vec _ (ar_syms Σ s)) p, R (fom_syms M s (v[x/p])) (fom_syms M s (v[y/p]))) 
     /\ (forall s, In s lr -> forall (v : vec _ (ar_rels Σ s)) p, fom_rels M s (v[x/p]) <-> fom_rels M s (v[y/p])).
 
-  Hint Resolve finite_t_pos.
+  (** First we show properties of fom_op 
+
+      a) Monotonicity
+      b) preserves Reflexivity, Symmetry and Transitivity
+      c) preserves Decidability
+      d) preserves FO definability
+*)
+
+  Hint Resolve finite_t_pos finite_t_vec.
+ 
+  Let fom_op_mono R T : (forall x y, R x y -> T x y) -> (forall x y, fom_op R x y -> fom_op T x y).
+  Proof. intros ? ? ? []; split; intros; auto. Qed. 
+
+  Let fom_op_id x y : x = y -> fom_op (@eq _) x y.
+  Proof. intros []; split; auto; tauto. Qed.
+
+  Let fom_op_sym R x y : fom_op R y x -> fom_op (fun x y => R y x) x y.
+  Proof. intros []; split; intros; auto; symmetry; auto. Qed.
+
+  Let fom_op_trans R x z : (exists y, fom_op R x y /\ fom_op R y z)
+                        -> fom_op (fun x z => exists y, R x y /\ R y z) x z.
+  Proof.
+    intros (y & H1 & H2); split; intros s Hs v p.
+    + exists (fom_syms M s (v[y/p])); split; [ apply H1 | apply H2 ]; auto.
+    + transitivity (fom_rels M s (v[y/p])); [ apply H1 | apply H2 ]; auto.
+  Qed.
+
+  Let fom_op_dec R : (forall x y, { R x y } + { ~ R x y })
+                  -> (forall x y, { fom_op R x y } + { ~ fom_op R x y }).
+  Proof.
+    intros HR x y.
+    apply (fol_bin_sem_dec fol_conj).
+    + apply forall_list_sem_dec; intros.
+      do 2 (apply (fol_quant_sem_dec fol_fa); auto; intros).
+    + apply forall_list_sem_dec; intros.
+      do 2 (apply (fol_quant_sem_dec fol_fa); auto; intros).
+      apply (fol_bin_sem_dec fol_conj); 
+        apply (fol_bin_sem_dec fol_imp); auto.
+  Qed.
 
   Let fol_def_fom_op R : fol_definable ls lr M (fun ψ => R (ψ 0) (ψ 1))
                       -> fol_definable ls lr M (fun ψ => fom_op R (ψ 0) (ψ 1)).
@@ -86,23 +122,16 @@ Section discrete_quotient.
         - apply fot_def_equiv with (f := fun φ => φ (pos2nat q)); fol def.
           intro; rew vec; rewrite vec_pos_set; auto.
   Qed.
- 
-  Let fom_op_mono R T : (forall x y, R x y -> T x y) -> (forall x y, fom_op R x y -> fom_op T x y).
-  Proof. intros ? ? ? []; split; intros; auto. Qed. 
 
-  Let fom_op_id x y : x = y -> fom_op (@eq _) x y.
-  Proof. intros []; split; auto; tauto. Qed.
+  (** Now we build the greatest fixpoint fom_eq and show its properties
 
-  Let fom_op_sym R x y : fom_op R y x -> fom_op (fun x y => R y x) x y.
-  Proof. intros []; split; intros; auto; symmetry; auto. Qed.
+      a) it is an equivalence relation
+      b) it is a congruence wrt to the model functions and relations
+      c) it is decidable and FO definable
 
-  Let fom_op_trans R x z : (exists y, fom_op R x y /\ fom_op R y z)
-                        -> fom_op (fun x z => exists y, R x y /\ R y z) x z.
-  Proof.
-    intros (y & H1 & H2); split; intros s Hs v p.
-    + exists (fom_syms M s (v[y/p])); split; [ apply H1 | apply H2 ]; auto.
-    + transitivity (fom_rels M s (v[y/p])); [ apply H1 | apply H2 ]; auto.
-  Qed.
+      the reason is that it is obtained after finitely many iterations of fom_op
+
+    *)
 
   Reserved Notation "x ≡ y" (at level 70, no associativity).
 
@@ -152,21 +181,6 @@ Section discrete_quotient.
 
   Theorem fom_eq_rels_full s v w : In s lr -> (forall p, v#>p ≡ w#>p) -> fom_rels M s v <-> fom_rels M s w.
   Proof. intro; apply map_vec_pos_equiv; eauto; tauto. Qed.
-
-  Hint Resolve finite_t_vec finite_t_pos.
-
-  Let fom_op_dec R : (forall x y, { R x y } + { ~ R x y })
-                  -> (forall x y, { fom_op R x y } + { ~ fom_op R x y }).
-  Proof.
-    intros HR x y.
-    apply (fol_bin_sem_dec fol_conj).
-    + apply forall_list_sem_dec; intros.
-      do 2 (apply (fol_quant_sem_dec fol_fa); auto; intros).
-    + apply forall_list_sem_dec; intros.
-      do 2 (apply (fol_quant_sem_dec fol_fa); auto; intros).
-      apply (fol_bin_sem_dec fol_conj); 
-        apply (fol_bin_sem_dec fol_imp); auto.
-  Qed.
 
   (** And because the signature is finite (ie the symbols and relations) 
                   the model M is finite and composed of decidable relations 
@@ -221,12 +235,16 @@ Section discrete_quotient.
         by replacing £(2+n) with £0 we can already get A to have only
         £0 and £1 but how to get a single variable ?
 
-        x = y <-> A[x,y] <-> (B[x] <-> B[y]
+        x = y <-> A[x,y] 
 
-        x <> y <-> ~ A [x,y]
-)
+       If the model is discrete, on can build the finite list of decidable
+       predicates as finite unions of (eq x). It should be possible
+       to characterize (eq x) as the conjection of all the FO formula
+       that satisfy x, hence we get Ax st that   Ax[y] <-> x = y
 
-        B[x] := exists u, A[x,u] /\ A [u,x] ???
+       Hence we can could show, x = y <-> forall A[.], A[x] <-> A[y]
+       when A only has one £0 as variable
+
       *)
 
     Theorem fom_eq_fol_characterization x y : 
@@ -306,96 +324,6 @@ End discrete_quotient.
 Check fo_fin_model_discretize.
 Print Assumptions fo_fin_model_discretize.
 
-Section model_equiv.
-
-  Variable (Σ : fo_signature) 
-           (X : Type) (M : fo_model Σ X) 
-           (Y : Type) (K : fo_model Σ Y) 
-           (i : X -> Y) (j : Y -> X) (E : forall x, i (j x) = x)
-           (ls : list (syms Σ))
-           (lr : list (rels Σ))
-           (Hs : forall s v, In s ls -> i (fom_syms M s v) = fom_syms K s (vec_map i v))
-           (Hr : forall s v, In s lr -> fom_rels M s v <-> fom_rels K s (vec_map i v)).
-
-  Theorem fo_model_term_eq t phi psi :
-           (forall n, i (phi n) = psi n) 
-        -> incl (fo_term_syms t) ls
-        -> i (fo_term_sem (fom_syms M) phi t) 
-         = fo_term_sem (X := nat) (fom_syms K) psi t.
-  Proof.
-    intros H.
-    induction t as [ k | s w Hw ]; intros Hls; rew fot; auto.
-    rewrite Hs.
-    2: { apply Hls; rew fot; simpl; auto. }
-    rewrite vec_map_map.
-    f_equal.
-    apply vec_map_ext.
-    intros t Ht; apply Hw; auto.
-    apply incl_tran with (2 := Hls).
-    rew fot.
-    intros u Hu; right.
-    apply in_flat_map.
-    exists t; split; auto.
-    apply in_vec_list; auto.
-  Qed.
-
-  Theorem fo_model_project_equiv A phi psi :
-           (forall n, i (phi n) = psi n) 
-        -> incl (fol_syms A) ls
-        -> incl (fol_rels A) lr
-        -> fol_sem M phi A <-> fol_sem K psi A.
-  Proof.
-    revert phi psi.
-    induction A as [ | r | b A HA B HB | q A HA ]; try (simpl; tauto); intros phi psi E' Hls Hlr.
-    + simpl; rewrite Hr, vec_map_map.
-      match goal with |- ?x <-> ?y => cut (x = y); [ intros ->; tauto | ] end.
-      f_equal; apply vec_map_ext; intros t Ht.
-      2: apply Hlr; simpl; auto.
-      apply fo_model_term_eq; auto.
-      apply in_vec_list in Ht.
-      intros s H; apply Hls; simpl.
-      apply in_flat_map.
-      exists t; auto.
-    + simpl; apply fol_bin_sem_ext.
-      * apply HA; auto.
-        - apply incl_tran with (2 := Hls); simpl.
-          intros ? ?; apply in_or_app; auto.
-        - apply incl_tran with (2 := Hlr); simpl.
-          intros ? ?; apply in_or_app; auto.
-      * apply HB; auto.
-        - apply incl_tran with (2 := Hls); simpl.
-          intros ? ?; apply in_or_app; auto.
-        - apply incl_tran with (2 := Hlr); simpl.
-          intros ? ?; apply in_or_app; auto.
-    + destruct q; simpl; split.
-      * intros (x & Hx).
-        exists (i x).
-        revert Hx; apply HA.
-        - intros []; simpl; auto.
-        - apply incl_tran with (2 := Hls), incl_refl.
-        - apply incl_tran with (2 := Hlr), incl_refl.
-      * intros (y & Hy).
-        exists (j y).
-        revert Hy; apply HA.
-        - intros []; simpl; auto.
-        - apply incl_tran with (2 := Hls), incl_refl.
-        - apply incl_tran with (2 := Hlr), incl_refl.
-      * intros H y. 
-        generalize (H (j y)); apply HA.
-        - intros []; simpl; auto.
-        - apply incl_tran with (2 := Hls), incl_refl.
-        - apply incl_tran with (2 := Hlr), incl_refl.
-      * intros H x. 
-        generalize (H (i x)); apply HA.
-        - intros []; simpl; auto.
-        - apply incl_tran with (2 := Hls), incl_refl.
-        - apply incl_tran with (2 := Hlr), incl_refl.
-  Qed.
-
-End model_equiv.
-
-Check fo_model_project_equiv.
-
 Section discrete_removal.
 
   (** Provided the signature has finitely (listable) many functional symbols 
@@ -415,7 +343,7 @@ Section discrete_removal.
     set (psy n := i (phi n)).
     exists n, (@pos_eq_dec _), Md, (finite_t_pos _) , Mdec, psy.
     revert HA.
-    apply fo_model_project_equiv with (1 := E1) (ls := ls) (lr := lr); 
+    apply fo_model_projection with (1 := E1) (ls := ls) (lr := lr); 
       unfold lr, ls; auto; apply incl_refl.
   Qed.
 
@@ -433,3 +361,6 @@ Proof.
     as (n & Hn); auto.
   exists (pos n); auto.
 Qed.
+
+Check fo_form_fin_dec_SAT_fin_discr_dec.
+Print Assumptions fo_form_fin_dec_SAT_fin_discr_dec.
