@@ -471,6 +471,8 @@ Reserved Notation " e [ v / x ] " (at level 57, v at level 0, x at level 0, left
 Local Notation " e '#>' x " := (vec_pos e x) (at level 58).
 Local Notation " e [ v / x ] " := (vec_change e x v) (at level 57, v at level 0, x at level 0, left associativity).
 
+Check vec_pos_set.
+
 Tactic Notation "rew" "vec" :=
   repeat lazymatch goal with 
     |              |- context[ _[_/?x]#>?x ] => rewrite vec_change_eq with (p := x) (1 := eq_refl)
@@ -489,6 +491,7 @@ Tactic Notation "rew" "vec" :=
     | |- context[ _[_/?x]#>?y ] => rewrite vec_change_neq with (p := x) (q := y); [ | discriminate ]
     | |- context[ vec_plus vec_zero ?x ] => rewrite vec_zero_plus with (v := x)
     | |- context[ vec_plus ?x vec_zero ] => rewrite (vec_plus_comm x vec_zero); rewrite vec_zero_plus with (v := x)
+    | |- context[ (vec_set_pos ?f) #> ?p ] => rewrite (vec_pos_set f p)   
     | |- vec_plus ?x ?y = vec_plus ?y ?x => apply vec_plus_comm
   end; auto.
 

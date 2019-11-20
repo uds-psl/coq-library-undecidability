@@ -84,43 +84,38 @@ Section discrete_quotient.
         apply (fol_bin_sem_dec fol_imp); auto.
   Qed.
 
+  Tactic Notation "solve" "with" "proj" constr(t) :=
+    apply fot_def_equiv with (f := fun φ => φ t); fol def; intros; rew vec.
+
   Let fol_def_fom_op R : fol_definable ls lr M (fun ψ => R (ψ 0) (ψ 1))
                       -> fol_definable ls lr M (fun ψ => fom_op R (ψ 0) (ψ 1)).
   Proof.
     intros H.
     apply fol_def_conj.
-    + apply fol_def_list_fa; intros s Hs.
-      apply fol_def_vec_fa.
-      apply fol_def_finite_fa; auto; intro p.
+    + apply fol_def_list_fa; intros s Hs;
+      apply fol_def_vec_fa;
+      apply fol_def_finite_fa; auto; intro p;
       apply fol_def_subst2; auto.
       * apply fot_def_comp; auto; intro q.
         destruct (pos_eq_dec p q); subst.
-        - apply fot_def_equiv with (f := fun φ => φ (ar_syms Σ s)); fol def.
-          intro; rew vec.
-        - apply fot_def_equiv with (f := fun φ => φ (pos2nat q)); fol def.
-          intro; rew vec; rewrite vec_pos_set; auto.
+        - solve with proj (ar_syms Σ s).
+        - solve with proj (pos2nat q).
       * apply fot_def_comp; auto; intro q.
         destruct (pos_eq_dec p q); subst.
-        - apply fot_def_equiv with (f := fun φ => φ (ar_syms Σ s+1)); fol def.
-          intro; rew vec.
-        - apply fot_def_equiv with (f := fun φ => φ (pos2nat q)); fol def.
-          intro; rew vec; rewrite vec_pos_set; auto.
-    + apply fol_def_list_fa; intros r Hr.
-      apply fol_def_vec_fa.
-      apply fol_def_finite_fa; auto; intro p.
+        - solve with proj (ar_syms Σ s+1).
+        - solve with proj (pos2nat q).
+    + apply fol_def_list_fa; intros r Hr;
+      apply fol_def_vec_fa;
+      apply fol_def_finite_fa; auto; intro p;
       apply fol_def_iff.
       * apply fol_def_atom; auto; intro q.
         destruct (pos_eq_dec p q); subst.
-        - apply fot_def_equiv with (f := fun φ => φ (ar_rels Σ r)); fol def.
-          intro; rew vec.
-        - apply fot_def_equiv with (f := fun φ => φ (pos2nat q)); fol def.
-          intro; rew vec; rewrite vec_pos_set; auto.
+        - solve with proj (ar_rels Σ r).
+        - solve with proj (pos2nat q).
       * apply fol_def_atom; auto; intro q.
         destruct (pos_eq_dec p q); subst.
-        - apply fot_def_equiv with (f := fun φ => φ (ar_rels Σ r+1)); fol def.
-          intro; rew vec.
-        - apply fot_def_equiv with (f := fun φ => φ (pos2nat q)); fol def.
-          intro; rew vec; rewrite vec_pos_set; auto.
+        - solve with proj (ar_rels Σ r+1).
+        - solve with proj (pos2nat q).
   Qed.
 
   (** Now we build the greatest fixpoint fom_eq and show its properties
