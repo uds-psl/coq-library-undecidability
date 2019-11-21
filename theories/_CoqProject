@@ -158,7 +158,7 @@ Problems/DIOPHANTINE.v
 Problems/H10C.v
 Problems/H10UC.v
 Problems/FMsetC.v
-Problems/LPB.v
+Problems/HSC.v
 
 Reductions/TM_to_SRH.v  
 Reductions/SRH_to_SR.v  
@@ -175,4 +175,4 @@ Reductions/MM_to_FRACTRAN.v
 Reductions/FRACTRAN_to_H10C.v
 Reductions/H10C_to_H10UC.v
 Reductions/H10UC_to_FMsetC.v
-Reductions/BMPCP_to_LPB.v
+Reductions/BMPCP_to_HSC.v

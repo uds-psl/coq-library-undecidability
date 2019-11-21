@@ -6,11 +6,17 @@
 *)
 
 (* 
-  Problem:
-    Recognizing axiomatizations of Hilbert-style calculi (LPB)
+  Problem(s):
+    Provability in Hilbert-style calculi (HSC_PRV)
+
+    Recognizing axiomatizations of Hilbert-style calculi (HSC_AX)
     (Linial-Post theorem, strengthened by Bokov [1,2])
 
-  LPB:
+  HSC_PRV:
+    Fix a list s₁,...,sₙ of formulae.
+    Given a formula s, is [s₁,...,sₙ] ⊢ s derivable?
+
+  HSC_AX:
     Given a list s₁,...,sₙ of formulae such that 
     [a → b → a] ⊢ sᵢ is derivable for i = 1...n,
     is [s₁,...,sₙ] ⊢ a → b → a derivable?
@@ -46,8 +52,14 @@ Inductive hsc (Gamma: list formula) : formula -> Prop :=
   | hsc_var : forall (ζ: nat -> formula) (t: formula), In t Gamma -> hsc Gamma (substitute ζ t)
   | hsc_arr : forall (s t : formula), hsc Gamma (arr s t) -> hsc Gamma s -> hsc Gamma t.
 
+(* single formula *)
+Definition HSC_PRV_PROBLEM := formula.
+
+(* is the formula s derivable from the formulae Gamma? *)
+Definition HSC_PRV (Gamma: list formula) (s: HSC_PRV_PROBLEM) := hsc Gamma s.
+
 (* list of formulae derivable from a → b → a *)
-Definition LPB_PROBLEM := { Gamma: list formula | forall s, In s Gamma -> hsc [a_b_a] s}.
+Definition HSC_AX_PROBLEM := { Gamma: list formula | forall s, In s Gamma -> hsc [a_b_a] s}.
 
 (* is the formula a → b → a derivable? *)
-Definition LPB (l : LPB_PROBLEM) := hsc (proj1_sig l) a_b_a.
+Definition HSC_AX (l: HSC_AX_PROBLEM) := hsc (proj1_sig l) a_b_a.
