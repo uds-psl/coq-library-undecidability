@@ -257,7 +257,7 @@ End fol_subst.
 
 Notation "A ⦃ σ ⦄" := (fol_subst σ A).
 
-Record fo_model Σ (X : Type) := {
+Record fo_model Σ (X : Type) := Mk_fo_model {
   fom_syms : forall s, vec X (ar_syms Σ s) -> X;
   fom_rels : forall s, vec X (ar_rels Σ s) -> Prop }.
 
@@ -579,93 +579,3 @@ Section fo_model_projection.
 End fo_model_projection.
 
 Check fo_model_projection.
-
-Check eq_rect.
-
-Section signature_transport.
-
-  (** To signatures in computable one-to-one correspondance *)
-
-  Variable (Σ Σ' : fo_signature)
-           (i_t : syms Σ -> syms Σ') (j_t : syms Σ' -> syms Σ) 
-           (i_t_ar : forall s, ar_syms Σ' (i_t s) = ar_syms Σ s)
-           (ij_t : forall s, i_t (j_t s) = s) (ji_t : forall s, j_t (i_t s) = s)
-           (i_r : rels Σ -> rels Σ') (j_r : rels Σ' -> rels Σ)
-           (i_r_ar : forall s, ar_rels Σ' (i_r s) = ar_rels Σ s)
-           (ij_r : forall s, i_r (j_r s) = s) (ji_r : forall s, j_r (i_r s) = s).
-
-  Definition fo_term_map_sig X : fo_term X (ar_syms Σ) -> fo_term X (ar_syms Σ').
-  Proof.
-    apply fo_term_recursion.
-    + intros n; exact (in_var n).
-    + intros s _ w.
-      rewrite <- (i_t_ar s) in w.
-      exact (in_fot (i_t s) w).
-  Defined.
-
-  Fact fo_term_map_sig_fix0 X x : @fo_term_map_sig X (in_var x) = in_var x.
-  Proof. apply fo_term_recursion_fix_0. Qed.
-
-  (** This one needs transport *)
-
-  Fact fo_term_map_sig_fix1 X s v : @fo_term_map_sig X (in_fot s v) 
-                                  = in_fot (i_t s) (eq_rect_r _ (vec_map (@fo_term_map_sig X) v) (i_t_ar s)).
-  Proof.
-    unfold fo_term_map_sig at 1; rewrite fo_term_recursion_fix_1; auto.
-  Qed.
-
-  Opaque fo_term_map_sig.
-
-  (** One also needs transport here *)
-
-  Fixpoint fol_map_sig (A : fol_form Σ) : fol_form Σ'.
-  Proof.
-    refine (match A with
-      | ⊥              => ⊥
-      | fol_atom _ p v => fol_atom _ (i_r p) _
-      | fol_bin c A B => fol_bin c (fol_map_sig A) (fol_map_sig B)
-      | fol_quant q A => fol_quant q (fol_map_sig A)
-    end).
-    rewrite i_r_ar.
-    apply (vec_map (@fo_term_map_sig _) v).
-  Defined.
-
-  Variable (X : Type) (M : fo_model Σ X).
-
-  Let M' : fo_model Σ' X.
-  Proof.
-    exists.
-    + intros s.
-      rewrite <- (ij_t s), i_t_ar.
-      apply (fom_syms M (j_t s)).
-    + intros r.
-      rewrite <- (ij_r r), i_r_ar.
-      apply (fom_rels M (j_r r)).
-  Defined.
-
-  Let simul_term (φ : nat -> X) t : fo_term_sem (fom_syms M) φ t = fo_term_sem (fom_syms M') φ (fo_term_map_sig t).
-  Proof.
-    induction t as [ n | s v IHv ].
-    + rewrite fo_term_map_sig_fix0; rew fot; auto.
-    + rewrite fo_term_map_sig_fix1; rew fot.
-      unfold M'; simpl.
-      SearchAbout [ eq_rect eq_rect_r ].
-      admit.
-  Admitted.
-
-  Let simul_form A : forall φ, fol_sem M φ A <-> fol_sem M' φ (fol_map_sig A).
-  Proof.
-    induction A as [ | s v | b A HA B HB | q A HA ]; intros phi; try (simpl; tauto).
-    + unfold fol_map_sig.
-      admit.
-    + apply fol_bin_sem_ext; auto.
-    + apply fol_quant_sem_ext; auto.
-  Admitted.
-
-  Theorem fo_signature_transport : { N | forall φ A, fol_sem M φ A <-> fol_sem N φ (fol_map_sig A) }.
-  Proof. exists M'; intros; apply simul_form. Qed.
-
-End signature_transport.
-
-Check fo_signature_transport.
-

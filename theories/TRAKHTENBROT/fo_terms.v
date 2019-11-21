@@ -112,6 +112,20 @@ Section first_order_terms.
   Definition fo_term_rec (P : _ -> Set) := @fo_term_rect P.
   Definition fo_term_ind (P : _ -> Prop) := @fo_term_rect P.
 
+  Section fo_term_pos_rect.
+   
+    Variable (P   : fo_term -> Type)
+             (HP0 : forall x, P (in_var x))
+             (IHP : forall s v, (forall p, P (vec_pos v p)) -> P (@in_fot s v)).
+
+    Fixpoint fo_term_pos_rect t : P t :=
+      match t with
+        | in_var x => HP0 x 
+        | in_fot v => IHP v (fun p => fo_term_pos_rect (vec_pos v p))
+      end.
+
+  End fo_term_pos_rect.
+ 
   Section fo_term_recursion.
 
     (** We specialize the general recursor to fixed output type.
