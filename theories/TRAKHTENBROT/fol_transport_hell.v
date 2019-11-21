@@ -82,9 +82,6 @@ Section fo_term_map_ar.
 
 End fo_term_map_ar.
 
-Fact eq_nat_pirr (n : nat) (H : n = n ) : H = eq_refl.
-Proof. apply UIP_dec, eq_nat_dec. Qed.
-
 Section signature_transport.
 
   (** To signatures in computable one-to-one correspondance *)

@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List.
+Require Import List Arith Eqdep_dec.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_list finite.
@@ -32,6 +32,9 @@ Qed.
 
 Fact fol_equiv_ext (P Q : Prop) : P = Q -> P <-> Q.
 Proof. intros []; tauto. Qed.
+
+Fact fol_equiv_impl A A' B B' : (A <-> A') -> (B <-> B') -> (A <-> B) -> (A' <-> B').
+Proof. tauto. Qed.
 
 Arguments fol_bin_sem b /.
 
@@ -100,4 +103,6 @@ Proof.
   + destruct forall_list_sem_dec with (l := lX) (1 := H); firstorder.
 Qed.
 
+Fact eq_nat_pirr (n : nat) (H : n = n ) : H = eq_refl.
+Proof. apply UIP_dec, eq_nat_dec. Qed.
 

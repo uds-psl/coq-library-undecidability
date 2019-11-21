@@ -264,6 +264,7 @@ TRAKHTENBROT/membership.v
 TRAKHTENBROT/fol_bpcp.v
 TRAKHTENBROT/fol_extra.v
 TRAKHTENBROT/Sig3_Sig2.v
+TRAKHTENBROT/Sig32_Sig2.v
 TRAKHTENBROT/discrete.v
 TRAKHTENBROT/reductions.v
 

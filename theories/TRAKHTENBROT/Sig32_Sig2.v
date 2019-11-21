@@ -19,19 +19,19 @@ From Undecidability.Shared.Libs.DLW.Wf
   Require Import wf_finite.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations fol_ops fo_terms fo_logic fo_sat membership hfs rel3_hfs.
+  Require Import notations fol_ops fo_terms fo_logic fo_sat membership discrete hfs rel3_hfs.
 
 Set Implicit Arguments.
 
 Local Notation ø := vec_nil.
-
-Section Sig3_Sig2.
+Section Sig32_Sig2.
 
   Notation Σ2 := (Σrel 2).
-  Notation Σ3 := (Σrel 3).
+  Notation Σ3 := (Σrel_eq 3).
  
   Variable (X : Type) (M2 : fo_model Σ2 X).
-  Variable (Y : Type) (M3 : fo_model Σ3 Y).
+  Variable (Y : Type) (M3 : fo_model Σ3 Y) 
+           (H3eq : fom_rels M3 false = rel2_on_vec eq).  (** The model is interpreted !! *)
 
   (** Can we define FO shapes and reify meta-level into FOL automagically
       like what was done for H10 ? 
@@ -85,24 +85,30 @@ Section Sig3_Sig2.
 
   (* Terms are just variables in Σrel *)
 
-  Definition Σ3_var : fo_term nat (ar_syms Σ3) -> nat.
+  Definition Σ3eq_var : fo_term nat (ar_syms Σ3) -> nat.
   Proof. intros [ n | [] ]; exact n. Defined.
 
   (* We bound quantification inside hf-set l ∈ p and r ∈ p represent a set 
      of ordered triples corresponding to M3 *)
 
-  Fixpoint Σ3_Σ2 (l r : nat) (A : fol_form Σ3) : fol_form Σ2 :=
-    match A with
+  Fixpoint Σ3eq_Σ2 (l r : nat) (A : fol_form Σ3) : fol_form Σ2.
+  Proof.
+   refine(
+     match A with
       | ⊥              => ⊥
-      | fol_atom _ _ v => Σ2_is_otriple_in r (Σ3_var (vec_head v)) 
-                                             (Σ3_var (vec_head (vec_tail v)))
-                                             (Σ3_var (vec_head (vec_tail (vec_tail v))))
-      | fol_bin b A B  => fol_bin b (Σ3_Σ2 l r A) (Σ3_Σ2 l r B)
-      | fol_quant fol_fa A  => ∀ 0 ∈ (S l) ⤑ Σ3_Σ2 (S l) (S r) A
-      | fol_quant fol_ex A  => ∃ 0 ∈ (S l) ⟑ Σ3_Σ2 (S l) (S r) A
-     end.
-
-  Notation P := (fun x y z => fom_rels M3 tt (x##y##z##ø)).
+      | fol_atom _ b v => _
+      | fol_bin b A B  => fol_bin b (Σ3eq_Σ2 l r A) (Σ3eq_Σ2 l r B)
+      | fol_quant fol_fa A  => ∀ 0 ∈ (S l) ⤑ Σ3eq_Σ2 (S l) (S r) A
+      | fol_quant fol_ex A  => ∃ 0 ∈ (S l) ⟑ Σ3eq_Σ2 (S l) (S r) A
+     end).
+    destruct b; simpl in v.
+    + exact (Σ2_is_otriple_in r (Σ3eq_var (vec_head v)) 
+                                (Σ3eq_var (vec_head (vec_tail v)))
+                                (Σ3eq_var (vec_head (vec_tail (vec_tail v))))).
+    + exact (Σ2_equiv (Σ3eq_var (vec_head v)) (Σ3eq_var (vec_head (vec_tail v)))).
+  Defined.
+  
+  Notation P := (fun x y z => fom_rels M3 true (x##y##z##ø)).
 
   Variable R : Y -> X -> Prop.
 
@@ -117,12 +123,14 @@ Section Sig3_Sig2.
 
     *)
 
-  Let HR1 (l r : X) := forall x, exists y, fom_rels M2 tt (y##l##ø) /\ R x y.
-  Let HR2 (l r : X) := forall y, fom_rels M2 tt (y##l##ø) -> exists x, R x y.
+  Let HR1 (l r : X) := forall y, exists x, x ∈m l /\ R y x.
+  Let HR2 (l r : X) := forall x, x ∈m l -> exists y, R y x.
   Let HR3 (l r : X) := forall a b c a' b' c',
             R a a' -> R b b' -> R c c' 
-         -> fom_rels M3 tt (a##b##c##ø)
-        <-> m2_is_otriple_in m2_member r a' b' c'.
+         -> P a b c <-> m2_is_otriple_in m2_member r a' b' c'.
+  Let HR4 := forall x y, m2_equiv m2_member x y <-> x = y.
+  Let HR5 := forall x y1 y2, R y1 x -> R y2 x -> y1 = y2.
+  Let HR6 := forall x1 x2 y, R y x1 -> R y x2 -> x1 = x2.
 
   Fact Σ2_is_otriple_in_vars r x y z : incl (fol_vars (Σ2_is_otriple_in r x y z)) (r::x::y::z::nil).
   Proof. intros a; simpl; tauto. Qed.
@@ -143,20 +151,23 @@ Section Sig3_Sig2.
 
   (* The correctness lemma *)
  
-  Lemma Σ3_Σ2_correct (A : fol_form Σ3) l r φ ψ :
+  Lemma Σ3eq_Σ2_correct (A : fol_form Σ3) l r φ ψ :
             HR1 (ψ l) (ψ r) 
          -> HR2 (ψ l) (ψ r) 
          -> HR3 (ψ l) (ψ r)
+         -> HR4
+         -> HR5 
+         -> HR6 
         -> (forall x, In x (fol_vars A) -> R (φ x) (ψ x))
-        -> ⟪ A ⟫' φ <-> ⟪Σ3_Σ2 l r A⟫ ψ.
+        -> ⟪ A ⟫' φ <-> ⟪Σ3eq_Σ2 l r A⟫ ψ.
   Proof.
     revert l r φ ψ.
-    induction A as [ | [] | b A HA B HB | [] A HA ]; intros l r phi psy H1 H2 H4 H.
+    induction A as [ | [] | b A HA B HB | [] A HA ]; intros l r phi psy H1 H2 H3 H4 H5 H6 H.
     1: simpl; tauto.
-    2: { simpl; apply fol_bin_sem_ext.
+    3: { simpl; apply fol_bin_sem_ext.
          + apply HA; intros; auto; apply H, in_or_app; simpl; auto.
          + apply HB; intros; auto; apply H, in_or_app; simpl; auto. }
-    2: { simpl; split.
+    3: { simpl; split.
          + intros (x & Hx).
            destruct (H1 x) as (y & G1 & G2).
            exists y; split.
@@ -169,42 +180,59 @@ Section Sig3_Sig2.
            exists x; revert G2; apply HA; auto.
            intros [ | n ]; simpl; auto.
            intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto. } 
-  2: { simpl; split.
-       + intros G1 y; rew fot; simpl; intros G2.
-         destruct (H2 _ G2) as (x & G3).
-         generalize (G1 x); apply HA; auto.
-         intros [ | n ]; simpl; auto.
-         intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto.
-       + intros G1 x.
-         destruct (H1 x) as (y & G2 & G3).
-         generalize (G1 _ G2); apply HA; auto.
-         intros [ | n ]; simpl; auto.
-         intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto. }
-  1: { revert H.
-       vec split v with a; vec split v with b; vec split v with c; vec nil v; clear v.
-       revert a b c; intros [ a | [] ] [ b | [] ] [ c | [] ] H; simpl in H.
-       split.
-       + intros G1; simpl in G1; revert G1; rew fot; intros G1.
-         unfold Σ3_Σ2; simpl Σ3_var.
-         red in H4.
-         rewrite (@H4 _ _ _ (psy a) (psy b) (psy c)) in G1; auto.
-       + unfold Σ3_Σ2; simpl Σ3_var; intros G1.
-         simpl; rew fot.
-         rewrite (@H4 _ _ _ (psy a) (psy b) (psy c)); auto. }
+     3: { simpl; split.
+          + intros G1 y; rew fot; simpl; intros G2.
+            destruct (H2 _ G2) as (x & G3).
+            generalize (G1 x); apply HA; auto.
+            intros [ | n ]; simpl; auto.
+            intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto.
+          + intros G1 x.
+            destruct (H1 x) as (y & G2 & G3).
+            generalize (G1 _ G2); apply HA; auto.
+            intros [ | n ]; simpl; auto.
+            intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto. }
+     1: { revert H.
+          vec split v with a; vec split v with b; vec split v with c; vec nil v; clear v.
+          revert a b c; intros [ a | [] ] [ b | [] ] [ c | [] ] H; simpl in H.
+          split.
+          + intros G1; simpl in G1; revert G1; rew fot; intros G1.
+            unfold Σ3eq_Σ2; simpl Σ3eq_var.
+            red in H3.
+            rewrite (@H3 _ _ _ (psy a) (psy b) (psy c)) in G1; auto.
+          + unfold Σ3eq_Σ2; simpl Σ3eq_var; intros G1.
+            simpl; rew fot.
+            rewrite (@H3 _ _ _ (psy a) (psy b) (psy c)); auto. }
+     1: { unfold Σ3eq_Σ2; rewrite Σ2_equiv_spec; simpl.
+          rewrite H3eq.
+          revert H; vec split v with a; vec split v with b; vec nil v; simpl.
+          intros H; clear v.
+          red in H4, H5, H6; rewrite H4.
+          revert a b H.
+          intros [ a | [] ] [ b | [] ]; simpl; intros H; rew fot.
+          assert (Ha : R (phi a) (psy a)) by (apply H; auto).
+          assert (Hb : R (phi b) (psy b)) by (apply H; auto).
+          clear H; split.
+          + intros E; rewrite <- E in Hb; apply (H6 _ _ _ Ha Hb).
+          + intros E; rewrite <- E in Hb; apply (H5 _ _ _ Ha Hb). }
   Qed.
 
   (** The formula stating any free variable in list lv has to
       be interpreted by some element ∈ l *)
 
-  Definition Σ2_list_in l lv := fol_lconj (map (fun x => x ∈ l) lv).
+  Definition Σ2_list_in l lv := let f x A := x ∈ l ⟑ A in fold_right f (⊥⤑⊥) lv.
 
   Fact Σ2_list_in_spec l lv ψ : ⟪Σ2_list_in l lv⟫ ψ 
                             <-> forall x, In x lv -> ψ x ∈m ψ l.
   Proof.
-    unfold Σ2_list_in; rewrite fol_sem_big_conj; split.
-    + intros H x Hx; apply (H (x ∈ l)), in_map_iff; exists x; auto.
-    + intros H ?; rewrite in_map_iff; intros (x & <- & Hx); apply H; auto.
-  Qed. 
+    induction lv as [ | x lv IH ]; simpl.
+    + split; tauto.
+    + split.
+      * intros (H1 & H2) ? [ <- | H ]; auto.
+        apply IH; auto.
+      * intros H; split.
+        - apply H; auto.
+        - apply IH; intros; apply H; auto.
+  Qed.
 
   (** The FO set-theoretic axioms we need to add are minimal:
          - ∈ must be extensional (of course, this is a set-theoretic model)
@@ -240,31 +268,70 @@ Section Sig3_Sig2.
   (* Notice that Σ3_Σ2 A has two more free variables than A,
      that could be quantified existentially over if needed *)
 
-  Definition Σ3_Σ2_enc := Σ2_extensional ⟑ Σ2_non_empty l
-                        ⟑ Σ2_list_in l (fol_vars B) ⟑ Σ3_Σ2 l r B.
+  Definition Σ3eq_Σ2_enc := Σ2_extensional ⟑ Σ2_non_empty l
+                        ⟑ Σ2_list_in l (fol_vars B) ⟑ Σ3eq_Σ2 l r B.
 
-End Sig3_Sig2.
+End Sig32_Sig2.
 
-Section SAT2_SAT3.
+Section SAT2_SAT32.
 
   (** We show the easy implication, any model of Σ3_Σ2_enc A
      gives rise to a model of A *)
 
   Section nested.
 
-    Variables (A : fol_form (Σrel 3))
+    (** We start in a finite decidable discrete model where two elements 
+        that cannot be distinguisged by a FO formula must be equal *)
+
+    Variables (A : fol_form (Σrel_eq 3))
               (X : Type) 
               (M2 : fo_model (Σrel 2) X)
               (M2fin : finite_t X)
               (M2dec : fo_model_dec M2)
+              (M2discr : discrete X)
+              (M2bisim : forall x y, @fo_bisimilar (Σrel _) nil (tt::nil) _ M2 x y -> x = y)
               (ψ : nat -> X)
-              (HA : fol_sem M2 ψ (Σ3_Σ2_enc A)).
+              (HA : fol_sem M2 ψ (Σ3eq_Σ2_enc A)).
 
     Let mem := m2_member M2.
 
     Let mem_dec : forall x y, { mem x y } + { ~ mem x y }.
     Proof. intros x y; apply (@M2dec tt). Qed.
 
+    Let mem_ext a b x : m2_equiv mem a b -> mem a x -> mem b x.
+    Proof. apply HA. Qed.
+
+    (** Then by extentionality, to points/sets containing the same elements are identical
+        ie we have a set-theoretic like model 
+
+        I should move this results in a separate file !!
+
+        Extentionality + (FO_bisim => eq) then equiv => eq 
+
+      *)
+
+    Let mem_equiv_bisimilar x y : m2_equiv mem x y -> x = y.
+    Proof.
+      unfold m2_equiv; intros Hab; apply M2bisim.
+      intros B phi _ _.
+      assert (Hab' : forall a, mem x a <-> mem y a).
+      { intros; split; apply mem_ext; red; intro; rewrite Hab; tauto. }
+      cut (forall n, (phi↑x) n = x /\ (phi↑y) n = y \/ (phi↑x) n = (phi↑y) n);
+       [ | intros []; auto ].
+      generalize (phi↑x) (phi↑y); clear phi.
+      induction B as [ | [] v | b B HB C HC | q B HB ]; intros phi psy H; simpl; try tauto.
+      + simpl in v; vec split v with a; vec split v with b; vec nil v; clear v.
+        revert a b; intros [ a | [] ] [ b | [] ]; simpl; rew fot.
+        change (mem (phi a) (phi b) <-> mem (psy a) (psy b)).
+        destruct (H a) as [ (-> & ->) | -> ];
+        destruct (H b) as [ (-> & ->) | -> ]; auto; try tauto.
+        transitivity (mem x y); auto.
+      + apply fol_bin_sem_ext; auto.
+      + apply fol_quant_sem_ext; auto.
+        intro u; apply HB.
+        intros []; simpl; auto.
+    Qed.
+ 
     Let P x := (if mem_dec x (ψ 0) then true else false) = true.
 
     Let HP0 x : P x <-> mem x (ψ 0).
@@ -281,24 +348,34 @@ Section SAT2_SAT3.
         intro; apply bool_dec.
     Qed.
 
-    Let M3 : fo_model (Σrel 3) (sig P).
+    Let M3 : fo_model (Σrel_eq 3) (sig P).
     Proof.
       exists.
       + intros [].
       + intros [] v.
-        simpl in v.
-        apply (m2_is_otriple_in mem (ψ 1)).
-        * exact (proj1_sig (vec_head v)).
-        * exact (proj1_sig (vec_head (vec_tail v))).
-        * exact (proj1_sig (vec_head (vec_tail (vec_tail v)))).
+        * simpl in v.
+          apply (m2_is_otriple_in mem (ψ 1)).
+          - exact (proj1_sig (vec_head v)).
+          - exact (proj1_sig (vec_head (vec_tail v))).
+          - exact (proj1_sig (vec_head (vec_tail (vec_tail v)))).
+        * apply (rel2_on_vec eq v).
     Defined.
 
     Let M3_dec : fo_model_dec M3.
-    Proof. intros [] v; apply m2_is_otriple_in_dec; auto. Qed.
+    Proof. 
+      intros [] v.
+      + apply m2_is_otriple_in_dec; auto. 
+      + simpl.
+        vec split v with a; vec split v with b; vec nil v.
+        clear v; revert a b; intros (a & Ha) (b & Hb); simpl.
+        destruct (M2discr a b) as [ -> | D ].
+        * left; f_equal; apply UIP_dec, bool_dec.
+        * right; contradict D; now inversion D.
+    Qed.
 
     Let R (x : sig P) (y : X) := proj1_sig x = y.
 
-    Local Lemma SAT2_to_SAT3 : exists Y, fo_form_fin_dec_SAT_in A Y.
+    Local Lemma SAT2_to_SAT3 : exists Y, @fo_form_fin_dec_eq_SAT_in (Σrel_eq 3) false A Y.
     Proof.
       exists (sig P).
       destruct HA as (H1 & H2 & H3 & H4).
@@ -315,17 +392,24 @@ Section SAT2_SAT3.
           | left H  => (exist _ (ψ n) (H5 _ H) : sig P)
           | right _ => (exist _ x0 H0 : sig P)
         end).
-      exists M3, HP1, M3_dec, (fun n => phi (2+n)).
+      exists M3, HP1, M3_dec, eq_refl, eq_refl, (fun n => phi (2+n)).
       unfold B in *; clear B.
-      rewrite <- Σ3_Σ2_correct with (M3 := M3) (φ := phi) (R := R) in H4.
+      rewrite <- Σ3eq_Σ2_correct with (M3 := M3) (φ := phi) (R := R) in H4.
       + rewrite fol_sem_subst in H4.
         revert H4; apply fol_sem_ext; intro; rew fot; auto.
+      + auto.
       + intros (x & Hx); exists x; unfold R; simpl; split; auto.
         apply HP0 in Hx; auto.
       + intros x Hx; apply HP0 in Hx.
         exists (exist _ x Hx); red; simpl; auto.
       + intros (a & Ha) (b & Hb) (c & Hc) a' b' c'; unfold R; simpl.
         intros <- <- <-; tauto.
+      + split.
+        * apply mem_equiv_bisimilar.
+        * intros []; red; tauto.
+      + intros x (y1 & ?) (y2 & ?); unfold R; simpl; intros; subst.
+        f_equal; apply UIP_dec, bool_dec.
+      + intros x1 x2 (y & ?); unfold R; simpl; intros; subst; auto.
       + intros n Hn; red.
         unfold phi.
         destruct (in_dec eq_nat_dec n (fol_vars A⦃fun v : nat => in_var (2 + v)⦄))
@@ -334,38 +418,59 @@ Section SAT2_SAT3.
 
   End nested.
 
-  Theorem SAT2_SAT3 A : fo_form_fin_dec_SAT (Σ3_Σ2_enc A)
-                     -> fo_form_fin_dec_SAT A.
+  Check SAT2_to_SAT3.
+
+  (** We use the powerful model discretizer here *)
+
+  Theorem SAT2_SAT32 A : fo_form_fin_dec_SAT (Σ3eq_Σ2_enc A)
+                      -> @fo_form_fin_dec_eq_SAT (Σrel_eq 3) false A.
   Proof.
     intros (X & M2 & H1 & H2 & psy & H3).
-    apply SAT2_to_SAT3 with X M2 psy; auto.
+    destruct (@fo_fin_model_discretize (Σrel 2) nil (tt::nil) _ H1 M2 H2)
+      as (n & M & Mdec & i & j & G1 & G2 & G3 & G4 & G5).
+    apply SAT2_to_SAT3 with (M2 := M) (ψ := fun n => i (psy n)); auto.
+    + apply finite_t_pos.
+    + red; apply pos_eq_dec.
+    + revert H3.
+      apply fo_model_projection 
+        with (ls := nil) 
+             (lr := tt::nil) 
+             (i := i) (j := j); 
+        auto; intros []; simpl; auto.
   Qed.
 
-End SAT2_SAT3.
+End SAT2_SAT32.
 
-Section SAT3_SAT2.
+Section SAT32_SAT2.
 
   (** This is the hard implication. From a model of A, 
       build a model of Σ3_Σ2_enc A in hereditary finite sets *)
 
-
   Section nested.
 
-    Variables (A : fol_form (Σrel 3))
-              (X : Type) (M3 : fo_model (Σrel 3) X)
+    Variables (A : fol_form (Σrel_eq 3))
+              (X : Type) (M3 : fo_model (Σrel_eq 3) X)
               (X_fin : finite_t X)
-              (X_discr : discrete X)
+              (X_eq : fom_rels M3 false = rel2_on_vec eq)
               (M3_dec : fo_model_dec M3)
               (φ : nat -> X)
               (HA : fol_sem M3 φ A).
 
-    Let R a b c := fom_rels M3 tt (a##b##c##ø).
+    Let X_discrete : discrete X.
+    Proof.
+      intros x y.
+      change ({ rel2_on_vec eq (x##y##ø) } + { ~ rel2_on_vec eq (x##y##ø) }).
+      rewrite <- X_eq.
+      apply M3_dec.
+    Qed.
 
-    Local Lemma SAT3_to_SAT2 : exists Y, fo_form_fin_dec_SAT_in (Σ3_Σ2_enc A) Y.
+    Let R a b c := fom_rels M3 true (a##b##c##ø).
+
+    Local Lemma SAT3_to_SAT2 : exists Y, fo_form_fin_dec_SAT_in (Σ3eq_Σ2_enc A) Y.
     Proof.
       destruct rel3_hfs with (R := R)
         as (Y & H1 & mem & l & r & i & s & 
-            H2 & _ & H3 & H4 & H5 & H6 & H7 & H8); auto.
+            H2 & _ & H3 & H4 & H5 & H6 & H7 & H8 & H9); auto.
       + apply φ, 0.
       + intros; apply M3_dec.
       + exists Y, (bin_rel_Σ2 mem), H1, (bin_rel_Σ2_dec _ H2), 
@@ -374,30 +479,39 @@ Section SAT3_SAT2.
            | 1 => r
            | S (S n) => i (φ n)
          end).
-        unfold Σ3_Σ2_enc; msplit 3; auto.
+        unfold Σ3eq_Σ2_enc; msplit 3; auto.
         * exists (i (φ 0)); simpl; rew fot; simpl; auto.
         * apply Σ2_list_in_spec.
           intros n; simpl.
           rewrite fol_vars_map, in_map_iff.
           intros (m & <- & ?); auto.
-        * rewrite <- Σ3_Σ2_correct with (M3 := M3) (R := fun x y => y = i x) 
+        * rewrite <- Σ3eq_Σ2_correct with (M3 := M3) (R := fun x y => y = i x) 
             (φ := fun n => match n with 0 => φ 0 | 1 => φ 1 | S (S n) => φ n end); auto.
           - rewrite fol_sem_subst.
             revert HA; apply fol_sem_ext.
             intros; simpl; rew fot; auto.
           - intros x; exists (i x); split; auto; apply H5.
           - intros a b c ? ? ? -> -> ->; apply H8.
+          - intros ? ? ? E1 E2; subst; rewrite <- H7, <- E2, H7; auto.
+          - intros; subst; auto.
           - intros n; rewrite fol_vars_map, in_map_iff.
             intros (m & <- & Hm); simpl; auto.
     Qed.
 
   End nested.
 
-  Theorem SAT3_SAT2 A : fo_form_fin_discr_dec_SAT A
-                     -> fo_form_fin_dec_SAT (Σ3_Σ2_enc A).
+  Theorem SAT32_SAT2 A : @fo_form_fin_dec_eq_SAT (Σrel_eq 3) false A
+                       -> fo_form_fin_dec_SAT (Σ3eq_Σ2_enc A).
   Proof.
-    intros (X & H1 & M3 & H2 & H4 & psy & H5).
+    intros (X & M3 & H2 & H4 & H5 & H6 & psy & H7).
     apply SAT3_to_SAT2 with X M3 psy; auto.
+    rewrite <- H6.
+    clear H6 H7 psy H4 H2.
+    revert M3 H5; intros [ r s ]; simpl.
+    intros E; rewrite (eq_nat_pirr E); auto.
   Qed.
 
-End SAT3_SAT2.
+End SAT32_SAT2.
+
+Check SAT32_SAT2.
+Check SAT2_SAT32.

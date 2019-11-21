@@ -30,8 +30,14 @@ Section discrete_quotient.
       is decidable and thus we can quotient the model under this bisim obtaining
       a discrete model which is "equivalent" *)
 
-  Variables (Σ : fo_signature) (ls : list (syms Σ)) (lr : list (rels Σ))
-            (X : Type) (fin : finite_t X) 
+  Variables (Σ : fo_signature) (ls : list (syms Σ)) (lr : list (rels Σ)).
+
+  Definition fo_bisimilar X M x y := 
+         forall A φ, incl (fol_syms A) ls
+                  -> incl (fol_rels A) lr
+                  -> @fol_sem Σ X M (φ↑x) A <-> fol_sem M (φ↑y) A.
+
+  Variables (X : Type) (fin : finite_t X) 
             (M : fo_model Σ X) (dec : fo_model_dec M).
 
   Implicit Type (R T : X -> X -> Prop).
@@ -202,6 +208,9 @@ Section discrete_quotient.
 
   Hint Resolve fom_eq_dec.
 
+  (** First order indistinguishability upto formulae built with functions and constants in 
+      ls and relations in ls *)
+
   Section fol_characterization.
 
     (** We show that the greatest bisimulation is equivalent to FOL undistinguishability ie 
@@ -243,9 +252,7 @@ Section discrete_quotient.
       *)
 
     Theorem fom_eq_fol_characterization x y : 
-            x ≡ y <-> forall A φ, incl (fol_syms A) ls
-                               -> incl (fol_rels A) lr
-                               -> fol_sem M (φ↑x) A <-> fol_sem M (φ↑y) A.
+            x ≡ y <-> fo_bisimilar M x y.
     Proof.
       split.
       + intros H A phi.
@@ -287,6 +294,49 @@ Section discrete_quotient.
       + intros s v; apply (fom_rels M s), (vec_map repr v).
     Defined.
 
+    Let H1 s v : In s ls -> cls (fom_syms M s v) = fom_syms Md s (vec_map cls v).
+    Proof.
+      intros Hs; simpl.
+      apply E2.
+      apply fom_eq_syms_full; auto.
+      intros p; rewrite vec_map_map, vec_pos_map.
+      apply E2; rewrite E1; auto.
+    Qed.
+
+    Let H2 s v : In s lr -> fom_rels M s v <-> fom_rels Md s (vec_map cls v).
+    Proof.
+      intros Hs; simpl.
+      apply fom_eq_rels_full; auto.
+      intros p; rewrite vec_map_map, vec_pos_map.
+      apply E2; rewrite E1; auto.
+    Qed.
+
+    Let H3 A phi : incl (fol_syms A) ls 
+                -> incl (fol_rels A) lr
+                -> fol_sem M phi A 
+               <-> fol_sem Md (fun n => cls (phi n)) A.
+    Proof.
+      intros Hs Hr.
+      apply fo_model_projection with (1 := E1) (5 := Hs) (6 := Hr); auto.
+    Qed.
+
+    Let H4 p q : fo_bisimilar Md p q -> p = q.
+    Proof.
+      intros H.
+      rewrite <- (E1 q), <- (E1 p).
+      apply E2, fom_eq_fol_characterization.
+      intros A phi Hs Hr.
+      specialize (H A (fun p => cls (phi p)) Hs Hr).
+      revert H; apply fol_equiv_impl.
+      all: rewrite H3; auto; apply fol_sem_ext; intros []; now simpl.
+    Qed.
+
+    (** Every finite & decidable model can be projected to pos n
+        with decidable relations and such that identity is exactly
+        FO undistinguishability *)
+
+    Check fo_bisimilar.
+
     Theorem fo_fin_model_discretize : 
       { n : nat & 
         { Md : fo_model Σ (pos n) &
@@ -296,20 +346,16 @@ Section discrete_quotient.
                   (forall x, i (j x) = x)
                /\ (forall s v, In s ls -> i (fom_syms M s v) = fom_syms Md s (vec_map i v))
                /\ (forall s v, In s lr -> fom_rels M s v <-> fom_rels Md s (vec_map i v))
+               /\ (forall A φ, incl (fol_syms A) ls 
+                            -> incl (fol_rels A) lr
+                            -> fol_sem M  φ                  A 
+                           <-> fol_sem Md (fun n => i (φ n)) A)
+               /\ (forall p q, fo_bisimilar Md p q -> p = q)
                  } } } } }.
     Proof.
       exists n, Md; exists.
       { intros x y; simpl; apply dec. }
-      exists cls, repr; msplit 2; auto.
-      + intros s v Hs; simpl.
-        apply E2.
-        apply fom_eq_syms_full; auto.
-        intros p; rewrite vec_map_map, vec_pos_map.
-        apply E2; rewrite E1; auto.
-      + intros s v Hs; simpl.
-        apply fom_eq_rels_full; auto.
-        intros p; rewrite vec_map_map, vec_pos_map.
-        apply E2; rewrite E1; auto.
+      exists cls, repr; msplit 3; auto.
     Qed.
 
   End build_the_model.
@@ -334,7 +380,7 @@ Section discrete_removal.
     set (ls := fol_syms A).
     set (lr := fol_rels A).
     destruct (fo_fin_model_discretize ls lr Hfin Hdec)
-      as (n & Md & Mdec & i & j & E1 & E2 & E3).
+      as (n & Md & Mdec & i & j & E1 & E2 & E3 & _).
     set (psy n := i (phi n)).
     exists n, (@pos_eq_dec _), Md, (finite_t_pos _) , Mdec, psy.
     revert HA.

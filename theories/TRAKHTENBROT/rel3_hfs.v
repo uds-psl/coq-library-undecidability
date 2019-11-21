@@ -217,7 +217,20 @@ Section bt_model3.
     intros; subst; f_equal; apply UIP_dec, bool_dec.
   Qed.
 
+  Let discrY : discrete Y.
+  Proof.
+    intros (x & Hx) (y & Hy).
+    destruct (hfs_eq_dec x y) as [ -> | D ].
+    + left; f_equal; apply UIP_dec, bool_dec.
+    + right; contradict D; inversion D; auto.
+  Qed.
+
   Let mem (x y : Y) := proj1_sig x ∈ proj1_sig y.
+
+  Let mem_dec : forall x y, { mem x y } + { ~ mem x y }.
+  Proof.
+    intros (a & ?) (b & ?); unfold mem; simpl; apply hfs_mem_dec.
+  Qed.
 
   Let yl : Y.
   Proof. 
@@ -325,18 +338,18 @@ Section bt_model3.
   
   Theorem rel3_hfs : exists (Y : Type) (_ : finite_t Y) (mem : Y -> Y -> Prop) (yl yr : Y) 
                              (i : X -> Y) (s : Y -> X) 
-                             (_ : forall u v, { mem u v } + { ~ mem u v }),
+                             (_ : forall u v, { mem u v } + { ~ mem u v })
+                             (_ : discrete Y),
                              m2_member_ext mem
                           /\ m2_has_otriples mem yl
                           /\ (forall x, mem (i x) yl)
                           /\ (forall y, mem y yl -> exists x, y = i x)
-                          /\ (forall x, s (i x) = x) 
-                          /\ (forall a b c, R a b c <-> m2_is_otriple_in mem yr (i a) (i b) (i c)).
+                          /\ (forall x, s (i x) = x)
+                          /\ (forall a b c, R a b c <-> m2_is_otriple_in mem yr (i a) (i b) (i c))
+                          /\ (forall x y, m2_equiv mem x y <-> x = y).
   Proof.
     exists Y, HY, mem, yl, yr, i', s'.
-    exists.
-    { intros (a & ?) (b & ?); unfold mem; simpl; apply hfs_mem_dec. }
-    msplit 5.
+    msplit 8; auto.
     + intros (u & Hu) (v & Hv) (w & Hw); unfold mem; simpl.
       unfold m2_equiv; simpl; intros H.
       cut (u = v); [ intros []; auto | ].
@@ -349,12 +362,9 @@ Section bt_model3.
         apply (H (exist _ x H')); auto.
       * generalize (Hp1 Hx Hv); rewrite p_bool_spec; intros H'.
         apply (H (exist _ x H')); auto.
-    + auto.
-    + auto.
     + intros y Hy; unfold i'.
       destruct (Hi' Hy) as (x & Hx).
       exists x; apply eqY; simpl; auto.
-    + intros x; unfold i', s'; simpl; auto.
     + intros a b c; unfold m2_is_otriple_in.
       unfold m2_has_otriples in has_triples.
       destruct (has_triples (Hi'' a) (Hi'' b) (Hi'' c)) as (t & H2).
@@ -369,6 +379,8 @@ Section bt_model3.
         simpl in H1, H2.
         subst t'; unfold mem, yr in H3; simpl in H3.
         revert H3; apply Hr3.
+    + intros x y; rewrite is_equiv; split; auto.
+      intros; subst; auto.
   Qed.
 
 End bt_model3.

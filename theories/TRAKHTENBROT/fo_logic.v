@@ -31,6 +31,28 @@ Record fo_signature := Mk_fo_signature {
   ar_rels : rels -> nat
 }.
 
+(** Only one relational symbol of arity n *)
+
+Definition Σrel (n : nat) : fo_signature.
+Proof.
+  exists Empty_set      (* No function or constant symbols *)
+         unit           (* And one n-ary relational symbol *)
+         .
+  + exact (fun _ => 0). (* Value does not matter here *)
+  + exact (fun _ => n). (* The n-ary relation *)
+Defined.
+
+(** One relational symbol of arity n and (interpreted) equality *)
+
+Definition Σrel_eq (n : nat) : fo_signature.
+Proof.
+  exists Empty_set      (* No function or constant symbols *)
+         bool           (* One ternary and equality *)
+         .
+  + exact (fun _ => 0). (* Value does not matter here *)
+  + exact (fun b => if b then n else 2).
+Defined.
+
 (** Unscoped (nat) DeBruijn syntax for FOL formulas *)
 
 Inductive fol_form (Σ : fo_signature) : Type :=
@@ -259,7 +281,32 @@ Notation "A ⦃ σ ⦄" := (fol_subst σ A).
 
 Record fo_model Σ (X : Type) := Mk_fo_model {
   fom_syms : forall s, vec X (ar_syms Σ s) -> X;
-  fom_rels : forall s, vec X (ar_rels Σ s) -> Prop }.
+  fom_rels : forall r, vec X (ar_rels Σ r) -> Prop }.
+
+Definition fo_model_dec Σ X (M : fo_model Σ X) := 
+  forall r (v : vec _ (ar_rels _ r)), { fom_rels M r v } + { ~ fom_rels M r v }.
+
+Definition rel2_on_vec X (R : X -> X -> Prop) (v : vec X 2) : Prop :=
+  R (vec_head v) (vec_head (vec_tail v)).
+
+Arguments rel2_on_vec {X} R v /.
+
+Section bin_rel_Σ2.
+
+  Variable (X : Type) (R : X -> X -> Prop).
+
+  Definition bin_rel_Σ2 : fo_model (Σrel 2) X.
+  Proof.
+    exists; intros [].
+    exact (rel2_on_vec R).
+  Defined.
+
+  Hypothesis HR : forall x y, { R x y } + { ~ R x y }.
+
+  Fact bin_rel_Σ2_dec : fo_model_dec bin_rel_Σ2.
+  Proof. intros [] v; apply HR. Qed.
+
+End bin_rel_Σ2.
 
 Section fol_semantics.
 
@@ -399,8 +446,6 @@ Section fol_semantics.
       apply fo_term_sem_ext; intros; rew fot; auto.
   Qed.
 
-  Definition fo_model_dec := forall s (v : vec _ (ar_rels _ s)), { sem_pred v } + { ~ sem_pred v }.
-
   Section decidable.
 
     (** REMARK: not requiring the sem_pred relation to be decidable
@@ -414,7 +459,7 @@ Section fol_semantics.
        or equivalently, each predicate is interpreted as a map: vec X _ -> bool *)
 
     Variable (M_fin : finite_t X).
-    Variable (rels_dec : fo_model_dec).
+    Variable (rels_dec : fo_model_dec M).
 
     Theorem fol_sem_dec A φ : { ⟪A⟫ φ } + { ~ ⟪A⟫ φ }.
     Proof.
