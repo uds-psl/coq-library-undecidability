@@ -26,9 +26,22 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(* Some ideas for notations
+
+    Σ = (∅ or { f_1 , g_1 , a_0, b_0 } ,{ ∈_2 , =_2 , T_3, P_2 , ≡_2 , ≺_3 })
+    finite <->   <∞ 𝔽
+    decidable/computable <-> ℂ
+    discrete <-> 𝔻
+    interpreted equality <-> =
+
+*)
+    
+
 (** The reduction from PBCP to SAT of a FO formula 
      - over signature Σbpcp (2 unary funs, 2 constants, 3 rels)
      - within finite and decidable models
+
+       BPCP --> SAT({f_1,g_1,a_0,b_0},{P_2,≡_2,≺_2},𝔽,ℂ)
   *)
 
 Section BPCP_fo_fin_dec_SAT.
@@ -56,6 +69,8 @@ Print Assumptions BPCP_FIN_DEC_SAT.
     - finite and decidable SAT  
     - to finite and decidable and discrete SAT
 
+      SAT(Σ,𝔽,𝔻) <--->  SAT(Σ,𝔽,ℂ,𝔻) 
+
     The reduction is the identity here !! *)
 
 Theorem fo_form_fin_dec_SAT_discr_equiv Σ A : 
@@ -78,7 +93,10 @@ Print Assumptions FIN_DEC_SAT_FIN_DISCR_DEC_SAT.
      and Σrel 2 signature with a unique binary symbol
    the reduction from 
    - finite and decidable and discrete SAT over Σrel 3
-   - to finite and decidable SAT over Σrel 2 *)
+   - to finite and decidable SAT over Σrel 2 
+
+      SAT(∅,{T_3},𝔽,ℂ,𝔻) ---> SAT(∅,{∈_2},𝔽,ℂ)
+*)
 
 Theorem FIN_DISCR_DEC_3SAT_FIN_DEC_2SAT : @fo_form_fin_discr_dec_SAT (Σrel 3)
                                                                         ⪯ @fo_form_fin_dec_SAT (Σrel 2).
@@ -95,7 +113,10 @@ Print Assumptions FIN_DISCR_DEC_3SAT_FIN_DEC_2SAT.
      and Σrel 2 signature with a unique binary symbol
    the reduction from 
    - finite and decidable and interpreted equality SAT over Σrel_eq 3 
-   - to finite and decidable SAT over Σrel 2 *)
+   - to finite and decidable SAT over Σrel 2 
+
+      SAT(∅,{T_3,=_2},𝔽,ℂ,=) ---> SAT(∅,{∈_2},𝔽,ℂ)
+*)
 
 Print Σrel_eq.
 
