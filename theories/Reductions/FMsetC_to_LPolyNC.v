@@ -183,8 +183,11 @@ Fixpoint term_to_polycs (t: mset_term) : list polyc :=
   match t with
   | mset_term_zero => [polyc_one (term_to_nat t)]
   | mset_term_var x => []
-  | mset_term_plus u v => [polyc_sum (term_to_nat t) (term_to_nat u) (term_to_nat v)]
-  | mset_term_h u => [polyc_prod (term_to_nat t) [0; 1] (term_to_nat u)]
+  | mset_term_plus u v => 
+      [polyc_sum (term_to_nat t) (term_to_nat u) (term_to_nat v)] ++ 
+      (term_to_polycs u) ++ (term_to_polycs v)
+  | mset_term_h u => 
+      [polyc_prod (term_to_nat t) [0; 1] (term_to_nat u)] ++ (term_to_polycs u)
   end.
 
 (* count the number of occurrences of each element up to a bound *)
@@ -261,13 +264,20 @@ Proof.
   pose ψ x := mset_to_poly (mset_sem φ (nat_to_term x)).
   have Hψ (A) : Forall (polyc_sem ψ) (term_to_polycs A).
   {
-    case: A.
+    elim: A.
     - by rewrite /term_to_polycs ? Forall_norm /ψ /polyc_sem nat_term_cancel.
     - by rewrite /term_to_polycs.
-    - move=> A B. rewrite /term_to_polycs ? Forall_norm /ψ /polyc_sem ? nat_term_cancel.
-      rewrite /(mset_sem _ (mset_term_plus _ _)) -/mset_sem.
+    - move=> A IHA B IHB. 
+      rewrite /term_to_polycs -/term_to_polycs ? Forall_norm.
+      constructor; first last.
+        by constructor.
+      rewrite /ψ /polyc_sem ? nat_term_cancel.
+      rewrite /(mset_sem _ (mset_term_plus _ _)) -/mset_sem - ? /(polyc_sem _).
       by apply: mset_poly_appP.
-    - move=> A. rewrite /term_to_polycs ? Forall_norm /ψ /polyc_sem ? nat_term_cancel.
+    - move=> A IH. 
+      rewrite /term_to_polycs -/term_to_polycs ? Forall_norm.
+      constructor; last done.
+      rewrite /ψ /polyc_sem ? nat_term_cancel.
       rewrite /(mset_sem _ (mset_term_h _)) -/mset_sem.
       by apply: mset_poly_mapP.
   }
@@ -279,6 +289,71 @@ Proof.
     by constructor.
   apply: mset_poly_eqP. by rewrite ? nat_term_cancel.
 Qed.
+
+Fixpoint mapi {X Y: Type} (f: nat -> X -> Y) i (A: list X) :=
+  match A with
+  | [] => []
+  | a :: A => (f i a) :: (mapi f (S i) A)
+  end.
+
+(* count the number of occurrences of each element up to a bound *)
+Definition poly_to_mset (p: list nat) := 
+  concat (mapi (fun i a => repeat i a) 0 p).
+
+Lemma poly_add_zeroE {p q} : p ≃ poly_add q [0] -> p ≃ q.
+Proof. Admitted.
+
+Lemma poly_to_mset_eqI {p q} : p ≃ q -> poly_to_mset p ≡ poly_to_mset q.
+Proof. Admitted.
+
+Lemma poly_eq_symm {p q} : p ≃ q -> q ≃ p.
+Proof. Admitted.
+
+Lemma mset_to_poly_eqE {A B} : mset_to_poly A ≃ mset_to_poly B -> A ≡ B.
+Proof. Admitted.
+
+Lemma poly_to_mset_appP {p q} : poly_to_mset (poly_add p q) ≡ poly_to_mset p ++ poly_to_mset q.
+Proof. Admitted.
+
+From Undecidability Require Reductions.H10UC_to_FMsetC.
+
+Lemma soundness {l} : LPolyNC_SAT (encode_problem l) -> FMsetC_SAT l.
+Proof.
+  move=> [ψ]. rewrite -Forall_forall Forall_flat_mapP => Hψ.
+  pose φ x := poly_to_mset (ψ (term_to_nat (mset_term_var x))).
+  exists φ. rewrite -mset_satP.
+  apply: Forall_impl; last by eassumption.
+  move=> [t u]. rewrite ? Forall_norm => [[+ [+]]].
+  rewrite /polyc_sem -/(polyc_sem _) /poly_mult.
+  under map_ext=> n. have -> : 1 * n = n by lia. over.
+  rewrite map_id. move /poly_add_zeroE.
+  rewrite -/(mset_eq _ _).
+
+  have Hφ (s) : Forall (polyc_sem ψ) (term_to_polycs s) -> mset_sem φ s ≡ poly_to_mset (ψ (term_to_nat s)).
+  {
+    clear. elim: s.
+    - rewrite /term_to_polycs ? Forall_norm /polyc_sem /φ /mset_sem.
+      move=> H. have -> : [0] = poly_to_mset [1] by done.
+      apply: poly_to_mset_eqI. by apply: poly_eq_symm.
+    - move=> x _.
+      by rewrite /term_to_polycs ? Forall_norm /polyc_sem /φ /mset_sem.
+    - move=> t IHt u IHu.
+      rewrite /term_to_polycs -/term_to_polycs ? Forall_norm.
+      move=> [+ [/IHt {}IHt /IHu {}IHu]].
+      rewrite /polyc_sem /φ /mset_sem -/mset_sem -/φ.
+      move=> Hψ.
+      under (H10UC_to_FMsetC.eq_lr _ (H10UC_to_FMsetC.eq_refl) (A' := poly_to_mset (ψ (term_to_nat t)) ++ poly_to_mset (ψ (term_to_nat u)))).
+        by apply: H10UC_to_FMsetC.eq_appI.
+      rewrite -/(mset_eq _ _).
+      apply: mset_to_poly_eqE.
+      over.
+  }
+    admit.
+  move=> Htu /Hφ Ht /Hφ Hu.
+  under H10UC_to_FMsetC.eq_lr; [by eassumption |by eassumption | ].
+  rewrite -/(mset_eq _ _). clear Ht Hu.
+  by apply: poly_to_mset_eqI.
+  
 
 
 
