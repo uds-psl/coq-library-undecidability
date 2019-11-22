@@ -718,9 +718,9 @@ Proof.
   move=> [A [/ΓPCP_soundness_ind]]. move=> + H.
   rewrite {}H. apply.
   evar (ζ : nat -> formula).
-  instantiate (ζ := fun x => match x with | 0 => _ | 1 => _ | 2 => _ | _ => _ end).
+  instantiate (ζ := fun x => match x with | 0 => _ | 1 => _ | _ => _ end).
   apply: (hscI (ζ := ζ)). by left.
-  rewrite /PCPf transparent_encode_pair => //=.
+  by rewrite /ζ /PCPf transparent_encode_pair.
 Qed.
 
 Lemma encode_bool_injective {a b} : encode_bool a = encode_bool b -> a = b.
