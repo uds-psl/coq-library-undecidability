@@ -247,6 +247,7 @@ TM/MultiUnivTimeSpaceSimulation.v
 #Full Trakhtenbrot with single binary rel
 TRAKHTENBROT/notations.v
 TRAKHTENBROT/gfp.v
+TRAKHTENBROT/gfp_unary.v
 TRAKHTENBROT/fin_upto.v
 TRAKHTENBROT/bpcp.v
 TRAKHTENBROT/btree.v

@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Nat Lia Relations.
+Require Import List Arith Nat Lia Relations Bool.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list utils_nat finite.
@@ -46,10 +46,11 @@ Section discrete_quotient.
       Any prefixpoint R ⊆ fom_op R is a simulation for the model
     *)
 
-  Let fom_op R x y :=
-       (forall s, In s ls -> forall (v : vec _ (ar_syms Σ s)) p, R (fom_syms M s (v[x/p])) (fom_syms M s (v[y/p]))) 
-    /\ (forall s, In s lr -> forall (v : vec _ (ar_rels Σ s)) p, fom_rels M s (v[x/p]) <-> fom_rels M s (v[y/p])).
+  Let fom_op1 R x y := forall s, In s ls -> forall (v : vec _ (ar_syms Σ s)) p, R (fom_syms M s (v[x/p])) (fom_syms M s (v[y/p])).
+  Let fom_op2 x y := forall s, In s lr -> forall (v : vec _ (ar_rels Σ s)) p, fom_rels M s (v[x/p]) <-> fom_rels M s (v[y/p]).
 
+  Let fom_op R x y := fom_op1 R x y /\ fom_op2 x y.
+  
   (** First we show properties of fom_op 
 
       a) Monotonicity
@@ -61,68 +62,86 @@ Section discrete_quotient.
   Hint Resolve finite_t_pos finite_t_vec.
  
   Let fom_op_mono R T : (forall x y, R x y -> T x y) -> (forall x y, fom_op R x y -> fom_op T x y).
-  Proof. intros ? ? ? []; split; intros; auto. Qed. 
+  Proof. unfold fom_op, fom_op1, fom_op2; intros ? ? ? []; split; intros; auto. Qed. 
 
   Let fom_op_id x y : x = y -> fom_op (@eq _) x y.
-  Proof. intros []; split; auto; tauto. Qed.
+  Proof. unfold fom_op, fom_op1, fom_op2; intros []; split; auto; tauto. Qed.
 
   Let fom_op_sym R x y : fom_op R y x -> fom_op (fun x y => R y x) x y.
-  Proof. intros []; split; intros; auto; symmetry; auto. Qed.
+  Proof. unfold fom_op, fom_op1, fom_op2; intros []; split; intros; auto; symmetry; auto. Qed.
 
   Let fom_op_trans R x z : (exists y, fom_op R x y /\ fom_op R y z)
                         -> fom_op (fun x z => exists y, R x y /\ R y z) x z.
   Proof.
+    unfold fom_op, fom_op1, fom_op2.
     intros (y & H1 & H2); split; intros s Hs v p.
     + exists (fom_syms M s (v[y/p])); split; [ apply H1 | apply H2 ]; auto.
     + transitivity (fom_rels M s (v[y/p])); [ apply H1 | apply H2 ]; auto.
   Qed.
 
+  Let fom_op1_dec R : (forall x y, { R x y } + { ~ R x y })
+                   -> (forall x y, { fom_op1 R x y } + { ~ fom_op1 R x y }).
+  Proof.
+    unfold fom_op1.
+    intros HR x y.
+    apply forall_list_sem_dec; intros.
+    do 2 (apply (fol_quant_sem_dec fol_fa); auto; intros).
+  Qed.
+
+  Let fom_op2_dec : (forall x y, { fom_op2 x y } + { ~ fom_op2 x y }).
+  Proof.
+    unfold fom_op2.
+    intros x y.
+    apply forall_list_sem_dec; intros.
+    do 2 (apply (fol_quant_sem_dec fol_fa); auto; intros).
+    apply (fol_bin_sem_dec fol_conj); 
+      apply (fol_bin_sem_dec fol_imp); auto.
+  Qed.
+
   Let fom_op_dec R : (forall x y, { R x y } + { ~ R x y })
                   -> (forall x y, { fom_op R x y } + { ~ fom_op R x y }).
-  Proof.
-    intros HR x y.
-    apply (fol_bin_sem_dec fol_conj).
-    + apply forall_list_sem_dec; intros.
-      do 2 (apply (fol_quant_sem_dec fol_fa); auto; intros).
-    + apply forall_list_sem_dec; intros.
-      do 2 (apply (fol_quant_sem_dec fol_fa); auto; intros).
-      apply (fol_bin_sem_dec fol_conj); 
-        apply (fol_bin_sem_dec fol_imp); auto.
-  Qed.
+  Proof. intros; apply (fol_bin_sem_dec fol_conj); auto. Qed.
 
   Tactic Notation "solve" "with" "proj" constr(t) :=
     apply fot_def_equiv with (f := fun φ => φ t); fol def; intros; rew vec.
 
-  Let fol_def_fom_op R : fol_definable ls lr M (fun ψ => R (ψ 0) (ψ 1))
-                      -> fol_definable ls lr M (fun ψ => fom_op R (ψ 0) (ψ 1)).
+  Let fol_def_fom_op1 R : fol_definable ls lr M (fun ψ => R (ψ 0) (ψ 1))
+                       -> fol_definable ls lr M (fun ψ => fom_op1 R (ψ 0) (ψ 1)).
   Proof.
     intros H.
-    apply fol_def_conj.
-    + apply fol_def_list_fa; intros s Hs;
-      apply fol_def_vec_fa;
-      apply fol_def_finite_fa; auto; intro p;
-      apply fol_def_subst2; auto.
-      * apply fot_def_comp; auto; intro q.
-        destruct (pos_eq_dec p q); subst.
-        - solve with proj (ar_syms Σ s).
-        - solve with proj (pos2nat q).
-      * apply fot_def_comp; auto; intro q.
-        destruct (pos_eq_dec p q); subst.
-        - solve with proj (ar_syms Σ s+1).
-        - solve with proj (pos2nat q).
-    + apply fol_def_list_fa; intros r Hr;
-      apply fol_def_vec_fa;
-      apply fol_def_finite_fa; auto; intro p;
-      apply fol_def_iff.
-      * apply fol_def_atom; auto; intro q.
-        destruct (pos_eq_dec p q); subst.
-        - solve with proj (ar_rels Σ r).
-        - solve with proj (pos2nat q).
-      * apply fol_def_atom; auto; intro q.
-        destruct (pos_eq_dec p q); subst.
-        - solve with proj (ar_rels Σ r+1).
-        - solve with proj (pos2nat q).
+    apply fol_def_list_fa; intros s Hs;
+    apply fol_def_vec_fa;
+    apply fol_def_finite_fa; auto; intro p;
+    apply fol_def_subst2; auto.
+    * apply fot_def_comp; auto; intro q.
+      destruct (pos_eq_dec p q); subst.
+      - solve with proj (ar_syms Σ s).
+      - solve with proj (pos2nat q).
+    * apply fot_def_comp; auto; intro q.
+      destruct (pos_eq_dec p q); subst.
+      - solve with proj (ar_syms Σ s+1).
+      - solve with proj (pos2nat q).
   Qed.
+
+  Let fol_def_fom_op2 : fol_definable ls lr M (fun ψ => fom_op2 (ψ 0) (ψ 1)).
+  Proof.
+    apply fol_def_list_fa; intros r Hr.
+    apply fol_def_vec_fa.
+    apply fol_def_finite_fa; auto; intro p.
+    apply fol_def_iff.
+    * apply fol_def_atom; auto; intro q.
+      destruct (pos_eq_dec p q); subst.
+      - solve with proj (ar_rels Σ r).
+      - solve with proj (pos2nat q).
+    * apply fol_def_atom; auto; intro q.
+      destruct (pos_eq_dec p q); subst.
+      - solve with proj (ar_rels Σ r+1).
+      - solve with proj (pos2nat q).
+  Qed.
+
+  Let fol_def_fom_op R : fol_definable ls lr M (fun ψ => R (ψ 0) (ψ 1))
+                      -> fol_definable ls lr M (fun ψ => fom_op R (ψ 0) (ψ 1)).
+  Proof. intro; apply fol_def_conj; auto. Qed.
 
   (** Now we build the greatest fixpoint fom_eq and show its properties
 
@@ -145,7 +164,7 @@ Section discrete_quotient.
 
   (** This involves the w-continuity of fom_op *)
 
-  Let fom_eq_fix x y : fom_op fom_eq x y <-> x ≡ y.
+  Fact fom_eq_fix x y : fom_op fom_eq x y <-> x ≡ y.
   Proof. 
     apply gfp_fix; auto; clear x y.
     intros f Hf x y H; split; intros s Hs v p.
@@ -196,7 +215,7 @@ Section discrete_quotient.
   Theorem fom_eq_finite : { n | forall x y, x ≡ y <-> iter fom_op (fun _ _ => True) n x y }.
   Proof. apply gfp_finite_t; auto. Qed.
 
-  Theorem fom_eq_fol_def : fol_definable ls lr M (fun φ => fom_eq (φ 0) (φ 1)).
+  Theorem fom_eq_fol_def : fol_definable ls lr M (fun φ => φ 0 ≡ φ 1).
   Proof.
     destruct fom_eq_finite as (n & Hn).
     apply fol_def_equiv with (R := fun φ => iter fom_op (fun _ _ : X => True) n (φ 0) (φ 1)).
@@ -206,7 +225,42 @@ Section discrete_quotient.
       * rewrite iter_S; auto.
   Qed.
 
-  Hint Resolve fom_eq_dec.
+  Section fom_eq_form.
+
+    Let A := proj1_sig fom_eq_fol_def. 
+    
+    Definition fom_eq_form := fol_subst (fun n => match n with 0 => £1 | _ => £0 end) A.
+
+    Fact fom_eq_form_sem φ x y : fol_sem M φ↑x↑y fom_eq_form <-> x ≡ y.
+    Proof.
+      unfold fom_eq_form; rewrite fol_sem_subst.
+      apply (proj2_sig fom_eq_fol_def).
+    Qed.
+
+    Fact fom_eq_form_vars : incl (fol_vars fom_eq_form) (0::1::nil).
+    Proof.
+      unfold fom_eq_form; rewrite fol_vars_subst.
+      intros n; rewrite in_flat_map; intros (? & _ & H).
+      revert x H; intros [ | [] ]; simpl; tauto.
+    Qed.
+
+    Fact fom_eq_form_syms : incl (fol_syms fom_eq_form) ls.
+    Proof.
+      unfold fom_eq_form; red.
+      apply Forall_forall, fol_syms_subst.
+      + intros [ | []]; rew fot; auto.
+      + apply Forall_forall, (proj2_sig fom_eq_fol_def).
+    Qed.
+
+    Fact fom_eq_form_rels : incl (fol_rels fom_eq_form) lr.
+    Proof.
+      unfold fom_eq_form; rewrite fol_rels_subst.
+      apply (proj2_sig fom_eq_fol_def).
+    Qed.
+
+  End fom_eq_form.
+
+  Hint Resolve fom_eq_form_vars fom_eq_form_syms fom_eq_form_rels fom_eq_dec.
 
   (** First order indistinguishability upto formulae built with functions and constants in 
       ls and relations in ls *)
@@ -249,6 +303,19 @@ Section discrete_quotient.
        Hence we can could show, x = y <-> forall A[.], A[x] <-> A[y]
        when A only has one £0 as variable
 
+       One idea is to show that formulas of arity n are finitary
+       up to equivalence and then define
+
+             C_x [.] = /\ { A[.] | A[x] is true } U { ~ A[.] | A[x] is false }
+
+       One can then show C_x[y] is true iff forall A[.], A[x] <-> A[y] iff x ≡ y
+       The problem is to show that n-ary formulas are finitary upto equivalence
+       Maybe one does not need to consider arities above the size of the model ?
+
+       THE ANSWER IS NO WE CANNOT, SEE THE COUNTER-MODEL BELOW
+
+       Theorem FO_does_not_characterize_classes
+
       *)
 
     Theorem fom_eq_fol_characterization x y : 
@@ -259,9 +326,9 @@ Section discrete_quotient.
         apply fom_eq_fol_charac1.
         intros [ | n ] _; simpl; auto.
       + intros H.
-        destruct fom_eq_fol_def as (A & Hs & Hr & HA).
-        generalize (H A (fun _ => y) Hs Hr).
-        do 2 rewrite HA; simpl; intros E; apply E; auto.
+        set (phi (_ : nat) := x).
+        apply fom_eq_form_sem with (φ := phi), H,
+              fom_eq_form_sem with (φ := phi); auto.
     Qed.
 
   End fol_characterization.
@@ -364,6 +431,96 @@ End discrete_quotient.
 
 Check fo_fin_model_discretize.
 Print Assumptions fo_fin_model_discretize.
+
+Section counter_model_to_class_FO_definability.
+
+  (** We show that there a model over Σ = Σrel 2 = {ø,{=_2}}
+      were ≡ is identity but x ≡ _ is not FO definable *)
+
+  Let Σ := Σrel 2.
+
+  Let M : fo_model Σ bool.
+  Proof.
+    exists.
+    + intros [].
+    + intros []; simpl.
+      exact (rel2_on_vec eq).
+  Defined.
+
+  Let M_dec : fo_model_dec M.
+  Proof. intros [] ?; apply bool_dec. Qed.
+
+  Let R (a b : bool) : Prop := a <> b.
+
+  Infix "⋈" := R (at level 70, no associativity). 
+  Notation "⟪ A ⟫" := (fun φ => fol_sem M φ A).
+
+  Let homeomorphism (A : fol_form Σ) phi psi : 
+        (forall n, phi n ⋈ psi n) -> ⟪A⟫ phi <-> ⟪A⟫ psi.
+  Proof.
+    intros H.
+    apply fo_model_simulation with (ls := nil) (lr := tt::nil) (R := R); auto.
+    + intros ? _ _ [].
+    + intros [] v w _.
+      vec split v with x1; vec split v with x2; vec nil v.
+      vec split w with y1; vec split w with y2; vec nil w; intros H1.
+      generalize (H1 pos0) (H1 pos1); clear H1; intros H1 H2; simpl in H1, H2.
+      unfold M; simpl.
+      red in H1, H2.
+      revert x1 y1 x2 y2 H1 H2.
+      intros [] [] [] []; tauto.
+    + intros []; [ exists false | exists true ]; discriminate.
+    + intros []; [ exists false | exists true ]; discriminate.
+    + intros [].
+    + intros []; simpl; auto.
+  Qed.
+
+  Check fom_eq.
+
+  Infix "≡" := (fom_eq (Σ := Σ) nil (tt::nil) M) (at level 70, no associativity).
+
+  Hint Resolve finite_t_bool.
+
+  Let true_is_not_false : ~ true ≡ false.
+  Proof.
+    intros H.
+    apply fom_eq_fol_characterization in H; auto.
+    red in H.
+    specialize (H (fol_atom Σ tt (£0##£1##ø)) (fun n => match n with 0 => true | _ => false end)).
+    revert H; unfold M; simpl; rew fot; simpl.
+    intros [H _]; cbv; auto.
+    specialize (H eq_refl); discriminate.
+  Qed.
+
+  Let no_disctinct A phi : incl (fol_vars A) (0::nil)
+                        -> ⟪A⟫ phi↑true <-> ⟪A⟫ phi↑false.
+  Proof.
+    intros H.
+    assert (H0 : forall b, b ⋈ negb b) by (intros []; discriminate).
+    assert (H1 : forall b, negb b ⋈ b) by (intros []; discriminate).
+    set (psi n := negb (phi n)).
+    assert (G1 : forall n, phi n ⋈ psi n) by (intro; apply H0).
+    assert (G2 : forall n, psi n ⋈ phi n) by (intro; apply H1).
+    clear H0 H1.
+    rewrite homeomorphism with (psi := psi↑false) at 1.
+    + apply fol_sem_ext.
+      intros n Hn; apply H in Hn; revert Hn.
+      intros [ <- | [] ]; auto.
+    + intros [ | n ]; simpl; auto; discriminate.
+  Qed.
+
+  Theorem FO_does_not_characterize_classes :
+     exists (M : fo_model Σ bool) (_ : fo_model_dec M) (x y : bool), 
+            ~ fom_eq (Σ := Σ) nil (tt::nil) M x y
+         /\ forall A φ, incl (fol_vars A) (0::nil) 
+                     -> fol_sem M φ↑x A <-> fol_sem M φ↑y A.
+  Proof.
+    exists M, M_dec, true, false; auto.
+  Qed.
+
+End counter_model_to_class_FO_definability.
+
+Check FO_does_not_characterize_classes.
 
 Section discrete_removal.
 

@@ -172,6 +172,18 @@ Section fo_definability.
         apply (proj2_sig (H k Hk)); auto.
   Qed.
 
+  Fact fol_def_bounded_fa m (R : nat -> (nat -> X) -> Prop) :
+             (forall n, n < m -> fol_definable (R n))
+          -> fol_definable (fun φ => forall n, n < m -> R n φ).
+  Proof.
+    intros H.
+    apply fol_def_equiv with (R := fun φ => forall n, In n (list_an 0 m) -> R n φ).
+    + intros phi; apply forall_equiv; intro; rewrite list_an_spec; simpl; split; try tauto.
+      intros H1 ?; apply H1; lia.
+    + apply fol_def_list_fa.
+      intros n Hn; apply H; revert Hn; rewrite list_an_spec; lia.
+  Qed.
+
   Fact fol_def_list_ex K l (R : K -> (nat -> X) -> Prop) :
            (forall k, In k l -> fol_definable (R k))
         -> fol_definable (fun φ => exists k, In k l /\ R k φ).
@@ -260,6 +272,45 @@ Section extra.
       -> fol_definable ls lr M (fun φ => R φ <-> T φ).
   Proof.
     intros; fol def.
+  Qed.
+
+  Fact fol_def_subst1 R t : 
+           fol_definable ls lr M (fun φ => R (φ 0))
+        -> fot_definable ls M t
+        -> fol_definable ls lr M (fun φ => R (t φ)).
+  Proof.
+    intros H1 H2.
+    set (f n := match n with
+        | 0 => t 
+        | _ => fun φ => φ 0
+      end).
+    change (fol_definable ls lr M (fun φ => R (f 0 φ))). 
+    apply fol_def_subst with (2 := H1) (f := f).
+    intros [ | ]; simpl; fol def.
+  Qed.
+
+  Fact fol_def_subst_R_2 (R : (nat -> X) -> X -> X -> Prop) f t1 t2 : 
+           fol_definable ls lr M (fun φ => R (fun n => φ (2+n)) (φ 0) (φ 1))
+        -> fot_definable ls M t1
+        -> fot_definable ls M t2
+        -> fol_definable ls lr M (fun φ => R (fun n => φ (f n)) (t1 φ) (t2 φ)).
+  Proof.
+    intros H1 H2 H3.
+    set (g n := match n with
+        | 0 => t1 
+        | 1 => t2
+        | S (S n) => fun φ => φ (f n)
+      end).
+    change (fol_definable ls lr M (fun φ => R (fun n => g (2+n) φ) (g 0 φ) (g 1 φ))).
+    apply fol_def_subst with (2 := H1) (f := g).
+    intros [ | [] ]; simpl; fol def.
+  Qed.
+
+  Fact fol_def_dec A : { A } + { ~ A } -> fol_definable ls lr M (fun _ => A).
+  Proof.
+    intros [ H | H ].
+    + apply fol_def_equiv with (R := fun _ => True); try tauto; fol def.
+    + apply fol_def_equiv with (R := fun _ => False); try tauto; fol def.
   Qed.
 
   Fact fol_def_subst2 R t1 t2 : 
