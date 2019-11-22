@@ -434,8 +434,16 @@ Print Assumptions fo_fin_model_discretize.
 
 Section counter_model_to_class_FO_definability.
 
-  (** We show that there a model over Σ = Σrel 2 = {ø,{=_2}}
-      were ≡ is identity but x ≡ _ is not FO definable *)
+  (** We show that there is a model over Σ = Σrel 2 = {ø,{=_2}}
+      where ≡ is identity but x ≡ _ is not definable by a
+      FO formula with a single free variable 
+
+      There are two non equivalent values that cannot be
+      distinguished when using a single variable
+
+      Even though ≡ is FO definable by a formula with two
+      free variables, equivalences classes of ≡ are not 
+      FO definable *)
 
   Let Σ := Σrel 2.
 
