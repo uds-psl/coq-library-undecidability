@@ -19,7 +19,7 @@ Import ListNotations.
 
 From Undecidability Require Import Problems.FMsetC Problems.Reduction.
 
-From Undecidability Require Import FMset.mset_utils FMset.mset_term_utils.
+From Undecidability Require Import FMset.mset_utils FMset.mset_eq_utils FMset.mset_term_utils.
 Import NatNat.
 
 Lemma nat_to_nat2_non_increasing {n} : fst (nat_to_nat2 n) + snd (nat_to_nat2 n) < S n.
@@ -229,42 +229,51 @@ Qed.
 Print Assumptions completeness.
 
 
-Lemma soundness {l} : LPolyNC_SAT (encode_problem l) -> FMsetC_SAT l.
+Lemma eq_app_nil_nilP {A} : A ≡ A ++ A -> A = [].
+Proof. Admitted.
+
+Lemma eq_mapI {A B} : A ≡ B -> map S A ≡ map S B.
+Proof.
+  rewrite /mset_eq => + c. move=> /(_ (Nat.pred c)).
+  case: c.
+    admit.
+  move=> c. rewrite - ? (count_occ_map S Nat.eq_dec Nat.eq_dec); first last.
+    done.
+  all: move=> >; by case.
+Admitted.
+
+Lemma soundness {l} : FMsetEC_SAT (encode_problem l) -> FMsetC_SAT l.
 Proof.
   move=> [ψ]. rewrite -Forall_forall Forall_flat_mapP => Hψ.
-  pose φ x := poly_to_mset (ψ (term_to_nat (mset_term_var x))).
+  pose φ x := ψ (term_to_nat (mset_term_var x)).
   exists φ. rewrite -mset_satP.
   apply: Forall_impl; last by eassumption.
   move=> [t u]. rewrite ? Forall_norm => [[+ [+]]].
-  rewrite /polyc_sem -/(polyc_sem _) /poly_mult.
-  under map_ext=> n. have -> : 1 * n = n by lia. over.
-  rewrite map_id. move /poly_add_zeroE.
-  rewrite -/(mset_eq _ _).
+  rewrite /msetc_sem -/(msetc_sem _). move=> [/eq_app_nil_nilP /copy [Hψ0 ->]].
+  rewrite /app => Hψtu.
 
-  have Hφ (s) : Forall (polyc_sem ψ) (term_to_polycs s) -> mset_sem φ s ≡ poly_to_mset (ψ (term_to_nat s)).
+  have Hφ (s) : Forall (msetc_sem ψ) (term_to_msetcs s) -> mset_sem φ s ≡ (ψ (term_to_nat s)).
   {
     clear. elim: s.
-    - rewrite /term_to_polycs ? Forall_norm /polyc_sem /φ /mset_sem.
-      move=> H. have -> : [0] = poly_to_mset [1] by done.
-      apply: poly_to_mset_eqI. by apply: poly_eq_symm.
-    - move=> x _.
-      by rewrite /term_to_polycs ? Forall_norm /polyc_sem /φ /mset_sem.
+    - rewrite /term_to_msetcs ? Forall_norm /msetc_sem /φ /mset_sem.
+      by apply /eq_symm.
+    - by move=> x _.
     - move=> t IHt u IHu.
-      rewrite /term_to_polycs -/term_to_polycs ? Forall_norm.
+      rewrite /term_to_msetcs -/term_to_msetcs ? Forall_norm.
       move=> [+ [/IHt {}IHt /IHu {}IHu]].
-      rewrite /polyc_sem /φ /mset_sem -/mset_sem -/φ.
-      move=> Hψ.
-      under (H10UC_to_FMsetC.eq_lr _ (H10UC_to_FMsetC.eq_refl) (A' := poly_to_mset (ψ (term_to_nat t)) ++ poly_to_mset (ψ (term_to_nat u)))).
-        by apply: H10UC_to_FMsetC.eq_appI.
-      rewrite -/(mset_eq _ _).
-      apply: mset_to_poly_eqE.
-      over.
+      rewrite /msetc_sem /φ /mset_sem -/mset_sem -/φ.
+      move /eq_symm. apply /eq_trans.
+      by apply: eq_appI.
+    - move=> t IH.
+      rewrite /term_to_msetcs -/term_to_msetcs ? Forall_norm.
+      move=> [+ /IH {}IH].
+      rewrite /msetc_sem /φ /mset_sem -/mset_sem -/φ.
+      move /eq_symm. apply /eq_trans.
+      by apply: eq_mapI.
   }
-    admit.
-  move=> Htu /Hφ Ht /Hφ Hu.
-  under H10UC_to_FMsetC.eq_lr; [by eassumption |by eassumption | ].
-  rewrite -/(mset_eq _ _). clear Ht Hu.
-  by apply: poly_to_mset_eqI.
+  move=> /Hφ Ht /Hφ Hu.
+  under eq_lr; by eassumption.
+Qed.
   
 
 
