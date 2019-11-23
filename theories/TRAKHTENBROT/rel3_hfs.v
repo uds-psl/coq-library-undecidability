@@ -22,34 +22,46 @@ Set Implicit Arguments.
 
 Section bt_model3.
 
-  (** Now how to encode the model given by k-ary relation over a finite
-      set of cardinal n
+  (** This discussion briefly describes how we encode finite and discrete 
+      model X with a computable ternary relation R into an hereditary finite 
+      set (hfs) with to elements l and r, l representing the points in X
+      and r representing the triples in R.
 
-      A finite set (pos n) and a k-ary relation R : (pos n)^k -> Prop
+      Because X is finite and discrete, one can compute a bijection X <~> pos n
+      where n is the cardinal of X. Hence we assume that X = pos n and the
+      ternary relation is R : pos n -> pos n -> pos n -> Prop
       
-      1) Find a transitive btree t such that pos n surjects onto t
-         Uses the encode of natural numbers into sets
+      1) We find a transitive hfs l such that pos n bijects with the elements
+         of l (transitive means ∀x, x∈l -> x⊆l). Hence
+
+                            pos n <-> { x | x ∈ l } 
+
+         For this, we use the encoding of natural numbers into sets, 
+         ie 0 := ø and 1+i := {i} U i and choose l to be the encoding 
+         of n (the cardinal of X=pos n above).
+
+         Notice that since l is transitive then so is P(l) (powerset)
+         and hence P^i(l) for any i.
     
-      2) forall x, y in t, both {x} and {x,y} belong to P(t)
-         hence <x,y> belongs to P(P(t))
-
-      3) and <x1,...,xk> belongs to P^2k(t) for any x1,...,xk in t 
-         So P^2k(t) contains any k-ary tuple if the image of (pos n).
+      2) forall x,y ∈ l, both {x} and {x,y} belong to P(l) 
+         hence (x,y) = {{x},{x,y}} ∈ P(P(l))=P^2(l)
         
-      4) Hence X = P^{2k+1}(t) contains all unary relations over k-ary 
-         tuple hence all the k-ary relations over t.
+      3) Hence P^4(l) = P^2(P^2(l)) contains all ordered triples
+         build from the elements of l. 
 
-      5) So we can encode R into the transitive set X = P^{2k+1}(t). 
+      5) So we can encode R as hfs r ∈ p := P^5(l) = P(P^4(l)) and
+         p serves as our model, ie 
+
+                      Y := { x : hfs | x ∈b p } 
+
+         where x ∈b p is the Boolean encoding of x ∈ p to ensure 
+         uniqueness of witnesses/proofs.
          
-      6) In the logic, we have a globally existentially quantified X_R 
-         and we replace any 
+      6) In the logic, we replace any 
       
-               R (v1,...,vk) by <x1,...,xk> in X_R
+               R (x1,x2,x3) by ((x1,x2),x3) ∈ r
 
-         encoded according to the above description
-
-         Perhaps follow the H10 technique to establish FOL encodability 
-         into the Σ(0,2) signature
+         encoded according to the above description.
 
       *)
 
@@ -193,6 +205,8 @@ Section bt_model3.
   Let Hr3 x y z : R x y z <->  ⟬⟬i x,i y⟭,i z⟭  ∈ r.
   Proof. apply (proj2_sig encode_R). Qed.
 
+  (** The Boolean encoding of x ∈ p *)
+
   Let p_bool x := if hfs_mem_dec x p then true else false.
 
   Let p_bool_spec x : x ∈ p <-> p_bool x = true.
@@ -203,18 +217,18 @@ Section bt_model3.
 
   Let Y := sig (fun x => p_bool x = true).
 
+  Let eqY : forall x y : Y, proj1_sig x = proj1_sig y -> x = y.
+  Proof. 
+    intros (x & Hx) (y & Hy); simpl.
+    intros; subst; f_equal; apply UIP_dec, bool_dec.
+  Qed.
+
   Let HY : finite_t Y.
   Proof. 
     apply fin_t_finite_t.
     + intros; apply UIP_dec, bool_dec.
     + generalize (hfs_mem_fin_t p); apply fin_t_equiv.
       intros x; auto.
-  Qed.
-
-  Let eqY : forall x y : Y, proj1_sig x = proj1_sig y -> x = y.
-  Proof. 
-    intros (x & Hx) (y & Hy); simpl.
-    intros; subst; f_equal; apply UIP_dec, bool_dec.
   Qed.
 
   Let discrY : discrete Y.
@@ -232,10 +246,10 @@ Section bt_model3.
     intros (a & ?) (b & ?); unfold mem; simpl; apply hfs_mem_dec.
   Qed.
 
-  Let yl : Y.
-  Proof. 
-    exists l; apply p_bool_spec, Hp2.
-  Defined.
+  Let yl : Y.    Proof. exists l; apply p_bool_spec, Hp2. Defined.
+  Let yr : Y.    Proof. exists r; apply p_bool_spec, Hr1. Defined.
+
+  (** Membership equivalence is identity in the model *)
 
   Let is_equiv : forall x y, m2_equiv mem x y <-> proj1_sig x = proj1_sig y.
   Proof.
@@ -255,7 +269,8 @@ Section bt_model3.
       apply (H (exist _ z H')); auto.
   Qed.
 
-  Let is_pair : forall x y k, m2_is_pair mem k x y <-> proj1_sig k = hfs_pair (proj1_sig x) (proj1_sig y).
+  Let is_pair : forall x y k, m2_is_pair mem k x y 
+                          <-> proj1_sig k = hfs_pair (proj1_sig x) (proj1_sig y).
   Proof.
     intros (x & Hx) (y & Hy) (k & Hk); simpl.
     unfold m2_is_pair; simpl; rewrite hfs_mem_ext.
@@ -273,7 +288,8 @@ Section bt_model3.
       apply H.
   Qed.
  
-  Let is_opair : forall x y k, m2_is_opair mem k x y <-> proj1_sig k = ⟬proj1_sig x,proj1_sig y⟭.
+  Let is_opair : forall x y k, m2_is_opair mem k x y 
+                              <-> proj1_sig k = ⟬proj1_sig x,proj1_sig y⟭.
   Proof.
     intros (x & Hx) (y & Hy) (k & Hk); simpl.
     unfold m2_is_opair; split.
@@ -292,7 +308,8 @@ Section bt_model3.
       repeat rewrite is_pair; simpl; auto.
   Qed.
 
-  Let is_otriple : forall x y z k, m2_is_otriple mem k x y z <-> proj1_sig k =  ⟬⟬proj1_sig x,proj1_sig y⟭ ,proj1_sig z⟭.
+  Let is_otriple : forall x y z k, m2_is_otriple mem k x y z 
+                               <-> proj1_sig k = ⟬⟬proj1_sig x,proj1_sig y⟭ ,proj1_sig z⟭.
   Proof. 
     intros (x & Hx) (y & Hy) (z & Hz) (k & Hk); simpl.
     unfold m2_is_otriple. split.
@@ -318,11 +335,6 @@ Section bt_model3.
     rewrite is_otriple; simpl; auto.
   Qed.
 
-  Let yr : Y.
-  Proof. 
-    exists r; apply p_bool_spec, Hr1.
-  Defined.
-
   Let i' : X -> Y.
   Proof.
     intros x.
@@ -335,21 +347,55 @@ Section bt_model3.
   Proof. unfold i', yl, mem; simpl; auto. Qed.
 
   Let s' (y : Y) : X := s (proj1_sig y).
+
+  (**
+    For finite and discrete type X, non empty (as witnessed by a given element)
+    equipped with a Boolean ternary relation R, one can compute a type Y, finite
+    and discrete, equipped with a Boolean binary membership predicate ∈ which is 
+    extensional. Y is a finite (set like) model which contains two sets yl and 
+    yr and there is a bijection between X and (the elements of) yl. All ordered 
+    triples build from elements of yl exist in Y, and yr encodes R in the set 
+    of (ordered) triples it contains. 
+    Finally, membership equivalence (≈) is the same as identity (=) in Y.
+
+    Membership equivalence : x ≈ y := ∀z, z∈x <-> z∈y
+    Membership extensional : x ≈ y -> ∀z, x∈z -> y∈z
+
+    Triples are build the usual way (in set theory)
+      - z ∈ {x,y} := z ≈ x \/ z ≈ y
+      - ordered pairs: (x,y) is {{x},{x,y}}
+      - ordered triples: (x,y,z) is ((x,y),z)
+
+    Non-emptyness is not really necessary but then bijection between X=ø and yl
+    has to be implemented with dependent functions, more cumbersome to work
+    with. And first order models can never be empty because one has to be able
+    to interpret variables. Maybe a discussion on the case of empty models
+    could be necessary, the logic been reduced to True/False in that case.
+    Any ∀ formula is True, any ∃ is False and no atomic formula can ever
+    be evaluated (because it contains terms that cannot be interpreted). 
+    Only closed formula have a meaning in the empty model 
+  *)
   
-  Theorem rel3_hfs : exists (Y : Type) (_ : finite_t Y) (mem : Y -> Y -> Prop) (yl yr : Y) 
-                             (i : X -> Y) (s : Y -> X) 
-                             (_ : forall u v, { mem u v } + { ~ mem u v })
-                             (_ : discrete Y),
+  Local Theorem rel3_hfs : { Y : Type &
+                     { _ : finite_t Y & 
+                     { _ : discrete Y &
+                     { mem : Y -> Y -> Prop &
+                     { _ : forall u v, { mem u v } + { ~ mem u v } & 
+                     { yl : Y &
+                     { yr : Y & 
+                     { i : X -> Y & 
+                     { s : Y -> X |
                              m2_member_ext mem
                           /\ m2_has_otriples mem yl
                           /\ (forall x, mem (i x) yl)
                           /\ (forall y, mem y yl -> exists x, y = i x)
                           /\ (forall x, s (i x) = x)
                           /\ (forall a b c, R a b c <-> m2_is_otriple_in mem yr (i a) (i b) (i c))
-                          /\ (forall x y, m2_equiv mem x y <-> x = y).
+                          /\ (forall x y, m2_equiv mem x y <-> x = y)
+                      }}}}}}}}}.
   Proof.
-    exists Y, HY, mem, yl, yr, i', s'.
-    msplit 8; auto.
+    exists Y, HY, discrY, mem, mem_dec, yl, yr, i', s'.
+    msplit 6; auto.
     + intros (u & Hu) (v & Hv) (w & Hw); unfold mem; simpl.
       unfold m2_equiv; simpl; intros H.
       cut (u = v); [ intros []; auto | ].

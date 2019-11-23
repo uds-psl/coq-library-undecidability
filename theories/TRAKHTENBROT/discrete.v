@@ -493,7 +493,6 @@ Section counter_model_to_class_FO_definability.
   Proof.
     intros H.
     apply fom_eq_fol_characterization in H; auto.
-    red in H.
     specialize (H (fol_atom Σ tt (£0##£1##ø)) (fun n => match n with 0 => true | _ => false end)).
     revert H; unfold M; simpl; rew fot; simpl.
     intros [H _]; cbv; auto.
