@@ -26,16 +26,54 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(* Some ideas for notations
+(* Some ideas for notations and terminology
 
     Σ = (∅ or { f_1 , g_1 , a_0, b_0 } ,{ ∈_2 , =_2 , T_3, P_2 , ≡_2 , ≺_3 })
-    finite <->   <∞ 𝔽
-    decidable/computable <-> ℂ
-    discrete <-> 𝔻
+    finite/listable <->   <∞ 𝔽
+    decidable/computable/Boolean <-> ℂ
+    discrete/decidable equality <-> 𝔻
     interpreted equality <-> =
 
+    We should fix that models have to be finite (listable) and
+    computable/Boolean. May be the best terminology is Boolean.
+    Discreteness is not a issue, see below. I tend tp favor finite
+    over listable because the term is already used in classical
+    logic, whereas "computable" means nothing for finite models
+    (ie finiteness implies computability in a classical setting)
+
+    Switching to weakly decidable models would be a problem
+    also for recovering functions from relations ...
+
+    To discuss also is the (small) issue of the empty model
+    which makes sense only for closed formulas. In that case,
+    the logic is reduced to True/False because ∀ <-> True
+    and ∃ <-> False
 *)
-    
+
+(* Summary of what is implement in here
+
+    BPCP ⪯ SAT({f_1,g_1,a_0,b_0},{P_2,≡_2,≺_2},𝔽,ℂ)
+
+    SAT(Σ,𝔽,𝔻) ⪯  SAT(Σ,𝔽,ℂ,𝔻)  and   SAT(Σ,𝔽,ℂ,𝔻) ⪯ SAT(Σ,𝔽,𝔻)
+
+    SAT(∅,{T_3},𝔽,ℂ,𝔻) ⪯ SAT(∅,{∈_2},𝔽,ℂ)
+
+    SAT(∅,{T_3,=_2},𝔽,ℂ,=) ⪯ SAT(∅,{∈_2},𝔽,ℂ)
+
+    SAT(∅,{R_2},𝔽,ℂ) ⪯ SAT(∅,{R_n},𝔽,ℂ)       (for 2 <= n)
+
+    SAT(∅,{R_n},𝔽,ℂ) ⪯ SAT(Σ,𝔽,ℂ)             (when Σ contains n-ary relation)
+
+*)
+  
+(** So the only missing reduction for the Full Trakthenbrot is 
+
+    SAT({f_1,g_1,a_0,b_0},{P_2,≡_2,≺_2},𝔽,ℂ)  ⪯   SAT(∅,{T_3,=_2},𝔽,ℂ,=)
+
+    ie 2 unary funs, 2 constants and three binary relations
+    to 1 ternary + an interpreted equality
+
+*)
 
 (** The reduction from PBCP to SAT of a FO formula 
      - over signature Σbpcp (2 unary funs, 2 constants, 3 rels)
