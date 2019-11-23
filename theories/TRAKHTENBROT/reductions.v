@@ -22,7 +22,7 @@ From Undecidability.Shared.Libs.DLW.Wf
 
 From Undecidability.TRAKHTENBROT
   Require Import notations fol_ops fo_terms fo_logic fo_sat discrete 
-                 Sig3_Sig2 Sig32_Sig2 bpcp fol_bpcp Sig2_Sign.
+                 Sig3_Sig2 Sig32_Sig2 bpcp fol_bpcp Sig2_Sign Sign_Sig.
 
 Set Implicit Arguments.
 
@@ -146,3 +146,20 @@ Qed.
 
 Check FIN_DEC_2SAT_FIN_DEC_nSAT.
 Print Assumptions FIN_DEC_2SAT_FIN_DEC_nSAT.
+
+(** If Σ contains an n-ary relational symbol then there is a 
+    reduction 
+
+               SAT(∅,{R_n},𝔽,ℂ) ---> SAT(Σ,𝔽,ℂ)  *)
+
+Theorem FIN_DEC_nSAT_FIN_DEC_SAT Σ n :
+         (exists r, ar_rels Σ r = n)
+      ->  @fo_form_fin_dec_SAT (Σrel n) ⪯ @fo_form_fin_dec_SAT Σ.
+Proof.
+  intros (r & Hr).
+  destruct (SATn_SAT_reduction _ _ Hr) as (f & Hf).
+  exists f; apply Hf.
+Qed.
+
+Check FIN_DEC_nSAT_FIN_DEC_SAT.
+Print Assumptions FIN_DEC_nSAT_FIN_DEC_SAT.
