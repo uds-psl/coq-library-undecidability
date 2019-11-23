@@ -208,10 +208,10 @@ Section hfs.
   Notation "x ⊆ y" := (forall u, u ∈ x -> u ∈ y).
 
   Fact hfs_incl_refl r : r ⊆ r.
-  Proof. apply m2_incl_refl. Qed.
+  Proof. apply mb_incl_refl. Qed.
 
   Fact hfs_incl_trans r s t : r ⊆ s -> s ⊆ t -> r ⊆ t.
-  Proof. apply m2_incl_trans. Qed.
+  Proof. apply mb_incl_trans. Qed.
 
   Fact hfs_incl_ext s t : s = t <-> s ⊆ t /\ t ⊆ s.
   Proof.

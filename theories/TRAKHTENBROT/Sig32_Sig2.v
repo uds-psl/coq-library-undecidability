@@ -24,6 +24,7 @@ From Undecidability.TRAKHTENBROT
 Set Implicit Arguments.
 
 Local Notation ø := vec_nil.
+
 Section Sig32_Sig2.
 
   Notation Σ2 := (Σrel 2).
@@ -38,50 +39,57 @@ Section Sig32_Sig2.
 
       May be not very useful since the encoding is straightforward
       most of the time 
+
+      THIS SHOULD BE PART OF membership.v and is redundant with Sig3_Sig2.v
     *)
 
-  Notation "x ∈ y" := (fol_atom Σ2 tt (£x##£y##ø)).
- 
-  Definition Σ2_incl x y := ∀ 0 ∈ (S x) ⤑ 0 ∈ (S y).
-  Definition Σ2_equiv x y := ∀ 0 ∈ (S x) ↔ 0 ∈ (S y).
-
-  Definition m2_member a b := fom_rels M2 tt (a##b##ø).
-
-  Notation "x '∈m' y" := (m2_member x y) (at level 59, no associativity).
-
+  Infix "∈" := Σ2_mem.
   Infix "≈" := Σ2_equiv.
   Infix "⊆" := Σ2_incl.
 
+  Let mem a b := fom_rels M2 tt (a##b##ø).
+
+  Notation "x '∈m' y" := (fom_rels M2 tt (x##y##ø)) (at level 59, no associativity).
+
   Notation "⟪ A ⟫" := (fun ψ => fol_sem M2 ψ A).
 
-  Fact Σ2_incl_spec x y ψ : ⟪Σ2_incl x y⟫ ψ = m2_incl m2_member (ψ x) (ψ y).
+(*
+  Definition Σ2_incl x y := ∀ 0 ∈ (S x) ⤑ 0 ∈ (S y).
+  Definition Σ2_equiv x y := ∀ 0 ∈ (S x) ↔ 0 ∈ (S y).
+
+
+  Notation "⟪ A ⟫" := (fun ψ => fol_sem M2 ψ A).
+
+  Fact Σ2_incl_spec x y ψ : ⟪Σ2_incl x y⟫ ψ = mb_incl mem (ψ x) (ψ y).
   Proof. reflexivity. Qed.
 
-  Fact Σ2_equiv_spec x y ψ : ⟪Σ2_equiv x y⟫ ψ = m2_equiv m2_member (ψ x) (ψ y).
+  Fact Σ2_equiv_spec x y ψ : ⟪Σ2_equiv x y⟫ ψ = mb_equiv mem (ψ x) (ψ y).
   Proof. reflexivity. Qed. 
  
   Definition Σ2_is_pair p x y : fol_form Σ2 := ∀ 0 ∈ (S p) ↔ 0 ≈ S x ⟇ 0 ≈ S y.
 
-  Fact Σ2_is_pair_spec p x y ψ : ⟪Σ2_is_pair p x y⟫ ψ = m2_is_pair m2_member (ψ p) (ψ x) (ψ y).
+  Fact Σ2_is_pair_spec p x y ψ : ⟪Σ2_is_pair p x y⟫ ψ = mb_is_pair mem (ψ p) (ψ x) (ψ y).
   Proof. reflexivity. Qed.
 
   Definition Σ2_is_opair p x y := ∃∃ Σ2_is_pair 1    (2+x) (2+x)
                                    ⟑ Σ2_is_pair 0    (2+x) (2+y)
                                    ⟑ Σ2_is_pair (2+p) 1     0.
 
-  Fact Σ2_is_opair_spec p x y ψ : ⟪Σ2_is_opair p x y⟫ ψ = m2_is_opair m2_member (ψ p) (ψ x) (ψ y).
+  Fact Σ2_is_opair_spec p x y ψ : ⟪Σ2_is_opair p x y⟫ ψ = mb_is_opair mem (ψ p) (ψ x) (ψ y).
   Proof. reflexivity. Qed.
 
   Definition Σ2_is_otriple p x y z := ∃ Σ2_is_opair 0     (S x) (S y)
                                       ⟑ Σ2_is_opair (S p)  0    (S z).
 
-  Fact Σ2_is_otriple_spec p x y z ψ : ⟪Σ2_is_otriple p x y z⟫ ψ = m2_is_otriple m2_member (ψ p) (ψ x) (ψ y) (ψ z).
+  Fact Σ2_is_otriple_spec p x y z ψ : ⟪Σ2_is_otriple p x y z⟫ ψ = mb_is_otriple mem (ψ p) (ψ x) (ψ y) (ψ z).
   Proof. reflexivity. Qed.
 
   Definition Σ2_is_otriple_in r x y z := ∃ Σ2_is_otriple 0 (S x) (S y) (S z) ⟑ 0 ∈ (S r).
 
-  Fact Σ2_is_otriple_in_spec r x y z ψ : ⟪Σ2_is_otriple_in r x y z⟫ ψ = m2_is_otriple_in m2_member (ψ r) (ψ x) (ψ y) (ψ z).
+  Fact Σ2_is_otriple_in_spec r x y z ψ : ⟪Σ2_is_otriple_in r x y z⟫ ψ = mb_is_otriple_in mem (ψ r) (ψ x) (ψ y) (ψ z).
   Proof. reflexivity. Qed.
+
+  *)
 
   (* Terms are just variables in Σrel *)
 
@@ -127,8 +135,8 @@ Section Sig32_Sig2.
   Let HR2 (l r : X) := forall x, x ∈m l -> exists y, R y x.
   Let HR3 (l r : X) := forall a b c a' b' c',
             R a a' -> R b b' -> R c c' 
-         -> P a b c <-> m2_is_otriple_in m2_member r a' b' c'.
-  Let HR4 := forall x y, m2_equiv m2_member x y <-> x = y.
+         -> P a b c <-> mb_is_otriple_in mem r a' b' c'.
+  Let HR4 := forall x y, mb_equiv mem x y <-> x = y.
   Let HR5 := forall x y1 y2, R y1 x -> R y2 x -> y1 = y2.
   Let HR6 := forall x1 x2 y, R y x1 -> R y x2 -> x1 = x2.
 
@@ -206,7 +214,8 @@ Section Sig32_Sig2.
           rewrite H3eq.
           revert H; vec split v with a; vec split v with b; vec nil v; simpl.
           intros H; clear v.
-          red in H4, H5, H6; rewrite H4.
+          red in H4, H5, H6.
+          unfold mem in H4; rewrite H4.
           revert a b H.
           intros [ a | [] ] [ b | [] ]; simpl; intros H; rew fot.
           assert (Ha : R (phi a) (psy a)) by (apply H; auto).
@@ -216,47 +225,6 @@ Section Sig32_Sig2.
           + intros E; rewrite <- E in Hb; apply (H5 _ _ _ Ha Hb). }
   Qed.
 
-  (** The formula stating any free variable in list lv has to
-      be interpreted by some element ∈ l *)
-
-  Definition Σ2_list_in l lv := let f x A := x ∈ l ⟑ A in fold_right f (⊥⤑⊥) lv.
-
-  Fact Σ2_list_in_spec l lv ψ : ⟪Σ2_list_in l lv⟫ ψ 
-                            <-> forall x, In x lv -> ψ x ∈m ψ l.
-  Proof.
-    induction lv as [ | x lv IH ]; simpl.
-    + split; tauto.
-    + split.
-      * intros (H1 & H2) ? [ <- | H ]; auto.
-        apply IH; auto.
-      * intros H; split.
-        - apply H; auto.
-        - apply IH; intros; apply H; auto.
-  Qed.
-
-  (** The FO set-theoretic axioms we need to add are minimal:
-         - ∈ must be extensional (of course, this is a set-theoretic model)
-         - ordered triples encoded in the usual way should exists for elements ∈ l 
-         - l should not be the empty set 
-         - and free variables of A (lifted twice) should be interpreted in l
-   *)
-
-  Definition Σ2_extensional := ∀∀∀ 2 ≈ 1 ⤑ 2 ∈ 0 ⤑ 1 ∈ 0.
-
-  Fact Σ2_extensional_spec ψ : ⟪Σ2_extensional⟫ ψ = m2_member_ext m2_member.
-  Proof. reflexivity. Qed.
-
-  Definition Σ2_has_otriples l :=
-    ∀∀∀ 2 ∈ (3+l) ⤑ 1 ∈ (3+l) ⤑ 0 ∈ (3+l) ⤑ ∃ Σ2_is_otriple 0 3 2 1.
-
-  Fact Σ2_has_otriples_spec l ψ : ⟪Σ2_has_otriples l⟫ ψ = m2_has_otriples m2_member (ψ l).
-  Proof. reflexivity. Qed.
-
-  Definition Σ2_non_empty l := ∃ 0 ∈ (1+l).
-
-  Fact Σ2_non_empty_spec l ψ : ⟪Σ2_non_empty l⟫ ψ = exists x, m2_member x (ψ l).
-  Proof. reflexivity. Qed.
-
   Variable A : fol_form Σ3.
 
   (** We make some space for l and r *)
@@ -265,11 +233,21 @@ Section Sig32_Sig2.
   Let l := 0.
   Let r := 1.
 
+  (** The FO set-theoretic axioms we need to add are minimal:
+         - ∈ must be extensional (of course, this is a set-theoretic model)
+         - ordered triples encoded in the usual way should exists for elements ∈ l 
+         - l should not be the empty set 
+         - and free variables of A (lifted twice) should be interpreted in l
+   *)
+
   (* Notice that Σ3_Σ2 A has two more free variables than A,
      that could be quantified existentially over if needed *)
 
-  Definition Σ3eq_Σ2_enc := Σ2_extensional ⟑ Σ2_non_empty l
-                        ⟑ Σ2_list_in l (fol_vars B) ⟑ Σ3eq_Σ2 l r B.
+  Definition Σ3eq_Σ2_enc := 
+                Σ2_extensional 
+              ⟑ Σ2_non_empty l
+              ⟑ Σ2_list_in l (fol_vars B) 
+              ⟑ Σ3eq_Σ2 l r B.
 
 End Sig32_Sig2.
 
@@ -293,12 +271,12 @@ Section SAT2_SAT32.
               (ψ : nat -> X)
               (HA : fol_sem M2 ψ (Σ3eq_Σ2_enc A)).
 
-    Let mem := m2_member M2.
+    Let mem a b := fom_rels M2 tt (a##b##ø).
 
     Let mem_dec : forall x y, { mem x y } + { ~ mem x y }.
     Proof. intros x y; apply (@M2dec tt). Qed.
 
-    Let mem_ext a b x : m2_equiv mem a b -> mem a x -> mem b x.
+    Let mem_ext a b x : mb_equiv mem a b -> mem a x -> mem b x.
     Proof. apply HA. Qed.
 
     (** Then by extentionality, to points/sets containing the same elements are identical
@@ -310,9 +288,9 @@ Section SAT2_SAT32.
 
       *)
 
-    Let mem_equiv_bisimilar x y : m2_equiv mem x y -> x = y.
+    Let mem_equiv_bisimilar x y : mb_equiv mem x y -> x = y.
     Proof.
-      unfold m2_equiv; intros Hab; apply M2bisim.
+      unfold mb_equiv; intros Hab; apply M2bisim.
       intros B phi _ _.
       assert (Hab' : forall a, mem x a <-> mem y a).
       { intros; split; apply mem_ext; red; intro; rewrite Hab; tauto. }
@@ -354,7 +332,7 @@ Section SAT2_SAT32.
       + intros [].
       + intros [] v.
         * simpl in v.
-          apply (m2_is_otriple_in mem (ψ 1)).
+          apply (mb_is_otriple_in mem (ψ 1)).
           - exact (proj1_sig (vec_head v)).
           - exact (proj1_sig (vec_head (vec_tail v))).
           - exact (proj1_sig (vec_head (vec_tail (vec_tail v)))).
@@ -364,7 +342,7 @@ Section SAT2_SAT32.
     Let M3_dec : fo_model_dec M3.
     Proof. 
       intros [] v.
-      + apply m2_is_otriple_in_dec; auto. 
+      + apply mb_is_otriple_in_dec; auto. 
       + simpl.
         vec split v with a; vec split v with b; vec nil v.
         clear v; revert a b; intros (a & Ha) (b & Hb); simpl.
@@ -418,8 +396,6 @@ Section SAT2_SAT32.
 
   End nested.
 
-  Check SAT2_to_SAT3.
-
   (** We use the powerful model discretizer here *)
 
   Theorem SAT2_SAT32 A : fo_form_fin_dec_SAT (Σ3eq_Σ2_enc A)
@@ -469,8 +445,7 @@ Section SAT32_SAT2.
     Local Lemma SAT3_to_SAT2 : exists Y, fo_form_fin_dec_SAT_in (Σ3eq_Σ2_enc A) Y.
     Proof.
       destruct rel3_hfs with (R := R)
-        as (Y & H1 & mem & l & r & i & s & 
-            H2 & _ & H3 & H4 & H5 & H6 & H7 & H8 & H9); auto.
+        as (Y & H1 & _ & mem & H2 & l & r & i & s & H3 & H4 & H5 & H6 & H7 & H8 & H9); auto.
       + apply φ, 0.
       + intros; apply M3_dec.
       + exists Y, (bin_rel_Σ2 mem), H1, (bin_rel_Σ2_dec _ H2), 

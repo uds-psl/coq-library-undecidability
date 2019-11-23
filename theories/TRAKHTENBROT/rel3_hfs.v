@@ -251,10 +251,10 @@ Section bt_model3.
 
   (** Membership equivalence is identity in the model *)
 
-  Let is_equiv : forall x y, m2_equiv mem x y <-> proj1_sig x = proj1_sig y.
+  Let is_equiv : forall x y, mb_equiv mem x y <-> proj1_sig x = proj1_sig y.
   Proof.
     intros (x & Hx) (y & Hy); simpl.
-    unfold m2_equiv, mem; simpl; split.
+    unfold mb_equiv, mem; simpl; split.
     2: intros []; tauto.
     intros H.
     apply hfs_mem_ext.
@@ -269,11 +269,11 @@ Section bt_model3.
       apply (H (exist _ z H')); auto.
   Qed.
 
-  Let is_pair : forall x y k, m2_is_pair mem k x y 
+  Let is_pair : forall x y k, mb_is_pair mem k x y 
                           <-> proj1_sig k = hfs_pair (proj1_sig x) (proj1_sig y).
   Proof.
     intros (x & Hx) (y & Hy) (k & Hk); simpl.
-    unfold m2_is_pair; simpl; rewrite hfs_mem_ext.
+    unfold mb_is_pair; simpl; rewrite hfs_mem_ext.
     generalize Hx Hy Hk; revert Hx Hy Hk.
     do 3 rewrite <- p_bool_spec at 1.
     intros Hx' Hy' Hk' Hx Hy Hk.
@@ -288,11 +288,11 @@ Section bt_model3.
       apply H.
   Qed.
  
-  Let is_opair : forall x y k, m2_is_opair mem k x y 
+  Let is_opair : forall x y k, mb_is_opair mem k x y 
                               <-> proj1_sig k = ⟬proj1_sig x,proj1_sig y⟭.
   Proof.
     intros (x & Hx) (y & Hy) (k & Hk); simpl.
-    unfold m2_is_opair; split.
+    unfold mb_is_opair; split.
     + intros ((a & Ha) & (b & Hb) & H); revert H.
       repeat rewrite is_pair; simpl.
       intros (-> & -> & ->); auto.
@@ -308,11 +308,11 @@ Section bt_model3.
       repeat rewrite is_pair; simpl; auto.
   Qed.
 
-  Let is_otriple : forall x y z k, m2_is_otriple mem k x y z 
+  Let is_otriple : forall x y z k, mb_is_otriple mem k x y z 
                                <-> proj1_sig k = ⟬⟬proj1_sig x,proj1_sig y⟭ ,proj1_sig z⟭.
   Proof. 
     intros (x & Hx) (y & Hy) (z & Hz) (k & Hk); simpl.
-    unfold m2_is_otriple. split.
+    unfold mb_is_otriple. split.
     + intros ((a & Ha) & H); revert H.
       repeat rewrite is_opair; simpl.
       intros (-> & ->); auto.
@@ -326,7 +326,7 @@ Section bt_model3.
       repeat rewrite is_opair; simpl; auto.
   Qed.
 
-  Let has_triples : m2_has_otriples mem yl.
+  Let has_triples : mb_has_otriples mem yl.
   Proof.
     intros (x & Hx') (y & Hy') (z & Hz'); simpl.
     intros Hx Hy Hz.
@@ -376,7 +376,7 @@ Section bt_model3.
     Only closed formula have a meaning in the empty model 
   *)
   
-  Local Theorem rel3_hfs : { Y : Type &
+  Theorem rel3_hfs : { Y : Type &
                      { _ : finite_t Y & 
                      { _ : discrete Y &
                      { mem : Y -> Y -> Prop &
@@ -385,19 +385,19 @@ Section bt_model3.
                      { yr : Y & 
                      { i : X -> Y & 
                      { s : Y -> X |
-                             m2_member_ext mem
-                          /\ m2_has_otriples mem yl
+                             mb_member_ext mem
+                          /\ mb_has_otriples mem yl
                           /\ (forall x, mem (i x) yl)
                           /\ (forall y, mem y yl -> exists x, y = i x)
                           /\ (forall x, s (i x) = x)
-                          /\ (forall a b c, R a b c <-> m2_is_otriple_in mem yr (i a) (i b) (i c))
-                          /\ (forall x y, m2_equiv mem x y <-> x = y)
+                          /\ (forall a b c, R a b c <-> mb_is_otriple_in mem yr (i a) (i b) (i c))
+                          /\ (forall x y, mb_equiv mem x y <-> x = y)
                       }}}}}}}}}.
   Proof.
     exists Y, HY, discrY, mem, mem_dec, yl, yr, i', s'.
     msplit 6; auto.
     + intros (u & Hu) (v & Hv) (w & Hw); unfold mem; simpl.
-      unfold m2_equiv; simpl; intros H.
+      unfold mb_equiv; simpl; intros H.
       cut (u = v); [ intros []; auto | ].
       apply hfs_mem_ext.
       apply p_bool_spec in Hu.
@@ -411,8 +411,8 @@ Section bt_model3.
     + intros y Hy; unfold i'.
       destruct (Hi' Hy) as (x & Hx).
       exists x; apply eqY; simpl; auto.
-    + intros a b c; unfold m2_is_otriple_in.
-      unfold m2_has_otriples in has_triples.
+    + intros a b c; unfold mb_is_otriple_in.
+      unfold mb_has_otriples in has_triples.
       destruct (has_triples (Hi'' a) (Hi'' b) (Hi'' c)) as (t & H2).
       split.
       * intros H; exists t; split; auto.

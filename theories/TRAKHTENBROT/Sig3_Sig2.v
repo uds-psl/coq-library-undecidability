@@ -54,33 +54,33 @@ Section Sig3_Sig2.
 
   Notation "⟪ A ⟫" := (fun ψ => fol_sem M2 ψ A).
 
-  Fact Σ2_incl_spec x y ψ : ⟪Σ2_incl x y⟫ ψ = m2_incl m2_member (ψ x) (ψ y).
+  Fact Σ2_incl_spec x y ψ : ⟪Σ2_incl x y⟫ ψ = mb_incl m2_member (ψ x) (ψ y).
   Proof. reflexivity. Qed.
 
-  Fact Σ2_equiv_spec x y ψ : ⟪Σ2_equiv x y⟫ ψ = m2_equiv m2_member (ψ x) (ψ y).
+  Fact Σ2_equiv_spec x y ψ : ⟪Σ2_equiv x y⟫ ψ = mb_equiv m2_member (ψ x) (ψ y).
   Proof. reflexivity. Qed. 
  
   Definition Σ2_is_pair p x y : fol_form Σ2 := ∀ 0 ∈ (S p) ↔ 0 ≈ S x ⟇ 0 ≈ S y.
 
-  Fact Σ2_is_pair_spec p x y ψ : ⟪Σ2_is_pair p x y⟫ ψ = m2_is_pair m2_member (ψ p) (ψ x) (ψ y).
+  Fact Σ2_is_pair_spec p x y ψ : ⟪Σ2_is_pair p x y⟫ ψ = mb_is_pair m2_member (ψ p) (ψ x) (ψ y).
   Proof. reflexivity. Qed.
 
   Definition Σ2_is_opair p x y := ∃∃ Σ2_is_pair 1    (2+x) (2+x)
                                    ⟑ Σ2_is_pair 0    (2+x) (2+y)
                                    ⟑ Σ2_is_pair (2+p) 1     0.
 
-  Fact Σ2_is_opair_spec p x y ψ : ⟪Σ2_is_opair p x y⟫ ψ = m2_is_opair m2_member (ψ p) (ψ x) (ψ y).
+  Fact Σ2_is_opair_spec p x y ψ : ⟪Σ2_is_opair p x y⟫ ψ = mb_is_opair m2_member (ψ p) (ψ x) (ψ y).
   Proof. reflexivity. Qed.
 
   Definition Σ2_is_otriple p x y z := ∃ Σ2_is_opair 0     (S x) (S y)
                                       ⟑ Σ2_is_opair (S p)  0    (S z).
 
-  Fact Σ2_is_otriple_spec p x y z ψ : ⟪Σ2_is_otriple p x y z⟫ ψ = m2_is_otriple m2_member (ψ p) (ψ x) (ψ y) (ψ z).
+  Fact Σ2_is_otriple_spec p x y z ψ : ⟪Σ2_is_otriple p x y z⟫ ψ = mb_is_otriple m2_member (ψ p) (ψ x) (ψ y) (ψ z).
   Proof. reflexivity. Qed.
 
   Definition Σ2_is_otriple_in r x y z := ∃ Σ2_is_otriple 0 (S x) (S y) (S z) ⟑ 0 ∈ (S r).
 
-  Fact Σ2_is_otriple_in_spec r x y z ψ : ⟪Σ2_is_otriple_in r x y z⟫ ψ = m2_is_otriple_in m2_member (ψ r) (ψ x) (ψ y) (ψ z).
+  Fact Σ2_is_otriple_in_spec r x y z ψ : ⟪Σ2_is_otriple_in r x y z⟫ ψ = mb_is_otriple_in m2_member (ψ r) (ψ x) (ψ y) (ψ z).
   Proof. reflexivity. Qed.
 
   (* Terms are just variables in Σrel *)
@@ -122,7 +122,7 @@ Section Sig3_Sig2.
   Let HR3 (l r : X) := forall a b c a' b' c',
             R a a' -> R b b' -> R c c' 
          -> fom_rels M3 tt (a##b##c##ø)
-        <-> m2_is_otriple_in m2_member r a' b' c'.
+        <-> mb_is_otriple_in m2_member r a' b' c'.
 
   Fact Σ2_is_otriple_in_vars r x y z : incl (fol_vars (Σ2_is_otriple_in r x y z)) (r::x::y::z::nil).
   Proof. intros a; simpl; tauto. Qed.
@@ -215,13 +215,13 @@ Section Sig3_Sig2.
 
   Definition Σ2_extensional := ∀∀∀ 2 ≈ 1 ⤑ 2 ∈ 0 ⤑ 1 ∈ 0.
 
-  Fact Σ2_extensional_spec ψ : ⟪Σ2_extensional⟫ ψ = m2_member_ext m2_member.
+  Fact Σ2_extensional_spec ψ : ⟪Σ2_extensional⟫ ψ = mb_member_ext m2_member.
   Proof. reflexivity. Qed.
 
   Definition Σ2_has_otriples l :=
     ∀∀∀ 2 ∈ (3+l) ⤑ 1 ∈ (3+l) ⤑ 0 ∈ (3+l) ⤑ ∃ Σ2_is_otriple 0 3 2 1.
 
-  Fact Σ2_has_otriples_spec l ψ : ⟪Σ2_has_otriples l⟫ ψ = m2_has_otriples m2_member (ψ l).
+  Fact Σ2_has_otriples_spec l ψ : ⟪Σ2_has_otriples l⟫ ψ = mb_has_otriples m2_member (ψ l).
   Proof. reflexivity. Qed.
 
   Definition Σ2_non_empty l := ∃ 0 ∈ (1+l).
@@ -287,14 +287,14 @@ Section SAT2_SAT3.
       + intros [].
       + intros [] v.
         simpl in v.
-        apply (m2_is_otriple_in mem (ψ 1)).
+        apply (mb_is_otriple_in mem (ψ 1)).
         * exact (proj1_sig (vec_head v)).
         * exact (proj1_sig (vec_head (vec_tail v))).
         * exact (proj1_sig (vec_head (vec_tail (vec_tail v)))).
     Defined.
 
     Let M3_dec : fo_model_dec M3.
-    Proof. intros [] v; apply m2_is_otriple_in_dec; auto. Qed.
+    Proof. intros [] v; apply mb_is_otriple_in_dec; auto. Qed.
 
     Let R (x : sig P) (y : X) := proj1_sig x = y.
 
@@ -363,12 +363,12 @@ Section SAT3_SAT2.
 
     Local Lemma SAT3_to_SAT2 : exists Y, fo_form_fin_dec_SAT_in (Σ3_Σ2_enc A) Y.
     Proof.
+      Check rel3_hfs.
       destruct rel3_hfs with (R := R)
-        as (Y & H1 & mem & l & r & i & s & 
-            H2 & _ & H3 & H4 & H5 & H6 & H7 & H8); auto.
+        as (Y & H1 & H2 & mem & H3 & l & r & i & s & H4 & H5 & H6 & H7 & H8 & H9 & H10); auto.
       + apply φ, 0.
       + intros; apply M3_dec.
-      + exists Y, (bin_rel_Σ2 mem), H1, (bin_rel_Σ2_dec _ H2), 
+      + exists Y, (bin_rel_Σ2 mem), H1, (bin_rel_Σ2_dec _ H3), 
         (fun n => match n with 
            | 0 => l
            | 1 => r
@@ -385,8 +385,8 @@ Section SAT3_SAT2.
           - rewrite fol_sem_subst.
             revert HA; apply fol_sem_ext.
             intros; simpl; rew fot; auto.
-          - intros x; exists (i x); split; auto; apply H5.
-          - intros a b c ? ? ? -> -> ->; apply H8.
+          - intros x; exists (i x); split; auto; apply H6.
+          - intros a b c ? ? ? -> -> ->; apply H9.
           - intros n; rewrite fol_vars_map, in_map_iff.
             intros (m & <- & Hm); simpl; auto.
     Qed.
