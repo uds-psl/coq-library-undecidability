@@ -131,6 +131,8 @@ Qed.
 Check FIN_DEC_EQ_3SAT_FIN_DEC_2SAT.
 Print Assumptions FIN_DEC_EQ_3SAT_FIN_DEC_2SAT.
 
+(*      SAT(∅,{R_2},𝔽,ℂ) ---> SAT(∅,{R_(2+n)},𝔽,ℂ)           *)
+
 Theorem FIN_DEC_2SAT_FIN_DEC_nSAT n :
                  2 <= n 
               -> @fo_form_fin_dec_SAT (Σrel 2)
