@@ -42,6 +42,11 @@ Proof.
   + exact (fun _ => n). (* The n-ary relation *)
 Defined.
 
+(* Terms are just variables in Σrel *)
+
+Definition Σrel_var k : fo_term nat (ar_syms (Σrel k)) -> nat.
+Proof. intros [ n | [] ]; exact n. Defined.
+
 (** One relational symbol of arity n and (interpreted) equality *)
 
 Definition Σrel_eq (n : nat) : fo_signature.

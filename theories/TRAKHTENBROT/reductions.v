@@ -22,7 +22,7 @@ From Undecidability.Shared.Libs.DLW.Wf
 
 From Undecidability.TRAKHTENBROT
   Require Import notations fol_ops fo_terms fo_logic fo_sat discrete 
-                 Sig3_Sig2 Sig32_Sig2 bpcp fol_bpcp.
+                 Sig3_Sig2 Sig32_Sig2 bpcp fol_bpcp Sig2_Sign.
 
 Set Implicit Arguments.
 
@@ -130,3 +130,17 @@ Qed.
 
 Check FIN_DEC_EQ_3SAT_FIN_DEC_2SAT.
 Print Assumptions FIN_DEC_EQ_3SAT_FIN_DEC_2SAT.
+
+Theorem FIN_DEC_2SAT_FIN_DEC_nSAT n :
+                 2 <= n 
+              -> @fo_form_fin_dec_SAT (Σrel 2)
+                           ⪯ @fo_form_fin_dec_SAT (Σrel n).
+Proof.
+  revert n; intros [ | [ | n ] ] H; try lia.
+  exists (Σ2_Σn n); intros A; split.
+  + apply SAT2_SATn.
+  + apply SATn_SAT2.
+Qed.
+
+Check FIN_DEC_2SAT_FIN_DEC_nSAT.
+Print Assumptions FIN_DEC_2SAT_FIN_DEC_nSAT.

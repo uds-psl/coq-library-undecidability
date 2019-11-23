@@ -399,6 +399,13 @@ Proof.
   revert p; induction v; intros p; pos_inv p; simpl; auto.
 Qed.
 
+Fact vec_map_set_pos X Y f n s : @vec_map X Y f _ (@vec_set_pos _ n s)
+                               = vec_set_pos (fun p => f (s p)).
+Proof.
+  apply vec_pos_ext; intros p.
+  rewrite vec_pos_map, vec_pos_set, vec_pos_set; auto.
+Qed.
+
 Section vec_plus.
 
   Variable n : nat.

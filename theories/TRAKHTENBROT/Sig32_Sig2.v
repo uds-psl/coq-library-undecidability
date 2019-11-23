@@ -25,15 +25,11 @@ Set Implicit Arguments.
 
 Local Notation ø := vec_nil.
 
-Section Sig32_Sig2.
+Section Sig32_Sig2_encoding.
 
   Notation Σ2 := (Σrel 2).
   Notation Σ3 := (Σrel_eq 3).
  
-  Variable (X : Type) (M2 : fo_model Σ2 X).
-  Variable (Y : Type) (M3 : fo_model Σ3 Y) 
-           (H3eq : fom_rels M3 false = rel2_on_vec eq).  (** The model is interpreted !! *)
-
   (** Can we define FO shapes and reify meta-level into FOL automagically
       like what was done for H10 ? 
 
@@ -47,53 +43,7 @@ Section Sig32_Sig2.
   Infix "≈" := Σ2_equiv.
   Infix "⊆" := Σ2_incl.
 
-  Let mem a b := fom_rels M2 tt (a##b##ø).
-
-  Notation "x '∈m' y" := (fom_rels M2 tt (x##y##ø)) (at level 59, no associativity).
-
-  Notation "⟪ A ⟫" := (fun ψ => fol_sem M2 ψ A).
-
-(*
-  Definition Σ2_incl x y := ∀ 0 ∈ (S x) ⤑ 0 ∈ (S y).
-  Definition Σ2_equiv x y := ∀ 0 ∈ (S x) ↔ 0 ∈ (S y).
-
-
-  Notation "⟪ A ⟫" := (fun ψ => fol_sem M2 ψ A).
-
-  Fact Σ2_incl_spec x y ψ : ⟪Σ2_incl x y⟫ ψ = mb_incl mem (ψ x) (ψ y).
-  Proof. reflexivity. Qed.
-
-  Fact Σ2_equiv_spec x y ψ : ⟪Σ2_equiv x y⟫ ψ = mb_equiv mem (ψ x) (ψ y).
-  Proof. reflexivity. Qed. 
- 
-  Definition Σ2_is_pair p x y : fol_form Σ2 := ∀ 0 ∈ (S p) ↔ 0 ≈ S x ⟇ 0 ≈ S y.
-
-  Fact Σ2_is_pair_spec p x y ψ : ⟪Σ2_is_pair p x y⟫ ψ = mb_is_pair mem (ψ p) (ψ x) (ψ y).
-  Proof. reflexivity. Qed.
-
-  Definition Σ2_is_opair p x y := ∃∃ Σ2_is_pair 1    (2+x) (2+x)
-                                   ⟑ Σ2_is_pair 0    (2+x) (2+y)
-                                   ⟑ Σ2_is_pair (2+p) 1     0.
-
-  Fact Σ2_is_opair_spec p x y ψ : ⟪Σ2_is_opair p x y⟫ ψ = mb_is_opair mem (ψ p) (ψ x) (ψ y).
-  Proof. reflexivity. Qed.
-
-  Definition Σ2_is_otriple p x y z := ∃ Σ2_is_opair 0     (S x) (S y)
-                                      ⟑ Σ2_is_opair (S p)  0    (S z).
-
-  Fact Σ2_is_otriple_spec p x y z ψ : ⟪Σ2_is_otriple p x y z⟫ ψ = mb_is_otriple mem (ψ p) (ψ x) (ψ y) (ψ z).
-  Proof. reflexivity. Qed.
-
-  Definition Σ2_is_otriple_in r x y z := ∃ Σ2_is_otriple 0 (S x) (S y) (S z) ⟑ 0 ∈ (S r).
-
-  Fact Σ2_is_otriple_in_spec r x y z ψ : ⟪Σ2_is_otriple_in r x y z⟫ ψ = mb_is_otriple_in mem (ψ r) (ψ x) (ψ y) (ψ z).
-  Proof. reflexivity. Qed.
-
-  *)
-
-  (* Terms are just variables in Σrel *)
-
-  Definition Σ3eq_var : fo_term nat (ar_syms Σ3) -> nat.
+  Let Σ3_var : fo_term nat (ar_syms Σ3) -> nat.
   Proof. intros [ n | [] ]; exact n. Defined.
 
   (* We bound quantification inside hf-set l ∈ p and r ∈ p represent a set 
@@ -110,12 +60,19 @@ Section Sig32_Sig2.
       | fol_quant fol_ex A  => ∃ 0 ∈ (S l) ⟑ Σ3eq_Σ2 (S l) (S r) A
      end).
     destruct b; simpl in v.
-    + exact (Σ2_is_otriple_in r (Σ3eq_var (vec_head v)) 
-                                (Σ3eq_var (vec_head (vec_tail v)))
-                                (Σ3eq_var (vec_head (vec_tail (vec_tail v))))).
-    + exact (Σ2_equiv (Σ3eq_var (vec_head v)) (Σ3eq_var (vec_head (vec_tail v)))).
+    + exact (Σ2_is_otriple_in r (Σ3_var (vec_head v)) 
+                                (Σ3_var (vec_head (vec_tail v)))
+                                (Σ3_var (vec_head (vec_tail (vec_tail v))))).
+    + exact (Σ2_equiv (Σ3_var (vec_head v)) (Σ3_var (vec_head (vec_tail v)))).
   Defined.
-  
+
+  Variable (X : Type) (M2 : fo_model Σ2 X).
+  Variable (Y : Type) (M3 : fo_model Σ3 Y) 
+           (H3eq : fom_rels M3 false = rel2_on_vec eq).  (** The model is interpreted !! *)
+
+  Let mem a b := fom_rels M2 tt (a##b##ø).
+
+  Infix "∈m" := mem (at level 59, no associativity).
   Notation P := (fun x y z => fom_rels M3 true (x##y##z##ø)).
 
   Variable R : Y -> X -> Prop.
@@ -140,21 +97,7 @@ Section Sig32_Sig2.
   Let HR5 := forall x y1 y2, R y1 x -> R y2 x -> y1 = y2.
   Let HR6 := forall x1 x2 y, R y x1 -> R y x2 -> x1 = x2.
 
-  Fact Σ2_is_otriple_in_vars r x y z : incl (fol_vars (Σ2_is_otriple_in r x y z)) (r::x::y::z::nil).
-  Proof. intros a; simpl; tauto. Qed.
-
-  Fact Σ2_is_otriple_in_equiv r x y z φ ψ :
-               ⟪Σ2_is_otriple_in 3 2 1 0⟫ φ↑r↑x↑y↑z
-           <-> ⟪Σ2_is_otriple_in 3 2 1 0⟫ ψ↑r↑x↑y↑z.
-  Proof.
-    apply fol_sem_ext.
-    intros n Hn.
-    apply Σ2_is_otriple_in_vars in Hn.
-    revert Hn.
-    repeat (intros [ <- | H ]; [ simpl; auto | revert H ]).
-    simpl; tauto.
-  Qed.
-
+  Notation "⟪ A ⟫" := (fun ψ => fol_sem M2 ψ A).
   Notation "⟪ A ⟫'" := (fun φ => fol_sem M3 φ A) (at level 1, format "⟪ A ⟫'").
 
   (* The correctness lemma *)
@@ -204,10 +147,10 @@ Section Sig32_Sig2.
           revert a b c; intros [ a | [] ] [ b | [] ] [ c | [] ] H; simpl in H.
           split.
           + intros G1; simpl in G1; revert G1; rew fot; intros G1.
-            unfold Σ3eq_Σ2; simpl Σ3eq_var.
+            unfold Σ3eq_Σ2; simpl Σ3_var.
             red in H3.
             rewrite (@H3 _ _ _ (psy a) (psy b) (psy c)) in G1; auto.
-          + unfold Σ3eq_Σ2; simpl Σ3eq_var; intros G1.
+          + unfold Σ3eq_Σ2; simpl Σ3_var; intros G1.
             simpl; rew fot.
             rewrite (@H3 _ _ _ (psy a) (psy b) (psy c)); auto. }
      1: { unfold Σ3eq_Σ2; rewrite Σ2_equiv_spec; simpl.
@@ -249,7 +192,7 @@ Section Sig32_Sig2.
               ⟑ Σ2_list_in l (fol_vars B) 
               ⟑ Σ3eq_Σ2 l r B.
 
-End Sig32_Sig2.
+End Sig32_Sig2_encoding.
 
 Section SAT2_SAT32.
 

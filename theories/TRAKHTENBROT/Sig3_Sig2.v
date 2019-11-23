@@ -25,11 +25,29 @@ Set Implicit Arguments.
 
 Local Notation ø := vec_nil.
 
-Section Sig3_Sig2.
+Section Sig3_Sig2_encoding.
 
   Notation Σ2 := (Σrel 2).
   Notation Σ3 := (Σrel 3).
- 
+
+  Infix "∈" := Σ2_mem.
+  Infix "≈" := Σ2_equiv.
+  Infix "⊆" := Σ2_incl.
+
+  (* We bound quantification inside hf-set l ∈ p and r ∈ p represent a set 
+     of ordered triples corresponding to M3 *)
+
+  Fixpoint Σ3_Σ2 (l r : nat) (A : fol_form Σ3) : fol_form Σ2 :=
+    match A with
+      | ⊥              => ⊥
+      | fol_atom _ _ v => Σ2_is_otriple_in r (Σrel_var (vec_head v)) 
+                                             (Σrel_var (vec_head (vec_tail v)))
+                                             (Σrel_var (vec_head (vec_tail (vec_tail v))))
+      | fol_bin b A B  => fol_bin b (Σ3_Σ2 l r A) (Σ3_Σ2 l r B)
+      | fol_quant fol_fa A  => ∀ 0 ∈ (S l) ⤑ Σ3_Σ2 (S l) (S r) A
+      | fol_quant fol_ex A  => ∃ 0 ∈ (S l) ⟑ Σ3_Σ2 (S l) (S r) A
+     end.
+
   Variable (X : Type) (M2 : fo_model Σ2 X).
   Variable (Y : Type) (M3 : fo_model Σ3 Y).
 
@@ -40,68 +58,9 @@ Section Sig3_Sig2.
       most of the time 
     *)
 
-  Notation "x ∈ y" := (fol_atom Σ2 tt (£x##£y##ø)).
- 
-  Definition Σ2_incl x y := ∀ 0 ∈ (S x) ⤑ 0 ∈ (S y).
-  Definition Σ2_equiv x y := ∀ 0 ∈ (S x) ↔ 0 ∈ (S y).
+  Let mem a b := fom_rels M2 tt (a##b##ø).
 
-  Definition m2_member a b := fom_rels M2 tt (a##b##ø).
-
-  Notation "x '∈m' y" := (m2_member x y) (at level 59, no associativity).
-
-  Infix "≈" := Σ2_equiv.
-  Infix "⊆" := Σ2_incl.
-
-  Notation "⟪ A ⟫" := (fun ψ => fol_sem M2 ψ A).
-
-  Fact Σ2_incl_spec x y ψ : ⟪Σ2_incl x y⟫ ψ = mb_incl m2_member (ψ x) (ψ y).
-  Proof. reflexivity. Qed.
-
-  Fact Σ2_equiv_spec x y ψ : ⟪Σ2_equiv x y⟫ ψ = mb_equiv m2_member (ψ x) (ψ y).
-  Proof. reflexivity. Qed. 
- 
-  Definition Σ2_is_pair p x y : fol_form Σ2 := ∀ 0 ∈ (S p) ↔ 0 ≈ S x ⟇ 0 ≈ S y.
-
-  Fact Σ2_is_pair_spec p x y ψ : ⟪Σ2_is_pair p x y⟫ ψ = mb_is_pair m2_member (ψ p) (ψ x) (ψ y).
-  Proof. reflexivity. Qed.
-
-  Definition Σ2_is_opair p x y := ∃∃ Σ2_is_pair 1    (2+x) (2+x)
-                                   ⟑ Σ2_is_pair 0    (2+x) (2+y)
-                                   ⟑ Σ2_is_pair (2+p) 1     0.
-
-  Fact Σ2_is_opair_spec p x y ψ : ⟪Σ2_is_opair p x y⟫ ψ = mb_is_opair m2_member (ψ p) (ψ x) (ψ y).
-  Proof. reflexivity. Qed.
-
-  Definition Σ2_is_otriple p x y z := ∃ Σ2_is_opair 0     (S x) (S y)
-                                      ⟑ Σ2_is_opair (S p)  0    (S z).
-
-  Fact Σ2_is_otriple_spec p x y z ψ : ⟪Σ2_is_otriple p x y z⟫ ψ = mb_is_otriple m2_member (ψ p) (ψ x) (ψ y) (ψ z).
-  Proof. reflexivity. Qed.
-
-  Definition Σ2_is_otriple_in r x y z := ∃ Σ2_is_otriple 0 (S x) (S y) (S z) ⟑ 0 ∈ (S r).
-
-  Fact Σ2_is_otriple_in_spec r x y z ψ : ⟪Σ2_is_otriple_in r x y z⟫ ψ = mb_is_otriple_in m2_member (ψ r) (ψ x) (ψ y) (ψ z).
-  Proof. reflexivity. Qed.
-
-  (* Terms are just variables in Σrel *)
-
-  Definition Σ3_var : fo_term nat (ar_syms Σ3) -> nat.
-  Proof. intros [ n | [] ]; exact n. Defined.
-
-  (* We bound quantification inside hf-set l ∈ p and r ∈ p represent a set 
-     of ordered triples corresponding to M3 *)
-
-  Fixpoint Σ3_Σ2 (l r : nat) (A : fol_form Σ3) : fol_form Σ2 :=
-    match A with
-      | ⊥              => ⊥
-      | fol_atom _ _ v => Σ2_is_otriple_in r (Σ3_var (vec_head v)) 
-                                             (Σ3_var (vec_head (vec_tail v)))
-                                             (Σ3_var (vec_head (vec_tail (vec_tail v))))
-      | fol_bin b A B  => fol_bin b (Σ3_Σ2 l r A) (Σ3_Σ2 l r B)
-      | fol_quant fol_fa A  => ∀ 0 ∈ (S l) ⤑ Σ3_Σ2 (S l) (S r) A
-      | fol_quant fol_ex A  => ∃ 0 ∈ (S l) ⟑ Σ3_Σ2 (S l) (S r) A
-     end.
-
+  Infix "∈m" := mem (at level 59, no associativity).
   Notation P := (fun x y z => fom_rels M3 tt (x##y##z##ø)).
 
   Variable R : Y -> X -> Prop.
@@ -117,28 +76,13 @@ Section Sig3_Sig2.
 
     *)
 
-  Let HR1 (l r : X) := forall x, exists y, fom_rels M2 tt (y##l##ø) /\ R x y.
-  Let HR2 (l r : X) := forall y, fom_rels M2 tt (y##l##ø) -> exists x, R x y.
+  Let HR1 (l r : X) := forall x, exists y, y ∈m l /\ R x y.
+  Let HR2 (l r : X) := forall y, y ∈m l -> exists x, R x y.
   Let HR3 (l r : X) := forall a b c a' b' c',
             R a a' -> R b b' -> R c c' 
-         -> fom_rels M3 tt (a##b##c##ø)
-        <-> mb_is_otriple_in m2_member r a' b' c'.
+         -> P a b c <-> mb_is_otriple_in mem r a' b' c'.
 
-  Fact Σ2_is_otriple_in_vars r x y z : incl (fol_vars (Σ2_is_otriple_in r x y z)) (r::x::y::z::nil).
-  Proof. intros a; simpl; tauto. Qed.
-
-  Fact Σ2_is_otriple_in_equiv r x y z φ ψ :
-               ⟪Σ2_is_otriple_in 3 2 1 0⟫ φ↑r↑x↑y↑z
-           <-> ⟪Σ2_is_otriple_in 3 2 1 0⟫ ψ↑r↑x↑y↑z.
-  Proof.
-    apply fol_sem_ext.
-    intros n Hn.
-    apply Σ2_is_otriple_in_vars in Hn.
-    revert Hn.
-    repeat (intros [ <- | H ]; [ simpl; auto | revert H ]).
-    simpl; tauto.
-  Qed.
-
+  Notation "⟪ A ⟫" := (fun ψ => fol_sem M2 ψ A).
   Notation "⟪ A ⟫'" := (fun φ => fol_sem M3 φ A) (at level 1, format "⟪ A ⟫'").
 
   (* The correctness lemma *)
@@ -185,49 +129,13 @@ Section Sig3_Sig2.
        revert a b c; intros [ a | [] ] [ b | [] ] [ c | [] ] H; simpl in H.
        split.
        + intros G1; simpl in G1; revert G1; rew fot; intros G1.
-         unfold Σ3_Σ2; simpl Σ3_var.
+         unfold Σ3_Σ2; simpl Σrel_var.
          red in H4.
          rewrite (@H4 _ _ _ (psy a) (psy b) (psy c)) in G1; auto.
-       + unfold Σ3_Σ2; simpl Σ3_var; intros G1.
+       + unfold Σ3_Σ2; simpl Σrel_var; intros G1.
          simpl; rew fot.
          rewrite (@H4 _ _ _ (psy a) (psy b) (psy c)); auto. }
   Qed.
-
-  (** The formula stating any free variable in list lv has to
-      be interpreted by some element ∈ l *)
-
-  Definition Σ2_list_in l lv := fol_lconj (map (fun x => x ∈ l) lv).
-
-  Fact Σ2_list_in_spec l lv ψ : ⟪Σ2_list_in l lv⟫ ψ 
-                            <-> forall x, In x lv -> ψ x ∈m ψ l.
-  Proof.
-    unfold Σ2_list_in; rewrite fol_sem_big_conj; split.
-    + intros H x Hx; apply (H (x ∈ l)), in_map_iff; exists x; auto.
-    + intros H ?; rewrite in_map_iff; intros (x & <- & Hx); apply H; auto.
-  Qed. 
-
-  (** The FO set-theoretic axioms we need to add are minimal:
-         - ∈ must be extensional (of course, this is a set-theoretic model)
-         - ordered triples encoded in the usual way should exists for elements ∈ l 
-         - l should not be the empty set 
-         - and free variables of A (lifted twice) should be interpreted in l
-   *)
-
-  Definition Σ2_extensional := ∀∀∀ 2 ≈ 1 ⤑ 2 ∈ 0 ⤑ 1 ∈ 0.
-
-  Fact Σ2_extensional_spec ψ : ⟪Σ2_extensional⟫ ψ = mb_member_ext m2_member.
-  Proof. reflexivity. Qed.
-
-  Definition Σ2_has_otriples l :=
-    ∀∀∀ 2 ∈ (3+l) ⤑ 1 ∈ (3+l) ⤑ 0 ∈ (3+l) ⤑ ∃ Σ2_is_otriple 0 3 2 1.
-
-  Fact Σ2_has_otriples_spec l ψ : ⟪Σ2_has_otriples l⟫ ψ = mb_has_otriples m2_member (ψ l).
-  Proof. reflexivity. Qed.
-
-  Definition Σ2_non_empty l := ∃ 0 ∈ (1+l).
-
-  Fact Σ2_non_empty_spec l ψ : ⟪Σ2_non_empty l⟫ ψ = exists x, m2_member x (ψ l).
-  Proof. reflexivity. Qed.
 
   Variable A : fol_form Σ3.
 
@@ -240,10 +148,20 @@ Section Sig3_Sig2.
   (* Notice that Σ3_Σ2 A has two more free variables than A,
      that could be quantified existentially over if needed *)
 
-  Definition Σ3_Σ2_enc := Σ2_extensional ⟑ Σ2_non_empty l
-                        ⟑ Σ2_list_in l (fol_vars B) ⟑ Σ3_Σ2 l r B.
+  (** The FO set-theoretic axioms we need to add are minimal:
+         - ∈ must be extensional (of course, this is a set-theoretic model)
+         - ordered triples encoded in the usual way should exists for elements ∈ l 
+         - l should not be the empty set 
+         - and free variables of A (lifted twice) should be interpreted in l
+   *)
 
-End Sig3_Sig2.
+  Definition Σ3_Σ2_enc := 
+                Σ2_extensional 
+              ⟑ Σ2_non_empty l
+              ⟑ Σ2_list_in l (fol_vars B) 
+              ⟑ Σ3_Σ2 l r B.
+
+End Sig3_Sig2_encoding.
 
 Section SAT2_SAT3.
 
@@ -260,7 +178,7 @@ Section SAT2_SAT3.
               (ψ : nat -> X)
               (HA : fol_sem M2 ψ (Σ3_Σ2_enc A)).
 
-    Let mem := m2_member M2.
+    Let mem a b := fom_rels M2 tt (a##b##ø).
 
     Let mem_dec : forall x y, { mem x y } + { ~ mem x y }.
     Proof. intros x y; apply (@M2dec tt). Qed.

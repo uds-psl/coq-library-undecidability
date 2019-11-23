@@ -386,51 +386,59 @@ Section FOL_encoding.
                       ⤑ 0 ∈ (3+l) 
                       ⤑ ∃ Σ2_is_otriple 0 3 2 1.
 
-  (** The formula stating any free variable in list lv has to
-      be interpreted by some element ∈ l *)
+  Definition Σ2_list_in l lv := fol_lconj (map (fun x => x ∈ l) lv).
 
-  Definition Σ2_list_in l lv := 
-       let f x A := x ∈ l ⟑ A in fold_right f (⊥⤑⊥) lv.
+  Fact Σ2_is_otriple_in_vars r x y z : incl (fol_vars (Σ2_is_otriple_in r x y z)) (r::x::y::z::nil).
+  Proof. intros a; simpl; tauto. Qed.
 
-  Variables ψ : nat -> Y.
+  Section semantics.
 
-  Notation "⟪ A ⟫" := (fol_sem M2 ψ A).
+    Variables (ψ : nat -> Y).
 
-  Fact Σ2_non_empty_spec l : ⟪Σ2_non_empty l⟫ = exists x, x ∈m ψ l.
-  Proof. reflexivity. Qed.
+    Notation "⟪ A ⟫" := (fol_sem M2 ψ A).
 
-  Fact Σ2_incl_spec x y : ⟪Σ2_incl x y⟫ = mb_incl mem (ψ x) (ψ y).
-  Proof. reflexivity. Qed.
+    Fact Σ2_non_empty_spec l : ⟪Σ2_non_empty l⟫ = exists x, x ∈m ψ l.
+    Proof. reflexivity. Qed.
 
-  Fact Σ2_equiv_spec x y : ⟪Σ2_equiv x y⟫ = mb_equiv mem (ψ x) (ψ y).
-  Proof. reflexivity. Qed. 
+    Fact Σ2_incl_spec x y : ⟪Σ2_incl x y⟫ = mb_incl mem (ψ x) (ψ y).
+    Proof. reflexivity. Qed.
 
-  Fact Σ2_extensional_spec : ⟪Σ2_extensional⟫ = mb_member_ext mem.
-  Proof. reflexivity. Qed.
+    Fact Σ2_equiv_spec x y : ⟪Σ2_equiv x y⟫ = mb_equiv mem (ψ x) (ψ y).
+    Proof. reflexivity. Qed. 
 
-  Fact Σ2_is_pair_spec p x y : ⟪Σ2_is_pair p x y⟫ = mb_is_pair mem (ψ p) (ψ x) (ψ y).
-  Proof. reflexivity. Qed.
+    Fact Σ2_extensional_spec : ⟪Σ2_extensional⟫ = mb_member_ext mem.
+    Proof. reflexivity. Qed.
 
-  Fact Σ2_is_otriple_spec p x y z : ⟪Σ2_is_otriple p x y z⟫ = mb_is_otriple mem (ψ p) (ψ x) (ψ y) (ψ z).
-  Proof. reflexivity. Qed.
+    Fact Σ2_is_pair_spec p x y : ⟪Σ2_is_pair p x y⟫ = mb_is_pair mem (ψ p) (ψ x) (ψ y).
+    Proof. reflexivity. Qed.
 
-  Fact Σ2_is_otriple_in_spec r x y z : ⟪Σ2_is_otriple_in r x y z⟫ = mb_is_otriple_in mem (ψ r) (ψ x) (ψ y) (ψ z).
-  Proof. reflexivity. Qed.
+    Fact Σ2_is_otriple_spec p x y z : ⟪Σ2_is_otriple p x y z⟫ = mb_is_otriple mem (ψ p) (ψ x) (ψ y) (ψ z).
+    Proof. reflexivity. Qed.
 
-  Fact Σ2_has_otriples_spec l : ⟪Σ2_has_otriples l⟫ = mb_has_otriples mem (ψ l).
-  Proof. reflexivity. Qed.
+    Fact Σ2_is_otriple_in_spec r x y z : ⟪Σ2_is_otriple_in r x y z⟫ = mb_is_otriple_in mem (ψ r) (ψ x) (ψ y) (ψ z).
+    Proof. reflexivity. Qed.
 
-  Fact Σ2_list_in_spec l lv : ⟪Σ2_list_in l lv⟫ 
-                            <-> forall x, In x lv -> ψ x ∈m ψ l.
-  Proof.
-    induction lv as [ | x lv IH ]; simpl.
-    + split; tauto.
-    + split.
-      * intros (H1 & H2) ? [ <- | H ]; auto.
-        apply IH; auto.
-      * intros H; split.
-        - apply H; auto.
-        - apply IH; intros; apply H; auto.
-  Qed.
+    Fact Σ2_has_otriples_spec l : ⟪Σ2_has_otriples l⟫ = mb_has_otriples mem (ψ l).
+    Proof. reflexivity. Qed.
+
+    Fact Σ2_list_in_spec l lv : ⟪Σ2_list_in l lv⟫ <-> forall x, In x lv -> ψ x ∈m ψ l.
+    Proof.
+      unfold Σ2_list_in; rewrite fol_sem_big_conj.
+      split.
+      + intros H x Hx.
+        apply (H (_ ∈ _)), in_map_iff.
+        exists x; auto.
+      + intros H f; rewrite in_map_iff.
+        intros (x & <- & ?); apply H; auto.
+    Qed.
+
+  End semantics.
+
+  Notation "⟪ A ⟫" := (fun ψ => fol_sem M2 ψ A).
+
+  Fact Σ2_is_otriple_in_equiv r x y z φ ψ :
+               ⟪Σ2_is_otriple_in 3 2 1 0⟫ φ↑r↑x↑y↑z
+           <-> ⟪Σ2_is_otriple_in 3 2 1 0⟫ ψ↑r↑x↑y↑z.
+  Proof. cbv beta; do 2 rewrite Σ2_is_otriple_in_spec; simpl; tauto. Qed.
 
 End FOL_encoding. 
