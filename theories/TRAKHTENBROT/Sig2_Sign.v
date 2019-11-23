@@ -29,12 +29,14 @@ Section Sig2_Sig_n_encoding.
   Notation Σ2 := (Σrel 2).
   Notation Σn := (Σrel (S (S n))).
 
+  (** The encoding is trivial here : replace R2(x,y) with Rn(x,y,...,y) *)
+
   Fixpoint Σ2_Σn (A : fol_form Σ2) : fol_form Σn :=
     match A with
       | ⊥              => ⊥
-      | fol_atom _ _ v => let a := Σrel_var (vec_head v)            in
-                          let b := Σrel_var (vec_head (vec_tail v)) 
-                          in  fol_atom Σn tt (£a##vec_set_pos (fun _ => £b))
+      | fol_atom _ _ v => let x := Σrel_var (vec_head v)            in
+                          let y := Σrel_var (vec_head (vec_tail v)) 
+                          in  fol_atom Σn tt (£x##vec_set_pos (fun _ => £y))
       | fol_bin b A B  => fol_bin b (Σ2_Σn A) (Σ2_Σn B)
       | fol_quant q A  => fol_quant q (Σ2_Σn A)
      end.
@@ -65,18 +67,18 @@ Section Sig2_Sig_n_encoding.
 
   End correctness.
 
-  Variable (A : fol_form (Σrel 2)).
+  Variable (A : fol_form Σ2).
 
   Section SATn_SAT2.
 
     Variables (X : Type)
-              (Mn : fo_model (Σrel (S (S n))) X)
+              (Mn : fo_model Σn X)
               (H1 : finite_t X)
               (H2 : fo_model_dec Mn)
               (phi : nat -> X)
               (H3 : fol_sem Mn phi (Σ2_Σn A)).
 
-    Let M2 : fo_model (Σrel 2) X.
+    Let M2 : fo_model Σ2 X.
     Proof.
       exists.
       + intros [].
@@ -106,13 +108,13 @@ Section Sig2_Sig_n_encoding.
   Section SAT2_SATn.
 
     Variables (X : Type)
-              (M2 : fo_model (Σrel 2) X)
+              (M2 : fo_model Σ2 X)
               (H1 : finite_t X)
               (H2 : fo_model_dec M2)
               (phi : nat -> X)
               (H3 : fol_sem M2 phi A).
 
-    Let Mn : fo_model (Σrel (S (S n))) X.
+    Let Mn : fo_model Σn X.
     Proof.
       exists.
       + intros [].
