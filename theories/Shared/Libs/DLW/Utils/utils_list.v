@@ -103,6 +103,21 @@ Section list_an.
         rewrite H1 at 1; f_equal; omega.
   Qed.
 
+  Fact list_an_duplicate_inv a n l x m y r : 
+        list_an a n = l++x::m++y::r -> a <= x /\ x < y < a+n.
+  Proof.
+    intros H.
+    generalize H; intros H1.
+    apply f_equal with (f := @length _) in H1.
+    rewrite list_an_length in H1.
+    apply list_an_app_inv in H; simpl in H.
+    destruct H as (E1 & H); injection H; clear H; intros H E2.
+    symmetry in H; apply list_an_app_inv in H; simpl in H.
+    destruct H as (E3 & H); injection H; clear H; intros E4 E5.
+    do 2 (rewrite app_length in H1; simpl in H1).
+    omega.
+  Qed.
+
 End list_an.
 
 Hint Rewrite list_an_length : length_db.
@@ -629,6 +644,24 @@ Section map.
     symmetry in H3.
     destruct map_cons_inv with (1 := H3) as (x & r' & H4 & H5 & H6); subst.
     exists l, x, r'; auto.
+  Qed.
+
+  Fact map_duplicate_inv ll l' y1 m' y2 r' :
+            map f ll = l'++y1::m'++y2::r'
+       -> { l : _ & 
+          { x1 : _ &
+          { m : _ &
+          { x2 : _ &
+          { r | l' = map f l /\ y1 = f x1 
+             /\ m' = map f m /\ y2 = f x2
+             /\ r' = map f r /\ ll = l++x1::m++x2::r } } } } }.
+  Proof.
+    intros H1.
+    apply map_middle_inv in H1.
+    destruct H1 as (l & x1 & k & H1 & H3 & H4 & H5).
+    apply map_middle_inv in H5.
+    destruct H5 as (m & x2 & r & -> & H6 & H7 & H8).
+    now exists l, x1, m, x2, r.
   Qed.
   
 End map.

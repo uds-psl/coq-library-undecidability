@@ -32,9 +32,9 @@ Section fin_upto.
 
     Variable (X : Type).
 
-    Let dec (R : X -> Prop) := forall x, R x \/ ~ R x.
+    Let wdec (R : X -> Prop) := forall x, R x \/ ~ R x.
    
-    Let pset_fin_t (l : list X) : { ll | forall R (_ : dec R), 
+    Let pset_fin_t (l : list X) : { ll | forall R (_ : wdec R), 
                                          exists T, In T ll 
                                      /\ forall x, In x l -> R x <-> T x }.
     Proof.
@@ -63,7 +63,7 @@ Section fin_upto.
     Qed.
 
     Theorem finite_t_weak_dec_powerset : 
-              finite_t X -> { l | forall R, dec R -> exists T, In T l /\ forall x, R x <-> T x }.
+              finite_t X -> { l | forall R, wdec R -> exists T, In T l /\ forall x, R x <-> T x }.
     Proof.
       intros (l & Hl).
       destruct (pset_fin_t l) as (ll & Hll).
@@ -75,9 +75,9 @@ Section fin_upto.
 
   End finite_t_weak_dec_powerset.
 
-  (** We show that there is a finite_t amount of decidable relations upto equivalence 
-      Notice that it is not guaranteed that the list l below contains only decidable
-      relations *)
+  (** We show that there is a finite_t bound over weakly (hence also strongly) decidable  
+      relations upto equivalence. Notice that it is not guaranteed that the list l 
+      below contains only decidable relations *)
 
   Theorem finite_t_weak_dec_rels X :
             finite_t X -> { l | forall R : X -> X -> Prop, 
@@ -101,12 +101,15 @@ End fin_upto.
 
 Section php_upto.
 
+  (** If R is a partial equivalence relation, l is a
+      list contained in the list m (upto R), and m is 
+      shorter than l, then l contains a duplicate upto R *)
+
   Theorem php_upto X (R : X -> X -> Prop) (l m : list X) :
-            symmetric _ R
-         -> transitive _ R
-         -> (forall x, In x l -> exists y, In y m /\ R x y)
-         -> length m < length l
-         -> exists a x b y c, l = a++x::b++y::c /\ R x y.
+            symmetric _ R -> transitive _ R                  (* PER *)
+         -> (forall x, In x l -> exists y, In y m /\ R x y)  (* l contained in m *)
+         -> length m < length l                              (* shorter *)
+         -> exists a x b y c, l = a++x::b++y::c /\ R x y.    (* duplicate *)
   Proof.
     intros HR1 HR2 H1 H2.
     destruct PHP_rel with (S := R) (2 := H2)
