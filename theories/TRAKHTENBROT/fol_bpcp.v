@@ -469,8 +469,8 @@ Section bpcp.
     Proof.
       intros H.
       destruct model as (_ & _ & _ & Hmodel & _).
+      unfold phi_simul in Hmodel; simpl in Hmodel.
       apply Hmodel in H.
-      clear Hmodel.
       apply fol_sem_big_disj in H.
       destruct H as (c & Hc & H).
       rewrite in_map_iff in Hc.

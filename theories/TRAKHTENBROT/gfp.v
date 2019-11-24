@@ -222,7 +222,7 @@ Section gfp.
     + intros R S H ? ?; rewrite H; tauto.
     + intros R S T H1 H2 ? ?; rewrite H1, H2; tauto.
     + intros R HR.
-      apply in_map_iff in HR.
+      unfold l in HR; apply in_map_iff in HR.
       destruct HR as (n & <- & _).
       destruct (HmR (i n)) as (T & H1 & H2).
       * intros x y; destruct (i_dec n x y); tauto.
