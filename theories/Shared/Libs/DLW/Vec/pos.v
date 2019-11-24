@@ -472,5 +472,18 @@ Proof.
       - exists p; auto.
     * exists (pos_nxt q); auto.
 Qed. 
+
+(** This is needed to reify a computable binary relation representing a unary function
+    into an actual function *)
+
+Fact pos_dec_rel2fun n (R : pos n -> pos n -> Prop) :
+         (forall a b, { R a b } + { ~ R a b }) 
+      -> (forall p, ex (R p)) -> { f | forall p, R p (f p) }.
+Proof.
+  intros HR H.
+  set (f p := proj1_sig (pos_dec_reif (HR p) (H p))).
+  exists f.
+  intro; apply (proj2_sig (pos_dec_reif (HR _) (H _))).
+Qed.
    
 
