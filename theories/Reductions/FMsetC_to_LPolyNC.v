@@ -47,7 +47,28 @@ Fixpoint mset_to_poly (A: list nat) :=
 Lemma Forall_mapP {X Y : Type} {P : Y -> Prop} {f : X -> Y} {l : list X} : 
   Forall P (map f l) <-> Forall (fun x => P (f x)) l.
 Proof.
-Admitted.
+  elim: l.
+    move=> /=. by constructor.
+  move=> a l IH /=. by rewrite ? Forall_norm IH.
+Qed.
+
+Lemma map_0P {X: Type} {A: list X} : (map (fun=> 0) A) = repeat 0 (length A).
+Proof. 
+  elim: A.
+    done.
+  move=> a A IH /=. by f_equal.
+Qed.
+
+Lemma poly_add_comm {p q} : poly_add p q = poly_add q p.
+Proof. 
+  elim: p q.
+    by case.
+  move=> a p IH. case.
+    done.
+  move=> b q /=. f_equal.
+    by lia.
+  done.
+Qed.
 
 Lemma mset_to_poly_eqI {A B} : A ≡ B -> mset_to_poly A ≃ mset_to_poly B.
 Proof. Admitted.
@@ -59,16 +80,112 @@ Lemma mset_to_poly_mapP {A} : mset_to_poly (map S A) ≃ 0 :: mset_to_poly A.
 Proof. Admitted.
 
 Lemma poly_eq_trans {p q r} : p ≃ q -> q ≃ r -> p ≃ r.
-Proof. Admitted.
+Proof.
+  by move=> + + i => /(_ i) + /(_ i) => -> ->.
+Qed.
 
-Lemma map_0P {X: Type} {A: list X} : (map (fun=> 0) A) = repeat 0 (length A).
-Proof. Admitted.
+Lemma repeat_0P {n} : repeat 0 n ≃ [].
+Proof. 
+  elim: n.
+    done.
+  move=> n + i => /(_ (Nat.pred i)).
+  case: i.
+    done.
+  by case.
+Qed.
 
-Lemma poly_add_0P {n p} : poly_add (repeat 0 n) p = p.
-Proof. Admitted.
+Lemma poly_eq_consP {a p q} : a :: p ≃ a :: q <-> p ≃ q.
+Proof. 
+  constructor.  
+    by move=> + i => /(_ (S i)).
+  move=> + i => /(_ (Nat.pred i)).
+  by case i.
+Qed.
 
-Lemma poly_add_comm {p q} : poly_add p q = poly_add q p.
-Proof. Admitted.
+Lemma poly_eq_consI {a b p q} : a = b -> p ≃ q -> a :: p ≃ b :: q.
+Proof. 
+  move=> ->. move /poly_eq_consP. by apply.
+Qed.
+
+Lemma poly_eq_consE {a b p q} : a :: p ≃ b :: q -> a = b /\ p ≃ q.
+Proof.
+  move=> H. constructor.
+    by move: (H 0).
+  move=> i. by move: (H (S i)).
+Qed.
+
+Lemma poly_eq_sym {p q} : p ≃ q -> q ≃ p.
+Proof.
+  by move=> + i => /(_ i) ->.
+Qed.
+
+Lemma poly_eq_nilE {a p} : a :: p ≃ [] -> a = 0 /\ p ≃ [].
+Proof.
+  move=> Hp. constructor.
+    by move: (Hp 0).
+  move=> i. move: (Hp (S i)). by case: i.
+Qed.
+
+Lemma poly_eq_nilI {a p} : a = 0 -> p ≃ [] -> a :: p ≃ [].
+Proof.
+  move=> -> + i => /(_ (Nat.pred i)).
+  case: i.
+    done.
+  by case.
+Qed.
+
+(*
+Lemma poly_add_0P {n p} : poly_add (repeat 0 n) p ≃ p.
+Proof.
+  elim: n p.
+    done.
+  move=> n IH /=. case.
+    admit.
+  move=> a p. f_equal.
+    admit.
+Admitted.
+*)
+
+
+Lemma poly_add_0I {p q r} : r ≃ [] -> p ≃ q -> p ≃ poly_add q r.
+Proof. 
+  elim: p q r.
+    elim.
+      move=> r /= *. by apply: poly_eq_sym.
+    move=> b q IH. case.
+      done.
+    move=> c r /poly_eq_nilE [-> Hr] /poly_eq_sym /poly_eq_nilE [-> Hq] /=.
+    apply: poly_eq_sym. apply: poly_eq_nilI.
+      done.
+    apply: poly_eq_sym. apply: IH.
+      done.
+    by apply: poly_eq_sym.
+  move=> a p IH. case.
+    move=> r ? /=.
+    move /poly_eq_trans. apply. by apply: poly_eq_sym.
+  move=> b q. case.
+    done.
+  move=> c r /poly_eq_nilE [->] Hr /=. rewrite Nat.add_0_r.
+  move /poly_eq_consE => [<- ?].
+  apply: poly_eq_consI.
+    done.
+  by apply: IH.
+Qed.
+
+
+Lemma poly_shiftI {p} : (0 :: p) ≃ poly_mult [0; 1] p.
+Proof.
+  rewrite /poly_mult map_0P.
+  rewrite [poly_add (repeat _ _) _] poly_add_comm.
+  apply: poly_add_0I.
+    by apply: repeat_0P.
+  under map_ext => a. have -> : 1 * a = a by lia. over.
+  rewrite -/(poly_eq _ _) map_id. apply: poly_eq_consI.
+    done.
+  apply: poly_add_0I.
+    apply: (repeat_0P (n := 1)).
+  done.
+Qed.
 
 Lemma completeness {l} : FMsetC_SAT l -> LPolyNC_SAT (encode_problem l).
 Proof.
@@ -80,9 +197,7 @@ Proof.
   - move=> x y z /= /mset_to_poly_eqI. move /poly_eq_trans. apply.
     by apply mset_to_poly_appP.
   - move=> x y /= /mset_to_poly_eqI. move /poly_eq_trans. apply.
-    move: (φ y) => A. rewrite map_0P. have -> : [0] = repeat 0 1 by done.
-    rewrite [poly_add _ (repeat _ _)] poly_add_comm. rewrite ? poly_add_0P.
-    have -> := map_ext (fun x => x + 0) id Nat.add_0_r. rewrite map_id. 
+    apply: (poly_eq_trans _ poly_shiftI).
     by apply: mset_to_poly_mapP.
 Qed.
     
@@ -98,6 +213,9 @@ Proof. Admitted.
 Lemma poly_to_mset_addP {p q} : poly_to_mset (poly_add p q) ≡ poly_to_mset p ++ poly_to_mset q.
 Proof. Admitted.
 
+Lemma poly_to_mset_consP {p} : poly_to_mset (0 :: p) = map S (poly_to_mset p).
+Proof. done. Qed.
+
 Lemma soundness {l} : LPolyNC_SAT (encode_problem l) -> FMsetC_SAT l.
 Proof.
   move=> [ψ]. rewrite -Forall_forall Forall_mapP => Hψ.
@@ -107,10 +225,9 @@ Proof.
   - move=> x y z /= /poly_to_mset_eqI. move /mset_eq_utils.eq_trans. apply.
     by apply: poly_to_mset_addP.
   - move=> x y /= /poly_to_mset_eqI. move /mset_eq_utils.eq_trans. apply.
-    move: (ψ y) => p. rewrite map_0P. have -> : [0] = repeat 0 1 by done.
-    rewrite [poly_add _ (repeat _ _)] poly_add_comm. rewrite ? poly_add_0P.
-    under map_ext => ?. rewrite Nat.add_0_r. over.
-    by rewrite -/(mset_eq _ _) map_id.
+    move: (ψ y) => p. rewrite -poly_to_mset_consP. apply: poly_to_mset_eqI.
+    apply: poly_eq_sym.
+    by apply: (poly_eq_trans _ poly_shiftI).
 Qed.
 
 From Undecidability Require Reductions.H10UC_to_FMsetC.
