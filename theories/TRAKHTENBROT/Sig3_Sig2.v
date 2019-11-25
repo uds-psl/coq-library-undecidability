@@ -19,7 +19,8 @@ From Undecidability.Shared.Libs.DLW.Wf
   Require Import wf_finite.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations fol_ops fo_terms fo_logic fo_sat membership hfs rel3_hfs.
+  Require Import notations fol_ops fo_terms fo_logic fo_sat
+                 membership hfs rel3_hfs.
 
 Set Implicit Arguments.
 
@@ -50,13 +51,6 @@ Section Sig3_Sig2_encoding.
 
   Variable (X : Type) (M2 : fo_model Σ2 X).
   Variable (Y : Type) (M3 : fo_model Σ3 Y).
-
-  (** Can we define FO shapes and reify meta-level into FOL automagically
-      like what was done for H10 ? 
-
-      May be not very useful since the encoding is straightforward
-      most of the time 
-    *)
 
   Let mem a b := fom_rels M2 tt (a##b##ø).
 
@@ -96,45 +90,41 @@ Section Sig3_Sig2_encoding.
   Proof.
     revert l r φ ψ.
     induction A as [ | [] | b A HA B HB | [] A HA ]; intros l r phi psy H1 H2 H4 H.
-    1: simpl; tauto.
-    2: { simpl; apply fol_bin_sem_ext.
-         + apply HA; intros; auto; apply H, in_or_app; simpl; auto.
-         + apply HB; intros; auto; apply H, in_or_app; simpl; auto. }
-    2: { simpl; split.
-         + intros (x & Hx).
-           destruct (H1 x) as (y & G1 & G2).
-           exists y; split.
-           * rew fot; simpl; auto.
-           * revert Hx; apply HA; auto.
-             intros [ | n ]; simpl; auto.
-             intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto.
-         + intros (y & G1 & G2); revert G1 G2; rew fot; simpl; intros G1 G2.
-           destruct (H2 _ G1) as (x & G3).
-           exists x; revert G2; apply HA; auto.
-           intros [ | n ]; simpl; auto.
-           intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto. } 
-  2: { simpl; split.
-       + intros G1 y; rew fot; simpl; intros G2.
-         destruct (H2 _ G2) as (x & G3).
-         generalize (G1 x); apply HA; auto.
-         intros [ | n ]; simpl; auto.
-         intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto.
-       + intros G1 x.
-         destruct (H1 x) as (y & G2 & G3).
-         generalize (G1 _ G2); apply HA; auto.
-         intros [ | n ]; simpl; auto.
-         intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto. }
-  1: { revert H.
-       vec split v with a; vec split v with b; vec split v with c; vec nil v; clear v.
-       revert a b c; intros [ a | [] ] [ b | [] ] [ c | [] ] H; simpl in H.
-       split.
-       + intros G1; simpl in G1; revert G1; rew fot; intros G1.
-         unfold Σ3_Σ2; simpl Σrel_var.
-         red in H4.
-         rewrite (@H4 _ _ _ (psy a) (psy b) (psy c)) in G1; auto.
-       + unfold Σ3_Σ2; simpl Σrel_var; intros G1.
-         simpl; rew fot.
-         rewrite (@H4 _ _ _ (psy a) (psy b) (psy c)); auto. }
+    * simpl; tauto.
+    * revert H; vec split v with a; vec split v with b; vec split v with c; vec nil v; clear v.
+      revert a b c; intros [ a | [] ] [ b | [] ] [ c | [] ] H; simpl in H.
+      split.
+      + intros G1; simpl in G1; revert G1; rew fot; intros G1.
+        unfold Σ3_Σ2; simpl Σrel_var; red in H4.
+        rewrite (@H4 _ _ _ (psy a) (psy b) (psy c)) in G1; auto.
+      + unfold Σ3_Σ2; simpl Σrel_var; intros G1; simpl; rew fot.
+        rewrite (@H4 _ _ _ (psy a) (psy b) (psy c)); auto.
+    * simpl; apply fol_bin_sem_ext; [ apply HA | apply HB ];
+        intros; auto; apply H, in_or_app; simpl; auto.
+    * simpl; split.
+      + intros (x & Hx).
+        destruct (H1 x) as (y & G1 & G2).
+        exists y; split.
+        - rew fot; simpl; auto.
+        - revert Hx; apply HA; auto.
+          intros [ | n ]; simpl; auto.
+          intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto.
+      + intros (y & G1 & G2); revert G1 G2; rew fot; simpl; intros G1 G2.
+        destruct (H2 _ G1) as (x & G3).
+        exists x; revert G2; apply HA; auto.
+        intros [ | n ]; simpl; auto.
+        intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto.
+    * simpl; split.
+      + intros G1 y; rew fot; simpl; intros G2.
+        destruct (H2 _ G2) as (x & G3).
+        generalize (G1 x); apply HA; auto.
+        intros [ | n ]; simpl; auto.
+        intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto.
+      + intros G1 x.
+        destruct (H1 x) as (y & G2 & G3).
+        generalize (G1 _ G2); apply HA; auto.
+        intros [ | n ]; simpl; auto.
+        intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto.
   Qed.
 
   Variable A : fol_form Σ3.
@@ -148,7 +138,7 @@ Section Sig3_Sig2_encoding.
   (* Notice that Σ3_Σ2 A has two more free variables than A,
      that could be quantified existentially over if needed *)
 
-  (** The FO set-theoretic axioms we need to add are minimal:
+  (** The FO set-theoretic axioms we need to add are somewhat minimal:
          - ∈ must be extensional (of course, this is a set-theoretic model)
          - ordered triples encoded in the usual way should exists for elements ∈ l 
          - l should not be the empty set 
@@ -266,7 +256,6 @@ Section SAT3_SAT2.
   (** This is the hard implication. From a model of A, 
       build a model of Σ3_Σ2_enc A in hereditary finite sets *)
 
-
   Section nested.
 
     Variables (A : fol_form (Σrel 3))
@@ -281,7 +270,6 @@ Section SAT3_SAT2.
 
     Local Lemma SAT3_to_SAT2 : exists Y, fo_form_fin_dec_SAT_in (Σ3_Σ2_enc A) Y.
     Proof.
-      Check rel3_hfs.
       destruct rel3_hfs with (R := R)
         as (Y & H1 & H2 & mem & H3 & l & r & i & s & H4 & H5 & H6 & H7 & H8 & H9 & H10); auto.
       + apply φ, 0.

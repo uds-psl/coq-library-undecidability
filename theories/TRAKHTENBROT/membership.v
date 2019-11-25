@@ -166,28 +166,6 @@ Section membership.
 
   Hint Resolve mb_is_pair_dec.
 
-(*
-
-  Definition mb_is_triple t x y z := forall a, a ∈ t <-> a ≈ x \/ a ≈ y \/ a ≈ z.
-
-  Add Parametric Morphism: (mb_is_triple) with signature 
-     (mb_equiv) ==> (mb_equiv) ==> (mb_equiv) ==> (mb_equiv) ==> (iff) as mb_is_triple_congruence.
-  Proof.
-    intros p q H1 x x' H2 y y' H3 z z' H4.
-    apply forall_equiv; intros a.
-    rewrite H1, H2, H3, H4; tauto.
-  Qed.
-
-  Fact mb_is_triple_fun r t x y z : mb_is_triple r x y z 
-                                 -> mb_is_triple t x y z 
-                                 -> r ≈ t.
-  Proof.
-    intros H1 H2; red in H1, H2; intro;
-    rewrite H1, H2; tauto.
-  Qed.
-
-*)
-
   (** Ordered pairs (x,y) := {{x},{x,y}}, Von Neuman encoding *)
 
   Definition mb_is_opair p x y := exists a b, mb_is_pair a x x /\ mb_is_pair b x y /\ mb_is_pair p a b.
@@ -290,54 +268,6 @@ Section membership.
     repeat (apply (fol_bin_sem_dec fol_conj); auto).
   Qed.
 
-(*
-
-  Definition mb_powset (l m : X) := forall x, x ∈ m <-> x ⊆ l.
-
-  Add Parametric Morphism: (mb_powset) with signature 
-     (mb_equiv) ==> (mb_equiv) ==> (iff) as mb_is_powset_congruence.
-  Proof.
-    intros x y H1 a b H2; unfold mb_powset.
-    apply forall_equiv; intro.
-    rewrite H1, H2; tauto.
-  Qed.
-
-  (** First order axioms *)
-
-  Variable (empty : exists x, forall y, y ∉ x).
- 
-  Variable (l0 l1 l2 l3 : X).     (** a layered model of level 4 *)
-  Variable (pset1 : mb_powset l0 l1)
-           (pset2 : mb_powset l1 l2)
-           (pset3 : mb_powset l2 l3)
-           (hp0 : mb_has_pairs l0)   (** pairs at every level below 3 *)
-           (hp1 : mb_has_pairs l1)
-           (hp2 : mb_has_pairs l2).
-
-  Fact mb_is_pair_layer p x y l pl : x ∈ l -> y ∈ l -> mb_is_pair p x y -> mb_powset l pl -> p ∈ pl.
-  Proof.
-    intros H1 H2 H3 H4; apply H4; red in H3.
-    intros k; rewrite H3; intros [ H | H ]; rewrite H; auto.
-  Qed.
-
-  Fact mb_is_opair_l2 p x y : x ∈ l0 -> y ∈ l0 -> mb_is_opair p x y -> p ∈ l2.
-  Proof.
-    intros H1 H2 (a & b & H3 & H4 & H5).
-    apply mb_is_pair_layer with (4 := pset1) in H3; auto.
-    apply mb_is_pair_layer with (4 := pset1) in H4; auto.
-    apply mb_is_pair_layer with (4 := pset2) in H5; auto.
-  Qed.
-   
-  Variable (r : X) (Hr : r ∈ l3). (** r encodes a binary relation *)
-
-  Definition mb_P x y := x ∈ l0 /\ y ∈ l0 /\ exists c, c ∈ r /\ mb_is_opair c x y. 
-
-  (** We want to show that (encode A) satisfied in this model
-           -> A true in the model where P as defined above 
-                is the binary relation *)
-
-  *)
-
 End membership.
 
 Section FOL_encoding.
@@ -350,18 +280,17 @@ Section FOL_encoding.
   Variable (Y : Type) (M2 : fo_model Σ2 Y).
 
   Let mem a b := fom_rels M2 tt (a##b##ø).
-  Notation "x '∈m' y" := (mem x y) (at level 59, no associativity).
+  Infix "∈m" := mem (at level 59, no associativity).
 
   Definition Σ2_mem x y := fol_atom Σ2 tt (£x##£y##ø).
-
   Infix "∈" := Σ2_mem.
 
   Definition Σ2_non_empty l := ∃ 0 ∈ (1+l). 
   Definition Σ2_incl x y := ∀ 0 ∈ (S x) ⤑ 0 ∈ (S y).
   Definition Σ2_equiv x y := ∀ 0 ∈ (S x) ↔ 0 ∈ (S y).
 
-  Infix "≈" := Σ2_equiv.
   Infix "⊆" := Σ2_incl.
+  Infix "≈" := Σ2_equiv.
 
   Definition Σ2_extensional := ∀∀∀ 2 ≈ 1 ⤑ 2 ∈ 0 ⤑ 1 ∈ 0.
 

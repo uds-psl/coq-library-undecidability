@@ -633,5 +633,4 @@ Section fo_model_projection.
 
 End fo_model_projection.
 
-Check fo_model_projection'.
 Check fo_model_projection.

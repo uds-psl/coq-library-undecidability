@@ -19,7 +19,8 @@ From Undecidability.Shared.Libs.DLW.Wf
   Require Import wf_finite.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations fol_ops fo_terms fo_logic fo_sat membership discrete hfs rel3_hfs.
+  Require Import notations fol_ops fo_terms fo_logic fo_sat 
+                 membership discrete hfs rel3_hfs.
 
 Set Implicit Arguments.
 
@@ -29,15 +30,6 @@ Section Sig32_Sig2_encoding.
 
   Notation Σ2 := (Σrel 2).
   Notation Σ3 := (Σrel_eq 3).
- 
-  (** Can we define FO shapes and reify meta-level into FOL automagically
-      like what was done for H10 ? 
-
-      May be not very useful since the encoding is straightforward
-      most of the time 
-
-      THIS SHOULD BE PART OF membership.v and is redundant with Sig3_Sig2.v
-    *)
 
   Infix "∈" := Σ2_mem.
   Infix "≈" := Σ2_equiv.
@@ -66,9 +58,12 @@ Section Sig32_Sig2_encoding.
     + exact (Σ2_equiv (Σ3_var (vec_head v)) (Σ3_var (vec_head (vec_tail v)))).
   Defined.
 
-  Variable (X : Type) (M2 : fo_model Σ2 X).
-  Variable (Y : Type) (M3 : fo_model Σ3 Y) 
-           (H3eq : fom_rels M3 false = rel2_on_vec eq).  (** The model is interpreted !! *)
+  Variables (X : Type) (M2 : fo_model Σ2 X)
+            (Y : Type) (M3 : fo_model Σ3 Y).
+
+  (* The model M3 has interpreted equality *)
+
+  Hypothesis (M3eq : fom_rels M3 false = rel2_on_vec eq).  
 
   Let mem a b := fom_rels M2 tt (a##b##ø).
 
@@ -109,63 +104,56 @@ Section Sig32_Sig2_encoding.
          -> HR4
          -> HR5 
          -> HR6 
-        -> (forall x, In x (fol_vars A) -> R (φ x) (ψ x))
-        -> ⟪ A ⟫' φ <-> ⟪Σ3eq_Σ2 l r A⟫ ψ.
+         -> (forall x, In x (fol_vars A) -> R (φ x) (ψ x))
+         -> ⟪ A ⟫' φ <-> ⟪Σ3eq_Σ2 l r A⟫ ψ.
   Proof.
     revert l r φ ψ.
     induction A as [ | [] | b A HA B HB | [] A HA ]; intros l r phi psy H1 H2 H3 H4 H5 H6 H.
-    1: simpl; tauto.
-    3: { simpl; apply fol_bin_sem_ext.
-         + apply HA; intros; auto; apply H, in_or_app; simpl; auto.
-         + apply HB; intros; auto; apply H, in_or_app; simpl; auto. }
-    3: { simpl; split.
-         + intros (x & Hx).
-           destruct (H1 x) as (y & G1 & G2).
-           exists y; split.
-           * rew fot; simpl; auto.
-           * revert Hx; apply HA; auto.
-             intros [ | n ]; simpl; auto.
-             intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto.
-         + intros (y & G1 & G2); revert G1 G2; rew fot; simpl; intros G1 G2.
-           destruct (H2 _ G1) as (x & G3).
-           exists x; revert G2; apply HA; auto.
-           intros [ | n ]; simpl; auto.
-           intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto. } 
-     3: { simpl; split.
-          + intros G1 y; rew fot; simpl; intros G2.
-            destruct (H2 _ G2) as (x & G3).
-            generalize (G1 x); apply HA; auto.
-            intros [ | n ]; simpl; auto.
-            intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto.
-          + intros G1 x.
-            destruct (H1 x) as (y & G2 & G3).
-            generalize (G1 _ G2); apply HA; auto.
-            intros [ | n ]; simpl; auto.
-            intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto. }
-     1: { revert H.
-          vec split v with a; vec split v with b; vec split v with c; vec nil v; clear v.
-          revert a b c; intros [ a | [] ] [ b | [] ] [ c | [] ] H; simpl in H.
-          split.
-          + intros G1; simpl in G1; revert G1; rew fot; intros G1.
-            unfold Σ3eq_Σ2; simpl Σ3_var.
-            red in H3.
-            rewrite (@H3 _ _ _ (psy a) (psy b) (psy c)) in G1; auto.
-          + unfold Σ3eq_Σ2; simpl Σ3_var; intros G1.
-            simpl; rew fot.
-            rewrite (@H3 _ _ _ (psy a) (psy b) (psy c)); auto. }
-     1: { unfold Σ3eq_Σ2; rewrite Σ2_equiv_spec; simpl.
-          rewrite H3eq.
-          revert H; vec split v with a; vec split v with b; vec nil v; simpl.
-          intros H; clear v.
-          red in H4, H5, H6.
-          unfold mem in H4; rewrite H4.
-          revert a b H.
-          intros [ a | [] ] [ b | [] ]; simpl; intros H; rew fot.
-          assert (Ha : R (phi a) (psy a)) by (apply H; auto).
-          assert (Hb : R (phi b) (psy b)) by (apply H; auto).
-          clear H; split.
-          + intros E; rewrite <- E in Hb; apply (H6 _ _ _ Ha Hb).
-          + intros E; rewrite <- E in Hb; apply (H5 _ _ _ Ha Hb). }
+    * simpl; tauto.
+    * revert H; vec split v with a; vec split v with b; vec split v with c; 
+        vec nil v; clear v; revert a b c. 
+      intros [ a | [] ] [ b | [] ] [ c | [] ] H; simpl in H.
+      split.
+      + intros G1; simpl in G1; revert G1; rew fot; intros G1.
+        unfold Σ3eq_Σ2; simpl Σ3_var; red in H3.
+        rewrite (@H3 _ _ _ (psy a) (psy b) (psy c)) in G1; auto.
+      + unfold Σ3eq_Σ2; simpl Σ3_var; intros G1; simpl; rew fot.
+        rewrite (@H3 _ _ _ (psy a) (psy b) (psy c)); auto. 
+    * unfold Σ3eq_Σ2; rewrite Σ2_equiv_spec; simpl; rewrite M3eq.
+      revert H; vec split v with a; vec split v with b; vec nil v; clear v; simpl.
+      intros H; red in H4, H5, H6; unfold mem in H4; rewrite H4.
+      revert a b H; intros [ a | [] ] [ b | [] ]; simpl; intros H; rew fot.
+      assert (Ha : R (phi a) (psy a)) by (apply H; auto).
+      assert (Hb : R (phi b) (psy b)) by (apply H; auto).
+      split.
+      + intros E; rewrite <- E in Hb; apply (H6 _ _ _ Ha Hb).
+      + intros E; rewrite <- E in Hb; apply (H5 _ _ _ Ha Hb).    
+    * simpl; apply fol_bin_sem_ext; [ apply HA | apply HB ];
+        intros; auto; apply H, in_or_app; simpl; auto.
+    * simpl; split.
+      + intros (x & Hx).
+        destruct (H1 x) as (y & G1 & G2).
+        exists y; split.
+        - rew fot; simpl; auto.
+        - revert Hx; apply HA; auto.
+          intros [ | n ]; simpl; auto.
+          intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto.
+      + intros (y & G1 & G2); revert G1 G2; rew fot; simpl; intros G1 G2.
+        destruct (H2 _ G1) as (x & G3).
+        exists x; revert G2; apply HA; auto.
+        intros [ | n ]; simpl; auto.
+        intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto. 
+    * simpl; split.
+      + intros G1 y; rew fot; simpl; intros G2.
+        destruct (H2 _ G2) as (x & G3).
+        generalize (G1 x); apply HA; auto.
+        intros [ | n ]; simpl; auto.
+        intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto.
+      + intros G1 x.
+        destruct (H1 x) as (y & G2 & G3).
+        generalize (G1 _ G2); apply HA; auto.
+        intros [ | n ]; simpl; auto.
+        intros; apply H; simpl; apply in_flat_map; exists (S n); simpl; auto.
   Qed.
 
   Variable A : fol_form Σ3.
@@ -176,14 +164,14 @@ Section Sig32_Sig2_encoding.
   Let l := 0.
   Let r := 1.
 
-  (** The FO set-theoretic axioms we need to add are minimal:
+  (** The FO set-theoretic axioms we need to add are somewhat minimal:
          - ∈ must be extensional (of course, this is a set-theoretic model)
          - ordered triples encoded in the usual way should exists for elements ∈ l 
          - l should not be the empty set 
          - and free variables of A (lifted twice) should be interpreted in l
    *)
 
-  (* Notice that Σ3_Σ2 A has two more free variables than A,
+  (* Notice that Σ3eq_Σ2 A has two more free variables than A,
      that could be quantified existentially over if needed *)
 
   Definition Σ3eq_Σ2_enc := 
@@ -196,7 +184,7 @@ End Sig32_Sig2_encoding.
 
 Section SAT2_SAT32.
 
-  (** We show the easy implication, any model of Σ3_Σ2_enc A
+  (** We show the easy implication, any model of Σ3eq_Σ2_enc A
      gives rise to a model of A *)
 
   Section nested.
@@ -339,7 +327,7 @@ Section SAT2_SAT32.
 
   End nested.
 
-  (** We use the powerful model discretizer here *)
+  (** We use the model discretizer here *)
 
   Theorem SAT2_SAT32 A : fo_form_fin_dec_SAT (Σ3eq_Σ2_enc A)
                       -> @fo_form_fin_dec_eq_SAT (Σrel_eq 3) false A.
@@ -361,7 +349,12 @@ End SAT2_SAT32.
 Section SAT32_SAT2.
 
   (** This is the hard implication. From a model of A, 
-      build a model of Σ3_Σ2_enc A in hereditary finite sets *)
+      build a model of Σ3eq_Σ2_enc A in hereditary finite sets 
+      
+      The hardness is not reflected in here because everything
+      is about building HF sets
+
+   *)
 
   Section nested.
 
@@ -429,5 +422,4 @@ Section SAT32_SAT2.
 
 End SAT32_SAT2.
 
-Check SAT32_SAT2.
-Check SAT2_SAT32.
+

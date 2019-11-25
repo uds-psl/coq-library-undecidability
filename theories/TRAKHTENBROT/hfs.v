@@ -347,46 +347,6 @@ Section hfs.
     + intros; rewrite <- hfs_card_pos_spec; auto.
   Qed.
 
-  (*
-
-  (** There is a surjective map from some t to pos n *)
-
-  Fact hfs_surj_t n : { t & { s : forall x, x ∈ t -> pos n | 
-                             (forall p, exists x Hx, p = s x Hx)
-                          /\ (forall x H1 H2, s x H1 = s x H2) } }.
-  Proof.
-    exists (hfs_card n), (@hfs_card_pos n); split.
-    + intros p; exists (hfs_pos p).
-      assert (hfs_pos p ∈ hfs_card n) as H.
-      { apply hfs_mem_btm, pos2bt_in. }
-      exists H.
-      apply hfs_pos_inj.
-      rewrite <- hfs_card_pos_spec; auto.
-    + intros; apply hfs_card_pos_pirr.
-  Qed.
-
-  (** Given a finite set type, there is a surjective map from a hfs to that type *)
-
-  Theorem hfs_surj_finite_t X : 
-           finite_t X 
-        -> { t & { s : forall x, x ∈ t -> X | 
-                (forall p, exists x Hx, p = s x Hx)
-             /\ (forall x H1 H2, s x H1 = s x H2) } }.
-  Proof.
-    intros HX.
-    apply finite_t_pos_equiv in HX.
-    destruct HX as (n & Hn).
-    destruct (hfs_surj_t n) as (t & s & Hs & H).
-    destruct Hn as (s' & Hs').
-    exists t.
-    exists (fun x Hx => s' (s x Hx)); split.
-    + intros x.
-      destruct (Hs' x) as (p & Hp).
-      destruct (Hs p) as (u & Hu & H').
-      subst; exists u, Hu; auto.
-    + intros; f_equal; auto.
-  Qed. *)
-
   (** For the non-empty finite type pos (S n), there is a computably
       surjective map from a transitive set l onto pos (S n) 
 
@@ -417,34 +377,6 @@ Section hfs.
       * rewrite H3; auto.
       * destruct H; auto.
   Qed.
-
-(*
-
-  Theorem hfs_finite_t_transitive X (x0 : X) :
-       finite_t X 
-    -> { l : hfs & 
-         { s : hfs -> X 
-           | hfs_transitive l 
-          /\ forall x, exists a, a ∈ l /\ x = s a } }.
-  Proof.
-    intros HX.
-    destruct (hfs_surj_finite_t HX) as (u & s & Hs1 & Hs2).
-    set (s' a  :=
-      match hfs_mem_dec a u with
-        | left  H => @s a H
-        | right _ => x0
-      end).
-    exists (hfs_tc u), s'; split.
-    + apply  hfs_tc_trans.
-    + intros x.
-      unfold s'.
-      destruct (Hs1 x) as (a & Ha & E).
-      exists a.
-      destruct (hfs_mem_dec a u) as [ H | H ]; try tauto; split.
-      * revert H; apply hfs_tc_incl.
-      * rewrite E; apply Hs2.
-  Qed.
-*)
 
   Opaque hfs_pow.
 

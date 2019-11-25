@@ -289,7 +289,7 @@ Section bt_model3.
   Qed.
  
   Let is_opair : forall x y k, mb_is_opair mem k x y 
-                              <-> proj1_sig k = ⟬proj1_sig x,proj1_sig y⟭.
+                           <-> proj1_sig k = ⟬proj1_sig x,proj1_sig y⟭.
   Proof.
     intros (x & Hx) (y & Hy) (k & Hk); simpl.
     unfold mb_is_opair; split.
@@ -384,7 +384,7 @@ Section bt_model3.
                      { yl : Y &
                      { yr : Y & 
                      { i : X -> Y & 
-                     { s : Y -> X |
+                     { s : Y -> X &
                              mb_member_ext mem
                           /\ mb_has_otriples mem yl
                           /\ (forall x, mem (i x) yl)
