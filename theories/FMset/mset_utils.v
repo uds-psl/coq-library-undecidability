@@ -107,6 +107,14 @@ Qed.
 (* usage: rewrite ? Forall_norm *)
 Definition Forall_norm := (@Forall_app_iff, @Forall_singleton_iff, @Forall_cons_iff, @Forall_nil_iff).
 
+Lemma Forall_flat_mapP {X Y: Type} {P: Y -> Prop} {f: X -> list Y} {A: list X}: 
+  Forall P (flat_map f A) <-> Forall (fun a => Forall P (f a)) A.
+Proof.
+  elim: A.
+    move=> /=. by constructor.
+  move=> a A IH. by rewrite /flat_map -/(flat_map _ _) ? Forall_norm IH.
+Qed.
+
 (* Forall2 facts *)
 Lemma Forall2_nil_rE {X Y: Type} {P: X -> Y -> Prop} {A}: Forall2 P A [] -> A = [].
 Proof. move=> H. by inversion H. Qed.

@@ -176,3 +176,16 @@ Qed.
 
 Check H10UC_to_FMsetC.
 (* Print Assumptions H10UC_to_FMsetC. *)
+
+From Undecidability Require Import Problems.TM.
+From Undecidability Require H10C_to_H10UC.
+
+(* undecidability of FMsetC *)
+Theorem FMsetC_undec : Halt ⪯ FMsetC_SAT.
+Proof.
+  apply (reduces_transitive H10C_to_H10UC.H10UC_undec).
+  apply H10UC_to_FMsetC.
+Qed.
+
+Check FMsetC_undec.
+(* Print Assumptions H10UC_to_FMsetC. *)

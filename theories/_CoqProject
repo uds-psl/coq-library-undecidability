@@ -184,3 +184,4 @@ Reductions/FRACTRAN_to_H10C.v
 Reductions/H10C_to_H10UC.v
 Reductions/H10UC_to_FMsetC.v
 Reductions/BMPCP_to_HSC.v
+Reductions/FMsetC_to_LPolyNC.v

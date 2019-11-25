@@ -30,20 +30,9 @@ Inductive polyc : Set :=
   | polyc_sum : nat -> nat -> nat -> polyc
   | polyc_prod : nat -> poly -> nat -> polyc.
 
-(* test whether all coefficients are zero *)
-Fixpoint poly_is_zero (p: poly) : Prop :=
-  match p with
-  | [] => True
-  | c :: p => c = 0 /\ poly_is_zero p
-  end.
-
-(* test whether all coefficients are equal respecting leading zeroes *)
-Fixpoint poly_eq (p q: poly) : Prop :=
-  match p, q with
-  | [], q => poly_is_zero q
-  | p, [] => poly_is_zero p
-  | (c :: p), (d :: q) => c = d /\ poly_eq p q
-  end.
+(* test whether all coefficients are equal, default to 0 *)
+Definition poly_eq (p q: poly) : Prop :=
+  forall i, nth i p 0 = nth i q 0.
 
 Notation "p ≃ q" := (poly_eq p q) (at level 65).
 
