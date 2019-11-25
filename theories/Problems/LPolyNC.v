@@ -12,7 +12,7 @@
   A lineat polynomial constraint has one of the following shapes
     x ≐ 1
     x ≐ y + z
-    x ≐ p * y (where p is a polynomial over N)
+    x ≐ X * y (where X is the indeterminate)
 
   A polynomial is mechanized by a list of its coefficients.
 
@@ -22,7 +22,7 @@
     for each constraint c we have
       if c is x ≐ 1, then φ(x) ≃ [1]
       if c is x ≐ y + z, then φ(x) ≃ poly_add (φ(y)) (φ(z))
-      if c is x ≐ p * y, then φ(x) ≃ poly_mult p (φ(y))
+      if c is x ≐ X * y, then φ(x) ≃ poly_mult [0; 1] (φ(y))
     where ≃ is equality up to trailing zeroes?
 *)
 
@@ -36,7 +36,7 @@ Definition poly : Set := list nat.
 Inductive polyc : Set :=
   | polyc_one : nat -> polyc
   | polyc_sum : nat -> nat -> nat -> polyc
-  | polyc_prod : nat -> poly -> nat -> polyc.
+  | polyc_prod : nat -> nat -> polyc.
 
 (* test whether all coefficients are equal, default to 0 *)
 Definition poly_eq (p q: poly) : Prop :=
@@ -63,7 +63,7 @@ Definition polyc_sem (φ: nat -> poly) (c: polyc) :=
   match c with
     | polyc_one x => φ x ≃ [1]
     | polyc_sum x y z => φ x ≃ poly_add (φ y) (φ z)
-    | polyc_prod x p y => φ x ≃ poly_mult p (φ y)
+    | polyc_prod x y => φ x ≃ poly_mult [0; 1] (φ y)
   end.
 
 (* list of constraints *)

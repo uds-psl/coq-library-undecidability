@@ -25,7 +25,7 @@ Definition encode_msetc (c : msetc) : polyc :=
   match c with
   | msetc_zero x => polyc_one x
   | msetc_sum x y z => polyc_sum x y z
-  | msetc_h x y => polyc_prod x [0; 1] y
+  | msetc_h x y => polyc_prod x y
   end.
 
 (* encode FMsetC_PROBLEM as LPolyNC_PROBLEM *)
