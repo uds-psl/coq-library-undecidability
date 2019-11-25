@@ -25,39 +25,46 @@ Local Notation " e [ v / x ] " := (vec_change e x v).
 
 Section discrete_quotient.
 
-  (** We show the FO indistinguishability is both
-      decidable and FO definable. We use it to quotient
-      the model and get a discrete model (based on the
-      finite type pos n).
+  (** We show the FO bisimilarity/indistinguishability ≡ is both
+      decidable and first order definable, ie there is a FO formula
+      A[.,.] such that
+ 
+            x ≡ y <-> A[x,y] holds for any x,y in the model M
+
+      We use it to quotient the model M and get a discrete model 
+      (based on the finite type pos n) where identity coincides
+      with FO bisimilarity.
 
       The idea of the construction is the following. We
-      start from a finitary signature to simplify the
+      start from a finitary signature Σ to simplify the
       explanation but the devel below works in a sub-signature 
-      where the list ls bounds usable terms symbols and the 
-      list lr usable bound relations symbols.
+      of Σ where the list ls bounds usable terms symbols and 
+      the list lr usable bound relations symbols.
 
-      So given a finitary Σ and a finite and Boolean models M
+      So given a finitary Σ and a finite and Boolean model M
       for Σ, we define the operator 
-                 F : (M² -> Prop) -> (M² -> Prop) 
-      transforming binary relations over M.
 
-         x F(R) y iff t[x]  R  t[y] for any t[.] = s<v[./p]>
-                  and f[x] <-> f[y] for any f[.] = r<v[./p]>
+                 F : (M² -> Prop) -> (M² -> Prop) 
+
+      transforming a binary relation R : M² -> Prop into F(R).
+
+         x F(R) y iff      t[x]  R  t[y] for any t[.] = s<v[./p]>
+                       and f[x] <-> f[y] for any f[.] = r<v[./p]>
       
-      Then F(.) is monotonic, w-continuous, and satisfies
+      Then F(.) is monotonic, ω-continuous, and satisfies
       I ⊆ F(I), (F(R))⁻ ⊆ F(R⁻) and F(R) o F(R) ⊆ F (R o R)
       hence Kleene's greatest fixpoint gfp(F) exists, is
-      obtained after w-steps and is an equivalence relation.
+      obtained after ω-steps and is an equivalence relation.
 
       Moreover, F preserves decidability and FO-definability.
-      Now we show that gfp(F) = F^n(TT) for a finite n
+      Now we show that gfp(F) ~ F^n(TT) for a finite n
       which implies that gfp(F) is decidable and FO-definable.
       Here TT := fun _ _ => True is the full binary relation
       over M.
 
       The sequence n => F^n(TT) is a sequence of decidable
       (hence also weakly decidable) relations. If 
-      F^a(TT) ⊆ F^b(TT) for a<b then we have F^a(TT) ~ F^i(TT)
+      F^a(TT) ⊆ F^b(TT) for a < b then we have F^a(TT) ~ F^i(TT)
       for any i => a and thus for any i >= a F^i(TT) ~ gfp F.
 
       The sequence n => F^n(TT) belongs to the weak power list 
@@ -72,21 +79,18 @@ Section discrete_quotient.
   
   *)  
  
-
-  (** We assume a finite sub-signature, a finite and decidable model and a valuation 
-      and we build the greatest bisimulation for this model, establishing that it
-      is decidable and thus we can quotient the model under this bisim obtaining
-      a discrete model which is "equivalent" *)
-
   Variables (Σ : fo_signature) (ls : list (syms Σ)) (lr : list (rels Σ)).
 
   (** fo_bisimilar means no FO formula can distinguish x from y. Beware that
-      two free variables might be needed *)
+      two free variables might be needed, see the remarks and counter-example 
+      below *)
 
   Definition fo_bisimilar X M x y := 
          forall A φ, incl (fol_syms A) ls
                   -> incl (fol_rels A) lr
                   -> @fol_sem Σ X M (φ↑x) A <-> fol_sem M (φ↑y) A.
+
+  (** Let us assume a finite and Boolean model m *)
 
   Variables (X : Type) 
             (fin : finite_t X) 
@@ -96,11 +100,15 @@ Section discrete_quotient.
   Implicit Type (R T : X -> X -> Prop).
 
   (** Construction of the greatest fixpoint of the following operator fom_op.
-      Any prefixpoint R ⊆ fom_op R is a simulation for the model
-    *)
+      Any prefixpoint R ⊆ fom_op R is a simulation for the model *)
 
-  Let fom_op1 R x y := forall s, In s ls -> forall (v : vec _ (ar_syms Σ s)) p, R (fom_syms M s (v[x/p])) (fom_syms M s (v[y/p])).
-  Let fom_op2 x y := forall s, In s lr -> forall (v : vec _ (ar_rels Σ s)) p, fom_rels M s (v[x/p]) <-> fom_rels M s (v[y/p]).
+  Let fom_op1 R x y := forall s, In s ls 
+                    -> forall (v : vec _ (ar_syms Σ s)) p, 
+                              R (fom_syms M s (v[x/p])) (fom_syms M s (v[y/p])).
+
+  Let fom_op2 x y :=   forall s, In s lr 
+                    -> forall (v : vec _ (ar_rels Σ s)) p, 
+                              fom_rels M s (v[x/p]) <-> fom_rels M s (v[y/p]).
 
   Let fom_op R x y := fom_op1 R x y /\ fom_op2 x y.
   
@@ -108,14 +116,20 @@ Section discrete_quotient.
 
       a) Monotonicity
       b) preserves Reflexivity, Symmetry and Transitivity
-      c) preserves Decidability
-      d) preserves FO definability
-*)
+      c) ω-continuous
+      d) preserves decidability
+      e) preserves FO definability
+
+  *)
 
   Hint Resolve finite_t_pos finite_t_vec.
+
+  (* Monotonicity *)
  
   Let fom_op_mono R T : (forall x y, R x y -> T x y) -> (forall x y, fom_op R x y -> fom_op T x y).
-  Proof. unfold fom_op, fom_op1, fom_op2; intros ? ? ? []; split; intros; auto. Qed. 
+  Proof. unfold fom_op, fom_op1, fom_op2; intros ? ? ? []; split; intros; auto. Qed.
+
+  (* Reflexivity, symmetry & transitivity *) 
 
   Let fom_op_id x y : x = y -> fom_op (@eq _) x y.
   Proof. unfold fom_op, fom_op1, fom_op2; intros []; split; auto; tauto. Qed.
@@ -131,6 +145,20 @@ Section discrete_quotient.
     + exists (fom_syms M s (v[y/p])); split; [ apply H1 | apply H2 ]; auto.
     + transitivity (fom_rels M s (v[y/p])); [ apply H1 | apply H2 ]; auto.
   Qed.
+
+  (* ω-continuity *)
+
+  Let fom_op_continuous R : gfp_continuous fom_op.
+  Proof.
+    intros f Hf x y H; split; intros s Hs v p.
+    + intros n.
+      generalize (H n); intros (H1 & H2).
+      apply H1; auto.
+    + apply (H 0); auto.
+  Qed.
+
+  (* Decidability, a bit more complicated but we have all the tools to do it
+     in an efficient way *)
 
   Let fom_op1_dec R : (forall x y, { R x y } + { ~ R x y })
                    -> (forall x y, { fom_op1 R x y } + { ~ fom_op1 R x y }).
@@ -155,6 +183,9 @@ Section discrete_quotient.
                   -> (forall x y, { fom_op R x y } + { ~ fom_op R x y }).
   Proof. intros; apply (fol_bin_sem_dec fol_conj); auto. Qed.
 
+  (* FO definability, also more complicated but we have all the
+     needed closure properties *)
+
   Tactic Notation "solve" "with" "proj" constr(t) :=
     apply fot_def_equiv with (f := fun φ => φ t); fol def; intros; rew vec.
 
@@ -162,9 +193,9 @@ Section discrete_quotient.
                        -> fol_definable ls lr M (fun ψ => fom_op1 R (ψ 0) (ψ 1)).
   Proof.
     intros H.
-    apply fol_def_list_fa; intros s Hs;
-    apply fol_def_vec_fa;
-    apply fol_def_finite_fa; auto; intro p;
+    apply fol_def_list_fa; intros s Hs.
+    apply fol_def_vec_fa.
+    apply fol_def_finite_fa; auto; intro p.
     apply fol_def_subst2; auto.
     * apply fot_def_comp; auto; intro q.
       destruct (pos_eq_dec p q); subst.
@@ -215,17 +246,8 @@ Section discrete_quotient.
   Let fom_eq_equiv : equiv _ fom_eq.
   Proof. apply gfp_equiv; auto. Qed.
 
-  (** This involves the w-continuity of fom_op *)
-
   Fact fom_eq_fix x y : fom_op fom_eq x y <-> x ≡ y.
-  Proof. 
-    apply gfp_fix; auto; clear x y.
-    intros f Hf x y H; split; intros s Hs v p.
-    + intros n.
-      generalize (H n); intros (H1 & H2).
-      apply H1; auto.
-    + apply (H 0); auto.
-  Qed.
+  Proof. apply gfp_fix; auto. Qed.
 
   (** We build the greatest bisimulation which is an equivalence 
       and a fixpoint for the above operator *) 
@@ -263,7 +285,8 @@ Section discrete_quotient.
   Fact fom_eq_dec : forall x y, { x ≡ y } + { ~ x ≡ y }.
   Proof. apply gfp_decidable; auto. Qed.
 
-  (** But we have a much stronger statement: fom_eq is first order definable *)
+  (** But we have a much stronger statement: fom_eq is first order definable 
+      which follows from the fact that X/M is finite *)
 
   Theorem fom_eq_finite : { n | forall x y, x ≡ y <-> iter fom_op (fun _ _ => True) n x y }.
   Proof. apply gfp_finite_t; auto. Qed.
@@ -280,7 +303,12 @@ Section discrete_quotient.
 
   Section fom_eq_form.
 
-    Let A := proj1_sig fom_eq_fol_def. 
+    (** We build a single FO formula with two variables A[.,.] 
+        such that x ≡ y <-> A[x,y]  *)
+
+    Let A := proj1_sig fom_eq_fol_def.
+
+    (* Let use remove unused variables by mapping them to £0 *) 
     
     Definition fom_eq_form := fol_subst (fun n => match n with 0 => £1 | _ => £0 end) A.
 
@@ -315,21 +343,18 @@ Section discrete_quotient.
 
   Hint Resolve fom_eq_form_vars fom_eq_form_syms fom_eq_form_rels fom_eq_dec.
 
-  (** First order indistinguishability upto formulae built with functions and constants in 
-      ls and relations in ls *)
-
   Section fol_characterization.
 
-    (** We show that the greatest bisimulation is equivalent to FOL undistinguishability ie 
+    (** We show that the greatest bisimulation is equivalent to FOL undistinguishability. 
         This result is purely for the sake of completeness of the description of fom_eq,
         it is not used in the reduction below 
 
-        It state that x and y are bisimilar iff the is no interpretation of a FO formula 
-        with one free variable that can distinguish x from y *)
+        It states that x and y are bisimilar iff there is no interpretation of a 
+        FO formula that can distinguish x from y *)
 
     Hint Resolve fom_eq_syms_full fom_eq_rels_full.
 
-    Let fos : fo_simulation ls lr M M.
+    Let f : fo_simulation ls lr M M.
     Proof. exists fom_eq; auto; intros a; exists a; auto. Defined.
 
     Let fom_eq_fol_charac1 A phi psi : 
@@ -337,39 +362,24 @@ Section discrete_quotient.
          -> incl (fol_syms A) ls
          -> incl (fol_rels A) lr
          -> fol_sem M phi A <-> fol_sem M psi A.
-    Proof.
-      intros; apply  fo_model_simulation with (R := fos); auto.
-    Qed.
+    Proof. intros; apply fo_model_simulation with (R := f); auto. Qed.
 
-    (** Can this be restricted to FO formula where only £0 is free ? 
+    (** By fom_eq_form_sem above, we know there is a FO formula
+        A[.,.] in two free variables such that x ≡ y <-> A[x,y].
 
-        replace A with ∀ A ...
+        One obvious follow up question is can we show
 
-        by replacing £(2+n) with £0 we can already get A to have only
-        £0 and £1 but how to get a single variable ?
+           x ≡ y <-> A[x] <-> A[y] for any A[.] with one free variable
 
-        x = y <-> A[x,y] 
+        Another obvious follow up question is, for a given x in the
+        model, can one characterize the class of { y | x ≡ y } with
+        a formula Ax[.] with one free variable.
 
-       If the model is discrete, on can build the finite list of decidable
-       predicates as finite unions of (eq x). It should be possible
-       to characterize (eq x) as the conjection of all the FO formula
-       that satisfy x, hence we get Ax st that   Ax[y] <-> x = y
-
-       Hence we can could show, x = y <-> forall A[.], A[x] <-> A[y]
-       when A only has one £0 as variable
-
-       One idea is to show that formulas of arity n are finitary
-       up to equivalence and then define
-
-             C_x [.] = /\ { A[.] | A[x] is true } U { ~ A[.] | A[x] is false }
-
-       One can then show C_x[y] is true iff forall A[.], A[x] <-> A[y] iff x ≡ y
-       The problem is to show that n-ary formulas are finitary upto equivalence
-       Maybe one does not need to consider arities above the size of the model ?
-
-       THE ANSWER IS NO WE CANNOT, SEE THE COUNTER-MODEL BELOW
-
-       Theorem FO_does_not_characterize_classes
+        Both questions have a negative answer proved in the counter
+        example to be found below. There is a model of Σ = {ø,{=_2}}
+        with two distinct values where =_2 is interpreted by identity
+        and such that A[x] <-> A[y] for any formula with at most one
+        free variable. See theorem FO_does_not_characterize_classes.
 
       *)
 
@@ -388,10 +398,9 @@ Section discrete_quotient.
 
   End fol_characterization.
 
-  (** And now we can build a discrete model with this equivalence 
-
-      There is a (full) surjection from a discrete model based
-      on pos n to M which preserves the semantics
+  (** And now we can build a discrete model with this decidable 
+      equivalence. There is a fo_projection from M to Md where
+      Md is a Boolean model based on the ground type pos n.
 
     *)
 
@@ -442,15 +451,17 @@ Section discrete_quotient.
                <-> fol_sem Md (fun n => cls (phi n)) A.
     Proof. intros; apply fo_model_projection with (p := f); auto. Qed.
 
-    Let H4 p q : fo_bisimilar Md p q -> p = q.
+    Let H4 p q : fo_bisimilar Md p q <-> p = q.
     Proof.
-      intros H.
-      rewrite <- (E1 q), <- (E1 p).
-      apply E2, fom_eq_fol_characterization.
-      intros A phi Hs Hr.
-      specialize (H A (fun p => cls (phi p)) Hs Hr).
-      revert H; apply fol_equiv_impl.
-      all: rewrite H3; auto; apply fol_sem_ext; intros []; now simpl.
+      split.
+      + intros H.
+        rewrite <- (E1 q), <- (E1 p).
+        apply E2, fom_eq_fol_characterization.
+        intros A phi Hs Hr.
+        specialize (H A (fun p => cls (phi p)) Hs Hr).
+        revert H; apply fol_equiv_impl.
+        all: rewrite H3; auto; apply fol_sem_ext; intros []; now simpl.
+      + intros []; red; tauto.
     Qed.
 
     (** Every finite & decidable model can be projected to pos n
@@ -462,7 +473,7 @@ Section discrete_quotient.
         { Md : fo_model Σ (pos n) &
         { _ : fo_model_dec Md & 
         { _ : fo_projection ls lr M Md & 
-          (forall p q, fo_bisimilar Md p q -> p = q) } } } }.
+          (forall p q, fo_bisimilar Md p q <-> p = q) } } } }.
     Proof.
       exists n, Md.
       exists; eauto. 
@@ -502,6 +513,8 @@ Section counter_model_to_class_FO_definability.
   Let M_dec : fo_model_dec M.
   Proof. intros [] ?; apply bool_dec. Qed.
 
+  (* A projection of M onto itself which swaps true <-> false *)
+
   Let f : @fo_projection Σ nil (tt::nil) _ M _ M.
   Proof.
     exists negb negb.
@@ -512,8 +525,6 @@ Section counter_model_to_class_FO_definability.
       revert x y; now intros [] [].
   Defined.
 
-(*
-  Infix "⋈" := R (at level 70, no associativity). *)
   Notation "⟪ A ⟫" := (fun φ => fol_sem M φ A).
 
   Let homeomorphism (A : fol_form Σ) phi : 
@@ -522,8 +533,6 @@ Section counter_model_to_class_FO_definability.
     apply fo_model_projection with (p := f); auto.
     all: intros []; simpl; auto.
   Qed.
-
-  Check fom_eq.
 
   Infix "≡" := (fom_eq (Σ := Σ) nil (tt::nil) M) (at level 70, no associativity).
 
@@ -539,15 +548,14 @@ Section counter_model_to_class_FO_definability.
     specialize (H eq_refl); discriminate.
   Qed.
 
-  Let no_disctinct A phi : incl (fol_vars A) (0::nil)
+  Let no_disctinct A phi : (forall n, In n (fol_vars A) -> n = 0)
                         -> ⟪A⟫ phi↑true <-> ⟪A⟫ phi↑false.
   Proof.
     intros H.
     set (psi n := negb (phi n)).
     rewrite homeomorphism with (phi := phi↑false) at 1.
     apply fol_sem_ext.
-    intros n Hn; apply H in Hn; revert Hn.
-    intros [ <- | [] ]; auto.
+    intros n Hn; apply H in Hn; subst; auto.
   Qed.
 
   (** There is a model over Σ2 with two values such that no
@@ -558,7 +566,7 @@ Section counter_model_to_class_FO_definability.
   Theorem FO_does_not_characterize_classes :
      exists (M : fo_model Σ bool) (_ : fo_model_dec M) (x y : bool), 
             ~ fom_eq (Σ := Σ) nil (tt::nil) M x y
-         /\ forall A φ, incl (fol_vars A) (0::nil) 
+         /\ forall A φ, (forall n, In n (fol_vars A) -> n = 0) 
                      -> fol_sem M φ↑x A <-> fol_sem M φ↑y A.
   Proof. exists M, M_dec, true, false; auto. Qed.
 
@@ -566,30 +574,25 @@ End counter_model_to_class_FO_definability.
 
 Check FO_does_not_characterize_classes.
 
-Section discrete_removal.
+(** Satisfiability of A in a finite and decidable model implies satisfiability 
+    of A in a finite, decidable and discrete model, in fact in a model based on 
+    the finite type (pos n) *)
 
-  (** Provided the signature has finitely (listable) many functional symbols 
-      and finitely many relational symbols, satisfiability of A in a finite
-      and decidable model implies satisfiability of A in a finite, decidable
-      and discrete model, in fact in a model based on the finite type (pos n) *)
-
-  Theorem fo_discrete_removal Σ A :
+Theorem fo_discrete_removal Σ A :
              @fo_form_fin_dec_SAT Σ A
           -> (exists n, @fo_form_fin_discr_dec_SAT_in Σ A (pos n)).
-  Proof.
-    intros (X & M & Hfin & Hdec & phi & HA).
-    set (ls := fol_syms A).
-    set (lr := fol_rels A).
-    destruct (fo_fin_model_discretize ls lr Hfin Hdec)
-      as (n & Md & Mdec & f & E).
-    set (psy n := f (phi n)).
-    exists n, (@pos_eq_dec _), Md, (finite_t_pos _) , Mdec, psy.
-    revert HA.
-    apply fo_model_projection with (p := f); 
-      unfold lr, ls; auto; apply incl_refl.
-  Qed.
-
-End discrete_removal.
+Proof.
+  intros (X & M & Hfin & Hdec & phi & HA).
+  set (ls := fol_syms A).
+  set (lr := fol_rels A).
+  destruct (fo_fin_model_discretize ls lr Hfin Hdec)
+    as (n & Md & Mdec & f & E).
+  set (psy n := f (phi n)).
+  exists n, (@pos_eq_dec _), Md, (finite_t_pos _) , Mdec, psy.
+  revert HA.
+  apply fo_model_projection with (p := f); 
+    unfold lr, ls; auto; apply incl_refl.
+Qed.
 
 Check fo_discrete_removal.
 Print Assumptions fo_discrete_removal.

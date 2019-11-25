@@ -134,11 +134,13 @@ Section gfp.
     revert H; apply HF0; auto.
   Qed.
 
-  (** This is omega continuity *)
+  (** This is ω-continuity *)
 
-  Variable HF4 : forall (s : nat -> M -> M -> Prop), 
+  Definition gfp_continuous := forall (s : nat -> M -> M -> Prop), 
                         (forall n m, n <= m -> s m ⊆ s n) 
                      -> (fun x y => forall n, F (s n) x y) ⊆ F (fun x y => forall n, s n x y).
+
+  Variable HF4 : gfp_continuous. 
 
   Let gfp_fix0 : gfp ⊆ F gfp.
   Proof.

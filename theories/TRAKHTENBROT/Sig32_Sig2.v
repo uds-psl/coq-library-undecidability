@@ -350,8 +350,9 @@ Section SAT2_SAT32.
     apply SAT2_to_SAT3 with (M2 := M) (ψ := fun n => p (psy n)); auto.
     + apply finite_t_pos.
     + red; apply pos_eq_dec.
+    + intros ? ?; apply E.
     + revert H3.
-      apply fo_model_projection with (p := p); 
+      apply fo_model_projection with (p := p);
         auto; intros []; simpl; auto.
   Qed.
 
