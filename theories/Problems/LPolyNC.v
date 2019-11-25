@@ -9,22 +9,30 @@
   Problem:
     Linear Polynomial[N] constraint solvability (LPolyNC)
 
-  A uniform Diophantine constraint has the shape 
-    1 + x + y * y ≐ z
-  and is represented by a triple (x, y, z).
+  A lineat polynomial constraint has one of the following shapes
+    x ≐ 1
+    x ≐ y + z
+    x ≐ p * y (where p is a polynomial over N)
 
-  H10UC:
+  A polynomial is mechanized by a list of its coefficients.
+
+  LPolyNC:
     Given a list of constraints,
-    is there a valuation φ : nat -> nat such that
-    1 + φ(xᵢ) + φ(yᵢ) * φ(yᵢ) = φ(zᵢ) for i = 1...n?
+    is there a valuation φ : nat -> list nat such that
+    for each constraint c we have
+      if c is x ≐ 1, then φ(x) ≃ [1]
+      if c is x ≐ y + z, then φ(x) ≃ poly_add (φ(y)) (φ(z))
+      if c is x ≐ p * y, then φ(x) ≃ poly_mult p (φ(y))
+    where ≃ is equality up to trailing zeroes?
 *)
 
 Require Import List.
 Import ListNotations.
 
-(* uniform constraint representation *)
+
 Definition poly : Set := list nat.
 
+(* constraint representation *)
 Inductive polyc : Set :=
   | polyc_one : nat -> polyc
   | polyc_sum : nat -> nat -> nat -> polyc
@@ -58,7 +66,7 @@ Definition polyc_sem (φ: nat -> poly) (c: polyc) :=
     | polyc_prod x p y => φ x ≃ poly_mult p (φ y)
   end.
 
-(* list of uniform constraint representations *)
+(* list of constraints *)
 Definition LPolyNC_PROBLEM := list polyc.
 
 (* given a list l of constraints, 

@@ -45,13 +45,13 @@ Definition mset_eq (A B: list nat) : Prop :=
   forall c, count_occ Nat.eq_dec A c = count_occ Nat.eq_dec B c.
 Notation "A ≡ B" := (mset_eq A B) (at level 65).
 
-(* mset constraints *)
+(* constraints *)
 Inductive msetc : Set :=
   | msetc_zero : nat -> msetc
   | msetc_sum : nat -> nat -> nat -> msetc
   | msetc_h : nat -> nat -> msetc.
 
-(* mset constraint semantic *)
+(* constraint semantics *)
 Definition msetc_sem (φ: nat -> list nat) (c: msetc) :=
   match c with
     | msetc_zero x => φ x ≡ [0]
@@ -59,9 +59,9 @@ Definition msetc_sem (φ: nat -> list nat) (c: msetc) :=
     | msetc_h x y => φ x ≡ map S (φ y)
   end.
 
-(* list of elementary constraints *)
+(* list of constraints *)
 Definition FMsetC_PROBLEM := list msetc.
 
-(* given a list l of elementary constraints, 
-  is there a valuation φ satisfying each elementary constraint? *)
+(* given a list l of constraints, 
+  is there a valuation φ satisfying each constraint? *)
 Definition FMsetC_SAT (l : FMsetC_PROBLEM) := exists φ, forall c, In c l -> msetc_sem φ c.

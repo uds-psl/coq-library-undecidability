@@ -329,4 +329,4 @@ Proof.
 Qed.
 
 Check LPolyNC_undec.
-Print Assumptions LPolyNC_undec.
+(* Print Assumptions LPolyNC_undec. *)
