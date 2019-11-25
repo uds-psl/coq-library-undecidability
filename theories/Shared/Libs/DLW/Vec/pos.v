@@ -9,7 +9,8 @@
 
 Require Import List Arith Omega.
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils.
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils.
 
 Set Implicit Arguments.
 
@@ -147,6 +148,17 @@ Tactic Notation "analyse" "pos" hyp(p) := analyse_pos p.
 Definition pos_O_any X : pos 0 -> X.
 Proof. intro p; invert pos p. Qed.
 
+Definition pos_eq_dec n (x y : pos n) : { x = y } + { x <> y }.
+Proof.
+  revert n x y.
+  induction x as [ x | n x IH ]; intros y; invert pos y.
+  1: left; trivial.
+  1,2: right; discriminate.
+  destruct (IH y) as [ | C ].
+  + left; subst; trivial.
+  + right; contradict C; revert C; apply pos_nxt_inj.
+Defined.
+
 Fixpoint pos_left n m (p : pos n) : pos (n+m) :=
   match p with
     | pos_fst   => pos_fst
@@ -242,42 +254,6 @@ Proof.
   induction n; simpl; auto.
   rewrite map_length; f_equal; auto.
 Qed.
- 
-Fact pos_reification X n (R : pos n -> X -> Prop) : (forall p, exists x, R p x) -> exists f, forall p, R p (f p).
-Proof.
-  revert R; induction n as [ | n IHn ]; intros R HR.
-  exists (pos_O_any X); intros p; invert pos p.
-  set (R' q x := R (pos_nxt q) x).
-  destruct (IHn R') as (f & Hf).
-  intros p; apply HR.
-  unfold R' in Hf.
-  destruct (HR pos_fst) as (x & Hx).
-  exists (fun p => match pos_S_inv p with inl _ => x | inr (exist _ q _) => f q end).
-  intros p; invert pos p; auto.
-Qed.
-
-Fact pos_reif_t X n (R : pos n -> X -> Prop) : (forall p, { x | R p x }) -> { f | forall p, R p (f p) }.
-Proof.
-  intros H.
-  exists (fun p => (proj1_sig (H p))).
-  intros; apply (proj2_sig (H p)).
-Qed.
-
-Section pos_eq_dec.
-
-  Definition pos_eq_dec n (x y : pos n) : { x = y } + { x <> y }.
-  Proof.
-    revert n x y.
-    induction x as [ x | n x IH ]; intros y; invert pos y.
-    left; trivial.
-    right; discriminate.
-    right; discriminate.
-    destruct (IH y) as [ | C ].
-    left; subst; trivial.
-    right; contradict C; revert C; apply pos_nxt_inj.
-  Defined.
-
-End pos_eq_dec.
 
 Section pos_map.
 
@@ -457,33 +433,3 @@ Section pos_prod.
   Qed.
   
 End pos_prod.
-
-Fact pos_dec_reif n (P : pos n -> Prop) (HP : forall p, { P p } + { ~ P p }) : ex P -> sig P.
-Proof.
-  revert P HP.
-  induction n as [ | n IHn ]; intros P HP H.
-  + exfalso; destruct H as (p & _); invert pos p.
-  + destruct (HP pos0) as [ H0 | H0 ].
-    { exists pos0; auto. }
-    destruct (IHn (fun p => P (pos_nxt p))) as (q & Hq).
-    * intros; apply HP.
-    * destruct H as (p & Hp); invert pos p.
-      - tauto.
-      - exists p; auto.
-    * exists (pos_nxt q); auto.
-Qed. 
-
-(** This is needed to reify a computable binary relation representing a unary function
-    into an actual function *)
-
-Fact pos_dec_rel2fun n (R : pos n -> pos n -> Prop) :
-         (forall a b, { R a b } + { ~ R a b }) 
-      -> (forall p, ex (R p)) -> { f | forall p, R p (f p) }.
-Proof.
-  intros HR H.
-  set (f p := proj1_sig (pos_dec_reif (HR p) (H p))).
-  exists f.
-  intro; apply (proj2_sig (pos_dec_reif (HR _) (H _))).
-Qed.
-   
-

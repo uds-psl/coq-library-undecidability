@@ -10,7 +10,7 @@
 Require Import List Arith Max Lia Setoid.
 
 From Undecidability.Shared.Libs.DLW.Utils 
-  Require Import utils_tac utils_list.
+  Require Import utils_tac utils_list finite.
 
 From Undecidability.Shared.Libs.DLW.Vec 
   Require Import pos.

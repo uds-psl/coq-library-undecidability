@@ -10,10 +10,10 @@
 Require Import List Arith Nat Lia Relations.
 
 From Undecidability.Shared.Libs.DLW.Utils 
-  Require Import utils_tac utils_list finite.
+  Require Import utils_tac utils_list finite php.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations fin_upto.
+  Require Import notations.
 
 Set Implicit Arguments.
 

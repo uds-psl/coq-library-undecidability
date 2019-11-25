@@ -13,7 +13,7 @@ From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list finite.
 
 From Undecidability.Shared.Libs.DLW.Vec 
-  Require Import pos fin_quotient.
+  Require Import pos.
 
 From Undecidability.TRAKHTENBROT
   Require Import notations fol_ops membership hfs.

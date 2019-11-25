@@ -11,9 +11,10 @@
 
 (** ** Pidgeon hole principle *)
 
-Require Import Arith Omega List Permutation.
+Require Import Arith Omega List Permutation Relations.
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list.
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_tac utils_list.
 
 Set Implicit Arguments.
 
@@ -424,6 +425,25 @@ Section PHP_rel.
 
 End PHP_rel.
 
-Check PHP_rel.
+Section php_upto.
+
+  (** If R is a partial equivalence relation, l is a
+      list contained in the list m (upto R), and m is 
+      shorter than l, then l contains a duplicate upto R *)
+
+  Theorem php_upto X (R : X -> X -> Prop) (l m : list X) :
+            symmetric _ R -> transitive _ R                  (* PER *)
+         -> (forall x, In x l -> exists y, In y m /\ R x y)  (* l contained in m *)
+         -> length m < length l                              (* shorter *)
+         -> exists a x b y c, l = a++x::b++y::c /\ R x y.    (* duplicate *)
+  Proof.
+    intros HR1 HR2 H1 H2.
+    destruct PHP_rel with (S := R) (2 := H2)
+      as (a & x & b & y & c & z & G1 & G2 & G3 & G4); auto.
+    exists a, x, b, y, c; split; auto.
+    apply (HR2 _ z); auto.
+  Qed.
+
+End php_upto.
 
 

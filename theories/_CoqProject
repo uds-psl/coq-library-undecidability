@@ -32,11 +32,16 @@ Shared/Libs/DLW/Utils/bounded_quantification.v
 Shared/Libs/DLW/Utils/php.v
 Shared/Libs/DLW/Utils/seteq.v
 Shared/Libs/DLW/Utils/rel_iter.v
+Shared/Libs/DLW/Utils/fin_base.v
+Shared/Libs/DLW/Utils/fin_dec.v
+Shared/Libs/DLW/Utils/fin_choice.v
+Shared/Libs/DLW/Utils/fin_bij.v
+Shared/Libs/DLW/Utils/fin_upto.v
+Shared/Libs/DLW/Utils/fin_quotient.v
 Shared/Libs/DLW/Utils/finite.v
 
 Shared/Libs/DLW/Vec/pos.v
 Shared/Libs/DLW/Vec/vec.v
-Shared/Libs/DLW/Vec/fin_quotient.v
 
 Shared/Libs/DLW/Wf/acc_irr.v
 Shared/Libs/DLW/Wf/measure_ind.v
@@ -247,8 +252,6 @@ TM/MultiUnivTimeSpaceSimulation.v
 #Full Trakhtenbrot with single binary rel
 TRAKHTENBROT/notations.v
 TRAKHTENBROT/gfp.v
-#TRAKHTENBROT/gfp_unary.v
-TRAKHTENBROT/fin_upto.v
 TRAKHTENBROT/bpcp.v
 TRAKHTENBROT/btree.v
 TRAKHTENBROT/btree_extra.v

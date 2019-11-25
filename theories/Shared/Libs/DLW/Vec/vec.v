@@ -11,7 +11,11 @@
 
 Require Import Arith Omega List Permutation.
 
-From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos.
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils. 
+
+From Undecidability.Shared.Libs.DLW.Vec 
+  Require Import pos.
 
 Set Implicit Arguments.
 
@@ -498,7 +502,8 @@ Tactic Notation "rew" "vec" :=
     | |- context[ _[_/?x]#>?y ] => rewrite vec_change_neq with (p := x) (q := y); [ | discriminate ]
     | |- context[ vec_plus vec_zero ?x ] => rewrite vec_zero_plus with (v := x)
     | |- context[ vec_plus ?x vec_zero ] => rewrite (vec_plus_comm x vec_zero); rewrite vec_zero_plus with (v := x)
-    | |- context[ (vec_set_pos ?f) #> ?p ] => rewrite (vec_pos_set f p)   
+    | |- context[ (vec_set_pos ?f) #> ?p ] => rewrite (vec_pos_set f p)
+    | |- context[ (vec_map ?f ?v) #> ?p ] => rewrite (vec_pos_map f v p)
     | |- vec_plus ?x ?y = vec_plus ?y ?x => apply vec_plus_comm
   end; auto.
 
@@ -684,24 +689,6 @@ Proof.
   revert g; induction v; intro; simpl; auto.
   rewrite map_app; f_equal; auto.
   rewrite map_list_repeat; auto.
-Qed.
-
-Fact vec_reif X n (R : pos n -> X -> Prop) : (forall p, ex (R p)) -> exists v, forall p, R p (vec_pos v p).
-Proof.
-  intros H.
-  apply pos_reification in H.
-  destruct H as (f & Hf).
-  exists (vec_set_pos f).
-  intro; rewrite vec_pos_set; trivial.
-Qed.
-
-Fact vec_reif_t X n (R : pos n -> X -> Prop) : (forall p, sig (R p)) -> { v | forall p, R p (vec_pos v p) }.
-Proof.
-  intros H.
-  apply pos_reif_t in H.
-  destruct H as (f & Hf).
-  exists (vec_set_pos f).
-  intro; rewrite vec_pos_set; trivial.
 Qed.
 
 Section fun2vec.

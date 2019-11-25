@@ -834,4 +834,18 @@ Qed.
 Fact Forall_filter X (P : X -> Prop) (f : X -> bool) ll : Forall P ll -> Forall P (filter f ll).
 Proof. induction 1; simpl; auto; destruct (f x); auto. Qed.
 
+Section list_discrim.
 
+  Variable (X : Type) (P Q : X -> Prop) (PQdec : forall x, { P x } + { Q x}).
+
+  Definition list_discrim l : { lP : _ & { lQ | l ~p lP++lQ /\ Forall P lP /\ Forall Q lQ } }.
+  Proof.
+    induction l as [ | x l (lP & lQ & H1 & H2 & H3) ].
+    + exists nil, nil; simpl; auto.
+    + destruct (PQdec x) as [ H | H ].
+      * exists (x::lP), lQ; repeat split; auto; constructor; auto.
+      * exists lP, (x::lQ); repeat split; auto.
+        apply Permutation_cons_app; auto.
+  Qed.
+
+End list_discrim.

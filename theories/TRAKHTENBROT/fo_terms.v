@@ -113,6 +113,8 @@ Section first_order_terms.
   Definition fo_term_ind (P : _ -> Prop) := @fo_term_rect P.
 
   Section fo_term_pos_rect.
+
+    (** This one is nicer to compute *)
    
     Variable (P   : fo_term -> Type)
              (HP0 : forall x, P (in_var x))
@@ -128,8 +130,8 @@ Section first_order_terms.
  
   Section fo_term_recursion.
 
-    (** We specialize the general recursor to fixed output type.
-        The fixpoint equation does not require extensionality anymore *)
+    (** We specialize the nice recursor to fixed output type.
+        The fixpoint equation are better behaved *)
 
     Variable (X : Type)
              (F0 : var -> X)
@@ -137,10 +139,9 @@ Section first_order_terms.
 
     Definition fo_term_recursion : fo_term -> X.
     Proof.
-      induction 1 as [ x | s v IHv ].
+      induction 1 as [ x | s v IHv ] using fo_term_pos_rect.
       + exact (F0 x).
-      + apply (@F s v).
-        apply vec_in_map with (1 := IHv).
+      + apply (@F s v), vec_set_pos, IHv.
     Defined.
 
     Theorem fo_term_recursion_fix_0 x :
@@ -151,9 +152,7 @@ Section first_order_terms.
       fo_term_recursion (@in_fot s v) = F v (vec_map fo_term_recursion v).
     Proof.
       unfold fo_term_recursion at 1.
-      rewrite fo_term_rect_fix; f_equal.
-      + rewrite vec_in_map_vec_map_eq; auto.
-      + intros; f_equal; apply vec_in_map_ext; auto.
+      simpl; f_equal; apply vec_pos_ext; intro; rew vec.
     Qed.
 
   End fo_term_recursion.
@@ -161,35 +160,25 @@ Section first_order_terms.
   (** We can now define eg the size of terms easily with the
       corresponding fixpoint equation *)
 
-  Section fo_size_dep.
+  Definition fo_term_size (c : sym -> nat) : fo_term -> nat.
+  Proof.
+    induction 1 as [ _ | s _ w ] using fo_term_recursion.
+    + exact 1.
+    + exact (c s+vec_sum w).
+  Defined.
 
-    Variable cost : sym -> nat.
-
-    Definition fo_term_size : fo_term -> nat.
-    Proof.
-      apply fo_term_recursion.
-      + intros _; exact 1.
-      + intros s _ v.
-        exact (cost s+vec_sum v).
-    Defined.
-
-    Fact fo_term_size_fix_0 x : 
-         fo_term_size (in_var x) = 1.
-    Proof. apply fo_term_recursion_fix_0. Qed.
+  Fact fo_term_size_fix_0 c x : fo_term_size c (in_var x) = 1.
+  Proof. apply fo_term_recursion_fix_0. Qed.
   
-    Fact fo_term_size_fix_1 s v :
-         fo_term_size (@in_fot s v) = cost s + vec_sum (vec_map fo_term_size v).
-    Proof. apply fo_term_recursion_fix_1. Qed.
-
-  End fo_size_dep.
+  Fact fo_term_size_fix_1 c s v :
+         fo_term_size c (@in_fot s v) = c s + vec_sum (vec_map (fo_term_size c) v).
+  Proof. apply fo_term_recursion_fix_1. Qed.
 
   Definition fo_term_vars : fo_term -> list var.
   Proof.
-    apply fo_term_recursion.
-    + intros x; exact (x::nil).
-    + intros s _ w.
-      apply vec_list in w.
-      revert w; apply concat.
+    induction 1 as [ x | s _ w ] using fo_term_recursion.
+    + exact (x::nil).
+    + exact (concat (vec_list w)).
   Defined.
 
   Fact fo_term_vars_fix_0 x : fo_term_vars (in_var x) = x :: nil.
@@ -199,17 +188,13 @@ Section first_order_terms.
   Proof. apply fo_term_recursion_fix_1. Qed.
 
   Fact fo_term_vars_fix_1 s v : fo_term_vars (@in_fot s v) = flat_map fo_term_vars (vec_list v).
-  Proof.
-    rewrite fo_term_vars_fix_2, vec_list_vec_map, <- flat_map_concat_map; auto.
-  Qed.
+  Proof. rewrite fo_term_vars_fix_2, vec_list_vec_map, <- flat_map_concat_map; auto. Qed.
 
   Definition fo_term_syms : fo_term -> list sym.
-  Proof. 
-    apply fo_term_recursion.
-    + intro; exact nil.
-    + intros s _ w.
-      apply vec_list in w.
-      exact (s::concat w).
+  Proof.
+    induction 1 as [ x | s _ w ] using fo_term_recursion.
+    + exact nil.
+    + exact (s::concat (vec_list w)).
   Defined.
 
   Fact fo_term_syms_fix_0 x : fo_term_syms (in_var x) = nil.
@@ -219,9 +204,7 @@ Section first_order_terms.
   Proof. apply fo_term_recursion_fix_1. Qed.
 
   Fact fo_term_syms_fix_1 s v : fo_term_syms (@in_fot s v) = s::flat_map fo_term_syms (vec_list v).
-  Proof.
-    rewrite fo_term_syms_fix_2, vec_list_vec_map, <- flat_map_concat_map; auto.
-  Qed.
+  Proof. rewrite fo_term_syms_fix_2, vec_list_vec_map, <- flat_map_concat_map; auto. Qed.
 
 End first_order_terms.
 
@@ -252,9 +235,9 @@ Section fo_term_subst.
 
   Definition fo_term_subst σ : fo_term X sym_ar -> fo_term Y sym_ar.
   Proof.
-    apply fo_term_recursion.
-    + apply σ.
-    + intros s _ w; exact (in_fot s w).
+    induction 1 as [ x | s _ w ] using fo_term_recursion.
+    + apply σ, x.
+    + exact (in_fot s w).
   Defined.
 
   Notation "t ⟬ σ ⟭" := (fo_term_subst σ t).
@@ -288,13 +271,12 @@ Section fo_term_subst.
 
     Definition fo_term_map : fo_term X sym_ar -> fo_term Y sym_ar.
     Proof.
-      apply fo_term_recursion.
-      + intros x; exact (in_var (f x)).
-      + intros s _ w; exact (in_fot s w).
+      induction 1 as [ x | s _ w ] using fo_term_recursion.
+      + exact (in_var (f x)).
+      + exact (in_fot s w).
     Defined.
 
-    Fact fo_term_map_fix_0 x : 
-         fo_term_map (in_var x) = in_var (f x).
+    Fact fo_term_map_fix_0 x : fo_term_map (in_var x) = in_var (f x).
     Proof. apply fo_term_recursion_fix_0. Qed.
 
     Fact fo_term_map_fix_1 s v : 
@@ -319,7 +301,8 @@ Section fo_term_subst.
     intros; f_equal; auto.
   Qed.
 
-  Fact fo_term_vars_subst f t : fo_term_vars (t⟬f⟭) = flat_map (fun n => fo_term_vars (f n)) (fo_term_vars t).
+  Fact fo_term_vars_subst f t : 
+         fo_term_vars (t⟬f⟭) = flat_map (fun n => fo_term_vars (f n)) (fo_term_vars t).
   Proof.
     induction t as [ n | s v IHv ]; rew fot; auto.
     + simpl; rewrite <- app_nil_end; auto.
@@ -428,9 +411,9 @@ Section semantics.
 
   Definition fo_term_sem φ : 𝕋 -> M.
   Proof.
-    apply fo_term_recursion.
-    + exact φ.
-    + intros s _ w; exact (sem_sym w).
+    induction 1 as [ x | s _ w ] using fo_term_recursion.
+    + exact (φ x).
+    + exact (sem_sym w).
   Defined.
 
   Notation "⟦ t ⟧" := (fun φ => @fo_term_sem φ t).
