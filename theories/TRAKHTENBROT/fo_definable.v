@@ -37,6 +37,17 @@ Section fo_definability.
           /\ incl (fol_rels A) lr 
           /\ forall φ, fol_sem M φ A <-> R φ }.
 
+  (** A FOL definable predicate is always extensional *)
+
+  Fact fol_def_ext R : fol_definable R -> forall φ ψ, (forall n, φ n = ψ n) -> R φ <-> R ψ.
+  Proof.
+    intros (A & _ & _ & HA) phi psi H.
+    rewrite <- HA, <- HA; apply fol_sem_ext.
+    intros; auto.
+  Qed.
+
+  (** We derive closure properties *)
+
   Fact fot_def_proj n : fot_definable (fun φ => φ n).
   Proof. exists (£ n); intros; split; rew fot; auto; intros _ []. Qed.
 
@@ -218,13 +229,6 @@ Section fo_definability.
         - apply (proj2_sig (H k Hk)); auto.
   Qed.
 
-  Fact fol_def_ext R : fol_definable R -> forall φ ψ, (forall n, φ n = ψ n) -> R φ <-> R ψ.
-  Proof.
-    intros (A & _ & _ & HA) phi psi H.
-    rewrite <- HA, <- HA; apply fol_sem_ext.
-    intros; auto.
-  Qed.
-
   Fact fol_def_subst (R : (nat -> X) -> Prop) (f : nat -> (nat -> X) -> X) :
           (forall n, fot_definable (f n))
        -> fol_definable R
@@ -265,6 +269,8 @@ Section extra.
 
   Variable (Σ : fo_signature) (ls : list (syms Σ)) (lr : list (rels Σ))
            (X : Type) (M : fo_model Σ X).
+
+  (** More closure properties *)
 
   Fact fol_def_iff R T : 
          fol_definable ls lr M R 

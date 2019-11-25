@@ -315,28 +315,74 @@ End bin_rel_Σ2.
 
 Section fol_semantics.
 
-  Variable (Σ : fo_signature) (X : Type) (M : fo_model Σ X).
-
-  Notation sem_sym := (fom_syms M _).
-  Notation sem_pred := (fom_rels M _).
+  Variable (Σ : fo_signature) 
+           (X : Type) (M : fo_model Σ X).
 
   Implicit Type φ : nat -> X.
 
   Notation "⟦ t ⟧" := (fun φ => fo_term_sem (fom_syms M) φ t).
 
-  (* Notation ⟦ ⟧ ⟪ ⟫ φ ψ σ ↑ *)
-
   Fixpoint fol_sem φ A : Prop :=
       match A with
         | ⊥              => False
-        | fol_atom _ _ v => sem_pred (vec_map (fun t => ⟦t⟧ φ) v)
+        | fol_atom _ _ v => fom_rels M _ (vec_map (fun t => ⟦t⟧ φ) v)
         | fol_bin b A B  => fol_bin_sem b (⟪A⟫ φ) (⟪B⟫ φ) 
         | fol_quant q A  => fol_quant_sem q (fun x => ⟪A⟫ (φ↑x))
       end
     where "⟪ A ⟫" := (fun φ => fol_sem φ A).
 
-  Definition fol_ldisj := @fol_bigop Σ fol_disj ⊥.
+  (** Semantics depends only on occuring variables *)
+
+  Fact fol_sem_ext φ ψ A : (forall n, In n (fol_vars A) -> φ n = ψ n) -> ⟪A⟫ φ <-> ⟪A⟫ ψ.
+  Proof.
+    intros H; revert A φ ψ H.
+    induction A as [ | p v | b A IHA B IHB | q A IHA ]; simpl; intros phi psy H; try tauto.
+    + apply fol_equiv_ext; f_equal.
+      apply vec_map_ext; intros w Hw. 
+      apply fo_term_sem_ext; auto.
+      intros n Hn; apply H, in_flat_map; exists w; split; auto.
+      apply in_vec_list; auto.
+    + apply fol_bin_sem_ext.
+      * apply IHA; intros; apply H, in_or_app; auto.
+      * apply IHB; intros; apply H, in_or_app; auto.
+    + apply fol_quant_sem_ext.
+      intros x; apply IHA.
+      intros [ | n] Hn; simpl; auto; apply H, in_flat_map.
+      exists (S n); simpl; auto.
+  Qed.
+
+  (** Semantics commutes with substitutions ... good *)
+
+  Theorem fol_sem_subst φ σ A : ⟪ A⦃σ⦄ ⟫ φ <-> ⟪A⟫ (fun n => ⟦σ n⟧ φ).
+  Proof.
+    revert φ σ; induction A as [ | p v | b A IHA B IHB | q A IHA ]; simpl; intros phi f; try tauto.
+    + apply fol_equiv_ext; f_equal.
+      rewrite vec_map_map; apply vec_map_ext.
+      intros; rewrite fo_term_sem_subst; auto.
+    + apply fol_bin_sem_ext; auto.
+    + apply fol_quant_sem_ext.
+      intros x; rewrite IHA.
+      apply fol_sem_ext. 
+      intros [ | n ] _; simpl; rew fot; simpl; auto.
+      rewrite <- fo_term_subst_map; rew fot.
+      apply fo_term_sem_ext; intros; rew fot; auto.
+  Qed.
+
+  (** Bigops, ie finitary conjunction and disjunction *)
+
   Definition fol_lconj := @fol_bigop Σ fol_conj (⊥⤑⊥).
+
+  Fact fol_sem_big_conj lf φ : ⟪ fol_lconj lf ⟫ φ <-> forall f, In f lf -> ⟪ f ⟫ φ.
+  Proof.
+    induction lf as [ | f lf IHlf ]; simpl.
+    + split; tauto.
+    + rewrite IHlf.
+      split.
+      * intros [] ? [ -> | ]; auto.
+      * intros H; split; intros; apply H; auto.
+  Qed.
+
+  Definition fol_ldisj := @fol_bigop Σ fol_disj ⊥.
 
   Fact fol_sem_big_disj lf φ : ⟪ fol_ldisj lf ⟫ φ <-> exists f, In f lf /\ ⟪ f ⟫ φ.
   Proof.
@@ -349,16 +395,6 @@ Section fol_semantics.
         - exists g; auto.
       * intros (g & [ <- | Hg ] & ?); auto.
         right; exists g; auto.
-  Qed.
-
-  Fact fol_sem_big_conj lf φ : ⟪ fol_lconj lf ⟫ φ <-> forall f, In f lf -> ⟪ f ⟫ φ.
-  Proof.
-    induction lf as [ | f lf IHlf ]; simpl.
-    + split; tauto.
-    + rewrite IHlf.
-      split.
-      * intros [] ? [ -> | ]; auto.
-      * intros H; split; intros; apply H; auto.
   Qed.
 
   Fixpoint env_vlift φ n (v : vec X n) :=
@@ -412,45 +448,6 @@ Section fol_semantics.
         exists v, x; auto.
   Qed.
 
-  (** Semantics depends only on occuring variables *)
-
-  Fact fol_sem_ext φ ψ A : (forall n, In n (fol_vars A) -> φ n = ψ n) -> ⟪A⟫ φ <-> ⟪A⟫ ψ.
-  Proof.
-    intros H; revert A φ ψ H.
-    induction A as [ | p v | b A IHA B IHB | q A IHA ]; simpl; intros phi psy H; try tauto.
-    + match goal with | |- sem_pred ?x <-> sem_pred ?y => replace y with x; try tauto end.
-      apply vec_map_ext; intros w Hw. 
-      apply fo_term_sem_ext; auto.
-      intros n Hn; apply H, in_flat_map; exists w; split; auto.
-      apply in_vec_list; auto.
-    + apply fol_bin_sem_ext.
-      * apply IHA; intros; apply H, in_or_app; auto.
-      * apply IHB; intros; apply H, in_or_app; auto.
-    + apply fol_quant_sem_ext.
-      intros x; apply IHA.
-      intros [ | n] Hn; simpl; auto; apply H, in_flat_map.
-      exists (S n); simpl; auto.
-  Qed.
-
-  (* Notation ⟦ ⟧ ⟪ ⟫ φ ψ σ ↑ ⦃ ⦄*)
-
-  (** Semantics commutes with substitutions ... good *)
-
-  Theorem fol_sem_subst φ σ A : ⟪ A⦃σ⦄ ⟫ φ <-> ⟪A⟫ (fun n => ⟦σ n⟧ φ).
-  Proof.
-    revert φ σ; induction A as [ | p v | b A IHA B IHB | q A IHA ]; simpl; intros phi f; try tauto.
-    + match goal with | |- sem_pred ?x <-> sem_pred ?y => replace y with x; try tauto end.
-      rewrite vec_map_map; apply vec_map_ext.
-      intros; rewrite fo_term_sem_subst; auto.
-    + apply fol_bin_sem_ext; auto.
-    + apply fol_quant_sem_ext.
-      intros x; rewrite IHA.
-      apply fol_sem_ext. 
-      intros [ | n ] _; simpl; rew fot; simpl; auto.
-      rewrite <- fo_term_subst_map; rew fot.
-      apply fo_term_sem_ext; intros; rew fot; auto.
-  Qed.
-
   Section decidable.
 
     (** REMARK: not requiring the sem_pred relation to be decidable
@@ -491,7 +488,10 @@ Section fo_model_simulation.
              (Y : Type) (N : fo_model Σ Y)
              (R : X -> Y -> Prop).
 
-  Infix "⋈" := R (at level 70, no associativity). 
+  Infix "⋈" := R (at level 70, no associativity).
+
+  (** We assume that ⋈ is a simulation, ie a congruence for all operators in ls
+      and all relations in lr *)
 
   Hypothesis (Hs : forall s v w, In s ls 
                               -> (forall p, vec_pos v p ⋈ vec_pos w p)
@@ -506,21 +506,22 @@ Section fo_model_simulation.
   Notation "⟪ A ⟫" := (fun φ => fol_sem M φ A).
   Notation "⟪ A ⟫'" := (fun φ => fol_sem N φ A) (at level 1, format "⟪ A ⟫'").
 
+  (** The simulation lifts from variables to terms *)
+
   Let fo_term_simulation t φ ψ :
            (forall n : nat, In n (fo_term_vars t) -> φ n ⋈ ψ n) 
         -> incl (fo_term_syms t) ls
         -> ⟦t⟧ φ ⋈ ⟦t⟧' ψ.
   Proof.
     revert φ ψ.
-    induction t as [ k | s v IH ]; intros phi psi Hv Hls; rew fot; auto.
+    induction t as [ k | s v IH ] using fo_term_pos_rect; 
+      intros phi psi Hv Hls; rew fot; auto.
     + apply Hv; simpl; auto.
     + apply Hs.
       * apply Hls; simpl; auto.
       * intros p; do 2 rewrite vec_pos_map.
-        apply IH.
-        - apply in_vec_pos.
-        - intros n Hn.
-          apply Hv; rew fot.
+        apply IH; auto.
+        - intros n Hn; apply Hv; rew fot.
           apply in_flat_map.
           exists (vec_pos v p); split; auto.
           apply in_vec_list, in_vec_pos.
@@ -530,6 +531,8 @@ Section fo_model_simulation.
           exists (vec_pos v p); split; auto.
           apply in_vec_list, in_vec_pos.
   Qed.
+
+  (** We assume the simulation to be total and surjective *)
 
   Hypothesis (Hsim1 : forall x, exists y, x ⋈ y)
              (Hsim2 : forall y, exists x, x ⋈ y).
@@ -596,8 +599,6 @@ Section fo_model_simulation.
 
 End fo_model_simulation.
 
-Check fo_model_simulation.
-
 Section fo_model_projection.
 
   (** We specialize the previous simulation result on simulation
@@ -628,4 +629,4 @@ Section fo_model_projection.
 
 End fo_model_projection.
 
-Check fo_model_projection.
+Check fo_model_simulation.
