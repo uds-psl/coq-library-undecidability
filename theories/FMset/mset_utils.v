@@ -195,4 +195,111 @@ Proof.
   case=> /= => [|?]; rewrite ? (Nat.add_0_r, Nat.add_succ_r) => /=; by lia.
 Qed.
 
+Lemma nat_to_nat2_snd_non_increasing {n} : snd (nat_to_nat2 n) < S n.
+Proof.
+  elim: n=> [|n] //=.
+  move: (nat_to_nat2 n) => [x y]. case: x => [|x] /=; by lia.
+Qed.
+
+(* bijection from nat to list nat *)
+Definition nat_to_list := Fix lt_wf _ (fun (n: nat) =>
+  match n return ((forall y : nat, y < n -> list nat) -> list nat) with
+  | 0 => fun _ => []
+  | S n => fun f => (fst (nat_to_nat2 n)) :: (f (snd (nat_to_nat2 n)) nat_to_nat2_snd_non_increasing)
+  end).
+
+Lemma nat_to_list_S_nP {n} : 
+  nat_to_list (S n) = (fst (nat_to_nat2 n)) :: (nat_to_list (snd (nat_to_nat2 n))).
+Proof.
+  rewrite /nat_to_list Fix_eq=> //. elim=> // *; by f_equal.
+Qed.
+  
+(* bijection from list nat to nat *)
+Fixpoint list_to_nat (A: list nat) : nat :=
+  if A is a :: A then S (nat2_to_nat (a, list_to_nat A)) else 0.
+  
+Lemma nat_list_cancel {A} : nat_to_list (list_to_nat A) = A.
+Proof.
+  elim: A=> // *.
+  rewrite /list_to_nat nat_to_list_S_nP nat_nat2_cancel. by f_equal.
+Qed.
+  
+Lemma list_nat_cancel {n} : list_to_nat (nat_to_list n) = n.
+Proof.
+  elim /lt_wf_ind: n. case=> //.
+  move=> ? IH. rewrite nat_to_list_S_nP /list_to_nat -/list_to_nat IH.
+    by apply: nat_to_nat2_snd_non_increasing.
+  by rewrite - surjective_pairing nat2_nat_cancel.
+Qed.
+
+Lemma nat_to_nat2_non_increasing {n} : fst (nat_to_nat2 n) + snd (nat_to_nat2 n) < S n.
+Proof.
+  elim: n=> [|n] //=.
+  move: (nat_to_nat2 n) => [x y].
+  case: y => [|y]; case: x => [|x] /=; by lia.
+Qed.
+
+Inductive tree : Set :=
+  | leaf : tree
+  | node : nat -> tree -> tree -> tree.
+
+Fixpoint tree_to_nat (t: tree) : nat :=
+  match t with
+  | leaf => 0
+  | node n t u => S (nat2_to_nat (n, nat2_to_nat ((tree_to_nat t), (tree_to_nat u))))
+  end.
+
+Lemma nat_to_tree_fst_lt {n} : (fst (nat_to_nat2 (snd (nat_to_nat2 n)))) < S n.
+Proof. 
+  have ? := @nat_to_nat2_non_increasing n.
+  have ? := @nat_to_nat2_non_increasing (snd (nat_to_nat2 n)).
+  by lia.
+Qed.
+
+Lemma nat_to_tree_snd_lt {n} : (snd (nat_to_nat2 (snd (nat_to_nat2 n)))) < S n.
+Proof. 
+  have ? := @nat_to_nat2_non_increasing n.
+  have ? := @nat_to_nat2_non_increasing (snd (nat_to_nat2 n)).
+  by lia.
+Qed.
+  
+Definition nat_to_tree : nat -> tree.
+Proof.
+  apply: (Fix lt_wf _). case.
+    exact (fun _ => leaf).
+  move=> n f.
+  pose m := snd (nat_to_nat2 n).
+  refine (node (fst (nat_to_nat2 n)) (f (fst (nat_to_nat2 m)) _) (f (snd (nat_to_nat2 m)) _)).
+    exact nat_to_tree_fst_lt.
+  exact nat_to_tree_snd_lt.
+Defined.
+
+Lemma nat_to_tree_S_nP {n} : 
+  nat_to_tree (S n) = 
+    node (fst (nat_to_nat2 n)) 
+      (nat_to_tree (fst (nat_to_nat2 (snd (nat_to_nat2 n)))))
+      (nat_to_tree (snd (nat_to_nat2 (snd (nat_to_nat2 n))))).
+Proof.
+  rewrite /nat_to_tree Fix_eq=> //. elim=> // *. by f_equal.
+Qed.
+    
+Lemma nat_tree_cancel {t} : nat_to_tree (tree_to_nat t) = t.
+Proof.
+  elim: t=> // *.
+  rewrite /tree_to_nat nat_to_tree_S_nP nat_nat2_cancel.
+  rewrite -/tree_to_nat /fst /snd -/(fst _) -/(snd _) nat_nat2_cancel. 
+  by f_equal.
+Qed.
+    
+Lemma tree_nat_cancel {n} : tree_to_nat (nat_to_tree n) = n.
+Proof.
+  elim /lt_wf_ind: n. case=> //.
+  move=> n IH. rewrite nat_to_tree_S_nP /tree_to_nat -/tree_to_nat ? IH.
+    1,2: have ? := @nat_to_nat2_non_increasing n.
+    1,2: have ? := @nat_to_nat2_non_increasing (snd (nat_to_nat2 n)).
+    1,2: by lia.
+  rewrite - surjective_pairing nat2_nat_cancel.
+  by rewrite - surjective_pairing nat2_nat_cancel.
+Qed.
+
 End NatNat.

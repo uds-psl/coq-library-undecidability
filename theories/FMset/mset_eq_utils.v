@@ -136,3 +136,31 @@ Proof.
     by exists a.
   move /HA. by lia.
 Qed.
+
+Lemma eq_consP {a A B}: a :: A ≡ a :: B <-> A ≡ B.
+Proof.
+  rewrite /mset_eq. constructor; move=> + c => /(_ c).
+  all: rewrite ? count_occ_cons; by lia.
+Qed.
+
+Lemma eq_app_nil_nilP {A B} : A ≡ A ++ B -> B = [].
+Proof.
+  elim: A.
+    by move /eq_nilE.
+  move=> a A IH /=.
+  by move /eq_consP.
+Qed.
+
+Lemma eq_mapI {A B} : A ≡ B -> map S A ≡ map S B.
+Proof.
+  rewrite /mset_eq => + c. move=> /(_ (Nat.pred c)).
+  case: c.
+    move=> _. 
+    have H := iffLR (count_occ_not_In _ _ _).
+    rewrite ? {}H; first last.
+      done.
+    1-2: by rewrite in_map_iff=> [[? [? ?]]].
+  move=> c. rewrite - ? (count_occ_map S Nat.eq_dec Nat.eq_dec); first last.
+    done.
+  all: move=> >; by case.
+Qed.
