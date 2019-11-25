@@ -32,18 +32,14 @@ Definition encode_msetc (c : msetc) : polyc :=
 Definition encode_problem (msetcs : FMsetC_PROBLEM) : LPolyNC_PROBLEM :=
   map encode_msetc msetcs.
 
-(*
-(* count the number of occurrences of each element up to a bound *)
-Definition mset_to_poly (A: list nat) := 
-  map (fun i => count_occ (Nat.eq_dec) A i) (seq 0 (S (fold_right plus 0 A))).
-*)
-
+(* count the number of occurrences of each element *)
 Fixpoint mset_to_poly (A: list nat) := 
   match A with
   | [] => []
   | a :: A => poly_add (repeat 0 a ++ [1]) (mset_to_poly A)
   end.
 
+(* list facts *)
 Lemma Forall_mapP {X Y : Type} {P : Y -> Prop} {f : X -> Y} {l : list X} : 
   Forall P (map f l) <-> Forall (fun x => P (f x)) l.
 Proof.
@@ -59,37 +55,43 @@ Proof.
   move=> a A IH /=. by f_equal.
 Qed.
 
-Lemma poly_add_comm {p q} : poly_add p q = poly_add q p.
-Proof. 
-  elim: p q.
-    by case.
-  move=> a p IH. case.
+Lemma nth_consP {X: Type} {n} {a b: X} {A}: nth (S n) (a :: A) b = nth n A b.
+Proof. done. Qed.
+
+Lemma count_occ_repeat {a n} : count_occ Nat.eq_dec (repeat a n) a = n.
+Proof.
+  elim: n.
     done.
-  move=> b q /=. f_equal.
-    by lia.
-  done.
+  move=> n /= ->. by case: (Nat.eq_dec a a).
 Qed.
 
-
-Lemma mset_eq_consE {a A B}: a :: A ≡ B -> exists B1 B2, B = B1 ++ (a :: B2) /\ A ≡ (B1 ++ B2).
+Lemma count_occ_S_repeat {a n} : count_occ Nat.eq_dec (repeat 0 n) (S a) = 0.
 Proof.
-  move=> /copy [/mset_eq_utils.eq_in_iff /(_ a) /iffLR /(_ ltac:(by left))].
-  move /(@in_split _ _) => [B1 [B2 ->]].
-  under (mset_eq_utils.eq_lr mset_eq_utils.eq_refl (B' := a :: (B1 ++ B2))).
-    by mset_eq_utils.eq_trivial.
-  move /mset_eq_utils.eq_consP => H.
-  exists B1, B2. by constructor.
+  elim: n.
+    done.
+  by move=> n /= ->.
+Qed.
+
+Lemma count_occ_0_map {A} : count_occ Nat.eq_dec (map S A) 0 = 0.
+Proof.
+  elim: A.
+    done.
+  by move=> a A /= ->.
+Qed.
+
+(* poly facts *)
+Lemma poly_eq_refl {p} : p ≃ p.
+Proof. done. Qed. 
+
+Lemma poly_eq_sym {p q} : p ≃ q -> q ≃ p.
+Proof.
+  by move=> + i => /(_ i) ->.
 Qed.
 
 Lemma poly_eq_trans {p q r} : p ≃ q -> q ≃ r -> p ≃ r.
 Proof.
   by move=> + + i => /(_ i) + /(_ i) => -> ->.
 Qed.
-
-
-Lemma poly_eq_refl {p} : p ≃ p.
-Proof. done. Qed. 
-
 
 Lemma poly_add_nthP {i p q} : nth i (poly_add p q) 0 = (nth i p 0) + (nth i q 0).
 Proof. 
@@ -104,6 +106,17 @@ Proof.
   move=> a p. case.
     move=> /=. by lia.
   by move=> b q /=.
+Qed.
+
+Lemma poly_add_comm {p q} : poly_add p q = poly_add q p.
+Proof.
+  elim: p q.
+    by case.
+  move=> a p IH. case.
+    done.
+  move=> b q /=. f_equal.
+    by lia.
+  done.
 Qed.
 
 Lemma poly_add_assoc {p q r} : poly_add p (poly_add q r) ≃ poly_add (poly_add p q) r.
@@ -121,17 +134,10 @@ Proof.
   by case.
 Qed.
 
-Lemma poly_eq_consP {a p q} : a :: p ≃ a :: q <-> p ≃ q.
-Proof. 
-  constructor.  
-    by move=> + i => /(_ (S i)).
-  move=> + i => /(_ (Nat.pred i)).
-  by case i.
-Qed.
-
 Lemma poly_eq_consI {a b p q} : a = b -> p ≃ q -> a :: p ≃ b :: q.
 Proof. 
-  move=> ->. move /poly_eq_consP. by apply.
+  move=> -> + i => /(_ (Nat.pred i)).
+  by case i.
 Qed.
 
 Lemma poly_eq_consE {a b p q} : a :: p ≃ b :: q -> a = b /\ p ≃ q.
@@ -139,11 +145,6 @@ Proof.
   move=> H. constructor.
     by move: (H 0).
   move=> i. by move: (H (S i)).
-Qed.
-
-Lemma poly_eq_sym {p q} : p ≃ q -> q ≃ p.
-Proof.
-  by move=> + i => /(_ i) ->.
 Qed.
 
 Lemma poly_eq_nilE {a p} : a :: p ≃ [] -> a = 0 /\ p ≃ [].
@@ -161,7 +162,6 @@ Proof.
   by case.
 Qed.
 
-
 Lemma mset_to_poly_shift {a A B} : mset_to_poly (A ++ a :: B) ≃ mset_to_poly (a :: A ++ B).
 Proof.
   elim: A.
@@ -176,9 +176,6 @@ Proof.
     done.
   move=> a A + i => /(_ i) /=. rewrite ? poly_add_nthP. by lia.
 Qed.  
-
-Lemma nth_consP {X: Type} {n} {a b: X} {A}: nth (S n) (a :: A) b = nth n A b.
-Proof. done. Qed.
 
 Lemma mset_to_poly_mapP {A} : mset_to_poly (map S A) ≃ 0 :: mset_to_poly A.
 Proof. 
@@ -220,7 +217,6 @@ Proof.
   by apply: IH.
 Qed.
 
-
 Lemma poly_shiftI {p} : (0 :: p) ≃ poly_mult [0; 1] p.
 Proof.
   rewrite /poly_mult map_0P.
@@ -235,37 +231,16 @@ Proof.
   done.
 Qed.
 
-
-
-(*
-
-Lemma poly_addI {p q r} : p ≃ q -> poly_add p r ≃ poly_add q r.
-Proof.
-  elim: p q.
-    move=> q /poly_eq_sym /poly_add_0I => /=.
-    rewrite poly_add_comm. apply.
-    by apply: poly_eq_refl.
-  move=> a p IH. case.
-    move /poly_eq_nilE => [->] Hp. apply: poly_eq_sym.
-    rewrite /(poly_add []) poly_add_comm. apply: poly_add_0I.
-
-
-    apply.
-Admitted.
-*)
-
 Lemma mset_to_poly_eqI {A B} : A ≡ B -> mset_to_poly A ≃ mset_to_poly B.
 Proof.
   elim: A B.
     by move=> B /mset_eq_utils.eq_nilE ->.
-  move=> a A IH. move=> B /mset_eq_consE [B1 [B2 [-> /IH {}IH]]].
+  move=> a A IH. move=> B /mset_eq_utils.eq_consE [B1 [B2 [-> /IH {}IH]]].
   apply: poly_eq_sym.
   apply: (poly_eq_trans mset_to_poly_shift) => /=. 
   move=> i. move: (IH i).
   rewrite ? poly_add_nthP. by lia.
 Qed.
-
-Print Assumptions mset_to_poly_eqI.
 
 Lemma completeness {l} : FMsetC_SAT l -> LPolyNC_SAT (encode_problem l).
 Proof.
@@ -287,27 +262,6 @@ Fixpoint poly_to_mset (p: list nat) :=
   | a :: p => (repeat 0 a) ++ map S (poly_to_mset p)
   end.
 
-Lemma count_occ_repeat {a n} : count_occ Nat.eq_dec (repeat a n) a = n.
-Proof.
-  elim: n.
-    done.
-  move=> n /= ->. by case: (Nat.eq_dec a a).
-Qed.
-
-Lemma count_occ_S_repeat {a n} : count_occ Nat.eq_dec (repeat 0 n) (S a) = 0.
-Proof.
-  elim: n.
-    done.
-  by move=> n /= ->.
-Qed.
-
-Lemma count_occ_0_map {A} : count_occ Nat.eq_dec (map S A) 0 = 0.
-Proof.
-  elim: A.
-    done.
-  by move=> a A /= ->.
-Qed.
-
 Lemma count_occ_poly_to_msetP {a p}: count_occ Nat.eq_dec (poly_to_mset p) a = nth a p 0.
 Proof.
   elim: a p. 
@@ -323,7 +277,6 @@ Proof.
     move=> ? ?. by case.
   by rewrite count_occ_S_repeat IH.
 Qed.
-
 
 Lemma poly_to_mset_eqI {p q} : p ≃ q -> poly_to_mset p ≡ poly_to_mset q.
 Proof. 

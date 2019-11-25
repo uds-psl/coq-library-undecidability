@@ -143,6 +143,16 @@ Proof.
   all: rewrite ? count_occ_cons; by lia.
 Qed.
 
+Lemma eq_consE {a A B}: a :: A ≡ B -> exists B1 B2, B = B1 ++ (a :: B2) /\ A ≡ (B1 ++ B2).
+Proof.
+  move=> /copy [/mset_eq_utils.eq_in_iff /(_ a) /iffLR /(_ ltac:(by left))].
+  move /(@in_split _ _) => [B1 [B2 ->]].
+  under (mset_eq_utils.eq_lr mset_eq_utils.eq_refl (B' := a :: (B1 ++ B2))).
+    by mset_eq_utils.eq_trivial.
+  move /mset_eq_utils.eq_consP => H.
+  exists B1, B2. by constructor.
+Qed.
+
 Lemma eq_app_nil_nilP {A B} : A ≡ A ++ B -> B = [].
 Proof.
   elim: A.
