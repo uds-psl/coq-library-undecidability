@@ -70,18 +70,45 @@ Proof.
   done.
 Qed.
 
-Lemma mset_to_poly_eqI {A B} : A ≡ B -> mset_to_poly A ≃ mset_to_poly B.
-Proof. Admitted.
 
-Lemma mset_to_poly_appP {A B} : mset_to_poly (A ++ B) ≃ poly_add (mset_to_poly A) (mset_to_poly B).
-Proof. Admitted. 
-
-Lemma mset_to_poly_mapP {A} : mset_to_poly (map S A) ≃ 0 :: mset_to_poly A.
-Proof. Admitted.
+Lemma mset_eq_consE {a A B}: a :: A ≡ B -> exists B1 B2, B = B1 ++ (a :: B2) /\ A ≡ (B1 ++ B2).
+Proof.
+  move=> /copy [/mset_eq_utils.eq_in_iff /(_ a) /iffLR /(_ ltac:(by left))].
+  move /(@in_split _ _) => [B1 [B2 ->]].
+  under (mset_eq_utils.eq_lr mset_eq_utils.eq_refl (B' := a :: (B1 ++ B2))).
+    by mset_eq_utils.eq_trivial.
+  move /mset_eq_utils.eq_consP => H.
+  exists B1, B2. by constructor.
+Qed.
 
 Lemma poly_eq_trans {p q r} : p ≃ q -> q ≃ r -> p ≃ r.
 Proof.
   by move=> + + i => /(_ i) + /(_ i) => -> ->.
+Qed.
+
+
+Lemma poly_eq_refl {p} : p ≃ p.
+Proof. done. Qed. 
+
+
+Lemma poly_add_nthP {i p q} : nth i (poly_add p q) 0 = (nth i p 0) + (nth i q 0).
+Proof. 
+  elim: i p q.
+    case.
+      done.
+    move=> a p. case.
+      move=> /=. by lia.
+    done.
+  move=> i IH. case.
+    done.
+  move=> a p. case.
+    move=> /=. by lia.
+  by move=> b q /=.
+Qed.
+
+Lemma poly_add_assoc {p q r} : poly_add p (poly_add q r) ≃ poly_add (poly_add p q) r.
+Proof. 
+  move=> i. rewrite ? poly_add_nthP. by lia.
 Qed.
 
 Lemma repeat_0P {n} : repeat 0 n ≃ [].
@@ -134,18 +161,39 @@ Proof.
   by case.
 Qed.
 
-(*
-Lemma poly_add_0P {n p} : poly_add (repeat 0 n) p ≃ p.
-Proof.
-  elim: n p.
-    done.
-  move=> n IH /=. case.
-    admit.
-  move=> a p. f_equal.
-    admit.
-Admitted.
-*)
 
+Lemma mset_to_poly_shift {a A B} : mset_to_poly (A ++ a :: B) ≃ mset_to_poly (a :: A ++ B).
+Proof.
+  elim: A.
+    done.
+  move=> c A + i => /(_ i) /=.
+  rewrite ? poly_add_nthP. by lia.
+Qed.
+
+Lemma mset_to_poly_appP {A B} : mset_to_poly (A ++ B) ≃ poly_add (mset_to_poly A) (mset_to_poly B).
+Proof. 
+  elim: A.
+    done.
+  move=> a A + i => /(_ i) /=. rewrite ? poly_add_nthP. by lia.
+Qed.  
+
+Lemma nth_consP {X: Type} {n} {a b: X} {A}: nth (S n) (a :: A) b = nth n A b.
+Proof. done. Qed.
+
+Lemma mset_to_poly_mapP {A} : mset_to_poly (map S A) ≃ 0 :: mset_to_poly A.
+Proof. 
+  elim: A.
+    case.
+      done.
+    by case.
+  move=> a A + i => /(_ i). case: i.
+    rewrite /map -/(map _ _) /mset_to_poly -/(mset_to_poly).
+    rewrite ? nth_consP ? poly_add_nthP.
+    by move=> /=.
+  move=> i. rewrite /map -/(map _ _) /mset_to_poly -/(mset_to_poly).
+  rewrite ? nth_consP ? poly_add_nthP.
+  move=> /=. by lia.
+Qed.
 
 Lemma poly_add_0I {p q r} : r ≃ [] -> p ≃ q -> p ≃ poly_add q r.
 Proof. 
@@ -186,6 +234,38 @@ Proof.
     apply: (repeat_0P (n := 1)).
   done.
 Qed.
+
+
+
+(*
+
+Lemma poly_addI {p q r} : p ≃ q -> poly_add p r ≃ poly_add q r.
+Proof.
+  elim: p q.
+    move=> q /poly_eq_sym /poly_add_0I => /=.
+    rewrite poly_add_comm. apply.
+    by apply: poly_eq_refl.
+  move=> a p IH. case.
+    move /poly_eq_nilE => [->] Hp. apply: poly_eq_sym.
+    rewrite /(poly_add []) poly_add_comm. apply: poly_add_0I.
+
+
+    apply.
+Admitted.
+*)
+
+Lemma mset_to_poly_eqI {A B} : A ≡ B -> mset_to_poly A ≃ mset_to_poly B.
+Proof.
+  elim: A B.
+    by move=> B /mset_eq_utils.eq_nilE ->.
+  move=> a A IH. move=> B /mset_eq_consE [B1 [B2 [-> /IH {}IH]]].
+  apply: poly_eq_sym.
+  apply: (poly_eq_trans mset_to_poly_shift) => /=. 
+  move=> i. move: (IH i).
+  rewrite ? poly_add_nthP. by lia.
+Qed.
+
+Print Assumptions mset_to_poly_eqI.
 
 Lemma completeness {l} : FMsetC_SAT l -> LPolyNC_SAT (encode_problem l).
 Proof.
@@ -241,7 +321,7 @@ Proof.
 Qed.
 
 Check FMsetC_to_LPolyNC.
-Print Assumptions FMsetC_to_LPolyNC.
+(* Print Assumptions FMsetC_to_LPolyNC. *)
 
 From Undecidability Require Import Problems.TM.
 From Undecidability Require Reductions.H10UC_to_FMsetC.
