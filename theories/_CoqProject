@@ -145,6 +145,13 @@ H10/FRACTRAN_DIO.v
 H10/H10.v
 H10/DPRM.v
 
+FMset/FMsetTC.v
+FMset/mset_utils.v
+FMset/mset_eq_utils.v
+FMset/mset_poly_utils.v
+FMset/mset_term_utils.v
+FMset/H10UC_to_FMsetTC.v
+
 Problems/FOL.v
 Problems/cbvLambda.v
 Problems/TM.v
@@ -159,6 +166,7 @@ Problems/H10C.v
 Problems/H10UC.v
 Problems/FMsetC.v
 Problems/HSC.v
+Problems/LPolyNC.v
 
 Reductions/TM_to_SRH.v  
 Reductions/SRH_to_SR.v  
@@ -176,3 +184,4 @@ Reductions/FRACTRAN_to_H10C.v
 Reductions/H10C_to_H10UC.v
 Reductions/H10UC_to_FMsetC.v
 Reductions/BMPCP_to_HSC.v
+Reductions/FMsetC_to_LPolyNC.v

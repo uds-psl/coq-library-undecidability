@@ -629,18 +629,11 @@ Proof.
   move=> a v IH x. rewrite -/(app [a] _) app_assoc. move /IH.
   rewrite encode_word'_last.
   move /(hsc_arr _ _ _ _). apply.
-  evar (s1 : formula). evar (s2 : formula). evar (s3 : formula). evar (s4 : formula). evar (s5 : formula).
-  pose ζ := 
-    fun i =>
-      match i with
-      | 0 => var 0
-      | 1 => s1 | 2 => s2 | 3 => s3 | 4 => s4 | 5 => s5
-      | _ => var i
-      end.
+  evar (ζ : nat -> formula).
+  instantiate (ζ := fun x => match x with | 0 => _ | 1 => _ | 2 => _ | 3 => _| 4 => _ | _ => _ end).
   apply: (hscI (ζ := ζ)).
     rewrite /ΓPCP. do 3 right. left. by reflexivity.
-  rewrite substitute_arrP /PCPf' ? transparent_encode_pair => //=.
-  by rewrite /s1 /s2 /s3 /s4 /s5.
+  by rewrite /ζ substitute_arrP /PCPf' ? transparent_encode_pair.
 Qed.
 
 
@@ -655,18 +648,11 @@ Proof.
   move=> a w IH y. rewrite -/(app [a] _) app_assoc. move /IH.
   rewrite encode_word'_last.
   move /(hsc_arr _ _ _ _). apply.
-  evar (s1 : formula). evar (s2 : formula). evar (s3 : formula). evar (s4 : formula). evar (s5 : formula).
-  pose ζ := 
-    fun i =>
-      match i with
-      | 0 => var 0
-      | 1 => s1 | 2 => s2 | 3 => s3 | 4 => s4 | 5 => s5
-      | _ => var i
-      end.
+  evar (ζ : nat -> formula).
+  instantiate (ζ := fun x => match x with | 0 => _ | 1 => _ | 2 => _ | 3 => _ | 4 => _ | _ => _ end).
   apply: (hscI (ζ := ζ)).
     rewrite /ΓPCP. do 4 right. left. by reflexivity.
-  rewrite substitute_arrP /PCPf' ? transparent_encode_pair => //=.
-  by rewrite /s1 /s2 /s3 /s4 /s5.
+  by rewrite /ζ substitute_arrP /PCPf' ? transparent_encode_pair.
 Qed.
 
 
@@ -680,18 +666,11 @@ Proof.
   move=> vw R IH Q P. rewrite -app_assoc. move=> ->.
   move=> ?. have : hsc ΓPCP (PCPf' ([vw] ++ Q) (R ++ ([vw] ++ Q)) s t).
     apply: hsc_arr; last eassumption.
-    evar (s1 : formula). evar (s2 : formula). evar (s3 : formula). evar (s4 : formula).
-    pose ζ := 
-      fun i =>
-        match i with
-        | 0 => var 0
-        | 1 => s1 | 2 => s2 | 3 => s3 | 4 => s4
-        | _ => var i
-        end.
+    evar (ζ : nat -> formula).
+    instantiate (ζ := fun x => match x with | 0 => _ | 1 => _ | 2 => _ | 3 => _ | _ => _ end).
     apply: (hscI (ζ := ζ)).
       rewrite /ΓPCP. do 2 right. left. by reflexivity.
-    rewrite substitute_arrP /PCPf' ? transparent_encode_pair => //=.
-    by rewrite /s1 /s2 /s3 /s4.
+    by rewrite /ζ substitute_arrP /PCPf' ? transparent_encode_pair.
   move /IH. by apply.
 Qed.
 
@@ -708,18 +687,11 @@ Proof.
     (encode_pair (encode_word' bullet x) bullet)
     (encode_pair (encode_word' bullet y) bullet)).
     apply: hsc_arr; last eassumption.
-    evar (s1 : formula). evar (s2 : formula). evar (s3 : formula). evar (s4 : formula). evar (s5 : formula). evar (s6 : formula).
-    pose ζ := 
-      fun i =>
-        match i with
-        | 0 => var 0
-        | 1 => s1 | 2 => s2 | 3 => s3 | 4 => s4 | 5 => s5 | 6 => s6
-        | _ => var i
-        end.
+    evar (ζ : nat -> formula).
+    instantiate (ζ := fun x => match x with | 0 => _ | 1 => _ | 2 => _ | 3 => _ | 4 => _ | 5 => _ | _ => _ end).
     apply: (hscI (ζ := ζ)).
       rewrite /ΓPCP. do 1 right. left. by reflexivity.
-    rewrite substitute_arrP /PCPf' ? transparent_encode_pair => //=.
-    by rewrite /s1 /s2 /s3 /s4 /s5 /s6.
+    by rewrite /ζ substitute_arrP /PCPf' ? transparent_encode_pair.
   move /ΓPCP_saturate. apply. by eassumption.
 Qed.
 
@@ -745,14 +717,10 @@ Lemma ΓPCP_soundness {v w P} : BMPCP ((v, w), P) -> hsc ΓPCP (PCPf ((v, w) :: 
 Proof.
   move=> [A [/ΓPCP_soundness_ind]]. move=> + H.
   rewrite {}H. apply.
-  evar (s1 : formula). evar (s2 : formula).
-  pose ζ i := 
-    match i with
-    | 0 => var 0 | 1 => s1 | 2 => s2 | _ => var i
-    end.
+  evar (ζ : nat -> formula).
+  instantiate (ζ := fun x => match x with | 0 => _ | 1 => _ | _ => _ end).
   apply: (hscI (ζ := ζ)). by left.
-  rewrite /PCPf transparent_encode_pair => //=.
-  by rewrite /s1 /s2.
+  by rewrite /ζ /PCPf transparent_encode_pair.
 Qed.
 
 Lemma encode_bool_injective {a b} : encode_bool a = encode_bool b -> a = b.
