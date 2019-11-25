@@ -25,6 +25,54 @@ Local Notation " e [ v / x ] " := (vec_change e x v).
 
 Section discrete_quotient.
 
+  (** We show the FO indistinguishability is both
+      decidable and FO definable. We use it to quotient
+      the model and get a discrete model (based on the
+      finite type pos n).
+
+      The idea of the construction is the following. We
+      start from a finitary signature to simplify the
+      explanation but the devel below works in a sub-signature 
+      where the list ls bounds usable terms symbols and the 
+      list lr usable bound relations symbols.
+
+      So given a finitary Σ and a finite and Boolean models M
+      for Σ, we define the operator 
+                 F : (M² -> Prop) -> (M² -> Prop) 
+      transforming binary relations over M.
+
+         x F(R) y iff t[x]  R  t[y] for any t[.] = s<v[./p]>
+                  and f[x] <-> f[y] for any f[.] = r<v[./p]>
+      
+      Then F(.) is monotonic, w-continuous, and satisfies
+      I ⊆ F(I), (F(R))⁻ ⊆ F(R⁻) and F(R) o F(R) ⊆ F (R o R)
+      hence Kleene's greatest fixpoint gfp(F) exists, is
+      obtained after w-steps and is an equivalence relation.
+
+      Moreover, F preserves decidability and FO-definability.
+      Now we show that gfp(F) = F^n(TT) for a finite n
+      which implies that gfp(F) is decidable and FO-definable.
+      Here TT := fun _ _ => True is the full binary relation
+      over M.
+
+      The sequence n => F^n(TT) is a sequence of decidable
+      (hence also weakly decidable) relations. If 
+      F^a(TT) ⊆ F^b(TT) for a<b then we have F^a(TT) ~ F^i(TT)
+      for any i => a and thus for any i >= a F^i(TT) ~ gfp F.
+
+      The sequence n => F^n(TT) belongs to the weak power list 
+      of binary relations over M (upto equivalence) which contains
+      all weakly decidable binary relations over M. By the PHP,
+      for n greater that the length of this list (which is
+      2^(m*m) where m is the cardinal of M), we must have
+      F^a(TT) ~ F^b(TT) for a <> b, hence we deduce
+      F^n(TT) ~ gfp F.
+
+      Hence, gfp F is decidable and FO-definable as well.
+  
+  *)  
+ 
+
   (** We assume a finite sub-signature, a finite and decidable model and a valuation 
       and we build the greatest bisimulation for this model, establishing that it
       is decidable and thus we can quotient the model under this bisim obtaining
@@ -32,13 +80,18 @@ Section discrete_quotient.
 
   Variables (Σ : fo_signature) (ls : list (syms Σ)) (lr : list (rels Σ)).
 
+  (** fo_bisimilar means no FO formula can distinguish x from y. Beware that
+      two free variables might be needed *)
+
   Definition fo_bisimilar X M x y := 
          forall A φ, incl (fol_syms A) ls
                   -> incl (fol_rels A) lr
                   -> @fol_sem Σ X M (φ↑x) A <-> fol_sem M (φ↑y) A.
 
-  Variables (X : Type) (fin : finite_t X) 
-            (M : fo_model Σ X) (dec : fo_model_dec M).
+  Variables (X : Type) 
+            (fin : finite_t X) 
+            (M : fo_model Σ X) 
+            (dec : fo_model_dec M).
 
   Implicit Type (R T : X -> X -> Prop).
 
@@ -387,10 +440,7 @@ Section discrete_quotient.
                 -> incl (fol_rels A) lr
                 -> fol_sem M phi A 
                <-> fol_sem Md (fun n => cls (phi n)) A.
-    Proof.
-      intros Hs Hr.
-      apply fo_model_projection with (p := f); auto.
-    Qed.
+    Proof. intros; apply fo_model_projection with (p := f); auto. Qed.
 
     Let H4 p q : fo_bisimilar Md p q -> p = q.
     Proof.
@@ -452,28 +502,24 @@ Section counter_model_to_class_FO_definability.
   Let M_dec : fo_model_dec M.
   Proof. intros [] ?; apply bool_dec. Qed.
 
-  Let R : @fo_simulation Σ nil (tt::nil) _ M _ M.
+  Let f : @fo_projection Σ nil (tt::nil) _ M _ M.
   Proof.
-    exists (fun a b => a <> b); auto.
-    2,3: intros x; exists (negb x); now destruct x.
-    intros [] v w _; simpl.
-    vec split v with x1; vec split v with x2; vec nil v.
-    vec split w with y1; vec split w with y2; vec nil w; intros H1.
-    generalize (H1 pos0) (H1 pos1); clear H1; intros H1 H2; simpl in H1, H2.
-    unfold M; simpl.
-    red in H1, H2.
-    revert x1 y1 x2 y2 H1 H2.
-    intros [] [] [] []; tauto.
+    exists negb negb.
+    + intros []; auto.
+    + intros [].
+    + intros [] v _; simpl.
+      vec split v with x; vec split v with y; vec nil v; simpl.
+      revert x y; now intros [] [].
   Defined.
 
-  Infix "⋈" := R (at level 70, no associativity). 
+(*
+  Infix "⋈" := R (at level 70, no associativity). *)
   Notation "⟪ A ⟫" := (fun φ => fol_sem M φ A).
 
-  Let homeomorphism (A : fol_form Σ) phi psi : 
-        (forall n, phi n ⋈ psi n) -> ⟪A⟫ phi <-> ⟪A⟫ psi.
+  Let homeomorphism (A : fol_form Σ) phi : 
+        ⟪A⟫ phi <-> ⟪A⟫ (fun x=> negb (phi x)).
   Proof.
-    intros H.
-    apply fo_model_simulation with (R := R); auto.
+    apply fo_model_projection with (p := f); auto.
     all: intros []; simpl; auto.
   Qed.
 
@@ -497,27 +543,24 @@ Section counter_model_to_class_FO_definability.
                         -> ⟪A⟫ phi↑true <-> ⟪A⟫ phi↑false.
   Proof.
     intros H.
-    assert (H0 : forall b, b ⋈ negb b) by (intros []; discriminate).
-    assert (H1 : forall b, negb b ⋈ b) by (intros []; discriminate).
     set (psi n := negb (phi n)).
-    assert (G1 : forall n, phi n ⋈ psi n) by (intro; apply H0).
-    assert (G2 : forall n, psi n ⋈ phi n) by (intro; apply H1).
-    clear H0 H1.
-    rewrite homeomorphism with (psi := psi↑false) at 1.
-    + apply fol_sem_ext.
-      intros n Hn; apply H in Hn; revert Hn.
-      intros [ <- | [] ]; auto.
-    + intros [ | n ]; simpl; try discriminate; apply G1.
+    rewrite homeomorphism with (phi := phi↑false) at 1.
+    apply fol_sem_ext.
+    intros n Hn; apply H in Hn; revert Hn.
+    intros [ <- | [] ]; auto.
   Qed.
+
+  (** There is a model over Σ2 with two values such that no
+      FO formula with one free variable can distinguish those 
+      two values, but there is a FO formula with 2 free variables
+      that distinguishes them *)
 
   Theorem FO_does_not_characterize_classes :
      exists (M : fo_model Σ bool) (_ : fo_model_dec M) (x y : bool), 
             ~ fom_eq (Σ := Σ) nil (tt::nil) M x y
          /\ forall A φ, incl (fol_vars A) (0::nil) 
                      -> fol_sem M φ↑x A <-> fol_sem M φ↑y A.
-  Proof.
-    exists M, M_dec, true, false; auto.
-  Qed.
+  Proof. exists M, M_dec, true, false; auto. Qed.
 
 End counter_model_to_class_FO_definability.
 
