@@ -145,10 +145,12 @@ H10/FRACTRAN_DIO.v
 H10/H10.v
 H10/DPRM.v
 
+FMset/FMsetTC.v
 FMset/mset_utils.v
 FMset/mset_eq_utils.v
 FMset/mset_poly_utils.v
 FMset/mset_term_utils.v
+FMset/H10UC_to_FMsetTC.v
 
 Problems/FOL.v
 Problems/cbvLambda.v

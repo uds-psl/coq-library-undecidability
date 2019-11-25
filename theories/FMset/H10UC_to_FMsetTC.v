@@ -9,7 +9,7 @@
   Reduction from:
     Uniform H10 constraint solvability (H10UC)
   to:
-    Finite multiset constraint solvability (FMsetC)
+    Finite multiset term constraint solvability (FMsetTC)
   
   References:
     [1] Paliath Narendran: Solving Linear Equations over Polynomial Semirings.
@@ -21,7 +21,7 @@ Require Import Arith Psatz.
 Require Import List.
 Import ListNotations.
 
-From Undecidability Require Import Problems.FMsetC Problems.H10UC Problems.Reduction.
+From Undecidability Require Import Problems.FMsetC FMset.FMsetTC Problems.H10UC Problems.Reduction.
 From Undecidability Require Import 
   FMset.mset_utils FMset.mset_eq_utils FMset.mset_poly_utils FMset.mset_term_utils.
 
@@ -229,7 +229,7 @@ Qed.
 
 Opaque embed unembed.
 
-Definition encode_bound (x: nat): FMsetC_PROBLEM :=
+Definition encode_bound (x: nat): FMsetTC_PROBLEM :=
   let X n := embed (x, n, 0) in
     [
       ((X 1) ⊍ (X 2), •0 ⊍ (h (X 1))); (* X 1 = [0..n-1], X 2 = [n] *)
@@ -303,7 +303,7 @@ Proof.
 Qed.
 
 (* each n : nat is represented by a multiset containing n zeroes *)
-Definition encode_nat (x: nat) : FMsetC_PROBLEM :=
+Definition encode_nat (x: nat) : FMsetTC_PROBLEM :=
   let X n := embed (x, n, 1) in
     [
       (X 0 ⊍ X 2, mset_term_var (embed (x, 0, 0))); (* X 0 = [0..0] *)
@@ -508,7 +508,7 @@ Qed.
 Definition encode_h10uc '(x, y, z) := encode_constraint x y z.
 
 (* many-one reduction from H10UC to FMsetC *)
-Theorem H10UC_to_FMsetC : H10UC_SAT ⪯ FMsetC_SAT.
+Theorem H10UC_to_FMsetTC : H10UC_SAT ⪯ FMsetTC_SAT.
 Proof.
   exists (fun h10ucs => flat_map encode_h10uc h10ucs).
   move=> h10ucs. constructor.
@@ -536,18 +536,5 @@ Proof.
     by constructor.
 Qed.
 
-Check H10UC_to_FMsetC.
+(* Check H10UC_to_FMsetC. *)
 (* Print Assumptions H10UC_to_FMsetC. *)
-
-From Undecidability Require Import Problems.TM.
-From Undecidability Require Import Reductions.H10C_to_H10UC.
-
-(* undecidability of FMsetC *)
-Theorem FMsetC_undec : Halt ⪯ FMsetC_SAT.
-Proof.
-  apply (reduces_transitive H10UC_undec).
-  apply H10UC_to_FMsetC.
-Qed.
-
-Check FMsetC_undec.
-(* Print Assumptions FMsetC_undec. *)

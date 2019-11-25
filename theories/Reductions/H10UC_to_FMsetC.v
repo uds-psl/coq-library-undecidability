@@ -7,9 +7,11 @@
 
 (* 
   Reduction from:
-    Finite multiset constraint solvability (FMsetC)
+    Uniform H10 constraint solvability (H10UC)
+  via:
+    Finite multiset term constraint solvability (FMsetTC)
   to:
-    Finite elementary multiset constraint solvability (FMsetEC)
+    Finite multiset constraint solvability (FMsetC)
 *)
 
 Require Import ssreflect ssrbool ssrfun.
@@ -17,9 +19,10 @@ Require Import Arith Psatz.
 Require Import List.
 Import ListNotations.
 
-From Undecidability Require Import Problems.FMsetC Problems.Reduction.
+From Undecidability Require Import Problems.FMsetC Problems.H10UC Problems.Reduction.
 
-From Undecidability Require Import FMset.mset_utils FMset.mset_eq_utils FMset.mset_term_utils.
+From Undecidability Require Import 
+  FMset.FMsetTC FMset.mset_utils FMset.mset_eq_utils FMset.mset_term_utils.
 Import NatNat.
 
 Fixpoint term_to_tree (t: mset_term) : tree :=
@@ -71,7 +74,7 @@ Definition encode_eq (t u: mset_term) :=
   (msetc_sum (term_to_nat t) (tree_to_nat leaf) (term_to_nat u))].
 
 (* encode FMsetC_PROBLEM as LPolyNC_PROBLEM *)
-Definition encode_problem (msetcs : FMsetC_PROBLEM) : FMsetEC_PROBLEM :=
+Definition encode_problem (msetcs : FMsetTC_PROBLEM) : FMsetC_PROBLEM :=
   flat_map (fun '(t, u) => (encode_eq t u) ++ term_to_msetcs t ++ term_to_msetcs u) msetcs.
 
 Lemma Forall_flat_mapP {X Y: Type} {P: Y -> Prop} {f: X -> list Y} {A: list X}: 
@@ -87,7 +90,7 @@ Proof.
   case: t; by move=> *. 
 Qed.
 
-Lemma completeness {l} : FMsetC_SAT l -> FMsetEC_SAT (encode_problem l).
+Lemma completeness {l} : FMsetTC_SAT l -> FMsetC_SAT (encode_problem l).
 Proof.
   move=> [φ]. rewrite -mset_satP => Hφ.
   pose ψ x := if x is 0 then [] else mset_sem φ (nat_to_term x).
@@ -121,7 +124,7 @@ Proof.
   by rewrite - ? term_to_nat_pos ? nat_term_cancel.
 Qed.
 
-Lemma soundness {l} : FMsetEC_SAT (encode_problem l) -> FMsetC_SAT l.
+Lemma soundness {l} : FMsetC_SAT (encode_problem l) -> FMsetTC_SAT l.
 Proof.
   move=> [ψ]. rewrite -Forall_forall Forall_flat_mapP => Hψ.
   pose φ x := ψ (term_to_nat (mset_term_var x)).
@@ -154,8 +157,8 @@ Proof.
   under eq_lr; by eassumption.
 Qed.
 
-(* many-one reduction from FMsetC to FMsetEC *)
-Theorem FMsetC_to_FMsetEC : FMsetC_SAT ⪯ FMsetEC_SAT.
+(* many-one reduction from FMsetTC to FMsetC *)
+Theorem FMsetTC_to_FMsetC : FMsetTC_SAT ⪯ FMsetC_SAT.
 Proof.
   exists encode_problem.
   move=> cs. constructor.
@@ -163,4 +166,13 @@ Proof.
   exact soundness.
 Qed.
 
-(* Print Assumptions FMsetC_to_FMsetEC. *)
+From Undecidability Require FMset.H10UC_to_FMsetTC.
+
+Theorem H10UC_to_FMsetC : H10UC_SAT ⪯ FMsetC_SAT.
+Proof.
+  apply (reduces_transitive H10UC_to_FMsetTC.H10UC_to_FMsetTC).
+  apply FMsetTC_to_FMsetC.
+Qed.
+
+Check H10UC_to_FMsetC.
+(* Print Assumptions H10UC_to_FMsetC. *)

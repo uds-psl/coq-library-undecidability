@@ -10,6 +10,7 @@ Require Import List.
 Import ListNotations.
 
 From Undecidability Require Import Problems.FMsetC.
+From Undecidability Require Import FMset.FMsetTC FMset.mset_utils.
 
 Notation "t ⊍ u" := (mset_term_plus t u) (at level 40).
 Notation "'h' t" := (mset_term_h t) (at level 38).
@@ -17,7 +18,7 @@ Notation "•0" := mset_term_zero.
 
 Coercion mset_term_var : nat >-> mset_term.
 
-Definition mset_sat (φ : nat -> list nat) (l : FMsetC_PROBLEM) := 
+Definition mset_sat (φ : nat -> list nat) (l : FMsetTC_PROBLEM) := 
   Forall (fun '(A, B) => (mset_sem φ A) ≡ (mset_sem φ B)) l.
 
 Lemma mset_satP {φ l} : mset_sat φ l <-> (forall (A B : mset_term), In (A, B) l -> (mset_sem φ A) ≡ (mset_sem φ B)).
