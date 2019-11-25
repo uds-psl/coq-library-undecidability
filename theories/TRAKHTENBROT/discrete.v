@@ -276,14 +276,16 @@ Section discrete_quotient.
 
     Hint Resolve fom_eq_syms_full fom_eq_rels_full.
 
+    Let fos : fo_simulation ls lr M M.
+    Proof. exists fom_eq; auto; intros a; exists a; auto. Defined.
+
     Let fom_eq_fol_charac1 A phi psi : 
             (forall n, In n (fol_vars A) -> phi n ≡ psi n)
          -> incl (fol_syms A) ls
          -> incl (fol_rels A) lr
          -> fol_sem M phi A <-> fol_sem M psi A.
     Proof.
-      intros Hp; apply fo_model_simulation with (R := fom_eq); auto;
-        intros a; exists a; auto.
+      intros; apply  fo_model_simulation with (R := fos); auto.
     Qed.
 
     (** Can this be restricted to FO formula where only £0 is free ? 
@@ -378,13 +380,16 @@ Section discrete_quotient.
       apply E2; rewrite E1; auto.
     Qed.
 
+    Let f : fo_projection ls lr M Md.
+    Proof. exists cls repr; auto. Defined.
+
     Let H3 A phi : incl (fol_syms A) ls 
                 -> incl (fol_rels A) lr
                 -> fol_sem M phi A 
                <-> fol_sem Md (fun n => cls (phi n)) A.
     Proof.
       intros Hs Hr.
-      apply fo_model_projection with (1 := E1) (5 := Hs) (6 := Hr); auto.
+      apply fo_model_projection with (p := f); auto.
     Qed.
 
     Let H4 p q : fo_bisimilar Md p q -> p = q.
@@ -402,27 +407,16 @@ Section discrete_quotient.
         with decidable relations and such that identity is exactly
         FO undistinguishability *)
 
-    Check fo_bisimilar.
-
     Theorem fo_fin_model_discretize : 
-      { n : nat & 
+        { n : nat & 
         { Md : fo_model Σ (pos n) &
-          {_ : fo_model_dec Md & 
-            { i : X -> pos n &
-              { j : pos n -> X |
-                  (forall x, i (j x) = x)
-               /\ (forall s v, In s ls -> i (fom_syms M s v) = fom_syms Md s (vec_map i v))
-               /\ (forall s v, In s lr -> fom_rels M s v <-> fom_rels Md s (vec_map i v))
-               /\ (forall A φ, incl (fol_syms A) ls 
-                            -> incl (fol_rels A) lr
-                            -> fol_sem M  φ                  A 
-                           <-> fol_sem Md (fun n => i (φ n)) A)
-               /\ (forall p q, fo_bisimilar Md p q -> p = q)
-                 } } } } }.
+        { _ : fo_model_dec Md & 
+        { _ : fo_projection ls lr M Md & 
+          (forall p q, fo_bisimilar Md p q -> p = q) } } } }.
     Proof.
-      exists n, Md; exists.
-      { intros x y; simpl; apply dec. }
-      exists cls, repr; msplit 3; auto.
+      exists n, Md.
+      exists; eauto. 
+      intros x y; simpl; apply dec.
     Qed.
 
   End build_the_model.
@@ -458,7 +452,19 @@ Section counter_model_to_class_FO_definability.
   Let M_dec : fo_model_dec M.
   Proof. intros [] ?; apply bool_dec. Qed.
 
-  Let R (a b : bool) : Prop := a <> b.
+  Let R : @fo_simulation Σ nil (tt::nil) _ M _ M.
+  Proof.
+    exists (fun a b => a <> b); auto.
+    2,3: intros x; exists (negb x); now destruct x.
+    intros [] v w _; simpl.
+    vec split v with x1; vec split v with x2; vec nil v.
+    vec split w with y1; vec split w with y2; vec nil w; intros H1.
+    generalize (H1 pos0) (H1 pos1); clear H1; intros H1 H2; simpl in H1, H2.
+    unfold M; simpl.
+    red in H1, H2.
+    revert x1 y1 x2 y2 H1 H2.
+    intros [] [] [] []; tauto.
+  Defined.
 
   Infix "⋈" := R (at level 70, no associativity). 
   Notation "⟪ A ⟫" := (fun φ => fol_sem M φ A).
@@ -467,20 +473,8 @@ Section counter_model_to_class_FO_definability.
         (forall n, phi n ⋈ psi n) -> ⟪A⟫ phi <-> ⟪A⟫ psi.
   Proof.
     intros H.
-    apply fo_model_simulation with (ls := nil) (lr := tt::nil) (R := R); auto.
-    + intros ? _ _ [].
-    + intros [] v w _.
-      vec split v with x1; vec split v with x2; vec nil v.
-      vec split w with y1; vec split w with y2; vec nil w; intros H1.
-      generalize (H1 pos0) (H1 pos1); clear H1; intros H1 H2; simpl in H1, H2.
-      unfold M; simpl.
-      red in H1, H2.
-      revert x1 y1 x2 y2 H1 H2.
-      intros [] [] [] []; tauto.
-    + intros []; [ exists false | exists true ]; discriminate.
-    + intros []; [ exists false | exists true ]; discriminate.
-    + intros [].
-    + intros []; simpl; auto.
+    apply fo_model_simulation with (R := R); auto.
+    all: intros []; simpl; auto.
   Qed.
 
   Check fom_eq.
@@ -513,7 +507,7 @@ Section counter_model_to_class_FO_definability.
     + apply fol_sem_ext.
       intros n Hn; apply H in Hn; revert Hn.
       intros [ <- | [] ]; auto.
-    + intros [ | n ]; simpl; auto; discriminate.
+    + intros [ | n ]; simpl; try discriminate; apply G1.
   Qed.
 
   Theorem FO_does_not_characterize_classes :
@@ -544,11 +538,11 @@ Section discrete_removal.
     set (ls := fol_syms A).
     set (lr := fol_rels A).
     destruct (fo_fin_model_discretize ls lr Hfin Hdec)
-      as (n & Md & Mdec & i & j & E1 & E2 & E3 & _).
-    set (psy n := i (phi n)).
+      as (n & Md & Mdec & f & E).
+    set (psy n := f (phi n)).
     exists n, (@pos_eq_dec _), Md, (finite_t_pos _) , Mdec, psy.
     revert HA.
-    apply fo_model_projection with (1 := E1) (ls := ls) (lr := lr); 
+    apply fo_model_projection with (p := f); 
       unfold lr, ls; auto; apply incl_refl.
   Qed.
 

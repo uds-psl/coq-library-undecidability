@@ -485,20 +485,47 @@ Section fo_model_simulation.
 
   Variables  (Σ : fo_signature) (ls : list (syms Σ)) (lr : list (rels Σ))
              (X : Type) (M : fo_model Σ X)
-             (Y : Type) (N : fo_model Σ Y)
-             (R : X -> Y -> Prop).
-
-  Infix "⋈" := R (at level 70, no associativity).
+             (Y : Type) (N : fo_model Σ Y).
 
   (** We assume that ⋈ is a simulation, ie a congruence for all operators in ls
       and all relations in lr *)
 
-  Hypothesis (Hs : forall s v w, In s ls 
-                              -> (forall p, vec_pos v p ⋈ vec_pos w p)
-                              -> fom_syms M s v ⋈ fom_syms N s w)
-             (Hr : forall s v w, In s lr 
-                              -> (forall p, vec_pos v p ⋈ vec_pos w p)
-                              -> fom_rels M s v <-> fom_rels N s w).
+  Record fo_simulation := Mk_fo_simulation {
+    fos_simul :> X -> Y -> Prop;
+    fos_syms  : forall s v w, In s ls 
+                          -> (forall p, fos_simul (vec_pos v p) (vec_pos w p))
+                          -> fos_simul (fom_syms M s v) (fom_syms N s w);
+    fos_rels  : forall s v w, In s lr 
+                          -> (forall p, fos_simul (vec_pos v p) (vec_pos w p))
+                          -> fom_rels M s v <-> fom_rels N s w;
+    fos_total : forall x, exists y, fos_simul x y;
+    fos_surj  : forall y, exists x, fos_simul x y;
+  }.
+
+  Record fo_projection := Mk_fo_projection {
+    fop_surj :> X -> Y; 
+    fop_inj  : Y -> X;
+    fop_eq   : forall x, fop_surj (fop_inj x) = x;
+    fop_syms : forall s v, In s ls -> fop_surj (fom_syms M s v) = fom_syms N s (vec_map fop_surj v);
+    fop_rels : forall s v, In s lr -> fom_rels M s v <-> fom_rels N s (vec_map fop_surj v);
+  }.
+
+  Fact fo_proj_simul : fo_projection -> fo_simulation.
+  Proof.
+    intros [ i j E Hs Hr ].
+    exists (fun x y => i x = y); auto.
+    + intros s v w H1 H2; rewrite Hs; auto.
+      f_equal; apply vec_pos_ext; intro; rew vec.
+    + intros s v w H1 H2; rewrite Hr; auto.
+      apply fol_equiv_ext; f_equal.
+      apply vec_pos_ext; intro; rew vec.
+    + intros x; exists (i x); auto.
+    + intros y; exists (j y); auto.
+  Defined.
+
+  Variable R : fo_simulation.
+
+  Infix "⋈" := R (at level 70, no associativity).
   
   Notation "⟦ t ⟧" := (fun φ => fo_term_sem (fom_syms M) φ t).
   Notation "⟦ t ⟧'" := (fun φ => fo_term_sem (fom_syms N) φ t) (at level 1, format "⟦ t ⟧'").
@@ -517,7 +544,7 @@ Section fo_model_simulation.
     induction t as [ k | s v IH ] using fo_term_pos_rect; 
       intros phi psi Hv Hls; rew fot; auto.
     + apply Hv; simpl; auto.
-    + apply Hs.
+    + apply fos_syms.
       * apply Hls; simpl; auto.
       * intros p; do 2 rewrite vec_pos_map.
         apply IH; auto.
@@ -534,18 +561,15 @@ Section fo_model_simulation.
 
   (** We assume the simulation to be total and surjective *)
 
-  Hypothesis (Hsim1 : forall x, exists y, x ⋈ y)
-             (Hsim2 : forall y, exists x, x ⋈ y).
-
   Theorem fo_model_simulation A φ ψ :
-           (forall n : nat, In n (fol_vars A) -> φ n ⋈ ψ n) 
-        -> incl (fol_syms A) ls
+           incl (fol_syms A) ls
         -> incl (fol_rels A) lr
+        -> (forall n : nat, In n (fol_vars A) -> φ n ⋈ ψ n) 
         -> ⟪A⟫ φ <-> ⟪A⟫' ψ.
   Proof.
     revert φ ψ.
-    induction A as [ | r | b A HA B HB | q A HA ]; intros phi psi Hp Hs1 Hr1; simpl; try tauto.
-    + apply Hr.
+    induction A as [ | r | b A HA B HB | q A HA ]; intros phi psi Hs1 Hr1 Hp; simpl; try tauto.
+    + apply (fos_rels R).
       * apply Hr1; simpl; auto.
       * intros p; do 2 rewrite vec_pos_map.
         apply fo_term_simulation.
@@ -559,45 +583,31 @@ Section fo_model_simulation.
           exists (vec_pos v p); split; auto.
           apply in_vec_list, in_vec_pos.
     + apply fol_bin_sem_ext; [ apply HA | apply HB ].
-      1,4: intros; apply Hp; simpl; apply in_or_app; auto.
+      3,6: intros; apply Hp; simpl; apply in_or_app; auto.
       1,3: apply incl_tran with (2 := Hs1); intros ? ?; apply in_or_app; auto.
       1,2: apply incl_tran with (2 := Hr1); intros ? ?; apply in_or_app; auto.
     + destruct q; simpl; split.
-      * intros (x & Hx).
-        destruct (Hsim1 x) as (y & Hy); exists y.
-        revert Hx; apply HA.
-        - intros []; simpl; auto.
-          intros; apply Hp, in_flat_map.
-          exists (S n); simpl; auto.
-        - apply incl_tran with (2 := Hs1), incl_refl.
-        - apply incl_tran with (2 := Hr1), incl_refl.
-      * intros (y & Hy).
-        destruct (Hsim2 y) as (x & Hx); exists x.
-        revert Hy; apply HA.
-        - intros []; simpl; auto.
-          intros; apply Hp, in_flat_map.
-          exists (S n); simpl; auto.
-        - apply incl_tran with (2 := Hs1), incl_refl.
-        - apply incl_tran with (2 := Hr1), incl_refl.
-      * intros H y.
-        destruct (Hsim2 y) as (x & Hx).
-        generalize (H x); apply HA.
-        - intros []; simpl; auto.
-          intros; apply Hp, in_flat_map.
-          exists (S n); simpl; auto.
-        - apply incl_tran with (2 := Hs1), incl_refl.
-        - apply incl_tran with (2 := Hr1), incl_refl.
-      * intros H x.
-        destruct (Hsim1 x) as (y & Hy).
-        generalize (H y); apply HA.
-        - intros []; simpl; auto.
-          intros; apply Hp, in_flat_map.
-          exists (S n); simpl; auto.
-        - apply incl_tran with (2 := Hs1), incl_refl.
-        - apply incl_tran with (2 := Hr1), incl_refl.
+      1: intros (x & Hx); destruct (fos_total R x) as (y & Hy); exists y; revert Hx; apply HA; eauto.
+      2: intros (y & Hy); destruct (fos_surj R y) as (x & Hx); exists x; revert Hy; apply HA; eauto.
+      3: intros H y; destruct (fos_surj R y) as (x & Hx); generalize (H x); apply HA; eauto.
+      4: intros H x; destruct (fos_total R x) as (y & Hy); generalize (H y); apply HA; eauto.
+      all: intros []; simpl; auto; intros; apply Hp, in_flat_map; exists (S n); simpl; auto.
   Qed.
 
 End fo_model_simulation.
+
+Check fo_model_simulation.
+
+Theorem fo_model_projection Σ ls lr X M Y N (p : @fo_projection Σ ls lr X M Y N) A φ ψ : 
+           (forall n, In n (fol_vars A) -> p (φ n) = ψ n)
+        -> incl (fol_syms A) ls 
+        -> incl (fol_rels A) lr
+        -> fol_sem M φ A <-> fol_sem N ψ A.
+Proof.
+  intros H1 H2 H3.
+  apply fo_model_simulation with (R := fo_proj_simul p); auto.
+  destruct p; simpl; auto.
+Qed.
 
 Section fo_model_projection.
 
@@ -610,23 +620,18 @@ Section fo_model_projection.
            (i : X -> Y) (j : Y -> X) (E : forall x, i (j x) = x)
            (Hs : forall s v, In s ls -> i (fom_syms M s v) = fom_syms N s (vec_map i v))
            (Hr : forall s v, In s lr -> fom_rels M s v <-> fom_rels N s (vec_map i v)).
+  
+  Let p : fo_projection ls lr M N.
+  Proof. exists i j; auto. Defined.
 
-  Theorem fo_model_projection A : 
+  Theorem fo_model_projection' A : 
            (forall n, In n (fol_vars A) -> i (φ n) = ψ n)
         -> incl (fol_syms A) ls 
         -> incl (fol_rels A) lr
         -> fol_sem M φ A <-> fol_sem N ψ A.
-  Proof.
-    apply fo_model_simulation with (R := fun x y => i x = y).
-    + intros s v w Hs1 H; rewrite Hs; auto.
-      f_equal; apply vec_pos_ext; intros; rewrite vec_pos_map; auto.
-    + intros s v w Hr1 H; rewrite Hr; auto.
-      match goal with |- ?x <-> ?y => cut (x = y); [ intros ->; tauto | ] end.
-      f_equal; apply vec_pos_ext; intros; rewrite vec_pos_map; auto.
-    + intros x; exists (i x); auto.
-    + intros y; exists (j y); auto.
-  Qed.
+  Proof. apply fo_model_projection with (p := p). Qed.
 
 End fo_model_projection.
 
-Check fo_model_simulation.
+Check fo_model_projection'.
+Check fo_model_projection.

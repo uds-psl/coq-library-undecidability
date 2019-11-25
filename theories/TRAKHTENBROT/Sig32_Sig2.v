@@ -346,15 +346,12 @@ Section SAT2_SAT32.
   Proof.
     intros (X & M2 & H1 & H2 & psy & H3).
     destruct (@fo_fin_model_discretize (Σrel 2) nil (tt::nil) _ H1 M2 H2)
-      as (n & M & Mdec & i & j & G1 & G2 & G3 & G4 & G5).
-    apply SAT2_to_SAT3 with (M2 := M) (ψ := fun n => i (psy n)); auto.
+      as (n & M & Mdec & p & E).
+    apply SAT2_to_SAT3 with (M2 := M) (ψ := fun n => p (psy n)); auto.
     + apply finite_t_pos.
     + red; apply pos_eq_dec.
     + revert H3.
-      apply fo_model_projection 
-        with (ls := nil) 
-             (lr := tt::nil) 
-             (i := i) (j := j); 
+      apply fo_model_projection with (p := p); 
         auto; intros []; simpl; auto.
   Qed.
 
