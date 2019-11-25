@@ -287,11 +287,53 @@ Fixpoint poly_to_mset (p: list nat) :=
   | a :: p => (repeat 0 a) ++ map S (poly_to_mset p)
   end.
 
+Lemma count_occ_repeat {a n} : count_occ Nat.eq_dec (repeat a n) a = n.
+Proof.
+  elim: n.
+    done.
+  move=> n /= ->. by case: (Nat.eq_dec a a).
+Qed.
+
+Lemma count_occ_S_repeat {a n} : count_occ Nat.eq_dec (repeat 0 n) (S a) = 0.
+Proof.
+  elim: n.
+    done.
+  by move=> n /= ->.
+Qed.
+
+Lemma count_occ_0_map {A} : count_occ Nat.eq_dec (map S A) 0 = 0.
+Proof.
+  elim: A.
+    done.
+  by move=> a A /= ->.
+Qed.
+
+Lemma count_occ_poly_to_msetP {a p}: count_occ Nat.eq_dec (poly_to_mset p) a = nth a p 0.
+Proof.
+  elim: a p. 
+    case.
+      done.
+    move=> a p /=.
+    rewrite mset_utils.count_occ_app count_occ_repeat count_occ_0_map.
+    by lia.
+  move=> i IH. case.
+    done.
+  move=> a p /=. rewrite mset_utils.count_occ_app.
+  rewrite -(count_occ_map _ Nat.eq_dec Nat.eq_dec).
+    move=> ? ?. by case.
+  by rewrite count_occ_S_repeat IH.
+Qed.
+
+
 Lemma poly_to_mset_eqI {p q} : p ≃ q -> poly_to_mset p ≡ poly_to_mset q.
-Proof. Admitted.
+Proof. 
+  move=> + a. rewrite ? count_occ_poly_to_msetP. by apply.
+Qed.
 
 Lemma poly_to_mset_addP {p q} : poly_to_mset (poly_add p q) ≡ poly_to_mset p ++ poly_to_mset q.
-Proof. Admitted.
+Proof. 
+  move=> a. by rewrite count_occ_app ? count_occ_poly_to_msetP poly_add_nthP.
+Qed.
 
 Lemma poly_to_mset_consP {p} : poly_to_mset (0 :: p) = map S (poly_to_mset p).
 Proof. done. Qed.
