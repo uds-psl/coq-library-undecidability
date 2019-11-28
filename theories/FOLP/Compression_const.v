@@ -245,14 +245,11 @@ Section Constants.
       intros t. destruct Hc. inversion 1.
     Qed.
 
-    (*Lemma vec_zero X k l (v1 v2 : vector X k) :
-    k = 0 -> l = 0 -> v1 = v2.*)
-
     Lemma i_const_eq rho v :
       i_const rho = eval rho (@Func _ c v).
     Proof.
-      cbn. admit.
-    Admitted.
+      cbn. f_equal. destruct Hc. now depelim v.
+    Qed.
 
     Lemma rpl_const_eval t n rho :
       unused_term n t -> eval (update rho n (i_const rho)) (rpl_const_t n t) = eval rho t.

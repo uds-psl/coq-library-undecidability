@@ -83,11 +83,10 @@ Section Compression.
 
   Section compr_to_uncompr.
 
-    Variables (D : Type) (I : @interp compress_sig D ) (rho : nat -> D) (phi : @form Sigma).
-    Hypothesis HI : rho ⊨ encode phi.
+    Variables (D : Type) (I : @interp compress_sig D ) (dum : D) (dums : fin pred_count -> D).
 
     Definition translate_v P (v : vector D (pred_ar P)) :=
-      Vector.cons (rho (index_nat P)) (fill v (rho 0) (pred_max_spec P)).
+      Vector.cons (dums (index P)) (fill v dum (pred_max_spec P)).
 
     Instance uncompr_interp :
       @interp Sigma D.
@@ -97,10 +96,10 @@ Section Compression.
       - intros P v. exact (@i_P _ _ I tt (translate_v v)).
     Defined.
 
-    Theorem compr_to_uncompr rho' psi :
-      rho' ⊨ psi <-> rho' ⊨ encode psi.
+    Theorem compr_to_uncompr rho phi :
+      rho ⊨ phi <-> rho ⊨ encode phi.
     Proof.
-      induction psi in rho' |- *; cbn in *; trivial; try reflexivity.
+      induction phi in rho |- *; cbn in *; trivial; try reflexivity.
       - unfold translate_v. f_equal. admit.
       - specialize (IHpsi1 rho'). specialize (IHpsi2 rho'). tauto.
       - specialize (IHpsi1 rho'). specialize (IHpsi2 rho'). tauto.
