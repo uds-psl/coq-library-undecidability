@@ -13,6 +13,18 @@ Proof.
   induction v; cbn; congruence.
 Qed.
 
+Lemma forall_proper X (p q : X -> Prop) :
+  (forall x, p x <-> q x) -> (forall x, p x) <-> (forall x, q x).
+Proof.
+  firstorder.
+Qed.
+
+Lemma exists_proper X (p q : X -> Prop) :
+  (forall x, p x <-> q x) -> (exists x, p x) <-> (exists x, q x).
+Proof.
+  firstorder.
+Qed.
+
 
 
 (* Satisfiability (not yet classical) *)
@@ -115,25 +127,17 @@ Section Compression.
     Lemma env_fill_sat rho phi :
       sat (env_fill rho) (encode phi) <-> sat rho (encode phi).
     Proof.
-      induction phi in rho |- *; try tauto.
+      induction phi in rho |- *. 1, 3, 4, 5: firstorder.
       - cbn. rewrite <- (arity_const P), !cast_refl.
         replace (vec_fill (Vector.map (eval (env_fill rho)) (convert_v t)))
                 with (vec_fill (Vector.map (eval rho) (convert_v t))); try reflexivity.
         induction t; cbn; trivial. rewrite IHt. destruct h as [x | f v]; cbn. 
         + unfold env_fill. now destruct rho.
         + exfalso. apply (funcs_empty f).
-      - firstorder.
-      - firstorder.
-      - firstorder.
-      - split; intros H d.
-        + apply IHphi. destruct d; eapply sat_ext; try apply H; now destruct x.
-        + apply IHphi. destruct d; eapply sat_ext; try apply IHphi, H; destruct x; try reflexivity.
-          all: unfold env_fill; cbn; now destruct (rho x).
-      - split; intros [d H].
-        + exists d. apply IHphi. apply IHphi in H. destruct d; eapply sat_ext; try apply H; destruct x; try reflexivity.
-          all: unfold env_fill; cbn; now destruct (rho x).
-        + exists d. apply IHphi. apply IHphi in H. destruct d; eapply sat_ext; try apply H; destruct x; try reflexivity.
-          all: unfold env_fill; cbn; now destruct (rho x).
+      - cbn. apply forall_proper. intros x. rewrite <- IHphi. setoid_rewrite <- IHphi at 2.
+        apply sat_ext. intros []; try reflexivity. unfold env_fill; cbn. now destruct (rho n).
+      - cbn. apply exists_proper. intros x. rewrite <- IHphi. setoid_rewrite <- IHphi at 2.
+        apply sat_ext. intros []; try reflexivity. unfold env_fill; cbn. now destruct (rho n).
     Qed.
 
     Lemma sat_to_compr (rho : nat -> D) phi :
@@ -196,7 +200,7 @@ Section Compression.
 
   End from_compr.
 
-  (* Main result *)
+  (* Reduction 1 *)
 
   Theorem sat_compr (phi : @form Sigma) :
     SAT phi <-> SAT (encode phi).
@@ -207,3 +211,94 @@ Section Compression.
   Qed.
 
 End Compression.
+
+
+
+(* STEP 2: simulation of constants with free variables *)
+
+Section Constants.
+
+  Context { Sigma : Signature } {HdF : eq_dec Funcs}.
+
+  Section Rpl.
+
+    Context { D : Type } { I : @interp Sigma D }.
+    Variable c : Funcs.
+    Hypothesis Hc : 0 = fun_ar c.
+
+    Fixpoint rpl_const_t n t :=
+      match t with 
+      | var_term x => var_term x
+      | Func f v => if Dec (f = c) then var_term n else Func f (Vector.map (rpl_const_t n) v)
+      end.
+
+    Definition update (rho : nat -> D) n d : nat -> D :=
+      fun k => if Dec (k = n) then d else rho k.
+
+    Definition i_const rho : D :=
+      eval rho (@Func _ c (match Hc with eq_refl => Vector.nil end)).
+
+    Lemma i_const_inv rho rho' :
+      i_const rho = i_const rho'.
+    Proof.
+      cbn. erewrite vec_map_ext; try reflexivity.
+      intros t. destruct Hc. inversion 1.
+    Qed.
+
+    (*Lemma vec_zero X k l (v1 v2 : vector X k) :
+    k = 0 -> l = 0 -> v1 = v2.*)
+
+    Lemma i_const_eq rho v :
+      i_const rho = eval rho (@Func _ c v).
+    Proof.
+      cbn. admit.
+    Admitted.
+
+    Lemma rpl_const_eval t n rho :
+      unused_term n t -> eval (update rho n (i_const rho)) (rpl_const_t n t) = eval rho t.
+    Proof.
+      induction 1; cbn -[i_const].
+      - unfold update. decide _; congruence.
+      - decide _; cbn -[i_const].
+        + subst. unfold update. decide (n = n); try tauto. apply i_const_eq. 
+        + f_equal. erewrite vec_comp. apply vec_map_ext, H0. reflexivity.
+    Qed.
+
+    Fixpoint rpl_const n phi :=
+      match phi with 
+      | Pred P v => Pred P (Vector.map (rpl_const_t n) v)
+      | Fal => Fal
+      | Impl phi psi => Impl (rpl_const n phi) (rpl_const n psi)
+      | Conj phi psi => Conj (rpl_const n phi) (rpl_const n psi)
+      | Disj phi psi => Disj (rpl_const n phi) (rpl_const n psi)
+      | Ex phi => Ex (rpl_const (S n) phi)
+      | All phi => All (rpl_const (S n) phi)
+      end.
+
+    Lemma rpl_const_sat phi n rho :
+      unused n phi -> sat (update rho n (i_const rho)) (rpl_const n phi) <-> sat rho phi.
+    Proof.
+      induction 1 in rho |- *. 1, 3, 4, 5: firstorder.
+      - cbn -[i_const]. symmetry. erewrite vec_map_ext. erewrite vec_comp; reflexivity.
+        intros x Hx. symmetry. now apply rpl_const_eval, H.
+      - cbn -[i_const]. apply forall_proper.
+
+        intros d. rewrite <- IHunused. apply sat_ext.
+
+        intros []; cbn -[i_const]; trivial.
+        unfold update. repeat destruct _; try lia; trivial.
+        apply i_const_inv.
+
+      - cbn -[i_const]. apply exists_proper.
+        
+        intros d. rewrite <- IHunused. apply sat_ext.
+
+        intros []; cbn -[i_const]; trivial.
+        unfold update. repeat destruct _; try lia; trivial.
+        apply i_const_inv.
+    Qed.
+
+  End Rpl.
+
+End Constants.
+  
