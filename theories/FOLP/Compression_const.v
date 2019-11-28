@@ -71,9 +71,9 @@ Section Compression.
         + left. exact (@i_f _ _ I f (vec_fill v)).
         + right. exact P.
       - intros [] v; cbn in *.
-        inversion v; subst. destruct h as [d|P].
+        destruct (Vector.hd v) as [d|P].
         + exact True.
-        + exact (@i_P _ _ I P (cast (vec_fill X) (eq_sym (arity_const P)))).
+        + exact (@i_P _ _ I P (cast (vec_fill (Vector.tl v)) (eq_sym (arity_const P)))).
     Defined.
 
     Definition convert_env (rho : nat -> D) : nat -> D + Preds :=
@@ -95,12 +95,41 @@ Section Compression.
     Definition env_fill (rho : nat -> D + Preds) : nat -> D + Preds :=
       fun n => match (rho n) with inl d => inl d | inr P => inl d0 end.
 
+    Lemma env_fill_eval rho t :
+      eval (env_fill rho) (convert_t t) = eval rho (convert_t t).
+    Proof.
+      induction t using strong_term_ind; cbn; trivial.
+    Abort.
+
     Lemma env_fill_sat rho phi :
       sat (env_fill rho) phi <-> sat rho phi.
     Proof.
       induction phi in rho |- *; try tauto.
-      - destruct P. cbn [sat]. unfold i_P. cbn.
-        admit.
+      - destruct P. cbn. admit.
+      - firstorder.
+      - firstorder.
+      - firstorder.
+      - split; intros H d.
+        + apply IHphi. destruct d; eapply sat_ext; try apply H; now destruct x.
+        + apply IHphi. destruct d; eapply sat_ext; try apply IHphi, H; destruct x; try reflexivity.
+          all: unfold env_fill; cbn; now destruct (rho x).
+      - split; intros [d H].
+        + exists d. apply IHphi. apply IHphi in H. destruct d; eapply sat_ext; try apply H; destruct x; try reflexivity.
+          all: unfold env_fill; cbn; now destruct (rho x).
+        + exists d. apply IHphi. apply IHphi in H. destruct d; eapply sat_ext; try apply H; destruct x; try reflexivity.
+          all: unfold env_fill; cbn; now destruct (rho x).
+    Admitted.
+
+    Lemma env_fill_sat' rho phi :
+      sat (env_fill rho) (encode phi) <-> sat rho (encode phi).
+    Proof.
+      induction phi in rho |- *; try tauto.
+      - cbn. rewrite <- (arity_const P), !cast_refl.
+        replace (vec_fill (Vector.map (eval (env_fill rho)) (convert_v t)))
+                with (vec_fill (Vector.map (eval rho) (convert_v t))); try reflexivity.
+        induction t; cbn; trivial. rewrite IHt. destruct h; cbn. 
+        + unfold env_fill. now destruct rho.
+        
       - firstorder.
       - firstorder.
       - firstorder.
@@ -126,14 +155,16 @@ Section Compression.
       - split; intros H d.
         + destruct d as [d|P].
           * eapply sat_ext; try apply IHphi, (H d). now intros [].
-          * admit.
+          * specialize (H d0). apply IHphi in H. apply env_fill_sat.
+            eapply sat_ext; try apply H. now intros [].
         + apply IHphi. eapply sat_ext; try apply (H (inl d)). now intros [].
       - split; intros [d H].
         + exists (inl d). apply IHphi in H. eapply sat_ext, H. now intros [].
         + destruct d as [d|P].
           * exists d. apply IHphi. eapply sat_ext; try apply H. now intros [].
-          * admit.
-    Admitted.
+          * exists d0. apply IHphi. apply env_fill_sat in H.
+            eapply sat_ext; try apply H. now intros [].
+    Qed.
 
   End to_compr.
 
@@ -164,7 +195,7 @@ Section Compression.
     Proof.
       induction phi in rho |- *; cbn; try firstorder tauto.
       replace (cast (Vector.map (eval rho) t) (arity_const P))
-        with (Vector.map (eval rho) (cast (convert_v t) (arity_const P))); try tauto.
+        with (Vector.map (eval rho) (cast (convert_v t) (arity_const P))); try reflexivity.
       rewrite <- (arity_const P) in *. rewrite !cast_refl.
       apply vec_comp. intros t'. now rewrite eval_from_compr.
     Qed.
