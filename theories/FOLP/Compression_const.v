@@ -301,7 +301,194 @@ Section Constants.
         erewrite <- IHunused, i_const_inv. apply update_S.
     Qed.
 
+    Definition rpl_const_t' t :=
+      rpl_const_t (proj1_sig (find_unused_term t)) t.
+
+    Definition rpl_const' phi :=
+      rpl_const (proj1_sig (find_unused phi)) phi.
+    
+    Definition rpl_const_env rho phi :=
+      update rho (proj1_sig (find_unused phi)) (i_const rho).
+
+    Lemma rpl_const_sat' phi rho :
+      sat (rpl_const_env rho phi) (rpl_const' phi) <-> sat rho phi.
+    Proof.
+      apply rpl_const_sat. destruct find_unused; cbn. now apply u.
+    Qed.
+
+    Inductive unused_f_term : term -> Prop :=
+    | unused_f_var m : unused_f_term (var_term m)
+    | unused_f_Func f v : f <> c -> unused_f_term (Func f v).
+
+    Inductive unused_f : form -> Prop :=
+    | unused_f_Fal : unused_f Fal
+    | unused_f_Pred P v : (forall t, vec_in t v -> unused_f_term t) -> unused_f (Pred P v)
+    | unused_f_I phi psi : unused_f phi -> unused_f psi -> unused_f (Impl phi psi)
+    | unused_f_A phi psi : unused_f phi -> unused_f psi -> unused_f (Conj phi psi)
+    | unused_f_O phi psi : unused_f phi -> unused_f psi -> unused_f (Disj phi psi)
+    | unused_f_All phi : unused_f phi -> unused_f (All phi)
+    | unused_f_Ex phi : unused_f phi -> unused_f (Ex phi).
+
+    Lemma unused_rpl_t t n :
+      unused_f_term (rpl_const_t n t).
+    Proof.
+      induction t; cbn; try constructor.
+      decide _; now constructor.
+    Qed.
+
+    Lemma unused_rpl_t' t :
+      unused_f_term (rpl_const_t' t).
+    Proof.
+      apply unused_rpl_t.
+    Qed.
+
+    Lemma vec_map_in X Y (f : X -> Y) n (v : vector X n) y :
+      vec_in y (Vector.map f v) -> { x & ((vec_in x v) * (y = f x))%type }.
+    Proof.
+      induction v; cbn; inversion 1; subst.
+      
+    Admitted.
+
+    Lemma unused_rpl phi n :
+      unused_f (rpl_const n phi).
+    Proof.
+      induction phi in n |- *; cbn; constructor; trivial.
+      intros t1 [t' [H ->]] % vec_map_in. apply unused_rpl_t.
+    Qed.
+
+    Lemma unused_rpl' phi :
+      unused_f (rpl_const' phi).
+    Proof.
+      apply unused_rpl.
+    Qed.
+
   End Rpl.
+
+  (* Simulation of a list of constants *)
+
+  Section RplList.
+
+    Context { D : Type } { I : @interp Sigma D }.
+
+    Fixpoint rpl_list L phi :=
+      match L with
+      | nil => phi
+      | c::L => rpl_const' c (rpl_list L phi)
+      end.
+
+    Lemma unused_rpl_mono phi f g :
+      unused_f f phi -> unused_f f (rpl_const' g phi).
+    Proof.
+    Admitted.
+
+    Lemma unused_rpl_list (L : list Funcs) (HL : forall c, c el L -> 0 = fun_ar c) phi :
+      forall f, f el L -> unused_f f (rpl_list L phi).
+    Proof.
+      induction L; intuition; subst; cbn.
+      destruct H as [->|H].
+      - apply unused_rpl'. now apply HL.
+      - apply unused_rpl_mono. apply IHL; auto.
+    Qed.
+
+    Definition rpl_list_all L (HL : forall c, c el L -> 0 = fun_ar c) phi rho :
+      { phi' : form & { rho' : nat -> D | rho' ⊨ phi' <-> rho ⊨ phi } }.
+    Proof.
+      induction L.
+      - exists phi, rho. reflexivity.
+      - destruct IHL as (phi' & rho' & H); auto.
+        assert (Ha : a el a::L) by now left.
+        exists (rpl_const' a phi'), (rpl_const_env (HL a Ha) rho' phi').
+        rewrite <- H. apply rpl_const_sat'.
+    Defined.
+
+    Definition rpl_list' L (HL : forall c, c el L -> 0 = fun_ar c) phi rho :=
+      projT1 (rpl_list_all HL phi rho).
+
+    Definition rpl_list_env L (HL : forall c, c el L -> 0 = fun_ar c) phi rho :=
+      proj1_sig (projT2 (rpl_list_all HL phi rho)).
+
+  End RplList.
+
+  (* Hence constants can be erased from the signature *)
+
+  Hypothesis HS : forall f, 0 = fun_ar f.
+
+  Definition const_sig :=
+    {| Funcs := False;
+       fun_ar := fun _ => 0;
+       Preds := Preds;
+       pred_ar := pred_ar |}.
+
+  Fixpoint collect_funcs_t t : list Funcs :=
+    match t with 
+    | var_term x => nil
+    | Func f v => f :: concat (to_list (Vector.map collect_funcs_t v))
+    end.
+
+  Fixpoint collect_funcs phi : list Funcs :=
+    match phi with 
+      | Pred P v => concat (to_list (Vector.map collect_funcs_t v))
+      | Fal => nil
+      | Impl phi psi => (collect_funcs phi) ++ (collect_funcs psi)
+      | Conj phi psi => (collect_funcs phi) ++ (collect_funcs psi)
+      | Disj phi psi => (collect_funcs phi) ++ (collect_funcs psi)
+      | Ex phi => collect_funcs phi
+      | All phi => collect_funcs phi
+      end.
+  
+  Inductive pure_t : term -> Type :=
+  | pure_var n : pure_t (var_term n).
+
+  Inductive pure : form -> Type :=
+  | pure_P P v : (forall t, vec_in t v -> pure_t t) -> pure (Pred P v)
+  | pure_I phi psi : pure phi -> pure psi -> pure (Impl phi psi)
+  | pure_A phi psi : pure phi -> pure psi -> pure (Conj phi psi)
+  | pure_O phi psi : pure phi -> pure psi -> pure (Disj phi psi)
+  | pure_All phi : pure phi -> pure (All phi)
+  | pure_Ex phi : pure phi -> pure (Ex phi).
+
+  Definition erase_funcs_t (t : @term Sigma) :
+    pure_t t -> @term const_sig.
+  Proof.
+    destruct 1. exact (var_term 1).
+  Defined.
+
+  Definition erase_funcs_v n (v : vector (@term Sigma) n) :
+    (forall t : term, vec_in t v -> pure_t t) -> vector (@term const_sig) n.
+  Proof.
+    intros H. induction v.
+    - exact Vector.nil.
+    - apply Vector.cons.
+      + apply (@erase_funcs_t h). apply H. now left.
+      + apply IHv. auto.
+  Defined.
+
+  Definition erase_funcs (phi : @form Sigma) :
+    pure phi -> @form const_sig.
+  Proof.
+    induction 1.
+    - exact (@Pred const_sig P (erase_funcs_v p)).
+    - exact (Impl IHX1 IHX2).
+    - exact (Conj IHX1 IHX2).
+    - exact (Disj IHX1 IHX2).
+    - exact (All IHX).
+    - exact (Ex IHX).
+  Defined.
+
+  Lemma pure_repl phi :
+    pure (rpl_list (collect_funcs phi) phi).
+  Proof.
+    
+  Admitted.
+
+  Definition encode_const phi :=
+    erase_funcs (pure_repl phi).
+
+  Theorem sat_const (phi : @form Sigma) :
+    SAT phi <-> SAT (encode_const phi).
+  Proof.
+    split; intros (D & I & rho & H).
+    - exists D, I.
 
 End Constants.
   
