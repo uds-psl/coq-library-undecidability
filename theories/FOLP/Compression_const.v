@@ -124,6 +124,12 @@ Section Compression.
     Definition env_fill (rho : nat -> D + Preds) : nat -> D + Preds :=
       fun n => match (rho n) with inl d => inl d | inr P => inl d0 end.
 
+    Lemma env_fill_sat_help rho phi x :
+      env_fill (x .: env_fill rho) ⊨ encode phi <-> env_fill (x .: rho) ⊨ encode phi.
+    Proof.
+      apply sat_ext. intros []; try reflexivity. unfold env_fill; cbn. now destruct (rho n).
+    Qed.
+
     Lemma env_fill_sat rho phi :
       sat (env_fill rho) (encode phi) <-> sat rho (encode phi).
     Proof.
@@ -134,10 +140,12 @@ Section Compression.
         induction t; cbn; trivial. rewrite IHt. destruct h as [x | f v]; cbn. 
         + unfold env_fill. now destruct rho.
         + exfalso. apply (funcs_empty f).
-      - cbn. apply forall_proper. intros x. rewrite <- IHphi. setoid_rewrite <- IHphi at 2.
-        apply sat_ext. intros []; try reflexivity. unfold env_fill; cbn. now destruct (rho n).
-      - cbn. apply exists_proper. intros x. rewrite <- IHphi. setoid_rewrite <- IHphi at 2.
-        apply sat_ext. intros []; try reflexivity. unfold env_fill; cbn. now destruct (rho n).
+      - cbn. apply forall_proper. intros x.
+        rewrite <- IHphi, env_fill_sat_help.
+        now setoid_rewrite <- IHphi at 2.
+      - cbn. apply exists_proper. intros x.
+        rewrite <- IHphi, env_fill_sat_help.
+        now setoid_rewrite <- IHphi at 2.
     Qed.
 
     Lemma sat_to_compr (rho : nat -> D) phi :
@@ -220,6 +228,8 @@ Section Constants.
 
   Context { Sigma : Signature } {HdF : eq_dec Funcs}.
 
+  (* Simulation of a single constant *)
+
   Section Rpl.
 
     Context { D : Type } { I : @interp Sigma D }.
@@ -272,27 +282,23 @@ Section Constants.
       | All phi => All (rpl_const (S n) phi)
       end.
 
+    Lemma update_S phi n rho d d' :
+      (d .: update rho n d') ⊨ phi <-> update (d .: rho) (S n) d' ⊨ phi.
+    Proof.
+      apply sat_ext. intros []; cbn -[i_const]; trivial.
+      unfold update. repeat destruct _; try lia; trivial.
+    Qed.
+
     Lemma rpl_const_sat phi n rho :
       unused n phi -> sat (update rho n (i_const rho)) (rpl_const n phi) <-> sat rho phi.
     Proof.
       induction 1 in rho |- *. 1, 3, 4, 5: firstorder.
       - cbn -[i_const]. symmetry. erewrite vec_map_ext. erewrite vec_comp; reflexivity.
         intros x Hx. symmetry. now apply rpl_const_eval, H.
-      - cbn -[i_const]. apply forall_proper.
-
-        intros d. rewrite <- IHunused. apply sat_ext.
-
-        intros []; cbn -[i_const]; trivial.
-        unfold update. repeat destruct _; try lia; trivial.
-        apply i_const_inv.
-
-      - cbn -[i_const]. apply exists_proper.
-        
-        intros d. rewrite <- IHunused. apply sat_ext.
-
-        intros []; cbn -[i_const]; trivial.
-        unfold update. repeat destruct _; try lia; trivial.
-        apply i_const_inv.
+      - cbn -[i_const]. apply forall_proper. intros d.
+        erewrite <- IHunused, i_const_inv. apply update_S.
+      - cbn -[i_const]. apply exists_proper. intros d.
+        erewrite <- IHunused, i_const_inv. apply update_S.
     Qed.
 
   End Rpl.
