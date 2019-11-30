@@ -19,7 +19,7 @@ From Undecidability.Shared.Libs.DLW.Vec
   Require Import pos vec.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations.
+  Require Import notations fol_ops utils.
 
 Set Implicit Arguments.
 
@@ -421,12 +421,12 @@ Section semantics.
   Fact fo_term_sem_fix_0 φ n : ⟦in_var n⟧ φ = φ n.
   Proof. apply fo_term_recursion_fix_0. Qed.
 
-  Fact fo_terl_sem_fix_1 φ s v : ⟦in_fot s v⟧ φ = sem_sym (vec_map (fun t => ⟦t⟧ φ) v).
+  Fact fo_term_sem_fix_1 φ s v : ⟦in_fot s v⟧ φ = sem_sym (vec_map (fun t => ⟦t⟧ φ) v).
   Proof. apply fo_term_recursion_fix_1. Qed.
 
   Opaque fo_term_sem.
 
-  Hint Rewrite fo_term_sem_fix_0 fo_terl_sem_fix_1 : fo_term_db.
+  Hint Rewrite fo_term_sem_fix_0 fo_term_sem_fix_1 : fo_term_db.
 
   Fact fo_term_sem_ext t φ ψ : 
         (forall n, In n (fo_term_vars t) -> φ n = ψ n) -> ⟦t⟧ φ = ⟦t⟧ ψ.
@@ -451,4 +451,149 @@ End semantics.
 
 Opaque fo_term_sem.
 
-Hint Rewrite fo_term_sem_fix_0 fo_terl_sem_fix_1 fo_term_sem_subst : fo_term_db.
+Hint Rewrite fo_term_sem_fix_0 fo_term_sem_fix_1 fo_term_sem_subst : fo_term_db.
+
+Section rel_semantics.
+
+  Variable (sym : Type) (sym_ar : sym -> nat) (X : Type)
+           (M : Type) (sem_sym : forall s, vec M (sym_ar s) -> M -> Prop).
+
+  Notation 𝕋 := (fo_term X sym_ar).
+
+  Implicit Type φ : X -> M -> Prop.
+
+  Definition fo_term_rsem φ : 𝕋 -> M -> Prop.
+  Proof.
+    induction 1 as [ x | s _ w ] using fo_term_recursion.
+    + exact (φ x).
+    + intros r.
+      exact (exists v, @sem_sym s v r /\ forall p, vec_pos w p (vec_pos v p)). 
+  Defined.
+
+  Notation "⟦ t ⟧" := (fun φ => @fo_term_rsem φ t).
+
+  Fact fo_term_rsem_fix_0 φ n : ⟦in_var n⟧ φ = φ n.
+  Proof. apply fo_term_recursion_fix_0. Qed.
+
+  Fact fo_term_rsem_fix_1 φ s v r : 
+           ⟦in_fot s v⟧ φ r 
+       <-> exists w, @sem_sym s w r 
+                  /\ forall p, ⟦vec_pos v p⟧ φ (vec_pos w p).
+  Proof.
+    unfold fo_term_rsem at 1; rewrite fo_term_recursion_fix_1.
+    apply exists_equiv; intros w.
+    apply fol_bin_sem_ext with (b := fol_conj); try tauto.
+    apply forall_equiv; intros p.
+    rewrite vec_pos_map.
+    apply fol_equiv_ext; auto.
+  Qed.
+
+  Opaque fo_term_rsem.
+
+  Hint Rewrite fo_term_rsem_fix_0 fo_term_rsem_fix_1 : fo_term_db.
+
+  Fact fo_term_rsem_ext t φ ψ : 
+        (forall n r, In n (fo_term_vars t) -> φ n r <-> ψ n r) -> forall r, ⟦t⟧ φ r <-> ⟦t⟧ ψ r.
+  Proof.
+    revert φ ψ; induction t as [ n | s v IHv ] using fo_term_pos_rect; intros phi psy H; rew fot.
+    + intro; apply H; simpl; auto.
+    + intros r; rew fot.
+      apply exists_equiv; intros w.
+      apply fol_bin_sem_ext with (b := fol_conj); try tauto.
+      apply forall_equiv; intros p.
+      apply IHv.
+      intros; apply H; rew fot.
+      apply in_flat_map.
+      exists (vec_pos v p); split; auto.
+      apply in_vec_list, in_vec_pos.
+  Qed.
+
+End rel_semantics.
+
+Opaque fo_term_rsem.
+
+Hint Rewrite fo_term_rsem_fix_0 fo_term_rsem_fix_1 : fo_term_db.
+
+Section equiv.
+
+  Variable (sym : Type) (sym_ar : sym -> nat) (X : Type)
+           (M : Type) (sM : forall s, vec M (sym_ar s) -> M).
+
+  Theorem fo_term_sem_rsem_equiv (t : fo_term X sym_ar) φ r : 
+           r = fo_term_sem sM φ t <-> fo_term_rsem (fun s v r => r = @sM s v) (fun n r => r = φ n) t r.
+  Proof.
+    revert φ r; induction t as [ n | s v IHv ] using fo_term_pos_rect; intros phi r; rew fot; try tauto.
+    split.
+    + intros ->.
+      exists (vec_map (fo_term_sem sM phi) v); split; auto.
+      intros p; apply IHv; rew vec.
+    + intros (w & -> & Hw); f_equal.
+      apply vec_pos_ext; intros p; rew vec.
+      apply IHv, Hw.
+  Qed.
+
+End equiv.
+
+Section rel_simulation.
+
+  Variable (sym : Type) (sym_ar : sym -> nat) (X : Type)
+           (M : Type) (sM : forall s, vec M (sym_ar s) -> M -> Prop)
+           (N : Type) (sN : forall s, vec N (sym_ar s) -> N -> Prop).
+
+  Notation 𝕋 := (fo_term X sym_ar).
+
+  Implicit Type (φ : X -> M -> Prop) (ψ : X -> N -> Prop).
+
+  Variable (simul : M -> N -> Prop).
+
+  Infix "⋈" := simul (at level 70, no associativity).
+  
+  Theorem fo_term_rsem_simul (t : fo_term X sym_ar) φ ψ :
+             (forall n x y, In n (fo_term_vars t) -> x ⋈ y -> φ n x <-> ψ n y)
+          -> (forall s, In s (fo_term_syms t) -> forall x v y, x ⋈ y -> sM v x -> exists w, @sN s w y 
+                                                                                         /\ forall p, vec_pos v p ⋈ vec_pos w p) 
+          -> (forall s, In s (fo_term_syms t) -> forall x w y, x ⋈ y -> sN w y -> exists v, @sM s v x 
+                                                                                         /\ forall p, vec_pos v p ⋈ vec_pos w p)   
+          -> forall x y, x ⋈ y -> fo_term_rsem sM φ t x <-> fo_term_rsem sN ψ t y.
+  Proof.
+    induction t as [ n | s v IHv ] using fo_term_pos_rect; intros H1 H2 H2' x y Hxy; rew fot; try tauto.
+    + apply H1; simpl; auto.
+    + split.
+      * intros (v' & H3 & H4).
+        destruct H2 with (2 := Hxy) (3 := H3) as (w' & H5 & H6).
+        - simpl; auto.
+        - exists w'; split; auto.
+          intros p. 
+          apply (IHv p) with (x := vec_pos v' p); auto.
+          ++ intros ? ? ? ?; apply H1; rew fot. 
+             apply in_flat_map; exists (vec_pos v p); split; auto.
+             apply in_vec_list, in_vec_pos.
+          ++ intros ? ? ? ? ?; apply H2; rew fot; auto; simpl; right.
+             apply in_flat_map; exists (vec_pos v p); split; auto.
+             apply in_vec_list, in_vec_pos.
+          ++ intros ? ? ? ? ?; apply H2'; rew fot; auto; simpl; right.
+             apply in_flat_map; exists (vec_pos v p); split; auto.
+             apply in_vec_list, in_vec_pos.
+      * intros (w' & H3 & H4).
+        destruct H2' with (2 := Hxy) (3 := H3) as (v' & H5 & H6).
+        - simpl; auto.
+        - exists v'; split; auto.
+          intros p. 
+          apply (IHv p) with (y := vec_pos w' p); auto.
+          ++ intros ? ? ? ?; apply H1; rew fot. 
+             apply in_flat_map; exists (vec_pos v p); split; auto.
+             apply in_vec_list, in_vec_pos.
+          ++ intros ? ? ? ? ?; apply H2; rew fot; auto; simpl; right.
+             apply in_flat_map; exists (vec_pos v p); split; auto.
+             apply in_vec_list, in_vec_pos.
+          ++ intros ? ? ? ? ?; apply H2'; rew fot; auto; simpl; right.
+             apply in_flat_map; exists (vec_pos v p); split; auto.
+             apply in_vec_list, in_vec_pos.
+  Qed.
+
+End rel_simulation.
+
+Check fo_term_rsem_simul.
+
+
+

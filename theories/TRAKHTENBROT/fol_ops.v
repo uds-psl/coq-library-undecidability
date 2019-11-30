@@ -102,7 +102,3 @@ Proof.
   + destruct exists_list_sem_dec with (l := lX) (1 := H); firstorder.
   + destruct forall_list_sem_dec with (l := lX) (1 := H); firstorder.
 Qed.
-
-Fact eq_nat_pirr (n : nat) (H : n = n ) : H = eq_refl.
-Proof. apply UIP_dec, eq_nat_dec. Qed.
-

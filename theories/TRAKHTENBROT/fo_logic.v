@@ -320,6 +320,9 @@ Section fol_semantics.
 
   Implicit Type φ : nat -> X.
 
+  Notation 𝕋 := (fo_term nat (ar_syms Σ)).
+  Notation 𝔽 := (fol_form Σ).
+
   Notation "⟦ t ⟧" := (fun φ => fo_term_sem (fom_syms M) φ t).
 
   Fixpoint fol_sem φ A : Prop :=
@@ -372,7 +375,7 @@ Section fol_semantics.
 
   Definition fol_lconj := @fol_bigop Σ fol_conj (⊥⤑⊥).
 
-  Fact fol_sem_big_conj lf φ : ⟪ fol_lconj lf ⟫ φ <-> forall f, In f lf -> ⟪ f ⟫ φ.
+  Fact fol_sem_lconj lf φ : ⟪ fol_lconj lf ⟫ φ <-> forall f, In f lf -> ⟪ f ⟫ φ.
   Proof.
     induction lf as [ | f lf IHlf ]; simpl.
     + split; tauto.
@@ -384,7 +387,7 @@ Section fol_semantics.
 
   Definition fol_ldisj := @fol_bigop Σ fol_disj ⊥.
 
-  Fact fol_sem_big_disj lf φ : ⟪ fol_ldisj lf ⟫ φ <-> exists f, In f lf /\ ⟪ f ⟫ φ.
+  Fact fol_sem_ldisj lf φ : ⟪ fol_ldisj lf ⟫ φ <-> exists f, In f lf /\ ⟪ f ⟫ φ.
   Proof.
     induction lf as [ | f lf IHlf ]; simpl.
     + split; try tauto; intros ( ? & [] & _).
@@ -395,6 +398,26 @@ Section fol_semantics.
         - exists g; auto.
       * intros (g & [ <- | Hg ] & ?); auto.
         right; exists g; auto.
+  Qed.
+
+  Fact fol_sem_ldisj_app l m φ : ⟪ fol_ldisj (l++m) ⟫ φ 
+                             <-> ⟪ fol_ldisj l ⟫ φ 
+                              \/ ⟪ fol_ldisj m ⟫ φ.
+  Proof.
+    do 3 rewrite fol_sem_ldisj; split.
+    + intros (f & H1 & H2); revert H1; rewrite in_app_iff; firstorder.
+    + intros [ (? & ? & ?) | (? & ? & ?) ]; firstorder.
+  Qed.
+
+  Definition fol_vec_fa n (A : vec 𝔽 n) := fol_lconj (vec_list A).
+ 
+  Fact fol_sem_vec_fa n A φ : ⟪ @fol_vec_fa n A ⟫ φ <-> forall p, ⟪ vec_pos A p ⟫ φ.
+  Proof.
+    unfold fol_vec_fa; rewrite fol_sem_lconj; split.
+    + intros H p; apply H, in_vec_list, in_vec_pos.
+    + intros H f Hf.
+      apply vec_list_inv in Hf.
+      destruct Hf as (p & ->); auto.
   Qed.
 
   Fixpoint env_vlift φ n (v : vec X n) :=
@@ -476,6 +499,9 @@ Section fol_semantics.
   End decidable.
 
 End fol_semantics.
+
+Notation fol_sem_big_conj := fol_sem_lconj.
+Notation fol_sem_big_disj := fol_sem_ldisj.
 
 Section fo_model_simulation.
 
