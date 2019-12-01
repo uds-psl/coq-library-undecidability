@@ -13,6 +13,45 @@ Proof.
   induction v; cbn; congruence.
 Qed.
 
+Lemma to_list_in X {HX : eq_dec X} n (v : vector X n) x :
+  x el to_list v -> vec_in x v.
+Proof.
+  induction v; cbn; try tauto.
+  intros H. decide (h = x) as [<-|Hx]; constructor.
+  apply IHv. tauto.
+Qed.
+
+Lemma to_list_in' X n (v : vector X n) x :
+  vec_in x v -> x el to_list v.
+Proof.
+  induction 1; cbn; tauto.
+Qed.
+
+Lemma vec_map_in X Y (f : X -> Y) n (v : vector X n) y :
+  vec_in y (Vector.map f v) -> { x & prod (vec_in x v) (y = f x) }.
+Proof.
+  induction v; cbn.
+  - inversion 1.
+  - inversion 1; subst.
+    + exists h. split; trivial.
+    + apply Eqdep.EqdepTheory.inj_pair2 in H2 as ->.
+      apply IHv in X1 as [x[H1 ->]].
+      exists x. split; trivial. now constructor.
+Qed.
+
+Lemma vec_map_in' X Y (f : X -> Y) n (v : vector X n) x :
+  vec_in x v -> vec_in (f x) (Vector.map f v).
+Proof.
+  induction v; cbn.
+  - inversion 1.
+  - inversion 1; subst; constructor.
+    apply Eqdep.EqdepTheory.inj_pair2 in H2 as ->.
+    now apply IHv.
+Qed.
+
+(* Memo: instantiate to discrete base types *)
+Print Assumptions vec_map_in'.
+
 Lemma forall_proper X (p q : X -> Prop) :
   (forall x, p x <-> q x) -> (forall x, p x) <-> (forall x, q x).
 Proof.
@@ -318,7 +357,7 @@ Section Constants.
 
     Inductive unused_f_term : term -> Prop :=
     | unused_f_var m : unused_f_term (var_term m)
-    | unused_f_Func f v : f <> c -> unused_f_term (Func f v).
+    | unused_f_Func f v : f <> c -> (forall t, vec_in t v -> unused_f_term t) -> unused_f_term (Func f v).
 
     Inductive unused_f : form -> Prop :=
     | unused_f_Fal : unused_f Fal
@@ -332,8 +371,9 @@ Section Constants.
     Lemma unused_rpl_t t n :
       unused_f_term (rpl_const_t n t).
     Proof.
-      induction t; cbn; try constructor.
-      decide _; now constructor.
+      induction t using strong_term_ind; cbn; try constructor.
+      decide _; try constructor; trivial.
+      intros t [t' [Ht ->]] % vec_map_in. now apply H.
     Qed.
 
     Lemma unused_rpl_t' t :
@@ -341,13 +381,6 @@ Section Constants.
     Proof.
       apply unused_rpl_t.
     Qed.
-
-    Lemma vec_map_in X Y (f : X -> Y) n (v : vector X n) y :
-      vec_in y (Vector.map f v) -> { x & ((vec_in x v) * (y = f x))%type }.
-    Proof.
-      induction v; cbn; inversion 1; subst.
-      
-    Admitted.
 
     Lemma unused_rpl phi n :
       unused_f (rpl_const n phi).
@@ -366,6 +399,8 @@ Section Constants.
 
   (* Simulation of a list of constants *)
 
+  Hypothesis HS : forall f, 0 = fun_ar f.
+
   Section RplList.
 
     Context { D : Type } { I : @interp Sigma D }.
@@ -376,42 +411,59 @@ Section Constants.
       | c::L => rpl_const' c (rpl_list L phi)
       end.
 
-    Lemma unused_rpl_mono phi f g :
-      unused_f f phi -> unused_f f (rpl_const' g phi).
+    Lemma unused_rpl_mono_t t n f g :
+      unused_f_term f t -> unused_f_term f (rpl_const_t g n t).
     Proof.
-    Admitted.
+      induction t using strong_term_ind; cbn; try constructor.
+      decide (F = g) as [->|H']; try now constructor.
+      inversion 1; subst. apply Eqdep.EqdepTheory.inj_pair2 in H2; subst.
+      constructor; trivial. intros t [t' [Ht ->]] % vec_map_in. apply H; auto.
+    Qed.
 
-    Lemma unused_rpl_list (L : list Funcs) (HL : forall c, c el L -> 0 = fun_ar c) phi :
+    Lemma unused_rpl_mono phi n f g :
+      unused_f f phi -> unused_f f (rpl_const g n phi).
+    Proof.
+      induction phi in n |- *; cbn; constructor; inversion H; subst; auto.
+      apply Eqdep.EqdepTheory.inj_pair2 in H2 as <-.
+      intros t [t' [H2 ->]] % vec_map_in.
+      apply unused_rpl_mono_t, H1, H2.
+    Qed.
+
+    Lemma unused_rpl_list (L : list Funcs) phi :
       forall f, f el L -> unused_f f (rpl_list L phi).
     Proof.
       induction L; intuition; subst; cbn.
       destruct H as [->|H].
-      - apply unused_rpl'. now apply HL.
-      - apply unused_rpl_mono. apply IHL; auto.
+      - apply unused_rpl'.
+      - apply unused_rpl_mono. apply IHL; trivial.
     Qed.
 
-    Definition rpl_list_all L (HL : forall c, c el L -> 0 = fun_ar c) phi rho :
-      { phi' : form & { rho' : nat -> D | rho' ⊨ phi' <-> rho ⊨ phi } }.
+    Lemma unused_rpl_list' (L : list Funcs) phi :
+      forall f, (f el L \/ unused_f f phi) -> unused_f f (rpl_list L phi).
     Proof.
-      induction L.
-      - exists phi, rho. reflexivity.
-      - destruct IHL as (phi' & rho' & H); auto.
-        assert (Ha : a el a::L) by now left.
-        exists (rpl_const' a phi'), (rpl_const_env (HL a Ha) rho' phi').
-        rewrite <- H. apply rpl_const_sat'.
-    Defined.
+      induction L; intuition; subst; cbn.
+      - destruct H0 as [->|H0].
+        + apply unused_rpl'.
+        + apply unused_rpl_mono. apply IHL; auto.
+      - apply unused_rpl_mono, IHL. auto.
+    Qed.
 
-    Definition rpl_list' L (HL : forall c, c el L -> 0 = fun_ar c) phi rho :=
-      projT1 (rpl_list_all HL phi rho).
+    Fixpoint rpl_list_env L phi rho :=
+      match L with
+      | nil => rho
+      | c::L => let rho' := rpl_list_env L phi rho in rpl_const_env (HS c) rho' (rpl_list L phi)
+      end.
 
-    Definition rpl_list_env L (HL : forall c, c el L -> 0 = fun_ar c) phi rho :=
-      proj1_sig (projT2 (rpl_list_all HL phi rho)).
+    Lemma rpl_list_sat L phi rho :
+      sat (rpl_list_env L phi rho) (rpl_list L phi) <-> sat rho phi.
+    Proof.
+      induction L; cbn; try tauto.
+      now rewrite rpl_const_sat'.
+    Qed.
 
   End RplList.
 
   (* Hence constants can be erased from the signature *)
-
-  Hypothesis HS : forall f, 0 = fun_ar f.
 
   Definition const_sig :=
     {| Funcs := False;
@@ -440,6 +492,7 @@ Section Constants.
   | pure_var n : pure_t (var_term n).
 
   Inductive pure : form -> Type :=
+  | pure_F : pure ⊥
   | pure_P P v : (forall t, vec_in t v -> pure_t t) -> pure (Pred P v)
   | pure_I phi psi : pure phi -> pure psi -> pure (Impl phi psi)
   | pure_A phi psi : pure phi -> pure psi -> pure (Conj phi psi)
@@ -450,7 +503,7 @@ Section Constants.
   Definition erase_funcs_t (t : @term Sigma) :
     pure_t t -> @term const_sig.
   Proof.
-    destruct 1. exact (var_term 1).
+    destruct 1. exact (var_term n).
   Defined.
 
   Definition erase_funcs_v n (v : vector (@term Sigma) n) :
@@ -467,6 +520,7 @@ Section Constants.
     pure phi -> @form const_sig.
   Proof.
     induction 1.
+    - exact ⊥.
     - exact (@Pred const_sig P (erase_funcs_v p)).
     - exact (Impl IHX1 IHX2).
     - exact (Conj IHX1 IHX2).
@@ -475,20 +529,166 @@ Section Constants.
     - exact (Ex IHX).
   Defined.
 
+  Lemma unused_collect_ex_t t f :
+    unused_f_term f t -> ~ f el collect_funcs_t t.
+  Proof.
+    induction 1; cbn; try tauto. intros [H'|H']; try tauto.
+    apply in_concat_iff in H' as [L[H2 H3 % to_list_in]]; eauto.
+    apply vec_map_in in H3 as [t'[H4 H3]]; subst. now apply (H1 t').
+  Qed.  
+
+  Lemma unused_collect_ex phi f :
+    unused_f f phi -> ~ f el collect_funcs phi.
+  Proof.
+    induction 1; cbn; auto. 2-4: intros H' % in_app_or; tauto.
+    intros [L[H1 H2 % to_list_in]] % in_concat_iff; eauto.
+    apply vec_map_in in H2 as [t'[H3 H2]]; subst.
+    apply unused_collect_ex_t in H1; auto.
+  Qed.
+
+  Lemma pure_nil_t t :
+    collect_funcs_t t = nil -> pure_t t.
+  Proof.
+    destruct t; try constructor.
+    cbn. congruence.
+  Qed.
+    
+  Lemma pure_nil phi :
+    collect_funcs phi = nil -> pure phi.
+  Proof.
+    intros H. induction phi; constructor; cbn in *; auto.
+    2-8: apply app_eq_nil in H; tauto.
+    intros t' Ht. apply pure_nil_t, incl_nil_eq.
+    intros f Hf. rewrite <- H. apply in_concat_iff.
+    exists (collect_funcs_t t'). split; try apply Hf.
+    apply to_list_in'. now apply vec_map_in'.
+  Qed.
+
+  Lemma unused_collect_v n (v : vector term n) f :
+    (forall t, vec_in t v -> {f el collect_funcs_t t} + {unused_f_term f t})
+    -> (forall t, vec_in t v -> unused_f_term f t) + { t & prod (vec_in t v) (f el collect_funcs_t t) }.
+  Proof.
+    intros H. induction v; cbn.
+    - left. intros t. inversion 1.
+    - destruct IHv as [H'|[t[H1 H2]]]; auto.
+      + destruct (H h); trivial.
+        * right. exists h. split; trivial.
+        * left. intros t'. inversion 1; subst; trivial.
+          apply Eqdep.EqdepTheory.inj_pair2 in H3 as ->.
+          now apply H'.
+      + right. exists t. split; trivial. now constructor.
+  Qed.
+
+  Lemma unused_collect_dec_t f t :
+    {f el collect_funcs_t t} + {unused_f_term f t}.
+  Proof.
+    induction t using strong_term_ind; cbn.
+    - right. constructor.
+    - apply unused_collect_v in X as [H|[t[H1 H2]]].
+      + decide (F = f) as [HF|HF]; try tauto. right. now constructor.
+      + left. right. apply in_concat_iff. exists (collect_funcs_t t).
+        split; trivial. now apply to_list_in', vec_map_in'.
+  Qed.
+
+  Lemma unused_collect_dec f phi :
+    {f el collect_funcs phi} + {unused_f f phi}.
+  Proof.
+    induction phi; cbn.
+    1,3-7: try rewrite in_app_iff; firstorder eauto using unused_f.
+    edestruct unused_collect_v as [H|[t'[H1 H2]]].
+    - intros t' _. apply unused_collect_dec_t.
+    - right. constructor. apply H.
+    - left. apply in_concat_iff. exists (collect_funcs_t t').
+      split; trivial. now apply to_list_in', vec_map_in'.
+  Qed.
+          
   Lemma pure_repl phi :
     pure (rpl_list (collect_funcs phi) phi).
   Proof.
-    
-  Admitted.
+    apply pure_nil, incl_nil_eq. intros f.
+    apply unused_collect_ex, unused_rpl_list'.
+    edestruct unused_collect_dec; eauto.
+  Qed.
 
   Definition encode_const phi :=
     erase_funcs (pure_repl phi).
+
+  Section to_const.
+    
+    Context { D : Type } { I : @interp Sigma D }.
+    
+    Local Instance to_const_interp : @interp const_sig D.
+    Proof.
+      split.
+      - intros [].
+      - apply I.
+    Defined.
+
+    Lemma to_const_eval rho t (Ht : pure_t t) :
+      eval rho t = eval rho (erase_funcs_t Ht).
+    Proof.
+      destruct Ht; reflexivity.
+    Qed.
+
+    Lemma to_const_sat rho phi (Hp : pure phi) :
+      sat rho phi <-> sat rho (erase_funcs Hp).
+    Proof.
+      induction Hp in rho |- *; cbn; try firstorder tauto.
+      assert (Vector.map (eval rho) v = Vector.map (eval rho) (erase_funcs_v p)) as ->; try tauto.
+      induction v; cbn; trivial. f_equal; try apply to_const_eval. apply IHv.
+    Qed.
+
+  End to_const.
+
+  Section from_const.
+    
+    Context { D : Type } { I : @interp const_sig D }.
+    Variable d0 : D.
+    
+    Local Instance from_const_interp : @interp Sigma D.
+    Proof.
+      split.
+      - intros _ _. exact d0.
+      - apply I.
+    Defined.
+
+    Lemma from_const_eval rho t (Ht : pure_t t) :
+      eval rho t = eval rho (erase_funcs_t Ht).
+    Proof.
+      destruct Ht; reflexivity.
+    Qed.
+
+    Lemma from_const_sat rho phi (Hp : pure phi) :
+      sat rho phi <-> sat rho (erase_funcs Hp).
+    Proof.
+      induction Hp in rho |- *; cbn; try firstorder tauto.
+      assert (Vector.map (eval rho) v = Vector.map (eval rho) (erase_funcs_v p)) as ->; try tauto.
+      induction v; cbn; trivial. f_equal; try apply from_const_eval. apply IHv.
+    Qed.
+
+  End from_const.
+
+  Lemma sat_const' (phi : @form Sigma) :
+    SAT phi -> SAT (encode_const phi).
+  Proof.
+    intros (D & I & rho & H).
+    exists D, to_const_interp, (rpl_list_env (collect_funcs phi) phi rho).
+    now apply to_const_sat, rpl_list_sat.
+  Qed.
+  
+  Print Assumptions sat_const'.
 
   Theorem sat_const (phi : @form Sigma) :
     SAT phi <-> SAT (encode_const phi).
   Proof.
     split; intros (D & I & rho & H).
-    - exists D, I.
+    - exists D, to_const_interp, (rpl_list_env (collect_funcs phi) phi rho).
+      now apply to_const_sat, rpl_list_sat.
+    - unfold encode_const in H. rewrite <- (@from_const_sat _ _ (rho 0)) in H.
+      
+      exists D, (from_const_interp (rho 0)), rho. admit.
+  Admitted.
+      
 
 End Constants.
   
