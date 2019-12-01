@@ -22,7 +22,7 @@ From Undecidability.Shared.Libs.DLW.Wf
 
 From Undecidability.TRAKHTENBROT
   Require Import notations fol_ops fo_terms fo_logic fo_sat discrete 
-                 Sig3_Sig2 Sig32_Sig2 bpcp fol_bpcp Sig2_Sign Sign_Sig.
+                 Sig3_Sig2 Sig32_Sig2 bpcp fol_bpcp Sig2_Sign Sign_Sig Sig_rem_syms.
 
 Set Implicit Arguments.
 
@@ -126,6 +126,49 @@ Proof. exists (fun A => A); apply fo_form_fin_dec_SAT_discr_equiv. Qed.
 
 Check FIN_DEC_SAT_FIN_DISCR_DEC_SAT.
 Print Assumptions FIN_DEC_SAT_FIN_DISCR_DEC_SAT.
+
+(** With Σ  = (sy,re) a signature with finitely many term symbols (sy)
+    and  Σ' = (ø,sy+{=_2}+re) where =_2 is interpreted and the arity of symbols 
+              in sy is augmented by 1
+    then there is a reduction
+    - from finite and discrete and decidable SAT over Σ
+    - to finite and decidable and interpreted equality SAT over Σ'
+
+        SAT(sy,re,𝔽,ℂ,𝔻) ---> SAT(∅,sy+{=_2}+re,𝔽,ℂ,=)
+
+    Another possible hypothesis is discreteness with sy
+
+*)
+
+Section FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
+
+  Variable (Σ : fo_signature) (HΣ : finite (syms Σ) + discrete (syms  Σ)).
+
+  Theorem FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT :
+          @fo_form_fin_discr_dec_SAT Σ
+              ⪯ @fo_form_fin_dec_eq_SAT (fos_nosyms Σ) (inr (inl tt)).
+  Proof.
+    destruct HΣ as [ (l & Hl) | H ].
+    - exists (fun A => Σsyms_Σnosyms l A).
+      intros A; split; intros (X & HX); exists X; revert HX.
+      + apply Σsyms_Σnosyms_sound.
+      + apply Σsyms_Σnosyms_complete.
+        * left; auto.
+        * intros ? ?; auto.
+    - exists (fun A => Σsyms_Σnosyms (fol_syms A) A).
+      intros A; split; intros (X & HX); exists X; revert HX.
+      + apply Σsyms_Σnosyms_sound.
+      + apply Σsyms_Σnosyms_complete.
+        * intros s; apply In_dec, H.
+        * intro; auto.
+  Qed.
+      
+End FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
+
+Print fos_nosyms.
+
+Check FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
+Print Assumptions FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
 
 (** With Σrel 3 signature with a unique ternary symbol
      and Σrel 2 signature with a unique binary symbol

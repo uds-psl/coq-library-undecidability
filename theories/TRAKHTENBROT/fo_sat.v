@@ -68,4 +68,4 @@ Section satisfiability.
 
 End satisfiability.
 
-Print fo_form_fin_SAT_in.
+Print fo_form_fin_dec_eq_SAT_in.
