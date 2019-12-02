@@ -22,7 +22,7 @@ Set Implicit Arguments.
 
 Section satisfiability.
 
-  Variable (Σ : fo_signature) (e : rels Σ) (A : fol_form Σ).
+  Variable (Σ : fo_signature) (e : rels Σ) (E : ar_rels Σ e = 2) (A : fol_form Σ).
 
   (** A first order formula over signature Σ is finitely satisfiable over
       type X if there exists a model M interpreting the signature Σ over type X
@@ -46,7 +46,6 @@ Section satisfiability.
     exists (M : fo_model Σ X)  
            (_ : finite_t X) 
            (_ : fo_model_dec M)
-           (E : ar_rels Σ e = 2) 
            (_ : forall x y, fom_rels M e (eq_rect_r _ (x##y##ø) E) <-> x = y)
 (*eq_rect _ (fun n => vec _ n -> _) (fom_rels M e) _ E = rel2_on_vec eq *)
            (φ : nat -> X), 

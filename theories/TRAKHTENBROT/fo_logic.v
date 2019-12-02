@@ -106,6 +106,9 @@ Section fol_subst.
   Fact fol_syms_bin b A B : fol_syms (fol_bin b A B) = fol_syms A ++ fol_syms B.
   Proof. auto. Qed.
 
+  Fact fol_syms_quant q A : fol_syms (fol_quant q A) = fol_syms A.
+  Proof. auto. Qed.
+
   Fixpoint fol_rels (A : 𝔽) :=
     match A with
       | ⊥              => nil
@@ -115,6 +118,9 @@ Section fol_subst.
     end.
 
   Fact fol_rels_bin b A B : fol_rels (fol_bin b A B) = fol_rels A ++ fol_rels B.
+  Proof. auto. Qed.
+
+  Fact fol_rels_quant q A : fol_rels (fol_quant q A) = fol_rels A.
   Proof. auto. Qed.
 
   Fixpoint fol_subst σ (A : 𝔽) :=
@@ -341,6 +347,9 @@ Section fol_semantics.
     where "⟪ A ⟫" := (fun φ => fol_sem φ A).
 
   Fact fol_sem_bin_fix φ b A B : fol_sem φ (fol_bin b A B) = fol_bin_sem b (⟪A⟫ φ) (⟪B⟫ φ).
+  Proof. reflexivity. Qed.
+
+  Fact fol_sem_quant_fix φ q A : fol_sem φ (fol_quant q A) = fol_quant_sem q (fun x => ⟪A⟫ (φ↑x)).
   Proof. reflexivity. Qed.
 
   (** Semantics depends only on occuring variables *)

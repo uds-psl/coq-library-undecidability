@@ -48,36 +48,35 @@ Set Implicit Arguments.
 
 Section remove_interpreted.
 
-  Variables (Σ : fo_signature) (e : rels Σ) (H_ae : ar_rels _ e = 2)
-            (ls : list (syms Σ)) (lr : list (rels Σ))
-            (He : In e lr). 
+  Variable (Σ : fo_signature).
 
-  Notation 𝕋 := (fo_term nat (ar_syms Σ)).
+  Definition Σ_with_eq : fo_signature.
+  Proof.
+    exists (syms Σ) (unit + rels Σ)%type.
+    + apply ar_syms.
+    + intros [ _ | r ].
+      * exact 2.
+      * exact (ar_rels _ r).
+  Defined.
+
+  Notation Σ' := Σ_with_eq.
+
+  Variables (ls : list (syms Σ')) (lr : list (rels Σ')).
+
   Notation 𝔽 := (fol_form Σ).
 
-  Notation "x ≡ y" := (fol_atom Σ e (eq_rect_r _ (x##y##ø) H_ae)) (at level 59).
+  Notation 𝕋' := (fo_term nat (ar_syms Σ')).
+  Notation 𝔽' := (fol_form Σ').
 
-  Section encode_congruence.
+  Let e : rels Σ' := inl tt.
 
-  Variable (X : Type) (M : fo_model Σ X).
+  Hypothesis He : In e lr.
 
-  Notation "x ≈ y" := (fom_rels M e (eq_rect_r _ (x##y##ø) H_ae)).
+  Notation "x ≡ y" := (fol_atom Σ' e (x##y##ø)) (at level 59).
 
-  Local Fact fol_sem_e x y φ : fol_sem M φ (x ≡ y) = fo_term_sem (fom_syms M) φ x ≈ fo_term_sem (fom_syms M) φ y.
-  Proof.
-    simpl; f_equal.
-    rewrite H_ae; unfold eq_rect_r; simpl; auto.
-  Qed.
+  Variable (X : Type) (M : fo_model Σ' X).
 
-  Let fol_syms_e x y : fol_syms (x ≡ y) = fo_term_syms x ++ fo_term_syms y.
-  Proof.
-    simpl.
-    rewrite H_ae; unfold eq_rect_r; simpl; auto.
-    rewrite <- app_nil_end; auto.
-  Qed.
-
-  Let fol_rels_e x y : fol_rels (x ≡ y) = e::nil.
-  Proof. auto. Qed.
+  Notation "x ≈ y" := (fom_rels M e (x##y##ø)).
 
   Local Definition fol_vec_equiv n := fol_vec_fa (vec_set_pos (fun p : pos n => £(pos2nat p+n) ≡ £(pos2nat p))).
 
@@ -88,8 +87,7 @@ Section remove_interpreted.
     intros x; rewrite in_flat_map.
     intros (D & HD & H); revert H.
     apply vec_list_inv in HD.
-    destruct HD as (p & ->). 
-    rew vec; rewrite fol_syms_e; simpl; tauto.
+    destruct HD as (p & ->); rew vec; simpl; tauto.
   Qed.
 
   Local Fact fol_vec_equiv_rels n : incl (fol_rels (fol_vec_equiv n)) (e::nil).
@@ -99,7 +97,7 @@ Section remove_interpreted.
     intros x; rewrite in_flat_map.
     intros (D & HD & H); revert H.
     apply vec_list_inv in HD.
-    destruct HD as (p & ->); rew vec.
+    destruct HD as (p & ->); rew vec; simpl; tauto.
   Qed.
 
   Local Fact fol_vec_equiv_sem n φ : 
@@ -108,8 +106,7 @@ Section remove_interpreted.
   Proof.
     unfold fol_vec_equiv.
     rewrite fol_sem_vec_fa.
-    apply forall_equiv; intros p; rew vec.
-    rewrite fol_sem_e; simpl; tauto.
+    apply forall_equiv; intros p; rew vec; simpl; tauto.
   Qed.
 
   Section congr_syms.
@@ -119,8 +116,8 @@ Section remove_interpreted.
     Let n := ar_syms _ s.
 
     Let A := fol_vec_equiv n.
-    Let f : 𝕋 := in_fot s (vec_set_pos (fun p => £(pos2nat p))).
-    Let g : 𝕋 := in_fot s (vec_set_pos (fun p => £(pos2nat p+n))).
+    Let f : 𝕋' := in_fot s (vec_set_pos (fun p => £(pos2nat p))).
+    Let g : 𝕋' := in_fot s (vec_set_pos (fun p => £(pos2nat p+n))).
     Let B := g ≡ f.
 
     Let HrA : incl (fol_syms A) nil.       Proof. apply fol_vec_equiv_syms. Qed.
@@ -129,7 +126,6 @@ Section remove_interpreted.
     Let HrB : incl (fol_syms B) (s::nil).
     Proof.
       unfold B; simpl.
-      rewrite H_ae; unfold eq_rect_r.
       intros x; do 2 (simpl; rewrite in_app_iff).
       do 2 rewrite in_concat_iff.
       intros [ | [ (l & Hx & H) | [ | [ (l & Hx & H) | [] ] ] ] ]; try tauto; revert Hx;
@@ -139,7 +135,7 @@ Section remove_interpreted.
     Let HsB : incl (fol_rels B) (e::nil).
     Proof. simpl; cbv; tauto. Qed.
 
-    Definition congr_syms : 𝔽 := fol_mquant fol_fa n (fol_mquant fol_fa n (A ⤑  B)).
+    Definition congr_syms : 𝔽' := fol_mquant fol_fa n (fol_mquant fol_fa n (A ⤑  B)).
 
     Fact congr_syms_syms : incl (fol_syms congr_syms) (s::nil).
     Proof.
@@ -174,8 +170,7 @@ Section remove_interpreted.
         apply fol_equiv_ext; repeat f_equal.
         * rewrite env_vlift_fix1, env_vlift_fix0; auto.
         * rewrite env_vlift_fix0; auto.
-      + unfold B.
-        rewrite fol_sem_e; simpl. 
+      + unfold B; simpl. 
         apply fol_equiv_ext; repeat f_equal; 
           apply vec_pos_ext; intros p; rew vec; rew fot.
         * rewrite env_vlift_fix1, env_vlift_fix0; auto.
@@ -186,13 +181,13 @@ Section remove_interpreted.
 
   Section congr_rels.
 
-    Variable (r : rels Σ).
+    Variable (r : rels Σ').
 
     Let n := ar_rels _ r.
 
     Let A := fol_vec_equiv n.
-    Let B := fol_atom Σ r (vec_set_pos (fun p => £(pos2nat p))).
-    Let C := fol_atom Σ r (vec_set_pos (fun p => £(pos2nat p+n))).
+    Let B := fol_atom Σ' r (vec_set_pos (fun p => £(pos2nat p))).
+    Let C := fol_atom Σ' r (vec_set_pos (fun p => £(pos2nat p+n))).
 
     Let HsA : incl (fol_syms A) nil.       Proof. apply fol_vec_equiv_syms. Qed.
     Let HrA : incl (fol_rels A) (e::nil).  Proof. apply fol_vec_equiv_rels. Qed.
@@ -220,7 +215,7 @@ Section remove_interpreted.
     Let HrC : incl (fol_rels C) (e::r::nil).
     Proof. simpl; cbv; tauto. Qed.
 
-    Definition congr_rels : 𝔽 := fol_mquant fol_fa n (fol_mquant fol_fa n (A ⤑  (C ↔ B))).
+    Definition congr_rels : 𝔽' := fol_mquant fol_fa n (fol_mquant fol_fa n (A ⤑  (C ↔ B))).
 
     Fact congr_rels_syms : incl (fol_syms congr_rels) nil.
     Proof.
@@ -236,7 +231,7 @@ Section remove_interpreted.
       do 2 rewrite fol_rels_mquant.
       repeat rewrite fol_rels_bin.
       repeat (apply incl_app; auto).
-      intros x Hx; destruct (HrA _ Hx); try subst x; simpl; tauto.
+      intros x Hx; destruct (HrA _ Hx); subst; simpl; tauto.
     Qed.
 
     Definition congr_rels_spec φ : 
@@ -264,7 +259,7 @@ Section remove_interpreted.
 
   End congr_rels.
 
-  Definition Σ_eq_congruent : 𝔽 :=
+  Definition Σ_eq_congruent : 𝔽' :=
     fol_lconj (map congr_syms ls) ⟑ fol_lconj (map congr_rels lr).
 
   Fact Σ_eq_congruent_syms : incl (fol_syms Σ_eq_congruent) ls.
@@ -344,26 +339,10 @@ Section remove_interpreted.
        <-> (forall x, x ≈ x)
         /\ (forall x y, x ≈ y -> y ≈ x)
         /\ (forall x y z, x ≈ y -> y ≈ z -> x ≈ z).
-  Proof.
-    unfold Σ_eq_equivalence.
-    repeat (rewrite fol_sem_bin_fix).
-    repeat apply fol_bin_sem_ext.
-    + rewrite fol_sem_quant_fix; apply forall_equiv; intro.
-      rewrite fol_sem_e; simpl; tauto.
-    + do 2 (rewrite fol_sem_quant_fix; apply forall_equiv; intro).
-      rewrite fol_sem_bin_fix.
-      do 2 rewrite fol_sem_e; simpl; tauto.
-    + do 3 (rewrite fol_sem_quant_fix; apply forall_equiv; intro).
-      do 2 rewrite fol_sem_bin_fix.
-      do 3 rewrite fol_sem_e; simpl; tauto.
-  Qed.
+  Proof. reflexivity. Qed.
 
   Fact Σ_eq_equivalence_syms : fol_syms Σ_eq_equivalence = nil.
-  Proof.
-    unfold Σ_eq_equivalence.
-    repeat (rewrite fol_syms_bin || rewrite fol_syms_quant).
-    repeat rewrite fol_syms_e; auto.
-  Qed.
+  Proof. reflexivity. Qed.
 
   Fact Σ_eq_equivalence_rels : incl (fol_rels Σ_eq_equivalence) (e::nil).
   Proof. simpl; cbv; tauto. Qed.
@@ -394,7 +373,7 @@ Section remove_interpreted.
   Hypothesis Mdec : fo_model_dec M.
   Hypothesis eq_congr : fol_sem M φ Σ_eq_congruence.
 
-  Infix "~b" := (@fo_bisimilar Σ ls lr _ M) (at level 70, no associativity).
+  Infix "~b" := (@fo_bisimilar Σ' ls lr _ M) (at level 70, no associativity).
 
   Fact eq_bisim x y : x ≈ y <-> x ~b y.
   Proof.
@@ -414,73 +393,69 @@ Section remove_interpreted.
         apply (proj1 H2).
     + intros H.
       specialize (H (£1 ≡ £0) (fun n => match n with 0 => x | _ => y end)).
-      do 2 rewrite fol_sem_e in H; apply H.
-      * rewrite fol_syms_e; simpl; intros _ [].
-      * rewrite fol_rels_e; intros x' [ | [] ]; try subst x'; auto.
-      * apply proj2, Σ_eq_equiv_spec in eq_congr.
-        apply (proj1 eq_congr).
+      simpl in H; apply H.
+      * intros _ [].
+      * intros ? [ | [] ]; subst; auto.
+      * apply (proj1 (proj2 eq_congr)).
   Qed.
-
-  End encode_congruence.
 
   Definition Σ_noeq A := Σ_eq_congruence ⟑ A.
 
-  Section soundness.
-
-    Variable (A : 𝔽) (X : Type).
-
-    Theorem Σ_noeq_sound : fo_form_fin_dec_eq_SAT_in _ H_ae A X
-                        -> fo_form_fin_dec_SAT_in (Σ_noeq A) X.
-    Proof.
-      intros (M & H1 & H2 & HE & phi & H5).
-      exists M, H1, H2, phi; unfold Σ_noeq.
-      rewrite fol_sem_bin_fix; split; auto.
-      split; [ | msplit 2 ].
-      + rewrite Σ_eq_congruent_spec; split.
-        * intros s _ v w H; rewrite HE.
-          f_equal; apply vec_pos_ext; intros p.
-          apply HE, H.
-        * intros r _ v w H.
-          apply fol_equiv_ext; f_equal.
-          apply vec_pos_ext; intros p.
-          apply HE, H.
-      + intros ?; rewrite fol_sem_e, HE; auto.
-      + intros ? ?; rewrite fol_sem_bin_fix.
-        do 2 rewrite fol_sem_e; simpl.
-        now repeat rewrite HE.
-      + intros ? ? ?; repeat rewrite fol_sem_bin_fix.
-        do 3 rewrite fol_sem_e; simpl.
-        repeat rewrite HE; intros; subst; auto.
-    Qed.
-
-  End soundness.
-
-  Section completeness.
-
-    Variable (A : 𝔽) 
-             (HA1 : incl (fol_syms A) ls) 
-             (HA2 : incl (fol_rels A) lr). 
-
-    Theorem Σ_noeq_complete : fo_form_fin_dec_SAT (Σ_noeq A)
-                           -> fo_form_fin_dec_eq_SAT e H_ae A.
-    Proof.
-      intros (X & M & H1 & H2 & phi & H5 & H6).
-      destruct (fo_fin_model_discretize ls lr H1 H2)
-        as (n & Mn & Mdec & p & H).
-      assert (fol_sem Mn (fun n => p (phi n)) (Σ_eq_congruence)) as H5'.
-      { revert H5; apply fo_model_projection with (p := p).
-        + intros; auto.
-        + apply Σ_eq_congruence_syms.
-        + intros x Hx.
-          apply Σ_eq_congruence_rels in Hx; simpl; auto. }
-      generalize (eq_bisim (finite_t_pos _) Mdec H5'); intros H7.
-      exists (pos n), Mn, (finite_t_pos _), Mdec.
-      exists.
-      { intros x y; simpl; rewrite H7, H; tauto. } 
-      exists (fun n => p (phi n)).
-      revert H6; apply fo_model_projection with (p := p); auto.
-    Qed.
-
-  End completeness.
-
 End remove_interpreted.
+
+Section soundness.
+
+  Variable (Σ : fo_signature)
+           (X : Type).
+
+  Theorem Σ_noeq_sound A : @fo_form_fin_dec_eq_SAT_in (Σ_with_eq Σ) (inl tt) A X
+                        -> fo_form_fin_dec_SAT_in (Σ_noeq (fol_syms A) (inl tt::fol_rels A) A) X.
+  Proof.
+    intros (M & H1 & H2 & E & HE & phi & H5).
+    exists M, H1, H2, phi; unfold Σ_noeq.
+    rewrite fol_sem_bin_fix; split; auto.
+    simpl in E.
+    rewrite eq_nat_pirr with (H := E) in HE.
+    unfold eq_rect_r in HE; simpl in HE; clear E.
+    split; [ | msplit 2; simpl ].
+    + rewrite Σ_eq_congruent_spec; split.
+      * intros s _ v w H; rewrite HE.
+        f_equal; apply vec_pos_ext; intros p.
+        apply HE, H.
+      * intros r _ v w H.
+        apply fol_equiv_ext; f_equal.
+        apply vec_pos_ext; intros p.
+        apply HE, H.
+    + intro; repeat rewrite HE; auto.
+    + intros ? ?; now repeat rewrite HE.
+    + intros ? ? ?; repeat rewrite HE; intros; subst; auto.
+  Qed.
+
+End soundness.
+
+Section completeness.
+
+  Variable (Σ : fo_signature).
+
+  Theorem Σ_noeq_complete A : fo_form_fin_dec_SAT (Σ_noeq (fol_syms A) (inl tt::fol_rels A) A)
+                           -> @fo_form_fin_dec_eq_SAT (Σ_with_eq Σ) (inl tt) A.
+  Proof.
+    intros (X & M & H1 & H2 & phi & H5 & H6).
+    destruct (fo_fin_model_discretize (fol_syms A) (inl tt::fol_rels A) H1 H2)
+      as (n & Mn & Mdec & p & H).
+    assert (fol_sem Mn (fun n => p (phi n)) (Σ_eq_congruence (fol_syms A) (inl tt::fol_rels A))) as H5'.
+    { revert H5; apply fo_model_projection with (p := p).
+      + intros; auto.
+      + apply Σ_eq_congruence_syms.
+      + intros x Hx.
+        apply Σ_eq_congruence_rels in Hx; simpl; auto. }
+    generalize (eq_bisim (lr := (inl tt::fol_rels A)) (or_introl eq_refl) (finite_t_pos _) Mdec H5'); intros H7.
+    exists (pos n), Mn, (finite_t_pos _), Mdec, eq_refl.
+    exists.
+    { unfold eq_rect_r; intros; simpl.
+      rewrite H7, H; tauto. }
+    exists (fun n => p (phi n)).
+    revert H6; apply fo_model_projection with (p := p); cbv; auto.
+  Qed.
+
+End completeness.

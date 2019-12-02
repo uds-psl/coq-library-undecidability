@@ -284,7 +284,7 @@ Section SAT2_SAT32.
 
     Let R (x : sig P) (y : X) := proj1_sig x = y.
 
-    Local Lemma SAT2_to_SAT3 : exists Y, @fo_form_fin_dec_eq_SAT_in (Σrel_eq 3) false A Y.
+    Local Lemma SAT2_to_SAT3 : exists Y, @fo_form_fin_dec_eq_SAT_in (Σrel_eq 3) false eq_refl A Y.
     Proof.
       exists (sig P).
       destruct HA as (H1 & H2 & H3 & H4).
@@ -301,7 +301,7 @@ Section SAT2_SAT32.
           | left H  => (exist _ (ψ n) (H5 _ H) : sig P)
           | right _ => (exist _ x0 H0 : sig P)
         end).
-      exists M3, HP1, M3_dec, eq_refl. 
+      exists M3, HP1, M3_dec. 
       exists.
       { unfold eq_rect_r; simpl; tauto. }
       exists (fun n => phi (2+n)).
@@ -333,7 +333,7 @@ Section SAT2_SAT32.
   (** We use the model discretizer here *)
 
   Theorem SAT2_SAT32 A : fo_form_fin_dec_SAT (Σ3eq_Σ2_enc A)
-                      -> @fo_form_fin_dec_eq_SAT (Σrel_eq 3) false A.
+                      -> @fo_form_fin_dec_eq_SAT (Σrel_eq 3) false eq_refl A.
   Proof.
     intros (X & M2 & H1 & H2 & psy & H3).
     destruct (@fo_fin_model_discretize (Σrel 2) nil (tt::nil) _ H1 M2 H2)
@@ -411,16 +411,11 @@ Section SAT32_SAT2.
 
   End nested.
 
-  Theorem SAT32_SAT2 A : @fo_form_fin_dec_eq_SAT (Σrel_eq 3) false A
+  Theorem SAT32_SAT2 A : @fo_form_fin_dec_eq_SAT (Σrel_eq 3) false eq_refl A
                        -> fo_form_fin_dec_SAT (Σ3eq_Σ2_enc A).
   Proof.
-    intros (X & M3 & H2 & H4 & H5 & H6 & psy & H7).
+    intros (X & M3 & H2 & H4 & H6 & psy & H7).
     apply SAT3_to_SAT2 with X M3 psy; auto.
-    intros x y; rewrite <- H6.
-    clear H6 H7 psy H4 H2.
-    revert M3 H5; intros [ r s ]; simpl.
-    intros E; rewrite (eq_nat_pirr E).
-    cbv; auto.
   Qed.
 
 End SAT32_SAT2.

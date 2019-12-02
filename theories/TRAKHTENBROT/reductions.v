@@ -59,7 +59,7 @@ Set Implicit Arguments.
 
     SAT(sy,re,𝔽,ℂ,𝔻) ⪯ SAT(∅,sy+{=_2}+re,𝔽,ℂ,=) (with sy finite or discrete)
 
-    SAT(sy,{=_2} U re,𝔽,ℂ,=) ⪯ SAT(sy,{=_2} U re,𝔽,ℂ)
+    SAT(sy,re,𝔽,ℂ,=) ⪯ SAT(sy,re,𝔽,ℂ) (with =_2 of arity 2 in re)
 
     SAT(∅,{T_3},𝔽,ℂ,𝔻) ⪯ SAT(∅,{∈_2},𝔽,ℂ)
 
@@ -151,7 +151,7 @@ Section FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
 
   Theorem FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT :
           @fo_form_fin_discr_dec_SAT Σ
-              ⪯ @fo_form_fin_dec_eq_SAT (fos_nosyms Σ) (inr (inl tt)).
+              ⪯ @fo_form_fin_dec_eq_SAT (fos_nosyms Σ) (inr (inl tt)) eq_refl.
   Proof.
     destruct HΣ as [ (l & Hl) | H ].
     - exists (fun A => Σsyms_Σnosyms l A).
@@ -175,30 +175,27 @@ Print fos_nosyms.
 Check FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
 Print Assumptions FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
 
-(** With Σ = (sy,re) a signature and
-         Σ' := (sy,{=_2} U re)
-    there is a reduction from
-    - finite and decidable and interpreted SAT over Σ'
-    - to finite and decidable SAT over Σ' 
+(** With Σ = (sy,re) a signature =_2 : re with a proof that
+    arity of =_2 is 2, there is a reduction from
+    - finite and decidable and interpreted SAT over Σ (=_2 is interpreted by =)
+    - to finite and decidable SAT over Σ 
 
-        SAT(sy,{=_2} U re,𝔽,ℂ,=) ---> SAT(sy,{=_2} U re,𝔽,ℂ)
+        SAT(sy,re,𝔽,ℂ,=) ---> SAT(sy,re,𝔽,ℂ)  (with =_2 of arity 2 in re)
 *)
 
 Section FIN_DEC_EQ_SAT_FIN_DEC_SAT.
 
-  Variable (Σ : fo_signature).
+  Variable (Σ : fo_signature) (e : rels Σ) (He : ar_rels _ e = 2).
 
-  Notation Σ' := (Σ_with_eq Σ).
+  Hint Resolve incl_refl.
 
-  Theorem FIN_DEC_EQ_SAT_FIN_DEC_SAT :
-             @fo_form_fin_dec_eq_SAT (Σ_with_eq Σ) (inl tt)
-                    ⪯   @fo_form_fin_dec_SAT (Σ_with_eq Σ).
+  Theorem FIN_DEC_EQ_SAT_FIN_DEC_SAT : fo_form_fin_dec_eq_SAT e He ⪯  @fo_form_fin_dec_SAT Σ.
   Proof.
-    exists (fun A => Σ_noeq (fol_syms A) (inl tt::fol_rels A) A).
+    exists (fun A => Σ_noeq _ He (fol_syms A) (e::fol_rels A) A).
     intros A; split.
     + intros (X & HX); exists X; revert HX.
       apply Σ_noeq_sound.
-    + apply Σ_noeq_complete.
+    + apply Σ_noeq_complete; auto.
   Qed.
 
 End FIN_DEC_EQ_SAT_FIN_DEC_SAT.
@@ -237,7 +234,7 @@ Print Assumptions FIN_DISCR_DEC_3SAT_FIN_DEC_2SAT.
 
 Print Σrel_eq.
 
-Theorem FIN_DEC_EQ_3SAT_FIN_DEC_2SAT : @fo_form_fin_dec_eq_SAT (Σrel_eq 3) false
+Theorem FIN_DEC_EQ_3SAT_FIN_DEC_2SAT : @fo_form_fin_dec_eq_SAT (Σrel_eq 3) false eq_refl
                                                                       ⪯ @fo_form_fin_dec_SAT (Σrel 2).
 Proof.
   exists Σ3eq_Σ2_enc; intros A; split.

@@ -20,7 +20,10 @@ Set Implicit Arguments.
 Fact eq_bool_pirr (b1 b2 : bool) (H1 H2 : b1 = b2) : H1 = H2.
 Proof. apply UIP_dec, bool_dec. Qed.
 
-Fact eq_nat_pirr (n : nat) (H : n = n ) : H = eq_refl.
+Fact eq_nat_uniq (n : nat) (H : n = n ) : H = eq_refl.
+Proof. apply UIP_dec, eq_nat_dec. Qed.
+
+Fact eq_nat_pirr (x y : nat) (H1 H2 : x = y) : H1 = H2.
 Proof. apply UIP_dec, eq_nat_dec. Qed.
 
 Section graphs.

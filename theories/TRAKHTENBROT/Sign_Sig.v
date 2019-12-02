@@ -101,7 +101,7 @@ Section Sig_n_Sig.
       + simpl; tauto.
       + unfold Mn_enc; simpl; rewrite vec_map_map.
         destruct (eq_nat_dec (ar_rels Σ r) (ar_rels Σ r)) as [ H | [] ]; auto.
-        rewrite eq_nat_pirr with (H := H); unfold eq_rect_r; simpl.
+        rewrite eq_nat_uniq with (H := H); unfold eq_rect_r; simpl.
         iff equal; f_equal; apply vec_pos_ext.
         intros p; do 2 rewrite vec_pos_map; rew fot.
         simpl in v; generalize (vec_pos v p); intros [ i | [] ].

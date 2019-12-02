@@ -338,7 +338,7 @@ End Sig_remove_symbols.
 
 Theorem Σsyms_Σnosyms_sound Σ ls A X : 
              @fo_form_fin_discr_dec_SAT_in Σ A X
-          -> @fo_form_fin_dec_eq_SAT_in (fos_nosyms Σ) (inr (inl tt)) (Σsyms_Σnosyms ls A) X.
+          -> @fo_form_fin_dec_eq_SAT_in (fos_nosyms Σ) (inr (inl tt)) eq_refl (Σsyms_Σnosyms ls A) X.
 Proof.
   intros (H0 & M & H1 & H2 & phi & H3).
   exists (fom_nosyms M), H1; destruct M as (sy,re).
@@ -347,7 +347,6 @@ Proof.
     + intros; apply H0.
     + intros; apply H0.
     + intros; apply H2. }
-  exists eq_refl.
   exists.
   { intros x y; cbv; tauto. }
   exists phi.
@@ -430,21 +429,18 @@ Section completeness.
   End nested.
 
   Theorem Σsyms_Σnosyms_complete : 
-          @fo_form_fin_dec_eq_SAT_in (fos_nosyms Σ) (inr (inl tt)) (Σsyms_Σnosyms ls A) X
+          @fo_form_fin_dec_eq_SAT_in (fos_nosyms Σ) (inr (inl tt)) eq_refl (Σsyms_Σnosyms ls A) X
        -> @fo_form_fin_discr_dec_SAT_in Σ A X.
   Proof.
-    intros (M & H1 & H2 & H3 & H4 & phi & H5).
-    fold e in H3, H4.
-    revert H3 H4; simpl; intros H3.
-    rewrite eq_nat_pirr with (H := H3); simpl.
-    clear H3; intros H4.
+    intros (M & H1 & H2 & H3 & phi & H5).
+    fold e in H3.
+    unfold eq_rect_r in H3; simpl in H3.
     exists.
     { intros x y.
-      unfold eq_rect_r in H4; simpl in H4.
       generalize (H2 e (x##y##ø)).
       intros []; [ left | right ]; try red; 
-        rewrite <- H4; auto. }
-    exists (Σsyms_Σnosyms_rev_model H1 H2 H4 H5).
+        rewrite <- H3; auto. }
+    exists (Σsyms_Σnosyms_rev_model H1 H2 H3 H5).
     exists H1.
     exists.
     { intros r v; simpl; apply H2. }
