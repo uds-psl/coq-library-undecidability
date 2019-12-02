@@ -451,7 +451,7 @@ Section Constants.
     Fixpoint rpl_list_env L phi rho :=
       match L with
       | nil => rho
-      | c::L => let rho' := rpl_list_env L phi rho in rpl_const_env (HS c) rho' (rpl_list L phi)
+      | c::L => rpl_const_env (HS c) (rpl_list_env L phi rho) (rpl_list L phi)
       end.
 
     Lemma rpl_list_sat L phi rho :
@@ -640,6 +640,14 @@ Section Constants.
 
   End to_const.
 
+  Lemma sat_const' (phi : @form Sigma) :
+    SAT phi -> SAT (encode_const phi).
+  Proof.
+    intros (D & I & rho & H).
+    exists D, to_const_interp, (rpl_list_env (collect_funcs phi) phi rho).
+    now apply to_const_sat, rpl_list_sat.
+  Qed.
+
   Section from_const.
     
     Context { D : Type } { I : @interp const_sig D }.
@@ -668,27 +676,69 @@ Section Constants.
 
   End from_const.
 
-  Lemma sat_const' (phi : @form Sigma) :
-    SAT phi -> SAT (encode_const phi).
+  Section unrpl_const.
+
+    Context { D : Type } { I : @interp Sigma D }.
+    Variable c : Funcs.
+
+    Definition unrpl_interp (d : D) : @interp Sigma D.
+    Proof.
+      split.
+      - intros f. decide (f = c) as [H|H].
+        + intros _. exact d.
+        + apply I.
+      - apply I.
+    Defined.
+
+    Lemma unrpl_eval rho t n :
+      @eval _ _ I rho (rpl_const_t c n t) = @eval _ _ (unrpl_interp (rho n)) rho t.
+    Proof.
+      induction t using strong_term_ind; cbn; trivial.
+      decide _; cbn; trivial. erewrite vec_comp. 2: reflexivity.
+      erewrite vec_map_ext; try reflexivity. apply H.
+    Qed.
+
+    Lemma unrpl_sat rho phi n :
+      @sat _ _ I rho (rpl_const c n phi) <-> @sat _ _ (unrpl_interp (rho n)) rho phi.
+    Proof.
+      induction phi in rho, n |- *; cbn; try firstorder tauto.
+      - erewrite vec_comp. try reflexivity. intros t'. apply unrpl_eval.
+      - specialize (IHphi1 rho n). specialize (IHphi2 rho n). tauto.
+      - apply forall_proper. intros d. apply (IHphi (d.:rho) (S n)).
+      - apply exists_proper. intros d. apply (IHphi (d.:rho) (S n)).
+    Qed.
+
+    Lemma unrpl_sat' rho phi :
+      @sat _ _ I rho (rpl_const' c phi) <-> @sat _ _ (unrpl_interp (rho (proj1_sig (find_unused phi)))) rho phi.
+    Proof.
+      apply unrpl_sat.
+    Qed.
+
+  End unrpl_const.
+
+  Fixpoint unrpl_list_interp D (I : interp D) (L : list Funcs) (rho : nat -> D) phi :=
+    match L with 
+    | nil => I
+    | c::L => let d := rho (proj1_sig (find_unused (rpl_list L phi))) in
+             unrpl_list_interp (@unrpl_interp D I c d) L rho phi
+    end.
+
+  Lemma unrpl_sat_list D (I : interp D) rho phi L :
+    @sat _ _ I rho (rpl_list L phi) <-> @sat _ _ (unrpl_list_interp I L rho phi) rho phi.
   Proof.
-    intros (D & I & rho & H).
-    exists D, to_const_interp, (rpl_list_env (collect_funcs phi) phi rho).
-    now apply to_const_sat, rpl_list_sat.
+    induction L in phi, I |- *; cbn; try reflexivity.
+    rewrite unrpl_sat'. now rewrite IHL.
   Qed.
-  
-  Print Assumptions sat_const'.
 
   Theorem sat_const (phi : @form Sigma) :
     SAT phi <-> SAT (encode_const phi).
   Proof.
-    split; intros (D & I & rho & H).
-    - exists D, to_const_interp, (rpl_list_env (collect_funcs phi) phi rho).
-      now apply to_const_sat, rpl_list_sat.
-    - unfold encode_const in H. rewrite <- (@from_const_sat _ _ (rho 0)) in H.
-      
-      exists D, (from_const_interp (rho 0)), rho. admit.
-  Admitted.
-      
+    split; try apply sat_const'. intros (D & I & rho & H).
+    unfold encode_const in H. rewrite <- (@from_const_sat _ _ (rho 0)) in H.
+    apply unrpl_sat_list in H. repeat eexists; eauto.
+  Qed.
+
+  Print Assumptions sat_const'.
 
 End Constants.
   
