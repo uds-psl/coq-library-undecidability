@@ -7,6 +7,10 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** This code follows the ideas of the reductions 
+                  BPCP -> fin SAT
+    described in a draft by Dominik Kirsk *)
+
 Require Import List Arith Bool Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils

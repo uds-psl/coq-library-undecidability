@@ -22,7 +22,8 @@ From Undecidability.Shared.Libs.DLW.Wf
 
 From Undecidability.TRAKHTENBROT
   Require Import notations fol_ops fo_terms fo_logic fo_sat discrete 
-                 Sig3_Sig2 Sig32_Sig2 bpcp fol_bpcp Sig2_Sign Sign_Sig Sig_rem_syms.
+                 Sig3_Sig2 Sig32_Sig2 bpcp fol_bpcp Sig2_Sign Sign_Sig 
+                 Sig_rem_syms Sig_noeq.
 
 Set Implicit Arguments.
 
@@ -55,6 +56,10 @@ Set Implicit Arguments.
     BPCP ⪯ SAT({f_1,g_1,a_0,b_0},{P_2,≡_2,≺_2},𝔽,ℂ)
 
     SAT(Σ,𝔽,𝔻) ⪯  SAT(Σ,𝔽,ℂ,𝔻)  and   SAT(Σ,𝔽,ℂ,𝔻) ⪯ SAT(Σ,𝔽,𝔻)
+
+    SAT(sy,re,𝔽,ℂ,𝔻) ⪯ SAT(∅,sy+{=_2}+re,𝔽,ℂ,=) (with sy finite or discrete)
+
+    SAT(sy,{=_2} U re,𝔽,ℂ,=) ⪯ SAT(sy,{=_2} U re,𝔽,ℂ)
 
     SAT(∅,{T_3},𝔽,ℂ,𝔻) ⪯ SAT(∅,{∈_2},𝔽,ℂ)
 
@@ -169,6 +174,37 @@ Print fos_nosyms.
 
 Check FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
 Print Assumptions FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
+
+(** With Σ = (sy,re) a signature and
+         Σ' := (sy,{=_2} U re)
+    there is a reduction from
+    - finite and decidable and interpreted SAT over Σ'
+    - to finite and decidable SAT over Σ' 
+
+        SAT(sy,{=_2} U re,𝔽,ℂ,=) ---> SAT(sy,{=_2} U re,𝔽,ℂ)
+*)
+
+Section FIN_DEC_EQ_SAT_FIN_DEC_SAT.
+
+  Variable (Σ : fo_signature).
+
+  Notation Σ' := (Σ_with_eq Σ).
+
+  Theorem FIN_DEC_EQ_SAT_FIN_DEC_SAT :
+             @fo_form_fin_dec_eq_SAT (Σ_with_eq Σ) (inl tt)
+                    ⪯   @fo_form_fin_dec_SAT (Σ_with_eq Σ).
+  Proof.
+    exists (fun A => Σ_noeq (fol_syms A) (inl tt::fol_rels A) A).
+    intros A; split.
+    + intros (X & HX); exists X; revert HX.
+      apply Σ_noeq_sound.
+    + apply Σ_noeq_complete.
+  Qed.
+
+End FIN_DEC_EQ_SAT_FIN_DEC_SAT.
+
+Check FIN_DEC_EQ_SAT_FIN_DEC_SAT.
+Print Assumptions FIN_DEC_EQ_SAT_FIN_DEC_SAT.
 
 (** With Σrel 3 signature with a unique ternary symbol
      and Σrel 2 signature with a unique binary symbol

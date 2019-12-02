@@ -249,6 +249,10 @@ Section discrete_quotient.
   Fact fom_eq_fix x y : fom_op fom_eq x y <-> x ≡ y.
   Proof. apply gfp_fix; auto. Qed.
 
+  Fact fom_eq_incl R : (forall x y, R x y -> fom_op R x y)
+                    -> (forall x y, R x y -> x ≡ y).
+  Proof. apply gfp_greatest; auto. Qed.
+
   (** We build the greatest bisimulation which is an equivalence 
       and a fixpoint for the above operator *) 
 

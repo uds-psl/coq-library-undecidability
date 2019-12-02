@@ -63,7 +63,7 @@ Section Sig32_Sig2_encoding.
 
   (* The model M3 has interpreted equality *)
 
-  Hypothesis (M3eq : fom_rels M3 false = rel2_on_vec eq).  
+  Hypothesis (M3eq : forall x y, fom_rels M3 false (x##y##ø) <-> x = y).  
 
   Let mem a b := fom_rels M2 tt (a##b##ø).
 
@@ -119,15 +119,15 @@ Section Sig32_Sig2_encoding.
         rewrite (@H3 _ _ _ (psy a) (psy b) (psy c)) in G1; auto.
       + unfold Σ3eq_Σ2; simpl Σ3_var; intros G1; simpl; rew fot.
         rewrite (@H3 _ _ _ (psy a) (psy b) (psy c)); auto. 
-    * unfold Σ3eq_Σ2; rewrite Σ2_equiv_spec; simpl; rewrite M3eq.
-      revert H; vec split v with a; vec split v with b; vec nil v; clear v; simpl.
+    * revert H; vec split v with a; vec split v with b; vec nil v; clear v.
+      unfold Σ3eq_Σ2; rewrite Σ2_equiv_spec; simpl; rewrite M3eq.
       intros H; red in H4, H5, H6; unfold mem in H4; rewrite H4.
       revert a b H; intros [ a | [] ] [ b | [] ]; simpl; intros H; rew fot.
       assert (Ha : R (phi a) (psy a)) by (apply H; auto).
       assert (Hb : R (phi b) (psy b)) by (apply H; auto).
       split.
       + intros E; rewrite <- E in Hb; apply (H6 _ _ _ Ha Hb).
-      + intros E; rewrite <- E in Hb; apply (H5 _ _ _ Ha Hb).    
+      + intros E; rewrite <- E in Hb; apply (H5 _ _ _ Ha Hb).
     * simpl; apply fol_bin_sem_ext; [ apply HA | apply HB ];
         intros; auto; apply H, in_or_app; simpl; auto.
     * simpl; split.
@@ -301,12 +301,15 @@ Section SAT2_SAT32.
           | left H  => (exist _ (ψ n) (H5 _ H) : sig P)
           | right _ => (exist _ x0 H0 : sig P)
         end).
-      exists M3, HP1, M3_dec, eq_refl, eq_refl, (fun n => phi (2+n)).
+      exists M3, HP1, M3_dec, eq_refl. 
+      exists.
+      { unfold eq_rect_r; simpl; tauto. }
+      exists (fun n => phi (2+n)).
       unfold B in *; clear B.
       rewrite <- Σ3eq_Σ2_correct with (M3 := M3) (φ := phi) (R := R) in H4.
       + rewrite fol_sem_subst in H4.
         revert H4; apply fol_sem_ext; intro; rew fot; auto.
-      + auto.
+      + simpl; tauto.
       + intros (x & Hx); exists x; unfold R; simpl; split; auto.
         apply HP0 in Hx; auto.
       + intros x Hx; apply HP0 in Hx.
@@ -361,7 +364,7 @@ Section SAT32_SAT2.
     Variables (A : fol_form (Σrel_eq 3))
               (X : Type) (M3 : fo_model (Σrel_eq 3) X)
               (X_fin : finite_t X)
-              (X_eq : fom_rels M3 false = rel2_on_vec eq)
+              (X_eq : forall x y, fom_rels M3 false (x##y##ø) <-> x = y)
               (M3_dec : fo_model_dec M3)
               (φ : nat -> X)
               (HA : fol_sem M3 φ A).
@@ -369,9 +372,8 @@ Section SAT32_SAT2.
     Let X_discrete : discrete X.
     Proof.
       intros x y.
-      change ({ rel2_on_vec eq (x##y##ø) } + { ~ rel2_on_vec eq (x##y##ø) }).
-      rewrite <- X_eq.
-      apply M3_dec.
+      destruct (M3_dec false (x##y##ø)); [ left | right; red ]; 
+        rewrite  <- X_eq; auto.
     Qed.
 
     Let R a b c := fom_rels M3 true (a##b##c##ø).
@@ -414,10 +416,11 @@ Section SAT32_SAT2.
   Proof.
     intros (X & M3 & H2 & H4 & H5 & H6 & psy & H7).
     apply SAT3_to_SAT2 with X M3 psy; auto.
-    rewrite <- H6.
+    intros x y; rewrite <- H6.
     clear H6 H7 psy H4 H2.
     revert M3 H5; intros [ r s ]; simpl.
-    intros E; rewrite (eq_nat_pirr E); auto.
+    intros E; rewrite (eq_nat_pirr E).
+    cbv; auto.
   Qed.
 
 End SAT32_SAT2.

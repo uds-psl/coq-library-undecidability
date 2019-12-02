@@ -103,6 +103,9 @@ Section fol_subst.
       | fol_quant q A  => fol_syms A 
     end.
 
+  Fact fol_syms_bin b A B : fol_syms (fol_bin b A B) = fol_syms A ++ fol_syms B.
+  Proof. auto. Qed.
+
   Fixpoint fol_rels (A : 𝔽) :=
     match A with
       | ⊥              => nil
@@ -110,6 +113,9 @@ Section fol_subst.
       | fol_bin c A B  => fol_rels A ++ fol_rels B
       | fol_quant q A  => fol_rels A 
     end.
+
+  Fact fol_rels_bin b A B : fol_rels (fol_bin b A B) = fol_rels A ++ fol_rels B.
+  Proof. auto. Qed.
 
   Fixpoint fol_subst σ (A : 𝔽) :=
     match A with
@@ -334,6 +340,9 @@ Section fol_semantics.
       end
     where "⟪ A ⟫" := (fun φ => fol_sem φ A).
 
+  Fact fol_sem_bin_fix φ b A B : fol_sem φ (fol_bin b A B) = fol_bin_sem b (⟪A⟫ φ) (⟪B⟫ φ).
+  Proof. reflexivity. Qed.
+
   (** Semantics depends only on occuring variables *)
 
   Fact fol_sem_ext φ ψ A : (forall n, In n (fol_vars A) -> φ n = ψ n) -> ⟪A⟫ φ <-> ⟪A⟫ ψ.
@@ -410,6 +419,20 @@ Section fol_semantics.
   Qed.
 
   Definition fol_vec_fa n (A : vec 𝔽 n) := fol_lconj (vec_list A).
+
+  Fact fol_syms_vec_fa n A : fol_syms (@fol_vec_fa n A) = flat_map (@fol_syms _) (vec_list A).
+  Proof.
+    unfold fol_vec_fa, fol_lconj.
+    rewrite fol_syms_bigop; simpl.
+    rewrite app_nil_end; auto. 
+  Qed.
+
+  Fact fol_rels_vec_fa n A : fol_rels (@fol_vec_fa n A) = flat_map (@fol_rels _) (vec_list A).
+  Proof.
+    unfold fol_vec_fa, fol_lconj.
+    rewrite fol_rels_bigop; simpl.
+    rewrite app_nil_end; auto. 
+  Qed.
  
   Fact fol_sem_vec_fa n A φ : ⟪ @fol_vec_fa n A ⟫ φ <-> forall p, ⟪ vec_pos A p ⟫ φ.
   Proof.

@@ -46,6 +46,13 @@ Section graphs.
 
 End graphs.
 
+Fact in_concat_iff X (ll : list (list X)) x : In x (concat ll) <-> exists l, In x l /\ In l ll.
+Proof.
+  rewrite <- (map_id ll) at 1.
+  rewrite <- flat_map_concat_map, in_flat_map.
+  firstorder.
+Qed.
+
 Section rel_chain.
 
   (* l = [s1;...;sn] 

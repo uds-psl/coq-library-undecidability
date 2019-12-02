@@ -20,13 +20,6 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-Fact in_concat_iff X (ll : list (list X)) x : In x (concat ll) <-> exists l, In x l /\ In l ll.
-Proof.
-  rewrite <- (map_id ll) at 1.
-  rewrite <- flat_map_concat_map, in_flat_map.
-  firstorder.
-Qed.
-
 Local Notation ø := vec_nil.
 
 Section Sig_remove_symbols.
@@ -263,7 +256,8 @@ Section Sig_remove_symbols.
 
   End now_formulas.
 
-  Variable (X : Type) (M : fo_model Σ' X) (HM : fom_rels M e = rel2_on_vec eq).
+  Variable (X : Type) (M : fo_model Σ' X) 
+           (HM : forall x y, fom_rels M e (x##y##ø) <-> x = y).
 
   Definition fol_rel_fun (s : syms Σ) : 𝔽' := 
        let n := ar_syms _ s
@@ -353,9 +347,12 @@ Proof.
     + intros; apply H0.
     + intros; apply H0.
     + intros; apply H2. }
-  exists eq_refl, eq_refl, phi.
+  exists eq_refl.
+  exists.
+  { intros x y; cbv; tauto. }
+  exists phi.
   unfold Σsyms_Σnosyms; split.
-  + apply fol_rels_are_functions_spec; auto.
+  + apply fol_rels_are_functions_spec; auto; simpl; try tauto.
     intros s Hs; split.
     * intros v x y; simpl; intros; subst; auto.
     * intros v; exists (sy s v); simpl; auto.
@@ -379,7 +376,7 @@ Section completeness.
     Variable (M : fo_model Σ' X)  
              (Xfin : finite_t X) 
              (Mdec : fo_model_dec M) 
-             (He : fom_rels M e = rel2_on_vec eq)
+             (He : forall x y, fom_rels M e (x##y##ø) <-> x = y)
              (φ : nat -> X) 
              (HM : fol_sem M φ (Σsyms_Σnosyms ls A)).
 
@@ -415,8 +412,8 @@ Section completeness.
       + intros s v [].
       + intros r v; simpl In; rewrite in_app_iff, in_map_iff, in_map_iff.
         intros [ <- | [ (s & <- & Hs) | (r' & <- & Hr') ] ]; simpl.
-        * fold e; rewrite He; simpl in v |- *.
-          vec split v with x; vec split v with y; simpl; tauto.
+        * vec split v with x; vec split v with y; vec nil v; simpl. 
+          fold e; rewrite He; tauto.
         * destruct (Hls s) as [ H | H ]; try tauto.
           vec split v with x; simpl.
           rewrite <- (proj2_sig (F s H) v x).
@@ -443,8 +440,10 @@ Section completeness.
     clear H3; intros H4.
     exists.
     { intros x y.
+      unfold eq_rect_r in H4; simpl in H4.
       generalize (H2 e (x##y##ø)).
-      rewrite H4; simpl; tauto. }
+      intros []; [ left | right ]; try red; 
+        rewrite <- H4; auto. }
     exists (Σsyms_Σnosyms_rev_model H1 H2 H4 H5).
     exists H1.
     exists.
