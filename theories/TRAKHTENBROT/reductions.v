@@ -277,3 +277,42 @@ Qed.
 
 Check FIN_DEC_nSAT_FIN_DEC_SAT.
 Print Assumptions FIN_DEC_nSAT_FIN_DEC_SAT.
+
+Theorem FIN_DEC_REL_SAT_FIN_DEC_ONE_SAT Σ n :
+             (syms Σ -> False)
+          -> (forall r : rels Σ, ar_rels _ r < n)
+          -> finite (rels Σ)
+          -> @fo_form_fin_dec_SAT Σ ⪯ @fo_form_fin_dec_SAT (Σrel n).
+Proof.
+  (** To be filled by Dominik *)
+Admitted.
+
+Theorem FULL_TRAKHTENBROT Σ : 
+         (exists r, 2 <= ar_rels Σ r)
+      -> BPCP_problem ⪯ @fo_form_fin_dec_SAT Σ.
+Proof.
+  intros (r & H).
+  eapply reduces_transitive.
+  2: { apply FIN_DEC_nSAT_FIN_DEC_SAT.
+       exists r; reflexivity. }
+  apply reduces_transitive with (1 := BPCP_FIN_DEC_SAT).
+  apply reduces_transitive with (1 := FIN_DEC_SAT_FIN_DISCR_DEC_SAT _).
+  eapply reduces_transitive. 
+  { apply FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
+    left; unfold Σbpcp; exists (fb true::fb false::fe::fs::nil).
+    intros [ [] | | ]; simpl; auto. }
+  eapply reduces_transitive with (1 := FIN_DEC_EQ_SAT_FIN_DEC_SAT _).
+  eapply reduces_transitive.
+  { apply FIN_DEC_REL_SAT_FIN_DEC_ONE_SAT with (n := 3).
+    + intros [].
+    + intros [ [] | [ [] | [] ] ]; simpl; auto.
+    + exists (inr (inl tt) :: map inl (fb true::fb false::fe::fs::nil) ++ map (fun r => inr (inr r)) (p_P::p_lt::p_eq::nil) ).
+      intros [ [[] | | ] | [ [] | [] ] ]; simpl; tauto. }
+  apply reduces_transitive with (1 := FIN_DEC_SAT_FIN_DISCR_DEC_SAT _).
+  apply reduces_transitive with (1 := FIN_DISCR_DEC_3SAT_FIN_DEC_2SAT).
+  apply FIN_DEC_2SAT_FIN_DEC_nSAT. 
+  trivial.
+Qed.
+
+Check FULL_TRAKHTENBROT.
+Print Assumptions FULL_TRAKHTENBROT.
