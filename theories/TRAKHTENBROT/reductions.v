@@ -305,11 +305,11 @@ Qed.
 Check FIN_DEC_SAT_FIN_DEC_UNIFORM_SAT.
 Print Assumptions FIN_DEC_SAT_FIN_DEC_UNIFORM_SAT.
 
-Theorem FIN_DEC_REL_SAT_FIN_DEC_ONE_SAT Σ n :
+Theorem FIN_DEC_REL_UNIF_SAT_FIN_DEC_ONE_SAT Σ n :
              (syms Σ -> False)
-          -> (forall r : rels Σ, ar_rels _ r < n)
+          -> (forall r : rels Σ, ar_rels _ r = n)
           -> finite (rels Σ)
-          -> @fo_form_fin_dec_SAT Σ ⪯ @fo_form_fin_dec_SAT (Σrel n).
+          -> @fo_form_fin_dec_SAT Σ ⪯ @fo_form_fin_dec_SAT (Σrel (S n)).
 Proof.
   (** To be filled by Dominik *)
 Admitted.
@@ -330,7 +330,10 @@ Proof.
     intros [ [] | | ]; simpl; auto. }
   eapply reduces_transitive with (1 := FIN_DEC_EQ_SAT_FIN_DEC_SAT _).
   eapply reduces_transitive.
-  { apply FIN_DEC_REL_SAT_FIN_DEC_ONE_SAT with (n := 3).
+  { apply FIN_DEC_SAT_FIN_DEC_UNIFORM_SAT with (n := 2).
+    intros [ [] | [ [] | [] ] ]; simpl; auto. }
+  eapply reduces_transitive.
+  { apply FIN_DEC_REL_UNIF_SAT_FIN_DEC_ONE_SAT with (n := 2).
     + intros [].
     + intros [ [] | [ [] | [] ] ]; simpl; auto.
     + exists (inr (inl tt) :: map inl (fb true::fb false::fe::fs::nil) ++ map (fun r => inr (inr r)) (p_P::p_lt::p_eq::nil) ).
