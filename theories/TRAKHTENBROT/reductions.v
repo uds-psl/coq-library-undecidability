@@ -23,7 +23,7 @@ From Undecidability.Shared.Libs.DLW.Wf
 From Undecidability.TRAKHTENBROT
   Require Import notations fol_ops fo_terms fo_logic fo_sat discrete 
                  Sig3_Sig2 Sig32_Sig2 bpcp fol_bpcp Sig2_Sign Sign_Sig 
-                 Sig_rem_syms Sig_noeq.
+                 Sig_rem_syms Sig_noeq Sig_uniform.
 
 Set Implicit Arguments.
 
@@ -61,22 +61,23 @@ Set Implicit Arguments.
 
     SAT(sy,re,𝔽,ℂ,=) ⪯ SAT(sy,re,𝔽,ℂ) (with =_2 of arity 2 in re)
 
+    SAT(Σ,𝔽,ℂ) ⪯ SAT(Σunif Σ n,𝔽,ℂ)  (with all arities of rels in Σ <= n)
+
     SAT(∅,{T_3},𝔽,ℂ,𝔻) ⪯ SAT(∅,{∈_2},𝔽,ℂ)
 
     SAT(∅,{T_3,=_2},𝔽,ℂ,=) ⪯ SAT(∅,{∈_2},𝔽,ℂ)
 
     SAT(∅,{R_2},𝔽,ℂ) ⪯ SAT(∅,{R_n},𝔽,ℂ)       (for 2 <= n)
 
-    SAT(∅,{R_n},𝔽,ℂ) ⪯ SAT(Σ,𝔽,ℂ)             (when Σ contains n-ary relation)
+    SAT(∅,{R_n},𝔽,ℂ) ⪯ SAT(Σ,𝔽,ℂ)             (when Σ contains a n-ary relation)
 
 *)
   
 (** So the only missing reduction for the Full Trakthenbrot is 
 
-    SAT({f_1,g_1,a_0,b_0},{P_2,≡_2,≺_2},𝔽,ℂ)  ⪯   SAT(∅,{T_3,=_2},𝔽,ℂ,=)
+    SAT(ø,re,𝔽,ℂ) ⪯ SAT(ø,{R},𝔽,ℂ) 
 
-    ie 2 unary funs, 2 constants and three binary relations
-    to 1 ternary + an interpreted equality
+    where all arities in re are n and the arity of R is (1+n)
 
 *)
 
@@ -277,6 +278,32 @@ Qed.
 
 Check FIN_DEC_nSAT_FIN_DEC_SAT.
 Print Assumptions FIN_DEC_nSAT_FIN_DEC_SAT.
+
+(** If the relation symbols in Σ have all their 
+    arities upper bounded by n and 
+    Σunif n is the signature with the same functions
+    symbols and relations symbols as Σ except 
+    that the arity of relations is uniformly equal 
+    to n, then there is a reduction
+
+      SAT(Σ,𝔽,ℂ) ---> SAT(Σunif n,𝔽,ℂ)  
+*)
+
+Theorem FIN_DEC_SAT_FIN_DEC_UNIFORM_SAT Σ n :
+             (forall r : rels Σ, ar_rels _ r <= n)
+          -> @fo_form_fin_dec_SAT Σ ⪯ @fo_form_fin_dec_SAT (Σunif Σ n).
+Proof.
+  intros Hn.
+  exists (fun A => @Σuniformize Σ n (fol_rels A) A); intros A. 
+  split; intros (X & HX); exists X; revert HX.
+  + apply Σuniformize_sound; auto.
+  + intros H; generalize H.
+    intros (_ & _ & _ & phi & _).
+    revert H; apply Σuniformize_complete; auto.
+Qed.
+
+Check FIN_DEC_SAT_FIN_DEC_UNIFORM_SAT.
+Print Assumptions FIN_DEC_SAT_FIN_DEC_UNIFORM_SAT.
 
 Theorem FIN_DEC_REL_SAT_FIN_DEC_ONE_SAT Σ n :
              (syms Σ -> False)
