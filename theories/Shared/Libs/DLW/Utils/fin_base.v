@@ -145,8 +145,30 @@ Section finite.
       * intros [ (z & C & _) | (z & E & ?) ]; try discriminate; inversion E; subst; auto.
   Qed.
 
+  Fact finite_t_sum X Y : finite_t X -> finite_t Y -> finite_t (X+Y)%type.
+  Proof.
+    intros H1 H2. 
+    apply finite_t_fin_t_eq in H1.
+    apply finite_t_fin_t_eq in H2.
+    apply finite_t_fin_t_eq.
+    generalize (fin_t_sum H1 H2).
+    apply fin_t_equiv.
+    intros []; tauto.
+  Qed.
+
+  Fact finite_sum X Y : finite X -> finite Y -> finite (X+Y)%type.
+  Proof.
+    intros (l & Hl) (r & Hr).
+    exists (map inl l++map inr r).
+    intros []; apply in_app_iff; [ left | right ];
+      apply in_map; auto.
+  Qed.
+
   Fact finite_t_unit : finite_t unit.
   Proof. exists (tt::nil); intros []; simpl; auto. Qed.
+
+  Fact finite_unit : finite unit.
+  Proof. apply finite_t_finite, finite_t_unit. Qed.
 
   Fact finite_t_bool : finite_t bool.
   Proof. exists (true::false::nil); intros []; simpl; auto. Qed.

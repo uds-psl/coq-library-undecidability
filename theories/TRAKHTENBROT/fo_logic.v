@@ -38,7 +38,7 @@ Proof.
   exists Empty_set      (* No function or constant symbols *)
          unit           (* And one n-ary relational symbol *)
          .
-  + exact (fun _ => 0). (* Value does not matter here *)
+  + intros []. (* Value does not matter here *)
   + exact (fun _ => n). (* The n-ary relation *)
 Defined.
 

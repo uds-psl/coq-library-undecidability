@@ -23,7 +23,7 @@ From Undecidability.Shared.Libs.DLW.Wf
 From Undecidability.TRAKHTENBROT
   Require Import notations fol_ops fo_terms fo_logic fo_sat discrete 
                  Sig3_Sig2 Sig32_Sig2 bpcp fol_bpcp Sig2_Sign Sign_Sig 
-                 Sig_rem_syms Sig_noeq Sig_uniform.
+                 Sig_rem_syms Sig_noeq Sig_uniform Sig_one_rel.
 
 Set Implicit Arguments.
 
@@ -63,6 +63,8 @@ Set Implicit Arguments.
 
     SAT(Σ,𝔽,ℂ) ⪯ SAT(Σunif Σ n,𝔽,ℂ)  (with all arities of rels in Σ <= n)
 
+    SAT(ø,re_n,𝔽,ℂ) ⪯ SAT(re_0,{R_{n+1}},𝔽,ℂ)  (re is finite and uniform arity n)
+
     SAT(∅,{T_3},𝔽,ℂ,𝔻) ⪯ SAT(∅,{∈_2},𝔽,ℂ)
 
     SAT(∅,{T_3,=_2},𝔽,ℂ,=) ⪯ SAT(∅,{∈_2},𝔽,ℂ)
@@ -75,7 +77,7 @@ Set Implicit Arguments.
   
 (** So the only missing reduction for the Full Trakthenbrot is 
 
-    SAT(ø,re,𝔽,ℂ) ⪯ SAT(ø,{R},𝔽,ℂ) 
+    SAT(sy_0,re,𝔽,ℂ) ⪯ SAT(ø,re,𝔽,ℂ)      (with sy only constant and discrete (and finite ?) )
 
     where all arities in re are n and the arity of R is (1+n)
 
@@ -305,44 +307,95 @@ Qed.
 Check FIN_DEC_SAT_FIN_DEC_UNIFORM_SAT.
 Print Assumptions FIN_DEC_SAT_FIN_DEC_UNIFORM_SAT.
 
-Theorem FIN_DEC_REL_UNIF_SAT_FIN_DEC_ONE_SAT Σ n :
+Theorem FIN_DEC_REL_UNIF_SAT_FIN_DEC_CST_ONE_SAT Σ n :
              (syms Σ -> False)
           -> (forall r : rels Σ, ar_rels _ r = n)
           -> finite (rels Σ)
-          -> @fo_form_fin_dec_SAT Σ ⪯ @fo_form_fin_dec_SAT (Σrel (S n)).
+          -> @fo_form_fin_dec_SAT Σ ⪯ @fo_form_fin_dec_SAT (Σone_rel Σ n).
 Proof.
-  (** To be filled by Dominik *)
+  intros Hs Hn (lr & Hr).
+  exists (Σunif_one_rel Hs Hn); intros A; split.
+  + intros (X & M & H1 & H2 & phi & H3).
+    exists (X + rels Σ)%type, (Σunif_one_rel_model Hn M (phi 0)).
+    exists.
+    { apply finite_t_sum; auto; exists lr; auto. }
+    exists.
+    { intros [] v; vec split v with x; destruct x; simpl; try tauto; apply H2. }
+    exists (fun n => inl (phi n)).
+    revert H3; apply Σunif_one_rel_sound.
+  + intros (X & M' & H1 & H2 & phi & H3).
+    exists X, (Σone_unif_rel_model Hs Hn M'), H1.
+    exists.
+    { intros ? ?; apply H2. }
+    exists phi.
+    revert H3; apply Σunif_one_rel_complete.
+Qed.
+
+Check FIN_DEC_REL_UNIF_SAT_FIN_DEC_CST_ONE_SAT.
+Print Assumptions FIN_DEC_REL_UNIF_SAT_FIN_DEC_CST_ONE_SAT.
+
+Definition Σrem_cst (Σ : fo_signature) : fo_signature.
+Proof.
+  exists Empty_set (rels Σ).
+  + intros [].
+  + apply ar_rels.
+Defined.
+
+Theorem FIN_DEC_SAT_FIN_DEC_NOCST_SAT Σ :
+             (forall s, ar_syms Σ s = 0)
+          -> finite (syms Σ)
+          -> discrete (syms Σ)
+          -> @fo_form_fin_dec_SAT Σ ⪯ @fo_form_fin_dec_SAT (Σrem_cst Σ).
+Proof.
+  (** To be filled by Dominique after importing Dominik's code *)
 Admitted.
 
-Theorem FULL_TRAKHTENBROT Σ : 
+Section FULL_TRAKHTENBROT.
+
+  Let finite_bpcp_syms : finite bpcp_syms.
+  Proof. 
+    exists (fb true::fb false::fe::fs::nil).
+    intros [ [] | | ]; simpl; auto.
+  Qed.
+
+  Let finite_bpcp_rels : finite bpcp_rels.
+  Proof. 
+    exists (p_P::p_lt::p_eq::nil).
+    intros []; simpl; auto.
+  Qed.
+
+  Hint Resolve finite_sum finite_unit.
+
+  Theorem FULL_TRAKHTENBROT Σ : 
          (exists r, 2 <= ar_rels Σ r)
       -> BPCP_problem ⪯ @fo_form_fin_dec_SAT Σ.
-Proof.
-  intros (r & H).
-  eapply reduces_transitive.
-  2: { apply FIN_DEC_nSAT_FIN_DEC_SAT.
-       exists r; reflexivity. }
-  apply reduces_transitive with (1 := BPCP_FIN_DEC_SAT).
-  apply reduces_transitive with (1 := FIN_DEC_SAT_FIN_DISCR_DEC_SAT _).
-  eapply reduces_transitive. 
-  { apply FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
-    left; unfold Σbpcp; exists (fb true::fb false::fe::fs::nil).
-    intros [ [] | | ]; simpl; auto. }
-  eapply reduces_transitive with (1 := FIN_DEC_EQ_SAT_FIN_DEC_SAT _).
-  eapply reduces_transitive.
-  { apply FIN_DEC_SAT_FIN_DEC_UNIFORM_SAT with (n := 2).
-    intros [ [] | [ [] | [] ] ]; simpl; auto. }
-  eapply reduces_transitive.
-  { apply FIN_DEC_REL_UNIF_SAT_FIN_DEC_ONE_SAT with (n := 2).
-    + intros [].
-    + intros [ [] | [ [] | [] ] ]; simpl; auto.
-    + exists (inr (inl tt) :: map inl (fb true::fb false::fe::fs::nil) ++ map (fun r => inr (inr r)) (p_P::p_lt::p_eq::nil) ).
-      intros [ [[] | | ] | [ [] | [] ] ]; simpl; tauto. }
-  apply reduces_transitive with (1 := FIN_DEC_SAT_FIN_DISCR_DEC_SAT _).
-  apply reduces_transitive with (1 := FIN_DISCR_DEC_3SAT_FIN_DEC_2SAT).
-  apply FIN_DEC_2SAT_FIN_DEC_nSAT. 
-  trivial.
-Qed.
+  Proof.
+    intros (r & H).
+    eapply reduces_transitive.
+    2: { apply FIN_DEC_nSAT_FIN_DEC_SAT.
+         exists r; reflexivity. }
+    apply reduces_transitive with (1 := BPCP_FIN_DEC_SAT).
+    apply reduces_transitive with (1 := FIN_DEC_SAT_FIN_DISCR_DEC_SAT _).
+    eapply reduces_transitive.
+    { apply FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT; simpl; auto. }
+    apply reduces_transitive with (1 := FIN_DEC_EQ_SAT_FIN_DEC_SAT _).
+    eapply reduces_transitive.
+    { apply FIN_DEC_SAT_FIN_DEC_UNIFORM_SAT with (n := 2).
+      intros [ [] | [ [] | [] ] ]; simpl; auto. }
+    eapply reduces_transitive.
+    { apply FIN_DEC_REL_UNIF_SAT_FIN_DEC_CST_ONE_SAT with (n := 2);
+        simpl; auto; intros []. }
+    eapply reduces_transitive.
+    { apply FIN_DEC_SAT_FIN_DEC_NOCST_SAT; auto; simpl; auto.
+      intros ? ?; repeat decide equality. }
+    unfold Σrem_cst, Σone_rel, Σunif, fos_nosyms; simpl.
+    apply reduces_transitive with (1 := FIN_DEC_SAT_FIN_DISCR_DEC_SAT _).
+    apply reduces_transitive with (1 := FIN_DISCR_DEC_3SAT_FIN_DEC_2SAT).
+    apply FIN_DEC_2SAT_FIN_DEC_nSAT. 
+    trivial.
+  Qed.
+
+End FULL_TRAKHTENBROT.
 
 Check FULL_TRAKHTENBROT.
 Print Assumptions FULL_TRAKHTENBROT.

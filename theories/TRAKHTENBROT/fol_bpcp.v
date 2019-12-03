@@ -1,15 +1,17 @@
 (**************************************************************)
 (*   Copyright Dominique Larchey-Wendling [*]                 *)
+(*             Dominik Kirst              [+]                 *)
 (*                                                            *)
 (*                             [*] Affiliation LORIA -- CNRS  *)
+(*                             [+] Affiliation U. Sarrbrucken *)
 (**************************************************************)
 (*      This file is distributed under the terms of the       *)
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** This code follows the ideas of the reductions 
-                  BPCP -> fin SAT
-    described in a draft by Dominik Kirsk *)
+(** This was implemented by @DLW following the ideas 
+    of the reduction BPCP -> fin SAT described in a draft 
+    by @DK. *)
 
 Require Import List Arith Bool Lia.
 
