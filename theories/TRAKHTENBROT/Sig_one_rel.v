@@ -26,12 +26,9 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+Local Reserved Notation "⟪ A ⟫'" (at level 1, format "⟪ A ⟫'").
+
 Local Notation ø := vec_nil.
-
-Local Definition cast X n k (v : vec X n) (H : n = k) : vec X k := eq_rect _ (vec X) v _ H.
-
-Local Lemma cast_refl X n (v : vec X n) : cast v eq_refl = v.
-Proof. reflexivity. Qed.
 
 Section Uniform_arities_to_one.
 
@@ -48,7 +45,13 @@ Section Uniform_arities_to_one.
 
   Notation Σ' := Σone_rel.
 
-  Let convert_t (t : fo_term nat (ar_syms Σ)) : fo_term nat (ar_syms Σ') :=
+  Notation 𝕋 := (fo_term nat (ar_syms Σ)).
+  Notation 𝔽 := (fol_form Σ).
+
+  Notation 𝕋' := (fo_term nat (ar_syms Σ')).
+  Notation 𝔽' := (fol_form Σ').
+
+  Let convert_t (t : 𝕋) : 𝕋' :=
     match t with
     | in_var s   => in_var s
     | in_fot s _ => False_rect _ (HΣ s)
@@ -56,8 +59,8 @@ Section Uniform_arities_to_one.
 
   Let convert_v n (v : vec _ n) := vec_map convert_t v.
 
-  Fixpoint Σunif_one_rel (phi : fol_form Σ) : fol_form Σ' :=
-    match phi with
+  Fixpoint Σunif_one_rel (A : 𝔽) : 𝔽' :=
+    match A with
     | ⊥              => ⊥
     | fol_atom _ r v => fol_atom Σ' tt (in_fot r ø##cast (convert_v v) (Ha _))
     | fol_bin b A B  => fol_bin b (Σunif_one_rel A) (Σunif_one_rel B)
@@ -65,60 +68,57 @@ Section Uniform_arities_to_one.
     end.
 
   Notation encode := Σunif_one_rel.
+  
+  Variable X : Type.
 
-  (* Direction 1: sat phi -> sat (encode phi) *)
+  Section soundness.
 
-  Section to_compr.
+    Variable (M : fo_model Σ X) (x0 : X).
 
-    Variable (X : Type) (M : fo_model Σ X) (x0 : X).
+    Notation X' := (X + rels Σ)%type.
 
-    Local Definition fD (x : X + rels Σ) : X := match x with inl x => x | inr _ => x0 end.
+    Let fX (x : X') : X := 
+      match x with 
+        | inl x => x 
+        | inr _ => x0 
+      end.
 
-    Local Definition vec_fill n (v : vec _ n) := vec_map fD v.
+    Let vX n (v : vec _ n) := vec_map fX v.
 
-    Local Fact vec_fill_inl n v : @vec_fill n (vec_map inl v) = v.
-    Proof.
-      unfold vec_fill.
-      rewrite vec_map_map.
-      apply vec_pos_ext; intro; rew vec.
-    Qed.
+    (** The base type of the model X is extended with finitely
+        many points (rels Σ) that serve as indices for the
+        original relations and are linked to corresponding
+        constants *)
 
-    Definition Σunif_one_rel_model : fo_model Σ' (X + rels Σ).
+    Definition Σunif_one_rel_model : fo_model Σ' X'.
     Proof.
       split.
-      + intros r _; right; exact r.
-      + intros []; simpl; intros v.
-        exact (match vec_head v with
-          | inl _ => True
-          | inr r => fom_rels M r (cast (vec_fill (vec_tail v)) (eq_sym (Ha _))) 
-        end).
+      + exact (fun r _ => inr r).
+      + exact (fun r v => 
+          match vec_head v with
+            | inl _    => False           (* arbitrary value here *)
+            | inr r    => fom_rels M r (cast (vX (vec_tail v)) (eq_sym (Ha _)))
+          end).
     Defined.
 
     Notation M' := Σunif_one_rel_model.
 
-    Let convert_env (φ : nat -> X) n : X + rels Σ := inl (φ n).
-
-    Notation "⟦ t ⟧" := (fun φ => fo_term_sem (fom_syms M) φ t).
-    Notation "⟦ t ⟧'" := (fun φ => fo_term_sem (fom_syms M') φ t) (at level 1, format "⟦ t ⟧'").
-
-    Local Fact fot_sem_to_compr φ t : ⟦convert_t t⟧' (convert_env φ) = inl (⟦t⟧ φ).
-    Proof. destruct t as [x | f v]; trivial; exfalso; auto. Qed.
+    Let convert_env (φ : nat -> X) n : X' := inl (φ n).
+    Let env_fill (ψ : nat -> X') n : X' := inl (fX (ψ n)).
 
     Notation "⟪ A ⟫" := (fun φ => fol_sem M φ A).
-    Notation "⟪ A ⟫'" := (fun φ => fol_sem M' φ A) (at level 1, format "⟪ A ⟫'").
+    Notation "⟪ A ⟫'" := (fun ψ => fol_sem M' ψ A).
 
-    Let env_fill (φ : nat -> X + rels Σ) n : X + rels Σ := inl (fD (φ n)).
-
-    Let env_fill_sat_help A φ x :
-          ⟪encode A⟫' (env_fill (env_fill φ)↑x) 
-      <-> ⟪encode A⟫' (env_fill (φ↑x)).
+    Let env_fill_sat_help A ψ x :
+          ⟪encode A⟫' (env_fill (env_fill ψ)↑x) 
+      <-> ⟪encode A⟫' (env_fill (ψ↑x)).
     Proof. apply fol_sem_ext; intros [] _; auto. Qed.
 
-    Let env_fill_sat A φ : ⟪encode A⟫' (env_fill φ) <-> ⟪encode A⟫' φ.
+    Let env_fill_sat A ψ : ⟪encode A⟫' (env_fill ψ) <-> ⟪encode A⟫' ψ.
     Proof.
-      induction A as [ | r v | b A HA B HB | q A HA ] in φ |- *; try tauto. 
+      induction A as [ | r v | b A HA B HB | q A HA ] in ψ |- *; try tauto. 
       - simpl; rewrite <- (Ha r), !cast_refl. 
-        unfold vec_fill, convert_v; rewrite !vec_map_map.
+        unfold vX, convert_v; rewrite !vec_map_map.
         apply fol_equiv_ext; f_equal.
         apply vec_pos_ext; intros p; rew vec.
         generalize (vec_pos v p).
@@ -166,11 +166,13 @@ Section Uniform_arities_to_one.
           intros []; simpl; auto.
     Qed.
 
-  End to_compr.
+  End soundness.
 
-  Section from_compr.
+  Section completeness.
 
-    Variable (X : Type) (M' : fo_model Σ' X).
+    Variable (M' : fo_model Σ' X).
+
+    (** The model is recovered using constants as indices for each relation *)
 
     Definition Σone_unif_rel_model : fo_model Σ X.
     Proof.
@@ -181,27 +183,22 @@ Section Uniform_arities_to_one.
 
     Notation M := Σone_unif_rel_model.
 
-    Notation "⟦ t ⟧" := (fun φ => fo_term_sem (fom_syms M) φ t).
-    Notation "⟦ t ⟧'" := (fun φ => fo_term_sem (fom_syms M') φ t) (at level 1, format "⟦ t ⟧'").
-
-    Let eval_from_compr φ : forall t, ⟦t⟧ φ = ⟦convert_t t⟧' φ.
-    Proof. intros []; simpl; auto; exfalso; auto. Qed.
-
     Notation "⟪ A ⟫" := (fun φ => fol_sem M φ A).
-    Notation "⟪ A ⟫'" := (fun φ => fol_sem M' φ A) (at level 1, format "⟪ A ⟫'").
+    Notation "⟪ A ⟫'" := (fun ψ => fol_sem M' ψ A).
 
     Lemma Σunif_one_rel_complete A φ : ⟪A⟫ φ <-> ⟪encode A⟫' φ.
     Proof.
-      induction A as [ | r v | | ] in φ |- *; cbn; try firstorder tauto.
+      induction A as [ | r v | | ] in φ |- *; cbn; try tauto.
       + apply fol_equiv_ext; do 2 f_equal.
         revert v; generalize (Ha r); rewrite Ha; intros E v. 
         rewrite eq_nat_uniq with (H := E).
         unfold convert_v; rewrite !cast_refl, vec_map_map.
         apply vec_pos_ext; intro; rew vec.
+        generalize (vec_pos v p); intros []; simpl; auto; exfalso; auto.
       + apply fol_bin_sem_ext; auto.
       + apply fol_quant_sem_ext; intro; auto.
     Qed.
 
-  End from_compr.
+  End completeness.
 
 End Uniform_arities_to_one.

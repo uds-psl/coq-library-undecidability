@@ -26,6 +26,13 @@ Proof. apply UIP_dec, eq_nat_dec. Qed.
 Fact eq_nat_pirr (x y : nat) (H1 H2 : x = y) : H1 = H2.
 Proof. apply UIP_dec, eq_nat_dec. Qed.
 
+Definition cast (P : nat -> Type) n k (v : P n) (H : n = k) : P k := eq_rect _ P v _ H.
+
+Arguments cast {P n k} v H.
+
+Lemma cast_refl P n (v : P n) : cast v eq_refl = v.
+Proof. reflexivity. Qed.
+
 Section graphs.
 
   Variable (X Y : Type) (R : X -> Y -> Prop).
