@@ -282,7 +282,9 @@ TRAKHTENBROT/Sign_Sig.v
 TRAKHTENBROT/Sig_rem_syms.v
 TRAKHTENBROT/Sig_noeq.v
 TRAKHTENBROT/Sig_uniform.v
+TRAKHTENBROT/Sig_rem_cst.v
 TRAKHTENBROT/Sig_one_rel.v
+TRAKHTENBROT/Sig_one_rel_alt.v
 #TRAKHTENBROT/Sig_noeq_explicit.v
 
 TRAKHTENBROT/reductions.v
