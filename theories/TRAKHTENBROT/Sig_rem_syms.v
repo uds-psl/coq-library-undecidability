@@ -60,6 +60,15 @@ Section Sig_remove_symbols.
 
     Let f k (p : pos k) n : 𝕋' := match n with 0 => £ (pos2nat p) | S n => £ (n+1+k) end.
 
+    Fixpoint fot_rem_syms' (t : 𝕋) : 𝔽' :=
+      match t with
+        | in_var n   => fol_atom Σ' e (£0##£(S n)##ø)
+        | in_fot s v => 
+            let A  := fol_atom Σ' (inl s) (£(ar_syms _ s)##vec_set_pos (fun p => £ (pos2nat p))) in
+            let wB := vec_set_pos (fun p => (fot_rem_syms' (vec_pos v p))⦃f p⦄) 
+            in fol_mquant fol_ex (ar_syms _ s) (A ⟑ fol_vec_fa wB)
+      end.
+
     Definition fot_rem_syms : 𝕋 -> 𝔽'.
     Proof.
       induction 1 as [ n | s v w ] using fo_term_recursion.

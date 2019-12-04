@@ -51,6 +51,18 @@ Section SigBPCP_Sig32_encoding.
   (** maps s1[..sn[v]..] to ([s1;...;sn],inl v) and
            s1[..sn[c]..] to ([s1;...;sn],inr c) *)
 
+  Local Fixpoint term2list' (t : fo_term nat ar10) : (list (pos n1) * (nat + pos n0))%type :=
+    match t with
+      | in_var n         => (nil,inl n)
+      | in_fot (inl s) v => let (l,c) := term2list' (vec_pos v pos0)
+                            in (s::l,c)
+      | in_fot (inr s) _ => (nil,inr s)
+    end.
+
+  Fact term2list'_fix_2' s t : 
+          term2list' (in_fot (inl s) (t##ø)) = let (l,c) := term2list' t in (s::l,c).
+  Proof. trivial. Qed.
+
   Local Definition term2list : fo_term nat ar10 -> (list (pos n1) * (nat + pos n0))%type.
   Proof.
     induction 1 as [ n | [ s | s ] _ w ] using fo_term_recursion; simpl in *.
@@ -95,6 +107,7 @@ Section SigBPCP_Sig32_encoding.
     + rewrite term2list_fix_0; simpl; auto.
     + revert IHv; destruct s as [ s | s ]; simpl in v |- *.
       * vec split v with x; vec nil v; clear v; intros IH.
+
         specialize (IH pos0); simpl in IH; revert IH.
         generalize (term2list_fix_2 s x).
         destruct (term2list x) as (l,c); simpl; intros -> ->; simpl; auto.

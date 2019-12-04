@@ -160,6 +160,12 @@ Section first_order_terms.
   (** We can now define eg the size of terms easily with the
       corresponding fixpoint equation *)
 
+  Fixpoint fo_term_size' c t :=
+    match t with
+      | in_var _    => 1
+      | @in_fot s v => c s + vec_sum (vec_map (fo_term_size' c) v)
+    end.
+
   Definition fo_term_size (c : sym -> nat) : fo_term -> nat.
   Proof.
     induction 1 as [ _ | s _ w ] using fo_term_recursion.
@@ -173,6 +179,12 @@ Section first_order_terms.
   Fact fo_term_size_fix_1 c s v :
          fo_term_size c (@in_fot s v) = c s + vec_sum (vec_map (fo_term_size c) v).
   Proof. apply fo_term_recursion_fix_1. Qed.
+
+  Fixpoint fo_term_vars' t : list var :=
+    match t with 
+      | in_var x    => x::nil
+      | @in_fot s v => concat (vec_list (vec_map fo_term_vars' v))
+    end.
 
   Definition fo_term_vars : fo_term -> list var.
   Proof.
@@ -232,6 +244,12 @@ Section fo_term_subst.
            (X Y : Type).
 
   Implicit Type (σ : X -> fo_term Y sym_ar).
+
+  Fixpoint fo_term_subst' σ (t : fo_term X sym_ar) :=
+    match t with 
+      | in_var x   => σ x
+      | in_fot s v => in_fot s (vec_map (fo_term_subst' σ) v)
+    end.
 
   Definition fo_term_subst σ : fo_term X sym_ar -> fo_term Y sym_ar.
   Proof.
@@ -461,6 +479,12 @@ Section rel_semantics.
   Notation 𝕋 := (fo_term X sym_ar).
 
   Implicit Type φ : X -> M -> Prop.
+
+  Fixpoint fo_term_rsem' φ (t : 𝕋) : M -> Prop :=
+    match t with
+      | in_var x   => φ x
+      | in_fot s v => fun m => exists w, @sem_sym s w m /\ forall p, fo_term_rsem' φ (vec_pos v p) (vec_pos w p)
+    end.
 
   Definition fo_term_rsem φ : 𝕋 -> M -> Prop.
   Proof.

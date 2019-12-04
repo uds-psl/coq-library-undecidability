@@ -89,6 +89,21 @@ Section Σbpcp_Σ2.
 
     *)
 
+  (** Replacing (vec_pos w pos0) with (vec_head w) below 
+      does not pass the guardness checker ... *)
+      
+
+  Fixpoint fot_fol' (t : term) : fol_form Σ2 :=
+    match t with
+      | in_var i => fol_atom Σ2 (inr p_eq) (£0##£(1+i)##ø)
+      | in_fot s v =>
+      match s as s' return vec _ (ar_syms Σbpcp s') -> _ with
+        | fb b => fun w => ∃ ( ⇡(fot_fol' (vec_pos w pos0)) ⟑ fol_atom Σ2 (inl (fb b)) (£0##£1##ø))
+        | fe   => fun _ => fol_atom Σ2 (inl fe) (£0##£0##ø)
+        | fs   => fun _ => fol_atom Σ2 (inl fs) (£0##£0##ø)
+      end v
+    end.
+
   Definition fot_fol (t : term) : fol_form Σ2.
   Proof.
     induction t as [ i | [ b | | ] v w ] using fo_term_recursion; try simpl ar_syms at 2 in v.
