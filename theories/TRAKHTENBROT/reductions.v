@@ -22,7 +22,7 @@ From Undecidability.Shared.Libs.DLW.Wf
 
 From Undecidability.TRAKHTENBROT
   Require Import notations bpcp 
-                 fol_ops fo_sig fo_terms fo_logic fo_sat 
+                 fo_sig fo_terms fo_logic fo_sat 
 
                  Sig_discrete              (* UTILITY: for discreteness *)
                  Sig_noeq                  (* UTILITY: from interpret to uninterpreted *)

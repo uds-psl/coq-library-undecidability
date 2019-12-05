@@ -488,9 +488,6 @@ Section discrete_quotient.
 
 End discrete_quotient.
 
-Check fo_fin_model_discretize.
-Print Assumptions fo_fin_model_discretize.
-
 Section counter_model_to_class_FO_definability.
 
   (** We show that there is a model over Σ = Σrel 2 = {ø,{=_2}}
@@ -575,5 +572,3 @@ Section counter_model_to_class_FO_definability.
   Proof. exists M, M_dec, true, false; auto. Qed.
 
 End counter_model_to_class_FO_definability.
-
-Check FO_does_not_characterize_classes.

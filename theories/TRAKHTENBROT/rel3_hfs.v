@@ -431,5 +431,3 @@ Section bt_model3.
 
 End bt_model3.
 
-Check rel3_hfs.
-Print Assumptions rel3_hfs.
