@@ -16,7 +16,7 @@ From Undecidability.Shared.Libs.DLW.Vec
   Require Import pos vec.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations utils fol_ops fo_terms.
+  Require Import notations utils fol_ops fo_sig fo_terms.
 
 Set Implicit Arguments.
 
@@ -24,39 +24,10 @@ Notation ø := vec_nil.
 
 Opaque fo_term_subst fo_term_map fo_term_sem.
 
-Record fo_signature := Mk_fo_signature {
-  syms : Type;
-  rels : Type;
-  ar_syms : syms -> nat;
-  ar_rels : rels -> nat
-}.
-
-(** Only one relational symbol of arity n *)
-
-Definition Σrel (n : nat) : fo_signature.
-Proof.
-  exists Empty_set      (* No function or constant symbols *)
-         unit           (* And one n-ary relational symbol *)
-         .
-  + intros []. (* Value does not matter here *)
-  + exact (fun _ => n). (* The n-ary relation *)
-Defined.
-
 (* Terms are just variables in Σrel *)
 
 Definition Σrel_var k : fo_term nat (ar_syms (Σrel k)) -> nat.
 Proof. intros [ n | [] ]; exact n. Defined.
-
-(** One relational symbol of arity n and (interpreted) equality *)
-
-Definition Σrel_eq (n : nat) : fo_signature.
-Proof.
-  exists Empty_set      (* No function or constant symbols *)
-         bool           (* One ternary and equality *)
-         .
-  + exact (fun _ => 0). (* Value does not matter here *)
-  + exact (fun b => if b then n else 2).
-Defined.
 
 (** Unscoped (nat) DeBruijn syntax for FOL formulas *)
 

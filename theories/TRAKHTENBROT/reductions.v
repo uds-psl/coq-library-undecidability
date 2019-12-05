@@ -21,11 +21,25 @@ From Undecidability.Shared.Libs.DLW.Wf
   Require Import wf_finite.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations fol_ops fo_terms fo_logic fo_sat discrete 
-                 Sig3_Sig2 Sig32_Sig2 bpcp fol_bpcp Sig2_Sign Sign_Sig 
-                 Sig_rem_syms Sig_noeq Sig_uniform Sig_one_rel Sig_rem_cst.
+  Require Import notations bpcp 
+                 fol_ops fo_sig fo_terms fo_logic fo_sat 
+
+                 discrete                  (* UTILITY: for discreteness *)
+                 Sig_noeq                  (* UTILITY: from interpret to uninterpreted *)
+
+                 BPCP_SigBPCP              (* from BPCP to a finitary signature *)
+                 Sig_rem_syms              (* convert symbols into rels *)
+                 Sig_uniform               (* convert to same arity for every rels *)
+                 Sig_one_rel               (* many rels of arity n into one (n+1) and constants *)
+                 Sig_rem_cst               (* replace constants with free variables *)
+                 Sig3_Sig2                 (* From R_3 to R_2 *)
+                 Sig2_Sign                 (* Embed R_2 into R_n with n >= 2 *)
+                 Sign_Sig                  (* Embed R_n into Σ where R_n occurs in Σ *)
+                 .
 
 Set Implicit Arguments.
+
+(** Sometimes the dependent statement is more convenient *)
 
 Fact reduction_dependent X Y (P : X -> Prop) (Q : Y -> Prop) :
         P ⪯ Q <-> inhabited (forall x, { y | P x <-> Q y }).
@@ -107,19 +121,19 @@ Section BPCP_fo_fin_dec_SAT.
   Definition FIN_SAT_input := fol_form Σbpcp.
 
   Definition BPCP_problem (lc : BPCP_input) := exists l, pcp_hand lc l l.
- 
-  Theorem BPCP_FIN_DEC_SAT : BPCP_problem ⪯ @fo_form_fin_dec_SAT Σbpcp.
+
+  Theorem BPCP_FIN_DEC_EQ_SAT : BPCP_problem ⪯ @fo_form_fin_dec_eq_SAT Σbpcp Σbpcp_eq eq_refl.
   Proof.
-    exists phi_R; intros lc; split.
-    + intros (l & Hl); revert Hl.
-      apply BPCP_sat.
-    + intros; apply fin_sat_BPCP, fo_form_fin_dec_SAT_fin, H.
+    apply reduction_dependent; exists; intros lc.
+    exists (Σbpcp_encode lc); split.
+    + intros (l & Hl); revert Hl; apply Σbpcp_encode_sound.
+    + apply Σbpcp_encode_complete.
   Qed.
 
 End BPCP_fo_fin_dec_SAT.
 
-Check BPCP_FIN_DEC_SAT.
-Print Assumptions BPCP_FIN_DEC_SAT.
+Check BPCP_FIN_DEC_EQ_SAT.
+Print Assumptions BPCP_FIN_DEC_EQ_SAT.
 
 (** From a given (arbitrary) signature, 
     the reduction from 
@@ -248,6 +262,7 @@ Print Assumptions FIN_DISCR_DEC_3SAT_FIN_DEC_2SAT.
 
 Print Σrel_eq.
 
+(*
 Theorem FIN_DEC_EQ_3SAT_FIN_DEC_2SAT : @fo_form_fin_dec_eq_SAT (Σrel_eq 3) false eq_refl
                                                                       ⪯ @fo_form_fin_dec_SAT (Σrel 2).
 Proof.
@@ -258,6 +273,7 @@ Qed.
 
 Check FIN_DEC_EQ_3SAT_FIN_DEC_2SAT.
 Print Assumptions FIN_DEC_EQ_3SAT_FIN_DEC_2SAT.
+*)
 
 (*      SAT(∅,{R_2},𝔽,ℂ) ---> SAT(∅,{R_(2+n)},𝔽,ℂ)           *)
 
@@ -362,15 +378,15 @@ Print Assumptions FIN_DEC_SAT_FIN_DEC_NOCST_SAT.
 
 Section FULL_TRAKHTENBROT.
 
-  Let finite_bpcp_syms : finite bpcp_syms.
+  Let finite_bpcp_syms : finite Σbpcp_syms.
   Proof. 
-    exists (fb true::fb false::fe::fs::nil).
+    exists (Σbpcp_bool true::Σbpcp_bool false::Σbpcp_unit::Σbpcp_undef::nil).
     intros [ [] | | ]; simpl; auto.
   Qed.
 
-  Let finite_bpcp_rels : finite bpcp_rels.
+  Let finite_bpcp_rels : finite Σbpcp_rels.
   Proof. 
-    exists (p_P::p_lt::p_eq::nil).
+    exists (Σbpcp_hand::Σbpcp_ssfx::Σbpcp_eq::nil).
     intros []; simpl; auto.
   Qed.
 
@@ -381,10 +397,8 @@ Section FULL_TRAKHTENBROT.
       -> BPCP_problem ⪯ @fo_form_fin_dec_SAT Σ.
   Proof.
     intros (r & H).
-    eapply reduces_transitive.
-    2: { apply FIN_DEC_nSAT_FIN_DEC_SAT.
-         exists r; reflexivity. }
-    apply reduces_transitive with (1 := BPCP_FIN_DEC_SAT).
+    apply reduces_transitive with (1 := BPCP_FIN_DEC_EQ_SAT).
+    apply reduces_transitive with (1 := FIN_DEC_EQ_SAT_FIN_DEC_SAT _).
     apply reduces_transitive with (1 := FIN_DEC_SAT_FIN_DISCR_DEC_SAT _).
     eapply reduces_transitive.
     { apply FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT; simpl; auto. }
@@ -401,8 +415,9 @@ Section FULL_TRAKHTENBROT.
     unfold Σrem_cst, Σone_rel, Σunif, fos_nosyms; simpl.
     apply reduces_transitive with (1 := FIN_DEC_SAT_FIN_DISCR_DEC_SAT _).
     apply reduces_transitive with (1 := FIN_DISCR_DEC_3SAT_FIN_DEC_2SAT).
-    apply FIN_DEC_2SAT_FIN_DEC_nSAT. 
-    trivial.
+    apply reduces_transitive with (1 := FIN_DEC_2SAT_FIN_DEC_nSAT H).
+    apply FIN_DEC_nSAT_FIN_DEC_SAT. 
+    exists r; reflexivity.
   Qed.
 
 End FULL_TRAKHTENBROT.
