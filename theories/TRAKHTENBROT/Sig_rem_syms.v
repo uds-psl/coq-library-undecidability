@@ -26,7 +26,10 @@ Section Sig_remove_symbols.
 
   Variable (Σ : fo_signature).
 
-  Definition fos_nosyms : fo_signature.
+  (** map every term symbol to a relation symbols of +1 arity
+      and add an (interpreted) equality *)
+
+  Definition Σnosyms : fo_signature.
   Proof.
     exists Empty_set (syms Σ + (unit + rels Σ))%type.
     + intros [].
@@ -36,7 +39,7 @@ Section Sig_remove_symbols.
       * exact (ar_rels _ r).
   Defined.
 
-  Notation Σ' := fos_nosyms.
+  Notation Σ' := Σnosyms.
 
   Let e : rels Σ' := inr (inl tt). 
 
@@ -343,7 +346,7 @@ End Sig_remove_symbols.
 
 Theorem Σsyms_Σnosyms_sound Σ ls A X : 
              @fo_form_fin_discr_dec_SAT_in Σ A X
-          -> @fo_form_fin_dec_eq_SAT_in (fos_nosyms Σ) (inr (inl tt)) eq_refl (Σsyms_Σnosyms ls A) X.
+          -> @fo_form_fin_dec_eq_SAT_in (Σnosyms Σ) (inr (inl tt)) eq_refl (Σsyms_Σnosyms ls A) X.
 Proof.
   intros (H0 & M & H1 & H2 & phi & H3).
   exists (fom_nosyms M), H1; destruct M as (sy,re).
@@ -369,7 +372,7 @@ Section completeness.
            (Hls : forall s, { In s ls } + { ~ In s ls })
            (HAls : incl (fol_syms A) ls).
 
-  Notation Σ' := (fos_nosyms Σ).
+  Notation Σ' := (Σnosyms Σ).
 
   Let e : rels Σ' := inr (inl tt).
 
@@ -434,7 +437,7 @@ Section completeness.
   End nested.
 
   Theorem Σsyms_Σnosyms_complete : 
-          @fo_form_fin_dec_eq_SAT_in (fos_nosyms Σ) (inr (inl tt)) eq_refl (Σsyms_Σnosyms ls A) X
+          @fo_form_fin_dec_eq_SAT_in (Σnosyms Σ) (inr (inl tt)) eq_refl (Σsyms_Σnosyms ls A) X
        -> @fo_form_fin_discr_dec_SAT_in Σ A X.
   Proof.
     intros (M & H1 & H2 & H3 & phi & H5).

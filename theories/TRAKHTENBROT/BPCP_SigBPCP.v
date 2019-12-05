@@ -25,18 +25,13 @@ From Undecidability.Shared.Libs.DLW.Wf
   Require Import wf_finite.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations bpcp fol_ops fo_sig fo_terms fo_logic fo_sat.
+  Require Import notations utils bpcp fol_ops fo_sig fo_terms fo_logic fo_sat.
 
 Set Implicit Arguments.
 
 Local Notation ø := vec_nil.
 
-Local Tactic Notation "solve" "ite" :=
-      match goal with _ : ?x < ?y |- context[if le_lt_dec ?y ?x then _ else _]
-        => let G := fresh in destruct (le_lt_dec y x) as [ G | _ ]; [ exfalso; lia | ]
-      end.
-
-Section bpcp.
+Section BPCP_FIN_DEC_EQ_SAT.
 
   Variable lc : list (list bool * list bool).  (** A BPCP instance *)
 
@@ -51,15 +46,16 @@ Section bpcp.
   Notation "x ⧓ y" := (fol_atom Σbpcp Σbpcp_hand (x##y##ø)) (at level 58).
   Notation "x ≺ y" := (fol_atom Σbpcp Σbpcp_ssfx (x##y##ø)) (at level 58).
   Notation "x ≡ y" := (fol_atom Σbpcp Σbpcp_eq (x##y##ø)) (at level 58).
+  Notation "x ≢ y" := (x ≡ y ⤑ ⊥) (at level 58).
 
   Local Definition lb_app l t := fold_right (fun b x => b ⤚ x) t l.
 
   Notation "l ⤜ x" := (lb_app l x) (at level 51, right associativity, format "l ⤜ x").
 
-  Fact lb_app_app l m t : (l++m)⤜t = l⤜m⤜t.
+  Local Fact lb_app_app l m t : (l++m)⤜t = l⤜m⤜t.
   Proof. apply fold_right_app. Qed.
  
-  Fact fot_vars_lb_app l t : fo_term_vars (l⤜t) = fo_term_vars t.
+  Local Fact fot_vars_lb_app l t : fo_term_vars (l⤜t) = fo_term_vars t.
   Proof.
     induction l as [ | x l IHl ]; simpl; rew fot; auto.
     simpl; rewrite <- app_nil_end; auto.
@@ -67,29 +63,36 @@ Section bpcp.
 
   Notation lb2term := (fun l => l⤜e).
 
-  Local Definition phi_P     := ∀∀ £1 ⧓ £0 ⤑ ¬ £1 ≡ ∗ ⟑ ¬ £0 ≡ ∗.
+  Local Definition phi_P      := ∀∀ £1 ⧓ £0 ⤑ £1 ≢ ∗ ⟑ £0 ≢ ∗.
 
-  Local Definition lt_irrefl := ∀ ¬ £0 ≺ £0.
-  Local Definition lt_trans  := ∀∀∀ £2 ≺ £1 ⤑ £1 ≺ £0 ⤑ £2 ≺ £0.
+  Local Definition lt_irrefl  := ∀ ¬ £0 ≺ £0.
+  Local Definition lt_trans   := ∀∀∀ £2 ≺ £1 ⤑ £1 ≺ £0 ⤑ £2 ≺ £0.
 
-  Local Definition phi_lt := lt_irrefl ⟑ lt_trans.
+  Local Definition phi_lt     := lt_irrefl ⟑ lt_trans.
 
-  Local Definition eq_neq (b : bool) := ∀ ¬ b⤚£0 ≡ e.
-  Local Definition eq_inj (b : bool) := ∀∀ ¬ b⤚£1 ≡ ∗ ⤑ b⤚£1 ≡ b⤚ £0⤑ £1 ≡ £0.
-  Local Definition eq_real := ∀∀ true⤚£1 ≡ false⤚£0 ⤑ true⤚£1 ≡ ∗ ⟑ false⤚£0 ≡ ∗.
+  Local Definition eq_neq b   := ∀ b⤚£0 ≢ e.
+  Local Definition eq_inj b   := ∀∀ b⤚£1 ≢ ∗ ⤑ b⤚£1 ≡ b⤚ £0⤑ £1 ≡ £0.
+  Local Definition eq_real    := ∀∀ true⤚£1 ≡ false⤚£0 ⤑ true⤚£1 ≡ ∗ ⟑ false⤚£0 ≡ ∗.
   Local Definition eq_undef b := b⤚∗ ≡ ∗.
 
-  Local Definition phi_eq := eq_neq true ⟑ eq_neq false 
-                           ⟑ eq_inj true ⟑ eq_inj false 
-                           ⟑ eq_undef true ⟑ eq_undef false
-                           ⟑ eq_real.
+  Local Definition phi_eq := 
+            eq_neq true   ⟑ eq_neq false 
+          ⟑ eq_inj true   ⟑ eq_inj false 
+          ⟑ eq_undef true ⟑ eq_undef false
+          ⟑ eq_real.
 
-  Local Definition lt_pair u v x y := (u ≺ x ⟑ v ≡ y) ⟇ (v ≺ y ⟑ u ≡ x) ⟇ (u ≺ x ⟑ v ≺ y).
+  Local Definition lt_pair u v x y := 
+            (u ≺ x ⟑ v ≡ y) 
+          ⟇ (v ≺ y ⟑ u ≡ x) 
+          ⟇ (u ≺ x ⟑ v ≺ y).
 
-  Local Definition lt_simul (c : list bool * list bool) := 
-    let (s,t) := c 
-    in   (£1 ≡ s⤜e ⟑ £0 ≡ t⤜e)
-       ⟇ ∃∃ £1 ⧓ £0 ⟑ £3 ≡ s⤜£1 ⟑ £2 ≡ t⤜£0 ⟑ lt_pair (£1) (£0) (£3) (£2).
+  Local Definition lt_simul '(s,t) := 
+            £1 ≡ s⤜e 
+          ⟑ £0 ≡ t⤜e
+       ⟇ ∃∃ £1 ⧓ £0 
+          ⟑ £3 ≡ s⤜£1 
+          ⟑ £2 ≡ t⤜£0 
+          ⟑ lt_pair (£1) (£0) (£3) (£2).
 
   Local Definition phi_simul := ∀∀ £1 ⧓ £0 ⤑ fol_ldisj (map lt_simul lc).
 
@@ -270,14 +273,6 @@ Section bpcp.
 
     Opaque le_lt_dec.
 
-    Let list_app_head_not_nil K (u v : list K) : u <> nil -> v <> u++v.
-    Proof.
-      intros H; contradict H.
-      destruct u as [ | a u ]; auto; exfalso.
-      apply f_equal with (f := @length _) in H.
-      revert H; simpl; rewrite app_length; lia.
-    Qed.
-
     (** (Σbpcp_model,φ0) is a model of phi_simul *)
 
     Let sem_phi_simul : ⟪ phi_simul ⟫ φ0.
@@ -348,7 +343,7 @@ Section bpcp.
 
   Section completeness.
 
-    (** We assume an interpreted finite model *)
+    (** We assume an interpreted and finite model *)
 
     Variable (X : Type) (M : fo_model Σbpcp X) 
              (HM : finite X)
@@ -361,7 +356,7 @@ Section bpcp.
     Notation "⟦ t ⟧" := (fun φ => fo_term_sem sem_sym φ t).
     Notation "⟪ A ⟫" := (fun φ => fol_sem M φ A).
 
-    Fact fot_sem_lb_app l t φ : ⟦l⤜t⟧ φ = ⟦l⤜£0⟧ (φ↑(⟦t⟧φ)).
+    Let fot_sem_lb_app l t φ : ⟦l⤜t⟧ φ = ⟦l⤜£0⟧ (φ↑(⟦t⟧φ)).
     Proof.
       revert φ; induction l as [ | b l IHl ]; intros phi; simpl.
       + unfold env_lift; rew fot; auto.
@@ -412,10 +407,15 @@ Section bpcp.
 
     Let sb_app l x := ⟦l⤜£0⟧ (φ↑x).
 
-    Let Hsimul x y : P x y -> exists s t, In (s,t) lc 
-                                     /\ ( x = sb_app s ε /\ y = sb_app t ε
-                                      \/  exists u v, P u v /\ x = sb_app s u /\ y = sb_app t v
-                                                   /\ lt_pair u v x y ).
+    Let Hsimul x y : 
+          P x y 
+       -> exists s t, In (s,t) lc 
+                  /\ ( x = sb_app s ε /\ y = sb_app t ε
+                   \/  exists u v, P u v 
+                                /\ x = sb_app s u 
+                                /\ y = sb_app t v
+                                /\ lt_pair u v x y 
+                     ).
     Proof.
       intros H.
       destruct model as (_ & _ & _ & Hmodel & _).
@@ -521,8 +521,7 @@ Section bpcp.
       + apply finite_prod; auto.
       + intros (x,y) [ (H1 & H2) | [ (H1 & H2) | (H1 & H2) ] ].
         all: revert H1; apply Hlt_irrefl.
-      + intros (x1,x2) (y1,y2) (z1,z2); unfold lt_pair; simpl.
-        rewrite !He.
+      + intros (x1,x2) (y1,y2) (z1,z2); unfold lt_pair; simpl; rewrite !He.
         intros [ (H1 & H2) | [ (H1 & H2) | (H1 & H2) ] ]
                [ (G1 & G2) | [ (G1 & G2) | (G1 & G2) ] ].
         1: left; split; mysolve.
@@ -530,9 +529,12 @@ Section bpcp.
         all: right; right; split; mysolve.
     Qed.
 
-    Let P_implies_pcp_hand c : match c with (x,y) => 
-           P x y -> exists s t, x = sb_app s ε /\ y = sb_app t ε /\ pcp_hand lc s t 
-         end.
+    Let P_implies_pcp_hand (c : X*X) : 
+         let (x,y) := c 
+         in   P x y 
+           -> exists s t, x = sb_app s ε 
+                       /\ y = sb_app t ε 
+                       /\ pcp_hand lc s t.
     Proof.
       induction c as [ (x,y) IH ] using (well_founded_induction Hlt_wf).
       intros Hxy.
@@ -563,11 +565,14 @@ Section bpcp.
 
   End completeness.
 
-  Theorem Σbpcp_encode_complete : @fo_form_fin_dec_eq_SAT Σbpcp Σbpcp_eq eq_refl Σbpcp_encode -> exists l, pcp_hand lc l l.
+  Hint Resolve finite_t_finite.
+
+  Theorem Σbpcp_encode_complete : 
+             @fo_form_fin_dec_eq_SAT Σbpcp Σbpcp_eq eq_refl Σbpcp_encode 
+          -> exists l, pcp_hand lc l l.
   Proof.
     intros (X & M & fM & dM & He & phi & Hphi).
     apply completeness with (M := M) (φ := phi); auto.
-    apply finite_t_finite; auto.
   Qed.
 
-End bpcp.
+End BPCP_FIN_DEC_EQ_SAT.

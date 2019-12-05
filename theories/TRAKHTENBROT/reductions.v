@@ -179,7 +179,7 @@ Section FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
 
   Theorem FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT :
           @fo_form_fin_discr_dec_SAT Σ
-              ⪯ @fo_form_fin_dec_eq_SAT (fos_nosyms Σ) (inr (inl tt)) eq_refl.
+              ⪯ @fo_form_fin_dec_eq_SAT (Σnosyms Σ) (inr (inl tt)) eq_refl.
   Proof.
     destruct HΣ as [ (l & Hl) | H ].
     - exists (fun A => Σsyms_Σnosyms l A).
@@ -198,7 +198,7 @@ Section FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
       
 End FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
 
-Print fos_nosyms.
+Print Σnosyms.
 
 Check FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
 Print Assumptions FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
@@ -412,11 +412,11 @@ Section FULL_TRAKHTENBROT.
     eapply reduces_transitive.
     { apply FIN_DEC_SAT_FIN_DEC_NOCST_SAT; auto; simpl; auto.
       intros ? ?; repeat decide equality. }
-    unfold Σrem_cst, Σone_rel, Σunif, fos_nosyms; simpl.
+    unfold Σrem_cst, Σone_rel, Σunif, Σnosyms; simpl.
     apply reduces_transitive with (1 := FIN_DEC_SAT_FIN_DISCR_DEC_SAT _).
     apply reduces_transitive with (1 := FIN_DISCR_DEC_3SAT_FIN_DEC_2SAT).
     apply reduces_transitive with (1 := FIN_DEC_2SAT_FIN_DEC_nSAT H).
-    apply FIN_DEC_nSAT_FIN_DEC_SAT. 
+    apply FIN_DEC_nSAT_FIN_DEC_SAT.
     exists r; reflexivity.
   Qed.
 

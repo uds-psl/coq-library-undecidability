@@ -721,7 +721,5 @@ Section rel_simulation.
 
 End rel_simulation.
 
-Check fo_term_rsem_simul.
-
 
 

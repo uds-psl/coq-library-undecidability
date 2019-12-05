@@ -630,8 +630,6 @@ Section fo_model_simulation.
 
 End fo_model_simulation.
 
-Check fo_model_simulation.
-
 Theorem fo_model_projection Σ ls lr X M Y N (p : @fo_projection Σ ls lr X M Y N) A φ ψ : 
            (forall n, In n (fol_vars A) -> p (φ n) = ψ n)
         -> incl (fol_syms A) ls 

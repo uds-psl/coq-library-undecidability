@@ -199,6 +199,14 @@ Proof.
   apply Hf in Hl; subst; auto.
 Qed.
 
+Fact list_app_head_not_nil X (u v : list X) : u <> nil -> v <> u++v.
+Proof.
+  intros H; contradict H.
+  destruct u as [ | a u ]; auto; exfalso.
+  apply f_equal with (f := @length _) in H.
+  revert H; simpl; rewrite app_length; intros; omega.
+Qed.
+
 Section iter.
   
   Variable (X : Type) (f : X -> X).

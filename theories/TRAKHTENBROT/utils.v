@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Bool Eqdep_dec.
+Require Import List Arith Lia Bool Eqdep_dec.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_list finite.
@@ -32,6 +32,11 @@ Arguments cast {P n k} v H.
 
 Lemma cast_refl P n (v : P n) : cast v eq_refl = v.
 Proof. reflexivity. Qed.
+
+Tactic Notation "solve" "ite" :=
+  match goal with _ : ?x < ?y |- context[if le_lt_dec ?y ?x then _ else _]
+        => let G := fresh in destruct (le_lt_dec y x) as [ G | _ ]; [ exfalso; lia | ]
+  end.
 
 Section graphs.
 

@@ -67,5 +67,3 @@ Section satisfiability.
   Proof. intros (X & M & H & _ & ?); exists X, M, H; trivial. Qed.
 
 End satisfiability.
-
-Print fo_form_fin_dec_eq_SAT_in.
