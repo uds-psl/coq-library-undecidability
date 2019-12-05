@@ -352,7 +352,7 @@ Section FOL_encoding.
 
     Fact Σ2_list_in_spec l lv : ⟪Σ2_list_in l lv⟫ <-> forall x, In x lv -> ψ x ∈m ψ l.
     Proof.
-      unfold Σ2_list_in; rewrite fol_sem_big_conj.
+      unfold Σ2_list_in; rewrite fol_sem_lconj.
       split.
       + intros H x Hx.
         apply (H (_ ∈ _)), in_map_iff.

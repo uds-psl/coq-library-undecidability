@@ -421,7 +421,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
       destruct model as (_ & _ & _ & Hmodel & _).
       unfold phi_simul in Hmodel; simpl in Hmodel.
       apply Hmodel in H.
-      apply fol_sem_big_disj in H.
+      apply fol_sem_ldisj in H.
       destruct H as (c & Hc & H).
       rewrite in_map_iff in Hc.
       destruct Hc as ((s,t) & <- & Hst).

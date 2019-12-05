@@ -24,7 +24,7 @@ From Undecidability.TRAKHTENBROT
   Require Import notations bpcp 
                  fol_ops fo_sig fo_terms fo_logic fo_sat 
 
-                 discrete                  (* UTILITY: for discreteness *)
+                 Sig_discrete              (* UTILITY: for discreteness *)
                  Sig_noeq                  (* UTILITY: from interpret to uninterpreted *)
 
                  BPCP_SigBPCP              (* from BPCP to a finitary signature *)
@@ -251,30 +251,6 @@ Qed.
 Check FIN_DISCR_DEC_3SAT_FIN_DEC_2SAT.
 Print Assumptions FIN_DISCR_DEC_3SAT_FIN_DEC_2SAT.
 
-(** With Σrel_eq 3 signature with a ternary symbol AND an interpret equality
-     and Σrel 2 signature with a unique binary symbol
-   the reduction from 
-   - finite and decidable and interpreted equality SAT over Σrel_eq 3 
-   - to finite and decidable SAT over Σrel 2 
-
-      SAT(∅,{T_3,=_2},𝔽,ℂ,=) ---> SAT(∅,{∈_2},𝔽,ℂ)
-*)
-
-Print Σrel_eq.
-
-(*
-Theorem FIN_DEC_EQ_3SAT_FIN_DEC_2SAT : @fo_form_fin_dec_eq_SAT (Σrel_eq 3) false eq_refl
-                                                                      ⪯ @fo_form_fin_dec_SAT (Σrel 2).
-Proof.
-  exists Σ3eq_Σ2_enc; intros A; split.
-  + apply SAT32_SAT2.
-  + apply SAT2_SAT32.
-Qed.
-
-Check FIN_DEC_EQ_3SAT_FIN_DEC_2SAT.
-Print Assumptions FIN_DEC_EQ_3SAT_FIN_DEC_2SAT.
-*)
-
 (*      SAT(∅,{R_2},𝔽,ℂ) ---> SAT(∅,{R_(2+n)},𝔽,ℂ)           *)
 
 Theorem FIN_DEC_2SAT_FIN_DEC_nSAT n :
@@ -284,8 +260,8 @@ Theorem FIN_DEC_2SAT_FIN_DEC_nSAT n :
 Proof.
   revert n; intros [ | [ | n ] ] H; try lia.
   exists (Σ2_Σn n); intros A; split.
-  + apply SAT2_SATn.
-  + apply SATn_SAT2.
+  + apply Σ2_Σn_soundness.
+  + apply Σ2_Σn_completeness.
 Qed.
 
 Check FIN_DEC_2SAT_FIN_DEC_nSAT.

@@ -271,7 +271,7 @@ Section remove_interpreted.
   Proof.
     unfold Σ_eq_congruent.
     rewrite fol_syms_bin.
-    unfold fol_lconj; repeat rewrite fol_syms_bigop; simpl.
+    repeat rewrite fol_syms_bigop; simpl.
     repeat apply incl_app; try (cbv; tauto).
     + intros s; rewrite in_flat_map.
       intros (A & HA & H); revert HA H.
@@ -289,7 +289,7 @@ Section remove_interpreted.
   Proof.
     unfold Σ_eq_congruent.
     rewrite fol_rels_bin.
-    unfold fol_lconj; repeat rewrite fol_rels_bigop; simpl.
+    repeat rewrite fol_rels_bigop; simpl.
     repeat apply incl_app; try (cbv; tauto).
     + intros s; rewrite in_flat_map.
       intros (A & HA & H); revert HA H.

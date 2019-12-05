@@ -42,7 +42,6 @@ Infix "⟑" := (fol_bin fol_conj) (at level 60, right associativity).
 Infix "⟇" := (fol_bin fol_disj) (at level 61, right associativity).
 Notation "∀ f" := (fol_quant fol_fa f) (at level 64, right associativity).
 Notation "∃ f" := (fol_quant fol_ex f) (at level 64, right associativity).
-
 Notation "x ↔ y" := ((x⤑y)⟑(y⤑x)) (at level 63, no associativity).
 
 Notation "£" := (in_var : nat -> fol_term _).
@@ -55,12 +54,12 @@ Section fol_subst.
   Notation 𝕋 := (fol_term Σ).
   Notation 𝔽 := (fol_form Σ).
 
-  (* Notation ⟦ ⟧ ⟪ ⟫ φ ψ σ ρ ↑ ⦃ ⦄ ⇡*)
+  Implicit Type A : 𝔽.
 
-  Fixpoint fol_vars (A : 𝔽) :=
+  Fixpoint fol_vars A :=
     match A with
-      | ⊥              => nil
-      | fol_atom p v   => flat_map fo_term_vars (vec_list v)
+      | ⊥             => nil
+      | fol_atom p v  => flat_map fo_term_vars (vec_list v)
       | fol_bin c A B => fol_vars A ++ fol_vars B
       | fol_quant q A => flat_map (fun n => match n with 0 => nil | S n => n::nil end)
                            (fol_vars A) 
@@ -80,10 +79,10 @@ Section fol_subst.
     end.
 
   Fact fol_syms_bin b A B : fol_syms (fol_bin b A B) = fol_syms A ++ fol_syms B.
-  Proof. auto. Qed.
+  Proof. trivial. Qed.
 
   Fact fol_syms_quant q A : fol_syms (fol_quant q A) = fol_syms A.
-  Proof. auto. Qed.
+  Proof. trivial. Qed.
 
   Fixpoint fol_rels (A : 𝔽) :=
     match A with
@@ -94,10 +93,10 @@ Section fol_subst.
     end.
 
   Fact fol_rels_bin b A B : fol_rels (fol_bin b A B) = fol_rels A ++ fol_rels B.
-  Proof. auto. Qed.
+  Proof. trivial. Qed.
 
   Fact fol_rels_quant q A : fol_rels (fol_quant q A) = fol_rels A.
-  Proof. auto. Qed.
+  Proof. trivial. Qed.
 
   Fixpoint fol_subst σ (A : 𝔽) :=
     match A with
@@ -120,8 +119,7 @@ Section fol_subst.
       apply in_vec_list; auto.
     + apply IHA; intros n Hn; apply Hfg, in_or_app; auto.
     + apply IHB; intros n Hn; apply Hfg, in_or_app; auto.
-    + apply IHA; intros [ | n ] Hn; simpl; auto.
-      rew fot.
+    + apply IHA; intros [ | n ] Hn; simpl; auto; rew fot.
       f_equal; apply Hfg; simpl.
       apply in_flat_map; exists (S n); simpl; auto. 
   Qed.
@@ -273,6 +271,9 @@ End fol_subst.
 
 Notation "A ⦃ σ ⦄" := (fol_subst σ A).
 
+Notation fol_lconj := (@fol_bigop _ fol_conj (⊥⤑⊥)).
+Notation fol_ldisj := (@fol_bigop _ fol_disj ⊥).
+
 Section fol_semantics.
 
   Variable (Σ : fo_signature) 
@@ -320,6 +321,33 @@ Section fol_semantics.
       exists (S n); simpl; auto.
   Qed.
 
+  Section decidable.
+
+    (** REMARK: not requiring the fom_rels M s relation to be decidable
+        would allow hiding uncomputability inside the model which
+        would be kind of cheating. The semantic relation should be
+        decidable, only the (finite) satisfiability relation should 
+        be undec *)
+
+    (** For the semantics relation to be decidable over a finite domain,
+        it is necessary and SUFFICIENT that the sem_pred relation is decidable
+        or equivalently, each predicate is interpreted as a map: vec X _ -> bool *)
+
+    Variable (M_fin : finite_t X).
+    Variable (rels_dec : fo_model_dec M).
+
+    Theorem fol_sem_dec A φ : { ⟪A⟫ φ } + { ~ ⟪A⟫ φ }.
+    Proof.
+      revert φ.
+      induction A as [ | p v | b A IHA B IHB | q A IHA ]; intros phi.
+      + simpl; tauto.
+      + simpl; apply rels_dec.
+      + simpl fol_sem; apply fol_bin_sem_dec; auto.
+      + simpl fol_sem; apply fol_quant_sem_dec; auto.
+    Qed.
+
+  End decidable.
+
   (** Semantics commutes with substitutions ... good *)
 
   Theorem fol_sem_subst φ σ A : ⟪ A⦃σ⦄ ⟫ φ <-> ⟪A⟫ (fun n => ⟦σ n⟧ φ).
@@ -339,9 +367,7 @@ Section fol_semantics.
 
   (** Bigops, ie finitary conjunction and disjunction *)
 
-  Definition fol_lconj := @fol_bigop Σ fol_conj (⊥⤑⊥).
-
-  Fact fol_sem_lconj lf φ : ⟪ fol_lconj lf ⟫ φ <-> forall f, In f lf -> ⟪ f ⟫ φ.
+  Fact fol_sem_lconj lf φ : ⟪fol_lconj lf⟫ φ <-> forall f, In f lf -> ⟪ f ⟫ φ.
   Proof.
     induction lf as [ | f lf IHlf ]; simpl.
     + split; tauto.
@@ -351,9 +377,17 @@ Section fol_semantics.
       * intros H; split; intros; apply H; auto.
   Qed.
 
-  Definition fol_ldisj := @fol_bigop Σ fol_disj ⊥.
+  Fact fol_sem_lconj_app l m φ : 
+            ⟪ fol_lconj (l++m) ⟫ φ 
+        <-> ⟪ fol_lconj l ⟫ φ 
+         /\ ⟪ fol_lconj m ⟫ φ.
+  Proof.
+    do 3 rewrite fol_sem_lconj; split.
+    + intros H; split; intros; apply H, in_app_iff; firstorder.
+    + intros (H1 & H2) f; rewrite in_app_iff; firstorder.
+  Qed.
 
-  Fact fol_sem_ldisj lf φ : ⟪ fol_ldisj lf ⟫ φ <-> exists f, In f lf /\ ⟪ f ⟫ φ.
+  Fact fol_sem_ldisj lf φ : ⟪fol_ldisj lf⟫ φ <-> exists f, In f lf /\ ⟪ f ⟫ φ.
   Proof.
     induction lf as [ | f lf IHlf ]; simpl.
     + split; try tauto; intros ( ? & [] & _).
@@ -366,9 +400,10 @@ Section fol_semantics.
         right; exists g; auto.
   Qed.
 
-  Fact fol_sem_ldisj_app l m φ : ⟪ fol_ldisj (l++m) ⟫ φ 
-                             <-> ⟪ fol_ldisj l ⟫ φ 
-                              \/ ⟪ fol_ldisj m ⟫ φ.
+  Fact fol_sem_ldisj_app l m φ : 
+            ⟪ fol_ldisj (l++m) ⟫ φ 
+        <-> ⟪ fol_ldisj l ⟫ φ 
+         \/ ⟪ fol_ldisj m ⟫ φ.
   Proof.
     do 3 rewrite fol_sem_ldisj; split.
     + intros (f & H1 & H2); revert H1; rewrite in_app_iff; firstorder.
@@ -379,15 +414,13 @@ Section fol_semantics.
 
   Fact fol_syms_vec_fa n A : fol_syms (@fol_vec_fa n A) = flat_map (@fol_syms _) (vec_list A).
   Proof.
-    unfold fol_vec_fa, fol_lconj.
-    rewrite fol_syms_bigop; simpl.
+    unfold fol_vec_fa; rewrite fol_syms_bigop; simpl.
     rewrite app_nil_end; auto. 
   Qed.
 
   Fact fol_rels_vec_fa n A : fol_rels (@fol_vec_fa n A) = flat_map (@fol_rels _) (vec_list A).
   Proof.
-    unfold fol_vec_fa, fol_lconj.
-    rewrite fol_rels_bigop; simpl.
+    unfold fol_vec_fa; rewrite fol_rels_bigop; simpl.
     rewrite app_nil_end; auto. 
   Qed.
  
@@ -451,37 +484,12 @@ Section fol_semantics.
         exists v, x; auto.
   Qed.
 
-  Section decidable.
-
-    (** REMARK: not requiring the sem_pred relation to be decidable
-        would allow hiding uncomputability inside the model which
-        would be kind of cheating. The semantic relation should be
-        decidable, only the (finite) satisfiability relation should 
-        be undec *)
-
-    (** For the semantics relation to be decidable over a finite domain,
-        it is necessary and SUFFICIENT that the sem_pred relation is decidable
-       or equivalently, each predicate is interpreted as a map: vec X _ -> bool *)
-
-    Variable (M_fin : finite_t X).
-    Variable (rels_dec : fo_model_dec M).
-
-    Theorem fol_sem_dec A φ : { ⟪A⟫ φ } + { ~ ⟪A⟫ φ }.
-    Proof.
-      revert φ.
-      induction A as [ | p v | b A IHA B IHB | q A IHA ]; intros phi.
-      + simpl; tauto.
-      + simpl; apply rels_dec.
-      + simpl fol_sem; apply fol_bin_sem_dec; auto.
-      + simpl fol_sem; apply fol_quant_sem_dec; auto.
-    Qed.
-
-  End decidable.
-
 End fol_semantics.
 
+(*
 Notation fol_sem_big_conj := fol_sem_lconj.
 Notation fol_sem_big_disj := fol_sem_ldisj.
+*)
 
 Section fo_model_simulation.
 
@@ -637,4 +645,3 @@ Section fo_model_projection.
 
 End fo_model_projection.
 
-Check fo_model_projection.

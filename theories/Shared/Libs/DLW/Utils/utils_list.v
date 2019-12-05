@@ -377,6 +377,23 @@ Section flat_map.
 
 End flat_map.
 
+Fact in_concat_iff X (ll : list (list X)) x : In x (concat ll) <-> exists l, In x l /\ In l ll.
+Proof.
+  rewrite <- (map_id ll) at 1.
+  rewrite <- flat_map_concat_map, in_flat_map.
+  firstorder.
+Qed.
+
+Fact flat_map_flat_map X Y Z (f : X -> list Y) (g : Y -> list Z) l : 
+       flat_map g (flat_map f l) = flat_map (fun x => flat_map g (f x)) l.
+Proof.
+  induction l; simpl; auto.
+  rewrite flat_map_app; f_equal; auto.
+Qed.
+
+Fact flat_map_single X Y (f : X -> Y) l : flat_map (fun x => f x::nil) l = map f l.
+Proof. induction l; simpl; f_equal; auto. Qed.
+
 Section list_in_map.
 
   Variable (X Y : Type).
