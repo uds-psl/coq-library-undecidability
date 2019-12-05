@@ -9,6 +9,9 @@
 
 Require Import List Arith Bool Lia Eqdep_dec.
 
+
+(* From Undecidability Require Import ILL.Definitions. *)
+
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
 
@@ -76,7 +79,7 @@ Section remove_constants.
     Notation "⟪ A ⟫" := (fun φ => fol_sem M φ A).
     Notation "⟪ A ⟫'" := (fun ψ => fol_sem M' ψ A).
 
-    Theorem soundness σ (A : 𝔽) φ ψ :
+    Local Fact soundness σ (A : 𝔽) φ ψ :
             (forall s, In s ls -> In (σ s) (fol_vars A) -> False)
          -> (forall n, In n (fol_vars A) -> φ n = ψ n)
          -> (forall s, In s ls -> ψ (σ s) = fom_syms M s (cast ø (eq_sym (HΣ s))))
@@ -101,7 +104,8 @@ Section remove_constants.
         - rewrite H3; f_equal; auto.
           2: apply H6; rew fot; simpl; auto.
           clear H5 H6.
-          revert w; rewrite HΣ; intros w; auto.
+          revert w; rewrite HΣ; intros w.
+          vec nil w; auto.
       + apply fol_bin_sem_ext.
         * apply HA; auto.
           - intros s G1 G2; apply (H1 _ G1), in_app_iff; auto.
@@ -136,7 +140,7 @@ Section remove_constants.
 
     Notation M := Σadd_cst_model.
 
-    Theorem completeness σ (A : 𝔽) φ ψ :
+    Local Fact completeness σ (A : 𝔽) φ ψ :
             (forall s, In s ls -> In (σ s) (fol_vars A) -> False)
          -> (forall n, In n (fol_vars A) -> φ n = ψ n)
          -> incl (fol_syms A) ls
@@ -183,7 +187,115 @@ End remove_constants.
 
 Section reduction.
 
-Check encode.
+  Variable (Σ  : fo_signature) 
+           (Σ0 : forall s, ar_syms Σ s = 0)
+           (Σd : discrete (syms Σ)).
+
+
+  Section syms_map.
+
+    Variable A : fol_form Σ.
+
+    Let ls := fol_syms A.
+    Let K := list_discr_pos_n Σd ls.
+
+    Let n := projT1 K.
+    Let v : vec _ n := projT1 (projT2 K).
+    Let g : _ -> option (pos n) := proj1_sig (projT2 (projT2 K)).
+
+    Let HK := proj2_sig (projT2 (projT2 K)).
+
+    Let H1 x : in_vec x v <-> In x ls.
+    Proof. apply (proj1 HK). Qed.
+
+    Let H2 x : In x ls <-> g x <> None.
+    Proof. apply (proj1 (proj2 HK)). Qed.
+
+    Let H3 p : g (vec_pos v p) = Some p.
+    Proof. apply (proj1 (proj2 (proj2 HK))). Qed.
+
+    Let H4 x p : g x = Some p -> vec_pos v p = x.
+    Proof. apply (proj2 (proj2 (proj2 HK))). Qed.
+
+    Let σ s := 
+      match g s with 
+        | Some p => pos2nat p
+        | None   => 0
+      end.
+
+    Let f x : option (syms Σ) :=
+      match le_lt_dec n x with
+        | left _  => None
+        | right H => Some (vec_pos v (nat2pos H))
+      end.
+
+    Let Hfσ s : In s ls -> f (σ s) = Some s.
+    Proof.
+      rewrite H2.
+      unfold f, σ.
+      generalize (H4 s).
+      destruct (g s) as [ p | ].
+      + intros E _.
+        specialize (E _ eq_refl); subst.
+        generalize (pos2nat_prop p).
+        destruct (le_lt_dec n (pos2nat p)) as [ | H ].
+        * intros; exfalso; lia.
+        * rewrite nat2pos_pos2nat; auto.
+      + intros _ []; auto.
+    Qed.
+
+    Local Fact syms_map : { σ  : syms Σ -> nat           & 
+                          { f  : nat -> option (syms Σ)  |
+                            forall s, In s ls -> f (σ s) = Some s } }.
+    Proof. exists σ, f; auto. Qed.
+ 
+  End syms_map.
+
+  Hint Resolve incl_refl.
+
+  Theorem Sig_rem_cst_dep_red A : { B | @fo_form_fin_dec_SAT Σ A <-> @fo_form_fin_dec_SAT (Σrem_cst Σ) B }.
+  Proof.
+    generalize (fol_vars_max_spec A).
+    set (m := fol_vars_max A); intros Hm.
+    destruct (syms_map A) as (g & f & Hfg).
+    set (σ s := g s + S m).
+    exists (encode σ A).
+    split.
+    + intros (X & M & G1 & G2 & phi & G3).
+      exists X, (Σrem_cst_model M), G1.
+      exists. { intros r; simpl; apply G2. }
+      set (psi n := 
+        match le_lt_dec (S m) n with
+          | left _  => 
+          match f (n - S m) with 
+            | Some s => fom_syms M s (cast ø (eq_sym (Σ0 _)))
+            | None   => phi 0
+          end
+          | right _ => phi n 
+        end).
+      exists psi.
+      revert G3; apply soundness with (HΣ := Σ0) (ls := fol_syms A); auto.
+      * intros s Hs; unfold σ; intros H.
+        apply Hm in H; lia.
+      * intros n Hn; apply Hm in Hn.
+        unfold psi.
+        destruct (le_lt_dec (S m) n); try lia; auto.
+      * intros s Hs.
+        unfold psi, σ.
+        apply Hfg in Hs. 
+        replace (g s + S m - S m) with (g s) by lia.
+        rewrite Hs.
+        destruct (le_lt_dec (S m) (g s + S m)); auto; lia.
+    + intros (X & M' & G1 & G2 & psi & G3).
+      exists X, (Σadd_cst_model M' σ psi), G1.
+      exists. { intros r; simpl; apply G2. }
+      exists psi.
+      revert G3; apply completeness with (ls := fol_syms A); auto.
+      intros s Hs; unfold σ; intros H.
+      apply Hm in H; lia.
+  Qed.
 
 End reduction.
+
+
 

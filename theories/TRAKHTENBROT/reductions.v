@@ -23,9 +23,20 @@ From Undecidability.Shared.Libs.DLW.Wf
 From Undecidability.TRAKHTENBROT
   Require Import notations fol_ops fo_terms fo_logic fo_sat discrete 
                  Sig3_Sig2 Sig32_Sig2 bpcp fol_bpcp Sig2_Sign Sign_Sig 
-                 Sig_rem_syms Sig_noeq Sig_uniform Sig_one_rel.
+                 Sig_rem_syms Sig_noeq Sig_uniform Sig_one_rel Sig_rem_cst.
 
 Set Implicit Arguments.
+
+Fact reduction_dependent X Y (P : X -> Prop) (Q : Y -> Prop) :
+        P ⪯ Q <-> inhabited (forall x, { y | P x <-> Q y }).
+Proof.
+  split.
+  + intros (f & Hf); exists.
+    intros x; exists (f x); auto.
+  + intros [f].
+    exists (fun x => proj1_sig (f x)).
+    intros; apply (proj2_sig (f x)).
+Qed.
 
 (* Some ideas for notations and terminology
 
@@ -334,21 +345,20 @@ Qed.
 Check FIN_DEC_REL_UNIF_SAT_FIN_DEC_CST_ONE_SAT.
 Print Assumptions FIN_DEC_REL_UNIF_SAT_FIN_DEC_CST_ONE_SAT.
 
-Definition Σrem_cst (Σ : fo_signature) : fo_signature.
-Proof.
-  exists Empty_set (rels Σ).
-  + intros [].
-  + apply ar_rels.
-Defined.
+Print Σrem_cst.
 
 Theorem FIN_DEC_SAT_FIN_DEC_NOCST_SAT Σ :
              (forall s, ar_syms Σ s = 0)
-          -> finite (syms Σ)
           -> discrete (syms Σ)
           -> @fo_form_fin_dec_SAT Σ ⪯ @fo_form_fin_dec_SAT (Σrem_cst Σ).
 Proof.
-  (** To be filled by Dominique after importing Dominik's code *)
-Admitted.
+  intros H1 H2.
+  apply reduction_dependent; exists.
+  apply Sig_rem_cst_dep_red; auto.
+Qed.
+
+Check FIN_DEC_SAT_FIN_DEC_NOCST_SAT.
+Print Assumptions FIN_DEC_SAT_FIN_DEC_NOCST_SAT.
 
 Section FULL_TRAKHTENBROT.
 

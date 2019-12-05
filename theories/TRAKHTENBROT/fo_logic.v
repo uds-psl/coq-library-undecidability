@@ -10,13 +10,13 @@
 Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils
-  Require Import utils_tac utils_list finite.
+  Require Import utils_tac utils_list utils_nat finite.
 
 From Undecidability.Shared.Libs.DLW.Vec 
   Require Import pos vec.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations fol_ops fo_terms.
+  Require Import notations utils fol_ops fo_terms.
 
 Set Implicit Arguments.
 
@@ -94,6 +94,11 @@ Section fol_subst.
       | fol_quant q A => flat_map (fun n => match n with 0 => nil | S n => n::nil end)
                            (fol_vars A) 
     end.
+
+  Definition fol_vars_max A := lmax (fol_vars A).
+
+  Fact fol_vars_max_spec A n : In n (fol_vars A) -> n <= fol_vars_max A.
+  Proof. apply lmax_prop. Qed.
 
   Fixpoint fol_syms (A : 𝔽) :=
     match A with

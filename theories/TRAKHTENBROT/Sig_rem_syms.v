@@ -93,34 +93,31 @@ Section Sig_remove_symbols.
       apply vec_pos_ext; intros; rew vec.
     Qed.
 
+    Opaque fo_term_syms.
+
     Fact fot_rem_syms_rels t : incl (fol_rels (fot_rem_syms t)) (inr (inl tt)::map inl (fo_term_syms t)).
     Proof.
-      induction t as [ n | s v IHv ] using fo_term_pos_rect.
+      induction t as [ n | s v IHv ].
       + rewrite fot_rem_syms_fix0; cbv; tauto.
       + rewrite fot_rem_syms_fix1; simpl.
         rewrite fol_rels_mquant; simpl.
         unfold fol_vec_fa, fol_lconj.
         rewrite fol_rels_bigop.
         intros r; simpl.
-        rewrite in_app_iff, in_flat_map.
-        intros [ <- | [ H | [] ] ]; auto; revert H.
-        intros (A & H1 & H2); revert H2.
+        rewrite in_app_iff, in_map_iff, in_flat_map.
+        intros [ <- | [ H | [] ] ]; auto.
+        { right; exists s; auto; rew fot; simpl; auto. } 
+        revert H; intros (A & H1 & H2); revert H2.
         apply vec_list_inv in H1.
         destruct H1 as (p & ->); rew vec.
         rewrite fol_rels_subst.
         intros H; apply IHv in H; revert H.
         simpl; rewrite in_map_iff.
         intros [ <- | (s' & <- & Hs') ]; auto.
-        do 2 right.
-        rewrite in_map_iff; exists s'; split; auto.
-        rewrite in_concat_iff.
-        exists (fo_term_syms (vec_pos v p)); split; auto.
-        rewrite <- vec_map_set_pos, vec_list_vec_map, in_map_iff.
+        right; exists s'; split; auto; rew fot.
+        right; rewrite in_flat_map.
         exists (vec_pos v p); split; auto.
-        apply in_vec_list.
-        replace (vec_set_pos (vec_pos v)) with v.
-        * apply in_vec_pos.
-        * apply vec_pos_ext; intros; rew vec.
+        apply in_vec_list, in_vec_pos.
     Qed.
  
     Fact fot_rem_syms_spec t X M φ ψ : 
@@ -129,8 +126,7 @@ Section Sig_remove_symbols.
         <-> fol_sem (@fom_nosyms X M) ψ (fot_rem_syms t).
     Proof.
       revert X M φ ψ.
-      induction t as [ n | s v IHv ] using fo_term_pos_rect; 
-        intros X M phi psi H2.
+      induction t as [ n | s v IHv ]; intros X M phi psi H2.
       + destruct M as (re,sy); simpl; rewrite <- H2; tauto.
       + specialize (fun p => IHv p X M).
         rewrite fot_rem_syms_fix1.

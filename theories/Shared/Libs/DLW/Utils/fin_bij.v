@@ -10,7 +10,7 @@
 Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils
-  Require Import fin_base fin_choice.
+  Require Import utils_tac fin_base fin_choice.
 
 From Undecidability.Shared.Libs.DLW.Vec
   Require Import pos vec.
@@ -66,6 +66,66 @@ Proof.
     1,2: destruct H1; subst; apply in_vec_list, in_vec_pos.
     f_equal; apply IHv; auto.
 Qed.
+
+Section list_discr_vec.
+
+  Variable (X : Type) (D : forall x y : X, { x = y } + { x <> y }).
+
+  Fact vec_search n (v : vec X n) x : { p | x = vec_pos v p } + { ~ in_vec x v }.
+  Proof.
+    induction v as [ | n y v [ (p & ->) | H ] ].
+    + right; simpl; auto.
+    + left; exists (pos_nxt p); auto.
+    + destruct (D y x).
+      * left; exists pos0; auto.
+      * right; contradict H; simpl in H; tauto.
+  Qed.
+
+  Variable (ll : list X).
+
+  Let l := nodup D ll.
+  Let Hl1 : NoDup l := NoDup_nodup D ll.
+  Let Hl2 : forall x, In x l <-> In x ll := nodup_In D ll.
+
+  Let v := proj1_sig (list_vec_full l).
+  Let Hv : vec_list v = l := proj2_sig (list_vec_full l).
+
+  Let f x := 
+    match vec_search v x with
+      | inleft (exist _ p Hp) => Some p
+      | inright _             => None
+    end. 
+
+  Fact list_discr_pos_n :
+         { n : nat & 
+         { v : vec X n &
+         { f : X -> option (pos n)  
+         |  (forall x, in_vec x v <-> In x ll)
+         /\ (forall x, In x ll <-> f x <> None) 
+         /\ (forall p, f (vec_pos v p) = Some p)
+         /\ (forall x p, f x = Some p -> vec_pos v p = x) } } }.
+  Proof.
+    exists (length l), v, f; msplit 3.
+    + intro; rewrite in_vec_list, Hv; apply Hl2.
+    + intros x; rewrite <- Hl2.
+      rewrite <- Hv at 1.
+      unfold f.
+      destruct (vec_search v x) as [ (p & ->) | H ].
+      * rewrite <- in_vec_list; split; try discriminate.
+        intros _; apply in_vec_pos.
+      * rewrite <- in_vec_list; tauto.
+    + intros p; unfold f. 
+      destruct (vec_search v (vec_pos v p)) as [ (q & Hq) | H ].
+      * apply NoDup_vec_list in Hq; subst; auto.
+        rewrite Hv; auto.
+      * destruct H; apply in_vec_pos.
+    + intros x p; unfold f.
+      destruct (vec_search v x) as [ (q & ->) | H ].
+      * inversion 1; auto.
+      * discriminate.
+  Qed.
+
+End list_discr_vec.
 
 Fact finite_t_discrete_bij_t_pos X : 
         finite_t X

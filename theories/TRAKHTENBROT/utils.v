@@ -63,6 +63,17 @@ Proof.
   firstorder.
 Qed.
 
+Fact flat_map_flat_map X Y Z (f : X -> list Y) (g : Y -> list Z) l : 
+       flat_map g (flat_map f l) = flat_map (fun x => flat_map g (f x)) l.
+Proof.
+  induction l; simpl; auto.
+  rewrite flat_map_app; f_equal; auto.
+Qed.
+
+Fact flat_map_single X Y (f : X -> Y) l : flat_map (fun x => f x::nil) l = map f l.
+Proof. induction l; simpl; f_equal; auto. Qed.
+
+
 Section rel_chain.
 
   (* l = [s1;...;sn] 
