@@ -34,9 +34,9 @@ Section Sig2_Sig_n_encoding.
   Fixpoint Σ2_Σn (A : fol_form Σ2) : fol_form Σn :=
     match A with
       | ⊥              => ⊥
-      | fol_atom _ _ v => let x := Σrel_var (vec_head v)            in
+      | fol_atom   _ v => let x := Σrel_var (vec_head v)            in
                           let y := Σrel_var (vec_head (vec_tail v)) 
-                          in  fol_atom Σn tt (£x##vec_set_pos (fun _ => £y))
+                          in  @fol_atom Σn tt (£x##vec_set_pos (fun _ => £y))
       | fol_bin b A B  => fol_bin b (Σ2_Σn A) (Σ2_Σn B)
       | fol_quant q A  => fol_quant q (Σ2_Σn A)
      end.

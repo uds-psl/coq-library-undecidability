@@ -9,10 +9,15 @@
 
 Require Import List Arith Lia.
 
+From Undecidability.Shared.Libs.DLW.Vec 
+  Require Import pos vec.
+
 From Undecidability.TRAKHTENBROT
   Require Import notations.
 
 Set Implicit Arguments.
+
+(** Syntax, FO signatures *)
 
 Record fo_signature := Mk_fo_signature {
   syms : Type;
@@ -72,3 +77,39 @@ Proof.
       end).
   + exact (fun _ => 2).
 Defined.
+
+(** Semantics: FO models *)
+
+Record fo_model Σ (X : Type) := Mk_fo_model {
+  fom_syms : forall s, vec X (ar_syms Σ s) -> X;
+  fom_rels : forall r, vec X (ar_rels Σ r) -> Prop }.
+
+(** FO model decidability/computability *)
+
+Definition fo_model_dec Σ X (M : fo_model Σ X) := 
+  forall r (v : vec _ (ar_rels _ r)), { fom_rels M r v } + { ~ fom_rels M r v }.
+
+(** FO model from a binary rel *)
+
+Definition rel2_on_vec X (R : X -> X -> Prop) (v : vec X 2) : Prop :=
+  R (vec_head v) (vec_head (vec_tail v)).
+
+Arguments rel2_on_vec {X} R v /.
+
+Section bin_rel_Σ2.
+
+  Variable (X : Type) (R : X -> X -> Prop).
+
+  Definition bin_rel_Σ2 : fo_model (Σrel 2) X.
+  Proof.
+    exists; intros [].
+    exact (rel2_on_vec R).
+  Defined.
+
+  Hypothesis HR : forall x y, { R x y } + { ~ R x y }.
+
+  Fact bin_rel_Σ2_dec : fo_model_dec bin_rel_Σ2.
+  Proof. intros [] v; apply HR. Qed.
+
+End bin_rel_Σ2.
+

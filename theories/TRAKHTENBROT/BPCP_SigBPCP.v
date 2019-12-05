@@ -35,17 +35,17 @@ Section BPCP_FIN_DEC_EQ_SAT.
 
   Variable lc : list (list bool * list bool).  (** A BPCP instance *)
 
-  Notation 𝕋 := (fo_term nat (ar_syms Σbpcp)).
+  Notation 𝕋 := (fol_term Σbpcp).
   Notation 𝔽 := (fol_form Σbpcp).
 
-  Notation e := (in_fot Σbpcp_unit ø).
-  Notation "∗" := (in_fot Σbpcp_undef ø).
-  Notation "b ⤚ x" := (@in_fot nat _ (ar_syms Σbpcp) (Σbpcp_bool b) (x##ø)) (at level 51, right associativity, format "b ⤚ x").
+  Notation e := (@in_fot _ (ar_syms Σbpcp) Σbpcp_unit ø).
+  Notation "∗" := (@in_fot _ (ar_syms Σbpcp) Σbpcp_undef ø).
+  Notation "b ⤚ x" := (@in_fot _ (ar_syms Σbpcp) (Σbpcp_bool b) (x##ø)) (at level 51, right associativity, format "b ⤚ x").
 
   Notation "¬ x" := (x ⤑ ⊥) (at level 59).
-  Notation "x ⧓ y" := (fol_atom Σbpcp Σbpcp_hand (x##y##ø)) (at level 58).
-  Notation "x ≺ y" := (fol_atom Σbpcp Σbpcp_ssfx (x##y##ø)) (at level 58).
-  Notation "x ≡ y" := (fol_atom Σbpcp Σbpcp_eq (x##y##ø)) (at level 58).
+  Notation "x ⧓ y" := (@fol_atom Σbpcp Σbpcp_hand (x##y##ø)) (at level 58).
+  Notation "x ≺ y" := (@fol_atom Σbpcp Σbpcp_ssfx (x##y##ø)) (at level 58).
+  Notation "x ≡ y" := (@fol_atom Σbpcp Σbpcp_eq (x##y##ø)) (at level 58).
   Notation "x ≢ y" := (x ≡ y ⤑ ⊥) (at level 58).
 
   Local Definition lb_app l t := fold_right (fun b x => b ⤚ x) t l.
@@ -165,7 +165,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
     Notation sem_sym  := (fom_syms Σbpcp_model).
     Notation sem_pred := (fom_rels Σbpcp_model).
 
-    Notation "⟦ t ⟧" := (fun φ => fo_term_sem sem_sym φ t).
+    Notation "⟦ t ⟧" := (fun φ => fo_term_sem Σbpcp_model φ t).
     Notation "⟪ A ⟫" := (fun φ => fol_sem Σbpcp_model φ A).
 
     Let fot_sem_lb_app lb t φ : 
@@ -353,7 +353,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
     Notation sem_sym := (fom_syms M).
     Notation sem_pred := (fom_rels M).
 
-    Notation "⟦ t ⟧" := (fun φ => fo_term_sem sem_sym φ t).
+    Notation "⟦ t ⟧" := (fun φ => fo_term_sem M φ t).
     Notation "⟪ A ⟫" := (fun φ => fol_sem M φ A).
 
     Let fot_sem_lb_app l t φ : ⟦l⤜t⟧ φ = ⟦l⤜£0⟧ (φ↑(⟦t⟧φ)).

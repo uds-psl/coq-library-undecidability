@@ -53,48 +53,34 @@ Section Sig_remove_symbols.
       * exact (R r).
   Defined. 
 
-  Notation 𝕋 := (fo_term nat (ar_syms Σ)).
+  Notation 𝕋 := (fol_term Σ).
   Notation 𝔽 := (fol_form Σ).
 
-  Notation 𝕋' := (fo_term nat (ar_syms Σ')).
+  Notation 𝕋' := (fol_term Σ').
   Notation 𝔽' := (fol_form Σ').
 
   Section removing_symbols.
 
     Let f k (p : pos k) n : 𝕋' := match n with 0 => £ (pos2nat p) | S n => £ (n+1+k) end.
 
-    Fixpoint fot_rem_syms' (t : 𝕋) : 𝔽' :=
+    Fixpoint fot_rem_syms (t : 𝕋) : 𝔽' :=
       match t with
-        | in_var n   => fol_atom Σ' e (£0##£(S n)##ø)
+        | in_var n   => @fol_atom Σ' e (£0##£(S n)##ø)
         | in_fot s v => 
-            let A  := fol_atom Σ' (inl s) (£(ar_syms _ s)##vec_set_pos (fun p => £ (pos2nat p))) in
-            let wB := vec_set_pos (fun p => (fot_rem_syms' (vec_pos v p))⦃f p⦄) 
+            let A  := @fol_atom Σ' (inl s) (£(ar_syms _ s)##vec_set_pos (fun p => £ (pos2nat p))) in
+            let wB := vec_set_pos (fun p => (fot_rem_syms (vec_pos v p))⦃f p⦄) 
             in fol_mquant fol_ex (ar_syms _ s) (A ⟑ fol_vec_fa wB)
       end.
 
-    Definition fot_rem_syms : 𝕋 -> 𝔽'.
-    Proof.
-      induction 1 as [ n | s v w ] using fo_term_recursion.
-      + exact (fol_atom Σ' e (£0##£(S n)##ø)).
-      + exact (let A  := fol_atom Σ' (inl s) (£(ar_syms _ s)##vec_set_pos (fun p => £ (pos2nat p))) in
-               let wB := vec_set_pos (fun p => (vec_pos w p)⦃f p⦄) 
-               in fol_mquant fol_ex (ar_syms _ s) (A ⟑ fol_vec_fa wB)).
-    Defined.
-
-    Local Fact fot_rem_syms_fix0 n : fot_rem_syms (in_var n) = fol_atom Σ' e (£0##£(S n)##ø).
-    Proof. apply fo_term_recursion_fix_0. Qed.
+    Local Fact fot_rem_syms_fix0 n : fot_rem_syms (in_var n) = fol_atom e (£0##£(S n)##ø).
+    Proof. trivial. Qed.
 
     Local Fact fot_rem_syms_fix1 s v : 
                  fot_rem_syms (in_fot s v) 
-               = let A  := fol_atom Σ' (inl s) (£(ar_syms _ s)##vec_set_pos (fun p => £ (pos2nat p))) in
+               = let A  := @fol_atom Σ' (inl s) (£(ar_syms _ s)##vec_set_pos (fun p => £ (pos2nat p))) in
                  let wB := vec_set_pos (fun p => (fot_rem_syms (vec_pos v p))⦃f p⦄) 
                  in fol_mquant fol_ex (ar_syms _ s) (A ⟑ fol_vec_fa wB).
-    Proof.
-      unfold fot_rem_syms at 1.
-      rewrite fo_term_recursion_fix_1.
-      do 3 f_equal.
-      apply vec_pos_ext; intros; rew vec.
-    Qed.
+    Proof. trivial. Qed.
 
     Opaque fo_term_syms.
 
@@ -125,7 +111,7 @@ Section Sig_remove_symbols.
  
     Fact fot_rem_syms_spec t X M φ ψ : 
             (forall n, φ n = ψ (S n))
-         -> ψ 0 = fo_term_sem (fom_syms M) φ t 
+         -> ψ 0 = fo_term_sem M φ t 
         <-> fol_sem (@fom_nosyms X M) ψ (fot_rem_syms t).
     Proof.
       revert X M φ ψ.
@@ -133,11 +119,11 @@ Section Sig_remove_symbols.
       + destruct M as (re,sy); simpl; rewrite <- H2; tauto.
       + specialize (fun p => IHv p X M).
         rewrite fot_rem_syms_fix1.
-        destruct M as (sy,re); simpl.
         rewrite fol_sem_mexists.
         split.
         * intros H3.
-          exists (vec_set_pos (fun p => fo_term_sem sy phi (vec_pos v p))); split.
+          exists (vec_set_pos (fun p => fo_term_sem M phi (vec_pos v p))).
+          destruct M as (sy,re); simpl; split.
           - simpl. 
             replace (ar_syms _ s) with (0+ar_syms _ s) at 3 by lia.
             rewrite env_vlift_fix1; simpl; f_equal; rewrite H3; simpl; f_equal.
@@ -155,6 +141,7 @@ Section Sig_remove_symbols.
             replace (n+1+ar_syms _ s) with ((S n)+ar_syms _ s) by lia.
             rewrite env_vlift_fix1; auto.
         * intros (w & Hw1 & Hw2).
+          destruct M as (sy,re); simpl.
           simpl in Hw1.
           replace (ar_syms _ s) with (0+ar_syms _ s) in Hw1 at 2 by lia.
           rewrite env_vlift_fix1 in Hw1.
@@ -180,7 +167,7 @@ Section Sig_remove_symbols.
     Fixpoint fol_rem_syms A : 𝔽' :=
       match A with
         | ⊥               => ⊥
-        | fol_atom _ r v  => let A  := fol_atom Σ' (inr (inr r)) (vec_set_pos (fun p => £ (pos2nat p))) in
+        | fol_atom r v    => let A  := @fol_atom Σ' (inr (inr r)) (vec_set_pos (fun p => £ (pos2nat p))) in
                              let wB := vec_set_pos (fun p => (fot_rem_syms (vec_pos v p))⦃f p⦄)
                              in  fol_mquant fol_ex (ar_rels _ r) (A ⟑ fol_vec_fa wB)
         | fol_bin c A B   => fol_bin c (fol_rem_syms A) (fol_rem_syms B)
@@ -232,7 +219,7 @@ Section Sig_remove_symbols.
       + simpl; tauto.
       + simpl; rewrite fol_sem_mexists; split.
         * intros H; simpl in H |- *.
-          exists (vec_map (fo_term_sem (fom_syms M) phi) v); split.
+          exists (vec_map (fo_term_sem M phi) v); split.
           - revert H; apply fol_equiv_ext.
             unfold fom_nosyms; destruct M as (re,sy); simpl; f_equal.
             apply vec_pos_ext; intros p; rew vec; rew fot.
@@ -270,9 +257,9 @@ Section Sig_remove_symbols.
   Definition fol_rel_fun (s : syms Σ) : 𝔽' := 
        let n := ar_syms _ s
        in ∀∀ fol_mquant fol_fa n (   
-              fol_atom Σ' (inl s) (£(S n)##vec_set_pos (fun p => £(pos2nat p))) 
-                     ⤑ fol_atom Σ' (inl s) (£n##vec_set_pos (fun p => £(pos2nat p)))
-                     ⤑ fol_atom _ e (£(S n)##£n##ø) ).
+              @fol_atom Σ' (inl s) (£(S n)##vec_set_pos (fun p => £(pos2nat p))) 
+                     ⤑ @fol_atom Σ' (inl s) (£n##vec_set_pos (fun p => £(pos2nat p)))
+                     ⤑ @fol_atom Σ' e (£(S n)##£n##ø) ).
 
   Fact fol_rel_fun_spec s φ : fol_sem M φ (fol_rel_fun s)  <-> graph_fun (fun v x => fom_rels M (inl s) (x##v)).
   Proof.
@@ -309,7 +296,7 @@ Section Sig_remove_symbols.
  
   Definition fol_rel_tot (s : syms Σ) : 𝔽' := 
        let n := ar_syms _ s
-       in fol_mquant fol_fa n (∃ fol_atom Σ' (inl s) (£0##vec_set_pos (fun p => £(1+pos2nat p)))). 
+       in fol_mquant fol_fa n (∃ @fol_atom Σ' (inl s) (£0##vec_set_pos (fun p => £(1+pos2nat p)))). 
 
   Fact fol_rel_tot_spec s φ : fol_sem M φ (fol_rel_tot s) <-> graph_tot (fun v x => fom_rels M (inl s) (x##v)).
   Proof.

@@ -52,10 +52,10 @@ Section remove_interpreted.
             (ls : list (syms Σ)) (lr : list (rels Σ))
             (He : In e lr). 
 
-  Notation 𝕋 := (fo_term nat (ar_syms Σ)).
+  Notation 𝕋 := (fol_term Σ).
   Notation 𝔽 := (fol_form Σ).
 
-  Notation "x ≡ y" := (fol_atom Σ e (eq_rect_r _ (x##y##ø) H_ae)) (at level 59).
+  Notation "x ≡ y" := (@fol_atom Σ e (eq_rect_r _ (x##y##ø) H_ae)) (at level 59).
 
   Section encode_congruence.
 
@@ -63,7 +63,7 @@ Section remove_interpreted.
 
   Notation "x ≈ y" := (fom_rels M e (eq_rect_r _ (x##y##ø) H_ae)).
 
-  Local Fact fol_sem_e x y φ : fol_sem M φ (x ≡ y) = fo_term_sem (fom_syms M) φ x ≈ fo_term_sem (fom_syms M) φ y.
+  Local Fact fol_sem_e x y φ : fol_sem M φ (x ≡ y) = fo_term_sem M φ x ≈ fo_term_sem M φ y.
   Proof.
     simpl; f_equal.
     rewrite H_ae; unfold eq_rect_r; simpl; auto.
@@ -191,8 +191,8 @@ Section remove_interpreted.
     Let n := ar_rels _ r.
 
     Let A := fol_vec_equiv n.
-    Let B := fol_atom Σ r (vec_set_pos (fun p => £(pos2nat p))).
-    Let C := fol_atom Σ r (vec_set_pos (fun p => £(pos2nat p+n))).
+    Let B := @fol_atom Σ r (vec_set_pos (fun p => £(pos2nat p))).
+    Let C := @fol_atom Σ r (vec_set_pos (fun p => £(pos2nat p+n))).
 
     Let HsA : incl (fol_syms A) nil.       Proof. apply fol_vec_equiv_syms. Qed.
     Let HrA : incl (fol_rels A) (e::nil).  Proof. apply fol_vec_equiv_rels. Qed.

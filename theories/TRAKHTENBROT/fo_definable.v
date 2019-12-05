@@ -30,7 +30,7 @@ Section fo_definability.
            (X : Type) (M : fo_model Σ X).
 
   Definition fot_definable (f : (nat -> X) -> X) := 
-       { t | incl (fo_term_syms t) ls /\ forall φ, fo_term_sem (fom_syms M) φ t = f φ }.
+       { t | incl (fo_term_syms t) ls /\ forall φ, fo_term_sem M φ t = f φ }.
 
   Definition fol_definable (R : (nat -> X) -> Prop) :=
        { A | incl (fol_syms A) ls 
@@ -75,7 +75,7 @@ Section fo_definability.
   Proof.
     intros H0 H; apply vec_reif_t in H.
     destruct H as (w & Hw).
-    exists (@in_fot nat _ _ _ w); split; rew fot.
+    exists (in_fot _ w); split; rew fot.
     + intros x [ -> | H ]; auto; revert H.
       rewrite in_flat_map.
       intros (t & H1 & H2).
@@ -475,50 +475,6 @@ Section extra.
   End rel_chain.
 
 End extra.
-
-Section fo_term_rsem.
-
-    Variable (sy : Type) (ar : sy -> nat)
-             (Σ : fo_signature) (ls : list (syms Σ)) (lr : list (rels Σ))
-             (X : Type) (M : fo_model Σ X).
-
-   Let env_vec (φ : nat -> X) n := vec_set_pos (fun p => φ (@pos2nat n p)).
-   Let env_env (φ : nat -> X) n k := φ (n+k).
-
-    Variable (R : forall s, vec X (ar s) -> X -> Prop).
-
-    Hypothesis H0 : fol_definable ls lr M (fun φ => φ 0 = φ 1).
-    Hypothesis HR : forall s, fol_definable ls lr M (fun φ => R (env_vec φ (ar s)) (env_env φ (ar s) 0)).
-
-    Theorem fol_def_rsem (t : fo_term nat ar) : fol_definable ls lr M (fun φ => fo_term_rsem R (fun n r => r = φ (S n)) t (φ 0)).
-    Proof.
-      induction t as [ n | s v IHv ] using fo_term_pos_rect.
-      + apply fol_def_equiv with (R := fun phi => phi 0 = phi (S n)).
-        * intros phi; rew fot; tauto.
-        * apply fol_def_subst2; auto; fol def.
-      + apply fol_def_equiv with (R := fun phi => exists w, R w (phi 0) /\ forall p, fo_term_rsem R (fun n r => r = phi (S n)) (vec_pos v p) (vec_pos w p)).
-        { symmetry; apply fo_term_rsem_fix_1. }
-        apply fol_def_vec_ex.
-        apply fol_def_conj; auto.
-        1: apply HR.
-        apply fol_def_finite_fa.
-        * apply finite_t_pos.
-        * intros p; specialize (IHv p).
-          unfold env_vec, env_env.
-          apply fol_def_equiv with (R := fun φ => fo_term_rsem R (fun n r => r = φ (ar s + S n)) (vec_pos v p) (φ (pos2nat p))).
-          - intros phi; rew vec; tauto.
-          - apply fol_def_subst with (f := fun n => 
-                match n with 
-                  | 0   => fun phi => phi (pos2nat p)
-                  | _   => fun phi => phi (ar s + n)
-                end) in IHv; auto.
-            intros []; fol def.
-    Qed.
-
-End fo_term_rsem.
-     
-
-Check fol_def_rsem.
 
 
 

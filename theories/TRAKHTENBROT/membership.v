@@ -282,7 +282,7 @@ Section FOL_encoding.
   Let mem a b := fom_rels M2 tt (a##b##ø).
   Infix "∈m" := mem (at level 59, no associativity).
 
-  Definition Σ2_mem x y := fol_atom Σ2 tt (£x##£y##ø).
+  Definition Σ2_mem x y := @fol_atom Σ2 tt (£x##£y##ø).
   Infix "∈" := Σ2_mem.
 
   Definition Σ2_non_empty l := ∃ 0 ∈ (1+l). 

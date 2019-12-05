@@ -38,10 +38,10 @@ Section remove_constants.
 
   Notation Σ' := Σrem_cst.
 
-  Notation 𝕋 := (fo_term nat (ar_syms Σ)).
+  Notation 𝕋 := (fol_term Σ).
   Notation 𝔽 := (fol_form Σ).
 
-  Notation 𝕋' := (fo_term nat (ar_syms Σ')).
+  Notation 𝕋' := (fol_term Σ').
   Notation 𝔽' := (fol_form Σ').
 
   Implicit Type σ : syms Σ -> nat.
@@ -55,7 +55,7 @@ Section remove_constants.
   Local Fixpoint encode σ (A : 𝔽)  : 𝔽' := 
     match A with
       | ⊥              => ⊥
-      | fol_atom _ r v => fol_atom Σ' r (vec_map (convert_t σ) v) 
+      | fol_atom r v   => @fol_atom Σ' r (vec_map (convert_t σ) v) 
       | fol_bin b A B  => fol_bin b (encode σ A) (encode σ B)
       | fol_quant q A  => fol_quant q (encode (fun s => S (σ s)) A)
     end.

@@ -33,7 +33,7 @@ Section Sig_n_Sig.
   Local Fixpoint enc (A : fol_form Σn) : fol_form Σ :=
     match A with
       | ⊥              => ⊥
-      | fol_atom _ _ v => fol_atom Σ r (vec_map (fun x => £(Σrel_var x)) v)
+      | fol_atom   _ v => fol_atom r (vec_map (fun x => £(Σrel_var x)) v)
       | fol_bin b A B  => fol_bin b (enc A) (enc B)
       | fol_quant q A  => fol_quant q (enc A)
      end.

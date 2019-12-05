@@ -45,10 +45,10 @@ Section Uniform_arities_to_one.
 
   Notation Σ' := Σone_rel.
 
-  Notation 𝕋 := (fo_term nat (ar_syms Σ)).
+  Notation 𝕋 := (fol_term Σ).
   Notation 𝔽 := (fol_form Σ).
 
-  Notation 𝕋' := (fo_term nat (ar_syms Σ')).
+  Notation 𝕋' := (fol_term Σ').
   Notation 𝔽' := (fol_form Σ').
 
   Let convert_t (t : 𝕋) : 𝕋' :=
@@ -62,7 +62,7 @@ Section Uniform_arities_to_one.
   Fixpoint Σunif_one_rel (A : 𝔽) : 𝔽' :=
     match A with
     | ⊥              => ⊥
-    | fol_atom _ r v => fol_atom Σ' tt (in_fot r ø##cast (convert_v v) (Ha _))
+    | fol_atom r v   => @fol_atom Σ' tt (in_fot r ø##cast (convert_v v) (Ha _))
     | fol_bin b A B  => fol_bin b (Σunif_one_rel A) (Σunif_one_rel B)
     | fol_quant q A  => fol_quant q (Σunif_one_rel A)
     end.

@@ -26,14 +26,14 @@ Opaque fo_term_subst fo_term_map fo_term_sem.
 
 (* Terms are just variables in Σrel *)
 
-Definition Σrel_var k : fo_term nat (ar_syms (Σrel k)) -> nat.
+Definition Σrel_var k : fol_term (Σrel k) -> nat.
 Proof. intros [ n | [] ]; exact n. Defined.
 
 (** Unscoped (nat) DeBruijn syntax for FOL formulas *)
 
 Inductive fol_form (Σ : fo_signature) : Type :=
   | fol_false : fol_form Σ
-  | fol_atom  : forall p, vec (fo_term nat (ar_syms Σ)) (ar_rels Σ p) -> fol_form Σ 
+  | fol_atom  : forall p, vec (fol_term Σ) (ar_rels Σ p) -> fol_form Σ 
   | fol_bin   : fol_bop -> fol_form Σ -> fol_form Σ -> fol_form Σ 
   | fol_quant : fol_qop -> fol_form Σ -> fol_form Σ. 
 
@@ -45,14 +45,14 @@ Notation "∃ f" := (fol_quant fol_ex f) (at level 64, right associativity).
 
 Notation "x ↔ y" := ((x⤑y)⟑(y⤑x)) (at level 63, no associativity).
 
-Notation "£" := ((@in_var nat _ _) : nat -> fo_term nat _).
+Notation "£" := (in_var : nat -> fol_term _).
 Notation "⊥" := (fol_false _).
 
 Section fol_subst.
 
   Variable (Σ : fo_signature).
 
-  Notation 𝕋 := (fo_term nat (ar_syms Σ)).
+  Notation 𝕋 := (fol_term Σ).
   Notation 𝔽 := (fol_form Σ).
 
   (* Notation ⟦ ⟧ ⟪ ⟫ φ ψ σ ρ ↑ ⦃ ⦄ ⇡*)
@@ -60,7 +60,7 @@ Section fol_subst.
   Fixpoint fol_vars (A : 𝔽) :=
     match A with
       | ⊥              => nil
-      | fol_atom _ p v => flat_map (@fo_term_vars _ _ _) (vec_list v)
+      | fol_atom p v   => flat_map fo_term_vars (vec_list v)
       | fol_bin c A B => fol_vars A ++ fol_vars B
       | fol_quant q A => flat_map (fun n => match n with 0 => nil | S n => n::nil end)
                            (fol_vars A) 
@@ -74,7 +74,7 @@ Section fol_subst.
   Fixpoint fol_syms (A : 𝔽) :=
     match A with
       | ⊥              => nil
-      | fol_atom _ p v => flat_map (@fo_term_syms _ _ _) (vec_list v)
+      | fol_atom p v   => flat_map fo_term_syms (vec_list v)
       | fol_bin c A B  => fol_syms A ++ fol_syms B
       | fol_quant q A  => fol_syms A 
     end.
@@ -88,7 +88,7 @@ Section fol_subst.
   Fixpoint fol_rels (A : 𝔽) :=
     match A with
       | ⊥              => nil
-      | fol_atom _ p v => p::nil
+      | fol_atom p v   => p::nil
       | fol_bin c A B  => fol_rels A ++ fol_rels B
       | fol_quant q A  => fol_rels A 
     end.
@@ -102,14 +102,15 @@ Section fol_subst.
   Fixpoint fol_subst σ (A : 𝔽) :=
     match A with
       | ⊥              => ⊥
-      | fol_atom _ p v => fol_atom _ _ (vec_map (fo_term_subst σ) v)
+      | fol_atom _ v   => fol_atom _ (vec_map (fo_term_subst σ) v)
       | fol_bin c A B => fol_bin c (A⦃σ⦄) (B⦃σ⦄)
       | fol_quant q A => fol_quant q (A⦃⇡σ⦄) 
     end
   where "A ⦃ σ ⦄" := (fol_subst σ A).
 
   Fact fol_subst_ext σ ρ A : 
-       (forall n, In n (fol_vars A) -> σ n = ρ n) -> A⦃σ⦄ = A⦃ρ⦄.
+         (forall n, In n (fol_vars A) -> σ n = ρ n) 
+       -> A⦃σ⦄ = A⦃ρ⦄.
   Proof.
     intros Hfg; revert A σ ρ Hfg. 
     induction A as [ | p v | c A IHA B IHB | q A IHA ]; intros f g Hfg; simpl; f_equal; auto.
@@ -272,35 +273,6 @@ End fol_subst.
 
 Notation "A ⦃ σ ⦄" := (fol_subst σ A).
 
-Record fo_model Σ (X : Type) := Mk_fo_model {
-  fom_syms : forall s, vec X (ar_syms Σ s) -> X;
-  fom_rels : forall r, vec X (ar_rels Σ r) -> Prop }.
-
-Definition fo_model_dec Σ X (M : fo_model Σ X) := 
-  forall r (v : vec _ (ar_rels _ r)), { fom_rels M r v } + { ~ fom_rels M r v }.
-
-Definition rel2_on_vec X (R : X -> X -> Prop) (v : vec X 2) : Prop :=
-  R (vec_head v) (vec_head (vec_tail v)).
-
-Arguments rel2_on_vec {X} R v /.
-
-Section bin_rel_Σ2.
-
-  Variable (X : Type) (R : X -> X -> Prop).
-
-  Definition bin_rel_Σ2 : fo_model (Σrel 2) X.
-  Proof.
-    exists; intros [].
-    exact (rel2_on_vec R).
-  Defined.
-
-  Hypothesis HR : forall x y, { R x y } + { ~ R x y }.
-
-  Fact bin_rel_Σ2_dec : fo_model_dec bin_rel_Σ2.
-  Proof. intros [] v; apply HR. Qed.
-
-End bin_rel_Σ2.
-
 Section fol_semantics.
 
   Variable (Σ : fo_signature) 
@@ -308,19 +280,19 @@ Section fol_semantics.
 
   Implicit Type φ : nat -> X.
 
-  Notation 𝕋 := (fo_term nat (ar_syms Σ)).
+  Notation 𝕋 := (fol_term Σ).
   Notation 𝔽 := (fol_form Σ).
 
-  Notation "⟦ t ⟧" := (fun φ => fo_term_sem (fom_syms M) φ t).
+  Notation "⟦ t ⟧" := (fun φ => fo_term_sem M φ t).
 
   Fixpoint fol_sem φ A : Prop :=
-      match A with
-        | ⊥              => False
-        | fol_atom _ _ v => fom_rels M _ (vec_map (fun t => ⟦t⟧ φ) v)
-        | fol_bin b A B  => fol_bin_sem b (⟪A⟫ φ) (⟪B⟫ φ) 
-        | fol_quant q A  => fol_quant_sem q (fun x => ⟪A⟫ (φ↑x))
-      end
-    where "⟪ A ⟫" := (fun φ => fol_sem φ A).
+    match A with
+      | ⊥              => False
+      | fol_atom _ v   => fom_rels M _ (vec_map (fun t => ⟦t⟧ φ) v)
+      | fol_bin b A B  => fol_bin_sem b (⟪A⟫ φ) (⟪B⟫ φ) 
+      | fol_quant q A  => fol_quant_sem q (fun x => ⟪A⟫ (φ↑x))
+    end
+  where "⟪ A ⟫" := (fun φ => fol_sem φ A).
 
   Fact fol_sem_bin_fix φ b A B : fol_sem φ (fol_bin b A B) = fol_bin_sem b (⟪A⟫ φ) (⟪B⟫ φ).
   Proof. reflexivity. Qed.
@@ -561,8 +533,8 @@ Section fo_model_simulation.
 
   Infix "⋈" := R (at level 70, no associativity).
   
-  Notation "⟦ t ⟧" := (fun φ => fo_term_sem (fom_syms M) φ t).
-  Notation "⟦ t ⟧'" := (fun φ => fo_term_sem (fom_syms N) φ t) (at level 1, format "⟦ t ⟧'").
+  Notation "⟦ t ⟧" := (fun φ => fo_term_sem M φ t).
+  Notation "⟦ t ⟧'" := (fun φ => fo_term_sem N φ t) (at level 1, format "⟦ t ⟧'").
 
   Notation "⟪ A ⟫" := (fun φ => fol_sem M φ A).
   Notation "⟪ A ⟫'" := (fun φ => fol_sem N φ A) (at level 1, format "⟪ A ⟫'").
@@ -575,7 +547,7 @@ Section fo_model_simulation.
         -> ⟦t⟧ φ ⋈ ⟦t⟧' ψ.
   Proof.
     revert φ ψ.
-    induction t as [ k | s v IH ] using fo_term_pos_rect; 
+    induction t as [ k | s v IH ]; 
       intros phi psi Hv Hls; rew fot; auto.
     + apply Hv; simpl; auto.
     + apply fos_syms.

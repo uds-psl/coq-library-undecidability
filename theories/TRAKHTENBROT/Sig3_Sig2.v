@@ -40,11 +40,11 @@ Section Sig3_Sig2_encoding.
 
   Fixpoint Σ3_Σ2 (l r : nat) (A : fol_form Σ3) : fol_form Σ2 :=
     match A with
-      | ⊥              => ⊥
-      | fol_atom _ _ v => Σ2_is_otriple_in r (Σrel_var (vec_head v)) 
-                                             (Σrel_var (vec_head (vec_tail v)))
-                                             (Σrel_var (vec_head (vec_tail (vec_tail v))))
-      | fol_bin b A B  => fol_bin b (Σ3_Σ2 l r A) (Σ3_Σ2 l r B)
+      | ⊥             => ⊥
+      | fol_atom _  v => Σ2_is_otriple_in r (Σrel_var (vec_head v)) 
+                                            (Σrel_var (vec_head (vec_tail v)))
+                                            (Σrel_var (vec_head (vec_tail (vec_tail v))))
+      | fol_bin b A B => fol_bin b (Σ3_Σ2 l r A) (Σ3_Σ2 l r B)
       | fol_quant fol_fa A  => ∀ 0 ∈ (S l) ⤑ Σ3_Σ2 (S l) (S r) A
       | fol_quant fol_ex A  => ∃ 0 ∈ (S l) ⟑ Σ3_Σ2 (S l) (S r) A
      end.

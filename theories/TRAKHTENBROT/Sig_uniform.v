@@ -95,7 +95,7 @@ Section Sig_uniformize_rels.
   Definition fos_uniform : fo_signature.
   Proof.
     exists (syms Σ) (rels Σ).
-    + apply ar_syms.
+    + exact (ar_syms Σ).
     + exact (fun _ => n).
   Defined.
 
@@ -103,10 +103,10 @@ Section Sig_uniformize_rels.
 
   Fixpoint fol_uniformize (A : fol_form Σ) : fol_form Σ' :=
     match A with
-      | ⊥               => ⊥
-      | fol_atom _ r v  => fol_atom Σ' r (vec_fill_tail n v (£0))
-      | fol_bin c A B   => fol_bin c (fol_uniformize A) (fol_uniformize B)
-      | fol_quant q A   => fol_quant q (fol_uniformize A)
+      | ⊥                => ⊥
+      | @fol_atom _ r v  => @fol_atom Σ' r (vec_fill_tail _ v (£0))
+      | fol_bin c A B    => fol_bin c (fol_uniformize A) (fol_uniformize B)
+      | fol_quant q A    => fol_quant q (fol_uniformize A)
     end.
 
   Variable (X : Type) (e : X).
@@ -157,13 +157,13 @@ Section Sig_uniformize_rels.
 
       Let k := ar_rels _ r.
       
-      Let w1 : vec (fo_term nat (ar_syms Σ')) _ := 
+      Let w1 : vec (fol_term Σ') _ := 
            vec_fill_tail n (vec_set_pos (fun p : pos k => £(2+pos2nat p))) (£ 1).
-      Let w2 : vec (fo_term nat (ar_syms Σ')) _ := 
+      Let w2 : vec (fol_term Σ') _ := 
            vec_fill_tail n (vec_set_pos (fun p : pos k => £(2+pos2nat p))) (£ 0).
 
       Local Definition fol_uniform_after : fol_form Σ' :=
-           fol_mquant fol_fa k (∀∀ fol_atom Σ' r w1 ↔ fol_atom Σ' r w2).
+           fol_mquant fol_fa k (∀∀ @fol_atom Σ' r w1 ↔ @fol_atom Σ' r w2).
 
       Local Fact fol_uniform_after_spec φ :
            fol_sem M' φ fol_uniform_after 
