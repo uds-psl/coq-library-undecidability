@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Bool Lia Eqdep_dec.
+Require Import List Arith Lia Relations.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
@@ -45,6 +45,22 @@ Set Implicit Arguments.
     equality.
 
   *)
+
+Section congruence.
+
+  Variables (Σ : fo_signature) (ls : list (syms Σ)) (lr : list (rels Σ))
+            (X : Type) (M : fo_model Σ X)
+            (R : X -> X -> Prop).
+
+  Infix "≈" := R.
+
+  Definition Σ_congruence_wrt :=
+          (forall s, In s ls -> forall v w, (forall p, vec_pos v p ≈ vec_pos w p) 
+                                          -> fom_syms M s v ≈ fom_syms M s w)
+       /\ (forall r, In r lr -> forall v w, (forall p, vec_pos v p ≈ vec_pos w p) 
+                                          -> fom_rels M r v <-> fom_rels M r w).
+
+End congruence.
 
 Section remove_interpreted.
 
@@ -302,11 +318,8 @@ Section remove_interpreted.
         the symbols in ls and lr *)
 
     Fact Σ_eq_congruent_spec φ :
-          fol_sem M φ Σ_eq_congruent
-      <-> (forall s, In s ls -> forall v w, (forall p, vec_pos v p ≈ vec_pos w p) 
-                                          -> fom_syms M s v ≈ fom_syms M s w)
-       /\ (forall r, In r lr -> forall v w, (forall p, vec_pos v p ≈ vec_pos w p) 
-                                          -> fom_rels M r v <-> fom_rels M r w).
+          fol_sem M φ Σ_eq_congruent 
+      <-> Σ_congruence_wrt ls lr M (fun x y => x ≈ y).
     Proof.
       unfold Σ_eq_congruent.
       rewrite fol_sem_bin_fix.
@@ -329,9 +342,9 @@ Section remove_interpreted.
     Qed.
 
     Definition Σ_eq_equivalence := 
-            (∀ £0 ≡ £0) 
-          ⟑ (∀∀ £1 ≡ £0 ⤑ £0 ≡ £1)
-          ⟑ (∀∀∀ £2 ≡ £1 ⤑ £1 ≡ £0 ⤑ £2 ≡ £0).
+            (∀ £0 ≡ £0)
+          ⟑ (∀∀∀ £2 ≡ £1 ⤑ £1 ≡ £0 ⤑ £2 ≡ £0)
+          ⟑ (∀∀ £1 ≡ £0 ⤑ £0 ≡ £1).
 
     Local Fact Σ_eq_equivalence_syms : fol_syms Σ_eq_equivalence = nil.
     Proof.
@@ -344,23 +357,24 @@ Section remove_interpreted.
     Proof. simpl; cbv; tauto. Qed.
   
     Fact Σ_eq_equiv_spec φ : 
-           fol_sem M φ Σ_eq_equivalence
-       <-> (forall x, x ≈ x)
-        /\ (forall x y, x ≈ y -> y ≈ x)
-        /\ (forall x y z, x ≈ y -> y ≈ z -> x ≈ z).
+           fol_sem M φ Σ_eq_equivalence <-> equiv _ (fun x y => x ≈ y).
     Proof.
       unfold Σ_eq_equivalence.
       repeat (rewrite fol_sem_bin_fix).
       repeat apply fol_bin_sem_ext.
       + rewrite fol_sem_quant_fix; apply forall_equiv; intro.
         rewrite fol_sem_e; simpl; tauto.
-      + do 2 (rewrite fol_sem_quant_fix; apply forall_equiv; intro).
-        rewrite fol_sem_bin_fix.
-        do 2 rewrite fol_sem_e; simpl; tauto.
       + do 3 (rewrite fol_sem_quant_fix; apply forall_equiv; intro).
         do 2 rewrite fol_sem_bin_fix.
         do 3 rewrite fol_sem_e; simpl; tauto.
+      + do 2 (rewrite fol_sem_quant_fix; apply forall_equiv; intro).
+        rewrite fol_sem_bin_fix.
+        do 2 rewrite fol_sem_e; simpl; tauto.
     Qed.
+
+    (** Σ_eq_congruence encodes the fact that ≈ is a congruence wrt to all
+        the symbols in ls and lr and this formula involve only the symbols
+        of ls and lr, under the assumption that e belongs to lr *)
 
     Definition Σ_eq_congruence := 
           Σ_eq_congruent 
@@ -382,6 +396,16 @@ Section remove_interpreted.
       + intros x Hx.
         apply Σ_eq_equivalence_rels in Hx.
         destruct Hx as [ | [] ]; subst; auto.
+    Qed.
+
+    Fact Σ_eq_congruence_spec φ : 
+             fol_sem M φ Σ_eq_congruence
+         <-> Σ_congruence_wrt ls lr M (fun x y => x ≈ y)
+          /\ equiv _ (fun x y => x ≈ y).
+    Proof.
+      apply fol_bin_sem_ext.
+      + apply Σ_eq_congruent_spec.
+      + apply Σ_eq_equiv_spec.
     Qed.
 
   End encode_congruence.
@@ -409,12 +433,12 @@ Section remove_interpreted.
           apply vec_pos_ext; intros p.
           apply HE, H.
       + intros ?; rewrite fol_sem_e, HE; auto.
-      + intros ? ?; rewrite fol_sem_bin_fix.
-        do 2 rewrite fol_sem_e; simpl.
-        now repeat rewrite HE.
       + intros ? ? ?; repeat rewrite fol_sem_bin_fix.
         do 3 rewrite fol_sem_e; simpl.
         repeat rewrite HE; intros; subst; auto.
+      + intros ? ?; rewrite fol_sem_bin_fix.
+        do 2 rewrite fol_sem_e; simpl.
+        now repeat rewrite HE.
     Qed.
 
   End soundness.
@@ -438,7 +462,7 @@ Section remove_interpreted.
       apply Σ_eq_congruent_spec in H5.
       destruct H5 as (H4 & H5).
       apply Σ_eq_equiv_spec in H6.
-      destruct H6 as (H6 & H7 & H8).
+      destruct H6 as (H6 & H8 & H7).
       set (R x y := fom_rels M e (cast (x ## y ## ø) (eq_sym H_ae))).
       destruct H1 as (lX & HlX).
       destruct decidable_EQUIV_fin_quotient with (l := lX) (R := R)
@@ -475,3 +499,4 @@ Section remove_interpreted.
   End completeness.
 
 End remove_interpreted.
+
