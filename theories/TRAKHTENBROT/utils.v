@@ -30,6 +30,10 @@ Arguments cast {P n k} v H.
 Lemma cast_refl P n (v : P n) : cast v eq_refl = v.
 Proof. reflexivity. Qed.
 
+Lemma cast_fun P Q (f : forall n, P n -> Q n) n k (v : P n) (H : n = k) : 
+        f _ (cast v H) = cast (f _ v) H.
+Proof. subst; auto. Qed.
+
 Tactic Notation "solve" "ite" :=
   match goal with _ : ?x < ?y |- context[if le_lt_dec ?y ?x then _ else _]
         => let G := fresh in destruct (le_lt_dec y x) as [ G | _ ]; [ exfalso; lia | ]

@@ -346,7 +346,7 @@ End Sig_remove_symbols.
 (** Soundess of Σsyms_Σnosyms *)
 
 Theorem Σsyms_Σnosyms_sound Σ ls A X : 
-             @fo_form_fin_discr_dec_SAT_in Σ A X
+             fo_form_fin_discr_dec_SAT_in A X
           -> @fo_form_fin_dec_eq_SAT_in (Σnosyms Σ) (inr (inl tt)) eq_refl (Σsyms_Σnosyms ls A) X.
 Proof.
   intros (H0 & M & H1 & H2 & phi & H3).
@@ -441,7 +441,7 @@ Section completeness.
 
   Theorem Σsyms_Σnosyms_complete : 
           @fo_form_fin_dec_eq_SAT_in (Σnosyms Σ) (inr (inl tt)) eq_refl (Σsyms_Σnosyms ls A) X
-       -> @fo_form_fin_discr_dec_SAT_in Σ A X.
+       -> fo_form_fin_discr_dec_SAT_in A X.
   Proof.
     intros (M & H1 & H2 & H3 & phi & H5).
     cbn in H3.

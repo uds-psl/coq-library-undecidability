@@ -256,6 +256,7 @@ TM/MultiUnivTimeSpaceSimulation.v
 TRAKHTENBROT/notations.v
 TRAKHTENBROT/bpcp.v
 TRAKHTENBROT/utils.v
+TRAKHTENBROT/extensional.v
 TRAKHTENBROT/fol_ops.v
 
 TRAKHTENBROT/gfp.v

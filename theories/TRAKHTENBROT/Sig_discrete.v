@@ -28,9 +28,9 @@ Set Implicit Arguments.
     of A in a finite, decidable and discrete model, in fact in a model based on 
     the finite type (pos n) *)
 
-Theorem fo_discrete_removal Σ A :
-             @fo_form_fin_dec_SAT Σ A
-          -> (exists n, @fo_form_fin_discr_dec_SAT_in Σ A (pos n)).
+Theorem fo_discrete_removal Σ (A : fol_form Σ) :
+             fo_form_fin_dec_SAT A
+          -> exists n, fo_form_fin_discr_dec_SAT_in A (pos n).
 Proof.
   intros (X & M & Hfin & Hdec & phi & HA).
   set (ls := fol_syms A).
@@ -44,9 +44,9 @@ Proof.
     unfold lr, ls; auto; apply incl_refl.
 Qed.
 
-Theorem fo_form_fin_dec_SAT_fin_discr_dec Σ A :
-            @fo_form_fin_dec_SAT Σ A 
-         -> fo_form_fin_discr_dec_SAT A.
+Theorem fo_form_fin_dec_SAT_fin_discr_dec Σ (A : fol_form Σ) :
+             fo_form_fin_dec_SAT A 
+          -> fo_form_fin_discr_dec_SAT A.
 Proof.
   intros H.
   destruct fo_discrete_removal with (1 := H) (A := A)

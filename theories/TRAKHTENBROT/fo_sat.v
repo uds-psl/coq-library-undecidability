@@ -16,7 +16,7 @@ From Undecidability.Shared.Libs.DLW.Vec
   Require Import pos vec.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations fol_ops fo_sig fo_terms fo_logic.
+  Require Import notations utils fol_ops fo_sig fo_terms fo_logic.
 
 Set Implicit Arguments.
 
@@ -46,7 +46,7 @@ Section satisfiability.
     exists (M : fo_model Σ X)  
            (_ : finite_t X) 
            (_ : fo_model_dec M)
-           (_ : forall x y, fom_rels M e (eq_rect_r _ (x##y##ø) E) <-> x = y)
+           (_ : forall x y, fom_rels M e (cast (x##y##ø) (eq_sym E)) <-> x = y)
 (*eq_rect _ (fun n => vec _ n -> _) (fom_rels M e) _ E = rel2_on_vec eq *)
            (φ : nat -> X), 
            fol_sem M φ A.

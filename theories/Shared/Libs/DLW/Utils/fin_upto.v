@@ -14,9 +14,28 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 Set Implicit Arguments.
 
-Definition fin_t_upto X (R : X -> X -> Prop) (P : X -> Type) := 
-     { l : _ & (forall x, P x -> exists y, R x y /\ In y l) 
+Section finite_t_upto.
+
+  Variable (X : Type) (R : X -> X -> Prop).
+
+  Definition fin_t_upto (P : X -> Type) := 
+     { l : _ & (forall x, P x -> exists y, In y l /\ R x y) 
               *(forall x y, In x l -> R x y -> P y) }%type.
+
+  Definition finite_t_upto := 
+     { l : _ | forall x, exists y, In y l /\ R x y }.
+
+  Fact finite_t_fin_upto : (finite_t_upto -> fin_t_upto (fun _ => True))
+                         * (fin_t_upto (fun _ => True) -> finite_t_upto).
+  Proof.
+    split.
+    + intros (l & Hl); exists l; split; auto.
+    + intros (l & H1 & H2); exists l; firstorder.
+  Qed.
+
+End finite_t_upto.
+
+Arguments finite_t_upto : clear implicits.
 
 Section finite_t_weak_dec_powerset.
 
