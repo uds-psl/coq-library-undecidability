@@ -49,9 +49,8 @@ Set Implicit Arguments.
 
 Section remove_interpreted_symbol.
 
-  Variables (Σ : fo_signature) (e : rels Σ) (H_ae : ar_rels _ e = 2)
-            (ls : list (syms Σ)) (lr : list (rels Σ))
-            (He : In e lr). 
+  Variables (Σ : fo_signature) (ls : list (syms Σ)) (lr : list (rels Σ))
+            (e : rels Σ) (H_ae : ar_rels _ e = 2) (He : In e lr). 
 
   Notation 𝕋 := (fol_term Σ).
   Notation 𝔽 := (fol_form Σ).
