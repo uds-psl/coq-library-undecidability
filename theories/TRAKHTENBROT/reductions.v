@@ -263,6 +263,8 @@ Proof.
     revert H; apply Σuniformize_complete; auto.
 Qed.
 
+Print Σunif.
+
 Check FSAT_UNIFORM.
 Print Assumptions FSAT_UNIFORM.
 
@@ -293,12 +295,12 @@ Proof.
     revert H3; apply Σunif_one_rel_complete.
 Qed.
 
+Print Σone_rel.
+
 Check FSAT_ONE_REL.
 Print Assumptions FSAT_ONE_REL.
 
 (* Document here !!! : remove constant symbols *)
-
-Print Σrem_cst.
 
 Theorem FSAT_NOCST Σ :
              (forall s, ar_syms Σ s = 0)
@@ -309,6 +311,8 @@ Proof.
   apply reduction_dependent; exists.
   apply Sig_rem_cst_dep_red; auto.
 Qed.
+
+Print Σrem_cst.
 
 Check FSAT_NOCST.
 Print Assumptions FSAT_NOCST.

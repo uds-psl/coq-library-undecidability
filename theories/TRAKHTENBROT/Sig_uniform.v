@@ -92,14 +92,14 @@ Section Sig_uniformize_rels.
 
   Variable (Σ : fo_signature) (n : nat) (Hn : forall r, ar_rels Σ r <= n).
 
-  Definition fos_uniform : fo_signature.
+  Definition Σunif : fo_signature.
   Proof.
     exists (syms Σ) (rels Σ).
     + exact (ar_syms Σ).
     + exact (fun _ => n).
   Defined.
 
-  Notation Σ' := fos_uniform.
+  Notation Σ' := Σunif.
 
   Fixpoint fol_uniformize (A : fol_form Σ) : fol_form Σ' :=
     match A with
@@ -259,5 +259,3 @@ Section Sig_uniformize_rels.
   Qed.
 
 End Sig_uniformize_rels.
-
-Notation Σunif := fos_uniform.
