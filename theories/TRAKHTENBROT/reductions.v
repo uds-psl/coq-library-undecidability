@@ -109,6 +109,10 @@ Qed.
 
     The reduction is the identity here !! *)
 
+Definition FSAT := @fo_form_fin_dec_SAT.
+
+Arguments FSAT : clear implicits.
+
 Theorem fo_form_fin_dec_SAT_discr_equiv Σ A : 
     @fo_form_fin_dec_SAT Σ A <-> @fo_form_fin_discr_dec_SAT Σ A.
 Proof.
@@ -118,14 +122,15 @@ Proof.
 Qed.
 
 Check fo_form_fin_dec_SAT_discr_equiv.
+Print Assumptions fo_form_fin_dec_SAT_discr_equiv.
 
-Corollary FIN_DEC_SAT_FIN_DISCR_DEC_SAT Σ : @fo_form_fin_dec_SAT Σ ⪯ @fo_form_fin_discr_dec_SAT Σ.
+Corollary FIN_DEC_SAT_FIN_DISCR_DEC_SAT Σ : FSAT Σ ⪯ @fo_form_fin_discr_dec_SAT Σ.
 Proof. exists (fun A => A); apply fo_form_fin_dec_SAT_discr_equiv. Qed.
 
 Check FIN_DEC_SAT_FIN_DISCR_DEC_SAT.
 Print Assumptions FIN_DEC_SAT_FIN_DISCR_DEC_SAT.
 
-(** With Σ = (sy,re) a signature =_2 : re with a proof that
+(** With Σ = (sy,re) a signature and =_2 : re and a proof that
     arity of =_2 is 2, there is a reduction from
     - finite and decidable and interpreted SAT over Σ (=_2 is interpreted by =)
     - to finite and decidable SAT over Σ 
@@ -137,9 +142,7 @@ Section FIN_DEC_EQ_SAT_FIN_DEC_SAT.
 
   Variable (Σ : fo_signature) (e : rels Σ) (He : ar_rels _ e = 2).
 
-  Hint Resolve incl_refl.
-
-  Theorem FIN_DEC_EQ_SAT_FIN_DEC_SAT : fo_form_fin_dec_eq_SAT e He ⪯  @fo_form_fin_dec_SAT Σ.
+  Theorem FIN_DEC_EQ_SAT_FIN_DEC_SAT : fo_form_fin_dec_eq_SAT e He ⪯  FSAT Σ.
   Proof.
     exists (fun A => Σ_noeq (fol_syms A) (e::fol_rels A) _ He  A).
     intros A; split.
@@ -153,9 +156,9 @@ End FIN_DEC_EQ_SAT_FIN_DEC_SAT.
 Check FIN_DEC_EQ_SAT_FIN_DEC_SAT.
 Print Assumptions FIN_DEC_EQ_SAT_FIN_DEC_SAT.
 
-(** The reduction from PBCP to SAT of a FO formula 
+(** The reduction from PBCP to SAT of a FO formula over a finitary & discrete signature
      - over signature Σbpcp (2 unary funs, 2 constants, 3 rels)
-     - within finite and decidable models
+     - within interpreted finite and decidable models
 
        BPCP --> SAT({f_1,g_1,a_0,b_0},{P_2,≡_2,≺_2},𝔽,ℂ)
   *)
@@ -177,9 +180,14 @@ Section BPCP_fo_fin_dec_SAT.
 
 End BPCP_fo_fin_dec_SAT.
 
-Check BPCP_FIN_DEC_EQ_SAT.
-Print Assumptions BPCP_FIN_DEC_EQ_SAT.
+Corollary BPCP_FSAT_Σbpcp : BPCP_problem ⪯ FSAT Σbpcp.
+Proof.
+  apply reduces_transitive with (1 := BPCP_FIN_DEC_EQ_SAT).
+  apply FIN_DEC_EQ_SAT_FIN_DEC_SAT.
+Qed.
 
+Check BPCP_FSAT_Σbpcp.
+Print Assumptions BPCP_FSAT_Σbpcp.
 
 (** With Σ  = (sy,re) a signature with finitely many term symbols (sy)
     and  Σ' = (ø,sy+{=_2}+re) where =_2 is interpreted and the arity of symbols 
@@ -219,11 +227,18 @@ Section FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
       
 End FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
 
+Corollary FSAT_Σnosyms Σ : finite (syms Σ) -> FSAT Σ ⪯ FSAT (Σnosyms Σ).
+Proof.
+  intros H.
+  apply reduces_transitive with (1 := FIN_DEC_SAT_FIN_DISCR_DEC_SAT _).
+  apply reduces_transitive with (2 := @FIN_DEC_EQ_SAT_FIN_DEC_SAT (Σnosyms Σ) (inr (inl tt)) eq_refl).
+  apply FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT; auto.
+Qed.
+
 Print Σnosyms.
 
-Check FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
-Print Assumptions FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
-
+Check FSAT_Σnosyms.
+Print Assumptions FSAT_Σnosyms.
 
 (** If the relation symbols in Σ have all their 
     arities upper bounded by n and 
@@ -235,9 +250,9 @@ Print Assumptions FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
       SAT(Σ,𝔽,ℂ) ---> SAT(Σunif n,𝔽,ℂ)  
 *)
 
-Theorem FIN_DEC_SAT_FIN_DEC_UNIFORM_SAT Σ n :
+Theorem FSAT_UNIFORM Σ n :
              (forall r : rels Σ, ar_rels _ r <= n)
-          -> @fo_form_fin_dec_SAT Σ ⪯ @fo_form_fin_dec_SAT (Σunif Σ n).
+          -> FSAT Σ ⪯ FSAT (Σunif Σ n).
 Proof.
   intros Hn.
   exists (fun A => @Σuniformize Σ n (fol_rels A) A); intros A. 
@@ -248,17 +263,17 @@ Proof.
     revert H; apply Σuniformize_complete; auto.
 Qed.
 
-Check FIN_DEC_SAT_FIN_DEC_UNIFORM_SAT.
-Print Assumptions FIN_DEC_SAT_FIN_DEC_UNIFORM_SAT.
+Check FSAT_UNIFORM.
+Print Assumptions FSAT_UNIFORM.
 
 (* Document here !!! : convert all k rels (all n-ary)
    into one (n+1) rel by adding k constants *)
 
-Theorem FIN_DEC_REL_UNIF_SAT_FIN_DEC_CST_ONE_SAT Σ n :
+Theorem FSAT_ONE_REL Σ n :
              (syms Σ -> False)
           -> (forall r : rels Σ, ar_rels _ r = n)
           -> finite (rels Σ)
-          -> @fo_form_fin_dec_SAT Σ ⪯ @fo_form_fin_dec_SAT (Σone_rel Σ n).
+          -> FSAT Σ ⪯ FSAT (Σone_rel Σ n).
 Proof.
   intros Hs Hn (lr & Hr).
   exists (Σunif_one_rel Hs Hn); intros A; split.
@@ -278,25 +293,25 @@ Proof.
     revert H3; apply Σunif_one_rel_complete.
 Qed.
 
-Check FIN_DEC_REL_UNIF_SAT_FIN_DEC_CST_ONE_SAT.
-Print Assumptions FIN_DEC_REL_UNIF_SAT_FIN_DEC_CST_ONE_SAT.
+Check FSAT_ONE_REL.
+Print Assumptions FSAT_ONE_REL.
 
 (* Document here !!! : remove constant symbols *)
 
 Print Σrem_cst.
 
-Theorem FIN_DEC_SAT_FIN_DEC_NOCST_SAT Σ :
+Theorem FSAT_NOCST Σ :
              (forall s, ar_syms Σ s = 0)
           -> discrete (syms Σ)
-          -> @fo_form_fin_dec_SAT Σ ⪯ @fo_form_fin_dec_SAT (Σrem_cst Σ).
+          -> FSAT Σ ⪯ FSAT (Σrem_cst Σ).
 Proof.
   intros H1 H2.
   apply reduction_dependent; exists.
   apply Sig_rem_cst_dep_red; auto.
 Qed.
 
-Check FIN_DEC_SAT_FIN_DEC_NOCST_SAT.
-Print Assumptions FIN_DEC_SAT_FIN_DEC_NOCST_SAT.
+Check FSAT_NOCST.
+Print Assumptions FSAT_NOCST.
 
 (** With Σrel 3 signature with a unique ternary symbol
      and Σrel 2 signature with a unique binary symbol
@@ -315,15 +330,21 @@ Proof.
   + intros H; apply fo_form_fin_dec_SAT_fin_discr_dec, SAT2_SAT3, H.
 Qed.
 
-Check FIN_DISCR_DEC_3SAT_FIN_DEC_2SAT.
-Print Assumptions FIN_DISCR_DEC_3SAT_FIN_DEC_2SAT.
+Corollary FSAT_REL_3to2 : FSAT (Σrel 3) ⪯ FSAT (Σrel 2).
+Proof.
+  apply reduces_transitive with (1 := FIN_DEC_SAT_FIN_DISCR_DEC_SAT _).
+  apply FIN_DISCR_DEC_3SAT_FIN_DEC_2SAT.
+Qed.
+
+Check FSAT_REL_3to2.
+Print Assumptions FSAT_REL_3to2.
 
 (*      SAT(∅,{R_2},𝔽,ℂ) ---> SAT(∅,{R_(2+n)},𝔽,ℂ)           *)
 
-Theorem FIN_DEC_2SAT_FIN_DEC_nSAT n :
+Theorem FSAT_REL_2ton n :
                  2 <= n 
-              -> @fo_form_fin_dec_SAT (Σrel 2)
-                           ⪯ @fo_form_fin_dec_SAT (Σrel n).
+              -> FSAT (Σrel 2)
+                           ⪯ FSAT (Σrel n).
 Proof.
   revert n; intros [ | [ | n ] ] H; try lia.
   exists (Σ2_Σn n); intros A; split.
@@ -331,25 +352,23 @@ Proof.
   + apply Σ2_Σn_completeness.
 Qed.
 
-Check FIN_DEC_2SAT_FIN_DEC_nSAT.
-Print Assumptions FIN_DEC_2SAT_FIN_DEC_nSAT.
+Check FSAT_REL_2ton.
+Print Assumptions FSAT_REL_2ton.
 
 (** If Σ contains an n-ary relational symbol then there is a 
     reduction 
 
                SAT(∅,{R_n},𝔽,ℂ) ---> SAT(Σ,𝔽,ℂ)  *)
 
-Theorem FIN_DEC_nSAT_FIN_DEC_SAT Σ n :
-         (exists r, ar_rels Σ r = n)
-      ->  @fo_form_fin_dec_SAT (Σrel n) ⪯ @fo_form_fin_dec_SAT Σ.
+Theorem FSAT_RELn_ANY Σ n r : ar_rels Σ r = n -> FSAT (Σrel n) ⪯ FSAT Σ.
 Proof.
-  intros (r & Hr).
+  intros Hr.
   destruct (SATn_SAT_reduction _ _ Hr) as (f & Hf).
   exists f; apply Hf.
 Qed.
 
-Check FIN_DEC_nSAT_FIN_DEC_SAT.
-Print Assumptions FIN_DEC_nSAT_FIN_DEC_SAT.
+Check FSAT_RELn_ANY.
+Print Assumptions FSAT_RELn_ANY.
 
 Section FULL_TRAKHTENBROT.
 
@@ -367,35 +386,22 @@ Section FULL_TRAKHTENBROT.
 
   Hint Resolve finite_sum finite_unit.
 
-  Arguments fo_form_fin_dec_SAT : clear implicits.
-  Arguments fo_form_fin_dec_eq_SAT : clear implicits.
-  Arguments fo_form_fin_discr_dec_SAT : clear implicits.
-
-  Theorem FULL_TRAKHTENBROT Σ : 
-         (exists r, 2 <= ar_rels Σ r)
-      -> BPCP_problem ⪯ @fo_form_fin_dec_SAT Σ.
+  Theorem FULL_TRAKHTENBROT Σ r : 2 <= ar_rels Σ r -> BPCP_problem ⪯ FSAT Σ.
   Proof.
-    intros (r & Hr).
-    apply reduces_transitive with (1 := BPCP_FIN_DEC_EQ_SAT).
-    apply reduces_transitive with (1 := FIN_DEC_EQ_SAT_FIN_DEC_SAT _).
-    apply reduces_transitive with (1 := FIN_DEC_SAT_FIN_DISCR_DEC_SAT _).
-    eapply reduces_transitive;
-      [ apply FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT; simpl; auto | ].
-    apply reduces_transitive with (1 := FIN_DEC_EQ_SAT_FIN_DEC_SAT _).
-    eapply reduces_transitive;
-      [ apply FIN_DEC_SAT_FIN_DEC_UNIFORM_SAT with (n := 2);
-        intros [ [] | [ [] | [] ] ]; simpl; auto | ].
-    eapply reduces_transitive; 
-      [ apply FIN_DEC_REL_UNIF_SAT_FIN_DEC_CST_ONE_SAT with (n := 2);
-        simpl; auto; intros [] | ].
-    eapply reduces_transitive;
-      [ apply FIN_DEC_SAT_FIN_DEC_NOCST_SAT; auto; simpl; auto;
-        intros ? ?; repeat decide equality | ].
-    apply reduces_transitive with (1 := FIN_DEC_SAT_FIN_DISCR_DEC_SAT _).
-    apply reduces_transitive with (1 := FIN_DISCR_DEC_3SAT_FIN_DEC_2SAT).
-    apply reduces_transitive with (1 := FIN_DEC_2SAT_FIN_DEC_nSAT Hr).
-    apply FIN_DEC_nSAT_FIN_DEC_SAT.
-    exists r; reflexivity.
+    intros Hr.
+    apply reduces_transitive with (1 := BPCP_FSAT_Σbpcp).
+    eapply reduces_transitive; [ apply FSAT_Σnosyms; auto | ].
+    eapply reduces_transitive; [
+      apply FSAT_UNIFORM with (n := 2);
+      intros [ [] | [ [] | [] ] ]; simpl; auto | ].
+    eapply reduces_transitive; [ 
+      apply FSAT_ONE_REL; simpl; auto; intros [] | ].
+    eapply reduces_transitive; [ 
+      apply FSAT_NOCST; simpl; auto; 
+      intros ? ?; repeat decide equality | ].
+    apply reduces_transitive with (1 := FSAT_REL_3to2).
+    apply reduces_transitive with (1 := FSAT_REL_2ton Hr).
+    apply FSAT_RELn_ANY with (1 := eq_refl).
   Qed.
 
 End FULL_TRAKHTENBROT.
