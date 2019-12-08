@@ -14,23 +14,27 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 Set Implicit Arguments.
 
-Definition nat_enum_t X := { f : nat -> option X & forall x, { n | f n = Some x } }.
+(** Every class of X/~ is enumerated ie there is a surjective partial map
+    from nat to representatives of class *) 
 
-Definition nat_enum X := { f : nat -> option X | forall x, exists n, f n = Some x }.
+Definition nat_enum_cls X (R : X -> X -> Prop) := 
+  { f : nat -> option X | forall x, exists y n, f n = Some y /\ R y x }. 
 
 Notation dec := ((fun X Y (R : X -> Y -> Prop) => forall x y, { R x y } + { R x y -> False }) _ _).
+
+(** A class function and its inverse, a function that computes representatives
+    with two equations characterizing the quotient *)
 
 Definition quotient X (R : X -> X -> Prop) Y :=
   { cls : X -> Y & 
   { rpr : Y -> X |
          (forall y, cls (rpr y) = y)
-      /\ (forall x, R (rpr (cls x)) x) } }.
+      /\ (forall x1 x2, R x1 x2 <-> cls x1 = cls x2) } }.
 
 Section ep_quotient.
 
-  Variable (X : Type) (f : nat -> option X) (Hf : forall x, exists n, f n = Some x).
-
-  Variable (R : X -> X -> Prop).
+  Variable (X : Type) (R : X -> X -> Prop) (f : nat -> option X) 
+           (Hf : forall x, exists y n, f n = Some y /\ R y x).
  
   Hypothesis HR1 : equiv _ R.
   Hypothesis HR2 : dec R.
@@ -60,6 +64,13 @@ Section ep_quotient.
       | None   => False
     end.
 
+  Let is_repr_trans x1 x2 n : R x1 x2 -> is_repr x1 n -> is_repr x2 n.
+  Proof.
+    intros H1 H2; revert H2 H1.
+    unfold is_repr; destruct (f n); auto.
+    apply HR1.
+  Qed.
+
   Let is_repr_dec : dec is_repr.
   Proof. 
     intros x n.
@@ -71,8 +82,8 @@ Section ep_quotient.
 
   Let is_repr_exists x : ex (is_repr x).
   Proof.
-    destruct (Hf x) as (n & Hn).
-    exists n; red; rewrite Hn; apply (proj1 HR1).
+    destruct (Hf x) as (y & n & H1 & H2).
+    exists n; red; rewrite H1; auto.
   Qed.
 
   Let is_min_repr x n :=
@@ -203,7 +214,7 @@ Section ep_quotient.
   Let Hrpr y : f (proj1_sig y) = Some (rpr y).
   Proof. apply (proj2_sig (P_to_X _ (proj2_sig y))). Qed.
 
-  Let H1 : forall y, cls (rpr y) = y.
+  Let Hcr : forall y, cls (rpr y) = y.
   Proof.
     intros (n & Hn); simpl.
     unfold rpr; simpl.
@@ -216,13 +227,26 @@ Section ep_quotient.
     revert Hm G2; apply is_min_repr_inj.
   Qed.
 
-  Let H2 : forall x, R (rpr (cls x)) x.
+  Let Hrc x1 x2 : R x1 x2 <-> cls x1 = cls x2.
   Proof.
-    intros x; unfold cls, rpr.
-    case (find_min_repr x); intros y Hy; simpl.
-    case (P_to_X y (is_min_repr_P Hy)); intros z Hz; simpl.
-    unfold is_min_repr, is_repr in Hy.
-    rewrite Hz in Hy; tauto.
+    split.
+    + intros H; apply pi1_inj.
+      unfold cls.
+      case (find_min_repr x1); intros y1 (G1 & G2); simpl.
+      case (find_min_repr x2); intros y2 (G3 & G4); simpl.
+      apply Nat.le_antisymm.
+      * apply G2; revert G3.
+        apply is_repr_trans, (proj2 (proj2 HR1)); auto.
+      * apply G4; revert G1.
+        apply is_repr_trans; auto.
+    + unfold cls.
+      case (find_min_repr x1); intros y1 G1; simpl.
+      case (find_min_repr x2); intros y2 G2; simpl.
+      intros H; inversion H; subst y2; clear H.
+      apply proj1 in G1; apply proj1 in G2.
+      revert G1 G2; unfold is_repr.
+      destruct (f y1); try tauto; intros H.
+      apply HR1; revert H; apply HR1.
   Qed.
 
   Local Fact enum_quotient_rec : 
@@ -233,17 +257,14 @@ Section ep_quotient.
 
 End ep_quotient.
 
-(** Given an enumerable type X with a decidable equivalence ~ over X,
-    one can build the quotient X/~ into a discrete type Y 
-
-    One could weaken the assumption in instead of a surjective map
-    nat -> X, to give a surjective map nat -> X/~  
-
-    ie forall x, exists n y, f n = Some y /\ R x y 
+(** Given type X with a decidable equivalence ~ over X
+    such that the classes of X/~ can be enumerated then
+    one can build the quotient X/~ into a discrete type Y
+    and Y is necessarily enumerated, see below
 *) 
 
 Theorem enum_quotient X R : 
-          nat_enum X 
+          nat_enum_cls R 
        -> equiv X R
        -> dec R
        -> { Y : Type & { _ : dec (@eq Y) & quotient R Y } }.
@@ -252,16 +273,20 @@ Proof.
   apply enum_quotient_rec with (1 := Hf) (R := R); auto.
 Qed.
 
-Fact quotient_is_enum X R Y : nat_enum X -> @quotient X R Y -> nat_enum Y.
+(** A quotient of enumerated classes is automatically enumerated (for equality *)
+
+Fact quotient_is_enum X R Y : nat_enum_cls R -> @quotient X R Y -> nat_enum_cls (@eq Y).
 Proof.
   intros (f & Hf) (c & r & H1 & H2).
   exists (fun n => match f n with Some x => Some (c x) | None => None end).
   intros y.
-  destruct (Hf (r y)) as (n & Hn).
-  exists n; rewrite Hn, H1; auto.
+  destruct (Hf (r y)) as (z & n & H3 & H4).
+  exists (c z), n; rewrite H3; split; auto.
+  rewrite <- (H1 y); apply H2; auto.
 Qed.
 
-Print nat_enum.
+Print nat_enum_cls.
+Print quotient.
 
 Check enum_quotient.
 Check quotient_is_enum.
