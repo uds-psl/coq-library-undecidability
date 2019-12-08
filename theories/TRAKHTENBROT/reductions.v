@@ -186,6 +186,7 @@ Proof.
   apply FIN_DEC_EQ_SAT_FIN_DEC_SAT.
 Qed.
 
+Print Σbpcp.
 Check BPCP_FSAT_Σbpcp.
 Print Assumptions BPCP_FSAT_Σbpcp.
 
@@ -236,7 +237,6 @@ Proof.
 Qed.
 
 Print Σnosyms.
-
 Check FSAT_Σnosyms.
 Print Assumptions FSAT_Σnosyms.
 
@@ -264,12 +264,17 @@ Proof.
 Qed.
 
 Print Σunif.
-
 Check FSAT_UNIFORM.
 Print Assumptions FSAT_UNIFORM.
 
-(* Document here !!! : convert all k rels (all n-ary)
-   into one (n+1) rel by adding k constants *)
+(** With Σ=(sy,re) a signature with an empty type of term symbols
+    and where all the finitely many relations in re have the same 
+    uniform arity n there is a reduction
+    - from finite & decidable SAT over Σ 
+    - to finite & decodable SAT over Σ=(re,{R)}
+    where re become constants symbols and R is a single 
+    relation of arity n+1
+ *)
 
 Theorem FSAT_ONE_REL Σ n :
              (syms Σ -> False)
@@ -296,11 +301,14 @@ Proof.
 Qed.
 
 Print Σone_rel.
-
 Check FSAT_ONE_REL.
 Print Assumptions FSAT_ONE_REL.
 
-(* Document here !!! : remove constant symbols *)
+(** With Σ=(sy,re) a signature with a discrete type sy of term symbols
+    and among them, only constant symbols, there is a reduction
+    - from finite & decidable SAT over Σ 
+    - to finite & decodable SAT over (ø,re)
+ *)
 
 Theorem FSAT_NOCST Σ :
              (forall s, ar_syms Σ s = 0)

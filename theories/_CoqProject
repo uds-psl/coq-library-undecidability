@@ -39,6 +39,7 @@ Shared/Libs/DLW/Utils/fin_bij.v
 Shared/Libs/DLW/Utils/fin_upto.v
 Shared/Libs/DLW/Utils/fin_quotient.v
 Shared/Libs/DLW/Utils/finite.v
+Shared/Libs/DLW/Utils/quotient.v
 
 Shared/Libs/DLW/Vec/pos.v
 Shared/Libs/DLW/Vec/vec.v
