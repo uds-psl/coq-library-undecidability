@@ -10,10 +10,17 @@
 (** ** Elementary diophantine constraints *)
 
 Require Import List Arith Nat Omega.
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_list gcd prime.
-From Undecidability.H10.Dio Require Import dio_logic.
+
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_list gcd prime.
+
+From Undecidability.H10.Dio 
+  Require Import dio_logic.
 
 Set Implicit Arguments.
+
+Local Notation "phi ↑ k" := (env_lift phi k) (at level 1, format "phi ↑ k", left associativity).
+Local Notation "phi ↓"   := (fun n => phi (S n)) (at level 1, format "phi ↓", no associativity).
 
 Section interval.
 
@@ -142,8 +149,6 @@ Section diophantine_system.
   Notation dee_add := (dee_comp do_add).
   Notation dee_mul := (dee_comp do_mul).
 
-  (* ρ σ ν φ *)
-
   Definition dee_eval φ ν e := 
     match e with
       | dee_nat n => n
@@ -245,53 +250,33 @@ Section diophantine_system.
                                 end
                               else x0.
 
-  Let g0_0 (n x0 x1 x2 x3 x4 x5 x6 x7 : nat) : g0 n x0 x1 x2 x3 x4 x5 x6 x7 n = x0.
-  Proof. 
-    unfold g0; destruct (le_lt_dec n n); try omega.
-    replace (n-n) with 0 by omega; auto.
-  Qed.
+  Tactic Notation "g0" "auto" constr(n) constr(t) := 
+    unfold g0; destruct (le_lt_dec n (n+t)); try omega;
+    replace (n+t-n) with t by omega; auto.
+
+  Let g0_0 (n x0 x1 x2 x3 x4 x5 x6 x7 : nat) : g0 n x0 x1 x2 x3 x4 x5 x6 x7 (n+0) = x0.
+  Proof. g0 auto n 0. Qed. 
 
   Let g0_1 (n x0 x1 x2 x3 x4 x5 x6 x7 : nat) : g0 n x0 x1 x2 x3 x4 x5 x6 x7 (n+1) = x1.
-  Proof. 
-    unfold g0; destruct (le_lt_dec n (n+1)); try omega.
-    replace (n+1-n) with 1 by omega; auto.
-  Qed.
+  Proof. g0 auto n 1. Qed. 
 
   Let g0_2 (n x0 x1 x2 x3 x4 x5 x6 x7 : nat) : g0 n x0 x1 x2 x3 x4 x5 x6 x7 (n+2) = x2.
-  Proof. 
-    unfold g0; destruct (le_lt_dec n (n+2)); try omega.
-    replace (n+2-n) with 2 by omega; auto.
-  Qed.
-
+  Proof. g0 auto n 2. Qed. 
+ 
   Let g0_3 (n x0 x1 x2 x3 x4 x5 x6 x7 : nat) : g0 n x0 x1 x2 x3 x4 x5 x6 x7 (n+3) = x3.
-  Proof. 
-    unfold g0; destruct (le_lt_dec n (n+3)); try omega.
-    replace (n+3-n) with 3 by omega; auto.
-  Qed.
+  Proof. g0 auto n 3. Qed. 
 
   Let g0_4 (n x0 x1 x2 x3 x4 x5 x6 x7 : nat) : g0 n x0 x1 x2 x3 x4 x5 x6 x7 (n+4) = x4.
-  Proof. 
-    unfold g0; destruct (le_lt_dec n (n+4)); try omega.
-    replace (n+4-n) with 4 by omega; auto.
-  Qed.
+  Proof. g0 auto n 4. Qed. 
 
   Let g0_5 (n x0 x1 x2 x3 x4 x5 x6 x7 : nat) : g0 n x0 x1 x2 x3 x4 x5 x6 x7 (n+5) = x5.
-  Proof. 
-    unfold g0; destruct (le_lt_dec n (n+5)); try omega.
-    replace (n+5-n) with 5 by omega; auto.
-  Qed.
+  Proof. g0 auto n 5. Qed. 
 
   Let g0_6 (n x0 x1 x2 x3 x4 x5 x6 x7 : nat) : g0 n x0 x1 x2 x3 x4 x5 x6 x7 (n+6) = x6.
-  Proof. 
-    unfold g0; destruct (le_lt_dec n (n+6)); try omega.
-    replace (n+6-n) with 6 by omega; auto.
-  Qed.
+  Proof. g0 auto n 6. Qed. 
 
   Let g0_7 (n x0 x1 x2 x3 x4 x5 x6 x7 : nat) : g0 n x0 x1 x2 x3 x4 x5 x6 x7 (n+7) = x7.
-  Proof. 
-    unfold g0; destruct (le_lt_dec n (n+7)); try omega.
-    replace (n+7-n) with 7 by omega; auto.
-  Qed.
+  Proof. g0 auto n 7. Qed. 
 
   Tactic Notation "rew" "g0" := 
     try rewrite !g0_0;
@@ -302,8 +287,7 @@ Section diophantine_system.
     try rewrite !g0_5;
     try rewrite !g0_6;
     try rewrite !g0_7.
-    
-
+ 
   Let complete_lemma x y : { u : nat & { v | u+x = v+y } }.
   Proof.
     destruct (le_lt_dec x y).
@@ -315,8 +299,8 @@ Section diophantine_system.
 
   Lemma dio_repr_at_cst x i a : dio_repr_at (fun ν => ν x = i) a 6 5.
   Proof.
-    exists ( (a+5,dee_add a     (a+1))     (* s = p + q *)
-           ::(a+2,dee_add a     (a+3))     (* u = p + v *)
+    exists ( (a+5,dee_add (a+0) (a+1))     (* s = p + q *)
+           ::(a+2,dee_add (a+0) (a+3))     (* u = p + v *)
            ::(a+2,dee_add (a+1) (a+4))     (* u = q + w *)
            ::(a+3,dee_par x)               (* v = x     *)
            ::(a+4,dee_nat i)               (* w = i     *)
@@ -341,8 +325,8 @@ Section diophantine_system.
 
   Lemma dio_repr_at_op o x y z a : dio_repr_at (fun ν => ν x = de_op_sem o (ν y) (ν z)) a 8 7.
   Proof.
-    exists ( (a+7,dee_add a     (a+1))     (* s = p + q *)
-           ::(a+6,dee_add a     (a+2))     (* t = p + u *)
+    exists ( (a+7,dee_add (a+0) (a+1))     (* s = p + q *)
+           ::(a+6,dee_add (a+0) (a+2))     (* t = p + u *)
            ::(a+6,dee_add (a+1) (a+5))     (* t = q + r *)
            ::(a+5,dee_comp o (a+3) (a+4))  (* r = v o w *)
            ::(a+2,dee_par x)               (* u = x     *)

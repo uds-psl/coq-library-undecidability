@@ -55,7 +55,7 @@ Proof.
       rewrite binomial_gt, rem_lt in H4; omega.
 Qed.
 
-Hint Resolve dio_rel_binomial dio_rel_remainder.
+(* Hint Resolve dio_rel_binomial dio_rel_remainder. *)
 
 Section binary_le_dio.
 
@@ -74,7 +74,7 @@ Section binary_le_dio.
 
 End binary_le_dio.
 
-Hint Resolve binary_le_diophantine.
+Hint Resolve binary_le_diophantine : dio_rel_db.
 
 Theorem nat_meet_diophantine a b c : 𝔻P a -> 𝔻P b -> 𝔻P c
                                   -> 𝔻R (fun v => a v = b v ⇣ c v).
@@ -84,4 +84,4 @@ Proof.
   dio_rel_auto.
 Defined.
 
-Hint Resolve nat_meet_diophantine.
+Hint Resolve nat_meet_diophantine : dio_rel_db.

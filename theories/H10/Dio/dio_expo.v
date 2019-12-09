@@ -10,14 +10,23 @@
 (** ** Object-level encoding of exponential *)
 
 Require Import Arith Nat Omega List.
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac sums rel_iter binomial. 
-From Undecidability.H10.Matija Require Import alpha expo_diophantine.
-From Undecidability.H10.Dio Require Import dio_logic.
+
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_tac sums rel_iter binomial gcd.
+
+From Undecidability.H10.Matija 
+  Require Import alpha expo_diophantine.
+
+From Undecidability.H10.Dio 
+  Require Import dio_logic.
 
 Set Implicit Arguments.
 
 Local Notation power := (mscal mult 1).
 Local Notation expo := (mscal mult 1).
+
+Local Notation "phi ↑ k" := (env_lift phi k) (at level 1, format "phi ↑ k", left associativity).
+Local Notation "phi ↓"   := (fun n => phi (S n)) (at level 1, format "phi ↓", no associativity).
 
 Theorem dio_rel_alpha a b c : 𝔻P a -> 𝔻P b -> 𝔻P c
                            -> 𝔻R (fun ν => 3 < b ν /\ a ν = alpha_nat (b ν) (c ν)).
@@ -28,25 +37,29 @@ Proof.
   dio_rel_auto.
 Defined.
 
-Hint Resolve dio_rel_alpha.
+Hint Resolve dio_rel_alpha : dio_rel_db.
 
-Fact dio_rel_alpha_size : df_size (proj1_sig (dio_rel_alpha (dio_expr_var 0) (dio_expr_var 1) (dio_expr_var 2))) = 490.
+Local Fact dio_rel_alpha_example : 𝔻R (fun ν => 3 < ν 1 /\ ν 0 = alpha_nat (ν 1) (ν 2)).
+Proof. apply dio_rel_alpha; dio_rel_auto. Defined.
+
+Fact dio_rel_alpha_size : df_size_Z (proj1_sig dio_rel_alpha_example) = 5338%Z.
 Proof. reflexivity. Qed.
 
-Theorem dio_rel_expo p q r : 𝔻P p -> 𝔻P q -> 𝔻P r -> 𝔻R (fun ν => p ν = expo (r ν) (q ν)).
+Theorem dio_expr_expo q r : 𝔻P q -> 𝔻P r -> 𝔻P (fun ν => expo (r ν) (q ν)).
 Proof.
   intros.
-  apply dio_rel_equiv with (1 := fun v => expo_diophantine (p v) (q v) (r v)).
+  apply dio_rel_equiv with (1 := fun v => expo_diophantine (v 0) (q v↓) (r v↓)).
   unfold expo_conditions. 
   dio_rel_auto.
+  all: apply dio_rel_eq; dio_rel_auto.
 Defined.
 
-Hint Resolve dio_rel_expo.
- 
-Check dio_rel_expo.
-Print Assumptions dio_rel_expo.
+Hint Resolve dio_expr_expo : dio_rel_db.
 
-Fact dio_rel_expo_size : df_size (proj1_sig (dio_rel_expo (dio_expr_var 0) (dio_expr_var 1) (dio_expr_var 2))) = 1689.
+Local Fact dio_expr_expo_example : 𝔻P (fun ν => expo (ν 0) (ν 1)).
+Proof. dio_rel_auto. Defined.
+
+Fact dio_expr_expo_size : df_size_Z (proj1_sig dio_expr_expo_example) = 18546%Z.
 Proof. reflexivity. Qed.
 
 Section df_digit.
@@ -68,15 +81,20 @@ Section df_digit.
   Proof.
     intros H1 H2 H3 H4.
     apply dio_rel_equiv with (1 := fun ν => is_digit_eq (c ν) (q ν) (i ν) (y ν)).
-    dio_rel_auto; apply dio_expr_plus; auto.
+    dio_rel_auto.
+    apply dio_rel_eq; dio_rel_auto.
+    apply dio_expr_plus; dio_rel_auto.
   Defined.
 
 End df_digit.
 
-Hint Resolve dio_rel_is_digit.
+Hint Resolve dio_rel_is_digit : dio_rel_db.
 
-Check dio_rel_is_digit.
-Eval compute in df_size (proj1_sig (dio_rel_is_digit (dio_expr_var 0) (dio_expr_var 1) (dio_expr_var 2) (dio_expr_var 3))).
+Local Fact dio_rel_is_digit_example : 𝔻R (fun ν => is_digit (ν 0) (ν 1) (ν 2) (ν 3)).
+Proof. apply dio_rel_is_digit; dio_rel_auto. Defined.
+
+Check dio_rel_is_digit_example.
+Eval compute in df_size_Z (proj1_sig dio_rel_is_digit_example).
 
 Section df_binomial.
 
@@ -156,15 +174,19 @@ Section df_binomial.
         - apply power_mono; omega.
   Qed.
 
-  Lemma dio_rel_binomial b n k : 𝔻P b -> 𝔻P n -> 𝔻P k
-                              -> 𝔻R (fun ν => b ν = binomial (n ν) (k ν)).
+  Lemma dio_expr_binomial n k : 𝔻P n -> 𝔻P k -> 𝔻P (fun ν => binomial (n ν) (k ν)).
   Proof.
-    intros H1 H2 H3.
-    apply dio_rel_equiv with (1 := fun ν => is_binomial_eq (b ν) (n ν) (k ν)).
+    intros H2 H3.
+    apply dio_rel_equiv with (1 := fun ν => is_binomial_eq (ν 0) (n ν↓) (k ν↓)).
     dio_rel_auto; apply dio_expr_plus; auto.
   Defined.
 
 End df_binomial.
 
-Check dio_rel_binomial.
-Eval compute in df_size (proj1_sig (dio_rel_binomial (dio_expr_var 0) (dio_expr_var 1) (dio_expr_var 2))).
+Hint Resolve dio_expr_binomial : dio_rel_db.
+
+Local Fact dio_expr_binomial_example : 𝔻P (fun ν => binomial (ν 0) (ν 1)).
+Proof. apply dio_expr_binomial; dio_rel_auto. Defined.
+
+Check dio_expr_binomial_example.
+Eval compute in df_size_Z (proj1_sig dio_expr_binomial_example).
