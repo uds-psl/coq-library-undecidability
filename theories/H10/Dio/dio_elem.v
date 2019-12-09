@@ -104,25 +104,20 @@ Section diophantine_system.
        4) x = y * z 
 
      We represent a relation between parameters R by a list of equations l and one
-     variable x : var such that
+     variable s : var such that
        a) for any value f : nat -> nat of the params, l[f] has a solution
        b) for any value f : nat -> nat of the params,
 
-                R f <-> ((x=0)::l)[f] has a solution
+                R f <-> ((s=0)::l)[f] has a solution
 
-     How do we simulate poly1 = poly2 linearly ?
+     How do we simulate x = n ?
 
-         poly1 = (eqn1,x) where x is output
-         poly2 = (eqn2,y) where y is output
+          x = n <-> s = 0 /\ exists p q u v w, s = p+q /\ u = p+v /\ u = q+w /\ v = x /\ w = n
 
-         example poly1 = p*(q+r)
-         gives eqn1:= (0=1*2, 1=p, 2=3+4, 3=q, 4=r) and x:=0
-
-         then we simulate poly1 = poly2 with
- 
-               poly1 = poly2 <-> (eqn1 U eqn2 U { w=y+u, w=x+v, z=u+v }, z)
-
-         where u v z w are fresh
+     How do we simulate x = y + z 
+        
+          x = y+z <-> s = 0 /\ exists p q u v w r t, s = p+q /\ t = p+u /\ t=q+r
+                                          /\ r = v+w /\ u = x /\ v = y /\ w = z 
 
      We implement conjunction (cap), disjunction (cup) and exists so that we get a linear encoding
 
@@ -154,7 +149,7 @@ Section diophantine_system.
       | dee_nat n => n
       | dee_var v => φ v
       | dee_par i => ν i
-      | dee_comp o v w => do_eval o (φ v) (φ w) 
+      | dee_comp o v w => de_op_sem o (φ v) (φ w)
     end.
 
   Definition dee_vars e x  :=
@@ -170,22 +165,6 @@ Section diophantine_system.
      -> (forall x, ν1 x = ν2 x)
      -> dee_eval φ1 ν1 e = dee_eval φ2 ν2 e.
   Proof. destruct e as [ | | | [] ]; simpl; auto. Qed.
-
-  (* ρ σ ν *)
-
-  Definition dee_move k p :=
-    match p with
-      | dee_nat n      => dee_nat n
-      | dee_var v      => dee_var (k+v)
-      | dee_par i      => dee_par i
-      | dee_comp o v w => dee_comp o (k+v) (k+w)
-    end.
-
-  Fact dee_eval_move k φ ν e : dee_eval φ ν (dee_move k e) = dee_eval (fun x => φ (k+x)) ν e.
-  Proof. destruct e as [ | | | [] ]; simpl; auto. Qed.
-
-  Fact dee_vars_move k e x : dee_vars (dee_move k e) x <-> exists y, dee_vars e y /\ x = k+y.
-  Proof. destruct e as [ | | | [] ]; simpl; firstorder. Qed.
 
   Definition dee_dec k e :=
     match e with
@@ -226,23 +205,6 @@ Section diophantine_system.
     intros; apply H1; simpl; auto.
   Qed.
 
-  Definition dc_move k c := (k+fst c, dee_move k (snd c)).
-
-  Fact dc_eval_move k φ ν c : dc_eval φ ν (dc_move k c) <-> dc_eval (fun x => φ (k+x)) ν c.
-  Proof.
-    destruct c as (v,e); simpl.
-    rewrite dee_eval_move; tauto.
-  Qed.
-
-  Fact dc_vars_move k c x : dc_vars (dc_move k c) x <-> exists y, x = k + y /\ dc_vars c y.
-  Proof.
-    destruct c as (v,e); simpl.
-    rewrite dee_vars_move.
-    split.
-    + intros [ ? | (y & Hy & ?) ]; subst x; firstorder; exists v; auto.
-    + intros (y & ? & [ | ]); subst; firstorder.
-  Qed.
-
   Definition dc_dec k c := (fst c, dee_dec k (snd c)).
 
   Fact dc_eval_dec φ ν k c : dc_eval φ ν (dc_dec k c) <-> dc_eval φ  (fun x => match x with 0 => φ k | S x => ν x end) c.
@@ -270,240 +232,139 @@ Section diophantine_system.
     ds_H4   : forall ν, R ν <-> exists φ, Forall (dc_eval φ ν) ds_eqns /\ φ ds_ref = 0;
   }.
 
-  Section diophantine_sys_expr.
-
-    (* A compiler from expressions to lists of small expressions *)
-
-    Fixpoint de_eqns e x :=
-      match e with
-        | de_cst n      => (x,dee_nat n)::nil 
-        | de_var p      => (x,dee_par p)::nil
-        | de_comp o p q => (x,dee_comp o (x+1) (x+1+de_size p)) :: de_eqns p (x+1) ++ de_eqns q (x+1+de_size p)
-      end.
-
-    Fact de_eqns_length e x : length (de_eqns e x) = de_size e.
-    Proof.
-      revert x; induction e as [ | | o p Hp q Hq ]; intros x; simpl; auto.
-      rewrite app_length, Hp, Hq; auto.
-    Qed.
-
-    Fact de_size_ge_1 e : 1 <= de_size e.
-    Proof. destruct e; simpl; omega. Qed.
-
-    Fact de_eqns_vars e x : forall c, In c (de_eqns e x) -> forall y, dc_vars c y -> x <= y < x+de_size e.
-    Proof.
-      revert x; induction e as [ | | o p Hp q Hq ]; intros x; simpl; auto.
-      + intros ? [ [] | [] ]; simpl; intros; omega.
-      + intros ? [ [] | [] ]; simpl; intros; omega.
-      + intros c [ Hc | Hc ]; [ | apply in_app_or in Hc; destruct Hc as [ Hc | Hc ] ]; subst; simpl.
-        * intros; generalize (de_size_ge_1 q); intros; omega.
-        * intros y Hy; apply Hp with (y := y) in Hc; simpl in *; auto; omega.
-        * intros y Hy; apply Hq with (y := y) in Hc; simpl in *; auto; omega.
-    Qed.
-
-    (* If equations in de_eqns e x are satisfied in φ, then φ x must be equal to de_eval ν e *)
-
-    Fact dc_Forall_eval φ ν e x : Forall (dc_eval φ ν) (de_eqns e x) -> de_eval ν e = φ x.
-    Proof.
-      rewrite Forall_forall.
-      revert x; induction e as [ | v| [] p Hp q Hq ]; simpl; intros x Hx; simpl; auto.
-      * specialize (Hx (x,dee_nat n)); simpl in Hx; rewrite Hx; auto.
-      * specialize (Hx (x,dee_par v)); simpl in Hx; rewrite Hx; auto.
-      * rewrite Hp with (x+1), Hq with (x+1+de_size p).
-        - symmetry; apply (Hx (_, dee_add _ _)); auto.
-        - intros; apply Hx; right; apply in_or_app; auto.
-        - intros; apply Hx; right; apply in_or_app; auto.
-      * rewrite Hp with (x+1), Hq with (x+1+de_size p).
-        - symmetry; apply (Hx (_, dee_mul _ _)); auto.
-        - intros; apply Hx; right; apply in_or_app; auto.
-        - intros; apply Hx; right; apply in_or_app; auto.
-    Qed.
-
-    (* Converselly, equations in de_eqns e x are satisfiable *)
-
-    Fact dc_eval_exists_Forall ν e x : { φ | Forall (dc_eval φ ν) (de_eqns e x) }. 
-    Proof.
-      revert x; induction e as [ | v | o p Hp q Hq ]; simpl; intros x.
-      + exists (fun  _ => n); constructor; simpl; auto.
-      + exists (fun  _ => ν v); constructor; simpl; auto.
-      + destruct (Hp (x+1)) as (g1 & H2).
-        destruct (Hq (x+1+de_size p)) as (g2 & H4).
-        generalize (dc_Forall_eval _ _ H2) (dc_Forall_eval _ _ H4); intros H1 H3.
-        destruct (@valuation_one_union x (do_eval o (de_eval ν p) (de_eval ν q)) (x+1,x+1+de_size p) g1 (x+1+de_size p, x+1+de_size p+de_size q) g2)
-           as (g & H5 & H6 & H7).
-        * simpl; rewrite Min.min_l; omega.
-        * intros y; simpl; omega.
-        * exists g; constructor.
-          - red; unfold fst, snd; rewrite H5, H1, H3; simpl; f_equal; symmetry.
-            ++ apply H6; simpl; generalize (de_size_ge_1 p); intros; omega.
-            ++ apply H7; simpl; generalize (de_size_ge_1 q); intros; omega.
-          - apply Forall_app; split.
-            ++ revert H2; do 2 rewrite Forall_forall.
-               intros H c Hc.
-               generalize (H _ Hc); apply dc_eval_ext; auto.
-               intros y Hy; apply H6.
-               apply de_eqns_vars with (1 := Hc); auto.
-            ++ revert H4; do 2 rewrite Forall_forall.
-               intros H c Hc.
-               generalize (H _ Hc); apply dc_eval_ext; auto.
-               intros y Hy; apply H7.
-               apply de_eqns_vars with (1 := Hc); auto.
-    Qed.
-
-    Let compare_lemma x y : { u : nat & { v | u+x = v+y } }.
-    Proof.
-      destruct (le_lt_dec x y).
-      + exists (y-x), 0; omega.
-      + exists 0, (x-y); omega.
-    Qed.
-
-    (* poly1 = poly2 <-> (eqn1 U eqn2 U { w=x+u, w=y+v, z=u+v }, z) *)
-
-    Let g0 (n x0 x1 x2 x3 m : nat) := if le_lt_dec n m then 
-                                match m - n with
-                                  | 0 => x0
-                                  | 1 => x1
-                                  | 2 => x2
-                                  | _ => x3
+  Let g0 (n x0 x1 x2 x3 x4 x5 x6 x7 m : nat) := if le_lt_dec n m then 
+                                 match m - n with
+                                   | 0 => x0
+                                   | 1 => x1
+                                   | 2 => x2
+                                   | 3 => x3
+                                   | 4 => x4
+                                   | 5 => x5
+                                   | 6 => x6
+                                   | _ => x7
                                 end
-                              else x3.
+                              else x0.
 
-    Let g0_0 (n x0 x1 x2 x3 : nat) : g0 n x0 x1 x2 x3 n = x0.
-    Proof. 
-      unfold g0; destruct (le_lt_dec n n); try omega.
-      replace (n-n) with 0 by omega; auto.
-    Qed.
+  Let g0_0 (n x0 x1 x2 x3 x4 x5 x6 x7 : nat) : g0 n x0 x1 x2 x3 x4 x5 x6 x7 n = x0.
+  Proof. 
+    unfold g0; destruct (le_lt_dec n n); try omega.
+    replace (n-n) with 0 by omega; auto.
+  Qed.
 
-    Let g0_1 (n x0 x1 x2 x3 : nat) : g0 n x0 x1 x2 x3 (n+1) = x1.
-    Proof. 
-      unfold g0; destruct (le_lt_dec n (n+1)); try omega.
-      replace (n+1-n) with 1 by omega; auto.
-    Qed.
+  Let g0_1 (n x0 x1 x2 x3 x4 x5 x6 x7 : nat) : g0 n x0 x1 x2 x3 x4 x5 x6 x7 (n+1) = x1.
+  Proof. 
+    unfold g0; destruct (le_lt_dec n (n+1)); try omega.
+    replace (n+1-n) with 1 by omega; auto.
+  Qed.
 
-    Let g0_2 (n x0 x1 x2 x3 : nat) : g0 n x0 x1 x2 x3 (n+2) = x2.
-    Proof. 
-      unfold g0; destruct (le_lt_dec n (n+2)); try omega.
-      replace (n+2-n) with 2 by omega; auto.
-    Qed.
+  Let g0_2 (n x0 x1 x2 x3 x4 x5 x6 x7 : nat) : g0 n x0 x1 x2 x3 x4 x5 x6 x7 (n+2) = x2.
+  Proof. 
+    unfold g0; destruct (le_lt_dec n (n+2)); try omega.
+    replace (n+2-n) with 2 by omega; auto.
+  Qed.
 
-    Let g0_3 (n x0 x1 x2 x3 : nat) : g0 n x0 x1 x2 x3 (n+3) = x3.
-    Proof. 
-      unfold g0; destruct (le_lt_dec n (n+3)); try omega.
-      replace (n+3-n) with 3 by omega; auto.
-    Qed.
+  Let g0_3 (n x0 x1 x2 x3 x4 x5 x6 x7 : nat) : g0 n x0 x1 x2 x3 x4 x5 x6 x7 (n+3) = x3.
+  Proof. 
+    unfold g0; destruct (le_lt_dec n (n+3)); try omega.
+    replace (n+3-n) with 3 by omega; auto.
+  Qed.
 
-    (* x1+(x2*5) at 4 ~~> v4 = v5 + v6, v5 = x1, v6 = v7 * v8, v7 = x2, v8 = 5
-       x3 at 9        ~~> v9 = x3
+  Let g0_4 (n x0 x1 x2 x3 x4 x5 x6 x7 : nat) : g0 n x0 x1 x2 x3 x4 x5 x6 x7 (n+4) = x4.
+  Proof. 
+    unfold g0; destruct (le_lt_dec n (n+4)); try omega.
+    replace (n+4-n) with 4 by omega; auto.
+  Qed.
 
-       x1+(x2*5) = x3 at 0
-                      ~~> v3 = v1 + v4, v3 = v2 + v9, v0 = v1 + v2
-    *)
+  Let g0_5 (n x0 x1 x2 x3 x4 x5 x6 x7 : nat) : g0 n x0 x1 x2 x3 x4 x5 x6 x7 (n+5) = x5.
+  Proof. 
+    unfold g0; destruct (le_lt_dec n (n+5)); try omega.
+    replace (n+5-n) with 5 by omega; auto.
+  Qed.
 
-    Lemma dio_repr_at_eq n e1 e2 : dio_repr_at (fun ν => de_eval ν e1 = de_eval ν e2) n (4+de_size e1+de_size e2) (3+de_size e1+de_size e2).
-    Proof.
-      exists ((n+3, dee_add (n+1) (n+4)) ::
-              (n+3, dee_add (n+2) (n+4+de_size e1)) ::
-              (n,   dee_add (n+1) (n+2)) ::
-              (de_eqns e1 (n+4) ++ de_eqns e2 (n+4+de_size e1))) n.
-      + simpl; rewrite app_length; do 2 rewrite de_eqns_length; auto.
-      + intros x c [ Hc | [ Hc | [ Hc | Hc ] ] ].
-        * subst; simpl; generalize (de_size_ge_1 e2); omega.
-        * subst; simpl; generalize (de_size_ge_1 e2); omega.
-        * subst; simpl; generalize (de_size_ge_1 e2); omega.
-        * intros Hx; apply in_app_or in Hc.
-          destruct Hc as [ Hc | Hc ]; apply de_eqns_vars with (2 := Hx) in Hc;
-             simpl in *; omega.
-      + simpl; omega.
-      + intros f.
-        destruct (@dc_eval_exists_Forall f e1 (n+4)) as (g1 & H2).
-        destruct (@dc_eval_exists_Forall f e2 (n+4+de_size e1)) as (g2 & H4).
-        destruct (compare_lemma (g1 (n+4)) (g2 (n+4+de_size e1))) as (u & v & Huv).
-        set (g3 := g0 n (u+v) u v (u+g1 (n+4))).
-        destruct (@valuation_union (n+4, n+4+de_size e1) g1 (n+4+de_size e1, n+4+de_size e1+de_size e2) g2)
-           as (g4 & H5 & H6).
-        { intro; simpl; omega. }
-        destruct (@valuation_union (n,n+4) g3 (n+4,n+4+de_size e1+de_size e2) g4) 
-           as (g & H7 & H8).
-        { intro; simpl; omega. }
-        generalize (de_size_ge_1 e1) (de_size_ge_1 e2); intros E1 E2.
-        exists g; repeat constructor; simpl.
-        * rewrite H7, H7; simpl; auto; try omega.
-          rewrite H8; simpl; try omega.
-          rewrite H5; simpl; try omega.
-          unfold g3; rewrite g0_1, g0_3; omega.
-        * rewrite H7, H7; simpl; auto; try omega.
-          rewrite H8; simpl; try omega.
-          rewrite H6; simpl; auto; try omega.
-          unfold g3; rewrite g0_2, g0_3; omega.
-        * rewrite H7, H7, H7; simpl; try omega.
-          unfold g3; rewrite g0_0, g0_1, g0_2; auto.
-        * apply Forall_app; split.
-          - revert H2; do 2 rewrite Forall_forall.
-            intros H c Hc; generalize (H _ Hc).
-            apply dc_eval_ext; auto.
-            intros x Hx; rewrite H8.
-            ++ apply H5, de_eqns_vars with (1 := Hc); auto.
-            ++ apply de_eqns_vars with (1 := Hc) in Hx.
-               simpl in *; omega.
-          - revert H4; do 2 rewrite Forall_forall.
-            intros H c Hc; generalize (H _ Hc).
-            apply dc_eval_ext; auto.
-            intros x Hx; rewrite H8.
-            ++ apply H6, de_eqns_vars with (1 := Hc); auto.
-            ++ apply de_eqns_vars with (1 := Hc) in Hx.
-               simpl in *; omega.
-      + intros f; split.
-        * intros Hf.
-          destruct (@dc_eval_exists_Forall f e1 (n+4)) as (g1 & H2).
-          destruct (@dc_eval_exists_Forall f e2 (n+4+de_size e1)) as (g2 & H4).
-          generalize (dc_Forall_eval _ _ H2) (dc_Forall_eval _ _ H4); intros H1 H3.
-          set (g3 := g0 n 0 0 0 (de_eval f e1)).
-          destruct (@valuation_union (n+4, n+4+de_size e1) g1 (n+4+de_size e1, n+4+de_size e1+de_size e2) g2)
-             as (g4 & H5 & H6).
-          { intro; simpl; omega. }
-          destruct (@valuation_union (n, n+4) g3 (n+4, n+4+de_size e1+de_size e2) g4) 
-            as (g & H7 & H8).
-          { intro; simpl; omega. }
-          generalize (de_size_ge_1 e1) (de_size_ge_1 e2); intros E1 E2.
-          exists g; repeat constructor; simpl.
-          - rewrite H7, H7; simpl; auto; try omega.
-            rewrite H8; simpl; try omega.
-            rewrite H5; simpl; try omega.
-            unfold g3; rewrite g0_3, g0_1; omega.
-          - rewrite H7, H7; simpl; auto; try omega.
-            rewrite H8; simpl; try omega.
-            unfold g3; rewrite g0_3, g0_2.
-            rewrite Hf, H6; simpl; auto; omega.
-          - rewrite H7, H7, H7; simpl; try omega.
-            unfold g3; rewrite g0_0, g0_1, g0_2; auto.
-          - apply Forall_app; split.
-            ++ revert H2; do 2 rewrite Forall_forall.
-               intros H c Hc; generalize (H _ Hc).
-               apply dc_eval_ext; auto.
-               intros x Hx; rewrite H8.
-               ** apply H5, de_eqns_vars with (1 := Hc); auto.
-               ** apply de_eqns_vars with (1 := Hc) in Hx.
-                  simpl in *; omega.
-            ++ revert H4; do 2 rewrite Forall_forall.
-               intros H c Hc; generalize (H _ Hc).
-               apply dc_eval_ext; auto.
-               intros x Hx; rewrite H8.
-               ** apply H6, de_eqns_vars with (1 := Hc); auto.
-               ** apply de_eqns_vars with (1 := Hc) in Hx.
-                  simpl in *; omega.
-          - rewrite H7; simpl; try omega.
-            unfold g3; rewrite g0_0; auto.
-        * intros (g & H1 & H0).
-          do 3 rewrite Forall_cons_inv in H1.
-          rewrite Forall_app in H1.
-          destruct H1 as (H1 & H2 & H3 & H4 & H5).
-          simpl in *.
-          rewrite dc_Forall_eval with (1 := H4).
-          rewrite dc_Forall_eval with (1 := H5).
-          omega.
-    Defined.
+  Let g0_6 (n x0 x1 x2 x3 x4 x5 x6 x7 : nat) : g0 n x0 x1 x2 x3 x4 x5 x6 x7 (n+6) = x6.
+  Proof. 
+    unfold g0; destruct (le_lt_dec n (n+6)); try omega.
+    replace (n+6-n) with 6 by omega; auto.
+  Qed.
 
-  End diophantine_sys_expr.
+  Let g0_7 (n x0 x1 x2 x3 x4 x5 x6 x7 : nat) : g0 n x0 x1 x2 x3 x4 x5 x6 x7 (n+7) = x7.
+  Proof. 
+    unfold g0; destruct (le_lt_dec n (n+7)); try omega.
+    replace (n+7-n) with 7 by omega; auto.
+  Qed.
+
+  Tactic Notation "rew" "g0" := 
+    try rewrite !g0_0;
+    try rewrite !g0_1;
+    try rewrite !g0_2;
+    try rewrite !g0_3;
+    try rewrite !g0_4;
+    try rewrite !g0_5;
+    try rewrite !g0_6;
+    try rewrite !g0_7.
+    
+
+  Let complete_lemma x y : { u : nat & { v | u+x = v+y } }.
+  Proof.
+    destruct (le_lt_dec x y).
+    + exists (y-x), 0; omega.
+    + exists 0, (x-y); omega.
+  Qed.
+
+  (** x = i <~~> s = 0 /\ exists s p q u v w, s = p+q /\ u = p+v /\ u = q+w /\ v = x /\ w = i *)
+
+  Lemma dio_repr_at_cst x i a : dio_repr_at (fun ν => ν x = i) a 6 5.
+  Proof.
+    exists ( (a+5,dee_add a     (a+1))     (* s = p + q *)
+           ::(a+2,dee_add a     (a+3))     (* u = p + v *)
+           ::(a+2,dee_add (a+1) (a+4))     (* u = q + w *)
+           ::(a+3,dee_par x)               (* v = x     *)
+           ::(a+4,dee_nat i)               (* w = i     *)
+           ::nil)
+           (a+5); simpl; auto; try omega.
+    + intros j c.
+      repeat (intros [ <- | H ]; [ simpl; try omega | revert H ]); try tauto.
+    + intros v.
+      destruct (complete_lemma (v x) i) as (p & q & H).
+      exists (g0 a p q (p+v x) (v x) i (p+q) 0 0); 
+        repeat constructor; simpl; rew g0; auto.
+    + intros v; split.
+      * intros H.
+        exists (g0 a 0 0 (v x) (v x) i 0 0 0); 
+          repeat constructor; simpl; rew g0; auto.
+      * intros (phi & H); revert H.
+        repeat rewrite Forall_cons_inv; simpl; omega.
+  Defined.
+
+  (** x = y o z <~~> s = 0 /\ exists p q u v w r t, s = p+q /\ t = p+u /\ t=q+r
+                                          /\ r = v+w /\ u = x /\ v = y /\ w = z *)
+
+  Lemma dio_repr_at_op o x y z a : dio_repr_at (fun ν => ν x = de_op_sem o (ν y) (ν z)) a 8 7.
+  Proof.
+    exists ( (a+7,dee_add a     (a+1))     (* s = p + q *)
+           ::(a+6,dee_add a     (a+2))     (* t = p + u *)
+           ::(a+6,dee_add (a+1) (a+5))     (* t = q + r *)
+           ::(a+5,dee_comp o (a+3) (a+4))  (* r = v o w *)
+           ::(a+2,dee_par x)               (* u = x     *)
+           ::(a+3,dee_par y)               (* v = y     *)
+           ::(a+4,dee_par z)               (* w = z     *)
+           ::nil)
+           (a+7); simpl; auto; try omega.
+    + intros j c.
+      repeat (intros [ <- | H ]; [ simpl; try omega | revert H ]); try tauto.
+    + intros v.
+      destruct (complete_lemma (v x) (de_op_sem o (v y) (v z))) as (p & q & H).
+      exists (g0 a p q (v x) (v y) (v z) (de_op_sem o (v y) (v z)) (p+v x) (p+q)); 
+        repeat constructor; simpl; rew g0; auto.
+    + intros v; split.
+      * intros H.
+        exists (g0 a 0 0 (v x) (v y) (v z) (v x) (v x) 0); 
+          repeat constructor; simpl; rew g0; auto.
+      * intros (phi & H); revert H.
+        repeat rewrite Forall_cons_inv; simpl. 
+        intros ((E1 & E2 & E3 & E4 & E5 & E6 & E7 & _) & E0).
+        rewrite <- E6, <- E7, <- E4; omega.
+  Defined.
 
   Let not_interval_union a1 n1 a2 n2 : 
            a1+n1 <= a2
@@ -513,66 +374,17 @@ Section diophantine_system.
     rewrite Nat.max_r in H3; omega.
   Qed.
 
-  Lemma dio_repr_at_conj R1 a1 n1 p1 R2 a2 n2 p2 n : 
-          dio_repr_at R1 a1 n1 p1
-       -> dio_repr_at R2 a2 n2 p2
-       -> a1+n1 <= a2
-       -> n = 1+a2+n2-a1
-       -> dio_repr_at (fun ν => R1 ν /\ R2 ν) a1 n (1+p1+p2).
-  Proof.
-    intros [ l1 r1 F0 F1 F2 F3 F4 ] [ l2 r2 G0 G1 G2 G3 G4 ] H12 ?; subst n.
-    exists ((a2+n2,dee_add r1 r2)::l1++l2) (a2+n2).
-    + simpl; rewrite app_length, F0, G0; omega.
-    + replace (a1+(1+a2+n2-a1)) with (1+a2+n2) by omega.
-      intros x c [ Hc | Hc ].
-      * subst; simpl; omega.
-      * intros H1; apply in_app_or in Hc; destruct Hc as [ Hc | Hc ].
-        - specialize (F1 _ _ Hc H1); omega.
-        - specialize (G1 _ _ Hc H1); omega.
-    + omega.
-    + intros f.
-      destruct (F3 f) as (g1 & H1).
-      destruct (G3 f) as (g2 & H2).
-      destruct (@valuation_one_union (a2+n2) (g1 r1+g2 r2) (a1,a1+n1) g1 (a2,a2+n2) g2) 
-        as (g & Hg1 & Hg2 & Hg3); auto.
-      { red; simpl; intros; omega. }
-      exists g; constructor; [ | apply Forall_app; split ].
-      * simpl; rewrite (Hg2 r1), (Hg3 r2); auto.
-      * apply Forall_impl with (2 := H1).
-        intros c Hc; apply dc_eval_ext; auto.
-        intros x Hx; apply Hg2, F1 with c; auto.
-      * apply Forall_impl with (2 := H2).
-        intros c Hc; apply dc_eval_ext; auto.
-        intros x Hx; apply Hg3, G1 with c; auto.
-    + intros f; rewrite F4, G4; split.
-      * intros ((g1 & H1 & H2) & (g2 & H3 & H4)).
-        destruct (@valuation_one_union (a2+n2) 0 (a1,a1+n1) g1 (a2,a2+n2) g2) 
-          as (g & Hg1 & Hg2 & Hg3); auto.
-        { red; simpl; intros; omega. }
-        exists g; split; auto; constructor; simpl.
-        ++ rewrite Hg1, Hg2, Hg3; auto; omega.
-        ++ apply Forall_app; split.
-           ** apply Forall_impl with (2 := H1).
-              intros c Hc; apply dc_eval_ext; auto.
-              intros x Hx; apply Hg2, F1 with c; auto.
-           ** apply Forall_impl with (2 := H3).
-              intros c Hc; apply dc_eval_ext; auto.
-              intros x Hx; apply Hg3, G1 with c; auto.
-      * intros (g & Hg1 & Hg2).
-        inversion Hg1 as [ | ? ? Hg3 Hg4 ].
-        apply Forall_app in Hg4; destruct Hg4 as (Hg4 & Hg5).
-        simpl in Hg3; split; exists g; split; auto; omega.
-  Defined.
+  Let dio_op_swap o := match o with do_add => do_mul | do_mul => do_add end.
 
-  Lemma dio_repr_at_disj R1 a1 n1 p1 R2 a2 n2 p2 n : 
+  Fact dio_repr_at_bin o R1 a1 n1 p1 R2 a2 n2 p2 n : 
           dio_repr_at R1 a1 n1 p1
        -> dio_repr_at R2 a2 n2 p2
        -> a1+n1 <= a2
        -> n = 1+a2+n2-a1
-       -> dio_repr_at (fun ν => R1 ν \/ R2 ν) a1 n (1+p1+p2). 
+       -> dio_repr_at (fun ν => df_op_sem o (R1 ν) (R2 ν)) a1 n (1+p1+p2).
   Proof.
     intros [ l1 r1 F0 F1 F2 F3 F4 ] [ l2 r2 G0 G1 G2 G3 G4 ] H12 ?; subst n.
-    exists ((a2+n2,dee_mul r1 r2)::l1++l2) (a2+n2).
+    exists ((a2+n2,dee_comp (dio_op_swap o) r1 r2)::l1++l2) (a2+n2).
     + simpl; rewrite app_length, F0, G0; omega.
     + replace (a1+(1+a2+n2-a1)) with (1+a2+n2) by omega.
       intros x c [ Hc | Hc ].
@@ -584,18 +396,19 @@ Section diophantine_system.
     + intros f.
       destruct (F3 f) as (g1 & H1).
       destruct (G3 f) as (g2 & H2).
-      destruct (@valuation_one_union (a2+n2) (g1 r1*g2 r2) (a1,a1+n1) g1 (a2,a2+n2) g2) 
+      destruct (@valuation_one_union (a2+n2) (de_op_sem (dio_op_swap o) (g1 r1) (g2 r2)) (a1,a1+n1) g1 (a2,a2+n2) g2) 
         as (g & Hg1 & Hg2 & Hg3); auto.
       { red; simpl; intros; omega. }
       exists g; constructor; [ | apply Forall_app; split ].
-      * simpl; rewrite (Hg2 r1), (Hg3 r2); auto.
+      * simpl; rewrite Hg1, (Hg2 r1), (Hg3 r2); auto.
       * apply Forall_impl with (2 := H1).
         intros c Hc; apply dc_eval_ext; auto.
         intros x Hx; apply Hg2, F1 with c; auto.
       * apply Forall_impl with (2 := H2).
         intros c Hc; apply dc_eval_ext; auto.
         intros x Hx; apply Hg3, G1 with c; auto.
-    + intros f; rewrite F4, G4; split.
+    + intros f. 
+      destruct o; simpl; rewrite F4, G4; split.
       * intros [ (g1 & H1 & H2) | (g2 & H1 & H2) ].
         - destruct (G3 f) as (g2 & H3).
           destruct (@valuation_one_union (a2+n2) 0 (a1,a1+n1) g1 (a2,a2+n2) g2) 
@@ -629,12 +442,29 @@ Section diophantine_system.
         simpl in Hg3; rewrite Hg2 in Hg3.
         symmetry in Hg3; apply mult_is_O in Hg3.
         destruct Hg3 as [ Hg3 | Hg3 ]; [ left | right ]; exists g; auto.
+      * intros ((g1 & H1 & H2) & (g2 & H3 & H4)).
+        destruct (@valuation_one_union (a2+n2) 0 (a1,a1+n1) g1 (a2,a2+n2) g2) 
+          as (g & Hg1 & Hg2 & Hg3); auto.
+        { red; simpl; intros; omega. }
+        exists g; split; auto; constructor; simpl.
+        ++ rewrite Hg1, Hg2, Hg3; auto; omega.
+        ++ apply Forall_app; split.
+           ** apply Forall_impl with (2 := H1).
+              intros c Hc; apply dc_eval_ext; auto.
+              intros x Hx; apply Hg2, F1 with c; auto.
+           ** apply Forall_impl with (2 := H3).
+              intros c Hc; apply dc_eval_ext; auto.
+              intros x Hx; apply Hg3, G1 with c; auto.
+      * intros (g & Hg1 & Hg2).
+        inversion Hg1 as [ | ? ? Hg3 Hg4 ].
+        apply Forall_app in Hg4; destruct Hg4 as (Hg4 & Hg5).
+        simpl in Hg3; split; exists g; split; auto; omega.
   Defined.
 
   Lemma dio_repr_at_exst R a n m p : 
           dio_repr_at R a n p
        -> m = n+1
-       -> dio_repr_at (fun ν => exists n, R (dv_lift ν n)) a m p. 
+       -> dio_repr_at (fun ν => exists n, R ν↑n) a m p. 
   Proof.
     intros [ l r F0 F1 F2 F3 F4 ] ?; subst m.
     exists (map (dc_dec (a+n)) l) r.
@@ -678,64 +508,66 @@ Section diophantine_system.
         intros H c Hc.
         apply in_map with (f := dc_dec _), H in Hc.
         revert Hc; rewrite dc_eval_dec; apply dc_eval_ext; auto.
+        intros []; simpl; auto.
   Defined.
 
   Fixpoint df_weight_1 f :=
     match f with
-      | df_atm a b  => 4 + de_size a + de_size b
-      | df_conj f g => 1 + df_weight_1 f + df_weight_1 g  
-      | df_disj f g => 1 + df_weight_1 f + df_weight_1 g  
-      | df_exst f   => 1 + df_weight_1 f
+      | df_cst _ _     => 6
+      | df_op _ _ _ _  => 8
+      | df_bin _ f g   => 1 + df_weight_1 f + df_weight_1 g  
+      | df_exst f      => 1 + df_weight_1 f
     end.
 
-  Fact df_weigth_1_size f : df_weight_1 f <= 4*df_size f.
+  Fact df_weigth_1_size f : df_weight_1 f <= 8*df_size f.
   Proof. induction f; simpl; omega. Qed.
 
   Fixpoint df_weight_2 f :=
     match f with
-      | df_atm a b  => 3 + de_size a + de_size b
-      | df_conj f g => 1 + df_weight_2 f + df_weight_2 g  
-      | df_disj f g => 1 + df_weight_2 f + df_weight_2 g  
-      | df_exst f   => df_weight_2 f
+      | df_cst _ _     => 5
+      | df_op _ _ _ _  => 7
+      | df_bin _ f g   => 1 + df_weight_2 f + df_weight_2 g  
+      | df_exst f      => df_weight_2 f
     end.
 
-  Fact df_weigth_2_size f : df_weight_2 f <= 3*df_size f.
+  Fact df_weigth_2_size f : df_weight_2 f <= 7*df_size f.
   Proof. induction f; simpl in *; omega. Qed.
 
   Lemma dio_repr_at_form n f : dio_repr_at (df_pred f) n (df_weight_1 f) (df_weight_2 f).
   Proof.
     revert n;
-    induction f as [ a b | f IHf g IHg | f IHf g IHg | f IHf ]; intros n; simpl df_pred; simpl df_weight_1; simpl df_weight_2.
-    + apply dio_repr_at_eq.
-    + apply dio_repr_at_conj with (n1 := df_weight_1 f) (a2 := n+df_weight_1 f) (n2 := df_weight_1 g); auto; omega.
-    + apply dio_repr_at_disj with (n1 := df_weight_1 f) (a2 := n+df_weight_1 f) (n2 := df_weight_1 g); auto; omega.
+    induction f as [ x i | o x y z | o f IHf g IHg | f IHf ]; intros n; simpl df_pred; simpl df_weight_1; simpl df_weight_2.
+    + apply dio_repr_at_cst; auto.
+    + apply dio_repr_at_op; auto.
+    + apply dio_repr_at_bin with (n1 := df_weight_1 f) (a2 := n+df_weight_1 f) (n2 := df_weight_1 g); auto; omega.
     + apply dio_repr_at_exst with (n := df_weight_1 f); auto; omega.
   Defined.
 
-  (** For any diophantine logic formula f of size s, one can compute a list l 
-      of at most 1+3*s elementary diophantine constraints, containing at 
-      most 4*s variables and such that df_pred f ν is equivalent to 
-      the simultaneous satisfiability at ν of all the elementary constraints in l *)
-
-  Theorem dio_formula_elem f : { l | length l <= 1+3*df_size f
-                                 /\ (forall c x, In c l -> dc_vars c x -> x < 4*df_size f)  
-                                 /\  forall ν, df_pred f ν <-> exists φ, Forall (dc_eval φ ν) l }.
-  Proof.
-    destruct (dio_repr_at_form 0 f) as [l r H0 H1 H2 H3 H4].
-    exists ((r,dee_nat 0) :: l); split; [ | split ]; simpl length; try omega.
-    + rewrite H0; apply le_n_S, df_weigth_2_size.
-    + intros c x [ [] | H ].
-      * simpl dc_vars; intros [ | [] ]; subst.
-        generalize (df_weigth_1_size f); intros; omega.
-      * intros G; apply H1 in G; auto.
-        generalize (df_weigth_1_size f); intros; omega.
-    + intros ν; rewrite H4.
-      split; intros (φ & H); exists φ; revert H; rewrite Forall_cons_inv; simpl; tauto.
-  Defined.
-
-  Definition dio_fs f := proj1_sig (dio_formula_elem f).
-                 
 End diophantine_system.
 
+(** For any diophantine logic formula f of size s, one can compute a list l 
+    of at most 1+8*s elementary diophantine constraints, containing at 
+    most 7*s variables and such that df_pred f ν is equivalent to 
+    the simultaneous satisfiability at ν of all the elementary constraints in l *)
+
+Theorem dio_formula_elem f : { l | length l <= 1+7*df_size f
+                               /\ (forall c x, In c l -> dc_vars c x -> x < 8*df_size f)  
+                               /\  forall ν, df_pred f ν <-> exists φ, Forall (dc_eval φ ν) l }.
+Proof.
+  destruct (dio_repr_at_form 0 f) as [l r H0 H1 H2 H3 H4].
+  exists ((r,dee_nat 0) :: l); split; [ | split ]; simpl length; try omega.
+  + rewrite H0; apply le_n_S, df_weigth_2_size.
+  + intros c x [ [] | H ].
+    * simpl dc_vars; intros [ | [] ]; subst.
+      generalize (df_weigth_1_size f); intros; simpl; omega.
+    * intros G; apply H1 in G; auto.
+      generalize (df_weigth_1_size f); intros; simpl; omega.
+  + intros ν; rewrite H4.
+    split; intros (φ & H); exists φ; revert H; rewrite Forall_cons_inv; simpl; tauto.
+Defined.
+
+Definition dio_fs f := proj1_sig (dio_formula_elem f).
+ 
 (* Check dio_formula_elem.
 Print Assumptions dio_formula_elem. *)
+
