@@ -38,9 +38,7 @@ Local Notation "phi ↓"   := (fun n => phi (S n)) (at level 1, format "phi ↓"
 Theorem dio_rel_alpha a b c : 𝔻F a -> 𝔻F b -> 𝔻F c
                            -> 𝔻R (fun ν => 3 < b ν /\ a ν = alpha_nat (b ν) (c ν)).
 Proof.
-  intros.
-  apply dio_rel_equiv with (1 := fun v => alpha_diophantine (a v) (b v) (c v)).
-  unfold alpha_conditions; dio auto.
+  dio by lemma (fun v => alpha_diophantine (a v) (b v) (c v)).
 Defined.
 
 Hint Resolve dio_rel_alpha : dio_rel_db.
@@ -59,9 +57,7 @@ Proof. reflexivity. Qed.
 
 Theorem dio_fun_expo q r : 𝔻F q -> 𝔻F r -> 𝔻F (fun ν => expo (r ν) (q ν)).
 Proof.
-  intros.
-  apply dio_rel_equiv with (1 := fun v => expo_diophantine (v 0) (q v↓) (r v↓)).
-  unfold expo_conditions; dio auto. 
+  dio by lemma (fun v => expo_diophantine (v 0) (q v↓) (r v↓)).
 Defined.
 
 Hint Resolve dio_fun_expo : dio_fun_db.
@@ -96,9 +92,7 @@ Section dio_rel_is_digit.
   Lemma dio_rel_is_digit c q i y : 𝔻F c -> 𝔻F q -> 𝔻F i -> 𝔻F y
                                 -> 𝔻R (fun ν => is_digit (c ν) (q ν) (i ν) (y ν)).
   Proof.
-    intros H1 H2 H3 H4.
-    apply dio_rel_equiv with (1 := fun ν => is_digit_eq (c ν) (q ν) (i ν) (y ν)).
-    dio auto.
+    dio by lemma (fun ν => is_digit_eq (c ν) (q ν) (i ν) (y ν)).
   Defined.
 
 End dio_rel_is_digit.

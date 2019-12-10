@@ -357,11 +357,11 @@ Section dio_bounded_fall.
 
     Theorem dio_rel_dc_list_bfall : 𝔻R (fun ν => forall i, i < ν 0 -> exists φ, Forall (dc_eval φ ν↑i) ll).
     Proof.
-      apply dio_rel_equiv with (1 := dc_list_bfall_spec).
+      dio by lemma dc_list_bfall_spec.
       unfold dc_list_bfall.
       destruct dio_rel_pre_quant as (f & Hf).
       eexists (df_mexists il f).
-      abstract(intros; rewrite df_mexists_spec; split;
+      abstract (intros; rewrite df_mexists_spec; split;
         intros (phi & H); exists phi; revert H; rewrite <- Hf; auto).
     Defined.
 
@@ -374,7 +374,7 @@ Section dio_bounded_fall.
     revert H2; generalize (4*df_size f); intros k H2.
     generalize (dio_rel_dc_list_bfall _ H2).
     apply dio_rel_equiv; intros v.
-    abstract(split; intros H i Hi; generalize (H _ Hi); rewrite <- Hf, H3; auto).
+    abstract (split; intros H i Hi; generalize (H _ Hi); rewrite <- Hf, H3; auto).
   Defined.
 
 End dio_bounded_fall.
@@ -454,7 +454,7 @@ Theorem dio_rel_fall_le a (K : nat -> (nat -> nat) -> Prop) :
 Proof.
   intros Ha HK.
   by dio equiv (fun v => forall x, x < 1+a v -> K x v).
-  abstract(intros v; split; intros H x Hx; apply H; omega).
+  abstract (intros v; split; intros H x Hx; apply H; omega).
 Defined.
 
 Hint Resolve dio_rel_fall_le : dio_rel_db.

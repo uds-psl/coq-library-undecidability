@@ -49,7 +49,7 @@ Fact dio_rel_power_subst a b (R : nat -> (nat -> nat) -> Prop) :
 Proof.
   intros Ha Hb HR.
   by dio equiv (fun v => exists p, p = power (a v) (b v) /\ R p v).
-  abstract(intros v; split; eauto; intros (? & ? & ?); subst; auto). 
+  abstract(intros v; split; eauto; intros (? & ? & ?); subst; auto).
 Defined.
 
 Section df_rel_iter_rt.
@@ -66,9 +66,7 @@ Section df_rel_iter_rt.
                  𝔻F n -> 𝔻F x -> 𝔻F y
       -> 𝔻R (fun ν => rel_iter R (n ν) (x ν) (y ν)).
   Proof.
-    intros Hn Hx Hy.
-    apply dio_rel_equiv with (1 := fun v => rel_iter_seq_equiv R (n v) (x v) (y v)).
-    dio auto.
+    dio by lemma (fun v => rel_iter_seq_equiv R (n v) (x v) (y v)).
   Defined.
 
   Hint Resolve dio_rel_rel_iter.

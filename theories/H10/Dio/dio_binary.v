@@ -120,10 +120,7 @@ Section dio_fun_binomial.
 
   Lemma dio_fun_binomial n k : 𝔻F n -> 𝔻F k -> 𝔻F (fun ν => binomial (n ν) (k ν)).
   Proof.
-    intros H2 H3.
-    apply dio_rel_equiv 
-      with (1 := fun ν => is_binomial_eq (ν 0) (n (env_down ν)) (k (env_down ν))).
-    dio auto.
+    dio by lemma (fun ν => is_binomial_eq (ν 0) (n (env_down ν)) (k (env_down ν))).
   Defined.
 
 End dio_fun_binomial.
@@ -170,19 +167,14 @@ Qed.
 
 Theorem dio_rel_binary_le x y : 𝔻F x -> 𝔻F y -> 𝔻R (fun v => x v ≲ y v).
 Proof.
-  intros.
-  by dio equiv (fun v => rem (binomial (y v) (x v)) 2 = 1).
-  abstract (intro; apply binary_le_binomial).
+  dio by lemma (fun v => binary_le_binomial (x v) (y v)). 
 Defined.
 
 Hint Resolve dio_rel_binary_le : dio_rel_db.
 
 Theorem dio_fun_nat_meet a b : 𝔻F a -> 𝔻F b -> 𝔻F (fun ν => a ν ⇣ b ν).
 Proof.
-  intros.
-  apply dio_rel_equiv 
-    with (1 := fun v => nat_meet_dio (v 0) (a (env_down v)) (b (env_down v))).
-  dio auto.
+  dio by lemma (fun v => nat_meet_dio (v 0) (a (env_down v)) (b (env_down v))).
 Defined.
 
 Hint Resolve dio_fun_nat_meet : dio_fun_db.
