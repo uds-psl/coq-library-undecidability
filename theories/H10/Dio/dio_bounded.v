@@ -50,7 +50,9 @@ Local Notation "phi ↓"   := (fun n => phi (S n)) (at level 1, format "phi ↓"
 
 *)
 
-Section df_mconj.
+Section dio_rel_mconj.
+
+  (** Diophantine encoding of finitary conjunction *)
   
   Definition df_true := proj1_sig dio_rel_True.
 
@@ -93,7 +95,7 @@ Section df_mconj.
       intros E i Hi; generalize (E _ Hi); apply Hf; trivial).
   Defined.
 
-End df_mconj.
+End dio_rel_mconj.
 
 Section dio_bounded_fall.
 
@@ -155,7 +157,7 @@ Section dio_bounded_fall.
        -> (forall i, i < il -> ω i = π i)
        -> (forall i, il <= i -> ω i = ν (i-il))
        -> dc_Code c ω 
-      <-> forall j, j < ν 0 -> dc_eval (fun i => φ i j) (dv_lift ν j) c.
+      <-> forall j, j < ν 0 -> dc_eval (fun i => φ i j) (ν↑j) c.
     Proof.
       intros G1 G2 G3 G4 G5.
       assert (ω il = ν 0) as G0.
@@ -222,7 +224,7 @@ Section dio_bounded_fall.
        -> (forall i, i < il  -> ω i = π i)
        -> (forall i, il <= i -> ω i = ν (i-il))
        -> dc_list_Code ll ω 
-      <-> forall j, j < ν 0 -> Forall (dc_eval (fun i => φ i j) (dv_lift ν j)) ll.
+      <-> forall j, j < ν 0 -> Forall (dc_eval (fun i => φ i j) (ν↑j)) ll.
     Proof.
       intros G1 G2 G3 G4 G5; revert G3.
       rewrite <- Forall_forall.
@@ -275,7 +277,7 @@ Section dio_bounded_fall.
             dc_list_bfall ν 
         <-> exists q φ, ν 0+1 < q 
                     /\ (forall i j, i < k -> j < ν 0 -> φ i j < power q 2) 
-                    /\  forall j, j < ν 0 -> Forall (dc_eval (fun i => φ i j) (dv_lift ν j)) ll.
+                    /\  forall j, j < ν 0 -> Forall (dc_eval (fun i => φ i j) (ν↑j)) ll.
     Proof.
       split.
       + intros (pi & G0 & G1 & G4).
@@ -326,7 +328,7 @@ Section dio_bounded_fall.
     Qed.
 
     Let dc_list_bfall_spec ν : 
-            (forall i, i < ν 0 -> exists φ, Forall (dc_eval φ (dv_lift ν i)) ll) 
+            (forall i, i < ν 0 -> exists φ, Forall (dc_eval φ ν↑i) ll) 
         <-> dc_list_bfall ν .
     Proof.
       rewrite dc_list_bfall_spec_1; split.
@@ -353,7 +355,7 @@ Section dio_bounded_fall.
         exists (fun i => phi i j); auto.
     Qed.
 
-    Theorem dio_rel_dc_list_bfall : 𝔻R (fun ν => forall i, i < ν 0 -> exists φ, Forall (dc_eval φ (dv_lift ν i)) ll).
+    Theorem dio_rel_dc_list_bfall : 𝔻R (fun ν => forall i, i < ν 0 -> exists φ, Forall (dc_eval φ ν↑i) ll).
     Proof.
       apply dio_rel_equiv with (1 := dc_list_bfall_spec).
       unfold dc_list_bfall.
@@ -365,7 +367,7 @@ Section dio_bounded_fall.
 
   End dio_bounded_elem.
 
-  Theorem dio_bounded_fall P : 𝔻R P -> 𝔻R (fun ν => forall i, i < ν 0 -> P (dv_lift ν i)).
+  Theorem dio_bounded_fall P : 𝔻R P -> 𝔻R (fun ν => forall i, i < ν 0 -> P ν↑i).
   Proof.
     intros (f & Hf).
     destruct (dio_formula_elem f) as (ll & H1 & H2 & H3).
@@ -422,7 +424,8 @@ Section dio_rel_fall_lt.
   Defined.
 
   Theorem dio_rel_fall_lt a (K : nat -> (nat -> nat) -> Prop) : 
-           𝔻P a -> 𝔻R (fun ν => K (ν 0) ν↓) 
+           𝔻F a 
+   -> 𝔻R (fun ν => K (ν 0) ν↓) 
    -> 𝔻R (fun ν => forall x, x < a ν -> K x ν).
   Proof.
     intros Ha H.
@@ -437,7 +440,7 @@ End dio_rel_fall_lt.
 Hint Resolve dio_rel_fall_lt : dio_rel_db.
 
 Corollary dio_rel_fall_lt_bound a (K : nat -> nat -> (nat -> nat) -> Prop) : 
-           𝔻P a
+           𝔻F a
    -> 𝔻R (fun ν => K (ν 0) (a ν↓) ν↓) 
    -> 𝔻R (fun ν => forall x, x < a ν -> K x (a ν) ν).
 Proof. intros; dio auto. Defined.
@@ -445,7 +448,7 @@ Proof. intros; dio auto. Defined.
 Hint Resolve dio_rel_fall_lt_bound : dio_rel_db.
 
 Theorem dio_rel_fall_le a (K : nat -> (nat -> nat) -> Prop) : 
-           𝔻P a
+           𝔻F a
    -> 𝔻R (fun ν => K (ν 0) ν↓) 
    -> 𝔻R (fun ν => forall x, x <= a ν -> K x ν).
 Proof.

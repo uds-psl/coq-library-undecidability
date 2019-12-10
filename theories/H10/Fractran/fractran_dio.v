@@ -33,14 +33,13 @@ Section fractran_dio.
 
   (* Fractran step is a diophantine relation, by induction on l *)
 
-  Lemma dio_rel_fractran_step l x y : 𝔻P x -> 𝔻P y -> 𝔻R (fun ν => l /F/ x ν → y ν).
+  Lemma dio_rel_fractran_step l x y : 𝔻F x -> 𝔻F y -> 𝔻R (fun ν => l /F/ x ν → y ν).
   Proof.
     intros Hx Hy.
     induction l as [ | (p,q) l IHl ].
     + by dio equiv (fun _ => False).
       abstract (intros v; rewrite fractran_step_nil_inv; split; tauto).
-    + apply dio_rel_equiv with (1 := fun v => fractran_step_cons_inv p q l (x v) (y v)).
-      dio auto.
+    + dio by lemma (fun v => fractran_step_cons_inv p q l (x v) (y v)).
   Defined.
 
   Hint Resolve dio_rel_fractran_step : dio_rel_db.
@@ -48,19 +47,18 @@ Section fractran_dio.
   (* Hence Fractan step* (refl. trans. closure) is diophantine *)
 
   Corollary dio_rel_fractran_rt l x y : 
-                     𝔻P x -> 𝔻P y -> 𝔻R (fun ν => fractran_compute l (x ν) (y ν)).
+                     𝔻F x -> 𝔻F y -> 𝔻R (fun ν => fractran_compute l (x ν) (y ν)).
   Proof. intros; apply dio_rel_rt; dio auto. Defined.
 
   (* Fractran stop is a diophantine relation *)
 
-  Lemma dio_rel_fractran_stop l x : 𝔻P x -> 𝔻R (fun ν => fractran_stop l (x ν)).
+  Lemma dio_rel_fractran_stop l x : 𝔻F x -> 𝔻R (fun ν => fractran_stop l (x ν)).
   Proof.
     intros Hx.
     induction l as [ | (p,q) l IHl ].
     + by dio equiv (fun _ => True).
       abstract(intro v; split; auto; intros _ ?; rewrite fractran_step_nil_inv; auto).
-    + apply dio_rel_equiv with (1 := fun v => fractan_stop_cons_inv p q l (x v)).
-      dio auto.
+    + dio by lemma (fun v => fractan_stop_cons_inv p q l (x v)).
   Defined.
 
   Hint Resolve dio_rel_fractran_rt dio_rel_fractran_stop : dio_rel_db.
@@ -71,7 +69,7 @@ Section fractran_dio.
   (* Hence Halting from the value x is diophantine *)
 
   Theorem FRACTRAN_HALTING_on_diophantine ll x :
-                      𝔻P x -> 𝔻R (fun ν => FRACTRAN_HALTING (ll,x ν)).
+                      𝔻F x -> 𝔻R (fun ν => FRACTRAN_HALTING (ll,x ν)).
   Proof. intros; dio auto. Defined.
 
 End fractran_dio.
@@ -95,7 +93,7 @@ Section exp_diophantine.
 
   (* for fixed n i j, the function v => exp i <v(j),...,v(n-1+j)> has a diophantine representation *)
 
-  Let exp_dio n i j : 𝔻P (fun v => exp i (fun2vec j n v)).
+  Let exp_dio n i j : 𝔻F (fun v => exp i (fun2vec j n v)).
   Proof.
     revert j i; induction n as [ | n IHn ]; intros j i.
     + simpl; dio auto.
@@ -109,12 +107,12 @@ Section exp_diophantine.
 
      has a diophantine representation *)
 
-  Fact fractran_exp_diophantine n : 𝔻P (fun ν => ps 1 * exp 1 (fun2vec 0 n ν)).
+  Fact fractran_exp_diophantine n : 𝔻F (fun ν => ps 1 * exp 1 (fun2vec 0 n ν)).
   Proof. dio auto. Defined.
 
 End exp_diophantine.
 
-Hint Resolve fractran_exp_diophantine : dio_expr_db.
+Hint Resolve fractran_exp_diophantine : dio_fun_db.
 
 Theorem FRACTRAN_HALTING_on_exp_diophantine n l :  
                      𝔻R (fun ν => l /F/ ps 1 * exp 1 (fun2vec 0 n ν) ↓).
