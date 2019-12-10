@@ -8,7 +8,8 @@
 (**************************************************************)
 
 (** 1) Object-level representation of Diophantine logic 
-    2) closure properties for Diophantine relations and functions 
+    2) Closure properties for Diophantine relations and functions 
+    3) Tactics for the automagic recognition of Diophantine shapes
 *)
 
 Require Import Arith Nat Omega.
@@ -46,11 +47,10 @@ Definition df_op_sem (o : dio_op) :=
 
 (* De Bruijn syntax for diophantine formulas of the form
 
-       A,B ::= x = n | x = y o z | A /\ B | A \/ B | ∃x.A 
+       A,B ::= x ≐ n | x ≐ y ⨢ z | x ≐ y ⨰ z | A ∧ B | A ∨ B | ∃A 
 
           with x, y,z are variables 
           and  n is a natural number constant 
-          and  o is either + or *
 
   In the De Bruijn syntax, variables and parameters are not
   distinguished and free (ie not captured) variables can serve
@@ -61,7 +61,7 @@ Definition df_op_sem (o : dio_op) :=
 Inductive dio_formula : Set :=
   | df_cst  : forall (x : nat) (n : nat), dio_formula
   | df_op   : forall (o : dio_op) (x y z : nat), dio_formula 
-  | df_bin  : forall (o : dio_op) (_ _ : dio_formula), dio_formula
+  | df_bin  : forall (o : dio_op) (f g : dio_formula), dio_formula
   | df_exst : dio_formula -> dio_formula.
 
 Notation df_add := (df_op do_add).
@@ -109,6 +109,8 @@ Section diophantine_logic.
       rewrite Nat2Z.inj_succ; try rewrite Nat2Z.inj_add; unfold df_size_Z; fold df_size_Z; auto; try omega.
   Qed.
 
+  (** The semantics of Diophantine logic *)
+
   Fixpoint df_pred f ν :=
     match f with
       | df_cst x n     => ν x = n
@@ -117,6 +119,8 @@ Section diophantine_logic.
       | df_exst f      => exists n, ⟦f⟧ ν↑n
     end
   where "⟦ f ⟧" := (df_pred f).
+
+  (** Fixpoint equations if needed and for readability *)
 
   Fact df_pred_cst x n ν : ⟦x ≐ n⟧ ν = (ν x = n).
   Proof. reflexivity. Qed.
@@ -136,6 +140,8 @@ Section diophantine_logic.
   Fact df_pred_exst f ν : ⟦∃f⟧ ν = exists n, ⟦f⟧ ν↑n.
   Proof. reflexivity. Qed.
 
+  (** Extensionality *)
+
   Fact df_pred_ext f ν ω : (forall x, ν x = ω x) -> ⟦f⟧ ν <-> ⟦f⟧ ω.
   Proof.
     revert ν ω; induction f as [ | [] | [] f Hf g Hg | f Hf ]; intros ν ω H; simpl.
@@ -145,7 +151,7 @@ Section diophantine_logic.
         intros []; simpl; auto.
   Qed.
 
-  (* Lifting of a diophantine expression renaming *)
+  (* Diophantine formula renaming under binders *)
 
   Definition der_lift ρ x := match x with 0 => 0 | S x => S (ρ x) end.
 
@@ -164,6 +170,8 @@ Section diophantine_logic.
   Fact df_ren_size_Z ρ f : df_size_Z f⦃ρ⦄ = df_size_Z f.
   Proof. do 2 rewrite df_size_Z_spec; f_equal; apply df_ren_size. Qed.
 
+  (** Renaming is compatible with semantics *)
+
   Fact df_pred_ren f ν ρ : ⟦f⦃ρ⦄⟧ ν <-> ⟦f⟧ (fun x => ν (ρ x)).
   Proof.
     revert ν ρ; induction f as [ | [] | [] f Hf g Hg | f Hf ]; intros ν ρ; simpl; try tauto.
@@ -171,8 +179,6 @@ Section diophantine_logic.
     split; intros (n & Hn); exists n; revert Hn; rewrite Hf;
         apply df_pred_ext; intros []; simpl; auto.
   Qed.
-
-(*  Definition df_lift := df_ren S. *)
 
   Fact df_pred_lift f ν : ⟦f⦃S⦄⟧ ν <-> ⟦f⟧ ν↓.
   Proof. apply df_pred_ren. Qed. 
@@ -182,22 +188,26 @@ End diophantine_logic.
 Local Notation "⟦ f ⟧" := (df_pred f).
 Local Notation "f ⦃ ρ ⦄" := (df_ren ρ f).
 
+(** The notion of Diophantine relation, ie a relation extensionally 
+    equivalent to the semantics of a Diophantine formula *)
+
 Definition dio_rel R := { f | forall ν, ⟦f⟧ ν <-> R ν }.
 Notation 𝔻R := dio_rel.
 
 Section dio_rel_closure_properties.
 
-  (** We establish closure properties of dio_rel/𝔻R
-      These are proved by explicitely giving the witness 
-      and we will systematically avoid that later on 
+  (** We establish closure properties of dio_rel / 𝔻R
+      These are proved by explicitely giving the witnesses 
+      and we will systematically avoid that later on
+      because in general, this is painful. 
 
-      The use of the "abstract" tactic is to hide 
-      Prop only content to allow for better computations 
-      with those rich terms 
+      We use of the "abstract" tactic to hide Prop-only 
+      content for better computations with those rich terms.
 
       Notice that those proofs are all closed with
-      Defined and not Qed to allow computing with
-      the informative part of terms 
+      "Defined" and not "Qed" to allow computing with
+      the informative part of terms, the one that is not
+      hidden behind "abstract".
 
       The closure properties and the tactics developed
       below implement the automagic recognition of 
@@ -262,10 +272,14 @@ Section dio_rel_closure_properties.
 End dio_rel_closure_properties.
 
 (** It is often more convenient to work with Diophantine functions 
-    instead of Diophantine relations, eg f : nat -> nat is a Diophantine
-    function if (fun x y => y = f x) is a Diophantine relation.
+    instead of Diophantine relations, eg 
+
+        f : nat -> nat is a Diophantine function 
+     if (fun x y => y = f x) is a Diophantine relation.
   
-    We provide a tool for that here with associated tactics below *)
+    We provide a tool for that here with associated tactics below 
+
+*)
 
 Definition dio_fun t := 𝔻R (fun ν => ν 0 = t ν↓).
 Notation 𝔻F := dio_fun.
@@ -281,12 +295,12 @@ Proof.
 Defined.
 
 (** From now on, we will quite systematically avoid directly
-    manipulating the De Bruijn syntax directly *)
+    manipulating the De Bruijn syntax *)
 
 Create HintDb dio_rel_db.        (* For closure props ending with 𝔻R _ *)
 Create HintDb dio_fun_db.        (* For closure props ending with 𝔻F _ *)
 
-Ltac dio_fun_auto := auto 7 with dio_fun_db.
+Ltac dio_fun_auto := auto 7 with dio_fun_db.   (* the depth of 7 is mostly enough *)
 
 Ltac dio_rel_auto := 
    auto 7 with dio_rel_db dio_fun_db;
@@ -296,7 +310,7 @@ Ltac dio_rel_auto :=
    || (apply dio_rel_disj; dio_rel_auto)
    || idtac).
    
-Tactic Notation "dio" "auto" :=
+Tactic Notation "dio" "auto" :=                (* this is the user level-tactic *)
   match goal with
     | |- 𝔻R _ => dio_rel_auto
     | |- 𝔻F _ => dio_fun_auto
@@ -307,6 +321,8 @@ Proof.
   intros H1; apply dio_rel_equiv.
   abstract (intro; rewrite H1; tauto).
 Defined.
+
+(** Two syntactic sugar tactics *)
 
 Tactic Notation "by" "dio" "equiv" uconstr(f) :=
   match goal with 
@@ -327,6 +343,9 @@ Fact dio_fun_ren t f : 𝔻F t -> 𝔻F (fun ν => t (fun n => ν (f n))).
 Proof. apply dio_rel_ren with (ρ := der_lift f). Defined.
 
 Hint Resolve dio_fun_var dio_fun_cst dio_fun_ren : dio_fun_db.
+
+(** We do not want dio_rel_[add,mul] is the dio_rel_db because
+    they would superseed dio_fun_[plus,mult] *)
 
 Fact dio_fun_plus r t : 𝔻F r -> 𝔻F t -> 𝔻F (fun ν => r ν + t ν).
 Proof.
@@ -355,6 +374,9 @@ Proof. dio auto. Defined.
 
 Check example_1.
 Eval compute in df_size_Z (proj1_sig example_1).
+
+(** Now you can start witnessing the magic of 
+    Diophantine shapes recognition *)
 
 Section True_False.
 
@@ -422,6 +444,8 @@ Eval compute in df_size_Z (proj1_sig example_2).
 
 Section dio_fun_rem.
 
+  (** The remainder function is Diophantine *)
+
   Let rem_equiv p x r : r = rem x p <-> (p = 0 /\ x = r)
                                       \/ (p <> 0 /\ r < p /\ exists n, x = n*p + r).
   Proof.
@@ -439,9 +463,7 @@ Section dio_fun_rem.
  
   Fact dio_fun_rem p x : 𝔻F p -> 𝔻F x -> 𝔻F (fun ν => rem (x ν) (p ν)).
   Proof.
-    intros.
-    apply dio_rel_equiv with (1 := fun v => rem_equiv (p v↓) (x v↓) (v 0)).
-    dio auto.
+    dio by lemma (fun v => rem_equiv (p v↓) (x v↓) (v 0)).
   Defined.
 
 End dio_fun_rem.
@@ -481,16 +503,14 @@ End dio_rel_ndivides.
 
 Section dio_rel_not_divides.
 
-  (** A shorter way using already establish rem *)
+  (** A shorter way using already established rem *)
 
   Let not_divides_eq p x : ~ divides p x <-> rem x p <> 0.
   Proof. rewrite divides_rem_eq; tauto. Qed.
 
   Lemma dio_rel_not_divides x p : 𝔻F x -> 𝔻F p -> 𝔻R (fun ν => ~ divides (x ν) (p ν)).
   Proof.
-    intros.
-    apply dio_rel_equiv with (1 := fun v => not_divides_eq (x v) (p v)).
-    dio auto.
+    dio by lemma (fun v => not_divides_eq (x v) (p v)).
   Defined.
 
 End dio_rel_not_divides.
