@@ -142,7 +142,7 @@ Section diophantine_logic.
   Fact df_ren_size_Z ρ f : df_size_Z (df_ren ρ f) = df_size_Z f.
   Proof. do 2 rewrite df_size_Z_spec; f_equal; apply df_ren_size. Qed.
 
-  Fact df_pred_ren f ν ρ : df_pred (df_ren ρ f) ν <-> df_pred f (fun x => ν (ρ x)).
+  Fact df_pred_ren f ν ρ : ⟦df_ren ρ f⟧ ν <-> ⟦f⟧ (fun x => ν (ρ x)).
   Proof.
     revert ν ρ; induction f as [ | [] | [] f Hf g Hg | f Hf ]; intros ν ρ; simpl; try tauto.
     1-2: rewrite Hf, Hg; tauto.
@@ -152,14 +152,14 @@ Section diophantine_logic.
 
   Definition df_lift := df_ren S.
 
-  Fact df_pred_lift f ν : df_pred (df_lift f) ν <-> df_pred f ν↓.
+  Fact df_pred_lift f ν : ⟦df_lift f⟧ ν <-> ⟦f⟧ ν↓.
   Proof. apply df_pred_ren. Qed. 
 
 End diophantine_logic.
 
 Local Notation "⟦ f ⟧" := (df_pred f).
 
-Definition dio_rel R := { f | forall ν, df_pred f ν <-> R ν }.
+Definition dio_rel R := { f | forall ν, ⟦f⟧ ν <-> R ν }.
 Notation 𝔻R := dio_rel.
 
 Definition dio_expr t := 𝔻R (fun ν => ν 0 = t ν↓).
