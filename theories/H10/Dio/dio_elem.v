@@ -19,9 +19,6 @@ From Undecidability.H10.Dio
 
 Set Implicit Arguments.
 
-Local Notation "phi ↑ k" := (env_lift phi k) (at level 1, format "phi ↑ k", left associativity).
-Local Notation "phi ↓"   := (fun n => phi (S n)) (at level 1, format "phi ↓", no associativity).
-
 Section interval.
 
   (** A small interval & valuation library *)
@@ -448,7 +445,7 @@ Section diophantine_system.
   Lemma dio_repr_at_exst R a n m p : 
           dio_repr_at R a n p
        -> m = n+1
-       -> dio_repr_at (fun ν => exists n, R ν↑n) a m p. 
+       -> dio_repr_at (fun ν => exists n, R n·ν) a m p. 
   Proof.
     intros [ l r F0 F1 F2 F3 F4 ] ?; subst m.
     exists (map (dc_dec (a+n)) l) r.

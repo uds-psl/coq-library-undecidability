@@ -19,19 +19,31 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 Set Implicit Arguments.
 
-Fixpoint env_lift {X} (φ : nat -> X) k n { struct n } :=
+(** Standard De Bruijn extension and De Bruijn projection *)
+
+(* Fixpoint instead of Definition because of better unfolding properties *)
+
+Fixpoint de_bruijn_ext {X} (ν : nat -> X) x n { struct n } :=
   match n with
-    | 0   => k
-    | S n => φ n
+    | 0   => x
+    | S n => ν n
   end.
 
-Local Notation "phi ↑ k" := (env_lift phi k) (at level 1, format "phi ↑ k", left associativity).
-Local Notation "phi ↓"   := (fun n => phi (S n)) (at level 1, format "phi ↓", no associativity).
+Notation "x · ν" := (de_bruijn_ext ν x) (at level 1, format "x · ν", left associativity).
+Notation "ν ⭳" := (fun n => ν (S n)) (at level 1, format "ν ⭳", no associativity).
+
+Fact de_bruijn_ext_proj X (ν : nat -> X) x n : (x·ν)⭳ n = ν n.
+Proof. reflexivity. Qed.
+
+Fact de_bruijn_proj_ext X (ν : nat -> X) n : (ν 0)·(ν⭳) n = ν n.
+Proof. destruct n; reflexivity. Qed.
+
+(** We factor out +/* and ∨/∧ *)
 
 Inductive dio_op := do_add | do_mul.
 
-(* do_add represents both + and \/
-   do_mul represents both * and /\ *)  
+(* do_add represents both + and ∨
+   do_mul represents both * and ∧ *)  
 
 Definition de_op_sem (o : dio_op) :=
   match o with
@@ -116,7 +128,7 @@ Section diophantine_logic.
       | df_cst x n     => ν x = n
       | df_op  o x y z => ν x = de_op_sem o (ν y) (ν z)
       | df_bin o f g   => df_op_sem o (⟦f⟧ ν) (⟦g⟧ ν)
-      | df_exst f      => exists n, ⟦f⟧ ν↑n
+      | df_exst f      => exists n, ⟦f⟧ n·ν
     end
   where "⟦ f ⟧" := (df_pred f).
 
@@ -137,7 +149,7 @@ Section diophantine_logic.
   Fact df_pred_disj f g ν : ⟦f ∨ g⟧ ν = (⟦f⟧ ν \/ ⟦g⟧ ν).
   Proof. reflexivity. Qed.
 
-  Fact df_pred_exst f ν : ⟦∃f⟧ ν = exists n, ⟦f⟧ ν↑n.
+  Fact df_pred_exst f ν : ⟦∃f⟧ ν = exists n, ⟦f⟧ n·ν.
   Proof. reflexivity. Qed.
 
   (** Extensionality *)
@@ -180,7 +192,7 @@ Section diophantine_logic.
         apply df_pred_ext; intros []; simpl; auto.
   Qed.
 
-  Fact df_pred_lift f ν : ⟦f⦃S⦄⟧ ν <-> ⟦f⟧ ν↓.
+  Fact df_pred_lift f ν : ⟦f⦃S⦄⟧ ν <-> ⟦f⟧ ν⭳.
   Proof. apply df_pred_ren. Qed. 
 
 End diophantine_logic.
@@ -239,7 +251,7 @@ Section dio_rel_closure_properties.
   Defined.
 
   Fact dio_rel_exst (K : nat -> (nat -> nat) -> Prop) : 
-                 𝔻R (fun ν => K (ν 0) ν↓) -> 𝔻R (fun ν => exists x, K x ν).
+                 𝔻R (fun ν => K (ν 0) ν⭳) -> 𝔻R (fun ν => exists x, K x ν).
   Proof.
     intros (f & Hf); exists (∃f). 
     abstract (intros ν; rewrite df_pred_exst;
@@ -281,7 +293,7 @@ End dio_rel_closure_properties.
 
 *)
 
-Definition dio_fun t := 𝔻R (fun ν => ν 0 = t ν↓).
+Definition dio_fun t := 𝔻R (fun ν => ν 0 = t ν⭳).
 Notation 𝔻F := dio_fun.
 
 Fact dio_rel_eq r t : 𝔻F r -> 𝔻F t -> 𝔻R (fun ν => r ν = t ν).
@@ -350,9 +362,9 @@ Hint Resolve dio_fun_var dio_fun_cst dio_fun_ren : dio_fun_db.
 Fact dio_fun_plus r t : 𝔻F r -> 𝔻F t -> 𝔻F (fun ν => r ν + t ν).
 Proof.
   intros H1 H2; red.
-  by dio equiv (fun ν => exists b c, ν 0 = b + c /\ b = r ν↓ /\ c = t ν↓).
+  by dio equiv (fun ν => exists b c, ν 0 = b + c /\ b = r ν⭳ /\ c = t ν⭳).
   + abstract (intros v; split;
-     [ exists (r v↓), (t v↓); auto
+     [ exists (r v⭳), (t v⭳); auto
      | intros (? & ? & -> & -> & ->); auto ]).
   + apply dio_rel_add.
 Defined.
@@ -360,9 +372,9 @@ Defined.
 Fact dio_fun_mult r t : 𝔻F r -> 𝔻F t -> 𝔻F (fun ν => r ν * t ν).
 Proof.
   intros H1 H2; red.
-  by dio equiv (fun ν => exists b c, ν 0 = b * c /\ b = r ν↓ /\ c = t ν↓).
+  by dio equiv (fun ν => exists b c, ν 0 = b * c /\ b = r ν⭳ /\ c = t ν⭳).
   + abstract (intros v; split;
-     [ exists (r v↓), (t v↓); auto
+     [ exists (r v⭳), (t v⭳); auto
      | intros (? & ? & -> & -> & ->); auto ]).
   + apply dio_rel_mul.
 Defined.
@@ -463,7 +475,7 @@ Section dio_fun_rem.
  
   Fact dio_fun_rem p x : 𝔻F p -> 𝔻F x -> 𝔻F (fun ν => rem (x ν) (p ν)).
   Proof.
-    dio by lemma (fun v => rem_equiv (p v↓) (x v↓) (v 0)).
+    dio by lemma (fun v => rem_equiv (p v⭳) (x v⭳) (v 0)).
   Defined.
 
 End dio_fun_rem.
@@ -532,7 +544,7 @@ Section dio_rel_compose.
 
   Variable (f : (nat -> nat) -> nat) (R : nat -> (nat -> nat) -> Prop).
   Hypothesis (Hf : 𝔻F f) 
-             (HR : 𝔻R (fun ν => R (ν 0) ν↓)).
+             (HR : 𝔻R (fun ν => R (ν 0) ν⭳)).
 
   Lemma dio_rel_compose : 𝔻R (fun ν => R (f ν) ν).
   Proof.
@@ -551,9 +563,9 @@ Section dio_fun_compose.
 
   Lemma dio_fun_compose : 𝔻F (fun ν => g (f ν)).
   Proof.
-    red; by dio equiv (fun v => exists y, y = f v↓ /\ v 0 = g y).
+    red; by dio equiv (fun v => exists y, y = f v⭳ /\ v 0 = g y).
     abstract(intros; split;
-     [ exists (f ν↓); auto
+     [ exists (f ν⭳); auto
      | intros (? & -> & ?); auto ]).
   Defined.
 

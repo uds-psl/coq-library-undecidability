@@ -31,8 +31,6 @@ Local Notation "∑" := (msum plus 0).
 Local Infix "⇣" := nat_meet (at level 40, left associativity).
 Local Infix "⇡" := nat_join (at level 50, left associativity).
 
-Local Notation env_down := (fun (v : nat -> _) n => v (S n)).  
-
 (** This the Diophantine encoding of binomial coefficents *)
 
 Section dio_fun_binomial.
@@ -120,7 +118,7 @@ Section dio_fun_binomial.
 
   Lemma dio_fun_binomial n k : 𝔻F n -> 𝔻F k -> 𝔻F (fun ν => binomial (n ν) (k ν)).
   Proof.
-    dio by lemma (fun ν => is_binomial_eq (ν 0) (n (env_down ν)) (k (env_down ν))).
+    dio by lemma (fun ν => is_binomial_eq (ν 0) (n ν⭳) (k ν⭳)).
   Defined.
 
 End dio_fun_binomial.
@@ -174,7 +172,7 @@ Hint Resolve dio_rel_binary_le : dio_rel_db.
 
 Theorem dio_fun_nat_meet a b : 𝔻F a -> 𝔻F b -> 𝔻F (fun ν => a ν ⇣ b ν).
 Proof.
-  dio by lemma (fun v => nat_meet_dio (v 0) (a (env_down v)) (b (env_down v))).
+  dio by lemma (fun v => nat_meet_dio (v 0) (a v⭳) (b v⭳)).
 Defined.
 
 Hint Resolve dio_fun_nat_meet : dio_fun_db.

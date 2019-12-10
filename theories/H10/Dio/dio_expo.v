@@ -25,9 +25,6 @@ Set Implicit Arguments.
 Local Notation power := (mscal mult 1).
 Local Notation expo := (mscal mult 1).
 
-Local Notation "phi ↑ k" := (env_lift phi k) (at level 1, format "phi ↑ k", left associativity).
-Local Notation "phi ↓"   := (fun n => phi (S n)) (at level 1, format "phi ↓", no associativity).
-
 (** Here one can witness how workable is automation of recognition
     of Diophantine shapes.
 
@@ -57,7 +54,7 @@ Proof. reflexivity. Qed.
 
 Theorem dio_fun_expo q r : 𝔻F q -> 𝔻F r -> 𝔻F (fun ν => expo (r ν) (q ν)).
 Proof.
-  dio by lemma (fun v => expo_diophantine (v 0) (q v↓) (r v↓)).
+  dio by lemma (fun v => expo_diophantine (v 0) (q v⭳) (r v⭳)).
 Defined.
 
 Hint Resolve dio_fun_expo : dio_fun_db.

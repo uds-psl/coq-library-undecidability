@@ -11,17 +11,19 @@
 
 Require Import Arith Nat Omega List Bool.
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list sums bounded_quantification.
-From Undecidability.H10.Matija Require Import cipher.
-From Undecidability.H10.Dio Require Import dio_logic dio_cipher dio_elem.
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_tac utils_list sums bounded_quantification.
+
+From Undecidability.H10.Matija 
+  Require Import cipher.
+
+From Undecidability.H10.Dio 
+  Require Import dio_logic dio_cipher dio_elem.
 
 Set Implicit Arguments.
 
 Local Notation power := (mscal mult 1).
 Local Notation "∑" := (msum plus 0).
-
-Local Notation "phi ↑ k" := (env_lift phi k) (at level 1, format "phi ↑ k", left associativity).
-Local Notation "phi ↓"   := (fun n => phi (S n)) (at level 1, format "phi ↓", no associativity).
 
 (** We show the elimination of bounded universal quantification. The proof is
     based on the paper 
@@ -157,7 +159,7 @@ Section dio_bounded_fall.
        -> (forall i, i < il -> ω i = π i)
        -> (forall i, il <= i -> ω i = ν (i-il))
        -> dc_Code c ω 
-      <-> forall j, j < ν 0 -> dc_eval (fun i => φ i j) (ν↑j) c.
+      <-> forall j, j < ν 0 -> dc_eval (fun i => φ i j) (j·ν) c.
     Proof.
       intros G1 G2 G3 G4 G5.
       assert (ω il = ν 0) as G0.
@@ -224,7 +226,7 @@ Section dio_bounded_fall.
        -> (forall i, i < il  -> ω i = π i)
        -> (forall i, il <= i -> ω i = ν (i-il))
        -> dc_list_Code ll ω 
-      <-> forall j, j < ν 0 -> Forall (dc_eval (fun i => φ i j) (ν↑j)) ll.
+      <-> forall j, j < ν 0 -> Forall (dc_eval (fun i => φ i j) (j·ν)) ll.
     Proof.
       intros G1 G2 G3 G4 G5; revert G3.
       rewrite <- Forall_forall.
@@ -277,7 +279,7 @@ Section dio_bounded_fall.
             dc_list_bfall ν 
         <-> exists q φ, ν 0+1 < q 
                     /\ (forall i j, i < k -> j < ν 0 -> φ i j < power q 2) 
-                    /\  forall j, j < ν 0 -> Forall (dc_eval (fun i => φ i j) (ν↑j)) ll.
+                    /\  forall j, j < ν 0 -> Forall (dc_eval (fun i => φ i j) (j·ν)) ll.
     Proof.
       split.
       + intros (pi & G0 & G1 & G4).
@@ -328,8 +330,8 @@ Section dio_bounded_fall.
     Qed.
 
     Let dc_list_bfall_spec ν : 
-            (forall i, i < ν 0 -> exists φ, Forall (dc_eval φ ν↑i) ll) 
-        <-> dc_list_bfall ν .
+            (forall i, i < ν 0 -> exists φ, Forall (dc_eval φ i·ν) ll) 
+        <-> dc_list_bfall ν.
     Proof.
       rewrite dc_list_bfall_spec_1; split.
       + intros H.
@@ -355,7 +357,7 @@ Section dio_bounded_fall.
         exists (fun i => phi i j); auto.
     Qed.
 
-    Theorem dio_rel_dc_list_bfall : 𝔻R (fun ν => forall i, i < ν 0 -> exists φ, Forall (dc_eval φ ν↑i) ll).
+    Theorem dio_rel_dc_list_bfall : 𝔻R (fun ν => forall i, i < ν 0 -> exists φ, Forall (dc_eval φ i·ν) ll).
     Proof.
       dio by lemma dc_list_bfall_spec.
       unfold dc_list_bfall.
@@ -367,7 +369,7 @@ Section dio_bounded_fall.
 
   End dio_bounded_elem.
 
-  Theorem dio_bounded_fall P : 𝔻R P -> 𝔻R (fun ν => forall i, i < ν 0 -> P ν↑i).
+  Theorem dio_bounded_fall P : 𝔻R P -> 𝔻R (fun ν => forall i, i < ν 0 -> P i·ν).
   Proof.
     intros (f & Hf).
     destruct (dio_formula_elem f) as (ll & H1 & H2 & H3).
@@ -415,7 +417,7 @@ End dfbfall.
 Section dio_rel_fall_lt.
 
   Let dio_rel_fall_lt_0 (K : nat -> (nat -> nat) -> Prop) : 
-            𝔻R (fun ν => K (ν 0) ν↓) -> 𝔻R (fun ν => forall x, x < ν 0 -> K x ν↓).
+            𝔻R (fun ν => K (ν 0) ν⭳) -> 𝔻R (fun ν => forall x, x < ν 0 -> K x ν⭳).
   Proof.
     intros (fK & HK).
     exists (dfbfall fK).
@@ -425,7 +427,7 @@ Section dio_rel_fall_lt.
 
   Theorem dio_rel_fall_lt a (K : nat -> (nat -> nat) -> Prop) : 
            𝔻F a 
-   -> 𝔻R (fun ν => K (ν 0) ν↓) 
+   -> 𝔻R (fun ν => K (ν 0) ν⭳) 
    -> 𝔻R (fun ν => forall x, x < a ν -> K x ν).
   Proof.
     intros Ha H.
@@ -441,7 +443,7 @@ Hint Resolve dio_rel_fall_lt : dio_rel_db.
 
 Corollary dio_rel_fall_lt_bound a (K : nat -> nat -> (nat -> nat) -> Prop) : 
            𝔻F a
-   -> 𝔻R (fun ν => K (ν 0) (a ν↓) ν↓) 
+   -> 𝔻R (fun ν => K (ν 0) (a ν⭳) ν⭳) 
    -> 𝔻R (fun ν => forall x, x < a ν -> K x (a ν) ν).
 Proof. intros; dio auto. Defined.
 
@@ -449,7 +451,7 @@ Hint Resolve dio_rel_fall_lt_bound : dio_rel_db.
 
 Theorem dio_rel_fall_le a (K : nat -> (nat -> nat) -> Prop) : 
            𝔻F a
-   -> 𝔻R (fun ν => K (ν 0) ν↓) 
+   -> 𝔻R (fun ν => K (ν 0) ν⭳) 
    -> 𝔻R (fun ν => forall x, x <= a ν -> K x ν).
 Proof.
   intros Ha HK.
