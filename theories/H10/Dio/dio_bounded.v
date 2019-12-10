@@ -90,7 +90,7 @@ Section df_mconj.
     destruct H as (f & Hf).
     exists (df_mconj k f).
     abstract(intros v; rewrite df_mconj_spec; split;
-      intros E i Hi; generalize (E _ Hi); apply Hf; trivial). 
+      intros E i Hi; generalize (E _ Hi); apply Hf; trivial).
   Defined.
 
 End df_mconj.
@@ -123,20 +123,20 @@ Section dio_bounded_fall.
 
     Local Fact dio_rel_dc_Code c : 𝔻R (dc_Code c).
     Proof. 
-      destruct c as (u & [ n | v | [] | [] v w ]); unfold dc_Code; dio_rel_auto.
+      destruct c as (u & [ n | v | [] | [] v w ]); unfold dc_Code; dio auto.
     Defined.
 
     Hint Resolve dio_rel_dc_Code : dio_rel_db.
 
-    (* 
+    (*
 
       Eval compute in df_size_Z (proj1_sig (dio_rel_dc_Code (0,dee_comp do_mul 1 2))). 
 
     *)
 
-    (* Case of do_mul gives the overall bound of 778551 
+    (* Case of do_mul gives the overall bound of 962535 
 
-    Let dc_Code_size_Z c : (df_size_Z (proj1_sig (dio_rel_dc_Code c)) <= 778551)%Z.
+    Let dc_Code_size_Z c : (df_size_Z (proj1_sig (dio_rel_dc_Code c)) <= 962535)%Z.
     Proof.
       destruct c as (u & [ n | v | [] | [] v w ]); compute; discriminate.
     Qed. *)
@@ -149,12 +149,13 @@ Section dio_bounded_fall.
         i > k+2   |          |       |  i-(k+2)  *)
 
     Local Fact dc_Code_spec c φ π ν ω : 
-                                 (forall i, i < k -> is_cipher_of (ν 0) (π iq) (φ i) (π i))
-                              -> (is_cipher_of (ν 0) (π iq) (fun n => n) (π k))
-                              -> (forall x, dc_vars c x -> x < k)
-                              -> (forall i, i < il -> ω i = π i)
-                              -> (forall i, il <= i -> ω i = ν (i-il))
-                             -> dc_Code c ω <-> forall j, j < ν 0 -> dc_eval (fun i => φ i j) (dv_lift ν j) c.
+          (forall i, i < k -> is_cipher_of (ν 0) (π iq) (φ i) (π i))
+       -> (is_cipher_of (ν 0) (π iq) (fun n => n) (π k))
+       -> (forall x, dc_vars c x -> x < k)
+       -> (forall i, i < il -> ω i = π i)
+       -> (forall i, il <= i -> ω i = ν (i-il))
+       -> dc_Code c ω 
+      <-> forall j, j < ν 0 -> dc_eval (fun i => φ i j) (dv_lift ν j) c.
     Proof.
       intros G1 G2 G3 G4 G5.
       assert (ω il = ν 0) as G0.
@@ -210,18 +211,18 @@ Section dio_bounded_fall.
     Local Definition dc_list_Code ll ν := fold_right (fun c P => dc_Code c ν /\ P) True ll.
 
     Local Fact dio_rel_dc_list_Code ll : 𝔻R (dc_list_Code ll).
-    Proof. induction ll; unfold dc_list_Code; simpl; dio_rel_auto. Qed.
+    Proof. induction ll; unfold dc_list_Code; simpl; dio auto. Qed.
 
     Hint Resolve dio_rel_dc_list_Code : dio_rel_db.
 
     Local Fact dc_list_Code_spec ll φ π ν ω : 
-                                       (forall i, i < k -> is_cipher_of (ν 0) (π iq) (φ i) (π i))
-                                    -> (is_cipher_of (ν 0) (π iq) (fun n => n) (π k))
-                                    -> (forall c, In c ll -> forall x, dc_vars c x -> x < k)
-                                    -> (forall i, i < il  -> ω i = π i)
-                                    -> (forall i, il <= i -> ω i = ν (i-il))
-                                    -> dc_list_Code ll ω 
-                                   <-> forall j, j < ν 0 -> Forall (dc_eval (fun i => φ i j) (dv_lift ν j)) ll.
+          (forall i, i < k -> is_cipher_of (ν 0) (π iq) (φ i) (π i))
+       -> (is_cipher_of (ν 0) (π iq) (fun n => n) (π k))
+       -> (forall c, In c ll -> forall x, dc_vars c x -> x < k)
+       -> (forall i, i < il  -> ω i = π i)
+       -> (forall i, il <= i -> ω i = ν (i-il))
+       -> dc_list_Code ll ω 
+      <-> forall j, j < ν 0 -> Forall (dc_eval (fun i => φ i j) (dv_lift ν j)) ll.
     Proof.
       intros G1 G2 G3 G4 G5; revert G3.
       rewrite <- Forall_forall.
@@ -234,12 +235,14 @@ Section dio_bounded_fall.
             rewrite Forall_cons_inv in E1; tauto.
     Qed.
 
-    Local Definition ciphers ν := CodeNat (ν il) (ν iq) (ν k) /\ forall i, i < k -> Code (ν il) (ν iq) (ν i).
+    Local Definition ciphers ν := 
+             CodeNat (ν il) (ν iq) (ν k) 
+          /\ forall i, i < k -> Code (ν il) (ν iq) (ν i).
 
     Local Fact dio_rel_ciphers : 𝔻R ciphers.
     Proof.
-      unfold ciphers; dio_rel_auto. 
-      apply dio_rel_mconj; intros; dio_rel_auto.
+      unfold ciphers; dio auto.
+      apply dio_rel_mconj; intros; dio auto.
     Defined.
 
     Hint Resolve dio_rel_ciphers : dio_rel_db.
@@ -264,14 +267,15 @@ Section dio_bounded_fall.
     Let pre_quant ν := ν il+1 < ν iq /\ ciphers ν /\ dc_list_Code ll ν.
 
     Let dio_rel_pre_quant : dio_rel pre_quant.
-    Proof. unfold pre_quant; dio_rel_auto. Defined.
+    Proof. unfold pre_quant; dio auto. Defined.
 
     Definition dc_list_bfall ν := exists π, pre_quant (fun i => if le_lt_dec il i then ν (i-il) else π i).
 
     Let dc_list_bfall_spec_1 ν :
-          dc_list_bfall ν <-> exists q φ, ν 0+1 < q 
-                                      /\ (forall i j, i < k -> j < ν 0 -> φ i j < power q 2) 
-                                      /\ forall j, j < ν 0 -> Forall (dc_eval (fun i => φ i j) (dv_lift ν j)) ll.
+            dc_list_bfall ν 
+        <-> exists q φ, ν 0+1 < q 
+                    /\ (forall i j, i < k -> j < ν 0 -> φ i j < power q 2) 
+                    /\  forall j, j < ν 0 -> Forall (dc_eval (fun i => φ i j) (dv_lift ν j)) ll.
     Proof.
       split.
       + intros (pi & G0 & G1 & G4).
@@ -321,7 +325,9 @@ Section dio_bounded_fall.
             intros i Hi; destruct (le_lt_dec il i); auto; omega.
     Qed.
 
-    Let dc_list_bfall_spec ν : (forall i, i < ν 0 -> exists φ, Forall (dc_eval φ (dv_lift ν i)) ll) <-> dc_list_bfall ν .
+    Let dc_list_bfall_spec ν : 
+            (forall i, i < ν 0 -> exists φ, Forall (dc_eval φ (dv_lift ν i)) ll) 
+        <-> dc_list_bfall ν .
     Proof.
       rewrite dc_list_bfall_spec_1; split.
       + intros H.
@@ -353,20 +359,20 @@ Section dio_bounded_fall.
       unfold dc_list_bfall.
       destruct dio_rel_pre_quant as (f & Hf).
       eexists (df_mexists il f).
-      intros; rewrite df_mexists_spec; split;
-      intros (phi & H); exists phi; revert H; rewrite <- Hf; auto.
+      abstract(intros; rewrite df_mexists_spec; split;
+        intros (phi & H); exists phi; revert H; rewrite <- Hf; auto).
     Defined.
 
   End dio_bounded_elem.
 
-  Theorem dio_bounded_fall P : dio_rel P -> dio_rel (fun ν => forall i, i < ν 0 -> P (dv_lift ν i)).
+  Theorem dio_bounded_fall P : 𝔻R P -> 𝔻R (fun ν => forall i, i < ν 0 -> P (dv_lift ν i)).
   Proof.
     intros (f & Hf).
     destruct (dio_formula_elem f) as (ll & H1 & H2 & H3).
     revert H2; generalize (4*df_size f); intros k H2.
     generalize (dio_rel_dc_list_bfall _ H2).
     apply dio_rel_equiv; intros v.
-    split; intros H i Hi; generalize (H _ Hi); rewrite <- Hf, H3; auto.
+    abstract(split; intros H i Hi; generalize (H _ Hi); rewrite <- Hf, H3; auto).
   Defined.
 
 End dio_bounded_fall.
@@ -385,18 +391,17 @@ Section dfbfall.
 
   Let rho i := match i with 0 => 0 | S i => S (S i) end. 
 
-  Let dfbfall_full : dio_rel (fun ν => forall i, i < ν 0 -> df_pred f (dv_change ν i)).
+  Let dfbfall_full : 𝔻R (fun ν => forall i, i < ν 0 -> df_pred f (dv_change ν i)).
   Proof.
     assert (dio_rel (df_pred (df_ren rho f))) as H.
     { exists (df_ren rho f); tauto. }
     destruct (dio_bounded_fall H) as (g & Hg).
     exists g.
-    intros v.
-    rewrite Hg. 
-    split; intros G i Hi; generalize (G _ Hi);  
-      rewrite df_pred_ren; apply df_pred_ext;
-      intros [ | [ | x ] ]; simpl; auto.
-  Qed.
+    abstract (intros v; rewrite Hg; 
+      split; intros G i Hi; generalize (G _ Hi);
+        rewrite df_pred_ren; apply df_pred_ext;
+        intros [ | [ | x ] ]; simpl; auto).
+  Defined.
 
   Definition dfbfall := proj1_sig dfbfall_full.
 
@@ -435,7 +440,7 @@ Corollary dio_rel_fall_lt_bound a (K : nat -> nat -> (nat -> nat) -> Prop) :
            𝔻P a
    -> 𝔻R (fun ν => K (ν 0) (a ν↓) ν↓) 
    -> 𝔻R (fun ν => forall x, x < a ν -> K x (a ν) ν).
-Proof. intros; dio_rel_auto. Defined.
+Proof. intros; dio auto. Defined.
 
 Hint Resolve dio_rel_fall_lt_bound : dio_rel_db.
 

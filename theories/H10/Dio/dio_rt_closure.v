@@ -32,7 +32,7 @@ Section df_seq.
   Proof.
     intros H1 H2 H3.
     unfold is_seq.
-    apply dio_rel_fall_lt; dio_rel_auto.
+    apply dio_rel_fall_lt; dio auto.
   Defined.
 
 End df_seq.
@@ -65,14 +65,14 @@ Section df_rel_iter.
   Proof.
     intros Hn Hx Hy.
     apply dio_rel_equiv with (1 := fun v => rel_iter_seq_equiv R (n v) (x v) (y v)).
-    dio_rel_auto.
+    dio auto.
   Defined.
 
   Hint Resolve dio_rel_rel_iter.
 
   Corollary dio_rel_rt x y : 𝔻P x -> 𝔻P y -> 
                                     𝔻R (fun ν => exists i, rel_iter R i (x ν) (y ν)).
-  Proof. intros; dio_rel_auto. Qed.
+  Proof. intros; dio auto. Qed.
 
 End df_rel_iter.
 

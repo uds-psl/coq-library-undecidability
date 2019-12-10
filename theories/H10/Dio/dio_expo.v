@@ -33,33 +33,34 @@ Theorem dio_rel_alpha a b c : 𝔻P a -> 𝔻P b -> 𝔻P c
 Proof.
   intros.
   apply dio_rel_equiv with (1 := fun v => alpha_diophantine (a v) (b v) (c v)).
-  unfold alpha_conditions. 
-  dio_rel_auto.
+  unfold alpha_conditions; dio auto.
 Defined.
 
 Hint Resolve dio_rel_alpha : dio_rel_db.
 
 Local Fact dio_rel_alpha_example : 𝔻R (fun ν => 3 < ν 1 /\ ν 0 = alpha_nat (ν 1) (ν 2)).
-Proof. apply dio_rel_alpha; dio_rel_auto. Defined.
+Proof. dio auto. Defined.
 
-Fact dio_rel_alpha_size : df_size_Z (proj1_sig dio_rel_alpha_example) = 5338%Z.
+(* Eval compute in df_size_Z (proj1_sig dio_rel_alpha_example). *)
+
+Fact dio_rel_alpha_size : df_size_Z (proj1_sig dio_rel_alpha_example) = 6562%Z.
 Proof. reflexivity. Qed.
 
 Theorem dio_expr_expo q r : 𝔻P q -> 𝔻P r -> 𝔻P (fun ν => expo (r ν) (q ν)).
 Proof.
   intros.
   apply dio_rel_equiv with (1 := fun v => expo_diophantine (v 0) (q v↓) (r v↓)).
-  unfold expo_conditions. 
-  dio_rel_auto.
-  all: apply dio_rel_eq; dio_rel_auto.
+  unfold expo_conditions; dio auto. 
 Defined.
 
-Hint Resolve dio_expr_expo : dio_rel_db.
+Hint Resolve dio_expr_expo : dio_expr_db.
 
 Local Fact dio_expr_expo_example : 𝔻P (fun ν => expo (ν 0) (ν 1)).
-Proof. dio_rel_auto. Defined.
+Proof. dio auto. Defined.
 
-Fact dio_expr_expo_size : df_size_Z (proj1_sig dio_expr_expo_example) = 18546%Z.
+(* Eval compute in df_size_Z (proj1_sig dio_expr_expo_example). *)
+
+Fact dio_expr_expo_size : df_size_Z (proj1_sig dio_expr_expo_example) = 22878%Z.
 Proof. reflexivity. Qed.
 
 Section df_digit.
@@ -81,9 +82,7 @@ Section df_digit.
   Proof.
     intros H1 H2 H3 H4.
     apply dio_rel_equiv with (1 := fun ν => is_digit_eq (c ν) (q ν) (i ν) (y ν)).
-    dio_rel_auto.
-    apply dio_rel_eq; dio_rel_auto.
-    apply dio_expr_plus; dio_rel_auto.
+    dio auto.
   Defined.
 
 End df_digit.
@@ -91,7 +90,7 @@ End df_digit.
 Hint Resolve dio_rel_is_digit : dio_rel_db.
 
 Local Fact dio_rel_is_digit_example : 𝔻R (fun ν => is_digit (ν 0) (ν 1) (ν 2) (ν 3)).
-Proof. apply dio_rel_is_digit; dio_rel_auto. Defined.
+Proof. dio auto. Defined.
 
 Check dio_rel_is_digit_example.
 Eval compute in df_size_Z (proj1_sig dio_rel_is_digit_example).
@@ -178,15 +177,15 @@ Section df_binomial.
   Proof.
     intros H2 H3.
     apply dio_rel_equiv with (1 := fun ν => is_binomial_eq (ν 0) (n ν↓) (k ν↓)).
-    dio_rel_auto; apply dio_expr_plus; auto.
+    dio auto.
   Defined.
 
 End df_binomial.
 
-Hint Resolve dio_expr_binomial : dio_rel_db.
+Hint Resolve dio_expr_binomial : dio_expr_db.
 
 Local Fact dio_expr_binomial_example : 𝔻P (fun ν => binomial (ν 0) (ν 1)).
-Proof. apply dio_expr_binomial; dio_rel_auto. Defined.
+Proof. dio auto. Defined.
 
 Check dio_expr_binomial_example.
 Eval compute in df_size_Z (proj1_sig dio_expr_binomial_example).
