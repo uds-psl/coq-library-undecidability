@@ -32,6 +32,12 @@ Local Notation expo := (mscal mult 1).
     from the new Diophantine shapes that include Diophantine
     functions. *)
 
+Local Notation "x ≐ n" := (df_cst x n) (at level 49, no associativity, format "x  ≐  n").
+Local Notation "x ≐ y ⨢ z" := (df_add x y z) 
+      (at level 49, no associativity, y at next level, format "x  ≐  y  ⨢  z").
+Local Notation "x ≐ y ⨰ z" := (df_mul x y z) 
+      (at level 49, no associativity, y at next level, format "x  ≐  y  ⨰  z").
+
 Theorem dio_rel_alpha a b c : 𝔻F a -> 𝔻F b -> 𝔻F c
                            -> 𝔻R (fun ν => 3 < b ν /\ a ν = alpha_nat (b ν) (c ν)).
 Proof.
@@ -43,9 +49,9 @@ Hint Resolve dio_rel_alpha : dio_rel_db.
 Local Fact dio_rel_alpha_example : 𝔻R (fun ν => 3 < ν 1 /\ ν 0 = alpha_nat (ν 1) (ν 2)).
 Proof. dio auto. Defined.
 
-(* Eval compute in df_size_Z (proj1_sig dio_rel_alpha_example). *)
+(* Eval compute in proj1_sig dio_rel_alpha_example. *)
 
-Fact dio_rel_alpha_size : df_size_Z (proj1_sig dio_rel_alpha_example) = 6562%Z.
+Fact dio_rel_alpha_size : df_size_Z (proj1_sig dio_rel_alpha_example) = 2794%Z.
 Proof. reflexivity. Qed.
 
 (** This is Matiyasevich theorem stating that q^r is a Diophantine function. 
@@ -62,11 +68,11 @@ Hint Resolve dio_fun_expo : dio_fun_db.
 Local Fact dio_fun_expo_example : 𝔻F (fun ν => expo (ν 0) (ν 1)).
 Proof. dio auto. Defined.
 
-(* Eval compute in df_size_Z (proj1_sig dio_expr_expo_example). *)
+(* Eval compute in (proj1_sig dio_fun_expo_example). *)
 
 (* The new Diophantine shapes builds at bit bigger formulas ... *)
 
-Local Fact dio_fun_expo_example_size : df_size_Z (proj1_sig dio_fun_expo_example) = 22878%Z.
+Local Fact dio_fun_expo_example_size : df_size_Z (proj1_sig dio_fun_expo_example) = 9606%Z.
 Proof. reflexivity. Qed.
 
 Section dio_rel_is_digit.

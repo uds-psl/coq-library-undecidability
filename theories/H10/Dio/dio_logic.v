@@ -81,7 +81,7 @@ Notation df_mul := (df_op do_mul).
 Notation df_conj := (df_bin do_mul).
 Notation df_disj := (df_bin do_add).
 
-Notation "∃" := df_exst (at level 53, right associativity).
+Notation "∃ x" := (df_exst x) (at level 54, right associativity).
 Notation "x ∧ y" := (df_conj x y) (at level 51, right associativity, format "x  ∧  y").
 Notation "x ∨ y" := (df_disj x y) (at level 52, right associativity, format "x  ∨  y").
 
@@ -140,7 +140,7 @@ Section diophantine_logic.
   Fact df_pred_add x y z ν : ⟦x ≐ y ⨢ z⟧ ν = (ν x = ν y + ν z).
   Proof. reflexivity. Qed.
 
-  Fact df_pred_mul x y z ν : ⟦x ≐ y ⨰  z⟧ ν = (ν x = ν y * ν z).
+  Fact df_pred_mul x y z ν : ⟦x ≐ y ⨰ z⟧ ν = (ν x = ν y * ν z).
   Proof. reflexivity. Qed.
   
   Fact df_pred_conj f g ν : ⟦f ∧ g⟧ ν = (⟦f⟧ ν /\ ⟦g⟧ ν).
@@ -296,6 +296,15 @@ End dio_rel_closure_properties.
 Definition dio_fun t := 𝔻R (fun ν => ν 0 = t ν⭳).
 Notation 𝔻F := dio_fun.
 
+Local Ltac dio_sym H :=
+  now (apply dio_rel_equiv with (2 := H)). 
+
+Fact dio_rel_fun x t : 𝔻F t -> 𝔻R (fun ν => ν x = t ν).
+Proof.
+  unfold dio_fun.
+  apply dio_rel_ren with (ρ := fun n => match n with 0 => x | S n => n end).
+Defined.
+
 Fact dio_rel_eq r t : 𝔻F r -> 𝔻F t -> 𝔻R (fun ν => r ν = t ν).
 Proof.
   intros H1 H2; red in H1, H2.
@@ -306,6 +315,18 @@ Proof.
   + apply dio_rel_exst, dio_rel_conj; auto.
 Defined.
 
+Fact dio_rel_cst_sym x n : 𝔻R (fun ν => n = ν x).
+Proof. dio_sym (dio_rel_cst x n). Defined.
+
+Fact dio_rel_fun_sym x t : 𝔻F t -> 𝔻R (fun ν => t ν = ν x).
+Proof. intros H; dio_sym (dio_rel_fun x H). Defined.
+
+Fact dio_rel_add_sym x y z : 𝔻R (fun ν => ν y + ν z = ν x).
+Proof. dio_sym (dio_rel_add x y z). Defined.
+
+Fact dio_rel_mul_sym x y z : 𝔻R (fun ν => ν y * ν z = ν x).
+Proof. dio_sym (dio_rel_mul x y z). Defined.
+
 (** From now on, we will quite systematically avoid directly
     manipulating the De Bruijn syntax *)
 
@@ -314,15 +335,31 @@ Create HintDb dio_fun_db.        (* For closure props ending with 𝔻F _ *)
 
 Ltac dio_fun_auto := auto 7 with dio_fun_db.   (* the depth of 7 is mostly enough *)
 
+Ltac dio_rel_immediate :=
+      apply dio_rel_cst
+   || apply dio_rel_cst_sym
+   || apply dio_rel_add
+   || apply dio_rel_add_sym
+   || apply dio_rel_mul
+   || apply dio_rel_mul_sym.
+
+Ltac dio_rel_eq := 
+      apply dio_rel_fun 
+   || apply dio_rel_fun_sym 
+   || apply dio_rel_eq.
+
 Ltac dio_rel_auto := 
+   try dio_rel_immediate;
    auto 7 with dio_rel_db dio_fun_db;
-   (  (apply dio_rel_eq; dio_fun_auto) 
+   (  (dio_rel_eq; dio_fun_auto) 
    || (apply dio_rel_exst; dio_rel_auto)
    || (apply dio_rel_conj; dio_rel_auto) 
    || (apply dio_rel_disj; dio_rel_auto)
    || idtac).
    
-Tactic Notation "dio" "auto" :=                (* this is the user level-tactic *)
+(** this is the user level-tactic *)
+
+Tactic Notation "dio" "auto" :=
   match goal with
     | |- 𝔻R _ => dio_rel_auto
     | |- 𝔻F _ => dio_fun_auto
@@ -363,20 +400,18 @@ Fact dio_fun_plus r t : 𝔻F r -> 𝔻F t -> 𝔻F (fun ν => r ν + t ν).
 Proof.
   intros H1 H2; red.
   by dio equiv (fun ν => exists b c, ν 0 = b + c /\ b = r ν⭳ /\ c = t ν⭳).
-  + abstract (intros v; split;
-     [ exists (r v⭳), (t v⭳); auto
-     | intros (? & ? & -> & -> & ->); auto ]).
-  + apply dio_rel_add.
+  abstract (intros v; split;
+    [ exists (r v⭳), (t v⭳); auto
+    | intros (? & ? & -> & -> & ->); auto ]).
 Defined.
 
 Fact dio_fun_mult r t : 𝔻F r -> 𝔻F t -> 𝔻F (fun ν => r ν * t ν).
 Proof.
   intros H1 H2; red.
   by dio equiv (fun ν => exists b c, ν 0 = b * c /\ b = r ν⭳ /\ c = t ν⭳).
-  + abstract (intros v; split;
-     [ exists (r v⭳), (t v⭳); auto
-     | intros (? & ? & -> & -> & ->); auto ]).
-  + apply dio_rel_mul.
+  abstract (intros v; split;
+   [ exists (r v⭳), (t v⭳); auto
+   | intros (? & ? & -> & -> & ->); auto ]).
 Defined.
 
 Hint Resolve dio_fun_plus dio_fun_mult : dio_fun_db.
@@ -385,7 +420,7 @@ Local Fact example_1 : 𝔻R (fun ν => ν 0 = ν 0).
 Proof. dio auto. Defined.
 
 Check example_1.
-Eval compute in df_size_Z (proj1_sig example_1).
+Eval compute in (proj1_sig example_1).
 
 (** Now you can start witnessing the magic of 
     Diophantine shapes recognition *)
@@ -448,11 +483,13 @@ Defined.
 
 Hint Resolve dio_rel_neq dio_rel_div : dio_rel_db.
 
-Local Fact example_2 : 𝔻R (fun ν => ν 0 <> ν 1).
+Local Fact example_2 : 𝔻R (fun ν => ν 0 < ν 1).
 Proof. dio auto. Defined.
 
+(** This example is clearly not optimal !!*)
+
 Check example_2.
-Eval compute in df_size_Z (proj1_sig example_2). 
+Eval compute in (proj1_sig example_2). 
 
 Section dio_fun_rem.
 
@@ -506,12 +543,15 @@ Section dio_rel_ndivides.
   
   Fact dio_rel_ndivides x y : 𝔻F x -> 𝔻F y -> 𝔻R (fun ν => ~ divides (x ν) (y ν)).
   Proof.
-    intros.
-    apply dio_rel_equiv with (1 := fun v => ndivides_eq (x v) (y v)).
-    dio auto.
-  Qed.
+    dio by lemma (fun v => ndivides_eq (x v) (y v)).
+  Defined.
 
 End dio_rel_ndivides.
+
+Local Fact dio_rel_ndiv_example : 𝔻R (fun ν => ~ divides (ν 0) (ν 1)).
+Proof. apply dio_rel_ndivides; dio auto. Defined.
+
+Eval compute in proj1_sig dio_rel_ndiv_example.
 
 Section dio_rel_not_divides.
 
