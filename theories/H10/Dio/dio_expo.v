@@ -54,7 +54,7 @@ Proof. dio auto. Defined.
 
 Eval compute in df_size_Z (proj1_sig dio_rel_alpha_example).
 
-Fact dio_rel_alpha_size : df_size_Z (proj1_sig dio_rel_alpha_example) = 1525%Z.
+Fact dio_rel_alpha_size : df_size_Z (proj1_sig dio_rel_alpha_example) = 1520%Z.
 Proof. reflexivity. Qed.
 
 (** This is Matiyasevich theorem stating that q^r is a Diophantine function. 
@@ -75,7 +75,7 @@ Eval compute in df_size_Z (proj1_sig dio_fun_expo_example).
 
 (* The new Diophantine shapes builds at bit bigger formulas ... *)
 
-Local Fact dio_fun_expo_example_size : df_size_Z (proj1_sig dio_fun_expo_example) = 5319%Z.
+Local Fact dio_fun_expo_example_size : df_size_Z (proj1_sig dio_fun_expo_example) = 5304%Z.
 Proof. reflexivity. Qed.
 
 Section dio_rel_is_digit.

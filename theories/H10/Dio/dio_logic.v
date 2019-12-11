@@ -489,7 +489,13 @@ Proof.
     | intros (? & ? & ? & -> & -> & ->); omega ]).
 Defined.
 
-Hint Resolve dio_rel_le_im dio_rel_lt_im : dio_rel_im_db.
+Fact dio_rel_div_im x y : 𝔻R (fun ν => divides (ν x) (ν y)).
+Proof.
+  by dio equiv (fun ν => exists a, ν y = a * ν x).
+  unfold divides; tauto.
+Defined.
+
+Hint Resolve dio_rel_le_im dio_rel_lt_im  dio_rel_div_im : dio_rel_im_db.
 
 Fact dio_rel_le r t : 𝔻F r -> 𝔻F t -> 𝔻R (fun ν => r ν <= t ν).
 Proof.
@@ -514,7 +520,7 @@ Hint Resolve dio_rel_lt dio_rel_le : dio_rel_db.
 Fact dio_rel_neq r t : 𝔻F r -> 𝔻F t -> 𝔻R (fun ν => r ν <> t ν).
 Proof.
   intros H1 H2.
-  by dio equiv (fun ν => exists a b, (a < b \/ b < a) /\ a = r ν /\ b = t ν).
+  by dio equiv (fun v => exists a b, (a < b \/ b < a) /\ a = r v /\ b = t v).
   abstract (intros v; split;
     [ exists (r v), (t v)
     | intros (? & ? & ?) ]; omega).
@@ -523,8 +529,10 @@ Defined.
 Fact dio_rel_div r t : 𝔻F r -> 𝔻F t -> 𝔻R (fun ν => divides (r ν) (t ν)).
 Proof.
   intros H1 H2.
-  by dio equiv (fun ν => exists x, t ν = x * r ν).
-  abstract (intros; unfold divides; tauto).
+  by dio equiv (fun v => exists a b, divides a b /\ a = r v /\ b = t v).
+  abstract (intros v; split;
+    [ exists (r v), (t v)
+    | intros (? & ? & ? & -> & ->) ]; auto).
 Defined.
 
 Hint Resolve dio_rel_neq dio_rel_div : dio_rel_db.
@@ -537,11 +545,17 @@ Proof. dio auto. Defined.
 Check example_le.
 Eval compute in (proj1_sig example_le). 
 
-Local Fact example_2 : 𝔻R (fun ν => ν 0 < ν 1).
+Local Fact example_lt : 𝔻R (fun ν => ν 0 < ν 1).
 Proof. dio auto. Defined.
 
-Check example_2.
-Eval compute in (proj1_sig example_2). 
+Check example_lt.
+Eval compute in (proj1_sig example_lt). 
+
+Local Fact example_div : 𝔻R (fun ν => divides (ν 0) (ν 1)).
+Proof. dio auto. Defined.
+
+Check example_div.
+Eval compute in (proj1_sig example_div). 
 
 Section dio_fun_rem.
 
@@ -621,11 +635,11 @@ End dio_rel_not_divides.
 
 Hint Resolve dio_rel_not_divides : dio_rel_db.
 
-Local Fact example_3 : 𝔻R (fun ν => rem (ν 0) (ν 1) = ν 2 * ν 3).
+Local Fact example_rem : 𝔻R (fun ν => rem (ν 0) (ν 1) = ν 2 * ν 3).
 Proof. dio auto. Defined.
 
-Check example_3.
-Eval compute in df_size_Z (proj1_sig example_3).
+Check example_rem.
+Eval compute in (proj1_sig example_rem).
 
 (** We do not automate the remaining closure props here because
     they are used only once or twice elsewhere *) 
