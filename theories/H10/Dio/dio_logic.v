@@ -59,10 +59,10 @@ Definition df_op_sem (o : dio_op) :=
 
 (* De Bruijn syntax for diophantine formulas of the form
 
-       A,B ::= x ≐ n | x ≐ y | x ≐ y ⨢ z | x ≐ y ⨰ z | A ∧ B | A ∨ B | ∃A 
+       A,B ::= x ≐ ⌞n⌟ | x ≐ y | x ≐ y ⨢ z | x ≐ y ⨰ z | A ∧ B | A ∨ B | ∃A 
 
-          with x, y,z are variables 
-          and  n is a natural number constant 
+          where x,y,z are variables 
+           and  n is a natural number constant 
 
   In the De Bruijn syntax, variables and parameters are not
   distinguished and free (ie not captured) variables can serve
@@ -327,7 +327,12 @@ Section utilities_for_better_efficiency.
 
   Fact dio_rel_fun x t : 𝔻F t -> 𝔻R (fun ν => ν x = t ν).
   Proof.
-    apply dio_rel_ren with (ρ := fun n => match n with 0 => x | S n => n end).
+    apply dio_rel_ren
+      with (ρ := fun n =>
+        match n with 
+          | 0   => x 
+          | S n => n 
+        end).
   Defined.
 
   Fact dio_rel_fun_sym x t : 𝔻F t -> 𝔻R (fun ν => t ν = ν x).
@@ -335,11 +340,17 @@ Section utilities_for_better_efficiency.
 
 End utilities_for_better_efficiency.
 
-Fact dio_fun_var i : 𝔻F (fun ν => ν i).
+Fact dio_fun_var x : 𝔻F (fun ν => ν x).
 Proof. apply dio_rel_eq. Defined.
 
 Fact dio_fun_cst c : 𝔻F (fun _ => c).
 Proof. red; apply dio_rel_cst. Defined.
+
+Fact dio_fun_add_im x y : 𝔻F (fun ν => ν x + ν y).
+Proof. apply dio_rel_add. Defined.
+
+Fact dio_fun_mul_im x y : 𝔻F (fun ν => ν x * ν y).
+Proof. apply dio_rel_mul. Defined.
 
 (** Automation *)
 
@@ -350,6 +361,8 @@ Create HintDb dio_rel_im_db.
 Ltac dio_fun_auto := 
       apply dio_fun_var
    || apply dio_fun_cst
+   || apply dio_fun_add_im
+   || apply dio_fun_mul_im
    || auto 7 with dio_fun_db.   (* the depth of 7 is mostly enough *)
 
 Hint Resolve dio_rel_eq 
@@ -360,10 +373,9 @@ Hint Resolve dio_rel_eq
 Ltac dio_rel_immediate := auto with dio_rel_im_db.
 
 Ltac dio_rel_eq := 
-      apply dio_rel_eq
-   || apply dio_rel_fun 
-   || apply dio_rel_fun_sym
-   || apply dio_rel_fun_eq. 
+      apply dio_rel_fun         (* x = t *) 
+   || apply dio_rel_fun_sym     (* t = x *)
+   || apply dio_rel_fun_eq.     (* r = t *)
 
 Ltac dio_rel_decompose :=
       apply dio_rel_exst
@@ -502,8 +514,10 @@ Hint Resolve dio_rel_lt dio_rel_le : dio_rel_db.
 Fact dio_rel_neq r t : 𝔻F r -> 𝔻F t -> 𝔻R (fun ν => r ν <> t ν).
 Proof.
   intros H1 H2.
-  by dio equiv (fun ν => r ν < t ν \/ t ν < r ν).
-  abstract (intros; omega).
+  by dio equiv (fun ν => exists a b, (a < b \/ b < a) /\ a = r ν /\ b = t ν).
+  abstract (intros v; split;
+    [ exists (r v), (t v)
+    | intros (? & ? & ?) ]; omega).
 Defined.
 
 Fact dio_rel_div r t : 𝔻F r -> 𝔻F t -> 𝔻R (fun ν => divides (r ν) (t ν)).
