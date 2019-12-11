@@ -15,7 +15,7 @@
 Require Import Arith Nat Omega.
 
 From Undecidability.Shared.Libs.DLW.Utils 
-  Require Import gcd.
+  Require Import utils_tac gcd.
 
 Set Implicit Arguments.
 
@@ -442,11 +442,11 @@ Defined.
 
 Hint Resolve dio_fun_plus dio_fun_mult : dio_fun_db.
 
-Local Fact example_1 : 𝔻R (fun ν => ν 0 = ν 0).
+Local Fact example_eq : 𝔻R (fun ν => ν 0 = ν 0).
 Proof. dio auto. Defined.
 
-Check example_1.
-Eval compute in (proj1_sig example_1).
+Check example_eq.
+Eval compute in (proj1_sig example_eq).
 
 (** Now you can start witnessing the magic of 
     Diophantine shapes recognition *)
@@ -559,19 +559,22 @@ Eval compute in (proj1_sig example_div).
 
 Section dio_fun_rem.
 
-  (** The remainder function is Diophantine *)
+  (** The remainder function is Diophantine 
+      Beware avoiding the duplication of x & p *)
 
-  Let rem_equiv p x r : r = rem x p <-> (p = 0 /\ x = r)
-                                      \/ (p <> 0 /\ r < p /\ exists n, x = n*p + r).
+  Let rem_equiv p x r : r = rem x p 
+                    <-> exists x' p', x' = x /\ p' = p /\
+                                 (   (p' = 0  /\ x' = r)
+                                  \/ (p' <> 0 /\ r < p' /\ exists n, x' = n*p' + r) ).
   Proof.
     split.
-    + intro; subst.
+    + intro; exists x, p; subst; msplit 2; auto.
       destruct (eq_nat_dec p 0) as [ Hp | Hp ].
       * left; split; auto; subst; rewrite rem_0; auto.
       * right; split; auto; split.
         - apply div_rem_spec2; auto.
         - exists (div x p);apply div_rem_spec1.
-    + intros [ (H1 & H2) | (H1 & H2 & n & H3) ].
+    + intros (? &  ? & -> & -> & [ (H1 & H2) | (H1 & H2 & n & H3) ]).
       * subst; rewrite rem_0; auto.
       * symmetry; apply rem_prop with n; auto.
   Qed.
