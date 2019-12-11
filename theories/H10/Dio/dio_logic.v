@@ -85,7 +85,8 @@ Notation "∃ x" := (df_exst x) (at level 54, right associativity).
 Notation "x ∧ y" := (df_conj x y) (at level 51, right associativity, format "x  ∧  y").
 Notation "x ∨ y" := (df_disj x y) (at level 52, right associativity, format "x  ∨  y").
 
-Local Notation "x ≐ n" := (df_cst x n) (at level 49, no associativity, format "x  ≐  n").
+Local Notation "x ≐ n" := (df_cst x n) 
+      (at level 49, no associativity, format "x  ≐  n").
 Local Notation "x ≐ y ⨢ z" := (df_add x y z) 
       (at level 49, no associativity, y at next level, format "x  ≐  y  ⨢  z").
 Local Notation "x ≐ y ⨰ z" := (df_mul x y z) 
@@ -283,6 +284,9 @@ Section dio_rel_closure_properties.
 
 End dio_rel_closure_properties.
 
+(** From now on, we will quite systematically avoid directly
+    manipulating the De Bruijn syntax *)
+
 (** It is often more convenient to work with Diophantine functions 
     instead of Diophantine relations, eg 
 
@@ -296,15 +300,6 @@ End dio_rel_closure_properties.
 Definition dio_fun t := 𝔻R (fun ν => ν 0 = t ν⭳).
 Notation 𝔻F := dio_fun.
 
-Local Ltac dio_sym H :=
-  now (apply dio_rel_equiv with (2 := H)). 
-
-Fact dio_rel_fun x t : 𝔻F t -> 𝔻R (fun ν => ν x = t ν).
-Proof.
-  unfold dio_fun.
-  apply dio_rel_ren with (ρ := fun n => match n with 0 => x | S n => n end).
-Defined.
-
 Fact dio_rel_eq r t : 𝔻F r -> 𝔻F t -> 𝔻R (fun ν => r ν = t ν).
 Proof.
   intros H1 H2; red in H1, H2.
@@ -315,20 +310,30 @@ Proof.
   + apply dio_rel_exst, dio_rel_conj; auto.
 Defined.
 
-Fact dio_rel_cst_sym x n : 𝔻R (fun ν => n = ν x).
-Proof. dio_sym (dio_rel_cst x n). Defined.
+Section utilities_for_better_efficiency.
 
-Fact dio_rel_fun_sym x t : 𝔻F t -> 𝔻R (fun ν => t ν = ν x).
-Proof. intros H; dio_sym (dio_rel_fun x H). Defined.
+  Ltac dio_sym H := now (apply dio_rel_equiv with (2 := H)). 
 
-Fact dio_rel_add_sym x y z : 𝔻R (fun ν => ν y + ν z = ν x).
-Proof. dio_sym (dio_rel_add x y z). Defined.
+  Fact dio_rel_cst_sym x n : 𝔻R (fun ν => n = ν x).
+  Proof. dio_sym (dio_rel_cst x n). Defined.
 
-Fact dio_rel_mul_sym x y z : 𝔻R (fun ν => ν y * ν z = ν x).
-Proof. dio_sym (dio_rel_mul x y z). Defined.
+  Fact dio_rel_add_sym x y z : 𝔻R (fun ν => ν y + ν z = ν x).
+  Proof. dio_sym (dio_rel_add x y z). Defined.
 
-(** From now on, we will quite systematically avoid directly
-    manipulating the De Bruijn syntax *)
+  Fact dio_rel_mul_sym x y z : 𝔻R (fun ν => ν y * ν z = ν x).
+  Proof. dio_sym (dio_rel_mul x y z). Defined.
+
+  Fact dio_rel_fun x t : 𝔻F t -> 𝔻R (fun ν => ν x = t ν).
+  Proof.
+    apply dio_rel_ren with (ρ := fun n => match n with 0 => x | S n => n end).
+  Defined.
+
+  Fact dio_rel_fun_sym x t : 𝔻F t -> 𝔻R (fun ν => t ν = ν x).
+  Proof. intros H; dio_sym (dio_rel_fun x H). Defined.
+
+End utilities_for_better_efficiency.
+
+(** Automation *)
 
 Create HintDb dio_rel_db.        (* For closure props ending with 𝔻R _ *)
 Create HintDb dio_fun_db.        (* For closure props ending with 𝔻F _ *)
@@ -348,14 +353,17 @@ Ltac dio_rel_eq :=
    || apply dio_rel_fun_sym 
    || apply dio_rel_eq.
 
+Ltac dio_rel_decompose :=
+      apply dio_rel_exst
+   || apply dio_rel_conj 
+   || apply dio_rel_disj.
+
 Ltac dio_rel_auto := 
    try dio_rel_immediate;
    auto 7 with dio_rel_db dio_fun_db;
    (  (dio_rel_eq; dio_fun_auto) 
-   || (apply dio_rel_exst; dio_rel_auto)
-   || (apply dio_rel_conj; dio_rel_auto) 
-   || (apply dio_rel_disj; dio_rel_auto)
-   || idtac).
+   || (dio_rel_decompose; dio_rel_auto)
+   || idtac ).
    
 (** this is the user level-tactic *)
 

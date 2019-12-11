@@ -32,7 +32,8 @@ Local Notation expo := (mscal mult 1).
     from the new Diophantine shapes that include Diophantine
     functions. *)
 
-Local Notation "x ≐ n" := (df_cst x n) (at level 49, no associativity, format "x  ≐  n").
+Local Notation "x ≐ n" := (df_cst x n) 
+      (at level 49, no associativity, format "x  ≐  n").
 Local Notation "x ≐ y ⨢ z" := (df_add x y z) 
       (at level 49, no associativity, y at next level, format "x  ≐  y  ⨢  z").
 Local Notation "x ≐ y ⨰ z" := (df_mul x y z) 
