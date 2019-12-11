@@ -292,7 +292,7 @@ Section diophantine_system.
     + exists 0, (x-y); omega.
   Qed.
 
-  (** x = i <~~> s = 0 /\ exists s p q u v w, s = p+q /\ u = p+v /\ u = q+w /\ v = x /\ w = i *)
+  (** x = i <~~> s = 0 /\ exists p q u v w, s = p+q /\ u = p+v /\ u = q+w /\ v = x /\ w = i *)
 
   Lemma dio_repr_at_cst x i a : dio_repr_at (fun ν => ν x = i) a 6 5.
   Proof.
@@ -312,6 +312,31 @@ Section diophantine_system.
     + intros v; split.
       * intros H.
         exists (g0 a 0 0 (v x) (v x) i 0 0 0); 
+          repeat constructor; simpl; rew g0; auto.
+      * intros (phi & H); revert H.
+        repeat rewrite Forall_cons_inv; simpl; omega.
+  Defined.
+
+  (** x = y <~~> s = 0 /\ exists p q u v w, s = p+q /\ u = p+v /\ u = q+w /\ v = x /\ w = y *)
+
+  Lemma dio_repr_at_eq x y a : dio_repr_at (fun ν => ν x = ν y) a 6 5.
+  Proof.
+    exists ( (a+5,dee_add (a+0) (a+1))     (* s = p + q *)
+           ::(a+2,dee_add (a+0) (a+3))     (* u = p + v *)
+           ::(a+2,dee_add (a+1) (a+4))     (* u = q + w *)
+           ::(a+3,dee_par x)               (* v = x     *)
+           ::(a+4,dee_par y)               (* w = y     *)
+           ::nil)
+           (a+5); simpl; auto; try omega.
+    + intros j c.
+      repeat (intros [ <- | H ]; [ simpl; try omega | revert H ]); try tauto.
+    + intros v.
+      destruct (complete_lemma (v x) (v y)) as (p & q & H).
+      exists (g0 a p q (p+v x) (v x) (v y) (p+q) 0 0); 
+        repeat constructor; simpl; rew g0; auto.
+    + intros v; split.
+      * intros H.
+        exists (g0 a 0 0 (v x) (v x) (v y) 0 0 0); 
           repeat constructor; simpl; rew g0; auto.
       * intros (phi & H); revert H.
         repeat rewrite Forall_cons_inv; simpl; omega.
@@ -495,6 +520,7 @@ Section diophantine_system.
   Fixpoint df_weight_1 f :=
     match f with
       | df_cst _ _     => 6
+      | df_eq _ _      => 6
       | df_op _ _ _ _  => 8
       | df_bin _ f g   => 1 + df_weight_1 f + df_weight_1 g  
       | df_exst f      => 1 + df_weight_1 f
@@ -506,6 +532,7 @@ Section diophantine_system.
   Fixpoint df_weight_2 f :=
     match f with
       | df_cst _ _     => 5
+      | df_eq _ _      => 5
       | df_op _ _ _ _  => 7
       | df_bin _ f g   => 1 + df_weight_2 f + df_weight_2 g  
       | df_exst f      => df_weight_2 f
@@ -517,8 +544,9 @@ Section diophantine_system.
   Lemma dio_repr_at_form n f : dio_repr_at (df_pred f) n (df_weight_1 f) (df_weight_2 f).
   Proof.
     revert n;
-    induction f as [ x i | o x y z | o f IHf g IHg | f IHf ]; intros n; simpl df_pred; simpl df_weight_1; simpl df_weight_2.
+    induction f as [ x i | x y | o x y z | o f IHf g IHg | f IHf ]; intros n; simpl df_pred; simpl df_weight_1; simpl df_weight_2.
     + apply dio_repr_at_cst; auto.
+    + apply dio_repr_at_eq; auto.
     + apply dio_repr_at_op; auto.
     + apply dio_repr_at_bin with (n1 := df_weight_1 f) (a2 := n+df_weight_1 f) (n2 := df_weight_1 g); auto; omega.
     + apply dio_repr_at_exst with (n := df_weight_1 f); auto; omega.
