@@ -291,14 +291,14 @@ Section fol_semantics.
       | ⊥              => False
       | fol_atom _ v   => fom_rels M _ (vec_map (fun t => ⟦t⟧ φ) v)
       | fol_bin b A B  => fol_bin_sem b (⟪A⟫ φ) (⟪B⟫ φ) 
-      | fol_quant q A  => fol_quant_sem q (fun x => ⟪A⟫ (φ↑x))
+      | fol_quant q A  => fol_quant_sem q (fun x => ⟪A⟫ x·φ)
     end
   where "⟪ A ⟫" := (fun φ => fol_sem φ A).
 
   Fact fol_sem_bin_fix φ b A B : fol_sem φ (fol_bin b A B) = fol_bin_sem b (⟪A⟫ φ) (⟪B⟫ φ).
   Proof. reflexivity. Qed.
 
-  Fact fol_sem_quant_fix φ q A : fol_sem φ (fol_quant q A) = fol_quant_sem q (fun x => ⟪A⟫ (φ↑x)).
+  Fact fol_sem_quant_fix φ q A : fol_sem φ (fol_quant q A) = fol_quant_sem q (fun x => ⟪A⟫ x·φ).
   Proof. reflexivity. Qed.
 
   (** Semantics depends only on occuring variables *)
@@ -433,10 +433,12 @@ Section fol_semantics.
       destruct Hf as (p & ->); auto.
   Qed.
 
+  (** [x1;...;xn] · φ := x1 · x2 ... · xn · φ *)
+
   Fixpoint env_vlift φ n (v : vec X n) :=
     match v with
       | ø    => φ
-      | x##v => (env_vlift φ v)↑x
+      | x##v => x·(env_vlift φ v)
     end.
 
   Fact env_vlift_fix0 φ n (v : vec X n) p : env_vlift φ v (pos2nat p) = vec_pos v p.

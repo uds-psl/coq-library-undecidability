@@ -169,7 +169,7 @@ Section remove_constants.
           - intros; apply H2, in_app_iff; auto.
           - intros ? ?; apply H3, in_app_iff; auto.
       + apply fol_quant_sem_ext; intros x.
-        rewrite <- HA with (φ := φ↑x); unfold M; simpl; try tauto.
+        rewrite <- HA with (φ := x·φ); unfold M; simpl; try tauto.
         * intros s G1 G2; apply (H1 _ G1). 
           simpl; apply in_flat_map.
           exists (S (σ s)); simpl; auto.

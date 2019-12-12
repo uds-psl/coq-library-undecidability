@@ -366,8 +366,8 @@ Section FOL_encoding.
   Notation "⟪ A ⟫" := (fun ψ => fol_sem M2 ψ A).
 
   Fact Σ2_is_otriple_in_equiv r x y z φ ψ :
-               ⟪Σ2_is_otriple_in 3 2 1 0⟫ φ↑r↑x↑y↑z
-           <-> ⟪Σ2_is_otriple_in 3 2 1 0⟫ ψ↑r↑x↑y↑z.
+               ⟪Σ2_is_otriple_in 3 2 1 0⟫ z·y·x·r·φ
+           <-> ⟪Σ2_is_otriple_in 3 2 1 0⟫ z·y·x·r·ψ.
   Proof. cbv beta; do 2 rewrite Σ2_is_otriple_in_spec; simpl; tauto. Qed.
 
 End FOL_encoding. 

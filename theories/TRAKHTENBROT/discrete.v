@@ -88,7 +88,7 @@ Section discrete_quotient.
   Definition fo_bisimilar X M x y := 
          forall A φ, incl (fol_syms A) ls
                   -> incl (fol_rels A) lr
-                  -> @fol_sem Σ X M (φ↑x) A <-> fol_sem M (φ↑y) A.
+                  -> @fol_sem Σ X M x·φ A <-> fol_sem M y·φ A.
 
   (** Let us assume a finite and Boolean model m *)
 
@@ -316,7 +316,7 @@ Section discrete_quotient.
     
     Definition fom_eq_form := fol_subst (fun n => match n with 0 => £1 | _ => £0 end) A.
 
-    Fact fom_eq_form_sem φ x y : fol_sem M φ↑x↑y fom_eq_form <-> x ≡ y.
+    Fact fom_eq_form_sem φ x y : fol_sem M y·x·φ fom_eq_form <-> x ≡ y.
     Proof.
       unfold fom_eq_form; rewrite fol_sem_subst.
       apply (proj2_sig fom_eq_fol_def).
@@ -550,11 +550,11 @@ Section counter_model_to_class_FO_definability.
   Qed.
 
   Let no_disctinct A phi : (forall n, In n (fol_vars A) -> n = 0)
-                        -> ⟪A⟫ phi↑true <-> ⟪A⟫ phi↑false.
+                        -> ⟪A⟫ true·phi <-> ⟪A⟫ false·phi.
   Proof.
     intros H.
     set (psi n := negb (phi n)).
-    rewrite homeomorphism with (phi := phi↑false) at 1.
+    rewrite homeomorphism with (phi := false·phi) at 1.
     apply fol_sem_ext.
     intros n Hn; apply H in Hn; subst; auto.
   Qed.
@@ -568,7 +568,7 @@ Section counter_model_to_class_FO_definability.
      exists (M : fo_model Σ bool) (_ : fo_model_dec M) (x y : bool), 
             ~ fom_eq (Σ := Σ) nil (tt::nil) M x y
          /\ forall A φ, (forall n, In n (fol_vars A) -> n = 0) 
-                     -> fol_sem M φ↑x A <-> fol_sem M φ↑y A.
+                     -> fol_sem M x·φ A <-> fol_sem M y·φ A.
   Proof. exists M, M_dec, true, false; auto. Qed.
 
 End counter_model_to_class_FO_definability.

@@ -110,8 +110,8 @@ Section Uniform_arities_to_one.
     Notation "⟪ A ⟫'" := (fun ψ => fol_sem M' ψ A).
 
     Let env_fill_sat_help A ψ x :
-          ⟪encode A⟫' (env_fill (env_fill ψ)↑x) 
-      <-> ⟪encode A⟫' (env_fill (ψ↑x)).
+          ⟪encode A⟫' (env_fill x·(env_fill ψ)) 
+      <-> ⟪encode A⟫' (env_fill x·ψ).
     Proof. apply fol_sem_ext; intros [] _; auto. Qed.
 
     Let env_fill_sat A ψ : ⟪encode A⟫' (env_fill ψ) <-> ⟪encode A⟫' ψ.

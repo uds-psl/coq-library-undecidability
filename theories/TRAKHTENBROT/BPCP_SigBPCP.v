@@ -230,7 +230,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
     Let sem_phi_P : ⟪ phi_P ⟫ φ0.
     Proof.
       simpl; intros [ (x & Hx) | ] [ (y & Hy) | ]; simpl;
-      unfold env_lift; simpl; rew fot; unfold sem_sym in |- *; simpl; try tauto.
+      rew fot; unfold sem_sym in |- *; simpl; try tauto.
       intros _; split; intros ?; discriminate.
     Qed.
 
@@ -356,10 +356,10 @@ Section BPCP_FIN_DEC_EQ_SAT.
     Notation "⟦ t ⟧" := (fun φ => fo_term_sem M φ t).
     Notation "⟪ A ⟫" := (fun φ => fol_sem M φ A).
 
-    Let fot_sem_lb_app l t φ : ⟦l⤜t⟧ φ = ⟦l⤜£0⟧ (φ↑(⟦t⟧φ)).
+    Let fot_sem_lb_app l t φ : ⟦l⤜t⟧ φ = ⟦l⤜£0⟧ (⟦t⟧φ)·φ.
     Proof.
       revert φ; induction l as [ | b l IHl ]; intros phi; simpl.
-      + unfold env_lift; rew fot; auto.
+      + rew fot; auto.
       + rew fot; f_equal; simpl; f_equal; auto.
     Qed.
 
@@ -405,7 +405,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
     Let Hlt_trans x y z : x ⪡ y -> y ⪡ z -> x ⪡ z.
     Proof. apply model. Qed.
 
-    Let sb_app l x := ⟦l⤜£0⟧ (φ↑x).
+    Let sb_app l x := ⟦l⤜£0⟧ x·φ.
 
     Let Hsimul x y : 
           P x y 

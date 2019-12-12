@@ -11,18 +11,24 @@ Set Implicit Arguments.
 
 Definition discrete X := forall x y : X, { x = y } + { x <> y }.
 
-(** Lifting a DeBruijn subtitution with
-    a non-recursive fixpoint definition to get correct unfolding *)
+(** Standard De Bruijn extension and De Bruijn projection *)
 
-Reserved Notation "phi ↑ k" (at level 1, format "phi ↑ k", left associativity).
+(* Fixpoint instead of Definition because of better unfolding properties *)
 
-Fixpoint env_lift {X} (φ : nat -> X) k n { struct n } :=
+Fixpoint de_bruijn_ext {X} (ν : nat -> X) x n { struct n } :=
   match n with
-    | 0   => k
-    | S n => φ n
+    | 0   => x
+    | S n => ν n
   end.
 
-Notation "phi ↑ k" := (env_lift phi k).
+Notation "x · ν" := (de_bruijn_ext ν x) (at level 2, format "x · ν", right associativity).
+Notation "ν ⭳" := (fun n => ν (S n)) (at level 2, format "ν ⭳", no associativity).
+
+Fact de_bruijn_ext_proj X (ν : nat -> X) x n : (x·ν)⭳ n = ν n.
+Proof. reflexivity. Qed.
+
+Fact de_bruijn_proj_ext X (ν : nat -> X) n : (ν 0)·(ν⭳) n = ν n.
+Proof. destruct n; reflexivity. Qed.
 
 (* Unicode DB for cut/paste 
   -> ⇡ ↑ 
