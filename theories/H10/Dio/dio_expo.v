@@ -54,7 +54,7 @@ Proof. dio auto. Defined.
 
 Eval compute in df_size_Z (proj1_sig dio_rel_alpha_example).
 
-Fact dio_rel_alpha_size : df_size_Z (proj1_sig dio_rel_alpha_example) = 1440%Z.
+Fact dio_rel_alpha_size : df_size_Z (proj1_sig dio_rel_alpha_example) = 1445%Z.
 Proof. reflexivity. Qed.
 
 (** This is Matiyasevich theorem stating that q^r is a Diophantine function. 
@@ -73,35 +73,37 @@ Proof. dio auto. Defined.
 
 Eval compute in df_size_Z (proj1_sig dio_fun_expo_example).
 
-(* The new Diophantine shapes builds at bit bigger formulas ... *)
+(* The new Diophantine shapes (w/o build-in polynimoals) 
+   build formulas that are a bit bigger ... *)
 
-Local Fact dio_fun_expo_example_size : df_size_Z (proj1_sig dio_fun_expo_example) = 4960%Z.
+Local Fact dio_fun_expo_example_size : df_size_Z (proj1_sig dio_fun_expo_example) = 4903%Z.
 Proof. reflexivity. Qed.
 
-Section dio_rel_is_digit.
+(** We use the exponantial to characterize digits *)
 
-  (* The is_digit c q i y relation stating that 
-     "y is the i-th digit of c is base q" *)
+(** The is_digit c q i y relation stating that 
+     
+       "y is the i-th digit of c is base q" 
+ *)
 
-  Let is_digit_eq c q i y : is_digit c q i y 
-                        <-> y < q
-                        /\ exists a b p, c = (a*q+y)*p+b 
-                                      /\ b < p
-                                      /\ p = power i q.
-  Proof.
-    split; intros (H1 & a & b & H2).
-    + split; auto; exists a, b, (power i q); repeat split; tauto.
-    + destruct H2 as (p & H2 & H3 & H4).
-      split; auto; exists a, b; subst; auto.
-  Qed.
+Local Fact is_digit_eq c q i y : 
+            is_digit c q i y 
+        <-> y < q
+         /\ exists a b p, c = (a*q+y)*p+b 
+                       /\ b < p
+                       /\ p = power i q.
+Proof.
+  split; intros (H1 & a & b & H2).
+  + split; auto; exists a, b, (power i q); repeat split; tauto.
+  + destruct H2 as (p & H2 & H3 & H4).
+    split; auto; exists a, b; subst; auto.
+Qed.
 
-  Lemma dio_rel_is_digit c q i y : 𝔻F c -> 𝔻F q -> 𝔻F i -> 𝔻F y
-                                -> 𝔻R (fun ν => is_digit (c ν) (q ν) (i ν) (y ν)).
-  Proof.
-    dio by lemma (fun ν => is_digit_eq (c ν) (q ν) (i ν) (y ν)).
-  Defined.
-
-End dio_rel_is_digit.
+Lemma dio_rel_is_digit c q i y : 𝔻F c -> 𝔻F q -> 𝔻F i -> 𝔻F y
+                              -> 𝔻R (fun ν => is_digit (c ν) (q ν) (i ν) (y ν)).
+Proof.
+  dio by lemma (fun ν => is_digit_eq (c ν) (q ν) (i ν) (y ν)).
+Defined.
 
 Hint Resolve dio_rel_is_digit : dio_rel_db.
 

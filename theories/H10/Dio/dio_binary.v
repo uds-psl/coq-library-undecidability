@@ -35,8 +35,6 @@ Local Infix "⇡" := nat_join (at level 50, left associativity).
 
 Section dio_fun_binomial.
 
-  Notation "∑" := (msum plus 0).
-
   Let plus_cancel_l : forall a b c, a + b = a + c -> b = c.
   Proof. intros; omega. Qed.
 
@@ -131,7 +129,7 @@ Proof. dio auto. Defined.
 Check dio_fun_binomial_example.
 Eval compute in df_size_Z (proj1_sig dio_fun_binomial_example).
 
-(** This result comes from Luca's theorem *)
+(** This result comes from Lucas' theorem *)
 
 Theorem binary_le_binomial n m : n ≲ m <-> rem (binomial m n) 2 = 1.
 Proof.

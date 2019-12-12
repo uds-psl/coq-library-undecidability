@@ -15,7 +15,7 @@
 Require Import Arith Nat Omega.
 
 From Undecidability.Shared.Libs.DLW.Utils 
-  Require Import utils_tac gcd.
+  Require Import utils_tac gcd sums bounded_quantification.
 
 Set Implicit Arguments.
 
@@ -38,7 +38,7 @@ Proof. reflexivity. Qed.
 Fact de_bruijn_proj_ext X (ν : nat -> X) n : (ν 0)·(ν⭳) n = ν n.
 Proof. destruct n; reflexivity. Qed.
 
-(** We factor out +/* and ∨/∧ *)
+(* We factor out +/* and ∨/∧ *)
 
 Inductive dio_op := do_add | do_mul.
 
@@ -57,17 +57,16 @@ Definition df_op_sem (o : dio_op) :=
     | do_mul => and
   end.
 
-(* De Bruijn syntax for diophantine formulas of the form
+(** De Bruijn syntax for diophantine formulas of the form
 
        A,B ::= x ≐ ⌞n⌟ | x ≐ y | x ≐ y ⨢ z | x ≐ y ⨰ z | A ∧ B | A ∨ B | ∃A 
 
           where x,y,z are variables 
            and  n is a natural number constant 
 
-  In the De Bruijn syntax, variables and parameters are not
-  distinguished and free (ie not captured) variables can serve
-  as parameters
-
+    In the De Bruijn syntax, variables and parameters are not
+    distinguished and free (ie not captured) variables can serve
+    as parameters
 *)
 
 Inductive dio_formula : Set :=
@@ -98,7 +97,7 @@ Local Notation "x ≐ y ⨰ z" := (df_mul x y z)
 Local Reserved Notation "'⟦' t '⟧'" (at level 1, format "⟦ t ⟧").
 Local Reserved Notation "f '⦃' σ '⦄'" (at level 1, format "f ⦃ σ ⦄").
 
-Section diophantine_logic.
+Section diophantine_logic_basics.
 
   Fixpoint df_size f :=
     match f with
@@ -139,7 +138,7 @@ Section diophantine_logic.
     end
   where "⟦ f ⟧" := (df_pred f).
 
-  (** Fixpoint equations if needed and for readability *)
+  (** Fixpoint equations if needed, for readability and confirmation *)
 
   Fact df_pred_cst x n ν : ⟦x ≐ ⌞n⌟⟧ ν = (ν x = n).
   Proof. reflexivity. Qed.
@@ -162,18 +161,18 @@ Section diophantine_logic.
   Fact df_pred_exst f ν : ⟦∃f⟧ ν = exists n, ⟦f⟧ n·ν.
   Proof. reflexivity. Qed.
 
-  (** Extensionality *)
+  (* Extensionality *)
 
   Fact df_pred_ext f ν ω : (forall x, ν x = ω x) -> ⟦f⟧ ν <-> ⟦f⟧ ω.
   Proof.
-    revert ν ω; induction f as [ | | [] | [] f Hf g Hg | f Hf ]; intros ν ω H; simpl.
+    induction f as [ | | [] | [] f Hf g Hg | f Hf ] in ν, ω |- *; intros H; simpl.
     1-4: rewrite !H; tauto.
     1-2: rewrite Hf, Hg; auto; tauto.
     split; intros (n & Hn); exists n; revert Hn; apply Hf;
         intros []; simpl; auto.
   Qed.
 
-  (* Diophantine formula renaming under binders *)
+  (** Renaming under binders *)
 
   Definition der_lift ρ x := match x with 0 => 0 | S x => S (ρ x) end.
 
@@ -206,38 +205,44 @@ Section diophantine_logic.
   Fact df_pred_lift f ν : ⟦f⦃S⦄⟧ ν <-> ⟦f⟧ ν⭳.
   Proof. apply df_pred_ren. Qed. 
 
-End diophantine_logic.
+End diophantine_logic_basics.
 
 Local Notation "⟦ f ⟧" := (df_pred f).
 Local Notation "f ⦃ ρ ⦄" := (df_ren ρ f).
 
-(** The notion of Diophantine relation, ie a relation extensionally 
-    equivalent to the semantics of a Diophantine formula *)
+(** The notion of Diophantine relation, expressed as
+    a rich term, ie an informative part together with
+    a certificate. In this case, a relation R is 
+    Diophantine when one can compute a Diophantine 
+    formula f for which ⟦f⟧ and R are extensionally 
+    equivalent *)
 
 Definition dio_rel R := { f | forall ν, ⟦f⟧ ν <-> R ν }.
 Notation 𝔻R := dio_rel.
 
-Section dio_rel_closure_properties.
+(** We establish closure properties of dio_rel / 𝔻R
+    These are proved by explicitely giving the witnesses.
 
-  (** We establish closure properties of dio_rel / 𝔻R
-      These are proved by explicitely giving the witnesses 
-      and we will systematically avoid that later on
-      because in general, this is painful. 
+    But we will systematically avoid giving witnesses 
+    later on because in general, proceeding this way
+    is painful.
 
-      We use of the "abstract" tactic to hide Prop-only 
-      content for better computations with those rich terms.
+    We use of the "abstract" tactic to hide Prop-only 
+    content for better computations with those rich terms.
 
-      Notice that those proofs are all closed with
-      "Defined" and not "Qed" to allow computing with
-      the informative part of terms, the one that is not
-      hidden behind "abstract".
+    Notice that those proofs are all closed with
+    "Defined" and not "Qed" to allow computing with
+    the informative part of terms, the one that is not
+    hidden behind "abstract".
 
-      The closure properties and the tactics developed
-      below implement the automagic recognition of 
+    The closure properties and the tactics developed
+    below implement the automagic recognition of 
 
              "Diophantine shapes"
-    *)
-  
+*)
+
+Section dio_rel_closure_properties.
+
   Implicit Types R S : (nat -> nat) -> Prop.
 
   Fact dio_rel_cst x n : 𝔻R (fun ν => ν x = n).
@@ -302,15 +307,26 @@ End dio_rel_closure_properties.
 Definition dio_fun t := 𝔻R (fun ν => ν 0 = t ν⭳).
 Notation 𝔻F := dio_fun.
 
-Fact dio_rel_fun_eq r t : 𝔻F r -> 𝔻F t -> 𝔻R (fun ν => r ν = t ν).
+Fact dio_fun_var x : 𝔻F (fun ν => ν x).
+Proof. apply dio_rel_eq. Defined.
+
+Fact dio_fun_cst c : 𝔻F (fun _ => c).
+Proof. red; apply dio_rel_cst. Defined.
+
+Fact dio_fun_add_im x y : 𝔻F (fun ν => ν x + ν y).
+Proof. apply dio_rel_add. Defined.
+
+Fact dio_fun_mul_im x y : 𝔻F (fun ν => ν x * ν y).
+Proof. apply dio_rel_mul. Defined.
+   
+Fact dio_fun_equiv r s : (forall ν, s ν = r ν) -> 𝔻F r -> 𝔻F s.
 Proof.
-  intros H1 H2; red in H1, H2.
-  apply dio_rel_equiv with (R := fun ν => exists x, x = r ν /\ x = t ν).
-  + abstract (intros v; split;
-     [ intros ->; exists (t v); auto 
-     | intros (? & -> & ?); auto ]).
-  + apply dio_rel_exst, dio_rel_conj; auto.
+  intros H1; apply dio_rel_equiv.
+  abstract (intro; rewrite H1; tauto).
 Defined.
+
+Fact dio_fun_ren t f : 𝔻F t -> 𝔻F (fun ν => t (fun n => ν (f n))).
+Proof. apply dio_rel_ren with (ρ := der_lift f). Defined.
 
 Section utilities_for_better_efficiency.
 
@@ -340,47 +356,51 @@ Section utilities_for_better_efficiency.
 
 End utilities_for_better_efficiency.
 
-Fact dio_fun_var x : 𝔻F (fun ν => ν x).
-Proof. apply dio_rel_eq. Defined.
+Fact dio_rel_fun_eq r t : 𝔻F r -> 𝔻F t -> 𝔻R (fun ν => r ν = t ν).
+Proof.
+  intros H1 H2; red in H1, H2.
+  apply dio_rel_equiv with (R := fun ν => exists x, x = r ν /\ x = t ν).
+  + abstract (intros v; split;
+     [ intros ->; exists (t v); auto 
+     | intros (? & -> & ?); auto ]).
+  + apply dio_rel_exst, dio_rel_conj; auto.
+Defined.
 
-Fact dio_fun_cst c : 𝔻F (fun _ => c).
-Proof. red; apply dio_rel_cst. Defined.
+(** Databases of Diophantine shapes *)
 
-Fact dio_fun_add_im x y : 𝔻F (fun ν => ν x + ν y).
-Proof. apply dio_rel_add. Defined.
-
-Fact dio_fun_mul_im x y : 𝔻F (fun ν => ν x * ν y).
-Proof. apply dio_rel_mul. Defined.
-
-(** Automation *)
-
-Create HintDb dio_rel_db.        (* For closure props ending with 𝔻R _ *)
 Create HintDb dio_fun_db.        (* For closure props ending with 𝔻F _ *)
-Create HintDb dio_rel_im_db.
+Create HintDb dio_rel_db.        (* For closure props ending with 𝔻R _ *)
+Create HintDb dio_rel_im_db.     (* For immediate closure props ending with 𝔻R _ *)
+
+(** Automation tactics *)
+
+(* We want to try dio_fun_[var,cst,add_im,mul_im] ahead of everything else *)
 
 Ltac dio_fun_auto := 
       apply dio_fun_var
    || apply dio_fun_cst
    || apply dio_fun_add_im
    || apply dio_fun_mul_im
-   || auto 7 with dio_fun_db.   (* the depth of 7 is mostly enough *)
+   || auto 7 with dio_fun_db   (* the depth of 7 is mostly enough *)
+   .
 
-Hint Resolve dio_rel_eq 
-             dio_rel_cst dio_rel_cst_sym
-             dio_rel_add dio_rel_add_sym
-             dio_rel_mul dio_rel_mul_sym : dio_rel_im_db.
+(* For immediate recognition, generating no further sub-goals *)
 
 Ltac dio_rel_immediate := auto with dio_rel_im_db.
 
 Ltac dio_rel_eq := 
       apply dio_rel_fun         (* x = t *) 
    || apply dio_rel_fun_sym     (* t = x *)
-   || apply dio_rel_fun_eq.     (* r = t *)
+   || apply dio_rel_fun_eq      (* r = t *)
+   .
 
 Ltac dio_rel_decompose :=
-      apply dio_rel_exst
-   || apply dio_rel_conj 
-   || apply dio_rel_disj.
+      apply dio_rel_exst        (* exists x, ... *)
+   || apply dio_rel_conj        (* ... /\ ...    *)
+   || apply dio_rel_disj        (* ... \/ ...    *)
+   .
+
+(* Finely tuned for maximum completeness and efficiency *)
 
 Ltac dio_rel_auto := 
    dio_rel_immediate;
@@ -388,8 +408,8 @@ Ltac dio_rel_auto :=
    (  (dio_rel_eq; dio_fun_auto) 
    || (dio_rel_decompose; dio_rel_auto)
    || idtac ).
-   
-(** this is the user level-tactic *)
+
+(* this is the user level-tactic *)
 
 Tactic Notation "dio" "auto" :=
   match goal with
@@ -397,27 +417,27 @@ Tactic Notation "dio" "auto" :=
     | |- 𝔻F _ => dio_fun_auto
   end.
 
-Fact dio_fun_equiv r s : (forall ν, s ν = r ν) -> 𝔻F r -> 𝔻F s.
-Proof.
-  intros H1; apply dio_rel_equiv.
-  abstract (intro; rewrite H1; tauto).
-Defined.
-
-(** Two syntactic sugar tactics *)
+(* Two syntactic sugar tactics for applying equivalence *)
 
 Tactic Notation "by" "dio" "equiv" uconstr(f) :=
   match goal with 
-    | |- 𝔻R _ => apply dio_rel_equiv with (R := f); [ | dio_rel_auto ]
-    | |- 𝔻F _ => apply dio_fun_equiv with (r := f); [ | dio_fun_auto ]
+    | |- 𝔻R _ => apply dio_rel_equiv with (R := f); [ | dio auto ]
+    | |- 𝔻F _ => apply dio_fun_equiv with (r := f); [ | dio auto ]
   end.
 
 Tactic Notation "dio" "by" "lemma" uconstr(f) :=
   intros; apply dio_rel_equiv with (1 := f); dio auto. 
 
-Fact dio_fun_ren t f : 𝔻F t -> 𝔻F (fun ν => t (fun n => ν (f n))).
-Proof. apply dio_rel_ren with (ρ := der_lift f). Defined.
+(** Start feeding the databases of Diophantine shapes *)
 
-Hint Resolve dio_fun_var dio_fun_cst dio_fun_ren : dio_fun_db.
+Hint Resolve dio_fun_var 
+             dio_fun_cst 
+             dio_fun_ren : dio_fun_db.
+
+Hint Resolve dio_rel_eq 
+             dio_rel_cst dio_rel_cst_sym
+             dio_rel_add dio_rel_add_sym
+             dio_rel_mul dio_rel_mul_sym : dio_rel_im_db.
 
 (** We do not want dio_rel_[add,mul] is the dio_rel_db because
     they would superseed dio_fun_[plus,mult] *)
@@ -453,7 +473,7 @@ Eval compute in (proj1_sig example_eq).
 
 Section True_False.
 
-  (* We use these here to avoid a less efficient encoding of True/False *)
+  (* We use these shapes in here to avoid a less efficient encoding of True/False *)
 
   Hint Resolve dio_rel_cst dio_rel_add : dio_rel_db.
 
@@ -495,7 +515,9 @@ Proof.
   unfold divides; tauto.
 Defined.
 
-Hint Resolve dio_rel_le_im dio_rel_lt_im  dio_rel_div_im : dio_rel_im_db.
+Hint Resolve dio_rel_le_im 
+             dio_rel_lt_im  
+             dio_rel_div_im : dio_rel_im_db.
 
 Fact dio_rel_le r t : 𝔻F r -> 𝔻F t -> 𝔻R (fun ν => r ν <= t ν).
 Proof.
@@ -515,7 +537,8 @@ Proof.
     | intros (? & ? & ? & -> & ->) ]; auto).
 Defined.
 
-Hint Resolve dio_rel_lt dio_rel_le : dio_rel_db.
+Hint Resolve dio_rel_lt 
+             dio_rel_le : dio_rel_db.
 
 Fact dio_rel_neq r t : 𝔻F r -> 𝔻F t -> 𝔻R (fun ν => r ν <> t ν).
 Proof.
@@ -535,7 +558,8 @@ Proof.
     | intros (? & ? & ? & -> & ->) ]; auto).
 Defined.
 
-Hint Resolve dio_rel_neq dio_rel_div : dio_rel_db.
+Hint Resolve dio_rel_neq 
+             dio_rel_div : dio_rel_db.
 
 (** These example are better now *)
 
@@ -588,6 +612,12 @@ End dio_fun_rem.
   
 Hint Resolve dio_fun_rem : dio_fun_db.
 
+Local Fact dio_fun_rem_example : 𝔻F (fun ν => rem (ν 0) (ν 1)).
+Proof. dio auto. Defined.
+
+Check dio_fun_rem_example.
+Eval compute in proj1_sig dio_fun_rem_example.
+
 Section dio_rel_ndivides.
 
   (** The way it is done in the FSCD paper *)
@@ -638,11 +668,11 @@ End dio_rel_not_divides.
 
 Hint Resolve dio_rel_not_divides : dio_rel_db.
 
-Local Fact example_rem : 𝔻R (fun ν => rem (ν 0) (ν 1) = ν 2 * ν 3).
+Local Fact example_rem_strange : 𝔻R (fun ν => rem (ν 0) (ν 1) = ν 2 * ν 3).
 Proof. dio auto. Defined.
 
-Check example_rem.
-Eval compute in (proj1_sig example_rem).
+Check example_rem_strange.
+Eval compute in (proj1_sig example_rem_strange).
 
 (** We do not automate the remaining closure props here because
     they are used only once or twice elsewhere *) 
@@ -680,15 +710,18 @@ Section dio_fun_compose.
 
 End dio_fun_compose.
 
+(** For the next two construction, we do the construction by 
+    hand, ie manipulation witnesses, because we need an easy 
+    computation of the size 
+
+    So here are two (counter-)example where we do actually
+    manipulate De Bruijn syntax directly
+*)
+
+(* Finitely many ∃, ie ∃ ... ∃ f n times *)
+
 Section multiple_exists.
-
-  (** We do the construction by hand here to obtain a easy 
-      computation of the size 
-
-      So here is a (counter-)example where we do actually
-      manipulate De Bruijn syntax directly
-    *)
-
+ 
   Fixpoint df_mexists n f :=
     match n with 
       | 0   => f
@@ -697,8 +730,8 @@ Section multiple_exists.
 
   Fact df_mexists_size n f : df_size (df_mexists n f) = n + df_size f.
   Proof. 
-    revert f; induction n as [ | n IHn ]; intros f; auto; simpl df_mexists.
-    rewrite IHn; simpl; omega. 
+    induction n as [ | n IHn ] in f |- *; auto; simpl.
+    rewrite IHn; simpl; omega.
   Qed.
 
   Fact df_mexists_size_Z n f : df_size_Z (df_mexists n f) = (Z.of_nat n + df_size_Z f)%Z.
@@ -706,7 +739,9 @@ Section multiple_exists.
     rewrite df_size_Z_spec, df_mexists_size, Nat2Z.inj_add, df_size_Z_spec; omega.
   Qed.
 
-  (* We only use it once so there is no need to automatize it *)
+  (* We only use it once so there is no need to automatize it 
+     We need to make le_lt_dec opaque at some points to prevent
+     it from being computed *)
 
   Lemma df_mexists_spec n f ν :
            ⟦df_mexists n f⟧ ν
@@ -739,5 +774,59 @@ Section multiple_exists.
 
 End multiple_exists.
 
+(** We will also need a Diophantine encoding of finitary 
+    conjunction ie 
 
+          fun ν => R 0 ν /\ ... /\ R (n-1) ν 
 
+    is Diophantine for fixed n 
+*)
+
+Section dio_rel_finite_conj.
+
+  Notation "∑" := (msum plus 0).
+
+  Definition df_true := proj1_sig dio_rel_True.
+
+  Fact df_true_size : df_size df_true = 4.
+  Proof. reflexivity. Qed.
+
+  Fact df_true_spec ν : df_pred df_true ν <-> True.
+  Proof. apply (proj2_sig dio_rel_True). Qed.
+
+  Fixpoint df_mconj n f :=
+    match n with 
+      | 0   => df_true
+      | S n => f 0 ∧ df_mconj n f⭳
+    end.
+
+  Fact df_mconj_size n f : df_size (df_mconj n f) = 4+n+∑ n (fun i => df_size (f i)).
+  Proof.
+    revert f; induction n as [ | n IHn ]; intros f; simpl; auto.
+    rewrite IHn; ring.
+  Qed.
+
+  Fact df_mconj_spec n f ν : df_pred (df_mconj n f) ν <-> forall i, i < n -> df_pred (f i) ν.
+  Proof.
+    revert f ν; induction n as [ | n IHn ]; intros f v; simpl df_mconj.
+    + rewrite df_true_spec; split; auto; intros; omega.
+    + rewrite df_pred_conj, IHn; split.
+      * intros (? & H2) [ | i ] ?; auto; apply H2; omega.
+      * intros H; split; intros; apply H; omega.
+  Qed.
+
+  Lemma dio_rel_finite_conj n (R : nat -> (nat -> nat) -> Prop) :
+         (forall i, i < n -> 𝔻R (R i))
+      -> 𝔻R (fun ν => forall i, i < n -> R i ν).
+  Proof.
+    intros H.
+    apply fmap_reifier_t_default with (1 := df_true) in H.
+    destruct H as (f & Hf).
+    exists (df_mconj n f).
+    abstract(intros v; rewrite df_mconj_spec; split;
+      intros E i Hi; generalize (E _ Hi); apply Hf; trivial).
+  Defined.
+
+End dio_rel_finite_conj.
+
+Check dio_rel_finite_conj.
