@@ -31,25 +31,25 @@ Section Sig_remove_symbols.
 
   Definition Σnosyms : fo_signature.
   Proof.
-    exists Empty_set (syms Σ + (unit + rels Σ))%type.
+    exists Empty_set (unit + (syms Σ + rels Σ))%type.
     + intros [].
-    + intros [ s | [ [] | r ] ].
-      * exact (S (ar_syms _ s)).
+    + intros [ | [ s | r ] ].
       * exact 2.
+      * exact (S (ar_syms _ s)).
       * exact (ar_rels _ r).
   Defined.
 
   Notation Σ' := Σnosyms.
 
-  Let e : rels Σ' := inr (inl tt). 
+  Let e : rels Σ' := inl tt. 
 
   Local Definition fom_nosyms X : fo_model Σ X -> fo_model Σ' X.
   Proof.
     intros (F,R); split.
     + intros [].
-    + intros [s|[[]|r]].
-      * exact (fun v => vec_head v = F _ (vec_tail v)).
+    + intros [|[s|r]].
       * exact (rel2_on_vec eq).
+      * exact (fun v => vec_head v = F _ (vec_tail v)).
       * exact (R r).
   Defined. 
 
@@ -67,7 +67,7 @@ Section Sig_remove_symbols.
       match t with
         | in_var n   => @fol_atom Σ' e (£0##£(S n)##ø)
         | in_fot s v => 
-            let A  := @fol_atom Σ' (inl s) (£(ar_syms _ s)##vec_set_pos (fun p => £ (pos2nat p))) in
+            let A  := @fol_atom Σ' (inr (inl s)) (£(ar_syms _ s)##vec_set_pos (fun p => £ (pos2nat p))) in
             let wB := vec_set_pos (fun p => (fot_rem_syms (vec_pos v p))⦃f p⦄) 
             in fol_mquant fol_ex (ar_syms _ s) (A ⟑ fol_vec_fa wB)
       end.
@@ -77,14 +77,14 @@ Section Sig_remove_symbols.
 
     Local Fact fot_rem_syms_fix1 s v : 
                  fot_rem_syms (in_fot s v) 
-               = let A  := @fol_atom Σ' (inl s) (£(ar_syms _ s)##vec_set_pos (fun p => £ (pos2nat p))) in
+               = let A  := @fol_atom Σ' (inr (inl s)) (£(ar_syms _ s)##vec_set_pos (fun p => £ (pos2nat p))) in
                  let wB := vec_set_pos (fun p => (fot_rem_syms (vec_pos v p))⦃f p⦄) 
                  in fol_mquant fol_ex (ar_syms _ s) (A ⟑ fol_vec_fa wB).
     Proof. trivial. Qed.
 
     Opaque fo_term_syms.
 
-    Local Fact fot_rem_syms_rels t : incl (fol_rels (fot_rem_syms t)) (inr (inl tt)::map inl (fo_term_syms t)).
+    Local Fact fot_rem_syms_rels t : incl (fol_rels (fot_rem_syms t)) (e::map (fun x => inr (inl x)) (fo_term_syms t)).
     Proof.
       induction t as [ n | s v IHv ].
       + rewrite fot_rem_syms_fix0; cbv; tauto.
@@ -176,8 +176,8 @@ Section Sig_remove_symbols.
 
     Local Fact fol_rem_syms_rels A : 
          incl (fol_rels (fol_rem_syms A))
-              (inr (inl tt) :: map inl                    (fol_syms A) 
-                            ++ map (fun r => inr (inr r)) (fol_rels A)).
+              (e :: map (fun r => inr (inl r)) (fol_syms A) 
+                 ++ map (fun r => inr (inr r)) (fol_rels A)).
     Proof.
       induction A as [ | r v | b A IHA B IHB | q A IHA ].
       + cbv; tauto.
@@ -260,13 +260,13 @@ Section Sig_remove_symbols.
   Local Definition fol_rel_fun (s : syms Σ) : 𝔽' := 
        let n := ar_syms _ s
        in ∀∀ fol_mquant fol_fa n (   
-              @fol_atom Σ' (inl s) (£(S n)##vec_set_pos (fun p => £(pos2nat p))) 
-                     ⤑ @fol_atom Σ' (inl s) (£n##vec_set_pos (fun p => £(pos2nat p)))
+              @fol_atom Σ' (inr (inl s)) (£(S n)##vec_set_pos (fun p => £(pos2nat p))) 
+                     ⤑ @fol_atom Σ' (inr (inl s)) (£n##vec_set_pos (fun p => £(pos2nat p)))
                      ⤑ @fol_atom Σ' e (£(S n)##£n##ø) ).
 
   Local Fact fol_rel_fun_spec s φ : 
              fol_sem M φ (fol_rel_fun s) 
-         <-> graph_fun (fun v x => fom_rels M (inl s) (x##v)).
+         <-> graph_fun (fun v x => fom_rels M (inr (inl s)) (x##v)).
   Proof.
     unfold fol_rel_fun; simpl; split.
     + intros H v x y H1 H2.
@@ -301,11 +301,11 @@ Section Sig_remove_symbols.
  
   Local Definition fol_rel_tot (s : syms Σ) : 𝔽' := 
         let n := ar_syms _ s
-        in fol_mquant fol_fa n (∃ @fol_atom Σ' (inl s) (£0##vec_set_pos (fun p => £(1+pos2nat p)))). 
+        in fol_mquant fol_fa n (∃ @fol_atom Σ' (inr (inl s)) (£0##vec_set_pos (fun p => £(1+pos2nat p)))). 
 
   Local Fact fol_rel_tot_spec s φ : 
              fol_sem M φ (fol_rel_tot s) 
-         <-> graph_tot (fun v x => fom_rels M (inl s) (x##v)).
+         <-> graph_tot (fun v x => fom_rels M (inr (inl s)) (x##v)).
   Proof.
     unfold fol_rel_tot.
     rewrite fol_sem_mforall.
@@ -321,7 +321,7 @@ Section Sig_remove_symbols.
 
   Local Fact fol_rels_are_functions_spec ls φ : 
              fol_sem M φ (fol_rels_are_functions ls) 
-         <-> forall s, In s ls -> is_graph_function (fun v x => fom_rels M (inl s) (x##v)).
+         <-> forall s, In s ls -> is_graph_function (fun v x => fom_rels M (inr (inl s)) (x##v)).
   Proof.
     unfold fol_rels_are_functions.
     rewrite fol_sem_lconj; split.
@@ -347,12 +347,12 @@ End Sig_remove_symbols.
 
 Theorem Σsyms_Σnosyms_sound Σ ls A X : 
              fo_form_fin_discr_dec_SAT_in A X
-          -> @fo_form_fin_dec_eq_SAT_in (Σnosyms Σ) (inr (inl tt)) eq_refl (Σsyms_Σnosyms ls A) X.
+          -> @fo_form_fin_dec_eq_SAT_in (Σnosyms Σ) (inl tt) eq_refl (Σsyms_Σnosyms ls A) X.
 Proof.
   intros (H0 & M & H1 & H2 & phi & H3).
   exists (fom_nosyms M), H1; destruct M as (sy,re).
   exists.
-  { intros [s|[[]|r]]; simpl.
+  { intros [[]|[s|r]]; simpl.
     + intros; apply H0.
     + intros; apply H0.
     + intros; apply H2. }
@@ -377,7 +377,7 @@ Section completeness.
 
   Notation Σ' := (Σnosyms Σ).
 
-  Let e : rels Σ' := inr (inl tt).
+  Let e : rels Σ' := inl tt.
 
   Variable (X : Type).
 
@@ -390,7 +390,7 @@ Section completeness.
              (φ : nat -> X) 
              (HM : fol_sem M φ (Σsyms_Σnosyms ls A)).
 
-    Let HF : forall s, In s ls -> is_graph_function (fun v x => fom_rels M (inl s) (x##v)).
+    Let HF : forall s, In s ls -> is_graph_function (fun v x => fom_rels M (inr (inl s)) (x##v)).
     Proof. 
       simpl in HM; apply proj1 in HM. 
       rewrite fol_rels_are_functions_spec in HM; auto.
@@ -399,7 +399,7 @@ Section completeness.
     Let HA : fol_sem M φ (fol_rem_syms A).
     Proof. simpl in HM; apply proj2 in HM; auto. Qed.
 
-    Let F (s : syms Σ) : In s ls -> { f | forall v x, fom_rels M (inl s) (x##v) <-> x = f v }.
+    Let F (s : syms Σ) : In s ls -> { f | forall v x, fom_rels M (inr (inl s)) (x##v) <-> x = f v }.
     Proof. intro; apply graph_tot_reif; auto. Qed.
 
     Local Definition Σsyms_Σnosyms_rev_model : fo_model Σ X.
@@ -418,7 +418,8 @@ Section completeness.
       apply fol_rem_syms_spec.
       revert HA.
       apply fo_model_projection' with (i := fun x => x) (j := fun x => x) (ls := nil) 
-             (lr := inr (inl tt) :: map inl (fol_syms A) ++ map (fun r => inr (inr r)) (fol_rels A)); auto.
+             (lr := e :: map (fun r => inr (inl r)) (fol_syms A) 
+                      ++ map (fun r => inr (inr r)) (fol_rels A)); auto.
       + intros s v [].
       + intros r v; simpl In; rewrite in_app_iff, in_map_iff, in_map_iff.
         intros [ <- | [ (s & <- & Hs) | (r' & <- & Hr') ] ]; simpl.
@@ -440,7 +441,7 @@ Section completeness.
   End nested.
 
   Theorem Σsyms_Σnosyms_complete : 
-          @fo_form_fin_dec_eq_SAT_in (Σnosyms Σ) (inr (inl tt)) eq_refl (Σsyms_Σnosyms ls A) X
+          @fo_form_fin_dec_eq_SAT_in (Σnosyms Σ) e eq_refl (Σsyms_Σnosyms ls A) X
        -> fo_form_fin_discr_dec_SAT_in A X.
   Proof.
     intros (M & H1 & H2 & H3 & phi & H5).

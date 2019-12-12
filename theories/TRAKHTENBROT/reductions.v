@@ -209,7 +209,7 @@ Section FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
 
   Theorem FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT :
           @fo_form_fin_discr_dec_SAT Σ
-              ⪯ @fo_form_fin_dec_eq_SAT (Σnosyms Σ) (inr (inl tt)) eq_refl.
+              ⪯ @fo_form_fin_dec_eq_SAT (Σnosyms Σ) (inl tt) eq_refl.
   Proof.
     destruct HΣ as [ (l & Hl) | H ].
     - exists (fun A => Σsyms_Σnosyms l A).
@@ -232,7 +232,7 @@ Corollary FSAT_Σnosyms Σ : finite (syms Σ) -> FSAT Σ ⪯ FSAT (Σnosyms Σ).
 Proof.
   intros H.
   apply reduces_transitive with (1 := FIN_DEC_SAT_FIN_DISCR_DEC_SAT _).
-  apply reduces_transitive with (2 := @FIN_DEC_EQ_SAT_FIN_DEC_SAT (Σnosyms Σ) (inr (inl tt)) eq_refl).
+  apply reduces_transitive with (2 := @FIN_DEC_EQ_SAT_FIN_DEC_SAT (Σnosyms Σ) (inl tt) eq_refl).
   apply FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT; auto.
 Qed.
 
