@@ -127,14 +127,14 @@ Section BPCP_FIN_DEC_EQ_SAT.
         * left; exists nil; apply lt_0_Sn.
         * right.
       + intros []; simpl; intros v.
-        * destruct (vec_head v) as [ (s & Hs) | ].
+        * destruct (vec_head v) as [ (s & _) | ].
           2: exact False.
-          destruct (vec_head (vec_tail v)) as [ (t & Ht) | ].
+          destruct (vec_head (vec_tail v)) as [ (t & _) | ].
           2: exact False.
           exact (pcp_hand lc s t).
-        * destruct (vec_head v) as [ (s & Hs) | ].
+        * destruct (vec_head v) as [ (s & _) | ].
           2: exact False.
-          destruct (vec_head (vec_tail v)) as [ (t & Ht) | ].
+          destruct (vec_head (vec_tail v)) as [ (t & _) | ].
           2: exact False.
           exact (s <> t /\ exists u, u++s = t).
         * exact (vec_head v = vec_head (vec_tail v)).

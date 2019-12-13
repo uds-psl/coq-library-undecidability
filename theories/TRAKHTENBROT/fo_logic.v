@@ -365,6 +365,14 @@ Section fol_semantics.
       apply fo_term_sem_ext; intros; rew fot; auto.
   Qed.
 
+  Definition fol_lift t n : 𝕋 := match n with 0 => t | S n => £n end.
+
+  Corollary fol_sem_lift φ t A : ⟪ A⦃fol_lift t⦄ ⟫ φ <-> ⟪A⟫ (⟦t⟧ φ)·φ.
+  Proof.
+    rewrite fol_sem_subst.
+    apply fol_sem_ext; intros [ | n ] _; simpl; rew fot; auto.
+  Qed.
+
   (** Bigops, ie finitary conjunction and disjunction *)
 
   Fact fol_sem_lconj lf φ : ⟪fol_lconj lf⟫ φ <-> forall f, In f lf -> ⟪ f ⟫ φ.
@@ -492,6 +500,23 @@ End fol_semantics.
 Notation fol_sem_big_conj := fol_sem_lconj.
 Notation fol_sem_big_disj := fol_sem_ldisj.
 *)
+
+Definition fot_vec_env Σ n p : 
+        { w : vec (fo_term (ar_syms Σ)) n | (forall X (M : fo_model Σ X) v φ q x, 
+             fo_term_sem M x·(env_vlift φ v) (vec_pos w q) 
+           = vec_pos (vec_change v p x) q)
+         /\ forall q, fo_term_syms (vec_pos w q) = nil }.
+Proof.
+  exists (vec_change (vec_set_pos (fun q => £(S (pos2nat q)))) p (£0)); split.
+  * intros X M v phi q x;rew fot; rew vec; rew fot.
+    destruct (pos_eq_dec p q) as [ H | H ].
+    + rewrite !vec_change_eq; auto.
+    + rewrite !vec_change_neq; auto; rew vec; rew fot; simpl.
+      rewrite env_vlift_fix0; auto.
+  * intros q; destruct (pos_eq_dec p q) as [ H | H ].
+    + rewrite !vec_change_eq; auto.
+    + rewrite !vec_change_neq; auto; rew vec.
+Qed.
 
 Section fo_model_simulation.
 

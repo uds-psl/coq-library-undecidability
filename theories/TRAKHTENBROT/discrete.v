@@ -281,6 +281,97 @@ Section discrete_quotient.
   Theorem fom_eq_rels_full s v w : In s lr -> (forall p, v#>p ≡ w#>p) -> fom_rels M s v <-> fom_rels M s w.
   Proof. intro; apply map_vec_pos_equiv; eauto; tauto. Qed.
 
+  Section fol_characterization.
+
+    (** We show that the greatest bisimulation is equivalent to FOL undistinguishability. 
+        This result is purely for the sake of completeness of the description of fom_eq,
+        it is not used in the reduction below 
+
+        It states that x and y are bisimilar iff there is no interpretation of a 
+        FO formula that can distinguish x from y *)
+
+    Hint Resolve fom_eq_syms_full fom_eq_rels_full.
+
+    Let f : fo_simulation ls lr M M.
+    Proof. exists fom_eq; auto; intros a; exists a; auto. Defined.
+
+    Let fom_eq_fol_charac1 A phi psi : 
+            (forall n, In n (fol_vars A) -> phi n ≡ psi n)
+         -> incl (fol_syms A) ls
+         -> incl (fol_rels A) lr
+         -> fol_sem M phi A <-> fol_sem M psi A.
+    Proof. intros; apply fo_model_simulation with (R := f); auto. Qed.
+
+    (** By fom_eq_form_sem above, we know there is a FO formula
+        A[.,.] in two free variables such that x ≡ y <-> A[x,y].
+
+        One obvious follow up question is can we show
+
+           x ≡ y <-> A[x] <-> A[y] for any A[.] with one free variable
+
+        Another obvious follow up question is, for a given x in the
+        model, can one characterize the class of { y | x ≡ y } with
+        a formula Ax[.] with one free variable.
+
+        Both questions have a negative answer proved in the counter
+        example to be found below. There is a model of Σ = {ø,{=_2}}
+        with two distinct values where =_2 is interpreted by identity
+        and such that A[x] <-> A[y] for any formula with at most one
+        free variable. See theorem FO_does_not_characterize_classes.
+
+      *)
+
+    Theorem fom_eq_fol_characterization x y : 
+            x ≡ y <-> fo_bisimilar M x y.
+     Proof.
+      split.
+      + intros H A phi.
+        apply fom_eq_fol_charac1.
+        intros [ | n ] _; simpl; auto.
+      + revert x y; apply gfp_greatest; auto.
+        intros x y H; split.
+        * intros s Hs v p A phi H1 H2.
+          destruct (fot_vec_env Σ p) as (w & Hw1 & Hw2).
+          set (B := fol_subst (fun n => 
+                 match n with
+                   | 0   => in_fot s w 
+                   | S n => £ (S n + ar_syms Σ s)
+                 end) A).
+          assert (HB : forall z, fol_sem M (z·(env_vlift phi v)) B 
+                             <-> fol_sem M (fom_syms M s (v[z/p]))·phi A).
+          { intros z; unfold B; rewrite fol_sem_subst; apply fol_sem_ext.
+            intros [ | n] _; rew fot; simpl; f_equal.
+            * apply vec_pos_ext; intros q; rewrite vec_pos_map; apply Hw1.
+            * rewrite env_vlift_fix1; auto. }
+          rewrite <- !HB; apply H.
+          - red; apply Forall_forall, fol_syms_subst.
+            intros [ | n ]; rew fot.
+            ++ intros _; apply Forall_forall.
+               intros s' [ <- | Hs' ]; auto; apply H1; revert Hs'.
+               rewrite in_flat_map; intros (z & H3 & H4).
+               apply vec_list_inv in H3; destruct H3 as (q & ->).
+               rewrite Hw2 in H4; destruct H4.
+            ++ constructor.
+            ++ apply Forall_forall, H1.
+          - unfold B; rewrite fol_rels_subst; auto.
+        * intros r Hr v p; red in H.
+          destruct (fot_vec_env Σ p) as (w & Hw1 & Hw2).
+          set (B := fol_atom r w).
+          assert (HB : forall z, fol_sem M (z·(env_vlift (fun _ => x) v)) B 
+                             <-> fom_rels M r (v[z/p])).
+          { intros z; unfold B; simpl; apply fol_equiv_ext; f_equal.
+            apply vec_pos_ext; intros q; rewrite vec_pos_map; apply Hw1. }
+          rewrite <- !HB; apply H.
+          - unfold B; simpl; intros z; rewrite in_flat_map.
+            intros (t & H3 & H4).
+            apply vec_list_inv in H3.
+            destruct H3 as (q & ->).
+            rewrite Hw2 in H4; destruct H4.
+          - unfold B; simpl; intros ? [ <- | [] ]; auto.
+    Qed.
+
+  End fol_characterization.
+
   (** And because the signature is finite (ie the symbols and relations) 
                   the model M is finite and composed of decidable relations 
 
@@ -346,61 +437,6 @@ Section discrete_quotient.
   End fom_eq_form.
 
   Hint Resolve fom_eq_form_vars fom_eq_form_syms fom_eq_form_rels fom_eq_dec.
-
-  Section fol_characterization.
-
-    (** We show that the greatest bisimulation is equivalent to FOL undistinguishability. 
-        This result is purely for the sake of completeness of the description of fom_eq,
-        it is not used in the reduction below 
-
-        It states that x and y are bisimilar iff there is no interpretation of a 
-        FO formula that can distinguish x from y *)
-
-    Hint Resolve fom_eq_syms_full fom_eq_rels_full.
-
-    Let f : fo_simulation ls lr M M.
-    Proof. exists fom_eq; auto; intros a; exists a; auto. Defined.
-
-    Let fom_eq_fol_charac1 A phi psi : 
-            (forall n, In n (fol_vars A) -> phi n ≡ psi n)
-         -> incl (fol_syms A) ls
-         -> incl (fol_rels A) lr
-         -> fol_sem M phi A <-> fol_sem M psi A.
-    Proof. intros; apply fo_model_simulation with (R := f); auto. Qed.
-
-    (** By fom_eq_form_sem above, we know there is a FO formula
-        A[.,.] in two free variables such that x ≡ y <-> A[x,y].
-
-        One obvious follow up question is can we show
-
-           x ≡ y <-> A[x] <-> A[y] for any A[.] with one free variable
-
-        Another obvious follow up question is, for a given x in the
-        model, can one characterize the class of { y | x ≡ y } with
-        a formula Ax[.] with one free variable.
-
-        Both questions have a negative answer proved in the counter
-        example to be found below. There is a model of Σ = {ø,{=_2}}
-        with two distinct values where =_2 is interpreted by identity
-        and such that A[x] <-> A[y] for any formula with at most one
-        free variable. See theorem FO_does_not_characterize_classes.
-
-      *)
-
-    Theorem fom_eq_fol_characterization x y : 
-            x ≡ y <-> fo_bisimilar M x y.
-    Proof.
-      split.
-      + intros H A phi.
-        apply fom_eq_fol_charac1.
-        intros [ | n ] _; simpl; auto.
-      + intros H.
-        set (phi (_ : nat) := x).
-        apply fom_eq_form_sem with (φ := phi), H,
-              fom_eq_form_sem with (φ := phi); auto.
-    Qed.
-
-  End fol_characterization.
 
   (** And now we can build a discrete model with this decidable 
       equivalence. There is a fo_projection from M to Md where
