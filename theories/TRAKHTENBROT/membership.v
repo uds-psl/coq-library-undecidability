@@ -253,19 +253,88 @@ Section membership.
 
   Hint Resolve mb_is_otriple_dec.
 
+  (** n-tuples *)
+
+  Fixpoint mb_is_tuple t n (v : vec X n) :=
+    match v with 
+      | vec_nil => forall z, z ∉ t
+      | x##v    => exists t', mb_is_opair t x t' /\ mb_is_tuple t' v
+    end.
+
+  Fact mb_is_tuple_congr p q n v : p ≈ q -> @mb_is_tuple p n v -> mb_is_tuple q v.
+  Proof.
+    revert p q; induction v as [ | n x v IHv ]; intros p q.
+    + simpl; intros E H x; rewrite <- E; auto.
+    + intros E (t & H1 & H2); exists t; split; auto.
+      rewrite <- E; auto.
+  Qed.
+
+  Fact mb_is_tuple_fun p q n v : @mb_is_tuple p n v -> mb_is_tuple q v -> p ≈ q.
+  Proof.
+    revert p q; induction v as [ | n x v IHv ]; intros p q.
+    + simpl; intros H1 H2.
+      apply mb_equiv_eq; split.
+      * intros z Hz; apply H1 in Hz; tauto.
+      * intros z Hz; apply H2 in Hz; tauto.
+    + intros (p' & H1 & H2) (q' & H3 & H4).
+      generalize (IHv _ _ H2 H4); intros E.
+      rewrite E in H1.
+      revert H1 H3; apply mb_is_opair_fun.
+  Qed.
+
+  Fact mb_is_tuple_inj t n v w : 
+             @mb_is_tuple t n v 
+          -> mb_is_tuple t w 
+          -> forall p, vec_pos v p ≈ vec_pos w p.
+  Proof.
+    revert t w; induction v as [ | n x v IHv ]; intros t w.
+    + intros _ _ p; invert pos p.
+    + vec split w with y.
+      intros (p & H1 & H2) (q & H3 & H4).
+      destruct (mb_is_opair_inj H1 H3) as (E1 & E2).
+      apply mb_is_tuple_congr with (1 := E2) in H2.
+      specialize (IHv _ _ H2 H4).
+      intros j; invert pos j; auto.
+  Qed.
+
+  Fact mb_is_tuple_dec t n v : { @mb_is_tuple t n v } + { ~ mb_is_tuple t v }.
+  Proof.
+    revert t; induction v as [ | x n v IHv ]; intros t.
+    + apply (fol_quant_sem_dec fol_fa); auto; intro.
+      apply (fol_bin_sem_dec fol_imp); auto.
+    + simpl; apply (fol_quant_sem_dec fol_ex); auto; intro.
+      apply (fol_bin_sem_dec fol_conj); auto.
+  Qed.
+
+  Hint Resolve mb_is_tuple_dec.
+
+  (** mb_has .... *)
+
   Definition mb_has_pairs (l : X) :=
      forall x y, x ∈ l -> y ∈ l -> exists p, mb_is_pair p x y.
 
   Definition mb_has_otriples (l : X) :=
     forall x y z, x ∈ l -> y ∈ l -> z ∈ l -> exists t, mb_is_otriple t x y z.
 
+  Definition mb_has_tuples (l : X) n :=
+    forall v, (forall p, vec_pos v p ∈ l) -> exists t, @mb_is_tuple t n v.
+
   Definition mb_is_otriple_in r x y z :=
     exists t, mb_is_otriple t x y z /\ t ∈ r.
+
+  Definition mb_is_tuple_in r n v :=
+    exists t, @mb_is_tuple t n v /\ t ∈ r.
 
   Fact mb_is_otriple_in_dec r x y z : { mb_is_otriple_in r x y z } + { ~ mb_is_otriple_in r x y z }.
   Proof.
     apply (fol_quant_sem_dec fol_ex); auto; intro.
     repeat (apply (fol_bin_sem_dec fol_conj); auto).
+  Qed.
+
+  Fact mb_is_tuple_in_dec r n v : { @mb_is_tuple_in r n v } + { ~ mb_is_tuple_in r v }.
+  Proof.
+    apply (fol_quant_sem_dec fol_ex); auto; intro.
+    apply (fol_bin_sem_dec fol_conj); auto.
   Qed.
 
 End membership.
@@ -315,42 +384,101 @@ Section FOL_encoding.
                       ⤑ 0 ∈ (3+l) 
                       ⤑ ∃ Σ2_is_otriple 0 3 2 1.
 
+  Fixpoint Σ2_is_tuple t n : vec nat n -> fol_form Σ2 :=
+    match n with 
+      | 0       => fun _ => ∀ 0 ∈ (S t) ⤑ ⊥
+      | S n     => fun v => ∃ Σ2_is_opair (S t) (S (vec_head v)) 0 
+                            ⟑ Σ2_is_tuple 0 (vec_map S (vec_tail v))
+    end.
+
+  Definition Σ2_is_tuple_in r n v := ∃ @Σ2_is_tuple 0 n (vec_map S v) ⟑ 0 ∈ (S r).
+
+  Definition Σ2_has_tuples l n :=
+       fol_mquant fol_fa n ( (fol_vec_fa (vec_set_pos (fun p : pos n => pos2nat p ∈ (l+n))))
+                                         ⤑ ∃ Σ2_is_tuple 0 (vec_set_pos (fun p : pos n => S (pos2nat p)))).
+
   Definition Σ2_list_in l lv := fol_lconj (map (fun x => x ∈ l) lv).
 
   Fact Σ2_is_otriple_in_vars r x y z : incl (fol_vars (Σ2_is_otriple_in r x y z)) (r::x::y::z::nil).
   Proof. intros a; simpl; tauto. Qed.
 
+  Notation "⟪ A ⟫" := (fun ψ => fol_sem M2 ψ A).
+
   Section semantics.
 
-    Variables (ψ : nat -> Y).
-
-    Notation "⟪ A ⟫" := (fol_sem M2 ψ A).
-
-    Fact Σ2_non_empty_spec l : ⟪Σ2_non_empty l⟫ = exists x, x ∈m ψ l.
+    Fact Σ2_non_empty_spec l ψ : ⟪Σ2_non_empty l⟫ ψ = exists x, x ∈m ψ l.
     Proof. reflexivity. Qed.
 
-    Fact Σ2_incl_spec x y : ⟪Σ2_incl x y⟫ = mb_incl mem (ψ x) (ψ y).
+    Fact Σ2_incl_spec x y ψ : ⟪Σ2_incl x y⟫ ψ = mb_incl mem (ψ x) (ψ y).
     Proof. reflexivity. Qed.
 
-    Fact Σ2_equiv_spec x y : ⟪Σ2_equiv x y⟫ = mb_equiv mem (ψ x) (ψ y).
+    Fact Σ2_equiv_spec x y ψ : ⟪Σ2_equiv x y⟫ ψ = mb_equiv mem (ψ x) (ψ y).
     Proof. reflexivity. Qed. 
 
-    Fact Σ2_extensional_spec : ⟪Σ2_extensional⟫ = mb_member_ext mem.
+    Fact Σ2_extensional_spec ψ : ⟪Σ2_extensional⟫ ψ = mb_member_ext mem.
     Proof. reflexivity. Qed.
 
-    Fact Σ2_is_pair_spec p x y : ⟪Σ2_is_pair p x y⟫ = mb_is_pair mem (ψ p) (ψ x) (ψ y).
+    Fact Σ2_is_pair_spec p x y ψ : ⟪Σ2_is_pair p x y⟫ ψ = mb_is_pair mem (ψ p) (ψ x) (ψ y).
     Proof. reflexivity. Qed.
 
-    Fact Σ2_is_otriple_spec p x y z : ⟪Σ2_is_otriple p x y z⟫ = mb_is_otriple mem (ψ p) (ψ x) (ψ y) (ψ z).
+    Fact Σ2_is_opair_spec p x y ψ : ⟪Σ2_is_opair p x y⟫ ψ = mb_is_opair mem (ψ p) (ψ x) (ψ y).
     Proof. reflexivity. Qed.
 
-    Fact Σ2_is_otriple_in_spec r x y z : ⟪Σ2_is_otriple_in r x y z⟫ = mb_is_otriple_in mem (ψ r) (ψ x) (ψ y) (ψ z).
+    Fact Σ2_is_otriple_spec p x y z ψ : ⟪Σ2_is_otriple p x y z⟫ ψ = mb_is_otriple mem (ψ p) (ψ x) (ψ y) (ψ z).
     Proof. reflexivity. Qed.
 
-    Fact Σ2_has_otriples_spec l : ⟪Σ2_has_otriples l⟫ = mb_has_otriples mem (ψ l).
+    Fact Σ2_is_otriple_in_spec r x y z ψ : ⟪Σ2_is_otriple_in r x y z⟫ ψ = mb_is_otriple_in mem (ψ r) (ψ x) (ψ y) (ψ z).
     Proof. reflexivity. Qed.
 
-    Fact Σ2_list_in_spec l lv : ⟪Σ2_list_in l lv⟫ <-> forall x, In x lv -> ψ x ∈m ψ l.
+    Fact Σ2_has_otriples_spec l ψ : ⟪Σ2_has_otriples l⟫ ψ = mb_has_otriples mem (ψ l).
+    Proof. reflexivity. Qed.
+
+    Fact Σ2_is_tuple_spec t n v ψ : ⟪@Σ2_is_tuple t n v⟫ ψ <-> mb_is_tuple mem (ψ t) (vec_map ψ v).
+    Proof.
+      induction n as [ | n IHn ] in t, v, ψ |- *.
+      + vec nil v; reflexivity.
+      + vec split v with x.
+        simpl Σ2_is_tuple.
+        simpl mb_is_tuple.
+        rewrite fol_sem_quant_fix.
+        apply (fol_quant_sem_ext fol_ex); intros y.
+        rewrite fol_sem_bin_fix.
+        apply fol_bin_sem_ext.
+        * reflexivity.
+        * rewrite IHn, vec_map_map; reflexivity. 
+    Qed.
+
+    Fact Σ2_is_tuple_in_spec r n v ψ : ⟪@Σ2_is_tuple_in r n v⟫ ψ <-> mb_is_tuple_in mem (ψ r) (vec_map ψ v).
+    Proof.
+      simpl; apply (fol_quant_sem_ext fol_ex); intros y.
+      apply (fol_bin_sem_ext fol_conj).
+      + rewrite Σ2_is_tuple_spec, vec_map_map; simpl; reflexivity.
+      + reflexivity.
+    Qed.
+
+    Fact Σ2_has_tuples_spec l n ψ : ⟪Σ2_has_tuples l n⟫ ψ <-> mb_has_tuples mem (ψ l) n.
+    Proof.
+      unfold Σ2_has_tuples.
+      rewrite fol_sem_mforall.
+      apply (fol_quant_sem_ext fol_fa); intros v.
+      rewrite fol_sem_bin_fix.
+      apply (fol_bin_sem_ext fol_imp).
+      + rewrite fol_sem_vec_fa.
+        apply (fol_quant_sem_ext fol_fa); intros p.
+        rew vec.
+        simpl.
+        rewrite env_vlift_fix0, env_vlift_fix1.
+        reflexivity.
+      + rewrite fol_sem_quant_fix.
+        apply (fol_quant_sem_ext fol_ex); intros x.
+        rewrite Σ2_is_tuple_spec; simpl.
+        apply fol_equiv_ext; f_equal.
+        apply vec_pos_ext; intros p.
+        rew vec; simpl.
+        rewrite env_vlift_fix0; auto.
+    Qed.
+
+    Fact Σ2_list_in_spec l lv ψ : ⟪Σ2_list_in l lv⟫ ψ <-> forall x, In x lv -> ψ x ∈m ψ l.
     Proof.
       unfold Σ2_list_in; rewrite fol_sem_lconj.
       split.
@@ -362,8 +490,6 @@ Section FOL_encoding.
     Qed.
 
   End semantics.
-
-  Notation "⟪ A ⟫" := (fun ψ => fol_sem M2 ψ A).
 
   Fact Σ2_is_otriple_in_equiv r x y z φ ψ :
                ⟪Σ2_is_otriple_in 3 2 1 0⟫ z·y·x·r·φ

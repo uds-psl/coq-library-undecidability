@@ -239,7 +239,7 @@ Section pigeon_list.
 
       A shorter proof
 
-      The proof is by measure induction on length l
+      The proof is by induction on l
    *)
 
   Lemma length_le_and_incl_implies_dup_or_perm l m :  
@@ -247,14 +247,13 @@ Section pigeon_list.
          -> incl m l 
          -> list_has_dup m \/ m ~p l.
   Proof.
-    revert m; induction on l as IHl with measure (length l); revert l IHl.
-    intros [ | x l ] IHl m; simpl; intros H1 H2; auto.
+    revert m; induction l as [ | x l IHl ]; intros m; simpl; intros H1 H2; auto.
     + destruct m as [ | y ]; auto; destruct (H2 y); simpl; auto.
     + destruct incl_right_cons_incl_or_lhd_or_perm with (1 := H2)
         as [ H3 | [ H3 | (m' & H3 & H4) ] ]; auto.
-      * destruct IHl with (3 := H3) as [ | H ]; try (simpl; omega); auto.
+      * destruct IHl with (2 := H3) as [ | H ]; try omega; auto.
         apply Permutation_length in H; omega.
-      * destruct IHl with (3 := H4) as [ H | H ]; try (simpl; omega).
+      * destruct IHl with (2 := H4) as [ H | H ]; try (simpl; omega).
         - apply Permutation_length in H3; simpl in H3; omega.
         - left; apply perm_list_has_dup with (1 := Permutation_sym H3).
           constructor 2; auto.
@@ -269,7 +268,7 @@ Section pigeon_list.
       and it does not find where is the duplicate
     *)
 
-  Theorem finite_php_dup l m : length l < length m 
+  Theorem finite_php_dup l m : length l < length m
                             -> incl m l 
                             -> list_has_dup m.
   Proof.
@@ -278,7 +277,7 @@ Section pigeon_list.
     apply Permutation_length in H3; omega.
   Qed. 
 
-  Theorem finite_pigeon_hole l m : 
+  Theorem finite_pigeon_hole l m :
          length l < length m 
       -> incl m l 
       -> exists x aa bb cc, m = aa++x::bb++x::cc.
@@ -286,7 +285,7 @@ Section pigeon_list.
     intros; apply list_has_dup_eq_duplicates, finite_php_dup with l; auto.
   Qed.
 
-  Theorem partition_intersection l m k : 
+  Theorem partition_intersection l m k :
            length k < length (l++m)
         -> incl (l++m) k
         -> list_has_dup l 
@@ -392,29 +391,29 @@ Qed.
 
 Section PHP_rel.
   
-  Variable (U V : Type) (S : U -> V -> Prop) (l : list U) (m : list V) 
-                        (HS : forall x, In x l -> exists y, In y m /\ S x y).
+  Variable (U V : Type) (R : U -> V -> Prop) (l : list U) (m : list V) 
+                        (HR : forall x, In x l -> exists y, In y m /\ R x y).
                           
-  Let sigma : exists Sm, incl Sm m /\ Forall2 S l Sm.
+  Let image_R_l : exists Rl, incl Rl m /\ Forall2 R l Rl.
   Proof.
-    destruct (list_exists _ l HS) as (Sm & Hsm).
-    exists Sm; split.
-    + clear HS.
-      rewrite Forall2_conj in Hsm.
-      apply proj1, Forall2_right_Forall, proj1 in Hsm.
-      rewrite Forall_forall in Hsm; auto.
-    + revert Hsm; apply Forall2_impl; tauto.
+    destruct (list_exists _ l HR) as (Rl & HRl).
+    exists Rl; split.
+    + clear HR.
+      rewrite Forall2_conj in HRl.
+      apply proj1, Forall2_right_Forall, proj1 in HRl.
+      rewrite Forall_forall in HRl; auto.
+    + revert HRl; apply Forall2_impl; tauto.
   Qed.
 
   Hypothesis (Hlm : length m < length l).
                           
   Theorem PHP_rel : exists a x b y c v, l = a++x::b++y::c
-                                       /\ In v m /\ S x v /\ S y v.
+                                       /\ In v m /\ R x v /\ R y v.
   Proof.
-    destruct sigma as (Sm & H1 & H2).
+    destruct image_R_l as (Rl & H1 & H2).
     destruct finite_pigeon_hole with (2 := H1) as (v & x & y & z & H).
     + apply Forall2_length in H2; omega.
-    + subst Sm.
+    + subst Rl.
       apply Forall2_app_inv_r in H2; destruct H2 as (x' & l1 & H3 & H2 & ?); subst.
       apply Forall2_cons_inv_r in H2; destruct H2 as (v' & l2 & H4 & ? & H2); subst.
       apply Forall2_app_inv_r in H2; destruct H2 as (y' & l3 & H5 & H2 & ?); subst.
@@ -424,6 +423,8 @@ Section PHP_rel.
   Qed.
 
 End PHP_rel.
+
+Check PHP_rel.
 
 Section php_upto.
 
@@ -438,7 +439,7 @@ Section php_upto.
          -> exists a x b y c, l = a++x::b++y::c /\ R x y.    (* duplicate *)
   Proof.
     intros HR1 HR2 H1 H2.
-    destruct PHP_rel with (S := R) (2 := H2)
+    destruct PHP_rel with (R := R) (2 := H2)
       as (a & x & b & y & c & z & G1 & G2 & G3 & G4); auto.
     exists a, x, b, y, c; split; auto.
     apply (HR2 _ z); auto.
