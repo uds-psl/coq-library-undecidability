@@ -32,7 +32,8 @@ From Undecidability.TRAKHTENBROT
                  Sig_uniform               (* convert to same arity for every rels *)
                  Sig_one_rel               (* many rels of arity n into one (n+1) and constants *)
                  Sig_rem_cst               (* replace constants with free variables *)
-                 Sig3_Sig2                 (* From R_3 to R_2 *)
+                 Sign_Sig2                 (* From R_n to R_2 *)
+          (*       Sig3_Sig2                 (* From R_3 to R_2 *)  *)
                  Sig2_Sign                 (* Embed R_2 into R_n with n >= 2 *)
                  Sign_Sig                  (* Embed R_n into Σ where R_n occurs in Σ *)
                  .
@@ -325,6 +326,8 @@ Print Σrem_cst.
 Check FSAT_NOCST.
 Print Assumptions FSAT_NOCST.
 
+(*
+
 (** With Σrel 3 signature with a unique ternary symbol
      and Σrel 2 signature with a unique binary symbol
    the reduction from 
@@ -350,6 +353,34 @@ Qed.
 
 Check FSAT_REL_3to2.
 Print Assumptions FSAT_REL_3to2.
+
+*)
+
+(** With Σrel n signature with a unique n-ary symbol
+     and Σrel 2 signature with a unique binary symbol
+   the reduction from 
+   - finite and decidable and discrete SAT over Σrel n
+   - to finite and decidable SAT over Σrel 2 
+
+      SAT(∅,{R_n},𝔽,ℂ,𝔻) ---> SAT(∅,{∈_2},𝔽,ℂ)
+*)
+
+Theorem FIN_DISCR_DEC_nSAT_FIN_DEC_2SAT n : 
+       @fo_form_fin_discr_dec_SAT (Σrel n) ⪯ @fo_form_fin_dec_SAT (Σrel 2).
+Proof.
+  exists (@Σn_Σ2_enc n); intros A; split.
+  + apply SATn_SAT2.
+  + intros H; apply fo_form_fin_dec_SAT_fin_discr_dec, SAT2_SATn, H.
+Qed.
+
+Corollary FSAT_REL_nto2 n : FSAT (Σrel n) ⪯ FSAT (Σrel 2).
+Proof.
+  apply reduces_transitive with (1 := FIN_DEC_SAT_FIN_DISCR_DEC_SAT _).
+  apply FIN_DISCR_DEC_nSAT_FIN_DEC_2SAT.
+Qed.
+
+Check FSAT_REL_nto2.
+Print Assumptions FSAT_REL_nto2.
 
 (*      SAT(∅,{R_2},𝔽,ℂ) ---> SAT(∅,{R_(2+n)},𝔽,ℂ)           *)
 
@@ -411,7 +442,7 @@ Section FULL_TRAKHTENBROT.
     eapply reduces_transitive; [ 
       apply FSAT_NOCST; simpl; auto; 
       intros ? ?; repeat decide equality | ].
-    apply reduces_transitive with (1 := FSAT_REL_3to2).
+    apply reduces_transitive with (1 := @FSAT_REL_nto2 3).
     apply reduces_transitive with (1 := FSAT_REL_2ton Hr).
     apply FSAT_RELn_ANY with (1 := eq_refl).
   Qed.

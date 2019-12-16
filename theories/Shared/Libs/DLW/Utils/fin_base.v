@@ -217,16 +217,33 @@ Section finite.
   Fact finite_t_pos n : finite_t (pos n).
   Proof. exists (pos_list n); apply pos_list_prop. Qed.
 
+  Theorem fin_t_vec X P n : @fin_t X P -> fin_t (fun v : vec _ n => forall p, P (vec_pos v p)).
+  Proof.
+    intros HP.
+    induction n as [ | n IHn ].
+    + exists (vec_nil :: nil).
+      intros v; vec nil v; simpl; split; try tauto.
+      intros _ p; invert pos p.
+    + generalize (fin_t_prod HP IHn). 
+      apply fin_t_map with (f := fun c => vec_cons (fst c) (snd c)).
+      intros v; vec split v with x; split.
+      * intros H; exists (x,v); simpl; msplit 2; auto.
+        - apply (H pos0).
+        - intro; apply (H (pos_nxt _)).
+      * intros ((x',v') & H1 & H2 & H3).
+        simpl in H1, H2, H3.
+        apply vec_cons_inv in H1.
+        destruct H1 as (-> & ->).
+        intros p; invert pos p; auto.
+  Qed.
+
   Theorem finite_t_vec X n : finite_t X -> finite_t (vec X n).
   Proof.
     intros HX.
-    induction n as [ | n IHn ].
-    + exists (vec_nil :: nil).
-      intros v; vec nil v; simpl; auto.
-    + apply finite_t_map with (f := fun c => vec_cons (fst c) (snd c)).
-      * intros v; vec split v with x.
-        exists (x,v); auto.
-      * apply finite_t_prod; auto.
+    apply finite_t_fin_t_eq.
+    apply finite_t_fin_t_eq in HX. 
+    apply fin_t_vec with (n := n) in HX.
+    revert HX; apply fin_t_equiv; tauto.
   Qed.
 
   Section filter.

@@ -13,7 +13,7 @@ From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list finite.
 
 From Undecidability.Shared.Libs.DLW.Vec 
-  Require Import pos.
+  Require Import pos vec.
 
 From Undecidability.Shared.Libs.DLW.Wf 
   Require Import wf_finite wf_chains.
@@ -455,6 +455,9 @@ Section hfs.
 
   Notation "⟬ x , y ⟭" := (hfs_opair x y).
 
+  Fact hfs_opair_pow r s t : r ∈ t -> s ∈ t -> hfs_opair r s ∈ iter hfs_pow t 2.
+  Proof. intros; do 2 apply hfs_pair_pow; auto. Qed.
+
   Fact hfs_opair_inj a b x y : ⟬a,b⟭ = ⟬x,y⟭ -> a = x /\ b = y.
   Proof.
     unfold hfs_opair.
@@ -473,21 +476,57 @@ Section hfs.
     + intros [ [] [] ]; auto.
   Qed.
 
-  Variable (p : hfs) (Hp : hfs_transitive p).
+  Fixpoint hfs_tuple n (v : vec hfs n) :=
+    match v with
+      | vec_nil => ∅
+      | x##v    => ⟬x,hfs_tuple v⟭ 
+    end.
 
-  Fact hfs_trans_pair_inv x y : hfs_pair x y ∈ p -> x ∈ p /\ y ∈ p.
+  Fact hfs_tuple_pow n v t : ∅ ∈ t -> hfs_transitive t -> (forall p, vec_pos v p ∈ t) -> @hfs_tuple n v ∈ iter hfs_pow t (2*n).
+  Proof.
+    intros Ht1 Ht2.
+    induction v as [ | n x v IHv ]; intros Hv.
+    + simpl; auto.
+    + replace (2*S n) with (2*n+2) by lia; rewrite iter_plus.
+      simpl hfs_tuple; apply hfs_opair_pow.
+      * apply hfs_iter_pow_le with 0; try lia; auto.
+        simpl; apply (Hv pos0).
+      * apply IHv; auto.
+        intro; apply (Hv (pos_nxt _)).
+  Qed.
+
+  Fact hfs_tuple_spec n v w : @hfs_tuple n v = hfs_tuple w <-> v = w.
+  Proof.
+    split.
+    + induction n as [ | n IHn ] in v, w |- *.
+      * vec nil v; vec nil w; auto.
+      * vec split v with x; vec split w with y; simpl.
+        rewrite hfs_opair_spec; intros (-> & H); f_equal; revert H; auto.
+    + intros ->; auto.
+  Qed.
+
+  Variable (t : hfs) (Hp : hfs_transitive t).
+
+  Fact hfs_trans_pair_inv x y : hfs_pair x y ∈ t -> x ∈ t /\ y ∈ t.
   Proof.
     intros H; split; apply Hp with (2 := H); apply hfs_pair_spec; auto.
   Qed.
 
-  Fact hfs_trans_opair_inv x y : ⟬x,y⟭ ∈ p -> hfs_pair x x ∈ p /\ hfs_pair x y ∈ p.
+  Fact hfs_trans_opair_inv x y : ⟬x,y⟭ ∈ t -> hfs_pair x x ∈ t /\ hfs_pair x y ∈ t.
   Proof. apply hfs_trans_pair_inv. Qed.
 
-  Fact hfs_trans_otriple_inv x y z : ⟬⟬x,y⟭,z⟭  ∈ p -> ⟬x,y⟭  ∈ p /\ z ∈ p.
+  Fact hfs_trans_otriple_inv x y z : ⟬⟬x,y⟭,z⟭  ∈ t -> ⟬x,y⟭  ∈ t /\ z ∈ t.
   Proof.
     intros H.
     apply hfs_trans_opair_inv, proj2, hfs_trans_pair_inv in H.
     auto.
+  Qed.
+
+  Fact hfs_trans_tuple_inv n v : @hfs_tuple n v ∈ t -> forall p, vec_pos v p ∈ t.
+  Proof.
+    induction v as [ | n x v IHv ]; simpl hfs_tuple; intros H p; invert pos p;
+      apply hfs_trans_opair_inv, proj2, hfs_trans_pair_inv in H;
+      destruct H; auto.
   Qed.
 
 End hfs.

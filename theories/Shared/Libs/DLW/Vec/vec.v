@@ -57,6 +57,14 @@ Section vector.
   Fact vec_head_tail n (v : vec (S n)) : v = vec_cons (vec_head v) (vec_tail v).
   Proof. apply (vec_head_tail_prop v). Qed.
 
+  Fact vec_cons_inv n x y (v w : vec n) : vec_cons x v = vec_cons y w -> x = y /\ v = w.
+  Proof.
+    intros H1; generalize H1; intros H2.
+    apply f_equal with (f := @vec_head _) in H1.
+    apply f_equal with (f := @vec_tail _) in H2.
+    auto.
+  Qed.
+
   Fixpoint vec_pos n (v : vec n) : pos n -> X.
   Proof.
     refine (match v with
