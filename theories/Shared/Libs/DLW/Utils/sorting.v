@@ -63,7 +63,7 @@ Section php_fun.
 
   Theorem php_fun : exists i j, i < j <= n /\ f i = f j.
   Proof.
-    destruct PHP_rel with (S := fun x y => y = f x) (l := list_an 0 (S n)) (m := list_an 0 n)
+    destruct PHP_rel with (R := fun x y => y = f x) (l := list_an 0 (S n)) (m := list_an 0 n)
       as (a & i & b & j & c & v & H1 & H2 & H3 & H4).
     + intros x; rewrite list_an_spec; simpl; intros [ _ H ].
       exists (f x); split; auto; rewrite list_an_spec; simpl; split; try omega.
