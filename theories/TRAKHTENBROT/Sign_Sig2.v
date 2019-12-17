@@ -40,13 +40,13 @@ Section Sign_Sig2_encoding.
   (* We bound quantification inside hf-set l ∈ p and r ∈ p represent a set 
      of ordered triples corresponding to M3 *)
 
-  Fixpoint Σn_Σ2 (l r : nat) (A : fol_form Σn) : fol_form Σ2 :=
+  Fixpoint Σn_Σ2 (d r : nat) (A : fol_form Σn) : fol_form Σ2 :=
     match A with
       | ⊥             => ⊥
       | fol_atom _  v => Σ2_is_tuple_in r (vec_map (@Σrel_var _) v)
-      | fol_bin b A B => fol_bin b (Σn_Σ2 l r A) (Σn_Σ2 l r B)
-      | fol_quant fol_fa A  => ∀ 0 ∈ (S l) ⤑ Σn_Σ2 (S l) (S r) A
-      | fol_quant fol_ex A  => ∃ 0 ∈ (S l) ⟑ Σn_Σ2 (S l) (S r) A
+      | fol_bin b A B => fol_bin b (Σn_Σ2 d r A) (Σn_Σ2 d r B)
+      | fol_quant fol_fa A  => ∀ 0 ∈ (S d) ⤑ Σn_Σ2 (S d) (S r) A
+      | fol_quant fol_ex A  => ∃ 0 ∈ (S d) ⟑ Σn_Σ2 (S d) (S r) A
      end.
 
   Variable (X : Type) (M2 : fo_model Σ2 X).
@@ -70,9 +70,9 @@ Section Sign_Sig2_encoding.
 
     *)
 
-  Let HR1 (l r : X) := forall y, exists x, x ∈m l /\ R y x.
-  Let HR2 (l r : X) := forall x, x ∈m l -> exists y, R y x.
-  Let HR3 (l r : X) := forall v w, (forall p, R (vec_pos v p) (vec_pos w p))
+  Let HR1 (d r : X) := forall y, exists x, x ∈m d /\ R y x.
+  Let HR2 (d r : X) := forall x, x ∈m d -> exists y, R y x.
+  Let HR3 (d r : X) := forall v w, (forall p, R (vec_pos v p) (vec_pos w p))
          -> P v <-> mb_is_tuple_in mem r w.
 
   Notation "⟪ A ⟫" := (fun ψ => fol_sem M2 ψ A).
@@ -80,14 +80,14 @@ Section Sign_Sig2_encoding.
 
   (* The correctness lemma *)
  
-  Lemma Σn_Σ2_correct (A : fol_form Σn) l r φ ψ :
-            HR1 (ψ l) (ψ r) 
-         -> HR2 (ψ l) (ψ r) 
-         -> HR3 (ψ l) (ψ r)
+  Lemma Σn_Σ2_correct (A : fol_form Σn) d r φ ψ :
+            HR1 (ψ d) (ψ r) 
+         -> HR2 (ψ d) (ψ r) 
+         -> HR3 (ψ d) (ψ r)
         -> (forall x, In x (fol_vars A) -> R (φ x) (ψ x))
-        -> ⟪ A ⟫' φ <-> ⟪Σn_Σ2 l r A⟫ ψ.
+        -> ⟪ A ⟫' φ <-> ⟪Σn_Σ2 d r A⟫ ψ.
   Proof.
-    revert l r φ ψ.
+    revert d r φ ψ.
     induction A as [ | [] | b A HA B HB | [] A HA ]; intros l r phi psy H1 H2 H3 H.
     + simpl; tauto.
     + simpl; red in H3.
@@ -137,7 +137,7 @@ Section Sign_Sig2_encoding.
   (** We make some space for l and r *)
 
   Let B := fol_subst (fun v => £ (2+v)) A.
-  Let l := 0.
+  Let d := 0.
   Let r := 1.
 
   (* Notice that Σn_Σ2 A has two more free variables than A,
@@ -152,9 +152,9 @@ Section Sign_Sig2_encoding.
 
   Definition Σn_Σ2_enc := 
                 Σ2_extensional 
-              ⟑ Σ2_non_empty l
-              ⟑ Σ2_list_in l (fol_vars B) 
-              ⟑ Σn_Σ2 l r B.
+              ⟑ Σ2_non_empty d
+              ⟑ Σ2_list_in d (fol_vars B) 
+              ⟑ Σn_Σ2 d r B.
 
 End Sign_Sig2_encoding.
 
