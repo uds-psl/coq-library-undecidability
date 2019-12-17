@@ -11,6 +11,14 @@ Set Implicit Arguments.
 
 Definition discrete X := forall x y : X, { x = y } + { x <> y }.
 
+Fact discrete_unit : discrete unit.
+Proof. intros [] []; left; auto. Qed.
+
+Fact discrete_sum X Y : discrete X -> discrete Y -> discrete (X+Y).
+Proof. intros; red; decide equality. Qed.
+
+Hint Resolve discrete_unit discrete_sum.
+
 (** Standard De Bruijn extension and De Bruijn projection *)
 
 (* Fixpoint instead of Definition because of better unfolding properties *)

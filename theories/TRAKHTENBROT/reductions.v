@@ -157,7 +157,7 @@ End FIN_DEC_EQ_SAT_FIN_DEC_SAT.
 Check FIN_DEC_EQ_SAT_FIN_DEC_SAT.
 Print Assumptions FIN_DEC_EQ_SAT_FIN_DEC_SAT.
 
-(** The reduction from PBCP to SAT of a FO formula over a finitary & discrete signature
+(** The reduction from BPCP to SAT of a FO formula over a finitary & discrete signature
      - over signature Σbpcp (2 unary funs, 2 constants, 3 rels)
      - within interpreted finite and decidable models
 
@@ -413,6 +413,59 @@ Qed.
 Check FSAT_RELn_ANY.
 Print Assumptions FSAT_RELn_ANY.
 
+Section FINITARY_TO_BINARY.
+
+  Variable (Σ : fo_signature)
+           (HΣ1 : finite (syms Σ)) (HΣ2 : discrete (syms Σ))
+           (HΣ3 : finite (rels Σ)) (HΣ4 : discrete (rels Σ)).
+
+  Let max_syms : exists n, forall s, ar_syms Σ s <= n.
+  Proof. 
+    destruct HΣ1 as (l & Hl).
+    exists (lmax (map (ar_syms _) l)).
+    intros s; apply lmax_prop, in_map_iff.
+    exists s; auto.
+  Qed.
+
+  Let max_rels : exists n, forall s, ar_rels Σ s <= n.
+  Proof. 
+    destruct HΣ3 as (l & Hl).
+    exists (lmax (map (ar_rels _) l)).
+    intros r; apply lmax_prop, in_map_iff.
+    exists r; auto.
+  Qed.
+
+  Hint Resolve finite_sum finite_t_finite finite_t_unit.
+
+  Theorem FINITARY_TO_BINARY : FSAT Σ ⪯ FSAT (Σrel 2).
+  Proof.
+    destruct max_syms as (ns & Hns).
+    destruct max_rels as (nr & Hnr).
+    set (m := lmax (2::(S ns)::nr::nil)).
+    eapply reduces_transitive. 
+    { apply FSAT_Σnosyms; auto. }
+    eapply reduces_transitive.
+    { apply FSAT_UNIFORM with (n := m).
+      intros [ [] | [] ].
+      + apply lmax_prop; simpl; auto.
+      + apply le_trans with (S ns).
+        * simpl; apply le_n_S, Hns.
+        * apply lmax_prop; simpl; auto.
+      + apply le_trans with nr.
+        * simpl; auto.
+        * apply lmax_prop; simpl; auto. }
+    eapply reduces_transitive.
+    { apply FSAT_ONE_REL; simpl; auto; intros []. }
+    eapply reduces_transitive.
+    { apply FSAT_NOCST; simpl; auto. }
+    apply (FSAT_REL_nto2 (S m)).
+  Qed.
+
+End FINITARY_TO_BINARY.
+
+Check FINITARY_TO_BINARY.
+Print Assumptions FINITARY_TO_BINARY.
+
 Section FULL_TRAKHTENBROT.
 
   Let finite_bpcp_syms : finite Σbpcp_syms.
@@ -421,28 +474,24 @@ Section FULL_TRAKHTENBROT.
     intros [ [] | | ]; simpl; auto.
   Qed.
 
+  Let discrete_bpcp_syms : discrete Σbpcp_syms.
+  Proof. red; repeat decide equality. Qed.
+
   Let finite_bpcp_rels : finite Σbpcp_rels.
   Proof. 
     exists (Σbpcp_hand::Σbpcp_ssfx::Σbpcp_eq::nil).
     intros []; simpl; auto.
   Qed.
 
-  Hint Resolve finite_sum finite_unit.
+  Let discrete_bpcp_rels : discrete Σbpcp_rels.
+  Proof. red; repeat decide equality. Qed.
 
   Theorem FULL_TRAKHTENBROT Σ r : 2 <= ar_rels Σ r -> BPCP_problem ⪯ FSAT Σ.
   Proof.
     intros Hr.
     apply reduces_transitive with (1 := BPCP_FSAT_Σbpcp).
-    eapply reduces_transitive; [ apply FSAT_Σnosyms; auto | ].
-    eapply reduces_transitive; [
-      apply FSAT_UNIFORM with (n := 2);
-      intros [ [] | [ [] | [] ] ]; simpl; auto | ].
-    eapply reduces_transitive; [ 
-      apply FSAT_ONE_REL; simpl; auto; intros [] | ].
-    eapply reduces_transitive; [ 
-      apply FSAT_NOCST; simpl; auto; 
-      intros ? ?; repeat decide equality | ].
-    apply reduces_transitive with (1 := @FSAT_REL_nto2 3).
+    eapply reduces_transitive.
+    { apply FINITARY_TO_BINARY; auto. }
     apply reduces_transitive with (1 := FSAT_REL_2ton Hr).
     apply FSAT_RELn_ANY with (1 := eq_refl).
   Qed.
