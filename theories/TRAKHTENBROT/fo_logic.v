@@ -65,6 +65,13 @@ Section fol_subst.
                            (fol_vars A) 
     end.
 
+  Fact fol_vars_bin b A B : fol_vars (fol_bin b A B) = fol_vars A ++ fol_vars B.
+  Proof. trivial. Qed.
+
+  Fact fol_vars_quant q A : fol_vars (fol_quant q A) 
+                         = flat_map (fun n => match n with 0 => nil | S n => n::nil end) (fol_vars A).
+  Proof. trivial. Qed.
+
   Definition fol_vars_max A := lmax (fol_vars A).
 
   Fact fol_vars_max_spec A n : In n (fol_vars A) -> n <= fol_vars_max A.
@@ -188,6 +195,12 @@ Section fol_subst.
   Qed.
 
   Definition fol_bigop c A := fold_right (@fol_bin Σ c) A.
+
+  Fact fol_vars_bigop c l A : fol_vars (fol_bigop c A l) = flat_map fol_vars l++fol_vars A.
+  Proof.
+    induction l; simpl; auto.
+    rewrite app_ass; f_equal; auto.
+  Qed.
 
   Fact fol_syms_bigop c l A : fol_syms (fol_bigop c A l) = flat_map fol_syms l++fol_syms A.
   Proof. 
@@ -419,6 +432,12 @@ Section fol_semantics.
   Qed.
 
   Definition fol_vec_fa n (A : vec 𝔽 n) := fol_lconj (vec_list A).
+
+  Fact fol_vars_vec_fa n A : fol_vars (@fol_vec_fa n A) = flat_map (@fol_vars _) (vec_list A).
+  Proof.
+    unfold fol_vec_fa; rewrite fol_vars_bigop; simpl.
+    rewrite app_nil_end; auto. 
+  Qed.
 
   Fact fol_syms_vec_fa n A : fol_syms (@fol_vec_fa n A) = flat_map (@fol_syms _) (vec_list A).
   Proof.

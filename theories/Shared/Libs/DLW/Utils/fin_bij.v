@@ -127,29 +127,76 @@ Section list_discr_vec.
 
 End list_discr_vec.
 
+Fact list_discrete_bij_pos X (l : list X) : 
+        (forall x y : X, { x = y } + { x <> y })
+     -> { n : nat & 
+        { f : forall x, In x l -> pos n &
+        { g : pos n -> X 
+        |  (forall p, In (g p) l) 
+        /\ (forall x Hx, g (f x Hx) = x)
+        /\ (forall p H, f (g p) H = p) } } }.
+Proof. 
+  intros D.
+  generalize (NoDup_nodup D l) (nodup_In D l).
+  set (l' := nodup D l); intros H1 H2.
+  revert H1 H2.
+  generalize l'; clear l'; intros l' H1 H2.
+  exists (length l').
+  destruct (list_vec_full l') as (v & Hv).
+  rewrite <- Hv in H1, H2.
+  generalize (NoDup_vec_list _ H1); intros H3.
+  destruct list_reif_t with (l := l) (R := fun x p => vec_pos v p = x)
+    as (f & Hf).
+  { intros x Hx; apply in_vec_dec_inv; auto.
+    apply in_vec_list, H2; auto. }
+  exists f, (vec_pos v); msplit 2; auto.
+  intro; apply H2, in_vec_list, in_vec_pos.
+Qed.
+
+Fact list_discrete_bij_nat X (l : list X) : 
+        (forall x y : X, { x = y } + { x <> y })
+     -> { n : nat & 
+        { f : X -> nat &
+        { g : nat -> option X 
+        |  (forall x, In x l -> f x < n)
+        /\ (forall x, In x l -> g (f x) = Some x)
+        /\ (forall p, p < n -> exists x, g p = Some x /\ f x = p) } } }.
+Proof.
+  intros D.
+  destruct (list_discrete_bij_pos l D)
+    as (n & f & g & H1 & H2 & H3).
+  exists n.
+  exists (fun x => match in_dec D x l with
+    | left H => pos2nat (f x H)
+    | right _ => 0
+  end).
+  exists (fun k => match le_lt_dec n k with
+    | left _  => None
+    | right H => Some (g (nat2pos H))
+  end).
+  msplit 2.
+  + intros x H; destruct (in_dec D x l); try tauto; apply pos2nat_prop.
+  + intros x H; destruct (in_dec D x l) as [ Hx | Hx ]; try tauto.
+    destruct (le_lt_dec n (pos2nat (f x Hx))) as [ H' | H' ].
+    * generalize (pos2nat_prop (f _ Hx)); lia.
+    * f_equal; rewrite nat2pos_pos2nat; auto.
+  + intros p Hp.
+    exists (g (nat2pos Hp)); split.
+    * destruct (le_lt_dec n p) as [ | ? ]; try (exfalso; lia).
+      do 2 f_equal; apply pos2nat_inj.
+      rewrite !pos2nat_nat2pos; auto.
+    * destruct (in_dec D (g (nat2pos Hp)) l) as [ | [] ]; auto.
+      rewrite H3, pos2nat_nat2pos; auto.
+Qed.
+
 Fact finite_t_discrete_bij_t_pos X : 
         finite_t X
      -> (forall x y : X, { x = y } + { x <> y })
      -> { n : nat & bij_t X (pos n) }.
 Proof. 
-  intros (l' & Hl') D.
-  generalize (NoDup_nodup D l') (nodup_In D l').
-  set (l := nodup D l'); intros H1 H2.
-  assert (Hl : forall x, In x l) by (intro; apply H2, Hl').
-  revert H1 Hl.
-  generalize l; clear l l' Hl' H2.
-  intros l Hl1 Hl2.
-  exists (length l).
-  destruct (list_vec_full l) as (v & Hv).
-  rewrite <- Hv in Hl1, Hl2.
-  assert (forall x, in_vec x v) by (intro; apply in_vec_list; auto).
-  generalize (NoDup_vec_list _ Hl1).
-  clear Hl1 Hv.
-  revert v H Hl2.
-  generalize (length l); clear l.
-  intros n v H1 H2 H3.
-  destruct constructive_choice with (R := fun x p => vec_pos v p = x) 
-    as (f & Hf).
-  + intro; apply in_vec_dec_inv; auto.
-  + exists f, (vec_pos v); split; auto.
+  intros (l & Hl) D.
+  destruct list_discrete_bij_pos with (l := l) (1 := D)
+    as (n & f & g & H1 & H2 & H3).
+  exists n, (fun x => f x (Hl x)), g; split; auto.
 Qed.
+

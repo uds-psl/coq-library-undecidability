@@ -62,3 +62,29 @@ Section graphs.
 
 End graphs.
 
+Section graphs_equiv.
+
+  Variable (X Y : Type) (R : X -> Y -> Prop) (equiv : Y -> Y -> Prop).
+  
+  Infix "≈" := equiv (at level 70, no associativity).
+
+  Definition graph_equiv_tot := forall x, ex (R x).
+  Definition graph_equiv_fun := forall x y1 y2, R x y1 -> R x y2 -> y1 ≈ y2.
+
+  Definition is_graph_equiv_function := graph_equiv_fun /\ graph_equiv_tot.
+
+  Hypothesis (H1 : finite_t Y)
+             (H3 : forall x y, { R x y } + { ~ R x y })
+             (H6 : forall x y1 y2, y1 ≈ y2 -> R x y2 -> R x y1).
+
+  Definition graph_equiv_function_reif : is_graph_equiv_function -> { f | forall x y, R x y <-> y ≈ f x }.
+  Proof.
+    intros (H2 & H4). 
+    destruct finite_t_dec_choice with (3 := H4) as (f & Hf); auto.
+    exists f; intros x y; split.
+    + intros H; generalize H (Hf x); apply H2.
+    + intros H; generalize (Hf x); apply H6; auto.
+  Qed.
+
+End graphs_equiv.
+

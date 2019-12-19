@@ -174,6 +174,12 @@ Section vector.
       | vec_nil      => nil
       | vec_cons x v => x::vec_list v
     end.
+
+  Fact vec_list_vec_set_pos n f : vec_list (@vec_set_pos n f) = map f (pos_list n).
+  Proof.
+    revert f; induction n as [ | n IHn ]; intros f; simpl; f_equal; auto.
+    rewrite IHn, map_map; auto.
+  Qed.
     
   Fact vec_list_length n v : length (@vec_list n v) = n.
   Proof. induction v; simpl; f_equal; auto. Defined.

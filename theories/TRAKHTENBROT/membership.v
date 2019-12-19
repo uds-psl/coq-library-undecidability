@@ -38,6 +38,8 @@ Section membership.
   Infix "≈" := mb_equiv. 
   Notation "x ≉ y" := (~ x ≈ y).
 
+  Definition mb_transitive t := forall x y, x ∈ y -> y ∈ t -> x ∈ t.
+
   (** Hypothesis on the model *)
 
   Variable (Rdec : forall x y, { x ∈ y } + { x ∉ y }) (Xfin : finite_t X).
@@ -325,6 +327,12 @@ Section membership.
   Definition mb_is_tuple_in r n v :=
     exists t, @mb_is_tuple t n v /\ t ∈ r.
 
+  Fact mb_is_tuple_in_congr x y n v : y ≈ x -> @mb_is_tuple_in x n v -> @mb_is_tuple_in y n v.
+  Proof.
+    intros E (t & H1 & H2); exists t; split; auto.
+    rewrite  E; auto.
+  Qed.
+
   Fact mb_is_otriple_in_dec r x y z : { mb_is_otriple_in r x y z } + { ~ mb_is_otriple_in r x y z }.
   Proof.
     apply (fol_quant_sem_dec fol_ex); auto; intro.
@@ -336,6 +344,18 @@ Section membership.
     apply (fol_quant_sem_dec fol_ex); auto; intro.
     apply (fol_bin_sem_dec fol_conj); auto.
   Qed.
+
+  (** mb total and functiona *)
+
+  Definition mb_is_tot n (l s : X) :=
+    forall v, (forall p, vec_pos v p ∈ l) -> exists x p t, x ∈ l /\ p ∈ s /\ mb_is_opair p x t /\ @mb_is_tuple t n v.
+
+  Definition mb_is_fun (l s : X) :=
+    forall p q x x' y, x ∈ l -> x' ∈ l 
+                    -> p ∈ s -> q ∈ s
+                    -> mb_is_opair p x y 
+                    -> mb_is_opair q x' y
+                    -> x ≈ x'.
 
 End membership.
 
@@ -361,6 +381,8 @@ Section FOL_encoding.
   Infix "⊆" := Σ2_incl.
   Infix "≈" := Σ2_equiv.
 
+  Definition Σ2_transitive t := ∀∀ 1 ∈ 0 ⤑ 0 ∈ (2+t) ⤑ 1 ∈ (2+t).
+
   Definition Σ2_extensional := ∀∀∀ 2 ≈ 1 ⤑ 2 ∈ 0 ⤑ 1 ∈ 0.
 
   Definition Σ2_is_pair p x y := ∀ 0 ∈ (S p) ↔ 0 ≈ S x ⟇ 0 ≈ S y.
@@ -369,6 +391,9 @@ Section FOL_encoding.
          ∃∃   Σ2_is_pair 1    (2+x) (2+x)
             ⟑ Σ2_is_pair 0    (2+x) (2+y)
             ⟑ Σ2_is_pair (2+p) 1     0.
+
+  Fact Σ2_is_opair_vars p x y : incl (fol_vars (Σ2_is_opair p x y)) (p::x::y::nil).
+  Proof. cbv; tauto. Qed.
 
   Definition Σ2_is_otriple p x y z := 
           ∃   Σ2_is_opair 0     (S x) (S y)
@@ -391,11 +416,61 @@ Section FOL_encoding.
                             ⟑ Σ2_is_tuple 0 (vec_map S (vec_tail v))
     end.
 
+
+  Fact Σ2_is_tuple_vars t n v : incl (fol_vars (@Σ2_is_tuple t n v)) (t::vec_list v).
+  Proof.
+    revert t v; induction n as [ | n IHn ]; intros t v.
+    + vec nil v; cbv; tauto.
+    + vec split v with x; simpl Σ2_is_tuple.
+      intros i; rewrite fol_vars_quant, in_flat_map.
+      intros (j & H1 & H2).
+      rewrite fol_vars_bin, in_app_iff in H1.
+      destruct H1 as [ H1 | H1 ].
+      * apply Σ2_is_opair_vars in H1.
+        destruct H1 as [ | [ | [ | [] ] ] ]; subst j; simpl in *; tauto.
+      * apply IHn in H1.
+        destruct H1 as [ <- | H1 ].
+        - simpl in *; tauto.
+        - rewrite vec_list_vec_map, in_map_iff in H1.
+          destruct H1 as (y & <- & H1); simpl in *.
+          destruct H2 as [ -> | [] ]; tauto.
+  Qed. 
+
   Definition Σ2_is_tuple_in r n v := ∃ @Σ2_is_tuple 0 n (vec_map S v) ⟑ 0 ∈ (S r).
+
+  Fact Σ2_is_tuple_in_vars r n v : incl (fol_vars (@Σ2_is_tuple_in r n v)) (r::vec_list v).
+  Proof.
+    unfold Σ2_is_tuple_in.
+    intros x; rewrite fol_vars_quant, in_flat_map.
+    intros (y & H1 & H2).
+    rewrite fol_vars_bin, in_app_iff in H1.
+    destruct H1 as [ H1 | H1 ].
+    + apply Σ2_is_tuple_vars in H1.
+      rewrite vec_list_vec_map in H1; simpl in H1.
+      rewrite in_map_iff in H1.
+      destruct H1 as [ <- | (z & <- & H1) ]; simpl in *; try tauto.
+      destruct H2 as [ <- | [] ]; auto.
+    + simpl in H1.
+      destruct H1 as [ <- | [ <- | [] ] ]; simpl in *; tauto.
+  Qed.
 
   Definition Σ2_has_tuples l n :=
        fol_mquant fol_fa n ( (fol_vec_fa (vec_set_pos (fun p : pos n => pos2nat p ∈ (l+n))))
                                          ⤑ ∃ Σ2_is_tuple 0 (vec_set_pos (fun p : pos n => S (pos2nat p)))).
+
+  Definition Σ2_is_tot n l s :=
+       fol_mquant fol_fa n ( (fol_vec_fa (vec_set_pos (fun p : pos n => pos2nat p ∈ (l+n))))
+                                         ⤑ ∃∃∃ 2 ∈ ((3+l)+n) ⟑ 1 ∈ ((3+s)+n) ⟑ Σ2_is_opair 1 2 0 ⟑ @Σ2_is_tuple 0 n (vec_set_pos (fun p : pos n => 3+pos2nat p)) ).
+
+(*  Definition Σ2_is_tot l s :=
+    ∀ 0 ∈ (1+l) ⤑ ∃∃ 0 ∈ (3+l) ⟑ 1 ∈ (3+s) ⟑ Σ2_is_opair 1 0 2. *)
+
+  Definition Σ2_is_fun l s :=
+    ∀∀∀∀∀ 2 ∈ (5+l) ⤑ 1 ∈ (5+l) ⤑
+          4 ∈ (5+s) ⤑ 3 ∈ (5+s) ⤑
+          Σ2_is_opair 4 2 0 ⤑
+          Σ2_is_opair 3 1 0 ⤑
+          2 ≈ 1.
 
   Definition Σ2_list_in l lv := fol_lconj (map (fun x => x ∈ l) lv).
 
@@ -406,6 +481,9 @@ Section FOL_encoding.
 
   Section semantics.
 
+    Fact Σ2_transitive_spec t ψ : ⟪Σ2_transitive t⟫ ψ = mb_transitive mem (ψ t).
+    Proof. reflexivity. Qed.
+ 
     Fact Σ2_non_empty_spec l ψ : ⟪Σ2_non_empty l⟫ ψ = exists x, x ∈m ψ l.
     Proof. reflexivity. Qed.
 
@@ -476,6 +554,34 @@ Section FOL_encoding.
         apply vec_pos_ext; intros p.
         rew vec; simpl.
         rewrite env_vlift_fix0; auto.
+    Qed.
+
+    Fact Σ2_is_fun_spec l s ψ : ⟪Σ2_is_fun l s⟫ ψ = mb_is_fun mem (ψ l) (ψ s).
+    Proof. reflexivity. Qed.
+
+    Fact Σ2_is_tot_spec n l s ψ : ⟪Σ2_is_tot n l s⟫ ψ <-> mb_is_tot mem n (ψ l) (ψ s).
+    Proof. 
+      unfold Σ2_is_tot, mb_is_tot.
+      rewrite fol_sem_mforall.
+      apply forall_equiv; intros v.
+      rewrite fol_sem_bin_fix.
+      apply (fol_bin_sem_ext fol_imp).
+      + rewrite fol_sem_vec_fa.
+        apply forall_equiv; intros p.
+        rew vec. 
+        simpl; rewrite env_vlift_fix0, env_vlift_fix1; tauto.
+      + rewrite fol_sem_quant_fix; apply exists_equiv; intros x.
+        rewrite fol_sem_quant_fix; apply exists_equiv; intros p.
+        rewrite fol_sem_quant_fix; apply exists_equiv; intros t.
+        do 3 (rewrite fol_sem_bin_fix).
+        repeat apply (fol_bin_sem_ext fol_conj).
+        * simpl; rewrite env_vlift_fix1; tauto.
+        * simpl; rewrite env_vlift_fix1; tauto.
+        * rewrite Σ2_is_opair_spec; simpl; tauto.
+        * rewrite Σ2_is_tuple_spec; simpl.
+          apply fol_equiv_ext; f_equal.
+          apply vec_pos_ext; intros q; rew vec.
+          simpl; rewrite env_vlift_fix0; auto.
     Qed.
 
     Fact Σ2_list_in_spec l lv ψ : ⟪Σ2_list_in l lv⟫ ψ <-> forall x, In x lv -> ψ x ∈m ψ l.
