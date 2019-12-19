@@ -20,7 +20,7 @@ From Undecidability.Shared.Libs.DLW.Wf
 
 From Undecidability.TRAKHTENBROT
   Require Import notations fol_ops fo_sig fo_terms fo_logic
-                 membership gfp discrete.
+                 membership discrete.
 
 Set Implicit Arguments.
 
@@ -42,22 +42,27 @@ Section Σ2_model.
 
   (** In a extensional model of Σ2, extentional equivalence is bisimulation *)
 
+  Let simul : @fo_simulation (Σrel 2) nil (tt::nil) _ M _ M.
+  Proof. 
+    exists (mb_equiv Σ2_model_mem).
+    + intros ? _ _ [].
+    + intros ? v w [ <- | [] ].
+      vec split v with x1; vec split v with y1; vec nil v; clear v.
+      vec split w with x2; vec split w with y2; vec nil w; clear w.
+      intros H; generalize (H pos0) (H pos1); simpl; clear H; intros H1 H2.
+      transitivity (fom_rels M tt (x1 ## y2 ## ø)).
+      * apply H2.
+      * split; apply ext; auto.
+        red; symmetry; apply H1.
+    + intros x; exists x; red; tauto.
+    + intros x; exists x; red; tauto.
+  Defined.
+
   Fact Σ2_model_ext_equiv_bisim a b : a ≈m b -> @fo_bisimilar (Σrel 2) nil (tt::nil) _ M a b.
   Proof.
-    rewrite <- fom_eq_fol_characterization.
-    revert a b; apply gfp_greatest.
-    + intros R T H1 x y (_ & H2).
-      split; auto.
-      intros ? [].
-    + intros x y Hxy; split.
-      * intros ? [].
-      * intros ? [ <- | [] ] v p. 
-        simpl in *.
-        vec split v with a; vec split v with b; vec nil v; clear v.
-        analyse pos p; simpl.
-        - split; apply ext; auto.
-          intro; symmetry; apply Hxy. 
-        - apply Hxy.
+    intros H A phi H1 H2.
+    apply fo_model_simulation with (R := simul); auto.
+    intros [] ?; simpl; auto; red; tauto.
   Qed.
 
 End Σ2_model.

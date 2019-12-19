@@ -385,6 +385,7 @@ Section bt_model_n.
                      { i : X -> Y & 
                      { s : Y -> X &
                              mb_member_ext mem
+                          /\ mb_transitive mem d
                           /\ (forall p, mb_has_tuples mem d (ar p))
                           /\ (forall x, mem (i x) d)
                           /\ (forall y, mem y d -> exists x, y = i x)
@@ -394,7 +395,7 @@ Section bt_model_n.
                       }}}}}}}}}.
   Proof.
     exists Y, HY, discrY, mem, mem_dec, yd, yr, i', s'.
-    msplit 6; auto.
+    msplit 7; auto.
     + intros (a & Ha) (b & Hb) (c & Hc); unfold mem; simpl.
       unfold mb_equiv; simpl; intros H.
       cut (a = b); [ intros []; auto | ].
@@ -407,6 +408,7 @@ Section bt_model_n.
         apply (H (exist _ x H')); auto.
       * generalize (Hu1 Hx Hb); rewrite u_bool_spec; intros H'.
         apply (H (exist _ x H')); auto.
+    + intros x y; unfold mem, yd; simpl; apply Hd1.
     + intros y Hy; unfold i'.
       destruct (Hi' Hy) as (x & Hx).
       exists x; apply eqY; simpl; auto.

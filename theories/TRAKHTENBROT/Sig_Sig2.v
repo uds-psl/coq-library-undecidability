@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Bool Lia Eqdep_dec.
+Require Import List Arith Bool Lia Eqdep_dec Max.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
@@ -525,10 +525,6 @@ Section Sig_Sig2_encoding.
   Hypothesis (Hs : discrete (syms Σ))
              (Hr : discrete (rels Σ)).
 
-  Check Σ_Σ2.
-  Check Σ_Σ2_sem.
-  Check Σ_Σ2_vars.
-
   Variable A : fol_form Σ.
 
   Let Ds := list_discrete_bij_nat (fol_syms A) Hs.
@@ -537,21 +533,108 @@ Section Sig_Sig2_encoding.
   Let x0 := 0.
   Let d  := 1.
 
-  Let ns  := projT1 Ds.
-  Let ρ s := 2 + projT1 (projT2 Ds) s.
+  Let ns := projT1 Ds.
+  Let ρ  := projT1 (projT2 Ds).
+  Let ρ' s := ρ s + 2.
+  Let iρ := proj1_sig (projT2 (projT2 Ds)).
 
-  Let nr  := projT1 Dr.
-  Let µ r := 2 + ns + projT1 (projT2 Dr) r.
+  Let Hρ1 s : In s (fol_syms A) -> ρ s < ns.
+  Proof. apply (proj2_sig (projT2 (projT2 Ds))). Qed.
+
+  Let Hρ2 s : In s (fol_syms A) -> iρ (ρ s) = Some s.
+  Proof. apply (proj2_sig (projT2 (projT2 Ds))). Qed.
+
+  Let Hρ3 p : p < ns -> exists x, iρ p = Some x /\ ρ x = p.
+  Proof. apply (proj2_sig (projT2 (projT2 Ds))). Qed.
+
+  Let nr := projT1 Dr.
+  Let µ  := projT1 (projT2 Dr).
+  Let µ' r := µ r + 2 + ns.
+  Let iµ := proj1_sig (projT2 (projT2 Dr)).
+
+  Let Hµ1 s : In s (fol_rels A) -> µ s < nr.
+  Proof. apply (proj2_sig (projT2 (projT2 Dr))). Qed.
+
+  Let Hµ2 s : In s (fol_rels A) -> iµ (µ s) = Some s.
+  Proof. apply (proj2_sig (projT2 (projT2 Dr))). Qed.
+
+  Let Hµ3 p : p < nr -> exists x, iµ p = Some x /\ µ x = p.
+  Proof. apply (proj2_sig (projT2 (projT2 Dr))). Qed.
+
+  Let nat_split n : { n = 0 }
+                  + { n = 1 }
+                  + { s | s < ns /\ n = s + 2  }
+                  + { r | r < nr /\ n = r + 2 + ns }
+                  + { x | n = x + 2 + ns + nr }.
+  Proof.
+    revert n.
+    intros [ | [ | n ] ]; auto.
+    destruct (le_lt_dec ns n) as [ H1 | H1 ].
+    2: { do 2 left; right; exists n; lia. }
+    destruct (le_lt_dec (ns+nr) n) as [ H2 | H2 ].
+    + right; exists (n-ns-nr); lia.
+    + left; right; exists (n-ns); lia.
+  Qed.
+
+  Let env_build K (a0 a1 : K) (fs fr fx : nat -> K) (n : nat) : K.
+  Proof.
+    destruct (nat_split n) as [ [ [ [ H | H ] | (s & H1 & H2) ] | (r & H1 & H2) ] | (x & Hx) ].
+    + exact a0.
+    + exact a1.
+    + exact (fs s).
+    + exact (fr r).
+    + exact (fx x).
+  Defined.
+
+  Let env_build_fix_0 K a0 a1 fs fr fx : @env_build K a0 a1 fs fr fx 0 = a0.
+  Proof.
+    unfold env_build.
+    destruct (nat_split 0) as [ [ [ [ H | H ] | (s & H1 & H2) ] | (r & H1 & H2) ] | (x & Hx) ]; auto; lia.
+  Qed.
+   
+  Let env_build_fix_1 K a0 a1 fs fr fx : @env_build K a0 a1 fs fr fx 1 = a1.
+  Proof.
+    unfold env_build.
+    destruct (nat_split 1) as [ [ [ [ H | H ] | (s & H1 & H2) ] | (r & H1 & H2) ] | (x & Hx) ]; auto; lia.
+  Qed.
+
+  Let env_build_fix_s K a0 a1 fs fr fx n : n < ns -> @env_build K a0 a1 fs fr fx (n+2) = fs n.
+  Proof.
+    unfold env_build.
+    intros H0.
+    destruct (nat_split (n+2)) as [ [ [ [ H | H ] | (s & H1 & H2) ] | (r & H1 & H2) ] | (x & Hx) ]; try lia; f_equal; lia.
+  Qed.
+
+  Let env_build_fix_r K a0 a1 fs fr fx n : n < nr -> @env_build K a0 a1 fs fr fx (n+2+ns) = fr n.
+  Proof.
+    unfold env_build.
+    intros H0.
+    destruct (nat_split (n+2+ns)) as [ [ [ [ H | H ] | (s & H1 & H2) ] | (r & H1 & H2) ] | (x & Hx) ]; try lia; f_equal; lia.
+  Qed.
+
+  Let env_build_fix_x K a0 a1 fs fr fx n : @env_build K a0 a1 fs fr fx (n+2+ns+nr) = fx n.
+  Proof.
+    unfold env_build.
+    destruct (nat_split (n+2+ns+nr)) as [ [ [ [ H | H ] | (s & H1 & H2) ] | (r & H1 & H2) ] | (x & Hx) ]; try lia; f_equal; lia.
+  Qed.
 
   Let B := fol_subst (fun i => £ (i+2+ns+nr)) A.
+
+  Let symsB : incl (fol_syms B) (fol_syms A).
+  Proof.
+    red; apply Forall_forall.
+    apply fol_syms_subst.
+    + intros; simpl; auto.
+    + apply Forall_forall; auto.
+  Qed.
 
   Definition Σ_Σ2_enc := 
                 Σ2_extensional 
               ⟑ x0 ∈ d
               ⟑ Σ2_transitive d
               ⟑ Σ2_list_in d (fol_vars B) 
-              ⟑ fol_lconj (map (fun s => Σ2_is_fun d (ρ s) ⟑ Σ2_is_tot (ar_syms _ s) d (ρ s)) (fol_syms A))
-              ⟑ Σ_Σ2 ρ µ d B.
+              ⟑ fol_lconj (map (fun s => Σ2_is_fun d (ρ' s) ⟑ Σ2_is_tot (ar_syms _ s) d (ρ' s)) (fol_syms A))
+              ⟑ Σ_Σ2 ρ' µ' d B.
 
   Section SAT2_SAT.
 
@@ -587,7 +670,7 @@ Section Sig_Sig2_encoding.
     Let HA3 : forall x, In x (fol_vars B) -> ψ x ∈m ψ d.
     Proof. apply Σ2_list_in_spec, HA. Qed.
 
-    Let HA5 : fol_sem M2 ψ (Σ_Σ2 ρ µ d B).
+    Let HA5 : fol_sem M2 ψ (Σ_Σ2 ρ' µ' d B).
     Proof. apply HA. Qed.
 
     Let P x := (if mem_dec x (ψ d) then true else false) = true.
@@ -631,7 +714,7 @@ Section Sig_Sig2_encoding.
     Proof. intros n Hn; apply HP0, HA3; auto. Qed.
 
     Let Rf s (v : vec X (ar_syms Σ s)) (x : X) :=
-      mb_is_tuple_in mem (ψ (ρ s)) (proj1_sig x##vec_map (@proj1_sig _ _) v). 
+      mb_is_tuple_in mem (ψ (ρ' s)) (proj1_sig x##vec_map (@proj1_sig _ _) v). 
 
     Let HA4 s : In s (fol_syms A) -> is_graph_equiv_function (Rf s) (mb_equiv memX).
     Proof.
@@ -639,7 +722,7 @@ Section Sig_Sig2_encoding.
       simpl in HA; do 4 apply proj2 in HA.
       apply proj1 in HA.
       rewrite fol_sem_lconj in HA.
-      specialize (HA (Σ2_is_fun d (ρ s) ⟑ Σ2_is_tot (ar_syms _ s) d (ρ s))).
+      specialize (HA (Σ2_is_fun d (ρ' s) ⟑ Σ2_is_tot (ar_syms _ s) d (ρ' s))).
       rewrite fol_sem_bin_fix in HA.
       destruct HA as (F1 & F2).
       { apply in_map_iff; exists s; auto. }
@@ -671,7 +754,7 @@ Section Sig_Sig2_encoding.
     Let HA4' s : In s (fol_syms A) 
              -> { f : vec X (ar_syms _ s) -> X 
                 | forall v x, x = f v
-                          <-> mb_is_tuple_in mem (ψ (ρ s)) (proj1_sig x##vec_map (@proj1_sig _ _) v) }.
+                          <-> mb_is_tuple_in mem (ψ (ρ' s)) (proj1_sig x##vec_map (@proj1_sig _ _) v) }.
     Proof.
       intros H.
       destruct graph_equiv_function_reif with (4 := HA4 _ H)
@@ -703,7 +786,7 @@ Section Sig_Sig2_encoding.
  
     Let Hfn s : In s (fol_syms A) 
                -> forall v x, x = fn s v
-                          <-> mb_is_tuple_in mem (ψ (ρ s)) (proj1_sig x##vec_map (@proj1_sig _ _) v).
+                          <-> mb_is_tuple_in mem (ψ (ρ' s)) (proj1_sig x##vec_map (@proj1_sig _ _) v).
     Proof.
       intros H.
       unfold fn.
@@ -716,7 +799,7 @@ Section Sig_Sig2_encoding.
       exists.
       + intros s; apply (fn s).
       + intros r v.
-        exact (mb_is_tuple_in mem (ψ (µ r)) (vec_map (@proj1_sig _ _) v)).
+        exact (mb_is_tuple_in mem (ψ (µ' r)) (vec_map (@proj1_sig _ _) v)).
     Defined.
 
     Let M_dec : fo_model_dec M.
@@ -738,19 +821,11 @@ Section Sig_Sig2_encoding.
       end); apply HP0, H.
     Defined.
 
-    Let symsB : incl (fol_syms B) (fol_syms A).
-    Proof.
-      red; apply Forall_forall.
-      apply fol_syms_subst.
-      + intros; simpl; auto.
-      + apply Forall_forall; auto.
-    Qed.
-
     Let HB : fol_sem M φ B.
     Proof.
       revert HA5.
       apply Σ_Σ2_sem with (f := f) (g := g) (d := d) (φ := φ) (ψ := ψ) (F := B)
-                               (ρ := ρ) (µ := µ) (MY := M2) (MX := M) (dy := ψ d); auto.
+                               (ρ := ρ') (µ := µ') (MY := M2) (MX := M) (dy := ψ d); auto.
       + intros (x & Hx); apply HP0; auto.
       + intros y Hy; apply HP0 in Hy.
         exists (exist _ y Hy); auto.
@@ -772,7 +847,7 @@ Section Sig_Sig2_encoding.
 
   End SAT2_SAT.
 
-  Theorem SAT2_SATn : fo_form_fin_dec_SAT Σ_Σ2_enc
+  Theorem SAT2_SAT : fo_form_fin_dec_SAT Σ_Σ2_enc
                    -> fo_form_fin_dec_SAT A.
   Proof.
     intros (X & M2 & H1 & H2 & psy & H3).
@@ -782,65 +857,158 @@ Section Sig_Sig2_encoding.
     apply (SAT2_ext_eq_to_SAT G1 G2 ψ G4).
   Qed.
 
-End Sig_Sig2_encoding.
+  Section SAT_SAT2.
 
-Check SAT2_SATn.
-
-Section SATn_SAT2.
-
-  Variable n : nat.
-
-  (** This is the hard implication. From a model of A, 
-      build a model of Σn_Σ2_enc A in hereditary finite sets *)
-
-  Section nested.
-
-    Variables (A : fol_form (Σrel n))
-              (X : Type) (Mn : fo_model (Σrel n) X)
+    Variables (X : Type) (M : fo_model Σ X)
               (X_fin : finite_t X)
               (X_discr : discrete X)
-              (Mn_dec : fo_model_dec Mn)
+              (M_dec : fo_model_dec M)
               (φ : nat -> X)
-              (HA : fol_sem Mn φ A).
+              (HA : fol_sem M φ A).
 
-    Let R := fom_rels Mn tt.
+    Let m := max (S (lmax (map (ar_syms _) (fol_syms A)))) (lmax (map (ar_rels _) (fol_rels A))).
 
-    Local Lemma SATn_to_SAT2 : exists Y, fo_form_fin_dec_SAT_in (@Σn_Σ2_enc n A) Y.
+    Let Hm1 s : In s (fol_syms A) -> S (ar_syms _ s) <= m.
     Proof.
-      destruct reln_hfs with (R := fom_rels Mn tt)
-        as (Y & H1 & H2 & mem & H3 & l & r & i & s & H4 & H5 & H6 & H7 & H8 & H9 & H10); auto.
-      exists Y, (bin_rel_Σ2 mem), H1, (bin_rel_Σ2_dec _ H3), 
-        (fun n => match n with 
-           | 0 => l
-           | 1 => r
-           | S (S n) => i (φ n)
-         end).
-      unfold Σn_Σ2_enc; msplit 3; auto.
-      + exists (i (φ 0)); simpl; rew fot; simpl; auto.
-      + apply Σ2_list_in_spec.
-        intros n'; simpl.
-        rewrite fol_vars_map, in_map_iff.
-        intros (m & <- & ?); auto.
-      + rewrite <- Σn_Σ2_correct with (Mn := Mn) (R := fun x y => y = i x) 
-            (φ := fun n => match n with 0 => φ 0 | 1 => φ 1 | S (S n) => φ n end); auto.
-        * rewrite fol_sem_subst.
-          revert HA; apply fol_sem_ext.
-          intros; simpl; rew fot; auto.
-        * intros x; exists (i x); split; auto; apply H6.
-        * intros v w E; rewrite H9.
-          apply fol_equiv_ext; f_equal.
-          apply vec_pos_ext; intro; rew vec.
-        * intros n'; rewrite fol_vars_map, in_map_iff.
-          intros (m & <- & Hm); simpl; auto.
+      intros H; apply le_trans with (2 := le_max_l _ _).
+      apply le_n_S, lmax_prop, in_map_iff.
+      exists s; auto.
     Qed.
 
-  End nested.
+    Let Hm2 r : In r (fol_rels A) -> ar_rels _ r <= m.
+    Proof.
+      intros H; apply le_trans with (2 := le_max_r _ _).
+      apply lmax_prop, in_map_iff.
+      exists r; auto.
+    Qed.
 
-  Theorem SATn_SAT2 A : fo_form_fin_discr_dec_SAT A
-                     -> fo_form_fin_dec_SAT (@Σn_Σ2_enc n A).
+    Let ar : syms Σ + rels Σ -> nat.
+    Proof. 
+      intros [ s | r ].
+      + exact (match in_dec Hs s (fol_syms A) with
+          | left _ => S (ar_syms _ s)
+          | right _ => 0
+        end).
+      + exact (match in_dec Hr r (fol_rels A) with
+          | left _ => ar_rels _ r
+          | right _ => 0
+        end).
+    Defined.
+
+    Let Har : forall s, ar s <= m.
+    Proof.
+      intros [ s | r ]; unfold ar.
+      + destruct (in_dec Hs s (fol_syms A)); auto; lia.
+      + destruct (in_dec Hr r (fol_rels A)); auto; lia.
+    Qed.
+
+    Let R : forall s, vec X (ar s) -> Prop.
+    Proof.
+      intros [ s | r ]; simpl.
+      + refine (match in_dec Hs s (fol_syms A) with
+          | left _  => _
+          | right _ => _
+        end).
+        * exact (fun v => vec_head v = fom_syms M s (vec_tail v)).
+        * exact (fun _ => True).
+      + refine (match in_dec Hr r (fol_rels A) with
+          | left _  => _
+          | right _ => _
+        end).
+        * exact (fom_rels M r).
+        * exact (fun _ => True).
+    Defined.
+
+    Local Lemma SAT_to_SAT2 : exists Y, fo_form_fin_dec_SAT_in Σ_Σ2_enc Y.
+    Proof.
+      destruct rels_hfs with (R := R) (m := m)
+        as (Y & H1 & H2 & mem & H3 & dy & r & i & s & H4 & H5 & H6 & H7 & H8 & H9 & H10 & H11); auto.
+      { intros [ s | r ]; unfold R; simpl.
+        * destruct (in_dec Hs s (fol_syms A)).
+          - intro; apply X_discr.
+          - intro; tauto.
+        * destruct (in_dec Hr r (fol_rels A)).
+          - intro; apply M_dec.
+          - intro; tauto. }
+      exists Y, (bin_rel_Σ2 mem), H1, (bin_rel_Σ2_dec _ H3).
+      set (ψ := env_build (i (φ 0)) dy
+                      (fun n => match iρ n with Some s => r (inl s) | None => dy end)
+                      (fun n => match iµ n with Some s => r (inr s) | None => dy end)
+                      (fun n => i (φ n))).
+      exists ψ.
+      unfold Σ_Σ2_enc.
+      msplit 5.
+      + rewrite Σ2_extensional_spec; apply H4.
+      + simpl.
+        unfold x0, d, ψ.
+        rewrite env_build_fix_0, env_build_fix_1; auto.
+      + rewrite Σ2_transitive_spec.
+        unfold d, ψ; rewrite env_build_fix_1; auto.
+      + rewrite Σ2_list_in_spec.
+        intros j; unfold B.
+        rewrite fol_vars_subst, in_flat_map.
+        intros (k & Hk & [ <- | [] ]).
+        unfold d, ψ.
+        rewrite env_build_fix_x, env_build_fix_1; auto.
+        apply H7.
+      + rewrite fol_sem_lconj.
+        intros f; rewrite in_map_iff.
+        intros (s' & <- & G1); split.
+        * rewrite Σ2_is_fun_spec.
+          unfold ρ', d, ψ.
+          rewrite env_build_fix_1, env_build_fix_s; auto.
+          rewrite Hρ2; auto.
+          admit.
+        * rewrite Σ2_is_tot_spec.
+          unfold ρ', d, ψ.
+          rewrite env_build_fix_1, env_build_fix_s; auto.
+          rewrite Hρ2; auto.
+          admit.
+      + assert (HB : fol_sem M (fun n => φ (n-(2+ns+nr))) B).
+        { unfold B.
+          rewrite fol_sem_subst.
+          revert HA.
+          apply fol_sem_ext.
+          intros n _; rew fot; f_equal; lia. }
+        revert HB.
+        apply Σ_Σ2_sem with (f := i) (g := s) (d := d) (F := B)
+                               (ρ := ρ') (µ := µ') (MY := _) (MX := _) (dy := dy); auto.
+        * intros j; unfold B.
+          rewrite fol_vars_subst, in_flat_map.
+          intros (k & Hk & [ <- | [] ]).
+          unfold ψ.
+          rewrite env_build_fix_x; do 2 f_equal; lia.
+        * unfold d, ψ; rewrite env_build_fix_1; auto.
+        * intros s' v x Hs'.
+          apply symsB in Hs'.
+          unfold ρ', ψ; rewrite env_build_fix_s; auto.
+          rewrite Hρ2; auto.
+          specialize (H10 (inl s')).
+          simpl in H10.
+          destruct (in_dec Hs s' (fol_syms A)) as [ | [] ]; auto.
+          apply (H10 (x##v)); auto.
+        * intros s' v Hs'.
+          unfold B in Hs'; rewrite fol_rels_subst in Hs'.
+          unfold µ', ψ; rewrite env_build_fix_r; auto.
+          rewrite Hµ2; auto.
+          specialize (H10 (inr s')).
+          simpl in H10.
+          destruct (in_dec Hr s' (fol_rels A)) as [ | [] ]; auto.
+    Admitted.
+ 
+  End SAT_SAT2.
+
+  Theorem SAT_SAT2 : fo_form_fin_discr_dec_SAT A
+                   -> fo_form_fin_dec_SAT Σ_Σ2_enc.
   Proof.
     intros (X & H1 & Mn & H2 & H4 & psy & H5).
-    apply SATn_to_SAT2 with X Mn psy; auto.
+    apply SAT_to_SAT2 with X Mn psy; auto.
   Qed.
 
-End SATn_SAT2.
+End Sig_Sig2_encoding.
+
+Check SAT2_SAT.
+Print Assumptions SAT2_SAT.
+
+Check SAT_SAT2.
+Print Assumptions SAT_SAT2.
