@@ -59,9 +59,11 @@ Section local_env_utilities.
 
   Variables (a0 a1 : X) (fs fr fx : nat -> X).
 
+  Ltac destr n := destruct (nat_split n) as [ [ [ [ H | H ] | (s & H1 & H2) ] | (r & H1 & H2) ] | (x & Hx) ].
+
   Local Definition env_build (n : nat) : X.
   Proof.
-    destruct (nat_split n) as [ [ [ [ H | H ] | (s & H1 & H2) ] | (r & H1 & H2) ] | (x & Hx) ].
+    destr n.
     + exact a0.
     + exact a1.
     + exact (fs s).
@@ -69,37 +71,22 @@ Section local_env_utilities.
     + exact (fx x).
   Defined.
 
+  Ltac dauto n := unfold env_build; destr n; try lia; auto.
+
   Local Fact env_build_fix_0 : env_build 0 = a0.
-  Proof.
-    unfold env_build.
-    destruct (nat_split 0) as [ [ [ [ H | H ] | (s & H1 & H2) ] | (r & H1 & H2) ] | (x & Hx) ]; auto; lia.
-  Qed.
+  Proof. dauto 0. Qed.
    
   Local Fact env_build_fix_1 : env_build 1 = a1.
-  Proof.
-    unfold env_build.
-    destruct (nat_split 1) as [ [ [ [ H | H ] | (s & H1 & H2) ] | (r & H1 & H2) ] | (x & Hx) ]; auto; lia.
-  Qed.
+  Proof. dauto 1. Qed.
 
   Local Fact env_build_fix_s n : n < ns -> env_build (n+2) = fs n.
-  Proof.
-    unfold env_build.
-    intros H0.
-    destruct (nat_split (n+2)) as [ [ [ [ H | H ] | (s & H1 & H2) ] | (r & H1 & H2) ] | (x & Hx) ]; try lia; f_equal; lia.
-  Qed.
-
+  Proof. intros H0; dauto (n+2); f_equal; lia. Qed.
+ 
   Local Fact env_build_fix_r n : n < nr -> env_build (n+2+ns) = fr n.
-  Proof.
-    unfold env_build.
-    intros H0.
-    destruct (nat_split (n+2+ns)) as [ [ [ [ H | H ] | (s & H1 & H2) ] | (r & H1 & H2) ] | (x & Hx) ]; try lia; f_equal; lia.
-  Qed.
+  Proof. intros H0; dauto (n+2+ns); f_equal; lia. Qed.
 
   Local Fact env_build_fix_x n : env_build (n+2+ns+nr) = fx n.
-  Proof.
-    unfold env_build.
-    destruct (nat_split (n+2+ns+nr)) as [ [ [ [ H | H ] | (s & H1 & H2) ] | (r & H1 & H2) ] | (x & Hx) ]; try lia; f_equal; lia.
-  Qed.
+  Proof. dauto (n+2+ns+nr); f_equal; lia. Qed.
 
 End local_env_utilities.
 
@@ -140,7 +127,19 @@ Section Sig_Sig2_encoding.
                      in fol_mquant fol_ex (ar_syms _ s) (A ⟑ B ⟑ C)
       end.
 
-    Local Fact for_rem_syms r n t i : In i (fol_vars (fot_rem_syms r n t)) 
+    Local Definition fol_rem_atom n (s : rels Σ) (vt : vec 𝕋 (ar_rels _ s) ) : 𝔽2 :=
+         let a := ar_rels _ s
+      in let v1 := vec_set_pos (fun p : pos a 
+              => fot_rem_syms (pos2nat p) (n+a) (vec_pos vt p))
+      in let v2 := vec_set_pos (fun p : pos a
+              => pos2nat p ∈ d+n+a)
+      in let w := vec_set_pos (fun p : pos a => pos2nat p)
+      in let A := Σ2_is_tuple_in (µ s+n+a) w
+      in let B := fol_vec_fa v1
+      in let C := fol_vec_fa v2
+      in fol_mquant fol_ex a (A ⟑ B ⟑ C).
+
+(*    Local Fact for_rem_syms r n t i : In i (fol_vars (fot_rem_syms r n t)) 
                              -> i = r \/ (exists j, i = j+n /\ In j (d::fo_term_vars t))
                                       \/ (exists s, i = ρ s+n /\ In s (fo_term_syms t)).
     Proof.
@@ -191,18 +190,6 @@ Section Sig_Sig2_encoding.
             right; left; exists d; split; simpl; auto; lia.
     Qed.
 
-    Local Definition fol_rem_atom n (s : rels Σ) (vt : vec 𝕋 (ar_rels _ s) ) : 𝔽2 :=
-         let a := ar_rels _ s
-      in let v1 := vec_set_pos (fun p : pos a 
-              => fot_rem_syms (pos2nat p) (n+a) (vec_pos vt p))
-      in let v2 := vec_set_pos (fun p : pos a
-              => pos2nat p ∈ d+n+a)
-      in let w := vec_set_pos (fun p : pos a => pos2nat p)
-      in let A := Σ2_is_tuple_in (µ s+n+a) w
-      in let B := fol_vec_fa v1
-      in let C := fol_vec_fa v2
-      in fol_mquant fol_ex a (A ⟑ B ⟑ C).
-
     Fact fol_rem_atom_vars n s vt i : In i (fol_vars (fol_rem_atom n s vt))
                                    ->    (exists j, i = j+n /\ In j (d::flat_map fo_term_vars (vec_list vt)))
                                       \/ (exists s, i = ρ s+n /\ In s (flat_map fo_term_syms (vec_list vt)))
@@ -249,7 +236,7 @@ Section Sig_Sig2_encoding.
         - destruct (le_lt_dec (ar_rels Σ s) (d + n + ar_rels Σ s)); try lia.
           destruct H2 as [ <- | [] ].
           left; exists d; simpl; split; auto; lia.
-    Qed.
+    Qed. *)
 
     Variable (X : Type) (MX : fo_model Σ X)
              (Y : Type) (MY : fo_model Σ2 Y) (dy : Y).
@@ -476,6 +463,8 @@ Section Sig_Sig2_encoding.
         | ∃ A            => ∃ 0 ∈ (S d) ⟑ Σ_Σ2 (fun s => S (ρ s)) (fun s => S (µ s)) (S d) A
       end.
 
+(*
+
     Fact Σ_Σ2_vars ρ µ d A : incl (fol_vars (Σ_Σ2 ρ µ d A)) 
                                   (d::fol_vars A++map ρ (fol_syms A)++map µ (fol_rels A)).
     Proof.
@@ -507,6 +496,8 @@ Section Sig_Sig2_encoding.
         * destruct H2 as [ <- | [] ]; right; right; left; exists s'; auto.
         * destruct H2 as [ <- | [] ]; right; right; right; exists s'; auto.
     Qed.
+
+*)
 
     Variable (X : Type) (MX : fo_model Σ X)
              (Y : Type) (MY : fo_model Σ2 Y) (dy : Y).

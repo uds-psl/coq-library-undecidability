@@ -36,6 +36,7 @@ From Undecidability.TRAKHTENBROT
           (*       Sig3_Sig2                 (* From R_3 to R_2 *)  *)
                  Sig2_Sign                 (* Embed R_2 into R_n with n >= 2 *)
                  Sign_Sig                  (* Embed R_n into Σ where R_n occurs in Σ *)
+                 Sig_Sig2                  (* Embed discrete Σ into Σ2 = (ø,{R_2}) *)
                  .
 
 Set Implicit Arguments.
@@ -465,6 +466,25 @@ End FINITARY_TO_BINARY.
 
 Check FINITARY_TO_BINARY.
 Print Assumptions FINITARY_TO_BINARY.
+
+Section DISCRETE_TO_BINARY.
+
+  Variable (Σ : fo_signature)
+           (HΣ1 : discrete (syms Σ))
+           (HΣ2 : discrete (rels Σ)).
+
+  Theorem DISCRETE_TO_BINARY : FSAT Σ ⪯ FSAT (Σrel 2).
+  Proof.
+    apply reduction_dependent; exists.
+    intros A; exists (Σ_Σ2_enc HΣ1 HΣ2 A); split.
+    + intros H; apply SAT_SAT2, fo_form_fin_dec_SAT_discr_equiv; auto.
+    + apply SAT2_SAT.
+  Qed.
+
+End DISCRETE_TO_BINARY.
+
+Check DISCRETE_TO_BINARY.
+Print Assumptions DISCRETE_TO_BINARY.
 
 Section FULL_TRAKHTENBROT.
 
