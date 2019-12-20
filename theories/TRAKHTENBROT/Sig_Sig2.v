@@ -59,7 +59,7 @@ Section local_env_utilities.
 
   Variables (a0 a1 : X) (fs fr fx : nat -> X).
 
-  Ltac destr n := destruct (nat_split n) as [ [ [ [ H | H ] | (s & H1 & H2) ] | (r & H1 & H2) ] | (x & Hx) ].
+  Ltac destr n := destruct (nat_split n) as [ [ [ [|] | (s&?&?) ] | (r&?&?) ] | (x&?) ].
 
   Local Definition env_build (n : nat) : X.
   Proof.
@@ -71,22 +71,25 @@ Section local_env_utilities.
     + exact (fx x).
   Defined.
 
-  Ltac dauto n := unfold env_build; destr n; try lia; auto.
+  Ltac dauto := intros; 
+    match goal with 
+      | |- env_build ?n = _ => unfold env_build; destr n; try lia; auto; f_equal; lia
+    end.
 
   Local Fact env_build_fix_0 : env_build 0 = a0.
-  Proof. dauto 0. Qed.
+  Proof. dauto. Qed.
    
   Local Fact env_build_fix_1 : env_build 1 = a1.
-  Proof. dauto 1. Qed.
+  Proof. dauto. Qed.
 
   Local Fact env_build_fix_s n : n < ns -> env_build (n+2) = fs n.
-  Proof. intros H0; dauto (n+2); f_equal; lia. Qed.
+  Proof. dauto. Qed.
  
   Local Fact env_build_fix_r n : n < nr -> env_build (n+2+ns) = fr n.
-  Proof. intros H0; dauto (n+2+ns); f_equal; lia. Qed.
+  Proof. dauto. Qed.
 
   Local Fact env_build_fix_x n : env_build (n+2+ns+nr) = fx n.
-  Proof. dauto (n+2+ns+nr); f_equal; lia. Qed.
+  Proof. dauto. Qed.
 
 End local_env_utilities.
 
