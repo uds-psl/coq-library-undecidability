@@ -163,13 +163,17 @@ Section bt_model_n.
     generalize (Hm p); lia.
   Qed.
 
+  Let Hdu x : x ∈ d -> x ∈ u.
+  Proof. intros H; apply Hu1 with (1 := H); auto. Qed.  
+
   Hint Resolve finite_t_prod hfs_mem_fin_t.
 
   (** We encode R as a subset of tuples of elements of l in p *)
 
   Let encode_R p : { r | r ∈ u 
                       /\ (forall v, @hfs_tuple (ar p) v ∈ r -> forall q, vec_pos v q ∈ d)
-                      /\ forall v, @R p v <-> hfs_tuple (vec_map i v) ∈ r }.
+                      /\ (forall v, @R p v <-> hfs_tuple (vec_map i v) ∈ r) 
+                      /\ (forall a, a ∈ r -> exists v, a = @hfs_tuple (ar p) v) }.
   Proof.
     set (P v := @R p (vec_map s v) /\ forall q, vec_pos v q ∈ d).
     set (f := @hfs_tuple (ar p)). 
@@ -178,7 +182,7 @@ Section bt_model_n.
       * intros; apply HR.
       * apply fin_t_vec with (P := fun t => t ∈ d).
         apply hfs_mem_fin_t.
-    + exists r; msplit 2.
+    + exists r; msplit 3.
       * unfold u. 
         replace (2+2*m) with ((1+2*m)+1) by lia.
         rewrite iter_plus with (b := 1).
@@ -205,6 +209,9 @@ Section bt_model_n.
           apply hfs_tuple_spec in H2.
           revert H1; subst w; apply fol_equiv_ext.
           f_equal; apply vec_pos_ext; intro; rew vec.
+      * intros a Ha.
+        apply Hr in Ha.
+        destruct Ha as (v & ? & ?); now exists v.
   Qed.
 
   Let r p := proj1_sig (encode_R p).
@@ -218,17 +225,20 @@ Section bt_model_n.
   Let Hr3 p v : @R p v <-> hfs_tuple (vec_map i v) ∈ r p.
   Proof. apply (proj2_sig (encode_R _)). Qed.
 
+  Let Hr4 p a : a ∈ r p -> exists v, a = @hfs_tuple (ar p) v.
+  Proof. apply (proj2_sig (encode_R _)). Qed.
+
   (** The Boolean encoding of x ∈ u *)
 
-  Let u_bool x := if hfs_mem_dec x u then true else false.
+  Let U x := (if hfs_mem_dec x u then true else false) = true.
 
-  Let u_bool_spec x : x ∈ u <-> u_bool x = true.
+  Let U_spec x : x ∈ u <-> U x.
   Proof.   
-    unfold u_bool.
+    unfold U.
     destruct (hfs_mem_dec x u); split; try tauto; discriminate.
   Qed.
 
-  Let Y := sig (fun x => u_bool x = true).
+  Let Y := sig U.
 
   Let eqY : forall x y : Y, proj1_sig x = proj1_sig y -> x = y.
   Proof. 
@@ -253,8 +263,8 @@ Section bt_model_n.
     + right; contradict D; inversion D; auto.
   Qed.
 
-  Let yd : Y.    Proof. exists d; apply u_bool_spec; auto. Defined.
-  Let yr (p : syms) : Y.  Proof. exists (r p); apply u_bool_spec; auto. Defined.
+  Let yd : Y.             Proof. exists d; apply U_spec; auto. Defined.
+  Let yr (p : syms) : Y.  Proof. exists (r p); apply U_spec; auto. Defined.
 
   Let mem (x y : Y) := proj1_sig x ∈ proj1_sig y.
 
@@ -273,13 +283,13 @@ Section bt_model_n.
     intros H.
     apply hfs_mem_ext.
     intros z; split; intros Hz.
-    * apply u_bool_spec in Hx.
+    * apply U_spec in Hx.
       generalize (Hu1 Hz Hx).
-      rewrite u_bool_spec; intros H'.
+      rewrite U_spec; intros H'.
       apply (H (exist _ z H')); auto.
-    * apply u_bool_spec in Hy.
+    * apply U_spec in Hy.
       generalize (Hu1 Hz Hy).
-      rewrite u_bool_spec; intros H'.
+      rewrite U_spec; intros H'.
       apply (H (exist _ z H')); auto.
   Qed.
 
@@ -289,11 +299,11 @@ Section bt_model_n.
     intros (x & Hx) (y & Hy) (q & Hq); simpl.
     unfold mb_is_pair; simpl; rewrite hfs_mem_ext.
     generalize Hx Hy Hq; revert Hx Hy Hq.
-    do 3 rewrite <- u_bool_spec at 1.
+    do 3 rewrite <- U_spec at 1.
     intros Hx' Hy' Hk' Hx Hy Hk.
     split.
     + intros H a; split; rewrite hfs_pair_spec; [ intros Ha | intros [ Ha | Ha ] ].
-      * generalize (Hu1 Ha Hk'); rewrite u_bool_spec; intros Ha'.
+      * generalize (Hu1 Ha Hk'); rewrite U_spec; intros Ha'.
         specialize (H (exist _ a Ha')); simpl in H.
         repeat rewrite is_equiv in H; apply H; auto.
       * subst; apply (H (exist _ x Hx)); repeat rewrite is_equiv; simpl; auto.
@@ -312,10 +322,10 @@ Section bt_model_n.
       intros (-> & -> & ->); auto.
     + intros ->.
       generalize Hx Hy Hq; revert Hx Hy Hq.
-      do 3 rewrite <- u_bool_spec at 1.
+      do 3 rewrite <- U_spec at 1.
       intros Hx' Hy' Hk' Hx Hy Hk.
       apply hfs_trans_opair_inv in Hk'; auto.
-      do 2 rewrite u_bool_spec in Hk'.
+      do 2 rewrite U_spec in Hk'.
       destruct Hk' as (H1 & H2).
       exists (exist _ (hfs_pair x x) H1).
       exists (exist _ (hfs_pair x y) H2).
@@ -330,9 +340,8 @@ Section bt_model_n.
       * intros H; apply hfs_mem_ext.
         intros z; split.
         - intros Hz.
-          assert (Hz' : u_bool z = true).
-          { apply u_bool_spec.
-            apply Hu1 with (1 := Hz), u_bool_spec; auto. }
+          assert (Hz' : U z).
+          { apply U_spec, Hu1 with (1 := Hz), U_spec; auto. }
           destruct (H (exist _ z Hz')); auto.
         - rewrite hfs_empty_spec; tauto. 
       * intros -> (z & ?); unfold mem; simpl.
@@ -343,9 +352,9 @@ Section bt_model_n.
         rewrite <- H2.
         apply is_opair with (k := exist _ t Ht); auto.
       * intros ->.
-        assert (H1 : u_bool (hfs_tuple (vec_map (@proj1_sig _ _) v)) = true).
-        { apply u_bool_spec.
-          apply u_bool_spec in Ht.
+        assert (H1 : U (hfs_tuple (vec_map (@proj1_sig _ _) v))).
+        { apply U_spec.
+          apply U_spec in Ht.
           apply hfs_trans_opair_inv, proj2, hfs_trans_pair_inv in Ht; tauto. }
         exists (exist _ (hfs_tuple (vec_map (@proj1_sig _ _) v)) H1); split.
         - rewrite is_opair; simpl; auto.
@@ -355,9 +364,9 @@ Section bt_model_n.
   Let has_tuples p : mb_has_tuples mem yd (ar p).
   Proof.
     intros v Hv.
-    set (t := hfs_tuple (vec_map (proj1_sig (P := fun x : hfs => u_bool x = true)) v)).
-    assert (H1 : u_bool t = true).
-    { apply u_bool_spec, Hu4; auto; intro; rew vec; apply Hv. }
+    set (t := hfs_tuple (vec_map (proj1_sig (P := U)) v)).
+    assert (H1 : U t).
+    { apply U_spec, Hu4; auto; intro; rew vec; apply Hv. }
     exists (exist _ t H1).
     apply is_tuple; simpl; reflexivity.
   Qed.
@@ -366,7 +375,7 @@ Section bt_model_n.
   Proof.
     intros x.
     exists (i x).
-    apply u_bool_spec.
+    apply U_spec.
     generalize (Hi x), Hu2; apply Hu1.
   Defined.
 
@@ -374,6 +383,8 @@ Section bt_model_n.
   Proof. unfold i', yd, mem; simpl; auto. Qed.
 
   Let s' (y : Y) : X := s (proj1_sig y).
+
+  Check mb_is_tuple.
   
   Theorem rels_hfs : { Y : Type &
                      { _ : finite_t Y & 
@@ -391,22 +402,23 @@ Section bt_model_n.
                           /\ (forall y, mem y d -> exists x, y = i x)
                           /\ (forall x, s (i x) = x)
                           /\ (forall p v, @R p v <-> mb_is_tuple_in mem (r p) (vec_map i v))
+                          /\ (forall p a, mem a (r p) -> exists v, @mb_is_tuple _ mem a (ar p) (vec_map i v))
                           /\ (forall x y, mb_equiv mem x y <-> x = y)
                       }}}}}}}}}.
   Proof.
     exists Y, HY, discrY, mem, mem_dec, yd, yr, i', s'.
-    msplit 7; auto.
+    msplit 8; auto.
     + intros (a & Ha) (b & Hb) (c & Hc); unfold mem; simpl.
       unfold mb_equiv; simpl; intros H.
       cut (a = b); [ intros []; auto | ].
       apply hfs_mem_ext.
-      apply u_bool_spec in Ha.
-      apply u_bool_spec in Hb.
+      apply U_spec in Ha.
+      apply U_spec in Hb.
       clear c Hc.
       intros x; split; intros Hx.
-      * generalize (Hu1 Hx Ha); rewrite u_bool_spec; intros H'.
+      * generalize (Hu1 Hx Ha); rewrite U_spec; intros H'.
         apply (H (exist _ x H')); auto.
-      * generalize (Hu1 Hx Hb); rewrite u_bool_spec; intros H'.
+      * generalize (Hu1 Hx Hb); rewrite U_spec; intros H'.
         apply (H (exist _ x H')); auto.
     + intros x y; unfold mem, yd; simpl; apply Hd1.
     + intros y Hy; unfold i'.
@@ -415,8 +427,8 @@ Section bt_model_n.
     + intros p v; rewrite Hr3; split.
       * intros Hv.
         red.
-        assert (H1 : u_bool (hfs_tuple (vec_map i v)) = true).
-        { apply u_bool_spec, Hu1 with (1 := Hv); auto. }
+        assert (H1 : U (hfs_tuple (vec_map i v))).
+        { apply U_spec, Hu1 with (1 := Hv); auto. }
         exists (exist _ (hfs_tuple (vec_map i v)) H1); split.
         - apply is_tuple; simpl; rewrite vec_map_map; auto.
         - unfold yr; red; simpl; auto.
@@ -424,7 +436,16 @@ Section bt_model_n.
         rewrite is_tuple in H1.
         simpl in H1, H2.
         rewrite vec_map_map in H1; subst t.
-        apply H2. 
+        apply H2.
+    + intros p (a & Ha); simpl.
+      unfold mem; simpl; intros H.
+      destruct (Hr4 _ H) as (v & Hv); subst a.
+      exists (vec_map s v).
+      rewrite vec_map_map; apply is_tuple.
+      simpl; f_equal; rewrite vec_map_map.
+      apply vec_pos_ext; intros q; rew vec; simpl.
+      destruct (Hi' (Hr2 _ H q)) as (x & ->).
+      rewrite Hs; auto.
     + intros x y; rewrite is_equiv; split; auto.
       intros; subst; auto.
   Qed.
