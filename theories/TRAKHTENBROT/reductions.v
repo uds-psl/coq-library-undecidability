@@ -9,8 +9,6 @@
 
 Require Import List Arith Bool Lia Eqdep_dec.
 
-From Undecidability Require Import ILL.Definitions.
-
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
 
@@ -37,6 +35,7 @@ From Undecidability.TRAKHTENBROT
                  Sig2_Sign                 (* Embed R_2 into R_n with n >= 2 *)
                  Sign_Sig                  (* Embed R_n into Σ where R_n occurs in Σ *)
                  Sig_Sig2                  (* Embed discrete Σ into Σ2 = (ø,{R_2}) *)
+                 Sig_Sig_fin               (* Alternate path: Σ -> Σfin -> Σ2 *)
                  .
 
 Set Implicit Arguments.
@@ -91,13 +90,27 @@ Set Implicit Arguments.
 
 (** Sometimes the dependent statement is more convenient *)
 
+Definition reduces X Y (P : X -> Prop) (Q : Y -> Prop) :=
+        { f : X -> Y | forall x, P x <-> Q (f x) }.
+
+Infix "⪯" := reduces (at level 70).
+
+Fact reduces_transitive X P Y Q Z K :
+        @reduces X Y P Q -> @reduces Y Z Q K -> P ⪯ K.
+Proof. 
+  intros (f & Hf) (g & Hg).
+  exists (fun x => g (f x)).
+  intro; rewrite Hf, Hg; tauto.
+Qed.
+
 Fact reduction_dependent X Y (P : X -> Prop) (Q : Y -> Prop) :
-        P ⪯ Q <-> inhabited (forall x, { y | P x <-> Q y }).
+         (P ⪯ Q -> forall x, { y | P x <-> Q y })
+       * ((forall x, { y | P x <-> Q y }) -> P ⪯ Q).
 Proof.
   split.
-  + intros (f & Hf); exists.
+  + intros (f & Hf).
     intros x; exists (f x); auto.
-  + intros [f].
+  + intros f.
     exists (fun x => proj1_sig (f x)).
     intros; apply (proj2_sig (f x)).
 Qed.
@@ -150,7 +163,7 @@ Section FIN_DEC_EQ_SAT_FIN_DEC_SAT.
     intros A; split.
     + intros (X & HX); exists X; revert HX.
       apply Σ_noeq_sound.
-    + apply Σ_noeq_complete; auto.
+    + apply Σ_noeq_complete; cbv; auto.
   Qed.
 
 End FIN_DEC_EQ_SAT_FIN_DEC_SAT.
@@ -174,7 +187,7 @@ Section BPCP_fo_fin_dec_SAT.
 
   Theorem BPCP_FIN_DEC_EQ_SAT : BPCP_problem ⪯ @fo_form_fin_dec_eq_SAT Σbpcp Σbpcp_eq eq_refl.
   Proof.
-    apply reduction_dependent; exists; intros lc.
+    apply reduction_dependent; intros lc.
     exists (Σbpcp_encode lc); split.
     + intros (l & Hl); revert Hl; apply Σbpcp_encode_sound.
     + apply Σbpcp_encode_complete.
@@ -207,7 +220,7 @@ Print Assumptions BPCP_FSAT_Σbpcp.
 
 Section FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
 
-  Variable (Σ : fo_signature) (HΣ : finite (syms Σ) + discrete (syms  Σ)).
+  Variable (Σ : fo_signature) (HΣ : finite_t (syms Σ) + discrete (syms  Σ)).
 
   Theorem FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT :
           @fo_form_fin_discr_dec_SAT Σ
@@ -230,7 +243,7 @@ Section FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
       
 End FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
 
-Corollary FSAT_Σnosyms Σ : finite (syms Σ) -> FSAT Σ ⪯ FSAT (Σnosyms Σ).
+Corollary FSAT_Σnosyms Σ : finite_t (syms Σ) -> FSAT Σ ⪯ FSAT (Σnosyms Σ).
 Proof.
   intros H.
   apply reduces_transitive with (1 := FIN_DEC_SAT_FIN_DISCR_DEC_SAT _).
@@ -262,7 +275,7 @@ Proof.
   + apply Σuniformize_sound; auto.
   + intros H; generalize H.
     intros (_ & _ & _ & phi & _).
-    revert H; apply Σuniformize_complete; auto.
+    revert H; apply Σuniformize_complete; cbv; auto.
 Qed.
 
 Print Σunif.
@@ -281,7 +294,7 @@ Print Assumptions FSAT_UNIFORM.
 Theorem FSAT_ONE_REL Σ n :
              (syms Σ -> False)
           -> (forall r : rels Σ, ar_rels _ r = n)
-          -> finite (rels Σ)
+          -> finite_t (rels Σ)
           -> FSAT Σ ⪯ FSAT (Σone_rel Σ n).
 Proof.
   intros Hs Hn (lr & Hr).
@@ -317,8 +330,7 @@ Theorem FSAT_NOCST Σ :
           -> discrete (syms Σ)
           -> FSAT Σ ⪯ FSAT (Σrem_cst Σ).
 Proof.
-  intros H1 H2.
-  apply reduction_dependent; exists.
+  intros; apply reduction_dependent.
   apply Sig_rem_cst_dep_red; auto.
 Qed.
 
@@ -390,7 +402,7 @@ Theorem FSAT_REL_2ton n :
               -> FSAT (Σrel 2)
                            ⪯ FSAT (Σrel n).
 Proof.
-  revert n; intros [ | [ | n ] ] H; try lia.
+  revert n; intros [ | [ | n ] ] H; try (exfalso; lia).
   exists (Σ2_Σn n); intros A; split.
   + apply Σ2_Σn_soundness.
   + apply Σ2_Σn_completeness.
@@ -417,10 +429,10 @@ Print Assumptions FSAT_RELn_ANY.
 Section FINITARY_TO_BINARY.
 
   Variable (Σ : fo_signature)
-           (HΣ1 : finite (syms Σ)) (HΣ2 : discrete (syms Σ))
-           (HΣ3 : finite (rels Σ)) (HΣ4 : discrete (rels Σ)).
+           (HΣ1 : finite_t (syms Σ)) (HΣ2 : discrete (syms Σ))
+           (HΣ3 : finite_t (rels Σ)) (HΣ4 : discrete (rels Σ)).
 
-  Let max_syms : exists n, forall s, ar_syms Σ s <= n.
+  Let max_syms : { n | forall s, ar_syms Σ s <= n }.
   Proof. 
     destruct HΣ1 as (l & Hl).
     exists (lmax (map (ar_syms _) l)).
@@ -428,7 +440,7 @@ Section FINITARY_TO_BINARY.
     exists s; auto.
   Qed.
 
-  Let max_rels : exists n, forall s, ar_rels Σ s <= n.
+  Let max_rels : { n | forall s, ar_rels Σ s <= n }.
   Proof. 
     destruct HΣ3 as (l & Hl).
     exists (lmax (map (ar_rels _) l)).
@@ -436,7 +448,7 @@ Section FINITARY_TO_BINARY.
     exists r; auto.
   Qed.
 
-  Hint Resolve finite_sum finite_t_finite finite_t_unit.
+  Hint Resolve finite_t_sum finite_sum finite_t_finite finite_t_unit.
 
   Theorem FINITARY_TO_BINARY : FSAT Σ ⪯ FSAT (Σrel 2).
   Proof.
@@ -475,7 +487,7 @@ Section DISCRETE_TO_BINARY.
 
   Theorem DISCRETE_TO_BINARY : FSAT Σ ⪯ FSAT (Σrel 2).
   Proof.
-    apply reduction_dependent; exists.
+    apply reduction_dependent.
     intros A; exists (Σ_Σ2_enc HΣ1 HΣ2 A); split.
     + intros H; apply SAT_SAT2, fo_form_fin_dec_SAT_discr_equiv; auto.
     + apply SAT2_SAT.
@@ -486,9 +498,29 @@ End DISCRETE_TO_BINARY.
 Check DISCRETE_TO_BINARY.
 Print Assumptions DISCRETE_TO_BINARY.
 
+Section DISCRETE_TO_BINARY_ALT.
+
+  Variable (Σ : fo_signature)
+           (HΣ1 : discrete (syms Σ))
+           (HΣ2 : discrete (rels Σ)).
+
+  Theorem DISCRETE_TO_BINARY_ALT : FSAT Σ ⪯ FSAT (Σrel 2).
+  Proof.
+    apply reduction_dependent.
+    intros A.
+    destruct (Σ_finite HΣ1 HΣ2 A) as (Σ' & H1 & H2 & H3 & H4 & B & HB).
+    destruct (FINITARY_TO_BINARY _ H1 H3 H2 H4) as (f & Hf).
+    exists (f B); rewrite <- Hf, HB; tauto.
+  Qed.
+
+End DISCRETE_TO_BINARY_ALT.
+
+Check DISCRETE_TO_BINARY_ALT.
+Print Assumptions DISCRETE_TO_BINARY_ALT.
+
 Section FULL_TRAKHTENBROT.
 
-  Let finite_bpcp_syms : finite Σbpcp_syms.
+  Let finite_t_bpcp_syms : finite_t Σbpcp_syms.
   Proof. 
     exists (Σbpcp_bool true::Σbpcp_bool false::Σbpcp_unit::Σbpcp_undef::nil).
     intros [ [] | | ]; simpl; auto.
@@ -497,7 +529,7 @@ Section FULL_TRAKHTENBROT.
   Let discrete_bpcp_syms : discrete Σbpcp_syms.
   Proof. red; repeat decide equality. Qed.
 
-  Let finite_bpcp_rels : finite Σbpcp_rels.
+  Let finite_t_bpcp_rels : finite_t Σbpcp_rels.
   Proof. 
     exists (Σbpcp_hand::Σbpcp_ssfx::Σbpcp_eq::nil).
     intros []; simpl; auto.

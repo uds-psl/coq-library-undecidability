@@ -291,6 +291,7 @@ TRAKHTENBROT/Sig_uniform.v
 TRAKHTENBROT/Sig_rem_cst.v
 TRAKHTENBROT/Sig_one_rel.v
 TRAKHTENBROT/Sig_Sig2.v
+TRAKHTENBROT/Sig_Sig_fin.v
 
 TRAKHTENBROT/reductions.v
 
