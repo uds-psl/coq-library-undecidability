@@ -9,6 +9,9 @@
 
 Require Import List Arith Bool Lia Eqdep_dec.
 
+From Undecidability.Problems
+  Require Import PCP.
+
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
 
@@ -88,7 +91,9 @@ Set Implicit Arguments.
 
 *)
 
-(** Sometimes the dependent statement is more convenient *)
+(** We prove informative reductions in here ... I know
+    that all of the reductions I did implement in this
+    library are informative as well !! @DLW *)
 
 Definition reduces X Y (P : X -> Prop) (Q : Y -> Prop) :=
         { f : X -> Y | forall x, P x <-> Q (f x) }.
@@ -102,6 +107,8 @@ Proof.
   exists (fun x => g (f x)).
   intro; rewrite Hf, Hg; tauto.
 Qed.
+
+(** Sometimes the dependent statement is more convenient *)
 
 Fact reduction_dependent X Y (P : X -> Prop) (Q : Y -> Prop) :
          (P ⪯ Q -> forall x, { y | P x <-> Q y })
@@ -178,12 +185,28 @@ Print Assumptions FIN_DEC_EQ_SAT_FIN_DEC_SAT.
        BPCP --> SAT({f_1,g_1,a_0,b_0},{P_2,≡_2,≺_2},𝔽,ℂ)
   *)
 
+Definition BPCP_input := list (list bool * list bool).
+Definition BPCP_problem (lc : BPCP_input) := exists l, pcp_hand lc l l.
+
+Theorem pcp_hand_derivable X lc u l : @pcp_hand X lc u l <-> derivable lc u l.
+Proof. split; (induction 1; [ constructor 1 | constructor 2 ]; auto). Qed.
+
+(** BPCP as defined in Problems/PCP.v is equivalent to BPCP_problem here *)
+
+Theorem BPCP_BPCP_problem lc : BPCP_problem lc <-> BPCP lc.
+Proof.
+  unfold BPCP_problem; split.
+  + intros (l & Hl).
+    apply pcp_hand_derivable, derivable_BPCP in Hl.
+    destruct Hl as (A & ? & ? & <- & ?); exists A; auto.
+  + intros (A & ? & ? & ?).
+    exists (tau2 A); apply pcp_hand_derivable, BPCP_derivable.
+    exists A; auto.
+Qed.
+
 Section BPCP_fo_fin_dec_SAT.
 
-  Definition BPCP_input := list (list bool * list bool).
   Definition FIN_SAT_input := fol_form Σbpcp.
-
-  Definition BPCP_problem (lc : BPCP_input) := exists l, pcp_hand lc l l.
 
   Theorem BPCP_FIN_DEC_EQ_SAT : BPCP_problem ⪯ @fo_form_fin_dec_eq_SAT Σbpcp Σbpcp_eq eq_refl.
   Proof.
@@ -509,7 +532,7 @@ Section DISCRETE_TO_BINARY_ALT.
     apply reduction_dependent.
     intros A.
     destruct (Σ_finite HΣ1 HΣ2 A) as (Σ' & H1 & H2 & H3 & H4 & B & HB).
-    destruct (FINITARY_TO_BINARY _ H1 H3 H2 H4) as (f & Hf).
+    destruct (FINITARY_TO_BINARY H1 H3 H2 H4) as (f & Hf).
     exists (f B); rewrite <- Hf, HB; tauto.
   Qed.
 
