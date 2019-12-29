@@ -353,16 +353,395 @@ Section decidable_fun_finite_bool.
 
 End decidable_fun_finite_bool.
 
-Theorem FSAT_in_dec (Σ : fo_signature) (A : fol_form Σ) X :
-           discrete (syms Σ)
-        -> discrete (rels Σ)
-        -> finite_t X
-        -> discrete X
-        -> decidable (@fo_form_fin_dec_SAT_in Σ A X).
-Proof.
-  (** There are finitely many decidable models upto equivalence (wrt sem A) 
-      There is SOME WORK in HERE *)
-Admitted.
+Section decidable_upto.
+
+  Variable (X : Type) (R : X -> X -> Prop) 
+           (P : X -> Prop) (HP : forall x, decidable (P x))
+           (HR : forall x y, R x y -> P x <-> P y).
+
+  Theorem decidable_list_upto_fa l :
+             (forall x, exists y, In y l /\ R x y)
+          -> decidable (forall x, P x).
+  Proof.
+    intros Hl.
+    destruct list_dec with (P := fun x => ~ P x) (Q := P) (l := l)
+      as [ (x & H1 & H2) | H ].
+    + intros x; generalize (HP x); unfold decidable; tauto.
+    + right; contradict H2; auto.
+    + left; intros x.
+      destruct (Hl x) as (y & H1 & H2).
+      generalize (H _ H1); apply (HR H2).
+  Qed.
+
+  Theorem decidable_list_upto_ex l :
+             (forall x, exists y, In y l /\ R x y)
+          -> decidable (exists x, P x).
+  Proof.
+    intros Hl.
+    destruct list_dec with (1 := HP) (l := l)
+      as [ (x & H1 & H2) | H ].
+    + left; exists x; auto.
+    + right; intros (x & Hx).
+      destruct (Hl x) as (y & H1 & H2).
+      apply (H _ H1). 
+      revert Hx; apply (HR H2).
+  Qed.
+
+End decidable_upto.
+
+Definition fun_ext X Y (f g : X -> Y) := forall x, f x = g x.
+Definition prop_ext X (f g : X -> Prop) := forall x, f x <-> g x.
+
+Section fun_pos_finite_t_upto.
+
+  Variable (X : Type) (HX : finite_t X).
+ 
+  Theorem fun_pos_finite_t_upto n : finite_t_upto (pos n -> X) (@fun_ext _ _).
+  Proof.
+    assert (H : finite_t (vec X n)).
+    { apply finite_t_vec; auto. }
+    destruct H as (l & Hl).
+    exists (map (@vec_pos _ _) l).
+    intros f. 
+    exists (vec_pos (vec_set_pos f)); split.
+    + apply in_map_iff; exists (vec_set_pos f); auto.
+    + intros p; rew vec.
+  Qed.
+
+End fun_pos_finite_t_upto.
+
+Section fun_finite_t_upto.
+
+  Variable (X : Type) (HX1 : finite_t X) (HX2 : discrete X)
+           (Y : Type) (HY : finite_t Y).
+
+  Let D : { n : nat & bij_t X (pos n) }.
+  Proof.
+    apply finite_t_discrete_bij_t_pos; auto.
+  Qed.
+
+  Theorem fun_finite_t_upto : finite_t_upto (X -> Y) (@fun_ext _ _).
+  Proof.
+    destruct finite_t_discrete_bij_t_pos with X
+      as (n & i & j & Hji & Hij); auto.
+    destruct fun_pos_finite_t_upto with Y n
+      as (l & Hl); auto.
+    exists (map (fun f x => f (i x)) l).
+    intros f.
+    destruct (Hl (fun p => f (j p))) as (g & H1 & H2).
+    exists (fun x => g (i x)); split.
+    + apply in_map_iff; exists g; auto.
+    + intros x.
+      red in H2.
+      rewrite <- (Hji x) at 1; auto.
+  Qed.
+
+End fun_finite_t_upto.
+
+Section dec_pred_finite_t_upto.
+
+  Variable (X : Type) (HX1 : finite_t X) (HX2 : discrete X).
+
+  Hint Resolve finite_t_bool.
+
+  Let bool_prop (f : X -> bool) : { p : X -> Prop & forall x, decidable (p x) }.
+  Proof.
+    exists (fun x => f x = true).
+    intro; apply bool_dec.
+  Defined.
+
+  Theorem pred_finite_t_upto : finite_t_upto { p : X -> Prop & forall x, decidable (p x) }
+                               (fun p q => prop_ext (projT1 p) (projT1 q)).
+  Proof.
+    destruct fun_finite_t_upto with X bool as (l & Hl); auto.
+    exists (map bool_prop l).
+    intros (p & Hp).
+    destruct (Hl (fun x => if Hp x then true else false)) as (f & H1 & H2).
+    exists (bool_prop f); split.
+    + apply in_map_iff; exists f; auto.
+    + simpl; intros x; red in H2.
+      rewrite <- H2.
+      destruct (Hp x); split; auto; discriminate.
+  Qed.
+
+End dec_pred_finite_t_upto.
+
+Section enum_val.
+
+  Variable (X : Type) 
+           (HX1 : finite_t X)
+           (HX2 : discrete X) (x : X).
+
+  Implicit Type (ln : list nat).
+
+  Let R ln : (nat -> X) -> (nat -> X) -> Prop.
+  Proof.
+    intros f g.
+    exact ( forall n, In n ln -> f n = g n ).
+  Defined.
+
+  Let combine (n : nat) : (X * (nat -> X)) -> nat -> X.
+  Proof.
+    intros (x', f) m.
+    destruct (eq_nat_dec n m).
+    + exact x'.
+    + apply (f m).
+  Defined.
+
+  Theorem enum_valuations ln : finite_t_upto _ (R ln).
+  Proof.
+    induction ln as [ | n ln IH ].
+    + exists ((fun _ => x)::nil).
+      intros f; exists (fun _ => x); split; simpl; auto.
+      intros ? [].
+    + destruct HX1 as (l & Hl).
+      destruct IH as (m & Hm).
+      exists (map (combine n) (list_prod l m)).
+      intros f.
+      destruct (Hm f) as (g & H1 & H2).
+      exists (combine n (f n,g)); split.
+      * apply in_map_iff; exists (f n,g); split; auto.
+        apply list_prod_spec; auto.
+      * intros n' [ <- | Hn' ].
+        - unfold combine.
+          destruct (eq_nat_dec n n) as [ | [] ]; auto.
+        - unfold combine.
+          destruct (eq_nat_dec n n') as [ E | D ]; auto.
+  Qed.
+
+End enum_val.
+
+Section enum_sig.
+
+  Variable (syms : Type) (ar : syms -> nat) (Hsyms : discrete syms)
+           (X : Type) 
+           (HX1 : finite_t X)
+           (HX2 : discrete X)
+           (Y : Type) (HY : finite_t Y) (y : Y).
+
+  Implicit Type (ls : list syms).
+
+  Let R ls : (forall s, vec X (ar s) -> Y) -> (forall s, vec X (ar s) -> Y) -> Prop.
+  Proof.
+    intros s1 s2.
+    exact ( (forall s, In s ls -> forall v, @s1 s v = s2 s v) ).
+  Defined.
+
+  Hint Resolve finite_t_vec vec_eq_dec.
+
+  Let funs := forall s, vec X (ar s) -> Y.
+
+  Let fun_combine s (f : vec X (ar s) -> Y) (g : funs) : funs.
+  Proof.
+    intros s'.
+    destruct (Hsyms s s').
+    + subst s; exact f.
+    + apply g.
+  Defined. 
+
+  Theorem enum_sig ls : finite_t_upto funs (R ls).
+  Proof.
+    induction ls as [ | s ls IH ].
+    + exists ((fun _ _ => y) :: nil).
+      intros f; exists (fun _ _ => y); split; simpl; auto.
+      intros ? [].
+    + destruct IH as (m & Hm).
+      destruct fun_finite_t_upto with (vec X (ar s)) Y
+        as (l & Hl); auto.
+      * red; apply vec_eq_dec; auto.
+      * exists (map (fun p => fun_combine (fst p) (snd p)) (list_prod l m)).
+        intros f.
+        destruct (Hl (f s)) as (f' & H1 & H2).
+        destruct (Hm f) as (g & H3 & H4).
+        exists (fun_combine f' g); split.
+        - apply in_map_iff; exists (f',g); split; auto.
+          apply list_prod_spec; simpl; auto.
+        - intros s' [ <- | Hs ] v.
+          ++ red in H2; rewrite H2.
+             unfold fun_combine.
+             destruct (Hsyms s s) as [ E | [] ]; auto.
+             rewrite (UIP_dec Hsyms E eq_refl); auto.
+          ++ unfold fun_combine.
+             destruct (Hsyms s s') as [ E | D ].
+             ** subst; cbn; apply H2.
+             ** apply H4; auto.
+  Qed.
+
+End enum_sig.
+
+Section enum_models.
+
+  Variables (Σ : fo_signature)
+            (HΣ1 : discrete (syms Σ))
+            (HΣ2 : discrete (rels Σ))
+            (X : Type) 
+            (HX1 : finite_t X)
+            (HX2 : discrete X) (x : X)
+            (ls : list (syms Σ))
+            (lr : list (rels Σ))
+            (ln : list nat).
+
+  Let funs := (forall s, vec X (ar_syms Σ s) -> X).
+
+  Let Rs : funs -> funs -> Prop.
+  Proof.
+    intros s1 s2.
+    exact ( (forall s, In s ls -> forall v, s1 s v = s2 s v) ).
+  Defined.
+
+  Let enum_funs : finite_t_upto funs Rs.
+  Proof. apply enum_sig; auto. Qed.
+ 
+  Let rels := { r : forall s, vec X (ar_rels Σ s) -> Prop & forall s v, decidable (r s v) }.
+
+  Let Rr : rels -> rels -> Prop.
+  Proof.
+   intros (r1 & ?) (r2 & ?).
+   exact ( (forall r, In r lr -> forall v, @r1 r v <-> r2 r v) ).
+  Defined.
+
+  Hint Resolve finite_t_bool.
+
+  Let bool_prop (f : forall r, vec X (ar_rels Σ r) -> bool) : rels.
+  Proof.
+    exists (fun r v => f r v = true).
+    intros; apply bool_dec.
+  Defined.
+
+  Let enum_rels : finite_t_upto rels Rr.
+  Proof.
+    destruct enum_sig with (ar := ar_rels Σ) (X := X) (Y := bool) (ls := lr)
+      as (l & Hl) ; auto.
+    { exact true. }
+    exists (map bool_prop l).
+    intros (f & Hf).
+    set (g := fun r v => if Hf r v then true else false).
+    destruct (Hl g) as (g' & H1 & H2).
+    exists (bool_prop g'); split.
+    + apply in_map_iff; exists g'; auto.
+    + simpl; intros r Hr v.
+      rewrite <- H2; auto.
+      unfold g.
+      destruct (Hf r v); split; auto; discriminate.
+  Qed.
+
+  Let model := { M : fo_model Σ X & 
+               { _ : nat -> X & fo_model_dec M } }.
+
+  Local Definition FO_model_equiv : model -> model -> Prop.
+  Proof.
+    intros ((s1,r1) & rho1 & H1 ) ((s2,r2) & rho2 & H2).
+    exact (  (forall s, In s ls -> forall v, s1 s v = s2 s v) 
+          /\ (forall r, In r lr -> forall v, @r1 r v <-> r2 r v) 
+          /\ (forall n, In n ln -> rho1 n = rho2 n) ).
+  Defined.
+
+  Let combine : (funs * rels * (nat -> X)) -> model.
+  Proof.
+    intros ((f,(g & Hg)),rho).
+    exists {| fom_syms := f; fom_rels := g |}, rho; auto.
+  Defined.
+
+  Theorem enum_model_dec : finite_t_upto _ FO_model_equiv.
+  Proof.
+    destruct enum_funs as (lf & H1).
+    destruct enum_rels as (lg & H2).
+    destruct enum_valuations with X ln
+      as (lrho & H3); auto.
+    exists (map combine (list_prod (list_prod lf lg) lrho)).
+    intros ((f,g) & rho & Hg).
+    destruct (H1 f) as (f' & G1 & G2).
+    destruct (H2 (existT _ g Hg)) as ((g' & Hg') & G3 & G4).
+    destruct (H3 rho) as (phi & G5 & G6).
+    exists (existT _ {| fom_syms := f'; fom_rels := g' |} (existT _ phi Hg')); simpl; split.
+    + apply in_map_iff. 
+      exists ((f',existT _ g' Hg'),phi); split; auto.
+      apply list_prod_spec; split; auto.
+      apply list_prod_spec; simpl; auto.
+    + split; auto.
+  Qed.
+
+  Local Definition FO_sem : model -> fol_form Σ -> Prop.
+  Proof.
+    intros (M & rho & _) A.
+    exact (fol_sem M rho A).
+  Defined.
+  
+  Theorem R_sem (M1 M2 : model) A : 
+             FO_model_equiv M1 M2 
+          -> incl (fol_vars A) ln
+          -> incl (fol_syms A) ls
+          -> incl (fol_rels A) lr
+          -> FO_sem M1 A <-> FO_sem M2 A.
+  Proof.
+    intros H1 H2 H3 H4.
+    destruct M1 as ((s1&r1) & rho1 & G1).
+    destruct M2 as ((s2&r2) & rho2 & G2).
+    simpl in H1 |- *.
+    apply fo_model_projection' with (i := fun x => x) (j := fun x => x) (ls := ls) (lr := lr); auto.
+    + intros s v Hs.
+      replace (vec_map (fun x => x) v) with v; simpl; auto.
+      * apply H1; auto.
+      * apply vec_pos_ext; intro; rew vec.
+    + intros r v Hr.
+      replace (vec_map (fun x => x) v) with v.
+      * apply H1; auto.
+      * apply vec_pos_ext; intro; rew vec.
+    + intros n Hn; apply H1; auto.
+  Qed.
+
+  Theorem FSAT_eq A : @fo_form_fin_dec_SAT_in Σ A X <-> exists M, FO_sem M A.
+  Proof.
+    split.
+    + intros (M & H1 & H2 & rho & H3).
+      exists (existT _ M (existT _ rho H2)); simpl; auto.
+    + intros ((M & rho & H1) & H2).
+      exists M, HX1, H1, rho; auto.
+  Qed.
+
+End enum_models.
+
+Section FSAT_in_dec.
+
+  (** Given a fixed finite and discrete type X and a discrete signature Σ,
+      having a Σ-model over that base type X is a decidable property *)
+
+  Variables (Σ : fo_signature)
+            (HΣ1 : discrete (syms Σ))
+            (HΣ2 : discrete (rels Σ))
+            (X : Type) 
+            (HX1 : finite_t X)
+            (HX2 : discrete X)
+            (A : fol_form Σ).
+
+  Theorem FSAT_in_dec : decidable (@fo_form_fin_dec_SAT_in Σ A X).
+  Proof.
+    destruct HX1 as ([ | x l ] & Hl).
+    + right; intros (M & _ & _ & rho & _).
+      apply (Hl (rho 0)).
+    + clear l Hl.
+      assert (H : decidable (exists M, @FO_sem _ X M A)).
+      { destruct enum_model_dec 
+          with (X := X) 
+               (ls := fol_syms A) 
+               (lr := fol_rels A) 
+               (ln := fol_vars A)
+          as (lM & HlM); auto.
+        apply decidable_list_upto_ex 
+          with (l := lM) 
+               (R := FO_model_equiv (fol_syms A) 
+                                    (fol_rels A) 
+                                    (fol_vars A)); auto.
+        * intros (M & rho & H); simpl; apply fol_sem_dec; auto.
+        * intros ? ? ?; eapply R_sem.
+          2-4: apply incl_refl.
+          trivial. }
+      destruct H as [ H | H ]; [ left | right ].
+      * revert H; apply FSAT_eq; auto.
+      * contradict H; revert H; apply FSAT_eq; auto.
+  Qed.
+
+End FSAT_in_dec.
 
 (** Monadic FO logic with n unary rels and no function symbols 
     has a decidable FSAT *)
