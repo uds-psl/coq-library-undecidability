@@ -39,6 +39,7 @@ From Undecidability.TRAKHTENBROT
                  Sign_Sig                  (* Embed R_n into Σ where R_n occurs in Σ *)
                  Sig_Sig2                  (* Embed discrete Σ into Σ2 = (ø,{R_2}) *)
                  Sig_Sig_fin               (* Alternate path: Σ -> Σfin -> Σ2 *)
+                 Sig2_Sig21                (* Embed Σ2 = (ø,{R_2}) into Σ21 = ({f_2},{P_1}) *)
                  .
 
 Set Implicit Arguments.
@@ -417,6 +418,20 @@ Qed.
 
 Check FSAT_REL_nto2.
 Print Assumptions FSAT_REL_nto2.
+
+Print Σ21.
+
+Theorem FSAT_REL2_to_FUN2REL1 : FSAT (Σrel 2) ⪯ FSAT Σ21.
+Proof.
+  exists Σ2_Σ21_enc; intros A; split.
+  + intros (X & M2 & H1 & H2 & phi & H3).
+    apply Σ2_Σ21_enc_sound with (1 := H3); auto.
+  + intros (Y & M21 & H1 & H2 & psi & H3).
+    apply Σ2_Σ21_enc_complete with (2 := H3); auto.
+Qed.
+
+Check FSAT_REL2_to_FUN2REL1.
+Print Assumptions FSAT_REL2_to_FUN2REL1.
 
 (*      SAT(∅,{R_2},𝔽,ℂ) ---> SAT(∅,{R_(2+n)},𝔽,ℂ)           *)
 
