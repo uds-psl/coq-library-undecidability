@@ -40,6 +40,7 @@ From Undecidability.TRAKHTENBROT
                  Sig_Sig2                  (* Embed discrete Σ into Σ2 = (ø,{R_2}) *)
                  Sig_Sig_fin               (* Alternate path: Σ -> Σfin -> Σ2 *)
                  Sig2_Sig21                (* Embed Σ2 = (ø,{R_2}) into Σ21 = ({f_2},{P_1}) *)
+                 Sig2_SigSSn1              (* Embed Σ2 = (ø,{R_2}) into ΣSSn1 = ({f_(2+n)},{P_1}) *)
                  .
 
 Set Implicit Arguments.
@@ -432,6 +433,21 @@ Qed.
 
 Check FSAT_REL2_to_FUN2REL1.
 Print Assumptions FSAT_REL2_to_FUN2REL1.
+
+Print Σn1.
+
+Theorem FSAT_REL2_to_FUNnREL1 n : 2 <= n -> FSAT (Σrel 2) ⪯ FSAT (Σn1 n).
+Proof.
+  intros Hn; destruct n as [ | [ | n ] ]; try (exfalso; lia); clear Hn.
+  exists (Σ2_ΣSSn1_enc n); intros A; split.
+  + intros (X & M2 & H1 & H2 & phi & H3).
+    apply Σ2_ΣSSn1_enc_sound with (1 := H3); auto.
+  + intros (Y & M21 & H1 & H2 & psi & H3).
+    apply Σ2_ΣSSn1_enc_complete with (2 := H3); auto.
+Qed.
+
+Check FSAT_REL2_to_FUNnREL1.
+Print Assumptions FSAT_REL2_to_FUNnREL1.
 
 (*      SAT(∅,{R_2},𝔽,ℂ) ---> SAT(∅,{R_(2+n)},𝔽,ℂ)           *)
 

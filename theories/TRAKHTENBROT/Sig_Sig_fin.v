@@ -285,7 +285,7 @@ Section discrete_to_finite.
     exists B.
     revert B HB.
     generalize (fol_syms A) (fol_rels A); intros ls lr B ->.
-    symmetry; apply  Σ_finite_rev_correct.
+    symmetry; apply Σ_finite_rev_correct.
   Qed.
 
 End discrete_to_finite.
