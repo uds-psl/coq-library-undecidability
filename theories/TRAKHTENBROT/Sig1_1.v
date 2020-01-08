@@ -22,6 +22,51 @@ Set Implicit Arguments.
 
 Local Notation ø := vec_nil.
 
+Section fot_word_var.
+
+  Variable (X : Type).
+
+  Implicit Type t : fo_term (fun _ : X => 1).
+
+  Fixpoint fot_var t :=
+    match t with
+      | in_var i   => i
+      | in_fot s v => fot_var (vec_pos v pos0)
+    end.
+
+  Fixpoint fot_word t :=
+    match t with
+      | in_var i   => nil
+      | in_fot s v => s::fot_word (vec_pos v pos0)
+    end.
+
+(*  Fact fot_word_map σ t : fot_word (fo_term_map σ t) = fot_word t. 
+  Proof.
+    induction t as [ i | s v IHv ]; simpl; f_equal.
+    rewrite vec_pos_map; auto.
+  Qed. *)
+
+  Fixpoint fot_word_var w i : fo_term (fun _ : X => 1) :=
+    match w with
+      | nil  => in_var i
+      | s::w => in_fot s (fot_word_var w i##ø)
+    end.
+
+  Fact fot_word_var_eq t : t = fot_word_var (fot_word t) (fot_var t).
+  Proof.
+    induction t as [ | s v IH ]; simpl in *; auto; f_equal.
+    generalize (IH pos0); clear IH; vec split v with t; vec nil v; clear v; simpl.
+    intro; f_equal; auto.
+  Qed.
+
+  Fact fot_word_eq w i : fot_word (fot_word_var w i) = w.
+  Proof. induction w; simpl; f_equal; auto. Qed.
+
+  Fact fot_var_eq w i : fot_var (fot_word_var w i) = i.
+  Proof. induction w; simpl; f_equal; auto. Qed.
+
+End fot_word_var.
+
 Section ΣF1P1_term.
 
   Variable (X Y : Type).
@@ -33,14 +78,10 @@ Section ΣF1P1_term.
     + exact 1.
   Defined.
 
-  Fixpoint ΣF1P1_word (t : fo_term (ar_syms ΣF1P1)) :=
-    match t with
-      | in_var i   => nil
-      | in_fot s v => s::ΣF1P1_word (vec_pos v pos0)
-    end.
+  Implicit Type t : fo_term (ar_syms ΣF1P1).
 
-  Fact ΣF1P1_word_map σ t : 
-    ΣF1P1_word (fo_term_map σ t) = ΣF1P1_word t. 
+  Fact fot_word_map σ t : 
+    fot_word (fo_term_map σ t) = fot_word t. 
   Proof.
     induction t as [ i | s v IHv ]; simpl; f_equal.
     rewrite vec_pos_map; auto.
@@ -49,7 +90,7 @@ Section ΣF1P1_term.
   Fixpoint ΣF1P1_words (A : fol_form ΣF1P1) : list (list X) :=
     match A with 
       | ⊥              => nil
-      | fol_atom r v   => (ΣF1P1_word (vec_pos v pos0))::nil
+      | fol_atom r v   => (fot_word (vec_pos v pos0))::nil
       | fol_bin _ A B  => ΣF1P1_words A++ΣF1P1_words B
       | fol_quant _ A  => ΣF1P1_words A
     end.
@@ -58,58 +99,54 @@ End ΣF1P1_term.
 
 Section Σfull_mon_rem.
 
-  Variable (n m : nat).
+  Variable (m n : nat).
 
   Notation Σ := (ΣF1P1 (pos n) (pos m)).
   Notation Σ' := (ΣF1P1 (pos n) (pos (S m))).
 
-  Variable (s : pos n) (r : pos m).
+  Variable (r : pos m) (s : pos n) (w : list (pos n)).
 
-  Fixpoint Σfull_mon_rec (t : fo_term (ar_syms Σ)) (A : fol_form Σ) : fol_form Σ' :=
+  Check list_eq_dec.
+
+  Fixpoint Σfull_mon_rec (A : fol_form Σ) : fol_form Σ' :=
     match A with
       | ⊥              => ⊥
       | fol_atom r' v  => 
       match pos_eq_dec r r' with
         | left E  => 
-        match eq_fo_term_dec (@pos_eq_dec n) (vec_head v) (@in_fot _ _ s (t##ø)) with
-          | left  _ => @fol_atom Σ' pos0 (t##ø)
+        match list_eq_dec (@pos_eq_dec n) (fot_word (vec_head v)) (s::w) with
+          | left  _ => @fol_atom Σ' pos0 (fot_word_var w (fot_var (vec_head v))##ø)
           | right _ => @fol_atom Σ' (pos_nxt r') v
         end
         | right _ => @fol_atom Σ' (pos_nxt r') v
       end
-      | fol_bin b A B => fol_bin b (Σfull_mon_rec t A) (Σfull_mon_rec t B)
-      | fol_quant q A => fol_quant q (Σfull_mon_rec (fo_term_map S t) A)
+      | fol_bin b A B => fol_bin b (Σfull_mon_rec A) (Σfull_mon_rec B)
+      | fol_quant q A => fol_quant q (Σfull_mon_rec A)
     end.
 
-  Fact Σfull_mon_rec_words_1 t A : incl (ΣF1P1_words (Σfull_mon_rec t A)) 
-                                        (ΣF1P1_word t :: ΣF1P1_words A).
+  Fact Σfull_mon_rec_words_1 A : incl (ΣF1P1_words (Σfull_mon_rec A)) 
+                                      (w :: ΣF1P1_words A).
   Proof.
-    revert t; induction A as [ | r' v | b A HA B HB | q A HA ]; intros t.
+    induction A as [ | r' v | b A HA B HB | q A HA ].
     + simpl; intros ? [].
     + simpl; destruct (pos_eq_dec r r') as [ <- | H1 ].
       2: { simpl; intros ? [ [] | [] ]; right; simpl; auto. }
-      simpl in v, t |- *.
-      destruct (eq_fo_term_dec (@pos_eq_dec n) (vec_head v) (in_fot s (t##ø)))
+      simpl in v |- *.
+      destruct (list_eq_dec (@pos_eq_dec n) (fot_word (vec_head v)) (s::w))
         as [ H2 | H2 ].
       * revert H2; vec split v with q; vec nil v; clear v; simpl; intros ->.
+        simpl; rewrite (fot_word_eq w (fot_var q)).
         simpl; intros ? [ <- | [] ]; left; auto.
       * simpl; intros ? [ [] | [] ]; right; simpl; auto.
     + simpl; intros x; simpl; rewrite !in_app_iff.
       intros [ H | H ]; [ apply HA in H | apply HB in H ]; revert H; simpl; tauto.
-    + simpl; intros x Hx.
-      apply HA in Hx.
-      simpl in Hx |- *.
-      rewrite ΣF1P1_word_map in Hx; auto.
+    + simpl; intros x Hx; apply HA in Hx; auto.
   Qed.
 
-  Let ws t := ΣF1P1_word (Y := pos m) (in_fot s (t##ø)).
+  Variable (A : fol_form Σ).
 
-  (* If s[t] is a maximal word then ... 
-     What diminishes ???
-   *)
-
-  Definition Σfull_mon_red t A : fol_form Σ' := 
-        Σfull_mon_rec t A 
+  Definition Σfull_mon_red : fol_form Σ' := 
+        Σfull_mon_rec A 
       ⟑ ∀ @fol_atom Σ' (pos_nxt r) (@in_fot _ (ar_syms Σ') s (£0##ø)##ø)
         ↔ @fol_atom Σ' pos0 (£0##ø).
 
@@ -127,31 +164,32 @@ Section Σfull_mon_rem.
         * exact (fom_rels M r').
     Defined.
 
-    Fact Σfull_mon_rec_sound t A φ : 
-      fol_sem M' φ (Σfull_mon_rec t A) <-> fol_sem M φ A.
+    Fact Σfull_mon_rec_sound φ : 
+      fol_sem M' φ (Σfull_mon_rec A) <-> fol_sem M φ A.
     Proof.
-      revert t φ; induction A as [ | r' v | b A HA B HB | q A HA ]; intros t φ.
+      revert φ; induction A as [ | r' v | b B HB C HC | q B HB ]; intros φ.
       + simpl; tauto.
       + simpl; destruct (pos_eq_dec r r') as [ <- | H1 ].
         2: { simpl; apply fol_equiv_ext; auto. }
-        simpl in v, t |- *.
-        destruct (eq_fo_term_dec (@pos_eq_dec n) (vec_head v) (in_fot s (t##ø)))
+        simpl in v |- *.
+        destruct (list_eq_dec (@pos_eq_dec n) (fot_word (vec_head v)) (s::w))
           as [ H2 | H2 ].
-        * simpl; revert H2; vec split v with q; vec nil v; clear v; simpl; intros ->. 
-          simpl; apply fol_equiv_ext; auto.
+        * simpl; revert H2; vec split v with q; vec nil v; clear v; simpl; intros H2. 
+          simpl; apply fol_equiv_ext; do 2 f_equal.
+          rewrite (fot_word_var_eq q) at 2.
+          rewrite H2; simpl; auto.
         * simpl; apply fol_equiv_ext; auto.
       + apply fol_bin_sem_ext; auto.
-      + simpl; apply fol_quant_sem_ext; intro; apply HA.
+      + simpl; apply fol_quant_sem_ext; intro; apply HB.
     Qed.
 
     Variable (t : fo_term (ar_syms Σ))
              (Xfin : finite_t X)
              (Mdec : fo_model_dec M)
              (φ : nat -> X)
-             (A : fol_form Σ)
              (HA : fol_sem M φ A).
 
-    Theorem Σfull_mon_rem_sound : fo_form_fin_dec_SAT_in (Σfull_mon_red t A) X.
+    Theorem Σfull_mon_rem_sound : fo_form_fin_dec_SAT_in Σfull_mon_red X.
     Proof.
       exists M', Xfin.
       exists.
@@ -179,32 +217,32 @@ Section Σfull_mon_rem.
       Hypothesis HM' : forall x, fom_rels M' pos0 (x##ø)
                              <-> fom_rels M' (pos_nxt r) (fom_syms M s (x##ø)##ø).
 
-      Fact Σfull_mon_rec_complete t A φ : 
-        fol_sem M' φ (Σfull_mon_rec t A) <-> fol_sem M φ A.
+      Fact Σfull_mon_rec_complete φ : 
+        fol_sem M' φ (Σfull_mon_rec A) <-> fol_sem M φ A.
       Proof.
-        revert t φ; induction A as [ | r' v | b A HA B HB | q A HA ]; intros t φ.
+        revert φ; induction A as [ | r' v | b B HB C HC | q B HB ]; intros φ.
         + simpl; tauto.
         + simpl; destruct (pos_eq_dec r r') as [ <- | H1 ].
           2: { simpl; apply fol_equiv_ext; auto. }
-          simpl in v, t |- *.
-          destruct (eq_fo_term_dec (@pos_eq_dec n) (vec_head v) (in_fot s (t##ø)))
+          simpl in v |- *.
+          destruct (list_eq_dec (@pos_eq_dec n) (fot_word (vec_head v)) (s::w))
             as [ H2 | H2 ].
-          * simpl; revert H2; vec split v with q; vec nil v; clear v; simpl; intros ->.
+          * simpl; revert H2; vec split v with q; vec nil v; clear v; simpl; intros H2.
             rewrite HM'. 
-            simpl; apply fol_equiv_ext; auto.
+            simpl; apply fol_equiv_ext; do 2 f_equal.
+            rewrite (fot_word_var_eq q) at 2.
+            rewrite H2; simpl; auto.
           * simpl; apply fol_equiv_ext; auto.
         + apply fol_bin_sem_ext; auto.
-        + simpl; apply fol_quant_sem_ext; intro; apply HA.
+        + simpl; apply fol_quant_sem_ext; intro; apply HB.
       Qed.
 
     End Σfull_mon_rec_complete.
 
-    Variable (t : fo_term (ar_syms Σ))
-             (Xfin : finite_t X)
+    Variable (Xfin : finite_t X)
              (M'dec : fo_model_dec M')
              (φ : nat -> X)
-             (A : fol_form Σ)
-             (HA : fol_sem M' φ (Σfull_mon_red t A)).
+             (HA : fol_sem M' φ Σfull_mon_red).
 
     Theorem Σfull_mon_rem_complete : fo_form_fin_dec_SAT_in A X.
     Proof.
@@ -219,16 +257,14 @@ Section Σfull_mon_rem.
 
   End completeness.
 
-  Variable (X : Type).
-
-  Theorem Σfull_mon_rem_correct t A :
-    fo_form_fin_dec_SAT_in A X <-> fo_form_fin_dec_SAT_in (Σfull_mon_red t A) X.
+  Theorem Σfull_mon_rem_correct X :
+    fo_form_fin_dec_SAT_in A X <-> fo_form_fin_dec_SAT_in Σfull_mon_red X.
   Proof.
     split.
     + intros (M & H1 & H2 & phi & H3).
       apply Σfull_mon_rem_sound with M phi; auto.
     + intros (M' & H1 & H2 & phi & H3).
-      apply Σfull_mon_rem_complete with M' t phi; auto.
+      apply Σfull_mon_rem_complete with M' phi; auto.
   Qed.
 
 End Σfull_mon_rem.
