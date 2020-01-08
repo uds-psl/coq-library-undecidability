@@ -691,3 +691,24 @@ Section fo_model_projection.
 
 End fo_model_projection.
 
+Section fo_model_nosyms.
+
+  Variable (Σ : fo_signature)
+           (X : Type) (M M' : fo_model Σ X) (φ : nat -> X)
+           (A : fol_form Σ)
+           (HA : fol_syms A = nil)
+           (H : forall r v, In r (fol_rels A) -> fom_rels M r v <-> fom_rels M' r v).
+
+  Theorem fo_model_nosyms : fol_sem M φ A <-> fol_sem M' φ A.
+  Proof.
+    apply fo_model_projection' with (ls := nil) (lr := fol_rels A) (i := fun x => x) (j := fun x => x); auto.
+    + intros ? ? [].
+    + intros; rewrite H; auto.
+      apply fol_equiv_ext; f_equal.
+      apply vec_pos_ext; intro; rew vec.
+    + rewrite HA; apply incl_refl.
+    + apply incl_refl.
+  Qed.
+
+End fo_model_nosyms.
+
