@@ -273,14 +273,26 @@ Section discrete_to_finite.
               { _  : finite_t (rels Σ') &
               { _  : discrete (syms Σ') &
               { _  : discrete (rels Σ') &
+              { is : syms Σ' -> syms Σ  & 
+              { _  : forall s s', is s = is s' -> s = s' &
+              { _  : forall s, ar_syms _ (is s) = ar_syms _ s &
+              { ir : rels Σ' -> rels Σ  & 
+              { _  : forall r r', ir r = ir r' -> r = r' &
+              { _  : forall r, ar_rels _ (ir r) = ar_rels _ r &
               { B  : fol_form Σ'            
-              | fo_form_fin_dec_SAT A <-> fo_form_fin_dec_SAT B } } } } } }.
+              | fo_form_fin_dec_SAT A <-> fo_form_fin_dec_SAT B } } } } } } } } } } } }.
   Proof.
     exists (Σ_fin Σ HΣ1 HΣ2 (fol_syms A) (fol_rels A)).
     exists. { apply Σ_fin_finite_syms. }
     exists. { apply Σ_fin_finite_rels. }
     exists. { apply Σ_fin_discrete_syms. }
     exists. { apply Σ_fin_discrete_rels. }
+    exists (@proj1_sig _ _).
+    exists. { intros (? & ?) (? & ?); simpl; intros ->; f_equal; apply eq_bool_pirr. }
+    exists. { intros (? & ?); reflexivity. }
+    exists (@proj1_sig _ _).
+    exists. { intros (? & ?) (? & ?); simpl; intros ->; f_equal; apply eq_bool_pirr. }
+    exists. { intros (? & ?); reflexivity. }
     destruct (@Σ_finite_full Σ HΣ1 HΣ2 (fol_syms A) (fol_rels A) A) as (B & HB); auto.
     exists B.
     revert B HB.

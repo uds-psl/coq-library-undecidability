@@ -562,7 +562,7 @@ Section DISCRETE_TO_BINARY_ALT.
   Proof.
     apply reduction_dependent.
     intros A.
-    destruct (Σ_finite HΣ1 HΣ2 A) as (Σ' & H1 & H2 & H3 & H4 & B & HB).
+    destruct (Σ_finite HΣ1 HΣ2 A) as (Σ' & H1 & H2 & H3 & H4 & _ & _ & _ & _ & _ & _ & B & HB).
     destruct (FINITARY_TO_BINARY H1 H3 H2 H4) as (f & Hf).
     exists (f B); rewrite <- Hf, HB; tauto.
   Qed.

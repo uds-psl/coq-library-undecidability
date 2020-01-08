@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Lia.
+Require Import List Arith Lia Eqdep_dec.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
@@ -54,6 +54,42 @@ Section first_order_terms.
 
   Definition fo_term_rec (P : _ -> Set) := @fo_term_rect P.
   Definition fo_term_ind (P : _ -> Prop) := @fo_term_rect P.
+
+  Print eq_rect.
+
+  Fact in_fot_inv_dep s s' v w : @in_fot s v = @in_fot s' w -> exists E : s = s', eq_rect s (fun s => vec _ (ar_syms s)) v _ E = w.
+  Proof. inversion 1; subst; exists eq_refl; auto. Qed.
+
+  Section eq_fo_term_dec.
+
+    Variable eq_syms_dec : discrete syms.
+
+    Fact in_fot_inv s v w : @in_fot s v = @in_fot s w -> v = w.
+    Proof.
+      intros H; destruct in_fot_inv_dep with (1 := H) as (E & H1).
+      rewrite (UIP_dec eq_syms_dec E eq_refl) in H1; auto.
+    Qed.
+
+    Theorem eq_fo_term_dec : discrete fo_term.
+    Proof.
+      intros t; induction t as [ i | s v IHv ]; intros [ j | s' w ].
+      + destruct (eq_nat_dec i j) as [ -> | H ]; [ left | right ]; auto.
+        contradict H; inversion H; auto.
+      + right; discriminate.
+      + right; discriminate.
+      + destruct (eq_syms_dec s s') as [ <- | H ].
+        * destruct list_dec with (P := fun p => vec_pos v p <> vec_pos w p)
+                                 (Q := fun p => vec_pos v p = vec_pos w p)
+                                 (l := pos_list (ar_syms s))
+            as [ (p & _ & H) | H ].
+          - intros p; generalize (IHv p (vec_pos w p)); tauto.
+          - right; contradict H; f_equal; revert H; apply in_fot_inv.
+          - left; f_equal; apply vec_pos_ext; intros p.
+            apply H, pos_list_prop.
+        * right; contradict H; inversion H; auto.
+    Qed.
+
+  End eq_fo_term_dec.
 
   Fixpoint fo_term_vars t :=
     match t with 
