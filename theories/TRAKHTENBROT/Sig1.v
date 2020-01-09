@@ -37,17 +37,6 @@ Section Σ1_model.
  
   Let f p (x : X) := if Mdec (r := p) (x##ø) then true else false.
 
-(*
-  Let im p b := (if in_dec bool_dec b (map (f p) lX) then true else false) = true.
-
-  Let im_f p x : im p (f p x).
-  Proof.
-    unfold im.
-    destruct (in_dec bool_dec (f p x) (map (f p) lX)) as [ | [] ]; auto.
-    apply in_map_iff; exists x; auto.
-  Qed.
-*)
-
   Let Q (v : vec bool n) := exists x, forall p, f p x = vec_pos v p.
 
   Let Q_dec v : { Q v } + { ~ Q v }.

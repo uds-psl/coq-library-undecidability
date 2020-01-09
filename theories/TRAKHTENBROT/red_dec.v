@@ -158,3 +158,46 @@ End FSAT_FULL_MONADIC_DEC.
 
 Check FSAT_FULL_MONADIC_DEC.
 Print Assumptions FSAT_FULL_MONADIC_DEC.
+
+Section FSAT_PROP_ONLY_DEC.
+
+  Variable (Σ : fo_signature)
+           (H1 : discrete (syms Σ)) 
+           (H2 : discrete (rels Σ))
+           (H3 : forall r, ar_rels Σ r = 0)
+           (A : fol_form Σ).
+
+  Let HA : fol_syms A = nil.
+  Proof.
+    induction A as [ | r v | b B HB C HC | q B HB ].
+    + simpl; auto.
+    + simpl; revert v; rewrite H3; intros v; vec nil v; auto.
+    + simpl; rewrite HB, HC; auto.
+    + simpl; auto.
+  Qed.
+
+  Theorem FSAT_PROP_ONLY_DEC : decidable (FSAT _ A).
+  Proof.
+    destruct Σ_discrete_to_pos with (A := A)
+      as (n & m & i & j & G1 & _ & G3 & G4 & G5 & _ & B & HB); simpl; auto.
+    assert (n = 0) as Hn.
+    { destruct n; auto.
+      generalize (G3 pos0); rewrite HA; intros []. }
+    subst n; simpl in *.
+    assert (H4 : forall r, ar_rels (Σpos Σ i j) r <= 1).
+    { intros; simpl; rewrite H3; auto. }
+    destruct FSAT_FULL_MONADIC_DEC with (A := Σrem_props H4 0 B)
+      as [ H | H ]; simpl; auto.
+    { intros s; invert pos s. }
+    + left; apply HB; revert H.
+      intros (X & H); exists X; revert H.
+      apply Σrem_props_correct.
+    + right; contradict H; revert H; rewrite HB.
+      intros (X & H); exists X; revert H.
+      apply Σrem_props_correct.
+  Qed.
+
+End FSAT_PROP_ONLY_DEC.
+
+Check FSAT_PROP_ONLY_DEC.
+Print Assumptions FSAT_PROP_ONLY_DEC.
