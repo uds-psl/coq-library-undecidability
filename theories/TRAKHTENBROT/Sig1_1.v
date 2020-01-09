@@ -484,6 +484,7 @@ End Σ11_reduction.
 
 (** We get the elimination of symbols *)
 
+Check Σ11_red.
 Check Σ11_red_correct.
 Check Σ11_red_no_syms.
 

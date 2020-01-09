@@ -83,7 +83,7 @@ Section remove_constants.
     Proof.
       revert n φ; induction A as [ | r v | b A HA B HB | q A HA ]; intros n φ.
       + simpl; tauto.
-      + simpl in (* H *) |- *.
+      + simpl.
         case_eq (choice (ar_rels Σ r)); [ intros [ E | E ] | intros E ]; intros HE; 
           simpl; try rewrite HE.
         * apply fol_equiv_ext; f_equal.
@@ -137,7 +137,7 @@ Section remove_constants.
     Proof.
       revert n ψ; induction A as [ | r v | b A HA B HB | q A HA ]; intros n ψ H.
       + simpl; tauto.
-      + simpl in |- *.
+      + simpl.
         destruct (choice (ar_rels Σ r)) as [ [ E | E ] | E ].
         * apply fol_equiv_ext; simpl; now do 2 f_equal.
         * apply fol_equiv_ext; f_equal.

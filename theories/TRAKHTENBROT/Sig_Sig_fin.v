@@ -304,3 +304,239 @@ End discrete_to_finite.
 
 Check Σ_finite.
 Print Assumptions Σ_finite.
+
+Definition Σpos (Σ : fo_signature) n m (js : pos n -> syms Σ) (jr : pos m -> rels Σ) : fo_signature.
+Proof.
+  exists (pos n) (pos m).
+  + exact (fun p => ar_syms _ (js p)).
+  + exact (fun p => ar_rels _ (jr p)).
+Defined.
+
+Section discr_finite_to_pos.
+
+  (** Strangely this does not lead to transport hell ... I should
+      probably rework fol_transport_hell.v ... maybe there is a better way
+      like in here *)
+
+  Variables (Σ : fo_signature)
+            (H1 : discrete (syms Σ)) (H2 : finite_t (syms Σ))
+            (H3 : discrete (rels Σ)) (H4 : finite_t (rels Σ)).
+
+  Let H5 := finite_t_discrete_bij_t_pos H2 H1.
+
+  Let n := projT1 H5.
+  Let is : syms Σ -> pos n := projT1 (projT2 H5).
+  Let js : pos n -> syms Σ := proj1_sig (projT2 (projT2 H5)).
+
+  Let Hijs p : is (js p) = p.
+  Proof. apply (proj2_sig (projT2 (projT2 H5))). Qed.
+
+  Let Hjis s : js (is s) = s.
+  Proof. apply (proj2_sig (projT2 (projT2 H5))). Qed.
+
+  Let H6 := finite_t_discrete_bij_t_pos H4 H3.
+
+  Let m := projT1 H6.
+  Let ir : rels Σ -> pos m := projT1 (projT2 H6).
+  Let jr : pos m -> rels Σ := proj1_sig (projT2 (projT2 H6)).
+
+  Let Hijr p : ir (jr p) = p.
+  Proof. apply (proj2_sig (projT2 (projT2 H6))). Qed.
+
+  Let Hjir r : jr (ir r) = r.
+  Proof. apply (proj2_sig (projT2 (projT2 H6))). Qed.
+
+  Notation Σ' := (Σpos Σ js jr).
+
+  Local Fixpoint convert_t (t : fo_term (ar_syms Σ)) : fo_term (ar_syms Σ').
+  Proof.
+    refine (match t with
+      | in_var i   => in_var i
+      | in_fot s v => @in_fot _ (ar_syms Σ') (is s) (vec_map convert_t (cast v _))
+    end).
+    simpl; rewrite Hjis; trivial.
+  Defined.
+
+  Local Fixpoint convert (A : fol_form Σ) : fol_form Σ'.
+  Proof.
+    refine (match A with
+      | ⊥              => ⊥
+      | fol_atom r v   => @fol_atom Σ' (ir r) (vec_map convert_t (cast v _))
+      | fol_bin b A B  => fol_bin b (convert A) (convert B)
+      | fol_quant q A  => fol_quant q (convert A)
+    end).
+    simpl; rewrite Hjir; trivial.
+  Defined.
+
+  Section soundness.
+
+    Variable (X : Type) (M : fo_model Σ X).
+
+    Let M' : fo_model Σ' X.
+    Proof.
+      split.
+      + apply (fun s => fom_syms M (js s)).
+      + apply (fun r => fom_rels M (jr r)).
+    Defined.
+
+    Local Fact convert_t_sound t φ : fo_term_sem M φ t = fo_term_sem M' φ (convert_t t).
+    Proof.
+      induction t as [ i | s v IHv ]; simpl; auto.
+      rewrite (Hjis s); simpl; f_equal.
+      apply vec_pos_ext; intro; rew vec. 
+      rewrite !vec_pos_map; auto.
+    Qed.
+
+    Local Fact convert_sound A φ : fol_sem M φ A <-> fol_sem M' φ (convert A).
+    Proof.
+      revert φ; induction A as [ | r v | b A HA B HB | q A HA ]; intros φ.
+      + simpl; tauto.
+      + simpl; rewrite Hjir; simpl; rewrite vec_map_map.
+        apply fol_equiv_ext; f_equal.
+        apply vec_pos_ext; intro; rew vec.
+        apply convert_t_sound.
+      + apply fol_bin_sem_ext; auto.
+      + apply fol_quant_sem_ext; intro; auto.
+    Qed.
+
+    Hypothesis (Xfin : finite_t X)
+               (Mdec : fo_model_dec M)
+               (φ : nat -> X)
+               (A : fol_form Σ)
+               (HA : fol_sem M φ A).
+
+    Local Fact convert_soundness : fo_form_fin_dec_SAT_in (convert A) X.
+    Proof.
+      exists M', Xfin.
+      exists. { intros ? ?; apply Mdec. }
+      exists φ.
+      revert HA; apply convert_sound.
+    Qed.
+
+  End soundness.
+
+  Section completeness.
+
+    Variable (X : Type) (M' : fo_model Σ' X).
+
+    Let M : fo_model Σ X.
+    Proof.
+      split.
+      + intros s v.
+        apply (fom_syms M' (is s)); simpl.
+        rewrite Hjis; trivial.
+      + intros r v.
+        apply (fom_rels M' (ir r)); simpl.
+        rewrite Hjir; trivial.
+    Defined.
+
+    Local Fact convert_t_complete t φ : fo_term_sem M φ t = fo_term_sem M' φ (convert_t t).
+    Proof.
+      induction t as [ i | s v IHv ]; simpl; auto.
+      f_equal; unfold eq_rect_r.
+      generalize (Hjis s); intros ->; simpl.
+      apply vec_pos_ext; intro; rew vec.
+      rewrite !vec_pos_map; auto.
+    Qed.
+
+    Local Fact convert_complete A φ : fol_sem M φ A <-> fol_sem M' φ (convert A).
+    Proof.
+      revert φ; induction A as [ | r v | b A HA B HB | q A HA ]; intros φ.
+      + simpl; tauto.
+      + simpl; apply fol_equiv_ext; f_equal; unfold eq_rect_r.
+        generalize (Hjir r); intros ->; simpl.
+        apply vec_pos_ext; intro; rew vec.
+        rewrite vec_pos_map; apply convert_t_complete.
+      + apply fol_bin_sem_ext; auto.
+      + apply fol_quant_sem_ext; intro; auto.
+    Qed.
+
+    Hypothesis (Xfin : finite_t X)
+               (M'dec : fo_model_dec M')
+               (φ : nat -> X)
+               (A : fol_form Σ)
+               (HA : fol_sem M' φ (convert A)).
+
+    Local Fact convert_completeness : fo_form_fin_dec_SAT_in A X.
+    Proof.
+      exists M, Xfin.
+      exists. { intros ? ?; apply M'dec. }
+      exists φ.
+      revert HA; apply convert_complete.
+    Qed.
+
+  End completeness.
+
+  Definition Σ_finite_to_pos (A : fol_form Σ) : 
+              { n : nat & 
+              { m : nat &
+              { is : pos n -> syms Σ &
+              { ir : pos m -> rels Σ &
+              { _  : forall s s', is s = is s' -> s = s' &
+              { _  : forall s, ar_syms _ (is s) = ar_syms (Σpos Σ is ir) s &
+              { _  : forall r r', ir r = ir r' -> r = r' &
+              { _  : forall r, ar_rels _ (ir r) = ar_rels (Σpos Σ is ir) r &
+              { B  : fol_form (Σpos Σ is ir)            
+              | forall X, fo_form_fin_dec_SAT_in A X 
+                      <-> fo_form_fin_dec_SAT_in B X } } } } } } } } }.
+  Proof.
+    exists n, m, js, jr.
+    exists. { intros s s' E; rewrite <- (Hijs s), E, Hijs; auto. }
+    exists. { simpl; auto. }
+    exists. { intros r r' E; rewrite <- (Hijr r), E, Hijr; auto. }
+    exists. { simpl; auto. }
+    exists (convert A); intros X; split.
+    + intros (M & G1 & G2 & phi & G3).
+      apply convert_soundness with M phi; auto.
+    + intros (M & G1 & G2 & phi & G3).
+      apply convert_completeness with M phi; auto.
+  Qed.
+
+End discr_finite_to_pos.
+
+Check Σ_finite_to_pos.
+
+Section combine_the_two.
+
+  Variables (Σ : fo_signature)
+            (HΣ1 : discrete (syms Σ))
+            (HΣ2 : discrete (rels Σ)).
+
+  Definition Σ_discrete_to_pos (A : fol_form Σ) : 
+              { n : nat & 
+              { m : nat &
+              { is : pos n -> syms Σ &
+              { ir : pos m -> rels Σ &
+              { _  : forall s s', is s = is s' -> s = s' &
+              { _  : forall s, ar_syms _ (is s) = ar_syms (Σpos Σ is ir) s &
+              { _  : forall r r', ir r = ir r' -> r = r' &
+              { _  : forall r, ar_rels _ (ir r) = ar_rels (Σpos Σ is ir) r &
+              { B  : fol_form (Σpos Σ is ir)            
+              | fo_form_fin_dec_SAT A 
+            <-> fo_form_fin_dec_SAT B } } } } } } } } }.
+  Proof.
+    destruct (Σ_finite_full HΣ1 HΣ2 A (incl_refl _) (incl_refl _)) as (B & HB). 
+    destruct Σ_finite_to_pos with (A := B)
+      as (n & m & i & j & F1 & F2 & F3 & F4 & C & HC).
+    + apply Σ_fin_discrete_syms.
+    + apply Σ_fin_finite_syms.
+    + apply Σ_fin_discrete_rels.
+    + apply Σ_fin_finite_rels.
+    + exists n, m, (fun p => proj1_sig (i p)), (fun p => proj1_sig (j p)).
+      exists.
+      { intros s s' E; apply F1; revert E; generalize (i s) (i s').
+        intros (? & ?) (? & ?); simpl; intros ->; f_equal; apply eq_bool_pirr. }
+      exists. { intros; simpl; auto. }
+      exists.
+      { intros r r' E; apply F3; revert E; generalize (j r) (j r').
+        intros (? & ?) (? & ?); simpl; intros ->; f_equal; apply eq_bool_pirr. }
+      exists. { intros; simpl; auto. }
+      exists C.
+      transitivity (fo_form_fin_dec_SAT B).
+      * clear C HC; revert B HB.
+        generalize (fol_syms A) (fol_rels A); intros ls lr B ->.
+        symmetry; apply Σ_finite_rev_correct.
+      * apply exists_equiv; auto.
+  Qed.
+
+End combine_the_two.
