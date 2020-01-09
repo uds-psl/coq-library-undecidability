@@ -257,6 +257,7 @@ TM/MultiUnivTimeSpaceSimulation.v
 TRAKHTENBROT/notations.v
 TRAKHTENBROT/bpcp.v
 TRAKHTENBROT/utils.v
+TRAKHTENBROT/decidable.v
 TRAKHTENBROT/extensional.v
 TRAKHTENBROT/fol_ops.v
 
@@ -286,6 +287,7 @@ TRAKHTENBROT/Sig3_Sig2.v
 TRAKHTENBROT/Sign_Sig2.v
 TRAKHTENBROT/Sig2_Sign.v
 TRAKHTENBROT/Sign_Sig.v
+TRAKHTENBROT/Sign1_Sig.v
 TRAKHTENBROT/Sig_rem_syms.v
 TRAKHTENBROT/Sig_uniform.v
 TRAKHTENBROT/Sig_rem_cst.v
@@ -302,7 +304,9 @@ TRAKHTENBROT/Sig2_SigSSn1.v
 
 TRAKHTENBROT/red_utils.v
 TRAKHTENBROT/red_dec.v
-TRAKHTENBROT/reductions.v
+TRAKHTENBROT/red_undec.v
+
+TRAKHTENBROT/summary.v
 
 ######
 

@@ -388,5 +388,3 @@ End fol_congruence.
 
 Arguments fol_congruence { _ _ }.
 
-Print fol_congruence.
-
