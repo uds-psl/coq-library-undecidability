@@ -55,8 +55,6 @@ Section first_order_terms.
   Definition fo_term_rec (P : _ -> Set) := @fo_term_rect P.
   Definition fo_term_ind (P : _ -> Prop) := @fo_term_rect P.
 
-  Print eq_rect.
-
   Fact in_fot_inv_dep s s' v w : @in_fot s v = @in_fot s' w -> exists E : s = s', eq_rect s (fun s => vec _ (ar_syms s)) v _ E = w.
   Proof. inversion 1; subst; exists eq_refl; auto. Qed.
 

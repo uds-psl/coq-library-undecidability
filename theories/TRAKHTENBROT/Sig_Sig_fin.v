@@ -53,6 +53,12 @@ Section discrete_to_finite_fix.
 
   Notation Σ' := Σ_fin.
 
+  Fact Σ_fin_syms : forall s : syms Σ', In (proj1_sig s) ls.
+  Proof. intros (s & Hs); apply HFn, Hs. Qed.
+    
+  Fact Σ_fin_rels : forall r : rels Σ', In (proj1_sig r) lr.
+  Proof. intros (r & Hr); apply HRe, Hr. Qed.
+
   Fact Σ_fin_discrete_syms : discrete (syms Σ').
   Proof.
     intros (s1 & H1) (s2 & H2).
@@ -276,11 +282,13 @@ Section discrete_to_finite.
               { is : syms Σ' -> syms Σ  & 
               { _  : forall s s', is s = is s' -> s = s' &
               { _  : forall s, ar_syms _ (is s) = ar_syms _ s &
+              { _  : forall s, In (is s) (fol_syms A) & 
               { ir : rels Σ' -> rels Σ  & 
               { _  : forall r r', ir r = ir r' -> r = r' &
               { _  : forall r, ar_rels _ (ir r) = ar_rels _ r &
+              { _  : forall r, In (ir r) (fol_rels A) & 
               { B  : fol_form Σ'            
-              | fo_form_fin_dec_SAT A <-> fo_form_fin_dec_SAT B } } } } } } } } } } } }.
+              | fo_form_fin_dec_SAT A <-> fo_form_fin_dec_SAT B } } } } } } } } } } } } } }.
   Proof.
     exists (Σ_fin Σ HΣ1 HΣ2 (fol_syms A) (fol_rels A)).
     exists. { apply Σ_fin_finite_syms. }
@@ -290,9 +298,11 @@ Section discrete_to_finite.
     exists (@proj1_sig _ _).
     exists. { intros (? & ?) (? & ?); simpl; intros ->; f_equal; apply eq_bool_pirr. }
     exists. { intros (? & ?); reflexivity. }
+    exists. { apply Σ_fin_syms. }
     exists (@proj1_sig _ _).
     exists. { intros (? & ?) (? & ?); simpl; intros ->; f_equal; apply eq_bool_pirr. }
     exists. { intros (? & ?); reflexivity. }
+    exists. { apply Σ_fin_rels. } 
     destruct (@Σ_finite_full Σ HΣ1 HΣ2 (fol_syms A) (fol_rels A) A) as (B & HB); auto.
     exists B.
     revert B HB.
@@ -509,11 +519,13 @@ Section combine_the_two.
               { ir : pos m -> rels Σ &
               { _  : forall s s', is s = is s' -> s = s' &
               { _  : forall s, ar_syms _ (is s) = ar_syms (Σpos Σ is ir) s &
+              { _  : forall s, In (is s) (fol_syms A) & 
               { _  : forall r r', ir r = ir r' -> r = r' &
               { _  : forall r, ar_rels _ (ir r) = ar_rels (Σpos Σ is ir) r &
+              { _  : forall r, In (ir r) (fol_rels A) & 
               { B  : fol_form (Σpos Σ is ir)            
               | fo_form_fin_dec_SAT A 
-            <-> fo_form_fin_dec_SAT B } } } } } } } } }.
+            <-> fo_form_fin_dec_SAT B } } } } } } } } } } }.
   Proof.
     destruct (Σ_finite_full HΣ1 HΣ2 A (incl_refl _) (incl_refl _)) as (B & HB). 
     destruct Σ_finite_to_pos with (A := B)
@@ -527,10 +539,12 @@ Section combine_the_two.
       { intros s s' E; apply F1; revert E; generalize (i s) (i s').
         intros (? & ?) (? & ?); simpl; intros ->; f_equal; apply eq_bool_pirr. }
       exists. { intros; simpl; auto. }
+      exists. { intro; apply Σ_fin_syms. }
       exists.
       { intros r r' E; apply F3; revert E; generalize (j r) (j r').
         intros (? & ?) (? & ?); simpl; intros ->; f_equal; apply eq_bool_pirr. }
       exists. { intros; simpl; auto. }
+      exists. { intro; apply Σ_fin_rels. }
       exists C.
       transitivity (fo_form_fin_dec_SAT B).
       * clear C HC; revert B HB.

@@ -24,12 +24,12 @@ Local Notation ø := vec_nil.
 
 Section Σ1_model.
 
-  Variable (n : nat).
+  Variable (V : Type) (n : nat) (HV : V -> False).
 
   Definition ΣP1 : fo_signature.
   Proof.
-    exists Empty_set (pos n); intros _.
-    + exact 0.
+    exists V (pos n); intros _.
+    + exact 1.
     + exact 1.
   Defined.
 
@@ -75,7 +75,7 @@ Section Σ1_model.
   Let M' : fo_model ΣP1 (sig (fun v => K v = true)).
   Proof.
     split.
-    + intros [].
+    + intros s; destruct (HV s).
     + simpl; intros p v.
       exact (vec_pos (proj1_sig (vec_head v)) p = true).
   Defined.
@@ -83,7 +83,7 @@ Section Σ1_model.
   Let R : @fo_simulation ΣP1 (nil) (pos_list n) _ M _ M'.
   Proof.
     exists (fun x v => forall p, f p x = vec_pos (proj1_sig v) p).
-    + intros [].
+    + intros s; destruct (HV s).
     + intros p; simpl; intros v w _ H.
       generalize (H pos0); simpl; clear H.
       vec split v with x; vec nil v; clear v.
@@ -106,7 +106,7 @@ Section Σ1_model.
   Let equiv (A : fol_form ΣP1) : fol_sem M rho A <-> fol_sem M' psi A.
   Proof.
     apply fo_model_simulation with (R := R).
-    + intros [].
+    + intros s; destruct (HV s).
     + intros p _; apply pos_list_prop.
     + intros i _ p; unfold psi, R; simpl; rew vec.
   Qed.
@@ -135,13 +135,14 @@ Proof.
     intro; apply bool_dec.
 Qed.
 
-Theorem ΣP1_model_bounded n (A : fol_form (ΣP1 n)) : 
-           fo_form_fin_dec_SAT A
+Theorem ΣP1_model_bounded n V (A : fol_form (ΣP1 V n)) :
+           (V -> False)
+        -> fo_form_fin_dec_SAT A
         -> exists (Q : vec bool n -> bool),
                   fo_form_fin_dec_SAT_in A (sig (fun v => Q v = true)).
 Proof.
-  intros (X & M & H1 & H2 & phi & H3).
-  destruct bounded_model with (3 := H3)
+  intros HV (X & M & H1 & H2 & phi & H3).
+  destruct bounded_model with (1 := HV) (4 := H3)
     as (Q & M' & G2 & psi & G3); auto.
   exists Q, M'.
   exists.
@@ -548,23 +549,22 @@ Section enum_sig.
     + destruct IH as (m & Hm).
       destruct fun_finite_t_upto with (vec X (ar s)) Y
         as (l & Hl); auto.
-      * red; apply vec_eq_dec; auto.
-      * exists (map (fun p => fun_combine (fst p) (snd p)) (list_prod l m)).
-        intros f.
-        destruct (Hl (f s)) as (f' & H1 & H2).
-        destruct (Hm f) as (g & H3 & H4).
-        exists (fun_combine f' g); split.
-        - apply in_map_iff; exists (f',g); split; auto.
-          apply list_prod_spec; simpl; auto.
-        - intros s' [ <- | Hs ] v.
-          ++ red in H2; rewrite H2.
-             unfold fun_combine.
-             destruct (Hsyms s s) as [ E | [] ]; auto.
-             rewrite (UIP_dec Hsyms E eq_refl); auto.
-          ++ unfold fun_combine.
-             destruct (Hsyms s s') as [ E | D ].
-             ** subst; cbn; apply H2.
-             ** apply H4; auto.
+      exists (map (fun p => fun_combine (fst p) (snd p)) (list_prod l m)).
+      intros f.
+      destruct (Hl (f s)) as (f' & H1 & H2).
+      destruct (Hm f) as (g & H3 & H4).
+      exists (fun_combine f' g); split.
+      * apply in_map_iff; exists (f',g); split; auto.
+        apply list_prod_spec; simpl; auto.
+      * intros s' [ <- | Hs ] v.
+        - red in H2; rewrite H2.
+           unfold fun_combine.
+           destruct (Hsyms s s) as [ E | [] ]; auto.
+           rewrite (UIP_dec Hsyms E eq_refl); auto.
+        - unfold fun_combine.
+          destruct (Hsyms s s') as [ E | D ].
+          ++ subst; cbn; apply H2.
+          ++ apply H4; auto.
   Qed.
 
 End enum_sig.
@@ -746,15 +746,16 @@ End FSAT_in_dec.
 (** Monadic FO logic with n unary rels and no function symbols 
     has a decidable FSAT *)
 
-Theorem FSAT_ΣP1_dec n (A : fol_form (ΣP1 n)) : decidable (fo_form_fin_dec_SAT A).
+Theorem FSAT_ΣP1_dec n V (A : fol_form (ΣP1 V n)) : (V -> False) -> decidable (fo_form_fin_dec_SAT A).
 Proof.
+  intros HV.
   assert (H : decidable (exists P : vec bool n -> bool, fo_form_fin_dec_SAT_in A (sig (fun v => P v = true)))).
   { apply ex_fun_bool_decidable.
     + apply finite_t_vec, finite_t_bool.
     + intros v w; apply vec_eq_dec, bool_dec.
     + intros P Q H; apply FSAT_in_ext; intro; rewrite H; tauto.
     + intro; apply FSAT_in_dec; simpl.
-      * intros [].
+      * intros s; destruct (HV s).
       * red; apply pos_eq_dec.
       * apply finite_t_sig, finite_t_vec, finite_t_bool.
       * intros (x & Hx) (y & Hy). 
@@ -766,7 +767,7 @@ Proof.
     destruct H as (P & HP).
     exists { v | P v = true }; auto.
   + right; intros (X & HX).
-    apply H, ΣP1_model_bounded; exists X; auto.
+    apply H, ΣP1_model_bounded; auto; exists X; auto.
 Qed.
 
 Check FSAT_ΣP1_dec.

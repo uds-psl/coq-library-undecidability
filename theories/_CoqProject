@@ -271,9 +271,6 @@ TRAKHTENBROT/fo_congruence.v
 TRAKHTENBROT/fo_sat.v
 TRAKHTENBROT/fo_definable.v
 
-TRAKHTENBROT/fol_transport_hell.v
-
-
 TRAKHTENBROT/discrete.v
 TRAKHTENBROT/membership.v
 TRAKHTENBROT/rel3_hfs.v

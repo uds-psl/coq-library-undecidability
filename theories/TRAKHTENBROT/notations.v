@@ -7,6 +7,11 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+Require Import List.
+
+From Undecidability.Shared.Libs.DLW.Vec 
+  Require Import pos vec.
+
 Set Implicit Arguments.
 
 Definition discrete X := forall x y : X, { x = y } + { x <> y }.
@@ -17,7 +22,20 @@ Proof. intros [] []; left; auto. Qed.
 Fact discrete_sum X Y : discrete X -> discrete Y -> discrete (X+Y).
 Proof. intros; red; decide equality. Qed.
 
-Hint Resolve discrete_unit discrete_sum.
+Fact discrete_prod X Y : discrete X -> discrete Y -> discrete (X*Y).
+Proof. intros; red; decide equality. Qed.
+
+Fact discrete_list X : discrete X -> discrete (list X).
+Proof. intros; red; decide equality. Qed.
+
+Fact discrete_pos n : discrete (pos n).
+Proof. red; apply pos_eq_dec. Qed.
+
+Fact discrete_vec X n : discrete X -> discrete (vec X n).
+Proof. intros; red; apply vec_eq_dec; auto. Qed.
+
+Hint Resolve discrete_unit discrete_sum discrete_prod 
+             discrete_list discrete_pos discrete_vec.
 
 (** Standard De Bruijn extension and De Bruijn projection *)
 
