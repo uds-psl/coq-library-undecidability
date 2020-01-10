@@ -46,58 +46,106 @@ Section enumerable_definitions.
   (** enumerability of a Type *)
 
   Definition type_enum := exists f : nat -> option X, forall x, exists n, Some x = f n.
+  Definition type_enum_t := { f : nat -> option X | forall x, exists n, Some x = f n }.
 
   Definition list_enum := exists f : nat -> list X, forall x, exists n, In x (f n).
+  Definition list_enum_t := { f : nat -> list X | forall x, exists n, In x (f n) }.
 
   (** of a predicate, definition 1 *)
 
   Definition opt_enum P := exists f : nat -> option X, forall x, P x <-> exists n, Some x = f n.
+  Definition opt_enum_t P := { f : nat -> option X | forall x, P x <-> exists n, Some x = f n }.
 
   (** of a predicate, definition 2 *) 
 
   Definition rec_enum P := exists (Q : nat -> X -> Prop) (_ : forall n x, decidable (Q n x)),
                            forall x, P x <-> exists n, Q n x.
 
-  Theorem type_list_enum : type_enum -> list_enum.
+  Definition rec_enum_t P := { Q : nat -> X -> Prop &
+                             { _ : forall n x, decidable (Q n x)
+                                 | forall x, P x <-> exists n, Q n x } }.
+
+  Theorem type_list_enum : type_enum <-> list_enum.
   Proof.
-    intros (f & Hf).
-    exists (fun n => match f n with Some x => x::nil | None => nil end).
-    intros x; destruct (Hf x) as (n & Hn); exists n; rewrite <- Hn; simpl; auto.
+    split.
+    + intros (f & Hf).
+      exists (fun n => match f n with Some x => x::nil | None => nil end).
+      intros x; destruct (Hf x) as (n & Hn); exists n; rewrite <- Hn; simpl; auto.
+    + intros (f & Hf).
+      exists (fun n => let (a,b) := surj n in nth_error (f a) b).
+      intros x; destruct (Hf x) as (a & Ha).
+      destruct In_nth_error with (1 := Ha) as (b & Hb).
+      destruct (Hsurj a b) as (n & Hn); exists n; now rewrite Hn.
   Qed.
 
-  Theorem list_type_enum : list_enum -> type_enum.
+  Theorem type_list_enum_t : type_enum_t ≋ list_enum_t.
   Proof.
-    intros (f & Hf).
-    exists (fun n => let (a,b) := surj n in nth_error (f a) b).
-    intros x; destruct (Hf x) as (a & Ha).
-    destruct In_nth_error with (1 := Ha) as (b & Hb).
-    destruct (Hsurj a b) as (n & Hn); exists n; now rewrite Hn.
+    split.
+    + intros (f & Hf).
+      exists (fun n => match f n with Some x => x::nil | None => nil end).
+      intros x; destruct (Hf x) as (n & Hn); exists n; rewrite <- Hn; simpl; auto.
+    + intros (f & Hf).
+      exists (fun n => let (a,b) := surj n in nth_error (f a) b).
+      intros x; destruct (Hf x) as (a & Ha).
+      destruct In_nth_error with (1 := Ha) as (b & Hb).
+      destruct (Hsurj a b) as (n & Hn); exists n; now rewrite Hn.
   Qed.
 
-  Section list_enum_by_measure.
+  Section list_enum_by_measure_fin_t.
 
     Variable (m : X -> nat) (Hm : forall n, fin_t (fun x => m x < n)).
 
-    Theorem list_enum_by_measure : list_enum.
+    Theorem list_enum_by_measure_fin_t : list_enum_t.
     Proof.
       exists (fun n => proj1_sig (Hm n)).
       intros x; exists (S (m x)).
       apply (proj2_sig (Hm _)); auto.
     Qed.
 
-  End list_enum_by_measure.
+  End list_enum_by_measure_fin_t.
+
+  Section type_enum_t_by_measure.
+
+    Variable (m : X -> nat) 
+             (Hm : forall n, opt_enum_t (fun x => m x <= n)).
+
+    Theorem type_enum_t_by_measure : type_enum_t.
+    Proof.
+      apply constructive_choice in Hm; destruct Hm as (f & Hf); clear Hm.
+      exists (fun j => let (a,n) := surj j in f a n).
+      intros x.
+      destruct (proj1 (Hf _ x) (le_refl _)) as (a & Ha).
+      destruct (Hsurj (m x) a) as (n & Hn).
+      exists n; rewrite Hn; auto.
+    Qed.
+
+  End type_enum_t_by_measure.
 
 End enumerable_definitions.
 
 Section enumerable.
 
-  Variable (X : Type) (Xdiscr : discrete X) (Xenum : type_enum X).
+  Variable (X : Type) (Xdiscr : discrete X) (Xenum : type_enum X) (Xenum_t : type_enum_t X).
 
   Implicit Type (P : X -> Prop).
 
   (** On a discrete type, opt_enum implies rec_enum *)
 
   Fact opt_enum_rec_enum_discrete P : opt_enum P -> rec_enum P.
+  Proof.
+    intros (f & Hf).
+    exists (fun n x => match f n with Some y => x = y | None => False end); exists.
+    + intros n x.
+      destruct (f n) as [ y | ].
+      * apply Xdiscr.
+      * right; tauto.
+    + intros x; rewrite Hf; split.
+      * intros (n & Hn); exists n; rewrite <- Hn; auto.
+      * intros (n & Hn); exists n.
+        destruct (f n) as [ y | ]; subst; tauto.
+  Qed.
+
+  Fact opt_enum_rec_enum_discrete_t P : opt_enum_t P -> rec_enum_t P.
   Proof.
     intros (f & Hf).
     exists (fun n x => match f n with Some y => x = y | None => False end); exists.
@@ -136,16 +184,168 @@ Section enumerable.
       exists b; inversion Hn; auto.
   Qed.
 
-  Hint Resolve opt_enum_rec_enum_discrete rec_enum_opt_enum_type_enum.
+  Fact rec_enum_opt_enum_type_enum_t P : rec_enum_t P -> opt_enum_t P.
+  Proof.
+    destruct Xenum_t as (s & Hs).
+    intros (Q & Qdec & HQ).
+    set (f n := 
+      let (a,b) := surj n
+      in match s a with 
+        | Some x => if Qdec b x then Some x else None
+        | None => None
+      end).
+    exists f; intros x; rewrite HQ; split; unfold f.
+    + intros (n & Hn).
+      destruct (Hs x) as (a & Ha).
+      destruct (Hsurj a n) as (m & Hm).
+      exists m; rewrite Hm, <- Ha.
+      destruct (Qdec n x) as [ | [] ]; auto.
+    + intros (n & Hn).
+      destruct (surj n) as (a,b).
+      destruct (s a) as [ y | ]; try discriminate.
+      destruct (Qdec b y) as [ H | H ]; try discriminate.
+      exists b; inversion Hn; auto.
+  Qed.
+
+  Hint Resolve opt_enum_rec_enum_discrete rec_enum_opt_enum_type_enum
+               opt_enum_rec_enum_discrete_t rec_enum_opt_enum_type_enum_t.
 
   (** On a datatype, opt_enum and rec_enum are equivalent *)
 
   Theorem opt_rec_enum_equiv P : opt_enum P <-> rec_enum P.
   Proof. split; auto. Qed.
 
+  Theorem opt_rec_enum_equiv_t P : opt_enum_t P ≋ rec_enum_t P.
+  Proof. split; auto. Qed.
+
 End enumerable.
 
-Check opt_rec_enum_equiv.
+Section enum_ops.
+
+  Fact type_enum_opt_enum_t X : type_enum_t X ≋ opt_enum_t (fun _ : X => True).
+  Proof.
+    split.
+    + intros (f & Hf); exists f; intros; split; auto.
+    + intros (f & Hf); exists f; intros; apply Hf; auto.
+  Qed.
+
+  Fact opt_enum_t_prod X Y (P : X -> Prop) (Q : Y -> Prop) :
+       opt_enum_t P -> opt_enum_t Q -> opt_enum_t (fun c => P (fst c) /\ Q (snd c)).
+  Proof.
+    intros (f & Hf) (g & Hg).
+    exists (fun n => let (a,b) := surj n in 
+      match f a, g b with
+        | Some x, Some y => Some (x,y)
+        | _     , _      => None
+      end).
+    intros (x,y); simpl; rewrite Hf, Hg; split.
+    + intros ((a & Ha) & (b & Hb)).
+      destruct (Hsurj a b) as (n & Hn).
+      exists n; rewrite Hn, <- Ha, <- Hb; auto.
+    + intros (n & Hn).
+      destruct (surj n) as (a,b).
+      revert Hn.
+      case_eq (f a); try discriminate; intros u Hu.
+      case_eq (g b); try discriminate; intros v Hv.
+      inversion 1; split; [ exists a | exists b ]; auto.
+  Qed.
+
+  Fact opt_enum_t_sum X Y (P : X -> Prop) (Q : Y -> Prop) :
+       opt_enum_t P -> opt_enum_t Q -> opt_enum_t (fun z : X + Y => match z with inl x => P x | inr y => Q y end).
+  Proof.
+    intros (f & Hf) (g & Hg).
+    exists (fun n => let (a,b) := surj n in 
+      match a with
+        | 0 => match f b with Some x => Some (inl x) | _ => None end
+        | _ => match g b with Some y => Some (inr y) | _ => None end
+      end).
+    intros [ x | y ].
+    + rewrite Hf; split.
+      * intros (b & Hb).
+        destruct (Hsurj 0 b) as (n & Hn).
+        exists n; rewrite Hn, <- Hb; auto.
+      * intros (n & Hn); revert Hn.
+        destruct (surj n) as ([ | a],b).
+        - case_eq (f b); try discriminate; intros u Hu; inversion 1; exists b; auto.
+        - destruct (g b); discriminate.
+    + rewrite Hg; split.
+      * intros (b & Hb).
+        destruct (Hsurj 1 b) as (n & Hn).
+        exists n; rewrite Hn, <- Hb; auto.
+      * intros (n & Hn); revert Hn.
+        destruct (surj n) as ([ | a],b).
+        - destruct (f b); discriminate.
+        - case_eq (g b); try discriminate; intros u Hu; inversion 1; exists b; auto.
+  Qed.
+
+  Fact opt_enum_t_dep_sum X (f : X -> Type) (P : forall x, f x -> Prop) :
+         discrete X
+      -> type_enum_t X 
+      -> (forall x, opt_enum_t (P x)) 
+      -> opt_enum_t (fun p : sigT f => P _ (projT2 p)).
+  Proof.
+    intros D (g & Hg) H.
+    unfold opt_enum_t in H.
+    assert (G: { h : forall x, nat -> option (f x) | forall x y, P x y <-> exists n, Some y = h x n }).
+    { exists (fun x => proj1_sig (H x)); intros x; apply (proj2_sig (H x)). }
+    destruct G as (h & Hh); clear H.
+    exists (fun n : nat => match surj n with (a,b) =>
+       match g a with
+         | Some x => match h x b with
+           | Some y => Some (existT _ x y)
+           | None   => None
+         end
+         | None => None
+       end end).
+    intros (x & y); simpl; rewrite Hh; split.
+    + intros (b & Hb).
+      destruct (Hg x) as (a & Ha).
+      destruct (Hsurj a b) as (n & Hn).
+      exists n; rewrite Hn, <- Ha, <- Hb; auto.
+    + intros (n & Hn); revert Hn.
+      destruct (surj n) as (a,b).
+      case_eq (g a); try discriminate; intros x' Hx'.
+      case_eq (h x' b); try discriminate; intros y' Hy'.
+      inversion 1; subst x'; exists b; rewrite Hy'.
+      apply inj_pair2_eq_dec in H1; subst; auto.
+  Qed.
+
+  Fact opt_enum_t_image X Y (P : X -> Prop) (Q : Y -> Prop) (f : X -> Y) :
+          (forall y, Q y <-> exists x, P x /\ y = f x)
+       -> opt_enum_t P -> opt_enum_t Q.
+  Proof.
+    intros Hf (g & Hg).
+    exists (fun n => match g n with Some x => Some (f x) | _ => None end).
+    intros y; rewrite Hf; split.
+    + intros (x & H1 & ->); revert H1; rewrite Hg.
+      intros (n & E); exists n; rewrite <- E; auto.
+    + intros (n & Hn); revert Hn.
+      case_eq (g n); try discriminate. 
+      intros x E; inversion 1; exists x; split; auto.
+      apply Hg; exists n; auto.
+  Qed.
+
+  Fact opt_enum_t_vec X n (P : X -> Prop) :
+       opt_enum_t P -> opt_enum_t (fun v : vec X n => forall p, P (vec_pos v p)).
+  Proof.
+    intros HP.
+    induction n as [ | n IHn ].
+    + exists (fun _ => Some vec_nil).
+      intros v; vec nil v; split.
+      * exists 0; auto.
+      * intros _ p; invert pos p.
+    + generalize (opt_enum_t_prod HP IHn).
+      apply opt_enum_t_image with (f := fun p => vec_cons (fst p) (snd p)).
+      intros v; split.
+      * vec split v with x; intros H; exists (x,v); simpl; split; auto; split.
+        - apply (H pos0).
+        - intros p; apply (H (pos_nxt p)).
+      * intros ((x,w) & (H1 & H2) & ->). 
+        simpl fst in *; simpl snd in *.
+        intros p; invert pos p; auto.
+  Qed.
+
+End enum_ops.
 
 Section decidable_fun_pos_bool.
 

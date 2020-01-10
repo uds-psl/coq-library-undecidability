@@ -35,7 +35,7 @@ Inductive fol_form (Σ : fo_signature) : Type :=
   | fol_false : fol_form Σ
   | fol_atom  : forall p, vec (fol_term Σ) (ar_rels Σ p) -> fol_form Σ 
   | fol_bin   : fol_bop -> fol_form Σ -> fol_form Σ -> fol_form Σ 
-  | fol_quant : fol_qop -> fol_form Σ -> fol_form Σ. 
+  | fol_quant : fol_qop -> fol_form Σ -> fol_form Σ.
 
 Infix "⤑" := (fol_bin fol_imp) (at level 62, right associativity).
 Infix "⟑" := (fol_bin fol_conj) (at level 60, right associativity).
@@ -55,6 +55,14 @@ Section fol_subst.
   Notation 𝔽 := (fol_form Σ).
 
   Implicit Type A : 𝔽.
+
+  Fixpoint fol_height A :=
+    match A with
+      | ⊥             => 1
+      | fol_atom p v  => 1 
+      | fol_bin c A B => 1 + max (fol_height A) (fol_height B)
+      | fol_quant q A => 1 + fol_height A
+    end.
 
   Fixpoint fol_vars A :=
     match A with

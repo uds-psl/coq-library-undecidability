@@ -55,6 +55,36 @@ Section first_order_terms.
   Definition fo_term_rec (P : _ -> Set) := @fo_term_rect P.
   Definition fo_term_ind (P : _ -> Prop) := @fo_term_rect P.
 
+  Fixpoint fo_term_size t : nat :=
+    match t with
+      | in_var x => 1 
+      | in_fot v => 1 + lsum (vec_list (vec_map fo_term_size v))
+    end.
+
+  Fixpoint fo_term_height t : nat :=
+    match t with
+      | in_var x => 0
+      | in_fot v => 1 + lmax (vec_list (vec_map fo_term_height v))
+    end.
+
+  Fact fo_term_size_lt s v p : fo_term_size (vec_pos v p) < fo_term_size (@in_fot s v).
+  Proof.
+    simpl; apply le_n_S.
+    generalize (in_vec_pos (vec_map fo_term_size v) p); rew vec.
+    generalize (fo_term_size (vec_pos v p)) (vec_map fo_term_size v).
+    clear v p; intros i v; rewrite in_vec_list.
+    apply lsum_le.
+  Qed.
+
+  Fact fo_term_height_lt s v p : fo_term_height (vec_pos v p) < fo_term_height (@in_fot s v).
+  Proof.
+    simpl; apply le_n_S.
+    generalize (in_vec_pos (vec_map fo_term_height v) p); rew vec.
+    generalize (fo_term_height (vec_pos v p)) (vec_map fo_term_height v).
+    clear v p; intros i v; rewrite in_vec_list.
+    apply lmax_prop.
+  Qed.
+
   Fact in_fot_inv_dep s s' v w : @in_fot s v = @in_fot s' w -> exists E : s = s', eq_rect s (fun s => vec _ (ar_syms s)) v _ E = w.
   Proof. inversion 1; subst; exists eq_refl; auto. Qed.
 

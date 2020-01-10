@@ -171,6 +171,13 @@ Proof.
   induction l as [ | x l IHl ]; simpl; auto; rewrite IHl; omega.
 Qed.
 
+Fact lsum_le x l : In x l -> x <= lsum l.
+Proof.
+  intros H; apply in_split in H.
+  destruct H as (u & v & ->).
+  rewrite lsum_app; simpl; omega.
+Qed.
+
 Fact lmax_prop l x : In x l -> x <= lmax l.
 Proof.
   specialize (proj1 (lmax_spec l _) (le_refl _)).

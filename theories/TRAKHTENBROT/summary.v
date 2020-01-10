@@ -45,4 +45,11 @@ Print Assumptions FSAT_FULL_MONADIC_DEC.
 Check FSAT_PROP_ONLY_DEC.
 Print Assumptions FSAT_PROP_ONLY_DEC.
 
+Check FSAT_rec_enum.
+Print Assumptions FSAT_rec_enum.
+
+Check FSAT_opt_enum.
+Print Assumptions FSAT_opt_enum.
+
+
 
