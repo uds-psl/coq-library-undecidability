@@ -237,6 +237,44 @@ Fixpoint pow2 p :=
     | S p => 2*pow2 p
   end.
 
+Fact pow2_fix0 : pow2 0 = 1.
+Proof. reflexivity. Qed.
+
+Fact pow2_fix1 p : pow2 (S p) = 2*pow2 p.
+Proof. reflexivity. Qed.
+
+Fact pow2_ge1 p : 1 <= pow2 p.
+Proof. induction p; simpl; omega. Qed.
+
+Fact pow2_2n1_dec n : { p : nat & { b | S n = pow2 p*(2*b+1) } }.
+Proof.
+  induction on n as IH with measure n.
+  generalize (div2_spec (S n)).
+  destruct (div2 (S n)) as (d,[]); intros Hn.
+  + exists 0, d; simpl; omega.
+  + destruct d as [ | d ].
+    * simpl in Hn; omega.
+    * destruct (IH d) as (p & b & H).
+      - omega.
+      - exists (S p), b; rewrite pow2_fix1, <- mult_assoc, <- H; auto.
+Qed.
+
+Fact pow2_dec_uniq p a q b : pow2 p*(2*a+1) = pow2 q*(2*b+1) -> p = q /\ a = b.
+Proof.
+  revert q; induction p as [ | p IHp ]; intros [ | q ].
+  + simpl; omega.
+  + rewrite pow2_fix0, pow2_fix1, <- mult_assoc; omega.
+  + rewrite pow2_fix0, pow2_fix1, <- mult_assoc; omega.
+  + rewrite !pow2_fix1, <- !mult_assoc; intros H.
+    destruct (IHp q); omega.
+Qed.
+
+Fact pow2_dec_ge1 p b : 1 <= pow2 p*(2*b+1).
+Proof.
+  change 1 with (1*1) at 1; apply mult_le_compat; 
+    try omega; apply pow2_ge1.
+Qed.
+
 Section pow2_bound.
 
   Let loop := fix loop x n :=

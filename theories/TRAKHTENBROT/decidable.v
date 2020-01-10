@@ -16,11 +16,136 @@ From Undecidability.Shared.Libs.DLW.Vec
   Require Import pos vec.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations utils fol_ops fo_sig fo_terms fo_logic fo_sat.
+  Require Import notations utils fol_ops.
 
 Set Implicit Arguments.
 
-Definition decidable (P : Prop) := { P } + { ~ P }. 
+(** We need a surjection nat -> nat * nat *)
+
+Local Definition surj n := 
+  match pow2_2n1_dec n with
+    | existT _ a (exist _ b _) => (a,b)
+  end.
+
+Local Fact Hsurj a b : exists n, surj n = (a,b).
+Proof.
+  exists (pow2 a*(2*b+1)-1).
+  unfold surj.
+  destruct (pow2_2n1_dec (pow2 a * (2 * b + 1) - 1)) as (c & d & H).
+  replace (S (pow2 a*(2*b+1)-1)) with (pow2 a*(2*b+1)) in H.
+  + apply pow2_dec_uniq in H; destruct H; subst; auto.
+  + generalize (pow2_dec_ge1 a b); lia.
+Qed.
+
+Definition decidable (P : Prop) := { P } + { ~ P }.
+
+Section enumerable_definitions.
+
+  Variable (X : Type).
+
+  (** enumerability of a Type *)
+
+  Definition type_enum := exists f : nat -> option X, forall x, exists n, Some x = f n.
+
+  Definition list_enum := exists f : nat -> list X, forall x, exists n, In x (f n).
+
+  (** of a predicate, definition 1 *)
+
+  Definition opt_enum P := exists f : nat -> option X, forall x, P x <-> exists n, Some x = f n.
+
+  (** of a predicate, definition 2 *) 
+
+  Definition rec_enum P := exists (Q : nat -> X -> Prop) (_ : forall n x, decidable (Q n x)),
+                           forall x, P x <-> exists n, Q n x.
+
+  Theorem type_list_enum : type_enum -> list_enum.
+  Proof.
+    intros (f & Hf).
+    exists (fun n => match f n with Some x => x::nil | None => nil end).
+    intros x; destruct (Hf x) as (n & Hn); exists n; rewrite <- Hn; simpl; auto.
+  Qed.
+
+  Theorem list_type_enum : list_enum -> type_enum.
+  Proof.
+    intros (f & Hf).
+    exists (fun n => let (a,b) := surj n in nth_error (f a) b).
+    intros x; destruct (Hf x) as (a & Ha).
+    destruct In_nth_error with (1 := Ha) as (b & Hb).
+    destruct (Hsurj a b) as (n & Hn); exists n; now rewrite Hn.
+  Qed.
+
+  Section list_enum_by_measure.
+
+    Variable (m : X -> nat) (Hm : forall n, fin_t (fun x => m x < n)).
+
+    Theorem list_enum_by_measure : list_enum.
+    Proof.
+      exists (fun n => proj1_sig (Hm n)).
+      intros x; exists (S (m x)).
+      apply (proj2_sig (Hm _)); auto.
+    Qed.
+
+  End list_enum_by_measure.
+
+End enumerable_definitions.
+
+Section enumerable.
+
+  Variable (X : Type) (Xdiscr : discrete X) (Xenum : type_enum X).
+
+  Implicit Type (P : X -> Prop).
+
+  (** On a discrete type, opt_enum implies rec_enum *)
+
+  Fact opt_enum_rec_enum_discrete P : opt_enum P -> rec_enum P.
+  Proof.
+    intros (f & Hf).
+    exists (fun n x => match f n with Some y => x = y | None => False end); exists.
+    + intros n x.
+      destruct (f n) as [ y | ].
+      * apply Xdiscr.
+      * right; tauto.
+    + intros x; rewrite Hf; split.
+      * intros (n & Hn); exists n; rewrite <- Hn; auto.
+      * intros (n & Hn); exists n.
+        destruct (f n) as [ y | ]; subst; tauto.
+  Qed.
+
+  (** On a enumerable type, rec_enum implies opt_enum *)
+
+  Fact rec_enum_opt_enum_type_enum P : rec_enum P -> opt_enum P.
+  Proof.
+    destruct Xenum as (s & Hs).
+    intros (Q & Qdec & HQ).
+    set (f n := 
+      let (a,b) := surj n
+      in match s a with 
+        | Some x => if Qdec b x then Some x else None
+        | None => None
+      end).
+    exists f; intros x; rewrite HQ; split; unfold f.
+    + intros (n & Hn).
+      destruct (Hs x) as (a & Ha).
+      destruct (Hsurj a n) as (m & Hm).
+      exists m; rewrite Hm, <- Ha.
+      destruct (Qdec n x) as [ | [] ]; auto.
+    + intros (n & Hn).
+      destruct (surj n) as (a,b).
+      destruct (s a) as [ y | ]; try discriminate.
+      destruct (Qdec b y) as [ H | H ]; try discriminate.
+      exists b; inversion Hn; auto.
+  Qed.
+
+  Hint Resolve opt_enum_rec_enum_discrete rec_enum_opt_enum_type_enum.
+
+  (** On a datatype, opt_enum and rec_enum are equivalent *)
+
+  Theorem opt_rec_enum_equiv P : opt_enum P <-> rec_enum P.
+  Proof. split; auto. Qed.
+
+End enumerable.
+
+Check opt_rec_enum_equiv.
 
 Section decidable_fun_pos_bool.
 

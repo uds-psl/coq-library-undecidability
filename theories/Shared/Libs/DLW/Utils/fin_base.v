@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Lia.
+Require Import List Arith Lia Eqdep_dec Bool.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat.
@@ -272,3 +272,12 @@ Section finite.
   Qed.
 
 End finite.
+
+Lemma finite_t_sig_bool X (P : X -> bool) : finite_t X -> finite_t { x | P x = true }.
+Proof.
+  intros H.
+  apply fin_t_finite_t.
+  + intros; apply UIP_dec, bool_dec.
+  + apply finite_t_fin_t_dec; auto.
+    intro; apply bool_dec.
+Qed.

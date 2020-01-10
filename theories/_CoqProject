@@ -271,6 +271,7 @@ TRAKHTENBROT/fo_logic.v
 TRAKHTENBROT/fo_congruence.v
 TRAKHTENBROT/fo_sat.v
 TRAKHTENBROT/fo_definable.v
+TRAKHTENBROT/fo_sat_dec.v
 
 TRAKHTENBROT/discrete.v
 TRAKHTENBROT/membership.v

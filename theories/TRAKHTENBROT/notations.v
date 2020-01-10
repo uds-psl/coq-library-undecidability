@@ -19,6 +19,9 @@ Definition discrete X := forall x y : X, { x = y } + { x <> y }.
 Fact discrete_unit : discrete unit.
 Proof. intros [] []; left; auto. Qed.
 
+Fact discrete_opt X : discrete X -> discrete (option X).
+Proof. intro; red; decide equality. Qed.
+
 Fact discrete_sum X Y : discrete X -> discrete Y -> discrete (X+Y).
 Proof. intros; red; decide equality. Qed.
 

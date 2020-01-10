@@ -17,7 +17,7 @@ From Undecidability.Shared.Libs.DLW.Vec
 
 From Undecidability.TRAKHTENBROT
   Require Import notations utils decidable
-                 fo_sig fo_terms fo_logic fo_sat
+                 fo_sig fo_terms fo_logic fo_sat fo_sat_dec
 
                  red_utils 
 
@@ -27,6 +27,56 @@ From Undecidability.TRAKHTENBROT
                  Sig1 Sig1_1.
 
 Set Implicit Arguments.
+
+Section FSAT_enumerable.
+
+  Variable (Σ : fo_signature) 
+           (H1 : discrete (syms Σ)) 
+           (H2 : discrete (rels Σ)).
+
+  Implicit Type (A : fol_form Σ).
+
+  Theorem FSAT_FSAT_in_pos A : FSAT _ A <-> exists n, fo_form_fin_dec_SAT_in A (pos n).
+  Proof.
+    rewrite fo_form_fin_dec_SAT_discr_equiv.
+    apply fo_form_fin_discr_dec_SAT_pos.
+  Qed.
+
+  Theorem FSAT_rec_enum : rec_enum (FSAT Σ).
+  Proof.
+    exists (fun n A => fo_form_fin_dec_SAT_in A (pos n)).
+    exists.
+    + intros n A; apply FSAT_in_dec; auto; apply finite_t_pos.
+    + intros A; apply FSAT_FSAT_in_pos.
+  Qed.
+
+  Hypothesis (H3 : type_enum (syms Σ)).
+  Hypothesis (H4 : type_enum (rels Σ)).
+
+  Local Lemma type_enum_fo_term : type_enum (fo_term (ar_syms Σ)).
+  Proof.
+    (** @DK: can you fill it in here ?? *)
+  Admitted.
+
+  Local Lemma type_enum_fol_form : type_enum (fol_form Σ).
+  Proof.
+    (** @DK: can you fill it in here ?? *)
+  Admitted.
+
+  Theorem FSAT_opt_enum : opt_enum (FSAT Σ).
+  Proof.
+    generalize FSAT_rec_enum.
+    apply rec_enum_opt_enum_type_enum.
+    apply type_enum_fol_form.
+  Qed.
+
+End FSAT_enumerable.
+
+Check FSAT_rec_enum.
+Print Assumptions FSAT_rec_enum.
+
+Check FSAT_opt_enum.
+Print Assumptions FSAT_opt_enum.
 
 Section Sig_MONADIC_Sig_11.
 
