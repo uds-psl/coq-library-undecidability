@@ -42,7 +42,7 @@ Section FSAT_enumerable.
     apply fo_form_fin_discr_dec_SAT_pos.
   Qed.
 
-  Theorem FSAT_rec_enum : rec_enum (FSAT Σ).
+  Theorem FSAT_rec_enum_t : rec_enum_t (FSAT Σ).
   Proof.
     exists (fun n A => fo_form_fin_dec_SAT_in A (pos n)).
     exists.
@@ -146,21 +146,20 @@ Section FSAT_enumerable.
         - intros ((_ & G1) & ->); simpl; lia.
   Qed.
 
-  Theorem FSAT_opt_enum : opt_enum (FSAT Σ).
+  Theorem FSAT_opt_enum_t : opt_enum_t (FSAT Σ).
   Proof.
-    generalize FSAT_rec_enum.
-    apply rec_enum_opt_enum_type_enum.
-    destruct type_enum_t_fol_form as (f & Hf).
-    exists f; auto.
+    generalize FSAT_rec_enum_t.
+    apply rec_enum_opt_enum_type_enum_t.
+    apply type_enum_t_fol_form.
   Qed.
 
 End FSAT_enumerable.
 
-Check FSAT_rec_enum.
-Print Assumptions FSAT_rec_enum.
+Check FSAT_rec_enum_t.
+Print Assumptions FSAT_rec_enum_t.
 
-Check FSAT_opt_enum.
-Print Assumptions FSAT_opt_enum.
+Check FSAT_opt_enum_t.
+Print Assumptions FSAT_opt_enum_t.
 
 Section Sig_MONADIC_Sig_11.
 

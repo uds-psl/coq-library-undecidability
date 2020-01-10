@@ -22,13 +22,20 @@ Set Implicit Arguments.
 
 (** This is standart constructive strong choice, no finiteness assumptions here *)
 
-Theorem constructive_choice X Y (R : X -> Y -> Prop) :
+Theorem constructive_choice X (T : X -> Type) (R : forall x, T x -> Prop) :
           (forall x, sig (R x)) 
-       -> { f | forall x, R x (f x) }.
+       -> { f : forall x, T x | forall x, R x (f x) }.
 Proof.
   intros f.
   exists (fun x => proj1_sig (f x)).
   intros x; apply (proj2_sig (f x)).
+Qed.
+
+Theorem constructive_choice' X Y (R : X -> Y -> Prop) :
+          (forall x, sig (R x)) 
+       -> { f | forall x, R x (f x) }.
+Proof.
+  apply constructive_choice.
 Qed.
 
 Theorem constructive_dep_choice X Y (P : X -> Prop) (R : X -> Y -> Prop) :

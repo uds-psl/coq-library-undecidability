@@ -285,10 +285,7 @@ Section enum_ops.
       -> opt_enum_t (fun p : sigT f => P _ (projT2 p)).
   Proof.
     intros D (g & Hg) H.
-    unfold opt_enum_t in H.
-    assert (G: { h : forall x, nat -> option (f x) | forall x y, P x y <-> exists n, Some y = h x n }).
-    { exists (fun x => proj1_sig (H x)); intros x; apply (proj2_sig (H x)). }
-    destruct G as (h & Hh); clear H.
+    apply constructive_choice in H; destruct H as (h & Hh).
     exists (fun n : nat => match surj n with (a,b) =>
        match g a with
          | Some x => match h x b with
