@@ -80,14 +80,14 @@ Proof.
   + apply fo_form_fin_discr_dec_SAT_fin_dec.
 Qed.
 
-Check fo_form_fin_dec_SAT_discr_equiv.
-Print Assumptions fo_form_fin_dec_SAT_discr_equiv.
+(* Check fo_form_fin_dec_SAT_discr_equiv.
+Print Assumptions fo_form_fin_dec_SAT_discr_equiv. *)
 
 Corollary FIN_DEC_SAT_FIN_DISCR_DEC_SAT Σ : FSAT Σ ⪯ @fo_form_fin_discr_dec_SAT Σ.
 Proof. exists (fun A => A); apply fo_form_fin_dec_SAT_discr_equiv. Qed.
 
-Check FIN_DEC_SAT_FIN_DISCR_DEC_SAT.
-Print Assumptions FIN_DEC_SAT_FIN_DISCR_DEC_SAT.
+(* Check FIN_DEC_SAT_FIN_DISCR_DEC_SAT.
+Print Assumptions FIN_DEC_SAT_FIN_DISCR_DEC_SAT. *)
 
 (** With Σ = (sy,re) a signature and =_2 : re and a proof that
     arity of =_2 is 2, there is a reduction from
@@ -112,5 +112,5 @@ Section FIN_DEC_EQ_SAT_FIN_DEC_SAT.
 
 End FIN_DEC_EQ_SAT_FIN_DEC_SAT.
 
-Check FIN_DEC_EQ_SAT_FIN_DEC_SAT.
-Print Assumptions FIN_DEC_EQ_SAT_FIN_DEC_SAT.
+(* Check FIN_DEC_EQ_SAT_FIN_DEC_SAT.
+   Print Assumptions FIN_DEC_EQ_SAT_FIN_DEC_SAT. *)

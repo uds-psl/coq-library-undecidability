@@ -62,8 +62,8 @@ Section enumerable_definitions.
                            forall x, P x <-> exists n, Q n x.
 
   Definition rec_enum_t P := { Q : nat -> X -> Prop &
-                             { _ : forall n x, decidable (Q n x)
-                                 | forall x, P x <-> exists n, Q n x } }.
+                             { _ : forall n x, decidable (Q n x) &
+                                   forall x, P x <-> exists n, Q n x } }.
 
   Theorem type_list_enum : type_enum <-> list_enum.
   Proof.
@@ -90,6 +90,20 @@ Section enumerable_definitions.
       destruct In_nth_error with (1 := Ha) as (b & Hb).
       destruct (Hsurj a b) as (n & Hn); exists n; now rewrite Hn.
   Qed.
+
+  (** An alternate characterization with Boolean decider *)
+
+  Fact rec_enum_t_alt P : rec_enum_t P ≋ { Q : nat -> X -> bool | forall x, P x <-> exists n, Q n x = true }.
+  Proof.
+    split.
+    + intros (Q & HQ & H).
+      exists (fun n x => if HQ n x then true else false).
+      intros x; rewrite H; apply exists_equiv; intros n.
+      destruct (HQ n x); split; try tauto; discriminate.
+    + intros (Q & H).
+      exists (fun n x => Q n x = true).
+      exists; auto; intros; apply bool_dec.
+  Qed. 
 
   Section list_enum_by_measure_fin_t.
 
@@ -222,6 +236,36 @@ End enumerable.
 
 Section enum_ops.
 
+  Fact type_enum_t_unit : type_enum_t unit.
+  Proof. 
+    exists (fun _ => Some tt).
+    intros []; exists 0; auto. 
+  Qed.
+
+  Fact type_enum_t_bool : type_enum_t bool.
+  Proof. 
+    exists (fun n => Some (match n with 0 => true | _ => false end)).
+    intros [].
+    + exists 0; auto.
+    + exists 1; auto. 
+  Qed.
+
+  Fact type_enum_t_nat : type_enum_t nat.
+  Proof.
+    exists Some.
+    intros n; exists n; auto.
+  Qed.
+
+  Fact type_enum_t_pos n : type_enum_t (pos n).
+  Proof.
+    exists (fun i => match le_lt_dec n i with left _ => None | right H => Some (nat2pos H) end).
+    intros p.
+    exists (pos2nat p).
+    destruct (le_lt_dec n (pos2nat p)) as [ H | H ].
+    + generalize (pos2nat_prop p); lia.
+    + rewrite nat2pos_pos2nat; auto.
+  Qed.
+
   Fact type_enum_opt_enum_t X : type_enum_t X ≋ opt_enum_t (fun _ : X => True).
   Proof.
     split.
@@ -340,6 +384,46 @@ Section enum_ops.
       * intros ((x,w) & (H1 & H2) & ->). 
         simpl fst in *; simpl snd in *.
         intros p; invert pos p; auto.
+  Qed.
+
+  Fact opt_enum_t_list X (P : X -> Prop) : 
+       opt_enum_t P -> opt_enum_t (Forall P).
+  Proof.
+    intros H.
+    generalize (opt_enum_t_dep_sum _ _ eq_nat_dec type_enum_t_nat (fun n => opt_enum_t_vec n H)).
+    apply opt_enum_t_image 
+      with (f := fun p => match p  with existT _ n v => vec_list v end).
+    intros l; rewrite Forall_forall; split.
+    + intros Hl; exists (existT _ (length l) (list_vec l)); simpl.
+      split. 
+      * intros p; apply Hl.
+        rewrite <- (list_vec_iso l) at 3.
+        apply in_vec_list, in_vec_pos.
+      * rewrite list_vec_iso; auto.
+    + intros ((n&v) & H1 & ->); simpl in *.
+      intros x Hx; apply vec_list_inv in Hx.
+      destruct Hx as (p & ->); auto.
+  Qed.
+
+  Fact type_enum_t_vec X n : type_enum_t X -> type_enum_t (vec X n).
+  Proof.
+    intros HX.
+    apply type_enum_opt_enum_t in HX.
+    apply type_enum_opt_enum_t.
+    generalize (opt_enum_t_vec n HX).
+    apply opt_enum_t_image with (f := fun v => v).
+    intros v; split; try tauto; exists v; auto.
+  Qed.
+
+  Fact type_enum_t_list X : type_enum_t X -> type_enum_t (list X).
+  Proof.
+    intros HX.
+    apply type_enum_opt_enum_t in HX.
+    apply type_enum_opt_enum_t.
+    generalize (opt_enum_t_list HX).
+    apply opt_enum_t_image with (f := fun v => v).
+    intros v; split; try tauto; exists v; split; auto.
+    apply Forall_forall; auto.
   Qed.
 
 End enum_ops.

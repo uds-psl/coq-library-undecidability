@@ -152,7 +152,7 @@ Qed.
 
 Print Σbpcp.
 Check BPCP_FSAT_Σbpcp.
-Print Assumptions BPCP_FSAT_Σbpcp.
+(* Print Assumptions BPCP_FSAT_Σbpcp. *)
 
 (** With Σ  = (sy,re) a signature with finitely many term symbols (sy)
     and  Σ' = (ø,sy+{=_2}+re) where =_2 is interpreted and the arity of symbols 
@@ -202,7 +202,7 @@ Qed.
 
 Print Σnosyms.
 Check FSAT_Σnosyms.
-Print Assumptions FSAT_Σnosyms.
+(* Print Assumptions FSAT_Σnosyms. *)
 
 (** If the relation symbols in Σ have all their 
     arities upper bounded by n and 
@@ -229,7 +229,7 @@ Qed.
 
 Print Σunif.
 Check FSAT_UNIFORM.
-Print Assumptions FSAT_UNIFORM.
+(* Print Assumptions FSAT_UNIFORM. *)
 
 (** With Σ=(sy,re) a signature with an empty type of term symbols
     and where all the finitely many relations in re have the same 
@@ -266,7 +266,7 @@ Qed.
 
 Print Σone_rel.
 Check FSAT_ONE_REL.
-Print Assumptions FSAT_ONE_REL.
+(* Print Assumptions FSAT_ONE_REL. *)
 
 (** With Σ=(sy,re) a signature with a discrete type sy of term symbols
     and among them, only constant symbols, there is a reduction
@@ -286,7 +286,7 @@ Qed.
 Print Σrem_cst.
 
 Check FSAT_NOCST.
-Print Assumptions FSAT_NOCST.
+(* Print Assumptions FSAT_NOCST. *)
 
 (*
 
@@ -342,9 +342,7 @@ Proof.
 Qed.
 
 Check FSAT_REL_nto2.
-Print Assumptions FSAT_REL_nto2.
-
-Print Σ21.
+(* Print Assumptions FSAT_REL_nto2. *)
 
 Theorem FSAT_REL2_to_FUN2REL1 : FSAT (Σrel 2) ⪯ FSAT Σ21.
 Proof.
@@ -355,10 +353,10 @@ Proof.
     apply Σ2_Σ21_enc_complete with (2 := H3); auto.
 Qed.
 
-Check FSAT_REL2_to_FUN2REL1.
-Print Assumptions FSAT_REL2_to_FUN2REL1.
+Print Σ21.
 
-Print Σn1.
+Check FSAT_REL2_to_FUN2REL1.
+(* Print Assumptions FSAT_REL2_to_FUN2REL1. *)
 
 Theorem FSAT_REL2_to_FUNnREL1 n : 2 <= n -> FSAT (Σrel 2) ⪯ FSAT (Σn1 n).
 Proof.
@@ -370,8 +368,10 @@ Proof.
     apply Σ2_ΣSSn1_enc_complete with (2 := H3); auto.
 Qed.
 
+Print Σn1.
+
 Check FSAT_REL2_to_FUNnREL1.
-Print Assumptions FSAT_REL2_to_FUNnREL1.
+(* Print Assumptions FSAT_REL2_to_FUNnREL1. *)
 
 Theorem FSAT_FUNnREL1_ANY Σ n f r : 
    ar_syms Σ f = n -> ar_rels Σ r = 1 -> FSAT (Σn1 n) ⪯ FSAT Σ.
@@ -384,7 +384,7 @@ Proof.
 Qed.
 
 Check FSAT_FUNnREL1_ANY.
-Print Assumptions FSAT_FUNnREL1_ANY.
+(* Print Assumptions FSAT_FUNnREL1_ANY. *)
 
 (*      SAT(∅,{R_2},𝔽,ℂ) ---> SAT(∅,{R_(2+n)},𝔽,ℂ)           *)
 
@@ -400,7 +400,7 @@ Proof.
 Qed.
 
 Check FSAT_REL_2ton.
-Print Assumptions FSAT_REL_2ton.
+(* Print Assumptions FSAT_REL_2ton. *)
 
 (** If Σ contains an n-ary relational symbol then there is a 
     reduction 
@@ -415,7 +415,7 @@ Proof.
 Qed.
 
 Check FSAT_RELn_ANY.
-Print Assumptions FSAT_RELn_ANY.
+(* Print Assumptions FSAT_RELn_ANY. *)
 
 Section FINITARY_TO_BINARY.
 
@@ -468,7 +468,7 @@ Section FINITARY_TO_BINARY.
 End FINITARY_TO_BINARY.
 
 Check FINITARY_TO_BINARY.
-Print Assumptions FINITARY_TO_BINARY.
+(* Print Assumptions FINITARY_TO_BINARY. *)
 
 Section DISCRETE_TO_BINARY.
 
@@ -487,7 +487,7 @@ Section DISCRETE_TO_BINARY.
 End DISCRETE_TO_BINARY.
 
 Check DISCRETE_TO_BINARY.
-Print Assumptions DISCRETE_TO_BINARY.
+(* Print Assumptions DISCRETE_TO_BINARY. *)
 
 Section DISCRETE_TO_BINARY_ALT.
 
@@ -507,7 +507,7 @@ Section DISCRETE_TO_BINARY_ALT.
 End DISCRETE_TO_BINARY_ALT.
 
 Check DISCRETE_TO_BINARY_ALT.
-Print Assumptions DISCRETE_TO_BINARY_ALT.
+(* Print Assumptions DISCRETE_TO_BINARY_ALT. *)
 
 Section FULL_TRAKHTENBROT.
 
