@@ -17,7 +17,7 @@ From Undecidability.Shared.Libs.DLW.Vec
 
 From Undecidability.TRAKHTENBROT
   Require Import notations utils decidable
-                 fol_ops fo_sig fo_terms fo_logic fo_enum
+                 fol_ops fo_sig fo_terms fo_logic
                  fo_sat fo_sat_dec
 
                  red_utils 
@@ -25,46 +25,9 @@ From Undecidability.TRAKHTENBROT
                  Sig_Sig_fin
                  Sig_rem_props
                  Sig_rem_constants
-                 Sig1 Sig1_1.
+                 Sig0 Sig1 Sig1_1.
 
 Set Implicit Arguments.
-
-Section FSAT_enumerable.
-
-  Variable (Σ : fo_signature) 
-           (H1 : discrete (syms Σ)) 
-           (H2 : discrete (rels Σ)).
-
-  Implicit Type (A : fol_form Σ).
-
-  Theorem FSAT_FSAT_in_pos A : FSAT _ A <-> exists n, fo_form_fin_dec_SAT_in A (pos n).
-  Proof.
-    rewrite fo_form_fin_dec_SAT_discr_equiv.
-    apply fo_form_fin_discr_dec_SAT_pos.
-  Qed.
-
-  Theorem FSAT_rec_enum_t : rec_enum_t (FSAT Σ).
-  Proof.
-    exists (fun n A => fo_form_fin_dec_SAT_in A (pos n)).
-    exists.
-    + intros n A; apply FSAT_in_dec; auto; apply finite_t_pos.
-    + intros A; apply FSAT_FSAT_in_pos.
-  Qed.
-
-  Hypothesis (H3 : type_enum_t (syms Σ)).
-  Hypothesis (H4 : type_enum_t (rels Σ)).
-
-  Theorem FSAT_opt_enum_t : opt_enum_t (FSAT Σ).
-  Proof.
-    generalize FSAT_rec_enum_t.
-    apply rec_enum_opt_enum_type_enum_t.
-    apply type_enum_t_fol_form; auto.
-  Qed.
-
-End FSAT_enumerable.
-
-Check FSAT_rec_enum_t.
-Check FSAT_opt_enum_t.
 
 Section Sig_MONADIC_Sig_11.
 
@@ -85,8 +48,8 @@ Section Sig_MONADIC_Sig_11.
 
 End Sig_MONADIC_Sig_11.
 
-Check FSAT_FULL_MONADIC_FSAT_11.
-(* Print Assumptions FSAT_FULL_MONADIC_FSAT_11. *)
+(* Check FSAT_FULL_MONADIC_FSAT_11.
+Print Assumptions FSAT_FULL_MONADIC_FSAT_11. *)
 
 Section FSAT_MONADIC_DEC.
 
@@ -194,48 +157,28 @@ Section FSAT_FULL_MONADIC_DEC.
 
 End FSAT_FULL_MONADIC_DEC.
 
-Check FSAT_FULL_MONADIC_DEC.
-(* Print Assumptions FSAT_FULL_MONADIC_DEC. *)
+(* Check FSAT_FULL_MONADIC_DEC.
+Print Assumptions FSAT_FULL_MONADIC_DEC. *)
 
 Section FSAT_PROP_ONLY_DEC.
 
   Variable (Σ : fo_signature)
-           (H1 : discrete (syms Σ)) 
-           (H2 : discrete (rels Σ))
-           (H3 : forall r, ar_rels Σ r = 0)
+           (H1 : discrete (rels Σ))
+           (H2 : forall r, ar_rels Σ r = 0)
            (A : fol_form Σ).
-
-  Let HA : fol_syms A = nil.
-  Proof.
-    induction A as [ | r v | b B HB C HC | q B HB ].
-    + simpl; auto.
-    + simpl; revert v; rewrite H3; intros v; vec nil v; auto.
-    + simpl; rewrite HB, HC; auto.
-    + simpl; auto.
-  Qed.
 
   Theorem FSAT_PROP_ONLY_DEC : decidable (FSAT _ A).
   Proof.
-    destruct Σ_discrete_to_pos with (A := A)
-      as (n & m & i & j & G1 & _ & G3 & G4 & G5 & _ & B & HB); simpl; auto.
-    assert (n = 0) as Hn.
-    { destruct n; auto.
-      generalize (G3 pos0); rewrite HA; intros []. }
-    subst n; simpl in *.
-    assert (H4 : forall r, ar_rels (Σpos Σ i j) r <= 1).
-    { intros; simpl; rewrite H3; auto. }
-    destruct FSAT_FULL_MONADIC_DEC with (A := Σrem_props H4 0 B)
-      as [ H | H ]; simpl; auto.
-    { intros s; invert pos s. }
-    + left; apply HB; revert H.
-      intros (X & H); exists X; revert H.
-      apply Σrem_props_correct.
-    + right; contradict H; revert H; rewrite HB.
-      intros (X & H); exists X; revert H.
-      apply Σrem_props_correct.
+    assert (H: decidable (fo_form_fin_dec_SAT_in (Σ_Σ0 A) unit)).
+    { apply FSAT_in_dec; simpl; auto.
+      + intros [].
+      + apply finite_t_unit. }
+    destruct H as [ H | H ].
+    + left; revert H; apply Σ_Σ0_correct; auto.
+    + right; contradict H; revert H; apply Σ_Σ0_correct; auto.
   Qed.
 
 End FSAT_PROP_ONLY_DEC.
 
-Check FSAT_PROP_ONLY_DEC.
-(* Print Assumptions FSAT_PROP_ONLY_DEC. *)
+(* Check FSAT_PROP_ONLY_DEC.
+Print Assumptions FSAT_PROP_ONLY_DEC. *)

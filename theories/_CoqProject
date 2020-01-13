@@ -258,6 +258,7 @@ TRAKHTENBROT/notations.v
 TRAKHTENBROT/bpcp.v
 TRAKHTENBROT/utils.v
 TRAKHTENBROT/decidable.v
+TRAKHTENBROT/enumerable.v
 TRAKHTENBROT/extensional.v
 TRAKHTENBROT/fol_ops.v
 
@@ -299,6 +300,7 @@ TRAKHTENBROT/Sig_Sig_fin.v
 TRAKHTENBROT/Sig_rem_props.v
 TRAKHTENBROT/Sig_rem_constants.v
 
+TRAKHTENBROT/Sig0.v
 TRAKHTENBROT/Sig1.v
 TRAKHTENBROT/Sig1_1.v
 TRAKHTENBROT/Sig2_Sig21.v
@@ -306,6 +308,7 @@ TRAKHTENBROT/Sig2_SigSSn1.v
 
 TRAKHTENBROT/red_utils.v
 TRAKHTENBROT/red_dec.v
+TRAKHTENBROT/red_enum.v
 TRAKHTENBROT/red_undec.v
 
 TRAKHTENBROT/summary.v

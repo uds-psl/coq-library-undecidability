@@ -140,8 +140,8 @@ Section enum_models.
     exact ( (forall s, In s ls -> forall v, s1 s v = s2 s v) ).
   Defined.
 
-  Let enum_funs : finite_t_upto funs Rs.
-  Proof. apply enum_sig; auto. Qed.
+  Let finite_t_funs : finite_t_upto funs Rs.
+  Proof. apply finite_t_model; auto. Qed.
  
   Let rels := { r : forall s, vec X (ar_rels Σ s) -> Prop & forall s v, decidable (r s v) }.
 
@@ -159,9 +159,9 @@ Section enum_models.
     intros; apply bool_dec.
   Defined.
 
-  Let enum_rels : finite_t_upto rels Rr.
+  Let finite_t_rels : finite_t_upto rels Rr.
   Proof.
-    destruct enum_sig with (ar := ar_rels Σ) (X := X) (Y := bool) (ls := lr)
+    destruct finite_t_model with (ar := ar_rels Σ) (X := X) (Y := bool) (ls := lr)
       as (l & Hl) ; auto.
     { exact true. }
     exists (map bool_prop l).
@@ -193,11 +193,11 @@ Section enum_models.
     exists {| fom_syms := f; fom_rels := g |}, rho; auto.
   Defined.
 
-  Theorem enum_model_dec : finite_t_upto _ FO_model_equiv.
+  Local Theorem finite_t_model_upto : finite_t_upto _ FO_model_equiv.
   Proof.
-    destruct enum_funs as (lf & H1).
-    destruct enum_rels as (lg & H2).
-    destruct enum_valuations with X ln
+    destruct finite_t_funs as (lf & H1).
+    destruct finite_t_rels as (lg & H2).
+    destruct finite_t_valuations with X ln
       as (lrho & H3); auto.
     exists (map combine (list_prod (list_prod lf lg) lrho)).
     intros ((f,g) & rho & Hg).
@@ -218,7 +218,7 @@ Section enum_models.
     exact (fol_sem M rho A).
   Defined.
   
-  Theorem R_sem (M1 M2 : model) A : 
+  Theorem FO_model_equiv_spec (M1 M2 : model) A : 
              FO_model_equiv M1 M2 
           -> incl (fol_vars A) ln
           -> incl (fol_syms A) ls
@@ -241,7 +241,7 @@ Section enum_models.
     + intros n Hn; apply H1; auto.
   Qed.
 
-  Theorem FSAT_eq A : @fo_form_fin_dec_SAT_in Σ A X <-> exists M, FO_sem M A.
+  Theorem FSAT_FO_sem_eq A : @fo_form_fin_dec_SAT_in Σ A X <-> exists M, FO_sem M A.
   Proof.
     split.
     + intros (M & H1 & H2 & rho & H3).
@@ -254,15 +254,15 @@ End enum_models.
 
 Section FSAT_in_dec.
 
-  (** Given a fixed finite and discrete type X and a discrete signature Σ,
-      having a Σ-model over that base type X is a decidable property *)
+  (** The main theorem here: 
 
-  Variables (Σ : fo_signature)
-            (HΣ1 : discrete (syms Σ))
-            (HΣ2 : discrete (rels Σ))
-            (X : Type) 
-            (HX1 : finite_t X)
-            (HX2 : discrete X)
+      - Given a discrete FO signature Σ
+      - Given a finite and discrete base type X
+
+      Having a Σ-model over that base type X is a decidable property *)
+
+  Variables (Σ : fo_signature) (HΣ1 : discrete (syms Σ)) (HΣ2 : discrete (rels Σ))
+            (X : Type) (HX1 : finite_t X) (HX2 : discrete X)
             (A : fol_form Σ).
 
   Theorem FSAT_in_dec : decidable (@fo_form_fin_dec_SAT_in Σ A X).
@@ -272,7 +272,7 @@ Section FSAT_in_dec.
       apply (Hl (rho 0)).
     + clear l Hl.
       assert (H : decidable (exists M, @FO_sem _ X M A)).
-      { destruct enum_model_dec 
+      { destruct finite_t_model_upto 
           with (X := X) 
                (ls := fol_syms A) 
                (lr := fol_rels A) 
@@ -284,17 +284,20 @@ Section FSAT_in_dec.
                                     (fol_rels A) 
                                     (fol_vars A)); auto.
         * intros (M & rho & H); simpl; apply fol_sem_dec; auto.
-        * intros ? ? ?; eapply R_sem.
+        * intros ? ? ?; eapply FO_model_equiv_spec.
           2-4: apply incl_refl.
           trivial. }
       destruct H as [ H | H ]; [ left | right ].
-      * revert H; apply FSAT_eq; auto.
-      * contradict H; revert H; apply FSAT_eq; auto.
+      * revert H; apply FSAT_FO_sem_eq; auto.
+      * contradict H; revert H; apply FSAT_FO_sem_eq; auto.
   Qed.
 
 End FSAT_in_dec.
 
 Section fo_form_fin_discr_dec_SAT_pos.
+
+  (** Having a finite and discrete model is the same
+      as having a model over type pos n for some n *)
 
   Variables (Σ : fo_signature) (A : fol_form Σ).
 

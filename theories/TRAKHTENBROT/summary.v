@@ -24,9 +24,9 @@ From Undecidability.Shared.Libs.DLW.Wf
 From Undecidability.TRAKHTENBROT
   Require Import notations bpcp 
                  fo_sig fo_terms fo_logic fo_sat 
-                 decidable
+                 decidable enumerable
 
-                 red_utils red_dec red_undec
+                 red_utils red_enum red_dec red_undec
                  .
 
 Set Implicit Arguments.
@@ -50,6 +50,7 @@ Print rec_enum_t.
 Check FSAT_rec_enum_t.
 Print Assumptions FSAT_rec_enum_t.
 
+Print type_enum_t.
 Print opt_enum_t.
 
 Check FSAT_opt_enum_t.
