@@ -1,4 +1,4 @@
-From Undecidability.TM Require Export TM.
+From Undecidability.TM Require Import TM.
 
 Definition HaltsTM {sig: finType} {n: nat} (M : mTM sig n) (t : tapes sig n) :=
   exists outc k, loopM (initc M t) k = Some outc.

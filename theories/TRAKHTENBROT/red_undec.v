@@ -10,7 +10,10 @@
 Require Import List Arith Bool Lia Eqdep_dec.
 
 From Undecidability.Problems
-  Require Import PCP.
+  Require Import Reduction PCP TM.
+
+From Undecidability.Reductions
+  Require Import TM_to_BPCP.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
@@ -128,6 +131,12 @@ Proof.
   + intros (A & ? & ? & ?).
     exists (tau2 A); apply pcp_hand_derivable, BPCP_derivable.
     exists A; auto.
+Qed.
+
+Theorem HaltTM_BPCP_problem : HaltTM 1 ⪯ BPCP_problem.
+Proof.
+  eapply reduces_transitive. exact HaltTM_BPCP.
+  exists (fun x => x); symmetry; apply BPCP_BPCP_problem.
 Qed.
 
 Section BPCP_fo_fin_dec_SAT.
@@ -501,7 +510,8 @@ Section DISCRETE_TO_BINARY_ALT.
     intros A.
     destruct (Σ_finite HΣ1 HΣ2 A) as (Σ' & H1 & H2 & H3 & H4 & _ & _ & _ & _ & _ & _ & _ & _ & B & HB).
     destruct (FINITARY_TO_BINARY H1 H3 H2 H4) as (f & Hf).
-    exists (f B); rewrite <- Hf, HB; tauto.
+    exists (f B). 
+    rewrite <- Hf; apply HB.
   Qed.
 
 End DISCRETE_TO_BINARY_ALT.

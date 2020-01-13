@@ -507,6 +507,7 @@ Reductions/SRH_to_SR.v
 Reductions/SR_to_MPCP.v 
 Reductions/MPCP_to_PCP.v
 Reductions/PCP_to_BPCP.v
+Reductions/TM_to_BPCP.v
 Reductions/BPCP_to_BSM.v
 Reductions/BSM_to_MM.v  
 Reductions/MM_to_ILL.v  

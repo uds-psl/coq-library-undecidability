@@ -10,7 +10,7 @@
 Require Import List Arith Bool Lia Eqdep_dec.
 
 From Undecidability.Problems
-  Require Import PCP.
+  Require Import Reduction.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
@@ -27,37 +27,6 @@ From Undecidability.TRAKHTENBROT
                  .
 
 Set Implicit Arguments.
-
-(** We prove informative reductions in here ... I know
-    that all of the reductions I did implement in this
-    library are informative as well !! @DLW *)
-
-Definition reduces X Y (P : X -> Prop) (Q : Y -> Prop) :=
-        { f : X -> Y | forall x, P x <-> Q (f x) }.
-
-Infix "⪯" := reduces (at level 70).
-
-Fact reduces_transitive X P Y Q Z K :
-        @reduces X Y P Q -> @reduces Y Z Q K -> P ⪯ K.
-Proof. 
-  intros (f & Hf) (g & Hg).
-  exists (fun x => g (f x)).
-  intro; rewrite Hf, Hg; tauto.
-Qed.
-
-(** Sometimes the dependent statement is more convenient *)
-
-Fact reduction_dependent X Y (P : X -> Prop) (Q : Y -> Prop) :
-         (P ⪯ Q -> forall x, { y | P x <-> Q y })
-       * ((forall x, { y | P x <-> Q y }) -> P ⪯ Q).
-Proof.
-  split.
-  + intros (f & Hf).
-    intros x; exists (f x); auto.
-  + intros f.
-    exists (fun x => proj1_sig (f x)).
-    intros; apply (proj2_sig (f x)).
-Qed.
 
 (** From a given (arbitrary) signature, 
     the reduction from 

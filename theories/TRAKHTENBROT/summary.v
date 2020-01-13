@@ -10,7 +10,7 @@
 Require Import List Arith Bool Lia Eqdep_dec.
 
 From Undecidability.Problems
-  Require Import PCP.
+  Require Import Reduction.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.

@@ -9,6 +9,7 @@
 
 Require Import List Arith Omega.
 
+Require Import Undecidability.Shared.Prelim.
 From Undecidability Require Import ILL.Definitions.
 
 From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec. 

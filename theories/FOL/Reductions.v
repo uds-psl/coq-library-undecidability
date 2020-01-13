@@ -5,13 +5,15 @@ From Undecidability Require Export Problems.Reduction DecidableEnumerable.
 Lemma dec_red X (p : X -> Prop) Y (q : Y -> Prop) :
   p ⪯ q -> decidable q -> decidable p.
 Proof.
-  intros [f] [d]. exists (fun x => d (f x)). intros x. rewrite H. eapply H0.
+  intros [f Hf] [d Hd]. 
+  exists (fun x => d (f x)). 
+  intros x; rewrite <- Hd; apply Hf.
 Qed.
 
 Lemma red_comp X (p : X -> Prop) Y (q : Y -> Prop) :
   p ⪯ q -> (fun x => ~ p x) ⪯ (fun y => ~ q y).
 Proof.
-  intros [f]. exists f. intros x. now rewrite H.
+  intros [f Hf]. exists f. intros x. now rewrite Hf.
 Qed.
 
 Section enum_red.
@@ -61,10 +63,10 @@ Theorem not_decidable X Y (p : X -> Prop) (q : Y -> Prop) :
   p ⪯ q -> enumerable__T X -> ~ enumerable (compl p) ->
   ~ decidable q /\ ~ decidable (compl q).
 Proof.
-  intros. split; intros ?.
-  - eapply H1. eapply dec_red in H2; eauto.
-    eapply dec_compl in H2. eapply dec_count_enum; eauto.
-  - eapply H1. eapply dec_red in H2; eauto.
+  intros H1 H2 H3; split; intros H4.
+  - eapply H3. eapply dec_red in H4; eauto.
+    eapply dec_compl in H4. eapply dec_count_enum; eauto.
+  - eapply H3. eapply dec_red in H4; eauto.
     eapply dec_count_enum; eauto. now eapply red_comp.
 Qed.
 
@@ -72,7 +74,9 @@ Theorem not_coenumerable X Y (p : X -> Prop) (q : Y -> Prop) :
   p ⪯ q -> enumerable__T X -> ~ enumerable (compl p) -> discrete Y ->
   ~ enumerable (compl q).
 Proof.
-  intros. intros ?. eapply H1. eapply enumerable_red in H3; eauto.
+  intros H1 H2 H3 H4 H5. 
+  eapply H3. 
+  eapply enumerable_red in H5; eauto.
   now eapply red_comp.
 Qed.
 

@@ -9,6 +9,9 @@
 
 Require Import List Arith Lia Max.
 
+From Undecidability.Problems
+  Require Import Reduction.
+
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
 
