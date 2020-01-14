@@ -10,7 +10,12 @@
 (* Require Import Arith Omega Max List. *)
 
 Require Import Arith Omega List Permutation.
-From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos.
+
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils. 
+
+From Undecidability.Shared.Libs.DLW.Vec 
+  Require Import pos.
 
 Set Implicit Arguments.
 
@@ -51,6 +56,14 @@ Section vector.
 
   Fact vec_head_tail n (v : vec (S n)) : v = vec_cons (vec_head v) (vec_tail v).
   Proof. apply (vec_head_tail_prop v). Qed.
+
+  Fact vec_cons_inv n x y (v w : vec n) : vec_cons x v = vec_cons y w -> x = y /\ v = w.
+  Proof.
+    intros H1; generalize H1; intros H2.
+    apply f_equal with (f := @vec_head _) in H1.
+    apply f_equal with (f := @vec_tail _) in H2.
+    auto.
+  Qed.
 
   Fixpoint vec_pos n (v : vec n) : pos n -> X.
   Proof.
@@ -161,9 +174,37 @@ Section vector.
       | vec_nil      => nil
       | vec_cons x v => x::vec_list v
     end.
+
+  Fact vec_list_vec_set_pos n f : vec_list (@vec_set_pos n f) = map f (pos_list n).
+  Proof.
+    revert f; induction n as [ | n IHn ]; intros f; simpl; f_equal; auto.
+    rewrite IHn, map_map; auto.
+  Qed.
     
   Fact vec_list_length n v : length (@vec_list n v) = n.
-  Proof. induction v; simpl; f_equal; auto. Qed.
+  Proof. induction v; simpl; f_equal; auto. Defined.
+
+  Fixpoint list_vec (l : list X) : vec (length l) := 
+    match l with 
+      | nil  => vec_nil
+      | x::l => vec_cons x (list_vec l)
+    end.
+
+  Fact list_vec_iso l : vec_list (list_vec l) = l.
+  Proof. induction l; simpl; f_equal; auto. Qed.
+
+  (* The other part needs a transport *)
+
+  Fact vec_list_iso n v : list_vec (@vec_list n v) = eq_rect_r _ v (vec_list_length v).
+  Proof. 
+    induction v; simpl; f_equal; auto.
+    rewrite IHv; unfold eq_rect_r; simpl.
+    generalize (length (vec_list v)) (vec_list_length v).
+    intros; subst; cbv; auto.
+  Qed.
+
+  Definition list_vec_full l : { v : vec (length l) | vec_list v = l }.
+  Proof. exists (list_vec l); apply list_vec_iso. Qed.
 
   Fact vec_list_inv n v x : In x (@vec_list n v) -> exists p, x = vec_pos v p.
   Proof.
@@ -175,7 +216,47 @@ Section vector.
     subst; exists (pos_nxt p); auto.
   Qed.
 
+  Variable x : X.
+
+  Fixpoint in_vec n (v : vec n) : Prop :=
+    match v with
+      | vec_nil      => False
+      | vec_cons y v => y = x \/ in_vec v
+    end.
+
+  Fact in_vec_list n v : @in_vec n v <-> In x (vec_list v).
+  Proof. induction v; simpl; tauto. Qed.
+
 End vector.
+
+Fact in_vec_pos X n (v : vec X n) p : in_vec (vec_pos v p) v.
+Proof.
+  revert p; induction v; intros p; invert pos p; auto.
+Qed.
+
+Fact in_vec_inv X n (v : vec X n) x : in_vec x v -> exists p, vec_pos v p = x.
+Proof.
+  induction v as [ | n y v IHv ]; simpl in_vec; try tauto.
+  intros [ -> | H ].
+  + exists pos0; auto.
+  + destruct (IHv H) as (p & <-).
+    exists (pos_nxt p); auto.
+Qed.
+
+Fact in_vec_dec_inv X n (v : vec X n) : 
+        (forall x y : X, { x = y } + { x <> y })
+     -> forall x, in_vec x v -> { p | vec_pos v p = x }.
+Proof.
+  intros dec.
+  induction v as [ | n x v IHv ].
+  + intros _ [].
+  + intros y Hy.
+    destruct (dec x y) as [ H | H ].
+    * exists pos0; auto.
+    * destruct (IHv y) as (p & Hp).
+      - destruct Hy; tauto.
+      - exists (pos_nxt p); auto.
+Qed.
 
 (* notations *)
 
@@ -249,15 +330,53 @@ Qed.
 
 Section vec_map.
 
-  Variable (X Y : Type) (f : X -> Y). 
+  Variable (X Y : Type).
 
-  Fixpoint vec_map n (v : vec X n) :=
-    match v with 
-      | vec_nil => vec_nil
-      | x ## v  => f x ## vec_map v 
-    end.
+  Section vec_map_def.
+
+    Variable (f : X -> Y).
+
+    Fixpoint vec_map n (v : vec X n) :=
+      match v with 
+        | vec_nil => vec_nil
+        | x ## v  => f x ## vec_map v 
+      end.
+
+  End vec_map_def.
+
+  Fixpoint vec_in_map n v : (forall x, @in_vec X x n v -> Y) -> vec Y n.
+  Proof.
+    refine (match v with
+      | vec_nil      => fun _ => vec_nil
+      | vec_cons x v => fun f => vec_cons (f x _) (@vec_in_map _ v _)
+    end).
+    + left; auto.
+    + intros y Hy; apply (f y); right; auto.
+  Defined.
+
+  Fact vec_in_map_vec_map_eq f n v : @vec_in_map n v (fun x _ => f x) = vec_map f v.
+  Proof. induction v; simpl; f_equal; auto. Qed.
+
+  Fact vec_in_map_ext n v f g : (forall x Hx, @f x Hx = @g x Hx) 
+                             -> @vec_in_map n v f = vec_in_map v g.
+  Proof. revert f g; induction v; simpl; intros; f_equal; auto. Qed.
+
+  Fact vec_map_ext f g n v : (forall x, in_vec x v -> f x = g x) 
+                          -> @vec_map f n v = vec_map g v.
+  Proof.
+    intros H.
+    do 2 rewrite <- vec_in_map_vec_map_eq.
+    apply vec_in_map_ext, H.
+  Qed.
+
+  Fact vec_list_vec_map (f : X -> Y) n v : vec_list (@vec_map f n v) = map f (vec_list v).
+  Proof. induction v; simpl; f_equal; auto. Qed.
 
 End vec_map.
+
+Fact vec_map_map X Y Z (f : X -> Y) (g : Y -> Z) n (v : vec _ n) :
+          vec_map g (vec_map f v) = vec_map (fun x => g (f x)) v.
+Proof. induction v; simpl; f_equal; auto. Qed. 
 
 Section vec_map2.
 
@@ -298,7 +417,13 @@ Proof.
   revert p; induction v; intros p; pos_inv p; simpl; auto.
 Qed.
 
-  
+Fact vec_map_set_pos X Y f n s : @vec_map X Y f _ (@vec_set_pos _ n s)
+                               = vec_set_pos (fun p => f (s p)).
+Proof.
+  apply vec_pos_ext; intros p.
+  rewrite vec_pos_map, vec_pos_set, vec_pos_set; auto.
+Qed.
+
 Section vec_plus.
 
   Variable n : nat.
@@ -389,6 +514,8 @@ Tactic Notation "rew" "vec" :=
     | |- context[ _[_/?x]#>?y ] => rewrite vec_change_neq with (p := x) (q := y); [ | discriminate ]
     | |- context[ vec_plus vec_zero ?x ] => rewrite vec_zero_plus with (v := x)
     | |- context[ vec_plus ?x vec_zero ] => rewrite (vec_plus_comm x vec_zero); rewrite vec_zero_plus with (v := x)
+    | |- context[ (vec_set_pos ?f) #> ?p ] => rewrite (vec_pos_set f p)
+    | |- context[ (vec_map ?f ?v) #> ?p ] => rewrite (vec_pos_map f v p)
     | |- vec_plus ?x ?y = vec_plus ?y ?x => apply vec_plus_comm
   end; auto.
 
@@ -576,31 +703,6 @@ Proof.
   rewrite map_list_repeat; auto.
 Qed.
 
-Definition list_vec X (l : list X) : { v : vec X (length l) | vec_list v = l }.
-Proof.
-  induction l as [ | x l (v & Hv) ]; simpl.
-  exists vec_nil; auto.
-  exists (x##v); simpl; f_equal; auto.
-Qed.
-
-Fact vec_reif X n (R : pos n -> X -> Prop) : (forall p, ex (R p)) -> exists v, forall p, R p (vec_pos v p).
-Proof.
-  intros H.
-  apply pos_reification in H.
-  destruct H as (f & Hf).
-  exists (vec_set_pos f).
-  intro; rewrite vec_pos_set; trivial.
-Qed.
-
-Fact vec_reif_t X n (R : pos n -> X -> Prop) : (forall p, sig (R p)) -> { v | forall p, R p (vec_pos v p) }.
-Proof.
-  intros H.
-  apply pos_reif_t in H.
-  destruct H as (f & Hf).
-  exists (vec_set_pos f).
-  intro; rewrite vec_pos_set; trivial.
-Qed.
-
 Section fun2vec.
 
   Variable X : Type.
@@ -650,3 +752,28 @@ Section fun2vec.
   Qed. 
 
 End fun2vec.
+
+Section map_vec_pos_equiv.
+
+  Variable (X : Type) (R : X -> X -> Prop)
+           (Y : Type) (T : Y -> Y -> Prop)
+           (T_refl : forall y, T y y)
+           (T_trans : forall x y z, T x y -> T y z -> T x z). 
+
+  Theorem map_vec_pos_equiv n (f : vec X n -> Y) : 
+           (forall p v x y, R x y -> T (f (v[x/p])) (f (v[y/p])))
+        -> forall v w, (forall p, R (v#>p) (w#>p)) -> T (f v) (f w).
+  Proof.
+    revert f; induction n as [ | n IHn ]; intros f Hf v w H.
+    + vec nil v; vec nil w; auto.
+    + apply T_trans with (y := f (v[(w#>pos0)/pos0])).
+      * rewrite <- (vec_change_same v pos0) at 1; auto.
+      * revert H.
+        vec split v with a; vec split w with b; intros H; simpl.
+        apply IHn with (f := fun v => f(b##v)).
+        - intros p q x y Hxy.
+          apply (Hf (pos_nxt p) (b##q)); auto.
+        - intros p; apply (H (pos_nxt p)).
+  Qed. 
+
+End map_vec_pos_equiv.

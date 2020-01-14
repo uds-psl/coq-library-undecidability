@@ -11,9 +11,10 @@
 
 (** ** Pidgeon hole principle *)
 
-Require Import Arith Omega List Permutation.
+Require Import Arith Omega List Permutation Relations.
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list.
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_tac utils_list.
 
 Set Implicit Arguments.
 
@@ -128,6 +129,8 @@ Section pigeon_list.
   
   Fact list_hd_cons_inv x l : list_has_dup (x::l) -> In x l \/ list_has_dup l.
   Proof. inversion 1; subst; auto. Qed.
+
+  Definition list_has_dup_cons_inv := list_hd_cons_inv.
   
   Fact list_has_dup_app_left l m : list_has_dup m -> list_has_dup (l++m).
   Proof. induction l; simpl; auto; constructor 2; auto. Qed.
@@ -187,6 +190,8 @@ Section pigeon_list.
       constructor 1; reflexivity.
   Qed.
 
+  Definition list_has_dup_equiv := list_has_dup_eq_duplicates.
+
   Fact repeat_choice_two x m : Forall (eq x) m -> (exists m', m = x::x::m') \/ m = nil \/ m = x::nil.
   Proof.
     intros H.
@@ -232,14 +237,9 @@ Section pigeon_list.
   (** length_le_and_incl_implies_dup_or_perm is a generalisation of the PHP
       for which the inductive case works w/o needing decidable equality  
 
-      But I know, I should find a better name for it ...
+      A shorter proof
 
-      If  m is longer than l 
-      and m is (set) included in l
-      then either it has a duplicate 
-               or it is permutable with l
-
-      The proof is by measure induction on length l
+      The proof is by induction on l
    *)
 
   Lemma length_le_and_incl_implies_dup_or_perm l m :  
@@ -247,40 +247,18 @@ Section pigeon_list.
          -> incl m l 
          -> list_has_dup m \/ m ~p l.
   Proof.
-    revert m; induction on l as IHl with measure (length l); revert l IHl.
-    intros [ | x l ] IHl [ | y m ]; simpl; intros H1 H2; auto; try omega;
-      try (destruct (H2 y); simpl; auto; fail).
-    apply le_S_n in H1.
-    apply incl_left_right_php in H2.
-    destruct H2 as [  H2 
-                 | [ (H2 & H3) 
-                 | [ (H2 & H3) 
-                   | (H2 & m' & H3 & H4) ] ] ]; auto; try subst y.
-    * destruct IHl with (3 := H3); auto.
-      left; apply in_list_hd1; auto.
-    * destruct IHl with (3 := H3); auto.
-      + left; apply in_list_hd1; auto.
-      + left; apply in_list_hd0; revert H2.
-        apply Permutation_in, Permutation_sym; auto.
-    * apply perm_in_head in H2; destruct H2 as (l' & Hl').
-      apply Permutation_sym in H3.
-      apply perm_incl_right with (1 := Hl'), 
-            incl_right_cons_choose in H4.
-      destruct H4 as [ H4 | H4 ].
-      + left; apply in_list_hd0, Permutation_in with (1 := H3); right; auto.
-      + destruct IHl with (3 := H4) as [ H5 | H5 ].
-        - apply Permutation_length in Hl'; simpl in Hl' |- *; omega.
-        - apply Permutation_length in Hl'.
-          apply Permutation_length in H3.
-          simpl in Hl', H3; omega.
-        - left; apply perm_list_has_dup in H3; apply in_list_hd1; auto.
-        - { right; apply Permutation_trans with (y::x::m').
-            + apply perm_skip, Permutation_sym; auto.
-            + apply Permutation_trans with (1 := perm_swap _ _ _),
-                    perm_skip, Permutation_sym,
-                    Permutation_trans with (1 := Hl'),
-                    perm_skip, Permutation_sym; auto. }
-  Qed.
+    revert m; induction l as [ | x l IHl ]; intros m; simpl; intros H1 H2; auto.
+    + destruct m as [ | y ]; auto; destruct (H2 y); simpl; auto.
+    + destruct incl_right_cons_incl_or_lhd_or_perm with (1 := H2)
+        as [ H3 | [ H3 | (m' & H3 & H4) ] ]; auto.
+      * destruct IHl with (2 := H3) as [ | H ]; try omega; auto.
+        apply Permutation_length in H; omega.
+      * destruct IHl with (2 := H4) as [ H | H ]; try (simpl; omega).
+        - apply Permutation_length in H3; simpl in H3; omega.
+        - left; apply perm_list_has_dup with (1 := Permutation_sym H3).
+          constructor 2; auto.
+        - right; apply perm_trans with (1 := H3); auto.
+  Qed. 
 
   (** If  m is strictly longer than l 
       and m is (set) included in l
@@ -290,17 +268,24 @@ Section pigeon_list.
       and it does not find where is the duplicate
     *)
 
-  Theorem finite_pigeon_hole l m : 
+  Theorem finite_php_dup l m : length l < length m
+                            -> incl m l 
+                            -> list_has_dup m.
+  Proof.
+    intros H1 H2.
+    destruct (@length_le_and_incl_implies_dup_or_perm l m) as [ | H3 ]; auto; try omega.
+    apply Permutation_length in H3; omega.
+  Qed. 
+
+  Theorem finite_pigeon_hole l m :
          length l < length m 
       -> incl m l 
       -> exists x aa bb cc, m = aa++x::bb++x::cc.
   Proof.
-    intros H1 H2; apply list_has_dup_eq_duplicates.
-    destruct (@length_le_and_incl_implies_dup_or_perm l m) as [ | H3 ]; auto;
-      [ | apply Permutation_length in H3 ]; omega.
+    intros; apply list_has_dup_eq_duplicates, finite_php_dup with l; auto.
   Qed.
 
-  Theorem partition_intersection l m k : 
+  Theorem partition_intersection l m k :
            length k < length (l++m)
         -> incl (l++m) k
         -> list_has_dup l 
@@ -406,29 +391,29 @@ Qed.
 
 Section PHP_rel.
   
-  Variable (U V : Type) (S : U -> V -> Prop) (l : list U) (m : list V) 
-                        (HS : forall x, In x l -> exists y, In y m /\ S x y).
+  Variable (U V : Type) (R : U -> V -> Prop) (l : list U) (m : list V) 
+                        (HR : forall x, In x l -> exists y, In y m /\ R x y).
                           
-  Let sigma : exists Sm, incl Sm m /\ Forall2 S l Sm.
+  Let image_R_l : exists Rl, incl Rl m /\ Forall2 R l Rl.
   Proof.
-    destruct (list_exists _ l HS) as (Sm & Hsm).
-    exists Sm; split.
-    + clear HS.
-      rewrite Forall2_conj in Hsm.
-      apply proj1, Forall2_right_Forall, proj1 in Hsm.
-      rewrite Forall_forall in Hsm; auto.
-    + revert Hsm; apply Forall2_impl; tauto.
+    destruct (list_exists _ l HR) as (Rl & HRl).
+    exists Rl; split.
+    + clear HR.
+      rewrite Forall2_conj in HRl.
+      apply proj1, Forall2_right_Forall, proj1 in HRl.
+      rewrite Forall_forall in HRl; auto.
+    + revert HRl; apply Forall2_impl; tauto.
   Qed.
 
   Hypothesis (Hlm : length m < length l).
                           
   Theorem PHP_rel : exists a x b y c v, l = a++x::b++y::c
-                                       /\ In v m /\ S x v /\ S y v.
+                                       /\ In v m /\ R x v /\ R y v.
   Proof.
-    destruct sigma as (Sm & H1 & H2).
+    destruct image_R_l as (Rl & H1 & H2).
     destruct finite_pigeon_hole with (2 := H1) as (v & x & y & z & H).
     + apply Forall2_length in H2; omega.
-    + subst Sm.
+    + subst Rl.
       apply Forall2_app_inv_r in H2; destruct H2 as (x' & l1 & H3 & H2 & ?); subst.
       apply Forall2_cons_inv_r in H2; destruct H2 as (v' & l2 & H4 & ? & H2); subst.
       apply Forall2_app_inv_r in H2; destruct H2 as (y' & l3 & H5 & H2 & ?); subst.
@@ -440,5 +425,26 @@ Section PHP_rel.
 End PHP_rel.
 
 Check PHP_rel.
+
+Section php_upto.
+
+  (** If R is a partial equivalence relation, l is a
+      list contained in the list m (upto R), and m is 
+      shorter than l, then l contains a duplicate upto R *)
+
+  Theorem php_upto X (R : X -> X -> Prop) (l m : list X) :
+            symmetric _ R -> transitive _ R                  (* PER *)
+         -> (forall x, In x l -> exists y, In y m /\ R x y)  (* l contained in m *)
+         -> length m < length l                              (* shorter *)
+         -> exists a x b y c, l = a++x::b++y::c /\ R x y.    (* duplicate *)
+  Proof.
+    intros HR1 HR2 H1 H2.
+    destruct PHP_rel with (R := R) (2 := H2)
+      as (a & x & b & y & c & z & G1 & G2 & G3 & G4); auto.
+    exists a, x, b, y, c; split; auto.
+    apply (HR2 _ z); auto.
+  Qed.
+
+End php_upto.
 
 
