@@ -161,13 +161,13 @@ Proof.
   extract.
 Qed.
   
-Lemma H10_enumerable : L_enumerable (fun '(p1, p2) => exists L, eval p1 L = eval p2 L).
+Lemma H10_enumerable_t : L_enumerable_t (fun '(p1, p2) => exists L, eval p1 L = eval p2 L).
 Proof.
-  eapply L_enumerable_ext.
-  eapply projection with (Y := list nat).
+  eapply L_enumerable_t_ext.
+  eapply projection_t with (Y := list nat).
   instantiate (1 := fun '( (p1,p2), L) => eval p1 L = eval p2 L).
   2:{ intros []. firstorder. }
-  eapply L_enumerable_enum.
+  eapply L_enumerable_t_enum.
   exists (fix L n := match n with 0 => [] | S n => L n ++ filter test_eq (list_prod (list_prod (L_T poly n) (L_T poly n)) (L_T (list nat) n)) end)%list.
   repeat split.
   - cbn. change (T_list enumT_nat) with (T_list_nat). extract.
@@ -215,11 +215,11 @@ Qed.
 Theorem H10_converges :
   H10 ⪯ converges.
 Proof.
-  eapply reduces_transitive. eapply red.
-  eapply L_enumerable_halt.
-  2: eapply H10_enumerable.
+  eapply reduces_transitive. apply red.
+  eapply L_enumerable_t_halt.
+  2: eapply H10_enumerable_t.
   exists (fun '( (p1, p2), (p1', p2')) => poly_eqb p1 p1' && poly_eqb p2 p2'). split.
-  - econstructor. extract.
+  - extract.
   - intros ( (p1, p2), (p1', p2')).
     destruct (poly_eqb_spec p1 p1'), (poly_eqb_spec p2 p2'); cbn; firstorder congruence.
 Qed.

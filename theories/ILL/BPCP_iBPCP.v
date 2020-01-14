@@ -1,4 +1,5 @@
 From Undecidability Require Import ILL.Definitions.
+Require Import Undecidability.Shared.Prelim.
 
 (** ** BPCP reduces to iBPCP *)
 

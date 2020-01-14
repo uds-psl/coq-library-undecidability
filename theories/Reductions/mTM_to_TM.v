@@ -1,3 +1,4 @@
+Require Import Undecidability.Shared.Prelim.
 From Undecidability.TM Require Import Single.StepTM Code.CodeTM.
 From Undecidability.Problems Require Import TM Reduction.
 

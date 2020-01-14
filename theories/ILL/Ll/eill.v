@@ -314,9 +314,9 @@ Section g_eill_complete.
   Proof. apply nat_sort_eq. Qed.
 
   Let n := length vv.
-  Let w : vec ll_vars n := proj1_sig (list_vec vv).
+  Let w : vec ll_vars n := proj1_sig (list_vec_full vv).
   Let Hw : vec_list w = vv.
-  Proof. apply (proj2_sig (list_vec vv)). Qed.
+  Proof. apply (proj2_sig (list_vec_full vv)). Qed.
 
   Let w_surj : forall u, In u vars -> exists p, u = vec_pos w p.
   Proof.

@@ -3,18 +3,53 @@ From Undecidability.L.Datatypes Require Import LNat LOptions LProd Lists.
 From Undecidability Require Import FOL.DecidableEnumerable FOL.Reductions.
 
 Inductive is_computable {A} {t : TT A} (a : A) : Prop :=
-  C : computable a -> is_computable a.
+  C : computable a -> is_computable a. 
 
 Notation enumerates f p := (forall x, p x <-> exists n : nat, f n = Some x).
+
+(** DLW: lift every definition and theorem to computable predicates, 
+    keeping the hold version ... it worked somehow flawlessly *)
 
 Definition L_decidable {X} `{registered X} (P : X -> Prop) :=
   exists f : X -> bool, is_computable f /\ forall x, P x <-> f x = true.
 
+Definition L_decidable_t {X} `{registered X} (P : X -> Prop) :=
+  { f : X -> bool & 
+  { _ :  computable f | forall x, P x <-> f x = true } }.
+
+Fact L_decidable_t_eq X HX P : inhabited (@L_decidable_t X HX P) <-> L_decidable P.
+Proof.
+  split.
+  + intros [ (f & H1 & H2) ]; exists f; split; auto; exists; auto.
+  + intros (f & [ H1 ] & H2); exists; exists f, H1; auto.
+Qed. 
+
 Definition L_enumerable {X} `{registered X} (p : X -> Prop) := 
   exists f : nat -> option X, is_computable f /\ (enumerates f p).
 
+Definition L_enumerable_t {X} `{registered X} (p : X -> Prop) := 
+  { f : nat -> option X & 
+  { _ : computable f | enumerates f p } }.
+
+Fact L_enumerable_t_eq X HX P : inhabited (@L_enumerable_t X HX P) <-> L_enumerable P.
+Proof.
+  split.
+  + intros [ (f & H1 & H2) ]; exists f; split; auto; exists; auto.
+  + intros (f & [ H1 ] & H2); exists; exists f, H1; auto.
+Qed. 
+
 Definition L_recognisable {X} `{registered X} (p : X -> Prop) :=
   exists s : term, forall x, p x <-> converges (s (enc x)).
+
+Definition L_recognisable_t {X} `{registered X} (p : X -> Prop) :=
+  { s : term | forall x, p x <-> converges (s (enc x)) }.
+
+Fact L_recognisable_t_eq X HX P : inhabited (@L_recognisable_t X HX P) <-> L_recognisable P.
+Proof.
+  split.
+  + intros [ (f & H1) ]; exists f; auto.
+  + intros (f & H1); exists; exists f; auto.
+Qed. 
 
 Section L_enum_rec.
 
@@ -38,8 +73,8 @@ Section L_enum_rec.
     cbn. Lproc.
   Qed.
     
-  Lemma L_enumerable_recognisable :
-    L_recognisable p.
+  Lemma L_enumerable_t_recognisable_t :
+    L_recognisable_t p.
   Proof.
     exists (λ x, !!mu (λ y, !!(ext test) x y)).
     intros. split; intros.
@@ -105,37 +140,61 @@ Definition lenumerates {X} L (p : X -> Prop) :=
 Definition L_enum {X} `{registered X} (p : X -> Prop) :=
   exists L, is_computable L /\ lenumerates L p.
 
+Definition L_enum_t {X} `{registered X} (p : X -> Prop) :=
+  { L : _ &  
+  { _ : computable L | lenumerates L p } }.
+
+Fact L_enum_t_eq X HX p : inhabited (@L_enum_t X HX p) <-> L_enum p.
+Proof.
+  split.
+  + intros [ (L & H1 & H2) ]; exists L; split; auto; exists; auto.
+  + intros (L & [H1] & H2); exists; exists L, H1; auto.
+Qed.
+
 Instance term_ofNat X `{registered X} :
   computable (@ofNat X).
 Proof.
   extract.
 Qed.
 
+Lemma projection_t X Y {HX : registered X} {HY : registered Y} (p : X * Y -> Prop) :
+  L_enumerable_t p -> L_enumerable_t (fun x => exists y, p (x,y)).
+Proof.
+  intros (f & cf & Hf).
+  exists (fun n => match f n with Some (x, y) => Some x | None => None end).
+  split.
+  - extract.
+  - intros x; split.
+    + intros [y Hy]. eapply Hf in Hy as [n Hn]. exists n. now rewrite Hn.
+    + intros [n Hn]. destruct (f n) as [ [] | ] eqn:E; inv Hn.
+      exists y. eapply Hf. eauto.
+Qed.
+
 Lemma projection X Y {HX : registered X} {HY : registered Y} (p : X * Y -> Prop) :
   L_enumerable p -> L_enumerable (fun x => exists y, p (x,y)).
 Proof.
-  intros (f & [cf] & ?).
-  exists (fun n => match f n with Some (x, y) => Some x | None => None end).
-  split.
-  - econstructor. extract.
-  - intros; split.
-    + intros [y ?]. eapply H in H0 as [n]. exists n. now rewrite H0.
-    + intros [n ?]. destruct (f n) as [ [] | ] eqn:E; inv H0.
-      exists y. eapply H. eauto.
+  do 2 rewrite <- L_enumerable_t_eq.
+  intros [H]; exists; revert H; apply projection_t.
+Qed.
+
+Lemma L_enumerable_t_ext X `{registered X} p q : L_enumerable_t p -> (forall x : X, p x <-> q x) -> L_enumerable_t q.
+Proof.
+  intros (f & cf & Hf) He. exists f; split; eauto.
+  intros ?. rewrite <- He. eapply Hf.
 Qed.
 
 Lemma L_enumerable_ext X `{registered X} p q : L_enumerable p -> (forall x : X, p x <-> q x) -> L_enumerable q.
 Proof.
-  intros (f & cf & Hf) He. exists f; split; eauto.
-  intros ?. rewrite <- He. eapply Hf.
-Qed.  
+  do 2 rewrite <- L_enumerable_t_eq.
+  intros [H1] H2; exists; revert H1 H2; apply L_enumerable_t_ext.
+Qed.
 
-Lemma L_enumerable_enum {X} `{registered X} (p : X -> Prop) :
-  L_enum p -> L_enumerable p.
+Lemma L_enumerable_t_enum {X} `{registered X} (p : X -> Prop) :
+  L_enum_t p -> L_enumerable_t p.
 Proof.
-  intros (f & [cf] & Hf).
+  intros (f & cf & Hf).
   exists (@ofNat X f). split.
-  - econstructor. extract.
+  - extract.
   - destruct Hf as [CX HX].
     intros. rewrite HX.
     + split; intros [n].
@@ -145,14 +204,28 @@ Proof.
         eapply nth_error_In in H0. eauto. inv H0.
 Qed.
 
-Lemma L_enumerable_halt {X} `{registered X} (p : X -> Prop) :
-  L_decidable (X := X * X) (fun '(x,y) => x = y) ->
-  L_enumerable p -> p ⪯ converges.
+Lemma L_enumerable_enum {X} `{registered X} (p : X -> Prop) : L_enum p -> L_enumerable p.
 Proof.
-  intros (d & [c_d] & H_d) (f & [c_f] & H_f).
-  edestruct L_enumerable_recognisable with (p := p) (d := fun x y => d (x,y)) (f := f); eauto.
+  rewrite <- L_enumerable_t_eq, <- L_enum_t_eq.
+  intros [G]; exists; revert G; apply L_enumerable_t_enum.
+Qed.
+
+Lemma L_enumerable_t_halt {X} `{registered X} (p : X -> Prop) :
+  L_decidable_t (X := X * X) (fun '(x,y) => x = y) ->
+  L_enumerable_t p -> p ⪯ converges.
+Proof.
+  intros (d & c_d & H_d) (f & c_f & H_f).
+  edestruct L_enumerable_t_recognisable_t with (p := p) (d := fun x y => d (x,y)) (f := f); eauto.
   - extract.
   - intros. specialize (H_d (x,y)). destruct (d (x,y)); intuition.
   - now exists (fun x0 => x (enc x0)). 
+Qed.
+
+Lemma L_enumerable_halt {X} `{registered X} (p : X -> Prop) :
+  L_decidable (X := X * X) (fun '(x,y) => x = y) ->
+  L_enumerable p -> inhabited (p ⪯ converges).
+Proof.
+  rewrite <- L_enumerable_t_eq, <- L_decidable_t_eq.
+  intros [H1] [H2]; exists; revert H1 H2; apply L_enumerable_t_halt.
 Qed.  
 

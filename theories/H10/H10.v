@@ -60,15 +60,15 @@ Proof.
   exact MM_FRACTRAN_HALTING.
 Qed.
 
-Theorem Hilberts_Tenth : Halt ⪯ PCP
-                      /\ PCP ⪯ MM_HALTING
-                      /\ MM_HALTING ⪯ FRACTRAN_HALTING
-                      /\ FRACTRAN_HALTING ⪯ DIO_LOGIC_SAT
-                      /\ DIO_LOGIC_SAT ⪯ DIO_ELEM_SAT
-                      /\ DIO_ELEM_SAT ⪯ DIO_SINGLE_SAT
-                      /\ DIO_SINGLE_SAT ⪯ H10.
+Theorem Hilberts_Tenth : ((Halt ⪯ PCP)
+                      * (PCP ⪯ MM_HALTING)
+                      * (MM_HALTING ⪯ FRACTRAN_HALTING)
+                      * (FRACTRAN_HALTING ⪯ DIO_LOGIC_SAT)
+                      * (DIO_LOGIC_SAT ⪯ DIO_ELEM_SAT)
+                      * (DIO_ELEM_SAT ⪯ DIO_SINGLE_SAT)
+                      * (DIO_SINGLE_SAT ⪯ H10))%type.
 Proof.
-  msplit 6.
+  repeat split.
   + apply Halt_PCP.
   + apply PCP_MM_HALTING.
   + apply MM_FRACTRAN_HALTING.
