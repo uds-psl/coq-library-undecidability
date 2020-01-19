@@ -67,7 +67,7 @@ Section FSAT_MONADIC_DEC.
   Theorem FSAT_MONADIC_DEC : decidable (fo_form_fin_dec_SAT A).
   Proof.
     destruct Σ_discrete_to_pos with (A := A)
-      as (n & m & i & j & _ & _ & _ & G & _ & _ & B & HB).
+      as (n & m & i & j & B & HB).
     + simpl; intros s; destruct (H1 s).
     + apply H2.
     + assert (n = 0) as Hn.
@@ -84,6 +84,18 @@ Section FSAT_MONADIC_DEC.
 
 End FSAT_MONADIC_DEC.
 
+Section FSAT_MONADIC_11_FSAT_MONADIC_1.
+
+  Variable (n : nat) (Y : Type) (HY : finite_t Y).
+
+  Theorem FSAT_MONADIC_11_FSAT_MONADIC_1 : 
+            FSAT (Σ11 (pos n) Y) ⪯ FSAT (Σ11 Empty_set (list (pos n)*Y + Y)).
+  Proof.
+    apply reduction_dependent, Σ11_Σ1_reduction; auto.
+  Qed.
+
+End FSAT_MONADIC_11_FSAT_MONADIC_1.
+
 Section FSAT_Σ11_DEC.
 
   Variable (n : nat) 
@@ -94,21 +106,13 @@ Section FSAT_Σ11_DEC.
 
   Theorem FSAT_Σ11_DEC : decidable (fo_form_fin_dec_SAT A).
   Proof.
-    destruct Σ_discrete_to_pos with (A := Σ11_red HP1 A)
-      as (n' & m & i & j & G1 & _ & G3 & G4 & _ & _ & B & HB); simpl; auto.
-    assert (n' = 0) as Hn'.
-    { destruct n'; auto.
-      exfalso; generalize (G3 pos0).
-      rewrite Σ11_red_no_syms; simpl; auto. }
-    subst n'; simpl in *; clear G3.
-    generalize (Σ11_red_correct HP1 A); intros HA.
-    destruct FSAT_MONADIC_DEC with (A := B) as [ H | H ]; auto.
-    + intro p; invert pos p.
-    + left; apply HB in H; revert H.
-      intros (X & HX); exists X; revert HX; apply HA.
-    + right; contradict H.
-      apply HB; revert H.
-      intros (X & HX); exists X; revert HX; apply HA.
+    destruct FSAT_MONADIC_11_FSAT_MONADIC_1 with (n := n) (1 := HP1)
+      as (f & Hf).
+    specialize (Hf A).
+    destruct FSAT_MONADIC_DEC with (A := f A) as [ H | H ]; simpl; auto.
+    + intros [].
+    + left; revert H; apply Hf.
+    + right; contradict H; revert H; apply Hf.
   Qed.
 
 End FSAT_Σ11_DEC.
@@ -123,7 +127,7 @@ Section FSAT_FULL_Σ11_DEC.
   Theorem FSAT_FULL_Σ11_DEC : decidable (fo_form_fin_dec_SAT A).
   Proof.
     destruct Σ_discrete_to_pos with (A := A)
-      as (n & m & i & j & G1 & G2 & G3 & G4 & G5 & G6 & B & HB); auto.
+      as (n & m & i & j & B & HB); auto.
     destruct FSAT_Σ11_DEC with (A := B) as [ H | H ]; auto.
     + left; apply HB; auto.
     + right; contradict H; apply HB; auto.

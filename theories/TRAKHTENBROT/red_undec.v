@@ -297,6 +297,19 @@ Print Σrem_cst.
 Check FSAT_NOCST.
 (* Print Assumptions FSAT_NOCST. *)
 
+Lemma FSAT_REL_BOUNDED_ONE_REL Σ n :
+             (syms Σ -> False)
+          -> (forall r : rels Σ, ar_rels _ r <= n)
+          -> finite_t (rels Σ)
+          -> discrete (rels Σ)
+          -> FSAT Σ ⪯ FSAT (Σrel (S n)).
+Proof.
+  intros H1 H2 H3 H4.
+  eapply reduces_transitive; [ apply FSAT_UNIFORM, H2 | ].
+  eapply reduces_transitive; [ apply FSAT_ONE_REL; simpl; trivial | ].
+  apply FSAT_NOCST; simpl; auto.
+Qed.
+
 (*
 
 (** With Σrel 3 signature with a unique ternary symbol
@@ -485,12 +498,16 @@ Section DISCRETE_TO_BINARY.
            (HΣ1 : discrete (syms Σ))
            (HΣ2 : discrete (rels Σ)).
 
+  Hint Resolve finite_t_pos.
+
   Theorem DISCRETE_TO_BINARY : FSAT Σ ⪯ FSAT (Σrel 2).
   Proof.
     apply reduction_dependent.
-    intros A; exists (Σ_Σ2_enc HΣ1 HΣ2 A); split.
-    + intros H; apply SAT_SAT2, fo_form_fin_dec_SAT_discr_equiv; auto.
-    + apply SAT2_SAT.
+    intros A.
+    destruct (Σ_discrete_to_pos HΣ1 HΣ2 A) as (n & m & i & j & B & HB).
+    destruct (@FINITARY_TO_BINARY (Σpos _ i j)) as (f & Hf); simpl; auto.
+    exists (f B).
+    rewrite <- Hf; apply HB.
   Qed.
 
 End DISCRETE_TO_BINARY.
@@ -507,11 +524,9 @@ Section DISCRETE_TO_BINARY_ALT.
   Theorem DISCRETE_TO_BINARY_ALT : FSAT Σ ⪯ FSAT (Σrel 2).
   Proof.
     apply reduction_dependent.
-    intros A.
-    destruct (Σ_finite HΣ1 HΣ2 A) as (Σ' & H1 & H2 & H3 & H4 & _ & _ & _ & _ & _ & _ & _ & _ & B & HB).
-    destruct (FINITARY_TO_BINARY H1 H3 H2 H4) as (f & Hf).
-    exists (f B). 
-    rewrite <- Hf; apply HB.
+    intros A; exists (Σ_Σ2_enc HΣ1 HΣ2 A); split.
+    + intros H; apply SAT_SAT2, fo_form_fin_dec_SAT_discr_equiv; auto.
+    + apply SAT2_SAT.
   Qed.
 
 End DISCRETE_TO_BINARY_ALT.

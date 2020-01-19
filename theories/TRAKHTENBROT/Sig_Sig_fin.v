@@ -273,7 +273,7 @@ Section discrete_to_finite.
 
   Hint Resolve incl_refl.
 
-  Definition Σ_finite (A : fol_form Σ) : 
+  Local Definition Σ_finite (A : fol_form Σ) : 
               { Σ' : fo_signature & 
               { _  : finite_t (syms Σ') &
               { _  : finite_t (rels Σ') &
@@ -477,7 +477,7 @@ Section discr_finite_to_pos.
 
   End completeness.
 
-  Definition Σ_finite_to_pos (A : fol_form Σ) : 
+  Local Definition Σ_finite_to_pos (A : fol_form Σ) : 
               { n : nat & 
               { m : nat &
               { is : pos n -> syms Σ &
@@ -512,7 +512,7 @@ Section combine_the_two.
             (HΣ1 : discrete (syms Σ))
             (HΣ2 : discrete (rels Σ)).
 
-  Definition Σ_discrete_to_pos (A : fol_form Σ) : 
+  Local Definition Σ_discrete_to_pos' (A : fol_form Σ) : 
               { n : nat & 
               { m : nat &
               { is : pos n -> syms Σ &
@@ -527,7 +527,7 @@ Section combine_the_two.
               | fo_form_fin_dec_SAT A 
             <-> fo_form_fin_dec_SAT B } } } } } } } } } } }.
   Proof.
-    destruct (Σ_finite_full HΣ1 HΣ2 A (incl_refl _) (incl_refl _)) as (B & HB). 
+    destruct (Σ_finite_full HΣ1 HΣ2 A (incl_refl _) (incl_refl _)) as (B & HB).
     destruct Σ_finite_to_pos with (A := B)
       as (n & m & i & j & F1 & F2 & F3 & F4 & C & HC).
     + apply Σ_fin_discrete_syms.
@@ -551,6 +551,19 @@ Section combine_the_two.
         generalize (fol_syms A) (fol_rels A); intros ls lr B ->.
         symmetry; apply Σ_finite_rev_correct.
       * apply exists_equiv; auto.
+  Qed.
+
+  Definition Σ_discrete_to_pos (A : fol_form Σ) : 
+              { n : nat & 
+              { m : nat &
+              { i : pos n -> syms Σ &
+              { j : pos m -> rels Σ &
+              { B  : fol_form (Σpos Σ i j)
+              | fo_form_fin_dec_SAT A 
+            <-> fo_form_fin_dec_SAT B } } } } }.
+  Proof.
+    destruct (Σ_discrete_to_pos' A) as (n & m & i & j & _ & _ & _ & _ & _ & _ & B & HB).
+    exists n, m, i, j, B; auto.
   Qed.
 
 End combine_the_two.

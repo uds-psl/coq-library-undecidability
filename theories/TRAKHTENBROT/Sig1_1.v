@@ -16,7 +16,7 @@ From Undecidability.Shared.Libs.DLW.Vec
   Require Import pos vec.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations utils fol_ops fo_sig fo_terms fo_logic fo_sat.
+  Require Import notations utils fol_ops fo_sig fo_terms fo_logic fo_sat Sig_no_syms.
 
 Set Implicit Arguments.
 
@@ -484,7 +484,20 @@ End Σ11_reduction.
 
 (** We get the elimination of symbols *)
 
-Check Σ11_red.
-Check Σ11_red_correct.
-Check Σ11_red_no_syms.
+Section Σ11_Σ1.
+
+  Variable (n : nat) (Y : Type) (HY : finite_t Y) (A : fol_form (Σ11 (pos n) Y)).
+
+  Theorem Σ11_Σ1_reduction : { B : fol_form (Σ11 Empty_set (list (pos n)*Y + Y)) 
+                                 | fo_form_fin_dec_SAT A <-> fo_form_fin_dec_SAT B }.
+  Proof.
+    destruct Σ_no_sym_correct with (A := Σ11_red HY A) as (B & HB).
+    { rewrite Σ11_red_no_syms; apply incl_refl. }
+    exists B; rewrite <- HB; split; intros (X & H); exists X; revert H; apply Σ11_red_correct.
+  Qed.
+
+End Σ11_Σ1.
+
+Check Σ11_Σ1_reduction.
+
 
