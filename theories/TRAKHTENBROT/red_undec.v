@@ -560,20 +560,20 @@ Section FULL_TRAKHTENBROT.
     apply FINITARY_TO_BINARY; auto.
   Qed.
 
-  Theorem FULL_TRAKHTENBROT Σ r : 2 <= ar_rels Σ r -> BPCP_problem ⪯ FSAT Σ.
+  Theorem FULL_TRAKHTENBROT Σ :
+            { r | 2 <= ar_rels Σ r }
+          + { f : _ & 
+            { r | 2 <= ar_syms Σ f
+               /\ ar_rels Σ r = 1 } }
+         -> BPCP_problem ⪯ FSAT Σ.
   Proof.
-    intros Hr.
+    intros H.
     apply reduces_transitive with (1 := BPCP_Sig2).
-    apply reduces_transitive with (1 := FSAT_REL_2ton Hr).
-    apply FSAT_RELn_ANY with (1 := eq_refl).
+    revert H; intros [ (r & Hr) | (f & r & Hf & Hr) ].
+    + apply reduces_transitive with (1 := FSAT_REL_2ton Hr).
+      apply FSAT_RELn_ANY with (1 := eq_refl).
+    + apply reduces_transitive with (1 := FSAT_REL2_to_FUNnREL1 Hf).
+      apply FSAT_FUNnREL1_ANY with f r; auto.
   Qed.
 
-  Theorem ALHTENBROT Σ f r : 2 <= ar_syms Σ f -> ar_rels Σ r = 1 -> BPCP_problem ⪯ FSAT Σ.
-  Proof.
-    intros H1 H2.
-    apply reduces_transitive with (1 := BPCP_Sig2).
-    apply reduces_transitive with (1 := FSAT_REL2_to_FUNnREL1 H1).
-    apply FSAT_FUNnREL1_ANY with f r; auto.
-  Qed.
- 
 End FULL_TRAKHTENBROT.

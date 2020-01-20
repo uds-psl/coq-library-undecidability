@@ -31,30 +31,21 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-Check FULL_TRAKHTENBROT.
-Print Assumptions FULL_TRAKHTENBROT.
-
-(** @DK Any idea for a NAME on the next one ;-) *)
-
-Check ALHTENBROT.
-Print Assumptions ALHTENBROT.
-
-Check FSAT_FULL_MONADIC_DEC.
-Print Assumptions FSAT_FULL_MONADIC_DEC.
-
-Check FSAT_PROP_ONLY_DEC.
-Print Assumptions FSAT_PROP_ONLY_DEC.
-
+Print type_enum_t.
+Print opt_enum_t.
 Print rec_enum_t.
 
 Check FSAT_rec_enum_t.
 Print Assumptions FSAT_rec_enum_t.
 
-Print type_enum_t.
-Print opt_enum_t.
-
 Check FSAT_opt_enum_t.
 Print Assumptions FSAT_opt_enum_t.
+
+Check FULL_TRAKHTENBROT.
+Print Assumptions FULL_TRAKHTENBROT.
+
+Check FULL_MONADIC.
+Print Assumptions FULL_MONADIC.
 
 
 

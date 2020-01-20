@@ -17,7 +17,7 @@ From Undecidability.Shared.Libs.DLW.Vec
 
 From Undecidability.TRAKHTENBROT
   Require Import notations utils enumerable
-                 fol_ops fo_sig fo_terms fo_logic fo_enum
+                 fol_ops fo_sig fo_terms fo_logic fo_enum decidable
                  fo_sat fo_sat_dec red_utils.
 
 Set Implicit Arguments.
@@ -28,18 +28,24 @@ Section FSAT_enumerable.
            (H1 : discrete (syms Σ)) 
            (H2 : discrete (rels Σ)).
 
+  Implicit Type (A : fol_form Σ).
+
   Theorem FSAT_FSAT_in_pos A : FSAT Σ A <-> exists n, fo_form_fin_dec_SAT_in A (pos n).
   Proof.
     rewrite fo_form_fin_dec_SAT_discr_equiv.
     apply fo_form_fin_discr_dec_SAT_pos.
   Qed.
 
+  Let dec n A : decidable (fo_form_fin_dec_SAT_in A (pos n)).
+  Proof. apply FSAT_in_dec; auto; apply finite_t_pos. Qed.
+
   Theorem FSAT_rec_enum_t : rec_enum_t (FSAT Σ).
   Proof.
-    exists (fun n A => fo_form_fin_dec_SAT_in A (pos n)).
-    exists.
-    + intros n A; apply FSAT_in_dec; auto; apply finite_t_pos.
-    + intros A; apply FSAT_FSAT_in_pos.
+    exists (fun n A => if dec n A then true else false).
+    intros A.
+    rewrite FSAT_FSAT_in_pos.
+    apply exists_equiv; intros n.
+    destruct (dec n A); split; auto.
   Qed.
 
   Hypothesis (H3 : type_enum_t (syms Σ)).

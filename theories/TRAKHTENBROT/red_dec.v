@@ -189,3 +189,17 @@ End FSAT_PROP_ONLY_DEC.
 
 (* Check FSAT_PROP_ONLY_DEC.
 Print Assumptions FSAT_PROP_ONLY_DEC. *)
+
+Theorem FULL_MONADIC (Σ : fo_signature) :
+          { _ : discrete (syms Σ) &
+          { _ : discrete (rels Σ)
+              | (forall s, ar_syms Σ s <= 1)
+             /\ (forall r, ar_rels Σ r <= 1) } }
+        + { _ : discrete (rels Σ)
+              | forall r, ar_rels Σ r = 0 }
+       -> forall A, decidable (FSAT Σ A).
+Proof.
+  intros [ (H1 & H2 & H3 & H4) | (H1 & H2) ].
+  + apply FSAT_FULL_MONADIC_DEC; auto.
+  + apply FSAT_PROP_ONLY_DEC; auto.
+Qed.

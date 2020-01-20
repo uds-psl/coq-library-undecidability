@@ -60,12 +60,10 @@ Section enumerable_definitions.
 
   (** of a predicate, definition 2 *) 
 
-  Definition rec_enum P := exists (Q : nat -> X -> Prop) (_ : forall n x, decidable (Q n x)),
-                           forall x, P x <-> exists n, Q n x.
+  Definition rec_enum P := exists (Q : nat -> X -> bool),
+                           forall x, P x <-> exists n, Q n x = true.
 
-  Definition rec_enum_t P := { Q : nat -> X -> Prop &
-                             { _ : forall n x, decidable (Q n x) &
-                                   forall x, P x <-> exists n, Q n x } }.
+  Definition rec_enum_t P := { Q : nat -> X -> bool | forall x, P x <-> exists n, Q n x = true }.
 
   Theorem type_list_enum : type_enum <-> list_enum.
   Proof.
@@ -93,7 +91,7 @@ Section enumerable_definitions.
       destruct (Hsurj a b) as (n & Hn); exists n; now rewrite Hn.
   Qed.
 
-  (** An alternate characterization with Boolean decider *)
+  (** An alternate characterization with Boolean decider 
 
   Fact rec_enum_t_alt P : rec_enum_t P ≋ { Q : nat -> X -> bool | forall x, P x <-> exists n, Q n x = true }.
   Proof.
@@ -105,7 +103,7 @@ Section enumerable_definitions.
     + intros (Q & H).
       exists (fun n x => Q n x = true).
       exists; auto; intros; apply bool_dec.
-  Qed. 
+  Qed. *)
 
   Section list_enum_by_measure_fin_t.
 
@@ -150,29 +148,35 @@ Section enumerable.
   Fact opt_enum_rec_enum_discrete P : opt_enum P -> rec_enum P.
   Proof.
     intros (f & Hf).
-    exists (fun n x => match f n with Some y => x = y | None => False end); exists.
-    + intros n x.
-      destruct (f n) as [ y | ].
-      * apply Xdiscr.
-      * right; tauto.
-    + intros x; rewrite Hf; split.
-      * intros (n & Hn); exists n; rewrite <- Hn; auto.
-      * intros (n & Hn); exists n.
-        destruct (f n) as [ y | ]; subst; tauto.
+    exists (fun n x => match f n with Some y => 
+              if Xdiscr x y then true else false | None => false end); intros x; 
+      rewrite Hf; split.
+    + intros (n & Hn); exists n; rewrite <- Hn.
+      destruct (Xdiscr x x) as [ | [] ]; auto.
+    + intros (n & Hn); revert Hn.
+      case_eq (f n).
+      * intros y Hy.
+        destruct (Xdiscr x y) as [ -> | ].
+        - exists n; auto.
+        - discriminate.
+      * discriminate.
   Qed.
 
   Fact opt_enum_rec_enum_discrete_t P : opt_enum_t P -> rec_enum_t P.
   Proof.
     intros (f & Hf).
-    exists (fun n x => match f n with Some y => x = y | None => False end); exists.
-    + intros n x.
-      destruct (f n) as [ y | ].
-      * apply Xdiscr.
-      * right; tauto.
-    + intros x; rewrite Hf; split.
-      * intros (n & Hn); exists n; rewrite <- Hn; auto.
-      * intros (n & Hn); exists n.
-        destruct (f n) as [ y | ]; subst; tauto.
+    exists (fun n x => match f n with Some y => 
+              if Xdiscr x y then true else false | None => false end); intros x; 
+      rewrite Hf; split.
+    + intros (n & Hn); exists n; rewrite <- Hn.
+      destruct (Xdiscr x x) as [ | [] ]; auto.
+    + intros (n & Hn); revert Hn.
+      case_eq (f n).
+      * intros y Hy.
+        destruct (Xdiscr x y) as [ -> | ].
+        - exists n; auto.
+        - discriminate.
+      * discriminate.
   Qed.
 
   (** On a enumerable type, rec_enum implies opt_enum *)
@@ -180,47 +184,47 @@ Section enumerable.
   Fact rec_enum_opt_enum_type_enum P : rec_enum P -> opt_enum P.
   Proof.
     destruct Xenum as (s & Hs).
-    intros (Q & Qdec & HQ).
+    intros (Q & HQ).
     set (f n := 
       let (a,b) := surj n
       in match s a with 
-        | Some x => if Qdec b x then Some x else None
+        | Some x => if Q b x then Some x else None
         | None => None
       end).
     exists f; intros x; rewrite HQ; split; unfold f.
     + intros (n & Hn).
       destruct (Hs x) as (a & Ha).
       destruct (Hsurj a n) as (m & Hm).
-      exists m; rewrite Hm, <- Ha.
-      destruct (Qdec n x) as [ | [] ]; auto.
+      exists m; rewrite Hm, <- Ha, Hn; auto.
     + intros (n & Hn).
       destruct (surj n) as (a,b).
       destruct (s a) as [ y | ]; try discriminate.
-      destruct (Qdec b y) as [ H | H ]; try discriminate.
-      exists b; inversion Hn; auto.
+      revert Hn; case_eq (Q b y).
+      * inversion 2; exists b; auto.
+      * discriminate. 
   Qed.
 
   Fact rec_enum_opt_enum_type_enum_t P : rec_enum_t P -> opt_enum_t P.
   Proof.
     destruct Xenum_t as (s & Hs).
-    intros (Q & Qdec & HQ).
+    intros (Q & HQ).
     set (f n := 
       let (a,b) := surj n
       in match s a with 
-        | Some x => if Qdec b x then Some x else None
+        | Some x => if Q b x then Some x else None
         | None => None
       end).
     exists f; intros x; rewrite HQ; split; unfold f.
     + intros (n & Hn).
       destruct (Hs x) as (a & Ha).
       destruct (Hsurj a n) as (m & Hm).
-      exists m; rewrite Hm, <- Ha.
-      destruct (Qdec n x) as [ | [] ]; auto.
+      exists m; rewrite Hm, <- Ha, Hn; auto.
     + intros (n & Hn).
       destruct (surj n) as (a,b).
       destruct (s a) as [ y | ]; try discriminate.
-      destruct (Qdec b y) as [ H | H ]; try discriminate.
-      exists b; inversion Hn; auto.
+      revert Hn; case_eq (Q b y).
+      * inversion 2; exists b; auto.
+      * discriminate. 
   Qed.
 
   Hint Resolve opt_enum_rec_enum_discrete rec_enum_opt_enum_type_enum

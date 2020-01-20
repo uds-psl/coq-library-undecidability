@@ -86,9 +86,14 @@ Notation "'∑' x .. y , p" := (sigT (fun x => .. (sigT (fun y => p)) ..))
    format "'[' '∑'  x  ..  y ,  '/ ' p ']'", only printing)
   : type_scope.
 
-Notation "'∑' x .. y z , p" := (sigT (fun x => .. (sigT (fun y => sig (fun z => p))) ..))
+Notation "'∑' x .. y ( z : T ) , p" := (sigT (fun x => .. (sigT (fun y => sig (fun z : T => p))) ..))
   (at level 200, x binder, y binder, right associativity,
-   format "'[' '∑'  x  ..  y  z ,  '/ ' p ']'", only printing)
+   format "'[' '∑'  x  ..  y  ( z  :  T ) ,  '/ ' p ']'", only printing)
+  : type_scope.
+
+Notation "'∑' z : T , p" := (sig (fun z : T => p))
+  (at level 200, right associativity,
+   format "'[' '∑'  z  :  T ,  '/ ' p ']'", only printing)
   : type_scope.
 
 (** Lifting a term substitution *)
