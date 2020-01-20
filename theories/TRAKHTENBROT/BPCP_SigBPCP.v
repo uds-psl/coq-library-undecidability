@@ -146,7 +146,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
     Proof.
       intros []; simpl; intros v; vec split v with x; vec split v with y; vec nil v; clear v; simpl;
         revert x y; intros [ (x & Hx) | ] [ (y & Hy) | ]; simpl; try tauto.
-      + apply pcp_hand_dec, bool_dec.
+      + apply bpcp_hand_dec.
       + destruct (list_eq_dec bool_dec x y);
         destruct (is_a_tail_dec bool_dec y x); tauto.
       + destruct (list_eq_dec bool_dec x y) as [ | C ]; [ left | right ].

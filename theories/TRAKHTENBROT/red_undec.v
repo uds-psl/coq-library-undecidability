@@ -114,28 +114,9 @@ Set Implicit Arguments.
        BPCP --> SAT({f_1,g_1,a_0,b_0},{P_2,≡_2,≺_2},𝔽,ℂ)
   *)
 
-Definition BPCP_input := list (list bool * list bool).
-Definition BPCP_problem (lc : BPCP_input) := exists l, pcp_hand lc l l.
-
-Theorem pcp_hand_derivable X lc u l : @pcp_hand X lc u l <-> derivable lc u l.
-Proof. split; (induction 1; [ constructor 1 | constructor 2 ]; auto). Qed.
-
-(** BPCP as defined in Problems/PCP.v is equivalent to BPCP_problem here *)
-
-Theorem BPCP_BPCP_problem lc : BPCP_problem lc <-> BPCP lc.
-Proof.
-  unfold BPCP_problem; split.
-  + intros (l & Hl).
-    apply pcp_hand_derivable, derivable_BPCP in Hl.
-    destruct Hl as (A & ? & ? & <- & ?); exists A; auto.
-  + intros (A & ? & ? & ?).
-    exists (tau2 A); apply pcp_hand_derivable, BPCP_derivable.
-    exists A; auto.
-Qed.
-
 Theorem HaltTM_BPCP_problem : HaltTM 1 ⪯ BPCP_problem.
 Proof.
-  eapply reduces_transitive. exact HaltTM_BPCP.
+  eapply reduces_transitive with (1 := HaltTM_BPCP).
   exists (fun x => x); symmetry; apply BPCP_BPCP_problem.
 Qed.
 

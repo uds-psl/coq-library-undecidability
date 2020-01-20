@@ -380,6 +380,22 @@ Section discrete_quotient.
   Fact fom_eq_dec : forall x y, { x ≡ y } + { ~ x ≡ y }.
   Proof. apply gfp_decidable; auto. Qed.
 
+  Definition fo_congruence_upto R := 
+                 ( (equivalence _ R)
+                 * (forall s v w, In s ls -> (forall p, R (v#>p) (w#>p)) -> R (fom_syms M s v) (fom_syms M s w))
+                 * (forall r v w, In r lr -> (forall p, R (v#>p) (w#>p)) -> fom_rels M r v <-> fom_rels M r w) )%type.
+
+  Theorem fo_bisimilar_dec_congr : fo_congruence_upto (@fo_bisimilar X M).
+  Proof.
+    split; [ split | ].
+    + split; red; [ intros ? | intros ? ? ? | intros ? ?]; rewrite <- !fom_eq_fol_characterization; auto.
+      apply fom_eq_trans.
+    + intros ? ? ? ? ?; apply fom_eq_fol_characterization, fom_eq_syms_full; auto.
+      intro; apply fom_eq_fol_characterization; auto.
+    + intros ? ? ? ? ?. apply fom_eq_rels_full; auto.
+      intro; apply fom_eq_fol_characterization; auto.
+  Qed.
+
   (** But we have a much stronger statement: fom_eq is first order definable 
       which follows from the fact that X/M is finite *)
 

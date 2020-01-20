@@ -7,10 +7,13 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Lia.
+Require Import List Arith Lia Bool.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
+
+From Undecidability.Problems
+  Require Import Reduction PCP TM.
 
 Set Implicit Arguments.
 
@@ -55,16 +58,19 @@ Section pcp_hand.
 
   Variable (X : Type) (lc : list (list X * list X)).
 
+  Reserved Notation "⊳ s ∕ t" (at level 70).
+
   Inductive pcp_hand : list X -> list X -> Prop :=
-    | in_pcph_0 : forall x y, In (x,y) lc -> pcp_hand x y
-    | in_pcph_1 : forall x y u l, In (x,y) lc -> pcp_hand u l -> pcp_hand (x++u) (y++l).
+    | in_pcph_0 : forall x y, In (x,y) lc -> ⊳ x∕y
+    | in_pcph_1 : forall x y u l, In (x,y) lc -> ⊳ u∕l -> ⊳ (x++u)∕(y++l)
+  where "⊳ s ∕ t" := (pcp_hand s t).
 
   (** Any hand is either a card or of the for x++p/y++q where
       x/y is a non-void card and p/q is a hand *)
 
   Lemma pcp_hand_inv p q : 
-       pcp_hand p q -> In (p,q) lc 
-                    \/ exists x y p' q', In (x,y) lc /\ pcp_hand p' q' 
+              ⊳ p∕q -> In (p,q) lc 
+                    \/ exists x y p' q', In (x,y) lc /\ ⊳ p'∕q' 
                                       /\ p = x++p' /\ q = y++q' 
                         /\  (x <> nil /\ y = nil  
                           \/ x = nil /\ y <> nil
@@ -82,7 +88,7 @@ Section pcp_hand.
         - right; right; split; discriminate.
   Qed.
 
-  Definition PCP := exists l, pcp_hand l l.
+  Definition PCP := exists l, ⊳ l∕l.
 
   Section pcp_induction.
 
@@ -124,7 +130,7 @@ Section pcp_hand.
 
     (** Replaced induction on length p + length with strict suffix pair induction *)
 
-    Theorem pcp_hand_dec p q : { pcp_hand p q } + { ~ pcp_hand p q }.
+    Theorem pcp_hand_dec p q : { ⊳ p∕q } + { ~ ⊳ p∕q }.
     Proof.
       revert p q; apply pcp_induction; intros p q dec.
 
@@ -169,4 +175,29 @@ Section pcp_hand.
   End bounded_dec.
 
 End pcp_hand.
+
+Notation "R ⊳ s ∕ t" := (pcp_hand R s t) (at level 70, format "R  ⊳  s ∕ t").
+
+Theorem pcp_hand_derivable X R (u l : list X) : R ⊳ u∕l <-> derivable R u l.
+Proof. split; (induction 1; [ constructor 1 | constructor 2 ]; auto). Qed.
+
+Theorem bpcp_hand_dec R (s t : list bool) : { R ⊳ s∕t } + { ~ R ⊳ s∕t }.
+Proof. apply pcp_hand_dec, bool_dec. Qed.
+
+Definition BPCP_input := list (list bool * list bool).
+Definition BPCP_problem (R : BPCP_input) := exists l, R ⊳ l∕l.
+
+(** BPCP as defined in Problems/PCP.v is equivalent to BPCP_problem here *)
+
+Theorem BPCP_BPCP_problem R : BPCP_problem R <-> BPCP R.
+Proof.
+  unfold BPCP_problem; split.
+  + intros (l & Hl).
+    apply pcp_hand_derivable, derivable_BPCP in Hl.
+    destruct Hl as (A & ? & ? & <- & ?); exists A; auto.
+  + intros (A & ? & ? & ?).
+    exists (tau2 A); apply pcp_hand_derivable, BPCP_derivable.
+    exists A; auto.
+Qed.
+
 
