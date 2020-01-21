@@ -23,11 +23,12 @@ From Undecidability.Shared.Libs.DLW.Wf
 
 From Undecidability.TRAKHTENBROT
   Require Import notations bpcp 
-                 fo_sig fol_ops fo_terms fo_logic fo_sat 
-                 decidable enumerable discrete reln_hfs
+                 fo_sig fol_ops fo_terms fo_logic fo_sat fo_sat_dec
+                 decidable enumerable discrete reln_hfs membership
 
                  BPCP_SigBPCP Sig_Sig_fin Sig_rem_syms Sig_uniform 
-                 Sig_one_rel Sig_rem_cst Sig2_SigSSn1
+                 Sig_one_rel Sig_rem_cst Sig2_SigSSn1 Sig1_1
+                 Sig_rem_constants Sig_rem_props
 
                  red_utils red_enum red_dec red_undec
                  .
@@ -206,15 +207,41 @@ Print Assumptions FSAT_REL2_to_FUNnREL1.
 
 (* Proposition 2 *)
 
+Print Σrel.
+About FSAT_REL_2ton.
+About FSAT_RELn_ANY.
+Print Σn1.
+About FSAT_FUNnREL1_ANY.
+
 (* Lemma 29 *)
+
+About FSAT_in_dec.
+Print Assumptions FSAT_in_dec.
 
 (* Lemma 30 *)
 
+About fo_form_fin_discr_dec_SAT_pos.
+Print Assumptions fo_form_fin_discr_dec_SAT_pos.
+
 (* Lemma 31 *)
+
+Print Σ11.
+About FSAT_MONADIC_DEC.
+Print Assumptions FSAT_MONADIC_DEC.
 
 (* Lemma 32 *)
 
+Print Σ11.
+About FSAT_MONADIC_11_FSAT_MONADIC_1.
+Print Assumptions FSAT_MONADIC_11_FSAT_MONADIC_1.
+
 (* Proposition 3 *)
+
+Print Σ11.
+About FSAT_FULL_MONADIC_FSAT_11.
+Print Assumptions FSAT_FULL_MONADIC_FSAT_11.
+About Σrem_constants_correct.
+About Σrem_props_correct.
 
 (* Theorem 33 *)
 
@@ -223,8 +250,6 @@ Print Assumptions FSAT_rec_enum_t.
 
 About FSAT_opt_enum_t.
 Print Assumptions FSAT_opt_enum_t.
-
-
 
 (* Theorem 34 *)
 

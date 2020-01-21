@@ -498,6 +498,4 @@ Section Σ11_Σ1.
 
 End Σ11_Σ1.
 
-Check Σ11_Σ1_reduction.
-
 

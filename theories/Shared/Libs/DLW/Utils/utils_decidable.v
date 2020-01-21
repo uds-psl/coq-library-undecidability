@@ -135,7 +135,3 @@ Section decidable_sinc.
   Proof. exists f; auto. Qed.
 
 End decidable_sinc.
-   
-Check sinc_decidable.
-Check decidable_sinc.
-
