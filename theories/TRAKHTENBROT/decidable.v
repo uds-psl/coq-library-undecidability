@@ -35,17 +35,19 @@ Definition discrete X := forall x y : X, decidable (x=y).
 Fact discrete_unit : discrete unit.
 Proof. intros [] []; left; auto. Qed.
 
+Local Ltac mydecideeq := unfold discrete, decidable; intro; decide equality.
+
 Fact discrete_opt X : discrete X -> discrete (option X).
-Proof. unfold discrete, decidable; intro; decide equality. Qed.
+Proof. mydecideeq. Qed.
 
 Fact discrete_sum X Y : discrete X -> discrete Y -> discrete (X+Y).
-Proof. unfold discrete, decidable; intros; decide equality. Qed.
+Proof. mydecideeq. Qed.
 
 Fact discrete_prod X Y : discrete X -> discrete Y -> discrete (X*Y).
-Proof. unfold discrete, decidable; intros; decide equality. Qed.
+Proof. mydecideeq. Qed.
 
 Fact discrete_list X : discrete X -> discrete (list X).
-Proof. unfold discrete, decidable; intros; decide equality. Qed.
+Proof. mydecideeq. Qed.
 
 Fact discrete_pos n : discrete (pos n).
 Proof. unfold discrete, decidable; apply pos_eq_dec. Qed.

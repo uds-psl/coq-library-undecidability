@@ -447,5 +447,3 @@ Section bt_model_n.
   Qed.
 
 End bt_model_n.
-
-Check reln_hfs.

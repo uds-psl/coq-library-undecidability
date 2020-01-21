@@ -178,9 +178,3 @@ Section remove_constants.
   Qed.
 
 End remove_constants.
-
-Print Σno_props.
-
-Check Σrem_props_correct.
-Print Assumptions Σrem_props_correct.
-

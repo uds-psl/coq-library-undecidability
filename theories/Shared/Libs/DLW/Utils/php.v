@@ -424,8 +424,6 @@ Section PHP_rel.
 
 End PHP_rel.
 
-Check PHP_rel.
-
 Section php_upto.
 
   (** If R is a partial equivalence relation, l is a

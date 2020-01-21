@@ -73,5 +73,3 @@ Section N_to_string.
 End N_to_string.
 
 Definition string_of_nat n := writeNatAux n n "".
-
-Eval compute in string_of_N 123456789012309271072.

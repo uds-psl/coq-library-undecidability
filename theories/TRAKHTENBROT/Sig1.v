@@ -162,9 +162,5 @@ Proof.
     apply H, ΣP1_model_bounded; auto; exists X; auto.
 Qed.
 
-Check FSAT_ΣP1_dec.
-Print Assumptions FSAT_ΣP1_dec.
-
-    
     
     

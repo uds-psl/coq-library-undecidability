@@ -312,9 +312,6 @@ Section discrete_to_finite.
 
 End discrete_to_finite.
 
-Check Σ_finite.
-Print Assumptions Σ_finite.
-
 Definition Σpos (Σ : fo_signature) n m (js : pos n -> syms Σ) (jr : pos m -> rels Σ) : fo_signature.
 Proof.
   exists (pos n) (pos m).
@@ -503,8 +500,6 @@ Section discr_finite_to_pos.
   Qed.
 
 End discr_finite_to_pos.
-
-Check Σ_finite_to_pos.
 
 Section combine_the_two.
 

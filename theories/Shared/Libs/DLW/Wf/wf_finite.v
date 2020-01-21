@@ -106,6 +106,3 @@ Section wf_strict_order_finite.
   Qed.
 
 End wf_strict_order_finite.
-
-Check wf_strict_order_finite.
-Print Assumptions wf_strict_order_finite.

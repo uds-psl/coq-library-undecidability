@@ -638,9 +638,6 @@ End bezout.
 Require Import Extraction.
 Extraction Inline measure_rect.
 
-Check bezout_generalized.
-Print Assumptions bezout_generalized.
-
 Section division.
 
   Fact div_full q p : { n : nat & { r | q = n*p+r /\ (p <> 0 -> r < p) } }.

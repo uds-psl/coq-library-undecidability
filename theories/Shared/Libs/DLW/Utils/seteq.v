@@ -131,7 +131,3 @@ End seteq.
 
 Local Infix "≡" := seteq.
 Local Infix "⊆" := incl.
-
-Print seteq.
-Check seteq_bi_incl.
-Print Assumptions seteq_bi_incl.
