@@ -25,7 +25,7 @@ From Undecidability.Shared.Libs.DLW.Wf
   Require Import wf_finite.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations utils bpcp 
+  Require Import notations utils decidable bpcp 
                  fo_sig fo_terms fo_logic fo_sat 
 
                  red_utils
@@ -524,7 +524,7 @@ Section FULL_TRAKHTENBROT.
   Qed.
 
   Let discrete_bpcp_syms : discrete Σbpcp_syms.
-  Proof. red; repeat decide equality. Qed.
+  Proof. unfold discrete, decidable; repeat decide equality. Qed.
 
   Let finite_t_bpcp_rels : finite_t Σbpcp_rels.
   Proof. 
@@ -533,7 +533,7 @@ Section FULL_TRAKHTENBROT.
   Qed.
 
   Let discrete_bpcp_rels : discrete Σbpcp_rels.
-  Proof. red; repeat decide equality. Qed.
+  Proof. unfold discrete, decidable; repeat decide equality. Qed.
 
   Let BPCP_Sig2 : BPCP_problem ⪯ FSAT (Σrel 2).
   Proof.

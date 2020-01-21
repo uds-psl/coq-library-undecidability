@@ -14,32 +14,6 @@ From Undecidability.Shared.Libs.DLW.Vec
 
 Set Implicit Arguments.
 
-Definition discrete X := forall x y : X, { x = y } + { x <> y }.
-
-Fact discrete_unit : discrete unit.
-Proof. intros [] []; left; auto. Qed.
-
-Fact discrete_opt X : discrete X -> discrete (option X).
-Proof. intro; red; decide equality. Qed.
-
-Fact discrete_sum X Y : discrete X -> discrete Y -> discrete (X+Y).
-Proof. intros; red; decide equality. Qed.
-
-Fact discrete_prod X Y : discrete X -> discrete Y -> discrete (X*Y).
-Proof. intros; red; decide equality. Qed.
-
-Fact discrete_list X : discrete X -> discrete (list X).
-Proof. intros; red; decide equality. Qed.
-
-Fact discrete_pos n : discrete (pos n).
-Proof. red; apply pos_eq_dec. Qed.
-
-Fact discrete_vec X n : discrete X -> discrete (vec X n).
-Proof. intros; red; apply vec_eq_dec; auto. Qed.
-
-Hint Resolve discrete_unit discrete_sum discrete_prod 
-             discrete_list discrete_pos discrete_vec.
-
 (** Standard De Bruijn extension and De Bruijn projection *)
 
 (* Fixpoint instead of Definition because of better unfolding properties *)

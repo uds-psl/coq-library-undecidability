@@ -16,7 +16,7 @@ From Undecidability.Shared.Libs.DLW.Vec
   Require Import pos vec.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations utils fol_ops fo_sig fo_terms fo_logic.
+  Require Import notations utils decidable fol_ops fo_sig fo_terms fo_logic.
 
 Set Implicit Arguments.
 

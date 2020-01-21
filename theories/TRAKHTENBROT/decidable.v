@@ -22,6 +22,40 @@ Set Implicit Arguments.
 
 Definition decidable (P : Prop) := { P } + { ~ P }.
 
+Fact decidable_bool_eq P : (decidable P -> { Q : bool | P <-> Q = true })
+                         * ({ Q : bool | P <-> Q = true } -> decidable P).
+Proof.
+  split.
+  + intros H; exists (if H then true else false); destruct H; split; auto; discriminate.
+  + intros (Q & HQ); destruct Q; [ left | right ]; rewrite HQ; auto.
+Qed.
+
+Definition discrete X := forall x y : X, decidable (x=y).
+
+Fact discrete_unit : discrete unit.
+Proof. intros [] []; left; auto. Qed.
+
+Fact discrete_opt X : discrete X -> discrete (option X).
+Proof. unfold discrete, decidable; intro; decide equality. Qed.
+
+Fact discrete_sum X Y : discrete X -> discrete Y -> discrete (X+Y).
+Proof. unfold discrete, decidable; intros; decide equality. Qed.
+
+Fact discrete_prod X Y : discrete X -> discrete Y -> discrete (X*Y).
+Proof. unfold discrete, decidable; intros; decide equality. Qed.
+
+Fact discrete_list X : discrete X -> discrete (list X).
+Proof. unfold discrete, decidable; intros; decide equality. Qed.
+
+Fact discrete_pos n : discrete (pos n).
+Proof. unfold discrete, decidable; apply pos_eq_dec. Qed.
+
+Fact discrete_vec X n : discrete X -> discrete (vec X n).
+Proof. unfold discrete, decidable; intros; apply vec_eq_dec; auto. Qed.
+
+Hint Resolve discrete_unit discrete_sum discrete_prod 
+             discrete_list discrete_pos discrete_vec.
+
 Section decidable_fun_pos_bool.
 
   (** Decidability of quantification over extensional and

@@ -16,7 +16,7 @@ From Undecidability.Shared.Libs.DLW.Vec
   Require Import pos vec.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations utils fol_ops fo_sig.
+  Require Import notations utils decidable fol_ops fo_sig.
 
 Set Implicit Arguments.
 
@@ -110,7 +110,7 @@ Section first_order_terms.
                                  (Q := fun p => vec_pos v p = vec_pos w p)
                                  (l := pos_list (ar_syms s))
             as [ (p & _ & H) | H ].
-          - intros p; generalize (IHv p (vec_pos w p)); tauto.
+          - intros p; generalize (IHv p (vec_pos w p)); unfold decidable; tauto.
           - right; contradict H; f_equal; revert H; apply in_fot_inv.
           - left; f_equal; apply vec_pos_ext; intros p.
             apply H, pos_list_prop.
