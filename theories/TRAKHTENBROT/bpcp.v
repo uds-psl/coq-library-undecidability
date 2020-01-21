@@ -13,7 +13,7 @@ From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
 
 From Undecidability.Problems
-  Require Import Reduction PCP TM.
+  Require Import PCP.
 
 Set Implicit Arguments.
 
@@ -187,17 +187,5 @@ Proof. apply pcp_hand_dec, bool_dec. Qed.
 Definition BPCP_input := list (list bool * list bool).
 Definition BPCP_problem (R : BPCP_input) := exists l, R ⊳ l∕l.
 
-(** BPCP as defined in Problems/PCP.v is equivalent to BPCP_problem here *)
-
-Theorem BPCP_BPCP_problem R : BPCP_problem R <-> BPCP R.
-Proof.
-  unfold BPCP_problem; split.
-  + intros (l & Hl).
-    apply pcp_hand_derivable, derivable_BPCP in Hl.
-    destruct Hl as (A & ? & ? & <- & ?); exists A; auto.
-  + intros (A & ? & ? & ?).
-    exists (tau2 A); apply pcp_hand_derivable, BPCP_derivable.
-    exists A; auto.
-Qed.
 
 

@@ -10,10 +10,7 @@
 Require Import List Arith Bool Lia Eqdep_dec.
 
 From Undecidability.Problems
-  Require Import Reduction PCP TM.
-
-From Undecidability.Reductions
-  Require Import TM_to_BPCP.
+  Require Import Reduction.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
@@ -99,14 +96,6 @@ Set Implicit Arguments.
 
 *)
 
-(** With Σ = (sy,re) a signature and =_2 : re and a proof that
-    arity of =_2 is 2, there is a reduction from
-    - finite and decidable and interpreted SAT over Σ (=_2 is interpreted by =)
-    - to finite and decidable SAT over Σ 
-
-        SAT(sy,re,𝔽,ℂ,=) ---> SAT(sy,re,𝔽,ℂ)  (with =_2 of arity 2 in re)
-*)
-
 (** The reduction from BPCP to SAT of a FO formula over a finitary & discrete signature
      - over signature Σbpcp (2 unary funs, 2 constants, 3 rels)
      - within interpreted finite and decidable models
@@ -114,11 +103,6 @@ Set Implicit Arguments.
        BPCP --> SAT({f_1,g_1,a_0,b_0},{P_2,≡_2,≺_2},𝔽,ℂ)
   *)
 
-Theorem HaltTM_BPCP_problem : HaltTM 1 ⪯ BPCP_problem.
-Proof.
-  eapply reduces_transitive with (1 := HaltTM_BPCP).
-  exists (fun x => x); symmetry; apply BPCP_BPCP_problem.
-Qed.
 
 Section BPCP_fo_fin_dec_SAT.
 

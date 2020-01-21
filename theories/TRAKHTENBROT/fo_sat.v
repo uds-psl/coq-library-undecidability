@@ -47,7 +47,6 @@ Section satisfiability.
            (_ : finite_t X) 
            (_ : fo_model_dec M)
            (_ : forall x y, fom_rels M e (cast (x##y##ø) (eq_sym E)) <-> x = y)
-(*eq_rect _ (fun n => vec _ n -> _) (fom_rels M e) _ E = rel2_on_vec eq *)
            (φ : nat -> X), 
            fol_sem M φ A.
 
