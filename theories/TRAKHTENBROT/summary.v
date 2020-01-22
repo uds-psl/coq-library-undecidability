@@ -10,7 +10,7 @@
 Require Import List Arith Bool Lia Relations.
 
 From Undecidability.Problems
-  Require Import Reduction.
+  Require Import Reduction PCP.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite php.
@@ -65,6 +65,9 @@ About BPCP_problem. Print BPCP_problem.
 
 About bpcp_hand_dec.
 Print Assumptions bpcp_hand_dec.
+
+About BPCP_BPCP_problem_eq.
+About BPCP_BPCP_problem.
 
 (* Definition 6 *)
 
