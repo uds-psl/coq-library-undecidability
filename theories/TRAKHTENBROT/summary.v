@@ -49,8 +49,11 @@ About discrete. Print discrete.
 
 About reduces. Print reduces.
 
-(** Fact 3, established elsewhere, you need more code from the undec. library 
-    but this particular one is easy, unlike the TM stuff below *)
+(* Fact 3 *)
+
+About reduction_decidable.
+About reduction_rec_enum_t.
+About reduction_opt_enum_t.
 
 (* Definition 4 *)
 
@@ -173,7 +176,7 @@ Print Σrel.
 About FSAT_REL_BOUNDED_ONE_REL.
 Print Assumptions FSAT_REL_BOUNDED_ONE_REL.
 
-(* Proposition 1 *)
+(* Fact 25 *)
 
 Print Σunif.
 About FSAT_UNIFORM.
@@ -184,28 +187,28 @@ About FSAT_ONE_REL.
 Print Σrem_cst.
 Check FSAT_NOCST.
 
-(* Lemma 25 *)
+(* Lemma 26 *)
 
 About FIN_DISCR_DEC_nSAT_FIN_DEC_2SAT.
 Print Assumptions FIN_DISCR_DEC_nSAT_FIN_DEC_2SAT.
 
-(* Theorem 26 *)
+(* Theorem 27 *)
 
 About reln_hfs.
 Print Assumptions reln_hfs.
 
-(* Theorem 27 *)
+(* Theorem 28 *)
 
 About FSAT_REL_nto2.
 Print Assumptions FSAT_REL_nto2.
 
-(* Lemma 28 *)
+(* Lemma 29 *)
 
 Print Σn1.
 About FSAT_REL2_to_FUNnREL1.
 Print Assumptions FSAT_REL2_to_FUNnREL1.
 
-(* Proposition 2 *)
+(* Fact 30 *)
 
 Print Σrel.
 About FSAT_REL_2ton.
@@ -213,29 +216,29 @@ About FSAT_RELn_ANY.
 Print Σn1.
 About FSAT_FUNnREL1_ANY.
 
-(* Lemma 29 *)
+(* Lemma 31 *)
 
 About FSAT_in_dec.
 Print Assumptions FSAT_in_dec.
 
-(* Lemma 30 *)
+(* Lemma 32 *)
 
 About fo_form_fin_discr_dec_SAT_pos.
 Print Assumptions fo_form_fin_discr_dec_SAT_pos.
 
-(* Lemma 31 *)
+(* Lemma 33 *)
 
 Print Σ11.
 About FSAT_MONADIC_DEC.
 Print Assumptions FSAT_MONADIC_DEC.
 
-(* Lemma 32 *)
+(* Lemma 34 *)
 
 Print Σ11.
 About FSAT_MONADIC_11_FSAT_MONADIC_1.
 Print Assumptions FSAT_MONADIC_11_FSAT_MONADIC_1.
 
-(* Proposition 3 *)
+(* Fact 35 *)
 
 Print Σ11.
 About FSAT_FULL_MONADIC_FSAT_11.
@@ -243,7 +246,7 @@ Print Assumptions FSAT_FULL_MONADIC_FSAT_11.
 About Σrem_constants_correct.
 About Σrem_props_correct.
 
-(* Theorem 33 *)
+(* Theorem 36 *)
 
 About FSAT_rec_enum_t.
 Print Assumptions FSAT_rec_enum_t.
@@ -251,12 +254,12 @@ Print Assumptions FSAT_rec_enum_t.
 About FSAT_opt_enum_t.
 Print Assumptions FSAT_opt_enum_t.
 
-(* Theorem 34 *)
+(* Theorem 37 *)
 
 About FULL_TRAKHTENBROT.
 Print Assumptions FULL_TRAKHTENBROT.
 
-(* Theorem 35 *)
+(* Theorem 38 *)
 
 About FULL_MONADIC.
 Print Assumptions FULL_MONADIC.

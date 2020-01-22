@@ -9,6 +9,9 @@
 
 Require Import List Arith Bool Lia Eqdep_dec.
 
+From Undecidability.Problems
+  Require Import Reduction.
+
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
 
@@ -239,6 +242,30 @@ Section enumerable.
   Proof. split; auto. Qed.
 
 End enumerable.
+
+Section enumerable_reduction.
+
+  Variable (X Y : Type) (p : X -> Prop) (q : Y -> Prop).
+
+  Fact reduction_rec_enum_t : p ⪯ q -> rec_enum_t q -> rec_enum_t p.
+  Proof.
+    intros (f & Hf) (d & Hd).
+    exists (fun n y => d n (f y)).
+    intros x; rewrite Hf, Hd; tauto.
+  Qed.
+
+  Hypothesis (Xe : type_enum_t X)
+             (Yd : discrete Y).
+
+  Fact reduction_opt_enum_t : p ⪯ q -> opt_enum_t q -> opt_enum_t p.
+  Proof.
+    intros H1 H2.
+    apply rec_enum_opt_enum_type_enum_t; auto.
+    apply reduction_rec_enum_t; auto.
+    apply opt_enum_rec_enum_discrete_t; auto.
+  Qed.
+
+End enumerable_reduction.
 
 Section enum_ops.
 

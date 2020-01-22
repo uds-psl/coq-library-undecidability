@@ -9,6 +9,9 @@
 
 Require Import List Arith Bool Eqdep_dec.
 
+From Undecidability.Problems
+  Require Import Reduction.
+
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
 
@@ -29,6 +32,13 @@ Proof.
   + intros H; exists (if H then true else false); destruct H; split; auto; discriminate.
   + intros (Q & HQ); destruct Q; [ left | right ]; rewrite HQ; auto.
 Qed.
+
+Fact reduction_decidable X Y (p : X -> Prop) (q : Y -> Prop) :
+       p ⪯ q -> (forall y, decidable (q y)) -> forall x, decidable (p x).
+Proof.
+  intros (f & Hf) Hq x.
+  destruct (Hq (f x)); [ left | right ]; rewrite Hf; auto.
+Qed.   
 
 Definition discrete X := forall x y : X, decidable (x=y).
 

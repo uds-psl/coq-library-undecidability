@@ -1,6 +1,8 @@
-Require Import Undecidability.Shared.Prelim.
+Require Import Setoid.
 
-(** @DLW: replace with INFORMATIVE reductions
+Set Implicit Arguments.
+
+(** DLW: replace with INFORMATIVE reductions
     We prove informative reductions in here *)
 
 (* Definition reduces X Y (p : X -> Prop) (q : Y -> Prop) := exists f : X -> Y, forall x, p x <-> q (f x).
@@ -22,7 +24,7 @@ Proof.
   intro; rewrite Hf, Hg; tauto.
 Qed.
 
-(** Sometimes the dependent statement is more convenient *)
+(** DLW: Sometimes the dependent statement is more convenient *)
 
 Fact reduction_dependent X Y (P : X -> Prop) (Q : Y -> Prop) :
          (P ⪯ Q -> forall x, { y | P x <-> Q y })
