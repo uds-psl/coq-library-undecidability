@@ -16,7 +16,7 @@ From Undecidability.Shared.Libs.DLW.Vec
   Require Import pos vec.
 
 From Undecidability.TRAKHTENBROT
-  Require Import notations gfp fol_ops fo_sig fo_terms fo_logic fo_definable fo_sat.
+  Require Import notations decidable gfp fol_ops fo_sig fo_terms fo_logic fo_definable fo_sat.
 
 Set Implicit Arguments.
 
@@ -321,53 +321,63 @@ Section discrete_quotient.
 
       *)
 
+    Local Fact fom_eq_fo_bisimilar x y : x ≡ y -> fo_bisimilar M x y.
+    Proof.
+      intros H A phi.
+      apply fom_eq_fol_charac1.
+      intros [ | n ] _; simpl; auto.
+    Qed.
+
+    Local Fact fo_bisimilar_fom_eq x y : fo_bisimilar M x y -> x ≡ y.
+    Proof.
+      revert x y; apply gfp_greatest; auto.
+      intros x y H; split.
+      * intros s Hs v p A phi H1 H2.
+        destruct (fot_vec_env Σ p) as (w & Hw1 & Hw2).
+        set (B := fol_subst (fun n => 
+               match n with
+                 | 0   => in_fot s w 
+                 | S n => £ (S n + ar_syms Σ s)
+               end) A).
+        assert (HB : forall z, fol_sem M (z·(env_vlift phi v)) B 
+                           <-> fol_sem M (fom_syms M s (v[z/p]))·phi A).
+        { intros z; unfold B; rewrite fol_sem_subst; apply fol_sem_ext.
+          intros [ | n] _; rew fot; simpl; f_equal.
+          * apply vec_pos_ext; intros q; rewrite vec_pos_map; apply Hw1.
+          * rewrite env_vlift_fix1; auto. }
+        rewrite <- !HB; apply H.
+        - red; apply Forall_forall, fol_syms_subst.
+          intros [ | n ]; rew fot.
+          + intros _; apply Forall_forall.
+            intros s' [ <- | Hs' ]; auto; apply H1; revert Hs'.
+            rewrite in_flat_map; intros (z & H3 & H4).
+            apply vec_list_inv in H3; destruct H3 as (q & ->).
+            rewrite Hw2 in H4; destruct H4.
+          + constructor.
+          + apply Forall_forall, H1.
+        - unfold B; rewrite fol_rels_subst; auto.
+      * intros r Hr v p; red in H.
+        destruct (fot_vec_env Σ p) as (w & Hw1 & Hw2).
+        set (B := fol_atom r w).
+        assert (HB : forall z, fol_sem M (z·(env_vlift (fun _ => x) v)) B 
+                           <-> fom_rels M r (v[z/p])).
+        { intros z; unfold B; simpl; apply fol_equiv_ext; f_equal.
+          apply vec_pos_ext; intros q; rewrite vec_pos_map; apply Hw1. }
+        rewrite <- !HB; apply H.
+        - unfold B; simpl; intros z; rewrite in_flat_map.
+          intros (t & H3 & H4).
+          apply vec_list_inv in H3.
+          destruct H3 as (q & ->).
+          rewrite Hw2 in H4; destruct H4.
+        - unfold B; simpl; intros ? [ <- | [] ]; auto.
+    Qed.
+
     Theorem fom_eq_fol_characterization x y : 
             x ≡ y <-> fo_bisimilar M x y.
      Proof.
       split.
-      + intros H A phi.
-        apply fom_eq_fol_charac1.
-        intros [ | n ] _; simpl; auto.
-      + revert x y; apply gfp_greatest; auto.
-        intros x y H; split.
-        * intros s Hs v p A phi H1 H2.
-          destruct (fot_vec_env Σ p) as (w & Hw1 & Hw2).
-          set (B := fol_subst (fun n => 
-                 match n with
-                   | 0   => in_fot s w 
-                   | S n => £ (S n + ar_syms Σ s)
-                 end) A).
-          assert (HB : forall z, fol_sem M (z·(env_vlift phi v)) B 
-                             <-> fol_sem M (fom_syms M s (v[z/p]))·phi A).
-          { intros z; unfold B; rewrite fol_sem_subst; apply fol_sem_ext.
-            intros [ | n] _; rew fot; simpl; f_equal.
-            * apply vec_pos_ext; intros q; rewrite vec_pos_map; apply Hw1.
-            * rewrite env_vlift_fix1; auto. }
-          rewrite <- !HB; apply H.
-          - red; apply Forall_forall, fol_syms_subst.
-            intros [ | n ]; rew fot.
-            ++ intros _; apply Forall_forall.
-               intros s' [ <- | Hs' ]; auto; apply H1; revert Hs'.
-               rewrite in_flat_map; intros (z & H3 & H4).
-               apply vec_list_inv in H3; destruct H3 as (q & ->).
-               rewrite Hw2 in H4; destruct H4.
-            ++ constructor.
-            ++ apply Forall_forall, H1.
-          - unfold B; rewrite fol_rels_subst; auto.
-        * intros r Hr v p; red in H.
-          destruct (fot_vec_env Σ p) as (w & Hw1 & Hw2).
-          set (B := fol_atom r w).
-          assert (HB : forall z, fol_sem M (z·(env_vlift (fun _ => x) v)) B 
-                             <-> fom_rels M r (v[z/p])).
-          { intros z; unfold B; simpl; apply fol_equiv_ext; f_equal.
-            apply vec_pos_ext; intros q; rewrite vec_pos_map; apply Hw1. }
-          rewrite <- !HB; apply H.
-          - unfold B; simpl; intros z; rewrite in_flat_map.
-            intros (t & H3 & H4).
-            apply vec_list_inv in H3.
-            destruct H3 as (q & ->).
-            rewrite Hw2 in H4; destruct H4.
-          - unfold B; simpl; intros ? [ <- | [] ]; auto.
+      + apply fom_eq_fo_bisimilar.
+      + apply fo_bisimilar_fom_eq.
     Qed.
 
   End fol_characterization.
@@ -385,15 +395,18 @@ Section discrete_quotient.
                  * (forall s v w, In s ls -> (forall p, R (v#>p) (w#>p)) -> R (fom_syms M s v) (fom_syms M s w))
                  * (forall r v w, In r lr -> (forall p, R (v#>p) (w#>p)) -> fom_rels M r v <-> fom_rels M r w) )%type.
 
-  Theorem fo_bisimilar_dec_congr : fo_congruence_upto (@fo_bisimilar X M).
+  Theorem fo_bisimilar_dec_congr : fo_congruence_upto (@fo_bisimilar X M)
+                                 * (forall x y, decidable (fo_bisimilar M x y)).
   Proof.
-    split; [ split | ].
+    split; [ split; [ split | ] | ].
     + split; red; [ intros ? | intros ? ? ? | intros ? ?]; rewrite <- !fom_eq_fol_characterization; auto.
       apply fom_eq_trans.
     + intros ? ? ? ? ?; apply fom_eq_fol_characterization, fom_eq_syms_full; auto.
       intro; apply fom_eq_fol_characterization; auto.
-    + intros ? ? ? ? ?. apply fom_eq_rels_full; auto.
+    + intros ? ? ? ? ?; apply fom_eq_rels_full; auto.
       intro; apply fom_eq_fol_characterization; auto.
+    + intros x y.
+      destruct (fom_eq_dec x y); [ left | right ]; rewrite <- fom_eq_fol_characterization; auto.
   Qed.
 
   (** But we have a much stronger statement: fom_eq is first order definable 
