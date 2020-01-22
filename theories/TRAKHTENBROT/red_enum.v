@@ -24,9 +24,7 @@ Set Implicit Arguments.
 
 Section FSAT_enumerable.
 
-  Variable (Σ : fo_signature) 
-           (H1 : discrete (syms Σ)) 
-           (H2 : discrete (rels Σ)).
+  Variable (Σ : fo_signature). 
 
   Implicit Type (A : fol_form Σ).
 
@@ -35,6 +33,9 @@ Section FSAT_enumerable.
     rewrite fo_form_fin_dec_SAT_discr_equiv.
     apply fo_form_fin_discr_dec_SAT_pos.
   Qed.
+
+  Hypothesis (H1 : discrete (syms Σ)) 
+             (H2 : discrete (rels Σ)).
 
   Let dec n A : decidable (fo_form_fin_dec_SAT_in A (pos n)).
   Proof. apply FSAT_in_dec; auto; apply finite_t_pos. Qed.
