@@ -66,7 +66,7 @@ Section FSAT_MONADIC_DEC.
 
   Theorem FSAT_MONADIC_DEC : decidable (fo_form_fin_dec_SAT A).
   Proof.
-    destruct Σ_discrete_to_pos with (A := A)
+    destruct Sig_discrete_to_pos with (A := A)
       as (n & m & i & j & B & HB).
     + simpl; intros s; destruct (H1 s).
     + apply H2.
@@ -126,7 +126,7 @@ Section FSAT_FULL_Σ11_DEC.
 
   Theorem FSAT_FULL_Σ11_DEC : decidable (fo_form_fin_dec_SAT A).
   Proof.
-    destruct Σ_discrete_to_pos with (A := A)
+    destruct Sig_discrete_to_pos with (A := A)
       as (n & m & i & j & B & HB); auto.
     destruct FSAT_Σ11_DEC with (A := B) as [ H | H ]; auto.
     + left; apply HB; auto.

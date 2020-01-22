@@ -331,7 +331,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
     Let sem_phi_solvable : ⟪ ∃ £0 ⧓ £0 ⟫ φ0.
     Proof. exists (Some (exist _ l (lt_n_Sn _))); simpl; auto. Qed.
 
-    Theorem Σbpcp_encode_sound : @fo_form_fin_dec_eq_SAT Σbpcp Σbpcp_eq eq_refl Σbpcp_encode.
+    Theorem Sig_bpcp_encode_sound : @fo_form_fin_dec_eq_SAT Σbpcp Σbpcp_eq eq_refl Σbpcp_encode.
     Proof.
       exists X, Σbpcp_model, Σbpcp_model_finite, Σbpcp_model_dec,
              Σbpcp_model_interpreted, φ0; split; auto.
@@ -566,7 +566,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
 
   Hint Resolve finite_t_finite.
 
-  Theorem Σbpcp_encode_complete : 
+  Theorem Sig_bpcp_encode_complete : 
              @fo_form_fin_dec_eq_SAT Σbpcp Σbpcp_eq eq_refl Σbpcp_encode 
           -> exists l, pcp_hand lc l l.
   Proof.

@@ -109,8 +109,8 @@ Section BPCP_fo_fin_dec_SAT.
   Proof.
     apply reduction_dependent; intros lc.
     exists (Σbpcp_encode lc); split.
-    + intros (l & Hl); revert Hl; apply Σbpcp_encode_sound.
-    + apply Σbpcp_encode_complete.
+    + intros (l & Hl); revert Hl; apply Sig_bpcp_encode_sound.
+    + apply Sig_bpcp_encode_complete.
   Qed.
 
 End BPCP_fo_fin_dec_SAT.
@@ -372,7 +372,7 @@ Section DISCRETE_TO_BINARY.
   Proof.
     apply reduction_dependent.
     intros A.
-    destruct (Σ_discrete_to_pos HΣ1 HΣ2 A) as (n & m & i & j & B & HB).
+    destruct (Sig_discrete_to_pos HΣ1 HΣ2 A) as (n & m & i & j & B & HB).
     destruct (@FINITARY_TO_BINARY (Σpos _ i j)) as (f & Hf); simpl; auto.
     exists (f B).
     rewrite <- Hf; apply HB.

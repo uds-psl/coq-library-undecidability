@@ -165,8 +165,8 @@ Print Assumptions FIN_DEC_EQ_SAT_FIN_DEC_SAT.
 
 (* Lemma 22 *)
 
-About Σ_discrete_to_pos.
-Print Assumptions Σ_discrete_to_pos.
+About Sig_discrete_to_pos.
+Print Assumptions Sig_discrete_to_pos.
 
 (* Lemma 23 *)
 

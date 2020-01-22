@@ -548,7 +548,7 @@ Section combine_the_two.
       * apply exists_equiv; auto.
   Qed.
 
-  Definition Σ_discrete_to_pos (A : fol_form Σ) : 
+  Definition Sig_discrete_to_pos (A : fol_form Σ) : 
               { n : nat & 
               { m : nat &
               { i : pos n -> syms Σ &
