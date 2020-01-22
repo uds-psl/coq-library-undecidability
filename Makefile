@@ -1,18 +1,18 @@
+.PHONY : all coq html website clean
 
-all:
-	+make -C theories all
-
-deps:
-	+make -C external all
-
-clean:
-	+make -C theories clean
-
-realclean:
-	+make -C external clean
-	+make -C theories clean
+all: coq html website
 
 html:
-	+make -C theories website
+	$(MAKE) -C theories html
 
-.PHONY: all html clean realclean
+coq:
+	$(MAKE) -C theories
+
+website:
+	$(MAKE) -C theories html
+	mv theories/html/*html website
+	rm -rf theories/html
+
+clean:
+	$(MAKE) -C theories clean
+	rm -f website/*html

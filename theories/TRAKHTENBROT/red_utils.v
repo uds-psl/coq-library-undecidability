@@ -79,7 +79,7 @@ Proof. exists (fun A => A); apply fo_form_fin_dec_SAT_discr_equiv. Qed.
 (* Check FIN_DEC_SAT_FIN_DISCR_DEC_SAT.
 Print Assumptions FIN_DEC_SAT_FIN_DISCR_DEC_SAT. *)
 
-(** With Σ = (sy,re) a signature and =_2 : re and a proof that
+(** With Σ = (sy,re) a signature and <<=_2>> : re and a proof that
     arity of =_2 is 2, there is a reduction from
     - finite and decidable and interpreted SAT over Σ (=_2 is interpreted by =)
     - to finite and decidable SAT over Σ 
