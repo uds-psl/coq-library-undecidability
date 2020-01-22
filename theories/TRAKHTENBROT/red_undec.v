@@ -45,51 +45,25 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(* Some ideas for notations and terminology
+(* Summary of some of what is implement in here
 
-    Σ = (∅ or { f_1 , g_1 , a_0, b_0 } ,{ ∈_2 , =_2 , T_3, P_2 , ≡_2 , ≺_3 })
-    finite/listable <->   <∞ 𝔽
-    decidable/computable/Boolean <-> ℂ
-    discrete/decidable equality <-> 𝔻
-    interpreted equality <-> =
-
-    We should fix that models have to be finite (listable) and
-    computable/Boolean. May be the best terminology is Boolean.
-    Discreteness is not a issue, see below. I tend tp favor finite
-    over listable because the term is already used in classical
-    logic, whereas "computable" means nothing for finite models
-    (ie finiteness implies computability in a classical setting)
-
-    Switching to weakly decidable models would be a problem
-    also for recovering functions from relations ...
-
-    To discuss also is the (small) issue of the empty model
-    which makes sense only for closed formulas. In that case,
-    the logic is reduced to True/False because ∀ <-> True
-    and ∃ <-> False
-*)
-
-(* Summary of what is implement in here
-
-    BPCP ⪯ SAT({f_1,g_1,a_0,b_0},{P_2,≡_2,≺_2},𝔽,ℂ)
+    BPCP ⪯ SAT({f¹,g¹,a⁰,b⁰},{P²,≡²,≺²},𝔽,ℂ)
 
     SAT(Σ,𝔽,𝔻) ⪯  SAT(Σ,𝔽,ℂ,𝔻)  and   SAT(Σ,𝔽,ℂ,𝔻) ⪯ SAT(Σ,𝔽,𝔻)
 
-    SAT(sy,re,𝔽,ℂ,𝔻) ⪯ SAT(∅,sy+{=_2}+re,𝔽,ℂ,=) (with sy finite or discrete)
+    SAT(sy,re,𝔽,ℂ,𝔻) ⪯ SAT(∅,sy+{=²}+re,𝔽,ℂ,=) (with sy finite or discrete)
 
-    SAT(sy,re,𝔽,ℂ,=) ⪯ SAT(sy,re,𝔽,ℂ) (with =_2 of arity 2 in re)
+    SAT(sy,re,𝔽,ℂ,=) ⪯ SAT(sy,re,𝔽,ℂ) (with =² of arity 2 in re)
 
     SAT(Σ,𝔽,ℂ) ⪯ SAT(Σunif Σ n,𝔽,ℂ)  (with all arities of rels in Σ <= n)
 
-    SAT(ø,re_n,𝔽,ℂ) ⪯ SAT(re_0,{R_{n+1}},𝔽,ℂ)  (re is finite and uniform arity n)
+    SAT(ø,re^n,𝔽,ℂ) ⪯ SAT(re⁰,{R^{n+1}},𝔽,ℂ)  (re is finite and uniform arity n)
 
-    SAT(∅,{T_3},𝔽,ℂ,𝔻) ⪯ SAT(∅,{∈_2},𝔽,ℂ)
+    SAT(∅,{T^n},𝔽,ℂ,𝔻) ⪯ SAT(∅,{∈²},𝔽,ℂ)
 
-    SAT(∅,{T_3,=_2},𝔽,ℂ,=) ⪯ SAT(∅,{∈_2},𝔽,ℂ)
+    SAT(∅,{R²},𝔽,ℂ) ⪯ SAT(∅,{R^n},𝔽,ℂ)       (for 2 <= n)
 
-    SAT(∅,{R_2},𝔽,ℂ) ⪯ SAT(∅,{R_n},𝔽,ℂ)       (for 2 <= n)
-
-    SAT(∅,{R_n},𝔽,ℂ) ⪯ SAT(Σ,𝔽,ℂ)             (when Σ contains a n-ary relation)
+    SAT(∅,{R^n},𝔽,ℂ) ⪯ SAT(Σ,𝔽,ℂ)             (when Σ contains a n-ary relation)
 
 *)
 
@@ -97,7 +71,7 @@ Set Implicit Arguments.
      - over signature Σbpcp (2 unary funs, 2 constants, 3 rels)
      - within interpreted finite and decidable models
 
-       BPCP --> SAT({f_1,g_1,a_0,b_0},{P_2,≡_2,≺_2},𝔽,ℂ)
+       BPCP --> SAT({f¹,g¹,a⁰,b⁰},{P²,≡²,≺²},𝔽,ℂ)
   *)
 
 
@@ -122,13 +96,13 @@ Proof.
 Qed.
 
 (** With Σ  = (sy,re) a signature with finitely many term symbols (sy)
-    and  Σ' = (ø,sy+{=_2}+re) where =_2 is interpreted and the arity of symbols 
+    and  Σ' = (ø,sy+{=²}+re) where =² is interpreted and the arity of symbols 
               in sy is augmented by 1
     then there is a reduction
     - from finite and discrete and decidable SAT over Σ
     - to finite and decidable and interpreted equality SAT over Σ'
 
-        SAT(sy,re,𝔽,ℂ,𝔻) ---> SAT(∅,sy+{=_2}+re,𝔽,ℂ,=)
+        SAT(sy,re,𝔽,ℂ,𝔻) ---> SAT(∅,sy+{=²}+re,𝔽,ℂ,=)
 
     Another possible hypothesis is discreteness with sy
 
@@ -285,7 +259,7 @@ Proof.
   apply Σn1_Σ_correct.
 Qed.
 
-(*      SAT(∅,{R_2},𝔽,ℂ) ---> SAT(∅,{R_(2+n)},𝔽,ℂ)           *)
+(*      SAT(∅,{R²},𝔽,ℂ) ---> SAT(∅,{R^(2+n)},𝔽,ℂ)           *)
 
 Theorem FSAT_REL_2ton n :
                  2 <= n 
@@ -301,7 +275,7 @@ Qed.
 (** If Σ contains an n-ary relational symbol then there is a 
     reduction 
 
-               SAT(∅,{R_n},𝔽,ℂ) ---> SAT(Σ,𝔽,ℂ)  *)
+               SAT(∅,{R^n},𝔽,ℂ) ---> SAT(Σ,𝔽,ℂ)  *)
 
 Theorem FSAT_RELn_ANY Σ n r : ar_rels Σ r = n -> FSAT (Σrel n) ⪯ FSAT Σ.
 Proof.
@@ -379,9 +353,6 @@ Section DISCRETE_TO_BINARY.
   Qed.
 
 End DISCRETE_TO_BINARY.
-
-(* Check DISCRETE_TO_BINARY.
-Print Assumptions DISCRETE_TO_BINARY. *)
 
 Section FULL_TRAKHTENBROT.
 
