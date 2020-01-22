@@ -848,7 +848,7 @@ Section bt_pow.
 
   (** We build the power set *)
 
-  (** Computes x {t1,...,tk} => {{x} ∪ t1,...,{x} ∪ tk **)
+  (* bt_mcomp x {t1,...,tk} => {{x} ∪ t1,...,{x} ∪ tk} **)
 
   Fixpoint bt_mcomp x t :=
     match t with
@@ -875,7 +875,7 @@ Section bt_pow.
         - right; exists k; auto.
   Qed.
 
-  (** Powerset bti_inv x ⊆ s⪧t <-> x ⊆ t \/ exists y, y ⊆ t /\ x ≈ s⪧y *)
+  (* Powerset bti_inv x ⊆ s⪧t <-> x ⊆ t \/ exists y, y ⊆ t /\ x ≈ s⪧y *)
 
   Fixpoint bt_pow t :=
     match t with
@@ -1035,6 +1035,7 @@ Proof.
 Qed.
 
 Section FOL_encoding.
+
   (** FOL encoding a triples belonging to a set *)
  
   Fact bt_enc_equiv s t : s ≈ t <-> forall x, x ∈ s <-> x ∈ t.
@@ -1094,7 +1095,7 @@ End FOL_encoding.
 
 Section nat2bt.
 
-  (** We build the usual embedding of nat into bt *)
+  (* We build the usual embedding of nat into bt *)
 
   Fixpoint nat2bt n : bt :=
     match n with 
@@ -1182,7 +1183,7 @@ End nat2bt.
 
 Section pos2bt.
 
-  (** And now a bijection between pos n and nat2bt n *)
+  (* And now a bijection between pos n and nat2bt n *)
 
   Definition pos2bt n (p : pos n) := nat2bt (pos2nat p).
 

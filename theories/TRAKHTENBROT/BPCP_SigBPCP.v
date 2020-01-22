@@ -9,9 +9,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** This was implemented by @DLW following the ideas 
-    of the reduction BPCP -> fin SAT described in a draft 
-    by @DK. *)
+(* This was implemented by DLW following the ideas of 
+   the reduction BPCP -> fin SAT described in a draft by DK. *)
 
 Require Import List Arith Bool Lia.
 
@@ -33,7 +32,7 @@ Local Notation ø := vec_nil.
 
 Section BPCP_FIN_DEC_EQ_SAT.
 
-  Variable lc : list (list bool * list bool).  (** A BPCP instance *)
+  Variable lc : list (list bool * list bool).  (* A BPCP instance *)
 
   Notation 𝕋 := (fol_term Σbpcp).
   Notation 𝔽 := (fol_form Σbpcp).

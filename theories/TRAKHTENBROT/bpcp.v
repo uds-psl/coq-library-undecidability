@@ -94,8 +94,8 @@ Section pcp_hand.
 
     Implicit Type (l m : list X).
 
-    (** Notice that we could downgrade strict_suffix to Prop because
-        a and b could be computed from the knowledge of there existence *)
+    (* Notice that we could downgrade strict_suffix to Prop because
+       a and b could be computed from the knowledge of there existence *)
 
     Definition strict_suffix x y l m := { a : _ & { b | (a <> nil \/ b <> nil) /\ l = a++x /\ m = b++y } }.
     
@@ -117,8 +117,7 @@ Section pcp_hand.
     
   Section bounded_dec.
 
-    (** It is possible to decide pcp_hand, when equality is decidable
-        of course *)
+    (** It is only possible to decide pcp_hand, when equality is decidable of course *)
   
     Variable eqX_dec : forall x y : X, { x = y } + { x <> y }.
 
@@ -128,7 +127,7 @@ Section pcp_hand.
     Let eqXX_dec : forall p q : list X * list X, { p = q } + { p <> q }.
     Proof. decide equality; auto. Qed.
 
-    (** Replaced induction on length p + length with strict suffix pair induction *)
+    (* Replaced induction on length p + length q with strict suffix pair induction *)
 
     Theorem pcp_hand_dec p q : { ⊳ p∕q } + { ~ ⊳ p∕q }.
     Proof.

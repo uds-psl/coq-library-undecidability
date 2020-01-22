@@ -33,14 +33,6 @@ Proof. reflexivity. Qed.
 Fact de_bruijn_proj_ext X (ν : nat -> X) n : (ν 0)·(ν⭳) n = ν n.
 Proof. destruct n; reflexivity. Qed.
 
-(* Unicode DB for cut/paste 
-  -> ⇡ ↑ 
-  -> ⟬  ⟭ ⟦ ⟧ ⟪ ⟫ ⦃ ⦄
-  -> φ ψ σ ρ 𝕋 𝔽 
-  -> ⌞ ⌟ ∅ ⪧ ≈ ≉ ∈ ∉ ≾ ≺ ε ∙ ∊ ⋷
-  -> ∑ ∏
-*)
-
 Notation "x '≋' y" := (prod (x->y) (y->x)) 
    (at level 95, no associativity,
     format "x  '≋'  y") : type_scope.
@@ -96,7 +88,7 @@ Reserved Notation "x → y" (at level 2, right associativity, format "x → y").
 Reserved Notation "⟬ s , t ⟭" (at level 1, format "⟬ s , t ⟭").
 Reserved Notation "x ∪ y" (at level 52, left associativity).
 
-  (* Infix Binary rels *)
+(* Infix Binary rels *)
 
 Reserved Notation "x ∈ y" (at level 59, no associativity).
 Reserved Notation "x ∉ y" (at level 70, no associativity).

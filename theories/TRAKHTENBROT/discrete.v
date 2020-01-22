@@ -27,9 +27,9 @@ Section discrete_quotient.
 
   (** We show the FO bisimilarity/indistinguishability ≡ is both
       decidable and first order definable, ie there is a FO formula
-      A[.,.] such that
+      A(.,.) such that
  
-            x ≡ y <-> A[x,y] holds for any x,y in the model M
+            x ≡ y <-> A(x,y) holds for any x,y in the model M
 
       We use it to quotient the model M and get a discrete model 
       (based on the finite type pos n) where identity coincides
@@ -48,9 +48,9 @@ Section discrete_quotient.
 
       transforming a binary relation R : M² -> Prop into F(R).
 
-         x F(R) y iff      t[x]  R  t[y] for any t[.] = s<v[./p]>
-                       and f[x] <-> f[y] for any f[.] = r<v[./p]>
-      
+         x F(R) y iff      t(x)  R  t(y) for any t(.) = s<v(./p)>
+                       and f(x) <-> f(y) for any f(.) = r<v(./p)>
+
       Then F(.) is monotonic, ω-continuous, and satisfies
       I ⊆ F(I), (F(R))⁻ ⊆ F(R⁻) and F(R) o F(R) ⊆ F (R o R)
       hence Kleene's greatest fixpoint gfp(F) exists, is
@@ -124,12 +124,12 @@ Section discrete_quotient.
 
   Hint Resolve finite_t_pos finite_t_vec.
 
-  (* Monotonicity *)
+  (** Monotonicity *)
  
   Let fom_op_mono R T : (forall x y, R x y -> T x y) -> (forall x y, fom_op R x y -> fom_op T x y).
   Proof. unfold fom_op, fom_op1, fom_op2; intros ? ? ? []; split; intros; auto. Qed.
 
-  (* Reflexivity, symmetry & transitivity *) 
+  (** Reflexivity, symmetry & transitivity *) 
 
   Let fom_op_id x y : x = y -> fom_op (@eq _) x y.
   Proof. unfold fom_op, fom_op1, fom_op2; intros []; split; auto; tauto. Qed.
@@ -303,20 +303,20 @@ Section discrete_quotient.
     Proof. intros; apply fo_model_simulation with (R := f); auto. Qed.
 
     (** By fom_eq_form_sem above, we know there is a FO formula
-        A[.,.] in two free variables such that x ≡ y <-> A[x,y].
+        A(.,.) in two free variables such that x ≡ y <-> A(x,y).
 
         One obvious follow up question is can we show
 
-           x ≡ y <-> A[x] <-> A[y] for any A[.] with one free variable
+           x ≡ y <-> A(x) <-> A(y) for any A(.) with one free variable
 
         Another obvious follow up question is, for a given x in the
         model, can one characterize the class of { y | x ≡ y } with
-        a formula Ax[.] with one free variable.
+        a formula Ax(.) with one free variable.
 
         Both questions have a negative answer proved in the counter
-        example to be found below. There is a model of Σ = {ø,{=_2}}
-        with two distinct values where =_2 is interpreted by identity
-        and such that A[x] <-> A[y] for any formula with at most one
+        example to be found below. There is a model of Σ = {ø,{=²}}
+        with two distinct values where =² is interpreted by identity
+        and such that A(x) <-> A(y) for any formula with at most one
         free variable. See theorem FO_does_not_characterize_classes.
 
       *)
@@ -428,7 +428,7 @@ Section discrete_quotient.
   Section fom_eq_form.
 
     (** We build a single FO formula with two variables A[.,.] 
-        such that x ≡ y <-> A[x,y]  *)
+        such that x ≡ y <-> A(x,y)  *)
 
     Let A := proj1_sig fom_eq_fol_def.
 
@@ -555,7 +555,7 @@ End discrete_quotient.
 
 Section counter_model_to_class_FO_definability.
 
-  (** We show that there is a model over Σ = Σrel 2 = {ø,{=_2}}
+  (** We show that there is a model over Σ = Σrel 2 = {ø,{=²}}
       where ≡ is identity but x ≡ _ is not definable by a
       FO formula with a single free variable 
 
