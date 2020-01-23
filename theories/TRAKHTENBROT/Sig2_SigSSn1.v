@@ -32,7 +32,7 @@ Defined.
 
 Local Definition PSSn1 n (x y : nat) := @fol_atom (Σn1 (S (S n))) tt ((@in_fot  _ (ar_syms (Σn1 (S (S n)))) tt (£x##vec_set_pos (fun _ => £y)))##ø).
 
-Section Σ2_ΣSSn1_model.
+Section Sig2_SigSSn1_encoding.
 
   Variable n : nat.
 
@@ -127,7 +127,7 @@ Section Σ2_ΣSSn1_model.
           exists (S i); simpl; auto.
   Qed.
 
-End Σ2_ΣSSn1_model.
+End Sig2_SigSSn1_encoding.
 
 Section Σ2_ΣSSn1_enc.
 
