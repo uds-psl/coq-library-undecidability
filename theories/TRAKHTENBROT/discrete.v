@@ -102,15 +102,15 @@ Section discrete_quotient.
   (** Construction of the greatest fixpoint of the following operator fom_op.
       Any prefixpoint R ⊆ fom_op R is a simulation for the model *)
 
-  Let fom_op1 R x y := forall s, In s ls 
+  Local Definition fom_op1 R x y := forall s, In s ls 
                     -> forall (v : vec _ (ar_syms Σ s)) p, 
                               R (fom_syms M s (v[x/p])) (fom_syms M s (v[y/p])).
 
-  Let fom_op2 x y :=   forall s, In s lr 
+  Local Definition fom_op2 x y :=   forall s, In s lr 
                     -> forall (v : vec _ (ar_rels Σ s)) p, 
                               fom_rels M s (v[x/p]) <-> fom_rels M s (v[y/p]).
 
-  Let fom_op R x y := fom_op1 R x y /\ fom_op2 x y.
+  Local Definition fom_op R x y := fom_op1 R x y /\ fom_op2 x y.
   
   (** First we show properties of fom_op 
 
@@ -126,18 +126,18 @@ Section discrete_quotient.
 
   (** Monotonicity *)
  
-  Let fom_op_mono R T : (forall x y, R x y -> T x y) -> (forall x y, fom_op R x y -> fom_op T x y).
+  Local Fact fom_op_mono R T : (forall x y, R x y -> T x y) -> (forall x y, fom_op R x y -> fom_op T x y).
   Proof. unfold fom_op, fom_op1, fom_op2; intros ? ? ? []; split; intros; auto. Qed.
 
   (** Reflexivity, symmetry & transitivity *) 
 
-  Let fom_op_id x y : x = y -> fom_op (@eq _) x y.
+  Local Fact fom_op_id x y : x = y -> fom_op (@eq _) x y.
   Proof. unfold fom_op, fom_op1, fom_op2; intros []; split; auto; tauto. Qed.
 
-  Let fom_op_sym R x y : fom_op R y x -> fom_op (fun x y => R y x) x y.
+  Local Fact fom_op_sym R x y : fom_op R y x -> fom_op (fun x y => R y x) x y.
   Proof. unfold fom_op, fom_op1, fom_op2; intros []; split; intros; auto; symmetry; auto. Qed.
 
-  Let fom_op_trans R x z : (exists y, fom_op R x y /\ fom_op R y z)
+  Local Fact fom_op_trans R x z : (exists y, fom_op R x y /\ fom_op R y z)
                         -> fom_op (fun x z => exists y, R x y /\ R y z) x z.
   Proof.
     unfold fom_op, fom_op1, fom_op2.
@@ -148,7 +148,7 @@ Section discrete_quotient.
 
   (* ω-continuity *)
 
-  Let fom_op_continuous R : gfp_continuous fom_op.
+  Local Fact fom_op_continuous : gfp_continuous fom_op.
   Proof.
     intros f Hf x y H; split; intros s Hs v p.
     + intros n.
@@ -179,7 +179,7 @@ Section discrete_quotient.
       apply (fol_bin_sem_dec fol_imp); auto.
   Qed.
 
-  Let fom_op_dec R : (forall x y, { R x y } + { ~ R x y })
+  Local Fact fom_op_dec R : (forall x y, { R x y } + { ~ R x y })
                   -> (forall x y, { fom_op R x y } + { ~ fom_op R x y }).
   Proof. intros; apply (fol_bin_sem_dec fol_conj); auto. Qed.
 
@@ -243,15 +243,18 @@ Section discrete_quotient.
 
   Infix "≡" := fom_eq.
 
+  Hint Resolve fom_op_mono fom_op_id fom_op_sym fom_op_trans 
+               fom_op_continuous fom_op_dec : core.
+
   Let fom_eq_equiv : equiv _ fom_eq.
-  Proof. apply gfp_equiv; auto. Qed.
+  Proof. apply gfp_equiv; eauto. Qed.
 
   Fact fom_eq_fix x y : fom_op fom_eq x y <-> x ≡ y.
-  Proof. apply gfp_fix; auto. Qed.
+  Proof. apply gfp_fix; eauto. Qed.
 
   Fact fom_eq_incl R : (forall x y, R x y -> fom_op R x y)
                     -> (forall x y, R x y -> x ≡ y).
-  Proof. apply gfp_greatest; auto. Qed.
+  Proof. apply gfp_greatest; eauto. Qed.
 
   (** We build the greatest bisimulation which is an equivalence 
       and a fixpoint for the above operator *) 
@@ -330,7 +333,7 @@ Section discrete_quotient.
 
     Local Fact fo_bisimilar_fom_eq x y : fo_bisimilar M x y -> x ≡ y.
     Proof.
-      revert x y; apply gfp_greatest; auto.
+      revert x y; apply gfp_greatest; eauto.
       intros x y H; split.
       * intros s Hs v p A phi H1 H2.
         destruct (fot_vec_env Σ p) as (w & Hw1 & Hw2).
@@ -388,7 +391,7 @@ Section discrete_quotient.
       We do have a decidable equivalence here *) 
 
   Fact fom_eq_dec : forall x y, { x ≡ y } + { ~ x ≡ y }.
-  Proof. apply gfp_decidable; auto. Qed.
+  Proof. apply gfp_decidable; eauto. Qed.
 
   Definition fo_congruence_upto R := 
                  ( (equivalence _ R)
@@ -413,7 +416,7 @@ Section discrete_quotient.
       which follows from the fact that X/M is finite *)
 
   Theorem fom_eq_finite : { n | forall x y, x ≡ y <-> iter fom_op (fun _ _ => True) n x y }.
-  Proof. apply gfp_finite_t; auto. Qed.
+  Proof. apply gfp_finite_t; eauto. Qed.
 
   Theorem fom_eq_fol_def : fol_definable ls lr M (fun φ => φ 0 ≡ φ 1).
   Proof.
