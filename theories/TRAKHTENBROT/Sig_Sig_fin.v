@@ -141,7 +141,7 @@ Section discrete_to_finite_fix.
       f_equal; apply vec_pos_ext; intros p; rewrite !vec_pos_map; auto.
     Qed.
 
-    Hint Resolve fo_term_fin_rev_sound.
+    Hint Resolve fo_term_fin_rev_sound : core.
 
     Local Fact Σ_finite_rev_sound A phi : fol_sem M' phi A <-> fol_sem M phi (Σ_finite_rev A).
     Proof.
@@ -183,7 +183,7 @@ Section discrete_to_finite_fix.
       intros p; rewrite !vec_pos_map; auto.
     Qed.
 
-    Hint Resolve fo_term_fin_rev_complete.
+    Hint Resolve fo_term_fin_rev_complete : core.
 
     Local Fact Σ_finite_rev_complete A phi : fol_sem M' phi A <-> fol_sem M phi (Σ_finite_rev A).
     Proof.
@@ -271,7 +271,7 @@ Section discrete_to_finite.
             (HΣ1 : discrete (syms Σ))
             (HΣ2 : discrete (rels Σ)).
 
-  Hint Resolve incl_refl.
+  Hint Resolve incl_refl : core.
 
   Local Definition Σ_finite (A : fol_form Σ) : 
               { Σ' : fo_signature & 

@@ -122,7 +122,7 @@ Section FSAT_FULL_Σ11_DEC.
   Variable (F P : Type) (HF : discrete F) (HP : discrete P)
            (A : fol_form (Σ11 F P)).
 
-  Hint Resolve finite_t_pos.
+  Hint Resolve finite_t_pos : core.
 
   Theorem FSAT_FULL_Σ11_DEC : decidable (fo_form_fin_dec_SAT A).
   Proof.

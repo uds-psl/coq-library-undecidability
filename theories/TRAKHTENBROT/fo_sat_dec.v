@@ -151,7 +151,7 @@ Section enum_models.
    exact ( (forall r, In r lr -> forall v, @r1 r v <-> r2 r v) ).
   Defined.
 
-  Hint Resolve finite_t_bool.
+  Hint Resolve finite_t_bool : core.
 
   Let bool_prop (f : forall r, vec X (ar_rels Σ r) -> bool) : rels.
   Proof.

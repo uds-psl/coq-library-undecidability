@@ -122,7 +122,7 @@ Section discrete_quotient.
 
   *)
 
-  Hint Resolve finite_t_pos finite_t_vec.
+  Hint Resolve finite_t_pos finite_t_vec : core.
 
   (** Monotonicity *)
  
@@ -273,7 +273,7 @@ Section discrete_quotient.
   Fact fom_eq_rels x y s v p : In s lr -> x ≡ y -> fom_rels M s (v[x/p]) <-> fom_rels M s (v[y/p]).
   Proof. intros; apply fom_eq_fix; auto. Qed.
 
-  Hint Resolve fom_eq_refl fom_eq_sym fom_eq_trans fom_eq_syms fom_eq_rels.
+  Hint Resolve fom_eq_refl fom_eq_sym fom_eq_trans fom_eq_syms fom_eq_rels : core.
 
   Theorem fom_eq_syms_full s v w : In s ls -> (forall p, v#>p ≡ w#>p) -> fom_syms M s v ≡ fom_syms M s w.
   Proof. intro; apply map_vec_pos_equiv; eauto. Qed.
@@ -290,7 +290,7 @@ Section discrete_quotient.
         It states that x and y are bisimilar iff there is no interpretation of a 
         FO formula that can distinguish x from y *)
 
-    Hint Resolve fom_eq_syms_full fom_eq_rels_full.
+    Hint Resolve fom_eq_syms_full fom_eq_rels_full : core.
 
     Let f : fo_simulation ls lr M M.
     Proof. exists fom_eq; auto; intros a; exists a; auto. Defined.
@@ -465,7 +465,7 @@ Section discrete_quotient.
 
   End fom_eq_form.
 
-  Hint Resolve fom_eq_form_vars fom_eq_form_syms fom_eq_form_rels fom_eq_dec.
+  Hint Resolve fom_eq_form_vars fom_eq_form_syms fom_eq_form_rels fom_eq_dec : core.
 
   (** And now we can build a discrete model with this decidable 
       equivalence. There is a fo_projection from M to Md where
@@ -602,7 +602,7 @@ Section counter_model_to_class_FO_definability.
 
   Infix "≡" := (fom_eq (Σ := Σ) nil (tt::nil) M) (at level 70, no associativity).
 
-  Hint Resolve finite_t_bool.
+  Hint Resolve finite_t_bool : core.
 
   Let true_is_not_false : ~ true ≡ false.
   Proof.

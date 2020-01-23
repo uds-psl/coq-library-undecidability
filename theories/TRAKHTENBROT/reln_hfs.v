@@ -157,7 +157,7 @@ Section bt_model_n.
   Variable (R : vec X nt -> Prop).
   Hypothesis HR : forall v, { R v } + { ~ R v }.
 
-  Hint Resolve finite_t_prod hfs_mem_fin_t.
+  Hint Resolve finite_t_prod hfs_mem_fin_t : core.
 
   (** We encode R as a subset of tuples of elements of l in p *)
 

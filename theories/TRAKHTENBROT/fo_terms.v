@@ -22,7 +22,7 @@ Set Implicit Arguments.
 
 (** Then first order terms with signature *)
 
-Local Hint Resolve in_vec_list in_vec_pos.
+Local Hint Resolve in_vec_list in_vec_pos : core.
 
 Section first_order_terms.
 

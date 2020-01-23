@@ -126,7 +126,7 @@ Section Sig_n_Sig.
     revert H3; apply enc_correct_2.
   Qed.
 
-  Hint Resolve SATn_SAT SAT_SATn.
+  Hint Resolve SATn_SAT SAT_SATn : core.
 
   Local Theorem SATn_SAT_red : 
        { f : fol_form Σn -> fol_form Σ 

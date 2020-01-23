@@ -231,7 +231,7 @@ Section enumerable.
   Qed.
 
   Hint Resolve opt_enum_rec_enum_discrete rec_enum_opt_enum_type_enum
-               opt_enum_rec_enum_discrete_t rec_enum_opt_enum_type_enum_t.
+               opt_enum_rec_enum_discrete_t rec_enum_opt_enum_type_enum_t : core.
 
   (** On a datatype, opt_enum and rec_enum are equivalent *)
 

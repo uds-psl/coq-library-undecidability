@@ -81,7 +81,7 @@ Definition iBPCP (P : BSRS) :=
   exists A : list nat, (forall a, a el A -> a < length P) /\ A <> [] /\ itau1 P A = itau2 P A.
 
 Inductive BPCP' P : Prop := cBPCP u (_ : @derivable bool P u u).
-Hint Constructors BPCP'.
+Hint Constructors BPCP' : core.
 
 Lemma BPCP_BPCP' P : BPCP P <-> BPCP' P.
 Proof.

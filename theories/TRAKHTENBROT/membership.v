@@ -79,7 +79,7 @@ Section membership.
     all: right; rewrite mb_equiv_eq; tauto.
   Qed.
 
-  Hint Resolve mb_equiv_dec.
+  Hint Resolve mb_equiv_dec : core.
 
   Fact mb_equiv_refl_True x : x ≈ x <-> True.    Proof. unfold mb_equiv; tauto. Qed.
   Fact mb_equiv_refl x : x ≈ x.                  Proof. unfold mb_equiv; tauto. Qed.
@@ -96,7 +96,7 @@ Section membership.
       transitivity proved by mb_equiv_trans
     as mb_equiv_equivalence.
 
-  Hint Resolve mb_equiv_refl mb_equiv_sym.
+  Hint Resolve mb_equiv_refl mb_equiv_sym : core.
 
   (* A first FOL axiom: sets are characterized by their elements *)
 
@@ -166,7 +166,7 @@ Section membership.
     apply (fol_bin_sem_dec fol_disj); auto.
   Qed.
 
-  Hint Resolve mb_is_pair_dec.
+  Hint Resolve mb_is_pair_dec : core.
 
   (** Ordered pairs (x,y) := {{x},{x,y}}, Von Neuman encoding *)
 
@@ -213,7 +213,7 @@ Section membership.
     repeat (apply (fol_bin_sem_dec fol_conj); auto).
   Qed.
 
-  Hint Resolve mb_is_opair_dec.
+  Hint Resolve mb_is_opair_dec : core.
 
   (** Ordered triples (x,y,z) := ((x,y),z) *)
 
@@ -253,7 +253,7 @@ Section membership.
     repeat (apply (fol_bin_sem_dec fol_conj); auto).
   Qed.
 
-  Hint Resolve mb_is_otriple_dec.
+  Hint Resolve mb_is_otriple_dec : core.
 
   (** n-tuples *)
 
@@ -308,7 +308,7 @@ Section membership.
       apply (fol_bin_sem_dec fol_conj); auto.
   Qed.
 
-  Hint Resolve mb_is_tuple_dec.
+  Hint Resolve mb_is_tuple_dec : core.
 
   (** mb_has .... *)
 

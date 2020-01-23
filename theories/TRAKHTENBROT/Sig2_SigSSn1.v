@@ -211,7 +211,7 @@ Section Σ2_ΣSSn1_enc_sound.
   Hypothesis (HX : finite_t X)
              (M2_dec : fo_model_dec M2).
 
-  Hint Resolve finite_t_sum finite_t_bool finite_t_prod.
+  Hint Resolve finite_t_sum finite_t_bool finite_t_prod : core.
 
   Theorem Σ2_ΣSSn1_enc_sound : fo_form_fin_dec_SAT (Σ2_ΣSSn1_enc n A).
   Proof.
@@ -331,11 +331,6 @@ Section Σ2_ΣSSn1_enc_complete.
 
 End Σ2_ΣSSn1_enc_complete.
 
-
-  
-    
-    
-      
 
 
 

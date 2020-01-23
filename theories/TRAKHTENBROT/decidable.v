@@ -66,7 +66,7 @@ Fact discrete_vec X n : discrete X -> discrete (vec X n).
 Proof. unfold discrete, decidable; intros; apply vec_eq_dec; auto. Qed.
 
 Hint Resolve discrete_unit discrete_sum discrete_prod 
-             discrete_list discrete_pos discrete_vec.
+             discrete_list discrete_pos discrete_vec : core.
 
 Section decidable_fun_pos_bool.
 
@@ -280,7 +280,7 @@ Section dec_pred_finite_t_upto.
 
   Variable (X : Type) (HX1 : finite_t X) (HX2 : discrete X).
 
-  Hint Resolve finite_t_bool.
+  Hint Resolve finite_t_bool : core.
 
   Let bool_prop (f : X -> bool) : { p : X -> Prop & forall x, decidable (p x) }.
   Proof.
@@ -373,7 +373,7 @@ Section finite_t_model.
   Let R ls (s1 s2 : funs) := 
         forall s, In s ls -> forall v, @s1 s v = s2 s v.
 
-  Hint Resolve finite_t_vec vec_eq_dec.
+  Hint Resolve finite_t_vec vec_eq_dec : core.
 
   Let fun_combine s (f : vec X (ar s) -> Y) (g : funs) : funs.
   Proof.

@@ -248,7 +248,7 @@ Section reduction.
  
   End syms_map.
 
-  Hint Resolve incl_refl.
+  Hint Resolve incl_refl : core.
 
   Theorem Sig_rem_cst_dep_red A : { B | @fo_form_fin_dec_SAT Σ A <-> @fo_form_fin_dec_SAT (Σrem_cst Σ) B }.
   Proof.

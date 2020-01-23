@@ -92,7 +92,7 @@ Section remove_interpreted_symbol.
     (* Not sure how to make this one work over infinite models 
        Need some replacement for the quotient below *)
 
-    Hint Resolve finite_t_pos.
+    Hint Resolve finite_t_pos : core.
 
     Variable (A : 𝔽) 
              (HA1 : incl (fol_syms A) ls) 

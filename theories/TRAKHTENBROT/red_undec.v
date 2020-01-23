@@ -306,7 +306,7 @@ Section FINITARY_TO_BINARY.
     exists r; auto.
   Qed.
 
-  Hint Resolve finite_t_sum finite_sum finite_t_finite finite_t_unit.
+  Hint Resolve finite_t_sum finite_sum finite_t_finite finite_t_unit : core.
 
   Theorem FINITARY_TO_BINARY : FSAT Σ ⪯ FSAT (Σrel 2).
   Proof.
@@ -340,7 +340,7 @@ Section DISCRETE_TO_BINARY.
            (HΣ1 : discrete (syms Σ))
            (HΣ2 : discrete (rels Σ)).
 
-  Hint Resolve finite_t_pos.
+  Hint Resolve finite_t_pos : core.
 
   Theorem DISCRETE_TO_BINARY : FSAT Σ ⪯ FSAT (Σrel 2).
   Proof.

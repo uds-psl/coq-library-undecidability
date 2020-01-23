@@ -110,7 +110,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
     Fact Σbpcp_model_finite : finite_t X.
     Proof. apply finite_t_option, finite_t_list, finite_t_bool. Qed.
 
-    Hint Resolve Σbpcp_model_finite.
+    Hint Resolve Σbpcp_model_finite : core.
 
     Definition Σbpcp_model : fo_model Σbpcp X.
     Proof.
@@ -159,7 +159,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
            fom_rels Σbpcp_model Σbpcp_eq (x##y##ø) <-> x = y.
     Proof. reflexivity. Qed.
 
-    Hint Resolve Σbpcp_model_dec.
+    Hint Resolve Σbpcp_model_dec : core.
 
     Notation sem_sym  := (fom_syms Σbpcp_model).
     Notation sem_pred := (fom_rels Σbpcp_model).
@@ -564,7 +564,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
 
   End completeness.
 
-  Hint Resolve finite_t_finite.
+  Hint Resolve finite_t_finite : core.
 
   Theorem Sig_bpcp_encode_complete : 
              @fo_form_fin_dec_eq_SAT Σbpcp Σbpcp_eq eq_refl Σbpcp_encode 

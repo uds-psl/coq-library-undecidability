@@ -10,7 +10,7 @@ International Joint Conference on Automated Reasoning (IJCAR 2020).
 
 In the directory containing this `README.md` file, type `make all`. Compilation time should be arround 1 minute.
 The files are tested to compile with `The Coq Proof Assistant, version 8.9.1 (October 2019)`. Compilation
-has also been tested and should work with version `8.8.2` ...
+has also been tested and should work with version `8.8.2`, `8.10.1`.
 
 The compiled HTML version of the files can be found [here](http://www.ps.uni-saarland.de/extras/fol-trakh/website/toc.html) 
 or in the [`website`](website) subdirectory of this repository.

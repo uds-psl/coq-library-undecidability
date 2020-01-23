@@ -87,7 +87,7 @@ Inductive bt_equiv : bt -> bt -> Prop :=
                                    ->   s⪧t ≈ s'⪧t'
 where "s ≈ t" := (bt_equiv s t).
 
-Hint Constructors bt_equiv.
+Hint Constructors bt_equiv : core.
 
 Local Notation "s ≉ t" := (~ s ≈ t).
 Notation bte_refl := in_bte_refl.
@@ -141,7 +141,7 @@ Section establishing_membership_inversion.
     | in_btrm_1 : forall s t u, s ⋷ u -> s ⋷ t⪧u
   where "s ⋷ t" := (bt_restr_mem s t).
 
-  Hint Constructors bt_restr_mem.
+  Hint Constructors bt_restr_mem : core.
 
   Fact btrm_inv u s t : u ⋷ s⪧t <-> u = s \/ u ⋷ t.
   Proof.
@@ -164,7 +164,7 @@ Section establishing_membership_inversion.
     apply bte_trans with v; auto.
   Qed.
 
-  Hint Resolve bt_rincl_refl bt_rincl_trans.
+  Hint Resolve bt_rincl_refl bt_rincl_trans : core.
 
   Lemma bte_rincl s t : s ≈ t -> s ≾ t.
   Proof.
@@ -194,7 +194,7 @@ Section establishing_membership_inversion.
     constructor; apply bte_trans with (t⪧s⪧u); auto.
   Qed.
 
-  Hint Resolve btrm_btm.
+  Hint Resolve btrm_btm : core.
 
   Fact btm_congr_l s t u : s ≈ t -> s ∈ u -> t ∈ u.
   Proof. intros ? H; apply bte_trans with (2 := H); auto. Qed.
@@ -304,7 +304,7 @@ Section establishing_decidability.
     | in_btlt_2 : forall s t t',    t ≺ t' -> s⪧t ≺ s⪧t'
   where "s ≺ t" := (bt_lt s t).
 
-  Hint Constructors bt_lt.
+  Hint Constructors bt_lt : core.
 
   Fact bt_lt_irrefl s : ~ s ≺ s.
   Proof.
@@ -388,7 +388,7 @@ Section establishing_decidability.
     end
   where "t †" := (bt_norm t).
 
-  Hint Resolve bt_insert_equiv.
+  Hint Resolve bt_insert_equiv : core.
   
   Fact bt_norm_eq t : t† ≈ t.
   Proof.
@@ -438,7 +438,7 @@ Section establishing_decidability.
       f_equal; auto.
   Qed.
 
-  Hint Resolve bt_insert_cntr bt_insert_comm bt_norm_eq.
+  Hint Resolve bt_insert_cntr bt_insert_comm bt_norm_eq : core.
 
   Theorem bte_norm_iff s t : s ≈ t <-> s† = t†.
   Proof.
@@ -566,7 +566,7 @@ Qed.
 Fact bti_refl x : x ⊆ x.
 Proof. red; auto. Qed.
 
-Hint Resolve bti_refl.
+Hint Resolve bti_refl : core.
 
 Fact bti_trans x y z : x ⊆ y -> y ⊆ z -> x ⊆ z.
 Proof. intros H1 H2 k Hx; apply H2, H1; auto. Qed.
@@ -606,7 +606,7 @@ Proof.
   generalize (H2 _ Hz); apply btm_congr_r; auto.
 Qed.
 
-Hint Resolve bti_0 bti_refl bti_comp bti_mono_r.
+Hint Resolve bti_0 bti_refl bti_comp bti_mono_r : core.
 
 Lemma bti_dec s t : { s ⊆ t } + { ~ s ⊆ t }.
 Proof.
@@ -718,7 +718,7 @@ Proof. intro; rewrite bt_cup_spec; auto. Qed.
 Fact bt_cup_right s t : t ⊆ s ∪ t.
 Proof. intro; rewrite bt_cup_spec; auto. Qed.
 
-Hint Resolve bt_cup_left bt_cup_right.
+Hint Resolve bt_cup_left bt_cup_right : core.
 
 Add Parametric Morphism: (bt_cup) with signature 
        (bt_equiv) ==> (bt_equiv) ==> (bt_equiv) as bt_cup_congr.
@@ -742,7 +742,7 @@ Proof.
   intros [ H | H ]; [ left | right ]; revert H; auto.
 Qed.
 
-Hint Resolve bt_cup_mono.
+Hint Resolve bt_cup_mono : core.
 
 (** We compute the transitive closure *)
 
@@ -769,7 +769,7 @@ Proof.
   rewrite bt_cup_spec; tauto.
 Qed.
 
-Hint Resolve bt_tc_incr.
+Hint Resolve bt_tc_incr : core.
 
 (** ↓t is transitive *)
 
@@ -784,7 +784,7 @@ Proof.
   + right; right; revert H2; apply Ht; auto.
 Qed.
 
-Hint Resolve bt_tc_trans.
+Hint Resolve bt_tc_trans : core.
 
 (** ↓s is the least transitive containing s *)
 
@@ -815,7 +815,7 @@ Qed.
 Fact bt_tc_idem t : (↓↓t) ⊆ ↓t.
 Proof. apply bt_tc_incl_transitive; auto. Qed.
 
-Hint Resolve bt_tc_mono bt_tc_idem.
+Hint Resolve bt_tc_mono bt_tc_idem : core.
 
 (** It is nice to set union *)
    
@@ -1113,7 +1113,7 @@ Section nat2bt.
       * revert H1 H3; apply IHn.
   Qed.
 
-  Hint Resolve nat2bt_transitive.
+  Hint Resolve nat2bt_transitive : core.
 
   Fact nat2bt_mono n m : n <= m -> nat2bt n ⊆ nat2bt m.
   Proof.
@@ -1157,7 +1157,7 @@ Section nat2bt.
       lia.
   Qed.
 
-  Hint Resolve nat2bt_mono.
+  Hint Resolve nat2bt_mono : core.
 
   Fact nat2bt_order_iso n m : nat2bt n ⊆ nat2bt m <-> n <= m.
   Proof.
