@@ -1,5 +1,7 @@
 Require Import Undecidability.Shared.Prelim.
 
+(** * PCP as defined in the synthetic undecidability library *)
+
 (** ** Traditional Definition *)
 
 Definition symbol := nat.

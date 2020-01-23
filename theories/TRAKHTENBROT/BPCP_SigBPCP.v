@@ -28,6 +28,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * Reduction from BPCP to specialized FSAT *)
+
 Local Notation ø := vec_nil.
 
 Section BPCP_FIN_DEC_EQ_SAT.

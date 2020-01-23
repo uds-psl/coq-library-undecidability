@@ -1,4 +1,4 @@
-(** * Preliminaries *)
+(** Preliminaries *)
 
 (** This file contains definitions and proofs from the Base Library for the ICL lecture. 
    - Version: 3 October 2016
@@ -16,7 +16,7 @@ Global Set Regular Subst Tactic.
 
 Hint Extern 4 => exact _ : core.
 
-(** ** Lists *)
+(** Lists *)
 Export ListNotations.
 Notation "x 'el' A" := (In x A) (at level 70).
 Notation "A <<= B" := (incl A B) (at level 70).
@@ -36,7 +36,7 @@ Hint Rewrite rev_app_distr map_app prod_length : list.
 Hint Resolve in_eq in_nil in_cons in_or_app : core.
 Hint Resolve incl_refl incl_tl incl_cons incl_appl incl_appr incl_app incl_nil : core.
 
-(** ** Tactics *)
+(** Tactics *)
 Ltac inv H := inversion H; subst; try clear H.
 
 Tactic Notation "destruct" "_":=
@@ -290,7 +290,7 @@ Section neList.
 End neList.
 
 
-(** ** Boolean propositions and decisions *)
+(** Boolean propositions and decisions *)
 
 Coercion bool2Prop (b : bool) := if b then True else False.
 
@@ -470,7 +470,7 @@ Proof.
   unfold iff. auto.
 Qed.
 
-(** ** Discrete types *)
+(** Discrete types *)
 
 Notation "'eq_dec' X" := (forall x y : X, dec (x=y)) (at level 70).
 
@@ -557,7 +557,7 @@ match goal with
 |[ H: ?x el nil |- _ ] => destruct H
 end : core.
 
-(** ** Lists *)
+(** Lists *)
 
 (* Register additional simplification rules with autorewrite / simpl_list *)
 (* Print Rewrite HintDb list. *)
@@ -572,7 +572,7 @@ Proof.
   apply C. now rewrite B.
 Qed.
 
-(** *** Decisions for lists *)
+(** Decisions for lists *)
 
 Instance list_in_dec X (x : X) (A : list X) :  
   eq_dec X -> dec (x el A).
@@ -641,7 +641,7 @@ Qed.
 
 
 
-(** *** Membership
+(** Membership
 
 We use the following lemmas from Coq's standard library List.
 - [in_eq :  x el x::A]
@@ -676,7 +676,7 @@ Section Membership.
     intuition; subst; auto.
   Qed.
 
-(** *** Disjointness *)
+(** Disjointness *)
 
   Definition disjoint A B :=
     ~ exists x, x el A /\ x el B.
@@ -740,7 +740,7 @@ End Membership.
 
 Hint Resolve disjoint_nil disjoint_nil' : core.
 
-(** *** Inclusion
+(** Inclusion
 
 We use the following lemmas from Coq's standard library List.
 - [incl_refl :  A <<= A]
@@ -814,7 +814,7 @@ End Inclusion.
 Definition inclp (X : Type) (A : list X) (p : X -> Prop) : Prop :=
   forall x, x el A -> p x.
 
-(** *** Setoid rewriting with list inclusion and list equivalence *)
+(** Setoid rewriting with list inclusion and list equivalence *)
 
 Instance incl_preorder X : 
   PreOrder (@incl X).
@@ -927,7 +927,7 @@ Qed.
 
 
 
-(** *** Filter *)
+(** Filter *)
 
 Section Filter.
   Variable X : Type.
@@ -1023,7 +1023,7 @@ Section Filter.
 End Filter.
 
 
-(** *** Element removal *)
+(** Element removal *)
 
 Section Removal.
   Variable X : eqType.

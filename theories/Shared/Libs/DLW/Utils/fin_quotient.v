@@ -20,6 +20,8 @@ From Undecidability.Shared.Libs.DLW.Wf
 
 Set Implicit Arguments.
 
+(** * Finite quotient by a decidable equivalence *)
+
 Section fp_quotient.
 
   Variable (X : Type).

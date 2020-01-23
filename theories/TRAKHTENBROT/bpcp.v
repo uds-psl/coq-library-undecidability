@@ -17,6 +17,8 @@ From Undecidability.Problems
 
 Set Implicit Arguments.
 
+(** * The Binary Post correspondence problem *)
+
 Section dec.
 
   Variable (X : Type) (eqX_dec : forall x y : X, { x = y } + { x <> y }).
@@ -59,6 +61,8 @@ Section pcp_hand.
   Variable (X : Type) (lc : list (list X * list X)).
 
   Reserved Notation "⊳ s ∕ t" (at level 70).
+
+  (** ** PCP derivability *)
 
   Inductive pcp_hand : list X -> list X -> Prop :=
     | in_pcph_0 : forall x y, In (x,y) lc -> ⊳ x∕y
@@ -114,6 +118,8 @@ Section pcp_hand.
     Qed.
 
   End pcp_induction.
+
+  (** ** PCP derivability is decidable *)
     
   Section bounded_dec.
 
@@ -174,6 +180,8 @@ Section pcp_hand.
   End bounded_dec.
 
 End pcp_hand.
+
+(** ** Specializations to BPCP *)
 
 Notation "R ⊳ s ∕ t" := (pcp_hand R s t) (at level 70, format "R  ⊳  s ∕ t").
 
