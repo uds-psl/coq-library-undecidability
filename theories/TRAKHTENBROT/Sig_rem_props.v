@@ -20,13 +20,13 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * Removing constant propositions from monadic signatures *)
+
 Local Reserved Notation "⟪ A ⟫'" (at level 1, format "⟪ A ⟫'").
 
 Local Notation ø := vec_nil.
 
 Section remove_constants.
-
-  (** Reduction that removes propositional constants from monadic signatures *)
 
   Variable (Σ : fo_signature) (HΣ : forall r, ar_rels Σ r <= 1).
 

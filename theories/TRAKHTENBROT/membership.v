@@ -20,6 +20,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * The first order theory of membership *)
+
 Section membership.
 
   (** We develop a theory of finitary and computable and 

@@ -20,6 +20,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * From Σ=(ø;{R^n}) to any signature *)
+
 Tactic Notation "iff" "equal" := apply fol_equiv_ext.
 
 Local Notation ø := vec_nil.

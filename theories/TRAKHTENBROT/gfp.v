@@ -17,6 +17,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * Kleene's greatest fixpoint of omega-continous operators *)
+
 Section gfp.
 
   (** We develop the theory of Kleene's greatest fixpoint for binary relations

@@ -20,6 +20,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * Decidability results for FSAT *)
+
 Local Notation ø := vec_nil.
 
 Section FSAT_ext.

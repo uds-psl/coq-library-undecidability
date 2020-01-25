@@ -28,6 +28,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * Common Tools for reductions *)
+
 (** BPCP as defined in Problems/PCP.v is equivalent to BPCP_problem here *)
 
 Theorem BPCP_BPCP_problem_eq R : BPCP_problem R <-> BPCP R.

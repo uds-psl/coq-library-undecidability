@@ -45,6 +45,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * Collection of high-level synthetic undecidability results *)
+
 (* Summary of some of what is implement in here
 
     BPCP ⪯ SAT({f¹,g¹,a⁰,b⁰},{P²,≡²,≺²},𝔽,ℂ)

@@ -20,6 +20,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * The syntax and semantics of FO logic *)
+
 Notation ø := vec_nil.
 
 Opaque fo_term_subst fo_term_map fo_term_sem.

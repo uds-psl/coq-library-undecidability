@@ -23,6 +23,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * The Type Hereditary finite sets *)
+
 Local Infix "⪧" := bt_node.
 
 Section hfs.

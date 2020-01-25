@@ -20,6 +20,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * First order theory of congruences *)
+
 Section congruence.
 
   Variables (Σ : fo_signature) (ls : list (syms Σ)) (lr : list (rels Σ))

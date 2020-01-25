@@ -20,6 +20,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * Mapping a formula into a finitary signature *)
+
 Local Notation ø := vec_nil.
 
 Section discrete_to_finite_fix.

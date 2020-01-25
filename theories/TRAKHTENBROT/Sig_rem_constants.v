@@ -20,11 +20,11 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * Removing constant functions from monadic signatures *)
+
 Local Notation ø := vec_nil.
 
 Section remove_constants.
-
-  (** Reduction that removes propositional constants from monadic signatures *)
 
   Variable (Σ : fo_signature) (HΣ : forall s, ar_syms Σ s <= 1).
 

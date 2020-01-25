@@ -20,6 +20,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * Definition of first order satisfiability *)
+
 Section satisfiability.
 
   Variable (Σ : fo_signature) (e : rels Σ) (E : ar_rels Σ e = 2) (A : fol_form Σ).

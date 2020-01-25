@@ -23,6 +23,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * Decidability and discreteness and closure properties *)
+
 Definition decidable (P : Prop) := { P } + { ~ P }.
 
 Fact decidable_bool_eq P : (decidable P -> { Q : bool | P <-> Q = true })

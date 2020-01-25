@@ -21,6 +21,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * Decidability of FSAT for monadic signatures *)
+
 Local Notation ø := vec_nil.
 
 Section Σ1_model.

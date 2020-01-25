@@ -24,6 +24,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * From Σ=(ø;{R^n}) to Σ=(ø;{R^2}) *)
+
 Local Notation ø := vec_nil.
 
 Section Sign_Sig2_encoding.

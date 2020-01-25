@@ -21,6 +21,8 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations utils fol_ops decidable.
 
+(** * Enumerability and closure properties *)
+
 Set Implicit Arguments.
 
 (** We develop a basic theory of enumeration, ie empty types or
@@ -460,3 +462,77 @@ Section enum_ops.
   Qed.
 
 End enum_ops.
+
+Section rec_enum_co_rec_enum.
+
+  Variable (X : Type) (P : X -> Prop)
+           (H1 : rec_enum_t P)
+           (H2 : rec_enum_t (fun x => ~ P x))
+           (x : X) (Hx : P x \/ ~ P x).
+
+  Theorem bi_rec_enum_t_dec : { P x } + { ~ P x }.
+  Proof.
+    destruct H1 as (f & Hf).
+    destruct H2 as (g & Hg).
+    set (h n := f n x = true \/ g n x = true).
+    destruct min_dec with (P := h) as (n & G1 & _).
+    + intro n; unfold h; destruct (f n x); destruct (g n x); auto.
+      right; intros []; discriminate.
+    + destruct Hx as [ H | H ]; revert H.
+      * rewrite Hf; intros (n & Hn); exists n; left; auto.
+      * rewrite Hg; intros (n & Hn); exists n; right; auto.
+   + red in G1.
+     case_eq (f n x).
+     * intros; left; apply Hf; exists n; auto.
+     * intros; right; apply Hg; exists n.
+       rewrite H in G1; destruct G1; auto; discriminate.
+  Qed.
+
+End rec_enum_co_rec_enum.
+
+Section Post_Markov.
+
+  Definition Posts_thm := forall X P, @rec_enum_t X P -> rec_enum_t (fun x => ~ P x) -> forall x, { P x } + { ~ P x }.
+  Definition Markovs_princ := forall f : nat -> bool, ~~ (exists n, f n = true) -> exists n, f n = true.
+
+  Theorem Markov_Post : Markovs_princ -> Posts_thm.
+  Proof.
+    intros MP X P H1 H2 x. 
+    apply bi_rec_enum_t_dec; auto.
+    destruct H1 as (f & Hf).
+    destruct H2 as (g & Hg).
+    set (h n := orb (f n x) (g n x)).
+    assert (exists n, h n = true).
+    { apply MP.
+      assert (~~ (P x \/ ~ P x)) as H by tauto.
+      do 2 contradict H.
+      rewrite Hg, Hf in H.
+      destruct H as [ (n & Hn) | (n & Hn) ]; exists n; unfold h; rewrite Hn; simpl; auto.
+      destruct (f n x); simpl; auto. }
+    destruct H as (n & Hn); unfold h in Hn.
+    case_eq (f n x).
+    + left; apply Hf; exists n; auto.
+    + intros E; rewrite E in Hn; simpl in Hn.
+      right; apply Hg; exists n; auto.
+  Qed.
+
+  Theorem Post_Markov : Posts_thm -> Markovs_princ.
+  Proof.
+    intros PT f Hf.
+    destruct PT with (P := fun (_ : unit) => exists n, f n = true) (x := tt); auto.
+    + exists (fun n _ => f n); tauto.
+    + exists (fun n _ => false).
+      intros _; split.
+      * intros; exfalso; apply Hf; auto.
+      * intros (_ & ?); discriminate.
+    + destruct Hf; auto.
+  Qed.
+
+End Post_Markov.
+
+Check Markov_Post.
+Check Post_Markov.
+      
+    
+  
+  

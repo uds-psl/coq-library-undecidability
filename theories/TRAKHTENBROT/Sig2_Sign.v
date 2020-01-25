@@ -20,6 +20,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * From binary singleton to n-ary singleton with n >= 2 *)
+
 Local Notation ø := vec_nil.
 
 (** The reduction could be made to work for (infinite) SAT only *)

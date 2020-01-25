@@ -20,6 +20,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * Construction of the Hereditary Finite Sets model *)
+
 Section bt_model_n.
 
   (** This discussion briefly describes how we encode finite and discrete 

@@ -32,6 +32,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * Collection of high-level synthetic decidability results *)
+
 Section Sig_MONADIC_Sig_11.
 
   Variable (Σ : fo_signature) 

@@ -14,6 +14,10 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 Set Implicit Arguments.
 
+(** * Utilities for the Full Trakhtenbrot project *)
+
+(** ** Proof irrelevance *)
+
 Fact eq_bool_pirr (b1 b2 : bool) (H1 H2 : b1 = b2) : H1 = H2.
 Proof. apply UIP_dec, bool_dec. Qed.
 
@@ -22,6 +26,8 @@ Proof. apply UIP_dec, eq_nat_dec. Qed.
 
 Fact eq_nat_pirr (x y : nat) (H1 H2 : x = y) : H1 = H2.
 Proof. apply UIP_dec, eq_nat_dec. Qed.
+
+(** ** Type casting *)
 
 Definition cast (P : nat -> Type) n k (v : P n) (H : n = k) : P k := eq_rect _ P v _ H.
 
@@ -38,6 +44,8 @@ Tactic Notation "solve" "ite" :=
   match goal with _ : ?x < ?y |- context[if le_lt_dec ?y ?x then _ else _]
         => let G := fresh in destruct (le_lt_dec y x) as [ G | _ ]; [ exfalso; lia | ]
   end.
+
+(** ** functions as graphs/relations *)
 
 Section graphs.
 

@@ -15,8 +15,9 @@ has also been tested and should work with version `8.8.2`, `8.10.1`.
 The compiled HTML version of the files can be found [here](http://www.ps.uni-saarland.de/extras/fol-trakh/website/toc.html) 
 or in the [`website`](website) subdirectory of this repository.
 
-For actually running the code after a full compilation, we advice consulting first the [`summary`](theories/TRAKHTENBROT/summary.v)
-file that list all the main results presented in the paper.
+For actually running the code after a full compilation, we advise consulting 
+first the [`summary` file](theories/TRAKHTENBROT/summary.v)
+that list all the main results presented in the paper.
 
 # A Coq library of undecidable problems
 

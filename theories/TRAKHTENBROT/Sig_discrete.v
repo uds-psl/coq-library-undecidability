@@ -20,6 +20,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+(** * FSAT and FSAT over discrete model are equivalent *)
+
 (** This equivalence and hence reduction most probably cannot
     be proved for infinite models, or at least the way it is
     proved in here *)
