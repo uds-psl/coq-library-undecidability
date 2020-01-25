@@ -20,8 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * From signatures with only constants functions 
-      to function symbol free signatures *)
+(** * From signatures with only constants functions to function symbol free signatures *)
 
 Local Reserved Notation "⟪ A ⟫'" (at level 1, format "⟪ A ⟫'").
 

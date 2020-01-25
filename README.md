@@ -13,11 +13,12 @@ The files are tested to compile with `The Coq Proof Assistant, version 8.9.1 (Oc
 has also been tested and should work with version `8.8.2`, `8.10.1`.
 
 The compiled HTML version of the files can be found [here](http://www.ps.uni-saarland.de/extras/fol-trakh/website/toc.html) 
-or in the [`website`](website) subdirectory of this repository.
+or in the [`website`](website) subdirectory of this repository, but you need to compile it first (see above).
 
 For actually running the code after a full compilation, we advise consulting 
 first the [`summary` file](theories/TRAKHTENBROT/summary.v)
-that list all the main results presented in the paper.
+that list all the main results presented in the paper. This will output 
+many pointers into the rest of the `*.v` file.
 
 # A Coq library of undecidable problems
 
