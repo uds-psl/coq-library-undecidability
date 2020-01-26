@@ -3,7 +3,7 @@
 Dominik Kirst <kirst@ps.uni-saarland.de>, Dominique Larchey-Wendling <dominique.larchey-wendling@loria.fr>,
 
 This repository contains the Coq formalisation of the paper 
-["Trakhtenbrot's Theorem in Coq"](http://www.loria.fr/~larchey/papers/trakhtenbrot.pdf), submitted at the
+[_Trakhtenbrot's Theorem in Coq_](http://www.loria.fr/~larchey/papers/trakhtenbrot.pdf), submitted at the
 International Joint Conference on Automated Reasoning (IJCAR 2020).
 
 ## How to compile the code
@@ -22,7 +22,7 @@ many pointers into the rest of the `*.v` file.
 
 # A Coq library of undecidable problems
 
-This repo is static and stripped version of a development branch of the 
+This repository is static and stripped down version of a development branch of the 
 [library of undecidable problems](https://github.com/uds-psl/coq-library-undecidability) 
 together with the html version of the code.
 
