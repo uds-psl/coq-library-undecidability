@@ -530,9 +530,10 @@ Section Post_Markov.
 
 End Post_Markov.
 
+(*
 Check Markov_Post.
 Check Post_Markov.
-      
+*)    
     
   
   
