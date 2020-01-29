@@ -90,15 +90,15 @@ Section dio_rel_bounded_fall.
 
     Hint Resolve dio_rel_dc_Code : dio_rel_db.
 
-    (*
+   (*
 
       Eval compute in df_size_Z (proj1_sig (dio_rel_dc_Code (0,dee_comp do_mul 1 2))). 
 
     *)
 
-    (* Case of do_mul gives the overall bound of 962535 
+    (* Case of do_mul gives the overall bound  
 
-    Let dc_Code_size_Z c : (df_size_Z (proj1_sig (dio_rel_dc_Code c)) <= 962535)%Z.
+    Let dc_Code_size_Z c : (df_size_Z (proj1_sig (dio_rel_dc_Code c)) <= 203468)%Z.
     Proof.
       destruct c as (u & [ n | v | [] | [] v w ]); compute; discriminate.
     Qed. *)
@@ -108,7 +108,8 @@ Section dio_rel_bounded_fall.
         i = k     | <0,..,l> |  ?    |
         i = k+1   |          |  q    |  
         i = k+2   |          |  l    |  0
-        i > k+2   |          |       |  i-(k+2)  *)
+        i > k+2   |          |       |  i-(k+2)  
+     *)
 
     Local Fact dc_Code_spec c φ π ν ω : 
           (forall i, i < k -> is_cipher_of (ν 0) (π iq) (φ i) (π i))
@@ -228,7 +229,7 @@ Section dio_rel_bounded_fall.
 
     Let pre_quant ν := ν il+1 < ν iq /\ ciphers ν /\ dc_list_Code ll ν.
 
-    Let dio_rel_pre_quant : dio_rel pre_quant.
+    Let dio_rel_pre_quant : 𝔻R pre_quant.
     Proof. unfold pre_quant; dio auto. Defined.
 
     Let dc_list_bfall ν := exists π, pre_quant (fun i => if le_lt_dec il i then ν (i-il) else π i).

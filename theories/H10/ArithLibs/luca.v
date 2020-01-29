@@ -398,3 +398,82 @@ End lucas_lemma.
 
 Check lucas_lemma.
 Print Assumptions lucas_lemma.
+
+Eval compute in binomial 3 0.
+
+Section lucas_theorem.
+
+  Variable (p : nat) (Hp : prime p).
+
+  Implicit Types (l m : list nat).
+
+  (** base_p [x0;x1;x2;...] =  x0 + x1*p + x2*p² ...*)
+
+  Notation base_p := (expand p).
+
+  Fixpoint binomial_p l :=
+    match l with
+      | nil  => fix loop m := match m with
+        | nil  => 1
+        | y::m => binomial 0 y * loop m
+      end
+      | x::l => fun m => match m with
+        | nil   => binomial x 0 * binomial_p l nil 
+        | y::m  => binomial x y * binomial_p l m
+      end
+    end.
+
+  Fact binomial_p_fix00 : binomial_p nil nil = 1.
+  Proof. auto. Qed.
+
+  Fact binomial_p_fix01 y m : binomial_p nil (y::m) = binomial 0 y * binomial_p nil m.
+  Proof. auto. Qed.
+
+  Fact binomial_p_fix10 x l : binomial_p (x::l) nil = binomial x 0 * binomial_p l nil.
+  Proof. auto. Qed.
+
+  Fact binomial_p_fix11 x l y m : binomial_p (x::l) (y::m) = binomial x y * binomial_p l m.
+  Proof. auto. Qed.
+
+  (** This is Luca's thm as described eg on Wikipedia
+
+      if p is prime
+      and x = x0 + x1*p + x2*p² ...
+      and y = y0 + y1*p + y2*p² ...
+
+      then the identity 
+ 
+         binomial x y = binomial x0 y0 * binomial x1 y1 * binomial x2 y2 * ...
+
+      holds modulo p
+
+   *)
+
+  Theorem lucas_theorem (l m : list nat) : 
+         Forall (fun i => i < p) l               (* digits must be less than p*)
+      -> Forall (fun i => i < p) m               (* digits must be less than p*)
+      -> rem (binomial (base_p l) (base_p m)) p 
+       = rem (binomial_p l m) p.
+  Proof.
+    intros H; revert H m.
+    induction 1 as [ | x l H1 H2 IH2 ];
+    induction 1 as [ | y m H3 H4 IH4 ].
+    + simpl; auto.
+    + rewrite binomial_p_fix01; simpl base_p.
+      rewrite <- rem_mult_rem, <- IH4, rem_mult_rem, 
+              (mult_comm p), plus_comm, (mult_comm (binomial _ _)).
+      apply lucas_lemma; auto; simpl; lia.
+    + rewrite binomial_p_fix10; simpl base_p.
+      rewrite <- rem_mult_rem, <- IH2, rem_mult_rem; auto.
+      rewrite (mult_comm p), plus_comm, (mult_comm (binomial _ _)).
+      apply lucas_lemma; auto; simpl; lia.
+    + rewrite binomial_p_fix11; simpl base_p.
+      rewrite <- rem_mult_rem, <- IH2, rem_mult_rem; auto.
+      rewrite !(mult_comm p), !(plus_comm _ (_ * _)), (mult_comm (binomial _ _)).
+      apply lucas_lemma; auto; simpl; lia.
+  Qed.
+
+End lucas_theorem.
+
+Check lucas_theorem.
+
