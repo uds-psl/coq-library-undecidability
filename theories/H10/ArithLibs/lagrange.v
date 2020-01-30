@@ -194,13 +194,6 @@ Section lagrange.
   Fact rem_sum_fun a b c m : rem a m = rem b m -> rem (a+c) m = rem (b+c) m.
   Proof. intros H; rewrite rem_plus, H, <- rem_plus; auto. Qed.
 
-  Fact rem_rem x m : rem (rem x m) m = rem x m.
-  Proof.
-    destruct (eq_nat_dec m 0).
-    + subst; rewrite !rem_0; auto.
-    + apply rem_idem, div_rem_spec2; auto.
-  Qed.
-
   Fact rem_sum4_rem a b c d m : rem (a+b+c+d) m = rem (rem a m+rem b m+rem c m+rem d m) m.
   Proof.
     do 3 (rewrite rem_plus; apply rem_sum_fun; rewrite rem_rem); auto.
@@ -217,11 +210,41 @@ Section lagrange.
     rewrite Zmult_comm, <- Hy; ring.
   Qed.
 
-  Fact Zrem_double m (Hm : m <> 0) x :  exists y, Z2Zp Hm x = Z2Zp Hm y
-                         /\ (- Z.of_nat m+1 <= 2*y <= Z.of_nat m)%Z
-                         /\ (4*(y*y) <= Z.of_nat m * Z.of_nat m)%Z.
+  Fact Zsquare_bound x y : (-y <= x <= y -> x*x <= y*y)%Z.
   Proof.
-  Admitted.
+    intros (H1 & H2).
+    destruct (Z_pos_or_neg x).
+    + apply Z.square_le_mono_nonneg; auto.
+    + replace (y*y)%Z with ((-y)*(-y))%Z by ring.
+      apply Z.square_le_mono_nonpos; omega.
+  Qed.
+
+  Fact Zrem_double m (Hm : m <> 0) x :  exists y, Z2Zp Hm x = Z2Zp Hm y
+                                              /\ (4*(y*y) <= Z.of_nat m * Z.of_nat m)%Z.
+  Proof.
+    destruct (euclid_2 m) as (p & [ H | H ]).
+    + destruct (Zp_repr_interval Hm (- Z.of_nat p)%Z (Z.of_nat p) x) as (y & H1 & H2).
+      * rewrite H, Nat2Z.inj_mul; simpl Z_of_nat; omega.
+      * exists y; split; auto.
+        rewrite H, Nat2Z.inj_mul.
+        simpl Z.of_nat.
+        replace (2*Z.of_nat p*(2*Z.of_nat p))%Z 
+        with    (4*(Z.of_nat p*Z.of_nat p))%Z by ring.
+        apply Zmult_le_compat_l; try omega.
+        apply Zsquare_bound; omega.
+    + destruct (Zp_repr_interval Hm (- Z.of_nat p)%Z (1+Z.of_nat p) x) as (y & H1 & H2).
+      * rewrite H, Nat2Z.inj_add, Nat2Z.inj_mul; simpl Z_of_nat; omega.
+      * exists y; split; auto.
+        apply Z.le_trans with (Z.of_nat (2*p) * Z.of_nat (2*p))%Z.
+        - rewrite Nat2Z.inj_mul.
+          simpl Z.of_nat.
+          replace (2*Z.of_nat p*(2*Z.of_nat p))%Z 
+          with    (4*(Z.of_nat p*Z.of_nat p))%Z by ring.
+          apply Zmult_le_compat_l; try omega.
+          apply Zsquare_bound; omega.
+        - apply Zsquare_bound; subst.
+          rewrite !Nat2Z.inj_add, !Nat2Z.inj_mul; simpl Z.of_nat; omega.
+  Qed.
  
   Fact bounded_four x1 x2 x3 x4 m : 
             (x1 <= m -> x2 <= m -> x3 <= m -> x4 <= m
@@ -377,7 +400,7 @@ Section lagrange.
                  (Zrem_double Hm x2)
                  (Zrem_double Hm x3)
                  (Zrem_double Hm x4).
-      intros (y1 & E1 & G1 & Q1) (y2 & E2 & G2 & Q2) (y3 & E3 & G3 & Q3) (y4 & E4 & G4 & Q4).
+      intros (y1 & E1 & Q1) (y2 & E2 & Q2) (y3 & E3 & Q3) (y4 & E4 & Q4).
       assert (Z2Zp Hm (y1*y1+y2*y2+y3*y3+y4*y4) = Z2Zp Hm 0) as H4.
       { rewrite !Z2Zp_plus, !Z2Zp_mult, <- E1, <- E2, <- E3, <- E4.
         rewrite <- !Z2Zp_mult, <- !Z2Zp_plus, <- H2.
@@ -466,7 +489,7 @@ Section lagrange.
       clear Hr' Hk1 Hk2.
       symmetry in Hr.
       rewrite <- Nat2Z.inj_mul in Hr.
-      clear G1 Q1 G2 Q2 G3 Q3 G4 Q4.
+      clear Q1 Q2 Q3 Q4.
       assert (exists a b c d, Z.of_nat (k*p*m*m) = four_squares a b c d%Z
                            /\ Z2Zp Hm a = Zp_zero Hm
                            /\ Z2Zp Hm b = Zp_zero Hm
