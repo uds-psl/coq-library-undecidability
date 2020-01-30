@@ -122,6 +122,8 @@ H10/Fractran/mm_fractran.v
 H10/ArithLibs/Zp.v
 H10/ArithLibs/matrix.v
 H10/ArithLibs/luca.v
+H10/ArithLibs/lagrange.v
+
 H10/Matija/alpha.v
 H10/Matija/expo_diophantine.v
 H10/Matija/cipher.v
