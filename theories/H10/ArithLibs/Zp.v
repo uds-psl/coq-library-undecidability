@@ -702,6 +702,60 @@ Section Zp.
       rewrite Z2Zp_plus; f_equal.
       apply Z2Zp_opp.
     Qed.
+   
+    Section Z2Zp_canon.
+
+      (** Find a representative in the A interval [0,Z.of_nat p[ *) 
+
+      Let Z2Zp_canon_pos u : 0 <= u -> { v | 〘u〙=〘v〙 /\ 0 <= v < Z.of_nat p }.
+      Proof.
+        intros H1. 
+        rewrite Z2Zp_pos; auto.
+        exists (Z.of_nat (rem (Z.to_nat u) p)); split.
+        rewrite Z2Zp_of_nat.
+        apply nat2Zp_inj.
+        rewrite rem_rem; auto.
+        split.
+        * apply Zle_0_nat.
+        * apply inj_lt, div_rem_spec2; auto.
+      Qed.
+
+      Let Z2Zp_canon_neg u : u <= 0 -> { v | 〘u〙=〘v〙 /\ 0 <= v < Z.of_nat p }.
+      Proof.
+        intros H1.
+        rewrite Z2Zp_neg; try omega.
+        rewrite Z2Zp_opp, Zp_opp_inv.
+        destruct (Zp_eq_dec (Z2Zp u) Zp_zero) as [ E | D ].
+        + exists 0; split.
+          * rewrite E, Z2Zp_zero; auto.
+          * split; omega.
+        + destruct Z2Zp_canon_pos with (u := -u)
+          as (v & H2 & H3); try omega.
+          exists (Z.of_nat p - v); split.
+          * rewrite Z2Zp_minus, Z2Zp_of_nat, nat2Zp_p, <- H2, Z2Zp_opp; ring.
+          * split; try omega.
+            destruct (Z.eq_dec v 0) as [ E | ]; try omega.
+            subst; destruct D.
+            rewrite Z2Zp_opp in H2.
+            rewrite <- (Zp_opp_inv 〘 _ 〙), H2, Z2Zp_zero; ring.
+      Qed.
+ 
+      Fact Z2Zp_repr_canon u : { v |〘u〙=〘v〙 /\ 0 <= v < Z.of_nat p }.
+      Proof.
+        destruct (Z_pos_or_neg u); auto.
+        apply Z2Zp_canon_neg; omega.
+      Qed.
+
+    End Z2Zp_canon.
+
+    Fact Zp_repr_interval a b u :
+            Z.of_nat p <= b-a -> { v |〘u〙=〘v〙/\ a <= v < b }.
+    Proof.
+      intros Hab.
+      destruct (Z2Zp_repr_canon (u-a)) as (v & H1 & H2).
+      exists (a+v)%Z; split; try omega.
+      rewrite Z2Zp_plus, <- H1, Z2Zp_minus; ring.
+    Qed.
 
     Section Z2Zp_mult.
   
