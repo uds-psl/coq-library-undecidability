@@ -835,6 +835,17 @@ Section Zp.
 
     End Z2Zp_inj.
 
+    Fact Z2Zp_zero_inv u : 
+          〘u〙= Zp_zero 
+        -> exists v, (u = Z.of_nat p * v)%Z.
+    Proof.
+      intros H.
+      rewrite <- Z2Zp_zero in H.
+      apply Z2Zp_inj in H.
+      destruct H as (y & Hy); exists y.
+      rewrite Zmult_comm, <- Hy; ring.
+    Qed.
+
     Fact nat2Zp_choose : forall x, x = Zp \/ x = Op \/ x = ∸ Op \/ exists m,  (1 < m < p-1)%nat /\〚m〛= x.
     Proof.
       intros (x & Hx).
