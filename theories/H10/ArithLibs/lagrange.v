@@ -270,7 +270,12 @@ Section lagrange_prelim_odd.
     unfold l; intros x; rewrite list_an_spec; lia.
   Qed.
 
-  (* Let us defined to injective functions from l to Z/Zp *)
+  (* Let us defined two injective functions from [0,n] to Z/Z(2n+1) 
+
+     f := x => x²
+     g := x => -(1+x²)
+
+   *)
 
   Let f x := nat2Zp Hp (x*x).
   Let g y := Zp_opp Hp (Zp_plus Hp (Zp_one Hp) (f y)).
@@ -348,7 +353,7 @@ Section lagrange_prelim_odd.
 
 End lagrange_prelim_odd.
 
-(** Preliminary lemma : primes p have a multiple n*p of the form 1+a²+b² with 0 < n < p *)
+(** Preliminary lemma : any prime p has a (small) multiple n*p of the form 1+a²+b² with 0 < n < p *)
 
 Lemma lagrange_prelim p : prime p -> exists n a b, n*p = 1+a*a+b*b /\ 0 < n < p.
 Proof.
