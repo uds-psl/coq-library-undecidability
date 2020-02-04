@@ -60,9 +60,9 @@ Inductive ra_bs_c : nat -> forall k, recalg k -> vec nat k -> nat -> Prop :=
     | in_ra_bs_c_proj : forall c k v j,           [@ra_proj k j;    v; S c] ~~> vec_pos v j 
     
     | in_ra_bs_c_comp : forall c k i f (gj : vec (recalg i) k) v w x,
-                                         (forall j, [vec_pos gj j;    v; c + pos2nat j] ~~> vec_pos w j)
+                                         (forall j, [vec_pos gj j;    v; c + k - pos2nat j] ~~> vec_pos w j)
                                  ->             [f;               w; c] ~~> x
-                                 ->             [ra_comp f gj;    v; c + k] ~~> x
+                                 ->             [ra_comp f gj;    v; S c + 1 + k] ~~> x
 
     | in_ra_bs_c_rec_0 : forall c k f (g : recalg (S (S k))) v x,    
                                                [f;               v; c] ~~> x 
@@ -74,11 +74,10 @@ Inductive ra_bs_c : nat -> forall k, recalg k -> vec nat k -> nat -> Prop :=
                                ->             [ra_rec f g; S n##v; S c] ~~> y
                                
     | in_ra_bs_c_min : forall c k (f : recalg (S k)) v x w , 
-                           (forall j : pos x, [f;    pos2nat j##v; c + pos2nat j] ~~> S (vec_pos w j)) 
+                           (forall j : pos x, [f;    pos2nat j##v; c - pos2nat j] ~~> S (vec_pos w j)) 
                                ->             [f;            x##v; c] ~~> 0
-                               ->             [ra_min f;        v; c + x] ~~> x
+                               ->             [ra_min f;        v; S c] ~~> x
 where " [ f ; v ; c ] ~~> x " := (@ra_bs_c c _ f v x).
-
 
 Lemma ra_bs_mono k (f : recalg k) v c1 x :
   [f ; v ; c1 ] ~~> x -> forall c2, c1 <= c2 -> [f ; v ; c2] ~~> x. 
@@ -88,7 +87,7 @@ Proof.
   - econstructor.
   - econstructor.
   - econstructor.
-  - assert (c2 = (c2 - k) + k) as -> by omega.
+  - assert (S c2 = S (c2 - k - 1) + 1 + k ) as -> by omega.
     econstructor.
     + intros. eapply H0. omega.
     + eapply IHra_bs_c. omega.
@@ -96,8 +95,7 @@ Proof.
   - econstructor.
     + eapply IHra_bs_c1. omega.
     + eapply IHra_bs_c2. omega.
-  - assert (c2 = (c2 - x) + x) as -> by omega.
-    econstructor.
+  - econstructor.
     + intros. eapply H0. omega.
     + eapply IHra_bs_c. omega.
 Qed.
@@ -123,11 +121,13 @@ Proof.
   - exists 1. econstructor.
   - destruct IHra_bs as [c].
     eapply vec_reif in H0 as [cst].
-    exists (c + vec_sum cst + k).
+    exists (1 + c + vec_sum cst + 1 + k). cbn.
     econstructor.
     + intros. eapply ra_bs_mono. eauto.
-      enough (vec_pos cst j <= vec_sum cst) by omega.
-      eapply vec_sum_le.
+      rewrite <- Nat.add_sub_assoc.
+      2: pose (pos2nat_prop j); omega.
+      enough (vec_pos cst j <= vec_sum cst).
+      lia. eapply vec_sum_le.
     + eapply ra_bs_mono. eauto. omega.
   - destruct IHra_bs as [c]. exists (S c). now econstructor.
   - destruct IHra_bs1 as [c1].
@@ -138,9 +138,11 @@ Proof.
     + eapply ra_bs_mono. eauto. omega.
   - destruct IHra_bs as [c].
     eapply vec_reif in H0 as [cst].
-    exists (c + vec_sum cst + x).
-    econstructor.
+    exists (1 + c + vec_sum cst + x). cbn.
+    econstructor. 
     + intros. eapply ra_bs_mono. eauto.
+      rewrite <- Nat.add_sub_assoc.
+      2: pose (pos2nat_prop j); omega.
       enough (vec_pos cst j <= vec_sum cst) by omega.
       eapply vec_sum_le.
     + eapply ra_bs_mono. eauto. omega.
@@ -222,10 +224,10 @@ Fixpoint eval (fuel : nat) (min : nat) (c : reccode) (v : list nat) : option (na
 (*       destruct s; try congruence. *)
 (*       assert (IH2 := IHfuel min c2 v). *)
 (*       destruct (eval fuel min c2 v); try congruence. *)
-(*       destruct s; try congruence. inv H.       *)
+(*       destruct s; try congruence. inv H. *)
 (*       specialize (IH1 _ eq_refl). specialize (IH2 _ eq_refl). *)
 (*       remember (S fuel) as k. cbn. *)
-(*       now rewrite IH2, IH1.  *)
+(*       now rewrite IH2, IH1. *)
 (*     + *)
 (* Admitted. *)
 
@@ -263,7 +265,7 @@ with bigstep_list (min : nat) : nat -> reccode -> list nat -> list nat -> Prop :
 | sem_cons c f g v r G : bigstep min c f v r -> bigstep_list min c g v G -> bigstep_list min (S c) (rc_cons f g) v (r :: G)
 | sem_nil c v : bigstep_list min c (rc_nil) v nil.
 
-Notation "'rec_erase' erase" := (fix rec k v := match v with vec_nil => rc_nil | vec_cons _ x v => rc_cons (erase _ x) (rec _ v) end) (at level 10).
+Definition rec_erase i (erase : forall i, recalg i -> reccode) := (fix rec k (v : vec (recalg i) k) := match v with vec_nil => rc_nil | vec_cons _ x v => rc_cons (erase _ x) (rec _ v) end).
 
 Fixpoint erase k (f : recalg k) : reccode :=
   match f with
@@ -271,7 +273,7 @@ Fixpoint erase k (f : recalg k) : reccode :=
   | ra_zero => rc_zero
   | ra_succ => rc_succ
   | ra_proj _ p => rc_proj (pos2nat p)
-  | ra_comp _ _ f g => rc_comp (erase f) (rec_erase erase _ g)
+  | ra_comp _ _ f g => rc_comp (erase f) (rec_erase erase g)
   | ra_rec _ f g => rc_rec (erase f) (erase g)
   | ra_min _ f => rc_min (erase f)
   end.
@@ -286,6 +288,78 @@ Proof.
     + reflexivity.
     + eapply IHv.
 Qed.
+
+Lemma erase_correct k (f : recalg k) v n c  :
+  (ra_bs_c c f v n <-> eval c 0 (erase f) (vec_list v) = Some (inl n)).
+  (* (forall i (g : vec (recalg i) k) w v', (forall j : pos k, [vec_pos g j; v'; c - pos2nat j ] ~~> vec_pos w j) <-> eval c 0 (rec_erase erase g) (vec_list v') = Some (inr (vec_list w))). *)
+Proof.
+  revert all except c.
+  pattern c. eapply lt_wf_ind. intros.
+  destruct f; cbn. 
+  - split.
+    + inversion 1. subst.
+      eapply EqDec.inj_right_pair in H3. subst.
+      reflexivity.
+    + destruct n; inversion 1. subst. econstructor.
+  - split.
+    + inversion 1. subst.
+      eapply EqDec.inj_right_pair in H2. subst.
+      reflexivity.
+    + destruct n; inversion 1. subst. econstructor.
+  - split.
+    + inversion 1. subst.
+      eapply EqDec.inj_right_pair in H2. subst.
+      cbn. depelim v. cbn. reflexivity.
+    + destruct n; inversion 1. depelim v. subst. cbn in H2. inv H2. econstructor.
+  - split.
+    + inversion 1. subst.
+      eapply EqDec.inj_right_pair in H4. subst.
+      eapply EqDec.inj_right_pair in H5. subst.
+      cbn. rewrite vec_list_nth. reflexivity.
+    + destruct n; inversion 1. rewrite vec_list_nth in H2. inv H2. econstructor.
+  - split.
+    + inversion 1. subst.
+      eapply EqDec.inj_right_pair in H2. subst.
+      eapply EqDec.inj_right_pair in H7. subst.
+      eapply EqDec.inj_right_pair in H6. subst.
+      eapply EqDec.inj_right_pair in H6. subst.
+      assert (forall j : pos k, eval (c0 + k - pos2nat j) 0 (erase (vec_pos v0 j)) (vec_list v) = Some (inl (vec_pos w j))).
+      intros. eapply H. omega.
+                                      
+      cbn. eapply H in H9. 2:omega. eauto.
+      eapply H in H9. 2:omega. cbn.
+
+      assert (eval (c0 + 1 + k) 0 (rec_erase erase v0) (vec_list v) = Some (inr (vec_list w))).
+      { clear - H1. induction v0.
+        - cbn. assert (c0 + 1 + 0 = S c0) as -> by omega. cbn. depelim w. reflexivity.
+        - cbn. assert (c0 + 1 + S n = S c0 + 1 + n) as -> by omega.
+          cbn. pose proof (H1 pos_fst). cbn in H. rewrite pos2nat_fst in H.
+          assert (c0 + S n - 0 = c0 + 1 + n) by omega. rewrite H0 in *. clear H0.
+          rewrite H. depelim w. erewrite IHv0.  reflexivity.
+          intros. specialize (H1 (pos_nxt j)). rewrite pos2nat_nxt in H1.
+          assert (c0 + n - pos2nat j = c0 + S n - S (pos2nat j)) as -> by omega.
+          rewrite H1. reflexivity.
+      }
+      rewrite H2. admit.
+    + 
+
+
+      edestruct H with (m := c0) as [_ ]. omega.
+      eapply H1 in H8. clear H1. rewrite H8, H9. reflexivity.
+    + destruct n; inversion 1.
+      destruct (eval n 0 (rec_erase erase v0) (vec_list v)) eqn:E; try congruence.
+      destruct s; try congruence.
+      destruct (eval n 0 (erase f) l) eqn:E2; try congruence.
+      destruct s; try congruence.
+      inv H2.
+      destruct (list_vec l). rewrite <- e in *. clear e.
+      econstructor.
+      * edestruct H with (m := n) as [_ ].
+        omega.
+        specialize (H1 i v0 x).
+
+      * eapply H. omega. 
+
 
 Lemma erase_correct k (f : recalg k) v n c :
   ra_bs_c c f v n <-> bigstep 0 c (erase f) (vec_list v) n.
@@ -307,11 +381,30 @@ Proof.
       eapply EqDec.inj_right_pair in H5. subst.
       econstructor. clear. eapply vec_list_nth.              
     + intros. inversion H0. subst.
-      
+      rewrite vec_list_nth in H3. inv H3. econstructor.
+  - split.
+    + intros. cbn.
+      admit.
+    + admit.
+  - split.
+    + intros. inversion H0. subst.
+      * eapply EqDec.inj_right_pair in H3. subst.
+        eapply EqDec.inj_right_pair in H5. subst.
+        eapply EqDec.inj_right_pair in H6. subst.
+        cbn. econstructor. eapply H. omega. eauto.
+      * eapply EqDec.inj_right_pair in H2. subst.
+        eapply EqDec.inj_right_pair in H5. subst.
+        eapply EqDec.inj_right_pair in H4. subst.
+        cbn. econstructor.
+        -- eapply H with (f := ra_rec f1 f2) (v := vec_cons n1 v0). omega. eauto. 
+        -- eapply H with (v := vec_cons n1 (vec_cons x v0)). omega. eauto. 
+    + intros. inversion H0; subst.
+      * depelim v. inv H5. econstructor. eapply H. omega. eauto.
+      * depelim v. inv H4. econstructor. eapply H. omega. eauto.
+        eapply H. omega. eauto.
+  - split.
+    + 
 
-  - split; inversion 1; econstructor.
-
-  - 
 
   split.
   - intros. induction H.
