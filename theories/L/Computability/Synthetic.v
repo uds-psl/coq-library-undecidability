@@ -56,7 +56,7 @@ Section L_enum_rec.
       + rewrite <- H0. symmetry. cbn. Lsimpl.
       + subst. eapply H_f. exists n.
         assert ((λ y, !! (ext test) !! (enc x) y) !!(ext n) == ext (test x n)).
-        cbn. Lsimpl. rewrite H2 in *.
+        cbn. Lsimpl. cbn in *. rewrite H2 in *.
         eapply unique_normal_forms in H3; try Lproc.
         eapply inj_enc in H3.
         unfold test in H3. destruct (f n); inv H3.

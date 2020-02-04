@@ -270,6 +270,7 @@ L/Datatypes/Lists.v
 L/Datatypes/LNat.v
 L/Datatypes/LOptions.v
 L/Datatypes/LProd.v
+L/Datatypes/LSum.v
 L/Datatypes/LBinNums.v
 L/Datatypes/LTerm.v
 
