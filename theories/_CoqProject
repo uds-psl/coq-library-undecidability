@@ -113,6 +113,11 @@ MuRec/ra_dio_poly.v
 MuRec/ra_mm_env.v
 MuRec/ra_mm.v
 MuRec/ra_comp.v
+MuRec/ra_bs.v
+MuRec/minimizer.v
+MuRec/recursor.v
+MuRec/ra_sem_eq.v
+MuRec/ra_ca.v
 
 H10/Fractran/mm_no_self.v
 H10/Fractran/prime_seq.v
@@ -294,6 +299,7 @@ L/Reductions/SR_MPCP_computable.v
 L/Reductions/MPCP_PCP_computable.v
 L/Reductions/PCP_CFG_computable.v
 L/Reductions/H10_to_L.v
+L/Reductions/MuRec.v
 
 L/Complexity/ResourceMeasures.v
 L/Complexity/SpaceBoundsTime.v
