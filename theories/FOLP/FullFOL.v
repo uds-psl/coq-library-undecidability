@@ -9,6 +9,7 @@ Require Export Lia.
 (* Coercion var_term : fin >-> term. *)
 
 Notation "phi --> psi" := (Impl phi psi) (right associativity, at level 55).
+Notation "phi <--> psi" := (Conj (Impl phi psi) (Impl psi phi)) (right associativity, at level 55).
 Notation "phi ∧ psi" := (Conj phi psi) (right associativity, at level 55).
 Notation "phi ∨ psi" := (Disj phi psi) (right associativity, at level 55).
 Notation "∀ phi" := (All phi) (at level 56, right associativity).
@@ -342,7 +343,7 @@ Section FullFOL.
 
   Infix "⊏" := contains_L (at level 20).
   Infix "⊑" := subset_T (at level 20).
-  Infix "∈" := contains (at level 70).
+  Infix "∈" := contains (at level 20).
 
   Hint Unfold contains.
   Hint Unfold contains_L.
@@ -423,7 +424,7 @@ Hint Constructors vec_in.
 
 Infix "⊏" := contains_L (at level 20).
 Infix "⊑" := subset_T (at level 20).
-Infix "∈" := contains (at level 70).
+Infix "∈" := contains (at level 20).
 Infix "⋄" := extend (at level 20).
 
 Hint Resolve contains_nil contains_cons contains_cons2 contains_app : contains_theory.

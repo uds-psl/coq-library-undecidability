@@ -424,3 +424,4 @@ Reductions/FRACTRAN_to_H10C.v
 Reductions/L_to_mTM.v
 Reductions/mTM_to_TM.v
 Reductions/BPCP_to_FOLFS.v
+Reductions/BPCP_to_ZF.v
