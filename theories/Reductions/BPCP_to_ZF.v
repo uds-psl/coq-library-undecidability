@@ -86,6 +86,8 @@ Section ZF.
   Context { M : ZF_Model }.
 
   Hypothesis VIEQ : extensional M.
+
+  (** *** ZF Axioms *)
   
   Lemma M_ext (x y : M) :
     x ⊆ y -> y ⊆ x -> x = y.
@@ -202,7 +204,7 @@ Section ZF.
 
 
 
-  (** Completeness **)
+  (** *** Completeness **)
 
   Definition append_all A (c : card bool) :=
     map (fun p => (fst c ++ fst p, snd c ++ snd p)) A.
@@ -342,6 +344,18 @@ Section ZF.
       right. now apply sing_el.
   Qed.
 
+  Lemma sigma_eq x :
+    x ∈ σ x.
+  Proof.
+    apply sigma_el. now right.
+  Qed.
+
+  Lemma sigma_sub x :
+    x ⊆ σ x.
+  Proof.
+    intros y H. apply sigma_el. now left.
+  Qed.
+
   Lemma enc_derivations_bound B n k x :
     M_opair k x ∈ M_enc_derivations B n -> k ∈ σ (numeral n).
   Proof.
@@ -350,8 +364,19 @@ Section ZF.
       apply sigma_el. now right.
     - intros [H|H] % binunion_el.
       + apply sigma_el. left. apply IHn, H.
-      + apply sing_el in H. apply opair_inj in H as [-> _].
-        apply sigma_el. now right.
+      + apply sing_el in H. apply opair_inj in H as [-> _]. apply sigma_eq.
+  Qed.
+
+  Definition trans x :=
+    forall y, y ∈ x -> y ⊆ x.
+
+  Lemma numeral_trans n :
+    trans (numeral n).
+  Proof.
+    induction n; cbn.
+    - intros x H. now apply M_eset in H.
+    - intros x [H| ->] % sigma_el; try apply sigma_sub.
+      apply IHn in H. intuition eauto using sigma_sub.
   Qed.
 
   Lemma numeral_wf n :
@@ -359,7 +384,11 @@ Section ZF.
   Proof.
     induction n.
     - apply M_eset.
-  Admitted.
+    - intros [H|H] % sigma_el; fold numeral in *.
+      + apply IHn. eapply numeral_trans; eauto. apply sigma_eq.
+      + assert (numeral n ∈ numeral (S n)) by apply sigma_eq.
+        now rewrite H in H0.
+  Qed.
 
   Lemma enc_derivations_fun B n :
     forall k x y, M_opair k x ∈ M_enc_derivations B n -> M_opair k y ∈ M_enc_derivations B n -> x = y.
@@ -386,16 +415,33 @@ Section ZF.
       + apply sing_el in H. exists (S n). apply (opair_inj H).
   Qed.
 
+  Inductive WF x : Prop :=
+    WFI : (forall y, y ∈ x -> WF y) -> WF x.
+
+  Lemma sigma_inj' x y :
+    σ x = σ y -> x ⊆ y.
+  Proof.
+    intros H z Hz.
+    assert (H' : z ∈ σ x) by (now apply sigma_el; now left).
+    rewrite H in H'. apply sigma_el in H' as [H'| ->]; trivial.
+  Admitted.
+
+  Lemma sigma_inj x y :
+    σ x = σ y -> x = y.
+  Proof.
+    intros H. apply M_ext; now apply sigma_inj'.
+  Qed.
+
   Lemma numeral_inj k l :
     numeral k = numeral l -> k = l.
   Proof.
     revert l. induction k; intros []; cbn.
     - reflexivity.
-    - cbn. intros H. exfalso. apply (@M_eset (numeral n)).
+    - intros H. exfalso. apply (@M_eset (numeral n)).
       rewrite H. apply binunion_el. right. now apply sing_el.
-    - cbn. intros H. exfalso. apply (@M_eset (numeral k)).
+    - intros H. exfalso. apply (@M_eset (numeral k)).
       rewrite <- H. apply binunion_el. right. now apply sing_el.
-    - admit.
+    - intros H. rewrite (IHk n); trivial.
   Admitted.
 
   Lemma enc_derivations_step B n l :
@@ -498,6 +544,7 @@ Section ZF.
       cbn. fold (derivation_step B C). rewrite M_enc_stack_app.
       enough (x1 = M_enc_stack (derivation_step B C)) as E1.
       + enough (x2 = M_enc_stack (append_all C (s / t))) as E2 by now rewrite E1, E2.
+        Print Assumptions  eval_comp.
         apply M_ext; intros u Hu.
         * apply H3 in Hu as [v [Hv[a [b Ha]]]].
           cbn in Hv. rewrite !eval_comp, R1 in Hv. apply enc_stack_el' in Hv as (s'&t'&H&H').
