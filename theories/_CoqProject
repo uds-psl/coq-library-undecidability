@@ -409,6 +409,7 @@ Problems/DIOPHANTINE.v
 Problems/H10C.v
 Problems/cbvLambda.v
 Problems/FOLFS.v
+Problems/ZF.v
 
 Reductions/TM_to_SRH.v  
 Reductions/SRH_to_SR.v  
