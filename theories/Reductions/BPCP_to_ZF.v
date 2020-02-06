@@ -632,12 +632,32 @@ Section ZF.
         * exists d, c. cbn in H. rewrite !VIEQ, !eval_prep_string in H. apply H.
   Qed.
 
+  Ltac solve_bounds :=
+    repeat constructor; try lia; intros;
+    match goal with
+      | H : vec_in ?x (Vector.cons ?y ?v) |- _ => repeat apply vec_cons_inv in H as [->|H]; try inversion H
+      | _ => idtac
+    end.
+
+  Lemma bounded_enc_bool a n :
+    bounded_term n (enc_bool a).
+  Proof.
+    destruct a; cbn; repeat solve_bounds; try inversion X.
+  Qed.
+
+  Lemma bounded_prep n s t :
+    bounded_term n t -> bounded_term n (prep_string s t).
+  Proof.
+    induction s; cbn; trivial. intros H.
+    repeat solve_bounds; eauto using bounded_enc_bool.
+  Qed.
+
   Lemma M_comb_rel_ex s t x :
     exists y, M_is_rep (M_comb_rel s t) x y.
   Proof.
     apply M_rep.
     - exists (comb_rel s t). split.
-      + repeat constructor; admit.
+      + repeat solve_bounds; apply bounded_prep; constructor; lia.
       + intros u v rho. cbn. admit.
     - intros a b b' (u&v&H1&H2) (u'&v'&H3&H4); subst.
       now apply opair_inj in H3 as [-> ->].

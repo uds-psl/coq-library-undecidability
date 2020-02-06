@@ -160,6 +160,12 @@ Section FullFOL.
       H' : cons ?x ?y = cons ?a ?b |- _ => apply vec_cons_inj in H' as [-> ->]; subst
     end.
 
+  Lemma vec_cons_inv {X} k x y (v : vector X k) :
+    vec_in y (cons x v) -> (y = x) + vec_in y v.
+  Proof.
+    intros H. vecinv H; auto.
+  Qed.
+
   Lemma Forall_vec_in {A} (P : A -> Type) n (v : vector A n) :
     Forall P v -> forall x, vec_in x v -> P x.
   Proof.
@@ -491,3 +497,9 @@ End EqDec.
 
 Notation "↑" := form_shift.
 Notation "A ⟹ phi" := (big_imp A phi) (at level 60).
+
+Ltac vecinv H :=
+    depelim H; cbn in *;
+    match goal with
+      H' : cons ?x ?y = cons ?a ?b |- _ => apply vec_cons_inj in H' as [-> ->]; subst
+    end.
