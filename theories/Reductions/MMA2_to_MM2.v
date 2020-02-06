@@ -9,7 +9,6 @@
 
 Require Import List Arith Relations Omega.
 
-
 From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec.
 From Undecidability.ILL.Code Require Import sss subcode.
 From Undecidability.ILL.Mm Require Import mm_defs.

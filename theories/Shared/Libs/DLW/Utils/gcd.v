@@ -9,7 +9,7 @@
 
 (** ** Euclidian division and Bezout's identity *)
 
-Require Import List Arith Omega Permutation.
+Require Import List Arith Omega Permutation Extraction.
 
 From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list.
 
@@ -17,16 +17,33 @@ Set Implicit Arguments.
 
 Section Euclid.
 
+  (** Simultaneous comparison and difference *)
+
+  Fixpoint cmp_sub x y : { z | z+y = x } + { x < y }.
+  Proof.
+    refine (match y as y' return { z | z+y' = x } + { x < y' } with
+      | 0    => inleft (exist _ x _)
+      | S y' => match x as x' return { z | z+_ = x' } + { x' < _ } with
+        | 0    => inright _
+        | S x' => match cmp_sub x' y' with
+          | inleft (exist _ z Hz) => inleft (exist _ z _)
+          | inright H => inright _
+        end
+      end
+    end); omega.
+  Defined.  
+
   Definition euclid n d : d <> 0 -> { q : nat & { r | n = q*d+r /\ r < d } }.
   Proof.
-    intros Hd.
-    induction on n as IHn with measure n.
-    destruct (le_lt_dec d n) as [ H | H ].
-    + destruct (IHn (n-d)) as (q & r & H1 & H2).
-      * omega.
-      * exists (S q), r; split; auto; simpl; omega.
-    + exists 0, n; split; auto; simpl; omega.
-  Qed.
+    intros Hd; induction on n as euclid with measure n.
+    refine (match cmp_sub n d with
+      | inleft (exist _ z Hz) => 
+      match euclid z _ with
+        | existT _ q (exist _ r Hr) => existT _ (S q) (exist _ r _) 
+      end
+      | inright H      => existT _ 0 (exist _ n _)
+    end); simpl; omega.
+  Defined.
 
 End Euclid.
 
@@ -282,34 +299,49 @@ Section bezout.
   Hint Resolve is_gcd_0l is_gcd_0r is_lcm_0l is_lcm_0r divides_refl divides_mult divides_0 is_gcd_minus.
 
   Section bezout_rel_prime.
+ 
+    (* A Bezout procedure with better extraction *)
 
-    Let bezout_rec p q : 0 < p < q -> is_gcd p q 1 -> exists a b, a*p+b*q = 1+p*q /\ a <= q /\ b <= p.
+    Definition bezout_rel_prime_lt p q : 
+            0 < p < q 
+         -> is_gcd p q 1 
+         -> { a : nat & { b | a*p+b*q = 1+p*q 
+                           /\ a <= q 
+                           /\ b <= p } }.
     Proof.
-      revert p.
-      induction on q as IHq with measure q; intros p (Hp & Hq) H.
-      destruct (@euclid q p) as (n & r & H1 & H2); try omega.
-      destruct (eq_nat_dec r 0) as [ Hr | Hr ].
-      { subst r; rewrite plus_comm in H1; simpl in H1.
+      induction on p q as bezout with measure q; intros (Hp & Hq) H.
+      refine (match @euclid q p _ with
+        | existT _ n (exist _ r H0) => 
+        match eq_nat_dec r 0 with
+          | left Hr => existT _ 1 (exist _ 1 _)
+          | right Hr => match @bezout r p Hq _ _ with
+            | existT _ a (exist _ b G0) => 
+               existT _ (b+n*p-n*a) (exist _ a _)
+          end
+        end 
+      end); try omega.
+      + destruct H0 as (H1 & H2).
+        subst r; rewrite plus_comm in H1; simpl in H1.
         assert (is_gcd p q p) as H3.
         { apply is_gcd_div; subst; auto. }
         rewrite (is_gcd_fun H3 H) in *.
-        exists 1, 1; simpl; omega. }
-      destruct (IHq _ Hq r) as (a & b & H3 & H4 & H5); try omega.
-      { replace r with (q-n*p) by omega.
-        apply is_gcd_sym, is_gcd_modulus; auto; omega. }
-      exists (b+n*p-n*a), a.
-      split; [ | split ]; auto.
-      + rewrite H1, Nat.mul_sub_distr_r, (mult_comm _ p).
-        do 3 rewrite Nat.mul_add_distr_l.
-        rewrite (plus_comm _ (p*r)), (plus_assoc 1), (mult_comm p r), <- H3.
-        rewrite (mult_comm n a), (mult_comm p b), mult_assoc, mult_assoc.
-        assert (a*n*p <= p*n*p) as H6.
-        { repeat (apply mult_le_compat; auto). }
-        revert H6; generalize (b*p) (a*r) (a*n*p) (p*n*p); intros; omega.
-      + rewrite H1; generalize (n*p) (n*a); intros; omega.
-    Qed.
+        simpl; omega.
+      + replace r with (q-n*p) by omega.
+        apply is_gcd_sym, is_gcd_modulus; auto; omega.
+      + destruct H0 as (H1 & H2).
+        destruct G0 as (H3 & H4 & H5).
+        split; [ | split ]; auto.
+        * rewrite H1, Nat.mul_sub_distr_r, (mult_comm _ p).
+          do 3 rewrite Nat.mul_add_distr_l.
+          rewrite (plus_comm _ (p*r)), (plus_assoc 1), (mult_comm p r), <- H3.
+          rewrite (mult_comm n a), (mult_comm p b), mult_assoc, mult_assoc.
+          assert (a*n*p <= p*n*p) as H6.
+          { repeat (apply mult_le_compat; auto). }
+          revert H6; generalize (b*p) (a*r) (a*n*p) (p*n*p); intros; omega.
+        * rewrite H1; generalize (n*p) (n*a); intros; omega.
+    Defined.
 
-    Lemma bezout_nc p q : is_gcd p q 1 -> exists a b, a*p+b*q = 1+p*q.
+    Definition bezout_rel_prime p q : is_gcd p q 1 -> { a : nat & { b | a*p+b*q = 1+p*q } }.
     Proof.
       intros H.
       destruct (eq_nat_dec p 0) as [ | Hp ].
@@ -317,13 +349,20 @@ Section bezout.
       destruct (eq_nat_dec q 0) as [ | Hq ].
       { subst; rewrite (is_gcd_fun (is_gcd_0r _) H); exists 1, 0; auto. }
       destruct (lt_eq_lt_dec p q) as [ [ H1 | H1 ] | H1 ].
-      + destruct bezout_rec with (2 := H)
+      + destruct bezout_rel_prime_lt with (2 := H)
           as (a & b & H2 & _); try omega.
         exists a, b; auto.
       + subst; rewrite (is_gcd_fun (is_gcd_refl _) H); exists 1, 1; auto.
-      + destruct bezout_rec with (2 := is_gcd_sym H)
+      + destruct bezout_rel_prime_lt with (2 := is_gcd_sym H)
           as (a & b & H2 & _); try omega.
         exists b, a; rewrite (mult_comm p q); omega.
+    Defined.
+
+    Lemma bezout_nc p q : is_gcd p q 1 -> exists a b, a*p+b*q = 1+p*q.
+    Proof.
+      intros H.
+      destruct bezout_rel_prime with (1 := H) as (a & b & ?).
+      exists a, b; auto.
     Qed.
 
     Hint Resolve divides_1.
@@ -361,6 +400,14 @@ Section bezout.
 
   Fact is_rel_prime_div_r p q k : is_gcd p q 1 -> p div k*q -> p div k.
   Proof. rewrite mult_comm; apply is_rel_prime_div. Qed.
+
+  Fact divides_is_gcd a b c : divides a b -> is_gcd b c 1 -> is_gcd a c 1.
+  Proof.
+    intros H1 H2; msplit 2; try apply divides_1.
+    intros k H3 H4.
+    apply H2; auto.
+    apply divides_trans with a; auto.
+  Qed.
 
   Fact is_rel_prime_lcm p q : is_gcd p q 1 -> is_lcm p q (p*q).
   Proof.
@@ -532,7 +579,10 @@ Section bezout.
 
   Section bezout_generalized.
 
-    Let bezout_rec p q : 0 < p < q 
+    (** TODO, write this FULLY specified Bezout with a better extraction, following bezout_rel_prime above *)
+
+    Definition bezout_generalized_lt p q : 
+                         0 < p < q 
                       -> { a : nat 
                        & { b : nat 
                        & { g : nat
@@ -547,14 +597,14 @@ Section bezout.
                         /\ a <= v
                         /\ b <= u } } } } } }.
     Proof.
-      revert p; induction q as [ q IHq ] using (@measure_rect _ (fun n => n)); intros p (Hp & Hq).
+      induction on p q as IH with measure q; intros (Hp & Hq).
       destruct (@euclid q p) as (k & r & H1 & H2); try omega.
       destruct (eq_nat_dec r 0) as [ Hr | Hr ].
       + exists 1, 1, p, (k*p), 1, k.
         rewrite plus_comm in H1; simpl in H1.
         subst; repeat split; simpl; auto.
         destruct k; omega.
-      + destruct (IHq _ Hq r) as (a & b & g & l & u & v & H3 & H4 & H5 & H6 & H7 & H8 & H9); try omega.
+      + destruct (IH r _ Hq) as (a & b & g & l & u & v & H3 & H4 & H5 & H6 & H7 & H8 & H9); try omega.
         exists (b+k*v-k*a), a, g, (l+k*v*p), v, (k*v+u).
         apply is_gcd_sym in H4.
         apply is_lcm_sym in H5.
@@ -580,7 +630,7 @@ Section bezout.
           +  apply plus_le_compat; auto. 
              generalize (k*v) (k*a); intros; omega.
           + apply mult_le_compat; auto. }
-    Qed.
+    Defined.
   
     Hint Resolve is_gcd_sym is_lcm_sym.
 
@@ -597,12 +647,12 @@ Section bezout.
       destruct (eq_nat_dec q 0) as [ | Hq ].
       { subst; exists 1, 0, p, 0; repeat (split; auto). }
       destruct (lt_eq_lt_dec p q) as [ [ H1 | H1 ] | H1 ].
-      + destruct (@bezout_rec p q)
+      + destruct (@bezout_generalized_lt p q)
           as (a & b & g & l & _ & _ & ? & ? & ? & _); try omega.
         exists a, b, g, l; auto.
       + subst q; exists 1, 1, p, p.
         repeat split; auto; omega.
-      + destruct (@bezout_rec q p)
+      + destruct (@bezout_generalized_lt q p)
           as (a & b & g & l & _ & _ & ? & ? & ? & _); try omega.
         exists b, a, g, l; repeat (split; auto); omega.
     Qed.
@@ -634,12 +684,6 @@ Section bezout.
   End gcd_lcm.
      
 End bezout.
-
-Require Import Extraction.
-Extraction Inline measure_rect.
-
-Check bezout_generalized.
-Print Assumptions bezout_generalized.
 
 Section division.
 
@@ -840,6 +884,29 @@ Section rem.
 
 End rem.
 
+Fact divides_rem_rem p q a : divides p q -> rem (rem a q) p = rem a p.
+Proof.
+  destruct (eq_nat_dec p 0) as [ Hp | Hp ].
+  { intros (k & ->); subst; rewrite mult_0_r.
+    repeat rewrite rem_0; auto. }
+  intros H.
+  generalize (div_rem_spec1 a q); intros H1.
+  destruct H as (k & ->).
+  rewrite H1 at 2.
+  rewrite plus_comm.
+  apply rem_plus_div; auto.
+  do 2 apply divides_mult.
+  apply divides_refl.
+Qed.
+ 
+Fact divides_rem_congr p q a b : divides p q -> rem a q = rem b q -> rem a p = rem b p.
+Proof.
+  intros H1 H2.
+  rewrite <- (divides_rem_rem a H1),
+          <- (divides_rem_rem b H1).
+  f_equal; auto.
+Qed.
+
 Fact div_by_p_lt p n : 2 <= p -> n <> 0 -> div n p < n.
 Proof.
   intros H1 H2.
@@ -902,36 +969,3 @@ End rem_2.
 
 Local Hint Resolve divides_mult divides_mult_r divides_refl.
 
-Theorem CRT u v a b : u <> 0 -> v <> 0 -> is_gcd u v 1 -> exists w, rem w u = rem a u /\ rem w v = rem b v /\ 2 < w.
-Proof.
-  intros Hu Hv H.
-  destruct bezout_nc with (1 := H) as (x & y & H1).
-  assert (rem (x*u) v = rem 1 v) as H2.
-  { rewrite rem_plus_div with (a := 1) (b := u*v); auto.
-    rewrite <- H1; apply rem_plus_div; auto. }
-  assert (rem (y*v) u = rem 1 u) as H3.
-  { rewrite rem_plus_div with (a := 1) (b := u*v); auto.
-    rewrite <- H1, plus_comm.
-    apply rem_plus_div; auto. }
-  exists (3*(u*v)+a*(y*v)+b*(x*u)).
-  split; [ | split ].
-  + rewrite <- rem_plus_rem, (mult_assoc b).
-    rewrite rem_scal with (k := b*x), rem_diag; auto.
-    rewrite Nat.mul_0_r, rem_of_0, Nat.add_0_r.
-    rewrite <- rem_plus_rem, rem_scal, H3, <- rem_scal, Nat.mul_1_r.
-    rewrite rem_plus_rem, plus_comm.
-    symmetry; apply rem_plus_div; auto.
-  + rewrite <- plus_assoc, (plus_comm (a*_)), plus_assoc.
-    rewrite <- rem_plus_rem, (mult_assoc a).
-    rewrite rem_scal with (k := a*y), rem_diag; auto.
-    rewrite Nat.mul_0_r, rem_of_0, Nat.add_0_r.
-    rewrite <- rem_plus_rem, rem_scal, H2, <- rem_scal, Nat.mul_1_r.
-    rewrite rem_plus_rem, plus_comm.
-    symmetry; apply rem_plus_div; auto.
-  + apply lt_le_trans with (3*1); try omega.
-    do 2 apply le_trans with (2 := le_plus_l _ _).
-    apply mult_le_compat_l.
-    assert (u*v <> 0) as H4.
-    { intros G; apply mult_is_O in G; omega. }
-    revert H4; generalize (u*v); intros; omega.
-Qed.

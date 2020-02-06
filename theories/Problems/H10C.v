@@ -7,36 +7,22 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** Elementary Diophantine constraints w/o parameters
-    and with only the constant 1 i.e. constraints 
-    are of three shapes:
-
-      x = 1 | x+y = z | x*y = z  with x,y,z in nat 
-
-  *)
-
 Require Import List.
+
+From Undecidability.H10C Require Export h10c_defs.
 
 Set Implicit Arguments.
 
-Inductive h10c : Set :=
-  | h10c_one : nat -> h10c
-  | h10c_plus : nat -> nat -> nat -> h10c
-  | h10c_mult : nat -> nat -> nat -> h10c.
-
-Definition h10c_sem c φ :=
-  match c with
-    | h10c_one x      => φ x = 1
-    | h10c_plus x y z => φ x + φ y = φ z
-    | h10c_mult x y z => φ x * φ y = φ z
-  end.
-
 Local Notation "〚 c 〛" := (h10c_sem c).
+Local Notation " ⟪ c ⟫ " := (h10uc_sem c).
 
 Definition H10C_PROBLEM := list h10c.
 Definition H10C_SAT (l : H10C_PROBLEM) := exists φ, forall c, In c l ->〚c〛φ.
 
+Definition H10UC_PROBLEM := list h10uc.
+Definition H10UC_SAT (l : H10UC_PROBLEM) := exists φ, forall c, In c l ->⟪c⟫ φ.
 
-
+About H10C_SAT.
+About H10UC_SAT.
 
 

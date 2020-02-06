@@ -49,6 +49,3 @@ Proof.
   destruct (ra_mm_simulator f) as (m & P & HP).
   exists m, P; rewrite (HP vec_nil), vec_app_nil; tauto.
 Qed.
-
-Check ra_mm_simulator.
-Print Assumptions ra_mm_simulator.

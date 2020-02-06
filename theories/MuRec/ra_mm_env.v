@@ -91,7 +91,7 @@ Section ra_compiler.
     exists (mm_set o m c i); split.
     2: exists c; cbv; auto.
     intros x v e; vec nil v; clear v.
-    intros E; simpl in E; red in E; subst x.
+    intros E; simpl in E; subst x.
     intros H4 H5.
     rewrite mm_set_length.
     destruct mm_set_progress 
@@ -122,7 +122,7 @@ Section ra_compiler.
     exists (mm_copy p o m (m+1) i ++ INC o :: nil); split.
     2: intros v; exists (S (vec_head v)); cbv; auto.
     intros x v e; vec split v with a; vec nil v; clear v.
-    intros H; simpl in H; red in H; simpl in H; subst x.
+    intros H; simpl in H; subst x.
     intros H4 H5.
     specialize (H5 pos0); rewrite pos2nat_fst in H5; simpl in H5.
     destruct mm_copy_progress 
@@ -144,7 +144,7 @@ Section ra_compiler.
     red; simpl; intros i p o m H1 H2 H3.
     exists (mm_copy (pos2nat q+p) o m (m+1) i); split.
     2: intros v; exists (vec_pos v q); cbv; auto.
-    intros x v e H; simpl in H; red in H; subst x.
+    intros x v e H; simpl in H; subst x.
     intros H4 H5.
     destruct mm_copy_progress 
       with (src := pos2nat q+p) (dst := o) (tmp := m) (zero := m+1) (i := i) (e := e)
@@ -1140,4 +1140,3 @@ Section ra_compiler.
 
 End ra_compiler.
 
-Check ra_mm_env_simulator.

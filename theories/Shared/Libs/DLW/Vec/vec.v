@@ -161,6 +161,11 @@ Section vector.
       | vec_nil      => nil
       | vec_cons x v => x::vec_list v
     end.
+
+  Fact vec_list_In n v p : In (vec_pos v p) (@vec_list n v).
+  Proof.
+    revert p; induction v; intros p; invert pos p; auto.
+  Qed.
     
   Fact vec_list_length n v : length (@vec_list n v) = n.
   Proof. induction v; simpl; f_equal; auto. Qed.
@@ -173,6 +178,19 @@ Section vector.
     exists pos0; auto.
     destruct IHl as (p & Hp); auto.
     subst; exists (pos_nxt p); auto.
+  Qed.
+
+  Fact vec_list_In_iff n v x : In x (@vec_list n v) <-> exists p, x = vec_pos v p.
+  Proof.
+    split.
+    + apply vec_list_inv.
+    + intros (p & ->); apply vec_list_In.
+  Qed.
+
+  Fact map_pos_list_vec n (f : pos n -> X) : map f (pos_list n) = vec_list (vec_set_pos f).
+  Proof.
+    revert f; induction n as [ | n IHn ]; intros f; simpl; f_equal; auto.
+    rewrite map_map, IHn; auto.
   Qed.
 
 End vector.
@@ -396,6 +414,21 @@ Tactic Notation "vec" "split" hyp(v) "with" ident(n) :=
   rewrite (vec_head_tail v); generalize (vec_head v) (vec_tail v); clear v; intros n v.
 
 Tactic Notation "vec" "nil" hyp(v) := rewrite (vec_0_nil v).
+
+Fact Forall2_vec_list X Y (R : X -> Y -> Prop) n v w : Forall2 R (@vec_list X n v) (vec_list w) <-> forall p, R (vec_pos v p) (vec_pos w p).
+Proof.
+  revert v w; induction n as [ | n IHn ]; intros v w.
+  + vec nil v; vec nil w; split; simpl.
+    * intros _ p; invert pos p.
+    * constructor.
+  + vec split v with x; vec split w with y.
+    simpl vec_list; rewrite Forall2_cons_inv, IHn.
+    split.
+    * intros (H1 & H2) p; invert pos p; auto.
+    * intros H; split.
+      - apply (H pos0).
+      - intro; apply (H (pos_nxt _)).
+Qed.
 
 Fact vec_zero_S n : @vec_zero (S n) = 0##vec_zero.
 Proof. auto. Qed.

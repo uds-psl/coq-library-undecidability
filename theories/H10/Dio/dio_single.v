@@ -384,8 +384,6 @@ Section dio_poly_pos.
 
 End dio_poly_pos.
 
-Check dio_poly_eq_pos.
-
 Section dio_poly_inst_par.
 
   Variable (V P : Set) (σ : P -> nat).

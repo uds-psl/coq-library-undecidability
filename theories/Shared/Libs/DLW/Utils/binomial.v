@@ -32,6 +32,23 @@ Section factorial.
     generalize (n*fact n); intros; omega.
   Qed.
 
+  Fact divides_n_fact_n n : 0 < n -> divides n (fact n).
+  Proof.
+    destruct n as [ | n ]; try omega; intros _.
+    apply divides_mult_r, divides_refl.
+  Qed.
+
+  Fact divides_fact_S n : divides (fact n) (fact (S n)).
+  Proof. apply divides_mult, divides_refl. Qed.
+
+  Fact divides_fact n i : 0 < i <= n -> divides i (fact n).
+  Proof.
+    intros (H1 & H2); revert H2.
+    induction 1 as [ | n H2 IH2 ].
+    + apply divides_n_fact_n; auto.
+    + apply divides_trans with (1 := IH2), divides_fact_S.
+  Qed.   
+
 End factorial.
 
 Section binomial.

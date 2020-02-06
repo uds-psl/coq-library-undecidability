@@ -476,4 +476,3 @@ Section lucas_theorem.
 End lucas_theorem.
 
 Check lucas_theorem.
-
