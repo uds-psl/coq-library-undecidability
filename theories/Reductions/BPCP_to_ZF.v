@@ -184,9 +184,11 @@ Section ZF.
   Proof.
     cbn. intros HP HD HR a b b' HB HB'. apply VIEQ, (HR a b b').
     - apply (HD a b (b'.:rho)). apply (sat_comp VI) in HB.
-      asimpl in HB. cbn in HB. eapply sat_bounded2; eauto.
+      eapply sat_bounded2; trivial. eapply sat_ext; try eassumption.
+      intros [|[]]; reflexivity.
     - apply (HD a b' (b.:rho)). apply (sat_comp VI) in HB'.
-      asimpl in HB'. cbn in HB'. eapply sat_bounded2; eauto.
+      eapply sat_bounded2; trivial. eapply sat_ext; try eassumption.
+      intros [|[]]; reflexivity.
   Qed.
 
   Definition M_is_rep R x y :=
@@ -415,34 +417,20 @@ Section ZF.
       + apply sing_el in H. exists (S n). apply (opair_inj H).
   Qed.
 
-  Inductive WF x : Prop :=
-    WFI : (forall y, y ∈ x -> WF y) -> WF x.
-
-  Lemma sigma_inj' x y :
-    σ x = σ y -> x ⊆ y.
+  Lemma numeral_lt k l :
+    k < l -> numeral k ∈ numeral l.
   Proof.
-    intros H z Hz.
-    assert (H' : z ∈ σ x) by (now apply sigma_el; now left).
-    rewrite H in H'. apply sigma_el in H' as [H'| ->]; trivial.
-  Admitted.
-
-  Lemma sigma_inj x y :
-    σ x = σ y -> x = y.
-  Proof.
-    intros H. apply M_ext; now apply sigma_inj'.
+    induction 1.
+    - apply sigma_eq.
+    - eapply numeral_trans; eauto using sigma_eq.
   Qed.
 
   Lemma numeral_inj k l :
     numeral k = numeral l -> k = l.
   Proof.
-    revert l. induction k; intros []; cbn.
-    - reflexivity.
-    - intros H. exfalso. apply (@M_eset (numeral n)).
-      rewrite H. apply binunion_el. right. now apply sing_el.
-    - intros H. exfalso. apply (@M_eset (numeral k)).
-      rewrite <- H. apply binunion_el. right. now apply sing_el.
-    - intros H. rewrite (IHk n); trivial.
-  Admitted.
+    intros Hk. assert (k = l \/ k < l \/ l < k) as [H|[H|H]] by lia; trivial.
+    all: apply numeral_lt in H; rewrite Hk in H; now apply numeral_wf in H.
+  Qed.
 
   Lemma enc_derivations_step B n l :
     numeral l ∈ numeral n
@@ -658,10 +646,12 @@ Section ZF.
     apply M_rep.
     - exists (comb_rel s t). split.
       + repeat solve_bounds; apply bounded_prep; constructor; lia.
-      + intros u v rho. cbn. admit.
+      + intros u v rho. cbn. split; intros [a[b H]].
+        * exists b, a. rewrite !VIEQ, !eval_prep_string. apply H.
+        * exists b, a. rewrite !VIEQ, !eval_prep_string in H. apply H.
     - intros a b b' (u&v&H1&H2) (u'&v'&H3&H4); subst.
       now apply opair_inj in H3 as [-> ->].
-  Admitted.
+  Qed.
 
   Definition M_solutions B f n :=
     M_opair ∅ (M_enc_stack B) ∈ f /\ forall k x y, k ∈ n -> M_opair k x ∈ f -> M_combinations B x y -> M_opair (σ k) y ∈ f.
@@ -788,7 +778,7 @@ Theorem PCP_ZF B :
   (exists M : ZF_Model, extensional M /\ standard M) -> BPCP' B <-> ZF_entails (solvable B).
 Proof.
   intros HZF. split; intros H.
-  - destruct H as [s H]. intros M HM _. eapply PCP_ZF1; eauto.
-  - destruct HZF as [M[H1 H2]]. specialize (H M H1 H2 (fun _ => @i_f _ _ _ eset Vector.nil)).
+  - destruct H as [s H]. intros M HM. eapply PCP_ZF1; eauto.
+  - destruct HZF as [M[H1 H2]]. specialize (H M H1 (fun _ => @i_f _ _ _ eset Vector.nil)).
     apply PCP_ZF2 in H as [s Hs]; trivial. now exists s.
 Qed.

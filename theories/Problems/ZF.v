@@ -196,4 +196,4 @@ Definition standard (M : ZF_Model) :=
 (** ** ZF-Entailment *)
 
 Definition ZF_entails phi :=
-  forall (M : ZF_Model), extensional M -> standard M -> forall rho, rho ⊨ phi.
+  forall (M : ZF_Model), extensional M -> forall rho, rho ⊨ phi.
