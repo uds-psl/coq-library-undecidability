@@ -331,9 +331,24 @@ Section ZF.
     - apply binunion_el. now left.
   Qed.
 
+  Lemma opair1 x y z :
+    z ∈ x <-> (forall u, u ∈ M_opair x y -> exists v, v ∈ u /\ z ∈ v).
+  Proof.
+    unfold M_opair. split; intros H.
+    - intros u [->| ->] % M_pair; exists x; rewrite M_pair; auto.
+    - destruct (H ({x; x})) as [u Hu]; try (rewrite M_pair; auto).
+      rewrite M_pair in Hu. now destruct Hu as [[->| ->] Hu].
+  Qed.
+
+  Lemma opair2 x y z :
+    z ∈ y <-> ((x = y -> (forall u, u ∈ M_opair x y -> exists v, v ∈ u /\ z ∈ v)) /\ (x <> y -> )
+
   Lemma opair_inj x x' y y' :
     M_opair x y = M_opair x' y' -> x = x' /\ y = y'.
   Proof.
+    intros H. split; apply M_ext; intros z Hz.
+    - eapply opair1. rewrite <- H. now apply opair1.
+    - eapply opair1. rewrite H. now apply opair1.
   Admitted.
 
   Lemma sigma_el x y :
@@ -532,7 +547,6 @@ Section ZF.
       cbn. fold (derivation_step B C). rewrite M_enc_stack_app.
       enough (x1 = M_enc_stack (derivation_step B C)) as E1.
       + enough (x2 = M_enc_stack (append_all C (s / t))) as E2 by now rewrite E1, E2.
-        Print Assumptions  eval_comp.
         apply M_ext; intros u Hu.
         * apply H3 in Hu as [v [Hv[a [b Ha]]]].
           cbn in Hv. rewrite !eval_comp, R1 in Hv. apply enc_stack_el' in Hv as (s'&t'&H&H').
