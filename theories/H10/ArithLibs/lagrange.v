@@ -373,10 +373,8 @@ Proof.
     apply le_trans with ((n+n)*(n+n)).
     2: apply mult_le_compat; lia.
     rewrite remarkable_id1_nat.
-    apply plus_le_compat.
-    2: apply mult_le_compat; auto.
-    apply plus_le_compat.
-    1: apply mult_le_compat; auto.
+    apply plus_le_compat; [ | apply mult_le_compat; auto ].
+    apply plus_le_compat; [ apply mult_le_compat; auto | ].
     apply mult_le_compat_l.
     now apply mult_le_compat.
 Qed.
@@ -422,14 +420,14 @@ Section lagrange_for_primes.
                  (Zp_small_repr Hm x3) (Zp_small_repr Hm x4).
       intros (y1 & E1 & Q1) (y2 & E2 & Q2) (y3 & E3 & Q3) (y4 & E4 & Q4).
       (* they satisfy the same eq for another value r *)
-      assert (Z2Zp Hm (y1*y1+y2*y2+y3*y3+y4*y4) = Z2Zp Hm 0) as H4.
+      assert (Z2Zp Hm (y1*y1+y2*y2+y3*y3+y4*y4) = Zp_zero Hm) as H4.
       { rewrite !Z2Zp_plus, !Z2Zp_mult, <- E1, <- E2, <- E3, <- E4.
         rewrite <- !Z2Zp_mult, <- !Z2Zp_plus, <- H2.
         rewrite Nat2Z.inj_mul, Z2Zp_mult.
-        rewrite Z2Zp_of_nat, nat2Zp_p, Zp_mult_zero, Z2Zp_zero; auto. }
-      apply Z2Zp_inj in H4.
+        rewrite Z2Zp_of_nat, nat2Zp_p, Zp_mult_zero; auto. }
+      apply Z2Zp_zero_inv in H4.
       destruct H4 as (r' & Hr).
-      rewrite Z.sub_0_r in Hr.
+      rewrite (Zmult_comm _ r') in Hr.
       (* r is smaller than m *)
       assert (4 * (r' * Z.of_nat m) <= 4 * (Z.of_nat m * Z_of_nat m))%Z as Hr'.
       { rewrite <- Hr, !Z.mul_add_distr_l; lia. }
