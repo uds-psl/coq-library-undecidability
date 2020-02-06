@@ -1352,11 +1352,14 @@ Section diophantine_necessity.
 End diophantine_necessity.
 
 Theorem alpha_diophantine a b c : 3 < b /\ a = alpha_nat b c 
-                              <-> exists u t r s v w x y, alpha_conditions a b c u t r s v w x y.
+                              <-> exists a' b' c', a' = a /\ b' = b /\ c' = c
+                               /\ exists u t r s v w x y, 
+                                    alpha_conditions a' b' c' u t r s v w x y.
 Proof.
   split.
-  + apply alpha_necessity.
-  + intros (u & t & r & s & v & w & x & y & H); revert H.
+  + exists a, b, c; msplit 3; auto; apply alpha_necessity; auto.
+  + intros (? & ? & ? & -> & -> & -> & H); revert H.
+    intros (u & t & r & s & v & w & x & y & H); revert H.
     apply alpha_sufficiency.
 Qed.
 

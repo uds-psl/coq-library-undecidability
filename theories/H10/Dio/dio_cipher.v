@@ -10,10 +10,17 @@
 (** ** Object-level encoding of bounded universal quantification II *)
 
 Require Import Arith Nat Omega List Bool Setoid.
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac gcd prime binomial sums bool_nat.
-From Undecidability.H10.ArithLibs Require Import luca.
-From Undecidability.H10.Matija Require Import cipher.
-From Undecidability.H10.Dio Require Import dio_logic dio_expo dio_binary.
+
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_tac gcd prime binomial sums bool_nat.
+
+(* From Undecidability.H10.ArithLibs Require Import luca. *)
+
+From Undecidability.H10.Matija 
+  Require Import cipher.
+
+From Undecidability.H10.Dio 
+  Require Import dio_logic dio_expo dio_binary.
 
 Set Implicit Arguments.
 
@@ -23,64 +30,66 @@ Local Notation "∑" := (msum plus 0).
 Local Infix "⇣" := nat_meet (at level 40, left associativity).
 Local Infix "⇡" := nat_join (at level 50, left associativity).
 
-Theorem seqs_of_ones_diophantine l q u u1 : 𝔻P l -> 𝔻P q -> 𝔻P u -> 𝔻P u1
+(** seqs_of_ones l q u u1 iff 
+
+            l+1 < q 
+       and  u  = ∑(i<l) r^(2^(1+i))
+       and  u1 = ∑(i<l) r^(2^(2+i)) 
+       with r := 2^(4q)
+ 
+  *)
+
+Theorem dio_rel_seqs_of_ones l q u u1 : 𝔻F l -> 𝔻F q -> 𝔻F u -> 𝔻F u1
           -> 𝔻R (fun v => seqs_of_ones (l v) (q v) (u v) (u1 v)).
-Proof.
-  intros.
-  apply dio_rel_equiv with (1 := fun v => seqs_of_ones_dio (l v) (q v) (u v) (u1 v)).
-  dio_rel_auto.
+Proof. 
+  dio by lemma (fun v => seqs_of_ones_dio (l v) (q v) (u v) (u1 v)). 
 Defined.
 
-Hint Resolve seqs_of_ones_diophantine.
+Hint Resolve dio_rel_seqs_of_ones : dio_rel_db.
 
 (* a is the q-cipher of some l-tuple *)
 
-Theorem Code_diophantine l q a : 𝔻P l -> 𝔻P q -> 𝔻P a
-                              -> 𝔻R (fun v => Code (l v) (q v) (a v)).
+Theorem dio_rel_Code l q a : 𝔻F l -> 𝔻F q -> 𝔻F a
+                          -> 𝔻R (fun v => Code (l v) (q v) (a v)).
 Proof.
-  intros.
-  apply dio_rel_equiv with (1 := fun v => Code_dio (l v) (q v) (a v)).
-  dio_rel_auto.
+  dio by lemma (fun v => Code_dio (l v) (q v) (a v)).
 Defined.
 
-Hint Resolve Code_diophantine.
+Hint Resolve dio_rel_Code : dio_rel_db.
 
 (* c is the q-cipher of the l-tuple <x,...,x> *)
 
-Theorem Const_diophantine l q c x : 𝔻P l -> 𝔻P q -> 𝔻P c -> 𝔻P x
-                                 -> 𝔻R (fun v => Const (l v) (q v) (c v) (x v)).
+Theorem dio_rel_Const l q c x : 𝔻F l -> 𝔻F q -> 𝔻F c -> 𝔻F x
+                             -> 𝔻R (fun v => Const (l v) (q v) (c v) (x v)).
 Proof.
-  intros.
-  apply dio_rel_equiv with (1 := fun v => Const_dio (l v) (q v) (c v) (x v)).
-  dio_rel_auto.
+  dio by lemma (fun v => Const_dio (l v) (q v) (c v) (x v)).
 Defined.
 
-Hint Resolve Const_diophantine.
+Hint Resolve dio_rel_Const : dio_rel_db.
 
 (* a is the q-cipher of the l-tuple <0,...,l-1> *)
 
-Theorem CodeNat_diophantine l q a : 𝔻P l -> 𝔻P q -> 𝔻P a -> 𝔻R (fun v => CodeNat (l v) (q v) (a v)).
+Theorem dio_rel_CodeNat l q a : 𝔻F l -> 𝔻F q -> 𝔻F a 
+                             -> 𝔻R (fun v => CodeNat (l v) (q v) (a v)).
 Proof.
-  intros.
-  apply dio_rel_equiv with (1 := fun v => CodeNat_dio (l v) (q v) (a v)).
-  dio_rel_auto.
+  dio by lemma (fun v => CodeNat_dio (l v) (q v) (a v)).
 Defined.
 
-Hint Resolve CodeNat_diophantine.
+Hint Resolve dio_rel_CodeNat : dio_rel_db.
 
 (* Testing whether a is the q cipher of the sum of the tuples of q-ciphers b and c *)
 
-Theorem Code_plus_diophantine a b c : 𝔻P a -> 𝔻P b -> 𝔻P c
-                                   -> 𝔻R (fun v => Code_plus (a v) (b v) (c v)).
-Proof. intros; unfold Code_plus; dio_rel_auto. Defined.
+Theorem dio_rel_Code_plus a b c : 𝔻F a -> 𝔻F b -> 𝔻F c
+                               -> 𝔻R (fun v => Code_plus (a v) (b v) (c v)).
+Proof. intros; unfold Code_plus; dio auto. Defined.
 
 (* Testing whether a is the q cipher of the product of the tuples of q-ciphers b and c *)
 
-Theorem Code_mult_diophantine l q a b c : 𝔻P l -> 𝔻P q -> 𝔻P a -> 𝔻P b -> 𝔻P c
-                                       -> 𝔻R (fun v => Code_mult (l v) (q v) (a v) (b v) (c v)).
-Proof. intros; unfold Code_mult; dio_rel_auto. Defined.
+Theorem dio_rel_Code_mult l q a b c : 𝔻F l -> 𝔻F q -> 𝔻F a -> 𝔻F b -> 𝔻F c
+                                   -> 𝔻R (fun v => Code_mult (l v) (q v) (a v) (b v) (c v)).
+Proof. intros; unfold Code_mult; dio auto. Defined.
 
-Hint Resolve Code_plus_diophantine Code_mult_diophantine.
+Hint Resolve dio_rel_Code_plus dio_rel_Code_mult : dio_rel_db.
 
 (** Now we have diophantine representations of q-cipher of the following l-tuple
 

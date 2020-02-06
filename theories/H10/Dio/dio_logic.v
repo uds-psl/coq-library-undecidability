@@ -7,450 +7,622 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** * Object-level representation of Diophantine equations *)
-(** ** Diophantine logic *)
+(** 1) Object-level representation of Diophantine logic 
+    2) Closure properties for Diophantine relations and functions 
+    3) Tactics for the automagic recognition of Diophantine shapes
+*)
 
 Require Import Arith Nat Omega.
-From Undecidability.Shared.Libs.DLW.Utils Require Import gcd.
+
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_tac gcd sums bounded_quantification.
 
 Set Implicit Arguments.
 
-Section diophantine_expressions.
+(** Standard De Bruijn extension and De Bruijn projection *)
 
-  Inductive dio_op := do_add | do_mul.
+(* Fixpoint instead of Definition because of better unfolding properties *)
 
-  Definition do_eval o :=
-    match o with
-      | do_add => plus
-      | do_mul => mult
-    end.
+Fixpoint de_bruijn_ext {X} (ν : nat -> X) x n { struct n } :=
+  match n with
+    | 0   => x
+    | S n => ν n
+  end.
 
-  Inductive dio_expression : Set :=
-    | de_cst  : nat -> dio_expression
-    | de_var  : nat -> dio_expression
-    | de_comp : dio_op -> dio_expression -> dio_expression -> dio_expression.
+Notation "x · ν" := (de_bruijn_ext ν x) (at level 1, format "x · ν", left associativity).
+Notation "ν ⭳" := (fun n => ν (S n)) (at level 1, format "ν ⭳", no associativity).
 
-  Definition de_add := de_comp do_add.
-  Definition de_mul := de_comp do_mul.
+Fact de_bruijn_ext_proj X (ν : nat -> X) x n : (x·ν)⭳ n = ν n.
+Proof. reflexivity. Qed.
 
-  Fixpoint de_size e :=
-    match e with
-      | de_cst n => 1
-      | de_var x => 1
-      | de_comp _ p q => 1 + de_size p + de_size q
-    end.
+Fact de_bruijn_proj_ext X (ν : nat -> X) n : (ν 0)·(ν⭳) n = ν n.
+Proof. destruct n; reflexivity. Qed.
 
-  Fixpoint de_size_Z e :=
-    (match e with
-      | de_cst n => 1
-      | de_var x => 1
-      | de_comp _ p q => 1 + de_size_Z p + de_size_Z q
-    end)%Z.
+(* We factor out +/* and ∨/∧ *)
 
-  Fact de_size_Z_spec e : de_size_Z e = Z.of_nat (de_size e).
-  Proof.
-    induction e as [ | | o f Hf g Hg ]; auto.
-    simpl de_size; unfold de_size_Z; fold de_size_Z.
-    rewrite Nat2Z.inj_succ, Nat2Z.inj_add; omega.
-  Qed.
+Inductive dio_op := do_add | do_mul.
 
-  Fixpoint de_eval ν e  :=
-    match e with
-      | de_cst n => n
-      | de_var x => ν x
-      | de_comp o p q => do_eval o (de_eval ν p) (de_eval ν q)
-    end.
+(* do_add represents both + and ∨
+   do_mul represents both * and ∧ *)  
 
-  Fact de_eval_ext e ν ω : (forall x, ν x = ω x) -> de_eval ν e = de_eval ω e.
-  Proof.
-    intros H; induction e as [ | | [] ]; simpl; auto.
-  Qed.
+Definition de_op_sem (o : dio_op) :=
+  match o with
+    | do_add => plus
+    | do_mul => mult
+  end.
 
-  (* ρ σ ν *)
+Definition df_op_sem (o : dio_op) :=
+  match o with
+    | do_add => or
+    | do_mul => and
+  end.
 
-  Fixpoint de_subst σ e :=
-    match e with
-      | de_cst n => de_cst n
-      | de_var x => σ x
-      | de_comp o p q => de_comp o (de_subst σ p) (de_subst σ q)
-    end.
+(** De Bruijn syntax for diophantine formulas of the form
 
-  Fact de_eval_subst σ ν e : de_eval ν (de_subst σ e) = de_eval (fun x => de_eval ν (σ x)) e.
-  Proof. induction e as [ | | [] ]; simpl; auto. Qed.
+       A,B ::= x ≐ ⌞n⌟ | x ≐ y | x ≐ y ⨢ z | x ≐ y ⨰ z | A ∧ B | A ∨ B | ∃A 
 
-  Fact de_subst_subst σ1 σ2 e : de_subst σ1 (de_subst σ2 e) = de_subst (fun x => de_subst σ1 (σ2 x)) e.
-  Proof. induction e as [ | | [] ]; simpl; f_equal; auto. Qed.
+          where x,y,z are variables 
+           and  n is a natural number constant 
 
-  Definition de_ren ρ := de_subst (fun x => de_var (ρ x)).
+    In the De Bruijn syntax, variables and parameters are not
+    distinguished and free (ie not captured) variables can serve
+    as parameters
+*)
 
-  Fact de_ren_size ρ e : de_size (de_ren ρ e) = de_size e.
-  Proof.
-    revert ρ; induction e as [ | | o e He f Hf ]; intros rho; auto.
-    unfold de_ren; simpl de_subst; unfold de_size; fold de_size. 
-    f_equal; [ f_equal | ].
-    * apply He.
-    * apply Hf.
-  Qed.
+Inductive dio_formula : Set :=
+  | df_cst  : forall (x : nat) (n : nat), dio_formula
+  | df_eq   : forall (x y : nat), dio_formula
+  | df_op   : forall (o : dio_op) (x y z : nat), dio_formula 
+  | df_bin  : forall (o : dio_op) (f g : dio_formula), dio_formula
+  | df_exst : dio_formula -> dio_formula.
 
-  Fact de_ren_size_Z ρ e : de_size_Z (de_ren ρ e) = de_size_Z e.
-  Proof. do 2 rewrite de_size_Z_spec; f_equal; apply de_ren_size. Qed.
+Notation df_add := (df_op do_add).
+Notation df_mul := (df_op do_mul).
+Notation df_conj := (df_bin do_mul).
+Notation df_disj := (df_bin do_add).
 
-  Fact de_eval_ren ρ ν e : de_eval ν (de_ren ρ e)  = de_eval (fun x => ν (ρ x)) e.
-  Proof. apply de_eval_subst. Qed.
+Notation "∃ x" := (df_exst x) (at level 54, right associativity).
+Notation "x ∧ y" := (df_conj x y) (at level 51, right associativity, format "x  ∧  y").
+Notation "x ∨ y" := (df_disj x y) (at level 52, right associativity, format "x  ∨  y").
 
-  Definition de_lift := de_ren S.
+Local Notation "x ≐ ⌞ n ⌟" := (df_cst x n) 
+      (at level 49, no associativity, format "x  ≐  ⌞ n ⌟").
+Local Notation "x ≐ y" := (df_eq x y) 
+      (at level 49, no associativity, format "x  ≐  y").
+Local Notation "x ≐ y ⨢ z" := (df_add x y z) 
+      (at level 49, no associativity, y at next level, format "x  ≐  y  ⨢  z").
+Local Notation "x ≐ y ⨰ z" := (df_mul x y z) 
+      (at level 49, no associativity, y at next level, format "x  ≐  y  ⨰  z").
 
-  Fact de_eval_lift ν e : de_eval ν (de_lift e) = de_eval (fun x => ν (S x)) e.
-  Proof. apply de_eval_ren. Qed.
+Local Reserved Notation "'⟦' t '⟧'" (at level 1, format "⟦ t ⟧").
+Local Reserved Notation "f '⦃' σ '⦄'" (at level 1, format "f ⦃ σ ⦄").
 
-End diophantine_expressions.
-
-Definition dio_expr t := { e | forall ν, de_eval ν e = t ν }.
-
-Notation 𝔻P := dio_expr.
-
-Section dio_expr.
-
-  (* How to analyse meta-level diophantine expressions *)
-
-  Implicit Types r t : (nat -> nat) -> nat.
-
-  Fact dio_expr_var i : 𝔻P (fun v => v i).
-  Proof. exists (de_var i); simpl; auto. Defined.
-
-  Fact dio_expr_cst c : 𝔻P (fun _ => c).
-  Proof. exists (de_cst c); simpl; auto. Defined.
-
-  Fact dio_expr_plus r t : 𝔻P r -> 𝔻P t -> 𝔻P (fun ν => r ν + t ν).
-  Proof. intros (e1 & H1) (e2 & H2); exists (de_add e1 e2); simpl; auto. Defined.
-  
-  Fact dio_expr_mult r t : 𝔻P r -> 𝔻P t -> 𝔻P (fun ν => r ν * t ν).
-  Proof. intros (e1 & H1) (e2 & H2); exists (de_mul e1 e2); simpl; auto. Defined.
-
-  Fact dio_expr_ren t ρ : 𝔻P t -> 𝔻P (fun ν => t (fun i => ν (ρ i))).
-  Proof. intros (e & He); exists (de_ren ρ e); intros; rewrite de_eval_ren, He; tauto. Defined.
-
-  Fact dio_expr_subst t σ : 𝔻P t -> 𝔻P (fun ν => t (fun i => de_eval ν (σ i))).
-  Proof. intros (e & He); exists (de_subst σ e); intros; rewrite de_eval_subst, He; tauto. Defined.
-
-End dio_expr.
-
-Hint Resolve dio_expr_var dio_expr_cst dio_expr_plus dio_expr_mult dio_expr_ren.
-
-Section diophantine_logic.
-
-  (* De Bruin syntax for diophantine formulas of the form
-
-         A,B ::= e1 = e2 | A /\ B | A \/ B | ∃x.A
-
-   *)
-
-  Inductive dio_formula : Set :=
-    | df_atm  : dio_expression -> dio_expression -> dio_formula   (* a = b *)
-    | df_conj : dio_formula -> dio_formula -> dio_formula 
-    | df_disj : dio_formula -> dio_formula -> dio_formula
-    | df_exst : dio_formula -> dio_formula.
+Section diophantine_logic_basics.
 
   Fixpoint df_size f :=
     match f with
-      | df_atm a b  => 1 + de_size a + de_size b
-      | df_conj f g => 1 + df_size f + df_size g  
-      | df_disj f g => 1 + df_size f + df_size g  
-      | df_exst f   => 1 + df_size f
+      | df_cst _ _    => 3
+      | df_eq _ _     => 3
+      | df_op _ _ _ _ => 5
+      | df_bin _ f g  => 1 + df_size f + df_size g   
+      | df_exst f     => 1 + df_size f
     end.
+
+  (* size in Z (binary integers) can be computed for big formulas
+     but size in nat usually fails *)
 
   Fixpoint df_size_Z f :=
     (match f with
-      | df_atm a b  => 1 + de_size_Z a + de_size_Z b
-      | df_conj f g => 1 + df_size_Z f + df_size_Z g  
-      | df_disj f g => 1 + df_size_Z f + df_size_Z g  
-      | df_exst f   => 1 + df_size_Z f
+      | df_cst _ _    => 3
+      | df_eq _ _     => 3
+      | df_op _ _ _ _ => 5
+      | df_bin _ f g  => 1 + df_size_Z f + df_size_Z g   
+      | df_exst f     => 1 + df_size_Z f
     end)%Z.
 
   Fact df_size_Z_spec f : df_size_Z f = Z.of_nat (df_size f).
   Proof.
-    induction f as [ a b | f Hf g Hg | f Hf g Hg | f Hf ]; simpl df_size;
+    induction f as [ | | | ? f Hf g Hg | f Hf ]; simpl df_size;
       rewrite Nat2Z.inj_succ; try rewrite Nat2Z.inj_add; unfold df_size_Z; fold df_size_Z; auto; try omega.
-    do 2 rewrite de_size_Z_spec; omega.
   Qed.
 
-
-  (* dv_lift : lifting of a diophantive valuation *)
-
-  Definition dv_lift X ν (x : X) n :=
-     match n with 
-       | 0   => x 
-       | S n => ν n 
-     end.
+  (** The semantics of Diophantine logic *)
 
   Fixpoint df_pred f ν :=
     match f with
-      | df_atm a b  => de_eval ν a  = de_eval ν b
-      | df_conj f g => df_pred f ν /\ df_pred g ν
-      | df_disj f g => df_pred f ν \/ df_pred g ν
-      | df_exst f   => exists n, df_pred f (dv_lift ν n)
-    end.
+      | df_cst x n     => ν x = n
+      | df_eq x y      => ν x = ν y
+      | df_op  o x y z => ν x = de_op_sem o (ν y) (ν z)
+      | df_bin o f g   => df_op_sem o (⟦f⟧ ν) (⟦g⟧ ν)
+      | df_exst f      => exists n, ⟦f⟧ n·ν
+    end
+  where "⟦ f ⟧" := (df_pred f).
 
-  Fact df_pred_atm a b ν : df_pred (df_atm a b) ν = (de_eval ν a = de_eval ν b).
-  Proof. auto. Qed.
+  (** Fixpoint equations if needed, for readability and confirmation *)
+
+  Fact df_pred_cst x n ν : ⟦x ≐ ⌞n⌟⟧ ν = (ν x = n).
+  Proof. reflexivity. Qed.
+
+  Fact df_pred_eq x y ν : ⟦x ≐ y⟧ ν = (ν x = ν y).
+  Proof. reflexivity. Qed.
+
+  Fact df_pred_add x y z ν : ⟦x ≐ y ⨢ z⟧ ν = (ν x = ν y + ν z).
+  Proof. reflexivity. Qed.
+
+  Fact df_pred_mul x y z ν : ⟦x ≐ y ⨰ z⟧ ν = (ν x = ν y * ν z).
+  Proof. reflexivity. Qed.
   
-  Fact df_pred_conj f g ν : df_pred (df_conj f g) ν = (df_pred f ν /\ df_pred g ν).
-  Proof. auto. Qed.
+  Fact df_pred_conj f g ν : ⟦f ∧ g⟧ ν = (⟦f⟧ ν /\ ⟦g⟧ ν).
+  Proof. reflexivity. Qed.
 
-  Fact df_pred_disj f g ν : df_pred (df_disj f g) ν = (df_pred f ν \/ df_pred g ν).
-  Proof. auto. Qed.
+  Fact df_pred_disj f g ν : ⟦f ∨ g⟧ ν = (⟦f⟧ ν \/ ⟦g⟧ ν).
+  Proof. reflexivity. Qed.
 
-  Fact df_pred_exst f ν : df_pred (df_exst f) ν = exists n, df_pred f (dv_lift ν n).
-  Proof. auto. Qed.
+  Fact df_pred_exst f ν : ⟦∃f⟧ ν = exists n, ⟦f⟧ n·ν.
+  Proof. reflexivity. Qed.
 
-  Fact df_pred_ext f ν ω : (forall x, ν x = ω x) -> df_pred f ν <-> df_pred f ω.
+  (* Extensionality *)
+
+  Fact df_pred_ext f ν ω : (forall x, ν x = ω x) -> ⟦f⟧ ν <-> ⟦f⟧ ω.
   Proof.
-    revert ν ω; induction f as [ a b | f Hf g Hg | f Hf g Hg | f Hf ]; intros ν ω H; simpl.
-    + do 2 rewrite de_eval_ext with (1 := H); tauto.
-    + rewrite Hf, Hg; auto; tauto.
-    + rewrite Hf, Hg; auto; tauto.
-    + split; intros (n & Hn); exists n; revert Hn; apply Hf;
+    induction f as [ | | [] | [] f Hf g Hg | f Hf ] in ν, ω |- *; intros H; simpl.
+    1-4: rewrite !H; tauto.
+    1-2: rewrite Hf, Hg; auto; tauto.
+    split; intros (n & Hn); exists n; revert Hn; apply Hf;
         intros []; simpl; auto.
   Qed.
 
-  (* Lifting of a diophantine expression renaming *)
+  (** Renaming under binders *)
 
   Definition der_lift ρ x := match x with 0 => 0 | S x => S (ρ x) end.
 
   Fixpoint df_ren ρ f :=
     match f with
-      | df_atm a b  => let σ := fun x => de_var (ρ x) in df_atm (de_subst σ a) (de_subst σ b)
-      | df_conj f g => df_conj (df_ren ρ f) (df_ren ρ g)
-      | df_disj f g => df_disj (df_ren ρ f) (df_ren ρ g)
-      | df_exst f   => df_exst (df_ren (der_lift ρ) f)
-    end.
+      | df_cst x n    => df_cst (ρ x) n
+      | df_eq x y     => df_eq (ρ x) (ρ y)
+      | df_op o x y z => df_op o (ρ x) (ρ y) (ρ z)
+      | df_bin o f g  => df_bin o f⦃ρ⦄ g⦃ρ⦄
+      | df_exst f     => df_exst f⦃der_lift ρ⦄
+    end
+  where "f ⦃ ρ ⦄" := (df_ren ρ f).
 
-  Fact df_ren_size ρ f : df_size (df_ren ρ f) = df_size f.
-  Proof.
-    revert ρ; induction f; intros; simpl; auto; do 2 f_equal; auto.
-    all: apply de_ren_size.
-  Qed.
+  Fact df_ren_size ρ f : df_size f⦃ρ⦄ = df_size f.
+  Proof. revert ρ; induction f; intros; simpl; auto; do 2 f_equal; auto. Qed.
 
-  Fact df_ren_size_Z ρ f : df_size_Z (df_ren ρ f) = df_size_Z f.
-  Proof.
-    do 2 rewrite df_size_Z_spec; f_equal; apply df_ren_size.
-  Qed.
+  Fact df_ren_size_Z ρ f : df_size_Z f⦃ρ⦄ = df_size_Z f.
+  Proof. do 2 rewrite df_size_Z_spec; f_equal; apply df_ren_size. Qed.
 
-  Fact df_pred_ren f ν ρ : df_pred (df_ren ρ f) ν <-> df_pred f (fun x => ν (ρ x)).
+  (** Renaming is compatible with semantics *)
+
+  Fact df_pred_ren f ν ρ : ⟦f⦃ρ⦄⟧ ν <-> ⟦f⟧ (fun x => ν (ρ x)).
   Proof.
-    revert ν ρ; induction f as [ a b | f Hf g Hg | f Hf g Hg | f Hf ]; intros ν ρ; simpl.
-    + repeat rewrite de_eval_subst; simpl; tauto.
-    + rewrite Hf, Hg; tauto.
-    + rewrite Hf, Hg; tauto.
-    + split; intros (n & Hn); exists n; revert Hn; rewrite Hf;
+    revert ν ρ; induction f as [ | | [] | [] f Hf g Hg | f Hf ]; intros ν ρ; simpl; try tauto.
+    1-2: rewrite Hf, Hg; tauto.
+    split; intros (n & Hn); exists n; revert Hn; rewrite Hf;
         apply df_pred_ext; intros []; simpl; auto.
   Qed.
 
-  (* Lifting of a diophantine expression substitutions *)
-
-  Definition des_lift σ x := match x with 0 => de_var 0 | S x => de_ren S (σ x) end. 
-     
-  Fixpoint df_subst σ f := 
-    match f with
-      | df_atm a b  => df_atm (de_subst σ a) (de_subst σ b)
-      | df_conj f g => df_conj (df_subst σ f) (df_subst σ g)
-      | df_disj f g => df_disj (df_subst σ f) (df_subst σ g)
-      | df_exst f   => df_exst (df_subst (des_lift σ) f)
-    end.
-
-  Fact df_pred_subst f ν σ : df_pred (df_subst σ f) ν <-> df_pred f (fun x => de_eval ν (σ x)).
-  Proof.
-    revert ν σ; induction f as [ a b | f Hf g Hg | f Hf g Hg | f Hf ]; intros ν σ; simpl.
-    + repeat rewrite de_eval_subst; simpl; tauto.
-    + rewrite Hf, Hg; tauto.
-    + rewrite Hf, Hg; tauto.
-    + split; intros (n & Hn); exists n; revert Hn; rewrite Hf;
-        apply df_pred_ext; intros []; simpl; auto;
-        rewrite de_eval_ren; apply de_eval_ext; auto.
-  Qed.
-
-  Definition df_lift := df_ren S.
-
-  Fact df_pred_lift f ν : df_pred (df_lift f) ν <-> df_pred f (fun x => ν (S x)).
+  Fact df_pred_lift f ν : ⟦f⦃S⦄⟧ ν <-> ⟦f⟧ ν⭳.
   Proof. apply df_pred_ren. Qed. 
 
-End diophantine_logic.
+End diophantine_logic_basics.
 
-Section examples.
+Local Notation "⟦ f ⟧" := (df_pred f).
+Local Notation "f ⦃ ρ ⦄" := (df_ren ρ f).
 
-  Variable ν : nat -> nat.
+(** The notion of Diophantine relation, expressed as
+    a rich term, ie an informative part together with
+    a certificate. In this case, a relation R is 
+    Diophantine when one can compute a Diophantine 
+    formula f for which ⟦f⟧ and R are extensionally 
+    equivalent *)
 
-  Definition df_true := df_atm (de_cst 0) (de_cst 0).
-  Definition df_false := df_atm (de_cst 0) (de_cst 1).
-
-  Fact df_true_spec : df_pred df_true ν <-> True.
-  Proof. simpl; split; auto. Qed.
-
-  Fact df_false_spec : df_pred df_false ν <-> False.
-  Proof. simpl; split; try discriminate; tauto. Qed.
-
-  Notation "'⟦' x '⟧'" := (de_eval ν x).
-
-  Definition df_le x y := df_exst (df_atm (de_add (de_var 0) (de_lift x)) (de_lift y)).
-
-  Fact df_le_spec x y : df_pred (df_le x y) ν <-> ⟦x⟧ <= ⟦y⟧.
-  Proof.
-    simpl.
-    split.
-    + intros (n & Hn); revert Hn; do 2 rewrite de_eval_lift; simpl.
-      change (fun x => ν x) with ν; intros; omega.
-    + exists (de_eval ν y - de_eval ν x); simpl.
-      repeat rewrite de_eval_lift; simpl.
-      change (fun x => ν x) with ν; omega.
-  Qed.
-
-  Definition df_lt x y := df_exst (df_atm (de_add (de_cst 1) (de_add (de_var 0) (de_lift x))) (de_lift y)).
-
-  Fact df_lt_spec x y : df_pred (df_lt x y) ν <-> ⟦x⟧ < ⟦y⟧.
-  Proof.
-    simpl.
-    split.
-    + intros (? & Hn); revert Hn; simpl.
-      do 2 rewrite de_eval_lift; simpl.
-      change (fun x => ν x) with ν; intros; omega.
-    + exists (de_eval ν y - de_eval ν x - 1); simpl.
-      repeat rewrite de_eval_lift; simpl.
-      change (fun x => ν x) with ν; omega.
-  Qed.
-
-  Definition df_eq x y := df_atm x y.
-
-  Fact df_eq_spec x y : df_pred (df_eq x y) ν <-> ⟦x⟧ = ⟦y⟧.
-  Proof. simpl; tauto. Qed.
-
-  Definition df_neq x y := df_disj (df_lt x y) (df_lt y x).
-
-  Fact df_neq_spec x y : df_pred (df_neq x y) ν <-> ⟦x⟧ <> ⟦y⟧.
-  Proof.
-    unfold df_neq.
-    rewrite df_pred_disj, df_lt_spec, df_lt_spec.
-    omega.
-  Qed.
-
-  Definition df_div x y := df_exst (df_atm (de_lift y) (de_mul (de_var 0) (de_lift x))).
-
-  Fact df_div_spec x y : df_pred (df_div x y) ν <-> divides ⟦x⟧ ⟦y⟧.
-  Proof. 
-    simpl; unfold divides.
-    split; intros (n & H); exists n; revert H; repeat rewrite de_eval_lift;
-      simpl; change (fun x => ν x) with ν; auto.
-  Qed.
-
-End examples.
-
-Definition dio_rel R := { f | forall ν, df_pred f ν <-> R ν }.
+Definition dio_rel R := { f | forall ν, ⟦f⟧ ν <-> R ν }.
 Notation 𝔻R := dio_rel.
 
-Section dio_rel.
+(** We establish closure properties of dio_rel / 𝔻R
+    These are proved by explicitely giving the witnesses.
 
-  (** How to analyse diophantine relations ... these are proved by
-      explicitely given the witness which we will avoid later on *)
-  
+    But we will systematically avoid giving witnesses 
+    later on because in general, proceeding this way
+    is painful.
+
+    We use of the "abstract" tactic to hide Prop-only 
+    content for better computations with those rich terms.
+
+    Notice that those proofs are all closed with
+    "Defined" and not "Qed" to allow computing with
+    the informative part of terms, the one that is not
+    hidden behind "abstract".
+
+    The closure properties and the tactics developed
+    below implement the automagic recognition of 
+
+             "Diophantine shapes"
+*)
+
+Section dio_rel_closure_properties.
+
   Implicit Types R S : (nat -> nat) -> Prop.
 
-  Fact dio_rel_True : 𝔻R (fun _ => True).
-  Proof.
-    exists df_true.
-    intros; rewrite df_true_spec; tauto.
-  Defined.
+  Fact dio_rel_cst x n : 𝔻R (fun ν => ν x = n).
+  Proof. exists (x ≐ ⌞n⌟); abstract (intro; simpl; tauto). Defined.
 
-  Fact dio_rel_False : 𝔻R (fun _ => False).
-  Proof.
-    exists df_false.
-    intros; rewrite df_false_spec; tauto.
-  Defined.
+  Fact dio_rel_eq x y : 𝔻R (fun ν => ν x = ν y).
+  Proof. exists (x ≐ y); simpl; tauto. Defined.
 
-  Fact dio_rel_eq r t : 𝔻P r -> 𝔻P t -> 𝔻R (fun ν => r ν = t ν).
-  Proof.
-    intros (e1 & H1) (e2 & H2); exists (df_atm e1 e2).
-    intros; rewrite df_pred_atm, H1, H2; tauto.
-  Defined.
+  Fact dio_rel_add x y z : 𝔻R (fun ν => ν x = ν y + ν z).
+  Proof. exists (x ≐ y ⨢ z); abstract (intro; simpl; tauto). Defined.
 
-  Fact dio_rel_le r t : 𝔻P r -> 𝔻P t -> 𝔻R (fun ν => r ν <= t ν).
-  Proof. 
-    intros (e1 & H1) (e2 & H2); exists (df_le e1 e2).
-    intro; rewrite df_le_spec, H1, H2; tauto.
-  Defined.
-
-  Fact dio_rel_lt r t : 𝔻P r -> 𝔻P t -> 𝔻R (fun ν => r ν < t ν).
-  Proof. 
-    intros (e1 & H1) (e2 & H2); exists (df_lt e1 e2).
-    intro; rewrite df_lt_spec, H1, H2; tauto.
-  Defined.
-
-  Fact dio_rel_neq r t : 𝔻P r -> 𝔻P t -> 𝔻R (fun ν => r ν <> t ν).
-  Proof.
-    intros (e1 & H1) (e2 & H2); exists (df_neq e1 e2).
-    intros; rewrite df_neq_spec, H1, H2; tauto.
-  Defined.
-
-  Fact dio_rel_div r t : 𝔻P r -> 𝔻P t -> 𝔻R (fun ν => divides (r ν) (t ν)).
-  Proof.
-    intros (e1 & H1) (e2 & H2); exists (df_div e1 e2).
-    intros; rewrite df_div_spec, H1, H2; tauto.
-  Defined.
-
+  Fact dio_rel_mul x y z : 𝔻R (fun ν => ν x = ν y * ν z).
+  Proof. exists (x ≐ y ⨰  z); abstract (intro; simpl; tauto). Defined.
+ 
   Fact dio_rel_conj R S : 𝔻R R -> 𝔻R S -> 𝔻R (fun ν => R ν /\ S ν).
   Proof.
-    intros (fR & H1) (fS & H2).
-    exists (df_conj fR fS); intros v.
-    rewrite df_pred_conj, H1, H2; tauto.
+    intros (fR & H1) (fS & H2); exists (fR ∧ fS).
+    abstract (intro; rewrite df_pred_conj, H1, H2; tauto).
   Defined.
 
   Fact dio_rel_disj R S : 𝔻R R -> 𝔻R S -> 𝔻R (fun ν => R ν \/ S ν).
   Proof.
-    intros (fR & H1) (fS & H2).
-    exists (df_disj fR fS); intros v.
-    rewrite df_pred_disj, H1, H2; tauto.
+    intros (fR & H1) (fS & H2); exists (fR ∨ fS).
+    abstract (intro; rewrite df_pred_disj, H1, H2; tauto).
   Defined.
 
   Fact dio_rel_exst (K : nat -> (nat -> nat) -> Prop) : 
-                   𝔻R (fun v => K (v 0) (fun n => v (S n))) 
-      -> 𝔻R (fun ν => exists x, K x ν).
+                 𝔻R (fun ν => K (ν 0) ν⭳) -> 𝔻R (fun ν => exists x, K x ν).
   Proof.
-    intros (f & Hf).
-    exists (df_exst f); intros v.
-    rewrite df_pred_exst.
-    split; intros (n & Hn); exists n; revert Hn; rewrite Hf; simpl; auto.
+    intros (f & Hf); exists (∃f). 
+    abstract (intros ν; rewrite df_pred_exst;
+      split; intros (n & Hn); exists n; revert Hn; rewrite Hf; simpl; auto).
   Defined.
 
-  Lemma dio_rel_equiv R S : (forall ν, S ν <-> R ν) -> 𝔻R R -> 𝔻R S.
+  Fact dio_rel_equiv R S : (forall ν, S ν <-> R ν) -> 𝔻R R -> 𝔻R S.
   Proof. 
-    intros H (f & Hf); exists f; intro; rewrite Hf, H; tauto.
+    intros H (f & Hf); exists f.
+    abstract (intro; rewrite Hf, H; tauto).
   Defined.
 
-  Lemma dio_rel_ren R f : 𝔻R R -> 𝔻R (fun v => R (fun n => v (f n))).
+  Fact dio_rel_ren R ρ : 𝔻R R -> 𝔻R (fun ν => R (fun n => ν (ρ n))).
   Proof.
-    intros (r & HR).
-    exists (df_ren f r).
-    intros; rewrite df_pred_ren, HR; tauto.
+    intros (f & Hf); exists (f⦃ρ⦄).
+    abstract (intros; rewrite df_pred_ren, Hf; tauto).
   Defined.
 
-  Lemma dio_rel_subst R f : 𝔻R R -> 𝔻R (fun v => R (fun n => de_eval v (f n))).
+End dio_rel_closure_properties.
+
+(** From now on, we will quite systematically avoid directly
+    manipulating the De Bruijn syntax *)
+
+(** It is often more convenient to work with Diophantine functions 
+    instead of Diophantine relations, eg 
+
+        f : nat -> nat is a Diophantine function 
+     if (fun x y => y = f x) is a Diophantine relation.
+  
+    We provide a tool for that here with associated tactics below 
+
+*)
+
+Definition dio_fun t := 𝔻R (fun ν => ν 0 = t ν⭳).
+Notation 𝔻F := dio_fun.
+
+Fact dio_fun_var x : 𝔻F (fun ν => ν x).
+Proof. apply dio_rel_eq. Defined.
+
+Fact dio_fun_cst c : 𝔻F (fun _ => c).
+Proof. red; apply dio_rel_cst. Defined.
+
+Fact dio_fun_add_im x y : 𝔻F (fun ν => ν x + ν y).
+Proof. apply dio_rel_add. Defined.
+
+Fact dio_fun_mul_im x y : 𝔻F (fun ν => ν x * ν y).
+Proof. apply dio_rel_mul. Defined.
+   
+Fact dio_fun_equiv r s : (forall ν, s ν = r ν) -> 𝔻F r -> 𝔻F s.
+Proof.
+  intros H1; apply dio_rel_equiv.
+  abstract (intro; rewrite H1; tauto).
+Defined.
+
+Fact dio_fun_ren t f : 𝔻F t -> 𝔻F (fun ν => t (fun n => ν (f n))).
+Proof. apply dio_rel_ren with (ρ := der_lift f). Defined.
+
+Section utilities_for_better_efficiency.
+
+  Ltac dio_sym H := now (apply dio_rel_equiv with (2 := H)). 
+
+  Fact dio_rel_cst_sym x n : 𝔻R (fun ν => n = ν x).
+  Proof. dio_sym (dio_rel_cst x n). Defined.
+
+  Fact dio_rel_add_sym x y z : 𝔻R (fun ν => ν y + ν z = ν x).
+  Proof. dio_sym (dio_rel_add x y z). Defined.
+
+  Fact dio_rel_mul_sym x y z : 𝔻R (fun ν => ν y * ν z = ν x).
+  Proof. dio_sym (dio_rel_mul x y z). Defined.
+
+  Fact dio_rel_fun x t : 𝔻F t -> 𝔻R (fun ν => ν x = t ν).
   Proof.
-    intros (r & HR).
-    exists (df_subst f r).
-    intros; rewrite df_pred_subst, HR; tauto.
+    apply dio_rel_ren
+      with (ρ := fun n =>
+        match n with 
+          | 0   => x 
+          | S n => n 
+        end).
   Defined.
 
-End dio_rel.
+  Fact dio_rel_fun_sym x t : 𝔻F t -> 𝔻R (fun ν => t ν = ν x).
+  Proof. intros H; dio_sym (dio_rel_fun x H). Defined.
 
-Hint Resolve dio_rel_True dio_rel_False dio_rel_eq dio_rel_neq 
-             dio_rel_le dio_rel_lt dio_rel_div 
-             dio_rel_conj 
-             dio_rel_disj 
-             dio_rel_exst.
+End utilities_for_better_efficiency.
 
-Ltac dio_rel_auto := repeat ((apply dio_rel_exst || apply dio_rel_conj || apply dio_rel_disj || apply dio_rel_eq); auto).
+Fact dio_rel_fun_eq r t : 𝔻F r -> 𝔻F t -> 𝔻R (fun ν => r ν = t ν).
+Proof.
+  intros H1 H2; red in H1, H2.
+  apply dio_rel_equiv with (R := fun ν => exists x, x = r ν /\ x = t ν).
+  + abstract (intros v; split;
+     [ intros ->; exists (t v); auto 
+     | intros (? & -> & ?); auto ]).
+  + apply dio_rel_exst, dio_rel_conj; auto.
+Defined.
 
-Section more_examples.
+(** Databases of Diophantine shapes *)
 
-  Fact ndivides_eq x y : ~ (divides x y) <-> x = 0 /\ y <> 0 \/ exists a b, y = a*x+b /\ 0 < b < x.
+Create HintDb dio_fun_db.        (* For closure props ending with 𝔻F _ *)
+Create HintDb dio_rel_db.        (* For closure props ending with 𝔻R _ *)
+Create HintDb dio_rel_im_db.     (* For immediate closure props ending with 𝔻R _ *)
+
+(** Automation tactics *)
+
+(* We want to try dio_fun_[var,cst,add_im,mul_im] ahead of everything else *)
+
+Ltac dio_fun_auto := 
+      apply dio_fun_var
+   || apply dio_fun_cst
+   || apply dio_fun_add_im
+   || apply dio_fun_mul_im
+   || auto 7 with dio_fun_db   (* the depth of 7 is mostly enough *)
+   .
+
+(* For immediate recognition, generating no further sub-goals *)
+
+Ltac dio_rel_immediate := auto with dio_rel_im_db.
+
+Ltac dio_rel_eq := 
+      apply dio_rel_fun         (* x = t *) 
+   || apply dio_rel_fun_sym     (* t = x *)
+   || apply dio_rel_fun_eq      (* r = t *)
+   .
+
+Ltac dio_rel_decompose :=
+      apply dio_rel_exst        (* exists x, ... *)
+   || apply dio_rel_conj        (* ... /\ ...    *)
+   || apply dio_rel_disj        (* ... \/ ...    *)
+   .
+
+(* Finely tuned for maximum completeness and efficiency *)
+
+Ltac dio_rel_auto := 
+   dio_rel_immediate;
+   auto 7 with dio_rel_db dio_fun_db;
+   (  (dio_rel_eq; dio_fun_auto) 
+   || (dio_rel_decompose; dio_rel_auto)
+   || idtac ).
+
+(* this is the user level-tactic *)
+
+Tactic Notation "dio" "auto" :=
+  match goal with
+    | |- 𝔻R _ => dio_rel_auto
+    | |- 𝔻F _ => dio_fun_auto
+  end.
+
+(* Two syntactic sugar tactics for applying equivalence *)
+
+Tactic Notation "by" "dio" "equiv" uconstr(f) :=
+  match goal with 
+    | |- 𝔻R _ => apply dio_rel_equiv with (R := f); [ | dio auto ]
+    | |- 𝔻F _ => apply dio_fun_equiv with (r := f); [ | dio auto ]
+  end.
+
+Tactic Notation "dio" "by" "lemma" uconstr(f) :=
+  intros; apply dio_rel_equiv with (1 := f); dio auto. 
+
+(** Start feeding the databases of Diophantine shapes *)
+
+Hint Resolve dio_fun_var 
+             dio_fun_cst 
+             dio_fun_ren : dio_fun_db.
+
+Hint Resolve dio_rel_eq 
+             dio_rel_cst dio_rel_cst_sym
+             dio_rel_add dio_rel_add_sym
+             dio_rel_mul dio_rel_mul_sym : dio_rel_im_db.
+
+(** We do not want dio_rel_[add,mul] is the dio_rel_db because
+    they would superseed dio_fun_[plus,mult] *)
+
+Fact dio_fun_plus r t : 𝔻F r -> 𝔻F t -> 𝔻F (fun ν => r ν + t ν).
+Proof.
+  intros H1 H2; red.
+  by dio equiv (fun ν => exists b c, ν 0 = b + c /\ b = r ν⭳ /\ c = t ν⭳).
+  abstract (intros v; split;
+    [ exists (r v⭳), (t v⭳); auto
+    | intros (? & ? & -> & -> & ->); auto ]).
+Defined.
+
+Fact dio_fun_mult r t : 𝔻F r -> 𝔻F t -> 𝔻F (fun ν => r ν * t ν).
+Proof.
+  intros H1 H2; red.
+  by dio equiv (fun ν => exists b c, ν 0 = b * c /\ b = r ν⭳ /\ c = t ν⭳).
+  abstract (intros v; split;
+   [ exists (r v⭳), (t v⭳); auto
+   | intros (? & ? & -> & -> & ->); auto ]).
+Defined.
+
+Hint Resolve dio_fun_plus dio_fun_mult : dio_fun_db.
+
+Local Fact example_eq : 𝔻R (fun ν => ν 0 = ν 0).
+Proof. dio auto. Defined.
+
+Check example_eq.
+Eval compute in (proj1_sig example_eq).
+
+(** Now you can start witnessing the magic of 
+    Diophantine shapes recognition *)
+
+Section True_False.
+
+  (* We use these shapes in here to avoid a less efficient encoding of True/False *)
+
+  Hint Resolve dio_rel_cst dio_rel_add : dio_rel_db.
+
+  Fact dio_rel_True : 𝔻R (fun _ => True).
+  Proof.
+    by dio equiv (fun _ => exists x, x = 0).
+    abstract (split; try tauto; exists 0; auto).
+  Defined.
+
+  Fact dio_rel_False : 𝔻R (fun _ => False).
+  Proof.
+    by dio equiv (fun _ => exists x, x = 1 /\ x = 0).
+    abstract (split; try tauto; intros (? & ? & ?); omega).
+  Defined.
+
+End True_False.
+
+Hint Resolve dio_rel_True dio_rel_False : dio_rel_db.
+
+Fact dio_rel_le_im x y : 𝔻R (fun ν => ν x <= ν y).
+Proof.
+  by dio equiv (fun ν => exists a, ν y = a + ν x).
+  abstract (intros v; split;
+    [ intros H; exists (v y - v x); omega
+    | intros (? & ->); omega ]).
+Defined.
+
+Fact dio_rel_lt_im x y : 𝔻R (fun ν => ν x < ν y).
+Proof.
+  by dio equiv (fun ν => exists a b c, ν y = c + ν x /\ b = 1 /\ c = a + b).
+  abstract (intros v; split;
+    [ intros H; exists (v y - v x -1), 1, (v y - v x); omega
+    | intros (? & ? & ? & -> & -> & ->); omega ]).
+Defined.
+
+Fact dio_rel_div_im x y : 𝔻R (fun ν => divides (ν x) (ν y)).
+Proof.
+  by dio equiv (fun ν => exists a, ν y = a * ν x).
+  unfold divides; tauto.
+Defined.
+
+Hint Resolve dio_rel_le_im 
+             dio_rel_lt_im  
+             dio_rel_div_im : dio_rel_im_db.
+
+Fact dio_rel_le r t : 𝔻F r -> 𝔻F t -> 𝔻R (fun ν => r ν <= t ν).
+Proof.
+  intros H1 H2.
+  by dio equiv (fun ν => exists a b, a <= b /\ a = r ν /\ b = t ν).
+  abstract (intros v; split;
+    [ exists (r v), (t v)
+    | intros (? & ? & ? & -> & ->) ]; auto).
+Defined.
+
+Fact dio_rel_lt r t : 𝔻F r -> 𝔻F t -> 𝔻R (fun ν => r ν < t ν).
+Proof.
+  intros H1 H2.
+  by dio equiv (fun ν => exists a b, a < b /\ a = r ν /\ b = t ν).
+  abstract (intros v; split;
+    [ exists (r v), (t v)
+    | intros (? & ? & ? & -> & ->) ]; auto).
+Defined.
+
+Hint Resolve dio_rel_lt 
+             dio_rel_le : dio_rel_db.
+
+Fact dio_rel_neq r t : 𝔻F r -> 𝔻F t -> 𝔻R (fun ν => r ν <> t ν).
+Proof.
+  intros H1 H2.
+  by dio equiv (fun v => exists a b, (a < b \/ b < a) /\ a = r v /\ b = t v).
+  abstract (intros v; split;
+    [ exists (r v), (t v)
+    | intros (? & ? & ?) ]; omega).
+Defined.
+
+Fact dio_rel_div r t : 𝔻F r -> 𝔻F t -> 𝔻R (fun ν => divides (r ν) (t ν)).
+Proof.
+  intros H1 H2.
+  by dio equiv (fun v => exists a b, divides a b /\ a = r v /\ b = t v).
+  abstract (intros v; split;
+    [ exists (r v), (t v)
+    | intros (? & ? & ? & -> & ->) ]; auto).
+Defined.
+
+Hint Resolve dio_rel_neq 
+             dio_rel_div : dio_rel_db.
+
+(** These example are better now *)
+
+Local Fact example_le : 𝔻R (fun ν => ν 0 <= ν 1).
+Proof. dio auto. Defined.
+
+Check example_le.
+Eval compute in (proj1_sig example_le). 
+
+Local Fact example_lt : 𝔻R (fun ν => ν 0 < ν 1).
+Proof. dio auto. Defined.
+
+Check example_lt.
+Eval compute in (proj1_sig example_lt). 
+
+Local Fact example_div : 𝔻R (fun ν => divides (ν 0) (ν 1)).
+Proof. dio auto. Defined.
+
+Check example_div.
+Eval compute in (proj1_sig example_div). 
+
+Section dio_fun_rem.
+
+  (** The remainder function is Diophantine 
+      Beware avoiding the duplication of x & p *)
+
+  Let rem_equiv p x r : r = rem x p 
+                    <-> exists x' p', x' = x /\ p' = p /\
+                                 (   (p' = 0  /\ x' = r)
+                                  \/ (p' <> 0 /\ r < p' /\ exists n, x' = n*p' + r) ).
+  Proof.
+    split.
+    + intro; exists x, p; subst; msplit 2; auto.
+      destruct (eq_nat_dec p 0) as [ Hp | Hp ].
+      * left; split; auto; subst; rewrite rem_0; auto.
+      * right; split; auto; split.
+        - apply div_rem_spec2; auto.
+        - exists (div x p);apply div_rem_spec1.
+    + intros (? &  ? & -> & -> & [ (H1 & H2) | (H1 & H2 & n & H3) ]).
+      * subst; rewrite rem_0; auto.
+      * symmetry; apply rem_prop with n; auto.
+  Qed.
+ 
+  Fact dio_fun_rem p x : 𝔻F p -> 𝔻F x -> 𝔻F (fun ν => rem (x ν) (p ν)).
+  Proof.
+    dio by lemma (fun v => rem_equiv (p v⭳) (x v⭳) (v 0)).
+  Defined.
+
+End dio_fun_rem.
+  
+Hint Resolve dio_fun_rem : dio_fun_db.
+
+Local Fact dio_fun_rem_example : 𝔻F (fun ν => rem (ν 0) (ν 1)).
+Proof. dio auto. Defined.
+
+Check dio_fun_rem_example.
+Eval compute in proj1_sig dio_fun_rem_example.
+
+Section dio_rel_ndivides.
+
+  (** The way it is done in the FSCD paper *)
+
+  Let ndivides_eq x y : ~ (divides x y) <-> x = 0 /\ y <> 0 \/ exists a b, y = a*x+b /\ 0 < b < x.
   Proof.
     split.
     + intros H.
@@ -468,151 +640,193 @@ Section more_examples.
         apply div_rem_spec2; omega.
   Qed.
   
-  Lemma dio_rel_ndivides x y : 𝔻P x -> 𝔻P y -> 𝔻R (fun ν => ~ divides (x ν) (y ν)).
+  Fact dio_rel_ndivides x y : 𝔻F x -> 𝔻F y -> 𝔻R (fun ν => ~ divides (x ν) (y ν)).
   Proof.
-    intros.
-    apply dio_rel_equiv with (1 := fun v => ndivides_eq (x v) (y v)).
-    dio_rel_auto.
-  Qed.
-
-  Hint Resolve dio_rel_ndivides.
-
-  Fact rem_equiv p x r : r = rem x p <-> (p = 0 /\ x = r)
-                                      \/ (p <> 0 /\ r < p /\ exists n, x = n*p + r).
-  Proof.
-    split.
-    + intro; subst.
-      destruct (eq_nat_dec p 0) as [ Hp | Hp ].
-      * left; split; auto; subst; rewrite rem_0; auto.
-      * right; split; auto; split.
-        - apply div_rem_spec2; auto.
-        - exists (div x p);apply div_rem_spec1.
-    + intros [ (H1 & H2) | (H1 & H2 & n & H3) ].
-      * subst; rewrite rem_0; auto.
-      * symmetry; apply rem_prop with n; auto.
-  Qed.
- 
-  Lemma dio_rel_remainder p x r : 𝔻P p -> 𝔻P x -> 𝔻P r  
-                               -> 𝔻R (fun ν => r ν = rem (x ν) (p ν)).
-  Proof.
-    intros.
-    apply dio_rel_equiv with (1 := fun v => rem_equiv (p v) (x v) (r v)).
-    dio_rel_auto.
+    dio by lemma (fun v => ndivides_eq (x v) (y v)).
   Defined.
 
-  (* Eval compute in proj1_sig (dio_rel_remainder (dio_expr_var 0) (dio_expr_var 1) (dio_expr_var 2)). *)
+End dio_rel_ndivides.
 
-  Hint Resolve dio_rel_remainder.
+Local Fact dio_rel_ndiv_example : 𝔻R (fun ν => ~ divides (ν 0) (ν 1)).
+Proof. apply dio_rel_ndivides; dio auto. Defined.
 
-  Fact congr_equiv x y p : rem x p = rem y p <-> (exists r, r = rem x p /\ r = rem y p).
+Eval compute in proj1_sig dio_rel_ndiv_example.
+
+Section dio_rel_not_divides.
+
+  (** A shorter way using already established rem *)
+
+  Let not_divides_eq p x : ~ divides p x <-> rem x p <> 0.
+  Proof. rewrite divides_rem_eq; tauto. Qed.
+
+  Lemma dio_rel_not_divides x p : 𝔻F x -> 𝔻F p -> 𝔻R (fun ν => ~ divides (x ν) (p ν)).
   Proof.
-    split.
-    + intros H; exists (rem x p); auto.
-    + intros (? & ? & ?); subst; auto.
-  Qed.
-
-  Lemma dio_rel_congruence x y p : 𝔻P x -> 𝔻P y -> 𝔻P p  
-                                -> 𝔻R (fun ν => rem (x ν) (p ν) = rem (y ν) (p ν)).
-  Proof.
-    intros.
-    apply dio_rel_equiv with (1 := fun v => congr_equiv (x v) (y v) (p v)).
-    dio_rel_auto.
+    dio by lemma (fun v => not_divides_eq (x v) (p v)).
   Defined.
 
-  Hint Resolve dio_rel_congruence.
+End dio_rel_not_divides.
 
-  Fact not_divides_eq p x : ~ divides p x <-> exists r, r = rem x p /\ r <> 0.
-  Proof.
-    rewrite divides_rem_eq.
-    split.
-    + exists (rem x p); auto.
-    + intros (? & ? & ?); subst; auto.
-  Qed.
+Hint Resolve dio_rel_not_divides : dio_rel_db.
 
-  Lemma dio_rel_not_divides x p : 𝔻P x -> 𝔻P p -> 𝔻R (fun ν => ~ divides (x ν) (p ν)).
-  Proof.
-    intros.
-    apply dio_rel_equiv with (1 := fun v => not_divides_eq (x v) (p v)).
-    dio_rel_auto.
-  Defined.
+Local Fact example_rem_strange : 𝔻R (fun ν => rem (ν 0) (ν 1) = ν 2 * ν 3).
+Proof. dio auto. Defined.
 
-End more_examples.
+Check example_rem_strange.
+Eval compute in (proj1_sig example_rem_strange).
 
-Hint Resolve dio_rel_congruence dio_rel_not_divides.
+(** We do not automate the remaining closure props here because
+    they are used only once or twice elsewhere *) 
 
-(* Even computation in Coq works well
-
-Eval compute in proj1_sig (dio_rel_congruence (dio_expr_var 0) (dio_expr_var 1) (dio_expr_var 2)).
-Eval compute in proj1_sig (dio_rel_not_divides (dio_expr_var 0) (dio_expr_var 1)).
-
-*)
+(** Closure under composition is trivial with exists *)
 
 Section dio_rel_compose.
 
   Variable (f : (nat -> nat) -> nat) (R : nat -> (nat -> nat) -> Prop).
-  Hypothesis (Hf : 𝔻R (fun ν => ν 0 = f (fun x => ν (S x)))) 
-             (HR : 𝔻R (fun ν => R (ν 0) (fun x => ν (S x)))).
+  Hypothesis (Hf : 𝔻F f) 
+             (HR : 𝔻R (fun ν => R (ν 0) ν⭳)).
 
   Lemma dio_rel_compose : 𝔻R (fun ν => R (f ν) ν).
   Proof.
-    apply dio_rel_equiv with (R := fun v => exists y, y = f v /\ R y v).
-    + intros v; split.
-      * exists (f v); auto.
-      * intros (? & -> & ?); auto.
-    + dio_rel_auto.
+    by dio equiv (fun v => exists y, y = f v /\ R y v).
+    abstract(intros v; split;
+     [ exists (f v); auto
+     | intros (? & -> & ?); auto ]).
   Defined.
 
 End dio_rel_compose.
 
-Section multiple_exists.
+Section dio_fun_compose.
 
+  Variable (f : (nat -> nat) -> nat) (Hf : 𝔻F f)
+           (g : nat -> nat)          (Hg : 𝔻F (fun ν => g (ν 0))).
+
+  Lemma dio_fun_compose : 𝔻F (fun ν => g (f ν)).
+  Proof.
+    red; by dio equiv (fun v => exists y, y = f v⭳ /\ v 0 = g y).
+    abstract(intros; split;
+     [ exists (f ν⭳); auto
+     | intros (? & -> & ?); auto ]).
+  Defined.
+
+End dio_fun_compose.
+
+(** For the next two construction, we do the construction by 
+    hand, ie manipulation witnesses, because we need an easy 
+    computation of the size 
+
+    So here are two (counter-)example where we do actually
+    manipulate De Bruijn syntax directly
+*)
+
+(* Finitely many ∃, ie ∃ ... ∃ f n times *)
+
+Section multiple_exists.
+ 
   Fixpoint df_mexists n f :=
     match n with 
       | 0   => f
-      | S n => df_mexists n (df_exst f)
+      | S n => df_mexists n (∃f)
     end.
 
   Fact df_mexists_size n f : df_size (df_mexists n f) = n + df_size f.
   Proof. 
-    revert f; induction n as [ | n IHn ]; intros f; auto; simpl df_mexists.
-    rewrite IHn; simpl; omega. 
+    induction n as [ | n IHn ] in f |- *; auto; simpl.
+    rewrite IHn; simpl; omega.
   Qed.
 
   Fact df_mexists_size_Z n f : df_size_Z (df_mexists n f) = (Z.of_nat n + df_size_Z f)%Z.
   Proof.
-    rewrite df_size_Z_spec, df_mexists_size, Nat2Z.inj_add, df_size_Z_spec; omega. 
+    rewrite df_size_Z_spec, df_mexists_size, Nat2Z.inj_add, df_size_Z_spec; omega.
   Qed.
 
-  (* We only use it once so there is no need to automatize it *)
+  (* We only use it once so there is no need to automatize it 
+     We need to make le_lt_dec opaque at some points to prevent
+     it from being computed *)
 
-  Lemma df_mexists_spec n f ν : 
-           df_pred (df_mexists n f) ν 
-       <-> exists π, df_pred f (fun i => if le_lt_dec n i then ν (i-n) else π i).
+  Lemma df_mexists_spec n f ν :
+           ⟦df_mexists n f⟧ ν
+       <-> exists π, ⟦f⟧ (fun i => if le_lt_dec n i then ν (i-n) else π i).
   Proof.
     revert f ν; induction n as [ | n IHn ]; intros f v.
-    + simpl; split; [ intros H; exists (fun _ => 0) | intros (_ & H) ]; revert H; 
+    + simpl; split; [ intros H; exists (fun _ => 0) | intros (? & H) ]; revert H; 
         apply df_pred_ext; intros; f_equal; omega.
     + simpl df_mexists; rewrite IHn; split; intros (pi & Hpi).
       * revert Hpi; rewrite df_pred_exst.
         intros (u & Hu).
         exists (fun i => match i with 0 => u | S i => pi i end).
         revert Hu; apply df_pred_ext.
-        intros [ | i ].
-        - replace (0-S n) with 0 by omega; simpl; auto.
-        - replace (S i - S n) with (i-n) by omega.
-          simpl dv_lift. 
-          destruct (le_lt_dec (S n) (S i)); destruct (le_lt_dec n i); auto; omega.
+        Opaque le_lt_dec.
+        simpl; intros [ | i ].
+        - replace (0-S n) with 0 by omega; auto.
+        - replace (S i - S n) with (i-n) by omega. 
+          simpl; destruct (le_lt_dec (S n) (S i)); 
+            destruct (le_lt_dec n i); auto; omega.
       * exists (fun i => pi (S i)).
         rewrite df_pred_exst; exists (pi 0).
         revert Hpi; apply df_pred_ext.
         intros [ | i ].
         - replace (0-S n) with 0 by omega; simpl; auto.
         - replace (S i - S n) with (i-n) by omega.
-          simpl dv_lift. 
-          destruct (le_lt_dec (S n) (S i)); destruct (le_lt_dec n i); auto; omega.
+          Opaque le_lt_dec.
+          simpl; destruct (le_lt_dec (S n) (S i)); 
+            destruct (le_lt_dec n i); auto; omega.
   Qed.
 
 End multiple_exists.
 
+(** We will also need a Diophantine encoding of finitary 
+    conjunction ie 
 
+          fun ν => R 0 ν /\ ... /\ R (n-1) ν 
 
+    is Diophantine for fixed n 
+*)
+
+Section dio_rel_finite_conj.
+
+  Notation "∑" := (msum plus 0).
+
+  Definition df_true := proj1_sig dio_rel_True.
+
+  Fact df_true_size : df_size df_true = 4.
+  Proof. reflexivity. Qed.
+
+  Fact df_true_spec ν : df_pred df_true ν <-> True.
+  Proof. apply (proj2_sig dio_rel_True). Qed.
+
+  Fixpoint df_mconj n f :=
+    match n with 
+      | 0   => df_true
+      | S n => f 0 ∧ df_mconj n f⭳
+    end.
+
+  Fact df_mconj_size n f : df_size (df_mconj n f) = 4+n+∑ n (fun i => df_size (f i)).
+  Proof.
+    revert f; induction n as [ | n IHn ]; intros f; simpl; auto.
+    rewrite IHn; ring.
+  Qed.
+
+  Fact df_mconj_spec n f ν : df_pred (df_mconj n f) ν <-> forall i, i < n -> df_pred (f i) ν.
+  Proof.
+    revert f ν; induction n as [ | n IHn ]; intros f v; simpl df_mconj.
+    + rewrite df_true_spec; split; auto; intros; omega.
+    + rewrite df_pred_conj, IHn; split.
+      * intros (? & H2) [ | i ] ?; auto; apply H2; omega.
+      * intros H; split; intros; apply H; omega.
+  Qed.
+
+  Lemma dio_rel_finite_conj n (R : nat -> (nat -> nat) -> Prop) :
+         (forall i, i < n -> 𝔻R (R i))
+      -> 𝔻R (fun ν => forall i, i < n -> R i ν).
+  Proof.
+    intros H.
+    apply fmap_reifier_t_default with (1 := df_true) in H.
+    destruct H as (f & Hf).
+    exists (df_mconj n f).
+    abstract(intros v; rewrite df_mconj_spec; split;
+      intros E i Hi; generalize (E _ Hi); apply Hf; trivial).
+  Defined.
+
+End dio_rel_finite_conj.
+
+Check dio_rel_finite_conj.
