@@ -7,13 +7,18 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Object-level encoding of bounded universal quantification III *)
+(** ** Object-level encoding of bounded universal quantification *)
 
 Require Import Arith Nat Omega List Bool.
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list sums bounded_quantification.
-From Undecidability.H10.Matija Require Import cipher.
-From Undecidability.H10.Dio Require Import dio_logic dio_cipher dio_elem.
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_tac utils_list sums bounded_quantification.
+
+From Undecidability.H10.Matija 
+  Require Import cipher.
+
+From Undecidability.H10.Dio 
+  Require Import dio_logic dio_cipher dio_elem.
 
 Set Implicit Arguments.
 
@@ -23,68 +28,36 @@ Local Notation "∑" := (msum plus 0).
 (** We show the elimination of bounded universal quantification. The proof is
     based on the paper 
 
-       "A new technique for obtaining diophantine representations via elimination
-        of bounded universal quantifiers" by Matiyasevich 
+       "A new technique for obtaining Diophantine representations via 
+        elimination of bounded universal quantifiers" by Matiyasevich (1997)
 
     with two noticable differences
 
-    a) we use r = 2^(4*q) instead of r = 2^(2*q)
-       2*q could work but I think the proof implied by the paper (it is not
-       given) that cc = aa * bb is simulated does not work well because
-       masked digits are can be of the form f i * g j + f j * g i
+    a) I use r = 2^(4*q) instead of r = 2^(2*q).
+
+       2*q could work but I think the proof that cc = aa * bb is simulated 
+       (implied by the paper -- the proof is not given) does not work well 
+       because masked digits can be of the form f i * g j + f j * g i
        and f _ < 2^q,  g _ < 2^q implies f _ * g _ < 2^(2*q) which is
-       good but *does not* imply  f _ * g _ + f _ * g _ < 2^(2*q) !!
+       good but *does not* imply  f _ * g _ + g _ * f _ < 2^(2*q) !!
+
        The argument could still work though it is going to be much
        more complicated to establish formally, so I raised 2*q to 4*q
        to solve straightforwardly the overflow problem of masked digits
        Anyway, this 2*q value was arbitrary so it only impacts the 
-       proof in minor ways
+       proof in minor ways.
 
     b) The arguments outlined between (26) and (31) are flawed I think
-       One should first split the k_i's in 0 <= k_2 < .... < k_d <= 2^l+1 < .... < k_{m+1}
-       to do the computation. The upper k_i's are masked out and then you can show
-       that d must be m+1 with the other constraints.
+       One should first split the k_i's in 
 
+                 0 <= k_2 < .... < k_d <= 2^l+1 < .... < k_{m+1}
+
+       to do the computation. The upper k_i's are masked out and then you 
+       can show that d must be m+1 with the other constraints.
 *)
 
-Section df_mconj.
 
-  Fixpoint df_mconj k f :=
-    match k with 
-      | 0   => df_true
-      | S k => df_conj (f 0) (df_mconj k (fun i => f (S i)))
-    end.
-
-  Fact df_mconj_size k f : df_size (df_mconj k f) = 3+k+∑ k (fun i => df_size (f i)).
-  Proof.
-    revert f; induction k as [ | k IHk ]; intros f; simpl; auto.
-    rewrite IHk; ring.
-  Qed.
-
-  Fact df_mconj_spec k f ν : df_pred (df_mconj k f) ν <-> forall i, i < k -> df_pred (f i) ν.
-  Proof.
-    revert f ν; induction k as [ | k IHk ]; intros f phi; simpl.
-    + split; auto; intros; omega.
-    + rewrite IHk; split.
-      * intros (? & H2) [ | i ] ?; auto; apply H2; omega.
-      * intros H; split; intros; apply H; omega.
-  Qed.
-
-  Lemma dio_rel_mconj k (P : nat -> (nat -> nat) -> Prop) :
-         (forall i, i < k -> dio_rel (P i))
-      -> dio_rel (fun ν => forall i, i < k -> P i ν).
-  Proof.
-    intros H.
-    apply fmap_reifier_t_default with (1 := df_true) in H.
-    destruct H as (f & Hf).
-    exists (df_mconj k f).
-    intros v; rewrite df_mconj_spec; split;
-      intros E i Hi; generalize (E _ Hi); apply Hf; trivial. 
-  Defined.
-
-End df_mconj.
-
-Section dio_bounded_fall.
+Section dio_rel_bounded_fall.
 
   Section dio_bounded_elem.
 
@@ -110,31 +83,42 @@ Section dio_bounded_fall.
        | (u, dee_comp do_mul v w) => Code_mult (ω il) (ω iq) (ω u) (ω v) (ω w)
       end.
 
-    Let dio_rel_dc_Code c : dio_rel (dc_Code c).
+    Local Fact dio_rel_dc_Code c : 𝔻R (dc_Code c).
     Proof. 
-      destruct c as (u & [ n | v | [] | [] v w ]); unfold dc_Code; auto.
+      destruct c as (u & [ n | v | [] | [] v w ]); unfold dc_Code; dio auto.
     Defined.
 
-    (* Case of do_mul gives the overall bound of 70074  *)
+    Hint Resolve dio_rel_dc_Code : dio_rel_db.
 
-    Let dc_Code_size_Z c : (df_size_Z (proj1_sig (dio_rel_dc_Code c)) <= 70074)%Z.
+   (*
+
+      Eval compute in df_size_Z (proj1_sig (dio_rel_dc_Code (0,dee_comp do_mul 1 2))). 
+
+    *)
+
+    (* Case of do_mul gives the overall bound  
+
+    Let dc_Code_size_Z c : (df_size_Z (proj1_sig (dio_rel_dc_Code c)) <= 203468)%Z.
     Proof.
       destruct c as (u & [ n | v | [] | [] v w ]); compute; discriminate.
-    Qed.
+    Qed. *)
 
     (*  ω         | (φ _)    ~  π    |  ν
         i < k     | i        |  i    | 
         i = k     | <0,..,l> |  ?    |
         i = k+1   |          |  q    |  
         i = k+2   |          |  l    |  0
-        i > k+2   |          |       |  i-(k+2)  *)
+        i > k+2   |          |       |  i-(k+2)  
+     *)
 
-    Let dc_Code_spec c φ π ν ω : (forall i, i < k -> is_cipher_of (ν 0) (π iq) (φ i) (π i))
-                              -> (is_cipher_of (ν 0) (π iq) (fun n => n) (π k))
-                              -> (forall x, dc_vars c x -> x < k)
-                              -> (forall i, i < il -> ω i = π i)
-                              -> (forall i, il <= i -> ω i = ν (i-il))
-                             -> dc_Code c ω <-> forall j, j < ν 0 -> dc_eval (fun i => φ i j) (dv_lift ν j) c.
+    Local Fact dc_Code_spec c φ π ν ω : 
+          (forall i, i < k -> is_cipher_of (ν 0) (π iq) (φ i) (π i))
+       -> (is_cipher_of (ν 0) (π iq) (fun n => n) (π k))
+       -> (forall x, dc_vars c x -> x < k)
+       -> (forall i, i < il -> ω i = π i)
+       -> (forall i, il <= i -> ω i = ν (i-il))
+       -> dc_Code c ω 
+      <-> forall j, j < ν 0 -> dc_eval (fun i => φ i j) (j·ν) c.
     Proof.
       intros G1 G2 G3 G4 G5.
       assert (ω il = ν 0) as G0.
@@ -187,18 +171,21 @@ Section dio_bounded_fall.
         unfold dc_eval; simpl; tauto.
     Qed.
 
-    Let dc_list_Code ll ν := fold_right (fun c P => dc_Code c ν /\ P) True ll.
+    Local Definition dc_list_Code ll ν := fold_right (fun c P => dc_Code c ν /\ P) True ll.
 
-    Let dio_rel_dc_list_Code ll : dio_rel (dc_list_Code ll).
-    Proof. induction ll; unfold dc_list_Code; simpl; auto. Qed.
+    Local Fact dio_rel_dc_list_Code ll : 𝔻R (dc_list_Code ll).
+    Proof. induction ll; unfold dc_list_Code; simpl; dio auto. Qed.
 
-    Let dc_list_Code_spec ll φ π ν ω : (forall i, i < k -> is_cipher_of (ν 0) (π iq) (φ i) (π i))
-                                    -> (is_cipher_of (ν 0) (π iq) (fun n => n) (π k))
-                                    -> (forall c, In c ll -> forall x, dc_vars c x -> x < k)
-                                    -> (forall i, i < il  -> ω i = π i)
-                                    -> (forall i, il <= i -> ω i = ν (i-il))
-                                    -> dc_list_Code ll ω 
-                                   <-> forall j, j < ν 0 -> Forall (dc_eval (fun i => φ i j) (dv_lift ν j)) ll.
+    Hint Resolve dio_rel_dc_list_Code : dio_rel_db.
+
+    Local Fact dc_list_Code_spec ll φ π ν ω : 
+          (forall i, i < k -> is_cipher_of (ν 0) (π iq) (φ i) (π i))
+       -> (is_cipher_of (ν 0) (π iq) (fun n => n) (π k))
+       -> (forall c, In c ll -> forall x, dc_vars c x -> x < k)
+       -> (forall i, i < il  -> ω i = π i)
+       -> (forall i, il <= i -> ω i = ν (i-il))
+       -> dc_list_Code ll ω 
+      <-> forall j, j < ν 0 -> Forall (dc_eval (fun i => φ i j) (j·ν)) ll.
     Proof.
       intros G1 G2 G3 G4 G5; revert G3.
       rewrite <- Forall_forall.
@@ -211,17 +198,21 @@ Section dio_bounded_fall.
             rewrite Forall_cons_inv in E1; tauto.
     Qed.
 
-    Let ciphers ν := CodeNat (ν il) (ν iq) (ν k) /\ forall i, i < k -> Code (ν il) (ν iq) (ν i).
+    Local Definition ciphers ν := 
+             CodeNat (ν il) (ν iq) (ν k) 
+          /\ forall i, i < k -> Code (ν il) (ν iq) (ν i).
 
-    Let dio_rel_ciphers : dio_rel ciphers.
-    Proof. 
-      apply dio_rel_conj.
-      + auto.
-      + apply dio_rel_mconj; intros; auto. 
+    Local Fact dio_rel_ciphers : 𝔻R ciphers.
+    Proof.
+      unfold ciphers; dio auto.
+      apply dio_rel_finite_conj; intros; dio auto.
     Defined.
 
-    Let ciphers_spec ν : ciphers ν <-> is_cipher_of (ν il) (ν iq) (fun n => n) (ν k) 
-                                    /\ exists φ, forall i, i < k -> is_cipher_of (ν il) (ν iq) (φ i) (ν i).
+    Hint Resolve dio_rel_ciphers : dio_rel_db.
+
+    Local Fact ciphers_spec ν : 
+           ciphers ν <-> is_cipher_of (ν il) (ν iq) (fun n => n) (ν k) 
+                      /\ exists φ, forall i, i < k -> is_cipher_of (ν il) (ν iq) (φ i) (ν i).
     Proof. 
       unfold ciphers, Code, CodeNat.
       split; intros (H1 & H2); split; auto; clear H1.
@@ -238,15 +229,16 @@ Section dio_bounded_fall.
 
     Let pre_quant ν := ν il+1 < ν iq /\ ciphers ν /\ dc_list_Code ll ν.
 
-    Let dio_rel_pre_quant : dio_rel pre_quant.
-    Proof. unfold pre_quant; auto. Defined.
+    Let dio_rel_pre_quant : 𝔻R pre_quant.
+    Proof. unfold pre_quant; dio auto. Defined.
 
-    Definition dc_list_bfall ν := exists π, pre_quant (fun i => if le_lt_dec il i then ν (i-il) else π i).
+    Let dc_list_bfall ν := exists π, pre_quant (fun i => if le_lt_dec il i then ν (i-il) else π i).
 
     Let dc_list_bfall_spec_1 ν :
-          dc_list_bfall ν <-> exists q φ, ν 0+1 < q 
-                                      /\ (forall i j, i < k -> j < ν 0 -> φ i j < power q 2) 
-                                      /\ forall j, j < ν 0 -> Forall (dc_eval (fun i => φ i j) (dv_lift ν j)) ll.
+            dc_list_bfall ν 
+        <-> exists q φ, ν 0+1 < q 
+                    /\ (forall i j, i < k -> j < ν 0 -> φ i j < power q 2) 
+                    /\  forall j, j < ν 0 -> Forall (dc_eval (fun i => φ i j) (j·ν)) ll.
     Proof.
       split.
       + intros (pi & G0 & G1 & G4).
@@ -296,7 +288,9 @@ Section dio_bounded_fall.
             intros i Hi; destruct (le_lt_dec il i); auto; omega.
     Qed.
 
-    Let dc_list_bfall_spec ν : (forall i, i < ν 0 -> exists φ, Forall (dc_eval φ (dv_lift ν i)) ll) <-> dc_list_bfall ν .
+    Let dc_list_bfall_spec ν : 
+            (forall i, i < ν 0 -> exists φ, Forall (dc_eval φ i·ν) ll) 
+        <-> dc_list_bfall ν.
     Proof.
       rewrite dc_list_bfall_spec_1; split.
       + intros H.
@@ -322,125 +316,75 @@ Section dio_bounded_fall.
         exists (fun i => phi i j); auto.
     Qed.
 
-    Theorem dio_rel_dc_list_bfall : dio_rel (fun ν => forall i, i < ν 0 -> exists φ, Forall (dc_eval φ (dv_lift ν i)) ll).
+    Local Theorem dio_rel_dc_list_bfall : 𝔻R (fun ν => forall i, i < ν 0 -> exists φ, Forall (dc_eval φ i·ν) ll).
     Proof.
-      apply dio_rel_equiv with (1 := dc_list_bfall_spec).
-      unfold dc_list_bfall.
+      dio by lemma dc_list_bfall_spec; unfold dc_list_bfall.
       destruct dio_rel_pre_quant as (f & Hf).
-      eexists (df_mexists il f).
-      intros; rewrite df_mexists_spec; split;
-      intros (phi & H); exists phi; revert H; rewrite <- Hf; auto.
+      exists (df_mexists il f).
+      abstract (intros; rewrite df_mexists_spec; split;
+        intros (phi & H); exists phi; revert H; rewrite <- Hf; auto).
     Defined.
 
   End dio_bounded_elem.
 
-  Theorem dio_bounded_fall P : dio_rel P -> dio_rel (fun ν => forall i, i < ν 0 -> P (dv_lift ν i)).
+  Local Theorem dio_rel_bounded_fall R : 𝔻R R -> 𝔻R (fun ν => forall i, i < ν 0 -> R i·ν).
   Proof.
     intros (f & Hf).
     destruct (dio_formula_elem f) as (ll & H1 & H2 & H3).
     revert H2; generalize (4*df_size f); intros k H2.
-    generalize (dio_rel_dc_list_bfall _ H2).
-    apply dio_rel_equiv; intros v.
-    split; intros H i Hi; generalize (H _ Hi); rewrite <- Hf, H3; auto.
+    generalize (dio_rel_dc_list_bfall _ H2); apply dio_rel_equiv.
+    abstract (intros v; split; intros H i Hi; generalize (H _ Hi); rewrite <- Hf, H3; auto).
   Defined.
 
-End dio_bounded_fall.
+End dio_rel_bounded_fall.
 
-(* dfbfall f : where f[*,v] has one free variable 
-      is equivalent to [n,v] => f[0,v] /\ f[1,v] /\ ... /\ f[n-1,v] 
-      also with one free variable 
+(** Composition and renaming to get the desired result, 
+    ie Matiyasevich theorem of 1997 stating the 
 
-   Notice that the value of n is not available to f *) 
+      "Diophantine admissibility of
+           bounded universal quantification" 
 
-Definition dv_change (ν : nat -> nat) x n := match n with 0 => x | _ => ν n end.
+    ie bounded universal quantification is a 
+    Diophantine shape
+*)
 
-Section dfbfall.
- 
-  Variable (f : dio_formula).
-
-  Let rho i := match i with 0 => 0 | S i => S (S i) end. 
-
-  Let dfbfall_full : dio_rel (fun ν => forall i, i < ν 0 -> df_pred f (dv_change ν i)).
-  Proof.
-    assert (dio_rel (df_pred (df_ren rho f))) as H.
-    { exists (df_ren rho f); tauto. }
-    destruct (dio_bounded_fall H) as (g & Hg).
-    exists g.
-    intros v.
-    rewrite Hg. 
-    split; intros G i Hi; generalize (G _ Hi);  
-      rewrite df_pred_ren; apply df_pred_ext;
-      intros [ | [ | x ] ]; simpl; auto.
-  Qed.
-
-  Definition dfbfall := proj1_sig dfbfall_full.
-
-  Fact dfbfall_spec : forall ν, df_pred dfbfall ν <-> forall i, i < ν 0 -> df_pred f (dv_change ν i).
-  Proof. apply (proj2_sig dfbfall_full). Qed.
-
-End dfbfall.
-
-Section df_fall_lt.
-
-  Variable (f : dio_formula) (x : dio_expression).
-
-  Definition df_fall_lt := df_subst (fun n => match n with 0 => x | S n => de_var (S n) end) (dfbfall f).
-
-  Fact df_fall_lt_spec ν : df_pred df_fall_lt ν <-> forall n, n < de_eval ν x -> df_pred f (dv_change ν n).
-  Proof.
-    unfold df_fall_lt.
-    rewrite df_pred_subst, dfbfall_spec.
-    split; intros H n Hn; generalize (H _ Hn);
-      apply df_pred_ext;
-      intros [ | ]; simpl; auto.
-  Qed.
-
-End df_fall_lt.
-
-Corollary dio_rel_fall_lt_0 (K : nat -> (nat -> nat) -> Prop) : 
-            𝔻R (fun ν => K (ν 0) (fun n => ν (S n))) 
-   -> 𝔻R (fun ν => forall x, x < ν 0 -> K x (fun n => ν (S n))).
+Theorem dio_rel_fall_lt a (R : nat -> (nat -> nat) -> Prop) : 
+           𝔻F a 
+   -> 𝔻R (fun ν => R (ν 0) ν⭳) 
+   -> 𝔻R (fun ν => forall x, x < a ν -> R x ν).
 Proof.
-  intros (fK & HK).
-  exists (df_fall_lt fK (de_var 0)).
-  intros; rewrite df_fall_lt_spec.
-  simpl. 
-  split; intros H n Hn; generalize (H _ Hn); rewrite HK; auto.
+  intros Ha H.
+  by dio equiv (fun ν => exists y, y = a ν /\ forall x, x < y -> R x ν).
+  + abstract(intros v; split; 
+      [ exists (a v); auto
+      | intros (? & -> & ?); auto ]).
+  + set (T v := R (v 0) v⭳⭳).
+    by dio equiv (fun v => forall x, x < v 0 -> T (x·v)).
+    * abstract (intros v; unfold T; simpl; tauto).
+    * apply dio_rel_bounded_fall; unfold T; simpl.
+      revert H; apply dio_rel_ren 
+        with (ρ := fun n => match n with 0 => 0 | S n => S (S n) end).
 Defined.
 
-Theorem dio_rel_fall_lt a (K : nat -> (nat -> nat) -> Prop) : 
-            𝔻P a
-   -> 𝔻R (fun ν => K (ν 0) (fun n => ν (S n))) 
-   -> 𝔻R (fun ν => forall x, x < a ν -> K x ν).
-Proof.
-  intros (ea & Ha) H.
-  apply dio_rel_fall_lt_0 in H.
-  destruct H as (f & Hf).
-  exists (df_subst (fun n => match n with 0 => ea | S n => de_var n end) f).
-  intro; rewrite df_pred_subst, Hf.
-  simpl; split; intros H n Hn; apply H; revert Hn; rewrite Ha; auto.
-Defined.
+Hint Resolve dio_rel_fall_lt : dio_rel_db.
 
-Hint Resolve dio_rel_fall_lt.
+(* Two variants *)
 
-Theorem dio_rel_fall_lt_bound a (K : nat -> nat -> (nat -> nat) -> Prop) : 
-            𝔻P a
-   -> 𝔻R (fun ν => K (ν 0) (a (fun n => ν (S n))) (fun n => ν (S n))) 
-   -> 𝔻R (fun ν => forall x, x < a ν -> K x (a ν) ν).
-Proof.
-  intros; apply dio_rel_fall_lt; auto.
-Qed.
+Corollary dio_rel_fall_lt_bound a (R : nat -> nat -> (nat -> nat) -> Prop) : 
+           𝔻F a
+   -> 𝔻R (fun ν => R (ν 0) (a ν⭳) ν⭳) 
+   -> 𝔻R (fun ν => forall x, x < a ν -> R x (a ν) ν).
+Proof. intros; dio auto. Defined.
 
-Hint Resolve dio_rel_fall_lt_bound.
-
-Theorem dio_rel_fall_le a (K : nat -> (nat -> nat) -> Prop) : 
-            𝔻P a
-   -> 𝔻R (fun ν => K (ν 0) (fun n => ν (S n))) 
-   -> 𝔻R (fun ν => forall x, x <= a ν -> K x ν).
+Corollary dio_rel_fall_le a (R : nat -> (nat -> nat) -> Prop) : 
+           𝔻F a
+   -> 𝔻R (fun ν => R (ν 0) ν⭳) 
+   -> 𝔻R (fun ν => forall x, x <= a ν -> R x ν).
 Proof.
   intros Ha HK.
-  apply dio_rel_equiv with (fun v => forall x, x < 1+a v -> K x v); auto.
-  intros v; split; intros H x Hx; apply H; omega.
+  by dio equiv (fun v => forall x, x < 1+a v -> R x v).
+  abstract (intros v; split; intros H x Hx; apply H; omega).
 Defined.
 
-Hint Resolve dio_rel_fall_le.
+Hint Resolve dio_rel_fall_lt_bound 
+             dio_rel_fall_le : dio_rel_db.

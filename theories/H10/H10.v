@@ -9,13 +9,26 @@
 
 (** ** Hilbert's tenth problem is undecidable *)
 
-From Undecidability.ILL Require Import Definitions UNDEC.
-From Undecidability.PCP Require Import singleTM.
-From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac.
-From Undecidability.ILL.Mm   Require Import mm_defs.
-From Undecidability.H10 Require Import FRACTRAN_DIO HALT_MM MM_FRACTRAN Fractran.fractran_defs.
-From Undecidability.H10.Dio Require Import dio_logic dio_elem dio_single.
+From Undecidability.ILL 
+  Require Import Definitions UNDEC.
+
+From Undecidability.PCP 
+  Require Import singleTM.
+
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_tac.
+
+From Undecidability.Shared.Libs.DLW.Vec 
+  Require Import pos vec.
+
+From Undecidability.ILL.Mm
+  Require Import mm_defs.
+
+From Undecidability.H10 
+  Require Import FRACTRAN_DIO HALT_MM MM_FRACTRAN Fractran.fractran_defs.
+
+From Undecidability.H10.Dio 
+  Require Import dio_logic dio_elem dio_single.
 
 Set Implicit Arguments.
 
@@ -31,32 +44,22 @@ Proof.
   apply (dio_single_pred (p,q)), (fun _ => 0).
 Defined.
 
-Section DIO_SINGLE_SAT_H10.
-
-  Let f : DIO_SINGLE_PROBLEM -> H10_PROBLEM.
-  Proof.
-    intros (E,v).
-    destruct (dio_poly_eq_pos E) as (n & p & q & H2).
-    exists n.
-    exact (dp_inst_par v p, dp_inst_par v q).
-  Defined.
-
-  Theorem DIO_SINGLE_SAT_H10 : DIO_SINGLE_SAT ⪯ H10.
-  Proof.
-    exists f; intros (E,v).
-    unfold DIO_SINGLE_SAT, H10, f.
-    destruct (dio_poly_eq_pos E) as (n & p & q & H2).
-    rewrite H2; unfold dio_single_pred.
-    simpl.
-    split; intros (phi & H); exists phi; revert H; 
-      repeat rewrite dp_inst_par_eval; auto.
-  Qed.
-
-End DIO_SINGLE_SAT_H10.
+Theorem DIO_SINGLE_SAT_H10 : DIO_SINGLE_SAT ⪯ H10.
+Proof.
+  apply reduction_dependent; exists.
+  intros (E,v).
+  destruct (dio_poly_eq_pos E) as (n & p & q & H).
+  exists (existT _ n (dp_inst_par v p, dp_inst_par v q)).
+  unfold DIO_SINGLE_SAT, H10.
+  rewrite H.
+  unfold dio_single_pred.
+  split; intros (phi & H1); exists phi; revert H1;
+    rewrite !dp_inst_par_eval; auto.
+Qed.
 
 Theorem Fractran_UNDEC : Halt ⪯ FRACTRAN_HALTING.
 Proof.
-  eapply reduces_transitive. exact MM_HALTING_undec.
+  apply reduces_transitive with (1 := MM_HALTING_undec).
   exact MM_FRACTRAN_HALTING.
 Qed.
 

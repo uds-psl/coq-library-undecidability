@@ -103,8 +103,14 @@ Proof.
      *assumption.
 Qed.
 
+Lemma mu_spec : converges (mu P) <-> exists n : nat, P (ext n) == ext true.
+Proof.
+  split.
+  - intros (? & ? & ?). eapply mu_sound in H as (? & ? & ? & ?); eauto.
+  - intros []. eapply mu_complete in H as []. exists (ext x0). split. eauto. eapply proc_ext.
+Qed.
+
 End MuRecursor.
 
 Hint Resolve mu'_proc : LProc.
 Hint Resolve mu_proc : LProc.
-

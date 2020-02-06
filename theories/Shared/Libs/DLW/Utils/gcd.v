@@ -750,6 +750,13 @@ Section division.
   Fact rem_idem q p : q < p -> rem q p = q.
   Proof. apply rem_prop with 0; auto. Qed.
 
+  Fact rem_rem x m : rem (rem x m) m = rem x m.
+  Proof.
+    destruct (eq_nat_dec m 0).
+    + subst; rewrite !rem_0; auto.
+    + apply rem_idem, div_rem_spec2; auto.
+  Qed.
+
   Fact is_gcd_rem p n a : is_gcd p n a <-> is_gcd p (rem n p) a.
   Proof.
     rewrite (div_rem_spec1 n p) at 1; apply is_gcd_mult.
