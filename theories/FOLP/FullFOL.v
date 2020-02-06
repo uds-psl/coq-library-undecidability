@@ -29,15 +29,6 @@ Ltac capply H := eapply H; try eassumption.
 Ltac comp := repeat (progress (cbn in *; autounfold in *; asimpl in *)).
 Hint Unfold idsRen.
 
-Ltac resolve_existT :=
-  match goal with
-     | [ H2 : existT _ _ _ = existT _ _ _ |- _ ] => rewrite (Eqdep.EqdepTheory.inj_pair2 _ _ _ _ _ H2) in *
-  | _ => idtac
-  end.
-
-Ltac inv H :=
-  inversion H; subst; repeat (progress resolve_existT).
-
 Section FullFOL.
   Context {Sigma : Signature}.
 
@@ -154,15 +145,36 @@ Section FullFOL.
     - apply f2. induction v.
       + econstructor.
       + econstructor. now eapply strong_term_ind'. eauto.
-  Qed.  
+  Qed.
+
+  Lemma vec_cons_inj {X} k x y (v1 v2 : vector X k) :
+    cons x v1 = cons y v2 -> x = y /\ v1 = v2.
+  Proof.
+    intros. inversion H. subst.
+    now eapply EqDec.inj_right_pair in H2.
+  Qed.
+
+  Ltac vecinv H :=
+    depelim H; cbn in *;
+    match goal with
+      H' : cons ?x ?y = cons ?a ?b |- _ => apply vec_cons_inj in H' as [-> ->]; subst
+    end.
+
+  Lemma Forall_vec_in {A} (P : A -> Type) n (v : vector A n) :
+    Forall P v -> forall x, vec_in x v -> P x.
+  Proof.
+    induction 1; intros y h.
+    - inversion h.
+    - vecinv h; trivial. now apply IHX.
+  Qed.
 
   Lemma strong_term_ind (p : term -> Type) :
     (forall x, p (var_term x)) -> (forall F v, (forall t, vec_in t v -> p t) -> p (Func F v)) -> forall (t : term), p t.
   Proof.
     intros f1 f2. eapply strong_term_ind'.
     - apply f1.
-    - intros. apply f2. intros t. induction 1; inv X; eauto.
-  Qed.  
+    - intros. now apply f2, Forall_vec_in.
+  Qed.
   
   (* **** Free variables *)
 
@@ -187,10 +199,12 @@ Section FullFOL.
     { k | forall t, vec_in t v -> forall m, k <= m -> unused_term m t }.
   Proof.
     intros Hun. induction v in Hun |-*.
-    - exists 0. intros n H. inv H.
+    - exists 0. intros n H. inversion H.
     - destruct IHv as [k H]. 1: eauto. destruct (Hun h (vec_inB h v)) as [k' H'].
-      exists (k + k'). intros t H2. inv H2; intros m Hm; [apply H' | apply H]; now try omega.
+      exists (k + k'). intros t H2. vecinv H2; intros m HM; [apply H' | apply H]; now try omega.
   Qed.
+
+  Print Assumptions vec_unused.
 
   Lemma find_unused_term t :
     { n | forall m, n <= m -> unused_term m t }.
@@ -273,7 +287,8 @@ Section FullFOL.
     - destruct (Hdec x) as [H % Hunused | H % Hext].
       + inversion H; subst; congruence.
       + congruence.
-    - f_equal. apply vec_map_ext. intros t H'. apply (H t H'). intros n H2 % Hunused. inv H2. eauto.
+    - f_equal. apply vec_map_ext. intros t H'. apply (H t H').
+      intros n H2 % Hunused. depelim H2; try congruence. apply H0. now inversion H1.
   Qed.
 
   Lemma subst_unused_form xi sigma P phi :
@@ -283,7 +298,7 @@ Section FullFOL.
     induction phi in xi,sigma,P |-*; intros Hdec Hext Hunused; cbn; asimpl.
     - reflexivity.
     - f_equal. apply vec_map_ext. intros s H. apply (subst_unused_term Hdec Hext).
-      intros m H' % Hunused. inv H'. eauto.
+      intros m H' % Hunused. depelim H'; try congruence. apply H0. now inversion H1.
     - rewrite IHphi1 with (sigma := sigma) (P := P). rewrite IHphi2 with (sigma := sigma) (P := P).
       all: try tauto. all: intros m H % Hunused; now inversion H.
     - rewrite IHphi1 with (sigma := sigma) (P := P). rewrite IHphi2 with (sigma := sigma) (P := P).
@@ -331,6 +346,7 @@ Section FullFOL.
     (forall x, vec_in x v -> p (f x)) -> forall y, vec_in y (map f v) -> p y.
   Proof.
     intros H y Hmap. induction v; cbn; inv Hmap; eauto.
+    apply IHv; eauto. now apply EqDec.inj_right_pair in H3; subst.
   Qed.
 
   (* **** Theories *)
@@ -435,9 +451,10 @@ Ltac use_theory A := exists A; split; [eauto 15 with contains_theory|].
 
 Lemma dec_vec_in X n (v : vector X n) :
   (forall x, vec_in x v -> forall y, dec (x = y)) -> forall v', dec (v = v').
-Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence)).
+Proof with subst; try (now left + (right; intros[=]; congruence)).
   intros Hv. induction v; intros v'; dependent destruction v'...
   destruct (Hv h (vec_inB h v) h0)... destruct (IHv (fun x H => Hv x (vec_inS h0 H)) v')...
+  right. now intros H % vec_cons_inj.
 Qed.
 
 Instance dec_vec X {HX : eq_dec X} n : eq_dec (vector X n).
@@ -452,16 +469,18 @@ Section EqDec.
   Hypothesis eq_dec_Preds : eq_dec Preds.
 
   Global Instance dec_term : eq_dec term.
-  Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence)).
+  Proof with subst; try (now left + (right; intros[=]; congruence)).
     intros t. induction t using strong_term_ind; intros []...
     - decide (x = n)...
-    - decide (F = f)... destruct (dec_vec_in X t)...
+    - decide (F = f)... destruct (dec_vec_in X t)... right. intros H. apply n.
+      inversion H. now unshelve eapply EqDec.inj_right_pair in H1.
   Qed.
 
   Global Instance dec_form : eq_dec form.
-  Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence)).
+  Proof with subst; try (now left + (right; intros[=]; congruence)).
     intros phi. induction phi; intros []...
-    - decide (P = P0)... decide (t = t0)...
+    - decide (P = P0)... decide (t = t0)... right. intros H. apply n.
+      inversion H. now unshelve eapply EqDec.inj_right_pair in H1.
     - decide (phi1 = f)... decide (phi2 = f0)...
     - decide (phi1 = f)... decide (phi2 = f0)...
     - decide (phi1 = f)... decide (phi2 = f0)...
