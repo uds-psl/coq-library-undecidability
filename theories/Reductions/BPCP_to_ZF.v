@@ -6,6 +6,16 @@ From Undecidability.Problems Require Export ZF PCP.
 
 (** ** PCP Reduction *)
 
+(*
+  We encode solvability of a PCP instance as a formula expressing that there is
+   - a partial function f : ω → power (string × string)
+   - a natural number n
+   - a string s
+   such that:
+   - f k contains all cards derivable in k steps
+   - (s, s) ∈ f n
+ *)
+
 Section Reduction.
 
 Notation "x ∈ y" := (Pred elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
@@ -79,13 +89,17 @@ End Reduction.
 
 
 
-(** ** Verification of the Reduction *)
+
+
+(** ** Verification *)
 
 Section ZF.
 
   Context { M : ZF_Model }.
 
   Hypothesis VIEQ : extensional M.
+
+
 
   (** *** ZF Axioms *)
   
@@ -204,105 +218,22 @@ Section ZF.
     - intros [u HU]. apply H'. exists u. now rewrite <- (H2 u v).
   Qed.
 
-
-
-  (** *** Completeness **)
-
-  Definition append_all A (c : card bool) :=
-    map (fun p => (fst c ++ fst p, snd c ++ snd p)) A.
-
-  Definition derivation_step B C :=
-    flat_map (append_all C) B.
-
-  Fixpoint derivations B n :=
-    match n with
-    | O => B
-    | S n => derivation_step B (derivations B n)
-    end.
-
-  Lemma derivable_derivations B s t :
-    derivable B s t -> exists n, s/t el derivations B n.
+  Lemma is_rep_unique R x y y' :
+    M_is_rep R x y -> M_is_rep R x y' -> y = y'.
   Proof.
-    induction 1.
-    - exists 0. apply H.
-    - destruct IHderivable as [n Hn]. exists (S n).
-      apply in_flat_map. exists (x, y). split; trivial.
-      apply in_map_iff. exists (u,v). cbn. split; trivial.
+    intros H1 H2. apply M_ext; intros v.
+    - intros H % H1. now apply H2.
+    - intros H % H2. now apply H1.
   Qed.
+
+
+
+  (** *** Basic ZF *)
 
   Definition M_sing x :=
     {x; x}.
 
   Definition M_opair x y := ({{x; x}; {x; y}}).
-
-  Definition M_function f :=
-    forall x y y', M_opair x y ∈ f -> M_opair x y' ∈ f -> y = y'.
-
-  Definition M_enc_bool (x : bool) :=
-    if x then {∅; ∅} else ∅.
-
-  Fixpoint M_prep_string (s : string bool) x :=
-    match s with
-    | nil => x
-    | b::s => M_opair (M_enc_bool b) (M_prep_string s x)
-    end.
-
-  Definition M_enc_string (s : string bool) :=
-    M_prep_string s ∅.
-
-  Definition M_enc_card s t :=
-    M_opair (M_enc_string s) (M_enc_string t).
-
-  Fixpoint M_enc_stack (B : BSRS) :=
-    match B with
-    | nil => ∅
-    | (s,t)::B => M_enc_stack B ∪ M_sing (M_enc_card s t)
-    end.
-
-  Lemma eval_opair rho x y :
-    eval rho (opair x y) = M_opair (eval rho x) (eval rho y).
-  Proof.
-    reflexivity.
-  Qed.
-
-  Lemma eval_enc_bool rho b :
-    eval rho (enc_bool b) = M_enc_bool b.
-  Proof.
-    destruct b; reflexivity.
-  Qed.
-
-  Lemma eval_prep_string rho s x :
-    eval rho (prep_string s x) = M_prep_string s (eval rho x).
-  Proof.
-    induction s; trivial. cbn [prep_string].
-    now rewrite eval_opair, IHs, eval_enc_bool.
-  Qed.
-
-  Lemma eval_enc_string rho s :
-    eval rho (enc_string s) = M_enc_string s.
-  Proof.
-    now rewrite eval_prep_string.
-  Qed.
-  
-  Lemma eval_enc_stack rho B :
-    eval rho (enc_stack B) = M_enc_stack B.
-  Proof.
-    induction B; cbn; trivial. destruct a. unfold M_enc_card.
-    now rewrite <- IHB, <- !eval_enc_string with (rho:=rho), <- eval_opair.
-  Qed.
-
-  Fixpoint M_enc_derivations B n :=
-    match n with 
-    | O => M_sing (M_opair ∅ (M_enc_stack B))
-    | S n => M_enc_derivations B n ∪
-            M_sing (M_opair (numeral (S n)) (M_enc_stack (derivations B (S n))))
-    end.
-
-  Lemma numeral_omega n :
-    numeral n ∈ ω.
-  Proof.
-    induction n; cbn; now apply M_om1.
-  Qed.
 
   Lemma binunion_el x y z :
     x ∈ y ∪ z <-> x ∈ y \/ x ∈ z.
@@ -321,14 +252,6 @@ Section ZF.
     split.
     - now intros [H|H] % M_pair.
     - intros ->. apply M_pair. now left.
-  Qed.
-
-  Lemma enc_derivations_base B n :
-    M_opair ∅ (M_enc_stack B) ∈ M_enc_derivations B n.
-  Proof.
-    induction n; cbn.
-    - now apply sing_el.
-    - apply binunion_el. now left.
   Qed.
 
   Lemma M_pair1 x y :
@@ -404,91 +327,6 @@ Section ZF.
     intros y H. apply sigma_el. now left.
   Qed.
 
-  Lemma enc_derivations_bound B n k x :
-    M_opair k x ∈ M_enc_derivations B n -> k ∈ σ (numeral n).
-  Proof.
-    induction n; cbn.
-    - intros H % sing_el. apply opair_inj in H as [-> _].
-      apply sigma_el. now right.
-    - intros [H|H] % binunion_el.
-      + apply sigma_el. left. apply IHn, H.
-      + apply sing_el in H. apply opair_inj in H as [-> _]. apply sigma_eq.
-  Qed.
-
-  Definition trans x :=
-    forall y, y ∈ x -> y ⊆ x.
-
-  Lemma numeral_trans n :
-    trans (numeral n).
-  Proof.
-    induction n; cbn.
-    - intros x H. now apply M_eset in H.
-    - intros x [H| ->] % sigma_el; try apply sigma_sub.
-      apply IHn in H. intuition eauto using sigma_sub.
-  Qed.
-
-  Lemma numeral_wf n :
-    ~ numeral n ∈ numeral n.
-  Proof.
-    induction n.
-    - apply M_eset.
-    - intros [H|H] % sigma_el; fold numeral in *.
-      + apply IHn. eapply numeral_trans; eauto. apply sigma_eq.
-      + assert (numeral n ∈ numeral (S n)) by apply sigma_eq.
-        now rewrite H in H0.
-  Qed.
-
-  Lemma enc_derivations_fun B n :
-    forall k x y, M_opair k x ∈ M_enc_derivations B n -> M_opair k y ∈ M_enc_derivations B n -> x = y.
-  Proof.
-    induction n; cbn -[derivations]; intros k x y.
-    - intros H1 % sing_el H2 % sing_el.
-      rewrite <- H2 in H1. now apply opair_inj in H1.
-    - intros [H1|H1 % sing_el] % binunion_el [H2|H2 % sing_el] % binunion_el.
-      + now apply (IHn k x y).
-      + exfalso. apply enc_derivations_bound in H1.
-        destruct (opair_inj H2) as [-> _]. now apply (@numeral_wf (S n)).
-      + exfalso. apply enc_derivations_bound in H2.
-        destruct (opair_inj H1) as [-> _]. now apply (@numeral_wf (S n)).
-      + rewrite <- H2 in H1. now apply opair_inj in H1.
-  Qed.
-
-  Lemma enc_derivations_el B n k x :
-    M_opair k x ∈ M_enc_derivations B n -> exists l, k = numeral l /\ x = M_enc_stack (derivations B l).
-  Proof.
-    induction n; cbn.
-    - intros H % sing_el. exists 0. apply (opair_inj H).
-    - intros [H|H] % binunion_el.
-      + apply IHn, H.
-      + apply sing_el in H. exists (S n). apply (opair_inj H).
-  Qed.
-
-  Lemma numeral_lt k l :
-    k < l -> numeral k ∈ numeral l.
-  Proof.
-    induction 1.
-    - apply sigma_eq.
-    - eapply numeral_trans; eauto using sigma_eq.
-  Qed.
-
-  Lemma numeral_inj k l :
-    numeral k = numeral l -> k = l.
-  Proof.
-    intros Hk. assert (k = l \/ k < l \/ l < k) as [H|[H|H]] by lia; trivial.
-    all: apply numeral_lt in H; rewrite Hk in H; now apply numeral_wf in H.
-  Qed.
-
-  Lemma enc_derivations_step B n l :
-    numeral l ∈ numeral n
-    -> M_opair (σ (numeral l)) (M_enc_stack (derivations B (S l))) ∈ M_enc_derivations B n.
-  Proof.
-    induction n; cbn -[derivations].
-    - now intros H % M_eset.
-    - intros [H|H % sing_el] % binunion_el; apply binunion_el.
-      + left. apply IHn, H.
-      + right. apply numeral_inj in H as ->. now apply sing_el.
-  Qed.
-
   Lemma binunion_eset x :
     x = ∅ ∪ x.
   Proof.
@@ -533,6 +371,139 @@ Section ZF.
     - apply binunion_el in H as [H|H]; eauto.
   Qed.
 
+  
+  
+  (** *** Numerals *)
+
+  Lemma numeral_omega n :
+    numeral n ∈ ω.
+  Proof.
+    induction n; cbn; now apply M_om1.
+  Qed.
+
+  Definition trans x :=
+    forall y, y ∈ x -> y ⊆ x.
+
+  Lemma numeral_trans n :
+    trans (numeral n).
+  Proof.
+    induction n; cbn.
+    - intros x H. now apply M_eset in H.
+    - intros x [H| ->] % sigma_el; try apply sigma_sub.
+      apply IHn in H. intuition eauto using sigma_sub.
+  Qed.
+
+  Lemma numeral_wf n :
+    ~ numeral n ∈ numeral n.
+  Proof.
+    induction n.
+    - apply M_eset.
+    - intros [H|H] % sigma_el; fold numeral in *.
+      + apply IHn. eapply numeral_trans; eauto. apply sigma_eq.
+      + assert (numeral n ∈ numeral (S n)) by apply sigma_eq.
+        now rewrite H in H0.
+  Qed.
+
+  Lemma numeral_lt k l :
+    k < l -> numeral k ∈ numeral l.
+  Proof.
+    induction 1; cbn; apply sigma_el; auto.
+  Qed.
+
+  Lemma numeral_inj k l :
+    numeral k = numeral l -> k = l.
+  Proof.
+    intros Hk. assert (k = l \/ k < l \/ l < k) as [H|[H|H]] by lia; trivial.
+    all: apply numeral_lt in H; rewrite Hk in H; now apply numeral_wf in H.
+  Qed.
+
+
+
+  (** *** Encodings *)
+
+  (* Encodings of booleans, strings, cards, and stacks *)
+
+  Definition M_enc_bool (x : bool) :=
+    if x then {∅; ∅} else ∅.
+
+  Fixpoint M_prep_string (s : string bool) x :=
+    match s with
+    | nil => x
+    | b::s => M_opair (M_enc_bool b) (M_prep_string s x)
+    end.
+
+  Definition M_enc_string (s : string bool) :=
+    M_prep_string s ∅.
+
+  Definition M_enc_card s t :=
+    M_opair (M_enc_string s) (M_enc_string t).
+
+  Fixpoint M_enc_stack (B : BSRS) :=
+    match B with
+    | nil => ∅
+    | (s,t)::B => M_enc_stack B ∪ M_sing (M_enc_card s t)
+    end.
+
+  (* Injectivity of encodings *)
+
+  Lemma enc_bool_inj b c :
+    M_enc_bool b = M_enc_bool c -> b = c.
+  Proof.
+    destruct b, c; trivial; cbn.
+    - intros H. contradiction (@M_eset ∅).
+      pattern ∅ at 2. rewrite <- H. apply M_pair; auto.
+    - intros H. contradiction (@M_eset ∅).
+      pattern ∅ at 2. rewrite H. apply M_pair; auto.
+  Qed.
+
+  Lemma enc_string_inj s t :
+    M_enc_string s = M_enc_string t -> s = t.
+  Proof.
+    induction s in t|-*; destruct t as [|b t]; cbn; trivial.
+    - intros H. contradiction (M_eset (x:=M_sing (M_enc_bool b))).
+      rewrite H. apply M_pair. now left.
+    - intros H. contradiction (M_eset (x:=M_sing (M_enc_bool a))).
+      rewrite <- H. apply M_pair. now left.
+    - intros [H1 H2] % opair_inj. apply IHs in H2 as ->.
+      apply enc_bool_inj in H1 as ->. reflexivity.
+  Qed.
+
+  (* Agreement to syntactical encodings under evaluation *)
+
+  Lemma eval_opair rho x y :
+    eval rho (opair x y) = M_opair (eval rho x) (eval rho y).
+  Proof.
+    reflexivity.
+  Qed.
+
+  Lemma eval_enc_bool rho b :
+    eval rho (enc_bool b) = M_enc_bool b.
+  Proof.
+    destruct b; reflexivity.
+  Qed.
+
+  Lemma eval_prep_string rho s x :
+    eval rho (prep_string s x) = M_prep_string s (eval rho x).
+  Proof.
+    induction s; trivial. cbn [prep_string].
+    now rewrite eval_opair, IHs, eval_enc_bool.
+  Qed.
+
+  Lemma eval_enc_string rho s :
+    eval rho (enc_string s) = M_enc_string s.
+  Proof.
+    now rewrite eval_prep_string.
+  Qed.
+  
+  Lemma eval_enc_stack rho B :
+    eval rho (enc_stack B) = M_enc_stack B.
+  Proof.
+    induction B; cbn; trivial. destruct a. unfold M_enc_card.
+    now rewrite <- IHB, <- !eval_enc_string with (rho:=rho), <- eval_opair.
+  Qed.
+
+  (* Auxiliary lemmas for stack encodings *)
+
   Lemma M_enc_stack_app A B :
     M_enc_stack (A ++ B) = M_enc_stack A ∪ M_enc_stack B.
   Proof.
@@ -567,6 +538,100 @@ Section ZF.
     induction s; cbn; trivial.
     now rewrite IHs.
   Qed.
+
+
+
+  (** *** Preservation direction *)
+
+  (*
+     We encode the k-step solutions of a PCP instance B as a set-theoretic function M_enc_derivations.
+     This function satisfies the conditions expressed in the reduction formula and
+     contains a solution whenever B is solvable.
+   *)
+     
+  Definition append_all A (c : card bool) :=
+    map (fun p => (fst c ++ fst p, snd c ++ snd p)) A.
+
+  Definition derivation_step B C :=
+    flat_map (append_all C) B.
+
+  Fixpoint derivations B n :=
+    match n with
+    | O => B
+    | S n => derivation_step B (derivations B n)
+    end.
+
+  Lemma derivable_derivations B s t :
+    derivable B s t -> exists n, s/t el derivations B n.
+  Proof.
+    induction 1.
+    - exists 0. apply H.
+    - destruct IHderivable as [n Hn]. exists (S n).
+      apply in_flat_map. exists (x, y). split; trivial.
+      apply in_map_iff. exists (u,v). cbn. split; trivial.
+  Qed.
+
+  Fixpoint M_enc_derivations B n :=
+    match n with 
+    | O => M_sing (M_opair ∅ (M_enc_stack B))
+    | S n => M_enc_derivations B n ∪
+            M_sing (M_opair (numeral (S n)) (M_enc_stack (derivations B (S n))))
+    end.
+
+  Lemma enc_derivations_base B n :
+    M_opair ∅ (M_enc_stack B) ∈ M_enc_derivations B n.
+  Proof.
+    induction n; cbn.
+    - now apply sing_el.
+    - apply binunion_el. now left.
+  Qed.
+
+  Lemma enc_derivations_bound B n k x :
+    M_opair k x ∈ M_enc_derivations B n -> k ∈ σ (numeral n).
+  Proof.
+    induction n; cbn.
+    - intros H % sing_el. apply opair_inj in H as [-> _].
+      apply sigma_el. now right.
+    - intros [H|H] % binunion_el.
+      + apply sigma_el. left. apply IHn, H.
+      + apply sing_el in H. apply opair_inj in H as [-> _]. apply sigma_eq.
+  Qed. 
+
+  Lemma enc_derivations_fun B n :
+    forall k x y, M_opair k x ∈ M_enc_derivations B n -> M_opair k y ∈ M_enc_derivations B n -> x = y.
+  Proof.
+    induction n; cbn -[derivations]; intros k x y.
+    - intros H1 % sing_el H2 % sing_el.
+      rewrite <- H2 in H1. now apply opair_inj in H1.
+    - intros [H1|H1 % sing_el] % binunion_el [H2|H2 % sing_el] % binunion_el.
+      + now apply (IHn k x y).
+      + exfalso. apply enc_derivations_bound in H1.
+        destruct (opair_inj H2) as [-> _]. now apply (@numeral_wf (S n)).
+      + exfalso. apply enc_derivations_bound in H2.
+        destruct (opair_inj H1) as [-> _]. now apply (@numeral_wf (S n)).
+      + rewrite <- H2 in H1. now apply opair_inj in H1.
+  Qed.
+
+  Lemma enc_derivations_el B n k x :
+    M_opair k x ∈ M_enc_derivations B n -> exists l, k = numeral l /\ x = M_enc_stack (derivations B l).
+  Proof.
+    induction n; cbn.
+    - intros H % sing_el. exists 0. apply (opair_inj H).
+    - intros [H|H] % binunion_el.
+      + apply IHn, H.
+      + apply sing_el in H. exists (S n). apply (opair_inj H).
+  Qed. 
+
+  Lemma enc_derivations_step B n l :
+    numeral l ∈ numeral n
+    -> M_opair (σ (numeral l)) (M_enc_stack (derivations B (S l))) ∈ M_enc_derivations B n.
+  Proof.
+    induction n; cbn -[derivations].
+    - now intros H % M_eset.
+    - intros [H|H % sing_el] % binunion_el; apply binunion_el.
+      + left. apply IHn, H.
+      + right. apply numeral_inj in H as ->. now apply sing_el.
+  Qed. 
 
   Lemma enc_stack_combinations B rho C x X Y :
     rho ⊨ combinations B X Y -> eval rho X = M_enc_stack C -> eval rho Y = x -> x = M_enc_stack (derivation_step B C).
@@ -635,8 +700,17 @@ Section ZF.
     - cbn. apply VIEQ. reflexivity.
   Qed.
 
-  (** Converse **)
 
+
+  (** *** Reflection direction *)
+
+  (*
+    Conversely, we show how to reconstruct a solution of a PCP instance B from a model
+    (1) satisfying the reduction formula defined above and
+    (2) containing only the standard natural numers.
+    The latter seems necessary to exclude non-standard solutions the model might contain.
+   *)
+    
   Definition M_comb_rel s t :=
     fun u v => exists u1 u2, u = M_opair u1 u2 /\ v = M_opair (M_prep_string s u1) (M_prep_string t u2).
 
@@ -699,14 +773,6 @@ Section ZF.
   Definition M_solutions B f n :=
     M_opair ∅ (M_enc_stack B) ∈ f /\ forall k x y, k ∈ n -> M_opair k x ∈ f -> M_combinations B x y -> M_opair (σ k) y ∈ f.
 
-  Lemma is_rep_unique R x y y' :
-    M_is_rep R x y -> M_is_rep R x y' -> y = y'.
-  Proof.
-    intros H1 H2. apply M_ext; intros v.
-    - intros H % H1. now apply H2.
-    - intros H % H2. now apply H1.
-  Qed. 
-
   Lemma comb_rel_rep C s t :
     M_is_rep (M_comb_rel s t) (M_enc_stack C) (M_enc_stack (append_all C (s / t))).
   Proof.
@@ -732,12 +798,6 @@ Section ZF.
     apply (is_rep_unique Hy2). apply comb_rel_rep.
   Qed.
 
-  Lemma numeral_mon k n :
-    k < n -> numeral k ∈ numeral n.
-  Proof.
-    induction 1; cbn; apply sigma_el; auto.
-  Qed.
-
   Lemma solutions_derivations B f n k :
     M_solutions B f (numeral n) -> k <= n -> M_opair (numeral k) (M_enc_stack (derivations B k)) ∈ f.
   Proof.
@@ -745,7 +805,7 @@ Section ZF.
     - apply H.
     - assert (Hk' : k <= n) by lia. specialize (IHk Hk').
       destruct H as [_ H]. eapply H in IHk; eauto.
-      + now apply numeral_mon.
+      + now apply numeral_lt.
       + apply M_combinations_step.
   Qed.
 
@@ -760,6 +820,9 @@ Section ZF.
       constructor 2; trivial. apply IHn, H3.
   Qed.
 
+  Definition M_function f :=
+    forall x y y', M_opair x y ∈ f -> M_opair x y' ∈ f -> y = y'.
+
   Lemma M_solutions_el B f n k X p :
     M_function f -> M_solutions B f (numeral n) -> M_opair (numeral k) X ∈ f
     -> k <= n -> p ∈ X -> exists u v, p = M_enc_card u v /\ derivable B u v.
@@ -767,28 +830,6 @@ Section ZF.
     intros Hf Hn HX Hk Hp. apply (solutions_derivations Hn) in Hk.
     rewrite (Hf _ _ _ HX Hk) in Hp. apply enc_stack_el' in Hp as (s&t&H&->).
     exists s, t. split; trivial. eapply derivations_derivable; eauto.
-  Qed.
-
-  Lemma enc_bool_inj b c :
-    M_enc_bool b = M_enc_bool c -> b = c.
-  Proof.
-    destruct b, c; trivial; cbn.
-    - intros H. contradiction (@M_eset ∅).
-      pattern ∅ at 2. rewrite <- H. apply M_pair; auto.
-    - intros H. contradiction (@M_eset ∅).
-      pattern ∅ at 2. rewrite H. apply M_pair; auto.
-  Qed.
-
-  Lemma enc_string_inj s t :
-    M_enc_string s = M_enc_string t -> s = t.
-  Proof.
-    induction s in t|-*; destruct t as [|b t]; cbn; trivial.
-    - intros H. contradiction (M_eset (x:=M_sing (M_enc_bool b))).
-      rewrite H. apply M_pair. now left.
-    - intros H. contradiction (M_eset (x:=M_sing (M_enc_bool a))).
-      rewrite <- H. apply M_pair. now left.
-    - intros [H1 H2] % opair_inj. apply IHs in H2 as ->.
-      apply enc_bool_inj in H1 as ->. reflexivity.
   Qed.
 
   Theorem PCP_ZF2 B rho :
@@ -810,6 +851,8 @@ Section ZF.
   Qed.
   
 End ZF.
+
+
 
 
 
