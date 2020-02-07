@@ -3,12 +3,14 @@ Require Import Arith ZArith Lia List.
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list gcd prime php utils_nat.
 
-From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
+From Undecidability.Shared.Libs.DLW.Vec 
+  Require Import pos vec.
 
 From Undecidability.H10.ArithLibs 
   Require Import Zp lagrange.
 
-From Undecidability.H10 Require Import H10.
+From Undecidability.H10 
+  Require Import H10.
 
 From Undecidability.H10.Dio 
   Require Import dio_logic dio_elem dio_single.
@@ -97,15 +99,6 @@ Arguments dp_comp {V P}.
 Notation dp_add := (dp_comp do_add).
 Notation dp_mul := (dp_comp do_mul).
 
-Definition H10Z_PROBLEM := { n : nat & dio_polynomial (pos n) Empty_set 
-                                    * dio_polynomial (pos n) Empty_set }%type.
-
-Definition H10Z : H10Z_PROBLEM -> Prop.
-Proof.
-  intros (n & p & q).
-  apply (dio_single_pred (p,q)), (fun _ => 0%Z).
-Defined.
-
 Local Definition inj k n := 4 * n + k.
 
 Lemma injection_spec k1 k2 n m : k1 < 4 -> k2 < 4 -> inj k1 n = inj k2 m -> k1 = k2 /\ n = m.
@@ -162,79 +155,97 @@ Lemma create_sol_correct (n : nat) (Φ : pos n -> nat) (Φ' : pos (n * 4) -> Z) 
   (forall i : pos n, Z.of_nat (Φ i) = sq (Φ' (inj3 i)) + sq (Φ' (inj2 i)) + sq (Φ' (inj1 i)) + sq (Φ' (inj0 i)))%Z ->
   forall p : dionat.dio_polynomial (pos n) Empty_set, Z.of_nat (dio_single.dp_eval Φ (fun _ : Empty_set => 0) p) = dp_eval Φ' (fun _ : Empty_set => 0%Z) (to_Z_poly p).
 Proof.
-  intros. induction p; cbn; try destruct d; try congruence.
-  - rewrite H. lia.
-  - rewrite Nat2Z.inj_add. congruence.
-  - rewrite Nat2Z.inj_mul. congruence.
+  intros H p. 
+  induction p as [ k | v | [] | [] ]; cbn; auto.
+  - rewrite H; ring.
+  - rewrite Nat2Z.inj_add; congruence.
+  - rewrite Nat2Z.inj_mul; congruence.
 Qed.
-
-From Equations.Prop Require Import DepElim.
-
-Derive Signature for pos.
 
 Lemma create_sol_exists (n : nat) (Φ : pos n -> nat) : exists (Φ' : pos (n * 4) -> Z),
     (forall i : pos n, Z.of_nat (Φ i) = sq (Φ' (inj3 i)) + sq (Φ' (inj2 i)) + sq (Φ' (inj1 i)) + sq (Φ' (inj0 i)))%Z.
 Proof.
-  induction n.
-  - cbn [mult]. exists (fun _ => 0%Z). intros. inversion i.
-  - destruct (IHn (fun j => Φ (pos_nxt j))) as [Φ'].
+  induction n as [ | n IHn ].
+  - exists (fun _ => 0%Z); intros p; invert pos p.
+  - destruct (IHn (fun j => Φ (pos_nxt j))) as [Φ' H'].
     cbn [mult].
     destruct (lagrange_theorem_nat (Φ pos0)) as (a & b & c & d & Hl).
-    exists (fun j : pos (4 + n * 4) => match pos_both _ _ j with inl pos0 => a | inl pos1 => b | inl pos2 => c | inl _ => d | inr j => Φ' j end).
-    intros i. depelim i.
-    + rewrite Hl. cbn. lia.
-    + rewrite H. cbn. lia.
+    exists (fun j : pos (4 + n * 4) => 
+       match pos_both _ _ j with 
+        | inl pos0 => a 
+        | inl pos1 => b 
+        | inl pos2 => c 
+        | inl _    => d 
+        | inr j => Φ' j 
+      end).
+    intros p; invert pos p; auto.
+    rewrite Hl; ring.
 Qed.
 
 Lemma recover_sol_exists (n : nat) (Φ' : pos (n * 4) -> Z) : exists (Φ : pos n -> nat),
     (forall i : pos n, Z.of_nat (Φ i) = sq (Φ' (inj3 i)) + sq (Φ' (inj2 i)) + sq (Φ' (inj1 i)) + sq (Φ' (inj0 i)))%Z.
 Proof.
-  induction n.
-  - cbn [mult]. exists (fun _ => 0). intros. inversion i.
-  - destruct (IHn (fun j => Φ' (pos_right 4 j))) as [Φ].
+  induction n as [ | n IHn ].
+  - exists (fun _ => 0); intros p; invert pos p.
+  - destruct (IHn (fun j => Φ' (pos_right 4 j))) as [Φ H].
     unshelve eexists.
-    + intros i. depelim i.
+    + intros p; invert pos p.
       * exact (Z.to_nat (sq (Φ' (inj3 pos0)) + sq (Φ' (inj2 pos0)) + sq (Φ' (inj1 pos0)) + sq (Φ' (inj0 pos0)))).
-      * exact (Φ i).
-    + intros i. depelim i.
-      * cbn - [inj3 inj2 inj1 inj0].
-        rewrite Z2Nat.id. reflexivity.
-        pose proof (Z.square_nonneg (Φ' (inj3 pos0))).
-        pose proof (Z.square_nonneg (Φ' (inj2 pos0))).
-        pose proof (Z.square_nonneg (Φ' (inj1 pos0))).
-        pose proof (Z.square_nonneg (Φ' (inj0 pos0))).
+      * exact (Φ p).
+    + intros p; invert pos p.
+      * rewrite Z2Nat.id; auto.
+        pose proof (Z.square_nonneg (Φ' pos3)).
+        pose proof (Z.square_nonneg (Φ' pos2)).
+        pose proof (Z.square_nonneg (Φ' pos1)).
+        pose proof (Z.square_nonneg (Φ' pos0)).
         lia.
-      * cbn. now rewrite H.
+      * apply H.
 Qed.
 
 Lemma create_sol (n : nat) (Φ : pos n -> nat) : exists Φ' : pos (n * 4) -> Z,
   forall p : dionat.dio_polynomial (pos n) Empty_set, Z.of_nat (dio_single.dp_eval Φ (fun _ : Empty_set => 0) p) = dp_eval Φ' (fun _ : Empty_set => 0%Z) (to_Z_poly p).
 Proof.
   destruct (create_sol_exists Φ) as [Φ'].
-  exists Φ'. intros p. now eapply create_sol_correct.
+  exists Φ'; intro; now eapply create_sol_correct.
 Qed.
 
 Lemma recover_sol (n : nat) (Φ' : pos (n * 4) -> Z) : exists Φ : pos n -> nat,
   forall p : dionat.dio_polynomial (pos n) Empty_set, Z.of_nat (dio_single.dp_eval Φ (fun _ : Empty_set => 0) p) = dp_eval Φ' (fun _ : Empty_set => 0%Z) (to_Z_poly p).
 Proof.
   destruct (recover_sol_exists Φ') as [Φ].
-  exists Φ. intros p. now eapply create_sol_correct.
+  exists Φ; intro; now eapply create_sol_correct.
 Qed.
 
-From Undecidability.Problems Require Import Reduction.
+Definition H10Z_PROBLEM := { n : nat & dio_polynomial (pos n) Empty_set }.
 
-Lemma red : H10 ⪯ H10Z.
+(** The original H10 over relative intergers is P(x1,..,xn) = 0 *)
+
+Definition H10Z : H10Z_PROBLEM -> Prop.
+Proof.
+  intros (n & p).
+  exact (exists Φ, dp_eval Φ (fun _ => 0%Z) p = 0%Z).
+Defined.
+
+From Undecidability.Problems 
+  Require Import Reduction.
+
+Opaque Zmult.
+
+Lemma H10_H10Z : H10 ⪯ H10Z.
 Proof.
   unshelve eexists.
-  - intros (n & p & q). exists (n * 4).
-    exact (to_Z_poly p, to_Z_poly q).
+  - intros (n & p & q). 
+    exists (n * 4).
+    exact (dp_add (to_Z_poly p) (dp_mul (dp_cnst (-1)%Z) (to_Z_poly q))).
   - intros (n & p & q).
-    cbn. hnf. split; intros [ Φ ].
-    + destruct (create_sol Φ) as [Φ'].
-      exists Φ'. cbn. rewrite <- !H0.
-      rewrite H. reflexivity.
-    + destruct (recover_sol Φ) as [Φ'].
-      exists Φ'. cbn.
-      eapply Nat2Z.inj. rewrite !H0.
-      rewrite H. reflexivity.
+    simpl; split; intros [ Φ H ]; simpl in *.
+    + destruct (create_sol Φ) as [Φ' H'].
+      exists Φ'. 
+      rewrite <- !H'; lia.
+    + destruct (recover_sol Φ) as [Φ' H'].
+      exists Φ'; simpl.
+      apply Nat2Z.inj; rewrite !H'; lia.
 Qed.
+
+Check H10_H10Z.
+Print Assumptions H10_H10Z.
