@@ -944,8 +944,9 @@ Section QM.
   Proof.
     induction n; trivial.
     cbn [numeral]. rewrite <- IHn.
-    admit.
-  Admitted.
+    apply Aeq_NS_eq. cbn -[Anumeral].
+    now rewrite <- !CR1.
+  Qed.
 
   Lemma SET_standard :
     standard SET_ZF.
