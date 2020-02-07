@@ -856,7 +856,7 @@ End ZF.
 
 
 
-(** ** Final Result *)
+(** ** Final Results *)
 
 Theorem PCP_ZF B :
   (exists M : ZF_Model, extensional M /\ standard M) -> BPCP' B <-> ZF_entails (solvable B).
@@ -868,3 +868,14 @@ Proof.
 Qed.
 
 Print Assumptions PCP_ZF.
+
+Corollary PCP_ZF' B :
+  extensional_normaliser -> BPCP' B <-> ZF_entails (solvable B).
+Proof.
+  intros H. apply PCP_ZF.
+  exists SET_ZF. split.
+  - apply SET_ext.
+  - apply SET_standard.
+Qed.
+
+Print Assumptions PCP_ZF'.
