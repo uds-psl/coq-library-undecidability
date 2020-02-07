@@ -331,25 +331,56 @@ Section ZF.
     - apply binunion_el. now left.
   Qed.
 
-  Lemma opair1 x y z :
-    z ∈ x <-> (forall u, u ∈ M_opair x y -> exists v, v ∈ u /\ z ∈ v).
+  Lemma M_pair1 x y :
+    x ∈ {x; y}.
   Proof.
-    unfold M_opair. split; intros H.
-    - intros u [->| ->] % M_pair; exists x; rewrite M_pair; auto.
-    - destruct (H ({x; x})) as [u Hu]; try (rewrite M_pair; auto).
-      rewrite M_pair in Hu. now destruct Hu as [[->| ->] Hu].
+    apply M_pair. now left.
   Qed.
 
-  Lemma opair2 x y z :
-    z ∈ y <-> ((x = y -> (forall u, u ∈ M_opair x y -> exists v, v ∈ u /\ z ∈ v)) /\ (x <> y -> )
+  Lemma M_pair2 x y :
+    y ∈ {x; y}.
+  Proof.
+    apply M_pair. now right.
+  Qed.
+
+  Lemma sing_pair x y z :
+    {x; x} = {y; z} -> x = y /\ x = z.
+  Proof.
+    intros He. split.
+    - assert (H : y ∈ {y; z}) by apply M_pair1.
+      rewrite <- He in H. apply M_pair in H. intuition.
+    - assert (H : z ∈ {y; z}) by apply M_pair2.
+      rewrite <- He in H. apply M_pair in H. intuition.
+  Qed.
+
+  Lemma opair_inj1 x x' y y' :
+    M_opair x y = M_opair x' y' -> x = x'.
+  Proof.
+    intros He. assert (H : {x; x} ∈ M_opair x y) by apply M_pair1.
+    rewrite He in H. apply M_pair in H as [H|H]; apply (sing_pair H).
+  Qed.
+
+  Lemma opair_inj2 x x' y y' :
+    M_opair x y = M_opair x' y' -> y = y'.
+  Proof.
+    intros He. assert (y = x' \/ y = y') as [->| ->]; trivial.
+    - assert (H : {x; y} ∈ M_opair x y) by apply M_pair2.
+      rewrite He in H. apply M_pair in H as [H|H].
+      + symmetry in H. apply sing_pair in H. intuition.
+      + assert (H' : y ∈ {x; y}) by apply M_pair2.
+        rewrite H in H'. now apply M_pair in H'.
+    - assert (x = x') as -> by now apply opair_inj1 in He.
+      assert (H : {x'; y'} ∈ M_opair x' y') by apply M_pair2.
+      rewrite <- He in H. apply M_pair in H as [H|H]; apply (sing_pair (eq_sym H)).
+  Qed.     
 
   Lemma opair_inj x x' y y' :
     M_opair x y = M_opair x' y' -> x = x' /\ y = y'.
   Proof.
-    intros H. split; apply M_ext; intros z Hz.
-    - eapply opair1. rewrite <- H. now apply opair1.
-    - eapply opair1. rewrite H. now apply opair1.
-  Admitted.
+    intros H. split.
+    - eapply opair_inj1; eassumption.
+    - eapply opair_inj2; eassumption.
+  Qed.
 
   Lemma sigma_el x y :
     x ∈ σ y <-> x ∈ y \/ x = y.
@@ -604,8 +635,6 @@ Section ZF.
     - cbn. apply VIEQ. reflexivity.
   Qed.
 
-  Print Assumptions PCP_ZF1.
-
   (** Converse **)
 
   Definition M_comb_rel s t :=
@@ -779,8 +808,6 @@ Section ZF.
     destruct (VIN _ H1') as [l ->]. destruct (@M_solutions_el B f l l X p) as (u&v&->&H2); trivial. now split.
     exists u. apply opair_inj in H6' as [<- H]. apply enc_string_inj in H as ->. apply H2.
   Qed.
-
-  Print Assumptions PCP_ZF2.
   
 End ZF.
 
@@ -796,3 +823,5 @@ Proof.
   - destruct HZF as [M[H1 H2]]. specialize (H M H1 (fun _ => @i_f _ _ _ eset Vector.nil)).
     apply PCP_ZF2 in H as [s Hs]; trivial. now exists s.
 Qed.
+
+Print Assumptions PCP_ZF.
