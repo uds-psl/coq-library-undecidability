@@ -894,6 +894,50 @@ Section QM.
       now rewrite NS_p1_eq.
   Qed.
 
+  (* Description Operator *)
+
+  Definition desc (P : SET -> Prop) :=
+    NS (tdelta (fun s => empred P s)).
+
+  Lemma descAx (P : SET -> Prop) X :
+    P X -> unique P X -> P (desc P).
+  Proof.
+    intros H1 H2. 
+    enough (empred P (tdelta (empred P))) by assumption.
+    apply TDesc1. exists (proj1_sig X).
+    intros t. split; intros H.
+    - apply NS_eq_Aeq_p1. symmetry. now apply H2.
+    - symmetry in H. apply (empred_Aeq H).
+      hnf. now rewrite NS_p1_eq.
+  Qed.
+
+  Lemma descAx2 (P P' : SET -> Prop) :
+    (forall x, P x <-> P' x) -> desc P = desc P'.
+  Proof.
+    intros H. apply Aeq_NS_eq, Aeq_ref', TDesc2.
+    intros s. apply H.
+  Qed.
+
+  (* Relational Replacement *)
+  
+  Definition Srep (R : SET -> SET -> Prop) X :=
+    Srepl (fun x => desc (R x)) (Ssep (fun x => exists y, R x y) X).
+
+  Definition functional X (R : X -> X -> Prop) :=
+    forall x y y', R x y -> R x y' -> y = y'.
+
+  Lemma repAx R X Y :
+    functional R -> IN Y (Srep R X) <-> exists Z, IN Z X /\ R Z Y.
+  Proof.
+    intros H. unfold Srep. rewrite replAx.
+    split; intros [Z[H1 H2]]; exists Z; split.
+    - now apply sepAx in H1.
+    - apply sepAx in H1 as [_ [Y' H']].
+      subst. eapply descAx; firstorder eauto.
+    - apply sepAx; split; trivial. now exists Y.
+    - eapply H; eauto. eapply descAx; firstorder eauto.
+  Qed.
+
   (* Infinity *)
 
   Definition Ssucc X :=
@@ -950,21 +994,24 @@ Section QM.
   Lemma SET_sep phi rho :
     bounded 1 phi -> rho ⊨ ax_sep phi.
   Proof.
-    intros H x.
+    intros H x. cbn.
     exists (Ssep (fun y => (y .: rho) ⊨ phi) x).
-    intros y. cbn. split.
-    - intros [H1 H2] % sepAx. split; trivial.
-      eapply sat_bounded1; eassumption.
-    - intros [H1 H2]. apply sepAx. split; trivial.
-      eapply sat_bounded1; eassumption.
+    intros y. rewrite sepAx.
+    split; intros [H1 H2]; split; eauto using sat_bounded1.
   Qed.
 
   Lemma SET_rep phi rho :
     bounded 2 phi -> rho ⊨ ax_rep phi.
   Proof.
     intros H H' x. cbn.
-    (* exists (Srep (fun u v => (v .: (u .: rho)) ⊨ phi) x). *)
-  Admitted.
+    exists (Srep (fun u v => (u .: (v .: rho)) ⊨ phi) x).
+    intros y. rewrite repAx.
+    - split; intros [z[H1 H2]]; exists z; split; eauto using sat_bounded2.
+    - intros a b b' H1 H2. apply (H' a b b'); fold sat; eapply sat_comp, sat_ext.
+      2: eapply sat_bounded2; try apply H1; trivial.
+      3: eapply sat_bounded2; try apply H2; trivial.
+      all: intros [|[]]; reflexivity.
+  Qed.
 
   Definition SET_ZF : ZF_Model.
   Proof.
