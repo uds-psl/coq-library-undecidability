@@ -138,6 +138,27 @@ Proof.
     Unshelve. all: now apply bound_step.
 Qed.
 
+Lemma sat_bounded0 D {I : interp D} phi rho rho' :
+  bounded 0 phi -> rho ⊨ phi -> rho' ⊨ phi.
+Proof.
+  intros H1 H2. apply (sat_bounded H1 (rho':=rho)); trivial.
+  intros k Hk. exfalso. lia.
+Qed.
+
+Lemma sat_bounded1 D {I : interp D} phi x rho rho' :
+  bounded 1 phi -> (x.:rho) ⊨ phi -> (x.:rho') ⊨ phi.
+Proof.
+  intros H1 H2. apply (sat_bounded H1 (rho':=x.:rho)); trivial.
+  intros k Hk. assert (k = 0) as -> by lia. reflexivity.
+Qed.
+
+Lemma sat_bounded2 D {I : interp D} phi x y rho rho' :
+  bounded 2 phi -> (x.:(y.:rho)) ⊨ phi -> (x.:(y.:rho')) ⊨ phi.
+Proof.
+  intros H1 H2. apply (sat_bounded H1 (rho':=x.:(y.:rho))); trivial.
+  intros k Hk. assert (k = 0 \/ k = 1) as [->| ->] by lia; reflexivity.
+Qed.
+
 
 
 (** ** ZF-Models *)
@@ -914,8 +935,6 @@ Section QM.
 
   (** *** Instantiation of first-order axiomatisation *)
 
-  From Equations Require Import Equations.
-
   Instance SET_interp : interp SET.
   Proof.
     split; intros [].
@@ -931,11 +950,20 @@ Section QM.
   Lemma SET_sep phi rho :
     bounded 1 phi -> rho ⊨ ax_sep phi.
   Proof.
-  Admitted.
+    intros H x.
+    exists (Ssep (fun y => (y .: rho) ⊨ phi) x).
+    intros y. cbn. split.
+    - intros [H1 H2] % sepAx. split; trivial.
+      eapply sat_bounded1; eassumption.
+    - intros [H1 H2]. apply sepAx. split; trivial.
+      eapply sat_bounded1; eassumption.
+  Qed.
 
   Lemma SET_rep phi rho :
     bounded 2 phi -> rho ⊨ ax_rep phi.
   Proof.
+    intros H H' x. cbn.
+    (* exists (Srep (fun u v => (v .: (u .: rho)) ⊨ phi) x). *)
   Admitted.
 
   Definition SET_ZF : ZF_Model.

@@ -149,27 +149,6 @@ Section ZF.
     apply V_om2 with (rho:=fun _ => ∅).
   Qed.
 
-  Lemma sat_bounded0 phi rho rho' :
-    bounded 0 phi -> rho ⊨ phi -> rho' ⊨ phi.
-  Proof.
-    intros H1 H2. apply (sat_bounded H1 (rho':=rho)); trivial.
-    intros k Hk. exfalso. lia.
-  Qed.
-
-  Lemma sat_bounded1 phi x rho rho' :
-    bounded 1 phi -> (x.:rho) ⊨ phi -> (x.:rho') ⊨ phi.
-  Proof.
-    intros H1 H2. apply (sat_bounded H1 (rho':=x.:rho)); trivial.
-    intros k Hk. assert (k = 0) as -> by lia. reflexivity.
-  Qed.
-
-  Lemma sat_bounded2 phi x y rho rho' :
-    bounded 2 phi -> (x.:(y.:rho)) ⊨ phi -> (x.:(y.:rho')) ⊨ phi.
-  Proof.
-    intros H1 H2. apply (sat_bounded H1 (rho':=x.:(y.:rho))); trivial.
-    intros k Hk. assert (k = 0 \/ k = 1) as [->| ->] by lia; reflexivity.
-  Qed.
-
   Definition agrees_fun phi (P : M -> Prop) :=
     forall x rho, P x <-> (x.:rho) ⊨ phi.
 
