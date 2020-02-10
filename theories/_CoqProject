@@ -397,6 +397,7 @@ FOLP/FullSyntax.v
 FOLP/FullFOL.v
 FOLP/FullTarski.v
 FOLP/Input.v
+FOLP/ZF_model.v
 
 Problems/FOL.v
 Problems/TM.v

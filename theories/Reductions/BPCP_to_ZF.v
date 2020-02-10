@@ -848,6 +848,8 @@ Qed.
 
 Print Assumptions PCP_ZF.
 
+From Undecidability.FOLP Require Import ZF_model.
+
 Corollary PCP_ZF' B :
   inhabited extensional_normaliser -> BPCP' B <-> ZF_entails (solvable B).
 Proof.
