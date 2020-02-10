@@ -870,9 +870,9 @@ Qed.
 Print Assumptions PCP_ZF.
 
 Corollary PCP_ZF' B :
-  extensional_normaliser -> BPCP' B <-> ZF_entails (solvable B).
+  inhabited extensional_normaliser -> BPCP' B <-> ZF_entails (solvable B).
 Proof.
-  intros H. apply PCP_ZF.
+  intros [H]. apply PCP_ZF.
   exists SET_ZF. split.
   - apply SET_ext.
   - apply SET_standard.

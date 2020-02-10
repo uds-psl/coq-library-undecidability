@@ -881,15 +881,34 @@ Section QM.
   Definition Sinductive X :=
     IN Sempty X /\ forall Y, IN Y X -> IN (Ssucc Y) X.
 
+  Lemma Ainductive_Sinductive X :
+    Ainductive (proj1_sig X) <-> Sinductive X.
+  Proof.
+    split; intros [H1 H2]; split.
+    - now apply Ain_IN_NS_p1.
+    - intros Y H % IN_Ain_p1. apply H2 in H.
+      unfold IN. cbn. now rewrite <- !CR1.
+    - now apply IN_Ain_NS_p1.
+    - intros s H % Ain_IN_NS_p1. specialize (H2 (NS s) H).
+      unfold IN in H2. cbn in H2. now rewrite <- !CR1 in H2.
+  Qed.
+
   Lemma omAx1 :
     Sinductive Som.
   Proof.
-  Admitted.
+    split.
+    - apply Ain_IN_NS. apply AomAx1.
+    - intros X H. unfold IN in *; cbn in *.
+      rewrite <- !CR1 in *. now apply AomAx1.
+  Qed.
 
   Lemma omAx2 :
     forall X, Sinductive X -> Subq Som X.
   Proof.
-  Admitted.
+    intros X H. apply ASubq_Subq_p1. cbn.
+    rewrite <- CR1. apply AomAx2.
+    now apply Ainductive_Sinductive.
+  Qed.
 
 
 
