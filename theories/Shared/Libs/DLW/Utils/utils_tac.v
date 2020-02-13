@@ -49,6 +49,15 @@ Ltac msplit n :=
     | S ?n => split; [ | msplit n ]
    end.
 
+Ltac lsplit n := 
+  match n with 
+    | 0    => idtac 
+    | S ?n => split; [ lsplit n | ]
+   end.
+
+Fact equal_equiv (P Q : Prop) : P = Q -> P <-> Q.
+Proof. intros []; tauto. Qed.
+
 Section forall_equiv.
 
   Variable (X : Type) (A P Q : X -> Prop) (HPQ : forall n, A n -> P n <-> Q n).

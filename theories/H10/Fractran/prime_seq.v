@@ -75,19 +75,39 @@ Proof.
     + eapply divides_fact. eapply prime_ge_2 in H; eauto.
 Qed.
 
+Lemma prime_dec p : { prime p } + { ~ prime p }.
+Proof.
+  destruct (le_lt_dec 2 p) as [ H | H ].
+  + destruct (prime_or_div H) as [ (q & H1 & H2) | ? ]; auto.
+    right; intros C; apply C in H2; omega.
+  + right; intros (H1 & H2).
+    destruct (H2 2); try omega.
+    exists 0; simpl; omega.
+Qed.
+
+Lemma first_prime_above m : { p | m < p /\ prime p /\ forall q, m < q -> prime q -> p <= q }.
+Proof.
+  destruct min_dec with (P := fun p => m < p /\ prime p)
+    as (p & H1 & H2).
+  + intros n.
+    destruct (lt_dec m n); destruct (prime_dec n); tauto.
+  + destruct (prime_above m) as (p & ?); exists p; auto.
+  + exists p; firstorder.
+Qed.
+
 Lemma prime_divides p q :
   prime p -> prime q -> divides p q -> p = q.
 Proof.
   now intros Hp Hq [ [] % Hp | ] % Hq.
 Qed.
 
-Definition nxtprime n := proj1_sig (prime_above n).
+Definition nxtprime n := proj1_sig (first_prime_above n).
 
 Fact nxtprime_spec1 n : n < nxtprime n.
-Proof. apply (proj2_sig (prime_above n)). Qed.
+Proof. apply (proj2_sig (first_prime_above n)). Qed.
 
 Fact nxtprime_spec2 n : prime (nxtprime n).
-Proof. apply (proj2_sig (prime_above n)). Qed.
+Proof. apply (proj2_sig (first_prime_above n)). Qed.
 
 Hint Resolve nxtprime_spec1 nxtprime_spec2 prime_2.
 
@@ -109,6 +129,63 @@ Lemma nthprime_inj n m : nthprime n = nthprime m -> n = m.
 Proof.
   destruct (lt_eq_lt_dec n m) as [ [ H | ] | H ]; auto; 
     intros; eapply nthprime_ge in H; omega.
+Qed.
+
+(** Certified Erastosthene sieve would be helpfull here *)
+
+Fact nthprime_0 : nthprime 0 = 2.
+Proof. auto. Qed.
+
+Fact nthprime_1 : nthprime 1 = 3.
+Proof.
+  unfold nthprime; simpl.
+  unfold nxtprime.
+  destruct (first_prime_above 2) as (p & H1 & H2 & H3); simpl.
+  cut (p <= 3); try omega.
+  apply H3; try omega.
+  split; try omega.
+  intros q Hq.
+  cut (q <= 3).
+  + revert q Hq; intros [ | [ | [ | q ] ] ] (k & Hk); try omega.
+  + apply divides_le; auto; omega.
+Qed.
+
+Fact nthprime_2 : nthprime 2 = 5.
+Proof.
+  unfold nthprime.
+  rewrite (iter_plus _ 2 1 1).
+  change (nxtprime (nthprime 1) = 5).
+  rewrite nthprime_1.
+  unfold nxtprime.
+  destruct (first_prime_above 3) as (p & H1 & H2 & H3); simpl.
+  cut (p <= 5); try omega.
+  + destruct (eq_nat_dec p 4); try omega; subst.
+    destruct (proj2 H2 2); try omega; exists 2; auto.
+  + apply H3; try omega.
+    split; try omega.
+    intros q Hq.
+    cut (q <= 5).
+    * revert q Hq; intros [ | [ | [ | [ | [ | q ] ] ] ] ] (k & Hk); try omega.
+    * apply divides_le; auto; omega.
+Qed.
+
+Fact nthprime_3 : nthprime 3 = 7.
+Proof.
+  unfold nthprime.
+  rewrite (iter_plus _ 2 2 1).
+  change (nxtprime (nthprime 2) = 7).
+  rewrite nthprime_2.
+  unfold nxtprime.
+  destruct (first_prime_above 5) as (p & H1 & H2 & H3); simpl.
+  cut (p <= 7); try omega.
+  + destruct (eq_nat_dec p 6); try omega; subst.
+    destruct (proj2 H2 2); try omega; exists 3; auto.
+  + apply H3; try omega.
+    split; try omega.
+    intros q Hq.
+    cut (q <= 7).
+    * revert q Hq; intros [ | [ | [ | [ | [ | [ | [ | q ] ] ] ] ] ] ] (k & Hk); try omega.
+    * apply divides_le; auto; omega.
 Qed.
 
 Record primestream :=
@@ -133,11 +210,17 @@ Proof.
   intros; apply nthprime_inj in H; omega.
 Defined.
 
+Fact ps_1 : ps 1 = 5.
+Proof. simpl; apply nthprime_2. Qed.
+
 Definition qs : primestream.
 Proof.
   exists (fun n => nthprime (1 + 2 * n)); auto.
   intros; apply nthprime_inj in H; omega.
 Defined.
+
+Fact qs_1 : qs 1 = 7.
+Proof. simpl; apply nthprime_3. Qed.
 
 Lemma ps_qs : forall n m, ps n = qs m -> False.
 Proof. intros ? ? ? % nthprime_inj; omega. Qed. 

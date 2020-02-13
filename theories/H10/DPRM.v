@@ -145,12 +145,6 @@ Local Hint Resolve dio_rec_form_elem  dio_rec_elem_single
                    dio_rec_single_µ_rec  µ_rec_mm_reco
                    mm_reco_dio_form : core.
 
-Local Ltac lsplit n := 
-  match n with 
-    | 0    => idtac 
-    | S ?n => split; [ lsplit n | ]
-   end.
-
 Theorem DPRM_n n (R : vec nat n -> Prop) : 
          (mm_recognisable_n R  -> dio_rec_form_n R)
        * (dio_rec_form_n R     -> dio_rec_elem_n R)
@@ -161,3 +155,106 @@ Proof. lsplit 4; auto. Qed.
 
 Check DPRM_n.
 Print Assumptions DPRM_n.
+
+Local Notation ø := vec_nil.
+
+Section Various_definitions_of_recursive_enum_1.
+
+  (* P is a predicate over nat *)
+
+  Variable (P : nat -> Prop).
+
+  (* There is a Minsky machine that recognises P *)
+
+  Definition mm_recognisable :=
+    { m & { M : list (mm_instr (pos (S m))) | forall x, P x <-> (1,M) /MM/ (1,x##vec_zero) ↓ } }.
+
+  (* There is a µ-recursive function of which P is the domain *)
+
+  Definition µ_recursive := { f | forall x, P x <-> f ⇓ (x##ø) }.
+
+  (* There is a single Diophantine equations solvable exactly when
+     its n-tuple of parameters belong to P *)
+
+  Definition dio_rec_single :=
+    { m : nat &
+    { p : dio_polynomial (pos m) (pos 1) &
+    { q : dio_polynomial (pos m) (pos 1) |
+        forall x, P x <-> exists w, ⟦p⟧ (vec_pos w) (fun _ => x) 
+                                  = ⟦q⟧ (vec_pos w) (fun _ => x) } } }.
+
+  (** 5 = ps 1 could be chosen as 2 and 7 = qs 1 as 3 *)
+
+  Definition fractran_recognisable := { l | forall x, P x <-> l /F/ 5*7^x ↓ }.
+
+  Local Theorem µ_rec_mm_reco_1 : µ_recursive -> mm_recognisable.
+  Proof.
+    intros H.
+    destruct µ_rec_mm_reco with (P := fun v : vec _ 1 => P (vec_head v))
+      as (m & M & HM).
+    + destruct H as (f & Hf); exists f.
+      intros v; vec split v with x; vec nil v; auto.
+    + exists m, M; intros x; rewrite (HM (x##ø)).
+      rewrite vec_app_cons, vec_app_nil; tauto.
+  Qed.
+
+  Local Theorem mm_reco_fractran_1 : mm_recognisable -> fractran_recognisable.
+  Proof.
+    intros (m & M & HM).
+    destruct mm_fractran with (P := M) as (l & Hl).
+    exists l; intro; rewrite HM, Hl, ps_1, qs_1; tauto.
+  Qed.
+
+  Local Theorem fractran_dio_rec_single_1 : fractran_recognisable -> dio_rec_single.
+  Proof.
+    intros (l & Hl).
+    destruct (FRACTRAN_HALTING_on_exp_diophantine 1 l) as (A & HA).
+    simpl fun2vec in HA; unfold exp in HA.
+    destruct dio_rec_elem_single with (P := fun v : vec _ 1 => P (vec_head v))
+      as (m & p & q & H).
+    + apply dio_rec_form_elem.
+      exists A.
+      intros v; vec split v with x; vec nil v; simpl.
+      rewrite Hl, HA, <- qs_1, <- ps_1.
+      unfold vec2fun; simpl.
+      rewrite mult_1_r; tauto.
+    + exists m, p, q; intros x.
+      rewrite (H (x##ø)).
+      apply exists_equiv; intros v.
+      apply equal_equiv; f_equal; apply dp_eval_ext; auto.
+      all: intros i; analyse pos i; auto.
+  Qed.
+
+  Local Theorem dio_rec_single_mm_1 : dio_rec_single -> µ_recursive.
+  Proof.
+    intros H.
+    destruct dio_rec_single_µ_rec with (P := fun v : vec _ 1 => P (vec_head v))
+      as (f & Hf).
+    + destruct H as (m & p & q & H).
+      exists m, p, q.
+      intros v; vec split v with x; vec nil v.
+      simpl vec_head; rewrite H.
+      apply exists_equiv; intros w.
+      apply equal_equiv; f_equal; apply dp_eval_ext; auto.
+      all: intros i; analyse pos i; auto.
+    + exists f; intros x; apply (Hf (_##ø)).
+  Qed.
+
+End Various_definitions_of_recursive_enum_1.
+
+Local Hint Resolve µ_rec_mm_reco_1
+                   mm_reco_fractran_1 
+                   fractran_dio_rec_single_1
+                   dio_rec_single_mm_1 : core.
+
+Theorem DPRM_1 (P : nat -> Prop) :
+         (mm_recognisable P       -> fractran_recognisable P)
+       * (fractran_recognisable P -> dio_rec_single P)   
+       * (dio_rec_single P        -> µ_recursive P)
+       * (µ_recursive P           -> mm_recognisable P).
+Proof. lsplit 3; auto. Qed. 
+
+Check DPRM_1.
+Print Assumptions DPRM_1.
+
+
