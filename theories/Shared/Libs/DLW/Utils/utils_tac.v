@@ -9,6 +9,7 @@
 
 Require Import Arith List Wellfounded Extraction.
 
+
 Set Implicit Arguments.
 
 Definition eqdec X := forall x y : X, { x = y } + { x <> y }.

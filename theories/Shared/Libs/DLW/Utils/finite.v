@@ -7,8 +7,10 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-From Undecidability.Shared.Libs.DLW.Utils 
-  Require Export focus utils_tac list_focus 
-                  utils_list utils_nat 
-                  utils_string.
+Require Import List Arith Lia.
 
+From Undecidability.Shared.Libs.DLW.Utils
+  Require Export fin_base 
+                 fin_quotient
+                 fin_dec fin_choice fin_upto
+                 fin_bij.

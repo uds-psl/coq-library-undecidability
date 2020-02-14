@@ -127,16 +127,6 @@ Section prime.
         exfalso; apply H with p; auto; apply divides_trans with (S (S k)); auto.
   Qed.
 
-  Fact rel_prime_mult a b c : is_gcd a c 1 -> is_gcd b c 1 -> is_gcd (a*b) c 1.
-  Proof.
-    intros H1 H2; msplit 2; try apply divides_1.
-    intros k H3 H4.
-    apply H2; auto.
-    apply is_rel_prime_div with (2 := H3).
-    apply is_gcd_sym in H1.
-    revert H1; apply divides_is_gcd; auto.
-  Qed.
-
   Fact is_rel_prime_mult p q l : is_gcd p q 1 -> is_gcd p l 1 -> is_gcd p (q*l) 1.
   Proof.
     intros H1 H2.

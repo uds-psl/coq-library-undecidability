@@ -10,6 +10,7 @@ COQDOCFLAGS = "--charset utf-8 --parse-comments -s --with-header ./website/resou
 
 Shared/Prelim.v
 
+
 Shared/Libs/DLW/Utils/focus.v
 Shared/Libs/DLW/Utils/utils_tac.v
 Shared/Libs/DLW/Utils/list_focus.v
@@ -30,12 +31,26 @@ Shared/Libs/DLW/Utils/prime.v
 Shared/Libs/DLW/Utils/power_decomp.v
 Shared/Libs/DLW/Utils/bounded_quantification.v
 Shared/Libs/DLW/Utils/php.v
+Shared/Libs/DLW/Utils/seteq.v
 Shared/Libs/DLW/Utils/rel_iter.v
 Shared/Libs/DLW/Utils/crt.v
-
+Shared/Libs/DLW/Utils/fin_base.v
+Shared/Libs/DLW/Utils/fin_dec.v
+Shared/Libs/DLW/Utils/fin_choice.v
+Shared/Libs/DLW/Utils/fin_bij.v
+Shared/Libs/DLW/Utils/fin_upto.v
+Shared/Libs/DLW/Utils/fin_quotient.v
+Shared/Libs/DLW/Utils/finite.v
+Shared/Libs/DLW/Utils/quotient.v
 
 Shared/Libs/DLW/Vec/pos.v
 Shared/Libs/DLW/Vec/vec.v
+
+Shared/Libs/DLW/Wf/acc_irr.v
+Shared/Libs/DLW/Wf/measure_ind.v
+Shared/Libs/DLW/Wf/wf_chains.v
+Shared/Libs/DLW/Wf/wf_finite.v
+Shared/Libs/DLW/Wf/wf_incl.v
 
 Problems/Reduction.v
 Problems/PCP.v

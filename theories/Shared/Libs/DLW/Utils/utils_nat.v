@@ -7,11 +7,49 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Max Omega Wellfounded Bool.
+Require Import List Arith Max Omega Wellfounded Bool Eqdep_dec.
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import list_focus utils_tac utils_list.
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import list_focus utils_tac utils_list.
 
 Set Implicit Arguments.
+
+Section le_lt_pirr.
+
+  (** lt and lt are proof irrelevant *)
+
+  (* a dependent induction principle for le *)
+  
+  Scheme le_indd := Induction for le Sort Prop.
+
+  Theorem le_pirr x y (H1 H2 : x <= y) : H1 = H2.
+  Proof.
+    revert H2.
+    induction H1 as [ | m H1 IH ] using le_indd; intro H2.
+
+    change (le_n x) with (eq_rect _ (fun n' => x <= n') (le_n x) _ eq_refl).
+    generalize (eq_refl x).
+    pattern x at 2 4 6 10, H2. 
+    case H2; [intro E | intros m l E].
+    rewrite UIP_dec with (p1 := E) (p2 := eq_refl); auto.
+    apply eq_nat_dec.
+    contradiction (le_Sn_n m); subst; auto.
+    
+    change (le_S x m H1) with (eq_rect _ (fun n' => x <= n') (le_S x m H1) _ eq_refl).
+    generalize (eq_refl (S m)).
+    pattern (S m) at 1 3 4 6, H2.
+    case H2; [intro E | intros p H3 E].
+    contradiction (le_Sn_n m); subst; auto.
+    injection E; intro; subst.
+    rewrite (IH H3).
+    rewrite UIP_dec with (p1 := E) (p2 := eq_refl); auto.
+    apply eq_nat_dec.
+  Qed.
+
+  Fact lt_pirr x y (H1 H2 : x < y) : H1 = H2.
+  Proof. simpl; intros; apply le_pirr. Qed.
+
+End le_lt_pirr.
 
 Section fin_reif.
 
@@ -128,23 +166,22 @@ Proof.
   + intros x; rewrite Forall_cons_inv, <- IHl, Nat.max_lub_iff; tauto.
 Qed.
 
-Fact lmax_prop l x : In x l -> x <= lmax l.
-Proof.
-  generalize (lmax_spec l (lmax l)).
-  rewrite Forall_forall; intros (H & _).
-  apply H; auto.
-Qed.
-
 Fact lsum_app l r : lsum (l++r) = lsum l+lsum r.
 Proof.
   induction l as [ | x l IHl ]; simpl; auto; rewrite IHl; omega.
 Qed.
 
-Fact le_lsum l x : In x l -> x <= lsum l.
+Fact lsum_le x l : In x l -> x <= lsum l.
 Proof.
   intros H; apply in_split in H.
-  destruct H as (l1 & l2 & ->).
+  destruct H as (u & v & ->).
   rewrite lsum_app; simpl; omega.
+Qed.
+
+Fact lmax_prop l x : In x l -> x <= lmax l.
+Proof.
+  specialize (proj1 (lmax_spec l _) (le_refl _)).
+  rewrite Forall_forall; auto.
 Qed.
 
 Section new.
@@ -206,6 +243,44 @@ Fixpoint pow2 p :=
     | 0   => 1
     | S p => 2*pow2 p
   end.
+
+Fact pow2_fix0 : pow2 0 = 1.
+Proof. reflexivity. Qed.
+
+Fact pow2_fix1 p : pow2 (S p) = 2*pow2 p.
+Proof. reflexivity. Qed.
+
+Fact pow2_ge1 p : 1 <= pow2 p.
+Proof. induction p; simpl; omega. Qed.
+
+Fact pow2_2n1_dec n : { p : nat & { b | S n = pow2 p*(2*b+1) } }.
+Proof.
+  induction on n as IH with measure n.
+  generalize (div2_spec (S n)).
+  destruct (div2 (S n)) as (d,[]); intros Hn.
+  + exists 0, d; simpl; omega.
+  + destruct d as [ | d ].
+    * simpl in Hn; omega.
+    * destruct (IH d) as (p & b & H).
+      - omega.
+      - exists (S p), b; rewrite pow2_fix1, <- mult_assoc, <- H; auto.
+Qed.
+
+Fact pow2_dec_uniq p a q b : pow2 p*(2*a+1) = pow2 q*(2*b+1) -> p = q /\ a = b.
+Proof.
+  revert q; induction p as [ | p IHp ]; intros [ | q ].
+  + simpl; omega.
+  + rewrite pow2_fix0, pow2_fix1, <- mult_assoc; omega.
+  + rewrite pow2_fix0, pow2_fix1, <- mult_assoc; omega.
+  + rewrite !pow2_fix1, <- !mult_assoc; intros H.
+    destruct (IHp q); omega.
+Qed.
+
+Fact pow2_dec_ge1 p b : 1 <= pow2 p*(2*b+1).
+Proof.
+  change 1 with (1*1) at 1; apply mult_le_compat; 
+    try omega; apply pow2_ge1.
+Qed.
 
 Section pow2_bound.
 

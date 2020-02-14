@@ -9,8 +9,11 @@
 
 Require Import Arith Eqdep_dec Omega List Bool.
 
-From Undecidability.Shared.Libs.DLW 
-  Require Import Utils.utils_tac Utils.utils_nat Utils.utils_list Vec.pos Vec.vec.
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_tac utils_nat utils_list finite. 
+
+From Undecidability.Shared.Libs.DLW.Vec 
+  Require Import pos vec.
 
 Set Implicit Arguments.
 
