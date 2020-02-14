@@ -168,7 +168,7 @@ Section Godel_beta.
     { apply le_n_S, lmax_prop; left; auto. }
     assert (forall p, vec_pos v p < j) as Hm2.
     { intros p; apply le_n_S, lmax_prop.
-      right; apply in_vec_list, in_vec_pos. }
+      right; apply vec_list_In. }
     revert Hm1 Hm2; generalize j; clear j.
     intros j Hj1 Hj2.
     set (m := vec_set_pos (fun p : pos n => 1+(S (pos2nat p)*fact j))).
