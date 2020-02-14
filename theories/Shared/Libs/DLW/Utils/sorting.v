@@ -8,7 +8,9 @@
 (**************************************************************)
 
 Require Import List Arith Omega.
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list sums php.
+
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_tac utils_list sums php.
 
 Set Implicit Arguments.
 

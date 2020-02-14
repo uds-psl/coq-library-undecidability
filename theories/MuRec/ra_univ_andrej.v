@@ -56,7 +56,7 @@ Definition nat_h10luc k :=
 
 Fact nat_h10luc_surj lc : { k | lc = nat_h10luc k }.
 Proof.
-  destruct (list_vec lc) as (v & <-).
+  destruct (list_vec_full lc) as (v & <-).
   set (n := length lc).
   set (f p := match le_lt_dec n p with
     | left _   => (0,0,0)

@@ -135,6 +135,7 @@ Section sequence_of_coprimes.
     apply H6, divides_fact.
     assert (p <> 0) as H7.
     { apply prime_ge_2 in Hp; omega. }
+    destruct Hp.
     split; try omega.
     apply divides_le in H5; omega.
   Qed.
@@ -167,7 +168,7 @@ Section Godel_beta.
     { apply le_n_S, lmax_prop; left; auto. }
     assert (forall p, vec_pos v p < j) as Hm2.
     { intros p; apply le_n_S, lmax_prop.
-      right; apply vec_list_In. }
+      right; apply in_vec_list, in_vec_pos. }
     revert Hm1 Hm2; generalize j; clear j.
     intros j Hj1 Hj2.
     set (m := vec_set_pos (fun p : pos n => 1+(S (pos2nat p)*fact j))).
