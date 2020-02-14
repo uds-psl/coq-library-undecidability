@@ -183,7 +183,37 @@ Section Various_definitions_of_recursive_enum_1.
         forall x, P x <-> exists w, ⟦p⟧ (vec_pos w) (fun _ => x) 
                                   = ⟦q⟧ (vec_pos w) (fun _ => x) } } }.
 
-  (** 5 = ps 1 could be chosen as 2 and 7 = qs 1 as 3 *)
+  (** Reworking ps and qs to avoid the first primes, may be 2, 3 and 5
+      and show be possible to replace with
+
+            FRACTRAN_RECO := { l | forall x, P x <-> l /F/ 2^(1+x) ↓ }
+
+      Let use assume l does not use 2, 3, 5 and P x <-> l /F/ 7.11^x ↓
+
+      then let us define l' = [ 5*11/3*2; 3/5; 3/2; 7/3 ] ++ l
+
+      then l' /F/ 2^(1+x) ~~> 3.2^x
+           l' /F/ 3.2^0  ~~> 7.11^0
+           l' /F/ 3.11^y.2^(1+x) ~~> 5.11^(1+y).2^x ~~> 3.11^(1+y).2^x
+      hence l' /F/ 3.2^x ~~> 3.11^x ~~> 7.11^x 
+
+      and after that the first fractions of l' cannot be used
+      because neither 2, 3 or 5 will ever be a factor of the 
+      current state.
+
+      So l' /F/ 2^(1+x) ↓ <-> l /F/ 7.11^x <-> P x
+
+      One the other hand, with P x <-> l /F/ x ↓ it is not possible
+      to represent arbitrary RE predicates 
+
+      Indeed for any l, on can show forall x, l /F/ x ↓ -> l /F/ 1 ↓  
+      because for l to terminate on x, it cannot contain any p/q being
+      a nat, hence in that case, the computation from 1 cannot start
+
+      So the predicate l /F/ x ↓ cannot serve as a generic RE predicate
+      because it cannot simulate P x := x = 2.
+
+     *)
 
   Definition fractran_recognisable := { l | forall x, P x <-> l /F/ 5*7^x ↓ }.
 

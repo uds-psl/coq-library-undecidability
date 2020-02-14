@@ -11,7 +11,7 @@
 
 (** ** Two infinite sequences of primes *)
 
-Require Import List Arith Omega Permutation.
+Require Import List Arith Omega Bool Permutation.
 
 From Undecidability.Shared.Libs.DLW.Utils Require Import utils utils_tac utils_list utils_nat gcd rel_iter prime.
 From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
@@ -111,6 +111,48 @@ Proof. apply (proj2_sig (first_prime_above n)). Qed.
 
 Hint Resolve nxtprime_spec1 nxtprime_spec2 prime_2.
 
+Fixpoint notprime_bool_rec n k :=
+  match k with
+    | 0   => true
+    | S k' => negb (prime_bool n) && notprime_bool_rec (S n) k'
+  end.
+
+Theorem prime_bool_spec' p : prime_bool p = false <-> ~ prime p.
+Proof.
+  rewrite <- not_true_iff_false, prime_bool_spec; tauto.
+Qed.
+
+Fact notprime_bool_rec_spec n k : notprime_bool_rec n k = true <-> forall i, n <= i < k+n -> ~ prime i.
+Proof.
+  revert n; induction k as [ | k IHk ]; intros n; simpl.
+  + split; auto; intros; omega.
+  + rewrite andb_true_iff, negb_true_iff, 
+            <- not_true_iff_false, prime_bool_spec, IHk.
+    split.
+    * intros (H1 & H2) i Hi.
+      destruct (eq_nat_dec n i); subst; auto.
+      apply H2; omega.
+    * intros H; split; intros; apply H; omega.
+Qed.
+
+Definition nxtprime_bool n p := Nat.leb (S n) p && notprime_bool_rec (S n) (p - S n) && prime_bool p.
+
+Fact nxtprime_bool_spec n p : nxtprime_bool n p = true <-> nxtprime n = p.
+Proof.
+  unfold nxtprime_bool.
+  rewrite !andb_true_iff, Nat.leb_le, notprime_bool_rec_spec, prime_bool_spec.
+  unfold nxtprime.
+  destruct (first_prime_above n) as (q & G1 & G2 & G3); simpl.
+  split.
+  + intros ((H1 & H2) & H3).
+    apply le_antisym.
+    * apply G3; auto.
+    * apply Nat.nlt_ge. 
+      intro; apply (H2 q); auto; omega.
+  + intros ->; lsplit 2; auto.
+    intros q Hq C; apply G3 in C; omega.
+Qed.
+
 Definition nthprime (n : nat) := iter nxtprime 2 n.
 
 Lemma nthprime_prime n : prime (nthprime n).
@@ -131,62 +173,29 @@ Proof.
     intros; eapply nthprime_ge in H; omega.
 Qed.
 
+Fact nthprime_nxt i p q : nthprime i = p -> nxtprime p = q -> nthprime (S i) = q.
+Proof.
+  replace (S i) with (i+1) by omega.
+  unfold nthprime at 2.
+  rewrite iter_plus; fold (nthprime i).
+  intros -> ?; simpl; auto.
+Qed.
+
 (** Certified Erastosthene sieve would be helpfull here *)
 
 Fact nthprime_0 : nthprime 0 = 2.
 Proof. auto. Qed.
 
-Fact nthprime_1 : nthprime 1 = 3.
-Proof.
-  unfold nthprime; simpl.
-  unfold nxtprime.
-  destruct (first_prime_above 2) as (p & H1 & H2 & H3); simpl.
-  cut (p <= 3); try omega.
-  apply H3; try omega.
-  split; try omega.
-  intros q Hq.
-  cut (q <= 3).
-  + revert q Hq; intros [ | [ | [ | q ] ] ] (k & Hk); try omega.
-  + apply divides_le; auto; omega.
-Qed.
+Local Ltac nth_prime_tac H := 
+  apply nthprime_nxt with (1 := H);
+  apply nxtprime_bool_spec; auto.
 
-Fact nthprime_2 : nthprime 2 = 5.
-Proof.
-  unfold nthprime.
-  rewrite (iter_plus _ 2 1 1).
-  change (nxtprime (nthprime 1) = 5).
-  rewrite nthprime_1.
-  unfold nxtprime.
-  destruct (first_prime_above 3) as (p & H1 & H2 & H3); simpl.
-  cut (p <= 5); try omega.
-  + destruct (eq_nat_dec p 4); try omega; subst.
-    destruct (proj2 H2 2); try omega; exists 2; auto.
-  + apply H3; try omega.
-    split; try omega.
-    intros q Hq.
-    cut (q <= 5).
-    * revert q Hq; intros [ | [ | [ | [ | [ | q ] ] ] ] ] (k & Hk); try omega.
-    * apply divides_le; auto; omega.
-Qed.
-
-Fact nthprime_3 : nthprime 3 = 7.
-Proof.
-  unfold nthprime.
-  rewrite (iter_plus _ 2 2 1).
-  change (nxtprime (nthprime 2) = 7).
-  rewrite nthprime_2.
-  unfold nxtprime.
-  destruct (first_prime_above 5) as (p & H1 & H2 & H3); simpl.
-  cut (p <= 7); try omega.
-  + destruct (eq_nat_dec p 6); try omega; subst.
-    destruct (proj2 H2 2); try omega; exists 3; auto.
-  + apply H3; try omega.
-    split; try omega.
-    intros q Hq.
-    cut (q <= 7).
-    * revert q Hq; intros [ | [ | [ | [ | [ | [ | [ | q ] ] ] ] ] ] ] (k & Hk); try omega.
-    * apply divides_le; auto; omega.
-Qed.
+Fact nthprime_1 : nthprime 1 = 3.    Proof. nth_prime_tac nthprime_0. Qed.
+Fact nthprime_2 : nthprime 2 = 5.    Proof. nth_prime_tac nthprime_1. Qed.
+Fact nthprime_3 : nthprime 3 = 7.    Proof. nth_prime_tac nthprime_2. Qed.
+Fact nthprime_4 : nthprime 4 = 11.   Proof. nth_prime_tac nthprime_3. Qed.
+Fact nthprime_5 : nthprime 5 = 13.   Proof. nth_prime_tac nthprime_4. Qed.
+Fact nthprime_6 : nthprime 6 = 17.   Proof. nth_prime_tac nthprime_5. Qed.
 
 Record primestream :=
   {
