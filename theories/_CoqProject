@@ -396,6 +396,7 @@ FOLP/FOL.v
 FOLP/FullSyntax.v
 FOLP/FullFOL.v
 FOLP/FullTarski.v
+FOLP/FullND.v
 FOLP/Input.v
 FOLP/ZF_model.v
 
@@ -427,3 +428,4 @@ Reductions/L_to_mTM.v
 Reductions/mTM_to_TM.v
 Reductions/BPCP_to_FOLFS.v
 Reductions/BPCP_to_ZF.v
+Reductions/BPCP_to_ZFD.v
