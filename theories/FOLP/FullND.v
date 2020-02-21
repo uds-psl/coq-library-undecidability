@@ -57,7 +57,7 @@ Section ND_def.
   Notation "T '⊩(' s , b ')' phi" := (@tprv s b T phi)  (at level 30).
   Notation "T ⊩CE phi" := (@tprv class expl T phi) (at level 30).
   Notation "T ⊩CL phi" := (@tprv class lconst T phi) (at level 30).
-  Notation "T ⊩IE phi" := (@tprv intu expl T phi) (at level 30).
+  Notation "T ⊩IE phi" := (@tprv intu expl T phi) (at level 60).
 
   Section Weakening.
     Context {p : peirce} {b : bottom}.
@@ -232,7 +232,7 @@ Notation "T ⊩ phi" := (tprv T phi) (at level 30).
 Notation "T '⊩(' s , b ')' phi" := (@tprv _ s b T phi)  (at level 30).
 Notation "T ⊩CE phi" := (@tprv _ class expl T phi) (at level 30).
 Notation "T ⊩CL phi" := (@tprv _ class lconst T phi) (at level 30).
-Notation "T ⊩IE phi" := (@tprv _ intu expl T phi) (at level 30).
+Notation "T ⊩IE phi" := (@tprv _ intu expl T phi) (at level 60).
 
 (** ** Proof Tacticts *)
 
