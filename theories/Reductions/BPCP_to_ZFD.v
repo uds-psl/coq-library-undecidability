@@ -5,6 +5,8 @@ From Undecidability.FOLP Require Export FullND.
 
 
 
+
+
 (** ** Definition of ZF theory *)
 
 Notation "x ∈ y" := (Pred elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
@@ -33,7 +35,9 @@ Definition ZF phi :=
 
 
 
-(** ** Preservation *)
+
+
+(** ** Theory manipulation *)
 
 Instance ZF_funcs_dec :
   eq_dec Funcs.
@@ -68,37 +72,41 @@ Proof.
    apply CI; eauto using Weak.
 Qed.
 
-Lemma pair_el x y z :
-  ZF ⊩IE (z ≡ x ∨ z ≡ y) --> z ∈ {x; y}.
+Lemma prv_T_DI1 (p : peirce) (b : bottom) T phi psi :
+  T ⊩ phi -> T ⊩ (phi ∨ psi).
 Proof.
-Admitted.
+  intros [A[H1 H2]]. use_theory A. now apply DI1.
+Qed.
 
-Lemma bunion_el x y z :
-  ZF ⊩IE (z ∈ x ∨ z ∈ y) --> z ∈ x ∪ y.
+Lemma prv_T_DI2 (p : peirce) (b : bottom) T phi psi :
+  T ⊩ psi -> T ⊩ (phi ∨ psi).
 Proof.
-  apply prv_T_impl.
-Admitted.
+  intros [A[H1 H2]]. use_theory A. now apply DI2.
+Qed.
+
+Lemma prv_T_CE1 (p : peirce) (b : bottom) T phi psi :
+  T ⊩ (phi ∧ psi) -> T ⊩ phi.
+Proof.
+  intros [A[H1 H2]]. use_theory A. eapply CE1; eauto.
+Qed.
+
+Lemma prv_T_CE2 (p : peirce) (b : bottom) T phi psi :
+  T ⊩ (phi ∧ psi) -> T ⊩ psi.
+Proof.
+  intros [A[H1 H2]]. use_theory A. eapply CE2; eauto.
+Qed.
+
+Lemma prv_T_AllE (p : peirce) (b : bottom) T phi t :
+  (T ⊩ ∀ phi) -> T ⊩ phi[t..].
+Proof.
+  intros [A[H1 H2]]. use_theory A. now apply AllE.
+Qed.
   
 
-Lemma enc_stack_spec R s t :
-  s/t el R -> ZF ⊩IE opair (enc_string s) (enc_string t) ∈ enc_stack R.
-Proof.
-  induction R as [|[u v] IH]; cbn; auto.
-  intros [[=]| H]; subst.
-  - admit.
-Admitted.
 
-Fixpoint tnumeral n :=
-  match n with 
-  | O => ∅
-  | S n => σ (tnumeral n)
-  end.
 
-Fixpoint enc_derivations B n :=
-  match n with 
-  | O => sing (opair ∅ (enc_stack B))
-  | S n => enc_derivations B n ∪ sing (opair (tnumeral (S n)) (enc_stack (derivations B (S n))))
-  end.
+
+(** ** Closed terms and formulas *)
 
 Lemma substt_bounded0 t sigma :
   bounded_term 0 t -> subst_term sigma t = t.
@@ -129,11 +137,22 @@ Ltac solve_bounds :=
 Lemma bounded_term_up t n k :
   bounded_term n t -> k >= n -> bounded_term k t.
 Proof.
-Admitted.
+  induction 1; cbn; intros Hk; constructor; firstorder lia.
+Qed.
 
 Lemma bounded_up phi n k :
   bounded n phi -> k >= n -> bounded k phi.
 Proof.
+  induction 1 in k |- *; cbn; intros Hk; constructor; try firstorder.
+  eauto using bounded_term_up.
+Qed.
+
+Lemma subst_bounded phi n sigma k :
+  bounded n phi -> (forall i, i < n -> bounded_term k (sigma i)) -> k >= n -> bounded k (phi[sigma]).
+Proof.
+  induction 1 in k, sigma |- *; intros H1 H2; cbn; solve_bounds; intuition.
+  - admit.
+  - apply IHbounded. intros i.
 Admitted.
 
 Lemma ZF_bounded phi :
@@ -141,9 +160,9 @@ Lemma ZF_bounded phi :
 Proof.
   intros [->|[->|[->|[->|[->|[->|[->|[[psi [H ->]]|[psi [H ->]]]]]]]]]];
   repeat solve_bounds; eauto using bounded_up.
-  - admit.
-  - admit.
-Admitted.
+  - apply (subst_bounded H); try lia. intros [|[]]; solve_bounds.
+  - apply (subst_bounded H); try lia. intros [|[]]; solve_bounds.
+Qed.
 
 Lemma ZF_all phi :
   ZF ⊩IE phi -> ZF ⊩IE ∀ phi.
@@ -155,38 +174,23 @@ Proof.
   apply subst_bounded0, ZF_bounded, H.
 Qed.
 
-Lemma prv_T_CE1 (p : peirce) (b : bottom) T phi psi :
-  T ⊩ (phi ∧ psi) -> T ⊩ phi.
-Proof.
-Admitted.
 
-Lemma prv_T_CE2 (p : peirce) (b : bottom) T phi psi :
-  T ⊩ (phi ∧ psi) -> T ⊩ psi.
-Proof.
-Admitted.
 
-Lemma prv_T_AllE (p : peirce) (b : bottom) T phi t :
-  (T ⊩ ∀ phi) -> T ⊩ phi[t..].
-Proof.
-  intros [A[H1 H2]]. use_theory A. now apply AllE.
-Qed.
 
-Lemma ZF_numeral n :
-  ZF ⊩IE tnumeral n ∈ ω.
-Proof.
-  induction n; cbn.
-  - eapply prv_T_CE1. apply elem_prv.
-    do 5 right. left. reflexivity.
-  - eapply prv_T_mp; try apply IHn.
-    change (ZF ⊩IE ($0 ∈ ω --> σ ($0) ∈ ω)[(tnumeral n)..]).
-    apply prv_T_AllE. eapply prv_T_CE2. apply elem_prv.
-    do 5 right. left. reflexivity.
-Qed.
 
-Lemma enc_derivations_base R n :
-  ZF ⊩IE {{∅; ∅}; {∅; enc_stack R}} ∈ enc_derivations R n.
-Proof.
-Admitted.
+(** ** Encodings are closed *)
+
+Fixpoint tnumeral n :=
+  match n with 
+  | O => ∅
+  | S n => σ (tnumeral n)
+  end.
+
+Fixpoint enc_derivations B n :=
+  match n with 
+  | O => sing (opair ∅ (enc_stack B))
+  | S n => enc_derivations B n ∪ sing (opair (tnumeral (S n)) (enc_stack (derivations B (S n))))
+  end.
 
 Lemma perst_bounded0 t sigma :
   bounded_term 0 t -> bounded_term 0 (subst_term sigma t).
@@ -213,10 +217,12 @@ Proof.
   apply prep_string_bounded. repeat solve_bounds.
 Qed.
 
+Hint Resolve enc_string_bounded0.
+
 Lemma tnumeral_bounded0 n :
   bounded_term 0 (tnumeral n).
 Proof.
-  induction n; cbn; repeat solve_bounds; try inversion X; trivial.
+  induction n; cbn; repeat solve_bounds; trivial.
 Qed.
 
 Hint Resolve tnumeral_bounded0.
@@ -224,7 +230,7 @@ Hint Resolve tnumeral_bounded0.
 Lemma enc_stack_bounded0 B :
   bounded_term 0 (enc_stack B).
 Proof.
-  induction B as [|[]IH]; cbn; repeat solve_bounds; eauto using enc_string_bounded0.
+  induction B as [|[]IH]; cbn; repeat solve_bounds; eauto.
 Qed.
 
 Hint Resolve enc_stack_bounded0.
@@ -235,7 +241,77 @@ Proof.
   induction n; cbn; repeat solve_bounds; eauto.
 Qed.
 
-Hint Resolve enc_string_bounded0 enc_derivations_bounded0.
+Hint Resolve enc_derivations_bounded0.
+
+
+
+
+
+(** ** Simple derivations in ZF *)
+
+Lemma ZF_numeral n :
+  ZF ⊩IE tnumeral n ∈ ω.
+Proof.
+  induction n; cbn.
+  - eapply prv_T_CE1. apply elem_prv.
+    do 5 right. left. reflexivity.
+  - eapply prv_T_mp; try apply IHn.
+    change (ZF ⊩IE ($0 ∈ ω --> σ ($0) ∈ ω)[(tnumeral n)..]).
+    apply prv_T_AllE. eapply prv_T_CE2. apply elem_prv.
+    do 5 right. left. reflexivity.
+Qed.
+
+Lemma ZF_ref x :
+  ZF ⊩IE x ≡ x.
+Proof.
+Admitted.
+
+Lemma ZF_pair_el x y z :
+  ZF ⊩IE (z ≡ x ∨ z ≡ y) -> ZF ⊩IE z ∈ {x; y}.
+Proof.
+Admitted.
+
+Lemma ZF_sing_el x :
+  ZF ⊩IE x ∈ (sing x).
+Proof.
+  apply ZF_pair_el. apply prv_T_DI1. apply ZF_ref.
+Qed.
+
+Lemma ZF_bunion_el x y z :
+  ZF ⊩IE (z ∈ x ∨ z ∈ y) -> ZF ⊩IE z ∈ x ∪ y.
+Proof.
+Admitted.
+
+Lemma enc_derivations_base R n :
+  ZF ⊩IE {{∅; ∅}; {∅; enc_stack R}} ∈ enc_derivations R n.
+Proof.
+  induction n; cbn.
+  - apply ZF_sing_el.
+  - apply ZF_bunion_el. now apply prv_T_DI1.
+Qed.
+
+Lemma enc_derivations_step B n :
+  ZF ⊩IE opair (tnumeral n) (enc_stack (derivations B n)) ∈ enc_derivations B n.
+Proof.
+  destruct n; cbn.
+  - apply ZF_sing_el.
+  - apply ZF_bunion_el. apply prv_T_DI2. apply ZF_sing_el.
+Qed.
+
+Lemma enc_stack_spec R s t :
+  s/t el R -> ZF ⊩IE opair (enc_string s) (enc_string t) ∈ enc_stack R.
+Proof.
+  induction R as [|[u v] R IH]; cbn; auto.
+  intros [[=]| H]; subst.
+  - apply ZF_bunion_el. apply prv_T_DI2. apply ZF_sing_el.
+  - apply ZF_bunion_el. apply prv_T_DI1. now apply IH.
+Qed.
+
+
+
+
+
+(** ** Preservation proof *)
 
 Theorem BPCP_slv B :
   BPCP B -> ZF ⊩IE solvable B.
@@ -260,8 +336,8 @@ Proof.
   - repeat apply ZF_all. asimpl. admit.
   - apply enc_derivations_base.
   - repeat apply ZF_all. admit.
-  - admit.
+  - apply enc_derivations_step.
   - now apply enc_stack_spec.
-  - admit.
+  - apply ZF_ref.
 Admitted.
 
