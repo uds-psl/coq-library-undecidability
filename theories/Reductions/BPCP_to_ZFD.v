@@ -22,6 +22,9 @@ Notation "'PP' x" := (Func power (Vector.cons x Vector.nil)) (at level 15).
 Notation "x ∪ y" := (⋃ {x; y}) (at level 16).
 Notation "'σ' x" := (x ∪ {x; x}) (at level 15).
 
+Definition ax_refl :=
+  ∀ $0 ≡ $0.
+
 Definition ZF phi :=
   phi = ax_ext
   \/ phi = ax_eset
@@ -31,7 +34,8 @@ Definition ZF phi :=
   \/ phi = ax_om1
   \/ phi = ax_om2
   \/ (exists psi, bounded 1 psi /\ phi = ax_sep psi)
-  \/ (exists psi, bounded 2 psi /\ phi = ax_rep psi).
+  \/ (exists psi, bounded 2 psi /\ phi = ax_rep psi)
+  \/ phi = ax_refl.
 
 
 
@@ -101,7 +105,19 @@ Lemma prv_T_AllE (p : peirce) (b : bottom) T phi t :
 Proof.
   intros [A[H1 H2]]. use_theory A. now apply AllE.
 Qed.
-  
+
+Lemma prv_T_DE (p : peirce) (b : bottom) T phi psi theta :
+  T ⊩ (phi ∨ psi) -> (T ⋄ phi) ⊩ theta -> (T ⋄ psi) ⊩ theta -> T ⊩ theta.
+Proof.
+  intros [A[A1 A2]] [B[B1 B2]] [C[C1 C2]].
+  exists (A ++ (rem B phi) ++ (rem C psi)). split.
+  { intros xi. intros [H|[H|H] % in_app_iff] % in_app_iff; auto. 
+    - apply in_rem_iff in H as [H1 H2]. apply B1 in H1 as [H1|H1]; tauto.
+    - apply in_rem_iff in H as [H1 H2]. apply C1 in H1 as [H1|H1]; tauto. }  
+  eapply DE. eapply Weak; try apply A2. auto.
+  - apply (Weak B2). intros xi H.
+Admitted.
+
 
 
 
@@ -158,7 +174,7 @@ Admitted.
 Lemma ZF_bounded phi :
   ZF phi -> bounded 0 phi.
 Proof.
-  intros [->|[->|[->|[->|[->|[->|[->|[[psi [H ->]]|[psi [H ->]]]]]]]]]];
+  intros [->|[->|[->|[->|[->|[->|[->|[[psi [H ->]]|[[psi [H ->]]| ->]]]]]]]]];
   repeat solve_bounds; eauto using bounded_up.
   - apply (subst_bounded H); try lia. intros [|[]]; solve_bounds.
   - apply (subst_bounded H); try lia. intros [|[]]; solve_bounds.
@@ -261,26 +277,67 @@ Proof.
     do 5 right. left. reflexivity.
 Qed.
 
-Lemma ZF_ref x :
+Lemma ZF_refl' (T : theory) x :
+  (forall phi, ZF phi -> T phi) -> T ⊩IE x ≡ x.
+Proof.
+  intros H. change (T ⊩IE ($0 ≡ $0)[x..]).
+  apply prv_T_AllE. apply elem_prv. firstorder.
+Qed.
+
+Lemma ZF_refl x :
   ZF ⊩IE x ≡ x.
 Proof.
-Admitted.
+  now apply ZF_refl'.
+Qed.
+
+Lemma ZF_pair_el' (T : theory) x y z :
+  (forall phi, ZF phi -> T phi) -> T ⊩IE (z ≡ x ∨ z ≡ y) -> T ⊩IE z ∈ {x; y}.
+Proof.
+  intros HT H. eapply prv_T_mp; try apply H.
+  assert (HP : T ⊩IE ax_pair) by (apply elem_prv; firstorder).
+  apply (prv_T_AllE y), (prv_T_AllE x), (prv_T_AllE z) in HP; cbn in HP; asimpl in HP.
+  eapply prv_T_CE2, HP.
+Qed.
 
 Lemma ZF_pair_el x y z :
   ZF ⊩IE (z ≡ x ∨ z ≡ y) -> ZF ⊩IE z ∈ {x; y}.
 Proof.
-Admitted.
+  now apply ZF_pair_el'.
+Qed.
 
 Lemma ZF_sing_el x :
   ZF ⊩IE x ∈ (sing x).
 Proof.
-  apply ZF_pair_el. apply prv_T_DI1. apply ZF_ref.
+  apply ZF_pair_el. apply prv_T_DI1. apply ZF_refl.
+Qed.
+
+Lemma ZF_union_el' (T : theory) x y z :
+  (forall phi, ZF phi -> T phi) -> T ⊩IE y ∈ x ∧ z ∈ y -> T ⊩IE z ∈ ⋃ x.
+Proof.
+  intros HT H.
+  assert (HU : T ⊩IE ax_union) by (apply elem_prv; firstorder).
+  apply (prv_T_AllE x), (prv_T_AllE z) in HU; cbn in HU; asimpl in HU.
+  apply prv_T_CE2 in HU. eapply prv_T_mp; try apply HU.
+  apply prv_T_ExI with y. cbn. asimpl. apply H.
+Qed.
+
+Lemma ZF_union_el x y z :
+  ZF ⊩IE y ∈ x ∧ z ∈ y -> ZF ⊩IE z ∈ ⋃ x.
+Proof.
+  now apply ZF_union_el'.
 Qed.
 
 Lemma ZF_bunion_el x y z :
   ZF ⊩IE (z ∈ x ∨ z ∈ y) -> ZF ⊩IE z ∈ x ∪ y.
 Proof.
-Admitted.
+  intros H. apply (prv_T_DE H).
+  - eapply ZF_union_el' with x; try now left. apply prv_T_CI.
+    + apply ZF_pair_el'; try now left. apply prv_T_DI1. apply ZF_refl'. now left.
+    + apply elem_prv. now right.
+  - eapply ZF_union_el' with y; try now left. apply prv_T_CI.
+    + apply ZF_pair_el'; try now left. apply prv_T_DI2. apply ZF_refl'. now left.
+    + apply elem_prv. now right.
+Qed.
 
 Lemma enc_derivations_base R n :
   ZF ⊩IE {{∅; ∅}; {∅; enc_stack R}} ∈ enc_derivations R n.
@@ -338,6 +395,6 @@ Proof.
   - repeat apply ZF_all. admit.
   - apply enc_derivations_step.
   - now apply enc_stack_spec.
-  - apply ZF_ref.
+  - apply ZF_refl.
 Admitted.
 
