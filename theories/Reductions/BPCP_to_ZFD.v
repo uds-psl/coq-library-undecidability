@@ -25,6 +25,12 @@ Notation "'σ' x" := (x ∪ {x; x}) (at level 15).
 Definition ax_refl :=
   ∀ $0 ≡ $0.
 
+Definition ax_sym :=
+  ∀ ∀ $1 ≡ $0 --> $0 ≡ $1.
+
+Definition ax_trans :=
+  ∀ ∀ ∀ $2 ≡ $1 --> $1 ≡ $0 --> $2 ≡ $0.
+
 Definition ZF phi :=
   phi = ax_ext
   \/ phi = ax_eset
@@ -35,7 +41,9 @@ Definition ZF phi :=
   \/ phi = ax_om2
   \/ (exists psi, bounded 1 psi /\ phi = ax_sep psi)
   \/ (exists psi, bounded 2 psi /\ phi = ax_rep psi)
-  \/ phi = ax_refl.
+  \/ phi = ax_refl
+  \/ phi = ax_sym
+  \/ phi = ax_trans.
 
 
 
@@ -119,6 +127,12 @@ Proof.
     right. apply in_or_app. right. eauto using rem_neq.
   - apply (Weak C2). intros xi H. decide (xi = psi); auto; try now left.
     right. apply in_or_app. right. eauto using rem_neq.   
+Qed.
+
+Lemma prv_T_DS (p : peirce) (b : bottom) T phi :
+  T ⊩ (phi ∨ phi) -> T ⊩ phi.
+Proof.
+  intros H. apply (prv_T_DE H); apply elem_prv; now right.
 Qed.
 
 
@@ -214,7 +228,7 @@ Qed.
 Lemma ZF_bounded phi :
   ZF phi -> bounded 0 phi.
 Proof.
-  intros [->|[->|[->|[->|[->|[->|[->|[[psi [H ->]]|[[psi [H ->]]| ->]]]]]]]]];
+  intros [->|[->|[->|[->|[->|[->|[->|[[psi [H ->]]|[[psi [H ->]]|[->|[->| ->]]]]]]]]]]];
   repeat solve_bounds; eauto using bounded_up.
   - apply (subst_bounded_up H). intros [|[]]; solve_bounds.
   - apply (subst_bounded_up H). intros [|[]]; solve_bounds.
@@ -318,7 +332,7 @@ Proof.
 Qed.
 
 Lemma ZF_refl' (T : theory) x :
-  (forall phi, ZF phi -> T phi) -> T ⊩IE x ≡ x.
+  ZF ⊑ T -> T ⊩IE x ≡ x.
 Proof.
   intros H. change (T ⊩IE ($0 ≡ $0)[x..]).
   apply prv_T_AllE. apply elem_prv. firstorder.
@@ -330,13 +344,31 @@ Proof.
   now apply ZF_refl'.
 Qed.
 
-Lemma ZF_pair_el' (T : theory) x y z :
-  (forall phi, ZF phi -> T phi) -> T ⊩IE (z ≡ x ∨ z ≡ y) -> T ⊩IE z ∈ {x; y}.
+Lemma ZF_sym' T x y :
+  ZF ⊑ T -> T ⊩IE x ≡ y -> T ⊩IE y ≡ x.
 Proof.
-  intros HT H. eapply prv_T_mp; try apply H.
-  assert (HP : T ⊩IE ax_pair) by (apply elem_prv; firstorder).
-  apply (prv_T_AllE y), (prv_T_AllE x), (prv_T_AllE z) in HP; cbn in HP; asimpl in HP.
-  eapply prv_T_CE2, HP.
+  intros H1 H2. eapply prv_T_mp; try apply H2.
+  assert (H : T ⊩IE ax_sym) by (apply elem_prv; firstorder).
+  now apply (prv_T_AllE x), (prv_T_AllE y) in H; cbn in H; asimpl in H.
+Qed.
+
+Lemma ZF_trans' T x y z :
+  ZF ⊑ T -> T ⊩IE x ≡ y -> T ⊩IE y ≡ z -> T ⊩IE x ≡ z.
+Proof.
+  intros H1 H2 H3. eapply prv_T_mp; try apply H3.
+  eapply prv_T_mp; try apply H2.
+  assert (H : T ⊩IE ax_trans) by (apply elem_prv; firstorder).
+  now apply (prv_T_AllE x), (prv_T_AllE y), (prv_T_AllE z) in H; cbn in H; asimpl in H.
+Qed.
+
+Lemma ZF_pair_el' (T : theory) x y z :
+  ZF ⊑ T -> T ⊩IE (z ≡ x ∨ z ≡ y) <-> T ⊩IE z ∈ {x; y}.
+Proof.
+  intros HT; split; intros H; eapply prv_T_mp; try apply H.
+  all: assert (HP : T ⊩IE ax_pair) by (apply elem_prv; firstorder).
+  all: apply (prv_T_AllE y), (prv_T_AllE x), (prv_T_AllE z) in HP; cbn in HP; asimpl in HP.
+  - eapply prv_T_CE2, HP.
+  - eapply prv_T_CE1, HP.
 Qed.
 
 Lemma ZF_pair_el x y z :
@@ -352,7 +384,7 @@ Proof.
 Qed.
 
 Lemma ZF_union_el' (T : theory) x y z :
-  (forall phi, ZF phi -> T phi) -> T ⊩IE y ∈ x ∧ z ∈ y -> T ⊩IE z ∈ ⋃ x.
+  ZF ⊑ T -> T ⊩IE y ∈ x ∧ z ∈ y -> T ⊩IE z ∈ ⋃ x.
 Proof.
   intros HT H.
   assert (HU : T ⊩IE ax_union) by (apply elem_prv; firstorder).
@@ -379,6 +411,11 @@ Proof.
     + apply elem_prv. now right.
 Qed.
 
+Lemma ZF_bunion_inv T x y z :
+   ZF ⊑ T -> T ⊩IE z ∈ x ∪ y -> T ⊩IE z ∈ x ∨ z ∈ y.
+Proof.
+Admitted.
+
 Lemma enc_derivations_base R n :
   ZF ⊩IE {{∅; ∅}; {∅; enc_stack R}} ∈ enc_derivations R n.
 Proof.
@@ -404,6 +441,76 @@ Proof.
   - apply ZF_bunion_el. apply prv_T_DI1. now apply IH.
 Qed.
 
+Lemma opair_inj2 T x y x' y' :
+  ZF ⊑ T -> T ⊩IE opair x y ≡ opair x' y' -> T ⊩IE y ≡ y'.
+Proof.
+Admitted.
+
+Lemma prv_T1 (p : peirce) (b : bottom) T phi :
+  T ⋄ phi ⊩ phi.
+Proof.
+  apply elem_prv. now right.
+Qed.
+
+Lemma prv_T2 (p : peirce) (b : bottom) T phi psi :
+  (T ⋄ psi) ⋄ phi ⊩ psi.
+Proof.
+  apply elem_prv. left. now right.
+Qed.
+
+Lemma prv_T_imp (p : peirce) (b : bottom) T phi psi :
+  T ⊩ (phi --> psi) -> T ⋄ phi ⊩ psi.
+Proof.
+Admitted.
+
+Lemma prv_T_exf (p : peirce) T phi :
+  T ⊩(p, expl) ⊥ -> T ⊩(p, expl) phi.
+Proof.
+  intros [A[H1 H2]]. use_theory A. now apply Exp.
+Qed.
+
+Lemma ZF_numeral_wf T n :
+  ZF ⊑ T -> T ⊩IE ¬ (tnumeral n ∈ tnumeral n).
+Proof.
+Admitted.
+
+Lemma ZF_derivations_bound T B n x :
+  ZF ⊑ T -> T ⊩IE opair x (tnumeral n) ∈ enc_derivations B n.
+
+Lemma enc_derivations_functional B n :
+  ZF ⊩IE opair $2 $1 ∈ enc_derivations B n --> opair $2 $0 ∈ enc_derivations B n --> $ 1 ≡ $ 0.
+Proof.
+  induction n; cbn -[derivations]; repeat apply prv_T_impl.
+  - pose (T := ZF ⋄ (opair $2 $1 ∈ sing (opair ∅ (enc_stack B))) ⋄ (opair $2 $0 ∈ sing (opair ∅ (enc_stack B)))).
+    fold T. assert (HT : ZF ⊑ T) by firstorder.
+    assert (H1 : T ⊩IE opair $2 $1 ≡ opair ∅ (enc_stack B)).
+    { apply prv_T_DS, ZF_pair_el'; trivial. apply elem_prv. left. now right. }
+    assert (H2 : T ⊩IE opair $2 $0 ≡ opair ∅ (enc_stack B)).
+    { apply prv_T_DS, ZF_pair_el'; trivial. apply elem_prv. now right. }
+    apply opair_inj2 in H1; trivial. apply opair_inj2 in H2; trivial.
+    apply ZF_sym' in H2; trivial. eapply ZF_trans'; eauto.
+  - pose (phi1 := opair $2 $1 ∈ enc_derivations B n ∪ sing (opair (σ tnumeral n) (enc_stack (derivations B (S n))))).
+    pose (phi2 := opair $2 $0 ∈ enc_derivations B n ∪ sing (opair (σ tnumeral n) (enc_stack (derivations B (S n))))).
+    pose (T := ZF ⋄ phi1 ⋄ phi2). fold phi1 phi2 T. assert (HT : ZF ⊑ T) by firstorder.
+    specialize (prv_T2 intu expl ZF phi2 phi1).
+    specialize (prv_T1 intu expl (ZF ⋄ phi1) phi2).
+    fold T. unfold phi1, phi2. intros H1 % ZF_bunion_inv; trivial.
+    intros H2 % ZF_bunion_inv; trivial.
+    apply (prv_T_DE H1); apply prv_T_imp; apply (prv_T_DE H2).
+    + apply prv_T_imp. now apply (Weak_T IHn).
+    + repeat apply prv_T_impl. apply prv_T_exf. eapply prv_T_mp.
+      apply (@ZF_numeral_wf _ (S n)). admit.
+      
+    + admit.
+    + repeat apply prv_T_impl.
+      pose (psi1 := opair $2 $1 ∈ sing (opair (σ tnumeral n) (enc_stack (derivations B (S n))))).
+      pose (psi2 := opair $2 $0 ∈ sing (opair (σ tnumeral n) (enc_stack (derivations B (S n))))).
+      pose (T' := T ⋄ psi1 ⋄ psi2). fold psi1 psi2 T'.
+      assert (HT' : ZF ⊑ T'). intros psi. unfold T', T, extend, contains. tauto.
+      eapply ZF_trans'; trivial.
+      * eapply opair_inj2; trivial. apply prv_T_DS, ZF_pair_el'; trivial. apply prv_T2.
+      * apply ZF_sym'; trivial. eapply opair_inj2; trivial. apply prv_T_DS, ZF_pair_el'; trivial. apply prv_T1.
+Admitted.
 
 
 
@@ -430,7 +537,8 @@ Proof.
   cbn; rewrite !substt_bounded0; repeat apply perst_bounded0; eauto.
   repeat apply prv_T_CI.
   - apply ZF_numeral.
-  - repeat apply ZF_all. asimpl. admit.
+  - repeat apply ZF_all. asimpl. unfold unscoped.shift.
+    apply enc_derivations_functional.
   - apply enc_derivations_base.
   - repeat apply ZF_all. admit.
   - apply enc_derivations_step.
