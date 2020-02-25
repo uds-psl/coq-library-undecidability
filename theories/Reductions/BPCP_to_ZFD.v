@@ -115,33 +115,49 @@ Proof.
     - apply in_rem_iff in H as [H1 H2]. apply B1 in H1 as [H1|H1]; tauto.
     - apply in_rem_iff in H as [H1 H2]. apply C1 in H1 as [H1|H1]; tauto. }  
   eapply DE. eapply Weak; try apply A2. auto.
-  - apply (Weak B2). intros xi H.
-Admitted.
+  - apply (Weak B2). intros xi H. decide (xi = phi); auto; try now left.
+    right. apply in_or_app. right. eauto using rem_neq.
+  - apply (Weak C2). intros xi H. decide (xi = psi); auto; try now left.
+    right. apply in_or_app. right. eauto using rem_neq.   
+Qed.
 
 
 
 
 
-(** ** Closed terms and formulas *)
+(** ** Bounded terms and formulas *)
+
+Lemma substt_bounded t sigma n :
+  bounded_term n t -> (forall i, i < n -> sigma i = $i) -> subst_term sigma t = t.
+Proof.
+  induction 1; intros HS; cbn; try now apply HS.
+  f_equal. erewrite <- vec_id. 2: reflexivity.
+  apply vec_map_ext. intros x H'. now apply H0.
+Qed.
 
 Lemma substt_bounded0 t sigma :
   bounded_term 0 t -> subst_term sigma t = t.
 Proof.
-  induction 1; cbn.
-  - lia.
+  intros H. apply (substt_bounded H). intros i. lia.
+Qed.
+
+Lemma subst_bounded phi sigma n :
+  bounded n phi -> (forall i, i < n -> sigma i = $i) -> phi[sigma] = phi.
+Proof.
+  induction 1 in sigma |- *; intros HS; cbn; subst; try firstorder congruence.
   - f_equal. erewrite <- vec_id. 2: reflexivity.
-    apply vec_map_ext. apply H0.
+    apply vec_map_ext. intros x H'. eapply substt_bounded; eauto.
+  - f_equal. apply IHbounded. intros [|i] Hi; trivial.
+    cbn. asimpl. rewrite HS; trivial. lia.
+  - f_equal. apply IHbounded. intros [|i] Hi; trivial.
+    cbn. asimpl. rewrite HS; trivial. lia.
 Qed.
 
 Lemma subst_bounded0 phi sigma :
   bounded 0 phi -> phi[sigma] = phi.
 Proof.
-  remember 0 as n.
-  induction 1; cbn; subst; try firstorder congruence.
-  - f_equal. erewrite <- vec_id. 2: reflexivity.
-    apply vec_map_ext. intros x H'. now apply substt_bounded0, H.
-  - admit.
-Admitted.
+  intros H. apply (subst_bounded H). intros i. lia.
+Qed.
 
 Ltac solve_bounds :=
   repeat constructor; try lia; try inversion X; intros;
@@ -163,21 +179,45 @@ Proof.
   eauto using bounded_term_up.
 Qed.
 
-Lemma subst_bounded phi n sigma k :
-  bounded n phi -> (forall i, i < n -> bounded_term k (sigma i)) -> k >= n -> bounded k (phi[sigma]).
+Lemma vec_map_inv X Y (f : X -> Y) n (v : vector X n) y :
+  vec_in y (Vector.map f v) -> sigT (fun x => prod (vec_in x v) (y = f x)).
 Proof.
-  induction 1 in k, sigma |- *; intros H1 H2; cbn; solve_bounds; intuition.
-  - admit.
-  - apply IHbounded. intros i.
-Admitted.
+  revert y. apply vec_forall_map. intros x H. exists x. split; trivial.
+Qed.
+
+Lemma substt_bounded_up t n sigma k :
+  bounded_term n t -> (forall i, i < n -> bounded_term k (sigma i)) -> bounded_term k (subst_term sigma t).
+Proof.
+  induction 1; intros HS; cbn; auto.
+  constructor. intros t [t'[HT ->]] % vec_map_inv.
+  apply H0; trivial.
+Qed.
+
+Lemma subst_bounded_up phi n sigma k :
+  bounded n phi -> (forall i, i < n -> bounded_term k (sigma i)) -> bounded k (phi[sigma]).
+Proof.
+  induction 1 in k, sigma |- *; intros H1 ; cbn; solve_bounds; intuition.
+  - apply vec_map_inv in X as [t'[HT ->]].
+    eapply substt_bounded_up; eauto.
+  - apply IHbounded; try lia.
+    intros [|i]; cbn; asimpl.
+    + intros _. constructor. lia.
+    + intros Hi. eapply substt_bounded_up; try apply H1; try lia.
+      intros [|j] Hj; asimpl; unfold unscoped.shift; constructor; lia.
+  - apply IHbounded; try lia.
+    intros [|i]; cbn; asimpl.
+    + intros _. constructor. lia.
+    + intros Hi. eapply substt_bounded_up; try apply H1; try lia.
+      intros [|j] Hj; asimpl; unfold unscoped.shift; constructor; lia.    
+Qed.
 
 Lemma ZF_bounded phi :
   ZF phi -> bounded 0 phi.
 Proof.
   intros [->|[->|[->|[->|[->|[->|[->|[[psi [H ->]]|[[psi [H ->]]| ->]]]]]]]]];
   repeat solve_bounds; eauto using bounded_up.
-  - apply (subst_bounded H); try lia. intros [|[]]; solve_bounds.
-  - apply (subst_bounded H); try lia. intros [|[]]; solve_bounds.
+  - apply (subst_bounded_up H). intros [|[]]; solve_bounds.
+  - apply (subst_bounded_up H). intros [|[]]; solve_bounds.
 Qed.
 
 Lemma ZF_all phi :
