@@ -754,6 +754,14 @@ Qed.
 
 Print Assumptions enc_derivations_functional.
 
+Lemma combinations_subst B x y sigma :
+  subst_form sigma (combinations B x y) = combinations B (subst_term sigma x) (subst_term sigma y).
+Proof.
+  induction B as [|[s t] B IH] in sigma |- *.
+  - cbn. reflexivity.
+  - cbn -[is_rep]. asimpl. 
+Admitted.
+
 Theorem BPCP_slv B :
   BPCP B -> ZF ⊩IE solvable B.
 Proof.
@@ -777,7 +785,8 @@ Proof.
   - repeat apply ZF_all. asimpl. unfold unscoped.shift.
     apply enc_derivations_functional.
   - apply enc_derivations_base.
-  - repeat apply ZF_all. admit.
+  - repeat apply ZF_all. rewrite !combinations_subst. cbn. asimpl.
+    rewrite !combinations_subst. cbn. unfold unscoped.shift. admit.
   - apply enc_derivations_step.
   - now apply enc_stack_spec.
   - apply ZF_refl.
