@@ -67,6 +67,21 @@ Proof.
   intros f g. unfold dec. decide equality.
 Qed.
 
+Lemma tsubst_refl T :
+  T ⊑ T.
+Proof.
+  firstorder.
+Qed.
+
+Lemma tsubst_extend T phi :
+  T ⊑ (T ⋄ phi).
+Proof.
+  firstorder.
+Qed.
+
+Ltac solve_tsub :=
+  eapply subset_T_trans; try eapply tsubst_extend.
+
 Lemma prv_T_mp (p : peirce) (b : bottom) T phi psi :
   T ⊩ (phi --> psi) -> T ⊩ phi -> T ⊩ psi.
 Proof.
@@ -162,6 +177,37 @@ Lemma prv_T_exf (p : peirce) T phi :
   T ⊩(p, expl) ⊥ -> T ⊩(p, expl) phi.
 Proof.
   intros [A[H1 H2]]. use_theory A. now apply Exp.
+Qed.
+
+Lemma prv_T_ExE (p : peirce) (b : bottom) (T : theory) n phi psi :
+  (forall theta, T theta -> unused n theta) -> unused n psi -> unused (S n) phi
+  -> (T ⊩ ∃ phi) -> (T ⋄ phi[(var_term n)..]) ⊩ psi -> T ⊩ psi.
+Proof.
+  intros H1 H2 H3 [A[A1 A2]] [B[B1 B2]].
+  assert (HT : (A ++ rem B phi[($ n)..]) ⊏ T).
+  { intros theta [H|[H H'] % in_rem_iff] % in_app_iff; auto. now apply B1 in H as [H|H]. }
+  exists (A ++ rem B (phi[($ n)..])). split; trivial. eapply ExE.
+  - apply (Weak A2). auto.
+  - apply nameless_equiv_ex with n; trivial.
+    + firstorder.
+    + apply (Weak B2). intros theta H.
+      decide (theta = phi[($ n)..]); auto. now left.
+Qed.
+
+Lemma prv_T_AllI (p : peirce) (b : bottom) (T : theory) n phi :
+  (forall theta, T theta -> unused n theta) -> unused (S n) phi
+  -> T ⊩ phi[(var_term n)..] -> T ⊩ ∀ phi.
+Proof.
+  intros H1 H2 [A[A1 A2]]. use_theory A.
+  apply AllI. apply nameless_equiv_all with n; firstorder.
+Qed.
+
+Lemma prv_T_imps (p : peirce) (b : bottom) T phi psi psi' :
+  T ⊩ (phi --> psi) -> T ⊩ (psi --> psi') -> T ⊩ (phi --> psi').
+Proof.
+  intros H1 H2. apply prv_T_impl. eapply prv_T_mp.
+  apply (Weak_T H2). apply tsubst_extend.
+  now apply prv_T_imp.
 Qed.
 
 
@@ -271,6 +317,37 @@ Proof.
   erewrite <- list_id. 2: reflexivity.
   apply map_ext_in. intros psi H % H1.
   apply subst_bounded0, ZF_bounded, H.
+Qed.
+
+Lemma find_unused_L A :
+  sig (fun n => forall k, n <= k -> unused_L k A).
+Proof.
+  induction A.
+  - exists 0. intros k _ phi [].
+  - destruct IHA as [n HN], (find_unused a) as [m HM].
+    destruct (le_lt_dec m n) as [H|H].
+    + exists n. intros k H1 phi [->|H2]. apply HM. lia. apply HN; auto.
+    + exists m. intros k H1 phi [->|H2]. apply HM. lia. apply HN; trivial. lia.
+Qed.
+
+Lemma bounded_unused_term t n k :
+  bounded_term n t -> k >= n -> unused_term k t.
+Proof.
+  induction 1; intros Hk; constructor. lia. firstorder.
+Qed.
+
+Lemma bounded_unused phi n k :
+  bounded n phi -> k >= n -> unused k phi.
+Proof.
+  induction 1 in k |- *; intros Hk; constructor; firstorder.
+  eapply bounded_unused_term; eauto.
+Qed.
+
+Lemma ZF_unused phi n :
+  ZF phi -> unused n phi.
+Proof.
+  intros H % ZF_bounded.
+  apply (bounded_unused H). lia.
 Qed.
 
 
@@ -390,6 +467,24 @@ Proof.
   now apply (prv_T_AllE x), (prv_T_AllE y), (prv_T_AllE z) in H; cbn in H; asimpl in H.
 Qed.
 
+Lemma ZF_eq_elem T x y x' y' :
+  ZF ⊑ T -> T ⊩IE x ≡ x' -> T ⊩IE y ≡ y' -> T ⊩IE x ∈ y -> T ⊩IE x' ∈ y'.
+Proof.
+  intros H1 H2 H3 H4. eapply prv_T_mp; try apply H4.
+  eapply prv_T_mp; try apply H3. eapply prv_T_mp; try apply H2.
+  assert (H : T ⊩IE ax_eq_elem) by (apply elem_prv; firstorder).
+  now apply (prv_T_AllE x), (prv_T_AllE y), (prv_T_AllE x'), (prv_T_AllE y') in H; cbn in H; asimpl in H.
+Qed.
+
+Lemma ZF_ext' T x y :
+  ZF ⊑ T -> T ⊩IE sub x y -> T ⊩IE sub y x -> T ⊩IE x ≡ y.
+Proof.
+  intros H1 H2 H3. eapply prv_T_mp; try apply H3.
+  eapply prv_T_mp; try apply H2.
+  assert (H : T ⊩IE ax_ext) by (apply elem_prv; firstorder).
+  now apply (prv_T_AllE x), (prv_T_AllE y) in H; cbn in H; asimpl in H.
+Qed.
+
 Lemma ZF_pair_el' (T : theory) x y z :
   ZF ⊑ T -> T ⊩IE (z ≡ x ∨ z ≡ y) <-> T ⊩IE z ∈ {x; y}.
 Proof.
@@ -404,6 +499,53 @@ Lemma ZF_pair_el x y z :
   ZF ⊩IE (z ≡ x ∨ z ≡ y) -> ZF ⊩IE z ∈ {x; y}.
 Proof.
   now apply ZF_pair_el'.
+Qed.
+
+Lemma ZF_eq_pair' x y x' y' :
+  ZF ⊩IE x ≡ x' --> y ≡ y'--> {x; y} ≡ {x'; y'}.
+Proof.
+  repeat apply prv_T_impl. apply ZF_ext'; trivial. solve_tsub.
+  - edestruct find_unused_L as [n HN]. apply prv_T_AllI with n.
+    + intros phi [[H| ->]| ->]; try now apply ZF_unused.
+      * apply HN. lia. auto.
+      * apply HN. lia. auto.
+    + apply HN. lia. auto.
+    + cbn. asimpl. apply prv_T_impl. apply ZF_pair_el'.
+      repeat solve_tsub. eapply prv_T_DE.
+      * eapply ZF_pair_el'. repeat solve_tsub. apply prv_T1.
+      * apply prv_T_DI1. eapply ZF_trans'. repeat solve_tsub.
+        apply prv_T1. apply elem_prv. unfold extend, contains. tauto.
+      * apply prv_T_DI2. eapply ZF_trans'. repeat solve_tsub.
+        apply prv_T1. apply elem_prv. unfold extend, contains. tauto.
+  - edestruct find_unused_L as [n HN]. apply prv_T_AllI with n.
+    + intros phi [[H| ->]| ->]; try now apply ZF_unused.
+      * apply HN. lia. auto.
+      * apply HN. lia. auto.
+    + apply HN. lia. auto.
+    + cbn. asimpl. apply prv_T_impl. apply ZF_pair_el'.
+      repeat solve_tsub. eapply prv_T_DE.
+      * eapply ZF_pair_el'. repeat solve_tsub. apply prv_T1.
+      * apply prv_T_DI1. eapply ZF_trans'. repeat solve_tsub.
+        apply prv_T1. apply ZF_sym'. repeat solve_tsub.
+        apply elem_prv. unfold extend, contains. tauto.
+      * apply prv_T_DI2. eapply ZF_trans'. repeat solve_tsub.
+        apply prv_T1. apply ZF_sym'. repeat solve_tsub.
+        apply elem_prv. unfold extend, contains. tauto.
+  Unshelve. all: exact nil.
+Qed.
+
+Lemma ZF_eq_pair T x y x' y' :
+  ZF ⊑ T -> T ⊩IE x ≡ x' -> T ⊩IE y ≡ y' -> T ⊩IE {x; y} ≡ {x'; y'}.
+Proof.
+  intros HT H1 H2. eapply prv_T_mp; try apply H2.
+  eapply prv_T_mp; try apply H1. eapply Weak_T; eauto.
+  apply ZF_eq_pair'.
+Qed.
+
+Lemma ZF_eq_opair T x y x' y' :
+  ZF ⊑ T -> T ⊩IE x ≡ x' -> T ⊩IE y ≡ y' -> T ⊩IE opair x y ≡ opair x' y'.
+Proof.
+  intros HT H1 H2. repeat apply ZF_eq_pair; trivial.
 Qed.
 
 Lemma ZF_sing_el x :
@@ -431,16 +573,6 @@ Proof.
   apply prv_T_CE2 in HU. eapply prv_T_mp; try apply HU.
   apply prv_T_ExI with y. cbn. asimpl. apply H.
 Qed.
-
-(*Lemma ZF_union_inv' (T : theory) x y z :
-  ZF ⊑ T -> T ⊩IE z ∈ ⋃ x  -> T ⊩IE ∃ .
-Proof.
-  intros HT H.
-  assert (HU : T ⊩IE ax_union) by (apply elem_prv; firstorder).
-  apply (prv_T_AllE x), (prv_T_AllE z) in HU; cbn in HU; asimpl in HU.
-  apply prv_T_CE2 in HU. eapply prv_T_mp; try apply HU.
-  apply prv_T_ExI with y. cbn. asimpl. apply H.
-Qed.*)
 
 Lemma ZF_union_el x y z :
   ZF ⊩IE y ∈ x ∧ z ∈ y -> ZF ⊩IE z ∈ ⋃ x.
@@ -471,47 +603,6 @@ Qed.
 Definition upair (x y : term) : term :=
   {x; y}.
 
-Lemma prv_T_ExE (p : peirce) (b : bottom) (T : theory) n phi psi :
-  (forall theta, T theta -> unused n theta) -> unused n phi -> unused (S n) psi
-  -> (T ⊩ ∃ phi) -> (T ⋄ phi[(var_term n)..]) ⊩ psi -> T ⊩ psi.
-Proof.
-  intros H1 H2 H3 [A[A1 A2]] [B[B1 B2]].
-  
-Admitted.
-
-Definition memb (x y : term) : form :=
-  x ∈ y.
-
-Definition bunion (x y : term) : term :=
-  x ∪ y.
-
-Lemma prv_T_imps (p : peirce) (b : bottom) T phi psi psi' :
-  T ⊩ (phi --> psi) -> T ⊩ (psi --> psi') -> T ⊩ (phi --> psi').
-Proof.
-Admitted.
-
-Lemma tsubst_refl T :
-  T ⊑ T.
-Proof.
-  firstorder.
-Qed.
-
-Lemma tsubst_extend T phi :
-  T ⊑ (T ⋄ phi).
-Proof.
-  firstorder.
-Qed.
-
-Hint Resolve subset_T_trans tsubst_refl tsubst_extend.
-
-Lemma ZF_eq_elem T x y x' y' :
-  ZF ⊑ T -> T ⊩IE x ≡ x' -> T ⊩IE y ≡ y' -> T ⊩IE x ∈ y -> T ⊩IE x' ∈ y'.
-Proof.
-Admitted.
-
-Ltac solve_tsub :=
-  eapply subset_T_trans; try eapply tsubst_extend.
-
 Lemma ZF_bunion_inv' x y z :
    ZF ⊩IE z ∈ x ∪ y --> z ∈ x ∨ z ∈ y.
 Proof.
@@ -519,19 +610,24 @@ Proof.
   eapply (prv_T_AllE (upair x y)), (prv_T_AllE z) in TU; fold subst_form in TU.
   apply prv_T_CE1 in TU; fold subst_form in TU. cbn in TU; asimpl in TU.
   apply (prv_T_imps TU). apply prv_T_impl.
-  eapply prv_T_ExE. apply prv_T1. cbn. asimpl.
-  eapply prv_T_DE. apply ZF_pair_el'. solve_tsub.
-  eapply prv_T_CE1. apply prv_T1.
-  - apply prv_T_DI1. eapply ZF_eq_elem. repeat solve_tsub.
+  edestruct find_unused_L as [n HN].
+  eapply (prv_T_ExE (n:=n)). 
+  - intros phi [H| ->]; try now apply ZF_unused.
+    apply HN. lia. apply in_eq.
+  - apply HN. lia. right. apply in_eq.
+  - apply HN. lia. right. right. apply in_eq.
+  - apply prv_T1.
+  - cbn. asimpl.
+    eapply prv_T_DE. apply ZF_pair_el'. solve_tsub.
+    eapply prv_T_CE1. apply prv_T1.
+    + apply prv_T_DI1. eapply ZF_eq_elem. repeat solve_tsub.
     apply ZF_refl'. repeat solve_tsub. apply prv_T1.
     eapply prv_T_CE2. apply prv_T2.
-  - apply prv_T_DI2. eapply ZF_eq_elem. repeat solve_tsub.
-    apply ZF_refl'. repeat solve_tsub. apply prv_T1.
-    eapply prv_T_CE2. apply prv_T2.
-Admitted.
-    
-  
-  
+    + apply prv_T_DI2. eapply ZF_eq_elem. repeat solve_tsub.
+      apply ZF_refl'. repeat solve_tsub. apply prv_T1.
+      eapply prv_T_CE2. apply prv_T2.
+  Unshelve. exact nil.
+Qed.
 
 Lemma ZF_bunion_inv T x y z :
    ZF ⊑ T -> T ⊩IE z ∈ x ∪ y -> T ⊩IE z ∈ x ∨ z ∈ y.
@@ -554,15 +650,6 @@ Lemma ZF_numeral_wf T n :
   ZF ⊑ T -> T ⊩IE ¬ (tnumeral n ∈ tnumeral n).
 Proof.
 Admitted.
-
-
-
-Lemma ZF_eq_opair T x y x' y' :
-  ZF ⊑ T -> T ⊩IE x ≡ x' -> T ⊩IE y ≡ y' -> T ⊩IE opair x y ≡ opair x' y'.
-Proof.
-Admitted.
-
-
 
 
 
