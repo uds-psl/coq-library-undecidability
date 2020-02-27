@@ -425,6 +425,14 @@ Hint Resolve enc_derivations_bounded0.
 
 (** ** Simple derivations in ZF *)
 
+Lemma ZF_eset x :
+  ZF ⊩IE ¬ (x ∈ ∅).
+Proof.
+  change (ZF ⊩IE (¬ ($0 ∈ ∅))[x..]).
+  apply prv_T_AllE. apply elem_prv.
+  right. left. reflexivity.
+Qed.
+
 Lemma ZF_numeral n :
   ZF ⊩IE tnumeral n ∈ ω.
 Proof.
@@ -600,13 +608,11 @@ Proof.
   now apply ZF_bunion_el'.
 Qed.
 
-Definition upair (x y : term) : term :=
-  {x; y}.
-
 Lemma ZF_bunion_inv' x y z :
    ZF ⊩IE z ∈ x ∪ y --> z ∈ x ∨ z ∈ y.
 Proof.
   assert (TU : ZF ⊩IE ax_union) by (apply elem_prv; firstorder).
+  pose (upair (x y : term) := {x; y}).
   eapply (prv_T_AllE (upair x y)), (prv_T_AllE z) in TU; fold subst_form in TU.
   apply prv_T_CE1 in TU; fold subst_form in TU. cbn in TU; asimpl in TU.
   apply (prv_T_imps TU). apply prv_T_impl.
@@ -752,28 +758,63 @@ Proof.
       * apply ZF_sym'; trivial. eapply opair_inj2; trivial. apply ZF_sing_iff; trivial. apply prv_T1.
 Qed.
 
-Print Assumptions enc_derivations_functional.
+Lemma prep_string_subst sigma s x :
+  subst_term sigma (prep_string s x) = prep_string s (subst_term sigma x).
+Proof.
+  induction s; cbn; trivial. rewrite IHs.
+  rewrite substt_bounded0; eauto.
+  apply enc_bool_bounded0.
+Qed.
 
 Lemma combinations_subst B x y sigma :
   subst_form sigma (combinations B x y) = combinations B (subst_term sigma x) (subst_term sigma y).
 Proof.
-  induction B as [|[s t] B IH] in sigma |- *.
+  induction B as [|[s t] B IH] in sigma, x, y |- *.
   - cbn. reflexivity.
-  - cbn -[is_rep]. asimpl. 
+  - cbn -[is_rep]. rewrite IH. cbn -[is_rep]. asimpl. repeat f_equal.
+    unfold is_rep. cbn -[comb_rel]. asimpl. repeat f_equal.
+    + unfold comb_rel. cbn. rewrite !prep_string_subst. reflexivity.
+    + unfold comb_rel. cbn. rewrite !prep_string_subst. reflexivity.
+Qed.
+
+Lemma enc_derivations_el T B n k x :
+  ZF ⊑ T -> T ⊩IE opair k x ∈ enc_derivations B n
+  -> exists l, T ⊩IE k ≡ tnumeral l /\ T ⊩IE x ≡ enc_stack (derivations B l).
+Proof.
+  intros HT. induction n; cbn.
+  - intros H % ZF_sing_iff; trivial. exists 0. split.
+    + eapply opair_inj1; eauto.
+    + eapply opair_inj2; eauto. 
+  - intros H. apply ZF_bunion_inv in H; trivial.
+Abort.
+
+Lemma bunion_use T x y z phi :
+  ZF ⊑ T -> T ⋄ (x ∈ y) ⊩IE phi -> T ⋄ (x ≡ z) ⊩IE phi -> T ⊩IE x ∈ y ∪ sing z --> phi.
+Proof.
+Admitted.
+
+Lemma combinations_step B n (i x y : term) :
+  ZF ⊩IE i ∈ tnumeral n --> opair i x ∈ enc_derivations B n
+     --> combinations B x y --> opair (σ i) y ∈ enc_derivations B n.
+Proof.
+  induction n; cbn.
+  - apply prv_T_impl. apply prv_T_exf.
+    apply prv_T_imp. apply ZF_eset.
+  - apply bunion_use; try apply bunion_use.
+    apply tsubst_refl. 1, 4: apply tsubst_extend.
+    + apply prv_T_impl. apply ZF_bunion_el'. repeat solve_tsub.
+      apply prv_T_DI1. eapply prv_T_mp. eapply prv_T_mp. eapply prv_T_mp.
+      * eapply Weak_T. apply IHn. repeat solve_tsub.
+      * apply elem_prv. left. left. now right.
+      * apply prv_T2.
+      * apply prv_T1.
+    +
 Admitted.
 
 Theorem BPCP_slv B :
   BPCP B -> ZF ⊩IE solvable B.
 Proof.
   intros [s H] % BPCP_BPCP'. destruct (derivable_derivations H) as [n Hn].
-
-  (* enough (ZF ⊩IE (tnumeral n) ∈ ω
-          ∧ function' (enc_derivations R n)
-          ∧ solutions R (enc_derivations R n) (tnumeral n)
-          ∧ opair (tnumeral n) (enc_stack (derivations R n)) ∈ (enc_derivations R n)
-          ∧ (opair (enc_string s) (enc_string s)) ∈ (enc_stack (derivations R n))
-          ∧ (opair (enc_string s) (enc_string s)) ≡ opair (enc_string s) (enc_string s)). *)
-
   apply prv_T_ExI with (tnumeral n);
   apply prv_T_ExI with (enc_derivations B n);
   apply prv_T_ExI with (opair (enc_string s) (enc_string s));
@@ -786,9 +827,12 @@ Proof.
     apply enc_derivations_functional.
   - apply enc_derivations_base.
   - repeat apply ZF_all. rewrite !combinations_subst. cbn. asimpl.
-    rewrite !combinations_subst. cbn. unfold unscoped.shift. admit.
+    rewrite !combinations_subst. cbn. unfold unscoped.shift.
+    apply combinations_step.
   - apply enc_derivations_step.
   - now apply enc_stack_spec.
   - apply ZF_refl.
-Admitted.
+Qed.
+
+Print Assumptions BPCP_slv.
 
