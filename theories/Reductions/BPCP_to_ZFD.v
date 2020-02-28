@@ -701,25 +701,44 @@ Lemma ZF_numeral_wf T n :
 Proof.
 Admitted.
 
-Lemma bunion_eset T x :
-   ZF ⊑ T -> T ⊩IE ∅ ∪ x ≡ x.
+Lemma ZF_bunion_el1 T x y z :
+  ZF ⊑ T -> T ⊩IE z ∈ x -> T ⊩IE z ∈ x ∪ y.
 Proof.
-Admitted.
+  intros HT H. now apply ZF_bunion_el', prv_T_DI1.
+Qed.
 
-Lemma bunion_com T x y :
-  ZF ⊑ T -> T ⊩IE x ∪ y ≡ y ∪ x.
+Lemma ZF_bunion_el2 T x y z :
+  ZF ⊑ T -> T ⊩IE z ∈ y -> T ⊩IE z ∈ x ∪ y.
 Proof.
-Admitted.
+  intros HT H. now apply ZF_bunion_el', prv_T_DI2.
+Qed.
+ 
+Lemma bunion_eset x :
+   ZF ⊩IE ∅ ∪ x ≡ x.
+Proof.
+  apply ZF_ext'; try apply ZF_all, prv_T_impl; cbn. solve_tsub. 
+  - eapply prv_T_DE. eapply ZF_bunion_inv. repeat solve_tsub. apply prv_T1.
+    + apply prv_T_exf. eapply prv_T_mp; try apply prv_T1.
+      eapply Weak_T; try apply ZF_eset. repeat solve_tsub.
+    + apply prv_T1.
+  - apply ZF_bunion_el2, prv_T1. repeat solve_tsub.
+Qed.
 
-Lemma bunion_assoc T x y z :
-  ZF ⊑ T -> T ⊩IE (x ∪ y) ∪ z ≡ x ∪ (y ∪ z).
+Lemma bunion_swap x y z :
+  ZF ⊩IE (x ∪ y) ∪ z ≡ (x ∪ z) ∪ y.
 Proof.
-Admitted.
-
-Lemma bunion_assoc' T x y z :
-  ZF ⊑ T -> T ⊩IE (x ∪ y) ∪ z ≡ (x ∪ z) ∪ y.
-Proof.
-Admitted.
+  apply ZF_ext'; try apply ZF_all, prv_T_impl; cbn. solve_tsub.
+  - eapply prv_T_DE. eapply ZF_bunion_inv. repeat solve_tsub. apply prv_T1.
+    + eapply prv_T_DE. eapply ZF_bunion_inv. repeat solve_tsub. apply prv_T1.
+      * apply ZF_bunion_el1, ZF_bunion_el1, prv_T1. all: repeat solve_tsub.
+      * apply ZF_bunion_el2, prv_T1. repeat solve_tsub.
+    + apply ZF_bunion_el1, ZF_bunion_el2, prv_T1. all: repeat solve_tsub.
+  - eapply prv_T_DE. eapply ZF_bunion_inv. repeat solve_tsub. apply prv_T1.
+    + eapply prv_T_DE. eapply ZF_bunion_inv. repeat solve_tsub. apply prv_T1.
+      * apply ZF_bunion_el1, ZF_bunion_el1, prv_T1. all: repeat solve_tsub.
+      * apply ZF_bunion_el2, prv_T1. repeat solve_tsub.
+    + apply ZF_bunion_el1, ZF_bunion_el2, prv_T1. all: repeat solve_tsub.
+Qed.
 
 
 
@@ -873,8 +892,8 @@ Lemma enc_stack_app T B C :
   ZF ⊑ T -> T ⊩IE (enc_stack B) ∪ (enc_stack C) ≡ enc_stack (B ++ C).
 Proof.
   intros HT. induction B as [|[s t] B IH]; cbn.
-  - now apply bunion_eset.
-  - eapply ZF_trans'; trivial. apply bunion_assoc'; trivial.
+  - eapply Weak_T; try apply bunion_eset. assumption.
+  - eapply ZF_trans'; trivial. eapply Weak_T; try apply bunion_swap; trivial.
     eapply ZF_eq_bunion; trivial. apply ZF_refl'; trivial.
 Qed.
 
