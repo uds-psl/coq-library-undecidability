@@ -921,7 +921,7 @@ Instance bt_ZF : bounded_theory ZF :=
   { bound := 0 }.
 Proof.
   intros phi k H _. now apply ZF_unused.
-Defined.
+Qed.
 
 Instance bt_extend T (HB : bounded_theory T) (phi : form) : bounded_theory (T ⋄ phi) :=
   { bound := (proj1_sig (find_unused phi) + bound) }.
@@ -930,18 +930,19 @@ Proof.
   intros psi k [HT| ->] Hk.
   - apply bound_spec; trivial. lia.
   - apply H. lia.
-Defined.
+Qed.
 
 Section BT.
 
 Context {T : theory} { HB : bounded_theory T } { p : peirce } { b : bottom }.
 
 Lemma bt_all' phi :
-  T ⊩ subst_form ($(@bound (T ⋄ phi) _)..) phi -> T ⊩ ∀ phi.
+  let k := bound + proj1_sig (find_unused phi) in
+  T ⊩ subst_form ($k..) phi -> T ⊩ ∀ phi.
 Proof.
-  intros H. apply prv_T_AllI with (@bound (T ⋄ phi) _).
+  intros k H. apply prv_T_AllI with k.
   - intros psi HP. apply bound_spec; trivial. cbn. lia.
-  - cbn. destruct (find_unused phi) as [n Hn]; cbn. apply Hn. lia.
+  - unfold k. destruct (find_unused phi) as [n Hn]; cbn. apply Hn. lia.
   - assumption.
 Qed.
 
@@ -952,12 +953,13 @@ Proof.
 Qed.
 
 Lemma bt_exists' phi psi :
-  (T ⊩ ∃ phi) -> (T ⋄ (subst_form ($(@bound ((T ⋄ phi) ⋄ psi) _)..) phi)) ⊩ psi -> T ⊩ psi.
+  let k := bound + proj1_sig (find_unused phi) + proj1_sig (find_unused psi) in
+  (T ⊩ ∃ phi) -> (T ⋄ (subst_form ($k..) phi)) ⊩ psi -> T ⊩ psi.
 Proof.
-  intros H1 H2. apply prv_T_ExE in H2; trivial.
+  intros k H1 H2. apply prv_T_ExE in H2; trivial.
   - intros theta HP. apply bound_spec; trivial. cbn. lia.
-  - cbn. destruct (find_unused psi) as [n Hn]; cbn. apply Hn. lia.
-  - cbn. destruct (find_unused phi) as [n Hn]; cbn. apply Hn. lia.
+  - unfold k. destruct (find_unused psi) as [n Hn]; cbn. apply Hn. lia.
+  - unfold k. destruct (find_unused phi) as [n Hn]; cbn. apply Hn. lia.
 Qed.
 
 Lemma bt_exists phi psi :
@@ -974,18 +976,36 @@ Ltac assert1 H :=
 Ltac use_exists H t :=
   eapply (@bt_exists) in H as [t H]; eauto; apply H.
 
+Lemma prep_string_app s t x :
+  prep_string (s ++ t) x = prep_string s (prep_string t x).
+Proof.
+  induction s; cbn; congruence.
+Qed.
+
+Lemma ZF_eq_prep T s x y :
+  ZF ⊑ T -> T ⊩IE x ≡ y -> T ⊩IE prep_string s x ≡ prep_string s y.
+Proof.
+  intros HT H. induction s; cbn; try tauto.
+  apply ZF_eq_opair; trivial. now apply ZF_refl'.
+Qed.
+
 Lemma append_all_el T B s t x y :
   ZF ⊑ T -> T ⊩IE opair x y ∈ enc_stack B
   -> T ⊩IE opair (prep_string s x) (prep_string t y) ∈ enc_stack (append_all B (s/t)).
 Proof.
-  intros HT H. induction B as [|[u v] B IH]; cbn in *.
+  intros HT H. induction B as [|[u v] B IH] in T, HT, H |- *; cbn in *.
   - apply prv_T_exf. eapply prv_T_mp. 2: apply H. now apply ZF_eset'.
-  - admit.
-Admitted.
+  - eapply (ZF_bunion_el' HT). eapply prv_T_DE. apply (ZF_bunion_inv HT H).
+    + apply prv_T_DI1. apply IH; try apply prv_T1. solve_tsub.
+    + assert1 H'. apply ZF_sing_iff in H'; try now solve_tsub.
+      apply prv_T_DI2. apply ZF_sing_iff. solve_tsub.
+      rewrite !prep_string_app. apply ZF_eq_opair. solve_tsub.
+      * apply ZF_eq_prep. solve_tsub. eapply opair_inj1; eauto. solve_tsub.
+      * apply ZF_eq_prep. solve_tsub. eapply opair_inj2; eauto. solve_tsub.
+Qed.
 
-Lemma is_rep_eq' T (HB : bounded_theory T) B s t x y :
-  ZF ⊑ T
-  -> T ⊩IE x ≡ enc_stack B -> T ⊩IE is_rep (comb_rel s t) x y
+Lemma is_rep_eq T (HB : bounded_theory T) B s t x y :
+  ZF ⊑ T -> T ⊩IE x ≡ enc_stack B -> T ⊩IE is_rep (comb_rel s t) x y
   -> T ⊩IE y ≡ enc_stack (append_all B (s / t)).
 Proof.
   intros HT H1 H2. apply ZF_ext'; trivial.
@@ -1008,17 +1028,27 @@ Proof.
   - apply bt_all. intros a. cbn. asimpl.
     apply (@prv_T_AllE _ _ _ _ a) in H2. cbn -[comb_rel] in H2. asimpl in H2.
     eapply prv_T_CE2 in H2. eapply prv_T_imps. 2: apply H2. clear H2. apply prv_T_impl.
-    
-Admitted.
-
-Lemma is_rep_eq T B n s t x y :
-  ZF ⊑ T -> (forall phi k, T phi -> n <= k -> unused k phi)
-  -> T ⊩IE x ≡ enc_stack B -> T ⊩IE is_rep (comb_rel s t) x y
-  -> T ⊩IE y ≡ enc_stack (append_all B (s / t)).
-Proof.
-  intros HT HB H1 H2. apply ZF_ext'; trivial.
-  - 
-Admitted.
+    induction B as [|[u v] B IH] in T, x, HT, H1, HB |- *; cbn -[comb_rel] in *.
+    + apply prv_T_exf. eapply prv_T_mp; try apply prv_T1. apply ZF_eset'. repeat solve_tsub.
+    + apply prv_T_imp. apply bunion_use; trivial.
+      * specialize (IH T HB (enc_stack B) HT).
+        assert (H : T ⊩IE enc_stack B ≡ enc_stack B) by now apply ZF_refl'.
+        apply IH in H. use_exists H z. clear H. apply prv_T_ExI with z.
+        cbn -[comb_rel]. asimpl. assert1 H. apply prv_T_CE in H as [H H'].
+        apply prv_T_CI; trivial. eapply ZF_eq_elem. repeat solve_tsub.
+        apply ZF_refl'. repeat solve_tsub. apply ZF_sym'. repeat solve_tsub.
+        apply (Weak_T H1). repeat solve_tsub. apply ZF_bunion_el1; trivial. repeat solve_tsub.
+      * apply prv_T_ExI with (opair (enc_string u) (enc_string v)).
+        cbn -[comb_rel]. asimpl. apply prv_T_CI.
+        -- eapply ZF_eq_elem. repeat solve_tsub. apply ZF_refl'. repeat solve_tsub.
+           apply ZF_sym'. repeat solve_tsub. apply (Weak_T H1). repeat solve_tsub.
+           apply ZF_bunion_el2. repeat solve_tsub. eapply Weak_T. apply ZF_sing_el.
+           repeat solve_tsub.
+        -- cbn. apply prv_T_ExI with (enc_string v).
+           cbn. apply prv_T_ExI with (enc_string u).
+           cbn. asimpl. rewrite !prep_string_subst, !prep_string_app; cbn.
+           apply prv_T_CI; try apply prv_T1. apply ZF_refl'. repeat solve_tsub.
+Qed.
 
 Lemma combinations_eq T B C x y n :
   ZF ⊑ T -> (forall phi k, T phi -> n <= k -> unused k phi)
@@ -1046,7 +1076,8 @@ Proof.
       fold psi. eapply ZF_trans'. solve_tsub. eapply prv_T_CE1. apply prv_T1.
       eapply ZF_trans'. solve_tsub. 2: apply enc_stack_app. 2: solve_tsub.
       apply ZF_eq_bunion. solve_tsub.
-      * eapply is_rep_eq. solve_tsub. apply prv_clear1. eauto.
+      * eapply is_rep_eq. apply bt_extend. now exists n.
+        solve_tsub. apply prv_clear1. eauto.
         eapply prv_T_CE2. eapply prv_T_CE2. apply prv_T1.
       * destruct (find_unused psi) as [i Hi]. apply IH with (n+i). solve_tsub.
         -- intros phi j [H| ->] Hj. apply HB; trivial. lia. apply Hi. lia.
