@@ -127,6 +127,14 @@ Proof.
   intros [A[H1 H2]]. use_theory A. eapply CE2; eauto.
 Qed.
 
+Lemma prv_T_CE (p : peirce) (b : bottom) T phi psi :
+  T ⊩ (phi ∧ psi) -> T ⊩ phi /\ T ⊩ psi.
+Proof.
+  intros H. split.
+  - now apply prv_T_CE1 in H.
+  - now apply prv_T_CE2 in H.
+Qed.
+
 Lemma prv_T_AllE (p : peirce) (b : bottom) T phi t :
   (T ⊩ ∀ phi) -> T ⊩ phi[t..].
 Proof.
@@ -450,6 +458,12 @@ Proof.
   change (ZF ⊩IE (¬ ($0 ∈ ∅))[x..]).
   apply prv_T_AllE. apply elem_prv.
   right. left. reflexivity.
+Qed.
+
+Lemma ZF_eset' T x :
+  ZF ⊑ T -> T ⊩IE ¬ (x ∈ ∅).
+Proof.
+  intros H. eapply Weak_T; eauto. apply ZF_eset.
 Qed.
 
 Lemma ZF_numeral n :
@@ -897,9 +911,113 @@ Proof.
     eapply ZF_eq_bunion; trivial. apply ZF_refl'; trivial.
 Qed.
 
-Lemma is_rep_eq T B s t x y :
-  ZF ⊑ T -> T ⊩IE x ≡ enc_stack B -> T ⊩IE is_rep (comb_rel s t) x y -> T ⊩IE y ≡ enc_stack (append_all B (s / t)).
+Class bounded_theory (T : theory) :=
+  {
+    bound : nat;
+    bound_spec : (forall phi k, T phi -> bound <= k -> unused k phi);
+  }.
+
+Instance bt_ZF : bounded_theory ZF :=
+  { bound := 0 }.
 Proof.
+  intros phi k H _. now apply ZF_unused.
+Defined.
+
+Instance bt_extend T (HB : bounded_theory T) (phi : form) : bounded_theory (T ⋄ phi) :=
+  { bound := (proj1_sig (find_unused phi) + bound) }.
+Proof.
+  destruct (find_unused phi) as [n H]; cbn.
+  intros psi k [HT| ->] Hk.
+  - apply bound_spec; trivial. lia.
+  - apply H. lia.
+Defined.
+
+Section BT.
+
+Context {T : theory} { HB : bounded_theory T } { p : peirce } { b : bottom }.
+
+Lemma bt_all' phi :
+  T ⊩ subst_form ($(@bound (T ⋄ phi) _)..) phi -> T ⊩ ∀ phi.
+Proof.
+  intros H. apply prv_T_AllI with (@bound (T ⋄ phi) _).
+  - intros psi HP. apply bound_spec; trivial. cbn. lia.
+  - cbn. destruct (find_unused phi) as [n Hn]; cbn. apply Hn. lia.
+  - assumption.
+Qed.
+
+Lemma bt_all phi :
+  (forall t, T ⊩ subst_form (t..) phi) -> T ⊩ ∀ phi.
+Proof.
+  intros H. eapply bt_all', H.
+Qed.
+
+Lemma bt_exists' phi psi :
+  (T ⊩ ∃ phi) -> (T ⋄ (subst_form ($(@bound ((T ⋄ phi) ⋄ psi) _)..) phi)) ⊩ psi -> T ⊩ psi.
+Proof.
+  intros H1 H2. apply prv_T_ExE in H2; trivial.
+  - intros theta HP. apply bound_spec; trivial. cbn. lia.
+  - cbn. destruct (find_unused psi) as [n Hn]; cbn. apply Hn. lia.
+  - cbn. destruct (find_unused phi) as [n Hn]; cbn. apply Hn. lia.
+Qed.
+
+Lemma bt_exists phi psi :
+  (T ⊩ ∃ phi) -> exists t, (T ⋄ (subst_form (t..) phi)) ⊩ psi -> T ⊩ psi.
+Proof.
+  intros H. eexists. now apply bt_exists'.
+Qed.
+
+End BT.
+
+Ltac assert1 H :=
+  match goal with  |- (?T ⋄ ?phi) ⊩IE _ => assert (H : (T ⋄ phi) ⊩IE phi) by apply prv_T1 end.
+
+Ltac use_exists H t :=
+  eapply (@bt_exists) in H as [t H]; eauto; apply H.
+
+Lemma append_all_el T B s t x y :
+  ZF ⊑ T -> T ⊩IE opair x y ∈ enc_stack B
+  -> T ⊩IE opair (prep_string s x) (prep_string t y) ∈ enc_stack (append_all B (s/t)).
+Proof.
+  intros HT H. induction B as [|[u v] B IH]; cbn in *.
+  - apply prv_T_exf. eapply prv_T_mp. 2: apply H. now apply ZF_eset'.
+  - admit.
+Admitted.
+
+Lemma is_rep_eq' T (HB : bounded_theory T) B s t x y :
+  ZF ⊑ T
+  -> T ⊩IE x ≡ enc_stack B -> T ⊩IE is_rep (comb_rel s t) x y
+  -> T ⊩IE y ≡ enc_stack (append_all B (s / t)).
+Proof.
+  intros HT H1 H2. apply ZF_ext'; trivial.
+  - apply bt_all. intros a. cbn.
+    eapply prv_T_AllE in H2. cbn -[comb_rel] in H2.
+    eapply prv_T_CE1 in H2. eapply prv_T_imps. apply H2.
+    apply prv_T_impl. assert1 H. use_exists H b. apply prv_clear2. clear H.
+    cbn -[comb_rel]. asimpl. assert1 H. apply prv_T_CE in H as [H H'].
+    unfold comb_rel at 2 in H'. cbn -[comb_rel] in H'. asimpl in H'.
+    rewrite !prep_string_subst in H'. cbn -[comb_rel] in H'. 
+    use_exists H' c. clear H'.
+    cbn -[comb_rel]. asimpl. rewrite !prep_string_subst. cbn -[comb_rel].
+    assert1 H'. use_exists H' d. clear H'.
+    cbn -[comb_rel]. asimpl. rewrite !prep_string_subst. cbn -[comb_rel]. asimpl.
+    eapply ZF_eq_elem. repeat solve_tsub. apply ZF_sym'. repeat solve_tsub.
+    eapply prv_T_CE2. apply prv_T1. apply ZF_refl'. repeat solve_tsub.
+    apply append_all_el. repeat solve_tsub.
+    eapply ZF_eq_elem. repeat solve_tsub. eapply prv_T_CE1. apply prv_T1.
+    eapply (Weak_T H1). repeat solve_tsub. eapply (Weak_T H). repeat solve_tsub.
+  - apply bt_all. intros a. cbn. asimpl.
+    apply (@prv_T_AllE _ _ _ _ a) in H2. cbn -[comb_rel] in H2. asimpl in H2.
+    eapply prv_T_CE2 in H2. eapply prv_T_imps. 2: apply H2. clear H2. apply prv_T_impl.
+    
+Admitted.
+
+Lemma is_rep_eq T B n s t x y :
+  ZF ⊑ T -> (forall phi k, T phi -> n <= k -> unused k phi)
+  -> T ⊩IE x ≡ enc_stack B -> T ⊩IE is_rep (comb_rel s t) x y
+  -> T ⊩IE y ≡ enc_stack (append_all B (s / t)).
+Proof.
+  intros HT HB H1 H2. apply ZF_ext'; trivial.
+  - 
 Admitted.
 
 Lemma combinations_eq T B C x y n :
