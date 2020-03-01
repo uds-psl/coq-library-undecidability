@@ -218,7 +218,7 @@ Section ra_mm_comp.
             |  (forall x v, ⟦f⟧ v x -> exists j, (1,P) /v/ (1,vec_app v vec_zero) ~~> (j,vec_app v (x##vec_zero)))
             /\ (forall v, (1,P) /v/ (1,vec_app v vec_zero) ↓ -> ex (⟦f⟧ v)) } }.
   Proof.
-    destruct ra_mm_env_simulator with (f := f) as (P & H1 & H2).
+    destruct ra_mm_env_simulator with (f := f) as (P & HP).
     set (k := max (S n) (mm_nat_bound P)).
     assert (S n <= k) as H3 by apply le_max_l.
     assert { m | k = n+S m } as H4.
@@ -231,14 +231,15 @@ Section ra_mm_comp.
     + revert Q HQ; rewrite Hm; clear k Hm; intros Q HQ.
       exists Q; split.
       * intros x v H.
-        destruct (H1 v x (fun j => match le_lt_dec n j with left _ => 0 | right Hj => vec_pos v (nat2pos Hj) end))
-          as (e' & G1 & k & G2); auto.
+        destruct (HP v (fun j => match le_lt_dec n j with left _ => 0 | right Hj => vec_pos v (nat2pos Hj) end))
+          as [ H1 _ ].
         - intros p; generalize (pos2nat_prop p); intros H0; unfold get_env.
           destruct (le_lt_dec n (pos2nat p)); try omega.
           f_equal; apply nat2pos_pos2nat.
         - intros j Hj; unfold get_env.
           destruct (le_lt_dec n j); omega.
-        - exists (1+length P); split.
+        - destruct (H1 _ H) as (e' & G1 & k & G2); auto.
+          exists (1+length P); split.
           2: rewrite HQ; unfold mm_pos_nat; rew length; simpl; omega.
           exists k.
           rewrite HQ in G2 at 1.
@@ -278,10 +279,7 @@ Section ra_mm_comp.
         set (e1 := fun j => match le_lt_dec n j with left _ => 0 | right Hj => vec_pos v (nat2pos Hj) end).
         apply sss_steps_mm_pos_nat with (e1 := e1) in G1.
         destruct G1 as (e2 & G1 & G3); simpl in G3.
-        apply H2 with e1.
-        - rewrite HQ; exists (j,e2); split.
-          ++ exists k; auto.
-          ++ simpl; unfold mm_pos_nat; rew length; auto.
+        apply HP with e1.
         - intros p; unfold e1, get_env.
           generalize (pos2nat_prop p); intros.
           destruct (le_lt_dec n (pos2nat p)); try omega.
@@ -289,6 +287,9 @@ Section ra_mm_comp.
         - intros p Hp.
           unfold e1, get_env.
           destruct (le_lt_dec n p); omega.
+        - rewrite HQ; exists (j,e2); split.
+          ++ exists k; auto.
+          ++ simpl; unfold mm_pos_nat; rew length; auto.
         - simpl; apply pos_left_right_rect.
           ++ intros p; rewrite vec_pos_app_left, pos2nat_left.
              unfold e1, get_env.
