@@ -67,20 +67,26 @@ Proof.
   intros f g. unfold dec. decide equality.
 Qed.
 
-Lemma tsubst_refl T :
+Lemma tsubs_refl T :
   T ⊑ T.
 Proof.
   firstorder.
 Qed.
 
-Lemma tsubst_extend T phi :
+Lemma tsubs_trans T1 T2 T3 :
+  T1 ⊑ T2 -> T2 ⊑ T3 -> T1 ⊑ T3.
+Proof.
+  firstorder.
+Qed.
+
+Lemma tsubs_extend T phi :
   T ⊑ (T ⋄ phi).
 Proof.
   firstorder.
 Qed.
 
 Ltac solve_tsub :=
-  try apply tsubst_refl; eapply subset_T_trans; eauto; try eapply tsubst_extend.
+  try apply tsubs_refl; eapply tsubs_trans; eauto; try eapply tsubs_extend.
 
 Lemma prv_T_mp (p : peirce) (b : bottom) T phi psi :
   T ⊩ (phi --> psi) -> T ⊩ phi -> T ⊩ psi.
@@ -220,7 +226,7 @@ Lemma prv_T_imps (p : peirce) (b : bottom) T phi psi psi' :
   T ⊩ (phi --> psi) -> T ⊩ (psi --> psi') -> T ⊩ (phi --> psi').
 Proof.
   intros H1 H2. apply prv_T_impl. eapply prv_T_mp.
-  apply (Weak_T H2). apply tsubst_extend.
+  apply (Weak_T H2). apply tsubs_extend.
   now apply prv_T_imp.
 Qed.
 
@@ -707,14 +713,10 @@ Lemma ZF_bunion_el' T x y z :
   ZF ⊑ T -> T ⊩IE (z ∈ x ∨ z ∈ y) -> T ⊩IE z ∈ x ∪ y.
 Proof.
   intros HT H. apply (prv_T_DE H).
-  - assert (HT' : ZF ⊑ (T ⋄ (z ∈ x))). intros phi. specialize (HT phi). unfold extend, contains in *. tauto.
-    eapply ZF_union_el' with x; try now left. trivial. apply prv_T_CI.
-    + apply ZF_pair_el'; try now left. trivial. apply prv_T_DI1. apply ZF_refl'; trivial.
-    + apply elem_prv. now right.
-  - assert (HT' : ZF ⊑ (T ⋄ (z ∈ y))). intros phi. specialize (HT phi). unfold extend, contains in *. tauto.
-    eapply ZF_union_el' with y; try now left. trivial. apply prv_T_CI.
-    + apply ZF_pair_el'; try now left. trivial. apply prv_T_DI2. apply ZF_refl'; trivial.
-    + apply elem_prv. now right.
+  - eapply ZF_union_el' with x. solve_tsub. apply prv_T_CI; try apply prv_T1.
+    apply ZF_pair_el'. solve_tsub. apply prv_T_DI1. apply ZF_refl'. solve_tsub.
+  - eapply ZF_union_el' with y. solve_tsub. apply prv_T_CI; try apply prv_T1.
+    apply ZF_pair_el'. solve_tsub. apply prv_T_DI2. apply ZF_refl'. solve_tsub.
 Qed.
 
 Lemma ZF_bunion_el x y z :
@@ -947,65 +949,30 @@ Proof.
     apply ZF_refl'; trivial. eapply ZF_bunion_el'; trivial.
     apply prv_T_DI2. apply ZF_sing_iff; trivial. apply ZF_refl'; trivial.
   - apply ZF_bunion_inv in H; trivial. apply (prv_T_DE H).
-    + assert (HT' : ZF ⊑ (T ⋄ (opair k x ∈ enc_derivations B n))).
-      { intros phi. specialize (HT phi). unfold extend, contains in *. tauto. }
-      apply ZF_bunion_el'; trivial. apply prv_T_DI1. apply IHn; trivial. apply prv_T1.
-    + pose (psi := opair k x ∈ sing (opair (σ tnumeral n) (enc_stack (derivation_step B (derivations B n))))).
-      fold psi. assert (HT' : ZF ⊑ (T ⋄ psi)). intros phi. specialize (HT phi). unfold extend, contains in *. tauto.
-      apply ZF_bunion_el'; trivial. apply prv_T_DI2. apply ZF_sing_iff; trivial.
-      eapply opair_inj1; trivial. apply ZF_sing_iff; trivial. apply prv_T1.
+    + apply ZF_bunion_el1. solve_tsub. apply IHn; try apply prv_T1. solve_tsub.
+    + apply ZF_bunion_el2. solve_tsub. apply ZF_sing_iff. solve_tsub.
+      eapply opair_inj1. solve_tsub. apply ZF_sing_iff; try apply prv_T1. solve_tsub.
 Qed.
 
 Lemma enc_derivations_functional B n :
   ZF ⊩IE opair $2 $1 ∈ enc_derivations B n --> opair $2 $0 ∈ enc_derivations B n --> $ 1 ≡ $ 0.
 Proof.
-  induction n; cbn -[derivations]; repeat apply prv_T_impl.
-  - pose (T := ZF ⋄ (opair $2 $1 ∈ sing (opair ∅ (enc_stack B))) ⋄ (opair $2 $0 ∈ sing (opair ∅ (enc_stack B)))).
-    fold T. assert (HT : ZF ⊑ T). intros phi. unfold T, extend, contains. tauto.
-    assert (H1 : T ⊩IE opair $2 $1 ≡ opair ∅ (enc_stack B)).
-    { apply ZF_sing_iff; trivial. apply elem_prv. left. now right. }
-    assert (H2 : T ⊩IE opair $2 $0 ≡ opair ∅ (enc_stack B)).
-    { apply ZF_sing_iff; trivial. apply elem_prv. now right. }
-    apply opair_inj2 in H1; trivial. apply opair_inj2 in H2; trivial.
-    apply ZF_sym' in H2; trivial. eapply ZF_trans'; eauto.
-  - pose (phi1 := opair $2 $1 ∈ enc_derivations B n ∪ sing (opair (σ tnumeral n) (enc_stack (derivations B (S n))))).
-    pose (phi2 := opair $2 $0 ∈ enc_derivations B n ∪ sing (opair (σ tnumeral n) (enc_stack (derivations B (S n))))).
-    pose (T := ZF ⋄ phi1 ⋄ phi2). fold phi1 phi2 T.
-    assert (HT : ZF ⊑ T). intros phi. unfold T, extend, contains. tauto.
-    specialize (prv_T2 intu expl ZF phi2 phi1).
-    specialize (prv_T1 intu expl (ZF ⋄ phi1) phi2).
-    fold T. unfold phi1, phi2. intros H1 % ZF_bunion_inv; trivial.
-    intros H2 % ZF_bunion_inv; trivial.
-    apply (prv_T_DE H1); apply prv_T_imp; apply (prv_T_DE H2).
-    + apply prv_T_imp. now apply (Weak_T IHn).
-    + repeat apply prv_T_impl. apply prv_T_exf.
-      pose (psi1 := opair $2 $1 ∈ sing (opair (σ tnumeral n) (enc_stack (derivations B (S n))))).
-      pose (psi2 := opair $2 $0 ∈ enc_derivations B n).
-      pose (T' := (T ⋄ psi1 ⋄ psi2)). fold psi1 psi2 T'.
-      assert (HT' : ZF ⊑ T'). intros phi. unfold T', T, extend, contains. tauto.
-      eapply prv_T_mp. apply (@ZF_numeral_wf _ (S n)); trivial.
-      eapply ZF_derivations_bound; trivial.
-      eapply ZF_eq_elem; trivial. 2: apply ZF_refl'; trivial. 2: apply prv_T1.
-      eapply ZF_eq_opair; trivial. 2: apply ZF_refl'; trivial.
-      eapply opair_inj1; trivial. apply ZF_sing_iff; trivial. apply prv_T2.
-    + repeat apply prv_T_impl. apply prv_T_exf.
-      pose (psi1 := opair $2 $1 ∈ enc_derivations B n). 
-      pose (psi2 := opair $2 $0 ∈ sing (opair (σ tnumeral n) (enc_stack (derivations B (S n))))).
-      pose (T' := (T ⋄ psi1 ⋄ psi2)). fold psi1 psi2 T'.
-      assert (HT' : ZF ⊑ T'). intros phi. unfold T', T, extend, contains. tauto.
-      eapply prv_T_mp. apply (@ZF_numeral_wf _ (S n)); trivial.
-      eapply ZF_derivations_bound; trivial.
-      eapply ZF_eq_elem; trivial. 2: apply ZF_refl'; trivial. 2: apply prv_T2.
-      eapply ZF_eq_opair; trivial. 2: apply ZF_refl'; trivial.
-      eapply opair_inj1; trivial. apply ZF_sing_iff; trivial. apply prv_T1.
-    + repeat apply prv_T_impl.
-      pose (psi1 := opair $2 $1 ∈ sing (opair (σ tnumeral n) (enc_stack (derivations B (S n))))).
-      pose (psi2 := opair $2 $0 ∈ sing (opair (σ tnumeral n) (enc_stack (derivations B (S n))))).
-      pose (T' := T ⋄ psi1 ⋄ psi2). fold psi1 psi2 T'.
-      assert (HT' : ZF ⊑ T'). intros psi. unfold T', T, extend, contains. tauto.
-      eapply ZF_trans'; trivial.
-      * eapply opair_inj2; trivial. apply ZF_sing_iff; trivial. apply prv_T2.
-      * apply ZF_sym'; trivial. eapply opair_inj2; trivial. apply ZF_sing_iff; trivial. apply prv_T1.
+  induction n; cbn -[derivations].
+  - repeat apply prv_T_impl. eapply opair_inj2. repeat solve_tsub. eapply ZF_trans'. repeat solve_tsub.
+    + apply ZF_sing_iff; try apply prv_T2. repeat solve_tsub.
+    + apply ZF_sym'. repeat solve_tsub. apply ZF_sing_iff; try apply prv_T1. repeat solve_tsub.
+  - apply bunion_use; try apply bunion_use. 1,2,5: repeat solve_tsub.
+    + repeat apply prv_T_imp. now apply (Weak_T IHn).
+    + apply prv_T_exf. eapply prv_T_mp. apply (@ZF_numeral_wf _ (S n)). solve_tsub.
+      eapply ZF_derivations_bound. solve_tsub. eapply ZF_eq_elem; try apply prv_T2. solve_tsub.
+      2: apply ZF_refl'. 2: solve_tsub. apply ZF_eq_opair. solve_tsub.
+      eapply opair_inj1; try apply prv_T1. solve_tsub. apply ZF_refl'. solve_tsub.
+    + apply prv_T_exf. eapply prv_T_mp. apply (@ZF_numeral_wf _ (S n)). solve_tsub.
+      eapply ZF_derivations_bound. solve_tsub. eapply ZF_eq_elem; try apply prv_T1. solve_tsub.
+      2: apply ZF_refl'. 2: solve_tsub. apply ZF_eq_opair. solve_tsub.
+      eapply opair_inj1; try apply prv_T2. solve_tsub. apply ZF_refl'. solve_tsub.
+    + eapply opair_inj2. solve_tsub. eapply ZF_trans'; try apply prv_T2. solve_tsub.
+      apply ZF_sym'; try apply prv_T1. solve_tsub.
 Qed.
 
 Lemma prep_string_subst sigma s x :
@@ -1151,7 +1118,7 @@ Proof.
   - apply prv_T_impl. apply prv_T_exf.
     apply prv_T_imp. apply ZF_eset.
   - apply bunion_use; try apply bunion_use.
-    apply tsubst_refl. 1, 4: apply tsubst_extend.
+    apply tsubs_refl. 1, 4: apply tsubs_extend.
     + apply prv_T_impl. apply ZF_bunion_el'. repeat solve_tsub.
       apply prv_T_DI1. eapply prv_T_mp. eapply prv_T_mp. eapply prv_T_mp.
       * eapply Weak_T. apply IHn. repeat solve_tsub.
@@ -1201,4 +1168,6 @@ Proof.
 Qed.
 
 Print Assumptions BPCP_slv.
+
+
 
