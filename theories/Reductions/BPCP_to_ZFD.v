@@ -1145,9 +1145,9 @@ Proof.
 Qed.
 
 Theorem BPCP_slv B :
-  BPCP B -> ZF ⊩IE solvable B.
+  BPCP' B -> ZF ⊩IE solvable B.
 Proof.
-  intros [s H] % BPCP_BPCP'. destruct (derivable_derivations H) as [n Hn].
+  intros [s H]. destruct (derivable_derivations H) as [n Hn].
   apply prv_T_ExI with (tnumeral n);
   apply prv_T_ExI with (enc_derivations B n);
   apply prv_T_ExI with (opair (enc_string s) (enc_string s));
@@ -1169,5 +1169,89 @@ Qed.
 
 Print Assumptions BPCP_slv.
 
+
+
+
+
+(** Reflection proof *)
+
+Section Soundness.
+
+  Context {p : peirce} {b : bottom}.
+
+  Hint Unfold valid_L.
+
+  Lemma Soundness C A phi :
+    A ⊢ phi -> (p = class -> con_subs classical C) -> valid_L C A phi.
+  Proof.
+    induction 1; intros Hclass D I HC rho HA; (eauto || (comp; eauto)).
+    - intros Hphi. capply IHprv. intros ? []; subst. assumption. now apply HA.
+    - intros d. capply IHprv. intros psi [psi'[<- H' % HA]] % in_map_iff.
+      eapply sat_comp. now comp.
+    - eapply sat_comp, sat_ext. 2: apply (IHprv Hclass D I HC rho HA (eval rho t)).
+      now intros []; asimpl.
+    - exists (eval rho t). cbn. specialize (IHprv Hclass D I HC rho HA).
+      apply sat_comp in IHprv. comp. apply IHprv.
+    - edestruct IHprv1 as [d HD]; eauto.
+      assert (H' : forall psi, phi = psi \/ psi el [theta[form_shift] | theta ∈ A] -> (d.:rho) ⊨ psi).
+      + intros P [<-|[psi'[<- H' % HA]] % in_map_iff]; trivial. apply sat_comp. apply H'.
+      + specialize (IHprv2 Hclass D I HC (d.:rho) H'). apply sat_comp in IHprv2. apply IHprv2.
+    - firstorder.
+    - firstorder.
+    - firstorder.
+    - edestruct IHprv1; eauto.
+      + apply IHprv2; trivial. intros xi [<-|HX]; auto.
+      + apply IHprv3; trivial. intros xi [<-|HX]; auto.
+    - apply (Hclass eq_refl D I HC).
+  Qed.
+
+  Lemma StrongSoundness C T phi :
+    T ⊩ phi -> (p = class -> con_subs classical C) -> valid_T C T phi.
+  Proof.
+    intros (A & HA1 & HA2) Hclass D I HC rho HT. eapply Soundness in HA2; eauto.
+  Qed.
+
+End Soundness.
+
+Lemma StrongSoundnessIE T phi :
+  T ⊩IE phi -> valid_T (fun _ _ => True) T phi.
+Proof.
+  intros H. eapply StrongSoundness. apply H. discriminate.
+Qed.
+
+Theorem BPCP_slv' B :
+  (exists M : ZF_Model, extensional M /\ standard M) -> ZF ⊩IE solvable B -> BPCP' B.
+Proof.
+  intros HE H % StrongSoundnessIE. eapply PCP_ZF; trivial. intros M HM rho. apply (H M); trivial.
+  intros phi [->|[->|[->|[->|[->|[->|[->|[[psi [H' ->]]|[[psi [H' ->]]|[->|[->|[->| ->]]]]]]]]]]]]; try apply M; trivial.
+  - intros x. cbn. apply HM. reflexivity.
+  - intros x y Hx % HM. cbn in *. apply HM. congruence.
+  - intros x y z Hx % HM Hy % HM. cbn in *. apply HM. congruence.
+  - intros x y x' y' Hx % HM Hy % HM. cbn in *. congruence.
+Qed.
+
+
+
+
+
+(** ** Main results *)
+
+Theorem PCP_ZFD B :
+  (exists M : ZF_Model, extensional M /\ standard M) -> BPCP' B <-> ZF ⊩IE solvable B.
+Proof.
+  intros H. split.
+  - apply BPCP_slv.
+  - now apply BPCP_slv'.
+Qed.
+
+Print Assumptions PCP_ZFD.
+
+From Undecidability.FOLP Require Import ZF_model.
+
+Corollary PCP_ZFD' B :
+  inhabited extensional_normaliser -> BPCP' B <-> ZF ⊩IE solvable B.
+Proof.
+  intros H % extnorm_stanmod. now apply PCP_ZFD.
+Qed.
 
 

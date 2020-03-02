@@ -850,13 +850,18 @@ Print Assumptions PCP_ZF.
 
 From Undecidability.FOLP Require Import ZF_model.
 
+Lemma extnorm_stanmod :
+  inhabited extensional_normaliser -> exists M : ZF_Model, extensional M /\ standard M.
+Proof.
+  intros [H]. exists SET_ZF. split.
+  - apply SET_ext.
+  - apply SET_standard.
+Qed.
+
 Corollary PCP_ZF' B :
   inhabited extensional_normaliser -> BPCP' B <-> ZF_entails (solvable B).
 Proof.
-  intros [H]. apply PCP_ZF.
-  exists SET_ZF. split.
-  - apply SET_ext.
-  - apply SET_standard.
+  intros H % extnorm_stanmod. now apply PCP_ZF.
 Qed.
 
 Print Assumptions PCP_ZF'.
