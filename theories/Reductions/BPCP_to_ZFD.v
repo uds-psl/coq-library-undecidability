@@ -381,6 +381,77 @@ Qed.
 
 
 
+(** ** Quantifier handling *)
+
+Class bounded_theory (T : theory) :=
+  {
+    bound : nat;
+    bound_spec : (forall phi k, T phi -> bound <= k -> unused k phi);
+  }.
+
+Instance bt_ZF : bounded_theory ZF :=
+  { bound := 0 }.
+Proof.
+  intros phi k H _. now apply ZF_unused.
+Qed.
+
+Instance bt_extend T (HB : bounded_theory T) (phi : form) : bounded_theory (T ⋄ phi) :=
+  { bound := (proj1_sig (find_unused phi) + bound) }.
+Proof.
+  destruct (find_unused phi) as [n H]; cbn.
+  intros psi k [HT| ->] Hk.
+  - apply bound_spec; trivial. lia.
+  - apply H. lia.
+Qed.
+
+Section BT.
+
+Context {T : theory} {HB : bounded_theory T} {p : peirce} {b : bottom}.
+
+Lemma bt_all' phi :
+  let k := bound + proj1_sig (find_unused phi) in
+  T ⊩ subst_form ($k..) phi -> T ⊩ ∀ phi.
+Proof.
+  intros k H. apply prv_T_AllI with k.
+  - intros psi HP. apply bound_spec; trivial. cbn. lia.
+  - unfold k. destruct (find_unused phi) as [n Hn]; cbn. apply Hn. lia.
+  - assumption.
+Qed.
+
+Lemma bt_all phi :
+  (forall t, T ⊩ subst_form (t..) phi) -> T ⊩ ∀ phi.
+Proof.
+  intros H. eapply bt_all', H.
+Qed.
+
+Lemma bt_exists' phi psi :
+  let k := bound + proj1_sig (find_unused phi) + proj1_sig (find_unused psi) in
+  (T ⊩ ∃ phi) -> (T ⋄ (subst_form ($k..) phi)) ⊩ psi -> T ⊩ psi.
+Proof.
+  intros k H1 H2. apply prv_T_ExE in H2; trivial.
+  - intros theta HP. apply bound_spec; trivial. cbn. lia.
+  - unfold k. destruct (find_unused psi) as [n Hn]; cbn. apply Hn. lia.
+  - unfold k. destruct (find_unused phi) as [n Hn]; cbn. apply Hn. lia.
+Qed.
+
+Lemma bt_exists phi psi :
+  (T ⊩ ∃ phi) -> exists t, (T ⋄ (subst_form (t..) phi)) ⊩ psi -> T ⊩ psi.
+Proof.
+  intros H. eexists. now apply bt_exists'.
+Qed.
+
+End BT.
+
+Ltac assert1 H :=
+  match goal with  |- (?T ⋄ ?phi) ⊩IE _ => assert (H : (T ⋄ phi) ⊩IE phi) by apply prv_T1 end.
+
+Ltac use_exists H t :=
+  eapply (@bt_exists) in H as [t H]; eauto; apply H.
+
+
+
+
+
 (** ** Encodings are closed *)
 
 Fixpoint tnumeral n :=
@@ -445,76 +516,6 @@ Proof.
 Qed.
 
 Hint Resolve enc_derivations_bounded0.
-
-
-
-
-(** ** Quantifier handling *)
-
-Class bounded_theory (T : theory) :=
-  {
-    bound : nat;
-    bound_spec : (forall phi k, T phi -> bound <= k -> unused k phi);
-  }.
-
-Instance bt_ZF : bounded_theory ZF :=
-  { bound := 0 }.
-Proof.
-  intros phi k H _. now apply ZF_unused.
-Qed.
-
-Instance bt_extend T (HB : bounded_theory T) (phi : form) : bounded_theory (T ⋄ phi) :=
-  { bound := (proj1_sig (find_unused phi) + bound) }.
-Proof.
-  destruct (find_unused phi) as [n H]; cbn.
-  intros psi k [HT| ->] Hk.
-  - apply bound_spec; trivial. lia.
-  - apply H. lia.
-Qed.
-
-Section BT.
-
-Context {T : theory} { HB : bounded_theory T } { p : peirce } { b : bottom }.
-
-Lemma bt_all' phi :
-  let k := bound + proj1_sig (find_unused phi) in
-  T ⊩ subst_form ($k..) phi -> T ⊩ ∀ phi.
-Proof.
-  intros k H. apply prv_T_AllI with k.
-  - intros psi HP. apply bound_spec; trivial. cbn. lia.
-  - unfold k. destruct (find_unused phi) as [n Hn]; cbn. apply Hn. lia.
-  - assumption.
-Qed.
-
-Lemma bt_all phi :
-  (forall t, T ⊩ subst_form (t..) phi) -> T ⊩ ∀ phi.
-Proof.
-  intros H. eapply bt_all', H.
-Qed.
-
-Lemma bt_exists' phi psi :
-  let k := bound + proj1_sig (find_unused phi) + proj1_sig (find_unused psi) in
-  (T ⊩ ∃ phi) -> (T ⋄ (subst_form ($k..) phi)) ⊩ psi -> T ⊩ psi.
-Proof.
-  intros k H1 H2. apply prv_T_ExE in H2; trivial.
-  - intros theta HP. apply bound_spec; trivial. cbn. lia.
-  - unfold k. destruct (find_unused psi) as [n Hn]; cbn. apply Hn. lia.
-  - unfold k. destruct (find_unused phi) as [n Hn]; cbn. apply Hn. lia.
-Qed.
-
-Lemma bt_exists phi psi :
-  (T ⊩ ∃ phi) -> exists t, (T ⋄ (subst_form (t..) phi)) ⊩ psi -> T ⊩ psi.
-Proof.
-  intros H. eexists. now apply bt_exists'.
-Qed.
-
-End BT.
-
-Ltac assert1 H :=
-  match goal with  |- (?T ⋄ ?phi) ⊩IE _ => assert (H : (T ⋄ phi) ⊩IE phi) by apply prv_T1 end.
-
-Ltac use_exists H t :=
-  eapply (@bt_exists) in H as [t H]; eauto; apply H.
 
 
 
@@ -680,7 +681,7 @@ Proof.
   now apply ZF_union_el'.
 Qed.
 
-Lemma ZF_sub_union T (HB : bounded_theory T) x y :
+Lemma ZF_sub_union {T} {HB : bounded_theory T} x y :
   ZF ⊑ T -> T ⊩IE x ≡ y -> T ⊩IE sub (⋃ x) (⋃ y).
 Proof.
   intros HT H. apply bt_all. intros z. cbn. asimpl. 
@@ -695,7 +696,7 @@ Proof.
   - eapply prv_T_CE2, prv_T1.
 Qed.
 
-Lemma ZF_eq_union T (HB : bounded_theory T) x y :
+Lemma ZF_eq_union {T} {HB : bounded_theory T} x y :
   ZF ⊑ T -> T ⊩IE x ≡ y -> T ⊩IE ⋃ x ≡ ⋃ y.
 Proof.
   intros HT H. apply ZF_ext'; try apply ZF_sub_union; trivial.
@@ -748,7 +749,7 @@ Proof.
   eapply Weak_T; try apply HT. apply ZF_bunion_inv'.
 Qed.
 
-Lemma ZF_eq_bunion T (HB : bounded_theory T) x y x' y' :
+Lemma ZF_eq_bunion {T} {HB : bounded_theory T} x y x' y' :
   ZF ⊑ T -> T ⊩IE x ≡ x' -> T ⊩IE y ≡ y' -> T ⊩IE x ∪ y ≡ x' ∪ y'.
 Proof.
   intros HT H1 H2. now apply ZF_eq_union, ZF_eq_pair.
@@ -762,7 +763,7 @@ Proof.
   apply ZF_refl'. trivial.
 Qed.
 
-Lemma ZF_eq_sig T (HB : bounded_theory T) x y :
+Lemma ZF_eq_sig {T} {HB : bounded_theory T} x y :
   ZF ⊑ T -> T ⊩IE x ≡ y -> T ⊩IE σ x ≡ σ y.
 Proof.
   intros HT H. now apply ZF_eq_bunion, ZF_eq_pair.
@@ -1043,7 +1044,7 @@ Proof.
     + eapply opair_inj2. solve_tsub. apply ZF_sing_iff. solve_tsub. apply prv_T1.
 Qed.
 
-Lemma enc_stack_app T B (HB : bounded_theory T) C :
+Lemma enc_stack_app {T} {HB : bounded_theory T} B C :
   ZF ⊑ T -> T ⊩IE (enc_stack B) ∪ (enc_stack C) ≡ enc_stack (B ++ C).
 Proof.
   intros HT. induction B as [|[s t] B IH]; cbn.
@@ -1080,7 +1081,7 @@ Proof.
       * apply ZF_eq_prep. solve_tsub. eapply opair_inj2; eauto. solve_tsub.
 Qed.
 
-Lemma is_rep_eq T (HB : bounded_theory T) B s t x y :
+Lemma is_rep_eq {T} {HB : bounded_theory T} B s t x y :
   ZF ⊑ T -> T ⊩IE x ≡ enc_stack B -> T ⊩IE is_rep (comb_rel s t) x y
   -> T ⊩IE y ≡ enc_stack (append_all B (s / t)).
 Proof.
@@ -1126,7 +1127,7 @@ Proof.
            apply prv_T_CI; try apply prv_T1. apply ZF_refl'. repeat solve_tsub.
 Qed.
 
-Lemma combinations_eq T B (HB : bounded_theory T) C x y :
+Lemma combinations_eq {T} {HB : bounded_theory T} B C x y :
   ZF ⊑ T -> T ⊩IE x ≡ enc_stack C -> T ⊩IE combinations B x y -> T ⊩IE y ≡ enc_stack (derivation_step B C).
 Proof.
   induction B as [|[s t] B IH] in y, T, HB |-*; cbn; intros HT H1 H2; trivial.
