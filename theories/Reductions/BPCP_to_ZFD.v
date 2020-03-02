@@ -449,6 +449,76 @@ Hint Resolve enc_derivations_bounded0.
 
 
 
+(** ** Quantifier handling *)
+
+Class bounded_theory (T : theory) :=
+  {
+    bound : nat;
+    bound_spec : (forall phi k, T phi -> bound <= k -> unused k phi);
+  }.
+
+Instance bt_ZF : bounded_theory ZF :=
+  { bound := 0 }.
+Proof.
+  intros phi k H _. now apply ZF_unused.
+Qed.
+
+Instance bt_extend T (HB : bounded_theory T) (phi : form) : bounded_theory (T ⋄ phi) :=
+  { bound := (proj1_sig (find_unused phi) + bound) }.
+Proof.
+  destruct (find_unused phi) as [n H]; cbn.
+  intros psi k [HT| ->] Hk.
+  - apply bound_spec; trivial. lia.
+  - apply H. lia.
+Qed.
+
+Section BT.
+
+Context {T : theory} { HB : bounded_theory T } { p : peirce } { b : bottom }.
+
+Lemma bt_all' phi :
+  let k := bound + proj1_sig (find_unused phi) in
+  T ⊩ subst_form ($k..) phi -> T ⊩ ∀ phi.
+Proof.
+  intros k H. apply prv_T_AllI with k.
+  - intros psi HP. apply bound_spec; trivial. cbn. lia.
+  - unfold k. destruct (find_unused phi) as [n Hn]; cbn. apply Hn. lia.
+  - assumption.
+Qed.
+
+Lemma bt_all phi :
+  (forall t, T ⊩ subst_form (t..) phi) -> T ⊩ ∀ phi.
+Proof.
+  intros H. eapply bt_all', H.
+Qed.
+
+Lemma bt_exists' phi psi :
+  let k := bound + proj1_sig (find_unused phi) + proj1_sig (find_unused psi) in
+  (T ⊩ ∃ phi) -> (T ⋄ (subst_form ($k..) phi)) ⊩ psi -> T ⊩ psi.
+Proof.
+  intros k H1 H2. apply prv_T_ExE in H2; trivial.
+  - intros theta HP. apply bound_spec; trivial. cbn. lia.
+  - unfold k. destruct (find_unused psi) as [n Hn]; cbn. apply Hn. lia.
+  - unfold k. destruct (find_unused phi) as [n Hn]; cbn. apply Hn. lia.
+Qed.
+
+Lemma bt_exists phi psi :
+  (T ⊩ ∃ phi) -> exists t, (T ⋄ (subst_form (t..) phi)) ⊩ psi -> T ⊩ psi.
+Proof.
+  intros H. eexists. now apply bt_exists'.
+Qed.
+
+End BT.
+
+Ltac assert1 H :=
+  match goal with  |- (?T ⋄ ?phi) ⊩IE _ => assert (H : (T ⋄ phi) ⊩IE phi) by apply prv_T1 end.
+
+Ltac use_exists H t :=
+  eapply (@bt_exists) in H as [t H]; eauto; apply H.
+
+
+
+
 
 (** ** Simple derivations in ZF *)
 
@@ -710,11 +780,6 @@ Lemma opair_inj2 T x y x' y' :
 Proof.
 Admitted.
 
-Lemma ZF_numeral_wf T n :
-  ZF ⊑ T -> T ⊩IE ¬ (tnumeral n ∈ tnumeral n).
-Proof.
-Admitted.
-
 Lemma ZF_bunion_el1 T x y z :
   ZF ⊑ T -> T ⊩IE z ∈ x -> T ⊩IE z ∈ x ∪ y.
 Proof.
@@ -752,6 +817,46 @@ Proof.
       * apply ZF_bunion_el1, ZF_bunion_el1, prv_T1. all: repeat solve_tsub.
       * apply ZF_bunion_el2, prv_T1. repeat solve_tsub.
     + apply ZF_bunion_el1, ZF_bunion_el2, prv_T1. all: repeat solve_tsub.
+Qed.
+
+Lemma bunion_use T x y z phi :
+  ZF ⊑ T -> T ⋄ (x ∈ y) ⊩IE phi -> T ⋄ (x ≡ z) ⊩IE phi -> T ⊩IE x ∈ y ∪ sing z --> phi.
+Proof.
+  intros HT H1 H2. apply prv_T_impl. eapply prv_T_DE.
+  - eapply ZF_bunion_inv. repeat solve_tsub. apply prv_T1.
+  - apply (Weak_T H1). intros psi. unfold extend, contains. tauto.
+  - eapply prv_T_remove.
+    + rewrite <- ZF_sing_iff. apply prv_T1. repeat solve_tsub.
+    + apply (Weak_T H2). intros psi. unfold extend, contains. tauto.
+Qed.
+
+Lemma ZF_numeral_trans T n x y :
+  ZF ⊑ T -> T ⊩IE x ∈ tnumeral n --> y ∈ x --> y ∈ tnumeral n.
+Proof.
+  intros HT. induction n; cbn.
+  - apply prv_T_impl, prv_T_exf.
+    eapply prv_T_mp; try apply prv_T1.
+    apply ZF_eset'. repeat solve_tsub.
+  - apply bunion_use; trivial.
+    + apply prv_T_imp in IHn. apply (prv_T_imps IHn).
+      apply prv_T_impl. apply ZF_bunion_el1, prv_T1. repeat solve_tsub.
+    + apply prv_T_impl. apply ZF_bunion_el'. repeat solve_tsub.
+      apply prv_T_DI1. eapply ZF_eq_elem; try apply prv_T2; try apply prv_T1.
+      repeat solve_tsub. apply ZF_refl'. repeat solve_tsub.
+Qed.
+
+Lemma ZF_numeral_wf T n :
+  ZF ⊑ T -> T ⊩IE ¬ (tnumeral n ∈ tnumeral n).
+Proof.
+  intros HT. induction n; cbn.
+  - now apply ZF_eset'.
+  - apply bunion_use; trivial.
+    + eapply prv_T_mp. apply (Weak_T IHn). repeat solve_tsub.
+      eapply prv_T_mp. eapply prv_T_mp. apply ZF_numeral_trans. repeat solve_tsub.
+      apply prv_T1. apply ZF_sig_el. repeat solve_tsub.
+    + eapply prv_T_mp. apply (Weak_T IHn). repeat solve_tsub.
+      eapply ZF_eq_elem. repeat solve_tsub. apply ZF_refl'. repeat solve_tsub.
+      apply prv_T1. apply ZF_sig_el. repeat solve_tsub.
 Qed.
 
 
@@ -880,17 +985,6 @@ Proof.
   - cbn -[is_rep]. rewrite IH, is_rep_subst. cbn -[is_rep]. now asimpl.
 Qed.
 
-Lemma bunion_use T x y z phi :
-  ZF ⊑ T -> T ⋄ (x ∈ y) ⊩IE phi -> T ⋄ (x ≡ z) ⊩IE phi -> T ⊩IE x ∈ y ∪ sing z --> phi.
-Proof.
-  intros HT H1 H2. apply prv_T_impl. eapply prv_T_DE.
-  - eapply ZF_bunion_inv. repeat solve_tsub. apply prv_T1.
-  - apply (Weak_T H1). intros psi. unfold extend, contains. tauto.
-  - eapply prv_T_remove.
-    + rewrite <- ZF_sing_iff. apply prv_T1. repeat solve_tsub.
-    + apply (Weak_T H2). intros psi. unfold extend, contains. tauto.
-Qed.
-
 Lemma enc_derivations_eq T B n x :
   ZF ⊑ T -> T ⊩IE opair (tnumeral n) x ∈ enc_derivations B n -> T ⊩IE x ≡ enc_stack (derivations B n).
 Proof.
@@ -910,71 +1004,6 @@ Proof.
   - eapply ZF_trans'; trivial. eapply Weak_T; try apply bunion_swap; trivial.
     eapply ZF_eq_bunion; trivial. apply ZF_refl'; trivial.
 Qed.
-
-Class bounded_theory (T : theory) :=
-  {
-    bound : nat;
-    bound_spec : (forall phi k, T phi -> bound <= k -> unused k phi);
-  }.
-
-Instance bt_ZF : bounded_theory ZF :=
-  { bound := 0 }.
-Proof.
-  intros phi k H _. now apply ZF_unused.
-Qed.
-
-Instance bt_extend T (HB : bounded_theory T) (phi : form) : bounded_theory (T ⋄ phi) :=
-  { bound := (proj1_sig (find_unused phi) + bound) }.
-Proof.
-  destruct (find_unused phi) as [n H]; cbn.
-  intros psi k [HT| ->] Hk.
-  - apply bound_spec; trivial. lia.
-  - apply H. lia.
-Qed.
-
-Section BT.
-
-Context {T : theory} { HB : bounded_theory T } { p : peirce } { b : bottom }.
-
-Lemma bt_all' phi :
-  let k := bound + proj1_sig (find_unused phi) in
-  T ⊩ subst_form ($k..) phi -> T ⊩ ∀ phi.
-Proof.
-  intros k H. apply prv_T_AllI with k.
-  - intros psi HP. apply bound_spec; trivial. cbn. lia.
-  - unfold k. destruct (find_unused phi) as [n Hn]; cbn. apply Hn. lia.
-  - assumption.
-Qed.
-
-Lemma bt_all phi :
-  (forall t, T ⊩ subst_form (t..) phi) -> T ⊩ ∀ phi.
-Proof.
-  intros H. eapply bt_all', H.
-Qed.
-
-Lemma bt_exists' phi psi :
-  let k := bound + proj1_sig (find_unused phi) + proj1_sig (find_unused psi) in
-  (T ⊩ ∃ phi) -> (T ⋄ (subst_form ($k..) phi)) ⊩ psi -> T ⊩ psi.
-Proof.
-  intros k H1 H2. apply prv_T_ExE in H2; trivial.
-  - intros theta HP. apply bound_spec; trivial. cbn. lia.
-  - unfold k. destruct (find_unused psi) as [n Hn]; cbn. apply Hn. lia.
-  - unfold k. destruct (find_unused phi) as [n Hn]; cbn. apply Hn. lia.
-Qed.
-
-Lemma bt_exists phi psi :
-  (T ⊩ ∃ phi) -> exists t, (T ⋄ (subst_form (t..) phi)) ⊩ psi -> T ⊩ psi.
-Proof.
-  intros H. eexists. now apply bt_exists'.
-Qed.
-
-End BT.
-
-Ltac assert1 H :=
-  match goal with  |- (?T ⋄ ?phi) ⊩IE _ => assert (H : (T ⋄ phi) ⊩IE phi) by apply prv_T1 end.
-
-Ltac use_exists H t :=
-  eapply (@bt_exists) in H as [t H]; eauto; apply H.
 
 Lemma prep_string_app s t x :
   prep_string (s ++ t) x = prep_string s (prep_string t x).
