@@ -1255,3 +1255,109 @@ Proof.
 Qed.
 
 
+
+
+
+(** ** Incompleteness *)
+
+Section Completeness.
+
+  Context {bt : bottom} {pe : peirce}.
+  Variable T : theory.
+
+  Variable f : nat -> option form.
+  Hypothesis HF : forall phi, tprv T phi <-> (exists n, f n = Some phi).
+
+  Definition tprv_decide' (phi : form) (n : nat) : option bool.
+  Proof.
+    destruct (f n) as [psi|] eqn : Hn.
+    - decide (psi = phi). exact (Some true).
+      decide (psi = ¬ phi). exact (Some false).
+      exact None.
+    - exact None.
+  Defined.
+
+  Definition complete :=
+    forall phi, T ⊩ phi \/ T ⊩ ¬ phi.
+
+  Hypothesis HT : complete.
+
+  Lemma neg_neq phi :
+    ¬ phi <> phi.
+  Proof.
+    induction phi; cbn; congruence.
+  Qed.
+
+  Lemma complete_total phi :
+    exists n b, tprv_decide' phi n = Some b.
+  Proof.
+    destruct (HT phi) as [HP|HP].
+    - apply HF in HP as [n HN]. exists n, true.
+      unfold tprv_decide'. rewrite HN.
+      decide _; tauto.
+    - apply HF in HP as [n HN]. exists n, false.
+      unfold tprv_decide'. rewrite HN.
+      decide _. now apply neg_neq in e. decide _; tauto.
+  Qed.
+
+  Lemma exist_bool_dec (P : bool -> Prop) :
+    (forall b, dec (P b)) -> dec (exists b, P b).
+  Proof.
+    intros d.
+    destruct (d true). left. now exists true.
+    destruct (d false). left. now exists false.
+    right. intros [[] H]; tauto.
+  Qed.
+
+  Lemma exist_bool_reify (P : bool -> Prop) :
+    (forall b, dec (P b)) -> (exists b, P b) -> sig (fun b => P b).
+  Proof.
+    intros d H.
+    destruct (d true). now exists true.
+    destruct (d false). now exists false.
+    exfalso. destruct H as [[] H]; tauto.                        
+  Qed.
+
+  Require Import Coq.Logic.ConstructiveEpsilon.
+
+  Lemma complete_total'' phi :
+    sig (fun n => exists b, tprv_decide' phi n = Some b).
+  Proof.
+    apply constructive_indefinite_ground_description_nat.
+    - intros n. apply exist_bool_dec. intros b.
+      unfold dec. repeat decide equality.
+    - apply complete_total.
+  Qed.
+
+  Lemma complete_total' phi :
+    sigT (fun n => sig (fun b => tprv_decide' phi n = Some b)).
+  Proof.
+    destruct (complete_total'' phi) as [n H].
+    exists n. apply exist_bool_reify; trivial.
+    intros b. unfold dec. repeat decide equality.
+  Qed.
+
+  Definition tprv_decide phi : bool :=
+    let (_, H) := complete_total' phi in let (b, _) := H in b.
+
+  Definition consistent :=
+    forall phi, ~ (T ⊩ phi /\ T ⊩ ¬ phi).
+
+  Hypothesis HC : consistent.
+
+  Theorem complete_dec :
+    decidable (tprv T).
+  Proof.
+    exists tprv_decide. intros phi. unfold tprv_decide.
+    destruct complete_total' as [n[b H]].
+    unfold tprv_decide' in H. destruct (f n) as [psi|] eqn : Hn.
+    - decide (psi = phi); subst. split; try congruence. intros _. apply HF. now exists n.
+      decide (psi = ¬ phi); subst; try congruence. split; try congruence.
+      intros H'. exfalso. apply (@HC phi). split; trivial.
+      apply HF. now exists n.
+    - congruence.
+  Qed.
+
+End Completeness.
+
+
