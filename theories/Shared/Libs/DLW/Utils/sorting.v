@@ -404,14 +404,7 @@ Section sum_bijection.
   Inductive triangle_bijection n k g h : Prop :=
     | in_tb : (forall i j, j < i < n -> h (i,j) < k /\ g (h (i,j)) = (i,j))
            -> (forall q, q < k -> snd (g q) < fst (g q) < n /\ h (g q) = q) 
-           -> triangle_bijection n k g h.
-
-  Fact sum_triangle_bijection n f k g h :
-         triangle_bijection n k g h 
-      -> ∑ n (fun i => ∑ i (fun j => f i j)) = ∑ k (fun i => f (fst (g i)) (snd (g i))).
-  Proof.
-  Admitted.
- 
+           -> triangle_bijection n k g h. 
 
   (* ∑ n (fun i => ∑ i (fun j => f i j * power (e i j) r) = ∑ k *)
 
