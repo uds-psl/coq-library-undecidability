@@ -9,7 +9,7 @@
 
 (** ** Prime numbers *)
 
-Require Import List Arith Omega Permutation.
+Require Import List Arith Omega Bool Permutation.
 
 From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list utils_nat gcd sums.
 
@@ -27,6 +27,124 @@ Section prime.
   Proof. 
     split; try omega.
     apply divides_2_inv.
+  Qed.
+
+  Hint Resolve prime_2 : core.
+
+  Fact prime_algo p : prime p <-> p = 2 \/ 3 <= p /\ ~ 2 <d p /\ forall n, 3+2*n < p -> ~ 3+2*n <d p.
+  Proof.
+    split.
+    + intros (H1 & H2).
+      destruct (le_lt_dec 3 p) as [ H | H ].
+      * right; split; auto; split.
+        - intros H3; apply H2 in H3; omega.
+        - intros n Hn C; apply H2 in C; omega.
+      * left; destruct p as [ | [ | [ | p ] ] ]; try omega.
+        destruct (H2 2); try omega.
+        exists 0; auto.
+    + intros [ H1 | (H1 & H2 & H3) ].
+      * subst; auto.
+      * split; try omega.
+        intros q Hq.
+        destruct (euclid_2 q) as (k & [ H4 | H4 ]).
+        - destruct H2; apply divides_trans with (2 := Hq).
+          exists k; omega.
+        - destruct k; try omega.
+          destruct (le_lt_dec p (3+2*k)) as [ H5 | H5 ].
+          ++ apply divides_le in Hq; omega.
+          ++ destruct (H3 k); auto.
+             eq goal Hq; f_equal; omega.
+  Qed.
+
+  Definition divides_bool n p := 
+    match p mod n with
+      | 0 => true
+      | _ => false
+    end.
+
+  Fact modS_divide n p : p mod S n = 0 <-> S n <d p.
+  Proof.
+    rewrite Nat.mod_divide; try discriminate; tauto.
+  Qed.
+
+  Fact divides_bool_spec n p : divides_bool (S n) p = true <-> S n <d p.
+  Proof.
+    unfold divides_bool.
+    generalize (modS_divide n p).
+    case_eq (p mod S n); try tauto.
+    intros k H1 <-; split; discriminate.
+  Qed.
+
+  Fact divides_bool_spec' n p : divides_bool (S n) p = false <-> ~ S n <d p.
+  Proof.
+    rewrite <- divides_bool_spec.
+    destruct (divides_bool (S n) p); now split.
+  Qed.
+
+  Fixpoint prime_bool_rec n p : bool := 
+    match n with 
+      | 0       => true
+      | 1       => true
+      | 2       => true 
+      | S (S n') => negb (divides_bool n p) && prime_bool_rec n' p
+    end.
+
+  Fact prime_bool_rec_spec n p : n <= p -> prime_bool_rec n p = true <-> forall k, 3 <= n-2*k -> ~ n-2*k <d p.
+  Proof.
+    induction on n as IHn with measure n; intros Hn.
+    destruct n as [ | [ | [ | n' ] ] ].
+    1-3: split; try (simpl; auto; fail); intros _ k H; omega.
+    unfold prime_bool_rec; fold (prime_bool_rec (S n') p).
+    revert Hn; set (m := S n'); intros Hn. 
+    rewrite andb_true_iff, negb_true_iff, divides_bool_spec', IHn; try omega.
+    split.
+    + intros (H1 & H2) [ | q ] G1 G2.
+      * apply H1 in G2; auto.
+      * apply (H2 q); try omega.
+        eq goal G2; f_equal; omega.
+    + intros H1; split.
+      * apply (H1 0); omega.
+      * intros k G1 G2; apply (H1 (S k)); try omega.
+        eq goal G2; f_equal; omega.
+  Qed.
+
+  (** This is a somewhat naive algo. to test for primality *)
+
+  Definition prime_bool p := 
+    Nat.eqb p 2 || Nat.leb 3 p && negb (divides_bool 2 p) && prime_bool_rec (p-2) p.
+
+  Theorem prime_bool_spec p : prime_bool p = true <-> prime p.
+  Proof.
+    unfold prime_bool.
+    rewrite orb_true_iff, !andb_true_iff, negb_true_iff, divides_bool_spec'.
+    rewrite Nat.eqb_eq, Nat.leb_le.
+    split.
+    + intros [ H1 | ((H1 & H2) & H3) ].
+      * subst; auto.
+      * split; try omega.
+        destruct (euclid_2 p) as (p' & [ Hp | Hp ]).
+        { destruct H2; exists p'; omega. }
+        destruct p' as [ | p' ]; try (exfalso; omega).
+        rewrite prime_bool_rec_spec in H3; try omega.
+        intros q Hq.
+        destruct (euclid_2 q) as (k & [ H4 | H4 ]).
+        - destruct H2; apply divides_trans with (2 := Hq); exists k; omega.
+        - destruct k as [ | k ]; try omega.
+          destruct (le_lt_dec p q) as [ H5 | H5 ].
+          ++ apply divides_le in Hq; omega.
+          ++ assert (k < p') as H6 by omega.
+             destruct (H3 (p'-S k)); try omega.
+             eq goal Hq; f_equal; omega.
+    + intros (H1 & H2).
+      destruct (le_lt_dec 3 p) as [ H3 | H3 ].
+      * right; lsplit 2; auto.
+        - intros C; apply H2 in C; omega.
+        - apply prime_bool_rec_spec; try omega.
+          intros q H4 H5.
+          apply H2 in H5; omega.
+      * left; destruct p; try omega.
+        destruct (H2 2); try omega.
+        exists 0; auto.
   Qed.
 
   Fact prime_ge_2 p : prime p -> 2 <= p.

@@ -13,6 +13,6 @@ realclean:
 	+make -C theories clean
 
 html:
-	+make -C theories website
+	+make -C theories html
 
 .PHONY: all html clean realclean

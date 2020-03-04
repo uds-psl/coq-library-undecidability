@@ -39,7 +39,8 @@ Proof.
   destruct (ra_mm_compiler f) as (m & P & H1 & H2).
   exists m, P; split.
   + intros (x & Hx).
-    destruct (H1 _ _ Hx) as (j & Hj); exists (j,vec_app v (x##vec_zero)); auto.
+    exists (1+length P,vec_app v (x##vec_zero)); split; auto.
+    simpl; omega.
   + intros H; apply H2; eq goal H; do 2 f_equal.
 Qed.
 

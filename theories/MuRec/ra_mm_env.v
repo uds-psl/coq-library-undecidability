@@ -65,34 +65,31 @@ Section ra_compiler.
       is the output register
     *)
 
-  Definition ra_compiled n (f : recalg n) i p o m :=
-    { P : list (mm_instr nat) |
-       (forall x v e, ⟦f⟧ v x 
-                   -> (forall i, m <= i -> e⇢i = 0)
-                   -> (forall q, e⇢(pos2nat q+p) = vec_pos v q) 
+  Definition ra_compiled n (f : recalg n) i p o m (P : list (mm_instr nat)) :=
+       forall v e, (forall i, m <= i -> e⇢i = 0) 
+                -> (forall q, e⇢(pos2nat q+p) = vec_pos v q) 
+                -> (forall x, ⟦f⟧ v x  
                    -> exists e', e' ⋈ e⦃o⇠x⦄
-                              /\ (i,P) // (i,e) ->> (length P + i,e')) 
-    /\ (forall v e, (i,P) // (i,e) ↓
-                 -> (forall i, m <= i -> e⇢i = 0)
-                 -> (forall q, e⇢(pos2nat q+p) = vec_pos v q) 
-                 -> exists x, ⟦f⟧ v x) }.
+                              /\ (i,P) // (i,e) ->> (length P + i,e'))
+                /\ ((i,P) // (i,e) ↓ -> exists x, ⟦f⟧ v x).
 
-  Definition ra_compiler_spec n f :=
+  Definition ra_compiler_spec n f i p o m := sig (@ra_compiled n f i p o m).
+
+  Definition ra_compiler_stm n f :=
     forall i p o m, o < m
                  -> ~ p <= o < n+p
                  -> n+p <= m
-                 -> @ra_compiled n f i p o m.
+                 -> @ra_compiler_spec n f i p o m.
 
   Hint Resolve sss_progress_compute.
 
-  Fact ra_compiler_cst c : ra_compiler_spec (ra_cst c). 
+  Fact ra_compiler_cst c : ra_compiler_stm (ra_cst c). 
   Proof.
     red; simpl; intros i p o m H1 H2 H3.
-    exists (mm_set o m c i); split.
+    exists (mm_set o m c i); intros v e H4 _; split.
     2: exists c; cbv; auto.
-    intros x v e; vec nil v; clear v.
-    intros E; simpl in E; subst x.
-    intros H4 H5.
+    revert H4; vec nil v; clear v.
+    intros H4 x E; simpl in E; subst x.
     rewrite mm_set_length.
     destruct mm_set_progress 
       with (dst := o) (zero := m) (n := c) (i := i) (e := e)
@@ -100,15 +97,14 @@ Section ra_compiler.
     exists e'; split; auto.
   Qed.
 
-  Fact ra_compiler_zero : ra_compiler_spec ra_zero. 
+  Fact ra_compiler_zero : ra_compiler_stm ra_zero. 
   Proof.
     red; simpl; intros i p o m H1 H2 H3.
-    exists (mm_set o m 0 i); split.
+    exists (mm_set o m 0 i); intros v e H4 H5; split.
     2: exists 0; cbv; auto.
-    intros x v e.
+    intros x; revert H5.
     vec split v with a; vec nil v; clear v.
-    intros H4; cbv in H4; subst x.
-    intros H4 H5.
+    intros H5 E; cbv in E; subst x.
     rewrite mm_set_length.
     destruct mm_set_progress 
       with (dst := o) (zero := m) (n := 0) (i := i) (e := e)
@@ -116,14 +112,14 @@ Section ra_compiler.
     exists e'; split; auto.
   Qed.
 
-  Fact ra_compiler_succ : ra_compiler_spec ra_succ.
+  Fact ra_compiler_succ : ra_compiler_stm ra_succ.
   Proof.
     red; simpl; intros i p o m H1 H2 H3.
-    exists (mm_copy p o m (m+1) i ++ INC o :: nil); split.
-    2: intros v; exists (S (vec_head v)); cbv; auto.
-    intros x v e; vec split v with a; vec nil v; clear v.
-    intros H; simpl in H; subst x.
-    intros H4 H5.
+    exists (mm_copy p o m (m+1) i ++ INC o :: nil); 
+      intros v e H4 H5; split.
+    2: exists (S (vec_head v)); cbv; auto.
+    intros x; revert H5; vec split v with a; vec nil v; clear v.
+    intros H5 H; simpl in H; subst x.
     specialize (H5 pos0); rewrite pos2nat_fst in H5; simpl in H5.
     destruct mm_copy_progress 
       with (src := p) (dst := o) (tmp := m) (zero := m+1) (i := i) (e := e)
@@ -139,13 +135,13 @@ Section ra_compiler.
         rewrite H7, H5; rew env.
   Qed.
 
-  Fact ra_compiler_proj n q : ra_compiler_spec (@ra_proj n q).
+  Fact ra_compiler_proj n q : ra_compiler_stm (@ra_proj n q).
   Proof.
     red; simpl; intros i p o m H1 H2 H3.
-    exists (mm_copy (pos2nat q+p) o m (m+1) i); split.
-    2: intros v; exists (vec_pos v q); cbv; auto.
-    intros x v e H; simpl in H; subst x.
-    intros H4 H5.
+    exists (mm_copy (pos2nat q+p) o m (m+1) i); 
+      intros v e H4 H5; split.
+    2: exists (vec_pos v q); cbv; auto.
+    intros x E; simpl in E; subst x.
     destruct mm_copy_progress 
       with (src := pos2nat q+p) (dst := o) (tmp := m) (zero := m+1) (i := i) (e := e)
       as (e' & H7 & H8); try omega; try (apply H4; omega);
@@ -159,8 +155,8 @@ Section ra_compiler.
 
     Variable (n : nat).
 
-    Let ra_compiler_vec k (g : vec (recalg n) k) : 
-           (forall p, ra_compiler_spec (vec_pos g p))
+    Local Fact ra_compiler_vec k (g : vec (recalg n) k) : 
+           (forall p, ra_compiler_stm (vec_pos g p))
         -> forall i p o m,  
                     o+k <= m
                  -> n+p <= o
@@ -185,7 +181,7 @@ Section ra_compiler.
         * intros q; analyse pos q.
         * simpl; mm env stop.
       + destruct (Hg pos0) with (i := i) (p := p) (o := o) (m := m)
-          as (P & HP1 & HP2); try omega.
+          as (P & HP); try omega.
         destruct IHg with (i := length P+i) (p := p) (o := S o) (m := m)
           as (Q & HQ1 & HQ2); try omega.
         { intros q; apply (Hg (pos_nxt q)). }
@@ -194,7 +190,7 @@ Section ra_compiler.
           intros H3 H4 H5.
           generalize (H3 pos0) (fun q => H3 (pos_nxt q)); clear H3; intros H6 H7.
           simpl in H6, H7.
-          destruct (HP1 a v e) as (e1 & G1 & G2); auto.
+          destruct (proj1 (HP v e H4 H5) a) as (e1 & G1 & G2); auto.
           destruct (HQ1 v w e1) as (e2 & G3 & G4 & G5); auto.
           { intros j Hj; rewrite G1; dest j o; omega. }
           { intros q; rewrite G1.
@@ -217,10 +213,9 @@ Section ra_compiler.
         * intros v e H3 H4 H5.
           assert ((i,P) // (i,e) ↓) as H6.
           { apply subcode_sss_terminates with (2 := H3); auto. }
-          destruct (HP2 v) with (1 := H6) as (a & Ha); auto.
+          destruct (proj2 (HP v _ H4 H5)) with (1 := H6) as (a & Ha); auto.
           simpl in Ha.
-          destruct HP1 with (1 := Ha) (e := e)
-            as (e1 & G1 & G2); auto.
+          destruct (proj1 (HP _ _ H4 H5) _ Ha) as (e1 & G1 & G2); auto.
           intros q; analyse pos q; simpl.
           1: exists a; auto.
           apply HQ2 with e1.
@@ -244,8 +239,8 @@ Section ra_compiler.
     Qed.
 
     Variable (k : nat) (f : recalg k) (g : vec (recalg n) k)
-             (Hf : ra_compiler_spec f)
-             (Hg : forall q, ra_compiler_spec (vec_pos g q)).
+             (Hf : ra_compiler_stm f)
+             (Hg : forall q, ra_compiler_stm (vec_pos g q)).
 
     (* compile (g[0])   input [p,p+n[   output m+0      spare m+k
        compile (g[1])   input [p,p+n[   output m+1      spare m+k
@@ -256,22 +251,24 @@ Section ra_compiler.
 
      *)
 
-    Fact ra_compiler_comp : ra_compiler_spec (ra_comp f g).
+    Fact ra_compiler_comp : ra_compiler_stm (ra_comp f g).
     Proof.
       red; simpl; intros i p o m H1 H2 H3.
       destruct ra_compiler_vec with (1 := Hg) (i := i) (p := p) (o := m) (m := m+k)
         as (P & HP1 & HP2); auto.
       destruct Hf with (i := length P+i) (p := m) (o := o) (m := m+k)
-        as (Q & HQ1 & HQ2); try omega; auto.
-      exists (P++Q++mm_multi_erase m (k+m) k (length P+length Q+i)); split.
-      + intros x v e; simpl; intros (w & H4 & H8) H6 H7.
+        as (Q & HQ); try omega; auto.
+      exists (P++Q++mm_multi_erase m (k+m) k (length P+length Q+i)); 
+        intros v e H6 H7; split.
+      + intros x; simpl; intros (w & H4 & H8).
         assert (forall q, ⟦vec_pos g q⟧ v (vec_pos w q)) as H5.
         { intros q; generalize (H8 q); rewrite vec_pos_set; auto. }
         clear H8.
         destruct (HP1 v w e) as (e1 & G1 & G2 & G3); auto.
         { intros; apply H6; omega. }
-        destruct (HQ1 x w e1) as (e2 & G4 & G5); auto.
+        destruct (HQ w e1) as [ HQ1 _ ]; auto.
         { intros j Hj; rewrite G1, H6; omega. }
+        destruct (HQ1 x) as (e2 & G4 & G5); auto.
         destruct mm_multi_erase_compute 
           with (zero := k+m) (dst := m) (k := k) (i := length P+length Q+i) (e := e2)
           as (e3 & G6 & G7 & G8); try omega; auto.
@@ -292,22 +289,22 @@ Section ra_compiler.
             with  (2*k+(length P+length Q+i)) by omega.
           revert G8; apply subcode_sss_compute; auto.
           subcode_tac; rewrite <- app_nil_end; auto. 
-    + intros v e H4 H5 H6.
-      assert ((i,P) // (i,e) ↓) as H7.
+    + intros H4.
+      assert ((i,P) // (i,e) ↓) as H5.
       { revert H4; apply subcode_sss_terminates; auto. }
       assert (forall q, ex (⟦vec_pos g q⟧ v)) as H8. 
-      { apply HP2 with (1 := H7) (3 := H6).
-        intros; apply H5; omega. }
+      { apply HP2 with (1 := H5) (3 := H7).
+        intros; apply H6; omega. }
       apply vec_reif in H8; destruct H8 as (w & Hw).
       destruct (HP1 v w e) as (e1 & G1 & G2 & G3); auto.
-      { intros; apply H5; omega. }
-      destruct (@HQ2 w e1) as (x & Hx); auto.
+      { intros; apply H6; omega. }
+      destruct (HQ w e1) as [ _ (x & Hx) ]; auto.
+        { intros j Hj; rewrite G1, H6; omega. }
       - apply subcode_sss_terminates 
           with (Q := (i,P++Q++mm_multi_erase m (k + m) k (length P+length Q+i))); auto.
         apply subcode_sss_terminates_inv with (2 := H4) (P := (i,P)); auto.
         { apply mm_sss_env_fun. }
         split; simpl; auto; omega.
-      - intros j Hj; rewrite G1, H5; omega.
       - exists x, w; split; auto.
         intros q; rewrite vec_pos_set; auto.
     Qed.
@@ -317,8 +314,8 @@ Section ra_compiler.
   Section ra_compiler_rec.
 
     Variables (n : nat) (f : recalg n) (g : recalg (S (S n)))
-              (Hf : ra_compiler_spec f)
-              (Hg : ra_compiler_spec g).
+              (Hf : ra_compiler_stm f)
+              (Hg : ra_compiler_stm g).
 
     (* i p o m 
              
@@ -356,35 +353,43 @@ Section ra_compiler.
     Notation zero := (3+n+m).
     Notation tmp  := (4+n+m).
 
-    Let Q1 := mm_multi_copy tmp zero n (1+p) (2+m) i
+    Local Definition rec_Q1 := 
+              mm_multi_copy tmp zero n (1+p) (2+m) i
            ++ mm_copy p v0 tmp zero (9*n+i)
            ++ mm_erase m zero (9+9*n+i).
 
-    Let Q1_length : length Q1 = 11+9*n.
+    Notation Q1 := rec_Q1.
+
+    Local Fact rec_Q1_length : length Q1 = 11+9*n.
     Proof. unfold Q1; rew length; omega. Qed.
 
-    Let F_full : ra_compiled f (11+9*n+i) (2+m) o zero.
+    Local Fact rec_F_full : ra_compiler_spec f (11+9*n+i) (2+m) o zero.
     Proof. apply Hf; omega. Qed.
 
-    Notation F := (proj1_sig F_full).
-    Let HF1 := proj1 (proj2_sig F_full).
-    Let HF2 := proj2 (proj2_sig F_full).
+    Notation F := (proj1_sig rec_F_full).
+    Local Definition rec_HF1 x v e H1 H2 := proj1 (proj2_sig rec_F_full v e H1 H2) x.
+    Local Definition rec_HF2 v e H1 H2 := proj2 (proj2_sig rec_F_full v e H1 H2).
 
-    Let G_full : ra_compiled g (21+length F+9*n+i) m o zero.
+    Local Fact rec_G_full : ra_compiler_spec g (21+length F+9*n+i) m o zero.
     Proof. apply Hg; omega. Qed.
 
-    Notation G := (proj1_sig G_full).
-    Let HG1 := proj1 (proj2_sig G_full).
-    Let HG2 := proj2 (proj2_sig G_full).
+    Notation G := (proj1_sig rec_G_full).
+    Local Definition rec_HG1 x v e H1 H2 := proj1 (proj2_sig rec_G_full v e H1 H2) x.
+    Local Definition rec_HG2 v e H1 H2 := proj2 (proj2_sig rec_G_full v e H1 H2).
 
-    Let s2 := 11+length F+9*n+i.
+    Local Definition rec_s2 := 11+length F+9*n+i.
 
-    Let Q2 := DEC v0 (23+length F+length G+9*n+i)
+    Notation s2 := rec_s2.
+
+    Local Definition rec_Q2 := 
+              DEC v0 (23+length F+length G+9*n+i)
            :: mm_copy o (1+m) tmp zero (12+length F+9*n+i)
            ++ G
-           ++ INC m :: DEC zero s2 :: nil.
+           ++ INC m :: DEC zero rec_s2 :: nil.
 
-    Let Q2_progress_O e :
+    Notation Q2 := rec_Q2.
+
+    Local Fact rec_Q2_progress_O e :
                e⇢v0 = 0
             -> (s2,Q2) // (s2,e) -+> (length Q2+s2,e).
     Proof.
@@ -395,7 +400,7 @@ Section ra_compiler.
       unfold s2; omega.
     Qed.
 
-    Let Q2_progress_S x y v e :
+    Local Fact rec_Q2_progress_S x y v e :
               (forall j, zero <= j -> e⇢j = 0)
            -> (forall j, vec_pos v j = e⇢(pos2nat j+2+m))
            -> e⇢v0 = S x
@@ -407,13 +412,14 @@ Section ra_compiler.
                       /\ e'⇢(1+m) = e⇢o
                       /\ (s2,Q2) // (s2,e) -+> (s2,e').
     Proof.
+      generalize rec_Q1_length; intros Q1_length.
       intros G1 G2 G3 G4.
       set (e1 := e⦃v0⇠x⦄).
       destruct (@mm_copy_progress o (1+m) tmp zero) 
         with (i := 12+length F+9*n+i) (e := e1)
         as (e2 & G5 & G6); try omega.
       1,2: unfold e1; rewrite get_set_env_neq, G1; omega.
-      destruct HG1 with (e := e2) (1 := G4)
+      destruct rec_HG1 with (e := e2) (3 := G4)
         as (e3 & G7 & G8).
       { intros j Hj; rewrite G5; unfold e1.
         dest j (1+m); try omega.
@@ -451,7 +457,9 @@ Section ra_compiler.
         apply sss_compute_trans with (length G+(21+length F+9*n+i), e3).
         { unfold s2, Q2; revert G8; apply subcode_sss_compute; auto. }
         mm env INC with m.
+        { unfold s2; subcode_tac. }
         mm env DEC 0 with zero s2.
+        { unfold s2; subcode_tac. }
         { rewrite get_set_env_neq; try omega.
           rewrite G7, get_set_env_neq; try omega.
           rewrite G5, get_set_env_neq; try omega.
@@ -463,7 +471,7 @@ Section ra_compiler.
         unfold e1; rewrite get_set_env_neq; omega.
     Qed.
 
-    Let Q2_progress_S_inv x v e :
+    Local Fact rec_Q2_progress_S_inv x v e :
               (forall j, zero <= j -> e⇢j = 0)
            -> (forall j, vec_pos v j = e⇢(pos2nat j+2+m))
            -> e⇢v0 = S x
@@ -484,22 +492,17 @@ Section ra_compiler.
           rewrite get_set_env_neq with (q := o); auto; omega.
         + unfold Q2.
           mm env DEC S with v0 (23+length F+length G+9*n+i) x.
-          replace (1+s2) with (12+length F+9*n+i).
-          replace (10+s2) with (9+(12+length F+9*n+i)).
+          replace (1+s2) with (12+length F+9*n+i) by (unfold s2; omega).
+          replace (10+s2) with (9+(12+length F+9*n+i)) by (unfold s2; omega).
           apply sss_progress_compute.
           revert G7; apply subcode_sss_progress; auto.
-          unfold s2; omega.
-          unfold s2; omega. }
+          unfold s2; subcode_tac. }
       destruct G6 as (e1 & G6 & G7).
       destruct subcode_sss_progress_inv with (4 := G7) (5 := G4)
         as (k' & G8 & G9); auto.
       { apply mm_sss_env_fun. }
       { apply subcode_refl. }
-      apply HG2 with (e := e1).
-      apply subcode_sss_terminates with (Q := (s2,Q2)).
-      * unfold Q2; auto.
-      * exists (s,e'); split; auto.
-        exists k'; apply G9.
+      apply rec_HG2 with (e := e1).
       * intros j Hj; rewrite G6, get_set_env_neq, get_set_env_neq; auto; omega.
       * intros j; rewrite G6; analyse pos j.
         + rewrite pos2nat_fst; simpl. 
@@ -509,9 +512,13 @@ Section ra_compiler.
           generalize (pos2nat_prop j); intros G10.
           do 2 (rewrite get_set_env_neq; try omega).
           rewrite G2; f_equal; omega.
+      * apply subcode_sss_terminates with (Q := (s2,Q2)).
+        + unfold Q2, s2; auto.
+        + exists (s,e'); split; auto.
+          exists k'; apply G9.
     Qed.
  
-    Let Q2_compute_rec (v : vec nat n) e s k :
+    Local Fact rec_Q2_compute_rec (v : vec nat n) e s k :
               (forall j, zero <= j -> e⇢j = 0)
            -> (forall j, vec_pos v j = e⇢(pos2nat j+2+m))
            -> e⇢o = s 0
@@ -524,10 +531,12 @@ Section ra_compiler.
              /\ (s2,Q2) // (s2,e) -+> (length Q2+s2,e').
     Proof.
       revert e s; induction k as [ | k IHk ]; intros e s G1 G2 G3 G4 G5.
-      + exists e; msplit 4; auto; rewrite G4; auto.
+      + exists e; msplit 4; auto. 
+        * rewrite G4; auto.
+        * apply rec_Q2_progress_O; auto.
       + generalize (G5 0); intros G6; spec in G6; try omega.
         rewrite <- G3 in G6; simpl in G6.
-        destruct Q2_progress_S with (3 := G4) (4 := G6)
+        destruct rec_Q2_progress_S with (3 := G4) (4 := G6)
           as (e1 & F1 & F2 & F3 & F4 & F5 & F6); auto.
         destruct IHk with (s := fun i => s (S i)) (e := e1)
           as (e2 & T1 & T2 & T3 & T4 & T5); auto.
@@ -544,7 +553,7 @@ Section ra_compiler.
           - apply sss_progress_trans with (1 := F6); auto.
     Qed.
 
-    Let Q2_compute_rev (v : vec nat n) e  :
+    Local Fact rec_Q2_compute_rev (v : vec nat n) e  :
               (forall j, zero <= j -> e⇢j = 0)
            -> (forall j, vec_pos v j = e⇢(pos2nat j+2+m))
            -> (s2,Q2) // (s2,e) ↓
@@ -558,11 +567,11 @@ Section ra_compiler.
       case_eq (e⇢v0).
       + intros ?; exists (fun _ => e⇢o); split; auto; intros; omega.
       + intros x Hx.
-        destruct Q2_progress_S_inv 
+        destruct rec_Q2_progress_S_inv 
           with (1 := G1) (2 := G2) (3 := Hx)
           as (y & Hy).
         { exists (u,e'); split; auto; exists k; auto. }
-        destruct Q2_progress_S with (3 := Hx) (4 := Hy)
+        destruct rec_Q2_progress_S with (3 := Hx) (4 := Hy)
           as (e1 & G4 & G5 & G6 & G7 & G8 & G9); auto.
         destruct subcode_sss_progress_inv with (4 := G9) (5 := G3)
           as (k' & F1 & F2); auto.
@@ -582,15 +591,17 @@ Section ra_compiler.
           generalize (pos2nat_prop j); intro; omega.
     Qed.
 
-    Let Q2_length : length Q2 = 12+length G.
+    Local Fact rec_Q2_length : length Q2 = 12+length G.
     Proof. unfold Q2; rew length; ring. Qed.
 
-    Let Q3 := mm_multi_erase m zero (2+n) (23+length F+length G+9*n+i).
+    Local Definition rec_Q3 := mm_multi_erase m zero (2+n) (23+length F+length G+9*n+i).
 
-    Let Q3_length : length Q3 = 4+2*n.
+    Notation Q3 := rec_Q3.
+
+    Local Fact rec_Q3_length : length Q3 = 4+2*n.
     Proof. unfold Q3; rew length; ring. Qed.
     
-    Let Q1_progress e :
+    Local Fact rec_Q1_progress e :
                 (forall j, zero <= j -> e⇢j = 0)
   -> exists e', (forall j, j < n -> e'⇢(j+2+m) = e⇢(j+1+p))
              /\ e'⇢v0 = e⇢p  
@@ -623,7 +634,7 @@ Section ra_compiler.
       * intros j Hj1 Hj2.
         rewrite G9; rew env.
         rewrite G7, get_set_env_neq, G5; omega.
-      * rewrite Q1_length; unfold Q1.
+      * rewrite rec_Q1_length; unfold Q1.
         apply sss_compute_progress_trans with (9*n+i,e1).
         { revert G6; apply subcode_sss_compute; auto. }
         apply sss_progress_trans with (9+(9*n+i), e2).
@@ -634,7 +645,7 @@ Section ra_compiler.
 
     Notation Q4 := (Q1++F++Q2++Q3).
 
-    Let Q4_progress (v : vec nat (S n)) x e :
+    Local Fact rec_Q4_progress (v : vec nat (S n)) x e :
                  (forall j, m <= j -> e⇢j = 0)
               -> (forall j, vec_pos v j = e⇢(pos2nat j+p))
               -> s_rec ⟦f⟧ ⟦g⟧ v x
@@ -642,22 +653,24 @@ Section ra_compiler.
               /\ e'⇢o     = x
               /\ (i,Q4) // (i,e) -+> (length Q4+i,e').
     Proof.
+      generalize rec_Q1_length rec_Q2_length rec_Q3_length.
+      intros Q1_length Q2_length Q3_length.
       vec split v with k.
       intros G1 G2 G3.
       rewrite s_rec_eq in G3.
       destruct G3 as (s & G3 & G4 & G5); simpl vec_head in *; simpl vec_tail in *.
       generalize (G2 pos0); rewrite pos2nat_fst; intros G0; simpl in G0.
       generalize (fun j => G2 (pos_nxt j)); clear G2; intros G2; simpl in G2.
-      destruct Q1_progress with (e := e) as (e1 & F1 & F2 & F3 & F4 & F5).
+      destruct rec_Q1_progress with (e := e) as (e1 & F1 & F2 & F3 & F4 & F5).
       { intros; apply G1; omega. }
       assert (forall j, e1 ⇢ pos2nat j + (2 + m) = vec_pos v j) as G6.
       { intros j; rewrite G2, pos2nat_nxt.
         replace (S (pos2nat j)+p) with (pos2nat j+1+p) by omega.
         generalize (pos2nat_prop j); intros H.
         rewrite <- F1; auto; f_equal; omega. }
-      destruct HF1 with (1 := G3) (e := e1) as (e2 & F6 & F7); auto.
+      destruct rec_HF1 with (3 := G3) (e := e1) as (e2 & F6 & F7); auto.
       { intros j Hj; rewrite F4, G1; omega. }
-      destruct Q2_compute_rec with (e := e2) (v := v) (s := s) (k := k)
+      destruct rec_Q2_compute_rec with (e := e2) (v := v) (s := s) (k := k)
         as (e3 & F10 & F11 & F12 & _ & F14).
       { intros j Hj; rewrite F6, get_set_env_neq, F4, G1; try omega. }
       { intros j; rewrite <- G6, F6, get_set_env_neq; try omega.
@@ -689,7 +702,7 @@ Section ra_compiler.
           revert F7; apply subcode_sss_compute; auto. }
         apply sss_progress_compute_trans with (length Q2+s2,e3).
         { replace (length F+length Q1+i) with s2.
-          revert F14; apply subcode_sss_progress; auto.
+          revert F14; apply subcode_sss_progress; unfold s2; auto.
           unfold s2; rewrite Q1_length; omega. }
         { replace (length Q2+s2) with (23+length F+length G+9*n+i).
           replace (length Q1+(length F+(length Q2+length Q3))+i)
@@ -700,15 +713,17 @@ Section ra_compiler.
           rewrite Q2_length; unfold s2; omega. }
     Qed.
 
-    Let Q4_compute_rev (v : vec nat (S n)) e :
+    Local Fact rec_Q4_compute_rev (v : vec nat (S n)) e :
                  (forall j, m <= j -> e⇢j = 0)
               -> (forall j, vec_pos v j = e⇢(pos2nat j+p))
               -> (i,Q4) // (i,e) ↓
               -> exists x, s_rec ⟦f⟧ ⟦g⟧ v x.
     Proof.
+      generalize rec_Q1_length rec_Q2_length rec_Q3_length.
+      intros Q1_length Q2_length Q3_length.
       vec split v with k.
       intros G1 G2 G3.
-      destruct Q1_progress with (e := e)
+      destruct rec_Q1_progress with (e := e)
         as (e1 & G4 & G5 & G6 & G7 & G8); auto.
       { intros; apply G1; omega. }
       generalize G3; intros G0.
@@ -723,15 +738,15 @@ Section ra_compiler.
         rewrite G2, pos2nat_nxt, plus_assoc, G4.
         + f_equal; omega.
         + apply pos2nat_prop. }
-      destruct HF2 with (v := v) (e := e1)
+      destruct rec_HF2 with (v := v) (e := e1)
         as (x & Hx); auto.
+      { intros j Hj; rewrite G7, G1; omega. }
       { rewrite Q1_length in G3.
         revert G3; apply subcode_sss_terminates; auto. }
-      { intros j Hj; rewrite G7, G1; omega. }
-      destruct HF1 with (1 := Hx) (e := e1)
+      destruct rec_HF1 with (3 := Hx) (e := e1)
         as (e2 & F1 & F2); auto.
       { intros j Hj; rewrite G7, G1; omega. }
-      destruct Q2_compute_rev with (v := v) (e := e2)
+      destruct rec_Q2_compute_rev with (v := v) (e := e2)
         as (s & Hs1 & Hs2).
       { intros j Hj; rewrite F1, get_set_env_neq, G7, G1; omega. }
       { intros j; rewrite <- G9, F1, get_set_env_neq.
@@ -761,24 +776,24 @@ Section ra_compiler.
         rewrite F1, get_set_env_neq, G6, plus_comm in Hs2; auto; omega.
     Qed.
 
-    Fact ra_compiler_rec : ra_compiled (ra_rec f g) i p o m.
+    Fact ra_compiler_rec : ra_compiler_spec (ra_rec f g) i p o m.
     Proof.
-      exists Q4; split.
-      + intros x v e; simpl ra_rel; intros G1 G2 G3.
-        destruct Q4_progress with (3 := G1) (e := e)
+      exists Q4; intros v e G2 G3; split.
+      + intros x; simpl ra_rel; intros G1.
+        destruct rec_Q4_progress with (3 := G1) (e := e)
           as (e' & G4 & G5 & G6); auto.
         exists e'; split.
         * intros j; dest j o.
         * apply sss_progress_compute; auto.
-      + intros v e G1 G2 G3.
-        apply Q4_compute_rev with (e := e); auto.
+      + intros G1.
+        apply rec_Q4_compute_rev with (e := e); auto.
     Qed.
 
   End ra_compiler_rec.
 
   Section ra_compiler_min.
 
-    Variables (n : nat) (f : recalg (S n)) (Hf : ra_compiler_spec f).
+    Variables (n : nat) (f : recalg (S n)) (Hf : ra_compiler_stm f).
 
     (* i p o m 
              
@@ -810,31 +825,39 @@ Section ra_compiler.
     Notation zero := (1+n+m).
     Notation tmp  := (2+n+m).
 
-    Let Q1 := mm_multi_copy tmp zero n p (1+m) i
+    Local Definition min_Q1 := 
+              mm_multi_copy tmp zero n p (1+m) i
            ++ mm_erase m zero (9*n+i).
 
-    Let Q1_length : length Q1 = 2+9*n.
+    Notation Q1 := min_Q1.
+
+    Local Fact min_Q1_length : length Q1 = 2+9*n.
     Proof. unfold Q1; rew length; omega. Qed.
 
-    Let s1 := length Q1 + i.
+    Local Definition min_s1 := length Q1 + i.
 
-    Let F_full : ra_compiled f s1 m o zero.
+    Notation s1 := min_s1.
+
+    Local Fact min_F_full : ra_compiler_spec f s1 m o zero.
     Proof. apply Hf; omega. Qed.
 
-    Notation F := (proj1_sig F_full).
-    Let HF1 := proj1 (proj2_sig F_full).
-    Let HF2 := proj2 (proj2_sig F_full).
+    Notation F := (proj1_sig min_F_full).
+    Local Definition min_HF1 x v e H1 H2 H3 := proj1 (proj2_sig min_F_full v e H2 H3) x H1.
+    Local Definition min_HF2 v e H1 H2 H3 := proj2 (proj2_sig min_F_full v e H2 H3) H1.
 
-    Let Q2 := F
+    Local Definition min_Q2 := 
+              F
            ++ DEC o (3+length F+s1)
            :: INC m 
            :: DEC zero s1 
            :: nil.
 
-    Let Q2_length : length Q2 = 3+length F.
+    Notation Q2 := min_Q2.
+
+    Local Fact min_Q2_length : length Q2 = 3+length F.
     Proof. unfold Q2; rew length; omega. Qed.
 
-    Let Q1_progress e :
+    Local Fact min_Q1_progress e :
                 (forall j, zero <= j -> e⇢j = 0)
   -> exists e', (forall j, j < n -> e'⇢(j+1+m) = e⇢(j+p)) 
              /\ e'⇢m = 0 
@@ -854,14 +877,14 @@ Section ra_compiler.
       * intros; rewrite G9, get_set_env_neq, <- plus_assoc, G4; auto; omega.
       * rewrite G9; rew env.
       * intros; rewrite G9, get_set_env_neq, G5; auto; omega. 
-      * rewrite Q1_length; unfold Q1.
+      * rewrite min_Q1_length; unfold Q1.
         apply sss_compute_progress_trans with (9*n+i,e1).
         { revert G6; apply subcode_sss_compute; auto. }
         { replace (2+9*n+i) with (2+(9*n+i)) by omega.
           revert G10; apply subcode_sss_progress; auto. }
     Qed.
 
-    Let Q2_0_progress v e : 
+    Local Fact min_Q2_0_progress v e : 
                 (forall j, zero <= j -> e⇢j = 0)
              -> (forall j, vec_pos v j = e⇢(pos2nat j+1+m))
              -> ⟦f⟧ (e⇢m##v) 0
@@ -870,7 +893,7 @@ Section ra_compiler.
              /\ (s1,Q2) // (s1,e) -+> (length Q2+s1,e').
     Proof.
       intros G1 G2 G3.
-      destruct HF1 with (1 := G3) (e := e) as (e1 & G4 & G5); auto.
+      destruct min_HF1 with (1 := G3) (e := e) as (e1 & G4 & G5); auto.
       { intros j; analyse pos j; simpl.
         * rewrite pos2nat_fst; auto.
         * rewrite pos2nat_nxt, G2; f_equal; omega. }
@@ -878,13 +901,13 @@ Section ra_compiler.
       1,2: intros; rewrite G4; rew env.
       apply sss_compute_progress_trans with (length F+s1,e1).
       * unfold Q2; revert G5; apply subcode_sss_compute; auto.
-      * rewrite Q2_length; unfold Q2.
+      * rewrite min_Q2_length; unfold Q2.
         mm env DEC 0 with o (3+length F+s1).
         1: rewrite G4; rew env.
         mm env stop.
     Qed.
 
-    Let Q2_S_progress x v e : 
+    Local Fact min_Q2_S_progress x v e : 
                 (forall j, zero <= j -> e⇢j = 0)
              -> (forall j, vec_pos v j = e⇢(pos2nat j+1+m))
              -> ⟦f⟧ (e⇢m##v) (S x)
@@ -894,13 +917,13 @@ Section ra_compiler.
              /\ (s1,Q2) // (s1,e) -+> (s1,e').
     Proof.
       intros G1 G2 G3.
-      destruct HF1 with (1 := G3) (e := e) as (e1 & G4 & G5); auto.
+      destruct min_HF1 with (1 := G3) (e := e) as (e1 & G4 & G5); auto.
       { intros j; analyse pos j; simpl.
         * rewrite pos2nat_fst; auto.
         * rewrite pos2nat_nxt, G2; f_equal; omega. }
       exists (e1⦃o⇠x⦄⦃m⇠S (e⇢m)⦄); msplit 3.
       1,3: intros; rew env; rewrite G4; rew env.
-      1: dest o m; omega.
+      1: clear G5; dest o m; omega.
       apply sss_compute_progress_trans with (length F+s1,e1).
       { unfold Q2; revert G5; apply subcode_sss_compute; auto. }
       unfold Q2.
@@ -911,11 +934,12 @@ Section ra_compiler.
       { do 2 (rewrite get_set_env_neq; try omega).
         rewrite G4, get_set_env_neq, G1; omega. }
       mm env stop; f_equal.
+      clear G5.
       dest o m; try omega.
       rewrite G4; rew env.
     Qed.
 
-    Let Q2_progress_rec v e k :
+    Local Fact min_Q2_progress_rec v e k :
                 (forall j, zero <= j -> e⇢j = 0)
              -> (forall j, vec_pos v j = e⇢(pos2nat j+1+m))
              -> (forall i, i < k -> exists x, ⟦f⟧ (i+(e⇢m)##v) (S x))
@@ -926,7 +950,7 @@ Section ra_compiler.
       revert e; induction k as [ | k IHk ]; intros e G1 G2 G3.
       + exists e; msplit 2; auto; mm env stop.
       + destruct (G3 0) as (x & Hx); try omega; simpl in Hx.
-        destruct Q2_S_progress 
+        destruct min_Q2_S_progress 
           with (v := v) (e := e) (x := x)
           as (e1 & G4 & _ & G5 & G6); auto.
         destruct IHk with (e := e1)
@@ -943,7 +967,7 @@ Section ra_compiler.
           apply sss_progress_compute; auto.
     Qed.
 
-    Let Q2_compute_rev v e :
+    Local Fact min_Q2_compute_rev v e :
               (forall j, zero <= j -> e⇢j = 0)
            -> (forall j, vec_pos v j = e⇢(pos2nat j+1+m))
            -> (s1,Q2) // (s1,e) ↓
@@ -953,7 +977,7 @@ Section ra_compiler.
       revert e G1 G2 G3.
       induction on q as IHq with measure q.
       intros e G1 G2 G3.
-      destruct HF2 with (e := e) (v := (e⇢m)##v)
+      destruct min_HF2 with (e := e) (v := (e⇢m)##v)
         as ([ | x ] & Hx); auto.
       { apply subcode_sss_terminates with (Q := (s1,Q2)).
         + unfold Q2; auto.
@@ -963,7 +987,7 @@ Section ra_compiler.
         + rewrite pos2nat_nxt; simpl.
           rewrite G2; f_equal; omega. }
       * exists 0; split; auto; intros; omega.
-      * destruct Q2_S_progress with (v := v) (e := e) (x := x)
+      * destruct min_Q2_S_progress with (v := v) (e := e) (x := x)
           as (e1 & F1 & F2 & F3 & F4); auto.
         destruct subcode_sss_progress_inv with (4 := F4) (5 := G3)
           as (q' & F5 & F6); auto.
@@ -983,7 +1007,7 @@ Section ra_compiler.
             rewrite F3; omega.
     Qed.
 
-    Let Q2_progress v e k :
+    Local Fact min_Q2_progress v e k :
                 (forall j, zero <= j -> e⇢j = 0)
              -> (forall j, vec_pos v j = e⇢(pos2nat j+1+m))
              -> e⇢m = 0
@@ -993,10 +1017,10 @@ Section ra_compiler.
              /\ (s1,Q2) // (s1,e) -+> (length Q2+s1,e').
     Proof.
       intros G1 G2 G3 (G4 & G5).
-      destruct Q2_progress_rec with (e := e) (k := k) (v := v)
+      destruct min_Q2_progress_rec with (e := e) (k := k) (v := v)
         as (e1 & G6 & G7 & G8); auto.
       { intros; rewrite G3, plus_comm; auto. }
-      destruct Q2_0_progress with (v := v) (e := e1)
+      destruct min_Q2_0_progress with (v := v) (e := e1)
         as (e2 & G9 & _ & G11).
       { intros; rewrite G6, G1; omega. }
       { intros j; rewrite G2, G6; omega. }
@@ -1007,13 +1031,18 @@ Section ra_compiler.
       * apply sss_compute_progress_trans with (s1,e1); auto.
     Qed.
 
-    Let s4 := length Q1+length Q2+i.
+    Local Definition min_s4 := length Q1+length Q2+i.
 
-    Let Q4 := Q1 ++ Q2 
+    Notation s4 := min_s4.
+
+    Local Definition min_Q4 := 
+              Q1 ++ Q2 
            ++ mm_copy m o tmp zero s4
            ++ mm_multi_erase m zero (1+n) (9+s4).
 
-    Let Q4_progress v e x :
+    Notation Q4 := min_Q4.
+
+    Local Fact min_Q4_progress v e x :
                  (forall j, m <= j -> e⇢j = 0)
               -> (forall j, vec_pos v j = e⇢(pos2nat j+p))
               -> s_min ⟦f⟧ v x
@@ -1022,10 +1051,10 @@ Section ra_compiler.
               /\ (i,Q4) // (i,e) -+> (length Q4+i,e').
     Proof.
       intros G1 G2 G3.
-      destruct Q1_progress with (e := e)
+      destruct min_Q1_progress with (e := e)
         as (e1 & G4 & G5 & G6 & G7).
       { intros j Hj; apply G1; omega. }
-      destruct Q2_progress with (v := v) (e := e1) (k := x)
+      destruct min_Q2_progress with (v := v) (e := e1) (k := x)
         as (e2 & G8 & G9 & G10); auto.
       { intros j Hj; rewrite G6, G1; omega. }
       { intros j; rewrite G2, G4; auto; apply pos2nat_prop. }
@@ -1052,28 +1081,28 @@ Section ra_compiler.
         { unfold s1 at 1 in G10; revert G10; unfold Q4; apply subcode_sss_progress; auto. }
         apply sss_progress_compute_trans with (9+s4,e3).
         { replace (length Q2+s1) with s4.
-          unfold Q4; revert F2; apply subcode_sss_progress; auto.
+          unfold Q4; revert F2; apply subcode_sss_progress; unfold s4; auto.
           unfold s4, s1; omega. }
         { replace (length Q4+i) with (2*(1+n)+(9+s4)).
           unfold Q4; revert F5; apply subcode_sss_compute; auto.
-          subcode_tac; rewrite <- app_nil_end; auto.
+          unfold s4; subcode_tac; rewrite <- app_nil_end; auto.
           unfold s4, Q4; rew length; omega. }
     Qed.
 
-    Let Q4_terminates v e :
+    Local Fact min_Q4_terminates v e :
                  (forall j, m <= j -> e⇢j = 0)
               -> (forall j, vec_pos v j = e⇢(pos2nat j+p))
               -> (i,Q4) // (i,e) ↓
               -> exists x, s_min ⟦f⟧ v x.
     Proof.
       intros G1 G2 G3.
-       destruct Q1_progress with (e := e)
+       destruct min_Q1_progress with (e := e)
         as (e1 & G4 & G5 & G6 & G7).
       { intros j Hj; apply G1; omega. }
       apply subcode_sss_terminates_inv 
         with (P := (i,Q1)) (st1 := (s1,e1)) in G3.
       * apply subcode_sss_terminates with (P := (s1,Q2)) in G3.
-        + apply Q2_compute_rev with (v := v) in G3.
+        + apply min_Q2_compute_rev with (v := v) in G3.
           - destruct G3 as (x & F1 & F2).
             rewrite G5, plus_comm in F1.
             exists x; split; auto.
@@ -1089,22 +1118,21 @@ Section ra_compiler.
         + unfold out_code, code_end, fst, snd; omega.
     Qed.
 
-    Fact ra_compiler_min : ra_compiled (ra_min f) i p o m.
+    Fact ra_compiler_min : ra_compiler_spec (ra_min f) i p o m.
     Proof.
-      exists Q4; split.
-      + intros x v e; simpl ra_rel; intros G1 G2 G3.
-        destruct Q4_progress with (3 := G1) (e := e)
+      exists Q4; intros v e G2 G3; split.
+      + intros x; simpl ra_rel; intros G1.
+        destruct min_Q4_progress with (3 := G1) (e := e)
           as (e' & G4 & G5 & G6); auto.
         exists e'; split.
         * intros j; dest j o.
         * apply sss_progress_compute; auto.
-      + intros v e G1 G2 G3.
-        apply Q4_terminates with (e := e); auto.
+      + intro; apply min_Q4_terminates with (e := e); auto.
     Qed.
 
   End ra_compiler_min.
 
-  Theorem ra_compiler n f : @ra_compiler_spec n f.
+  Theorem ra_compiler n f : @ra_compiler_stm n f.
   Proof.
     induction f as [ c | | | n q | n k f g Hf Hg | | ].
     + apply ra_compiler_cst.
@@ -1117,24 +1145,21 @@ Section ra_compiler.
   Qed. 
 
   Corollary ra_mm_env_simulator n (f : recalg n) : 
-              { P | (forall v x e, ⟦f⟧ v x 
-                               -> (forall p, e⇢(pos2nat p) = vec_pos v p)
+              { P | forall v e,   (forall p, e⇢(pos2nat p) = vec_pos v p)
                                -> (forall j, n < j -> e⇢j = 0)
-                               -> exists e', e' ⋈ e⦃n⇠x⦄
-                                          /\ (1,P) // (1,e) ->> (1+length P,e'))
-                 /\ (forall v e,  (1,P) // (1,e) ↓
-                               -> (forall p, e⇢(pos2nat p) = vec_pos v p)
-                               -> (forall j, n < j -> e⇢j = 0)
-                               -> exists x, ⟦f⟧ v x) }.
+                               -> (forall x, ⟦f⟧ v x 
+                                     -> exists e', e' ⋈ e⦃n⇠x⦄
+                                               /\ (1,P) // (1,e) ->> (1+length P,e'))
+                               /\ ((1,P) // (1,e) ↓ -> ex (⟦f⟧ v)) }.
   Proof.
     destruct (ra_compiler f) with (i := 1) (p := 0) (o := n) (m := S n)
-      as (P & H1 & H2); try omega.
-    exists P; split.
-    + intros v x e H3 H4 H5.
-      rewrite plus_comm; apply H1 with (v := v); auto.
+      as (P & HP); try omega.
+    exists P; intros v e H4 H5; split.
+    + intros x H3.
+      rewrite plus_comm; apply HP with (v := v); auto.
       intros; rewrite plus_comm; simpl; auto.
-    + intros v e H3 H4 H5.
-      apply H2 with (1 := H3); auto.
+    + intros H3.
+      apply (HP v e); auto.
       intros; rewrite plus_comm; simpl; auto.
   Qed.
 

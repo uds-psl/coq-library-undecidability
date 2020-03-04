@@ -50,14 +50,11 @@ Section soundness_and_completeness.
     simpl in IH1 |- *; exists x; auto.
     rewrite ra_rel_fix_min; unfold s_min; split; auto.    
     intros y Hy.
-  Admitted.
-  (*   exists (vec_get w _ Hy). *)
-  (*   generalize (IH1 (nat2pos Hy)). *)
-  (*   rewrite pos2nat_nat2pos. *)
-  (*   eqgoal; do 2 f_equal. *)
-  (*   apply vec_get_pos_eq. *)
-  (*   rewrite pos2nat_nat2pos; auto. *)
-  (* Qed. *)
+    exists (vec_pos w (nat2pos Hy)).
+    generalize (IH1 (nat2pos Hy)).
+    rewrite pos2nat_nat2pos.
+    eqgoal; do 2 f_equal.
+  Qed.
   
   (* By induction on f *)
   
