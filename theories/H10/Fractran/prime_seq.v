@@ -11,7 +11,7 @@
 
 (** ** Two infinite sequences of primes *)
 
-Require Import List Arith Omega Permutation.
+Require Import List Arith Omega Bool Permutation.
 
 From Undecidability.Shared.Libs.DLW.Utils Require Import utils utils_tac utils_list utils_nat gcd rel_iter prime.
 From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
@@ -75,21 +75,83 @@ Proof.
     + eapply divides_fact. eapply prime_ge_2 in H; eauto.
 Qed.
 
+Lemma prime_dec p : { prime p } + { ~ prime p }.
+Proof.
+  destruct (le_lt_dec 2 p) as [ H | H ].
+  + destruct (prime_or_div H) as [ (q & H1 & H2) | ? ]; auto.
+    right; intros C; apply C in H2; omega.
+  + right; intros (H1 & H2).
+    destruct (H2 2); try omega.
+    exists 0; simpl; omega.
+Qed.
+
+Lemma first_prime_above m : { p | m < p /\ prime p /\ forall q, m < q -> prime q -> p <= q }.
+Proof.
+  destruct min_dec with (P := fun p => m < p /\ prime p)
+    as (p & H1 & H2).
+  + intros n.
+    destruct (lt_dec m n); destruct (prime_dec n); tauto.
+  + destruct (prime_above m) as (p & ?); exists p; auto.
+  + exists p; firstorder.
+Qed.
+
 Lemma prime_divides p q :
   prime p -> prime q -> divides p q -> p = q.
 Proof.
   now intros Hp Hq [ [] % Hp | ] % Hq.
 Qed.
 
-Definition nxtprime n := proj1_sig (prime_above n).
+Definition nxtprime n := proj1_sig (first_prime_above n).
 
 Fact nxtprime_spec1 n : n < nxtprime n.
-Proof. apply (proj2_sig (prime_above n)). Qed.
+Proof. apply (proj2_sig (first_prime_above n)). Qed.
 
 Fact nxtprime_spec2 n : prime (nxtprime n).
-Proof. apply (proj2_sig (prime_above n)). Qed.
+Proof. apply (proj2_sig (first_prime_above n)). Qed.
 
 Hint Resolve nxtprime_spec1 nxtprime_spec2 prime_2.
+
+Fixpoint notprime_bool_rec n k :=
+  match k with
+    | 0   => true
+    | S k' => negb (prime_bool n) && notprime_bool_rec (S n) k'
+  end.
+
+Theorem prime_bool_spec' p : prime_bool p = false <-> ~ prime p.
+Proof.
+  rewrite <- not_true_iff_false, prime_bool_spec; tauto.
+Qed.
+
+Fact notprime_bool_rec_spec n k : notprime_bool_rec n k = true <-> forall i, n <= i < k+n -> ~ prime i.
+Proof.
+  revert n; induction k as [ | k IHk ]; intros n; simpl.
+  + split; auto; intros; omega.
+  + rewrite andb_true_iff, negb_true_iff, 
+            <- not_true_iff_false, prime_bool_spec, IHk.
+    split.
+    * intros (H1 & H2) i Hi.
+      destruct (eq_nat_dec n i); subst; auto.
+      apply H2; omega.
+    * intros H; split; intros; apply H; omega.
+Qed.
+
+Definition nxtprime_bool n p := Nat.leb (S n) p && notprime_bool_rec (S n) (p - S n) && prime_bool p.
+
+Fact nxtprime_bool_spec n p : nxtprime_bool n p = true <-> nxtprime n = p.
+Proof.
+  unfold nxtprime_bool.
+  rewrite !andb_true_iff, Nat.leb_le, notprime_bool_rec_spec, prime_bool_spec.
+  unfold nxtprime.
+  destruct (first_prime_above n) as (q & G1 & G2 & G3); simpl.
+  split.
+  + intros ((H1 & H2) & H3).
+    apply le_antisym.
+    * apply G3; auto.
+    * apply Nat.nlt_ge. 
+      intro; apply (H2 q); auto; omega.
+  + intros ->; lsplit 2; auto.
+    intros q Hq C; apply G3 in C; omega.
+Qed.
 
 Definition nthprime (n : nat) := iter nxtprime 2 n.
 
@@ -110,6 +172,30 @@ Proof.
   destruct (lt_eq_lt_dec n m) as [ [ H | ] | H ]; auto; 
     intros; eapply nthprime_ge in H; omega.
 Qed.
+
+Fact nthprime_nxt i p q : nthprime i = p -> nxtprime p = q -> nthprime (S i) = q.
+Proof.
+  replace (S i) with (i+1) by omega.
+  unfold nthprime at 2.
+  rewrite iter_plus; fold (nthprime i).
+  intros -> ?; simpl; auto.
+Qed.
+
+(** Certified Erastosthene sieve would be helpfull here *)
+
+Fact nthprime_0 : nthprime 0 = 2.
+Proof. auto. Qed.
+
+Local Ltac nth_prime_tac H := 
+  apply nthprime_nxt with (1 := H);
+  apply nxtprime_bool_spec; auto.
+
+Fact nthprime_1 : nthprime 1 = 3.    Proof. nth_prime_tac nthprime_0. Qed.
+Fact nthprime_2 : nthprime 2 = 5.    Proof. nth_prime_tac nthprime_1. Qed.
+Fact nthprime_3 : nthprime 3 = 7.    Proof. nth_prime_tac nthprime_2. Qed.
+Fact nthprime_4 : nthprime 4 = 11.   Proof. nth_prime_tac nthprime_3. Qed.
+Fact nthprime_5 : nthprime 5 = 13.   Proof. nth_prime_tac nthprime_4. Qed.
+Fact nthprime_6 : nthprime 6 = 17.   Proof. nth_prime_tac nthprime_5. Qed.
 
 Record primestream :=
   {
@@ -133,11 +219,17 @@ Proof.
   intros; apply nthprime_inj in H; omega.
 Defined.
 
+Fact ps_1 : ps 1 = 5.
+Proof. simpl; apply nthprime_2. Qed.
+
 Definition qs : primestream.
 Proof.
   exists (fun n => nthprime (1 + 2 * n)); auto.
   intros; apply nthprime_inj in H; omega.
 Defined.
+
+Fact qs_1 : qs 1 = 7.
+Proof. simpl; apply nthprime_3. Qed.
 
 Lemma ps_qs : forall n m, ps n = qs m -> False.
 Proof. intros ? ? ? % nthprime_inj; omega. Qed. 
