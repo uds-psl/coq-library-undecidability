@@ -736,7 +736,7 @@ Section ZF.
     repeat solve_bounds; eauto using bounded_enc_bool.
   Qed.
 
-  Lemma M_comb_rel_ex s t x :
+  (*Lemma M_comb_rel_ex s t x :
     exists y, M_is_rep (M_comb_rel s t) x y.
   Proof.
     apply M_rep.
@@ -747,7 +747,7 @@ Section ZF.
         * exists b, a. rewrite !VIEQ, !eval_prep_string in H. apply H.
     - intros a b b' (u&v&H1&H2) (u'&v'&H3&H4); subst.
       now apply opair_inj in H3 as [-> ->].
-  Qed.
+  Qed.*)
 
   Definition M_solutions B f n :=
     M_opair ∅ (M_enc_stack B) ∈ f /\ forall k x y, k ∈ n -> M_opair k x ∈ f -> M_combinations B x y -> M_opair (σ k) y ∈ f.
@@ -771,10 +771,9 @@ Section ZF.
     M_combinations B (M_enc_stack C) (M_enc_stack (derivation_step B C)).
   Proof.
     induction B as [|[s t] B IH]; cbn; trivial.
-    destruct (M_comb_rel_ex s t (M_enc_stack C)) as [y2 Hy2].
-    exists (M_enc_stack (derivation_step B C)), y2. split; try now split.
-    enough (y2 = M_enc_stack (append_all C (s / t))) as -> by apply M_enc_stack_app.
-    apply (is_rep_unique Hy2). apply comb_rel_rep.
+    exists (M_enc_stack (derivation_step B C)), (M_enc_stack (append_all C (s / t))).
+    rewrite M_enc_stack_app. split; trivial. split; trivial.
+    apply comb_rel_rep.
   Qed.
 
   Lemma solutions_derivations B f n k :
