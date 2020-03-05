@@ -121,13 +121,13 @@ Proof.
   apply FRACTRAN_HALTING_on_diophantine; dio auto.
 Qed.
 
-Theorem FRACTRAN_HALTING_dio_single l x : { e : dio_single nat Empty_set | l /F/ x ↓ <-> dio_single_pred e (fun _ => 0) }.
+Theorem FRACTRAN_HALTING_dio_single E l x : { e : dio_single nat E | l /F/ x ↓ <-> dio_single_pred e (fun _ => 0) }.
 Proof.
   generalize (@FRACTRAN_HALTING_on_diophantine l (fun _ => x)); intros H1.
   spec in H1; dio_rel_auto.
   destruct dio_rel_single with (1 := H1) as ((p,q) & He).
   unfold FRACTRAN_HALTING in He.
-  exists (dp_inst_par (fun _ => 0) p, dp_inst_par (fun _ => 0) q).
+  exists (dp_inst_par E (fun _ => 0) p, dp_inst_par E (fun _ => 0) q).
   rewrite He with (ν := fun _ => 0).
   unfold dio_single_pred; simpl.
   split; intros (phi & Hphi); exists phi; revert Hphi;

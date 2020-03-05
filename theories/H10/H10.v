@@ -35,21 +35,24 @@ Set Implicit Arguments.
 (** Hilbert's Tenth problem: given a diophantine equation with n
     variable and no parameters, does it have a solution *)
 
-Definition H10_PROBLEM := { n : nat & dio_polynomial (pos n) Empty_set 
-                                    * dio_polynomial (pos n) Empty_set }%type.
+Definition H10_PROBLEM := { n : nat & dio_polynomial (pos n) (pos 0) 
+                                    * dio_polynomial (pos n) (pos 0) }%type.
 
 Definition H10 : H10_PROBLEM -> Prop.
 Proof.
   intros (n & p & q).
+  Check (fun v => dp_eval (vec_pos v) (fun _ => 0) p).
   apply (dio_single_pred (p,q)), (fun _ => 0).
 Defined.
+
+Print dio_single_pred.
 
 Theorem DIO_SINGLE_SAT_H10 : DIO_SINGLE_SAT ⪯ H10.
 Proof.
   apply reduction_dependent; exists.
   intros (E,v).
   destruct (dio_poly_eq_pos E) as (n & p & q & H).
-  exists (existT _ n (dp_inst_par v p, dp_inst_par v q)).
+  exists (existT _ n (dp_inst_par _ v p, dp_inst_par _ v q)).
   unfold DIO_SINGLE_SAT, H10.
   rewrite H.
   unfold dio_single_pred.

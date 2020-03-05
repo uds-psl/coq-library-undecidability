@@ -3,7 +3,7 @@ Require Import Undecidability.FOL.PCP.
 Require Import PslBase.FiniteTypes PslBase.FiniteTypes.Arbitrary.
 From Undecidability.L.Datatypes Require Import LNat Lists LProd.
 From Undecidability.L Require Import Tactics.LTactics Computability.MuRec Computability.Synthetic Tactics.GenEncode.
-
+From Undecidability.Shared.Libs.DLW.Vec Require Import pos.
 
 (** * Diophantine Equations *)
 
@@ -62,18 +62,18 @@ Proof.
       exists (1 + m1 + m2). cbn. in_app 5. in_collect (p1, p2); eapply cum_ge'; eauto; omega.
 Defined.
 
-Fixpoint conv n (p : dio_single.dio_polynomial (pos.pos n) Empty_set) : poly.
+Fixpoint conv n (p : dio_single.dio_polynomial (pos n) (pos 0)) : poly.
 Proof.
   destruct p.
   - exact (poly_cnst n0).
   - exact (poly_var (pos.pos2nat p)).
-  - inv e.
+  - invert pos p.
   - destruct d.
     + exact (poly_add (conv _ p1) (conv _ p2)).
     + exact (poly_mul (conv _ p1) (conv _ p2)).
 Defined.
 
-Fixpoint L_from (n : nat) : (pos.pos n -> nat) -> list nat.
+Fixpoint L_from (n : nat) : (pos n -> nat) -> list nat.
 Proof.
   intros phi. destruct n.
   - exact [].
@@ -83,11 +83,11 @@ Proof.
 Defined.
 
 
-Lemma L_nth n phi (p : pos.pos n) : nth (pos.pos2nat p) (L_from phi) 0 = phi p.
+Lemma L_nth n phi (p : pos n) : nth (pos2nat p) (L_from phi) 0 = phi p.
 Proof.
   induction n.
-  - inv p.
-  - cbn. pos.pos_inv p.
+  - invert pos p.
+  - cbn. invert pos p.
     + cbn. now rewrite pos.pos2nat_fst.
     + now rewrite pos.pos2nat_nxt, IHn.
 Qed.
@@ -97,28 +97,28 @@ Proof.
   induction p; cbn.
   - reflexivity.
   - now rewrite L_nth.
-  - destruct p.
+  - invert pos p.
   - destruct d; cbn; congruence.
 Qed.
 
 Lemma eval_L_from n p L :
-  eval (@conv n p) (L_from (fun n0 : pos.pos n => nth (pos.pos2nat n0) L 0)) = eval (conv p) L.
+  eval (@conv n p) (L_from (fun p : pos n => nth (pos2nat p) L 0)) = eval (conv p) L.
 Proof.
   induction p; cbn.
   - reflexivity.
   - revert L; induction n; intros; cbn.
-    + inv v.
-    + pos.pos_inv v.
-      * rewrite pos.pos2nat_fst. reflexivity.
-      * rewrite pos.pos2nat_nxt in *.
+    + invert pos v.
+    + invert pos v.
+      * rewrite pos2nat_fst. reflexivity.
+      * rewrite pos2nat_nxt in *.
         destruct L.
         -- cbn. clear. induction n.
-           ++ cbn. pos.pos_inv v.
-           ++ cbn. pos.pos_inv v. rewrite !pos.pos2nat_fst.
+           ++ cbn. invert pos v.
+           ++ cbn. invert pos v. rewrite !pos.pos2nat_fst.
               now rewrite pos.pos2nat_nxt.
               now rewrite pos.pos2nat_nxt.
         -- cbn. now rewrite <- IHn with (L := L).
-  - inv p.
+  - invert pos p.
   - destruct d; cbn; congruence.
 Qed.      
     
