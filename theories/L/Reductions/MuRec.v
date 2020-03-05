@@ -55,15 +55,15 @@ Proof.
     + eapply IHra_bs_c. omega.
 Qed.
 
-Require Import Equations.Prop.DepElim.
-
 Lemma vec_sum_le:
   forall (k : nat) (cst : vec nat k) (j : pos k), vec_pos cst j <= vec_sum cst.
 Proof.
   intros k cst j.
   induction cst; cbn.
-  - inversion j.
-  - depelim j. omega. specialize (IHcst j). omega.
+  - invert pos j.
+  - invert pos j.
+    + omega. 
+    + specialize (IHcst j); omega.
 Qed.
 
 Lemma ra_bs_from_c k (f : recalg k) c v x :
@@ -71,9 +71,9 @@ Lemma ra_bs_from_c k (f : recalg k) c v x :
 Proof.
   remember 0 as min.
   induction 1; subst; eauto using ra_bs.
-
-  econstructor. intros. eapply H1; omega.
-  eauto.
+  econstructor.
+  + intros; eapply H1; omega.
+  + auto.
 Qed.
 
 Lemma ra_bs_to_c k (f : recalg k) v x :
@@ -111,6 +111,15 @@ Proof.
       enough (vec_pos cst j <= vec_sum cst) by omega.
       eapply vec_sum_le.
     + eapply ra_bs_mono. eauto. omega.
+Qed.
+
+Local Hint Resolve ra_bs_from_c ra_bs_to_c : core.
+
+Fact ra_c_correct k (f : recalg k) v x :
+  [|f|] v x <-> exists c, [f ; v ; 0 ; c] ~~> x.
+Proof.
+  rewrite ra_bs_correct; split; auto.
+  intros (c & H); revert H; apply ra_bs_from_c.
 Qed.
 
 Inductive reccode :=
@@ -180,11 +189,13 @@ Lemma vec_list_nth:
 Proof.
   intros k p v.
   induction v.
-  - cbn. inversion p.
-  - cbn. depelim p.
+  - invert pos p.
+  - cbn; invert pos p.
     + reflexivity.
     + eapply IHv.
 Qed.
+
+(* Require Import Equations.Prop.DepElim. *)
 
 Lemma eval_inv n min i k (v : vec (recalg i) k) a l :
   eval n min (rec_erase erase v) a = Some (inr l) ->
@@ -192,7 +203,13 @@ Lemma eval_inv n min i k (v : vec (recalg i) k) a l :
   (forall j : pos k, eval (n -S (pos2nat j)) min (erase (vec_pos v j)) a = Some (inl (vec_pos x j))).
 Proof.
   induction v in n,l |- *.
-  - destruct n; cbn. firstorder congruence. exact vec_nil. intros [=]. subst. exists vec_nil. split. reflexivity. intros. depelim j.
+  - destruct n; cbn. 
+    firstorder congruence.
+    exact vec_nil. 
+    intros [=]; subst.
+    exists vec_nil. 
+    split; auto.
+    intro j; invert pos j.
   - destruct n. inversion 1.
     intros ?. cbn in H.
     destruct (eval n) eqn:E1; try congruence.
@@ -201,7 +218,7 @@ Proof.
     destruct s; try congruence. inv H. 
     edestruct IHv as (? & ? & ?). eauto.
     exists (vec_cons n1 x0). split. cbn. firstorder congruence.
-    intros j. depelim j.
+    intros j; pos_inv j.
     + rewrite pos2nat_fst in *. assert (S n - 1 = n) by omega. rewrite H1 in *.
       cbn -[eval].  eassumption.
     + rewrite pos2nat_nxt.
@@ -224,14 +241,12 @@ Lemma vec_pos_gt n X (w : vec X n) j k n1:
 Proof.
   intros.
   induction w.
-  - cbn. depelim j.
-  - cbn. depelim j.
-    + depelim k.
-      * cbn. omega.
-      * cbn. reflexivity.
-    + depelim k.
-      * cbn. reflexivity.
-      * cbn. eapply IHw. rewrite !pos2nat_nxt in *. omega.
+  - invert pos j.
+  - invert pos j; cbn.
+    + invert pos k; cbn; auto; omega.
+    + invert pos k; cbn; auto.
+      apply IHw. 
+      rewrite !pos2nat_nxt in H; omega.
 Qed.
 
 Lemma erase_correct k min (f : recalg k) v n c  :
@@ -253,8 +268,10 @@ Proof.
   - split.
     + inversion 1. subst.
       eapply EqDec.inj_right_pair in H3. subst.
-      cbn. depelim v. cbn. reflexivity.
-    + destruct n; inversion 1. depelim v. subst. cbn in H2. inv H2. econstructor.
+      cbn; revert H0; vec split v with x; auto. 
+    + destruct n; inversion 1. 
+      revert H0 H2; vec split v with x; cbn.
+      intros [=] _; subst; constructor.
   - split.
     + inversion 1. subst.
       eapply EqDec.inj_right_pair in H5. subst.
@@ -276,10 +293,11 @@ Proof.
 
       assert (eval c' min (rec_erase erase v0) (vec_list v) = Some (inr (vec_list w))).
       { subst. clear - H1. revert c0 H1. induction v0; intros.
-        - cbn. depelim w. reflexivity.
+        - cbn; vec nil w; reflexivity.
         - cbn. pose proof (H1 pos_fst). cbn in H. rewrite pos2nat_fst in H.
           replace (c0 - 0) with c0 in H by omega. rewrite H.
-          depelim w. destruct c0. cbn in H. inv H. erewrite IHv0.
+          revert H1 H; vec split w with y; intros H1 H.
+          destruct c0. cbn in H. inv H. erewrite IHv0.
           reflexivity.
           intros. specialize (H1 (pos_nxt j)). rewrite pos2nat_nxt in H1.
           eassumption.
@@ -312,7 +330,8 @@ Proof.
       cbn. 2:omega. rewrite H7.
       eapply H in H9. 2:omega. rewrite H9. reflexivity.
     + intros. destruct n; inv H0.
-      depelim v. cbn in H2. destruct n1.
+      revert H2; vec split v with n1; cbn; intros H2.
+      destruct n1.
       * destruct (eval n min (erase f1) (vec_list v)) eqn:E.
         destruct s; inv H2.
         -- econstructor. eapply H. omega. eauto.

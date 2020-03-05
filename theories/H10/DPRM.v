@@ -41,7 +41,7 @@ Section Various_definitions_of_recursive_enum.
 
   (* There is a µ-recursive function of which P is the domain *)
 
-  Definition µ_recursive_n := { f | forall v, P v <-> f ⇓ v }.
+  Definition mu_recursive_n := { f | forall v, P v <-> f ⇓ v }.
 
   Notation vec2val := (fun v => vec2fun v 0).
 
@@ -94,14 +94,14 @@ Section Various_definitions_of_recursive_enum.
       rewrite !dp_proj_par_eval in H; auto.
   Qed.
 
-  Local Theorem dio_rec_single_µ_rec : dio_rec_single_n -> µ_recursive_n.
+  Local Theorem dio_rec_single_µ_rec : dio_rec_single_n -> mu_recursive_n.
   Proof.
     intros (m & p & q & H).
     exists (ra_dio_poly_find p q).
     intros v; rewrite H, ra_dio_poly_find_spec; tauto.
   Qed.
 
-  Local Theorem µ_rec_mm_reco : µ_recursive_n -> mm_recognisable_n.
+  Local Theorem µ_rec_mm_reco : mu_recursive_n -> mm_recognisable_n.
   Proof.
     intros (f & Hf).
     destruct (ra_mm_simulator f) as (m & M & H).
@@ -149,8 +149,8 @@ Theorem DPRM_n n (R : vec nat n -> Prop) :
          (mm_recognisable_n R  -> dio_rec_form_n R)
        * (dio_rec_form_n R     -> dio_rec_elem_n R)
        * (dio_rec_elem_n R     -> dio_rec_single_n R)
-       * (dio_rec_single_n R   -> µ_recursive_n R)
-       * (µ_recursive_n R      -> mm_recognisable_n R).
+       * (dio_rec_single_n R   -> mu_recursive_n R)
+       * (mu_recursive_n R     -> mm_recognisable_n R).
 Proof. lsplit 4; auto. Qed. 
 
 Check DPRM_n.
@@ -171,7 +171,7 @@ Section Various_definitions_of_recursive_enum_1.
 
   (* There is a µ-recursive function of which P is the domain *)
 
-  Definition µ_recursive := { f | forall x, P x <-> f ⇓ (x##ø) }.
+  Definition mu_recursive := { f | forall x, P x <-> f ⇓ (x##ø) }.
 
   (* There is a single Diophantine equations solvable exactly when
      its n-tuple of parameters belong to P *)
@@ -217,7 +217,7 @@ Section Various_definitions_of_recursive_enum_1.
 
   Definition fractran_recognisable := { l | forall x, P x <-> l /F/ 5*7^x ↓ }.
 
-  Local Theorem µ_rec_mm_reco_1 : µ_recursive -> mm_recognisable.
+  Local Theorem µ_rec_mm_reco_1 : mu_recursive -> mm_recognisable.
   Proof.
     intros H.
     destruct µ_rec_mm_reco with (P := fun v : vec _ 1 => P (vec_head v))
@@ -255,7 +255,7 @@ Section Various_definitions_of_recursive_enum_1.
       all: intros i; analyse pos i; auto.
   Qed.
 
-  Local Theorem dio_rec_single_mm_1 : dio_rec_single -> µ_recursive.
+  Local Theorem dio_rec_single_mm_1 : dio_rec_single -> mu_recursive.
   Proof.
     intros H.
     destruct dio_rec_single_µ_rec with (P := fun v : vec _ 1 => P (vec_head v))
@@ -280,8 +280,8 @@ Local Hint Resolve µ_rec_mm_reco_1
 Theorem DPRM_1 (P : nat -> Prop) :
          (mm_recognisable P       -> fractran_recognisable P)
        * (fractran_recognisable P -> dio_rec_single P)   
-       * (dio_rec_single P        -> µ_recursive P)
-       * (µ_recursive P           -> mm_recognisable P).
+       * (dio_rec_single P        -> mu_recursive P)
+       * (mu_recursive P           -> mm_recognisable P).
 Proof. lsplit 3; auto. Qed. 
 
 Check DPRM_1.
