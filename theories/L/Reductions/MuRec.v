@@ -115,7 +115,7 @@ Qed.
 
 Local Hint Resolve ra_bs_from_c ra_bs_to_c : core.
 
-Fact ra_c_correct k (f : recalg k) v x :
+Fact ra_bs_c_correct k (f : recalg k) v x :
   [|f|] v x <-> exists c, [f ; v ; 0 ; c] ~~> x.
 Proof.
   rewrite ra_bs_correct; split; auto.
