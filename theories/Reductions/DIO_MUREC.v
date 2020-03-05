@@ -17,30 +17,21 @@ From Undecidability.Shared.Libs.DLW.Utils
 From Undecidability.Shared.Libs.DLW.Vec
   Require Import pos vec.
 
-From Undecidability.H10.Dio 
-  Require Import dio_single.
+From Undecidability.H10 
+  Require Import Dio.dio_single H10.
 
 From Undecidability.MuRec 
   Require Import recalg ra_dio_poly.
 
-Definition DIO_SINGLE_PROBLEM := { n : nat & dio_polynomial (pos n) (pos 0) 
-                                           * dio_polynomial (pos n) (pos 0) }%type.
+Section H10_MUREC_HALTING.
 
-Definition DIO_SINGLE_SAT : DIO_SINGLE_PROBLEM -> Prop.
-Proof.
-  intros (n & p & q).
-  apply (dio_single_pred (p,q)), pos_O_any.
-Defined.
-
-Section DIO_SINGLE_SAT_MUREC_HALTING.
-
-  Let f : DIO_SINGLE_PROBLEM -> MUREC_PROBLEM.
+  Let f : H10_PROBLEM -> MUREC_PROBLEM.
   Proof.
     intros (n & p & q).
     exact (ra_dio_poly_find p q).
   Defined.
 
-  Theorem DIO_SINGLE_SAT_MUREC_HALTING : DIO_SINGLE_SAT ⪯ MUREC_HALTING.
+  Theorem H10_MUREC_HALTING : H10 ⪯ MUREC_HALTING.
   Proof.
     exists f.
     intros (n & p & q); simpl; unfold MUREC_HALTING.
@@ -55,7 +46,7 @@ Section DIO_SINGLE_SAT_MUREC_HALTING.
         intros j; analyse pos j.
   Qed.
 
-End DIO_SINGLE_SAT_MUREC_HALTING.
+End H10_MUREC_HALTING.
 
-Check DIO_SINGLE_SAT_MUREC_HALTING.
-Print Assumptions DIO_SINGLE_SAT_MUREC_HALTING.
+Check H10_MUREC_HALTING.
+Print Assumptions H10_MUREC_HALTING.

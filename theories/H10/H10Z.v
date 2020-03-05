@@ -143,7 +143,7 @@ Module dionat := dio_single.
 Notation dp_sq a := (dp_comp do_mul a a).
 Notation sq a := (a * a)%Z.
 
-Fixpoint to_Z_poly n (p : dionat.dio_polynomial (pos n) Empty_set) : dio_polynomial (pos (n * 4)) Empty_set :=
+Fixpoint to_Z_poly E n (p : dionat.dio_polynomial (pos n) E) : dio_polynomial (pos (n * 4)) E :=
   match p with
   | dionat.dp_nat n => dp_cnst (Z.of_nat n)
   | dionat.dp_var v => dp_add (dp_sq (dp_var (inj3 v))) (dp_add (dp_sq (dp_var (inj2 v))) (dp_add (dp_sq (dp_var (inj1 v))) (dp_sq (dp_var (inj0 v)))))
@@ -151,12 +151,12 @@ Fixpoint to_Z_poly n (p : dionat.dio_polynomial (pos n) Empty_set) : dio_polynom
   | dionat.dp_comp o p1 p2 => dp_comp o (to_Z_poly p1) (to_Z_poly p2)
   end.
 
-Lemma create_sol_correct (n : nat) (Φ : pos n -> nat) (Φ' : pos (n * 4) -> Z) :
+Lemma create_sol_correct E (n : nat) (Φ : pos n -> nat) (Φ' : pos (n * 4) -> Z) :
   (forall i : pos n, Z.of_nat (Φ i) = sq (Φ' (inj3 i)) + sq (Φ' (inj2 i)) + sq (Φ' (inj1 i)) + sq (Φ' (inj0 i)))%Z ->
-  forall p : dionat.dio_polynomial (pos n) Empty_set, Z.of_nat (dio_single.dp_eval Φ (fun _ : Empty_set => 0) p) = dp_eval Φ' (fun _ : Empty_set => 0%Z) (to_Z_poly p).
+  forall p : dionat.dio_polynomial (pos n) E, Z.of_nat (dio_single.dp_eval Φ (fun _ : E => 0) p) = dp_eval Φ' (fun _ : E => 0%Z) (to_Z_poly p).
 Proof.
   intros H p. 
-  induction p as [ k | v | [] | [] ]; cbn; auto.
+  induction p as [ k | v | | [] ]; cbn; auto.
   - rewrite H; ring.
   - rewrite Nat2Z.inj_add; congruence.
   - rewrite Nat2Z.inj_mul; congruence.
@@ -203,20 +203,20 @@ Proof.
 Qed.
 
 Lemma create_sol (n : nat) (Φ : pos n -> nat) : exists Φ' : pos (n * 4) -> Z,
-  forall p : dionat.dio_polynomial (pos n) Empty_set, Z.of_nat (dio_single.dp_eval Φ (fun _ : Empty_set => 0) p) = dp_eval Φ' (fun _ : Empty_set => 0%Z) (to_Z_poly p).
+  forall p : dionat.dio_polynomial (pos n) (pos 0), Z.of_nat (dio_single.dp_eval Φ (fun _ => 0) p) = dp_eval Φ' (fun _ => 0%Z) (to_Z_poly p).
 Proof.
   destruct (create_sol_exists Φ) as [Φ'].
   exists Φ'; intro; now eapply create_sol_correct.
 Qed.
 
 Lemma recover_sol (n : nat) (Φ' : pos (n * 4) -> Z) : exists Φ : pos n -> nat,
-  forall p : dionat.dio_polynomial (pos n) Empty_set, Z.of_nat (dio_single.dp_eval Φ (fun _ : Empty_set => 0) p) = dp_eval Φ' (fun _ : Empty_set => 0%Z) (to_Z_poly p).
+  forall p : dionat.dio_polynomial (pos n) (pos 0), Z.of_nat (dio_single.dp_eval Φ (fun _ => 0) p) = dp_eval Φ' (fun _ => 0%Z) (to_Z_poly p).
 Proof.
   destruct (recover_sol_exists Φ') as [Φ].
   exists Φ; intro; now eapply create_sol_correct.
 Qed.
 
-Definition H10Z_PROBLEM := { n : nat & dio_polynomial (pos n) Empty_set }.
+Definition H10Z_PROBLEM := { n : nat & dio_polynomial (pos n) (pos 0) }.
 
 (** The original H10 over relative intergers is P(x1,..,xn) = 0 *)
 
