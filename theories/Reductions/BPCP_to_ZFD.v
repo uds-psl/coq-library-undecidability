@@ -1361,3 +1361,70 @@ Section Completeness.
 End Completeness.
 
 
+
+
+
+(** ** Constants *)
+
+Definition ZFE_Funcs := False.
+
+Definition ZFE_fun_ar (f : ZFE_Funcs) : nat := match f with end.
+
+Inductive ZFE_Preds : Type :=
+| elem : ZFE_Preds
+| equal : ZFE_Preds.
+
+Definition ZFE_pred_ar (P : ZFE_Preds) : nat :=
+  match P with _ => 2 end.
+
+Instance ZFE_Signature : Signature :=
+  {| Funcs := ZFE_Funcs; fun_ar := ZFE_fun_ar; Preds := ZFE_Preds; pred_ar := ZFE_pred_ar |}.
+
+Notation "x ∈ y" := (@Pred ZF_Signature ZF.elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
+Notation "x ≡ y" := (@Pred ZF_Signature ZF.equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
+
+Notation "x ∈' y" := (@Pred ZFE_Signature elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
+Notation "x ≡' y" := (@Pred ZFE_Signature equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
+
+Fixpoint rm_const_tm (t : @term ZF_Signature) : @form ZFE_Signature :=
+  match t with
+  | var_term n => $0 ≡' var_term (S n)
+  | Func eset _ => ∀ ¬ ($0 ∈' $1)
+  | Func pair v => let v' := Vector.map rm_const_tm v in
+                  ∃ ∃ (Vector.hd v')[$1..] ∧ (Vector.hd (Vector.tl v'))[$0..]
+                      ∧ ∀ $0 ∈' $3 <--> $0 ≡' $2 ∨ $0 ≡' $1
+  | _ => ⊥
+  end.
+
+From Equations Require Import Equations.
+
+Lemma vec_nil_eq X (v : vector X 0) :
+  v = Vector.nil.
+Proof.
+  depelim v. reflexivity.
+Qed.
+
+Lemma map_hd X Y n (f : X -> Y) (v : vector X (S n)) :
+  Vector.hd (Vector.map f v) = f (Vector.hd v).
+Proof.
+  depelim v. reflexivity.
+Qed.
+
+Lemma map_tl X Y n (f : X -> Y) (v : vector X (S n)) :
+  Vector.tl (Vector.map f v) = Vector.map f (Vector.tl v).
+Proof.
+  depelim v. reflexivity.
+Qed.
+
+Lemma rm_const_tm_spec T t :
+  exists k, T ⊩IE (rm_const_tm t)[$k..].
+Proof.
+  induction t as [n|[] v IH] using strong_term_ind; cbn.
+  - now apply ZF_refl'.
+  - depelim v. cbn. apply elem_prv. firstorder.
+  - apply prv_T_ExI with (Vector.hd v). cbn.
+    apply prv_T_ExI with (Vector.hd (Vector.tl v)).
+    rewrite !map_tl, !map_hd. cbn. asimpl.
+    
+    cbn. asimpl.
+
