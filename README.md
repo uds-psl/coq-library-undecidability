@@ -1,8 +1,8 @@
-# A library of formalised undecidable problems in Coq
+# A Coq Library of Undecidability Proofs
 
 [![Build Status](https://travis-ci.org/uds-psl/coq-library-undecidability.svg?branch=master)](https://travis-ci.org/uds-psl/coq-library-undecidability)
 
-This library contains undecidable problems and formalised reductions between them.
+This library contains undecidable problems and mechanised reductions between them.
 Feel free to contribute or start using the problems!
 
 ## Existing undecidable problems
@@ -61,8 +61,10 @@ make deps
 
 ## Published work and technical reports
 
-- Undecidability of Higher-Order Unification Formalised in Coq. Simon Spies and Yannick Forster. Technical report. Subdirectory `HOU`. https://www.ps.uni-saarland.de/Publications/details/SpiesForster:2019:UndecidabilityHOU.html
-- Verified Programming of Turing Machines in Coq. Yannick Forster, Fabian Kunze, Maximilian Wuttke. Technical report. Subdirectory `TM`. https://github.com/uds-psl/tm-verification-framework/
+- A Coq Library of Undecidable Problems.  Yannick Forster, Dominique Larchey-Wendling, Andrej Dudenhefner, Edith Heiter, Dominik Kirst, Fabian Kunze, Gert Smolka, Simon Spies, Dominik Wehr, Maximilian Wuttke. CoqPL '20. https://popl20.sigplan.org/details/CoqPL-2020-papers/5/A-Coq-Library-of-Undecidable-Problems
+- Undecidability of Higher-Order Unification Formalised in Coq. Simon Spies and Yannick Forster. CPP '20. Subdirectory `HOU`. https://www.ps.uni-saarland.de/Publications/details/SpiesForster:2019:UndecidabilityHOU.html
+- Verified Programming of Turing Machines in Coq. Yannick Forster, Fabian Kunze, Maximilian Wuttke. CPP '20. Subdirectory `TM`. https://github.com/uds-psl/tm-verification-framework/
+- Completeness Theorems for First-Order Logic Analysed in Constructive Type Theory.  Yannick Forster, Dominik Kirst, Dominik Wehr. LFCS '20. Subdirectory `FOLP`. https://www.ps.uni-saarland.de/extras/fol-completeness/
 - Hilbert's Tenth Problem in Coq. Dominique Larchey-Wendling and Yannick Forster. FSCD '19. Subdirectory `H10`. https://uds-psl.github.io/H10
 - A certifying extraction with time bounds from Coq to call-by-value lambda-calculus. ITP '19. Subdirectory `L`. https://github.com/uds-psl/certifying-extraction-with-time-bounds
 - Certified Undecidability of Intuitionistic Linear Logic via Binary Stack Machines and Minsky Machines. Yannick Forster and Dominique Larchey-Wendling. CPP '19. Subdirectory `ILL`. http://uds-psl.github.io/ill-undecidability/
@@ -82,6 +84,7 @@ make deps
 
 ## Contributors
 
+- Andrej Dudenhefner
 - Yannick Forster
 - Edith Heiter
 - Dominik Kirst 
@@ -89,5 +92,6 @@ make deps
 - Dominique Larchey-Wendling
 - Gert Smolka
 - Simon Spies
+- Dominik Wehr
 - Maximilian Wuttke
 
