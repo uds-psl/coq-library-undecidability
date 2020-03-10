@@ -451,6 +451,10 @@ End BT.
 Ltac assert1 H :=
   match goal with  |- (?T ⋄ ?phi) ⊩IE _ => assert (H : (T ⋄ phi) ⊩IE phi) by apply prv_T1 end.
 
+Ltac assert2 H :=
+  match goal with  |- ((?T ⋄ ?psi) ⋄ ?phi) ⊩IE _
+                   => assert (H : ((T ⋄ psi) ⋄ phi) ⊩IE psi) by apply prv_T2 end.
+
 Ltac use_exists H t :=
   eapply (@bt_exists) in H as [t H]; eauto; apply H.
 
@@ -1366,36 +1370,6 @@ End Completeness.
 
 (** ** Constants *)
 
-Definition ZFE_Funcs := False.
-
-Definition ZFE_fun_ar (f : ZFE_Funcs) : nat := match f with end.
-
-Inductive ZFE_Preds : Type :=
-| elem : ZFE_Preds
-| equal : ZFE_Preds.
-
-Definition ZFE_pred_ar (P : ZFE_Preds) : nat :=
-  match P with _ => 2 end.
-
-Instance ZFE_Signature : Signature :=
-  {| Funcs := ZFE_Funcs; fun_ar := ZFE_fun_ar; Preds := ZFE_Preds; pred_ar := ZFE_pred_ar |}.
-
-Notation "x ∈ y" := (@Pred ZF_Signature ZF.elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
-Notation "x ≡ y" := (@Pred ZF_Signature ZF.equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
-
-Notation "x ∈' y" := (@Pred ZFE_Signature elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
-Notation "x ≡' y" := (@Pred ZFE_Signature equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
-
-Fixpoint rm_const_tm (t : @term ZF_Signature) : @form ZFE_Signature :=
-  match t with
-  | var_term n => $0 ≡' var_term (S n)
-  | Func eset _ => ∀ ¬ ($0 ∈' $1)
-  | Func pair v => let v' := Vector.map rm_const_tm v in
-                  ∃ ∃ (Vector.hd v')[$1..] ∧ (Vector.hd (Vector.tl v'))[$0..]
-                      ∧ ∀ $0 ∈' $3 <--> $0 ≡' $2 ∨ $0 ≡' $1
-  | _ => ⊥
-  end.
-
 From Equations Require Import Equations.
 
 Lemma vec_nil_eq X (v : vector X 0) :
@@ -1416,15 +1390,236 @@ Proof.
   depelim v. reflexivity.
 Qed.
 
-Lemma rm_const_tm_spec T t :
-  exists k, T ⊩IE (rm_const_tm t)[$k..].
+Lemma in_hd X n (v : vector X (S n)) :
+  vec_in (Vector.hd v) v.
 Proof.
-  induction t as [n|[] v IH] using strong_term_ind; cbn.
-  - now apply ZF_refl'.
-  - depelim v. cbn. apply elem_prv. firstorder.
-  - apply prv_T_ExI with (Vector.hd v). cbn.
-    apply prv_T_ExI with (Vector.hd (Vector.tl v)).
-    rewrite !map_tl, !map_hd. cbn. asimpl.
+  depelim v. constructor.
+Qed.
+
+Lemma in_hd_tl X n (v : vector X (S (S n))) :
+  vec_in (Vector.hd (Vector.tl v)) v.
+Proof.
+  depelim v. constructor. depelim v. constructor.
+Qed.
+
+Definition sshift k :=
+  fun n => match n with 0 => $0 | S n => $(1 + k + n) end.
+
+Fixpoint rm_const_tm t : form :=
+  match t with
+  | var_term n => $0 ≡ var_term (S n)
+  | Func eset _ => ∀ ¬ ($0 ∈ $1)
+  | Func pair v => let v' := Vector.map rm_const_tm v in
+                  ∃ (Vector.hd v')[sshift 1]
+                  ∧ ∃ (Vector.hd (Vector.tl v'))[sshift 2]
+                  ∧ ∀ $0 ∈ $3 <--> $0 ≡ $2 ∨ $0 ≡ $1
+  | _ => ⊥
+  end.
+
+Lemma rm_const_tm_spec_simp {T} {HB : bounded_theory T} t sigma t' :
+  ZF ⊑ T -> T ⊩IE t' ≡ t[sigma] -> T ⊩IE (rm_const_tm t)[t'.:sigma].
+Proof.
+  intros HT. revert sigma t'. induction t as [n|[] v IH] using strong_term_ind; cbn; intros sigma t' H.
+  - assumption.
+  - admit.
+  - apply prv_T_ExI with ((Vector.hd v)[sigma]). cbn. apply prv_T_CI.
+    { rewrite map_hd. asimpl. apply IH. apply in_hd. now apply ZF_refl'. }
+    apply prv_T_ExI with ((Vector.hd (Vector.tl v))[sigma]). cbn. apply prv_T_CI.
+    { rewrite map_tl, map_hd. asimpl. apply IH. apply in_hd_tl. now apply ZF_refl'. }
+    apply bt_all. intros t. cbn. asimpl. admit.
+  -
+Admitted.
+
+Lemma rm_const_tm_spec {T} {HB : bounded_theory T} t sigma tau :
+  ZF ⊑ T -> (forall n, tau n = sigma (S n)) -> T ⊩IE sigma 0 ≡ t[tau] -> T ⊩IE (rm_const_tm t)[sigma].
+Proof.
+  intros HT. revert sigma tau. induction t as [n|[] v IH] using strong_term_ind; cbn; intros sigma tau HS H.
+  - rewrite <- HS. apply H.
+  - depelim v. cbn in *. asimpl. admit.
+  - apply prv_T_ExI with ((Vector.hd v)[tau]). cbn. apply prv_T_CI.
+    { rewrite map_hd. asimpl. eapply IH; cbn. apply in_hd. apply HS. now apply ZF_refl'. }
+    apply prv_T_ExI with ((Vector.hd (Vector.tl v))[tau]). cbn. apply prv_T_CI.
+    { rewrite map_tl, map_hd. asimpl. eapply IH. apply in_hd_tl. apply HS. now apply ZF_refl'. }
+    cbn. asimpl. apply bt_all. intros t. cbn. asimpl.
+    depelim v; cbn in *; subst. depelim v; cbn in *; subst. depelim v; cbn in *; subst.
+    admit.
+Admitted.
+
+Lemma rm_const_tm_spec' {T} {HB : bounded_theory T} t :
+  ZF ⊑ T -> T ⊩IE (rm_const_tm t)[t..].
+Proof.
+  intros HT. eapply rm_const_tm_spec; trivial.
+  reflexivity. cbn. admit.
+Admitted.
+
+Lemma rm_const_tm_inv {T} {HB : bounded_theory T} t sigma tau :
+  ZF ⊑ T -> (forall n, tau n = sigma (S n)) -> T ⊩IE (rm_const_tm t)[sigma] -> T ⊩IE sigma 0 ≡ t[tau].
+Proof.
+  intros HT. revert sigma tau. induction t as [n|[] v IH] using strong_term_ind; cbn; intros sigma tau H.
+  - admit.
+  - admit.
+  -
+Admitted.
+
+Lemma rm_const_tm_inv_simp {T} {HB : bounded_theory T} t sigma t' :
+  ZF ⊑ T -> T ⊩IE (rm_const_tm t)[t'.:sigma] -> T ⊩IE t' ≡ t[sigma].
+Proof.
+  intros HT. revert sigma t'. induction t as [n|[] v IH] using strong_term_ind; cbn; intros sigma t' H.
+  - admit.
+  - admit.
+  - 
+Admitted.
     
-    cbn. asimpl.
+Fixpoint rm_const_fm phi : form :=
+  match phi with
+  | ⊥ => ⊥
+  | phi --> psi => (rm_const_fm phi) --> rm_const_fm psi
+  | phi ∧ psi => (rm_const_fm phi) ∧ rm_const_fm psi
+  | phi ∨ psi => (rm_const_fm phi) ∨ rm_const_fm psi
+  | ∃ phi => ∃ rm_const_fm phi
+  | ∀ phi => ∀ rm_const_fm phi
+  | Pred elem v => let v' := Vector.map rm_const_tm v in
+                  ∃ (Vector.hd v') ∧ ∃ (Vector.hd (Vector.tl v'))[sshift 1] ∧ $1 ∈ $0
+  | Pred equal v => let v' := Vector.map rm_const_tm v in
+                  ∃ (Vector.hd v') ∧ ∃ (Vector.hd (Vector.tl v'))[sshift 1] ∧ $1 ≡ $0
+  end.
+
+Lemma subst_var_term (t : term) :
+  t[var_term] = t.
+Proof.
+Admitted.
+
+Lemma vec_inv2 X (v : vector X 2) :
+  v = Vector.cons (Vector.hd v) (Vector.cons (Vector.hd (Vector.tl v)) Vector.nil).
+Proof.
+  repeat depelim v. cbn. reflexivity.
+Qed.
+
+Lemma rm_const_tm_subst t sigma :
+  subst_form sigma (rm_const_tm t) = rm_const_tm (subst_term sigma t).
+Proof.
+  induction t using strong_term_ind; cbn.
+Abort.
+
+Lemma rm_const_fm_subst phi sigma :
+  subst_form sigma (rm_const_fm phi) = rm_const_fm (subst_form sigma phi).
+Proof.
+  induction phi in sigma |- *; cbn; f_equal. 2-9: firstorder.
+  destruct P.
+  - cbn. asimpl. f_equal. f_equal. admit. f_equal. f_equal. admit.
+Admitted.
+
+Definition subst_theory sigma (T : theory) :=
+  fun phi => exists psi, T psi /\ phi = psi[sigma].
+
+Lemma prv_T_AllI' {p : peirce} {b : bottom} T phi :
+  (subst_theory ↑ T) ⊩ phi -> T ⊩ ∀ phi.
+Proof.
+Admitted.
+
+Lemma prv_T_subst {p : peirce} {b : bottom} T phi sigma :
+  T ⊩ phi -> (subst_theory sigma T) ⊩ phi[sigma].
+Proof.
+  intros [A[H1 H2]]. exists (map (subst_form sigma) A). split.
+  - intros psi [theta[<- H]] % in_map_iff.  exists theta. intuition.
+  - now apply subst_Weak.
+Qed.
+
+Lemma unused_bounded phi k :
+  (forall n, k <= n -> unused k phi) -> bounded k phi.
+Proof.
+  induction phi.
+Admitted.
+
+Instance bounded_theory_up {T} {HB : bounded_theory T} :
+  bounded_theory (subst_theory ↑ T).
+Proof.
+  destruct HB as [n H]. exists (S n). intros phi k [psi[H1 ->]] H2.
+  apply bounded_unused with (S n); try lia. apply subst_bounded_up with n.
+  - apply unused_bounded. intros l Hl. apply H; trivial.
+  - intros i Hi. constructor. lia.
+Qed.
+
+Lemma ZF_subst_theory T sigma :
+  ZF ⊑ T -> ZF ⊑ subst_theory sigma T.
+Proof.
+  intros H phi HP. exists phi. split; try now apply H.
+  symmetry. apply subst_bounded0. apply ZF_bounded, HP.
+Qed.
+
+Lemma rm_const_fm_spec phi :
+  forall T (HB : bounded_theory T), ZF ⊑ T -> T ⊩IE phi <-> T ⊩IE rm_const_fm phi.
+Proof.
+  induction phi; cbn; intros T HB HT; split; trivial; intros H. 1,2: destruct P; cbn.
+  - apply prv_T_ExI with (Vector.hd t). cbn. asimpl. apply prv_T_CI.
+    { rewrite !map_hd. now apply rm_const_tm_spec'. }
+    apply prv_T_ExI with (Vector.hd (Vector.tl t)). cbn. apply prv_T_CI.
+    { rewrite !map_tl, !map_hd. asimpl. eapply rm_const_tm_spec; trivial.
+      cbn. reflexivity. cbn. rewrite subst_var_term. now apply ZF_refl'. }
+    cbn. asimpl. now rewrite (vec_inv2 t) in H.
+  - admit.
+  - use_exists H x. clear H. assert1 H. cbn in H. apply prv_T_CE2 in H. use_exists H y. clear H.
+    cbn. asimpl. rewrite !map_tl, !map_hd. rewrite (vec_inv2 t) at 4.
+    eapply ZF_eq_elem. repeat solve_tsub.
+    + rewrite <- (subst_var_term (Vector.hd t)). rewrite subst_var_term at 1.
+      eapply rm_const_tm_inv. repeat solve_tsub. 2 : eapply prv_T_CE1, prv_T2. reflexivity.
+    + rewrite <- (subst_var_term (Vector.hd (Vector.tl t))).
+      rewrite subst_var_term at 2.
+      eapply rm_const_tm_inv. repeat solve_tsub. 2 : eapply prv_T_CE1, prv_T1. reflexivity.
+    + cbn. eapply prv_T_CE2, prv_T1.
+  - admit.
+  - apply prv_T_impl. apply IHphi2; eauto. solve_tsub.
+    eapply prv_T_mp. apply (Weak_T H). repeat solve_tsub.
+    apply IHphi1; eauto. solve_tsub. apply prv_T1.
+  - admit.
+  - apply prv_T_CE in H as [H1 H2]. apply prv_T_CI; intuition.
+  - admit.
+  - apply (prv_T_DE H).
+    + apply prv_T_DI1. apply IHphi1; eauto. solve_tsub. apply prv_T1.
+    + apply prv_T_DI2. apply IHphi2; eauto. solve_tsub. apply prv_T1.
+  - admit.
+  - apply prv_T_AllI'. apply IHphi. apply bounded_theory_up. now apply ZF_subst_theory.
+    apply (@prv_T_subst _ _ _ _ ↑) in H. cbn in H.
+    apply (@prv_T_AllE _ _ _ _ ($0)) in H. now asimpl in H.
+  - admit.
+  - 
+
+    apply bt_all. intros t. rewrite rm_const_fm_subst. asimpl.
+    apply IHphi; trivial. apply (@prv_T_AllE _ _ _ _ t) in H. now asimpl in H.
+  - apply bt_all. intros t. apply (@prv_T_AllE _ _ _ _ t) in H.
+    setoid_rewrite rm_const_fm_subst in H. asimpl in H. now apply IHphi in H.
+  - use_exists H x. clear H. apply prv_T_ExI with x. setoid_rewrite rm_const_fm_subst.
+    asimpl. apply IHphi; eauto. solve_tsub. apply prv_T1.
+Admitted.
+
+
+
+
+
+
+Definition ZFE_Funcs := False.
+
+Definition ZFE_fun_ar (f : ZFE_Funcs) : nat := match f with end.
+
+Inductive ZFE_Preds : Type :=
+| elem : ZFE_Preds
+| equal : ZFE_Preds.
+
+Definition ZFE_pred_ar (P : ZFE_Preds) : nat :=
+  match P with _ => 2 end.
+
+Instance ZFE_Signature : Signature :=
+  {| Funcs := ZFE_Funcs; fun_ar := ZFE_fun_ar; Preds := ZFE_Preds; pred_ar := ZFE_pred_ar |}.
+
+Notation "x ∈ y" :=
+  (@Pred ZF_Signature ZF.elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
+
+Notation "x ≡ y" :=
+  (@Pred ZF_Signature ZF.equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
+
+Notation "x ∈' y" :=
+  (@Pred ZFE_Signature elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
+
+Notation "x ≡' y" :=
+  (@Pred ZFE_Signature equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
 
