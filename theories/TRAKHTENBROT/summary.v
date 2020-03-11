@@ -90,7 +90,7 @@ Print Assumptions decidable_EQUIV_fin_quotient.
 
 (* Corollary 10 *)
 
-Print bij_t.
+Print bij_t.   (* to understand the meaning of the following result *)
 About finite_t_discrete_bij_t_pos.
 Print Assumptions finite_t_discrete_bij_t_pos.
 
@@ -149,7 +149,7 @@ Print fo_bisimilar.
 
 (* Theorem 19 *)
 
-Print fo_congruence_upto.
+Print fo_congruence_upto.  (* to understand the meaning of the following result *)
 About fo_bisimilar_dec_congr.
 Print Assumptions fo_bisimilar_dec_congr.
 
@@ -175,19 +175,19 @@ About FSAT_Σnosyms.
 
 (* Lemma 24 *)
 
-Print Σrel.
+Print Σrel.      (* to understand the meaning of the following result *)
 About FSAT_REL_BOUNDED_ONE_REL.
 Print Assumptions FSAT_REL_BOUNDED_ONE_REL.
 
 (* Fact 25 *)
 
-Print Σunif.
+Print Σunif.     (* to understand the meaning of the following result *)
 About FSAT_UNIFORM.
 
-Print Σone_rel.
+Print Σone_rel.  (* to understand the meaning of the following result *)
 About FSAT_ONE_REL.
 
-Print Σrem_cst.
+Print Σrem_cst.  (* to understand the meaning of the following result *)
 Check FSAT_NOCST.
 
 (* Lemma 26 *)
@@ -207,16 +207,16 @@ Print Assumptions FSAT_REL_nto2.
 
 (* Lemma 29 *)
 
-Print Σn1.
+Print Σn1.     (* to understand the meaning of the following result *)
 About FSAT_REL2_to_FUNnREL1.
 Print Assumptions FSAT_REL2_to_FUNnREL1.
 
 (* Fact 30 *)
 
-Print Σrel.
+Print Σrel.    (* to understand the meaning of the following results *)
 About FSAT_REL_2ton.
 About FSAT_RELn_ANY.
-Print Σn1.
+Print Σn1.     (* to understand the meaning of the following result *)
 About FSAT_FUNnREL1_ANY.
 
 (* Lemma 31 *)
@@ -231,19 +231,19 @@ Print Assumptions fo_form_fin_discr_dec_SAT_pos.
 
 (* Lemma 33 *)
 
-Print Σ11.
+Print Σ11.     (* to understand the meaning of the following result *)
 About FSAT_MONADIC_DEC.
 Print Assumptions FSAT_MONADIC_DEC.
 
 (* Lemma 34 *)
 
-Print Σ11.
+Print Σ11.     (* to understand the meaning of the following result *)
 About FSAT_MONADIC_11_FSAT_MONADIC_1.
 Print Assumptions FSAT_MONADIC_11_FSAT_MONADIC_1.
 
 (* Fact 35 *)
 
-Print Σ11.
+Print Σ11.     (* to understand the meaning of the following result *)
 About FSAT_FULL_MONADIC_FSAT_11.
 Print Assumptions FSAT_FULL_MONADIC_FSAT_11.
 About Σrem_constants_correct.
@@ -259,13 +259,14 @@ Print Assumptions FSAT_opt_enum_t.
 
 (* Theorem 37 *)
 
-About FULL_TRAKHTENBROT.
-Print Assumptions FULL_TRAKHTENBROT.
+About FULL_MONADIC.
+Print Assumptions FULL_MONADIC.
 
 (* Theorem 38 *)
 
-About FULL_MONADIC.
-Print Assumptions FULL_MONADIC.
+About FULL_TRAKHTENBROT.
+Print Assumptions FULL_TRAKHTENBROT.
+
 
 
 
