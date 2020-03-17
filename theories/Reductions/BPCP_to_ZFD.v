@@ -1370,6 +1370,8 @@ End Completeness.
 
 (** ** Constants *)
 
+(* auxiliary vector lemmas *)
+
 From Equations Require Import Equations.
 
 Lemma vec_nil_eq X (v : vector X 0) :
@@ -1402,73 +1404,307 @@ Proof.
   depelim v. constructor. depelim v. constructor.
 Qed.
 
+Lemma vec_inv1 X (v : vector X 1) :
+  v = Vector.cons (Vector.hd v) Vector.nil.
+Proof.
+  repeat depelim v. cbn. reflexivity.
+Qed.
+
+Lemma vec_inv2 X (v : vector X 2) :
+  v = Vector.cons (Vector.hd v) (Vector.cons (Vector.hd (Vector.tl v)) Vector.nil).
+Proof.
+  repeat depelim v. cbn. reflexivity.
+Qed.
+
+Lemma subst_var_term (t : term) :
+  t[var_term] = t.
+Proof.
+  apply idSubst_term. reflexivity.
+Qed.
+
+
+
+(* substitution on theories *)
+
+Definition subst_theory sigma (T : theory) :=
+  fun phi => exists psi, T psi /\ phi = psi[sigma].
+
+Lemma subst_theory_map T A sigma :
+  A ⊏ subst_theory sigma T -> exists B, A = map (subst_form sigma) B /\ B ⊏ T.
+Proof.
+  induction A; cbn; intros H.
+  - exists nil. cbn. split; trivial. intuition.
+  - assert (subst_theory sigma T a) as [phi[HP ->]] by intuition. destruct IHA as [B[-> HB]].
+    + intros psi H'. apply H. now right.
+    + exists (phi::B). split; trivial. intros psi [->|H']; auto.
+Qed.
+
+Lemma prv_T_AllI' {p : peirce} {b : bottom} T phi :
+  (subst_theory ↑ T) ⊩ phi -> T ⊩ ∀ phi.
+Proof.
+  intros [A[H1 H2]]. apply subst_theory_map in H1 as [B[-> H1]].
+  exists B. split; trivial. apply AllI. apply H2.
+Qed.
+
+Lemma theory_sub_rem T A phi :
+  A ⊏ (T ⋄ phi) -> rem A phi ⊏ T.
+Proof.
+  intros H psi [H1 H2] % in_rem_iff.
+  apply H in H1 as [H1|H1]; tauto.
+Qed.
+
+Lemma prv_T_ExE' {p : peirce} {b : bottom} T phi psi :
+  (T ⊩ ∃ phi) -> (subst_theory ↑ T) ⋄ phi ⊩ psi[↑] -> T ⊩ psi.
+Proof.
+  intros [A[A1 A2]] [B[B1 B2]]. apply theory_sub_rem in B1.
+  apply subst_theory_map in B1 as [C[C1 C2]].
+  use_theory (A++C). eapply ExE; eapply Weak.
+  apply A2. auto. apply B2. rewrite map_app, <- C1. 
+  intros theta H. decide (theta = phi) as [->|H']; auto.
+Qed.
+
+Lemma prv_T_subst {p : peirce} {b : bottom} T phi sigma :
+  T ⊩ phi -> (subst_theory sigma T) ⊩ phi[sigma].
+Proof.
+  intros [A[H1 H2]]. exists (map (subst_form sigma) A). split.
+  - intros psi [theta[<- H]] % in_map_iff.  exists theta. intuition.
+  - now apply subst_Weak.
+Qed.
+
+Lemma unused_bounded_term t k :
+  (forall n, k <= n -> unused_term n t) -> bounded_term k t.
+Proof.
+  induction t using strong_term_ind; intros Hn; constructor.
+  - assert (x < k \/ k <= x) as [H|H] by lia; trivial.
+    specialize (Hn x H). inversion Hn; subst. congruence.
+  - intros t Ht. apply H; trivial. intros n HN.
+    apply Hn in HN. inversion HN; subst.
+    unshelve eapply EqDec.inj_right_pair in H2; subst.
+    intros f g. decide equality. now apply H1.
+Qed.
+
+Lemma unused_bounded phi k :
+  (forall n, k <= n -> unused n phi) -> bounded k phi.
+Proof.
+  induction phi in k |- *; intros H; constructor.
+  - intros x Hx. apply unused_bounded_term. intros n HN.
+    apply H in HN. inversion HN; subst.
+    unshelve eapply EqDec.inj_right_pair in H2; subst.
+    intros f g. decide equality. now apply H1.
+  - apply IHphi1. intros n Hn. specialize (H n Hn). now inversion H; subst.
+  - apply IHphi2. intros n Hn. specialize (H n Hn). now inversion H; subst.
+  - apply IHphi1. intros n Hn. specialize (H n Hn). now inversion H; subst.
+  - apply IHphi2. intros n Hn. specialize (H n Hn). now inversion H; subst.
+  - apply IHphi1. intros n Hn. specialize (H n Hn). now inversion H; subst.
+  - apply IHphi2. intros n Hn. specialize (H n Hn). now inversion H; subst.
+  - apply IHphi. intros n Hn. destruct n; try lia. assert (Hk : k <= n) by lia.
+    specialize (H n Hk). now inversion H; subst.
+  - apply IHphi. intros n Hn. destruct n; try lia. assert (Hk : k <= n) by lia.
+    specialize (H n Hk). now inversion H; subst.
+Qed.
+
+Instance bounded_theory_up {T} {HB : bounded_theory T} :
+  bounded_theory (subst_theory ↑ T).
+Proof.
+  destruct HB as [n H]. exists (S n). intros phi k [psi[H1 ->]] H2.
+  apply bounded_unused with (S n); try lia. apply subst_bounded_up with n.
+  - apply unused_bounded. intros l. now apply H.
+  - intros i Hi. constructor. lia.
+Qed.
+
+Lemma ZF_subst_theory T sigma :
+  ZF ⊑ T -> ZF ⊑ subst_theory sigma T.
+Proof.
+  intros H phi HP. exists phi. split; try now apply H.
+  symmetry. apply subst_bounded0. apply ZF_bounded, HP.
+Qed.
+
+
+
+(* definability of set operations *)
+
+Definition is_eset t :=
+  ∀ ¬ ($0 ∈ t[↑]).
+
+Definition is_pair x y t :=
+  ∀ $0 ∈ t[↑] <--> $0 ≡ x[↑] ∨ $0 ≡ y[↑].
+
+Definition is_union x t :=
+  ∀ $0 ∈ t[↑] <--> ∃ $0 ∈ shift 2 x ∧ $1 ∈ $0.
+
+Definition is_power x t :=
+  ∀ $0 ∈ t[↑] <--> sub $0 x[↑].
+
+Definition is_om t :=
+  inductive t ∧ ∀ inductive $0 --> sub $0 t[↑].
+
+Lemma eset_def {T} {HB : bounded_theory T} t :
+  ZF ⊑ T -> T ⊩IE t ≡ ∅ <-> T ⊩IE is_eset t.
+Proof.
+  intros HT. split; intros H.
+  - apply prv_T_AllI'.
+Admitted.
+
+Lemma pair_def {T} {HB : bounded_theory T} x y t :
+  ZF ⊑ T -> T ⊩IE t ≡ {x; y} <-> T ⊩IE is_pair x y t.
+Proof.
+  intros HT. split; intros H.
+  - apply prv_T_AllI'.
+Admitted.
+
+Lemma is_pair_subst x y t sigma :
+  (is_pair x y t)[sigma] = is_pair x[sigma] y[sigma] t[sigma].
+Proof.
+  unfold is_pair. cbn. asimpl. reflexivity.
+Qed.
+
+Lemma union_def {T} {HB : bounded_theory T} x t :
+  ZF ⊑ T -> T ⊩IE t ≡ ⋃ x <-> T ⊩IE is_union x t.
+Proof.
+Admitted.
+
+Lemma is_union_subst x t sigma :
+  (is_union x t)[sigma] = is_union x[sigma] t[sigma].
+Proof.
+  unfold is_union. cbn. asimpl. reflexivity.
+Qed.
+
+Lemma power_def {T} {HB : bounded_theory T} x t :
+  ZF ⊑ T -> T ⊩IE t ≡ PP x <-> T ⊩IE is_power x t.
+Proof.
+Admitted.
+
+Lemma is_power_subst x t sigma :
+  (is_power x t)[sigma] = is_power x[sigma] t[sigma].
+Proof.
+  unfold is_power, sub. cbn. asimpl. reflexivity.
+Qed.
+
+Lemma om_def {T} {HB : bounded_theory T} t :
+  ZF ⊑ T -> T ⊩IE t ≡ ω <-> T ⊩IE is_om t.
+Proof.
+Admitted.
+
+Lemma is_om_subst t sigma :
+  (is_om t)[sigma] = is_om t[sigma].
+Proof.
+  unfold is_om, inductive, sub. cbn. asimpl. reflexivity.
+Qed.
+
+Lemma ZF_eq_power {T} {HB : bounded_theory T} x y :
+  ZF ⊑ T -> T ⊩IE x ≡ y -> T ⊩IE PP x ≡ PP y.
+Proof.
+Admitted.
+
+
+
+(* erasure of set operations *)
+
 Definition sshift k :=
   fun n => match n with 0 => $0 | S n => $(1 + k + n) end.
 
 Fixpoint rm_const_tm t : form :=
   match t with
   | var_term n => $0 ≡ var_term (S n)
-  | Func eset _ => ∀ ¬ ($0 ∈ $1)
+  | Func eset _ => is_eset $0
   | Func pair v => let v' := Vector.map rm_const_tm v in
                   ∃ (Vector.hd v')[sshift 1]
                   ∧ ∃ (Vector.hd (Vector.tl v'))[sshift 2]
-                  ∧ ∀ $0 ∈ $3 <--> $0 ≡ $2 ∨ $0 ≡ $1
-  | _ => ⊥
+                  ∧ is_pair $1 $0 $2
+  | Func union v => ∃ (Vector.hd (Vector.map rm_const_tm v))[sshift 1] ∧ is_union $0 $1
+  | Func power v => ∃ (Vector.hd (Vector.map rm_const_tm v))[sshift 1] ∧ is_power $0 $1
+  | Func omega v => is_om $0
   end.
 
-Lemma rm_const_tm_spec_simp {T} {HB : bounded_theory T} t sigma t' :
+Opaque is_pair is_union is_power is_om.
+
+Lemma rm_const_tm_spec {T} {HB : bounded_theory T} t sigma t' :
   ZF ⊑ T -> T ⊩IE t' ≡ t[sigma] -> T ⊩IE (rm_const_tm t)[t'.:sigma].
 Proof.
   intros HT. revert sigma t'. induction t as [n|[] v IH] using strong_term_ind; cbn; intros sigma t' H.
   - assumption.
-  - admit.
+  - apply eset_def; trivial. rewrite (vec_nil_eq v) in H. apply H.
   - apply prv_T_ExI with ((Vector.hd v)[sigma]). cbn. apply prv_T_CI.
     { rewrite map_hd. asimpl. apply IH. apply in_hd. now apply ZF_refl'. }
     apply prv_T_ExI with ((Vector.hd (Vector.tl v))[sigma]). cbn. apply prv_T_CI.
     { rewrite map_tl, map_hd. asimpl. apply IH. apply in_hd_tl. now apply ZF_refl'. }
-    apply bt_all. intros t. cbn. asimpl. admit.
-  -
-Admitted.
+    asimpl. setoid_rewrite is_pair_subst. cbn. apply pair_def; trivial.
+    rewrite (vec_inv2 v) in H. apply H.
+  - apply prv_T_ExI with ((Vector.hd v)[sigma]). cbn. apply prv_T_CI.
+    { rewrite map_hd. asimpl. apply IH. apply in_hd. now apply ZF_refl'. }
+    asimpl. setoid_rewrite is_union_subst. cbn. apply union_def; trivial.
+    rewrite (vec_inv1 v) in H. apply H.
+  - apply prv_T_ExI with ((Vector.hd v)[sigma]). cbn. apply prv_T_CI.
+    { rewrite map_hd. asimpl. apply IH. apply in_hd. now apply ZF_refl'. }
+    asimpl. setoid_rewrite is_power_subst. cbn. apply power_def; trivial.
+    rewrite (vec_inv1 v) in H. apply H.
+  - rewrite is_om_subst. cbn. rewrite (vec_nil_eq v) in H. now apply om_def.
+Qed.
 
-Lemma rm_const_tm_spec {T} {HB : bounded_theory T} t sigma tau :
+(*Lemma rm_const_tm_spec {T} {HB : bounded_theory T} t sigma tau :
   ZF ⊑ T -> (forall n, tau n = sigma (S n)) -> T ⊩IE sigma 0 ≡ t[tau] -> T ⊩IE (rm_const_tm t)[sigma].
 Proof.
   intros HT. revert sigma tau. induction t as [n|[] v IH] using strong_term_ind; cbn; intros sigma tau HS H.
   - rewrite <- HS. apply H.
-  - depelim v. cbn in *. asimpl. admit.
+  - depelim v. cbn in *. asimpl. now apply eset_def.
   - apply prv_T_ExI with ((Vector.hd v)[tau]). cbn. apply prv_T_CI.
     { rewrite map_hd. asimpl. eapply IH; cbn. apply in_hd. apply HS. now apply ZF_refl'. }
     apply prv_T_ExI with ((Vector.hd (Vector.tl v))[tau]). cbn. apply prv_T_CI.
     { rewrite map_tl, map_hd. asimpl. eapply IH. apply in_hd_tl. apply HS. now apply ZF_refl'. }
-    cbn. asimpl. apply bt_all. intros t. cbn. asimpl.
+    cbn. asimpl.
     depelim v; cbn in *; subst. depelim v; cbn in *; subst. depelim v; cbn in *; subst.
-    admit.
-Admitted.
+    cbn. asimpl. apply bt_all. intros t. cbn. asimpl.
+Admitted.*)
 
 Lemma rm_const_tm_spec' {T} {HB : bounded_theory T} t :
   ZF ⊑ T -> T ⊩IE (rm_const_tm t)[t..].
 Proof.
   intros HT. eapply rm_const_tm_spec; trivial.
-  reflexivity. cbn. admit.
-Admitted.
+  rewrite subst_var_term. now apply ZF_refl'.
+Qed.
 
-Lemma rm_const_tm_inv {T} {HB : bounded_theory T} t sigma tau :
+Ltac fold_theory T :=
+  match goal with |- ?TT ⊩IE _ => pose (T := TT); fold T end.
+
+Lemma rm_const_tm_inv {T} {HB : bounded_theory T} t sigma t' :
+  ZF ⊑ T -> T ⊩IE (rm_const_tm t)[t'.:sigma] -> T ⊩IE t' ≡ t[sigma].
+Proof.
+  revert T HB sigma t'.
+  induction t as [n|[] v IH] using strong_term_ind; cbn; intros T HB sigma t' HT H.
+  - assumption.
+  - rewrite (vec_nil_eq v). cbn. now apply eset_def.
+  - use_exists H t1. clear H. cbn. assert1 H. apply prv_T_CE2 in H.
+    use_exists H t2. clear H. cbn. assert1 H. apply prv_T_CE in H as [H1 H2].
+    assert2 H. apply prv_T_CE1 in H. fold_theory T'. fold T' in H1, H2, H.
+    assert (HT' : ZF ⊑ T') by repeat solve_tsub. rewrite !map_tl, !map_hd in *.
+    asimpl in H1. apply IH in H1; eauto. 2: apply in_hd_tl.
+    asimpl in H. apply IH in H; eauto. 2: apply in_hd.
+    rewrite (vec_inv2 v). cbn. eapply ZF_trans'; trivial.
+    + apply (pair_def t1 t2 t'); trivial. asimpl in H2. now setoid_rewrite is_pair_subst in H2.
+    + now apply ZF_eq_pair.
+  - use_exists H t1. clear H. cbn. assert1 H. apply prv_T_CE in H as [H1 H2].
+    asimpl in *. fold_theory T'. fold T' in H1, H2. rewrite map_hd in *.
+    assert (HT' : ZF ⊑ T') by repeat solve_tsub. apply IH in H1; eauto. 2: apply in_hd.
+    rewrite (vec_inv1 v). cbn. eapply ZF_trans'; trivial.
+    + apply (union_def t1 t'); trivial.
+    + now apply ZF_eq_union.
+  - use_exists H t1. clear H. cbn. assert1 H. apply prv_T_CE in H as [H1 H2].
+    asimpl in *. fold_theory T'. fold T' in H1, H2. rewrite map_hd in *.
+    assert (HT' : ZF ⊑ T') by repeat solve_tsub. apply IH in H1; eauto. 2: apply in_hd.
+    rewrite (vec_inv1 v). cbn. eapply ZF_trans'; trivial.
+    + apply (power_def t1 t'); trivial.
+    + now apply ZF_eq_power.
+  - rewrite is_om_subst in H. cbn in H. rewrite (vec_nil_eq v). cbn. now apply om_def.
+Qed.
+
+(*Lemma rm_const_tm_inv {T} {HB : bounded_theory T} t sigma tau :
   ZF ⊑ T -> (forall n, tau n = sigma (S n)) -> T ⊩IE (rm_const_tm t)[sigma] -> T ⊩IE sigma 0 ≡ t[tau].
 Proof.
   intros HT. revert sigma tau. induction t as [n|[] v IH] using strong_term_ind; cbn; intros sigma tau H.
   - admit.
   - admit.
   -
-Admitted.
-
-Lemma rm_const_tm_inv_simp {T} {HB : bounded_theory T} t sigma t' :
-  ZF ⊑ T -> T ⊩IE (rm_const_tm t)[t'.:sigma] -> T ⊩IE t' ≡ t[sigma].
-Proof.
-  intros HT. revert sigma t'. induction t as [n|[] v IH] using strong_term_ind; cbn; intros sigma t' H.
-  - admit.
-  - admit.
-  - 
-Admitted.
+Admitted.*)
     
 Fixpoint rm_const_fm phi : form :=
   match phi with
@@ -1484,69 +1720,6 @@ Fixpoint rm_const_fm phi : form :=
                   ∃ (Vector.hd v') ∧ ∃ (Vector.hd (Vector.tl v'))[sshift 1] ∧ $1 ≡ $0
   end.
 
-Lemma subst_var_term (t : term) :
-  t[var_term] = t.
-Proof.
-Admitted.
-
-Lemma vec_inv2 X (v : vector X 2) :
-  v = Vector.cons (Vector.hd v) (Vector.cons (Vector.hd (Vector.tl v)) Vector.nil).
-Proof.
-  repeat depelim v. cbn. reflexivity.
-Qed.
-
-Lemma rm_const_tm_subst t sigma :
-  subst_form sigma (rm_const_tm t) = rm_const_tm (subst_term sigma t).
-Proof.
-  induction t using strong_term_ind; cbn.
-Abort.
-
-Lemma rm_const_fm_subst phi sigma :
-  subst_form sigma (rm_const_fm phi) = rm_const_fm (subst_form sigma phi).
-Proof.
-  induction phi in sigma |- *; cbn; f_equal. 2-9: firstorder.
-  destruct P.
-  - cbn. asimpl. f_equal. f_equal. admit. f_equal. f_equal. admit.
-Admitted.
-
-Definition subst_theory sigma (T : theory) :=
-  fun phi => exists psi, T psi /\ phi = psi[sigma].
-
-Lemma prv_T_AllI' {p : peirce} {b : bottom} T phi :
-  (subst_theory ↑ T) ⊩ phi -> T ⊩ ∀ phi.
-Proof.
-Admitted.
-
-Lemma prv_T_subst {p : peirce} {b : bottom} T phi sigma :
-  T ⊩ phi -> (subst_theory sigma T) ⊩ phi[sigma].
-Proof.
-  intros [A[H1 H2]]. exists (map (subst_form sigma) A). split.
-  - intros psi [theta[<- H]] % in_map_iff.  exists theta. intuition.
-  - now apply subst_Weak.
-Qed.
-
-Lemma unused_bounded phi k :
-  (forall n, k <= n -> unused k phi) -> bounded k phi.
-Proof.
-  induction phi.
-Admitted.
-
-Instance bounded_theory_up {T} {HB : bounded_theory T} :
-  bounded_theory (subst_theory ↑ T).
-Proof.
-  destruct HB as [n H]. exists (S n). intros phi k [psi[H1 ->]] H2.
-  apply bounded_unused with (S n); try lia. apply subst_bounded_up with n.
-  - apply unused_bounded. intros l Hl. apply H; trivial.
-  - intros i Hi. constructor. lia.
-Qed.
-
-Lemma ZF_subst_theory T sigma :
-  ZF ⊑ T -> ZF ⊑ subst_theory sigma T.
-Proof.
-  intros H phi HP. exists phi. split; try now apply H.
-  symmetry. apply subst_bounded0. apply ZF_bounded, HP.
-Qed.
-
 Lemma rm_const_fm_spec phi :
   forall T (HB : bounded_theory T), ZF ⊑ T -> T ⊩IE phi <-> T ⊩IE rm_const_fm phi.
 Proof.
@@ -1555,47 +1728,64 @@ Proof.
     { rewrite !map_hd. now apply rm_const_tm_spec'. }
     apply prv_T_ExI with (Vector.hd (Vector.tl t)). cbn. apply prv_T_CI.
     { rewrite !map_tl, !map_hd. asimpl. eapply rm_const_tm_spec; trivial.
-      cbn. reflexivity. cbn. rewrite subst_var_term. now apply ZF_refl'. }
+      rewrite subst_var_term. now apply ZF_refl'. }
     cbn. asimpl. now rewrite (vec_inv2 t) in H.
-  - admit.
+  - apply prv_T_ExI with (Vector.hd t). cbn. asimpl. apply prv_T_CI.
+    { rewrite !map_hd. now apply rm_const_tm_spec'. }
+    apply prv_T_ExI with (Vector.hd (Vector.tl t)). cbn. apply prv_T_CI.
+    { rewrite !map_tl, !map_hd. asimpl. eapply rm_const_tm_spec; trivial.
+      rewrite subst_var_term. now apply ZF_refl'. }
+    cbn. asimpl. now rewrite (vec_inv2 t) in H.
   - use_exists H x. clear H. assert1 H. cbn in H. apply prv_T_CE2 in H. use_exists H y. clear H.
     cbn. asimpl. rewrite !map_tl, !map_hd. rewrite (vec_inv2 t) at 4.
     eapply ZF_eq_elem. repeat solve_tsub.
     + rewrite <- (subst_var_term (Vector.hd t)). rewrite subst_var_term at 1.
-      eapply rm_const_tm_inv. repeat solve_tsub. 2 : eapply prv_T_CE1, prv_T2. reflexivity.
+      eapply rm_const_tm_inv. repeat solve_tsub. eapply prv_T_CE1, prv_T2.
     + rewrite <- (subst_var_term (Vector.hd (Vector.tl t))).
       rewrite subst_var_term at 2.
-      eapply rm_const_tm_inv. repeat solve_tsub. 2 : eapply prv_T_CE1, prv_T1. reflexivity.
+      eapply rm_const_tm_inv. repeat solve_tsub. eapply prv_T_CE1, prv_T1.
     + cbn. eapply prv_T_CE2, prv_T1.
-  - admit.
+  - use_exists H x. clear H. assert1 H. cbn in H. apply prv_T_CE2 in H. use_exists H y. clear H.
+    cbn. asimpl. rewrite !map_tl, !map_hd. rewrite (vec_inv2 t) at 4.
+    eapply ZF_trans'. repeat solve_tsub. 2: eapply ZF_trans'. 2 : repeat solve_tsub.
+    + apply ZF_sym'. repeat solve_tsub.
+      rewrite <- (subst_var_term (Vector.hd t)). rewrite subst_var_term at 1.
+      eapply rm_const_tm_inv. repeat solve_tsub. eapply prv_T_CE1, prv_T2.
+    + cbn. eapply prv_T_CE2, prv_T1.
+    + rewrite <- (subst_var_term (Vector.hd (Vector.tl t))).
+      rewrite subst_var_term at 2.
+      eapply rm_const_tm_inv. repeat solve_tsub. eapply prv_T_CE1, prv_T1.
   - apply prv_T_impl. apply IHphi2; eauto. solve_tsub.
     eapply prv_T_mp. apply (Weak_T H). repeat solve_tsub.
     apply IHphi1; eauto. solve_tsub. apply prv_T1.
-  - admit.
+  - apply prv_T_impl. apply IHphi2; eauto. solve_tsub.
+    eapply prv_T_mp. apply (Weak_T H). repeat solve_tsub.
+    apply IHphi1; eauto. solve_tsub. apply prv_T1.
   - apply prv_T_CE in H as [H1 H2]. apply prv_T_CI; intuition.
-  - admit.
+  - apply prv_T_CE in H as [H1 H2]. apply prv_T_CI; intuition.
   - apply (prv_T_DE H).
     + apply prv_T_DI1. apply IHphi1; eauto. solve_tsub. apply prv_T1.
     + apply prv_T_DI2. apply IHphi2; eauto. solve_tsub. apply prv_T1.
-  - admit.
+  - apply (prv_T_DE H).
+    + apply prv_T_DI1. apply IHphi1; eauto. solve_tsub. apply prv_T1.
+    + apply prv_T_DI2. apply IHphi2; eauto. solve_tsub. apply prv_T1.
   - apply prv_T_AllI'. apply IHphi. apply bounded_theory_up. now apply ZF_subst_theory.
     apply (@prv_T_subst _ _ _ _ ↑) in H. cbn in H.
     apply (@prv_T_AllE _ _ _ _ ($0)) in H. now asimpl in H.
-  - admit.
-  - 
-
-    apply bt_all. intros t. rewrite rm_const_fm_subst. asimpl.
-    apply IHphi; trivial. apply (@prv_T_AllE _ _ _ _ t) in H. now asimpl in H.
-  - apply bt_all. intros t. apply (@prv_T_AllE _ _ _ _ t) in H.
-    setoid_rewrite rm_const_fm_subst in H. asimpl in H. now apply IHphi in H.
-  - use_exists H x. clear H. apply prv_T_ExI with x. setoid_rewrite rm_const_fm_subst.
-    asimpl. apply IHphi; eauto. solve_tsub. apply prv_T1.
-Admitted.
-
-
+  - apply prv_T_AllI'. apply IHphi. apply bounded_theory_up. now apply ZF_subst_theory.
+    apply (@prv_T_subst _ _ _ _ ↑) in H. cbn in H.
+    apply (@prv_T_AllE _ _ _ _ ($0)) in H. now asimpl in H.
+  - apply (prv_T_ExE' H). cbn. apply prv_T_ExI with ($0).
+    asimpl. apply IHphi; eauto; try apply prv_T1. eapply tsubs_trans.
+    2: apply tsubs_extend. now apply ZF_subst_theory.
+  - apply (prv_T_ExE' H). cbn. apply prv_T_ExI with ($0).
+    asimpl. apply IHphi; eauto; try apply prv_T1. eapply tsubs_trans.
+    2: apply tsubs_extend. now apply ZF_subst_theory.
+Qed.
 
 
 
+(* minimised signature *)
 
 Definition ZFE_Funcs := False.
 
