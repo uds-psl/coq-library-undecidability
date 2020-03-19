@@ -1,5 +1,6 @@
 (** * Reduction of PCP to ZF-Deduction *)
 
+From Equations Require Import Equations.
 From Undecidability.Reductions Require Export BPCP_to_ZF.
 From Undecidability.FOLP Require Export FullND.
 
@@ -1372,8 +1373,6 @@ End Completeness.
 
 (* auxiliary vector lemmas *)
 
-From Equations Require Import Equations.
-
 Lemma vec_nil_eq X (v : vector X 0) :
   v = Vector.nil.
 Proof.
@@ -1519,6 +1518,11 @@ Proof.
   symmetry. apply subst_bounded0. apply ZF_bounded, HP.
 Qed.
 
+Ltac fold_theory T :=
+  match goal with |- ?TT ⊩IE _ => pose (T := TT); fold T end.
+
+ 
+                   
 
 
 (* definability of set operations *)
@@ -1542,14 +1546,54 @@ Lemma eset_def {T} {HB : bounded_theory T} t :
   ZF ⊑ T -> T ⊩IE t ≡ ∅ <-> T ⊩IE is_eset t.
 Proof.
   intros HT. split; intros H.
-  - apply prv_T_AllI'.
+  - unfold is_eset. apply bt_all. intros x. cbn. asimpl. apply prv_T_impl.
+    eapply prv_T_mp. apply ZF_eset'. repeat solve_tsub.
+    eapply ZF_eq_elem; try apply prv_T1. repeat solve_tsub.
+    apply ZF_refl'. repeat solve_tsub. apply (Weak_T H). repeat solve_tsub.
+  - apply ZF_ext'; trivial.
+Admitted.
+
+Definition ZF_equiv T x y :=
+  T ⊩IE x ≡ y.
+
+Instance ZF_equiv_equiv T :
+  Equivalence (ZF_equiv T).
+Proof.
+Admitted.
+
+Lemma test T x :
+  ZF_equiv T x x.
+Proof.
+  reflexivity.
+Qed.
+
+Definition ZF_prv T phi psi :=
+  T ⊩IE phi <-> T ⊩IE psi.
+
+Instance ZF_prv_equiv T :
+  Equivalence (ZF_prv T).
+Proof.
+Admitted.
+
+Definition mem x y :=
+  x ∈ y.
+
+Instance mem_proper T :
+  Proper (ZF_equiv T ==> ZF_equiv T ==> ZF_prv T) mem.
+Proof.
+Admitted.
+
+Lemma test2 T x y :
+  ZF_equiv T x y -> T ⊩IE mem x y.
+Proof.
+  intros H. eapply mem_proper. apply H. reflexivity.
 Admitted.
 
 Lemma pair_def {T} {HB : bounded_theory T} x y t :
   ZF ⊑ T -> T ⊩IE t ≡ {x; y} <-> T ⊩IE is_pair x y t.
 Proof.
   intros HT. split; intros H.
-  - apply prv_T_AllI'.
+  - unfold is_pair. apply bt_all. intros z. cbn. asimpl.
 Admitted.
 
 Lemma is_pair_subst x y t sigma :
@@ -1662,9 +1706,6 @@ Proof.
   intros HT. eapply rm_const_tm_spec; trivial.
   rewrite subst_var_term. now apply ZF_refl'.
 Qed.
-
-Ltac fold_theory T :=
-  match goal with |- ?TT ⊩IE _ => pose (T := TT); fold T end.
 
 Lemma rm_const_tm_inv {T} {HB : bounded_theory T} t sigma t' :
   ZF ⊑ T -> T ⊩IE (rm_const_tm t)[t'.:sigma] -> T ⊩IE t' ≡ t[sigma].
@@ -1787,6 +1828,8 @@ Qed.
 
 (* minimised signature *)
 
+Section minimal.
+
 Definition ZFE_Funcs := False.
 
 Definition ZFE_fun_ar (f : ZFE_Funcs) : nat := match f with end.
@@ -1798,7 +1841,7 @@ Inductive ZFE_Preds : Type :=
 Definition ZFE_pred_ar (P : ZFE_Preds) : nat :=
   match P with _ => 2 end.
 
-Instance ZFE_Signature : Signature :=
+Local Instance ZFE_Signature : Signature :=
   {| Funcs := ZFE_Funcs; fun_ar := ZFE_fun_ar; Preds := ZFE_Preds; pred_ar := ZFE_pred_ar |}.
 
 Notation "x ∈ y" :=
@@ -1813,3 +1856,145 @@ Notation "x ∈' y" :=
 Notation "x ≡' y" :=
   (@Pred ZFE_Signature equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
 
+End minimal.
+
+
+
+
+
+(** ** Replacement with parameters *)
+
+(* syntactical attempt *)
+
+Lemma syn_lem4 {T} {HB : bounded_theory T} a b :
+  ZF ⊑ T ->
+  T ⊩IE ∃ ∀ $0 ∈ $1 <--> ∃ $0 ∈ shift 3 a ∧ $1 ≡ opair (opair $0 ∅) (opair (shift 3 b) (sing ∅)).
+Proof.
+Admitted.
+
+Definition pw_subst n t :=
+  fun k => if Dec (k = n) then t else $n.
+
+Lemma ZF_rep T phi :
+  bounded 2 phi -> ZF ⊑ T -> T ⊩IE ax_rep phi.
+Proof.
+Admitted.
+
+Lemma syn_lem6 {T} {HB : bounded_theory T} phi a b :
+  bounded 3 phi -> ZF ⊑ T 
+  -> T ⊩IE fun_rel (phi[pw_subst 2 b])
+  -> T ⊩IE ∃ ∀ $0 ∈ $1 <--> ∃ $0 ∈ shift 3 a ∧ phi[pw_subst 2 b].
+Proof.
+  intros HP HT H. pose proof (syn_lem4 a b HT) as H'.
+  use_exists H' x. clear H'. fold_theory T'.
+  pose (psi := ∃ ∃ $2 ≡ opair (opair $1 ∅) (opair $0 (sing ∅))
+                 ∧ ∃ phi[$2.:($0.:$1..)] ∧ (∀ phi[$3.:($1.:$2..)] --> $0 ≡ $1) ∧ $4 ≡ $0).
+  assert (bounded 2 psi). { repeat solve_bounds; apply (subst_bounded_up HP).
+                          all : intros [|[|[|[]]]]; cbn; solve_bounds. }
+  assert (HT' : T' ⊩IE ax_rep psi). apply ZF_rep; trivial. solve_tsub.
+  assert (HP' : T' ⊩IE fun_rel psi). admit.
+  apply (prv_T_mp HT') in HP'. apply (prv_T_AllE x) in HP'. cbn -[psi] in HP'.
+  use_exists HP' y. clear HP'. apply prv_T_ExI with y. cbn -[psi].
+  apply bt_all. intros t. cbn -[psi]. assert1 HX. apply (prv_T_AllE t) in HX.
+  cbn -[psi] in HX. fold_theory T''. fold T'' in HX. apply prv_T_CI.
+  - apply prv_T_CE1 in HX. apply (prv_T_imps HX). asimpl.
+    apply prv_T_impl. assert1 HE. use_exists HE u. clear HE.
+    cbn -[psi]. apply prv_clear2. cbn.
+Abort.
+
+
+
+(* semantical approach *)
+
+Definition rel_pair :=
+  $1 ≡ opair $0 ∅.
+
+Definition rel_pair' :=
+  $1 ≡ opair $0 (sing ∅).
+
+Definition rel_param phi :=
+  ∃ ∃ $2 ≡ opair (opair $1 ∅) (opair $0 (sing ∅))
+      ∧ ∃ phi[$2.:($0.:$1..)] ∧ (∀ phi[$3.:($1.:$2..)] --> $0 ≡ $1) ∧ $4 ≡ $0.
+
+Notation "x ∈ y" := (@i_P _ _ VI elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
+Notation "x ≡ y" := (@i_P _ _ VI equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
+Notation "$ x" := (var_term x) (at level 1).
+Notation "x ⊆ y" := (forall z, z ∈ x -> z ∈ y) (at level 20).
+
+Notation "∅" := (@i_f _ _ VI eset Vector.nil).
+Notation "'ω'" := (@i_f _ _ VI om Vector.nil).
+Notation "{ x ; y }" := (@i_f _ _ VI pair (Vector.cons x (Vector.cons y Vector.nil))) (at level 10).
+Notation "⋃ x" := (@i_f _ _ VI union (Vector.cons x Vector.nil)) (at level 15).
+Notation "'PP' x" := (@i_f _ _ VI power (Vector.cons x Vector.nil)) (at level 15).
+
+Notation "x ∪ y" := (⋃ {x; y}) (at level 16).
+Notation "'σ' x" := (x ∪ {x; x}) (at level 15).
+
+Section Param.
+
+  Context { M : ZF_Model }.
+
+  Hypothesis VIEQ : extensional M.
+
+  Definition dpair x y :=
+    M_opair (M_opair x ∅) (M_opair y (M_sing ∅)).
+
+  Lemma dpair_inj1 x y x' y' :
+    dpair x y = dpair x' y' -> x = x'.
+  Proof.
+    intros H. now apply opair_inj in H as [[<- _] % opair_inj _].
+  Qed.
+
+  Lemma lem2 a :
+    exists x, M_is_rep (fun u v => v = M_opair u ∅) a x.
+  Proof.
+    apply M_rep; trivial. 2: congruence.
+    exists rel_pair. split.
+    - repeat solve_bounds.
+    - intros u v rho. cbn. now rewrite VIEQ.
+  Qed.
+
+  Lemma lem2' a :
+    exists x, M_is_rep (fun u v => v = M_opair u (M_sing ∅)) a x.
+  Proof.
+    apply M_rep; trivial. 2: congruence.
+    exists rel_pair'. split.
+    - repeat solve_bounds.
+    - intros u v rho. cbn. now rewrite VIEQ.
+  Qed.
+
+  Lemma lem4 a b :
+    exists x, M_is_rep (fun u v => v = dpair u b) a x.
+  Proof.
+    unfold M_is_rep.
+  Admitted.
+
+  Definition agrees_rel_param phi (R : M -> M -> Prop) p :=
+    forall x y rho, R x y <-> (x.:(y.:(p.:rho))) ⊨ phi.
+
+  Definition def_rel_param R p :=
+    exists phi, bounded 3 phi /\ agrees_rel_param phi R p.
+
+  Lemma M_rep_param R b :
+    def_rel_param R b -> functional R -> forall a, exists y, M_is_rep R a y.
+  Proof.
+    intros [phi [H1 H2]] HR a. destruct (lem4 a b) as [S1 HS1].
+    pose (R' z v := exists x c, z = dpair x c /\ exists y, R x y /\ v = y).
+    assert (HR' : def_rel R'). exists (rel_param phi). split.
+    - repeat solve_bounds; apply (subst_bounded_up H1).
+      all : intros [|[|[|[]]]]; cbn; solve_bounds.
+    - intros u v rho. split. 
+      + intros [c[d[-> H]]]. exists c, d. split; admit.
+      + intros [c[d[H3 H4]]]. admit.
+    - destruct (M_rep VIEQ S1 HR') as [S2 HS2].
+      + intros u v v' [x1[c1[-> [y[HY ->]]]]] [x2[c2[H [y'[HY' ->]]]]].
+        apply dpair_inj1 in H as ->. now apply (HR x2 y y').
+      + exists S2. intros u. rewrite (HS2 u). split; intros [v[V1 V2]].
+        * apply HS1 in V1 as [w[Hw ->]]. exists w. split; trivial.
+          destruct V2 as [x[c[H[y[Hy ->]]]]]. now apply dpair_inj1 in H as ->.
+        * exists (dpair v b). split.
+          -- apply HS1. now exists v.
+          -- exists v, b. split; trivial. now exists u.
+  Qed.
+
+End Param.
