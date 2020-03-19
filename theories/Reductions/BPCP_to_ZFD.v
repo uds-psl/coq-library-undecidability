@@ -1864,53 +1864,8 @@ End minimal.
 
 (** ** Replacement with parameters *)
 
-(* syntactical attempt *)
-
-Lemma syn_lem4 {T} {HB : bounded_theory T} a b :
-  ZF ⊑ T ->
-  T ⊩IE ∃ ∀ $0 ∈ $1 <--> ∃ $0 ∈ shift 3 a ∧ $1 ≡ opair (opair $0 ∅) (opair (shift 3 b) (sing ∅)).
-Proof.
-Admitted.
-
-Definition pw_subst n t :=
-  fun k => if Dec (k = n) then t else $n.
-
-Lemma ZF_rep T phi :
-  bounded 2 phi -> ZF ⊑ T -> T ⊩IE ax_rep phi.
-Proof.
-Admitted.
-
-Lemma syn_lem6 {T} {HB : bounded_theory T} phi a b :
-  bounded 3 phi -> ZF ⊑ T 
-  -> T ⊩IE fun_rel (phi[pw_subst 2 b])
-  -> T ⊩IE ∃ ∀ $0 ∈ $1 <--> ∃ $0 ∈ shift 3 a ∧ phi[pw_subst 2 b].
-Proof.
-  intros HP HT H. pose proof (syn_lem4 a b HT) as H'.
-  use_exists H' x. clear H'. fold_theory T'.
-  pose (psi := ∃ ∃ $2 ≡ opair (opair $1 ∅) (opair $0 (sing ∅))
-                 ∧ ∃ phi[$2.:($0.:$1..)] ∧ (∀ phi[$3.:($1.:$2..)] --> $0 ≡ $1) ∧ $4 ≡ $0).
-  assert (bounded 2 psi). { repeat solve_bounds; apply (subst_bounded_up HP).
-                          all : intros [|[|[|[]]]]; cbn; solve_bounds. }
-  assert (HT' : T' ⊩IE ax_rep psi). apply ZF_rep; trivial. solve_tsub.
-  assert (HP' : T' ⊩IE fun_rel psi). admit.
-  apply (prv_T_mp HT') in HP'. apply (prv_T_AllE x) in HP'. cbn -[psi] in HP'.
-  use_exists HP' y. clear HP'. apply prv_T_ExI with y. cbn -[psi].
-  apply bt_all. intros t. cbn -[psi]. assert1 HX. apply (prv_T_AllE t) in HX.
-  cbn -[psi] in HX. fold_theory T''. fold T'' in HX. apply prv_T_CI.
-  - apply prv_T_CE1 in HX. apply (prv_T_imps HX). asimpl.
-    apply prv_T_impl. assert1 HE. use_exists HE u. clear HE.
-    cbn -[psi]. apply prv_clear2. cbn.
-Abort.
-
-
-
-(* semantical approach *)
-
 Definition rel_pair :=
   $1 ≡ opair $0 ∅.
-
-Definition rel_pair' :=
-  $1 ≡ opair $0 (sing ∅).
 
 Definition pred_dpair :=
   ∃ ∃ $2 ≡ opair (opair $1 ∅) (opair $0 (sing ∅)).
@@ -1977,21 +1932,6 @@ Section Param.
     exists rel_pair. split.
     - repeat solve_bounds.
     - intros u v rho. cbn. now rewrite VIEQ.
-  Qed.
-
-  Lemma lem2' a :
-    exists x, M_is_rep (fun u v => v = M_opair u M_one) a x.
-  Proof.
-    apply M_rep; trivial. 2: congruence.
-    exists rel_pair'. split.
-    - repeat solve_bounds.
-    - intros u v rho. cbn. now rewrite VIEQ.
-  Qed.
-
-  Lemma M_power' (x y : M) :
-    x ∈ PP y -> x ⊆ y.
-  Proof.
-    apply M_power.
   Qed.
 
   Lemma dpair_power1 a b x :
