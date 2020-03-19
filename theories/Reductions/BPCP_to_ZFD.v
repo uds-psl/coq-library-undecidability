@@ -1835,8 +1835,8 @@ Definition ZFE_Funcs := False.
 Definition ZFE_fun_ar (f : ZFE_Funcs) : nat := match f with end.
 
 Inductive ZFE_Preds : Type :=
-| elem : ZFE_Preds
-| equal : ZFE_Preds.
+| Eelem : ZFE_Preds
+| Eequal : ZFE_Preds.
 
 Definition ZFE_pred_ar (P : ZFE_Preds) : nat :=
   match P with _ => 2 end.
@@ -1912,9 +1912,12 @@ Definition rel_pair :=
 Definition rel_pair' :=
   $1 ≡ opair $0 (sing ∅).
 
+Definition pred_dpair :=
+  ∃ ∃ $2 ≡ opair (opair $1 ∅) (opair $0 (sing ∅)).
+
 Definition rel_param phi :=
   ∃ ∃ $2 ≡ opair (opair $1 ∅) (opair $0 (sing ∅))
-      ∧ ∃ phi[$2.:($0.:$1..)] ∧ (∀ phi[$3.:($1.:$2..)] --> $0 ≡ $1) ∧ $4 ≡ $0.
+      ∧ ∃ phi[$1.:($2.:$0..)] ∧ (∀ phi[$2.:($3.:$0..)] --> $1 ≡ $0) ∧ $4 ≡ $0.
 
 Notation "x ∈ y" := (@i_P _ _ VI elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
 Notation "x ≡ y" := (@i_P _ _ VI equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
@@ -1936,13 +1939,35 @@ Section Param.
 
   Hypothesis VIEQ : extensional M.
 
+  Definition M_one :=
+    M_sing ∅.
+
+  Lemma M_eset_one :
+    ∅ <> M_one.
+  Proof.
+    intros H. apply M_eset with ∅. pattern ∅ at 2. rewrite H. now apply sing_el.
+  Qed.
+
+  Lemma M_eset_one' :
+    M_one <> ∅.
+  Proof.
+    intros H. symmetry in H. now apply M_eset_one in H.
+  Qed.
+
   Definition dpair x y :=
-    M_opair (M_opair x ∅) (M_opair y (M_sing ∅)).
+    M_opair (M_opair x ∅) (M_opair y M_one).
 
   Lemma dpair_inj1 x y x' y' :
     dpair x y = dpair x' y' -> x = x'.
   Proof.
     intros H. now apply opair_inj in H as [[<- _] % opair_inj _].
+  Qed.
+
+  Lemma dpair_inj x y x' y' :
+    dpair x y = dpair x' y' -> x = x' /\ y = y'.
+  Proof.
+    intros H. split; try apply (dpair_inj1 H).
+    now apply opair_inj in H as [_ [<- _] % opair_inj].
   Qed.
 
   Lemma lem2 a :
@@ -1955,7 +1980,7 @@ Section Param.
   Qed.
 
   Lemma lem2' a :
-    exists x, M_is_rep (fun u v => v = M_opair u (M_sing ∅)) a x.
+    exists x, M_is_rep (fun u v => v = M_opair u M_one) a x.
   Proof.
     apply M_rep; trivial. 2: congruence.
     exists rel_pair'. split.
@@ -1963,38 +1988,89 @@ Section Param.
     - intros u v rho. cbn. now rewrite VIEQ.
   Qed.
 
+  Lemma M_power' (x y : M) :
+    x ∈ PP y -> x ⊆ y.
+  Proof.
+    apply M_power.
+  Qed.
+
+  Lemma dpair_power1 a b x :
+    dpair a b ∈ PP (PP x) -> M_opair a ∅ ∈ x.
+  Proof.
+    rewrite M_power. intros H. eapply M_power. apply H.
+    apply M_pair; trivial. now left. now apply sing_el.
+  Qed.
+
+  Lemma dpair_power2 a b x :
+    dpair a b ∈ PP (PP x) -> M_opair b M_one ∈ x.
+  Proof.
+    rewrite M_power. intros H. eapply M_power. apply H.
+    apply M_pair; trivial. now right. apply M_pair; auto.
+  Qed.
+
   Lemma lem4 a b :
     exists x, M_is_rep (fun u v => v = dpair u b) a x.
   Proof.
-    unfold M_is_rep.
-  Admitted.
+    unfold M_is_rep. destruct (lem2 a) as [S1 HS1].
+    pose (S1' := S1 ∪ M_sing (M_opair b M_one)).
+    pose (P x := exists u v, x = dpair u v).
+    assert (HP : def_pred P). exists pred_dpair. split.
+    - repeat solve_bounds.
+    - intros x rho. split; intros [u[v H]].
+      + apply VIEQ in H. exists u, v. apply H.
+      + exists u, v. apply VIEQ. apply H.
+    - destruct (M_sep (PP (PP S1')) HP) as [S2 HS2].
+      exists S2. intros x. rewrite HS2. split.
+      + intros [H [u[v ->]]]. exists u. split.
+        * apply dpair_power1 in H as [H|H] % binunion_el; trivial.
+          -- apply HS1 in H as [u'[H1 H2]]. now apply BPCP_to_ZF.opair_inj1 in H2 as ->.
+          -- apply sing_el in H; trivial. apply BPCP_to_ZF.opair_inj2, M_eset_one in H; auto.
+        * apply dpair_power2 in H as [H|H] % binunion_el; trivial.
+          -- apply HS1 in H as [u'[_ H]]. apply BPCP_to_ZF.opair_inj2, M_eset_one' in H; auto.
+          -- apply sing_el in H; trivial. apply BPCP_to_ZF.opair_inj1 in H; intuition congruence.
+      + intros [u[H ->]]. split; try now exists u, b.
+        apply M_power. intros x [->| ->] % M_pair; trivial; apply M_power.
+        * intros x -> % sing_el; trivial. apply binunion_el; trivial. left. apply HS1. eauto.
+        * intros x [->| ->] % M_pair; trivial; apply binunion_el; trivial.
+          -- left. apply HS1. eauto.
+          -- right. now apply sing_el.
+  Qed.
 
-  Definition agrees_rel_param phi (R : M -> M -> Prop) p :=
-    forall x y rho, R x y <-> (x.:(y.:(p.:rho))) ⊨ phi.
+  Definition agrees_rel_param phi (R : M -> M -> M -> Prop) :=
+    forall p x y rho, R p x y <-> (p.:(x.:(y.:rho))) ⊨ phi.
 
-  Definition def_rel_param R p :=
-    exists phi, bounded 3 phi /\ agrees_rel_param phi R p.
+  Definition def_rel_param R :=
+    exists phi, bounded 3 phi /\ agrees_rel_param phi R.
 
   Lemma M_rep_param R b :
-    def_rel_param R b -> functional R -> forall a, exists y, M_is_rep R a y.
+    def_rel_param R -> functional (R b) -> forall a, exists y, M_is_rep (R b) a y.
   Proof.
-    intros [phi [H1 H2]] HR a. destruct (lem4 a b) as [S1 HS1].
-    pose (R' z v := exists x c, z = dpair x c /\ exists y, R x y /\ v = y).
+    intros [phi [HD HF]] HR a. destruct (lem4 a b) as [S1 HS1].
+    pose (R' z v := exists x c, z = dpair x c /\ exists y, R c x y /\ (forall y', R c x y' -> y = y') /\ v = y).
     assert (HR' : def_rel R'). exists (rel_param phi). split.
-    - repeat solve_bounds; apply (subst_bounded_up H1).
+    - repeat solve_bounds; apply (subst_bounded_up HD).
       all : intros [|[|[|[]]]]; cbn; solve_bounds.
     - intros u v rho. split. 
-      + intros [c[d[-> H]]]. exists c, d. split; admit.
-      + intros [c[d[H3 H4]]]. admit.
+      + intros [c[d[-> [y[H1[H2 H3]]]]]]. exists c, d. split.
+        * apply VIEQ. cbn. reflexivity.
+        * exists y. repeat split; try now apply VIEQ.
+          -- apply sat_comp. asimpl. cbn. now apply HF.
+          -- intros y' H. apply VIEQ, H2. apply sat_comp in H. asimpl in H. now apply HF in H.
+      + intros [c[d[H1 [y[H2[H3 H4]]]]]]. exists c, d. split.
+        * apply VIEQ. apply H1.
+        * exists y. repeat split; try now apply VIEQ.
+          -- apply sat_comp in H2. asimpl in H2. cbn in H2. now apply HF in H2.
+          -- intros y' H. apply VIEQ. apply H3. apply sat_comp. asimpl. cbn. apply HF, H.
     - destruct (M_rep VIEQ S1 HR') as [S2 HS2].
-      + intros u v v' [x1[c1[-> [y[HY ->]]]]] [x2[c2[H [y'[HY' ->]]]]].
-        apply dpair_inj1 in H as ->. now apply (HR x2 y y').
+      + intros u v v' [x1[c1[-> [y[H1 [H2 ->]]]]]] [x2[c2[H [y'[H3[H4 ->]]]]]].
+        apply dpair_inj in H as [-> ->]. now apply H2.
       + exists S2. intros u. rewrite (HS2 u). split; intros [v[V1 V2]].
         * apply HS1 in V1 as [w[Hw ->]]. exists w. split; trivial.
-          destruct V2 as [x[c[H[y[Hy ->]]]]]. now apply dpair_inj1 in H as ->.
+          destruct V2 as [x[c[H[y[H1 [H2 ->]]]]]]. now apply dpair_inj in H as [-> ->].
         * exists (dpair v b). split.
           -- apply HS1. now exists v.
-          -- exists v, b. split; trivial. now exists u.
+          -- exists v, b. split; trivial. exists u. repeat split; trivial.
+             intros y'. now apply HR.
   Qed.
 
 End Param.
