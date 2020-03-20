@@ -1521,9 +1521,114 @@ Qed.
 Ltac fold_theory T :=
   match goal with |- ?TT ⊩IE _ => pose (T := TT); fold T end.
 
- 
-                   
 
+
+(* rewriting *)
+
+Definition ZF_extension T := ZF ⊑ T.
+Existing Class ZF_extension.
+
+Instance ZF_extension_extend T phi :
+  ZF_extension T -> ZF_extension (T ⋄ phi).
+Proof.
+  intros H. solve_tsub.
+Qed.
+
+Definition ZF_prv T phi :=
+  T ⊩IE phi.
+
+Definition ZF_tequiv T x y :=
+  ZF_prv T (x ≡ y).
+
+Lemma ZF_tequiv_spec T x y :
+  T ⊩IE x ≡ y <-> ZF_tequiv T x y.
+Proof.
+  tauto.
+Qed.
+
+Instance ZF_tequiv_equiv T (HT : ZF_extension T) :
+  Equivalence (ZF_tequiv T).
+Proof.
+  split.
+  - intros x. now apply ZF_refl'.
+  - intros x y. now apply ZF_sym'.
+  - intros x y z. now apply ZF_trans'.
+Qed.
+
+Lemma test T (HT : ZF_extension T) x :
+  ZF_tequiv T x x.
+Proof.
+  reflexivity.
+Qed.
+
+Definition ZF_equiv T phi psi :=
+  ZF_prv T phi <-> ZF_prv T psi.
+
+Instance ZF_equiv_equiv T :
+  Equivalence (ZF_equiv T).
+Proof.
+  split.
+  - intros phi. unfold ZF_equiv. tauto.
+  - intros phi psi. unfold ZF_equiv. tauto.
+  - intros phi psi theta. unfold ZF_equiv. tauto.
+Qed.
+
+Definition mem x y :=
+  x ∈ y.
+
+Definition equiv x y :=
+  x ≡ y.
+
+Instance mem_proper T (HT : ZF_extension T) :
+  Proper (ZF_tequiv T ==> ZF_tequiv T ==> ZF_equiv T) mem.
+Proof.
+  intros x y H x' y' H'. split; apply ZF_eq_elem; eauto.
+  all: now apply ZF_sym'.
+Qed.
+
+Instance equiv_proper T (HT : ZF_extension T) :
+  Proper (ZF_tequiv T ==> ZF_tequiv T ==> ZF_equiv T) equiv.
+Proof.
+  intros x y H x' y' H'. unfold ZF_equiv.
+  change (ZF_tequiv T x x' <-> ZF_tequiv T y y').
+  now rewrite H, H'.
+Qed.
+
+Instance impl_proper T :
+  Proper (ZF_equiv T ==> ZF_equiv T ==> ZF_equiv T) Impl.
+Proof.
+  intros phi psi H phi' psi' H'. split.
+Admitted.
+
+Instance and_proper T :
+  Proper (ZF_equiv T ==> ZF_equiv T ==> ZF_equiv T) Conj.
+Proof.
+Admitted.
+
+Instance or_proper T :
+  Proper (ZF_equiv T ==> ZF_equiv T ==> ZF_equiv T) Disj.
+Proof.
+Admitted.
+
+Instance prv_proper T :
+  Proper (ZF_equiv T ==> iff) (ZF_prv T).
+Proof.
+  intros phi psi H. apply H.
+Qed.
+
+Lemma test2 T (HT : ZF_extension T) x y :
+  ZF_tequiv T x y -> ZF_prv T (mem x y).
+Proof.
+  intros H. rewrite H.
+Abort.
+
+Lemma test3 T phi psi :
+  ZF_equiv T phi psi -> T ⊩IE (phi ∧ psi).
+Proof.
+  intros H. rewrite H.
+Abort.
+ 
+          
 
 (* definability of set operations *)
 
@@ -1542,58 +1647,27 @@ Definition is_power x t :=
 Definition is_om t :=
   inductive t ∧ ∀ inductive $0 --> sub $0 t[↑].
 
-Lemma eset_def {T} {HB : bounded_theory T} t :
-  ZF ⊑ T -> T ⊩IE t ≡ ∅ <-> T ⊩IE is_eset t.
+Lemma eset_def {T} {HB : bounded_theory T} {HT : ZF_extension T} t :
+  ZF_tequiv T t ∅ <-> T ⊩IE is_eset t.
 Proof.
-  intros HT. split; intros H.
-  - unfold is_eset. apply bt_all. intros x. cbn. asimpl. apply prv_T_impl.
-    eapply prv_T_mp. apply ZF_eset'. repeat solve_tsub.
-    eapply ZF_eq_elem; try apply prv_T1. repeat solve_tsub.
-    apply ZF_refl'. repeat solve_tsub. apply (Weak_T H). repeat solve_tsub.
+  split; intros H.
+  - unfold is_eset. apply bt_all. intros x. cbn. asimpl.
+    fold (mem x t). rewrite H. now apply ZF_eset'.
   - apply ZF_ext'; trivial.
-Admitted.
-
-Definition ZF_equiv T x y :=
-  T ⊩IE x ≡ y.
-
-Instance ZF_equiv_equiv T :
-  Equivalence (ZF_equiv T).
-Proof.
-Admitted.
-
-Lemma test T x :
-  ZF_equiv T x x.
-Proof.
-  reflexivity.
+    + apply bt_all. intros x. cbn. asimpl. apply prv_T_impl.
+      apply prv_T_exf. eapply prv_T_mp; try apply prv_T1.
+      eapply prv_T_AllE in H. cbn in H. asimpl in H. apply (Weak_T H). apply tsubs_extend.
+    + apply bt_all. intros x. cbn. asimpl. apply prv_T_impl.
+      apply prv_T_exf. eapply prv_T_mp; try apply prv_T1. apply ZF_eset'. repeat solve_tsub.
 Qed.
 
-Definition ZF_prv T phi psi :=
-  T ⊩IE phi <-> T ⊩IE psi.
-
-Instance ZF_prv_equiv T :
-  Equivalence (ZF_prv T).
+Lemma pair_def {T} {HB : bounded_theory T} {HT : ZF_extension T} x y t :
+  ZF_tequiv T t ({x; y}) <-> T ⊩IE is_pair x y t.
 Proof.
-Admitted.
-
-Definition mem x y :=
-  x ∈ y.
-
-Instance mem_proper T :
-  Proper (ZF_equiv T ==> ZF_equiv T ==> ZF_prv T) mem.
-Proof.
-Admitted.
-
-Lemma test2 T x y :
-  ZF_equiv T x y -> T ⊩IE mem x y.
-Proof.
-  intros H. eapply mem_proper. apply H. reflexivity.
-Admitted.
-
-Lemma pair_def {T} {HB : bounded_theory T} x y t :
-  ZF ⊑ T -> T ⊩IE t ≡ {x; y} <-> T ⊩IE is_pair x y t.
-Proof.
-  intros HT. split; intros H.
-  - unfold is_pair. apply bt_all. intros z. cbn. asimpl.
+  split; intros H.
+  - unfold is_pair. apply bt_all. intros z. cbn. asimpl. fold (mem z t). rewrite H.
+    apply prv_T_CI; apply prv_T_impl; apply ZF_pair_el'; try apply prv_T1; solve_tsub.
+  - admit.
 Admitted.
 
 Lemma is_pair_subst x y t sigma :
@@ -1602,9 +1676,15 @@ Proof.
   unfold is_pair. cbn. asimpl. reflexivity.
 Qed.
 
-Lemma union_def {T} {HB : bounded_theory T} x t :
-  ZF ⊑ T -> T ⊩IE t ≡ ⋃ x <-> T ⊩IE is_union x t.
+Lemma union_def {T} {HB : bounded_theory T} {HT : ZF_extension T} x t :
+  ZF_tequiv T t (⋃ x) <-> T ⊩IE is_union x t.
 Proof.
+  split; intros H.
+  - unfold is_pair. apply bt_all. intros z. cbn. asimpl. fold (mem z t). rewrite H.
+    assert (HU : T ⊩IE ax_union). apply elem_prv. apply HT. right. tauto.
+    eapply (prv_T_AllE x) in HU. cbn in HU. eapply (prv_T_AllE z) in HU. cbn in HU.
+    asimpl in HU. apply HU.
+  - admit.
 Admitted.
 
 Lemma is_union_subst x t sigma :
@@ -1662,12 +1742,12 @@ Fixpoint rm_const_tm t : form :=
 
 Opaque is_pair is_union is_power is_om.
 
-Lemma rm_const_tm_spec {T} {HB : bounded_theory T} t sigma t' :
-  ZF ⊑ T -> T ⊩IE t' ≡ t[sigma] -> T ⊩IE (rm_const_tm t)[t'.:sigma].
+Lemma rm_const_tm_spec {T} {HB : bounded_theory T} {HT : ZF_extension T} t sigma t' :
+  T ⊩IE t' ≡ t[sigma] -> T ⊩IE (rm_const_tm t)[t'.:sigma].
 Proof.
-  intros HT. revert sigma t'. induction t as [n|[] v IH] using strong_term_ind; cbn; intros sigma t' H.
+  revert sigma t'. induction t as [n|[] v IH] using strong_term_ind; cbn; intros sigma t' H.
   - assumption.
-  - apply eset_def; trivial. rewrite (vec_nil_eq v) in H. apply H.
+  - eapply eset_def; trivial. rewrite (vec_nil_eq v) in H. apply H.
   - apply prv_T_ExI with ((Vector.hd v)[sigma]). cbn. apply prv_T_CI.
     { rewrite map_hd. asimpl. apply IH. apply in_hd. now apply ZF_refl'. }
     apply prv_T_ExI with ((Vector.hd (Vector.tl v))[sigma]). cbn. apply prv_T_CI.
@@ -1685,33 +1765,18 @@ Proof.
   - rewrite is_om_subst. cbn. rewrite (vec_nil_eq v) in H. now apply om_def.
 Qed.
 
-(*Lemma rm_const_tm_spec {T} {HB : bounded_theory T} t sigma tau :
-  ZF ⊑ T -> (forall n, tau n = sigma (S n)) -> T ⊩IE sigma 0 ≡ t[tau] -> T ⊩IE (rm_const_tm t)[sigma].
+Lemma rm_const_tm_spec' {T} {HB : bounded_theory T} {HT : ZF_extension T} t :
+  T ⊩IE (rm_const_tm t)[t..].
 Proof.
-  intros HT. revert sigma tau. induction t as [n|[] v IH] using strong_term_ind; cbn; intros sigma tau HS H.
-  - rewrite <- HS. apply H.
-  - depelim v. cbn in *. asimpl. now apply eset_def.
-  - apply prv_T_ExI with ((Vector.hd v)[tau]). cbn. apply prv_T_CI.
-    { rewrite map_hd. asimpl. eapply IH; cbn. apply in_hd. apply HS. now apply ZF_refl'. }
-    apply prv_T_ExI with ((Vector.hd (Vector.tl v))[tau]). cbn. apply prv_T_CI.
-    { rewrite map_tl, map_hd. asimpl. eapply IH. apply in_hd_tl. apply HS. now apply ZF_refl'. }
-    cbn. asimpl.
-    depelim v; cbn in *; subst. depelim v; cbn in *; subst. depelim v; cbn in *; subst.
-    cbn. asimpl. apply bt_all. intros t. cbn. asimpl.
-Admitted.*)
-
-Lemma rm_const_tm_spec' {T} {HB : bounded_theory T} t :
-  ZF ⊑ T -> T ⊩IE (rm_const_tm t)[t..].
-Proof.
-  intros HT. eapply rm_const_tm_spec; trivial.
+  eapply rm_const_tm_spec; trivial.
   rewrite subst_var_term. now apply ZF_refl'.
 Qed.
 
-Lemma rm_const_tm_inv {T} {HB : bounded_theory T} t sigma t' :
-  ZF ⊑ T -> T ⊩IE (rm_const_tm t)[t'.:sigma] -> T ⊩IE t' ≡ t[sigma].
+Lemma rm_const_tm_inv {T} {HB : bounded_theory T} {HT : ZF_extension T} t sigma t' :
+  T ⊩IE (rm_const_tm t)[t'.:sigma] -> ZF_tequiv T t' t[sigma].
 Proof.
-  revert T HB sigma t'.
-  induction t as [n|[] v IH] using strong_term_ind; cbn; intros T HB sigma t' HT H.
+  revert T HB HT sigma t'.
+  induction t as [n|[] v IH] using strong_term_ind; cbn; intros T HB HT sigma t' H.
   - assumption.
   - rewrite (vec_nil_eq v). cbn. now apply eset_def.
   - use_exists H t1. clear H. cbn. assert1 H. apply prv_T_CE2 in H.
@@ -1721,7 +1786,7 @@ Proof.
     asimpl in H1. apply IH in H1; eauto. 2: apply in_hd_tl.
     asimpl in H. apply IH in H; eauto. 2: apply in_hd.
     rewrite (vec_inv2 v). cbn. eapply ZF_trans'; trivial.
-    + apply (pair_def t1 t2 t'); trivial. asimpl in H2. now setoid_rewrite is_pair_subst in H2.
+    + eapply (pair_def t1 t2 t'); trivial. asimpl in H2. now setoid_rewrite is_pair_subst in H2.
     + now apply ZF_eq_pair.
   - use_exists H t1. clear H. cbn. assert1 H. apply prv_T_CE in H as [H1 H2].
     asimpl in *. fold_theory T'. fold T' in H1, H2. rewrite map_hd in *.
@@ -1737,15 +1802,6 @@ Proof.
     + now apply ZF_eq_power.
   - rewrite is_om_subst in H. cbn in H. rewrite (vec_nil_eq v). cbn. now apply om_def.
 Qed.
-
-(*Lemma rm_const_tm_inv {T} {HB : bounded_theory T} t sigma tau :
-  ZF ⊑ T -> (forall n, tau n = sigma (S n)) -> T ⊩IE (rm_const_tm t)[sigma] -> T ⊩IE sigma 0 ≡ t[tau].
-Proof.
-  intros HT. revert sigma tau. induction t as [n|[] v IH] using strong_term_ind; cbn; intros sigma tau H.
-  - admit.
-  - admit.
-  -
-Admitted.*)
     
 Fixpoint rm_const_fm phi : form :=
   match phi with
@@ -1762,7 +1818,7 @@ Fixpoint rm_const_fm phi : form :=
   end.
 
 Lemma rm_const_fm_spec phi :
-  forall T (HB : bounded_theory T), ZF ⊑ T -> T ⊩IE phi <-> T ⊩IE rm_const_fm phi.
+  forall T, bounded_theory T -> ZF_extension T -> T ⊩IE phi <-> T ⊩IE rm_const_fm phi.
 Proof.
   induction phi; cbn; intros T HB HT; split; trivial; intros H. 1,2: destruct P; cbn.
   - apply prv_T_ExI with (Vector.hd t). cbn. asimpl. apply prv_T_CI.
@@ -1781,35 +1837,35 @@ Proof.
     cbn. asimpl. rewrite !map_tl, !map_hd. rewrite (vec_inv2 t) at 4.
     eapply ZF_eq_elem. repeat solve_tsub.
     + rewrite <- (subst_var_term (Vector.hd t)). rewrite subst_var_term at 1.
-      eapply rm_const_tm_inv. repeat solve_tsub. eapply prv_T_CE1, prv_T2.
+      eapply rm_const_tm_inv. eapply prv_T_CE1, prv_T2.
     + rewrite <- (subst_var_term (Vector.hd (Vector.tl t))).
       rewrite subst_var_term at 2.
-      eapply rm_const_tm_inv. repeat solve_tsub. eapply prv_T_CE1, prv_T1.
+      eapply rm_const_tm_inv. eapply prv_T_CE1, prv_T1.
     + cbn. eapply prv_T_CE2, prv_T1.
   - use_exists H x. clear H. assert1 H. cbn in H. apply prv_T_CE2 in H. use_exists H y. clear H.
     cbn. asimpl. rewrite !map_tl, !map_hd. rewrite (vec_inv2 t) at 4.
     eapply ZF_trans'. repeat solve_tsub. 2: eapply ZF_trans'. 2 : repeat solve_tsub.
     + apply ZF_sym'. repeat solve_tsub.
       rewrite <- (subst_var_term (Vector.hd t)). rewrite subst_var_term at 1.
-      eapply rm_const_tm_inv. repeat solve_tsub. eapply prv_T_CE1, prv_T2.
+      eapply rm_const_tm_inv. eapply prv_T_CE1, prv_T2.
     + cbn. eapply prv_T_CE2, prv_T1.
     + rewrite <- (subst_var_term (Vector.hd (Vector.tl t))).
       rewrite subst_var_term at 2.
-      eapply rm_const_tm_inv. repeat solve_tsub. eapply prv_T_CE1, prv_T1.
-  - apply prv_T_impl. apply IHphi2; eauto. solve_tsub.
+      eapply rm_const_tm_inv. eapply prv_T_CE1, prv_T1.
+  - apply prv_T_impl. apply IHphi2; eauto.
     eapply prv_T_mp. apply (Weak_T H). repeat solve_tsub.
-    apply IHphi1; eauto. solve_tsub. apply prv_T1.
-  - apply prv_T_impl. apply IHphi2; eauto. solve_tsub.
+    apply IHphi1; eauto. apply prv_T1.
+  - apply prv_T_impl. apply IHphi2; eauto.
     eapply prv_T_mp. apply (Weak_T H). repeat solve_tsub.
-    apply IHphi1; eauto. solve_tsub. apply prv_T1.
+    apply IHphi1; eauto. apply prv_T1.
   - apply prv_T_CE in H as [H1 H2]. apply prv_T_CI; intuition.
   - apply prv_T_CE in H as [H1 H2]. apply prv_T_CI; intuition.
   - apply (prv_T_DE H).
-    + apply prv_T_DI1. apply IHphi1; eauto. solve_tsub. apply prv_T1.
-    + apply prv_T_DI2. apply IHphi2; eauto. solve_tsub. apply prv_T1.
+    + apply prv_T_DI1. apply IHphi1; eauto. apply prv_T1.
+    + apply prv_T_DI2. apply IHphi2; eauto. apply prv_T1.
   - apply (prv_T_DE H).
-    + apply prv_T_DI1. apply IHphi1; eauto. solve_tsub. apply prv_T1.
-    + apply prv_T_DI2. apply IHphi2; eauto. solve_tsub. apply prv_T1.
+    + apply prv_T_DI1. apply IHphi1; eauto. apply prv_T1.
+    + apply prv_T_DI2. apply IHphi2; eauto. apply prv_T1.
   - apply prv_T_AllI'. apply IHphi. apply bounded_theory_up. now apply ZF_subst_theory.
     apply (@prv_T_subst _ _ _ _ ↑) in H. cbn in H.
     apply (@prv_T_AllE _ _ _ _ ($0)) in H. now asimpl in H.
