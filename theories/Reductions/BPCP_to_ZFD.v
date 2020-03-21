@@ -1594,16 +1594,26 @@ Proof.
   now rewrite H, H'.
 Qed.
 
+Lemma prv_T_imps' (p : peirce) (b : bottom) T phi psi phi' :
+  T ⊩ (phi' --> psi) -> T ⊩ (phi --> phi') -> T ⊩ (phi --> psi).
+Proof.
+  intros H1 H2. apply prv_T_impl. eapply prv_T_mp.
+  apply (Weak_T H1). apply tsubs_extend.
+  now apply prv_T_imp.
+Qed.
+
 Instance impl_proper T :
   Proper (ZF_equiv T ==> ZF_equiv T ==> ZF_equiv T) Impl.
 Proof.
   intros phi psi H phi' psi' H'. split.
+  - intros HA. apply prv_T_impl.
 Admitted.
 
 Instance and_proper T :
   Proper (ZF_equiv T ==> ZF_equiv T ==> ZF_equiv T) Conj.
 Proof.
-Admitted.
+  intros phi psi H phi' psi' H'. split; intros [H1 H2] % prv_T_CE; apply prv_T_CI; intuition.
+Qed.
 
 Instance or_proper T :
   Proper (ZF_equiv T ==> ZF_equiv T ==> ZF_equiv T) Disj.
@@ -1616,8 +1626,18 @@ Proof.
   intros phi psi H. apply H.
 Qed.
 
+Instance sub_proper T (HT : ZF_extension T) (HT : bounded_theory T) :
+  Proper (ZF_tequiv T ==> ZF_tequiv T ==> ZF_equiv T) sub.
+Proof.
+  intros x y H x' y' H'. split; intros HX.
+  - apply bt_all. intros t. cbn. asimpl. fold (mem t y) (mem t y').
+    rewrite <- H, <- H'. apply (prv_T_AllE t) in HX. cbn in HX. now asimpl in HX.
+  - apply bt_all. intros t. cbn. asimpl. fold (mem t x) (mem t x').
+    rewrite H, H'. apply (prv_T_AllE t) in HX. cbn in HX. now asimpl in HX.
+Qed.
+
 Lemma test2 T (HT : ZF_extension T) x y :
-  ZF_tequiv T x y -> ZF_prv T (mem x y).
+  ZF_tequiv T x y -> T ⊩IE (mem x y).
 Proof.
   intros H. rewrite H.
 Abort.
@@ -1645,7 +1665,7 @@ Definition is_power x t :=
   ∀ $0 ∈ t[↑] <--> sub $0 x[↑].
 
 Definition is_om t :=
-  inductive t ∧ ∀ inductive $0 --> sub $0 t[↑].
+  inductive t ∧ ∀ inductive $0 --> sub t[↑] $0.
 
 Lemma eset_def {T} {HB : bounded_theory T} {HT : ZF_extension T} t :
   ZF_tequiv T t ∅ <-> T ⊩IE is_eset t.
@@ -1667,8 +1687,11 @@ Proof.
   split; intros H.
   - unfold is_pair. apply bt_all. intros z. cbn. asimpl. fold (mem z t). rewrite H.
     apply prv_T_CI; apply prv_T_impl; apply ZF_pair_el'; try apply prv_T1; solve_tsub.
-  - admit.
-Admitted.
+  - apply ZF_ext'; trivial; apply bt_all; intros z.
+    all: apply (prv_T_AllE z) in H; cbn in *; asimpl in *.
+    + eapply prv_T_imps. eapply prv_T_CE1, H. apply prv_T_impl, ZF_pair_el', prv_T1. solve_tsub.
+    + eapply prv_T_imps'. eapply prv_T_CE2, H. apply prv_T_impl, ZF_pair_el', prv_T1. solve_tsub.
+Qed.
 
 Lemma is_pair_subst x y t sigma :
   (is_pair x y t)[sigma] = is_pair x[sigma] y[sigma] t[sigma].
@@ -1684,8 +1707,17 @@ Proof.
     assert (HU : T ⊩IE ax_union). apply elem_prv. apply HT. right. tauto.
     eapply (prv_T_AllE x) in HU. cbn in HU. eapply (prv_T_AllE z) in HU. cbn in HU.
     asimpl in HU. apply HU.
-  - admit.
-Admitted.
+  - apply ZF_ext'; trivial; apply bt_all; intros z.
+    all: apply (prv_T_AllE z) in H; cbn in *; asimpl in *.
+    + eapply prv_T_imps. eapply prv_T_CE1, H. apply prv_T_impl. 
+      assert1 H'. use_exists H' y. clear H'. cbn. asimpl.
+      eapply ZF_union_el'; try apply prv_T1. repeat solve_tsub.
+    + eapply prv_T_imps'. eapply prv_T_CE2, H.
+      assert (H' : T ⊩IE ax_union). apply elem_prv. apply HT. right. tauto.
+      apply (prv_T_AllE x) in H'. cbn in H'.
+      apply (prv_T_AllE z) in H'. cbn in H'.
+      asimpl in H'. now apply prv_T_CE1 in H'.
+Qed.
 
 Lemma is_union_subst x t sigma :
   (is_union x t)[sigma] = is_union x[sigma] t[sigma].
@@ -1693,10 +1725,49 @@ Proof.
   unfold is_union. cbn. asimpl. reflexivity.
 Qed.
 
-Lemma power_def {T} {HB : bounded_theory T} x t :
-  ZF ⊑ T -> T ⊩IE t ≡ PP x <-> T ⊩IE is_power x t.
+Lemma ZF_power {T} x y :
+  ZF ⊑ T -> T ⊩IE x ∈ PP y <-> T ⊩IE sub x y.
 Proof.
-Admitted.
+  intros HT; split; intros H; eapply prv_T_mp; try apply H.
+  all: assert (HP : T ⊩IE ax_power) by (apply elem_prv; firstorder).
+  all: apply (prv_T_AllE y), (prv_T_AllE x) in HP; cbn in HP; asimpl in HP.
+  - eapply prv_T_CE1. apply HP.
+  - eapply prv_T_CE2. apply HP.
+Qed.
+
+Lemma ZF_sub_power {T} {HB : bounded_theory T} {HT : ZF_extension T} x y :
+  ZF_tequiv T x y -> T ⊩IE sub (PP x) (PP y).
+Proof.
+  intros H. apply bt_all. intros z. cbn. asimpl. apply prv_T_impl.
+  apply ZF_power. solve_tsub. change (T ⋄ (z ∈ PP x) ⊩IE sub z y).
+  eapply sub_proper; eauto. reflexivity. symmetry. apply (Weak_T H).
+  repeat solve_tsub. apply ZF_power; try apply prv_T1. solve_tsub.
+Qed.
+
+Lemma ZF_eq_power {T} {HB : bounded_theory T} {HT : ZF_extension T} x y :
+  ZF_tequiv T x y -> T ⊩IE PP x ≡ PP y.
+Proof.
+  intros H. apply ZF_ext'; trivial; now apply ZF_sub_power.
+Qed.
+
+Lemma sub_subst x y sigma :
+  (sub x y)[sigma] = sub x[sigma] y[sigma].
+Proof.
+  cbn. unfold sub, shift. asimpl. reflexivity.
+Qed.
+
+Lemma power_def {T} {HB : bounded_theory T} {HT : ZF_extension T} x t :
+  ZF_tequiv T t (PP x) <-> T ⊩IE is_power x t.
+Proof.
+  split; intros H.
+  - unfold is_power. apply bt_all. intros y. cbn. asimpl. fold (mem y t). rewrite H.
+    apply prv_T_CI; apply prv_T_impl; apply ZF_power; try apply prv_T1; solve_tsub.
+  - apply ZF_ext'; trivial; apply bt_all; intros z.
+    all: apply (prv_T_AllE z) in H;  cbn -[sub] in *.
+    all: setoid_rewrite sub_subst in H; cbn in H; asimpl in H.
+    + eapply prv_T_imps. eapply prv_T_CE1, H. apply prv_T_impl, ZF_power, prv_T1. solve_tsub.
+    + eapply prv_T_imps'. eapply prv_T_CE2, H. apply prv_T_impl, ZF_power, prv_T1. solve_tsub.
+Qed.
 
 Lemma is_power_subst x t sigma :
   (is_power x t)[sigma] = is_power x[sigma] t[sigma].
@@ -1704,21 +1775,52 @@ Proof.
   unfold is_power, sub. cbn. asimpl. reflexivity.
 Qed.
 
-Lemma om_def {T} {HB : bounded_theory T} t :
-  ZF ⊑ T -> T ⊩IE t ≡ ω <-> T ⊩IE is_om t.
+Lemma inductive_subst x sigma :
+  (inductive x)[sigma] = inductive x[sigma].
 Proof.
-Admitted.
+  cbn. unfold inductive. cbn. asimpl. reflexivity.
+Qed.
+
+Lemma ZF_om1 {T} {HT : ZF_extension T} :
+  T ⊩IE inductive ω.
+Proof.
+  apply elem_prv. apply HT. right. tauto.
+Qed.
+
+Lemma ZF_om2 {T} {HT : ZF_extension T} x :
+  T ⊩IE inductive x -> T ⊩IE sub ω x.
+Proof.
+  intros H. eapply prv_T_mp. 2: apply H.
+  assert (H' : T ⊩IE ax_om2). apply elem_prv, HT. right. tauto.
+  apply (prv_T_AllE x) in H'. cbn -[inductive sub] in H'.
+  setoid_rewrite sub_subst in H'. now setoid_rewrite inductive_subst in H'.
+Qed.
+
+Lemma om_def {T} {HB : bounded_theory T} {HT : ZF_extension T} t :
+  ZF_tequiv T t ω <-> T ⊩IE is_om t.
+Proof.
+  split; intros H.
+  - unfold is_om. apply prv_T_CI. apply prv_T_CI.
+    + fold (mem ∅ t). rewrite H. eapply prv_T_CE1. apply ZF_om1.
+    + apply bt_all. intros x. cbn. asimpl. fold (mem x t) (mem (σ x) t).
+      rewrite H. pose proof ZF_om1 as H'. apply prv_T_CE2 in H'.
+      now apply (prv_T_AllE x) in H'.
+    + apply bt_all. intros x. cbn -[inductive sub].
+      setoid_rewrite sub_subst. setoid_rewrite inductive_subst. cbn. asimpl.
+      apply prv_T_impl. eapply sub_proper; eauto. apply (Weak_T H).
+      repeat solve_tsub. reflexivity. apply ZF_om2, prv_T1.
+  - apply ZF_ext'; trivial.
+    + eapply prv_T_CE2, (prv_T_AllE) in H. cbn -[inductive sub] in H. asimpl in H.
+      setoid_rewrite sub_subst in H. setoid_rewrite inductive_subst in H.
+      cbn in H. asimpl in H. apply (prv_T_mp H). now apply ZF_om1.
+    + apply ZF_om2. now apply prv_T_CE1 in H.
+Qed.
 
 Lemma is_om_subst t sigma :
   (is_om t)[sigma] = is_om t[sigma].
 Proof.
   unfold is_om, inductive, sub. cbn. asimpl. reflexivity.
 Qed.
-
-Lemma ZF_eq_power {T} {HB : bounded_theory T} x y :
-  ZF ⊑ T -> T ⊩IE x ≡ y -> T ⊩IE PP x ≡ PP y.
-Proof.
-Admitted.
 
 
 
