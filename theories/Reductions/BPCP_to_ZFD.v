@@ -1692,8 +1692,14 @@ Definition is_union x t :=
 Definition is_power x t :=
   ∀ $0 ∈ t[↑] <--> sub $0 x[↑].
 
+Definition is_sigma x t :=
+  ∀ $0 ∈ t[↑] <--> $0 ≡ x[↑] ∨ $0 ∈ x[↑].
+
+Definition is_inductive t :=
+  (∃ is_eset $0 ∧ $0 ∈ t[↑]) ∧ ∀ $0 ∈ t[↑] --> (∃ is_sigma $1 $0 ∧ $0 ∈ shift 2 t).
+
 Definition is_om t :=
-  inductive t ∧ ∀ inductive $0 --> sub t[↑] $0.
+  is_inductive t ∧ ∀ is_inductive $0 --> sub t[↑] $0.
 
 Lemma eset_def {T} {HB : bounded_theory T} {HT : ZF_extension T} t :
   ZF_tequiv T t ∅ <-> T ⊩IE is_eset t.
@@ -1707,6 +1713,12 @@ Proof.
       eapply prv_T_AllE in H. cbn in H. asimpl in H. apply (Weak_T H). apply tsubs_extend.
     + apply bt_all. intros x. cbn. asimpl. apply prv_T_impl.
       apply prv_T_exf. eapply prv_T_mp; try apply prv_T1. apply ZF_eset'. repeat solve_tsub.
+Qed.
+
+Lemma is_eset_subst t sigma :
+  (is_eset t)[sigma] = is_eset t[sigma].
+Proof.
+  unfold is_eset. cbn. asimpl. reflexivity.
 Qed.
 
 Lemma pair_def {T} {HB : bounded_theory T} {HT : ZF_extension T} x y t :
@@ -1824,30 +1836,95 @@ Proof.
   setoid_rewrite sub_subst in H'. now setoid_rewrite inductive_subst in H'.
 Qed.
 
+Lemma ZF_sigma_el {T} {HT : ZF_extension T} x y :
+  T ⊩IE x ∈ σ y <-> T ⊩IE x ≡ y ∨ x ∈ y.
+Proof.
+  split; intros H.
+  - eapply prv_T_mp; try apply H. apply bunion_use; trivial.
+    + apply prv_T_DI2, prv_T1.
+    + apply prv_T_DI1, prv_T1. 
+  - apply ZF_bunion_el'; trivial. apply (prv_T_DE H).
+    + apply prv_T_DI2. eapply ZF_sing_iff, prv_T1. solve_tsub.
+    + apply prv_T_DI1, prv_T1.
+Qed.
+
+Lemma sigma_def {T} {HB : bounded_theory T} {HT : ZF_extension T} x t :
+  ZF_tequiv T t (σ x) <-> T ⊩IE is_sigma x t.
+Proof.
+  split; intros H.
+  - unfold is_sigma. apply bt_all. intros z. cbn. asimpl. fold (mem z t). rewrite H.
+    apply prv_T_CI; apply prv_T_impl; apply ZF_sigma_el; try apply prv_T1; solve_tsub.
+  - apply ZF_ext'; trivial; apply bt_all; intros z.
+    all: apply (prv_T_AllE z) in H; cbn in *; asimpl in *.
+    + eapply prv_T_imps. eapply prv_T_CE1, H. apply prv_T_impl, ZF_sigma_el, prv_T1.
+    + eapply prv_T_imps'. eapply prv_T_CE2, H. apply prv_T_impl, ZF_sigma_el, prv_T1.
+Qed.
+
+Lemma is_sigma_subst x t sigma :
+  (is_sigma x t)[sigma] = is_sigma x[sigma] t[sigma].
+Proof.
+  unfold is_sigma. cbn. asimpl. reflexivity.
+Qed.
+
+Lemma is_inductive_subst x sigma :
+  (is_inductive x)[sigma] = is_inductive x[sigma].
+Proof.
+  cbn. unfold is_inductive. cbn. asimpl. reflexivity.
+Qed.
+
+Lemma is_inductive_spec {T} {HB : bounded_theory T} {HT : ZF_extension T} x :
+  T ⊩IE is_inductive x <-> T ⊩IE inductive x.
+Proof.
+  split; intros H.
+  - apply prv_T_CI.
+    + apply prv_T_CE1 in H. use_exists H y. clear H.
+      cbn -[is_eset]. asimpl. setoid_rewrite is_eset_subst. cbn.
+      assert1 H. apply prv_T_CE in H as [H1 H2]. apply eset_def in H1.
+      fold (mem ∅ x). now rewrite <- H1.
+    + apply bt_all. intros y. cbn. asimpl. apply prv_T_CE2, (prv_T_AllE y) in H.
+      cbn -[is_sigma] in H. asimpl in H. apply (prv_T_imps H), prv_T_impl. clear H.
+      assert1 H. use_exists H z. clear H. apply prv_clear2. cbn -[is_sigma]. asimpl.
+      setoid_rewrite is_sigma_subst. cbn. assert1 H. apply prv_T_CE in H as [H1 H2].
+      apply sigma_def in H1. fold (mem (σ y) x). now rewrite <- H1.
+  - apply prv_T_CI.
+    + eapply prv_T_ExI. cbn -[is_eset]. asimpl. apply prv_T_CI.
+      * setoid_rewrite is_eset_subst. cbn. now apply eset_def, ZF_refl'.
+      * eapply prv_T_CE1, H.
+    + apply bt_all. intros y. cbn -[is_sigma]. asimpl.
+      apply prv_T_CE2, (prv_T_AllE y) in H.
+      eapply prv_T_impl, prv_T_ExI. cbn -[is_sigma]. apply prv_T_CI.
+      * rewrite is_sigma_subst. cbn. asimpl. apply sigma_def, ZF_refl'. solve_tsub.
+      * asimpl. cbn in H. asimpl in H. now apply prv_T_imp.
+Qed.
+
 Lemma om_def {T} {HB : bounded_theory T} {HT : ZF_extension T} t :
   ZF_tequiv T t ω <-> T ⊩IE is_om t.
 Proof.
   split; intros H.
   - unfold is_om. apply prv_T_CI. apply prv_T_CI.
-    + fold (mem ∅ t). rewrite H. eapply prv_T_CE1. apply ZF_om1.
-    + apply bt_all. intros x. cbn. asimpl. fold (mem x t) (mem (σ x) t).
-      rewrite H. pose proof ZF_om1 as H'. apply prv_T_CE2 in H'.
-      now apply (prv_T_AllE x) in H'.
-    + apply bt_all. intros x. cbn -[inductive sub].
-      setoid_rewrite sub_subst. setoid_rewrite inductive_subst. cbn. asimpl.
+    + eapply prv_T_ExI. cbn -[is_eset]. asimpl. apply prv_T_CI.
+      * setoid_rewrite is_eset_subst. cbn. now apply eset_def, ZF_refl'.
+      * fold (mem ∅ t). rewrite H. eapply prv_T_CE1. apply ZF_om1.
+    + apply bt_all. intros x. cbn -[is_sigma]. asimpl. fold (mem x t) (mem (σ x) t).
+      rewrite H at 1. pose proof ZF_om1 as H'. apply prv_T_CE2, (prv_T_AllE x) in H'.
+      eapply prv_T_impl, prv_T_ExI. cbn -[is_sigma]. apply prv_T_CI.
+      * rewrite is_sigma_subst. cbn. asimpl. apply sigma_def, ZF_refl'. solve_tsub.
+      * asimpl. cbn in H'. apply prv_T_imp. fold (mem (σ x) t). now rewrite H.
+    + apply bt_all. intros x. cbn -[is_inductive sub].
+      setoid_rewrite sub_subst. setoid_rewrite is_inductive_subst. cbn. asimpl.
       apply prv_T_impl. eapply prv_proper. eapply sub_proper; eauto. apply (Weak_T H).
-      repeat solve_tsub. reflexivity. apply ZF_om2, prv_T1.
+      repeat solve_tsub. reflexivity. apply ZF_om2, is_inductive_spec, prv_T1.
   - apply ZF_ext'; trivial.
-    + eapply prv_T_CE2, (prv_T_AllE) in H. cbn -[inductive sub] in H. asimpl in H.
-      setoid_rewrite sub_subst in H. setoid_rewrite inductive_subst in H.
-      cbn in H. asimpl in H. apply (prv_T_mp H). now apply ZF_om1.
-    + apply ZF_om2. now apply prv_T_CE1 in H.
+    + eapply prv_T_CE2, (prv_T_AllE) in H. cbn -[is_inductive sub] in H. asimpl in H.
+      setoid_rewrite sub_subst in H. setoid_rewrite is_inductive_subst in H.
+      cbn in H. asimpl in H. apply (prv_T_mp H). now apply is_inductive_spec, ZF_om1.
+    + apply ZF_om2, is_inductive_spec. now apply prv_T_CE1 in H.
 Qed.
 
 Lemma is_om_subst t sigma :
   (is_om t)[sigma] = is_om t[sigma].
 Proof.
-  unfold is_om, inductive, sub. cbn. asimpl. reflexivity.
+  unfold is_om, is_inductive, sub. cbn. asimpl. reflexivity.
 Qed.
 
 
@@ -2013,6 +2090,62 @@ Qed.
 
 
 (* minimised signature *)
+
+Inductive symfree_term : term -> Type :=
+| ST1 n : symfree_term ($ n).
+
+Inductive symfree : form -> Type :=
+| SP P v : (forall t, vec_in t v -> symfree_term t) -> symfree (Pred P v)
+| SC phi psi : symfree phi -> symfree psi -> symfree (phi ∧ psi)
+| SD phi psi : symfree phi -> symfree psi -> symfree (phi ∨ psi)
+| SI phi psi : symfree phi -> symfree psi -> symfree (phi --> psi)
+| SA phi : symfree phi -> symfree (∀ phi)
+| SE phi : symfree phi -> symfree (∃ phi)
+| SB : symfree ⊥.
+
+Lemma subst_symfree_term t sigma :
+  (forall n, symfree_term (sigma n)) -> symfree_term t -> symfree_term t[sigma].
+Proof.
+  induction t using strong_term_ind; intros HS H.
+  - apply HS.
+  - inversion H.
+Qed.
+
+Lemma subst_symfree phi sigma :
+  (forall n, symfree_term (sigma n)) -> symfree phi -> symfree phi[sigma].
+Proof.
+  induction phi in sigma |- *; intros HS H; cbn; constructor; inversion H; subst; intuition.
+  - apply vec_map_inv in X0 as [y[HY ->]]. apply subst_symfree_term; auto.
+  - apply IHphi; trivial. intros []; cbn. constructor. asimpl.
+    apply subst_symfree_term; trivial. intros k. constructor.
+  - apply IHphi; trivial. intros []; cbn. constructor. asimpl.
+    apply subst_symfree_term; trivial. intros k. constructor.
+Qed.
+
+Transparent is_pair is_union is_power is_om.
+
+Lemma rm_const_tm_symfree t :
+  symfree (rm_const_tm t).
+Proof.
+  induction t as [n|[] v IH] using strong_term_ind; cbn; repeat constructor.
+  all: try intros t [->|[->|H] % vec_cons_inv] % vec_cons_inv; try constructor; try inversion H.
+  - rewrite map_hd. apply subst_symfree. intros []; constructor. apply IH, in_hd.
+  - rewrite map_tl, map_hd. apply subst_symfree. intros []; constructor. apply IH, in_hd_tl.
+  - rewrite map_hd. apply subst_symfree. intros []; constructor. apply IH, in_hd.
+  - rewrite map_hd. apply subst_symfree. intros []; constructor. apply IH, in_hd.
+Qed.
+
+Lemma rm_const_fm_symfree phi :
+  symfree (rm_const_fm phi).
+Proof.
+  induction phi; try destruct P; cbn; repeat constructor; intuition.
+  - rewrite map_hd. apply rm_const_tm_symfree.
+  - rewrite map_tl, map_hd. apply subst_symfree, rm_const_tm_symfree. intros []; constructor.
+  - apply vec_cons_inv in X as [->|[->|H] % vec_cons_inv]; try constructor; try inversion H.
+  - rewrite map_hd. apply rm_const_tm_symfree.
+  - rewrite map_tl, map_hd. apply subst_symfree, rm_const_tm_symfree. intros []; constructor.
+  - apply vec_cons_inv in X as [->|[->|H] % vec_cons_inv]; try constructor; try inversion H.
+Qed.
 
 Section minimal.
 
