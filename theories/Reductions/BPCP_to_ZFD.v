@@ -1562,15 +1562,23 @@ Proof.
 Qed.
 
 Definition ZF_equiv T phi psi :=
-  ZF_prv T phi <-> ZF_prv T psi.
+  ZF_prv T (phi <--> psi).
 
 Instance ZF_equiv_equiv T :
   Equivalence (ZF_equiv T).
 Proof.
   split.
-  - intros phi. unfold ZF_equiv. tauto.
-  - intros phi psi. unfold ZF_equiv. tauto.
-  - intros phi psi theta. unfold ZF_equiv. tauto.
+  - intros phi. apply prv_T_CI; apply prv_T_impl, prv_T1.
+  - intros phi psi H. apply prv_T_CE in H. now apply prv_T_CI.
+  - intros phi psi theta H1 % prv_T_CE H2 % prv_T_CE. apply prv_T_CI.
+    + eapply prv_T_imps. apply H1. apply H2.
+    + eapply prv_T_imps. apply H2. apply H1.
+Qed.
+
+Instance prv_proper T :
+  Proper (ZF_equiv T ==> iff) (ZF_prv T).
+Proof.
+  intros phi psi H % prv_T_CE. split; now eapply prv_T_mp.
 Qed.
 
 Definition mem x y :=
@@ -1582,16 +1590,21 @@ Definition equiv x y :=
 Instance mem_proper T (HT : ZF_extension T) :
   Proper (ZF_tequiv T ==> ZF_tequiv T ==> ZF_equiv T) mem.
 Proof.
-  intros x y H x' y' H'. split; apply ZF_eq_elem; eauto.
-  all: now apply ZF_sym'.
+  intros x y H x' y' H'. apply prv_T_CI; eapply prv_T_impl, ZF_eq_elem.
+  1,5: solve_tsub. 3,6: apply prv_T1. all: eapply Weak_T; eauto.
+  3,5: apply ZF_sym'. all: eauto. all: repeat solve_tsub.
 Qed.
 
 Instance equiv_proper T (HT : ZF_extension T) :
   Proper (ZF_tequiv T ==> ZF_tequiv T ==> ZF_equiv T) equiv.
 Proof.
-  intros x y H x' y' H'. unfold ZF_equiv.
-  change (ZF_tequiv T x x' <-> ZF_tequiv T y y').
-  now rewrite H, H'.
+  intros x y H x' y' H'. apply prv_T_CI; apply prv_T_impl.
+  - eapply ZF_trans'. solve_tsub. eapply ZF_sym'. solve_tsub.
+    eapply (Weak_T H). repeat solve_tsub. eapply ZF_trans'. solve_tsub.
+    apply prv_T1. eapply (Weak_T H'). repeat solve_tsub.
+  - eapply ZF_trans'. solve_tsub. eapply (Weak_T H). repeat solve_tsub.
+    eapply ZF_sym'. solve_tsub. eapply ZF_trans'. solve_tsub.
+    eapply (Weak_T H'). repeat solve_tsub. apply ZF_sym'. solve_tsub. apply prv_T1.
 Qed.
 
 Lemma prv_T_imps' (p : peirce) (b : bottom) T phi psi phi' :
@@ -1605,35 +1618,50 @@ Qed.
 Instance impl_proper T :
   Proper (ZF_equiv T ==> ZF_equiv T ==> ZF_equiv T) Impl.
 Proof.
-  intros phi psi H phi' psi' H'. split.
-  - intros HA. apply prv_T_impl.
-Admitted.
+  intros phi psi [H1 H2] % prv_T_CE phi' psi' [H3 H4] % prv_T_CE. 
+  apply prv_T_CI; repeat apply prv_T_impl.
+  - eapply prv_T_mp. apply (Weak_T H3). repeat solve_tsub.
+    eapply prv_T_mp; try apply prv_T2. apply prv_T_imp.
+    apply (Weak_T H2). repeat solve_tsub.
+  - eapply prv_T_mp. apply (Weak_T H4). repeat solve_tsub.
+    eapply prv_T_mp; try apply prv_T2. apply prv_T_imp.
+    apply (Weak_T H1). repeat solve_tsub.
+Qed.
 
 Instance and_proper T :
   Proper (ZF_equiv T ==> ZF_equiv T ==> ZF_equiv T) Conj.
 Proof.
-  intros phi psi H phi' psi' H'. split; intros [H1 H2] % prv_T_CE; apply prv_T_CI; intuition.
+  intros phi psi [H1 H2] % prv_T_CE phi' psi' [H3 H4] % prv_T_CE.
+  apply prv_T_CI; apply prv_T_impl, prv_T_CI.
+  - eapply prv_T_mp; try now eapply prv_T_CE1, prv_T1. apply (Weak_T H1). repeat solve_tsub.
+  - eapply prv_T_mp; try now eapply prv_T_CE2, prv_T1. apply (Weak_T H3). repeat solve_tsub.
+  - eapply prv_T_mp; try now eapply prv_T_CE1, prv_T1. apply (Weak_T H2). repeat solve_tsub.
+  - eapply prv_T_mp; try now eapply prv_T_CE2, prv_T1. apply (Weak_T H4). repeat solve_tsub.
 Qed.
 
 Instance or_proper T :
   Proper (ZF_equiv T ==> ZF_equiv T ==> ZF_equiv T) Disj.
 Proof.
-Admitted.
-
-Instance prv_proper T :
-  Proper (ZF_equiv T ==> iff) (ZF_prv T).
-Proof.
-  intros phi psi H. apply H.
+  intros phi psi [H1 H2] % prv_T_CE phi' psi' [H3 H4] % prv_T_CE.
+  apply prv_T_CI; eapply prv_T_impl, prv_T_DE; try apply prv_T1.
+  - apply prv_T_DI1. eapply prv_T_mp; try apply prv_T1. apply (Weak_T H1). solve_tsub.
+  - apply prv_T_DI2. eapply prv_T_mp; try apply prv_T1. apply (Weak_T H3). solve_tsub. 
+  - apply prv_T_DI1. eapply prv_T_mp; try apply prv_T1. apply (Weak_T H2). solve_tsub.
+  - apply prv_T_DI2. eapply prv_T_mp; try apply prv_T1. apply (Weak_T H4). solve_tsub.
 Qed.
 
 Instance sub_proper T (HT : ZF_extension T) (HT : bounded_theory T) :
   Proper (ZF_tequiv T ==> ZF_tequiv T ==> ZF_equiv T) sub.
 Proof.
-  intros x y H x' y' H'. split; intros HX.
-  - apply bt_all. intros t. cbn. asimpl. fold (mem t y) (mem t y').
-    rewrite <- H, <- H'. apply (prv_T_AllE t) in HX. cbn in HX. now asimpl in HX.
-  - apply bt_all. intros t. cbn. asimpl. fold (mem t x) (mem t x').
-    rewrite H, H'. apply (prv_T_AllE t) in HX. cbn in HX. now asimpl in HX.
+  intros x y H x' y' H'. apply prv_T_CI; apply prv_T_impl; assert1 HA.
+  - apply bt_all. intros t. cbn. asimpl. fold (mem t y) (mem t y'). fold_theory T'.
+    assert (H1 : ZF_tequiv T' x y). apply (Weak_T H). repeat solve_tsub.
+    assert (H2 : ZF_tequiv T' x' y'). apply (Weak_T H'). repeat solve_tsub.
+    rewrite <- H1, <- H2. apply (prv_T_AllE t) in HA. cbn in HA. now asimpl in HA.
+  - apply bt_all. intros t. cbn. asimpl. fold (mem t x) (mem t x'). fold_theory T'.
+    assert (H1 : ZF_tequiv T' x y). apply (Weak_T H). repeat solve_tsub.
+    assert (H2 : ZF_tequiv T' x' y'). apply (Weak_T H'). repeat solve_tsub.
+    rewrite H1, H2. apply (prv_T_AllE t) in HA. cbn in HA. now asimpl in HA.
 Qed.
 
 Lemma test2 T (HT : ZF_extension T) x y :
@@ -1739,7 +1767,7 @@ Lemma ZF_sub_power {T} {HB : bounded_theory T} {HT : ZF_extension T} x y :
   ZF_tequiv T x y -> T ⊩IE sub (PP x) (PP y).
 Proof.
   intros H. apply bt_all. intros z. cbn. asimpl. apply prv_T_impl.
-  apply ZF_power. solve_tsub. change (T ⋄ (z ∈ PP x) ⊩IE sub z y).
+  apply ZF_power. solve_tsub. change (T ⋄ (z ∈ PP x) ⊩IE sub z y). eapply prv_proper.
   eapply sub_proper; eauto. reflexivity. symmetry. apply (Weak_T H).
   repeat solve_tsub. apply ZF_power; try apply prv_T1. solve_tsub.
 Qed.
@@ -1807,7 +1835,7 @@ Proof.
       now apply (prv_T_AllE x) in H'.
     + apply bt_all. intros x. cbn -[inductive sub].
       setoid_rewrite sub_subst. setoid_rewrite inductive_subst. cbn. asimpl.
-      apply prv_T_impl. eapply sub_proper; eauto. apply (Weak_T H).
+      apply prv_T_impl. eapply prv_proper. eapply sub_proper; eauto. apply (Weak_T H).
       repeat solve_tsub. reflexivity. apply ZF_om2, prv_T1.
   - apply ZF_ext'; trivial.
     + eapply prv_T_CE2, (prv_T_AllE) in H. cbn -[inductive sub] in H. asimpl in H.
