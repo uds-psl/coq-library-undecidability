@@ -2091,6 +2091,52 @@ Qed.
 
 (* minimised signature *)
 
+Lemma subst_theory_sub T A sigma :
+  A ⊏ T -> [psi[sigma] | psi ∈ A] ⊏ subst_theory sigma T.
+Proof.
+  induction A; intros H phi HP; cbn in *; auto.
+  destruct HP as [<-|[psi[<- HP]] % in_map_iff].
+  - exists a. split; intuition.
+  - exists psi. split; trivial. apply H. now right.
+Qed.
+
+Lemma tprv_ind (P : peirce -> bottom -> theory -> form -> Prop) :
+  (forall p b T phi psi, P p b (T ⋄ phi) psi -> P p b T (phi --> psi))
+  -> (forall p b T phi psi, P p b T (phi --> psi) -> P p b T phi -> P p b T psi)
+  -> (forall p b T phi, P p b (subst_theory ↑ T) phi -> P p b T (∀ phi))
+  -> (forall p b T phi t, P p b T (∀ phi) -> P p b T phi[t..])
+  -> (forall p b T phi t, P p b T phi[t..] -> P p b T (∃ phi))
+  -> (forall p b T phi psi, P p b T (∃ phi) -> P p b ((subst_theory ↑ T) ⋄ phi) psi[↑] -> P p b T psi)
+  -> (forall p T phi, P p expl T ⊥ -> P p expl T phi)
+  -> (forall p b (T : theory) phi, T phi -> P p b T phi)
+  -> (forall p b T phi psi, P p b T phi -> P p b T psi -> P p b T (phi ∧ psi))
+  -> (forall p b T phi psi, P p b T (phi ∧ psi) -> P p b T phi)
+  -> (forall p b T phi psi, P p b T (phi ∧ psi) -> P p b T psi)
+  -> (forall p b T phi psi, P p b T phi -> P p b T (phi ∨ psi))
+  -> (forall p b T phi psi, P p b T psi -> P p b T (phi ∨ psi))
+  -> (forall p b T phi psi theta , P p b T (phi ∨ psi) -> P p b (T ⋄ phi) theta -> P p b (T ⋄ psi) theta -> P p b T theta)
+  -> (forall b T phi psi, P class b T (((phi --> psi) --> phi) --> phi))
+  -> forall p b T phi, T ⊩ phi -> P p b T phi.
+Proof.
+  intros. destruct H14 as [A[A1 A2]]. induction A2 in T, A1 |- *.
+  - eapply H, IHA2. intuition.
+  - eapply H0; eauto.
+  - eapply H1, IHA2. now apply subst_theory_sub.
+  - eapply H2, IHA2. assumption.
+  - eapply H3, IHA2. assumption.
+  - eapply H4; try now apply IHA2_1. apply IHA2_2.
+    apply (subst_theory_sub (sigma:=↑)) in A1. intuition.
+  - apply H5, IHA2. assumption.
+  - apply H6. intuition.
+  - apply H7; eauto.
+  - eapply H8, IHA2. assumption.
+  - eapply H9, IHA2. assumption.
+  - eapply H10, IHA2. assumption.
+  - eapply H11, IHA2. assumption.
+  - eapply H12; try (now apply IHA2_1); intuition.
+  - apply H13.
+Qed.
+
 Inductive symfree_term : term -> Type :=
 | ST1 n : symfree_term ($ n).
 
