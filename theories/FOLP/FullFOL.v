@@ -129,9 +129,9 @@ Section FullFOL.
     - apply H4; apply H; cbn; lia.
     - apply H5; apply H; cbn; lia.
     - apply H6. intros t. apply H.
-      cbn. rewrite subst_size. lia.
+      cbn. unfold subst1. rewrite subst_size. lia.
     - apply H7. intros t. apply H.
-      cbn. rewrite subst_size. lia.
+      cbn. unfold subst1. rewrite subst_size. lia.
   Qed.
   
   (* **** Forall and Vector.t technology **)

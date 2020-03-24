@@ -21,7 +21,7 @@ Section Recursive_algorithms.
 
   Unset Elimination Schemes.
 
-  Inductive recalg : nat -> Set :=
+  Inductive recalg : nat -> Type :=
     | ra_cst  : nat -> recalg 0
     | ra_zero : recalg 1
     | ra_succ : recalg 1

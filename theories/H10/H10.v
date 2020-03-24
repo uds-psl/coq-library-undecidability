@@ -56,7 +56,7 @@ Proof.
   unfold DIO_SINGLE_SAT, H10.
   rewrite H.
   unfold dio_single_pred.
-  split; intros (phi & H1); exists phi; revert H1;
+  split; intros (phi & H1); exists phi; revert H1; cbn;
     rewrite !dp_inst_par_eval; auto.
 Qed.
 

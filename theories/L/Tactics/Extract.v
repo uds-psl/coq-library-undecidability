@@ -1,5 +1,5 @@
 From Undecidability.L Require Import L Prelim.StringBase.
-From MetaCoq Require Import Template.All Checker.kernel.Checker.
+From MetaCoq Require Import Template.All Checker.Checker.
 Require Import PslBase.Base. 
 Require Import String Ascii.
 

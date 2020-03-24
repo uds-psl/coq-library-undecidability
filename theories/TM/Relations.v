@@ -97,8 +97,8 @@ Section Fix_X2.
   Definition Eq_in (f : Fin.t n -> Prop) : Rel (V X) (V X) :=
     fun vx vy => forall i : Fin.t n, f i -> vy[@i] = vx[@i].
 
-  Instance Eq_in_equivalence X (f : Fin.t n -> Prop) :
-    Equivalence (@Eq_in X).
+  Global Instance Eq_in_equivalence (f : Fin.t n -> Prop) :
+    Equivalence (@Eq_in f).
   Proof.
     econstructor.
     - econstructor.

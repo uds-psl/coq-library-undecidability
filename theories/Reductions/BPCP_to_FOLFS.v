@@ -213,7 +213,8 @@ Section FIB.
   Lemma obstring_ienc n s (H : |s| <= n) :
     ienc s = obcast H.
   Proof.
-    unfold ienc. cbn. cbn. erewrite obstring_iprep.
+    unfold ienc. cbn.
+    setoid_rewrite obstring_iprep. 
     f_equal. apply bstring_eq, app_nil_r.
     Unshelve. rewrite app_length. cbn. lia.
   Qed.
@@ -224,7 +225,7 @@ Section FIB.
     induction s; cbn in *; try lia.
     change (@ccons n a (ienc s) = None).
     destruct (le_dec (|s|) n) as [H'|H'].
-    - rewrite (obstring_ienc H'). cbn.
+    - setoid_rewrite (obstring_ienc H'). cbn.
       destruct le_dec; tauto.
     - now rewrite IHs.
   Qed.
@@ -233,8 +234,8 @@ Section FIB.
     i_P x y <-> exists s t, derivable R s t /\ x = ienc s /\ y = ienc t /\ |s| <= n /\ |t| <= n.
   Proof.
     destruct x as [ [x HX]|], y as [ [y HY]|]; split; cbn; auto.
-    { intros H. exists x, y. repeat erewrite obstring_ienc. now repeat split. }
-    all: intros (s&t&H1&H2&H3&H4&H5). all: try unshelve erewrite obstring_ienc in H2, H3; auto.
+    { intros H. exists x, y. repeat setoid_rewrite obstring_ienc. now repeat split. }
+    all: intros (s&t&H1&H2&H3&H4&H5). all: try unshelve setoid_rewrite obstring_ienc in H2; try unshelve setoid_rewrite obstring_ienc in H3; auto.
     all: try discriminate. depelim H2. depelim H3. assumption.
   Qed.
 
@@ -254,8 +255,8 @@ Section FIB.
     @cdrv n (ienc s) (ienc t) -> @cdrv (S n) (ienc s) (ienc t).
   Proof.
     destruct (le_dec (|s|) n) as [H|H], (le_dec (|t|) n) as [H'|H'].
-    - repeat unshelve erewrite obstring_ienc; trivial; lia.
-    - rewrite (obstring_ienc H), (obstring_ienc' H'). cbn. tauto.
+    - repeat unshelve setoid_rewrite obstring_ienc; trivial; lia.
+    - setoid_rewrite (obstring_ienc H). setoid_rewrite (obstring_ienc' H'). cbn. tauto.
     - rewrite (obstring_ienc' H). cbn. tauto.
     - rewrite (obstring_ienc' H). cbn. tauto.
   Qed.
@@ -263,13 +264,13 @@ Section FIB.
   Lemma drv_cdrv s t :
     derivable R s t <-> @cdrv (max (|s|) (|t|)) (ienc s) (ienc t).
   Proof.
-    repeat unshelve erewrite obstring_ienc; try reflexivity; lia.
+    repeat unshelve setoid_rewrite obstring_ienc; try reflexivity; lia.
   Qed.
 
   Lemma drv_cdrv' s :
     derivable R s s <-> @cdrv (|s|) (ienc s) (ienc s).
   Proof.
-   repeat unshelve erewrite obstring_ienc; try reflexivity; lia.
+   repeat unshelve setoid_rewrite obstring_ienc; try reflexivity; lia.
   Qed.
 
   Lemma BPCP_P :
@@ -368,19 +369,19 @@ Section FIB.
                               ((sub u x /\ v = y) \/ (sub v y /\ u = x) \/ (sub u x /\ sub v y))).
     Proof.
       destruct x as [ [x HX]|], y as [ [y HY]|]; cbn; auto. induction 1.
-      - left. exists x, y. repeat erewrite obstring_ienc. repeat split; trivial.
+      - left. exists x, y. repeat setoid_rewrite obstring_ienc. repeat split; trivial.
       - assert (HU : |u| <= n). { rewrite app_length in HX. lia. }
         assert (HV : |v| <= n). { rewrite app_length in HY. lia. }
         destruct x as [|b x], y as [|c y].
         + cbn. apply IHderivable.
         + right. exists [], (c::y), (obcast HU), (obcast HV).
-          repeat erewrite obstring_iprep. repeat split; trivial.
+          repeat setoid_rewrite obstring_iprep. repeat split; trivial.
           right. left. repeat split; eauto using app_neq. f_equal. now apply bstring_eq.
         + right. exists (b::x), [], (obcast HU), (obcast HV).
-          repeat erewrite obstring_iprep. repeat split; trivial.
+          repeat setoid_rewrite obstring_iprep. repeat split; trivial.
           left. repeat split; eauto using app_neq. f_equal. now apply bstring_eq.
         + right. exists (b::x), (c::y), (obcast HU), (obcast HV).
-          repeat erewrite obstring_iprep. repeat split; trivial.
+          repeat setoid_rewrite obstring_iprep. repeat split; trivial.
           right. right. repeat split; eauto using app_neq.
     Qed.
 

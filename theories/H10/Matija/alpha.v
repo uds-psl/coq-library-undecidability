@@ -572,7 +572,7 @@ Section Pell.
 
     Notation Zm_ring := (Zp_is_ring Hm).
 
-    Local Add Ring m_ring : Zm_ring.
+    Add Ring m_ring : Zm_ring.
 
     Notation qz := (Z.of_nat q).
 
@@ -1042,7 +1042,7 @@ Section divisibility_2.
 
     End in_Zp.
 
-    Local Add Ring myring2 : (Zp_is_ring Hak2).
+    Add Ring myring2 : (Zp_is_ring Hak2).
 
     Corollary alpha_square_nat : exists q, Zp_invertible Hak2 q /\ nat2Zp Hak2 (alpha_nat b m) = q ⊗ nat2Zp Hak2 l  ⊗ nat2Zp Hak2 (alpha_nat b k).
     Proof.

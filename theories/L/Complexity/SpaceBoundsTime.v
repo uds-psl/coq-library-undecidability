@@ -12,10 +12,10 @@ Fixpoint L_Pro n {struct n}: list Pro :=
      ++ [[]]
   end.
 
-Local Hint Rewrite in_concat_iff : list.
-Local Hint Rewrite in_app_iff : list.
-Local Hint Rewrite in_map_iff : list.
-Local Hint Rewrite filter_In : list.
+Hint Rewrite in_concat_iff : list.
+Hint Rewrite in_app_iff : list.
+Hint Rewrite in_map_iff : list.
+Hint Rewrite filter_In : list.
 
 Lemma L_Pro_in_iff n P :
   P el L_Pro n <-> sizeP P <= n.
