@@ -901,7 +901,7 @@ Section Retyping.
 
 
   Lemma retype_iff n (I: orduni n X):
-    1 <= n -> OU n X I <-> OU n X (retype n I).
+    1 <= n -> OU n X I <-> OU n X (@retype n I).
   Proof.
     intros Leq. rewrite orduni_normalise_correct. 
     destruct I as [Gamma s t A ? ?]; unfold orduni_normalise, retype, OU; cbn.
@@ -1063,4 +1063,3 @@ Section FirstOrderDecidable.
   Qed.
   
 End FirstOrderDecidable.
-

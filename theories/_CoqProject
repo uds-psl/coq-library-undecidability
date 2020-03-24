@@ -306,10 +306,10 @@ L/Functions/Ackermann.v
 L/TM/TMEncoding.v
 L/Reductions/TM_to_L.v
 
-L/Reductions/SRH_SR_computable.v
-L/Reductions/SR_MPCP_computable.v
-L/Reductions/MPCP_PCP_computable.v
-L/Reductions/PCP_CFG_computable.v
+# L/Reductions/SRH_SR_computable.v
+# L/Reductions/SR_MPCP_computable.v
+# L/Reductions/MPCP_PCP_computable.v
+# L/Reductions/PCP_CFG_computable.v
 L/Reductions/H10_to_L.v
 L/Reductions/MuRec.v
 

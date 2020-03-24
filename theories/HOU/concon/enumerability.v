@@ -96,8 +96,9 @@ Section ListEnumerabilityOrdered.
     end.
 
   Global Instance enumT_orduni n:
-    enumT (orduni n X) := {L_T := L_orduni n}.
+    enumT (orduni n X).
   Proof with eauto using cum_ge'.
+    exists (L_orduni n).
     - eauto.
     - intros [Gamma s t A H1 H2].
       destruct (el_T Gamma) as [x1], (el_T s) as [x2], (el_T t) as [x3], (el_T A) as [x4], (el_T H1) as [x5], (el_T H2) as [x6].
@@ -148,8 +149,9 @@ Section ListEnumerabilitySystems.
   Scheme eqs_typing_strong_ind := Induction for eqs_typing Sort Prop.
     
   Global Instance enumT_sys:
-    enumT (sysuni X) := {L_T := L_sys }.
+    enumT (sysuni X).
   Proof with eauto using cum_ge'.
+    exists L_sys.
     - eauto.
     - intros [Gamma E L H]. induction H using eqs_typing_strong_ind.
       + destruct (el_T Gamma) as [x]; exists (S x); cbn; in_app 2.
@@ -203,8 +205,9 @@ Section ListEnumerabilityOrderedSystems.
   Scheme eqs_ordertyping_strong_ind := Induction for eqs_ordertyping Sort Prop.
     
   Instance enumT_ordsys n:
-    enumT (ordsysuni X n) := {L_T := L_ordsys n}.
+    enumT (ordsysuni X n).
   Proof with eauto using cum_ge'.
+    exists (L_ordsys n).
     - eauto.
     - intros [Gamma E L H]. induction H using eqs_ordertyping_strong_ind.
       + destruct (el_T Gamma) as [x]; exists (S x); cbn; in_app 2.

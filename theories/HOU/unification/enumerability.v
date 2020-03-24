@@ -128,9 +128,10 @@ Section ListEnumerability.
                   [(Gamma, s, t, A) | (Gamma, s, t, A) ∈ (L_T n × L_T n × L_T n × L_T n)]
     end.
 
-  Global Instance enumT_uni:
-    enumT (uni X) := {L_T := L_uni}.
+  Global Instance enumT_uni :
+    enumT (uni X).
   Proof with eauto using cum_ge'.
+    exists L_uni.
     - eauto.
     - intros [Gamma s t A H1 H2].
       destruct (el_T Gamma) as [x1], (el_T s) as [x2], (el_T t) as [x3], (el_T A) as [x4], (el_T H1) as [x5], (el_T H2) as [x6].

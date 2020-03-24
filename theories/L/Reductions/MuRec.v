@@ -224,7 +224,7 @@ Proof.
     + rewrite pos2nat_nxt.
       specialize (H0 j). 
       assert (S n - S (S (pos2nat j)) = n - S (pos2nat j)) by omega. rewrite H1 in *.
-      rewrite H0. reflexivity.
+      cbn. rewrite H0. reflexivity.
 Qed.
 
 Lemma le_ind2 m (P : nat -> Prop) :
@@ -327,8 +327,8 @@ Proof.
       eapply EqDec.inj_right_pair in H5. subst.
       eapply EqDec.inj_right_pair in H6. subst.
       eapply H in H7.
-      cbn. 2:omega. rewrite H7.
-      eapply H in H9. 2:omega. rewrite H9. reflexivity.
+      cbn. 2:omega. cbn in H7. rewrite H7.
+      eapply H in H9. 2:omega. cbn in H9. rewrite H9. reflexivity.
     + intros. destruct n; inv H0.
       revert H2; vec split v with n1; cbn; intros H2.
       destruct n1.
@@ -351,14 +351,14 @@ Proof.
       eapply le_ind2; intros.
       * cbn in *. eapply H in H8. 2:omega.
         assert (c0 - (n0 - n0) = c0) by lia. rewrite H0 in *.
-        rewrite H8. reflexivity.
+        cbn in H8. rewrite H8. reflexivity.
       * destruct n0; try omega.
         assert (n < S n0) by omega.
         assert (H10 := H7).
         specialize (H7 (nat2pos H2)). rewrite pos2nat_nat2pos in H7.
         assert (n <= n) by omega. eapply H7 in H3.
         eapply H1 in H3. 2: omega. cbn.
-        assert (c0 - (n - n) = c0) by omega. rewrite H4 in *. rewrite H3.
+        assert (c0 - (n - n) = c0) by omega. rewrite H4 in *. cbn in H3. rewrite H3.
 
         assert (eval c0 (S n) (rc_min (erase f)) (vec_list v) = Some (inl (S n0))).
         eapply H1 with (f := ra_min f). omega.
@@ -433,7 +433,7 @@ Proof.
     intros f.
     split; intros [].
     + rewrite ra_bs_correct in H. eapply ra_bs_to_c in H as [].
-      exists x0. eapply erase_correct in H. unfold evalfun. rewrite H. congruence.
+      exists x0. eapply erase_correct in H. unfold evalfun. cbn in H. rewrite H. congruence.
     + unfold evalfun in H. destruct eval eqn:E; try congruence.
       destruct s; try congruence.
       eapply erase_correct with (v := vec_nil) in E.

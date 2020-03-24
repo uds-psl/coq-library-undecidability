@@ -1,5 +1,7 @@
+Require Import Nat List.
 From Undecidability.L Require Export Tactics.LTactics Datatypes.LNat Datatypes.LProd Datatypes.Lists.
 From Undecidability Require Export PCP.MPCP_PCP PCP.Definitions Problems.PCP.
+Require Import Datatypes.
 
 (* Instance encodable_string : registered (Definitions.string). *)
 (* Proof. *)
@@ -33,6 +35,8 @@ Instance computable_sym : computable sym.
 Proof.
   extract.
 Defined.
+
+Definition string := list nat.
 
 Instance computable_Sigma : computable Sigma.
 Proof.

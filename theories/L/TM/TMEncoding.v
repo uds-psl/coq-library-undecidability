@@ -504,7 +504,7 @@ Section loopM.
       edestruct (mu_complete).
       + eapply term_test.
       + intros. eexists. rewrite !ext_is_enc. now Lsimpl.
-      + Lsimpl. now rewrite H0.
+      + Unshelve. 2:exact k. 2:exact cfg. Lsimpl. now rewrite H0.
       + exists (ext x). split. eauto. Lproc.
     - destruct H as (v & ? & ?). edestruct mu_sound as (k & ? & ? & _).
       + eapply term_test.
