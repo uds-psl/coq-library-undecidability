@@ -97,6 +97,10 @@ Definition ax_rep phi :=
 
 (** ** Bounded Formulas *)
 
+Section Bounded.
+
+Context { Sigma : Signature }.
+
 Inductive bounded_term (n : nat) : term -> Prop :=
 | clt_var m : m < n -> bounded_term n (var_term m)
 | clt_Func F v : (forall t, vec_in t v -> bounded_term n t) -> bounded_term n (Func F v).
@@ -158,6 +162,8 @@ Proof.
   intros H1 H2. apply (sat_bounded H1 (rho':=x.:(y.:rho))); trivial.
   intros k Hk. assert (k = 0 \/ k = 1) as [->| ->] by lia; reflexivity.
 Qed.
+
+End Bounded.
 
 
 

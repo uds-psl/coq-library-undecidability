@@ -2210,16 +2210,93 @@ Local Instance ZFE_Signature : Signature :=
   {| Funcs := ZFE_Funcs; fun_ar := ZFE_fun_ar; Preds := ZFE_Preds; pred_ar := ZFE_pred_ar |}.
 
 Notation "x ∈ y" :=
-  (@Pred ZF_Signature ZF.elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
+  (@Pred ZF_Signature elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
 
 Notation "x ≡ y" :=
-  (@Pred ZF_Signature ZF.equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
+  (@Pred ZF_Signature equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
 
 Notation "x ∈' y" :=
-  (@Pred ZFE_Signature elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
+  (@Pred ZFE_Signature Eelem (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
 
 Notation "x ≡' y" :=
-  (@Pred ZFE_Signature equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
+  (@Pred ZFE_Signature Eequal (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
+
+Definition is_eset' t :=
+  ∀ ¬ ($0 ∈' t[↑]).
+
+Definition is_pair' x y t :=
+  ∀ $0 ∈' t[↑] <--> $0 ≡' x[↑] ∨ $0 ≡' y[↑].
+
+Definition is_union' x t :=
+  ∀ $0 ∈' t[↑] <--> ∃ $0 ∈' x[↑][↑] ∧ $1 ∈' $0.
+
+Definition sub' x y :=
+  ∀ $0 ∈' x[↑] --> $0 ∈' y[↑].
+
+Definition is_power' x t :=
+  ∀ $0 ∈' t[↑] <--> sub' $0 x[↑].
+
+Definition is_sigma' x t :=
+  ∀ $0 ∈' t[↑] <--> $0 ≡' x[↑] ∨ $0 ∈' x[↑].
+
+Definition is_inductive' t :=
+  (∃ is_eset' $0 ∧ $0 ∈' t[↑]) ∧ ∀ $0 ∈' t[↑] --> (∃ is_sigma' $1 $0 ∧ $0 ∈' t[↑][↑]).
+
+Definition is_om' t :=
+  is_inductive' t ∧ ∀ is_inductive' $0 --> sub' t[↑] $0.
+
+Definition ax_ext' :=
+  ∀ ∀ sub' $1 $0 --> sub' $0 $1 --> $1 ≡' $0.
+
+Definition ax_eset' :=
+  ∃ is_eset' $0.
+
+Definition ax_pair' :=
+  ∀ ∀ ∃ is_pair' $2 $1 $0.
+
+Definition ax_union' :=
+  ∀ ∃ is_union' $1 $0.
+
+Definition ax_power' :=
+  ∀ ∃ is_power' $1 $0.
+
+Definition ax_om' :=
+  ∃ is_om' $0.
+
+Definition ax_sep' phi :=
+  ∀ ∃ ∀ $0 ∈' $1 <--> $0 ∈' $2 ∧ phi.
+
+Definition fun_rel phi :=
+  ∀ ∀ ∀ phi[$2.:$1..] --> phi[$2.:$0..] --> $1 ≡' $0.
+
+Definition ax_rep' phi :=
+  fun_rel phi --> ∀ ∃ ∀ $0 ∈' $1 <--> ∃ $0 ∈' $3 ∧ phi.
+
+Definition ax_refl' :=
+  ∀ $0 ≡' $0.
+
+Definition ax_sym' :=
+  ∀ ∀ $1 ≡' $0 --> $0 ≡' $1.
+
+Definition ax_trans' :=
+  ∀ ∀ ∀ $2 ≡' $1 --> $1 ≡' $0 --> $2 ≡' $0.
+
+Definition ax_eq_elem' :=
+  ∀ ∀ ∀ ∀ $3 ≡' $1 --> $2 ≡' $0 --> $3 ∈' $2 --> $1 ∈' $0.
+
+Definition ZF' (phi : @form ZFE_Signature) :=
+  phi = ax_ext'
+  \/ phi = ax_eset'
+  \/ phi = ax_pair'
+  \/ phi = ax_union'
+  \/ phi = ax_power'
+  \/ phi = ax_om'
+  \/ (exists psi, bounded 1 psi /\ phi = ax_sep' psi)
+  \/ (exists psi, bounded 2 psi /\ phi = ax_rep' psi)
+  \/ phi = ax_refl'
+  \/ phi = ax_sym'
+  \/ phi = ax_trans'
+  \/ phi = ax_eq_elem'.
 
 End minimal.
 
