@@ -232,7 +232,7 @@ Ltac cstep' extractSimp:=
       eexists;split;[extractSimp idtac;shelveIfUnsolved "pos2" | intros vProc]
     end
 
-  | |- computes (TyB _) _ ?t=> is_ground t;apply computesTyB
+  | |- computes (TyB _) _ ?t=> has_no_evar t;apply computesTyB
 
   | |- computes _ _ (@ext _ _)=> apply extCorrect
 
@@ -326,7 +326,7 @@ Ltac cstep' extractSimp:=
     end
   (* complexity: *)
 
-  | H : Lock _ |- computesTime (TyB _) _ ?t ?tt=> is_ground t;close_assumed; destruct tt;apply computesTimeTyB
+  | H : Lock _ |- computesTime (TyB _) _ ?t ?tt=> has_no_evar t;close_assumed; destruct tt;apply computesTimeTyB
   | H : Lock _ |-computesTime _ _ (@extT _ _) _ => apply extTCorrect
 
   | |- computesTime _ _ _ _ =>
