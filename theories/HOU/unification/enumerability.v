@@ -22,8 +22,9 @@ Section ListEnumerability.
                   ++ [app s t | (s, t) ∈ (L_exp n × L_exp n)]
     end.
   
-  Global Instance enumT_exp: enumT (exp X) := { L_T := L_exp }.
+  Global Instance enumT_exp: enumT (exp X). 
   Proof.
+    exists L_exp.
     - eauto. 
     - induction x as [y|c|s| s IH1 t IH2].
       + destruct (el_T y). exists (S x). cbn.
@@ -44,8 +45,9 @@ Section ListEnumerability.
                    ++ [A → B | (A, B) ∈ (L_type n × L_type n)]
     end.
   
-  Global Instance enumT_type: enumT type := { L_T := L_type }.
+  Global Instance enumT_type: enumT type.
   Proof.
+    exists L_type.
     - eauto. 
     - induction x as [beta|A IH1 B IH2].
       + destruct (el_T beta). exists (S x). cbn.
@@ -71,12 +73,11 @@ Section ListEnumerability.
                       end
     end.
 
-
-
   Scheme typing_strong_ind := Induction for typing Sort Prop.
   
-  Global Instance enumT_typing Gamma (s: exp X) A: enumT (Gamma ⊢ s: A) := { L_T := L_typingT Gamma s A }.
+  Global Instance enumT_typing Gamma (s: exp X) A: enumT (Gamma ⊢ s: A). 
   Proof.
+    exists (L_typingT Gamma s A).
     - eauto.
     - intros x.
       induction x using typing_strong_ind.

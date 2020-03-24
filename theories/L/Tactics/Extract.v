@@ -83,6 +83,40 @@ Definition name_of (t : Ast.term) : ident :=
   | _ => "no_name" 
   end.
 
+(* Fixpoint name_after_dot' (s : string) (r : string) := *)
+(*   match s with *)
+(*   | EmptyString => r *)
+(*   | String "#" xs => name_after_dot' xs xs (* see Coq_name in a section *) *)
+(*   | String ("."%char) xs => name_after_dot' xs xs *)
+(*   | String _ xs => name_after_dot' xs r *)
+(*   end. *)
+
+(* Definition name_after_dot s := name_after_dot' s s. *)
+
+Fixpoint fixNames (t : term) :=
+  match t with
+  | tRel i => tRel i
+  | tEvar ev args => tEvar ev (List.map (fixNames) args)
+  | tLambda na T M => tLambda na (fixNames T) (fixNames M)
+  | tApp u v => tApp (fixNames u) (List.map (fixNames) v)
+  | tProd na A B => tProd na (fixNames A) (fixNames B)
+  | tCast C kind t => tCast (fixNames C) kind (fixNames t)
+  | tLetIn na b t b' => tLetIn na (fixNames b) (fixNames t) (fixNames b')
+  | tCase ind p C brs =>
+    let brs' := List.map (on_snd (fixNames)) brs in
+    tCase ind (fixNames p) (fixNames C) brs'
+  | tProj p C => tProj p (fixNames C)
+  | tFix mfix idx =>
+    let mfix' := List.map (map_def (fixNames) (fixNames)) mfix in
+    tFix mfix' idx
+  | tCoFix mfix idx =>
+    let mfix' := List.map (map_def (fixNames) (fixNames)) mfix in
+    tCoFix mfix' idx
+  | tConst name u => tConst (name_after_dot name) u
+  | tInd (mkInd name i) u => tInd (mkInd (name_after_dot name) i)  u
+  | x => x
+  end.
+
 (** Check whether a list of quoted terms starts with a type *)
 Fixpoint tmIsType (s : Ast.term) : TemplateMonad bool :=
   match s with
@@ -352,6 +386,9 @@ Definition tmDependentArgs x:=
   | Ast.tLambda _ _ _ => (*tmPrint ("tmDependentArgs currently assumes that abstractions on head position mean there are no parametric arguments");;*)ret 0
   | _ => (*tmPrint ("tmDependentArgs not supported");;*)ret 0
   end.
+
+Definition tmUnquote t := tmUnquote (fixNames t).
+Definition tmUnquoteTyped {A} t := @tmUnquoteTyped A (fixNames t).
 
 Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad L.term :=
   match fuel with 0 => tmFail "out of fuel" | S fuel =>

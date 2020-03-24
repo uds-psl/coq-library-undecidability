@@ -1,7 +1,7 @@
 From Undecidability.L.Tactics Require Import LTactics GenEncode.
 From Undecidability.L.Datatypes Require Import LNat Lists LProd.
 From Undecidability.L.Computability Require Import MuRec.
-Require Import List.
+Require Import List Init.Nat.
 
 From Undecidability Require Import TM.TM.
 Require Import PslBase.FiniteTypes.FinTypes.
@@ -121,14 +121,16 @@ Proof.
   apply cast_computableTime.
 Qed.
 
+Definition to_list := @Vector.to_list.
+
 Instance term_vector_map X Y `{registered X} `{registered Y} n (f:X->Y) fT:
   computableTime f fT ->
   computableTime (VectorDef.map f (n:=n))
-                 (fun l _ => (fold_right (fun (x0 : X) (res : nat) => fst (fT x0 tt) + res + 12) 8 l + 3,tt)).
+                 (fun l _ => (List.fold_right (fun (x0 : X) (res : nat) => fst (fT x0 tt) + res + 12) 8 l + 3,tt)).
 Proof.
   intros ?.
   computable_casted_result.
-  apply computableTimeExt with (x:= fun x => map f (Vector.to_list x)).
+  apply computableTimeExt with (x:= fun x => map f (to_list x)).
   2:{
     extract.
     solverec.
@@ -287,10 +289,17 @@ Section fix_sig.
     apply cast_computableTime.
   Qed.
 
+End fix_sig.
+
+Section fix_sig2.
+
+  Variable sig : finType.
+  Context `{reg_sig : registered sig}.
+
   Global Instance term_cstate (B : finType) `{registered B} n: computableTime (@cstate sig B n) (fun _ _ => (7,tt)).
   Proof.
     apply computableTimeExt with (x:=fun x => fst (mconfigAsPair x)).
-    2:{extract. solverec. }
+    2:{ extract. solverec. }
     intros [];reflexivity.
   Qed.
 
@@ -306,7 +315,7 @@ Section fix_sig.
     computable_casted_result.
     extract. solverec.
   Qed.
-End fix_sig.
+End fix_sig2.
 
 
 (* Fixpoint time_loop f fT p pT := cnst 1. *)
@@ -336,6 +345,8 @@ Proof.
   extract.
   solverec.
 Qed.
+
+Require Import Vector Undecidability.L.Datatypes.LOptions.
 
 Section loopM.
   Context (sig : finType).
@@ -374,7 +385,7 @@ Section loopM.
   Instance term_trans : computableTime (trans (m:=M)) (fun _ _ => (transTime,tt)).
   Proof.
     pose (t:= (funTable (trans (m:=M)))).
-    apply computableTimeExt with (x:= fun c => lookup (prod_eqb finType_eqb (Vector.eqb (LOptions.option_eqb finType_eqb))) c t (start M,Vector.const (None,N) _)).
+    apply computableTimeExt with (x:= fun c => lookup (prod_eqb finType_eqb (Vector.eqb (option_eqb finType_eqb))) c t (start M,Vector.const (None,N) _)).
     2:{extract.
        cbn [fst snd]. intuition ring_simplify.
 
@@ -409,8 +420,9 @@ Section loopM.
   Proof.
     extract.
     solverec.
-    assert (H1:forall X (l:list X), fold_right (fun _ (res : nat) => 10 + res + 12) 8 l = length l * 22 +8).
-    {induction l;ring_simplify;cbn [fold_right length]. now intuition. rewrite IHl.  omega. }
+    assert (H1:forall X (l:list X), List.fold_right (fun _ (res : nat) => 10 + res + 12) 8 l = length l * 22 +8).
+    {induction l;ring_simplify;cbn [List.fold_right length]. now intuition.
+     rewrite IHl.  omega. }
     rewrite H1,to_list_length.  omega.
   Qed.
 

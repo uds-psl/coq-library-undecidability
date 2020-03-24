@@ -1,4 +1,6 @@
 From Undecidability.L Require Import Tactics.LTactics Functions.Equality Datatypes.LNat.
+Require Import Nat.
+
 (** ** Extracted substitution on terms *)
 
 Instance term_substT :

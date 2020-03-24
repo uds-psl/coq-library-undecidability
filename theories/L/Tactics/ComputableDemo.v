@@ -1,5 +1,6 @@
 From Undecidability.L.Datatypes Require Import LOptions LBool LNat Lists.
 From Undecidability.L.Tactics Require Import LTactics ComputableTactics.
+Require Import Nat.
 
 Section demo.
 
@@ -183,7 +184,7 @@ Qed.
 
   Instance term_nat_eqb : computable Nat.eqb.
   Proof.
-    extract. fold Nat.eqb. repeat ComputableTactics.Intern.cstep. 
+    extract. 
   Defined.
 
 End demo.

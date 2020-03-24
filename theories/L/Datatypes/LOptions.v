@@ -5,7 +5,6 @@ Section Fix_X.
   Variable X:Type.
   Variable intX : registered X.
   
-  
   Run TemplateProgram (tmGenEncode "option_enc" (option X)).
   Hint Resolve option_enc_correct : Lrewrite.
   

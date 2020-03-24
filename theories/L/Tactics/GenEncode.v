@@ -53,8 +53,8 @@ Definition tmMatchCorrect (A : Type) : Core.TemplateMonad Prop :=
    encn <- ret (tApp l [tRel (2*num) ]) ;;
    lhs <- ret (mkLApp encn ((fix f n := match n with 0 => [] | S n => tRel (2 * n + 1) :: f n end ) num)) ;;
    ter <- ret (tProd nAnon t (it (fun s : term => tProd nAnon tTerm (tProd nAnon (tApp (tConst "L.L.proc" []) [tRel 0]) s)) num ((tApp (tConst "L.L.redLe" []) [mkNat num; lhs; mtch]))));;
-   ter <- tmEval cbv ter;;
-   tmUnquoteTyped Prop ter.
+   ter <- tmEval cbv ter ;;
+   tmUnquoteTyped Prop (fixNames ter).
 
 Definition matchlem n A := (Core.tmBind (tmMatchCorrect A) (fun m => tmLemma n m ;; ret tt)).
 
@@ -70,6 +70,17 @@ Definition tmGenEncode (n : ident) (A : Type) :=
   m <- tmMatchCorrect A;;
   n4 <- tmEval cbv (n ++ "_correct") ;;
   (Core.tmBind (tmMatchCorrect A) (fun m => tmLemma n4 m ;; ret tt)).
+
+Definition tmGenEncode' (n : ident) (A : Type) :=
+  e <- tmEncode n A;;
+  e <- tmUnquoteTyped (encodable A) (tConst n []);;
+  p <- Core.tmLemma (n ++ "_proc") (forall x : A, proc (@enc_f A e x)) ;;
+  n2 <- tmEval cbv ((n ++ "_inj"));;
+  i <- Core.tmLemma n2  (injective (@enc_f _ e)) ;;
+  n3 <- tmEval cbv ("registered_" ++ n) ;;
+  d <- Core.tmDefinition n3  (@mk_registered A e p i);;
+  tmExistingInstance n3 ;;
+  m <- tmMatchCorrect A ;; ret tt.
 
 Global Obligation Tactic := try fold (injective (enc_f)); match goal with
                            | [ |- forall x : ?X, proc ?f ] => register_proc
