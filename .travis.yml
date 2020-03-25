@@ -17,7 +17,7 @@ env:
   - NJOBS=2
   - COMPILER="4.06.1"
   matrix:
-  - COQ_VER="8.10.2" EQUATIONS_VER="1.2+8.10" METACOQ_VER="1.0~alpha2+8.10"
+  - COQ_VER="8.10.2" EQUATIONS_VER="1.2.1+8.10" METACOQ_VER="1.0~alpha2+8.10"
   
 install:
 - curl -sL https://raw.githubusercontent.com/ocaml/opam/master/shell/install.sh > install.sh
