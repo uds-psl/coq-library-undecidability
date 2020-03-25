@@ -1,7 +1,3 @@
--Q "../external/smpl/theories/" smpl
--I "../external/smpl/src/"
--Q "../external/uds-psl-base" PslBase
-
 -Q . Undecidability
 
 -install none

@@ -20,6 +20,8 @@ depends: [
   "coq" {>= "8.8" & < "8.10"}
   "coq-equations" {= "1.2+8.8" | = "1.2+8.9"}
   "ocaml" {> "4.02.3"}
+  "coq-smpl"
+  "coq-psl-base-library"
   "coq-metacoq-template" {="1.0~alpha+8.8" | = "1.0~alpha+8.9" }
   "coq-metacoq-checker" {="1.0~alpha+8.8" | = "1.0~alpha+8.9" }
 ]
