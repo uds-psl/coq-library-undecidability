@@ -15,9 +15,9 @@ addons:
 env:
   global:
   - NJOBS=2
-  - COMPILER="4.06.1"
+  - COMPILER="4.07.1"
   matrix:
-  - COQ_VER="8.10.2" EQUATIONS_VER="1.2+8.10" METACOQ_VER="1.1~alpha+8.10"
+  - COQ_VER="8.11.0" EQUATIONS_VER="1.2.1+8.11" METACOQ_VER="1.0~alpha2+8.11" SMPL_VER="8.11" BASE_VER="1.0+8.11"
   
 install:
 - curl -sL https://raw.githubusercontent.com/ocaml/opam/master/shell/install.sh > install.sh
@@ -30,7 +30,8 @@ install:
 - eval $(opam config env)
 - opam config list
 - opam repo add coq-released https://coq.inria.fr/opam/released || echo "coq-released registered"
-- opam install -j ${NJOBS} -y coq.${COQ_VER} coq-equations.${EQUATIONS_VER} coq-metacoq-template.${METACOQ_VER} coq-metacoq-checker.${METACOQ_VER}
+- opam repo add psl-opam-repository https://github.com/uds-psl/psl-opam-repository.git || echo "psl-opam-repository registered"
+- opam install -j ${NJOBS} -y coq.${COQ_VER} coq-equations.${EQUATIONS_VER} coq-metacoq-template.${METACOQ_VER} coq-metacoq-checker.${METACOQ_VER} coq-smpl.${SMPL_VER} coq-psl-base-library.${BASE_VER}
 - opam list
 
 script:
