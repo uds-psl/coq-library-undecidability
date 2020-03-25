@@ -1,7 +1,7 @@
 -Q . Undecidability
 
 -install none
--arg -w -arg -notation-overridden,-redundant-canonical-projection,-several-object-files,-cannot-define-projection,-records,-unused-intro-pattern,-tactics,-implicit-core-hint-db
+-arg -w -arg -notation-overridden,-redundant-canonical-projection,-several-object-files,-cannot-define-projection,-records,-unused-intro-pattern,-tactics,-implicit-core-hint-db,-ambiguous-paths
 COQDOCFLAGS = "--charset utf-8 -s --with-header ../website/resources/header.html --with-footer ../website/resources/footer.html --index indexpage"
 
 Shared/Prelim.v
