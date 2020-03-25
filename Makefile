@@ -1,18 +1,13 @@
-
 all:
 	+make -C theories all
 
-deps:
-	+make -C external all
+install:
+	+make -C theories install
 
 clean:
-	+make -C theories clean
-
-realclean:
-	+make -C external clean
 	+make -C theories clean
 
 html:
 	+make -C theories html
 
-.PHONY: all html clean realclean
+.PHONY: all install html clean 
