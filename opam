@@ -1,11 +1,19 @@
 opam-version: "2.0"
-version: "dev"
+version: "dev+8.10"
 maintainer: "forster@ps.uni-saarland.de"
 homepage: "https://github.com/uds-psl/coq-library-undecidability/"
 dev-repo: "git+https://github.com/uds-psl/coq-library-undecidability/"
 bug-reports: "https://github.com/uds-psl/coq-library-undecidability/issues"
-authors: ["Yannick Forster <forster@ps.uni-saarland.de>"
-          "Dominique Larchey-Wendling <dominique.larchey-wendling@loria.fr>"]
+authors: ["Yannick Forster"
+          "Dominique Larchey-Wendling"
+          "Andrej Dudenhefner"
+          "Edith Heiter"
+          "Dominik Kirst"
+          "Fabian Kunze"
+          "Gert Smolka"
+          "Simon Spies"
+          "Dominik Wehr"
+          "Maximilian Wuttke"]
 license: "CeCILL"
 build: [
   [make "-j%{jobs}%"]
@@ -26,8 +34,8 @@ depends: [
   "coq-metacoq-checker" {="1.0~alpha2+8.10" }
 ]
 
-synopsis: "A library of undecidable problems in Coq"
+synopsis: "A Coq Library of Undecidability Proofs"
 flags: light-uninstall
 url {
-  git: "https://github.com/uds-psl/coq-library-undecidability.git#extraction"
+  git: "https://github.com/uds-psl/coq-library-undecidability.git#coq-8.10"
 }
