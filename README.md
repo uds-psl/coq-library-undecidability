@@ -57,7 +57,7 @@ You need `Coq 8.10.2` built on OCAML `> 4.02.3`, the [Smpl](https://github.com/u
 opam switch create coq-library-undecidability 4.07.1+flambda
 eval $(opam env)
 opam repo add coq-released https://coq.inria.fr/opam/released
-opam repo add opam repo add psl-opam-repository https://github.com/uds-psl/psl-opam-repository.git
+opam repo add psl-opam-repository https://github.com/uds-psl/psl-opam-repository.git
 opam install . --deps-only
 ```
 
