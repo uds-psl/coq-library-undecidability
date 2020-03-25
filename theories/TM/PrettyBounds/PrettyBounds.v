@@ -75,7 +75,7 @@ Proof.
   unfold dominatedWith. intros;destruct y. omega. ring_simplify. lia.
 Qed.
 
-Smpl Add 50 (simple eapply dominatedWith_const;nia) : domWith.
+Smpl Add 50 (simple eapply dominatedWith_const;(lia + nia)) : domWith.
 
 Lemma dominatedWith_solve x y:
   x <= y ->
@@ -83,7 +83,7 @@ Lemma dominatedWith_solve x y:
 Proof. unfold dominatedWith. intros;destruct y. omega. ring_simplify. lia. Qed.
 
 
-Smpl Add 50 (simple eapply dominatedWith_solve;(nia)) : domWith.
+Smpl Add 50 (simple eapply dominatedWith_solve;(lia+nia)) : domWith.
 
 
 Lemma dominatedWith_S c x y :

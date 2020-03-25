@@ -1,8 +1,8 @@
 From Undecidability.L.Tactics Require Import LTactics.
-Require Import PslBase.Base List Datatypes.
 From Undecidability.L.Computability Require Import Enum.
 From Undecidability.L.Functions Require Import Encoding Equality.
 From Undecidability.L.Datatypes Require Import LNat Lists LProd.
+Require Import PslBase.Base Nat List Datatypes.
 
 (** ** Enumeratibility of L-terms *)
 Instance term_appCross : computable appCross.
@@ -104,7 +104,6 @@ Proof.
   rewrite IHl0. unfold f_filter at 3.
   edestruct (inb_spec (prod_eqb_spec Nat.eqb_spec Nat.eqb_spec) a l); decide (~ a el l); try (exfalso;tauto);reflexivity.
 Qed.
-
 
 Local Instance term_C_nondec : computable C_nondec.
 Proof.

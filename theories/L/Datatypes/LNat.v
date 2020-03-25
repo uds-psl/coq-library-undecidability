@@ -1,11 +1,13 @@
 From Undecidability.L Require Export L.
-From Undecidability.L.Tactics Require Export LTactics GenEncode.
 Require Import PslBase.Numbers.
 
-Require Import Nat Undecidability.L.Datatypes.LBool.
+Require Import Undecidability.L.Datatypes.LBool.
+From Undecidability.L.Tactics Require Export LTactics GenEncode.
+Require Import Nat.
+
 (** ** Encoding of natural numbers *)
 
-Run TemplateProgram (tmGenEncode "nat_enc" nat).
+Run TemplateProgram (tmGenEncode "nat_enc" nat). 
 Hint Resolve nat_enc_correct : Lrewrite.
 
 Instance termT_S : computableTime S (fun _ _ => (1,tt)).
@@ -49,7 +51,7 @@ Defined.
 Fixpoint nat_unenc (s : term) :=
   match s with
   | lam (lam #1) => Some 0
-  | lam (lam (app #0 s)) => match nat_unenc s with Some n => Some (S n) | x=>x end
+  | lam (lam (L.app #0 s)) => match nat_unenc s with Some n => Some (S n) | x=>x end
   | _ => None
   end.
 

@@ -26,6 +26,8 @@ Proof.
   -congruence.
 Qed.
 
+Require Import Init.Nat.
+
 Section finType_eqb.
   Local Existing Instance registered_finType.
 
@@ -40,8 +42,6 @@ Section finType_eqb.
     solverec.
   Qed.
 End finType_eqb.
-
-
 
 Section Lookup.
   Variable X Y : Type.
@@ -201,6 +201,7 @@ Proof.
    rewrite H',IHl1. cbn [length]. ring_simplify. intuition.
 Qed.
 
+Require Import Undecidability.L.Tactics.GenEncode.
 
 Run TemplateProgram (tmGenEncode "move_enc" move).
 Hint Resolve move_enc_correct : Lrewrite.
@@ -346,7 +347,9 @@ Proof.
   solverec.
 Qed.
 
-Require Import Vector Undecidability.L.Datatypes.LOptions.
+Require Import Undecidability.L.Datatypes.LOptions Undecidability.TM.TM.
+
+Require Import Undecidability.L.Tactics.ComputableTactics Vector.
 
 Section loopM.
   Context (sig : finType).
@@ -386,9 +389,8 @@ Section loopM.
   Proof.
     pose (t:= (funTable (trans (m:=M)))).
     apply computableTimeExt with (x:= fun c => lookup (prod_eqb finType_eqb (Vector.eqb (option_eqb finType_eqb))) c t (start M,Vector.const (None,N) _)).
-    2:{extract.
-       cbn [fst snd]. intuition ring_simplify.
-
+    2:{ extract.
+        cbn [fst snd]. intuition ring_simplify.
 
        rewrite lookupTime_leq with (k:=(17* length (elem (states M)) + 17 * n * (length (elem sig) + 4) + 52)).
        -unfold transTime.

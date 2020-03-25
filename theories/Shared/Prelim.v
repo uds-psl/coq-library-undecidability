@@ -7,6 +7,8 @@
  *)
 
 Require Export Bool Omega List Setoid Morphisms.
+From PslBase Require Export EqDec.
+
 
 Global Set Implicit Arguments. 
 Global Unset Strict Implicit.
@@ -319,14 +321,14 @@ match goal with
 (* |[ H: ?x el nil |- _ ] => destruct H *)
 end.
 
-Definition dec (X: Prop) : Type := {X} + {~ X}.
+(* Definition dec (X: Prop) : Type := {X} + {~ X}. *)
 
-Coercion dec2bool P (d: dec P) := if d then true else false.
+(* Coercion dec2bool P (d: dec P) := if d then true else false. *)
 
-Existing Class dec.
+(* Existing Class dec. *)
 
-Definition Dec (X: Prop) (d: dec X) : dec X := d.
-Arguments Dec X {d}.
+(* Definition Dec (X: Prop) (d: dec X) : dec X := d. *)
+(* Arguments Dec X {d}. *)
 
 
 Ltac dec := repeat match goal with
@@ -472,52 +474,52 @@ Qed.
 
 (** ** Discrete types *)
 
-Notation "'eq_dec' X" := (forall x y : X, dec (x=y)) (at level 70).
+(* Notation "'eq_dec' X" := (forall x y : X, dec (x=y)) (at level 70). *)
 
-Structure eqType := EqType {
-  eqType_X :> Type;
-  eqType_dec : eq_dec eqType_X }.
+(* Structure eqType := EqType { *)
+(*   eqType_X :> Type; *)
+(*   eqType_dec : eq_dec eqType_X }. *)
 
-Arguments EqType X {_} : rename.
+(* Arguments EqType X {_} : rename. *)
 
-Canonical Structure eqType_CS X (A: eq_dec X) := EqType X.
+(* Canonical Structure eqType_CS X (A: eq_dec X) := EqType X. *)
 
-Existing Instance eqType_dec.
+(* Existing Instance eqType_dec. *)
 
 Instance unit_eq_dec :
   eq_dec unit.
 Proof.
-  unfold dec. decide equality. 
+  unfold dec. decide equality.
 Qed.
 
-Instance bool_eq_dec : 
+Instance bool_eq_dec :
   eq_dec bool.
 Proof.
-  unfold dec. decide equality. 
+  unfold dec. decide equality.
 Defined.
 
-Instance nat_eq_dec : 
+Instance nat_eq_dec :
   eq_dec nat.
 Proof.
   unfold dec. decide equality.
 Defined.
 
-Instance prod_eq_dec X Y :  
+Instance prod_eq_dec X Y :
   eq_dec X -> eq_dec Y -> eq_dec (X * Y).
 Proof.
-  unfold dec. decide equality. 
+  unfold dec. decide equality.
 Defined.
 
-Instance list_eq_dec X :  
+Instance list_eq_dec X :
   eq_dec X -> eq_dec (list X).
 Proof.
-  unfold dec. decide equality. 
+  unfold dec. decide equality.
 Defined.
 
-Instance sum_eq_dec X Y :  
+Instance sum_eq_dec X Y :
   eq_dec X -> eq_dec Y -> eq_dec (X + Y).
 Proof.
-  unfold dec. decide equality. 
+  unfold dec. decide equality.
 Defined.
 
 Instance option_eq_dec X :

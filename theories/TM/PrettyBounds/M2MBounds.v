@@ -780,9 +780,9 @@ Section ToSingleTape_bounds.
   Proof.
     revert q T. induction k as [ | k' IH]; intros; cbn in *.
     - destruct halt; nia.
-    - destruct halt eqn:Eh; [nia| ].
+    - destruct halt eqn:Eh. cbn. lia.
       destruct trans as (q', acts) eqn:Etrans.
-      rewrite IH. rewrite size_doAct_multi'. nia.
+      rewrite IH. rewrite size_doAct_multi'. lia.
   Qed.
 
   Lemma Loop_steps_nice :

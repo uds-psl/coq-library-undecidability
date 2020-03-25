@@ -158,7 +158,7 @@ Section CaseOption.
                 | _, _ => False
                 end).
 
-  Local Instance Retract_sigOption_sigSum :
+  Local Program Instance Retract_sigOption_sigSum :
     Retract (sigSum sigX Empty_set) (sigOption sigX) :=
     {|
       Retr_f x := match x : (sigSum sigX (FinType (EqType Empty_set))) with
@@ -173,7 +173,7 @@ Section CaseOption.
                   | sigOption_None => Some (sigSum_inr)
                   end;
       |}.
-  Proof.
+  Next Obligation.
     abstract now intros x y; split;
       [ now destruct y; intros H; inv H
       | intros ->; now destruct x as [ a | [] | | ]

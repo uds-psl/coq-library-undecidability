@@ -300,7 +300,7 @@ Definition tmEncode (name : ident) (A : Type) :=
 (** *** Generation of constructors *)
 
 Definition gen_constructor args num i  := 
-  it lam args (it lam num (it_i (fun n s => app s (n + num)) args (var (num - i - 1)))).
+  it lam args (it lam num (it_i (fun n s => L.app s (n + num)) args (var (num - i - 1)))).
 
 Definition extract_constr {A} (a : A) (n : ident) (i : nat) (t : Ast.term) (def : option ident) :=
   num <- tmNumConstructors n ;;
@@ -406,7 +406,7 @@ Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad 
     params <- tmDependentArgs s;;
     if Nat.eqb params  0 then
       t <- extract env s fuel;;
-      monad_fold_left (fun t1 s2 => t2 <- extract env s2 fuel ;; ret (app t1 t2)) R t
+      monad_fold_left (fun t1 s2 => t2 <- extract env s2 fuel ;; ret (L.app t1 t2)) R t
     else
       let (P, L) := (firstn params R,skipn params R)  in
       s' <- tmEval cbv (Ast.tApp s P);;
@@ -416,7 +416,7 @@ Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad 
       nm <- (tmEval cbv (String.append (name_of s) "_term") >>= tmFreshName) ;;
       i <- tmTryInfer nm (Some cbn) (extracted a') ;;
       let t := (@int_ext _ _ i) in
-      monad_fold_left (fun t1 s2 => t2 <- extract env s2 fuel ;; ret (app t1 t2)) L t                             
+      monad_fold_left (fun t1 s2 => t2 <- extract env s2 fuel ;; ret (L.app t1 t2)) L t                             
   | Ast.tConst n _ =>
     a <- tmUnquote s ;;
     a' <- tmEval cbn (my_projT2 a);;
@@ -443,12 +443,12 @@ Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad 
         end
     in
     t <- extract env s fuel ;;
-      M <- monad_fold_left (fun t1 '(n,s2) => t2 <- extractCaseEtaExpand env s2 n;; ret (app t1 t2)) cases t ;;
-      ret (app M I)
+      M <- monad_fold_left (fun t1 '(n,s2) => t2 <- extractCaseEtaExpand env s2 n;; ret (L.app t1 t2)) cases t ;;
+      ret (L.app M I)
   | Ast.tLetIn _ s1 _ s2 =>
     t1 <- extract env s1 fuel ;;
     t2 <- extract (↑ env) s2 fuel ;;
-    ret( app (lam t2) t1)
+    ret( L.app (lam t2) t1)
      
   | Ast.tFix _ _ => tmFail "Mutual Fixpoints are not supported"                          
   | tVar _ =>     a <- tmUnquote s ;;

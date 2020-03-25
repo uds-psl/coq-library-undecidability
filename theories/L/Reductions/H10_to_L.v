@@ -49,19 +49,18 @@ Fixpoint L_poly n : list (poly) :=
   
 Instance term_L_poly : computable L_poly. extract. Qed.
 
-Instance enum_poly :
+Program Instance enum_poly :
   enumT (poly) := {| L_T := L_poly |}.
-Proof.
-  - eauto.
-  - intros p. induction p.
-    + destruct (el_T n) as [m].
-      exists (1 + m). cbn. in_app 2. eauto.
-    + destruct (el_T n) as [m].
-      exists (1 + m). cbn. in_app 3. eauto.
-    + destruct IHp1 as [m1]. destruct IHp2 as [m2].
-      exists (1 + m1 + m2). cbn. in_app 4. in_collect (p1, p2); eapply cum_ge'; eauto; omega.
-    + destruct IHp1 as [m1]. destruct IHp2 as [m2].
-      exists (1 + m1 + m2). cbn. in_app 5. in_collect (p1, p2); eapply cum_ge'; eauto; omega.
+Next Obligation.
+  rename x into p. induction p.
+  + destruct (el_T n) as [m].
+    exists (1 + m). cbn. in_app 2. eauto.
+  + destruct (el_T n) as [m].
+    exists (1 + m). cbn. in_app 3. eauto.
+  + destruct IHp1 as [m1]. destruct IHp2 as [m2].
+    exists (1 + m1 + m2). cbn. in_app 4. in_collect (p1, p2); eapply cum_ge'; eauto; omega.
+  + destruct IHp1 as [m1]. destruct IHp2 as [m2].
+    exists (1 + m1 + m2). cbn. in_app 5. in_collect (p1, p2); eapply cum_ge'; eauto; omega.
 Defined.
 
 Fixpoint conv n (p : dio_single.dio_polynomial (pos n) (pos 0)) : poly.

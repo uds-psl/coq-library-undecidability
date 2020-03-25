@@ -1,9 +1,10 @@
-Require Export Undecidability.Shared.Prelim.
-Require Export PslBase.FiniteTypes.
-From Undecidability Require Export TM.TM Problems.Reduction.
 Require Import Equations.Equations Vector.
 
 Derive Signature for Vector.t.
+
+Require Export Undecidability.Shared.Prelim.
+Require Export PslBase.FiniteTypes.
+From Undecidability Require Export TM.TM Problems.Reduction.
 
 (** * TM to SRH *)
 
@@ -99,7 +100,7 @@ we are on the right extremity of a non-empty tape (right overflow). *)
 
   Global Instance move_finC : finTypeC (EqType move).
   Proof.
-    apply (FinTypeC (enum := [L; R; N])).
+    apply (FinTypeC (enum := [L; R; TM.N])).
     intros []; now cbv.
   Qed.
     
@@ -112,35 +113,6 @@ we are on the right extremity of a non-empty tape (right overflow). *)
       start: states; (* the start state *)
       halt : states -> bool (* decidable subset of halting states *)
     }.
-
-  (* Definition of tape movements *)
-
-  (* Definition tape_move_right := *)
-  (*   fun (t : tape) => *)
-  (*     match t with *)
-  (*       niltape _ => niltape _ *)
-  (*     | rightof _ _ =>t *)
-  (*     | leftof a rs => midtape  [ ] a rs *)
-  (*     | midtape ls a rs => *)
-  (*       match rs with *)
-  (*         []  => rightof  a ls *)
-  (*       | a0 :: rs0 => midtape (a::ls) a0 rs0 *)
-  (*       end *)
-  (*     end. *)
-
-
-  (* Definition tape_move_left := *)
-  (*   fun (t : tape) => *)
-  (*     match t with  *)
-  (*       niltape _ => niltape _ *)
-  (*     | leftof _ _ => t *)
-  (*     | rightof a ls => midtape ls a [ ] *)
-  (*     | midtape ls a rs =>  *)
-  (*       match ls with  *)
-  (*         [] => leftof a rs *)
-  (*       | a0 :: ls0 => midtape ls0 a0 (a::rs) *)
-  (*       end *)
-  (*     end. *)
 
   Definition tape_move := fun (t : tape) (m : move) =>
                             match m with  R => tape_move_right t | L => tape_move_left t | N => t end.
@@ -259,7 +231,7 @@ From Undecidability Require Import TM.Prelim Problems.TM.
 Lemma TM_conv : HaltTM 1 ⪯ Halt.
 Proof.
   unshelve eexists.
-  - intros [sig [] t]. do 2 depelim t.
+  - intros [sig [Q trans0 start0 halt0] t]. do 2 depelim t.
     exists sig. econstructor.
     + intros []. destruct (trans0 (e, [| o |])) eqn:E.
       do 2 depelim t.
@@ -267,12 +239,12 @@ Proof.
     + exact start0.
     + exact halt0.
     + exact h.
-  - intros [sig [] t]. cbn. do 2 depelim t; cbn.
+  - intros [sig [Q trans0 start0 halt0] t]. cbn. do 2 depelim t; cbn.
     unfold Halt. rewrite <- TM_terminates_Halt. cbn.
     split.
     + intros (? & ? & ?). 
       destruct x. do 2 depelim ctapes.
-      exists x0, (mk_mconfig cstate0 h0). cbn in *. 
+      eexists x0, (singleTM.mk_mconfig cstate h0). cbn in *. 
       unfold loopM, TM.loopM in *.
       eapply loop_lift with (lift := @f_config _ _) in H.
       cbn in H. rewrite <- H.
@@ -280,18 +252,19 @@ Proof.
       * reflexivity.
       * intros. cbn. depelim x. depelim ctapes. depelim ctapes. reflexivity.
       * intros. cbn. depelim x. depelim ctapes. depelim ctapes. cbn in *.
-        unfold step, TM.step. cbn.
-        destruct (trans0 (cstate1, [|current h1|])) eqn:E.
-        depelim t. depelim t. cbn. unfold current_chars. cbn. rewrite E. reflexivity.
+        unfold singleTM.step, TM.step. cbn.
+        unfold current_chars. cbn.
+        destruct (trans0 (cstate0, [|current h1|])) eqn:E. 
+        depelim t. depelim t. cbn. reflexivity.        
     + intros (? & ? & ?).
       cbn in *. destruct x0.
-      exists (TM.mk_mconfig cstate0 [| ctape0 |]), x.
-      unfold TM.loopM, loopM in *.
-      eapply (loop_lift (lift := fun '(mk_mconfig a b) => @TM.mk_mconfig sig states0 1 a [| b |])) in H. cbn.
+      exists (TM.mk_mconfig cstate [| ctape0 |]), x.
+      unfold TM.loopM, singleTM.loopM in *.
+      eapply (loop_lift (lift := fun '(singleTM.mk_mconfig a b) => @TM.mk_mconfig sig Q 1 a [| b |])) in H. cbn.
       rewrite <- H.
       f_equal.
       * now intros [].
-      * intros [] ?. unfold step, TM.step, current_chars.
-        cbn. destruct (trans0 (cstate1, [|current ctape1|])) eqn:E.
+      * intros [] ?. unfold singleTM.step, TM.step, current_chars.
+        cbn. destruct (trans0 (cstate0, [|current ctape1|])) eqn:E.
         depelim t. depelim t. reflexivity.
-Qed.
+Qed. 

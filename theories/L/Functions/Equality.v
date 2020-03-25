@@ -1,6 +1,6 @@
 From Undecidability.L Require Export Datatypes.LBool Datatypes.LNat Functions.Encoding.
-Require Export Nat.
 From Undecidability.L Require Import Tactics.LTactics.
+Require Export Nat.
 
 (** * Extracted Functions *)
 
@@ -24,7 +24,7 @@ Defined.*)
 Fixpoint term_eqb s t :=
   match s,t with
   | var n, var m => eqb n m
-  | app s1 t1, app s2 t2 => andb (term_eqb s1 s2) (term_eqb t1 t2)
+  | L.app s1 t1, L.app s2 t2 => andb (term_eqb s1 s2) (term_eqb t1 t2)
   | lam s',lam t' => term_eqb s' t'
   | _,_ => false
   end.
@@ -32,8 +32,7 @@ Fixpoint term_eqb s t :=
 Instance term_term_eqb : computable term_eqb.
 Proof.
   extract.
-Defined.
-
+Qed.
 
 Lemma term_eqb_spec : forall x y1 : term, reflect (x = y1) (term_eqb x y1).
 Proof with try (constructor;congruence).

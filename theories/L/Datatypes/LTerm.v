@@ -1,6 +1,6 @@
-From Undecidability.L.Tactics Require Import LTactics GenEncode.
 From Undecidability.L.Datatypes Require Export LNat.
 From Undecidability.L Require Export L.
+From Undecidability.L.Tactics Require Import LTactics GenEncode.
 
 (** ** Encoding for L-terms *)
 Run TemplateProgram (tmGenEncode "term_enc" term).
@@ -12,7 +12,7 @@ Proof.
   extract constructor. solverec.
 Defined.
 
-Instance term_app : computableTime app (fun s1 _ => (1, (fun s2 _ => (1, tt)))).
+Instance term_app : computableTime L.app (fun s1 _ => (1, (fun s2 _ => (1, tt)))).
 Proof.
   extract constructor. solverec.
 Defined.

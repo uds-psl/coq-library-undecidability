@@ -284,12 +284,12 @@ Proof.
   -cbn in R. inv Unf.
    rewrite <- !app_assoc in R.
    pose (R':=R).
-   eapply IHs01 in R' as (k11&k12&g1&H'1&t1&eq1&R11&[R1 _]&Ev1&Ext1&Rg1). 2-4:eassumption.
+   eapply IHs01 in R' as (k11&k12&g1&H'1&t1&eq1&R11&[R1 _]&Ev1&Ext1&Rg1). all:try eassumption.
    rewrite tailRecursion_compile in R1.
    inv Rg1. inv H1. inv H2.
    pose (R':=R1).
    eapply IHs02 in R' as (k21&k22&g2&H'2&t2&eq2&R21&[R2 _]&Ev2&Ext2&Rg2).
-   3-4:now eauto using unfolds_extend.
+   all:try now eauto using unfolds_extend.
    2:{ intros. eapply IH. omega. all:eauto. }
    inv Rg2. inv H1. inv H2.
    cbn in R2.

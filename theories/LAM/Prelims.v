@@ -1,6 +1,6 @@
+Require Export Undecidability.LAM.BaseExtension Coq.Program.Basics PslBase.Base.
 From Undecidability.L Require Export Prelim.ARS L.
 Export ARSNotations.
-Require Export Undecidability.LAM.BaseExtension Coq.Program.Basics PslBase.Base.
 
 Definition evaluatesIn (X : Type) (R : X -> X -> Prop) n (x y : X) := pow R n x y /\ terminal R y.
 
