@@ -2210,29 +2210,27 @@ Inductive symfree' : form -> Prop :=
 Lemma subst_symfree_term t sigma :
   (forall n, symfree_term (sigma n)) -> symfree_term t -> symfree_term t[sigma].
 Proof.
-  induction t using strong_term_ind; intros HS Ht.
-  - apply HS.
-  - inversion Ht.
+  induction t using strong_term_ind; intuition.
 Qed.
 
 Lemma subst_symfree phi sigma :
   (forall n, symfree_term (sigma n)) -> symfree phi -> symfree phi[sigma].
 Proof.
-  induction phi in sigma |- *; intros HS H; cbn; constructor; inversion H; subst; intuition.
+  induction phi in sigma |- *; cbn; intros HS H; subst; intuition.
   - apply vec_map_inv in X as [y[HY ->]]. apply subst_symfree_term; auto.
-  - apply IHphi; trivial. intros []; cbn. constructor. asimpl.
-    apply subst_symfree_term; trivial. intros k. constructor.
-  - apply IHphi; trivial. intros []; cbn. constructor. asimpl.
-    apply subst_symfree_term; trivial. intros k. constructor.
+  - apply IHphi; trivial. intros []; cbn; auto.
+    apply subst_symfree_term; cbn; auto.
+  - apply IHphi; trivial. intros []; cbn; auto.
+    apply subst_symfree_term; cbn; auto.
 Qed.
 
-Transparent is_pair is_union is_power is_om.
+Transparent is_pair is_union is_power.
 
 Lemma rm_const_tm_symfree t :
   symfree (rm_const_tm t).
 Proof.
-  induction t as [n|[] v IH] using strong_term_ind; cbn; repeat constructor.
-  all: try intros t [->|[->|H] % vec_cons_inv] % vec_cons_inv; try constructor; try inversion H.
+  induction t as [n|[] v IH] using strong_term_ind; cbn; auto; repeat split.
+  all: try intros t [->|[->|H] % vec_cons_inv] % vec_cons_inv; try inversion H; cbn; auto.
   - rewrite map_hd. apply subst_symfree. intros []; constructor. apply IH, in_hd.
   - rewrite map_tl, map_hd. apply subst_symfree. intros []; constructor. apply IH, in_hd_tl.
   - rewrite map_hd. apply subst_symfree. intros []; constructor. apply IH, in_hd.
@@ -2388,7 +2386,7 @@ Qed.
 Lemma embed_symfree phi :
   symfree (embed phi).
 Proof.
-  induction phi; cbn; constructor; intuition.
+  induction phi; cbn; intuition.
   apply vec_map_inv in X as [t'[_ ->]].
   apply embed_symfree_term.
 Qed.
@@ -2414,16 +2412,16 @@ Qed.
 Lemma embed_translate_term t :
   symfree_term t -> embed_term (translate_term t) = t.
 Proof.
-  intros []. cbn. reflexivity.
+  destruct t; cbn. reflexivity. auto.
 Qed.
 
 Lemma embed_translate phi :
   symfree phi -> embed (translate phi) = phi.
 Proof.
-  induction 1; cbn; try congruence.
-  f_equal. erewrite vec_comp. 2: reflexivity.
+  induction phi; cbn; trivial; intros H; f_equal; intuition.
+  erewrite vec_comp. 2: reflexivity.
   erewrite vec_map_ext. apply vec_id. reflexivity.
-  intros t Ht. now apply embed_translate_term, H.
+  intros t' Ht. now apply embed_translate_term, H.
 Qed.
 
 Definition translate' phi :=
@@ -2453,20 +2451,20 @@ Definition ren_form {Sigma : Signature} f phi :=
 Lemma translate_ren_tm t (f : nat -> nat) (H : symfree_term t) :
   translate_term (ren_term f t) = ren_term f (translate_term t).
 Proof.
-  destruct H; cbn. reflexivity.
+  destruct t; cbn in *. reflexivity. auto.
 Qed.
 
 Lemma translate_ren phi (f : nat -> nat) (H : symfree phi) :
   translate (ren_form f phi) = ren_form f (translate phi).
 Proof.
-  induction H in f |- *; cbn; trivial; unfold translate' in *;
-    try now rewrite IHsymfree1, IHsymfree2.
+  induction phi in f, H |- *; cbn in *; trivial; unfold translate' in *;
+    try now rewrite IHphi1, IHphi2.
   - f_equal. erewrite !vec_comp. 2,3: reflexivity. apply vec_map_ext.
     intros x Hx. now apply translate_ren_tm, H.
-  - f_equal. asimpl. specialize (IHsymfree (up_ren f)).
-    erewrite ext_form. rewrite IHsymfree. apply ext_form. all: now intros [].
-  - f_equal. asimpl. specialize (IHsymfree (up_ren f)).
-    erewrite ext_form. rewrite IHsymfree. apply ext_form. all: now intros [].
+  - f_equal. asimpl. erewrite ext_form, (IHphi (up_ren f)); trivial.
+    apply ext_form. all: now intros [].
+  - f_equal. asimpl. erewrite ext_form, (IHphi (up_ren f)); trivial.
+    apply ext_form. all: now intros [].
 Qed.
 
 Lemma rm_const_tm_ren t f :
@@ -2609,57 +2607,149 @@ Proof.
   - 
 Admitted.
 
-Lemma translate_tm_subst T t' t n :
-  T ⊩IE (translate (rm_const_tm t))[$n..]
-  -> T ⊩IE (translate (rm_const_tm t'))[$n..] <-> T ⊩IE (translate (rm_const_tm t'[t..])).
-Proof.
-  intros H. induction t' using strong_term_ind; cbn; try destruct F.
-  - destruct x; cbn. destruct t; cbn in *. admit. destruct f; admit.
-    admit.
-  - 
-Abort.
-
-Lemma translate_subst phi sigma f :
+Lemma translate_ren_subst phi sigma f :
   symfree phi -> (forall n, sigma n = $(f n)) -> translate phi[sigma] = ren_form f (translate phi).
 Proof.
   intros H1 H2. setoid_rewrite (ext_form sigma).
   now apply translate_ren. apply H2.
 Qed.
 
+Definition embed_subst sigma :=
+  fun n : nat => embed_term (sigma n).
+
+Definition embed_ren (sigma : nat -> term) :=
+  fun n => match sigma n with $k => k | _ => 0 end.
+
+Lemma translate_subst2 phi sigma :
+  symfree phi -> translate phi[embed_subst sigma] = (translate phi)[sigma].
+Proof.
+  intros H. erewrite (translate_ren_subst (f:=embed_ren sigma)); trivial.
+  - apply ext_form. intros x. unfold embed_ren. now destruct (sigma x).
+  - intros x. unfold embed_subst, embed_ren. now destruct (sigma x).
+Qed.
+
+Lemma translate_subst3 phi sigma :
+  symfree phi -> translate (ren_form (embed_ren sigma) phi) = (translate phi)[sigma].
+Proof.
+  intros H. rewrite translate_ren; trivial. apply ext_form.
+  intros x. unfold embed_ren. now destruct (sigma x).
+Qed.
+
+Lemma symfree_is_eset t :
+  symfree_term t -> symfree (is_eset t).
+Proof.
+Admitted.
+
+Lemma symfree_is_pair x y t :
+  symfree_term x -> symfree_term y -> symfree_term t -> symfree (is_pair x y t).
+Proof.
+Admitted.
+
+Lemma symfree_is_union x t :
+  symfree_term x -> symfree_term t -> symfree (is_union x t).
+Proof.
+Admitted.
+
+Lemma symfree_is_power x t :
+  symfree_term x -> symfree_term t -> symfree (is_power x t).
+Proof.
+Admitted.
+
+Lemma symfree_is_om t :
+  symfree_term t -> symfree (is_om t).
+Proof.
+Admitted.
+
+Lemma ex_equiv {Sigma : Signature} `{peirce} `{bottom} T phi psi :
+  (forall n, T ⊩ phi[$n..] <-> T ⊩ psi[$n..]) -> (T ⊩ ∃ phi) <-> (T ⊩ ∃ psi).
+Proof.
+Admitted.
+
+Lemma and_equiv {Sigma : Signature} `{peirce} `{bottom} T phi phi' psi psi' :
+  (T ⊩ phi <-> T ⊩ phi') -> (T ⊩ psi <-> T ⊩ psi') -> (T ⊩ (phi ∧ psi)) <-> (T ⊩ (phi' ∧ psi')).
+Proof.
+Admitted.
+
 Lemma translate_tm_subst T x t n k :
   T ⊩IE (translate_tm' t)[$ n..]
   -> T ⊩IE (translate_tm' x)[$k.:($n..)] <-> T ⊩IE (translate_tm' x[t..])[$k..].
 Proof.
-  induction x using strong_term_ind; cbn; try destruct F; intros Hn.
+  revert k. induction x using strong_term_ind; try destruct F; cbn; intros k Hn.
   - destruct x; cbn; try tauto. admit.
-  - setoid_rewrite ext_form.
-    setoid_rewrite <- (translate_subst (f := fun i => match i with 0 => k | S i => i end)) at 2.
-    3: reflexivity. 4: now intros []. rewrite is_eset_subst. cbn.
-    setoid_rewrite <- (translate_subst (f := fun i => match i with 0 => k | S 0 => n | S (S i) => i end)) at 1. 3: reflexivity. 4: now intros [|[]]. rewrite is_eset_subst. cbn. tauto.
-    
-    rewrite !is_eset_subst. 7: intros []; cbn.
+  - rewrite <- !translate_subst2; try now apply symfree_is_eset.
+    rewrite !is_eset_subst. cbn. tauto.
+  - apply ex_equiv. intros i. cbn. apply and_equiv.
+    + rewrite !map_hd.
+      setoid_rewrite (translate_ren_subst (f:=up_ren S)) at 1.
+      3: now intros []. 2: apply rm_const_tm_symfree.
+      setoid_rewrite (translate_ren_subst (f:=up_ren S)) at 1.
+      3: now intros []. 2: apply rm_const_tm_symfree.
+      asimpl. setoid_rewrite ext_form. apply H; trivial; try apply in_hd.
+      all: now intros [].
+    + apply ex_equiv. intros j. cbn. apply and_equiv.
+      * rewrite !map_tl, !map_hd.
+        setoid_rewrite (translate_ren_subst (f:=up_ren (plus 2))) at 1.
+        3: now intros []. 2: apply rm_const_tm_symfree.
+        setoid_rewrite (translate_ren_subst (f:=up_ren (plus 2))) at 1.
+        3: now intros []. 2: apply rm_const_tm_symfree.
+        asimpl. setoid_rewrite ext_form. apply H; trivial; try apply in_hd_tl.
+        all: now intros [].
+      * asimpl. setoid_rewrite <- translate_subst2; try now apply symfree_is_pair.
+        rewrite !is_pair_subst. cbn. tauto.
+   - apply ex_equiv. intros i. cbn. apply and_equiv.
+    + rewrite !map_hd.
+      setoid_rewrite (translate_ren_subst (f:=up_ren S)) at 1.
+      3: now intros []. 2: apply rm_const_tm_symfree.
+      setoid_rewrite (translate_ren_subst (f:=up_ren S)) at 1.
+      3: now intros []. 2: apply rm_const_tm_symfree.
+      asimpl. setoid_rewrite ext_form. apply H; trivial; try apply in_hd.
+      all: now intros [].
+    + asimpl. setoid_rewrite <- translate_subst2; try now apply symfree_is_union.
+      rewrite !is_union_subst. cbn. tauto.
+   - admit.
+   - rewrite <- !translate_subst2; try now apply symfree_is_om.
+     rewrite !is_om_subst. cbn. tauto.
 Admitted.
 
-Lemma translate_tm_fm T phi t n :
+
+
+Lemma translate_subst T phi t n :
   T ⊩IE (translate_tm' t)[$n..]
   -> T ⊩IE (translate' phi)[$n..] <-> T ⊩IE translate' phi[t..].
 Proof.
-  induction phi; intros Hn; try destruct P; cbn; split; try tauto; intros H.
-  - eapply bt_exists in H as [[n1|[]] H]. apply H. clear H. cbn. assert1 H.
-    apply prv_T_CE2 in H. eapply bt_exists in H as [[n2|[]] H]. apply H. clear H. cbn.
-    apply prv_T_ExI with $n1. cbn. apply prv_T_CI.
-    + rewrite (vec_inv2 t0). cbn. asimpl. eapply translate_tm_subst.
-      * apply (Weak_T Hn). solve_tsub.
-      * eapply prv_T_CE1. apply prv_T2.
-    + apply prv_T_ExI with $n2. cbn. apply prv_T_CI.
-      * rewrite (vec_inv2 t0). cbn.
-        setoid_rewrite (translate_subst (f:=up_ren S)) at 3; try apply rm_const_tm_symfree.
-        2: now intros []. cbn. unfold ren_form. asimpl.
-        eapply translate_tm_subst.
-      * asimpl. admit.
+  induction phi; intros Hn; try destruct P; cbn; try tauto.
+  - apply ex_equiv. intros i. cbn. apply and_equiv.
+    + rewrite !map_hd. asimpl. setoid_rewrite ext_form.
+      apply translate_tm_subst, Hn.
+      all: now intros [].
+    + apply ex_equiv. intros j. cbn. apply and_equiv; try tauto.
+      rewrite !map_tl, !map_hd.
+      setoid_rewrite (translate_ren_subst (f:=up_ren S)) at 1.
+      3: now intros []. 2: apply rm_const_tm_symfree.
+      setoid_rewrite (translate_ren_subst (f:=up_ren S)) at 1.
+      3: now intros []. 2: apply rm_const_tm_symfree.
+      asimpl. setoid_rewrite ext_form. apply translate_tm_subst, Hn.
+      all: now intros [].
+  - apply ex_equiv. intros i. cbn. apply and_equiv.
+    + rewrite !map_hd. asimpl. setoid_rewrite ext_form.
+      apply translate_tm_subst, Hn.
+      all: now intros [].
+    + apply ex_equiv. intros j. cbn. apply and_equiv; try tauto.
+      rewrite !map_tl, !map_hd.
+      setoid_rewrite (translate_ren_subst (f:=up_ren S)) at 1.
+      3: now intros []. 2: apply rm_const_tm_symfree.
+      setoid_rewrite (translate_ren_subst (f:=up_ren S)) at 1.
+      3: now intros []. 2: apply rm_const_tm_symfree.
+      asimpl. setoid_rewrite ext_form. apply translate_tm_subst, Hn.
+      all: now intros [].
   - admit.
+  - apply and_equiv; intuition.
   - admit.
-  - admit.
+  - asimpl. admit.
+  - apply ex_equiv. intros i. asimpl.
+    setoid_rewrite <- translate_subst3 at 2; try apply rm_const_fm_symfree.
+    rewrite <- rm_const_fm_ren. unfold ren_form, embed_ren. asimpl.
+    setoid_rewrite (@ext_form _ _ ($i.:(t..))) at 1. 2: now intros [|[]].
 Admitted.
 
 
