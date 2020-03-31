@@ -2660,6 +2660,11 @@ Lemma symfree_is_om t :
 Proof.
 Admitted.
 
+Lemma all_equiv {Sigma : Signature} `{peirce} `{bottom} T phi psi :
+  (forall n, T ⊩ phi[$n..] <-> T ⊩ psi[$n..]) -> (T ⊩ ∀ phi) <-> (T ⊩ ∀ psi).
+Proof.
+Admitted.
+
 Lemma ex_equiv {Sigma : Signature} `{peirce} `{bottom} T phi psi :
   (forall n, T ⊩ phi[$n..] <-> T ⊩ psi[$n..]) -> (T ⊩ ∃ phi) <-> (T ⊩ ∃ psi).
 Proof.
@@ -2711,13 +2716,24 @@ Proof.
      rewrite !is_om_subst. cbn. tauto.
 Admitted.
 
+Lemma form_pw2 {Sigma : Signature} phi x y :
+  phi[$(S x)..][y..] = phi[$x.:y..].
+Proof.
+  asimpl. reflexivity.
+Qed.
 
+Lemma translate_pw' phi n :
+  translate' phi[$n..] = (translate' phi)[$n..].
+Proof.
+  setoid_rewrite ext_form. rewrite (translate_ren' _ (fun k => match k with 0 => n | S k => k end)).
+  reflexivity. intros []; reflexivity. intros []; reflexivity.
+Qed.
 
 Lemma translate_subst T phi t n :
   T ⊩IE (translate_tm' t)[$n..]
   -> T ⊩IE (translate' phi)[$n..] <-> T ⊩IE translate' phi[t..].
 Proof.
-  induction phi; intros Hn; try destruct P; cbn; try tauto.
+  induction phi using form_ind_subst; intros Hn; try destruct p; cbn; try tauto.
   - apply ex_equiv. intros i. cbn. apply and_equiv.
     + rewrite !map_hd. asimpl. setoid_rewrite ext_form.
       apply translate_tm_subst, Hn.
@@ -2745,14 +2761,19 @@ Proof.
   - admit.
   - apply and_equiv; intuition.
   - admit.
-  - asimpl. admit.
+  - apply all_equiv. intros i. asimpl.
+    setoid_rewrite <- translate_subst3 at 2; try apply rm_const_fm_symfree.
+    rewrite <- rm_const_fm_ren. unfold ren_form, embed_ren. asimpl.
+    setoid_rewrite (@ext_form _ _ ($i.:(t..))) at 1. 2: now intros [|[]].
+    setoid_rewrite <- form_pw2. setoid_rewrite <- H; trivial.
+    now rewrite translate_pw'.
   - apply ex_equiv. intros i. asimpl.
     setoid_rewrite <- translate_subst3 at 2; try apply rm_const_fm_symfree.
     rewrite <- rm_const_fm_ren. unfold ren_form, embed_ren. asimpl.
     setoid_rewrite (@ext_form _ _ ($i.:(t..))) at 1. 2: now intros [|[]].
+    setoid_rewrite <- form_pw2. setoid_rewrite <- H; trivial.
+    now rewrite translate_pw'.
 Admitted.
-
-
 
 Theorem tprv_translate' (T : @theory ZF_Signature) phi (H : T ⊩IE phi) :
   ZF_extension T -> bounded_theory T -> (translate_theory' T) ⊩IE translate' phi.
