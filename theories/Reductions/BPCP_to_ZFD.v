@@ -2114,7 +2114,7 @@ Qed.
 
 (* minimised signature *)
 
-Lemma subst_theory_sub T A sigma :
+Lemma subst_theory_sub {Sigma : Signature} T A sigma :
   A ⊏ T -> [psi[sigma] | psi ∈ A] ⊏ subst_theory sigma T.
 Proof.
   induction A; intros H phi HP; cbn in *; auto.
@@ -2123,7 +2123,7 @@ Proof.
   - exists psi. split; trivial. apply H. now right.
 Qed.
 
-Lemma tprv_ind (P : peirce -> bottom -> theory -> form -> Prop) :
+Lemma tprv_ind {Sigma : Signature} (P : peirce -> bottom -> theory -> form -> Prop) :
   (forall p b T phi psi, P p b (T ⋄ phi) psi -> P p b T (phi --> psi))
   -> (forall p b T phi psi, P p b T (phi --> psi) -> P p b T phi -> P p b T psi)
   -> (forall p b T phi, P p b (subst_theory ↑ T) phi -> P p b T (∀ phi))
@@ -2160,7 +2160,7 @@ Proof.
   - apply H13.
 Qed.
 
-Lemma tprv_ind_IE (P : theory -> form -> Prop) :
+Lemma tprv_ind_IE {Sigma : Signature} (P : theory -> form -> Prop) :
   (forall T phi psi, P (T ⋄ phi) psi -> P T (phi --> psi))
   -> (forall T phi psi, P T (phi --> psi) -> P T phi -> P T psi)
   -> (forall T phi, P (subst_theory ↑ T) phi -> P T (∀ phi))
@@ -2181,17 +2181,31 @@ Proof.
   revert H13. apply tprv_ind; clear T phi p b; intros; subst; intuition; eauto. discriminate.
 Qed.
 
-Inductive symfree_term : term -> Prop :=
-| ST1 n : symfree_term ($ n).
+Definition symfree_term (t : term) :=
+  if t then True else False.
 
-Inductive symfree : form -> Prop :=
-| SP P v : (forall t, vec_in t v -> symfree_term t) -> symfree (Pred P v)
-| SC phi psi : symfree phi -> symfree psi -> symfree (phi ∧ psi)
-| SD phi psi : symfree phi -> symfree psi -> symfree (phi ∨ psi)
-| SI phi psi : symfree phi -> symfree psi -> symfree (phi --> psi)
-| SA phi : symfree phi -> symfree (∀ phi)
-| SE phi : symfree phi -> symfree (∃ phi)
-| SB : symfree ⊥.
+Fixpoint symfree (phi : form) :=
+  match phi with
+  | Pred P v => forall t, vec_in t v -> symfree_term t
+  | phi ∧ psi => symfree phi /\ symfree psi
+  | phi ∨ psi => symfree phi /\ symfree psi
+  | phi --> psi => symfree phi /\ symfree psi
+  | ∀ phi => symfree phi
+  | ∃ phi => symfree phi
+  | ⊥ => True
+  end.
+
+Inductive symfree_term' : term -> Prop :=
+| ST1 n : symfree_term' ($ n).
+
+Inductive symfree' : form -> Prop :=
+| SP P v : (forall t, vec_in t v -> symfree_term' t) -> symfree' (Pred P v)
+| SC phi psi : symfree' phi -> symfree' psi -> symfree' (phi ∧ psi)
+| SD phi psi : symfree' phi -> symfree' psi -> symfree' (phi ∨ psi)
+| SI phi psi : symfree' phi -> symfree' psi -> symfree' (phi --> psi)
+| SA phi : symfree' phi -> symfree' (∀ phi)
+| SE phi : symfree' phi -> symfree' (∃ phi)
+| SB : symfree' ⊥.
 
 Lemma subst_symfree_term t sigma :
   (forall n, symfree_term (sigma n)) -> symfree_term t -> symfree_term t[sigma].
@@ -2415,11 +2429,14 @@ Qed.
 Definition translate' phi :=
   translate (rm_const_fm phi).
 
-Definition translate_theory (T : @theory ZF_Signature) : @theory ZFE_Signature :=
-  fun phi => exists psi, T psi /\ translate psi = phi.
+Definition translate_tm' t :=
+  translate (rm_const_tm t).
 
-Definition translate_theory' (T : @theory ZF_Signature) : @theory ZFE_Signature :=
-  fun phi => exists psi, T psi /\ translate' psi = phi.
+Definition translate_theory T :=
+  tmap translate T.
+
+Definition translate_theory' T :=
+  tmap translate' T.
 
 Lemma translate_theory_extend T phi :
   translate_theory' (T ⋄ phi) ⊑ (translate_theory' T ⋄ (translate' phi)).
@@ -2427,53 +2444,66 @@ Proof.
   firstorder congruence.
 Qed.
 
+Definition ren_term {Sigma : Signature} f t :=
+  subst_term (fun n => $(f n)) t.
+
+Definition ren_form {Sigma : Signature} f phi :=
+  subst_form (fun n => $(f n)) phi.
+
 Lemma translate_ren_tm t (f : nat -> nat) (H : symfree_term t) :
-  translate_term (subst_term (fun n => $(f n)) t) = subst_term (fun n => $(f n)) (translate_term t).
+  translate_term (ren_term f t) = ren_term f (translate_term t).
 Proof.
   destruct H; cbn. reflexivity.
 Qed.
 
 Lemma translate_ren phi (f : nat -> nat) (H : symfree phi) :
-  translate (subst_form (fun n => $(f n)) phi) = subst_form (fun n => $(f n)) (translate phi).
+  translate (ren_form f phi) = ren_form f (translate phi).
 Proof.
   induction H in f |- *; cbn; trivial; unfold translate' in *;
     try now rewrite IHsymfree1, IHsymfree2.
   - f_equal. erewrite !vec_comp. 2,3: reflexivity. apply vec_map_ext.
     intros x Hx. now apply translate_ren_tm, H.
-  - f_equal. asimpl. specialize (IHsymfree (fun n => match n with 0 => 0 | S n => S (f n) end)).
+  - f_equal. asimpl. specialize (IHsymfree (up_ren f)).
     erewrite ext_form. rewrite IHsymfree. apply ext_form. all: now intros [].
-  - f_equal. asimpl. specialize (IHsymfree (fun n => match n with 0 => 0 | S n => S (f n) end)).
+  - f_equal. asimpl. specialize (IHsymfree (up_ren f)).
     erewrite ext_form. rewrite IHsymfree. apply ext_form. all: now intros [].
 Qed.
 
 Lemma rm_const_tm_ren t f :
-  rm_const_tm (subst_term (fun n => $(f n)) t)
-  = subst_form (fun n => match n with 0 => $0 | S n => $(S (f n)) end) (rm_const_tm t).
+  rm_const_tm (ren_term f t) = ren_form (up_ren f) (rm_const_tm t).
 Proof.
   induction t using strong_term_ind; cbn; try reflexivity. destruct F; cbn; try reflexivity.
   - repeat f_equal; rewrite (vec_inv2 v); cbn.
-    + rewrite H; try apply in_hd. asimpl. now apply ext_form.
-    + rewrite H; try apply in_hd_tl. asimpl. now apply ext_form.
+    + rewrite H; try apply in_hd. asimpl. apply ext_form. intros []; reflexivity.
+    + rewrite H; try apply in_hd_tl. asimpl. apply ext_form. intros []; reflexivity.
   - repeat f_equal; rewrite (vec_inv1 v); cbn.
-    rewrite H; try apply in_hd. asimpl. now apply ext_form.
+    rewrite H; try apply in_hd. asimpl. apply ext_form. intros []; reflexivity.
   - repeat f_equal; rewrite (vec_inv1 v); cbn.
-    rewrite H; try apply in_hd. asimpl. now apply ext_form.
+    rewrite H; try apply in_hd. asimpl. apply ext_form. intros []; reflexivity.
 Qed.
 
 Lemma rm_const_fm_ren phi f :
-  rm_const_fm (subst_form (fun n => $(f n)) phi) = subst_form (fun n => $(f n)) (rm_const_fm phi).
+  rm_const_fm (ren_form f phi) = ren_form f (rm_const_fm phi).
 Proof.
   induction phi in f |- *; cbn; trivial; try now rewrite IHphi1, IHphi2. destruct P; cbn.
   - repeat f_equal; rewrite (vec_inv2 t); cbn.
-    + rewrite rm_const_tm_ren. now apply ext_form.
-    + rewrite rm_const_tm_ren. asimpl. now apply ext_form.
+    + rewrite rm_const_tm_ren. apply ext_form. intros []; reflexivity.
+    + rewrite rm_const_tm_ren. asimpl. apply ext_form. intros []; reflexivity.
   - repeat f_equal; rewrite (vec_inv2 t); cbn.
-    + rewrite rm_const_tm_ren. now apply ext_form.
-    + rewrite rm_const_tm_ren. asimpl. now apply ext_form.
+    + rewrite rm_const_tm_ren. apply ext_form. intros []; reflexivity.
+    + rewrite rm_const_tm_ren. asimpl. apply ext_form. intros []; reflexivity.
   - f_equal. asimpl. specialize (IHphi (fun n => match n with 0 => 0 | S n => S (f n) end)).
     erewrite ext_form. rewrite IHphi. apply ext_form. all: now intros [].
   - f_equal. asimpl. specialize (IHphi (fun n => match n with 0 => 0 | S n => S (f n) end)).
     erewrite ext_form. rewrite IHphi. apply ext_form. all: now intros [].
+Qed.
+
+Lemma translate_tm_ren' t (f : nat -> nat) :
+  translate_tm' (ren_term f t) = ren_form (up_ren f) (translate_tm' t).
+Proof.
+  unfold translate_tm'. rewrite rm_const_tm_ren, translate_ren.
+  - reflexivity.
+  - apply rm_const_tm_symfree.
 Qed.
 
 Lemma translate_ren' phi (f : nat -> nat) :
@@ -2496,7 +2526,145 @@ Proof.
   apply ZF_subst_theory.
 Qed.
 
+(*Class ZF_context :=
+  { 
+    T :> @form ZF_Signature -> Prop ;
+    Hextension : ZF_extension T ;
+    Hbounded : bounded_theory T ;
+  }.
+
+Coercion T : ZF_context >-> Funclass.*)
+
+(*Lemma ZFprv_ind (P : @theory ZF_Signature -> @form ZF_Signature -> Prop) :
+  (forall T phi psi, P (T ⋄ phi) psi -> P T (phi --> psi))
+  -> (forall T phi psi, symfree phi -> P T (phi --> psi) -> P T phi -> P T psi)
+  -> (forall T phi, P (subst_theory ↑ T) phi -> P T (∀ phi))
+  -> (forall T phi t, P T (∀ phi) -> P T phi[t..])
+  -> (forall T phi t, P T phi[t..] -> P T (∃ phi))
+  -> (forall T phi psi, symfree phi -> P T (∃ phi) -> P ((subst_theory ↑ T) ⋄ phi) psi[↑] -> P T psi)
+  -> (forall T phi, P T ⊥ -> P T phi)
+  -> (forall (T : theory) phi, T phi -> P T phi)
+  -> (forall T phi psi, P T phi -> P T psi -> P T (phi ∧ psi))
+  -> (forall T phi psi, P T (phi ∧ psi) -> P T phi)
+  -> (forall T phi psi, P T (phi ∧ psi) -> P T psi)
+  -> (forall T phi psi, P T phi -> P T (phi ∨ psi))
+  -> (forall T phi psi, P T psi -> P T (phi ∨ psi))
+  -> (forall T phi psi theta, P T (phi ∨ psi) -> P (T ⋄ phi) theta -> P (T ⋄ psi) theta -> P T theta)
+  -> (forall T phi, P T phi -> P T (rm_const_fm phi))
+  -> forall T phi, ZF_extension T -> bounded_theory T -> T ⊩IE phi -> P T phi.
+Proof.
+  intros. revert H14 H15. pattern T0, phi. revert H16. apply tprv_ind_IE; intuition. all: eauto.
+  - eapply H0. 3: apply H13, H18. apply rm_const_fm_symfree. apply H. admit.
+  - eapply H4. admit.
+Admitted.*)
+
+(*Theorem tprv_translate_ZF (T : @theory ZF_Signature) phi :
+  ZF_extension T -> bounded_theory T -> T ⊩IE phi -> symfree phi
+  -> (translate_theory' T) ⊩IE translate phi.
+Proof.
+  intros H1 H2 H3. pattern T, phi. revert T phi H1 H2 H3. apply ZFprv_ind; cbn in *.
+  - intros T phi psi IH HE. apply prv_T_impl.
+    eapply Weak_T. apply IH. admit. admit.
+  - intros T phi psi HS IH1 IH2 HE. eapply prv_T_mp; eauto. apply IH1; trivial. now constructor.
+  - intros T phi IH HE. apply prv_T_AllI'.
+    eapply Weak_T. apply IH. admit. admit. admit.
+  - intros T phi t IH HE HB. admit.
+  - intros T phi t IH HE HB. admit.
+  - intros T phi psi HS IH1 IH2 HE HB. eapply prv_T_ExE'. apply IH1; trivial. now constructor.
+    eapply Weak_T. setoid_rewrite <- translate_ren. apply IH2. admit. admit. admit. admit.
+  - intros T phi IH HE HB. apply prv_T_exf. apply IH; trivial. constructor.
+  - intros T phi IH HE HB. apply elem_prv. now exists phi.
+  - intros T phi psi IH1 IH2 HE HB. inversion HB; subst. apply prv_T_CI; intuition.
+  - intros T phi psi IH HE HB. eapply prv_T_CE1. apply IH; trivial. admit.
+  - intros T phi psi IH HE HB. eapply prv_T_CE2. apply IH; trivial. admit.
+  - intros T phi psi IH HE HB. inversion HB; subst. eapply prv_T_DI1. intuition.
+  - intros T phi psi IH HE HB. inversion HB; subst. eapply prv_T_DI2. intuition.
+  - intros T phi psi theta IH1 IH2 IH3 HE HB. eapply prv_T_DE. apply IH1; trivial. admit. admit. admit.
+  - intros T phi IH HT _. specialize (IH HT). clear HT.
+Abort.*)
+
 Theorem tprv_translate (T : @theory ZF_Signature) phi (H : T ⊩IE phi) :
+  ZF_extension T -> bounded_theory T -> symfree phi
+  -> (translate_theory' T) ⊩IE translate phi.
+Proof.
+  pattern T, phi. revert H. apply tprv_ind_IE; clear T phi; intros T; cbn.
+  - intros phi psi IH HE HB HP. apply prv_T_impl.
+    eapply Weak_T. apply IH; eauto. admit. admit.
+  - intros phi psi IH1 IH2 HE HB HP. eapply prv_T_mp. admit. admit.
+  - admit.
+  - intros phi t IH HE HB HP. admit.
+  - admit.
+  - admit.
+  -
+Admitted.
+
+Opaque is_eset is_pair is_union is_power is_om.
+
+Lemma translate_tm_ex T t :
+  ZF_extension T -> bounded_theory T -> translate_theory' T ⊩IE ∃ translate (rm_const_tm t).
+Proof.
+  induction t using strong_term_ind; try destruct F; cbn; intros H1 H2.
+  - apply prv_T_ExI with $x. cbn. admit.
+  - admit.
+  - 
+Admitted.
+
+Lemma translate_tm_subst T t' t n :
+  T ⊩IE (translate (rm_const_tm t))[$n..]
+  -> T ⊩IE (translate (rm_const_tm t'))[$n..] <-> T ⊩IE (translate (rm_const_tm t'[t..])).
+Proof.
+  intros H. induction t' using strong_term_ind; cbn; try destruct F.
+  - destruct x; cbn. destruct t; cbn in *. admit. destruct f; admit.
+    admit.
+  - 
+Abort.
+
+Lemma translate_subst phi sigma f :
+  symfree phi -> (forall n, sigma n = $(f n)) -> translate phi[sigma] = ren_form f (translate phi).
+Proof.
+  intros H1 H2. setoid_rewrite (ext_form sigma).
+  now apply translate_ren. apply H2.
+Qed.
+
+Lemma translate_tm_subst T x t n k :
+  T ⊩IE (translate_tm' t)[$ n..]
+  -> T ⊩IE (translate_tm' x)[$k.:($n..)] <-> T ⊩IE (translate_tm' x[t..])[$k..].
+Proof.
+  induction x using strong_term_ind; cbn; try destruct F; intros Hn.
+  - destruct x; cbn; try tauto. admit.
+  - setoid_rewrite ext_form.
+    setoid_rewrite <- (translate_subst (f := fun i => match i with 0 => k | S i => i end)) at 2.
+    3: reflexivity. 4: now intros []. rewrite is_eset_subst. cbn.
+    setoid_rewrite <- (translate_subst (f := fun i => match i with 0 => k | S 0 => n | S (S i) => i end)) at 1. 3: reflexivity. 4: now intros [|[]]. rewrite is_eset_subst. cbn. tauto.
+    
+    rewrite !is_eset_subst. 7: intros []; cbn.
+Admitted.
+
+Lemma translate_tm_fm T phi t n :
+  T ⊩IE (translate_tm' t)[$n..]
+  -> T ⊩IE (translate' phi)[$n..] <-> T ⊩IE translate' phi[t..].
+Proof.
+  induction phi; intros Hn; try destruct P; cbn; split; try tauto; intros H.
+  - eapply bt_exists in H as [[n1|[]] H]. apply H. clear H. cbn. assert1 H.
+    apply prv_T_CE2 in H. eapply bt_exists in H as [[n2|[]] H]. apply H. clear H. cbn.
+    apply prv_T_ExI with $n1. cbn. apply prv_T_CI.
+    + rewrite (vec_inv2 t0). cbn. asimpl. eapply translate_tm_subst.
+      * apply (Weak_T Hn). solve_tsub.
+      * eapply prv_T_CE1. apply prv_T2.
+    + apply prv_T_ExI with $n2. cbn. apply prv_T_CI.
+      * rewrite (vec_inv2 t0). cbn.
+        setoid_rewrite (translate_subst (f:=up_ren S)) at 3; try apply rm_const_tm_symfree.
+        2: now intros []. cbn. unfold ren_form. asimpl.
+        eapply translate_tm_subst.
+      * asimpl. admit.
+  - admit.
+  - admit.
+  - admit.
+Admitted.
+
+
+
+Theorem tprv_translate' (T : @theory ZF_Signature) phi (H : T ⊩IE phi) :
   ZF_extension T -> bounded_theory T -> (translate_theory' T) ⊩IE translate' phi.
 Proof.
   pattern T, phi. revert H. apply tprv_ind_IE; clear T phi; intros T; cbn.
@@ -2505,9 +2673,85 @@ Proof.
   - intros phi psi IH1 IH2 HE HB. eapply prv_T_mp; intuition.
   - intros phi IH HE HB. apply prv_T_AllI'.
     eapply Weak_T; try apply translate_theory_up; intuition.
-  - intros phi t IH HE HB. destruct t as [n|[]].
-
+  - intros phi t IH HE HB. pose proof (translate_tm_ex t HE HB). 
+    eapply bt_exists in H as [[n|[]] H]. apply H. clear H.
+    eapply translate_tm_fm; try apply prv_T1. apply prv_clear1.
+    apply prv_T_AllE. now apply IH. Unshelve. admit.
+  - intros phi t IH HE HB. pose proof (translate_tm_ex t HE HB). 
+    eapply bt_exists in H as [[n|[]] H]. apply H. clear H.
+    apply prv_T_ExI with $n. fold (translate' phi).
+    rewrite translate_tm_fm; try apply prv_T1.
+    apply prv_clear1. now apply IH. Unshelve. admit.
+  - intros phi psi IH1 IH2 HE HB. eapply prv_T_ExE'; intuition.
+    setoid_rewrite <- translate_ren'. eapply Weak_T; intuition.
+    intros theta [phi' [[[psi'[H ->]]| ->] <-]]; intuition. rewrite translate_ren'.
+    left. exists (translate' psi'). split; trivial. now exists psi'.
+  - intros phi IH HE HB. apply prv_T_exf. intuition.
+  - intros phi IH HE HB. apply elem_prv. now exists phi.
+  - intros phi psi IH1 IH2 HE HB. apply prv_T_CI; intuition.
+  - intros phi psi IH HE HB. eapply prv_T_CE1; intuition.
+  - intros phi psi IH HE HB. eapply prv_T_CE2; intuition.
+  - intros phi psi IH HE HB. eapply prv_T_DI1; intuition.
+  - intros phi psi IH HE HB. eapply prv_T_DI2; intuition.
+  - intros phi psi theta IH1 IH2 IH3 HE HB. eapply prv_T_DE; intuition.
+    + eapply Weak_T; try apply translate_theory_extend; intuition.
+    + eapply Weak_T; try apply translate_theory_extend; intuition.
 Admitted.
+
+Lemma embed_ren_tm t (f : nat -> nat) :
+  embed_term (subst_term (fun n => $(f n)) t) = subst_term (fun n => $(f n)) (embed_term t).
+Proof.
+  destruct t as [n|[]]; cbn. reflexivity.
+Qed.
+
+Lemma embed_ren phi (f : nat -> nat) :
+  embed (subst_form (fun n => $(f n)) phi) = subst_form (fun n => $(f n)) (embed phi).
+Proof.
+  induction phi in f |- *; cbn; trivial; try now rewrite IHphi1, IHphi2. destruct P; cbn.
+  - f_equal. erewrite !vec_comp; try reflexivity. intros s. apply embed_ren_tm.
+  - f_equal. erewrite !vec_comp; try reflexivity. intros s. apply embed_ren_tm.
+  - f_equal. asimpl. specialize (IHphi (fun n => match n with 0 => 0 | S n => S (f n) end)).
+    erewrite ext_form. rewrite IHphi. apply ext_form. all: now intros [].
+  - f_equal. asimpl. specialize (IHphi (fun n => match n with 0 => 0 | S n => S (f n) end)).
+    erewrite ext_form. rewrite IHphi. apply ext_form. all: now intros [].
+Qed.
+
+Lemma embed_pw phi n :
+  embed phi[$n..] = (embed phi)[$n..].
+Proof.
+  setoid_rewrite ext_form. rewrite (embed_ren _ (fun k => match k with 0 => n | S k => k end)).
+  reflexivity. intros []; reflexivity. intros []; reflexivity.
+Qed.
+
+Theorem tprv_embed (T : @theory ZFE_Signature) phi (H : T ⊩IE phi) :
+  (tmap embed T) ⊩IE embed phi.
+Proof.
+  pattern T, phi. revert H. apply tprv_ind_IE; clear T phi; intros T; cbn.
+  - intros phi psi IH. apply prv_T_impl. eapply Weak_T; try apply IH. firstorder congruence.
+  - intros phi psi IH1 IH2. eapply prv_T_mp; intuition.
+  - intros phi IH. apply prv_T_AllI'. eapply Weak_T; try apply IH.
+    intros phi' [psi[[theta[H ->]] <-]]. exists (embed theta). split; try now exists theta. apply embed_ren.
+  - intros phi t IH. destruct t as [n|[]]. apply (prv_T_AllE ($n)) in IH. now rewrite embed_pw.   
+  - intros phi t IH. destruct t as [n|[]]. apply prv_T_ExI with $n. now rewrite <- embed_pw. 
+  - intros phi psi IH1 IH2. eapply prv_T_ExE'; intuition.
+    setoid_rewrite <- embed_ren. eapply Weak_T; try apply IH2.
+    intros theta [phi' [[[psi'[H ->]]| ->] <-]]; intuition. rewrite embed_ren.
+    left. exists (embed psi'). split; trivial. now exists psi'.
+  - intros phi IH. apply prv_T_exf. intuition.
+  - intros phi IH. apply elem_prv. now exists phi.
+  - intros phi psi IH1 IH2. now apply prv_T_CI.
+  - intros phi psi IH. eapply prv_T_CE1, IH.
+  - intros phi psi IH. eapply prv_T_CE2, IH.
+  - intros phi psi IH. eapply prv_T_DI1, IH.
+  - intros phi psi IH. eapply prv_T_DI2, IH.
+  - intros phi psi theta IH IH1 IH2. apply (prv_T_DE IH).
+    + eapply Weak_T; try apply IH1. firstorder congruence.
+    + eapply Weak_T; try apply IH2. firstorder congruence.
+Qed.
+
+Corollary tprv_translate' (T : @theory ZF_Signature) phi (H : T ⊩IE phi) :
+  ZF_extension T -> bounded_theory T -> (translate_theory' T) ⊩IE translate' phi.
+Proof.
 
 End minimal.
 
