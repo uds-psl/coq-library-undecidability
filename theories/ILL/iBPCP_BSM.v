@@ -15,18 +15,22 @@ From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec.
 From Undecidability.ILL.Code Require Import subcode sss. 
 From Undecidability.ILL.Bsm Require Import tiles_solvable bsm_defs bsm_pcp.
 
+Require Import Undecidability.PCP.Util.PCP_facts.
+
+Require Import Undecidability.Shared.Prelim.
+
 Fact tile_concat_itau ln lt : tile_concat ln lt = (itau1 lt (rev ln), itau2 lt (rev ln)).
 Proof.
   induction ln as [ | i ln IH ]; simpl; auto.
   rewrite itau1_app, itau2_app; simpl.
-  unfold card, string; generalize (nth i lt ([] / [])); intros (a,b); rewrite IH.
+  unfold card, string; generalize (nth i lt ([], [])); intros (a,b); rewrite IH.
   repeat rewrite <- app_nil_end; auto.
 Qed.
 
 (* tiles_solvable & iBPCP is the same predicate except that the existentially
    quantified list is reversed *)
 
-Theorem tiles_solvable_iBPCP lt : tiles_solvable lt <-> iBPCP lt.
+Theorem tiles_solvable_iBPCP lt : tiles_solvable lt <-> iPCPb lt.
 Proof.
   split.
   + intros (ln & H1 & H2 & H3).
@@ -60,7 +64,7 @@ Section iBPCP_BSM_HALTING.
     intros; rewrite pcp_bsm_size; omega.
   Qed.
   
-  Theorem iBPCP_BSM_HALTING : iBPCP ⪯ BSM_HALTING.
+  Theorem iBPCP_BSM_HALTING : iPCPb ⪯ BSM_HALTING.
   Proof.
     exists f.
     intros lt.
@@ -76,4 +80,3 @@ Section iBPCP_BSM_HALTING.
   Qed.
 
 End iBPCP_BSM_HALTING.
-

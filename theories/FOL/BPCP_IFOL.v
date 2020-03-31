@@ -2,25 +2,27 @@
 
 From Undecidability.FOL Require Import Kripke BPCP_FOL.
 
+Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
 (** ** Reductions *)
 
 Section kvalidity.
 
+  Local Definition BSRS := list (card bool).
   Variable R : BSRS.
   Context {b : logic}.
     
   Set Printing Implicit.
 
   Theorem BPCP_kprv :
-    BPCP R <-> nil ⊢I (F R).
+    PCPb R <-> nil ⊢I (F R).
   Proof.
-    rewrite BPCP_BPCP'. split.
+    rewrite PCPb_iff_dPCPb. split.
     - apply BPCP_prv'.
-    - intros H % ksoundness'. rewrite <- BPCP_BPCP'. now apply (BPCP_valid R), kvalid_valid.
+    - intros H % ksoundness'. rewrite <- PCPb_iff_dPCPb. now apply (BPCP_valid R), kvalid_valid.
   Qed.
 
   Theorem BPCP_kvalid :
-    BPCP R <-> kvalid (F R).
+    PCPb R <-> kvalid (F R).
   Proof.
     split.
     - now intros H % BPCP_kprv % ksoundness'.
@@ -30,7 +32,7 @@ Section kvalidity.
 End kvalidity.
 
 Theorem BPCP_ksatis R :
-  ~ BPCP R <-> ksatis (¬ F R).
+  ~ PCPb R <-> ksatis (¬ F R).
 Proof.
   split.
   - intros H % (BPCP_satis R). now apply ksatis_satis.
@@ -44,7 +46,7 @@ Qed.
 (** ** Corollaries *)
 
 Corollary kvalid_red :
-  BPCP ⪯ @kvalid full.
+  PCPb ⪯ @kvalid full.
 Proof.
   exists (fun R => F R). intros R. apply (BPCP_kvalid R).
 Qed.
@@ -62,7 +64,7 @@ Proof.
 Qed.
 
 Corollary kprv_red :
-  BPCP ⪯ @prv intu full nil.
+  PCPb ⪯ @prv intu full nil.
 Proof.
   exists (fun R => F R). intros R. apply (BPCP_kprv R).
 Qed.
@@ -80,7 +82,7 @@ Proof.
 Qed.
 
 Corollary ksatis_red :
-  compl BPCP ⪯ @ksatis full.
+  compl PCPb ⪯ @ksatis full.
 Proof.
   exists (fun R => ¬ F R). intros R. apply (BPCP_ksatis R).
 Qed.
@@ -97,6 +99,3 @@ Corollary ksatis_enum :
 Proof.
   intros H1 H2 % (enumerable_red ksatis_red); auto.
 Qed.
-
-
-

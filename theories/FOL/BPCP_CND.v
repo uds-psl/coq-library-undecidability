@@ -1,7 +1,7 @@
 (** * Classical Natural Deduction *)
 
 From Undecidability Require Export BPCP_FOL.
-
+Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
 (** ** Double Negation Translation *)
 
 Implicit Type b : logic.
@@ -156,14 +156,14 @@ Qed.
 (** ** Reduction **)
     
 Section BPCP_CND.
-
+  Local Definition BSRS := list (card bool).
   Variable R : BSRS.
   Context {b : logic}.
 
   Lemma BPCP_to_CND :
-    BPCP R -> [] ⊢C (F R).
+    PCPb R -> [] ⊢C (F R).
   Proof.
-    intros H. rewrite BPCP_BPCP' in *. now apply BPCP_prv'.
+    intros H. rewrite PCPb_iff_dPCPb in *. now apply BPCP_prv'.
   Qed.
 
   Lemma impl_trans A phi :
@@ -173,21 +173,21 @@ Section BPCP_CND.
   Qed.
     
   Lemma CND_BPCP :
-    [] ⊢C (F R) -> BPCP R.
+    [] ⊢C (F R) -> PCPb R.
   Proof.
     intros H % Double % soundness.
     specialize (H _ _ (IB R) (fun _ => nil)).
     unfold F, F1, F2 in H. rewrite !impl_trans, !map_map, !impl_sat in H. cbn in H.
-    eapply BPCP_BPCP'.  eapply H.
+    eapply PCPb_iff_dPCPb.  eapply H.
     - intros ? [(x,y) [<- ?] ] % in_map_iff ?. cbn in *. eapply H1.
       left. now rewrite !IB_enc.
     - intros ? [(x,y) [<- ?] ] % in_map_iff ? ? ? ?. cbn in *. eapply H1. intros.
       eapply H2. rewrite !IB_prep. cbn. econstructor 2; trivial.
-    - intros. eapply H0. intros []; eauto.
+    - intros. eapply H0. intros. unfold dPCPb. eauto.
   Qed.
 
   Lemma BPCP_CND :
-    BPCP R <-> [] ⊢C (F R).
+    PCPb R <-> [] ⊢C (F R).
   Proof. 
     split. eapply BPCP_to_CND. intros ? % CND_BPCP.  eauto.
   Qed.
@@ -199,7 +199,7 @@ End BPCP_CND.
 (** ** Corollaries **)
 
 Corollary cprv_red :
-  BPCP ⪯ cprv nil.
+  PCPb ⪯ cprv nil.
 Proof.
   exists (fun R => F R). intros R. apply (BPCP_CND R).
 Qed.

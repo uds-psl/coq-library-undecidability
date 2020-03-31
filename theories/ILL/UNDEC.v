@@ -14,7 +14,10 @@ From Undecidability.ILL.Bsm Require Import bsm_defs.
 From Undecidability.ILL.Mm Require Import mm_defs.
 From Undecidability.ILL.Ll Require Import eill ill.
 
-From Undecidability.ILL Require Import PCP_BPCP BPCP_iBPCP iBPCP_BSM BSM_MM MM_EILL EILL_ILL.
+From Undecidability.ILL Require Import iBPCP_BSM BSM_MM MM_EILL EILL_ILL.
+
+Require Undecidability.PCP.Reductions.PCP_to_PCPb.
+Require Undecidability.PCP.Reductions.PCPb_iff_iPCPb.
 
 (** * List of all results *)
 
@@ -36,6 +39,7 @@ From Undecidability.ILL Require Import PCP_BPCP BPCP_iBPCP iBPCP_BSM BSM_MM MM_E
        is it provable in G_ILL ? (see Ll/ill.v)
  *)
 
+(*
 Check PCP_BPCP.                           Print Assumptions PCP_BPCP.
 Check BPCP_iBPCP.                         Print Assumptions BPCP_iBPCP.
 Check iBPCP_BSM_HALTING.                  Print Assumptions iBPCP_BSM_HALTING.
@@ -43,11 +47,12 @@ Check BSM_MM_HALTING.                     Print Assumptions BSM_MM_HALTING.
 Check BSM_MM_HALTS_ON_ZERO.               Print Assumptions BSM_MM_HALTS_ON_ZERO.
 Check MM_HALTS_ON_ZERO_EILL_PROVABILITY.  Print Assumptions MM_HALTS_ON_ZERO_EILL_PROVABILITY.
 Check EILL_ILL_PROVABILITY.               Print Assumptions EILL_ILL_PROVABILITY.
+*)
 
 Theorem PCP_BSM_HALTING : PCP ⪯ BSM_HALTING.
 Proof.
-  eapply reduces_transitive. exact PCP_BPCP.
-  eapply reduces_transitive. exact BPCP_iBPCP.
+  eapply reduces_transitive. exact PCP_to_PCPb.reduction.
+  eapply reduces_transitive. exists id. exact PCPb_iff_iPCPb.PCPb_iff_iPCPb.
   exact iBPCP_BSM_HALTING.
 Qed.
 

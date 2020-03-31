@@ -1,9 +1,19 @@
-From Undecidability Require Import PCP.Definitions Shared.Prelim.
+Require Import List.
+Import ListNotations.
 
-(** * Post grammars are context-free *)
+Require Import Undecidability.CFG.CFP.
+Require Import Undecidability.CFG.CFG.
 
+Require Import Undecidability.PCP.PCP.
+Require Import Undecidability.PCP.Util.Facts.
+Require Import Undecidability.PCP.Util.PCP_facts.
+
+Require Import Undecidability.Shared.Prelim.
+Require Import Undecidability.Problems.Reduction.
+
+(** * PCP to CFPP *)
 Hint Rewrite concat_app map_app map_map : list.
-Hint Rewrite <- map_rev  : list.
+Hint Rewrite <- map_rev : list.
 
 Lemma nil_app_nil X (A : list X) :
   A = [] ++ A ++ [].
@@ -11,7 +21,7 @@ Proof.
   now autorewrite with list.
 Qed.
 
-Definition gamma (A : SRS) := map (fun '(x,y) => (x, rev y)) A.
+Definition gamma (A : stack nat) := map (fun '(x,y) => (x, rev y)) A.
 
 Lemma sigma_eq  s A :
   sigma s A = tau1 A ++ [s] ++ rev (tau2 (gamma A)).
@@ -38,9 +48,9 @@ Proof.
   eapply in_app_iff in H3 as [ | [ | ? % tau2_gamma]]; try firstorder using tau1_sym, tau2_sym.
 Qed.
 
-Lemma sigma_snoc A x y u v s s' :
+Lemma sigma_snoc A (x y u v: list sig) (s s': sig) :
   sigma s A = x ++ [s] ++ y -> ~ s el x -> ~ s el y ->
-  sigma s' (A ++ [u/v]) = x ++ u ++ s' ++ v ++ y.
+  sigma s' (A ++ [(u, v)]) = x ++ u ++ s' ++ v ++ y.
 Proof.
   rewrite !sigma_eq. unfold gamma. cbn. simpl_list. cbn. simpl_list. cbn.
   intros. eapply list_prefix_inv in H as [-> <-]; eauto.
@@ -52,28 +62,12 @@ Qed.
 
 Section CFGs.
 
-  Notation sig := nat.
-  Definition rule : Type := sig * list sig.
-  Definition cfg : Type := sig * list rule.
-
-  Definition rules (G : cfg) := snd G.
-  Definition startsym (G : cfg) := fst G.
-
-  Inductive rew_cfg : cfg -> list sig -> list sig -> Prop:=
-  |rewR R x a y v : (a,v) el rules R -> rew_cfg R (x++[a]++y) (x++v++y).
-  Hint Constructors rew_cfg.
-
   Lemma rewrite_sing R a x :
     (a, x) el rules R -> rew_cfg R [a] x.
   Proof.
     intros. rewrite nil_app_nil, (nil_app_nil [a]). now econstructor.
   Qed.
   
-  Inductive rewt (S: cfg) (x: list sig) : list sig -> Prop :=
-  |rewtRefl : rewt S x x
-  |rewtRule y z : rewt S x y -> rew_cfg S y z -> rewt S x z.
-  Hint Constructors rewt.
-
   Global Instance rewtTrans R :
     PreOrder (rewt R).
   Proof.
@@ -101,8 +95,6 @@ Section CFGs.
     intros x y H. econstructor. reflexivity. eassumption.
   Qed.
     
-  Definition terminal G x := ~ exists y, rew_cfg G x y.
-
   Lemma terminal_iff G x :
     terminal G x <-> forall s y, s el x -> ~ (s, y) el rules G.
   Proof.
@@ -111,8 +103,6 @@ Section CFGs.
       exists (l1 ++ y ++ l2). change (s :: l2) with ([s] ++ l2). now econstructor.
     - intros H1 [y H2]. inv H2. eapply (H1 _ v); eauto.
   Qed.
-
-  Definition L (G : cfg) x := rewt G [startsym G] x /\ terminal G x.
 
   Definition sym_G (G : cfg) :=
     startsym G :: flat_map (fun '(a, x) => a :: x) (rules G).
@@ -125,25 +115,20 @@ Section CFGs.
     - destruct H1. destruct R. cbn in *.
       eapply incl_app; eauto.  eapply incl_app; eauto.
       unfold sym_G. intros ? ?.
-      right. eapply in_flat_map.  exists (a / v). eauto.
+      right. eapply in_flat_map. exists (a, v). eauto.
   Qed.
   
 End CFGs.
 
-Definition CFP' (G : cfg) := exists x, L G x /\ x = List.rev x.
-
-Definition CFI' '(G1, G2) :=
-  exists x, L G1 x /\ L G2 x.
-
 Section Post_CFG.
 
-  Variable R : SRS.
-  Variable a : symbol.
+  Variable R : stack nat.
+  Variable a : nat.
 
   Definition Sigma := sym R ++ [a].
-  Definition S : symbol := fresh Sigma.
+  Definition S : nat := fresh Sigma.
 
-  Definition G := (S, (S,[S]) :: map (fun '(u / v) => (S, u ++ [S] ++ v)) R ++ map (fun '(u / v) => (S, u ++ [a] ++ v)) R).
+  Definition G := (S, (S,[S]) :: map (fun '(u, v) => (S, u ++ [S] ++ v)) R ++ map (fun '(u, v) => (S, u ++ [a] ++ v)) R).
 
   Lemma terminal_iff_G y :
     terminal G y <-> ~ S el y.
@@ -209,7 +194,7 @@ Section Post_CFG.
       + eassumption.
       + destruct x0 as [u' v']. inv H3.
         destruct IHrewt as (A & m & HA & IHA & Hm).
-        exists (A ++ [u'/v']), S. repeat split.
+        exists (A ++ [(u', v')]), S. repeat split.
         * eauto.
         * simpl_list. cbn.
           enough (~ S el x). enough (~ S el y0).
@@ -226,7 +211,7 @@ Section Post_CFG.
         * eauto.
       + destruct x0 as [u' v']. inv H3.
         destruct IHrewt as (A & m & HA & IHA & Hm).
-        exists (A ++ [u'/v']), a. repeat split.
+        exists (A ++ [(u', v')]), a. repeat split.
         * eauto.
         * simpl_list. cbn.
           enough (~ S el x). enough (~ S el y0).
@@ -265,17 +250,8 @@ Section Post_CFG.
   
 End Post_CFG.
 
-Definition Post_G '(R, a, x) := exists A, A <<= R /\ A <> [] /\ sigma a A = x.
-Definition CFG '(G, x) := L G x.
-
-Lemma reduce_grammars :
-  Post_G ⪯ CFG.
-Proof.
-  exists (fun '(R, a, x) => (G R a, x)). intros ((? & ?) & ?). cbn. eapply reduction_full.
-Qed.
-
-Lemma reduce_CFP :
-  CFP ⪯ CFP'.
+Lemma reduction :
+  CFPP ⪯ CFP.
 Proof.
   exists (fun '(R, a) => (G R a)). intros [R a].
   intuition; cbn in *.
@@ -285,17 +261,4 @@ Proof.
   - destruct H as (x & Hx & H).
     eapply reduction_full in Hx as (A & HR & HA & H1).
     exists A. subst; eauto.
-Qed.
-
-Lemma reduce_CFI :
-  CFI ⪯ CFI'.
-Proof.
-  exists (fun '(R1, R2, a) => (G R1 a, G R2 a)). intros [[R1 R2] a].
-  intuition; cbn in *.
-  - destruct H as (A1 & A2 & HR1 & HR2 & HA1 & HA2 & H).
-    exists (sigma a A1). split; eapply reduction_full; eauto.
-  - destruct H as (x & HR1 & HR2).
-    eapply reduction_full in HR1 as (A1 & HR1 & HA1 & H1).
-    eapply reduction_full in HR2 as (A2 & HR2 & HA2 & H2).
-    exists A1, A2. subst; eauto.
 Qed.

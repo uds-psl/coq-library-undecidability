@@ -1,10 +1,10 @@
 (** * Post Correspondence Problem *)
 
-From Undecidability Require Export Reductions Problems.PCP.
+From Undecidability Require Export Reductions PCP.PCP.
 
 Lemma stack_discrete :
   discrete (stack bool).
-Proof.
+Proof. Locate discrete.
   eapply discrete_iff; econstructor. intros ? ?. hnf. repeat decide equality.
 Qed.
 
@@ -15,6 +15,8 @@ Proof.
   apply enumerable__T_list, count_bool.
 Qed.
 
+Local Definition BSRS := list (card bool).
+Local Notation "x / y" := (x, y).
 (** ** Enumerability *)
 
 Fixpoint L_PCP n : list (BSRS * (string bool * string bool)) :=
@@ -40,7 +42,7 @@ Proof.
         in_collect ( (C, (u, v), x, y)); eapply cum_ge'; eauto; try omega.
     + intros [m]. revert C u v H. induction m; intros.
       * inv H.
-      * cbn in H. inv_collect; inv H; eauto using derivable.
+      * cbn in H. inv_collect; inv H; eauto using der_sing, der_cons.
 Qed.
 
 Lemma enumerable_derivable : enumerable (fun '(C, (u, v)) => @derivable bool C u v).
@@ -48,7 +50,7 @@ Proof.
   eapply enum_count. intros; repeat decide equality. eapply enum_PCP'.
 Qed.
 
-Lemma enumerable_PCP : enumerable BPCP'.
+Lemma enumerable_PCP : enumerable dPCPb.
 Proof.
   pose proof enumerable_derivable. 
   assert (enumerable (X := (stack bool * (string bool * string bool))) (fun '(C, (s, t)) => s = t)). {

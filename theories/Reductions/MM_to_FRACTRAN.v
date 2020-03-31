@@ -8,7 +8,7 @@
 (**************************************************************)
 
 Require Import Arith Omega Max.
-
+Require Import Undecidability.Shared.Prelim.
 From Undecidability Require Import ILL.Definitions.
 
 From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec.
@@ -16,6 +16,9 @@ From Undecidability.ILL.Code Require Import sss.
 From Undecidability.ILL.Mm Require Import mm_defs.
 From Undecidability.H10.Fractran Require Import fractran_defs mm_fractran prime_seq.
 From Undecidability.H10 Require Import MM_FRACTRAN.
+
+Require Import Undecidability.PCP.Util.PCP_facts.
+
 
 Local Notation "P /MM/ s ↓" := (sss_terminates (@mm_sss _) P s) (at level 70, no associativity). 
 

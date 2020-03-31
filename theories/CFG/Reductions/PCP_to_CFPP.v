@@ -1,15 +1,26 @@
-Require Import Undecidability.PCP.Definitions.
+Require Import List.
+Import ListNotations.
 
-(** * PCP to CFP *)
+Require Import Undecidability.CFG.CFP.
 
-Section PCP_CFP.
+Require Import Undecidability.PCP.PCP.
+Require Import Undecidability.PCP.Util.Facts.
+Require Import Undecidability.PCP.Util.PCP_facts.
 
-  Variable P : SRS.
+Require Import Undecidability.Problems.Reduction.
+
+Require Import Undecidability.Shared.Prelim.
+
+(** * PCP to CFPP *)
+
+Section PCP_CFPP.
+
+  Variable P : stack nat.
 
   Definition Sigma := sym P.
   Notation "#" := (fresh Sigma).
   
-  Definition gamma (A : SRS) := map (fun '(x,y) => (x, rev y)) A.
+  Definition gamma (A : stack nat) := map (fun '(x,y) => (x, rev y)) A.
 
   Lemma sigma_gamma a A :
     sigma a (gamma A) = tau1 A ++ a ++ rev (tau2 A).
@@ -45,16 +56,16 @@ Section PCP_CFP.
     induction A as [ | (x,y) ]; cbn; intros.
     - firstorder.
     - intros ? [ <- | ].
-      + assert ( x/y el gamma B) by firstorder.
+      + assert ( (x, y) el gamma B) by firstorder.
         unfold gamma in H0. eapply in_map_iff in H0 as ((x',y') & ? & ?).
         inv H0. now simpl_list.
       + firstorder.
   Qed.
 
-End PCP_CFP.
+End PCP_CFPP.
 
-Theorem PCP_CFP :
-  PCP ⪯ CFP.
+Theorem reduction :
+  PCP ⪯ CFPP.
 Proof.
   exists (fun P => (gamma P, fresh (sym P))).
   intros P. split; intros.
@@ -71,7 +82,3 @@ Proof.
       * intros F % (sym_mono (P := P)) % fresh_spec.  now eapply F. now eapply gamma_mono.
       * rewrite gamma_invol. eassumption.
 Qed.
-                   
-      
-    
-  

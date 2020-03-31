@@ -1,4 +1,12 @@
-From Undecidability Require Import ILL.Definitions.
+Require Import List Lia.
+Import ListNotations.
+
+Require Import Undecidability.PCP.PCP.
+Require Import Undecidability.PCP.Util.Facts.
+
+Require Import Undecidability.Problems.Reduction.
+
+Require Import Undecidability.Shared.Prelim.
 
 (** ** PCP reduces to BPCP *)
 
@@ -22,12 +30,12 @@ Lemma f_s_app x y : f_s (x ++ y) = f_s x ++ f_s y.
 Proof.
   induction x; cbn. 
   - reflexivity.
-  - rewrite IHx. now simpl_list.
+  - rewrite IHx. now rewrite <- app_assoc.
 Qed.
 
 (* extension to cards and stacks *)
 Definition f_c '(x,y) := (f_s x, f_s y).
-Definition f (P : SRS) : BSRS :=
+Definition f (P : stack nat) : stack bool :=
   map f_c P.
 
 Lemma tau1_f A : tau1 (f A) = f_s (tau1 A).
@@ -59,9 +67,9 @@ Proof.
   - reflexivity.
   - revert n; induction m; intros; cbn in *.
     + destruct x.
-      * do 2 f_equal. omega.
-      * rewrite IHx. f_equal. omega.
-    + rewrite IHm. f_equal. omega.
+      * do 2 f_equal. lia.
+      * rewrite IHx. f_equal. lia.
+    + rewrite IHm. f_equal. lia.
 Qed.
 
 Definition g_s x := g_s' x 0.
@@ -69,12 +77,12 @@ Definition g_s x := g_s' x 0.
 Lemma f_g_s'_inv x : g_s (f_s x) = x.
 Proof.
   unfold g_s. setoid_rewrite <- app_nil_r at 2. rewrite g_s'_app.
-  destruct x; now simpl_list. 
+  destruct x; eauto. cbn. now rewrite app_nil_r.
 Qed.
 
 (* extension to cards and stacks *)
 Definition g_c '(x,y) := (g_s x, g_s y).
-Definition g (P : BSRS) : SRS :=
+Definition g (P : stack bool) : stack nat :=
   map g_c P.
 
 (* Invariants *)
@@ -84,7 +92,7 @@ Proof.
   induction A as [ | (x,y)]; cbn.
   - reflexivity.
   - unfold g in IHA. intros. rewrite !IHA. 
-    assert ( x /y el map f_c B) as ((x',y') & ? & ?) % in_map_iff by firstorder; inv H0.
+    assert ( (x, y) el map f_c B) as ((x',y') & ? & ?) % in_map_iff by firstorder; inv H0.
     rewrite g_s'_app. destruct x'.
     + cbn. reflexivity.
     + rewrite f_g_s'_inv. cbn. reflexivity.
@@ -96,7 +104,7 @@ Proof.
   induction A as [ | (x,y)]; cbn.
   - reflexivity.
   - unfold g in IHA. intros. rewrite !IHA. 
-    assert ( x /y el map f_c B) as ((x',y') & ? & ?) % in_map_iff by firstorder; inv H0.
+    assert ( (x, y) el map f_c B) as ((x',y') & ? & ?) % in_map_iff by firstorder; inv H0.
     rewrite g_s'_app. destruct y'.
     + cbn. reflexivity.
     + rewrite f_g_s'_inv. cbn. reflexivity.
@@ -108,8 +116,9 @@ Proof.
   induction A in B |- *; intros H; cbn.
   * firstorder.
   * intros ? [| H0]; subst.
-    -- unfold f. eapply in_map_iff. eauto.
-    -- eapply IHA in H0; eauto.
+    -- unfold f. eapply in_map_iff. exists a.
+      constructor; eauto.
+    -- eapply IHA in H0; eauto. 
 Qed.
 
 Lemma f_g_subset B A : A <<= f B -> g A <<= B.
@@ -121,7 +130,7 @@ Proof.
     intros ? [|]; subst. cbn. now rewrite !f_g_s'_inv. firstorder.
 Qed.
 
-Lemma PCP_BPCP : PCP ⪯  BPCP.
+Theorem reduction : PCP ⪯ PCPb.
 Proof.
   exists f. intros B. split.
   - intros (A & HP & He & H). exists (f A). repeat split.
@@ -133,12 +142,3 @@ Proof.
     + destruct A; cbn; congruence.
     + erewrite tau1_g, tau2_g, H; eauto.
 Qed.
-
-     
-
-          
-          
-
-          
-        
-    
