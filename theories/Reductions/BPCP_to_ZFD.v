@@ -2249,6 +2249,8 @@ Proof.
   - apply vec_cons_inv in X as [->|[->|H] % vec_cons_inv]; try constructor; try inversion H.
 Qed.
 
+Opaque is_eset is_pair is_union is_power is_om.
+
 Section minimal.
 
 Definition ZFE_Funcs := False.
@@ -2596,8 +2598,6 @@ Proof.
   -
 Admitted.
 
-Opaque is_eset is_pair is_union is_power is_om.
-
 Lemma translate_tm_ex T t :
   ZF_extension T -> bounded_theory T -> translate_theory' T ⊩IE ∃ translate (rm_const_tm t).
 Proof.
@@ -2775,6 +2775,62 @@ Proof.
     now rewrite translate_pw'.
 Admitted.
 
+Transparent is_eset is_pair is_union is_power is_om.
+
+Lemma bounded_rm_const_tm t n :
+  bounded_term n t -> bounded (S n) (rm_const_tm t).
+Proof.
+  induction 1; try destruct F; cbn; repeat constructor.
+  all: try intros t [->|X] % vec_cons_inv; try constructor; try lia.
+  all: try apply vec_cons_inv in X as [->|]; try (constructor; lia).
+  all: try inversion v0. inversion v. all: try rewrite !map_tl; rewrite map_hd.
+  all: eapply subst_bounded_up; try apply H0; try apply in_hd_tl; try apply in_hd.
+  all: intros [] Hi; cbn; constructor; lia.
+Qed.
+
+Lemma bounded_rm_const_fm phi n :
+  bounded n phi -> bounded n (rm_const_fm phi).
+Proof.
+  induction 1; cbn; try destruct P; repeat constructor; intuition.
+  - rewrite map_hd. apply bounded_rm_const_tm, H, in_hd.
+  - rewrite map_tl, map_hd. eapply subst_bounded_up with (S n).
+    + apply bounded_rm_const_tm, H, in_hd_tl.
+    + intros [] Hi; cbn; constructor; lia.
+  - apply vec_cons_inv in X as [->|]; try (constructor; lia).
+    apply vec_cons_inv in v0 as [->|]; try (constructor; lia). inversion v0.
+  - rewrite map_hd. apply bounded_rm_const_tm, H, in_hd.
+  - rewrite map_tl, map_hd. eapply subst_bounded_up with (S n).
+    + apply bounded_rm_const_tm, H, in_hd_tl.
+    + intros [] Hi; cbn; constructor; lia.
+  - apply vec_cons_inv in X as [->|]; try (constructor; lia).
+    apply vec_cons_inv in v0 as [->|]; try (constructor; lia). inversion v0.
+Qed.
+
+Opaque is_eset is_pair is_union is_power is_om.
+
+Lemma bounded_translate_term t n :
+  bounded_term n t -> bounded_term (S n) (translate_term t).
+Proof.
+  induction 1; cbn; constructor; lia.
+Qed.
+
+Lemma bounded_translate phi n :
+  bounded n phi -> bounded (S n) (translate phi).
+Proof.
+  induction 1; subst; cbn; constructor; intuition.
+  apply vec_map_inv in X as [t'[Ht ->]].
+  apply bounded_translate_term, H, Ht.
+Qed.
+
+Instance bounded_theory_translate' T :
+  bounded_theory T -> bounded_theory (translate_theory' T).
+Proof.
+  intros [N HN]. exists (S N). intros phi k [psi[HP <-]] Hk.
+  apply bounded_unused with (S N); try lia.
+  apply bounded_translate, bounded_rm_const_fm.
+  apply unused_bounded. intros n Hn. now apply HN.
+Qed.
+
 Theorem tprv_translate' (T : @theory ZF_Signature) phi (H : T ⊩IE phi) :
   ZF_extension T -> bounded_theory T -> (translate_theory' T) ⊩IE translate' phi.
 Proof.
@@ -2786,13 +2842,13 @@ Proof.
     eapply Weak_T; try apply translate_theory_up; intuition.
   - intros phi t IH HE HB. pose proof (translate_tm_ex t HE HB). 
     eapply bt_exists in H as [[n|[]] H]. apply H. clear H.
-    eapply translate_tm_fm; try apply prv_T1. apply prv_clear1.
-    apply prv_T_AllE. now apply IH. Unshelve. admit.
+    eapply translate_subst; try apply prv_T1. apply prv_clear1.
+    apply prv_T_AllE. now apply IH.
   - intros phi t IH HE HB. pose proof (translate_tm_ex t HE HB). 
     eapply bt_exists in H as [[n|[]] H]. apply H. clear H.
     apply prv_T_ExI with $n. fold (translate' phi).
-    rewrite translate_tm_fm; try apply prv_T1.
-    apply prv_clear1. now apply IH. Unshelve. admit.
+    rewrite translate_subst; try apply prv_T1.
+    apply prv_clear1. now apply IH.
   - intros phi psi IH1 IH2 HE HB. eapply prv_T_ExE'; intuition.
     setoid_rewrite <- translate_ren'. eapply Weak_T; intuition.
     intros theta [phi' [[[psi'[H ->]]| ->] <-]]; intuition. rewrite translate_ren'.
@@ -2807,7 +2863,7 @@ Proof.
   - intros phi psi theta IH1 IH2 IH3 HE HB. eapply prv_T_DE; intuition.
     + eapply Weak_T; try apply translate_theory_extend; intuition.
     + eapply Weak_T; try apply translate_theory_extend; intuition.
-Admitted.
+Qed.
 
 Lemma embed_ren_tm t (f : nat -> nat) :
   embed_term (subst_term (fun n => $(f n)) t) = subst_term (fun n => $(f n)) (embed_term t).
@@ -2859,10 +2915,6 @@ Proof.
     + eapply Weak_T; try apply IH1. firstorder congruence.
     + eapply Weak_T; try apply IH2. firstorder congruence.
 Qed.
-
-Corollary tprv_translate' (T : @theory ZF_Signature) phi (H : T ⊩IE phi) :
-  ZF_extension T -> bounded_theory T -> (translate_theory' T) ⊩IE translate' phi.
-Proof.
 
 End minimal.
 
