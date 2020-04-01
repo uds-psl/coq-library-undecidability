@@ -442,6 +442,12 @@ Proof.
   - assumption.
 Qed.
 
+Lemma bt_all_var phi :
+  (forall x, T ⊩ subst_form ($x..) phi) -> T ⊩ ∀ phi.
+Proof.
+  intros H. eapply bt_all', H.
+Qed.
+
 Lemma bt_all phi :
   (forall t, T ⊩ subst_form (t..) phi) -> T ⊩ ∀ phi.
 Proof.
@@ -456,6 +462,12 @@ Proof.
   - intros theta HP. apply bound_spec; trivial. cbn. lia.
   - unfold k. destruct (find_unused psi) as [n Hn]; cbn. apply Hn. lia.
   - unfold k. destruct (find_unused phi) as [n Hn]; cbn. apply Hn. lia.
+Qed.
+
+Lemma bt_exists_var phi psi :
+  (T ⊩ ∃ phi) -> exists x, (T ⋄ (subst_form ($x..) phi)) ⊩ psi -> T ⊩ psi.
+Proof.
+  intros H. eexists. now apply bt_exists'.
 Qed.
 
 Lemma bt_exists phi psi :
@@ -475,31 +487,6 @@ Ltac assert2 H :=
 
 Ltac use_exists H t :=
   eapply (@bt_exists) in H as [t H]; eauto; apply H.
-
-Lemma all_equiv {Sigma : Signature} `{peirce} `{bottom} T phi psi :
-  (forall n, T ⊩ phi[$n..] <-> T ⊩ psi[$n..]) -> (T ⊩ ∀ phi) <-> (T ⊩ ∀ psi).
-Proof.
-Admitted.
-
-Lemma ex_equiv {Sigma : Signature} `{peirce} `{bottom} T phi psi :
-  (forall n, T ⊩ phi[$n..] <-> T ⊩ psi[$n..]) -> (T ⊩ ∃ phi) <-> (T ⊩ ∃ psi).
-Proof.
-Admitted.
-
-Lemma and_equiv {Sigma : Signature} `{peirce} `{bottom} T phi phi' psi psi' :
-  (T ⊩ phi <-> T ⊩ phi') -> (T ⊩ psi <-> T ⊩ psi') -> (T ⊩ (phi ∧ psi)) <-> (T ⊩ (phi' ∧ psi')).
-Proof.
-Admitted.
-
-Lemma or_equiv {Sigma : Signature} `{peirce} `{bottom} T phi phi' psi psi' :
-  (T ⊩ phi <-> T ⊩ phi') -> (T ⊩ psi <-> T ⊩ psi') -> (T ⊩ (phi ∨ psi)) <-> (T ⊩ (phi' ∨ psi')).
-Proof.
-Admitted.
-
-Lemma impl_equiv {Sigma : Signature} `{peirce} `{bottom} T phi phi' psi psi' :
-  (T ⊩ phi <-> T ⊩ phi') -> (T ⊩ psi <-> T ⊩ psi') -> (T ⊩ (phi --> psi)) <-> (T ⊩ (phi' --> psi')).
-Proof.
-Admitted.
 
 
 
@@ -1564,6 +1551,54 @@ Proof.
   destruct HP as [<-|[psi[<- HP]] % in_map_iff].
   - exists a. split; intuition.
   - exists psi. split; trivial. apply H. now right.
+Qed.
+
+Lemma all_equiv {T} {HB : bounded_theory T} {p : peirce} {b : bottom} phi psi :
+  (forall n, T ⊩ phi[$n..] <-> T ⊩ psi[$n..]) -> (T ⊩ ∀ phi) <-> (T ⊩ ∀ psi).
+Proof.
+  intros H. split; intros H'; apply bt_all_var; intros x; now apply H, prv_T_AllE.
+Qed.
+
+Lemma ex_equiv {T} {HB : bounded_theory T} {p : peirce} {b : bottom} phi psi :
+  (forall T' n, T ⊑ T' -> bounded_theory T' -> T' ⊩ phi[$n..] <-> T' ⊩ psi[$n..]) -> (T ⊩ ∃ phi) <-> (T ⊩ ∃ psi).
+Proof.
+  intros H. split; intros H'.
+  - destruct (bt_exists_var (∃ psi) H') as [x Hx]. apply Hx; trivial.
+    apply prv_T_ExI with $x. apply H; try apply prv_T1. repeat solve_tsub. eauto.
+  - destruct (bt_exists_var (∃ phi) H') as [x Hx]. apply Hx; trivial.
+    apply prv_T_ExI with $x. apply H; try apply prv_T1. repeat solve_tsub. eauto.
+Qed.
+
+Lemma and_equiv {p : peirce} {b: bottom} T phi phi' psi psi' :
+  (T ⊩ phi <-> T ⊩ phi') -> (T ⊩ psi <-> T ⊩ psi') -> (T ⊩ (phi ∧ psi)) <-> (T ⊩ (phi' ∧ psi')).
+Proof.
+  intros H1 H2. split; intros H % prv_T_CE; apply prv_T_CI; intuition.
+Qed.
+
+Lemma or_equiv {p : peirce} {b : bottom} {T} {HB : bounded_theory T} phi phi' psi psi' :
+  (forall T', T ⊑ T' -> bounded_theory T' -> T' ⊩ phi <-> T' ⊩ phi')
+  -> (forall T', T ⊑ T' -> bounded_theory T' -> T' ⊩ psi <-> T' ⊩ psi')
+  -> (T ⊩ (phi ∨ psi)) <-> (T ⊩ (phi' ∨ psi')).
+Proof.
+  intros H1 H2. split; intros H; apply (prv_T_DE H).
+  - apply prv_T_DI1. apply H1; try apply prv_T1. repeat solve_tsub. eauto.
+  - apply prv_T_DI2. apply H2; try apply prv_T1. repeat solve_tsub. eauto.
+  - apply prv_T_DI1. apply H1; try apply prv_T1. repeat solve_tsub. eauto.
+  - apply prv_T_DI2. apply H2; try apply prv_T1. repeat solve_tsub. eauto.
+Qed.
+
+Lemma impl_equiv {p : peirce} {b : bottom} {T} {HB : bounded_theory T} phi phi' psi psi' :
+  (forall T', T ⊑ T' -> bounded_theory T' -> T' ⊩ phi <-> T' ⊩ phi')
+  -> (forall T', T ⊑ T' -> bounded_theory T' -> T' ⊩ psi <-> T' ⊩ psi')
+  -> (T ⊩ (phi --> psi)) <-> (T ⊩ (phi' --> psi')).
+Proof.
+  intros H1 H2. split; intros H; apply prv_T_impl.
+  - apply H2; try apply tsubs_extend. eauto. eapply prv_T_mp.
+    + apply (Weak_T H). apply tsubs_extend.
+    + apply H1; try apply prv_T1. apply tsubs_extend. eauto.
+  - apply H2; try apply tsubs_extend. eauto. eapply prv_T_mp.
+    + apply (Weak_T H). apply tsubs_extend.
+    + apply H1; try apply prv_T1. apply tsubs_extend. eauto.
 Qed.
 
 End Subst.
@@ -2723,50 +2758,50 @@ Lemma translate_tm_equiv T t k n :
 Proof.
 Admitted.
 
-Lemma translate_tm_subst T x t n k :
+Lemma translate_tm_subst {T} {HB : bounded_theory T} x t n k :
   T ⊩IE (translate_tm' t)[$ n..]
   -> T ⊩IE (translate_tm' x)[$k.:($n..)] <-> T ⊩IE (translate_tm' x[t..])[$k..].
 Proof.
-  revert k. induction x using strong_term_ind; try destruct F; cbn; intros k Hn.
+  revert k T HB. induction x using strong_term_ind; try destruct F; cbn; intros k T HB Hn.
   - destruct x; cbn; try tauto. now apply translate_tm_equiv.
   - rewrite <- !translate_subst2; try now apply symfree_is_eset.
     rewrite !is_eset_subst. cbn. tauto.
-  - apply ex_equiv. intros i. cbn. apply and_equiv.
+  - apply ex_equiv. intros T' i HT HB'. cbn. apply and_equiv.
     + rewrite !map_hd.
       setoid_rewrite (translate_ren_subst (f:=up_ren S)) at 1.
       3: now intros []. 2: apply rm_const_tm_symfree.
       setoid_rewrite (translate_ren_subst (f:=up_ren S)) at 1.
       3: now intros []. 2: apply rm_const_tm_symfree.
       asimpl. setoid_rewrite ext_form. apply H; trivial; try apply in_hd.
-      all: now intros [].
-    + apply ex_equiv. intros j. cbn. apply and_equiv.
+      now apply (Weak_T Hn). all: now intros [].
+    + apply ex_equiv. intros T'' j HT' HB''. cbn. apply and_equiv.
       * rewrite !map_tl, !map_hd.
         setoid_rewrite (translate_ren_subst (f:=up_ren (plus 2))) at 1.
         3: now intros []. 2: apply rm_const_tm_symfree.
         setoid_rewrite (translate_ren_subst (f:=up_ren (plus 2))) at 1.
         3: now intros []. 2: apply rm_const_tm_symfree.
         asimpl. setoid_rewrite ext_form. apply H; trivial; try apply in_hd_tl.
-        all: now intros [].
+        apply (Weak_T Hn). eapply tsubs_trans; eauto. all: now intros [].
       * asimpl. setoid_rewrite <- translate_subst2; try now apply symfree_is_pair.
         rewrite !is_pair_subst. cbn. tauto.
-   - apply ex_equiv. intros i. cbn. apply and_equiv.
+   - apply ex_equiv. intros T' i HT HB'. cbn. apply and_equiv.
     + rewrite !map_hd.
       setoid_rewrite (translate_ren_subst (f:=up_ren S)) at 1.
       3: now intros []. 2: apply rm_const_tm_symfree.
       setoid_rewrite (translate_ren_subst (f:=up_ren S)) at 1.
       3: now intros []. 2: apply rm_const_tm_symfree.
       asimpl. setoid_rewrite ext_form. apply H; trivial; try apply in_hd.
-      all: now intros [].
+      now apply (Weak_T Hn). all: now intros [].
     + asimpl. setoid_rewrite <- translate_subst2; try now apply symfree_is_union.
       rewrite !is_union_subst. cbn. tauto.
-   - apply ex_equiv. intros i. cbn. apply and_equiv.
+   - apply ex_equiv. intros T' i HT HB'. cbn. apply and_equiv.
     + rewrite !map_hd.
       setoid_rewrite (translate_ren_subst (f:=up_ren S)) at 1.
       3: now intros []. 2: apply rm_const_tm_symfree.
       setoid_rewrite (translate_ren_subst (f:=up_ren S)) at 1.
       3: now intros []. 2: apply rm_const_tm_symfree.
       asimpl. setoid_rewrite ext_form. apply H; trivial; try apply in_hd.
-      all: now intros [].
+      now apply (Weak_T Hn). all: now intros [].
     + asimpl. setoid_rewrite <- translate_subst2; try now apply symfree_is_power.
       rewrite !is_power_subst. cbn. tauto.
    - rewrite <- !translate_subst2; try now apply symfree_is_om.
@@ -2786,50 +2821,56 @@ Proof.
   reflexivity. intros []; reflexivity. intros []; reflexivity.
 Qed.
 
-Lemma translate_subst T phi t n :
+Lemma translate_subst {T} {HB : bounded_theory T} phi t n :
   T ⊩IE (translate_tm' t)[$n..]
   -> T ⊩IE (translate' phi)[$n..] <-> T ⊩IE translate' phi[t..].
 Proof.
-  induction phi using form_ind_subst; intros Hn; try destruct p; cbn; try tauto.
-  - apply ex_equiv. intros i. cbn. apply and_equiv.
+  revert T HB. induction phi using form_ind_subst; intros T HB Hn; try destruct p; cbn; try tauto.
+  - apply ex_equiv. intros T' i HT HB'. cbn. apply and_equiv.
     + rewrite !map_hd. asimpl. setoid_rewrite ext_form.
-      apply translate_tm_subst, Hn.
+      apply translate_tm_subst. now apply (Weak_T Hn).
       all: now intros [].
-    + apply ex_equiv. intros j. cbn. apply and_equiv; try tauto.
+    + apply ex_equiv. intros T'' j HT' HB''. cbn. apply and_equiv; try tauto.
       rewrite !map_tl, !map_hd.
       setoid_rewrite (translate_ren_subst (f:=up_ren S)) at 1.
       3: now intros []. 2: apply rm_const_tm_symfree.
       setoid_rewrite (translate_ren_subst (f:=up_ren S)) at 1.
       3: now intros []. 2: apply rm_const_tm_symfree.
-      asimpl. setoid_rewrite ext_form. apply translate_tm_subst, Hn.
+      asimpl. setoid_rewrite ext_form. apply translate_tm_subst.
+      apply (Weak_T Hn). eapply tsubs_trans; eauto.
       all: now intros [].
-  - apply ex_equiv. intros i. cbn. apply and_equiv.
+  - apply ex_equiv. intros T' i HT HB'. cbn. apply and_equiv.
     + rewrite !map_hd. asimpl. setoid_rewrite ext_form.
-      apply translate_tm_subst, Hn.
+      apply translate_tm_subst. now apply (Weak_T Hn).
       all: now intros [].
-    + apply ex_equiv. intros j. cbn. apply and_equiv; try tauto.
+    + apply ex_equiv. intros T'' j HT' HB''. cbn. apply and_equiv; try tauto.
       rewrite !map_tl, !map_hd.
       setoid_rewrite (translate_ren_subst (f:=up_ren S)) at 1.
       3: now intros []. 2: apply rm_const_tm_symfree.
       setoid_rewrite (translate_ren_subst (f:=up_ren S)) at 1.
       3: now intros []. 2: apply rm_const_tm_symfree.
-      asimpl. setoid_rewrite ext_form. apply translate_tm_subst, Hn.
+      asimpl. setoid_rewrite ext_form. apply translate_tm_subst.
+      apply (Weak_T Hn). eapply tsubs_trans; eauto.
       all: now intros [].
-  - apply impl_equiv; intuition.
+  - apply impl_equiv; intros T' HT HB'.
+    + apply IHphi1; trivial. now apply (Weak_T Hn).
+    + apply IHphi2; trivial. now apply (Weak_T Hn).
   - apply and_equiv; intuition.
-  - apply or_equiv; intuition.
+  - apply or_equiv; intros T' HT HB'.
+    + apply IHphi1; trivial. now apply (Weak_T Hn).
+    + apply IHphi2; trivial. now apply (Weak_T Hn).
   - apply all_equiv. intros i. asimpl.
     setoid_rewrite <- translate_subst3 at 2; try apply rm_const_fm_symfree.
     rewrite <- rm_const_fm_ren. unfold ren_form, embed_renaming. asimpl.
     setoid_rewrite (@ext_form _ _ ($i.:(t..))) at 1. 2: now intros [|[]].
     setoid_rewrite <- form_pw2. setoid_rewrite <- H; trivial.
     now rewrite translate_pw'.
-  - apply ex_equiv. intros i. asimpl.
+  - apply ex_equiv. intros T' i HT HB'. asimpl.
     setoid_rewrite <- translate_subst3 at 2; try apply rm_const_fm_symfree.
     rewrite <- rm_const_fm_ren. unfold ren_form, embed_renaming. asimpl.
     setoid_rewrite (@ext_form _ _ ($i.:(t..))) at 1. 2: now intros [|[]].
     setoid_rewrite <- form_pw2. setoid_rewrite <- H; trivial.
-    now rewrite translate_pw'.
+    now rewrite translate_pw'. now apply (Weak_T Hn).
 Qed.
 
 Transparent is_eset is_pair is_union is_power is_om.
