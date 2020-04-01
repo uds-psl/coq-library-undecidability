@@ -476,6 +476,31 @@ Ltac assert2 H :=
 Ltac use_exists H t :=
   eapply (@bt_exists) in H as [t H]; eauto; apply H.
 
+Lemma all_equiv {Sigma : Signature} `{peirce} `{bottom} T phi psi :
+  (forall n, T ⊩ phi[$n..] <-> T ⊩ psi[$n..]) -> (T ⊩ ∀ phi) <-> (T ⊩ ∀ psi).
+Proof.
+Admitted.
+
+Lemma ex_equiv {Sigma : Signature} `{peirce} `{bottom} T phi psi :
+  (forall n, T ⊩ phi[$n..] <-> T ⊩ psi[$n..]) -> (T ⊩ ∃ phi) <-> (T ⊩ ∃ psi).
+Proof.
+Admitted.
+
+Lemma and_equiv {Sigma : Signature} `{peirce} `{bottom} T phi phi' psi psi' :
+  (T ⊩ phi <-> T ⊩ phi') -> (T ⊩ psi <-> T ⊩ psi') -> (T ⊩ (phi ∧ psi)) <-> (T ⊩ (phi' ∧ psi')).
+Proof.
+Admitted.
+
+Lemma or_equiv {Sigma : Signature} `{peirce} `{bottom} T phi phi' psi psi' :
+  (T ⊩ phi <-> T ⊩ phi') -> (T ⊩ psi <-> T ⊩ psi') -> (T ⊩ (phi ∨ psi)) <-> (T ⊩ (phi' ∨ psi')).
+Proof.
+Admitted.
+
+Lemma impl_equiv {Sigma : Signature} `{peirce} `{bottom} T phi phi' psi psi' :
+  (T ⊩ phi <-> T ⊩ phi') -> (T ⊩ psi <-> T ⊩ psi') -> (T ⊩ (phi --> psi)) <-> (T ⊩ (phi' --> psi')).
+Proof.
+Admitted.
+
 
 
 
@@ -1532,6 +1557,15 @@ Proof.
   - intros i Hi. constructor. lia.
 Qed.
 
+Lemma subst_theory_sub T A sigma :
+  A ⊏ T -> [psi[sigma] | psi ∈ A] ⊏ subst_theory sigma T.
+Proof.
+  induction A; intros H phi HP; cbn in *; auto.
+  destruct HP as [<-|[psi[<- HP]] % in_map_iff].
+  - exists a. split; intuition.
+  - exists psi. split; trivial. apply H. now right.
+Qed.
+
 End Subst.
 
 Lemma ZF_subst_theory T sigma :
@@ -2112,16 +2146,7 @@ Qed.
 
 
 
-(* minimised signature *)
-
-Lemma subst_theory_sub {Sigma : Signature} T A sigma :
-  A ⊏ T -> [psi[sigma] | psi ∈ A] ⊏ subst_theory sigma T.
-Proof.
-  induction A; intros H phi HP; cbn in *; auto.
-  destruct HP as [<-|[psi[<- HP]] % in_map_iff].
-  - exists a. split; intuition.
-  - exists psi. split; trivial. apply H. now right.
-Qed.
+(* theory induction principles *)
 
 Lemma tprv_ind {Sigma : Signature} (P : peirce -> bottom -> theory -> form -> Prop) :
   (forall p b T phi psi, P p b (T ⋄ phi) psi -> P p b T (phi --> psi))
@@ -2181,6 +2206,10 @@ Proof.
   revert H13. apply tprv_ind; clear T phi p b; intros; subst; intuition; eauto. discriminate.
 Qed.
 
+
+
+(* symbol-free terms and formulas *)
+
 Definition symfree_term (t : term) :=
   if t then True else False.
 
@@ -2224,7 +2253,53 @@ Proof.
     apply subst_symfree_term; cbn; auto.
 Qed.
 
+Lemma symfree_term_up t :
+  symfree_term t -> symfree_term t[↑].
+Proof.
+  apply subst_symfree_term. intros n; cbn; auto.
+Qed.
+
 Transparent is_pair is_union is_power.
+
+Lemma symfree_is_eset t :
+  symfree_term t -> symfree (is_eset t).
+Proof.
+  intros H. cbn. split; trivial.
+  intros t' [->|[->|Ht] % vec_cons_inv] % vec_cons_inv; cbn; auto.
+  now apply symfree_term_up. inversion Ht.
+Qed.
+
+Lemma symfree_is_pair x y t :
+  symfree_term x -> symfree_term y -> symfree_term t -> symfree (is_pair x y t).
+Proof.
+  intros H1 H2 H3. cbn. repeat split.
+  all: intros t' [->|[->|Ht] % vec_cons_inv] % vec_cons_inv; cbn; auto.
+  all: try now apply symfree_term_up. all: inversion Ht.
+Qed.
+
+Lemma symfree_is_union x t :
+  symfree_term x -> symfree_term t -> symfree (is_union x t).
+Proof.
+  intros H1 H2. cbn. repeat split.
+  all: intros t' [->|[->|Ht] % vec_cons_inv] % vec_cons_inv; cbn; auto.
+  all: try now repeat apply symfree_term_up.
+Qed.
+
+Lemma symfree_is_power x t :
+  symfree_term x -> symfree_term t -> symfree (is_power x t).
+Proof.
+  intros H1 H2. cbn. repeat split.
+  all: intros t' [->|[->|Ht] % vec_cons_inv] % vec_cons_inv; cbn; auto.
+  all: try now repeat apply symfree_term_up.
+Qed.
+
+Lemma symfree_is_om t :
+  symfree_term t -> symfree (is_om t).
+Proof.
+  intros H. cbn. repeat split.
+  all: intros t' [->|[->|Ht] % vec_cons_inv] % vec_cons_inv; cbn; auto.
+  all: try now repeat apply symfree_term_up.
+Qed.
 
 Lemma rm_const_tm_symfree t :
   symfree (rm_const_tm t).
@@ -2250,6 +2325,10 @@ Proof.
 Qed.
 
 Opaque is_eset is_pair is_union is_power is_om.
+
+
+
+(* minimised signature *)
 
 Section minimal.
 
@@ -2526,6 +2605,10 @@ Proof.
   apply ZF_subst_theory.
 Qed.
 
+
+
+(* proof transformations *)
+
 (*Class ZF_context :=
   { 
     T :> @form ZF_Signature -> Prop ;
@@ -2617,61 +2700,26 @@ Qed.
 Definition embed_subst sigma :=
   fun n : nat => embed_term (sigma n).
 
-Definition embed_ren (sigma : nat -> term) :=
+Definition embed_renaming (sigma : nat -> term) :=
   fun n => match sigma n with $k => k | _ => 0 end.
 
 Lemma translate_subst2 phi sigma :
   symfree phi -> translate phi[embed_subst sigma] = (translate phi)[sigma].
 Proof.
-  intros H. erewrite (translate_ren_subst (f:=embed_ren sigma)); trivial.
-  - apply ext_form. intros x. unfold embed_ren. now destruct (sigma x).
-  - intros x. unfold embed_subst, embed_ren. now destruct (sigma x).
+  intros H. erewrite (translate_ren_subst (f:=embed_renaming sigma)); trivial.
+  - apply ext_form. intros x. unfold embed_renaming. now destruct (sigma x).
+  - intros x. unfold embed_subst, embed_renaming. now destruct (sigma x).
 Qed.
 
 Lemma translate_subst3 phi sigma :
-  symfree phi -> translate (ren_form (embed_ren sigma) phi) = (translate phi)[sigma].
+  symfree phi -> translate (ren_form (embed_renaming sigma) phi) = (translate phi)[sigma].
 Proof.
   intros H. rewrite translate_ren; trivial. apply ext_form.
-  intros x. unfold embed_ren. now destruct (sigma x).
+  intros x. unfold embed_renaming. now destruct (sigma x).
 Qed.
 
-Lemma symfree_is_eset t :
-  symfree_term t -> symfree (is_eset t).
-Proof.
-Admitted.
-
-Lemma symfree_is_pair x y t :
-  symfree_term x -> symfree_term y -> symfree_term t -> symfree (is_pair x y t).
-Proof.
-Admitted.
-
-Lemma symfree_is_union x t :
-  symfree_term x -> symfree_term t -> symfree (is_union x t).
-Proof.
-Admitted.
-
-Lemma symfree_is_power x t :
-  symfree_term x -> symfree_term t -> symfree (is_power x t).
-Proof.
-Admitted.
-
-Lemma symfree_is_om t :
-  symfree_term t -> symfree (is_om t).
-Proof.
-Admitted.
-
-Lemma all_equiv {Sigma : Signature} `{peirce} `{bottom} T phi psi :
-  (forall n, T ⊩ phi[$n..] <-> T ⊩ psi[$n..]) -> (T ⊩ ∀ phi) <-> (T ⊩ ∀ psi).
-Proof.
-Admitted.
-
-Lemma ex_equiv {Sigma : Signature} `{peirce} `{bottom} T phi psi :
-  (forall n, T ⊩ phi[$n..] <-> T ⊩ psi[$n..]) -> (T ⊩ ∃ phi) <-> (T ⊩ ∃ psi).
-Proof.
-Admitted.
-
-Lemma and_equiv {Sigma : Signature} `{peirce} `{bottom} T phi phi' psi psi' :
-  (T ⊩ phi <-> T ⊩ phi') -> (T ⊩ psi <-> T ⊩ psi') -> (T ⊩ (phi ∧ psi)) <-> (T ⊩ (phi' ∧ psi')).
+Lemma translate_tm_equiv T t k n :
+  T ⊩IE (translate_tm' t)[($n)..] -> T ⊩IE $k ≡' $n <-> T ⊩IE (translate_tm' t)[($k)..].
 Proof.
 Admitted.
 
@@ -2680,7 +2728,7 @@ Lemma translate_tm_subst T x t n k :
   -> T ⊩IE (translate_tm' x)[$k.:($n..)] <-> T ⊩IE (translate_tm' x[t..])[$k..].
 Proof.
   revert k. induction x using strong_term_ind; try destruct F; cbn; intros k Hn.
-  - destruct x; cbn; try tauto. admit.
+  - destruct x; cbn; try tauto. now apply translate_tm_equiv.
   - rewrite <- !translate_subst2; try now apply symfree_is_eset.
     rewrite !is_eset_subst. cbn. tauto.
   - apply ex_equiv. intros i. cbn. apply and_equiv.
@@ -2711,10 +2759,19 @@ Proof.
       all: now intros [].
     + asimpl. setoid_rewrite <- translate_subst2; try now apply symfree_is_union.
       rewrite !is_union_subst. cbn. tauto.
-   - admit.
+   - apply ex_equiv. intros i. cbn. apply and_equiv.
+    + rewrite !map_hd.
+      setoid_rewrite (translate_ren_subst (f:=up_ren S)) at 1.
+      3: now intros []. 2: apply rm_const_tm_symfree.
+      setoid_rewrite (translate_ren_subst (f:=up_ren S)) at 1.
+      3: now intros []. 2: apply rm_const_tm_symfree.
+      asimpl. setoid_rewrite ext_form. apply H; trivial; try apply in_hd.
+      all: now intros [].
+    + asimpl. setoid_rewrite <- translate_subst2; try now apply symfree_is_power.
+      rewrite !is_power_subst. cbn. tauto.
    - rewrite <- !translate_subst2; try now apply symfree_is_om.
      rewrite !is_om_subst. cbn. tauto.
-Admitted.
+Qed.
 
 Lemma form_pw2 {Sigma : Signature} phi x y :
   phi[$(S x)..][y..] = phi[$x.:y..].
@@ -2758,22 +2815,22 @@ Proof.
       3: now intros []. 2: apply rm_const_tm_symfree.
       asimpl. setoid_rewrite ext_form. apply translate_tm_subst, Hn.
       all: now intros [].
-  - admit.
+  - apply impl_equiv; intuition.
   - apply and_equiv; intuition.
-  - admit.
+  - apply or_equiv; intuition.
   - apply all_equiv. intros i. asimpl.
     setoid_rewrite <- translate_subst3 at 2; try apply rm_const_fm_symfree.
-    rewrite <- rm_const_fm_ren. unfold ren_form, embed_ren. asimpl.
+    rewrite <- rm_const_fm_ren. unfold ren_form, embed_renaming. asimpl.
     setoid_rewrite (@ext_form _ _ ($i.:(t..))) at 1. 2: now intros [|[]].
     setoid_rewrite <- form_pw2. setoid_rewrite <- H; trivial.
     now rewrite translate_pw'.
   - apply ex_equiv. intros i. asimpl.
     setoid_rewrite <- translate_subst3 at 2; try apply rm_const_fm_symfree.
-    rewrite <- rm_const_fm_ren. unfold ren_form, embed_ren. asimpl.
+    rewrite <- rm_const_fm_ren. unfold ren_form, embed_renaming. asimpl.
     setoid_rewrite (@ext_form _ _ ($i.:(t..))) at 1. 2: now intros [|[]].
     setoid_rewrite <- form_pw2. setoid_rewrite <- H; trivial.
     now rewrite translate_pw'.
-Admitted.
+Qed.
 
 Transparent is_eset is_pair is_union is_power is_om.
 
@@ -2864,6 +2921,8 @@ Proof.
     + eapply Weak_T; try apply translate_theory_extend; intuition.
     + eapply Weak_T; try apply translate_theory_extend; intuition.
 Qed.
+
+Print Assumptions tprv_translate'.
 
 Lemma embed_ren_tm t (f : nat -> nat) :
   embed_term (subst_term (fun n => $(f n)) t) = subst_term (fun n => $(f n)) (embed_term t).
