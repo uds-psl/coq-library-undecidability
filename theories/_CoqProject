@@ -34,7 +34,40 @@ Shared/Libs/DLW/Vec/pos.v
 Shared/Libs/DLW/Vec/vec.v
 
 Problems/Reduction.v
-Problems/PCP.v
+
+#Post correspondence problem
+PCP/PCP.v
+PCP/PCP_undec.v
+
+PCP/Util/Facts.v
+PCP/Util/PCP_facts.v
+PCP/Reductions/MPCP_to_PCP.v
+PCP/Reductions/PCPb_iff_dPCPb.v
+PCP/Reductions/PCP_to_PCPb.v
+PCP/Reductions/PCPb_iff_iPCPb.v
+PCP/Reductions/SR_to_MPCP.v
+PCP/Reductions/MPCP_to_MPCPb.v
+
+#String rewriting
+SR/SR.v
+SR/SR_undec.v
+
+SR/Util/Definitions.v
+SR/Util/singleTM.v
+SR/Reductions/SRH_to_SR.v
+SR/Reductions/TM_to_SRH.v
+
+#Context-free grammars
+CFG/CFP.v
+CFG/CFP_undec.v
+CFG/CFG.v
+CFG/CFG_undec.v
+
+CFG/Reductions/PCP_to_CFPP.v
+CFG/Reductions/PCP_to_CFPI.v
+CFG/Reductions/CFPP_to_CFP.v
+CFG/Reductions/CFPI_to_CFI.v
+
 
 FOL/DecidableEnumerable.v
 FOL/Reductions.v
@@ -50,20 +83,7 @@ FOL/BPCP_CND.v
 FOL/Weakening.v
 FOL/Infinite.v
 
-PCP/Definitions.v
-PCP/SRH_SR.v
-PCP/SR_MPCP.v
-PCP/MPCP_PCP.v
-PCP/PCP_CFP.v
-PCP/PCP_CFI.v
-PCP/singleTM.v
-PCP/TM_SRH.v
-PCP/Post_CFG.v
-PCP/CFP_CFI.v
-
 ILL/Definitions.v
-ILL/PCP_BPCP.v
-ILL/BPCP_iBPCP.v
 
 ILL/Code/subcode.v
 ILL/Code/sss.v
@@ -423,7 +443,6 @@ FOLP/Input.v
 
 Problems/FOL.v
 Problems/TM.v
-Problems/SR.v
 Problems/MM.v
 Problems/MM2.v
 Problems/BSM.v
@@ -435,11 +454,6 @@ Problems/RA_UNIV.v
 Problems/cbvLambda.v
 Problems/FOLFS.v
 
-Reductions/TM_to_SRH.v  
-Reductions/SRH_to_SR.v  
-Reductions/SR_to_MPCP.v 
-Reductions/MPCP_to_PCP.v
-Reductions/PCP_to_BPCP.v
 Reductions/BPCP_to_BSM.v
 Reductions/BSM_to_MM.v  
 Reductions/MM_to_ILL.v  

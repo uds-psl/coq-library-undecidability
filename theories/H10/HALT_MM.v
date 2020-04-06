@@ -18,16 +18,17 @@ From Undecidability.ILL.Mm Require Import mm_defs.
 
 From Undecidability.ILL Require Import UNDEC.
 
-From Undecidability.PCP Require Import singleTM TM_SRH SRH_SR SR_MPCP MPCP_PCP.
+From Undecidability.SR Require Import Util.singleTM Reductions.TM_to_SRH Reductions.SRH_to_SR.
+From Undecidability.PCP Require Import Reductions.SR_to_MPCP Reductions.MPCP_to_PCP.
 
 Set Implicit Arguments.
 
 Corollary Halt_PCP : Halt ⪯ PCP.
 Proof.
-  eapply reduces_transitive. exact TM_SRH.Halt_SRH.
-  eapply reduces_transitive. exact SRH_SR.reduction.
-  eapply reduces_transitive. exact SR_MPCP.reduction.
-  exact MPCP_PCP.reduction.
+  eapply reduces_transitive. exact TM_to_SRH.Halt_SRH.
+  eapply reduces_transitive. exact SRH_to_SR.reduction.
+  eapply reduces_transitive. exact SR_to_MPCP.reduction.
+  exact MPCP_to_PCP.reduction.
 Qed.
 
 Corollary MM_HALTING_undec : Halt ⪯ MM_HALTING.

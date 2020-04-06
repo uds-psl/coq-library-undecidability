@@ -1,10 +1,19 @@
-Require Import Undecidability.PCP.Definitions.
+Require Import List.
+Import ListNotations.
+
+Require Import Undecidability.PCP.PCP.
+Require Import Undecidability.PCP.Util.Facts.
+Require Import Undecidability.PCP.Util.PCP_facts.
+Require Import Undecidability.SR.SR.
+Require Import Undecidability.SR.Util.Definitions.
+
+Require Import Undecidability.Problems.Reduction.
 
 (** * SR to MPCP *)
 
 Section SR_to_MPCP.
-
-  Variable R : SRS.
+  Local Definition string := string nat.
+  Variable R : stack nat.
   Variables x0 y0 : string.
 
   Notation "x ≻ y" := (rew R x y) (at level 70).
@@ -91,9 +100,13 @@ Section SR_to_MPCP.
         cbn -[fresh] in H2.
         edestruct (split_inv H2) as (x' & ->).
         intros E. edestruct hash_sig. unfold Sigma. rewrite !in_app_iff. do 2 right. now eapply sym_word_l; eauto. reflexivity.
-        econstructor. eauto using rew.
+        econstructor. eapply rewB. now eassumption.        
         enough ( (y ++ v) ++ x' ≻* y0) by now autorewrite with list in *.
-        eapply IHA; eauto. autorewrite with list in *. now eapply app_inv_head in H2.
+        eapply IHA; autorewrite with list in *.
+        * eauto.
+        * eauto.
+        * eauto.
+        * now eapply app_inv_head in H2.
       + cbn -[fresh] in H2. destruct x; [inv H2 |].
         * simpl_list. change y with ([] ++ y). eapply IHA; eauto using cons_incl.
         * inversion H2. edestruct hash_sig; eauto.       

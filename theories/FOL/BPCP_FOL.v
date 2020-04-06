@@ -1,8 +1,12 @@
 (** * FOL Reductions *)
 
 From Undecidability.FOL Require Export PCP Deduction.
+Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
 
 (** ** Validity *)
+
+Local Definition BSRS := list(card bool).
+Local Notation "x / y" := (x, y).
 
 Section validity.
 
@@ -55,7 +59,7 @@ Section validity.
       i_f b s := b :: s ;
       i_e := nil;
       i_P u v := derivable R u v ;
-      i_Q := BPCP' R
+      i_Q := dPCPb R
     |}.
 
   Lemma IB_prep rho s t :
@@ -90,17 +94,17 @@ Section validity.
     rho ⊫ F2.
   Proof.
     unfold F2. intros ? ([x y] & <- & ?) % in_map_iff u v ?. cbn.
-    rewrite !IB_prep. cbn in *. eauto using derivable.
+    rewrite !IB_prep. cbn in *. eauto using der_sing, der_cons.
   Qed.
 
   Lemma IB_F3 rho :
     rho ⊨ F3.
   Proof.
-    cbn. apply cBPCP.
+    cbn. unfold dPCPb. eauto.
   Qed.
 
   Lemma IB_F rho :
-    rho ⊨ F -> BPCP' R.
+    rho ⊨ F -> dPCPb R.
   Proof.
     intros H. unfold F in H. rewrite !impl_sat in H. eapply H.
     - eapply IB_F1.
@@ -120,9 +124,9 @@ Section validity.
   Qed.
 
   Theorem BPCP_valid :
-    BPCP R <-> valid F.
+    PCPb R <-> valid F.
   Proof.
-    rewrite BPCP_BPCP'. split.
+    rewrite PCPb_iff_dPCPb. split.
     - intros [u H] D eta I rho.
       eapply (@drv_val _ _ I) in H. unfold F. cbn in *.
       rewrite !impl_sat in *. cbn in *.
@@ -163,7 +167,7 @@ Section validity.
   Qed.
 
   Lemma BPCP_prv' s :
-    BPCP' R -> @prv s b nil F.
+    dPCPb R -> @prv s b nil F.
   Proof.
     intros [u H].
     apply drv_prv with (s:=s) in H. unfold F.
@@ -176,11 +180,11 @@ Section validity.
 End validity.
 
 Theorem BPCP_prv R :
-  BPCP R <-> nil ⊢M (F R).
+  PCPb R <-> nil ⊢M (F R).
 Proof.
-  rewrite BPCP_BPCP'. split.
+  rewrite PCPb_iff_dPCPb. split.
   - apply BPCP_prv'.
-  - intros H % soundness. eapply BPCP_BPCP'. now apply (BPCP_valid R).
+  - intros H % soundness. eapply PCPb_iff_dPCPb. now apply (BPCP_valid R).
 Qed.
 
 (** ** Satisfiability *)
@@ -193,12 +197,12 @@ Proof.
 Qed.
 
 Theorem BPCP_satis R :
-  ~ BPCP R <-> satis (¬ F R).
+  ~ PCPb R <-> satis (¬ F R).
 Proof.
-  rewrite BPCP_BPCP'. split.
+  rewrite PCPb_iff_dPCPb. split.
   - intros H. exists _, (fun _ => nil), (IB R), (fun _ => nil).
     intros H'. cbn. apply H, (IB_F H').
-  - rewrite <- BPCP_BPCP'. intros H1 H2 % (BPCP_valid R (b:=full)).
+  - rewrite <- PCPb_iff_dPCPb. intros H1 H2 % (BPCP_valid R (b:=full)).
     apply (valid_satis H2), H1.
 Qed.
 
@@ -215,10 +219,10 @@ Qed.
 Hint Resolve stack_enum form_discrete.
 
 Definition UA :=
-  ~ enumerable (compl BPCP).
+  ~ enumerable (compl PCPb).
 
 Corollary valid_red :
-  BPCP ⪯ @valid frag.
+  PCPb ⪯ @valid frag.
 Proof.
   exists (fun R => F R). intros R. apply (BPCP_valid R).
 Qed.
@@ -236,7 +240,7 @@ Proof.
 Qed.
 
 Corollary prv_red :
-  BPCP ⪯ @prv intu frag nil.
+  PCPb ⪯ @prv intu frag nil.
 Proof.
   exists (fun R => F R). intros R. apply (BPCP_prv R).
 Qed.
@@ -254,7 +258,7 @@ Proof.
 Qed.
 
 Corollary satis_red :
-  compl BPCP ⪯ @satis full.
+  compl PCPb ⪯ @satis full.
 Proof.
   exists (fun R => ¬ F R). intros R. apply (BPCP_satis R).
 Qed.

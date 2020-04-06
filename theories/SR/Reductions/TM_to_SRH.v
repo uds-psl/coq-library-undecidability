@@ -1,7 +1,10 @@
 (** ** TM to SR with finite types *)
+Require Import Undecidability.Shared.Prelim.
+Require Import Undecidability.SR.Util.singleTM.
 
-From Undecidability.PCP Require Import singleTM.
 Require Import PslBase.FiniteTypes.BasicDefinitions PslBase.EqDec.
+Require Import Undecidability.SR.SR.
+
 
 Lemma map_app_inv X Y (f : X -> Y) x y z :
   map f x = y ++ z -> exists x' x'', x = x' ++ x'' /\ map f x' = y /\ map f x'' = z.
@@ -582,7 +585,7 @@ Section Fix_TM.
 
 End Fix_TM.
 
-From Undecidability Require Import PCP.Definitions.
+
 
 Theorem reduction_reach_sr : Reach ⪯ SR_fin.
 Proof.
@@ -591,7 +594,7 @@ Proof.
     exists (rsig_finType M).
     exact (reduction_reach_rewrite (c1, c2)).
   - intros [sig [M [c1 c2]]]. 
-    unfold Reach, SR. cbn.
+    unfold Reach. cbn.
     apply reach_rewrite.
 Qed.
 
@@ -625,20 +628,30 @@ Proof.
   intros ? ?; eauto using injective_index.
 Qed.
 
+Require Import Undecidability.SR.Util.Definitions.
+
+Local Definition symbol := nat.
+Local Definition string := string nat.
+Local Definition SRS := SRS nat.
+
 Lemma nrewt_ind_left :
-  forall (R : SRS) s (P : string -> Prop),
-    (P s) ->
+  forall {R : SRS} {s} (P : string -> Prop),
+    P s ->
     (forall y z : string, rewt R s y -> rew R y z -> P y -> P z) -> forall s0 : string, rewt R s s0 -> P s0.
 Proof.
-  intros. induction H1; eauto 10 using rewt.
+  intros. induction H1; eauto 10.
+  eapply IHrewt.
+  + eapply H0; eauto. eapply SR.rewR.
+  + intros. eapply H0; eauto. eapply rewS; eauto.
 Qed.
+
 
 Lemma rewt_inv    (Sigma : finType) (R : srs Sigma) (x0 : list Sigma) y' :
     rewt (trans_R R) (map (index (F:=Sigma)) x0) y' -> exists y, y' = (map (index (F:=Sigma)) y) /\ rewt' R x0 y.
 Proof.
-  intros. induction H using nrewt_ind_left.
+  intros. pattern y'. eapply nrewt_ind_left; eauto. (* induction H using nrewt_ind_left. *)
   - eauto using rewt'. 
-  - destruct IHrewt as (? & -> & ?). pose proof H0. eapply rew_inv in H0 as [? ->].
+  - clear H. intros y z H H0 IHrewt. destruct IHrewt as (? & -> & ?). pose proof H0. eapply rew_inv in H0 as [? ->].
     exists x1. eapply red_rew in H2. split; try reflexivity. eapply rewrite_right; eauto.
 Qed.
 
@@ -647,7 +660,7 @@ Lemma red_rewt    (Sigma : finType) (R : srs Sigma) (x0 y : list Sigma) :
 Proof.
   split.
   - induction 1. reflexivity.
-    eapply red_rew in H. eauto using rewt.
+    eapply red_rew in H. eauto using SR.rewR, rewS.
   - intros. eapply rewt_inv in H as (? & ? & ?). enough (x = y). subst. eassumption.
     eapply map_inj; eauto; intros ? ?; eauto using injective_index.
 Qed.
@@ -660,7 +673,7 @@ Qed.
 
 (** ** TM to SRH' *)
 
-Definition SRH' '(Rs, x, A) := exists y, rewt Rs x y /\ exists a, a el A /\ a el y.
+Definition SRH' '(Rs, x, A) := exists y : string, rewt Rs x y /\ exists a, a el A /\ a el y.
 
 Lemma mk_srconf_state:
   forall (sig : finType) (M : sTM sig) (x : conf M) (x0 : states M), state x0 el mk_srconf x -> x0 = cstate x.
@@ -693,31 +706,31 @@ Proof.
 Qed.
 
 (** ** SRH' to SRH *)
-
+Check Undecidability.SR.Util.Definitions.sym.
 Lemma rewt_R_fresh (R : SRS) (x : string) (A l : list symbol) :
   rewt (R ++ map (fun a : symbol => [a] / [fresh (sym R ++ x)]) A) x l -> ~ fresh (sym R ++ x) el l -> rewt R x l.
 Proof.
-  induction 1 using nrewt_ind_left; intros.
-  - reflexivity.
-  - inv H0. eapply in_app_iff in H2 as [ | ].
-    + eapply rewt_left. eapply IHrewt.
-      * intros [ | [ | ] % in_app_iff ] %in_app_iff; eapply H1; eauto.
-        eapply sym_word_l in H2; eauto. edestruct fresh_spec with (l := sym R ++ x); eauto.
-      * eauto using rew.
-    + eapply in_map_iff in H0 as (? & ? & ?). inv H0. destruct H1; eauto.
+  intro H. pattern l. eapply nrewt_ind_left; eauto.
+  - intros. reflexivity.
+  - clear H. intros y z H H0 IHrewt H1. inv H0. eapply in_app_iff in H2 as [ | ].
+  + eapply rewt_left. eapply IHrewt.
+    * intros [ | [ | ] % in_app_iff ] %in_app_iff; eapply H1; eauto.
+      eapply sym_word_l in H2; eauto. edestruct fresh_spec with (l := sym R ++ x); eauto.
+    * eauto using rewB.
+  + eapply in_map_iff in H0 as (? & ? & ?). inv H0. destruct H1; eauto.
 Qed.
 
 Lemma SRH'_SRH : SRH' ⪯ SRH.
 Proof.
-  exists (fun '(P, x, A) => (P ++ map (fun a => [a] / [fresh (sym P ++ x)]) A, x, fresh (sym P ++ x))).
+  exists (fun '(P, x, A) => (P ++ map (fun a => [a] / [fresh (Undecidability.SR.Util.Definitions.sym P ++ x)]) A, x, fresh (Undecidability.SR.Util.Definitions.sym P ++ x))).
   intros [ [R x] A]. cbn. firstorder.
-  - eapply in_split in H1 as (? & ? & ->). exists (x2 ++ [fresh (sym R ++ x)] ++ x3). split.
+  - eapply in_split in H1 as (? & ? & ->). exists (x2 ++ [fresh (Undecidability.SR.Util.Definitions.sym R ++ x)] ++ x3). split.
     + transitivity (x2 ++ [x1] ++ x3). eapply rewt_subset. eassumption. eauto.
-      eauto 9 using rew, rewt.
+      eauto 9 using rewB, rewS, SR.rewR.
     + eauto.
-  -  revert H0. induction H using nrewt_ind_left; intros.
-    + edestruct fresh_spec with (l := sym R ++ x); eauto.
-    + edestruct (list_in_dec (fresh (sym R ++ x)) y). exact _.
+  -  revert H0. pattern x0. eapply nrewt_ind_left; eauto.
+    + intros. edestruct fresh_spec with (l := sym R ++ x); eauto.
+    + clear H x0. intros y z H H0 IHrewt H1. edestruct (list_in_dec (fresh (sym R ++ x)) y). exact _.
       firstorder. inv H0. eapply in_app_iff in H2 as [ | ].
       * destruct n. rewrite !in_app_iff in H1. intuition; eauto.
         eapply sym_word_R in H1; eauto. edestruct fresh_spec with (l := sym R ++ x); eauto.

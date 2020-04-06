@@ -12,7 +12,7 @@
 From Undecidability.ILL 
   Require Import Definitions UNDEC.
 
-From Undecidability.PCP 
+From Undecidability.SR.Util 
   Require Import singleTM.
 
 From Undecidability.Shared.Libs.DLW.Utils 

@@ -1,4 +1,4 @@
-From Undecidability Require Export Problems.PCP Shared.Prelim Problems.Reduction.
+Require Import Undecidability.SR.SR Undecidability.Shared.Prelim.
 
 
 (** *Some basic things concerning lists *)
@@ -33,12 +33,11 @@ Qed.
 
 (** * Definitions *)
 
-Definition symbol := nat.
-Definition string := (string nat).
-Definition card : Type := (card nat).
-Definition stack := stack nat.
-Notation "x / y" := (x,y).
-
+Local Definition symbol := nat.
+Local Definition string := (string nat).
+Local Definition card : Type := (string * string).
+Local Definition stack := list card.
+Local Definition SRS := SRS nat.
 Implicit Types a b : symbol.
 Implicit Types x y z : string.
 Implicit Types d e : card.
@@ -46,39 +45,7 @@ Implicit Types A R P : stack.
 
 Coercion sing (n : nat) := [n].
 
-(** ** Post Correspondence Problem *)
-
-Lemma tau1_app A B : tau1 (A ++ B) = tau1 A ++ tau1 B.
-Proof.
-  induction A; cbn; try destruct _; simpl_list; congruence.
-Qed.
-
-Lemma tau2_app A B : tau2 (A ++ B) = tau2 A ++ tau2 B.
-Proof.
-  induction A; cbn; try destruct _; simpl_list; congruence.
-Qed.
-
-Definition cards x := map (fun a => [a] / [a]) x.
-
-Lemma tau1_cards x : tau1 (cards x) = x.
-Proof.
-  induction x; cbv in *; try rewrite IHx; trivial.
-Qed.
-
-Lemma tau2_cards x : tau2 (cards x) = x.
-Proof.
-  induction x; cbv in *; try rewrite IHx; trivial.
-Qed.
-
-Hint Rewrite tau1_app tau2_app tau1_cards tau2_cards : list.
-
 (** ** String Rewriting *)
-
-Inductive rew (R : SRS) : string -> string -> Prop :=
-  rewB x y u v : u / v el R -> rew R (x ++ u ++ y) (x ++ v ++ y).
-Inductive rewt (R : SRS) : string -> string -> Prop :=
-  rewR z : rewt R z z
-| rewS x y z :  rew R x y -> rewt R y z -> rewt R x z.
 
 Lemma rewt_induct :
   forall (R : SRS) z (P : string -> Prop),
@@ -93,7 +60,7 @@ Instance PreOrder_rewt R : PreOrder (rewt R).
 Proof.
   split.
   - econstructor.
-  - hnf. intros. induction H; eauto using rewt.
+  - hnf. intros. induction H; eauto using rewR, rewS.
 Qed.
 
 Lemma rewt_app_L R x x' y : rewt R x x' -> rewt R (y ++ x) (y ++ x').
@@ -118,13 +85,16 @@ Lemma rewt_subset R P x y :
 Proof.
   induction 1; intros.
   - reflexivity.
-  - inv H. eauto using rewt, rew. 
+  - inv H. eapply rewS; eauto.
+    eapply rewB. eauto.
 Qed.
 
 Lemma rewt_left R x y z :
   rewt R x y -> rew R y z -> rewt R x z.
 Proof.
-  induction 1; eauto using rewt.
+  induction 1; eauto.
+  + intros. eapply rewS; eauto. eapply rewR.
+  + intros. eapply rewS; eauto. 
 Qed.
 
 (** ** Post Grammars *)
@@ -137,7 +107,7 @@ Fixpoint sigma (a : symbol) A :=
 
 (** ** Alphabets *)
 
-Fixpoint sym (R : SRS) :=
+Fixpoint sym (R : list card) :=
   match R with
     [] => []
   | x / y :: R => x ++ y ++ sym R
@@ -187,23 +157,6 @@ Proof.
 Qed.
 
 
-Lemma tau1_sym A : tau1 A <<= sym A.
-Proof.
-  induction A as [ | (x & y) ].
-  - firstorder.
-  - cbn. intros ? [ | ] % in_app_iff. eapply in_app_iff. eauto.
-    rewrite !in_app_iff. eauto.
-Qed.
-
-Lemma tau2_sym A : tau2 A <<= sym A.
-Proof.
-  induction A as [ | (x & y) ].
-  - firstorder.
-  - cbn. cbn. intros ? [ | ] % in_app_iff. eapply in_app_iff. eauto.
-    rewrite !in_app_iff. eauto.
-Qed.  
-
-
 Lemma rewt_sym R x y Sigma:
   sym R <<= Sigma -> x <<= Sigma -> rewt R x y -> y <<= Sigma.
 Proof.
@@ -235,9 +188,9 @@ Proof.
   intros H % fresh_spec'. intros <-. omega.
 Qed.
 
-Definition SRH '(R, x, a) := exists y, rewt R x y /\ a el y.
-Definition SR '(R, x, y) := rewt R x y.
-(* Definition PCP P := exists A : SRS, A <<= P /\ A <> [] /\ tau1 A = tau2 A. *)
-Definition MPCP '((x,y), P) := exists A : SRS, A <<= x/y :: P /\ x ++ tau1 A = y ++ tau2 A.
+
+(*
+TODO move
 Definition CFP '(R, a) := exists A : SRS, A <<= R /\ A <> [] /\ sigma a A = rev (sigma a A).
 Definition CFI '(R1, R2, a) := exists A1 A2, A1 <<= R1 /\ A2 <<= R2 /\ A1 <> [] /\ A2 <> [] /\ sigma a A1 = sigma a A2.
+*)

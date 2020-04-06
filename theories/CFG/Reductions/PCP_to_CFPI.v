@@ -1,22 +1,33 @@
-Require Import Undecidability.PCP.Definitions.
+Require Import List.
+Import ListNotations.
 
-(** * PCP to CFI *)
+Require Import Undecidability.CFG.CFP.
 
-Section PCP_CFI.
+Require Import Undecidability.PCP.PCP.
+Require Import Undecidability.PCP.Util.Facts.
+Require Import Undecidability.PCP.Util.PCP_facts.
 
-  Variable P : SRS.
+Require Import Undecidability.Problems.Reduction.
+
+Require Import Undecidability.Shared.Prelim.
+
+(** * PCP to CFPI *)
+
+Section PCP_CFPI.
+
+  Variable P : stack nat.
 
   Definition Sigma := sym P.
   Notation "#" := (fresh Sigma).
   
-  Definition gamma1 (A : SRS) :=
-    map (fun '(x,y) => x / (x ++ [#] ++ y ++ [#])) A.
-  Definition gamma2 (A : SRS) :=
-    map (fun '(x,y) => y / (x ++ [#] ++ y ++ [#])) A.
-  Fixpoint gamma (A : SRS) :=
+  Definition gamma1 (A : stack nat) :=
+    map (fun '(x, y) => (x, (x ++ [#] ++ y ++ [#]))) A.
+  Definition gamma2 (A : stack nat) :=
+    map (fun '(x, y) => (y, (x ++ [#] ++ y ++ [#]))) A.
+  Fixpoint gamma (A : stack nat) :=
     match A with
     | [] => []
-    | x/y :: A => gamma A ++ x ++ [#] ++ y ++ [#]
+    | (x, y) :: A => gamma A ++ x ++ [#] ++ y ++ [#]
     end.
 
   Lemma sigma_gamma1 A :
@@ -43,10 +54,10 @@ Section PCP_CFI.
   Proof.
     induction B as [ | (x,y)]; cbn; intros.
     - eauto.
-    - assert (x/y el gamma1 C) by firstorder. unfold gamma1 in H0.
+    - assert ((x, y) el gamma1 C) by firstorder. unfold gamma1 in H0.
       eapply in_map_iff in H0 as ((x',y') & ? & ?). inv H0.
       assert (B <<= gamma1 C) as (A & Hi & He) % IHB by firstorder.
-      exists (x/y' :: A). split.
+      exists ((x, y') :: A). split.
       + intuition.
       + now subst.
   Qed.
@@ -58,10 +69,10 @@ Section PCP_CFI.
   Proof.
     induction B as [ | (x,y)]; cbn; intros.
     - eauto.
-    - assert (x/y el gamma2 C) by firstorder. unfold gamma2 in H0.
+    - assert ((x, y) el gamma2 C) by firstorder. unfold gamma2 in H0.
       eapply in_map_iff in H0 as ((x',y') & ? & ?). inv H0.
       assert (B <<= gamma2 C) as (A & Hi & He) % IHB by firstorder.
-      exists (x'/x :: A). split.
+      exists ((x', x) :: A). split.
       + intuition.
       + now subst.
   Qed.
@@ -73,7 +84,7 @@ Section PCP_CFI.
     intros H.
     revert A2. induction A1 as [ | (x,y) ]; cbn; intros.
     - destruct A2; inv H1. reflexivity.
-      destruct c, (gamma A2), s; cbn in *; inv H3.
+      destruct c, (gamma A2), l; cbn in *; inv H3.
     - destruct A2 as [ | (x',y')]; cbn in H1.
       + destruct (gamma A1), x; inv H1.
       + eapply rev_eq in H1. repeat (autorewrite with list in H1; cbn in H1). inv H1.
@@ -95,19 +106,19 @@ Section PCP_CFI.
         * intros ? % In_rev. eapply H0. cbn. eauto.
   Qed.  
 
-End PCP_CFI.
+End PCP_CFPI.
 
 
 Lemma reduction :
-  PCP ⪯ CFI. 
+  PCP ⪯ CFPI. 
 Proof.
   exists (fun P => (gamma1 P P, gamma2 P P, fresh (sym P))). intros P.
   split.
   - intros (A & Hi & He & H). exists (gamma1 P A), (gamma2 P A). repeat split.
     + clear He H. induction A as [ | [] ]. firstorder. intros ? [ <- | ].
-      unfold gamma1. eapply in_map_iff. exists (s,s0). firstorder. firstorder.
+      unfold gamma1. eapply in_map_iff. exists (l, l0). firstorder. firstorder.
     + clear He H. induction A as [ | [] ]. firstorder. intros ? [ <- | ].
-      unfold gamma2. eapply in_map_iff. exists (s,s0). firstorder. firstorder.
+      unfold gamma2. eapply in_map_iff. exists (l, l0). firstorder. firstorder.
     + destruct A; cbn in *; congruence.
     + destruct A; cbn in *; congruence.
     + now rewrite sigma_gamma1, sigma_gamma2, H.

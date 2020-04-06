@@ -1,22 +1,20 @@
-Require Import Undecidability.PCP.Definitions.
+Require Import Bool List.
+Import ListNotations.
 
+Require Import Undecidability.PCP.PCP.
+Require Import Undecidability.PCP.Util.Facts.
+Require Import Undecidability.PCP.Util.PCP_facts.
+
+Require Import Undecidability.Problems.Reduction.
+
+Require Import Undecidability.Shared.Prelim.
 (** * MPCP to PCP *)
 
-Definition is_cons X (l : list X) :=
-  match l with
-  | [] => false
-  | _ => true
-  end.
-
-Lemma is_cons_true_iff X (l : list X) :
-  is_cons l = true <-> l <> [].
-Proof.
-  destruct l; cbn; firstorder congruence.
-Qed.
-
 Section MPCP_PCP.
-
-  Variable R : SRS.
+  Local Definition card := card nat.
+  Local Definition string := string nat.
+  Local Notation "x / y" := (x, y).
+  Variable R : list (card).
   Variable x0 y0 : string.
 
   Definition Sigma := sym (x0/y0 :: R).
@@ -67,35 +65,15 @@ Section MPCP_PCP.
       rewrite <- H3. firstorder.
   Qed.
 
-  Lemma tau1_inv (a : nat) B z :
-    tau1 B = a :: z ->
-    exists x y, (a :: x, y) el B.
-  Proof.
-    induction B; cbn; intros; inv H.
-    destruct a0 as ([],y).
-    - cbn in H1. firstorder.
-    - cbn in H1. inv H1. eauto.
-  Qed.
-
   Lemma P_inv_bot x y :
     ~(y, # :: x) el P.
   Proof.
     intros [  | [  | (x'' & y' & ? & ? & ?) ] ] % P_inv.
-    - inv H. edestruct fresh_spec; eauto. eauto.
-    - inv H. edestruct fresh_spec; eauto. eauto.
+    - inv H. edestruct fresh_spec; eauto.
+    - inv H. edestruct fresh_spec; eauto.
     - inv H0. destruct y'; cbn -[fresh] in *; [congruence | ]. inversion H4.
       edestruct fresh_spec with (l := dollar :: Sigma); [ | reflexivity ]. unfold hash in *.
       rewrite H2. right. eapply sym_word_R; eauto.
-  Qed.
-
-  Lemma tau2_inv (a : nat) B z :
-    tau2 B = a :: z ->
-    exists x y, (y, a :: x) el B.
-  Proof.
-    induction B; cbn; intros; inv H.
-    destruct a0 as (x,[]).
-    - cbn in H1. firstorder.
-    - cbn in H1. inv H1. eauto.
   Qed.
   
   Lemma match_start d' B :
@@ -111,8 +89,9 @@ Section MPCP_PCP.
         eapply sym_word_R; eauto.        
       + cbn -[fresh] in Hm. symmetry in Hm. destruct (tau2_inv Hm) as (x' & y' & ? ).
         assert ( y' / (# :: x') el P) as [] % P_inv_bot by firstorder.
-      + cbn -[fresh] in Hm. inversion Hm. edestruct fresh_spec; eauto. right.
-        eapply sym_word_R in H. firstorder.
+      + cbn -[fresh] in Hm. inversion Hm. assert (fresh (dollar :: Sigma) = hash) by reflexivity. 
+        edestruct fresh_spec; try eassumption.  right.
+        eapply sym_word_R in H. firstorder. eauto.
   Qed.
 
   Lemma hash_swap x :
@@ -215,7 +194,7 @@ Section MPCP_PCP.
   Proof.
     split.
     - intros (A & Hi & (B & HiB & H) % MPCP_PCP).
-      exists (d :: B). firstorder. congruence.
+      exists (d :: B). firstorder.
       cbn. f_equal. now rewrite H. eassumption.
     - intros ([|d' B] & Hi & He & H); firstorder.
       pose proof H as -> % match_start; eauto.
@@ -232,10 +211,3 @@ Proof.
   intros ((x & y) & R).
   eapply MPCP_PCP_cor.
 Qed.
-  
-                         
-        
-     
-
-        
-     

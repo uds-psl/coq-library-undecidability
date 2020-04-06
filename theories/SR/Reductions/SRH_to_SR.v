@@ -1,9 +1,13 @@
-Require Import Undecidability.PCP.Definitions.
-
+Require Import Undecidability.SR.SR.
+Require Import Undecidability.SR.Util.Definitions.
+Require Import Undecidability.Shared.Prelim.
+Require Import Undecidability.Problems.Reduction.
 (** * SRH to SR *)
 
 Section SRH_SR.
-
+  Local Notation symbol := nat.
+  Local Notation string := (string nat).
+  Local Notation SRS := (SRS nat).
   Variables (R : SRS) (x0 : string) (a0 : symbol).
   Notation Sigma :=  (a0 :: x0 ++ sym R).
 
@@ -58,9 +62,9 @@ Section SRH_SR.
     + exists [a0]. split. reflexivity. eauto.
     + clear H H0. intros. inv H. destruct H1 as [y []].
       unfold P in H2. eapply in_app_iff in H2 as [ | [ (? & ? & ?) % in_map_iff | (? & ? & ?) % in_map_iff ] % in_app_iff].
-      * exists y. eauto using rewt, rew.
-      * inv H2. eauto 9 using rewt.
-      * inv H2. eauto 9 using rewt.
+      * exists y. eauto using rewS, rewB, rewR.
+      * inv H2. eauto 9 using rewS, rewB, rewR.
+      * inv H2. eauto 9 using rewS, rewB, rewR.
   Qed.
 
   Lemma equi :

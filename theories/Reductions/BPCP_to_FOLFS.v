@@ -3,7 +3,7 @@
 Require Import Equations.Equations.
 Require Import Lia.
 
-From Undecidability Require Import Problems.PCP.
+Require Import Undecidability.PCP.PCP.
 From Undecidability Require Import Problems.FOLFS.
 
 
@@ -135,12 +135,13 @@ Fixpoint iprep domain {I : interp domain} (x : list bool) (y : domain) :=
 Definition ienc domain {I : interp domain} (x : list bool) := iprep x i_e.
 
 
-
+Local Definition BSRS := list (card bool).
+Local Notation "x / y" := (x, y).
 
 (** ** Finite standard models *)
 
 Section FIB.
-  
+
   Variable R : BSRS.
 
   Definition obstring n :=
@@ -274,7 +275,7 @@ Section FIB.
   Qed.
 
   Lemma BPCP_P :
-    BPCP' R <-> exists n x, @i_P _ (FIB n) x x.
+    dPCPb R <-> exists n x, @i_P _ (FIB n) x x.
   Proof.
     split.
     - intros [s H]. exists (|s|), (ienc s). cbn. now apply drv_cdrv'.
@@ -524,7 +525,7 @@ Section Conv.
   Qed.
 
   Lemma P_BPCP x :
-    i_P x x -> BPCP' R.
+    i_P x x -> dPCPb R.
   Proof.
     intros H. destruct (P_drv H) as (s&t&H1&H2&H3); subst.
     apply ienc_inj in H3 as ->; try apply (HP H). now exists t.
@@ -593,7 +594,7 @@ Section Reduction.
   (* Verification of the reduction *)
 
   Theorem finsat_reduction R :
-    BPCP' R <-> finsat (finsat_formula R).
+    dPCPb R <-> finsat (finsat_formula R).
   Proof.
     split; intros H.
     - apply BPCP_P in H as [n [s H]]. exists (obstring n), (@FIB R n), (fun _ => None).
@@ -637,11 +638,3 @@ Section Reduction.
   Qed.
 
 End Reduction.
-
-  
-
-
-
-
-  
-
