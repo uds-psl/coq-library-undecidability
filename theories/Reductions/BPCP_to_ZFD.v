@@ -2463,6 +2463,16 @@ Definition ZF' (phi : @form ZFE_Signature) :=
   \/ phi = ax_trans'
   \/ phi = ax_eq_elem'.
 
+Instance bounded_ZF' :
+  bounded_theory ZF'.
+Proof.
+  exists 0. intros phi k H1 H2. apply bounded_unused with 0; try lia. revert H1.
+  intros [->|[->|[->|[->|[->|[->|[[psi[H ->]]|[[psi[H ->]]|[->|[->|[->| ->]]]]]]]]]]];
+  repeat solve_bounds; eauto using bounded_up.
+  - apply (subst_bounded_up H). intros [|[]]; solve_bounds.
+  - apply (subst_bounded_up H). intros [|[]]; solve_bounds.
+Qed.
+
 Definition translate_term (t : @term ZF_Signature) : @term ZFE_Signature :=
  match t with var_term n => var_term n | _ => $0 end.
 
@@ -2715,6 +2725,140 @@ Proof.
   - admit.
   -
 Admitted.
+
+Lemma translate_is_eset n :
+  translate (is_eset $n) = is_eset' $n.
+Proof.
+  reflexivity.
+Qed.
+
+Lemma translate_is_pair x y n :
+  translate (is_pair $x $y $n) = is_pair' $x $y $n.
+Proof.
+  reflexivity.
+Qed.
+
+Lemma translate_is_union x n :
+  translate (is_union $x $n) = is_union' $x $n.
+Proof.
+  reflexivity.
+Qed.
+
+Lemma translate_is_power x n :
+  translate (is_power $x $n) = is_power' $x $n.
+Proof.
+  reflexivity.
+Qed.
+
+Lemma translate_is_om n :
+  translate (is_om $n) = is_om' $n.
+Proof.
+  reflexivity.
+Qed.
+
+Lemma is_pair_subst' x y t sigma :
+  (is_pair' x y t)[sigma] = is_pair' x[sigma] y[sigma] t[sigma].
+Proof.
+  unfold is_pair'. cbn. asimpl. reflexivity.
+Qed.
+
+Lemma is_union_subst' x t sigma :
+  (is_union' x t)[sigma] = is_union' x[sigma] t[sigma].
+Proof.
+  unfold is_union'. cbn. asimpl. reflexivity.
+Qed.
+
+Lemma is_power_subst' x t sigma :
+  (is_power' x t)[sigma] = is_power' x[sigma] t[sigma].
+Proof.
+  unfold is_power', sub'. cbn. asimpl. reflexivity.
+Qed.
+
+Opaque is_pair' is_union' is_power' is_om'.
+
+Lemma translate_pw phi n :
+  symfree phi -> translate phi[$n..] = (translate phi)[$n..].
+Proof.
+  intros H. setoid_rewrite ext_form. rewrite (translate_ren (fun k => match k with 0 => n | S k => k end) H).
+  reflexivity. intros []; reflexivity. intros []; reflexivity.
+Qed.
+
+Lemma translate_pw2 phi n m :
+  symfree phi -> translate phi[$n.:($m..)] = (translate phi)[$n.:($m..)].
+Proof.
+  intros H. setoid_rewrite ext_form. rewrite (translate_ren (fun k => match k with 0 => n | S 0 => m | S (S k) => k end) H).
+  reflexivity. intros [|[]]; reflexivity. intros [|[]]; reflexivity.
+Qed.
+
+Definition sshift_ren k :=
+  fun n => match n with
+        | 0 => 0
+        | S n => (1 + k + n)
+        end.
+
+Lemma translate_sshift phi n :
+  symfree phi -> translate phi[sshift n] = ren_form (sshift_ren n) (translate phi).
+Proof.
+  intros H. rewrite <- translate_ren; trivial.
+  f_equal. apply ext_form.
+  intros []; reflexivity.
+Qed.
+
+Lemma symfree_sshift phi n :
+  symfree phi -> symfree (phi[sshift n]).
+Proof.
+  apply subst_symfree. now intros []; cbn.
+Qed.
+
+Lemma translate_tm_ex' t :
+  ZF' ⊩IE ∃ translate (rm_const_tm t).
+Proof.
+  induction t using strong_term_ind; try destruct F; cbn.
+  - apply prv_T_ExI with $x. change (ZF' ⊩IE ($0 ≡' $0)[$x..]).
+    apply prv_T_AllE. apply elem_prv. right. tauto.
+  - rewrite translate_is_eset. apply elem_prv. right. tauto.
+  - rewrite !map_tl, !map_hd.
+    assert (H1 : ZF' ⊩IE ∃ translate (rm_const_tm (Vector.hd v))) by apply H, in_hd.
+    assert (H2 : ZF' ⊩IE ∃ translate (rm_const_tm (Vector.hd (Vector.tl v)))) by apply H, in_hd_tl.
+    assert (H3 : ZF' ⊩IE ax_pair'). apply elem_prv. right. tauto.
+    eapply bt_exists_var in H1 as [x Hx]. 
+    eapply Weak_T in H2; try apply tsubs_extend.
+    eapply bt_exists_var in H2 as [y Hy].
+    apply (prv_T_AllE $x) in H3. cbn in H3.
+    apply (prv_T_AllE $y) in H3. cbn in H3.
+    eapply Weak_T in H3. 2: eapply tsubs_trans; try apply tsubs_extend.
+    eapply bt_exists_var in H3 as [z Hz]. apply Hx, Hy, Hz. clear Hx Hy Hz.
+    apply prv_T_ExI with $z. cbn. apply prv_T_ExI with $x. cbn. apply prv_T_CI.
+    + rewrite translate_sshift; try apply rm_const_tm_symfree. unfold ren_form.
+      asimpl. erewrite ext_form; try apply prv_T3. intros []; reflexivity.
+    + apply prv_T_ExI with $y. cbn. apply prv_T_CI.
+      * rewrite translate_sshift; try apply rm_const_tm_symfree. unfold ren_form.
+        asimpl. setoid_rewrite ext_form at 2; try apply prv_T2. intros []; reflexivity.
+      * asimpl. rewrite translate_is_pair. setoid_rewrite is_pair_subst'. cbn. apply prv_T1.
+  - rewrite map_hd.
+    assert (HH : ZF' ⊩IE ∃ translate (rm_const_tm (Vector.hd v))) by apply H, in_hd.
+    assert (HA : ZF' ⊩IE ax_union'). apply elem_prv. right. tauto.
+    eapply bt_exists_var in HH as [x Hx]. 
+    eapply Weak_T in HA; try apply tsubs_extend.
+    apply (prv_T_AllE $x) in HA. cbn in HA.
+    eapply bt_exists_var in HA as [z Hz]. apply Hx, Hz. clear Hx Hz.
+    apply prv_T_ExI with $z. cbn. apply prv_T_ExI with $x. cbn. apply prv_T_CI.
+    + rewrite translate_sshift; try apply rm_const_tm_symfree. unfold ren_form.
+      asimpl. erewrite ext_form; try apply prv_T2. intros []; reflexivity.
+    + asimpl. rewrite translate_is_union. setoid_rewrite is_union_subst'. cbn. apply prv_T1.
+  - rewrite map_hd.
+    assert (HH : ZF' ⊩IE ∃ translate (rm_const_tm (Vector.hd v))) by apply H, in_hd.
+    assert (HA : ZF' ⊩IE ax_power'). apply elem_prv. right. tauto.
+    eapply bt_exists_var in HH as [x Hx]. 
+    eapply Weak_T in HA; try apply tsubs_extend.
+    apply (prv_T_AllE $x) in HA. cbn in HA.
+    eapply bt_exists_var in HA as [z Hz]. apply Hx, Hz. clear Hx Hz.
+    apply prv_T_ExI with $z. cbn. apply prv_T_ExI with $x. cbn. apply prv_T_CI.
+    + rewrite translate_sshift; try apply rm_const_tm_symfree. unfold ren_form.
+      asimpl. erewrite ext_form; try apply prv_T2. intros []; reflexivity.
+    + asimpl. rewrite translate_is_power. setoid_rewrite is_power_subst'. cbn. apply prv_T1.
+  - rewrite translate_is_om. apply elem_prv. right. tauto.
+Qed.
 
 Lemma translate_tm_ex T t :
   ZF_extension T -> bounded_theory T -> translate_theory' T ⊩IE ∃ translate (rm_const_tm t).
