@@ -2241,6 +2241,31 @@ Proof.
   revert H13. apply tprv_ind; clear T phi p b; intros; subst; intuition; eauto. discriminate.
 Qed.
 
+Lemma prv_T_Cut {Sigma : Signature} {p : peirce} {b : bottom} T T' phi :
+  eq_dec Funcs -> eq_dec Preds -> T ⊩ phi -> (forall psi, T psi -> T' ⊩ psi) -> T' ⊩ phi.
+Proof.
+  intros HF HP H. revert T'. pattern p, b, T, phi. revert H. apply tprv_ind; intros.
+  - apply prv_T_impl. apply H. intros theta [HT| ->]; try apply prv_T1. now apply prv_clear1, H0.
+  - eapply prv_T_mp; intuition.
+  - apply prv_T_AllI'. apply H. intros psi [theta[HT ->]]. now apply prv_T_subst, H0.
+  - now apply prv_T_AllE, H.
+  - now apply prv_T_ExI with t, H.
+  - eapply prv_T_ExE'; intuition. apply H0. intros psi' [[theta[HT ->]]| ->].
+    + apply prv_clear1. now apply prv_T_subst, H1.
+    + apply prv_T1.
+  - now apply prv_T_exf, H.
+  - now apply H0.
+  - apply prv_T_CI; intuition.
+  - now apply prv_T_CE1 with psi, H.
+  - now apply prv_T_CE2 with phi0, H.
+  - now apply prv_T_DI1, H.
+  - now apply prv_T_DI2, H.
+  - eapply prv_T_DE; try now apply H.
+    + apply H0. intros phi' [H'| ->]; try now apply prv_T1. now apply prv_clear1, H2.
+    + apply H1. intros phi' [H'| ->]; try now apply prv_T1. now apply prv_clear1, H2.
+  - exists nil. split; try apply Pc. intros phi' [].
+Qed.
+
 
 
 (* symbol-free terms and formulas *)
@@ -3318,3 +3343,81 @@ Section Param.
   Qed.
 
 End Param.
+
+
+
+
+
+(*(* Foundation implies WF *)
+
+Section WFR.
+  Variable X : Type.
+  Variable R : X -> X -> Prop.
+  Variable XM : forall P, P \/ ~ P.
+ 
+  Implicit Types (x y z : X) (p q r : X -> Prop).
+  
+  Definition serial p := ex p /\ forall x, p x -> exists y, p y /\ R y x.
+
+  Definition minel p x := p x /\ forall y, p y -> ~ R y x.
+
+  Definition regular p := ex p -> ex (minel p).
+
+  Lemma serial_not_has_min p :
+    serial p -> ~ ex (minel p).
+  Proof.
+    intros (_&H1) (x&H2&H3).
+    specialize (H1 x H2) as (y&H4&H5).
+    apply (H3 y H4 H5).
+  Qed.
+
+  Fact all_regular_not_ex_serial :
+    all regular <-> ~ ex serial.
+  Proof.
+    split.
+    - intros H1 [p H2].
+      enough (~ ex (minel p)) as H3 by apply H3, H1, H2.
+      apply serial_not_has_min, H2.
+    - intros H1 p H2. contra XM H3.
+      apply H1. exists p. split. exact H2.
+      intros x H4. contra XM H5.
+      apply H3. exists x. split. exact H4.
+      intros y H6. contradict H5. now exists y.
+  Qed.
+ 
+  Inductive Acc : X -> Prop :=
+  | AccI x : (forall y, R y x -> Acc y) -> Acc x.
+ 
+  Fact all_Acc_all_regular :
+    all Acc -> all regular.
+  Proof.
+    intros H p (x&H1).
+    induction (H x) as [x _ IH].
+    destruct (XM (exists y, p y /\ R y x)) as [(y&H2&H3)|H2].
+    - now apply (IH y).
+    - exists x. split. exact H1.
+      intros y H3. contradict H2. now exists y.
+  Qed.
+
+  Fact not_ex_serial_all_Acc :
+    ~ ex serial -> all Acc.
+  Proof.
+    intros H. intros x. contra XM H1.
+    apply H. exists (fun z => ~ Acc z).
+    split. now exists x. clear x H H1.
+    intros x H. contra XM H1.
+    apply H. constructor. intros y H2.
+    contra XM H3. apply H1. now exists y.
+  Qed.
+  
+  Definition inductive p := (forall x, (forall y, R y x -> p y) -> p x) -> all p.
+  
+  Fact all_Acc_all_inductive :
+    all Acc <-> all inductive.
+  Proof.
+    split.
+    - intros H p H1 x. apply Acc_ind; auto.
+    - intros H. apply H. apply AccI.
+  Qed.
+
+End WFR.*)
