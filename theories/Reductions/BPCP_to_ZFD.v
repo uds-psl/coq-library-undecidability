@@ -2241,10 +2241,10 @@ Proof.
   revert H13. apply tprv_ind; clear T phi p b; intros; subst; intuition; eauto. discriminate.
 Qed.
 
-Lemma prv_T_Cut {Sigma : Signature} {p : peirce} {b : bottom} T T' phi :
-  eq_dec Funcs -> eq_dec Preds -> T ⊩ phi -> (forall psi, T psi -> T' ⊩ psi) -> T' ⊩ phi.
+Lemma prv_T_Cut {Sigma : Signature} {p : peirce} {b : bottom} {DF : eq_dec Funcs} {DP : eq_dec Preds} T T' phi :
+  T ⊩ phi -> (forall psi, T psi -> T' ⊩ psi) -> T' ⊩ phi.
 Proof.
-  intros HF HP H. revert T'. pattern p, b, T, phi. revert H. apply tprv_ind; intros.
+  intros H. revert T'. pattern p, b, T, phi. revert H. apply tprv_ind; intros.
   - apply prv_T_impl. apply H. intros theta [HT| ->]; try apply prv_T1. now apply prv_clear1, H0.
   - eapply prv_T_mp; intuition.
   - apply prv_T_AllI'. apply H. intros psi [theta[HT ->]]. now apply prv_T_subst, H0.
@@ -2398,6 +2398,18 @@ Definition ZFE_fun_ar (f : ZFE_Funcs) : nat := match f with end.
 
 Local Instance ZFE_Signature : Signature :=
   {| Funcs := ZFE_Funcs; fun_ar := ZFE_fun_ar; Preds := ZF_Preds; pred_ar := ZF_pred_ar |}.
+
+Instance ZFE_Funcs_dec :
+  eq_dec (@Funcs ZFE_Signature).
+Proof.
+  intros [].
+Qed.
+
+Instance ZFE_Preds_dec :
+  eq_dec (@Preds ZFE_Signature).
+Proof.
+  intros P Q. unfold dec. decide equality.
+Qed.
 
 Notation "x ∈ y" :=
   (@Pred ZF_Signature elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 20).
@@ -2688,6 +2700,30 @@ Qed.
 
 Coercion T : ZF_context >-> Funclass.*)
 
+(*Lemma ZFprv_ind' (P : @theory ZF_Signature -> @form ZF_Signature -> Prop) :
+  (forall T phi psi, P (T ⋄ phi) psi -> P T (phi --> psi))
+  -> (forall T phi psi, symfree phi -> P T (phi --> psi) -> P T phi -> P T psi)
+  -> (forall T phi, P (subst_theory ↑ T) phi -> P T (∀ phi))
+  -> (forall T phi t, P T (∀ phi) -> P T phi[t..])
+  -> (forall T phi t, P T phi[t..] -> P T (∃ phi))
+  -> (forall T phi psi, symfree phi -> P T (∃ phi) -> P ((subst_theory ↑ T) ⋄ phi) psi[↑] -> P T psi)
+  -> (forall T phi, P T ⊥ -> P T phi)
+  -> (forall (T : theory) phi, T phi -> P T phi)
+  -> (forall T phi psi, P T phi -> P T psi -> P T (phi ∧ psi))
+  -> (forall T phi psi, symfree psi -> P T (phi ∧ psi) -> P T phi)
+  -> (forall T phi psi, symfree phi -> P T (phi ∧ psi) -> P T psi)
+  -> (forall T phi psi, P T phi -> P T (phi ∨ psi))
+  -> (forall T phi psi, P T psi -> P T (phi ∨ psi))
+  -> (forall T phi psi theta, symfree phi -> symfree psi -> P T (phi ∨ psi) -> P (T ⋄ phi) theta -> P (T ⋄ psi) theta -> P T theta)
+  -> (forall T phi, P T phi <-> P T (rm_const_fm phi))
+  -> (forall T T' phi, P T phi -> T ⊑ T' -> P T' phi)
+  -> forall T phi, ZF_extension T -> bounded_theory T -> T ⊩IE phi -> forall psi, phi = rm_const_fm psi -> P T psi.
+Proof.
+  intros. revert H15 H16 psi H18. pattern T, phi. revert H17. apply tprv_ind_IE; cbn; intros.
+  - depelim psi0; try destruct P0; try discriminate H18. cbn in H18. injection H18. intros -> ->.
+    apply H. admit.
+Admitted.*)
+
 (*Lemma ZFprv_ind (P : @theory ZF_Signature -> @form ZF_Signature -> Prop) :
   (forall T phi psi, P (T ⋄ phi) psi -> P T (phi --> psi))
   -> (forall T phi psi, symfree phi -> P T (phi --> psi) -> P T phi -> P T psi)
@@ -2698,58 +2734,63 @@ Coercion T : ZF_context >-> Funclass.*)
   -> (forall T phi, P T ⊥ -> P T phi)
   -> (forall (T : theory) phi, T phi -> P T phi)
   -> (forall T phi psi, P T phi -> P T psi -> P T (phi ∧ psi))
-  -> (forall T phi psi, P T (phi ∧ psi) -> P T phi)
-  -> (forall T phi psi, P T (phi ∧ psi) -> P T psi)
+  -> (forall T phi psi, symfree psi -> P T (phi ∧ psi) -> P T phi)
+  -> (forall T phi psi, symfree phi -> P T (phi ∧ psi) -> P T psi)
   -> (forall T phi psi, P T phi -> P T (phi ∨ psi))
   -> (forall T phi psi, P T psi -> P T (phi ∨ psi))
-  -> (forall T phi psi theta, P T (phi ∨ psi) -> P (T ⋄ phi) theta -> P (T ⋄ psi) theta -> P T theta)
-  -> (forall T phi, P T phi -> P T (rm_const_fm phi))
-  -> forall T phi, ZF_extension T -> bounded_theory T -> T ⊩IE phi -> P T phi.
+  -> (forall T phi psi theta, symfree phi -> symfree psi -> P T (phi ∨ psi) -> P (T ⋄ phi) theta -> P (T ⋄ psi) theta -> P T theta)
+  -> (forall T phi, P T phi <-> P T (rm_const_fm phi))
+  -> (forall T T' phi, P T phi -> T ⊑ T' -> P T' phi)
+  -> forall T phi, ZF_extension T -> bounded_theory T -> T ⊩IE phi -> symfree phi -> P T phi.
 Proof.
-  intros. revert H14 H15. pattern T0, phi. revert H16. apply tprv_ind_IE; intuition. all: eauto.
-  - eapply H0. 3: apply H13, H18. apply rm_const_fm_symfree. apply H. admit.
-  - eapply H4. admit.
+  intros. revert H15 H16. pattern T, phi. revert H17. apply tprv_ind_IE; cbn; intros.
 Admitted.*)
 
 (*Theorem tprv_translate_ZF (T : @theory ZF_Signature) phi :
   ZF_extension T -> bounded_theory T -> T ⊩IE phi -> symfree phi
   -> (translate_theory' T) ⊩IE translate phi.
 Proof.
-  intros H1 H2 H3. pattern T, phi. revert T phi H1 H2 H3. apply ZFprv_ind; cbn in *.
-  - intros T phi psi IH HE. apply prv_T_impl.
-    eapply Weak_T. apply IH. admit. admit.
-  - intros T phi psi HS IH1 IH2 HE. eapply prv_T_mp; eauto. apply IH1; trivial. now constructor.
+  intros H1 H2 H3 H4. pattern T, phi. revert T phi H1 H2 H3 H4. apply ZFprv_ind; cbn in *.
+  - intros T phi psi IH. apply prv_T_impl.
+    eapply prv_T_Cut. apply IH; intuition. admit.
+  - intros T phi psi HS IH1 IH2 HE. eapply prv_T_mp; eauto.
   - intros T phi IH HE. apply prv_T_AllI'.
-    eapply Weak_T. apply IH. admit. admit. admit.
-  - intros T phi t IH HE HB. admit.
-  - intros T phi t IH HE HB. admit.
-  - intros T phi psi HS IH1 IH2 HE HB. eapply prv_T_ExE'. apply IH1; trivial. now constructor.
-    eapply Weak_T. setoid_rewrite <- translate_ren. apply IH2. admit. admit. admit. admit.
-  - intros T phi IH HE HB. apply prv_T_exf. apply IH; trivial. constructor.
-  - intros T phi IH HE HB. apply elem_prv. now exists phi.
-  - intros T phi psi IH1 IH2 HE HB. inversion HB; subst. apply prv_T_CI; intuition.
-  - intros T phi psi IH HE HB. eapply prv_T_CE1. apply IH; trivial. admit.
-  - intros T phi psi IH HE HB. eapply prv_T_CE2. apply IH; trivial. admit.
-  - intros T phi psi IH HE HB. inversion HB; subst. eapply prv_T_DI1. intuition.
-  - intros T phi psi IH HE HB. inversion HB; subst. eapply prv_T_DI2. intuition.
-  - intros T phi psi theta IH1 IH2 IH3 HE HB. eapply prv_T_DE. apply IH1; trivial. admit. admit. admit.
-  - intros T phi IH HT _. specialize (IH HT). clear HT.
+    eapply Weak_T. apply IH; trivial. admit.
+  - intros T phi t IH HE. admit.
+  - intros T phi t IH HE. admit.
+  - intros T phi psi HS IH1 IH2 HE. eapply prv_T_ExE'. apply IH1; trivial.
+    eapply Weak_T. setoid_rewrite <- translate_ren; trivial. apply IH2. admit. admit.
+  - intros T phi IH HE. apply prv_T_exf. apply IH; trivial.
+  - intros T phi IH HE. apply elem_prv. admit.
+  - intros T phi psi IH1 IH2 HE. apply prv_T_CI; intuition.
+  - intros T phi psi HS IH HE. eapply prv_T_CE1. apply IH. tauto.
+  - intros T phi psi HS IH HE. eapply prv_T_CE2. apply IH. tauto.
+  - intros T phi psi IH HE. eapply prv_T_DI1, IH. tauto.
+  - intros T phi psi IH HE. eapply prv_T_DI2, IH. tauto.
+  - intros T phi psi theta HS1 HS2 IH1 IH2 IH3 HE. eapply prv_T_DE; intuition.
+    + admit.
+    + admit.
+  - intros T phi IH HT. specialize (IH HT). clear HT.
 Abort.*)
 
-Theorem tprv_translate (T : @theory ZF_Signature) phi (H : T ⊩IE phi) :
+(*Theorem tprv_translate (T : @theory ZF_Signature) phi (H : T ⊩IE phi) :
   ZF_extension T -> bounded_theory T -> symfree phi
   -> (translate_theory' T) ⊩IE translate phi.
 Proof.
   pattern T, phi. revert H. apply tprv_ind_IE; clear T phi; intros T; cbn.
   - intros phi psi IH HE HB HP. apply prv_T_impl.
-    eapply Weak_T. apply IH; eauto. admit. admit.
-  - intros phi psi IH1 IH2 HE HB HP. eapply prv_T_mp. admit. admit.
+    eapply prv_T_Cut. apply IH; intuition. admit.
+  - intros phi psi IH1 IH2 HE HB HP. eapply prv_T_mp; eauto. admit. admit.
   - admit.
   - intros phi t IH HE HB HP. admit.
   - admit.
   - admit.
   -
-Admitted.
+Admitted.*)
+
+
+
+(* translated axioms *)
 
 Lemma translate_is_eset n :
   translate (is_eset $n) = is_eset' $n.
@@ -2781,6 +2822,12 @@ Proof.
   reflexivity.
 Qed.
 
+Lemma is_eset_subst' x sigma :
+  (is_eset' x)[sigma] = is_eset' x[sigma].
+Proof.
+  unfold is_eset'. cbn. asimpl. reflexivity.
+Qed.
+
 Lemma is_pair_subst' x y t sigma :
   (is_pair' x y t)[sigma] = is_pair' x[sigma] y[sigma] t[sigma].
 Proof.
@@ -2799,7 +2846,10 @@ Proof.
   unfold is_power', sub'. cbn. asimpl. reflexivity.
 Qed.
 
-Opaque is_pair' is_union' is_power' is_om'.
+Lemma is_om_subst' x sigma :
+  (is_om' x)[sigma] = is_om' x[sigma].
+Proof.
+Admitted.
 
 Lemma translate_pw phi n :
   symfree phi -> translate phi[$n..] = (translate phi)[$n..].
@@ -2834,6 +2884,32 @@ Lemma symfree_sshift phi n :
 Proof.
   apply subst_symfree. now intros []; cbn.
 Qed.
+
+Opaque is_eset' is_pair' is_union' is_power' is_om'.
+
+Lemma ZF_translate' phi :
+  ZF phi -> ZF' ⊩IE translate' phi.
+Proof.
+  intros [->|[->|[->|[->|[->|[->|[->|[[psi [H ->]]|[[psi [H ->]]|[->|[->|[->| ->]]]]]]]]]]]].
+  - cbn. admit.
+  - cbn. rewrite translate_sshift; try apply symfree_is_eset; cbn; auto.
+    rewrite translate_is_eset. unfold ren_form. setoid_rewrite is_eset_subst'. cbn.
+    apply bt_all. intros t. cbn. apply prv_T_impl. assert1 H.
+    use_exists H t'. clear H. cbn. asimpl. admit.
+  - cbn.
+Admitted.
+
+Lemma ZF_embed phi :
+  ZF' phi -> ZF ⊩IE embed phi.
+Proof.
+  intros [->|[->|[->|[->|[->|[->|[[psi[H ->]]|[[psi[H ->]]|[->|[->|[->| ->]]]]]]]]]]]; cbn.
+  - apply elem_prv. now left.
+  - admit.
+Admitted.
+
+
+
+(* translation verification *)
 
 Lemma translate_tm_ex' t :
   ZF' ⊩IE ∃ translate (rm_const_tm t).
@@ -2925,6 +3001,14 @@ Qed.
 Lemma translate_tm_equiv T t k n :
   T ⊩IE (translate_tm' t)[($n)..] -> T ⊩IE $k ≡' $n <-> T ⊩IE (translate_tm' t)[($k)..].
 Proof.
+  induction t using strong_term_ind; try destruct F; cbn; intros Hk; split; intros HA.
+  - admit.
+  - admit.
+  - rewrite translate_is_eset, is_eset_subst' in *. cbn in *. admit.
+  - admit.
+  - admit.
+  - admit.
+  - 
 Admitted.
 
 Lemma translate_tm_subst {T} {HB : bounded_theory T} x t n k :
@@ -3343,81 +3427,3 @@ Section Param.
   Qed.
 
 End Param.
-
-
-
-
-
-(*(* Foundation implies WF *)
-
-Section WFR.
-  Variable X : Type.
-  Variable R : X -> X -> Prop.
-  Variable XM : forall P, P \/ ~ P.
- 
-  Implicit Types (x y z : X) (p q r : X -> Prop).
-  
-  Definition serial p := ex p /\ forall x, p x -> exists y, p y /\ R y x.
-
-  Definition minel p x := p x /\ forall y, p y -> ~ R y x.
-
-  Definition regular p := ex p -> ex (minel p).
-
-  Lemma serial_not_has_min p :
-    serial p -> ~ ex (minel p).
-  Proof.
-    intros (_&H1) (x&H2&H3).
-    specialize (H1 x H2) as (y&H4&H5).
-    apply (H3 y H4 H5).
-  Qed.
-
-  Fact all_regular_not_ex_serial :
-    all regular <-> ~ ex serial.
-  Proof.
-    split.
-    - intros H1 [p H2].
-      enough (~ ex (minel p)) as H3 by apply H3, H1, H2.
-      apply serial_not_has_min, H2.
-    - intros H1 p H2. contra XM H3.
-      apply H1. exists p. split. exact H2.
-      intros x H4. contra XM H5.
-      apply H3. exists x. split. exact H4.
-      intros y H6. contradict H5. now exists y.
-  Qed.
- 
-  Inductive Acc : X -> Prop :=
-  | AccI x : (forall y, R y x -> Acc y) -> Acc x.
- 
-  Fact all_Acc_all_regular :
-    all Acc -> all regular.
-  Proof.
-    intros H p (x&H1).
-    induction (H x) as [x _ IH].
-    destruct (XM (exists y, p y /\ R y x)) as [(y&H2&H3)|H2].
-    - now apply (IH y).
-    - exists x. split. exact H1.
-      intros y H3. contradict H2. now exists y.
-  Qed.
-
-  Fact not_ex_serial_all_Acc :
-    ~ ex serial -> all Acc.
-  Proof.
-    intros H. intros x. contra XM H1.
-    apply H. exists (fun z => ~ Acc z).
-    split. now exists x. clear x H H1.
-    intros x H. contra XM H1.
-    apply H. constructor. intros y H2.
-    contra XM H3. apply H1. now exists y.
-  Qed.
-  
-  Definition inductive p := (forall x, (forall y, R y x -> p y) -> p x) -> all p.
-  
-  Fact all_Acc_all_inductive :
-    all Acc <-> all inductive.
-  Proof.
-    split.
-    - intros H p H1 x. apply Acc_ind; auto.
-    - intros H. apply H. apply AccI.
-  Qed.
-
-End WFR.*)
