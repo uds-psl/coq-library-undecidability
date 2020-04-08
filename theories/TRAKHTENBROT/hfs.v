@@ -301,7 +301,18 @@ Section hfs.
       rewrite hfs_repr_bt_cls.
       apply pos2bt_in.
   Qed.
- 
+
+  Fact hfs_card_empty n : ∅ ∈ hfs_card (S n).
+  Proof.
+    apply hfs_pos_card.
+    exists pos0.
+    apply hfs_mem_ext.
+    intros x; rewrite hfs_empty_spec; split; simpl; try tauto.
+    unfold hfs_pos; rewrite btm_repr_cls.
+    unfold pos2bt; rewrite pos2nat_fst; simpl.
+    btm simpl.
+  Qed.
+
   Fact hfs_pos_prop n p : @hfs_pos n p ∈ hfs_card n.
   Proof.
     apply hfs_pos_card; exists p; auto.
@@ -337,13 +348,15 @@ Section hfs.
                        { f : pos n -> hfs & 
                          { g : forall x, x ∈ t -> pos n |
                                 hfs_transitive t
+                             /\ (0 < n -> ∅ ∈ t)
                              /\ (forall p, f p ∈ t)
                              /\ (forall p H, g (f p) H = p) 
                              /\ forall x H, f (g x H) = x } } }.
   Proof.
     exists (hfs_card n), (@hfs_pos _), 
-           (@hfs_card_pos _); msplit 3.
+           (@hfs_card_pos _); msplit 4.
     + apply hfs_card_transitive.
+    + destruct n as [ | n ]; try lia; intros _; apply hfs_card_empty.
     + apply hfs_pos_prop.
     + intros p H; apply hfs_pos_inj; rewrite <- hfs_card_pos_spec; auto.
     + intros; rewrite <- hfs_card_pos_spec; auto.
@@ -361,17 +374,19 @@ Section hfs.
         { l : hfs & { f : hfs -> pos (S n) & 
                     { g : pos (S n) -> hfs |
                       hfs_transitive l
+                   /\ ∅ ∈ l
                    /\ (forall p, g p ∈ l)
                    /\ (forall x, x ∈ l -> exists p, x = g p)
                    /\ (forall p, f (g p) = p) } } }.
   Proof.
-    destruct (hfs_bij_t (S n)) as (u & i & j & H1 & H2 & H3 & H4).
+    destruct (hfs_bij_t (S n)) as (u & i & j & H1 & H0 & H2 & H3 & H4).
     set (f x  := 
       match hfs_mem_dec x u with
         | left  H => @j _ H
         | right _ => pos0
       end).
-    exists u, f, i; msplit 3; auto.
+    exists u, f, i; msplit 4; auto.
+    + apply H0; lia.
     + intros x Hx.
       exists (j x Hx); rewrite H4; auto.
     + intros p; unfold f.

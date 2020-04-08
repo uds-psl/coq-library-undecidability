@@ -80,6 +80,7 @@ Section bt_model_n.
   Let X_surj_hfs : { l : hfs & { f : hfs -> X & 
                     { g : X -> hfs |
                       hfs_transitive l
+                   /\ hfs_empty ∈ l
                    /\ (forall p, g p ∈ l)
                    /\ (forall x, x ∈ l -> exists p, x = g p)
                    /\ (forall p, f (g p) = p) } } }.
@@ -90,8 +91,8 @@ Section bt_model_n.
          generalize (f x0); intro p; invert pos p. }
     destruct Hn as (f & g & H1 & H2).
     destruct (hfs_pos_n_transitive n) 
-      as (l & g' & f' & G1 & G2 & G3 & G4).
-    exists l, (fun x => g (g' x)), (fun x => f' (f x)); msplit 3; auto.
+      as (l & g' & f' & G1 & G0 & G2 & G3 & G4).
+    exists l, (fun x => g (g' x)), (fun x => f' (f x)); msplit 4; auto.
     + intros x Hx.
       destruct (G3 x Hx) as (p & Hp).
       exists (g p); rewrite H2; auto.
@@ -106,6 +107,8 @@ Section bt_model_n.
 
   Let Hl : hfs_transitive l.
   Proof. apply (proj2_sig (projT2 (projT2 (X_surj_hfs)))). Qed.
+  Let Hempty : hfs_empty ∈ l.
+  Proof. apply (proj2_sig (projT2 (projT2 (X_surj_hfs)))). Qed.
   Let Hs : forall x, s (i x) = x. 
   Proof. apply (proj2_sig (projT2 (projT2 (X_surj_hfs)))). Qed.
   Let Hi : forall x, i x ∈ l. 
@@ -115,7 +118,7 @@ Section bt_model_n.
 
   (** Now we build P^5 l that contains all the set of triples of l *)
 
-  Let p := iter hfs_pow l (2+(2*nt)).
+  Let p := iter hfs_pow l (1+(2*nt)).
 
   Let Hp1 : hfs_transitive p.
   Proof. apply hfs_iter_pow_trans; auto. Qed.
@@ -126,34 +129,13 @@ Section bt_model_n.
     apply hfs_pow_spec; auto.
   Qed.
 
-  Let Hp3 x y : x ∈ l -> y ∈ l -> ⟬x,y⟭  ∈ iter hfs_pow l 2.
-  Proof.
-    intros Hx Hy.
-    do 2 apply hfs_pair_pow; auto.
-  Qed.
-
-  Let Hp4 x y : x ∈ l -> y ∈ l -> ⟬x,y⟭  ∈ p.
-  Proof.
-    intros Hx Hy.
-    generalize (Hp3 Hx Hy).
-    apply hfs_iter_pow_le; auto; lia.
-  Qed.
-
-  Let Hp5 n v : (forall p, vec_pos v p ∈ l) -> @hfs_tuple n v ∈ iter hfs_pow l (1+2*n).
-  Proof.
-    rewrite iter_plus; intros H.
-    apply hfs_tuple_pow; auto.
-    + simpl; apply hfs_pow_spec; intro; rewrite hfs_empty_spec; tauto.
-    + apply hfs_iter_pow_trans; auto.
-    + intros q; simpl; apply hfs_pow_trans_incr; auto.
-  Qed.
+  Let Hp5 n v : (forall p, vec_pos v p ∈ l) -> @hfs_tuple n v ∈ iter hfs_pow l (2*n).
+  Proof. apply hfs_tuple_pow; auto. Qed.
 
   Let Hp6 n v : n <= nt -> (forall p, vec_pos v p ∈ l) -> @hfs_tuple n v ∈ p.
   Proof. 
     intros L H; apply Hp5 in H.
-    revert H.
-    unfold p.
-    apply hfs_iter_pow_le; try lia; auto.
+    revert H; apply hfs_iter_pow_le; try lia; auto.
   Qed.
 
   Variable (R : vec X nt -> Prop).
@@ -175,9 +157,7 @@ Section bt_model_n.
       * apply fin_t_vec with (P := fun t => t ∈ l).
         apply hfs_mem_fin_t.
     + exists r; msplit 2.
-      * unfold p. 
-        replace (2+2*nt) with ((1+2*nt)+1) by lia.
-        rewrite iter_plus with (b := 1).
+      * unfold p; rewrite plus_comm, iter_plus with (b := 1).
         apply hfs_pow_spec; intros x; rewrite Hr.
         intros (v & H1 & <-).
         apply Hp5, H1.
