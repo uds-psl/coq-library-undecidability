@@ -1,4 +1,4 @@
-# A library of formalised undecidable problems in Coq
+# A Coq library of Undecidability Proofs
 
 [![Build Status](https://travis-ci.org/uds-psl/coq-library-undecidability.svg?branch=coq-8.11)](https://travis-ci.org/uds-psl/coq-library-undecidability)
 
