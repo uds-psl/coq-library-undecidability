@@ -397,7 +397,7 @@ Section lucas_lemma.
 End lucas_lemma.
 
 Check lucas_lemma.
-Print Assumptions lucas_lemma.
+
 
 Eval compute in binomial 3 0.
 

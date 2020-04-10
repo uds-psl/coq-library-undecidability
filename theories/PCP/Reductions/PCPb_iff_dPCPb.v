@@ -13,7 +13,7 @@ Lemma derivable_BPCP X (P : stack X) u v :
 Proof.
   induction 1 as [ | ? ? ? ? ? ? (A & ? & ? & ? & ?)].
   - exists [(x, y)]. repeat split; cbn; simpl_list; eauto. congruence.
-  - subst. exists ((x, y) :: A). repeat split. eauto. congruence.
+  - subst. exists ((x, y) :: A). repeat split. apply incl_cons; assumption. congruence.
 Qed.
     
 Lemma BPCP_derivable X (P : stack X) u v : (exists A, A <<= P /\ A <> nil /\ tau1 A = u /\ tau2 A = v) -> derivable P u v.

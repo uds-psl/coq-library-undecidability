@@ -16,7 +16,7 @@ Global Unset Printing Records.
 Global Unset Printing Implicit Defensive.
 Global Set Regular Subst Tactic.
 
-Hint Extern 4 => exact _.
+Hint Extern 4 => exact _ : core.
 
 (** ** Lists *)
 Export ListNotations.
@@ -27,7 +27,7 @@ Notation "| A |" := (length A) (at level 65).
 Hint Extern 4 => 
 match goal with
 |[ H: ?x el nil |- _ ] => destruct H
-end.
+end : core.
 
 Lemma incl_nil X (A : list X) :
   nil <<= A.
@@ -35,8 +35,8 @@ Proof. intros x []. Qed.
 
 Hint Rewrite <- app_assoc : list.
 Hint Rewrite rev_app_distr map_app prod_length : list.
-Hint Resolve in_eq in_nil in_cons in_or_app.
-Hint Resolve incl_refl incl_tl incl_cons incl_appl incl_appr incl_app incl_nil.
+Hint Resolve in_eq in_nil in_cons in_or_app : core.
+Hint Resolve incl_refl incl_tl incl_cons incl_appl incl_appr incl_app incl_nil : core.
 
 (** ** Tactics *)
 Ltac inv H := inversion H; subst; try clear H.
@@ -52,7 +52,7 @@ match goal with
 |[ H: False |- _ ] => destruct H
 |[ H: true=false |- _ ] => discriminate H
 |[ H: false=true |- _ ] => discriminate H
-end.
+end : core.
 
 Lemma size_induction X (f : X -> nat) (p : X -> Type) :
   (forall x, (forall y, f y < f x -> p y) -> p x) -> 
@@ -142,11 +142,11 @@ Proof.
   now intros ? ? [-> | [] ].
 Qed.
 
-Hint Resolve app_incl_l app_incl_R cons_incl incl_sing.
+Hint Resolve app_incl_l app_incl_R cons_incl incl_sing : core.
 
 
-Hint Extern 4 (_ el map _ _) => eapply in_map_iff.
-Hint Extern 4 (_ el filter _ _) => eapply filter_In.
+Hint Extern 4 (_ el map _ _) => eapply in_map_iff : core.
+Hint Extern 4 (_ el filter _ _) => eapply filter_In : core.
 
 Fixpoint count (l : list nat) (n : nat)  :=
   match l with
@@ -308,7 +308,7 @@ Proof.
   intros A. rewrite A. cbn. auto.
 Qed.
 
-Hint Resolve bool_Prop_true bool_Prop_false.
+Hint Resolve bool_Prop_true bool_Prop_false : core.
 
 Hint Extern 4 => 
 match goal with
@@ -319,7 +319,7 @@ match goal with
 |[ H: false=true |- _ ] => discriminate H
 |[ H: ?b=false, H': bool2Prop(?b) |- _ ] => rewrite H in H'; destruct H'
 (* |[ H: ?x el nil |- _ ] => destruct H *)
-end.
+end : core.
 
 (* Definition dec (X: Prop) : Type := {X} + {~ X}. *)
 
@@ -363,7 +363,7 @@ Proof.
   destruct d as [A|A]; cbn; tauto.
 Qed.
 
-Hint Resolve Dec_auto Dec_auto_not.
+Hint Resolve Dec_auto Dec_auto_not : core.
 Hint Extern 4 =>  (* Improves type class inference *)
 match goal with
   | [  |- dec ((fun _ => _) _) ] => cbn
@@ -391,7 +391,7 @@ Hint Extern 4 =>
 match goal with
   [ H : dec2bool (Dec ?P) = true  |- _ ] => apply Dec_true in  H
 | [ H : dec2bool (Dec ?P) = false |- _ ] => apply Dec_false in H
-end.
+end : core.
 
 (** Decided propositions behave classically *)
 
@@ -551,13 +551,13 @@ Notation "x 'el' A" := (In x A) (at level 70).
 Notation "A <<= B" := (incl A B) (at level 70).
 Notation "| A |" := (length A) (at level 65).
 Definition equi X (A B : list X) : Prop := incl A B /\ incl B A.
-Notation "A === B" := (equi A B) (at level 70).
-Hint Unfold equi.
+Local Notation "A === B" := (equi A B) (at level 70).
+Hint Unfold equi : core.
 
 Hint Extern 4 => 
 match goal with
 |[ H: ?x el nil |- _ ] => destruct H
-end.
+end : core.
 
 (** ** Lists *)
 
@@ -654,7 +654,7 @@ We use the following lemmas from Coq's standard library List.
 - [in_map_iff :  y el map f A <-> exists x, f x = y /\ x el A]
 *)
 
-Hint Resolve in_eq in_nil in_cons in_or_app.
+Hint Resolve in_eq in_nil in_cons in_or_app : core.
 
 Section Membership.
   Variable X : Type.
@@ -740,7 +740,7 @@ Section Membership.
 
 End Membership.
 
-Hint Resolve disjoint_nil disjoint_nil'.
+Hint Resolve disjoint_nil disjoint_nil' : core.
 
 (** *** Inclusion
 
@@ -753,9 +753,9 @@ We use the following lemmas from Coq's standard library List.
 - [incl_app : A <<= C -> B <<= C -> A++B <<= C]
 *)
 
-Hint Resolve incl_refl incl_tl incl_cons incl_appl incl_appr incl_app.
+Hint Resolve incl_refl incl_tl incl_cons incl_appl incl_appr incl_app : core.
 
-Hint Resolve incl_nil.
+Hint Resolve incl_nil : core.
 
 Lemma incl_map X Y A B (f : X -> Y) :
   A <<= B -> map f A <<= map f B.
@@ -1145,7 +1145,7 @@ Section Removal.
 
 End Removal.
 
-Hint Resolve rem_not_in rem_incl rem_mono rem_cons rem_cons' rem_app rem_app' rem_in rem_neq rem_inclr.
+Hint Resolve rem_not_in rem_incl rem_mono rem_cons rem_cons' rem_app rem_app' rem_in rem_neq rem_inclr : core.
 
 
 Notation "( A × B × .. × C )" := (list_prod .. (list_prod A B) .. C) (at level 0, left associativity).

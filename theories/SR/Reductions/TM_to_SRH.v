@@ -1,10 +1,11 @@
 (** ** TM to SR with finite types *)
+Require Import Undecidability.TM.TM.
 Require Import Undecidability.Shared.Prelim.
 Require Import Undecidability.SR.Util.singleTM.
 
-Require Import PslBase.FiniteTypes.BasicDefinitions PslBase.EqDec.
+Require Import PslBase.FiniteTypes PslBase.FiniteTypes.BasicDefinitions PslBase.EqDec.
 Require Import Undecidability.SR.SR.
-
+Require Import Undecidability.Problems.Reduction.
 
 Lemma map_app_inv X Y (f : X -> Y) x y z :
   map f x = y ++ z -> exists x' x'', x = x' ++ x'' /\ map f x' = y /\ map f x'' = z.
@@ -80,12 +81,12 @@ Section string_rewriting.
 
   Inductive rew' : srs -> list sig -> list sig -> Prop:=
   |rewR R x u y v : (u,v) el R -> rew' R (x++u++y) (x++v++y).
-  Hint Constructors rew'. 
+  Hint Constructors rew' : core. 
 
   Inductive rewt' (S: srs) (x: list sig) : list sig -> Prop :=
   |rewt'Refl : rewt' S x x
   |rewt'Rule y z : rew' S x y -> rewt' S y z -> rewt' S x z.
-  Hint Constructors rewt'.
+  Hint Constructors rewt' : core.
 
   Instance rewt'Trans R :
     PreOrder (rewt' R).
@@ -706,7 +707,6 @@ Proof.
 Qed.
 
 (** ** SRH' to SRH *)
-Check Undecidability.SR.Util.Definitions.sym.
 Lemma rewt_R_fresh (R : SRS) (x : string) (A l : list symbol) :
   rewt (R ++ map (fun a : symbol => [a] / [fresh (sym R ++ x)]) A) x l -> ~ fresh (sym R ++ x) el l -> rewt R x l.
 Proof.
