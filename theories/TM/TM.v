@@ -839,7 +839,7 @@ Section Semantics.
       split.
       + intros t i cout Hc.
         destruct (H t) as (? & ? & ?).
-        cutrewrite (cout = x).
+        replace cout with x.
         eassumption.
         unfold loopM in *.
         eapply loop_injective; eauto.
