@@ -27,7 +27,7 @@ Section SystemUnification.
   | eqs_typing_cons s t A E L: Gamma ⊢ s : A -> Gamma ⊢ t : A -> Gamma ⊢₊₊ E : L -> Gamma ⊢₊₊ ((s,t) :: E) : A :: L
   where  "Gamma ⊢₊₊ E : L" := (eqs_typing Gamma E L).
 
-  Hint Constructors eqs_typing.
+  Hint Constructors eqs_typing : core.
 
 
   Definition left_side E := map fst E.
@@ -46,7 +46,7 @@ Section SystemUnification.
   Qed.
 
 
-  Hint Resolve left_typing right_typing.
+  Hint Resolve left_typing right_typing : core.
 
   Definition vars' (e: eq) := vars (fst e) ++ vars (snd e).
   Definition Vars' (E: list eq) := flat_map vars' E.
@@ -160,7 +160,7 @@ Section SystemUnification.
       (Delta ⊩ sigma : Gammaᵤ') /\ forall s t, (s, t) ∈ Eᵤ' -> sigma • s ≡ sigma • t.
 
   Arguments SU: clear implicits.
-  Hint Resolve @Hᵤ'.
+  Hint Resolve @Hᵤ' : core.
 
 
 
@@ -208,7 +208,7 @@ Section SystemUnification.
       intuition. now eapply ren_vars.
   Qed.
 
-  Hint Resolve linearize_terms_typing.
+  Hint Resolve linearize_terms_typing : core.
 
   Section Interreducible.
 
@@ -261,7 +261,7 @@ Notation  "Gamma ⊢₊₊ E : L" := (eqs_typing Gamma E L) (at level 80, E at l
 Notation "Gamma ⊢₂ e : A" := (eq_typing Gamma e A) (at level 80, e at level 99).
 
 Hint Rewrite all_terms_cons_iff all_terms_app Vars'_app Vars'_cons: simplify.
-Hint Resolve all_terms_nil.
+Hint Resolve all_terms_nil : core.
 
 (** ** Normalisation *)
 Definition NSU {X: Const} (I: sysuni X) := exists Delta sigma,

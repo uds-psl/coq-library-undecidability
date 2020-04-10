@@ -72,7 +72,7 @@ match goal with
 |[ H: False |- _ ] => destruct H
 |[ H: true=false |- _ ] => discriminate H
 |[ H: false=true |- _ ] => discriminate H
-end.
+end : core.
 
 
 Definition enumerable {X} (p : X -> Prop) := exists f, forall x, p x <-> exists n : nat, f n = Some x.
@@ -91,7 +91,7 @@ Qed.
 
 Definition cumulative {X} (L: nat -> list X) :=
   forall n, exists A, L (S n) = L n ++ A.
-Hint Extern 0 (cumulative _) => intros ?; cbn; eauto.
+Hint Extern 0 (cumulative _) => intros ?; cbn; eauto : core.
 
 Lemma cum_ge {X} (L: nat -> list X) n m :
   cumulative L -> m >= n -> exists A, L m = L n ++ A.
@@ -149,7 +149,7 @@ Class enumT X :=
   }.
 
 Arguments L_T {_ _} _, _ {_} _.
-Hint Immediate cum_T.
+Hint Immediate cum_T : core.
 
 Instance enum_bool : enumT bool.
 Proof.

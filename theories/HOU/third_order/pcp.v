@@ -39,7 +39,7 @@ Definition MPCPsimp '(c, C) :=
 (* ** Equivalences *)
 Section PCPEquivalence.
 
-  Hint Resolve nth_error_Some_lt nth_error_lt_Some nats_lt lt_nats.
+  Hint Resolve nth_error_Some_lt nth_error_lt_Some nats_lt lt_nats : core.
 
 
   Lemma incl_select_iff X (A B: list X):

@@ -106,7 +106,7 @@ Section OrderTyping.
     
 
   End Order.
-  Hint Resolve ord'_cons. 
+  Hint Resolve ord'_cons : core. 
 
 
   (** ** Order Typing *)
@@ -124,7 +124,7 @@ Section OrderTyping.
   where "Gamma '⊢(' n ')' s ':' A" := (ordertyping n Gamma s A).
 
 
-  Hint Constructors ordertyping.
+  Hint Constructors ordertyping : core.
 
 
 
@@ -141,7 +141,7 @@ Section OrderTyping.
   Qed.
   
 
-  Hint Resolve ordertyping_monotone.
+  Hint Resolve ordertyping_monotone : core.
 
   
   Lemma ordertyping_soundness n Gamma s A:
@@ -299,13 +299,13 @@ Notation "Gamma '⊢(' n ')' s ':' A" :=
   (ordertyping n Gamma s A) (at level 80, s at level 99).
 Notation "Delta ⊩( n ) sigma : Gamma" := (ordertypingSubst n Delta sigma Gamma) (at level 80, sigma at level 99).
 
-Hint Constructors ordertyping.
+Hint Constructors ordertyping : core.
 Hint Rewrite ord_arr ord'_app ord'_rev : simplify. 
-Hint Resolve ord'_cons ord'_in .
-Hint Resolve vars_ordertyping_nth ordertyping_monotone ordertyping_step ordertyping_soundness.
+Hint Resolve ord'_cons ord'_in  : core.
+Hint Resolve vars_ordertyping_nth ordertyping_monotone ordertyping_step ordertyping_soundness : core.
 
 Hint Resolve 
      ordertyping_preservation_under_renaming
-     ordertyping_preservation_under_substitution.
+     ordertyping_preservation_under_substitution : core.
 
-Hint Resolve ord_target ord_target'.
+Hint Resolve ord_target ord_target' : core.

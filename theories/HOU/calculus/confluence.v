@@ -19,12 +19,12 @@ Section Confluence.
   | parApp s s' t t': s ≫ s' -> t ≫ t' -> s t ≫ s' t'
   where "s ≫ t" := (par s t). 
 
-  Hint Constructors par.
+  Hint Constructors par : core.
 
   Lemma refl_par: forall s, s ≫ s.
   Proof. induction s; eauto. Qed.
 
-  Hint Immediate refl_par. 
+  Hint Immediate refl_par : core. 
 
   Global Instance refl_par_inst: Reflexive par.
   Proof.
@@ -110,4 +110,4 @@ Section Confluence.
 End Confluence.
 
 Notation "s ≫ t" := (par s t) (at level 60).
-Hint Resolve confluence_step tak_fun_rho.
+Hint Resolve confluence_step tak_fun_rho : core.
