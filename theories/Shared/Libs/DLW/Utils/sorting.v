@@ -187,11 +187,11 @@ Proof.
       intros j Hj.
       destruct (le_lt_dec j n) as [ H0 | H0 ].
       - apply le_trans with (2 := H); auto.
-      - cutrewrite (j = S n); auto; omega.
+      - replace j with (S n); auto; omega.
     * exists i; split; auto.
       intros j Hj.
       destruct (le_lt_dec j n) as [ H0 | H0 ]; auto.
-      cutrewrite (j = S n); auto; omega.
+      replace j with (S n); auto; omega.
 Qed.
 
 Section sum_bounded_permutation.

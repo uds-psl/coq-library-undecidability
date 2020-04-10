@@ -143,7 +143,7 @@ Qed.
 
 Class enumT X :=
   {
-    L_T :> nat -> list X;
+    L_T : nat -> list X;
     cum_T : cumulative L_T ;
     el_T : forall x, exists m, x ∈ L_T m
   }.
