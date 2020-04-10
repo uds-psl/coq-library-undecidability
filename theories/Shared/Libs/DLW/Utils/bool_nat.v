@@ -837,7 +837,7 @@ Local Reserved Notation "'⟬' x '⟭'".
     assert (x <= power n 2 -1) as H by omega; clear H1. 
     rewrite binary_le_nat_meet.
     revert x H; induction n as [ | n IHn ]; intros x Hx.
-    + rewrite power_0 in Hx; cutrewrite (x=0); auto; omega.
+    + rewrite power_0 in Hx; replace x with 0; auto; omega.
     + destruct (eq_nat_dec x 0) as [ H | H ].
       - rewrite H; auto.
       - destruct (euclid_2_div x) as (H1 & H2).
