@@ -166,7 +166,7 @@ Section expo_diophantine.
 
 End expo_diophantine.
 
-Local Hint Resolve expo_sufficiency expo_necessity.
+Local Hint Resolve expo_sufficiency expo_necessity : core.
 
 Theorem expo_diophantine p q r : p = expo r q <-> expo_conditions p q r.
 Proof. split; auto. Qed.

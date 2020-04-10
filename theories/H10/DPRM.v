@@ -153,7 +153,7 @@ Theorem DPRM_n n (R : vec nat n -> Prop) :
        * (mu_recursive_n R     -> mm_recognisable_n R).
 Proof. lsplit 4; auto. Qed. 
 
-Check DPRM_n.
+(* Check DPRM_n. *)
 
 
 Local Notation ø := vec_nil.

@@ -20,7 +20,7 @@ Local Infix "≲" := binary_le (at level 70, no associativity).
 Local Infix "⇣" := nat_meet (at level 40, left associativity).
 Local Infix "⇡" := nat_join (at level 50, left associativity).
 
-Hint Resolve power2_gt_0.
+Hint Resolve power2_gt_0 : core.
 
 Section stability_of_power.
 

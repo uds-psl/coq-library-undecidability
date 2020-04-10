@@ -55,7 +55,7 @@ Proof. apply le_pirr. Qed.
 Fact Zring : ring_theory 0%Z 1%Z Zplus Zmult Zminus Z.opp eq.
 Proof. exists; intros; ring. Qed.
 
-Hint Resolve Zring Zplus_monoid Zmult_monoid.
+Hint Resolve Zring Zplus_monoid Zmult_monoid : core.
 
 Section Z_coprime.
 
@@ -323,7 +323,7 @@ Section Zp.
     rewrite <- H2; ring.
   Qed.
 
-  Hint Resolve Zp_one_invertible Zp_opp_invertible Zp_mult_invertible.
+  Hint Resolve Zp_one_invertible Zp_opp_invertible Zp_mult_invertible : core.
 
   Fact Zp_expo_invertible n x : Zp_invertible x -> Zp_invertible (mscal Zp_mult Op n x).
   Proof. intros; induction n; [ rewrite mscal_0 | rewrite mscal_S ]; auto. Qed.

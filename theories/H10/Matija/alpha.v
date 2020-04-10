@@ -166,7 +166,7 @@ Section Pell.
 
   Notation α := alpha_Z.
 
-  Hint Resolve alpha_nat_le.
+  Hint Resolve alpha_nat_le : core.
 
   Fact alpha_Z_S n : α (S n) = Z.of_nat (alpha_nat n). Proof. auto. Qed.
 
@@ -231,13 +231,13 @@ Section Pell.
   Local Fact MZ_mult_monoid : monoid_theory MZ_mult MZ_one.
   Proof. apply M22mult_monoid with (1 := Zring). Qed.
 
-  Hint Resolve MZ_plus_monoid MZ_mult_monoid.
+  Hint Resolve MZ_plus_monoid MZ_mult_monoid : core.
  
   (* ⊕  ⊗  ∸    ⊞ ⊠ ⊟ *)
-
-  Notation "⊟" := MZ_opp.
-  Infix "⊞" := MZ_plus (at level 50, left associativity).
-  Infix "⊠" := MZ_mult (at level 40, left associativity).
+  Section Pell_inner.
+  Local Notation "⊟" := MZ_opp.
+  Local Infix "⊞" := MZ_plus (at level 50, left associativity).
+  Local Infix "⊠" := MZ_mult (at level 40, left associativity).
 
   Definition B  : MZ := (b,-1,1,0).
   Definition iB : MZ := (0,1,-1,b).
@@ -276,7 +276,7 @@ Section Pell.
       - alpha; ring.
   Qed.
 
-  Hint Resolve MZ_expo_A.
+  Hint Resolve MZ_expo_A : core.
 
   Fact A_plus u v : A (u+v)%nat = A u ⊠ A v.
   Proof.
@@ -365,7 +365,7 @@ Section Pell.
     Qed.  
 
   End alpha_nat_coprime.
-
+  End Pell_inner.
   Theorem find_odd_alpha u : exists n, (u <= alpha_nat (S n) /\ rem (alpha_nat (S n)) 2 = 1)%nat.
   Proof.
     destruct (alpha_nat_odd (S u)) as [ H | H ]; [ exists (S u) | exists u ]; split; auto;
@@ -427,7 +427,7 @@ Section Pell.
     replace (- α k) with ((-1)*α k) by ring.
     rewrite mscal_sum; auto; ring.
   Qed.
-
+  
   Section A2m.
 
     Variable (l m v : nat) (Hv : Z.of_nat v = α (2+m) - α m).
@@ -444,9 +444,9 @@ Section Pell.
 
     Notation f := (Z2Zp Hv').
     Notation "〚 x 〛" :=  (f x).
-    Notation "〘 x 〙" := (morph22 f x).
-    Notation "⊟" := (MI22 (Zp_opp Hv')).
-    Infix "⊠" := (MU22 (Zp_plus Hv') (Zp_mult Hv')) (at level 40, left associativity).
+    Notation "〘 x 〙" := (morph22 f x). 
+    Local Notation "⊟" := (MI22 (Zp_opp Hv')). 
+    Local Infix "⊠" := (MU22 (Zp_plus Hv') (Zp_mult Hv')) (at level 40, left associativity).
 
     Let Am_iAm_mod :〘A m〙= ⊟〘iA m〙.
     Proof.
@@ -599,7 +599,7 @@ Section Pell.
     Qed.
 
     Notation "〘 x 〙" := (morph22 f x).
-    Infix "⊠" := (MU22 (Zp_plus Hm) (Zp_mult Hm)) (at level 40, left associativity).
+    Local Infix "⊠" := (MU22 (Zp_plus Hm) (Zp_mult Hm)) (at level 40, left associativity).
     Notation scal := (M22scal (Zp_mult Hm)).
 
     Let BVP : 〘 B 〙 ⊠ 〘 VP 〙= scal〚qz〛〘 VP 〙.
@@ -826,7 +826,7 @@ Section divisibility_1.
     Infix "⊗" := (Zp_mult Hak) (at level 40, left associativity).
     Notation expo := (mscal (Zp_mult Hak) (Zp_one Hak)).
 
-    Hint Resolve Zle_0_nat.
+    Hint Resolve Zle_0_nat : core.
 
     Section in_Z.
 
@@ -944,7 +944,7 @@ Section divisibility_2.
     Infix "⊗" := (Zp_mult Hak2) (at level 40, left associativity).
     Notation expoZp := (mscal (Zp_mult Hak2) (Zp_one Hak2)).
 
-    Hint Resolve Zle_0_nat.
+    Hint Resolve Zle_0_nat : core.
 
     Section in_Zp.
 
@@ -1104,7 +1104,7 @@ Section congruence_1.
   Variable (b1 b2 : nat) (Hb1 : 2 <= b1) (Hb2 : 2 <= b2)
            (q : nat) (Hq : q <> 0) (Hb : nat2Zp Hq b1 = nat2Zp Hq b2).
 
-  Hint Resolve Zle_0_nat.
+  Hint Resolve Zle_0_nat : core.
 
   Theorem alpha_Z_congr n : Z2Zp Hq (alpha_Z b1 n) = Z2Zp Hq (alpha_Z b2 n).
   Proof.
@@ -1153,7 +1153,7 @@ Section congruence_2.
 
   Notation "〚 x 〛" := (Z2Zp Hb x).  (* congruence class modulo (b-2) *)
 
-  Hint Resolve Zle_0_nat.
+  Hint Resolve Zle_0_nat : core.
 
   Open Scope Z_scope.
 
@@ -1362,4 +1362,3 @@ Proof.
     intros (u & t & r & s & v & w & x & y & H); revert H.
     apply alpha_sufficiency.
 Qed.
-

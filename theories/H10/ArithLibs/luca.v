@@ -112,7 +112,7 @@ Section fact.
   Infix "⊗" := (Zp_mult Hp) (at level 40, left associativity).
   Notation expoZp := (mscal (Zp_mult Hp) (Zp_one Hp)).
 
-  Hint Resolve Nat_mult_monoid.
+  Hint Resolve Nat_mult_monoid : core.
 
   Let Psi_Zp_eq n :〚Ψ n〛= expoZp n〚fact (p-1)〛.
   Proof.
@@ -233,7 +233,7 @@ Section fact.
 
     Hypothesis (Hn0 : n0 < p).
 
-    Hint Resolve Zp_mult_monoid.
+    Hint Resolve Zp_mult_monoid : core.
 
     Fact binomial_Zp_prod :〚binomial n k〛=〚binomial N K〛⊗〚binomial n0 k0〛.
     Proof.
@@ -396,10 +396,9 @@ Section lucas_lemma.
 
 End lucas_lemma.
 
-Check lucas_lemma.
 
 
-Eval compute in binomial 3 0.
+(* Eval compute in binomial 3 0. *)
 
 Section lucas_theorem.
 
