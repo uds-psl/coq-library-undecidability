@@ -75,7 +75,7 @@ Section dio_poly.
       + exact q.
     Defined.
 
-    Hint Resolve ra_dio_poly_prim.
+    Hint Resolve ra_dio_poly_prim : core.
   
     Fact ra_dio_poly_eq_prim : prim_rec ra_dio_poly_eq.
     Proof.
@@ -94,7 +94,7 @@ Section dio_poly.
 
     Opaque ra_dio_poly_eq.
 
-    Hint Resolve ra_dio_poly_eq_prim.
+    Hint Resolve ra_dio_poly_eq_prim : core.
 
     Definition ra_dio_poly_test : recalg (S m).
     Proof.

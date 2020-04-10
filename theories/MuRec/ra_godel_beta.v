@@ -70,7 +70,7 @@ Section ra_godel_beta.
 
 End ra_godel_beta.
 
-Hint Resolve ra_godel_beta_prim_rec ra_godel_beta_val.
+Hint Resolve ra_godel_beta_prim_rec ra_godel_beta_val : core.
 Opaque ra_godel_beta.
 
 Section ra_beta.
@@ -107,8 +107,6 @@ Section ra_beta.
 
 End ra_beta.
 
-Hint Resolve ra_beta_prim_rec ra_beta_val.
+Hint Resolve ra_beta_prim_rec ra_beta_val : core.
 
-Eval compute in ra_size ra_rem.
- 
-
+(* Eval compute in ra_size ra_rem. *)

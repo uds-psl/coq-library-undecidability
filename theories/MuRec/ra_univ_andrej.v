@@ -162,7 +162,7 @@ Section ra_h10uc.
 
 End ra_h10uc.
 
-Hint Resolve ra_h10uc_prim_rec ra_h10uc_val.
+Hint Resolve ra_h10uc_prim_rec ra_h10uc_val : core.
 Opaque ra_h10uc.
 
 Section ra_iter_h10uc.
@@ -308,7 +308,7 @@ Section ra_iter_h10uc.
 
 End ra_iter_h10uc.
 
-Hint Resolve ra_iter_h10uc_prim_rec.
+Hint Resolve ra_iter_h10uc_prim_rec : core.
 Opaque ra_iter_h10uc.
 
 Section ra_univ_ad.
