@@ -20,6 +20,31 @@ Tactic Notation "rew" "length" "in" hyp(H) := autorewrite with length_db in H.
 
 Infix "~p" := (@Permutation _) (at level 70).
 
+Section In_t.
+
+  Variable (X : Type).
+
+  Fixpoint In_t (x : X) l : Type :=
+    match l with
+      | nil  => False
+      | y::l => ((y = x) + In_t x l)%type
+    end.
+
+  Fact In_t_In x l : In_t x l -> In x l.
+  Proof. induction l; simpl; tauto. Qed.
+
+  Fact In_In_t x l (P : Prop) : (In_t x l -> P) -> In x l -> P.
+  Proof.
+    induction l as [ | y l IHl ].
+    + intros _ [].
+    + intros H1 [ -> | H2 ]. 
+      * apply H1; simpl; auto.
+      * apply IHl; auto.
+        intros; apply H1; simpl; auto.
+  Qed.
+
+End In_t.
+
 Section length.
    
   Variable X : Type.
@@ -76,6 +101,21 @@ Section list_an.
       * injection H1; clear H1; intros H1 H0.
         apply IHn in H1; destruct H1; split; f_equal; auto.
         rewrite H1 at 1; f_equal; omega.
+  Qed.
+
+  Fact list_an_duplicate_inv a n l x m y r : 
+        list_an a n = l++x::m++y::r -> a <= x /\ x < y < a+n.
+  Proof.
+    intros H.
+    generalize H; intros H1.
+    apply f_equal with (f := @length _) in H1.
+    rewrite list_an_length in H1.
+    apply list_an_app_inv in H; simpl in H.
+    destruct H as (E1 & H); injection H; clear H; intros H E2.
+    symmetry in H; apply list_an_app_inv in H; simpl in H.
+    destruct H as (E3 & H); injection H; clear H; intros E4 E5.
+    do 2 (rewrite app_length in H1; simpl in H1).
+    omega.
   Qed.
 
 End list_an.
@@ -159,6 +199,14 @@ Proof.
   apply Hf in Hl; subst; auto.
 Qed.
 
+Fact list_app_head_not_nil X (u v : list X) : u <> nil -> v <> u++v.
+Proof.
+  intros H; contradict H.
+  destruct u as [ | a u ]; auto; exfalso.
+  apply f_equal with (f := @length _) in H.
+  revert H; simpl; rewrite app_length; intros; omega.
+Qed.
+
 Section iter.
   
   Variable (X : Type) (f : X -> X).
@@ -177,6 +225,9 @@ Section iter.
     change (iter (f x) n) with (iter x (1+n)).
     rewrite plus_comm, iter_plus; auto.
   Qed.
+
+  Fact iter_S x n : iter x (S n) = f (iter x n).
+  Proof. apply iter_swap. Qed.
 
 End iter.
 
@@ -325,6 +376,59 @@ Section flat_map.
   Qed.
 
 End flat_map.
+
+Fact in_concat_iff X (ll : list (list X)) x : In x (concat ll) <-> exists l, In x l /\ In l ll.
+Proof.
+  rewrite <- (map_id ll) at 1.
+  rewrite <- flat_map_concat_map, in_flat_map.
+  firstorder.
+Qed.
+
+Fact flat_map_flat_map X Y Z (f : X -> list Y) (g : Y -> list Z) l : 
+       flat_map g (flat_map f l) = flat_map (fun x => flat_map g (f x)) l.
+Proof.
+  induction l; simpl; auto.
+  rewrite flat_map_app; f_equal; auto.
+Qed.
+
+Fact flat_map_single X Y (f : X -> Y) l : flat_map (fun x => f x::nil) l = map f l.
+Proof. induction l; simpl; f_equal; auto. Qed.
+
+Section list_in_map.
+
+  Variable (X Y : Type).
+
+  Fixpoint list_in_map l : (forall x, @In X x l -> Y) -> list Y.
+  Proof.
+    refine (match l with
+      | nil  => fun _ => nil
+      | x::l => fun f => f x _ :: @list_in_map l _
+    end).
+    + left; auto.
+    + intros y Hy; apply (f y); right; auto.
+  Defined.
+
+  Theorem In_list_in_map l f x (Hx : In x l) : In (f x Hx) (list_in_map l f).
+  Proof.
+    revert f x Hx.
+    induction l as [ | x l IHl ]; intros f y Hy.
+    + destruct Hy.
+    + destruct Hy as [ -> | Hy ].
+      * left; auto.
+      * right.
+        apply (IHl (fun z Hz => f z (or_intror Hz))).
+  Qed.
+
+  Theorem In_list_in_map_inv l f y : In y (list_in_map l f) -> exists x Hx, y = f x Hx.
+  Proof.
+    revert f y; induction l as [ | x l IHl ]; intros f y; simpl; try tauto.
+    intros [ H | H ].
+    + now exists x, (or_introl eq_refl).
+    + destruct IHl with (1 := H) as (z & Hz & E).
+      now exists z, (or_intror Hz).
+  Qed.
+
+End list_in_map.
 
 Definition prefix X (l ll : list X) := exists r, ll = l++r.
   
@@ -520,6 +624,23 @@ Section list_first_dec.
   
 End list_first_dec.
 
+Section list_dec.
+
+  Variable (X : Type) (P Q : X -> Prop) (H : forall x, { P x } + { Q x }).
+  
+  Theorem list_dec l : { x | In x l /\ P x } + { forall x, In x l -> Q x }.
+  Proof.
+    induction l as [ | x l IHl ].
+    + right; intros _ [].
+    + destruct (H x) as [ Hx | Hx ].
+      1: { left; exists x; simpl; auto. }
+      destruct IHl as [ (y & H1 & H2) | H1 ].
+      * left; exists y; split; auto; right; auto.
+      * right; intros ? [ -> | ? ]; auto.
+  Qed.
+
+End list_dec.
+
 Section map.
 
   Variable (X Y : Type) (f : X -> Y).
@@ -548,6 +669,24 @@ Section map.
     symmetry in H3.
     destruct map_cons_inv with (1 := H3) as (x & r' & H4 & H5 & H6); subst.
     exists l, x, r'; auto.
+  Qed.
+
+  Fact map_duplicate_inv ll l' y1 m' y2 r' :
+            map f ll = l'++y1::m'++y2::r'
+       -> { l : _ & 
+          { x1 : _ &
+          { m : _ &
+          { x2 : _ &
+          { r | l' = map f l /\ y1 = f x1 
+             /\ m' = map f m /\ y2 = f x2
+             /\ r' = map f r /\ ll = l++x1::m++x2::r } } } } }.
+  Proof.
+    intros H1.
+    apply map_middle_inv in H1.
+    destruct H1 as (l & x1 & k & H1 & H3 & H4 & H5).
+    apply map_middle_inv in H5.
+    destruct H5 as (m & x2 & r & -> & H6 & H7 & H8).
+    now exists l, x1, m, x2, r.
   Qed.
   
 End map.
@@ -720,4 +859,18 @@ Qed.
 Fact Forall_filter X (P : X -> Prop) (f : X -> bool) ll : Forall P ll -> Forall P (filter f ll).
 Proof. induction 1; simpl; auto; destruct (f x); auto. Qed.
 
+Section list_discrim.
 
+  Variable (X : Type) (P Q : X -> Prop) (PQdec : forall x, { P x } + { Q x}).
+
+  Definition list_discrim l : { lP : _ & { lQ | l ~p lP++lQ /\ Forall P lP /\ Forall Q lQ } }.
+  Proof.
+    induction l as [ | x l (lP & lQ & H1 & H2 & H3) ].
+    + exists nil, nil; simpl; auto.
+    + destruct (PQdec x) as [ H | H ].
+      * exists (x::lP), lQ; repeat split; auto; constructor; auto.
+      * exists lP, (x::lQ); repeat split; auto.
+        apply Permutation_cons_app; auto.
+  Qed.
+
+End list_discrim.

@@ -10,7 +10,7 @@
 Require Import Arith List Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils 
-  Require Import utils_tac utils_nat utils_list gcd crt sums.
+  Require Import utils_tac utils_nat utils_list gcd crt sums finite.
 
 From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
 
@@ -924,7 +924,7 @@ Section ra_lsum.
     assert (0 < lsum (vec_list w)) as H2.
     { destruct H as (p & k & Hp & H2).
       apply lt_le_trans with (S k); try lia.
-      apply le_lsum, vec_list_In_iff.
+      apply lsum_le, vec_list_In_iff.
       exists (nat2pos Hp).
       specialize (Hw (nat2pos Hp)).
       rewrite pos2nat_nat2pos in Hw.

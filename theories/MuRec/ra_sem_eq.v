@@ -9,7 +9,7 @@
 
 Require Import Omega.
 
-From Undecidability.Shared Require Import DLW.Utils.utils DLW.Vec.vec DLW.Vec.pos.
+From Undecidability.Shared Require Import DLW.Utils.utils DLW.Utils.finite DLW.Vec.vec DLW.Vec.pos.
 From Undecidability.MuRec Require Import recalg ra_bs recursor minimizer ra_ca.
 
 Set Implicit Arguments.

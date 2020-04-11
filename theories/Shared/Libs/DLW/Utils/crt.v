@@ -135,6 +135,7 @@ Section sequence_of_coprimes.
     apply H6, divides_fact.
     assert (p <> 0) as H7.
     { apply prime_ge_2 in Hp; omega. }
+    destruct Hp.
     split; try omega.
     apply divides_le in H5; omega.
   Qed.

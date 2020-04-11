@@ -89,7 +89,7 @@ Definition nat_h10lc k :=
 
 Fact nat_h10lc_surj lc : { k | lc = nat_h10lc k }.
 Proof.
-  destruct (list_vec lc) as (v & <-).
+  destruct (list_vec_full lc) as (v & <-).
   generalize (length lc) v; clear lc v.
   intros n v.
   set (w := vec_map h10c_nat v).
