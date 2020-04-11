@@ -23,8 +23,6 @@ Section measure_rect.
 
   Let R x y := m x < m y.
 
-  Print Acc.
-
   (** R is WF when all elements are accessible *)
 
   Let Rwf : forall x : X, Acc R x.
@@ -46,12 +44,6 @@ Section measure_rect.
     apply G. (* structural decrease here *)
     trivial. 
   Defined.
-
-  Print Fix_F.
-
-  (** Acc_inv is precisely implemented by destruct, ie pattern matching *)
-
-  Print Acc_inv.
 
   (** To evaluate @Fix_F x A, the recursive argument must reduce to a
       term headed with an inductive constructor *)

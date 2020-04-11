@@ -103,7 +103,7 @@ Section finite_discrete_choice.
 
 End finite_discrete_choice.
 
-Local Hint Resolve finite_t_pos finite_t_finite.
+Local Hint Resolve finite_t_pos finite_t_finite : core.
  
 Fact pos_reification X n (R : pos n -> X -> Prop) : (forall p, exists x, R p x) -> exists f, forall p, R p (f p).
 Proof.

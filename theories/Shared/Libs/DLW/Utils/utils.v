@@ -8,5 +8,7 @@
 (**************************************************************)
 
 From Undecidability.Shared.Libs.DLW.Utils 
-  Require Export focus utils_tac list_focus utils_list utils_nat utils_string.
+  Require Export focus utils_tac list_focus 
+                  utils_list utils_nat 
+                  utils_string.
 

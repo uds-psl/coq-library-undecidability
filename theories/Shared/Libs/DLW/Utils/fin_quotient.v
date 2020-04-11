@@ -20,6 +20,8 @@ From Undecidability.Shared.Libs.DLW.Wf
 
 Set Implicit Arguments.
 
+(** * Finite quotient by a decidable equivalence *)
+
 Section fp_quotient.
 
   Variable (X : Type).
@@ -202,12 +204,3 @@ Section fp_quotient.
   Qed.
 
 End fp_quotient.
-
-Print fp_quotient.
-Check decibable_PER_fp_quotient.
-Print Assumptions decibable_PER_fp_quotient.
-
-Print fin_quotient.
-Check decidable_EQUIV_fin_quotient.
-Print Assumptions decidable_EQUIV_fin_quotient.
-  

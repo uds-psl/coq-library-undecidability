@@ -103,30 +103,4 @@ Require Import List.
     
   Ltac focus_elt z l := focus_lst (z::nil) l.
 
-Section test.
-
-  Variable X : Type.
-
-  Variable x y z : list X.
-  Variable a b c : X.
-
-(*
-  Goal True.
-    let rr := lrev (1::2::3::4::nil) in idtac rr.
-    let rr := lflat ((x++a::nil++nil)++b::z++y++a::nil) in idtac rr.
-    let rr := llin (x::y::(a::nil)::z::(b::nil)::nil) in idtac rr.
-    let rr := llin (@nil (list X)) in idtac rr.
-    let rr := llin (@nil (list X)) in idtac rr.
-    let rr := lcut z ( (x::y::(a::nil)::y::(b::nil)::z::nil) ) in idtac rr.
-    let rr := lmerge ( (x::y::(a::nil)::nil)++(y::(b::nil)::z::nil) ) in idtac rr.
-    let rr := focus_lst_2 (c::nil) ((x++c::nil++nil)++b::z++y++c::nil) in idtac rr.
-    let rr := focus_lst_2 (c::nil) ((x++c::nil++nil)++b::z++y++c::z++c::x++c::z) in idtac rr.
-    let rr := focus_lst z ((x++a::nil++nil)++b::z++y++c::nil) in idtac rr.
-    let rr := focus_elt a (c::(x++a::nil++nil)++b::z++y++c::nil) in idtac rr.
-    auto.
-  Qed.
- *)
-
-End test.
-
  

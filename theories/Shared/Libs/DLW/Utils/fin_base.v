@@ -17,6 +17,8 @@ From Undecidability.Shared.Libs.DLW.Vec
 
 Set Implicit Arguments.
 
+(** * Definitions of finiteness, weak and strong *)
+
 Section finite.
 
   Definition finite_t X := { lX | forall x : X, In x lX }.
