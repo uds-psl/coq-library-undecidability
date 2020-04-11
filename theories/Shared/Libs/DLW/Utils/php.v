@@ -9,7 +9,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Pidgeon hole principle *)
+(** * Pigeonhole principle *)
 
 Require Import Arith Omega List Permutation Relations.
 
@@ -242,6 +242,8 @@ Section pigeon_list.
       The proof is by induction on l
    *)
 
+  (** ** Generalized statement *)
+
   Lemma length_le_and_incl_implies_dup_or_perm l m :  
             length l <= length m 
          -> incl m l 
@@ -276,6 +278,8 @@ Section pigeon_list.
     destruct (@length_le_and_incl_implies_dup_or_perm l m) as [ | H3 ]; auto; try omega.
     apply Permutation_length in H3; omega.
   Qed. 
+
+  (** ** The Finite PHP on lists of the same type *)
 
   Theorem finite_pigeon_hole l m :
          length l < length m 
@@ -406,6 +410,8 @@ Section PHP_rel.
   Qed.
 
   Hypothesis (Hlm : length m < length l).
+
+  (** ** The finite relational PHP *)
                           
   Theorem PHP_rel : exists a x b y c v, l = a++x::b++y::c
                                        /\ In v m /\ R x v /\ R y v.
@@ -423,8 +429,6 @@ Section PHP_rel.
   Qed.
 
 End PHP_rel.
-
-Check PHP_rel.
 
 Section php_upto.
 

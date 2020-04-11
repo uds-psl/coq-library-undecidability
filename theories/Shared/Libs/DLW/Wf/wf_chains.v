@@ -19,7 +19,7 @@ Section wf_chains.
     | in_chain_0 : forall x, chain 0 x x
     | in_chain_1 : forall n x y z, R x y -> chain n y z -> chain (S n) x z.
 
-  Hint Constructors chain.
+  Hint Constructors chain : core.
 
   Fact chain_inv_0 x y : chain 0 x y -> x = y.
   Proof. inversion 1; auto. Qed.
