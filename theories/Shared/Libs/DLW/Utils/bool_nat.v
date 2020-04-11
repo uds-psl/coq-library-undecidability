@@ -223,7 +223,7 @@ Local Reserved Notation "'⟬' x '⟭'".
   Fact nat_lb_length x n : x < power n 2 -> length ⟬ x ⟭ <= n.
   Proof.
     revert x; induction n as [ | n IHn ]; intros x.
-    + rewrite power_0; intro; cutrewrite (x=0); try omega.
+    + rewrite power_0; intro; replace x with 0; try omega.
       rewrite nat_lb_fix_0; simpl; omega.
     + rewrite power_S.
       destruct (euclid_2 x) as (y & [ H | H ]); intros Hx; subst.
@@ -837,7 +837,7 @@ Local Reserved Notation "'⟬' x '⟭'".
     assert (x <= power n 2 -1) as H by omega; clear H1. 
     rewrite binary_le_nat_meet.
     revert x H; induction n as [ | n IHn ]; intros x Hx.
-    + rewrite power_0 in Hx; cutrewrite (x=0); auto; omega.
+    + rewrite power_0 in Hx; replace x with 0; auto; omega.
     + destruct (eq_nat_dec x 0) as [ H | H ].
       - rewrite H; auto.
       - destruct (euclid_2_div x) as (H1 & H2).
@@ -1374,7 +1374,7 @@ Local Reserved Notation "'⟬' x '⟭'".
            intros i Hi. 
            generalize (@power_ge_1 p 2); intro.
            unfold lt.
-           cutrewrite (S (power p 2 -1) = power p 2); try omega. 
+           replace (S (power p 2 -1)) with (power p 2); try omega. 
            apply power_mono_l; omega. }
       apply msum_ext; intros i Hi; f_equal.
       apply binary_le_nat_meet, power_2_minus_1_gt.

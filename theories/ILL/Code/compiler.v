@@ -16,7 +16,7 @@ Set Implicit Arguments.
 
 (** * A certified low-level compiler *)
 
-Tactic Notation "dest" "eq" "nat" "dec" "as" intropattern(H) :=
+Tactic Notation "dest" "eq" "nat" "dec" "as" simple_intropattern(H) :=
     match goal with 
       |- context[eq_nat_dec ?x ?y] => destruct (eq_nat_dec x y) as H
     end; auto.
