@@ -7,10 +7,10 @@ Set Implicit Arguments.
 (** ** Definitions *)
 
 Definition reduces X Y (p : X -> Prop) (q : Y -> Prop) := exists f : X -> Y, forall x, p x <-> q (f x).
-Definition ireduces X Y (P : X -> Prop) (Q : Y -> Prop) := { f : X -> Y | forall x, P x <-> Q (f x) }.
+Definition informatively_reduces X Y (P : X -> Prop) (Q : Y -> Prop) := { f : X -> Y | forall x, P x <-> Q (f x) }.
 
 Infix "⪯" := reduces (at level 70).
-Infix "⪯ᵢ" := ireduces (at level 70).
+Infix "⪯ᵢ" := informatively_reduces (at level 70).
 
 (** ** Pre-order properties *)
 
