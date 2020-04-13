@@ -48,7 +48,7 @@ Section FSAT_enumerable.
     intros A.
     rewrite FSAT_FSAT_in_pos.
     apply exists_equiv; intros n.
-    destruct (dec n A); split; auto.
+    destruct (dec n A); split; auto; discriminate.
   Qed.
 
   Hypothesis (H3 : type_enum_t (syms Σ)).

@@ -14,6 +14,8 @@
 
 Require Import List Arith Bool Lia.
 
+From Undecidability.PCP Require Import PCP.
+
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
 
@@ -104,7 +106,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
     (** We assume a solution to pcp_hand and we build a finite and decidable model
         of Σbpcp_encode from it *)
 
-    Variable (l : list bool) (Hl : pcp_hand lc l l). 
+    Variable (l : list bool) (Hl : lc ⊳ l∕l). 
 
     Let n := length l.
     Let X := option { m : list bool | length m < S n }.
@@ -132,7 +134,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
           2: exact False.
           destruct (vec_head (vec_tail v)) as [ (t & _) | ].
           2: exact False.
-          exact (pcp_hand lc s t).
+          exact (lc ⊳ s∕t).
         * destruct (vec_head v) as [ (s & _) | ].
           2: exact False.
           destruct (vec_head (vec_tail v)) as [ (t & _) | ].
@@ -535,7 +537,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
          in   P x y 
            -> exists s t, x = sb_app s ε 
                        /\ y = sb_app t ε 
-                       /\ pcp_hand lc s t.
+                       /\ lc ⊳ s∕t.
     Proof.
       induction c as [ (x,y) IH ] using (well_founded_induction Hlt_wf).
       intros Hxy.
@@ -551,7 +553,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
         * constructor 2; auto.
     Qed.  
 
-    Local Theorem completeness : exists s, pcp_hand lc s s.
+    Local Theorem completeness : exists s, lc ⊳ s∕s.
     Proof.
       destruct P_refl as (x & Hx).
       destruct (P_implies_pcp_hand (x,x)) with (1 := Hx)
@@ -570,7 +572,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
 
   Theorem Sig_bpcp_encode_complete : 
              @fo_form_fin_dec_eq_SAT Σbpcp Σbpcp_eq eq_refl Σbpcp_encode 
-          -> exists l, pcp_hand lc l l.
+          -> exists l, lc ⊳ l∕l.
   Proof.
     intros (X & M & fM & dM & He & phi & Hphi).
     apply completeness with (M := M) (φ := phi); auto.

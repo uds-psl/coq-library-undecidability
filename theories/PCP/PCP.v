@@ -32,14 +32,13 @@ Fixpoint tau2 {X : Type} (A : stack X) : string X :=
   given a stack P of cards to determine 
   whether there is a non-empty stack A of cards from P (with possible repetition)
   such that the upper trace of A is equal to the lower trace of A. *)
-Definition PCP : stack nat -> Prop :=
-  fun P => exists (A : stack nat), 
-    incl A P /\ A <> [] /\ tau1 A = tau2 A.
+Definition PCPX {X : Type}: stack X -> Prop :=
+  fun P => exists A, incl A P /\ A <> [] /\ tau1 A = tau2 A.
+
+Definition PCP : stack nat -> Prop := @PCPX nat.
 
 (** PCPb is PCP restricted to cards with binary strings. *)
-Definition PCPb : stack bool -> Prop :=
-  fun P => exists (A : stack bool), 
-    incl A P /\ A <> [] /\ tau1 A = tau2 A.
+Definition PCPb : stack bool -> Prop := @PCPX bool.
 
 (** The indexed upper trace itau1 of indices A from a stack P
   is the concatenation of the upper strings of P each with index from A. *)
@@ -68,9 +67,18 @@ Inductive derivable {X : Type} (P : stack X) : string X -> string X -> Prop :=
   | der_sing x y : In (x, y) P -> derivable P x y
   | der_cons x y u v : In (x, y) P -> derivable P u v -> derivable P (x ++ u) (y ++ v).
 
+(** dPCPb is a different presentation of inductive presentation of PCP. *)
+Definition dPCP {X : Type} : stack X -> Prop :=
+  fun P => exists u, @derivable X P u u.
+
 (** dPCPb is a different presentation of PCPb based in index derivability. *)
-Definition dPCPb : stack bool -> Prop :=
-  fun P => exists (u : string bool), @derivable bool P u u.
+Definition dPCPb : stack bool -> Prop := @dPCP bool.
+
+(** Binary PCP inductively defined (cf Trakhtenbrot IJCAR 2020) *)
+
+Inductive BPCP (P : stack bool) : Prop := 
+  | cBPCP : forall u, derivable P u u -> BPCP P.
+Hint Constructors BPCP : core.
 
 (** The modified Post correspondence problem MPCP is 
   given a card x/y and stack P of cards to determine 

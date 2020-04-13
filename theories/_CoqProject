@@ -57,7 +57,9 @@ PCP/PCP_undec.v
 PCP/Util/Facts.v
 PCP/Util/PCP_facts.v
 PCP/Reductions/MPCP_to_PCP.v
+PCP/Reductions/PCPX_iff_dPCP.v
 PCP/Reductions/PCPb_iff_dPCPb.v
+PCP/Reductions/PCPb_iff_BPCP.v
 PCP/Reductions/PCP_to_PCPb.v
 PCP/Reductions/PCPb_iff_iPCPb.v
 PCP/Reductions/SR_to_MPCP.v
@@ -515,7 +517,6 @@ TRAKHTENBROT/summary.v
 
 ##############################"
 
-Problems/PCP.v
 Problems/FOL.v
 Problems/TM.v
 Problems/MM.v

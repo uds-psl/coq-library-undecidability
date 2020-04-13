@@ -9,8 +9,8 @@
 
 Require Import List Arith Bool Lia Relations.
 
-From Undecidability.Problems
-  Require Import Reduction PCP.
+From Undecidability.Problems Require Import Reduction.
+From Undecidability.PCP Require Import PCP.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite php.
@@ -57,7 +57,7 @@ About reduction_opt_enum_t.
 
 (* Definition 4 *)
 
-About pcp_hand. Print pcp_hand.
+About derivable. Print derivable.
 About BPCP_problem. Print BPCP_problem.
 
 (* Fact 5, for the reduction for TM halting, you need much more code from the

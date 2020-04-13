@@ -12,12 +12,9 @@ Require Import List Arith Lia Bool.
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
 
-From Undecidability.Problems Require Import PCP.
-(* From Undecidability.PCP Require Import PCP. *)
+From Undecidability.PCP Require Import PCP.
 
 Set Implicit Arguments.
-
-(** * The Binary Post correspondence problem *)
 
 Section dec.
 
@@ -56,25 +53,22 @@ Section dec.
 
 End dec.
 
-Section pcp_hand.
+(** * The Post correspondence problem *)
+
+Notation "R ⊳ s ∕ t" := (derivable R s t) (at level 70, format "R  ⊳  s ∕ t").
+
+Section pcp_hand_dec.
 
   Variable (X : Type) (lc : list (list X * list X)).
 
-  Reserved Notation "⊳ s ∕ t" (at level 70).
-
-  (** ** PCP derivability *)
-
-  Inductive pcp_hand : list X -> list X -> Prop :=
-    | in_pcph_0 : forall x y, In (x,y) lc -> ⊳ x∕y
-    | in_pcph_1 : forall x y u l, In (x,y) lc -> ⊳ u∕l -> ⊳ (x++u)∕(y++l)
-  where "⊳ s ∕ t" := (pcp_hand s t).
+  Notation pcp_hand := (fun s t => lc ⊳ s∕t).
 
   (** Any hand is either a card or of the for x++p/y++q where
       x/y is a non-void card and p/q is a hand *)
 
   Lemma pcp_hand_inv p q : 
-              ⊳ p∕q -> In (p,q) lc 
-                    \/ exists x y p' q', In (x,y) lc /\ ⊳ p'∕q' 
+           lc ⊳ p∕q -> In (p,q) lc 
+                    \/ exists x y p' q', In (x,y) lc /\ lc ⊳ p'∕q' 
                                       /\ p = x++p' /\ q = y++q' 
                         /\  (x <> nil /\ y = nil  
                           \/ x = nil /\ y <> nil
@@ -91,8 +85,6 @@ Section pcp_hand.
         - left; split; auto; discriminate.
         - right; right; split; discriminate.
   Qed.
-
-  Definition PCP := exists l, ⊳ l∕l.
 
   Section pcp_induction.
 
@@ -135,7 +127,7 @@ Section pcp_hand.
 
     (* Replaced induction on length p + length q with strict suffix pair induction *)
 
-    Theorem pcp_hand_dec p q : { ⊳ p∕q } + { ~ ⊳ p∕q }.
+    Theorem pcp_hand_dec p q : { lc ⊳ p∕q } + { ~ lc ⊳ p∕q }.
     Proof.
       revert p q; apply pcp_induction; intros p q dec.
 
@@ -179,14 +171,9 @@ Section pcp_hand.
 
   End bounded_dec.
 
-End pcp_hand.
+End pcp_hand_dec.
 
 (** ** Specializations to BPCP *)
-
-Notation "R ⊳ s ∕ t" := (pcp_hand R s t) (at level 70, format "R  ⊳  s ∕ t").
-
-Theorem pcp_hand_derivable X R (u l : list X) : R ⊳ u∕l <-> derivable R u l.
-Proof. split; (induction 1; [ constructor 1 | constructor 2 ]; auto). Qed.
 
 Theorem bpcp_hand_dec R (s t : list bool) : { R ⊳ s∕t } + { ~ R ⊳ s∕t }.
 Proof. apply pcp_hand_dec, bool_dec. Qed.

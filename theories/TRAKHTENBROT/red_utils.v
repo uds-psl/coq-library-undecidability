@@ -9,8 +9,8 @@
 
 Require Import List Arith Bool Lia Eqdep_dec.
 
-From Undecidability.Problems Require Import Reduction PCP.
-(* From Undecidability.PCP Require Import PCP. *)
+From Undecidability.Problems Require Import Reduction.
+From Undecidability.PCP Require Import PCP.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
@@ -30,20 +30,14 @@ Set Implicit Arguments.
 
 (** * Common Tools for reductions *)
 
-(** BPCP as defined in Problems/PCP.v is equivalent to BPCP_problem here *)
-
-About pcp_hand_derivable.
+(** Inductively defined Boolean PCP as defined in PCP/PCP.v 
+      is equivalent to BPCP_problem here *)
 
 Theorem BPCP_BPCP_problem_eq R : BPCP_problem R <-> BPCP R.
-Proof.
-  unfold BPCP_problem; split.
-  + intros (l & Hl).
-    apply pcp_hand_derivable in Hl.
-    apply derivable_BPCP in Hl.
-    destruct Hl as (A & ? & ? & <- & ?); exists A; auto.
-  + intros (A & ? & ? & ?).
-    exists (tau2 A); apply pcp_hand_derivable, BPCP_derivable.
-    exists A; auto.
+Proof. 
+  split; intros (u & Hu).
+  + constructor 1 with u; auto.
+  + exists u; auto.
 Qed.
 
 (** The reduction from BPCP as defined in Problems/PCP.v
