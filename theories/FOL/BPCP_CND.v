@@ -183,7 +183,7 @@ Section BPCP_CND.
       left. now rewrite !IB_enc.
     - intros ? [(x,y) [<- ?] ] % in_map_iff ? ? ? ?. cbn in *. eapply H1. intros.
       eapply H2. rewrite !IB_prep. cbn. econstructor 2; trivial.
-    - intros. eapply H0. intros. unfold dPCPb. eauto.
+    - intros. eapply H0. intros. unfold dPCPb, dPCP. eauto.
   Qed.
 
   Lemma BPCP_CND :

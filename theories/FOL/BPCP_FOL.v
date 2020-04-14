@@ -100,7 +100,7 @@ Section validity.
   Lemma IB_F3 rho :
     rho ⊨ F3.
   Proof.
-    cbn. unfold dPCPb. eauto.
+    cbn. unfold dPCPb, dPCP. eauto.
   Qed.
 
   Lemma IB_F rho :

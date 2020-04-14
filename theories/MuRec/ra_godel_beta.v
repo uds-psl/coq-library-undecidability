@@ -109,4 +109,3 @@ End ra_beta.
 
 Hint Resolve ra_beta_prim_rec ra_beta_val : core.
 
-(* Eval compute in ra_size ra_rem. *)

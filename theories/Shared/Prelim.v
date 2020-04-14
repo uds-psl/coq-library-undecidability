@@ -1,4 +1,4 @@
-(** * Preliminaries *)
+(** Preliminaries *)
 
 (** This file contains definitions and proofs from the Base Library for the ICL lecture. 
    - Version: 3 October 2016
@@ -7,8 +7,6 @@
  *)
 
 Require Export Bool Omega List Setoid Morphisms.
-From PslBase Require Export EqDec.
-
 
 Global Set Implicit Arguments. 
 Global Unset Strict Implicit.
@@ -18,7 +16,7 @@ Global Set Regular Subst Tactic.
 
 Hint Extern 4 => exact _ : core.
 
-(** ** Lists *)
+(** Lists *)
 Export ListNotations.
 Notation "x 'el' A" := (In x A) (at level 70).
 Notation "A <<= B" := (incl A B) (at level 70).
@@ -38,7 +36,7 @@ Hint Rewrite rev_app_distr map_app prod_length : list.
 Hint Resolve in_eq in_nil in_cons in_or_app : core.
 Hint Resolve incl_refl incl_tl incl_cons incl_appl incl_appr incl_app incl_nil : core.
 
-(** ** Tactics *)
+(** Tactics *)
 Ltac inv H := inversion H; subst; try clear H.
 
 Tactic Notation "destruct" "_":=
@@ -292,7 +290,7 @@ Section neList.
 End neList.
 
 
-(** ** Boolean propositions and decisions *)
+(** Boolean propositions and decisions *)
 
 Coercion bool2Prop (b : bool) := if b then True else False.
 
@@ -321,14 +319,14 @@ match goal with
 (* |[ H: ?x el nil |- _ ] => destruct H *)
 end : core.
 
-(* Definition dec (X: Prop) : Type := {X} + {~ X}. *)
+Definition dec (X: Prop) : Type := {X} + {~ X}.
 
-(* Coercion dec2bool P (d: dec P) := if d then true else false. *)
+Coercion dec2bool P (d: dec P) := if d then true else false.
 
-(* Existing Class dec. *)
+Existing Class dec.
 
-(* Definition Dec (X: Prop) (d: dec X) : dec X := d. *)
-(* Arguments Dec X {d}. *)
+Definition Dec (X: Prop) (d: dec X) : dec X := d.
+Arguments Dec X {d}.
 
 
 Ltac dec := repeat match goal with
@@ -472,54 +470,54 @@ Proof.
   unfold iff. auto.
 Qed.
 
-(** ** Discrete types *)
+(** Discrete types *)
 
-(* Notation "'eq_dec' X" := (forall x y : X, dec (x=y)) (at level 70). *)
+Notation "'eq_dec' X" := (forall x y : X, dec (x=y)) (at level 70).
 
-(* Structure eqType := EqType { *)
-(*   eqType_X :> Type; *)
-(*   eqType_dec : eq_dec eqType_X }. *)
+Structure eqType := EqType {
+  eqType_X :> Type;
+  eqType_dec : eq_dec eqType_X }.
 
-(* Arguments EqType X {_} : rename. *)
+Arguments EqType X {_} : rename.
 
-(* Canonical Structure eqType_CS X (A: eq_dec X) := EqType X. *)
+Canonical Structure eqType_CS X (A: eq_dec X) := EqType X.
 
-(* Existing Instance eqType_dec. *)
+Existing Instance eqType_dec.
 
 Instance unit_eq_dec :
   eq_dec unit.
 Proof.
-  unfold dec. decide equality.
+  unfold dec. decide equality. 
 Qed.
 
-Instance bool_eq_dec :
+Instance bool_eq_dec : 
   eq_dec bool.
 Proof.
-  unfold dec. decide equality.
+  unfold dec. decide equality. 
 Defined.
 
-Instance nat_eq_dec :
+Instance nat_eq_dec : 
   eq_dec nat.
 Proof.
   unfold dec. decide equality.
 Defined.
 
-Instance prod_eq_dec X Y :
+Instance prod_eq_dec X Y :  
   eq_dec X -> eq_dec Y -> eq_dec (X * Y).
 Proof.
-  unfold dec. decide equality.
+  unfold dec. decide equality. 
 Defined.
 
-Instance list_eq_dec X :
+Instance list_eq_dec X :  
   eq_dec X -> eq_dec (list X).
 Proof.
-  unfold dec. decide equality.
+  unfold dec. decide equality. 
 Defined.
 
-Instance sum_eq_dec X Y :
+Instance sum_eq_dec X Y :  
   eq_dec X -> eq_dec Y -> eq_dec (X + Y).
 Proof.
-  unfold dec. decide equality.
+  unfold dec. decide equality. 
 Defined.
 
 Instance option_eq_dec X :
@@ -553,13 +551,12 @@ Notation "| A |" := (length A) (at level 65).
 Definition equi X (A B : list X) : Prop := incl A B /\ incl B A.
 Local Notation "A === B" := (equi A B) (at level 70).
 Hint Unfold equi : core.
-
 Hint Extern 4 => 
 match goal with
 |[ H: ?x el nil |- _ ] => destruct H
 end : core.
 
-(** ** Lists *)
+(** Lists *)
 
 (* Register additional simplification rules with autorewrite / simpl_list *)
 (* Print Rewrite HintDb list. *)
@@ -574,7 +571,7 @@ Proof.
   apply C. now rewrite B.
 Qed.
 
-(** *** Decisions for lists *)
+(** Decisions for lists *)
 
 Instance list_in_dec X (x : X) (A : list X) :  
   eq_dec X -> dec (x el A).
@@ -643,7 +640,7 @@ Qed.
 
 
 
-(** *** Membership
+(** Membership
 
 We use the following lemmas from Coq's standard library List.
 - [in_eq :  x el x::A]
@@ -678,7 +675,7 @@ Section Membership.
     intuition; subst; auto.
   Qed.
 
-(** *** Disjointness *)
+(** Disjointness *)
 
   Definition disjoint A B :=
     ~ exists x, x el A /\ x el B.
@@ -742,7 +739,7 @@ End Membership.
 
 Hint Resolve disjoint_nil disjoint_nil' : core.
 
-(** *** Inclusion
+(** Inclusion
 
 We use the following lemmas from Coq's standard library List.
 - [incl_refl :  A <<= A]
@@ -816,7 +813,7 @@ End Inclusion.
 Definition inclp (X : Type) (A : list X) (p : X -> Prop) : Prop :=
   forall x, x el A -> p x.
 
-(** *** Setoid rewriting with list inclusion and list equivalence *)
+(** Setoid rewriting with list inclusion and list equivalence *)
 
 Instance incl_preorder X : 
   PreOrder (@incl X).
@@ -929,7 +926,7 @@ Qed.
 
 
 
-(** *** Filter *)
+(** Filter *)
 
 Section Filter.
   Variable X : Type.
@@ -1025,7 +1022,7 @@ Section Filter.
 End Filter.
 
 
-(** *** Element removal *)
+(** Element removal *)
 
 Section Removal.
   Variable X : eqType.

@@ -41,7 +41,6 @@ Definition H10_PROBLEM := { n : nat & dio_polynomial (pos n) (pos 0)
 Definition H10 : H10_PROBLEM -> Prop.
 Proof.
   intros (n & p & q).
-  (* Check (fun v => dp_eval (vec_pos v) (fun _ => 0) p). *)
   apply (dio_single_pred (p,q)), (fun _ => 0).
 Defined.
 

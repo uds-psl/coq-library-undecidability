@@ -104,6 +104,7 @@ Section list_choose_dep.
 
 End list_choose_dep.
 
+
 Section sinc_decidable.
 
   Variable (P : nat -> Prop)
@@ -218,4 +219,7 @@ Section decidable_sinc.
   Proof. exists f; auto. Qed.
 
 End decidable_sinc.
+   
+Check sinc_decidable.
+Check decidable_sinc.
 

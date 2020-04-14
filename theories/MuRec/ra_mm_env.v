@@ -10,7 +10,7 @@
 Require Import List Arith Omega.
 
 From Undecidability.Shared.Libs.DLW.Utils
-  Require Import utils.
+  Require Import utils finite.
 
 From Undecidability.Shared.Libs.DLW.Vec
   Require Import pos vec.
