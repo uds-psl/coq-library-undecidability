@@ -167,7 +167,7 @@ Section Minsky.
     destruct (le_lt_dec n (n+pos2nat p)); [ | omega ].
     destruct (le_lt_dec (2*n) (n+pos2nat p)).
     generalize (pos2nat_prop p); omega.
-    match goal with |- vec_pos _ (nat2pos ?H) = _ <-> _ => cutrewrite (nat2pos H = p) end.
+    match goal with |- vec_pos _ (nat2pos ?H) = _ <-> _ => replace (nat2pos H) with p end.
     tauto.
     apply pos2nat_inj; rewrite pos2nat_nat2pos; omega.
   Qed.

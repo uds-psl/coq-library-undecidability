@@ -1,7 +1,7 @@
 From Undecidability.H10 Require Import H10 dio_single dio_logic.
 From Undecidability.L.Datatypes Require Import LNat Lists LOptions LSum.
 From Undecidability.L Require Import Tactics.LTactics Computability.MuRec Computability.Synthetic Tactics.GenEncode.
-From Undecidability.Shared Require Import DLW.Vec.vec DLW.Vec.pos.
+From Undecidability.Shared Require Import DLW.Utils.finite DLW.Vec.vec DLW.Vec.pos.
 From Undecidability.MuRec Require Import recalg ra_bs ra_sem_eq.
 
 Reserved Notation "  '[' f ';' v ';' min ';' c ']' '~~>' x " (at level 70).
@@ -310,7 +310,7 @@ Proof.
       destruct s; try congruence. inv H2.
       destruct n; try now inv E2.
 
-      destruct (list_vec l). 
+      destruct (list_vec_full l). 
       destruct (eval_inv E) as (w & ? & ?). subst.
 
       eapply in_ra_bs_c_comp with (w := w).

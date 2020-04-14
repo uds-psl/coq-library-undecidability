@@ -8,7 +8,9 @@
 (**************************************************************)
 
 Require Import List Arith Omega.
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list sums php.
+
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_tac utils_list sums php.
 
 Set Implicit Arguments.
 
@@ -63,7 +65,7 @@ Section php_fun.
 
   Theorem php_fun : exists i j, i < j <= n /\ f i = f j.
   Proof.
-    destruct PHP_rel with (S := fun x y => y = f x) (l := list_an 0 (S n)) (m := list_an 0 n)
+    destruct PHP_rel with (R := fun x y => y = f x) (l := list_an 0 (S n)) (m := list_an 0 n)
       as (a & i & b & j & c & v & H1 & H2 & H3 & H4).
     + intros x; rewrite list_an_spec; simpl; intros [ _ H ].
       exists (f x); split; auto; rewrite list_an_spec; simpl; split; try omega.
@@ -187,11 +189,11 @@ Proof.
       intros j Hj.
       destruct (le_lt_dec j n) as [ H0 | H0 ].
       - apply le_trans with (2 := H); auto.
-      - cutrewrite (j = S n); auto; omega.
+      - replace j with (S n); auto; omega.
     * exists i; split; auto.
       intros j Hj.
       destruct (le_lt_dec j n) as [ H0 | H0 ]; auto.
-      cutrewrite (j = S n); auto; omega.
+      replace j with (S n); auto; omega.
 Qed.
 
 Section sum_bounded_permutation.

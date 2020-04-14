@@ -39,33 +39,27 @@ Ltac change_hyp H expr :=
 
 Ltac focus_g x ll :=
   let rr := focus_lst x ll
-  in  cutrewrite ( ll = rr );
-      [ idtac | solve_list_eq ].
+  in  replace ll with rr; [ idtac | solve_list_eq ].
 
 Ltac focus_g_2 x ll :=
   let rr := focus_lst_2 x ll
-  in  cutrewrite ( ll = rr );
-      [ idtac | solve_list_eq ].
+  in  replace ll with rr; [ idtac | solve_list_eq ].
 
 Ltac focus_g_3 x ll :=
   let rr := focus_lst_3 x ll
-  in  cutrewrite ( ll = rr );
-      [ idtac | solve_list_eq ].
+  in  replace ll with rr; [ idtac | solve_list_eq ].
 
 Ltac focus_h H x ll := 
   let rr := focus_lst x ll
-  in  cutrewrite ( ll = rr ) in H;
-      [ idtac | solve_list_eq ].
+  in  replace ll with rr in H; [ idtac | solve_list_eq ].
 
 Ltac focus_h_2 H x ll := 
   let rr := focus_lst_2 x ll
-  in  cutrewrite ( ll = rr ) in H;
-      [ idtac | solve_list_eq ].
+  in  replace ll with rr in H; [ idtac | solve_list_eq ].
 
 Ltac focus_h_3 H x ll := 
   let rr := focus_lst_3 x ll
-  in  cutrewrite ( ll = rr ) in H;
-      [ idtac | solve_list_eq ].
+  in  replace ll with rr in H; [ idtac | solve_list_eq ].
 
 Ltac focus_goal x ll :=
   match type of x with
