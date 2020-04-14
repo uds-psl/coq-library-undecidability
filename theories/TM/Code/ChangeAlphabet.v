@@ -90,8 +90,8 @@ Section MapCode.
   Notation injectTape := (mapTape f').
   Notation surjectTape := (surjectTape g' (inl UNKNOWN)).
 
-  Check injectTape : tape (sig^+) -> tape (tau^+) .
-  Check surjectTape : tape (tau^+) -> tape (sig^+).
+  (* Check injectTape : tape (sig^+) -> tape (tau^+) . *)
+  (* Check surjectTape : tape (tau^+) -> tape (sig^+). *)
 
   (* The other direction does not hold *)
   Lemma surjectTape_injectTape t :

@@ -7,7 +7,7 @@ Theorem Halt_eva :
   Halt ⪯ converges.
 Proof.
   eexists (fun '(existT2 (Sigma, n) M tp) =>
-             (mu (@ext _ _ _ (term_test (mk_mconfig (start M) tp))))).
+             (L.app mu (@ext _ _ _ (term_test (mk_mconfig (start M) tp))))).
   intros [ [Sigma n] M tp ]. cbn.  eapply Halt_red.
 Qed.
 

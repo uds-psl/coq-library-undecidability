@@ -300,7 +300,7 @@ Definition tmEncode (name : ident) (A : Type) :=
 (** *** Generation of constructors *)
 
 Definition gen_constructor args num i  := 
-  it lam args (it lam num (it_i (fun n s => L.app s (n + num)) args (var (num - i - 1)))).
+  it lam args (it lam num (it_i (fun n s => L.app s #(n + num)) args (var (num - i - 1)))).
 
 Definition extract_constr {A} (a : A) (n : ident) (i : nat) (t : Ast.term) (def : option ident) :=
   num <- tmNumConstructors n ;;

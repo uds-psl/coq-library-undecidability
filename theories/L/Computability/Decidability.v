@@ -1,8 +1,9 @@
 From Undecidability.L Require Export Functions.Encoding Datatypes.LBool L.
+Import HOAS_Notations.
 
 (** * Definition of L-decidability *)
 
-Definition decides (u:term) P := forall (s:term), exists b : bool, (u (ext s) == ext b /\ (if b then P s else ~P s)).
+Definition decides (u:term) P := forall (s:term), exists b : bool, (app u (ext s) == ext b /\ (if b then P s else ~P s)).
 
 Definition ldec (P : term -> Prop) := 
   exists u : term, proc u /\ decides u P.
@@ -16,11 +17,11 @@ Definition conj (P : term -> Prop) (Q : term -> Prop) := fun t => P t /\ Q t.
 Definition disj (P : term -> Prop) (Q : term -> Prop) := fun t => P t \/ Q t.
 
 (** * Deciders for complement, conj and disj of ldec predicates *)
-Definition tcompl (u : term) : term := Eval cbn in λ x, (ext negb) (u x).
+Definition tcompl (u : term) : term := Eval cbn in λ x, !!(ext negb) (!!u x).
 
-Definition tconj (u v : term) : term := Eval cbn in λ x, (ext andb) (u x) (v x).
+Definition tconj (u v : term) : term := Eval cbn in λ x, !!(ext andb) (!!u x) (!!v x).
 
-Definition tdisj (u v : term) : term := Eval cbn in λ x, (ext orb) (u x) (v x). 
+Definition tdisj (u v : term) : term := Eval cbn in λ x, !!(ext orb) (!!u x) (!!v x). 
 
 Hint Unfold tcompl tconj tdisj : Lrewrite.
 Hint Unfold tcompl tconj tdisj : LProc.

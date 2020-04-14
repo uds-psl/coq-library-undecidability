@@ -1,12 +1,14 @@
 From Undecidability.L Require Export L.
 Require Import Coq.Logic.ConstructiveEpsilon. 
 
+Import L_Notations.
+
 Lemma eval_converges s t : eval s t -> converges s.
 Proof.
   intros [v [R lv]]. exists t.  rewrite v. subst. split. reflexivity. auto.
 Qed.
 
-Hint Resolve eval_converges.
+Hint Resolve eval_converges : core.
 
 (** * Step indexed evaluation *)
 
@@ -26,7 +28,7 @@ Proof with eauto using star_trans, star_trans_l, star_trans_r.
     transitivity ((lam u) (lam v))... now rewrite stepApp.
 Qed.
 
-Hint Resolve seval_eval.
+Hint Resolve seval_eval : core.
 
 (** Equivalence between step index evaluation and evaluation *)
 

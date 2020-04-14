@@ -2,6 +2,8 @@ From Undecidability.L Require Import L AbstractMachines.Programs Complexity.Reso
 
 Require Import Lia.
 
+Import L_Notations.
+
   (** ** Abstract Heap Machine *)
 Section Lin.
 

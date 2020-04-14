@@ -1,4 +1,5 @@
 From Undecidability.L Require Import L.
+Import L_Notations.
 
 Notation "A '.[' i  ']'" := (elAt A i) (no associativity, at level 50).
 

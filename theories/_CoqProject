@@ -1,7 +1,6 @@
 -Q . Undecidability
 
--install none
--arg -w -arg -notation-overridden,-redundant-canonical-projection,-several-object-files,-cannot-define-projection,-records,-unused-intro-pattern,-tactics,-implicit-core-hint-db,-ambiguous-paths
+-arg -w -arg -unused-intro-pattern,-notation-overridden
 COQDOCFLAGS = "--charset utf-8 -s --with-header ../website/resources/header.html --with-footer ../website/resources/footer.html --index indexpage"
 
 Shared/Prelim.v
@@ -514,8 +513,6 @@ TRAKHTENBROT/red_enum.v
 TRAKHTENBROT/red_undec.v
 
 TRAKHTENBROT/summary.v
-
-##############################"
 
 Problems/FOL.v
 Problems/TM.v

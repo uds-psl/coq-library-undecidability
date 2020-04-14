@@ -21,7 +21,7 @@ Definition denoteTerm (phi : nat -> term) :rTerm->term :=
   fix denoteTerm s :=
     match s with
     | rVar n => var n
-    | rApp s t=> (denoteTerm s) (denoteTerm t)
+    | rApp s t=> app (denoteTerm s) (denoteTerm t)
     | rLam s => lam (denoteTerm s)
     | rConst n => phi n
     | rRho s => rho (denoteTerm s)

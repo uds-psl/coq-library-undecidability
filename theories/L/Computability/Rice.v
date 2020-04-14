@@ -1,5 +1,6 @@
 From Undecidability.L.Computability Require Export Scott Acceptability.
 Import Undecidability.L.Prelim.ARS.ARSNotations.
+Import L_Notations.
 
 (** * The self halting problem is not L-acceptable *)
 
