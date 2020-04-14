@@ -11,13 +11,14 @@
 
 Require Import List Arith Omega Bool Permutation.
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list utils_nat gcd sums.
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_tac utils_list utils_nat gcd sums.
 
 Set Implicit Arguments.
 
 Section prime.
 
-  Hint Resolve divides_0 divides_mult divides_refl divides_0_inv.
+  Hint Resolve divides_0 divides_mult divides_refl divides_0_inv : core.
 
   Infix "<d" := divides (at level 70, no associativity).
 
@@ -317,7 +318,7 @@ Section prime.
         simpl; rewrite <- H2, mult_comm; auto.
   Qed.
 
-  Hint Resolve lprod_ge_1 prime_ge_2.
+  Hint Resolve lprod_ge_1 prime_ge_2 : core.
 
   Fact prime_in_decomp p l : prime p -> Forall prime l -> p <d lprod l -> In p l.
   Proof.

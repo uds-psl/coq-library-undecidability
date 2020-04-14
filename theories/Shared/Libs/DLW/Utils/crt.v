@@ -12,15 +12,17 @@
 Require Import List Arith Omega Permutation Extraction.
 
 From Undecidability.Shared.Libs.DLW.Utils 
-  Require Import utils_tac utils_list utils_nat gcd
-                 prime binomial.
-From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
+  Require Import utils_tac utils_list utils_nat 
+                 gcd prime binomial.
+
+From Undecidability.Shared.Libs.DLW.Vec 
+  Require Import pos vec.
 
 Set Implicit Arguments.
 
 Section Informative_Chinese_Remainder_theorems.
 
-  Hint Resolve divides_refl divides_mult divides_mult_r.
+  Hint Resolve divides_refl divides_mult divides_mult_r : core.
 
   Section Binary.
 
