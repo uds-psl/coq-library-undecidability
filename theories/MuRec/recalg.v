@@ -364,7 +364,7 @@ Section relational_semantics.
 
   End functional.
 
-  Hint Resolve s_cst_fun s_zero_fun s_succ_fun s_proj_fun s_rec_fun s_min_fun.
+  Hint Resolve s_cst_fun s_zero_fun s_succ_fun s_proj_fun s_rec_fun s_min_fun : core.
 
   (* [| f |] is a functional/deterministic relation *)
 
@@ -462,7 +462,7 @@ Section relational_semantics.
       + split; try tauto; discriminate.
     Qed.
 
-    Hint Resolve ra_cst_tot ra_zero_tot ra_succ_tot ra_proj_tot ra_rec_tot.
+    Hint Resolve ra_cst_tot ra_zero_tot ra_succ_tot ra_proj_tot ra_rec_tot : core.
 
     Fact prim_rec_tot k f : @prim_rec k f -> total [|f|].
     Proof.

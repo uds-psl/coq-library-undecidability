@@ -465,8 +465,8 @@ Hint Resolve dio_fun_plus dio_fun_mult : dio_fun_db.
 Local Fact example_eq : 𝔻R (fun ν => ν 0 = ν 0).
 Proof. dio auto. Defined.
 
-Check example_eq.
-Eval compute in (proj1_sig example_eq).
+(* Check example_eq. *)
+(* Eval compute in (proj1_sig example_eq). *)
 
 (** Now you can start witnessing the magic of 
     Diophantine shapes recognition *)
@@ -566,20 +566,20 @@ Hint Resolve dio_rel_neq
 Local Fact example_le : 𝔻R (fun ν => ν 0 <= ν 1).
 Proof. dio auto. Defined.
 
-Check example_le.
-Eval compute in (proj1_sig example_le). 
+(* Check example_le. *)
+(* Eval compute in (proj1_sig example_le). *)
 
 Local Fact example_lt : 𝔻R (fun ν => ν 0 < ν 1).
 Proof. dio auto. Defined.
 
-Check example_lt.
-Eval compute in (proj1_sig example_lt). 
+(* Check example_lt. *)
+(* Eval compute in (proj1_sig example_lt). *)
 
 Local Fact example_div : 𝔻R (fun ν => divides (ν 0) (ν 1)).
 Proof. dio auto. Defined.
 
-Check example_div.
-Eval compute in (proj1_sig example_div). 
+(* Check example_div. *)
+(* Eval compute in (proj1_sig example_div). *)
 
 Section dio_fun_rem.
 
@@ -615,8 +615,8 @@ Hint Resolve dio_fun_rem : dio_fun_db.
 Local Fact dio_fun_rem_example : 𝔻F (fun ν => rem (ν 0) (ν 1)).
 Proof. dio auto. Defined.
 
-Check dio_fun_rem_example.
-Eval compute in proj1_sig dio_fun_rem_example.
+(* Check dio_fun_rem_example. *)
+(* Eval compute in proj1_sig dio_fun_rem_example. *)
 
 Section dio_rel_ndivides.
 
@@ -650,7 +650,7 @@ End dio_rel_ndivides.
 Local Fact dio_rel_ndiv_example : 𝔻R (fun ν => ~ divides (ν 0) (ν 1)).
 Proof. apply dio_rel_ndivides; dio auto. Defined.
 
-Eval compute in proj1_sig dio_rel_ndiv_example.
+(* Eval compute in proj1_sig dio_rel_ndiv_example. *)
 
 Section dio_rel_not_divides.
 
@@ -671,8 +671,8 @@ Hint Resolve dio_rel_not_divides : dio_rel_db.
 Local Fact example_rem_strange : 𝔻R (fun ν => rem (ν 0) (ν 1) = ν 2 * ν 3).
 Proof. dio auto. Defined.
 
-Check example_rem_strange.
-Eval compute in (proj1_sig example_rem_strange).
+(* Check example_rem_strange. *)
+(* Eval compute in (proj1_sig example_rem_strange). *)
 
 (** We do not automate the remaining closure props here because
     they are used only once or twice elsewhere *) 
@@ -829,4 +829,4 @@ Section dio_rel_finite_conj.
 
 End dio_rel_finite_conj.
 
-Check dio_rel_finite_conj.
+(* Check dio_rel_finite_conj. *)

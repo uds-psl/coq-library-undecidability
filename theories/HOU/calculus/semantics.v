@@ -21,7 +21,7 @@ Section Semantics.
   
 
   Notation "s >* t" := (star step s t) (at level 70).
-  Hint Constructors step star.
+  Hint Constructors step star : core.
   
   Notation "s ▷ t" := (evaluates step s t) (at level 60).
   Notation normal := (Normal step).
@@ -122,7 +122,7 @@ Section Semantics.
     Qed.
 
     Hint Resolve normal_var normal_const normal_lam_intro
-       normal_lam_elim normal_app_l normal_app_r normal_app_intro.
+       normal_lam_elim normal_app_l normal_app_r normal_app_intro : core.
   
 
     Lemma normal_ren s delta:
@@ -172,9 +172,9 @@ Section Semantics.
   End Normality.
   
   Hint Resolve normal_var normal_const normal_lam_intro
-       normal_lam_elim normal_app_l normal_app_r normal_app_intro.
+       normal_lam_elim normal_app_l normal_app_r normal_app_intro : core.
   
-  Hint Resolve head_atom. 
+  Hint Resolve head_atom : core. 
   
 
 
@@ -276,12 +276,7 @@ Notation "s >* t" := (star step s t) (at level 70).
 Notation "s ▷ t" := (evaluates step s t) (at level 60).
 Notation normal := (Normal step).
 
-Hint Constructors step star.
+Hint Constructors step star : core.
 
-Hint Resolve normal_var normal_const normal_lam_intro normal_app_intro.
-Hint Resolve head_atom. 
-
-
-
-
-
+Hint Resolve normal_var normal_const normal_lam_intro normal_app_intro : core.
+Hint Resolve head_atom : core. 

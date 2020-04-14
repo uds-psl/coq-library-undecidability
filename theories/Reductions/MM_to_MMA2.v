@@ -36,7 +36,7 @@ Proof.
 Qed.
 
 Check MM_MMA2_HALTING.
-Print Assumptions MM_MMA2_HALTING.
+
 
 (** This is somewhat for direct proof that does not involve
     testing for (0,_) in the intermediate Fractran program *)

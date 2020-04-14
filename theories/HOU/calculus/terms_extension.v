@@ -35,7 +35,7 @@ Section TermsExtension.
       Gamma ⊢ s : A -> Gamma ⊢₊ S : L -> Gamma ⊢₊ s :: S : A :: L
   where "Gamma ⊢₊ A : L" := (listtyping Gamma A L).
 
-  Hint Constructors listtyping. 
+  Hint Constructors listtyping : core. 
 
 
   Reserved Notation "Gamma ⊢₊( n ) A : L" (at level 80, A at level 99).
@@ -47,7 +47,7 @@ Section TermsExtension.
       Gamma ⊢(n) s : A -> Gamma ⊢₊(n) S : L -> Gamma ⊢₊(n) s :: S : A :: L
   where "Gamma ⊢₊( n ) A : L" := (orderlisttyping n Gamma A L).
 
-  Hint Constructors orderlisttyping. 
+  Hint Constructors orderlisttyping : core. 
 
 
 
@@ -605,7 +605,7 @@ Section TermsExtension.
   End Normality.
 
   Hint Resolve 
-       normal_Lambda normal_AppR_left normal_AppR_right.
+       normal_Lambda normal_AppR_left normal_AppR_right : core.
 
 
   (** ** List Operators Typing *)
@@ -814,12 +814,12 @@ End TermsExtension.
 
 
 
-Hint Constructors listtyping. 
-Hint Constructors orderlisttyping. 
+Hint Constructors listtyping : core. 
+Hint Constructors orderlisttyping : core. 
 Hint Rewrite ord'_app ord_Arr ord_repeated : simplify.
 Hint Rewrite ord_Arr : simplify.
 Hint Resolve 
-     normal_Lambda normal_AppR_left normal_AppR_right.
+     normal_Lambda normal_AppR_left normal_AppR_right : core.
 Hint Rewrite @Lambda_ren @Lambda_subst @AppL_ren @AppL_subst @AppR_ren @AppR_subst : asimpl.
 
 Hint Rewrite @AppR_head : simplify.

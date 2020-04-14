@@ -90,6 +90,3 @@ Proof.
 Qed.
 
 Check H10_undec.
-Print Assumptions H10_undec.
-  
-    

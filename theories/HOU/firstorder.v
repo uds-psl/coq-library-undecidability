@@ -164,7 +164,7 @@ Section LambdaFreeness.
 End LambdaFreeness.
 
 (** ** Simplified First-Order Unification *)
-Hint Constructors lambda_free. 
+Hint Constructors lambda_free : core. 
 Section Unification.
 
   Variable (X: Const).
@@ -479,7 +479,7 @@ Section Unification.
 
 
     Hint Rewrite Unifies_cons : simplify.
-    Hint Resolve Unifies_nil.
+    Hint Resolve Unifies_nil : core.
 
     Lemma Unifies_app sigma E1 E2:
       Unifies sigma (E1 ++ E2) <-> Unifies sigma E1 /\ Unifies sigma E2.
@@ -570,7 +570,7 @@ Section Unification.
 
 
   Hint Rewrite Unifies_cons Unifies_app: simplify.
-  Hint Resolve Unifies_nil.
+  Hint Resolve Unifies_nil : core.
 
 
 

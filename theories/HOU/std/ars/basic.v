@@ -36,7 +36,7 @@ Section ClosureRelations.
   | symInv x y: R y x -> sym R x y.
 
 
-  Hint Constructors star multiple counted.
+  Hint Constructors star multiple counted : core.
 
   Definition Normal R x := forall y, ~ R x y.
   Definition evaluates R s t := star R s t /\ Normal R t.
@@ -130,7 +130,7 @@ Section ClosureRelations.
   
 
   Hint Resolve star_trans multiple_trans counted_trans star_exp
-       multiple_exp counted_exp.
+       multiple_exp counted_exp : core.
 
 
   Global Instance star_mono R S :
@@ -289,7 +289,7 @@ Section ClosureRelations.
   | starReflL : starL R x x
   | starStepL  y y':  starL R x y -> R y y' -> starL R x y'.
 
-  Hint Constructors starL.
+  Hint Constructors starL : core.
 
   Lemma star_starL R x y :
     starL R x y <-> star R x y .
@@ -306,10 +306,10 @@ Section ClosureRelations.
 
 End ClosureRelations.
 
-Hint Extern 4 => eapply subrel_unfold; [ typeclasses eauto |]. 
+Hint Extern 4 => eapply subrel_unfold; [ typeclasses eauto |] : core. 
 
 
 
-Hint Constructors star multiple counted.
+Hint Constructors star multiple counted : core.
 Hint Resolve star_trans multiple_trans counted_trans star_exp
-     multiple_exp counted_exp equiv_join.
+     multiple_exp counted_exp equiv_join : core.

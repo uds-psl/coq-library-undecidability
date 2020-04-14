@@ -52,7 +52,7 @@ Hint Resolve dio_rel_alpha : dio_rel_db.
 Local Fact dio_rel_alpha_example : 𝔻R (fun ν => 3 < ν 1 /\ ν 0 = alpha_nat (ν 1) (ν 2)).
 Proof. dio auto. Defined.
 
-Eval compute in df_size_Z (proj1_sig dio_rel_alpha_example).
+(* Eval compute in df_size_Z (proj1_sig dio_rel_alpha_example). *)
 
 Fact dio_rel_alpha_size : df_size_Z (proj1_sig dio_rel_alpha_example) = 1445%Z.
 Proof. reflexivity. Qed.
@@ -71,7 +71,7 @@ Hint Resolve dio_fun_expo : dio_fun_db.
 Local Fact dio_fun_expo_example : 𝔻F (fun ν => expo (ν 0) (ν 1)).
 Proof. dio auto. Defined.
 
-Eval compute in df_size_Z (proj1_sig dio_fun_expo_example).
+(* Eval compute in df_size_Z (proj1_sig dio_fun_expo_example). *)
 
 (* The new Diophantine shapes (w/o build-in polynimoals) 
    build formulas that are a bit bigger ... *)
@@ -110,5 +110,5 @@ Hint Resolve dio_rel_is_digit : dio_rel_db.
 Local Fact dio_rel_is_digit_example : 𝔻R (fun ν => is_digit (ν 0) (ν 1) (ν 2) (ν 3)).
 Proof. dio auto. Defined.
 
-Check dio_rel_is_digit_example.
-Eval compute in df_size_Z (proj1_sig dio_rel_is_digit_example).
+(* Check dio_rel_is_digit_example. *)
+(* Eval compute in df_size_Z (proj1_sig dio_rel_is_digit_example). *)

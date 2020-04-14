@@ -40,7 +40,7 @@ Proof. reflexivity. Qed.
 Fact ra_proj_val n (v : vec nat n) p : ⟦ra_proj p⟧ v (vec_pos v p).
 Proof. reflexivity. Qed.
 
-Hint Resolve ra_cst_val ra_proj_val.
+Hint Resolve ra_cst_val ra_proj_val : core.
 
 Tactic Notation "pos" "split" := let p := fresh in intro p; analyse pos p.
 
@@ -76,7 +76,7 @@ Section ra_cst_n.
 End ra_cst_n.
 
 Opaque ra_cst_n.
-Hint Resolve ra_cst_n_prim ra_cst_n_val.
+Hint Resolve ra_cst_n_prim ra_cst_n_val : core.
 
 Tactic Notation "ra" "cst" constr(f) := apply (ra_cst_n _ f).
 
@@ -127,7 +127,7 @@ Section ra_iter_n.
 End ra_iter_n.
 
 Opaque ra_iter_n.
-Hint Resolve ra_iter_n_prim_rec ra_iter_n_val.
+Hint Resolve ra_iter_n_prim_rec ra_iter_n_val : core.
 
 Section ra_iter.
 
@@ -170,7 +170,7 @@ Section ra_iter.
 End ra_iter.
 
 Opaque ra_iter.
-Hint Resolve ra_iter_prim_rec ra_iter_val.
+Hint Resolve ra_iter_prim_rec ra_iter_val : core.
 
 (** Then basic arithmetic -1, +, -, *, exp *)
 
@@ -220,7 +220,7 @@ Section ra_pred_plus.
 End ra_pred_plus.
 
 Hint Resolve ra_plus_prim_rec ra_pred_prim_rec
-             ra_plus_val ra_pred_val.
+             ra_plus_val ra_pred_val : core.
 Opaque ra_plus ra_pred.
 
 Section ra_minus_mult.
@@ -297,7 +297,7 @@ Section ra_minus_mult.
 End ra_minus_mult.
 
 Hint Resolve ra_minus_prim_rec ra_mult_prim_rec
-             ra_minus_val ra_mult_val.
+             ra_minus_val ra_mult_val : core.
 Opaque ra_minus ra_mult.
 
 Section ra_exp.
@@ -337,7 +337,7 @@ Section ra_exp.
 
 End ra_exp.
 
-Hint Resolve ra_exp_prim_rec ra_exp_val.
+Hint Resolve ra_exp_prim_rec ra_exp_val : core.
 Opaque ra_exp.
 
 (** The Boolean/branch operators *)
@@ -381,7 +381,7 @@ Section ra_ite.
 
 End ra_ite.
 
-Hint Resolve ra_ite_prim_rec ra_ite_val.
+Hint Resolve ra_ite_prim_rec ra_ite_val : core.
 Opaque ra_ite.
 
 Section ra_not.
@@ -404,7 +404,7 @@ Section ra_not.
 
 End ra_not.
 
-Hint Resolve ra_not_prim_rec ra_not_val.
+Hint Resolve ra_not_prim_rec ra_not_val : core.
 Opaque ra_not.
 
 Section ra_eq.
@@ -441,7 +441,7 @@ Section ra_eq.
  
 End ra_eq.
 
-Hint Resolve ra_eq_prim_rec ra_eq_val.
+Hint Resolve ra_eq_prim_rec ra_eq_val : core.
 Opaque ra_eq.
 
 (** A primitive recursive bounded minimization *)
@@ -504,7 +504,7 @@ Section ra_prim_min.
 
 End ra_prim_min.
 
-Hint Resolve ra_prim_min_prim_rec ra_prim_min_val.
+Hint Resolve ra_prim_min_prim_rec ra_prim_min_val : core.
 Opaque ra_prim_min.
 
 (** A primrec function than find i st f i <= b < f (S i) when f is a strictly
@@ -574,7 +574,7 @@ Section ra_prim_max.
 
 End ra_prim_max.
 
-Hint Resolve ra_prim_max_prim_rec.
+Hint Resolve ra_prim_max_prim_rec : core.
 Opaque ra_prim_max.
 
 (** Hence we can implement division as the inverse of multiplication *)
@@ -646,7 +646,7 @@ Section ra_div.
 
 End ra_div.
 
-Hint Resolve ra_div_prim_rec ra_div_val.
+Hint Resolve ra_div_prim_rec ra_div_val : core.
 Opaque ra_div.
 
 (** And then the remainder using division and multiplication *)
@@ -692,7 +692,7 @@ Section ra_rem.
 
 End ra_rem.
 
-Hint Resolve ra_rem_prim_rec ra_rem_val.
+Hint Resolve ra_rem_prim_rec ra_rem_val : core.
 Opaque ra_rem.
 
 (** Now we specialize to binary ops *)
@@ -753,7 +753,7 @@ Section ra_binary_ops.
 End ra_binary_ops.
 
 Hint Resolve ra_div2_prim_rec ra_mod2_prim_rec ra_pow2_prim_rec
-             ra_div2_val ra_mod2_val ra_pow2_val.
+             ra_div2_val ra_mod2_val ra_pow2_val : core.
 Opaque ra_div2 ra_mod2 ra_pow2.
 
 Section ra_notdiv_pow2.
@@ -806,7 +806,7 @@ Section ra_notdiv_pow2.
 
 End ra_notdiv_pow2.
 
-Hint Resolve ra_notdiv_pow2_prim_rec ra_notdiv_pow2_val.
+Hint Resolve ra_notdiv_pow2_prim_rec ra_notdiv_pow2_val : core.
 Opaque ra_notdiv_pow2.
 
 Section ra_lsum.
@@ -937,7 +937,7 @@ Section ra_lsum.
 
 End ra_lsum.
 
-Hint Resolve ra_lsum_prim_rec.
+Hint Resolve ra_lsum_prim_rec : core.
 Opaque ra_lsum.
 
 Definition nat_test_eq a b := ite_rel (a-b) (b-a) 1.
@@ -1025,4 +1025,4 @@ Section ra_choice3.
 
 End ra_choice3.
 
-Hint Resolve ra_choice3_prim_rec.
+Hint Resolve ra_choice3_prim_rec : core.

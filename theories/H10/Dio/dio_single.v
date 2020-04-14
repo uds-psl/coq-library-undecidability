@@ -80,7 +80,7 @@ Section convexity.
     apply convex_3; omega.
   Qed.
 
-  Hint Resolve convex_le.
+  Hint Resolve convex_le : core.
 
   Fact convex_n_le n (f g : nat -> nat) :  ∑ n (fun i => 2*(f i*g i)) 
                                         <= ∑ n (fun i => f i*f i + g i*g i).
@@ -91,7 +91,7 @@ Section convexity.
       apply plus_le_compat; auto.
   Qed.
 
-  Hint Resolve convex_n_le.
+  Hint Resolve convex_n_le : core.
 
   Let nat_le_sum a b c d : a <= b -> c <= d -> a+c = b+d -> a = b /\ c = d.
   Proof. intros; omega. Qed.

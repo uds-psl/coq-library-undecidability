@@ -26,7 +26,7 @@ Section Typing.
   | typingApp s t A B: Gamma ⊢ s : A → B -> Gamma ⊢ t : A -> Gamma ⊢ s t : B
   where "Gamma ⊢ s : A" := (typing Gamma s A).
 
-  Hint Constructors typing.
+  Hint Constructors typing : core.
 
   Definition typingRen Delta delta Gamma :=
     forall x A, nth Gamma x = Some A -> nth Delta (delta x) = Some A.
@@ -112,10 +112,10 @@ Notation "Delta ⊩ sigma : Gamma" := (typingSubst Delta sigma Gamma) (at level 
 
 
 
-Hint Constructors typing.
-Hint Resolve typing_variables.
+Hint Constructors typing : core.
+Hint Resolve typing_variables : core.
 
 Hint Resolve
      preservation_under_renaming
-     preservation_under_substitution.
+     preservation_under_substitution : core.
      

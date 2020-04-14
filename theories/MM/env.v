@@ -78,8 +78,3 @@ Tactic Notation "rew" "envi" :=
 *)
 
 Tactic Notation "rew" "env" "in" hyp(H) := revert H; rew env; intros H.
-
-
-
-
-

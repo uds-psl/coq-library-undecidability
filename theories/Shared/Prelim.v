@@ -549,9 +549,8 @@ Notation "x 'el' A" := (In x A) (at level 70).
 Notation "A <<= B" := (incl A B) (at level 70).
 Notation "| A |" := (length A) (at level 65).
 Definition equi X (A B : list X) : Prop := incl A B /\ incl B A.
-Notation "A === B" := (equi A B) (at level 70).
+Local Notation "A === B" := (equi A B) (at level 70).
 Hint Unfold equi : core.
-
 Hint Extern 4 => 
 match goal with
 |[ H: ?x el nil |- _ ] => destruct H

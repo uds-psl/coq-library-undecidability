@@ -2,10 +2,10 @@ Require Import Equations.Equations Vector.
 
 Derive Signature for Vector.t.
 
-Require Export Undecidability.Shared.Prelim.
-Require Export PslBase.FiniteTypes.
-From Undecidability Require Export TM.TM Problems.Reduction.
+Require Import Undecidability.Shared.Prelim.
 
+From Undecidability Require Import TM.TM.
+From Undecidability Require Import Problems.Reduction.
 (** * TM to SRH *)
 
 (** ** Definition of single-tape Turing Machines  *)
@@ -187,7 +187,7 @@ we are on the right extremity of a non-empty tape (right overflow). *)
   Inductive reach (M: sTM) : mconfig (states M) ->  mconfig (states M) -> Prop :=
   |reachI c : reach c c
   |reachS c d: reach (step c) d -> (halt (cstate c) = false) -> reach c d.
-  Hint Constructors reach.
+  Hint Constructors reach : core.
 
  
   Definition Halt' (M: sTM) (start: mconfig (states M)) :=

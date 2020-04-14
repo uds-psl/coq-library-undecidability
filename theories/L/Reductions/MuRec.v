@@ -453,4 +453,4 @@ Proof.
     + unfold evalfun in *. exists x0. destruct eval; try destruct s; try congruence.
     + exists x0. unfold evalfun in *. destruct eval; try destruct s; try congruence.
 Qed.
-Print Assumptions MUREC_WCBV.
+(* Print Assumptions MUREC_WCBV. *)

@@ -50,8 +50,8 @@ Section SRH_SR.
   Proof.
     intros (y & z & ->) % in_split ?.
     transitivity (y ++ [a0]).
-    eapply rewt_app_L, rewt_a0_L. eauto.
-    eapply rewt_a0_R. eauto.
+    eapply rewt_app_L, rewt_a0_L. eapply cons_incl. eapply app_incl_R. eassumption.
+    eapply rewt_a0_R. eapply app_incl_l. eassumption.
   Qed.
   
   Lemma SR_SRH x :
@@ -72,7 +72,7 @@ Section SRH_SR.
   Proof.
     split.
     - intros (y & H & Hi).
-      unfold SR. transitivity y. eapply (rewt_subset H). unfold P. eauto.
+      unfold SR. transitivity y. eapply (rewt_subset H). unfold P. eapply incl_appl. eapply incl_refl.
       eapply x_rewt_a0. firstorder. eapply rewt_sym with (x := x0); eauto.
     - intros H. unfold SRH, SR in *.
       eapply SR_SRH in H; eauto.

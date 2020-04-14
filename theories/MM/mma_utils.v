@@ -33,7 +33,7 @@ Section Minsky_Machine_alt_utils.
   
   Ltac dest x y := destruct (pos_eq_dec x y) as [ | ]; [ subst x | ]; rew vec.
 
-  Hint Resolve subcode_refl.
+  Hint Resolve subcode_refl : core.
 
   Section mma_null.
 

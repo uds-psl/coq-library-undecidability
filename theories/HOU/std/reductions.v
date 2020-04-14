@@ -35,7 +35,7 @@ Section Reductions.
 
 End Reductions.
 
-Hint Resolve reduction_reflexive reduction_transitive.
+Hint Resolve reduction_reflexive reduction_transitive : core.
 Notation "P ⪯ Q" := (reduction P Q) (at level 60).
 
 

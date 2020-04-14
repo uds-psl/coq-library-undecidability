@@ -40,10 +40,10 @@ Section soundness_and_completeness.
   Proof.
     induction 1 as [ n v | v | v
                    | k v p 
-                   | k i f gj v w x H1 IH1 H2 IH2 
-                   | k f g v n x H1 IH2 
-                   | k f g v n x y H1 IH1 H2 IH2
-                   | k f v n w H1 IH1 H2 IH2 ]; try reflexivity.
+                   | k i f gj v w x H1 IH1 H2  
+                   | k f g v n x H1  
+                   | k f g v n x y H1 IH1 H2 
+                   | k f v n w H1 IH1 H2 ]; try reflexivity.
     exists w; split; auto; intros; rewrite vec_pos_set; auto.
     red; unfold s_rec; simpl; auto.
     rewrite ra_rel_fix_rec in IH1 |- *; unfold s_rec in IH1 |- *.
@@ -60,7 +60,7 @@ Section soundness_and_completeness.
   
   Lemma ra_rel_inc_ca k (f : recalg k) v x : [|f|] v x -> exists n, [f;v] -[n>> x.
   Proof.
-    revert v x; induction f as [ k n | | | k p | k i f gj Hf Hgj 
+    revert v x; induction f as [ k | | | k p | k i f gj Hf Hgj 
                                | k f g Hf Hg 
                                | ]; intros v x.
     rewrite ra_rel_fix_cst; unfold s_cst; intros []; exists 1; constructor.
@@ -106,7 +106,7 @@ Section soundness_and_completeness.
       and the bigstep semantics of recalg.
    **)
 
-  Hint Resolve ra_ca_inc_bs ra_bs_inc_rel ra_rel_inc_ca.
+  Hint Resolve ra_ca_inc_bs ra_bs_inc_rel ra_rel_inc_ca : core.
   
   Theorem ra_bs_correct k (f : recalg k) v x : [|f|] v x <-> [f;v] ~~> x.
   Proof. split; auto. Qed.

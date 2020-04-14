@@ -90,7 +90,7 @@ Section ra_recomp.
     + apply notdiv_pow2_spec_1, Hk; lia.
   Qed.
 
-  Hint Resolve ra_decomp_l_prim_rec.
+  Hint Resolve ra_decomp_l_prim_rec : core.
   Opaque ra_decomp_l.
 
   Definition ra_decomp_r : recalg 1.
@@ -189,7 +189,7 @@ Section ra_recomp.
 End ra_recomp.
 
 Hint Resolve ra_decomp_l_prim_rec ra_decomp_r_prim_rec ra_recomp_prim_rec
-             ra_decomp_l_val ra_decomp_r_val ra_recomp_val.
+             ra_decomp_l_val ra_decomp_r_val ra_recomp_val : core.
 Opaque ra_decomp_l ra_decomp_r ra_recomp.
 
 Section ra_inject_project.
@@ -263,4 +263,4 @@ End ra_inject_project.
 (* Now we have inject/project implemented as primitive recursive algorithms *)
 
 Hint Resolve ra_project_prim_rec ra_inject_prim_rec
-             ra_project_val ra_inject_val.
+             ra_project_val ra_inject_val : core.

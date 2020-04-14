@@ -11,4 +11,4 @@ Proof.
   intros [ [Sigma n] M tp ]. cbn.  eapply Halt_red.
 Qed.
 
-Print Assumptions Halt_eva.
+(*Print Assumptions Halt_eva.*)
