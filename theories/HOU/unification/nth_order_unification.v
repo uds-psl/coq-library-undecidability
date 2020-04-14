@@ -24,7 +24,7 @@ Section NthOrderUnificationDefinition.
 End NthOrderUnificationDefinition.
 Arguments orduni _ : clear implicits.
 Arguments OU _ : clear implicits.
-Hint Resolve @H1₀ @H2₀.
+Hint Resolve @H1₀ @H2₀ : core.
 
 
 
@@ -48,7 +48,7 @@ Section NthOrderSystemUnification.
   | eqs_ordertyping_cons s t  A E L: Gamma ⊢(n) s : A -> Gamma ⊢(n) t : A -> Gamma ⊢₊₊(n) E : L -> Gamma ⊢₊₊(n) ((s,t) :: E) : A :: L
   where  "Gamma ⊢₊₊( n ) E : L" := (eqs_ordertyping Gamma n E L).
 
-  Hint Constructors eqs_ordertyping.
+  Hint Constructors eqs_ordertyping : core.
 
 
   Lemma eqs_ordertyping_step Gamma n E L: Gamma ⊢₊₊(n) E : L -> Gamma ⊢₊₊(S n) E : L.
@@ -74,7 +74,7 @@ Section NthOrderSystemUnification.
   Qed.
 
 
-  Hint Resolve left_typing right_typing left_ordertyping right_ordertyping.
+  Hint Resolve left_typing right_typing left_ordertyping right_ordertyping : core.
   Hint Rewrite Vars'_cons Vars'_app : simplify.
   Hint Rewrite left_subst_eqs right_subst_eqs : simplify.
 
@@ -97,7 +97,7 @@ Section NthOrderSystemUnification.
 
   Arguments SOU: clear implicits.
 
-  Hint Resolve @H₀'.
+  Hint Resolve @H₀' : core.
 
 
   Lemma linearize_terms_ordertyping n Gamma (S: list (exp X)) L A:
@@ -111,7 +111,7 @@ Section NthOrderSystemUnification.
   Qed.
 
 
-  Hint Resolve linearize_terms_ordertyping.
+  Hint Resolve linearize_terms_ordertyping : core.
 
     Global Program Instance orduni_ordsysuni n (I: orduni n X): ordsysuni n :=
         { Gamma₀' := Gamma₀; E₀' := [(s₀, t₀)]; L₀' := [A₀]; H₀' := _; }.
@@ -166,7 +166,7 @@ Arguments L₀' {_} {_} {_}.
 Notation  "Gamma ⊢₊₊( n ) E : L" := (eqs_ordertyping _ Gamma n E L)(at level 80, E at level 99).
 Notation "Gamma ⊢₂( n ')' e : A" := (eq_ordertyping _ n Gamma e A) (at level 80, e at level 99).
 
-Hint Resolve eqs_ordertyping_soundness.
+Hint Resolve eqs_ordertyping_soundness : core.
 
 
 

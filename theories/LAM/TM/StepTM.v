@@ -8,7 +8,7 @@ From Undecidability Require Import TM.Code.ListTM TM.Code.CaseList TM.Code.CaseP
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 
-Local Hint Resolve isRight_isRight_size.
+Local Hint Resolve isRight_isRight_size : core.
 
 
 (** Here we compose the [Lookup] and [JumpTarget] machines. *)

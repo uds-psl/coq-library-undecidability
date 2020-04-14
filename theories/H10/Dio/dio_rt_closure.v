@@ -69,7 +69,7 @@ Section df_rel_iter_rt.
     dio by lemma (fun v => rel_iter_seq_equiv R (n v) (x v) (y v)).
   Defined.
 
-  Hint Resolve dio_rel_rel_iter.
+  Hint Resolve dio_rel_rel_iter : core.
 
   Corollary dio_rel_rt x y : 𝔻F x -> 𝔻F y -> 
                                     𝔻R (fun ν => exists i, rel_iter R i (x ν) (y ν)).

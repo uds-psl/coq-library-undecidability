@@ -25,7 +25,7 @@ End UnificationDefinitions.
 
 Arguments uni _ : clear implicits.
 Arguments U _ : clear implicits.
-Hint Resolve @H1ᵤ @H2ᵤ.
+Hint Resolve @H1ᵤ @H2ᵤ : core.
 
 (** ** Normalisation *)
 

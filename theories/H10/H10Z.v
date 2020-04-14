@@ -248,4 +248,4 @@ Proof.
 Qed.
 
 Check H10_H10Z.
-Print Assumptions H10_H10Z.
+

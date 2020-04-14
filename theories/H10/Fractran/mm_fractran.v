@@ -253,7 +253,7 @@ Proof.
   apply prime_div_mult in H2; tauto.
 Qed.
 
-Local Hint Resolve encode_mm_instr_regular'.
+Local Hint Resolve encode_mm_instr_regular' : core.
 
 Lemma one_step_backward m i P i1 v1 st :
      @mm_no_self_loops m (i, P)

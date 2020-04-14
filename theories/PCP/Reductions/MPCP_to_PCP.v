@@ -85,13 +85,15 @@ Section MPCP_PCP.
     - inv Hm. now edestruct fresh_spec; eauto.
     - cbn in Hm. destruct x, y; try firstorder congruence.
       + destruct (tau1_inv Hm) as (x' & y' & ? ).
-        assert ( (n :: x') / y' el P) as [] % P_inv_top by firstorder.
-        eapply sym_word_R; eauto.        
+        pose (cons_incl Hs).
+        assert ( (n :: x') / y' el P) as [] % P_inv_top by eauto.
+        eapply sym_word_R; eauto.
       + cbn -[fresh] in Hm. symmetry in Hm. destruct (tau2_inv Hm) as (x' & y' & ? ).
-        assert ( y' / (# :: x') el P) as [] % P_inv_bot by firstorder.
+        pose (cons_incl Hs).
+        assert ( y' / (# :: x') el P) as [] % P_inv_bot by eauto.
       + cbn -[fresh] in Hm. inversion Hm. assert (fresh (dollar :: Sigma) = hash) by reflexivity. 
-        edestruct fresh_spec; try eassumption.  right.
-        eapply sym_word_R in H. firstorder. eauto.
+        edestruct fresh_spec; try eassumption. right.
+        eapply sym_word_R in H. subst. eauto.
   Qed.
 
   Lemma hash_swap x :
@@ -199,7 +201,11 @@ Section MPCP_PCP.
     - intros ([|d' B] & Hi & He & H); firstorder.
       pose proof H as -> % match_start; eauto.
       cbn -[fresh] in H. inv H.
-      eapply PCP_MPCP in H1; cbn; eauto. 
+      eapply PCP_MPCP in H1; cbn.
+      + eassumption.
+      + eapply cons_incl. eassumption.
+      + apply incl_appl. apply incl_refl.
+      + apply incl_appr. apply incl_appl. apply incl_refl.
   Qed.
 
 End MPCP_PCP.

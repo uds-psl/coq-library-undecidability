@@ -87,7 +87,7 @@ Section simulator.
   Fact bsm_instr_compile_length_geq ii : 1 <= bsm_instr_compile_length ii.
   Proof. destruct ii as [ | ? [] ]; simpl; auto; omega. Qed.
 
-  Hint Resolve bsm_instr_compile_length_eq bsm_instr_compile_length_geq.
+  Hint Resolve bsm_instr_compile_length_eq bsm_instr_compile_length_geq : core.
 
   (* This main soundness lemma per simulated instruction *)
 
@@ -132,7 +132,7 @@ Section simulator.
       assert (reg p <> reg q); rew vec.
   Qed.
 
-  Hint Resolve bsm_instr_compile_sound.
+  Hint Resolve bsm_instr_compile_sound : core.
 
   Section bsm_sim.
 

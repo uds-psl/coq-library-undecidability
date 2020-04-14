@@ -157,7 +157,7 @@ Section ChurchEncoding.
   Qed.
 
   
-  Hint Resolve normal_enc.
+  Hint Resolve normal_enc : core.
 
 
   Lemma enc_equiv_injective n m:
@@ -286,7 +286,7 @@ Section Encoding.
   Section Typing.
 
     Variable (E: list deq).
-    Hint Resolve Vars__de_in.
+    Hint Resolve Vars__de_in : core.
 
     Definition Gamma__dwk := repeat (alpha → (alpha → alpha) → alpha) (S (Sum (Vars__de E))).
 
@@ -297,7 +297,7 @@ Section Encoding.
       eapply nth_error_repeated, le_n_S, Sum_in, H.
     Qed.
 
-    Hint Resolve Gamma__dwk_nth.
+    Hint Resolve Gamma__dwk_nth : core.
 
 
     Lemma typing_varEQ x:

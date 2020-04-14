@@ -54,7 +54,7 @@ Proof.
 Qed.
 
 Check H10C_SAT_RA_UNIV_HALT.
-Print Assumptions H10C_SAT_RA_UNIV_HALT.
+
 
 (** We build a similar one based on Andrej Dudenhefner
     type of H10 constraints, ie 1+x+y*y = z *)
@@ -75,5 +75,5 @@ Proof.
 Qed.
 
 Check H10UC_SAT_RA_UNIV_AD_HALT.
-Print Assumptions H10UC_SAT_RA_UNIV_AD_HALT.
+
 

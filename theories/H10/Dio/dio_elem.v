@@ -578,5 +578,5 @@ Defined.
 Definition dio_fs f := proj1_sig (dio_formula_elem f).
  
 (* Check dio_formula_elem.
-Print Assumptions dio_formula_elem. *)
+ *)
 

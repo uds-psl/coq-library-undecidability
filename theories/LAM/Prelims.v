@@ -53,7 +53,7 @@ Inductive lm_step : term -> term -> Prop :=
 | lstepAppR s t  t' : t >>lm t' -> app (lam s) t >>lm app (lam s) t'
 | lstepAppL s s' t  : s >>lm s' -> app s t >>lm app s' t
 where "s '>>lm' t" := (lm_step s t).
-Hint Constructors lm_step.
+Hint Constructors lm_step : core.
 
 (** * Properties of star: *)
 

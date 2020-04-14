@@ -10,7 +10,7 @@ Section ListRelations.
   | stepHead s s' A: R s s' -> lstep (s :: A) (s' :: A)
   | stepTail s A A': lstep A A' -> lstep (s :: A) (s :: A').
 
-  Hint Constructors lstep.
+  Hint Constructors lstep : core.
   
   Lemma lstep_cons_nil S:
     lstep S nil -> False.
@@ -71,7 +71,7 @@ Section ListRelations.
       now rewrite H5, H0. now rewrite H6, H4.
   Qed.
 
-  Hint Resolve confluence_lstep.
+  Hint Resolve confluence_lstep : core.
 
   Lemma normal_lstep_in A:
     Normal lstep A -> forall x, In x A  -> Normal R x.
@@ -115,9 +115,9 @@ Section ListRelations.
        lstep_normal_nil
        lstep_normal_cons_l
        lstep_normal_cons_r
-       lstep_normal_cons.
+       lstep_normal_cons : core.
   
-  Hint Resolve normal_lstep_in normal_in_lstep.
+  Hint Resolve normal_lstep_in normal_in_lstep : core.
 
   Lemma equiv_lstep_cons_inv s t S T:
     equiv lstep (s :: S) (t :: T) -> equiv R s t /\ equiv lstep S T.
@@ -173,13 +173,13 @@ End ListRelations.
 
 
 
-Hint Constructors lstep.
+Hint Constructors lstep : core.
 
 Hint Resolve
      lstep_normal_nil
      lstep_normal_cons_l
      lstep_normal_cons_r
-     lstep_normal_cons.
+     lstep_normal_cons : core.
 
-Hint Resolve confluence_lstep.
-Hint Resolve normal_lstep_in normal_in_lstep.
+Hint Resolve confluence_lstep : core.
+Hint Resolve normal_lstep_in normal_in_lstep : core.

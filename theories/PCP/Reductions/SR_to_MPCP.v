@@ -72,9 +72,15 @@ Section SR_to_MPCP.
   Proof.
     intros. revert H. pattern x; refine (rewt_induct _ _ H0).
     - exists [e]. cbn. firstorder. now simpl_list.
-    - clear x H0. intros. inv H. destruct H1 as (A & ? & ?). repeat eapply incl_app; eauto.
+    - clear x H0. intros. inv H. destruct H1 as (A & ? & ?).
+      pose (app_incl_l H2). pose (app_incl_R (app_incl_R H2)).
+      repeat eapply incl_app; try assumption. eauto.
       exists (cards x1 ++ [(u / v)] ++ cards y1 ++ [ [#] / [#] ] ++ A). split.
-      + repeat (eapply incl_app); unfold P; eauto using cards_subset, rew_subset.
+      + repeat (eapply incl_app); try assumption; unfold P.
+        * eapply cards_subset. eapply app_incl_l. eassumption.
+        * eapply incl_appr. eapply incl_appl. now apply Prelim.incl_sing.
+        * eapply cards_subset. eapply app_incl_R. eapply app_incl_R. eassumption.
+        * eauto.
       + simpl_list. cbn. rewrite H1. now simpl_list. 
   Qed.
 
@@ -87,7 +93,7 @@ Section SR_to_MPCP.
     - exfalso. destruct x; inv H2.
     - assert (a el P) as [ -> | [ ->  | [ | [-> | (? & ? & ->)]]]]  % P_inv by (now apply H).
       + exfalso. cbn -[fresh] in H2. destruct x. inv H2. destruct (sep_doll H4).
-        inversion H2. edestruct doll_sig; eauto.        
+        inversion H2. edestruct doll_sig; eauto.
       + cbn -[fresh] in *.
         autorewrite with list in *. cbn -[fresh] in *.
         eapply list_prefix_inv in H2 as [<- ?].
@@ -104,8 +110,8 @@ Section SR_to_MPCP.
         enough ( (y ++ v) ++ x' ≻* y0) by now autorewrite with list in *.
         eapply IHA; autorewrite with list in *.
         * eauto.
-        * eauto.
-        * eauto.
+        * eapply app_incl_R. eassumption.
+        * eapply incl_app; eauto.
         * now eapply app_inv_head in H2.
       + cbn -[fresh] in H2. destruct x; [inv H2 |].
         * simpl_list. change y with ([] ++ y). eapply IHA; eauto using cons_incl.
@@ -114,16 +120,22 @@ Section SR_to_MPCP.
         * inversion H2. edestruct hash_sig; eauto.
         * inv H2.
           replace (y ++ n :: x) with ((y ++ [n]) ++ x) by now simpl_list.
-          eapply IHA; eauto. simpl_list. eassumption.
+          eapply IHA. 
+          ** eapply cons_incl. eassumption.
+          ** eapply cons_incl. eassumption.
+          ** eapply incl_app. eassumption. now eapply Prelim.incl_sing.
+          ** simpl_list. eassumption.
   Qed.
 
   Corollary SR_MPCP_cor :
     x0 ≻* y0 <-> exists A, A <<= P /\ tau1 (d :: A) = tau2 (d :: A).
   Proof.
     split.
-    - intros ?. cbn in H. eapply SR_MPCP in H as (A & ? & ?); eauto.
+    - intros ?. cbn in H. eapply SR_MPCP in H as (A & ? & ?).
       exists A. firstorder. cbn. rewrite H0. cbn. now simpl_list.
-    - intros (A & ? & ?). eapply MPCP_SR with (y := []) (A := A); eauto.
+      eapply incl_appl. apply incl_refl.
+    - intros (A & ? & ?). eapply MPCP_SR with (y := []) (A := A); try trivial.
+      eapply incl_appl. now apply incl_refl.
       inv H0. rewrite H2. now simpl_list.
   Qed.
       
@@ -133,5 +145,6 @@ Theorem reduction :
   SR ⪯ MPCP.
 Proof.
   exists (fun '(R, x, y) => (d R x y, P R x y)). intros [[R x] y].
-  unfold SR. rewrite SR_MPCP_cor. firstorder.
+  unfold SR. rewrite SR_MPCP_cor. unfold MPCP. unfold d.
+  firstorder trivial.
 Qed.

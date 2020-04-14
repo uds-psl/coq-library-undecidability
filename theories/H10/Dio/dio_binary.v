@@ -38,7 +38,7 @@ Section dio_fun_binomial.
   Let plus_cancel_l : forall a b c, a + b = a + c -> b = c.
   Proof. intros; omega. Qed.
 
-  Hint Resolve Nat.mul_add_distr_r.
+  Hint Resolve Nat.mul_add_distr_r : core.
 
   (** We use this characterization with Newton's devel
 
@@ -126,8 +126,8 @@ Hint Resolve dio_fun_binomial : dio_fun_db.
 Local Fact dio_fun_binomial_example : 𝔻F (fun ν => binomial (ν 0) (ν 1)).
 Proof. dio auto. Defined.
 
-Check dio_fun_binomial_example.
-Eval compute in df_size_Z (proj1_sig dio_fun_binomial_example).
+(* Check dio_fun_binomial_example. *)
+(* Eval compute in df_size_Z (proj1_sig dio_fun_binomial_example). *)
 
 (** This result comes from Lucas' theorem *)
 

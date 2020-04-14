@@ -56,7 +56,7 @@ Ltac atom :=
   | [ |- isAtom _] => cbn in *; intuition
   end.    
 
-Hint Extern 4 => syn. 
+Hint Extern 4 => syn : core. 
 
 
 
@@ -125,7 +125,7 @@ Section ApplicativeHead.
 
 End ApplicativeHead.
 
-Hint Resolve atom_var var_head atom_head.
+Hint Resolve atom_var var_head atom_head : core.
 
 
 (** ** Type Functions *)
@@ -168,7 +168,7 @@ Section FreeVariables.
   | varofAppR (s t: exp X): varof x t -> varof x (s t)
   | varofLambda s: varof (S x) s -> varof x (lambda s).
 
-  Hint Constructors varof.
+  Hint Constructors varof : core.
 
         
   Lemma varof_vars x s:
@@ -192,7 +192,7 @@ Section FreeVariables.
     - simplify in H; intuition. 
   Qed.
 
-  Hint Resolve varof_vars vars_varof.
+  Hint Resolve varof_vars vars_varof : core.
 
   Global Instance dec_varof: Dec2 (varof). 
   Proof.
@@ -283,7 +283,7 @@ Section FreeVariables.
 End FreeVariables.
 
 
-Hint Constructors varof.
-Hint Resolve varof_vars vars_varof.
+Hint Constructors varof : core.
+Hint Resolve varof_vars vars_varof : core.
         
 

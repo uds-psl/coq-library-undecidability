@@ -30,7 +30,7 @@ Proof.
   intros ? % prime_ge_2; omega.
 Qed.
 
-Hint Resolve prime_neq_0.
+Hint Resolve prime_neq_0 : core.
 
 Lemma power_factor_lt_neq p i j x y : 
          p <> 0 
@@ -109,7 +109,7 @@ Proof. apply (proj2_sig (first_prime_above n)). Qed.
 Fact nxtprime_spec2 n : prime (nxtprime n).
 Proof. apply (proj2_sig (first_prime_above n)). Qed.
 
-Hint Resolve nxtprime_spec1 nxtprime_spec2 prime_2.
+Hint Resolve nxtprime_spec1 nxtprime_spec2 prime_2 : core.
 
 Fixpoint notprime_bool_rec n k :=
   match k with
@@ -158,7 +158,7 @@ Definition nthprime (n : nat) := iter nxtprime 2 n.
 Lemma nthprime_prime n : prime (nthprime n).
 Proof. unfold nthprime; destruct n; simpl; auto; rewrite iter_swap; auto. Qed. 
 
-Hint Resolve nthprime_prime.
+Hint Resolve nthprime_prime : core.
 
 Lemma nthprime_ge n m : n < m -> nthprime n < nthprime m.
 Proof.
@@ -204,8 +204,8 @@ Record primestream :=
     str_prime : forall n, prime (str n);
   }.
 
-Hint Immediate str_prime.
-Hint Resolve str_inj.
+Hint Immediate str_prime : core.
+Hint Resolve str_inj : core.
 
 Lemma primestream_divides (ps : primestream) n m :  divides (ps n) (ps m) -> n = m.
 Proof.
@@ -234,7 +234,7 @@ Proof. simpl; apply nthprime_3. Qed.
 Lemma ps_qs : forall n m, ps n = qs m -> False.
 Proof. intros ? ? ? % nthprime_inj; omega. Qed. 
 
-Hint Resolve ps_qs.
+Hint Resolve ps_qs : core.
 
 Lemma ps_qs_div n m : ~ divides (ps n) (qs m).
 Proof. intros ? % prime_divides; eauto. Qed.
@@ -286,7 +286,7 @@ Proof.
   rewrite H; apply not_prime_1.
 Qed. 
 
-Hint Resolve not_prime_1 not_qs_1.
+Hint Resolve not_prime_1 not_qs_1 : core.
 
 Lemma divides_pow p n k : prime p -> divides p (n ^ k) -> divides p n.
 Proof.

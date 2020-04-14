@@ -235,7 +235,7 @@ Tactic Notation "mm" "env" "DEC" "S" "with" uconstr(a) uconstr(b) uconstr(c) :=
     | |- _ // _ -+> _ => apply mm_env_progress_DEC_S with (x := a) (k := b) (u := c)
     | |- _ // _ ->> _ => apply mm_env_compute_DEC_S with (x := a) (k := b) (u := c)
   end; auto.
-    
+
 Tactic Notation "mm" "env" "stop" := exists 0; apply sss_steps_0; auto.
 
 (* The Halting problem for MM, for linear logic encoding, we restrict

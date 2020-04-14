@@ -342,7 +342,7 @@ Hint Rewrite app_length map_length rev_length : listdb.
 Hint Extern 4 => 
   match goal with
   |[ H: ?x ∈ nil |- _ ] => destruct H
-  end.
+  end : core.
 
 
 

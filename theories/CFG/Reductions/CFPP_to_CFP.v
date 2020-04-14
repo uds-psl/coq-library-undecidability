@@ -113,9 +113,12 @@ Section CFGs.
     intros. induction H0.
     - eauto.
     - destruct H1. destruct R. cbn in *.
-      eapply incl_app; eauto.  eapply incl_app; eauto.
-      unfold sym_G. intros ? ?.
-      right. eapply in_flat_map. exists (a, v). eauto.
+      pose (app_incl_l IHrewt).
+      eapply incl_app. eapply app_incl_l. eassumption.
+      eapply incl_app.
+      + unfold sym_G. intros ? ?.
+        right. eapply in_flat_map. exists (a, v). eauto.
+      + eapply cons_incl. eapply app_incl_R. eassumption.
   Qed.
   
 End CFGs.
