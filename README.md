@@ -45,7 +45,7 @@ Then the following commands install the library:
 
 ```
 opam repo add coq-released https://coq.inria.fr/opam/released
-opam repo add opam repo add psl-opam-repository https://github.com/uds-psl/psl-opam-repository.git
+opam repo add psl-opam-repository https://github.com/uds-psl/psl-opam-repository.git
 opam install coq-library-undecidability.dev+8.11
 ```
 
