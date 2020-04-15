@@ -20,7 +20,7 @@ Fixpoint computesTime {t} (ty : TT t) :  forall (x:t) (xInt :term) (xTime :timeC
       forall (y : t1) yInt (yTime:timeComplexity t1),
         computesTime y yInt yTime
         -> let fyTime := fTime y yTime in
-          {v : term & (redLe (fst fyTime) (fInt yInt) v) * computesTime (f y) v (snd fyTime)}
+          {v : term & (redLe (fst fyTime) (app fInt yInt) v) * computesTime (f y) v (snd fyTime)}
   end%type.
 
 Arguments computesTime {_} _ _ _ _.
@@ -104,7 +104,7 @@ Proof.
 Defined.
 
 Lemma extTApp t1 t2 {tt1:TT t1} {tt2 : TT t2} (f: t1 -> t2) (x:t1) fT xT (Hf : computableTime f fT) (Hx : computableTime x xT) :
-  (extT f) (extT x) >(<= fst (evalTime f x (evalTime x))) extT (f x).
+  app (extT f) (extT x) >(<= fst (evalTime f x (evalTime x))) extT (f x).
 Proof.
   unfold extT.
   destruct Hf as [fInt [fP fInts]], Hx as [xInt xInts]. cbn.
@@ -125,7 +125,7 @@ Lemma computesTimeTyArr_helper t1 t2 (tt1 : TT t1) (tt2 : TT t2) f fInt time fT:
       (time y yT<= fst (fT y yT)) * 
   forall (yInt : term),
     computesTime tt1 y yInt yT
-    -> {v : term & evalLe (time y yT) (fInt yInt) v * (proc v -> computesTime tt2 (f y) v (snd (fT y yT)))})%type
+    -> {v : term & evalLe (time y yT) (app fInt yInt) v * (proc v -> computesTime tt2 (f y) v (snd (fT y yT)))})%type
 -> computesTime (tt1 ~> tt2) f fInt fT.
 Proof.
   intros H0 H. split. tauto.
@@ -165,7 +165,7 @@ Qed.
 Lemma computesTimeExpStep t1 t2 (tt1 : TT t1) (tt2 : TT t2) (f : t1 -> t2) (s:term) k k' fInt fT:
   k' = k -> evalIn k' s fInt -> closed s -> 
   (forall (y : t1) (yInt : term) yT, computesTime tt1 y yInt yT
-                                -> {v : term & computesTimeExp tt2 (f y) (s yInt) (fst (fT y yT) +k) v (snd (fT y yT))}%type) ->
+                                -> {v : term & computesTimeExp tt2 (f y) (app s yInt) (fst (fT y yT) +k) v (snd (fT y yT))}%type) ->
   computesTimeExp (tt1 ~> tt2) f s k fInt fT.
 
 Proof.

@@ -6,15 +6,20 @@ Variable P : term.
 Hypothesis P_proc : proc P.
 Hint Resolve P_proc : LProc.
 
-Hypothesis dec'_P : forall (n:nat), (exists (b:bool), P (ext n) == ext b ).
+Hypothesis dec'_P : forall (n:nat), (exists (b:bool), app P (ext n) == ext b ).
 
-Lemma dec_P : forall n:nat, {b:bool | P (ext n) == ext b}.
+Lemma dec_P : forall n:nat, {b:bool | app P (ext n) == ext b}.
   intros. eapply lcomp_comp.
   -apply bool_enc_inv_correct.
   -apply dec'_P.
 Qed.
 
-Definition mu' := Eval cbn -[enc] in rho (λ mu P n, (P n) (!!K n) (λ Sn, mu P Sn) (!!(ext S) n)).
+Section hoas.
+  Import HOAS_Notations.
+  Definition mu' := Eval cbn -[enc] in rho (λ mu P n, (P n) (!!K n) (λ Sn, mu P Sn) (!!(ext S) n)).
+End hoas.
+
+Import L_Notations.
 
 Lemma mu'_proc : proc mu'.
   unfold mu'; Lproc. 
@@ -72,7 +77,7 @@ Qed.
 (* the mu combinator:*)
 
 
-Definition mu :term := Eval cbn in λ P, mu' P (ext 0).
+Definition mu :term := lam (mu' #0 (ext 0)).
 
 Lemma mu_proc : proc mu.
   unfold mu. Lproc. 

@@ -176,10 +176,10 @@ Tactic Notation "standardize" ident(R) constr(n) constr(s) :=
   assert (R : s >(l) t) by simplify_L' n;subst l t;apply pow_star in R.
 
 
-Goal I I >* I.
-Proof. 
-  standardize R 100 ((lam 0) (lam 0)); exact R. 
-Qed.
+(* Goal I I >* I. *)
+(* Proof.  *)
+(*   standardize R 100 ((lam 0) (lam 0)); exact R.  *)
+(* Qed. *)
 
 Ltac standardizeGoal' _n:=
   let R:= fresh "R" in

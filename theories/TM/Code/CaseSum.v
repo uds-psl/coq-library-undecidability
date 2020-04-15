@@ -137,8 +137,8 @@ Section CaseOption.
   Variable (sigX : finType).
   Hypothesis (codX : codable sigX X).
 
-  Compute encode (None : option nat).
-  Compute encode (Some 42).
+  (* Compute encode (None : option nat). *)
+  (* Compute encode (Some 42). *)
 
   (** ** Deconstructor for Option Types *)
 

@@ -79,7 +79,7 @@ Ltac isRight_mono :=
   | [ H : isRight ?t |- isRight ?t ] =>
     apply H
   end.
-Hint Extern 10 => isRight_mono.
+Hint Extern 10 => isRight_mono : core.
 
 
 
@@ -288,7 +288,7 @@ Ltac contains_ext :=
     apply tape_contains_rev_ext with (1 := H); simpl_comp; try reflexivity
   end.
 
-Hint Extern 10 => contains_ext.
+Hint Extern 10 => contains_ext : core.
 
 
 (** Because every machine is defined on an alphabet [Σ^+], the notation adds the discreteness and finiteness constructors, to cast [Σ^+ : finType]. *)

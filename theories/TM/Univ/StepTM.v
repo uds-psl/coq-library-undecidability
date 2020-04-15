@@ -355,7 +355,7 @@ Section Univ.
     containsState_size t q s -> containsState t q.
   Proof. firstorder. Qed.
 
-  Hint Resolve containsState_size_containsState.
+  Hint Resolve containsState_size_containsState : core.
 
   (*
   Definition IsFinal_size (M : mTM sigM 1) (q : states M) :=
@@ -478,7 +478,7 @@ Section Univ.
 
   Lemma containsTrans_size_containsTrans t M s : containsTrans_size t M s -> containsTrans t M.
   Proof. intros H. unfold containsTrans, containsTrans_size in *. auto. Qed.
-  Hint Resolve containsTrans_size_containsTrans.
+  Hint Resolve containsTrans_size_containsTrans : core.
 
 
   Local Arguments IsFinal_size : simpl never.

@@ -223,8 +223,8 @@ Section Nth'.
   Variable (retr1 : Retract (sigList sigX) sig) (retr2 : Retract sigNat sig).
   Local Instance retr_X_list' : Retract sigX sig := ComposeRetract retr1 (Retract_sigList_X _).
 
-  Check _ : codable sig (list X).
-  Check _ : codable sig nat.
+  (* Check _ : codable sig (list X). *)
+  (* Check _ : codable sig nat. *)
 
   Definition Nth'_Step_size {sigX X : Type} {cX : codable sigX X} (n : nat) (l : list X) : Vector.t (nat -> nat) 3 :=
     match n, l with

@@ -10,7 +10,9 @@
 (** ** Iteration of binary relations *)
 
 Require Import Arith Nat Omega.
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac gcd prime binomial sums.
+
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_tac gcd prime binomial sums.
 
 Set Implicit Arguments.
 
@@ -187,7 +189,7 @@ Section rel_iter_bound.
     + rewrite <- H2; apply Hc; omega.
   Qed.
 
-  Hint Resolve rel_iter_bound_iter rel_iter_iter_bound.
+  Hint Resolve rel_iter_bound_iter rel_iter_iter_bound : core.
 
   (* A characterization of fun n x y => rel_iter R n x y with a diophantine formula
      (to be proved in dio_expo.v) when the relation R does not grow more that linearly *)
@@ -280,7 +282,7 @@ Section rel_iter_seq.
     + rewrite <- H2; apply Hc; omega.
   Qed.
 
-  Hint Resolve rel_iter_seq_iter rel_iter_iter_seq.
+  Hint Resolve rel_iter_seq_iter rel_iter_iter_seq : core.
 
   (* A characterization of fun n x y => rel_iter R n x y with a diophantine formula *)
 

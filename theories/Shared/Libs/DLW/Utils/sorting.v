@@ -244,7 +244,7 @@ Section sum_bounded_permutation.
        -> (forall k, k <> i -> k <> j -> k < n -> g k = k)
        -> bounded_permut n i j g.
 
-  Hint Resolve swap_spec_i swap_spec_j swap_spec.
+  Hint Resolve swap_spec_i swap_spec_j swap_spec : core.
 
   Fact swap_bounded_permut n i j : i < n -> j < n -> bounded_permut n i j (swap i j).
   Proof. constructor; auto. Qed.

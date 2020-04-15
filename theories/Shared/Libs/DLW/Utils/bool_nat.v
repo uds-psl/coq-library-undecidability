@@ -55,7 +55,7 @@ Proof. intros H; apply binary_le_le in H; omega. Qed.
 Fact binary_le_zero n : 0 ≲ n.
 Proof. constructor. Qed.
 
-Hint Resolve binary_le_zero binary_le_refl.
+Hint Resolve binary_le_zero binary_le_refl : core.
 
 Local Notation "⟘" := false.
 Local Notation "⟙" := true.
@@ -92,7 +92,7 @@ Proof. intros [ | [ | ] ] ?; simpl; omega. Qed.
 Fact nat2bool2nat : forall x, nat2bool (bool2nat x) = x.
 Proof. intros []; auto. Qed.
 
-Local Hint Resolve power2_gt_0.
+Local Hint Resolve power2_gt_0 : core.
 
 Local Notation lb := (list bool).
 
@@ -177,7 +177,7 @@ Local Reserved Notation "'⟬' x '⟭'".
 
   Local Notation "⟬ n ⟭" := (nat_lb n).
 
-  Hint Resolve nat_lb_spec.
+  Hint Resolve nat_lb_spec : core.
 
   Fact nat_lb_fix_0 : ⟬ 0⟭ = nil.
   Proof. apply g_nlb_fun with 0; auto; constructor. Qed.
@@ -256,7 +256,7 @@ Local Reserved Notation "'⟬' x '⟭'".
           constructor; auto.
   Qed.
 
-  Hint Resolve lb_mask_binary_le binary_le_lb_mask.
+  Hint Resolve lb_mask_binary_le binary_le_lb_mask : core.
 
   Section lb_mask_nat.
 
@@ -304,7 +304,7 @@ Local Reserved Notation "'⟬' x '⟭'".
     intro; rewrite <- (lb_nat_lb x), <- (lb_nat_lb y); auto.
   Qed.
 
-  Hint Resolve lb_mask_eq_binary_le binary_le_eq_lb_mask.
+  Hint Resolve lb_mask_eq_binary_le binary_le_eq_lb_mask : core.
 
   Fact binary_le_trans x y z : x ≲ y -> y ≲ z -> x ≲ z.
   Proof.
@@ -676,7 +676,7 @@ Local Reserved Notation "'⟬' x '⟭'".
     rewrite lb_mask_nat; auto.
   Qed.
 
-  Hint Resolve nat_meet_left nat_meet_right.
+  Hint Resolve nat_meet_left nat_meet_right : core.
 
   Fact binary_le_nat_meet n m : n ≲ m <-> n⇣m = n.
   Proof.
@@ -778,7 +778,7 @@ Local Reserved Notation "'⟬' x '⟭'".
     rewrite nat_lb_nat, lb_meet_idem; auto.
   Qed.
 
-  Hint Resolve nat_meet_0n nat_meet_n0 nat_meet_idem.
+  Hint Resolve nat_meet_0n nat_meet_n0 nat_meet_idem : core.
 
   Fact nat_meet_assoc n m k : n⇣(m⇣k) = n⇣m⇣k.
   Proof.
@@ -871,7 +871,7 @@ Local Reserved Notation "'⟬' x '⟭'".
     rewrite lb_mask_nat; auto.
   Qed.
 
-  Hint Resolve nat_join_left nat_join_right.
+  Hint Resolve nat_join_left nat_join_right : core.
 
   Fact nat_join_0n n : 0⇡n = n.
   Proof.
@@ -921,12 +921,12 @@ Local Reserved Notation "'⟬' x '⟭'".
     rewrite lb_meet_join_distr; auto.
   Qed.
   
-  Hint Resolve nat_join_0n nat_join_n0 nat_join_assoc.
+  Hint Resolve nat_join_0n nat_join_n0 nat_join_assoc : core.
 
   Lemma nat_join_monoid : monoid_theory nat_join 0.
   Proof. split; auto. Qed.
  
-  Hint Resolve nat_join_monoid nat_join_mono.
+  Hint Resolve nat_join_monoid nat_join_mono : core.
 
   Fact nat_meet_joins_distr_l m n f : m ⇣ msum nat_join 0 n f = msum nat_join 0 n (fun i => m ⇣ f i).
   Proof.
@@ -1316,7 +1316,7 @@ Local Reserved Notation "'⟬' x '⟭'".
       + generalize (Hf j i); intros; omega.
     Qed.
 
-    Hint Resolve sinc_injective.
+    Hint Resolve sinc_injective : core.
 
     Section binary_le_meet_sum_powers.
 
@@ -1472,6 +1472,8 @@ Local Reserved Notation "'⟬' x '⟭'".
     Qed.
 
   End nat_meet_digits.
+
+(* End lb_nat. *)
 
     
         

@@ -19,7 +19,7 @@ Definition L_recognisable {X} `{registered X} (p : X -> Prop) :=
   exists f : X -> nat -> bool, is_computable f /\ forall x, p x <-> exists n, f x n = true.
 
 Definition L_recognisable' {X} `{registered X} (p : X -> Prop) :=
-  exists s : term, forall x, p x <-> converges (s (enc x)).
+  exists s : term, forall x, p x <-> converges (L.app s (enc x)).
 
 Section L_enum_rec.
 
@@ -36,7 +36,9 @@ Section L_enum_rec.
   Proof.
     extract.
   Qed.
-  
+
+  Import HOAS_Notations.
+
   Lemma proc_test (x : X) :
     proc (λ y, !!(ext test) !!(enc x) y).
   Proof.
@@ -158,8 +160,10 @@ Proof.
   edestruct L_enumerable_recognisable with (p := p) (d := fun x y => d (x,y)) (f := f); eauto.
   - extract.
   - intros. specialize (H_d (x,y)). destruct (d (x,y)); intuition.
-  - now exists (fun x0 => x (enc x0)). 
+  - now exists (fun x0 => L.app x (enc x0)). 
 Qed.  
+
+Import L_Notations.
 
 Lemma L_recognisable'_recognisable {X} `{registered X} (p : X -> Prop) :
   L_recognisable p -> L_recognisable' p.

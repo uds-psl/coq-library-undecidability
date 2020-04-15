@@ -172,7 +172,7 @@ Qed.
 
 (** ** Soundness **)
 
-Hint Resolve reach_refl.
+Hint Resolve reach_refl : core.
 
 Definition kcast domain (eta eta' : nat -> domain) (M : kmodel eta) : kmodel eta'.
 Proof.

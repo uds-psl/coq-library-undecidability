@@ -26,7 +26,7 @@ Derive Signature for vector.
 
 Ltac capply H := eapply H; try eassumption.
 Ltac comp := repeat (progress (cbn in *; autounfold in *; asimpl in *)).
-Hint Unfold idsRen.
+Hint Unfold idsRen : core.
 
 Ltac resolve_existT :=
   match goal with
@@ -46,7 +46,7 @@ Section FOL.
   | SImplL phi psi : sf phi (phi --> psi)
   | SImplR phi psi : sf psi (phi --> psi)
   | SAll phi t : sf (phi [t .: ids]) (∀ phi).
-  Hint Constructors sf.
+  Hint Constructors sf : core.
 
   Lemma sf_acc phi rho :
     Acc sf (phi [rho]).
@@ -111,7 +111,7 @@ Section FOL.
   Inductive vec_in (A : Type) (a : A) : forall n, vector A n -> Type :=
   | vec_inB n (v : vector A n) : vec_in a (cons a v)
   | vec_inS a' n (v :vector A n) : vec_in a v -> vec_in a (cons a' v).
-  Hint Constructors vec_in.
+  Hint Constructors vec_in : core.
 
   Lemma strong_term_ind' (p : term -> Type) :
     (forall x, p (var_term x)) -> (forall F v, (Forall p v) -> p (Func F v)) -> forall (t : term), p t.
@@ -321,9 +321,9 @@ Section FOL.
   Infix "⊑" := subset_T (at level 20).
   Infix "∈" := contains (at level 70).
 
-  Hint Unfold contains.
-  Hint Unfold contains_L.
-  Hint Unfold subset_T.
+  Hint Unfold contains : core.
+  Hint Unfold contains_L : core.
+  Hint Unfold subset_T : core.
 
   Global Instance subset_T_trans : Transitive subset_T.
   Proof.
@@ -396,7 +396,7 @@ Proof.
     exists (b :: B). split. 1: auto. intros ? []; subst; auto.
 Qed.
 
-Hint Constructors vec_in.
+Hint Constructors vec_in : core.
 
 Infix "⊏" := contains_L (at level 20).
 Infix "⊑" := subset_T (at level 20).
@@ -584,7 +584,7 @@ End Subterm.
 (* **** Signature extension *)
 
 Section SigExt.
-  Hint Unfold axioms.funcomp.
+  Hint Unfold axioms.funcomp : core.
 
   Definition sig_ext (Sigma : Signature) : Signature :=
     match Sigma with
@@ -629,7 +629,7 @@ Section SigExt.
     match Sigma return @term Sigma -> @term (sig_ext Sigma) with
       B_S Funcs fun_ar Preds pred_ar as S => fun t => sig_lift_term' t
     end.
-  Hint Unfold sig_lift_term.
+  Hint Unfold sig_lift_term : core.
 
   Fixpoint sig_lift' F F_ar P P_ar (phi : @form (B_S F F_ar P P_ar)) :
     (@form (sig_ext (B_S F F_ar P P_ar))) :=
@@ -644,7 +644,7 @@ Section SigExt.
     match Sigma return @form Sigma -> @form (sig_ext Sigma) with
       B_S Funcs fun_ar Preds pred_ar as Sig => fun phi => sig_lift' phi
     end.
-  Hint Unfold sig_lift.
+  Hint Unfold sig_lift : core.
 
   Lemma sig_lift_subst_term {Sigma : Signature} xi t :
     sig_lift_term (subst_term xi t) = subst_term (xi >> sig_lift_term) (sig_lift_term t).
@@ -681,7 +681,7 @@ Section SigExt.
     | inl i => nth_order v i
     | inr (exist _ y _) => var_term (y + m)
     end.
-  Hint Unfold vsubs.
+  Hint Unfold vsubs : core.
 
   Lemma up_term_term_vsubs {Sigma : Signature }n (v : vector term n) i x :
     up_term_term (vsubs i v) x = vsubs (S i) (cons (var_term 0) (map (subst_term (vsubs 1 nil)) v)) x.
@@ -704,7 +704,7 @@ Section SigExt.
     match Sigma return @term (sig_ext Sigma) -> @term Sigma with
       B_S Funcs fun_ar Preds pred_ar as S => sig_drop_term' n
     end.
-  Hint Unfold sig_drop_term.
+  Hint Unfold sig_drop_term : core.
 
   Fixpoint sig_drop' F F_ar P P_ar (n : nat) (phi : @form (sig_ext (B_S F F_ar P P_ar))) :
     @form (B_S F F_ar P P_ar) :=
@@ -719,7 +719,7 @@ Section SigExt.
     match Sigma return @form (sig_ext Sigma) -> @form Sigma with
       B_S Funcs fun_ar Preds pred_ar as Sig => sig_drop' n
     end.
-  Hint Unfold sig_drop.
+  Hint Unfold sig_drop : core.
 
   Lemma nth_order_map X Y (f : X -> Y) n (v : vector X n) i (H : i < n) :
     nth_order (map f v) H = f (nth_order v H).
@@ -768,7 +768,7 @@ Section SigExt.
     end.
   Definition raise {Sigma : Signature} (n : nat) (x : nat) : term := var_term (n + x).
 
-  Hint Unfold ext_c' pref raise.
+  Hint Unfold ext_c' pref raise : core.
 
   Lemma up_term_term_pref_ext_c' f (f_ar : f -> nat) P (P_ar : P -> nat) n x :
     up_term_term (pref n (ext_c' f_ar P_ar)) x = pref (S n) (ext_c' f_ar P_ar) x.

@@ -90,14 +90,25 @@ Arguments Return : simpl never.
 
 (** Helper tactics for match *)
 
+Ltac print e := idtac.                                  (* idtac e *)
+Tactic Notation "print_str" string(e1) := idtac. (* idtac e1 *)
+Tactic Notation "print2" ident(e1) string(e2) := idtac. (* idtac e1 e2 *)
+Ltac print_type e := first [ let x := type of e in print x | print_str "Untyped:"; print e ].
+
+Ltac print_goal_cbn :=
+  match goal with
+  | [ |- ?H ] =>
+    let H' := eval cbn in H in print H'
+  end.
+
 (** This tactic destructs a variable recursivle and shelves each goal where it couldn't destruct the variable further. The purpose of this tactic is to pre-instantiate functions to relations with holes of the form [Param -> Rel _ _]. We need this for the [Switch] Machine.
 The implementation of this tactic is quiete uggly but works for parameters with up to 9 constructor arguments. This tactic may generates a lot of warnings, which can be ignored. *)
 Ltac destruct_shelve e :=
   cbn in e;
-  idtac "Input:";
+  print_str "Input:";
   print_type e;
-  idtac "Output:";
-  print_goal_cbn; 
+  print_str "Output:";
+  print_goal_cbn;
   let x1 := fresh "x" in
   let x2 := fresh "x" in
   let x3 := fresh "x" in
@@ -107,19 +118,18 @@ Ltac destruct_shelve e :=
   let x7 := fresh "x" in
   let x8 := fresh "x" in
   let x9 := fresh "x" in
-  first [ destruct e as [x1|x2|x3|x4|x5|x6|x7|x8|x9]; idtac e "has 9 constructors"; [ try destruct_shelve x1 | try destruct_shelve x2 | try destruct_shelve x3 | try destruct_shelve x4 | try destruct_shelve x5 | try destruct_shelve x6 | try destruct_shelve x7 | try destruct_shelve x8 | try destruct_shelve x9]; shelve
-        | destruct e as [x1|x2|x3|x4|x5|x6|x7|x8]; idtac e "has 8 constructors"; [ try destruct_shelve x1 | try destruct_shelve x2 | try destruct_shelve x3 | try destruct_shelve x4 | try destruct_shelve x5 | try destruct_shelve x6 | try destruct_shelve x7 | try destruct_shelve x8]; shelve
-        | destruct e as [x1|x2|x3|x4|x5|x6|x7]; idtac e "has 7 constructors"; [ try destruct_shelve x1 | try destruct_shelve x2 | try destruct_shelve x3 | try destruct_shelve x4 | try destruct_shelve x5 | try destruct_shelve x6 | try destruct_shelve x7]; shelve
-        | destruct e as [x1|x2|x3|x4|x5|x6]; idtac e "has 6 constructors"; [ try destruct_shelve x1 | try destruct_shelve x2 | try destruct_shelve x3 | try destruct_shelve x4 | try destruct_shelve x5 | try destruct_shelve x6]; shelve
-        | destruct e as [x1|x2|x3|x4|x5]; idtac e "has 5 constructors"; [ try destruct_shelve x1 | try destruct_shelve x2 | try destruct_shelve x3 | try destruct_shelve x4 | try destruct_shelve x5]; shelve
-        | destruct e as [x1|x2|x3|x4]; idtac e "has 4 constructors"; [ try destruct_shelve x1 | try destruct_shelve x2 | try destruct_shelve x3 | try destruct_shelve x4]; shelve
-        | destruct e as [x1|x2|x3]; idtac e "has 3 constructors"; [ try destruct_shelve x1 | try destruct_shelve x2 | try destruct_shelve x3]; shelve
-        | destruct e as [x1|x2]; idtac e "has 2 constructors"; [ try destruct_shelve x1 | try destruct_shelve x2]; shelve
-        | destruct e as [x1]; idtac e "has 1 constructors"; [ try destruct_shelve x1 ]; shelve
-        | destruct e as []; idtac e "has 0 constructors"; shelve
+  first [ destruct e as [x1|x2|x3|x4|x5|x6|x7|x8|x9]; print2 e "has 9 constructors"; [ try destruct_shelve x1 | try destruct_shelve x2 | try destruct_shelve x3 | try destruct_shelve x4 | try destruct_shelve x5 | try destruct_shelve x6 | try destruct_shelve x7 | try destruct_shelve x8 | try destruct_shelve x9]; shelve
+        | destruct e as [x1|x2|x3|x4|x5|x6|x7|x8]; print2 e "has 8 constructors"; [ try destruct_shelve x1 | try destruct_shelve x2 | try destruct_shelve x3 | try destruct_shelve x4 | try destruct_shelve x5 | try destruct_shelve x6 | try destruct_shelve x7 | try destruct_shelve x8]; shelve
+        | destruct e as [x1|x2|x3|x4|x5|x6|x7]; print2 e "has 7 constructors"; [ try destruct_shelve x1 | try destruct_shelve x2 | try destruct_shelve x3 | try destruct_shelve x4 | try destruct_shelve x5 | try destruct_shelve x6 | try destruct_shelve x7]; shelve
+        | destruct e as [x1|x2|x3|x4|x5|x6]; print2 e "has 6 constructors"; [ try destruct_shelve x1 | try destruct_shelve x2 | try destruct_shelve x3 | try destruct_shelve x4 | try destruct_shelve x5 | try destruct_shelve x6]; shelve
+        | destruct e as [x1|x2|x3|x4|x5]; print2 e "has 5 constructors"; [ try destruct_shelve x1 | try destruct_shelve x2 | try destruct_shelve x3 | try destruct_shelve x4 | try destruct_shelve x5]; shelve
+        | destruct e as [x1|x2|x3|x4]; print2 e "has 4 constructors"; [ try destruct_shelve x1 | try destruct_shelve x2 | try destruct_shelve x3 | try destruct_shelve x4]; shelve
+        | destruct e as [x1|x2|x3]; print2 e "has 3 constructors"; [ try destruct_shelve x1 | try destruct_shelve x2 | try destruct_shelve x3]; shelve
+        | destruct e as [x1|x2]; print2 e "has 2 constructors"; [ try destruct_shelve x1 | try destruct_shelve x2]; shelve
+        | destruct e as [x1]; print2 e "has 1 constructors"; [ try destruct_shelve x1 ]; shelve
+        | destruct e as []; print2 e "has 0 constructors"; shelve
         ]
 .
-  
 
 (* Eval simpl in ltac:(intros ?e; destruct_shelve e) : (option (bool + (bool + (bool + bool)))) -> Rel _ _. *)
 

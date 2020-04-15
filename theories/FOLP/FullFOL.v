@@ -26,7 +26,7 @@ Derive Signature for vector.
 
 Ltac capply H := eapply H; try eassumption.
 Ltac comp := repeat (progress (cbn in *; autounfold in *; asimpl in *)).
-Hint Unfold idsRen.
+Hint Unfold idsRen : core.
 
 Ltac resolve_existT :=
   match goal with
@@ -143,7 +143,7 @@ Section FullFOL.
   Inductive vec_in (A : Type) (a : A) : forall n, vector A n -> Type :=
   | vec_inB n (v : vector A n) : vec_in a (cons a v)
   | vec_inS a' n (v :vector A n) : vec_in a v -> vec_in a (cons a' v).
-  Hint Constructors vec_in.
+  Hint Constructors vec_in : core.
 
   Lemma strong_term_ind' (p : term -> Type) :
     (forall x, p (var_term x)) -> (forall F v, (Forall p v) -> p (Func F v)) -> forall (t : term), p t.
@@ -344,9 +344,9 @@ Section FullFOL.
   Infix "⊑" := subset_T (at level 20).
   Infix "∈" := contains (at level 70).
 
-  Hint Unfold contains.
-  Hint Unfold contains_L.
-  Hint Unfold subset_T.
+  Hint Unfold contains : core.
+  Hint Unfold contains_L : core.
+  Hint Unfold subset_T : core.
 
   Global Instance subset_T_trans : Transitive subset_T.
   Proof.
@@ -419,7 +419,7 @@ Proof.
     exists (b :: B). split. 1: auto. intros ? []; subst; auto.
 Qed.
 
-Hint Constructors vec_in.
+Hint Constructors vec_in : core.
 
 Infix "⊏" := contains_L (at level 20).
 Infix "⊑" := subset_T (at level 20).

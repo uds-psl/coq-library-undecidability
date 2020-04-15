@@ -211,7 +211,7 @@ Section gcd_lcm.
 
   Infix "div" := divides (at level 70, no associativity).
 
-  Hint Resolve divides_0 divides_refl divides_mult divides_1.
+  Hint Resolve divides_0 divides_refl divides_mult divides_1 : core.
 
   Definition is_gcd p q r := r div p /\ r div q /\ forall k, k div p -> k div q -> k div r.
   Definition is_lcm p q r := p div r /\ q div r /\ forall k, p div k -> q div k -> r div k.
@@ -246,7 +246,7 @@ Section gcd_lcm.
   Fact is_gcd_minus p q r : p <= q -> is_gcd p q r -> is_gcd p (q-p) r.
   Proof. intros H1; apply is_gcd_modulus; auto. Qed.
 
-  Hint Resolve divides_plus.
+  Hint Resolve divides_plus : core.
 
   Fact is_gcd_moduplus p q k r : p div k -> is_gcd p q r -> is_gcd p (q+k) r.
   Proof.
@@ -296,7 +296,7 @@ Section bezout.
 
   Infix "div" := divides (at level 70, no associativity).
 
-  Hint Resolve is_gcd_0l is_gcd_0r is_lcm_0l is_lcm_0r divides_refl divides_mult divides_0 is_gcd_minus.
+  Hint Resolve is_gcd_0l is_gcd_0r is_lcm_0l is_lcm_0r divides_refl divides_mult divides_0 is_gcd_minus : core.
 
   Section bezout_rel_prime.
  
@@ -365,7 +365,7 @@ Section bezout.
       exists a, b; auto.
     Qed.
 
-    Hint Resolve divides_1.
+    Hint Resolve divides_1 : core.
 
     Lemma bezout_sc p q a b m : a*p+b*q = 1 + m -> p div m \/ q div m -> is_gcd p q 1.
     Proof.
@@ -422,7 +422,7 @@ Section bezout.
     rewrite mult_comm, H1; auto.
   Qed.
 
-  Hint Resolve divides_1 divides_mult_compat is_gcd_refl.
+  Hint Resolve divides_1 divides_mult_compat is_gcd_refl : core.
 
   Fact is_gcd_0 p q : is_gcd p q 0 -> p = 0 /\ q = 0.
   Proof.
@@ -632,7 +632,7 @@ Section bezout.
           + apply mult_le_compat; auto. }
     Defined.
   
-    Hint Resolve is_gcd_sym is_lcm_sym.
+    Hint Resolve is_gcd_sym is_lcm_sym : core.
 
     Definition bezout_generalized p q : { a : nat 
                                       & { b : nat 
@@ -802,7 +802,7 @@ Section division.
     + apply rem_prop with 0; omega.
   Qed.
 
-  Hint Resolve divides_0_inv.
+  Hint Resolve divides_0_inv : core.
 
   Fact divides_dec q p : { k | q = k*p } + { ~ divides p q }.
   Proof.
@@ -967,5 +967,5 @@ Section rem_2.
 
 End rem_2.
 
-Local Hint Resolve divides_mult divides_mult_r divides_refl.
+Local Hint Resolve divides_mult divides_mult_r divides_refl : core.
 

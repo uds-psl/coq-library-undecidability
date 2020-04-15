@@ -148,9 +148,9 @@ Section Fin.
 
   (* Arguments finMax (n) H : clear implicits. *)
 
-  Compute finMax (ltac:(congruence) : 1 <> 0).
-  Compute finMax (ltac:(congruence) : 10 <> 0).
-  Compute finMax' 99.
+  (* Compute finMax (ltac:(congruence) : 1 <> 0). *)
+  (* Compute finMax (ltac:(congruence) : 10 <> 0). *)
+  (* Compute finMax' 99. *)
 
   Definition finMin (n : nat) : n <> 0 -> Fin.t n.
   Proof.
@@ -200,8 +200,8 @@ Section Fin.
   Definition finSucc' (n : nat) (i : Fin.t (S n)) (H : i <> finMax' n) : Fin.t (S n).
   Proof. unshelve eapply finSucc with (i := i). apply Nat.neq_succ_0. apply H. Defined.
 
-  Compute @finSucc 5 Fin0 _ _.
-  Compute finSucc' (_ : Fin4 <> finMax' 10).
+  (* Compute @finSucc 5 Fin0 _ _. *)
+  (* Compute finSucc' (_ : Fin4 <> finMax' 10). *)
 
 
   Fixpoint finSucc_opt (n : nat) (i : Fin.t n) {struct i} : option (Fin.t n).
@@ -217,13 +217,13 @@ Section Fin.
         * apply None.
   Defined.
 
-  Compute eq_refl : @finSucc_opt 1 Fin0 = None.
-  Compute eq_refl : @finSucc_opt 2 Fin0 = Some Fin1.
-  Compute eq_refl : @finSucc_opt 2 Fin1 = None.
-  Compute eq_refl : @finSucc_opt 3 Fin1 = Some Fin2.
-  Compute eq_refl : @finSucc_opt 3 Fin0 = Some Fin1.
-  Compute eq_refl : @finSucc_opt 8 Fin7 = None.
-  Compute eq_refl : @finSucc_opt 9 Fin7 = Some Fin8.
+  (* Compute eq_refl : @finSucc_opt 1 Fin0 = None. *)
+  (* Compute eq_refl : @finSucc_opt 2 Fin0 = Some Fin1. *)
+  (* Compute eq_refl : @finSucc_opt 2 Fin1 = None. *)
+  (* Compute eq_refl : @finSucc_opt 3 Fin1 = Some Fin2. *)
+  (* Compute eq_refl : @finSucc_opt 3 Fin0 = Some Fin1. *)
+  (* Compute eq_refl : @finSucc_opt 8 Fin7 = None. *)
+  (* Compute eq_refl : @finSucc_opt 9 Fin7 = Some Fin8. *)
 
   Lemma finSucc_opt_Some (n : nat) (i : Fin.t n) :
     S (fin_to_nat i) < n ->

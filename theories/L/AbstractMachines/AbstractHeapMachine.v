@@ -2,6 +2,8 @@ From Undecidability.L Require Import L AbstractMachines.Programs Complexity.Reso
 
 Require Import Lia.
 
+Import L_Notations.
+
   (** ** Abstract Heap Machine *)
 Section Lin.
 
@@ -45,7 +47,7 @@ Section Lin.
 
   Definition state := (list clos * list clos *Heap)%type.
 
-  Hint Transparent state.
+  Hint Transparent state : core.
 
   Inductive step : state -> state -> Prop :=
     step_pushVal P P' Q a T V H:
@@ -59,7 +61,7 @@ Section Lin.
       -> step ((varT x::P,a)::T,V,H) ((P,a)::T,g::V,H)
   | step_nil a T V H: step (([],a)::T,V,H) (T,V,H).
 
-  Hint Constructors step.
+  Hint Constructors step : core.
 
   (** *** Unfolding *)
   

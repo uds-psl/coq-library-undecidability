@@ -149,7 +149,7 @@ Fixpoint conv `{Signature} i (phi : bform) : option (form) :=
 
 Definition convert `{Signature} f := (@conv _ 0 (rmPapps f)).
 
-Notation "=: f" := (ltac:(let y := eval cbv -[subst_form] in (convert f) in match y with Some ?x => exact x | _ => fail 10 end)) (at level 200).
+Notation "=: f" := (ltac:(let y := eval cbv -[subst_form] in (convert f) in match y with Some ?x => exact x | _ => fail 10 end)) (at level 200, only parsing).
 
 (* Notation "=:( x ) f" := (ltac:(let y := eval cbv in (@conv _ x 0 (rmPapps f)) in match y with Some ?x => exact x | _ => fail 10 end)) (at level 5). *)
 
