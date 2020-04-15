@@ -285,11 +285,12 @@ Proof.
   rewrite <- (H1 y); apply H2; auto.
 Qed.
 
+(*
 Print nat_enum_cls.
 Print quotient.
 
 Check enum_quotient.
 Check quotient_is_enum.
-  
+*)
 
 
