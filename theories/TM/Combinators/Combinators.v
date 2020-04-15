@@ -90,16 +90,24 @@ Arguments Return : simpl never.
 
 (** Helper tactics for match *)
 
-Tactic Notation "print" string(e1) := idtac.
-Tactic Notation "print2" ident(e1) string(e2) := idtac.
+Ltac print e := idtac.                                  (* idtac e *)
+Tactic Notation "print_str" string(e1) := idtac. (* idtac e1 *)
+Tactic Notation "print2" ident(e1) string(e2) := idtac. (* idtac e1 e2 *)
+Ltac print_type e := first [ let x := type of e in print x | print_str "Untyped:"; print e ].
+
+Ltac print_goal_cbn :=
+  match goal with
+  | [ |- ?H ] =>
+    let H' := eval cbn in H in print H'
+  end.
 
 (** This tactic destructs a variable recursivle and shelves each goal where it couldn't destruct the variable further. The purpose of this tactic is to pre-instantiate functions to relations with holes of the form [Param -> Rel _ _]. We need this for the [Switch] Machine.
 The implementation of this tactic is quiete uggly but works for parameters with up to 9 constructor arguments. This tactic may generates a lot of warnings, which can be ignored. *)
 Ltac destruct_shelve e :=
   cbn in e;
-  print "Input:";
+  print_str "Input:";
   print_type e;
-  print "Output:";
+  print_str "Output:";
   print_goal_cbn;
   let x1 := fresh "x" in
   let x2 := fresh "x" in
@@ -122,7 +130,6 @@ Ltac destruct_shelve e :=
         | destruct e as []; print2 e "has 0 constructors"; shelve
         ]
 .
-  
 
 (* Eval simpl in ltac:(intros ?e; destruct_shelve e) : (option (bool + (bool + (bool + bool)))) -> Rel _ _. *)
 
