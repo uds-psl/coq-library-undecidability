@@ -479,17 +479,17 @@ Ltac simpl_not_in_add_tapes_one :=
 
 Ltac simpl_not_in_add_tapes := repeat simpl_not_in_add_tapes_one.
 
-(* Test *)
-Goal True.
-  assert (forall i : Fin.t 3, not_index (add_tapes _ 2) i -> i = i) by firstorder.
-  simpl_not_in_add_tapes. (* :-) *)
-Abort.
+(* (* Test *) *)
+(* Goal True. *)
+(*   assert (forall i : Fin.t 3, not_index (add_tapes _ 2) i -> i = i) by firstorder. *)
+(*   simpl_not_in_add_tapes. (* :-) *) *)
+(* Abort. *)
 
-Goal True.
-  assert (n : nat) by constructor.
-  assert (forall i : Fin.t (S n), not_index (add_tapes n 1) i -> True) by firstorder.
-  simpl_not_in_add_tapes.
-Abort.
+(* goal True. *)
+(*   assert (n : nat) by constructor. *)
+(*   assert (forall i : Fin.t (S n), not_index (add_tapes n 1) i -> True) by firstorder. *)
+(*   simpl_not_in_add_tapes. *)
+(* Abort. *)
 
 
 (* Support for [app_tapes] *)
@@ -518,13 +518,13 @@ Ltac simpl_not_in_app_tapes_one :=
 
 Ltac simpl_not_in_app_tapes := repeat simpl_not_in_app_tapes_one.
 
-Goal True.
-  assert (forall i : Fin.t 10, not_index (app_tapes 8 _) i -> i = i) as Inj by firstorder.
-  simpl_not_in_app_tapes.
-  Check HIndex_Inj : Fin8 = Fin8.
-  Check HIndex_Inj0 : Fin9 = Fin9.
-  Fail Check HInj.
-Abort.
+(* Goal True. *)
+(*   assert (forall i : Fin.t 10, not_index (app_tapes 8 _) i -> i = i) as Inj by firstorder. *)
+(*   simpl_not_in_app_tapes. *)
+(*   Check HIndex_Inj : Fin8 = Fin8. *)
+(*   Check HIndex_Inj0 : Fin9 = Fin9. *)
+(*   Fail Check HInj. *)
+(* Abort. *)
 
 
 
@@ -537,16 +537,16 @@ Ltac vector_contains a vect :=
   | _ => fail "No vector" vect
   end.
 
-Fail Check ltac:(vector_contains 42 (@Vector.nil nat); idtac "yes!").
-Check ltac:(vector_contains 42 [|4;8;15;16;23;42|]; idtac "yes!").
+(* Fail Check ltac:(vector_contains 42 (@Vector.nil nat); idtac "yes!"). *)
+(* Check ltac:(vector_contains 42 [|4;8;15;16;23;42|]; idtac "yes!"). *)
 
 Ltac vector_doesnt_contain a vect :=
   tryif vector_contains a vect then fail "Vector DOES contain" a else idtac.
 
 
-Check ltac:(vector_doesnt_contain 42 (@Vector.nil nat); idtac "yes!").
-Check ltac:(vector_doesnt_contain 9 [|4;8;15;16;23;42|]; idtac "yes!").
-Fail Check ltac:(vector_doesnt_contain 42 [|4;8;15;16;23;42|]; idtac "yes!").
+(* Check ltac:(vector_doesnt_contain 42 (@Vector.nil nat); idtac "yes!"). *)
+(* Check ltac:(vector_doesnt_contain 9 [|4;8;15;16;23;42|]; idtac "yes!"). *)
+(* Fail Check ltac:(vector_doesnt_contain 42 [|4;8;15;16;23;42|]; idtac "yes!"). *)
 
 
 
@@ -577,19 +577,19 @@ Ltac simpl_not_in_vector_one :=
 Ltac simpl_not_in_vector := repeat simpl_not_in_vector_one.
 
 
-(* Test *)
-Goal True.
-  assert (forall i : Fin.t 10, not_index [|Fin8; Fin1; Fin2; Fin3|] i -> i = i) as HInj by firstorder.
-  simpl_not_in_vector_one.
-  Fail Check HInj.
-  Show Proof.
-  Check (HInj_0 : Fin0 = Fin0).
-  Check (HInj_1 : Fin4 = Fin4).
-  Check (HInj_2 : Fin5 = Fin5).
-  Check (HInj_3 : Fin6 = Fin6).
-  Check (HInj_4 : Fin7 = Fin7).
-  Check (HInj_5 : Fin9 = Fin9).
-Abort.
+(* (* Test *) *)
+(* Goal True. *)
+(*   assert (forall i : Fin.t 10, not_index [|Fin8; Fin1; Fin2; Fin3|] i -> i = i) as HInj by firstorder. *)
+(*   simpl_not_in_vector_one. *)
+(*   Fail Check HInj. *)
+(*   Show Proof. *)
+(*   Check (HInj_0 : Fin0 = Fin0). *)
+(*   Check (HInj_1 : Fin4 = Fin4). *)
+(*   Check (HInj_2 : Fin5 = Fin5). *)
+(*   Check (HInj_3 : Fin6 = Fin6). *)
+(*   Check (HInj_4 : Fin7 = Fin7). *)
+(*   Check (HInj_5 : Fin9 = Fin9). *)
+(* Abort. *)
 
 
 

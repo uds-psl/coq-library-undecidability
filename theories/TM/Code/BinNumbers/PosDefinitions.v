@@ -4,21 +4,21 @@ From Undecidability Require Export ArithPrelim. (* [nia] etc. *)
 From Undecidability Require Import ArithPrelim. (* [nia] etc. *)
 Require Export BinPos.
 
-Compute 42. (* default number notation is still for [nat] *)
+(* Compute 42. (* default number notation is still for [nat] *) *)
 
 Local Open Scope positive_scope.
 
-Local Set Printing All.
-Compute 42 % positive.
-Compute 42 : positive.
-Local Unset Printing All.
+(* Local Set Printing All. *)
+(* Compute 42 % positive. *)
+(* Compute 42 : positive. *)
+(* Local Unset Printing All. *)
 
 
 (* Big binary numbers are not a problem for Coq *)
-Compute (42 ^ 42) % positive.
+(* Compute (42 ^ 42) % positive. *)
 
 (* Number of bits required to represent this big number *)
-Compute Pos.size_nat (42 ^ 42).
+(* Compute Pos.size_nat (42 ^ 42). *)
 
 
 (** ** General definitions and lemmas on binary numbers *)
@@ -51,7 +51,7 @@ Fixpoint append_bits (x : positive) (bits : list bool) : positive :=
   | b  :: bits' => append_bits (x~~b) bits'
   end.
 
-Compute append_bits 42 [false; true]. (* 42 * 2 * 2 + 1 = 169 *)
+(* Compute append_bits 42 [false; true]. (* 42 * 2 * 2 + 1 = 169 *) *)
 
 Goal encode_pos (append_bits 1234567890 [false;true;true]) = encode_pos 1234567890 ++ map bitToSigPos [false;true;true]. reflexivity. Qed.
 
@@ -79,8 +79,8 @@ Fixpoint bits_to_pos' (bits : list bool) : positive :=
   end.
 Definition bits_to_pos (bits : list bool) := bits_to_pos' (rev bits).
 
-Compute bits_to_pos [false; true; false; true; false]. (* 42 *)
-Compute bits_to_pos [false; true; false; true; true]. (* 43 -> last bit is LSB *)
+(* Compute bits_to_pos [false; true; false; true; false]. (* 42 *) *)
+(* Compute bits_to_pos [false; true; false; true; true]. (* 43 -> last bit is LSB *) *)
 
 
 Lemma bits_to_pos'_cons (bit : bool) (bits : list bool) :
@@ -174,8 +174,8 @@ Fixpoint pushHSB (p : positive) (b : bool) : positive :=
   | 1 => 1 ~~ b
   end.
 
-Compute pushHSB 42 true. (* 42 + 64 = 106 *)
-Compute pushHSB 42 false. (* 42 + 64 - 32 = 74 *)
+(* Compute pushHSB 42 true. (* 42 + 64 = 106 *) *)
+(* Compute pushHSB 42 false. (* 42 + 64 - 32 = 74 *) *)
 
 Lemma encode_pushHSB (p : positive) (b : bool) :
   encode_pos (pushHSB p b) = sigPos_xH :: bitToSigPos b :: tl (encode_pos p).
