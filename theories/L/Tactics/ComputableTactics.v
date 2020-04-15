@@ -2,6 +2,7 @@ Require Import PslBase.Bijection MetaCoq.Template.All Strings.Ascii.
 From Undecidability.L Require Import Prelim.StringBase.
 From Undecidability.L.Tactics Require Import Lproc Computable ComputableTime Lsimpl mixedTactics Lbeta Lrewrite.
 Require Export Ring Arith Lia.
+Import L_Notations.
 
 (** ** Tactics proving correctness *)
 Module Intern.
@@ -431,16 +432,16 @@ End Intern.
 
 Import Intern.
 
-Ltac register_inj :=   abstract (intros x; induction x; destruct 0;simpl; intros eq; try (injection eq || discriminate eq);intros;f_equal;auto;try apply inj_enc;try easy).
+Ltac register_inj :=   abstract (intros x; induction x; let y := fresh "y" in destruct y;simpl; intros eq; try (injection eq || discriminate eq);intros;f_equal;auto;try apply inj_enc;try easy).
 
 Ltac register_proc :=
-  unfold enc_f;
-  (((induction 0 || intros);
+  unfold enc_f; let x := fresh "x" in
+  (((induction x || intros *);
     cbn; fold_encs;Lproc
                         )).
 
 Ltac register encf :=   refine (@mk_registered _ encf _ _);[
-                          (((induction 0 || intros);(let f := visibleHead encf in unfold f;cbn [f]);
+                          (((let x := fresh "x" in induction x || intros);(let f := visibleHead encf in unfold f;cbn [f]);
                             fold_encs;Lproc
                         )) | try register_inj].
 

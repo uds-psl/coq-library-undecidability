@@ -45,13 +45,13 @@ Then the following commands install the library:
 
 ```
 opam repo add coq-released https://coq.inria.fr/opam/released
-opam repo add opam repo add psl-opam-repository https://github.com/uds-psl/psl-opam-repository.git
-opam install coq-library-undecidability.dev+8.10
+opam repo add psl-opam-repository https://github.com/uds-psl/psl-opam-repository.git
+opam install coq-library-undecidability.dev+8.11
 ```
 
 ### Manual installation
 
-You need `Coq 8.10.2` built on OCAML `> 4.02.3`, the [Smpl](https://github.com/uds-psl/smpl) package, the [PSL Base](https://github.com/uds-psl/base-library) library, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
+You need `Coq 8.11` built on OCAML `> 4.02.3`, the [Smpl](https://github.com/uds-psl/smpl) package, the [PSL Base](https://github.com/uds-psl/base-library) library, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
 
 ```
 opam switch create coq-library-undecidability 4.07.1+flambda

@@ -31,7 +31,7 @@ Proof.
   destruct (eva n u) as [t|] eqn:Heva.
   -exists (g t). destruct H as [y H]. rewrite <- Heva in H. apply eva_equiv in H.
    assert (lambda t)by now apply eva_lam in Heva. apply eva_equiv in Heva. rewrite Heva in H. erewrite <- Hg. apply equiv_lambda in Heva;try Lproc. rewrite Heva. exact H. apply unique_normal_forms in H;try Lproc. congruence. 
-  -exists (g 0). destruct H as [? H]. inv H.
+  -exists (g #0). destruct H as [? H]. inv H.
   -intros n. destruct (eva n u) eqn:eq.
    +left. destruct H as [n' [y H]]. exists y. apply eva_equiv in H.
     assert (lambda t) by now apply eva_lam in eq. apply eva_equiv in eq. rewrite H in eq. apply unique_normal_forms in eq;[|Lproc..].  congruence.

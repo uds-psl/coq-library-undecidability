@@ -1,6 +1,6 @@
 From Undecidability.L.Computability Require Export Fixpoints Decidability Seval.
 From Undecidability.L.Functions Require Export Proc Encoding.
-Import ARS.ARSNotations.
+Import ARS.ARSNotations L_Notations.
 (** * Scott's Theorem *)
 
 Theorem Scott (M : term -> Prop) : M <=1 closed ->

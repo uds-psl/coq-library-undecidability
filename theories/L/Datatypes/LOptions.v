@@ -1,4 +1,5 @@
 From Undecidability.L Require Import Tactics.LTactics Datatypes.LBool Tactics.GenEncode.
+Import L_Notations.
 
 (** ** Encoding of option type *)
 Section Fix_X.

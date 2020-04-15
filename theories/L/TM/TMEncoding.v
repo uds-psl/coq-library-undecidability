@@ -6,6 +6,8 @@ Require Import List Init.Nat.
 From Undecidability Require Import TM.TM.
 Require Import PslBase.FiniteTypes.FinTypes.
 
+Import L_Notations.
+
 (** ** Extraction of Turing Machine interpreter  *)
 
 (** *** Encoding finite types *)

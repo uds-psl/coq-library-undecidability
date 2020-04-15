@@ -6,7 +6,7 @@ Require Import RelationClasses.
 
 Inductive timeBS : nat -> term -> term -> Prop :=
   timeBSVal s : timeBS 0 (lam s) (lam s)
-| timeBSBeta (s s' t t' u : term) i j k l: timeBS i s (lam s') -> timeBS j t (lam t') -> timeBS k (subst s' 0 (lam t')) u -> l = (i+j+1+k) -> timeBS l (s t) u.
+| timeBSBeta (s s' t t' u : term) i j k l: timeBS i s (lam s') -> timeBS j t (lam t') -> timeBS k (subst s' 0 (lam t')) u -> l = (i+j+1+k) -> timeBS l (app s t) u.
 
 
 Module Leftmost.
@@ -20,7 +20,7 @@ Module Leftmost.
   | step_lmAppR s t  t' : t ≻lm t' -> app (lam s) t ≻lm app (lam s) t'
   | step_lmAppL s s' t  : s ≻lm s' -> app s t ≻lm app s' t
   where "s '≻lm' t" := (step_lm s t).
-  Hint Constructors step_lm.
+  Hint Constructors step_lm : core.
 
   Lemma step_lm_functional :
     functional step_lm.
@@ -46,7 +46,7 @@ Module Leftmost.
   Proof.
     intros s t R u ? <-. revert s t R u.
     induction k;cbn in *;intros ? ? R ?. congruence. destruct R as [s' [R1 R2]].
-    exists (s' u). firstorder.
+    exists (app s' u). firstorder.
   Defined.
 
   Instance pow_step_lm_congR k:
@@ -54,7 +54,7 @@ Module Leftmost.
   Proof.
     intros s ? <- t u R. revert s t u R.
     induction k;cbn in *;intros ? ? ? R. congruence. destruct R as [t' [R1 R2]].
-    exists (lam s t'). firstorder.
+    exists (app (lam s) t'). firstorder.
   Defined.
 
   Instance step_lm_step: subrelation step_lm step.
@@ -67,7 +67,7 @@ Module Leftmost.
   Definition redWithMaxSizeL := redWithMaxSize size step_lm.
 
   Lemma redWithMaxSizeL_congL m m' s s' t:
-    redWithMaxSizeL m s s' -> m' = (1 + m + size t) -> redWithMaxSizeL m' (s t) (s' t).
+    redWithMaxSizeL m s s' -> m' = (1 + m + size t) -> redWithMaxSizeL m' (app s t) (app s' t).
   Proof.
     intros R Heq.
     induction R as [s | s s'] in m',t,Heq |-* .
@@ -77,7 +77,7 @@ Module Leftmost.
   Qed.
 
   Lemma redWithMaxSizeL_congR m m' s t t':
-    redWithMaxSizeL m t t' -> m' = (1 + m + size (lam s)) -> redWithMaxSizeL m' (lam s t) (lam s t').
+    redWithMaxSizeL m t t' -> m' = (1 + m + size (lam s)) -> redWithMaxSizeL m' (app (lam s) t) (app (lam s) t').
   Proof.
     intros R Heq.
     induction R as [t | t t'] in m',s,Heq |-* .
@@ -133,7 +133,7 @@ Module Leftmost.
       spaceBS m3 (subst s' 0 (lam t')) u ->
       m = max (m1 + 1 + size t)
               (max (size (lam s') + 1 + m2) m3) ->
-      spaceBS m (s t) u.
+      spaceBS m (app s t) u.
 
   Lemma spaceBS_ge s t m: spaceBS m s t -> size s<= m /\ size t <= m.
   Proof.
@@ -189,10 +189,10 @@ Module Leftmost.
       destruct IHR3 as (R3'&?).
       split;[|firstorder].
       subst m.
-      eapply redWithMaxSize_trans with (t:=(lam s') t).
+      eapply redWithMaxSize_trans with (t:=app (lam s') t).
       { eapply redWithMaxSizeL_congL. eassumption. reflexivity. }
       
-      eapply redWithMaxSize_trans with (t:=(lam s') (lam t')).
+      eapply redWithMaxSize_trans with (t:=app (lam s') (lam t')).
       { eapply redWithMaxSizeL_congR. eassumption. reflexivity. }
       econstructor. constructor. eassumption. reflexivity. reflexivity.
       specialize (spaceBS_ge R2) as [_ H3];cbn in H3.   
@@ -262,18 +262,18 @@ Lemma hasSpaceBeta s s' m1 t t' m2 m3:
   hasSpace m1 s -> hasSpace m2 t ->
   s >* lam s' -> eval t t' ->
   hasSpace m3 (subst s' 0 t') ->
-  hasSpace (max m3 (m1+m2+1)) (s t).
+  hasSpace (max m3 (m1+m2+1)) (app s t).
 Proof.
   intros H1 H2 R1 R2 [(u0&R'3&LB3) UB3].
   split.
   -destruct H1 as [(s0&R'1&LB1) _]. destruct H2 as  [(t0&R'2&LB2) _].
    apply Nat.max_case_strong;intros ?.
    +exists u0. rewrite R1. rewrite R2. rewrite step_Lproc. 2:now apply R2. easy.
-   +exists (s0 t0). split.
+   +exists (app s0 t0). split.
     *eapply star_step_app_proper. all:easy.
     *cbn. omega.
   -destruct H1 as [_ LB1]. destruct H2 as [_ LB2].
-   intros m' (u1 & Ru & lequ1). remember (s t) as st eqn:eqst.
+   intros m' (u1 & Ru & lequ1). remember (app s t) as st eqn:eqst.
    eapply Nat.max_le_iff.  
    induction Ru as [? |? ? Ru Ru'] in s,t,lequ1, eqst, LB1, LB2,R1,R2 |-*;subst x.
    +right. rewrite lequ1.

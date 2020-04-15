@@ -55,7 +55,7 @@ Section binomial.
 
   Infix "<d" := divides (at level 70, no associativity).
 
-  Hint Resolve divides_refl.
+  Hint Resolve divides_refl : core.
 
   Let fact_neq_0 n : fact n <> 0.
   Proof. generalize (fact_gt_0 n); omega. Qed.

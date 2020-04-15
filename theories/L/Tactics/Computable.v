@@ -41,7 +41,7 @@ Fixpoint computes {A} (tau : TT A) {struct tau}: A -> L.term -> Type :=
     fun f t_f  =>
       proc t_f * forall (a : A) t_a,
         computes tau1 a t_a
-        ->  {v : term & (t_f t_a >* v) * computes tau2 (f a) v}
+        ->  {v : term & (app t_f t_a >* v) * computes tau2 (f a) v}
   end%type.
 
 Lemma computesProc t (ty : TT t) (f : t) fInt:
@@ -94,7 +94,7 @@ Proof.
 Defined.  
 
 Lemma extApp t1 t2 {tt1:TT t1} {tt2 : TT t2} (f: t1 -> t2) (x:t1) (Hf : computable f) (Hx : computable x) :
-  (ext f) (ext x) >* ext (f x).
+  app (ext f) (ext x) >* ext (f x).
 Proof.
   unfold ext, extApp'.
   destruct Hf, Hx.
@@ -120,7 +120,7 @@ Qed.
 
 Lemma computesExpStep t1 t2 (tt1 : TT t1) (tt2 : TT t2) (f : t1 -> t2) (s:term) (fExt : term):
   eval s fExt -> closed s -> 
-  (forall (y : t1) (yExt : term), computes tt1 y yExt -> {v : term & computesExp tt2 (f y) (s yExt) v}%type) ->
+  (forall (y : t1) (yExt : term), computes tt1 y yExt -> {v : term & computesExp tt2 (f y) (app s yExt) v}%type) ->
   computesExp (tt1 ~> tt2) f s fExt.
 Proof.
   intros ? ? H. split. assumption. split. split. now rewrite <-H0. now destruct H0.
@@ -133,7 +133,7 @@ Lemma computesTyArr t1 t2 (tt1 : TT t1) (tt2 : TT t2) f fExt :
   proc fExt
   -> (forall (y : t1) (yExt : term),
         computes tt1 y yExt
-        -> {v : term & eval (fExt yExt) v * (proc v -> computes tt2 (f y) v)}%type)
+        -> {v : term & eval (app fExt yExt) v * (proc v -> computes tt2 (f y) v)}%type)
   -> computes (tt1 ~> tt2) f fExt.
 Proof.
   intros ? H'.

@@ -48,7 +48,7 @@ Section seteq.
     | seteq_trans : forall l m k, l ≡ m -> m ≡ k -> l ≡ k
   where "l ≡ m" := (seteq l m).
 
-  Hint Constructors seteq.
+  Hint Constructors seteq : core.
 
   Fact perm_seteq l m : l ~p m -> l ≡ m.
   Proof. induction 1; eauto. Qed.
@@ -64,7 +64,7 @@ Section seteq.
   Fact incl_cntr (x : X) l : x::x::l ⊆ x::l.
   Proof. intros ? [ -> | [ -> | ] ]; simpl; auto. Qed.
 
-  Hint Resolve incl_refl incl_cons_mono incl_swap incl_cntr incl_tl.
+  Hint Resolve incl_refl incl_cons_mono incl_swap incl_cntr incl_tl : core.
 
   Fact seqeq_incl l m : l ≡ m -> l ⊆ m /\ m ⊆ l.
   Proof.
@@ -120,7 +120,7 @@ Section seteq.
       apply IH; try omega; apply incl_tran with l; auto.
   Qed.
 
-  Hint Resolve seqeq_incl incl_seteq.
+  Hint Resolve seqeq_incl incl_seteq : core.
 
   (** seteq is equivalent to bi-inclusion *)
 
@@ -132,6 +132,8 @@ End seteq.
 Local Infix "≡" := seteq.
 Local Infix "⊆" := incl.
 
+(*
 Print seteq.
 Check seteq_bi_incl.
 Print Assumptions seteq_bi_incl.
+*)

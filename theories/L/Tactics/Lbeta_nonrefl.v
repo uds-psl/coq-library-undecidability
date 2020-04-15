@@ -1,5 +1,6 @@
 From Undecidability.L Require Import ComputableTactics Lproc mixedTactics Tactics.Computable ComputableTime Lrewrite.
 
+Import L_Notations.
 
 Local Fixpoint subst' (s : term) (k : nat) (u : term) {struct s} : term :=
   match s with

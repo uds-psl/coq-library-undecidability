@@ -27,11 +27,11 @@ Fixpoint mult_TR_cont (a : positive) (x y : positive) {struct x} : positive :=
 
 Definition mult_TR (x y : positive) : positive := mult_TR_cont (shift_left y (pos_size x)) x y.
 
-Check eq_refl : let x := 13 in let y := 3 in mult_TR x y = x * y.
-Check eq_refl : let x := 5 in let y := 1 in mult_TR x y = x * y.
-Check eq_refl : let x := 4234 in let y := 2132 in mult_TR x y = x * y.
-Check eq_refl : let x := 43 in let y := 23 in mult_TR x y = x * y.
-Check eq_refl : let x := 43 in let y := 24 in mult_TR x y = x * y.
+(* Check eq_refl : let x := 13 in let y := 3 in mult_TR x y = x * y. *)
+(* Check eq_refl : let x := 5 in let y := 1 in mult_TR x y = x * y. *)
+(* Check eq_refl : let x := 4234 in let y := 2132 in mult_TR x y = x * y. *)
+(* Check eq_refl : let x := 43 in let y := 23 in mult_TR x y = x * y. *)
+(* Check eq_refl : let x := 43 in let y := 24 in mult_TR x y = x * y. *)
 (* All test passed! *)
 
 
@@ -42,8 +42,8 @@ Recursive Extraction mult_TR Pos.mul.
 *)
 
 
-Compute eq_refl: let a := 3 in let x := 4 in let y := 5 in mult_TR_cont (a~0) x (y~0) = (mult_TR_cont a x y)~0.
-Compute eq_refl: let a := 8 in let x := 232 in let y := 123 in mult_TR_cont (a~0) x (y~0) = (mult_TR_cont a x y)~0.
+(* Compute eq_refl: let a := 3 in let x := 4 in let y := 5 in mult_TR_cont (a~0) x (y~0) = (mult_TR_cont a x y)~0. *)
+(* Compute eq_refl: let a := 8 in let x := 232 in let y := 123 in mult_TR_cont (a~0) x (y~0) = (mult_TR_cont a x y)~0. *)
 
 Lemma mult_TR_cont_shift (a x y : positive) :
   mult_TR_cont (a~0) x (y~0) = (mult_TR_cont a x y)~0.

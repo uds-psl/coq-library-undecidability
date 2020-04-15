@@ -630,6 +630,6 @@ Section lagrange.
 
 End lagrange.
 
-Check lagrange_theorem_Z.
+(* Check lagrange_theorem_Z. *)
 
 

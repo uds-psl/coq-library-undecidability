@@ -16,11 +16,13 @@ Proof.
   extract.
 Qed.
 
-Notation "!! u" := (hter u) (at level 0).
-
+Section hoas. Import HOAS_Notations.
 Definition Eval :term := Eval cbn in
       (λ u, !!(ext eva) 
-               (!!mu (λ n, !!(ext doesHaltIn) u n)) u !!I !!I).
+              (!!mu (λ n, !!(ext doesHaltIn) u n)) u !!I !!I).
+End hoas.
+
+Import L_Notations.
 
 Lemma Eval_correct (s v:term) : lambda v -> (Eval (ext s) == v <-> exists (n:nat) (v':term), (ext eva) (ext n) (ext s) == ext (Some v') /\ v = ext v' /\ lambda v').
 Proof.
@@ -71,7 +73,7 @@ Lemma Eval_converges s : converges s <-> converges (Eval (ext s)).
 Proof with eauto.
   split; intros H. 
   - destruct (eval_converges H) as [t Ht].
-    assert (He := eval_Eval Ht). 
+    pose proof (eval_Eval Ht) as He.
     rewrite He. eexists;split;[reflexivity|Lproc].
  - destruct H as [x [H l]]. apply Eval_eval in H;try Lproc. destruct H as [t' [? t]]. exists t'. destruct t. split. now rewrite H0. auto.
 Qed. 

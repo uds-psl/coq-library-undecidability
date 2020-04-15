@@ -1,6 +1,7 @@
 From Undecidability.L Require Export L.
 From Undecidability.L.Tactics Require Import Lproc Lbeta Lrewrite Reflection mixedTactics.
 Require Import ListTactics.
+Import L_Notations.
 
 Local Ltac wLsimpl' _n := intros;try reflexivity';try standardizeGoal _n ; try reflexivity'.
 Local Ltac wLsimpl := wLsimpl' 100.

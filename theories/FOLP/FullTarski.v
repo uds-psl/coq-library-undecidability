@@ -96,7 +96,7 @@ Section Tarski.
     Variable D : Type.
     Variable I : interp D.
 
-    Hint Unfold funcomp.
+    Hint Unfold funcomp : core.
 
     Lemma eval_ext rho xi t :
       (forall x, rho x = xi x) -> eval rho t = eval xi t.

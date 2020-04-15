@@ -1,5 +1,6 @@
 From Undecidability.L Require Export Prelim.ARS Prelim.MoreBase.
 From PslBase Require Export Base Bijection.
+Require Import Lia.
 
 Hint Constructors ARS.star : cbv.
 
@@ -22,7 +23,7 @@ Defined.
 
 Definition term_eq_dec_proc s t := if Dec (s = t) then true else false.
 
-Hint Resolve term_eq_dec.
+Hint Resolve term_eq_dec : core.
 
 (** Notation using binders *)
 
@@ -36,51 +37,55 @@ Fixpoint TH n s :=
   | hter t => t
   end.
 
-(* Fixpoint H L s := *)
-(*   match s with *)
-(*   | var n => hv (nth n L 0) *)
-(*   | app s t => ha (H L s) (H L t) *)
-(*   | lam s => hl (fun x => H (x :: L) s) *)
-(*   end. *)
-
-Definition convert:=TH 0.
+Definition convert := TH 0.
 Coercion convert : hoas >-> term.
 
-Coercion var : nat >-> term.
+Module L_Notations.
 
-Coercion hv : nat >-> hoas.
-Coercion ha : hoas >-> Funclass.
+  Coercion var : nat >-> term.
+  Coercion app : term >-> Funclass. 
 
-Coercion app : term >-> Funclass. 
+End L_Notations.
+
+Module HOAS_Notations.
+
+  Coercion hv : nat >-> hoas.
+  Coercion ha : hoas >-> Funclass.
+
+  Notation "'λ' x .. y , p" := (hl (fun x => .. (hl (fun y => p)) ..))
+    (at level 100, x binder, right associativity,
+     format "'[' 'λ'  '/  ' x  ..  y ,  '/  ' p ']'").
+
+  (* Coercion hter : term >-> hoas. *)
+
+End HOAS_Notations.
 
 (* Use Eval simpl in (term) when defining an term using convert.
 This converts while defining and therefore makes all later steps faster.
-See "important terms" belowI
+See "important terms" below
 
 Also: remember to give the type of combinators explicitly becuase we want to use the coercion!
 (e.g. "Definition R:term := ..." )*) 
 
 Arguments convert /.
 
-Notation "'λ' x .. y , p" := (hl (fun x => .. (hl (fun y => p)) ..))
-  (at level 100, x binder, right associativity,
-   format "'[' 'λ'  '/  ' x  ..  y ,  '/  ' p ']'").
-
 Notation "'!!' s" := (hter s) (at level 0).
-Coercion hter : term >-> hoas.
 
 (** Important terms *)
 
-Definition r : term := Eval simpl in λ r f, f (λ x , r r f x). 
-Definition R : term := r r.
+(* Import L_Notations. *)
+Import HOAS_Notations.
 
-Definition rho s : term := Eval simpl in λ x, r r s x. 
+Definition r : term := Eval simpl in λ r f, f (λ x , r r f x). 
+Definition R : term := app r r.
+
+Definition rho (s : term) : term := Eval simpl in λ x, !!r !!r !!s x. 
 
 Definition I : term := Eval simpl in λ x, x.
 Definition K : term := Eval simpl in λ x y, x.
 
 Definition omega : term := Eval simpl in λ x , x x.
-Definition Omega : term := omega omega.
+Definition Omega : term := app omega omega.
 
 (**  Substitution *)
 
@@ -104,7 +109,7 @@ Proof.
   exists s; reflexivity.
 Qed.
 
-Hint Resolve lambda_lam.
+Hint Resolve lambda_lam : core.
 
 Instance lambda_dec s : dec (lambda s).
 Proof.
@@ -132,7 +137,7 @@ Fixpoint size' (t : term) :=
 
 Inductive bound : nat -> term -> Prop :=
   | dclvar k n : k > n -> bound k (var n)
-  | dclApp k s t : bound k s -> bound k t -> bound k (s t)
+  | dclApp k s t : bound k s -> bound k t -> bound k (app s t)
   | dcllam k s : bound (S k) s -> bound k (lam s).
 
 Lemma bound_closed_k s k u : bound k s -> subst s k u = s.
@@ -183,12 +188,12 @@ Proof.
   -unfold closed. eauto using bound_closed.
 Qed.
 
-Lemma closed_app (s t : term) : closed (s t) -> closed s /\ closed t.
+Lemma closed_app (s t : term) : closed (app s t) -> closed s /\ closed t.
 Proof.
   intros cls. rewrite closed_dcl in cls. inv cls. split; rewrite closed_dcl; eassumption.
 Qed.
 
-Lemma app_closed (s t : term) : closed s -> closed t -> closed (s t).
+Lemma app_closed (s t : term) : closed s -> closed t -> closed (app s t).
 Proof.
   intros H H' k u. simpl. now rewrite H, H'.
 Qed.
@@ -208,13 +213,6 @@ Proof.
   decide (bound 0 s);[left|right];now rewrite closed_dcl.
 Defined.
 
-(* This already works! *)
-Lemma proc_dec s : dec (proc s).
-Proof.
-  exact _.
-Qed.
-
-
 (** ** Reduction *)
 
 Reserved Notation "s '≻' t" (at level 50).
@@ -225,7 +223,7 @@ Inductive step : term -> term -> Prop :=
 | stepAppL s s' t  : s ≻ s' -> app s t ≻ app s' t
 where "s '≻' t" := (step s t).
 
-Hint Constructors step.
+Hint Constructors step : core.
 
 Ltac inv_step :=
   match goal with
@@ -250,7 +248,7 @@ Qed.
 Lemma comb_proc_red s : closed s -> proc s \/ exists t, s ≻ t.
 Proof with try tauto.
   intros cls_s. induction s.
-  - eapply closed_dcl in cls_s. inv cls_s. omega.
+  - eapply closed_dcl in cls_s. inv cls_s. lia.
   - eapply closed_app in cls_s. destruct IHs1 as [[C [t A]] | A], IHs2 as [[D [t' B]] | B]...
     + right. subst. eexists. eauto.
     + right; subst. firstorder; eexists. eapply stepAppR. eassumption.
@@ -301,7 +299,7 @@ Proof.
 Qed.
 
 Lemma step_Lproc s v :
-  lambda v -> (lam s) v ≻ subst s 0 v.
+  lambda v -> app (lam s) v ≻ subst s 0 v.
 Proof.
   intros [t lamv].
   rewrite lamv.
@@ -331,13 +329,13 @@ Proof.
 Defined.
 
 Lemma star_trans_l s s' t :
-  s >* s' -> s t >* s' t.
+  s >* s' -> app s t >* app s' t.
 Proof.
   induction 1; eauto using star, step. 
 Qed.
 
 Lemma star_trans_r (s s' t:term):
-  s >* s' -> t s >* t s'.
+  s >* s' -> app t s >* app t s'.
 Proof.
   induction 1; eauto using star, step.
 Qed.
@@ -367,7 +365,7 @@ Instance pow_step_congL k:
 Proof.
   intros s t R u ? <-. revert s t R u.
   induction k;cbn in *;intros ? ? R ?. congruence. destruct R as [s' [R1 R2]].
-  exists (s' u). firstorder.
+  exists (app s' u). firstorder.
 Defined.
 
 Instance pow_step_congR k:
@@ -375,7 +373,7 @@ Instance pow_step_congR k:
 Proof.
   intros s ? <- t u R. revert s t u R.
   induction k;cbn in *;intros ? ? ? R. congruence. destruct R as [t' [R1 R2]].
-  exists (s t'). firstorder.
+  exists (app s t'). firstorder.
 Defined.
 
 (** Equivalence *)
@@ -389,7 +387,7 @@ Inductive equiv : term -> term -> Prop :=
   | eqTrans s t u: s == t -> t == u -> s == u
 where "s '==' t" := (equiv s t).
 
-Hint Immediate eqRef.
+Hint Immediate eqRef : core.
 
 
 (** Properties of the equivalence relation *)
@@ -421,7 +419,7 @@ Proof.
   - reflexivity.
   - eapply eqTrans. econstructor; eassumption. eassumption.
 Qed.
-Hint Resolve star_equiv.
+Hint Resolve star_equiv : core.
 
 Instance star_equiv_subrelation : subrelation (star step) equiv.
 Proof.
@@ -433,12 +431,6 @@ Proof.
   cbv. intros ? ? H. apply star_equiv, step_star. assumption.
 Qed.
 
-(*
-Lemma equiv_lambda' s t : s == (lam t) -> s >* (lam t).
-Proof.
-  intros H. destruct (church_rosser H) as [u [A B]]; repeat inv_step; eassumption.
-Qed.*)
-
 Lemma equiv_lambda s t : lambda t -> s == t -> s >* t.
 Proof.
   intros H eq. destruct (church_rosser eq) as [u [A B]]. inv B. assumption. inv H. inv H0.
@@ -449,7 +441,7 @@ Proof.
   eauto using equiv.
 Qed.
 
-Lemma eqApp s s' u u' : s == s' -> u == u' -> s u == s' u'.
+Lemma eqApp s s' u u' : s == s' -> u == u' -> app s u == app s' u'.
 Proof with eauto using equiv, step.
   intros H; revert u u'; induction H; intros z z' H'...
   - eapply eqTrans. eapply eqStep. eapply stepAppL. eassumption.
@@ -501,8 +493,9 @@ Qed.
 
 (** Eta expansion *)
 
-Lemma Eta (s : term ) t : closed s -> lambda t -> (lam (s #0)) t == s t.
-Proof.  intros cls_s lam_t. eapply star_equiv, starC; eauto using step_Lproc. simpl. rewrite cls_s. reflexivity.
+Lemma Eta (s : term ) t : closed s -> lambda t -> app (lam (app s #0)) t == app s t.
+Proof.
+  intros cls_s lam_t. eapply star_equiv, starC; eauto using step_Lproc. simpl. rewrite cls_s. reflexivity.
 Qed.
 
 (** Useful lemmas *)
@@ -522,7 +515,7 @@ Qed.
 
 Definition eval s t := s >* t /\ lambda t.
 Notation "s '⇓' t" := (eval s t) (at level 51).
-Hint Unfold eval.
+Hint Unfold eval : core.
 
 Instance eval_star_subrelation : subrelation eval (star step).
 Proof.

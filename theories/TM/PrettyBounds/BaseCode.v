@@ -247,37 +247,37 @@ Section Nth'_nice.
   Lemma Nth'_steps_nice :
     { c | forall (xs : list X) (n : nat), Nth'_steps xs n <=(c) size xs + n + 1 }.
   Proof.
-    pose_nice Nth'_Loop_steps_nice H c.
-    eexists. intros xs n. specialize (H xs n).
-    hnf. unfold Nth'_steps. ring_simplify.
-    (* At this point, ultimate domination would be better, because we would not have to look in the values of [CopyValue_steps] and [Reset_steps], because we already know that they are Θ(size _ xs). Below, [28] has been chosen in dependence of these constants. *)
-    unfold CopyValue_steps, Reset_steps.
-    instantiate (1 := 12 + c + 4 + 4 + _).
-    rewrite !Encode_list_hasSize. rewrite Encode_list_hasSize_skipn.
-    rewrite Encode_nat_hasSize. rewrite H, Encode_list_hasSize.
-    ring_simplify.
-    assert (n - (1 + |xs|) <= n) as H' by omega; rewrite H'; clear H'.
-    (* Encode_list_size cX xs * c + 16 * Encode_list_size cX xs + 4 * n + 48 <=
-       Encode_list_size cX xs * c + Encode_list_size cX xs * ?m + 20 * Encode_list_size cX xs + c * n + c + ?m * n + ?m + 20 * n + 20 *)
-    instantiate (1 := 28).
-    nia.
-  Restart.
-    (* Another proof with more automation *)
-    pose_nice Nth'_Loop_steps_nice H c.
-    eexists. intros xs n. specialize (H xs n).
-    hnf. unfold Nth'_steps.
-    repeat eapply dominatedWith_add.
-    (* Compositional part is more or less automatic *)
-    all: ring_simplify.
-    (* The second tactic can solve more and is faster *)
-    all: domWith_approx.
-    all: try solve [ eauto | apply dominatedWith_const; omega | apply dominatedWith_solve; omega
-                   | eapply dominatedWith_trans; eauto; apply dominatedWith_solve; omega ].
-    (* Specific part for [Nth'] *)
-    1-4: apply dominatedWith_solve; rewrite !Encode_list_hasSize; etransitivity; [ apply (Encode_list_hasSize_skipn _ xs (1+n)) | omega ].
-    1-4: assert (1 <= size xs) by (rewrite Encode_list_hasSize; apply Encode_list_hasSize_ge1);
-      apply dominatedWith_solve; rewrite Encode_nat_hasSize; omega.
-  Restart.
+  (*   pose_nice Nth'_Loop_steps_nice H c. *)
+  (*   eexists. intros xs n. specialize (H xs n). *)
+  (*   hnf. unfold Nth'_steps. ring_simplify. *)
+  (*   (* At this point, ultimate domination would be better, because we would not have to look in the values of [CopyValue_steps] and [Reset_steps], because we already know that they are Θ(size _ xs). Below, [28] has been chosen in dependence of these constants. *) *)
+  (*   unfold CopyValue_steps, Reset_steps. *)
+  (*   instantiate (1 := 12 + c + 4 + 4 + _). *)
+  (*   rewrite !Encode_list_hasSize. rewrite Encode_list_hasSize_skipn. *)
+  (*   rewrite Encode_nat_hasSize. rewrite H, Encode_list_hasSize. *)
+  (*   ring_simplify. *)
+  (*   assert (n - (1 + |xs|) <= n) as H' by omega; rewrite H'; clear H'. *)
+  (*   (* Encode_list_size cX xs * c + 16 * Encode_list_size cX xs + 4 * n + 48 <= *)
+  (*      Encode_list_size cX xs * c + Encode_list_size cX xs * ?m + 20 * Encode_list_size cX xs + c * n + c + ?m * n + ?m + 20 * n + 20 *) *)
+  (*   instantiate (1 := 28). *)
+  (*   nia. *)
+  (* Restart. *)
+  (*   (* Another proof with more automation *) *)
+  (*   pose_nice Nth'_Loop_steps_nice H c. *)
+  (*   eexists. intros xs n. specialize (H xs n). *)
+  (*   hnf. unfold Nth'_steps. *)
+  (*   repeat eapply dominatedWith_add. *)
+  (*   (* Compositional part is more or less automatic *) *)
+  (*   all: ring_simplify. *)
+  (*   (* The second tactic can solve more and is faster *) *)
+  (*   all: domWith_approx. *)
+  (*   all: try solve [ eauto | apply dominatedWith_const; omega | apply dominatedWith_solve; omega *)
+  (*                  | eapply dominatedWith_trans; eauto; apply dominatedWith_solve; omega ]. *)
+  (*   (* Specific part for [Nth'] *) *)
+  (*   1-4: apply dominatedWith_solve; rewrite !Encode_list_hasSize; etransitivity; [ apply (Encode_list_hasSize_skipn _ xs (1+n)) | omega ]. *)
+  (*   1-4: assert (1 <= size xs) by (rewrite Encode_list_hasSize; apply Encode_list_hasSize_ge1); *)
+  (*     apply dominatedWith_solve; rewrite Encode_nat_hasSize; omega. *)
+  (* Restart. *)
     (* Another proof with more automation *)
     pose_nice Nth'_Loop_steps_nice H c.
     eexists. intros xs n. specialize (H xs n).
