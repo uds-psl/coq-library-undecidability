@@ -17,7 +17,7 @@ Set Implicit Arguments.
 (** * First-Order Logic *)
 (** ** Notations *)
 
-(** *** Standard De Bruijn extension and De Bruijn projection *)
+(* Standard De Bruijn extension and De Bruijn projection *)
 
 (* Fixpoint instead of Definition because of better unfolding properties *)
 
@@ -36,7 +36,7 @@ Proof. reflexivity. Qed.
 Fact de_bruijn_proj_ext X (ν : nat -> X) n : (ν 0)·(ν⭳) n = ν n.
 Proof. destruct n; reflexivity. Qed.
 
-(** *** Friendly notations for binders *)
+(* Friendly notations for binders *)
 
 Notation "x '≋' y" := (prod (x->y) (y->x)) 
    (at level 95, no associativity,
@@ -67,7 +67,7 @@ Notation "'∑' z : T , p" := (sig (fun z : T => p))
    format "'[' '∑'  z  :  T ,  '/ ' p ']'", only printing)
   : type_scope.
 
-(** *** Various reserved notations *) 
+(* Various reserved notations *) 
 
 (** Lifting a term substitution *)
 Reserved Notation "⇡ sig" (at level 1, format "⇡ sig").
