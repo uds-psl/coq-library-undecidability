@@ -20,7 +20,7 @@ Inductive step : state -> state -> Prop :=
     -> step ((lamT::P)::T,V) (tc P' T,Q::V)
 | step_beta P Q R T V:
     step ((appT::P)::T,Q::R::V) (substP R 0 (lamT::Q++[retT])::tc P T,V).
-Hint Constructors step.
+Hint Constructors step : core.
 
 Definition init s : state := ([compile s],[]).
 

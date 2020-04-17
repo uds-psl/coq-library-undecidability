@@ -177,13 +177,13 @@ Module minimal.
   Coercion V := @bVar min.
 
   Definition phi1 :==: ∀ x, !P x x.
-  Print phi1.
+  (* Print phi1. *)
 
   Definition phi2 :==: free y z, ∀ x, !P x y --> !P z x.
-  Print phi2.
+  (* Print phi2. *)
       
   Definition phi3 :==: ∀ x y, !P ($f1 $e) y --> (∀ z, !P x z) --> !Q.
-  Print phi3.
+  (* Print phi3. *)
 End minimal.
   
 Notation "£ f" := (bEmbed f List.nil) (at level 2). 
@@ -199,15 +199,15 @@ Module PA.
   Coercion V' := @bVar PA.
   
   Definition PA_inj :==: ∀ x y, !Eq ($S x) ($S y) --> !Eq x y.
-  Print PA_inj.
+  (* Print PA_inj. *)
     
   Definition PA_ind (Phi : form) :==: ∀ x, £Phi $O --> (∀ x, £Phi x --> £Phi ($S x)) --> ∀ x, £Phi x.
-  Print PA_ind.
+  (* Print PA_ind. *)
   
   Definition functional (phi : form) :==: ∀ x y y', £phi x y --> £phi x y' --> !Eq y y'.
-  Print functional.
+  (* Print functional. *)
 
   Definition replacement (Phi : form) :==: £(functional Phi) --> ∀ x, !Eq $O x.
-  Print replacement.
+  (* Print replacement. *)
  
 End PA.
