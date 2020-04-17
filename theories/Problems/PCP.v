@@ -1,8 +1,8 @@
 Require Import Undecidability.Shared.Prelim.
 
-(** * PCP as defined in the synthetic undecidability library *)
+(** ** PCP as defined in the synthetic undecidability library *)
 
-(** ** Traditional Definition *)
+(** *** Traditional Definition *)
 
 Definition symbol := nat.
 Definition string X := list X.
@@ -27,7 +27,7 @@ Fixpoint tau2 X (A : stack X) : string X :=
 
 Definition PCP P := exists A : SRS, A <<= P /\ A <> [] /\ tau1 A = tau2 A.
 
-(** ** Inductive Definition *)
+(** *** Inductive Definition *)
 
 Inductive derivable (X : Type) (R : stack X) : string X -> string X -> Prop :=
 |  der_sing x y : x/y el R -> derivable R x y
@@ -49,11 +49,11 @@ Proof.
   - eauto using derivable.
 Qed.
 
-(** ** Binary PCP *)
+(** *** Binary PCP *)
 
 Definition BPCP P := exists A : BSRS, A <<= P /\ A <> [] /\ tau1 A = tau2 A.
 
-(** ** Binary Post correspondence problem with indices *)
+(** *** Binary Post correspondence problem with indices *)
 
 Section itau.
 

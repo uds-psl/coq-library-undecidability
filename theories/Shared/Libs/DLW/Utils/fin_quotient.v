@@ -20,7 +20,7 @@ From Undecidability.Shared.Libs.DLW.Wf
 
 Set Implicit Arguments.
 
-(** * Finite quotient by a decidable equivalence *)
+(** ** Finite quotient by a decidable equivalence *)
 
 Section fp_quotient.
 

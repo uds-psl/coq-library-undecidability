@@ -21,7 +21,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Enumerability of the type of FO formulas *)
+(** ** Enumerability of the type of FO formulas *)
 
 Section fol_enumerable.
 

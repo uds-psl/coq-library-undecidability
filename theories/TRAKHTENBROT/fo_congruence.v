@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * First order theory of congruences *)
+(** ** First order theory of congruences *)
 
 Section congruence.
 

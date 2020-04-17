@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * First order terms, syntax and semantics *)
+(** ** First order terms, syntax and semantics *)
 
 Local Hint Resolve in_vec_list in_vec_pos : core.
 

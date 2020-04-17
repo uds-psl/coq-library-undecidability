@@ -14,7 +14,7 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 Set Implicit Arguments.
 
-(** * First order operators and their semantics *)
+(** ** First order operators and their semantics *)
 
 Inductive fol_bop := fol_conj | fol_disj | fol_imp.
 Inductive fol_qop := fol_ex | fol_fa.

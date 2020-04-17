@@ -17,7 +17,7 @@ From Undecidability.Problems
 
 Set Implicit Arguments.
 
-(** * The Binary Post correspondence problem *)
+(** ** The Binary Post correspondence problem *)
 
 Section dec.
 
@@ -62,7 +62,7 @@ Section pcp_hand.
 
   Reserved Notation "⊳ s ∕ t" (at level 70).
 
-  (** ** PCP derivability *)
+  (** *** PCP derivability *)
 
   Inductive pcp_hand : list X -> list X -> Prop :=
     | in_pcph_0 : forall x y, In (x,y) lc -> ⊳ x∕y
@@ -119,7 +119,7 @@ Section pcp_hand.
 
   End pcp_induction.
 
-  (** ** PCP derivability is decidable *)
+  (** *** PCP derivability is decidable *)
     
   Section bounded_dec.
 
@@ -181,7 +181,7 @@ Section pcp_hand.
 
 End pcp_hand.
 
-(** ** Specializations to BPCP *)
+(** *** Specializations to BPCP *)
 
 Notation "R ⊳ s ∕ t" := (pcp_hand R s t) (at level 70, format "R  ⊳  s ∕ t").
 

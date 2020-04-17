@@ -22,7 +22,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Collection of high-level enumerability results *)
+(** ** Collection of high-level enumerability results *)
 
 Section FSAT_enumerable.
 

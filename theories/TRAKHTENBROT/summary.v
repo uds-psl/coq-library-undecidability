@@ -35,7 +35,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Summary of the definitions and results of the IJCAR submission, with output *)
+(** * Summary File *)
 
 (* Definition 1 *)
 

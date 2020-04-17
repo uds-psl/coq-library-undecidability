@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Definition of first order satisfiability *)
+(** ** Definition of first order satisfiability *)
 
 Section satisfiability.
 

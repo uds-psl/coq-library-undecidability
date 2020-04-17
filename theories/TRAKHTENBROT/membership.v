@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * The first order theory of membership *)
+(** ** The first order theory of membership *)
 
 Section membership.
 

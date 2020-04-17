@@ -23,7 +23,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Decidability and discreteness and closure properties *)
+(** ** Decidability and discreteness and closure properties *)
 
 Definition decidable (P : Prop) := { P } + { ~ P }.
 

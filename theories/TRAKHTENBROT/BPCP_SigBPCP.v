@@ -28,7 +28,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Reduction from BPCP to specialized FSAT *)
+(** * Trakthentbrot's Theorem *)
+(** ** Reduction from BPCP to specialized FSAT *)
 
 Local Notation ø := vec_nil.
 

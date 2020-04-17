@@ -34,7 +34,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Binary trees as concrete Hereditary Finite Sets *)
+(** ** Binary trees as concrete Hereditarily Finite Sets *)
 
 Inductive bt : Set := bt_leaf | bt_node : bt -> bt -> bt.
 

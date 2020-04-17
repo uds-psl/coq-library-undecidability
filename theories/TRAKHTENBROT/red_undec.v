@@ -45,7 +45,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Collection of high-level synthetic undecidability results *)
+(** ** Collection of high-level synthetic undecidability results *)
 
 (* Summary of some of what is implement in here
 

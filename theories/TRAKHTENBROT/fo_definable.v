@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * First order definability and closure properties *)
+(** ** First order definability and closure properties *)
 
 Notation ø := vec_nil.
 

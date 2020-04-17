@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Signature reduction for symbol free formulas *) 
+(** ** Signature reduction for symbol free formulas *) 
 
 Local Notation ø := vec_nil.
 

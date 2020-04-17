@@ -28,7 +28,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Common Tools for reductions *)
+(** ** Common Tools for reductions *)
 
 (** BPCP as defined in Problems/PCP.v is equivalent to BPCP_problem here *)
 

@@ -17,7 +17,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * First order signatures and models *)
+(** ** First order signatures and models *)
 
 Record fo_signature := Mk_fo_signature {
   syms : Type;

@@ -39,17 +39,13 @@ Problems/PCP.v
 # Full Trakhtenbrot with single binary rel
 #####
 
-TRAKHTENBROT/notations.v
 TRAKHTENBROT/bpcp.v
 TRAKHTENBROT/utils.v
 TRAKHTENBROT/decidable.v
 TRAKHTENBROT/enumerable.v
+
+TRAKHTENBROT/notations.v
 TRAKHTENBROT/fol_ops.v
-
-TRAKHTENBROT/gfp.v
-TRAKHTENBROT/btree.v
-TRAKHTENBROT/hfs.v
-
 TRAKHTENBROT/fo_sig.v
 TRAKHTENBROT/fo_terms.v
 TRAKHTENBROT/fo_logic.v
@@ -57,17 +53,20 @@ TRAKHTENBROT/fo_enum.v
 TRAKHTENBROT/fo_congruence.v
 TRAKHTENBROT/fo_sat.v
 TRAKHTENBROT/fo_definable.v
-TRAKHTENBROT/fo_sat_dec.v
+
+TRAKHTENBROT/BPCP_SigBPCP.v
 
 TRAKHTENBROT/discrete.v
-TRAKHTENBROT/membership.v
-TRAKHTENBROT/reln_hfs.v
-
 TRAKHTENBROT/Sig_discrete.v
 TRAKHTENBROT/Sig_noeq.v
 
-TRAKHTENBROT/BPCP_SigBPCP.v
+TRAKHTENBROT/membership.v
+TRAKHTENBROT/reln_hfs.v
+TRAKHTENBROT/gfp.v
+TRAKHTENBROT/btree.v
+TRAKHTENBROT/hfs.v
 TRAKHTENBROT/Sign_Sig2.v
+
 TRAKHTENBROT/Sig2_Sign.v
 TRAKHTENBROT/Sign_Sig.v
 TRAKHTENBROT/Sign1_Sig.v
@@ -77,6 +76,8 @@ TRAKHTENBROT/Sig_uniform.v
 TRAKHTENBROT/Sig_rem_cst.v
 TRAKHTENBROT/Sig_one_rel.v
 TRAKHTENBROT/Sig_Sig_fin.v
+
+TRAKHTENBROT/fo_sat_dec.v
 TRAKHTENBROT/Sig_rem_props.v
 TRAKHTENBROT/Sig_rem_constants.v
 

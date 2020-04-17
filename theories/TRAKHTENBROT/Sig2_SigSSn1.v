@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * From binary singleton to a n-ary function and a unary relation *)
+(** ** From binary singleton to a n-ary function and a unary relation *)
 
 Local Notation ø := vec_nil.
 Local Notation Σ2 := (Σrel 2).

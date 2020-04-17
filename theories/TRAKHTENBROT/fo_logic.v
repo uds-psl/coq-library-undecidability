@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * The syntax and semantics of FO logic *)
+(** ** The syntax and semantics of FO logic *)
 
 Notation ø := vec_nil.
 

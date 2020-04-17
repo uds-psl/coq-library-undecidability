@@ -21,7 +21,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Removal of function symbols from propositional signatures *)
+(** ** Removal of function symbols from propositional signatures *)
 
 Section Σ_Σ0.
 

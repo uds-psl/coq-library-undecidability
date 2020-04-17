@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Removal of function symbols from full monadic signatures *)
+(** ** Removal of function symbols from full monadic signatures *)
 
 Fixpoint find_non_empty_word X (l : list (list X)) : { s & { w | In (s::w) l } } + { concat l = nil }.
 Proof.

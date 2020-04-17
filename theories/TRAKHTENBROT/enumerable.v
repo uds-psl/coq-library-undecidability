@@ -21,7 +21,7 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations utils fol_ops decidable.
 
-(** * Enumerability and closure properties *)
+(** ** Enumerability and closure properties *)
 
 Set Implicit Arguments.
 

@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Converting functions symbols into relations symbols *) 
+(** ** Converting functions symbols into relations symbols *) 
 
 Local Notation ø := vec_nil.
 
