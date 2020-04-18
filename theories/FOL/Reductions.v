@@ -5,13 +5,14 @@ From Undecidability Require Export Problems.Reduction DecidableEnumerable.
 Lemma dec_red X (p : X -> Prop) Y (q : Y -> Prop) :
   p ⪯ q -> decidable q -> decidable p.
 Proof.
+  unfold decidable, decider, reduces, reduction, reflects.
   intros [f] [d]. exists (fun x => d (f x)). intros x. rewrite H. eapply H0.
 Qed.
 
 Lemma red_comp X (p : X -> Prop) Y (q : Y -> Prop) :
   p ⪯ q -> (fun x => ~ p x) ⪯ (fun y => ~ q y).
 Proof.
-  intros [f]. exists f. intros x. now rewrite H.
+  intros [f]. exists f. intros x. red in H. now rewrite H.
 Qed.
 
 Section enum_red.
