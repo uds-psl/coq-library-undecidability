@@ -2,7 +2,7 @@
 (*   Copyright Dominik Kirst              [+]                 *)
 (*             Dominique Larchey-Wendling [*]                 *)
 (*                                                            *)
-(*                             [+] Affiliation U. Sarrbrucken *)
+(*                             [+] Affiliation U. Saarbrucken *)
 (*                             [*] Affiliation LORIA -- CNRS  *)
 (**************************************************************)
 (*      This file is distributed under the terms of the       *)
