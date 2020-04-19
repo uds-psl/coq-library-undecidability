@@ -90,7 +90,7 @@ Section Sign_Sig2_encoding.
         -> ⟪ A ⟫' φ <-> ⟪Σn_Σ2 d r A⟫ ψ.
   Proof.
     revert d r φ ψ.
-    induction A as [ | [] | b A HA B HB | [] A HA ]; intros l r phi psy H1 H2 H3 H.
+    induction A as [ | [] v | b A HA B HB | [] A HA ]; intros l r phi psy H1 H2 H3 H.
     + simpl; tauto.
     + simpl; red in H3.
       rewrite H3 with (w := vec_map (fun x => psy (Σrel_var x)) v).

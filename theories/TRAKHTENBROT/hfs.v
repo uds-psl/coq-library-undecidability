@@ -502,7 +502,7 @@ Section hfs.
   Fact hfs_tuple_pow n v t : ∅ ∈ t -> hfs_transitive t -> (forall p, vec_pos v p ∈ t) -> @hfs_tuple n v ∈ iter hfs_pow t (2*n).
   Proof.
     intros Ht1 Ht2.
-    induction v as [ | n x v IHv ]; intros Hv.
+    induction v as [ | x n v IHv ]; intros Hv.
     + simpl; auto.
     + replace (2*S n) with (2*n+2) by lia; rewrite iter_plus.
       simpl hfs_tuple; apply hfs_opair_pow.

@@ -7,9 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(* Require Import Arith Omega Max List. *)
-
-Require Import Arith Omega List Permutation.
+Require Import Arith Omega List Permutation. 
+Require Vector.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils. 
@@ -19,13 +18,22 @@ From Undecidability.Shared.Libs.DLW.Vec
 
 Set Implicit Arguments.
 
+Notation vec_nil := (@Vector.nil _).
+Notation "x ## v" := (@Vector.cons _ x _ v) (at level 60, right associativity).
+
 Section vector.
 
   Variable X : Type.
 
+  Notation vec := (@Vector.t X).
+(*  Notation vec_nil := (@Vector.nil X).
+  Notation vec_cons := (fun x => @Vector.cons X x _). *)
+  
+(*
   Inductive vec : nat -> Type :=
     | vec_nil  : vec 0
     | vec_cons : forall n, X -> vec n -> vec (S n).
+*)
 
   Let vec_decomp_type n := 
     match n with
@@ -34,18 +42,18 @@ Section vector.
     end.
 
   Definition vec_decomp n (v : vec n) :=
-    match v in vec k return vec_decomp_type k with
-      | vec_nil  => False
-      | @vec_cons n x v => (x,v)
+    match v in Vector.t _ k return vec_decomp_type k with
+      | vec_nil => False
+      | x ## v  => (x,v)
     end.
     
-  Definition vec_head n (v : vec (S n)) := match v with @vec_cons _ x _ => x end.
-  Definition vec_tail n (v : vec (S n)) := match v with @vec_cons _ _ w => w end.
+  Definition vec_head n (v : vec (S n)) := match v with x ## _ => x end.
+  Definition vec_tail n (v : vec (S n)) := match v with _ ## w => w end.
 
   Let vec_head_tail_type n : vec n -> Prop := 
     match n with
       | 0   => fun v => v = vec_nil
-      | S n => fun v => v = vec_cons (vec_head v) (vec_tail v)
+      | S n => fun v => v = vec_head v ## vec_tail v
     end.
 
   Let vec_head_tail_prop n v :  @vec_head_tail_type n v.
@@ -54,10 +62,10 @@ Section vector.
   Fact vec_0_nil (v : vec 0) : v = vec_nil.
   Proof. apply (vec_head_tail_prop v). Qed.
 
-  Fact vec_head_tail n (v : vec (S n)) : v = vec_cons (vec_head v) (vec_tail v).
+  Fact vec_head_tail n (v : vec (S n)) : v = vec_head v ## vec_tail v.
   Proof. apply (vec_head_tail_prop v). Qed.
 
-  Fact vec_cons_inv n x y (v w : vec n) : vec_cons x v = vec_cons y w -> x = y /\ v = w.
+  Fact vec_cons_inv n x y (v w : vec n) : x ## v = y ## w -> x = y /\ v = w.
   Proof.
     intros H1; generalize H1; intros H2.
     apply f_equal with (f := @vec_head _) in H1.
@@ -68,8 +76,8 @@ Section vector.
   Fixpoint vec_pos n (v : vec n) : pos n -> X.
   Proof.
     refine (match v with
-      | vec_nil => fun p => _
-      | @vec_cons n x v => fun p => _
+      | @Vector.nil _ => fun p => _
+      | @Vector.cons _ x n v => fun p => _
     end); invert pos p.
     exact x.
     exact (vec_pos _ v p).
@@ -105,7 +113,7 @@ Section vector.
   Fixpoint vec_set_pos n : (pos n -> X) -> vec n :=
     match n return (pos n -> X) -> vec n with 
       | 0   => fun _ => vec_nil
-      | S n => fun g => vec_cons (g pos0) (vec_set_pos (fun p => g (pos_nxt p)))
+      | S n => fun g => g pos0 ## vec_set_pos (fun p => g (pos_nxt p))
     end.
 
   Fact vec_pos_set n (g : pos n -> X) p : vec_pos (vec_set_pos g) p = g p. 
@@ -117,12 +125,12 @@ Section vector.
   Fixpoint vec_change n (v : vec n) : pos n -> X -> vec n.
   Proof.
     refine (match v with
-      | vec_nil         => fun _ _ => vec_nil
-      | @vec_cons n y v => fun p x => _
+      | vec_nil => fun _ _ => vec_nil
+      | y ## v  => fun p x => _
     end).
     pos_inv p.
-    exact (vec_cons x v).
-    apply (vec_cons y), (vec_change _ v p x).
+    + exact (x ## v).
+    + exact (y ## vec_change _ v p x).
   Defined.
 
   Fact vec_change_eq n v p q x : p = q -> vec_pos (@vec_change n v p x) q = x.
@@ -159,20 +167,20 @@ Section vector.
 
   Fixpoint vec_eq_dec n (u v : vec n) : { u = v } + { u <> v }.
   Proof.
-    destruct u as [ | n x u ].
-    left.
-    rewrite vec_0_nil; trivial.
-    destruct (eq_X_dec x (vec_head v)) as [ E1 | D ].
-    destruct (vec_eq_dec _ u (vec_tail v)) as [ E2 | D ].
-    left; subst; rewrite <- vec_head_tail; auto.
-    right; contradict D; subst; rewrite <- D; auto.
-    right; contradict D; subst; auto.
+    destruct u as [ | x n u ].
+    + left.
+      rewrite vec_0_nil; trivial.
+    + destruct (eq_X_dec x (vec_head v)) as [ E1 | D ].
+      * destruct (vec_eq_dec _ u (vec_tail v)) as [ E2 | D ].
+        - left; subst; rewrite <- vec_head_tail; auto.
+        - right; contradict D; subst; rewrite <- D; auto.
+      * right; contradict D; subst; auto.
   Defined.
   
   Fixpoint vec_list n (v : vec n) := 
     match v with  
-      | vec_nil      => nil
-      | vec_cons x v => x::vec_list v
+      | vec_nil => nil
+      | x ## v  => x::vec_list v
     end.
 
   Fact vec_list_In n v p : In (vec_pos v p) (@vec_list n v).
@@ -195,7 +203,7 @@ Section vector.
   Fixpoint list_vec (l : list X) : vec (length l) := 
     match l with 
       | nil  => vec_nil
-      | x::l => vec_cons x (list_vec l)
+      | x::l => x ## list_vec l
     end.
 
   Fact list_vec_iso l : vec_list (list_vec l) = l.
@@ -235,14 +243,17 @@ Section vector.
 
   Fixpoint in_vec n (v : vec n) : Prop :=
     match v with
-      | vec_nil      => False
-      | vec_cons y v => y = x \/ in_vec v
+      | vec_nil => False
+      | y ## v  => y = x \/ in_vec v
     end.
 
   Fact in_vec_list n v : @in_vec n v <-> In x (vec_list v).
   Proof. induction v; simpl; tauto. Qed.
 
 End vector.
+
+Notation vec := Vector.t.
+Notation vec_cons := (fun x => @Vector.cons _ x _).
 
 Fact in_vec_pos X n (v : vec X n) p : in_vec (vec_pos v p) v.
 Proof.
@@ -263,7 +274,7 @@ Fact in_vec_dec_inv X n (v : vec X n) :
      -> forall x, in_vec x v -> { p | vec_pos v p = x }.
 Proof.
   intros dec.
-  induction v as [ | n x v IHv ].
+  induction v as [ | x n v IHv ].
   + intros _ [].
   + intros y Hy.
     destruct (dec x y) as [ H | H ].
@@ -275,9 +286,7 @@ Qed.
 
 (* notations *)
 
-Arguments vec_nil { X }.
-
-Infix "##" := vec_cons (at level 60, right associativity).
+(*Arguments vec_nil { X }. *)
 
 Section vec_app_split.
 
@@ -362,8 +371,8 @@ Section vec_map.
   Fixpoint vec_in_map n v : (forall x, @in_vec X x n v -> Y) -> vec Y n.
   Proof.
     refine (match v with
-      | vec_nil      => fun _ => vec_nil
-      | vec_cons x v => fun f => vec_cons (f x _) (@vec_in_map _ v _)
+      | vec_nil  => fun _ => vec_nil
+      | x##v     => fun f => f x _ ## @vec_in_map _ v _
     end).
     + left; auto.
     + intros y Hy; apply (f y); right; auto.
@@ -397,7 +406,7 @@ Section vec_map2.
 
   (* Definitions taken from stdlib *)
   
-  Definition case0 {A} (P:vec A 0 -> Type) (H:P (@vec_nil A)) v:P v :=
+  Definition case0 {A} (P:vec A 0 -> Type) (H:P (@Vector.nil A)) v:P v :=
     match v with
     |vec_nil => H
     |_ => fun devil => False_ind (@IDProp) devil (* subterm !!! *)
@@ -416,13 +425,13 @@ Section vec_map2.
     fix rect2_fix {n} (v1 : vec A n) : forall v2 : vec B n, P v1 v2 :=
       match v1 with
       | vec_nil => fun v2 => case0 _ bas v2
-      | @vec_cons _ n' h1 t1 => fun v2 =>
+      | @Vector.cons _ h1 n' t1 => fun v2 =>
                                  caseS' v2 (fun v2' => P (h1##t1) v2') (fun h2 t2 => recvec (rect2_fix t1 t2) h1 h2)
       end.
 
   Definition vec_map2 {A B C} (g:A -> B -> C) :
     forall (n : nat), vec A n -> vec B n -> vec C n :=
-    @rect2 _ _ (fun n _ _ => vec C n) (@vec_nil C) (fun _ _ _ H a b => (g a b) ## H).
+    @rect2 _ _ (fun n _ _ => vec C n) vec_nil (fun _ _ _ H a b => (g a b) ## H).
   Global Arguments vec_map2 {A B C} g {n} v1 v2.
 
 End vec_map2.
@@ -605,8 +614,8 @@ Qed.
 
 Fixpoint vec_sum n (v : vec nat n) := 
   match v with 
-    | vec_nil       => 0
-    | vec_cons x w  => x + vec_sum w
+    | vec_nil => 0
+    | x##w    => x + vec_sum w
   end.
   
 Fact vec_sum_plus n v w : @vec_sum n (vec_plus v w) = vec_sum v + vec_sum w.
@@ -642,15 +651,14 @@ Qed.
 
 Fact vec_sum_is_nzero n v : 0 < @vec_sum n v -> { p : _ & { w | v = vec_plus (vec_one p) w } }.
 Proof.
-  induction v as [ | n x v IHv ]; intros Hv; simpl in Hv.
-  omega.
-  destruct x as [ | x ].
-  apply IHv in Hv.
-  destruct Hv as (p & w & Hw).
-  exists (pos_nxt p), (0##w); rewrite vec_one_nxt.
-  rewrite vec_plus_cons; f_equal; auto.
-  exists pos0, (x##v).
-  rewrite vec_one_fst, vec_plus_cons; rew vec.
+  induction v as [ | [ | x] n v IHv ]; intros Hv; simpl in Hv.
+  + omega.
+  + apply IHv in Hv.
+    destruct Hv as (p & w & Hw).
+    exists (pos_nxt p), (0##w); rewrite vec_one_nxt.
+    rewrite vec_plus_cons; f_equal; auto.
+  + exists pos0, (x##v).
+    rewrite vec_one_fst, vec_plus_cons; rew vec.
 Qed.
 
 Section vec_nat_induction.

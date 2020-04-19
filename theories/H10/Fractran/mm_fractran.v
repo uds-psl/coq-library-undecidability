@@ -146,7 +146,7 @@ Proof with eauto; try omega.
         eapply primestream_divides in H0...
         eapply divides_encode_state in H0... 
       * eapply primestream_divides in H0... subst.
-        eapply (H n p). eauto.
+        eapply (H n t). eauto.
       * eapply divides_encode_state in H0...
       * specialize (IHl (S k)). revert IHl.
         cbn - [subcode]. ring_simplify (S (k + length l)).
@@ -174,13 +174,13 @@ Proof.
     + cbn; rewrite pos2nat_fst, Nat.add_0_r. 
       split.
       * intros [ | ] % divides_mult_inv; eauto.
-        -- destruct x; try omega. cbn in H. 
+        -- destruct h; try omega. cbn in H. 
            apply divides_1_inv in H.
            generalize (str_prime qs j); rewrite H.
            intros [ [] _ ]; auto.
         -- eapply qs_exp_div in H; now eauto.
-      * intros. destruct x. inv H.
-        exists (qs j ^ x * exp (S j) v). cbn. ring.
+      * intros. destruct h. inv H.
+        exists (qs j ^ h * exp (S j) v). cbn. ring.
     + cbn. intros. rewrite <- IHv, pos2nat_nxt.
       rewrite qs_shift with (m := 1).
       simpl.
