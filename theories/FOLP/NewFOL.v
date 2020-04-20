@@ -73,14 +73,8 @@ Section fix_signature.
   (** Syntax is parametrised in binary operators and quantifiers.
       Most developments will fix these types in the beginning and never change them.
    *)
-  Definition binops := Type.
-  Existing Class binops.
-
-  Definition quantops := Type.
-  Existing Class quantops.
-
-  Context {binop : binops}.
-  Context {quantop : quantops}.
+  Class operators := {binop : Type ; quantop : Type}.
+  Context {ops : operators}.
 
   (** Formulas have falsity as fixed constant -- we could parametrise against this in principle *)
   Inductive form  : Type :=
@@ -89,7 +83,7 @@ Section fix_signature.
   | bin : binop -> form  -> form  -> form
   | quant : quantop -> form  -> form.
 
-  Definition up (σ : nat -> term) := scons (var 0) (funcomp (subst_term (funcomp σ S)) σ).
+  Definition up (σ : nat -> term) := scons (var 0) (funcomp (subst_term (funcomp var S)) σ).
 
   Fixpoint subst_form (σ : nat -> term) (phi : form) : form :=
     match phi with
@@ -118,11 +112,11 @@ Arguments subst_term {_} _ _.
 (** Formulas can be written with the signatures explicit or not.
     If the operations are explicit, the signatures are too.
  *)
-Arguments form  _ _ _ _, _ _ {_ _}, {_ _ _ _}.
-Arguments fal   _ _ _ _, _ _ {_ _}, {_ _ _ _}.
-Arguments atom  _ _ _ _, _ _ {_ _}, {_ _ _ _}.
-Arguments bin   _ _ _ _, _ _ {_ _}, {_ _ _ _}.
-Arguments quant _ _ _ _, _ _ {_ _}, {_ _ _ _}.
+Arguments form  _ _ _, _ _ {_}, {_ _ _}.
+Arguments fal   _ _ _, _ _ {_}, {_ _ _}.
+Arguments atom  _ _ _, _ _ {_}, {_ _ _}.
+Arguments bin   _ _ _, _ _ {_}, {_ _ _}.
+Arguments quant _ _ _, _ _ {_}, {_ _ _}.
 
 Arguments up         _, {_}.
-Arguments subst_form _ _ _ _, _ _ {_ _}, {_ _ _ _}.
+Arguments subst_form _ _ _, _ _ {_}, {_ _ _}.
