@@ -29,7 +29,7 @@ Proof.
     intros x; exists (f x); auto.
   + intros [f].
     exists (fun x => proj1_sig (f x)).
-    intros; apply (proj2_sig (f x)).
+    intros x; apply (proj2_sig (f x)).
 Qed.
 
 (** A diophantine logic satisfiability question is given

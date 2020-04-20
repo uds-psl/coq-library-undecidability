@@ -251,6 +251,7 @@ Section enumerable_reduction.
 
   Fact ireduction_rec_enum_t : p ⪯ᵢ q -> rec_enum_t q -> rec_enum_t p.
   Proof.
+    unfold inf_reduces, reduction.
     intros (f & Hf) (d & Hd).
     exists (fun n y => d n (f y)).
     intros x; rewrite Hf, Hd; tauto.

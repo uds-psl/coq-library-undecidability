@@ -66,7 +66,7 @@ Lemma decMP_to_eMP :
   (forall p : nat -> Prop, decidable p -> stable (exists n, p n)) -> (forall X (p : X -> Prop), enumerable p -> stable (exists n, p n)).
 Proof.
   intros dMP X p [e He] ?. destruct (dMP (fun n => e n <> None)).
-  - exists (fun n => match e n with Some _ => true | _ => false end). intros; destruct (e x); firstorder congruence.
+  - exists (fun n => match e n with Some _ => true | _ => false end). intros x; destruct (e x); firstorder congruence.
   - intros ?. eapply H. intros [x]. eapply H0. eapply He in H1 as [n].
     exists n. congruence.
   - destruct (e x) eqn:E; try congruence. exists x0. eapply He. now exists x. 
@@ -76,7 +76,7 @@ Lemma eMP_to_MP :
   (forall X (p : X -> Prop), enumerable p -> stable (exists n, p n)) -> MP.
 Proof.
   intros eMP f ?. destruct (eMP nat (fun n => f n = true)).
-  - eapply dec_count_enum. now exists f. exists Some. eauto.
+  - eapply dec_count_enum. now exists f. exists Some. red. eauto.
   - firstorder. 
   - eauto.
 Qed.
@@ -84,10 +84,11 @@ Qed.
 Lemma MP_enum_stable X (p : X -> Prop) :
   MP -> enumerable p -> discrete X -> forall x, stable (p x).
 Proof.
+  unfold enumerable, discrete, decidable, decider, enumerator, reflects.
   intros MP [f Hf] [d Hd] x. eapply MP_to_decMP with (p := fun n => f n = Some x) in MP.
   - intros H. rewrite Hf in *. now eapply MP.
   - exists (fun n => match f n with Some x' => d (x, x') | _ => false end).
-    intros x0. destruct (f x0). rewrite <- (Hd (x,x1)). split. inversion 1. eauto. intros ->. eauto.
+    intros x0. destruct (f x0). red. rewrite <- (Hd (x,x1)). split. inversion 1. eauto. intros ->. eauto.
     split; inversion 1.
 Qed.
 
@@ -114,7 +115,7 @@ Proof.
   - eapply discrete_iff. econstructor. exact _.
   - change (enumerable (fun m => exists n, (fun (x : nat * nat) => p (snd x)) (m,n))).
     apply projection. eapply dec_count_enum; try apply enumerable_nat_nat.
-    apply decidable_iff. constructor. intros [n m]. exact _.
+    apply decidable_iff. constructor. intros [n m]. exact _. eauto.
   - exists (fun _ => None). intros x. firstorder congruence.
   - contradiction.
 Qed.
@@ -132,5 +133,3 @@ Proof.
   - intros ? ? ? ? ?. eapply weakPost; eauto.
     eapply MP_Post; eauto.
 Qed.
-
-  

@@ -100,7 +100,7 @@ we are on the right extremity of a non-empty tape (right overflow). *)
 
   Global Instance move_finC : finTypeC (EqType move).
   Proof.
-    apply (FinTypeC (enum := [L; R; TM.N])).
+    apply (FinTypeC (enum := [TM.L; R; TM.N])).
     intros []; now cbv.
   Qed.
     
@@ -115,7 +115,7 @@ we are on the right extremity of a non-empty tape (right overflow). *)
     }.
 
   Definition tape_move := fun (t : tape) (m : move) =>
-                            match m with  R => tape_move_right t | L => tape_move_left t | N => t end.
+                            match m with  R => tape_move_right t | TM.L => tape_move_left t | TM.N => t end.
 
   (* Writing on the tape *)
 

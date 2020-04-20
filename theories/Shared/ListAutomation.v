@@ -1,6 +1,7 @@
 Require Export List Undecidability.Shared.Dec Undecidability.Shared.FilterFacts.
+Export ListNotations.
 
-Local Notation "x 'el' L" := (In x L) (at level 80).
+Notation "x 'el' L" := (In x L) (at level 70).
 
 Instance list_in_dec X (x : X) (A : list X) :
   eq_dec X -> dec (x el A).

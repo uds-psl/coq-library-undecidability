@@ -38,6 +38,7 @@ Qed.
 Fact ireduction_decidable X Y (p : X -> Prop) (q : Y -> Prop) :
        p ⪯ᵢ q -> (forall y, decidable (q y)) -> forall x, decidable (p x).
 Proof.
+  unfold decidable, decider, inf_reduces, reduction.
   intros (f & Hf) Hq x.
   destruct (Hq (f x)); [ left | right ]; rewrite Hf; auto.
 Qed.   
