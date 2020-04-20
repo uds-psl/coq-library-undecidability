@@ -400,13 +400,12 @@ Definition tmap {S1 S2 : Signature} (f : @form S1 -> @form S2) (T : @theory S1) 
   fun phi => exists psi, T psi /\ f psi = phi.
 
 Lemma enum_tmap {S1 S2 : Signature} (f : @form S1 -> @form S2) (T : @theory S1) L :
-  enum T L -> enum (tmap f T) (L >> List.map f).
+  list_enumerator L T -> list_enumerator(L >> List.map f) (tmap f T).
 Proof.
-  intros []. split; unfold ">>".
-  - intros n. destruct (H n) as [A ->]. exists (List.map f A). apply map_app.
-  - intros x; split.
-    + intros (phi & [m Hin] % H0 & <-). exists m. apply in_map_iff. firstorder.
-    + intros (m & (phi & <- & Hphi) % in_map_iff). firstorder.
+  intros H0. unfold ">>".
+  intros x; split.
+  + intros (phi & [m Hin] % H0 & <-). exists m. apply in_map_iff. firstorder.
+  + intros (m & (phi & <- & Hphi) % in_map_iff). firstorder.
 Qed.
 
 Lemma tmap_contains_L {S1 S2 : Signature} (f : @form S1 -> @form S2) T A :

@@ -170,7 +170,7 @@ Section Inf.
   Lemma F_lt n m :
     n < m -> F n el LL m.
   Proof.
-    intros H. apply cum_ge' with (n0:=S n).
+    intros H. apply (cum_ge' (n:=S n)).
     - apply LL_cum.
     - apply F_el.
     - omega.

@@ -2,6 +2,8 @@ Set Implicit Arguments.
 
 Hint Extern 4 => exact _ : core.
 
+Ltac inv H := inversion H; subst; clear H.
+
 Definition dec (X: Prop) : Type := {X} + {~ X}.
 
 Coercion dec2bool P (d: dec P) := if d then true else false.
