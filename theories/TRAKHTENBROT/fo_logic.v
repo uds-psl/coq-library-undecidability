@@ -489,7 +489,7 @@ Section fol_semantics.
 
   Fact env_vlift_fix1 φ n (v : vec X n) k : env_vlift φ v (k+n) = φ k.
   Proof.
-    revert φ k; induction v as [ | n x v IHv ]; intros phi k; simpl; auto.
+    revert φ k; induction v as [ | x n v IHv ]; intros phi k; simpl; auto.
     replace (k+S n) with (S (k+n)) by lia; simpl; auto.
   Qed.
 
@@ -638,7 +638,7 @@ Section fo_model_simulation.
         -> ⟪A⟫ φ <-> ⟪A⟫' ψ.
   Proof.
     revert φ ψ.
-    induction A as [ | r | b A HA B HB | q A HA ]; intros phi psi Hs1 Hr1 Hp; simpl; try tauto.
+    induction A as [ | r v | b A HA B HB | q A HA ]; intros phi psi Hs1 Hr1 Hp; simpl; try tauto.
     + apply (fos_rels R).
       * apply Hr1; simpl; auto.
       * intros p; do 2 rewrite vec_pos_map.

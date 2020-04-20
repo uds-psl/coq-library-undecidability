@@ -171,7 +171,7 @@ Fixpoint eval (fuel : nat) (min : nat) (c : reccode) (v : list nat) : option (na
     end
   end.
 
-Definition rec_erase i (erase : forall i, recalg i -> reccode) := (fix rec k (v : vec (recalg i) k) := match v with vec_nil => rc_nil | vec_cons _ x v => rc_cons (erase _ x) (rec _ v) end).
+Definition rec_erase i (erase : forall i, recalg i -> reccode) := (fix rec k (v : vec (recalg i) k) := match v with vec_nil => rc_nil | x ## v => rc_cons (erase _ x) (rec _ v) end).
 
 Fixpoint erase k (f : recalg k) : reccode :=
   match f with
@@ -217,7 +217,7 @@ Proof.
     destruct (eval n min (rec_erase erase v) a) eqn:E2; try congruence.
     destruct s; try congruence. inv H. 
     edestruct IHv as (? & ? & ?). eauto.
-    exists (vec_cons n1 x0). split. cbn. firstorder congruence.
+    exists (n1 ## x). split. cbn. firstorder congruence.
     intros j; pos_inv j.
     + rewrite pos2nat_fst in *. assert (S n - 1 = n) by omega. rewrite H1 in *.
       cbn -[eval].  eassumption.
@@ -284,27 +284,27 @@ Proof.
       eapply EqDec.inj_right_pair in H7. subst.
       eapply EqDec.inj_right_pair in H7. subst.
       eapply EqDec.inj_right_pair in H8. subst.
-      assert (forall j : pos k, eval (c0 - pos2nat j) min (erase (vec_pos v0 j)) (vec_list v) = Some (inl (vec_pos w j))).
+      assert (forall j : pos k, eval (c0 - pos2nat j) min (erase (vec_pos t j)) (vec_list v) = Some (inl (vec_pos w j))).
       intros. eapply H. omega.
                                       
       cbn. eapply H. omega. eapply H. omega. specialize (H9 j).
       eapply H in H9. 2:omega. eapply H. omega. eauto.
       remember (S c0) as c'. cbn.
 
-      assert (eval c' min (rec_erase erase v0) (vec_list v) = Some (inr (vec_list w))).
-      { subst. clear - H1. revert c0 H1. induction v0; intros.
+      assert (eval c' min (rec_erase erase t) (vec_list v) = Some (inr (vec_list w))).
+      { subst. clear - H1. revert c0 H1. induction t; intros.
         - cbn; vec nil w; reflexivity.
         - cbn. pose proof (H1 pos_fst). cbn in H. rewrite pos2nat_fst in H.
           replace (c0 - 0) with c0 in H by omega. rewrite H.
           revert H1 H; vec split w with y; intros H1 H.
-          destruct c0. cbn in H. inv H. erewrite IHv0.
+          destruct c0. cbn in H. inv H. erewrite IHt.
           reflexivity.
           intros. specialize (H1 (pos_nxt j)). rewrite pos2nat_nxt in H1.
           eassumption.
       }
       rewrite H2. subst. eapply H in H10. rewrite H10. reflexivity. omega.
     + destruct n; inversion 1.
-      destruct (eval n min (rec_erase erase v0) (vec_list v)) eqn:E; try congruence.
+      destruct (eval n min (rec_erase erase t) (vec_list v)) eqn:E; try congruence.
       destruct s; try congruence.
       destruct (eval n min (erase f) l) eqn:E2; try congruence.
       destruct s; try congruence. inv H2.

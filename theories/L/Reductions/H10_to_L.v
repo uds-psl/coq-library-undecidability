@@ -65,7 +65,7 @@ Defined.
 
 Fixpoint conv n (p : dio_single.dio_polynomial (pos n) (pos 0)) : poly.
 Proof.
-  destruct p.
+  destruct p as [ | p | p | ].
   - exact (poly_cnst n0).
   - exact (poly_var (pos.pos2nat p)).
   - invert pos p.

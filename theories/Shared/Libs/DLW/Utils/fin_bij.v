@@ -73,7 +73,7 @@ Section list_discr_vec.
 
   Fact vec_search n (v : vec X n) x : { p | x = vec_pos v p } + { ~ in_vec x v }.
   Proof.
-    induction v as [ | n y v [ (p & ->) | H ] ].
+    induction v as [ | y n v [ (p & ->) | H ] ].
     + right; simpl; auto.
     + left; exists (pos_nxt p); auto.
     + destruct (D y x).
