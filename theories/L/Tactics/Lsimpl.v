@@ -121,3 +121,10 @@ Hint Extern 0 (I >(_) _)=> unfold I;reflexivity : Lrewrite.
 Hint Extern 0 (K >(_) _)=> unfold K;reflexivity : Lrewrite.
 
 
+Lemma Omega_diverge t: ~ eval Omega t.
+Proof.
+  intros (?&?). remember Omega as s eqn:HO. induction H;subst.
+  -inv H0. easy.
+  -unfold Omega in H. inv H. cbn in *. eauto. all:easy.
+Qed.
+

@@ -4,10 +4,11 @@ From Undecidability Require Import TM.Code.ProgrammingTools.
 From Undecidability Require Import TM.Univ.StepTM. (* [Univ] for single-tape Turing machines *)
 From Undecidability Require Import TM.Single.EncodeTapes TM.Single.StepTM. (* Compiler for multi-tape Turing machines to single-tape Turing machines *)
 
-From Undecidability Require Import PrettyBounds.
+From Undecidability Require Import PrettyBounds PrettyBounds.SizeBounds MaxList.
 From Undecidability Require UnivBounds.
 From Undecidability Require UnivSpaceBounds.
 From Undecidability Require M2MBounds.
+From Undecidability Require Import TM.VectorPrelim.
 
 Require Import Derive.
 
@@ -25,32 +26,7 @@ Lemma vector_const_cons (X : Type) (n : nat) (x : X) :
   Vector.const x (S n) = x ::: Vector.const x n.
 Proof. cbn. reflexivity. Qed.
 *)
-             
-From Undecidability Require Import MaxList.
 
-
-(** Technical compatibility lemma: Coq's standard library is soo inconsistent... *)
-Lemma fold_left_vector_to_list (X Y : Type) (n : nat) (f : Y -> X -> Y) (v : Vector.t X n) (a : Y) :
-  Vector.fold_left f a v = fold_left f (vector_to_list v) a.
-Proof. revert a. induction v as [ | x n v IH]; intros; cbn in *; f_equal; auto. Qed.
-
-Lemma max_list_rec_eq_foldl (a : nat) (xs : list nat) :
-  fold_left max xs a = max_list_rec a xs.
-Proof.
-  revert a. induction xs as [ | x xs IH]; intros; cbn in *.
-  - reflexivity.
-  - rewrite IH. rewrite !max_list_rec_max. nia.
-Qed.
-
-Lemma sizeOfmTapes_max_list_map (sig : Type) (n : nat) (T : tapes sig n) :
-  sizeOfmTapes T = max_list_map (@sizeOfTape _) (vector_to_list T).
-Proof.
-  unfold sizeOfmTapes.
-  rewrite fold_left_vector_to_list.
-  rewrite <- vector_to_list_map.
-  unfold max_list_map, max_list.
-  apply max_list_rec_eq_foldl.
-Qed.
 
 Lemma max_list_rec_repeat (a : nat) (s : nat) (n : nat) :
   n <> 0 ->
@@ -81,26 +57,6 @@ Qed.
 Lemma vector_const_to_list (X : Type) (a : X) (n : nat) :
   vector_to_list (Vector.const a n) = repeat a n.
 Proof. induction n; intros; cbn in *; now f_equal. Qed.
-
-Lemma vector_to_list_In (X : Type) (n : nat) (xs : Vector.t X n) (x : X) :
-  In x (vector_to_list xs) <-> Vector.In x xs.
-Proof.
-  split.
-  - induction xs as [ | y n xs IH]; intros; cbn in *.
-    + auto.
-    + destruct H as [ <- | H].
-      * now constructor.
-      * now constructor; auto.
-  - induction xs as [ | y n xs IH]; intros; cbn in *.
-    + inv H.
-    + apply In_cons in H as [<- | H].
-      * now constructor.
-      * now constructor; auto.
-Qed.
-
-Lemma sizeOfmTapes_upperBound (sig : Type) (n : nat) (tps : tapes sig n) :
-  forall t, Vector.In t tps -> sizeOfTape t <= sizeOfmTapes tps.
-Proof. intros. rewrite sizeOfmTapes_max_list_map. apply max_list_map_ge. now apply vector_to_list_In. Qed.
 
 
 (*
@@ -575,14 +531,15 @@ Section U.
   Existing Instance retr_sigSimTape_sigUniv.
   Definition Univ : pTM sigUniv unit 6 := @Univ sigM sigUniv' retr_sigSimGraph_sigUniv retr_sigSimTape_sigUniv.
 
+  (*
   Check Univ : pTM sigUniv unit 6.
   Check Univ : pTM sigUniv'^+ unit 6.
-
+*)
 
   (** The single-tape version of [Univ] for alphabet [sigM] *)
   Definition U := ToSingleTape Univ.
   Definition sigU := ltac:(lazymatch type of U with pTM ?sigU _ _ => exact sigU end).
-  Check U : pTM sigU unit 1.
+(*  Check U : pTM sigU unit 1. *)
 
 
   (*
@@ -721,10 +678,10 @@ Section U.
   (** Because the asymtopic behaviour of [fp] only depends on the size of the tapes, we will just insert bogus tapes with the corresponding tapes size. *)
   Definition f (M : mTM sigM 1) : nat * nat -> nat := fun '(k, s) => fp M (bogus_tape s) k.
 *)
-
+(*
   Check (projT1 U) : mTM sigU 1.
   Check forall (tp tp' : tape sigU), terminates (projT1 U) [|tp|] 42 [|tp'|].
-
+*)
   (** [fp] is literally only another definition for [U_steps] *)
   Lemma fp_eq : forall M (T : tape sigM) k, fp M T k = U_steps (makeUnivTapes _ _ M T) (start M) T k.
   Proof. intros. reflexivity. Qed.
@@ -742,7 +699,7 @@ Section U.
     unfold fp.
     eexists. intros.
     eapply dominatedWith_trans.
-    - apply (proj2_sig (@M2MBounds.Loop_steps_nice sigUniv (FinType(EqType unit)))).
+    - apply (proj2_sig (@M2MBounds.Loop_steps_nice)).
     - apply dominatedWith_solve. reflexivity.
   Qed.
 
@@ -753,16 +710,16 @@ Section U.
         fp M T k
         <=(c)
            let x := (size (vector_to_list (makeUnivTapes retr_sigSimGraph_sigUniv retr_sigSimTape_sigUniv M T)) + size k * size (graph_of_TM M)) in
-           x * x * (size k * size (graph_of_TM M))
+           x * x * (size k * size (graph_of_TM M) * size (Cardinality.Cardinality (states M)))
     }.
   Proof.
     eexists. intros. eapply dominatedWith_trans. apply (proj2_sig (fp_nice1 M)). apply dominatedWith_mult.
     - apply dominatedWith_quad. domWith_approx.
       eapply dominatedWith_trans.
-      apply (proj2_sig (UnivBounds.Univ_nice.Univ_steps_nice M)).
+      apply (proj2_sig (UnivBounds.Univ_nice.Univ_steps_nice)).
       domWith_approx.
       apply dominatedWith_solve. enough (1 <= size (graph_of_TM M)) by nia. apply UnivBounds.Univ_nice.Encode_graph_hasSize_ge1.
-    - apply (proj2_sig (UnivBounds.Univ_nice.Univ_steps_nice M)).
+    - apply (proj2_sig (UnivBounds.Univ_nice.Univ_steps_nice)).
   Qed.
 
   (** Throw away all constants that depend on [M] *)
@@ -877,7 +834,7 @@ Section U.
 
 
   (** We only do space-analysis for [Univ] now, because the size of the [sigU] tapes is directly determined by the tapes of [Univ] *)
-  Check UnivSpaceBounds.Univ_size_nice'.
+  (* )Check UnivSpaceBounds.Univ_size_nice'. *)
 
 
   (* TODO: Maybe simplify this space bound a bit: every tape of [Univ], except the object tape, is bounded by a constant (that depends on M). *)
@@ -932,7 +889,7 @@ Section MakeSingleTape_Bounded_by_sizeOfmTapes.
   Variable (sig : finType) (n : nat).
 
   (** We've already proven that [sizeOfTape (makeSingleTape T)] is the sum of the tape sizes (plus some constant) *)
-  Check makeSingleTape_sizeOfTape.
+  (* )Check makeSingleTape_sizeOfTape. *)
 
   Lemma tam (T : tapes sig n) :
     max_list_map (fun t : tape sig => Encode_tape_size t + 1) (vector_to_list T) <= sizeOfmTapes T + 3.
@@ -1014,7 +971,7 @@ Section UnivMultiTimeSpaceTheorem.
 
   Notation pM' := (ToSingleTape pM).
   Notation M' := (projT1 pM').
-  Check M' : mTM sigM' 1.
+  (* )Check M' : mTM sigM' 1. *)
 
   Notation "'castState' q" := (q : (states (projT1 pM))) (at level 1).
 
@@ -1150,24 +1107,24 @@ Section UnivMultiTimeSpaceTheorem.
     - domWith_approx.
       + subst T'. apply dominatedWith_solve. nia.
       + eapply dominatedWith_trans.
-        apply (proj2_sig (@M2MBounds.Loop_steps_nice _ _)).
+        apply (proj2_sig (M2MBounds.Loop_steps_nice)).
         apply dominatedWith_solve.
         subst T' k'. nia.
     - domWith_approx.
       + subst T'. apply dominatedWith_solve. nia.
       + eapply dominatedWith_trans.
-        apply (proj2_sig (@M2MBounds.Loop_steps_nice _ _)).
+        apply (proj2_sig (M2MBounds.Loop_steps_nice)).
         apply dominatedWith_solve.
         subst T' k'. nia.
     - apply dominatedWith_add_r; [ | nia].
       eapply dominatedWith_trans.
-      apply (proj2_sig (@M2MBounds.Loop_steps_nice _ _)).
+      apply (proj2_sig M2MBounds.Loop_steps_nice).
       apply dominatedWith_solve. subst k'. nia.
   Qed.
 
   (** Simplify [sizeOfTape (makeSingleTape T)] *)
 
-  Check makeSingleTape_sizeOfmTapes.
+  (* )Check makeSingleTape_sizeOfmTapes. *)
 
   Lemma Mfp_nice3 :
     {c : nat | forall (T : tapes sigM n) (k : nat),
@@ -1334,7 +1291,7 @@ Section UnivMultiTimeSpaceTheorem.
   Qed.
 
 
-  Print UnivSpaceBounds.Univ_size_bound.
+(*  Print UnivSpaceBounds.Univ_size_bound. *)
     
 
   (** We need to bound the size of the [sigMU] tape *)
@@ -1508,5 +1465,7 @@ Section UnivMultiTimeSpaceTheorem.
 
 End UnivMultiTimeSpaceTheorem.
 
+(*
 Print Assumptions EndTheorem1.
 Print Assumptions EndTheorem2.
+*)

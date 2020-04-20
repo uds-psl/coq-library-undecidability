@@ -1,10 +1,9 @@
-(* Require Import Combinators.Combinators Multi Basic.Mono TMTac. *)
 From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import ArithPrelim.
 
 From Undecidability Require Import TM.Compound.Shift.
 
-From Undecidability Require Import EncodeTapes.
+From Undecidability Require Import EncodeTapes TM.VectorPrelim.
 Require Import FunInd.
 
 
@@ -21,7 +20,7 @@ Compute Vector.to_list _. (1 ::: _).
 *)
 
 
-(* TODO This should go to TM/TM.v *)
+(* MOVE TODO This should go to TM/TM.v *)
 
 Lemma tape_move_niltape (sig : Type) (m : move) :
   tape_move (niltape sig) m = niltape sig.
@@ -62,7 +61,7 @@ Proof.
 Qed.
 
 
-(* TODO: ~> somewhere else *)
+(* MOVE TODO: ~> somewhere else *)
 Lemma vector_to_list_inj (X : Type) (n : nat) (xs ys : Vector.t X n) :
   vector_to_list xs = vector_to_list ys -> xs = ys.
 Proof.
@@ -71,11 +70,15 @@ Proof.
   - destruct_vector. cbn in *. inv H. f_equal. auto.
 Qed.
 
+Definition fin_to_nat (n : nat) (i : Fin.t n) : nat := proj1_sig (Fin.to_nat i).
+Module FinCoercion.
+  Coercion fin_to_nat : Fin.t >-> nat. 
+  Export Set Printing Coercions.
+End FinCoercion.
+
+Import FinCoercion.
 
 Section Fin.
-
-  Global Coercion fin_to_nat (n : nat) (i : Fin.t n) : nat := proj1_sig (Fin.to_nat i).
-  Global Set Printing Coercions.
 
   Lemma fin_to_nat_lt (n : nat) (i : Fin.t n) : fin_to_nat i < n.
   Proof. unfold fin_to_nat. destruct (Fin.to_nat i). cbn. auto. Qed.
@@ -1222,7 +1225,7 @@ Section ToSingleTape.
              destruct tps2 as [ | tp' tps2']; cbn in *.
              + TMSimp congruence.
              + destruct HStep_cons as (HStep_cons1&HStep_cons2). destruct (finSucc_opt i) as [ i'' | ] eqn:Ei; inv HStep_cons2; rename i'' into i'.
-               eexists. split. 2: apply Hk. left. exists (tps1 ++ [tp]), (tps2'), tp'. repeat split. Search i'.
+               eexists. split. 2: apply Hk. left. exists (tps1 ++ [tp]), (tps2'), tp'. repeat split.
                * simpl_list. cbn. apply finSucc_opt_Some' in Ei. apply Nat.eqb_eq. apply Nat.eqb_eq in HL1. omega.
                * simpl_list. cbn. apply finSucc_opt_Some' in Ei. apply Nat.eqb_eq. apply Nat.eqb_eq in HL2. omega.
                * apply insertKnownSymbol_correct. now apply Nat.eqb_eq. assumption.
@@ -2361,4 +2364,4 @@ Section ToSingleTape.
 End ToSingleTape.
 
 
-Print Assumptions ToSingleTape_Realise'.
+(* Print Assumptions ToSingleTape_Realise'. *)

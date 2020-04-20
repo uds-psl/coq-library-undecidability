@@ -90,10 +90,10 @@ Arguments Return : simpl never.
 
 (** Helper tactics for match *)
 
-Ltac print e := idtac.                                  (* idtac e *)
-Tactic Notation "print_str" string(e1) := idtac. (* idtac e1 *)
-Tactic Notation "print2" ident(e1) string(e2) := idtac. (* idtac e1 e2 *)
-Ltac print_type e := first [ let x := type of e in print x | print_str "Untyped:"; print e ].
+Local Ltac print e := idtac.                                  (* idtac e *)
+Local Tactic Notation "print_str" string(e1) := idtac. (* idtac e1 *)
+Local Tactic Notation "print2" ident(e1) string(e2) := idtac. (* idtac e1 e2 *)
+Local Ltac print_type e := first [ let x := type of e in print x | print_str "Untyped:"; print e ].
 
 Ltac print_goal_cbn :=
   match goal with
@@ -103,6 +103,8 @@ Ltac print_goal_cbn :=
 
 (** This tactic destructs a variable recursivle and shelves each goal where it couldn't destruct the variable further. The purpose of this tactic is to pre-instantiate functions to relations with holes of the form [Param -> Rel _ _]. We need this for the [Switch] Machine.
 The implementation of this tactic is quiete uggly but works for parameters with up to 9 constructor arguments. This tactic may generates a lot of warnings, which can be ignored. *)
+Export Set Warnings "-unused-intro-pattern".
+
 Ltac destruct_shelve e :=
   cbn in e;
   print_str "Input:";
@@ -137,8 +139,16 @@ Ltac destruct_shelve e :=
 Ltac smpl_match_case_solve_RealiseIn :=
   eapply RealiseIn_monotone'; [ | shelve].
 
+(** This disables the automatic exploration of all possible branvhes in a switch machine. 
+It is useful if some branches do perform the same work to nos split the proof unless required.
+See [CaseBool] for an example. Usage with the tactical [destructBoth] allows to refine the relation when performing caseSplits *)
+Definition TM_Correct_noSwitchAuto := unit.
+Opaque TM_Correct_noSwitchAuto.
+Ltac TM_Correct_noSwitchAuto := let f := fresh "flag" in assert (f := (tt:TM_Correct_noSwitchAuto)).
+
 Ltac smpl_match_RealiseIn :=
   lazymatch goal with
+  | H : TM_Correct_noSwitchAuto |- _ => eapply Switch_RealiseIn with (R2:= fun x => _ );[TM_Correct| ]
   | [ |- Switch ?M1 ?M2 ⊨c(?k1) ?R] =>
     is_evar R;
     let tM2 := type of M2 in
@@ -147,7 +157,7 @@ Ltac smpl_match_RealiseIn :=
     | ?F -> _ =>
       eapply (Switch_RealiseIn
                 (F := FinType(EqType F))
-                (R2 := ltac:(now (print_goal; intros x; destruct_shelve x))));
+                (R2 := ltac:(now ((*print_goal;*) intros x; destruct_shelve x))));
       [
         smpl_match_case_solve_RealiseIn
       | intros x; repeat destruct _; smpl_match_case_solve_RealiseIn
@@ -158,6 +168,7 @@ Ltac smpl_match_RealiseIn :=
 
 Ltac smpl_match_Realise :=
   lazymatch goal with
+  | H : TM_Correct_noSwitchAuto |- _ => eapply Switch_Realise with (R2:= fun x => _ );[TM_Correct| ]
   | [ |- Switch ?M1 ?M2 ⊨ ?R] =>
     is_evar R;
     let tM2 := type of M2 in
@@ -176,6 +187,7 @@ Ltac smpl_match_Realise :=
 
 Ltac smpl_match_Terminates :=
   lazymatch goal with
+  | H : TM_Correct_noSwitchAuto |- _ => eapply Switch_TerminatesIn with (T2:= fun x => _ );[TM_Correct|TM_Correct | ]
   | [ |- projT1 (Switch ?M1 ?M2) ↓ ?R] =>
     is_evar R;
     let tM2 := type of M2 in

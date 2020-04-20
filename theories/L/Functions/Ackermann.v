@@ -1,4 +1,5 @@
 From Undecidability.L Require Import Datatypes.LNat Tactics.LTactics.
+Import Ring.
 
 (** ** Computability of Ackermann *)
 
@@ -27,22 +28,23 @@ Local Lemma Ack_pos n m : 0 < ackermann n m.
   all:eauto.
 Qed.
 
-(* Lemma termT_ackermann : *)
-(*   computableTime ackermann *)
-(*                  (fun x _ => *)
-(*                     (14, *)
-(*                      fun y _ => *)
-(*                        (cnst("f",x,y),tt))). *)
-(* Proof. *)
-(*   extract. *)
-(*   Import Ring Arith. *)
-(*   cbn. fold ackermann.  *)
-(*   repeat (cbn ;intros;intuition idtac;try destruct _;try ring_simplify;try lia). *)
-(*   all:repeat change (fix ackermann_Sn (m : nat) : nat := *)
-(*     match m with *)
-(*     | 0 => fun _ => ackermann x0 1 *)
-(*     | S m0 => fun _  => ackermann x0 (ackermann_Sn m0) *)
-(*     end true) with (ackermann (S x0)). all: refine ( _:(_ >= _)). *)
-(*   (* Todo: find an f satisfying the 3 equations in the goal *) *)
-(* Abort. *)
+Lemma termT_ackermann :
+  computableTime' ackermann
+                 (fun x _ =>
+                    (14,
+                     fun y _ =>
+                       (cnst("f",x,y),tt))).
+Proof.
+  extract.
+  Import Ring Arith.
+  cbn. fold ackermann. Import Lia.
+  repeat (cbn ;intros;intuition idtac;try destruct _).
+  all:ring_simplify. all:try nia.
+  all:repeat change (fix ackermann_Sn (m : nat) : nat :=
+    match m with
+    | 0 => fun _ => ackermann x0 1
+    | S m0 => fun _  => ackermann x0 (ackermann_Sn m0)
+    end true) with (ackermann (S x0)). all: refine ( _:(_ >= _)).
+  (* Todo: find an f satisfying the 3 equations in the goal *)
+Abort.
   

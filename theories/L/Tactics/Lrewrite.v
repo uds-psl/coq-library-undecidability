@@ -45,7 +45,7 @@ Qed.
 
 Ltac find_Lrewrite_lemma :=
   match goal with
-    |- ?R ?s _ => is_ground s;solve [eauto 20 with Lrewrite nocore|eassumption]
+    |- ?R ?s _ => has_no_evar s;solve [eauto 20 with Lrewrite nocore|eassumption]
   end.
 
 Hint Extern 0 (proc _) => solve [Lproc] : Lrewrite.
@@ -78,7 +78,7 @@ Ltac Lrewrite_generateGoals :=
 Ltac useFixHypo :=
   lazymatch goal with
     |- ?s >* ?t =>
-    is_ground s;
+    has_no_evar s;
     let IH := fresh "IH" in
     unshelve epose (IH:=_);[|(notypeclasses refine (_:{v:term & computesExp _ _ s v}));solve [eauto]|];
     let v := constr:(projT1 IH) in
@@ -89,7 +89,7 @@ Ltac useFixHypo :=
       change v with (@ext _ ty _ (Build_computable IHInts)) in IHR;exact (proj1 IHR)
     end
   | |- ?s >(<= ?i ) ?t=>
-    is_ground s;
+    has_no_evar s;
     let IH := fresh "IH" in
     unshelve epose (IH:=_);[|(notypeclasses refine (_:{v:term & computesTimeExp _ _ s _ v _}));solve [eauto]|];
     let v := constr:(projT1 IH) in
@@ -200,7 +200,7 @@ Tactic Notation "Lrewrite" "in" hyp(_H) :=
 (* version of Lrewrite that the verification of the extraction uses*)
 Ltac Lrewrite_new' :=
   lazymatch goal with
-    |- ?R ?s _  => is_ground s
+    |- ?R ?s _  => has_no_evar s
   end;
   lazymatch goal with
   | |- ?R (L.app _ _) _ =>
@@ -211,7 +211,7 @@ Ltac Lrewrite_new' :=
      end);[Lrewrite_new'..| ];
 
     (* then reduce here/above *)
-    once match goal with
+    once lazymatch goal with
          (* beta-reduce here & recurse down again (if argument abstraction)*)
          | |- ?R (L.app (lam _) ?t) _ =>                      
            let valt := fresh "valt" in

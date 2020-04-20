@@ -1,4 +1,4 @@
-From Undecidability Require Import TM.TMEncoding TM.TM.
+From Undecidability Require Import TM.TMEncoding TM.TMinL TM.TM.
 From Undecidability.L Require Import Computability.MuRec.
 Require Import Undecidability.FOL.Reductions.
 

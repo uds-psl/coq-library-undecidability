@@ -1,8 +1,8 @@
 (** * Constructors and Deconstructors for Comens *)
 
 From Undecidability Require Import ProgrammingTools.
-From Undecidability Require Import TM.Code.CaseNat TM.Code.CaseSum TM.Code.CaseFin.
-From Undecidability.LAM Require Import LM_heap_def TM.Alphabets.
+From Undecidability Require Import TM.Code.CaseNat TM.Code.CaseSum TM.Code.CaseFin LM_heap_def .
+From Undecidability.LAM Require Import TM.Alphabets.
 
 Definition CaseCom : pTM sigCom^+ (option ACom) 1 :=
   If (CaseSum _ _)
@@ -10,7 +10,7 @@ Definition CaseCom : pTM sigCom^+ (option ACom) 1 :=
      (Relabel (ChangeAlphabet (CaseFin (FinType(EqType(ACom))) ) _) Some).
 
 
-Definition CaseCom_size (t : Com) : nat -> nat :=
+Definition CaseCom_size (t : Tok) : nat -> nat :=
   match t with
   | varT n => S
   | _ => S >> S >> S
@@ -18,7 +18,7 @@ Definition CaseCom_size (t : Com) : nat -> nat :=
 
 Definition CaseCom_Rel : pRel sigCom^+ (FinType (EqType (option ACom))) 1 :=
   fun tin '(yout, tout) =>
-    forall (t : Com) (s : nat),
+    forall (t : Tok) (s : nat),
       tin[@Fin0] ≃(;s) t ->
       match yout, t with
       | Some appAT, appT => isRight_size tout[@Fin0] (CaseCom_size t s)

@@ -35,7 +35,23 @@ Proof.
 Defined.
 
 
+(*make all variables to coq-variables in the context *)
+Ltac allVarsPrep _s :=
+lazymatch _s with
+| var ?_n => idtac
+| app ?_s ?_t =>
+  allVarsPrep _s;
+  allVarsPrep _t
+| lam ?_s => allVarsPrep _s
+| rho ?_s => allVarsPrep _s
+| _ => let x := fresh "__x" in set (x:= _s)
+end.
 
+Ltac allVarsSubstL vars :=
+lazymatch eval hnf in vars with
+| [] => idtac
+| ?x::?vars'' => allVarsSubstL vars'';try subst x
+end.
 
 Ltac allVars' vars _s :=
 lazymatch _s with
@@ -82,37 +98,42 @@ Ltac vm_hypo :=
     | H: ?s == ?t |- _ => revert H;try vm_hypo;intros H; vm_compute in H
   end.
 
-Ltac ProcPhi' H :=
-  let eq := fresh "eq" in
-  (exfalso;exact H) || (destruct H as [eq|H];[rewrite <-eq;(now Lproc)|ProcPhi' H]).
+Ltac ProcPhi' vars H := let eq := fresh "eq" in (exfalso;exact H) || (destruct H as [eq|H];[rewrite <-eq;repeat allVarsSubstL vars;Lproc|ProcPhi' vars H]).
 
 
-Ltac ProcPhi := 
+Ltac ProcPhi vars := 
   let H := fresh "H" in
   let s := fresh "s" in
-  apply liftPhi_correct;intros s H;ProcPhi' H.
+  apply liftPhi_correct;intros s H;ProcPhi' vars H.
 
 (* solve goals of shape s >(?l) ?t for evars ?l, ?t!*)
 Ltac simplify_L' n:=
   lazymatch goal with
     |- ?s >(_) _ =>
-    let vars:= allVars s in
-    let s' := reifyTerm vars s in
-    let phi := fresh "phi" in
-    pose (phi := Reflection.liftPhi vars);
-    let pp := fresh "pp" in
-    let cs := fresh "cs" in
-    assert (pp:Reflection.Proc phi) by (ProcPhi);
-    assert (cs :Reflection.rClosed phi s') by (apply Reflection.rClosed_decb_correct;[exact pp|vm_compute;reflexivity]);
-    let R := fresh "R" in
-    assert (R:= Reflection.rStandardizeUsePow n pp cs);
-    let eq := fresh "eq" in
-    let s'' := fresh "s''" in
-    remember ( Reflection.rCompSeval n (0, Reflection.rCompClos (s') [])) as s'' eqn:eq in R;
-    vm_compute in eq;
-    rewrite eq in R; lazy -[rho pow phi Reflection.liftPhi] in R;
-    lazy [phi Reflection.liftPhi nth] in R;
-    clear eq s'' cs phi pp;exact R
+    allVarsPrep s;
+    lazymatch goal with
+      |- ?s >(_) _ =>
+      let vars:= allVars s in
+      let vars' := fresh "vars'" in
+      pose (vars':=vars);
+      let s' := reifyTerm vars s in
+      let phi := fresh "phi" in
+      pose (phi := Reflection.liftPhi vars);
+      let pp := fresh "pp" in
+      let cs := fresh "cs" in
+      assert (pp:Reflection.Proc phi) by (ProcPhi vars');
+      assert (cs :Reflection.rClosed phi s') by (apply Reflection.rClosed_decb_correct;[exact pp|vm_compute;reflexivity]);
+      let R := fresh "R" in
+      assert (R:= Reflection.rStandardizeUsePow n pp cs);
+      let eq := fresh "eq" in
+      let s'' := fresh "s''" in
+      remember ( Reflection.rCompSeval n (0, Reflection.rCompClos (s') [])) as s'' eqn:eq in R;
+      vm_compute in eq;
+      rewrite eq in R; lazy -[rho pow phi Reflection.liftPhi] in R;
+      lazy [phi Reflection.liftPhi nth] in R;
+      (*repeat allVarsSubstL vars';*)      
+      clear vars' eq s'' cs phi pp; exact R
+    end
   end.
 
 
@@ -136,17 +157,17 @@ Ltac Lbeta' n :=
   lazymatch goal with
     |- ?rel ?s _ =>    
     lazymatch goal with
-    | |- s >(?i) _ => tryif is_evar i
+    | |- _ >(?i) _ => tryif is_evar i
       then eapply pow_trans;[simplify_L' n|]
       else (eapply pow_trans_eq;[simplify_L' n| |try reflexivity])
-    | |- s >(<=?i) _ => tryif is_evar i
+    | |- _ >(<=?i) _ => tryif is_evar i
       then eapply redLe_trans;[apply pow_redLe_subrelation;simplify_L' n|]
       else ((eapply redLe_trans_eq;[ | apply pow_redLe_subrelation;simplify_L' n| ]);[try reflexivity | ..])
                                              
-    | |- s ⇓(<= _) _ => eapply evalLe_trans;[apply pow_redLe_subrelation;simplify_L' n|]
-    | |- s ⇓(_) _ => eapply evalIn_trans;[Lbeta' n|]                                                  
-    | |- s ⇓ _ => eapply eval_helper;[eapply pow_star_subrelation;simplify_L' n|]
-    | |- s >* _ => etransitivity;[eapply pow_star_subrelation;simplify_L' n|]
+    | |- _ ⇓(<= _) _ => eapply evalLe_trans;[apply pow_redLe_subrelation;simplify_L' n|]
+    | |- _ ⇓(_) _ => eapply evalIn_trans;[Lbeta' n|]                                                  
+    | |- _ ⇓ _ => eapply eval_helper;[eapply pow_star_subrelation;simplify_L' n|]
+    | |- _ >* _ => etransitivity;[eapply pow_star_subrelation;simplify_L' n|]
     | |- ?G => fail "Not supported for LSimpl (or other failed):" G 
     end;
     lazymatch goal with
@@ -168,7 +189,7 @@ Qed.*)
 
 (* legacy: asserts R:= s >* ?t for some reduction of ?t *)
 Tactic Notation "standardize" ident(R) constr(n) constr(s) :=
-  is_ground s;
+  has_no_evar s;
   let l := fresh "l" in
   let t := fresh "t" in
   evar (l : nat);

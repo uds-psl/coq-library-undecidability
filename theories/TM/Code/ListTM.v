@@ -8,7 +8,7 @@ Local Arguments skipn { A } !n !l.
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 
-
+ 
 Local Arguments Encode_list : simpl never.
 Local Arguments Encode_nat : simpl never.
 
