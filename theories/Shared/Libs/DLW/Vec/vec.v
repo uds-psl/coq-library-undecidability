@@ -26,10 +26,9 @@ Section vector.
   Variable X : Type.
 
   Notation vec := (@Vector.t X).
-(*  Notation vec_nil := (@Vector.nil X).
-  Notation vec_cons := (fun x => @Vector.cons X x _). *)
-  
-(*
+
+(* @DLW: former definition
+
   Inductive vec : nat -> Type :=
     | vec_nil  : vec 0
     | vec_cons : forall n, X -> vec n -> vec (S n).
@@ -76,11 +75,11 @@ Section vector.
   Fixpoint vec_pos n (v : vec n) : pos n -> X.
   Proof.
     refine (match v with
-      | @Vector.nil _ => fun p => _
-      | @Vector.cons _ x n v => fun p => _
+      | vec_nil => fun p => _
+      | x ## v => fun p => _
     end); invert pos p.
-    exact x.
-    exact (vec_pos _ v p).
+    + exact x.
+    + exact (vec_pos _ v p).
   Defined.
 
   Fact vec_pos0 n (v : vec (S n)) : vec_pos v pos0 = vec_head v.
@@ -143,24 +142,24 @@ Section vector.
   Proof. 
     revert p q x.
     induction v as [ | n y v IH ]; intros p q x H; invert pos p; invert pos q; auto.
-    destruct H; auto.
-    apply IH; contradict H; subst; auto.
+    + destruct H; auto.
+    + apply IH; contradict H; subst; auto.
   Qed.
 
   Fact vec_change_idem n v p x y : vec_change (@vec_change n v p x) p y = vec_change v p y.
   Proof.
     apply vec_pos_ext; intros q.
     destruct (pos_eq_dec p q).
-    repeat rewrite vec_change_eq; auto.
-    repeat rewrite vec_change_neq; auto.
+    + repeat rewrite vec_change_eq; auto.
+    + repeat rewrite vec_change_neq; auto.
   Qed.
 
   Fact vec_change_same n v p : @vec_change n v p (vec_pos v p) = v.
   Proof.
     apply vec_pos_ext; intros q.
     destruct (pos_eq_dec p q).
-    repeat rewrite vec_change_eq; subst; auto.
-    repeat rewrite vec_change_neq; auto.
+    + repeat rewrite vec_change_eq; subst; auto.
+    + repeat rewrite vec_change_neq; auto.
   Qed.
 
   Variable eq_X_dec : forall x y : X, { x = y } + { x <> y }.
@@ -256,9 +255,7 @@ Notation vec := Vector.t.
 Notation vec_cons := (fun x => @Vector.cons _ x _).
 
 Fact in_vec_pos X n (v : vec X n) p : in_vec (vec_pos v p) v.
-Proof.
-  revert p; induction v; intros p; invert pos p; auto.
-Qed.
+Proof. revert p; induction v; intros p; invert pos p; auto. Qed.
 
 Fact in_vec_inv X n (v : vec X n) x : in_vec x v -> exists p, vec_pos v p = x.
 Proof.
@@ -285,8 +282,6 @@ Proof.
 Qed.
 
 (* notations *)
-
-(*Arguments vec_nil { X }. *)
 
 Section vec_app_split.
 
@@ -424,14 +419,14 @@ Section vec_map2.
                                                               forall a b, P (a ## v1) (b ## v2)) :=
     fix rect2_fix {n} (v1 : vec A n) : forall v2 : vec B n, P v1 v2 :=
       match v1 with
-      | vec_nil => fun v2 => case0 _ bas v2
-      | @Vector.cons _ h1 n' t1 => fun v2 =>
-                                 caseS' v2 (fun v2' => P (h1##t1) v2') (fun h2 t2 => recvec (rect2_fix t1 t2) h1 h2)
+      | vec_nil  => fun v2 => case0 _ bas v2
+      | h1 ## t1 => fun v2 => caseS' v2 (fun v2' => P (h1##t1) v2') (fun h2 t2 => recvec (rect2_fix t1 t2) h1 h2)
       end.
 
   Definition vec_map2 {A B C} (g:A -> B -> C) :
     forall (n : nat), vec A n -> vec B n -> vec C n :=
     @rect2 _ _ (fun n _ _ => vec C n) vec_nil (fun _ _ _ H a b => (g a b) ## H).
+
   Global Arguments vec_map2 {A B C} g {n} v1 v2.
 
 End vec_map2.
@@ -567,10 +562,7 @@ Fact vec_zero_S n : @vec_zero (S n) = 0##vec_zero.
 Proof. auto. Qed.
 
 Fact vec_one_fst n : @vec_one (S n) pos0 = 1##vec_zero.
-Proof.
-  apply vec_pos_ext.
-  intros p; pos_inv p; rew vec.
-Qed.
+Proof. apply vec_pos_ext; intros p; pos_inv p; rew vec. Qed.
 
 Fact vec_one_nxt n p : @vec_one (S n) (pos_nxt p) = 0##vec_one p.
 Proof.
@@ -578,15 +570,15 @@ Proof.
   unfold vec_one.
   intros q; rewrite vec_pos_set.
   pos_inv q.
-  simpl; auto.
-  rewrite <- vec_pos_tail.
-  simpl vec_tail.
-  rewrite vec_pos_set.
-  destruct (pos_eq_dec p q) as [ | C ].
-  subst.
-  destruct (pos_eq_dec (pos_nxt q) (pos_nxt q)) as [ | [] ]; auto.
-  destruct (pos_eq_dec (pos_nxt p) (pos_nxt q)) as [ | ]; auto.
-  destruct C; apply pos_nxt_inj; auto.
+  + simpl; auto.
+  + rewrite <- vec_pos_tail.
+    simpl vec_tail.
+    rewrite vec_pos_set.
+    destruct (pos_eq_dec p q) as [ | C ].
+    * subst.
+      destruct (pos_eq_dec (pos_nxt q) (pos_nxt q)) as [ | [] ]; auto.
+    * destruct (pos_eq_dec (pos_nxt p) (pos_nxt q)) as [ | ]; auto.
+      destruct C; apply pos_nxt_inj; auto.
 Qed.
 
 Fact vec_plus_cons n x v y w : @vec_plus (S n) (x##v) (y##w) = x+y ## vec_plus v w.
@@ -645,8 +637,8 @@ Fact vec_sum_is_zero n v : @vec_sum n v = 0 -> v = vec_zero.
 Proof.
   induction v; simpl; auto.
   simpl; rewrite vec_zero_S; intros; f_equal.
-  omega.
-  apply IHv; omega.
+  + omega.
+  + apply IHv; omega.
 Qed.
 
 Fact vec_sum_is_nzero n v : 0 < @vec_sum n v -> { p : _ & { w | v = vec_plus (vec_one p) w } }.
@@ -675,17 +667,14 @@ Section vec_nat_induction.
   Proof.
     induction v as [ v IHv ] using (measure_rect (@vec_sum n)).
     case_eq (vec_sum v).
-    
-    intros Hv.
-    apply vec_sum_is_zero in Hv; subst; auto.
-    
-    intros x Hx.
-    destruct (vec_sum_is_nzero v) as (p & w & Hw).
-    omega.
-    subst.
-    apply HP2; auto.
-    apply IHv.
-    rewrite vec_sum_plus, vec_sum_one; auto.
+    + intros Hv; apply vec_sum_is_zero in Hv; subst; auto.
+    + intros x Hx.
+      destruct (vec_sum_is_nzero v) as (p & w & Hw).
+      * omega.
+      * subst.
+        apply HP2; auto.
+        apply IHv.
+       rewrite vec_sum_plus, vec_sum_one; auto.
   Qed.
   
 End vec_nat_induction.
@@ -717,19 +706,19 @@ Section vec_map_list.
   Fact vec_map_list_plus n v w f : @vec_map_list X n (vec_plus v w) f ~p vec_map_list v f ++ vec_map_list w f.
   Proof.
     revert v w f; induction n as [ | n IHn ]; intros v w f.
-    rewrite (vec_0_nil (vec_plus v w)), (vec_0_nil v), (vec_0_nil w); simpl; auto.
-    rewrite (vec_head_tail v), (vec_head_tail w), vec_plus_cons.
-    generalize (vec_head v) (vec_tail v) (vec_head w) (vec_tail w); clear v w; intros x v y w.
-    simpl.
-    rewrite list_repeat_plus.
-    solve list eq; apply Permutation_app; auto.
-    apply Permutation_trans with (list_repeat (f pos0) y 
-                               ++ vec_map_list v (fun p => f (pos_nxt p)) 
-                               ++ vec_map_list w (fun p => f (pos_nxt p))).
-    apply Permutation_app; auto.
-    do 2 rewrite <- app_ass.
-    apply Permutation_app; auto.
-    apply Permutation_app_comm.
+    + rewrite (vec_0_nil (vec_plus v w)), (vec_0_nil v), (vec_0_nil w); simpl; auto.
+    + rewrite (vec_head_tail v), (vec_head_tail w), vec_plus_cons.
+      generalize (vec_head v) (vec_tail v) (vec_head w) (vec_tail w); clear v w; intros x v y w.
+      simpl.
+      rewrite list_repeat_plus.
+      solve list eq; apply Permutation_app; auto.
+      apply Permutation_trans with (list_repeat (f pos0) y 
+                                 ++ vec_map_list v (fun p => f (pos_nxt p)) 
+                                 ++ vec_map_list w (fun p => f (pos_nxt p))).
+      * apply Permutation_app; auto.
+      * do 2 rewrite <- app_ass.
+        apply Permutation_app; auto.
+       apply Permutation_app_comm.
   Qed.
 
 End vec_map_list.

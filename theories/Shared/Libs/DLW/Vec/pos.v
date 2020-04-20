@@ -7,27 +7,28 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega Fin.
+Require Import List Arith Omega.
+Require Fin.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils.
 
 Set Implicit Arguments.
 
-(*
+(** @DLW: former definition
+
 Inductive pos : nat -> Set :=
   | pos_fst : forall n, pos (S n)
   | pos_nxt : forall n, pos n -> pos (S n).
+
+Arguments pos_fst {n}.
+Arguments pos_nxt {n}.
+
 *)
 
 Notation pos := Fin.t.
-Notation pos_fst := F1.
-Notation pos_nxt := FS.
-
-(*
-Arguments pos_fst {n}.
-Arguments pos_nxt {n}.
-*)
+Notation pos_fst := Fin.F1.
+Notation pos_nxt := Fin.FS.
 
 Notation pos0  := (@pos_fst _).
 Notation pos1  := (pos_nxt pos0).
