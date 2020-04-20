@@ -224,12 +224,14 @@ Section Σfull_mon_rem.
       + simpl; tauto.
       + simpl in v; unfold Σfull_mon_rec.
         revert HA; vec split v with t; vec nil v; clear v; simpl vec_head; simpl syms; intros HA.
-        specialize (HA _ (or_introl eq_refl)); simpl in HA.
-        simpl; rewrite (fot_word_var_eq t) at 3.
-        simpl; apply fol_equiv_ext; do 2 f_equal.
-        generalize (fot_word t) (fot_var t); clear t HA; intros w.
-        induction w as [ | s w IHw ]; simpl; auto; intros i.
-        rewrite f_snoc; simpl; do 2 f_equal; auto.
+        specialize (HA _ (or_introl eq_refl)); simpl in HA |- *.
+        replace (fo_term_sem M φ t) 
+        with    (fo_term_sem M φ (fot_word_var (fot_word t) (fot_var t))).
+        * simpl; apply fol_equiv_ext; do 2 f_equal.
+          generalize (fot_word t) (fot_var t); clear t HA; intros w.
+          induction w as [ | s w IHw ]; simpl; auto; intros i.
+          rewrite f_snoc; simpl; do 2 f_equal; auto.
+        * f_equal; symmetry; apply fot_word_var_eq.
       + simpl; apply fol_bin_sem_ext.
         * apply HB; intros ? ?; apply HA, in_app_iff; auto.
         * apply HC; intros ? ?; apply HA, in_app_iff; auto.
@@ -290,14 +292,16 @@ Section Σfull_mon_rem.
         + simpl; tauto.
         + simpl in v; unfold Σfull_mon_rec.
           revert HwA; vec split v with t; vec nil v; clear v; simpl vec_head; simpl syms; intros HwA.
-          specialize (HwA _ (or_introl eq_refl)); simpl in HwA.
-          simpl; rewrite (fot_word_var_eq t) at 3.
-          revert HwA; generalize (fot_word t) (fot_var t); intros w i.
-          rewrite <- (rev_length w), <- Hf. 
-          simpl; generalize (rev w) (φ i); clear w; intros w.
-          induction w as [ | s w IHw ]; simpl; auto; intros Hw x.
-          * rewrite HM2'; tauto.
-          * rewrite HM1', IHw; simpl; try tauto; lia.
+          specialize (HwA _ (or_introl eq_refl)); simpl in HwA |- *.
+          replace (fo_term_sem M φ t) 
+          with    (fo_term_sem M φ (fot_word_var (fot_word t) (fot_var t))).
+          * revert HwA; generalize (fot_word t) (fot_var t); intros w i.
+            rewrite <- (rev_length w), <- Hf. 
+            simpl; generalize (rev w) (φ i); clear w; intros w.
+            induction w as [ | s w IHw ]; simpl; auto; intros Hw x.
+            - rewrite HM2'; tauto.
+            - rewrite HM1', IHw; simpl; try tauto; lia.
+          * f_equal; symmetry; apply fot_word_var_eq.
         + apply fol_bin_sem_ext.
           * apply HB; intros ? ?; apply HwA, in_app_iff; auto.
           * apply HC; intros ? ?; apply HwA, in_app_iff; auto.

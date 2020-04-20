@@ -262,7 +262,7 @@ Qed.
 
 Fact exp_app n m i v w : @exp (n+m) i (vec_app v w) = exp i v * exp (n+i) w.
 Proof.
-  revert i; induction v as [ | n x v IHv ]; intros i.
+  revert i; induction v as [ | x n v IHv ]; intros i.
   + rewrite vec_app_nil, exp_zero; simpl; ring.
   + rewrite vec_app_cons, exp_cons.
     simpl plus; rewrite exp_cons, IHv.
@@ -331,7 +331,7 @@ Qed.
 Lemma qs_shift n m j k (v : vec nat k) :
   divides (qs n) (exp j v) <-> divides (qs (m + n)) (exp (m + j) v).
 Proof.
-  revert m n j; induction v as [ | k x v IHv ]; intros m n j.
+  revert m n j; induction v as [ | x k v IHv ]; intros m n j.
   - cbn; split; intros ? % divides_1_inv % not_qs_1; tauto.
   - cbn. split.
     + intros [ | ] % divides_mult_inv; auto.
@@ -379,7 +379,7 @@ Qed.
 Lemma exp_inj n i v1 v2 :
   @exp n i v1 = exp i v2 -> v1 = v2.
 Proof.
-  revert i v2; induction v1 as [ | n x v1 IH ]; intros i v2.
+  revert i v2; induction v1 as [ | x n v1 IH ]; intros i v2.
   + vec nil v2; auto.
   + vec split v2 with y.
     simpl; intros H.

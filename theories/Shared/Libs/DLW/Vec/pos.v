@@ -8,11 +8,14 @@
 (**************************************************************)
 
 Require Import List Arith Omega.
+Require Fin.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils.
 
 Set Implicit Arguments.
+
+(** @DLW: former definition
 
 Inductive pos : nat -> Set :=
   | pos_fst : forall n, pos (S n)
@@ -20,6 +23,12 @@ Inductive pos : nat -> Set :=
 
 Arguments pos_fst {n}.
 Arguments pos_nxt {n}.
+
+*)
+
+Notation pos := Fin.t.
+Notation pos_fst := Fin.F1.
+Notation pos_nxt := Fin.FS.
 
 Notation pos0  := (@pos_fst _).
 Notation pos1  := (pos_nxt pos0).
