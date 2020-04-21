@@ -49,6 +49,15 @@ Shared/Libs/DLW/Wf/wf_incl.v
 
 Problems/Reduction.v
 
+# Abstract L simulator as Turing Machine
+LAM/TM/Alphabets.v
+LAM/TM/CaseCom.v
+LAM/TM/LookupTM.v
+LAM/TM/JumpTargetTM.v
+#The following file takes very long, so we start it early for faster multi-core-compilation
+LAM/TM/StepTM.v
+LAM/TM/HaltingProblem.v
+
 #Post correspondence problem
 PCP/PCP.v
 PCP/PCP_undec.v
@@ -363,10 +372,6 @@ L/Complexity/GenericNary.v
 L/Complexity/ResourceMeasures.v
 
 L/AbstractMachines/LargestVar.v
-#L/AbstractMachines/FunctionalDefinitions.v
-#L/AbstractMachines/Computable/Shared.v
-#L/AbstractMachines/Computable/HeapMachine.v
-#L/AbstractMachines/Computable/SubstMachine.v
 L/AbstractMachines/FlatPro/Programs.v
 L/AbstractMachines/FlatPro/ProgramsDef.v
 L/AbstractMachines/FlatPro/LM_heap_def.v
@@ -391,15 +396,9 @@ L/Computability/Synthetic.v
 
 #Reduction L to TM with abstract Heap Machine
 LAM/BaseExtension.v
-# Abstract Machine simulator
-LAM/TM/Alphabets.v
-LAM/TM/CaseCom.v
-LAM/TM/LookupTM.v
-LAM/TM/JumpTargetTM.v
-LAM/TM/StepTM.v
-LAM/TM/HaltingProblem.v
 
 ## Higher order unficiation
+
 
 HOU/std/tactics.v
 HOU/std/misc.v
@@ -417,6 +416,8 @@ HOU/std/ars/normalisation.v
 HOU/std/ars/evaluator.v
 HOU/std/ars/list_reduction.v
 HOU/std/std.v
+
+HOU/firstorder.v
 
 HOU/axioms.v
 HOU/unscoped.v
@@ -457,8 +458,6 @@ HOU/concon/conservativity.v
 HOU/concon/constants.v
 HOU/concon/enumerability.v
 HOU/concon/concon.v
-
-HOU/firstorder.v
 
 FOLP/axioms.v
 FOLP/unscoped.v
