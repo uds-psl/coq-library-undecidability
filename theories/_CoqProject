@@ -523,7 +523,7 @@ TRAKHTENBROT/red_dec.v
 TRAKHTENBROT/red_enum.v
 TRAKHTENBROT/red_undec.v
 
-TRAKHTENBROT/summary.v
+# TRAKHTENBROT/summary.v
 
 Problems/FOL.v
 Problems/TM.v

@@ -663,9 +663,7 @@ Fixpoint Univ_size_bound2_fix
     pose proof (Univ_size_nice' H) as (_&H1&H2&H3&H4&H5).
     repeat split; intros.
     - now rewrite H1.
-    - Search (?a + ?c <= ?b + ?c).
-      (* eapply Nat.add_le_mono_r. *)
-      unfold Univ_size_bound, Univ_size_bound4.
+    - unfold Univ_size_bound, Univ_size_bound4.
       rewrite H2. unfold Univ_size_bound, Univ_size_bound2.
       apply max_list_rec_lower_bound.
       + rewrite Encode_state_hasSize. nia.

@@ -292,7 +292,7 @@ End neList.
 
 (** Boolean propositions and decisions *)
 
-Coercion bool2Prop (b : bool) := if b then True else False.
+Coercion is_true : bool >-> Sortclass.
 
 Lemma bool_Prop_true b :
   b = true -> b.
@@ -303,7 +303,7 @@ Qed.
 Lemma bool_Prop_false b :
   b = false -> ~ b.
 Proof.
-  intros A. rewrite A. cbn. auto.
+  intros A. rewrite A. cbn. congruence.
 Qed.
 
 Hint Resolve bool_Prop_true bool_Prop_false : core.
@@ -311,11 +311,11 @@ Hint Resolve bool_Prop_true bool_Prop_false : core.
 Hint Extern 4 => 
 match goal with
 |[ H: False |- _ ] => destruct H
-|[ H: ~ bool2Prop true |- _ ] => destruct H
-|[ H: bool2Prop false |- _ ] => destruct H
+|[ H: ~ is_true true |- _ ] => destruct H;congruence
+|[ H: is_true false |- _ ] => cbv in H; congruence
 |[ H: true=false |- _ ] => discriminate H
 |[ H: false=true |- _ ] => discriminate H
-|[ H: ?b=false, H': bool2Prop(?b) |- _ ] => rewrite H in H'; destruct H'
+|[ H: ?b=false, H': is_true(?b) |- _ ] => rewrite H in H'; destruct H'
 (* |[ H: ?x el nil |- _ ] => destruct H *)
 end : core.
 
@@ -338,7 +338,7 @@ Ltac dec := repeat match goal with
 Lemma Dec_reflect (X: Prop) (d: dec X) :
   Dec X <-> X.
 Proof.
-  destruct d as [A|A]; cbn; tauto.
+  destruct d as [A|A]; cbn; firstorder.
 Qed.
 
 Notation Decb X := (dec2bool (Dec X)).
@@ -352,13 +352,13 @@ Qed.
 Lemma Dec_auto (X: Prop) (d: dec X) :
   X -> Dec X.
 Proof.
-  destruct d as [A|A]; cbn; tauto.
+  destruct d as [A|A]; cbn; firstorder.
 Qed.
 
 Lemma Dec_auto_not (X: Prop) (d: dec X) :
   ~ X -> ~ Dec X.
 Proof.
-  destruct d as [A|A]; cbn; tauto.
+  destruct d as [A|A]; cbn; firstorder.
 Qed.
 
 Hint Resolve Dec_auto Dec_auto_not : core.
@@ -938,7 +938,7 @@ Section Filter.
     induction A as [|y A]; cbn.
     - tauto.
     - destruct (p y) eqn:E; cbn;
-      rewrite IHA; intuition; subst; auto.
+        rewrite IHA; intuition; subst; auto. firstorder congruence.
   Qed.
 
   Lemma filter_incl p A :

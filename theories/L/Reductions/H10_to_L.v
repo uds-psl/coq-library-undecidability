@@ -224,4 +224,4 @@ Proof.
   - intros ( (p1, p2), (p1', p2')).
     destruct (poly_eqb_spec p1 p1'), (poly_eqb_spec p2 p2'); cbn; firstorder congruence.
 Qed.
-Print Assumptions eval_L_from.
+(* Print Assumptions eval_L_from. *)

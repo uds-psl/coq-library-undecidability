@@ -304,14 +304,14 @@ Section Nth'_nice.
 
 End Nth'_nice.
 
-Print Assumptions Nth'_steps_nice.
+(* Print Assumptions Nth'_steps_nice. *)
 
 
 Section Length_steps_nice.
 
   Variable (sigX X : Type) (cX : codable sigX X).
 
-  Print Length_Step_steps.
+  (* Print Length_Step_steps. *)
 
   Lemma Length_Step_steps_nice_nil :
     {c | Length_Step_steps nil <=(c) 1 }.

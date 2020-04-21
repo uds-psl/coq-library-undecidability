@@ -11,7 +11,7 @@ Section uiter.
   Variable fT : timeComplexity (X -> X + Y).
   Context `{computableTime' f fT}.
 
-  Import HOAS_Notations L_Notations_app.
+  Import HOAS_Notations.
   Definition uiter := Eval cbn -[enc] in rho (λ uiter x, !!(extT f) x (λ x' _ , uiter x') (λ y _ , y) !!I).
   
   Lemma uiter_proc : proc uiter.
@@ -48,7 +48,7 @@ Section uiter.
   Lemma uiter_total_instanceTime {Z} `{registered Z} (f':  Z -> Y) (preprocess : Z -> X) preprocessT (fuel : Z -> nat)
     `{computableTime' preprocess preprocessT} :
     (forall x, loopSum (fuel x) f (preprocess x) = Some (f' x)) ->
-    computesTime (TyArr _ _) f' (λ x, !!uiter !!(extT preprocess x)) (fun z _ => (1 + fst (preprocessT z tt) + uiterTime (fuel z) (preprocess z),tt)).
+    computesTime (TyArr _ _) f' (λ x, !!uiter !!(L.app (extT preprocess) x)) (fun z _ => (1 + fst (preprocessT z tt) + uiterTime (fuel z) (preprocess z),tt)).
   Proof.
     cbn [convert TH].
     intros total.
@@ -58,7 +58,7 @@ Section uiter.
     intros ? ->.
     eexists. split. 2:reflexivity.
     eapply le_evalLe_proper. 2-3:reflexivity.
-    2:{ eapply evalLe_trans with (t := (uiter (enc (preprocess z)))).
+    2:{ eapply evalLe_trans with (t := (L.app uiter (enc (preprocess z)))).
         -now Lsimpl.
         -eapply uiter_sound. apply total. }
     omega.
