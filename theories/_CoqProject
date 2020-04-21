@@ -10,6 +10,7 @@ Shared/FilterFacts.v
 Shared/embed_nat.v
 
 Synthetic/Definitions.v
+Synthetic/Undecidability.v
 Synthetic/DecidabilityFacts.v
 Synthetic/SemiDecidabilityFacts.v
 Synthetic/EnumerabilityFacts.v
@@ -220,6 +221,7 @@ H10C/h10c_utils.v
 TM/Prelim.v
 TM/Relations.v
 TM/TM.v
+TM/Halting.v
 TM/ArithPrelim.v
 TM/VectorPrelim.v
 
