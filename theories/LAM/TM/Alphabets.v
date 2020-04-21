@@ -1,12 +1,12 @@
 From Undecidability Require Import TM.Prelim.
 From Undecidability Require Import TM.Code.Code.
-From Undecidability.LAM Require Import LM_heap_def.
+From Undecidability Require Import LM_heap_def.
 
 (** * Alphabets *)
 
 Inductive ACom : Type := retAT | lamAT | appAT.
 
-Coercion ACom2Com (a : ACom) : Com :=
+Coercion ACom2Com (a : ACom) : Tok :=
   match a with
   | retAT => retT
   | lamAT => lamT
@@ -25,7 +25,7 @@ Instance ACom_inhab : inhabitedC ACom := ltac:(repeat constructor).
 Instance Encode_ACom : codable ACom ACom := Encode_Finite (FinType(EqType ACom)).
 
 
-Coercion Com_to_sum (t : Com) : (nat + ACom) :=
+Coercion Com_to_sum (t : Tok) : (nat + ACom) :=
   match t with
   | varT x => inl x
   | appT => inr appAT
@@ -36,15 +36,15 @@ Coercion Com_to_sum (t : Com) : (nat + ACom) :=
 Definition sigCom := sigSum sigNat ACom.
 Definition sigCom_fin := FinType (EqType sigCom).
 
-Instance Encode_Com : codable sigCom Com :=
+Instance Encode_Com : codable sigCom Tok :=
   {|
     encode x := encode (Com_to_sum x)
   |}.
 
-Definition Encode_Com_size (t : Com) : nat :=
+Definition Encode_Com_size (t : Tok) : nat :=
   size _ (Com_to_sum t).
 
-Lemma Encode_Com_hasSize (t : Com) :
+Lemma Encode_Com_hasSize (t : Tok) :
   size _ t = Encode_Com_size t.
 Proof. reflexivity. Qed.
 

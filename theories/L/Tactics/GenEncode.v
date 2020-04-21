@@ -1,6 +1,7 @@
 From Undecidability.L Require Import L Tactics.Computable Tactics.ComputableTactics Tactics.Extract.
-From MetaCoq.Template Require Import All TemplateMonad.Core Ast.
-Require Export String List.
+From MetaCoq Require Import Template.All TemplateMonad.Core Template.Ast.
+Require Import String List.
+Export String.StringSyntax.
 
 Import MonadNotation.
 Open Scope string_scope.
@@ -47,7 +48,7 @@ Definition tmMatchCorrect (A : Type) : Core.TemplateMonad Prop :=
                                (((fun s => mkAppList s C) (tRel (args + 2 * (num - i) - 1)))))
            ) ;;
    E' <- Core.tmInferInstance None (registered A);;
-   E <- tmGetOption E' "failed" ;;        
+   E <- tmGetMyOption E' "failed" ;;        
    t' <- ret (@enc A E);;
    l <- tmQuote t';;
    encn <- ret (tApp l [tRel (2*num) ]) ;;
@@ -82,6 +83,7 @@ Definition tmGenEncode' (n : ident) (A : Type) :=
   tmExistingInstance n3 ;;
   m <- tmMatchCorrect A ;; ret tt.
 
+(* TODO : use other methode instead, e.g. with typeclasses, as default obligation tactic is very fragile *)
 Global Obligation Tactic := try fold (injective (enc_f)); match goal with
                            | [ |- forall x : ?X, proc ?f ] => register_proc
                            | [ |- injective ?f ] => register_inj

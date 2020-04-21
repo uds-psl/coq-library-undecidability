@@ -194,6 +194,9 @@ Section Fix_Sig.
       t ≃(I2) y.
     Proof. cbn. intros (r1&->). repeat econstructor. cbn. do 2 f_equal. now rewrite H. Qed.
 
+    Implicit Type x : X.
+    Implicit Type y : Y.
+    
     Lemma tape_contains_size_ext (t : tape (sig^+)) x y s1 s2 :
       t ≃(I1;s1) x ->
       Encode_map _ _ x = Encode_map _ _ y ->

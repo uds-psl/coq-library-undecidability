@@ -1,6 +1,5 @@
 From Undecidability Require Import Problems.Reduction Problems.cbvLambda Problems.TM.
-From Undecidability.L Require Import L Seval.
-From Undecidability.LAM Require Import Prelims LM_heap_def LM_heap_correct.
+From Undecidability.L Require Import L Seval LM_heap_def LM_heap_correct.
 Require Import Undecidability.LAM.TM.HaltingProblem.
 
 (** * L to TM *)
@@ -23,11 +22,12 @@ Qed.
 
 Lemma LM_halting_LM_halting : HaltLclosed ⪯ eva_LM_lin.
 Proof.
-  eexists (fun '(exist _ s _ ) => _). intros [s].
+  eexists (fun '(exist s _ ) => _). intros [s].
   cbn; now eapply red_haltL_to_LM_Lin.
 Qed.
 
 Require Import Undecidability.L.Functions.Encoding Undecidability.L.Functions.Eval Undecidability.L.Tactics.LTactics.
+Import L_Notations.
 
 Lemma HaltL_HaltLclosed :
   HaltL ⪯ HaltLclosed.

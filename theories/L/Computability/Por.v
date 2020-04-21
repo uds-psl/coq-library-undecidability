@@ -40,7 +40,7 @@ Proof.
   intros [convs | convt]; eauto using Por_correct_1a, Por_correct_1b.
 Qed.
 
-Lemma Por_correct_2 s t : converges (Por (ext s) (ext t)) -> 
+Lemma Por_correct_2 (s t:term) : converges (Por (ext s) (ext t)) -> 
   exists (b:bool), Por (ext s) (ext t) == ext b.
 Proof.
   intros [v [R lv]]. unfold Por in R. LsimplHypo.

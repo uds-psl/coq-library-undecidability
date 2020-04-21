@@ -17,7 +17,7 @@ Inductive seval : nat -> term -> term -> Prop :=
 | sevalS n s t u v w : 
     seval n s (lam u) -> seval n t (lam v) -> seval n (subst u 0 (lam v)) w -> seval (S n) (s t) w.                                   
 
-Notation "s '⇓' n t" := (seval n s t) (at level 51).
+Local Notation "s '⇓' n t" := (seval n s t) (at level 51).
 
 Lemma seval_eval n s t : seval n s t -> eval s t.
 Proof with eauto using star_trans, star_trans_l, star_trans_r.
@@ -160,4 +160,72 @@ Proof.
   destruct H as [u [H lu]];inv lu;
   eapply eproc_equiv in H; eapply eval_seval in H; destruct H as [n H]; inv H;
   [exists (lam u) | exists (lam v)];(split;[|auto]); eapply eproc_equiv; eapply seval_eval; eassumption.
+Qed.
+
+(* Informative eval *)
+
+Require Import Coq.Logic.ConstructiveEpsilon.
+Definition cChoice := constructive_indefinite_ground_description_nat_Acc.
+
+Fixpoint stepf (s : term) : list term :=
+  match s with
+  | (lam _) => []
+  | var x => []
+  | app (lam s) (lam t) => [subst s 0 (lam t)]
+  | app s t => map (fun x => app x t) (stepf s) ++ map (fun x => app s x) (stepf t)
+  end.
+
+Ltac stepf_tac := 
+  match goal with
+  | [ H : app _ _ ≻ ?t |- ?P ] => inv H
+  | [ H : var _ ≻ ?t |- ?P ] => inv H
+  | [ H : lam _ ≻ ?t |- ?P ] => inv H
+
+  | [ H : exists x, _ |- _ ] => destruct H
+  | [ H : _ /\ _ |- _ ] => destruct H
+  end + subst.
+
+Lemma stepf_spec s t : t el stepf s <-> s ≻ t.
+Proof.
+  revert t; induction s; intros; try now (firstorder; inv H). cbn.
+  destruct s1, s2.
+  all:cbn - [stepf].
+  all:try rewrite !in_app_iff;try rewrite !in_map_iff.
+  1-8:setoid_rewrite IHs1.
+  1-8:try setoid_rewrite IHs2.
+  all:intuition idtac.
+  all:repeat stepf_tac.
+  all:eauto using step.
+Qed.
+
+Fixpoint stepn (n : nat) s : list term :=
+  match n with
+  | 0 => [s]
+  |  S n => flat_map (stepn n) (stepf s)
+  end.
+
+Lemma stepn_spec n s t : t el stepn n s <-> s >(n) t.
+Proof.
+  revert s t; induction n; intros.
+  - cbn. firstorder.
+  - cbn. rewrite in_flat_map. firstorder; exists x; firstorder using stepf_spec.
+Qed.         
+  
+Lemma informative_eval s t: eval s t -> {l | s >(l) t}.
+Proof.
+  intros H. destruct H. eapply star_pow in H. apply cChoice; eauto.
+  intros. eapply dec_transfer.
+  eapply stepn_spec. exact _.
+Qed.
+
+Lemma informative_eval2 s : (exists t, eval s t) -> {t | eval s t}.
+Proof.
+  intros H.
+  edestruct cChoice with (P:=fun n => exists t, t el stepn n s /\ lambda t).
+  -intros.
+   decide (exists t, t el stepn n s /\ lambda t). all:eauto.
+  -destruct H as (?&H&?). eapply star_pow in H as [? H].
+   eapply stepn_spec in H. eauto.
+  -apply list_cc in e. 2:eauto.
+   destruct e as (?&H'&?). unfold eval. apply stepn_spec,pow_star in H'. eauto.
 Qed.

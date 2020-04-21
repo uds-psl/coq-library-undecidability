@@ -5,12 +5,15 @@ Require Import PslBase.Bijection String.
 
 (* Typeclass for registering types *)
 
+
 Class registered (X : Type) := mk_registered
   {
     enc :> encodable X ; (* the encoding function for X *)
     proc_enc : forall x, proc (enc x) ; (* encodings need to be a procedure *)
     inj_enc : injective enc (* encoding is injective *)
   }.
+
+Hint Mode registered + : typeclass_instances. (* treat argument as input and force evar-freeness*)
 
 Arguments enc : simpl never.  (* Never unfold with cbn/simpl *)
 
@@ -29,6 +32,8 @@ Existing Instance TyArr.
   
 Arguments TyB _ {_}.
 Arguments TyArr {_} {_} _ _.
+
+Hint Mode TT + : typeclass_instances. (* treat argument as input and force evar-freeness*)
 
 Notation "! X" := (TyB X) (at level 69).
 Notation "X ~> Y" := (TyArr X Y) (right associativity, at level 70).
@@ -59,11 +64,12 @@ Class computable X {ty : TT X} (x : X) : Type :=
     extCorrect : computes ty x ext;
   }.
 
-Existing Instance ext | 5.
-
 Global Arguments computable {X} {ty} x.
 Global Arguments extCorrect {X} ty x {computable} : simpl never.
 Global Arguments ext {X} {ty} x {computable} : simpl never.
+
+Hint Mode computable + - +: typeclass_instances. (* treat argument as input and force evar-freeness*)
+Hint Extern 4 (@extracted ?t ?f) => let ty := constr:(_ : TT t) in notypeclasses refine (ext (ty:=ty) f) : typeclass_instances.
 
 Typeclasses Opaque ext.
 

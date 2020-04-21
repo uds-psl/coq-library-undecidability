@@ -60,8 +60,8 @@ Definition tmTypeOf (s : Ast.term) :=
 Definition tmTryInfer (n : ident) (red : option reductionStrategy) (A : Type) : TemplateMonad A :=
   r <- tmInferInstance red A ;;
     match r with
-    | Some i => ret i
-    | None =>
+    | my_Some i => ret i
+    | my_None =>
       A' <- match red with Some red => ret A | None => ret A end;;
 
          (* term <- tmQuote A';; *)
@@ -175,6 +175,7 @@ Definition tmArgsOfConstructor ind i :=
 Class extracted {A : Type} (a : A) := int_ext : L.term.
 Arguments int_ext {_} _ {_}.
 Typeclasses Transparent extracted. (* This is crucial to use this inside monads  *)
+Hint Extern 0 (extracted _) => progress (cbn [Common.my_projT1]): typeclass_instances. 
 
 Class encodable (A : Type) := enc_f : A -> L.term.  
 
@@ -214,6 +215,13 @@ Definition tmGetOption {X} (o : option X) (err : string) : TemplateMonad X :=
   match o with
   | Some x => ret x
   | None => tmFail err
+  end.
+
+
+Definition tmGetMyOption {X} (o : option_instance X) (err : string) : TemplateMonad X :=
+  match o with
+  | my_Some x => ret x
+  | my_None => tmFail err
   end.
 
 Definition mkFixMatch (f x : ident) (t1 t2 : Ast.term) (cases : nat -> list term -> TemplateMonad term) :=
@@ -347,7 +355,7 @@ Definition tmExtractConstr (def : ident) {A : Type} (a : A) :=
 (** *** Extracting terms from Coq to L *)
 
 Notation "↑ env" := (fun n => match n with 0 => 0 | S n => S (env n) end) (at level 10).
-
+(*
 Local Definition error {A} (a:A) := 1000.
 Opaque error.
 
@@ -364,8 +372,9 @@ Fixpoint freeVars (s:Ast.term) : list nat :=
   | tConstruct _ _ _ => []
   | tConst _ _ => []
   | _ => [error ("freeVars",s)] 
-  end.
+  end. 
 
+Definition isClosed (s:Ast.term)
 (*Get a term representing a type of form 'forall x1 ...xn, T' and returns the number of paramaters*)
 Fixpoint dependentArgs (s:Ast.term) : nat :=
   match s with
@@ -386,9 +395,43 @@ Definition tmDependentArgs x:=
   | Ast.tLambda _ _ _ => (*tmPrint ("tmDependentArgs currently assumes that abstractions on head position mean there are no parametric arguments");;*)ret 0
   | _ => (*tmPrint ("tmDependentArgs not supported");;*)ret 0
   end.
+ *)
 
 Definition tmUnquote t := tmUnquote (fixNames t).
 Definition tmUnquoteTyped {A} t := @tmUnquoteTyped A (fixNames t).
+
+Fixpoint inferHead' (s:Ast.term) (revArg R: list Ast.term) : TemplateMonad (L.term * list Ast.term)  :=
+  s'0 <- tmEval cbn (if forallb (fun _ => false) revArg then s else Ast.tApp s (rev revArg));;
+  s' <- tmUnquote s'0;;
+  s'' <- tmEval cbn (my_projT2 s');;
+  res <- tmInferInstance None (extracted (A:=my_projT1 s') s'');;
+  match res with
+    my_Some s'' => ret (s'',R) 
+  | my_None =>
+    let doSplit := match R with
+                    | [] => false
+                    |  r :: R => if closedn 0 r then true else false 
+                    end
+    in
+    match doSplit,R with
+      true,r::R => inferHead' s (r::revArg) R
+    | _,_ =>  let lhs := string_of_term s'0 in
+             let rhs := string_of_list string_of_term R in
+             tmMsg "More readable: initial segment:";;tmPrint s'';;tmMsg "With remainder:";;tmPrint R;;
+             tmFail ("Could not extract in inferHead (moreReadable version in *coq*): could not infer any instance for initial segment of " ++lhs ++ " with further arguments "++ rhs)
+    end
+  end.
+  
+(* Tries to infer an extracted instance for all initial segments of the term, or to give *)
+Definition inferHead (s:Ast.term) (R:list Ast.term) : TemplateMonad ((L.term + Ast.term) * list Ast.term)  :=
+  match s with
+    Ast.tConst _ _ |
+  Ast.tConstruct _ _ _ =>
+  res <- inferHead' s [] R;;
+      let '(s',R):= res in
+      ret (inl s',R)
+  | _ => ret (inr s,R)
+  end.
 
 Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad L.term :=
   match fuel with 0 => tmFail "out of fuel" | S fuel =>
@@ -403,11 +446,15 @@ Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad 
     t <- extract (fun n => S (env n)) (Ast.tLambda nm ty s) fuel ;;
     ret (rho t)
   | Ast.tApp s R =>
-    params <- tmDependentArgs s;;
-    if Nat.eqb params  0 then
-      t <- extract env s fuel;;
-      monad_fold_left (fun t1 s2 => t2 <- extract env s2 fuel ;; ret (L.app t1 t2)) R t
-    else
+    res <- inferHead s R;;
+        let '(res,R') := res in
+        (*tmPrint ("infHead:",res,R');;*)
+    t <- (match res with
+            inl s' => ret s'
+          | inr s => extract env s fuel
+          end);;
+      monad_fold_left (fun t1 s2 => t2 <- extract env s2 fuel ;; ret (L.app t1 t2)) R' t
+    (*else
       let (P, L) := (firstn params R,skipn params R)  in
       s' <- tmEval cbv (Ast.tApp s P);;
          (if closedn 0 s' then ret tt else tmPrint ("Can't extract ",s);;tmFail "The term contains variables as type parameters.");;
@@ -416,7 +463,7 @@ Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad 
       nm <- (tmEval cbv (String.append (name_of s) "_term") >>= tmFreshName) ;;
       i <- tmTryInfer nm (Some cbn) (extracted a') ;;
       let t := (@int_ext _ _ i) in
-      monad_fold_left (fun t1 s2 => t2 <- extract env s2 fuel ;; ret (L.app t1 t2)) L t                             
+      monad_fold_left (fun t1 s2 => t2 <- extract env s2 fuel ;; ret (L.app t1 t2)) L t  *)                           
   | Ast.tConst n _ =>
     a <- tmUnquote s ;;
     a' <- tmEval cbn (my_projT2 a);;
@@ -460,7 +507,7 @@ Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad 
   | tSort _ =>     tmFail "tSort is not supported"
   | tCast _ _ _ => tmFail "tCast is not supported"
   | tProd _ _ _ => tmFail "tProd is not supported"
-  | tInd _ _ =>    tmFail "tInd is not supported (probably there is a type not in prenex-normal form)" 
+  | tInd a _ =>  tmPrint a;;tmFail "tInd is not supported (probably there is a type not in prenex-normal form)" 
   | tProj _ _ =>   tmFail "tProj is not supported"
   | tCoFix _ _ =>  tmFail "tCoFix is not supported"
   end end.

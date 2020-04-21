@@ -11,14 +11,14 @@ From Undecidability Require Export TM.Code.ListTM TM.Code.CaseList TM.Code.CaseN
 
 Section CaseList_nice.
 
-  Variable (sigX X : Type) (cX : codable sigX X).
+  Implicit Types (sigX X : Type).
 
   Lemma CaseList_steps_nice :
-    { c | forall xs, CaseList_steps xs
-                <=(c) match xs with
-                     | nil => 1
-                     | x :: _ => size x + 1
-                     end }.
+    { c | forall sigX X (cX:codable sigX X) xs, CaseList_steps xs
+                                           <=(c) match xs with
+                                                | nil => 1
+                                                | x :: _ => size x + 1
+                                                end }.
   Proof. eexists. intros. unfold CaseList_steps, CaseList_steps_nil,CaseList_steps_cons. domWith_approx. Qed.
 
   Lemma CaseList_steps_nil_nice :
@@ -26,7 +26,7 @@ Section CaseList_nice.
   Proof. eexists. apply dominatedWith_const. omega. Qed.
 
   Lemma CaseList_steps_cons_nice :
-    { c | forall (x : X), CaseList_steps_cons x <=(c) size x + 1 }.
+    { c | forall  sigX X (cX:codable sigX X) (x : X), CaseList_steps_cons x <=(c) size x + 1 }.
   Proof. eexists. intros. unfold CaseList_steps_cons. domWith_approx. Qed.
 
   Lemma Constr_nil_steps_nice :
@@ -34,7 +34,7 @@ Section CaseList_nice.
   Proof. eexists. domWith_approx. Qed.
 
   Lemma Constr_cons_steps_nice :
-    { c | forall (x : X), Constr_cons_steps x <=(c) size x + 1 }.
+    { c | forall  sigX X (cX:codable sigX X) (x : X), Constr_cons_steps x <=(c) size x + 1 }.
   Proof. eexists. intros. unfold Constr_cons_steps. domWith_approx. Qed.
 
 End CaseList_nice.
@@ -104,15 +104,13 @@ Ltac rewrite_sizes := rewrite_strat (innermost (hints size_eqs)).
 
 (* Copy steps functions are very nice! *)
 Section Copy_very_nice.
-  Variable (sigX X : Type) (cX : codable sigX X).
+  Implicit Types (sigX X : Type).
 
-  (* This holds for every encoding. We should maybe add this to the typeclass. *)
-  Hypothesis (sizeGt1 : forall (x : X), 1 <= size x).
 
   Lemma CopyValue_steps_nice :
-    { c | forall x, CopyValue_steps x <=(c) size x + 1 }.
+    { c | forall sigX X (cX : codable sigX X) x, CopyValue_steps x <=(c) size x + 1 }.
   Proof.
-    eexists. intros x. unfold CopyValue_steps. domWith_approx.
+    eexists. intros ? ? ? x. unfold CopyValue_steps. domWith_approx.
     (*
     - apply dominatedWith_const; auto.
     - apply dominatedWith_refl. instantiate (1 := 1). omega.
@@ -120,9 +118,9 @@ Section Copy_very_nice.
   Qed.
 
   Lemma Reset_steps_nice :
-    { c | forall x, Reset_steps x <=(c) size x + 1 }.
+    { c | forall sigX X (cX : codable sigX X) x, Reset_steps x <=(c) size x + 1 }.
   Proof.
-    eexists. intros x. unfold Reset_steps. domWith_approx.
+    eexists. intros ? ? ? x. unfold Reset_steps. domWith_approx.
     (*
     - apply dominatedWith_const; auto.
     - apply dominatedWith_refl. instantiate (1 := 1). omega.
@@ -130,23 +128,21 @@ Section Copy_very_nice.
   Qed.
 
   Lemma Translate_steps_nice :
-    { c | forall x, Translate_steps x <=(c) size x + 1 }.
-  Proof. eexists. intros x. unfold Translate_steps. domWith_approx. Qed.
-
-  Variable (sigY Y : Type) (cY : codable sigY Y).
-  Hypothesis (sizeGt1' : forall (y : Y), 1 <= size y).
+    { c | forall  sigX X (cX : codable sigX X) x, Translate_steps x <=(c) size x + 1 }.
+  Proof. eexists. intros. unfold Translate_steps. domWith_approx. Qed.
 
   Lemma MoveValue_steps_nice :
-    { c | forall (x : X) (y : Y), MoveValue_steps x y <=(c) size x + size y + 1 }.
+    { c | forall sigX X (cX : codable sigX X) (sigY Y : Type) (cY : codable sigY Y) (x : X) (y : Y),
+        MoveValue_steps x y <=(c) size x + size y + 1 }.
   Proof.
-    eexists. intros x y. unfold MoveValue_steps. domWith_approx.
+    eexists. intros. unfold MoveValue_steps. domWith_approx.
   Qed.
 
   (* "Better" version *)
   Lemma MoveValue_steps_nice' :
-    { c | forall (x : X) (y : Y), MoveValue_steps x y <=(c) size x + size y }.
+    { c | forall sigX X (cX : codable sigX X) (sizeGt1 : forall (x : X), 1 <= size x)  (sigY Y : Type) (cY : codable sigY Y) (x : X) (y : Y) (sizeGt1' : forall (y : Y), 1 <= size y), MoveValue_steps x y <=(c) size x + size y }.
   Proof.
-    eexists. intros x y. unfold MoveValue_steps.
+    eexists. intros ?  ? ? ? ? ? ? x y ?. unfold MoveValue_steps.
     rewrite <- Nat.add_assoc. eapply dominatedWith_add_l.
     - apply dominatedWith_add.
       + apply dominatedWith_mult_l. apply dominatedWith_solve.
@@ -285,38 +281,37 @@ Section Nth'_nice.
     (* Automated Compositionality! *)
     domWith_approx.
     - eapply dominatedWith_trans.
-      apply (proj2_sig (@CopyValue_steps_nice _ _ (Encode_list cX))).
+      apply (proj2_sig CopyValue_steps_nice).
       domWith_approx.
     - eapply dominatedWith_trans.
       eauto. domWith_approx.
     - eapply dominatedWith_trans.
-      apply (proj2_sig (@Reset_steps_nice _ _ (Encode_list cX))).
-      (* This is the [Nth']-specific complication *)
+      apply (proj2_sig Reset_steps_nice).
       apply dominatedWith_S''.
-      2: omega.
-      2: { apply dominatedWith_solve. rewrite !Encode_list_hasSize.
+      2:omega.
+      2:{ apply dominatedWith_solve. rewrite !Encode_list_hasSize.
            hnf. rewrite Encode_list_hasSize_skipn. omega. }
       pose proof (Encode_list_hasSize_ge1 _ xs). rewrite Encode_list_hasSize. omega.
     - eapply dominatedWith_trans.
-      apply (proj2_sig (@Reset_steps_nice _ _ Encode_nat)).
+      apply (proj2_sig Reset_steps_nice).
       (* This is the [Nth']-specific complication *)
       apply dominatedWith_S''.
       2: omega.
       2: { apply dominatedWith_solve. rewrite !Encode_list_hasSize. rewrite Encode_nat_hasSize.
            pose proof (Encode_list_hasSize_ge1 _ xs). omega. }
-      pose proof (Encode_list_hasSize_ge1 _ xs). rewrite Encode_list_hasSize. omega.
+      pose proof (Encode_list_hasSize_ge1 _ xs). rewrite Encode_list_hasSize. omega. 
   Qed.
 
 End Nth'_nice.
 
-Print Assumptions Nth'_steps_nice.
+(* Print Assumptions Nth'_steps_nice. *)
 
 
 Section Length_steps_nice.
 
   Variable (sigX X : Type) (cX : codable sigX X).
 
-  Print Length_Step_steps.
+  (* Print Length_Step_steps. *)
 
   Lemma Length_Step_steps_nice_nil :
     {c | Length_Step_steps nil <=(c) 1 }.
@@ -325,11 +320,11 @@ Section Length_steps_nice.
   Lemma Length_Step_steps_nice_cons :
     {c | forall (xs : list X) (x : X), Length_Step_steps (x :: xs) <=(c) size x + 1 }.
   Proof.
-    pose_nice (CaseList_steps_nice cX) Hc_CaseList c_CaseList.
-    pose_nice (Reset_steps_nice cX) Hc_Reset c_Reset.
+    pose_nice CaseList_steps_nice Hc_CaseList c_CaseList.
+    pose_nice Reset_steps_nice Hc_Reset c_Reset.
     eexists. intros. cbn.
     ring_simplify. domWith_approx.
-    - apply (Hc_CaseList [x]).
+    - apply (Hc_CaseList _ _ _ [x]).
     - apply Hc_Reset.
   Qed.
 
@@ -412,14 +407,14 @@ Proof. destruct o; cbn; omega. Qed.
 From Undecidability Require Import CasePair.
 
 Section CasePair_steps_nice.
-  Variable (sigX X : Type) (cX : codable sigX X).
+  Implicit Types (sigX X : Type).
 
   Lemma CasePair_steps_nice :
-    { c | forall (x : X), CasePair_steps x <=(c) size x + 1 }.
+    { c | forall sigX X (cX : codable sigX X) (x : X), CasePair_steps x <=(c) size x + 1 }.
   Proof. eexists. intros. unfold CasePair_steps. domWith_approx. Qed.
 
   Lemma Constr_pair_steps_nice :
-    { c | forall (x : X), Constr_pair_steps x <=(c) size x + 1 }.
+    { c | forall sigX X (cX : codable sigX X) (x : X), Constr_pair_steps x <=(c) size x + 1 }.
   Proof. eexists. intros. unfold Constr_pair_steps. domWith_approx. Qed.
 
 End CasePair_steps_nice.
@@ -475,10 +470,8 @@ From Undecidability Require Import Code.CompareValue.
 
 Section CompareValues_nice.
 
-  Variables (sigX X : Type) (cX : codable sigX X).
-
   Lemma CompareValues_steps_nice :
-    { c | forall (x1 x2 : X), CompareValues_steps x1 x2 <=(c) size x1 + size x2 + 1 }.
+    { c | forall (sigX X : Type) (cX : codable sigX X) (x1 x2 : X), CompareValues_steps x1 x2 <=(c) size x1 + size x2 + 1 }.
   Proof. eexists. intros. unfold CompareValues_steps. domWith_approx. Qed.
 
 End CompareValues_nice.

@@ -87,7 +87,7 @@ Arguments rfix { X Y Z } ( R p ) x y /.
 
 
 (** ** Relations over Vectors *)
-
+Export VectorNotations2.
 Section Fix_X2.
   Variable X Y Z : Type.
   Variable n : nat.

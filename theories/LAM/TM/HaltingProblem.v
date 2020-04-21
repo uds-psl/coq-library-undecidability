@@ -1,8 +1,8 @@
 (** * Reduction of the Halting Problem of the Heap Machine to the Halting Problem of Turing Machines *)
 
-From Undecidability Require Import ProgrammingTools.
+From Undecidability Require Import ProgrammingTools LM_heap_def.
+From Undecidability.LAM Require Import TM.Alphabets TM.StepTM.
 From Undecidability.Problems Require Import TM.
-From Undecidability.LAM Require Import  TM.Alphabets TM.StepTM LM_heap_def.
 
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
@@ -33,31 +33,16 @@ Fixpoint Loop_size (T V : list HClos) (H : Heap) (k : nat) {struct k} : Vector.t
     end
   end.
 
-(*
-Lemma Loop_size_eq T V H k :
-  Loop_size T V H k =
-  match k with
-  | 0 => Step_size T V H
-  | S k' =>
-    match step_fun (T, V, H) with
-    | Some (T',V',H') =>
-      if is_halt_state (T',V',H')
-      then Step_size T V H >>> Step_size T' V' H'
-      else Step_size T V H >>> Loop_size T' V' H' k'
-    | _ => Step_size T V H
-    end
-  end.
-Proof. now destruct k. Qed.
-*)
+Import LM_heap_def.
 
 Lemma step_k_inv T V H T2 V2 H2 k :
   steps_k k (T, V, H) (T2, V2, H2) ->
   (k=0/\T=T2/\V=V2/\H=H2) \/
   (exists T1 V1 H1 k', k=S k' /\ step (T,V,H) (T1,V1,H1) /\ steps_k k' (T1,V1,H1) (T2,V2,H2)).
 Proof.
-  intros. inv H0.
-  - now left.
-  - right. destruct y as ((?&?)&?). do 4 eexists. repeat split; eauto.
+  intros. destruct k.
+  - inv H0. now left.
+  - eapply pow_add with (n:=1) in H0.  destruct H0  as (((?&?)&?)&?%rcomp_1&?). right. do 4 eexists. repeat split; eauto.
 Qed.
 
 Lemma Loop_size_step T V H T1 V1 H1 T2 V2 H2 k (i : Fin.t 11) (s : nat) :
@@ -72,9 +57,8 @@ Proof.
   intros Hstep Hloop Hhalt. cbn. erewrite step_step_fun by eauto. cbn.
   pose proof (step_k_inv Hloop) as [(->&<-&<-&<-) | (k'&T1'&V1'&H1'&->&Hstep'&Hloop')].
   - rewrite halt_state_is_halt_state by auto. cbn. destruct_fin i; cbn; auto.
-  - erewrite step_is_halt_state by eauto. cbn. destruct_fin i; cbn; auto.
+  - erewrite step_is_halt_state by eauto. destruct_fin i; cbn [Vector.nth];eauto 1.
 Qed.
-(* This proof takes to long. It should be simpler *)
 
 
 Definition Loop_Rel : pRel sigStep^+ unit 11 :=
@@ -110,7 +94,7 @@ Proof.
     apply WhileInduction; intros; intros T V heap s0 s1 s2 sr HEncT HEncV HEncHep HInt; cbn in *.
     {
       modpon HLastStep. destruct_unit; cbn in *. modpon HLastStep.
-      exists T, V, heap, 0. repeat split; auto. constructor.
+      exists T, V, heap, 0. repeat split; auto. 
     }
     {
       modpon HStar. destruct HStar as (T1&V1&heap1&HStar); modpon HStar.
@@ -118,7 +102,7 @@ Proof.
       { instantiate (1 := [|_;_;_;_;_;_;_;_|]).
         intros i. destruct_fin i; eauto. }
       destruct HLastStep as (T2&V2&heap2&k&HLastStep). modpon HLastStep.
-      do 3 eexists. exists (S k). repeat split. econstructor 2. all: eauto.
+      do 3 eexists. exists (1 + k). repeat split. apply pow_add. do 2 eexists. rewrite <- rcomp_1. 1-3:now eauto.
       destruct T2; auto; modpon HLastStep1. repeat split; auto.
       all: try solve [ contains_ext; now erewrite Loop_size_step by eauto ].
       - intros i. specialize HLastStep4 with (i := i). isRight_mono.
@@ -172,12 +156,12 @@ Proof.
       destruct Halt as (((T'&V')&H')&HSteps&HTerm). pose proof (halt_state_steps_k HStep HSteps) as (H&->); inv H. cbn in *. assumption.
     - destruct HStep as (T1&V1&Heap1&HStep); modpon HStep.
       destruct Halt as (((T2&V2)&H2)&HSteps&HTerm).
-      unfold Loop_T; cbn. 
-
-      inv HSteps.
-      + exfalso. eapply HTerm; eauto.
-      + pose proof (step_functional HStep H) as <-. cbn -[step_fun] in *.
-        rewrite (step_step_fun HStep) in Hi. rename k0 into k. move HTerm at bottom. clear H. rename H0 into HSteps.
+      unfold Loop_T; cbn.
+      destruct k. 
+      +inv HSteps. exfalso. eapply HTerm; eauto.
+      + eapply pow_add with (n:=1) in HSteps as (?&H%rcomp_1&?). 
+        pose proof (step_functional HStep H) as <-. cbn -[step_fun] in *.
+        rewrite (step_step_fun HStep) in Hi. move HTerm at bottom. clear H. rename H0 into HSteps.
         destruct (is_halt_state (T1, V1, Heap1)) eqn:EHalt.
         * apply is_halt_state_correct in EHalt. pose proof (halt_state_steps_k EHalt HSteps) as (H&->); inv H.
           exists (Step_steps T1 V1 Heap1). split.
@@ -227,7 +211,7 @@ Qed.
 
 
 (** This vernacular command checks wether we have indeed assumed no axioms. *)
-
+(* Print Assumptions HaltingProblem. *)
 (**
 <<
 Closed under the global context

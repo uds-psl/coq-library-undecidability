@@ -28,10 +28,10 @@ depends: [
   "coq" {>= "8.11" & < "8.12~"}
   "coq-equations" {= "1.2.1+8.11"}
   "ocaml" 
-  "coq-smpl"
-  "coq-psl-base-library"
-  "coq-metacoq-template" {="1.0~alpha2+8.11" }
-  "coq-metacoq-checker" {="1.0~alpha2+8.11" }
+  "coq-smpl" {= "8.11"}
+  "coq-psl-base-library" {="1.0.1+8.11"}
+  "coq-metacoq-template" {="1.0~alpha2-uds-psl+8.11" }
+  "coq-metacoq-checker" {="1.0~alpha2-uds-psl+8.11" }
 ]
 
 synopsis: "A Coq Library of Undecidability Proofs"

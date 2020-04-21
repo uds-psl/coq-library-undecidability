@@ -1,7 +1,7 @@
 From Undecidability Require Export CodeTM Copy ChangeAlphabet WriteValue.
 From Undecidability Require Export TMTac.
 From Undecidability Require Export Basic.Mono Compound.Multi.
-
+Require Import Lia.
 (** * All tools for programming Turing machines *)
 
 (** All Coq modules in that the user programms Turing machine should [Require Import TM.Code.ProgrammingTools]. The module should additionally require and import the modules containing the constructor and deconstructor machines, e.g. [Require Import TM.Code.CaseNat], etc. *)
@@ -52,7 +52,56 @@ Ltac clear_tape_eqs :=
          end.
 
 
+Tactic Notation "destruct" "_" "in" constr(H):=
+  match type of H with
+  | context[match ?X with _ => _ end] => destruct X
+  | context[match ?X with _ => _ end] => destruct X
+  end.
+
+(* Tactics for interactive refinements of Relations that ger derived instead of full TM_correct. See e.g. DecodaTape *)
+Tactic Notation "tacInEvar" constr(E) tactic3(tac) :=
+  is_evar E;
+  let t := type of E in
+  let __tmp_callInEvar := fresh "__tmp_callInEvar" in
+  evar (__tmp_callInEvar:t);
+  (only [__tmp_callInEvar]:tac);unify E __tmp_callInEvar;subst __tmp_callInEvar;instantiate.
+
+Tactic Notation "introsSwitch" ne_simple_intropattern_list(P):=
+  match goal with
+    |- (forall f' , ?REL _ (?R f')) =>
+    tacInEvar R intros P;cbn beta;intros P
+  end.
+
+Tactic Notation "destructBoth" constr(g) "as" simple_intropattern(P) :=
+  lazymatch goal with
+    |- (RealiseIn _ ?R _) =>
+    tacInEvar R (destruct g as P);destruct g as P;cbn zeta iota beta
+  | |- (?REL _ ?R) =>
+    tacInEvar R (destruct g as P);destruct g as P;cbn zeta iota beta
+  end.
+
+
+Tactic Notation "destructBoth" constr(g) :=
+  destructBoth g as [].
+
+
+Tactic Notation "infTer" int_or_var(n) :=
+  let t := try (first [simple eapply ex_intro | simple apply conj | simple eapply Nat.le_refl])
+  in t;do n t.
+
+
+Tactic Notation "length_not_eq" "in" constr(H):=
+  let H' := fresh "H" in
+  specialize (f_equal (@length _) H) as H';repeat (try autorewrite with list in H';cbn in H');nia.
+
+Ltac length_not_eq :=
+  let H := fresh "H" in intros H;exfalso;length_not_eq in H.
+
+
 (** Machine Notations *)
 
 Notation "pM @ ts" := (LiftTapes pM ts) (at level 41, only parsing).
 Notation "pM ⇑ R" := (ChangeAlphabet pM R) (at level 40, only parsing).
+
+From Coq.ssr Require ssrfun.
+Module Option := ssrfun.Option.
