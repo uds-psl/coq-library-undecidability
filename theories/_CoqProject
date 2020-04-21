@@ -1,6 +1,6 @@
 -Q . Undecidability
 
--arg -w -arg -unused-intro-pattern,-notation-overridden
+-arg -w -arg -notation-overridden
 COQDOCFLAGS = "--charset utf-8 -s --with-header ../website/resources/header.html --with-footer ../website/resources/footer.html --index indexpage"
 
 Shared/Prelim.v
