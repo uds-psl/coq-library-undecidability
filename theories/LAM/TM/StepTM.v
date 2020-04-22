@@ -1,7 +1,7 @@
 (** * Step Machine of the Heap Machine Simulator *)
 
-From Undecidability Require Import TM.Code.ProgrammingTools.
-From Undecidability.LAM Require Import LM_heap_def TM.Alphabets.
+From Undecidability Require Import TM.Code.ProgrammingTools LM_heap_def.
+From Undecidability.LAM Require Import TM.Alphabets.
 From Undecidability.LAM.TM Require Import CaseCom LookupTM JumpTargetTM.
 From Undecidability Require Import TM.Code.ListTM TM.Code.CaseList TM.Code.CasePair TM.Code.CaseSum.
 
@@ -543,7 +543,6 @@ Section StepMachine.
     | _ => default (* not specified *)
     end.
 
-  About CasePair_size1.
 
 
   Definition Step_app_Rel : pRel sigStep^+ bool 11 :=
@@ -826,7 +825,7 @@ Section StepMachine.
 
 
   (* I forgot that [While] takes a machine over [option unit] instead of [bool]. But that's no problem since we have [Relabel]. *)
-  Coercion bool2optunit := fun b : bool => if b then None else Some tt.
+  Local Coercion bool2optunit := fun b : bool => if b then None else Some tt.
 
   Definition Step : pTM sigStep^+ (option unit) 11 :=
     Relabel

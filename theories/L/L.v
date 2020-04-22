@@ -37,14 +37,18 @@ Fixpoint TH n s :=
   | hter t => t
   end.
 
+(* TODO: should not be a coercion *)
 Definition convert := TH 0.
 Coercion convert : hoas >-> term.
+
+Module L_Notations_app.
+  Coercion app : term >-> Funclass. 
+End L_Notations_app.
 
 Module L_Notations.
 
   Coercion var : nat >-> term.
-  Coercion app : term >-> Funclass. 
-
+  Export L_Notations_app.
 End L_Notations.
 
 Module HOAS_Notations.
@@ -306,6 +310,11 @@ Proof.
   repeat econstructor.
 Qed.
 
+Lemma lam_terminal u: lambda u -> terminal step u.
+Proof.
+  intros H ? R;inv H;inv R.  
+Qed.
+
 (** Properties of the reflexive, transitive closure of reduction *)
 
 Notation "s '>*' t" := (star step s t) (at level 50).
@@ -517,6 +526,15 @@ Definition eval s t := s >* t /\ lambda t.
 Notation "s '⇓' t" := (eval s t) (at level 51).
 Hint Unfold eval : core.
 
+Lemma eval_unique s v1 v2 :
+  s ⇓ v1 -> s ⇓ v2 -> v1 = v2.
+Proof.
+  intros (R1&L1) (R2&L2).
+  eapply unique_normal_forms.
+  1-2:eassumption.
+  now rewrite <-R1,R2.
+Qed.
+
 Instance eval_star_subrelation : subrelation eval (star step).
 Proof.
   now intros ? ? [].
@@ -547,6 +565,18 @@ Proof.
   intros ? ? [[? []] ?]. split. eapply pow_star_subrelation. all:eauto. 
 Qed.
 
+Lemma evalLe_evalIn s t k:
+  s ⇓(<=k) t -> exists k', k' <= k /\ s ⇓(k') t.
+Proof.
+  unfold evalLe,redLe,evalIn. firstorder.
+Qed.
+
+Lemma evalIn_evalLe s t k k':
+  k' <= k -> s ⇓(k') t -> s ⇓(<=k) t.
+Proof.
+  unfold evalLe,redLe,evalIn. firstorder.
+Qed.
+
 Instance evalIn_evalLe_subrelation i: subrelation (evalIn i) (evalLe i).
 Proof.
   intros s t (R & lt). split;[now exists i|trivial]. 
@@ -562,6 +592,11 @@ Proof.
   now intros ? ? [].
 Qed.
 
+Instance evalIn_eval_subrelation i: subrelation (evalIn i) eval.
+Proof.
+  intros ? ? [?  ?]. split. eapply pow_star_subrelation. all:eauto. 
+Qed.
+
 Instance redLe_star_subrelation i: subrelation (redLe i) (star step).
 Proof.
   intros ? ? (j & leq & R). now rewrite R. 
@@ -573,10 +608,22 @@ Proof.
   exists i. split. omega. tauto.
 Qed.
 
+Lemma redLe_mono s t n n' :
+  s >(<=n) t -> n <= n' -> s >(<=n') t.
+Proof.
+  intros ? <-. easy.
+Qed.
+
 Instance le_evalLe_proper: Proper (le ==> eq ==> eq ==> Basics.impl) evalLe.
 Proof.
   intros ? ? H' ? ? -> ? ? -> [H p].
   split. 2:tauto. now rewrite <- H'.
+Qed.
+
+Lemma evalIn_mono s t n n' :
+  s ⇓(<=n) t -> n <= n' -> s ⇓(<=n') t.
+Proof.
+  intros ? <-. easy.
 Qed.
 
 Lemma evalIn_trans s t u i j :
@@ -614,6 +661,14 @@ Qed.
 Instance redLe_refl : Reflexive (redLe 0).
 Proof.
   intro. eexists; split;reflexivity.  
+Qed.
+
+Lemma evalIn_unique s k1 k2 v1 v2 :
+  s ⇓(k1) v1 -> s ⇓(k2) v2 -> k1 = k2 /\ v1 = v2.
+Proof.
+  intros (R1&L1) (R2&L2).
+  eapply uniform_confluence_parameterized_both_terminal.
+  all:eauto using lam_terminal,uniform_confluence.
 Qed.
 
 (* Helpfull Lemmas*)
@@ -671,3 +726,4 @@ Lemma rho_lambda s : lambda (rho s).
 Proof.
   eexists. reflexivity.
 Qed.
+

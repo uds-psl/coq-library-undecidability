@@ -50,6 +50,14 @@ Lemma dominatedWith_add_r c1 c2 x y:
   (x+c1) <=(c1+c2) y.
 Proof. intros. setoid_rewrite Nat.add_comm at 1. apply dominatedWith_add; auto. hnf. nia. Qed.
 
+Lemma dominatedWith_mult c1 c2 y1 y2 x1 x2:
+  x1 <=(c1) y1 ->
+  x2 <=(c2) y2 ->
+  (x1*x2) <=(c1*c2) y1*y2.
+Proof.
+  unfold dominatedWith. nia.
+Qed.
+
 Lemma dominatedWith_mult_l c c' x y:
   x <=(c) y ->
   (c'*x) <=(c'*c) y.

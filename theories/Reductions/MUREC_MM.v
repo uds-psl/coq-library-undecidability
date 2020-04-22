@@ -47,6 +47,6 @@ Section MUREC_MM_HALTING.
 
 End MUREC_MM_HALTING.
 
-Check MUREC_MM_HALTING.
-Print Assumptions MUREC_MM_HALTING.
+(* Check MUREC_MM_HALTING. *)
+(* Print Assumptions MUREC_MM_HALTING. *)
 

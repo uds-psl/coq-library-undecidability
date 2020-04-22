@@ -489,6 +489,13 @@ Section Encode_list.
     | x :: xs' => sigList_cons :: Encode_map _ _ x ++ encode_list xs'
     end.
 
+  Lemma encode_list_concat l:
+    encode_list l = concat (map (fun t => sigList_cons :: map sigList_X (encode t)) l) ++[sigList_nil].
+  Proof.
+    induction l;cbn. reflexivity.
+    rewrite IHl. cbn. now autorewrite with list.
+  Qed.
+
   Global Instance Encode_list : codable (sigList sigX) (list X) :=
     {|
       encode := encode_list;

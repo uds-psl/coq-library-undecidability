@@ -287,6 +287,6 @@ Proof.
   }
 Qed.
 
-Print Assumptions Mult_Realise.
+(* Print Assumptions Mult_Realise. *)
 
 

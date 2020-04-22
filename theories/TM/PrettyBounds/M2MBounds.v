@@ -6,6 +6,7 @@ From Undecidability Require Import TM.PrettyBounds.BaseCode.
 
 From Undecidability Require Import TM.Single.StepTM.
 From Undecidability Require Import TM.Single.EncodeTapes.
+From Undecidability Require Import TM.VectorPrelim.
 
 
 
@@ -80,7 +81,7 @@ Local Arguments plus : simpl never. Local Arguments mult : simpl never.
 
 Section ToSingleTape_bounds.
 
-  Variable (sig F : finType).
+  Implicit Types (sig : finType) (F : finType).
   (*
   Variable n : nat.
   (* Hypothesis (nNeq0 : n <> 0). (* This really makes no sense for [0] tapes. *) *)
@@ -94,14 +95,12 @@ Section ToSingleTape_bounds.
   Notation "t ≃ T" := (contains_tapes t T) (at level 70, no associativity).
  *)
 
-  Implicit Types (tp : tape sig).
-
   Lemma GoToCurrent_steps'_nice :
-    { c | forall tp, GoToCurrent_steps' tp <=(c) length (left tp) + 4 }.
+    { c | forall sig (tp : tape sig), GoToCurrent_steps' tp <=(c) length (left tp) + 4 }.
   Proof. eexists. intros. unfold GoToCurrent_steps'. domWith_match; cbn in *; domWith_approx. Qed.
 
   Lemma GoToCurrent_steps_nice :
-    { c | forall tp, GoToCurrent_steps tp <=(c) length (left tp) + 1 }.
+    { c | forall (sig : finType) (tp : tape sig), GoToCurrent_steps tp <=(c) length (left tp) + 1 }.
   Proof.
     eexists. intros. unfold GoToCurrent_steps.
     apply dominatedWith_add_r. 2: omega.
@@ -111,11 +110,11 @@ Section ToSingleTape_bounds.
   Qed.
 
   Lemma GoToNext_steps'_nice :
-    { c | forall tp, GoToNext_steps' tp <=(c) length (right tp) + 1 }.
+    { c | forall sig (tp : tape sig), GoToNext_steps' tp <=(c) length (right tp) + 1 }.
   Proof. eexists. intros. unfold GoToNext_steps'. domWith_match; cbn in *; domWith_approx. Qed.
 
   Lemma GoToNext_steps_nice :
-    { c | forall tp, GoToNext_steps tp <=(c) length (right tp) + 1 }.
+    { c | forall sig (tp : tape sig), GoToNext_steps tp <=(c) length (right tp) + 1 }.
   Proof.
     eexists. intros. unfold GoToNext_steps.
     apply dominatedWith_add_r. 2: omega.
@@ -125,14 +124,14 @@ Section ToSingleTape_bounds.
   Qed.
 
 
-  Definition tape_size (tp : tape sig) := 1 + length (left tp) + length (right tp).
+  Definition tape_size {sig : Type} (tp : tape sig) := 1 + length (left tp) + length (right tp).
 
-  Lemma tape_size_ge1 (tp : tape sig) :
+  Lemma tape_size_ge1 {sig : Type} (tp : tape sig) :
     1 <= tape_size tp.
   Proof. unfold tape_size. omega. Qed.
 
   (** [size tp] is the size w.r.t. the linear encoding (adding of extra symbols for left end, etc.) *)
-  Definition Encode_tape_hasSize (tp : tape sig) :
+  Definition Encode_tape_hasSize {sig : Type} (tp : tape sig) :
     size tp <= tape_size tp + 2.
   Proof.
     unfold size.
@@ -148,7 +147,7 @@ Section ToSingleTape_bounds.
   Qed.
 
   Lemma ReadCurrentSymbols_Step_steps_cons_nice :
-    { c | forall tp, ReadCurrentSymbols_Step_steps_cons tp <=(c) tape_size tp }.
+    { c | forall sig (tp : tape sig), ReadCurrentSymbols_Step_steps_cons tp <=(c) tape_size tp }.
   Proof.
     unfold tape_size.
     eexists. unfold ReadCurrentSymbols_Step_steps_cons. intros. domWith_approx.
@@ -156,31 +155,31 @@ Section ToSingleTape_bounds.
     - eapply dominatedWith_trans. apply (proj2_sig GoToNext_steps_nice). domWith_approx.
   Qed.
 
-  Fixpoint greatest_tape (tps : list (tape sig)) : nat :=
+  Fixpoint greatest_tape {sig : Type} (tps : list (tape sig)) : nat :=
     match tps with
     | nil => 0
     | tp :: tps' => max (tape_size tp) (greatest_tape tps')
     end.
 
-  Fixpoint tape_size_sum (tps : list (tape sig)) : nat :=
+  Fixpoint tape_size_sum {sig : Type} (tps : list (tape sig)) : nat :=
     match tps with
     | nil => 0
     | tp :: tps' => tape_size tp + tape_size_sum tps'
     end.
   
   Lemma ReadCurrentSymbols_Loop_steps_cons_nice :
-    { c | forall (tps2 : list (tape sig)) (tp : tape sig), ReadCurrentSymbols_Loop_steps_cons tps2 tp <=(c) tape_size_sum (tp :: tps2) + 1 }.
+    { c | forall (sig : finType) (tps2 : list (tape sig)) (tp : tape sig), ReadCurrentSymbols_Loop_steps_cons tps2 tp <=(c) tape_size_sum (tp :: tps2) + 1 }.
   Proof.
     pose_nice ReadCurrentSymbols_Step_steps_cons_nice Hc_step c_step.
-    exists (c_step + 1). intros tps2. induction tps2 as [ | tp' tps2' IH]; intros.
-    - specialize (Hc_step tp). cbn. hnf. rewrite Hc_step. hnf. cbn. nia.
-    - specialize (Hc_step tp). cbn. hnf. rewrite Hc_step. hnf. cbn in *.
+    exists (c_step + 1). intros sig tps2. induction tps2 as [ | tp' tps2' IH]; intros.
+    - specialize (Hc_step sig tp). cbn. hnf. rewrite Hc_step. hnf. cbn. nia.
+    - specialize (Hc_step sig tp). cbn. hnf. rewrite Hc_step. hnf. cbn in *.
       specialize (IH tp'). hnf in IH. rewrite IH. clear. ring_simplify.
       enough (1 <= tape_size tp) by nia. apply tape_size_ge1.
   Qed.
 
   Lemma ReadCurrentSymbols_steps_nice :
-    { c | forall (n : nat) (T : tapes sig n), ReadCurrentSymbols_steps T <=(c) tape_size_sum (vector_to_list T) + 1 }.
+    { c | forall (n : nat) sig (T : tapes sig n), ReadCurrentSymbols_steps T <=(c) tape_size_sum (vector_to_list T) + 1 }.
   Proof.
     eexists. intros. unfold ReadCurrentSymbols_steps.
     (* This is quite a hack! *)
@@ -194,7 +193,7 @@ Section ToSingleTape_bounds.
   Qed.
 
 
-  Lemma Encode_tapes_hasSize (tps : list (tape sig)) :
+  Lemma Encode_tapes_hasSize {sig : Type} (tps : list (tape sig)) :
     size tps <= length tps * (3 + greatest_tape tps) + 1.
   Proof.
     rewrite Encode_list_hasSize.
@@ -203,23 +202,23 @@ Section ToSingleTape_bounds.
     - rewrite IH. rewrite Encode_tape_hasSize. nia.
   Qed.
 
-  Lemma Encode_tapes_size_fold (tps : list (tape sig)) :
+  Lemma Encode_tapes_size_fold {sig : Type} (tps : list (tape sig)) :
     length (encode_list _ tps) = size tps.
   Proof. reflexivity. Qed.
 
-  Lemma size_tapes_ge1 (tps : list (tape sig)) :
+  Lemma size_tapes_ge1 {sig : Type} (tps : list (tape sig)) :
     1 <= size tps.
   Proof. rewrite Encode_list_hasSize. apply Encode_list_hasSize_ge1. Qed.
 
   Lemma MoveToStart_steps_nice :
-    { c | forall (tps : list (tape sig)), MoveToStart_steps tps <=(c) size tps }.
+    { c | forall sig (tps : list (tape sig)), MoveToStart_steps tps <=(c) size tps }.
   Proof.
     eexists. intros. unfold MoveToStart_steps. rewrite Encode_tapes_size_fold. domWith_approx. apply dominatedWith_const. 
     enough (1 <= size tps) by nia. setoid_rewrite Encode_list_hasSize. apply Encode_list_hasSize_ge1.
   Qed.
 
   Lemma DoWrite_steps_nice' :
-    { c | forall (d : option move) (tps1 tps2 : list (tape sig)),
+    { c | forall {sig : finType} (d : option move) (tps1 tps2 : list (tape sig)),
         DoWrite_steps d tps1 tps2
         <=(c)
            match d with
@@ -242,14 +241,14 @@ Section ToSingleTape_bounds.
   Qed.
 
   Lemma DoWrite_steps_nice :
-    { c | forall (d : option move) (tps1 tps2 : list (tape sig)), DoWrite_steps d tps1 tps2 <=(c) size tps1 + size tps2 }.
+    { c | forall sig (d : option move) (tps1 tps2 : list (tape sig)), DoWrite_steps d tps1 tps2 <=(c) size tps1 + size tps2 }.
   Proof.
     eexists. intros. eapply dominatedWith_trans. apply (proj2_sig DoWrite_steps_nice').
     destruct d as [ [ | | ] | ]; cbn; domWith_approx. hnf. ring_simplify. rewrite <- size_tapes_ge1. omega.
   Qed.
   
   Lemma DoAction_steps_nice' :
-    { c | forall (d : option move) (a : option sig * move) (tps1 tps2 : list (tape sig)),
+    { c | forall sig (d : option move) (a : option sig * move) (tps1 tps2 : list (tape sig)),
           DoAction_steps d a tps1 tps2
           <=(c)
              match (fst a) with
@@ -257,7 +256,7 @@ Section ToSingleTape_bounds.
              | None => 1
              end }.
   Proof.
-    eexists. intros d [w m] tps1 tps2. unfold DoAction_steps. cbn. domWith_match; subst.
+    eexists. intros sig d [w m] tps1 tps2. unfold DoAction_steps. cbn. domWith_match; subst.
     - ring_simplify. apply dominatedWith_add_r. domWith_approx.
       + eapply dominatedWith_trans. apply (proj2_sig DoWrite_steps_nice). domWith_approx.
       + apply dominatedWith_const. rewrite <- size_tapes_ge1. omega.
@@ -266,20 +265,20 @@ Section ToSingleTape_bounds.
   Qed.
 
   Lemma DoAction_steps_nice :
-    { c | forall (d : option move) (a : option sig * move) (tps1 tps2 : list (tape sig)), DoAction_steps d a tps1 tps2 <=(c) size tps1 + size tps2 }.
+    { c | forall sig (d : option move) (a : option sig * move) (tps1 tps2 : list (tape sig)), DoAction_steps d a tps1 tps2 <=(c) size tps1 + size tps2 }.
   Proof.
-    eexists. intros d [w m] tps1 tps2. eapply dominatedWith_trans. apply (proj2_sig DoAction_steps_nice'). cbn. domWith_match; subst.
+    eexists. intros sig d [w m] tps1 tps2. eapply dominatedWith_trans. apply (proj2_sig DoAction_steps_nice'). cbn. domWith_match; subst.
     - domWith_approx.
     - apply dominatedWith_solve. rewrite <- size_tapes_ge1. omega.
   Qed.
 
 
   (* Semantical lemma *)
-  Lemma tape_doAct_right_length (tp : tape sig) (act : option sig * move) :
+  Lemma tape_doAct_right_length {sig : Type} (tp : tape sig) (act : option sig * move) :
     length (right (doAct tp act)) <= 1 + length (right tp).
   Proof. destruct tp, act as [ [ | ] [ | | ] ]; cbn; simpl_tape; simpl_list; cbn; omega. Qed.
 
-  Lemma size_tape_bounded : forall (tp : tape sig), tape_size tp <= size tp.
+  Lemma size_tape_bounded : forall {sig : Type} (tp : tape sig), tape_size tp <= size tp.
   Proof.
     unfold tape_size, size.
     destruct tp.
@@ -288,29 +287,7 @@ Section ToSingleTape_bounds.
     all: omega.
   Qed.
 
-  (* TODO *)
-
-  (*
-  Fixpoint tape_size_quad_sum (tps : list (tape sig)) : nat :=
-    match tps with
-    | nil => 0
-    | tp :: tps' => tape_size tp * tape_size tp + tape_size_quad_sum tps'
-    end.
-
-  Lemma tape_size_quad_sum_app (tps1 tps2 : list (tape sig)) :
-    tape_size_quad_sum (tps1 ++ tps2) = tape_size_quad_sum tps1 + tape_size_quad_sum tps2.
-  Proof. induction tps1 as [ | tp tps1 IH]; cbn; omega. Qed.
-
-  Lemma tape_size_quad_sum_rev (tps : list (tape sig)) :
-    tape_size_quad_sum (rev tps) = tape_size_quad_sum tps.
-  Proof.
-    induction tps; cbn in *.
-    - reflexivity.
-    - rewrite tape_size_quad_sum_app; cbn. omega.
-  Qed.
-  *)
-
-  Lemma doAct_size : forall tp act, size (doAct tp act) <= size tp + 2.
+  Lemma doAct_size : forall {sig : Type} (tp : tape sig) act, size (doAct tp act) <= size tp + 2.
   Proof.
     intros. unfold size. cbn. unfold encode_tape.
     destruct tp, act as [ [ w | ] [ | | ] ]; cbn.
@@ -322,14 +299,14 @@ Section ToSingleTape_bounds.
     - destruct l0; cbn; repeat (simpl_list; cbn); omega.
   Qed.
     
-  Lemma doAct_size' : forall tps1 tp tps2 act, (size (tps1 ++ doAct tp act :: tps2) <= size (tps1 ++ tp :: tps2) + 2).
+  Lemma doAct_size' : forall {sig : Type} (tps1 : list (tape sig)) tp tps2 act, (size (tps1 ++ doAct tp act :: tps2) <= size (tps1 ++ tp :: tps2) + 2).
   Proof.
     intros. rewrite !Encode_list_hasSize. rewrite !Encode_list_hasSize_app. cbn.
     enough (size (doAct tp act) <= size tp + 2) by nia.
     apply doAct_size.
   Qed.
   
-  Lemma doAct_size'' : forall tp act, size tp <= size (doAct tp act).
+  Lemma doAct_size'' : forall {sig : Type} (tp : tape sig) act, size tp <= size (doAct tp act).
   Proof.
     intros. unfold size. cbn. unfold encode_tape.
     destruct tp, act as [ [ w | ] [ | | ] ]; cbn.
@@ -342,7 +319,7 @@ Section ToSingleTape_bounds.
   Qed.
     
   Lemma DoActions_Step_steps_cons_nice'' :
-    { c | forall (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig),
+    { c | forall sig (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig),
         DoActions_Step_steps_cons acts i tps1 tps2 tp <=(c) tape_size tp + size tps1 + size tps2 }.
   Proof.
     unfold tape_size.
@@ -356,7 +333,7 @@ Section ToSingleTape_bounds.
 
   (** Replace [tape_size] with [size],  *)
   Lemma DoActions_Step_steps_cons_nice' :
-    { c | forall (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig),
+    { c | forall sig (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig),
         DoActions_Step_steps_cons acts i tps1 tps2 tp <=(c) size tp + size tps1 + size tps2 }.
   Proof.
     eexists. intros. eapply dominatedWith_trans. apply (proj2_sig DoActions_Step_steps_cons_nice''). domWith_approx.
@@ -367,7 +344,7 @@ Section ToSingleTape_bounds.
 
   (** ... and summarize the sizes in a list *)
   Lemma DoActions_Step_steps_cons_nice :
-    { c | forall (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig),
+    { c | forall sig (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig),
         DoActions_Step_steps_cons acts i tps1 tps2 tp <=(c) size (tps1 ++ tp :: tps2) }.
   Proof.
     eexists. intros. eapply dominatedWith_trans. apply (proj2_sig DoActions_Step_steps_cons_nice').
@@ -375,10 +352,9 @@ Section ToSingleTape_bounds.
     rewrite !Encode_list_hasSize. rewrite !Encode_list_hasSize_app. cbn. omega.
   Qed.
 
-  Optimize Heap.
+  (* Optimize Heap. *)
 
-
-  Lemma size_doActions (n : nat) (acts : Vector.t (option sig * move) n) (tps : list (tape sig)) :
+  Lemma size_doActions {sig : Type} (n : nat) (acts : Vector.t (option sig * move) n) (tps : list (tape sig)) :
     size (map_vect_list (@doAct sig) acts tps) <= size tps + 2 * n.
   Proof.
     rewrite !Encode_list_hasSize.
@@ -388,7 +364,7 @@ Section ToSingleTape_bounds.
       rewrite IH. rewrite doAct_size. omega.
   Qed.
 
-  Lemma size_doActions' (n : nat) (acts : Vector.t (option sig * move) n) (tps : list (tape sig)) :
+  Lemma size_doActions' {sig : Type} (n : nat) (acts : Vector.t (option sig * move) n) (tps : list (tape sig)) :
     size tps <= size (map_vect_list (@doAct sig) acts tps).
   Proof.
     rewrite !Encode_list_hasSize.
@@ -400,7 +376,7 @@ Section ToSingleTape_bounds.
 
 
   (** First optimsation step for [DoActions_Loop_steps_cons]: structurally same function, but with terms replaced by bounded terms. *)
-  Fixpoint DoActions_Loop_steps_cons_asym (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig) :=
+  Fixpoint DoActions_Loop_steps_cons_asym {sig : Type} (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig) :=
     match tps2 with
     | nil => size (tps1 ++ tp :: tps2)
     | tp' :: tps2' =>
@@ -411,7 +387,7 @@ Section ToSingleTape_bounds.
     end.
 
   (** Then bound every term with [size (tps1 ++ tp :: tps2)] *)
-  Fixpoint DoActions_Loop_steps_cons_asym2 (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig) :=
+  Fixpoint DoActions_Loop_steps_cons_asym2 {sig : Type} (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig) :=
     match tps2 with
     | nil => size (map_vect_list (@doAct sig) acts (tps1 ++ tp :: tps2))
     | tp' :: tps2' =>
@@ -423,7 +399,7 @@ Section ToSingleTape_bounds.
 
 
   Lemma DoActions_Loop_steps_cons_nice'' :
-    { c | forall (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig),
+    { c | forall sig (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig),
         DoActions_Loop_steps_cons acts i tps1 tps2 tp <=(c) DoActions_Loop_steps_cons_asym acts i tps1 tps2 tp }.
   Proof.
     pose_nice DoActions_Step_steps_cons_nice Hc_step c_step. exists (c_step + 1).
@@ -440,10 +416,9 @@ Section ToSingleTape_bounds.
 
   Lemma le_ge (n m : nat) : n <= m -> m >= n. Proof. nia. Qed.
 
-  Lemma size_tape_ge1 (tp : tape sig) :
+  Lemma size_tape_ge1 {sig : Type} (tp : tape sig) :
     1 <= size tp.
   Proof. unfold size. destruct tp; cbn; omega. Qed.
-
 
 
 
@@ -477,43 +452,9 @@ Section ToSingleTape_bounds.
         * omega.
   Qed.
 
-  (*
-  Lemma map_vect_list_app2 (X Y : Type) (f : X -> Y -> X) (n : nat) (vs : Vector.t Y (S n)) (ls : list X)
-        (x y : X) (i : Fin.t (S n)) :
-    fin_to_nat i = length ls ->
-    map_vect_list f vs (ls ++ [x; y]) =
-    map_vect_list f vs ls ++ [f x vs[@i]; f y vs[@Fin.FS i]].
-  Proof.
-*)
-
-  (*
-  Lemma DoActions_Loop_steps_cons_asym2_doAct (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2' : list (tape sig)) (tp tp' : tape sig) :
-    length tps1 = fin_to_nat i ->
-    length tps1 + (length tps2') = n ->
-    DoActions_Loop_steps_cons_asym2 acts i (tps1 ++ [doAct tp acts[@i]]) tps2' tp' <=
-    DoActions_Loop_steps_cons_asym2 acts i (tps1 ++ [tp]) tps2' tp' + (1 + length tps2') * 2.
-  Proof.
-    revert n acts i tps1 tp tp'. induction tps2' as [ | tp'' tps2'' IH]; intros; cbn in *.
-    - simpl_list. cbn. ring_simplify.
-      erewrite !map_vect_list_app_drop; eauto.
-      rewrite !encodeList_size_app_eq.
-      cbn [map_vect_list]. destruct vector_drop.
-      + rewrite !Encode_list_hasSize. cbn. ring_simplify.
-        pose proof doAct_size tp acts[@i]. nia.
-      + destruct t.
-        * rewrite !Encode_list_hasSize. cbn. ring_simplify.
-          pose proof doAct_size (doAct tp acts[@i]) h. admit.
-        * rewrite !Encode_list_hasSize. cbn. ring_simplify.
-          pose proof doAct_size tp acts[@i]. try nia.
-          pose proof doAct_size (doAct tp acts[@i]) h. try nia.
-          admit.
-    - destruct finSucc_opt as [i' | ] eqn:E. 2: nia.
-  Abort.
-*)
-    
 
   (** The easy part *)
-  Lemma DoActions_Loop_steps_cons_asym2_bounded (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig) :
+  Lemma DoActions_Loop_steps_cons_asym2_bounded sig (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig) :
     DoActions_Loop_steps_cons_asym2 acts i tps1 tps2 tp <= size (map_vect_list (@doAct sig) acts (tps1 ++ tp :: tps2)) * (1 + length tps2).
   Proof.
     revert tps1 tp n acts i. induction tps2 as [ | tp' tps2' IH]; intros; cbn in *.
@@ -524,7 +465,7 @@ Section ToSingleTape_bounds.
 
 
   (** The harder part *)
-  Lemma DoActions_Loop_steps_cons_asym_bounded'' (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig) :
+  Lemma DoActions_Loop_steps_cons_asym_bounded'' sig (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig) :
     length tps1 = fin_to_nat i ->
     length tps1 + (1 + length tps2) = n ->
     DoActions_Loop_steps_cons_asym acts i (map_vect_list (@doAct sig) acts tps1) tps2 tp <=
@@ -547,7 +488,7 @@ Section ToSingleTape_bounds.
 
   
   (** Remove the uggly [map_vect_list] from the above bound *)
-  Lemma DoActions_Loop_steps_cons_asym_monotone (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1a tps1b tps2 : list (tape sig)) (tp : tape sig) :
+  Lemma DoActions_Loop_steps_cons_asym_monotone sig (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1a tps1b tps2 : list (tape sig)) (tp : tape sig) :
     size tps1a <= size tps1b ->
     DoActions_Loop_steps_cons_asym acts i tps1a tps2 tp <=
     DoActions_Loop_steps_cons_asym acts i tps1b tps2 tp.
@@ -562,7 +503,7 @@ Section ToSingleTape_bounds.
       { rewrite !Encode_list_hasSize, !Encode_list_hasSize_app. cbn. rewrite <- !Encode_list_hasSize. omega. }
   Qed.
 
-  Lemma DoActions_Loop_steps_cons_asym_bounded' (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig) :
+  Lemma DoActions_Loop_steps_cons_asym_bounded' sig (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig) :
     length tps1 = fin_to_nat i ->
     length tps1 + (1 + length tps2) = n ->
     DoActions_Loop_steps_cons_asym acts i tps1 tps2 tp <=
@@ -575,7 +516,7 @@ Section ToSingleTape_bounds.
 
   
   (** Combine both bounds! *)
-  Lemma DoActions_Loop_steps_cons_asym_bounded (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig) :
+  Lemma DoActions_Loop_steps_cons_asym_bounded sig (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig) :
     length tps1 = fin_to_nat i ->
     length tps1 + (1 + length tps2) = n ->
     DoActions_Loop_steps_cons_asym acts i tps1 tps2 tp <= size (map_vect_list (@doAct sig) acts (tps1 ++ tp :: tps2)) * (1 + length tps2).
@@ -589,7 +530,7 @@ Section ToSingleTape_bounds.
 
   (** Finally, a better bound for [DoActions_Loop_steps_cons] *)
   Lemma DoActions_Loop_steps_cons_nice :
-    { c | forall (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig),
+    { c | forall sig (n : nat) (acts : Vector.t (option sig * move) n) (i : Fin.t n) (tps1 tps2 : list (tape sig)) (tp : tape sig),
         length tps1 = fin_to_nat i ->
         length tps1 + (1 + length tps2) = n ->
         DoActions_Loop_steps_cons acts i tps1 tps2 tp <=(c) size (map_vect_list (@doAct sig) acts (tps1 ++ tp :: tps2)) * (1 + length tps2) }.
@@ -602,11 +543,11 @@ Section ToSingleTape_bounds.
         
 
   Lemma DoActions_steps_nice :
-    { c | forall (n : nat) (acts : Vector.t (option sig * move) n) (tps : list (tape sig)),
+    { c | forall sig (n : nat) (acts : Vector.t (option sig * move) n) (tps : list (tape sig)),
         length tps = n ->
         DoActions_steps acts tps <=(c) size (map_vect_list (@doAct sig) acts tps) * (length tps) + 1 }.
   Proof.
-    eexists. intros n acts tps Hlen. unfold DoActions_steps. repeat domWith_match; subst. 1,3: domWith_approx.
+    eexists. intros sig n acts tps Hlen. unfold DoActions_steps. repeat domWith_match; subst. 1,3: domWith_approx.
     ring_simplify. apply dominatedWith_add_r.
     2: { rewrite <- size_tapes_ge1. cbn. omega. }
     rename x0 into tp, xs into tps.
@@ -620,7 +561,7 @@ Section ToSingleTape_bounds.
     length xs <= Encode_list_size xs.
   Proof. induction xs as [ | x xs IH]; cbn in *; omega. Qed.
   
-  Lemma tape_size_sum_le_size (tps : list (tape sig)) :
+  Lemma tape_size_sum_le_size {sig : Type} (tps : list (tape sig)) :
     tape_size_sum tps <= size tps.
   Proof.
     rewrite Encode_list_hasSize.
@@ -629,9 +570,9 @@ Section ToSingleTape_bounds.
     - rewrite IH. rewrite size_tape_bounded. omega.
   Qed.
 
-
+  
   Lemma Step_steps_nice' :
-    { c | forall (n : nat) (pM : pTM sig F n) (q : states (projT1 pM)) (T : tapes sig n),
+    { c | forall sig (F : finType) (n : nat) (pM : pTM sig F n) (q : states (projT1 pM)) (T : tapes sig n),
         let (q', act) := trans (m := projT1 pM) (q, current_chars T) in
         Step_steps q T <=(c) size (vector_to_list (doAct_multi T act)) * size (vector_to_list (doAct_multi T act)) }.
   Proof.
@@ -659,11 +600,11 @@ Section ToSingleTape_bounds.
 
 
   Lemma Step_steps_nice :
-    { c | forall (n : nat) (pM : pTM sig F n) (q : states (projT1 pM)) (T : tapes sig n),
+    { c | forall sig F (n : nat) (pM : pTM sig F n) (q : states (projT1 pM)) (T : tapes sig n),
         Step_steps q T <=(c) size (vector_to_list T) * size (vector_to_list T) }.
   Proof.
     eexists. intros.
-    pose proof (proj2_sig Step_steps_nice' _ _ q T). destruct trans as [q' act] eqn:Etrans.
+    pose proof (proj2_sig Step_steps_nice' _ _ _ _ q T). destruct trans as [q' act] eqn:Etrans.
     eapply dominatedWith_trans. apply H.
     eapply dominatedWith_trans.
     - apply dominatedWith_solve. unfold doAct_multi. rewrite <- map_vect_list_eq. rewrite !size_doActions. reflexivity.
@@ -676,7 +617,7 @@ Section ToSingleTape_bounds.
 
 
   (** Same structure as [Loop_steps], but with bounded terms *)
-  Fixpoint Loop_steps_asym {n : nat} {M : mTM sig n} q (T : tapes sig n) (k : nat) {struct k} :=
+  Fixpoint Loop_steps_asym {n : nat} sig {M : mTM sig n} q (T : tapes sig n) (k : nat) {struct k} :=
     if halt q
     then 0
     else match k with
@@ -686,17 +627,17 @@ Section ToSingleTape_bounds.
            size (vector_to_list T) * size (vector_to_list T) + Loop_steps_asym q' (doAct_multi T acts) k'
          end.
 
-  Lemma Loop_steps_asym_halt {n : nat} {M : mTM sig n} (q : states M) (T : tapes sig n) (k : nat) :
+  Lemma Loop_steps_asym_halt {n : nat} sig {M : mTM sig n} (q : states M) (T : tapes sig n) (k : nat) :
     halt q = true ->
     Loop_steps_asym q T k = 0.
   Proof. now destruct k; cbn; intros ->. Qed.
 
   Lemma Loop_steps_asym_nice :
-    { c | forall (n : nat) (pM : pTM sig F n) (q : states (projT1 pM)) (T : tapes sig n) (k : nat),
+    { c | forall sig F (n : nat) (pM : pTM sig F n) (q : states (projT1 pM)) (T : tapes sig n) (k : nat),
           Loop_steps q T k <=(c) Loop_steps_asym q T k }.
   Proof.
     pose_nice Step_steps_nice Hc_step c_step. exists (c_step + 1).
-    intros n pM q T k. revert q T. induction k as [ | k' IH]; intros; cbn in *.
+    intros sig F n pM q T k. revert q T. induction k as [ | k' IH]; intros; cbn in *.
     - destruct halt; hnf; nia.
     - destruct halt eqn:Ehalt; [hnf; nia| ].
       destruct trans as [q' acts] eqn:Etrans.
@@ -707,15 +648,15 @@ Section ToSingleTape_bounds.
   Qed.
 
   
-  Lemma size_doAct_multi (n : nat) (T : tapes sig n) (act : Vector.t (option sig * move) n) :
+  Lemma size_doAct_multi {sig : Type} (n : nat) (T : tapes sig n) (act : Vector.t (option sig * move) n) :
     size (vector_to_list T) <= size (vector_to_list (doAct_multi T act)).
   Proof. unfold doAct_multi. rewrite <- map_vect_list_eq. apply size_doActions'. Qed.
 
-  Lemma size_doAct_multi' (n : nat) (T : tapes sig n) (act : Vector.t (option sig * move) n) :
+  Lemma size_doAct_multi' {sig : Type} (n : nat) (T : tapes sig n) (act : Vector.t (option sig * move) n) :
     size (vector_to_list (doAct_multi T act)) <= size (vector_to_list T) + 2 * n.
   Proof. unfold doAct_multi. rewrite <- map_vect_list_eq. apply size_doActions. Qed.
 
-  Lemma size_final_tapes {n : nat} {M : mTM sig n} (q : states M) (T : tapes sig n) (k : nat) (q_fin : states M) (T_fin : tapes sig n) :
+  Lemma size_final_tapes {sig : finType} {n : nat} {M : mTM sig n} (q : states M) (T : tapes sig n) (k : nat) (q_fin : states M) (T_fin : tapes sig n) :
     loopM (mk_mconfig q T) k = Some (mk_mconfig q_fin T_fin) ->
     size (vector_to_list T) <= size (vector_to_list T_fin).
   Proof.
@@ -729,7 +670,7 @@ Section ToSingleTape_bounds.
         rewrite <- IH. apply size_doAct_multi.
   Qed.        
 
-  Lemma size_final_tapes' {n : nat} {M : mTM sig n} (q : states M) (T : tapes sig n) (k : nat) (q_fin : states M) (T_fin : tapes sig n) :
+  Lemma size_final_tapes' {sig : finType} {n : nat} {M : mTM sig n} (q : states M) (T : tapes sig n) (k : nat) (q_fin : states M) (T_fin : tapes sig n) :
     loopM (mk_mconfig q T) k = Some (mk_mconfig q_fin T_fin) ->
     size (vector_to_list T_fin) <= size (vector_to_list T) + 2 * n * k.
   Proof.
@@ -745,7 +686,7 @@ Section ToSingleTape_bounds.
   
 
   (** Bound every step term with the term for the tape after the execution *)
-  Lemma Loop_steps_asym_bounded {n : nat} {M : mTM sig n} (q : states M) (T : tapes sig n) (k : nat) (q_fin : states M) (T_fin : tapes sig n) :
+  Lemma Loop_steps_asym_bounded sig {n : nat} {M : mTM sig n} (q : states M) (T : tapes sig n) (k : nat) (q_fin : states M) (T_fin : tapes sig n) :
     loopM (mk_mconfig q T) k = Some (mk_mconfig q_fin T_fin) ->
     Loop_steps_asym q T k <= size (vector_to_list T_fin) * size (vector_to_list T_fin) * k.
   Proof.
@@ -763,7 +704,7 @@ Section ToSingleTape_bounds.
 
   (** Bound for the loop w.r.t. the final tapes *)
   Lemma Loop_steps_nice_final :
-    { c | forall (n : nat) (pM : pTM sig F n) (q : states (projT1 pM)) (T : tapes sig n) (k : nat),
+    { c | forall sig F (n : nat) (pM : pTM sig F n) (q : states (projT1 pM)) (T : tapes sig n) (k : nat),
         forall (q_fin : states (projT1 pM)) (T_fin : tapes sig n),
           loopM (mk_mconfig q T) k = Some (mk_mconfig q_fin T_fin) ->
           Loop_steps q T k <=(c) size (vector_to_list T_fin) * size (vector_to_list T_fin) * k }.
@@ -774,7 +715,7 @@ Section ToSingleTape_bounds.
 
 
   (** Bound for the final tape size after k steps *)
-  Lemma Loop_steps_asym_bounded' {n : nat} {M : mTM sig n} (q : states M) (T : tapes sig n) (k : nat) (* (q_fin : states M) (T_fin : tapes sig n) *) :
+  Lemma Loop_steps_asym_bounded' sig {n : nat} {M : mTM sig n} (q : states M) (T : tapes sig n) (k : nat) (* (q_fin : states M) (T_fin : tapes sig n) *) :
     (* loopM (mk_mconfig q T) k = Some (mk_mconfig q_fin T_fin) -> *)
     Loop_steps_asym q T k <= (size (vector_to_list T) + 2 * n * k) * (size (vector_to_list T) + 2 * n * k) * k.
   Proof.
@@ -786,7 +727,7 @@ Section ToSingleTape_bounds.
   Qed.
 
   Lemma Loop_steps_nice :
-    { c | forall (n : nat) (pM : pTM sig F n) (q : states (projT1 pM)) (T : tapes sig n) (k : nat),
+    { c | forall sig F (n : nat) (pM : pTM sig F n) (q : states (projT1 pM)) (T : tapes sig n) (k : nat),
           Loop_steps q T k <=(c) (size (vector_to_list T) + n * k) * (size (vector_to_list T) + n * k) * k }.
   Proof.
     eexists. intros. eapply dominatedWith_trans. apply (proj2_sig Loop_steps_asym_nice).

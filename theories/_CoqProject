@@ -1,6 +1,6 @@
 -Q . Undecidability
 
--arg -w -arg -unused-intro-pattern,-notation-overridden
+-arg -w -arg -notation-overridden
 COQDOCFLAGS = "--charset utf-8 -s --with-header ../website/resources/header.html --with-footer ../website/resources/footer.html --index indexpage"
 
 Shared/Prelim.v
@@ -48,6 +48,15 @@ Shared/Libs/DLW/Wf/wf_finite.v
 Shared/Libs/DLW/Wf/wf_incl.v
 
 Problems/Reduction.v
+
+# Abstract L simulator as Turing Machine
+LAM/TM/Alphabets.v
+LAM/TM/CaseCom.v
+LAM/TM/LookupTM.v
+LAM/TM/JumpTargetTM.v
+#The following file takes very long, so we start it early for faster multi-core-compilation
+LAM/TM/StepTM.v
+LAM/TM/HaltingProblem.v
 
 #Post correspondence problem
 PCP/PCP.v
@@ -201,6 +210,8 @@ TM/Prelim.v
 TM/Relations.v
 TM/TM.v
 TM/ArithPrelim.v
+TM/VectorPrelim.v
+
 
 # Basic Machines
 TM/Basic/Basic.v
@@ -274,6 +285,7 @@ TM/Univ/StepTM.v
 
 # PrettyBounds
 TM/PrettyBounds/PrettyBounds.v
+TM/PrettyBounds/SizeBounds.v
 TM/PrettyBounds/MaxList.v
 TM/PrettyBounds/BaseCode.v
 TM/PrettyBounds/UnivBounds.v
@@ -290,6 +302,7 @@ L/Prelim/MoreBase.v
 L/Prelim/ARS.v
 L/Prelim/StringBase.v
 L/Prelim/MoreList.v
+L/Prelim/LoopSum.v
 
 L/L.v
 
@@ -323,19 +336,27 @@ L/Datatypes/LOptions.v
 L/Datatypes/LProd.v
 L/Datatypes/LSum.v
 L/Datatypes/LTerm.v
+L/Datatypes/LFinType.v
+L/Datatypes/LVector.v
 
+
+L/Functions/EqBool.v
 L/Functions/Equality.v
 L/Functions/Encoding.v
 L/Functions/Proc.v
 L/Functions/Size.v
 L/Functions/Subst.v
 L/Functions/Eval.v
-
+L/Functions/LoopSum.v
+L/Functions/UnboundIteration.v
+L/Functions/FinTypeLookup.v
 L/Functions/EnumInt.v
 L/Functions/Unenc.v
 L/Functions/Ackermann.v
 
 L/TM/TMEncoding.v
+L/TM/TMinL.v
+L/TM/TapeFuns.v
 L/Reductions/TM_to_L.v
 
 # L/Reductions/SRH_SR_computable.v
@@ -345,17 +366,16 @@ L/Reductions/TM_to_L.v
 L/Reductions/H10_to_L.v
 L/Reductions/MuRec.v
 
+L/Complexity/UpToC.v
+L/Complexity/UpToCNary.v
+L/Complexity/GenericNary.v
 L/Complexity/ResourceMeasures.v
-L/Complexity/SpaceBoundsTime.v
 
-L/AbstractMachines/Programs.v
-L/AbstractMachines/AbstractSubstMachine.v
-L/AbstractMachines/AbstractHeapMachine.v
-L/AbstractMachines/UnfoldHeap.v
-L/AbstractMachines/FunctionalDefinitions.v
-L/AbstractMachines/Computable/Shared.v
-L/AbstractMachines/Computable/HeapMachine.v
-L/AbstractMachines/Computable/SubstMachine.v
+L/AbstractMachines/LargestVar.v
+L/AbstractMachines/FlatPro/Programs.v
+L/AbstractMachines/FlatPro/ProgramsDef.v
+L/AbstractMachines/FlatPro/LM_heap_def.v
+L/AbstractMachines/FlatPro/LM_heap_correct.v
 
 L/Computability/Acceptability.v
 #L/Computability/AD.v
@@ -376,18 +396,9 @@ L/Computability/Synthetic.v
 
 #Reduction L to TM with abstract Heap Machine
 LAM/BaseExtension.v
-LAM/Prelims.v
-LAM/LM_heap_def.v
-LAM/LM_heap_correct.v
-# Abstract Machine simulator
-LAM/TM/Alphabets.v
-LAM/TM/CaseCom.v
-LAM/TM/LookupTM.v
-LAM/TM/JumpTargetTM.v
-LAM/TM/StepTM.v
-LAM/TM/HaltingProblem.v
 
 ## Higher order unficiation
+
 
 HOU/std/tactics.v
 HOU/std/misc.v
@@ -405,6 +416,8 @@ HOU/std/ars/normalisation.v
 HOU/std/ars/evaluator.v
 HOU/std/ars/list_reduction.v
 HOU/std/std.v
+
+HOU/firstorder.v
 
 HOU/axioms.v
 HOU/unscoped.v
@@ -445,8 +458,6 @@ HOU/concon/conservativity.v
 HOU/concon/constants.v
 HOU/concon/enumerability.v
 HOU/concon/concon.v
-
-HOU/firstorder.v
 
 FOLP/axioms.v
 FOLP/unscoped.v
@@ -512,7 +523,7 @@ TRAKHTENBROT/red_dec.v
 TRAKHTENBROT/red_enum.v
 TRAKHTENBROT/red_undec.v
 
-TRAKHTENBROT/summary.v
+# TRAKHTENBROT/summary.v
 
 Problems/FOL.v
 Problems/TM.v

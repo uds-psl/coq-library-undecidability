@@ -295,7 +295,7 @@ End neList.
 
 (** ** Boolean propositions and decisions *)
 
-Coercion bool2Prop (b : bool) := if b then True else False.
+Coercion is_true : bool >-> Sortclass.
 
 Lemma bool_Prop_true b :
   b = true -> b.
@@ -314,8 +314,8 @@ Hint Resolve bool_Prop_true bool_Prop_false.
 Hint Extern 4 => 
 match goal with
 |[ H: False |- _ ] => destruct H
-|[ H: ~ bool2Prop true |- _ ] => destruct H
-|[ H: bool2Prop false |- _ ] => destruct H
+|[ H: ~ is_true true |- _ ] => destruct H; congruence
+|[ H: is_ture false |- _ ] => cbv in H; congruence
 |[ H: true=false |- _ ] => discriminate H
 |[ H: false=true |- _ ] => discriminate H
 |[ H: ?b=false, H': bool2Prop(?b) |- _ ] => rewrite H in H'; destruct H'

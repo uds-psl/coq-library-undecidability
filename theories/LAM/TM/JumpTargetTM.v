@@ -1,7 +1,7 @@
 (** * Implementation of [ϕ] (aka SplitBody) *)
 
-From Undecidability Require Import TM.Code.ProgrammingTools.
-From Undecidability.LAM Require Import LM_heap_def TM.Alphabets.
+From Undecidability Require Import TM.Code.ProgrammingTools LM_heap_def.
+From Undecidability.LAM Require Import TM.Alphabets.
 From Undecidability.LAM.TM Require Import CaseCom.
 From Undecidability Require Import TM.Code.ListTM TM.Code.CaseList TM.Code.CaseNat.
 
@@ -20,13 +20,13 @@ Definition App_Commands : pTM sigPro^+ (FinType(EqType unit)) 2 :=
   App' _ @ [|Fin0; Fin1|];;
   MoveValue _ @ [|Fin1; Fin0|].
 
-Definition App_Commands_size (Q Q' : list Com) : Vector.t (nat->nat) 2 :=
+Definition App_Commands_size (Q Q' : list Tok) : Vector.t (nat->nat) 2 :=
   [| MoveValue_size_y (Q ++ Q') Q; App'_size Q >> MoveValue_size_x (Q ++ Q') |].
 
 Definition App_Commands_Rel : pRel sigPro^+ (FinType(EqType unit)) 2 :=
   ignoreParam (
       fun tin tout =>
-        forall (Q Q' : list Com) (s0 s1 : nat),
+        forall (Q Q' : list Tok) (s0 s1 : nat),
           tin[@Fin0] ≃(;s0) Q ->
           tin[@Fin1] ≃(;s1) Q' ->
           tout[@Fin0] ≃(;App_Commands_size Q Q' @>Fin0 s0) Q ++ Q' /\
@@ -37,7 +37,7 @@ Lemma App_Commands_Realise : App_Commands ⊨ App_Commands_Rel.
 Proof.
   eapply Realise_monotone.
   { unfold App_Commands. TM_Correct.
-    - apply App'_Realise with (X := Com).
+    - apply App'_Realise with (X := Tok).
     - apply MoveValue_Realise with (X := Pro).
   }
   {
@@ -52,14 +52,14 @@ Arguments App_Commands_size : simpl never.
 Definition App_Commands_steps (Q Q': Pro) := 1 + App'_steps Q + MoveValue_steps (Q ++ Q') Q.
 
 Definition App_Commands_T : tRel sigPro^+ 2 :=
-  fun tin k => exists (Q Q' : list Com), tin[@Fin0] ≃ Q /\ tin[@Fin1] ≃ Q' /\ App_Commands_steps Q Q' <= k.
+  fun tin k => exists (Q Q' : list Tok), tin[@Fin0] ≃ Q /\ tin[@Fin1] ≃ Q' /\ App_Commands_steps Q Q' <= k.
 
 Lemma App_Commands_Terminates : projT1 App_Commands ↓ App_Commands_T.
 Proof.
   eapply TerminatesIn_monotone.
   { unfold App_Commands. TM_Correct.
-    - apply App'_Realise with (X := Com).
-    - apply App'_Terminates with (X := Com).
+    - apply App'_Realise with (X := Tok).
+    - apply App'_Terminates with (X := Tok).
     - apply MoveValue_Terminates with (X := Pro) (Y := Pro).
   }
   {
@@ -77,13 +77,13 @@ Definition App_ACom (t : ACom) : pTM sigPro^+ unit 2 :=
   WriteValue (encode [ACom2Com t]) @ [|Fin1|];;
   App_Commands.
 
-Definition App_ACom_size (t : ACom) (Q : list Com) : Vector.t (nat->nat) 2 :=
+Definition App_ACom_size (t : ACom) (Q : list Tok) : Vector.t (nat->nat) 2 :=
   [| id; WriteValue_size [ACom2Com t] |] >>> App_Commands_size Q [ACom2Com t].
 
 Definition App_ACom_Rel (t : ACom) : pRel sigPro^+ unit 2 :=
   ignoreParam (
       fun tin tout =>
-        forall (Q : list Com) (s0 s1:nat),
+        forall (Q : list Tok) (s0 s1:nat),
           tin[@Fin0] ≃(;s0) Q ->
           isRight_size tin[@Fin1] s1 ->
           tout[@Fin0] ≃(;App_ACom_size t Q @>Fin0 s0) Q ++ [ACom2Com t] /\
@@ -108,7 +108,7 @@ Arguments App_ACom_size : simpl never.
 Definition App_ACom_steps (Q: Pro) (t: ACom) := 1 + WriteValue_steps (size _ [ACom2Com t]) + App_Commands_steps Q [ACom2Com t].
 
 Definition App_ACom_T (t: ACom) : tRel sigPro^+ 2 :=
-  fun tin k => exists (Q: list Com), tin[@Fin0] ≃ Q /\ isRight tin[@Fin1] /\ App_ACom_steps Q t <= k.
+  fun tin k => exists (Q: list Tok), tin[@Fin0] ≃ Q /\ isRight tin[@Fin1] /\ App_ACom_steps Q t <= k.
 
 Lemma App_ACom_Terminates (t: ACom) : projT1 (App_ACom t) ↓ App_ACom_T t.
 Proof.
@@ -135,13 +135,13 @@ Definition App_Com : pTM sigPro^+ (FinType(EqType unit)) 3 :=
   App_Commands @ [|Fin0; Fin2|];;
   Reset _ @ [|Fin1|].
 
-Definition App_Com_size (Q : list Com) (t : Com) : Vector.t (nat->nat) 3 :=
+Definition App_Com_size (Q : list Tok) (t : Tok) : Vector.t (nat->nat) 3 :=
   [| App_Commands_size Q [t] @>Fin0; Reset_size t; pred >> Constr_cons_size t >> App_Commands_size Q [t] @>Fin1 |].
 
 Definition App_Com_Rel : pRel sigPro^+ (FinType(EqType unit)) 3 :=
   ignoreParam (
       fun tin tout =>
-        forall (Q : list Com) (t : Com) (s0 s1 s2 : nat),
+        forall (Q : list Tok) (t : Tok) (s0 s1 s2 : nat),
           tin[@Fin0] ≃(;s0) Q ->
           tin[@Fin1] ≃(;s1) t ->
           isRight_size tin[@Fin2] s2 ->
@@ -156,7 +156,7 @@ Proof.
   eapply Realise_monotone.
   { unfold App_Com. TM_Correct.
     - apply App_Commands_Realise.
-    - apply Reset_Realise with (X := Com).
+    - apply Reset_Realise with (X := Tok).
   }
   { intros tin ((), tout) H. cbn. intros Q t s0 s1 s2 HEncQ HEncT HRight.
     unfold sigPro, sigCom in *. TMSimp.
@@ -167,11 +167,11 @@ Qed.
 
 Arguments App_Com_size : simpl never.
 
-Definition App_Com_steps (Q: Pro) (t:Com) :=
+Definition App_Com_steps (Q: Pro) (t:Tok) :=
   3 + Constr_nil_steps + Constr_cons_steps t + App_Commands_steps Q [t] + Reset_steps t.
 
 Definition App_Com_T : tRel sigPro^+ 3 :=
-  fun tin k => exists (Q: list Com) (t: Com), tin[@Fin0] ≃ Q /\ tin[@Fin1] ≃ t /\ isRight tin[@Fin2] /\ App_Com_steps Q t <= k.
+  fun tin k => exists (Q: list Tok) (t: Tok), tin[@Fin0] ≃ Q /\ tin[@Fin1] ≃ t /\ isRight tin[@Fin2] /\ App_Com_steps Q t <= k.
 
 Lemma App_Com_Terminates : projT1 App_Com ↓ App_Com_T.
 Proof.
@@ -179,7 +179,7 @@ Proof.
   { unfold App_Com. TM_Correct.
     - apply App_Commands_Realise.
     - apply App_Commands_Terminates.
-    - apply Reset_Terminates with (X := Com).
+    - apply Reset_Terminates with (X := Tok).
   }
   {
     intros tin k (Q&t&HEncQ&HEncT&HRight&Hk). unfold App_Com_steps in Hk.
@@ -335,7 +335,7 @@ Arguments JumpTarget_Step_size : simpl never.
 
 
 (* Steps after the [CaseCom], depending on [t] *)
-Local Definition JumpTarget_Step_steps_CaseCom (Q: Pro) (k: nat) (t: Com) :=
+Local Definition JumpTarget_Step_steps_CaseCom (Q: Pro) (k: nat) (t: Tok) :=
   match t with
   | retT =>
     match k with
