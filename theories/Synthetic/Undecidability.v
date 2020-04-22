@@ -1,4 +1,4 @@
-Require Import Undecidability.Synthetic.Definitions.
+Require Export Undecidability.Synthetic.Definitions Undecidability.Synthetic.ReducibilityFacts.
 Require Import Undecidability.TM.Halting.
 
 Definition undecidable {X} (p : X -> Prop) :=
