@@ -340,80 +340,6 @@ End LiftNM.
 Arguments LiftTapes : simpl never.
 
 
-(* TODO: AddTapes is unused, remove it *)
-
-
-(* Indexes vector for adding a fixed number [m] of additional tapes at the begin. *)
-Section AddTapes.
-
-  Variable n : nat.
-
-  (* Eval simpl in Fin.L 4 (Fin1 : Fin.t 10). *)
-  (* Check @Fin.L. *)
-  (* Search Fin.L. *)
-  (* Eval simpl in Fin.R 4 (Fin1 : Fin.t 10). *)
-  (* Check @Fin.R. *)
-  (* Search Fin.R. *)
-
-  Lemma Fin_L_fillive (m : nat) (i1 i2 : Fin.t n) :
-    Fin.L m i1 = Fin.L m i2 -> i1 = i2.
-  Proof.
-    induction n as [ | n' IH].
-    - dependent destruct i1.
-    - dependent destruct i1; dependent destruct i2; cbn in *; auto; try congruence.
-      apply Fin.FS_inj in H. now apply IH in H as ->.
-  Qed.
-
-  Lemma Fin_R_fillive (m : nat) (i1 i2 : Fin.t n) :
-    Fin.R m i1 = Fin.R m i2 -> i1 = i2.
-  Proof.
-    induction m as [ | n' IH]; cbn.
-    - auto.
-    - intros H % Fin.FS_inj. auto.
-  Qed.
-
-
-  Definition add_tapes (m : nat) : Vector.t (Fin.t (m + n)) n :=
-    Vector.map (fun k => Fin.R m k) (Fin_initVect _).
-
-
-  Lemma add_tapes_dupfree (m : nat) : dupfree (add_tapes m).
-  Proof.
-    apply dupfree_map_injective.
-    - apply Fin_R_fillive.
-    - apply Fin_initVect_dupfree.
-  Qed.
-
-  Lemma add_tapes_select_nth (X : Type) (m : nat) (ts : Vector.t X (m + n)) k :
-    (select (add_tapes m) ts)[@k] = ts[@Fin.R m k].
-  Proof.
-    unfold add_tapes. unfold select. erewrite !VectorSpec.nth_map; eauto.
-    cbn. now rewrite Fin_initVect_nth.
-  Qed.
-
-
-  Definition app_tapes (m : nat) : Vector.t (Fin.t (n + m)) n :=
-    Vector.map (Fin.L _) (Fin_initVect _).
-
-  Lemma app_tapes_dupfree (m : nat) : dupfree (app_tapes m).
-  Proof.
-    apply dupfree_map_injective.
-    - apply Fin_L_fillive.
-    - apply Fin_initVect_dupfree.
-  Qed.
-
-  Lemma app_tapes_select_nth (X : Type) (m : nat) (ts : Vector.t X (n + m)) k :
-    (select (app_tapes m) ts)[@k] = ts[@Fin.L m k].
-  Proof.
-    unfold app_tapes. unfold select. erewrite !VectorSpec.nth_map; eauto.
-    cbn. now rewrite Fin_initVect_nth.
-  Qed.
-
-
-End AddTapes.
-
-
-
 (** * Tactic Support *)
 
 (* TODO: Some of this is probably deprecated, e.g. the [app_tapes] stuff *)
@@ -432,8 +358,6 @@ Ltac smpl_dupfree :=
   lazymatch goal with
   | [ |- dupfree [|Fin.F1 |] ] => apply smpl_dupfree_helper1
   | [ |- dupfree [|Fin.FS |] ] => apply smpl_dupfree_helper2
-  | [ |- dupfree (add_tapes _ _)] => apply add_tapes_dupfree
-  | [ |- dupfree (app_tapes _ _)] => apply app_tapes_dupfree
   | [ |- dupfree _ ] => now vector_dupfree (* fallback tactic *)
   end.
 
@@ -498,86 +422,6 @@ Eval cbn in ltac:(do_n_times_fin 3 ltac:(fun a => let x := eval simpl in (a : Fi
 
 
 
-
-(* Support for [app_tapes] *)
-
-(*
- * The tactic [simpl_not_in_add_tapes] specialises hypothesises of the form
- * [H : forall i : Fin.t _, not_index (add_tapes _ m) i -> _]
- * with [i := Fin0], ..., [i := Fin(m-1)] and proves [not_index (add_tapes _ m) i.
- *)
-
-Ltac simpl_not_in_add_tapes_step H m' :=
-  let H' := fresh "HIndex_" H in
-  unshelve epose proof (H ltac:(getFin m') _) as H';
-  [ hnf; unfold add_tapes, Fin_initVect; cbn [tabulate Vector.map Fin.L Fin.R]; vector_not_in
-  | cbn [Fin.L Fin.R] in H'
-  ].
-
-Ltac simpl_not_in_add_tapes_loop H m :=
-  do_n_times m ltac:(simpl_not_in_add_tapes_step H); clear H.
-
-Ltac simpl_not_in_add_tapes_one :=
-  lazymatch goal with
-  | [ H : forall i : Fin.t _, not_index (add_tapes _ ?m) i -> _ |- _] =>
-    simpl_not_in_add_tapes_loop H m; clear H
-  | [ H : context [ (select (add_tapes _ ?m) _)[@_]] |- _ ] =>
-    rewrite ! (add_tapes_select_nth (m := m)) in H; cbn in H
-  | [ |- context [ (select (add_tapes _ ?m) _)[@_]] ] =>
-    rewrite ! (add_tapes_select_nth (m := m)); cbn
-  end.
-
-Ltac simpl_not_in_add_tapes := repeat simpl_not_in_add_tapes_one.
-
-(* (* Test *) *)
-(* Goal True. *)
-(*   assert (forall i : Fin.t 3, not_index (add_tapes _ 2) i -> i = i) by firstorder. *)
-(*   simpl_not_in_add_tapes. (* :-) *) *)
-(* Abort. *)
-
-(* goal True. *)
-(*   assert (n : nat) by constructor. *)
-(*   assert (forall i : Fin.t (S n), not_index (add_tapes n 1) i -> True) by firstorder. *)
-(*   simpl_not_in_add_tapes. *)
-(* Abort. *)
-
-
-(* Support for [app_tapes] *)
-
-
-Ltac simpl_not_in_app_tapes_step H n m' :=
-  let H' := fresh "HIndex_" H in
-  unshelve epose proof (H (Fin.R n ltac:(getFin m')) _) as H';
-  [ hnf; unfold app_tapes, Fin_initVect; cbn [tabulate Vector.map Fin.L Fin.R]; vector_not_in
-  | cbn [Fin.L Fin.R] in H'
-  ].
-
-Ltac simpl_not_in_app_tapes_loop H n m :=
-  do_n_times m ltac:(fun m' => simpl_not_in_app_tapes_step H n m'); clear H.
-
-Ltac simpl_not_in_app_tapes_one :=
-  lazymatch goal with
-  | [ H : forall i : Fin.t _, not_index (app_tapes ?n ?m) i -> _ |- _] =>
-    simpl_not_in_app_tapes_loop H n m; clear H
-  | [ H : context [ (select (app_tapes ?n ?m) _)[@_]] |- _ ] =>
-    rewrite ! (app_tapes_select_nth (n := n) (m := m)) in H; cbn in H
-  | [ |- context [ (select (app_tapes ?n ?m) _)[@_]] ] =>
-    rewrite ! (app_tapes_select_nth (n := n) (m := m)); cbn
-  end.
-
-
-Ltac simpl_not_in_app_tapes := repeat simpl_not_in_app_tapes_one.
-
-(* Goal True. *)
-(*   assert (forall i : Fin.t 10, not_index (app_tapes 8 _) i -> i = i) as Inj by firstorder. *)
-(*   simpl_not_in_app_tapes. *)
-(*   Check HIndex_Inj : Fin8 = Fin8. *)
-(*   Check HIndex_Inj0 : Fin9 = Fin9. *)
-(*   Fail Check HInj. *)
-(* Abort. *)
-
-
-
 (* Check whether a vector (syntactically) contains an element *)
 Ltac vector_contains a vect :=
   lazymatch vect with
@@ -589,16 +433,6 @@ Ltac vector_contains a vect :=
 
 (* Fail Check ltac:(vector_contains 42 (@Vector.nil nat); idtac "yes!"). *)
 (* Check ltac:(vector_contains 42 [|4;8;15;16;23;42|]; idtac "yes!"). *)
-
-Ltac vector_doesnt_contain a vect :=
-  tryif vector_contains a vect then fail "Vector DOES contain" a else idtac.
-
-
-(* Check ltac:(vector_doesnt_contain 42 (@Vector.nil nat); idtac "yes!"). *)
-(* Check ltac:(vector_doesnt_contain 9 [|4;8;15;16;23;42|]; idtac "yes!"). *)
-(* Fail Check ltac:(vector_doesnt_contain 42 [|4;8;15;16;23;42|]; idtac "yes!"). *)
-
-
 
 (*
  * The tactic [simpl_not_in_vector] tries to specialise hypothesises of the form
@@ -642,6 +476,4 @@ Ltac simpl_not_in_vector := repeat simpl_not_in_vector_one.
 (* Abort. *)
 
 
-
-Ltac simpl_not_in :=
-  repeat ( simpl_not_in_add_tapes || simpl_not_in_app_tapes || simpl_not_in_vector).
+Ltac simpl_not_in := repeat simpl_not_in_vector.
