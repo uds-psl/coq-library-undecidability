@@ -577,14 +577,14 @@ Section U.
   Existing Instance retr_sigSimTape_sigUniv.
   Definition Univ : pTM sigUniv unit 6 := @Univ sigM sigUniv' retr_sigSimGraph_sigUniv retr_sigSimTape_sigUniv.
 
-  Check Univ : pTM sigUniv unit 6.
-  Check Univ : pTM sigUniv'^+ unit 6.
+  (* Check Univ : pTM sigUniv unit 6. *)
+  (* Check Univ : pTM sigUniv'^+ unit 6. *)
 
 
   (** The single-tape version of [Univ] for alphabet [sigM] *)
   Definition U := ToSingleTape Univ.
   Definition sigU := ltac:(lazymatch type of U with pTM ?sigU _ _ => exact sigU end).
-  Check U : pTM sigU unit 1.
+  (* Check U : pTM sigU unit 1. *)
 
 
   (*
@@ -724,8 +724,8 @@ Section U.
   Definition f (M : mTM sigM 1) : nat * nat -> nat := fun '(k, s) => fp M (bogus_tape s) k.
 *)
 
-  Check (projT1 U) : mTM sigU 1.
-  Check forall (tp tp' : tape sigU), terminates (projT1 U) [|tp|] 42 [|tp'|].
+  (* Check (projT1 U) : mTM sigU 1. *)
+  (* Check forall (tp tp' : tape sigU), terminates (projT1 U) [|tp|] 42 [|tp'|]. *)
 
   (** [fp] is literally only another definition for [U_steps] *)
   Lemma fp_eq : forall M (T : tape sigM) k, fp M T k = U_steps (makeUnivTapes _ _ M T) (start M) T k.
@@ -880,7 +880,7 @@ Section U.
 
 
   (** We only do space-analysis for [Univ] now, because the size of the [sigU] tapes is directly determined by the tapes of [Univ] *)
-  Check UnivSpaceBounds.Univ_size_nice'.
+  (* Check UnivSpaceBounds.Univ_size_nice'. *)
 
 
 End U.
@@ -933,7 +933,7 @@ Section MakeSingleTape_Bounded_by_sizeOfmTapes.
   Variable (sig : finType) (n : nat).
 
   (** We've already proven that [sizeOfTape (makeSingleTape T)] is the sum of the tape sizes (plus some constant) *)
-  Check makeSingleTape_sizeOfTape.
+  (* Check makeSingleTape_sizeOfTape. *)
 
   Lemma tam (T : tapes sig n) :
     max_list_map (fun t : tape sig => Encode_tape_size t + 1) (vector_to_list T) <= sizeOfmTapes T + 3.
@@ -1015,7 +1015,7 @@ Section UnivMultiTimeSpaceTheorem.
 
   Notation pM' := (ToSingleTape pM).
   Notation M' := (projT1 pM').
-  Check M' : mTM sigM' 1.
+  (* Check M' : mTM sigM' 1. *)
 
   Notation "'castState' q" := (q : (states (projT1 pM))) (at level 1).
 
@@ -1168,7 +1168,7 @@ Section UnivMultiTimeSpaceTheorem.
 
   (** Simplify [sizeOfTape (makeSingleTape T)] *)
 
-  Check makeSingleTape_sizeOfmTapes.
+  (* Check makeSingleTape_sizeOfmTapes. *)
 
   Lemma Mfp_nice3 :
     {c : nat | forall (T : tapes sigM n) (k : nat),

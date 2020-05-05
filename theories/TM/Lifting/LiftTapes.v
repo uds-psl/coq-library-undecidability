@@ -348,12 +348,12 @@ Section AddTapes.
 
   Variable n : nat.
 
-  Eval simpl in Fin.L 4 (Fin1 : Fin.t 10).
-  Check @Fin.L.
-  Search Fin.L.
-  Eval simpl in Fin.R 4 (Fin1 : Fin.t 10).
-  Check @Fin.R.
-  Search Fin.R.
+  (* Eval simpl in Fin.L 4 (Fin1 : Fin.t 10). *)
+  (* Check @Fin.L. *)
+  (* Search Fin.L. *)
+  (* Eval simpl in Fin.R 4 (Fin1 : Fin.t 10). *)
+  (* Check @Fin.R. *)
+  (* Search Fin.R. *)
 
   Lemma Fin_L_fillive (m : nat) (i1 i2 : Fin.t n) :
     Fin.L m i1 = Fin.L m i2 -> i1 = i2.

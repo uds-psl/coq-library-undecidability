@@ -82,7 +82,7 @@ Proof.
   - destruct IHx. eexists (_ ++ _); cbn. setoid_rewrite H; cbn; eauto.
 Qed.
 
-Compute encode (42 % positive).
+(* Compute encode (42 % positive). *)
 
 (* With this alphabet it is easier to derive the machines for [N] using the machines for [positive] *)
 Notation sigN := (sigOption sigPos).
@@ -109,6 +109,6 @@ Lemma Encode_N_hasSize (n : N) :
 Proof. destruct n; cbn; auto. simpl_list. f_equal. apply Encode_positive_hasSize. Qed.
 
 
-Check _ : Retract sigPos sigN. (* The obvious retract *)
+(* Check _ : Retract sigPos sigN. (* The obvious retract *) *)
 
-Compute encode (42 % N).
+(* Compute encode (42 % N). *)

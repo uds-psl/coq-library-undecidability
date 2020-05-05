@@ -822,7 +822,7 @@ Section AlphabetLifting'.
 End AlphabetLifting'.
 
 
-Check ChangeAlphabet.
+(* Check ChangeAlphabet. *)
 
 (*
 Lemma ChangeAlphabet_Rel (sig tau : finType) (I : Retract sig tau) (n : nat) (F : finType) (M : pTM sig^+ F n) (R : pRel sig^+ F n) (R' : pRel tau^+ F n) :

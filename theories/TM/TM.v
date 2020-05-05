@@ -932,12 +932,14 @@ Hint Extern 4 => lazymatch goal with
                 | [ pM : pTM ?sig ?F ?n |- inhabitedC ?F ] => apply (inhabited_pTM_lab pM)
                 end : typeclass_instances.
 
+(*
 Section Test_def.
   Variable (n : nat) (sig : finType) (F : Type).
   Variable (pM : pTM sig F n).
   Check default : states (projT1 pM).
   Check default : F.
 End Test_def.
+*)
 
 
 
