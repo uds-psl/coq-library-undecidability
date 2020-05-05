@@ -19,7 +19,7 @@ Section StateWhile.
       cstate := liftState (cstate c);
       ctapes := ctapes c;
     |}.
-  
+
 
   Definition StateWhile_trans : StateWhile_states * Vector.t (option sig) n -> StateWhile_states * Vector.t (option sig * move) n :=
     fun '(q, s) =>
@@ -45,7 +45,7 @@ Section StateWhile.
       halt := StateWhile_halt;
     |}.
 
-  
+
   Hypothesis (defF : inhabitedC F2).
   Definition StateWhile_part : StateWhile_states -> F2 :=
     fun q => match projT2 (pM (projT1 q)) (projT2 q) with
@@ -60,7 +60,7 @@ Section StateWhile.
   Local Arguments halt {_ _} _ _.
   Local Arguments step {_ _} _ _.
 
-  
+
   Lemma step_comp (l : F1) (c : mconfig sig (states (projT1 (pM l))) n) :
     haltConf c = false ->
     step (StateWhileTM l) (lift c) = lift (step (projT1 (pM l)) c).
@@ -70,7 +70,7 @@ Section StateWhile.
     cbv [step]. cbn. rewrite HHalt.
     destruct (trans (q, current_chars t)) as [q' a]. cbn. reflexivity.
   Qed.
-  
+
 
   Lemma halt_comp (l : F1) (c : mconfig sig (states (projT1 (pM l))) n) :
     haltConf (M := projT1 (pM l)) c = false ->
@@ -109,7 +109,7 @@ Section StateWhile.
     loopM (StateWhileTM l) c1 k = loopM (StateWhileTM l') c1 k.
   Proof. reflexivity. Qed.
 
-  
+
   Definition lifth l : mconfig sig (states (StateWhileTM l)) n -> bool.
   Proof.
     intros ((l'&q)&t).
@@ -118,17 +118,17 @@ Section StateWhile.
     - apply true.
   Defined.
 
-  
+
   Lemma lifth_comp l (c : mconfig sig (states (StateWhileTM l)) n) :
     lifth c = false -> haltConf c = false.
   Proof. destruct c as ((l'&q)&t). cbn. decide (l=l') as [->| _]; intros H; auto. unfold StateWhile_halt. cbn. now rewrite H. Qed.
 
-  
+
   Lemma lifth_comp' l (c : mconfig sig (states (projT1 (pM l))) n) :
     @lifth l (lift c) = haltConf c.
   Proof. unfold haltConf. destruct c as (q,t). cbn. decide (l=l); tauto. Qed.
 
-  
+
   Lemma StateWhile_split_repeat k l l1 c2 c3 :
     loop (step (StateWhileTM l)) (haltConf (M:=StateWhileTM l)) (lift c2) k = Some c3 ->
     haltConf c2 = true ->
@@ -196,7 +196,7 @@ Section StateWhile.
       + cbn; unfold StateWhile_halt; cbn. rewrite HL. apply andb_false_r.
   Qed.
 
-  
+
   Lemma StateWhile_merge_break k l l2 (c1 : mconfig sig (states (projT1 (pM l))) n) (c2 : mconfig sig (states (projT1 (pM l))) n) :
     loopM (projT1 (pM l)) c1 k = Some c2 ->
     haltConf c2 = true ->
@@ -233,7 +233,7 @@ Section StateWhile.
   Lemma lift_init l tin :
     initc (StateWhileTM l) tin = lift (initc (projT1 (pM l)) tin).
   Proof. reflexivity. Qed.
-  
+
   Lemma StateWhile_Realise l :
     (forall l, pM l ⊨ R l) ->
     StateWhile l ⊨ StateWhile_Rel l.
@@ -250,7 +250,7 @@ Section StateWhile.
       constructor 2; auto. cbn. unfold StateWhile_part. cbn. now rewrite E.
   Qed.
 
-  
+
   (** ** Termination of [StateWhile] *)
   Section StateWhile_TerminatesIn.
     Variable (T T' : F1 -> tRel sig n).

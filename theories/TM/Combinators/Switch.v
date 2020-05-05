@@ -40,12 +40,12 @@ Section Switch.
         end.
 
   Definition Switch_halt : (TM.states M1 + { f : F & TM.states (Mf f) }) -> bool :=
-    fun q => 
+    fun q =>
       match q with
       | inl _ => false
       | inr q => halt (projT2 q)
       end.
-  
+
   Definition SwitchTM : mTM sig n :=
     {|
       trans := Switch_trans;
@@ -58,10 +58,10 @@ Section Switch.
           | inl q => p2 (p1 q) (start (Mf (p1 q))) (* Canonical value *)
           | inr q => p2 (projT1 q) (projT2 q)
           end.
-  
+
   Definition Switch : pTM sig F' n := (SwitchTM; Switch_p).
 
-  
+
 
   (** Lift configurations of [M1] to configurations of [Switch] *)
   Definition lift_confL (c : mconfig sig (states M1) n) : mconfig sig (states SwitchTM) n :=
@@ -191,7 +191,7 @@ Section Switch.
   Qed.
 
 
-  
+
   (** Correctness *)
   Lemma Switch_Realise (R1 : Rel _ (F * _)) (R2 : F -> Rel _ (F' * _)) :
     pM1 ⊨ R1 ->

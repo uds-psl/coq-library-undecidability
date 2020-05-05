@@ -71,7 +71,7 @@ Proof.
 Qed.
 
 
-  
+
 
 Lemma tape_local_contains (sig sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) t :
   tape_local t = inl START :: map inr (Encode_map _ _ x) ++ [inl STOP] ->
@@ -114,7 +114,7 @@ Section WriteValue.
         tout[@Fin0] ≃(;WriteValue_size cX x s0) x.
 
   Definition WriteValue_steps (l : nat) := 3 + 2 * l.
-  
+
   Lemma WriteValue_Sem (str : list sig) :
     WriteValue str ⊨c(WriteValue_steps (length str)) WriteValue_Rel str.
   Proof.

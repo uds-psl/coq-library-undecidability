@@ -81,7 +81,7 @@ Section Compare.
     | _, _ => (false, t)
     end.
   Proof.
-    intros (t1&t2). intros c1 Hc1 c2 Hc2 HStopC1 HStopC2. cbn in *. 
+    intros (t1&t2). intros c1 Hc1 c2 Hc2 HStopC1 HStopC2. cbn in *.
     destruct t1; cbn in *; inv Hc1. destruct t2; cbn in *; inv Hc2.
     unfold Compare_fun_measure. cbn. simpl_tape. intros. omega.
   Qed.
@@ -117,7 +117,7 @@ Section Compare.
     | _, _ => 5
     end.
   Proof.
-    intros (t1&t2). intros c1 Hc1 c2 Hc2 HStopC1 HStopC2. cbn in *. 
+    intros (t1&t2). intros c1 Hc1 c2 Hc2 HStopC1 HStopC2. cbn in *.
     destruct t1; cbn in *; inv Hc1. destruct t2; cbn in *; inv Hc2.
     unfold Compare_fun_measure. cbn. simpl_tape. intros. omega.
   Qed.
@@ -129,7 +129,7 @@ Section Compare.
 
   Lemma Compare_steps_ge t : 5 <= Compare_steps t.
   Proof. functional induction Compare_steps t; auto. omega. Qed.
-    
+
 
   Lemma Compare_TerminatesIn : projT1 Compare ↓ Compare_T.
   Proof.
@@ -146,6 +146,6 @@ Section Compare.
         + rewrite Compare_steps_equation in HT. cbn in HT. rewrite E, E0, E1, E2 in HT. TMSimp. omega.
     }
   Qed.
-    
+
 
 End Compare.

@@ -121,7 +121,7 @@ Proof.
   intros H. revert s0 s1. induction H; intros; cbn.
   - assumption.
   - rewrite IHForall2. apply max_list_rec_monotone.
-    instantiate (1 := Init.Nat.max x s0). all:nia. 
+    instantiate (1 := Init.Nat.max x s0). all:nia.
 Qed.
 
 (** [max_list_rec] is a lower bound of [z], if every element is smaller than [z]. *)

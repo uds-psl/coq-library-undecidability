@@ -368,8 +368,8 @@ Module Univ_nice.
       - intros (s,(f,i)). setoid_rewrite Encode_pair_hasSize. cbn. setoid_rewrite Encode_bool_hasSize. omega. constructor. (* this is odd *)
       - setoid_rewrite Encode_pair_hasSize; cbn [Encode_pair_size]. setoid_rewrite Encode_Finite_hasSize. ring_simplify. domWith_approx.
         + apply dominatedWith_solve. setoid_rewrite Encode_state_hasSize.
-          apply Nat.eq_le_incl. reflexivity. 
-        + apply dominatedWith_solve. rewrite <- Encode_nat_hasSize_ge1. rewrite Nat.mul_1_l. reflexivity. 
+          apply Nat.eq_le_incl. reflexivity.
+        + apply dominatedWith_solve. rewrite <- Encode_nat_hasSize_ge1. rewrite Nat.mul_1_l. reflexivity.
     Qed.
 
     Lemma Univ_Step_steps_Translate_nice :
@@ -426,14 +426,14 @@ Module Univ_nice.
     Proof.
       pose_nice Univ_Step_steps_nice Hc_Step c_Step.
       exists (c_Step + 1). intros.
-      
+
       specialize (Encode_nat_hasSize_ge1 (number_of_states M)) as ?.
       specialize ((Encode_graph_hasSize_ge1 M)) as ?.
       induction k as [ | k' IH] in q,tp|-*; cbn [Univ_steps] in *.
       -specialize (Encode_nat_hasSize_ge1 0) as ?.
         hnf. rewrite Hc_Step. destruct halt.
         + rewrite Encode_nat_hasSize. ring_simplify. nia.
-        + rewrite Encode_nat_hasSize. ring_simplify. replace (size 0) with 1 by reflexivity. nia. 
+        + rewrite Encode_nat_hasSize. ring_simplify. replace (size 0) with 1 by reflexivity. nia.
       -specialize (Encode_nat_hasSize_ge1 (S k')) as ?.
        specialize (Hc_Step _ M q tp). hnf. destruct halt eqn:E.
         + rewrite Hc_Step. ring_simplify. enough (1 <= size (1 + k') /\ 1 <= size (graph_of_TM M)) by nia. split. apply Encode_nat_hasSize_ge1. apply Encode_graph_hasSize_ge1.
@@ -445,4 +445,3 @@ Module Univ_nice.
   End Univ_nice.
 
 End Univ_nice.
-

@@ -282,4 +282,3 @@ Proof.
     + nia.
   - destruct p2; cbn in *; nia.
 Qed.
-

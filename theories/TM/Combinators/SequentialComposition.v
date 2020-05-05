@@ -1,17 +1,17 @@
 From Undecidability Require Import Switch.
 
 Section Composition.
-  
+
   Variable n : nat.
   Variable sig : finType.
 
-  
+
   Variable F1 : finType.
   Variable pM1 : pTM sig F1 n.
 
   Variable F2 : finType.
   Variable pM2 : pTM sig F2 n.
-  
+
   Definition Seq := Switch pM1 (fun _ => pM2).
 
   Lemma Seq_Realise R1 R2 :

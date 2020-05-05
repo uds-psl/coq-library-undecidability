@@ -17,7 +17,7 @@ Section MapSum.
   Variable (retr_sigX_sigM : Retract sigX sigM) (retr_sigY_sigM : Retract sigY sigM) (retr_sigZ_sigM : Retract sigZ sigM).
 
   (** The Machines [M1] and [M2] that compute the functions [f1] and [f2]. *)
-  Variable M1 M2 : pTM sigM^+ unit (S (S n)). 
+  Variable M1 M2 : pTM sigM^+ unit (S (S n)).
 
   Variable f : X -> Z.
   Variable g : Y -> Z.
@@ -45,9 +45,9 @@ Section MapSum.
 
   Local Definition retr_sigY_sigMap  : Retract sigY sigMap := ComposeRetract retr_sigM_sigMap retr_sigY_sigM.
   Local Definition retr_sigY_sigMap' : Retract sigY sigMap := ComposeRetract retr_sigSum_sigMap (Retract_sigSum_Y _ _).
-  
 
-  
+
+
   (** I use [Id] here to prevent [TM_Correct] to unfold [ChangeAlphabet], because we want to apply [ChangeAlphabet_Computes] instead. *)
   Definition MapSum : pTM sigMap^+ unit (S (S n)) :=
     If (CaseSum sigX sigY ⇑ _ @ [|Fin0|])
@@ -204,5 +204,5 @@ Section MapSum.
       }
     }
   Qed.
-  
+
 End MapSum.

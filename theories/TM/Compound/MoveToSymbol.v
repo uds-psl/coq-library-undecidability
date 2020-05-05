@@ -12,7 +12,7 @@ From Coq Require Import Recdef.
 
 
 Section MoveToSymbol.
-  
+
   Variable sig : finType.
 
   (** Halt function *)
@@ -55,10 +55,10 @@ Section MoveToSymbol.
                      | Some m =>
                        if f m
                        then Some tt (* break *)
-                       else None (* continue *) 
+                       else None (* continue *)
                      | _ => (Some tt) (* break *)
                      end
-           ).  
+           ).
 
   Lemma MoveToSymbol_Step_Sem :
     MoveToSymbol_Step ⊨c(3) MoveToSymbol_Step_Rel.
@@ -68,7 +68,7 @@ Section MoveToSymbol.
       unfold MoveToSymbol_Step. eapply Switch_RealiseIn. eapply ReadChar_Sem. cbn.
       instantiate (2 := fun o : option sig => match o with Some x => if f x then _ else _ | None => _ end).
       intros [ | ]; cbn.
-      - destruct (f e). 
+      - destruct (f e).
         + instantiate (1 := 1). apply Return_RealiseIn. eapply Write_Sem.
         + apply Return_RealiseIn. eapply WriteMove_Sem.
       - apply Return_RealiseIn. eapply Nop_Sem.
@@ -87,7 +87,7 @@ Section MoveToSymbol.
    * Execute MoveToSymbol_Step in a loop until MoveToSymbol_Step returned [Some tt]
    *)
   Definition MoveToSymbol : pTM sig unit 1 := While MoveToSymbol_Step.
-  
+
   Definition rlength (t : tape sig) := length (tape_local t).
 
   (* Function of [MoveToSymbol] *)
@@ -132,7 +132,7 @@ Section MoveToSymbol.
   Proof.
     intros H1 H2. unfold MoveToSymbol_Step_Fun. destruct t; cbn in *; inv H1. rewrite H2. auto.
   Qed.
-  
+
   Lemma MoveToSymbol_Step_Fun_M2_true t x :
     current t = Some x ->
     f x = true ->
@@ -213,13 +213,13 @@ Section MoveToSymbol.
           * congruence.
     }
   Qed.
-  
+
 
   (** Move to left *)
 
   Definition MoveToSymbol_L := Mirror MoveToSymbol.
 
-  
+
   Definition llength (t : tape sig) := length (tape_local_l t).
 
   Function MoveToSymbol_L_Fun (t : tape sig) { measure llength t } : tape sig :=

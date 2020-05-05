@@ -24,7 +24,7 @@ Proof. intros H. now inv H. Qed.
 Section CompareLists.
 
   Variable X : eqType.
-  
+
   Definition list_comperasion (xs ys : list X) : Prop :=
     xs = ys \/
     (exists a b l1 l2 l3, a <> b /\ xs = l1 ++ a :: l2 /\ ys = l1 ++ b :: l3) \/
@@ -352,7 +352,7 @@ Section CompareValues.
         (yout = if Dec (x1=x2) then true else false) /\
         tout[@Fin0] ≃(;sx) x1 /\
         tout[@Fin1] ≃(;sy) x2.
-                     
+
 
   Definition CompareValues : pTM sigX^+ bool 2 :=
     Switch (Compare (@isStop sigX))

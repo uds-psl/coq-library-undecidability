@@ -143,7 +143,7 @@ Section While.
     - apply HLoop.
     - cbn in *. setoid_rewrite (loop_fulfills HLoop). rewrite HTerm. cbn. reflexivity.
   Qed.
-  
+
 
 
   (** ** Correctness of [While] *)

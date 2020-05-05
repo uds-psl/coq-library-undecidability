@@ -25,7 +25,7 @@ Section CaseList.
     | inl _ => true
     | _ => false
     end.
-  
+
 
   Definition Skip_cons : pTM (sigList sigX)^+ unit 1 :=
     Move R;;
@@ -44,9 +44,9 @@ Section CaseList.
     Switch (LiftTapes (ReadChar) [|Fin0|])
           (fun s => match s with
                  | Some (inr sigList_nil) => (* nil *)
-                   Return (LiftTapes (Move L) [|Fin0|]) false 
+                   Return (LiftTapes (Move L) [|Fin0|]) false
                  | Some (inr sigList_cons) => (* cons *)
-                   M1;; 
+                   M1;;
                    LiftTapes Skip_cons [|Fin0|];;
                    Return (LiftTapes (Move L;; Write (inl START)) [|Fin0|]) true
                  | _ => Return Nop default (* invalid input *)
@@ -71,7 +71,7 @@ Section CaseList.
                                  (inr sigList_cons) (map inr (Encode_map _ _ x') ++ map inr (Encode_map _ _ l') ++ inl STOP :: rs)
                 end)).
 
-  
+
   Lemma stop_lemma x :
     forall s : (sigList sigX)^+, s el map inr (map sigList_X (encode x)) -> stop s = false.
   Proof.
@@ -94,7 +94,7 @@ Section CaseList.
         + apply stop_lemma.
     }
   Qed.
-  
+
 
   Definition M1_Rel : pRel (sigList sigX)^+ unit 2 :=
     ignoreParam (
@@ -105,7 +105,7 @@ Section CaseList.
             isVoid_size tin[@Fin1] s1 ->
             tout[@Fin0] = tin[@Fin0] /\
             tout[@Fin1] ≃(; s1 - (S (size _ x))) x).
-            
+
 
   Lemma M1_Realise : M1 ⊨ M1_Rel.
   Proof.
@@ -285,7 +285,7 @@ Section CaseList.
           - f_equal. now rewrite !map_map.
           - omega.
         }
-        intros tmid3 () H3'. 
+        intros tmid3 () H3'.
         rewrite !map_map, map_app, <- app_assoc in H3'.
         setoid_rewrite map_map in H3'.
         specialize H3' with (1 := eq_refl) (2 := isVoid_isVoid_size HRight). TMSimp.
@@ -314,7 +314,7 @@ Section CaseList.
          Return (Move L) true
        | _ => Return (Move L) false
        end).
-  
+
   Definition IsNil_Rel : pRel (sigList sigX)^+ bool 1 :=
     Mk_R_p (
         fun tin '(yout, tout) =>
@@ -324,7 +324,7 @@ Section CaseList.
             | true, nil => tout ≃(;s) xs
             | false, _ :: _ => tout ≃(;s) xs
             | _, _ => False
-            end). 
+            end).
 
   Definition IsNil_steps := 5.
 
@@ -348,7 +348,7 @@ Section CaseList.
 
 
   (** *** [nil] *)
-  
+
   Definition Constr_nil : pTM (sigList sigX)^+ unit 1 := WriteValue [sigList_nil].
 
   Goal Constr_nil = WriteMove (inl STOP) L;; WriteMove (inr sigList_nil) L;; Write (inl START).
@@ -369,16 +369,16 @@ Section CaseList.
     { intros tin ((), tout) H. cbn in *. intros s HRight.
       specialize H with (x := nil) (1 := eq_refl) (2 := HRight). modpon H. contains_ext. unfold WriteValue_size. omega. }
   Qed.
-  
+
 
   (** *** [cons] *)
-  
+
   Definition Constr_cons : pTM (sigList sigX)^+ unit 2 :=
     LiftTapes (MoveRight _;; Move L) [|Fin1|];;
     LiftTapes (CopySymbols_L stop) [|Fin1;Fin0|];;
     LiftTapes (WriteMove (inr sigList_cons) L;; Write (inl START)) [|Fin0|].
 
-  
+
   Definition Constr_cons_size {sigX X : Type} {cX : codable sigX X} (y : X) (s0 : nat) := s0 - size _ y - 1.
 
   Definition Constr_cons_Rel : pRel (sigList sigX)^+ unit 2 :=
@@ -391,7 +391,7 @@ Section CaseList.
             tout[@Fin1] ≃(;s1) y
       ).
 
-  
+
   Lemma Constr_cons_Realise : Constr_cons ⊨ Constr_cons_Rel.
   Proof.
     eapply Realise_monotone.
@@ -479,7 +479,7 @@ Section Steps_comp.
   Lemma CaseList_size0_comp x s0 :
     CaseList_size0 (Encode_map cX I) x s0 = CaseList_size0 cX x s0.
   Proof. unfold CaseList_size0. now rewrite Encode_map_hasSize. Qed.
-  
+
   Lemma CaseList_size1_comp x s1 :
     CaseList_size1 (Encode_map cX I) x s1 = CaseList_size1 cX x s1.
   Proof. unfold CaseList_size1. now rewrite Encode_map_hasSize. Qed.
@@ -487,7 +487,7 @@ Section Steps_comp.
   Lemma Constr_cons_steps_comp l :
     Constr_cons_steps (Encode_map cX I) l = Constr_cons_steps cX l.
   Proof. unfold Constr_cons_steps. now rewrite Encode_map_hasSize. Qed.
-  
+
 End Steps_comp.
 *)
 
@@ -502,7 +502,7 @@ Ltac smpl_TM_CaseList :=
   | [ |- IsNil _ ⊨ _ ] => eapply RealiseIn_Realise; apply IsNil_Sem
   | [ |- IsNil _ ⊨c(_) _ ] => apply IsNil_Sem
   | [ |- projT1 (IsNil _ ) ↓ _ ] => eapply RealiseIn_TerminatesIn; apply IsNil_Sem
-                                  
+
   | [ |- Constr_nil _ ⊨ _ ] => eapply RealiseIn_Realise; apply Constr_nil_Sem
   | [ |- Constr_nil _ ⊨c(_) _ ] => apply Constr_nil_Sem
   | [ |- projT1 (Constr_nil _) ↓ _ ] => eapply RealiseIn_TerminatesIn; apply Constr_nil_Sem

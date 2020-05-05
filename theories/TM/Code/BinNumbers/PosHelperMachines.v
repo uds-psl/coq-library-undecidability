@@ -309,4 +309,3 @@ Proof.
     + exists ls. f_equal. f_equal. f_equal. now setoid_rewrite Hstr'.
   }
 Qed.
-

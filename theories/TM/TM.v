@@ -11,9 +11,9 @@ Section Fix_Sigma.
   Variable sig : Type.
 
   (** ** Definition of the tape *)
-  
+
   (** A tape is essentially a triple 〈left,current,right〉 where, however, the current symbol could be missing. This may happen for three different reasons: both tapes are empty, we are on the left extremity of a non-empty tape (left overflow), or we are on the right extremity of a non-empty tape (right overflow). *)
-  
+
   (** Note that the alphabet has type [Type], not [finType]. *)
   Inductive tape : Type :=
   | niltape : tape
@@ -28,14 +28,14 @@ Section Fix_Sigma.
     | niltape => []
     | leftof s r => s :: r
     | rightof s l => List.rev (s :: l)
-    | midtape l c r => (List.rev l) ++ [c] ++ r 
+    | midtape l c r => (List.rev l) ++ [c] ++ r
     end.
 
   Definition sizeOfTape t := |tapeToList t|.
 
   Definition sizeOfmTapes n (v : tapes n) :=
     Vector.fold_left max 0 (Vector.map sizeOfTape v).
-  
+
   Definition current :=
     fun (t : tape) =>
       match t with
@@ -80,10 +80,10 @@ Section Fix_Sigma.
     right t = rs ->
     t = midtape ls s rs.
   Proof. destruct t; cbn; congruence. Qed.
-  
-  
+
+
   (** ** Definition of moves *)
-  
+
   Inductive move : Type := L : move | R : move | N : move.
 
   (** Declare discreteness of [move] *)
@@ -123,15 +123,15 @@ Section Fix_Sigma.
     | nil => leftof a rs
     | l::ls' => midtape ls' l (a::rs)
     end.
-  
+
   Definition tape_move_left :=
     fun (t : tape) =>
-      match t with 
-      | niltape => niltape 
+      match t with
+      | niltape => niltape
       | leftof _ _ => t
       | rightof a ls => midtape ls a [ ]
       | midtape ls a rs => tape_move_left' ls a rs
-      end. 
+      end.
 
 
   Definition tape_move (t : tape) (m : move) :=
@@ -178,7 +178,7 @@ Section Fix_Sigma.
 
   (** Writing on the tape *)
   Definition tape_write (t : tape) (s : option sig) :=
-    match s with 
+    match s with
     | None => t
     | Some s' => midtape (left t) s' (right t)
     end.
@@ -381,7 +381,7 @@ Section MirrorTape.
     eapply Vector.eq_nth_iff with (p1 := p2) in H; eauto.
     erewrite !Vector.nth_map in H; eauto. now apply mirror_tape_injective.
   Qed.
-  
+
   Definition mirror_move (D : move) : move := match D with | N => N | L => R | R => L end.
 
   Lemma mirror_move_involution (D : move) : mirror_move (mirror_move D) = D.
@@ -438,7 +438,7 @@ Section Tape_Local.
   Lemma tape_local_mirror' (t : tape sig) :
     tape_local (mirror_tape t) = tape_local_l t.
   Proof. destruct t; cbn; auto. Qed.
-    
+
   Lemma tape_local_current_cons (x : sig) (xs : list sig) (t : tape sig) :
     tape_local t = x :: xs -> current t = Some x.
   Proof. destruct t eqn:E; cbn; congruence. Qed.
@@ -471,7 +471,7 @@ Section Tape_Local.
     - destruct t; cbn in *; inv H; inv H0. eauto.
   Qed.
 
-  
+
   Lemma tape_local_nil (t : tape sig) :
     tape_local t = [] <-> current t = None.
   Proof.
@@ -491,7 +491,7 @@ Section Tape_Local.
     intro H. destruct t eqn:E; cbn in *; try congruence.
     inv H. destruct xs; cbn; auto.
   Qed.
-  
+
   Lemma tape_left_move_right (t : tape sig) (x : sig) :
     current t = Some x -> left (tape_move_right t) = x :: left t.
   Proof. intros H. destruct t; cbn in *; try congruence. inv H. destruct l0; cbn; reflexivity. Qed.
@@ -507,12 +507,12 @@ Section Tape_Local.
     - intros H1. destruct t; cbn in *; congruence.
     - intros H1. destruct t; cbn in *; inv H1. auto.
   Qed.
-  
+
   Lemma midtape_tape_local_cons_left t r1 r2 x :
     left t = r1 /\ tape_local t = x :: r2 <-> t = midtape r1 x r2.
   Proof. rewrite midtape_tape_local_cons. intuition subst; cbn; auto. Qed.
 
-  
+
   Lemma midtape_tape_local_l_cons t r1 x :
     tape_local_l t = x :: r1 <-> t = midtape r1 x (right t).
   Proof.
@@ -520,7 +520,7 @@ Section Tape_Local.
     - intros H1. destruct t; cbn in *; congruence.
     - intros H1. destruct t; cbn in *; inv H1. auto.
   Qed.
-  
+
   Lemma midtape_tape_local_l_cons_right t r1 r2 x :
     tape_local_l t = x :: r1 /\ right t = r2 <-> t = midtape r1 x r2.
   Proof. rewrite midtape_tape_local_l_cons. intuition subst; cbn; auto. Qed.
@@ -662,7 +662,7 @@ Section MatchTapes.
   Lemma tape_left_move_right' ls (x : sig) rs :
     left (tape_move_right' ls x rs) = x :: ls.
   Proof. destruct rs; cbn; reflexivity. Qed.
-  
+
   Lemma tape_right_move_left' ls (x : sig) rs :
     right (tape_move_left' ls x rs) = x :: rs.
   Proof. destruct ls; cbn; reflexivity. Qed.
@@ -715,7 +715,7 @@ Hint Rewrite mirror_tape_move_right' : tape.
 Section Semantics.
 
   Variable sig : finType.
-  
+
 
   Record mTM (n:nat) : Type :=
     {
@@ -727,10 +727,10 @@ Section Semantics.
 
   (** Labelled Multi-Tape Turing Machines *)
   Definition pTM (F: Type) (n:nat) := { M : mTM n & states M -> F }.
-  
+
 
   (** *** Configurations of TMs *)
-  
+
   Record mconfig (states:finType) (n:nat): Type :=
     mk_mconfig
       {
@@ -740,18 +740,18 @@ Section Semantics.
 
 
   (** *** Machine execution *)
-  
+
   Definition step {n} (M:mTM n) : mconfig (states M) n -> mconfig (states M) n :=
     fun c =>
-      let (news,actions) := trans (cstate c, current_chars  (ctapes c)) in 
+      let (news,actions) := trans (cstate c, current_chars  (ctapes c)) in
       mk_mconfig news (doAct_multi (ctapes c) actions).
 
   Definition haltConf {n} (M : mTM n) : mconfig (states M) n -> bool := fun c => halt (cstate c).
 
   (** Run the machine i steps until it halts *)
   Definition loopM n (M : mTM n) := loop (@step _ M) (@haltConf _ M).
-  
-  (** Initial configuration *)  
+
+  (** Initial configuration *)
   Definition initc n (M : mTM n) tapes :=
     mk_mconfig (n := n) (@start n M) tapes.
 
@@ -761,7 +761,7 @@ Section Semantics.
   Definition pRel (sig : Type) (F: Type) (n : nat) := Rel (tapes sig n) (F * tapes sig n).
 
   (** A (labelled) machine [M] realises a (labelled) relation [R], if: for every tape vectors [t], if [M] with [t] terminates in a configuration [c], then [R (t), (projT2 M (cstate c), ctapes c)]. That means that the pair of the input tape vectors, the labelof the state in that the machine terminated, and the output tape, must be in the relation [R]. *)
-  
+
   Definition Realise n F (pM : pTM n F) (R : pRel sig n F) :=
     forall t k outc, loopM (initc (projT1 pM) t) k = Some outc -> R t (projT2 pM (cstate outc), ctapes outc).
 
@@ -781,7 +781,7 @@ Section Semantics.
 
   Definition TerminatesIn {n : nat} (M : mTM n) (T : tRel sig n) :=
     forall tin k, T tin k -> exists conf, loopM (initc M tin) k = Some conf.
-  
+
 
   Arguments TerminatesIn { _ } _.
   Notation "M ↓ T" := (TerminatesIn M T) (no associativity, at level 60, format "M  '↓'  T").
@@ -799,7 +799,7 @@ Section Semantics.
     specialize HTerm with (1 := HT) as (oconf&HLoop).
     exists oconf. eapply loop_monotone; eauto.
   Qed.
-  
+
 
   (** Realisation plus termination in constant time *)
   Definition RealiseIn n (F : Type) (pM : pTM F n) (R : pRel sig F n) (k : nat) :=
@@ -829,7 +829,7 @@ Section Semantics.
     specialize (H1 input) as (outc &H1&H1'). specialize (H2 input) as (outc2&H2&H2').
     pose proof loop_injective H1 H2 as <-. exists outc. split; hnf; eauto.
   Qed.
-  
+
   Lemma Realise_total n (F : Type) (pM : { M : mTM n & states M -> F }) R k :
     pM ⊨ R /\ projT1 pM ↓ (fun _ i => k <= i) <-> pM ⊨c(k) R.
   Proof.
@@ -844,7 +844,7 @@ Section Semantics.
         unfold loopM in *.
         eapply loop_injective; eauto.
       + intros t i Hi.
-        edestruct (H t) as (? & ? & ?). 
+        edestruct (H t) as (? & ? & ?).
         exists x. eapply loop_monotone; eauto.
   Qed.
 
@@ -853,12 +853,12 @@ Section Semantics.
   Proof. now intros (?&?) % Realise_total. Qed.
 
   Lemma RealiseIn_TerminatesIn n (F : Type) (pM : { M : mTM n & states M -> F }) R k :
-    pM ⊨c(k) R -> projT1 pM ↓ (fun tin l => k <= l). 
+    pM ⊨c(k) R -> projT1 pM ↓ (fun tin l => k <= l).
   Proof.
     intros HRel. hnf. intros tin l HSteps. hnf in HRel. specialize (HRel tin) as (outc&HLoop&Rloop).
     exists outc. eapply loop_monotone; eauto.
   Qed.
-  
+
   Lemma Realise_strengthen n (F : Type) (pM : pTM F n) R1 R2 :
     Realise pM R2 -> Realise pM R1 -> Realise pM (R1 ∩ R2).
   Proof.

@@ -193,7 +193,7 @@ Section CaseOption.
     end.
 
   Definition CaseOption_steps := 7.
-  
+
   Lemma CaseOption_Sem :
     CaseOption ⊨c(CaseOption_steps) CaseOption_Rel.
   Proof.
@@ -210,7 +210,7 @@ Section CaseOption.
         (* This part is the same for both branches *)
         simpl_tape in H. cbn in *.
         specialize (H (opt_to_sum o) s). spec_assert H.
-        { 
+        {
           simpl_surject. contains_ext.
           destruct o; cbn; f_equal. rewrite !List.map_map. apply List.map_ext. cbv; auto.
         }
@@ -220,7 +220,7 @@ Section CaseOption.
       { (* "Else" case *)
         simpl_tape in H. cbn in *.
         specialize (H (opt_to_sum o) s). spec_assert H.
-        { 
+        {
           simpl_surject. contains_ext.
           destruct o; cbn; f_equal. rewrite !List.map_map. apply List.map_ext. cbv; auto.
         }
@@ -262,7 +262,7 @@ Section CaseOption.
     }
   Qed.
 
-  
+
   Definition Constr_None_Rel : Rel (tapes tau^+ 1) (unit * tapes tau^+ 1) :=
     Mk_R_p
       (ignoreParam
@@ -275,7 +275,7 @@ Section CaseOption.
 
   Goal Constr_None = WriteMove (inl STOP) L;; WriteMove (inr sigOption_None) L;; Write (inl START).
   Proof. reflexivity. Qed.
-    
+
   Definition Constr_None_steps := 5.
   Lemma Constr_None_Sem : Constr_None ⊨c(Constr_None_steps) Constr_None_Rel.
   Proof.

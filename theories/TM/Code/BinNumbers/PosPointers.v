@@ -133,4 +133,3 @@ Ltac atBit_ext :=
   | [ H : atLSB ?t ?p0 ?b0        |- atLSB ?t ?p1 ?b1        ] => apply (atLSB_ext H); auto
   | [ H : atHSB ?t ?p0            |- atHSB ?t ?p1            ] => apply (atHSB_ext H); auto
   end.
-

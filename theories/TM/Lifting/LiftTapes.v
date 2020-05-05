@@ -34,7 +34,7 @@ Section LiftTapes_Rel.
   Definition LiftTapes_Rel := LiftTapes_select_Rel ∩ LiftTapes_eq_Rel.
 
   Variable T : tRel sig m.
-  
+
   Definition LiftTapes_T : tRel sig n :=
     fun t k => T (select I t) k.
 
@@ -44,7 +44,7 @@ Arguments not_index : simpl never.
 Arguments LiftTapes_select_Rel {sig F m n} I R x y /.
 Arguments LiftTapes_eq_Rel {sig F m n} I x y /.
 Arguments LiftTapes_Rel {sig F m n } I R x y /.
-Arguments LiftTapes_T {sig m n} I T x y /.          
+Arguments LiftTapes_T {sig m n} I T x y /.
 
 
 Lemma vector_hd_nth (X : Type) (n : nat) (xs : Vector.t X (S n)) : Vector.hd xs = xs[@Fin0].
@@ -126,7 +126,7 @@ Section Fill.
   Variable X : Type.
 
   (** Replace the elements of [init] of which the index is in [I] with the element in [V] of that index. *)
-  Definition fill {m n : nat} (I : Vector.t (Fin.t n) m) (init : Vector.t X n) (V : Vector.t X m) : Vector.t X n := 
+  Definition fill {m n : nat} (I : Vector.t (Fin.t n) m) (init : Vector.t X n) (V : Vector.t X m) : Vector.t X n :=
     tabulate (fun i => match lookup_index_vector I i with
                     | Some j => V[@j]
                     | None => init[@i]
@@ -150,12 +150,12 @@ Section Fill.
     Proof. intros. cbn. reflexivity. Qed.
 
   End Test.
-  
+
 
   Variable m n : nat.
   Implicit Types (i : Fin.t n) (j : Fin.t m).
   Implicit Types (I : Vector.t (Fin.t n) m) (init : Vector.t X n) (V : Vector.t X m).
-  
+
   Lemma fill_correct_nth I init V i j :
     dupfree I ->
     I[@j] = i ->

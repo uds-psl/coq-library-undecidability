@@ -10,7 +10,7 @@ Local Arguments mult : simpl never.
 (** * Lookup an entry in an associative list *)
 
 Section LookupAssociativeList.
-  
+
   Variable (sigX sigY : finType).
   Variable (X : eqType) (Y : Type) (cX : codable sigX X) (cY : codable sigY Y).
 
@@ -56,7 +56,7 @@ Section LookupAssociativeList.
               (*3*) CasePair_size1 x' >> Reset_size x' |]
     | nil => [| ResetEmpty1_size; id; id; id|]
     end.
-  
+
 
   Definition Lookup_Step_Rel : pRel sig^+ (option bool) 4 :=
     fun tin '(yout, tout) =>
@@ -126,7 +126,7 @@ Section LookupAssociativeList.
 
   Definition Lookup_Step_steps {sigX sigY : Type} {X : eqType} {Y : Type} {cX : codable sigX X} {cY : codable sigY Y} (xs : list (X*Y)) (x : X) :=
     1 + CaseList_steps xs + Lookup_Step_steps_CaseList xs x.
-    
+
   Definition Lookup_Step_T : tRel sig^+ 4 :=
     fun tin k =>
       exists (xs : list (X*Y)) (x : X),
@@ -153,7 +153,7 @@ Section LookupAssociativeList.
     }
     {
       intros tin k (xs&x&HEncXs&HEncX&HRight2&HRight3&Hk). cbn. unfold Lookup_Step_steps in Hk.
-      exists (CaseList_steps xs), (Lookup_Step_steps_CaseList xs x). repeat split; try omega. eauto. 
+      exists (CaseList_steps xs), (Lookup_Step_steps_CaseList xs x). repeat split; try omega. eauto.
       intros tmid yout (HCaseList&HCaseListInj); TMSimp. modpon HCaseList. unfold Lookup_Step_steps_CaseList in *.
       destruct yout, xs as [ | p xs']; cbn in *; auto; modpon HCaseList.
       { (* cons case *) destruct p as [x' y]; cbn in *.
@@ -191,8 +191,8 @@ Section LookupAssociativeList.
       then Lookup_Step_size xs x
       else Lookup_Step_size xs x >>> Lookup_Loop_size xs' x
     end.
-  
-  
+
+
   Definition Lookup_Loop_Rel : pRel sig^+ bool 4 :=
     fun tin '(yout, tout) =>
       forall (xs : list (X*Y)) (x : X) (s0 s1 s2 s3 : nat),
@@ -230,7 +230,7 @@ Section LookupAssociativeList.
   Qed.
 
   Local Arguments Lookup_Loop_size : simpl never.
-  
+
 
   Fixpoint Lookup_Loop_steps {sigX sigY : Type} {X : eqType} {Y : Type} {cX : codable sigX X} {cY : codable sigY Y} (x : X) (xs : list (X*Y)) { struct xs } :=
     match xs with

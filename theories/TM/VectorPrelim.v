@@ -84,7 +84,7 @@ Lemma vector_nth_error_nat X n' i (xs : Vector.t X n') :
                                     end.
 Proof.
   clear. rewrite <- vector_to_list_correct. induction xs in i|-*. now destruct i.
-  cbn in *. destruct i;cbn. easy. rewrite IHxs. do 2 destruct lt_dec. 4:easy. now symmetry;erewrite Fin.of_nat_ext. all:exfalso;Lia.nia. 
+  cbn in *. destruct i;cbn. easy. rewrite IHxs. do 2 destruct lt_dec. 4:easy. now symmetry;erewrite Fin.of_nat_ext. all:exfalso;Lia.nia.
 Qed.
 
 
@@ -100,6 +100,6 @@ Qed.
 
 Lemma vector_app_to_list X k k' (xs : Vector.t X k) (ys : Vector.t X k'):
   vector_to_list (Vector.append xs ys) = vector_to_list xs ++ vector_to_list ys.
-Proof.   
+Proof.
   induction xs. easy. cbn. congruence.
 Qed.

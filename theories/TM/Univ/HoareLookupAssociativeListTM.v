@@ -11,7 +11,7 @@ Arguments mult : simpl never.
 
 
 Section LookupAssociativeList.
-  
+
   Variable (sigX sigY : finType).
   Variable (X : eqType) (Y : Type) (cX : codable sigX X) (cY : codable sigY Y).
 

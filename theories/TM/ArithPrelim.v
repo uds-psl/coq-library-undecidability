@@ -18,4 +18,3 @@ Proof. repeat intro. repeat eapply Nat.max_case_strong;omega. Qed.
 
 Instance S_le_mono : Proper (le ==> le) S.
 Proof. repeat intro. omega. Qed.
-

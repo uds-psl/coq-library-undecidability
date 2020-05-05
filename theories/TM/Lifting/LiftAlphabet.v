@@ -25,7 +25,7 @@ Section lift_sigma_tau.
 
   Definition surjectTapes : tapes tau n -> tapes sig n :=
     Vector.map (surjectTape g def).
-  
+
   Definition lift_sigma_tau_Rel (R : Rel (tapes sig n) (F * tapes sig n)) :
     Rel (tapes tau n) (F * tapes tau n) :=
     fun tin '(yout,tout) => R (surjectTapes tin) (yout, surjectTapes tout).
@@ -72,7 +72,7 @@ Section InjectSurject.
     - reflexivity.
     - retract_adjoint. f_equal. assumption.
   Qed.
-  
+
   Lemma surject_inject_tape (t : tape sig) :
     surjectTape Retr_g def (injectTape Retr_f t) = t.
   Proof.
@@ -85,12 +85,12 @@ Section InjectSurject.
     surjectTapes g def (injectTapes f t) = t.
   Proof.
     unfold surjectTapes, injectTapes, mapTapes.
-    apply Vector.eq_nth_iff. intros p ? <-. 
+    apply Vector.eq_nth_iff. intros p ? <-.
     erewrite !Vector.nth_map; eauto.
     apply surject_inject_tape.
   Qed.
 *)
-  
+
 End InjectSurject.
 
 Section TranslateAct.
@@ -125,7 +125,7 @@ Section LiftAlphabet.
   Definition LiftAlphabet :pTM tau F n :=
     (LiftAlphabet_TM; projT2 pMSig).
 
-  
+
   Definition surjectConf : (mconfig tau (states LiftAlphabet_TM) n) -> (mconfig sig (states (projT1 pMSig)) n) :=
     fun c => mk_mconfig (cstate c) (surjectTapes Retr_g def (ctapes c)).
 

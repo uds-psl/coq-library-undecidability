@@ -26,12 +26,12 @@ Arguments rimplication { X Y } ( R S ) x y /.
 Definition ignoreParam X Y Z (R : Rel X Z) : Rel X (Y * Z)  := fun x '(y,z) => R x z.
 Arguments ignoreParam {X Y Z} ( R ) x y /.
 
-Definition rUnion (X Y : Type) (F : Type) (R : F -> Rel X Y) : Rel X Y := 
+Definition rUnion (X Y : Type) (F : Type) (R : F -> Rel X Y) : Rel X Y :=
   fun x y => exists f, R f x y.
 Notation "'⋃_' f R" := (rUnion (fun f => R)) (at level 50, f at level 9, R at next level, format "'⋃_' f  R"). (* Todo: This does not work if f is higher than 9. Why? *)
 Arguments rUnion { X Y F } ( R ) x y /.
 
-Definition rIntersection (X Y : Type) (F : Type) (R : F -> Rel X Y) : Rel X Y := 
+Definition rIntersection (X Y : Type) (F : Type) (R : F -> Rel X Y) : Rel X Y :=
   fun x y => forall f, R f x y.
 Notation "'⋂_' f R" := (rIntersection (fun f => R)) (at level 50, f at level 9, R at next level, format "'⋂_' f  R"). (* Todo: This does not work if f is higher than 9. Why? *)
 Arguments rIntersection { X Y F } ( R ) x y /.

@@ -207,7 +207,7 @@ Proof.
     intros _ tout. replace (m'' * n + (n + c)) with (S m'' * n + c) by (ring_simplify; omega). auto.
 Qed.
 
-  
+
 Definition Mult : pTM sigNat^+ unit 6 :=
   LiftTapes (CopyValue _) [|Fin0; Fin5|];; (* m' := m *)
   LiftTapes (Constr_O) [|Fin2|];; (* c := 0 *)
@@ -235,7 +235,7 @@ Lemma Mult_SpecT_space (m n : nat) (ss : Vector.t nat 6) :
                             (appSize (Mult_size m n) ss))).
 Proof.
   unfold Mult.
-  hstep. hstep. cbn. 
+  hstep. hstep. cbn.
   apply CopyValue_SpecT_size.
   cbn. intros _. hsteps.
   cbn. intros _. hstep. cbn. hstep. cbn. apply Mult_Loop_SpecT_size.

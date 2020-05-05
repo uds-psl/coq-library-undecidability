@@ -288,5 +288,3 @@ Proof.
 Qed.
 
 (* Print Assumptions Mult_Realise. *)
-
-

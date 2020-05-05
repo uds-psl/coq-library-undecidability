@@ -299,7 +299,7 @@ Section Nth'_nice.
       2: omega.
       2: { apply dominatedWith_solve. rewrite !Encode_list_hasSize. rewrite Encode_nat_hasSize.
            pose proof (Encode_list_hasSize_ge1 _ xs). omega. }
-      pose proof (Encode_list_hasSize_ge1 _ xs). rewrite Encode_list_hasSize. omega. 
+      pose proof (Encode_list_hasSize_ge1 _ xs). rewrite Encode_list_hasSize. omega.
   Qed.
 
 End Nth'_nice.
@@ -475,4 +475,3 @@ Section CompareValues_nice.
   Proof. eexists. intros. unfold CompareValues_steps. domWith_approx. Qed.
 
 End CompareValues_nice.
-

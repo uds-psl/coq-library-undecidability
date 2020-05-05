@@ -98,7 +98,7 @@ Proof.
   - destruct l; cbn; auto. rewrite !app_length. f_equal. rewrite !map_length. cbn. rewrite !app_length. cbn. omega.
   - destruct l0; cbn; auto. rewrite !app_length. f_equal. rewrite !app_length. cbn. rewrite !map_length. cbn. rewrite !app_length. cbn. omega.
 Qed.
-  
+
 
 
 
@@ -166,7 +166,7 @@ Proof.
   - omega.
   - destruct n; cbn; f_equal; auto.
 Qed.
-  
+
 
 (* Compute split_vector [| 1; 2; 3; 4 |] 1. *)
 (* Compute let (x,y) := split_vector [| 1; 2; 3; 4 |] 1 in Vector.append x y. *)

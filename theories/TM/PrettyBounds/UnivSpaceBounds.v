@@ -22,7 +22,7 @@ Qed.
 (* [flip] doesn't work here. We could flip it in the definition of [max_list_rec], but this would look a bit weird. *)
 Instance max_list_rec_proper (xs : list nat) : Proper (le ==> le) (Basics.flip max_list_rec xs).
 Proof. hnf. intros. cbv [Basics.flip]. now apply max_list_rec_monotone. Qed.
-  
+
 
 
 
@@ -184,9 +184,9 @@ Section Univ_nice.
 
   Local Arguments IsFinal_size_nice : simpl never.
 
-  
+
   (** Lemmas about [graph_of_fun] and [graph_of_TM] in particular *)
-  
+
   Lemma graph_of_TM_In (Q Q' : states M) (s s' : option sigM) (q q' : nat) (b b' : bool) (m : move) (tp : tape sigM) :
     In (s, (b, q), (s', m, (b', q'))) (graph_of_TM M) ->
     index Q = q ->
@@ -235,7 +235,7 @@ Section Univ_nice.
     cbn. split. now constructor. apply start.
   Qed.
 
-  
+
   (** We should have enough lemmas about [graph_of_TM] now *)
   Local Arguments graph_of_TM : simpl never.
 
@@ -266,13 +266,13 @@ Section Univ_nice.
   Local Lemma Encode_graph_y_hasSize (act : option sigM * move) (q' : states M) (halt' : bool) :
     size (act, (halt', index q')) = index q' + 3.
   Proof. do 2 (rewrite Encode_pair_hasSize; cbn). rewrite Encode_bool_hasSize. rewrite Encode_nat_hasSize. setoid_rewrite Encode_Finite_hasSize. nia. Qed.
-    
+
 
   Lemma size_char_eq (c1 c2 : option sigM) :
     size c1 = size c2. (* = 1 *)
   Proof. now setoid_rewrite Encode_Finite_hasSize. Qed.
 
-  
+
   (** First the aux tape (s3) for [IsFinal], then for [ReadCurrent]: [ReadCurrent] doesn't require more space than [IsFinal] (at most 2). *)
   Lemma IsFinal_Readcurrent_size_nice (s : nat) (c : option sigM) :
     (IsFinal_size >> ReadCurrent_size) s + size c + 1 = max s 2.
@@ -287,7 +287,7 @@ Section Univ_nice.
     max (max_list_rec (Init.Nat.max s3 2)
                       (map (fun p : option sigM * (bool * nat) * (option sigM * move * (bool * nat)) => size p + 1) (lookup_hd (current tp, (false, index q)) (graph_of_TM M))))
         (size act + 1).
-  
+
   Definition Univ_Step_size_bound4 (tp : tape sigM) (q : states M) (s4 : nat) :=
     max_list_rec s4 (map (fun p : option sigM * (bool * nat) * (option sigM * move * (bool * nat)) => size (fst p) + 1) (lookup_hd (current tp, (false, index q)) (graph_of_TM M))).
 
@@ -432,10 +432,10 @@ Section Univ_nice.
   (** The series looks like max (s2 + index q0 + 2) (max* [index q0, index q1, ..., index qk] + 3).  *)
 
   (*
-Fixpoint Univ_size_bound2_fix 
+Fixpoint Univ_size_bound2_fix
 *)
 
-  
+
   (** Why not write a function [execution] that yields a list of configurations? We can then simply apply [max_list_rec] on this list to get the exact bound *)
   Fixpoint execution (q : states M) (tp : tape sigM) (k : nat) : list (states M * tape sigM) :=
     match k with
@@ -470,7 +470,7 @@ Fixpoint Univ_size_bound2_fix
   Definition Univ_size_bound3 (s3 : nat) :=
     max_list_rec (max s3 2) (map (fun p : option sigM * (bool * nat) * (option sigM * move * (bool * nat)) => size p + 1) (graph_of_TM M)).
 
-  
+
   Lemma graph_of_TM_In'' (s s' : option sigM) (b b' : bool) (qi qi' : nat) (q q' : states M) (m : move) :
     trans (q, [|s|]) = (q', [|(s', m)|]) ->
     qi = index q ->
@@ -502,7 +502,7 @@ Fixpoint Univ_size_bound2_fix
     - destruct_vector. eapply graph_of_TM_In''; eauto.
   Qed.
 
-  
+
   (* This can be greatly simplified... *)
   Local Lemma helper_lemma_without_name3' (act : option sigM * move) (s3 : nat) :
     Init.Nat.max (Init.Nat.max (Init.Nat.max s3 2) (size act + 1)) 2 <=
@@ -648,7 +648,7 @@ Fixpoint Univ_size_bound2_fix
     - repeat (setoid_rewrite Encode_pair_hasSize; cbn).
       setoid_rewrite Encode_Finite_hasSize. nia.
   Qed.
-  
+
   Lemma Univ_size_nice (k : nat) (tp : tape sigM) (q : states M) (tp_final : tape sigM) (q_final : states M) :
     let space := Univ_size tp q k in
     loopM (mk_mconfig q [|tp|]) k = Some (mk_mconfig q_final [|tp_final|]) ->

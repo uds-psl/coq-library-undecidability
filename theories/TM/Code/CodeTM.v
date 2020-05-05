@@ -25,7 +25,7 @@ Section IsRight.
     isVoid_size t s1 -> s1 <= s2 -> isVoid_size t s2.
   Proof. intros (x&rs&->&Hr) Hs. exists x, rs. split. eauto. omega. Qed.
 
-  
+
   Lemma mapTape_isVoid_size (sig tau : Type) (t : tape sig) (s : nat) (f : sig -> tau) :
     isVoid_size (mapTape f t) s <-> isVoid_size t s.
   Proof.
@@ -196,7 +196,7 @@ Section Fix_Sig.
 
     Implicit Type x : X.
     Implicit Type y : Y.
-    
+
     Lemma tape_contains_size_ext (t : tape (sig^+)) x y s1 s2 :
       t ≃(I1;s1) x ->
       Encode_map _ _ x = Encode_map _ _ y ->

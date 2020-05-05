@@ -283,5 +283,3 @@ Proof.
     - TMSimp. modpon H0. repeat split; eauto. unfold Pos.max. rewrite <- H2. auto.
   }
 Qed.
-
-

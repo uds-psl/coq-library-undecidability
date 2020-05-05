@@ -117,7 +117,7 @@ Ltac TMSimp_goal :=
   repeat multimatch goal with
          | [ H : ?X = _ |- _ ] => rewrite H
          end.
-  
+
 
 
 

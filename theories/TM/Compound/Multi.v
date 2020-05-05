@@ -85,7 +85,7 @@ Section MovePar.
     { reflexivity. }
     { hnf in *. intros tin (yout&tout) H. now TMSimp. }
   Qed.
-  
+
 End MovePar.
 
 Arguments MovePar_R { sig } ( D1 D2 ) x y /.

@@ -50,7 +50,7 @@ Section Write_String.
 
   Definition WriteString_steps l :=
     2 * l - 1.
-    
+
   Lemma WriteString_fix_Sem (str : list sig) :
     WriteString str ⊨c(WriteString_steps (length str)) (WriteString_sem_fix str).
   Proof.
@@ -66,7 +66,7 @@ Section Write_String.
         exists t2. split; auto.
       }
   Qed.
-  
+
 
   Definition WriteString_Rel str : Rel (tapes sig 1) (unit * tapes sig 1) :=
     Mono.Mk_R_p (ignoreParam (fun tin tout => tout = WriteString_Fun tin str)).

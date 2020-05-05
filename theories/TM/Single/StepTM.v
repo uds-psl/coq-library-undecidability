@@ -112,7 +112,7 @@ Section Fin.
     intros H. pose proof fin_destruct_S i as [ (i'&->) | ->]; cbn in *; auto.
     rewrite fin_to_nat_S in H. inv H. now apply fin_is_0 in H1 as ->.
   Qed.
-      
+
 
   Fixpoint finMax (n : nat) {struct n} : n <> 0 -> Fin.t n.
   Proof.
@@ -429,7 +429,7 @@ Section BookKeepingForRead.
       | None => insertKnownSymbol readSymbols i s
       end
     end.
-  
+
 
   Lemma insertKnownSymbol_correct (n : nat) (readSymbols : Vector.t (option sig) n) (i : Fin.t n) tps tp :
     length tps = fin_to_nat i ->
@@ -442,7 +442,7 @@ Section BookKeepingForRead.
       + rewrite fin_to_nat_S in *. destruct tps; cbn in *; inv H. destruct H0 as [H0 H0']. split; auto.
       + destruct tps; cbn in *; inv H. split; auto. apply knowsFirstSymbols_nil.
   Qed.
-        
+
   Lemma insertKnownSymbols_correct (n : nat) (readSymbols : Vector.t (option sig) n) (i : Fin.t n) tps1 tps2 :
     length tps1 = fin_to_nat i ->
     length tps1 + length tps2 = n ->
@@ -497,7 +497,7 @@ Section BookKeepingForRead.
     fin_to_nat min = 0 ->
     fin_to_nat minSucc = 1 ->
     insertKnownSymbols (insertKnownSymbol (Vector.const None (S n)) min (current (Vector.hd T))) minSucc
-                       (map (@current _) (vector_to_list (Vector.tl T))) = 
+                       (map (@current _) (vector_to_list (Vector.tl T))) =
     current_chars T.
   Proof.
     intros HMin_val HMinSucc_val.
@@ -512,18 +512,18 @@ Section BookKeepingForRead.
       + assert (minSucc = Fin.FS Fin.F1) as -> by now apply fin_is_1.
         destruct_tapes. cbn. auto.
   Qed.
-      
-    
+
+
   (*
   E_val : fin_to_nat min = 0
   E2_val : fin_to_nat minSucc = 1
   minSucc : Fin.t (S n')
   ============================
   insertKnownSymbols (insertKnownSymbol (Vector.const None (S n')) min (current (Vector.hd T))) minSucc
-    (map (current (sig:=eqType_X (type sig))) (vector_to_list (Vector.tl T))) = 
+    (map (current (sig:=eqType_X (type sig))) (vector_to_list (Vector.tl T))) =
   current_chars T
   *)
-  
+
 End BookKeepingForRead.
 
 
@@ -684,7 +684,7 @@ Section ToSingleTape.
         - (* tp = niltape *)
           do 2 ( rewrite MoveToSymbol_Fun_equation in *; cbn in * ). TMSimp.
           split; eauto. hnf. reflexivity.
-        - (* tp = leftof r rs *) 
+        - (* tp = leftof r rs *)
           do 2 ( rewrite MoveToSymbol_Fun_equation in *; cbn in * ). TMSimp.
           split; auto. hnf. cbn. f_equal. rewrite !List.map_map, !map_app, <- !app_assoc, !List.map_map. cbn. reflexivity.
         - (* tp = rightof l ls *)
@@ -992,7 +992,7 @@ Section ToSingleTape.
         all: (split; hnf; auto).
       }
     Qed.
-        
+
 
     Definition ReadCurrentSymbols_Step_Rel (st : Vector.t (option sig) n * Fin.t n) :
       pRel sigSim (Vector.t (option sig) n * Fin.t n + Vector.t (option sig) n) 1 :=
@@ -1034,7 +1034,7 @@ Section ToSingleTape.
                                 inl (insertKnownSymbol readSymbols i c, i')
                               end)))
            (Return Nop (inr readSymbols)).
-      
+
     Lemma ReadCurrentSymbols_Step_Realise : forall st, ReadCurrentSymbols_Step st ⊨ ReadCurrentSymbols_Step_Rel st.
     Proof.
       intros (readSymbols,i). eapply Realise_monotone.
@@ -1118,7 +1118,7 @@ Section ToSingleTape.
         }
       }
     Qed.
-          
+
 
 
     Definition ReadCurrentSymbols_Loop := StateWhile ReadCurrentSymbols_Step.
@@ -1173,7 +1173,7 @@ Section ToSingleTape.
             - destruct HStar_cons as [HStar1 HStar2].
               destruct (finSucc_opt i) as [i' | ] eqn:E; auto. inv HStar2.
               specialize HLastStep_cons with (3 := HStar1).
-              apply Nat.eqb_eq in HL1. apply Nat.eqb_eq in HL2. 
+              apply Nat.eqb_eq in HL1. apply Nat.eqb_eq in HL2.
               spec_assert HLastStep_cons.
               { simpl_list; cbn. apply Nat.eqb_eq. apply finSucc_opt_Some' in E. omega. }
               spec_assert HLastStep_cons.
@@ -1250,7 +1250,7 @@ Section ToSingleTape.
       | Some min =>
         Move R;; ReadCurrentSymbols_Loop (Vector.const None n, min)
       end.
-    
+
     Definition ReadCurrentSymbols_Rel : pRel sigSim (Vector.t (option sig) n) 1 :=
       fun tin '(yout, tout) =>
         forall T,
@@ -1282,7 +1282,7 @@ Section ToSingleTape.
           { rewrite vector_to_list_length. apply Nat.eqb_eq. reflexivity. } spec_assert HLoop_cons.
           { hnf. cbn. clear_all. destruct_tapes. cbn. f_equal. simpl_list. now rewrite vector_cast_refl. }
           spec_assert HLoop_cons as [HLoop_cons1 ->] by (cbn; tauto).
-          rewrite vector_to_list_eta in HLoop_cons1. subst T'. rewrite vector_cast_refl in *. split; auto. 
+          rewrite vector_to_list_eta in HLoop_cons1. subst T'. rewrite vector_cast_refl in *. split; auto.
           destruct (finSucc_opt min) as [minSucc | ] eqn:E2.
           - pose proof finSucc_opt_Some' E2 as E2_val. rewrite E_val in E2_val.
             now apply insertKnownSymbols_correct_cons.
@@ -1331,7 +1331,7 @@ Section ToSingleTape.
         }
       }
     Qed.
-      
+
   End ReadCurrentSymbols.
 
 
@@ -1402,7 +1402,7 @@ Section ToSingleTape.
 
     Definition MoveToStart_steps (tps : list (tape sig)) :=
       8 + 4 * length (encode_list _ tps).
-    
+
     Definition MoveToStart_T : tRel sigSim 1 :=
       fun tin k => exists tps, atNil tin[@Fin0] tps /\ MoveToStart_steps tps <= k.
 
@@ -1659,7 +1659,7 @@ Section ToSingleTape.
       | None => Nop
       end.
 
-    
+
     Definition DoMove_steps := 9.
 
     Lemma DoMove_Sem (d : option move) (m : move) : DoMove d m ⊨c(DoMove_steps) DoMove_Rel d m.
@@ -1787,7 +1787,7 @@ Section ToSingleTape.
         { intros tin k. intros (tps1&tps2&tp&HDir&HCons&Hk). cbn in *. assumption. }
       }
     Qed.
-      
+
 
 
     Definition DoActions_Step_Rel (i : Fin.t n) : pRel sigSim (Fin.t n + unit) 1 :=
@@ -1869,7 +1869,7 @@ Section ToSingleTape.
       3 + IsCons_steps + GoToCurrent_steps tp + DoAction_steps (tape_dir tp) (acts[@i]) tps1 tps2 + GoToNext_steps (doAct tp acts[@i]).
 
     Definition DoActions_Step_steps_nil := 1 + IsCons_steps.
-      
+
     Definition DoActions_Step_T (i : Fin.t n) : tRel sigSim 1 :=
       fun tin k =>
         (exists tps1 tps2 tp,
@@ -2033,7 +2033,7 @@ Section ToSingleTape.
       }
     Qed.
 
-    
+
 
     Definition DoActions_Rel : pRel sigSim unit 1 :=
       ignoreParam
@@ -2094,7 +2094,7 @@ Section ToSingleTape.
         | tp :: tps => 2 + DoActions_Loop_steps_cons i [] tps tp
         end
       end.
-    
+
     Definition DoActions_T : tRel sigSim 1 :=
       fun tin k => exists tps, (length tps =? n) = true /\ atStart tin[@Fin0] tps /\ DoActions_steps tps <= k.
 
@@ -2271,7 +2271,7 @@ Section ToSingleTape.
              1 + Step_steps q T + Loop_steps q' (doAct_multi T acts) k'
            end.
     Proof. destruct k; auto. Qed.
-      
+
 
     Definition Loop_T q : tRel sigSim 1 :=
       fun tin k =>
@@ -2305,7 +2305,7 @@ Section ToSingleTape.
       }
     Qed.
 
-    
+
     Definition ToSingleTape := Loop (start (projT1 pM)).
 
     Definition ToSingleTape_Rel := Loop_Rel (start (projT1 pM)).
@@ -2325,7 +2325,7 @@ Section ToSingleTape.
       fun tin '(yout, tout) =>
         forall T, tin[@Fin0] ≃ T ->
              exists T', M_R T (yout, T') /\ tout[@Fin0] ≃ T'.
-      
+
     Corollary ToSingleTape_Realise' :
       pM ⊨ M_R ->
       ToSingleTape ⊨ ToSingleTape_Rel'.

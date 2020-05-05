@@ -309,7 +309,7 @@ Section Lifting.
     match P, Q with
     | SpecVector p, SpecVector q => SpecVector (fill I p q)
     | _, _ => SpecFalse
-    end. 
+    end.
 
 End Lifting.
 
@@ -464,7 +464,7 @@ Lemma tspec_Frame_withSpace'
   t ≃≃ withSpace (Frame P I P') (fill I ss ss').
 Proof. intros H1 H2. erewrite <- Frame_withSpace; eauto. Qed.
 
-Lemma Triple_Frame_withSpace 
+Lemma Triple_Frame_withSpace
       (m n : nat) (sig : finType) (P : Spec sig n) (P' : Spec sig m)(I : Vector.t (Fin.t n) m) (ss : Vector.t nat n) (ss' : Vector.t nat m)
       (F : Type) (M : pTM sig^+ F n) (Q : F -> Assert sig^+ n) :
   dupfree I ->
@@ -472,7 +472,7 @@ Lemma Triple_Frame_withSpace
   Triple (tspec (Frame (withSpace P ss) I (withSpace P' ss'))) M Q.
 Proof. intros H1 H2. erewrite Frame_withSpace; eauto. Qed.
 
-Lemma TripleT_Frame_withSpace 
+Lemma TripleT_Frame_withSpace
       (m n : nat) (sig : finType) (P : Spec sig n) (P' : Spec sig m)(I : Vector.t (Fin.t n) m) (ss : Vector.t nat n) (ss' : Vector.t nat m)
       (F : Type) (k : nat) (M : pTM sig^+ F n) (Q : F -> Assert sig^+ n) :
   dupfree I ->
@@ -520,7 +520,7 @@ Lemma LiftTapes_Spec_space_con (sig : finType) (F : finType) (m n : nat) (I : Ve
   (forall yout tout, tspec (withSpace (Frame P I (Q yout)) (fill I ss ss')) tout -> tspec (withSpace (R yout) ss'') tout) ->
   Triple (tspec (withSpace P ss)) (pM@I) (fun y => tspec (withSpace (R y) ss'')).
 Proof.
-  intros H1 H2 H3. rewrite <- Downlift_withSpace in H2. 
+  intros H1 H2 H3. rewrite <- Downlift_withSpace in H2.
   eapply Consequence.
   - apply LiftTapes_Spec; eauto. apply H2.
   - eauto.
@@ -535,7 +535,7 @@ Lemma LiftTapes_SpecT_space_con (sig : finType) (F : finType) (m n : nat) (I : V
   (forall yout tout, tspec (withSpace (Frame P I (Q yout)) (fill I ss ss')) tout -> tspec (withSpace (R yout) ss'') tout) ->
   TripleT (tspec (withSpace P ss)) k (pM@I) (fun y => tspec (withSpace (R y) ss'')).
 Proof.
-  intros H1 H2 H3. rewrite <- Downlift_withSpace in H2. 
+  intros H1 H2 H3. rewrite <- Downlift_withSpace in H2.
   eapply ConsequenceT.
   - apply LiftTapes_SpecT; eauto. apply H2.
   - eauto.
@@ -603,7 +603,7 @@ Section AlphabetLifting.
     simpl_tape in *. now apply LiftSpec_surjectTape_tspec_single'.
   Qed.
 
-  
+
 End AlphabetLifting.
 
 
@@ -649,7 +649,7 @@ Section AlphabetLifting'.
 
   Variable (sig tau : finType) (n : nat).
   Variable (retr : Retract sig tau).
-  
+
 
   Lemma ChangeAlphabet_Spec(F : finType) (P : Spec sig n) (pM : pTM sig^+ F n) (Q : F -> Spec sig n) :
     Triple (tspec P) pM (fun yout => tspec (Q yout)) ->
@@ -713,7 +713,7 @@ Section AlphabetLifting'.
     - reflexivity.
   Qed.
 
-  
+
   Lemma ChangeAlphabet_Spec_pre (F : finType)
         (P : Spec sig n) (P' : Spec tau n)
         (pM : pTM sig^+ F n)
@@ -784,7 +784,7 @@ Section AlphabetLifting'.
     - reflexivity.
   Qed.
 
-  
+
 
   Lemma ChangeAlphabet_Spec_space_pre (F : finType)
         (P : Spec sig n) (P' : Spec tau n)
@@ -818,7 +818,7 @@ Section AlphabetLifting'.
     - cbn. intros. rewrite LiftSpec_withSpace in H. now apply H.
     - reflexivity.
   Qed.
-  
+
 End AlphabetLifting'.
 
 
@@ -844,5 +844,3 @@ Qed.
 
 (** We always want to keep [withSpace] right after [tspec] in the assertions. *)
 Global Arguments withSpace : simpl never.
-
-

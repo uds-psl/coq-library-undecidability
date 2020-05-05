@@ -1,5 +1,3 @@
-
-            
 From Undecidability Require Import MaxList.
 From Undecidability Require Import TM.TM TM.Code.CodeTM.
 

@@ -139,7 +139,7 @@ Ltac destruct_shelve e :=
 Ltac smpl_match_case_solve_RealiseIn :=
   eapply RealiseIn_monotone'; [ | shelve].
 
-(** This disables the automatic exploration of all possible branvhes in a switch machine. 
+(** This disables the automatic exploration of all possible branvhes in a switch machine.
 It is useful if some branches do perform the same work to nos split the proof unless required.
 See [CaseBool] for an example. Usage with the tactical [destructBoth] allows to refine the relation when performing caseSplits *)
 Definition TM_Correct_noSwitchAuto := unit.

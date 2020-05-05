@@ -54,7 +54,7 @@ Global Arguments Encode_list_size {sigX X cX}.
 Global Arguments size : simpl never.
 
 
-(** Do something with the [k]th element in a chain of conjunctions *) 
+(** Do something with the [k]th element in a chain of conjunctions *)
 Ltac projk_fix C H k :=
   lazymatch k with
   | 0 => C (proj1 H) + C H
@@ -110,7 +110,7 @@ Module ApproachThatProbablyDoesntWork.
 
     Lemma CaseList_size0_Reset_eq : forall (x : X) (xs : list X) (s : nat), (CaseList_size0 x >> Reset_size xs) s = 1 + s + size (x::xs).
     Proof. intros. rewrite Encode_list_hasSize. cbn. unfold Reset_size, CaseList_size0. ring_simplify. rewrite <- Encode_list_hasSize. nia. Qed.
-    
+
     Lemma CaseList_size1_Reset_eq : forall (x : X) (s : nat), (CaseList_size1 x >> Reset_size x) s = Init.Nat.max s (1 + size x). (* [S (size x + (s - S (size x)))] *)
     Proof. intros. cbn. unfold Reset_size, CaseList_size1. nia. Qed.
     (* I think the above lemma is the only simplification we can do for [Length_Step_size] *)
@@ -139,7 +139,7 @@ Module ApproachThatProbablyDoesntWork.
       - rewrite IH. setoid_rewrite sum_list_rec_S at 2. replace (S (size x)) with (size x + 1) by omega. rewrite sum_list_rec_plus. omega.
     Qed.
 
-    
+
     Print Length_size.
 
     (** We shouldn't touch this any more *)
@@ -165,7 +165,7 @@ Module ApproachThatProbablyDoesntWork.
       - nia.
       - rewrite IH. nia.
     Qed.
-      
+
 
     Lemma Length_size_nice (xs : list X) :
       (forall s0 : nat, (Length_size xs)@>Fin0 s0 = s0) /\
@@ -182,7 +182,7 @@ Module ApproachThatProbablyDoesntWork.
   End Length_size_nice.
 
   Local Arguments skipn : simpl never.
-    
+
 
   (** [Nth'] *)
   Section Nth'_size_nice.
@@ -220,7 +220,7 @@ Module ApproachThatProbablyDoesntWork.
   Lemma CasePair_size0_Reset_eq (sigX sigY X Y : Type) (cX : codable sigX X) (cY : codable sigY Y) :
     forall (x : X) (y : Y) (s : nat), (CasePair_size0 x >> Reset_size y) s = 1 + s + size (x,y).
   Proof. intros. cbn. unfold Reset_size, CasePair_size0. rewrite Encode_pair_hasSize; cbn. nia. Qed.
-  
+
   Lemma CasePair_size1_Reset_eq (sigX sigY X Y : Type) (cX : codable sigX X) (cY : codable sigY Y) :
     forall (x : X) (y : Y) (s : nat), (CasePair_size1 x >> Reset_size y) s = S (size y + (s - size x)). (* TODO: is there a term with [max] for this? *)
   Proof. intros. cbn. unfold Reset_size, CasePair_size1. nia. Qed.
@@ -293,7 +293,7 @@ Proof.
     + subst k. rewrite !Encode_nat_hasSize. ring_simplify. nia.
     + rewrite Encode_nat_hasSize. nia.
 Qed.
-  
+
 Lemma CaseNat_size_nice :
   forall (n : nat) (rest : nat),
     let k := rest + size n in

@@ -260,14 +260,14 @@ Section Univ.
       + cbn. intros ? ? ? _ _. destruct yout; auto.
   Qed.
 
-  
+
   (** Version without space (actually needed later) *)
   Lemma Univ_Step_SpecT (M : mTM sigM 1) (tp : tape sigM) (q : states M) :
     TripleT
       (tspec (SpecVector [|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]))
       (Univ_Step_steps q tp) (Univ_Step _ _)
       (fun yout =>
-         tspec 
+         tspec
            match yout, halt q with
            | Some tt, true  => SpecVector [|ContainsWorkingTape tp;  ContainsTrans M; ContainsState q;  Void; Void; Void|]
            | None,    false =>

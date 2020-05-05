@@ -118,8 +118,8 @@ Section CopySymbols.
     t[@Fin0] = t1 /\
     t[@Fin1] = t2.
   Proof. destruct_tapes; now intros (-> & (-> & _) % Vector.cons_inj) % Vector.cons_inj. Qed.
-  
-    
+
+
   Lemma CopySymbols_Realise :
     CopySymbols ⊨ CopySymbols_Rel.
   Proof.

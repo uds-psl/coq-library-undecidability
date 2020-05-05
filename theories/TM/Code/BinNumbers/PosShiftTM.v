@@ -423,4 +423,3 @@ Proof.
     - modpon H4. TMSimp. repeat split; auto. now apply atHSB_moveLeft_contains.
   }
 Qed.
-

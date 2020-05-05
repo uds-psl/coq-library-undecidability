@@ -705,7 +705,7 @@ Definition Mult_Main_steps m n := 44 + 12 * m + Mult_Loop_steps m n 0.
 
 
 Definition Mult_Main_T : tRel sigNat^+ 6 := fun tin k => exists m n, tin[@Fin0] ≃ m /\ tin[@Fin1] ≃ n /\ isVoid tin[@Fin2] /\ (forall i : Fin.t 3, isVoid tin[@FinR 3 i]) /\ Mult_Main_steps m n <= k.
-  
+
 Lemma Mult_Main_Terminates : projT1 Mult_Main ↓ Mult_Main_T.
 Proof.
   eapply TerminatesIn_monotone.
@@ -731,7 +731,7 @@ Qed.
 Definition Mult_steps m n := 13 + Mult_Main_steps m n.
 
 Definition Mult_T : tRel sigNat^+ 6 := fun tin k => exists m n, tin[@Fin0] ≃ m /\ tin[@Fin1] ≃ n /\ isVoid tin[@Fin2] /\ (forall i : Fin.t 3, isVoid tin[@FinR 3 i]) /\ Mult_steps m n <= k.
-  
+
 Lemma Mult_Terminates : projT1 Mult ↓ Mult_T.
 Proof.
   eapply TerminatesIn_monotone.

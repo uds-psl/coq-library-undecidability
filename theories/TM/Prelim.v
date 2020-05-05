@@ -113,7 +113,7 @@ Section LoopLift.
       + rewrite step_lift_comp in H by assumption.
         specialize IHk' with (1 := H) as (x&IH&->). now exists x.
   Qed.
-    
+
 End LoopLift.
 
 
@@ -158,7 +158,7 @@ Section LoopMerge.
         apply IH in HLoop as (k1&c2&k2&IH1&IH2&IH3); [ | omega].
         exists (S k1), c2, k2. cbn. rewrite E. repeat split; auto. omega.
   Qed.
-  
+
 End LoopMerge.
 
 

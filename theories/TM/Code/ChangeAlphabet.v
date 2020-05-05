@@ -145,7 +145,7 @@ Section MapCode.
   Proof.
     intros. eapply tape_contains_size_contains. apply contains_size_translate_tau1. contains_ext.
   Qed.
-    
+
 
   Lemma surject_inject_inr (x : boundary) (str : list (boundary+tau)) (code : list sig) :
     surjectSymbols (inl x) Retract_plus str = map inr code ->

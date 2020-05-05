@@ -13,7 +13,7 @@ Section CompilerOutline.
   Hypothesis pM : pTM sig F n.
 
   Hypothesis (defF : inhabitedC F).
-  
+
   Hypothesis Step : states (projT1 pM) -> pTM (sigSim^+) (states (projT1 pM) + F) 1.
 
   Definition Step_Rel (q : states (projT1 pM)) : pRel (sigSim^+) (states (projT1 pM) + F) 1 :=
@@ -25,7 +25,7 @@ Section CompilerOutline.
         then tout[@Fin0] ≃ T /\ yout = inr (projT2 pM q)
         else let (q', T') := step c in
              tout[@Fin0] ≃ T' /\ yout = inl q'.
-  
+
   Hypothesis Step_Realise : forall q, Step q ⊨ Step_Rel q.
 
 
@@ -64,7 +64,6 @@ Section CompilerOutline.
 
   Lemma ToSingleTape_Realise : ToSingleTape ⊨ ToSingleTape_Rel.
   Proof. exact (@Loop_Realise (start (projT1 pM))). Qed.
-  
+
 
 Section CompilerOutline.
-

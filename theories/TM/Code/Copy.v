@@ -88,7 +88,7 @@ Section Copy.
     - rewrite CopySymbols_Fun_equation. cbn. rewrite HStopX; cbn. reflexivity.
     - rewrite CopySymbols_correct_midtape; auto. subst. rewrite <- !app_assoc; cbn. reflexivity.
   Qed.
-  
+
 
   Corollary CopySymbols_L_correct t str1 x str2 :
     (forall x, List.In x str1 -> stop x = false) ->
@@ -130,7 +130,7 @@ Section Copy.
     - rewrite CopySymbols_L_Fun_equation. cbn. rewrite HStopX; cbn. reflexivity.
     - rewrite CopySymbols_L_correct_midtape; auto. subst. rewrite <- !app_assoc; cbn. reflexivity.
   Qed.
-  
+
 
   Variable f : sig -> sig.
 
@@ -348,7 +348,7 @@ Section Copy.
     - rewrite CopySymbols_L_steps_equation. cbn. rewrite HStop; cbn. omega.
     - rewrite CopySymbols_L_steps_midtape; auto. omega.
   Qed.
-  
+
 
 End Copy.
 
@@ -781,7 +781,7 @@ Section Translate.
       eexists. repeat split; eauto.
       intros tmid () H. cbn in H.
       apply tape_contains_contains_size in HEncX.
-      specialize H with (1 := HEncX). 
+      specialize H with (1 := HEncX).
       exists x. split. eauto. unfold MoveLeft_steps. omega.
     }
   Qed.

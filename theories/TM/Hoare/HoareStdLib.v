@@ -22,8 +22,8 @@ Proof.
   eapply Realise_TripleT.
   - apply CopyValue_Realise.
   - apply CopyValue_Terminates.
-  - intros tin [] tout H HEnc. cbn in *. 
-    specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. cbn in *. 
+  - intros tin [] tout H HEnc. cbn in *.
+    specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. cbn in *.
     cbn in *; simpl_vector in *; cbn in *.
     modpon H. tspec_solve.
   - intros tin k HEnc. cbn in *.
@@ -58,7 +58,7 @@ Proof.
   - intros tin [] tout H HEnc. cbn in *.
     specialize (HEnc Fin0); cbn in *. simpl_vector in *; cbn in *.
     modpon H.
-    
+
 
     tspec_solve.
   - intros tin k HEnc. cbn in *.
@@ -233,8 +233,8 @@ Section CompareValues.
     eapply Realise_TripleT.
     - now apply CompareValues_Realise.
     - now apply CompareValues_TerminatesIn.
-    - intros tin yout tout H HEnc. cbn in *. 
-      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. cbn in *. 
+    - intros tin yout tout H HEnc. cbn in *.
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. cbn in *.
       cbn in *; simpl_vector in *; cbn in *.
       modpon H. decide (x=y); subst; cbn in *.
       + tspec_solve.
@@ -393,12 +393,12 @@ Section CaseSum.
       specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H.
       destruct yout, s; cbn in *; auto; tspec_solve.
   Qed.
-  
+
 End CaseSum.
 
 
 Section CaseOpton.
-  
+
   Variable (X : Type) (sigX : finType) (codX : codable sigX X).
 
   Lemma Constr_Some_SpecT_size (x : X) (ss : Vector.t nat 1) :
@@ -446,7 +446,7 @@ Section CaseOpton.
       specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H.
       destruct yout, o; cbn in *; auto; tspec_solve.
   Qed.
-  
+
 End CaseOpton.
 
 
@@ -531,7 +531,7 @@ Section CaseList.
       specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1; simpl_vector in *; cbn in *.
       eauto.
   Qed.
-  
+
 
 End CaseList.
 
@@ -567,10 +567,10 @@ Section CasePair.
     - apply Constr_pair_Realise.
     - apply Constr_pair_Terminates.
     - intros tin [] yout H HEnc.
-      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. simpl_vector in *; cbn in *. 
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. simpl_vector in *; cbn in *.
       modpon H. simpl_vector in *. tspec_solve.
     - intros tin k HEnc Hk.
-      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. simpl_vector in *; cbn in *. 
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. simpl_vector in *; cbn in *.
       unfold Constr_pair_T. eauto.
   Qed.
 
@@ -587,10 +587,10 @@ Section CasePair.
     - apply CasePair_Realise.
     - apply CasePair_Terminates.
     - intros tin [] tout H HEnc. cbn in *.
-      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. simpl_vector in *; cbn in *. 
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. simpl_vector in *; cbn in *.
       modpon H. simpl_vector in *. tspec_solve.
     - intros tin k HEnc Hk.
-      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. simpl_vector in *; cbn in *. 
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. simpl_vector in *; cbn in *.
       unfold CasePair_T. eauto.
   Qed.
 
@@ -659,7 +659,7 @@ Section WriteValue.
   Variable (sig: finType) (X: Type) (cX: codable sig X).
 
   Definition WriteValue_sizefun (x : X) : Vector.t (nat->nat) 1 := [| WriteValue_size x |].
-  
+
   Lemma WriteValue_SpecT_size (x : X) (ss : Vector.t nat 1) :
     TripleT (tspec (withSpace (SpecVector [|Void|]) ss))
             (WriteValue_steps (size _ x)) (WriteValue (encode x))
@@ -696,7 +696,7 @@ Section Nth.
     TripleT (tspec (withSpace (SpecVector [|Contains _ xs; Contains _ n; Void; Void|]) ss))
             (Nth'_steps xs n) (Nth' retr1 retr2)
             (fun yout =>
-               tspec (withSpace 
+               tspec (withSpace
                         (match yout, nth_error xs n with
                          | true, Some x => SpecVector [|Contains _ xs; Void; Contains _ x; Void|]
                          | false, None => SpecVector [|Contains _ xs; Void; Void; Void|]
@@ -707,12 +707,12 @@ Section Nth.
     - apply Nth'_Realise.
     - apply Nth'_Terminates.
     - intros tin yout tout H HEnc. cbn in *.
-      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1; specialize (HEnc Fin2) as HEnc2; specialize (HEnc Fin3) as HEnc3. simpl_vector in *; cbn in *. 
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1; specialize (HEnc Fin2) as HEnc2; specialize (HEnc Fin3) as HEnc3. simpl_vector in *; cbn in *.
       modpon H. destruct yout; cbn in *.
       + destruct H as (x&H); modpon H. rewrite H. tspec_solve.
       + modpon H. rewrite H. tspec_solve.
     - intros tin k HEnc Hk.
-      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1; specialize (HEnc Fin2) as HEnc2; specialize (HEnc Fin3) as HEnc3. simpl_vector in *; cbn in *. 
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1; specialize (HEnc Fin2) as HEnc2; specialize (HEnc Fin3) as HEnc3. simpl_vector in *; cbn in *.
       unfold Nth'_T. eauto 7.
   Qed.
 

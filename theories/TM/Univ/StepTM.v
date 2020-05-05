@@ -64,7 +64,7 @@ Section Graph.
       + intros H. inv H. eauto.
       + intros H. specialize IH with (1 := H). auto.
   Qed.
-  
+
   Lemma graph_of_fun_lookup x :
     lookup x graph_of_fun = Some (f x).
   Proof.
@@ -117,7 +117,7 @@ Proof.
   - destruct l; cbn; auto.
   - destruct l0; cbn; auto.
 Qed.
-  
+
 
 Section Univ.
 
@@ -167,8 +167,8 @@ Section Univ.
   Local Definition retr_value_sigGraph : Retract _ sigGraph := Retract_sigList_X (Retract_sigPair_Y _ (Retract_id _)).
   Local Definition retr_value_sig : Retract _ sig := ComposeRetract retr_sigGraph_sig retr_value_sigGraph.
 
-  
-  
+
+
   (** One tape is the working tape of the simulated machine. *)
 
   Definition containsWorkingTape (t : tape sig^+) (tp : tape sigM) :=
@@ -216,7 +216,7 @@ Section Univ.
 
 
   Local Instance Encode_optSigM : codable (option sigM) (option sigM) := Encode_Finite _.
-  
+
 
   Definition ReadCurrent'_Rel : pRel sig^+ unit 2 :=
     ignoreParam(
@@ -298,7 +298,7 @@ Section Univ.
     ResetEmpty1 _ @ [|Fin1|].
 
   Definition SetFinal_size : Vector.t (nat->nat) 2 :=
-    [| Constr_pair_size true; WriteValue_size true >> ResetEmpty1_size |]. 
+    [| Constr_pair_size true; WriteValue_size true >> ResetEmpty1_size |].
 
   Definition SetFinal_Rel (final : bool) : pRel sig^+ unit 2 :=
     ignoreParam
@@ -343,7 +343,7 @@ Section Univ.
     }
   Qed.
 
-  
+
 
   Definition containsState (t : tape sig^+) (M : mTM sigM 1) (q : states M) :=
     t ≃(retr_sigCurrentState_sig) (halt q, index q).
@@ -422,7 +422,7 @@ Section Univ.
       - hnf. cbn. eexists. repeat split. contains_ext. eauto. reflexivity.
     }
   Qed.
-    
+
 
   (** Alternative form for the transition function (for efficiency) *)
   Definition graph_function (M : mTM sigM 1) : option sigM * states M -> ((option sigM * move) * states M) :=
@@ -440,7 +440,7 @@ Section Univ.
     fun (value : (option sigM * move) * (states M)) =>
       let (act, q') := value in
       (act, (halt q', index q')).
-        
+
   Definition graph_of_TM (M : mTM sigM 1) :
     list ((option sigM * (bool * nat)) * ((option sigM * move) * (bool * nat))) :=
     map (map_pair (trans_map_keys (M := M)) (trans_map_values (M := M)))
@@ -469,7 +469,7 @@ Section Univ.
       + apply graph_of_fun_lookup.
       + cbn. rewrite E. now destruct (acts[@Fin0]).
   Qed.
-  
+
   Definition containsTrans (t : tape sig^+) (M : mTM sigM 1) :=
     t ≃(retr_sigGraph_sig) (graph_of_TM M).
 
@@ -498,7 +498,7 @@ Section Univ.
          ([|CasePair_size0 act[@Fin0];
             CasePair_size1 act[@Fin0]|] @>> [|Fin2; Fin3|]) >>>
          ([|DoAction_size act[@Fin0]|] @>> [|Fin3|]).
-  
+
 
   Definition Univ_Step_Rel : pRel sig^+ (option unit) 6 :=
     fun tin '(yout, tout) =>
@@ -563,7 +563,7 @@ Section Univ.
       intros tin (yout, tout) H. cbn. intros M tp q s1 s2 sr HEncTp HEncM HEncQ HRight.
       destruct H; TMSimp.
       { (* Halting state *)
-        unfold Univ_Step_size. 
+        unfold Univ_Step_size.
         modpon H. rewrite <- H1. repeat split; eauto.
         - intros i; destruct_fin i; TMSimp_goal; auto.
           all: cbn. all: apply HRight.
@@ -629,7 +629,7 @@ Section Univ.
         containsState tin[@Fin2] q /\
         (forall (i : Fin.t 3), isVoid tin[@FinR 3 i]) /\
         Univ_Step_steps q tp <= k.
-  
+
   Lemma Univ_Step_Terminates : projT1 Univ_Step ↓ Univ_Step_T.
   Proof.
     eapply TerminatesIn_monotone.
@@ -722,7 +722,7 @@ Section Univ.
       else let (q', tp') := step (mk_mconfig q [|tp|]) in
            Univ_Step_size tp q >>> Univ_size tp'[@Fin0] q' k'
     end.
-  
+
 
   Definition Univ_Rel : pRel sig^+ unit 6 :=
     fun tin '(_, tout) =>
@@ -781,7 +781,7 @@ Section Univ.
   Lemma destruct_vector1 (X : Type) (v : Vector.t X 1) :
     exists x, v = [| x |].
   Proof. destruct_vector. eauto. Qed.
-  
+
   Lemma Univ_Terminates : projT1 Univ ↓ Univ_T.
   Proof.
     eapply TerminatesIn_monotone.
@@ -818,4 +818,3 @@ End Univ.
 
 
 (* Print Assumptions Univ_Realise. *)
-

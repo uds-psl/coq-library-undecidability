@@ -29,7 +29,7 @@ Section CasePair.
           | _ => false
           end.
 
-  
+
   Definition stopAtStart : sigPair^+ -> bool :=
     fun x => match x with
           | inl START => true
@@ -105,7 +105,7 @@ Section CasePair.
 
   Definition CasePair_T : tRel sigPair^+ 2 :=
     fun tin k => exists (p : X * Y), tin[@Fin0] ≃ p /\ CasePair_steps (fst p) <= k.
-      
+
   Lemma CasePair_Terminates : projT1 CasePair ↓ CasePair_T.
   Proof.
     eapply TerminatesIn_monotone.
@@ -144,7 +144,7 @@ Section CasePair.
             * rewrite List.map_map. now intros ? (?&<-&?) % in_rev % in_map_iff.
           + rewrite !List.map_map. now intros ? (?&<-&?) % in_map_iff.
         - rewrite map_map, map_app, <- app_assoc in HCopy. cbn in *. rewrite MoveToSymbol_correct_midtape in HCopy; cbn in *; auto.
-          + rewrite CopySymbols_L_correct_moveleft in HCopy; cbn; auto. 
+          + rewrite CopySymbols_L_correct_moveleft in HCopy; cbn; auto.
             * inv HCopy; TMSimp. rewrite MoveToSymbol_steps_midtape; cbn; auto. now rewrite !rev_length, !map_length.
             * rewrite List.map_map. now intros ? (?&<-&?) % in_rev % in_map_iff.
           + rewrite List.map_map. now intros ? (?&<-&?) % in_map_iff.
@@ -152,13 +152,13 @@ Section CasePair.
       intros tmid3 _ _. exists 1, 1. split. omega. split. omega. intros _ _ _. omega.
     }
   Qed.
-        
-      
+
+
 
   (** ** Constructor *)
 
   Definition Constr_pair_size {sigX X : Type} {cX : codable sigX X} (x : X) (s1 : nat) := s1 - size _ x.
-  
+
   Definition Constr_pair_Rel : pRel sigPair^+ unit 2 :=
     ignoreParam (
         fun tin tout =>
@@ -203,7 +203,7 @@ Section CasePair.
 
   Definition Constr_pair_T : tRel sigPair^+ 2 :=
     fun tin k => exists (x : X), tin[@Fin0] ≃ x /\ Constr_pair_steps x <= k.
-      
+
   Lemma Constr_pair_Terminates : projT1 Constr_pair ↓ Constr_pair_T.
   Proof.
     eapply TerminatesIn_monotone.
