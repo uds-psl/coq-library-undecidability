@@ -1,1 +1,0 @@
-(** * Machines that compte functions on positive numbers *)
