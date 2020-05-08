@@ -34,7 +34,23 @@ Section KripkeCompleteness.
     Proof.
       1,3,4: abstract (eauto using seq_Weak).
       - abstract (intuition; now apply (incl_tran H)).
-    Defined.
+    Defined.  
+
+    Lemma K_ctx_subst (A : list form) rho phi :
+      rho ⊨(A, K_ctx ) phi <-> forall sigma, (fun x => (rho x)[sigma]) ⊨([p[sigma] | p ∈ A], K_ctx ) phi.
+    Proof.
+      induction phi in A |- *; cbn.
+      - admit.
+      - split.
+        + intros H sigma. apply (@seq_subst_Weak _ _ _ _ _ sigma) in H. cbn in H.
+          erewrite vec_comp in H. apply H. intros t'.
+          unfold axioms.funcomp. cbn. rewrite !universal_interp_eval.
+          now asimpl.
+        + intros H. admit.
+      - 
+    Admitted.
+
+    
 
     Lemma K_ctx_correct (A : list form) rho phi :
       (rho ⊨(A, K_ctx ) phi -> A ⊢S phi[rho]) /\
@@ -43,7 +59,7 @@ Section KripkeCompleteness.
       revert A rho; enough ((forall A rho, rho ⊨( A, K_ctx) phi -> A ⊢S phi[rho]) /\
                           (forall A rho, (forall B psi, A <<= B -> B;; phi[rho] ⊢s psi -> B ⊢S psi)
                                   -> rho ⊨( A, K_ctx) phi)) by intuition.
-      induction phi as [|t1 t2|phi [IHphi1 IHphi2] psi [IHpsi1 IHpsi2]|phi [IHphi1 IHphi2]]; cbn; asimpl; split; intros A rho.
+      induction phi as [|t1 t2|phi [IHphi1 IHphi2] psi [IHpsi1 IHpsi2]|phi [IHphi1 IHphi2]]; cbn; split; intros A rho.
       - tauto.
       - eauto.
       - now rewrite (vec_ext (fun x => universal_interp_eval rho x)).
@@ -51,7 +67,23 @@ Section KripkeCompleteness.
       - intros Hsat. apply IR, IHpsi1. apply Hsat, IHphi2. 1: intuition. eauto.
       - intros H B HB Hphi % IHphi1. apply IHpsi2. intros C xi HC Hxi. apply H.
         1: now transitivity B. eauto using seq_Weak.
-      - intros Hsat. apply AllR.
+      - intros Hsat. apply AllR. apply IHphi1. asimpl.
+        specialize (Hsat (var_term 0)).
+        (*change ((fun n => subst_term (fun n => var_term (S n)) ((var_term 0 .: rho) n) ) ⊨([p[↑] | p ∈ A], K_ctx) phi).*)
+        
+        Lemma K_ctx_subst' A rho phi :
+          (var_term 0 .: rho) ⊨( A, K_ctx) phi <-> (up_term_term rho) ⊨([p[↑] | p ∈ A], K_ctx) phi.
+        Proof.
+          asimpl.
+          induction phi in rho, A |- *; cbn.
+          - admit.
+          - admit.
+          - intuition . rewrite <- IHphi2.
+        Admitted.
+
+        now rewrite <- K_ctx_subst'.
+
+        
         pose (phi' := subst_form (var_term 0 .: (rho >> subst_term (S >> var_term))) phi).
         destruct (find_unused_L (phi' :: A)).
         eapply seq_nameless_equiv with (n := x) (phi0 := phi').
@@ -347,10 +379,44 @@ Section KripkeCompleteness.
     Lemma AllL_th T phi psi t :
        T;; phi[t..] ⊢sT psi -> T;; ∀ phi ⊢sT psi.
     Proof.
-      firstorder eauto using AllL. exists P.
+      intros [A [H1 H2]]. exists A. split; trivial.
+      now apply AllL with t.
+    Qed.
+
+    Definition up_th T :=
+      fun phi => exists psi, T psi /\ phi = psi[↑].
+
+    Lemma up_th_subst T A :
+      A ⊏ up_th T -> exists B, B ⊏ T /\ A = [p[↑] | p ∈ B].
+    Proof.
+      induction A; intros H.
+      - exists nil. split; cbn; firstorder.
+      - destruct (H a) as [a'[H1 H2]]; trivial.
+        destruct IHA as [B[H3 H4]].
+        + intros phi H'. auto.
+        + exists (a'::B). subst. cbn. split; trivial. intuition.
+    Qed.
+
+    Lemma AllR_th T phi :
+      up_th T ⊢ST phi -> T ⊢ST (∀ phi).
+    Proof.
+      intros [A [H1 H2]]. apply up_th_subst in H1 as [B[H ->]].
+      exists B. split; trivial. now apply AllR.
+    Qed.
+
+    Lemma K_th_K_ctx T rho phi :
+      rho ⊨(T, K_th) phi -> exists A, A ⊏ T /\ rho ⊨(A, K_ctx) phi.
+    Proof.
+      induction phi in T, rho |- *; cbn.
+      - firstorder.
+      - firstorder.
+      - intros H.
+      - intuition. apply IHphi.
+    Admitted.
+      
 
     Lemma K_th_correct (T : theory) rho phi :
-      (rho ⊨(T, K_th ) phi -> T ⊢ST phi[rho]) /\
+      (rho ⊨(T, K_th) phi -> T ⊢ST phi[rho]) /\
       ((forall T' psi, T ⊑ T' -> T';; phi[rho] ⊢sT psi -> T' ⊢ST psi) -> rho ⊨(T, K_th) phi).
     Proof.
       revert T rho; enough ((forall T rho, rho ⊨(T, K_th ) phi -> T ⊢ST phi[rho]) /\
@@ -364,7 +430,7 @@ Section KripkeCompleteness.
         intros T' theta H1 H2. eapply Contr_th; eauto. apply H1. intuition.
       - intros H B HB Hphi % IHphi1. apply IHpsi2. intros C xi HC Hxi. apply H.
         1: now transitivity B. apply IL_th; firstorder.
-      - (*intros Hsat. apply AllR.
+      - intros Hsat. apply AllR_th.
         pose (phi' := subst_form (var_term 0 .: (rho >> subst_term (S >> var_term))) phi).
         destruct (find_unused_L (phi' :: A)).
         eapply seq_nameless_equiv with (n := x) (phi0 := phi').
@@ -373,7 +439,7 @@ Section KripkeCompleteness.
         + asimpl. apply IHphi1. rewrite ksat_ext. 2: reflexivity. now apply Hsat.*)
         admit.
       - intros H t. apply IHphi2. intros B psi HB Hpsi. apply H. assumption.
-        apply AllL with (t0 := t). now asimpl in *.
+        apply AllL_th with t. now asimpl in *.
     Qed.
 
     Lemma K_ctx_constraint :
