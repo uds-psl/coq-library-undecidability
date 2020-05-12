@@ -145,24 +145,37 @@ Section DialogFull.
       reflexivity. intros ? ->; constructor.
     - apply (@Att _ form_rules _ _ _ None (AAll (phi [var_term O .: rho >> (subst_term form_shift)]) (t [rho])));
         [intuition | | discriminate | discriminate].
-      intros chi Hdef; inversion Hdef; subst; apply (Dprv_weak (IHfprv rho)); asimpl in *; firstorder. 
+      intros chi Hdef; inversion Hdef; subst; apply (Dprv_weak (IHfprv rho)); asimpl in *.
+      + intros ? [ <- | ].
+        * left. asimpl. erewrite ext_form. reflexivity.
+          intros [].  now asimpl. asimpl. erewrite ext_term. now asimpl. intros []; now asimpl.
+      *  right. now right.
+      + firstorder. 
     - apply Def with (phi := ∀ (phi [var_term O .: rho >> (subst_term form_shift)])); [easy | firstorder |].
       intros adm atk. apply (attack_form_inv_all atk). intros t; cbn; asimpl.
       apply (Dprv_weak (IHfprv (t .: rho))).
       + rewrite map_map. apply eq_incl, map_ext. intros a. now asimpl.
       + intros ? ->. enough ((phi [var_term O .: rho >> (subst_term form_shift)]) [t .: ids] =
                               (subst_form (@scons term t rho) phi)) as <- by apply (DAll _ t).
-        now asimpl.
+        asimpl. erewrite ext_form. reflexivity.
+        intros [].  now asimpl. asimpl. erewrite ext_term. now asimpl. intros []; now asimpl.
     - apply Att with (atk := AExt phi[var_term O .: rho >> (subst_term form_shift)]);
         [intuition | | discriminate | discriminate].
       intros ?; inversion 1; subst; asimpl. apply (Dprv_weak (IHfprv (t .: rho))).
-      + apply incl_shift, incl_tl. rewrite map_map. apply eq_incl, map_ext. intros a; now asimpl.
+      + assert (phi[t .: rho >> subst_term (↑ >> subst_term (t .: var_term))] = phi[t .: rho]).
+        asimpl.
+        erewrite ext_form. reflexivity.
+        intros [].  now asimpl. asimpl. erewrite ext_term. now asimpl. intros []; now asimpl.
+        setoid_rewrite H1. clear H1.
+       apply incl_shift, incl_tl. rewrite map_map. apply eq_incl, map_ext. intros a; now asimpl.
       + intros ? ->. now asimpl.
     - apply Def with (phi := ∃ phi[var_term O .: rho >> (subst_term form_shift)]); [easy | firstorder |].
       intros ? atk. apply (attack_form_inv_ext atk). cbn. apply (Dprv_weak (IHfprv rho)).
       reflexivity. intros ? ->. asimpl. enough ((phi [var_term O .: rho >> (subst_term form_shift)]) [t[rho] .: ids]
         = (subst_form (@scons term (subst_term rho t) rho) phi)) as <- by apply (DExt _ t[rho]).
-      now asimpl.
+        asimpl.
+        erewrite ext_form. reflexivity.
+        intros [].  now asimpl. asimpl. erewrite ext_term. now asimpl. intros []; now asimpl.
   Qed.
 
 

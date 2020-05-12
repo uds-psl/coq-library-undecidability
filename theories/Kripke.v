@@ -83,7 +83,7 @@ Section Kripke.
       - erewrite vec_comp. 2: reflexivity. erewrite vec_ext. 2: apply eval_comp. reflexivity.
       - setoid_rewrite IHphi1. now setoid_rewrite IHphi2.
       - setoid_rewrite IHphi. split; intros H d; eapply ksat_ext. 2, 4: apply (H d).
-        all: intros []; comp; rewrite? eval_comp; now comp.
+        all: intros []; asimpl; comp; rewrite? eval_comp; try now comp.
     Qed.
   End Substs.
 

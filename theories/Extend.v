@@ -1,5 +1,7 @@
 (** ** Signature Extension  *)
 
+From Undecidability.FOLC Require Import Kripke KripkeCompleteness.
+
 From Equations Require Import Equations.
 From Undecidability.FOLC Require Export Gentzen.
 
@@ -81,7 +83,7 @@ Proof.
   - f_equal. rewrite IHphi.
     eapply ext_form. 
     intros. unfold funcomp.
-    destruct x; now rewrite ?embed_subst_term. 
+    destruct x; now try setoid_rewrite embed_subst_term. 
 Qed.
 
 Lemma prv_embed Σ Σ' (inj : Signature_inj Σ Σ') A phi :
@@ -141,7 +143,7 @@ Section Kripke.
   Variable M : @kmodel Σ D.
   Variable d : D.
 
-  Instance RM : @kmodel Σ' D :=
+  Program Instance RM : @kmodel Σ' D :=
     {|
       nodes := @nodes _ _ M ;
       reachable := @reachable _ _ M;
@@ -151,15 +153,21 @@ Section Kripke.
                                          @k_P _ _ M u P' (cast v E) | right _ => True end | None => True end;
       k_Bot u := @k_Bot _ _ M u
     |}.
-  Proof.
-    - eapply reach_refl.
-    - eapply reach_tran.
-    - intros.
-      destruct (R_Preds inj P); try tauto.
-      destruct Nat.eq_dec; try tauto.
-      eapply mon_P; eauto.
-    - intros. eapply mon_Bot; eauto.
-  Defined.
+  Next Obligation.
+    eapply reach_refl.
+  Qed.
+  Next Obligation.
+    eapply reach_tran; eauto.
+  Qed.
+  Next Obligation.
+    intros.
+    destruct (R_Preds inj P); try tauto.
+    destruct Nat.eq_dec; try tauto.
+    eapply mon_P; eauto.
+  Qed.
+  Next Obligation.
+    intros. eapply mon_Bot; eauto.
+  Qed.
 
       
   Lemma ksat_retract phi u rho :
@@ -228,8 +236,6 @@ Section Kripke.
   Qed.
   
 End Kripke.
-
-From Undecidability.FOLC Require Import Kripke KripkeCompleteness.
 
 Lemma sprv_prv_iff `{Sigma : Signature} A phi :
   A ⊢IE phi <-> A ⊢SE phi.

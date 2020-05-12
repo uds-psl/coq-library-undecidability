@@ -26,10 +26,10 @@ Section CHAEval.
     hsat (∀ phi) := Inf_indexed (fun t => hsat (phi [t..])) ;
     hsat (∃ phi) := Sup_indexed (fun t => hsat (phi [t..])).
   Next Obligation.
-    rewrite subst_size. lia.
+    setoid_rewrite subst_size. lia.
   Qed.
   Next Obligation.
-    rewrite subst_size. lia.
+    setoid_rewrite subst_size. lia.
   Qed.
 
   Definition hsat_L A : HA :=
@@ -78,12 +78,12 @@ Section Soundness.
       simp hsat in *. apply Impl1 in IHprv1.
       rewrite <- IHprv1, <- Meet1. now split.
     - apply Inf1. intros x [t ->]. asimpl. rewrite <- IHprv.
-      rewrite map_subst with (t:=t). reflexivity.
+      setoid_rewrite map_subst with (t:=t) at 1. reflexivity.
     - rewrite IHprv. simp hsat. apply Inf2. exists t[sigma]. now asimpl.
     - rewrite IHprv. apply Sup2. exists t[sigma]. now asimpl.
     - specialize (IHprv1 sigma). simp hsat in IHprv1.
       rewrite (meet_sup_expansion IHprv1). apply Sup1. intros x [t ->].
-      rewrite Meet_hsat_L. rewrite map_subst with (t:=t).
+      rewrite Meet_hsat_L. setoid_rewrite map_subst with (t:=t) at 1.
       asimpl. rewrite (IHprv2 (t.:sigma)). now asimpl.
     - rewrite IHprv. apply Bot1.
     - apply Inf2. exists phi[sigma]. split; trivial. apply in_map_iff. now exists phi.
@@ -257,12 +257,12 @@ Section BSoundness.
       simp hsat in *. apply Impl1 in IHprv1.
       rewrite <- IHprv1, <- Meet1. now split.
     - apply Inf1. intros x [t ->]. asimpl. rewrite <- IHprv.
-      rewrite map_subst with (t:=t). reflexivity.
+      setoid_rewrite map_subst with (t:=t) at 1. reflexivity.
     - rewrite IHprv. simp hsat. apply Inf2. exists t[sigma]. now asimpl.
     - rewrite IHprv. apply Sup2. exists t[sigma]. now asimpl.
     - specialize (IHprv1 sigma). simp hsat in IHprv1.
       rewrite (meet_sup_expansion IHprv1). apply Sup1. intros x [t ->].
-      rewrite Meet_hsat_L. rewrite map_subst with (t:=t).
+      rewrite Meet_hsat_L. setoid_rewrite map_subst with (t:=t) at 1.
       asimpl. rewrite (IHprv2 (t.:sigma)). now asimpl.
     - rewrite IHprv. apply Bot1.
     - apply Inf2. exists phi[sigma]. split; trivial. apply in_map_iff. now exists phi.

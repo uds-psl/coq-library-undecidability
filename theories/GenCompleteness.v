@@ -28,7 +28,7 @@ Section Completeness.
         In_T := T ;
         In_T_closed := T_closed ;
 
-        enum := form_enum ;
+        GenConstructions.enum := form_enum ;
         enum_enum := form_enum_enumerates ;
         enum_unused := form_enum_fresh
       |}.
@@ -177,7 +177,7 @@ Section Completeness.
         In_T := T ;
         In_T_closed := T_closed ;
 
-        enum := form_enum ;
+        GenConstructions.enum := form_enum ;
         enum_enum := form_enum_enumerates ;
         enum_unused := form_enum_fresh
       |}.

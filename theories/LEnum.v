@@ -1,9 +1,10 @@
 (** ** ND is L-enumerable *)
 
 From Undecidability.L Require Import Eval.
-From Undecidability.FOLC Require Import Extend FOL.
+From Undecidability.FOLC Require Import Extend FOL Syntax.
 
 From Undecidability.L Require Import Tactics.LTactics Computability.MuRec Computability.Synthetic Tactics.GenEncode Datatypes.Lists Reductions.H10_to_L Datatypes.LNat Datatypes.LOptions.
+Require Import Vector.
 
 Inductive term' := var_term' : nat -> term' | Func' (name : nat) | App' : term' -> term' -> term'. 
 
@@ -22,7 +23,7 @@ Proof.
   - exact snd.
 Defined.
 
-Fixpoint to_term (a : list (@term max)) (t : term')  :=
+Fixpoint to_term (a : list (@Syntax.term max)) (t : term')  :=
   match t with
   | var_term' n => var_term n
   | Func' n => Func (n, |List.rev a|) (of_list (List.rev a))
@@ -31,7 +32,7 @@ Fixpoint to_term (a : list (@term max)) (t : term')  :=
 
 Definition mkApps n l (L : Vector.t _ n) := fold_right App' L l.
 
-Fixpoint of_term (t : @term max) :=
+Fixpoint of_term (t : @Syntax.term max) :=
   match t with
   | var_term n => var_term' n
   | Func (n, m) l => mkApps (Func' n) (map of_term l) 
@@ -67,7 +68,7 @@ Proof.
   - now rewrite IHA.
 Qed.
 
-Lemma to_term_mkApps n k (v : Vector.t term k) A :
+Lemma to_term_mkApps n k (v : Vector.t Syntax.term k) A :
   (forall s, vec_in s v -> to_term ([]) (of_term s) = s) 
    -> to_term A (mkApps (Func' n) (map of_term v))
      = Func (n, List.length (List.rev A) + k) (append (of_list (List.rev A)) v).
@@ -153,6 +154,8 @@ Proof.
     + destruct IHt1 as [m1]. destruct IHt2 as [m2].
       exists (1 + m1 + m2). cbn. in_app 4. in_collect (t2, t1); eapply cum_ge'; eauto; omega.
 Defined.
+
+Require Import List Datatypes.
 
 Instance term_L_term' : computable L_term'. extract. Qed.
 
@@ -324,12 +327,12 @@ Proof.
       * intros t Ht sigma'. apply H. now right.
 Qed.
 
-Lemma subst_term_map sigma n (t : Vector.t term n) :
-  [subst_term' (sigma >> of_term) p | p ∈ to_list (map of_term t)] =
-  to_list (map of_term (map (subst_term sigma) t)).
+Lemma subst_term_map sigma n (t : Vector.t Syntax.term n) :
+  [subst_term' (sigma >> of_term) p | p ∈ to_list (Vector.map of_term t)] =
+  to_list (Vector.map of_term (Vector.map (subst_term sigma) t)).
 Proof.
   induction t; cbn; trivial.
-  now rewrite IHt, subst_term_of_term.
+  now setoid_rewrite IHt; setoid_rewrite subst_term_of_term.
 Qed.
 
 Lemma subst_form_of_form sigma phi :
@@ -339,7 +342,7 @@ Proof.
   - destruct P. cbn. now rewrite subst_term_map.
   - f_equal. rewrite <- IHphi.
     eapply ext_form'. intros []. cbn. reflexivity. cbn.
-    now rewrite <- subst_term_of_term.
+    now setoid_rewrite <- subst_term_of_term.
 Qed.
 
 Lemma wf_of_term t :
@@ -355,15 +358,15 @@ Qed.
 Lemma of_term_wf' v t :
   wf v t -> match v with
            | isvar => exists x, t = var_term' x
-           | novar => exists F n (B : Vector.t term n), t = of_term (Func (F, n) B)
+           | novar => exists F n (B : Vector.t Syntax.term n), t = of_term (Func (F, n) B)
 	   end.
 Proof.
   induction 1; cbn.
   - exists n. reflexivity.
-  - exists f, 0, nil. reflexivity.
+  - exists f, 0, Vector.nil. reflexivity.
   - destruct v, IHwf1 as [x Hx], IHwf2 as (f & n & B & Hs); subst.
-    + exists f, (S n), (cons (var_term x) B). reflexivity.
-    + destruct Hx as (k & C & ->). exists f, (S n), (cons (@Func max (x, k) C) B). reflexivity.
+    + exists f, (S n), (Vector.cons (var_term x) B). reflexivity.
+    + destruct Hx as (k & C & ->). exists f, (S n), (Vector.cons (@Func max (x, k) C) B). reflexivity.
 Qed.
 
 Lemma of_term_wf v t :
@@ -392,14 +395,14 @@ Proof.
 Qed.
 
 Lemma of_list_wf A :
-  (forall t, t el A -> exists v, wf v t) -> exists n (ts : Vector.t term n), A = to_list (map of_term ts).
+  (forall t, t el A -> exists v, wf v t) -> exists n (ts : Vector.t Syntax.term n), A = to_list (Vector.map of_term ts).
 Proof.
   induction A; cbn; intros H.
-  - exists 0, nil. reflexivity.
+  - exists 0, Vector.nil. reflexivity.
   - destruct IHA as (n & ts & ->); eauto.
     destruct (H a) as [v Ha]; auto.
     apply of_term_wf in Ha as [t ->].
-    exists (S n), (cons t ts). reflexivity.
+    exists (S n), (Vector.cons t ts). reflexivity.
 Qed.
 
 Lemma of_form_wf phi :
@@ -422,7 +425,7 @@ Proof.
   - rewrite <- map_rev.
     assert (H : |([subst_term (make_subst xi) p | p ∈ List.rev A])| = |List.rev A|) by now rewrite map_length.
     eapply Func_cast with (H:=H). induction (List.rev A); cbn; trivial. now rewrite IHl.  
-  - rewrite (IHt1 List.nil). rewrite <- IHt2. reflexivity.
+  - setoid_rewrite (IHt1 List.nil). rewrite <- IHt2. reflexivity.
 Qed.
 
 Lemma ren_term_to_term' xi t :
@@ -468,7 +471,7 @@ Proof.
       destruct (of_form_wf (H1 theta' HT)) as [psi ->].
       rewrite (ext_form' (tau:= form_shift >> of_term)); try now intros x.
       rewrite subst_form_of_form. apply wf_of_form.
-    + intros theta. cbn. now rewrite ren_form_to_form.
+    + intros theta. cbn. now setoid_rewrite ren_form_to_form.
   - apply IL; firstorder.
   - apply AllL with (t0:=to_term List.nil t).
     assert (exists t', t = of_term t') as [t' ->] by now eapply of_term_wf.
@@ -517,7 +520,7 @@ Proof.
     erewrite map_ext. eassumption.
     intros; cbn. rewrite <- subst_form_of_form.
     eapply ext_form'. reflexivity.    
-  - destruct (wf_of_term t). eapply ieAllL. eassumption. rewrite <- subst_form_of_form in IHsprv.
+  - destruct (wf_of_term t). eapply ieAllL. eassumption. setoid_rewrite <- subst_form_of_form in IHsprv.
     erewrite ext_form'. eassumption. intros []; reflexivity. 
 Qed.
 
@@ -543,10 +546,12 @@ Proof.
   cbn. exact _.
 Qed.
 
+Require Import Undecidability.L.Datatypes.LNat Nat.
+
 Fixpoint term_eqb (t1 t2 : term') :=
   match t1, t2 with
-  | var_term' n, var_term' m => Nat.eqb n m
-  | Func' f1, Func' f2 => Nat.eqb f1 f2
+  | var_term' n, var_term' m => eqb n m
+  | Func' f1, Func' f2 => eqb f1 f2
   | App' t1 t2, App' t1' t2' => andb (term_eqb t1 t1') (term_eqb t2 t2')
   | _, _ => false
   end.
@@ -755,10 +760,7 @@ Proof.
   extract.
 Qed.
 
-Instance term_concat : computable (@concat form').
-Proof.
-  extract.
-Qed.
+Require Import List Datatypes.
 
 Fixpoint L_seq n (A : list form') (psi : option form') : list form' :=
   match n with
@@ -784,6 +786,11 @@ Fixpoint L_seq n (A : list form') (psi : option form') : list form' :=
                 | _ => []
                 end
   end.
+
+(* Instance term_concat : computable (@concat form'). *)
+(* Proof. *)
+(*   extract. *)
+(* Qed. *)
 
 Instance term_L_seq : computable L_seq.
 Proof.
@@ -836,18 +843,16 @@ Proof with try (eapply cum_ge' with (L := fun n => L_seq n _ _ ); eauto; omega);
            | [ H : ?x el list_prod _ _ |- _ ] => eapply in_prod_iff in H
            | [ H : _ el _ ++ _ |- _ ] => try eapply in_app_iff in H as []
            | [H : _ el _ :: _ |- _ ] => destruct H
-           end; (try intuition); subst).
+           end; subst).
       destruct f; inv_collect; eauto.
       * eapply bool_true_Prop in H0. rewrite <- reflect_iff in H0. 2: eapply in_eqb_spec.
         eauto.
       * econstructor. 2: eauto. eapply enum_wf. eauto.
       * econstructor. 2: eauto. eapply enum_wf. eauto.
-    + unfold f1, f2, f3, f4, f5 in *. destruct b; inv_collect; eauto.
-      * eapply bool_true_Prop in H0. rewrite <- reflect_iff in H0. 2: eapply in_eqb_spec.
-        eauto.
-      * eapply bool_true_Prop in H0. rewrite <- reflect_iff in H0. 2: eapply in_eqb_spec.
-        eauto.
-Qed.                                                            
+    + unfold f1, f2, f3, f4, f5 in *.
+      inv_collect; eauto. destruct (in_eqb_spec Fal' (L_seq m A None)).
+      eauto. firstorder.
+Qed.
 
 Definition T_form_term' := @T_list form' _.
 Definition cons''' : form' * list form' -> list form' := fun '(n, L) => n :: L.
@@ -926,9 +931,11 @@ Proof with try (eapply cum_ge'; eauto; omega).
   - intros [m Hm]. destruct x as [[A psi] phi].
     induction m in A, psi, phi, Hm |- *; cbn in *.
     + firstorder.
-    + unfold f8, f9 in *. inv_collect.
+    + unfold f8, f9 in *. inv_collect; eauto.
       * eapply bool_true_Prop in H0. rewrite <- reflect_iff in H0. 2: eapply in_eqb_spec.
         eapply enum_sprv. eauto.
       * eapply bool_true_Prop in H0. rewrite <- reflect_iff in H0. 2: eapply in_eqb_spec.
+        destruct H. eapply list_prod_in in H as (? & ? & ? & ? & ?). symmetry in H. inv H. subst.
+        destruct H3 as [<- | []].
         eapply enum_sprv. eauto.
-Qed.        
+Qed.

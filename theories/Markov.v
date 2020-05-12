@@ -3,7 +3,9 @@
 From Undecidability.FOL Require Import MarkovPost.
 From Undecidability.L Require Import Synthetic Lists LOptions Seval.
 
-From Undecidability.Reductions Require Import L_to_mTM mTM_to_TM TM_to_SRH SRH_to_SR SR_to_MPCP MPCP_to_PCP PCP_to_BPCP.
+From Undecidability Require Import SR.SR_undec PCP.PCP_undec.
+From Undecidability.Reductions Require Import L_to_mTM mTM_to_TM.
+From Undecidability Require Import Reductions.PCPb_iff_BPCP.
 
 Definition MPL := forall s, stable (L.converges s).
 
@@ -98,12 +100,12 @@ From Undecidability.FOLC Require Import Extend BPCP_CND LEnum.
 Definition enumerable_sig (Sigma : Signature) := (enumT Funcs * enumT Preds) % type.
 Definition discrete_sig (Sigma : Signature) := ((eq_dec Funcs) * (eq_dec Preds)) % type.
 
-Definition cprv (a : {Sigma & (discrete_sig Sigma * enumerable_sig Sigma * list form * form)%type }) := match a with (existT _ Sigma (H1, H2, Gamma, phi)) => @prv Sigma class expl Gamma phi end.
+Definition cprv (a : {Sigma & (discrete_sig Sigma * enumerable_sig Sigma * list form * form)%type }) := match a with (existT Sigma (H1, H2, Gamma, phi)) => @prv Sigma class expl Gamma phi end.
 
 Lemma halt_cprv :
   L.converges ⪯ cprv.
 Proof.
-  eapply reduces_transitive with (q := cbvLambda.HaltL).
+  eapply reduces_transitive with (Q := cbvLambda.HaltL).
   exists (fun s => s). firstorder. subst. unfold cbvLambda.HaltL.
   exists (L.lam x1). rewrite H. econstructor. reflexivity. econstructor. reflexivity.
   eapply reduces_transitive.
@@ -113,17 +115,11 @@ Proof.
   eapply reduces_transitive.
   eapply MTM_to_stM.
   eapply reduces_transitive.
-  eapply Undecidability.PCP.singleTM.TM_conv.
+  eapply Undecidability.PCP.PCP_undec.dPCPb_undec.
   eapply reduces_transitive.
-  eapply Undecidability.PCP.TM_SRH.Halt_SRH.
+  eapply PCPb_iff_dPCPb.reductionRL.
   eapply reduces_transitive.
-  eapply Undecidability.PCP.SRH_SR.reduction.
-  eapply reduces_transitive.
-  eapply Undecidability.PCP.SR_MPCP.reduction.
-  eapply reduces_transitive.
-  eapply Undecidability.PCP.MPCP_PCP.reduction.
-  eapply reduces_transitive.
-  eapply Undecidability.ILL.PCP_BPCP.PCP_BPCP.
+  eapply reductionLR.
   eapply reduces_transitive.
   eapply cprv_red.
   unshelve eexists (fun phi => (existT _ min_sig (_, _, [], phi))). 3: reflexivity.
@@ -149,7 +145,7 @@ Proof.
   eapply halt_cprv.
 Qed.
 
-Definition iprv (a : {Sigma & (discrete_sig Sigma * enumerable_sig Sigma * list form * form)%type }) := match a with (existT _ Sigma (H1, H2, Gamma, phi)) => @prv Sigma intu expl Gamma phi end.
+Definition iprv (a : {Sigma & (discrete_sig Sigma * enumerable_sig Sigma * list form * form)%type }) := match a with (existT Sigma (H1, H2, Gamma, phi)) => @prv Sigma intu expl Gamma phi end.
 
 Lemma cprv_iprv :
   cprv ⪯ iprv.
@@ -236,7 +232,7 @@ Section inj_enum.
   
 End inj_enum.
 
-Definition isprv (a : {Sigma & (discrete_sig Sigma * enumerable_sig Sigma * list form * form)%type }) := match a with (existT _ Sigma (H1, H2, Gamma, phi)) => @sprv Sigma expl Gamma None phi end.
+Definition isprv (a : {Sigma & (discrete_sig Sigma * enumerable_sig Sigma * list form * form)%type }) := match a with (existT Sigma (H1, H2, Gamma, phi)) => @sprv Sigma expl Gamma None phi end.
 
 Lemma iprv_maxprv :
   iprv ⪯ (fun '(A, phi) => @prv max intu expl A phi).

@@ -138,7 +138,7 @@ Section StabilityClasses.
       ST__e -> MP.
     Proof.
       intros ste f. eapply stable_equiv. 1: apply prop_T_correct.
-      apply ste. exists _, _, _, _, (L_tsat_T f). apply (enum_tsat_T f).
+      apply ste. unshelve eexists _, _, _, _, (L_tsat_T f); try exact _. apply (enum_tsat_T f).
     Qed.
   End SyntMP.
 

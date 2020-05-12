@@ -93,7 +93,7 @@ Section ND_def.
       - specialize (IHprv xi). apply AllE with (t0 := t [xi]) in IHprv. comp. now asimpl in IHprv.
       - specialize (IHprv xi). eapply ExI with (t0 := t [xi]). asimpl. now asimpl in IHprv.
       - eapply ExE in IHprv1. eassumption. rewrite map_map.
-        specialize (IHprv2 (up_term xi)). erewrite <- up_term_form.
+        specialize (IHprv2 (up_term xi)). setoid_rewrite <- (up_term_form xi psi).
         erewrite map_map, map_ext in IHprv2. apply IHprv2.
         apply up_term_form.
     Qed.
@@ -131,7 +131,8 @@ Section ND_def.
           (map_ext_in _ (subst_form form_shift)) in H. 1,3: assumption. intros ? ? % HL.
         now apply cycle_shift_shift.
       - intros H % (subst_Weak ((var_term n)..)). rewrite map_map in *. rewrite (map_ext _ id), map_id in H.
-        assumption. now intuition comp.
+        assumption. intuition comp.
+        erewrite ext_form. now asimpl. intros []; now asimpl.
     Qed.
 
     Lemma nameless_equiv_ex A phi psi n :
@@ -144,8 +145,10 @@ Section ND_def.
         intros a Ha. specialize (HL a Ha). now rewrite cycle_shift_shift.
       - intros H % (subst_Weak ((var_term n)..)). cbn in *.
         rewrite map_map, (map_ext _ id), map_id in H.
-        + now asimpl in H.
-        + intros. now comp.
+        + assert (phi[↑][(var_term n)..] = phi) as <-.
+          asimpl. erewrite ext_form. now asimpl. intros []; now asimpl.
+          eassumption.
+        + intros. comp. erewrite ext_form. now asimpl. intros []; now asimpl.
     Qed.
 
     Lemma nameless_equiv_all' A phi :
@@ -410,7 +413,7 @@ Section DNT.
     - apply H5; apply H; cbn; lia.
     - apply H6. eauto. 
     - apply H7. intros t. apply H.
-      cbn. rewrite subst_size. lia.
+      cbn. setoid_rewrite subst_size. lia.
   Qed.
 
   Lemma dnt_float A phi :
@@ -442,21 +445,28 @@ Section DNT.
   Lemma dnt_to_IE A phi :
     A ⊢CE phi -> map dnt A ⊢IE dnt phi.
   Proof.
-    remember expl; remember class; induction 1; subst; comp; eauto using in_map; clean_dnt_correct.
-    - apply AllI. rewrite map_map in *. erewrite map_ext. apply IHprv. now setoid_rewrite <- dnt_subst.
-    - apply AllE with (t0 := t) in IHprv. now rewrite dnt_subst.
-    - ointros. ospecialize 0 t. oapply 0. rewrite dnt_subst in *. ouse IHprv.
+    remember expl; remember class. induction 1; subst; comp.
+    -  eauto 3 using in_map; clean_dnt_correct.
+    -  eauto using in_map; clean_dnt_correct.
+    - apply AllI. rewrite map_map in *. erewrite map_ext. apply IHprv; try reflexivity. now setoid_rewrite <- dnt_subst.
+    - apply AllE with (t0 := t) in IHprv. now setoid_rewrite dnt_subst. all:reflexivity.
+    - ointros. ospecialize 0 t. oapply 0. setoid_rewrite dnt_subst in IHprv. ouse IHprv.
     - oimport IHprv1. eapply dnt_float. ointros.
-      oapply 1. ointros. oapply 1. rewrite dnt_subst in *. ouse IHprv2.
+      oapply 1. ointros. oapply 1. setoid_rewrite dnt_subst in IHprv2. ouse IHprv2.
       intros ? [-> | (? & <- & ?) % in_map_iff]; eauto.
-      eapply in_map_iff in H1 as (? & <- & ?).
-      repeat right. eapply in_map_iff. exists (dnt x0). rewrite dnt_subst; eauto.      
-    - ointros. eapply IE. eapply CE1. ctx. eapply Weak. eassumption. firstorder.
-    - ointros. eapply IE. eapply CE2. ctx. eapply Weak. eassumption. firstorder.
+      eapply in_map_iff in H2 as (? & <- & ?).
+      repeat right. eapply in_map_iff. exists (dnt x0). setoid_rewrite dnt_subst; eauto.
+    -  eauto using in_map; clean_dnt_correct.
+    -  eauto using in_map; clean_dnt_correct.
+    -  eauto using in_map; clean_dnt_correct.
+    -  eauto using in_map; clean_dnt_correct.
+    -  eauto using in_map; clean_dnt_correct.
+    - ointros. eapply IE. eapply CE1. ctx. eapply Weak. eapply IHprv; try reflexivity. firstorder.
+    - ointros. eapply IE. eapply CE2. ctx. eapply Weak. eapply IHprv; try reflexivity. firstorder.
     - oimport IHprv1. eapply dnt_float. ointros.
       oapply 1. osplit.
-      + ointros. oapply 1. eapply Weak. eapply IHprv2. firstorder.
-      + ointros. oapply 1. eapply Weak. eapply IHprv3. firstorder.
+      + ointros. oapply 1. eapply Weak. eapply IHprv2. reflexivity. reflexivity. firstorder.
+      + ointros. oapply 1. eapply Weak. eapply IHprv3. reflexivity. reflexivity. firstorder.
     - change (((dnt phi --> dnt psi) --> dnt phi) --> dnt phi) with (dnt (((phi --> psi) --> phi) --> phi)).
       apply dnt_float. comp. ointros. oapply 0. ointros. oapply 0. ointros. oexfalso. oapply 2.
       ointros. ctx.

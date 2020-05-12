@@ -58,7 +58,7 @@ Section Gentzen.
           (map_ext_in _ (subst_form form_shift)) in H. 1,3: assumption. intros ? ? % HL.
         now apply (@cycle_shift_shift Sigma).
       - intros H % (seq_subst_Weak ((var_term n)..)). rewrite map_map in *. rewrite (map_ext _ id), map_id in H.
-        assumption. now intuition comp.
+        assumption. intuition comp. erewrite ext_form. now asimpl. intros []; now asimpl.
     Qed.
   End Weakening.
 

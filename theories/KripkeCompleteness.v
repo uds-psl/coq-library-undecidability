@@ -24,17 +24,22 @@ Section KripkeCompleteness.
   Section Contexts.
     Context {b : bottom}.
 
-    Instance K_ctx : kmodel term :=
+    Program Instance K_ctx : kmodel term :=
       {|
         reachable := @incl form ;
         k_interp := universal_interp ;
         k_P := fun A P v => sprv b A None (Pred P v) ;
         k_Bot := fun A => sprv b A None ⊥
       |}.
-    Proof.
-      1,3,4: abstract (eauto using seq_Weak).
-      - abstract (intuition; now apply (incl_tran H)).
-    Defined.
+    Next Obligation.
+      abstract (intuition; now apply (incl_tran H)).
+    Qed.
+    Next Obligation.
+      abstract (eauto using seq_Weak).
+    Qed.
+    Next Obligation.
+      abstract (eauto using seq_Weak).
+    Qed.
 
     Lemma K_ctx_correct (A : list form) rho phi :
       (rho ⊨(A, K_ctx ) phi -> A ⊢S phi[rho]) /\
@@ -57,7 +62,7 @@ Section KripkeCompleteness.
         eapply seq_nameless_equiv with (n := x) (phi0 := phi').
         + intros xi Hxi. apply u. constructor. intuition.
         + apply u. omega. intuition.
-        + asimpl. apply IHphi1. rewrite ksat_ext. 2: reflexivity. now apply Hsat.
+        + unfold phi'. asimpl. eapply IHphi1. rewrite ksat_ext. 2: reflexivity. now apply Hsat.
       - intros H t. apply IHphi2. intros B psi HB Hpsi. apply H. assumption.
         apply AllL with (t0 := t). now asimpl in *.
     Qed.
@@ -178,20 +183,20 @@ Section KripkeCompleteness.
 
     Hint Extern 1 => cctx.
 
-    Instance K_std : kmodel term :=
+    Program Instance K_std : kmodel term :=
       {|
         reachable := ctx_incl ;
         k_interp := universal_interp ;
         k_P := fun A P v => ~ ~ A ⊢SC (Pred P v) ;
         k_Bot := fun _ => False
       |}.
-    Proof.
-      - abstract eauto.
-      - abstract (cctx; firstorder).
-      - intros A B H P t H1 H2. apply H1. intros H3. apply H2.
-        abstract (eauto using seq_Weak).
-      - abstract (cctx; firstorder).
-    Defined.
+    Next Obligation.
+      abstract (cctx; firstorder).
+    Qed.
+    Next Obligation.
+      intros H2. apply H0. intros H3. apply H2.
+      abstract (eauto using seq_Weak).
+    Qed.
 
     Lemma K_std_standard :
       kstandard K_std.
@@ -233,7 +238,7 @@ Section KripkeCompleteness.
         eapply seq_nameless_equiv with (n := x) (phi0 := phi').
         + intros xi Hxi. apply u. constructor. intuition.
         + apply u. omega. intuition.
-        + asimpl. apply H'.
+        + unfold phi'. asimpl. apply H'.
       - intros H t. apply IHphi2. intros B psi HB Hpsi. apply H. assumption.
         apply AllL with (t0 := t). now asimpl in *.
     Qed.

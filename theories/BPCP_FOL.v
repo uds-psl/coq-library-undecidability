@@ -7,6 +7,7 @@
 From Undecidability.FOL Require Export PCP.
 From Undecidability.FOLC Require Export ND GenTarski.
 Require Import Equations.Prop.DepElim.
+Require Import Vector.
 
 (* ** Validity *)
 
@@ -15,7 +16,7 @@ Section validity.
   Notation u := 0. Notation v := 1.
   Context {p : peirce}.
   Context {b : bottom}.
-  Variable R : BSRS.
+  Variable R : stack bool.
 
   (* Require Import Undecidability.FOLC.InputSyntax. *)
 
@@ -84,7 +85,7 @@ Section validity.
       + cbn. intros. repeat dependent destruction X. exact [].
     - intros [].
       + cbn. intros. repeat dependent destruction X. exact (derivable R h h0).
-      + cbn. intros. repeat dependent destruction X. exact (BPCP' R).
+      + cbn. intros. repeat dependent destruction X. exact (BPCP R).
     - exact False.
   Defined.      
 
@@ -122,7 +123,7 @@ Section validity.
     rho ⊫ F2.
   Proof.
     unfold F2. intros ? ([x y] & <- & ?) % in_map_iff u v ?. cbn.
-    rewrite !IB_prep. cbn in *. eauto using derivable.
+    rewrite !IB_prep. cbn in *. econstructor 2; eauto. 
   Qed.
 
   Lemma IB_F3 rho :
@@ -138,7 +139,7 @@ Section validity.
   Qed.
 
   Lemma IB_F rho :
-    rho ⊨ F -> BPCP' R.
+    rho ⊨ F -> BPCP R.
   Proof.
     intros H. unfold F in H. rewrite !impl_sat in H. eapply H.
     - eapply IB_F1.
@@ -150,18 +151,18 @@ Section validity.
     derivable R u v -> rho ⊨ (F1 ⟹ F2 ⟹ Pr (enc u) (enc v)).
   Proof.
     rewrite !impl_sat. intros. induction H.
-    - eapply H0. eapply in_map_iff. exists (x/y). eauto.
+    - eapply H0. eapply in_map_iff. exists (x,y). eauto.
     - eapply (H1 (All (All (Pr 1 0 --> Pr (prep x 1) (prep y 0))))) in IHderivable.
       + cbn in *. unfold enc in *. 
         rewrite !iprep_eval in *. cbn in *.
         rewrite <- !iprep_app in IHderivable. eapply IHderivable.
-      + eapply in_map_iff. exists (x/y). eauto.
+      + eapply in_map_iff. exists (x,y). eauto.
   Qed.
   
   Theorem BPCP_valid :
     BPCP R <-> valid_L (fun D I => exploding_bot I) ([]) F.
   Proof.
-    rewrite BPCP_BPCP'. split.
+    split.
     - intros [u H] D I _ rho _.
       eapply (@drv_val _ _ _) in H. unfold F. cbn in *.
       rewrite !impl_sat in *. cbn in *.
@@ -182,10 +183,10 @@ Section validity.
   Proof.
     induction 1.
     - ctx. right. eapply in_app_iff. right.
-      rewrite <- in_rev. eapply in_map_iff. exists (x/y). eauto.
+      rewrite <- in_rev. eapply in_map_iff. exists (x,y). eauto.
     - assert (@prv min_sig p b ctx_S (All (All (Pr 1 0 --> Pr (prep x 1) (prep y 0))))).
       + ctx. right. eapply in_app_iff. left.
-        rewrite <- in_rev. eapply in_map_iff. exists (x/y). eauto.
+        rewrite <- in_rev. eapply in_map_iff. exists (x,y). eauto.
       + eapply AllE with (t := enc u) in H1; eauto.
         cbn in H1. rewrite !prep_subst in H1. cbn in H1.
         eapply AllE with (t := enc v) in H1; eauto. cbn in H1.
@@ -203,7 +204,7 @@ Section validity.
   Qed.
 
   Lemma BPCP_prv' :
-    BPCP' R -> @prv min_sig p b ([]) F.
+    BPCP R -> @prv min_sig p b ([]) F.
   Proof.
     intros [u H].
     apply drv_prv in H. unfold F.
@@ -218,10 +219,10 @@ End validity.
 Theorem BPCP_prv R :
   BPCP R <-> [] ⊢IE (F R).
 Proof.
-  rewrite BPCP_BPCP'. split.
+  split.
   - apply BPCP_prv'.
   - intros H. eapply Soundness with (C := fun D I => exploding_bot I) in H.
-    eapply BPCP_BPCP'. now apply (BPCP_valid R).
+    now apply (BPCP_valid R).
     intros; congruence. firstorder.
 Qed.
 

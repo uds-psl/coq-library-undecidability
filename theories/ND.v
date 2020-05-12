@@ -90,7 +90,7 @@ Section ND_def.
           (map_ext_in _ (subst_form form_shift)) in H. 1,3: assumption. intros ? ? % HL.
         now apply cycle_shift_shift.
       - intros H % (subst_Weak ((var_term n)..)). rewrite map_map in *. rewrite (map_ext _ id), map_id in H.
-        assumption. now intuition comp.
+        assumption. intuition comp. erewrite ext_form. asimpl. reflexivity. intros []; now asimpl.
     Qed.
   End Weakening.
 
@@ -442,7 +442,7 @@ Section SigExt.
   Lemma sig_lift_out {Sigma : Signature} (A : list form) (phi : form) :
     @prv (sig_ext Sigma) _ _ (map (fun psi => (sig_lift psi)[@ext_c Sigma]) A) ((sig_lift phi)[@ext_c Sigma]) -> A ⊢ phi.
   Proof.
-    intros H % (sig_drop_Weak 0). rewrite lift_drop_inverse in H. rewrite map_map in H. erewrite map_ext in H.
+    intros H % (sig_drop_Weak 0). setoid_rewrite lift_drop_inverse in H. rewrite map_map in H. erewrite map_ext in H.
     2: apply lift_drop_inverse. now rewrite map_id in H.
   Qed.
 
@@ -496,7 +496,7 @@ Section DNT.
   Proof.
     remember expl; remember class; induction 1; subst; comp; eauto using in_map; clean_dnt_correct.
     - apply AllI. rewrite map_map in *. erewrite map_ext. apply IHprv. now setoid_rewrite <- dnt_subst.
-    - apply AllE with (t0 := t) in IHprv. now rewrite dnt_subst.
+    - apply AllE with (t0 := t) in IHprv. now setoid_rewrite dnt_subst.
     - change (((dnt phi --> dnt psi) --> dnt phi) --> dnt phi) with (dnt (((phi --> psi) --> phi) --> phi)).
       apply dnt_float. comp. ointros. oapply 0. ointros. oapply 0. ointros. oexfalso. oapply 2.
       ointros. ctx.

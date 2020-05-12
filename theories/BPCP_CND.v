@@ -71,7 +71,7 @@ Proof.
   - eapply II.
     eapply AllI.
     edestruct nameless_equiv_all' as [t]. eapply H0. clear H0.
-    specialize (H t). oimport H. rewrite trans_subst. oapply 0.
+    specialize (H t). oimport H. setoid_rewrite trans_subst. oapply 0.
     unfold dnQ. ointros. oapply 2. ointros.
     oapply 1. eapply AllE. ctx.
 Qed.
@@ -108,12 +108,12 @@ Qed.
     
 Section BPCP_CND.
 
-  Variable R : BSRS.
+  Variable R : stack bool.
   
   Lemma BPCP_to_CND :
     BPCP R -> [] ⊢CE (F R).
   Proof.
-    intros H. rewrite BPCP_BPCP' in *. now apply BPCP_prv'.
+    intros H. now apply BPCP_prv'.
   Qed.
 
   Lemma impl_trans A phi :
@@ -128,7 +128,7 @@ Section BPCP_CND.
     intros H % Double. eapply Soundness with (C := exploding_bot) in H.
     specialize (H _ (IB R) (ltac:(firstorder)) (fun _ => nil)).
     unfold F, F1, F2 in H. rewrite !impl_trans, !map_map, !impl_sat in H. cbn in H.
-    eapply BPCP_BPCP'.  eapply H.
+    eapply H.
     - eauto.
     - intros ? [(x,y) [<- ?] ] % in_map_iff ?. cbn in *. eapply H1.
       left. now rewrite !IB_enc.

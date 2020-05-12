@@ -98,7 +98,7 @@ Section FOL.
     destruct phi; trivial.
     - apply H2; apply H; cbn; lia.
     - apply H3. intros t. apply H.
-      cbn. rewrite subst_size. lia.
+      cbn. unfold subst1. rewrite subst_size. lia.
   Qed.
 
   (* **** Forall and Vector.t technology **)
@@ -661,7 +661,7 @@ Section SigExt.
       specialize (sig_lift_subst_term xi x) as ?. now comp.
     - f_equal. rewrite IHphi. comp. apply ext_form. intros []. 1: reflexivity.
       comp. unfold ">>". specialize (sig_lift_subst_term (fun x => var_term (shift x)) (xi n)) as H.
-      comp. now rewrite <- H.
+      comp. now rewrite H.
   Qed.
 
   Fixpoint fin_minus (n m : nat) : (n < m) + {x | x = n - m} :=

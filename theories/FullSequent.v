@@ -120,7 +120,7 @@ Section FullSequent.
         (map_ext_in _ (subst_form form_shift)) in H. 1,3: assumption. intros ? ? % HL.
       now apply cycle_shift_shift.
     - intros H % (subst_Weak ((var_term n)..)). rewrite map_map in *. rewrite (map_ext _ id), map_id in H.
-      assumption. now intuition comp.
+      assumption. intuition comp. erewrite ext_form. now asimpl. intros []; now asimpl.
   Qed.
 
   Lemma nameless_equiv' A psi phi n :
@@ -133,7 +133,9 @@ Section FullSequent.
       1,3: assumption. apply HL; intuition.
       intros a Ha. specialize (HL a (or_intror Ha)). now rewrite cycle_shift_shift.
     - intros H % (subst_Weak ((var_term n)..)). cbn in *. rewrite map_map, (map_ext _ id), map_id in H.
-      1: now asimpl in H. intros; now comp.
+      enough (phi = phi[↑][(var_term n)..]) as ->. eassumption.
+      asimpl. erewrite ext_form. now asimpl. intros []; now asimpl.
+      intros; comp. erewrite ext_form. now asimpl. intros []; now asimpl.
   Qed.
 
   (* **** Big Or Lemmas *)
@@ -156,7 +158,9 @@ Section FullSequent.
     (A ⊢f phi[↑]) <-> [ psi[(var_term n)..] | psi ∈ A] ⊢f phi.
   Proof.
     intros HL Hphi. split.
-    - intros H % (subst_Weak ((var_term n)..)). comp. now asimpl in H.
+    - intros H % (subst_Weak ((var_term n)..)). comp.
+      enough (phi = phi[↑][(var_term n)..]) as ->. eassumption.
+      asimpl. erewrite ext_form. now asimpl. intros []; now asimpl.
     - intros H % (subst_Weak (cycle_shift n)). rewrite map_map in *.
       rewrite (map_ext_in _ id), map_id, cycle_shift_shift in H. 1-2: assumption.
       intros ? ? % HL. rewrite cycle_shift_subject; unfold id; tauto.

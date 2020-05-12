@@ -78,7 +78,8 @@ Section DialogFragment.
       + rewrite map_map. apply eq_incl, map_ext. intros a. now asimpl.
       + intros ? ->. enough ((phi [var_term O .: rho >> (subst_term form_shift)]) [t .: ids] =
                               (subst_form (@scons term t rho) phi)) as <- by apply (DAll _ t).
-        now asimpl.
+        asimpl. erewrite ext_form. reflexivity. intros []. asimpl. reflexivity. asimpl.
+        erewrite ext_term. asimpl. reflexivity.  intros []; now asimpl.
     - apply Dprv_exp with (T := @defense _ form_rules ⊥ None ABot).
       eapply (Dprv_defend (IHsprv rho)) with (adm := None). tauto. intros ?; inversion 1.
     - apply (@Dprv_ax _ form_rules _ _ _ (phi [rho]) sf_well_founded sf_form_rules); intuition.
@@ -92,7 +93,12 @@ Section DialogFragment.
         tauto. destruct adm; cbn; firstorder. tauto.
     - apply (@Att _ form_rules _ _ _ None (AAll (phi [var_term O .: rho >> (subst_term form_shift)]) (t [rho])));
         [intuition | | discriminate | discriminate].
-      intros chi Hdef; inversion Hdef; subst; apply (Dprv_weak (IHsprv rho)); asimpl in *; firstorder. 
+      intros chi Hdef; inversion Hdef; subst; apply (Dprv_weak (IHsprv rho)); asimpl in *.
+      + intros ? [ <- | ].
+        * left. asimpl. erewrite ext_form. reflexivity.
+        intros []. now asimpl. asimpl. erewrite ext_term. now asimpl. intros []; now asimpl.
+        *  right. now right.
+      + firstorder.
   Qed.
 
   Lemma ND_defend A phi :
