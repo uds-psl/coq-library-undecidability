@@ -7,3 +7,6 @@
 *.coqdeps.d
 *.lia.cache
 *.nia.cache
+*.vos
+*.vok
+*.Makefile.coq.d
