@@ -76,6 +76,52 @@ Proof.
     asimpl. eassumption.
 Qed.
 
+Definition model_existence' (Cond : forall Sigma D, @interp Sigma D -> Prop) :=
+  forall {Sigma : Signature},
+  forall {HdF : eq_dec Funcs} {HdP : eq_dec Preds},
+  forall {HeF : enumT Funcs} {HeP : enumT Preds},
+  forall T (T_closed : closed_T T), consistent T ->
+  exists (D : Type) (I : @interp Sigma D) rho, inhabited (eq_dec D) /\ inhabited (enumT D) /\
+                                    Cond Sigma D I /\ forall phi, phi ∈ T -> rho ⊨ phi.
+
+Lemma modex_standard :
+  model_existence' (@SM).
+Proof.
+  intros Sigma HdF HdP HeF HeP T T_closed T_cons.
+  pose proof (@model_bot_correct Sigma HdF HdP HeF HeP T T_closed).
+  exists (@term Sigma). eexists. exists ids.
+  setoid_rewrite <- H.
+  repeat split; try exact _.
+  - eapply model_bot_classical.
+  - now eapply model_bot_standard.
+  - intros. eapply Out_T_sub. cbn. asimpl. assumption.
+Qed.
+
+Definition compactness (C : forall Sigma D, @interp Sigma D -> Prop) :=
+  forall {Sigma : Signature},
+  forall {HdF : eq_dec Funcs} {HdP : eq_dec Preds},
+  forall {HeF : enumT Funcs} {HeP : enumT Preds},
+  forall T (T_closed : closed_T T),
+  (forall Gamma, Gamma ⊏ T -> exists D (I : interp D) rho, C Sigma D I /\ forall phi, phi el Gamma -> rho ⊨ phi)
+  -> exists D (I : interp D) rho, C Sigma D I /\ forall phi, phi ∈ T -> rho ⊨ phi.
+
+Lemma modex_compact (C : forall Sigma D, @interp Sigma D -> Prop) :
+  (forall Sigma D I, C Sigma D I -> @SM Sigma D I) -> model_existence' C -> compactness C.
+Proof.
+  intros HC HM Sigma HdF HdP HeF HeP T T_closed H.
+  apply HM in T_closed as (D & I & rho & _ & _ & HI); trivial.
+  + intros [Gamma [H1 H2]]. apply H in H1 as (D & I & rho & H3 & H4).
+    apply HC in H3. apply Soundness' in H2.
+    apply H3. now apply (H2 D I H3 rho).
+  + now exists D, I, rho.
+Qed.
+
+Lemma compact_standard :
+  compactness (@SM).
+Proof.
+  apply modex_compact; try tauto. apply modex_standard.
+Qed.
+
 Definition DM `{Signature} D (I : interp D) := classical I /\ standard_bot I /\ GenTarski.decidable I.
 
 (* Goal model_existence_dec -> WKL. *)
