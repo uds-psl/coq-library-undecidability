@@ -97,7 +97,7 @@ Definition compactness (C : forall Sigma D, @interp Sigma D -> Prop) :=
   forall {HdF : eq_dec Funcs} {HdP : eq_dec Preds},
   forall {HeF : enumT Funcs} {HeP : enumT Preds},
   forall T (T_closed : closed_T T),
-  (forall Gamma, Gamma ⊏ T -> has_model SM (fun x => In x Gamma))
+  (forall Gamma, Gamma ⊏ T -> has_model (C Sigma) (fun x => In x Gamma))
   -> has_model (C Sigma) T.
 
 Lemma modex_standard :
@@ -114,19 +114,20 @@ Proof.
 Qed.
 
 Lemma modex_compact (C : forall Sigma D, @interp Sigma D -> Prop) :
+  (forall Sigma D I, C Sigma D I -> SM I) ->
   model_existence C -> compactness C.
 Proof.
-  intros HM Sigma HdF HdP HeF HeP T T_closed H.
+  intros HImpl HM Sigma HdF HdP HeF HeP T T_closed H.
   apply HM in T_closed as (D & I & rho & HI); trivial.
   + intros [Gamma [H1 H2]]. apply H in H1 as (D & I & rho & H3 & H4).
-    apply Soundness' in H2. apply H4. now apply (H2 D I H4 rho).
+    apply Soundness' in H2. eapply HImpl. apply H4. now eapply (H2 D I (HImpl _ _ _ H4) rho). 
   + now exists D, I, rho.
 Qed.
 
 Lemma compact_standard :
   compactness (fun Sigma D I => @SM Sigma D I /\ countable D).
 Proof.
-  apply modex_compact. apply modex_standard.
+  apply modex_compact. 2:apply modex_standard. firstorder.
 Qed.
 
 Definition decidable_model := 
@@ -448,16 +449,14 @@ Section WKL.
           exact (nth n l false = true).
         * exact False.
       + exists I.
-        assert (omn : omniscient I).
-        { eapply decidable_to_omniscient.
+        assert (decI : decidable_model I). {
           unshelve eexists.
           -- cbn. intros n _.
              exact (nth n l false).
           -- cbn. reflexivity.
-          -- now cbv.
         }
-        assert (SB : standard_bot I).
-        { now cbv. }
+        assert (SB : standard_bot I) by now cbv.
+        assert (omn : omniscient I) by now eapply decidable_to_omniscient. 
         exists (fun _ => tt). repeat split; eauto.
         * intros phi (n & <- & H) % in_map_iff.
           assert (Hn : n <= m) by now eapply max_list_spec'.
@@ -472,6 +471,7 @@ Section WKL.
              rewrite <- nth_default_eq. unfold nth_default. now rewrite HH.
              rewrite <- nth_default_eq. unfold nth_default. destruct (nthe j l); congruence.
         * now eapply omniscient_to_classical.
+        * exists (fun _ => [tt]). eauto. intros []; eauto.
     - pose (g := fun n : nat => f n Vector.nil).
       exists g. intros n. unfold Th in H.
       specialize (H (phi n) ltac:(unfold contains; eauto)).
