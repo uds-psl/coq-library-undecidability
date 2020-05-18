@@ -43,7 +43,7 @@ Record is_tree (tree_T : list bool -> Prop) :=
   {
     tree_inhab : exists l : list bool, tree_T l ;
     tree_p : forall l1 l2, prefix l1 l2 -> tree_T l2 -> tree_T l1 ;
-    tree_dec :       decidable tree_T ;
+    (* tree_dec :       decidable tree_T ; *)
   }.
 
 Record tree :=
@@ -78,8 +78,10 @@ Proof.
   eauto.
 Qed.
 
-Definition WKL :=
-  forall T : tree, infinite_tree T -> infinite_path T.
+Definition stable {X} (p : X -> Prop) := forall x, ~~ p x -> p x.
+
+Definition WKL C :=
+  forall T : tree, C T -> infinite_tree T -> infinite_path T.
 
 (** ** Model existence  *)
 
@@ -293,21 +295,30 @@ Definition listable {X} (p : X -> Prop) := { L : list X | forall x, p x <-> In x
 Lemma listable_list_length :
   forall k : nat, listable (fun x : list bool => length x = k).
 Proof.
-  induction k as [ | k [L IH] ].
-  - exists [ [] ]. intros [] ; cbv ; firstorder. inv H.
-  - exists (map (cons true) L ++ map (cons false) L).
+  fix rec 1.
+  destruct k as [ | k  ].
+  - clear rec. exists [ [] ]. intros [] ; cbv ; firstorder. inv H.
+  - specialize (rec k) as (L & IH). exists (map (fun l => l ++ [true]) L ++ map (fun l => l ++ [false]) L).
     intros l.
     rewrite in_app_iff, !in_map_iff.
     repeat setoid_rewrite <- IH.
-    destruct l as [ | [] ].
-    + cbn. split. inversion 1. firstorder congruence.
+    destruct l as [ | [] ? _] using rev_ind.
+    + cbn. split. inversion 1. intros [([] & [=] & <-) | ([] & [=] & <-)].
     + cbn. split. 
-      * inversion 1. eauto.
-      * firstorder; now inv H.
+      * inversion 1. rewrite app_length in H. cbn in H. rewrite plus_comm in H. inv H. eauto.
+      * firstorder.
+        -- eapply app_inj_tail in H as []. subst.
+           now rewrite app_length, plus_comm.
+        -- eapply app_inj_tail in H as []. subst.
+           now rewrite app_length, plus_comm.
     + cbn. split. 
-      * inversion 1. eauto.
-      * firstorder; now inv H.
-Qed.
+      * inversion 1. rewrite app_length in H. cbn in H. rewrite plus_comm in H. inv H. eauto.
+      * firstorder.
+        -- eapply app_inj_tail in H as []. subst.
+           now rewrite app_length, plus_comm.
+        -- eapply app_inj_tail in H as []. subst.
+           now rewrite app_length, plus_comm.
+Defined.
 
 Notation nat := (nat).
 
@@ -350,49 +361,112 @@ Proof.
   - intros H k. destruct (H k) as (? & ? & ?). exists x. split. eauto. lia.
 Qed.
 
+Inductive Is_Filter {X} (P : X -> Prop) : list X -> list X -> Prop :=
+| Is_Filter_nil : Is_Filter P nil nil
+| Is_Filter_true x l1 l2 : Is_Filter P l1 l2 -> P x -> Is_Filter P (x :: l1) (x :: l2)
+| Is_Filter_false x l1 l2 : Is_Filter P l1 l2 -> ~ P x -> Is_Filter P (x :: l1) l2.
+
+Lemma Is_Filter_In {X} (P : X -> Prop) {l1 : list X} {l2 : list X} {x} :
+  Is_Filter P l1 l2 ->
+  In x l2 <-> In x l1 /\ P x.
+Proof.
+  induction 1 in x |- *.
+  - firstorder.
+  - cbn; rewrite IHIs_Filter; now firstorder subst.
+  - cbn; rewrite IHIs_Filter; now firstorder subst.
+Qed.
+
+Lemma Is_Filter_func {X} (P : X -> Prop) {l1 : list X} {l2 l2' : list X} :
+  Is_Filter P l1 l2 -> Is_Filter P l1 l2' ->
+  l2 = l2'.
+Proof.
+  induction 1 in l2' |- *; inversion 1; subst; f_equal; intuition.
+Qed.
+
+Lemma Is_filter_exists {X} (P : X -> Prop) {l1 : list X} :
+  ~~ exists l2, Is_Filter P l1 l2.
+Proof.
+  induction l1.
+  - intros H; apply H. repeat econstructor.
+  - intros H. eapply IHl1. intros (l2 & Hl2).
+    assert (Ha : ~~ (P a \/ ~ P a)) by tauto.
+    apply Ha. clear Ha. intros [Ha | Ha].
+    + eapply H. exists (a :: l2). econstructor; eauto.
+    + eapply H. exists l2. econstructor; eauto.
+Qed.
+
+Lemma  Forall2_In {A B} (P : A -> B -> Prop) (l1 : list A) (l2 : list B) b :
+  Forall2 P l1 l2 ->
+  In b l2 -> exists a, In a l1 /\ P a b.
+Proof.
+  induction 1.
+  - firstorder.
+  - intros [-> | H1].
+    + exists x; eauto.
+    + destruct (IHForall2 H1) as (? & ? & ?). eauto.
+Qed.
+
+(* Lemma Is_Filter_app {A} (P : A -> Prop) (l1 l1' l2 : list A) : *)
+(*   Is_Filter P (l1 ++ l1') l2 -> exists l2' l2'', Is_Filter P l1 l2' /\ Is_Filter P l1' l2''. *)
+(* Proof. *)
+(*   induction l1 in l1', l2 |- *; cbn; intros H. *)
+(*   - exists [], l2. firstorder. econstructor. *)
+(*   - inv H. *)
+(*     + destruct (IHl1 l1' l3) as (l2' & l2'' & ? & ?); eauto. *)
+(*       repeat econstructor; eauto. *)
+(*     + destruct (IHl1 l1' l2) as (l2' & l2'' & ? & ?); eauto. *)
+(*       eexists. eexists. split. econstructor 3. all:eauto. *)
+(* Qed. *)
+
+(* Lemma Is_Filter_of_listable: *)
+(*   forall (T : tree) (m0 : nat) (L : list (list bool)), *)
+(*     Is_Filter T (proj1_sig (listable_list_length (S m0))) L -> exists L' : list (list bool), Is_Filter T (proj1_sig (listable_list_length m0)) L'. *)
+(* Proof. *)
+(*   intros T m0 L H_L. *)
+(*   assert ((proj1_sig (listable_list_length (S m0)) = map (fun l => l ++ [ true]) (proj1_sig (listable_list_length m0)) ++ map (fun l => l ++ [ false ]) (proj1_sig (listable_list_length m0)))). *)
+(*   - cbn. now destruct (listable_list_length m0). *)
+(*   - setoid_rewrite H in H_L. clear H. *)
+(*     eapply Is_Filter_app in H_L as (L1 & _ & HL1 & _). *)
+(*     revert HL1.  *)
+(*     generalize ((@proj1_sig (list (list bool)) (fun L0 : list (list bool) => forall x : list bool, iff (@eq Datatypes.nat (@length bool x) m0) (@In (list bool) x L0)) *)
+(*                             (listable_list_length m0))). *)
+(*     induction l in L, L1 |- *; cbn; intros. *)
+(*     + exists []. econstructor. *)
+(*     + edestruct IHl as (L' & HL'). *)
+(*       3:{ inv HL1. *)
+(*           - exists (a :: L'). econstructor.  eauto. eapply tree_p. eapply T. 2:eauto. eexists; eauto. *)
+(*           - exists L'. econstructor 3. eauto. *)
+(* Admitted. *)
+
+(* Lemma Is_Filter_subset {X} {Heq : eq_dec X} (P : X -> Prop) {l1 l2 l1' : list X} f : *)
+(*   f l1' <<= l1 -> Is_Filter P l1 l2 -> exists l2', Is_Filter P l1' l2'. *)
+(* Proof. *)
+(*   intros H Hf. induction l1' in l1, l2, H, Hf |- *. *)
+(*   - exists []. econstructor. *)
+(*   - destruct (list_in_dec (f a) l2 Heq) as [H1 | H1]. *)
+(*     + eapply (Is_Filter_In Hf) in H1 as [H1 H2]. *)
+(*       edestruct (IHl1' l1 l2) as (l2' & Hl2). admit. eauto. *)
+(*       exists (a :: l2'). econstructor; eauto. *)
+(*     + edestruct (IHl1' l1 l2) as (l2' & Hl2). admit. eauto. *)
+(*       exists l2'. econstructor 3.  eauto. intros Ha. *)
+      
+
+Lemma Forall2_In1 {A B} (P : A -> B -> Prop) (l1 : list A) (l2 : list B) a :
+  Forall2 P l1 l2 ->
+  In a l1 -> exists b, In b l2 /\ P a b.
+Proof.
+  induction 1.
+  - firstorder.
+  - intros [-> | H1].
+    + exists y; eauto.
+    + destruct (IHForall2 H1) as (? & ? & ?). eauto.
+Qed.
+
 Section WKL.
 
   Variable T : tree.
-  Variable T_D : list bool -> bool.
-  Variable HD : forall x, T_D x = true <-> T x.
-
-  Definition phi n := fExists (map (fun l => fAll (mapi (fun i (b : bool) => if b then @Pred count_sig i Vector.nil else Neg (@Pred count_sig i Vector.nil)) l 0)) (filter T_D (proj1_sig (listable_list_length n)))).
-
-  Definition Th psi := exists n, psi = phi n.
-
-  Lemma phi_down_S D (I : interp D) rho n :
-    @standard_bot count_sig D I -> omniscient I ->
-      rho ⊨ phi (S n) -> rho ⊨ phi n.
-  Proof.
-    intros SB omn H.
-    eapply fExists_sat in H as (phi' & H1 & H); eauto.
-    eapply in_map_iff in H1 as (l & <- & [H3 H4] % in_filter_iff); eauto.
-    rewrite fAll_sat in H; eauto.
-    destruct (listable_list_length (S n)) as [L HL].
-    cbn in *. eapply HL in H3.
-    destruct l as [ | b l _] using rev_ind; try now inv H3.
-    rewrite app_length in H3. cbn in H3. rewrite plus_comm in H3. inv H3.
-    eapply fExists_sat; eauto.
-    eexists. split.
-    - eapply in_map_iff. exists l. split. reflexivity.
-      eapply in_filter_iff. split.
-      destruct listable_list_length as [L' HL'].
-      + cbn. eapply HL'. reflexivity.
-      + eapply HD in H4. eapply HD.
-        eapply tree_p. eapply T. 2:exact H4. exists [b]; eauto.
-    - eapply fAll_sat; eauto. intros. eapply H. rewrite mapi_app. eapply in_app_iff. eauto.
-  Qed.
-
-  Lemma phi_down D (I : interp D) rho n m :
-    @standard_bot count_sig D I -> omniscient I ->
-    rho ⊨ phi n -> n >= m -> rho ⊨ phi m.
-  Proof.
-    intros SB omn H1 H2. induction H2.
-    - eauto.
-    - eapply IHle, phi_down_S, H1; eauto.
-  Qed.
-
-  (* Induktionsbeispiele von Kathrin *)
+  (* Variable T_D : list bool -> bool. *)
+  (* Variable HD : forall x, T_D x = true <-> T x. *)
 
   Lemma decidable_to_omniscient {Σ : Signature} (I : interp unit) :
     decidable_model I -> standard_bot I -> omniscient I.
@@ -415,127 +489,244 @@ Section WKL.
     destruct (d phi rho), (d psi rho); tauto.
   Qed.
 
+  Definition is_phi n psi := exists L, Is_Filter T (proj1_sig (listable_list_length n)) L /\ psi = fExists (map (fun l => fAll (mapi (fun i (b : bool) => if b then @Pred count_sig i Vector.nil else Neg (@Pred count_sig i Vector.nil)) l 0)) (L)).
+
+  Definition Th psi := exists n, is_phi n psi.
+
+  Lemma closed_Th :
+    closed_T Th.
+  Proof.
+    intros psi n (m & L & H_L & ->).
+    induction H_L; cbn.
+    + econstructor.
+    + repeat econstructor; eauto.
+      generalize 0 as k. clear.
+      induction x; intros; cbn; try destruct a; repeat econstructor.
+      * intros. inv X.
+      * eauto.
+      * intros. inv X.
+      * eauto.
+    + repeat econstructor; eauto.
+  Qed.
+
+  Lemma get_index_list Γ :
+    Γ ⊏ Th -> exists L, List.Forall2 is_phi L Γ.
+  Proof.
+    intros HΓ.
+    induction Γ as [ | psi Γ].
+    - now exists [].
+    - destruct IHΓ as [L]. firstorder subst.
+      subst. specialize (HΓ psi (or_introl eq_refl)) as [n Hn].
+      exists (n :: L). subst. econstructor; eauto.
+  Qed.
+
+  Lemma phi_down D (I : interp D) rho n m phi_n phi_m :
+    @standard_bot count_sig D I -> omniscient I ->
+    is_phi n phi_n -> is_phi m phi_m ->
+    rho ⊨ phi_n -> n >= m -> rho ⊨ phi_m.
+  Proof.
+    intros SB omn (L & H_L & ->) (L' & H_L' & ->) H.
+    eapply fExists_sat in H as (phi' & H1 & H); eauto.
+    destruct (listable_list_length n) as [L_ HL] eqn:E.
+    eapply in_map_iff in H1 as (l & <- & [H3 % HL H4] % (Is_Filter_In H_L)); eauto.
+    rewrite fAll_sat in H; eauto.
+    intros Hle.
+    eapply fExists_sat; eauto.
+    eexists. split.
+    - eapply in_map_iff. exists (firstn m l). split. reflexivity.
+      eapply Is_Filter_In; eauto.
+      split.
+      + destruct (listable_list_length m). cbn. eapply i.
+        eapply firstn_length_le. lia.
+      + eapply tree_p.  eapply T. 2:eauto. rewrite <- (firstn_skipn m l) at 2. eexists; eauto.
+    - eapply fAll_sat; eauto. intros. eapply H.
+      rewrite <- (firstn_skipn m l).
+      rewrite mapi_app. eauto.
+  Qed.
+
+  Set Nested Proofs Allowed.
+  
+  Definition M_u (u : list bool) : @interp count_sig unit.
+    econstructor.
+    * intros [].
+    * cbn. intros n _.
+      exact (nth n u false = true).
+    * exact False.
+  Defined.
+
+  Lemma M_u_SB u : standard_bot (M_u u).
+  Proof.
+    now cbv.
+  Qed.
+  Hint Immediate M_u_SB.
+
+  Lemma M_u_dec l : decidable_model (M_u l).
+  Proof.
+    unshelve eexists.
+    -- cbn. intros k _.
+       exact (nth k l false).
+    -- cbn. reflexivity.
+  Qed.
+  Hint Immediate M_u_dec.
+
+  Lemma M_u_omni u : omniscient (M_u u).
+  Proof.
+    eapply decidable_to_omniscient; eauto.
+  Qed.
+  Hint Immediate M_u_omni.
+
+  Lemma model_u u :
+    T u -> forall phi_n n, n <= |u| -> is_phi n phi_n -> sat (I := M_u u) (fun _ => tt) phi_n.
+  Proof.
+    revert u. intros l Hs' phi_m m H  Hphi.
+    destruct Hphi as (L' & HL' & ->).
+    eapply fExists_sat; eauto. eexists. split.
+    -- eapply in_map_iff. exists (firstn m l). split. reflexivity.
+       eapply Is_Filter_In. eassumption. split; eauto.
+       destruct listable_list_length as (? & HH). cbn. eapply HH. rewrite firstn_length. lia.
+       eapply tree_p. eapply T. 2:eauto. rewrite <- (firstn_skipn m l) at 2. eexists; eauto.
+    -- eapply fAll_sat; eauto. intros phi' (b & j & <- & HH) % in_mapi_iff.
+       rewrite <- plus_n_O. destruct b; cbn.
+       rewrite <- nth_default_eq. unfold nth_default. rewrite <- (firstn_skipn m l).
+       rewrite (nthe_app_l _ HH); eauto.
+       rewrite <- nth_default_eq. unfold nth_default. rewrite <- (firstn_skipn m l).
+       rewrite (nthe_app_l _ HH); eauto.
+  Qed.
+
+  Hint Resolve omniscient_to_classical.
+
+  Instance enumT_unit : enumT unit.
+  Proof.
+    exists (fun _ => [tt]). eauto. intros []; cbn; exists 0. eauto.
+  Qed.
+
+  Lemma infinite_finitely_satisfiable :
+    infinite_tree T -> forall Gamma : list form, Gamma ⊏ Th -> has_model (DM) (fun x : form => x el Gamma).
+  Proof.
+    intros infT. intros Γ HΓ.
+    pose proof (get_index_list HΓ) as [L HL]. 
+    pose (m := max_list L).
+    rewrite infinite_iff in infT.
+    destruct (infT m) as (l & Hl & Hs).
+    exists unit, (M_u l), (fun _ => tt).
+    repeat split; eauto.
+    intros phi (n & H & Hphi) % (Forall2_In HL).
+    assert (Hn : n <= m) by now eapply max_list_spec'.
+    assert (In m L) as (phi_m & Hphi_m & Hm) % (Forall2_In1 HL) by (eapply max_list_spec; intros ->; inv H).
+    eapply phi_down with (n := m); eauto.
+    destruct Hm as (L' & HL' & ->).
+    eapply fExists_sat; eauto. eexists. split.
+    - eapply in_map_iff. exists (firstn m l). split. reflexivity.
+      eapply Is_Filter_In. eassumption. split; eauto.
+      destruct listable_list_length as (? & HH). cbn. eapply HH. rewrite firstn_length. lia.
+      eapply tree_p. eapply T. 2:eauto. rewrite <- (firstn_skipn m l) at 2. eexists; eauto.
+    - eapply fAll_sat; eauto. intros phi' (b & j & <- & HH) % in_mapi_iff.
+      rewrite <- plus_n_O. destruct b; cbn.
+      rewrite <- nth_default_eq. unfold nth_default. rewrite <- (firstn_skipn m l).
+      rewrite (nthe_app_l _ HH); eauto.
+      rewrite <- nth_default_eq. unfold nth_default. rewrite <- (firstn_skipn m l).
+      rewrite (nthe_app_l _ HH); eauto.
+  Qed.
+
+  (* Induktionsbeispiele von Kathrin *)
+
+  Lemma phi_exists n :
+    ~~ exists phi, is_phi n phi.
+  Proof.
+    intros H.
+    eapply (Is_filter_exists (l1 := proj1_sig (listable_list_length n)) (P := T)).
+    intros (L & HL).
+    eapply H. repeat econstructor; eassumption.
+  Qed.
+
+  Lemma exists_quasi_path :
+    has_model (DM) Th -> exists f : nat -> bool, forall n : nat, ~~ T (map f (seq 0 n)).
+  Proof.
+    intros (D & I & rho & H & (classI & standI) & (eq_dec_D & enum_D) & (f & decI)).
+    pose (g := fun n : nat => f n Vector.nil).
+    exists g. intros n. unfold Th in H. unfold contains in H.
+    intros HT. eapply (@phi_exists n). intros (phi_n & Hphin). eapply HT; clear HT.
+    specialize (H (phi_n) ltac:(unfold contains; eauto)).
+    assert ( forall l, forall phi0 : form, phi0 el mapi (fun (i : nat) (b : bool) => if b then @Pred count_sig i Vector.nil else Neg (@Pred count_sig i Vector.nil)) l 0 -> forall rho0 : env D, dec (rho0 ⊨ phi0)) as HHH.  {
+      intros ? ? ? % in_mapi_iff. clear - H1 standI decI.
+      revert H1.
+      generalize 0 as k.
+      induction l; intros k H1.
+      * exfalso. destruct H1 as (? & [] & ? & ?); cbn in *; congruence.
+      * decide (phi0 = @Pred count_sig k Vector.nil).
+        -- subst. intros. destruct (f k Vector.nil) eqn:E.
+           left. eapply decI. eauto. right. intros ? % decI. cbn in *. congruence.
+        -- decide (phi0 = Neg (@Pred count_sig k Vector.nil)).
+           ++ subst. intros. destruct (f k Vector.nil) eqn:E.
+              right. eapply decI in E. cbn. firstorder. left.
+              intros ? % decI. cbn in *. congruence.
+           ++ eapply (IHl (S k)).
+              destruct H1 as (x & j & ? & ?).
+              destruct j.
+              ** cbn in H0. destruct x.
+                 --- inv H0. cbn in n. congruence.
+                 --- inv H0. cbn in n0. congruence.
+              ** cbn in *. exists x, j; destruct x; subst; split; eauto; repeat f_equal; lia.
+    }
+    destruct Hphin as (L_ & HL_ & ->).
+    eapply fExists_sat' in H as (phi' & H1 & H); eauto.
+    eapply in_map_iff in H1 as (l & <- & HLL).
+    rewrite fAll_sat' in H.
+    destruct (listable_list_length n) as [L HL].
+    cbn in *.
+    eapply (Is_Filter_In HL_) in HLL as [H3 H4].
+    eapply HL in H3. 
+    enough (l = [g p | p ∈ seq 0 n]) as -> by eassumption.
+    subst. clear - H decI standI.
+    revert H. generalize 0 as k.
+    induction l; cbn; intros.
+    + reflexivity.
+    + f_equal. destruct a.
+      * pose proof (H (@Pred count_sig k Vector.nil) (or_introl eq_refl)) as H0.
+        eapply decI in H0. unfold g. cbn in H0. now rewrite H0.
+      * pose proof (H (Neg (@Pred count_sig k Vector.nil)) (or_introl eq_refl)) as H0.
+        cbn in H0. unfold g. rewrite <- decI in H0.
+        symmetry. eapply not_true_is_false.
+        intros [] % H0 % standI.
+      * eapply IHl. intros. eapply H. eauto.
+    + eauto.
+    + eauto. 
+    + intros phi0 ? % in_map_iff. clear - H2 standI decI HHH.
+      induction L_.
+      * exfalso. destruct H2 as (? & ? & ?); cbn in *; congruence.
+      * decide (phi0 = fAll (mapi (fun (i : nat) (b : bool) => if b then @Pred count_sig i Vector.nil else Neg (@Pred count_sig i Vector.nil)) a 0)).
+        -- subst. intros.
+           eapply omniscient_on_fAll_sat. eauto. eapply HHH. 
+        -- eapply IHL_. destruct H2 as (? & ? & ?). destruct H0.
+           ++ subst. congruence.
+           ++ eauto.
+  Qed.
+
   Lemma compact_DM_WKL :
-    compactness (@DM) -> infinite_tree T -> infinite_path T.
+    compactness (@DM) -> infinite_tree T ->  exists f : nat -> bool, forall n : nat, ~~ T (map f (seq 0 n)).
   Proof.
     intros compact infT.
-    destruct (compact count_sig _ _ _ _ Th) as (D & I & rho & H & (classI & standI) & (eq_dec_D & enum_D) & (f & decI)).
-    - intros psi n [m ->]. unfold phi.
-      induction proj1_sig; cbn.
-      + econstructor.
-      + destruct (T_D a); repeat econstructor; eauto.
-        generalize 0 as k.
-        induction a; intros; cbn; try destruct a; repeat econstructor.
-        * intros. inv X.
-        * eauto.
-        * intros. inv X.
-        * eauto.
-    - intros Γ HΓ.
-      assert (exists L, Γ = map phi L) as [L ->]. {
-        induction Γ as [ | psi Γ].
-        - now exists [].
-        - destruct IHΓ as [L]. firstorder.
-          subst. specialize (HΓ psi (or_introl eq_refl)) as [n Hn].
-          exists (n :: L). subst. reflexivity.
-      }
-      pose (m := max_list L).
-      rewrite infinite_iff in infT.
-      destruct (infT m) as (l & Hl & Hs).
-      exists unit.
-      unshelve epose (I := _ : @interp count_sig unit).
-      + econstructor.
-        * intros [].
-        * cbn. intros n _.
-          exact (nth n l false = true).
-        * exact False.
-      + exists I.
-        assert (decI : decidable_model I). {
-          unshelve eexists.
-          -- cbn. intros n _.
-             exact (nth n l false).
-          -- cbn. reflexivity.
-        }
-        assert (SB : standard_bot I) by now cbv.
-        assert (omn : omniscient I) by now eapply decidable_to_omniscient. 
-        exists (fun _ => tt). repeat split; eauto.
-        * intros phi (n & <- & H) % in_map_iff.
-          assert (Hn : n <= m) by now eapply max_list_spec'.
-          eapply phi_down; eauto.  
-          eapply fExists_sat; eauto. eexists. split.
-          -- eapply in_map_iff. exists l. split. reflexivity.
-             eapply in_filter_iff. split.
-             destruct listable_list_length. cbn. now eapply i.
-             now eapply HD.
-          -- eapply fAll_sat; eauto. intros phi (b & j & <- & HH) % in_mapi_iff.
-             rewrite <- plus_n_O. destruct b; cbn.
-             rewrite <- nth_default_eq. unfold nth_default. now rewrite HH.
-             rewrite <- nth_default_eq. unfold nth_default. destruct (nthe j l); congruence.
-        * now eapply omniscient_to_classical.
-        * exists (fun _ => [tt]). eauto. intros []; eauto.
-    - pose (g := fun n : nat => f n Vector.nil).
-      exists g. intros n. unfold Th in H.
-      specialize (H (phi n) ltac:(unfold contains; eauto)).
-      assert ( forall l, forall phi0 : form, phi0 el mapi (fun (i : nat) (b : bool) => if b then @Pred count_sig i Vector.nil else Neg (@Pred count_sig i Vector.nil)) l 0 -> forall rho0 : env D, dec (rho0 ⊨ phi0)) as HHH by shelve.
-      eapply fExists_sat' in H as (phi' & H1 & H); eauto.
-      eapply in_map_iff in H1 as (l & <- & [H3 H4] % in_filter_iff).
-      rewrite fAll_sat' in H.
-      destruct (listable_list_length n) as [L HL].
-      cbn in *. eapply HL in H3.
-      enough (l = [g p | p ∈ seq 0 n]) as -> by now eapply HD.
-      subst. clear - H decI standI.
-      revert H. generalize 0 as n.
-      induction l; cbn; intros.
-      + reflexivity.
-      + f_equal. destruct a.
-        * pose proof (H (@Pred count_sig n Vector.nil) (or_introl eq_refl)) as H0.
-          eapply decI in H0. unfold g. cbn in H0. now rewrite H0.
-        * pose proof (H (Neg (@Pred count_sig n Vector.nil)) (or_introl eq_refl)) as H0.
-          cbn in H0. unfold g. rewrite <- decI in H0.
-          symmetry. eapply not_true_is_false.
-          intros [] % H0 % standI.
-        * eapply IHl. intros. eapply H. eauto.
-      + eauto.
-      + eauto. 
-      + intros phi0 ? % in_map_iff. clear - H2 standI decI HHH.
-        induction filter.
-        * exfalso. destruct H2 as (? & ? & ?); cbn in *; congruence.
-        * decide (phi0 = fAll (mapi (fun (i : nat) (b : bool) => if b then @Pred count_sig i Vector.nil else Neg (@Pred count_sig i Vector.nil)) a 0)).
-          -- subst. intros.
-             eapply omniscient_on_fAll_sat. eauto. eapply HHH. 
-          -- eapply IHl. destruct H2 as (? & ? & ?). destruct H0.
-             ++ subst. congruence.
-             ++ eauto.
-                Unshelve. {
-                  intros ? ? ? % in_mapi_iff. clear - H1 standI decI.
-                  revert H1.
-                  generalize 0 as k.
-                  induction l; intros k H1.
-                  * exfalso. destruct H1 as (? & [] & ? & ?); cbn in *; congruence.
-                  * decide (phi0 = @Pred count_sig k Vector.nil).
-                    -- subst. intros. destruct (f k Vector.nil) eqn:E.
-                       left. eapply decI. eauto. right. intros ? % decI. cbn in *. congruence.
-                    -- decide (phi0 = Neg (@Pred count_sig k Vector.nil)).
-                       ++ subst. intros. destruct (f k Vector.nil) eqn:E.
-                          right. eapply decI in E. cbn. firstorder. left.
-                          intros ? % decI. cbn in *. congruence.
-                       ++ eapply (IHl (S k)).
-                          destruct H1 as (x & j & ? & ?).
-                          destruct j.
-                          ** cbn in H0. destruct x.
-                             --- inv H0. cbn in n. congruence.
-                             --- inv H0. cbn in n0. congruence.
-                          ** cbn in *. exists x, j; destruct x; subst; split; eauto; repeat f_equal; lia.
-                }
+    unshelve epose proof (compact count_sig _ _ _ _ Th _ _).
+    - eapply closed_Th.
+    - now eapply infinite_finitely_satisfiable. 
+    - now eapply exists_quasi_path. 
   Qed.
 
 End WKL.
 
 Theorem compact_implies_WKL :
-  compactness (@DM) -> forall T : tree, infinite_tree T -> infinite_path T.
+  compactness (@DM) -> forall T : tree, (forall l, ~~ T l -> T l) -> infinite_tree T -> infinite_path T.
 Proof.
-  intros.
-  pose proof (tree_dec T) as [f Hf].
-  eapply compact_DM_WKL with (T_D := f); eauto. 
-  firstorder.
+  intros comp T stab infT.
+  destruct (compact_DM_WKL comp infT) as [g].
+  exists g. eauto.
 Qed.
 Print Assumptions compact_implies_WKL.
+
+Theorem bla :
+  model_existence (@DM) -> model_existence (@SM).
+Proof.
+  intros H Sigma H1 H2 H3 H4 T clT consT.
+  destruct (H Sigma H1 H2 H3 H4 T clT consT) as (D & I & rho & H0 & HDM).
+  exists D, I, rho. split. eauto. eapply HDM.
+Qed.
