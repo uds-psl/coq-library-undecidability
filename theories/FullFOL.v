@@ -6,6 +6,7 @@ Require Import Equations.Prop.DepElim.
 From Undecidability.FOL  Require Export DecidableEnumerable.
 From Undecidability.FOLC Require Export FullSyntax.
 Require Export Lia.
+Import Vector.
 
 (* Coercion var_term : fin >-> term. *)
 
@@ -16,27 +17,6 @@ Notation "∀ phi" := (All phi) (at level 56, right associativity).
 Notation "∃ phi" := (Ex phi) (at level 56, right associativity).
 Notation "⊥" := (Fal).
 Notation "¬ phi" := (phi --> ⊥) (at level 20).
-
-Notation vector := Vector.t.
-Import Vector.
-Arguments nil {A}.
-Arguments cons {A} _ {n}.
-Derive Signature for vector.
-
-(* **** Tactics *)
-
-Ltac capply H := eapply H; try eassumption.
-Ltac comp := repeat (progress (cbn in *; autounfold in *; asimpl in *)).
-Hint Unfold idsRen.
-
-Ltac resolve_existT :=
-  match goal with
-     | [ H2 : existT _ _ _ = existT _ _ _ |- _ ] => rewrite (Eqdep.EqdepTheory.inj_pair2 _ _ _ _ _ H2) in *
-  | _ => idtac
-  end.
-
-Ltac inv H :=
-  inversion H; subst; repeat (progress resolve_existT).
 
 Section FullFOL.
   Context {Sigma : Signature}.
@@ -133,36 +113,7 @@ Section FullFOL.
       cbn. unfold subst1. rewrite subst_size. lia.
     - apply H7. intros t. apply H.
       cbn. unfold subst1. rewrite subst_size. lia.
-  Qed.
-  
-  (* **** Forall and Vector.t technology **)
-
-  Inductive Forall (A : Type) (P : A -> Type) : forall n, vector A n -> Type :=
-  | Forall_nil : Forall P (@Vector.nil A)
-  | Forall_cons : forall n (x : A) (l : vector A n), P x -> Forall P l -> Forall P (@Vector.cons A x n l).
-
-  Inductive vec_in (A : Type) (a : A) : forall n, vector A n -> Type :=
-  | vec_inB n (v : vector A n) : vec_in a (cons a v)
-  | vec_inS a' n (v :vector A n) : vec_in a v -> vec_in a (cons a' v).
-  Hint Constructors vec_in.
-
-  Lemma strong_term_ind' (p : term -> Type) :
-    (forall x, p (var_term x)) -> (forall F v, (Forall p v) -> p (Func F v)) -> forall (t : term), p t.
-  Proof.
-    intros f1 f2. fix strong_term_ind' 1. destruct t as [n|F v].
-    - apply f1.
-    - apply f2. induction v.
-      + econstructor.
-      + econstructor. now eapply strong_term_ind'. eauto.
-  Qed.  
-
-  Lemma strong_term_ind (p : term -> Type) :
-    (forall x, p (var_term x)) -> (forall F v, (forall t, vec_in t v -> p t) -> p (Func F v)) -> forall (t : term), p t.
-  Proof.
-    intros f1 f2. eapply strong_term_ind'.
-    - apply f1.
-    - intros. apply f2. intros t. induction 1; inv X; eauto.
-  Qed.  
+  Qed. 
   
   (* **** Free variables *)
 
@@ -471,4 +422,4 @@ Section EqDec.
 End EqDec.
 
 Notation "↑" := form_shift.
-Notation "A ⟹ phi" := (big_imp A phi) (at level 60).
+Notation "A ⟹ phi" := (big_imp A phi) (at level 60, right associativity).

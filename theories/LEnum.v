@@ -23,7 +23,7 @@ Proof.
   - exact snd.
 Defined.
 
-Fixpoint to_term (a : list (@Syntax.term max)) (t : term')  :=
+Fixpoint to_term (a : list (@Terms.term max)) (t : term')  :=
   match t with
   | var_term' n => var_term n
   | Func' n => Func (n, |List.rev a|) (of_list (List.rev a))
@@ -32,7 +32,7 @@ Fixpoint to_term (a : list (@Syntax.term max)) (t : term')  :=
 
 Definition mkApps n l (L : Vector.t _ n) := fold_right App' L l.
 
-Fixpoint of_term (t : @Syntax.term max) :=
+Fixpoint of_term (t : @Terms.term max) :=
   match t with
   | var_term n => var_term' n
   | Func (n, m) l => mkApps (Func' n) (map of_term l) 
@@ -68,7 +68,7 @@ Proof.
   - now rewrite IHA.
 Qed.
 
-Lemma to_term_mkApps n k (v : Vector.t Syntax.term k) A :
+Lemma to_term_mkApps n k (v : Vector.t Terms.term k) A :
   (forall s, vec_in s v -> to_term ([]) (of_term s) = s) 
    -> to_term A (mkApps (Func' n) (map of_term v))
      = Func (n, List.length (List.rev A) + k) (append (of_list (List.rev A)) v).
@@ -327,7 +327,7 @@ Proof.
       * intros t Ht sigma'. apply H. now right.
 Qed.
 
-Lemma subst_term_map sigma n (t : Vector.t Syntax.term n) :
+Lemma subst_term_map sigma n (t : Vector.t Terms.term n) :
   [subst_term' (sigma >> of_term) p | p ∈ to_list (Vector.map of_term t)] =
   to_list (Vector.map of_term (Vector.map (subst_term sigma) t)).
 Proof.
@@ -358,7 +358,7 @@ Qed.
 Lemma of_term_wf' v t :
   wf v t -> match v with
            | isvar => exists x, t = var_term' x
-           | novar => exists F n (B : Vector.t Syntax.term n), t = of_term (Func (F, n) B)
+           | novar => exists F n (B : Vector.t Terms.term n), t = of_term (Func (F, n) B)
 	   end.
 Proof.
   induction 1; cbn.
@@ -395,7 +395,7 @@ Proof.
 Qed.
 
 Lemma of_list_wf A :
-  (forall t, t el A -> exists v, wf v t) -> exists n (ts : Vector.t Syntax.term n), A = to_list (Vector.map of_term ts).
+  (forall t, t el A -> exists v, wf v t) -> exists n (ts : Vector.t Terms.term n), A = to_list (Vector.map of_term ts).
 Proof.
   induction A; cbn; intros H.
   - exists 0, Vector.nil. reflexivity.
