@@ -1,83 +1,12 @@
 (** * Preliminaries FOL  *)
 (** ** Syntax of FOL **)
 
-From Undecidability.FOLC Require Export unscoped.
-
-Class Signature := B_S { Funcs : Type; fun_ar : Funcs -> nat ;
-              Preds : Type; pred_ar : Preds -> nat }.
-
+From Undecidability.FOLC Require Export unscoped Terms.
 
 
 Section fix_sig.
 
 Context {Sigma : Signature}.
-
-Inductive term  : Type :=
-  | var_term : (nat)  -> term
-  | Func : forall (f : Funcs), Vector.t term (fun_ar f) -> term .
-
-Definition congr_Func { f : Funcs }  { s0 : Vector.t term (fun_ar f) } { t0 : Vector.t term (fun_ar f)} (H1 : s0 = t0) : Func  f s0 = Func  f t0 :=
-  (eq_trans) (eq_refl) ((ap) (fun x => Func  f x) H1).
-
-Fixpoint subst_term   (sigmaterm : (nat)  -> term ) (s : term ) : _ :=
-    match s with
-    | var_term  s => sigmaterm s
-    | Func  f s0 => Func  f (Vector.map (subst_term sigmaterm) s0)
-    end.
-
-Definition up_term_term   (sigma : (nat)  -> term ) : _ :=
-  (scons) ((var_term ) (var_zero)) ((funcomp) (subst_term ((funcomp) (var_term ) (shift))) sigma).
-
-
-Definition upId_term_term  (sigma : (nat)  -> term ) (Eq : forall x, sigma x = (var_term ) x) : forall x, (up_term_term sigma) x = (var_term ) x :=
-  fun n => match n with
-  | S fin_n => (ap) (subst_term ((funcomp) (var_term ) (shift))) (Eq fin_n)
-  | 0 => eq_refl
-  end.
-
-
-Fixpoint idSubst_term  (sigmaterm : (nat)  -> term ) (Eqterm : forall x, sigmaterm x = (var_term ) x) (s : term ) : subst_term sigmaterm s = s :=
-    match s with
-    | var_term  s => Eqterm s
-    | Func  f s0 => congr_Func ((vec_id (idSubst_term sigmaterm Eqterm)) s0)
-    end.
-
-Definition upExt_term_term   (sigma : (nat)  -> term ) (tau : (nat)  -> term ) (Eq : forall x, sigma x = tau x) : forall x, (up_term_term sigma) x = (up_term_term tau) x :=
-  fun n => match n with
-  | S fin_n => (ap) (subst_term ((funcomp) (var_term) (shift))) (Eq fin_n)
-  | 0 => eq_refl
-  end.
-
-
-Fixpoint ext_term   (sigmaterm : (nat)  -> term ) (tauterm : (nat)  -> term ) (Eqterm : forall x, sigmaterm x = tauterm x) (s : term ) : subst_term sigmaterm s = subst_term tauterm s :=
-    match s with
-    | var_term  s => Eqterm s
-    | Func  f s0 => congr_Func ((vec_ext (ext_term sigmaterm tauterm Eqterm)) s0)
-    end.
-
-Fixpoint compSubstSubst_term    (sigmaterm : (nat)  -> term ) (tauterm : (nat)  -> term ) (thetaterm : (nat)  -> term ) (Eqterm : forall x, ((funcomp) (subst_term tauterm) sigmaterm) x = thetaterm x) (s : term ) : subst_term tauterm (subst_term sigmaterm s) = subst_term thetaterm s :=
-    match s with
-    | var_term  s => Eqterm s
-    | Func  f s0 => congr_Func ((vec_comp (compSubstSubst_term sigmaterm tauterm thetaterm Eqterm)) s0)
-    end.
-
-Definition up_subst_subst_term_term    (sigma : (nat)  -> term ) (tauterm : (nat)  -> term ) (theta : (nat)  -> term ) (Eq : forall x, ((funcomp) (subst_term tauterm) sigma) x = theta x) : forall x, ((funcomp) (subst_term (up_term_term tauterm)) (up_term_term sigma)) x = (up_term_term theta) x :=
-  fun n => match n with
-  | S fin_n => (eq_trans) (compSubstSubst_term ((funcomp) (var_term) (shift)) (up_term_term tauterm) ((funcomp) (up_term_term tauterm) (shift)) (fun x => eq_refl) (sigma fin_n)) ((eq_trans) ((eq_sym) (compSubstSubst_term tauterm ((funcomp) (var_term) (shift)) ((funcomp) (subst_term ((funcomp) (var_term ) (shift))) tauterm) (fun x => eq_refl) (sigma fin_n))) ((ap) (subst_term ((funcomp) (var_term ) (shift))) (Eq fin_n)))
-  | 0 => eq_refl
-  end.
-
-Lemma instId_term  : subst_term (var_term ) = (@id) (term ) .
-Proof. exact ((FunctionalExtensionality.functional_extensionality _ _ ) (fun x => idSubst_term (var_term ) (fun n => eq_refl) (((@id) (term )) x))). Qed.
-
-Lemma varL_term   (sigmaterm : (nat)  -> term ) : (funcomp) (subst_term sigmaterm) (var_term ) = sigmaterm .
-Proof. exact ((FunctionalExtensionality.functional_extensionality _ _ ) (fun x => eq_refl)). Qed.
-
-Lemma compComp_term    (sigmaterm : (nat)  -> term ) (tauterm : (nat)  -> term ) (s : term ) : subst_term tauterm (subst_term sigmaterm s) = subst_term ((funcomp) (subst_term tauterm) sigmaterm) s .
-Proof. exact (compSubstSubst_term sigmaterm tauterm (_) (fun n => eq_refl) s). Qed.
-
-Lemma compComp'_term    (sigmaterm : (nat)  -> term ) (tauterm : (nat)  -> term ) : (funcomp) (subst_term tauterm) (subst_term sigmaterm) = subst_term ((funcomp) (subst_term tauterm) sigmaterm) .
-Proof. exact ((FunctionalExtensionality.functional_extensionality _ _ ) (fun n => compComp_term sigmaterm tauterm n)). Qed.
 
 Inductive form  : Type :=
   | Fal : form
@@ -206,7 +135,8 @@ Tactic Notation "auto_case" := auto_case (asimpl; cbn; eauto).
 
 Tactic Notation "asimpl" "in" "*" := auto_unfold in *; repeat first [progress rewrite ?instId_term in *| progress rewrite ?term in *| progress rewrite ?compComp_term in *| progress rewrite ?compComp'_term in *| progress rewrite ?instId_form in *| progress rewrite ?form in *| progress rewrite ?compComp_form in *| progress rewrite ?compComp'_form in *| progress rewrite ?varL_term in *| progress (unfold up_ren, up_term_term)| progress (cbn [subst_term subst_form] in *)| fsimpl in *].
 
-
+Ltac comp := repeat (progress (cbn in *; autounfold in *; asimpl in *)).
+Hint Unfold idsRen.
 
 
 

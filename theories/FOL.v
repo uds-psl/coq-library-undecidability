@@ -6,6 +6,7 @@ Require Import Equations.Prop.DepElim.
 From Undecidability.FOL  Require Export DecidableEnumerable.
 From Undecidability.FOLC Require Export Syntax.
 Require Export Lia.
+Import Vector.
 
 (* **** Notation *)
 
@@ -14,27 +15,6 @@ Notation "∀ phi" := (All phi) (at level 56, right associativity).
 Notation "⊥" := (Fal).
 Notation "¬ phi" := (phi --> ⊥) (at level 20).
 Notation "∃ phi" := (¬ ∀ ¬ phi) (at level 56, right associativity).
-
-Notation vector := Vector.t.
-Import Vector.
-Arguments nil {A}.
-Arguments cons {A} _ {n}.
-Derive Signature for vector.
-
-(* **** Tactics *)
-
-Ltac capply H := eapply H; try eassumption.
-Ltac comp := repeat (progress (cbn in *; autounfold in *; asimpl in *)).
-Hint Unfold idsRen.
-
-Ltac resolve_existT :=
-  match goal with
-     | [ H2 : existT _ _ _ = existT _ _ _ |- _ ] => rewrite (Eqdep.EqdepTheory.inj_pair2 _ _ _ _ _ H2) in *
-  | _ => idtac
-  end.
-
-Ltac inv H :=
-  inversion H; subst; repeat (progress resolve_existT).
 
 Section FOL.
   Context {Sigma : Signature}.
@@ -100,35 +80,6 @@ Section FOL.
     - apply H3. intros t. apply H.
       cbn. unfold subst1. rewrite subst_size. lia.
   Qed.
-
-  (* **** Forall and Vector.t technology **)
-
-  Inductive Forall (A : Type) (P : A -> Type) : forall n, vector A n -> Type :=
-  | Forall_nil : Forall P (@Vector.nil A)
-  | Forall_cons : forall n (x : A) (l : vector A n), P x -> Forall P l -> Forall P (@Vector.cons A x n l).
-
-  Inductive vec_in (A : Type) (a : A) : forall n, vector A n -> Type :=
-  | vec_inB n (v : vector A n) : vec_in a (cons a v)
-  | vec_inS a' n (v :vector A n) : vec_in a v -> vec_in a (cons a' v).
-  Hint Constructors vec_in.
-
-  Lemma strong_term_ind' (p : term -> Type) :
-    (forall x, p (var_term x)) -> (forall F v, (Forall p v) -> p (Func F v)) -> forall (t : term), p t.
-  Proof.
-    intros f1 f2. fix strong_term_ind' 1. destruct t as [n|F v].
-    - apply f1.
-    - apply f2. induction v.
-      + econstructor.
-      + econstructor. now eapply strong_term_ind'. eauto.
-  Qed.  
-
-  Lemma strong_term_ind (p : term -> Type) :
-    (forall x, p (var_term x)) -> (forall F v, (forall t, vec_in t v -> p t) -> p (Func F v)) -> forall (t : term), p t.
-  Proof.
-    intros f1 f2. eapply strong_term_ind'.
-    - apply f1.
-    - intros. apply f2. intros t. induction 1; inv X; eauto.
-  Qed.  
   
   (* **** Unused variable **)
 
@@ -431,7 +382,7 @@ Proof.
     + intros. left. now dependent destruction v.
     + intros [<- | []] x H. inv H.
   - split.
-    + intros. dependent destruction v. in_collect (pair h v); destruct (IHn v). all: eauto using vec_in.
+    + intros. dependent destruction v. in_collect (pair h v); destruct (IHn v). all: eauto using vec_inB.
     + intros Hv. apply in_map_iff in Hv as ([h v'] & <- & (? & ? & [= <- <-] & ? & ?) % list_prod_in).
       intros x H. inv H; destruct (IHn v'); eauto.
 Qed.
@@ -441,7 +392,7 @@ Lemma vec_forall_cml X (L : nat -> list X) n (v : vector X n) :
 Proof.
   intros HL Hv. induction v; cbn.
   - exists 0. tauto.
-  - destruct IHv as [m H], (Hv h) as [m' H']. 1-3: eauto using vec_in. exists (m + m').
+  - destruct IHv as [m H], (Hv h) as [m' H']. 1-3: eauto using vec_inB. exists (m + m').
     in_collect (pair h v). 1: apply cum_ge' with m'; intuition omega.
     apply vecs_from_correct. rewrite <- vecs_from_correct in H. intros x Hx.
     apply cum_ge' with m. all: eauto. omega.
