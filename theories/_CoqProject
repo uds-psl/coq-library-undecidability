@@ -34,6 +34,7 @@ FullFOL.v
 FullND.v
 FullSequent.v
 FullTarski.v
+DeMorgan.v
 
 Heyting.v
 Lindenbaum.v
