@@ -33,6 +33,7 @@ FullSyntax.v
 FullFOL.v
 FullND.v
 FullSequent.v
+FullTarski.v
 
 Heyting.v
 Lindenbaum.v
