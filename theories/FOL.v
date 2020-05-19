@@ -83,10 +83,6 @@ Section FOL.
   
   (* **** Unused variable **)
 
-  Inductive unused_term (n : nat) : term -> Prop :=
-  | uft_var m : n <> m -> unused_term n (var_term m)
-  | uft_Func F v : (forall t, vec_in t v -> unused_term n t) -> unused_term n (Func F v).
-
   Inductive unused (n : nat) : form -> Prop :=
   | uf_Fal : unused n Fal
   | uf_Pred P v : (forall t, vec_in t v -> unused_term n t) -> unused n (Pred P v)
@@ -96,30 +92,12 @@ Section FOL.
   Definition unused_L n A := forall phi, phi el A -> unused n phi.
   Definition closed phi := forall n, unused n phi.
 
-  Lemma vec_unused n (v : vector term n)  :
-    (forall t, vec_in t v -> { n | forall m, n <= m -> unused_term m t }) ->
-    { k | forall t, vec_in t v -> forall m, k <= m -> unused_term m t }.
-  Proof.
-    intros Hun. induction v in Hun |-*.
-    - exists 0. intros n H. inv H.
-    - destruct IHv as [k H]. 1: eauto. destruct (Hun h (vec_inB h v)) as [k' H'].
-      exists (k + k'). intros t H2. inv H2; intros m Hm; [apply H' | apply H]; now try omega.
-  Qed.
-
-  Lemma find_unused_term t :
-    { n | forall m, n <= m -> unused_term m t }.
-  Proof.
-    induction t using strong_term_ind.
-    - exists (S x). intros m Hm. constructor. omega.
-    - destruct (vec_unused X) as [k H]. exists k. eauto using unused_term.
-  Qed.
-
   Lemma find_unused phi :
     { n | forall m, n <= m -> unused m phi }.
   Proof with eauto using unused.
     induction phi.
     - exists 0... 
-    - destruct (@vec_unused _ t) as [k H]. 1: eauto using find_unused_term. exists k. eauto using unused.
+    - destruct (@vec_unused _ _ t) as [k H]. 1: eauto using find_unused_term. exists k. eauto using unused.
     - destruct IHphi1, IHphi2. exists (x + x0). intros m Hm. constructor; [ apply u | apply u0 ]; omega.
     - destruct IHphi. exists x. intros m Hm. constructor. apply u. omega.
   Qed.

@@ -168,10 +168,7 @@ Section DM.
     - intros psi HP. apply DMT_sat; trivial. apply HT. now exists psi.
   Qed.
 
-  Context {HdF : eq_dec Funcs} {HdP : eq_dec Preds}.
-  Context {HeF : enumT Funcs} {HeP : enumT Preds}.
-
-  Lemma DMTT_incl T A :
+  Lemma DMT_incl T A :
     FOL.contains_L A (DMTT T) -> exists B, B ⊏ T /\ A = map DMT B.
   Proof.
     induction A; intros H.
@@ -184,19 +181,54 @@ Section DM.
   Lemma prv_cut_list {p b} A B phi :
     A ⊢(p, b) phi -> (forall psi, psi el A -> B ⊢(p, b) psi) -> B ⊢(p, b) phi.
   Proof.
-  Admitted.
+    induction 1 in B |- *; intros HA.
+    - apply II, IHprv. intros theta [->|HT]; try now ctx. ouse (HA theta HT).
+    - eapply IE; eauto.
+    - apply AllI, IHprv. intros psi [theta[<- HT]] % in_map_iff. now apply subst_Weak, HA.
+    - now apply AllE, IHprv.
+    - now eapply ExI, IHprv.
+    - eapply ExE; try now apply IHprv1. apply IHprv2. intros psi' [<-|[theta[<- HT]] % in_map_iff]; try now ctx.
+      eapply Weak; try now apply incl_tl; try reflexivity. now apply subst_Weak, HA.
+    - now apply Exp, IHprv.
+    - now apply HA.
+    - apply CI; auto.
+    - now eapply CE1, IHprv.
+    - now eapply CE2, IHprv.
+    - now eapply DI1, IHprv.
+    - now eapply DI2, IHprv.
+    - eapply DE; try now apply IHprv1.
+      + apply IHprv2. intros theta' [->|HT]; try now ctx. ouse (HA theta' HT).
+      + apply IHprv3. intros theta' [->|HT]; try now ctx. ouse (HA theta' HT).
+    - apply Pc.
+  Qed.
+
+  Lemma DMT_unused phi n :
+    unused n phi -> FOL.unused n (DMT phi).
+  Proof.
+    induction 1; cbn; repeat constructor; assumption.
+  Qed.
+
+  Lemma DMT_closed phi :
+    closed phi -> FOL.closed (DMT phi).
+  Proof.
+    intros H n. apply DMT_unused, H.
+  Qed.
+  
+  Context {HdF : eq_dec Funcs} {HdP : eq_dec Preds}.
+  Context {HeF : enumT Funcs} {HeP : enumT Preds}.
 
   Theorem full_completeness T phi :
     DN -> closed_T T -> closed phi -> valid_T classical T phi -> T ⊩CE phi.
   Proof.
     intros HDN HT HP H % DMT_valid; trivial.
     apply semi_completeness_standard in H.
-    - apply HDN in H as [A[H1 H2 % embed_prv]]. apply DMTT_incl in H1 as [B[HB ->]].
+    - apply HDN in H as [A[H1 H2 % embed_prv]]. apply DMT_incl in H1 as [B[HB ->]].
       exists B. split; trivial. apply DM_prv. rewrite embed_DMT in H2. apply (prv_cut_list H2).
       rewrite map_map. intros psi [theta[<- H]] % in_map_iff. rewrite embed_DMT. apply -> DM_prv. now apply Ctx.
-    - admit.
-    - admit.
-  Qed.
-      
+    - intros psi n [theta[H' ->]]. now apply DMT_unused, HT.
+    - now apply DMT_closed.
+  Qed.  
 
 End DM.
+
+Print Assumptions full_completeness.
