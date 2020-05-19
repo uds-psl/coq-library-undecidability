@@ -80,7 +80,7 @@ Qed.
 
 Definition stable {X} (p : X -> Prop) := forall x, ~~ p x -> p x.
 
-Definition WKL C :=
+Definition WKL (C : (list bool -> Prop) -> Prop) :=
   forall T : tree, C T -> infinite_tree T -> infinite_path T.
 
 (** ** Model existence  *)
@@ -715,18 +715,170 @@ Section WKL.
 End WKL.
 
 Theorem compact_implies_WKL :
-  compactness (@DM) -> forall T : tree, (forall l, ~~ T l -> T l) -> infinite_tree T -> infinite_path T.
+  compactness (@DM) -> WKL (fun T => forall l, ~~ T l -> T l).
 Proof.
   intros comp T stab infT.
   destruct (compact_DM_WKL comp infT) as [g].
   exists g. eauto.
 Qed.
-Print Assumptions compact_implies_WKL.
 
-Theorem bla :
+Lemma modex_impl :
   model_existence (@DM) -> model_existence (@SM).
 Proof.
   intros H Sigma H1 H2 H3 H4 T clT consT.
   destruct (H Sigma H1 H2 H3 H4 T clT consT) as (D & I & rho & H0 & HDM).
   exists D, I, rho. split. eauto. eapply HDM.
 Qed.
+
+Require Import Undecidability.FOLC.ND.
+
+Lemma Forall_app {X} l1 l2 (P : X -> Prop) :
+  List.Forall P (l1 ++ l2) <-> (List.Forall P l1 /\ List.Forall P l2).
+Proof.
+  induction l1; cbn.
+  - firstorder.
+  - split; firstorder; inv H; try econstructor; firstorder.
+Qed.
+
+Definition ldecidable {X} (p : X -> Prop) := forall x, p x \/ ~ p x.
+
+Lemma Forall2_length {X} {Y} (P : X -> Y -> Prop) l1 l2 :
+  Forall2 P l1 l2 -> |l1| = |l2|.
+Proof.
+  induction 1; cbn; firstorder congruence.
+Qed.
+
+Lemma WKL_to_decidable : WKL (fun _ => True) -> forall p : nat -> Prop, ldecidable p -> decidable p.
+Proof.
+  intros wkl p d.
+  pose (T l := Forall2 (fun b i => b = true <-> p i) l (seq 0 (|l|))).
+  unshelve edestruct wkl as [f Hf]; cbn in *.
+  - exists T. econstructor.
+    + exists []. econstructor.
+    + intros l1 ? [l2 ->]. intros (l1' & l1'' & ? & ? & ?) % Forall2_app_inv_l.
+      rewrite app_length, seq_app in H1.
+      pose proof (Forall2_length H). rewrite H2 in *.
+      eapply (f_equal (firstn (|l1'|))) in H1.
+      rewrite !firstn_app in H1.
+      rewrite !seq_length, !minus_diag in H1.
+      assert (|l1'| = |seq 0 (|l1'|)|). now rewrite seq_length.
+      rewrite H3 in H1 at 1.
+      rewrite !firstn_all in H1.
+      rewrite !firstn_O, !app_nil_r in H1.
+      rewrite <- H1, <- H2 in H.
+      eapply H.
+  - eauto.
+  - cbn in *; intros k.
+    induction k as [ | k [l [IH1 IH2]]].
+    + exists []. repeat econstructor.
+    + destruct (d (|l|)).
+      * exists (l ++ [true]). split.
+        unfold T. rewrite app_length, seq_app. eapply Forall2_app.
+        -- eapply IH1.
+        -- cbn. repeat econstructor; firstorder.
+        -- rewrite app_length; cbn; lia.
+      * exists (l ++ [false]). split.
+        unfold T. rewrite app_length, seq_app. eapply Forall2_app.
+        -- eapply IH1.
+        -- cbn. repeat econstructor. congruence. firstorder.
+        -- rewrite app_length; cbn; lia.
+  - cbn in *. exists f.
+    intros n. specialize (Hf (n + 1)).
+    unfold T in Hf.
+    rewrite !map_length, !seq_length in Hf.
+    rewrite seq_app, map_app in Hf. cbn in Hf.
+    eapply Forall2_app_inv_l in Hf as (l1' & l2' & ? & ? & ?).
+    inv H0. inv H6. eapply app_inj_tail in H1 as [].
+    subst. inv H0. tauto.
+Qed.
+
+(* Section assm_Th. *)
+
+(*   Context {Σ : Signature}. *)
+(*   Variable Σ_enum1 : enumT Funcs. *)
+(*   Variable Σ_enum2 : enumT Preds. *)
+(*   Variable Σ_disc1 : eq_dec Funcs. *)
+(*   Variable Σ_disc2 : eq_dec Preds. *)
+(*   Variable Th : theory. *)
+(*   Variable Th_closed : closed_T Th. *)
+
+(*   Definition H_Th := Henkin (GenConstructions.Exp Fal Th form_enum) form_enum. *)
+
+(*   Definition T_ l := *)
+(*     forall i b, nth_error l i = Some b -> *)
+(*            (H_Th (form_enum i) -> b = true ) /\ *)
+(*            (b = true <-> consistent (fun phi => H_Th phi \/ exists j b, j < i /\ nth_error l j = Some b /\ (b = true -> phi = form_enum j))). *)
+
+(*   Lemma is_tree_T_ : is_tree T_. *)
+(*   Proof. *)
+(*     econstructor. *)
+(*     - exists []. intros [] ? [=]. *)
+(*     - unfold T_. intros l1 ? [l2 ->] H i b Hi. *)
+(*       split. *)
+(*       + eapply H. erewrite nthe_app_l; eauto. *)
+(*       + edestruct H. *)
+(*         * erewrite nthe_app_l; eauto. *)
+(*         * rewrite H1. split. *)
+(*           -- intros H2 H3. eapply H2. eapply Weak_T. eauto. intros ? [Hphi | (j & b' & Hlt & Heq & Hphi) ]. *)
+(*              ++ now left. *)
+(*              ++ right. exists j, b'. repeat split; eauto. *)
+(*                 erewrite nthe_app_l; eauto. *)
+(*           -- intros H2 H3. eapply H2. eapply Weak_T. eauto. intros ? [Hphi | (j & b' & Hlt & Heq & Hphi) ]. *)
+(*              ++ now left. *)
+(*              ++ right. exists j, b'. repeat split; eauto. *)
+(*                 erewrite nth_error_app1 in Heq; eauto. *)
+(*                 transitivity i. lia. *)
+(*                 eapply nth_error_Some. congruence. *)
+(*   Qed. *)
+
+(*   Definition T : tree := Build_tree is_tree_T_. *)
+
+(*   Lemma H_Th_consistent : *)
+(*     consistent Th -> consistent H_Th. *)
+(*   Proof. *)
+(*     intros cons H. *)
+(*     unshelve eapply cons, Exp_econsistent, Henkin_consistent. *)
+(*     - eapply form_enum. *)
+(*     - eapply form_enum. *)
+(*     - econstructor. *)
+(*     - eapply Exp_closed, Th_closed. econstructor. *)
+(*     - eapply Exp_exploding. eapply form_enum_enumerates. *)
+(*     - eapply form_enum_fresh. *)
+(*     - eassumption. *)
+(*   Qed. *)
+
+(*   Lemma nnXM (P : Prop) : ~~ (P \/ ~ P). *)
+(*   Proof. *)
+(*     tauto. *)
+(*   Qed. *)
+(*   Arguments nnXM _ : clear implicits. *)
+
+(*   Tactic Notation "ldec" constr(P) "as" ident(H) := destruct P; intros [H|H]. *)
+    
+(*   Tactic Notation "ldec" constr(P) := let H := fresh "H" in ldec P as H.  *)
+
+(*   Lemma consistent_infinite : *)
+(*     consistent Th -> forall k : fin, ~~ exists a : list bool, T a /\ | a | >= k. (* This DN is MP for enumerable trees *) *)
+(*   Proof. *)
+(*     intros H % H_Th_consistent. *)
+(*     intros k. induction k. *)
+(*     - intros Ha; eapply Ha. exists []. split. *)
+(*       destruct (tree_inhab T). eapply tree_p. eapply T. all:eauto. eexists; reflexivity. *)
+(*     - intros Ha. eapply IHk; intros (l & H1 & H2). *)
+(*       ldec (nnXM (H_Th (form_enum (|l|)))) as HTh. *)
+(*       + eapply Ha. exists (l ++ [true]). split. 2: rewrite app_length; cbn; lia. *)
+(*         intros i b Hi. *)
+(*         destruct (le_lt_dec (|l|) i) as [Hl | Hl]. *)
+(*         * rewrite nth_error_app2 in Hi; eauto. *)
+(*           assert (Heq : |l| = i). { enough (i - (|l|) = 0) by lia. destruct (i - (|l|)). reflexivity. inv Hi. destruct n; inv H3. } *)
+(*           rewrite Heq, minus_diag in Hi. clear Hl. *)
+(*           inv Hi. *)
+(*           split. eauto. *)
+(*           intros _ Hf.          (* take the last true in l *) *)
+(*           admit. *)
+(*         * rewrite nth_error_app1 in Hi; eauto. eapply H1 in Hi as [H3 H4]. split. *)
+(*           -- eapply H3. *)
+(*           -- intros H5 % H4 H6. eapply H5, Weak_T. eauto. intros ? [|(j & b' & ? & ? & ?)]. *)
+(*              now left. right. exists j, b'. repeat split; eauto. *)
+(*              rewrite nth_error_app1 in H7; eauto.  *)
+(*       + admit. *)
