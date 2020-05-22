@@ -761,12 +761,9 @@ Proof.
       eapply (f_equal (firstn (|l1'|))) in H1.
       rewrite !firstn_app in H1.
       rewrite !seq_length, !minus_diag in H1.
-      assert (|l1'| = |seq 0 (|l1'|)|). now rewrite seq_length.
-      rewrite H3 in H1 at 1.
-      rewrite !firstn_all in H1.
-      rewrite !firstn_O, !app_nil_r in H1.
-      rewrite <- H1, <- H2 in H.
-      eapply H.
+      replace (|l1'|) with (|seq 0 (|l1'|)|) in H1 at 1 by now rewrite seq_length.
+      rewrite !firstn_all, !firstn_O, !app_nil_r in H1.
+      now rewrite <- H1, <- H2 in H.
   - eauto.
   - cbn in *; intros k.
     induction k as [ | k [l [IH1 IH2]]].
@@ -791,6 +788,7 @@ Proof.
     inv H0. inv H6. eapply app_inj_tail in H1 as [].
     subst. inv H0. tauto.
 Qed.
+
 
 (* Section assm_Th. *)
 

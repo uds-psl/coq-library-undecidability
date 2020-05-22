@@ -7,6 +7,22 @@ From Undecidability Require Import SR.SR_undec PCP.PCP_undec.
 From Undecidability.Reductions Require Import L_to_mTM mTM_to_TM.
 From Undecidability Require Import Reductions.PCPb_iff_BPCP.
 
+Lemma MP_enum_stable_iff  :
+  MP <-> (forall X (p : X -> Prop), enumerable p -> discrete X -> forall x, stable (p x)).
+Proof.
+  split.
+  - intros MP X p [f Hf] [d Hd] x. eapply MP_to_decMP with (p := fun n => f n = Some x) in MP.
+    + intros H. rewrite Hf in *. now eapply MP.
+    + exists (fun n => match f n with Some x' => d (x, x') | _ => false end).
+      intros x0. destruct (f x0). rewrite <- (Hd (x,x1)). split. inversion 1. eauto. intros ->. eauto.
+      split; inversion 1.
+  - intros H f.
+    unshelve eapply (H unit (fun _ => exists n, f n = true) _ _ tt).
+    + exists (fun n => if f n then Some tt else None).
+      intros []. split; intros [n Hn]; exists n; destruct (f n); congruence.
+    + eapply decidable_iff. econstructor. intros []. red. decide equality.
+Qed.
+
 Definition MPL := forall s, stable (L.converges s).
 
 Instance enumT_term : enumT term.
