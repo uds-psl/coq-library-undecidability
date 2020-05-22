@@ -2,6 +2,7 @@
 
 From Equations Require Import Equations.
 Require Import Equations.Prop.DepElim.
+Require Import Omega.
 
 Ltac capply H := eapply H; try eassumption.
 
@@ -131,7 +132,31 @@ Proof.
   intros f1 f2. eapply strong_term_ind'.
   - apply f1.
   - intros. apply f2. intros t. induction 1; inv X; eauto.
-Qed. 
+Qed.
+
+(** closed terms *)
+
+Inductive unused_term (n : nat) : term -> Prop :=
+| uft_var m : n <> m -> unused_term n (var_term m)
+| uft_Func F v : (forall t, vec_in t v -> unused_term n t) -> unused_term n (Func F v).
+
+Lemma vec_unused n (v : vector term n)  :
+  (forall t, vec_in t v -> { n | forall m, n <= m -> unused_term m t }) ->
+  { k | forall t, vec_in t v -> forall m, k <= m -> unused_term m t }.
+Proof.
+  intros Hun. induction v in Hun |-*.
+  - exists 0. intros n H. inv H.
+  - destruct IHv as [k H]. 1: eauto. destruct (Hun h (vec_inB h v)) as [k' H'].
+    exists (k + k'). intros t H2. inv H2; intros m Hm; [apply H' | apply H]; now try omega.
+Qed.
+
+Lemma find_unused_term t :
+  { n | forall m, n <= m -> unused_term m t }.
+Proof.
+  induction t using strong_term_ind.
+  - exists (S x). intros m Hm. constructor. omega.
+  - destruct (vec_unused X) as [k H]. exists k. eauto using unused_term.
+Qed.
 
 End fix_sig.
 
