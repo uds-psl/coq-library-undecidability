@@ -146,6 +146,16 @@ Section DM.
 
   Definition DN := forall P, ~ ~ P -> P.
 
+  Definition XM := forall P, P \/ ~ P.
+
+  Lemma XM_DN :
+    XM <-> DN.
+  Proof.
+    split.
+    - intros H X HX. destruct (H X); tauto.
+    - intros H X. apply H. tauto.
+  Qed.
+
   Lemma DMT_sat D (I : interp D) rho phi :
     DN -> standard_bot I -> sat rho phi <-> GenTarski.sat rho (DMT phi).
   Proof.
@@ -227,7 +237,7 @@ Section DM.
       rewrite map_map. intros psi [theta[<- H]] % in_map_iff. rewrite embed_DMT. apply -> DM_prv. now apply Ctx.
     - intros psi n [theta[H' ->]]. now apply DMT_unused, HT.
     - now apply DMT_closed.
-  Qed.  
+  Qed.
 
 End DM.
 
