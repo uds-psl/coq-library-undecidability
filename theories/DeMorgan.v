@@ -242,3 +242,15 @@ Section DM.
 End DM.
 
 Print Assumptions full_completeness.
+
+Lemma DMT_sat_back :
+  (forall (Sigma : Signature) D (I : interp D) rho phi, standard_bot I -> sat rho phi <-> GenTarski.sat rho (DMT phi)) -> XM.
+Proof.
+  intros H P.
+  pose (Sigma := B_S False (@except nat) unit (fun _ => 0)).
+  pose (I := B_I (fun _ _ => tt) (fun _ _ => P) False).
+  pose (phi := Pred tt Vector.nil).
+  apply (H Sigma unit I (fun _ => tt) (phi ∨ ¬ phi)).
+  - intros [].
+  - cbn. tauto.
+Qed.
