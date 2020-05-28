@@ -6,25 +6,15 @@ This is the Coq formalisation of the paper ["Completeness Theorems for First-Ord
 
 ## How to compile the code
 
-You can simply type `make`.
-
-The files are tested to compile with
+You need to install the [Coq Library of Undecidability Proofs](https://github.com/uds-psl/coq-library-undecidability/) and use Coq 8.11. This is easiest via `opam`:
 
 ``` shell
-The Coq Proof Assistant, version 8.8.2 (March 2019)
-compiled on Mar 19 2019 10:40:28 with OCaml 4.07.0
-```
-and the [Equations package](https://github.com/mattam82/Coq-Equations) version
-
-``` shell
-coq-equations 1.2~beta2+8.8
-
+opam switch create fol-completeness 4.09.1+flambda
+opam repo add coq-released https://coq.inria.fr/opam/released
+opam repo add psl-opam-repository https://github.com/uds-psl/psl-opam-repository.git
+opam install coq-library-undecidability.0.1~alpha+8.11
 ```
 
-To install this dependencies, it is easiest to use `opam`:
+You can also install the library manually by installing the dependencies and then issuing `make install` in the library directory.
 
-``` shell
-opam switch create coq.8.8.2 4.07.0
-opam pin add coq 8.8.2
-opam pin add coq-equations 1.2~beta2+8.8
-```
+Afterwards, you can simply type `make` in this directory.
