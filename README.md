@@ -10,6 +10,7 @@ You need to install the [Coq Library of Undecidability Proofs](https://github.co
 
 ``` shell
 opam switch create fol-completeness 4.09.1+flambda
+eval $(opam env)
 opam repo add coq-released https://coq.inria.fr/opam/released
 opam repo add psl-opam-repository https://github.com/uds-psl/psl-opam-repository.git
 opam update
