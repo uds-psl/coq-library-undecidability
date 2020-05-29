@@ -146,6 +146,16 @@ Section DM.
 
   Definition DN := forall P, ~ ~ P -> P.
 
+  Definition XM := forall P, P \/ ~ P.
+
+  Lemma XM_DN :
+    XM <-> DN.
+  Proof.
+    split.
+    - intros H X HX. destruct (H X); tauto.
+    - intros H X. apply H. tauto.
+  Qed.
+
   Lemma DMT_sat D (I : interp D) rho phi :
     DN -> standard_bot I -> sat rho phi <-> GenTarski.sat rho (DMT phi).
   Proof.
@@ -227,8 +237,20 @@ Section DM.
       rewrite map_map. intros psi [theta[<- H]] % in_map_iff. rewrite embed_DMT. apply -> DM_prv. now apply Ctx.
     - intros psi n [theta[H' ->]]. now apply DMT_unused, HT.
     - now apply DMT_closed.
-  Qed.  
+  Qed.
 
 End DM.
 
 Print Assumptions full_completeness.
+
+Lemma DMT_sat_back :
+  (forall (Sigma : Signature) D (I : interp D) rho phi, standard_bot I -> sat rho phi <-> GenTarski.sat rho (DMT phi)) -> XM.
+Proof.
+  intros H P.
+  pose (Sigma := B_S False (@except nat) unit (fun _ => 0)).
+  pose (I := B_I (fun _ _ => tt) (fun _ _ => P) False).
+  pose (phi := Pred tt Vector.nil).
+  apply (H Sigma unit I (fun _ => tt) (phi ∨ ¬ phi)).
+  - intros [].
+  - cbn. tauto.
+Qed.
