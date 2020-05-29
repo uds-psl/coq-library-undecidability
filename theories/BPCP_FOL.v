@@ -21,8 +21,20 @@ Section validity.
   (* Require Import Undecidability.FOLC.InputSyntax. *)
 
   Inductive min_sig_preds : Type := P | Q.
+  Global Instance min_sig_preds_dec : eq_dec min_sig_preds.
+  Proof.
+    intros ? ?; hnf; decide equality.
+  Qed.
+
   Definition min_sig_pred_ar p := match p with P => 2 | Q => 0 end.
+
   Inductive min_sig_funcs : Type := t_f' (b : bool) | t_e'.
+
+  Global Instance min_sig_funcs_dec : eq_dec min_sig_funcs.
+  Proof.
+    intros ? ?; hnf; repeat decide equality.
+  Qed.
+
   Definition min_sig_fun_ar f := match f with t_f' b => 1 | t_e' => 0 end.
 
   Instance min_sig : Signature := @B_S min_sig_funcs min_sig_fun_ar min_sig_preds min_sig_pred_ar.

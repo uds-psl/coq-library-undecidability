@@ -237,16 +237,16 @@ Section Kripke.
   
 End Kripke.
 
-Lemma sprv_prv_iff `{Sigma : Signature} A phi :
+Lemma sprv_prv_iff `{Sigma : Signature} {EP : eq_dec Preds} {EF : eq_dec Funcs} A phi :
   A ⊢IE phi <-> A ⊢SE phi.
 Proof.
-  split; intros. 
+  split; intros.
   - eapply ksoundness in H.
     eapply K_exp_completeness. eapply H. firstorder.
   - now eapply seq_ND with (phi0 := None).
 Qed.
   
-Lemma prv_back Σ Σ' (inj : Signature_inj Σ Σ') Gamma phi :
+Lemma prv_back Σ {EP : eq_dec Preds} {EF : eq_dec Funcs} Σ' (inj : Signature_inj Σ Σ') Gamma phi :
   (map (embed inj) Gamma) ⊢IE embed inj phi -> Gamma ⊢IE phi.
 Proof.
   intros.

@@ -52,7 +52,7 @@ Lemma nameless_equiv_all' A phi :
   exists t, A ⊢IE phi[t..] <-> [p[↑] | p ∈ A] ⊢IE phi.
 Proof.
   destruct (find_unused_L (phi::A)) as [n HN].
-  exists (var_term n). apply nameless_equiv.
+  exists (var_term n). eapply nameless_equiv.
   - intros psi H. apply HN; auto.
   - apply HN; auto.
 Qed.
@@ -74,6 +74,7 @@ Proof.
     specialize (H t). oimport H. setoid_rewrite trans_subst. oapply 0.
     unfold dnQ. ointros. oapply 2. ointros.
     oapply 1. eapply AllE. ctx.
+    Unshelve. all:cbn; econstructor.
 Qed.
         
 Notation QQ := (Pred Q Vector.nil).

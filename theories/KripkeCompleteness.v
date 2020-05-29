@@ -9,6 +9,9 @@ From Undecidability.FOLC Require Export Stability.
 
 Section KripkeCompleteness.
   Context {Sigma : Signature}.
+  
+  Context {Funcs_eq_dec : eq_dec Funcs}.
+  Context {Preds_eq_dec : eq_dec Preds}.
 
   Hint Constructors sprv.
 

@@ -50,6 +50,9 @@ Section Gentzen.
       - specialize (IHsprv sigma). apply AllL with (t0 := t [sigma]). comp. now asimpl in IHsprv.
     Qed.
 
+    Context {Funcs_eq_dec : eq_dec Funcs}.
+    Context {Preds_eq_dec : eq_dec Preds}.
+
     Lemma seq_nameless_equiv A phi n :
       unused_L n A -> unused (S n) phi -> ((A ⊢S phi[(var_term n)..]) <-> [phi[↑] | phi ∈ A] ⊢S phi).
     Proof.

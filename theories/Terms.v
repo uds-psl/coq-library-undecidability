@@ -6,14 +6,13 @@ Require Import Omega.
 
 Ltac capply H := eapply H; try eassumption.
 
-Ltac resolve_existT :=
+Ltac resolve_existT := try
   match goal with
-     | [ H2 : existT _ _ _ = existT _ _ _ |- _ ] => rewrite (Eqdep.EqdepTheory.inj_pair2 _ _ _ _ _ H2) in *
-  | _ => idtac
+     | [ H2 : @existT ?X _ _ _ = existT _ _ _ |- _ ] => eapply Eqdep_dec.inj_pair2_eq_dec in H2; [subst | try (eauto || now intros; decide equality)]
   end.
 
 Ltac inv H :=
-  inversion H; subst; repeat (progress resolve_existT).
+  inversion H; subst; resolve_existT.
 
 
 
@@ -161,8 +160,3 @@ Qed.
 End fix_sig.
 
 Hint Constructors vec_in.
-  
-
-                                                                     
-
-                                                                     

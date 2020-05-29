@@ -110,7 +110,7 @@ Section DialogFragment.
     - ctx. now apply Hjust.
     - destruct (Hatk (Some phi1) (AImpl phi1 phi2)) as [(psi & Hdef & Hprv) | Hprv];
       try inversion Hdef; subst; apply II, Hprv.
-    - ointros. destruct (find_unused_L (phi :: A)) as [x Hx]. apply (@nameless_equiv _ intu expl A phi x).
+    - ointros. destruct (find_unused_L (phi :: A)) as [x Hx]. apply (@nameless_equiv _ intu expl _ _ A phi x).
       + intros psi Hel. apply (Hx x (le_n x)). now right.
       + apply (Hx (S x)). omega. now left.
       + destruct (Hatk None (AAll phi (var_term x))) as [(psi & Hdef & Hprv) | Hprv].

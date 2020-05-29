@@ -194,6 +194,9 @@ Section FullFOL.
     - rewrite IHv, (Hext h). 1: reflexivity. all: eauto.
   Qed.
 
+  Context {eq_dec_Funcs : eq_dec Funcs}.
+  Context {eq_dec_Preds : eq_dec Preds}.
+
   Lemma subst_unused_term xi sigma P t :
     (forall x, dec (P x)) -> (forall m, ~ P m -> xi m = sigma m) -> (forall m, P m -> unused_term m t) ->
     subst_term xi t = subst_term sigma t.

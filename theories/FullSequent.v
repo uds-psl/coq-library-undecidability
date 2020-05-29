@@ -98,6 +98,9 @@ Section FullSequent.
 
   Hint Unfold cycle_shift.
 
+  Context {eq_dec_Funcs : eq_dec Funcs}.
+  Context {eq_dec_Preds : eq_dec Preds}.
+
   Lemma cycle_shift_shift n phi :
     unused n phi -> phi[cycle_shift n] = phi[↑].
   Proof.
@@ -107,7 +110,7 @@ Section FullSequent.
   Lemma cycle_shift_subject n phi :
     unused (S n) phi -> phi[(var_term n)..][cycle_shift n] = phi.
   Proof.
-    intros H. asimpl. rewrite (@subst_unused_single _ _ ids _ _ H). 1: now asimpl.
+    intros H. asimpl. rewrite (@subst_unused_single _ _ _ _ ids _ _ H). 1: now asimpl.
     intros m H'; comp; decide (n = n); try congruence. destruct m; [reflexivity |].
       comp; decide (n = m); comp; congruence.
   Qed.

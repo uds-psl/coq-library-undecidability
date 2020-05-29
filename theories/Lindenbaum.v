@@ -165,6 +165,9 @@ Section Completeness.
 
   
 
+  Context {eq_dec_Funcs : eq_dec Funcs}.
+  Context {eq_dec_Preds : eq_dec Preds}.
+
 
   (** ** Completeness *)
 
@@ -180,11 +183,11 @@ Section Completeness.
     - cbn. split; intros psi H'.
       + intros X [HX [t Ht]]. change (psi ∈ proj1_sig (exist normal X HX)).
         eapply Ht. rewrite <- H. apply AllE, H'.
-      + apply AllI. destruct (@nameless_equiv_all' _ _ expl ([psi]) phi) as [t <-].
+      + apply AllI. destruct (@nameless_equiv_all' _ _ expl _ _ ([psi]) phi) as [t <-].
         apply H, H'. exists (proj2_sig (hsat lb_Pr phi[t..])), t. now destruct hsat.
     - cbn. split; intros psi H'.
       + intros X [XD HX]. apply XD. intros theta HT. apply (ExE H').
-        destruct (@nameless_equiv_ex' _ _ expl ([psi]) theta phi) as [t <-].
+        destruct (@nameless_equiv_ex' _ _ expl _ _ ([psi]) theta phi) as [t <-].
         assert (exists i : term, equiv_HA (hsat lb_Pr phi[t..]) (hsat lb_Pr phi[i..])) by now eexists.
         specialize (HX (hsat lb_Pr phi[t..]) H0).
         apply Weak with (A:=[phi[t..]]); auto.
@@ -220,12 +223,16 @@ End Completeness.
 Definition hvalid phi :=
   forall (HA : CompleteHeytingAlgebra) HP, Top <= hsat HP phi.
 
+Context {eq_dec_Funcs : eq_dec Funcs}.
+Context {eq_dec_Preds : eq_dec Preds}.
+
 Theorem hcompleteness phi :
   hvalid phi -> nil ⊢IE phi.
 Proof.
   intros H.
   specialize (H (@lb_calg intu) lb_Pr).
   now eapply lb_calg_iff.
+  Unshelve.
 Qed.
 
 Theorem hsoundness phi :

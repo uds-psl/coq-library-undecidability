@@ -259,7 +259,7 @@ Section GenCons.
       assert (unused n (e n)) by now apply Hunused.
       cbn; intros (A & HA1 & HA2) % prv_T_impl.
       rewrite <- (subst_unused_closed' ((var_term n)..) GBot_closed) in HA2.
-      apply -> (@nameless_equiv Sigma class b A (¬ (henkin_axiom (e n))) n) in HA2.
+      apply -> (@nameless_equiv Sigma class b _ _ A (¬ (henkin_axiom (e n))) n) in HA2.
       - use_theory (exp_axiom GBot :: DPexp1 (e n) :: DPexp2 (e n) :: DPexp3 (e n) :: A). shelve.
         oimport (@GDP (exp_axiom GBot :: DPexp1 (e n) :: DPexp2 (e n) :: DPexp3 (e n) :: A) (e n)).
         odestruct 0. oimport HA2. shelve. clean_GBot. oapply 0. ctx.

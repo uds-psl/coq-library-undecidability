@@ -259,7 +259,7 @@ Proof.
   - intros (Sigma & [[[] A] phi]). cbn.
     split; intros.
     + now eapply prv_embed.
-    + now eapply prv_back in H.
+    + eapply prv_back in H; eauto. eapply d. eapply d.
 Qed.
 
 Lemma maxprv_sprv :

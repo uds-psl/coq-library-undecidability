@@ -67,6 +67,9 @@ Section ND_def.
       if Dec (n = x) then var_term 0 else var_term (S x).
 
     Hint Unfold cycle_shift.
+    
+    Context {Funcs_eq_dec : eq_dec Funcs}.
+    Context {Preds_eq_dec : eq_dec Preds}.
 
     Lemma cycle_shift_shift n phi :
       unused n phi -> phi[cycle_shift n] = phi[↑].
@@ -77,7 +80,7 @@ Section ND_def.
     Lemma cycle_shift_subject n phi :
       unused (S n) phi -> phi[(var_term n)..][cycle_shift n] = phi.
     Proof.
-      intros H. asimpl. rewrite (@subst_unused_single _ _ ids _ _ H). 1: now asimpl.
+      intros H. asimpl. rewrite (@subst_unused_single _ _ _ _ ids _ _ H). 1: now asimpl.
       intros m H'; comp; decide (n = n); try congruence. destruct m; [reflexivity |].
         comp; decide (n = m); comp; congruence.
     Qed.
@@ -114,6 +117,9 @@ Section ND_def.
     induction n; comp; intuition. apply IHn. apply (AllE (var_term n)) in H. asimpl in H.
     erewrite ext_form. 1: apply H. intros [| x]; unfold capture_subs; cbn; f_equal; omega.
   Qed.
+    
+  Context {Funcs_eq_dec : eq_dec Funcs}.
+  Context {Preds_eq_dec : eq_dec Preds}.
 
   Lemma close_extract {p : peirce} {b : bottom} A phi :
     A ⊢ close phi -> A ⊢ phi.

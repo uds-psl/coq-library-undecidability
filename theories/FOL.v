@@ -88,7 +88,7 @@ Section FOL.
   | uf_Pred P v : (forall t, vec_in t v -> unused_term n t) -> unused n (Pred P v)
   | uf_Impl phi psi : unused n phi -> unused n psi -> unused n (Impl phi psi)
   | uf_All phi : unused (S n) phi -> unused n (All phi).
-
+  
   Definition unused_L n A := forall phi, phi el A -> unused n phi.
   Definition closed phi := forall n, unused n phi.
 
@@ -154,6 +154,8 @@ Section FOL.
     - rewrite IHv, (Hext h). 1: reflexivity. all: eauto.
   Qed.
 
+  Context {Funcs_eq_dec : eq_dec Funcs}.
+
   Lemma subst_unused_term xi sigma P t :
     (forall x, dec (P x)) -> (forall m, ~ P m -> xi m = sigma m) -> (forall m, P m -> unused_term m t) ->
     subst_term xi t = subst_term sigma t.
@@ -165,6 +167,8 @@ Section FOL.
     - f_equal. apply vec_map_ext. intros t H'. apply (H t H'). intros n H2 % Hunused. inv H2. eauto.
   Qed.
 
+  Context {Preds_eq_dec : eq_dec Preds}.
+
   Lemma subst_unused_form xi sigma P phi :
     (forall x, dec (P x)) -> (forall m, ~ P m -> xi m = sigma m) -> (forall m, P m -> unused m phi) ->
     subst_form xi phi = subst_form sigma phi.
@@ -172,7 +176,7 @@ Section FOL.
     induction phi in xi,sigma,P |-*; intros Hdec Hext Hunused; cbn; asimpl.
     - reflexivity.
     - f_equal. apply vec_map_ext. intros s H. apply (subst_unused_term Hdec Hext).
-      intros m H' % Hunused. inv H'. eauto.
+      intros m H' % Hunused. inv H'. eauto. 
     - rewrite IHphi1 with (sigma := sigma) (P := P). rewrite IHphi2 with (sigma := sigma) (P := P).
       all: try tauto. all: intros m H % Hunused; now inversion H.
     - erewrite IHphi with (P := shift_P P). 1: reflexivity.
@@ -477,7 +481,7 @@ Section EqDec.
   Global Instance dec_term : eq_dec term.
   Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence)).
     intros t. induction t using strong_term_ind; intros []...
-    - decide (x = n)...
+    - decide (x = n)... 
     - decide (F = f)... destruct (dec_vec_in X t)...
   Qed.
 
