@@ -30,12 +30,118 @@ Proof.
     + eapply IHl in H0. lia.
 Qed.
 
+Lemma dec2bool_iff P (d : dec P) :
+  dec2bool d = true <-> P.
+Proof.
+  destruct d; cbn; firstorder.
+Qed.
+
+Require Import Equations.Prop.DepElim.
+
+Lemma to_list_inj {X n} (v1 v2 : Vector.t X n) :
+  to_list v1 = to_list v2 -> v1 = v2.
+Proof.
+  induction v1 in v2 |- *; intros; cbn.
+  - depelim v2. reflexivity.
+  - depelim v2. inv H. f_equal. eapply IHv1, H2.
+Qed.
+
+Lemma cast_refl {X n} (v : Vector.t X n) :
+  cast v eq_refl = v.
+Proof.
+  induction v; cbn; congruence.
+Qed.
+
+Lemma to_list_cast_of_list {X} (l : list X) n (e : length l = n) :
+  to_list (cast (of_list l) e) = l.
+Proof.
+  destruct e. rewrite cast_refl.
+  eapply to_list_of_list_opp.
+Qed.
+
+Lemma to_list_length {X n} (v : Vector.t X n) :
+  length (to_list v) = n.
+Proof.
+  induction v; cbn.
+  - reflexivity.
+  - f_equal. now rewrite <- IHv.
+Qed.
+
+Lemma map_nth_id:
+  forall (D : Type) (x : D) (l : list D),
+    [nth_default x l x0 | x0 ∈ seq 0 (| l |)] = l.
+Proof.
+  intros D x l.
+  induction l using rev_ind.
+  + reflexivity.
+  + rewrite app_length, seq_app, map_app.
+    rewrite <- IHl at 3. f_equal.
+    * eapply map_ext_in. intros ? ? % in_seq.
+      unfold nth_default.
+      rewrite nth_error_app1. reflexivity. lia.
+    * cbn. f_equal. unfold nth_default.
+      rewrite nth_error_app2, minus_diag.  reflexivity. lia.
+Qed.
+
+Lemma Vector_to_list_map {X Y n} (f : X -> Y) (v : Vector.t X n) :
+  to_list (Vector.map f v) = map f (to_list v).
+Proof.
+  induction v.
+  - reflexivity.
+  - cbn. f_equal. fold (to_list v). rewrite <- IHv. reflexivity.
+Qed.
+
+Definition decidable_model := 
+fun (Sigma : Signature) (D : Type) (I : interp D) => exists f : forall P, vector D (pred_ar P) -> bool, forall P, forall v : vector D (pred_ar P), f P v = true <-> i_P v.
+
+Notation omniscient_on I phi := (forall (rho : env _), dec (rho ⊨ phi)).
+Definition omniscient := fun (Sigma : Signature) (D : Type) (I : interp D) => inhabited (forall phi, omniscient_on I phi).
+
+Lemma omniscient_to_classical {Σ : Signature} D (I : interp D) :
+  omniscient I -> classical I.
+Proof.
+  intros [d] rho phi psi. cbn.
+  destruct (d phi rho), (d psi rho); tauto.
+Qed.
+
+Definition vec_to_env {X} (v : list X) (d : X) : env X :=
+  (nth_default d v).
+
+Lemma omniscient_to_decidable {Σ : Signature} D (x : D) (I : interp D) :
+  omniscient I -> decidable_model I.
+Proof.
+  intros [d].
+  unshelve eexists (fun P v => d (Pred P (cast (of_list (map var_term (seq 0 (pred_ar P)))) _)) (nth_default x (to_list v))).
+  - now rewrite map_length, seq_length.
+  - intros P v. rewrite dec2bool_iff.
+    cbn.
+    match goal with
+    | [ |- i_P ?a <-> i_P ?b ] => enough (a = b) as H by now rewrite H
+    end. clear.
+    eapply to_list_inj.
+    rewrite Vector_to_list_map, to_list_cast_of_list, map_map. cbn.
+    assert (pred_ar P = length (to_list v)) by now rewrite to_list_length.
+    revert H. generalize (to_list v). intros. rewrite H.
+    eapply map_nth_id.
+Qed.
+
+Lemma decidable_to_omniscient {Σ : Signature} (I : interp unit) :
+  decidable_model I -> standard_bot I -> omniscient I.
+Proof.
+  intros [d Hd] SB. econstructor. intros phi rho.
+  induction phi in rho |- *; cbn.
+  - firstorder.
+  - destruct (d P (Vector.map (eval rho) t)) eqn:E.
+    + left. now eapply Hd.
+    + right. intros ? % Hd. congruence.
+  - destruct (IHphi1 rho), (IHphi2 rho); firstorder.
+  - destruct (IHphi (tt .: rho)). left; now intros [].
+    right. firstorder.
+Qed.
+
 (** ** WKL  *)
 
-(** The predicate [suffix] holds if the first list is a suffix of the second.
-The predicate [prefix] holds if the first list is a prefix of the second. *)
 Definition prefix {A} : list A -> list A -> Prop := fun l1 l2 => exists k, l2 = l1 ++ k.
-Infix "`prefix_of`" := prefix (at level 70) : stdpp_scope.
 
 Definition decidable {X} (p : X -> Prop) := exists f, forall x, p x <-> f x = true.
 
@@ -132,9 +238,6 @@ Proof.
   apply modex_compact. 2:apply modex_standard. firstorder.
 Qed.
 
-Definition decidable_model := 
-fun (Sigma : Signature) (D : Type) (I : interp D) => exists f : forall P, vector D (pred_ar P) -> bool, forall P, forall v : vector D (pred_ar P), f P v = true <-> i_P v.
-
 Definition DM `{Signature} D (I : interp D) := SM I /\ countable D /\ decidable_model I.
 
 Definition count_sig := @B_S False ltac:(tauto) nat (fun n => 0).
@@ -151,9 +254,6 @@ Lemma Neg_sat `{Signature} D (I : interp D) rho phi :
 Proof.
   firstorder.
 Qed.
-
-Notation omniscient_on I phi := (forall (rho : env _), dec (rho ⊨ phi)).
-Definition omniscient := fun (Sigma : Signature) (D : Type) (I : interp D) => inhabited (forall phi, omniscient_on I phi).
 
 Lemma omniscient_on_Neg `{Signature} D (I : interp D) phi :
   standard_bot I ->
@@ -467,27 +567,6 @@ Section WKL.
   Variable T : tree.
   (* Variable T_D : list bool -> bool. *)
   (* Variable HD : forall x, T_D x = true <-> T x. *)
-
-  Lemma decidable_to_omniscient {Σ : Signature} (I : interp unit) :
-    decidable_model I -> standard_bot I -> omniscient I.
-  Proof.
-    intros [d Hd] SB. econstructor. intros phi rho.
-    induction phi in rho |- *; cbn.
-    - firstorder.
-    - destruct (d P (Vector.map (eval rho) t)) eqn:E.
-      + left. now eapply Hd.
-      + right. intros ? % Hd. congruence.
-    - destruct (IHphi1 rho), (IHphi2 rho); firstorder.
-    - destruct (IHphi (tt .: rho)). left; now intros [].
-      right. firstorder.
-  Qed.
-
-  Lemma omniscient_to_classical {Σ : Signature} D (I : interp D) :
-    omniscient I -> classical I.
-  Proof.
-    intros [d] rho phi psi. cbn.
-    destruct (d phi rho), (d psi rho); tauto.
-  Qed.
 
   Definition is_phi n psi := exists L, Is_Filter T (proj1_sig (listable_list_length n)) L /\ psi = fExists (map (fun l => fAll (mapi (fun i (b : bool) => if b then @Pred count_sig i Vector.nil else Neg (@Pred count_sig i Vector.nil)) l 0)) (L)).
 
