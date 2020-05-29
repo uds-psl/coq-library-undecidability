@@ -191,25 +191,25 @@ Definition WKL (C : (list bool -> Prop) -> Prop) :=
 
 (** ** Model existence  *)
 
-Definition model_existence (Cond : forall Sigma D, @interp Sigma D -> Prop) :=
+Definition model_existence (CT : forall Sigma, @theory Sigma -> Prop) (Cond : forall Sigma D, @interp Sigma D -> Prop) :=
   forall {Sigma : Signature},
   forall {HdF : eq_dec Funcs} {HdP : eq_dec Preds},
   forall {HeF : enumT Funcs} {HeP : enumT Preds},
-  forall T (T_closed : closed_T T), consistent T ->
+  forall T (T_closed : closed_T T), CT _ T -> consistent T ->
                                has_model (Cond Sigma) T.
 
 Definition countable (X : Type) := inhabited (eq_dec X) /\ inhabited (enumT X).
 
-Definition compactness (C : forall Sigma D, @interp Sigma D -> Prop) :=
+Definition compactness (CT : forall Sigma, @theory Sigma -> Prop) (C : forall Sigma D, @interp Sigma D -> Prop) :=
   forall {Sigma : Signature},
   forall {HdF : eq_dec Funcs} {HdP : eq_dec Preds},
   forall {HeF : enumT Funcs} {HeP : enumT Preds},
-  forall T (T_closed : closed_T T),
+  forall T (T_closed : closed_T T), CT _ T ->
   (forall Gamma, Gamma ⊏ T -> has_model (C Sigma) (fun x => In x Gamma))
   -> has_model (C Sigma) T.
 
 Lemma modex_standard :
-  model_existence (fun Sigma D I => @SM Sigma D I /\ countable D).
+  model_existence (fun _ _ => True) (fun Sigma D I => @SM Sigma D I /\ countable D).
 Proof.
   intros Sigma HdF HdP HeF HeP T T_closed T_cons.
   pose proof (@model_bot_correct Sigma HdF HdP HeF HeP T T_closed).
@@ -221,11 +221,11 @@ Proof.
   - now eapply model_bot_standard.
 Qed.
 
-Lemma modex_compact (C : forall Sigma D, @interp Sigma D -> Prop) :
+Lemma modex_compact (CT : forall Sigma, @theory Sigma -> Prop) (C : forall Sigma D, @interp Sigma D -> Prop) :
   (forall Sigma D I, C Sigma D I -> SM I) ->
-  model_existence C -> compactness C.
+  model_existence CT C -> compactness CT C.
 Proof.
-  intros HImpl HM Sigma HdF HdP HeF HeP T T_closed H.
+  intros HImpl HM Sigma HdF HdP HeF HeP T T_closed TC H.
   apply HM in T_closed as (D & I & rho & HI); trivial.
   + intros [Gamma [H1 H2]]. apply H in H1 as (D & I & rho & H3 & H4).
     apply Soundness' in H2. eapply HImpl. apply H4. now eapply (H2 D I (HImpl _ _ _ H4) rho). 
@@ -233,7 +233,7 @@ Proof.
 Qed.
 
 Lemma compact_standard :
-  compactness (fun Sigma D I => @SM Sigma D I /\ countable D).
+  compactness (fun _ _ => True) (fun Sigma D I => @SM Sigma D I /\ countable D).
 Proof.
   apply modex_compact. 2:apply modex_standard. firstorder.
 Qed.
@@ -465,6 +465,22 @@ Inductive Is_Filter {X} (P : X -> Prop) : list X -> list X -> Prop :=
 | Is_Filter_nil : Is_Filter P nil nil
 | Is_Filter_true x l1 l2 : Is_Filter P l1 l2 -> P x -> Is_Filter P (x :: l1) (x :: l2)
 | Is_Filter_false x l1 l2 : Is_Filter P l1 l2 -> ~ P x -> Is_Filter P (x :: l1) l2.
+
+Lemma Is_Filter_filter {X} (P : X -> Prop) L L' (d : forall x, dec (P x)) :
+  Is_Filter P L L' <-> L' = filter d L.
+Proof.
+  induction L in L' |- *; cbn.
+  - split.
+    + intros H. now inv H.
+    + intros ->. econstructor.
+  - destruct (d a); cbn.
+    + split.
+      * intros H. inv H; now eapply IHL in H2 as ->.
+      * intros ->. econstructor; intuition.
+    + split.
+      * intros H. inv H; now eapply IHL in H2 as ->.
+      * intros ->. econstructor; intuition.
+Qed.
 
 Lemma Is_Filter_In {X} (P : X -> Prop) {l1 : list X} {l2 : list X} {x} :
   Is_Filter P l1 l2 ->
@@ -731,30 +747,103 @@ Section WKL.
   Qed.
 
   Lemma compact_DM_WKL :
-    compactness (@DM) -> infinite_tree T ->  exists f : nat -> bool, forall n : nat, ~~ T (map f (seq 0 n)).
+    compactness (fun _ _ => True) (@DM) -> infinite_tree T ->  exists f : nat -> bool, forall n : nat, ~~ T (map f (seq 0 n)).
   Proof.
     intros compact infT.
-    unshelve epose proof (compact count_sig _ _ _ _ Th _ _).
+    unshelve epose proof (compact count_sig _ _ _ _ Th _ _ _).
     - eapply closed_Th.
+    - cbn. econstructor.
     - now eapply infinite_finitely_satisfiable. 
     - now eapply exists_quasi_path. 
   Qed.
 
+  Lemma decidable_to_decidable_n :
+    (forall x, dec (T x)) -> forall n x, dec (is_phi n x).
+  Proof.
+    intros d n.
+    intros phi.
+    decide (phi = fExists (map (fun l => fAll (mapi (fun i (b : bool) => if b then @Pred count_sig i Vector.nil else Neg (@Pred count_sig i Vector.nil)) l 0)) (filter d (proj1_sig (listable_list_length n))))).
+    - left. subst. eexists. split.
+      eapply Is_Filter_filter. reflexivity.
+      reflexivity.
+    - right. intros (L & HL1 & ->).
+      now eapply (Is_Filter_filter _ _ d) in HL1 as ->.
+  Qed.
+
+  Fixpoint count_conjs (phi : @form count_sig) :=
+    match phi with
+    | ¬ ((¬ phi --> ⊥) --> ¬ psi) => S (count_conjs psi)
+    | _ => 0
+    end.
+
+  Definition get_n (phi : form) :=
+    match phi with
+    | (phi --> ⊥) --> _ => count_conjs phi
+    | _ => 0
+    end.
+
+  Lemma decidable_to_decidable :
+    decidable T -> infinite_tree T -> decidable Th.
+  Proof.
+    intros [d] % decidable_iff inf_T.
+    eapply decidable_iff. econstructor.
+    intros phi.
+    destruct (decidable_to_decidable_n d (get_n phi) phi).
+    - left. eexists. eauto.
+    - right. intros (m & L & H1 & ->).
+      eapply (Is_Filter_filter _ _ d) in H1 as ->.
+      destruct n. eexists. split.
+      eapply Is_Filter_filter. reflexivity.
+      repeat f_equal.
+      enough ((get_n
+          (fExists
+             (map (fun l => fAll (mapi (fun (i : nat) (b : bool) => if b then @Pred count_sig i Vector.nil else Neg (@Pred count_sig  i Vector.nil)) l 0))
+                  (filter (fun x : list bool => d x) (proj1_sig (listable_list_length m)))))) = m) as ->.
+      reflexivity. destruct (listable_list_length m) as [L HL]; cbn.
+      cbn. destruct (inf_T m) as (u & Hu & Hs).
+      assert (|firstn m u| = m) as Hm. { rewrite firstn_length_le. reflexivity. lia. }
+      eapply HL in Hm.
+      assert (T (firstn m u)) as HT. {
+        eapply tree_p. eapply T. 2:eauto.
+        eexists. rewrite <- (firstn_skipn m u) at 1. reflexivity.
+      }
+      destruct filter eqn:E.
+      + exfalso. change (In (firstn m u) nil).
+        rewrite <- E. eapply in_filter_iff.
+        split. eauto. eapply Dec_auto. eauto.
+      + cbn.
+        assert (m = length l) as ->.
+        * symmetry. eapply HL. eapply in_filter_iff. rewrite E. eauto.
+        * clear. generalize 0. induction l; cbn; intros.
+          -- reflexivity.
+          -- now rewrite IHl.
+  Qed.
+
 End WKL.
 
-Theorem compact_implies_WKL :
-  compactness (@DM) -> WKL (fun T => forall l, ~~ T l -> T l).
+Lemma compact_implies_WKL' :
+  compactness (fun _ _ => True) (@DM) -> WKL (fun T => forall l, ~~ T l -> T l).
 Proof.
   intros comp T stab infT.
   destruct (compact_DM_WKL comp infT) as [g].
   exists g. eauto.
 Qed.
 
-Lemma modex_impl :
-  model_existence (@DM) -> model_existence (@SM).
+Definition XM := forall P : Prop, P \/ ~ P.
+
+Corollary compact_implies_WKL :
+  XM -> compactness (fun _ _ => True) (@DM) -> WKL (fun _ => True).
 Proof.
-  intros H Sigma H1 H2 H3 H4 T clT consT.
-  destruct (H Sigma H1 H2 H3 H4 T clT consT) as (D & I & rho & H0 & HDM).
+  intros xm wkl % compact_implies_WKL' T _ H.
+  eapply wkl; eauto. intros.
+  destruct (xm (T l)); tauto.
+Qed.
+
+Lemma modex_impl CT :
+  model_existence CT (@DM) -> model_existence CT (@SM).
+Proof.
+  intros H Sigma H1 H2 H3 H4 T clT TC consT.
+  destruct (H Sigma H1 H2 H3 H4 T clT TC consT) as (D & I & rho & H0 & HDM).
   exists D, I, rho. split. eauto. eapply HDM.
 Qed.
 
@@ -817,3 +906,21 @@ Proof.
     subst. inv H0. tauto.
 Qed.
 
+Require Import Undecidability.FOLC.Markov.
+
+Lemma WKL_to_decidable_data : WKL (fun _ => True) -> forall X, discrete X -> enumerable__T X -> forall p : X -> Prop, ldecidable p -> decidable p.
+Proof.
+  intros wkl X [d ]%decidable_iff [e He] p ld.
+  enough (decidable (fun n => match e n with Some x => p x | _ => False end)) as [f Hf].
+  - unshelve epose proof (fun x => mu _ (He x)) as g.
+    + intros. cbn.
+      destruct (e x0).
+      * destruct (d (x1, x)). left. congruence. right. congruence.
+      * right. congruence.
+    + exists (fun x => f (proj1_sig (g x))).
+      intros x. specialize (Hf (proj1_sig (g x))).
+      destruct (g x) as [n Hn]; cbn in *.
+      now rewrite Hn in Hf.
+  - eapply WKL_to_decidable. eassumption.
+    intros n. destruct (e n); try tauto. eapply ld.
+Qed.
