@@ -506,51 +506,6 @@ Proof.
     + destruct (IHForall2 H1) as (? & ? & ?). eauto.
 Qed.
 
-(* Lemma Is_Filter_app {A} (P : A -> Prop) (l1 l1' l2 : list A) : *)
-(*   Is_Filter P (l1 ++ l1') l2 -> exists l2' l2'', Is_Filter P l1 l2' /\ Is_Filter P l1' l2''. *)
-(* Proof. *)
-(*   induction l1 in l1', l2 |- *; cbn; intros H. *)
-(*   - exists [], l2. firstorder. econstructor. *)
-(*   - inv H. *)
-(*     + destruct (IHl1 l1' l3) as (l2' & l2'' & ? & ?); eauto. *)
-(*       repeat econstructor; eauto. *)
-(*     + destruct (IHl1 l1' l2) as (l2' & l2'' & ? & ?); eauto. *)
-(*       eexists. eexists. split. econstructor 3. all:eauto. *)
-(* Qed. *)
-
-(* Lemma Is_Filter_of_listable: *)
-(*   forall (T : tree) (m0 : nat) (L : list (list bool)), *)
-(*     Is_Filter T (proj1_sig (listable_list_length (S m0))) L -> exists L' : list (list bool), Is_Filter T (proj1_sig (listable_list_length m0)) L'. *)
-(* Proof. *)
-(*   intros T m0 L H_L. *)
-(*   assert ((proj1_sig (listable_list_length (S m0)) = map (fun l => l ++ [ true]) (proj1_sig (listable_list_length m0)) ++ map (fun l => l ++ [ false ]) (proj1_sig (listable_list_length m0)))). *)
-(*   - cbn. now destruct (listable_list_length m0). *)
-(*   - setoid_rewrite H in H_L. clear H. *)
-(*     eapply Is_Filter_app in H_L as (L1 & _ & HL1 & _). *)
-(*     revert HL1.  *)
-(*     generalize ((@proj1_sig (list (list bool)) (fun L0 : list (list bool) => forall x : list bool, iff (@eq Datatypes.nat (@length bool x) m0) (@In (list bool) x L0)) *)
-(*                             (listable_list_length m0))). *)
-(*     induction l in L, L1 |- *; cbn; intros. *)
-(*     + exists []. econstructor. *)
-(*     + edestruct IHl as (L' & HL'). *)
-(*       3:{ inv HL1. *)
-(*           - exists (a :: L'). econstructor.  eauto. eapply tree_p. eapply T. 2:eauto. eexists; eauto. *)
-(*           - exists L'. econstructor 3. eauto. *)
-(* Admitted. *)
-
-(* Lemma Is_Filter_subset {X} {Heq : eq_dec X} (P : X -> Prop) {l1 l2 l1' : list X} f : *)
-(*   f l1' <<= l1 -> Is_Filter P l1 l2 -> exists l2', Is_Filter P l1' l2'. *)
-(* Proof. *)
-(*   intros H Hf. induction l1' in l1, l2, H, Hf |- *. *)
-(*   - exists []. econstructor. *)
-(*   - destruct (list_in_dec (f a) l2 Heq) as [H1 | H1]. *)
-(*     + eapply (Is_Filter_In Hf) in H1 as [H1 H2]. *)
-(*       edestruct (IHl1' l1 l2) as (l2' & Hl2). admit. eauto. *)
-(*       exists (a :: l2'). econstructor; eauto. *)
-(*     + edestruct (IHl1' l1 l2) as (l2' & Hl2). admit. eauto. *)
-(*       exists l2'. econstructor 3.  eauto. intros Ha. *)
-      
-
 Lemma Forall2_In1 {A B} (P : A -> B -> Prop) (l1 : list A) (l2 : list B) a :
   Forall2 P l1 l2 ->
   In a l1 -> exists b, In b l2 /\ P a b.
@@ -565,8 +520,6 @@ Qed.
 Section WKL.
 
   Variable T : tree.
-  (* Variable T_D : list bool -> bool. *)
-  (* Variable HD : forall x, T_D x = true <-> T x. *)
 
   Definition is_phi n psi := exists L, Is_Filter T (proj1_sig (listable_list_length n)) L /\ psi = fExists (map (fun l => fAll (mapi (fun i (b : bool) => if b then @Pred count_sig i Vector.nil else Neg (@Pred count_sig i Vector.nil)) l 0)) (L)).
 
@@ -622,8 +575,6 @@ Section WKL.
       rewrite <- (firstn_skipn m l).
       rewrite mapi_app. eauto.
   Qed.
-
-  Set Nested Proofs Allowed.
   
   Definition M_u (u : list bool) : @interp count_sig unit.
     econstructor.
@@ -706,8 +657,6 @@ Section WKL.
       rewrite <- nth_default_eq. unfold nth_default. rewrite <- (firstn_skipn m l).
       rewrite (nthe_app_l _ HH); eauto.
   Qed.
-
-  (* Induktionsbeispiele von Kathrin *)
 
   Lemma phi_exists n :
     ~~ exists phi, is_phi n phi.
@@ -868,94 +817,3 @@ Proof.
     subst. inv H0. tauto.
 Qed.
 
-
-(* Section assm_Th. *)
-
-(*   Context {Σ : Signature}. *)
-(*   Variable Σ_enum1 : enumT Funcs. *)
-(*   Variable Σ_enum2 : enumT Preds. *)
-(*   Variable Σ_disc1 : eq_dec Funcs. *)
-(*   Variable Σ_disc2 : eq_dec Preds. *)
-(*   Variable Th : theory. *)
-(*   Variable Th_closed : closed_T Th. *)
-
-(*   Definition H_Th := Henkin (GenConstructions.Exp Fal Th form_enum) form_enum. *)
-
-(*   Definition T_ l := *)
-(*     forall i b, nth_error l i = Some b -> *)
-(*            (H_Th (form_enum i) -> b = true ) /\ *)
-(*            (b = true <-> consistent (fun phi => H_Th phi \/ exists j b, j < i /\ nth_error l j = Some b /\ (b = true -> phi = form_enum j))). *)
-
-(*   Lemma is_tree_T_ : is_tree T_. *)
-(*   Proof. *)
-(*     econstructor. *)
-(*     - exists []. intros [] ? [=]. *)
-(*     - unfold T_. intros l1 ? [l2 ->] H i b Hi. *)
-(*       split. *)
-(*       + eapply H. erewrite nthe_app_l; eauto. *)
-(*       + edestruct H. *)
-(*         * erewrite nthe_app_l; eauto. *)
-(*         * rewrite H1. split. *)
-(*           -- intros H2 H3. eapply H2. eapply Weak_T. eauto. intros ? [Hphi | (j & b' & Hlt & Heq & Hphi) ]. *)
-(*              ++ now left. *)
-(*              ++ right. exists j, b'. repeat split; eauto. *)
-(*                 erewrite nthe_app_l; eauto. *)
-(*           -- intros H2 H3. eapply H2. eapply Weak_T. eauto. intros ? [Hphi | (j & b' & Hlt & Heq & Hphi) ]. *)
-(*              ++ now left. *)
-(*              ++ right. exists j, b'. repeat split; eauto. *)
-(*                 erewrite nth_error_app1 in Heq; eauto. *)
-(*                 transitivity i. lia. *)
-(*                 eapply nth_error_Some. congruence. *)
-(*   Qed. *)
-
-(*   Definition T : tree := Build_tree is_tree_T_. *)
-
-(*   Lemma H_Th_consistent : *)
-(*     consistent Th -> consistent H_Th. *)
-(*   Proof. *)
-(*     intros cons H. *)
-(*     unshelve eapply cons, Exp_econsistent, Henkin_consistent. *)
-(*     - eapply form_enum. *)
-(*     - eapply form_enum. *)
-(*     - econstructor. *)
-(*     - eapply Exp_closed, Th_closed. econstructor. *)
-(*     - eapply Exp_exploding. eapply form_enum_enumerates. *)
-(*     - eapply form_enum_fresh. *)
-(*     - eassumption. *)
-(*   Qed. *)
-
-(*   Lemma nnXM (P : Prop) : ~~ (P \/ ~ P). *)
-(*   Proof. *)
-(*     tauto. *)
-(*   Qed. *)
-(*   Arguments nnXM _ : clear implicits. *)
-
-(*   Tactic Notation "ldec" constr(P) "as" ident(H) := destruct P; intros [H|H]. *)
-    
-(*   Tactic Notation "ldec" constr(P) := let H := fresh "H" in ldec P as H.  *)
-
-(*   Lemma consistent_infinite : *)
-(*     consistent Th -> forall k : fin, ~~ exists a : list bool, T a /\ | a | >= k. (* This DN is MP for enumerable trees *) *)
-(*   Proof. *)
-(*     intros H % H_Th_consistent. *)
-(*     intros k. induction k. *)
-(*     - intros Ha; eapply Ha. exists []. split. *)
-(*       destruct (tree_inhab T). eapply tree_p. eapply T. all:eauto. eexists; reflexivity. *)
-(*     - intros Ha. eapply IHk; intros (l & H1 & H2). *)
-(*       ldec (nnXM (H_Th (form_enum (|l|)))) as HTh. *)
-(*       + eapply Ha. exists (l ++ [true]). split. 2: rewrite app_length; cbn; lia. *)
-(*         intros i b Hi. *)
-(*         destruct (le_lt_dec (|l|) i) as [Hl | Hl]. *)
-(*         * rewrite nth_error_app2 in Hi; eauto. *)
-(*           assert (Heq : |l| = i). { enough (i - (|l|) = 0) by lia. destruct (i - (|l|)). reflexivity. inv Hi. destruct n; inv H3. } *)
-(*           rewrite Heq, minus_diag in Hi. clear Hl. *)
-(*           inv Hi. *)
-(*           split. eauto. *)
-(*           intros _ Hf.          (* take the last true in l *) *)
-(*           admit. *)
-(*         * rewrite nth_error_app1 in Hi; eauto. eapply H1 in Hi as [H3 H4]. split. *)
-(*           -- eapply H3. *)
-(*           -- intros H5 % H4 H6. eapply H5, Weak_T. eauto. intros ? [|(j & b' & ? & ? & ?)]. *)
-(*              now left. right. exists j, b'. repeat split; eauto. *)
-(*              rewrite nth_error_app1 in H7; eauto.  *)
-(*       + admit. *)
