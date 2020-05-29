@@ -274,3 +274,17 @@ Section Transitivity.
     2: destruct (IHtrans eq_refl H H0). all: eauto using trans.
   Qed.
 End Transitivity.
+
+Section TransWFexp.
+  Variable X : Type.
+  Variable R : X -> X -> Prop.
+  Hypothesis wf_R : well_founded R.
+
+  Definition tlexp := trans (lexp R).
+
+  Lemma well_founded_tlexp :
+    well_founded tlexp.
+  Proof.
+    now apply well_founded_trans, well_founded_lexp.
+  Qed.
+End TransWFexp.

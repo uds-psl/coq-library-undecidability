@@ -121,7 +121,7 @@ Section SDialogues.
   | DlA A phi : Dadmission A phi -> Dlift
   | DlD A d : Ddeferred A d -> Dlift.
 
-  Definition Dlift_le (y x : Dlift) : Prop :=
+  Definition Dlift_le' (y x : Dlift) : Prop :=
     match x with
     | @DlC A (@C phi adm c) prv =>
       match prv with
@@ -132,12 +132,18 @@ Section SDialogues.
     | DlA prv => exists adm c, y = DlC (prv adm c)
     | @DlD A (C a, c) prv => exists psi (H : defense a psi), y = DlC (prv psi H)
     end.
+  Definition Dlift_le := tlexp Dlift_le'.
+
+  Infix "⪍" := Dlift_le (at level 40).
+  Infix "⪍'" := (lexp Dlift_le') (at level 40).
+
 
   Lemma Dlift_le_wf :
     well_founded Dlift_le.
   Proof.
+    apply well_founded_tlexp.
     assert (forall A T (prv : Dprv A T) phi adm (c : attack phi adm) (H : T = defense c),
-               Acc Dlift_le (@DlC A (C c) (eq_rect T (fun x => Dprv A x) prv _ H))).
+               Acc Dlift_le' (@DlC A (C c) (eq_rect T (fun x => Dprv A x) prv _ H))).
     {
       intros A T H. induction H; intros tau adm' c Hc; subst; constructor; intros y.
       - cbn; intros ?; subst. constructor. intros z (adm & atk & ?); subst.
@@ -250,8 +256,6 @@ Section SDialogues.
   Qed.
 
   (** Tactics to simply claims involving vector expressions and liftings **)
-  (* Ltac vsimpl' := repeat first [progress rewrite vmap_upV | progress rewrite up_upL | progress rewrite up_upI | *)
-  (*                               progress rewrite vapp_vmap | progress rewrite <- app_assoc ]. *)
   Ltac vsimpl' := repeat (cbn; unfold DlC', DlD', DlA', DlD'', DlA'';
                           try rewrite vmap_upV; try rewrite up_upL; try rewrite up_upI;
                           try rewrite vapp_vmap; try rewrite <- app_assoc).
@@ -293,9 +297,6 @@ Section SDialogues.
     | forall a b, Dprv ?A ?T => pose (H := @upI _ _ Dadmission _ _ t)
     | forall a, defense ?b _ -> Dprv _ (defense ?c) => pose (H := @upI _ _ Ddeferred _ (C b, C c) t)
     end.
-
-  Infix "⪍" := (trans (lexp Dlift_le)) (at level 40).
-  Infix "⪍'" := (lexp Dlift_le) (at level 40).
 
   (** Tactics to ease solving about ⪍ claims **)
   Ltac build_prefix' HA Ha HB t n :=
@@ -353,8 +354,7 @@ Section SDialogues.
     forall pA oA D c (DpA : IVec (Dadmission' oA) pA) (DD : IVec (Ddeferred' oA) D) (Dc : Dchallenge' oA c),
       P = DlC' Dc :: DlA'' DpA ++ DlD'' DD -> swin_strat (pA, oA, D) c.
   Proof.
-    induction (well_founded_trans (well_founded_lexp Dlift_le_wf) P).
-    intros; subst. destruct Dc as (oA' & HoA' & Dc), c. dependent elimination Dc.
+    induction (Dlift_le_wf P). intros; subst. destruct Dc as (oA' & HoA' & Dc), c. dependent elimination Dc.
     - apply SWS with (s' := (phi0 :: pA, oA, D)). 1: capply SPDef; eapply (justified_weak j HoA').
       wrap_up d0. intros ? ?; inversion 1; subst.
       + destruct DD as [(oA'' & HoA'' & Hdef) DD2]. wrap_up (Hdef _ X1).
