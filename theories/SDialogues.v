@@ -250,9 +250,12 @@ Section SDialogues.
   Qed.
 
   (** Tactics to simply claims involving vector expressions and liftings **)
-  Ltac vsimpl' := repeat first [progress rewrite vmap_upV | progress rewrite up_upL | progress rewrite up_upI |
-                                progress rewrite vapp_vmap | progress rewrite <- app_assoc ].
-  Ltac vsimpl := unfold DlC', DlD', DlA', DlD'', DlA''; cbn; vsimpl'; fold DlC' DlD' DlA' DlD'' DlA''.
+  (* Ltac vsimpl' := repeat first [progress rewrite vmap_upV | progress rewrite up_upL | progress rewrite up_upI | *)
+  (*                               progress rewrite vapp_vmap | progress rewrite <- app_assoc ]. *)
+  Ltac vsimpl' := repeat (cbn; unfold DlC', DlD', DlA', DlD'', DlA'';
+                          try rewrite vmap_upV; try rewrite up_upL; try rewrite up_upI;
+                          try rewrite vapp_vmap; try rewrite <- app_assoc).
+  Ltac vsimpl := vsimpl'; fold DlC' DlD' DlA' DlD'' DlA''.
 
   (** Tactics to automatically build the lifted terms and vectors as required in Dprv_swin **)
   Ltac go :=
@@ -356,37 +359,36 @@ Section SDialogues.
       wrap_up d0. intros ? ?; inversion 1; subst.
       + destruct DD as [(oA'' & HoA'' & Hdef) DD2]. wrap_up (Hdef _ X1).
         eapply X. 2: reflexivity. Unshelve. 2-4: build_term. vsimpl. etransitivity.
-        2: step 0 [DlA' H0]; reflexivity. step 2 [DlC' H1]. 1: now exists psi, X1.
-        admit. (* permc 2. *)
+        2: step 0 [DlA' H0]; reflexivity. step 2 [DlC' H1]. 1: now exists psi, X1. permc 2.
       + destruct pA0; cbn in *; inversion H2; subst.
         * wrap_up (d0 adm0 atk). eapply X. 2: reflexivity. Unshelve. 2-4: build_term.
           vsimpl; etransitivity. 2: step 0 [DlA' H0]; reflexivity.
-          step 0 [DlC' H1]. now exists adm0, atk. admit. (* permc 1. *)
+          step 0 [DlC' H1]. now exists adm0, atk. permc 1.
         * destruct (vsplit DpA) as (DpA1 & DpA2 & def & ->). destruct def as (oA'' & HoA'' & Hdef).
           wrap_up (Hdef adm0 atk). eapply X. 2: reflexivity. Unshelve. 2-4: build_term. vsimpl; etransitivity.
-          2: step 0 [DlA' H0]; reflexivity. step 2 [DlC' H1]. now exists adm0, atk. admit. (*  permc 1. *)
+          2: step 0 [DlA' H0]; reflexivity. step 2 [DlC' H1]. now exists adm0, atk. permc 1.
     - apply SWS with (s' := (adm0 o:: pA, oA, (C atk, C a) :: D)).
       1: capply SPAtk; [now apply HoA' | intros x ->; now apply (justified_weak (o x eq_refl))].
       intros ? ? H''; inv H''; subst.
       + wrap_up (d1 _ X0); wrap_up d1. destruct adm0; cbn.
         * wrap_up (o0 f0 eq_refl). eapply X. 2: reflexivity. Unshelve. 2-4: build_term.
           vsimpl; etransitivity. 2: step 0 (DlD' H1 :: DlA' H2 :: nil); [left | right|]; reflexivity.
-          step 0 [DlC' H0]. now exists psi0, X0. admit. (*  reflexivity. *)
+          step 0 [DlC' H0]. now exists psi0, X0. reflexivity.
         * eapply X. 2: reflexivity. Unshelve. 2-4: build_term. vsimpl; etransitivity.
-          2: step 0 [DlD' H1]; reflexivity. step 0 [DlC' H0]. now exists psi0, X0.  admit. (* reflexivity. *)
+          2: step 0 [DlD' H1]; reflexivity. step 0 [DlC' H0]. now exists psi0, X0. reflexivity.
       + destruct adm0;[destruct pA0 |]; cbn in H1; cbn; subst; try inv H1.
         * wrap_up (o0 f0 eq_refl adm1 atk0). wrap_up d1. wrap_up (o0 f0 eq_refl).
           eapply X. 2: reflexivity. Unshelve. 2-4: build_term. vsimpl; etransitivity.
           2: step 0 (DlD' H2 :: DlA' H3 :: nil); [left | right|]; reflexivity. step 1 [DlC' H0].
-          now exists adm1, atk0. permp 0. permp 1.  admit. (* reflexivity. *) 
+          now exists adm1, atk0. permp 0. permp 1.  reflexivity.
         * destruct (vsplit DpA) as (DpA1 & DpA2 & (oA'' & HoA'' & Hdef) & ->).
           wrap_up (Hdef adm1 atk0). wrap_up (o0 f0 eq_refl). wrap_up d1.
           eapply X. 2: reflexivity. Unshelve. 2-4: build_term. vsimpl; etransitivity.
           2: step 0 (DlD' H3 :: DlA' H2 :: nil); [left | right|]; reflexivity.
-          step 3 [DlC' H0]. now exists adm1, atk0. permp 0. permp 0. permp 2. admit. (* reflexivity. *)
+          step 3 [DlC' H0]. now exists adm1, atk0. permp 0. permp 0. permp 2. reflexivity.
         * destruct (vsplit DpA) as (DpA1 & DpA2 & (oA'' & HoA'' & Hdef) & ->).
           wrap_up (Hdef adm1 atk0). wrap_up d1. eapply X. 2: reflexivity. Unshelve. 2-4: build_term.
           vsimpl; etransitivity. 2: step 0 [DlD' H1]; reflexivity. step 2 [DlC' H0]. now exists adm1, atk0.
-          permp 0. permp 2. admit. (* reflexivity. *) 
-  Admitted.
+          permp 0. permp 2. reflexivity.
+  Qed.
 End SDialogues.
