@@ -18,6 +18,7 @@ GenTarski.v
 Consistency.v
 GenCompleteness.v
 Stability.v
+WKL.v
 
 Kripke.v
 Gentzen.v
