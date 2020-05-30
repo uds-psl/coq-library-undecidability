@@ -210,6 +210,14 @@ Definition compactness (CT : forall Sigma, @theory Sigma -> Prop) (C : forall Si
   (forall Gamma, Gamma ⊏ T -> has_model (C Sigma) (fun x => In x Gamma))
   -> has_model (C Sigma) T.
 
+Definition completeness (CT : forall Sigma, @theory Sigma -> Prop) (C : forall Sigma D, @interp Sigma D -> Prop) :=
+  forall {Sigma : Signature},
+  forall {HdF : eq_dec Funcs} {HdP : eq_dec Preds},
+  forall {HeF : enumT Funcs} {HeP : enumT Preds},
+  forall T (T_closed : closed_T T), CT _ T ->
+                               forall phi, valid_T (C Sigma) T phi ->
+                               T ⊩CE phi.
+
 Lemma modex_standard :
   model_existence (fun _ _ => True) (fun Sigma D I => @SM Sigma D I /\ countable D).
 Proof.
@@ -232,6 +240,19 @@ Proof.
   + intros [Gamma [H1 H2]]. apply H in H1 as (D & I & rho & H3 & H4).
     apply Soundness' in H2. eapply HImpl. apply H4. now eapply (H2 D I (HImpl _ _ _ H4) rho). 
   + now exists D, I, rho.
+Qed.
+
+Definition XM := forall P : Prop, P \/ ~ P.
+
+Lemma comp_modex (CT : forall Sigma, @theory Sigma -> Prop) (C : forall Sigma D, @interp Sigma D -> Prop) :
+  XM -> completeness CT C -> model_existence CT C.
+Proof.
+  intros xm compl Sigma Hdf HdP HeF HeP T T_closed TC H.
+  assert (dne : forall P, ~~ P -> P). { red in xm. intros. specialize (xm P). tauto. }
+  eapply dne. intros HM.
+  eapply H. eapply compl; eauto.
+  intros D I HDI rho HT. exfalso. eapply HM.
+  exists D, I, rho. split; eauto.
 Qed.
 
 Lemma compact_standard :
@@ -843,8 +864,6 @@ Proof.
   exists g. eauto.
 Qed.
 
-Definition XM := forall P : Prop, P \/ ~ P.
-
 Corollary compact_implies_WKL :
   XM -> compactness (fun _ _ => True) (@DM) -> WKL (fun _ => True).
 Proof.
@@ -965,3 +984,5 @@ Proof.
     + red. intros. eapply xm.
   - econstructor. 
 Admitted.
+
+
