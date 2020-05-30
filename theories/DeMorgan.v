@@ -1,5 +1,7 @@
 From Undecidability.FOLC Require Import ND GenTarski GenCompleteness FullND FullTarski.
 
+(** ** De Morgan Translation  *)
+
 Section DM.
 
   Context { Sigma : Signature }.
@@ -240,8 +242,6 @@ Section DM.
   Qed.
 
 End DM.
-
-Print Assumptions full_completeness.
 
 Lemma DMT_sat_back :
   (forall (Sigma : Signature) D (I : interp D) rho phi, standard_bot I -> sat rho phi <-> GenTarski.sat rho (DMT phi)) -> XM.
