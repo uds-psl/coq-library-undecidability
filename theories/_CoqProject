@@ -17,6 +17,7 @@ Enumeration.v
 GenTarski.v
 Consistency.v
 GenCompleteness.v
+DeMorgan.v
 Stability.v
 WKL.v
 
@@ -35,7 +36,6 @@ FullFOL.v
 FullND.v
 FullSequent.v
 FullTarski.v
-DeMorgan.v
 
 Heyting.v
 Lindenbaum.v

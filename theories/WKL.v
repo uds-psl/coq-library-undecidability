@@ -141,8 +141,6 @@ Proof.
     right. firstorder.
 Qed.
 
-(** ** WKL  *)
-
 Definition prefix {A} : list A -> list A -> Prop := fun l1 l2 => exists k, l2 = l1 ++ k.
 
 Definition decidable {X} (p : X -> Prop) := exists f, forall x, p x <-> f x = true.
