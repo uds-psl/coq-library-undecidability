@@ -1,5 +1,7 @@
 Require Import Undecidability.FOLC.GenCompleteness Lia Nat.
 
+(** ** Compactness and Weak König's Lemma  *)
+
 Definition max_list_with {A} (f : A -> nat) : list A -> nat :=
   fix go l :=
   match l with
@@ -239,6 +241,7 @@ Proof.
 Qed.
 
 Definition DM `{Signature} D (I : interp D) := SM I /\ countable D /\ decidable_model I.
+Definition OM `{Signature} D (I : interp D) := SM I /\ countable D /\ omniscient I.
 
 Definition count_sig := @B_S False ltac:(tauto) nat (fun n => 0).
 
@@ -819,6 +822,17 @@ Section WKL.
           -- now rewrite IHl.
   Qed.
 
+  Lemma compact_DM_WKLD :
+    compactness (fun _ T => decidable T) (@DM) -> infinite_tree T ->  decidable T -> exists f : nat -> bool, forall n : nat, ~~ T (map f (seq 0 n)).
+  Proof.
+    intros compact infT decT.
+    unshelve epose proof (compact count_sig _ _ _ _ Th _ _ _).
+    - eapply closed_Th.
+    - cbn. eapply decidable_to_decidable; eauto.
+    - now eapply infinite_finitely_satisfiable. 
+    - now eapply exists_quasi_path. 
+  Qed.
+
 End WKL.
 
 Lemma compact_implies_WKL' :
@@ -837,6 +851,18 @@ Proof.
   intros xm wkl % compact_implies_WKL' T _ H.
   eapply wkl; eauto. intros.
   destruct (xm (T l)); tauto.
+Qed.
+
+Corollary compact_implies_WKL_D :
+  XM -> compactness (fun _ T => decidable T) (@DM) -> WKL decidable.
+Proof.
+  intros xm comp T decT infT.
+  destruct (compact_DM_WKLD comp infT decT) as [f Hf].
+  exists f. intros n.
+  eapply decidable_iff in decT as [d].
+  destruct (d (map f (seq 0 n))).
+  - eauto.
+  - exfalso. eapply Hf. eassumption.
 Qed.
 
 Lemma modex_impl CT :
@@ -924,3 +950,18 @@ Proof.
   - eapply WKL_to_decidable. eassumption.
     intros n. destruct (e n); try tauto. eapply ld.
 Qed.
+
+Lemma WKL_implies_modex :
+  XM -> WKL (fun _ => True) -> model_existence (fun _ _ => True) (@OM).
+Proof.
+  intros xm wkl Sigma Feq Peq Fe Pe Th Thcl _ consT.
+  pose proof (modex_standard Feq Peq Fe Pe Thcl I consT) as (D & I & rho & H & [HM1 HM2] & [[HM3] [HM4]]).
+  exists D, I, rho. split. eauto. do 2 split; eauto.
+  repeat split; eauto. red.
+  assert (decidable (fun x : form * list D => vec_to_env (snd x) (rho 0) ⊨ (fst x) )) as [d] % decidable_iff.
+  - eapply WKL_to_decidable_data; eauto.
+    + eapply discrete_iff. econstructor. exact _.
+    + eapply enum_enumT. econstructor. exact _.
+    + red. intros. eapply xm.
+  - econstructor. 
+Admitted.
