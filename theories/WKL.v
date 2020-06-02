@@ -890,6 +890,15 @@ Proof.
   exists D, I, rho. split. eauto. eapply HDM.
 Qed.
 
+Lemma modex_impl_OM_DM CT :
+  model_existence CT (@OM) -> model_existence CT (@DM).
+Proof.
+  intros H Sigma H1 H2 H3 H4 T clT TC consT.
+  destruct (H Sigma H1 H2 H3 H4 T clT TC consT) as (D & I & rho & H0 & HDM).
+  exists D, I, rho. split. eauto. unfold DM. split. eapply HDM. split. eapply HDM.
+  eapply omniscient_to_decidable. exact (rho 0). eapply HDM.  
+Qed.
+
 Require Import Undecidability.FOLC.ND.
 
 Lemma Forall_app {X} l1 l2 (P : X -> Prop) :
@@ -951,7 +960,8 @@ Qed.
 
 Require Import Undecidability.FOLC.Markov.
 
-Lemma WKL_to_decidable_data : WKL (fun _ => True) -> forall X, discrete X -> enumerable__T X -> forall p : X -> Prop, ldecidable p -> decidable p.
+
+Lemma decidable_to_decidable_data : (forall p : nat -> Prop, ldecidable p -> decidable p) -> forall X, discrete X -> enumerable__T X -> forall p : X -> Prop, ldecidable p -> decidable p.
 Proof.
   intros wkl X [d ]%decidable_iff [e He] p ld.
   enough (decidable (fun n => match e n with Some x => p x | _ => False end)) as [f Hf].
@@ -964,8 +974,13 @@ Proof.
       intros x. specialize (Hf (proj1_sig (g x))).
       destruct (g x) as [n Hn]; cbn in *.
       now rewrite Hn in Hf.
-  - eapply WKL_to_decidable. eassumption.
-    intros n. destruct (e n); try tauto. eapply ld.
+  - eapply wkl. intros n. destruct (e n); try tauto. eapply ld.
+Qed.
+
+Lemma WKL_to_decidable_data : WKL (fun _ => True) -> forall X, discrete X -> enumerable__T X -> forall p : X -> Prop, ldecidable p -> decidable p.
+Proof.
+  intros wkl.
+  eapply decidable_to_decidable_data,  WKL_to_decidable, wkl.
 Qed.
 
 Lemma nthe_seq m n k :
@@ -978,15 +993,15 @@ Proof.
     + rewrite IHn. f_equal. lia. lia.
 Qed.
 
-Lemma WKL_implies_modex :
-  XM -> WKL (fun _ => True) -> model_existence (fun _ _ => True) (@OM).
+Lemma PCO_implies_modex :
+  XM -> (forall p : nat -> Prop, ldecidable p -> decidable p) -> model_existence (fun _ _ => True) (@OM).
 Proof.
   intros xm wkl Sigma Feq Peq Fe Pe Th Thcl _ consT.
   pose proof (modex_standard Feq Peq Fe Pe Thcl I consT) as (D & I & rho & H & [HM1 HM2] & [[HM3] [HM4]]).
   exists D, I, rho. split. eauto. do 2 split; eauto.
   repeat split; eauto. red.
   assert (decidable (fun x : form * list D => vec_to_env (snd x) (rho 0) ⊨ (fst x) )) as [d] % decidable_iff.
-  - eapply WKL_to_decidable_data; eauto.
+  - eapply decidable_to_decidable_data; eauto.
     + eapply discrete_iff. econstructor. exact _.
     + eapply enum_enumT. econstructor. exact _.
     + red. intros. eapply xm.
@@ -1000,4 +1015,27 @@ Proof.
     rewrite nthe_seq. f_equal. lia. lia.
 Qed.
 
+Lemma WKL_implies_modex :
+  XM -> WKL (fun _ => True) -> model_existence (fun _ _ => True) (@OM).
+Proof.
+  intros xm wjl. eapply PCO_implies_modex. eauto.
+  now eapply WKL_to_decidable.
+Qed.
 
+Lemma CO_iff_EM_WKL : (forall p : nat -> Prop, decidable p) <-> XM /\ WKL (fun _ => True).
+Proof.
+  split.
+  - intros. 
+    assert (xm : XM). {
+      intros P. specialize (H (fun _ => P)).
+      eapply decidable_iff in H as [d].
+      destruct (d 0); tauto.
+    }
+    split. eapply xm.
+    eapply compact_implies_WKL; eauto.
+    eapply modex_compact. firstorder.
+    eapply modex_impl_OM_DM.
+    eapply PCO_implies_modex; eauto.
+  - intros. eapply WKL_to_decidable. eapply H.
+    intros n. eapply H.
+Qed.
