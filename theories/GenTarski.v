@@ -93,6 +93,21 @@ Section Tarski.
 
     Hint Unfold funcomp.
 
+    Context {Funcs_eq_dec : eq_dec Funcs}.
+
+    Lemma eval_ext_unused rho xi t n :
+      (forall m, n <= m -> unused_term m t) -> (forall x, x < n -> rho x = xi x) ->
+      eval rho t = eval xi t.
+    Proof.
+      intros H1 H2. induction t using strong_term_ind.
+      - destruct (le_dec (S x) n).
+        + cbn. eapply H2. eauto.
+        + exfalso.
+          assert (x >= n) by lia. eapply H1 in H. inv H. lia.
+      - comp. f_equal. apply vec_map_ext.
+        intros t H'. apply (H t H'). intros m H3. eapply H1 in H3. inv H3; eauto.
+    Qed.
+
     Lemma eval_ext rho xi t :
       (forall x, rho x = xi x) -> eval rho t = eval xi t.
     Proof.
@@ -105,6 +120,34 @@ Section Tarski.
     Proof.
       induction t using strong_term_ind; comp; try congruence.
       f_equal. erewrite vec_comp. 2: reflexivity. now apply vec_map_ext.
+    Qed.
+
+    Context {Preds_eq_dec : eq_dec Preds}.
+
+    Lemma sat_ext_unused rho xi phi n :
+      (forall m, n <= m -> unused m phi) -> (forall x, x < n -> rho x = xi x) ->
+      rho ⊨ phi <-> xi ⊨ phi.
+    Proof.
+      induction phi in n, rho, xi |-*; intros Hunused Hext; comp.
+      - tauto.
+      - erewrite vec_map_ext. reflexivity.
+        intros. eapply eval_ext_unused.
+        + intros. eapply Hunused in H. inv H. eauto.
+        + eauto.
+      - erewrite IHphi1, IHphi2. reflexivity.
+        + intros. eapply Hunused in H. now inv H.
+        + intros. eapply Hext in H. now inv H.
+        + intros. eapply Hunused in H. now inv H.
+        + intros. eapply Hext in H. now inv H.
+      - split; intros H' d; eapply (IHphi (d .: rho) (d .: xi) (S n)), H'.
+        + intros. destruct m. lia.
+          assert (n <= m) as ? % Hunused by lia.
+          inv H1. eauto.
+        + intros []; cbn; try congruence. intros; eapply Hext. lia.
+        + intros. destruct m. lia.
+          assert (n <= m) as ? % Hunused by lia.
+          inv H1. eauto.
+        + intros []; cbn; try congruence. intros; eapply Hext. lia.
     Qed.
 
     Lemma sat_ext rho xi phi :

@@ -968,6 +968,16 @@ Proof.
     intros n. destruct (e n); try tauto. eapply ld.
 Qed.
 
+Lemma nthe_seq m n k :
+  k < n -> nth_error (seq m n) k = Some (k + m).
+Proof.
+  induction n in m, k |- *; cbn; intros.
+  - lia.
+  - destruct k; cbn.
+    + reflexivity.
+    + rewrite IHn. f_equal. lia. lia.
+Qed.
+
 Lemma WKL_implies_modex :
   XM -> WKL (fun _ => True) -> model_existence (fun _ _ => True) (@OM).
 Proof.
@@ -980,7 +990,14 @@ Proof.
     + eapply discrete_iff. econstructor. exact _.
     + eapply enum_enumT. econstructor. exact _.
     + red. intros. eapply xm.
-  - econstructor. 
-Admitted.
+  - econstructor. intros phi rho'.
+    destruct (find_unused phi) as [n Hn].
+    specialize (d (phi, map rho' (seq 0 n))).
+    eapply dec_transfer. 2:eassumption. cbn.
+    eapply sat_ext_unused; eauto.
+    intros. unfold vec_to_env. unfold nth_default.
+    erewrite map_nth_error. reflexivity.
+    rewrite nthe_seq. f_equal. lia. lia.
+Qed.
 
 
