@@ -246,6 +246,8 @@ Section FiniteCompleteness.
     apply con_T_correct. apply completeness_standard_stability.
     1: intros ? ? []. 1: apply close_closed. 2: now apply valid_L_valid_T in Hval.
     apply stf, fin_T_con_T.
+    - intros ? ? [].
+    - eapply close_closed.
   Qed.
 
   Lemma list_completeness_expl A phi :
@@ -274,12 +276,12 @@ Section StrongCompleteness.
     (P -> Q) -> ~ ~ P -> ~ ~ Q.
   Proof. tauto. Qed.
 
-  Lemma strong_completeness_standard S T phi :
-    ST S -> @map_closed S Sigma (sig_ext Sigma) (fun phi => (sig_lift phi)[ext_c]) -> S Sigma T -> T ⊫S phi -> T ⊩CE phi.
+  Lemma strong_completeness_standard (S : stab_class) T phi :
+    (forall (T : theory) (phi : form), S Sigma T -> stable (tmap (fun psi : form => (sig_lift psi)[ext_c]) T ⊩CE phi)) -> @map_closed S Sigma (sig_ext Sigma) (fun phi => (sig_lift phi)[ext_c]) -> S Sigma T -> T ⊫S phi -> T ⊩CE phi.
   Proof.
     intros sts cls HT Hval. apply sig_lift_out_T. apply completeness_standard_stability.
     1: apply lift_ext_c_closes_T. 1: apply lift_ext_c_closes. 2: apply (sig_lift_subst_valid droppable_S Hval).
-    now apply sts, cls.
+    now apply sts.
   Qed.
 
   Lemma strong_completeness_expl T phi :
@@ -297,4 +299,21 @@ Section StrongCompleteness.
     1: apply lift_ext_c_closes_T. 1: apply lift_ext_c_closes.
     apply (sig_lift_subst_valid droppable_BL Hval).
   Qed.
+
 End StrongCompleteness.
+
+Instance enumT_sum {X Y} :
+  enumT X -> enumT Y -> enumT (X + Y).
+Proof.
+  intros H1 H2.
+  exists (fix f n := match n with 0 => []
+                        | S n => f n ++ map inl (L_T X n) ++ map inr (L_T Y n)
+                end).
+  - eauto.
+  - intros [x | y].
+    + destruct (el_T x) as [n Hn].
+      exists (S n). in_app 2. now in_collect x.
+    + destruct (el_T y) as [n Hn].
+      exists (S n). in_app 3. now in_collect y.
+Qed.
+ 

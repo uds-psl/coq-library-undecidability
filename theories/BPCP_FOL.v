@@ -228,6 +228,54 @@ Section validity.
 
 End validity.
 
+Lemma unused_big_imp {Sigma : Signature} A phi n :
+  List.Forall (unused n) A -> unused n phi -> unused n (big_imp A phi).
+Proof.
+  induction 1; cbn; repeat econstructor; eauto.
+Qed.
+
+Lemma unused_prep :
+  forall (n : fin) t (s : string bool), unused_term n t -> unused_term n (prep s t).
+Proof.
+  intros n t s. induction s in t |- *; cbn; repeat econstructor; eauto.
+  intros. inv X. eapply IHs. eauto. inv X0.
+Qed.
+
+Lemma unused_enc:
+  forall (n : fin) (s : string bool), unused_term n (enc s).
+Proof.
+  intros. unfold enc. eapply unused_prep. econstructor.
+  intros. inv X.
+Qed.
+
+Lemma closed_F:
+  forall R : stack bool, closed (F R).
+Proof.
+  intros. unfold F. intros n.
+  repeat try eapply unused_big_imp. 3:econstructor.
+  - eapply Forall_forall. intros ? ([] & <- & ?) % in_map_iff.
+    econstructor. intros. inv X.
+    + eapply unused_enc.
+    + inv X0.
+      * eapply unused_enc.
+      * inv X1.
+  - eapply Forall_forall. intros ? ([] & <- & ?) % in_map_iff.
+    econstructor. econstructor. econstructor.
+    econstructor.
+    + intros. inv X.
+      * econstructor. lia.
+      * inv X0. econstructor. lia. inv X1.
+    + econstructor. intros. inv X.
+      * eapply unused_prep. econstructor. lia.
+      * inv X0. eapply unused_prep. econstructor. lia. inv X1.
+  - repeat econstructor.
+    + intros. inv X.
+      * econstructor. lia.
+      * inv X0. econstructor. lia. inv X1.
+    + intros. inv X.
+  - econstructor. intros. inv X.
+Qed.
+
 Theorem BPCP_prv R :
   BPCP R <-> [] ⊢IE (F R).
 Proof.
