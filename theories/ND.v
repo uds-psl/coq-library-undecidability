@@ -531,6 +531,12 @@ Section DNT.
     - split; intros Hprv; oimport Hprv. all: ointros; apply IHphi; ospecialize 0 (var_term 0); ctx.
   Qed.
 
+  Lemma dnt_unused n phi :
+    unused n phi -> unused n (dnt phi).
+  Proof.
+    induction 1; cbn; repeat econstructor; eauto.
+  Qed.
+
   Lemma dnt_remove_ctx A B phi :
     (A ++ map dnt B) ⊢CE phi -> (A ++ B) ⊢CE phi.
   Proof.

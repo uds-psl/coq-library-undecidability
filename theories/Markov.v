@@ -116,7 +116,8 @@ From Undecidability.FOLC Require Import Extend BPCP_CND LEnum.
 Definition enumerable_sig (Sigma : Signature) := (enumT Funcs * enumT Preds) % type.
 Definition discrete_sig (Sigma : Signature) := ((eq_dec Funcs) * (eq_dec Preds)) % type.
 
-Definition cprv (a : {Sigma & (discrete_sig Sigma * enumerable_sig Sigma * list form * form)%type }) := match a with (existT Sigma (H1, H2, Gamma, phi)) => @prv Sigma class expl Gamma phi end.
+Definition cprv (a : {Sigma & (discrete_sig Sigma * enumerable_sig Sigma * {A : list form & {phi : form | List.Forall closed A /\ closed phi }})}%type) : Prop :=
+   let (Sigma, p) := a in let (_, s) := p in let (Gamma, s0) := s in let (phi, _) := s0 in Gamma ⊢CE phi.
 
 Lemma halt_cprv :
   L.converges ⪯ cprv.
@@ -136,15 +137,18 @@ Proof.
   eapply PCPb_iff_dPCPb.reductionRL.
   eapply reduces_transitive.
   eapply reductionLR.
-  eapply reduces_transitive.
-  eapply cprv_red.
-  unshelve eexists (fun phi => (existT _ min_sig (_, _, [], phi))). 3: reflexivity.
-  econstructor; intros ? ?; hnf; repeat decide equality.
-  econstructor; cbn.
-  - exists (fun n => [t_f' true; t_f' false; t_e']). eauto.
-    intros. exists 0. destruct x; try destruct b; eauto.
-  - exists (fun n => [BPCP_FOL.P; Q]). eauto.
-    intros. exists 0. destruct x; eauto.  
+  unshelve eexists.
+  - intros R. exists min_sig. split.
+    + split.
+      * econstructor. exact _. exact _.
+      * econstructor.
+        -- exists (fun n => [t_f' true; t_f' false; t_e']). eauto.
+           intros. exists 0. destruct x; try destruct b; eauto.
+        -- exists (fun n => [BPCP_FOL.P; Q]). eauto.
+           intros. exists 0. destruct x; eauto.  
+    + exists []. exists (F R). split. econstructor.
+      now eapply closed_F.
+  - cbn. eapply BPCP_CND.
 Qed.
 
 Fact stable_red X Y (p : X -> Prop) (q : Y -> Prop) :
@@ -161,19 +165,22 @@ Proof.
   eapply halt_cprv.
 Qed.
 
-Definition iprv (a : {Sigma & (discrete_sig Sigma * enumerable_sig Sigma * list form * form)%type }) := match a with (existT Sigma (H1, H2, Gamma, phi)) => @prv Sigma intu expl Gamma phi end.
+Definition iprv (a : {Sigma & (discrete_sig Sigma * enumerable_sig Sigma * {A : list form & {phi : form | List.Forall closed A /\ closed phi }})}%type) : Prop :=
+   let (Sigma, p) := a in let (_, s) := p in let (Gamma, s0) := s in let (phi, _) := s0 in @prv Sigma intu expl Gamma phi.
 
 Lemma cprv_iprv :
   cprv ⪯ iprv.
 Proof.
   unshelve eexists.
-  - intros (Sigma & [[H Gamma] phi]).
-    exists Sigma. exact (H, List.map dnt Gamma, dnt phi).
-  - intros (Sigma & [[[H1 H2] Gamma] phi]). cbn.
+  - intros (Sigma & [[H1 H2] (Gamma & phi & HGamma & Hphi)]).
+    exists Sigma. split. eauto.
+    exists (List.map dnt Gamma).
+    exists (dnt phi). admit.
+  - intros (Sigma & [[H1 H2] (Gamma & phi & HGamma & Hphi)]).
     split.
     eapply dnt_to_IE.
     eapply dnt_to_CE.
-Qed.
+Admitted.
 
 Corollary cprv_iprv_stable :
   (forall x, stable (iprv x)) -> (forall x, stable (cprv x)).
@@ -254,12 +261,12 @@ Lemma iprv_maxprv :
   iprv ⪯ (fun '(A, phi) => @prv max intu expl A phi).
 Proof.
   unshelve eexists.
-  - intros (Sigma & [[[] A] phi]).
-    exact (List.map (embed (inj e d)) A, embed (inj e d) phi).
-  - intros (Sigma & [[[] A] phi]). cbn.
+  - intros (Sigma & [[H1 H2] (Gamma & phi & HGamma & Hphi)]).
+    exact (List.map (embed (inj H2 H1)) Gamma, embed (inj H2 H1) phi).
+  - intros (Sigma & [[H1 H2] (Gamma & phi & HGamma & Hphi)]).
     split; intros.
     + now eapply prv_embed.
-    + eapply prv_back in H; eauto. eapply d. eapply d.
+    + eapply prv_back in H; eauto. eapply H1. eapply H1.
 Qed.
 
 Lemma maxprv_sprv :

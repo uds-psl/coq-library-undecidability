@@ -2,20 +2,38 @@ From Undecidability.FOLC Require Import WKL Markov GenTarski GenCompleteness Sta
 
 (* Theorem 15 *)
 
-Lemma completeness_iff_XM :
-  completeness (fun _ _ => True) (@SM) <-> XM.
+Lemma completeness_context_iff_MPL : 
+  completeness (fun Sigma T => exists A, forall phi : form, phi ∈ T <-> phi el A) (@SM) <-> MPL.
 Proof.
-  assert (XM <-> DN) as ->. {
-    split.
-    - intros xm P H. destruct (xm P); tauto.
-    - intros dne P. eapply dne. tauto.
-  }
   split.
   - intros H P.
-    eapply sta_to_dn. red. red. intros Sigma T phi clT clphi (HdF & HdP & HeF & HeP & _).
+    eapply halt_cprv_stable.
+    intros (Sigma & [[[d d0] [e e0]] (Gamma & phi & HGamma & Hphi)]).
+    epose proof (H Sigma d d0 e e0 (fun x => In x Gamma) _ (ltac:(exists Gamma; reflexivity)) phi _) as Hcomp.
+    eapply completeness_standard_stability in Hcomp.
+    + intros ?. destruct Hcomp.
+      * intros ?. eapply H0. intros H2. eapply H1. exists Gamma. firstorder.
+      * eapply Weak. eapply H1. eapply H1.
+    + rewrite List.Forall_forall in HGamma. intros ? ? ?. eapply HGamma. eassumption.
+    + eassumption.
+  - intros dne Sigma HdF HdP HeF HeP T clT (A & HA) phi clphi.
     eapply completeness_standard_stability; eauto.
-  - intros dne Sigma HdF HdP HeF HeP T clT _ phi clphi.
-    eapply completeness_standard_stability; eauto.
+    enough (stable (A ⊢CE phi)).
+    + intros ?. exists A. split.
+      * intros ? ?. now eapply HA.
+      * eapply H. intros ?. eapply H0. intros [B HB].
+        eapply H1. eapply Weak. eapply HB. intros ? ? % HB. now eapply HA.
+    + intros H. unshelve epose proof (cprv_iprv_stable _ _).
+      2:{ exists Sigma. repeat split. 1-4: eauto.
+          exists A, phi. split. 2:eauto.
+          eapply List.Forall_forall.  intros ? ? ?. now eapply clT, HA. }
+      2:{ cbn. exact H. }
+      2:{ cbn in *. eassumption. }
+      eapply iprv_halt_stable; eauto.
+      Unshelve.
+      *  rewrite List.Forall_forall in HGamma.
+         intros ? ? ?. now eapply HGamma.
+      * eassumption.
 Qed.
 
 Lemma completeness_enum_iff_MP : 
@@ -33,31 +51,21 @@ Proof.
     exists HdF, HdP, HeF, HeP. eapply enumerable_enum; eauto.
 Qed.
 
-Lemma completeness_context_iff_MPL : 
-  completeness (fun Sigma T => exists A, forall phi : form, phi ∈ T <-> phi el A) (@SM) <-> MPL.
+Lemma completeness_iff_XM :
+  completeness (fun _ _ => True) (@SM) <-> XM.
 Proof.
+  assert (XM <-> DN) as ->. {
+    split.
+    - intros xm P H. destruct (xm P); tauto.
+    - intros dne P. eapply dne. tauto.
+  }
   split.
   - intros H P.
-    eapply halt_cprv_stable.
-    intros (Sigma & [[[[] []] A] phi]). cbn.
-    epose proof (H Sigma d d0 e e0 (fun x => In x A) _ (ltac:(exists A; reflexivity)) phi _) as Hcomp.
-    eapply completeness_standard_stability in Hcomp.
-    + intros ?. destruct Hcomp.
-      * intros ?. eapply H0. intros H2. eapply H1. exists A. firstorder.
-      * eapply Weak. eapply H1. eapply H1.
-    + admit.
-    + admit.
-  - intros dne Sigma HdF HdP HeF HeP T clT (A & HA) phi clphi.
+    eapply sta_to_dn. red. red. intros Sigma T phi clT clphi (HdF & HdP & HeF & HeP & _).
     eapply completeness_standard_stability; eauto.
-    enough (stable (A ⊢CE phi)).
-    + intros ?. exists A. split.
-      * intros ? ?. now eapply HA.
-      * eapply H. intros ?. eapply H0. intros [B HB].
-        eapply H1. eapply Weak. eapply HB. intros ? ? % HB. now eapply HA.
-    + admit. (* eapply eapply cprv_iprv_stable. *)
-    (* eapply mp_to_ste; eauto.  *)
-    (* exists HdF, HdP, HeF, HeP. eapply enumerable_enum; eauto. *)
-Admitted.
+  - intros dne Sigma HdF HdP HeF HeP T clT _ phi clphi.
+    eapply completeness_standard_stability; eauto.
+Qed.
 
 (* Theorem 42
 
