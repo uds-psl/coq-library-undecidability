@@ -213,7 +213,7 @@ Definition completeness (CT : forall Sigma, @theory Sigma -> Prop) (C : forall S
   forall {HdF : eq_dec Funcs} {HdP : eq_dec Preds},
   forall {HeF : enumT Funcs} {HeP : enumT Preds},
   forall T (T_closed : closed_T T), CT _ T ->
-                               forall phi, valid_T (C Sigma) T phi ->
+                               forall phi, closed phi -> valid_T (C Sigma) T phi ->
                                T ⊩CE phi.
 
 Lemma modex_standard :
@@ -248,7 +248,7 @@ Proof.
   intros xm compl Sigma Hdf HdP HeF HeP T T_closed TC H.
   assert (dne : forall P, ~~ P -> P). { red in xm. intros. specialize (xm P). tauto. }
   eapply dne. intros HM.
-  eapply H. eapply compl; eauto.
+  eapply H. eapply compl; eauto. econstructor.
   intros D I HDI rho HT. exfalso. eapply HM.
   exists D, I, rho. split; eauto.
 Qed.
@@ -669,7 +669,7 @@ Section WKL.
   Qed.
 
   Lemma infinite_finitely_satisfiable :
-    infinite_tree T -> forall Gamma : list form, Gamma ⊏ Th -> has_model (DM) (fun x : form => x el Gamma).
+    infinite_tree T -> forall Gamma : list form, Gamma ⊏ Th -> has_model (OM) (fun x : form => x el Gamma).
   Proof.
     intros infT. intros Γ HΓ.
     pose proof (get_index_list HΓ) as [L HL]. 
@@ -677,7 +677,7 @@ Section WKL.
     rewrite infinite_iff in infT.
     destruct (infT m) as (l & Hl & Hs).
     exists unit, (M_u l), (fun _ => tt).
-    repeat split; eauto.
+    split; eauto. 2:split. 3:split.
     intros phi (n & H & Hphi) % (Forall2_In HL).
     assert (Hn : n <= m) by now eapply max_list_spec'.
     assert (In m L) as (phi_m & Hphi_m & Hm) % (Forall2_In1 HL) by (eapply max_list_spec; intros ->; inv H).
@@ -694,6 +694,24 @@ Section WKL.
       rewrite (nthe_app_l _ HH); eauto.
       rewrite <- nth_default_eq. unfold nth_default. rewrite <- (firstn_skipn m l).
       rewrite (nthe_app_l _ HH); eauto.
+    - repeat split; eauto.
+    - econstructor. econstructor. eauto. econstructor. eauto.
+    - eapply M_u_omni.
+  Qed.
+
+  Lemma has_model_OM_DM (Th : @theory count_sig) :
+    has_model (OM) Th -> has_model (DM) Th.
+  Proof.
+    intros (D & I & rho & H1 & H2).
+    exists D, I, rho. split; eauto.
+    split. eapply H2. split. eapply H2.
+    eapply omniscient_to_decidable. eapply rho, 0. eapply H2.
+  Qed.
+
+  Lemma infinite_finitely_satisfiable' :
+    infinite_tree T -> forall Gamma : list form, Gamma ⊏ Th -> has_model (DM) (fun x : form => x el Gamma).
+  Proof.
+    intros. eapply has_model_OM_DM, infinite_finitely_satisfiable; eauto.
   Qed.
 
   Lemma phi_exists n :
@@ -775,8 +793,19 @@ Section WKL.
     unshelve epose proof (compact count_sig _ _ _ _ Th _ _ _).
     - eapply closed_Th.
     - cbn. econstructor.
-    - now eapply infinite_finitely_satisfiable. 
+    - now eapply infinite_finitely_satisfiable'.
     - now eapply exists_quasi_path. 
+  Qed.
+
+  Lemma compact_OM_WKL :
+    compactness (fun _ _ => True) (@OM) -> infinite_tree T ->  exists f : nat -> bool, forall n : nat, ~~ T (map f (seq 0 n)).
+  Proof.
+    intros compact infT.
+    unshelve epose proof (compact count_sig _ _ _ _ Th _ _ _).
+    - eapply closed_Th.
+    - cbn. econstructor.
+    - now eapply infinite_finitely_satisfiable.
+    - now eapply exists_quasi_path, has_model_OM_DM.
   Qed.
 
   Lemma decidable_to_decidable_n :
@@ -848,7 +877,7 @@ Section WKL.
     unshelve epose proof (compact count_sig _ _ _ _ Th _ _ _).
     - eapply closed_Th.
     - cbn. eapply decidable_to_decidable; eauto.
-    - now eapply infinite_finitely_satisfiable. 
+    - now eapply infinite_finitely_satisfiable'.
     - now eapply exists_quasi_path. 
   Qed.
 
@@ -866,6 +895,22 @@ Corollary compact_implies_WKL :
   XM -> compactness (fun _ _ => True) (@DM) -> WKL (fun _ => True).
 Proof.
   intros xm wkl % compact_implies_WKL' T _ H.
+  eapply wkl; eauto. intros.
+  destruct (xm (T l)); tauto.
+Qed.
+
+Lemma compact_OM_implies_WKL' :
+  compactness (fun _ _ => True) (@OM) -> WKL (fun T => forall l, ~~ T l -> T l).
+Proof.
+  intros comp T stab infT.
+  destruct (compact_OM_WKL comp infT) as [g].
+  exists g. eauto.
+Qed.
+
+Corollary compact_OM_implies_WKL :
+  XM -> compactness (fun _ _ => True) (@OM) -> WKL (fun _ => True).
+Proof.
+  intros xm wkl % compact_OM_implies_WKL' T _ H.
   eapply wkl; eauto. intros.
   destruct (xm (T l)); tauto.
 Qed.
@@ -1022,12 +1067,12 @@ Proof.
   now eapply WKL_to_decidable.
 Qed.
 
-Lemma CO_iff_EM_WKL : (forall p : nat -> Prop, decidable p) <-> XM /\ WKL (fun _ => True).
+Lemma CO_iff_EM_WKL : (forall X, forall p : X -> Prop, discrete X -> enumerable__T X -> decidable p) <-> XM /\ WKL (fun _ => True).
 Proof.
   split.
   - intros. 
     assert (xm : XM). {
-      intros P. specialize (H (fun _ => P)).
+      intros P. specialize (H nat (fun _ => P) (ltac:(eapply discrete_iff; econstructor; eauto)) (ltac:(eapply enum_enumT; eauto))).
       eapply decidable_iff in H as [d].
       destruct (d 0); tauto.
     }
@@ -1036,6 +1081,8 @@ Proof.
     eapply modex_compact. firstorder.
     eapply modex_impl_OM_DM.
     eapply PCO_implies_modex; eauto.
-  - intros. eapply WKL_to_decidable. eapply H.
-    intros n. eapply H.
+    intros. eapply H. eapply discrete_iff. econstructor. eauto.
+    eapply enum_enumT. econstructor. eauto.
+  - intros. eapply WKL_to_decidable_data; eauto.
+    eapply H.  intros n. eapply H.
 Qed.

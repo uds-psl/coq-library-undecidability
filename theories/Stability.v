@@ -14,7 +14,7 @@ Qed.
 Definition stab_class := forall Sigma, @theory Sigma -> Prop.
 Definition map_closed (S : stab_class) {Sig Sig'} (f : @form Sig -> @form Sig') := forall T, S Sig T -> S Sig' (tmap f T).
 
-Definition ST (S : stab_class) := forall Sigma T phi, S Sigma T -> stable (T ⊩CE phi).
+Definition ST (S : stab_class) := forall Sigma T phi, closed_T T -> closed phi -> S Sigma T -> stable (T ⊩CE phi).
 
 Section PropT.
   Definition dummy_sig : Signature := {| Funcs := False; Preds := False; pred_ar := @except nat ; fun_ar := @except nat |}.
@@ -42,25 +42,32 @@ Section StabilityClasses.
   Section DN.
     Definition DN := forall P, stable P.
 
-    Definition any_T : stab_class := fun _ _ => True.
+    Definition any_T : stab_class := fun Σ _ => exists (HdF : eq_dec Funcs) (HdP : eq_dec Preds)
+                                                (HeF : enumT Funcs) (HeP : enumT Preds), True.
+
     Definition ST__a := ST any_T.
 
-    Lemma any_T_map_closed {Sig Sig' : Signature} (f : @form Sig -> @form Sig') :
+    Lemma any_T_map_closed {Sig Sig' : Signature} {HdF : eq_dec Funcs} {HdP : eq_dec Preds} {HeF : enumT Funcs} {HeP : enumT Preds} (f : @form Sig -> @form Sig') :
       map_closed any_T f.
     Proof.
-      firstorder.
+      intros ? _. 
+      now exists HdF, HdP, HeF, HeP. 
     Qed.
 
     Lemma dn_to_sta :
       DN -> ST__a.
     Proof.
-      intros dn Sig T phi _. apply dn.
+      intros dn Sig T phi _ clT clphi. apply dn.
     Qed.
 
     Lemma sta_to_dn :
       ST__a -> DN.
     Proof.
-      intros sta P. eapply stable_equiv. 1: apply (prop_T_correct P). now apply sta.
+      intros sta P. eapply stable_equiv. 1: apply (prop_T_correct P). apply sta.
+      - intros phi n [-> H]. econstructor.
+      - econstructor.
+      - exists _. eexists. intros []. cbn.
+        exists False_enumT, False_enumT. econstructor.
     Qed.
   End DN.
 
@@ -114,7 +121,7 @@ Section StabilityClasses.
     Lemma mp_to_ste :
       MP -> ST__e.
     Proof.
-      intros mp Sig T phi (? & ? & ? & ? & L & He).  apply (enumeration_stability mp (enum_tprv He) (dec_form _ _)).
+      intros mp Sig T phi clT clphi (? & ? & ? & ? & L & He).  apply (enumeration_stability mp (enum_tprv He) (dec_form _ _)).
     Qed.
 
     Fixpoint L_tsat_T (f : nat -> bool) (n : nat) : list (@form dummy_sig) :=
@@ -138,26 +145,34 @@ Section StabilityClasses.
       ST__e -> MP.
     Proof.
       intros ste f. eapply stable_equiv. 1: apply prop_T_correct.
-      apply ste. unshelve eexists _, _, _, _, (L_tsat_T f); try exact _. apply (enum_tsat_T f).
+      apply ste.
+      - intros phi n [-> H]. econstructor.
+      - econstructor.
+      - unshelve eexists _, _, _, _, (L_tsat_T f); try exact _. apply (enum_tsat_T f).
     Qed.
   End SyntMP.
 
   (* **** Object Markov's Principle *)
 
   Section ObjMP.
-    Definition fin_T : stab_class := fun Sig T => exists A, forall phi, phi ∈ T <-> phi el A.
+    Definition fin_T : stab_class := fun Sig T => exists (HdF : eq_dec Funcs) (HdP : eq_dec Preds)
+                                                (HeF : enumT Funcs) (HeP : enumT Preds) A, forall phi, phi ∈ T <-> phi el A.
+
     Definition ST__f := ST fin_T.
 
-    Lemma fin_T_map_closed {Sig Sig'} (f : @form Sig -> @form Sig') :
+    Lemma fin_T_map_closed {Sig Sig'} {HdF : eq_dec Funcs} {HdP : eq_dec Preds} {HeF : enumT Funcs} {HeP : enumT Preds} (f : @form Sig -> @form Sig') :
       map_closed fin_T f.
     Proof.
-      intros T [A HA]. exists (map f A). intros phi. split.
+      intros T (_ & _ & _ & _ & A & HA).
+      exists HdF, HdP, HeF, HeP.
+      exists (map f A). intros phi. split.
       - intros (psi & Hpsi1 % HA & <-). now apply in_map.
       - intros (psi & <- & Hpsi) % in_map_iff. firstorder.
     Qed.
 
     Section ConT.
       Context {Sigma : Signature}.
+      Context {HdF : eq_dec Funcs} {HdP : eq_dec Preds} {HeF : enumT Funcs} {HeP : enumT Preds}.
       Context {p : peirce} {b : bottom}.
 
       Definition con_T A : theory := fun phi => phi el A.
@@ -171,26 +186,32 @@ Section StabilityClasses.
       Lemma fin_T_con_T A :
         fin_T (con_T A).
       Proof.
+        exists HdF, HdP, HeF, HeP.
         firstorder.
       Qed.
     End ConT.
 
-    Lemma fin_T_to_context {Sig : Signature} T phi :
-      fin_T T -> exists A, A ⊢CE phi <-> T ⊩CE phi.
+    Lemma fin_T_to_context {Sig : Signature}  T phi :
+      closed_T T -> fin_T T -> exists A, List.Forall closed A /\ (A ⊢CE phi <-> T ⊩CE phi).
     Proof.
-      intros [A HA]. exists A. split.
+      intros clT (_ & _ & _ & _ & A & HA). exists A. split; try split.
+      - eapply Forall_forall. intros ? ? % HA n. now eapply clT.
       - intros; exists A; firstorder.
       - intros (B & HB1 & HB2). apply (Weak HB2). firstorder.
     Qed.
 
     Lemma stf_to_st_context :
-      ST__f <-> (forall Sigma A (phi : @form Sigma), stable (A ⊢CE phi)).
+      ST__f <-> (forall Sigma {HdF : eq_dec Funcs} {HdP : eq_dec Preds} {HeF : enumT Funcs} {HeP : enumT Preds} A (phi : @form Sigma), (List.Forall closed A) -> closed phi -> stable (A ⊢CE phi)).
     Proof.
       split.
-      - intros stf Sig A phi. eapply stable_equiv. 1: apply con_T_correct.
-        apply stf. apply fin_T_con_T.
-      - intros stc Sig T phi HT. destruct (fin_T_to_context phi HT) as [A HA].
-        eapply stable_equiv. apply HA. apply stc.
+      - intros stf HdF HdP HeF HeP Sig A phi clA clphi. eapply stable_equiv. 1: eapply con_T_correct.
+        apply stf.
+        + intros psi n Hpsi. eapply Forall_forall in clA. eapply clA. eassumption.
+        + eassumption.
+        + eapply fin_T_con_T.
+      - intros stc Sig T phi clT clphi HT. destruct (fin_T_to_context phi clT HT) as [A [clA HA]].
+        destruct HT as (HdF & HdP & HeF & HeP & HT).
+        eapply stable_equiv. apply HA. apply stc; eauto.
     Qed.
   End ObjMP.
 End StabilityClasses.

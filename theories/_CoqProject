@@ -20,6 +20,7 @@ GenCompleteness.v
 DeMorgan.v
 Stability.v
 WKL.v
+Analysis.v
 
 Kripke.v
 Gentzen.v
