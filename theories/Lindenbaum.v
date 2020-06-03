@@ -328,4 +328,127 @@ Proof.
   intros H HA HP HB. rewrite (@top_hsat_L _ HP). now apply BSoundness.
 Qed.
 
+
+
+(** ** Generalised Lindenbaum Algebras *)
+
+Section Completeness.
+
+  Variable gprv : list form -> form -> Prop.
+
+  Notation "A ⊢ phi" := (gprv A phi) (at level 30).
+
+  Hypothesis gCtx : forall A phi, phi el A -> A ⊢ phi.
+  Hypothesis gIE : forall A phi psi, A ⊢ (phi --> psi) -> A ⊢ phi -> A ⊢ psi.
+  Hypothesis gII : forall A phi psi, (phi::A) ⊢ psi -> A ⊢ (phi --> psi).
+  Hypothesis gExp : forall A phi, A ⊢ ⊥ -> A ⊢ phi.
+  Hypothesis gCI : forall A phi psi, A ⊢ phi -> A ⊢ psi -> A ⊢ (phi ∧ psi).
+  Hypothesis gCE1 : forall A phi psi, A ⊢ (phi ∧ psi) -> A ⊢ phi.
+  Hypothesis gCE2 : forall A phi psi, A ⊢ (phi ∧ psi) -> A ⊢ psi.
+  Hypothesis gDI1 : forall A phi psi, A ⊢ phi -> A ⊢ (phi ∨ psi).
+  Hypothesis gDI2 : forall A phi psi, A ⊢ psi -> A ⊢ (phi ∨ psi).
+  Hypothesis gDE : forall A phi psi theta, A ⊢ (phi ∨ psi) -> (phi :: A) ⊢ theta -> (psi :: A) ⊢ theta -> A ⊢ theta.
+  Hypothesis gWeak : forall A B phi, A ⊢ phi -> A <<= B -> B ⊢ phi.
+
+  Instance glb_alg : HeytingAlgebra.
+  Proof.
+    unshelve eapply (@Build_HeytingAlgebra (@form Sigma)).
+    - intros phi psi. exact ([phi] ⊢ psi).
+    - exact ⊥.
+    - intros phi psi. exact (phi ∧ psi).
+    - intros phi psi. exact (phi ∨ psi).
+    - intros phi psi. exact (phi --> psi).
+    - intros phi. now apply gCtx.
+    - intros phi psi theta H1 H2. apply gIE with (phi:=psi); trivial.
+      apply gWeak with (A:=[]); auto.
+    - intros phi. cbn. now apply gExp, gCtx.
+    - intros phi psi theta. cbn. split.
+      + intros [H1 H2]. now apply gCI.
+      + intros H. split; [apply (gCE1 H) | apply (gCE2 H)].
+    - intros phi psi theta. cbn. split.
+      + intros [H1 H2]. eapply gDE. apply gCtx; auto.
+        eapply gWeak. exact H1. firstorder.
+        eapply gWeak. exact H2. firstorder.
+      + intros H; split.
+        * apply (gIE (phi := phi ∨ psi)); try now apply gDI1, gCtx.
+          apply gII. eapply gWeak; eauto.
+        * apply (gIE (phi := phi ∨ psi)); try now apply gDI2, gCtx.
+          apply gII. eapply gWeak; eauto.
+    - intros phi psi theta. cbn. split.
+      + intros H. apply gII. apply (gIE (phi := theta ∧ phi)).
+        * apply gII. eapply gWeak; eauto.
+        * apply gCI; apply gCtx; auto.
+      + intros H. apply (gIE (phi:=phi)); try now eapply gCE2, gCtx.
+        apply (gIE (phi:=theta)); try now eapply gCE1, gCtx.
+        apply gII. eapply gWeak; eauto.
+  Defined.
+
+  Lemma glb_alg_iff phi :
+    Top <= phi <-> [] ⊢ phi.
+  Proof.
+    cbn. split; intros H.
+    - apply (gIE (phi := ¬ ⊥)); apply gII; eauto using gCtx.
+    - eapply gWeak; eauto.
+  Qed.
+
+  Instance glb_calg : CompleteHeytingAlgebra :=
+    @completion_calgebra glb_alg.
+
+  Definition glb_Pr P v : glb_calg :=
+    embed (Pred P v). 
+
+  (** ** Completeness *)
+
+  Hypothesis gAllI : forall A phi, [psi[form_shift] | psi ∈ A] ⊢ phi -> A ⊢ (∀ phi).
+  Hypothesis gAllE : forall A t phi, A ⊢ (∀ phi) -> A ⊢ phi[t..].
+  Hypothesis gExI : forall A t phi, A ⊢ phi[t..] -> A ⊢ (∃ phi).
+  Hypothesis gExE : forall A phi psi, A ⊢ (∃ phi) -> (phi :: [theta[form_shift] | theta ∈ A]) ⊢ psi[form_shift] -> A ⊢ psi.
+  Hypothesis gnameless_equiv_all' : forall A phi, exists t, A ⊢ phi[t..] <-> [p[form_shift] | p ∈ A] ⊢ phi.
+  Hypothesis gnameless_equiv_ex' : forall A phi psi, exists t, (psi[t..] :: A) ⊢ phi <-> (psi :: [p[form_shift] | p ∈ A]) ⊢ phi[form_shift].
+
+  Lemma glindenbaum_hsat phi :
+    down phi ≡ proj1_sig (hsat glb_Pr phi).
+  Proof.
+    induction phi using form_ind_subst; simp hsat in *.
+    - rewrite down_bot. reflexivity.
+    - cbn. reflexivity.
+    - rewrite (@down_impl glb_alg phi psi), IHphi, IHphi0. now destruct hsat, hsat.
+    - rewrite (@down_meet glb_alg phi psi), IHphi, IHphi0. now destruct hsat, hsat.
+    - rewrite (@down_join glb_alg phi psi), IHphi, IHphi0. now destruct hsat, hsat.
+    - cbn. split; intros psi H'.
+      + intros X [HX [t Ht]]. change (psi ∈ proj1_sig (exist normal X HX)).
+        eapply Ht. rewrite <- H. apply gAllE, H'.
+      + apply gAllI. destruct (@gnameless_equiv_all' ([psi]) phi) as [t <-].
+        apply H, H'. exists (proj2_sig (hsat glb_Pr phi[t..])), t. now destruct hsat.
+    - cbn. split; intros psi H'.
+      + intros X [XD HX]. apply XD. intros theta HT. apply (gExE H').
+        destruct (@gnameless_equiv_ex' ([psi]) theta phi) as [t <-].
+        assert (exists i : term, equiv_HA (hsat glb_Pr phi[t..]) (hsat glb_Pr phi[i..])) by now eexists.
+        specialize (HX (hsat glb_Pr phi[t..]) H0).
+        apply gWeak with (A:=[phi[t..]]); auto.
+        apply HT, HX. rewrite <- H. now apply gCtx.
+      + specialize (H' (down (∃ phi))). apply H'.
+        exists (@down_normal glb_alg (∃ phi)). intros X [t ?].
+        intros ? ?. eapply H0 in H1.
+        revert x H1. fold (hset_sub (proj1_sig (hsat glb_Pr phi[t..])) (down (∃ phi))).
+        rewrite <- H. apply down_mono. eapply gExI, gCtx; eauto.
+  Qed.
+
+  Lemma glindenbaum_eqH phi :
+    eqH (embed phi) (hsat glb_Pr phi).
+  Proof.
+    unfold eqH. cbn. now rewrite <- glindenbaum_hsat.
+  Qed.
+
+  Lemma glb_calg_iff phi :
+    Top <= hsat glb_Pr phi <-> nil ⊢ phi.
+  Proof.
+    cbn. rewrite <- glindenbaum_hsat.
+    rewrite <- down_top, <- glb_alg_iff. split.
+    - apply down_inj.
+    - apply down_mono.
+  Qed.
+
+End Completeness.
+
 End Lindenbaum.
