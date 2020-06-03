@@ -317,28 +317,3 @@ Proof.
       exists (S n). in_app 3. now in_collect y.
 Qed.
  
-(* Lemma completeness_standard_stability_open {Sigma : Signature} {HdF : eq_dec Funcs} {HdP : eq_dec Preds} {HeF : enumT Funcs} {HeP : enumT Preds} T phi : *)
-(*   (T ⊫S phi -> T ⊩CE phi) <-> stable (T ⊩CE phi). *)
-(* Proof. *)
-(*   split. *)
-(*   - intros Hcomp Hdn. *)
-(*     apply sig_lift_out_T. *)
-(*     destruct (@completeness_standard_stability (sig_ext Sigma) _ _ _ _ (tmap (fun psi : form => (sig_lift psi)[ext_c]) T) ((sig_lift phi)[ext_c])) as [H _]. *)
-(*     + admit. *)
-(*     + admit. *)
-(*     + eapply H. clear H. *)
-(*       * intros H. destruct Hcomp. *)
-(*         admit. admit. *)
-(*       *  *)
-(*     admit. *)
-
-(*     (* apply Hcomp, valid_T_standard_dm; eauto. 1: firstorder. intros Hsem. *) *)
-(*     (* apply Hdn. intros H. apply Hsem, (StrongSoundness H). *) *)
-(*     (* + now intros _ ? ? [].  *) *)
-(*     (* + intros _ ? ? []. firstorder. *) *)
-(*   - intros Hstab Hsem. eapply (@strong_completeness_standard _ _ _ _ _ any_T); eauto. *)
-(*     + admit. *)
-(*     + intros T' phi' (HdF' & HdP' & HeF' & HeP' & HT). destruct Sigma. cbn in *. *)
-(*       exists _. exists _. exists _. exists _. econstructor. *)
-(*     + now exists HdF, HdP, HeF, HeP. *)
-(* Qed. *)

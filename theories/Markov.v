@@ -175,12 +175,17 @@ Proof.
   - intros (Sigma & [[H1 H2] (Gamma & phi & HGamma & Hphi)]).
     exists Sigma. split. eauto.
     exists (List.map dnt Gamma).
-    exists (dnt phi). admit.
+    exists (dnt phi). split.
+    + eapply Forall_forall.
+      rewrite Forall_forall in HGamma.
+      intros ? (? & <- & ?) % in_map_iff n.
+      eapply dnt_unused. eapply HGamma. eauto.
+    + intros n. now eapply dnt_unused, Hphi.
   - intros (Sigma & [[H1 H2] (Gamma & phi & HGamma & Hphi)]).
     split.
     eapply dnt_to_IE.
     eapply dnt_to_CE.
-Admitted.
+Qed.
 
 Corollary cprv_iprv_stable :
   (forall x, stable (iprv x)) -> (forall x, stable (cprv x)).
