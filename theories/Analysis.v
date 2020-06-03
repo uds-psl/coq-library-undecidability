@@ -199,3 +199,86 @@ Proof.
 Qed.
 
 (* Theorem 56 *)
+
+Require Import Undecidability.FOLC.KripkeCompleteness.
+
+Definition kcompleteness (CT : forall Sigma, @theory Sigma -> Prop) (C : forall Sigma D, @kmodel Sigma D -> Prop) :=
+  forall {Sigma : Signature},
+  forall {HdF : eq_dec Funcs} {HdP : eq_dec Preds},
+  forall {HeF : enumT Funcs} {HeP : enumT Preds},
+  forall T (T_closed : closed_T T), CT _ T ->
+                               forall phi, closed phi -> kvalid_T (C Sigma) T phi ->
+                               T ⊩IE phi.
+
+Lemma nd_to_sequent {Sigma : Signature} T phi :
+  eq_dec Funcs -> eq_dec Preds ->
+  T ⊩IE phi -> T ⊩SE phi.
+Proof.
+  intros eF eP (A & HA & Hprv).
+  exists A. split; eauto. eapply Extend.sprv_prv_iff; eauto.
+Qed.
+
+Lemma kcompleteness_iff_MPL : 
+  kcompleteness (fun Sigma T => exists A, forall phi : form, phi ∈ T <-> phi el A) (@kstandard) <-> MPL.
+Proof.
+  split.
+  - intros H P.
+    eapply halt_cprv_stable.
+    intros (Sigma & [[[d d0] [e e0]] (Gamma & phi & HGamma & Hphi)]). cbn.
+    unshelve epose proof (cend_dn (C := fun Sigma T => exists A, forall phi : form, phi ∈ T <-> phi el A) _ _).
+    + intros ? (A & HA). exists (map dnt A).
+      intros. unfold tmap. rewrite in_map_iff. unfold contains.
+      setoid_rewrite HA. clear. split; intros (? & ? & ?); subst; eauto.
+    + intros. eapply nd_to_sequent; eauto. 
+    + cbn in *.
+      intros H1.
+      destruct (H0 (fun phi => In phi Gamma) phi).
+      * intros ? ? ?. rewrite Forall_forall in HGamma. eapply HGamma; eauto.
+      * eauto.
+      * exists Gamma. reflexivity.
+      * intros ?. eapply H1. intros H3. eapply H2. exists Gamma. firstorder.
+      * eapply Weak, H2. eapply H2.
+  - intros mpl Sigma HdF HdP HeF HeP T clT [A HA] phi clphi Hvalid.
+    exists A. split. firstorder.
+    unshelve epose proof (iprv_halt_stable mpl _).
+    + exists Sigma. split.
+      * split; econstructor; eauto.
+      * exists A, phi. split; eauto.
+        eapply List.Forall_forall.  intros ? ? ?. now eapply clT, HA.
+    + cbn. rewrite Extend.sprv_prv_iff.
+      eapply K_std_completeness. intros ? ? ? ? ? ?.
+      eapply Hvalid; firstorder.
+    + cbn in *. eassumption.
+Qed.
+
+Lemma kcompleteness_enum_implies_MP :
+  kcompleteness (fun Sigma T => enumerable T) (@kstandard) -> MP.
+Proof.
+  intros H P.
+  eapply ste_to_mp. red. red. intros Sigma T phi clT clphi (? & ? & ? & ? & ? & ?).
+  unfold stable. eapply (cend_dn (C := (fun Sigma T => enumerable T))); eauto.
+  - clear. intros T' [f Hf].
+    exists (fun n => match f n with Some phi => Some (dnt phi) | _ => None end).
+    intros phi.
+    split.
+    + intros (? & ? & <-). eapply Hf in H as [n Hn].
+      exists n. rewrite Hn. reflexivity.
+    + intros [n Hn]. destruct (f n) as [psi |] eqn:E; inv Hn.
+      exists psi. split; eauto. eapply Hf. eauto.
+  - intros. eapply nd_to_sequent; eauto.
+  - now eapply enum_count.
+Qed.
+
+Lemma kcompleteness_implies_XM :
+  kcompleteness (fun Sigma T => True) (@kstandard) -> XM.
+Proof.
+  assert (XM <-> DN) as ->. {
+    split.
+    - intros xm P H. destruct (xm P); tauto.
+    - intros dne P. eapply dne. tauto.
+  }
+  intros H P. eapply sta_to_dn. red. red. intros Sigma T phi clT clphi (HdF & HdP & HeF & HeP & _).
+  unfold stable. eapply (cend_dn (C := fun _ _ => True)); eauto.
+  econstructor.
+  intros. eapply nd_to_sequent; eauto.
+Qed.

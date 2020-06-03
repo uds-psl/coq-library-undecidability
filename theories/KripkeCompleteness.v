@@ -294,16 +294,20 @@ Section KripkeCompleteness.
   Section MPRequired.
     Variable C : stab_class.
     Hypothesis HC : map_closed C dnt.
-    Variable K_completeness : forall T phi, C T -> kvalid_T kstandard T phi -> T ⊩SE phi.
+    Variable K_completeness : forall T phi, C T -> closed_T T -> closed phi -> kvalid_T kstandard T phi -> T ⊩SE phi.
 
     Lemma cend_dn T phi :
+      closed_T T -> closed phi ->
       C T -> ~ ~ T ⊩CE phi -> T ⊩CE phi.
     Proof.
-      intros HT Hdn. apply DN_T, dnt_to_TCE. cbn. apply (@seq_ND_T _ _ (tmap dnt T) (¬ (¬ dnt phi))). 
-      apply K_completeness. 1: apply HC, HT. intros D M St u rho HT' v Hv Hn. contradict Hdn. intros Hphi % dnt_to_TIE.
-      apply strong_ksoundness with (C0 := kstandard) in Hphi. apply (St v), Hn. 1: reflexivity.
-      2: intros; apply kstandard_explodes. 1: apply (Hphi D M St v rho).
-      intros psi Hpsi % HT'. apply (ksat_mon Hv Hpsi).
+      intros clT clphi HT Hdn. apply DN_T, dnt_to_TCE. cbn. apply (@seq_ND_T _ _ (tmap dnt T) (¬ (¬ dnt phi))). 
+      apply K_completeness. 1: apply HC, HT.
+      - intros ? ? (? & ? & <-). eapply dnt_unused. now eapply clT.
+      - intros n. repeat econstructor. eapply dnt_unused; eauto. 
+      - intros D M St u rho HT' v Hv Hn. contradict Hdn. intros Hphi % dnt_to_TIE.
+        apply strong_ksoundness with (C0 := kstandard) in Hphi. apply (St v), Hn. 1: reflexivity.
+        2: intros; apply kstandard_explodes. 1: apply (Hphi D M St v rho).
+        intros psi Hpsi % HT'. apply (ksat_mon Hv Hpsi).
     Qed.
   End MPRequired.
   
