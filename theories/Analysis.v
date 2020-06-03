@@ -1,5 +1,7 @@
 From Undecidability.FOLC Require Import WKL Markov GenTarski GenCompleteness Stability.
 
+(** ** Theorems 15 and 42  *)
+
 (* Theorem 15 *)
 
 Lemma completeness_context_iff_MPL : 

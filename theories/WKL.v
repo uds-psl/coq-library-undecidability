@@ -189,8 +189,6 @@ Definition stable {X} (p : X -> Prop) := forall x, ~~ p x -> p x.
 Definition WKL (C : (list bool -> Prop) -> Prop) :=
   forall T : tree, C T -> infinite_tree T -> infinite_path T.
 
-(** ** Model existence  *)
-
 Definition model_existence (CT : forall Sigma, @theory Sigma -> Prop) (Cond : forall Sigma D, @interp Sigma D -> Prop) :=
   forall {Sigma : Signature},
   forall {HdF : eq_dec Funcs} {HdP : eq_dec Preds},
