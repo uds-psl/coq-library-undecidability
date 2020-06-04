@@ -1,4 +1,4 @@
-(** *** Translating LJD into S-Vaidity *)
+(** ** Translating LJD into S-Vaidity *)
 
 From Undecidability.FOL  Require Export DecidableEnumerable.
 From Undecidability.FOLC Require Export WFexp.

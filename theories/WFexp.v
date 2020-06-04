@@ -1,3 +1,5 @@
+(** ** The well-foundedness of the induction relation **)
+
 Set Implicit Arguments.
 Require Import List Coq.Sorting.Permutation Morphisms.
 
@@ -71,7 +73,7 @@ Ltac permp'' L n :=
 Ltac permp n :=
   lazymatch goal with |- ?L == _ => permp'' L n end.
 
-(** **** Well-foundedness of well-behaved list relations **)
+(** Well-foundedness of well-behaved list relations **)
 Section WFlist.
   Variable X : Type.
   Variable R : list X -> list X -> Prop.
@@ -253,7 +255,7 @@ Section WFexp.
   Qed.
 End WFexp.
 
-(** **** Well-foundedness under transitive closure **)
+(** Well-foundedness under transitive closure **)
 
 Section Transitivity.
   Variable X : Type.
