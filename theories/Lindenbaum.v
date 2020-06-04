@@ -6,6 +6,8 @@ From Undecidability.FOLC Require Export FullND Heyting.
 Section Lindenbaum.
 
 Context {Sigma : Signature}.
+Context {eq_dec_Funcs : eq_dec Funcs}.
+Context {eq_dec_Preds : eq_dec Preds}.
 
 Section CHAEval.
 
@@ -112,9 +114,9 @@ End Soundness.
 
 Section Completeness.
 
-  Context { b : peirce }.
+  (*Context { b : peirce }.*)
 
-  Notation "A ⊢E phi" := (@prv Sigma b expl A phi) (at level 30).
+  Notation "A ⊢E phi" := (@prv Sigma intu expl A phi) (at level 30).
 
   Instance lb_alg : HeytingAlgebra.
   Proof.
@@ -163,12 +165,6 @@ Section Completeness.
   Definition lb_Pr P v : lb_calg :=
     embed (Pred P v).
 
-  
-
-  Context {eq_dec_Funcs : eq_dec Funcs}.
-  Context {eq_dec_Preds : eq_dec Preds}.
-
-
   (** ** Completeness *)
 
   Lemma lindenbaum_hsat phi :
@@ -183,11 +179,11 @@ Section Completeness.
     - cbn. split; intros psi H'.
       + intros X [HX [t Ht]]. change (psi ∈ proj1_sig (exist normal X HX)).
         eapply Ht. rewrite <- H. apply AllE, H'.
-      + apply AllI. destruct (@nameless_equiv_all' _ _ expl _ _ ([psi]) phi) as [t <-].
+      + apply AllI. destruct (@nameless_equiv_all' _ intu expl _ _ ([psi]) phi) as [t <-].
         apply H, H'. exists (proj2_sig (hsat lb_Pr phi[t..])), t. now destruct hsat.
     - cbn. split; intros psi H'.
       + intros X [XD HX]. apply XD. intros theta HT. apply (ExE H').
-        destruct (@nameless_equiv_ex' _ _ expl _ _ ([psi]) theta phi) as [t <-].
+        destruct (@nameless_equiv_ex' _ intu expl _ _ ([psi]) theta phi) as [t <-].
         assert (exists i : term, equiv_HA (hsat lb_Pr phi[t..]) (hsat lb_Pr phi[i..])) by now eexists.
         specialize (HX (hsat lb_Pr phi[t..]) H0).
         apply Weak with (A:=[phi[t..]]); auto.
@@ -223,14 +219,11 @@ End Completeness.
 Definition hvalid phi :=
   forall (HA : CompleteHeytingAlgebra) HP, Top <= hsat HP phi.
 
-Context {eq_dec_Funcs : eq_dec Funcs}.
-Context {eq_dec_Preds : eq_dec Preds}.
-
 Theorem hcompleteness phi :
   hvalid phi -> nil ⊢IE phi.
 Proof.
   intros H.
-  specialize (H (@lb_calg intu) lb_Pr).
+  specialize (H lb_calg lb_Pr).
   now eapply lb_calg_iff.
   Unshelve.
 Qed.
@@ -291,42 +284,6 @@ Section BSoundness.
   Qed.
 
 End BSoundness.
-
-Lemma boolean_completion HA :
-  boolean HA -> boolean (@completion_calgebra HA).
-Proof.
-  intros H. intros [X HX] [Y HY]; cbn. intros a Ha.
-  unfold hset_impl in Ha. apply HX.
-  intros b Hb. specialize (Ha (Impl b Bot)).
-  eapply Rtra; try apply H. apply Impl1, Hb, Ha.
-  intros c Hc. apply HY. intros d Hd. apply Rtra with Bot; try apply Bot1.
-  assert (H' : Meet (Impl b Bot) c <= Impl b Bot) by apply Meet2.
-  apply Impl1 in H'. eapply Rtra; try eassumption. repeat rewrite <- Meet1.
-  repeat split; auto. eapply Rtra; try apply Meet3. now apply Hb.
-Qed.
-
-Lemma lb_alg_boolean :
-  boolean (@lb_alg class).
-Proof.
-  intros phi psi. cbn. eapply IE; try apply Pc. now apply Ctx.
-Qed.
-
-Definition bvalid phi :=
-  forall (HA : CompleteHeytingAlgebra) HP, boolean HA -> Top <= hsat HP phi.
-
-Theorem bcompleteness phi :
-  bvalid phi -> nil ⊢CE phi.
-Proof.
-  intros H.
-  specialize (H (@lb_calg class) lb_Pr (boolean_completion lb_alg_boolean)).
-  now apply lb_calg_iff.
-Qed.
-
-Theorem bsoundness phi :
-  nil ⊢CE phi -> bvalid phi.
-Proof.
-  intros H HA HP HB. rewrite (@top_hsat_L _ HP). now apply BSoundness.
-Qed.
 
 
 
@@ -450,5 +407,62 @@ Section Completeness.
   Qed.
 
 End Completeness.
+
+
+
+(** ** Completeness for Boolean algebras *)
+
+Instance clb_alg : HeytingAlgebra.
+Proof.
+  apply (@glb_alg (@prv _ class expl)); eauto 2. apply Weak.
+Defined.
+
+Instance clb_calg : CompleteHeytingAlgebra.
+Proof.
+  apply (@glb_calg (@prv _ class expl)); eauto 2. apply Weak.
+Defined.
+
+Definition clb_Pr P (v : vector term (pred_ar P)) : clb_calg.
+Proof.
+  apply glb_Pr with P. exact v.
+Defined.
+
+Lemma clb_alg_boolean :
+  boolean clb_alg.
+Proof.
+  intros phi psi. cbn. eapply IE; try apply Pc. now apply Ctx.
+Qed.
+
+Lemma boolean_completion HA :
+  boolean HA -> boolean (@completion_calgebra HA).
+Proof.
+  intros H. intros [X HX] [Y HY]; cbn. intros a Ha.
+  unfold hset_impl in Ha. apply HX.
+  intros b Hb. specialize (Ha (Impl b Bot)).
+  eapply Rtra; try apply H. apply Impl1, Hb, Ha.
+  intros c Hc. apply HY. intros d Hd. apply Rtra with Bot; try apply Bot1.
+  assert (H' : Meet (Impl b Bot) c <= Impl b Bot) by apply Meet2.
+  apply Impl1 in H'. eapply Rtra; try eassumption. repeat rewrite <- Meet1.
+  repeat split; auto. eapply Rtra; try apply Meet3. now apply Hb.
+Qed.
+
+Definition bvalid phi :=
+  forall (HA : CompleteHeytingAlgebra) HP, boolean HA -> Top <= hsat HP phi.
+
+Theorem bcompleteness phi :
+  bvalid phi -> nil ⊢CE phi.
+Proof.
+  intros H.
+  specialize (H clb_calg clb_Pr (boolean_completion clb_alg_boolean)).
+  apply glb_calg_iff in H; eauto 2; clear H0.
+  - apply nameless_equiv_all'.
+  - apply nameless_equiv_ex'.
+Qed.
+
+Theorem bsoundness phi :
+  nil ⊢CE phi -> bvalid phi.
+Proof.
+  intros H HA HP HB. rewrite (@top_hsat_L _ HP). now apply BSoundness.
+Qed.
 
 End Lindenbaum.
