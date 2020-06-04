@@ -391,4 +391,12 @@ Section SDialogues.
           vsimpl; etransitivity. 2: step 0 [DlD' H1]; reflexivity. step 2 [DlC' H0]. now exists adm1, atk0.
           permp 0. permp 2. reflexivity.
   Qed.
+
+  Lemma Dprv_svalid phi :
+    Dprv [] (fun psi => psi = phi) -> svalid phi.
+  Proof.
+    intros []. 2: inversion i. subst. constructor. 1: assumption.
+    intros A c. inversion 1; subst. wrap_up (d adm atk).
+    now apply (@Dprv_swin [DlC' H0] nil (adm o:: nil) nil (C atk) I I H0).
+  Qed.
 End SDialogues.

@@ -234,10 +234,16 @@ Section DialogFull.
     intros H. apply (Dprv_fprv' H). now intros ? ? ->. 
   Qed.
 
-  Corollary evalid_fprv phi :
-    evalid form_rules phi -> [] ⊢f phi.
+  Corollary Dprv_fprv_equiv A phi :
+    A ⊢D (fun psi => psi = phi) <-> A ⊢f phi.
   Proof.
-    intros H. now apply Dprv_fprv, ecompleteness.
+    split. 1: apply Dprv_fprv. intros H. specialize (fprv_Dprv H var_term) as H'. asimpl in H'.
+    unfold id in H'. now rewrite map_id in H'.
   Qed.
-  
+
+  Corollary evalid_fprv_equiv phi :
+    evalid form_rules phi <-> [] ⊢f phi.
+  Proof.
+    rewrite eequiv. apply Dprv_fprv_equiv.
+  Qed.
 End DialogFull.

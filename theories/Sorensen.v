@@ -139,6 +139,12 @@ Section LJD.
     apply (ewin_Dprv Hwin).
   Qed.
 
+  Lemma eequiv phi :
+    evalid _ phi <-> nil ⊢D (fun psi => psi = phi).
+  Proof.
+    split; eauto using ecompleteness, esoundness.
+  Qed.
+
   Lemma Dprv_weak A B (T T' : f -> Prop) :
     Dprv A T -> A <<= B -> (forall phi, T phi -> T' phi) -> Dprv B T'.
   Proof.
