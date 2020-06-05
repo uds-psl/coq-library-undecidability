@@ -177,7 +177,7 @@ Proof.
   intros HR wf_R x. induction (wf_R x). constructor. intros y H' % HR. now apply H0.
 Qed.
 
-(** **** The exponential step relation **)
+(* **** The exponential step relation **)
 
 Section WFexp.
   Variable X : Type.

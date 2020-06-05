@@ -1,4 +1,4 @@
-(** ** Translating LJD into S-Vaidity *)
+(** ** Translating LJD into S-Validity *)
 
 From Undecidability.FOL  Require Export DecidableEnumerable.
 From Undecidability.FOLC Require Export WFexp.
@@ -13,7 +13,7 @@ Ltac resolve_existT :=
 Ltac inv H := inversion H; subst; repeat (progress resolve_existT); subst.
 Ltac capply H := eapply H; try eassumption.
 
-(** **** S-Dialogues *)
+(* **** S-Dialogues *)
 
 Definition ocons X (o : option X) A :=
   match o with
@@ -87,7 +87,7 @@ Section SDialogues.
   Definition svalid phi :=
     prod (justified nil phi) (forall A c, opening phi A c -> swin_strat (nil, A, nil) c).
 
-  (** **** LJD and DLift *)
+  (* **** LJD and DLift *)
 
   Inductive Dprv (A : list f) (T : f -> Type): Type :=
     Def phi :
@@ -159,7 +159,7 @@ Section SDialogues.
     - constructor; intros ? (tau & Htau & ?); subst. apply (H _ _ (prv _ Htau) _ _ c eq_refl).
   Qed.
 
-  (** **** The transformation procedure *)
+  (* **** The transformation procedure *)
 
   Fixpoint IVec (X : Type) (P : X -> Type) (A : list X) : Type :=
     match A with
