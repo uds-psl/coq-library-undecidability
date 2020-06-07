@@ -1,4 +1,3 @@
--Q "../coq-library-undecidability/theories/" Undecidability
 -Q . Undecidability.FOLC
 -install none
 -arg -w -arg -notation-overridden,-redundant-canonical-projection,-several-object-files,cannot-define-projection,records,unused-intro-pattern,tactics
