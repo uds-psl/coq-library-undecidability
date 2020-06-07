@@ -1,8 +1,8 @@
-# Completeness Theorems for First-Order Logic Analysed in Constructive Type Theory
+# Completeness Theorems for First-Order Logic Analysed in Constructive Type Theory (extended version)
 
 Yannick Forster <forster@ps.uni-saarland>, Dominik Kirst <kirst@ps.uni-saarland.de>, Dominik Wehr <s8dowehr@stud.uni-saarland.de>
 
-This is the Coq formalisation of the paper ["Completeness Theorems for First-Order Logic Analysed in Constructive Type Theory"](https://www.ps.uni-saarland.de/extras/fol-undec/).
+This is the Coq formalisation of the paper ["Completeness Theorems for First-Order Logic Analysed in Constructive Type Theory (extended version)"](https://www.ps.uni-saarland.de/extras/fol-completeness-ext/).
 
 ## How to compile the code
 
@@ -17,6 +17,4 @@ opam update
 opam install coq-library-undecidability.0.1~alpha+8.11
 ```
 
-You can also install the library manually by installing the dependencies and then issuing `make install` in the library directory.
-
-Afterwards, you can simply type `make` in this directory.
+Afterwards, you type `make` in the `theories` directory.
