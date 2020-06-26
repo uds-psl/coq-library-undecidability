@@ -377,12 +377,11 @@ Definition tmap {S1 S2 : Signature} (f : @form S1 -> @form S2) (T : @theory S1) 
   fun phi => exists psi, T psi /\ f psi = phi.
 
 Lemma enum_tmap {S1 S2 : Signature} (f : @form S1 -> @form S2) (T : @theory S1) L :
-  enum T L -> enum (tmap f T) (L >> List.map f).
+  list_enumerator L T -> list_enumerator (L >> List.map f)  (tmap f T).
 Proof.
-  intros []. split; unfold ">>".
-  - intros n. destruct (H n) as [A ->]. exists (List.map f A). apply map_app.
+  intros.
   - intros x; split.
-    + intros (phi & [m Hin] % H0 & <-). exists m. apply in_map_iff. firstorder.
+    + intros (phi & [m Hin] % H & <-). exists m. apply in_map_iff. firstorder.
     + intros (m & (phi & <- & Hphi) % in_map_iff). firstorder.
 Qed.
 
@@ -443,34 +442,35 @@ Proof.
   intros HL Hv. induction v; cbn.
   - exists 0. tauto.
   - destruct IHv as [m H], (Hv h) as [m' H']. 1-3: eauto using vec_in. exists (m + m').
-    in_collect (pair h v). 1: apply cum_ge' with m'; intuition omega.
+    in_collect (pair h v). 1: apply (cum_ge' (n := m')); intuition omega.
     apply vecs_from_correct. rewrite <- vecs_from_correct in H. intros x Hx.
-    apply cum_ge' with m. all: eauto. omega.
+    apply (cum_ge' (n := m)). all: eauto. omega.
 Qed.
 
 Fixpoint L_vec X (L : nat -> list X) n m : list (vector X n) :=
   match m with
   | 0 => []
-  | S m => L_vec L n m ++ vecs_from (L m) n
+  | S m => L_vec L n m ++ vecs_from (cumul L m) n
   end.
 
-Instance enumT_vec X {HX : enumT X} n : enumT (vector X n).
+Instance enumT_vec X L_T {HX : list_enumerator__T L_T X} n : list_enumerator__T (L_vec L_T n) (vector X n).
 Proof with try (eapply cum_ge'; eauto; omega).
-  exists (L_vec L_T n).
-  - eauto.
-  - intros v. enough (exists m, forall x, vec_in x v -> x el L_T m) as [m Hm].
-    { exists (S m). cbn. in_app 2. now apply vecs_from_correct. }
-    induction v.
-    + exists 0. intros x H. inv H.
-    + destruct (el_T h) as [m Hm], IHv as [m' Hm']. exists (m + m').
-      intros x Hx. inv Hx...
+  intros v. enough (exists m, forall x, vec_in x v -> x el cumul L_T m) as [m Hm].
+  { exists (S m). cbn. in_app 2. now rewrite <- vecs_from_correct. }
+  induction v.
+  + exists 0. intros x H. inv H.
+  + destruct (cumul_spec__T HX h) as [m Hm], IHv as [m' Hm']. exists (m + m').
+    intros x Hx. inv Hx...
 Defined.
 
 Section Enumerability.
   Context {Sigma : Signature}.
 
-  Hypothesis enum_Funcs : enumT Funcs.
-  Hypothesis enum_Preds : enumT Preds.
+  Variable e_F : nat -> list Funcs.
+  Variable e_P : nat -> list Preds.
+
+  Hypothesis enum_Funcs : list_enumerator__T e_F Funcs.
+  Hypothesis enum_Preds : list_enumerator__T e_P Preds.
 
   Fixpoint L_term n : list term :=
     match n with
@@ -484,25 +484,23 @@ Section Enumerability.
     intros ?; cbn; eauto.
   Qed.
 
-  Global Instance enumT_term : enumT term.
+  Global Instance enumT_term : list_enumerator__T L_term term.
   Proof with try (eapply cum_ge'; eauto; omega).
-    exists L_term.
-    - exact L_term_cml.
-    - intros t. induction t using strong_term_ind.
-      + exists (S x); cbn; eauto.
-      + apply vec_forall_cml in H as [m H]. 2: exact L_term_cml. destruct (el_T F) as [m' H'].
-        exists (S (m + m')); cbn. in_app 3. eapply in_concat_iff. eexists. split. 2: in_collect F...
-        apply in_map. rewrite <- vecs_from_correct in H |-*. intros x H''. specialize (H x H'')...
+    intros t. induction t using strong_term_ind.
+    + exists (S x); cbn; eauto.
+    + apply vec_forall_cml in H as [m H]. 2: exact L_term_cml. destruct (cumul_spec__T enum_Funcs F) as [m' H'].
+      exists (S (m + m')); cbn. in_app 3. eapply in_concat_iff. eexists. split. 2: in_collect F...
+      apply in_map. rewrite <- vecs_from_correct in H |-*. intros x H''. specialize (H x H'')...
   Defined.
 
   Fixpoint L_form n : list form :=
     match n with
     | 0 => [Fal]
     | S n => L_form n
-              ++ [Fal]
-              ++ concat ([ [ Pred P v | v ∈ L_T n ] | P ∈ L_T n])
-              ++ [ phi1 --> phi2 | (phi1, phi2) ∈ (L_form n × L_form n) ]
-              ++ [ ∀ phi | phi ∈ L_form n ]
+                   ++ [Fal]
+                   ++ concat ([ [ Pred P v | v ∈ L_T (H := @enumT_vec _ _ _  _) n ] | P ∈ L_T n])
+                   ++ [ phi1 --> phi2 | (phi1, phi2) ∈ (L_form n × L_form n) ]
+                   ++ [ ∀ phi | phi ∈ L_form n ]
     end.
 
   Lemma L_form_cml :
@@ -511,18 +509,16 @@ Section Enumerability.
     intros ?; cbn; eauto.
   Qed.
 
-  Global Instance enumT_form : enumT form.
+  Global Instance enumT_form : list_enumerator__T L_form form.
   Proof with (try eapply cum_ge'; eauto; omega).
-    exists L_form.
-    - exact L_form_cml.
-    - intros phi. induction phi.
-      + exists 1. cbn; eauto.
-      + destruct (el_T P) as [m Hm], (el_T t) as [m' Hm']. exists (S (m + m')); cbn.
-        in_app 3. eapply in_concat_iff. eexists. split. 2: in_collect P... apply in_map... 
-      + destruct IHphi1 as [m1], IHphi2 as [m2]. exists (1 + m1 + m2). cbn.
-        in_app 4. in_collect (pair phi1 phi2)...
-      + destruct IHphi as [m]. exists (S m). cbn -[L_T].
-        in_app 5. in_collect phi...
+    intros phi. induction phi.
+    + exists 1. cbn; eauto.
+    + destruct (el_T P) as [m Hm], (el_T t) as [m' Hm']. exists (S (m + m')); cbn.
+      in_app 3. eapply in_concat_iff. eexists. split. 2: in_collect P... apply in_map...
+    + destruct IHphi1 as [m1], IHphi2 as [m2]. exists (1 + m1 + m2). cbn.
+      in_app 4. in_collect (pair phi1 phi2)...
+    + destruct IHphi as [m]. exists (S m). cbn -[L_T].
+      in_app 5. in_collect phi...
   Defined.
 End Enumerability.
 
@@ -607,15 +603,15 @@ Section SigExt.
     destruct Sigma. exact H. 
   Qed.
 
-  Global Instance enumT_sig_ext_Funcs {Sigma : Signature} (H : enumT Funcs) : enumT (@Funcs (sig_ext Sigma)).
+  Global Instance enumT_sig_ext_Funcs {Sigma : Signature} {f} {H : list_enumerator__T f Funcs} : inf_list_enumerable__T (@Funcs (sig_ext Sigma)).
   Proof with (try eapply cum_ge'; eauto; omega).
-    destruct Sigma. destruct H. exists (fix f n := match n with 0 => List.map inl (L_T 0) | S n' => f n' ++ (inr n') :: List.map inl (L_T n') end).
-    1: eauto. intros []. 2: exists (S n); in_app 2... destruct (el_T f) as [m Hin]. exists (S m). in_app 3. in_collect f...
+    destruct Sigma. exists (fix f n := match n with 0 => List.map inl (L_T 0) | S n' => f n' ++ (inr n') :: List.map inl (L_T n') end).
+    1: eauto. intros [f0|]. 2: exists (S n); in_app 2... destruct (el_T f0) as [m Hin]. exists (S m). in_app 3. in_collect f0...
   Qed.
 
-  Global Instance enumT_sig_ext_Preds {Sigma : Signature} (H : enumT Preds) : enumT (@Preds (sig_ext Sigma)).
+  Global Instance enumT_sig_ext_Preds {Sigma : Signature} {f} {H : list_enumerator__T f Preds} : inf_list_enumerable__T (@Preds (sig_ext Sigma)).
   Proof.
-    destruct Sigma. exact H.
+    destruct Sigma. eexists. exact H.
   Qed.
 
   Fixpoint sig_lift_term' F F_ar P P_ar (t : @term (B_S F F_ar P P_ar)) :

@@ -61,16 +61,14 @@ Fixpoint L_term n : list term :=
   | S n => L_term n ++ [V n; P n] ++ [ t_f b t | (b,t) ∈ (L_T bool n × L_term n) ]
   end.
 
-Instance enumT_term : enumT term.
+Instance enumT_term : list_enumerator__T L_term term.
 Proof.
-  exists L_term.
-  - intros ?; cbn; eauto.
-  - intros t. induction t.
-    + exists (S v); cbn; eauto.
-    + exists (S p); cbn; eauto.
-    + destruct IHt as [m1], (el_T b) as [m2].
-      exists (1 + m1 + m2). cbn. in_app 4. in_collect (b, t); eapply cum_ge'; eauto; omega.
-    + exists 0. cbn; eauto.
+  intros t. induction t.
+  + exists (S v); cbn; eauto.
+  + exists (S p); cbn; eauto.
+  + destruct IHt as [m1], (el_T b) as [m2].
+    exists (1 + m1 + m2). cbn. in_app 4. in_collect (b, t); eapply cum_ge'; eauto; omega.
+  + exists 0. cbn; eauto.
 Qed.
 
 Fixpoint L_form {b} n : list (form b) :=
@@ -87,19 +85,17 @@ Fixpoint L_form {b} n : list (form b) :=
                end
   end.
 
-Instance enumT_form {b} : enumT (form b).
+Instance enumT_form {b} : list_enumerator__T L_form (form b).
 Proof with (try eapply cum_ge'; eauto; omega).
-  exists L_form.
-  - eauto.
-  - intros phi. induction phi.
-    + destruct (el_T t) as [m1], (el_T t0) as [m2]. exists (1 + m1 + m2). cbn.
-      in_app 3. in_collect (t, t0)...
-    + exists 1. cbn; eauto.
-    + exists 1; cbn; firstorder.
-    + destruct IHphi1 as [m1], IHphi2 as [m2]. exists (1 + m1 + m2). cbn.
-      in_app 4. in_collect (phi1, phi2)...
-    + destruct IHphi as [m1], (el_T n) as [m2]. exists (1 + m1 + m2). cbn -[L_T].
-      in_app 5. in_collect (n, phi)...
+  intros phi. induction phi.
+  + destruct (el_T t) as [m1], (el_T t0) as [m2]. exists (1 + m1 + m2). cbn.
+    in_app 3. in_collect (t, t0)...
+  + exists 1. cbn; eauto.
+  + exists 1; cbn; firstorder.
+  + destruct IHphi1 as [m1], IHphi2 as [m2]. exists (1 + m1 + m2). cbn.
+    in_app 4. in_collect (phi1, phi2)...
+  + destruct IHphi as [m1], (el_T n) as [m2]. exists (1 + m1 + m2). cbn -[L_T].
+    in_app 5. in_collect (n, phi)...
 Qed.
 
 Instance dec_term : eq_dec term.

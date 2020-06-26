@@ -4,7 +4,7 @@
 
 From Undecidability.FOLP Require Export axioms.
 
-Notation fin := nat.
+(* Notation fin := nat. *)
 Definition shift  := S.
 
 Definition scons {X: Type} (x : X) (xi : nat -> X) :=

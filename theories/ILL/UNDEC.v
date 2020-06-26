@@ -75,55 +75,55 @@ Proof.
   exact EILL_ILL_PROVABILITY.
 Qed.
 
-(** * Formal Undecidability *)
+(* * Formal Undecidability *)
 
-Module Def_of_undec.
+(* Module Def_of_undec. *)
 
-  Inductive dec {X} (P : X -> Prop) : Prop := is_dec (H : forall x, { P x} + {~ P x}).
+(*   Inductive dec {X} (P : X -> Prop) : Prop := is_dec (H : forall x, { P x} + {~ P x}). *)
 
-  Notation compl P := (fun x => ~ P x).
+(*   Notation compl P := (fun x => ~ P x). *)
 
-  Notation "Q ⪯T P" := (dec (P) -> dec (Q)) (at level 20).
+(*   Notation "Q ⪯T P" := (dec (P) -> dec (Q)) (at level 20). *)
 
-  Lemma red_turing X Y (P : X -> Prop) (Q : Y -> Prop) : P ⪯ Q -> P ⪯T Q.
-  Proof.
-    intros (f & Hf) [ H ].
-    exists.
-    intros x; destruct (H (f x)) as [ H1 | H1 ]; 
-      rewrite <- Hf in H1; tauto.
-  Qed.
+(*   (* Lemma red_turing X Y (P : X -> Prop) (Q : Y -> Prop) : P ⪯ Q -> P ⪯T Q. *) *)
+(*   (* Proof. *) *)
+(*   (*   intros (f & Hf) [ H ]. *) *)
+(*   (*   exists. *) *)
+(*   (*   intros x; destruct (H (f x)) as [ H1 | H1 ];  *) *)
+(*   (*     rewrite <- Hf in H1; tauto. *) *)
+(*   (* Qed. *) *)
 
-  (* Lemma red_turing_compl X Y (Q : Y -> Prop) (P : X -> Prop) : *)
-  (*   Q ⪯ P -> compl Q ⪯T compl P. *)
-  (* Proof. *)
-  (*   intros [f] [d]. econstructor. intros x. *)
-  (*   destruct (d (f x)). *)
-  (*   + left. firstorder. *)
-  (*   + right. firstorder. *)
-  (* Qed. *)
+(*   (* Lemma red_turing_compl X Y (Q : Y -> Prop) (P : X -> Prop) : *) *)
+(*   (*   Q ⪯ P -> compl Q ⪯T compl P. *) *)
+(*   (* Proof. *) *)
+(*   (*   intros [f] [d]. econstructor. intros x. *) *)
+(*   (*   destruct (d (f x)). *) *)
+(*   (*   + left. firstorder. *) *)
+(*   (*   + right. firstorder. *) *)
+(*   (* Qed. *) *)
   
-  Inductive undec : forall X, (X -> Prop) -> Prop :=
-    undec_seed : undec PCP
-  | undec_red X (P : X -> Prop) Y (Q : Y -> Prop) : Q ⪯T P -> undec Q -> undec P.
+(*   Inductive undec : forall X, (X -> Prop) -> Prop := *)
+(*     undec_seed : undec PCP *)
+(*   | undec_red X (P : X -> Prop) Y (Q : Y -> Prop) : Q ⪯T P -> undec Q -> undec P. *)
 
-  Lemma red_undec  X Y (Q : Y -> Prop) (P : X -> Prop) :
-    Q ⪯ P -> undec Q -> undec P.
-  Proof.
-    intros. eapply undec_red. eapply red_turing; eauto. eauto.
-  Qed.
+(*   Lemma red_undec  X Y (Q : Y -> Prop) (P : X -> Prop) : *)
+(*     Q ⪯ P -> undec Q -> undec P. *)
+(*   Proof. *)
+(*     intros. eapply undec_red. eapply red_turing; eauto. eauto. *)
+(*   Qed. *)
     
-  Lemma undec_compl X (P : X -> Prop) :
-    undec (compl P) -> undec P.
-  Proof.
-    intros. eapply undec_red; try eassumption. firstorder.
-  Qed.
+(*   Lemma undec_compl X (P : X -> Prop) : *)
+(*     undec (compl P) -> undec P. *)
+(*   Proof. *)
+(*     intros. eapply undec_red; try eassumption. firstorder. *)
+(*   Qed. *)
   
-  Lemma undec_PCP X (P : X -> Prop) :
-    undec P <-> (PCP ⪯T P).
-  Proof.
-    split; intros.
-    - induction H; eauto.
-    - eauto using undec. 
-  Qed.
+(*   Lemma undec_PCP X (P : X -> Prop) : *)
+(*     undec P <-> (PCP ⪯T P). *)
+(*   Proof. *)
+(*     split; intros. *)
+(*     - induction H; eauto. *)
+(*     - eauto using undec.  *)
+(*   Qed. *)
     
-End Def_of_undec.
+(* End Def_of_undec. *)
