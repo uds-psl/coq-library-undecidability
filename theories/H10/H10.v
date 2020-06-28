@@ -12,7 +12,7 @@
 From Undecidability.ILL 
   Require Import Definitions UNDEC.
 
-From Undecidability.SR.Util 
+From Undecidability.StringRewriting.Util 
   Require Import singleTM.
 
 From Undecidability.Shared.Libs.DLW.Utils 

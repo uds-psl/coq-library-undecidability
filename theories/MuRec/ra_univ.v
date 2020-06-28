@@ -18,8 +18,8 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.MuRec 
   Require Import recalg ra_utils ra_enum recomp ra_recomp beta ra_godel_beta.
 
-From Undecidability.H10C 
-  Require Import h10c_defs h10c_utils.
+From Undecidability.DiophantineConstraints 
+  Require Import H10C Util.h10c_utils.
 
 Set Implicit Arguments.
 
