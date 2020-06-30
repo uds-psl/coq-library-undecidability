@@ -18,8 +18,8 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.MuRec 
   Require Import recalg ra_utils ra_enum recomp ra_recomp beta ra_godel_beta.
 
-From Undecidability.H10C 
-  Require Import h10c_defs h10c_utils.
+From Undecidability.DiophantineConstraints 
+  Require Import H10C Util.h10c_utils.
 
 Set Implicit Arguments.
 
@@ -339,7 +339,7 @@ Section ra_univ_ad.
             (Hlc : lc = nat_h10luc k).
 
   Let Hf_val_0 v : 
-        (forall c, In c lc -> h10uc_sem c (godel_beta (decomp_l v) (decomp_r v)))
+        (forall c, In c lc -> h10uc_sem (godel_beta (decomp_l v) (decomp_r v)) c)
      -> ⟦f⟧ (v##k##vec_nil) 0.
   Proof.
     intros H2.
@@ -371,7 +371,7 @@ Section ra_univ_ad.
   Qed.
  
   Let Hf_val_1 v : 
-        (exists c, In c lc /\ ~ h10uc_sem c (godel_beta (decomp_l v) (decomp_r v)))
+        (exists c, In c lc /\ ~ h10uc_sem (godel_beta (decomp_l v) (decomp_r v)) c)
      -> ⟦f⟧ (v##k##vec_nil) 1.
   Proof.
     intros H2.
@@ -417,7 +417,7 @@ Section ra_univ_ad.
   Opaque f.
 
   Theorem ra_univ_ad_spec : ex (⟦ra_univ_ad⟧ (k##vec_nil)) 
-                     <-> exists φ, forall c, In c lc -> h10uc_sem c φ.
+                     <-> exists φ, forall c, In c lc -> h10uc_sem φ c.
   Proof.
     split.
     + intros (v & Hv).
@@ -440,5 +440,3 @@ Section ra_univ_ad.
   Qed.
 
 End ra_univ_ad.
-
-

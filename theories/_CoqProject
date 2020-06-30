@@ -86,13 +86,13 @@ PCP/Reductions/SR_to_MPCP.v
 PCP/Reductions/MPCP_to_MPCPb.v
 
 #String rewriting
-SR/SR.v
-SR/SR_undec.v
+StringRewriting/SR.v
+StringRewriting/SR_undec.v
 
-SR/Util/Definitions.v
-SR/Util/singleTM.v
-SR/Reductions/SRH_to_SR.v
-SR/Reductions/TM_to_SRH.v
+StringRewriting/Util/Definitions.v
+StringRewriting/Util/singleTM.v
+StringRewriting/Reductions/SRH_to_SR.v
+StringRewriting/Reductions/TM_to_SRH.v
 
 #Context-free grammars
 CFG/CFP.v
@@ -213,9 +213,6 @@ H10/FRACTRAN_DIO.v
 H10/H10.v
 H10/DPRM.v
 H10/H10Z.v
-
-H10C/h10c_defs.v
-H10C/h10c_utils.v
 
 # Basics
 TM/Prelim.v
@@ -538,6 +535,79 @@ TRAKHTENBROT/red_undec.v
 
 # TRAKHTENBROT/summary.v
 
+#One-counter Machines
+CounterMachines/CM1.v
+CounterMachines/CM1_undec.v
+
+CounterMachines/Util/Nat_facts.v
+CounterMachines/Util/List_facts.v
+CounterMachines/Util/CM1_facts.v
+CounterMachines/Util/MM2_facts.v
+CounterMachines/Reductions/MM2_HALTING_to_CM1c4_HALT.v
+
+#Stack Machines
+StackMachines/SMN.v
+StackMachines/SMN_undec.v
+StackMachines/SSM.v
+StackMachines/SSM_undec.v
+
+StackMachines/Util/Facts.v
+StackMachines/Util/Nat_facts.v
+StackMachines/Util/List_facts.v
+StackMachines/Util/Enumerable.v
+StackMachines/Util/SMX.v
+StackMachines/Util/SMX_facts.v
+StackMachines/Util/SMN_facts.v
+StackMachines/Util/CSSM_facts.v
+StackMachines/Reductions/CM1_to_SMX.v
+StackMachines/Reductions/CM1c4_HALT_to_SMNdl_UB.v
+StackMachines/Reductions/SMN_transform.v
+StackMachines/Reductions/SMNdl_UB_to_CSSM_UB.v
+
+#Semi-unification
+SemiUnification/SemiU.v
+SemiUnification/SemiU_undec.v
+
+SemiUnification/Util/Facts.v
+SemiUnification/Util/Enumerable.v
+SemiUnification/Reductions/CSSM_UB_to_SSemiU.v
+SemiUnification/Reductions/SSemiU_to_SemiU.v
+
+#Diophantine Constraints
+DiophantineConstraints/H10C.v
+DiophantineConstraints/H10C_undec.v
+
+DiophantineConstraints/Util/h10c_utils.v
+DiophantineConstraints/Reductions/H10C_SAT_to_H10UC_SAT.v
+DiophantineConstraints/Reductions/FRACTRAN_to_H10C_SAT.v
+
+#Set Constraints
+SetConstraints/FMsetC.v
+SetConstraints/FMsetC_undec.v
+
+SetConstraints/Util/Facts.v
+SetConstraints/Util/mset_eq_utils.v
+SetConstraints/Util/mset_poly_utils.v
+SetConstraints/Reductions/H10UC_SAT_to_FMsetC_SAT.v
+
+#Polynomial Constraints
+PolynomialConstraints/LPolyNC.v
+PolynomialConstraints/LPolyNC_undec.v
+
+PolynomialConstraints/Util/Facts.v
+PolynomialConstraints/Util/PolyFacts.v
+PolynomialConstraints/Reductions/FMsetC_SAT_to_LPolyNC_SAT.v
+
+#Hilbert-style Calculi
+HilbertCalculi/HSC.v
+HilbertCalculi/HSC_undec.v
+
+HilbertCalculi/Util/Facts.v
+HilbertCalculi/Util/HSCFacts.v
+HilbertCalculi/Reductions/MPCPb_to_HSC_PRV.v
+HilbertCalculi/Reductions/MPCPb_to_HSC_AX.v
+
+#Legacy Problems
 Problems/FOL.v
 Problems/TM.v
 Problems/MM.v
@@ -546,11 +616,11 @@ Problems/BSM.v
 Problems/ILL.v
 Problems/FRACTRAN.v
 Problems/DIOPHANTINE.v
-Problems/H10C.v
 Problems/RA_UNIV.v
 Problems/cbvLambda.v
 Problems/FOLFS.v
 
+#Legacy Reductions
 Reductions/BPCP_to_BSM.v
 Reductions/BSM_to_MM.v  
 Reductions/MM_to_ILL.v  
@@ -562,7 +632,6 @@ Reductions/MMA2_to_MM2.v
 Reductions/MM_to_MMA2.v
 Reductions/MM_to_FRACTRAN.v
 Reductions/FRACTRAN_to_MMA2.v
-Reductions/FRACTRAN_to_H10C.v
 Reductions/L_to_mTM.v
 Reductions/mTM_to_TM.v
 Reductions/BPCP_to_FOLFS.v

@@ -4,8 +4,8 @@ Import ListNotations.
 Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.Facts.
 Require Import Undecidability.PCP.Util.PCP_facts.
-Require Import Undecidability.SR.SR.
-Require Import Undecidability.SR.Util.Definitions.
+Require Import Undecidability.StringRewriting.SR.
+Require Import Undecidability.StringRewriting.Util.Definitions.
 
 Require Import Undecidability.Problems.Reduction.
 
