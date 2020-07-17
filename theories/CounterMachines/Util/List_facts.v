@@ -74,3 +74,8 @@ Proof.
   move=> n IH m [|l /= ?]; first by lia.
   rewrite /nth_error -/(nth_error _ _) IH; [|congr Some]; by lia.
 Qed.
+
+Lemma nth_repeat {X: Type} {x: X} {n m: nat}: nth n (repeat x m) x = x.
+Proof.
+  elim: n m; [by case | by move=> n IH [|m /=]].
+Qed.
