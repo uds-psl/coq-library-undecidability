@@ -281,7 +281,7 @@ Theorem FSAT_RELn_ANY Σ n r : ar_rels Σ r = n -> FSAT (Σrel n) ⪯ᵢ FSAT Σ
 Proof.
   intros Hr.
   destruct (SATn_SAT_reduction _ _ Hr) as (f & Hf).
-  exists f; apply Hf.
+  exists f; red; apply Hf.
 Qed.
 
 Section FINITARY_TO_BINARY.
@@ -348,7 +348,7 @@ Section DISCRETE_TO_BINARY.
     intros A.
     destruct (Sig_discrete_to_pos HΣ1 HΣ2 A) as (n & m & i & j & B & HB).
     destruct (@FINITARY_TO_BINARY (Σpos _ i j)) as (f & Hf); simpl; auto.
-    exists (f B).
+    exists (f B). red in Hf.
     rewrite <- Hf; apply HB.
   Qed.
 

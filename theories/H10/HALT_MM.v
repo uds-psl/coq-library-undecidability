@@ -18,7 +18,7 @@ From Undecidability.ILL.Mm Require Import mm_defs.
 
 From Undecidability.ILL Require Import UNDEC.
 
-From Undecidability.SR Require Import Util.singleTM Reductions.TM_to_SRH Reductions.SRH_to_SR.
+From Undecidability.StringRewriting Require Import Util.singleTM Reductions.TM_to_SRH Reductions.SRH_to_SR.
 From Undecidability.PCP Require Import Reductions.SR_to_MPCP Reductions.MPCP_to_PCP.
 
 Set Implicit Arguments.

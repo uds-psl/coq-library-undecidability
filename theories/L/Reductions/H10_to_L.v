@@ -49,12 +49,12 @@ Fixpoint L_poly n : list (poly) :=
   
 Instance term_L_poly : computable L_poly. extract. Qed.
 
-Program Instance enum_poly :
-  enumT (poly) := {| L_T := L_poly |}.
-Next Obligation.
-  rename x into p. induction p.
+Instance enum_poly :
+  list_enumerator__T L_poly poly.
+Proof.
+  intros p. induction p.
   + destruct (el_T n) as [m].
-    exists (1 + m). cbn. in_app 2. eauto.
+    exists (1 + m). cbn. in_app 2. in_collect n. exact H.
   + destruct (el_T n) as [m].
     exists (1 + m). cbn. in_app 3. eauto.
   + destruct IHp1 as [m1]. destruct IHp2 as [m2].
@@ -149,10 +149,16 @@ Proof.
   extract.
 Qed.
 
-Definition T_list_nat := @T_list nat _.
+Definition T_list_nat := @L_list nat opt_to_list.
+
+Instance computable_cumul {X} `{registered X} : computable (@cumul X).
+Proof.
+  extract.
+Qed.
 
 Instance term_T_list : computable T_list_nat.
 Proof.
+  unfold T_list_nat, L_list.
   change (computable
     (fix T_list (n : nat) : list (list nat) :=
        match n with
@@ -169,12 +175,12 @@ Proof.
   instantiate (1 := fun '( (p1,p2), L) => eval p1 L = eval p2 L).
   2:{ intros []. firstorder. }
   eapply L_enumerable_enum.
-  exists (fix L n := match n with 0 => [] | S n => L n ++ filter test_eq (list_prod (list_prod (L_T poly n) (L_T poly n)) (L_T (list nat) n)) end)%list.
+  exists (fix L n := match n with 0 => [] | S n => L n ++ filter test_eq (list_prod (list_prod (L_poly n) (L_poly n)) (T_list_nat  n)) end)%list.
   repeat split.
-  - cbn. change (T_list enumT_nat) with (T_list_nat). extract.
+  - extract.
   - eauto.
   - destruct x as [[p1 p2] L]. intros.
-    destruct (el_T p1) as [m1], (el_T p2) as [m2], (el_T L) as [m3].
+    destruct (enum_poly p1) as [m1], (enum_poly p2) as [m2], (enumerator__T_list opt_to_list _ L) as [m3].
     exists (1 + m1 + m2 + m3). in_app 2.
     fold plus. eapply in_filter_iff. split.
     + rewrite !in_prod_iff. repeat split; eapply cum_ge'; try eassumption; eauto; omega.

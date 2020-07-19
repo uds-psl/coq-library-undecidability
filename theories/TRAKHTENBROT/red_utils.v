@@ -45,7 +45,7 @@ Qed.
 
 Theorem BPCP_BPCP_problem : BPCP ⪯ᵢ BPCP_problem.
 Proof.
-  exists (fun x => x); symmetry; apply BPCP_BPCP_problem_eq.
+  exists (fun x => x); red; symmetry; apply BPCP_BPCP_problem_eq.
 Qed.
 
 (** From a given (arbitrary) signature, 
@@ -73,7 +73,7 @@ Qed.
 Print Assumptions fo_form_fin_dec_SAT_discr_equiv. *)
 
 Corollary FIN_DEC_SAT_FIN_DISCR_DEC_SAT Σ : FSAT Σ ⪯ᵢ @fo_form_fin_discr_dec_SAT Σ.
-Proof. exists (fun A => A); apply fo_form_fin_dec_SAT_discr_equiv. Qed.
+Proof. exists (fun A => A); red; apply fo_form_fin_dec_SAT_discr_equiv. Qed.
 
 (* Check FIN_DEC_SAT_FIN_DISCR_DEC_SAT.
 Print Assumptions FIN_DEC_SAT_FIN_DISCR_DEC_SAT. *)

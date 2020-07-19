@@ -246,15 +246,14 @@ Fixpoint L_ded {b} {s : nd} (A : list (form b)) (n : nat) : list (form b) :=
   end.
 
 Opaque in_dec.
-Opaque enumT_nat.
+(* Opaque enumT_nat. *)
 
 Hint Constructors prv : core.
 
-Lemma enum_prv b s A : enum (@prv s b A) (L_ded A).
+Lemma enum_prv b s A : list_enumerator (L_ded A) (@prv s b A) .
 Proof with try (eapply cum_ge'; eauto; omega).
-  repeat split.
-  - eauto. 
-  - rename x into phi. induction 1; try congruence; subst.
+  intros phi; split.
+  - induction 1; try congruence; subst.
     + now exists 0.
     + destruct IHprv as [m1]; eauto. destruct (el_T phi1) as [m2].
       exists (1 + m1 + m2). cbn. in_app 2.
@@ -278,7 +277,7 @@ Proof with try (eapply cum_ge'; eauto; omega).
     + destruct IHprv as [m1], (el_T phi) as [m2], (el_T true) as [m3]; eauto.
       exists (1 + m1 + m2 + m3). cbn. in_app 9.
       in_collect phi...
-  - intros [m]. revert A x H; induction m; intros; cbn in *.
+  - intros [m]. revert A phi H; induction m; intros; cbn in *.
      + eauto.
      + inv_collect; eauto.
        destruct b, s; inv_collect; eauto.
@@ -286,13 +285,13 @@ Qed.
 
 Lemma enumerable_min_prv : enumerable (prv_min []).
 Proof.
-  eapply enum_count, enum_prv.
+  eapply list_enumerable_enumerable. eexists. eapply enum_prv.
 Qed.
 Lemma enumerable_intu_prv : enumerable (prv_intu []).
 Proof.
-  eapply enum_count, enum_prv.
+  eapply list_enumerable_enumerable. eexists. eapply enum_prv.
 Qed.
 Lemma enumerable_class_prv : enumerable (prv_class []).
 Proof.
-  eapply enum_count, enum_prv.
+  eapply list_enumerable_enumerable. eexists. eapply enum_prv.
 Qed.

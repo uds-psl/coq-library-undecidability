@@ -18,7 +18,7 @@ Section Tarski.
         i_P : forall P : Preds, Vector.t domain (pred_ar P) -> Prop ;
       }.
 
-    Definition env := fin -> domain.
+    Definition env := nat -> domain.
 
     Context {I : interp }.
     Fixpoint eval (rho : env) (t : term) : domain :=

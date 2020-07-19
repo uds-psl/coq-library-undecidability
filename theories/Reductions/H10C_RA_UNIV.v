@@ -13,7 +13,9 @@ From Undecidability.MuRec
   Require Import recalg ra_univ ra_univ_andrej.
 
 From Undecidability.Problems 
-  Require Import H10C RA_UNIV.
+  Require Import RA_UNIV.
+
+Require Import Undecidability.DiophantineConstraints.H10C.
 
 From Undecidability.ILL 
   Require Import Definitions.
@@ -38,7 +40,7 @@ Local Notation "'⟦' f '⟧'" := (@ra_rel _ f) (at level 0).
      * lc is an instance of the H10C problem, ie a list of 
        h10c constraints *)
 
-Definition H10C_RA_UNIV : H10C_PROBLEM -> RA_UNIV_PROBLEM.
+Definition H10C_RA_UNIV : list h10c -> RA_UNIV_PROBLEM.
 Proof.
   intros lc.
   destruct (nat_h10lc_surj lc) as (k & Hk).
@@ -59,7 +61,7 @@ Check H10C_SAT_RA_UNIV_HALT.
 (** We build a similar one based on Andrej Dudenhefner
     type of H10 constraints, ie 1+x+y*y = z *)
 
-Definition H10UC_RA_UNIV_AD : H10UC_PROBLEM -> RA_UNIV_PROBLEM.
+Definition H10UC_RA_UNIV_AD : list h10uc -> RA_UNIV_PROBLEM.
 Proof.
   intros lc.
   destruct (nat_h10luc_surj lc) as (k & Hk).

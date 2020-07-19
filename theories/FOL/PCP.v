@@ -1,6 +1,7 @@
 (** * Post Correspondence Problem *)
 
 From Undecidability Require Export Reductions PCP.PCP.
+From Undecidability.Shared Require Export ListAutomation.
 
 Lemma stack_discrete :
   discrete (stack bool).
@@ -11,8 +12,7 @@ Qed.
 Lemma stack_enum :
   enumerable__T (stack bool).
 Proof.
-  apply enumerable__T_list, enumerable__T_prod;
-  apply enumerable__T_list, count_bool.
+  unfold stack, card. eauto.
 Qed.
 
 Local Definition BSRS := list (card bool).
@@ -28,26 +28,24 @@ Fixpoint L_PCP n : list (BSRS * (string bool * string bool)) :=
   end.
 
 Lemma enum_PCP' :
-  enum (fun '(C, (u, v)) => @derivable bool C u v) L_PCP.
+  list_enumerator L_PCP (fun '(C, (u, v)) => @derivable bool C u v).
 Proof.
-  split.
-  - eauto.
-  - intros ( C & u & v ). split.
-    + induction 1.
-      * destruct (el_T C) as [m1], (el_T x) as [m2], (el_T y) as [m3].
-        exists (1 + m1 + m2 + m3). cbn. in_app 2.
-        in_collect (C, x, y); eapply cum_ge'; eauto; omega.
-      * destruct IHderivable as [m1], (el_T x) as [m2], (el_T y) as [m3]. 
-        exists (1 + m1 + m2 + m3). cbn. in_app 3.
-        in_collect ( (C, (u, v), x, y)); eapply cum_ge'; eauto; try omega.
-    + intros [m]. revert C u v H. induction m; intros.
-      * inv H.
-      * cbn in H. inv_collect; inv H; eauto using der_sing, der_cons.
+  intros ( C & u & v ). split.
+  + induction 1.
+    * destruct (el_T C) as [m1], (el_T x) as [m2], (el_T y) as [m3].
+      exists (1 + m1 + m2 + m3). cbn. in_app 2.
+      in_collect (C, x, y); eapply cum_ge'; eauto; lia.
+    * destruct IHderivable as [m1], (el_T x) as [m2], (el_T y) as [m3]. 
+      exists (1 + m1 + m2 + m3). cbn. in_app 3.
+      in_collect ( (C, (u, v), x, y)); eapply cum_ge'; eauto; try lia.
+  + intros [m]. revert C u v H. induction m; intros.
+    * inv H.
+    * cbn in H. inv_collect; inv H; eauto using der_sing, der_cons.
 Qed.
 
 Lemma enumerable_derivable : enumerable (fun '(C, (u, v)) => @derivable bool C u v).
 Proof.
-  eapply enum_count. intros; repeat decide equality. eapply enum_PCP'.
+  eapply list_enumerable_enumerable. eexists. eapply enum_PCP'.
 Qed.
 
 Lemma enumerable_PCP : enumerable dPCPb.
@@ -58,10 +56,11 @@ Proof.
     - eapply decidable_iff. econstructor. intros (? & ? & ?). exact _.
     - eapply enum_enumT. econstructor. exact _.
   }
-  unshelve epose proof (enumerable_conj _ H H0).
+  unshelve epose proof (enumerable_conj _ _ _ _ H H0).
   - eapply discrete_iff. econstructor. exact _.
   - eapply projection in H1 as [f]. exists f.
-    intros. rewrite <- H1. intuition.
+    unfold enumerator in *.
+    intros x. rewrite <- H1. intuition.
     + destruct H2 as [u]. exists (u,u). eauto.
     + destruct H2 as [[u v] [? ->]]. exists v. eauto.
 Qed.
