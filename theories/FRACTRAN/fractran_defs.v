@@ -11,7 +11,9 @@
 
 Require Import List Arith Omega.
 
-From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec Utils.utils_tac Utils.utils_list Utils.utils_nat gcd rel_iter.
+From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_tac utils_list utils_nat gcd rel_iter.
 
 Set Implicit Arguments.
 

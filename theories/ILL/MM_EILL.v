@@ -11,10 +11,14 @@ Require Import List Arith Omega.
 
 From Undecidability Require Import ILL.Definitions.
 
-From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec. 
-From Undecidability.ILL.Code Require Import subcode sss.
-From Undecidability.ILL.Mm Require Import mm_defs.
-From Undecidability.ILL.Ll Require Import eill eill_mm.
+From Undecidability.Shared.Libs.DLW 
+  Require Import Utils.utils
+                 Vec.pos Vec.vec
+                 Code.subcode Code.sss.
+
+From Undecidability.BinaryStackMachines  Require Import bsm_defs.
+From Undecidability.MinskyMachines       Require Import mm_defs. 
+From Undecidability.ILL.Ll               Require Import eill eill_mm.
 
 Local Notation "P '/MM/' s ->> t" := (sss_compute (@mm_sss _) P s t) (at level 70, no associativity).
 Local Notation "P '/MM/' s ~~> t" := (sss_output (@mm_sss _) P s t) (at level 70, no associativity).

@@ -9,9 +9,13 @@
 
 Require Import List Arith Max Omega Wellfounded Bool.
 
-From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec.
-From Undecidability.ILL.Code Require Import subcode sss.
-From Undecidability.ILL.Bsm Require Import list_bool tiles_solvable bsm_defs bsm_utils.
+From Undecidability.Shared.Libs.DLW 
+  Require Import Utils.utils Utils.list_bool 
+                 Vec.pos Vec.vec
+                 Code.subcode Code.sss.
+
+From Undecidability.BinaryStackMachines 
+  Require Import tiles_solvable bsm_defs bsm_utils.
 
 Set Implicit Arguments.
 

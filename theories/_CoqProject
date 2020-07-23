@@ -29,6 +29,8 @@ Shared/Libs/DLW/Utils/sorting.v
 Shared/Libs/DLW/Utils/utils_decidable.v
 Shared/Libs/DLW/Utils/interval.v
 
+Shared/Libs/DLW/Utils/list_bool.v       # used in iBPCP to BSM reduction
+
 Shared/Libs/DLW/Utils/sums.v
 Shared/Libs/DLW/Utils/binomial.v
 Shared/Libs/DLW/Utils/bool_list.v
@@ -58,6 +60,12 @@ Shared/Libs/DLW/Wf/measure_ind.v
 Shared/Libs/DLW/Wf/wf_chains.v
 Shared/Libs/DLW/Wf/wf_finite.v
 Shared/Libs/DLW/Wf/wf_incl.v
+
+Shared/Libs/DLW/Code/subcode.v
+Shared/Libs/DLW/Code/sss.v
+Shared/Libs/DLW/Code/compiler.v
+Shared/Libs/DLW/Code/compiler_correction.v
+
 
 Problems/Reduction.v
 
@@ -120,28 +128,32 @@ FOL/BPCP_CND.v
 FOL/Weakening.v
 FOL/Infinite.v
 
+
+BinaryStackMachines/bsm_defs.v
+BinaryStackMachines/bsm_utils.v
+BinaryStackMachines/bsm_pcp.v
+BinaryStackMachines/tiles_solvable.v
+
+MinskyMachines/mm_instr.v       # generic X-bounded MM (X=pos n or X=nat is type of registers) with CPP19 semantics 
+
+MinskyMachines/mm_defs.v        # (pos n)-bounded MM
+MinskyMachines/mm_utils.v       # utilities
+MinskyMachines/mm_comp.v        # the CPP19 compiler
+#MinskyMachines/mm_comp_old.v   # older compiler (not that modular)
+
+MinskyMachines/mma_defs.v       # (pos n)-bounded MM with alternate semantics
+MinskyMachines/mma_utils.v      # utilities
+MinskyMachines/fractran_mma.v   # FRACTRAN to MMA2 compiler
+
+MinskyMachines/mm_no_self.v     # Removal of self loops, ie i: DEC x i
+
+MinskyMachines/env.v            # environments for nat-bounded MM
+MinskyMachines/mm_env_utils.v   # nat-bounded MM utils for MuRec ~~> MM(nat) compiler
+
+
 ILL/Definitions.v
 
-ILL/Code/subcode.v
-ILL/Code/sss.v
-ILL/Code/compiler.v
-#ILL/Code/compiler_new.v
-
-ILL/Bsm/list_bool.v
-ILL/Bsm/tiles_solvable.v
-ILL/Bsm/bsm_defs.v
-ILL/Bsm/bsm_utils.v
-ILL/Bsm/bsm_pcp.v
-
-ILL/Code/compiler_correction.v
-
 ILL/iBPCP_BSM.v
-
-ILL/Mm/mm_defs.v
-ILL/Mm/mm_utils.v
-ILL/Mm/mm_comp.v
-#ILL/Mm/mm_no_self.v
-#ILL/Mm/mm_comp_old.v
 
 ILL/BSM_MM.v
 
@@ -154,12 +166,7 @@ ILL/MM_EILL.v
 
 ILL/UNDEC.v
 
-MM/mma_defs.v
-MM/mma_utils.v
-MM/fractran_mma.v
-MM/env.v
-MM/mm_instr.v
-MM/mm_env_utils.v
+
 
 MuRec/recalg.v
 MuRec/ra_utils.v
@@ -182,10 +189,10 @@ MuRec/recursor.v
 MuRec/ra_sem_eq.v
 MuRec/ra_ca.v
 
-H10/Fractran/mm_no_self.v
-H10/Fractran/prime_seq.v
-H10/Fractran/fractran_defs.v
-H10/Fractran/mm_fractran.v
+FRACTRAN/prime_seq.v
+FRACTRAN/fractran_defs.v
+FRACTRAN/mm_fractran.v
+
 H10/Fractran/fractran_dio.v
 
 H10/ArithLibs/Zp.v

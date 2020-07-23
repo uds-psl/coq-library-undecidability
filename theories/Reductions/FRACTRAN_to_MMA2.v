@@ -22,11 +22,10 @@ Require Import Undecidability.ILL.Definitions.
 Require Import Undecidability.Shared.Prelim.
 
 From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec.
-From Undecidability.ILL.Code Require Import sss.
-From Undecidability.H10 Require Import Fractran.fractran_defs MM_FRACTRAN.
-From Undecidability.MM Require Import mma_defs fractran_mma.
-
-
+From Undecidability.Shared.Libs.DLW.Code Require Import sss.
+From Undecidability.MinskyMachines Require Import mma_defs fractran_mma.
+From Undecidability.FRACTRAN Require Import fractran_defs.
+From Undecidability.H10 Require Import MM_FRACTRAN.
 
 Set Implicit Arguments.
 

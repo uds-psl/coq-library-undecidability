@@ -10,9 +10,9 @@
 (**************************************************************)
 
 From Undecidability Require Import ILL.Definitions.
-From Undecidability.ILL.Bsm Require Import bsm_defs.
-From Undecidability.ILL.Mm Require Import mm_defs.
-From Undecidability.ILL.Ll Require Import eill ill.
+From Undecidability.BinaryStackMachines  Require Import bsm_defs.
+From Undecidability.MinskyMachines       Require Import mm_defs.
+From Undecidability.ILL.Ll               Require Import eill ill.
 
 From Undecidability.ILL Require Import iBPCP_BSM BSM_MM MM_EILL EILL_ILL.
 

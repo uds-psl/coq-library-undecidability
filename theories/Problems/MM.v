@@ -1,4 +1,4 @@
-From Undecidability.ILL.Mm Require Export mm_defs mm_utils.
+From Undecidability.MinskyMachines Require Export mm_defs mm_utils.
 
 (* The halting problem for Minsky machines *)
 

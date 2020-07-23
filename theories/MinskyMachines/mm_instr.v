@@ -9,14 +9,11 @@
 
 Require Import List Arith Omega.
 
-From Undecidability.Shared.Libs.DLW.Utils
-  Require Import utils.
+From Undecidability.Shared.Libs.DLW
+  Require Import Utils.utils Code.subcode Code.sss.
 
-From Undecidability.MM 
+From Undecidability.MinskyMachines
   Require Import env. 
-
-From Undecidability.ILL.Code
-  Require Import sss subcode.
 
 Set Implicit Arguments.
 

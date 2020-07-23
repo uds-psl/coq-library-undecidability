@@ -9,10 +9,11 @@
 
 Require Import List Arith Omega.
 
+From Undecidability.Shared.Libs.DLW
+  Require Import Utils.utils Vec.pos Vec.vec Code.subcode Code.sss.
 
-From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec.
-From Undecidability.ILL.Code Require Import subcode sss.
-From Undecidability.MM Require Export mm_instr.
+From Undecidability.MinskyMachines
+  Require Export mm_instr.
 
 Set Implicit Arguments.
 

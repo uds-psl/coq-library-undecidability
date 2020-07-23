@@ -14,7 +14,7 @@ From Undecidability Require Import ILL.Definitions.
 
 From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
 From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac.
-From Undecidability.ILL.Mm Require Import mm_defs.
+From Undecidability.MinskyMachines Require Import mm_defs.
 
 From Undecidability.ILL Require Import UNDEC.
 

@@ -13,9 +13,10 @@ Require Import List Arith Omega.
 
 From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
 From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list sums.
-From Undecidability.ILL.Code Require Import sss.
-From Undecidability.ILL.Mm   Require Import mm_defs.
-From Undecidability.H10.Fractran Require Import fractran_defs fractran_dio mm_fractran prime_seq.
+From Undecidability.Shared.Libs.DLW.Code Require Import subcode sss.
+From Undecidability.MinskyMachines Require Import mm_defs.
+From Undecidability.FRACTRAN Require Import fractran_defs mm_fractran prime_seq.
+From Undecidability.H10.Fractran Require Import fractran_dio.
 From Undecidability.H10.Dio Require Import dio_logic dio_elem dio_single.
 From Undecidability.MuRec Require Import recalg ra_utils recomp ra_recomp ra_dio_poly ra_mm ra_simul.
 

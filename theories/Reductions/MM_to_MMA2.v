@@ -21,10 +21,9 @@
 Require Import Undecidability.ILL.Definitions.
 
 From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec.
-From Undecidability.ILL.Code Require Import sss.
-From Undecidability.ILL.Mm Require Import mm_defs.
-From Undecidability.MM Require Import mma_defs fractran_mma.
-From Undecidability.H10.Fractran Require Import fractran_defs prime_seq mm_fractran.
+From Undecidability.Shared.Libs.DLW.Code Require Import sss.
+From Undecidability.MinskyMachines Require Import mm_defs mma_defs fractran_mma.
+From Undecidability.FRACTRAN Require Import fractran_defs prime_seq mm_fractran.
 From Undecidability.Reductions Require Import MM_to_FRACTRAN FRACTRAN_to_MMA2.
 
 Set Implicit Arguments.

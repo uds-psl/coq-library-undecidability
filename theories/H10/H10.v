@@ -21,11 +21,14 @@ From Undecidability.Shared.Libs.DLW.Utils
 From Undecidability.Shared.Libs.DLW.Vec 
   Require Import pos vec.
 
-From Undecidability.ILL.Mm
+From Undecidability.MinskyMachines
   Require Import mm_defs.
 
+From Undecidability.FRACTRAN
+  Require Import fractran_defs.
+
 From Undecidability.H10 
-  Require Import FRACTRAN_DIO HALT_MM MM_FRACTRAN Fractran.fractran_defs.
+  Require Import FRACTRAN_DIO HALT_MM MM_FRACTRAN.
 
 From Undecidability.H10.Dio 
   Require Import dio_logic dio_elem dio_single.

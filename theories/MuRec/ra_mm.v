@@ -9,23 +9,14 @@
 
 Require Import List Arith Omega Max.
 
-From Undecidability.Shared.Libs.DLW.Utils
-  Require Import utils.
+From Undecidability.Shared.Libs.DLW
+  Require Import Utils.utils Vec.pos Vec.vec Code.subcode Code.sss.
 
-From Undecidability.Shared.Libs.DLW.Vec
-  Require Import pos vec.
-
-From Undecidability.MM 
-  Require Import env mm_instr. 
-
-From Undecidability.ILL.Code
-  Require Import sss subcode.
-
-From Undecidability.ILL.Mm
-  Require Import mm_defs.
+From Undecidability.MinskyMachines 
+  Require Import env mm_defs.
 
 From Undecidability.MuRec 
-  Require Import recalg ra_mm_env. 
+  Require Import recalg ra_mm_env.
 
 Set Implicit Arguments.
 

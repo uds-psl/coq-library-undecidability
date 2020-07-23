@@ -9,8 +9,8 @@
 
 Require Import List Arith Omega.
 
-From Undecidability.Shared.Libs.DLW Require Import Utils.utils.
-From Undecidability.ILL.Code Require Import subcode.
+From Undecidability.Shared.Libs.DLW 
+  Require Import Utils.utils Code.subcode.
 
 Set Implicit Arguments.
 

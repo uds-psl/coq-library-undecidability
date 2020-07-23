@@ -16,10 +16,10 @@ Require Import Undecidability.Shared.Libs.DLW.Utils.utils.
 From Undecidability.Shared.Libs.DLW.Vec
   Require Import pos vec.
 
-From Undecidability.ILL.Code
+From Undecidability.Shared.Libs.DLW.Code
   Require Import sss subcode.
 
-From Undecidability.ILL.Mm
+From Undecidability.MinskyMachines
   Require Import mm_defs.
 
 From Undecidability.MuRec 

@@ -15,11 +15,14 @@ Require Import List Arith Omega Permutation.
 
 Import ListNotations.
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils utils_tac utils_list utils_nat gcd rel_iter prime.
-From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
-From Undecidability.ILL.Code Require Import sss subcode.
-From Undecidability.ILL.Mm Require Import mm_defs.
-From Undecidability.H10.Fractran Require Import mm_no_self fractran_defs prime_seq.
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils utils_tac utils_list utils_nat gcd rel_iter prime.
+
+From Undecidability.Shared.Libs.DLW 
+  Require Import Vec.pos Vec.vec Code.subcode Code.sss.
+
+From Undecidability.MinskyMachines Require Import mm_defs mm_no_self.
+From Undecidability.FRACTRAN Require Import fractran_defs prime_seq.
 
 Set Implicit Arguments.
 

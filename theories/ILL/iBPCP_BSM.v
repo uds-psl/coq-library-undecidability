@@ -11,9 +11,13 @@ Require Import List Arith Omega.
 
 From Undecidability Require Import ILL.Definitions.
 
-From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec. 
-From Undecidability.ILL.Code Require Import subcode sss. 
-From Undecidability.ILL.Bsm Require Import tiles_solvable bsm_defs bsm_pcp.
+From Undecidability.Shared.Libs.DLW 
+  Require Import Utils.utils Utils.list_bool 
+                 Vec.pos Vec.vec
+                 Code.subcode Code.sss.
+
+From Undecidability.BinaryStackMachines 
+  Require Import tiles_solvable bsm_defs bsm_utils bsm_pcp.
 
 Require Import Undecidability.PCP.Util.PCP_facts.
 

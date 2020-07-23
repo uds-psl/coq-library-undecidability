@@ -9,10 +9,16 @@
 
 Require Import List Arith Omega.
 
-From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec.
-From Undecidability.ILL.Code Require Import subcode sss compiler_correction.
-From Undecidability.ILL.Bsm Require Import list_bool bsm_defs.
-From Undecidability.ILL.Mm Require Import mm_defs mm_utils.
+From Undecidability.Shared.Libs.DLW 
+  Require Import Utils.utils Utils.list_bool
+                 Vec.pos Vec.vec
+                 Code.subcode Code.sss Code.compiler_correction.
+
+From Undecidability.BinaryStackMachines
+  Require Import bsm_defs.
+
+From Undecidability.MinskyMachines
+  Require Import mm_defs mm_utils. 
 
 Set Implicit Arguments.
 

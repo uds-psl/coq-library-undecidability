@@ -15,10 +15,11 @@ Require Import List Arith Omega.
 
 From Undecidability Require Import ILL.Definitions.
 
-From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
-From Undecidability.ILL.Code Require Import sss subcode.
-From Undecidability.ILL.Mm   Require Import mm_defs.
-From Undecidability.H10.Fractran Require Import fractran_defs mm_fractran prime_seq.
+From Undecidability.Shared.Libs.DLW 
+  Require Import Vec.pos Vec.vec Code.subcode Code.sss.
+
+From Undecidability.MinskyMachines   Require Import mm_defs.
+From Undecidability.FRACTRAN         Require Import fractran_defs mm_fractran prime_seq.
 
 Set Implicit Arguments.
 

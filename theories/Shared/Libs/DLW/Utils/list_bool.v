@@ -17,7 +17,7 @@ Notation Zero := false.
 Notation One  := true.
 
 Fact list_bool_dec (l m : list bool) : { l = m } + { l <> m }.
-Proof.  apply list_eq_dec, bool_dec. Qed.
+Proof. apply list_eq_dec, bool_dec. Qed.
 
 (* {0,1}* = 0*1{0,1}* + 0* *)
 

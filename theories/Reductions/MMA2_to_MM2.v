@@ -10,10 +10,9 @@
 Require Import List Arith Relations Omega.
 
 From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec.
-From Undecidability.ILL.Code Require Import sss subcode.
-From Undecidability.ILL.Mm Require Import mm_defs.
-From Undecidability.H10.Fractran Require Import fractran_defs prime_seq mm_fractran.
-From Undecidability.MM Require Import mma_defs fractran_mma.
+From Undecidability.Shared.Libs.DLW.Code Require Import sss subcode.
+From Undecidability.MinskyMachines Require Import mm_defs mma_defs fractran_mma.
+From Undecidability.FRACTRAN Require Import fractran_defs prime_seq mm_fractran.
 From Undecidability.Problems Require Import MM2.
 
 (* Require Import utils pos vec subcode sss. *)

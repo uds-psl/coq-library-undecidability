@@ -1,4 +1,4 @@
-From Undecidability.ILL.Bsm Require Export bsm_defs bsm_utils.
+From Undecidability.BinaryStackMachines Require Export bsm_defs bsm_utils.
 
 (* The halting problem for binary stack machines *)
 
