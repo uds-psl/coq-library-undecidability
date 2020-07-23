@@ -13,8 +13,8 @@
 
        the DEC instruction jumps when not zero instead of when zero 
 
-    Compare mm_sss  (ILL/Mm/mm_defs.v)
-    and     mma_sss (MM/mma_defs.v)                   
+    Compare mm_sss  (MinskyMachines/mm_defs.v)
+    and     mma_sss (MinskyMachines/mma_defs.v)                   
 
     The reduction goes via regular FRACTRAN termination *)
 
