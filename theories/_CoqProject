@@ -92,6 +92,7 @@ PCP/Reductions/PCP_to_PCPb.v
 PCP/Reductions/PCPb_iff_iPCPb.v
 PCP/Reductions/SR_to_MPCP.v
 PCP/Reductions/MPCP_to_MPCPb.v
+PCP/Reductions/HALT_TM1_to_PCPb.v
 
 #String rewriting
 StringRewriting/SR.v
@@ -128,11 +129,15 @@ FOL/BPCP_CND.v
 FOL/Weakening.v
 FOL/Infinite.v
 
+BinaryStackMachines/BSM.v
+BinaryStackMachines/BSM_undec.v
 
-BinaryStackMachines/bsm_defs.v
-BinaryStackMachines/bsm_utils.v
-BinaryStackMachines/bsm_pcp.v
-BinaryStackMachines/tiles_solvable.v
+BinaryStackMachines/BSM/bsm_defs.v
+BinaryStackMachines/BSM/bsm_utils.v
+BinaryStackMachines/BSM/bsm_pcp.v
+BinaryStackMachines/BSM/tiles_solvable.v
+
+BinaryStackMachines/Reductions/iBPCP_BSM.v
 
 MinskyMachines/mm_instr.v       # generic X-bounded MM (X=pos n or X=nat is type of registers) with CPP19 semantics 
 
@@ -153,9 +158,11 @@ MinskyMachines/mm_env_utils.v   # nat-bounded MM utils for MuRec ~~> MM(nat) com
 
 ILL/Definitions.v
 
-ILL/iBPCP_BSM.v
+
 
 ILL/BSM_MM.v
+ILL/HALT_MM.v
+
 
 ILL/Ll/ill.v
 ILL/Ll/eill.v
@@ -214,7 +221,6 @@ H10/Dio/dio_cipher.v
 H10/Dio/dio_bounded.v
 H10/Dio/dio_rt_closure.v
 
-H10/HALT_MM.v
 H10/MM_FRACTRAN.v
 H10/FRACTRAN_DIO.v
 H10/H10.v
