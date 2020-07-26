@@ -9,14 +9,14 @@
 
 Require Import List Permutation Arith Omega.
 
-From Undecidability Require Import ILL.Definitions.
+(* From Undecidability Require Import ILL.Definitions. *)
 
 From Undecidability.Shared.Libs.DLW 
   Require Import Utils.utils
                  Vec.pos Vec.vec
                  Code.subcode Code.sss.
 
-From Undecidability.MinskyMachines
+From Undecidability.MinskyMachines.MM
   Require Import mm_defs mm_utils.
 
 From Undecidability.ILL.Ll

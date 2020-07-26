@@ -69,6 +69,36 @@ Section Properties.
 
 End Properties.
 
+Definition Problem_type := { X : Type & X -> Prop }.
+
+Definition problem X (P : X -> Prop) : Problem_type := existT _ X P.
+
+Notation "⎩ p ⎭" := (@problem _ p) (format "⎩ p ⎭").
+
+Section reduction_chain.
+
+  Inductive reduction_chain : forall X Y, (X -> Prop) -> (Y -> Prop) -> list Problem_type -> Prop :=
+    | reduction_chain_nil  : forall X p, @reduction_chain X X p p nil
+    | reduction_chain_cons : forall X Y Z p q r l, p ⪯ q -> @reduction_chain Y Z q r l -> @reduction_chain X Z p r (⎩q⎭::l).
+
+  Fact reduction_chain_reduces X Y p q l : @reduction_chain X Y p q l -> p ⪯ q.
+  Proof.
+    induction 1 as [ X p | X Y Z p q r l H1 _ ? ].
+    + apply reduces_reflexive.
+    + apply reduces_transitive with (1 := H1); trivial.
+  Qed.
+
+  Fact reduction_chain_app X Y Z p q r l m : 
+           @reduction_chain X Y p q l 
+        -> @reduction_chain Y Z q r m
+        ->  reduction_chain p r (l++m).
+  Proof.
+    induction 1 as [ X p | X Y K p q r' l H1 H2 IH2 ]; intros H3; auto.
+    constructor 2; auto.
+  Qed.
+
+End reduction_chain.
+
 Lemma dec_red X (p : X -> Prop) Y (q : Y -> Prop) :
   p ⪯ q -> decidable q -> decidable p.
 Proof.

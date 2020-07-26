@@ -7,9 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega.
-
-From Undecidability Require Import ILL.Definitions.
+Require Import Undecidability.Synthetic.Undecidability.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import Utils.utils Utils.list_bool
@@ -19,7 +17,7 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.BinaryStackMachines
   Require Import bsm_defs.
 
-From Undecidability.MinskyMachines
+From Undecidability.MinskyMachines.MM
   Require Import mm_defs mm_utils mm_comp. 
 
 Local Notation "P '/BSM/' s ↓" := (sss_terminates (@bsm_sss _) P s) (at level 70, no associativity).

@@ -7,8 +7,6 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Max Omega Wellfounded.
-
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils.
 

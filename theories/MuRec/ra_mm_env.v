@@ -15,7 +15,7 @@ From Undecidability.Shared.Libs.DLW
                  Code.subcode Code.sss.
 
 From Undecidability.MinskyMachines 
-  Require Import env mm_instr mm_env_utils. 
+  Require Import env mme_defs mme_utils. 
 
 From Undecidability.MuRec 
   Require Import recalg. 

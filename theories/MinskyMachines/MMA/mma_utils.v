@@ -14,8 +14,8 @@ From Undecidability.Shared.Libs.DLW
                  Vec.pos Vec.vec
                  Code.subcode Code.sss.
 
-From Undecidability.MinskyMachines
-  Require Import mma_defs. 
+From Undecidability.MinskyMachines.MMA
+  Require Import mma_defs.
 
 Set Implicit Arguments.
 

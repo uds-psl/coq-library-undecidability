@@ -16,7 +16,7 @@ From Undecidability.Shared.Libs.DLW
                  Vec.pos Vec.vec
                  Code.subcode Code.sss.
 
-From Undecidability.BinaryStackMachines 
+From Undecidability.BinaryStackMachines.BSM 
   Require Import tiles_solvable bsm_defs bsm_utils bsm_pcp.
 
 Require Import Undecidability.PCP.Util.PCP_facts.

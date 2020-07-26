@@ -1,2 +1,2 @@
-Require Export Undecidability.ILL.iBPCP_BSM.
+Require Export Undecidability.BinaryStackMachines.Reductions.iBPCP_BSM.
 

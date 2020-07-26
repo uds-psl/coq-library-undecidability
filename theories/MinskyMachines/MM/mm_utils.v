@@ -14,7 +14,7 @@ From Undecidability.Shared.Libs.DLW
                  Vec.pos Vec.vec
                  Code.subcode Code.sss.
 
-From Undecidability.MinskyMachines
+From Undecidability.MinskyMachines.MM
   Require Import mm_defs. 
 
 Set Implicit Arguments.

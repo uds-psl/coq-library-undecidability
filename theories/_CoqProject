@@ -92,6 +92,7 @@ PCP/Reductions/PCP_to_PCPb.v
 PCP/Reductions/PCPb_iff_iPCPb.v
 PCP/Reductions/SR_to_MPCP.v
 PCP/Reductions/MPCP_to_MPCPb.v
+PCP/Reductions/HALT_TM1_to_PCPb.v
 
 #String rewriting
 StringRewriting/SR.v
@@ -113,7 +114,6 @@ CFG/Reductions/PCP_to_CFPI.v
 CFG/Reductions/CFPP_to_CFP.v
 CFG/Reductions/CFPI_to_CFI.v
 
-
 FOL/DecidableEnumerable.v
 FOL/Reductions.v
 FOL/MarkovPost.v
@@ -128,45 +128,51 @@ FOL/BPCP_CND.v
 FOL/Weakening.v
 FOL/Infinite.v
 
+BinaryStackMachines/BSM.v
+BinaryStackMachines/BSM_undec.v
+BinaryStackMachines/Reductions/iBPCP_BSM.v
 
-BinaryStackMachines/bsm_defs.v
-BinaryStackMachines/bsm_utils.v
-BinaryStackMachines/bsm_pcp.v
-BinaryStackMachines/tiles_solvable.v
+BinaryStackMachines/BSM/bsm_defs.v
+BinaryStackMachines/BSM/bsm_utils.v
+BinaryStackMachines/BSM/bsm_pcp.v
+BinaryStackMachines/BSM/tiles_solvable.v
 
-MinskyMachines/mm_instr.v       # generic X-bounded MM (X=pos n or X=nat is type of registers) with CPP19 semantics 
+MinskyMachines/MM.v             # generic X-bounded MM (X=pos n or X=nat is type of registers) 
+                                # with CPP19 semantics (MM) and alternate semantics (MMA) 
+MinskyMachines/MM2.v            # self contained two counter MM with alternate semantics
+MinskyMachines/MM_undec.v       # undec for MM(n), CPP2019
+MinskyMachines/MMA2_undec.v     # undec for MMA(2)
 
-MinskyMachines/mm_defs.v        # (pos n)-bounded MM
-MinskyMachines/mm_utils.v       # utilities
-MinskyMachines/mm_comp.v        # the CPP19 compiler
-#MinskyMachines/mm_comp_old.v   # older compiler (not that modular)
+MinskyMachines/Reductions/BSM_MM.v
+MinskyMachines/Reductions/PCPb_to_MM.v
+MinskyMachines/Reductions/FRACTRAN_to_MMA2.v
+MinskyMachines/Reductions/MMA2_to_MM2.v
+MinskyMachines/Reductions/MM_to_MMA2.v
+MinskyMachines/Reductions/MUREC_MM.v
 
-MinskyMachines/mma_defs.v       # (pos n)-bounded MM with alternate semantics
-MinskyMachines/mma_utils.v      # utilities
-MinskyMachines/fractran_mma.v   # FRACTRAN to MMA2 compiler
+MinskyMachines/MM/mm_defs.v         # (pos n)-bounded MM
+MinskyMachines/MM/mm_utils.v        # utilities
+MinskyMachines/MM/mm_comp.v         # the CPP19 compiler
+#MinskyMachines/MM/mm_comp_old.v     # older compiler (not that modular)
+MinskyMachines/MM/mm_no_self.v      # Removal of self loops, ie i: DEC x i
 
-MinskyMachines/mm_no_self.v     # Removal of self loops, ie i: DEC x i
+MinskyMachines/MMA/mma_defs.v       # (pos n)-bounded MM with alternate semantics
+MinskyMachines/MMA/mma_utils.v      # utilities
+MinskyMachines/MMA/fractran_mma.v   # FRACTRAN to MMA2 compiler
 
-MinskyMachines/env.v            # environments for nat-bounded MM
-MinskyMachines/mm_env_utils.v   # nat-bounded MM utils for MuRec ~~> MM(nat) compiler
-
+MinskyMachines/MMenv/env.v          # environments for nat-bounded MM
+MinskyMachines/MMenv/mme_defs.v     # X-bounded MM definitions      
+MinskyMachines/MMenv/mme_utils.v    # nat-bounded MM utils for MuRec ~~> MM(nat) compiler
 
 ILL/Definitions.v
-
-ILL/iBPCP_BSM.v
-
-ILL/BSM_MM.v
+ILL/Reductions/MM_EILL.v
+ILL/Reductions/EILL_ILL.v
+ILL/UNDEC.v
+ILL/Prelim/Prelim.v
 
 ILL/Ll/ill.v
 ILL/Ll/eill.v
 ILL/Ll/eill_mm.v
-
-ILL/EILL_ILL.v
-ILL/MM_EILL.v
-
-ILL/UNDEC.v
-
-
 
 MuRec/recalg.v
 MuRec/ra_utils.v
@@ -189,9 +195,12 @@ MuRec/recursor.v
 MuRec/ra_sem_eq.v
 MuRec/ra_ca.v
 
-FRACTRAN/prime_seq.v
-FRACTRAN/fractran_defs.v
-FRACTRAN/mm_fractran.v
+FRACTRAN/FRACTRAN.v
+FRACTRAN/FRACTRAN_undec.v
+FRACTRAN/Reductions/MM_FRACTRAN.v
+FRACTRAN/Utils/prime_seq.v
+FRACTRAN/FRACTRAN/fractran_utils.v
+FRACTRAN/FRACTRAN/mm_fractran.v
 
 H10/Fractran/fractran_dio.v
 
@@ -204,7 +213,6 @@ H10/Matija/alpha.v
 H10/Matija/expo_diophantine.v
 H10/Matija/cipher.v
 
-
 H10/Dio/dio_logic.v
 H10/Dio/dio_elem.v
 H10/Dio/dio_single.v
@@ -214,8 +222,6 @@ H10/Dio/dio_cipher.v
 H10/Dio/dio_bounded.v
 H10/Dio/dio_rt_closure.v
 
-H10/HALT_MM.v
-H10/MM_FRACTRAN.v
 H10/FRACTRAN_DIO.v
 H10/H10.v
 H10/DPRM.v
@@ -630,15 +636,16 @@ Problems/FOLFS.v
 #Legacy Reductions
 Reductions/BPCP_to_BSM.v
 Reductions/BSM_to_MM.v  
+Reductions/PCPb_to_MM.v  
 Reductions/MM_to_ILL.v  
 Reductions/BPCP_to_FOL.v
 Reductions/DIO_MUREC.v
 Reductions/H10C_RA_UNIV.v
 Reductions/MUREC_MM.v
-Reductions/MMA2_to_MM2.v
-Reductions/MM_to_MMA2.v
 Reductions/MM_to_FRACTRAN.v
 Reductions/FRACTRAN_to_MMA2.v
+Reductions/MM_to_MMA2.v
+Reductions/MMA2_to_MM2.v
 Reductions/L_to_mTM.v
 Reductions/mTM_to_TM.v
 Reductions/BPCP_to_FOLFS.v
