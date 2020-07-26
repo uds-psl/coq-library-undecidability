@@ -13,44 +13,18 @@
 
 Require Import List Arith Omega.
 
-From Undecidability Require Import ILL.Definitions.
+(* From Undecidability Require Import ILL.Definitions. *)
 
 From Undecidability.Shared.Libs.DLW 
   Require Import Vec.pos Vec.vec Code.subcode Code.sss.
 
 From Undecidability.MinskyMachines   Require Import mm_defs.
-From Undecidability.FRACTRAN         Require Import fractran_defs mm_fractran prime_seq.
+From Undecidability.FRACTRAN
+  Require Import FRACTRAN FRACTRAN.fractran_utils mm_fractran prime_seq.
+
+Require Import Undecidability.Synthetic.Undecidability.
 
 Set Implicit Arguments.
-
-(** Given a FRACTRAN program and a starting state, does it terminate *)
-
-Definition FRACTRAN_PROBLEM := (list (nat*nat) * nat)%type.
-Definition FRACTRAN_REG_PROBLEM := 
-  { l : list (nat*nat) & { _ : nat | Forall (fun c => snd c <> 0) l } }.
-
-Definition FRACTRAN_HALTING (P : FRACTRAN_PROBLEM) : Prop.
-Proof.
-  destruct P as (l & x).
-  exact (l /F/ x ↓).
-Defined.
-
-Definition FRACTRAN_REG_HALTING (P : FRACTRAN_REG_PROBLEM) : Prop.
-Proof.
-  destruct P as (l & x & _).
-  exact (l /F/ x ↓).
-Defined.
-
-(** Given a FRACTRAN program and a starting vector [v1,...,vn],
-    does the program terminate starting from p1 * q1^v1 * ... qn^vn *)
-
-Definition FRACTRAN_ALT_PROBLEM := (list (nat*nat) * { n : nat & vec nat n })%type.
-
-Definition FRACTRAN_ALT_HALTING : FRACTRAN_ALT_PROBLEM -> Prop.
-Proof.
-  intros (l & n & v).
-  exact (l /F/ ps 1 * exp 1 v ↓).
-Defined.
 
 Section MM_HALTING_FRACTRAN_ALT_HALTING.
 
@@ -92,9 +66,6 @@ Proof.
   exact FRACTRAN_ALT_HALTING_HALTING.
 Qed.
 
-Check MM_FRACTRAN_HALTING.
-
-
 Section MM_HALTING_FRACTRAN_REG_HALTING.
 
   Let f : MM_PROBLEM -> FRACTRAN_REG_PROBLEM.
@@ -113,7 +84,6 @@ Section MM_HALTING_FRACTRAN_REG_HALTING.
 End MM_HALTING_FRACTRAN_REG_HALTING.
 
 Check MM_FRACTRAN_REG_HALTING.
-
 
 Section FRACTRAN_REG_FRACTRAN_HALTING.
 

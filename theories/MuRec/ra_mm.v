@@ -13,7 +13,7 @@ From Undecidability.Shared.Libs.DLW
   Require Import Utils.utils Vec.pos Vec.vec Code.subcode Code.sss.
 
 From Undecidability.MinskyMachines 
-  Require Import env mm_defs.
+  Require Import env mm_defs mme_defs mme_utils.
 
 From Undecidability.MuRec 
   Require Import recalg ra_mm_env.

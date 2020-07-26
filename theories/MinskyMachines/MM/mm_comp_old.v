@@ -17,7 +17,7 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.BinaryStackMachines
   Require Import bsm_defs.
 
-From Undecidability.MinskyMachines
+From Undecidability.MinskyMachines.MM
   Require Import mm_defs mm_utils. 
 
 Set Implicit Arguments.

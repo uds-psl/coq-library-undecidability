@@ -9,26 +9,22 @@
 
 (** ** Hilbert's tenth problem is undecidable *)
 
-From Undecidability.ILL 
-  Require Import Definitions UNDEC.
+From Undecidability.Synthetic Require Import Undecidability.
 
-From Undecidability.StringRewriting.Util 
-  Require Import singleTM.
+Require Import Undecidability.TM.Halting.
+From Undecidability.PCP Require Import PCP HALT_TM1_to_PCPb.
 
-From Undecidability.Shared.Libs.DLW.Utils 
-  Require Import utils_tac.
-
-From Undecidability.Shared.Libs.DLW.Vec 
-  Require Import pos vec.
+From Undecidability.Shared.Libs.DLW
+  Require Import utils_tac pos vec.
 
 From Undecidability.MinskyMachines
-  Require Import mm_defs.
+  Require Import MM PCPb_to_MM.
 
 From Undecidability.FRACTRAN
-  Require Import fractran_defs.
+  Require Import FRACTRAN FRACTRAN_undec MM_FRACTRAN.
 
 From Undecidability.H10 
-  Require Import FRACTRAN_DIO HALT_MM MM_FRACTRAN.
+  Require Import FRACTRAN_DIO.
 
 From Undecidability.H10.Dio 
   Require Import dio_logic dio_elem dio_single.
@@ -62,14 +58,10 @@ Proof.
     rewrite !dp_inst_par_eval; auto.
 Qed.
 
-Theorem Fractran_UNDEC : Halt ⪯ FRACTRAN_HALTING.
-Proof.
-  apply reduces_transitive with (1 := MM_HALTING_undec).
-  exact MM_FRACTRAN_HALTING.
-Qed.
+Check FRACTRAN_undec.
 
-Theorem Hilberts_Tenth : Halt ⪯ PCP
-                      /\ PCP ⪯ MM_HALTING
+Theorem Hilberts_Tenth : HaltTM 1 ⪯ PCPb
+                      /\ PCPb ⪯ MM_HALTING
                       /\ MM_HALTING ⪯ FRACTRAN_HALTING
                       /\ FRACTRAN_HALTING ⪯ DIO_LOGIC_SAT
                       /\ DIO_LOGIC_SAT ⪯ DIO_ELEM_SAT
@@ -77,8 +69,8 @@ Theorem Hilberts_Tenth : Halt ⪯ PCP
                       /\ DIO_SINGLE_SAT ⪯ H10.
 Proof.
   msplit 6.
-  + apply Halt_PCP.
-  + apply PCP_MM_HALTING.
+  + apply HALT_TM1_to_PCPb.
+  + apply PCPb_MM_HALTING.
   + apply MM_FRACTRAN_HALTING.
   + apply FRACTRAN_HALTING_DIO_LOGIC_SAT.
   + apply DIO_LOGIC_ELEM_SAT.
@@ -86,7 +78,7 @@ Proof.
   + apply DIO_SINGLE_SAT_H10.
 Qed.
 
-Theorem H10_undec : Halt ⪯ H10.
+Theorem H10_undec : HaltTM 1 ⪯ H10.
 Proof.
   repeat (eapply reduces_transitive; [ apply Hilberts_Tenth | ]).
   apply reduces_reflexive.

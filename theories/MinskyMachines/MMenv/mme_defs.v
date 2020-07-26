@@ -12,8 +12,8 @@ Require Import List Arith Omega.
 From Undecidability.Shared.Libs.DLW
   Require Import Utils.utils Code.subcode Code.sss.
 
-From Undecidability.MinskyMachines
-  Require Import env. 
+From Undecidability.MinskyMachines Require Export MM.
+From Undecidability.MinskyMachines.MMenv Require Import env. 
 
 Set Implicit Arguments.
 
@@ -26,14 +26,6 @@ Set Implicit Arguments.
                  or jump to k if x = 0
 
   *)
-
-Inductive mm_instr (X : Set) : Set :=
-  | mm_inc : X -> mm_instr X
-  | mm_dec : X -> nat -> mm_instr X
-  .
-
-Notation INC := mm_inc.
-Notation DEC := mm_dec.
 
 (** Semantics for MM based on environments *)
 

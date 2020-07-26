@@ -13,7 +13,7 @@ From Undecidability.Shared.Libs.DLW
   Require Import Utils.utils Vec.pos Vec.vec Code.subcode Code.sss.
 
 From Undecidability.MinskyMachines
-  Require Export mm_instr.
+  Require Export MM.
 
 Set Implicit Arguments.
 
@@ -22,39 +22,14 @@ Tactic Notation "rew" "length" := autorewrite with length_db.
 Local Notation "e #> x" := (vec_pos e x).
 Local Notation "e [ v / x ]" := (vec_change e x v).
 
-(** * Minsky Machines
-
-    A Minsky machine has n registers and there are just two instructions
- 
-    1/ INC x   : increment register x by 1
-    2/ DEC x k : decrement register x by 1 if x > 0
-                 or jump to k if x = 0
-
-  *)
-
-(* Inductive mm_instr n : Set :=
-  | mm_inc : pos n -> mm_instr n
-  | mm_dec : pos n -> nat -> mm_instr n
-  .
-
-Notation INC := mm_inc.
-Notation DEC := mm_dec. *)
-
-(** ** Semantics for MM *)
-
 Section Minsky_Machine.
 
   Variable (n : nat).
 
-  Definition mm_state := (nat*vec nat n)%type.
-
-  (* Minsky machine small step semantics *)
-
-  Inductive mm_sss : mm_instr (pos n) -> mm_state -> mm_state -> Prop :=
-    | in_mm_sss_inc   : forall i x v,                   INC x   // (i,v) -1> (1+i,v[(S (v#>x))/x])
-    | in_mm_sss_dec_0 : forall i x k v,   v#>x = O   -> DEC x k // (i,v) -1> (k,v)
-    | in_mm_sss_dec_1 : forall i x k v u, v#>x = S u -> DEC x k // (i,v) -1> (1+i,v[u/x])
-  where "i // s -1> t" := (mm_sss i s t).
+  Notation "i // s -1> t" := (@mm_sss n i s t).
+  Notation "P // s -[ k ]-> t" := (sss_steps (@mm_sss n) P k s t).
+  Notation "P // s -+> t" := (sss_progress (@mm_sss n) P s t).
+  Notation "P // s ->> t" := (sss_compute (@mm_sss n) P s t).
 
   Fact mm_sss_fun i s t1 t2 : i // s -1> t1 -> i // s -1> t2 -> t1 = t2.
   Proof.
@@ -90,17 +65,6 @@ Section Minsky_Machine.
     inversion H2; subst; auto.
   Qed.
 
-(*
-  Definition mm_step_stall := sss_step_stall mm_sss.
-  Definition mm_program := (nat*list (mm_instr n))%type.
-  Definition mm_steps := sss_steps mm_sss.
-  Definition mm_compute := sss_compute mm_sss.
-*)
-
-  Notation "P // s -[ k ]-> t" := (sss_steps mm_sss P k s t).
-  Notation "P // s -+> t" := (sss_progress mm_sss P s t).
-  Notation "P // s ->> t" := (sss_compute mm_sss P s t).
-  
   Fact mm_progress_INC P i x v st :
          (i,INC x::nil) <sc P
       -> P // (1+i,v[(S (v#>x))/x]) ->> st
@@ -209,9 +173,11 @@ Section Minsky_Machine.
   
 End Minsky_Machine.
 
+Local Notation "i // s -1> t" := (@mm_sss _ i s t).
 Local Notation "P // s -[ k ]-> t" := (sss_steps (@mm_sss _) P k s t).
 Local Notation "P // s -+> t" := (sss_progress (@mm_sss _) P s t).
 Local Notation "P // s ->> t" := (sss_compute (@mm_sss _) P s t).
+Local Notation "P // s ~~> t" := (sss_output (@mm_sss _) P s t).
 
 Tactic Notation "mm" "sss" "INC" "with" uconstr(a) := 
   match goal with
@@ -232,22 +198,6 @@ Tactic Notation "mm" "sss" "DEC" "S" "with" uconstr(a) uconstr(b) uconstr(c) :=
   end; auto.
     
 Tactic Notation "mm" "sss" "stop" := exists 0; apply sss_steps_0; auto.
-
-(* The Halting problem for MM, for linear logic encoding, we restrict
-   to a very specific halting problem. Starting from (1,v), does the
-   MM halt at state (0,vec_zero) *)
-
-Definition MM_PROBLEM := { n : nat & { P : list (mm_instr (pos n)) & vec nat n } }.
-
-Local Notation "i // s -1> t" := (@mm_sss _ i s t).
-Local Notation "P // s ~~> t" := (sss_output (@mm_sss _) P s t).
-Local Notation "P // s ↓" := (sss_terminates (@mm_sss _) P s). 
-
-Definition MM_HALTS_ON_ZERO (P : MM_PROBLEM) := 
-  match P with existT _ n (existT _ P v) => (1,P) // (1,v) ~~> (0,vec_zero) end.
-
-Definition MM_HALTING (P : MM_PROBLEM) :=
-  match P with existT _ n (existT _ P v) => (1, P) // (1, v) ↓ end.
 
 Section mm_special_ind.
 

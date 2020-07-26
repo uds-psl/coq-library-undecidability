@@ -11,26 +11,21 @@
 
 Require Import List Arith Omega.
 
-From Undecidability Require Import ILL.Definitions.
+From Undecidability.Synthetic Require Import Undecidability.
 
 From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac.
 From Undecidability.Shared.Libs.DLW.Vec   Require Import pos vec.
-From Undecidability.FRACTRAN              Require Import fractran_defs.
+From Undecidability.FRACTRAN              Require Import FRACTRAN MM_FRACTRAN.
 From Undecidability.H10.Fractran          Require Import fractran_dio.
 From Undecidability.H10.Dio Require Import dio_elem dio_single dio_logic.
-From Undecidability.H10 Require Import MM_FRACTRAN.
 
 Set Implicit Arguments.
 
 Fact reduction_dependent X Y (P : X -> Prop) (Q : Y -> Prop) :
         P ⪯ Q <-> inhabited (forall x, { y | P x <-> Q y }).
 Proof.
-  split.
-  + intros (f & Hf); exists.
-    intros x; exists (f x); auto.
-  + intros [f].
-    exists (fun x => proj1_sig (f x)).
-    intros x; apply (proj2_sig (f x)).
+  rewrite reduces_ireduces_iff.
+  split; intros [H]; exists; revert H; apply ireduces_dependent.
 Qed.
 
 (** A diophantine logic satisfiability question is given

@@ -1,4 +1,4 @@
-From Undecidability.H10 Require Export MM_FRACTRAN.
+From Undecidability.FRACTRAN Require Export FRACTRAN.
 
 (* The halting problem for regular FRACTRAN programs *)
 

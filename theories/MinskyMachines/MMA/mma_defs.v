@@ -12,8 +12,7 @@ Require Import List Arith Omega.
 From Undecidability.Shared.Libs.DLW
   Require Import Utils.utils Vec.pos Vec.vec Code.subcode Code.sss.
 
-From Undecidability.MinskyMachines
-  Require Export mm_defs.
+From Undecidability.MinskyMachines Require Export MM.
 
 Set Implicit Arguments.
 
@@ -22,31 +21,14 @@ Tactic Notation "rew" "length" := autorewrite with length_db.
 Local Notation "e #> x" := (vec_pos e x).
 Local Notation "e [ v / x ]" := (vec_change e x v).
 
-(** * Alternate Minsky Machines such that two counters are enough for undec
-
-    Minsky machine has n registers and there are just two instructions
- 
-    1/ INC x   : increment register x by 1
-    2/ DEC x k : if x > 0 then decrement register x by 1 and jump to k
-
-    If no jump occurs, then implicitly, the jump is to the next instruction
-
-    We show that they simulated FRACTRAN
-  *)
-
-(** ** Semantics for MMA based on vectors *)
-
 Section Minsky_Machine_alternate.
 
   Variable (n : nat).
 
-  (* Minsky machine small step semantics *)
-
-  Inductive mma_sss : mm_instr (pos n) -> mm_state _ -> mm_state _ -> Prop :=
-    | in_mma_sss_inc   : forall i x v,                   INC x   // (i,v) -1> (1+i,v[(S (v#>x))/x])
-    | in_mma_sss_dec_0 : forall i x k v,   v#>x = O   -> DEC x k // (i,v) -1> (1+i,v)
-    | in_mma_sss_dec_1 : forall i x k v u, v#>x = S u -> DEC x k // (i,v) -1> (k,v[u/x])
-  where "i // s -1> t" := (mma_sss i s t).
+  Notation "i // s -1> t" := (@mma_sss n i s t).
+  Notation "P // s -[ k ]-> t" := (sss_steps (@mma_sss n) P k s t).
+  Notation "P // s -+> t" := (sss_progress (@mma_sss n) P s t).
+  Notation "P // s ->> t" := (sss_compute (@mma_sss n) P s t).
 
   Fact mma_sss_fun i s t1 t2 : i // s -1> t1 -> i // s -1> t2 -> t1 = t2.
   Proof.
@@ -82,10 +64,6 @@ Section Minsky_Machine_alternate.
     inversion H2; subst; auto.
   Qed.
 
-  Notation "P // s -[ k ]-> t" := (sss_steps mma_sss P k s t).
-  Notation "P // s -+> t" := (sss_progress mma_sss P s t).
-  Notation "P // s ->> t" := (sss_compute mma_sss P s t).
-  
   Fact mma_sss_progress_INC P i x v st :
          (i,INC x::nil) <sc P
       -> P // (1+i,v[(S (v#>x))/x]) ->> st
@@ -194,8 +172,11 @@ Section Minsky_Machine_alternate.
 
 End Minsky_Machine_alternate.
 
+Local Notation "i // s -1> t" := (@mma_sss _ i s t).
+Local Notation "P // s -[ k ]-> t" := (sss_steps (@mma_sss _) P k s t).
 Local Notation "P // s -+> t" := (sss_progress (@mma_sss _) P s t).
 Local Notation "P // s ->> t" := (sss_compute (@mma_sss _) P s t).
+Local Notation "P // s ~~> t" := (sss_output (@mma_sss _) P s t).
 Local Notation "P // s ↓" := (sss_terminates (@mma_sss _) P s). 
 
 Tactic Notation "mma" "sss" "INC" "with" uconstr(a) := 
@@ -217,9 +198,6 @@ Tactic Notation "mma" "sss" "DEC" "S" "with" uconstr(a) uconstr(b) uconstr(c) :=
   end; auto.
     
 Tactic Notation "mma" "sss" "stop" := exists 0; apply sss_steps_0; auto.
-
-Definition MMA2_PROBLEM := (list (mm_instr (pos 2)) * vec nat 2)%type.
-Definition MMA2_HALTING (P : MMA2_PROBLEM) := (1,fst P) // (1,snd P) ↓.
 
 
 
