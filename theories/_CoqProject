@@ -226,9 +226,11 @@ H10/Dio/dio_bounded.v
 H10/Dio/dio_rt_closure.v
 
 H10/FRACTRAN_DIO.v
-H10/H10.v
 H10/DPRM.v
+H10/H10.v
 H10/H10Z.v
+H10/H10_undec.v
+H10/H10Z_undec.v
 
 # Basics
 TM/Prelim.v

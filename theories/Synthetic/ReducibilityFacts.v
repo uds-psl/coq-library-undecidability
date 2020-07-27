@@ -67,6 +67,13 @@ Section Properties.
       intros; apply (proj2_sig (f x)).
   Qed.
 
+  Fact reduces_dependent :
+        P ⪯ Q <-> inhabited (forall x, { y | P x <-> Q y }).
+  Proof.
+    rewrite reduces_ireduces_iff.
+    split; intros [H]; exists; revert H; apply ireduces_dependent.
+  Qed.
+
 End Properties.
 
 Definition Undec_Problem := { X : Type & X -> Prop }.

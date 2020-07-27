@@ -21,13 +21,6 @@ From Undecidability.H10.Dio Require Import dio_elem dio_single dio_logic.
 
 Set Implicit Arguments.
 
-Fact reduction_dependent X Y (P : X -> Prop) (Q : Y -> Prop) :
-        P ⪯ Q <-> inhabited (forall x, { y | P x <-> Q y }).
-Proof.
-  rewrite reduces_ireduces_iff.
-  split; intros [H]; exists; revert H; apply ireduces_dependent.
-Qed.
-
 (** A diophantine logic satisfiability question is given
     a diophantine logic formula f and a valuation for the
     parameters. Is the formula valid ? *)
@@ -40,7 +33,7 @@ Definition DIO_LOGIC_SAT (p : DIO_LOGIC_PROBLEM) :=
 
 Theorem FRACTRAN_HALTING_DIO_LOGIC_SAT : FRACTRAN_HALTING ⪯ DIO_LOGIC_SAT.
 Proof.
-  apply reduction_dependent; exists.
+  apply reduces_dependent; exists.
   intros (l & x).
   destruct FRACTRAN_HALTING_on_diophantine 
     with (ll := l) (x := fun _ : nat -> nat => x) as (f & Hf); simpl.
@@ -61,7 +54,7 @@ Definition DIO_ELEM_SAT (p : DIO_ELEM_PROBLEM) :=
 
 Theorem DIO_LOGIC_ELEM_SAT : DIO_LOGIC_SAT ⪯  DIO_ELEM_SAT.
 Proof.
-  apply reduction_dependent; exists.
+  apply reduces_dependent; exists.
   intros (A,v).
   destruct (dio_formula_elem A) as (l & _ & _ & Hl).
   exists (l,v); apply Hl.
@@ -75,7 +68,7 @@ Definition DIO_SINGLE_SAT (p : DIO_SINGLE_PROBLEM) :=
 
 Theorem DIO_ELEM_SINGLE_SAT : DIO_ELEM_SAT ⪯ DIO_SINGLE_SAT.
 Proof.
-  apply reduction_dependent; exists.
+  apply reduces_dependent; exists.
   intros (l,v).
   destruct (dio_elem_equation l) as (E & _ & HE).
   exists (E,v).
