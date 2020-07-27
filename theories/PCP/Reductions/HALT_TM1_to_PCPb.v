@@ -1,7 +1,9 @@
 (**************************************************************)
 (*   Copyright Dominique Larchey-Wendling [*]                 *)
+(*             Yannick Forster            [+]                 *)
 (*                                                            *)
 (*                             [*] Affiliation LORIA -- CNRS  *)
+(*                             [+] Affiliation Saarland Univ. *)
 (**************************************************************)
 (*      This file is distributed under the terms of the       *)
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
@@ -26,40 +28,56 @@ From Undecidability.PCP
 From Undecidability.PCP.Reductions
   Require Import SR_to_MPCP MPCP_to_PCP PCP_to_PCPb PCPb_iff_iPCPb.
 
-Notation "p '⪯c' q 'by' l" := (@reduction_chain _ _ p q l) (at level 70).
+(* Type hierachy is messed with SR.string, universe inconsistency *)
 
-(*
-Check singleTM.TM_conv.
-Check Halt_SRH.
-Check SRH_to_SR.reduction.
-Check SR_to_MPCP.reduction.
+Local Notation SRHp := (@undec_problem (list (list nat * list nat) * list nat * nat) SR.SRH).
+Local Notation SRp := (@undec_problem (list (list nat * list nat) * list nat * list nat) SR.SR).
 
-Check SR.SRH.
-
-Lemma HALT_TM1_chain_PCP : HaltTM 1 ⪯c PCP by [⎩singleTM.Halt⎭;
-                                              ⎩SR.SRH⎭;
-                                              ⎩SR.SR⎭;
+Lemma HALT_TM1_chain_PCP : ⎩HaltTM 1⎭ ⪯ₗ ⎩PCP⎭ by [⎩singleTM.Halt⎭;
+                                              SRHp;
+                                              SRp;
                                               ⎩MPCP⎭;
                                               ⎩PCP⎭].
-*)
+Proof.
+  red chain step singleTM.TM_conv.
+  red chain step Halt_SRH.
+  red chain step SRH_to_SR.reduction.
+  red chain step SR_to_MPCP.reduction.
+  red chain step MPCP_to_PCP.reduction.
+  red chain stop.
+Qed.
+
+Lemma PCP_chain_PCPb : ⎩PCP⎭ ⪯ₗ⎩PCPb⎭ by [⎩PCPb⎭].
+Proof.
+  red chain step PCP_to_PCPb.reduction.
+  red chain stop.
+Qed.
+
+Lemma PCPb_chain_iPCPb : ⎩PCPb⎭ ⪯ₗ⎩iPCPb⎭ by [⎩iPCPb⎭].
+Proof.
+  red chain step PCPb_iff_iPCPb.reductionLR.
+  red chain stop.
+Qed.
+
+Lemma PCP_chain_iPCPb : ⎩PCP⎭ ⪯ₗ⎩iPCPb⎭ by [⎩PCPb⎭;⎩iPCPb⎭].
+Proof.
+  apply reduction_chain_app with (1 := PCP_chain_PCPb).
+  apply PCPb_chain_iPCPb.
+Qed.
 
 Lemma HALT_TM1_to_PCP : HaltTM 1 ⪯ PCP.
 Proof.
-  eapply reduces_transitive. exact singleTM.TM_conv.
-  eapply reduces_transitive. exact Halt_SRH.
-  eapply reduces_transitive. exact SRH_to_SR.reduction.
-  eapply reduces_transitive. exact SR_to_MPCP.reduction.
-  exact MPCP_to_PCP.reduction.
+  apply reduction_chain_reduces with (1 := HALT_TM1_chain_PCP).
 Qed.
 
 Lemma HALT_TM1_to_PCPb : HaltTM 1 ⪯ PCPb.
 Proof.
   eapply reduces_transitive. exact HALT_TM1_to_PCP.
-  exact PCP_to_PCPb.reduction.
+  apply reduction_chain_reduces with (1 := PCP_chain_PCPb).
 Qed.
 
 Lemma HALT_TM1_to_iPCPb : HaltTM 1 ⪯ iPCPb.
 Proof.
-  eapply reduces_transitive. exact HALT_TM1_to_PCPb.
-  exact PCPb_iff_iPCPb.reductionLR.
+  eapply reduces_transitive. exact HALT_TM1_to_PCP.
+  apply reduction_chain_reduces with (1 := PCP_chain_iPCPb).
 Qed.

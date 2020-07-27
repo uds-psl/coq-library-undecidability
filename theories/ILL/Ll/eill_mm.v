@@ -9,8 +9,6 @@
 
 Require Import List Permutation Arith Omega.
 
-(* From Undecidability Require Import ILL.Definitions. *)
-
 From Undecidability.Shared.Libs.DLW 
   Require Import Utils.utils
                  Vec.pos Vec.vec
@@ -19,8 +17,8 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.MinskyMachines.MM
   Require Import mm_defs mm_utils.
 
-From Undecidability.ILL.Ll
-  Require Import ill eill.
+From Undecidability.ILL
+  Require Import ILL EILL ill eill.
 
 Set Implicit Arguments.
 

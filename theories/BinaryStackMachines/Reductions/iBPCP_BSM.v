@@ -9,19 +9,19 @@
 
 Require Import List Arith Omega.
 
-From Undecidability Require Import ILL.Definitions.
+Require Import Undecidability.Shared.Prelim.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import Utils.utils Utils.list_bool 
                  Vec.pos Vec.vec
                  Code.subcode Code.sss.
 
+Require Import Undecidability.Synthetic.Undecidability.
+
 From Undecidability.BinaryStackMachines.BSM 
   Require Import tiles_solvable bsm_defs bsm_utils bsm_pcp.
 
-Require Import Undecidability.PCP.Util.PCP_facts.
-
-Require Import Undecidability.Shared.Prelim.
+From Undecidability.PCP Require Import PCP PCP_facts.
 
 Fact tile_concat_itau ln lt : tile_concat ln lt = (itau1 lt (rev ln), itau2 lt (rev ln)).
 Proof.

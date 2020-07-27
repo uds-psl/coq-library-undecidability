@@ -9,7 +9,7 @@
 
 Require Import List.
 
-From Undecidability.ILL Require Import Definitions.
+From Undecidability.Synthetic Require Import Undecidability.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_nat.

@@ -164,11 +164,14 @@ MinskyMachines/MMenv/env.v          # environments for nat-bounded MM
 MinskyMachines/MMenv/mme_defs.v     # X-bounded MM definitions      
 MinskyMachines/MMenv/mme_utils.v    # nat-bounded MM utils for MuRec ~~> MM(nat) compiler
 
-ILL/Definitions.v
+ILL/EILL.v
+ILL/ILL.v
+ILL/ILL_undec.v
+
+ILL/Reductions/PCP_iBPCP.v
+ILL/Reductions/iBPCP_MM.v
 ILL/Reductions/MM_EILL.v
 ILL/Reductions/EILL_ILL.v
-ILL/UNDEC.v
-ILL/Prelim/Prelim.v
 
 ILL/Ll/ill.v
 ILL/Ll/eill.v
