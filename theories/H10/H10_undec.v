@@ -12,13 +12,15 @@
 Require Import List.
 Import ListNotations.
 
+From Undecidability.Shared.Libs.DLW
+  Require Import utils.
+
 From Undecidability.Synthetic Require Import Undecidability.
 
 Require Import Undecidability.TM.Halting.
-From Undecidability.PCP Require Import PCP HALT_TM1_to_PCPb.
 
-From Undecidability.Shared.Libs.DLW
-  Require Import utils pos vec.
+From Undecidability.PCP 
+  Require Import PCP HALT_TM1_to_PCPb.
 
 From Undecidability.MinskyMachines
   Require Import MM PCPb_to_MM.
@@ -49,6 +51,9 @@ Qed.
 
 Check FRACTRAN_undec.
 
+(** DLW: Below is a prefered identical statement with a nice notation
+    tactic proposed by M. Wuttke
+
 Theorem Hilberts_Tenth : HaltTM 1 ⪯ PCPb
                       /\ PCPb ⪯ MM_HALTING
                       /\ MM_HALTING ⪯ FRACTRAN_HALTING
@@ -56,6 +61,16 @@ Theorem Hilberts_Tenth : HaltTM 1 ⪯ PCPb
                       /\ DIO_LOGIC_SAT ⪯ DIO_ELEM_SAT
                       /\ DIO_ELEM_SAT ⪯ DIO_SINGLE_SAT
                       /\ DIO_SINGLE_SAT ⪯ H10.
+*)
+
+(* 
+  reduction chain as described in
+    Dominique Larchey-Wendling, Yannick Forster:
+    Hilbert's Tenth Problem in Coq. FSCD 2019: 27:1-27:20 
+*)
+
+Theorem Hilberts_Tenth : 
+  ⎩ HaltTM 1 ⪯ₘ PCPb ⪯ₘ MM_HALTING ⪯ₘ FRACTRAN_HALTING ⪯ₘ DIO_LOGIC_SAT ⪯ₘ DIO_ELEM_SAT ⪯ₘ DIO_SINGLE_SAT ⪯ₘ H10 ⎭.
 Proof.
   msplit 6.
   + apply HALT_TM1_to_PCPb.
@@ -65,35 +80,14 @@ Proof.
   + apply DIO_LOGIC_ELEM_SAT.
   + apply DIO_ELEM_SINGLE_SAT.
   + apply DIO_SINGLE_SAT_H10.
-Qed.
-
-(* 
-  reduction chain as described in
-    Dominique Larchey-Wendling, Yannick Forster:
-    Hilbert's Tenth Problem in Coq. FSCD 2019: 27:1-27:20 
-*)
-
-Theorem Hilberts_Tenth_alt : ⎩HaltTM 1⎭ ⪯ₗ⎩H10⎭ 
-   by [ ⎩PCPb⎭; ⎩MM_HALTING⎭; ⎩FRACTRAN_HALTING⎭; 
-        ⎩DIO_LOGIC_SAT⎭; ⎩DIO_ELEM_SAT⎭; ⎩DIO_SINGLE_SAT⎭; ⎩H10⎭ ]. 
-Proof.
-  red chain step HALT_TM1_to_PCPb.
-  red chain step PCPb_MM_HALTING.
-  red chain step MM_FRACTRAN_HALTING.
-  red chain step FRACTRAN_HALTING_DIO_LOGIC_SAT.
-  red chain step DIO_LOGIC_ELEM_SAT.
-  red chain step DIO_ELEM_SINGLE_SAT.
-  red chain step DIO_SINGLE_SAT_H10.
-  red chain stop.
-Qed.
+Qed. 
 
 Check Hilberts_Tenth.
 
 Theorem H10_undec : undecidable H10.
 Proof.
   apply (undecidability_from_reducibility undecidability_HaltTM).
-  repeat (eapply reduces_transitive; [ apply Hilberts_Tenth | ]).
-  apply reduces_reflexive.
+  reduce with chain Hilberts_Tenth.
 Qed.
 
 Check H10_undec.

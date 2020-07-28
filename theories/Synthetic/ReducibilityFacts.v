@@ -76,6 +76,30 @@ Section Properties.
 
 End Properties.
 
+(** DLW: Thx to M. Wuttke for the tip, see coq-club ML *)
+
+Ltac redchain2Prop_rec xs :=
+  lazymatch xs with
+  | pair ?x (pair ?y ?xs) =>
+    let z := redchain2Prop_rec (pair y xs) in
+    constr:(x ⪯ y /\ z)
+  | pair ?x ?y => constr:(x ⪯ y)
+  end.
+
+Ltac redchain2Prop xs :=
+  let z := redchain2Prop_rec xs 
+  in  exact z.
+
+Declare Scope reduction_chain.
+Delimit Scope reduction_chain with redchain_scope.
+Notation "x '⪯ₘ' y" := (pair x y) (at level 80, right associativity, only parsing) : reduction_chain.
+Notation "'⎩' xs '⎭'" := (ltac:(redchain2Prop (xs % redchain_scope))) (only parsing).
+
+Tactic Notation "reduce" "with" "chain" constr(H) :=
+  repeat (eapply reduces_transitive; [ apply H | ]); apply reduces_reflexive.
+
+
+(*
 Definition Undec_Problem := { X : Type & X -> Prop }.
 
 Definition undec_problem X (P : X -> Prop) : Undec_Problem := existT _ X P.
@@ -113,6 +137,7 @@ Notation "p '⪯ₗ' q 'by' l" := (reduction_chain p q l).
 Tactic Notation "red" "chain" "stop" := constructor 1.
 Tactic Notation "red" "chain" "step" constr(H) := constructor 2; [ apply H | ].
 Tactic Notation "red" "chain" "app" constr(H) := apply reduction_chain_app with (1 := H).
+*)
 
 Lemma dec_red X (p : X -> Prop) Y (q : Y -> Prop) :
   p ⪯ q -> decidable q -> decidable p.

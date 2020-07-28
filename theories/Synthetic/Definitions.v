@@ -29,3 +29,4 @@ Definition reduces {X Y} (P : X -> Prop) (Q : Y -> Prop) :=
 Definition inf_reduces {X Y} (P : X -> Prop) (Q : Y -> Prop) :=
   { f : X -> Y | reduction f P Q}.
 Notation "P ⪯ Q" := (reduces P Q) (at level 70).
+

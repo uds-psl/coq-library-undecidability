@@ -9,6 +9,9 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+From Undecidability.Shared.Libs.DLW
+  Require Import utils.
+
 Require Import Undecidability.Synthetic.Undecidability.
 
 From Undecidability.PCP                  Require Import PCP PCP_undec.
@@ -18,26 +21,20 @@ From Undecidability.MinskyMachines       Require Import MM.
 From Undecidability.ILL 
   Require Import EILL ILL PCP_iBPCP iBPCP_MM MM_EILL EILL_ILL.
 
-Theorem PCP_chain_EILL : ⎩PCP⎭ ⪯ₗ⎩EILL_PROVABILITY⎭ 
-   by ⎩PCPb⎭ :: ⎩iPCPb⎭ :: ⎩BSM_HALTING⎭ 
-   :: ⎩MM_HALTS_ON_ZERO⎭ :: ⎩EILL_PROVABILITY⎭ :: nil.
+Theorem PCP_chain_EILL : 
+  ⎩PCP ⪯ₘ PCPb ⪯ₘ iPCPb ⪯ₘ BSM_HALTING ⪯ₘ MM_HALTS_ON_ZERO ⪯ₘ EILL_PROVABILITY ⎭.
 Proof.
-  red chain app PCP_chain_iPCPb.
-  red chain app iBPCP_chain_MM.
-  red chain step MM_HALTS_ON_ZERO_EILL_PROVABILITY.
-  red chain stop.
+  msplit 4; ( apply PCP_chain_iPCPb || apply iBPCP_chain_MM || idtac).
+  apply MM_HALTS_ON_ZERO_EILL_PROVABILITY.
 Qed.
 
 (** The reduction chain from the CPP 2019 paper *)
 
-Theorem PCP_chain_ILL : ⎩PCP⎭ ⪯ₗ⎩ILL_PROVABILITY⎭ 
-   by ⎩PCPb⎭ :: ⎩iPCPb⎭ :: ⎩BSM_HALTING⎭ 
-   :: ⎩MM_HALTS_ON_ZERO⎭ :: ⎩EILL_PROVABILITY⎭ 
-   :: ⎩ILL_PROVABILITY⎭ :: nil.
+Theorem PCP_chain_ILL : 
+  ⎩PCP ⪯ₘ PCPb ⪯ₘ iPCPb ⪯ₘ BSM_HALTING ⪯ₘ MM_HALTS_ON_ZERO ⪯ₘ EILL_PROVABILITY ⪯ₘ ILL_PROVABILITY ⎭.
 Proof.
-  red chain app PCP_chain_EILL.
-  red chain step EILL_ILL_PROVABILITY.
-  red chain stop.
+  msplit 5; try apply PCP_chain_EILL.
+  apply EILL_ILL_PROVABILITY.
 Qed.
 
 Check PCP_chain_ILL.
@@ -47,13 +44,13 @@ Check PCP_chain_ILL.
 Theorem EILL_undec : undecidable EILL_PROVABILITY.
 Proof.
   apply (undecidability_from_reducibility PCP_undec).
-  apply reduction_chain_reduces with (1 := PCP_chain_EILL).
+  reduce with chain PCP_chain_EILL.
 Qed.
 
 Theorem ILL_undec : undecidable ILL_PROVABILITY.
 Proof.
   apply (undecidability_from_reducibility PCP_undec).
-  apply reduction_chain_reduces with (1 := PCP_chain_ILL).
+  reduce with chain PCP_chain_ILL.
 Qed.
 
 Check ILL_undec.
