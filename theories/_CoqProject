@@ -133,7 +133,7 @@ FOL/Infinite.v
 
 BinaryStackMachines/BSM.v
 BinaryStackMachines/BSM_undec.v
-BinaryStackMachines/Reductions/iBPCP_BSM.v
+BinaryStackMachines/Reductions/iPCPb_to_BSM_HALTING.v
 
 BinaryStackMachines/BSM/bsm_defs.v
 BinaryStackMachines/BSM/bsm_utils.v

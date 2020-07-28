@@ -18,7 +18,7 @@ Require Import Undecidability.TM.Halting.
 From Undecidability.PCP Require Import PCP HALT_TM1_to_PCPb.
 
 From Undecidability.Shared.Libs.DLW
-  Require Import pos vec.
+  Require Import utils pos vec.
 
 From Undecidability.MinskyMachines
   Require Import MM PCPb_to_MM.
@@ -49,8 +49,6 @@ Qed.
 
 Check FRACTRAN_undec.
 
-(*
-
 Theorem Hilberts_Tenth : HaltTM 1 ⪯ PCPb
                       /\ PCPb ⪯ MM_HALTING
                       /\ MM_HALTING ⪯ FRACTRAN_HALTING
@@ -69,15 +67,13 @@ Proof.
   + apply DIO_SINGLE_SAT_H10.
 Qed.
 
-*)
-
 (* 
   reduction chain as described in
     Dominique Larchey-Wendling, Yannick Forster:
     Hilbert's Tenth Problem in Coq. FSCD 2019: 27:1-27:20 
 *)
 
-Theorem Hilberts_Tenth : ⎩HaltTM 1⎭ ⪯ₗ⎩H10⎭ 
+Theorem Hilberts_Tenth_alt : ⎩HaltTM 1⎭ ⪯ₗ⎩H10⎭ 
    by [ ⎩PCPb⎭; ⎩MM_HALTING⎭; ⎩FRACTRAN_HALTING⎭; 
         ⎩DIO_LOGIC_SAT⎭; ⎩DIO_ELEM_SAT⎭; ⎩DIO_SINGLE_SAT⎭; ⎩H10⎭ ]. 
 Proof.
@@ -96,7 +92,8 @@ Check Hilberts_Tenth.
 Theorem H10_undec : undecidable H10.
 Proof.
   apply (undecidability_from_reducibility undecidability_HaltTM).
-  apply reduction_chain_reduces with (1 := Hilberts_Tenth).
+  repeat (eapply reduces_transitive; [ apply Hilberts_Tenth | ]).
+  apply reduces_reflexive.
 Qed.
 
 Check H10_undec.

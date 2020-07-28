@@ -7,12 +7,10 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Max Omega Wellfounded Bool.
+Require Import List Arith Lia Bool.
 
 From Undecidability.Shared.Libs.DLW 
-  Require Import Utils.utils Utils.list_bool 
-                 Vec.pos Vec.vec
-                 Code.subcode Code.sss.
+  Require Import utils list_bool pos vec subcode sss.
 
 From Undecidability.BinaryStackMachines.BSM
   Require Import tiles_solvable bsm_defs bsm_utils.
@@ -63,12 +61,12 @@ Section Simulator.
   Notation simulator := pcp_bsm.
 
   Fact simulator_length : length simulator = 27+lML.
-  Proof. unfold simulator; rew length; unfold lML; omega. Qed.
+  Proof. unfold simulator; rew length; unfold lML; lia. Qed.
 
   Fact pcp_bsm_size : length simulator = 86+3*length lt+size_cards lt.
   Proof.
     rewrite simulator_length; unfold lML.
-    rewrite main_loop_size; omega.
+    rewrite main_loop_size; lia.
   Qed.
   
   Let HS1 : (1,main_init s a h l 1) <sc (1, simulator).
@@ -106,52 +104,50 @@ Section Simulator.
            -> tiles_solvable lt /\ p = 0 /\ w = v[nil/s][nil/a][nil/h][nil/l].
   Proof.
     intros ((k2 & Hk2) & H1).
-
     destruct (main_init_spec Hsa Hsh Hsl Hah Hal 1 v) as (k1 & Hk1).
+
     apply subcode_sss_subcode_inv with (4 := Hk1) in Hk2; auto.
     2: apply bsm_sss_fun.
     2: revert H1; apply subcode_out_code; auto.
     destruct Hk2 as (k & ? & Hk2); subst.
-    
+
     apply subcode_sss_steps_inv with (1 := HS2) in Hk2; auto.
-    2: simpl; omega.
+    2: simpl; lia.
     2: revert H1; apply subcode_out_code; auto.
     destruct Hk2 as (k2 & k3 & (q,v') & H2 & H3 & H4 & H5).
     simpl fst in H5.
     apply ex_intro with (x := k2) in H2.
-    
+
     apply main_loop_complete in H2; rew vec.
-    2: unfold out_code, code_end, snd, fst, lML; rew length; omega.
+    2: unfold out_code, code_end, snd, fst, lML; rew length; lia.
     destruct H2 as (? & H2 & H6); subst.
     split; auto.
-
     destruct (main_init_spec Hsa Hsh Hsl Hah Hal (14+lML) v') as (k4 & Hk4).
+
     apply subcode_sss_subcode_inv with (4 := Hk4) in H3; auto.
     2: apply bsm_sss_fun.
     2: revert H1; apply subcode_out_code; auto.
     destruct H3 as (k5 & ? & H7); subst.
-    
     unfold simulator in H7.
+
     bsm inv POP 0 with H7 s 0 0 (@nil bool); rew vec.
-    destruct H7 as (k6 & H7 & H8).
-    
-    apply sss_steps_stall in H8.
-    2: simpl; omega.
-    apply proj2 in H8.
-    inversion H8.
-    split; auto.
-    apply vec_pos_ext; intros x.
-    dest x s; dest x l; dest x h; dest x a.
-    rewrite <- H2; rew vec.
-        
-    intros E.
-    apply f_equal with (f := fst) in E.
-    unfold fst in E.
-    subst p.
-    revert H1.
-    unfold out_code, code_start, code_end, fst, snd.
-    rewrite simulator_length.
-    intro; omega.
+    + destruct H7 as (k6 & H7 & H8).
+      apply sss_steps_stall in H8.
+      2: simpl; lia.
+      apply proj2 in H8.
+      inversion H8.
+      split; auto.
+      apply vec_pos_ext; intros x.
+      dest x s; dest x l; dest x h; dest x a.
+      rewrite <- H2; rew vec.
+    + intros E.
+      apply f_equal with (f := fst) in E.
+      unfold fst in E.
+      subst p.
+      revert H1.
+      unfold out_code, code_start, code_end, fst, snd.
+      rewrite simulator_length.
+      intro; lia.
   Qed.
   
 End Simulator.

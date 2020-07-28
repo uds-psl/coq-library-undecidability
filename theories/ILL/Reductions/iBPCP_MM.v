@@ -17,7 +17,7 @@ From Undecidability.PCP
   Require Import PCP.
 
 From Undecidability.BinaryStackMachines
-  Require Import BSM iBPCP_BSM.
+  Require Import BSM iPCPb_to_BSM_HALTING.
 
 From Undecidability.MinskyMachines
   Require Import MM BSM_MM.
@@ -25,7 +25,7 @@ From Undecidability.MinskyMachines
 Lemma iBPCP_chain_MM : ⎩iPCPb⎭ ⪯ₗ ⎩MM_HALTS_ON_ZERO⎭ by [⎩BSM_HALTING⎭;
                                                           ⎩MM_HALTS_ON_ZERO⎭].
 Proof.
-  red chain step iBPCP_BSM_HALTING.
+  red chain step iPCPb_to_BSM_HALTING.
   red chain step BSM_MM_HALTS_ON_ZERO.
   red chain stop.
 Qed.
