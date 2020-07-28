@@ -12,9 +12,6 @@
 From Undecidability.ILL 
   Require Import Definitions UNDEC.
 
-From Undecidability.StringRewriting.Util 
-  Require Import singleTM.
-
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac.
 
@@ -25,7 +22,7 @@ From Undecidability.ILL.Mm
   Require Import mm_defs.
 
 From Undecidability.H10 
-  Require Import FRACTRAN_DIO HALT_MM MM_FRACTRAN Fractran.fractran_defs.
+  Require Import FRACTRAN_DIO MM_FRACTRAN Fractran.fractran_defs.
 
 From Undecidability.H10.Dio 
   Require Import dio_logic dio_elem dio_single.
@@ -58,35 +55,3 @@ Proof.
   split; intros (phi & H1); exists phi; revert H1; cbn;
     rewrite !dp_inst_par_eval; auto.
 Qed.
-
-Theorem Fractran_UNDEC : Halt ⪯ FRACTRAN_HALTING.
-Proof.
-  apply reduces_transitive with (1 := MM_HALTING_undec).
-  exact MM_FRACTRAN_HALTING.
-Qed.
-
-Theorem Hilberts_Tenth : Halt ⪯ PCP
-                      /\ PCP ⪯ MM_HALTING
-                      /\ MM_HALTING ⪯ FRACTRAN_HALTING
-                      /\ FRACTRAN_HALTING ⪯ DIO_LOGIC_SAT
-                      /\ DIO_LOGIC_SAT ⪯ DIO_ELEM_SAT
-                      /\ DIO_ELEM_SAT ⪯ DIO_SINGLE_SAT
-                      /\ DIO_SINGLE_SAT ⪯ H10.
-Proof.
-  msplit 6.
-  + apply Halt_PCP.
-  + apply PCP_MM_HALTING.
-  + apply MM_FRACTRAN_HALTING.
-  + apply FRACTRAN_HALTING_DIO_LOGIC_SAT.
-  + apply DIO_LOGIC_ELEM_SAT.
-  + apply DIO_ELEM_SINGLE_SAT.
-  + apply DIO_SINGLE_SAT_H10.
-Qed.
-
-Theorem H10_undec : Halt ⪯ H10.
-Proof.
-  repeat (eapply reduces_transitive; [ apply Hilberts_Tenth | ]).
-  apply reduces_reflexive.
-Qed.
-
-Check H10_undec.
