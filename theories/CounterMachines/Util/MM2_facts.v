@@ -42,3 +42,10 @@ Qed.
 Lemma mm2_step_neq {P: list mm2_instr} {x y: mm2_config} : 
   mm2_step P x y -> x <> y.
 Proof. by move=> [[||j|j]] [_ +]; (case=> * []; lia). Qed.
+
+Lemma mm2_instr_at_unique {P: list mm2_instr} {i op op'} : mm2_instr_at op i P -> mm2_instr_at op' i P -> op = op'.
+Proof.
+  move=> [l] [r] [+ +] [l'] [r'] => -> <- [+ ?] => /(f_equal (skipn (length l))).
+  have Hll': length l = length l' by lia. 
+  by rewrite ?skipn_app ?[in RHS] Hll' ?Nat.sub_diag ?skipn_all => [[]].
+Qed.

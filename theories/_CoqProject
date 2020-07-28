@@ -84,6 +84,8 @@ PCP/Reductions/PCP_to_PCPb.v
 PCP/Reductions/PCPb_iff_iPCPb.v
 PCP/Reductions/SR_to_MPCP.v
 PCP/Reductions/MPCP_to_MPCPb.v
+PCP/Reductions/HaltTM_to_PCP.v
+PCP/Reductions/HaltTM_to_iPCPb.v
 
 #String rewriting
 StringRewriting/SR.v
@@ -93,6 +95,7 @@ StringRewriting/Util/Definitions.v
 StringRewriting/Util/singleTM.v
 StringRewriting/Reductions/SRH_to_SR.v
 StringRewriting/Reductions/TM_to_SRH.v
+StringRewriting/Reductions/HaltTM_to_SR.v
 
 #Context-free grammars
 CFG/CFP.v
@@ -207,12 +210,15 @@ H10/Dio/dio_cipher.v
 H10/Dio/dio_bounded.v
 H10/Dio/dio_rt_closure.v
 
-H10/HALT_MM.v
 H10/MM_FRACTRAN.v
 H10/FRACTRAN_DIO.v
 H10/H10.v
 H10/DPRM.v
 H10/H10Z.v
+
+H10/HaltTM_to_MM_HALTING.v
+H10/HaltTM_to_FRACTRAN_HALTING.v
+H10/HaltTM_to_H10.v
 
 # Basics
 TM/Prelim.v
@@ -535,15 +541,19 @@ TRAKHTENBROT/red_undec.v
 
 # TRAKHTENBROT/summary.v
 
-#One-counter Machines
+#Counter Machines
 CounterMachines/CM1.v
 CounterMachines/CM1_undec.v
+CounterMachines/CM2.v
+CounterMachines/CM2_undec.v
 
 CounterMachines/Util/Nat_facts.v
 CounterMachines/Util/List_facts.v
 CounterMachines/Util/CM1_facts.v
 CounterMachines/Util/MM2_facts.v
 CounterMachines/Reductions/MM2_HALTING_to_CM1c4_HALT.v
+CounterMachines/Reductions/MM2_HALTING_to_CM2_HALT.v
+CounterMachines/Reductions/HaltTM_to_CM1c4_HALT.v
 
 #Stack Machines
 StackMachines/SMN.v
@@ -563,6 +573,7 @@ StackMachines/Reductions/CM1_to_SMX.v
 StackMachines/Reductions/CM1c4_HALT_to_SMNdl_UB.v
 StackMachines/Reductions/SMN_transform.v
 StackMachines/Reductions/SMNdl_UB_to_CSSM_UB.v
+StackMachines/Reductions/HaltTM_to_CSSM_UB.v
 
 #Semi-unification
 SemiUnification/SemiU.v
@@ -572,6 +583,7 @@ SemiUnification/Util/Facts.v
 SemiUnification/Util/Enumerable.v
 SemiUnification/Reductions/CSSM_UB_to_SSemiU.v
 SemiUnification/Reductions/SSemiU_to_SemiU.v
+SemiUnification/Reductions/HaltTM_to_SemiU.v
 
 #Diophantine Constraints
 DiophantineConstraints/H10C.v
