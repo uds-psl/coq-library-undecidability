@@ -19,8 +19,8 @@ From Undecidability.Shared.Libs.DLW.Utils
 From Undecidability.Shared.Libs.DLW.Vec 
   Require Import pos vec.
 
-From Undecidability.H10.Fractran 
-  Require Import fractran_defs prime_seq.
+From Undecidability.FRACTRAN 
+  Require Import FRACTRAN fractran_utils prime_seq.
 
 From Undecidability.H10.Dio 
   Require Import dio_logic dio_bounded dio_rt_closure dio_single.

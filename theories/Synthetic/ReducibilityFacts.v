@@ -67,7 +67,52 @@ Section Properties.
       intros; apply (proj2_sig (f x)).
   Qed.
 
+  Fact reduces_dependent :
+        P ⪯ Q <-> inhabited (forall x, { y | P x <-> Q y }).
+  Proof.
+    rewrite reduces_ireduces_iff.
+    split; intros [H]; exists; revert H; apply ireduces_dependent.
+  Qed.
+
 End Properties.
+
+Definition Undec_Problem := { X : Type & X -> Prop }.
+
+Definition undec_problem X (P : X -> Prop) : Undec_Problem := existT _ X P.
+
+Notation "⎩ p ⎭" := (@undec_problem _ p) (format "⎩ p ⎭").
+
+Infix "⪯ₚ" := (fun p q : Undec_Problem => projT2 p ⪯ projT2 q : Prop) (at level 70).
+
+Reserved Notation "p '⪯ₗ' q 'by' l" (at level 70).
+
+Section reduction_chain.
+
+  Inductive reduction_chain : Undec_Problem -> Undec_Problem -> list Undec_Problem -> Prop :=
+    | reduction_chain_nil  : forall p, p ⪯ₗ p by nil
+    | reduction_chain_cons : forall p q r l, p ⪯ₚ q -> q ⪯ₗ r by l -> p ⪯ₗ r by q::l
+  where "p '⪯ₗ' q 'by' l" := (reduction_chain p q l).
+
+  Fact reduction_chain_reduces p q l : p ⪯ₗ q by l -> p ⪯ₚ q.
+  Proof.
+    induction 1 as [ p | p q r l H1 _ ? ].
+    + apply reduces_reflexive.
+    + apply reduces_transitive with (1 := H1); trivial.
+  Qed.
+
+  Fact reduction_chain_app p q r l m : p ⪯ₗ q by l -> q ⪯ₗ r by m -> p ⪯ₗ r by l++m.
+  Proof.
+    induction 1; intros; auto.
+    constructor 2; auto.
+  Qed.
+
+End reduction_chain.
+
+Notation "p '⪯ₗ' q 'by' l" := (reduction_chain p q l).
+
+Tactic Notation "red" "chain" "stop" := constructor 1.
+Tactic Notation "red" "chain" "step" constr(H) := constructor 2; [ apply H | ].
+Tactic Notation "red" "chain" "app" constr(H) := apply reduction_chain_app with (1 := H).
 
 Lemma dec_red X (p : X -> Prop) Y (q : Y -> Prop) :
   p ⪯ q -> decidable q -> decidable p.

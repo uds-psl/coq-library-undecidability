@@ -7,9 +7,9 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import Arith Omega Max.
-Require Import Undecidability.Shared.Prelim.
-From Undecidability Require Import ILL.Definitions.
+Require Import List Arith Omega Max.
+
+Require Import Undecidability.Synthetic.Undecidability.
 
 From Undecidability Require Import Shared.Libs.DLW.Utils.utils H10.Dio.dio_logic H10.Dio.dio_elem.
 From Undecidability Require Import H10.FRACTRAN_DIO Problems.FRACTRAN.
@@ -29,7 +29,7 @@ Section dc_list_h10c.
 
   Variable (ν : nat -> nat).
 
-  (* Giving a valuation for variables φ : nat -> nat, we define
+  (* Given a valuation for variables φ : nat -> nat, we define
      Ψ : nat -> nat such that
      - Ψ 0 = 1 (index zero represents constant 1)
      - Ψ (2n+2) = n (index 2n+2 represents constant n)
@@ -48,7 +48,7 @@ Section dc_list_h10c.
              x_i = c       ~~> x_2i+1 = x_2c+2
              x_i = x_j     ~~> x_2i+1 + x_2 = x_2j+1
              x_i = p       ~~> x_2i+1 = x_{2*(ν p)+2}
-             x_i = x_j%x_k ~~> x_2j+1 + x_2k=1 = x_2i+1  
+             x_i = x_j%x_k ~~> x_2j+1 % x_2k+1 = x_2i+1  
    *) 
 
   Let even n := 2*n+2.
@@ -212,8 +212,6 @@ Section DIO_ELEM_H10C_SAT.
 End DIO_ELEM_H10C_SAT.
 
 Check DIO_ELEM_H10C_SAT.
-
-
 Check FRACTRAN_HALTING_DIO_LOGIC_SAT.
 Check DIO_LOGIC_ELEM_SAT.
  

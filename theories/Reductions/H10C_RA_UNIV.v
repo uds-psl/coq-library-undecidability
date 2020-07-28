@@ -17,8 +17,7 @@ From Undecidability.Problems
 
 Require Import Undecidability.DiophantineConstraints.H10C.
 
-From Undecidability.ILL 
-  Require Import Definitions.
+Require Import Undecidability.Synthetic.Undecidability.
 
 Set Implicit Arguments.
 
