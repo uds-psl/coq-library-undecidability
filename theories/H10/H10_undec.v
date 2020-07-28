@@ -9,11 +9,8 @@
 
 (** ** Hilbert's tenth problem is undecidable *)
 
-Require Import List.
-Import ListNotations.
-
 From Undecidability.Shared.Libs.DLW
-  Require Import utils.
+  Require Import utils_tac.
 
 From Undecidability.Synthetic Require Import Undecidability.
 

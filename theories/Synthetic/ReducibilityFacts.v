@@ -95,10 +95,6 @@ Delimit Scope reduction_chain with redchain_scope.
 Notation "x '⪯ₘ' y" := (pair x y) (at level 80, right associativity, only parsing) : reduction_chain.
 Notation "'⎩' xs '⎭'" := (ltac:(redchain2Prop (xs % redchain_scope))) (only parsing).
 
-Tactic Notation "reduce" "with" "chain" constr(H) :=
-  repeat (eapply reduces_transitive; [ apply H | ]); apply reduces_reflexive.
-
-
 (*
 Definition Undec_Problem := { X : Type & X -> Prop }.
 
