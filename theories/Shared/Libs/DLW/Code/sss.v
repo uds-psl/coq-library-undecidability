@@ -7,14 +7,14 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega.
+Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import Utils.utils Code.subcode.
 
 Set Implicit Arguments.
 
-Reserved Notation "i '//' r '-1>' s" (at level 70, no associativity).
+Reserved Notation "ρ '//' r '-1>' s" (at level 70, no associativity).
 Reserved Notation "P '//' r ':1>' s" (at level 70, no associativity).
 Reserved Notation "P '//' r '-[' n ']->' s" (at level 70, no associativity, format "P  //  r  -[ n ]->  s").
 Reserved Notation "P '//' r '-+>' s" (at level 70, no associativity).
@@ -22,6 +22,22 @@ Reserved Notation "P '//' r '->>' s" (at level 70, no associativity).
 Reserved Notation "P '//' r '-]]' s" (at level 70, no associativity).
 Reserved Notation "P '//' r '~~>' s" (at level 70, no associativity).
 Reserved Notation "P '//' r ↓" (at level 70, no associativity).
+
+(** Intented meaning of notations
+
+  ρ // r -1> s :      execution of instruction ρ changes state r into state s
+  P // r :1> s :      execution of ONE instruction in P changes state r into state s            (one step)
+  P // r -[n]-> s :   execution of n instructions in P changes state r into state s             (n steps)
+  P // r -+> s :      execution of at least one instruction in P changes state r into state s   (progress)
+  P // r ->> s :      execution of some instructions in P changes state r into state s          (compute)
+  P // r -]] s :      maximal execution in P  (not really used, ~~> prefered below)
+  P // r ~~> s :      execution of some instructions in P until s is outside of P 
+                           (stronger than -]] below is semantics is not total)                  (output)
+  P // r ↓ :          termination on a state outside of P                                       
+                           NOT identical to termination for non-total semantics                 (terminates)
+
+  see ./compiler_correction.v for typical use of these notations
+*)
 
 Section Small_Step_Semantics.
 
@@ -77,7 +93,7 @@ Section Small_Step_Semantics.
     inversion H3.
     inversion H4.
     subst k2.
-    apply list_app_inj in H5; try omega.
+    apply list_app_inj in H5; try lia.
     destruct H5 as (? & H5); inversion H5.
     subst.
     revert H1 H2; apply sss_fun.
@@ -98,7 +114,7 @@ Section Small_Step_Semantics.
     intros H1 (k & l2 & jj & r2 & d1 & H3 & H4 & H5); subst P st.
     destruct H1 as (l1 & r1 & H1 & H2).
     simpl in H1, H2.
-    apply list_app_inj in H1; try omega.
+    apply list_app_inj in H1; try lia.
     destruct H1 as (? & H1); subst l2.
     inversion H1; subst jj r2; auto.
   Qed.
@@ -114,13 +130,13 @@ Section Small_Step_Semantics.
     apply list_app_cons_eq_inv in H1.
     destruct H1 as [ (m & G1 & G2) | (m & G1 & G2) ].
     2: apply f_equal with (f := @length _) in G1;
-       exfalso; revert G1; rew length; intro; omega.
+       exfalso; revert G1; rew length; intro; lia.
     apply list_app_cons_eq_inv in G2.
     destruct G2 as [ (p & G3 & G4) | (p & G3 & G4) ].
-    subst; exfalso; revert H2; rew length; intro; omega.
+    subst; exfalso; revert H2; rew length; intro; lia.
     subst.
     apply in_sss_step; auto.
-    revert H2; rew length; simpl; intro; omega.
+    revert H2; rew length; simpl; intro; lia.
   Qed.
   
   (* sss_step is decidable *)
@@ -130,28 +146,26 @@ Section Small_Step_Semantics.
     destruct st1 as (j,d).
     destruct P as (k,ll).
     destruct (le_lt_dec k j) as [ H1 | H1 ].
-    destruct (le_lt_dec (S j) (k+length ll)) as [ H2 | H2 ].
-    destruct (@list_pick _ ll (j-k)) as (i & l & r & ? & ?).
-    omega.
-    assert (j = k+length l) by omega; subst.
-    destruct (sss_dec i (k+length l,d) st2) as [ | C ].
-    left; apply in_sss_step; auto.
-    right; contradict C.
-    destruct C as (k1 & l1 & i1 & r1 & d1 & ? & ? & ?).
-    inversion H3; subst.
-    inversion H; subst.
-    apply list_app_inj in H8; try omega.
-    destruct H8 as (? & H8); inversion H8; subst; auto.
-    
-    right; intros (k1 & l1 & i1 & r1 & d1 & ? & ? & ?).
-    inversion H; subst.
-    inversion H0; subst.
-    rewrite app_length in H2; simpl in H2; omega.
-    
-    right; intros (k1 & l1 & i1 & r1 & d1 & ? & ? & ?).
-    inversion H; subst.
-    inversion H0; subst.
-    omega.
+    + destruct (le_lt_dec (S j) (k+length ll)) as [ H2 | H2 ].
+      * destruct (@list_pick _ ll (j-k)) as (i & l & r & ? & ?).
+        - lia.
+        - assert (j = k+length l) by lia; subst.
+          destruct (sss_dec i (k+length l,d) st2) as [ | C ].
+          ++ left; apply in_sss_step; auto.
+          ++ right; contradict C.
+             destruct C as (k1 & l1 & i1 & r1 & d1 & H3 & H4 & H5).
+             inversion H3; subst.
+             inversion H4; subst.
+             apply list_app_inj in H7 as (-> & H7); try lia.
+             inversion H7; subst; auto.
+      * right; intros (k1 & l1 & i1 & r1 & d1 & H3 & H4 & H5).
+        inversion H3; subst.
+        inversion H4; subst.
+        rewrite app_length in H2; simpl in H2; lia.
+    + right; intros (k1 & l1 & i1 & r1 & d1 & H3 & H4 & H5).
+      inversion H3; subst.
+      inversion H4; subst.
+      lia.
   Qed.
 
   (* This is a n steps computation *)
@@ -263,10 +277,10 @@ Section Small_Step_Semantics.
   Proof. intros (i & H1) (j & H2); exists (i+j); revert H1 H2; apply sss_steps_trans. Qed.
   
   Fact sss_progress_compute_trans P st1 st2 st3 : P // st1 -+> st2 -> P // st2 ->> st3 -> P // st1 -+> st3.
-  Proof. intros (i & ? & H1) (j & H2); exists (i+j); split; try omega; revert H1 H2; apply sss_steps_trans. Qed.
+  Proof. intros (i & ? & H1) (j & H2); exists (i+j); split; try lia; revert H1 H2; apply sss_steps_trans. Qed.
   
   Fact sss_compute_progress_trans P st1 st2 st3 : P // st1 ->> st2 -> P // st2 -+> st3 -> P // st1 -+> st3.
-  Proof. intros (i & H1) (j & ? & H2); exists (i+j); split; try omega; revert H1 H2; apply sss_steps_trans. Qed.
+  Proof. intros (i & H1) (j & ? & H2); exists (i+j); split; try lia; revert H1 H2; apply sss_steps_trans. Qed.
   
   Fact sss_progress_trans P st1 st2 st3 : P // st1 -+> st2 -> P // st2 -+> st3 -> P // st1 -+> st3.
   Proof. intro; apply sss_compute_progress_trans, sss_progress_compute; trivial. Qed.
@@ -278,7 +292,7 @@ Section Small_Step_Semantics.
     revert P st1 st2; intros (n,c) (i,d) st2 (q & l & ii & r & d1 & H1 & H2 & _).
     inversion H1; subst.
     inversion H2; subst.
-    simpl; rew length; omega.
+    simpl; rew length; lia.
   Qed.
 
   Fact sss_steps_compute P n st1 st2 : P // st1 -[n]-> st2 -> P // st1 ->> st2.
@@ -301,7 +315,7 @@ Section Small_Step_Semantics.
     inversion H3; subst.
     exists n2, (l++ll), i, (rr++r), d1; repeat split; auto.
     f_equal; solve list eq.
-    f_equal; rew length; omega.
+    f_equal; rew length; lia.
   Qed.
 
   Fact subcode_sss_steps P Q k st1 st2: P <sc Q -> P // st1 -[k]-> st2 -> Q // st1 -[k]-> st2.
@@ -368,17 +382,14 @@ Section Small_Step_Semantics.
     destruct H7 as [ (m & Hm1 & Hm2) | (m & Hm1 & Hm2) ].
     apply list_app_cons_eq_inv in Hm2.
     destruct Hm2 as [ (p & Hp1 & Hp2) | (p & Hp1 & Hp2) ].
-
-    apply f_equal with (f := @length _) in Hm1.
-    apply f_equal with (f := @length _) in Hp1.
-    revert Hm1 Hp1; rew length; intros; omega.
-
-    subst cP; apply in_sss_step; auto.
-    simpl; subst; rew length; omega.
-    
-    apply f_equal with (f := @length _) in Hm1.
-    apply f_equal with (f := @length _) in Hm2.
-    revert Hm1 Hm2; rew length; intros; omega.
+    + apply f_equal with (f := @length _) in Hm1.
+      apply f_equal with (f := @length _) in Hp1.
+      revert Hm1 Hp1; rew length; intros; lia.
+    + subst cP; apply in_sss_step; auto.
+      simpl; subst; rew length; lia.
+    + apply f_equal with (f := @length _) in Hm1.
+      apply f_equal with (f := @length _) in Hm2.
+      revert Hm1 Hm2; rew length; intros; lia.
   Qed.
 
   Definition sss_output P st st' := P // st ->> st' /\ out_code (fst st') P.
@@ -444,7 +455,7 @@ Section Small_Step_Semantics.
     intros H1 st' (k & l & ii & r & d1 & H2 & H3 & H4).
     inversion H2; inversion H3; subst.
     simpl in H1.
-    revert H1; rew length; intros []; omega.
+    revert H1; rew length; intros []; lia.
   Qed.
 
   Fact sss_stall_step_stall ii P st :
@@ -482,13 +493,13 @@ Section Small_Step_Semantics.
     destruct st as (j,d).
     simpl in H1.
     destruct (@list_pick _ cP (j-iP)) as (ii & l & r & H2 & H3).
-    omega.
+    lia.
     left; exists ii; simpl; split.
-    exists l, r; split; auto; omega.
+    exists l, r; split; auto; lia.
     intros st' H4.
     apply (H st'). 
     subst; apply in_sss_step; auto.
-    simpl; omega.
+    simpl; lia.
   Qed.
 
   Fact sss_steps_stall k P st st' : 
@@ -533,7 +544,7 @@ Section Small_Step_Semantics.
     destruct (IH5 H6 H3) as (k1 & k2 & st & ? & ? & ? & ?).
     exists (S k1), k2, st; repeat split; auto.
     constructor 2 with (1 := H4); auto.
-    omega.
+    lia.
     
     exists 1, k, st2; repeat split; auto.
     apply sss_steps_1; auto.
@@ -564,7 +575,7 @@ Section Small_Step_Semantics.
   Proof.
     revert P st1; intros (j,cj) (n,d) H1 H2.
     apply subcode_sss_step_inv with (1 := H1) in H2.
-    2: simpl; omega.
+    2: simpl; lia.
     destruct H2 as (q & l & ii & r & d1 & H2 & H3 & H4).
     inversion H3; subst n d1; auto.
     eq goal H4; f_equal.
@@ -591,12 +602,12 @@ Section Small_Step_Semantics.
     exists k; auto.
     apply sss_steps_inv in Hk.
     destruct Hk as [ (? & Hk) | (m & st4 & ? & Hk & H3) ].
-    1: subst st1; apply sss_step_in_code in H4; simpl in H4; omega.
+    1: subst st1; apply sss_step_in_code in H4; simpl in H4; lia.
     apply subcode_sss_step with (1 := H2) in H4.
     rewrite (sss_step_fun Hk H4) in H3.
     apply IH5 in H3; auto.
     destruct H3 as (q & ? & H3).
-    exists q; split; auto; omega.
+    exists q; split; auto; lia.
   Qed.
 
   Fact subcode_sss_terminates_inv P Q st st1 :
@@ -621,7 +632,7 @@ Section Small_Step_Semantics.
   Proof.
     intros H1 H2 (k & ? & H3) H4.
     apply subcode_sss_subcode_inv with (3 := H3) in H4; auto.
-    destruct H4 as (q & ? & ?); exists q; split; auto; omega.
+    destruct H4 as (q & ? & ?); exists q; split; auto; lia.
   Qed.
 
   Section sss_terminates_ind.
@@ -670,10 +681,12 @@ Section Small_Step_Semantics.
       destruct H5 as (l & Hl & H5).
       generalize (sss_steps_trans H5 H6); intro H7.
       generalize (sss_steps_stall_fun H2 H1 H7); intros H8.
-      apply IH with q; auto; omega.
+      apply IH with q; auto; lia.
     Qed.
 
-  End sss_compute_max_ind. 
+  End sss_compute_max_ind.
+
+  Hint Resolve subcode_refl : core. 
  
   Fact sss_compute_inv P st1 st2 st3 :
              out_code (fst st3) P
@@ -684,7 +697,6 @@ Section Small_Step_Semantics.
     intros H2 (p & H3) (k & H4).
     apply subcode_sss_subcode_inv with (3 := H3) in H4; auto.
     destruct H4 as (q & _ & ?); exists q; auto.
-    apply subcode_refl.
   Qed.
 
   Fact sss_compute_step_out_inv P k st1 st2 st3 :
@@ -698,11 +710,9 @@ Section Small_Step_Semantics.
     apply subcode_sss_subcode_inv with (3 := H3) in H4; auto.
     destruct H4 as (q & H4 & H5).
     exists q; split; auto.
-    destruct p.   
+    destruct p; try lia.
     apply sss_steps_0_inv in H3.
     destruct H1; auto.
-    omega.
-    apply subcode_refl.
   Qed.
   
   Fact subcode_sss_subcode_compute_inv P Q k st1 st2 st3 :
@@ -718,9 +728,9 @@ Section Small_Step_Semantics.
     apply subcode_sss_subcode_inv with (2 := H2) (3 := H3) in H4; auto.
     destruct H4 as (q & Hq & H4).
     exists q; split; auto.
-    destruct p; try omega.
+    destruct p; try lia.
     apply sss_steps_0_inv in H3; subst st2.
-    red in H, H0; omega.
+    red in H, H0; lia.
   Qed.
 
   Fact subcode_sss_steps_inv_1 P i k st1 st2 st3 :
@@ -782,7 +792,6 @@ Section Small_Step_Semantics.
     apply subcode_sss_subcode_compute_inv with (5 := H3) in H4; auto.
     destruct H4 as (q & _ & H4).
     apply sss_steps_stop in H4; auto.
-    apply subcode_refl.
     apply sss_compute_stop in H3; auto.
     apply sss_compute_stop in H4; auto.
     subst; auto.

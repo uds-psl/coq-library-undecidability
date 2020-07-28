@@ -9,10 +9,10 @@
 
 (* Trying an abstract compiler with labels instead of nats as source code addressing *)
 
-Require Import List Arith Omega.
+Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils Require Import utils.
-From Undecidability.Shared.Libs.DLW.Code Require Import sss compiler subcode.
+From Undecidability.Shared.Libs.DLW.Code Require Import subcode sss compiler.
 
 (** ** Semantic Correctness of Compiled Code *)
 
@@ -55,14 +55,14 @@ Section comp.
             (step_X : X -> (nat*state_X) -> (nat*state_X) -> Prop)
             (step_Y : Y -> (nat*state_Y) -> (nat*state_Y) -> Prop).
 
-  Notation "i '/X/' s -1> t" := (step_X i s t) (at level 70, no associativity).
+  Notation "ρ '/X/' s -1> t" := (step_X ρ s t) (at level 70, no associativity).
   Notation "P '/X/' s '-[' k ']->' t" := (sss_steps step_X P k s t) (at level 70, no associativity).
   Notation "P '/X/' s '-+>' t" := (sss_progress step_X P s t) (at level 70, no associativity).
   Notation "P '/X/' s ->> t" := (sss_compute step_X P s t) (at level 70, no associativity).
   Notation "P '/X/' s '~~>' t" := (sss_output step_X P s t) (at level 70, no associativity).
   Notation "P '/X/' s ↓" := (sss_terminates step_X P s)(at level 70, no associativity).
 
-  Notation "i '/Y/' s -1> t" := (step_Y i s t) (at level 70, no associativity).
+  Notation "ρ '/Y/' s -1> t" := (step_Y ρ s t) (at level 70, no associativity).
   Notation "P '/Y/' s '-[' k ']->' t" := (sss_steps step_Y P k s t) (at level 70, no associativity).
   Notation "P '/Y/' s '-+>' t" := (sss_progress step_Y P s t) (at level 70, no associativity).
   Notation "P '/Y/' s ->> t" := (sss_compute step_Y P s t) (at level 70, no associativity).
@@ -180,9 +180,9 @@ Section comp.
         destruct Hst as (w2 & (q & Hq1 & Hq2) & _).
         rewrite <- (Hilen linker i1) in H.
         destruct (icomp linker i1 I); try discriminate.
-        apply sss_steps_stall, proj1 in Hq2; simpl; omega. }
+        apply sss_steps_stall, proj1 in Hq2; simpl; lia. }
       assert (in_code (linker i1) (linker i1, icomp linker i1 I)) as G3.
-      { simpl; rewrite (Hilen linker i1 I); omega. }
+      { simpl; rewrite (Hilen linker i1 I); lia. }
       rewrite <- H2 in H5.
       destruct (step_X_tot I (i1,v1)) as ((i2,v2) & G4).
       destruct (Hicomp linker) with (1 := G4) (3 := H1) as (w2 & G5 & G6).
@@ -193,7 +193,7 @@ Section comp.
         apply subcode_sss_compute with (1 := HI).
         exists 1; apply sss_steps_1.
         exists i1, nil, I, nil, v1; repeat (split; auto).
-        f_equal; simpl; omega.
+        f_equal; simpl; lia.
     Qed.
 
     (* Termination in Q simulates termination in P *)
@@ -260,7 +260,7 @@ Section comp.
     unfold lnk.
     rewrite linker_out_err; unfold err; simpl; auto.
     * unfold cQ; rewrite compiler_length; auto.
-    * omega.
+    * lia.
   Qed.
 
   Theorem gen_compiler_sound i1 v1 i2 v2 w1 : 
