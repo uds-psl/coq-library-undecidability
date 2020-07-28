@@ -16,7 +16,7 @@ Set Implicit Arguments.
 
 Reserved Notation "i '//' r '-1>' s" (at level 70, no associativity).
 Reserved Notation "P '//' r ':1>' s" (at level 70, no associativity).
-Reserved Notation "P '//' r '-[' n ']->' s" (at level 70, no associativity).
+Reserved Notation "P '//' r '-[' n ']->' s" (at level 70, no associativity, format "P  //  r  -[ n ]->  s").
 Reserved Notation "P '//' r '-+>' s" (at level 70, no associativity).
 Reserved Notation "P '//' r '->>' s" (at level 70, no associativity).
 Reserved Notation "P '//' r '-]]' s" (at level 70, no associativity).

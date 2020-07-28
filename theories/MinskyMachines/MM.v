@@ -88,9 +88,12 @@ End MM_problems.
 
 Section MMA_problems.
 
+  Notation "P // s ~~> t" := (sss_output (@mma_sss _) P s t).
   Notation "P // s ↓" := (sss_terminates (@mma_sss _) P s). 
 
   Definition MMA2_PROBLEM := (list (mm_instr (pos 2)) * vec nat 2)%type.
+
+  Definition MMA2_HALTS_ON_ZERO (P : MMA2_PROBLEM) := (1,fst P) // (1,snd P) ~~> (0,vec_zero).
   Definition MMA2_HALTING (P : MMA2_PROBLEM) := (1,fst P) // (1,snd P) ↓.
 
 End MMA_problems.

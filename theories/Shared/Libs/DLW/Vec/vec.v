@@ -509,11 +509,12 @@ Arguments vec_plus {n}.
 Arguments vec_zero {n}.
 Arguments vec_one {n}.
 
-Reserved Notation " e '#>' x " (at level 58).
-Reserved Notation " e [ v / x ] " (at level 57, v at level 0, x at level 0, left associativity).
+Reserved Notation " e '#>' x " (at level 58, format "e #> x").
+Reserved Notation " e [ v / x ] " (at level 57, v at level 0, x at level 0, 
+                                   left associativity, format "e [ v / x ]").
 
-Local Notation " e '#>' x " := (vec_pos e x) (at level 58).
-Local Notation " e [ v / x ] " := (vec_change e x v) (at level 57, v at level 0, x at level 0, left associativity).
+Local Notation " e '#>' x " := (vec_pos e x).
+Local Notation " e [ v / x ] " := (vec_change e x v).
 
 Tactic Notation "rew" "vec" :=
   repeat lazymatch goal with 

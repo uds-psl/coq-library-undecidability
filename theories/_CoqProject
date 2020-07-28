@@ -138,15 +138,18 @@ BinaryStackMachines/BSM/bsm_pcp.v
 BinaryStackMachines/BSM/tiles_solvable.v
 
 MinskyMachines/MM.v             # generic X-bounded MM (X=pos n or X=nat is type of registers) 
-                                # with CPP19 semantics (MM) and alternate semantics (MMA) 
+                                # with CPP19 semantics (MM) and alternate semantics (MMA)
+MinskyMachines/MMA.v            # simply exports MM.v
 MinskyMachines/MM2.v            # self contained two counter MM with alternate semantics
 MinskyMachines/MM_undec.v       # undec for MM(n), CPP2019
 MinskyMachines/MMA2_undec.v     # undec for MMA(2)
+MinskyMachines/MM2_undec.v      # undec for MM2
 
 MinskyMachines/Reductions/BSM_MM.v
 MinskyMachines/Reductions/PCPb_to_MM.v
 MinskyMachines/Reductions/FRACTRAN_to_MMA2.v
 MinskyMachines/Reductions/MMA2_to_MM2.v
+MinskyMachines/Reductions/MMA2_to_MMA2_zero.v
 MinskyMachines/Reductions/MM_to_MMA2.v
 MinskyMachines/Reductions/MUREC_MM.v
 
@@ -158,11 +161,14 @@ MinskyMachines/MM/mm_no_self.v      # Removal of self loops, ie i: DEC x i
 
 MinskyMachines/MMA/mma_defs.v       # (pos n)-bounded MM with alternate semantics
 MinskyMachines/MMA/mma_utils.v      # utilities
+MinskyMachines/MMA/mma_simul.v      # simulation for HALTING HALTS_ON_ZERO reduction
 MinskyMachines/MMA/fractran_mma.v   # FRACTRAN to MMA2 compiler
 
 MinskyMachines/MMenv/env.v          # environments for nat-bounded MM
 MinskyMachines/MMenv/mme_defs.v     # X-bounded MM definitions      
 MinskyMachines/MMenv/mme_utils.v    # nat-bounded MM utils for MuRec ~~> MM(nat) compiler
+
+
 
 ILL/EILL.v
 ILL/ILL.v

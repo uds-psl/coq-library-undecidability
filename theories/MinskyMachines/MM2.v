@@ -76,8 +76,13 @@ Section self_contained_mm2.
 
   Notation "P // s ↓" := (mm2_terminates P s).
 
+  Definition MM2_PROBLEM := (list mm2_instr * nat * nat)%type.
+
+  Definition MM2_HALTING (P : MM2_PROBLEM) := 
+    match P with (P,a,b) => P // (1,(a,b)) ↓ end.
+
+  Definition MM2_HALTS_ON_ZERO (P : MM2_PROBLEM) := 
+    match P with (P,a,b) => P // (1,(a,b)) ↠ (0,(0,0)) end.
+
 End self_contained_mm2.
 
-Definition MM2_PROBLEM := (list mm2_instr * nat * nat)%type.
-Definition MM2_HALTING (P : MM2_PROBLEM) := 
-  match P with (P,a,b) => mm2_terminates P (1,(a,b)) end.

@@ -39,9 +39,28 @@ Section Minsky_Machine_alt_utils.
 
   Hint Resolve subcode_refl : core.
 
+  Section mma_jump.
+
+    Variable (j : nat) (x : pos n).
+
+    Definition mma_jump := INC x :: DEC x j :: nil.
+
+    Fact mma_jump_length : length mma_jump = 2.
+    Proof. auto. Qed.
+    
+    Fact mma_jump_progress i v : (i,mma_jump) // (i,v) -+> (j,v).
+    Proof.
+      unfold mma_jump.
+      mma sss INC with x.
+      mma sss DEC S with x j (v#>x); rew vec.
+      mma sss stop.
+    Qed.
+
+  End mma_jump.
+
   Section mma_null.
 
-    (* Empty oone register/counter *)
+    (* Empty one register/counter *)
 
     Variable (dst : pos n).
 

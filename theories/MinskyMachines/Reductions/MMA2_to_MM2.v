@@ -7,12 +7,12 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Relations Omega.
+Require Import List Arith Relations Lia.
 
-From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec.
-From Undecidability.Shared.Libs.DLW.Code Require Import sss subcode.
-From Undecidability.MinskyMachines Require Import MM2 mm_defs mma_defs fractran_mma.
-From Undecidability.FRACTRAN Require Import FRACTRAN fractran_utils prime_seq mm_fractran.
+Require Import Undecidability.Synthetic.Undecidability.
+
+From Undecidability.Shared.Libs.DLW Require Import utils pos vec sss subcode.
+From Undecidability.MinskyMachines Require Import MM2 mma_defs.
 
 Set Implicit Arguments.
 
@@ -26,6 +26,7 @@ Section MMA2_to_MM2.
   Notation "i '/A/' r '⇢' s" := (@mma_sss 2 i r s) (at level 70, no associativity).
   Notation "P '/A/' r '→' s" := (sss_step (@mma_sss 2) P r s) (at level 70, no associativity).
   Notation "P '/A/' r '↠' s" := (sss_compute (@mma_sss 2) P r s) (at level 70, no associativity).
+  Notation "P '/A/' r '~~>' s" := (sss_output (@mma_sss 2) P r s) (at level 70, no associativity).
   Notation "P '/A/' s ↓" := (sss_terminates (@mma_sss 2) P s) (at level 70, no associativity).
 
   Notation "i '/2/' r '⇢' s" := (mm2_atom i r s) (at level 70, no associativity).
@@ -180,6 +181,10 @@ Section MMA2_to_MM2.
       apply map_ext, mm2_mma_mm2_instr.
   Qed.
 
+  Local Fact mma_mm2_terminates_zero_equiv P s : (1,P) /A/ s ↠ (0,vec_zero) 
+                                         <-> map mma_mm2_instr P /2/ mma_mm2_state s ↠ (0,(0,0)).
+  Proof. apply mma_mm2_compute_equiv. Qed.
+
   Fact mma_mm2_terminates P s : (1,P) /A/ s ↓ -> map mma_mm2_instr P /2/ mma_mm2_state s ↓.
   Proof.
     intros (y & H1 & H2).
@@ -211,7 +216,7 @@ Section MMA2_to_MM2.
       rewrite mma_mm2_mma_instr in Hw.
       exists rho; split; auto; simpl.
       destruct H4 as (l & r & H4 & H5).
-      exists (map mma_mm2_instr l), (map mma_mm2_instr r); split; rew length; try omega.
+      exists (map mma_mm2_instr l), (map mma_mm2_instr r); split; rew length; try lia.
       apply f_equal with (f := map mma_mm2_instr) in H4.
       rewrite map_map, map_app in H4; simpl in H4.
       rewrite mma_mm2_mma_instr in H4.
@@ -231,9 +236,14 @@ Section MMA2_to_MM2.
       apply map_ext, mm2_mma_mm2_instr.
   Qed.
 
-End MMA2_to_MM2.
+  Theorem mma_mma2_zero_reduction P s : (1,P) /A/ s ~~> (0,vec_zero) <-> map mma_mm2_instr P /2/ mma_mm2_state s ↠ (0,(0,0)).
+  Proof.
+    rewrite <- mma_mm2_terminates_zero_equiv; split.
+    + intros []; auto.
+    + intros H; split; auto; simpl; lia.
+  Qed.
 
-Require Import Undecidability.Synthetic.Undecidability.
+End MMA2_to_MM2.
 
 Section MMA2_MM2.
 
@@ -243,14 +253,22 @@ Section MMA2_MM2.
     exact (map mma_mm2_instr P, vec_pos v pos0, vec_pos v pos1).
   Defined.
 
-  Theorem MM_MMA2_HALTING : MMA2_HALTING ⪯ MM2_HALTING.
+  Theorem MMA2_MM2_HALTING : MMA2_HALTING ⪯ MM2_HALTING.
   Proof.
     exists f. 
     intros (P & v); simpl; unfold MMA2_HALTING.
     apply mma_mma2_reduction.
   Qed.
 
+  Theorem MMA2_MM2_HALTS_ON_ZERO : MMA2_HALTS_ON_ZERO ⪯ MM2_HALTS_ON_ZERO.
+  Proof.
+    exists f. 
+    intros (P & v); simpl; unfold MMA2_HALTS_ON_ZERO.
+    apply mma_mma2_zero_reduction.
+  Qed.
+
 End MMA2_MM2.
+
 
 
 
