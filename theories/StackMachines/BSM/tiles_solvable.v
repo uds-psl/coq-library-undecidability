@@ -7,10 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Max Omega Wellfounded Bool.
-
-From Undecidability.Shared.Libs.DLW 
-  Require Import Utils.utils Utils.list_bool.
+Require Import List.
 
 Set Implicit Arguments.
 

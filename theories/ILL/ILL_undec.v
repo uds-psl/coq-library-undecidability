@@ -14,9 +14,9 @@ From Undecidability.Shared.Libs.DLW
 
 Require Import Undecidability.Synthetic.Undecidability.
 
-From Undecidability.PCP                  Require Import PCP PCP_undec.
-From Undecidability.BinaryStackMachines  Require Import BSM.
-From Undecidability.MinskyMachines       Require Import MM.
+From Undecidability.PCP              Require Import PCP PCP_undec.
+From Undecidability.StackMachines    Require Import BSM.
+From Undecidability.MinskyMachines   Require Import MM.
 
 From Undecidability.ILL 
   Require Import EILL ILL PCP_iBPCP iBPCP_MM MM_EILL EILL_ILL.

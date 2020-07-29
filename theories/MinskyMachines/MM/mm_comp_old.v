@@ -7,14 +7,14 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega.
+Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import Utils.utils Utils.list_bool
                  Vec.pos Vec.vec
                  Code.subcode Code.sss Code.compiler.
 
-From Undecidability.BinaryStackMachines
+From Undecidability.StackMachines
   Require Import bsm_defs.
 
 From Undecidability.MinskyMachines.MM
@@ -78,7 +78,7 @@ Section compiler.
   Proof. destruct ii as [ | ? [] ]; simpl; auto. Qed.
     
   Fact bsm_instr_compile_length_geq ii : 1 <= bsm_instr_compile_length ii.
-  Proof. destruct ii as [ | ? [] ]; simpl; auto; omega. Qed.
+  Proof. destruct ii as [ | ? [] ]; simpl; auto; lia. Qed.
   
   Let err := length_compiler bsm_instr_compile_length (snd P)+1.
   
@@ -113,7 +113,7 @@ Section compiler.
   Proof. 
     apply linker_out_code.
     apply bsm_instr_compile_length_eq.
-    unfold err; omega.
+    unfold err; lia.
   Qed.
   
   Fact bsm_linker_out_err i : out_code i P -> lnk i = err.
@@ -122,7 +122,7 @@ Section compiler.
     destruct (eq_nat_dec i (code_end P)) as [ E | D ].
     rewrite E; intros _; apply linker_code_end.
     intros; apply linker_err_code.
-    simpl in D, H; omega.
+    simpl in D, H; lia.
   Qed.
 
   Notation Hc := bsm_coherence.
@@ -406,7 +406,7 @@ Section compiler.
     { revert H4; apply subcode_out_code; auto. }
     assert (in_code (lnk i1) (lnk i1, comp i1 ii)) as G3.
     { simpl; generalize (bsm_instr_compile_length_geq ii);
-      rewrite bsm_instr_compile_length_eq; omega. }
+      rewrite bsm_instr_compile_length_eq; lia. }
     rewrite <- H2 in H5.
     destruct H1 as (F1 & F2 & F4).
     destruct ii as [ x j k | x [] ]; 
@@ -583,7 +583,7 @@ Section compiler.
   Proof.
     unfold err, bsm_simulator; subcode_tac; solve list eq.
     rewrite bsm_compiler_length.
-    unfold snd; omega.
+    unfold snd; lia.
   Qed.
   
   Theorem bsm_simulator_correct v : (exists q w, P /BSM/ (fst P,v) ->> (q,w) /\ out_code q P) 

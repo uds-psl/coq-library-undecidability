@@ -1,2 +1,2 @@
-Require Export Undecidability.BinaryStackMachines.Reductions.iPCPb_to_BSM_HALTING.
+Require Export Undecidability.StackMachines.Reductions.iPCPb_to_BSM_HALTING.
 

@@ -12,8 +12,8 @@ Require Import Undecidability.Synthetic.Undecidability.
 From Undecidability.PCP
   Require Import PCP PCP_undec.
 
-From Undecidability.BinaryStackMachines 
-  Require Import BSM Reductions.iPCPb_to_BSM_HALTING.
+From Undecidability.StackMachines 
+  Require Import BSM iPCPb_to_BSM_HALTING.
 
 Theorem BSM_undec : undecidable (BSM_HALTING).
 Proof.

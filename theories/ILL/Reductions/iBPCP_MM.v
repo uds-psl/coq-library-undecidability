@@ -19,7 +19,7 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.PCP
   Require Import PCP.
 
-From Undecidability.BinaryStackMachines
+From Undecidability.StackMachines
   Require Import BSM iPCPb_to_BSM_HALTING.
 
 From Undecidability.MinskyMachines
