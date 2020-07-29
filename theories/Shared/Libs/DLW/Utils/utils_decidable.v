@@ -7,9 +7,10 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Max Omega Wellfounded Bool.
+Require Import List Arith Max Lia Wellfounded Bool.
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import list_focus utils_tac utils_list utils_nat.
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import list_focus utils_tac utils_list utils_nat.
 
 Set Implicit Arguments.
 
@@ -53,10 +54,10 @@ Section bounded_choose_d.
     intros H.
     destruct list_choose_d with (P := P) (Q := Q) (l := list_an 0 n)
       as [ (x & H1 & H2) | H1 ].
-    + intro; rewrite list_an_spec; intro; apply H; omega.
+    + intro; rewrite list_an_spec; intro; apply H; lia.
     + left; exists x; split; auto.
-      apply list_an_spec in H1; omega.
-    + right; intros x Hx; apply H1, list_an_spec; omega.
+      apply list_an_spec in H1; lia.
+    + right; intros x Hx; apply H1, list_an_spec; lia.
   Qed. 
 
 End bounded_choose_d.
@@ -70,15 +71,15 @@ Section bounded_min.
                            \/ forall x, x < n -> Q x.
   Proof.
     induction n as [ | n IHn ]; intros Hn.
-    + right; intros; omega.
+    + right; intros; lia.
     + destruct IHn as [ (x & H1 & H2 & H3) | H1 ].
-      * intros; apply Hn; omega.
-      * left; exists x; msplit 2; auto; omega.
+      * intros; apply Hn; lia.
+      * left; exists x; msplit 2; auto; lia.
       * destruct (Hn n); auto.
         - left; exists n; msplit 2; auto.
         - right; intros x Hx.
           destruct (eq_nat_dec x n); subst; auto.
-          apply H1; omega.
+          apply H1; lia.
   Qed.
 
 End bounded_min.
@@ -126,8 +127,8 @@ Section sinc_decidable.
 
   Let f_ge_n n : n <= f n.
   Proof.
-    induction n as [ | n IHn ]; try omega.
-    apply le_trans with (2 := Hf _); omega.
+    induction n as [ | n IHn ]; try lia.
+    apply le_trans with (2 := Hf _); lia.
   Qed.
 
   Let unbounded n : exists k, n <= k /\ P k.
@@ -160,12 +161,12 @@ Section decidable_sinc.
   Proof.
     destruct min_dec with (P := fun k => P k /\ n <= k)
       as (k & (H1 & H2) & H3).
-    + intros i; destruct (Pdec i); destruct (le_lt_dec n i); try tauto; right; intro; omega.
+    + intros i; destruct (Pdec i); destruct (le_lt_dec n i); try tauto; right; intro; lia.
     + destruct (Punb (S n)) as (k & H1 & H2).
-      exists k; split; auto; omega.
+      exists k; split; auto; lia.
     + exists k; repeat (split; auto).
       intros x Hx.
-      destruct (le_lt_dec n x); try omega.
+      destruct (le_lt_dec n x); try lia.
       right; apply H3; auto.
   Qed.
 
@@ -185,14 +186,14 @@ Section decidable_sinc.
     induction x as [ | x IHx ].
     + destruct (eq_nat_dec 0 (f 0)) as [ H | H ].
       * left; exists 0; rewrite H at 2 3; split; auto.
-      * right; omega.
+      * right; lia.
     + destruct IHx as [ (n & Hn) | Hx ].
       * destruct (eq_nat_dec (S x) (f (S n))) as [ H | H ].
         - left; exists (S n); rewrite H; split; auto.
-        - left; exists n; omega.
+        - left; exists n; lia.
       * destruct (eq_nat_dec (S x) (f 0)) as [ H | H ].
         - left; exists 0; rewrite H; split; auto.
-        - right; omega.
+        - right; lia.
   Qed.
  
   Let f_P n : P n <-> exists k, n = f k.
@@ -203,11 +204,11 @@ Section decidable_sinc.
       * simpl in Hk.
         destruct (next (S (f k))) as (m & H1 & H2 & H3); simpl in Hk.
         apply H3 in Hn.
-        destruct Hn as [ Hn | Hn ]; try omega.
-        exists k; omega.
+        destruct Hn as [ Hn | Hn ]; try lia.
+        exists k; lia.
       * simpl in C.
         destruct (next 0) as (m & H1 & H2 & H3); simpl in C.
-        apply H3 in Hn; omega.
+        apply H3 in Hn; lia.
     + intros (k & Hk); subst.
       induction k as [ | k IHk ]; simpl.
       * destruct (next 0) as (m & H1 & H2 & H3); simpl; auto.

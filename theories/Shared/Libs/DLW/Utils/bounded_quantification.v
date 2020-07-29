@@ -9,7 +9,7 @@
 
 (** ** Reification for bounded quantification *)
 
-Require Import Arith Omega.
+Require Import Arith Lia.
 
 Set Implicit Arguments.
 
@@ -59,31 +59,31 @@ Defined.
 Theorem fmap_bound n P : 
            (forall x, x < n -> ex (P x)) 
         -> exists m, forall x, x < n -> exists y, y < m /\ P x y.
-Proof.
+Proof with try lia.
   revert P; induction n as [ | n IHn ]; intros P HP.
-  + exists 0; intros; omega.
-  + destruct (HP 0) as (m0 & H0); try omega.
+  + exists 0; intros...
+  + destruct (HP 0) as (m0 & H0)...
     destruct (IHn (fun n => P (S n))) as (m1 & Hm1).
-    - intros; apply HP; omega.
+    - intros; apply HP...
     - exists (1+m0+m1); intros [ | x ] Hx.
-      * exists m0; split; auto; omega.
-      * destruct (Hm1 x) as (y & H1 & H2); try omega.
-        exists y; split; auto; omega.
+      * exists m0; split; auto...
+      * destruct (Hm1 x) as (y & H1 & H2)...
+        exists y; split; auto...
 Qed.
 
 Theorem fmap_reifier_default X n (P : nat -> X -> Prop) : 
            inhabited X 
         -> (forall x, x < n -> ex (P x)) 
         -> exists f, forall x, x < n -> P x (f x).
-Proof.
+Proof with try lia.
   intros [ u ].
   revert P; induction n as [ | n IHn ]; intros P HP.
-  + exists (fun _ => u); intros; omega.
+  + exists (fun _ => u); intros...
   + destruct (IHn (fun i => P (S i))) as (f & Hf).
-    { intros; apply HP; omega. }
-    destruct (HP 0) as (x & Hx); try omega.
+    { intros; apply HP... }
+    destruct (HP 0) as (x & Hx)...
     exists (fun i => match i with 0 => x | S i => f i end).
-    intros [|] ?; auto; apply Hf; omega.
+    intros [|] ?; auto; apply Hf...
 Qed. 
 
 Theorem fmap_reifer_bound n P : 
@@ -121,7 +121,7 @@ Proof.
     destruct (H _ Hx) as (f & Hf).
     exists (fun _ => 0); split; auto.
     apply (HP x f); auto.
-    intros ? ?; omega.
+    intros ? ?; lia.
   + set (Q x y := exists f, P x (fun i => match i with 0 => y | S i => f i end)).
     destruct (@fmap_bound n Q) as (m1 & Hm1).
     { intros x Hx.
@@ -133,7 +133,7 @@ Proof.
     set (R x f := exists y, y < m1 /\ P x (fun i => match i with 0 => y | S i => f i end)).
     destruct (IHp R) as (m2 & Hm2).
     { intros x f g Hfg (y & H1 & H2); exists y; split; auto.
-      revert H2; apply HP; intros [ | ]; auto; intros; apply Hfg; omega. }
+      revert H2; apply HP; intros [ | ]; auto; intros; apply Hfg; lia. }
     { intros x Hx. 
       destruct (Hm1 _ Hx) as (y & H1 & f & H2).
       exists f, y; split; auto. }
@@ -141,8 +141,8 @@ Proof.
     intros x Hx.
     destruct (Hm2 _ Hx) as (f & H1 & y & H2 & H3).
     eexists; split; [ | exact H3 ].
-    intros [ | j ] Hj; try omega.
-    specialize (H1 j); intros; omega.
+    intros [ | j ] Hj; try lia.
+    specialize (H1 j); intros; lia.
 Qed.
 
 Theorem fmmap_reifer_bound p n (P : nat -> (nat -> nat) -> Prop) :

@@ -7,9 +7,10 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega Permutation.
+Require Import List Arith Lia Permutation.
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import list_focus utils_tac.
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import list_focus utils_tac.
 
 Set Implicit Arguments.
 
@@ -75,7 +76,7 @@ Section list_an.
   Fact list_an_plus a n m : list_an a (n+m) = list_an a n ++ list_an (n+a) m.
   Proof.
     revert a; induction n; intros a; simpl; auto.
-    rewrite IHn; do 3 f_equal; omega.
+    rewrite IHn; do 3 f_equal; lia.
   Qed.
 
   Fact list_an_length a n : length (list_an a n) = n.
@@ -85,7 +86,7 @@ Section list_an.
   
   Fact list_an_spec a n m : In m (list_an a n) <-> a <= m < a+n.
   Proof.
-    revert a; induction n as [ | n IHn ]; simpl; intros a; [ | rewrite IHn ]; omega. 
+    revert a; induction n as [ | n IHn ]; simpl; intros a; [ | rewrite IHn ]; lia. 
   Qed.
 
   Fact map_S_list_an a n : map S (list_an a n) = list_an (S a) n.
@@ -100,7 +101,7 @@ Section list_an.
         rewrite <- H1; simpl; rewrite Nat.add_0_r, list_an_length; auto.
       * injection H1; clear H1; intros H1 H0.
         apply IHn in H1; destruct H1; split; f_equal; auto.
-        rewrite H1 at 1; f_equal; omega.
+        rewrite H1 at 1; f_equal; lia.
   Qed.
 
   Fact list_an_duplicate_inv a n l x m y r : 
@@ -115,7 +116,7 @@ Section list_an.
     symmetry in H; apply list_an_app_inv in H; simpl in H.
     destruct H as (E3 & H); injection H; clear H; intros E4 E5.
     do 2 (rewrite app_length in H1; simpl in H1).
-    omega.
+    lia.
   Qed.
 
 End list_an.
@@ -136,8 +137,8 @@ Fact list_upper_bound (l : list nat) : { m | forall x, In x l -> x < m }.
 Proof.
   induction l as [ | x l (m & Hm) ].
   + exists 0; simpl; tauto.
-  + exists (1+x+m); intros y [ [] | H ]; simpl; try omega.
-    generalize (Hm _ H); intros; omega.
+  + exists (1+x+m); intros y [ [] | H ]; simpl; try lia.
+    generalize (Hm _ H); intros; lia.
 Qed.
 
 Section list_injective.
@@ -204,7 +205,7 @@ Proof.
   intros H; contradict H.
   destruct u as [ | a u ]; auto; exfalso.
   apply f_equal with (f := @length _) in H.
-  revert H; simpl; rewrite app_length; intros; omega.
+  revert H; simpl; rewrite app_length; intros; lia.
 Qed.
 
 Section iter.
@@ -246,8 +247,8 @@ Proof. induction n; simpl; f_equal; auto. Qed.
 Fact In_list_repeat X (x y : X) n : In y (list_repeat x n) -> x = y /\ 0 < n.
 Proof.
   induction n; simpl; intros [].
-  split; auto; omega.
-  split; try omega; apply IHn; auto.
+  split; auto; lia.
+  split; try lia; apply IHn; auto.
 Qed.
 
 Fact map_list_repeat X Y f x n : @map X Y f (list_repeat x n) = list_repeat (f x) n.
@@ -319,22 +320,22 @@ Qed.
 Fact list_split_length X (ll : list X) k : k <= length ll -> { l : _ & { r | ll = l++r /\ length l = k } }.
 Proof.
   revert k; induction ll as [ | x ll IHll ]; intros k.
-  exists nil, nil; split; simpl in * |- *; auto; omega.
+  exists nil, nil; split; simpl in * |- *; auto; lia.
   destruct k as [ | k ]; intros Hk.
   exists nil, (x::ll); simpl; split; auto.
   destruct (IHll k) as (l & r & H1 & H2).
-  simpl in Hk; omega.
+  simpl in Hk; lia.
   exists (x::l), r; split; simpl; auto; f_equal; auto.
 Qed.
 
 Fact list_pick X (ll : list X) k : k < length ll -> { x : _ & { l : _ & { r | ll = l++x::r /\ length l = k } } }.
 Proof.
   revert k; induction ll as [ | x ll IHll ]; intros k.
-  simpl; omega.
+  simpl; lia.
   destruct k as [ | k ]; intros H.
   exists x, nil, ll; simpl; auto.
   simpl in H.
-  destruct IHll with (k := k) as (y & l & r & ? & ?); try omega.
+  destruct IHll with (k := k) as (y & l & r & ? & ?); try lia.
   exists y, (x::l), r; subst; simpl; split; auto.
 Qed.
 
@@ -451,7 +452,7 @@ Section prefix. (* as an inductive predicate *)
   Qed.
 
   Fact prefix_length l m : l <p m -> length l <= length m.
-  Proof. intros (? & ?); subst; rew length; omega. Qed.
+  Proof. intros (? & ?); subst; rew length; lia. Qed.
   
   Fact prefix_app_lft l r1 r2 : r1 <p r2 -> l++r1 <p l++r2.
   Proof.
@@ -844,9 +845,9 @@ Proof.
   split.
   + intros H x; rewrite Hl, in_map_iff.
     intros (y & ? & H1).
-    apply list_an_spec in H1; subst; apply H; omega.
+    apply list_an_spec in H1; subst; apply H; lia.
   + intros H x Hx; apply H; rewrite Hl, in_map_iff.
-    exists x; split; auto; apply list_an_spec; omega.
+    exists x; split; auto; apply list_an_spec; lia.
 Qed.
 
 Fact Forall_impl X (P Q : X -> Prop) ll : (forall x, In x ll -> P x -> Q x) -> Forall P ll -> Forall Q ll.

@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith NArith NPeano Ascii String Omega.
+Require Import List Arith NArith NPeano Ascii String.
 
 Set Implicit Arguments.
 

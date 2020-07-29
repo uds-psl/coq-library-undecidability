@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega.
+Require Import List Arith Lia.
 Require Fin.
 
 From Undecidability.Shared.Libs.DLW.Utils 
@@ -359,7 +359,7 @@ Section pos_nat.
   Fact pos2nat_nat2pos n i (H : i < n) : pos2nat (nat2pos H) = i.
   Proof.
     revert i H;
-    induction n as [ | n IHn ]; intros [ | i ] H; simpl; auto; try omega.
+    induction n as [ | n IHn ]; intros [ | i ] H; simpl; auto; try lia.
     f_equal.
     apply IHn.
   Qed.
@@ -387,16 +387,16 @@ Section pos_nat.
   Fixpoint pos_sub n (p : pos n) { struct p } : forall m, n < m -> pos m.
   Proof.
     destruct p as [ | n p ]; intros [ | m ] Hm.
-    exfalso; clear pos_sub; abstract omega.
+    exfalso; clear pos_sub; abstract lia.
     apply pos_fst.
-    exfalso; clear pos_sub; abstract omega.
+    exfalso; clear pos_sub; abstract lia.
     apply pos_nxt.
     apply (pos_sub n p), lt_S_n, Hm.
   Defined.
   
   Fact pos_sub2nat n p m Hm : pos2nat (@pos_sub n p m Hm) = pos2nat p.
   Proof.
-    revert m Hm; induction p as [ n | n p IH ]; intros [ | m ] Hm; try omega. 
+    revert m Hm; induction p as [ n | n p IH ]; intros [ | m ] Hm; try lia. 
     simpl; auto.
     simpl pos_sub; repeat rewrite pos2nat_nxt; f_equal; auto.
   Qed.

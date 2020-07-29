@@ -9,8 +9,10 @@
 
 (** ** Bitwise operations on nat *)
 
-Require Import Arith Nat Omega List Bool Setoid.
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list utils_nat bool_list gcd sums power_decomp.
+Require Import Arith Nat Lia List Bool Setoid.
+
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_tac utils_list utils_nat bool_list gcd sums power_decomp.
 
 Set Implicit Arguments.
 
@@ -45,12 +47,12 @@ Qed.
 
 Fact binary_le_le x y : x ≲ y -> x <= y.
 Proof.
-  induction 1 as [ n | n m H1 H2 IH2 ]; try omega.
-  rewrite (div_rem_spec1 n 2), (div_rem_spec1 m 2); omega.
+  induction 1 as [ n | n m H1 H2 IH2 ]; try lia.
+  rewrite (div_rem_spec1 n 2), (div_rem_spec1 m 2); lia.
 Qed.
 
 Fact binary_le_zero_inv n : n ≲ 0 -> n = 0.
-Proof. intros H; apply binary_le_le in H; omega. Qed.
+Proof. intros H; apply binary_le_le in H; lia. Qed.
 
 Fact binary_le_zero n : 0 ≲ n.
 Proof. constructor. Qed.
@@ -87,7 +89,7 @@ Definition nat2bool x :=
   end.
 
 Fact bool2nat2bool : forall x, x < 2 -> bool2nat (nat2bool x) = x.
-Proof. intros [ | [ | ] ] ?; simpl; omega. Qed.
+Proof. intros [ | [ | ] ] ?; simpl; lia. Qed.
 
 Fact nat2bool2nat : forall x, nat2bool (bool2nat x) = x.
 Proof. intros []; auto. Qed.
@@ -123,7 +125,7 @@ Local Reserved Notation "'⟬' x '⟭'".
   Fact lb_nat_app l m : lb_nat (l++m) = lb_nat l + (power (length l) 2)*(lb_nat m).
   Proof.
     induction l as [ | x l IHl ].
-    + rewrite lb_nat_fix_0; simpl; omega.
+    + rewrite lb_nat_fix_0; simpl; lia.
     + simpl app; do 2 rewrite lb_nat_fix_3.
       simpl length; rewrite power_S.
       rewrite IHl; ring.
@@ -152,7 +154,7 @@ Local Reserved Notation "'⟬' x '⟭'".
     Fact g_nlb_fun n l1 l2 : g_nlb n l1 -> g_nlb n l2 -> l1 = l2.
     Proof.
       intros H1 H2; revert H1 l2 H2.
-      induction 1; inversion 1; auto; try omega; f_equal; auto.
+      induction 1; inversion 1; auto; try lia; f_equal; auto.
     Qed.
 
     Let nat_lb_full n : { l | g_nlb n l }.
@@ -161,11 +163,11 @@ Local Reserved Notation "'⟬' x '⟭'".
       destruct (eq_nat_dec n 0) as [ | Hn ].
       + exists nil; subst; constructor.
       + destruct (IHn (div n 2)) as (l & Hl).
-        * apply div_by_p_lt; omega.
+        * apply div_by_p_lt; lia.
         * case_eq (rem n 2).
           - intro; exists (⟘::l); constructor; auto.
           - intro; exists (⟙::l); constructor; auto.
-            generalize (rem_2_lt n); omega.
+            generalize (rem_2_lt n); lia.
     Qed.
 
     Definition nat_lb n := proj1_sig (nat_lb_full n).
@@ -186,7 +188,7 @@ Local Reserved Notation "'⟬' x '⟭'".
   Proof.
     intros Hn. 
     apply g_nlb_fun with (2*n); auto.
-    constructor; auto; try omega.
+    constructor; auto; try lia.
     + apply rem_2_fix_1.
     + rewrite div_2_fix_1; auto.
   Qed.
@@ -194,7 +196,7 @@ Local Reserved Notation "'⟬' x '⟭'".
   Fact nat_lb_fix_2 n : ⟬1+2*n⟭ = ⟙::⟬ n⟭ .
   Proof.
     apply g_nlb_fun with (1+2*n); auto.
-    constructor; auto; try omega.
+    constructor; auto; try lia.
     + apply rem_2_fix_2.
     + rewrite div_2_fix_2; auto.
   Qed.
@@ -212,27 +214,27 @@ Local Reserved Notation "'⟬' x '⟭'".
     destruct (eq_nat_dec n 0) as [ | Hn ].
     + subst; rewrite nat_lb_fix_0; auto.
     + destruct (euclid_2 n) as (q & [ Hq | Hq ]); subst n.
-      * rewrite nat_lb_fix_1; try omega.
+      * rewrite nat_lb_fix_1; try lia.
         rewrite lb_nat_fix_1; f_equal.
-        apply IHn; omega.
-      * rewrite nat_lb_fix_2; try omega.
+        apply IHn; lia.
+      * rewrite nat_lb_fix_2; try lia.
         rewrite lb_nat_fix_2; do 2 f_equal.
-        apply IHn; omega.
+        apply IHn; lia.
   Qed.
 
   Fact nat_lb_length x n : x < power n 2 -> length ⟬ x ⟭ <= n.
   Proof.
     revert x; induction n as [ | n IHn ]; intros x.
-    + rewrite power_0; intro; replace x with 0; try omega.
-      rewrite nat_lb_fix_0; simpl; omega.
+    + rewrite power_0; intro; replace x with 0; try lia.
+      rewrite nat_lb_fix_0; simpl; lia.
     + rewrite power_S.
       destruct (euclid_2 x) as (y & [ H | H ]); intros Hx; subst.
       * destruct y.
-        - simpl; rewrite nat_lb_fix_0;simpl; omega.
-        - rewrite nat_lb_fix_1; try omega.
-          simpl; apply le_n_S, IHn; omega.
+        - simpl; rewrite nat_lb_fix_0; simpl; lia.
+        - rewrite nat_lb_fix_1; try lia.
+          simpl; apply le_n_S, IHn; lia.
       * rewrite nat_lb_fix_2; simpl.
-        apply le_n_S, IHn; omega.
+        apply le_n_S, IHn; lia.
   Qed.
 
   Fact binary_le_lb_mask x y : x ≲ y -> ⟬ x ⟭ ⪯ ⟬ y ⟭ . 
@@ -244,12 +246,12 @@ Local Reserved Notation "'⟬' x '⟭'".
       - assert (n <= m) as Hmn.
         { apply binary_le_le; constructor; auto. }
         destruct (euclid_2_div n) as (G1 & [ G2 | G2 ] );
-        destruct (euclid_2_div m) as (G3 & [ G4 | G4 ] ); try omega.
+        destruct (euclid_2_div m) as (G3 & [ G4 | G4 ] ); try lia.
         * rewrite G1, G2, G3, G4, Nat.add_0_l, Nat.add_0_l.
-          do 2 (rewrite nat_lb_fix_1; [ | omega ]).
+          do 2 (rewrite nat_lb_fix_1; [ | lia ]).
           constructor; auto.
         * rewrite G1, G2, G3, G4, Nat.add_0_l, nat_lb_fix_2.
-          rewrite nat_lb_fix_1; [ | omega ].
+          rewrite nat_lb_fix_1; [ | lia ].
           constructor; auto.
         * rewrite G1, G2, G3, G4.
           do 2 rewrite nat_lb_fix_2.
@@ -397,9 +399,9 @@ Local Reserved Notation "'⟬' x '⟭'".
   Proof.
     induction l as [ | [] ]; auto.
     + simpl lb_succ; rewrite lb_nat_fix_2.
-      rewrite lb_nat_fix_1, IHl; omega.
+      rewrite lb_nat_fix_1, IHl; lia.
     + simpl lb_succ; rewrite lb_nat_fix_2.
-      rewrite lb_nat_fix_1, lb_succ_spec_0; omega.
+      rewrite lb_nat_fix_1, lb_succ_spec_0; lia.
   Qed.
 
   Fact lb_succ_spec a l : ⟦lb_succ a l⟧ = bool2nat a + ⟦l⟧.
@@ -435,11 +437,11 @@ Local Reserved Notation "'⟬' x '⟭'".
   Fact lb_plus_spec a l m : ⟦lb_plus a l m⟧ = bool2nat a + ⟦l⟧ + ⟦m⟧.
   Proof.
     revert a m; induction l as [ | x l IHl ]; intros a m.
-    + rewrite lb_plus_fix_0, lb_succ_spec, lb_nat_fix_0; omega.
+    + rewrite lb_plus_fix_0, lb_succ_spec, lb_nat_fix_0; lia.
     + destruct m as [ | y m ].
-      * rewrite lb_plus_fix_1, lb_succ_spec, lb_nat_fix_0; omega.
+      * rewrite lb_plus_fix_1, lb_succ_spec, lb_nat_fix_0; lia.
       * rewrite lb_plus_fix_2, lb_nat_fix_3, lb_nat_fix_3.
-        destruct a; destruct x; destruct y; simpl; rewrite IHl; simpl; omega.
+        destruct a; destruct x; destruct y; simpl; rewrite IHl; simpl; lia.
   Qed.
 
   Local Infix "⊕" := (lb_plus ⟘ ) (at level 41, left associativity). 
@@ -626,8 +628,8 @@ Local Reserved Notation "'⟬' x '⟭'".
   Fact lb_shift_ortho n l m : length l <= n -> l ⟂ lb_shift n m.
   Proof.
     revert n.
-    induction l as [ | x l IHl ]; intros [ | n ]; simpl; auto; try omega.
-    intro; rewrite lb_shift_S; constructor; auto; apply IHl; omega.
+    induction l as [ | x l IHl ]; intros [ | n ]; simpl; auto; try lia.
+    intro; rewrite lb_shift_S; constructor; auto; apply IHl; lia.
   Qed.
 
   Fact lb_shift_ortho_meet n l m : length l <= n -> l ↓ lb_shift n m ≂ nil.
@@ -796,14 +798,14 @@ Local Reserved Notation "'⟬' x '⟭'".
       replace (power y 2) with (0 + 1*power y 2) at 2 by ring.
       rewrite nat_meet_euclid_power_2.
       + rewrite nat_meet_n0, nat_meet_0n; ring.
-      + apply power_smono_l; omega.
-      + apply power_ge_1; omega.
+      + apply power_smono_l; lia.
+      + apply power_ge_1; lia.
     Qed.
 
     Fact nat_meet_power2_neq x y : x <> y -> (power x 2) ⇣ (power y 2) = 0. 
     Proof.
       intros H.
-      destruct (lt_eq_lt_dec x y) as [[]|]; try omega.
+      destruct (lt_eq_lt_dec x y) as [[]|]; try lia.
       + apply nat_meet_power2_lt; auto.
       + rewrite nat_meet_comm; apply nat_meet_power2_lt; auto.
     Qed.
@@ -814,7 +816,7 @@ Local Reserved Notation "'⟬' x '⟭'".
   Proof.
     replace 1 with (1+0*power 1 2) at 1 by auto.
     replace (2*n) with (0+n*power 1 2) by (rewrite power_1; ring).
-    rewrite nat_meet_euclid_power_2; rewrite power_1; try omega.
+    rewrite nat_meet_euclid_power_2; rewrite power_1; try lia.
     rewrite nat_meet_0n, nat_meet_n0; auto.
   Qed.
 
@@ -824,7 +826,7 @@ Local Reserved Notation "'⟬' x '⟭'".
   Fact power_2_minus_1 n : power (S n) 2 - 1 = 1 + 2*(power n 2 - 1).
   Proof.
     rewrite power_S.
-    generalize (@power_ge_1 n 2); intros; omega.
+    generalize (@power_ge_1 n 2); intros; lia.
   Qed.
 
   Fact power_2_minus_1_gt n x : x < power n 2 <-> x ≲ power n 2 - 1.
@@ -832,20 +834,20 @@ Local Reserved Notation "'⟬' x '⟭'".
     split.
     2: { intro Hx.
          apply binary_le_le in Hx.
-         generalize (@power_ge_1 n 2); intros; omega. }
+         generalize (@power_ge_1 n 2); intros; lia. }
     intros H1.
-    assert (x <= power n 2 -1) as H by omega; clear H1. 
+    assert (x <= power n 2 -1) as H by lia; clear H1. 
     rewrite binary_le_nat_meet.
     revert x H; induction n as [ | n IHn ]; intros x Hx.
-    + rewrite power_0 in Hx; replace x with 0; auto; omega.
+    + rewrite power_0 in Hx; replace x with 0; auto; lia.
     + destruct (eq_nat_dec x 0) as [ H | H ].
       - rewrite H; auto.
       - destruct (euclid_2_div x) as (H1 & H2).
         rewrite H1, power_2_minus_1.
-        rewrite nat_meet_euclid_2; try omega.
+        rewrite nat_meet_euclid_2; try lia.
         rewrite IHn.
         * f_equal; destruct H2 as [ H2 | H2 ]; rewrite H2; auto.
-        * rewrite power_2_minus_1 in Hx; omega.
+        * rewrite power_2_minus_1 in Hx; lia.
   Qed.
 
   Definition nat_join n m := ⟦ ⟬n⟭↑⟬m⟭ ⟧.
@@ -946,11 +948,11 @@ Local Reserved Notation "'⟬' x '⟭'".
   Fact nat_joins_binary_le_left n f m : msum nat_join 0 n f ≲ m <-> forall i, i < n -> f i ≲ m.
   Proof.
     revert f; induction n as [ | n IHn ]; intros f.
-    + rewrite msum_0; split; auto; intros; omega.
+    + rewrite msum_0; split; auto; intros; lia.
     + rewrite msum_S, nat_join_binary_le, IHn.
       split.
-      * intros [H1 H2] [] ?; auto; apply H2; omega.
-      * intros H; split; intros; apply H; omega.
+      * intros [H1 H2] [] ?; auto; apply H2; lia.
+      * intros H; split; intros; apply H; lia.
   Qed.
 
   Fact nat_joins_binary_le_right m n f : (exists i, i < n /\ m ≲ f i) -> m ≲ msum nat_join 0 n f.
@@ -958,9 +960,9 @@ Local Reserved Notation "'⟬' x '⟭'".
     intros (i & H1 & H2).
     apply binary_le_trans with (1 := H2).
     clear m H2.
-    revert f i H1; induction n as [ | n IHn ]; intros f [ | i ] Hi; try omega; rewrite msum_S; auto.
+    revert f i H1; induction n as [ | n IHn ]; intros f [ | i ] Hi; try lia; rewrite msum_S; auto.
     apply binary_le_trans with (2 := nat_join_right _ _).
-    apply (IHn (fun i => f (S i))); omega.
+    apply (IHn (fun i => f (S i))); lia.
   Qed.
 
   Fact nat_joins_binary_le n m f g :
@@ -997,7 +999,7 @@ Local Reserved Notation "'⟬' x '⟭'".
     + rewrite msum_0 in H; apply binary_le_zero_inv in H.
       subst; exists 0, (fun _ => 0), (fun _ => 0); split.
       - rewrite msum_0; auto.
-      - split; [ | split; [ | split ] ]; intros; omega.
+      - split; [ | split; [ | split ] ]; intros; lia.
     + rewrite msum_S in H.
       apply binary_le_join_inv in H.
       destruct (@IHn (m ⇣ msum nat_join 0 n (fun n => f (S n))) (fun n => f (S n)))
@@ -1007,21 +1009,21 @@ Local Reserved Notation "'⟬' x '⟭'".
       * intros E.
         rewrite E, nat_join_0n in H.
         exists k, g, (fun i => S (h i)); repeat (split; auto).
-        - intros i Hi; specialize (H3 _ Hi); omega.
-        - intros i j Hij; specialize (H4 _ _ Hij); omega.
+        - intros i Hi; specialize (H3 _ Hi); lia.
+        - intros i j Hij; specialize (H4 _ _ Hij); lia.
       * intros u Hu.
         exists (S k), (fun i => match i with 0 => S u | S i => g i end),
                       (fun i => match i with 0 => 0   | S i => S (h i) end); split; [  | split; [ | split; [ | split ] ] ].
         - rewrite H, msum_S, <- Hu; auto.
-        - omega.
-        - intros [ | i ]; split; try omega. 
+        - lia.
+        - intros [ | i ]; split; try lia. 
           ++ rewrite <- Hu; auto.
-          ++ apply H2; omega.
-          ++ apply H2; omega.
-        - intros [ | i ] Hi; try omega.
-          apply lt_S_n, H3 in Hi; omega.
-        - intros [ | i ] [ | j ] (G1 & G2); simpl; try omega.
-          apply lt_n_S, H4; omega.
+          ++ apply H2; lia.
+          ++ apply H2; lia.
+        - intros [ | i ] Hi; try lia.
+          apply lt_S_n, H3 in Hi; lia.
+        - intros [ | i ] [ | j ] (G1 & G2); simpl; try lia.
+          apply lt_n_S, H4; lia.
   Qed.
 
   Fact binary_le_joins_inv' m n f : m ≲ msum nat_join 0 n f
@@ -1049,7 +1051,7 @@ Local Reserved Notation "'⟬' x '⟭'".
   Proof.
     intros H1 H2.
     destruct (@euclid m (power q 2)) as (d & r & H3 & H4).
-    + generalize (@power_ge_1 q 2); intros; omega.
+    + generalize (@power_ge_1 q 2); intros; lia.
     + apply binary_le_nat_meet in H1.
       rewrite plus_comm in H3.
       rewrite H3, <- (Nat.add_0_l (x*_)) in H1.
@@ -1057,7 +1059,7 @@ Local Reserved Notation "'⟬' x '⟭'".
       rewrite nat_meet_n0 in H1.
       rewrite (plus_comm r), (plus_comm 0) in H1.
       apply div_rem_uniq in H1; auto.
-      2: generalize (@power_ge_1 q 2); intros; omega.
+      2: generalize (@power_ge_1 q 2); intros; lia.
       destruct H1 as (H0 & H1).
       subst r; simpl in H3.
       exists d; split; auto.
@@ -1114,7 +1116,7 @@ Local Reserved Notation "'⟬' x '⟭'".
     + rewrite msum_0; apply power_ge_1; auto.
     + rewrite msum_plus1; auto.
       apply lt_le_trans with (power (S (e n)) r).
-      2: apply power_mono_l; try omega; apply He; auto.
+      2: apply power_mono_l; try lia; apply He; auto.
       rewrite power_S.
       apply lt_le_trans with (1*power (e n) r + f n * power (e n) r).
       * rewrite Nat.mul_1_l; apply plus_lt_le_compat; auto.
@@ -1132,7 +1134,7 @@ Local Reserved Notation "'⟬' x '⟭'".
     intros i Hi.
     rewrite <- mult_assoc; f_equal.
     rewrite <- power_plus; f_equal.
-    generalize (Hf _ Hi); omega.
+    generalize (Hf _ Hi); lia.
   Qed.
 
   Fact nat_meet_joins m n f : m⇣msum nat_join 0 n f = msum nat_join 0 n (fun i => m⇣f i).
@@ -1158,11 +1160,11 @@ Local Reserved Notation "'⟬' x '⟭'".
   Proof.
     rewrite nat_meet_joins.
     revert f; induction n as [ | n IHn ]; intros f.
-    + rewrite msum_0; split; auto; intros; omega.
+    + rewrite msum_0; split; auto; intros; lia.
     + rewrite msum_S, nat_join_eq_0, IHn.
       split.
-      * intros [ H1 H2 ] [ | i ] ?; auto; apply H2; omega.
-      * intros H; split; intros; apply H; omega.
+      * intros [ H1 H2 ] [ | i ] ?; auto; apply H2; lia.
+      * intros H; split; intros; apply H; lia.
   Qed.
 
   Fact nat_ortho_sum_join n f : (forall i j, i <> j -> i < n -> j < n -> f i ⇣ f j = 0)
@@ -1173,8 +1175,8 @@ Local Reserved Notation "'⟬' x '⟭'".
     + do 2 rewrite msum_S.
       rewrite IHn.
       apply nat_ortho_plus_join, nat_ortho_joins_left.
-      * intros; apply Hf; omega.
-      * intros; apply Hf; omega.
+      * intros; apply Hf; lia.
+      * intros; apply Hf; lia.
   Qed.
 
   Fact nat_ortho_joins m n f g : msum nat_join 0 m f ⇣ msum nat_join 0 n g = 0 
@@ -1198,7 +1200,7 @@ Local Reserved Notation "'⟬' x '⟭'".
     Implicit Types (f g : nat -> nat).
 
     Let Hr' : 2 <= r.
-    Proof. rewrite Hr; apply (@power_mono_l 1 _ 2); omega. Qed.
+    Proof. rewrite Hr; apply (@power_mono_l 1 _ 2); lia. Qed.
 
     Fact nat_meet_powers_eq i a b : (a*power i r)⇣(b*power i r) = (a⇣b)*power i r.
     Proof. rewrite Hr, <- power_mult, nat_meet_mult_power2; auto. Qed.
@@ -1206,7 +1208,7 @@ Local Reserved Notation "'⟬' x '⟭'".
     Fact binary_power_split i a : { u : nat & { v | a = u⇡(v*power i r) /\ forall k, u⇣(k*power i r) = 0 } }.
     Proof.
       destruct (@euclid a (power i r)) as (u & v & H1 & H2).
-      + generalize (@power_ge_1 i r); intros; omega.
+      + generalize (@power_ge_1 i r); intros; lia.
       + exists v, u.
         assert (forall k, v ⇣ (k*power i r) = 0) as E.
         { intros k; replace v with (v+0*power i r) by ring.
@@ -1245,16 +1247,16 @@ Local Reserved Notation "'⟬' x '⟭'".
         + do 2 rewrite power_mult; rewrite <- Hr.
           apply lt_le_trans with (power (S i) r).
           - rewrite power_S; apply mult_lt_compat_r; auto.
-            apply power_ge_1; omega.
-          - apply power_mono_l; omega.
+            apply power_ge_1; lia.
+          - apply power_mono_l; lia.
         + rewrite power_mult, <- Hr.
-          apply power_ge_1; omega.
+          apply power_ge_1; lia.
       Qed.
 
       Fact nat_meet_powers_neq i j a b : i <> j -> a < r -> b < r -> (a*power i r)⇣(b*power j r) = 0.
       Proof.
         intros Hij Ha Hb.
-        destruct (lt_eq_lt_dec i j) as [ [] | ]; try omega.
+        destruct (lt_eq_lt_dec i j) as [ [] | ]; try lia.
         + apply nat_meet_neq_powers; auto.
         + rewrite nat_meet_comm.
           apply nat_meet_neq_powers; auto.
@@ -1271,16 +1273,16 @@ Local Reserved Notation "'⟬' x '⟭'".
       + do 2 rewrite msum_0; auto.
       + rewrite msum_S.
         rewrite IHn.
-        2: intros; apply H1; omega.
-        2: intros i j Hi Hj E; apply H2 in E; omega.
+        2: intros; apply H1; lia.
+        2: intros i j Hi Hj E; apply H2 in E; lia.
         rewrite nat_ortho_plus_join.
         * rewrite msum_S; auto.
         * apply nat_ortho_joins_left.
           intros i Hi.
           apply nat_meet_powers_neq.
-          - intros E; apply H2 in E; omega.
-          - apply H1; omega.
-          - apply H1; omega.
+          - intros E; apply H2 in E; lia.
+          - apply H1; lia.
+          - apply H1; lia.
     Qed.
 
     Section double_sum_powers_ortho.
@@ -1292,8 +1294,8 @@ Local Reserved Notation "'⟬' x '⟭'".
       Let dsmpo_1 i : i < n -> sum_powers r i (f i) (e i) = ⇧ r i (f i) (e i).
       Proof.
         intros Hi; apply sum_powers_ortho.
-        + intros; apply Hf; omega.
-        + intros ? ? ? ?; apply He; omega.
+        + intros; apply Hf; lia.
+        + intros ? ? ? ?; apply He; lia.
       Qed.
 
       Fact double_sum_powers_ortho : ∑ n (fun i => sum_powers r i (f i) (e i)) = msum nat_join 0 n (fun i => ⇧ r i (f i) (e i)).
@@ -1303,7 +1305,7 @@ Local Reserved Notation "'⟬' x '⟭'".
         + intros; do 2 (rewrite dsmpo_1; auto).
           apply nat_ortho_joins.
           intros; apply nat_meet_powers_neq; auto.
-          intros E; apply He in E; omega.
+          intros E; apply He in E; lia.
       Qed.
 
     End double_sum_powers_ortho.
@@ -1312,8 +1314,8 @@ Local Reserved Notation "'⟬' x '⟭'".
     Proof.
       intros Hf i j Hi Hj E.
       destruct (lt_eq_lt_dec i j) as [ [] | ]; auto.
-      + generalize (Hf i j); intros; omega.
-      + generalize (Hf j i); intros; omega.
+      + generalize (Hf i j); intros; lia.
+      + generalize (Hf j i); intros; lia.
     Qed.
 
     Hint Resolve sinc_injective : core.
@@ -1369,17 +1371,17 @@ Local Reserved Notation "'⟬' x '⟭'".
       rewrite <- sum_0n_scal_l.
       apply binary_le_nat_meet.
       rewrite meet_sum_powers; auto.
-      2: intros i Hi; rewrite Hr; apply lt_le_trans with (1 := H3 _ Hi), power_mono_l; omega. 
+      2: intros i Hi; rewrite Hr; apply lt_le_trans with (1 := H3 _ Hi), power_mono_l; lia. 
       2: { rewrite Hr.
            intros i Hi. 
            generalize (@power_ge_1 p 2); intro.
            unfold lt.
-           replace (S (power p 2 -1)) with (power p 2); try omega. 
-           apply power_mono_l; omega. }
+           replace (S (power p 2 -1)) with (power p 2); try lia. 
+           apply power_mono_l; lia. }
       apply msum_ext; intros i Hi; f_equal.
       apply binary_le_nat_meet, power_2_minus_1_gt.
-      assert (a i < power p 2); try omega.
-      apply lt_le_trans with (1 := H3 _ Hi), power_mono_l; omega.
+      assert (a i < power p 2); try lia.
+      apply lt_le_trans with (1 := H3 _ Hi), power_mono_l; lia.
     Qed.
 
     Fact sum_powers_binary_le_inv n f e m :
@@ -1403,7 +1405,7 @@ Local Reserved Notation "'⟬' x '⟭'".
       assert (forall i, { a | i < k -> g i = a * power (e (h i)) r /\ a <> 0 /\ a ≲ f (h i) }) as H.
       { intros i.
         destruct (le_lt_dec k i) as [ H | H ].
-        * exists 0; intros; omega.
+        * exists 0; intros; lia.
         * destruct (H5 _ H) as (G1 & G2).
           rewrite Hr, <- power_mult in G2.
           apply binary_le_mult_power2_inv in G2; auto.
@@ -1440,7 +1442,7 @@ Local Reserved Notation "'⟬' x '⟭'".
       { intros i Hi; apply binary_le_power_inv; auto. }
       set (h := fun i => match le_lt_dec n i with left _ => 0 | right H => proj1_sig (h_full _ H) end).
       assert (Hh : forall i, i < n ->  g i = h i * power (e i) r /\ h i ≲ f i).
-      { intros i Hi; unfold h; destruct (le_lt_dec n i) as [ | H' ]; try omega.
+      { intros i Hi; unfold h; destruct (le_lt_dec n i) as [ | H' ]; try lia.
         apply (proj2_sig (h_full _ H')). }
       generalize h Hh; clear h_full h Hh; intros h Hh.
       exists h; split; auto.
@@ -1467,8 +1469,8 @@ Local Reserved Notation "'⟬' x '⟭'".
         intros i Hi; apply power_2_minus_1_gt; auto.
       + intros i Hi.
         apply lt_le_trans with (power p 2).
-        - generalize (@power_ge_1 p 2); intros; omega.
-        - rewrite Hr; apply power_mono_l; omega.
+        - generalize (@power_ge_1 p 2); intros; lia.
+        - rewrite Hr; apply power_mono_l; lia.
     Qed.
 
   End nat_meet_digits.

@@ -11,9 +11,10 @@
 
 (** ** Finitary sums and products over monoids *)
 
-Require Import List Arith Omega Eqdep_dec ZArith.
+Require Import List Arith ZArith Lia.
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list binomial.
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_tac utils_list binomial.
 
 Set Implicit Arguments.
 
@@ -82,16 +83,16 @@ Section msum.
   Fact msum_plus1 n f : ∑ (S n) f = ∑ n f ⊕ f n.
   Proof.
     destruct Hmonoid as [ _ H2 _ ].
-    replace (S n) with (n+1) by omega.
+    replace (S n) with (n+1) by lia.
     rewrite msum_plus; simpl; f_equal.
-    rewrite H2; f_equal; omega.
+    rewrite H2; f_equal; lia.
   Qed.
 
   Fact msum_ext n f g : (forall i, i < n -> f i = g i) -> ∑ n f = ∑ n g.
   Proof.
     revert f g; induction n as [ | n IHn ]; intros f g Hfg; simpl; f_equal; auto.
-    + apply Hfg; omega.
-    + apply IHn; intros; apply Hfg; omega.
+    + apply Hfg; lia.
+    + apply IHn; intros; apply Hfg; lia.
   Qed.
 
   Fact msum_unit n : ∑ n (fun _ => u) = u.
@@ -106,10 +107,10 @@ Section msum.
     destruct Hmonoid as [ H1 H2 H3 ].
     revert f; induction n as [ | n IHn ]; intros f H; simpl; auto.
     + rewrite H1, H2; auto.
-    + rewrite H3, <- H; try omega.
+    + rewrite H3, <- H; try lia.
       repeat rewrite <- H3; f_equal.
       apply IHn.
-      intros; apply H; omega.
+      intros; apply H; lia.
   Qed.
 
   Fact msum_sum n f g : (forall i j, i < j < n -> f j ⊕ g i = g i ⊕ f j) -> ∑ n (fun i => f i ⊕ g i) = ∑ n f ⊕ ∑ n g.
@@ -120,8 +121,8 @@ Section msum.
     + repeat rewrite <- H3; f_equal.
       repeat rewrite H3; f_equal.
       symmetry; apply msum_comm.
-      intros; apply H; omega.
-    + intros; apply H; omega.
+      intros; apply H; lia.
+    + intros; apply H; lia.
   Qed.
 
   Fact msum_of_unit n f : (forall i, i < n -> f i = u) -> ∑ n f = u.
@@ -137,12 +138,12 @@ Section msum.
   Proof.
     destruct Hmonoid as [ M1 M2 M3 ].
     intros H1 H2.
-    replace n with (i + 1 + (n-i-1)) by omega.
+    replace n with (i + 1 + (n-i-1)) by lia.
     do 2 rewrite msum_plus.
     rewrite msum_of_unit, msum_1, msum_of_unit, M1, M2.
-    + f_equal; omega.
-    + intros j Hj; destruct (H2 (i+1+j)); auto; omega.
-    + intros j Hj; destruct (H2 j); auto; omega.
+    + f_equal; lia.
+    + intros j Hj; destruct (H2 (i+1+j)); auto; lia.
+    + intros j Hj; destruct (H2 j); auto; lia.
   Qed.
 
   Fact msum_msum n k f :
@@ -156,30 +157,30 @@ Section msum.
         - apply msum_ext.
           intros; rewrite msum_S; trivial.
         - intros; symmetry; apply msum_comm.
-          intros; apply Hf; omega.
-      * intros; apply Hf; omega.
+          intros; apply Hf; lia.
+      * intros; apply Hf; lia.
   Qed.
 
   Fact msum_ends n f : (forall i, 0 < i <= n -> f i = u) -> ∑ (n+2) f = f 0 ⊕ f (S n).
   Proof.
     destruct Hmonoid as [ H1 H2 H3 ].
     intros H.
-    replace (n+2) with (1 + n + 1) by omega.
+    replace (n+2) with (1 + n + 1) by lia.
     do 2 rewrite msum_plus; simpl.
     rewrite msum_of_unit.
-    + rewrite H2, H2, H2; do 2 f_equal; omega.
-    + intros; apply H; omega.
+    + rewrite H2, H2, H2; do 2 f_equal; lia.
+    + intros; apply H; lia.
   Qed.
 
   Fact msum_first_two n f : 2 <= n -> (forall i, 2 <= i -> f i = u) -> ∑ n f = f 0 ⊕ f 1.
   Proof.
     destruct Hmonoid as [ _ M2 _ ].
     intros Hn H1.
-    destruct n as [ | [ | n ] ]; try omega.
+    destruct n as [ | [ | n ] ]; try lia.
     do 2 rewrite msum_S.
     rewrite msum_of_unit.
     + rewrite M2; trivial.
-    + intros; apply H1; omega.
+    + intros; apply H1; lia.
   Qed.
 
   Definition mscal n x := msum n (fun _ => x).
@@ -352,16 +353,16 @@ Section binomial_Newton.
       rewrite msum_ext with (g := fun i => b ⊗ scal (binomial n i) (expo (n-i) a ⊗ expo i b)
                                          ⊕ a ⊗ scal (binomial n (S i)) (expo (n-S i) a ⊗ expo (S i) b)).
       2: { intros; rewrite binomial_SS, mscal_plus; auto.
-           replace (S n - S i) with (n-i) by omega; f_equal.
+           replace (S n - S i) with (n-i) by lia; f_equal.
            * rewrite mscal_S. 
              do 3 rewrite scal_times.
              do 2 rewrite T3; f_equal.
              apply mscal_comm; auto.
            * destruct (le_lt_dec n i).
-             + rewrite binomial_gt; try omega.
+             + rewrite binomial_gt; try lia.
                do 2 rewrite mscal_0.
                rewrite times_zero_r; auto.
-             + replace (n - i) with (S (n - S i)) by omega.
+             + replace (n - i) with (S (n - S i)) by lia.
                rewrite mscal_S.
                repeat rewrite scal_times.
                repeat rewrite T3; auto. }
@@ -398,7 +399,7 @@ Section Newton_nat.
   Proof. apply mscal_1, Nat_mult_monoid. Qed.
 
   Fact power_of_0 n : 0 < n -> power n 0 = 0.
-  Proof. destruct n; try omega; rewrite power_S; auto. Qed.
+  Proof. destruct n; try lia; rewrite power_S; auto. Qed.
 
   Fact power_of_1 n : power n 1 = 1.
   Proof. rewrite mscal_of_unit; auto. Qed.
@@ -415,7 +416,7 @@ Section Newton_nat.
     induction k as [ | k IHk ].
     + rewrite power_0; auto.
     + rewrite power_S.
-      apply (mult_le_compat 1 _ 1); omega.
+      apply (mult_le_compat 1 _ 1); lia.
   Qed.
 
   Fact power2_gt_0 n : 0 < power n 2.
@@ -425,8 +426,8 @@ Section Newton_nat.
   Proof.
     intros Hp; rewrite power_S.
     rewrite <- (Nat.mul_1_l (power k p)) at 1.
-    apply mult_lt_compat_r; try omega.
-    apply power_ge_1; omega.
+    apply mult_lt_compat_r; try lia.
+    apply power_ge_1; lia.
   Qed.
 
   Fact power_ge_n k p : 2 <= p -> k <= power k p.
@@ -453,7 +454,7 @@ Section Newton_nat.
   Proof.
     intros H1 H2.
     apply lt_le_trans with (1 := power_sinc _ H1).
-    apply power_mono_l; omega.
+    apply power_mono_l; lia.
   Qed.
 
   Fact power_mono_r n p q : p <= q -> power n p <= power n q.
@@ -467,16 +468,16 @@ Section Newton_nat.
   Fact power_0_inv p n : power p n = 0 <-> n = 0 /\ 0 < p.
   Proof.
     induction p as [ | p IHp ].
-    + rewrite power_0; omega.
+    + rewrite power_0; lia.
     + rewrite power_S; split.
       * intros H.
         apply mult_is_O in H.
-        rewrite IHp in H; omega.
+        rewrite IHp in H; lia.
       * intros (?&?); subst; simpl; auto.
   Qed.
 
   Fact plus_cancel_l : forall a b c, a + b = a + c -> b = c.
-  Proof. intros; omega. Qed.
+  Proof. intros; lia. Qed.
 
   Let plus_cancel_l':= plus_cancel_l.
 
@@ -497,39 +498,39 @@ Section Newton_nat.
     revert f g; induction n as [ | n IHn ]; intros f g H.
     + do 2 rewrite msum_0; auto.
     + do 2 rewrite msum_S; apply plus_le_compat.
-      * apply H; omega.
-      * apply IHn; intros; apply H; omega.
+      * apply H; lia.
+      * apply IHn; intros; apply H; lia.
   Qed.
 
   Fact sum_0n_le_one n f i : i < n -> f i <= ∑ n f.
   Proof.
     revert f i; induction n as [ | n IHn ]; intros f i H.
-    + omega.
+    + lia.
     + rewrite msum_S.
-      destruct i as [ | i ]; try omega.
+      destruct i as [ | i ]; try lia.
       apply lt_S_n, IHn with (f := fun i => f (S i)) in H.
-      omega.
+      lia.
   Qed.
 
   Fact sum_power_lt k n f : k <> 0 -> (forall i, i < n -> f i < k) -> ∑ n (fun i => f i * power i k) < power n k.
   Proof.
     intros Hk.
     revert f; induction n as [ | n IHn ]; intros f Hf.
-    + rewrite msum_0, power_0; omega.
+    + rewrite msum_0, power_0; lia.
     + rewrite msum_S, power_S, power_0, Nat.mul_1_r.
       apply le_trans with (k+ k * (power n k-1)).
       * apply (@plus_le_compat (S (f 0))).
-        - apply Hf; omega.
+        - apply Hf; lia.
         - rewrite msum_ext with (g := fun i => k*(f (S i)*power i k)).
           ++ rewrite sum_0n_distr_l with (one := 1); auto; try (intros; ring).
              apply mult_le_compat_l.
-             apply le_S_n, le_trans with (power n k); try omega.
-             apply IHn; intros; apply Hf; omega.
+             apply le_S_n, le_trans with (power n k); try lia.
+             apply IHn; intros; apply Hf; lia.
           ++ intros; rewrite power_S; ring.
       * generalize (power_ge_1 n Hk); intros ?.
-        replace (power n k) with (1+(power n k - 1)) at 2 by omega.
+        replace (power n k) with (1+(power n k - 1)) at 2 by lia.
         rewrite Nat.mul_add_distr_l.
-        apply plus_le_compat; omega.
+        apply plus_le_compat; lia.
   Qed. 
 
   Theorem Newton_nat a b n :
@@ -561,8 +562,8 @@ Section Newton_nat.
       eapply le_trans.
       2:{ apply sum_0n_le_one with (f := fun i => binomial n i * power i 1).
           apply le_n_S, Hi. }
-      rewrite power_of_1; omega.
-    + rewrite binomial_gt; auto; omega.
+      rewrite power_of_1; lia.
+    + rewrite binomial_gt; auto; lia.
   Qed.
 
   Corollary binomial_lt_power n i : binomial n i < power (S n) 2.
