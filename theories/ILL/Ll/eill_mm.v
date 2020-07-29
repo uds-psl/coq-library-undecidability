@@ -7,12 +7,10 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Permutation Arith Omega.
+Require Import List Permutation Arith Lia.
 
 From Undecidability.Shared.Libs.DLW 
-  Require Import Utils.utils
-                 Vec.pos Vec.vec
-                 Code.subcode Code.sss.
+  Require Import utils pos vec subcode sss.
 
 From Undecidability.MinskyMachines.MM
   Require Import mm_defs mm_utils.
@@ -46,7 +44,7 @@ Section Minsky.
   Let H_rx : forall p q, rx p = rx q -> p = q.
   Proof.
     intros p1 p2; unfold rx; intros.
-    apply pos2nat_inj; omega.
+    apply pos2nat_inj; lia.
   Qed.
 
   (* This encodes a list of instructions starting at PC=i 
@@ -66,15 +64,15 @@ Section Minsky.
   Local Fact mm_linstr_enc_app i l m : mm_linstr_enc i (l++m) = mm_linstr_enc i l ++ mm_linstr_enc (length l+i) m.
   Proof.
     revert i; induction l as [ | [ x | x p ] l IHl ]; intros i; simpl; f_equal; auto.
-    rewrite IHl; do 2 f_equal; omega.
-    f_equal; rewrite IHl; do 2 f_equal; omega.
+    rewrite IHl; do 2 f_equal; lia.
+    f_equal; rewrite IHl; do 2 f_equal; lia.
   Qed.
     
   Local Fact subcode_mm_linstr_enc i x j l : (i,INC x::nil) <sc (j,l) -> In (LL_INC  (rx x) (q (1+i)) (q i)) (mm_linstr_enc j l).
   Proof.
     intros (l1 & l2 & H1 & H2); subst.
     rewrite mm_linstr_enc_app.
-    apply in_or_app; right; left; do 2 f_equal; omega.
+    apply in_or_app; right; left; do 2 f_equal; lia.
   Qed.
   
   Local Fact subcode_mm_linstr_dec i x p j l : (i,DEC x p::nil) <sc (j,l) -> incl (LL_FORK (ry x) (q p) (q i) :: LL_DEC (rx x) (q (1+i)) (q i) :: nil) (mm_linstr_enc j l).
@@ -83,8 +81,8 @@ Section Minsky.
     rewrite mm_linstr_enc_app.
     intros A HA; apply in_or_app; right.
     destruct HA as [ HA | [ HA | [] ] ]; subst.
-    left; do 2 f_equal; omega.
-    right; left; do 2 f_equal; omega.
+    left; do 2 f_equal; lia.
+    right; left; do 2 f_equal; lia.
   Qed.
     
   Local Fact mm_linstr_enc_spec i ll A : In A (mm_linstr_enc i ll) -> (exists j x,   (j,INC x::nil)   <sc (i,ll)  /\   A = LL_INC  (rx x) (q (1+j)) (q j))
@@ -145,7 +143,7 @@ Section Minsky.
                      | right H2 => vec_pos v (@nat2pos n (x-n) _) = 0
                    end
                  | right H1 => v = vec_one (@nat2pos n x H1)
-               end); omega.
+               end); abstract lia.
   Defined.
 
   (* We check the required properties *)
@@ -153,28 +151,28 @@ Section Minsky.
   Let H_s_q : forall i v, s (q i) v <-> P // (i,v) ->> (k,vec_zero).
   Proof.
     intros i v; unfold q, s.
-    destruct (le_lt_dec n (2*n+i)); [ | omega ].
-    destruct (le_lt_dec (2*n) (2*n+i)); [ | omega ].
-    replace (2*n+i-2*n) with i by omega; tauto.
+    destruct (le_lt_dec n (2*n+i)); [ | lia ].
+    destruct (le_lt_dec (2*n) (2*n+i)); [ | lia ].
+    replace (2*n+i-2*n) with i by lia; tauto.
   Qed.
 
   Let H_s_rx : forall p v, s (rx p) v <-> v = vec_one p.
   Proof.
     intros p v; unfold s, rx.
     destruct (le_lt_dec n (pos2nat p)).
-    generalize (pos2nat_prop p); omega.
+    generalize (pos2nat_prop p); lia.
     rewrite nat2pos_pos2nat; tauto.
   Qed.
  
   Let H_s_ry : forall p v, s (ry p) v <-> vec_pos v p = 0.
   Proof.
     intros p v; unfold s, ry.
-    destruct (le_lt_dec n (n+pos2nat p)); [ | omega ].
+    destruct (le_lt_dec n (n+pos2nat p)); [ | lia ].
     destruct (le_lt_dec (2*n) (n+pos2nat p)).
-    generalize (pos2nat_prop p); omega.
+    generalize (pos2nat_prop p); lia.
     match goal with |- vec_pos _ (nat2pos ?H) = _ <-> _ => replace (nat2pos H) with p end.
     tauto.
-    apply pos2nat_inj; rewrite pos2nat_nat2pos; omega.
+    apply pos2nat_inj; rewrite pos2nat_nat2pos; lia.
   Qed.
 
   (* No need of the code of s anymore *)
@@ -352,7 +350,7 @@ Section Minsky.
     auto.
     
     destruct (pos_eq_dec r p) as [ H | H ]; rew vec.
-    omega.
+    discriminate.
     intros _ H1.
     rewrite vec_map_list_one.
     apply in_eill_dec with (rx r) (ry p); auto.
@@ -367,8 +365,8 @@ Section Minsky.
     apply in_eill_perm with (vec_map_list v rx ++ vec_map_list w rx ++ Ga).
     rewrite vec_map_list_plus, app_ass; auto.
     apply Hv.
-    omega.
-    apply Hw; auto; omega.
+    lia.
+    apply Hw; auto; lia.
   Qed.
   
   Lemma prop_5_2 p v : 

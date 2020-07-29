@@ -7,16 +7,17 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega.
+Require Import List.
 
 Require Import Undecidability.Synthetic.Undecidability.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import pos vec sss.
 
-From Undecidability.MinskyMachines  Require Import mm_defs. 
+From Undecidability.MinskyMachines
+  Require Import mm_defs. 
 
-From Undecidability.ILL             
+From Undecidability.ILL
   Require Import ILL EILL eill eill_mm.
 
 Local Notation "P '/MM/' s ->> t" := (sss_compute (@mm_sss _) P s t) (at level 70, no associativity).

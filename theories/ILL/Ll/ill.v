@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Permutation Arith Omega.
+Require Import List Permutation Arith Lia.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import utils pos vec.
@@ -256,7 +256,7 @@ Section trivial_phase_semantics.
     + simpl; intros y Hy a Ha.
       rewrite vec_plus_assoc.
       apply IH1.
-      exists a, y; repeat split; auto; omega.
+      exists a, y; repeat split; auto; lia.
 
     + intros x (a & b & H2 & H3 & H4); apply IH1.
       exists a, b; repeat split; auto; apply H3.
