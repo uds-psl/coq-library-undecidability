@@ -16,3 +16,13 @@ Proof.
   unfold undecidable, decidable, decider, reduces, reduction, reflects.
   intros H [f Hf] [d Hd]. eapply H. exists (fun x => d (f x)). intros x. rewrite Hf. eapply Hd.
 Qed.
+
+Tactic Notation "undec" "from" constr(H) :=
+  apply (undecidability_from_reducibility H).
+
+Tactic Notation "reduce" "with" "chain" constr(H) := 
+  repeat (apply reduces_reflexive || (eapply reduces_transitive; [ apply H | ])).
+
+Tactic Notation "undec" "from" constr(U) "using" "chain" constr(C) :=
+  undec from U; reduce with chain C.
+

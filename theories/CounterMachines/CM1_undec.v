@@ -27,11 +27,11 @@ Require Import Undecidability.PCP.PCP_undec.
 Lemma CM1c4_HALT_undec : undecidable CM1c4_HALT.
 Proof.
   apply (undecidability_from_reducibility iPCPb_undec).
-  apply (reduces_transitive iBPCP_BSM_HALTING).
+  apply (reduces_transitive iPCPb_to_BSM_HALTING).
   apply (reduces_transitive BSM_MM_HALTING).
   apply (reduces_transitive MM_FRACTRAN_REG_HALTING).
   apply (reduces_transitive FRACTRAN_REG_MMA2_HALTING).
-  apply (reduces_transitive MM_MMA2_HALTING).
+  apply (reduces_transitive MMA2_MM2_HALTING).
   exact MM2_HALTING_to_CM1c4_HALT.reduction.
 Qed.
 

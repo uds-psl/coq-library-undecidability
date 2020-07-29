@@ -20,15 +20,12 @@ Require Import Undecidability.DiophantineConstraints.H10C.
 From Undecidability.DiophantineConstraints.Reductions Require
   H10C_SAT_to_H10UC_SAT FRACTRAN_to_H10C_SAT.
 
-Require Import Undecidability.PCP.PCP_undec.
-Require Undecidability.ILL.UNDEC Undecidability.H10.MM_FRACTRAN Undecidability.H10.FRACTRAN_DIO.
+From Undecidability.FRACTRAN Require Import FRACTRAN FRACTRAN_undec.
 
 (* Undecidability of Diophantine Constraint Solvability *)
 Theorem H10C_SAT_undec : undecidable H10C_SAT.
 Proof.
-  apply (undecidability_from_reducibility PCP_undec).
-  apply (reduces_transitive UNDEC.PCP_MM_HALTING).
-  apply (reduces_transitive MM_FRACTRAN.MM_FRACTRAN_HALTING).
+  apply (undecidability_from_reducibility FRACTRAN_undec).
   apply (reduces_transitive FRACTRAN_DIO.FRACTRAN_HALTING_DIO_LOGIC_SAT).
   apply (reduces_transitive FRACTRAN_DIO.DIO_LOGIC_ELEM_SAT).
   exact FRACTRAN_to_H10C_SAT.DIO_ELEM_H10C_SAT.

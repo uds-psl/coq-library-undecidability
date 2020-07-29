@@ -11,26 +11,15 @@
 
 Require Import List Arith Omega.
 
-From Undecidability Require Import ILL.Definitions.
+From Undecidability.Synthetic Require Import Undecidability.
 
 From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac.
-From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
-From Undecidability.H10.Fractran Require Import fractran_defs fractran_dio.
+From Undecidability.Shared.Libs.DLW.Vec   Require Import pos vec.
+From Undecidability.FRACTRAN              Require Import FRACTRAN MM_FRACTRAN.
+From Undecidability.H10.Fractran          Require Import fractran_dio.
 From Undecidability.H10.Dio Require Import dio_elem dio_single dio_logic.
-From Undecidability.H10 Require Import MM_FRACTRAN.
 
 Set Implicit Arguments.
-
-Fact reduction_dependent X Y (P : X -> Prop) (Q : Y -> Prop) :
-        P ⪯ Q <-> inhabited (forall x, { y | P x <-> Q y }).
-Proof.
-  split.
-  + intros (f & Hf); exists.
-    intros x; exists (f x); auto.
-  + intros [f].
-    exists (fun x => proj1_sig (f x)).
-    intros x; apply (proj2_sig (f x)).
-Qed.
 
 (** A diophantine logic satisfiability question is given
     a diophantine logic formula f and a valuation for the
@@ -44,7 +33,7 @@ Definition DIO_LOGIC_SAT (p : DIO_LOGIC_PROBLEM) :=
 
 Theorem FRACTRAN_HALTING_DIO_LOGIC_SAT : FRACTRAN_HALTING ⪯ DIO_LOGIC_SAT.
 Proof.
-  apply reduction_dependent; exists.
+  apply reduces_dependent; exists.
   intros (l & x).
   destruct FRACTRAN_HALTING_on_diophantine 
     with (ll := l) (x := fun _ : nat -> nat => x) as (f & Hf); simpl.
@@ -65,7 +54,7 @@ Definition DIO_ELEM_SAT (p : DIO_ELEM_PROBLEM) :=
 
 Theorem DIO_LOGIC_ELEM_SAT : DIO_LOGIC_SAT ⪯  DIO_ELEM_SAT.
 Proof.
-  apply reduction_dependent; exists.
+  apply reduces_dependent; exists.
   intros (A,v).
   destruct (dio_formula_elem A) as (l & _ & _ & Hl).
   exists (l,v); apply Hl.
@@ -79,7 +68,7 @@ Definition DIO_SINGLE_SAT (p : DIO_SINGLE_PROBLEM) :=
 
 Theorem DIO_ELEM_SINGLE_SAT : DIO_ELEM_SAT ⪯ DIO_SINGLE_SAT.
 Proof.
-  apply reduction_dependent; exists.
+  apply reduces_dependent; exists.
   intros (l,v).
   destruct (dio_elem_equation l) as (E & _ & HE).
   exists (E,v).

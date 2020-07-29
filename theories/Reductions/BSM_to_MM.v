@@ -1,1 +1,1 @@
-From Undecidability.ILL Require Export BSM_MM.
+From Undecidability.MinskyMachines.Reductions Require Export BSM_MM.
