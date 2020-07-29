@@ -7,14 +7,13 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega.
+Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW 
-  Require Import Utils.utils Utils.list_bool
-                 Vec.pos Vec.vec
-                 Code.subcode Code.sss Code.compiler_correction.
+  Require Import utils list_bool pos vec
+                 subcode sss compiler_correction.
 
-From Undecidability.BinaryStackMachines
+From Undecidability.StackMachines.BSM
   Require Import bsm_defs.
 
 From Undecidability.MinskyMachines.MM
@@ -91,7 +90,7 @@ Section simulator.
   Proof. destruct ii as [ | ? [] ]; simpl; auto. Qed.
     
   Fact bsm_instr_compile_length_geq ii : 1 <= bsm_instr_compile_length ii.
-  Proof. destruct ii as [ | ? [] ]; simpl; auto; omega. Qed.
+  Proof. destruct ii as [ | ? [] ]; simpl; auto; lia. Qed.
 
   Hint Resolve bsm_instr_compile_length_eq bsm_instr_compile_length_geq : core.
 
@@ -262,7 +261,7 @@ Section simulator.
         apply Q_spec1 in H1.
         destruct H1 as (w' & (H1 & H0) & H2 & H3).
         split.
-        2: simpl; omega.
+        2: simpl; lia.
         apply sss_compute_trans with (st2 := (iE,w')).
         revert H1; apply subcode_sss_compute; auto.
         apply sss_progress_compute.

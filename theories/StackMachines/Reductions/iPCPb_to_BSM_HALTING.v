@@ -15,7 +15,7 @@ Require Import Undecidability.Synthetic.Undecidability.
 From Undecidability.Shared.Libs.DLW 
   Require Import utils list_bool pos vec subcode sss.
 
-From Undecidability.BinaryStackMachines.BSM 
+From Undecidability.StackMachines.BSM 
   Require Import tiles_solvable bsm_defs bsm_utils bsm_pcp.
 
 From Undecidability.PCP 

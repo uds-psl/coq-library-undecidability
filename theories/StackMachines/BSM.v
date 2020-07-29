@@ -10,7 +10,7 @@
 Require Import List Bool.
 
 From Undecidability.Shared.Libs.DLW 
-  Require Import Utils.list_bool Vec.pos Vec.vec Code.sss.
+  Require Import list_bool pos vec sss.
 
 Set Implicit Arguments.
 

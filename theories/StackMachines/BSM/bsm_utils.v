@@ -7,14 +7,12 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega Bool.
+Require Import List Arith Lia Bool.
 
 From Undecidability.Shared.Libs.DLW 
-  Require Import Utils.utils Utils.list_bool 
-                 Vec.pos Vec.vec
-                 Code.subcode Code.sss.
+  Require Import utils list_bool pos vec subcode sss.
 
-From Undecidability.BinaryStackMachines.BSM 
+From Undecidability.StackMachines.BSM 
   Require Import tiles_solvable bsm_defs.
 
 Set Implicit Arguments.
@@ -418,7 +416,7 @@ Section Binary_Stack_Machines.
       apply subcode_sss_compute with (P := (1+i,half_tile l)).
       subcode_tac; solve list eq.
       eq goal IHl; do 2 f_equal.
-      omega.
+      lia.
       apply vec_pos_ext; intros z; dest z x.
       solve list eq.
     Qed.
@@ -455,7 +453,7 @@ Section Binary_Stack_Machines.
       with    (length (half_tile y (rev low)) + (length (half_tile x (rev high)) + i)).
       replace (v#>y) with (v[(high ++ v#>x)/x]#>y) by rew vec.
       apply half_tile_spec.
-      rew length; omega.
+      rew length; lia.
     Qed.
 
   End tile.
@@ -505,7 +503,7 @@ Section Binary_Stack_Machines.
       2: dest z x. 
       change (b :: list_repeat b k ++ v#>y)
       with (list_repeat b (S k) ++ v#>y).
-      replace (S k) with (k+1) by omega.
+      replace (S k) with (k+1) by lia.
       rewrite list_repeat_plus; solve list eq.
     Qed.
 
@@ -534,7 +532,7 @@ Section Binary_Stack_Machines.
       2: dest z x. 
       change (b :: list_repeat b k ++ v#>y)
       with (list_repeat b (S k) ++ v#>y).
-      replace (S k) with (k+1) by omega.
+      replace (S k) with (k+1) by lia.
       rewrite list_repeat_plus; solve list eq.
     Qed.
 
@@ -604,7 +602,7 @@ Section Binary_Stack_Machines.
       apply transfer_ones_spec_1 with (k := k) (l := v#>y); rew vec.
       f_equal.
       apply vec_pos_ext; intros z; dest z y; dest z x.
-      replace (S k) with (k+1) by omega.
+      replace (S k) with (k+1) by lia.
       rewrite list_repeat_plus; auto.
  
       bsm sss stop.
@@ -668,11 +666,11 @@ Section Binary_Stack_Machines.
     Fact decoder_length s i lt : length (decoder s i lt) = length_decoder lt.
     Proof.
       revert s i; induction lt as [ | (th,tl) lt IHlt ]; intros s i; rew length; auto.
-      simpl; rew length; rewrite IHlt; omega.
+      simpl; rew length; rewrite IHlt; lia.
     Qed.
 
     Fact length_decoder_size lt : length_decoder lt = 2+3*length lt+size_cards lt.
-    Proof. induction lt as [ | [] ]; simpl; auto; omega. Qed.
+    Proof. induction lt as [ | [] ]; simpl; auto; lia. Qed.
 
     Local Fact decoder_spec_rec s i mm ll th tl lr lc v w :
            v#>c  = list_repeat Zero (length ll) ++ One :: lc
@@ -692,7 +690,7 @@ Section Binary_Stack_Machines.
                                            (st2 := (1+length (tile h l th tl)+i,v[lc/c][(th++v#>h)/h][(tl++v#>l)/l])); auto.
       apply tile_spec; auto.
       f_equal.
-      rew length; omega.
+      rew length; lia.
       apply vec_pos_ext; intros z; dest z l.
    
       bsm sss PUSH with c Zero.
@@ -776,12 +774,12 @@ Section Binary_Stack_Machines.
       unfold decoder; fold decoder.
       destruct k as [ | k ].
 
-      simpl in H2; omega.
+      simpl in H2; lia.
 
       simpl in H1, H2.
       destruct (IHll (3 + length (tile h l t1 t2) + i) lc (v[(list_repeat Zero k++lc)/c]) k)
         as (r & Hr); rew vec.
-      omega.
+      lia.
       exists r.
       bsm sss POP 0 with c (3 + length (tile h l t1 t2) + i) q (list_repeat Zero k++lc).
       revert Hr; rew vec; apply subcode_sss_compute; auto.
@@ -936,7 +934,7 @@ Section Binary_Stack_Machines.
 
       apply Exists_cons in Hln.
       destruct Hln as [ Hln | Hln ].
-      omega.
+      lia.
       specialize (IHln Hln).
       destruct (nth_split _ (nil,nil) Hx) as (ll & lr & H3 & H4).
       revert H3; generalize (nth x lt (nil,nil)); intros (th, tl) H3.
@@ -1120,12 +1118,12 @@ Section Binary_Stack_Machines.
       Definition length_main_loop := 52 + lFD.
 
       Fact main_loop_length : length main_loop = length_main_loop.
-      Proof. unfold main_loop, length_main_loop, lFD; rew length; omega. Qed.
+      Proof. unfold main_loop, length_main_loop, lFD; rew length; lia. Qed.
 
       Fact main_loop_size : length_main_loop = 59+3*length lt+size_cards lt.
       Proof.
         unfold length_main_loop, lFD, length_full_decoder.
-        rewrite length_decoder_size; omega.
+        rewrite length_decoder_size; lia.
       Qed.
 
       Fact main_loop_ok_spec v ln :

@@ -131,14 +131,6 @@ FOL/BPCP_CND.v
 FOL/Weakening.v
 FOL/Infinite.v
 
-BinaryStackMachines/BSM.v
-BinaryStackMachines/BSM_undec.v
-BinaryStackMachines/Reductions/iPCPb_to_BSM_HALTING.v
-
-BinaryStackMachines/BSM/bsm_defs.v
-BinaryStackMachines/BSM/bsm_utils.v
-BinaryStackMachines/BSM/bsm_pcp.v
-BinaryStackMachines/BSM/tiles_solvable.v
 
 MinskyMachines/MM.v             # generic X-bounded MM (X=pos n or X=nat is type of registers) 
                                 # with CPP19 semantics (MM) and alternate semantics (MMA)
@@ -582,10 +574,17 @@ CounterMachines/Reductions/MM2_HALTING_to_CM2_HALT.v
 CounterMachines/Reductions/HaltTM_to_CM1c4_HALT.v
 
 #Stack Machines
+StackMachines/BSM.v
+StackMachines/BSM_undec.v
 StackMachines/SMN.v
 StackMachines/SMN_undec.v
 StackMachines/SSM.v
 StackMachines/SSM_undec.v
+
+StackMachines/BSM/bsm_defs.v
+StackMachines/BSM/bsm_utils.v
+StackMachines/BSM/bsm_pcp.v
+StackMachines/BSM/tiles_solvable.v
 
 StackMachines/Util/Facts.v
 StackMachines/Util/Nat_facts.v
@@ -595,11 +594,13 @@ StackMachines/Util/SMX.v
 StackMachines/Util/SMX_facts.v
 StackMachines/Util/SMN_facts.v
 StackMachines/Util/CSSM_facts.v
+
 StackMachines/Reductions/CM1_to_SMX.v
 StackMachines/Reductions/CM1c4_HALT_to_SMNdl_UB.v
 StackMachines/Reductions/SMN_transform.v
 StackMachines/Reductions/SMNdl_UB_to_CSSM_UB.v
 StackMachines/Reductions/HaltTM_to_CSSM_UB.v
+StackMachines/Reductions/iPCPb_to_BSM_HALTING.v
 
 #Semi-unification
 SemiUnification/SemiU.v

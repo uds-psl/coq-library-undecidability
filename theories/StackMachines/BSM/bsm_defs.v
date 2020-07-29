@@ -7,14 +7,12 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega Bool.
+Require Import List Arith Lia Bool.
 
 From Undecidability.Shared.Libs.DLW 
-  Require Import Utils.utils Utils.list_bool 
-                 Vec.pos Vec.vec
-                 Code.subcode Code.sss.
+  Require Import utils list_bool pos vec subcode sss.
 
-From Undecidability.BinaryStackMachines 
+From Undecidability.StackMachines 
   Require Export BSM.
 
 Set Implicit Arguments.
@@ -91,7 +89,7 @@ Section Binary_Stack_Machine.
     apply subcode_sss_compute_trans with (1 := H1).
     exists 1; apply sss_steps_1.
     apply in_sss_step with (l := nil).
-    simpl; omega.
+    simpl; lia.
     constructor; auto.
   Qed.
 
@@ -105,7 +103,7 @@ Section Binary_Stack_Machine.
     apply subcode_sss_compute_trans with (1 := H1).
     exists 1; apply sss_steps_1.
     apply in_sss_step with (l := nil).
-    simpl; omega.
+    simpl; lia.
     constructor; auto.
   Qed.
 
@@ -119,7 +117,7 @@ Section Binary_Stack_Machine.
     apply subcode_sss_compute_trans with (1 := H1).
     exists 1; apply sss_steps_1.
     apply in_sss_step with (l := nil).
-    simpl; omega.
+    simpl; lia.
     constructor; auto.
   Qed.
 
@@ -144,7 +142,7 @@ Section Binary_Stack_Machine.
     apply subcode_sss_compute_trans with (1 := H1).
     exists 1; apply sss_steps_1.
     apply in_sss_step with (l := nil).
-    simpl; omega.
+    simpl; lia.
     constructor; auto.
   Qed.
 
@@ -162,7 +160,7 @@ Section Binary_Stack_Machine.
     exists b.
     destruct H4 as (st2 & ? & H4 & H5); subst.
     split.
-    omega.
+    lia.
     apply sss_step_subcode_inv with (1 := H1) in H4.
     inversion H4; subst; try mydiscr; myinj.
   Qed.
@@ -181,7 +179,7 @@ Section Binary_Stack_Machine.
     exists b.
     destruct H4 as (st2 & ? & H4 & H5); subst.
     split.
-    omega.
+    lia.
     apply sss_step_subcode_inv with (1 := H1) in H4.
     inversion H4; subst; try mydiscr; myinj.
   Qed.
@@ -214,7 +212,7 @@ Section Binary_Stack_Machine.
     exists b.
     destruct H4 as (st2 & ? & H4 & H5); subst.
     split.
-    omega.
+    lia.
     apply sss_step_subcode_inv with (1 := H1) in H4.
     inversion H4; subst; try mydiscr; myinj.
   Qed.
@@ -232,7 +230,7 @@ Section Binary_Stack_Machine.
     exists a.
     destruct H4 as (st2 & ? & H4 & H5); subst.
     split.
-    omega.
+    lia.
     apply sss_step_subcode_inv with (1 := H1) in H4.
     inversion H4; subst; auto.
   Qed.

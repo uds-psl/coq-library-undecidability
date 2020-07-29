@@ -10,11 +10,9 @@
 Require Import Undecidability.Synthetic.Undecidability.
 
 From Undecidability.Shared.Libs.DLW 
-  Require Import Utils.utils Utils.list_bool
-                 Vec.pos Vec.vec
-                 Code.subcode Code.sss.
+  Require Import utils list_bool pos vec subcode sss.
 
-From Undecidability.BinaryStackMachines
+From Undecidability.StackMachines
   Require Import bsm_defs.
 
 From Undecidability.MinskyMachines.MM
