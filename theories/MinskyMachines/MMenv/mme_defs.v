@@ -7,10 +7,10 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega.
+Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW
-  Require Import Utils.utils Code.subcode Code.sss.
+  Require Import utils subcode sss.
 
 From Undecidability.MinskyMachines Require Export MM.
 From Undecidability.MinskyMachines.MMenv Require Import env. 
@@ -94,7 +94,7 @@ Section Minsky_Machine_env_based.
     apply subcode_sss_progress with (1 := H1).
     exists 1; split; auto; apply sss_steps_1.
     apply in_sss_step with (l := nil).
-    simpl; omega.
+    simpl; lia.
     constructor; auto.
   Qed.
   
@@ -115,7 +115,7 @@ Section Minsky_Machine_env_based.
     apply subcode_sss_progress with (1 := H1).
     exists 1; split; auto; apply sss_steps_1.
     apply in_sss_step with (l := nil).
-    simpl; omega.
+    simpl; lia.
     constructor; auto.
   Qed.
   
@@ -137,7 +137,7 @@ Section Minsky_Machine_env_based.
     apply subcode_sss_progress with (1 := H1).
     exists 1; split; auto; apply sss_steps_1.
     apply in_sss_step with (l := nil).
-    simpl; omega.
+    simpl; lia.
     constructor; auto.
   Qed.
   
@@ -160,7 +160,7 @@ Section Minsky_Machine_env_based.
     destruct H2; auto.
     apply sss_step_subcode_inv with (1 := H1) in H4.
     exists k'; split.
-    omega.
+    lia.
     inversion H4; subst; auto.
   Qed.
   
@@ -177,7 +177,7 @@ Section Minsky_Machine_env_based.
     destruct H2; auto.
     apply sss_step_subcode_inv with (1 := H1) in H4.
     exists k'; split.
-    omega.
+    lia.
     inversion H4; subst; auto.
     rewrite H3 in H9; discriminate.
   Qed.
@@ -195,7 +195,7 @@ Section Minsky_Machine_env_based.
     destruct H2; auto.
     apply sss_step_subcode_inv with (1 := H1) in H4.
     exists k'; split.
-    omega.
+    lia.
     inversion H4; subst; auto; rewrite H3 in H9.
     discriminate.
     inversion H9; subst; auto.

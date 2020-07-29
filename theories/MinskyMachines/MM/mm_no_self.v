@@ -10,11 +10,10 @@
 (** * Minsky machines to FRACTRAN programs *)
 (** ** Removal of self-loops in MMs *)
 
-Require Import List Arith Omega.
+Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW
-  Require Import Utils.utils Vec.pos Vec.vec
-                 Code.subcode Code.sss.
+  Require Import utils pos vec subcode sss.
 
 From Undecidability.MinskyMachines.MM
   Require Import mm_defs.
@@ -50,7 +49,7 @@ Section self_loops.
       subst s0.
       revert Hs0; apply in_out_code.
       apply subcode_in_code with (1 := H1).
-      simpl; omega.
+      simpl; lia.
     + intros i ρ v j w H1 H2 H3 IH3 k x p G1 G2 G3.
       inversion G2; subst p k.
       generalize (subcode_cons_inj _ _ _ _ H1 G1); intros; subst.
@@ -70,7 +69,7 @@ Section self_loops.
     pattern s; revert H4; apply mm_term_ind.
     + intros Hs0 v H2 H3.
       destruct H2; subst s0; revert Hs0; apply in_out_code;
-        apply subcode_in_code with (1 := H1); simpl; omega.
+        apply subcode_in_code with (1 := H1); simpl; lia.
     + apply subcode_cons_invert_left in H1.
       destruct H1 as [ G0 G1 ].
       intros l ρ v j w H1 H2 H3 IH3 r G2 G3.
@@ -140,7 +139,7 @@ Section remove_self_loops.
   Let g_app k i P Q : g k i (P++Q) = g k i P ++ g k (length P + i) Q.
   Proof.
     revert i; induction P as [ | ? P IHP ]; intros i; simpl; f_equal; auto.
-    rewrite IHP; do 2 f_equal; omega.
+    rewrite IHP; do 2 f_equal; lia.
   Qed.
 
   Let g_app_inv k i P l r : g k i P = l ++ r -> exists L R, P = L++R /\ l = g k i L /\ r = g k (length l+i) R.
@@ -154,7 +153,7 @@ Section remove_self_loops.
       * intros H; injection H; clear H; intros H1 H2.
         destruct IHP with (1 := H1) as (L & R & G1 & G2 & G3); subst.
         exists (ρ::L), R; simpl; repeat (split; auto).
-        f_equal; omega.
+        f_equal; lia.
   Qed.
  
   Let length_g l i P : length (g l i P) = length P.
@@ -165,7 +164,7 @@ Section remove_self_loops.
     intros (l & r & H1 & H2); subst P.
     rewrite g_app; simpl.
     exists (g k i l), (g k (S (length l+i)) r); split.
-    + do 3 f_equal; omega.
+    + do 3 f_equal; lia.
     + rewrite length_g; auto.
   Qed.
 
@@ -178,7 +177,7 @@ Section remove_self_loops.
     exists ρ'; split; auto.
     + exists L, R; simpl; split; auto.
       rewrite H3, length_g in H2; auto.
-    + f_equal; omega.
+    + f_equal; lia.
   Qed.
 
   Let g_loops k i P : 1 <= i -> i+length P <= k -> mm_no_self_loops (i,g k i P).
@@ -187,9 +186,9 @@ Section remove_self_loops.
     apply subcode_g in H2.
     destruct H2 as ([ y | y q ] & H2 & H3); simpl in H3; try discriminate.
     inversion H3; subst; simpl in H1.
-    apply subcode_in_code with (i:= j) in H2; simpl in H2 |- *; try omega.
-    destruct (eq_nat_dec j q); try omega.
-    destruct (le_lt_dec k q); omega.
+    apply subcode_in_code with (i:= j) in H2; simpl in H2 |- *; try lia.
+    destruct (eq_nat_dec j q); try lia.
+    destruct (le_lt_dec k q); lia.
   Qed.
 
   Variable P : list (mm_instr (pos n)).
@@ -208,7 +207,7 @@ Section remove_self_loops.
   Let sc_R_2 : (2+lP, DEC pos0 (1+(2+lP)) :: DEC pos0 (2+lP) :: nil) <sc (1+lP, R).
   Proof. 
     unfold R; rewrite plus_assoc; simpl plus.
-    exists (DEC pos0 0 :: nil), nil; simpl; split; auto; omega.
+    exists (DEC pos0 0 :: nil), nil; simpl; split; auto; lia.
   Qed.
 
   Let R_sc i rho : (i,rho::nil) <sc (1+lP,R) -> i = 1+lP /\ rho = DEC pos0 0
@@ -216,9 +215,9 @@ Section remove_self_loops.
                                              \/ i = 3+lP /\ rho = DEC pos0 (2+lP).
   Proof.
     unfold R; intros ([ | u [ | v [ | w l ] ] ] & r & H1 & H2); inversion H1; subst i; simpl.
-    + do 0 right; left; split; auto; omega.
-    + do 1 right; left; split; auto; omega.
-    + do 2 right; split; auto; omega.
+    + do 0 right; left; split; auto; lia.
+    + do 1 right; left; split; auto; lia.
+    + do 2 right; split; auto; lia.
     + destruct l; discriminate.
   Qed.
 
@@ -227,11 +226,11 @@ Section remove_self_loops.
     intros i rho H.
     apply R_sc in H.
     destruct H as [ (H1 & H2) | H ].
-    { inversion H2; omega. }
+    { inversion H2; lia. }
     destruct H as [ (H1 & H2) | H ].
-    { inversion H2; omega. }
+    { inversion H2; lia. }
     destruct H as (H1 & H2).
-    { inversion H2; omega. }
+    { inversion H2; lia. }
   Qed.
  
   Let Q := g (1+lP) 1 P ++ R.
@@ -239,7 +238,7 @@ Section remove_self_loops.
   Let Q_no_self_loops : mm_no_self_loops (1,Q).
   Proof.
     apply mm_no_self_loops_app.
-    + apply g_loops; simpl; omega. 
+    + apply g_loops; simpl; lia. 
     + rewrite length_g, plus_comm; auto.
   Qed.
 
@@ -280,31 +279,31 @@ Section remove_self_loops.
     { destruct rho as [ | y p ]; try discriminate.
       unfold f in H2.
       destruct (eq_nat_dec i p).
-      { inversion H2; omega. }
-      destruct (le_lt_dec (1+lP) p); inversion H2; omega. }
+      { inversion H2; lia. }
+      destruct (le_lt_dec (1+lP) p); inversion H2; lia. }
     destruct H as [ (H1 & H2) | H ].
-    { inversion H2; omega. }
+    { inversion H2; lia. }
     destruct H as [ (H1 & H2) | H ].
-    { inversion H2; omega. }
+    { inversion H2; lia. }
     destruct H as (H1 & H2).
-    { inversion H2; omega. }
+    { inversion H2; lia. }
   Qed.
 
   Let P_imp_Q s s0 : in_code (fst s) (1,P) -> (1,P) // s ~~> s0 -> (1,Q) // (fst s, 0##snd s) ↓.
   Proof.
     intros H1 H; revert H1.
     pattern s; revert s H; apply mm_term_ind.
-    + simpl; intros; omega.
+    + simpl; intros; lia.
     + intros i [ x | x p ] v j w H1 H2 H3 H5 H4; unfold fst, snd in *. 
       * apply mm_sss_INC_inv in H2.
         destruct H2 as (G1 & G2).
         destruct (eq_nat_dec i lP) as [ Hi | Hi ].
-        - exists (0,0##w); split; try (simpl; omega).
+        - exists (0,0##w); split; try (simpl; lia).
           apply sc_Q_1 in H1; simpl f in H1.
           mm sss INC with (pos_nxt x).
           subst i; clear H1; mm sss DEC 0 with pos0 0.
           mm sss stop; f_equal; simpl; subst; auto. 
-        - spec in H5. { subst j; simpl in H4 |- *; omega. }
+        - spec in H5. { subst j; simpl in H4 |- *; lia. }
           apply sc_Q_1 in H1; simpl f in H1.
           apply subcode_sss_terminates_instr with (2 := H1) (3 := H5).
           subst; constructor.
@@ -320,15 +319,15 @@ Section remove_self_loops.
               apply subcode_sss_compute_instr with (1 := H2) (3 := H3); auto.
            -- destruct (le_lt_dec (1+lP) p) as [ Hp1 | Hp1 ];
                 [ | destruct (eq_nat_dec p 0) as [ Hp2 | Hp2 ] ].
-              ** exists (0,0##v); split; try (simpl; omega).
+              ** exists (0,0##v); split; try (simpl; lia).
                  mm sss DEC 0 with (pos_nxt x) 0.
                  mm sss stop.
-              ** subst p; exists (0,0##v); split; try (simpl; omega).
+              ** subst p; exists (0,0##v); split; try (simpl; lia).
                  mm sss DEC 0 with (pos_nxt x) 0.
                  mm sss stop.
               ** apply mm_sss_DEC0_inv with (1 := Hx) in H2.
                  destruct H2; subst j w.
-                 spec in H5. { simpl; omega. }
+                 spec in H5. { simpl; lia. }
                  apply subcode_sss_terminates_instr with (2 := H6) (3 := H5).
                  constructor; simpl; auto.
         ++ intros u Hx.
@@ -339,7 +338,7 @@ Section remove_self_loops.
               apply subcode_sss_compute_instr with (2 := H6) (st2 := (1+i,0##w)); auto.
               ** replace (0##w) with ((0##v)[u/pos_nxt x]); subst; auto; constructor; auto.
               ** subst i; mm sss DEC 0 with pos0 0; mm sss stop.
-           -- spec in H5. { simpl in H4 |- *; omega. }
+           -- spec in H5. { simpl in H4 |- *; lia. }
               apply subcode_sss_terminates_instr with (2 := H6) (3 := H5); auto.
               replace (0##w) with ((0##v)[u/pos_nxt x]); subst; auto; constructor; auto.
   Qed.
@@ -348,7 +347,7 @@ Section remove_self_loops.
   Proof.
     intros H1 H2 H3; revert H1 H2.
     pattern s; revert s H3; apply mm_term_ind.
-    + simpl; intros; omega.
+    + simpl; intros; lia.
     + intros i ρ v j w H1 H2 H3 H4 H5 H6; unfold fst, snd in *.
       rewrite (vec_head_tail v) in H2, H6.
       revert H2 H6.
@@ -359,9 +358,9 @@ Section remove_self_loops.
         destruct H2 as (? & H2); subst j w.
         revert H4; rew vec; simpl; intros H4.
         destruct (eq_nat_dec i lP) as [ Hi | Hi ].
-        - exists (S i, v[(S (v#>x))/x]); split; try (simpl; omega).
+        - exists (S i, v[(S (v#>x))/x]); split; try (simpl; lia).
           mm sss INC with x; mm sss stop.
-        - spec in H4. simpl in H5; omega. spec in H4; auto.
+        - spec in H4. simpl in H5; lia. spec in H4; auto.
           apply subcode_sss_terminates_instr with (2 := G1) (3 := H4); auto; constructor.
       * unfold f in H2; case_eq (v#>x).
         - intros Hx.
@@ -374,11 +373,11 @@ Section remove_self_loops.
              apply mm_self_loop_no_term_2 with (v := 0##v) (1 := sc_Q_3); auto.
           ** destruct (le_lt_dec (1+lP) p) as [ Hp | Hp ];
                [ | destruct (eq_nat_dec p 0) as [ Hp2 | Hp2 ] ].
-             ++ exists (p,v); split; try (simpl; omega).
+             ++ exists (p,v); split; try (simpl; lia).
                 mm sss DEC 0 with x p; mm sss stop.
-             ++ exists (p,v); split; try (simpl; omega).
+             ++ exists (p,v); split; try (simpl; lia).
                 mm sss DEC 0 with x p; mm sss stop.
-             ++ spec in H4. simpl in H5 |- *; omega.
+             ++ spec in H4. simpl in H5 |- *; lia.
                 spec in H4; auto.
                 apply subcode_sss_terminates_instr with (2 := G1) (3 := H4); auto; constructor.
                 simpl; auto.
@@ -387,13 +386,13 @@ Section remove_self_loops.
           destruct H2; subst j w.
           simpl in H4.
           destruct (eq_nat_dec i lP) as [ Hi | Hi ].
-          ** exists (S i, v[u/x]); split; try (simpl; omega).
+          ** exists (S i, v[u/x]); split; try (simpl; lia).
              mm sss DEC S with x p u; mm sss stop.
-          ** spec in H4. simpl in H5; omega.
+          ** spec in H4. simpl in H5; lia.
              spec in H4; auto.
              apply subcode_sss_terminates_instr with (2 := G1) (3 := H4); auto.
              constructor; auto.
-      * destruct G1 as [ (? & _) | [ (? & _) | (? & _) ] ]; simpl in H5; omega.
+      * destruct G1 as [ (? & _) | [ (? & _) | (? & _) ] ]; simpl in H5; lia.
   Qed.
 
   Theorem mm_remove_self_loops : { Q |  mm_no_self_loops (1,Q)
@@ -407,11 +406,11 @@ Section remove_self_loops.
        - intros i x j ([ | ] & ? & ? & ?); discriminate.
        - destruct P; try discriminate.
          split.
-         * exists (1,0##v); split; simpl; try omega; mm sss stop.
-         * exists (1,v); split; simpl; try omega; mm sss stop.
+         * exists (1,0##v); split; simpl; try lia; mm sss stop.
+         * exists (1,v); split; simpl; try lia; mm sss stop.
     + exists Q; split; auto; split; auto; intros v; split.
-      * intros (s0 & H); revert H; apply P_imp_Q; simpl; omega.
-      * intros (s0 & H); revert H; apply Q_imp_P; simpl; omega.
+      * intros (s0 & H); revert H; apply P_imp_Q; simpl; lia.
+      * intros (s0 & H); revert H; apply Q_imp_P; simpl; lia.
   Qed.
 
 End remove_self_loops.

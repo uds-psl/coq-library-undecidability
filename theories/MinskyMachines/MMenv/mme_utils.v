@@ -7,10 +7,10 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega.
+Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW
-  Require Import Utils.utils Vec.pos Vec.vec Code.subcode Code.sss.
+  Require Import utils pos vec subcode sss.
 
 From Undecidability.MinskyMachines.MMenv 
   Require Import env mme_defs. 
@@ -61,7 +61,7 @@ Section mm_env_utils.
           as (e' & H4 & H5); rew env.
         exists e'; split.
         * intros j; rewrite H4.
-          dest j dst; try omega.
+          dest j dst; try lia.
           dest j src.
         * mm env DEC S with src (3+i) k.
           mm env INC with dst.
@@ -177,7 +177,7 @@ Section mm_env_utils.
         * apply sss_compute_trans with (2+i,e1).
           - apply sss_progress_compute.
             simpl; revert H5; apply subcode_sss_progress; auto.
-          - replace (2*length (dst::ll)+i) with (2*length ll+(2+i)) by (rew length; omega).
+          - replace (2*length (dst::ll)+i) with (2*length ll+(2+i)) by (rew length; lia).
             revert H8; simpl; apply subcode_sss_compute; auto.
             subcode_tac; rewrite <- app_nil_end; auto.
     Qed.
@@ -207,10 +207,10 @@ Section mm_env_utils.
       destruct mm_list_erase_compute 
         with (zero := zero) (ll := list_an dst k) (i := i) (e := e)
         as (e' & H1 & H2 & H3); auto.
-      * rewrite Forall_forall; intros j; rewrite list_an_spec; intros; omega.
+      * rewrite Forall_forall; intros j; rewrite list_an_spec; intros; lia.
       * rew length in H3; exists e'; msplit 2; auto. 
-        + intros; apply H1, list_an_spec; omega.
-        + intros; apply H2; rewrite list_an_spec; omega.
+        + intros; apply H1, list_an_spec; lia.
+        + intros; apply H2; rewrite list_an_spec; lia.
     Qed.
 
   End mm_multi_erase.
@@ -249,8 +249,8 @@ Section mm_env_utils.
           as (e' & H5 & H6); rew env.
         exists e'; split.
         * intros j; rewrite H5.
-          dest j tmp; try omega.
-          dest j dst; try omega.
+          dest j tmp; try lia.
+          dest j dst; try lia.
           dest j src.
         * mm env DEC S with src (4+i) k.
           mm env INC with dst.
@@ -346,7 +346,7 @@ Section mm_env_utils.
     Fact mm_multi_copy_length k src dst i : length (mm_multi_copy k src dst i) = 9*k.
     Proof.
       revert src dst i; induction k as [ | k IHk ]; intros src dst i; simpl; auto.
-      rew length; rewrite IHk; omega.
+      rew length; rewrite IHk; lia.
     Qed.
 
     Fact mm_multi_copy_compute k src dst i e :
@@ -361,31 +361,31 @@ Section mm_env_utils.
                     /\ (i,mm_multi_copy k src dst i) // (i,e) ->> (9*k+i,e').
     Proof.
       revert src dst i e; induction k as [ | k IHk ]; intros src dst i e; intros H1 H2 H3 H4 H5 H6.
-      + exists e; split; [ | split ]; try (intros; omega).
+      + exists e; split; [ | split ]; try (intros; lia).
         mm env stop.
       + destruct (@mm_copy_progress src dst tmp zero) with (i := i) (e := e)
-          as (e1 & G1 & G2); try omega.
+          as (e1 & G1 & G2); try lia.
         destruct (IHk (S src) (S dst) (9+i)) with (e := e1) 
-          as (e2 & G3 & G4 & G5); try omega.
-        { rewrite G1; assert (dst <> tmp); try omega; rew env. }
-        { rewrite G1; assert (dst <> zero); try omega; rew env. }
+          as (e2 & G3 & G4 & G5); try lia.
+        { rewrite G1; assert (dst <> tmp); try lia; rew env. }
+        { rewrite G1; assert (dst <> zero); try lia; rew env. }
         exists e2; split; [ | split ].
         * intros [ | j ] Hj.
-          - rewrite G4; try omega; simpl; rewrite G1; rew env.
-          - replace (S j + dst) with (j+S dst) by omega.
-            replace (S j + src) with (j+S src) by omega.
-            rewrite G3; try omega.
+          - rewrite G4; try lia; simpl; rewrite G1; rew env.
+          - replace (S j + dst) with (j+S dst) by lia.
+            replace (S j + src) with (j+S src) by lia.
+            rewrite G3; try lia.
             rewrite G1.
-            assert (dst <> j+S src) by omega; rew env.
+            assert (dst <> j+S src) by lia; rew env.
         * intros j Hj.
-          rewrite G4; try omega.
+          rewrite G4; try lia.
           rewrite G1.
-          assert (j <> dst) by omega; rew env.
+          assert (j <> dst) by lia; rew env.
         * unfold mm_multi_copy; fold mm_multi_copy. 
           apply sss_compute_trans with (9+i,e1).
           - apply sss_progress_compute.
             revert G2; apply subcode_sss_progress; auto.
-          - replace (9*S k+i) with (9*k+(9+i)) by omega.
+          - replace (9*S k+i) with (9*k+(9+i)) by lia.
             revert G5; apply subcode_sss_compute.
             subcode_tac; rewrite <- app_nil_end; auto.
     Qed.
@@ -419,7 +419,7 @@ Section mm_env_utils.
         exists e'; split.
         * intros j; rewrite H1; dest j dst.
         * mm env INC with dst.
-          replace (S (n+i)) with (n+(1+i)) by omega.
+          replace (S (n+i)) with (n+(1+i)) by lia.
           revert H2; apply subcode_sss_compute.
           subcode_tac; simpl; rewrite <- app_nil_end; auto.
     Qed.
@@ -444,7 +444,7 @@ Section mm_env_utils.
         dest j dst; rewrite H1; rew env.
       + apply sss_progress_compute_trans with (2+i,e1).
         * revert H2; apply subcode_sss_progress; auto.
-        * replace (2+n+i) with (n+(2+i)) by omega.
+        * replace (2+n+i) with (n+(2+i)) by lia.
           revert H4; apply subcode_sss_compute; auto.
           subcode_tac; rewrite <- app_nil_end; auto.
     Qed.

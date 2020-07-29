@@ -7,12 +7,10 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega.
+Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW
-  Require Import Utils.utils Utils.gcd
-                 Vec.pos Vec.vec
-                 Code.subcode Code.sss.
+  Require Import utils gcd pos vec subcode sss.
 
 From Undecidability.MinskyMachines.MMA
   Require Import mma_defs mma_utils.
@@ -89,7 +87,7 @@ Section Fractran_with_two_counters.
         ++ mma_transfert dst src (26+4*a+7*b+i).
 
     Fact mma_fractran_one_length : length mma_fractran_one = 29+4*a+7*b.
-    Proof. unfold mma_fractran_one; rew length; omega. Qed.
+    Proof. unfold mma_fractran_one; rew length; lia. Qed.
 
     Hypothesis (Ha : a <> 0) (Hb : b <> 0).
 
@@ -105,25 +103,25 @@ Section Fractran_with_two_counters.
       apply sss_progress_trans with (5+a+i,v[0/src][(k*b)/dst]).
       { apply subcode_sss_progress with (P := (i,mma_mult_cst src dst a i)); auto.
         apply mma_mult_cst_progress; auto.
-        rewrite H2, <- H1; do 2 f_equal; omega. }
+        rewrite H2, <- H1; do 2 f_equal; lia. }
       apply sss_progress_trans with (11+a+4*b+i,v[(k*b)/src][0/dst]).
       { apply subcode_sss_progress with (P := (5+a+i,mma_mod_cst dst src (11+a+4*b+i) (21+a+7*b+i) b (5+a+i))); auto.
-        apply mma_mod_cst_divides_progress with k; rew vec; try omega.
-        f_equal; apply vec_pos_ext; intros y; dest y dst; try omega; dest y src. }
+        apply mma_mod_cst_divides_progress with k; rew vec; try lia.
+        f_equal; apply vec_pos_ext; intros y; dest y dst; try lia; dest y src. }
       apply sss_progress_trans with (16+a+7*b+i,v[0/src][k/dst]).
       { apply subcode_sss_progress with (P := (11+a+4*b+i,mma_div_cst src dst b (11+a+4*b+i))); auto.
-        apply mma_div_cst_progress with k; auto; rew vec; try omega.
-        f_equal; try omega.
-        apply vec_pos_ext; intros y; dest y dst; try omega; dest y src. }
+        apply mma_div_cst_progress with k; auto; rew vec; try lia.
+        f_equal; try lia.
+        apply vec_pos_ext; intros y; dest y dst; try lia; dest y src. }
       apply sss_progress_trans with (19+a+7*b+i,v[k/src][0/dst]).
       { apply subcode_sss_progress with (P := (16+a+7*b+i,mma_transfert dst src (16+a+7*b+i))); auto.
         apply mma_transfert_progress; auto.
-        f_equal; try omega.
-        apply vec_pos_ext; intros y; dest y dst; try omega; dest y src. }
+        f_equal; try lia.
+        apply vec_pos_ext; intros y; dest y dst; try lia; dest y src. }
       mma sss INC with dst.
       mma sss DEC S with dst p 0; rew vec.
       mma sss stop; f_equal.
-      apply vec_pos_ext; intros y; dest y dst; try omega; dest y src. 
+      apply vec_pos_ext; intros y; dest y dst; try lia; dest y src. 
     Qed.
 
     (* If the state in src is not compatible with a/b then jump at the end of the code *)
@@ -143,20 +141,20 @@ Section Fractran_with_two_counters.
       apply sss_progress_trans with (5+a+i,v[0/src][(x*b+y)/dst]).
       { apply subcode_sss_progress with (P := (i,mma_mult_cst src dst a i)); auto.
         apply mma_mult_cst_progress; auto.
-        rewrite H2, <- H3; do 2 f_equal; omega. }
+        rewrite H2, <- H3; do 2 f_equal; lia. }
       apply sss_progress_trans with (21+a+7*b+i,v[(a*(v#>src))/src][0/dst]).
       { apply subcode_sss_progress with (P := (5+a+i,mma_mod_cst dst src (11+a+4*b+i) (21+a+7*b+i) b (5+a+i))); auto.
-        apply mma_mod_cst_not_divides_progress with x y; rew vec; try omega.
-        f_equal; apply vec_pos_ext; intros c; dest c dst; try omega; dest c src; omega. }
+        apply mma_mod_cst_not_divides_progress with x y; rew vec; try lia.
+        f_equal; apply vec_pos_ext; intros c; dest c dst; try lia; dest c src; lia. }
       apply sss_progress_trans with (26+4*a+7*b+i,v[0/src][(v#>src)/dst]).
       { apply subcode_sss_progress with (P := (21+a+7*b+i,mma_div_cst src dst a (21+a+7*b+i))); auto.
-        apply mma_div_cst_progress with (v#>src); auto; rew vec; try omega; try ring.
-        f_equal; try omega.
-        apply vec_pos_ext; intros c; dest c dst; try omega; dest c src. }
+        apply mma_div_cst_progress with (v#>src); auto; rew vec; try lia; try ring.
+        f_equal; try lia.
+        apply vec_pos_ext; intros c; dest c dst; try lia; dest c src. }
       apply subcode_sss_progress with (P := (26+4*a+7*b+i,mma_transfert dst src (26+4*a+7*b+i))); auto.
       apply mma_transfert_progress; auto.
-      f_equal; try omega.
-      apply vec_pos_ext; intros c; dest c dst; try omega; dest c src. 
+      f_equal; try lia.
+      apply vec_pos_ext; intros c; dest c dst; try lia; dest c src. 
     Qed.
 
   End mma_fractran_one.
@@ -194,7 +192,7 @@ Section Fractran_with_two_counters.
           apply mma_fractran_one_nok_progress; auto; rewrite H6; auto. }
         { apply subcode_sss_progress with (P := (length (mma_fractran_one a b p i)+i,
                                                  mma_fractran_step ll (length (mma_fractran_one a b p i)+i))); auto.
-          apply subcode_right; omega. }
+          apply subcode_right; lia. }
     Qed.
 
     Fact mma_fractran_step_failure_compute ll i v : 
@@ -213,9 +211,9 @@ Section Fractran_with_two_counters.
         { apply subcode_sss_compute with (P := (i,P)); auto.
           apply sss_progress_compute, mma_fractran_one_nok_progress; auto. }
         { apply subcode_sss_compute with (P := (length P+i,mma_fractran_step ll (length P + i))); auto.
-          { apply subcode_right; omega. }
+          { apply subcode_right; lia. }
             replace (length P+length (mma_fractran_step ll (length P + i))+i)
-            with    (length (mma_fractran_step ll (length P + i)) + (length P+i)) by omega.
+            with    (length (mma_fractran_step ll (length P + i)) + (length P+i)) by lia.
             auto. }
     Qed.
 
@@ -280,7 +278,7 @@ Section Fractran_with_two_counters.
     Proof.
       split; auto.
       + intros (y & H2 & H3).
-        exists (length fractran_mma+i,y##0##vec_nil); split; simpl; auto; try omega.
+        exists (length fractran_mma+i,y##0##vec_nil); split; simpl; auto; try lia.
         apply fractran_mma_sound with (x := y); auto.
       + apply fractran_mma_complete; auto.
     Qed.
@@ -303,7 +301,7 @@ Section fractran_mma_reg_reduction.
     + rewrite Exists_exists in H.
       exists mma_loop; intros Hll.
       destruct H as ((x,y) & H1 & H2); simpl in H2.
-      replace x with 0 in H1 by omega; clear H2.
+      replace x with 0 in H1 by lia; clear H2.
       intros n; split.
       * intros H; exfalso.
         revert H; apply FRACTRAN_HALTING_zero_num.

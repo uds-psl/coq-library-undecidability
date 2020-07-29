@@ -7,8 +7,6 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega.
-
 Require Import Undecidability.Synthetic.Undecidability.
 
 From Undecidability.Shared.Libs.DLW 
