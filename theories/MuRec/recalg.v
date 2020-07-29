@@ -7,13 +7,10 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import Arith Eqdep_dec Omega List Bool.
+Require Import Arith Lia List Bool Eqdep_dec .
 
-From Undecidability.Shared.Libs.DLW.Utils 
-  Require Import utils_tac utils_nat utils_list finite. 
-
-From Undecidability.Shared.Libs.DLW.Vec 
-  Require Import pos vec.
+From Undecidability.Shared.Libs.DLW 
+  Require Import utils_tac utils_nat utils_list finite pos vec.
 
 Set Implicit Arguments.
 
@@ -167,16 +164,16 @@ Section recursor.
                                            /\ forall i, i < n -> G i (s i) (s (S i)).
   Proof.
     revert x; induction n as [ | n IHn ]; intros x; simpl.
-    + exists (fun _ => x); msplit 2; auto; intros; omega.
+    + exists (fun _ => x); msplit 2; auto; intros; lia.
     + intros (y & H1 & H2).
       destruct (IHn _ H1) as (s & H3 & H4 & H5).
       exists (fun i => if le_lt_dec (S n) i then x else s i); msplit 2; auto.
-      * destruct (le_lt_dec (S n) (S n)); auto; omega.
+      * destruct (le_lt_dec (S n) (S n)); auto; lia.
       * intros i Hi.
-        destruct (le_lt_dec (S n) i); destruct (le_lt_dec (S n) (S i)); auto; try omega.
-        - replace i with n by omega.
+        destruct (le_lt_dec (S n) i); destruct (le_lt_dec (S n) (S i)); auto; try lia.
+        - replace i with n by lia.
           rewrite H4; auto.
-        - apply H5; omega.
+        - apply H5; lia.
   Qed.
 
   Theorem μ_rec_eq n x : μ_rec n x <-> exists s, F (s 0) 

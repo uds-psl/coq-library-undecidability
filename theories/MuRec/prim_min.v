@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import Arith Lia Omega.
+Require Import Arith Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_nat.
@@ -55,16 +55,16 @@ Section prim_min.
   Proof.
     unfold prim_min_rec.
     revert a; induction n as [ | n IHn ]; intros a Hn.
-    + intros i Hi; replace i with 0 by omega; auto.
+    + intros i Hi; replace i with 0 by lia; auto.
     + intros [ | i ] Hi; auto.
       * rewrite iter_S.
         unfold g at 2.
         generalize (Hn 0); simpl; intros E.
-        destruct (f a); try omega.
-        rewrite IHn; try omega.
+        destruct (f a); try lia.
+        rewrite IHn; try lia.
         intros j Hj.
-        replace (j+S a) with (S j+a) by omega.
-        apply Hn; omega.
+        replace (j+S a) with (S j+a) by lia.
+        apply Hn; lia.
   Qed.
 
   Let prim_min_rec_spec_1 n a : f a = 0 -> prim_min_rec n a = a.
@@ -84,12 +84,12 @@ Section prim_min.
     assert (prim_min n = k) as H4.
     { unfold prim_min. 
       unfold prim_min_rec.
-      replace n with (n-k+k) by omega.
+      replace n with (n-k+k) by lia.
       rewrite iter_plus.
       fold (prim_min_rec k 0).
       rewrite prim_min_rec_spec_0 with (n := k) (a := 0); auto.
       rewrite plus_comm; apply prim_min_rec_spec_1; auto.
-      intros; apply H3; omega. }
+      intros; apply H3; lia. }
     rewrite H4; auto.
   Qed.
 

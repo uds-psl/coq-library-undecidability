@@ -7,13 +7,10 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import Arith Omega Lia.
+Require Import Arith Lia.
 
-From Undecidability.Shared.Libs.DLW.Utils 
-  Require Import utils_tac utils_nat gcd sums.
-
-From Undecidability.Shared.Libs.DLW.Vec 
-  Require Import pos vec.
+From Undecidability.Shared.Libs.DLW 
+  Require Import utils_tac utils_nat gcd sums pos vec.
 
 Set Implicit Arguments.
 
@@ -62,7 +59,7 @@ Section nat_nat2_bij.
       destruct (IHn (div n 2)) as (a & b & H3); try lia.
       exists (S a), b.
       rewrite H1, H, H3, power_S; ring.
-    + intros [ | [ | k ] ] Hk; try omega.
+    + intros [ | [ | k ] ] Hk; try lia.
       exists 0, (div n 2); rewrite power_0.
       rewrite H1 at 1; rewrite Hk; ring.
   Qed.
@@ -76,23 +73,23 @@ Section nat_nat2_bij.
   Definition recomp a b := power a 2 * (2*b+1) - 1.
   
   Fact recomp_decomp n : n = recomp (decomp_l n) (decomp_r n).
-  Proof. unfold recomp; rewrite <- decomp_lr_spec; omega. Qed.
+  Proof. unfold recomp; rewrite <- decomp_lr_spec; lia. Qed.
 
   Let power_mult_lt_inj a1 b1 a2 b2 : a1 < a2 -> power a1 2 * (2*b1+1) <> power a2 2 * b2.
   Proof.
     intros H1 H.
-    replace a2 with (a1+(S (a2-a1-1))) in H by omega.
+    replace a2 with (a1+(S (a2-a1-1))) in H by lia.
     rewrite power_plus in H.
     rewrite <- mult_assoc, Nat.mul_cancel_l in H.
-    2: generalize (power2_gt_0 a1); omega.
+    2: generalize (power2_gt_0 a1); lia.
     revert H; rewrite power_S, <- mult_assoc.
-    generalize (power (a2-a1-1) 2*b1); intros; omega.
+    generalize (power (a2-a1-1) 2*b1); intros; lia.
   Qed.
 
   Let comp_gt a b : power a 2 *(2*b+1) <> 0.
   Proof. 
     intros E; apply mult_is_O in E.
-    generalize (power2_gt_0 a); intros; omega.
+    generalize (power2_gt_0 a); intros; lia.
   Qed. 
 
   Fact decomp_uniq a1 b1 a2 b2 : power a1 2 * (2*b1+1) = power a2 2 * (2*b2+1) -> a1 = a2 /\ b1 = b2.
@@ -101,8 +98,8 @@ Section nat_nat2_bij.
     destruct (lt_eq_lt_dec a1 a2) as [ [ H1 | H1 ] | H1 ].
     + exfalso; revert H; apply power_mult_lt_inj; auto.
     + split; auto; subst a2.
-      rewrite Nat.mul_cancel_l in H; try omega.
-      generalize (power2_gt_0 a1); omega.
+      rewrite Nat.mul_cancel_l in H; try lia.
+      generalize (power2_gt_0 a1); lia.
     + exfalso; symmetry in H.
       revert H; apply power_mult_lt_inj; auto.
   Qed.
@@ -112,7 +109,7 @@ Section nat_nat2_bij.
     apply decomp_uniq; symmetry.
     replace (power a 2 * (2*b+1)) with (S (recomp a b)).
     + apply decomp_lr_spec.
-    + unfold recomp; generalize (power a 2 * (2*b+1)) (comp_gt a b); intros; omega.
+    + unfold recomp; generalize (power a 2 * (2*b+1)) (comp_gt a b); intros; lia.
   Qed.
 
   Fact decomp_l_recomp a b : decomp_l (recomp a b) = a.

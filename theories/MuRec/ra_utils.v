@@ -9,12 +9,11 @@
 
 Require Import Arith List Lia.
 
-From Undecidability.Shared.Libs.DLW.Utils 
-  Require Import utils_tac utils_nat utils_list gcd crt sums finite.
+From Undecidability.Shared.Libs.DLW 
+  Require Import utils_tac utils_nat utils_list gcd crt sums finite pos vec.
 
-From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
-
-From Undecidability.MuRec Require Import recalg recomp prim_min.
+From Undecidability.MuRec 
+  Require Import recalg recomp prim_min.
 
 Set Implicit Arguments.
 
