@@ -11,15 +11,13 @@
 
 (** ** Compiler from MM to FRACTRAN *)
 
-Require Import List Arith Omega Permutation.
+Require Import List Arith Lia Permutation.
 
 Import ListNotations.
 
-From Undecidability.Shared.Libs.DLW.Utils 
-  Require Import utils utils_tac utils_list utils_nat gcd rel_iter prime.
-
 From Undecidability.Shared.Libs.DLW 
-  Require Import Vec.pos Vec.vec Code.subcode Code.sss.
+  Require Import utils utils_tac utils_list utils_nat gcd rel_iter prime
+                 pos vec subcode sss.
 
 From Undecidability.MinskyMachines.MM Require Import mm_defs mm_no_self.
 From Undecidability.FRACTRAN Require Import FRACTRAN fractran_utils prime_seq.
@@ -74,7 +72,7 @@ Fixpoint encode_mm_instr m i (l : list (mm_instr (pos m))) : list (nat * nat) :=
 Fact encode_mm_instr_app m i l r : @encode_mm_instr m i (l++r) = encode_mm_instr i l++encode_mm_instr (length l+i) r.
 Proof.
   revert i; induction l as [ | rho l IHl ]; intros i; simpl; auto; rewrite IHl, app_ass.
-  do 3 f_equal; omega.
+  do 3 f_equal; lia.
 Qed.
 
 Fact encode_mm_instr_regular n i l : Forall (fun c => fst c <> 0 /\ snd c <> 0) (@encode_mm_instr n i l).
@@ -103,7 +101,7 @@ Proof.
       as [ (m & H1 & H2) | (m & H1 & H2) ].
     * destruct IHP with (1 := H2) as (l & rho' & r & G1 & G2).
       exists (rho::l), rho', r; subst; split; auto.
-      eq goal G2; do 2 f_equal; simpl; omega.
+      eq goal G2; do 2 f_equal; simpl; lia.
     * exists nil, rho, P; split; simpl; auto.
       rewrite <- H1; apply in_or_app; simpl; auto.
 Qed.
@@ -117,7 +115,7 @@ Opaque ps qs.
 Lemma divides_encode_state i k n v : divides (ps i) (@encode_state n (k,v)) -> i = k.
 Proof.
   unfold encode_state. intros. induction v.
-  - cbn in H. replace (ps k * 1) with (ps k) in H by omega.
+  - cbn in H. replace (ps k * 1) with (ps k) in H by lia.
     now eapply primestream_divides in H.
   - cbn in H. eapply divides_mult_inv in H as [ | [ | ] % divides_mult_inv ]; eauto.
     + now eapply primestream_divides in H.
@@ -130,14 +128,14 @@ Lemma skip_steps m k l r k' (v v' : vec _ m) :
       @mm_no_self_loops m (k, l ++ r) 
    -> encode_mm_instr (k + length l) r /F/ encode_state (k + length l,v) → encode_state (k',v') 
    -> encode_mm_instr k (l ++ r)       /F/ encode_state (k + length l,v) → encode_state (k',v').
-Proof with eauto; try omega.
+Proof with eauto; try lia.
   revert k. induction l; cbn - [subcode] in *; intros.
   - revert H0. ring_simplify (k + 0). eauto.
   - revert H0. ring_simplify (k + S (length l)). intros H1. destruct a.
     + econstructor 2. intros [[|] % divides_mult_inv | ] % divides_mult_inv; eauto.
-      * eapply primestream_divides in H0; omega.
+      * eapply primestream_divides in H0; lia.
       * now eapply ps_qs_div in H0. 
-      * eapply divides_encode_state in H0; omega.
+      * eapply divides_encode_state in H0; lia.
       * specialize IHl with (k := S k). revert IHl.
         cbn - [subcode]. ring_simplify (S (k + length l)).
         intros IHl. eapply IHl. 2:exact H1.
@@ -177,7 +175,7 @@ Proof.
     + cbn; rewrite pos2nat_fst, Nat.add_0_r. 
       split.
       * intros [ | ] % divides_mult_inv; eauto.
-        -- destruct h; try omega. cbn in H. 
+        -- destruct h; try lia. cbn in H. 
            apply divides_1_inv in H.
            generalize (str_prime qs j); rewrite H.
            intros [ [] _ ]; auto.
@@ -193,7 +191,7 @@ Proof.
       * eapply divides_mult_inv in H as [ | ]; eauto.
         eapply divides_pow in H; auto. 
         eapply primestream_divides in H.
-        omega.
+        lia.
       * eapply divides_mult. 
         revert H; cbn; rewrite plus_n_Sm; eauto.
 Qed.
@@ -202,12 +200,12 @@ Lemma one_step_forward m i P i1 v1 i2 v2 :
      @mm_no_self_loops m (i,P) 
   -> (i, P)              /MM/ (i1, v1)           → (i2,v2) 
   -> encode_mm_instr i P /F/  encode_state (i1,v1) → encode_state (i2,v2).
-Proof with eauto; try omega.
+Proof with eauto; try lia.
   intros HP (k & l & [ u | u j ] & r & v & ? & ? & ?); inversion H; subst; clear H.
   - inversion H0; inversion H1; subst; clear H0 H1. 
     eapply skip_steps...
     econstructor. cbn. ring_simplify.
-    replace (1 + (k + length l)) with (k + length l + 1) by omega. unfold encode_state, fst, snd. 
+    replace (1 + (k + length l)) with (k + length l + 1) by lia. unfold encode_state, fst, snd. 
     rewrite vec_prod_mult.
     rewrite Nat.add_0_r; ring.
   - inversion H0; inversion H1; subst; clear H0 H1.
@@ -216,10 +214,10 @@ Proof with eauto; try omega.
       intros [] % divides_mult_inv_l...
       eapply divides_mult_inv in H0 as [ | ]...
       * now eapply qs_ps_div in H0.          
-      * eapply qs_encode_state in H0. omega.
+      * eapply qs_encode_state in H0. lia.
       * unfold encode_dec2. econstructor. unfold encode_state, fst, snd. ring.
     + econstructor. cbn. unfold encode_state, fst, snd. ring_simplify.
-      replace (1 + (k + length l)) with (k + length l + 1) by omega.
+      replace (1 + (k + length l)) with (k + length l + 1) by lia.
       erewrite <- (vec_prod_div _ _ _ H4).
       rewrite Nat.add_0_r; ring.
 Qed.
@@ -278,27 +276,27 @@ Proof.
       repeat rewrite mult_assoc in H5.
     * apply divides_from_eq, prime_div_mult4 in H5; auto.
       destruct H5 as [ H5 | [ H5 | [ H5 | H5 ] ] ].
-      + apply primestream_divides in H5; omega.
+      + apply primestream_divides in H5; lia.
       + apply ps_qs_div in H5; tauto.
-      + apply primestream_divides in H5; omega.
+      + apply primestream_divides in H5; lia.
       + apply ps_exp in H5; tauto.
     * rewrite <- mult_assoc in H5.
       apply divides_from_eq, prime_div_mult3 in H5; auto.
       destruct H5 as [ H5 | [ H5 | H5 ] ].
-      + apply primestream_divides in H5; omega.
-      + apply primestream_divides in H5; omega.
+      + apply primestream_divides in H5; lia.
+      + apply primestream_divides in H5; lia.
       + apply ps_exp in H5; tauto.
     * apply divides_from_eq, prime_div_mult3 in H5; auto.
       destruct H5 as [ H5 | [ H5 | H5 ] ].
       + apply primestream_divides in H5.
         exfalso; apply (H1 j u); auto.
-      + apply primestream_divides in H5; omega.
+      + apply primestream_divides in H5; lia.
       + apply ps_exp in H5; tauto. }
   destruct mm_sss_total with (ii := rho) (s := (i1,v1))
     as ((i2 & v2) & H7).
   exists i2, v2.
   assert ((i, l++rho::r) /MM/ (i1,v1) → (i2,v2)) as H8.
-  { apply in_sss_step; auto; simpl; omega. }
+  { apply in_sss_step; auto; simpl; lia. }
   split; auto.
   apply one_step_forward in H8; auto.
   revert H2 H8; apply fractran_step_fun; auto.

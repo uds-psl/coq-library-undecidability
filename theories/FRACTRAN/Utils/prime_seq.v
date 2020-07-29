@@ -11,10 +11,10 @@
 
 (** ** Two infinite sequences of primes *)
 
-Require Import List Arith Omega Bool Permutation.
+Require Import List Arith Lia Bool Permutation.
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils utils_tac utils_list utils_nat gcd rel_iter prime.
-From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
+From Undecidability.Shared.Libs.DLW 
+  Require Import utils utils_tac utils_list utils_nat gcd rel_iter prime pos vec.
 
 Set Implicit Arguments.
 
@@ -27,7 +27,7 @@ Set Implicit Arguments.
 
 Lemma prime_neq_0 p : prime p -> p <> 0.
 Proof.
-  intros ? % prime_ge_2; omega.
+  intros ? % prime_ge_2; lia.
 Qed.
 
 Hint Resolve prime_neq_0 : core.
@@ -39,7 +39,7 @@ Lemma power_factor_lt_neq p i j x y :
       -> p^i * x <> p^j * y.
 Proof.
   intros H1 H2 H3 H5.
-  replace j with (i+S (j-i-1)) in H5 by omega.
+  replace j with (i+S (j-i-1)) in H5 by lia.
   rewrite Nat.pow_add_r, <- mult_assoc in H5.
   rewrite Nat.mul_cancel_l in H5.
   2: apply Nat.pow_nonzero; auto.
@@ -68,10 +68,10 @@ Qed.
 Lemma prime_above m : { p | m < p /\ prime p }.
 Proof.
   destruct (prime_factor (n := fact m + 1)) as (p & ? & ?).
-  - pose proof (lt_O_fact m). omega.
+  - pose proof (lt_O_fact m); lia.
   - exists p; eauto. destruct (Nat.lt_ge_cases m p); eauto.
     eapply divides_plus_inv in H0.
-    + eapply divides_1_inv in H0; subst. destruct H. omega.
+    + eapply divides_1_inv in H0; subst. destruct H; lia.
     + eapply divides_fact. eapply prime_ge_2 in H; eauto.
 Qed.
 
@@ -79,10 +79,10 @@ Lemma prime_dec p : { prime p } + { ~ prime p }.
 Proof.
   destruct (le_lt_dec 2 p) as [ H | H ].
   + destruct (prime_or_div H) as [ (q & H1 & H2) | ? ]; auto.
-    right; intros C; apply C in H2; omega.
+    right; intros C; apply C in H2; lia.
   + right; intros (H1 & H2).
-    destruct (H2 2); try omega.
-    exists 0; simpl; omega.
+    destruct (H2 2); try lia.
+    exists 0; simpl; lia.
 Qed.
 
 Lemma first_prime_above m : { p | m < p /\ prime p /\ forall q, m < q -> prime q -> p <= q }.
@@ -125,14 +125,14 @@ Qed.
 Fact notprime_bool_rec_spec n k : notprime_bool_rec n k = true <-> forall i, n <= i < k+n -> ~ prime i.
 Proof.
   revert n; induction k as [ | k IHk ]; intros n; simpl.
-  + split; auto; intros; omega.
+  + split; auto; intros; lia.
   + rewrite andb_true_iff, negb_true_iff, 
             <- not_true_iff_false, prime_bool_spec, IHk.
     split.
     * intros (H1 & H2) i Hi.
       destruct (eq_nat_dec n i); subst; auto.
-      apply H2; omega.
-    * intros H; split; intros; apply H; omega.
+      apply H2; lia.
+    * intros H; split; intros; apply H; lia.
 Qed.
 
 Definition nxtprime_bool n p := Nat.leb (S n) p && notprime_bool_rec (S n) (p - S n) && prime_bool p.
@@ -148,9 +148,9 @@ Proof.
     apply le_antisym.
     * apply G3; auto.
     * apply Nat.nlt_ge. 
-      intro; apply (H2 q); auto; omega.
+      intro; apply (H2 q); auto; lia.
   + intros ->; lsplit 2; auto.
-    intros q Hq C; apply G3 in C; omega.
+    intros q Hq C; apply G3 in C; lia.
 Qed.
 
 Definition nthprime (n : nat) := iter nxtprime 2 n.
@@ -170,12 +170,12 @@ Qed.
 Lemma nthprime_inj n m : nthprime n = nthprime m -> n = m.
 Proof.
   destruct (lt_eq_lt_dec n m) as [ [ H | ] | H ]; auto; 
-    intros; eapply nthprime_ge in H; omega.
+    intros; eapply nthprime_ge in H; lia.
 Qed.
 
 Fact nthprime_nxt i p q : nthprime i = p -> nxtprime p = q -> nthprime (S i) = q.
 Proof.
-  replace (S i) with (i+1) by omega.
+  replace (S i) with (i+1) by lia.
   unfold nthprime at 2.
   rewrite iter_plus; fold (nthprime i).
   intros -> ?; simpl; auto.
@@ -216,7 +216,7 @@ Qed.
 Definition ps : primestream.
 Proof.
   exists (fun n => nthprime (2 * n)); auto.
-  intros; apply nthprime_inj in H; omega.
+  intros; apply nthprime_inj in H; lia.
 Defined.
 
 Fact ps_1 : ps 1 = 5.
@@ -225,14 +225,14 @@ Proof. simpl; apply nthprime_2. Qed.
 Definition qs : primestream.
 Proof.
   exists (fun n => nthprime (1 + 2 * n)); auto.
-  intros; apply nthprime_inj in H; omega.
+  intros; apply nthprime_inj in H; lia.
 Defined.
 
 Fact qs_1 : qs 1 = 7.
 Proof. simpl; apply nthprime_3. Qed.
 
 Lemma ps_qs : forall n m, ps n = qs m -> False.
-Proof. intros ? ? ? % nthprime_inj; omega. Qed. 
+Proof. intros ? ? ? % nthprime_inj; lia. Qed. 
 
 Hint Resolve ps_qs : core.
 
@@ -266,7 +266,7 @@ Proof.
   + rewrite vec_app_nil, exp_zero; simpl; ring.
   + rewrite vec_app_cons, exp_cons.
     simpl plus; rewrite exp_cons, IHv.
-    replace (n+S i) with (S (n+i)) by omega; ring.
+    replace (n+S i) with (S (n+i)) by lia; ring.
 Qed.
 
 Local Notation divides_mult_inv := prime_div_mult.
@@ -324,7 +324,7 @@ Proof with eauto.
   revert i j; induction v; intros i j Hi.
   + cbn; intros ? % divides_1_inv % not_qs_1; auto.
   + cbn; intros [ H % divides_pow | H  ] % divides_mult_inv; eauto.
-    * eapply primestream_divides in H; omega.
+    * eapply primestream_divides in H; lia.
     * eapply IHv in H; eauto.
 Qed.
 
@@ -350,9 +350,9 @@ Proof.
            intros ? % divides_1_inv % not_qs_1; tauto.
         -- eapply divides_pow in H; auto. 
            eapply primestream_divides in H.
-           assert (n = j) by omega. subst.
+           assert (n = j) by lia. subst.
            cbn; do 2 apply divides_mult_r; apply divides_refl.
-      * eapply divides_mult. replace (S (m + j)) with (m + S j) in H by omega.
+      * eapply divides_mult. replace (S (m + j)) with (m + S j) in H by lia.
         rewrite <- IHv in H. eauto.
 Qed.
 
@@ -362,7 +362,7 @@ Proof.
   + rewrite pos2nat_fst; simpl; ring.
   + rewrite pos2nat_nxt; simpl; rewrite IHv.
     unfold tonat.
-    replace (pos2nat u+S i) with (S (pos2nat u+i)) by omega; ring.
+    replace (pos2nat u+S i) with (S (pos2nat u+i)) by lia; ring.
 Qed.
 
 Lemma inv_exp q p1 p2 x y : 
@@ -396,5 +396,5 @@ Proof.
   induction v1 as [ | n x v1 IHv1 ]; analyse pos u; intros.
   + rewrite pos2nat_fst, Nat.add_0_r; cbn; ring.
   + intros; rewrite pos2nat_nxt; simpl; rewrite IHv1; unfold tonat.
-    replace (S i+pos2nat u) with (i+S (pos2nat u)) by omega; ring.
+    replace (S i+pos2nat u) with (i+S (pos2nat u)) by lia; ring.
 Qed.

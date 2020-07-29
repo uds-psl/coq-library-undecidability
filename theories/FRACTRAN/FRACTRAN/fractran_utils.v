@@ -9,11 +9,10 @@
 
 (** ** Definition of FRACTRAN *)
 
-Require Import List Arith Omega.
+Require Import List Arith Lia.
 
-From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
-From Undecidability.Shared.Libs.DLW.Utils 
-  Require Import utils_tac utils_list utils_nat gcd rel_iter.
+From Undecidability.Shared.Libs.DLW 
+  Require Import utils_tac utils_list utils_nat gcd rel_iter pos vec.
 
 Require Import Undecidability.FRACTRAN.FRACTRAN.
 
@@ -37,8 +36,8 @@ Section fractran_utils.
   Fact mul_pos_inj_l q x y : q <> 0 -> q*x = q*y -> x = y.
   Proof.
     intros H1 H2.
-    destruct q; try omega.
-    apply le_antisym; apply mult_S_le_reg_l with q; omega.
+    destruct q; try lia.
+    apply le_antisym; apply mult_S_le_reg_l with q; lia.
   Qed.
 
   Lemma fractran_step_inv P x y : 
@@ -95,10 +94,9 @@ Section fractran_utils.
       apply fractran_step_cons_inv in Hxy.
       destruct Hxy as [ Hxy | (_ & Hxy) ].
       * rewrite Nat.mul_add_distr_r, <- Hxy.
-        destruct q; simpl; try omega.
-        generalize (q*y) (k*x); intros; omega.
+        destruct q; simpl; try lia.
       * apply le_trans with (1 := H2 _ _ Hxy).
-        apply mult_le_compat; omega.
+        apply mult_le_compat; lia.
   Qed.
 
   Fact fractan_stop_nil_inv x : fractran_stop nil x <-> True.
@@ -132,7 +130,7 @@ Section fractran_utils.
       { left; exists 0; constructor 1; ring. }
       destruct b as [ | b ].
       * assert (~ divides 0 (S a*S x)) as C.
-        { intros C; apply divides_0_inv, mult_is_O in C; omega. }
+        { intros C; apply divides_0_inv, mult_is_O in C; lia. }
         destruct (IH (S x)) as [ (y & Hy) | Hx ].
         - left; exists y; constructor 2; auto.
         - right; rewrite fractan_stop_cons_inv; split; auto.
@@ -165,7 +163,7 @@ Section fractran_utils.
          -> forall x, exists y, l /F/ x → y. 
     Proof.
       induction 1 as [ (p,q) l Hl | (p,q) l Hl IHl ]; simpl in Hl.
-      + intros x; exists 0; subst; constructor; omega.
+      + intros x; exists 0; subst; constructor; lia.
       + intros x.
         destruct (divides_dec (p*x) q) as [ (y & Hy) | C ].
         * exists y; constructor; rewrite Hy, mult_comm; auto.
@@ -187,7 +185,7 @@ Section fractran_utils.
       intros H2 H3.
       apply fractran_step_cons_inv in H3.
       destruct H3 as [ H3 | (H3 & _) ].
-      + rewrite Nat.mul_0_r in H3; apply mult_is_O in H3; omega.
+      + rewrite Nat.mul_0_r in H3; apply mult_is_O in H3; lia.
       + destruct H3; exists 0; ring.
     Qed.
 
@@ -213,7 +211,7 @@ Section fractran_utils.
       unfold fractran_regular.
       intros H1 H2; revert H2 H1.
       induction 1 as [ p q l x y H | p q l x y H1 H2 IH2 ]; rewrite Forall_cons_inv; simpl; intros (H3 & H4) ?; subst.
-      + rewrite Nat.mul_0_r in H; apply mult_is_O in H; omega.
+      + rewrite Nat.mul_0_r in H; apply mult_is_O in H; lia.
       + destruct H1; exists 0; ring.
     Qed.
 
@@ -221,7 +219,7 @@ Section fractran_utils.
     Proof.
       intros H1 x y H2; revert H2 H1.
       induction 1 as [ p q l x y H1 | p q l x y H1 H2 IH2 ]; intros H3; rewrite Forall_cons_inv in H3; simpl in H3; destruct H3 as (H3 & H4); auto.
-      intros; subst y; rewrite Nat.mul_0_r in H1; symmetry in H1; apply mult_is_O in H1; omega.
+      intros; subst y; rewrite Nat.mul_0_r in H1; symmetry in H1; apply mult_is_O in H1; lia.
     Qed.
 
     Fact fractran_rt_no_zero_den l n y : fractran_regular l -> fractran_steps l n 0 y -> y = 0.
@@ -266,9 +264,9 @@ Section fractran_utils.
       * simpl; destruct (eq_nat_dec q 0) as [ Hq | Hq ].
         - rewrite <- IH2; auto; subst; split; intros H.
           + apply fractran_step_cons_inv in H; destruct H as [ H | (H3 & H4) ]; auto.
-            simpl in H; symmetry in H; apply mult_is_O in H; omega.
+            simpl in H; symmetry in H; apply mult_is_O in H; lia.
           + constructor 2; auto; intros H'.
-            apply divides_0_inv, mult_is_O in H'; omega.
+            apply divides_0_inv, mult_is_O in H'; lia.
         - split; intros H.
           + apply fractran_step_cons_inv in H; destruct H as [ H | (H3 & H4) ]; auto.
             -- constructor 1; auto.
@@ -352,8 +350,8 @@ Section fractran_utils.
         exists (f n); split; auto.
         exists (n-i-1); red; rewrite rel_iter_sequence.
         exists (fun j => f (j+i+1)); split; auto.
-        split; [ f_equal; omega | ].
-        intros j Hj; apply F3; omega.
+        split; [ f_equal; lia | ].
+        intros j Hj; apply F3; lia.
       + intros (x & H1 & (y & (n & Hn) & H2)).
         exists y; split; auto.
         exists (S n), x; split; auto.
@@ -387,18 +385,18 @@ Section fractran_utils.
                                           /\ ll = (p,q):: mm /\ q <> 0 /\ p <> 0 } } }.
   Proof.
     destruct (Forall_Exists_dec (fun c : nat * nat => snd c <> 0)) with (l := ll) as [ ? | Hl1 ]; auto.
-    { intros (p, q); destruct (eq_nat_dec q 0); simpl; subst; [ right | left]; omega. }
+    { intros (p, q); destruct (eq_nat_dec q 0); simpl; subst; [ right | left]; lia. }
     assert (Exists (fun c => snd c = 0) ll) as H1.
-    { revert Hl1; induction 1; [ constructor 1 | constructor 2 ]; auto; omega. }
+    { revert Hl1; induction 1; [ constructor 1 | constructor 2 ]; auto; lia. }
     clear Hl1.
     destruct (Forall_Exists_dec (fun c : nat * nat => fst c <> 0)) with (l := ll) as [ Hl3 | Hl3 ].
-    { intros (p, q); destruct (eq_nat_dec p 0); simpl; subst; [ right | left ]; omega. }
-    2: { do 3 left; clear H1; revert Hl3; induction 1; [ constructor 1 | constructor 2 ]; auto; omega. }
+    { intros (p, q); destruct (eq_nat_dec p 0); simpl; subst; [ right | left ]; lia. }
+    2: { do 3 left; clear H1; revert Hl3; induction 1; [ constructor 1 | constructor 2 ]; auto; lia. }
     case_eq ll.
     { intro; subst; exfalso; inversion H1. }
     intros (p,q) mm Hll.
     destruct (eq_nat_dec p 0) as [ Hp | Hp ].
-    { subst; rewrite Forall_cons_inv in Hl3; simpl in Hl3; omega. }
+    { subst; rewrite Forall_cons_inv in Hl3; simpl in Hl3; lia. }
     destruct q.
     + left; right; exists p, mm; subst; auto.
     + right; exists p, (S q), mm; subst; repeat (split; auto).

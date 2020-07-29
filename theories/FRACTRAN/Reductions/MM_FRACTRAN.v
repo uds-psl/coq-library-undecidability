@@ -9,18 +9,14 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** MM reduces to FRACTRAN *)
-
-Require Import List Arith Omega.
-
-(* From Undecidability Require Import ILL.Definitions. *)
-
 From Undecidability.Shared.Libs.DLW 
-  Require Import Vec.pos Vec.vec Code.subcode Code.sss.
+  Require Import pos vec sss.
 
-From Undecidability.MinskyMachines   Require Import mm_defs.
+From Undecidability.MinskyMachines
+  Require Import mm_defs.
+
 From Undecidability.FRACTRAN
-  Require Import FRACTRAN FRACTRAN.fractran_utils mm_fractran prime_seq.
+  Require Import FRACTRAN fractran_utils mm_fractran prime_seq.
 
 Require Import Undecidability.Synthetic.Undecidability.
 
