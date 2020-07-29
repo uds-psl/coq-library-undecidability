@@ -117,6 +117,7 @@ CFG/Reductions/PCP_to_CFPI.v
 CFG/Reductions/CFPP_to_CFP.v
 CFG/Reductions/CFPI_to_CFI.v
 
+# First order logic
 FOL/DecidableEnumerable.v
 FOL/Reductions.v
 FOL/MarkovPost.v
@@ -131,7 +132,7 @@ FOL/BPCP_CND.v
 FOL/Weakening.v
 FOL/Infinite.v
 
-
+# Minsky machines with n counter (2 different semantics) and with 2 counters 
 MinskyMachines/MM.v             # generic X-bounded MM (X=pos n or X=nat is type of registers) 
                                 # with CPP19 semantics (MM) and alternate semantics (MMA)
 MinskyMachines/MMA.v            # simply exports MM.v
@@ -164,8 +165,7 @@ MinskyMachines/MMenv/env.v          # environments for nat-bounded MM
 MinskyMachines/MMenv/mme_defs.v     # X-bounded MM definitions      
 MinskyMachines/MMenv/mme_utils.v    # nat-bounded MM utils for MuRec ~~> MM(nat) compiler
 
-
-
+# Intuitionistic Linear Logic (cf CPP'19 YF&DLW)
 ILL/EILL.v
 ILL/ILL.v
 ILL/ILL_undec.v
@@ -179,6 +179,7 @@ ILL/Ll/ill.v
 ILL/Ll/eill.v
 ILL/Ll/eill_mm.v
 
+# µ-recursive algorithms
 MuRec/recalg.v
 MuRec/ra_utils.v
 MuRec/beta.v
@@ -200,6 +201,7 @@ MuRec/recursor.v
 MuRec/ra_sem_eq.v
 MuRec/ra_ca.v
 
+# FRACTRAN (from H10 FSCD'19, DLW & YF)
 FRACTRAN/FRACTRAN.v
 FRACTRAN/FRACTRAN_undec.v
 FRACTRAN/Reductions/MM_FRACTRAN.v
@@ -208,7 +210,7 @@ FRACTRAN/Utils/prime_seq.v
 FRACTRAN/FRACTRAN/fractran_utils.v
 FRACTRAN/FRACTRAN/mm_fractran.v
 
-H10/Fractran/fractran_dio.v
+# Hilbert Tenth problem (FSCD'19, DLW & YF)
 
 H10/ArithLibs/Zp.v
 H10/ArithLibs/matrix.v
@@ -228,6 +230,8 @@ H10/Dio/dio_cipher.v
 H10/Dio/dio_bounded.v
 H10/Dio/dio_rt_closure.v
 
+H10/Fractran/fractran_dio.v
+
 H10/FRACTRAN_DIO.v
 H10/DPRM.v
 H10/H10.v
@@ -235,8 +239,6 @@ H10/H10Z.v
 H10/H10_undec.v
 H10/H10Z_undec.v
 
-#H10/HaltTM_to_MM_HALTING.v
-#H10/HaltTM_to_H10.v
 
 # Basics
 TM/Prelim.v
