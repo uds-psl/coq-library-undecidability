@@ -9,7 +9,7 @@
 
 (** ** Luca's theorem *)
 
-Require Import Arith Nat Omega Lia List.
+Require Import Arith Nat Lia List.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac gcd prime binomial sums rel_iter.
@@ -18,8 +18,6 @@ From Undecidability.H10.ArithLibs
   Require Import Zp.
 
 Set Implicit Arguments.
-
-(* Ltac omega := idtac "replace with lia"; fail. *)
 
 Local Notation power := (mscal mult 1).
 Local Notation expo := (mscal mult 1).
@@ -81,10 +79,10 @@ Section fact.
     + rewrite Nat.mul_0_l, msum_0, mscal_0, fact_0; auto.
     + replace (S n*p) with (n*p+p) by ring.
       rewrite mprod_factorial, msum_plus, <- mprod_factorial; auto.
-      replace p with (S (p-1)) at 2 by omega.
+      replace p with (S (p-1)) at 2 by lia.
       rewrite msum_plus1; auto.
       rewrite <- plus_assoc.
-      replace (p-1+1) with p by omega.
+      replace (p-1+1) with p by lia.
       replace (n*p+p) with ((S n)*p) by ring.
       rewrite mscal_S, fact_S, msum_S.
       rewrite IHn.
@@ -141,7 +139,7 @@ Section fact.
   Let Psi_Zp_invertible n : Zp_invertible Hp 〚Ψ n〛.
   Proof.
     simpl; rewrite (Psi_Zp_eq n).
-    apply Zp_expo_invertible, Zp_invertible_factorial; auto; omega.
+    apply Zp_expo_invertible, Zp_invertible_factorial; auto; lia.
   Qed.
 
   (** rewrite the binomial theorem
@@ -203,16 +201,16 @@ Section fact.
     Let Hkn : k <= n.
     Proof.
       rewrite Hn, Hk.
-      replace N with (K+(N-K)) by omega.
+      replace N with (K+(N-K)) by lia.
       rewrite Nat.mul_add_distr_r.
-      generalize ((N-K)*p); intros; omega.
+      generalize ((N-K)*p); intros; lia.
     Qed.
    
     Let Hnk : n - k = (N-K)*p+(n0-k0).
     Proof.
       rewrite Hn, Hk, Nat.mul_sub_distr_r.
       cut (K*p <= N*p).
-      + generalize (K*p) (N*p); intros; omega.
+      + generalize (K*p) (N*p); intros; lia.
       + apply mult_le_compat; auto.
     Qed.
   
@@ -230,7 +228,7 @@ Section fact.
       rewrite binomial_thm with (1 := Hkn).
       rewrite Hnk. 
       rewrite Hk at 3.
-      replace N with (K+(N-K)) at 1 by omega.
+      replace N with (K+(N-K)) at 1 by lia.
       rewrite power_plus.
       do 2 rewrite mprod_factorial_euclid.
       ring.
@@ -254,18 +252,18 @@ Section fact.
       rewrite (Zp_mult_comm _ _〚 fact k0 〛) in G.
       repeat rewrite <- Zp_mult_assoc in G.
       apply Zp_invertible_cancel_l in G.
-      2: apply Zp_invertible_factorial; auto; omega.
+      2: apply Zp_invertible_factorial; auto; lia.
       repeat rewrite Zp_mult_assoc in G.
       do 2 rewrite (Zp_mult_comm _ _〚 fact _ 〛) in G.
       repeat rewrite <- Zp_mult_assoc in G.
       apply Zp_invertible_cancel_l in G.
-      2: apply Zp_invertible_factorial; auto; omega.
+      2: apply Zp_invertible_factorial; auto; lia.
       repeat rewrite Zp_mult_assoc in G.
       rewrite <- mscal_plus in G; auto.
-      replace (K+(N-K)) with N in G by omega.
+      replace (K+(N-K)) with N in G by lia.
       rewrite (Zp_mult_comm _ _ (expoZp _ _)) in G.
       apply Zp_invertible_cancel_l in G; trivial.
-      apply Zp_expo_invertible, Zp_invertible_factorial; auto; omega.
+      apply Zp_expo_invertible, Zp_invertible_factorial; auto; lia.
     Qed.
 
   End binomial_without_p_not_zero.
@@ -275,17 +273,17 @@ Section fact.
     Variable (n N n0 k K k0 : nat) (Hn : n = N*p+n0) (Hk : k = K*p+k0) 
              (H1 : K < N) (H2 : n0 < k0) (Hk0 : k0 < p).
 
-    Let H3 : p - (k0-n0) < p.    Proof. omega. Qed.
-    Let H4 : S (N-1) = N.        Proof. omega. Qed.
-    Let H5 : N-1 = K+(N-(K+1)).  Proof. omega. Qed.
-    Let H6 : N = K+1+(N-(K+1)).  Proof. omega. Qed.
-    Let HNK : N-K = S (N-(K+1)). Proof. omega. Qed.
+    Let H3 : p - (k0-n0) < p.    Proof. lia. Qed.
+    Let H4 : S (N-1) = N.        Proof. lia. Qed.
+    Let H5 : N-1 = K+(N-(K+1)).  Proof. lia. Qed.
+    Let H6 : N = K+1+(N-(K+1)).  Proof. lia. Qed.
+    Let HNK : N-K = S (N-(K+1)). Proof. lia. Qed.
 
     Let Hkn : k <= n.
     Proof.
       rewrite Hn, Hk, H6.
       do 2 rewrite Nat.mul_add_distr_r.
-      generalize ((N-(K+1))*p); clear H3 H4 H5 H6 HNK; intros; omega.
+      generalize ((N-(K+1))*p); clear H3 H4 H5 H6 HNK; intros; lia.
     Qed.
    
     Let Hnk : n - k = (N-(K+1))*p+(p-(k0-n0)).
@@ -293,8 +291,8 @@ Section fact.
       rewrite Hn, Hk, Nat.mul_sub_distr_r.
       cut ((K+1)*p <= N*p).
       + rewrite Nat.mul_add_distr_r.
-        generalize (K*p) (N*p); clear H3 H4 H5 H6 HNK Hkn; intros; omega.
-      + apply mult_le_compat; auto; clear H3 H4 H5 H6 HNK Hkn; omega.
+        generalize (K*p) (N*p); clear H3 H4 H5 H6 HNK Hkn; intros; lia.
+      + apply mult_le_compat; auto; clear H3 H4 H5 H6 HNK Hkn; lia.
     Qed.
 
     Fact binomial_with_p : fact K * fact (N-(K+1)) * φ K k0 * Ψ K * φ (N-(K+1)) (p-(k0-n0)) * Ψ (N-(K+1)) * binomial n k 
@@ -351,7 +349,7 @@ Section lucas_lemma.
 
   Let Hp : p <> 0.
   Proof.
-    generalize (prime_ge_2 Hprime); intro; omega.
+    generalize (prime_ge_2 Hprime); intro; lia.
   Qed.
 
   Variables (n N n0 k K k0 : nat)
@@ -364,20 +362,18 @@ Section lucas_lemma.
   Proof.
     destruct (le_lt_dec k n) as [ H0 | H0 ];
     destruct (le_lt_dec k0 n0) as [ H1 | H1 ];
-    destruct (le_lt_dec K N) as [ H2 | H2 ]; try omega.
+    destruct (le_lt_dec K N) as [ H2 | H2 ]; try lia.
     + do 2 right; split; auto.
       rewrite G1, G3.
-      replace K with (N+1+(K-N-1)) by omega.
+      replace K with (N+1+(K-N-1)) by lia.
       do 2 rewrite Nat.mul_add_distr_r.
-      generalize ((K-N-1)*p); intros; omega.
-    + destruct (eq_nat_dec N K); try omega.
-      do 2 right; split; auto.
-      rewrite G1, G3; subst N; omega.
+      generalize ((K-N-1)*p); intros; lia.
+    + destruct (eq_nat_dec N K); try lia.
     + do 2 right; split; auto.
       rewrite G1, G3.
-      replace K with (N+1+(K-N-1)) by omega.
+      replace K with (N+1+(K-N-1)) by lia.
       do 2 rewrite Nat.mul_add_distr_r.
-      generalize ((K-N-1)*p); intros; omega.
+      generalize ((K-N-1)*p); intros; lia.
   Qed.
 
   Theorem lucas_lemma : rem (binomial n k) p = rem (binomial N K * binomial n0 k0) p.
@@ -400,8 +396,6 @@ Section lucas_lemma.
   Qed.
 
 End lucas_lemma.
-
-
 
 (* Eval compute in binomial 3 0. *)
 

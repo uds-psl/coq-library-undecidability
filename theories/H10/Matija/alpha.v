@@ -9,10 +9,13 @@
 
 (** ** Solutions of Pell's equation *)
 
-Require Import Arith Omega Eqdep_dec ZArith.
+Require Import Arith Lia ZArith.
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac gcd prime crt binomial sums.
-From Undecidability.H10.ArithLibs Require Import matrix Zp.
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_tac gcd prime crt binomial sums.
+
+From Undecidability.H10.ArithLibs 
+  Require Import matrix Zp.
 
 Set Implicit Arguments.
 
@@ -84,16 +87,16 @@ Section Pell.
     intros Hb.
     induction on n as IHn with measure n.
     destruct n as [ | [ | n ] ]; auto.
-    rewrite alpha_nat_fix_2, Hb, IHn, IHn; omega.
+    rewrite alpha_nat_fix_2, Hb, IHn, IHn; lia.
   Qed.
 
   Fact alpha_nat_inc n : alpha_nat n < alpha_nat (S n).
   Proof.
-    induction n as [ | n IHn ]; try (simpl; omega).
+    induction n as [ | n IHn ]; try (simpl; lia).
     rewrite alpha_nat_fix_2.
-    replace b_nat with (2+(b_nat-2)) by omega.
+    replace b_nat with (2+(b_nat-2)) by lia.
     rewrite Nat.mul_add_distr_r.
-    generalize ((b_nat -2)*alpha_nat (S n)); intro; omega.
+    generalize ((b_nat -2)*alpha_nat (S n)); intro; lia.
   Qed.
 
   Corollary alpha_nat_mono i j : i <= j -> alpha_nat i <= alpha_nat j.
@@ -117,15 +120,15 @@ Section Pell.
 
   Fact alpha_nat_gt_0 : forall n, n <> 0 -> alpha_nat n <> 0.
   Proof.
-    intros [ | n ] H; try omega.
-    generalize (alpha_nat_ge_n (S n)); omega.
+    intros [ | n ] H; try lia.
+    generalize (alpha_nat_ge_n (S n)); lia.
   Qed.
 
   Fact alpha_nat_le n : alpha_nat n <= b_nat * alpha_nat (S n).
   Proof.
     apply le_trans with (1*alpha_nat (S n)).
-    + apply lt_le_weak, lt_le_trans with (1 := alpha_nat_inc _); omega.
-    + apply mult_le_compat; omega.
+    + apply lt_le_weak, lt_le_trans with (1 := alpha_nat_inc _); lia.
+    + apply mult_le_compat; lia.
   Qed.
 
   Notation power := (mscal mult 1).
@@ -135,18 +138,18 @@ Section Pell.
     intros Hb.
     induction on n as IHn with measure n.
     destruct n as [ | [ | n ] ].
-    + do 2 rewrite power_0; simpl; omega.
-    + do 2 rewrite power_1; simpl; omega.
+    + do 2 rewrite power_0; simpl; lia.
+    + do 2 rewrite power_1; simpl; lia.
     + rewrite alpha_nat_fix_2.
-      destruct (IHn n) as (H1 & H2); try omega.
-      destruct (IHn (S n)) as (H3 & H4); try omega.
+      destruct (IHn n) as (H1 & H2); try lia.
+      destruct (IHn (S n)) as (H3 & H4); try lia.
       split.
-      * replace b_nat with (b_nat-1+1) at 2 by omega.
+      * replace b_nat with (b_nat-1+1) at 2 by lia.
         rewrite Nat.mul_add_distr_r.
         rewrite <- (Nat.add_sub_assoc (_*_)).
         - apply le_trans with (2 := le_plus_l _ _).
           rewrite power_S; apply mult_le_compat; auto.
-        - rewrite Nat.mul_1_l; apply alpha_nat_mono; omega.
+        - rewrite Nat.mul_1_l; apply alpha_nat_mono; lia.
       * rewrite power_S.
         apply le_trans with (1 := Nat.le_sub_l _ _).
         apply mult_le_compat_l; auto.
@@ -156,7 +159,7 @@ Section Pell.
 
   Let b := Z.of_nat b_nat.
   Let Hb : 2 <= b.
-  Proof. apply inj_le with (n:= 2%nat); omega. Qed. 
+  Proof. apply inj_le with (n:= 2%nat); lia. Qed. 
 
   Definition alpha_Z n := 
     match n with 
@@ -185,14 +188,14 @@ Section Pell.
  
   Fact alpha_inc n : α n < α (S n).
   Proof. 
-    destruct n; simpl; try omega.
+    destruct n; simpl; try lia.
     apply inj_lt, alpha_nat_inc. 
   Qed.
 
   Fact alpha_ge_0 n : 0 <= α (S n).
   Proof.
     induction n as [ | n IHn ].
-    + rewrite alpha_fix_1; omega.
+    + rewrite alpha_fix_1; lia.
     + apply Zlt_le_weak, Z.le_lt_trans with (2 := alpha_inc _); trivial.
   Qed.
 
@@ -209,9 +212,7 @@ Section Pell.
     intros H n.
     induction on n as IHn with measure n.
     destruct n as [ | [ | n ] ]; alpha; auto.
-    do 2 (rewrite IHn; try omega).
-    repeat rewrite Nat2Z.inj_succ.
-    rewrite H; omega.
+    do 2 (rewrite IHn; try lia).
   Qed.
 
   Notation MZ := (M22 Z).
@@ -335,7 +336,7 @@ Section Pell.
   Proof.
     intros H.
     rewrite <- (MZ_expo_A u).
-    replace u with (u-v+v)%nat at 2 by omega.
+    replace u with (u-v+v)%nat at 2 by lia.
     rewrite mscal_plus; auto.
     do 2 rewrite MZ_expo_A.
     rewrite <- M22mult_assoc with (1 := Zring).
@@ -361,7 +362,7 @@ Section Pell.
       destruct rem_2_is_0_or_1 with (x := alpha_nat (S n)) as [ H1 | ]; auto.
       destruct rem_2_is_0_or_1 with (x := alpha_nat n) as [ H2 | ]; auto.
       exfalso; generalize (alpha_nat_coprime n); intros (_ & _ & H3).
-      destruct (H3 2%nat) as (? & ?); try omega; apply divides_rem_eq; auto.
+      destruct (H3 2%nat) as (? & ?); try lia; apply divides_rem_eq; auto.
     Qed.  
 
   End alpha_nat_coprime.
@@ -369,7 +370,7 @@ Section Pell.
   Theorem find_odd_alpha u : exists n, (u <= alpha_nat (S n) /\ rem (alpha_nat (S n)) 2 = 1)%nat.
   Proof.
     destruct (alpha_nat_odd (S u)) as [ H | H ]; [ exists (S u) | exists u ]; split; auto;
-      apply le_trans with (1 := alpha_nat_ge_n _), alpha_nat_mono; omega.
+      apply le_trans with (1 := alpha_nat_ge_n _), alpha_nat_mono; lia.
   Qed.
 
   Theorem find_odd_alpha' u : exists n, (u <= alpha_nat n /\ rem (alpha_nat n) 2 = 1)%nat.
@@ -435,7 +436,7 @@ Section Pell.
     Fact alpha_SSm_m_neq_0 : v <> 0%nat.
     Proof. 
       intros H; subst; simpl in Hv.
-      generalize (alpha_inc m) (alpha_inc (S m)); omega.
+      generalize (alpha_inc m) (alpha_inc (S m)); lia.
     Qed.
 
     Notation Hv' := alpha_SSm_m_neq_0.
@@ -493,7 +494,7 @@ Section Pell.
     Proof.
       induction i as [ | i IHi ].
       + rewrite mscal_0; auto.
-      + rewrite mscal_S; omega.
+      + rewrite mscal_S; lia.
     Qed. 
 
     Variable (j : nat) (Hl : (l <> 0)%nat) (Hj : (j <= m)%nat).
@@ -512,8 +513,8 @@ Section Pell.
 
     Let Hj' : (j <= 2*l*m)%nat.
     Proof.
-      apply le_trans with (1*m)%nat; try omega.
-      apply mult_le_compat; omega.
+      apply le_trans with (1*m)%nat; try lia.
+      apply mult_le_compat; lia.
     Qed.
 
     Fact alpha_2lm_minus_j :〚α (S (2*l*m-j))〛=〚expoZ (S l) (-1)*α (S j)〛.
@@ -566,7 +567,7 @@ Section Pell.
     Hypothesis Hm : m <> 0%nat.
 
     Let Hq : (1+q*q < b_nat*q)%nat.
-    Proof. omega. Qed.
+    Proof. lia. Qed.
 
     Let VP : MZ := (Z.of_nat q,0,1,0).
 
@@ -593,7 +594,7 @@ Section Pell.
       unfold b.
       do 2 rewrite <- Nat2Z.inj_mul.
       change 1 with (Z.of_nat 1%nat).
-      rewrite Z.add_opp_r, <- Nat2Z.inj_add, <- Nat2Z.inj_sub; try omega.
+      rewrite Z.add_opp_r, <- Nat2Z.inj_add, <- Nat2Z.inj_sub; try lia.
       rewrite Nat.sub_add_distr; fold m.
       rewrite Z2Zp_of_nat, nat2Zp_p; auto.
     Qed.
@@ -642,8 +643,8 @@ Section Pell.
 
     Theorem expo_congruence n : (0 < n)%nat -> nat2Zp Hm (q * alpha_nat n) = nat2Zp Hm (alpha_nat (n-1) + power n q).
     Proof.
-      destruct n as [ | n ]; try omega.
-      replace (S n-1)%nat with n by omega.
+      destruct n as [ | n ]; try lia.
+      replace (S n-1)%nat with n by lia.
       rewrite nat2Zp_mult.
       generalize (expo_congruence_Z (S n)); intros H.
       do 2 rewrite alpha_Z_S in H.
@@ -664,8 +665,8 @@ Section Pell.
     + intros H.
       assert ((y-1)*(y+1) = 0) as H1.
       { ring_simplify in H.
-        ring_simplify; omega. }
-      apply  Zmult_integral in H1; omega.
+        ring_simplify; lia. }
+      apply  Zmult_integral in H1; lia.
     + intros [ | ]; subst; ring.
   Qed.
 
@@ -682,7 +683,7 @@ Section Pell.
     { rewrite <- H; ring. }
     generalize H1; intros H2.
     apply Z.eq_mul_1 in H1.
-    destruct H1; subst; omega.
+    destruct H1; subst; lia.
   Qed.
 
   Theorem Pell_opposite_not x y : y < 0 -> 0 < x -> ~ Pell x y.
@@ -691,14 +692,14 @@ Section Pell.
     red in H3.
     assert (0 <= - (b *x*y)) as H4.
     { replace (-(b*x*y)) with (b*x*-y) by ring.
-      apply Z.mul_nonneg_nonneg; try omega.
-      apply Z.mul_nonneg_nonneg; omega. }
+      apply Z.mul_nonneg_nonneg; try lia.
+      apply Z.mul_nonneg_nonneg; lia. }
     assert (0 < x*x) as H5.
     { apply Z.mul_pos_pos; auto. }
     assert (0 < y*y) as H6.
     { apply Z.mul_neg_neg; auto. }
     revert H3 H4 H5 H6.
-    generalize (x*x) (y*y) (b*x*y); intros; omega.
+    generalize (x*x) (y*y) (b*x*y); intros; lia.
   Qed.
 
   Theorem Pell_alpha x y : 0 <= y < x -> Pell x y -> { n | x = α (S (S n)) /\ y = α (S n) }.
@@ -707,22 +708,20 @@ Section Pell.
     destruct (Z.eq_dec y 0) as [ Hy | Hy ].
     + exists 0%nat.
       rewrite alpha_fix_1, alpha_fix_2; split; auto.
-      subst y; rewrite Pell_zero_right in HP; omega.
+      subst y; rewrite Pell_zero_right in HP; lia.
     + red in HP.
       assert (x*x = 1 + (b*y)*x - y*y) as H1.
       { rewrite <- HP; ring. }
       assert (0 < y*y) as H2.
-      { apply Z.mul_pos_pos; omega. }
+      { apply Z.mul_pos_pos; lia. }
       assert (x <= (b*y)) as H3.
-      { apply Zmult_le_reg_r with x; [ | rewrite H1 ]; omega. }
+      { apply Zmult_le_reg_r with x; [ | rewrite H1 ]; lia. }
       assert (-(y*x) <= - (y*y)) as H4.
       { rewrite <- Z.opp_le_mono.
-        apply Zmult_le_compat; omega. }
+        apply Zmult_le_compat; lia. }
       assert (x > b*y-y) as H5.
-      { apply Zmult_gt_reg_r with x; try omega.
-        rewrite H1; rewrite Z.mul_sub_distr_r; omega. }
-      destruct (IH y (b*y-x)) as (m & G1 & G2); try omega.
-      - apply Z2Nat.inj_lt; omega.
+      { apply Zmult_gt_reg_r with x; try lia. }
+      destruct (IH y (b*y-x)) as (m & G1 & G2); try lia.
       - red; rewrite <- HP; ring.
       - exists (S m); split; auto.
         rewrite alpha_fix_3, <- G2, <- G1; ring.
@@ -761,7 +760,7 @@ Proof.
   simpl Z.of_nat in H1.
   apply Z.sub_move_r in H1.
   destruct (le_lt_dec x y) as [ H3 | H3 ].
-  + revert H1; replace y with x by omega; clear y H2 H3; intros H1.
+  + revert H1; replace y with x by lia; clear y H2 H3; intros H1.
     exfalso.
     apply (@Pell_not_diag _ Hb (Z.of_nat x)); red.
     rewrite <- H1; ring.
@@ -783,7 +782,7 @@ Proof.
   + destruct Pell_alpha_nat with (3 := H2) as (n & ? & ?); auto.
     exists (S n); auto.
   + rewrite plus_comm, (mult_comm x y) in H2.
-    destruct Pell_alpha_nat with (3 := H2) as (n & ? & ?); auto; try omega.
+    destruct Pell_alpha_nat with (3 := H2) as (n & ? & ?); auto; try lia.
     exists n; auto.
 Qed.
 
@@ -798,7 +797,7 @@ Proof.
   assert (Hv' : Z.of_nat v = (alpha_Z b (S(2 + m)) - alpha_Z b (S m))%Z).
   { rewrite Hv.
     rewrite Nat2Z.inj_sub; auto.
-    apply lt_le_weak, alpha_nat_smono; omega. }
+    apply lt_le_weak, alpha_nat_smono; lia. }
   intros (Hk & [ Hl | (Hl1 & Hl2) ] ).
   + destruct alpha_nat_2lm_plus_j with (Hb_nat := Hb) (Hv := Hv') (l := l) (j := j) as [ H | H ].
     - rewrite nat2Zp_inj in H; subst; auto.
@@ -838,7 +837,7 @@ Section divisibility_1.
 
       Fact A_k_morph22 : morph22 (Z2Zp Hak) (A b k) = (〚alpha_Z b (2+k)〛,Zp_zero Hak,Zp_zero Hak,〚-alpha_Z b k〛).
       Proof.
-        destruct k as [ | k' ]; try omega.
+        destruct k as [ | k' ]; try lia.
         unfold A; apply M22_equal; auto;
         simpl plus; unfold alpha_Z.
         + rewrite Z2Zp_opp, Z2Zp_pos, Nat2Z.id, nat2Zp_p, Zp_opp_zero; auto.
@@ -884,7 +883,7 @@ Section divisibility_1.
     split.
     + intros H1.
       destruct (euclid m Hk) as (l & [ | n ] & E1 & E2).
-      { exists l; omega. }
+      { exists l; lia. }
       rewrite plus_comm in E1.
       generalize (alpha_nat_mnlk_eq _ _ E1); intros H2.
       rewrite <- nat2Zp_expo, <- nat2Zp_mult in H2.
@@ -892,8 +891,8 @@ Section divisibility_1.
       apply is_rel_prime_div_r in H2.
       2: apply is_rel_prime_expo, is_gcd_sym, alpha_nat_coprime; auto.
       apply divides_le in H2.
-      * apply alpha_nat_smono with (1 := Hb) in E2; omega.
-      * apply alpha_nat_gt_0; omega.
+      * apply alpha_nat_smono with (1 := Hb) in E2; lia.
+      * apply alpha_nat_gt_0; lia.
     + intros (l & Hl).
       generalize (alpha_nat_mnlk_eq 0 _ Hl); intros H2.
       rewrite <- nat2Zp_expo, <- nat2Zp_mult in H2.
@@ -901,7 +900,7 @@ Section divisibility_1.
       rewrite nat2Zp_inj in H2.
       rewrite rem_of_0 in H2.
       generalize (div_rem_spec1 (alpha_nat b m) (alpha_nat b k)).
-      exists (div (alpha_nat b m) (alpha_nat b k)); omega.
+      exists (div (alpha_nat b m) (alpha_nat b k)); lia.
   Qed.
 
 End divisibility_1.
@@ -913,7 +912,7 @@ Proof.
   + simpl; split; intros H; apply divides_0_inv in H.
     - destruct (eq_nat_dec m 0) as [ | Hm ]; subst.
       * apply divides_0.
-      * generalize (alpha_nat_gt_0 Hb Hm); omega.
+      * generalize (alpha_nat_gt_0 Hb Hm); lia.
     - subst; apply divides_0.
   + apply alpha_nat_divides_k_ge_1; auto.
 Qed.
@@ -976,12 +975,12 @@ Section divisibility_2.
         2: simpl; apply M22_equal; apply Z2Zp_zero.
         2: intros (((?&?)&?)&?) (((?&?)&?)&?); apply M22_equal; apply Z2Zp_plus.
 
-        rewrite msum_first_two in H; try omega.
+        rewrite msum_first_two in H; try lia.
         2: apply M22plus_monoid with (1 := Zp_is_ring Hak2).
         2: { intros i Hi.
              rewrite M22scal_morph with (1 := Z2Zp_morph).
              repeat rewrite Z2Zp_mult.
-             replace i with (2+(i-2))%nat at 3 by omega.
+             replace i with (2+(i-2))%nat at 3 by lia.
              rewrite mscal_plus, Z2Zp_mult; auto.
              rewrite mscal_S, mscal_1; auto.
              unfold alpha_Z at 1 2.
@@ -997,7 +996,7 @@ Section divisibility_2.
         rewrite H.
         repeat rewrite M22scal_morph with (1 := Z2Zp_morph).
         repeat rewrite Z2Zp_mult.
-        rewrite binomial_n1; try omega.
+        rewrite binomial_n1; try lia.
         rewrite binomial_n0.
         rewrite Nat.sub_0_r.
         repeat rewrite mscal_0.
@@ -1050,10 +1049,10 @@ Section divisibility_2.
       + apply Zp_mult_invertible; apply Zp_expo_invertible.
         * apply Zp_opp_invertible. 
           rewrite <- Z2Zp_opp.
-          replace (- (-1))%Z with 1%Z by omega.
+          replace (- (-1))%Z with 1%Z by lia.
           rewrite Z2Zp_one.
           apply Zp_one_invertible.
-        * destruct k; try omega; simpl.
+        * destruct k; try lia; simpl.
           rewrite Z2Zp_of_nat.
           apply nat2Zp_invertible.
           unfold ak2.
@@ -1072,7 +1071,7 @@ Section divisibility_2.
     destruct m as [ | m ].
     + simpl; split; intros; apply divides_0.
     + destruct (divides_dec (S m) k) as [ (l & Hl) | C ].
-      * apply Zp_alpha_congruence_2 with (1 := Hl) (H2 := Hak2); try omega.
+      * apply Zp_alpha_congruence_2 with (1 := Hl) (H2 := Hak2); try lia.
         apply alpha_square_nat; auto.
         intro; subst; discriminate.
       * split; intros H; exfalso; apply C.
@@ -1095,8 +1094,8 @@ Proof.
   * simpl.
     destruct m as [ | m ]; try (simpl; tauto).
     split; intros H; apply divides_0_inv in H; try discriminate.
-    contradict H; apply alpha_nat_gt_0; omega.
-  * apply alpha_nat_divides_2_pos; omega.
+    contradict H; apply alpha_nat_gt_0; lia.
+  * apply alpha_nat_divides_2_pos; lia.
 Qed.
 
 Section congruence_1.
@@ -1112,7 +1111,7 @@ Section congruence_1.
     destruct n as [ | [ | n ] ]; try reflexivity.
     do 2 (rewrite alpha_fix_3; auto).
     do 2 rewrite Z2Zp_minus, Z2Zp_mult.
-    do 2 f_equal; try (apply IHn; omega).
+    do 2 f_equal; try (apply IHn; lia).
     do 2 (rewrite Z2Zp_pos; auto).
     do 2 rewrite Nat2Z.id; auto.
   Qed.
@@ -1140,9 +1139,9 @@ Corollary alpha_nat_congruence_1 b n : b-2 <> 0 -> rem (alpha_nat b n) (b-2) = r
 Proof.
   intros Hb.
   rewrite <- alpha_nat_2 with (b_nat := 2) (n := n) at 2; auto.
-  apply alpha_nat_congruence_0; try omega.
-  replace b with ((b-2)+2) at 1 by omega.
-  apply rem_erase with 1; omega.
+  apply alpha_nat_congruence_0; try lia.
+  replace b with ((b-2)+2) at 1 by lia.
+  apply rem_erase with 1; lia.
 Qed.
 
 Section congruence_2.
@@ -1160,10 +1159,10 @@ Section congruence_2.
   Theorem alpha_Z_b_2 n : 〚 alpha_Z b n 〛 = Zp_plus Hb 〚 Z.of_nat n 〛〚 -1 〛.
   Proof.
     rewrite <- Z2Zp_plus.
-    replace (Z.of_nat n + -1) with (Z.of_nat n -1) by omega.
+    replace (Z.of_nat n + -1) with (Z.of_nat n -1) by lia.
     rewrite <- (@alpha_2 2); auto.
-    apply alpha_Z_congr; try omega.
-    replace b with (2+(b-2))%nat at 3 by omega.
+    apply alpha_Z_congr; try lia.
+    replace b with (2+(b-2))%nat at 3 by lia.
     rewrite nat2Zp_plus.
     rewrite nat2Zp_p, Zp_plus_comm, Zp_plus_zero; auto.
   Qed.
@@ -1173,14 +1172,14 @@ End congruence_2.
 Lemma rem_eq_eq a b v : 2*a < v -> 2*b < v -> rem a v = rem b v -> a = b.
 Proof.
   intros H1 H2 H3.
-  do 2 (rewrite rem_lt in H3; try omega).
+  do 2 (rewrite rem_lt in H3; try lia).
 Qed.
 
 Lemma rem_eq_diff_eq a b v : 2*a < v -> 2*b < v -> (rem a v = rem b v) \/ (rem (a+b) v = 0) -> a = b.
 Proof.
   intros H1 H2 [ H3 | H3 ].
-  + do 2 (rewrite rem_lt in H3; try omega).
-  + rewrite rem_lt in H3; omega.
+  + do 2 (rewrite rem_lt in H3; try lia).
+  + rewrite rem_lt in H3; lia.
 Qed.
 
 Section diophantine_sufficiency.
@@ -1209,30 +1208,30 @@ Section diophantine_sufficiency.
     intros (H41 & H42 & H43 & H44 & H45 & H46 & H47 & H48 & H49 & H50 &
             H51 & H52 & H53 & H54 & H55).
     split; auto.
-    destruct Pell_alpha_nat' with (2 := H42) as (k & Hu); try omega.
-    destruct Pell_alpha_nat with (3 := H43) as (m & Hs & Hr); try omega.
-    destruct Pell_alpha_nat' with (2 := H50) as (n & Hx); try omega.
-    destruct (@division_by_even n (S m)) as (l & j & Hlj); try omega.
+    destruct Pell_alpha_nat' with (2 := H42) as (k & Hu); try lia.
+    destruct Pell_alpha_nat with (3 := H43) as (m & Hs & Hr); try lia.
+    destruct Pell_alpha_nat' with (2 := H50) as (n & Hx); try lia.
+    destruct (@division_by_even n (S m)) as (l & j & Hlj); try lia.
     assert (divides (k*u) (S m)) as H60'.
-    { subst u s; apply alpha_nat_divisibility_2; try omega; auto. }
+    { subst u s; apply alpha_nat_divisibility_2; try lia; auto. }
     assert (divides u (S m)) as H60.
     { apply divides_trans with (2 := H60'), divides_mult, divides_refl. }
     assert (v = alpha_nat b (S (S m)) - alpha_nat b m) as H61.
-    { rewrite alpha_nat_fix_2, <- Hs, <- Hr; omega. }
+    { rewrite alpha_nat_fix_2, <- Hs, <- Hr; lia. }
     assert (rem x v = rem (alpha_nat b n) v) as H62_1.
-    { rewrite Hx; apply alpha_nat_congruence_0; omega. }
+    { rewrite Hx; apply alpha_nat_congruence_0; lia. }
     assert (rem x u = rem n u) as H65.
-    { rewrite Hx, alpha_nat_congruence_0 with (3 := H48); try omega.
+    { rewrite Hx, alpha_nat_congruence_0 with (3 := H48); try lia.
       f_equal; apply alpha_nat_2; auto. }
-    assert (2 <= b) as Hb by omega.
+    assert (2 <= b) as Hb by lia.
     generalize (alpha_nat_2lm Hb H61 Hlj); intros H62_2.
     assert (2*alpha_nat b j < v) as H63.
     { apply le_lt_trans with ((b-2)*alpha_nat b (S m)).
-      { apply mult_le_compat; try omega.
+      { apply mult_le_compat; try lia.
         red in Hlj; apply alpha_nat_mono; tauto. }
       apply plus_lt_reg_l with (2*r).
       rewrite (plus_comm _ v), H46, Hr, Hs.
-      replace b with (2+(b-2)) at 4 by omega.
+      replace b with (2+(b-2)) at 4 by lia.
       rewrite Nat.mul_add_distr_r.
       apply plus_lt_le_compat; auto.
       apply mult_lt_compat_l; auto.
@@ -1253,17 +1252,17 @@ Section diophantine_sufficiency.
       + apply rem_eq_diff_eq with u; auto.
         right.
         rewrite plus_comm, <- rem_plus_rem, H65, rem_plus_rem, G3.
-        apply rem_prop with (2*l*q); try omega.
+        apply rem_prop with (2*l*q); try lia.
         rewrite Hq, mult_assoc.
         assert (2*l*q <> 0) as G4.
         { intros H.
           apply mult_is_O in H; destruct H as [ H | H ]; try (subst; discriminate).
-          apply mult_is_O in H; destruct H; omega. }
+          apply mult_is_O in H; destruct H; lia. }
         assert (1*u <= 2*l*q*u).
         { apply mult_le_compat; auto.
-          revert G4; generalize (2*l*q); intros; omega. }
+          revert G4; generalize (2*l*q); intros; lia. }
         rewrite Nat.mul_1_l in H.
-        revert H; generalize (2*l*q*u); intros; omega. }
+        revert H; generalize (2*l*q*u); intros; lia. }
     subst; auto.
   Qed.
 
@@ -1276,15 +1275,15 @@ Section diophantine_necessity.
   Theorem alpha_necessity : 3 < b /\ a = alpha_nat b c -> exists u t r s v w x y, alpha_conditions a b c u t r s v w x y.
   Proof.
     intros (H1 & H2).
-    assert (2 <= b) as Hb by omega.
-    destruct find_odd_alpha' with (b_nat := b) (u := 1+2*a+2*c) as (k & Hk1 & Hk2); try omega.
+    assert (2 <= b) as Hb by lia.
+    destruct find_odd_alpha' with (b_nat := b) (u := 1+2*a+2*c) as (k & Hk1 & Hk2); try lia.
     remember (alpha_nat b k) as u.
     remember (alpha_nat b (S k)) as t.
     remember (u*k) as m.
     destruct m as [ | m ].
     { symmetry in Heqm.
       apply mult_is_O in Heqm.
-      destruct Heqm; subst; try omega.
+      destruct Heqm; subst; try lia.
        rewrite alpha_nat_fix_0, rem_of_0 in Hk2; discriminate. }
     remember (alpha_nat b m) as r.
     remember (alpha_nat b (S m)) as s.
@@ -1299,19 +1298,19 @@ Section diophantine_necessity.
       apply divides_refl. }
     assert (2*a < b*s - 2*r) as H3.
     { apply lt_le_trans with (2*u).
-      { apply mult_lt_compat_l; omega. }
+      { apply mult_lt_compat_l; lia. }
       apply le_trans with (2*(S m)).
       { apply mult_le_compat_l; rewrite Heqm.
         rewrite <- (Nat.mul_1_r u) at 1.
-        apply mult_le_compat; omega. }
+        apply mult_le_compat; lia. }
       apply le_trans with (2*alpha_nat b (S m)).
       { apply mult_le_compat_l.
         apply le_trans with (1 := alpha_nat_ge_n Hb _).
-        apply alpha_nat_mono; omega. }
+        apply alpha_nat_mono; lia. }
       apply le_trans with (4*s - 2*r).
       { rewrite Heqs, Heqr.
-        generalize (alpha_nat_inc Hb m); intros; omega. }
-      apply Nat.sub_le_mono_r, mult_le_compat_r; omega. }
+        generalize (alpha_nat_inc Hb m); intros; lia. }
+      apply Nat.sub_le_mono_r, mult_le_compat_r; lia. }
     remember (b*s-2*r) as v.
     assert (is_gcd u v 1) as Huv.
     { split; [ | split ]; try apply divides_1.
@@ -1322,7 +1321,7 @@ Section diophantine_necessity.
         apply divides_mult, divides_refl. }
       assert (divides d (2*r)) as F2.
       { apply divides_plus_inv with (1 := Hd2).
-        replace (v+2*r) with (b*s) by omega.
+        replace (v+2*r) with (b*s) by lia.
         apply divides_mult; auto. }
       apply is_rel_prime_div in F2.
       + apply divides_plus_inv with (b*(s*r)).
@@ -1332,21 +1331,21 @@ Section diophantine_necessity.
       + apply is_gcd_sym, no_common_prime_is_coprime; try discriminate.
         intros z G0 G1 G2.
         apply divides_2_inv in G1; destruct G1; subst z.
-        destruct G0; omega.
+        destruct G0; lia.
         replace (rem u 2) with 0 in Hk2; try discriminate.
         symmetry; apply divides_rem_eq; try discriminate.
         apply divides_trans with (1 := G2); auto. }
     assert (exists w, rem w u = rem 2 u /\ rem w v = rem b v /\ 2 < w) as Hw.
-    { apply CRT; auto; try omega. }
+    { apply CRT; auto; try lia. }
     destruct Hw as (w & Hw1 & Hw2 & Hw3).
     remember (alpha_nat w c) as x.
     remember (alpha_nat w (S c)) as y.
     exists u, t, r, s, v, w, x, y; repeat (split; auto); 
-      try (subst; (apply alpha_nat_Pell || apply alpha_nat_Pell' || apply alpha_nat_inc)); try omega; auto.
-    + rewrite Heqx, alpha_nat_congruence_0 with (3 := Hw2), H2; try omega.
+      try (subst; (apply alpha_nat_Pell || apply alpha_nat_Pell' || apply alpha_nat_inc)); try lia; auto.
+    + rewrite Heqx, alpha_nat_congruence_0 with (3 := Hw2), H2; try lia.
     + rewrite Heqx; symmetry.
-      rewrite alpha_nat_congruence_0 with (3 := Hw1); try omega.
-      f_equal; apply alpha_nat_2; omega.
+      rewrite alpha_nat_congruence_0 with (3 := Hw1); try lia.
+      f_equal; apply alpha_nat_2; lia.
   Qed.
 
 End diophantine_necessity.

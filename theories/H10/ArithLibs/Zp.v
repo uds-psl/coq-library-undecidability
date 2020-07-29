@@ -10,10 +10,13 @@
 (** * Arithmetic libraries for Matiyasevich's theorems *)
 (** ** Modular arithmetic *)
 
-Require Import Arith Omega Eqdep_dec ZArith List Permutation.
+Require Import Arith Lia ZArith List Permutation Eqdep_dec.
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list gcd prime binomial sums php.
-From Undecidability.H10.ArithLibs Require Import matrix.
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_tac utils_list gcd prime binomial sums php.
+
+From Undecidability.H10.ArithLibs 
+  Require Import matrix.
 
 Set Implicit Arguments.
 
@@ -63,7 +66,7 @@ Section Z_coprime.
 
   Definition Z_pos_or_neg u : { 0 <= u } + { u < 0 }.
   Proof.
-    destruct (Ztrichotomy_inf u 0) as [ [|] | ]; try (left; omega); tauto.
+    destruct (Ztrichotomy_inf u 0) as [ [|] | ]; try (left; lia); tauto.
   Qed.
 
   Fact Z_coprime u v : (exists a b, a * Z.of_nat u + b*Z.of_nat v = 1) -> is_gcd u v 1%nat.
@@ -82,21 +85,19 @@ Section Z_coprime.
       apply Nat2Z.inj.
       repeat rewrite Nat2Z.inj_add.
       repeat rewrite Nat2Z.inj_mul.
-      repeat rewrite Z2Nat.id; auto; try omega.
-      simpl Z.of_nat; rewrite <- H; ring.
+      repeat rewrite Z2Nat.id; auto; lia.
     + apply bezout_sc with (b:= Z.to_nat b) (a := 0%nat) (m := (Z.to_nat (-a)*u)%nat).
       2: left; apply divides_mult, divides_refl.
       apply Nat2Z.inj.
       repeat rewrite Nat2Z.inj_add.
       repeat rewrite Nat2Z.inj_mul.
-      repeat rewrite Z2Nat.id; auto; try omega.
-      simpl Z.of_nat; rewrite <- H; ring.
+      repeat rewrite Z2Nat.id; auto; lia.
     + apply Z.lt_le_incl in Ha.
       apply Z.lt_le_incl in Hb.
       exfalso; revert H.
       generalize (Z.mul_nonpos_nonneg _ _ Ha (Nat2Z.is_nonneg u)).
       generalize (Z.mul_nonpos_nonneg _ _ Hb (Nat2Z.is_nonneg v)).
-      intros; omega.
+      intros; lia.
   Qed.
 
 End Z_coprime.
@@ -125,7 +126,7 @@ Section Zp.
   
   Definition Zp_zero : Z_Zp.
   Proof.
-    exists 0; omega.
+    exists 0; lia.
   Defined.
 
   Definition Zp_opp : Z_Zp -> Z_Zp.
@@ -171,7 +172,7 @@ Section Zp.
   Fact Zp_plus_comm : forall x y,  x ⊕ y = y ⊕ x.
   Proof.
     intros (x & ?) (y & ?); apply Zp_inj; simpl.
-    f_equal; omega.
+    f_equal; lia.
   Qed.
 
   Fact Zp_plus_assoc : forall x y z, x ⊕ (y ⊕ z) = x ⊕ y ⊕ z.
@@ -185,8 +186,8 @@ Section Zp.
   Proof.
     intros ([ | x ] & Hx); apply Zp_inj; simpl.
     + rewrite Nat.sub_0_r, rem_diag, rem_lt; auto.
-    + rewrite rem_lt with (a := _ - _); try omega.
-      replace (S (x+(p - S x))) with p by omega.
+    + rewrite rem_lt with (a := _ - _); try lia.
+      replace (S (x+(p - S x))) with p by lia.
       apply rem_diag; auto.
   Qed.
 
@@ -196,9 +197,9 @@ Section Zp.
     destruct p as [ | [ | q ] ].
     + destruct Hp; auto.
     + rewrite rem_diag; simpl; auto.
-      rewrite rem_lt; omega.
-    + rewrite rem_lt with (a := 1); try omega.
-      rewrite Nat.mul_1_l, rem_lt; omega.
+      rewrite rem_lt; lia.
+    + rewrite rem_lt with (a := 1); try lia.
+      rewrite Nat.mul_1_l, rem_lt; lia.
   Qed.
 
   Fact Zp_mult_comm : forall x y, x ⊗ y = y ⊗ x.
@@ -265,9 +266,9 @@ Section Zp.
     intros (x & Hx) (i & Hi) H; simpl.
     apply f_equal with (f := @proj1_sig _ _) in H; simpl in H.
     destruct (le_lt_dec p 1) as [ H' | H'].
-    + replace p with 1 by omega.
+    + replace p with 1 by lia.
       apply is_gcd_1l.
-    + rewrite rem_lt with (a := 1) in H; try omega.
+    + rewrite rem_lt with (a := 1) in H; try lia.
       generalize (div_rem_spec1 (i*x) p).
       rewrite H.
       generalize (div (i*x) p); clear H Hi; intros u Hu.
@@ -293,7 +294,7 @@ Section Zp.
     destruct (prime_gcd x Hp') as [ | H ]; auto.
     exfalso; apply Hx, Zp_inj; simpl.
     destruct H as ([ | k ] & Hk); simpl in Hk; auto.
-    revert Hk; generalize (k* p); intros; omega.
+    revert Hk; generalize (k* p); intros; lia.
   Qed.
 
   (* So we have the commutative ring structure and the field structure for p prime 
@@ -414,7 +415,7 @@ Section Zp.
     Fact nat2Zp_zero : 〚0〛= Zp.
     Proof. 
       apply Zp_inj; simpl.
-      apply rem_prop with 0; omega.
+      apply rem_prop with 0; lia.
     Qed.
 
     Fact nat2Zp_one : 〚1〛= Op.
@@ -431,7 +432,7 @@ Section Zp.
     Fact nat2Zp_p :〚p〛= Zp.
     Proof.
       apply Zp_inj; simpl.
-      apply rem_diag; omega.
+      apply rem_diag; lia.
     Qed.
 
     Fact nat2Zp_inj u v : 〚u〛=〚v〛 <-> rem u p = rem v p.
@@ -463,34 +464,34 @@ Section Zp.
       intros a b H1 H2.
       assert (b <= a) as Hab.
       { destruct (le_lt_dec b a); auto.
-        replace b with ((1+a) + (b-a-1)) in H2 by omega.
+        replace b with ((1+a) + (b-a-1)) in H2 by lia.
         generalize (div_rem_spec2 u Hp) (div_rem_spec2 v Hp); intros H3 H4.
         do 2 rewrite Nat.mul_add_distr_r in H2.
         contradict H; rewrite H1, H2, Nat.mul_1_l.
-        generalize (a* p) ((b-a-1)* p); intros; omega. }
+        generalize (a* p) ((b-a-1)* p); intros; lia. }
       destruct (eq_nat_dec a b) as [ | Ha ]; try subst b.
       + assert (rem v p <= rem u p) as H3.
-        { rewrite H1, H2 in H; revert H; intros; omega. }
+        { rewrite H1, H2 in H; revert H; intros; lia. }
         symmetry; apply rem_erase with 1.
         rewrite H1 at 2.
         rewrite H2 at 2.
-        generalize (a* p) (div_rem_spec2 v Hp); intros; omega.
+        generalize (a* p) (div_rem_spec2 v Hp); intros; lia.
       + apply rem_erase with (a-b-1).
         rewrite H2 at 1; rewrite H1 at 1.
         do 2 rewrite Nat.mul_sub_distr_r.
         rewrite Nat.mul_1_l.
         assert (b* p + p <= a* p) as E.
-        { replace a with (1+b+(a-b-1)) by omega.
+        { replace a with (1+b+(a-b-1)) by lia.
           do 2 rewrite Nat.mul_add_distr_r.
-          generalize (b* p) ((a-b-1)* p); intros; omega. } 
+          generalize (b* p) ((a-b-1)* p); intros; lia. } 
         revert E.
         generalize (a* p) (b* p) (div_rem_spec2 u Hp) (div_rem_spec2 v Hp); intros.
-        omega.
+        lia.
     Qed.
 
     Fact nat2Zp_minus_one : 〚p-1〛= ∸Op.
     Proof.
-      rewrite nat2Zp_minus; try omega.
+      rewrite nat2Zp_minus; try lia.
       rewrite nat2Zp_p, nat2Zp_one; ring.
     Qed.
 
@@ -513,18 +514,18 @@ Section Zp.
     Proof.
       intros H.
       apply f_equal with (f := @proj1_sig _ _) in H; simpl in H.
-      do 2 (rewrite divides_rem_eq; auto); omega.
+      do 2 (rewrite divides_rem_eq; auto); lia.
     Qed.
 
     Fact divides_nat2Zp u : divides p u <-> 〚u〛= Zp.
     Proof.
       split.
       + intros (q & Hq); apply Zp_inj; simpl.
-        apply rem_prop with q; omega.
+        apply rem_prop with q; lia.
       + intros H.
         apply f_equal with (f := @proj1_sig _ _) in H; simpl in H.
         exists (div u p).
-        rewrite (div_rem_spec1 u p) at 1; omega.
+        rewrite (div_rem_spec1 u p) at 1; lia.
     Qed.
 
   End nat2Zp.
@@ -537,7 +538,7 @@ Section Zp.
   Proof.
     destruct (nat2Zp_surj x) as (n & H1 & H2); subst.
     apply in_map_iff; exists n; split; auto.
-    apply list_an_spec; omega.
+    apply list_an_spec; lia.
   Qed.
 
   Fact Zp_list_length : length Zp_list = p.
@@ -550,7 +551,7 @@ Section Zp.
     + intros (i & Hi) E.
       subst.
       rewrite Zp_mult_comm, Zp_mult_zero, Zp_zero_is_one in Hi.
-      apply prime_ge_2 in H; omega.
+      apply prime_ge_2 in H; lia.
     + intros Hx.
       destruct (nat2Zp_surj x) as (u & _ & Hu).
       rewrite Hu; apply nat2Zp_invertible.
@@ -608,7 +609,7 @@ Section Zp.
     Proof.
       intros H.
       unfold Z2Zp.
-      destruct (Z_pos_or_neg u); try omega; auto.
+      destruct (Z_pos_or_neg u); try lia; auto.
     Qed.
 
     Fact Z2Zp_of_nat n : 〘Z.of_nat n〙 = 〚n〛.
@@ -619,7 +620,7 @@ Section Zp.
 
     Fact Z2Zp_zero : 〘0〙= Zp.
     Proof.
-      rewrite Z2Zp_pos; try omega.
+      rewrite Z2Zp_pos; try lia.
       rewrite Z2Nat.inj_0, nat2Zp_zero; auto.
     Qed.
 
@@ -627,12 +628,12 @@ Section Zp.
     Proof.
       intros H.
       unfold Z2Zp at 1.
-      destruct (Z_pos_or_neg u) as [ H' | H' ]; try omega; auto.
-      replace u with 0 by omega.
+      destruct (Z_pos_or_neg u) as [ H' | H' ]; try lia; auto.
+      replace u with 0 by lia.
       rewrite Z.opp_0, Z2Nat.inj_0, nat2Zp_zero, Z2Zp_zero; auto.
       symmetry; apply Zp_opp_zero.
       unfold Z2Zp.
-      destruct (Z_pos_or_neg (-u)) as [ H'' | H'' ]; try omega; auto.
+      destruct (Z_pos_or_neg (-u)) as [ H'' | H'' ]; try lia; auto.
     Qed.
 
     (* ⊕  ⊗  ∸ *)
@@ -642,48 +643,48 @@ Section Zp.
       Let Z2Zp_plus_loc u v : u <= 0 -> 0 <= v -> -u <= v -> 〘u+v〙=〘u〙⊕〘v〙.
       Proof.
         intros H1 H2 H3.
-        rewrite Z2Zp_pos; try omega.
-        rewrite Z2Zp_neg; try omega.
-        do 2 (rewrite Z2Zp_pos; try omega).
-        replace (u+v) with (v-(-u)) by omega.
-        rewrite Z2Nat.inj_sub; try omega.
+        rewrite Z2Zp_pos; try lia.
+        rewrite Z2Zp_neg; try lia.
+        do 2 (rewrite Z2Zp_pos; try lia).
+        replace (u+v) with (v-(-u)) by lia.
+        rewrite Z2Nat.inj_sub; try lia.
         rewrite nat2Zp_minus.
         + apply Zp_plus_comm.
-        + rewrite <- Z2Nat.inj_le; omega.
+        + rewrite <- Z2Nat.inj_le; lia.
       Qed.
 
       Let Z2Zp_plus_loc' u v : u <= 0 -> 0 <= v -> v <= -u -> 〘u+v〙=〘u〙⊕〘v〙.
       Proof.
         intros H1 H2 H3.
-        rewrite Z2Zp_neg; try omega.
-        rewrite Z2Zp_pos; try omega.
-        rewrite Z2Zp_neg; try omega.
-        do 2 (rewrite Z2Zp_pos; try omega).
-        replace (-(u+v)) with (-u-v) by omega.
-        rewrite Z2Nat.inj_sub; try omega.
+        rewrite Z2Zp_neg; try lia.
+        rewrite Z2Zp_pos; try lia.
+        rewrite Z2Zp_neg; try lia.
+        do 2 (rewrite Z2Zp_pos; try lia).
+        replace (-(u+v)) with (-u-v) by lia.
+        rewrite Z2Nat.inj_sub; try lia.
         rewrite nat2Zp_minus; auto.
         + rewrite Zp_opp_plus, Zp_opp_inv; auto.
-        + rewrite <- Z2Nat.inj_le; omega.
+        + rewrite <- Z2Nat.inj_le; lia.
       Qed.
 
       Fact Z2Zp_plus u v : 〘u+v〙=〘u〙⊕〘v〙.
       Proof.
         destruct (Z_pos_or_neg u) as [ H1 | H1 ];
         destruct (Z_pos_or_neg v) as [ H2 | H2 ].
-        + do 3 (rewrite Z2Zp_pos; try omega).
+        + do 3 (rewrite Z2Zp_pos; try lia).
           rewrite Z2Nat.inj_add; auto.
           apply nat2Zp_plus.
         + rewrite Z.add_comm, Zp_plus_comm.
           destruct (Z_pos_or_neg (u+v)).
-          - apply Z2Zp_plus_loc; omega.
-          - apply Z2Zp_plus_loc'; omega.
+          - apply Z2Zp_plus_loc; lia.
+          - apply Z2Zp_plus_loc'; lia.
         + destruct (Z_pos_or_neg (u+v)).
-          - apply Z2Zp_plus_loc; omega.
-          - apply Z2Zp_plus_loc'; omega.
-        + do 3 (rewrite Z2Zp_neg, Z2Zp_pos; try omega).
+          - apply Z2Zp_plus_loc; lia.
+          - apply Z2Zp_plus_loc'; lia.
+        + do 3 (rewrite Z2Zp_neg, Z2Zp_pos; try lia).
           rewrite <- Zp_opp_plus; f_equal.
-          replace (-(u+v)) with ((-u)+(-v)) by omega.
-          rewrite Z2Nat.inj_add; try omega.
+          replace (-(u+v)) with ((-u)+(-v)) by lia.
+          rewrite Z2Nat.inj_add; try lia.
           apply nat2Zp_plus.
       Qed.
 
@@ -693,12 +694,12 @@ Section Zp.
     Proof.
       apply Zp_plus_inj_l with (Z2Zp u).
       rewrite Zp_minus, <- Z2Zp_plus, <- Z2Zp_zero.
-      f_equal; omega.
+      f_equal; lia.
     Qed.
 
     Fact Z2Zp_minus u v : 〘u-v〙 = 〘u〙⊕ ∸〘v〙.
     Proof.
-      replace (u-v) with (u+(-v)) by omega.
+      replace (u-v) with (u+(-v)) by lia.
       rewrite Z2Zp_plus; f_equal.
       apply Z2Zp_opp.
     Qed.
@@ -723,18 +724,18 @@ Section Zp.
       Let Z2Zp_canon_neg u : u <= 0 -> { v | 〘u〙=〘v〙 /\ 0 <= v < Z.of_nat p }.
       Proof.
         intros H1.
-        rewrite Z2Zp_neg; try omega.
+        rewrite Z2Zp_neg; try lia.
         rewrite Z2Zp_opp, Zp_opp_inv.
         destruct (Zp_eq_dec (Z2Zp u) Zp_zero) as [ E | D ].
         + exists 0; split.
           * rewrite E, Z2Zp_zero; auto.
-          * split; omega.
+          * split; lia.
         + destruct Z2Zp_canon_pos with (u := -u)
-          as (v & H2 & H3); try omega.
+          as (v & H2 & H3); try lia.
           exists (Z.of_nat p - v); split.
           * rewrite Z2Zp_minus, Z2Zp_of_nat, nat2Zp_p, <- H2, Z2Zp_opp; ring.
-          * split; try omega.
-            destruct (Z.eq_dec v 0) as [ E | ]; try omega.
+          * split; try lia.
+            destruct (Z.eq_dec v 0) as [ E | ]; try lia.
             subst; destruct D.
             rewrite Z2Zp_opp in H2.
             rewrite <- (Zp_opp_inv 〘 _ 〙), H2, Z2Zp_zero; ring.
@@ -743,7 +744,7 @@ Section Zp.
       Fact Z2Zp_repr_canon u : { v |〘u〙=〘v〙 /\ 0 <= v < Z.of_nat p }.
       Proof.
         destruct (Z_pos_or_neg u); auto.
-        apply Z2Zp_canon_neg; omega.
+        apply Z2Zp_canon_neg; lia.
       Qed.
 
     End Z2Zp_canon.
@@ -753,7 +754,7 @@ Section Zp.
     Proof.
       intros Hab.
       destruct (Z2Zp_repr_canon (u-a)) as (v & H1 & H2).
-      exists (a+v)%Z; split; try omega.
+      exists (a+v)%Z; split; try lia.
       rewrite Z2Zp_plus, <- H1, Z2Zp_minus; ring.
     Qed.
 
@@ -762,11 +763,10 @@ Section Zp.
       Let Z2Zp_mult_loc u v : 0 <= u -> 0 <= v -> 〘u*v〙=〘u〙⊗〘v〙.
       Proof.
         intros H1 H2.
-        rewrite Z2Zp_pos; try omega.
-        + do 2 (rewrite Z2Zp_pos; try omega).
-          rewrite Z2Nat.inj_mul; auto.
-          apply nat2Zp_mult.
-        + apply Z.mul_nonneg_nonneg; trivial.
+        rewrite Z2Zp_pos; try lia.
+        do 2 (rewrite Z2Zp_pos; try lia).
+        rewrite Z2Nat.inj_mul; auto.
+        apply nat2Zp_mult.
       Qed.
 
       Fact Z2Zp_mult u v : 〘u*v〙=〘u〙⊗〘v〙.
@@ -775,14 +775,14 @@ Section Zp.
         destruct (Z_pos_or_neg v) as [ H2 | H2 ].
         + apply Z2Zp_mult_loc; auto.
         + replace (u*v) with (-(u*-v)); try ring.
-          rewrite Z2Zp_opp, Z2Zp_mult_loc; try omega.
+          rewrite Z2Zp_opp, Z2Zp_mult_loc; try lia.
           rewrite Z2Zp_opp, Zp_mult_comm, Zp_opp_mult, Zp_opp_inv.
           apply Zp_mult_comm.
         + replace (u*v) with (- ((-u)*v)); try ring.
-          rewrite Z2Zp_opp, Z2Zp_mult_loc; try omega.
+          rewrite Z2Zp_opp, Z2Zp_mult_loc; try lia.
           rewrite Z2Zp_opp, Zp_opp_mult, Zp_opp_inv; auto.
         + replace (u*v) with ((-u)*(-v)); try ring.
-          rewrite Z2Zp_mult_loc; try omega.
+          rewrite Z2Zp_mult_loc; try lia.
           do 2 rewrite Z2Zp_opp.
           do 2 rewrite Zp_opp_mult, Zp_mult_comm.
           apply Zp_opp_inv.
@@ -792,7 +792,7 @@ Section Zp.
 
     Fact Z2Zp_one : 〘1〙 = Op.
     Proof.
-      rewrite Z2Zp_pos; try omega.
+      rewrite Z2Zp_pos; try lia.
       apply Zp_inj; simpl; f_equal; auto.
     Qed.
 
@@ -803,14 +803,14 @@ Section Zp.
         intros H2 H.
         assert (〘u-v〙= Zp) as H1.
         { rewrite Z2Zp_minus, H; ring. }
-        rewrite Z2Zp_pos in H1; auto; try omega.
+        rewrite Z2Zp_pos in H1; auto; try lia.
         rewrite <- nat2Zp_zero in H1.
         apply nat2Zp_inj in H1.
         rewrite rem_of_0 in H1.
         generalize (@div_rem_spec1 (Z.to_nat (u-v)) p); intros H3.
         rewrite H1 in H3.
         apply f_equal with (f := Z.of_nat) in H3.
-        rewrite Z2Nat.id in H3; auto; try omega.
+        rewrite Z2Nat.id in H3; auto; try lia.
         rewrite H3.
         exists (Z.of_nat (div (Z.to_nat (u-v)) p)).
         rewrite Nat2Z.inj_add, Nat2Z.inj_mul; simpl; ring.
@@ -820,16 +820,16 @@ Section Zp.
       Proof.
         split.
         + destruct (Z_pos_or_neg (u-v)) as [ H | H ].
-          * apply Z2Zp_inj_loc; omega. 
+          * apply Z2Zp_inj_loc; lia. 
           * intros H'; symmetry in H'.
-            apply Z2Zp_inj_loc in H'; try omega.
+            apply Z2Zp_inj_loc in H'; try lia.
             destruct H' as (i & Hi).
             exists (-i).
             apply f_equal with (f := Z.opp) in Hi.
             ring_simplify in Hi.
             rewrite <- Hi; ring.
         + intros (i & Hi).
-          replace u with (v+(u-v)) by omega.
+          replace u with (v+(u-v)) by lia.
           rewrite Hi, Z2Zp_plus, Z2Zp_mult, Z2Zp_of_nat, nat2Zp_p; ring.
       Qed.
 
@@ -855,9 +855,9 @@ Section Zp.
       + destruct (eq_nat_dec (S (S x)) (p-1)) as [ H | H ].
         * do 2 right; left.
           rewrite <- nat2Zp_minus_one.
-          apply Zp_inj; simpl; rewrite rem_lt; omega.
-        * do 3 right; exists (S (S x)); split; try omega.
-          apply Zp_inj; simpl; rewrite rem_lt; omega.
+          apply Zp_inj; simpl; rewrite rem_lt; lia.
+        * do 3 right; exists (S (S x)); split; try lia.
+          apply Zp_inj; simpl; rewrite rem_lt; lia.
     Qed.
 
     Section prime.
@@ -871,9 +871,9 @@ Section Zp.
         intros H.
         apply divides_nat2Zp in H.
         destruct H as ([ | k ] & Hk).
-        + simpl in Hk; omega.
+        + simpl in Hk; lia.
         + revert Hn; rewrite Hk; simpl. 
-          generalize (k*p)%nat; intros; omega.
+          generalize (k*p)%nat; intros; lia.
       Qed.
 
       Let Hp'' : (2 <= p)%nat.
@@ -883,16 +883,16 @@ Section Zp.
       Proof.
         intros H.
         apply Zp_zero_is_one in H.
-        omega.
+        lia.
       Qed.
 
       Fact Zp_invertible_factorial n : (n < p)%nat -> Zp_invertible 〚fact n〛.
       Proof.
         induction n as [ | n IHn ]; intros Hn.
-        + rewrite fact_0; apply nat2Zp_invertible_prime; omega.
+        + rewrite fact_0; apply nat2Zp_invertible_prime; lia.
         + rewrite fact_S, nat2Zp_mult; apply Zp_mult_invertible.
-          * apply nat2Zp_invertible_prime; omega.
-          * apply IHn; omega.
+          * apply nat2Zp_invertible_prime; lia.
+          * apply IHn; lia.
       Qed.
 
       Section inv.
@@ -960,12 +960,12 @@ Section Zp.
         + intros [ | [|]]; subst.
           * apply Zp_invert_spec1.
           * apply Zp_invert_eq_not_zero; try ring.
-            intros H; symmetry in H; revert H; rewrite Zp_zero_is_one; omega.
+            intros H; symmetry in H; revert H; rewrite Zp_zero_is_one; lia.
           * apply Zp_invert_eq_not_zero; try ring.
             intros H.
             rewrite <- Zp_opp_zero in H.
             symmetry in H; apply Zp_opp_inj in H.
-            revert H; rewrite Zp_zero_is_one; omega.
+            revert H; rewrite Zp_zero_is_one; lia.
       Qed.
 
       Fact Zp_invert_involutive x : inv (inv x) = x.
@@ -976,7 +976,7 @@ Section Zp.
           * intros H.
             apply Zp_invert_spec2 in Hx.
             rewrite H, Zp_mult_zero in Hx.
-            apply Zp_zero_is_one in Hx; omega.
+            apply Zp_zero_is_one in Hx; lia.
           * rewrite Zp_mult_comm; apply Zp_invert_spec2; auto.
       Qed.
 
@@ -987,13 +987,13 @@ Section Zp.
         destruct H2 as [ H2 | [ H2 | H2 ] ].
         + rewrite <- nat2Zp_zero in H2.
           apply nat2Zp_inj in H2.
-          rewrite rem_lt, rem_lt in H2; omega.
+          rewrite rem_lt, rem_lt in H2; lia.
         + rewrite <- nat2Zp_one in H2.
           apply nat2Zp_inj in H2.
-          rewrite rem_lt, rem_lt in H2; omega.
+          rewrite rem_lt, rem_lt in H2; lia.
         + rewrite <- nat2Zp_minus_one in H2.
           apply nat2Zp_inj in H2.
-          rewrite rem_lt, rem_lt in H2; omega.
+          rewrite rem_lt, rem_lt in H2; lia.
       Qed.
 
       Fact Zp_invert_stable n : (1 < n < p-1)%nat -> exists m, (1 < m < p-1)%nat /\〚m〛= inv〚n〛.
@@ -1004,11 +1004,11 @@ Section Zp.
           rewrite Zp_invert_involutive in H; symmetry in H.
         + rewrite Zp_invert_spec1 in H.
           rewrite <- nat2Zp_zero, nat2Zp_inj in H.
-          rewrite rem_lt, rem_lt in H; omega.
+          rewrite rem_lt, rem_lt in H; lia.
         + rewrite Zp_invert_one, <- nat2Zp_one in H.
-          rewrite nat2Zp_inj, rem_lt, rem_lt in H; omega.
+          rewrite nat2Zp_inj, rem_lt, rem_lt in H; lia.
         + rewrite Zp_invert_minus_one, <- nat2Zp_minus_one in H.
-          rewrite nat2Zp_inj, rem_lt, rem_lt in H; omega.
+          rewrite nat2Zp_inj, rem_lt, rem_lt in H; lia.
       Qed.
 
       Definition Zp_lprod := fold_right Zp_mult Zp_one.
@@ -1041,7 +1041,7 @@ Section Zp.
           rewrite (Zp_mult_comm _ (inv x)), Zp_invert_spec2; auto.
           rewrite Zp_mult_one, <- Zp_lprod_app.
           apply IHl.
-          * simpl; do 2 rewrite app_length; simpl; omega.
+          * simpl; do 2 rewrite app_length; simpl; lia.
           * contradict H0.
             constructor 2.
             apply perm_list_has_dup with (inv x::u++v).
@@ -1075,26 +1075,26 @@ Section Zp.
         induction n as [ | n IHn ].
         + apply Zp_inj; simpl; auto.
         + rewrite fact_S, nat2Zp_mult.
-          replace (S n)%nat with (n+1)%nat by omega.
+          replace (S n)%nat with (n+1)%nat by lia.
           rewrite list_an_plus, map_app, Zp_lprod_app, <- IHn, Zp_mult_comm.
           f_equal.
-          * do 2 f_equal; omega.
+          * do 2 f_equal; lia.
           * simpl list_an; unfold map. 
             rewrite Zp_lprod_cons, Zp_mult_comm, Zp_mult_one.
-            f_equal; omega.
+            f_equal; lia.
       Qed.
 
       Theorem Wilson_thm_1 :〚fact (p-1)〛= ∸Op.
       Proof.
-        replace (p-1)%nat with (S (p-2))%nat by omega.
+        replace (p-1)%nat with (S (p-2))%nat by lia.
         rewrite Zp_lprod_fact.
         destruct (eq_nat_dec p 2) as [ H1 | H1 ].
         + rewrite H1; simpl map; rewrite Zp_lprod_nil.
           rewrite <- nat2Zp_minus_one; apply nat2Zp_inj.
           rewrite H1; auto.
-        + replace (p-2)%nat with (p-3+1)%nat by omega.
+        + replace (p-2)%nat with (p-3+1)%nat by lia.
           rewrite list_an_plus, map_app, Zp_lprod_app.
-          replace (p-3+2)%nat with (p-1)%nat by omega.
+          replace (p-3+2)%nat with (p-1)%nat by lia.
           simpl list_an at 2; unfold map at 2.
           rewrite Zp_lprod_cons, Zp_lprod_nil.
           rewrite Zp_mult_autoinv.
@@ -1104,7 +1104,7 @@ Section Zp.
             - revert H; apply not_list_an_has_dup.
             - intros x y; do 2 rewrite list_an_spec.
               intros Hx Hy.
-              rewrite nat2Zp_inj, rem_lt, rem_lt; auto; omega.
+              rewrite nat2Zp_inj, rem_lt, rem_lt; auto; lia.
           * intros x; rewrite in_map_iff.
             intros (n & ? & Hn); subst.
             rewrite list_an_spec in Hn.
@@ -1112,12 +1112,12 @@ Section Zp.
             - intros H.
               rewrite <- nat2Zp_zero in H.
               apply nat2Zp_inj in H.
-              rewrite rem_of_0, rem_lt in H; omega.
-            - apply Zp_invert_not_fix; omega.
-            - destruct Zp_invert_stable with n as (m & G1 & G2); try omega.
+              rewrite rem_of_0, rem_lt in H; lia.
+            - apply Zp_invert_not_fix; lia.
+            - destruct Zp_invert_stable with n as (m & G1 & G2); try lia.
               apply in_map_iff.
               exists m; split; auto.
-              apply list_an_spec; omega.
+              apply list_an_spec; lia.
       Qed. 
 
     End prime.
@@ -1134,38 +1134,36 @@ End Zp.
 
 Fact divides_not_0_interval p q : q <> 0 -> divides p q -> 1 <= p <= q.
 Proof.
-  intros Hq ([ | k ] & Hk); try omega.
-  destruct p as [ | p ]; try omega.
-  subst; simpl.
-  generalize (k*S p); intro; omega.
+  intros Hq ([ | k ] & Hk); try lia.
+  destruct p as [ | p ]; try lia.
 Qed.
 
 Fact divides_fact_lt q n : 1 <= q <= n -> divides q (fact n).
 Proof.
   revert q; induction n as [ | n IHn ].
-  + intros; rewrite fact_0; omega.
+  + intros; rewrite fact_0; lia.
   + intros q Hq; rewrite fact_S.
     destruct (eq_nat_dec q (S n)).
     - subst; exists (fact n); ring.
-    - apply divides_mult, IHn; omega.
+    - apply divides_mult, IHn; lia.
 Qed.
 
 Theorem Wilson_theorem p : 2 <= p -> prime p <-> divides p (fact (p-1)+1).
 Proof.
   intros H1; split.
   + intros H2.
-    assert (Hp : p <> 0) by omega.
+    assert (Hp : p <> 0) by lia.
     rewrite divides_nat2Zp with (Hp := Hp).
     rewrite nat2Zp_plus, Wilson_thm_1; auto.
     rewrite nat2Zp_one, Zp_plus_comm, Zp_minus; auto.
-  + intros H2; split; try omega.
+  + intros H2; split; try lia.
     intros q Hq.
     destruct (eq_nat_dec q p) as [ Hp | Hp ]; auto.
     generalize (divides_trans Hq H2); intros H3.
     apply divides_plus_inv in H3.
     - apply divides_1_inv in H3; auto.
     - apply divides_fact_lt.
-      apply divides_not_0_interval in Hq; omega.
+      apply divides_not_0_interval in Hq; lia.
 Qed.
 
 Section Z2Zp_morphishm.

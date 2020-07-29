@@ -9,11 +9,13 @@
 
 (** ** Single Diophantine equations *)
 
-Require Import List Arith Omega Nat.
+Require Import List Arith Lia (* Nat *).
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list sums.
-From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec. 
-From Undecidability.H10.Dio Require Import dio_logic dio_elem.
+From Undecidability.Shared.Libs.DLW
+  Require Import utils_tac utils_list sums pos vec.
+
+From Undecidability.H10.Dio 
+  Require Import dio_logic dio_elem.
 
 Set Implicit Arguments.
 
@@ -28,7 +30,7 @@ Section convexity.
     repeat rewrite Nat.mul_add_distr_l.
     rewrite (mult_comm p x).
     repeat rewrite <- mult_assoc.
-    generalize (x*x) (x*p) (p*p); intros; omega.
+    generalize (x*x) (x*p) (p*p); intros; lia.
   Qed.
 
   Let convex_2 x p : 2*(x*(x+p)) = x*x+(x+p)*(x+p) -> p = 0.
@@ -42,27 +44,27 @@ Section convexity.
     repeat rewrite Nat.mul_add_distr_l.
     rewrite (mult_comm p x).
     repeat rewrite <- mult_assoc.
-    generalize (x*x) (x*p) (p*p); intros; omega.
+    generalize (x*x) (x*p) (p*p); intros; lia.
   Qed.
 
   Fact convex_le x y : 2*(x*y) <= x*x+y*y.
   Proof.
     destruct (le_lt_dec x y).
-    + replace y with (x+(y-x)) by omega.
+    + replace y with (x+(y-x)) by lia.
       apply convex_1.
     + rewrite (mult_comm x y), plus_comm.
-      replace x with (y+(x-y)) by omega.
+      replace x with (y+(x-y)) by lia.
       apply convex_1.
   Qed.
 
   Fact convex_eq x y : 2*(x*y) = x*x+y*y -> x = y.
   Proof.
     destruct (le_lt_dec x y).
-    + replace y with (x+(y-x)) by omega.
-      intros H; apply convex_2 in H; omega.
+    + replace y with (x+(y-x)) by lia.
+      intros H; apply convex_2 in H; lia.
     + rewrite (mult_comm x y), plus_comm.
-      replace x with (y+(x-y)) by omega.
-      intros H; apply convex_2 in H; omega.
+      replace x with (y+(x-y)) by lia.
+      intros H; apply convex_2 in H; lia.
   Qed.
 
   Let convex_3 a t x y : 0 < t -> a*x+(a+t)*y = a*y+(a+t)*x -> x = y.
@@ -70,14 +72,14 @@ Section convexity.
     intros H.
     repeat rewrite Nat.mul_add_distr_r.
     intros H1.
-    apply Nat.mul_cancel_l with t; omega.
+    apply Nat.mul_cancel_l with t; lia.
   Qed.
    
   Fact convex_neq a b x y : a < b -> a*x+b*y = a*y+b*x -> x = y.
   Proof.
     intros H.
-    replace b with (a+(b-a)) by omega.
-    apply convex_3; omega.
+    replace b with (a+(b-a)) by lia.
+    apply convex_3; lia.
   Qed.
 
   Hint Resolve convex_le : core.
@@ -94,7 +96,7 @@ Section convexity.
   Hint Resolve convex_n_le : core.
 
   Let nat_le_sum a b c d : a <= b -> c <= d -> a+c = b+d -> a = b /\ c = d.
-  Proof. intros; omega. Qed.
+  Proof. intros; lia. Qed.
 
 
   (* This one can be used to encode a list of equations
@@ -111,13 +113,13 @@ Section convexity.
   Proof.
     split.
     + revert f g; induction n as [ | n IHn ]; intros f g.
-      * intros; omega.
+      * intros; lia.
       * do 2 rewrite msum_S; intros H.
         apply nat_le_sum in H; auto.
         destruct H as (H1 & H2).
         apply convex_eq in H1.
         specialize (IHn _ _ H2).
-        intros [ | ] ?; auto; apply IHn; omega.
+        intros [ | ] ?; auto; apply IHn; lia.
     + intros Hfg.
       apply msum_ext.
       intros i Hi; rewrite Hfg; auto; ring.
@@ -215,7 +217,7 @@ Section dio_elem_dio_poly.
   Proof. auto. Qed.
 
   Let dp_x2y2_size u v : dp_size (dp_x2y2 u v) = 3+2*dp_size u+2*dp_size v.
-  Proof. simpl; omega. Qed.
+  Proof. simpl; lia. Qed.
 
   Let dp_common e : dio_polynomial nat nat :=
     match e with
@@ -247,7 +249,7 @@ Section dio_elem_dio_poly.
       unfold fst, snd.
       generalize (dp_common_size e); intros.
       simpl dp_size at 1; simpl length.
-      rewrite Nat.mul_succ_r; omega.
+      rewrite Nat.mul_succ_r; lia.
   Qed.
 
   Let dee2dp_2_size l : dp_size (dee2dp_2 l) <= 1+12*length l.
@@ -260,7 +262,7 @@ Section dio_elem_dio_poly.
       unfold fst, snd.
       generalize (dp_common_size e); intros.
       simpl dp_size at 1; simpl length.
-      rewrite Nat.mul_succ_r; omega.
+      rewrite Nat.mul_succ_r; lia.
   Qed.
 
   Let dc_value_1 φ ν (c : dio_constraint) := 2*(φ (fst c)*dee_eval φ ν (snd c)).
@@ -312,7 +314,7 @@ Section dio_elem_dio_poly.
   Proof.
     exists (dee2dp_1 l,dee2dp_2 l); split.
     + unfold dio_single_size, fst, snd.
-      generalize (dee2dp_1_size l) (dee2dp_2_size l); intros; omega.
+      generalize (dee2dp_1_size l) (dee2dp_2_size l); intros; lia.
     + unfold dio_single_pred, fst, snd; split; apply dee2dp_spec.
   Defined.
 
