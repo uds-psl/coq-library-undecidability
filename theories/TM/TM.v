@@ -12,12 +12,37 @@ Section Fix_Sigma.
   Inductive tape : Type :=
   | niltape : tape
   | leftof : Σ -> list Σ -> tape
-  | rightof : Σ -> list Σ -> tape
+  | rightof : Σ -> list Σ -> tape    (* DLW: With not rightof :  list Σ -> Σ -> tape ? *)
   | midtape : list Σ -> Σ -> list Σ -> tape.
 
   Definition tapes n := Vector.t tape n.
 
+  (** DLW: Are you sure you want one letter constructors ?
+      Each time you import TM, L, R and N become unusable
+
+      I suggest longer constructors names, with possibly
+      *local* notation *)
+
   Inductive move : Type := L : move | R : move | N : move.
+
+  (** DLW: A small visual to explain the intuition
+      left/right/mid tape would be good 
+
+      The mv scheme here implies that written cells
+      must be contiguous, 
+      ie you cannot move right of a rightof tape
+      nor left of a leftof tape
+
+      a tape like ..... _ _ a b _ c d _ _ f e _ _ ...
+      would not be allowed
+
+      Not sure this corresponds to usual literature?
+      It is my understanding that TM can skip over empty cells
+
+      Using the l name for cells contents is unfortunate
+      because it suggests a list ...
+
+    *)
 
   Definition mv (m : move) (t : tape) :=
     match m, t with
@@ -45,7 +70,16 @@ Section Fix_Sigma.
     | _ => None
     end.
 
+  (* DLW: I suppose that finType below is much more workable that ns and states = Fin.t ns
+     but on the other hand, it requires understanding finType which belongs to
+     PslBase 
+
+     I guess it is possible to show that any finType is isomorphic to Fin.t ns 
+     for some ns. May be a reference to such a result would help *)
+
   Variable n : nat.
+
+  (* DLW: I suggest state instead of states, trans and start feels strange with states. *)
 
   Record mTM : Type :=
     {
@@ -82,6 +116,8 @@ Arguments halt {_ _} _ _, {_ _ _} _.
 Arguments eval {_ _} _ _ _ _ _.
 
 Arguments Build_mTM {_ _ _} _ _ _.
+
+(* Is there a reason for not always using tapes Σ n below ? *)
 
 Definition HaltsTM {Σ: finType} {n: nat} (M : mTM Σ n) (t : Vector.t (tape Σ) n) :=
   exists q' t', eval M (start M) t q' t'.
