@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import Arith Omega List Permutation. 
+Require Import Arith Lia List Permutation. 
 Require Vector.
 
 From Undecidability.Shared.Libs.DLW.Utils 
@@ -469,21 +469,21 @@ Section vec_plus.
   Proof.
     apply vec_pos_ext.
     intros p; unfold vec_zero, vec_plus.
-    repeat rewrite vec_pos_set; omega.
+    repeat rewrite vec_pos_set; lia.
   Qed.
 
   Fact vec_plus_assoc u v w : vec_plus u (vec_plus v w) = vec_plus (vec_plus u v) w.
   Proof.
     apply vec_pos_ext.
     intros p; unfold vec_zero, vec_plus.
-    repeat rewrite vec_pos_set; omega.
+    repeat rewrite vec_pos_set; lia.
   Qed.
 
   Fact vec_plus_is_zero u v : vec_zero = vec_plus u v -> u = vec_zero /\ v = vec_zero.
   Proof.
    unfold vec_zero, vec_plus; intros H; split; apply vec_pos_ext;
    intros p; apply f_equal with (f := fun v => vec_pos v p) in H;
-   repeat rewrite vec_pos_set in * |- *; omega.
+   repeat rewrite vec_pos_set in * |- *; lia.
   Qed.
   
   Definition vec_one p : vec _ n := vec_set_pos (fun q => if pos_eq_dec p q then 1 else 0).
@@ -616,7 +616,7 @@ Proof.
   revert w; induction v; intros w.
   rewrite (vec_0_nil (vec_plus _ _)), (vec_0_nil w); auto.
   rewrite (vec_head_tail w), vec_plus_cons; simpl.
-  rewrite IHv; omega.
+  rewrite IHv; lia.
 Qed.
 
 Fact vec_sum_zero n : @vec_sum n vec_zero = 0.
@@ -624,7 +624,7 @@ Proof. induction n; simpl; auto. Qed.
 
 Fact vec_sum_one n p : @vec_sum n (vec_one p) = 1.
 Proof.
-  revert p; induction n; intros p.
+  revert p; induction n as [ | n IHn ]; intros p.
   pos_inv p.
   pos_inv p.
   rewrite vec_one_fst.
@@ -636,16 +636,16 @@ Qed.
   
 Fact vec_sum_is_zero n v : @vec_sum n v = 0 -> v = vec_zero.
 Proof.
-  induction v; simpl; auto.
+  induction v as [ | n x v IHv ]; simpl; auto.
   simpl; rewrite vec_zero_S; intros; f_equal.
-  + omega.
-  + apply IHv; omega.
+  + lia.
+  + apply IHv; lia.
 Qed.
 
 Fact vec_sum_is_nzero n v : 0 < @vec_sum n v -> { p : _ & { w | v = vec_plus (vec_one p) w } }.
 Proof.
   induction v as [ | [ | x] n v IHv ]; intros Hv; simpl in Hv.
-  + omega.
+  + lia.
   + apply IHv in Hv.
     destruct Hv as (p & w & Hw).
     exists (pos_nxt p), (0##w); rewrite vec_one_nxt.
@@ -671,7 +671,7 @@ Section vec_nat_induction.
     + intros Hv; apply vec_sum_is_zero in Hv; subst; auto.
     + intros x Hx.
       destruct (vec_sum_is_nzero v) as (p & w & Hw).
-      * omega.
+      * lia.
       * subst.
         apply HP2; auto.
         apply IHv.
@@ -746,7 +746,7 @@ Section fun2vec.
     revert i; induction n as [ | n IHn ]; intros i; simpl; f_equal; auto.
     rewrite IHn.
     apply vec_pos_ext; intros; do 2 rewrite vec_pos_set; f_equal.
-    rewrite pos2nat_nxt; omega.
+    rewrite pos2nat_nxt; lia.
   Qed.
 
   Fact fun2vec_lift i n f : fun2vec i n (fun j => f (S j)) = fun2vec (S i) n f.
@@ -767,7 +767,7 @@ Section fun2vec.
     intros p; rewrite vec_pos_fun2vec; simpl.
     unfold vec2fun.
     generalize (pos2nat_prop p).
-    destruct (le_lt_dec n (pos2nat p)); try omega. 
+    destruct (le_lt_dec n (pos2nat p)); try lia. 
     rewrite nat2pos_pos2nat; auto.
   Qed.
 
@@ -775,7 +775,7 @@ Section fun2vec.
   Proof.
     intros H.
     unfold vec2fun.
-    destruct (le_lt_dec n i); try omega.
+    destruct (le_lt_dec n i); try lia.
     rewrite vec_pos_fun2vec, pos2nat_nat2pos; auto.
   Qed. 
 

@@ -7,11 +7,10 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega.
+Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW
-  Require Import Utils.utils_tac Utils.utils_nat 
-                 Vec.pos Vec.vec Code.subcode Code.sss.
+  Require Import utils_tac utils_nat pos vec sss.
 
 From Undecidability.MinskyMachines 
   Require Import mm_defs.
@@ -35,7 +34,7 @@ Proof.
   exists m, P; split.
   + intros (x & Hx).
     exists (1+length P,vec_app v (x##vec_zero)); split; auto.
-    simpl; omega.
+    simpl; lia.
   + intros H; apply H2; eq goal H; do 2 f_equal.
 Qed.
 

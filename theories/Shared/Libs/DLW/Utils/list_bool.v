@@ -7,9 +7,10 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Max Omega Wellfounded Bool.
+Require Import List Arith Max Lia Wellfounded Bool.
 
-From Undecidability.Shared.Libs.DLW Require Import Utils.utils.
+From Undecidability.Shared.Libs.DLW 
+  Require Import Utils.utils.
 
 Set Implicit Arguments.
 
@@ -65,7 +66,7 @@ Proof.
       - subst; solve list eq.
       - constructor 1; auto.
     + destruct (IH lr) as [ (ln & ld & H2 & H3) | (ln & r & H2 & H3) ].
-      - subst; rew length; omega.
+      - subst; rew length; lia.
       - left; exists (x::ln), ld; split.
         ** subst; solve list eq.
         ** constructor 2; auto.
@@ -100,7 +101,7 @@ Fixpoint list_bool_nat l :=
   end.
 
 Fact list_bool_nat_ge_1 l : 1 <= list_bool_nat l.
-Proof. induction l as [ | [] ]; simpl in *; omega. Qed.
+Proof. induction l as [ | [] ]; simpl in *; lia. Qed.
 
 Unset Elimination Schemes.
 
@@ -190,7 +191,7 @@ Section list_bool_next.
   Proof.
     destruct n as [ | n ].
     simpl; auto.
-    replace (S n) with (n+1) by omega.
+    replace (S n) with (n+1) by lia.
     rewrite iter_plus; simpl.
     intros H.
     apply list_bool_next_neq_nil in H.
@@ -201,7 +202,7 @@ End list_bool_next.
 
 Fact list_bool_succ_nat l m : list_bool_succ l m -> 1 + list_bool_nat l = list_bool_nat m.
 Proof.
-  revert l m; intros ? ? [ k l | k ]; induction k; simpl in *; omega.
+  revert l m; intros ? ? [ k l | k ]; induction k; simpl in *; lia.
 Qed.
  
 Section list_bool_succ_rect.
@@ -213,11 +214,11 @@ Section list_bool_succ_rect.
   Let list_bool_succ_rec n : forall l, list_bool_nat l = n -> P l.
   Proof.
     induction n as [ | n IHn ]; intros l Hl.
-    * generalize (list_bool_nat_ge_1 l); omega.
+    * generalize (list_bool_nat_ge_1 l); lia.
     * destruct (list_bool_choose l) as [ (k & tl & H) | ([ | k] & H) ]; subst l;
       [ generalize (in_lbs_0 k tl) | apply HP0 | generalize (in_lbs_1 k) ];
         intros E; apply HPS with (1 := E), IHn;
-        apply list_bool_succ_nat in E; omega.
+        apply list_bool_succ_nat in E; lia.
   Qed.
 
   Theorem list_bool_succ_rect : forall l, P l.

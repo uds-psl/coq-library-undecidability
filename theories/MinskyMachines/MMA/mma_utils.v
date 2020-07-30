@@ -7,12 +7,10 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega.
+Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW 
-  Require Import Utils.utils Utils.gcd 
-                 Vec.pos Vec.vec
-                 Code.subcode Code.sss.
+  Require Import utils gcd pos vec subcode sss.
 
 From Undecidability.MinskyMachines.MMA
   Require Import mma_defs.
@@ -123,7 +121,7 @@ Section Minsky_Machine_alt_utils.
         mma sss DEC S with src i k; rew vec.
         apply sss_progress_compute, IHk with (x := 1+x); rew vec.
         apply vec_pos_ext; intros p.
-        dest p dst; try omega; dest p src.
+        dest p dst; try lia; dest p src.
     Qed.
 
     Fact mma_transfert_progress i v st : 
@@ -167,7 +165,7 @@ Section Minsky_Machine_alt_utils.
       + simpl; mma sss INC with dst.
         apply subcode_sss_compute with (P := (1+i,mma_incs k)); auto.
         { subcode_tac; rewrite <- app_nil_end; auto. }
-        apply IHk; f_equal; try omega.
+        apply IHk; f_equal; try lia.
         apply vec_pos_ext; intros p; dest p dst.
     Qed.
 
@@ -195,7 +193,7 @@ Section Minsky_Machine_alt_utils.
     Fact mma_decs_length k i : length (mma_decs k i) = 2+3*k.
     Proof.
       revert i; induction k as [ | ? IHk ]; intros i; simpl; auto.
-      rewrite IHk; omega.
+      rewrite IHk; lia.
     Qed.
 
     Let mma_decs_spec_lt k i v w : 
@@ -204,7 +202,7 @@ Section Minsky_Machine_alt_utils.
          -> (i,mma_decs k i) // (i,v) -+> (q,w).
     Proof.
       revert i v w; induction k as [ | k IHk ]; intros i v w H1 ?; subst w.
-      + omega.
+      + lia.
       + unfold mma_decs; fold mma_decs.
         case_eq (v#>dst).
         * intros H2.
@@ -217,7 +215,7 @@ Section Minsky_Machine_alt_utils.
           mma sss DEC S with dst (3+i) d.
           apply subcode_sss_compute with (P := (3+i,mma_decs k (3+i))); auto.
           { subcode_tac; rewrite <- app_nil_end; auto. }
-          apply sss_progress_compute, IHk; rew vec; try omega.
+          apply sss_progress_compute, IHk; rew vec; try lia.
     Qed.
 
     Let mma_decs_spec_le k i v w : 
@@ -230,13 +228,13 @@ Section Minsky_Machine_alt_utils.
         mma sss INC with dst.
         mma sss DEC S with dst p (v#>dst); rew vec.
         mma sss stop; f_equal.
-        apply vec_pos_ext; intros x; dest x dst; try omega.
+        apply vec_pos_ext; intros x; dest x dst; try lia.
       + unfold mma_decs; fold mma_decs.
-        mma sss DEC S with dst (3+i) ((v#>dst) - 1); try omega.
+        mma sss DEC S with dst (3+i) ((v#>dst) - 1); try lia.
         apply subcode_sss_compute with (P := (3+i,mma_decs k (3+i))); auto.
         { subcode_tac; rewrite <- app_nil_end; auto. }
-        apply sss_progress_compute, IHk; rew vec; try omega.
-        apply vec_pos_ext; intros x; dest x dst; omega.
+        apply sss_progress_compute, IHk; rew vec; try lia.
+        apply vec_pos_ext; intros x; dest x dst; lia.
     Qed.
 
     Fact mma_decs_lt_progress k i v st :
@@ -275,7 +273,7 @@ Section Minsky_Machine_alt_utils.
     Fact mma_decs_copy_length k i : length (mma_decs_copy k i) = 2+4*k.
     Proof.
       revert i; induction k as [ | ? IHk ]; intros i; simpl; auto.
-      rewrite IHk; omega.
+      rewrite IHk; lia.
     Qed.
 
     Let mma_decs_copy_spec_lt k i v w : 
@@ -284,7 +282,7 @@ Section Minsky_Machine_alt_utils.
          -> (i,mma_decs_copy k i) // (i,v) -+> (q,w).
     Proof.
       revert i v w; induction k as [ | k IHk ]; intros i v w H1 ?; subst w.
-      + omega.
+      + lia.
       + unfold mma_decs_copy; fold mma_decs_copy.
         case_eq (v#>dst).
         * intros H2.
@@ -299,8 +297,8 @@ Section Minsky_Machine_alt_utils.
           apply subcode_sss_compute with (P := (4+i,mma_decs_copy k (4+i))); auto.
           { subcode_tac; rewrite <- app_nil_end; auto. }
           apply sss_progress_compute; rewrite plus_assoc.
-          apply IHk; rew vec; try omega.
-          apply vec_pos_ext; intros x; dest x tmp; try omega; dest x dst.
+          apply IHk; rew vec; try lia.
+          apply vec_pos_ext; intros x; dest x tmp; try lia; dest x dst.
     Qed.
 
     Let mma_decs_copy_spec_le k i v w : 
@@ -313,14 +311,14 @@ Section Minsky_Machine_alt_utils.
         mma sss INC with dst.
         mma sss DEC S with dst p (v#>dst); rew vec.
         mma sss stop; f_equal.
-        apply vec_pos_ext; intros x; dest x dst; try omega; dest x tmp.
+        apply vec_pos_ext; intros x; dest x dst; try lia; dest x tmp.
       + unfold mma_decs_copy; fold mma_decs_copy.
-        mma sss DEC S with dst (3+i) ((v#>dst) - 1); try omega.
+        mma sss DEC S with dst (3+i) ((v#>dst) - 1); try lia.
         mma sss INC with tmp.
         apply subcode_sss_compute with (P := (4+i,mma_decs_copy k (4+i))); auto.
         { subcode_tac; rewrite <- app_nil_end; auto. }
-        apply sss_progress_compute, IHk; rew vec; try omega.
-        apply vec_pos_ext; intros x; dest x tmp; try omega; dest x dst; omega.
+        apply sss_progress_compute, IHk; rew vec; try lia.
+        apply vec_pos_ext; intros x; dest x tmp; try lia; dest x dst; lia.
     Qed.
 
     Fact mma_decs_copy_lt_progress k i v st :
@@ -356,7 +354,7 @@ Section Minsky_Machine_alt_utils.
         :: mma_incs dst (S k) ++ DEC dst i :: nil. 
 
     Fact mma_mult_cst_length : length mma_mult_cst = 5+k.
-    Proof. unfold mma_mult_cst; rew length; omega. Qed.
+    Proof. unfold mma_mult_cst; rew length; lia. Qed.
 
     Let mma_mult_cst_spec x v st :
              v#>src = x
@@ -369,12 +367,12 @@ Section Minsky_Machine_alt_utils.
         mma sss INC with src.
         mma sss DEC S with src (5+k+i) 0; rew vec.
         mma sss stop; f_equal.
-        apply vec_pos_ext; intros y; dest y dst; omega.
+        apply vec_pos_ext; intros y; dest y dst; lia.
       + mma sss DEC S with src (3+i) x.
         apply sss_compute_trans with (4+k+i,v[x/src][(S k+(v#>dst))/dst]).
         * apply subcode_sss_compute with (P := (3+i,mma_incs dst (S k))); auto.
-          apply mma_incs_compute; f_equal; try omega.
-          apply vec_pos_ext; intros y; dest y dst; omega.
+          apply mma_incs_compute; f_equal; try lia.
+          apply vec_pos_ext; intros y; dest y dst; lia.
         * mma sss DEC S with dst i (k+(v#>dst)); rew vec.
           apply sss_progress_compute, IHx; rew vec; f_equal.
           apply vec_pos_ext; intros y; dest y dst; try ring.
@@ -408,7 +406,7 @@ Section Minsky_Machine_alt_utils.
          :: mma_decs_copy src dst i q k (4+i).
 
     Fact mma_mod_cst_length : length mma_mod_cst = 6+4*k.
-    Proof. unfold mma_mod_cst; rew length; omega. Qed.
+    Proof. unfold mma_mod_cst; rew length; lia. Qed.
 
     (* This is of no use when k = 0 *)
 
@@ -435,14 +433,14 @@ Section Minsky_Machine_alt_utils.
         simpl in H1; rewrite <- H1; simpl; rew vec.
       + unfold mma_mod_cst.
         mma sss DEC S with src (3+i) (S a*k+b-1).
-        { rewrite H1; simpl; generalize (a*k); intro; omega. }
+        { rewrite H1; simpl; generalize (a*k); intro; lia. }
         mma sss INC with src.
         apply sss_compute_trans with (i, v[(a*k+b)/src][(k+(v#>dst))/dst]).
         * apply subcode_sss_compute with (P := (4+i,mma_decs_copy src dst i q k (4+i))); auto.
           { subcode_tac; rewrite <- app_nil_end; auto. }
           apply sss_progress_compute, mma_decs_copy_le_progress; auto; rew vec.
-          { simpl; generalize (a*k); intro; omega. }
-          do 3 f_equal; simpl mult; generalize (a*k); intro; omega.
+          { simpl; generalize (a*k); intro; lia. }
+          do 3 f_equal; simpl mult; generalize (a*k); intro; lia.
         * apply IHa; rew vec.
           apply vec_pos_ext; intros y; dest y dst; try ring; dest y src.
     Qed.
@@ -454,13 +452,13 @@ Section Minsky_Machine_alt_utils.
     Proof.
       intros H ?; subst; unfold mma_mod_cst.
       case_eq (v#>src).
-      { intros; try omega. }
+      { intros; lia. }
       intros x Hx.
       mma sss DEC S with src (3+i) x.
       mma sss INC with src.
       apply subcode_sss_compute with (P := (4+i,mma_decs_copy src dst i q k (4+i))); auto.
       { subcode_tac; rewrite <- app_nil_end; auto. }
-       apply sss_progress_compute, mma_decs_copy_lt_progress; auto; rew vec; omega.
+       apply sss_progress_compute, mma_decs_copy_lt_progress; auto; rew vec; lia.
     Qed.
  
     Fact mma_mod_cst_divides_progress v a st :
@@ -470,7 +468,7 @@ Section Minsky_Machine_alt_utils.
     Proof.
       intros H1 ?; subst st.
       apply sss_compute_progress_trans with (i,v[0/src][((v#>src)+(v#>dst))/dst]).
-      + apply mma_mod_cst_spec_1 with (a := a) (b := 0); try omega.
+      + apply mma_mod_cst_spec_1 with (a := a) (b := 0); try lia.
         rewrite <- H1; auto.
       + apply mma_mod_cst_spec_0; rew vec.
     Qed.
@@ -483,9 +481,9 @@ Section Minsky_Machine_alt_utils.
     Proof.
       intros H1 H2 ?; subst st.
       apply sss_compute_progress_trans with (i,v[b/src][(a*k+(v#>dst))/dst]).
-      + apply mma_mod_cst_spec_1 with (a := a) (b := b); try omega; auto.
+      + apply mma_mod_cst_spec_1 with (a := a) (b := b); try lia; auto.
       + apply mma_mod_cst_spec_2; rew vec.
-        apply vec_pos_ext; intros y; dest y dst; try omega; dest y src.
+        apply vec_pos_ext; intros y; dest y dst; try lia; dest y src.
     Qed.
   
   End mma_mod_cst.
@@ -505,7 +503,7 @@ Section Minsky_Machine_alt_utils.
          mma_decs src p q k i ++ INC dst :: INC src :: DEC src i :: nil.
 
     Fact mma_div_cst_length : length mma_div_cst = 5+3*k.
-    Proof. unfold mma_div_cst; rew length; omega. Qed.
+    Proof. unfold mma_div_cst; rew length; lia. Qed.
 
     Hypothesis (Hk : 0 < k).
 
@@ -516,22 +514,22 @@ Section Minsky_Machine_alt_utils.
     Proof.
       unfold mma_div_cst; revert v w; induction a as [ | a IHa ]; intros v w H1 ?; subst w.
       + apply subcode_sss_progress with (P := (i,mma_decs src p q k i)); auto.
-        apply mma_decs_lt_progress; try omega.
+        apply mma_decs_lt_progress; try lia.
         f_equal; simpl.
         apply vec_pos_ext; intros y; dest y dst.
       + apply sss_progress_trans with (p,v[(a*k)/src]).
         * apply subcode_sss_progress with (P := (i,mma_decs src p q k i)); auto.
           apply mma_decs_le_progress.
-          - rewrite H1; simpl; generalize (a*k); intro; omega.
+          - rewrite H1; simpl; generalize (a*k); intro; lia.
           - f_equal.
             apply vec_pos_ext; intros y; dest y dst; dest y src.
-            rewrite H1; simpl; generalize (a*k); intro; omega.
+            rewrite H1; simpl; generalize (a*k); intro; lia.
         * unfold p.
           mma sss INC with dst.
           mma sss INC with src.
           mma sss DEC S with src i (a*k); rew vec.
           apply sss_progress_compute, IHa; rew vec.
-          apply vec_pos_ext; intros y; dest y dst; try omega; dest y src.
+          apply vec_pos_ext; intros y; dest y dst; try lia; dest y src.
     Qed.
 
     Fact mma_div_cst_progress a v st :

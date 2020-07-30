@@ -7,10 +7,10 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega.
+Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW 
-  Require Import Utils.utils Code.subcode.
+  Require Import utils subcode.
 
 Set Implicit Arguments.
 
@@ -42,7 +42,7 @@ Section linker.
   Fact length_compiler_app ll mm : length_compiler (ll++mm) = length_compiler ll + length_compiler mm.
   Proof.
     induction ll as [ | x ll IH ]; simpl; auto.
-    rewrite IH; omega.
+    rewrite IH; lia.
   Qed.
     
   Notation lsum := length_compiler.
@@ -56,7 +56,7 @@ Section linker.
   Fact link_app i ll mm j : link i (ll++mm) j = link i ll j ++ link (length ll+i) mm (lsum ll+j).
   Proof.
     revert i j; induction ll as [ | x ll IH ]; simpl; intros i j; f_equal.
-    rewrite IH; do 2 f_equal; omega.
+    rewrite IH; do 2 f_equal; lia.
   Qed.
   
   Fact link_fst i ll j : map fst (link i ll j) = list_an i (length ll).
@@ -77,7 +77,7 @@ Section linker.
     Fact comp_app i ll mm j : comp i (ll++mm) j = comp i ll j ++ comp (length ll+i) mm (lsum ll+j).
     Proof.
       revert i j; induction ll as [ | x ll IH ]; simpl; intros i j; auto.
-      rewrite IH; solve list eq; do 3 f_equal; omega.
+      rewrite IH; solve list eq; do 3 f_equal; lia.
     Qed.
     
     Fact comp_length i ll j : length (comp i ll j) = lsum ll.
@@ -108,13 +108,13 @@ Section linker.
     * rewrite <- app_nil_end.
       solve eq nat dec.
     * rew length.
-      dest eq nat dec as [ H1 | H1 ]; [ omega | clear H1 ].
+      dest eq nat dec as [ H1 | H1 ]; [ lia | clear H1 ].
       rewrite link_app, list_assoc_app.
       generalize (list_assoc_In eq_nat_dec (length ll + iP) (link iP ll i)).
       destruct (list_assoc eq_nat_dec (length ll + iP) (link iP ll i)) as [ j | ].
       - intros H1.
         apply in_map with (f := @fst _ _) in H1.
-        rewrite link_fst, list_an_spec in H1; simpl in H1; omega.
+        rewrite link_fst, list_an_spec in H1; simpl in H1; lia.
       - intros; simpl; solve eq nat dec.
   Qed.
   
@@ -122,12 +122,12 @@ Section linker.
   Proof.
     unfold linker.
     destruct P as (iP,lP); simpl; intros H.
-    dest eq nat dec as [ H1 | _ ]; [ omega | ].
+    dest eq nat dec as [ H1 | _ ]; [ lia | ].
     generalize (list_assoc_In eq_nat_dec j (link iP lP i)).
     destruct (list_assoc eq_nat_dec j (link iP lP i)); auto.
     intros H1.
     apply in_map with (f := @fst _ _) in H1.
-    rewrite link_fst, list_an_spec in H1; simpl in H1; omega.
+    rewrite link_fst, list_an_spec in H1; simpl in H1; lia.
   Qed.
 
   Definition compiler := comp linker (fst P) (snd P) i.
@@ -143,15 +143,15 @@ Section linker.
     Proof.
       intros H; red in H; simpl in H.
       destruct (@list_split_length _ (snd P) (j - fst P)) as (ll & mm & H1 & H2);
-        try omega.
-      replace j with (length ll+fst P) by omega.
+        try lia.
+      replace j with (length ll+fst P) by lia.
       rewrite (linker_app _ _ H1).
       red; simpl; rewrite compiler_length, H1, length_compiler_app.
       rewrite H1, app_length in H.
       destruct mm. 
-      simpl in H; omega.
+      simpl in H; lia.
       simpl.
-      generalize (Hlc x); omega.
+      generalize (Hlc x); lia.
     Qed.
 
   End linker_in_code.
@@ -165,20 +165,20 @@ Section linker.
     assert (linker j = lsum l + i) as Hj.
     { generalize (linker_app l (x::r)).
       rewrite HP; simpl; intros E.
-      rewrite <- E; auto; f_equal; omega. }
+      rewrite <- E; auto; f_equal; lia. }
     assert (linker (1+j) = lc x + linker j) as HSj.
     {  generalize (linker_app (l++x::nil) r).
       rewrite HP, app_ass; simpl; intros H3.
       specialize (H3 H1).
       eq goal H3; f_equal.
       f_equal.
-      rew length; omega.
-      rewrite length_compiler_app; simpl; omega. }
+      rew length; lia.
+      rewrite length_compiler_app; simpl; lia. }
     split; auto.
     unfold compiler; rewrite HP, H1; simpl.
     exists (comp linker iP l i), (comp linker (1+length l+iP) r (lc x+lsum l+i)); split.
-    rewrite comp_app; simpl; do 3 f_equal; omega.
-    rewrite comp_length; omega.
+    rewrite comp_app; simpl; do 3 f_equal; lia.
+    rewrite comp_length; lia.
   Qed.
   
   Fact linker_code_start : linker (code_start P) = i.
@@ -200,10 +200,10 @@ Section linker.
     red in H2.
     destruct (eq_nat_dec j (code_end P)) as [ H | H ].
     rewrite H, linker_code_end; simpl.
-    rewrite compiler_length; omega.
+    rewrite compiler_length; lia.
     rewrite linker_err_code.
-    simpl; rewrite compiler_length; omega.
-    simpl in H2, H; omega.
+    simpl; rewrite compiler_length; lia.
+    simpl in H2, H; lia.
   Qed.
 
   Fact linker_out_err j : err = lsum (snd P) + i -> out_code j P -> linker j = err.
@@ -213,7 +213,7 @@ Section linker.
     + rewrite H1, H; unfold code_end.
       rewrite plus_comm, linker_app with (mm := nil); auto.
       rewrite <- app_nil_end; auto.
-    + apply linker_err_code; red in H2; unfold code_end, code_start in *; omega.
+    + apply linker_err_code; red in H2; unfold code_end, code_start in *; lia.
   Qed.
 
 End linker.

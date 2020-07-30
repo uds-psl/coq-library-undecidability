@@ -9,7 +9,7 @@
 
 (** ** Reflexive transitive closure is Diophantine *)
 
-Require Import Arith Nat Omega List Bool.
+Require Import Arith List Bool.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list rel_iter sums.

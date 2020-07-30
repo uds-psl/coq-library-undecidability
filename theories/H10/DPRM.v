@@ -9,11 +9,11 @@
 
 (** ** The DPRM theorem *)
 
-Require Import List Arith Omega.
+Require Import List Arith.
 
-From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list sums.
-From Undecidability.Shared.Libs.DLW.Code Require Import subcode sss.
+From Undecidability.Shared.Libs.DLW
+  Require Import utils_tac utils_list sums pos vec subcode sss.
+
 From Undecidability.MinskyMachines Require Import mm_defs.
 From Undecidability.FRACTRAN Require Import FRACTRAN mm_fractran prime_seq.
 From Undecidability.H10.Fractran Require Import fractran_dio.

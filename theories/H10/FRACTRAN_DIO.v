@@ -9,15 +9,18 @@
 
 (** ** FRACTRAN reduces to Diophantine logic *)
 
-Require Import List Arith Omega.
+Require Import List.
 
 From Undecidability.Synthetic Require Import Undecidability.
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac.
-From Undecidability.Shared.Libs.DLW.Vec   Require Import pos vec.
-From Undecidability.FRACTRAN              Require Import FRACTRAN MM_FRACTRAN.
-From Undecidability.H10.Fractran          Require Import fractran_dio.
-From Undecidability.H10.Dio Require Import dio_elem dio_single dio_logic.
+From Undecidability.Shared.Libs.DLW
+   Require Import utils_tac pos vec.
+
+From Undecidability.FRACTRAN 
+  Require Import FRACTRAN MM_FRACTRAN.
+
+From Undecidability.H10.Fractran Require Import fractran_dio.
+From Undecidability.H10.Dio      Require Import dio_elem dio_single dio_logic.
 
 Set Implicit Arguments.
 

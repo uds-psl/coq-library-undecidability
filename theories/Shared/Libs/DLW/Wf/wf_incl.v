@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import Arith List Omega Wellfounded.
+Require Import Arith List Wellfounded.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import php.

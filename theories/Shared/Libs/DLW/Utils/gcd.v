@@ -9,9 +9,10 @@
 
 (** ** Euclidian division and Bezout's identity *)
 
-Require Import List Arith Omega Permutation Extraction.
+Require Import List Arith Lia Permutation Extraction.
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac utils_list.
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_tac utils_list.
 
 Set Implicit Arguments.
 
@@ -30,7 +31,7 @@ Section Euclid.
           | inright H => inright _
         end
       end
-    end); omega.
+    end); abstract lia.
   Defined.  
 
   Definition euclid n d : d <> 0 -> { q : nat & { r | n = q*d+r /\ r < d } }.
@@ -42,7 +43,7 @@ Section Euclid.
         | existT _ q (exist _ r Hr) => existT _ (S q) (exist _ r _) 
       end
       | inright H      => existT _ 0 (exist _ n _)
-    end); simpl; omega.
+    end); abstract (simpl; lia).
   Defined.
 
 End Euclid.
@@ -52,15 +53,11 @@ Definition arem n d q j := j <= d /\ (n = 2*q*d+j \/ q <> 0 /\ n = 2*q*d-j).
 Fact division_by_even n d : d <> 0 -> { q : nat & { j | arem n d q j } }.
 Proof.
   intros Hd.
-  destruct (@euclid n (2*d)) as (q & r & H1 & H2); try omega.
+  destruct (@euclid n (2*d)) as (q & r & H1 & H2); try lia.
   destruct (le_lt_dec r d) as [ Hr | Hr ].
   + exists q, r; split; auto; left.
     rewrite H1; ring.
-  + exists (S q), (2*d-r); split; try omega; right.
-    split; try omega.
-    rewrite H1.
-    replace (2*(S q)*d) with (q*(2*d) + 2 * d) by ring.
-    omega.
+  + exists (S q), (2*d-r); split; lia.
 Qed.
 
 Fact own_multiple x p : x = p*x -> x = 0 \/ p = 1.
@@ -73,18 +70,18 @@ Proof.
     - trivial.
     - exfalso; revert H.
       do 2 (rewrite mult_comm; simpl).
-      generalize (p*x); intros; omega.
+      generalize (p*x); intros; lia.
 Qed.
 
 Fact mult_is_one p q : p*q = 1 -> p = 1 /\ q = 1.
 Proof.
   destruct p as [ | [ | p ] ].
   + simpl; discriminate.
-  + simpl; omega.
+  + simpl; lia.
   + rewrite mult_comm.
     destruct q as [ | [ | q ] ].
     - simpl; discriminate.
-    - simpl; omega.
+    - simpl; lia.
     - simpl; discriminate.
 Qed.
 
@@ -95,7 +92,7 @@ Section divides.
   Infix "div" := divides (at level 70, no associativity).
 
   Fact divides_refl x : x div x.
-  Proof. exists 1; simpl; omega. Qed.
+  Proof. exists 1; simpl; lia. Qed.
 
   Fact divides_anti x y : x div y -> y div x -> x = y.
   Proof.
@@ -104,7 +101,7 @@ Section divides.
     apply own_multiple in H2.
     destruct H2 as [ H2 | H2 ].
     + subst; rewrite mult_comm; auto.
-    + apply mult_is_one in H2; destruct H2; subst; omega.
+    + apply mult_is_one in H2; destruct H2; subst; lia.
   Qed.
 
   Fact divides_trans x y z : x div y -> y div z -> x div z.
@@ -131,9 +128,7 @@ Section divides.
   Fact divides_2_inv p : p div 2 -> p = 1 \/ p = 2.
   Proof.
     intros ([ | k ] & Hk); try discriminate.
-    destruct p as [ | [ | [|] ] ]; try omega.
-    rewrite mult_comm in Hk; simpl in Hk.
-    contradict Hk; generalize (n*S k); intros; omega.
+    destruct p as [ | [ | [|] ] ]; lia.
   Qed.
 
   Fact divides_mult p q k : p div q -> p div k*q.
@@ -159,29 +154,26 @@ Section divides.
   Proof.
     intros (s1 & H1) (s2 & H2).
     exists (s1 - s2).
-    rewrite Nat.mul_sub_distr_r; omega.
+    rewrite Nat.mul_sub_distr_r; lia.
   Qed.
 
   Fact divides_plus p q1 q2 : p div q1 -> p div q2 -> p div q1+q2.
   Proof.
     intros (s1 & H1) (s2 & H2).
     exists (s1 + s2).
-    rewrite Nat.mul_add_distr_r; omega.
+    rewrite Nat.mul_add_distr_r; lia.
   Qed.
 
   Fact divides_plus_inv p q1 q2 : p div q1 -> p div q1+q2 -> p div q2.
   Proof.
      intros H1 H2.
-     replace q2 with (q1+q2-q1) by omega.
+     replace q2 with (q1+q2-q1) by lia.
      apply divides_minus; auto.
   Qed.
 
   Fact divides_le p q : q <> 0 -> p div q -> p <= q.
   Proof.
-    intros H (k & Hk); subst.
-    destruct k.
-    + destruct H; auto.
-    + simpl; generalize (k*p); intros; omega.
+    intros ? ([] & ?); subst; lia.
   Qed. 
 
   Fact divides_mult_inv k p q : k <> 0 -> k*p div k*q -> p div q.
@@ -194,7 +186,7 @@ Section divides.
   Lemma divides_fact m p : 1 < p <= m -> p div fact m.
   Proof.
     intros (H1 & H2); induction H2.
-    + destruct p; cbn. omega. unfold divides. exists (fact p). ring.
+    + destruct p; cbn. lia. unfold divides. exists (fact p). ring.
     + cbn. eauto using divides_plus, divides_mult.
   Qed.
 
@@ -239,7 +231,7 @@ Section gcd_lcm.
     + apply divides_minus; auto.
     + intros k H4 H5.
       apply H3; auto.
-      replace q with (q - n*p + n*p) by omega.
+      replace q with (q - n*p + n*p) by lia.
       apply divides_plus; auto.
   Qed.
 
@@ -264,8 +256,8 @@ Section gcd_lcm.
   Fact is_gcd_mult p q r n : is_gcd p (n*p+q) r <-> is_gcd p q r.
   Proof.
     split.
-    + replace q with ((n*p+q)-n*p) at 2 by omega.
-      apply is_gcd_modulus; auto; omega.
+    + replace q with ((n*p+q)-n*p) at 2 by lia.
+      apply is_gcd_modulus; auto; lia.
     + rewrite plus_comm; apply is_gcd_moduplus; auto.
   Qed.
 
@@ -319,15 +311,15 @@ Section bezout.
                existT _ (b+n*p-n*a) (exist _ a _)
           end
         end 
-      end); try omega.
+      end); try lia.
       + destruct H0 as (H1 & H2).
         subst r; rewrite plus_comm in H1; simpl in H1.
         assert (is_gcd p q p) as H3.
         { apply is_gcd_div; subst; auto. }
         rewrite (is_gcd_fun H3 H) in *.
-        simpl; omega.
-      + replace r with (q-n*p) by omega.
-        apply is_gcd_sym, is_gcd_modulus; auto; omega.
+        simpl; lia.
+      + replace r with (q-n*p) by lia.
+        apply is_gcd_sym, is_gcd_modulus; auto; lia.
       + destruct H0 as (H1 & H2).
         destruct G0 as (H3 & H4 & H5).
         split; [ | split ]; auto.
@@ -337,8 +329,8 @@ Section bezout.
           rewrite (mult_comm n a), (mult_comm p b), mult_assoc, mult_assoc.
           assert (a*n*p <= p*n*p) as H6.
           { repeat (apply mult_le_compat; auto). }
-          revert H6; generalize (b*p) (a*r) (a*n*p) (p*n*p); intros; omega.
-        * rewrite H1; generalize (n*p) (n*a); intros; omega.
+          revert H6; generalize (b*p) (a*r) (a*n*p) (p*n*p); intros; lia.
+        * rewrite H1; generalize (n*p) (n*a); intros; lia.
     Defined.
 
     Definition bezout_rel_prime p q : is_gcd p q 1 -> { a : nat & { b | a*p+b*q = 1+p*q } }.
@@ -350,12 +342,12 @@ Section bezout.
       { subst; rewrite (is_gcd_fun (is_gcd_0r _) H); exists 1, 0; auto. }
       destruct (lt_eq_lt_dec p q) as [ [ H1 | H1 ] | H1 ].
       + destruct bezout_rel_prime_lt with (2 := H)
-          as (a & b & H2 & _); try omega.
+          as (a & b & H2 & _); try lia.
         exists a, b; auto.
       + subst; rewrite (is_gcd_fun (is_gcd_refl _) H); exists 1, 1; auto.
       + destruct bezout_rel_prime_lt with (2 := is_gcd_sym H)
-          as (a & b & H2 & _); try omega.
-        exists b, a; rewrite (mult_comm p q); omega.
+          as (a & b & H2 & _); try lia.
+        exists b, a; rewrite (mult_comm p q); lia.
     Defined.
 
     Lemma bezout_nc p q : is_gcd p q 1 -> exists a b, a*p+b*q = 1+p*q.
@@ -395,7 +387,7 @@ Section bezout.
           rewrite mult_comm, mult_assoc; auto.
       - rewrite mult_comm, mult_assoc; auto.
     + rewrite Nat.mul_add_distr_l, mult_assoc.
-      generalize (k*p*q); intros; omega.
+      generalize (k*p*q); intros; lia.
   Qed.
 
   Fact is_rel_prime_div_r p q k : is_gcd p q 1 -> p div k*q -> p div k.
@@ -443,7 +435,7 @@ Section bezout.
       + do 2 rewrite (mult_comm _ g); auto.
       + do 2 rewrite (mult_comm _ g); auto.
       + rewrite mult_assoc in Hd.
-        replace g with (1*g) in Hd at 1 by (simpl; omega).
+        replace g with (1*g) in Hd at 1 by (simpl; lia).
         apply Nat.mul_cancel_r in Hd; auto.
         symmetry in Hd.
         apply mult_is_one in Hd.
@@ -531,14 +523,14 @@ Section bezout.
     intros H1 H2 H3 H4. revert H1.
     induction k as [ | k IHk ]; intros H1.
     + simpl; do 2 rewrite Nat.sub_0_r; auto.
-    + replace (q - S k*p) with (q -k*p -p) by (simpl; omega).
+    + replace (q - S k*p) with (q -k*p -p) by (simpl; lia).
       replace (l - S k*(u*p)) with (l - k*(u*p) - u*p).
       - apply is_lcm_minus with (g := g); auto.
-        * simpl in H1; omega.
+        * simpl in H1; lia.
         * apply is_gcd_modulus; auto.
-          simpl in H1; omega.
-        * apply IHk; simpl in H1; omega.
-      - simpl; generalize (u*p) (k*(u*p)); intros; omega.
+          simpl in H1; lia.
+        * apply IHk; simpl in H1; lia.
+      - simpl; generalize (u*p) (k*(u*p)); intros; lia.
   Qed.
 
   (*  if   1) p <= q 
@@ -571,8 +563,8 @@ Section bezout.
     intros H2 H3 H4.
     induction k as [ | k IHk ].
     + simpl; do 2 rewrite Nat.add_0_r; auto.
-    + replace (q + S k*p) with (q +k*p +p) by (simpl; omega).
-      replace (l + S k*(u*p)) with (l + k*(u*p) + u*p) by (simpl; omega).
+    + replace (q + S k*p) with (q +k*p +p) by (simpl; lia).
+      replace (l + S k*(u*p)) with (l + k*(u*p) + u*p) by (simpl; lia).
       apply is_lcm_plus with (g := g); auto.
       apply is_gcd_moduplus; auto.
   Qed.
@@ -598,37 +590,37 @@ Section bezout.
                         /\ b <= u } } } } } }.
     Proof.
       induction on p q as IH with measure q; intros (Hp & Hq).
-      destruct (@euclid q p) as (k & r & H1 & H2); try omega.
+      destruct (@euclid q p) as (k & r & H1 & H2); try lia.
       destruct (eq_nat_dec r 0) as [ Hr | Hr ].
       + exists 1, 1, p, (k*p), 1, k.
         rewrite plus_comm in H1; simpl in H1.
         subst; repeat split; simpl; auto.
-        destruct k; omega.
-      + destruct (IH r _ Hq) as (a & b & g & l & u & v & H3 & H4 & H5 & H6 & H7 & H8 & H9); try omega.
+        destruct k; lia.
+      + destruct (IH r _ Hq) as (a & b & g & l & u & v & H3 & H4 & H5 & H6 & H7 & H8 & H9); try lia.
         exists (b+k*v-k*a), a, g, (l+k*v*p), v, (k*v+u).
         apply is_gcd_sym in H4.
         apply is_lcm_sym in H5.
         rewrite plus_comm in H1.
         assert (g <> 0) as Hg.
-        { intro; subst g; apply is_gcd_0, proj1 in H4; omega. }
+        { intro; subst g; apply is_gcd_0, proj1 in H4; lia. }
         split.
         { rewrite H1, plus_assoc, Nat.mul_add_distr_l, <- H3.
           rewrite Nat.mul_sub_distr_r, Nat.mul_add_distr_r.
           rewrite mult_assoc, (mult_comm a k).
           assert (k*a*p <= k*v*p) as G.
           { repeat (apply mult_le_compat; auto). }
-          revert G; generalize (b*p) (a*r) (k*a*p) (k*v*p); intros; omega. }
+          revert G; generalize (b*p) (a*r) (k*a*p) (k*v*p); intros; lia. }
         split.
         { rewrite H1; apply is_gcd_moduplus; auto. }
         split.
         { rewrite H1; apply is_lcm_moduplus with g; auto. }
         split; auto.
         split.
-        { rewrite H1, H6, H7, Nat.mul_add_distr_r, mult_assoc; omega. }
+        { rewrite H1, H6, H7, Nat.mul_add_distr_r, mult_assoc; lia. }
         split; auto.
         { rewrite (plus_comm _ u), <- Nat.add_sub_assoc.
           +  apply plus_le_compat; auto. 
-             generalize (k*v) (k*a); intros; omega.
+             generalize (k*v) (k*a); intros; lia.
           + apply mult_le_compat; auto. }
     Defined.
   
@@ -648,13 +640,13 @@ Section bezout.
       { subst; exists 1, 0, p, 0; repeat (split; auto). }
       destruct (lt_eq_lt_dec p q) as [ [ H1 | H1 ] | H1 ].
       + destruct (@bezout_generalized_lt p q)
-          as (a & b & g & l & _ & _ & ? & ? & ? & _); try omega.
+          as (a & b & g & l & _ & _ & ? & ? & ? & _); try lia.
         exists a, b, g, l; auto.
       + subst q; exists 1, 1, p, p.
-        repeat split; auto; omega.
+        repeat split; auto; lia.
       + destruct (@bezout_generalized_lt q p)
-          as (a & b & g & l & _ & _ & ? & ? & ? & _); try omega.
-        exists b, a, g, l; repeat (split; auto); omega.
+          as (a & b & g & l & _ & _ & ? & ? & ? & _); try lia.
+        exists b, a, g, l; repeat (split; auto); lia.
     Qed.
 
   End bezout_generalized.
@@ -691,7 +683,7 @@ Section division.
   Proof.
     case_eq p.
     + intro; exists 0, q; subst; split; auto; intros []; auto.
-    + intros k H; destruct (@euclid q p) as (n & r & H1 & H2); try omega.
+    + intros k H; destruct (@euclid q p) as (n & r & H1 & H2); try lia.
       exists n, r; rewrite <- H; split; auto.
   Qed.
 
@@ -716,35 +708,35 @@ Section division.
     intros H1 H2 H3 H4.
     assert (n1 = n2) as E.
     destruct (lt_eq_lt_dec n1 n2) as [ [ H | ] | H ]; auto.
-    + replace n2 with (n2-n1 + n1) in H2 by omega.
+    + replace n2 with (n2-n1 + n1) in H2 by lia.
       rewrite Nat.mul_add_distr_r in H2.
       assert (1*p <= (n2-n1)*p) as H5.
-      { apply mult_le_compat; omega. }
-      simpl in H5; omega.
-    + replace n1 with (n1-n2 + n2) in H2 by omega.
+      { apply mult_le_compat; lia. }
+      simpl in H5; lia.
+    + replace n1 with (n1-n2 + n2) in H2 by lia.
       rewrite Nat.mul_add_distr_r in H2.
       assert (1*p <= (n1-n2)*p) as H5.
-      { apply mult_le_compat; omega. }
-      simpl in H5; omega.
-    + subst; omega.
+      { apply mult_le_compat; lia. }
+      simpl in H5; lia.
+    + subst; lia.
   Qed.
 
   Fact div_prop q p n r : q = n*p+r -> r < p -> div q p = n.
   Proof.
     intros H1 H2.
     apply (@div_rem_uniq p _ (rem q p) n r); auto.
-    + omega.
+    + lia.
     + rewrite <- H1; symmetry; apply div_rem_spec1.
-    + apply div_rem_spec2; omega.
+    + apply div_rem_spec2; lia.
   Qed.
 
   Fact rem_prop q p n r : q = n*p+r -> r < p -> rem q p = r.
   Proof.
     intros H1 H2.
     apply (@div_rem_uniq p (div q p) _ n r); auto.
-    + omega.
+    + lia.
     + rewrite <- H1; symmetry; apply div_rem_spec1.
-    + apply div_rem_spec2; omega.
+    + apply div_rem_spec2; lia.
   Qed.
 
   Fact rem_idem q p : q < p -> rem q p = q.
@@ -770,7 +762,7 @@ Section division.
       specialize (H2 Hp).
       rewrite rem_prop with r p m r'; auto.
       intros; apply rem_prop with (n+m); auto.
-      rewrite Nat.mul_add_distr_r; omega.
+      rewrite Nat.mul_add_distr_r; lia.
   Qed.
 
   Fact divides_div q p : divides p q -> q = div q p * p.
@@ -778,7 +770,7 @@ Section division.
     intros (k & Hk).
     destruct (eq_nat_dec p 0) as [ Hp | Hp ].
     + subst; do 2 (rewrite mult_comm; simpl); auto.
-    + rewrite (@div_prop q p k 0); omega.
+    + rewrite (@div_prop q p k 0); lia.
   Qed.
 
   Fact divides_rem_eq q p : divides p q <-> rem q p = 0.
@@ -789,17 +781,17 @@ Section division.
       + intros; subst; apply divides_0.
     * split.
       + intros (n & Hn).
-        apply rem_prop with n; omega.
+        apply rem_prop with n; lia.
       + intros H.
         generalize (div_rem_spec1 q p).
-        exists (div q p); omega.
+        exists (div q p); lia.
   Qed.
 
   Fact rem_of_0 p : rem 0 p = 0.
   Proof.
     destruct p.
     + apply rem_0.
-    + apply rem_prop with 0; omega.
+    + apply rem_prop with 0; lia.
   Qed.
 
   Hint Resolve divides_0_inv : core.
@@ -815,7 +807,7 @@ Section division.
       * right; intros (m & Hm).
         rewrite <- Nat.add_0_r in Hm.
         rewrite Hm in H1.
-        destruct (div_rem_uniq _ _ Hp H1); omega.
+        destruct (div_rem_uniq _ _ Hp H1); lia.
   Qed.
 
 End division.
@@ -839,10 +831,10 @@ Section rem.
   Qed.
 
   Fact rem_diag : rem p p = 0.
-  Proof. apply rem_prop with 1; omega. Qed.
+  Proof. apply rem_prop with 1; lia. Qed.
 
   Fact rem_lt a : a < p -> rem a p = a.
-  Proof. apply rem_prop with 0; omega. Qed.
+  Proof. apply rem_prop with 0; lia. Qed.
 
   Fact rem_plus a b : rem (a+b) p = rem (rem a p + rem b p) p.
   Proof.
@@ -865,21 +857,21 @@ Section rem.
     intros (n & Hn); subst.
     rewrite <- rem_plus_rem.
     f_equal.  
-    rewrite <- rem_mult_rem, rem_diag, Nat.mul_0_r, rem_of_0; omega.
+    rewrite <- rem_mult_rem, rem_diag, Nat.mul_0_r, rem_of_0; lia.
   Qed.
 
   Fact div_eq_0 n : n < p -> div n p = 0.
-  Proof. intros; apply div_prop with n; omega. Qed.
+  Proof. intros; apply div_prop with n; lia. Qed.
 
   Fact div_of_0 : div 0 p = 0.
-  Proof. apply div_eq_0; omega. Qed.
+  Proof. apply div_eq_0; lia. Qed.
 
   Fact div_ge_1 n : p <= n -> 1 <= div n p.
   Proof.
     intros H2.
     rewrite (div_rem_spec1 n p) in H2.
     generalize (div_rem_spec2 n Hp); intros H3.
-    destruct (div n p); omega.
+    destruct (div n p); lia.
   Qed.
 
 End rem.
@@ -911,58 +903,58 @@ Fact div_by_p_lt p n : 2 <= p -> n <> 0 -> div n p < n.
 Proof.
   intros H1 H2.
   rewrite (div_rem_spec1 n p) at 2.
-  replace p with (2+(p-2)) at 3 by omega.
+  replace p with (2+(p-2)) at 3 by lia.
   rewrite Nat.mul_add_distr_l.
   generalize (div n p*(p-2)); intros x.
   destruct (le_lt_dec p n) as [ Hp | Hp ].
-  + apply div_ge_1 in Hp; omega.
-  + rewrite rem_lt; omega.
+  + apply div_ge_1 in Hp; lia.
+  + rewrite rem_lt; lia.
 Qed.
 
 Section rem_2.
 
   Fact rem_2_is_0_or_1 x : rem x 2 = 0 \/ rem x 2 = 1.
-  Proof. generalize (rem x 2) (@div_rem_spec2 x 2); intros; omega. Qed.
+  Proof. generalize (rem x 2) (@div_rem_spec2 x 2); intros; lia. Qed.
 
   Fact rem_2_mult x y : rem (x*y) 2 = 1 <-> rem x 2 = 1 /\ rem y 2 = 1.
   Proof. 
     generalize (rem_2_is_0_or_1 x) (rem_2_is_0_or_1 y).
     do 2 rewrite <- rem_mult_rem, mult_comm.
-    intros [ H1 | H1 ] [ H2 | H2 ]; rewrite H1, H2; simpl; rewrite rem_lt; omega.
+    intros [ H1 | H1 ] [ H2 | H2 ]; rewrite H1, H2; simpl; rewrite rem_lt; lia.
   Qed.
 
   Fact rem_2_fix_0 : rem 0 2 = 0.
-  Proof. apply rem_lt; omega. Qed.
+  Proof. apply rem_lt; lia. Qed.
 
   Fact rem_2_fix_1 n : rem (2*n) 2 = 0.
   Proof. apply divides_rem_eq; exists n; ring. Qed.
 
   Fact rem_2_fix_2 n : rem (1+2*n) 2 = 1.
   Proof.
-    rewrite <- rem_plus_rem,rem_2_fix_1, rem_lt; omega.
+    rewrite <- rem_plus_rem,rem_2_fix_1, rem_lt; lia.
   Qed.
 
   Fact rem_2_lt n : rem n 2 < 2.
-  Proof. apply div_rem_spec2; omega. Qed.
+  Proof. apply div_rem_spec2; lia. Qed.
 
   Fact div_2_fix_0 : div 0 2 = 0.
-  Proof. apply div_of_0; omega. Qed.
+  Proof. apply div_of_0; lia. Qed.
 
   Fact div_2_fix_1 n : div (2*n) 2 = n.
-  Proof. apply div_prop with 0; omega. Qed.
+  Proof. apply div_prop with 0; lia. Qed.
 
   Fact div_2_fix_2 n : div (1+2*n) 2 = n.
-  Proof. apply div_prop with 1; omega. Qed.
+  Proof. apply div_prop with 1; lia. Qed.
 
   Fact euclid_2_div n : n = rem n 2 + 2*div n 2 /\ (rem n 2 = 0 \/ rem n 2 = 1).
   Proof.
-    generalize (div_rem_spec1 n 2) (@div_rem_spec2 n 2); intros; omega.
+    generalize (div_rem_spec1 n 2) (@div_rem_spec2 n 2); intros; lia.
   Qed.
 
   Fact euclid_2 n : exists q, n = 2*q \/ n = 1+2*q.
   Proof. 
     exists (div n 2).
-    generalize (div_rem_spec1 n 2) (@div_rem_spec2 n 2); intros; omega.
+    generalize (div_rem_spec1 n 2) (@div_rem_spec2 n 2); intros; lia.
   Qed.
 
 End rem_2.

@@ -9,7 +9,7 @@
 
 (** ** Bitwise operations on nat as list bool *)
 
-Require Import List Omega Bool Setoid.
+Require Import List Lia Bool Setoid.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac.
@@ -205,9 +205,9 @@ Set Implicit Arguments.
     Fact lb_pointwise_length n l m : length l <= n -> length m <= n -> length (lb_pointwise l m) <= n.
     Proof.
       revert l m; induction n as [ | n IHn ].
-      + intros [] []; simpl; omega.
+      + intros [] []; simpl; lia.
       + intros [ | x l ] [ | y m ]; simpl; try rewrite map_length; auto.
-        intros; apply le_n_S, IHn; omega.
+        intros; apply le_n_S, IHn; lia.
     Qed.
 
     Fact lb_pointwise_sym l m : (forall x y, f x y = f y x) -> lb_pointwise l m = lb_pointwise m l.

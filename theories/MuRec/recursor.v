@@ -7,8 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import Arith Omega.
-From Undecidability.Shared Require Import DLW.Utils.utils.
+From Undecidability.Shared.Libs.DLW 
+  Require Import utils.
 
 Set Implicit Arguments.
 

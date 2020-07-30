@@ -9,7 +9,7 @@
 
 (** ** Prime numbers *)
 
-Require Import List Arith Omega Bool Permutation.
+Require Import List Arith Lia Bool Permutation.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list utils_nat gcd sums.
@@ -26,7 +26,7 @@ Section prime.
 
   Fact prime_2 : prime 2.
   Proof. 
-    split; try omega.
+    split; try lia.
     apply divides_2_inv.
   Qed.
 
@@ -38,23 +38,23 @@ Section prime.
     + intros (H1 & H2).
       destruct (le_lt_dec 3 p) as [ H | H ].
       * right; split; auto; split.
-        - intros H3; apply H2 in H3; omega.
-        - intros n Hn C; apply H2 in C; omega.
-      * left; destruct p as [ | [ | [ | p ] ] ]; try omega.
-        destruct (H2 2); try omega.
+        - intros H3; apply H2 in H3; lia.
+        - intros n Hn C; apply H2 in C; lia.
+      * left; destruct p as [ | [ | [ | p ] ] ]; try lia.
+        destruct (H2 2); try lia.
         exists 0; auto.
     + intros [ H1 | (H1 & H2 & H3) ].
       * subst; auto.
-      * split; try omega.
+      * split; try lia.
         intros q Hq.
         destruct (euclid_2 q) as (k & [ H4 | H4 ]).
         - destruct H2; apply divides_trans with (2 := Hq).
-          exists k; omega.
-        - destruct k; try omega.
+          exists k; lia.
+        - destruct k; try lia.
           destruct (le_lt_dec p (3+2*k)) as [ H5 | H5 ].
-          ++ apply divides_le in Hq; omega.
+          ++ apply divides_le in Hq; lia.
           ++ destruct (H3 k); auto.
-             eq goal Hq; f_equal; omega.
+             eq goal Hq; f_equal; lia.
   Qed.
 
   Definition divides_bool n p := 
@@ -94,19 +94,19 @@ Section prime.
   Proof.
     induction on n as IHn with measure n; intros Hn.
     destruct n as [ | [ | [ | n' ] ] ].
-    1-3: split; try (simpl; auto; fail); intros _ k H; omega.
+    1-3: split; try (simpl; auto; fail); intros _ k H; lia.
     unfold prime_bool_rec; fold (prime_bool_rec (S n') p).
     revert Hn; set (m := S n'); intros Hn. 
-    rewrite andb_true_iff, negb_true_iff, divides_bool_spec', IHn; try omega.
+    rewrite andb_true_iff, negb_true_iff, divides_bool_spec', IHn; try lia.
     split.
     + intros (H1 & H2) [ | q ] G1 G2.
       * apply H1 in G2; auto.
-      * apply (H2 q); try omega.
-        eq goal G2; f_equal; omega.
+      * apply (H2 q); try lia.
+        eq goal G2; f_equal; lia.
     + intros H1; split.
-      * apply (H1 0); omega.
-      * intros k G1 G2; apply (H1 (S k)); try omega.
-        eq goal G2; f_equal; omega.
+      * apply (H1 0); lia.
+      * intros k G1 G2; apply (H1 (S k)); try lia.
+        eq goal G2; f_equal; lia.
   Qed.
 
   (** This is a somewhat naive algo. to test for primality *)
@@ -122,35 +122,35 @@ Section prime.
     split.
     + intros [ H1 | ((H1 & H2) & H3) ].
       * subst; auto.
-      * split; try omega.
+      * split; try lia.
         destruct (euclid_2 p) as (p' & [ Hp | Hp ]).
-        { destruct H2; exists p'; omega. }
-        destruct p' as [ | p' ]; try (exfalso; omega).
-        rewrite prime_bool_rec_spec in H3; try omega.
+        { destruct H2; exists p'; lia. }
+        destruct p' as [ | p' ]; try (exfalso; lia).
+        rewrite prime_bool_rec_spec in H3; try lia.
         intros q Hq.
         destruct (euclid_2 q) as (k & [ H4 | H4 ]).
-        - destruct H2; apply divides_trans with (2 := Hq); exists k; omega.
-        - destruct k as [ | k ]; try omega.
+        - destruct H2; apply divides_trans with (2 := Hq); exists k; lia.
+        - destruct k as [ | k ]; try lia.
           destruct (le_lt_dec p q) as [ H5 | H5 ].
-          ++ apply divides_le in Hq; omega.
-          ++ assert (k < p') as H6 by omega.
-             destruct (H3 (p'-S k)); try omega.
-             eq goal Hq; f_equal; omega.
+          ++ apply divides_le in Hq; lia.
+          ++ assert (k < p') as H6 by lia.
+             destruct (H3 (p'-S k)); try lia.
+             eq goal Hq; f_equal; lia.
     + intros (H1 & H2).
       destruct (le_lt_dec 3 p) as [ H3 | H3 ].
       * right; lsplit 2; auto.
-        - intros C; apply H2 in C; omega.
-        - apply prime_bool_rec_spec; try omega.
+        - intros C; apply H2 in C; lia.
+        - apply prime_bool_rec_spec; try lia.
           intros q H4 H5.
-          apply H2 in H5; omega.
-      * left; destruct p; try omega.
-        destruct (H2 2); try omega.
+          apply H2 in H5; lia.
+      * left; destruct p; try lia.
+        destruct (H2 2); try lia.
         exists 0; auto.
   Qed.
 
   Fact prime_ge_2 p : prime p -> 2 <= p.
   Proof.
-    destruct p as [ | [ | p ] ]; try omega.
+    destruct p as [ | [ | p ] ]; try lia.
     + intros [ _ H ]; subst.
       destruct (H 2); auto; discriminate.
     + intros [ [] _ ]; auto.
@@ -178,22 +178,22 @@ Section prime.
       as [ (q & H1 & H2) | H1 ].
     + intros n _.
       destruct (le_lt_dec p n).
-      { right; intros; omega. }
+      { right; intros; lia. }
       destruct (le_lt_dec 2 n).
       * destruct (divides_dec p n) as [ (?&?) | ].
         - left; subst; auto.
         - right; tauto.
-      * right; omega.
-    + left; exists q; split; try tauto; try omega.
+      * right; lia.
+    + left; exists q; split; try tauto; try lia.
     + right; split; auto.
-      * omega.
+      * lia.
       * intros q Hq.
         destruct q as [ | q]; auto.
         - apply divides_0_inv in Hq; auto.
         - assert (~ 2 <= S q < p) as H2.
           { intros H; apply (H1 (S q)); auto.
-            apply le_n_S, divides_le; auto; omega. }
-          apply divides_le in Hq; omega.
+            apply le_n_S, divides_le; auto; lia. }
+          apply divides_le in Hq; lia.
   Qed.
 
   Theorem prime_factor n : 2 <= n -> { p | prime p /\ p <d n }.
@@ -201,7 +201,7 @@ Section prime.
     induction on n as IHn with measure n; intro Hn.
     destruct (prime_or_div Hn) as [ (q & H1 & H2) | H1 ].
     2: exists n; auto.
-    destruct (IHn q) as (p & H3 & H4); try omega.
+    destruct (IHn q) as (p & H3 & H4); try lia.
     exists p; split; auto.
     apply divides_trans with (1 := H4); auto.
   Qed.
@@ -218,7 +218,7 @@ Section prime.
     Proof.
       induction on n as IHn with measure n.
       destruct n as [ | [ | n ] ]; auto.
-      destruct (@prime_factor (S (S n))) as (p & H1 & H2); try omega.
+      destruct (@prime_factor (S (S n))) as (p & H1 & H2); try lia.
       apply divides_div in H2.
       rewrite H2.
       apply HPm.
@@ -226,8 +226,8 @@ Section prime.
         rewrite H2 at 2.
         rewrite <- Nat.mul_1_r at 1.
         apply prime_ge_2 in H1.
-        apply mult_lt_compat_l; try omega.
-        revert H2; destruct (div (S (S n)) p); intros; omega.
+        apply mult_lt_compat_l; try lia.
+        revert H2; destruct (div (S (S n)) p); intros; lia.
       + apply HPp, H1.
     Qed.
 
@@ -240,9 +240,9 @@ Section prime.
     + apply divides_1.
     + intros k H1 H2.
       destruct k as [ | [ | k ] ].
-      * apply divides_0_inv in H1; omega.
+      * apply divides_0_inv in H1; lia.
       * apply divides_1.
-      * destruct prime_factor with (n := S (S k)) as (p & P1 & P2); try omega.
+      * destruct prime_factor with (n := S (S k)) as (p & P1 & P2); try lia.
         exfalso; apply H with p; auto; apply divides_trans with (S (S k)); auto.
   Qed.
 
@@ -262,7 +262,7 @@ Section prime.
     destruct p as [ | p ].
     + generalize (is_gcd_fun H1 (is_gcd_0l _)) (is_gcd_fun H2 (is_gcd_0l _)).
       intros; subst; auto.
-    + apply no_common_prime_is_coprime; try omega.
+    + apply no_common_prime_is_coprime; try lia.
       do 2 (apply proj2 in H1; apply proj2 in H2).
       intros k Hk H3 H4.
       apply prime_div_mult with (1 := Hk) in H4.
@@ -270,7 +270,7 @@ Section prime.
       [ generalize (H1 _ H3 H4) 
       | generalize (H2 _ H3 H4) ];
         intro H5; apply divides_1_inv in H5; subst; 
-        destruct Hk; omega.
+        destruct Hk; lia.
   Qed.
 
   Fact is_rel_prime_expo p q l : is_gcd p q 1 -> is_gcd p (mscal mult 1 l q) 1.
@@ -289,21 +289,18 @@ Section prime.
   Proof.
     induction 1 as [ | x l H IH ]; simpl; auto.
     change 1 with (1*1) at 1; apply mult_le_compat; auto.
-    apply prime_ge_2 in H; omega.
+    apply prime_ge_2 in H; lia.
   Qed.
 
   Fact lprod_app l m : lprod (l++m) = lprod l * lprod m.
-  Proof.
-    induction l; simpl; try omega.
-    rewrite IHl, mult_assoc; auto.
-  Qed.
+  Proof. induction l; simpl; lia. Qed.
 
   Theorem prime_decomp n : n <> 0 -> { l | n = lprod l /\ Forall prime l }.
   Proof.
     induction on n as IHn with measure n; intro Hn.
     destruct (eq_nat_dec n 1) as [ Hn' | Hn' ].
     + exists nil; simpl; auto.
-    + destruct (@prime_factor n) as (p & H1 & H2); try omega.
+    + destruct (@prime_factor n) as (p & H1 & H2); try lia.
       apply divides_div in H2; revert H2.
       generalize (div n p); intros k Hk.
       assert (k <> 0) as Hk'.
@@ -312,8 +309,7 @@ Section prime.
       - rewrite Hk.
         generalize (prime_ge_2 H1).
         rewrite mult_comm.
-        destruct p as [ | [ | p ] ]; simpl; intros; try omega.
-        generalize (p*k); intros; omega.
+        destruct p as [ | [ | p ] ]; simpl; intros; lia.
       - exists (p::l); split; auto.
         simpl; rewrite <- H2, mult_comm; auto.
   Qed.
@@ -342,7 +338,7 @@ Section prime.
       intros C; exfalso.
       assert (2*1 <= y*lprod m) as D.
       { apply mult_le_compat; auto. }
-      simpl in D; omega.
+      simpl in D; lia.
     + simpl; intros m Hm H1.
       assert (In x m) as H2.
       { apply prime_in_decomp with (1 := Hx); auto.
@@ -358,7 +354,7 @@ Section prime.
         rewrite lprod_app in H1; simpl in H1.
         rewrite mult_assoc, (mult_comm _ x), <- mult_assoc in H1.
         apply Nat.mul_cancel_l in H1; auto.
-        apply prime_ge_2 in Hx; omega.
+        apply prime_ge_2 in Hx; lia.
   Qed.
 
 End prime.
@@ -377,8 +373,8 @@ Section base_decomp.
 
   Fact expand_app p l m : expand p (l++m) = expand p l + power (length l) p * expand p m.
   Proof.
-    induction l as [ | x l IH ]; simpl; try omega.
-    rewrite power_S, IH, Nat.mul_add_distr_l, mult_assoc; omega.
+    induction l as [ | x l IH ]; simpl; try lia.
+    rewrite power_S, IH, Nat.mul_add_distr_l, mult_assoc; lia.
   Qed.
 
   Fact expand_0 p l : Forall (eq 0) l -> expand p l = 0.
@@ -396,11 +392,11 @@ Section base_decomp.
       induction on n as IH with measure n.
       destruct (eq_nat_dec n 0) as [ Hn | Hn ].
       + exists nil; auto.
-      + destruct (@euclid n p) as (m & r & H1 & H2); try omega.
+      + destruct (@euclid n p) as (m & r & H1 & H2); try lia.
         destruct (IH m) as (l & H3).
-        * destruct m; try omega.
+        * destruct m; try lia.
           rewrite H1, mult_comm.
-          apply lt_le_trans with (2*S m + r); try omega.
+          apply lt_le_trans with (2*S m + r); try lia.
           apply plus_le_compat; auto.
           apply mult_le_compat; auto.
         * exists (r::l); simpl.
@@ -415,7 +411,7 @@ Section base_decomp.
     Proof.
       induction 1 as [ | x1 x2 l1 l2 H1 H2 IH2 ]; auto; simpl; intros H3.
       rewrite (plus_comm x1), (plus_comm x2), (mult_comm p), (mult_comm p) in H3.
-      apply div_rem_uniq in H3; try omega.
+      apply div_rem_uniq in H3; try lia.
       destruct H3 as [ H3 ]; subst; f_equal; auto.
     Qed.
 

@@ -11,7 +11,7 @@
 
 (** * Pigeonhole principle *)
 
-Require Import Arith Omega List Permutation Relations.
+Require Import Arith Lia List Permutation Relations.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list.
@@ -253,10 +253,10 @@ Section pigeon_list.
     + destruct m as [ | y ]; auto; destruct (H2 y); simpl; auto.
     + destruct incl_right_cons_incl_or_lhd_or_perm with (1 := H2)
         as [ H3 | [ H3 | (m' & H3 & H4) ] ]; auto.
-      * destruct IHl with (2 := H3) as [ | H ]; try omega; auto.
-        apply Permutation_length in H; omega.
-      * destruct IHl with (2 := H4) as [ H | H ]; try (simpl; omega).
-        - apply Permutation_length in H3; simpl in H3; omega.
+      * destruct IHl with (2 := H3) as [ | H ]; try lia; auto.
+        apply Permutation_length in H; lia.
+      * destruct IHl with (2 := H4) as [ H | H ]; try (simpl; lia).
+        - apply Permutation_length in H3; simpl in H3; lia.
         - left; apply perm_list_has_dup with (1 := Permutation_sym H3).
           constructor 2; auto.
         - right; apply perm_trans with (1 := H3); auto.
@@ -275,8 +275,8 @@ Section pigeon_list.
                             -> list_has_dup m.
   Proof.
     intros H1 H2.
-    destruct (@length_le_and_incl_implies_dup_or_perm l m) as [ | H3 ]; auto; try omega.
-    apply Permutation_length in H3; omega.
+    destruct (@length_le_and_incl_implies_dup_or_perm l m) as [ | H3 ]; auto; try lia.
+    apply Permutation_length in H3; lia.
   Qed. 
 
   (** ** The Finite PHP on lists of the same type *)
@@ -309,7 +309,7 @@ Proof.
   + inversion H.
   + apply list_hd_cons_inv in H.
     rewrite list_an_spec in H.
-    destruct H as [ | H ]; try omega.
+    destruct H as [ | H ]; try lia.
     revert H; apply IHn.
 Qed.
 
@@ -337,7 +337,7 @@ Proof.
   + inversion H.
   + apply list_hd_cons_inv in H.
     rewrite list_an_spec in H.
-    destruct H as [ | H ]; try omega.
+    destruct H as [ | H ]; try lia.
     revert H; apply IHn.
 Qed.
 
@@ -418,7 +418,7 @@ Section PHP_rel.
   Proof.
     destruct image_R_l as (Rl & H1 & H2).
     destruct finite_pigeon_hole with (2 := H1) as (v & x & y & z & H).
-    + apply Forall2_length in H2; omega.
+    + apply Forall2_length in H2; lia.
     + subst Rl.
       apply Forall2_app_inv_r in H2; destruct H2 as (x' & l1 & H3 & H2 & ?); subst.
       apply Forall2_cons_inv_r in H2; destruct H2 as (v' & l2 & H4 & ? & H2); subst.

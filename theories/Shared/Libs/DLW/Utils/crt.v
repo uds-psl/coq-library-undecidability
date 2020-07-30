@@ -9,7 +9,7 @@
 
 (** ** Euclidian division and Bezout's identity *)
 
-Require Import List Arith Omega Permutation Extraction.
+Require Import List Arith Lia Permutation Extraction.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list utils_nat 
@@ -52,12 +52,12 @@ Section Informative_Chinese_Remainder_theorems.
         rewrite <- rem_plus_rem, rem_scal, H2, <- rem_scal, Nat.mul_1_r.
         rewrite rem_plus_rem, plus_comm.
         symmetry; apply rem_plus_div; auto.
-      + apply lt_le_trans with (3*1); try omega.
+      + apply lt_le_trans with (3*1); try lia.
         do 2 apply le_trans with (2 := le_plus_l _ _).
         apply mult_le_compat_l.
         cut (u*v <> 0).
-        * generalize (u*v); intros; omega.
-        * intros G; apply mult_is_O in G; omega.
+        * generalize (u*v); intros; lia.
+        * intros G; apply mult_is_O in G; lia.
     Qed.
 
   End Binary.
@@ -84,8 +84,8 @@ Section Informative_Chinese_Remainder_theorems.
       { apply H12; discriminate. }
       destruct (IHn (m1*m2 ## m) (w0 ## v)) as (w & Hw).
       * intros p; invert pos p.
-        - assert (0 < m1 * m2); try omega.
-          apply Nat.mul_pos_pos; omega.
+        - assert (0 < m1 * m2); try lia.
+          apply Nat.mul_pos_pos; lia.
         - apply H1 with (p := pos_nxt (pos_nxt p)).
       * intros p q; invert pos p; invert pos q; intros H; try (destruct H; auto; fail).
         2: apply is_gcd_sym.
@@ -125,7 +125,7 @@ Section sequence_of_coprimes.
     assert (divides p ((j-i)*fact n)) as H5.
     { replace ((j-i)*fact n) with (1+j*fact n - (1+i*fact n)).
       + apply divides_minus; auto.
-      + rewrite Nat.mul_sub_distr_r; omega. }
+      + rewrite Nat.mul_sub_distr_r; lia. }
     assert (~ divides p (fact n)) as H6.
     { intros H6.
       rewrite plus_comm in H3.
@@ -136,10 +136,10 @@ Section sequence_of_coprimes.
     destruct H5 as [ H5 | H5 ]; try tauto.
     apply H6, divides_fact.
     assert (p <> 0) as H7.
-    { apply prime_ge_2 in Hp; omega. }
+    { apply prime_ge_2 in Hp; lia. }
     destruct Hp.
-    split; try omega.
-    apply divides_le in H5; omega.
+    split; try lia.
+    apply divides_le in H5; lia.
   Qed.
 
   Theorem seq_of_coprimes n i j : 
@@ -150,7 +150,7 @@ Section sequence_of_coprimes.
   Proof.
     intros H1 H2 H3.
     destruct (lt_eq_lt_dec i j) as [ [] | ]; try tauto;
-      [ | apply is_gcd_sym ]; apply seq_of_coprimes_lt; omega.
+      [ | apply is_gcd_sym ]; apply seq_of_coprimes_lt; lia.
   Qed.
 
 End sequence_of_coprimes.
@@ -178,8 +178,8 @@ Section Godel_beta.
     + intros p; unfold m; rewrite vec_pos_set; discriminate.
     + intros p q H; unfold m; repeat rewrite vec_pos_set.
       apply seq_of_coprimes.
-      * generalize (pos2nat_prop p); omega.
-      * generalize (pos2nat_prop q); omega.
+      * generalize (pos2nat_prop p); lia.
+      * generalize (pos2nat_prop q); lia.
       * contradict H; inversion H.
         apply pos2nat_inj; auto.
     + exists w, (fact j).
@@ -188,11 +188,11 @@ Section Godel_beta.
       intros E; unfold plus in E; rewrite E.
       apply rem_idem.
       apply lt_le_trans with (1 := Hj2 _).
-      apply le_trans with (S (1*j)); try omega.
-      apply le_n_S, mult_le_compat; try omega.
+      apply le_trans with (S (1*j)); try lia.
+      apply le_n_S, mult_le_compat; try lia.
       apply divides_le.
-      * generalize (fact_gt_0 j); omega.
-      * apply divides_n_fact_n; omega.
+      * generalize (fact_gt_0 j); lia.
+      * apply divides_n_fact_n; lia.
   Qed.
 
   Corollary godel_beta_fun_inv n f : { a : _ & { b | forall p, p < n -> f p = godel_beta a b p } }.
@@ -210,7 +210,7 @@ Section Godel_beta.
                                                godel_beta a b (1+3*p),
                                                godel_beta a b (2+3*p)) } }.
   Proof.
-    assert (H3 : 3 <> 0) by omega.
+    assert (H3 : 3 <> 0) by lia.
     set (g n := match rem n 3, f (div n 3) with
       | 0, (x,_,_) => x
       | 1, (_,y,_) => y
@@ -220,12 +220,12 @@ Section Godel_beta.
     exists a, b; intros p Hp.
     rewrite mult_comm.
     do 2 rewrite (plus_comm _ (p*_)).
-    replace (p*3) with (p*3+0) at 1 by omega.
-    rewrite <- (Hab (p*3+0)), <- (Hab (p*3+1)), <- (Hab (p*3+2)); try omega.
+    replace (p*3) with (p*3+0) at 1 by lia.
+    rewrite <- (Hab (p*3+0)), <- (Hab (p*3+1)), <- (Hab (p*3+2)); try lia.
     unfold g.
     do 3 rewrite (rem_erase p 3 _ eq_refl).
-    repeat (rewrite rem_idem; try omega).
-    repeat (rewrite (@div_prop (p*3+_) 3 _ _ eq_refl); try omega).
+    repeat (rewrite rem_idem; try lia).
+    repeat (rewrite (@div_prop (p*3+_) 3 _ _ eq_refl); try lia).
     destruct (f p) as ((?,?),?); auto.
   Qed.
  

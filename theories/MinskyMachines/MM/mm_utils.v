@@ -7,12 +7,10 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega.
+Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW 
-  Require Import Utils.utils Utils.list_bool 
-                 Vec.pos Vec.vec
-                 Code.subcode Code.sss.
+  Require Import utils list_bool pos vec subcode sss.
 
 From Undecidability.MinskyMachines.MM
   Require Import mm_defs. 
@@ -92,7 +90,7 @@ Section Minsky_Machine_utils.
     Fact mm_nullify_length i lr : length (mm_nullify i lr) = 2*length lr.
     Proof.
       revert i; induction lr as [ | x lr IH ]; simpl; intros i; auto.
-      rewrite IH; omega.
+      rewrite IH; lia.
     Qed.
 
     Fact mm_nullify_compute i lr v w :
@@ -117,7 +115,7 @@ Section Minsky_Machine_utils.
   
       apply subcode_sss_compute with (P := (2+i,mm_nullify (2+i) lr)).
       subcode_tac; solve list eq.
-      replace (2*S (length lr)+i) with (2*(length lr)+(2+i)) by omega.
+      replace (2*S (length lr)+i) with (2*(length lr)+(2+i)) by lia.
       apply IH.
       specialize (H2 x (or_introl eq_refl)); rew vec.
       intros; apply H2; right; auto.
@@ -159,7 +157,7 @@ Section Minsky_Machine_utils.
       mm sss DEC S with src (3+i) k.
       mm sss INC with dst.
       mm sss DEC 0 with zero i; rew vec.
-      replace (S k + x) with (k + S x) by omega.
+      replace (S k + x) with (k + S x) by lia.
       apply sss_progress_compute.
       apply IHk with (S x); rew vec.
       apply vec_pos_ext; intros p.
@@ -211,7 +209,7 @@ Section Minsky_Machine_utils.
       apply vec_pos_ext; intros p.
       dest p quo; dest p src.
 
-      replace (2*S k) with (S (S (2*k))) in H1 by omega.
+      replace (2*S k) with (S (S (2*k))) in H1 by lia.
       mm sss DEC S with src (6+i) (S (2*k)).
       mm sss INC with rem.
       mm sss DEC S with src (i+6) (2*k); rew vec.
@@ -221,7 +219,7 @@ Section Minsky_Machine_utils.
       apply sss_progress_compute.
       apply IHk; auto; rew vec.
       subst; apply vec_pos_ext; intros p.
-      dest p quo; try omega.
+      dest p quo; try lia.
       dest p src; dest p rem.
     Qed.
     
@@ -236,12 +234,12 @@ Section Minsky_Machine_utils.
       mm sss DEC S with src (6+i) 0.
       mm sss INC with rem.
       mm sss DEC 0 with src (i+6); rew vec.
-      mm sss stop; f_equal; try omega.
+      mm sss stop; f_equal; try lia.
       subst; simpl.
       apply vec_pos_ext; intros p.
       dest p rem; dest p quo; dest p src.
 
-      replace (1 + 2*S k) with (S (S (1+2*k))) in H1 by omega.
+      replace (1 + 2*S k) with (S (S (1+2*k))) in H1 by lia.
       mm sss DEC S with src (6+i) (S (1+2*k)).
       mm sss INC with rem.
       mm sss DEC S with src (i+6) (1+2*k); rew vec.
@@ -251,7 +249,7 @@ Section Minsky_Machine_utils.
       apply sss_progress_compute.
       apply IHk; auto; rew vec.
       subst; apply vec_pos_ext; intros p.
-      dest p quo; try omega.
+      dest p quo; try lia.
       dest p src; dest p rem.
     Qed.
 
@@ -266,13 +264,13 @@ Section Minsky_Machine_utils.
       destruct (div2 (v#>src)) as (k,[]); intros H4.
 
       apply mm_div2_spec_1 with k; auto.
-      omega.
+      lia.
       apply vec_pos_ext; intros p.
-      dest p rem; dest p quo; omega.
+      dest p rem; dest p quo; lia.
 
       apply mm_div2_spec_0 with k; auto.
       apply vec_pos_ext; intros p.
-      dest p rem; dest p quo; omega.
+      dest p rem; dest p quo; lia.
     Qed.
 
     Corollary mm_div2_progress_1 v k st :
@@ -336,7 +334,7 @@ Section Minsky_Machine_utils.
       apply IHk; unfold dst'; rew vec.
       subst; apply vec_pos_ext; intros p.
       dest p dst.
-      omega.
+      lia.
       dest p src.
     Qed.
 
@@ -348,7 +346,7 @@ Section Minsky_Machine_utils.
     Proof.
       intros H1 H2 ?; subst.
       apply mm_mul2_spec with (1 := eq_refl); auto.
-      rewrite H1; f_equal; omega.
+      rewrite H1; f_equal; lia.
     Qed.
    
   End mul2.
@@ -367,7 +365,7 @@ Section Minsky_Machine_utils.
     induction s as [ | [] s (k & Hk) ].
     exists 0; auto.
     exists (2*stack_enc s); auto.
-    exists (S (2*k)); simpl; omega.
+    exists (S (2*k)); simpl; lia.
   Qed.
 
   Section push.
@@ -540,7 +538,7 @@ Section Minsky_Machine_utils.
       apply sss_progress_trans with (3+i,v[0/src][(2*stack_enc s+1)/tmp1]).
       apply subcode_sss_progress with (P := (i,mm_transfert src tmp1 tmp2 i)); auto.
       apply mm_transfert_progress; auto; f_equal.
-      rewrite H4; f_equal; omega.
+      rewrite H4; f_equal; lia.
       
       apply sss_progress_trans with (9+i,v[0/tmp1][(stack_enc s)/src][1/tmp2]).
       apply subcode_sss_progress with (P := (3+i,mm_div2 tmp1 src tmp2 (3 + i))); auto.

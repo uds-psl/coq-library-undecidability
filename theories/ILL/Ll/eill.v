@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Permutation Arith Omega.
+Require Import List Permutation Arith.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import utils pos vec.

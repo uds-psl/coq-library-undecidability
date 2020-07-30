@@ -7,14 +7,13 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import Arith Omega.
+Require Import Arith.
 
-From Undecidability.Shared.Libs.DLW.Utils 
-  Require Import utils_tac utils_nat utils_decidable.
+From Undecidability.Shared.Libs.DLW 
+  Require Import utils_tac utils_nat utils_decidable pos vec.
 
-From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
-
-From Undecidability.MuRec Require Import recalg ra_utils.
+From Undecidability.MuRec
+  Require Import recalg ra_utils.
 
 Set Implicit Arguments.
 

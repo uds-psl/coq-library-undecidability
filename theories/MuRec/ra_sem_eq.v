@@ -7,10 +7,11 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import Omega.
+From Undecidability.Shared.Libs.DLW 
+  Require Import utils finite pos vec.
 
-From Undecidability.Shared Require Import DLW.Utils.utils DLW.Utils.finite DLW.Vec.vec DLW.Vec.pos.
-From Undecidability.MuRec Require Import recalg ra_bs recursor minimizer ra_ca.
+From Undecidability.MuRec 
+  Require Import recalg ra_bs recursor minimizer ra_ca.
 
 Set Implicit Arguments.
 

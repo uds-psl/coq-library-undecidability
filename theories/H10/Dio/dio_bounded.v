@@ -9,7 +9,7 @@
 
 (** ** Object-level encoding of bounded universal quantification *)
 
-Require Import Arith Nat Omega List Bool.
+Require Import Arith Lia List Bool.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list sums bounded_quantification.
@@ -122,33 +122,33 @@ Section dio_rel_bounded_fall.
     Proof.
       intros G1 G2 G3 G4 G5.
       assert (ω il = ν 0) as G0.
-      { rewrite G5; try omega; f_equal; omega. }
+      { rewrite G5; try lia; f_equal; lia. }
       destruct c as (u & [ n | v | [ | p ] | [] v w ]); simpl.
       + assert (u < k) as Hu. { apply G3; left; auto. }
-        rewrite G0, G4, G4; try omega.
+        rewrite G0, G4, G4; try lia.
         specialize (G1 _ Hu).
         unfold dc_eval; simpl; split.
         * intros (g & Hg1 & Hg4).
           generalize (is_cipher_of_inj G1 Hg1); intros G6.
-          intros; rewrite G6, Hg4; auto; omega.
+          intros; rewrite G6, Hg4; auto; lia.
         * intros; exists (φ u); split; auto.
       + assert (u < k) as Hu. { apply G3; cbv; auto. }
         assert (v < k) as Hv. { apply G3; cbv; auto. }
-        do 2 (rewrite G4; try omega).
+        do 2 (rewrite G4; try lia).
         unfold dc_eval; simpl.
         apply G1 in Hu.
         apply G1 in Hv.
         apply (is_cipher_of_equiv Hu Hv). 
       + assert (u < k) as Hu. { apply G3; cbv; auto. }
-        do 2 (rewrite G4; try omega).
+        do 2 (rewrite G4; try lia).
         unfold dc_eval; simpl.
         apply G1 in Hu.
         apply (is_cipher_of_equiv Hu G2).
-      + rewrite G0, G4; try omega.
-        rewrite G5; try omega.
-        replace (il+p-il) with p by omega.
+      + rewrite G0, G4; try lia.
+        rewrite G5; try lia.
+        replace (il+p-il) with p by lia.
         assert (u < k) as Hu. { apply G3; cbv; auto. }
-        rewrite G4; try omega.
+        rewrite G4; try lia.
         apply G1 in Hu.
         unfold dc_eval; simpl; split.
         * intros (g & Hg1 & Hg2).
@@ -158,14 +158,14 @@ Section dio_rel_bounded_fall.
       + assert (Hu : u < k). { apply G3; cbv; auto. }
         assert (Hv : v < k). { apply G3; cbv; auto. }
         assert (Hw : w < k). { apply G3; cbv; auto. }
-        do 3 (rewrite G4; try omega).
+        do 3 (rewrite G4; try lia).
         apply G1 in Hu; apply G1 in Hv; apply G1 in Hw.
         rewrite Code_plus_spec with (1 := Hu) (2 := Hv) (3 := Hw).
         unfold dc_eval; simpl; tauto.
       + assert (Hu : u < k). { apply G3; cbv; auto. }
         assert (Hv : v < k). { apply G3; cbv; auto. }
         assert (Hw : w < k). { apply G3; cbv; auto. }
-        rewrite G0; do 4 (rewrite G4; try omega).
+        rewrite G0; do 4 (rewrite G4; try lia).
         apply G1 in Hu; apply G1 in Hv; apply G1 in Hw.
         rewrite Code_mult_spec with (1 := Hu) (2 := Hv) (3 := Hw).
         unfold dc_eval; simpl; tauto.
@@ -243,21 +243,21 @@ Section dio_rel_bounded_fall.
       split.
       + intros (pi & G0 & G1 & G4).
         rewrite ciphers_spec in G1.
-        destruct (le_lt_dec il k) as [ ? | _ ]; try omega.
-        destruct (le_lt_dec il il) as [ _  | ? ]; try omega.
-        destruct (le_lt_dec il iq) as [ ? | _ ]; try omega.
-        replace (il-il) with 0 in * by omega.
+        destruct (le_lt_dec il k) as [ ? | _ ]; try lia.
+        destruct (le_lt_dec il il) as [ _  | ? ]; try lia.
+        destruct (le_lt_dec il iq) as [ ? | _ ]; try lia.
+        replace (il-il) with 0 in * by lia.
         destruct G1 as (G1 & phi & G3).
         assert (forall i, i < k -> is_cipher_of (ν 0) (pi iq) (phi i) (pi i)) as G2.
-        { intros i Hi; generalize (G3 _ Hi); destruct (le_lt_dec il i); auto; omega. }
+        { intros i Hi; generalize (G3 _ Hi); destruct (le_lt_dec il i); auto; lia. }
         clear G3.
         rewrite dc_list_Code_spec with (π := pi) (φ := phi) (ν := ν) in G4; auto.
-        2,3: intros i Hi; destruct (le_lt_dec il i) as [ H | H ]; auto; try omega.
+        2,3: intros i Hi; destruct (le_lt_dec il i) as [ H | H ]; auto; try lia.
         exists (pi iq), phi; repeat (split; auto). 
         intros i j Hi Hj; destruct (G2 _ Hi) as (_ & G3 & _); auto.
       + intros (q & phi & Hq & Hphi1 & Hphi2).
         assert (q <= power q 2) as Hq' by (apply power_ge_n; auto).
-        destruct (the_cipher (fun i => i) Hq) as (u & Hu). { intros; omega. }
+        destruct (the_cipher (fun i => i) Hq) as (u & Hu). { intros; lia. }
 
         set (pi i := match lt_eq_lt_dec i k with
                      | inleft (left H)  => proj1_sig (the_cipher (phi i) Hq (fun j Hj => Hphi1 _ _ H Hj)) 
@@ -265,27 +265,27 @@ Section dio_rel_bounded_fall.
                      | inright H        => q
                    end).
         assert (Hpi_k : pi k = u).
-        { unfold pi; destruct (lt_eq_lt_dec k k) as [ [] | ]; auto; try omega. }
+        { unfold pi; destruct (lt_eq_lt_dec k k) as [ [] | ]; auto; try lia. }
         assert (forall i, i < k -> is_cipher_of (ν 0) q (phi i) (pi i)) as Hpi.
         { unfold pi; intros i Hi.
-          destruct (lt_eq_lt_dec i k) as [ [H | ] | ]; try omega.
+          destruct (lt_eq_lt_dec i k) as [ [H | ] | ]; try lia.
           apply (proj2_sig (the_cipher (phi i) Hq (fun j Hj => Hphi1 _ _ H Hj))). }
         assert (Hpi_q : pi iq = q).
-        { unfold pi; destruct (lt_eq_lt_dec iq k) as [ [H | ] | ]; try omega. }
+        { unfold pi; destruct (lt_eq_lt_dec iq k) as [ [H | ] | ]; try lia. }
         generalize pi Hpi_k Hpi_q Hpi; clear pi Hpi_k Hpi Hpi_q.
         intros pi Hpi_k Hpi_q Hpi; subst u.
 
         exists pi; red.
         rewrite ciphers_spec.
-        destruct (le_lt_dec il k) as [ ? | _ ]; try omega.
-        destruct (le_lt_dec il il) as [ _ | ? ]; try omega.
-        destruct (le_lt_dec il iq) as [ ? | _ ]; try omega.
+        destruct (le_lt_dec il k) as [ ? | _ ]; try lia.
+        destruct (le_lt_dec il il) as [ _ | ? ]; try lia.
+        destruct (le_lt_dec il iq) as [ ? | _ ]; try lia.
         rewrite Nat.sub_diag. 
         subst q; repeat (split; auto).
         * exists phi; intros i Hi.
-          destruct (le_lt_dec il i); try omega; auto.
+          destruct (le_lt_dec il i); try lia; auto.
         * rewrite dc_list_Code_spec with (π := pi) (φ := phi); auto;
-            intros i Hi; destruct (le_lt_dec il i); auto; omega.
+            intros i Hi; destruct (le_lt_dec il i); auto; lia.
     Qed.
 
     Let dc_list_bfall_spec ν : 
@@ -298,11 +298,11 @@ Section dio_rel_bounded_fall.
         - destruct H as (m & phi & Hf).
           set (q := power (ν 0+2+m) 2).
           assert (ν 0+1 < q) as Hlq.
-          { apply lt_le_trans with (ν 0+2+m); try omega.
+          { apply lt_le_trans with (ν 0+2+m); try lia.
             apply power_ge_n; auto. }
           assert (m <= power q 2) as Hmq.
           { apply le_trans with q.
-            apply le_trans with (ν 0+2+m); try omega.
+            apply le_trans with (ν 0+2+m); try lia.
             apply power_ge_n; auto.
             apply power_ge_n; auto. }
           exists q, (fun i j => phi j i); split; [ | split ]; auto.
@@ -383,7 +383,7 @@ Corollary dio_rel_fall_le a (R : nat -> (nat -> nat) -> Prop) :
 Proof.
   intros Ha HK.
   by dio equiv (fun v => forall x, x < 1+a v -> R x v).
-  abstract (intros v; split; intros H x Hx; apply H; omega).
+  abstract (intros v; split; intros H x Hx; apply H; lia).
 Defined.
 
 Hint Resolve dio_rel_fall_lt_bound 

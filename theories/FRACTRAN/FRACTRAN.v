@@ -9,7 +9,7 @@
 
 (** ** Definition of FRACTRAN *)
 
-Require Import List Arith Omega.
+Require Import List Arith.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import gcd rel_iter pos vec.

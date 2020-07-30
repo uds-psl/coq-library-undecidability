@@ -9,7 +9,7 @@
 
 (** ** Iteration of binary relations *)
 
-Require Import Arith Nat Omega.
+Require Import Arith Nat Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac gcd prime binomial sums.
@@ -51,7 +51,7 @@ Section rel_iter.
 
   Fact rel_iter_S n x y : rel_iter (S n) x y <-> exists a, rel_iter n x a /\ R a y.
   Proof.
-    replace (S n) with (n+1) by omega.
+    replace (S n) with (n+1) by lia.
     rewrite rel_iter_plus. 
     split; intros (a & H1 & H2); exists a; revert H1 H2;
       rewrite rel_iter_1; auto.
@@ -61,12 +61,12 @@ Section rel_iter.
   Proof.
     split.
     * revert x y; induction n as [ | n IHn ]; simpl; intros x y.
-      + intros; subst y; exists (fun _ => x); repeat split; auto; intros; omega.
+      + intros; subst y; exists (fun _ => x); repeat split; auto; intros; lia.
       + intros (a & H1 & H2).
         destruct IHn with (1 := H2) as (f & H3 & H4 & H5).
         exists (fun i => match i with 0 => x | S i => f i end); repeat split; auto.
         intros [ | i ] Hi; subst; auto.
-        apply H5; omega.
+        apply H5; lia.
     * intros (f & H1 & H2 & H3); subst x y.
       induction n as [ | n IHn ].
       + simpl; auto.
@@ -84,8 +84,8 @@ Fact is_digit_fun c q i x y : is_digit c q i x -> is_digit c q i y -> x = y.
 Proof.
    intros (H1 & a1 & b1 & H3 & H4) (H2 & a2 & b2 & H5 & H6).
    rewrite H3 in H5.
-   apply div_rem_uniq, proj1 in H5; auto; try omega.
-   apply div_rem_uniq, proj2 in H5; auto; omega.
+   apply div_rem_uniq, proj1 in H5; auto; try lia.
+   apply div_rem_uniq, proj2 in H5; auto; lia.
 Qed.
 
 Definition is_seq (R : nat -> nat -> Prop) c q n := forall i, i < n -> exists y y', is_digit c q i y /\ is_digit c q (1+i) y' /\ R y y'.
@@ -95,7 +95,7 @@ Section rel_iter_bound.
   Variable (R : nat -> nat -> Prop) (k : nat) (Hk1 : forall x y, R x y -> y <= k*x).
 
   Let Hk' : forall x y, R x y -> y <= (S k)*x.
-  Proof. intros x y H; apply le_trans with (1 := Hk1 H), mult_le_compat_r; omega. Qed.
+  Proof. intros x y H; apply le_trans with (1 := Hk1 H), mult_le_compat_r; lia. Qed.
 
   (** q represents a basis big enough so that all the sequence x=x0 R x1 R ... R xn = y can be
       encoded as the digits of c in base q 
@@ -115,13 +115,13 @@ Section rel_iter_bound.
     * rewrite rel_iter_S.
       intros (q & c & H1 & H2 & H3 & H4).
       assert (0 < q) as Hq.
-      { revert H1; generalize (x*power (S n) (S k)); intros; omega. }
+      { revert H1; generalize (x*power (S n) (S k)); intros; lia. }
       assert (exists z, is_digit c q n z) as H6.
       { exists (rem (div c (power n q)) q).
         split.
-        + apply div_rem_spec2; omega.
+        + apply div_rem_spec2; lia.
         + exists (div (div c (power n q)) q), (rem c (power n q)); split.
-          2: apply div_rem_spec2; red; rewrite power_0_inv; omega.
+          2: apply div_rem_spec2; red; rewrite power_0_inv; lia.
           rewrite <- div_rem_spec1 with (p := q).
           apply div_rem_spec1. }
       destruct H6 as (z & H6); exists z; split.
@@ -129,9 +129,9 @@ Section rel_iter_bound.
         exists q, c; repeat (split; auto).
         - apply le_lt_trans with (2 := H1), mult_le_compat; auto.
           simpl.
-          replace (power n (S k)) with (1*power n (S k)) at 1 by omega.
-          apply mult_le_compat; auto; omega.
-        - intros i Hi; apply H2; omega.
+          replace (power n (S k)) with (1*power n (S k)) at 1 by lia.
+          apply mult_le_compat; auto; lia.
+        - intros i Hi; apply H2; lia.
       + destruct (H2 n) as (u & v & G1 & G2 & G3); auto.
         rewrite is_digit_fun with (1 := H4) (2 := G2),
                 is_digit_fun with (1 := H6) (2 := G1); auto.
@@ -146,47 +146,47 @@ Section rel_iter_bound.
     apply rel_iter_sequence in H.
     destruct H as (f & H1 & H2 & H3).
     assert (forall i, i <= n -> f i <= power i (S k) * x) as Hf.
-    { induction i as [ | i IHi ]; intros Hi; simpl; try omega.
+    { induction i as [ | i IHi ]; intros Hi; simpl; try lia.
       specialize (H3 _ Hi).
       apply Hk' in H3.
       apply le_trans with (1 := H3).
       rewrite power_S, <- mult_assoc.
       apply mult_le_compat; auto.
-      apply IHi; omega. }
+      apply IHi; lia. }
     set (q := S (x * power n (S k))).
     assert (q <> 0) as Hq by discriminate.
     assert (forall i, i <= n -> f i < q) as Hfq.
     { unfold q; intros i Hi.
       apply le_n_S, le_trans with (1 := Hf _ Hi).
       rewrite mult_comm; apply mult_le_compat; auto.
-      apply power_mono; auto; omega. } 
+      apply power_mono; auto; lia. } 
     set (c := ∑ (S n) (fun i => f i * power i q)).
     assert (forall i, i <= n -> is_digit c q i (f i)) as Hc.
     { intros i Hi; split; auto.
       + exists (∑ (n-i) (fun j => f (1+i+j) * power j q)),
                (∑  i    (fun i => f i * power i q)); split.
-        2: apply sum_power_lt; auto; intros; apply Hfq; omega.
-        unfold c; replace (S n) with (i+S (n - i)) by omega.
+        2: apply sum_power_lt; auto; intros; apply Hfq; lia.
+        unfold c; replace (S n) with (i+S (n - i)) by lia.
         rewrite msum_plus, plus_comm; f_equal; auto. 
         rewrite msum_ext with (g := fun k => power i q*(f (i+k)*power k q)).
         * rewrite sum_0n_scal_l, mult_comm; f_equal.
           rewrite msum_S, plus_comm; f_equal.
-          2: simpl; rewrite Nat.mul_1_r; f_equal; omega.
+          2: simpl; rewrite Nat.mul_1_r; f_equal; lia.
           rewrite (mult_comm _ q), <- sum_0n_scal_l.
           apply msum_ext.
           intros j _.
-          replace (i+S j) with (1+i+j) by omega.
+          replace (i+S j) with (1+i+j) by lia.
           rewrite power_S; ring.
         * intros j _; rewrite power_plus; ring. }
     exists q, c; split; [ | split; [ | split ] ].
     + unfold q; auto.
     + intros i Hi; exists (f i), (f (S i)).
       split; [ | split ].
-      * apply Hc; omega.
-      * apply Hc; omega.
+      * apply Hc; lia.
+      * apply Hc; lia.
       * apply H3; auto.
-    + rewrite <- H1; apply Hc; omega.
-    + rewrite <- H2; apply Hc; omega.
+    + rewrite <- H1; apply Hc; lia.
+    + rewrite <- H2; apply Hc; lia.
   Qed.
 
   Hint Resolve rel_iter_bound_iter rel_iter_iter_bound : core.
@@ -218,19 +218,19 @@ Section rel_iter_seq.
       intros (q & c & H2 & H3 & H4).
       red in H2.
       assert (0 < q) as Hq.
-      { destruct H3; omega. }
+      { destruct H3; lia. }
       assert (exists z, is_digit c q n z) as H6.
       { exists (rem (div c (power n q)) q).
         split.
-        + apply div_rem_spec2; omega.
+        + apply div_rem_spec2; lia.
         + exists (div (div c (power n q)) q), (rem c (power n q)); split.
-          2: apply div_rem_spec2; red; rewrite power_0_inv; omega.
+          2: apply div_rem_spec2; red; rewrite power_0_inv; lia.
           rewrite <- div_rem_spec1 with (p := q).
           apply div_rem_spec1. }
       destruct H6 as (z & H6); exists z; split.
       + apply IHn.
         exists q, c; msplit 2; auto.
-        intros i Hi; apply H2; omega.
+        intros i Hi; apply H2; lia.
       + destruct (H2 n) as (u & v & G1 & G2 & G3); auto.
         rewrite is_digit_fun with (1 := H4) (2 := G2),
                 is_digit_fun with (1 := H6) (2 := G1); auto.
@@ -247,39 +247,39 @@ Section rel_iter_seq.
     assert (exists q, forall i, i <= n -> f i < q) as Hq.
     { clear H1 H2 H3.
       revert f; induction n as [ | n IHn ]; intros f.
-      + exists (S (f 0)); intros [ | ] ?; omega.
+      + exists (S (f 0)); intros [ | ] ?; lia.
       + destruct IHn with (f := fun i => (f (S i))) as (q & Hq).
-        exists (1+f 0+q); intros [ | i ] Hi; try omega.
-        generalize (Hq i); intros; omega. }
+        exists (1+f 0+q); intros [ | i ] Hi; try lia.
+        generalize (Hq i); intros; lia. }
     destruct Hq as (q & Hfq).
     assert (q <> 0) as Hq. 
-    { generalize (Hfq 0); intros; omega. }
+    { generalize (Hfq 0); intros; lia. }
     set (c := ∑ (S n) (fun i => f i * power i q)).
     assert (forall i, i <= n -> is_digit c q i (f i)) as Hc.
     { intros i Hi; split; auto.
       + exists (∑ (n-i) (fun j => f (1+i+j) * power j q)),
                (∑  i    (fun i => f i * power i q)); split.
-        2: apply sum_power_lt; auto; intros; apply Hfq; omega.
-        unfold c; replace (S n) with (i+S (n - i)) by omega.
+        2: apply sum_power_lt; auto; intros; apply Hfq; lia.
+        unfold c; replace (S n) with (i+S (n - i)) by lia.
         rewrite msum_plus, plus_comm; f_equal; auto. 
         rewrite msum_ext with (g := fun k => power i q*(f (i+k)*power k q)).
         * rewrite sum_0n_scal_l, mult_comm; f_equal.
           rewrite msum_S, plus_comm; f_equal.
-          2: simpl; rewrite Nat.mul_1_r; f_equal; omega.
+          2: simpl; rewrite Nat.mul_1_r; f_equal; lia.
           rewrite (mult_comm _ q), <- sum_0n_scal_l.
           apply msum_ext.
           intros j _.
-          replace (i+S j) with (1+i+j) by omega.
+          replace (i+S j) with (1+i+j) by lia.
           rewrite power_S; ring.
         * intros j _; rewrite power_plus; ring. }
     exists q, c; msplit 2.
     + intros i Hi; exists (f i), (f (S i)).
       split; [ | split ].
-      * apply Hc; omega.
-      * apply Hc; omega.
+      * apply Hc; lia.
+      * apply Hc; lia.
       * apply H3; auto.
-    + rewrite <- H1; apply Hc; omega.
-    + rewrite <- H2; apply Hc; omega.
+    + rewrite <- H1; apply Hc; lia.
+    + rewrite <- H2; apply Hc; lia.
   Qed.
 
   Hint Resolve rel_iter_seq_iter rel_iter_iter_seq : core.

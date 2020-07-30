@@ -1,4 +1,4 @@
-From Undecidability.ILL.Ll Require Export ill eill.
+From Undecidability.ILL Require Export EILL ILL.
 
 (* The halting problem for binary stack machines *)
 

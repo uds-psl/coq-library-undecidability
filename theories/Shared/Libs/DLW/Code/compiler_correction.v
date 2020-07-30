@@ -7,8 +7,6 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(* Trying an abstract compiler with labels instead of nats as source code addressing *)
-
 Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils Require Import utils.

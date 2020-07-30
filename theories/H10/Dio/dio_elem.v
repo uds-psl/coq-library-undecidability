@@ -9,10 +9,10 @@
 
 (** ** Elementary diophantine constraints *)
 
-Require Import List Arith Nat Omega.
+Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils 
-  Require Import utils_list gcd prime.
+  Require Import utils_list.
 
 From Undecidability.H10.Dio 
   Require Import dio_logic.
@@ -35,24 +35,24 @@ Section interval.
     match i, j with (a1,b1),(a2,b2) => (min a1 a2, max b1 b2) end.
 
   Fact in_out_interval i x : in_interval i x -> out_interval i x -> False.
-  Proof. destruct i; simpl; omega. Qed.
+  Proof. destruct i; simpl; lia. Qed.
 
   Fact in_out_interval_dec i x : { in_interval i x } + { out_interval i x }.
   Proof. 
     destruct i as (a,b); simpl.
-    destruct (le_lt_dec a x); destruct (le_lt_dec b x); try (left; omega);right; omega.
+    destruct (le_lt_dec a x); destruct (le_lt_dec b x); try (left; lia);right; lia.
   Qed. 
 
   Fact interval_union_left i j x : in_interval i x -> in_interval (interval_union i j) x.
   Proof.
     revert i j; intros (a,b) (u,v); simpl.
-    generalize (Nat.le_min_l a u) (Nat.le_max_l b v); omega.
+    generalize (Nat.le_min_l a u) (Nat.le_max_l b v); lia.
   Qed.
 
   Fact interval_union_right i j x : in_interval j x -> in_interval (interval_union i j) x.
   Proof.
     revert i j; intros (a,b) (u,v); simpl.
-    generalize (Nat.le_min_r a u) (Nat.le_max_r b v); omega.
+    generalize (Nat.le_min_r a u) (Nat.le_max_r b v); lia.
   Qed.
 
   Definition valuation_union i1 (g1 : nat -> nat) i2 g2 : 
@@ -248,8 +248,8 @@ Section diophantine_system.
                               else x0.
 
   Tactic Notation "g0" "auto" constr(n) constr(t) := 
-    unfold g0; destruct (le_lt_dec n (n+t)); try omega;
-    replace (n+t-n) with t by omega; auto.
+    unfold g0; destruct (le_lt_dec n (n+t)); try lia;
+    replace (n+t-n) with t by lia; auto.
 
   Let g0_0 (n x0 x1 x2 x3 x4 x5 x6 x7 : nat) : g0 n x0 x1 x2 x3 x4 x5 x6 x7 (n+0) = x0.
   Proof. g0 auto n 0. Qed. 
@@ -288,8 +288,8 @@ Section diophantine_system.
   Let complete_lemma x y : { u : nat & { v | u+x = v+y } }.
   Proof.
     destruct (le_lt_dec x y).
-    + exists (y-x), 0; omega.
-    + exists 0, (x-y); omega.
+    + exists (y-x), 0; lia.
+    + exists 0, (x-y); lia.
   Qed.
 
   (** x = i <~~> s = 0 /\ exists p q u v w, s = p+q /\ u = p+v /\ u = q+w /\ v = x /\ w = i *)
@@ -302,9 +302,9 @@ Section diophantine_system.
            ::(a+3,dee_par x)               (* v = x     *)
            ::(a+4,dee_nat i)               (* w = i     *)
            ::nil)
-           (a+5); simpl; auto; try omega.
+           (a+5); simpl; auto; try lia.
     + intros j c.
-      repeat (intros [ <- | H ]; [ simpl; try omega | revert H ]); try tauto.
+      repeat (intros [ <- | H ]; [ simpl; try lia | revert H ]); try tauto.
     + intros v.
       destruct (complete_lemma (v x) i) as (p & q & H).
       exists (g0 a p q (p+v x) (v x) i (p+q) 0 0); 
@@ -314,7 +314,7 @@ Section diophantine_system.
         exists (g0 a 0 0 (v x) (v x) i 0 0 0); 
           repeat constructor; simpl; rew g0; auto.
       * intros (phi & H); revert H.
-        repeat rewrite Forall_cons_inv; simpl; omega.
+        repeat rewrite Forall_cons_inv; simpl; lia.
   Defined.
 
   (** x = y <~~> s = 0 /\ exists p q u v w, s = p+q /\ u = p+v /\ u = q+w /\ v = x /\ w = y *)
@@ -327,9 +327,9 @@ Section diophantine_system.
            ::(a+3,dee_par x)               (* v = x     *)
            ::(a+4,dee_par y)               (* w = y     *)
            ::nil)
-           (a+5); simpl; auto; try omega.
+           (a+5); simpl; auto; try lia.
     + intros j c.
-      repeat (intros [ <- | H ]; [ simpl; try omega | revert H ]); try tauto.
+      repeat (intros [ <- | H ]; [ simpl; try lia | revert H ]); try tauto.
     + intros v.
       destruct (complete_lemma (v x) (v y)) as (p & q & H).
       exists (g0 a p q (p+v x) (v x) (v y) (p+q) 0 0); 
@@ -339,7 +339,7 @@ Section diophantine_system.
         exists (g0 a 0 0 (v x) (v x) (v y) 0 0 0); 
           repeat constructor; simpl; rew g0; auto.
       * intros (phi & H); revert H.
-        repeat rewrite Forall_cons_inv; simpl; omega.
+        repeat rewrite Forall_cons_inv; simpl; lia.
   Defined.
 
   (** x = y o z <~~> s = 0 /\ exists p q u v w r t, s = p+q /\ t = p+u /\ t=q+r
@@ -355,9 +355,9 @@ Section diophantine_system.
            ::(a+3,dee_par y)               (* v = y     *)
            ::(a+4,dee_par z)               (* w = z     *)
            ::nil)
-           (a+7); simpl; auto; try omega.
+           (a+7); simpl; auto; try lia.
     + intros j c.
-      repeat (intros [ <- | H ]; [ simpl; try omega | revert H ]); try tauto.
+      repeat (intros [ <- | H ]; [ simpl; try lia | revert H ]); try tauto.
     + intros v.
       destruct (complete_lemma (v x) (de_op_sem o (v y) (v z))) as (p & q & H).
       exists (g0 a p q (v x) (v y) (v z) (de_op_sem o (v y) (v z)) (p+v x) (p+q)); 
@@ -369,7 +369,7 @@ Section diophantine_system.
       * intros (phi & H); revert H.
         repeat rewrite Forall_cons_inv; simpl. 
         intros ((E1 & E2 & E3 & E4 & E5 & E6 & E7 & _) & E0).
-        rewrite <- E6, <- E7, <- E4; omega.
+        rewrite <- E6, <- E7, <- E4; lia.
   Defined.
 
   Let not_interval_union a1 n1 a2 n2 : 
@@ -377,7 +377,7 @@ Section diophantine_system.
         -> ~ in_interval (interval_union (a1, a1 + n1) (a2, a2 + n2)) (a2 + n2).
   Proof.
     simpl; intros H1 (_ & H3).
-    rewrite Nat.max_r in H3; omega.
+    rewrite Nat.max_r in H3; lia.
   Qed.
 
   Let dio_op_swap o := match o with do_add => do_mul | do_mul => do_add end.
@@ -391,20 +391,20 @@ Section diophantine_system.
   Proof.
     intros [ l1 r1 F0 F1 F2 F3 F4 ] [ l2 r2 G0 G1 G2 G3 G4 ] H12 ?; subst n.
     exists ((a2+n2,dee_comp (dio_op_swap o) r1 r2)::l1++l2) (a2+n2).
-    + simpl; rewrite app_length, F0, G0; omega.
-    + replace (a1+(1+a2+n2-a1)) with (1+a2+n2) by omega.
+    + simpl; rewrite app_length, F0, G0; lia.
+    + replace (a1+(1+a2+n2-a1)) with (1+a2+n2) by lia.
       intros x c [ Hc | Hc ].
-      * subst; simpl; omega.
+      * subst; simpl; lia.
       * intros H1; apply in_app_or in Hc; destruct Hc as [ Hc | Hc ].
-        - specialize (F1 _ _ Hc H1); omega.
-        - specialize (G1 _ _ Hc H1); omega.
-    + omega.
+        - specialize (F1 _ _ Hc H1); lia.
+        - specialize (G1 _ _ Hc H1); lia.
+    + lia.
     + intros f.
       destruct (F3 f) as (g1 & H1).
       destruct (G3 f) as (g2 & H2).
       destruct (@valuation_one_union (a2+n2) (de_op_sem (dio_op_swap o) (g1 r1) (g2 r2)) (a1,a1+n1) g1 (a2,a2+n2) g2) 
         as (g & Hg1 & Hg2 & Hg3); auto.
-      { red; simpl; intros; omega. }
+      { red; simpl; intros; lia. }
       exists g; constructor; [ | apply Forall_app; split ].
       * simpl; rewrite Hg1, (Hg2 r1), (Hg3 r2); auto.
       * apply Forall_impl with (2 := H1).
@@ -419,7 +419,7 @@ Section diophantine_system.
         - destruct (G3 f) as (g2 & H3).
           destruct (@valuation_one_union (a2+n2) 0 (a1,a1+n1) g1 (a2,a2+n2) g2) 
             as (g & Hg1 & Hg2 & Hg3); auto.
-          { red; simpl; intros; omega. }
+          { red; simpl; intros; lia. }
           exists g; split; auto.
           constructor; simpl; [ | apply Forall_app; split ].
           ++ rewrite Hg1, Hg2, H2; auto.
@@ -432,7 +432,7 @@ Section diophantine_system.
         - destruct (F3 f) as (g1 & H3).
           destruct (@valuation_one_union (a2+n2) 0 (a1,a1+n1) g1 (a2,a2+n2) g2) 
             as (g & Hg1 & Hg2 & Hg3); auto.
-          { red; simpl; intros; omega. }
+          { red; simpl; intros; lia. }
           exists g; split; auto.
           constructor; simpl; [ | apply Forall_app; split ].
           ++ rewrite Hg1, (Hg3 r2), H2, mult_comm; auto.
@@ -451,9 +451,9 @@ Section diophantine_system.
       * intros ((g1 & H1 & H2) & (g2 & H3 & H4)).
         destruct (@valuation_one_union (a2+n2) 0 (a1,a1+n1) g1 (a2,a2+n2) g2) 
           as (g & Hg1 & Hg2 & Hg3); auto.
-        { red; simpl; intros; omega. }
+        { red; simpl; intros; lia. }
         exists g; split; auto; constructor; simpl.
-        ++ rewrite Hg1, Hg2, Hg3; auto; omega.
+        ++ rewrite Hg1, Hg2, Hg3; auto; lia.
         ++ apply Forall_app; split.
            ** apply Forall_impl with (2 := H1).
               intros c Hc; apply dc_eval_ext; auto.
@@ -464,7 +464,7 @@ Section diophantine_system.
       * intros (g & Hg1 & Hg2).
         inversion Hg1 as [ | ? ? Hg3 Hg4 ].
         apply Forall_app in Hg4; destruct Hg4 as (Hg4 & Hg5).
-        simpl in Hg3; split; exists g; split; auto; omega.
+        simpl in Hg3; split; exists g; split; auto; lia.
   Defined.
 
   Lemma dio_repr_at_exst R a n m p : 
@@ -478,9 +478,9 @@ Section diophantine_system.
     + intros x c'; rewrite in_map_iff.
       intros (c & E & Hc) H; subst.
       apply dc_vars_dec in H.
-      destruct H as [ | H ]; subst; simpl; try omega.
-      apply F1 in H; simpl in *; auto; omega.
-    + omega.
+      destruct H as [ | H ]; subst; simpl; try lia.
+      apply F1 in H; simpl in *; auto; lia.
+    + lia.
     + intros f.
       destruct (F3 (fun x => match x with 0 => 0 | S x => f x end)) as (g & Hg).
       exists (fun x => if eq_nat_dec x (a+n) then 0 else g x).
@@ -489,7 +489,7 @@ Section diophantine_system.
       intros c Hc; rewrite dc_eval_dec; apply dc_eval_ext; auto.
       * intros x Hx.
         destruct (eq_nat_dec x (a+n)); subst; auto.
-        apply F1 in Hx; auto; omega.
+        apply F1 in Hx; auto; lia.
       * intros [ | x ]; auto.
         destruct (eq_nat_dec (a+n) (a+n)); tauto.
     + intros f; split.
@@ -502,11 +502,11 @@ Section diophantine_system.
           intros c Hc; rewrite dc_eval_dec; apply dc_eval_ext; auto.
           ++ intros x Hx.
              destruct (eq_nat_dec x (a+n)); auto.
-             subst x; apply F1 in Hx; auto; omega.
+             subst x; apply F1 in Hx; auto; lia.
           ++ intros [ | x ]; auto.
              destruct (eq_nat_dec (a+n) (a+n)); tauto.
         - destruct (eq_nat_dec r (a+n)); auto.
-          subst; omega.
+          subst; lia.
       * intros (g & H1 & H2).
         exists (g (a+n)); rewrite F4.
         exists g; split; auto.
@@ -527,7 +527,7 @@ Section diophantine_system.
     end.
 
   Fact df_weigth_1_size f : df_weight_1 f <= 8*df_size f.
-  Proof. induction f; simpl; omega. Qed.
+  Proof. induction f; simpl; lia. Qed.
 
   Fixpoint df_weight_2 f :=
     match f with
@@ -539,7 +539,7 @@ Section diophantine_system.
     end.
 
   Fact df_weigth_2_size f : df_weight_2 f <= 7*df_size f.
-  Proof. induction f; simpl in *; omega. Qed.
+  Proof. induction f; simpl in *; lia. Qed.
 
   Lemma dio_repr_at_form n f : dio_repr_at (df_pred f) n (df_weight_1 f) (df_weight_2 f).
   Proof.
@@ -548,8 +548,8 @@ Section diophantine_system.
     + apply dio_repr_at_cst; auto.
     + apply dio_repr_at_eq; auto.
     + apply dio_repr_at_op; auto.
-    + apply dio_repr_at_bin with (n1 := df_weight_1 f) (a2 := n+df_weight_1 f) (n2 := df_weight_1 g); auto; omega.
-    + apply dio_repr_at_exst with (n := df_weight_1 f); auto; omega.
+    + apply dio_repr_at_bin with (n1 := df_weight_1 f) (a2 := n+df_weight_1 f) (n2 := df_weight_1 g); auto; lia.
+    + apply dio_repr_at_exst with (n := df_weight_1 f); auto; lia.
   Defined.
 
 End diophantine_system.
@@ -564,13 +564,13 @@ Theorem dio_formula_elem f : { l | length l <= 1+7*df_size f
                                /\  forall ν, df_pred f ν <-> exists φ, Forall (dc_eval φ ν) l }.
 Proof.
   destruct (dio_repr_at_form 0 f) as [l r H0 H1 H2 H3 H4].
-  exists ((r,dee_nat 0) :: l); split; [ | split ]; simpl length; try omega.
+  exists ((r,dee_nat 0) :: l); split; [ | split ]; simpl length; try lia.
   + rewrite H0; apply le_n_S, df_weigth_2_size.
   + intros c x [ [] | H ].
     * simpl dc_vars; intros [ | [] ]; subst.
-      generalize (df_weigth_1_size f); intros; simpl; omega.
+      generalize (df_weigth_1_size f); intros; simpl; lia.
     * intros G; apply H1 in G; auto.
-      generalize (df_weigth_1_size f); intros; simpl; omega.
+      generalize (df_weigth_1_size f); intros; simpl; lia.
   + intros ν; rewrite H4.
     split; intros (φ & H); exists φ; revert H; rewrite Forall_cons_inv; simpl; tauto.
 Defined.

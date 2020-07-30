@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith.
+Require Import List Arith Lia.
 
 Require Import Undecidability.Shared.Prelim.
 Require Import Undecidability.Synthetic.Undecidability.
@@ -63,7 +63,7 @@ Section iPCPb_to_BSM_HALTING.
   Defined.
 
   Goal forall x, | pcp_bsm x| >= 80.
-    intros; rewrite pcp_bsm_size; omega.
+    intros; rewrite pcp_bsm_size; lia.
   Qed.
   
   Theorem iPCPb_to_BSM_HALTING : iPCPb ⪯ BSM_HALTING.
@@ -76,7 +76,7 @@ Section iPCPb_to_BSM_HALTING.
       apply pcp_bsm_sound with (v := vec_set_pos (fun _ => nil)) in H.
       match type of H with  _ // _ ->> (?q,?w) => exists (q, w) end.
       split; auto.
-      simpl; omega.
+      simpl; lia.
     * intros ((q & w) & H).
       apply pcp_bsm_complete in H; tauto.
   Qed.

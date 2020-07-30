@@ -9,9 +9,10 @@
 
 (** ** Binomial theorem *)
 
-Require Import Arith Omega.
+Require Import Arith Lia.
 
-From Undecidability.Shared.Libs.DLW.Utils Require Import utils_tac gcd.
+From Undecidability.Shared.Libs.DLW.Utils 
+  Require Import utils_tac gcd.
 
 Set Implicit Arguments.
 
@@ -29,12 +30,12 @@ Section factorial.
   Proof.
     unfold lt; simpl.
     induction n as [ | n IHn ]; simpl; auto.
-    generalize (n*fact n); intros; omega.
+    generalize (n*fact n); intros; lia.
   Qed.
 
   Fact divides_n_fact_n n : 0 < n -> divides n (fact n).
   Proof.
-    destruct n as [ | n ]; try omega; intros _.
+    destruct n as [ | n ]; try lia; intros _.
     apply divides_mult_r, divides_refl.
   Qed.
 
@@ -58,7 +59,7 @@ Section binomial.
   Hint Resolve divides_refl : core.
 
   Let fact_neq_0 n : fact n <> 0.
-  Proof. generalize (fact_gt_0 n); omega. Qed.
+  Proof. generalize (fact_gt_0 n); lia. Qed.
 
   Fixpoint binomial n p :=
     match n, p with
@@ -75,37 +76,37 @@ Section binomial.
 
   Fact binomial_n1 n : 1 <= n -> binomial n 1 = n.
   Proof.
-    destruct n as [ | n ]; try omega; intros _.
+    destruct n as [ | n ]; try lia; intros _.
     induction n as [ | n IHn ]; auto.
-    rewrite binomial_SS, IHn, binomial_n0; omega.
+    rewrite binomial_SS, IHn, binomial_n0; lia.
   Qed.
 
   Fact binomial_gt n : forall p, n < p -> binomial n p = 0.
   Proof.
-    induction n as [ | n IHn ]; intros [|] ?; simpl; auto; try omega.
-    do 2 (rewrite IHn; try omega).
+    induction n as [ | n IHn ]; intros [|] ?; simpl; auto; try lia.
+    do 2 (rewrite IHn; try lia).
   Qed.
 
   Fact binomial_nn n : binomial n n = 1.
   Proof.
-    induction n; auto; rewrite binomial_SS, binomial_gt with (p := S _); omega.
+    induction n; auto; rewrite binomial_SS, binomial_gt with (p := S _); lia.
   Qed.
 
   Theorem binomial_thm n p : p <= n -> fact n = binomial n p * fact p * fact (n-p).
   Proof.
     intros H.
-    replace n with (n-p+p) at 1 2 by omega.
+    replace n with (n-p+p) at 1 2 by lia.
     generalize (n-p); clear n H; intros n.
     induction on n p as IH with measure (n+p).
     revert n p IH; intros [ | n ] [ | p ] IH; simpl plus; auto.
-    + rewrite binomial_nn; simpl; omega.
-    + rewrite Nat.add_0_r, binomial_n0; simpl; omega.
+    + rewrite binomial_nn; simpl; lia.
+    + rewrite Nat.add_0_r, binomial_n0; simpl; lia.
     + rewrite fact_S, binomial_SS.
-      replace (S (n+S p)) with (S p+S n) by omega.
+      replace (S (n+S p)) with (S p+S n) by lia.
       do 3 rewrite Nat.mul_add_distr_r; f_equal.
-      * replace (n+S p) with (S n+p) by omega.
-        rewrite fact_S, IH; try omega; ring.
-      * rewrite (fact_S n), IH; try omega; ring.
+      * replace (n+S p) with (S n+p) by lia.
+        rewrite fact_S, IH; try lia; ring.
+      * rewrite (fact_S n), IH; try lia; ring.
   Qed.
 
   Fact binomial_le n p : p <= n -> binomial n p = div (fact n) (fact p * fact (n-p)).
@@ -118,8 +119,8 @@ Section binomial.
 
   Fact binomial_sym n p : p <= n -> binomial n p = binomial n (n-p).
   Proof.
-    intros H; do 2 (rewrite binomial_le; try omega).
-    rewrite mult_comm; do 3 f_equal; omega.
+    intros H; do 2 (rewrite binomial_le; try lia).
+    rewrite mult_comm; do 3 f_equal; lia.
   Qed.
 
   Fact binomial_spec n p : p <= n -> fact n = binomial n p * fact p * fact (n-p).

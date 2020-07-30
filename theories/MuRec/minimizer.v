@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import Arith Omega.
+Require Import Arith Lia.
 
 Set Implicit Arguments.
 
@@ -37,11 +37,11 @@ Section nat_rev_ind'.
     assert (forall x y, x <= y -> Q y -> Q x) as H.
       apply nat_rev_ind.
       intros n (H3 & H4); split.
-      omega.
+      lia.
       revert H4; apply HP, H3.
     apply (H x y).
-    omega.
-    split; auto; omega.
+    lia.
+    split; auto; lia.
   Qed.
 
 End nat_rev_ind'.
@@ -68,13 +68,13 @@ Section minimizer_pred.
         | exist _ k Hk => exist _ k _
       end 
     end).
-    * split; auto; intros; omega.
+    * split; auto; intros; lia.
     * destruct Hn; [ destruct H | ]; assumption.
     * destruct Hk as (H1 & H2).
       split; trivial; intros i Hi.
       destruct (eq_nat_dec i n).
       - subst; trivial.
-      - apply H2; omega.
+      - apply H2; lia.
   Qed.
 
   Hypothesis Hmin : ex minimizer.
@@ -88,14 +88,14 @@ Section minimizer_pred.
     apply nat_rev_ind' with (k := k).
     intros i H3.
     apply in_bar_1, H2; trivial.
-    omega.
+    lia.
   Qed.
 
   Definition minimizer_pred : sig minimizer.
   Proof.
     destruct (loop bar_0) as (k & H1 & H2).
     exists k; split; auto.
-    intros; apply H2; omega.
+    intros; apply H2; lia.
   Defined.
 
 End minimizer_pred.

@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Max Omega Wellfounded Bool Eqdep_dec.
+Require Import List Arith Max Lia Wellfounded Bool Eqdep_dec.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import list_focus utils_tac utils_list.
@@ -59,11 +59,11 @@ Section fin_reif.
                  -> exists s, forall i (Hi : i < n), R i (s i Hi).
   Proof.
     revert R; induction n as [ | n IHn ]; intros R HR.
-    + assert (s : forall x, x < 0 -> X) by (intros; omega).
-      exists s; intros; omega.
-    + destruct (HR 0) as (x & Hx); try omega.
+    + assert (s : forall x, x < 0 -> X) by (intros; lia).
+      exists s; intros; lia.
+    + destruct (HR 0) as (x & Hx); try lia.
       destruct IHn with (R := fun i x => R (S i) x) as (s & Hs).
-      { intros; apply HR; omega. }
+      { intros; apply HR; lia. }
       exists (fun i => match i with 0 => fun _ => x | S i => fun Hi => s i (lt_S_n i n Hi) end).
       intros [ | i ] Hi; simpl; auto.
   Qed.
@@ -77,7 +77,7 @@ Proof.
   apply fin_reif in HR.
   destruct HR as (s & Hs).
   exists (fun i => match le_lt_dec n i with left _ => 0 | right H => s _ H end).
-  intros i Hi; destruct (le_lt_dec n i); auto; omega.
+  intros i Hi; destruct (le_lt_dec n i); auto; lia.
 Qed.
 
 Section bounded_search.
@@ -87,14 +87,14 @@ Section bounded_search.
      -> { n : nat & (n < m) * P n }%type + { forall n, n < m -> P n -> False }.
   Proof.
     revert P; induction m as [ | m IHm ]; intros P HP.
-    + right; intros; omega.
-    + destruct (HP 0) as [ H0 | H0 ]; try omega.
-      * left; exists 0; split; auto; omega.
+    + right; intros; lia.
+    + destruct (HP 0) as [ H0 | H0 ]; try lia.
+      * left; exists 0; split; auto; lia.
       * destruct IHm with (P := fun n => P (S n)) as [ (n & H1 & H2) | H1 ].
-        - intros; apply HP; omega.
-        - left; exists (S n); split; auto; omega.
+        - intros; apply HP; lia.
+        - left; exists (S n); split; auto; lia.
         - right; intros [ | n ] Hn; auto.
-          apply H1; omega.
+          apply H1; lia.
   Qed.
 
   Lemma bounded_min (P : nat -> Prop) : 
@@ -103,14 +103,14 @@ Section bounded_search.
   Proof.
     intros HP.
     induction n as [ | n IHn ].
-    + right; intros; omega.
+    + right; intros; lia.
     + destruct IHn as [ (k & H1 & H2 & H3) | H ].
-      * left; exists k; repeat split; auto; omega.
+      * left; exists k; repeat split; auto; lia.
       * destruct (HP n).
         - left; exists n; repeat split; auto.
         - right; intros k Hk.
           destruct (eq_nat_dec k n); subst; auto. 
-          apply H; omega.
+          apply H; lia.
   Qed.
 
   Lemma minimize (P : nat -> Prop) : (forall x, P x \/ ~ P x) -> (exists n, P n) -> exists n, P n /\ forall i, i < n -> ~ P i.
@@ -125,14 +125,14 @@ Section bounded_search.
   Proof.
     intros H0 H1.
     destruct (@minimize (fun i => f i <> 0)) as (i & H2 & H3).
-    + intro; destruct (eq_nat_dec (f x) 0); omega.
+    + intro; destruct (eq_nat_dec (f x) 0); lia.
     + exists n; auto.
     + assert (i <> 0) as Hi by (intro; subst; destruct H2; auto).
       exists (i-1); split; [ | split ].
-      * destruct (le_lt_dec i n) as [ | H4 ]; try omega.
+      * destruct (le_lt_dec i n) as [ | H4 ]; try lia.
         apply H3 in H4; destruct H4; auto.
-      * intros k Hk; generalize (H3 k); intros; omega.
-      * replace (i-1+1) with i by omega; auto.
+      * intros k Hk; generalize (H3 k); intros; lia.
+      * replace (i-1+1) with i by lia; auto.
   Qed.
 
 End bounded_search.
@@ -140,10 +140,10 @@ End bounded_search.
 Fact interval_dec a b i : { a <= i < b } + { i < a \/ b <= i }.
 Proof.
   destruct (le_lt_dec b i).
-  right; omega.
-  destruct (le_lt_dec a i).
-  left; omega.
-  right; omega.
+  + right; lia.
+  + destruct (le_lt_dec a i).
+    * left; lia.
+    * right; lia.
 Qed.
 
 (* Fact interval_dec a b n : { a <= n < b } + { ~ a <= n < b }.
@@ -162,20 +162,20 @@ Definition lmax := fold_right max 0.
 Fact lmax_spec l x : lmax l <= x <-> Forall (fun y => y <= x) l.
 Proof.
   revert x; induction l as [ | y l IHl ]; simpl.
-  + split; auto; try omega.
+  + split; auto; try lia.
   + intros x; rewrite Forall_cons_inv, <- IHl, Nat.max_lub_iff; tauto.
 Qed.
 
 Fact lsum_app l r : lsum (l++r) = lsum l+lsum r.
 Proof.
-  induction l as [ | x l IHl ]; simpl; auto; rewrite IHl; omega.
+  induction l as [ | x l IHl ]; simpl; auto; rewrite IHl; lia.
 Qed.
 
 Fact lsum_le x l : In x l -> x <= lsum l.
 Proof.
   intros H; apply in_split in H.
   destruct H as (u & v & ->).
-  rewrite lsum_app; simpl; omega.
+  rewrite lsum_app; simpl; lia.
 Qed.
 
 Fact lmax_prop l x : In x l -> x <= lmax l.
@@ -197,7 +197,7 @@ Section new.
         [ apply le_max_l | ].
       apply IHl, le_S_n in Hy.
       apply le_trans with (1 := Hy), le_max_r.
-    intros C; apply H in C; omega.
+    intros C; apply H in C; lia.
   Qed.
 
 End new.
@@ -219,14 +219,14 @@ Fact div2_spec n : match div2 n with
 Proof.
   induction n as [ [ | [ | n ] ] IHn ] using (well_founded_induction lt_wf); simpl; auto.
   specialize (IHn n).
-  destruct (div2 n) as (p,[]); simpl in * |- *; omega.
+  destruct (div2 n) as (p,[]); simpl in * |- *; lia.
 Qed.
 
 Fixpoint div2_2p1 p : div2 (2*p+1) = (p,One).
 Proof.
   destruct p as [ | p ].
   simpl; auto.
-  replace (2*S p+1) with (S (S (2*p+1))) by omega.
+  replace (2*S p+1) with (S (S (2*p+1))) by lia.
   unfold div2; fold div2; rewrite div2_2p1; auto.
 Qed.
 
@@ -234,7 +234,7 @@ Fixpoint div2_2p0 p : div2 (2*p) = (p,Zero).
 Proof.
   destruct p as [ | p ].
   simpl; auto.
-  replace (2*S p) with (S (S (2*p))) by omega.
+  replace (2*S p) with (S (S (2*p))) by lia.
   unfold div2; fold div2; rewrite div2_2p0; auto.
 Qed.
 
@@ -251,35 +251,35 @@ Fact pow2_fix1 p : pow2 (S p) = 2*pow2 p.
 Proof. reflexivity. Qed.
 
 Fact pow2_ge1 p : 1 <= pow2 p.
-Proof. induction p; simpl; omega. Qed.
+Proof. induction p; simpl; lia. Qed.
 
 Fact pow2_2n1_dec n : { p : nat & { b | S n = pow2 p*(2*b+1) } }.
 Proof.
   induction on n as IH with measure n.
   generalize (div2_spec (S n)).
   destruct (div2 (S n)) as (d,[]); intros Hn.
-  + exists 0, d; simpl; omega.
+  + exists 0, d; simpl; lia.
   + destruct d as [ | d ].
-    * simpl in Hn; omega.
+    * simpl in Hn; lia.
     * destruct (IH d) as (p & b & H).
-      - omega.
+      - lia.
       - exists (S p), b; rewrite pow2_fix1, <- mult_assoc, <- H; auto.
 Qed.
 
 Fact pow2_dec_uniq p a q b : pow2 p*(2*a+1) = pow2 q*(2*b+1) -> p = q /\ a = b.
 Proof.
   revert q; induction p as [ | p IHp ]; intros [ | q ].
-  + simpl; omega.
-  + rewrite pow2_fix0, pow2_fix1, <- mult_assoc; omega.
-  + rewrite pow2_fix0, pow2_fix1, <- mult_assoc; omega.
+  + simpl; lia.
+  + rewrite pow2_fix0, pow2_fix1, <- mult_assoc; lia.
+  + rewrite pow2_fix0, pow2_fix1, <- mult_assoc; lia.
   + rewrite !pow2_fix1, <- !mult_assoc; intros H.
-    destruct (IHp q); omega.
+    destruct (IHp q); lia.
 Qed.
 
 Fact pow2_dec_ge1 p b : 1 <= pow2 p*(2*b+1).
 Proof.
   change 1 with (1*1) at 1; apply mult_le_compat; 
-    try omega; apply pow2_ge1.
+    try lia; apply pow2_ge1.
 Qed.
 
 Section pow2_bound.
@@ -296,30 +296,30 @@ Section pow2_bound.
   Let loop_prop n : forall x, x < n -> x < pow2 (S (loop x n)).
   Proof.
     induction n as [ | n IHn ]; intros x Hx.
-    omega.
+    { lia. }
     unfold loop; fold loop.
     generalize (div2_spec x).
     destruct (div2 x) as ([ | p ],[]); intros H.
-    simpl; omega.
-    simpl; omega.
-    specialize (IHn (S p)); spec in IHn.
-    omega.
-    simpl in IHn |- *; omega.
-    specialize (IHn (S p)); spec in IHn.
-    omega.
-    simpl in IHn |- *; omega.
+    + simpl; lia.
+    + simpl; lia.
+    + specialize (IHn (S p)); spec in IHn.
+      * lia.
+      * simpl in IHn |- *; lia.
+    + specialize (IHn (S p)); spec in IHn.
+      * lia.
+      * simpl in IHn |- *; lia.
   Qed.
 
   Definition find_pow2 x := S (loop (pred x) x).
 
   Fact find_pow2_geq x : 1 <= find_pow2 x.
-  Proof. unfold find_pow2; omega. Qed.
+  Proof. unfold find_pow2; lia. Qed.
 
   Fact find_pow2_prop x : x <= pow2 (find_pow2 x).
   Proof.
     unfold find_pow2; destruct x.
-    simpl; omega.
-    apply loop_prop; auto. 
+    + simpl; lia.
+    + apply loop_prop; auto. 
   Qed.
 
 End pow2_bound.
@@ -383,7 +383,7 @@ Section nat_sorted.
     intros H; apply HP2. 
     revert H; apply nat_sorted_head_inv.
     apply IHl.
-    rew length; omega.
+    rew length; lia.
     revert H; apply nat_sorted_cons_inv.
   Qed.
   
@@ -391,7 +391,7 @@ End nat_sorted.
 
 Fact nat_sorted_injective ll : nat_sorted ll -> list_injective ll.
 Proof.
-  intros H l a m b r E; generalize (H _ _ _ _ _  E); omega.
+  intros H l a m b r E; generalize (H _ _ _ _ _  E); lia.
 Qed.
 
 Fixpoint nat_list_insert x l :=
@@ -404,9 +404,9 @@ Fixpoint nat_list_insert x l :=
 Fact nat_list_insert_length x l : length (nat_list_insert x l) <= S (length l).
 Proof.
   induction l as [ | y l IHl ]; simpl.
-  omega.
-  destruct (x <? y); simpl; try omega.
-  destruct (y <? x); simpl; omega.
+  lia.
+  destruct (x <? y); simpl; try lia.
+  destruct (y <? x); simpl; lia.
 Qed.
   
 Fact nat_list_insert_incl x l : incl (nat_list_insert x l) (x::l)
@@ -457,7 +457,7 @@ Proof.
   destruct (x <? y); destruct (y <? x); intros H1 H2.
   apply proj1 in H1; spec in H1; auto.
   apply proj1 in H2; spec in H2; auto.
-  omega.
+  lia.
   apply in_nat_sorted_2; auto; tauto.
   apply in_nat_sorted_3.
   apply nat_list_insert_Forall.
@@ -472,8 +472,8 @@ Definition nat_sort := fold_right (nat_list_insert) nil.
 Fact nat_sort_length l : length (nat_sort l) <= length l.
 Proof.
   induction l as [ | x l IHl ]; simpl.
-  omega.
-  apply le_trans with (1 := nat_list_insert_length _ _); omega.
+  lia.
+  apply le_trans with (1 := nat_list_insert_length _ _); lia.
 Qed.
 
 Fact nat_sort_eq l : incl (nat_sort l) l /\ incl l (nat_sort l).
@@ -501,23 +501,23 @@ Proof.
   assert (forall n m, n <= m <= b - a -> f (a+n) <= f (a+m)) as H2.
     intros n m (H2 & H3); revert H2 H3.
     induction 1 as [ | m Hm IH ]; auto.
-    intros H. spec in IH. omega.
+    intros H. spec in IH. lia.
     apply le_trans with (1 := IH).
-    replace (a+S m) with (S (a+m)) by omega.
-    apply lt_le_weak, H1; omega.
+    replace (a+S m) with (S (a+m)) by lia.
+    apply lt_le_weak, H1; lia.
   assert (forall n m, n < m <= b - a -> f (a+n) < f (a+m)) as H3.
     unfold lt at 1; intros n m H.
     specialize (H1 (a+n)).
     spec in H1.
-    omega.
+    lia.
     apply lt_le_trans with (1 := H1).
-    replace (S (a+n)) with (a+S n) by omega.
+    replace (S (a+n)) with (a+S n) by lia.
     apply H2; auto.
   intros x y H4.
-  replace x with (a+(x-a)) by omega.
-  replace y with (a+(y-a)) by omega.
+  replace x with (a+(x-a)) by lia.
+  replace y with (a+(y-a)) by lia.
   apply H3.
-  omega.
+  lia.
 Qed.
 
 Fact nat_sinc_inj f a b : 
@@ -528,9 +528,9 @@ Proof.
   destruct Hx; destruct Hy.
   destruct (lt_eq_lt_dec x y) as [ [ ? | ? ] | ? ]; auto.
   specialize (H0 x y).
-  spec in H0; repeat split; auto; intro; omega.
+  spec in H0; repeat split; auto; intro; lia.
   specialize (H0 y x).
-  spec in H0; repeat split; auto; intro; omega.
+  spec in H0; repeat split; auto; intro; lia.
 Qed.
 
 Theorem nat_rev_ind (P : nat -> Prop) (HP : forall n, P (S n) -> P n) x y : x <= y -> P y -> P x.
@@ -544,9 +544,9 @@ Section nat_rev_bounded_ind.
   Proof.
     intros H1 H2.
     refine (proj1 (@nat_rev_ind (fun n => P n /\ n <= k) _ x y _ _)).
-    clear x y H1 H2; intros n (H1 & H2); split; auto;omega.
-    omega.
-    split; auto; omega.
+    clear x y H1 H2; intros n (H1 & H2); split; auto; lia.
+    lia.
+    split; auto; lia.
   Qed.
 
 End nat_rev_bounded_ind.
@@ -570,13 +570,13 @@ Section nat_minimize.
           | exist _ m Hm => exist _ m _
         end
       end).
-      * split; auto; intros; omega.
+      * split; auto; intros; lia.
       * destruct Hn; auto; destruct H; auto.
       * destruct Hm as [ H1 H2 ]; split; auto.
         intros x Hx; specialize (H2 x Hx).
         destruct (eq_nat_dec x n).
         - subst; tauto.
-        - omega.
+        - lia.
     Qed.
 
     Definition min_dec : (exists n, P n) -> { m | P m /\ forall x, P x -> m <= x }.
@@ -587,9 +587,9 @@ Section nat_minimize.
         apply in_bar_min_0 in Hn.
         revert Hn; apply nat_rev_ind.
         apply in_bar_min_1.
-        omega.
+        lia.
       * exists m; split; auto.
-        intros x Hx; specialize (H2 _ Hx); omega.
+        intros x Hx; specialize (H2 _ Hx); lia.
     Defined.
 
   End nat_min.
@@ -601,7 +601,7 @@ Section nat_minimize.
     exists m; split; auto.
     intros x Hx H3.
     apply H2 in H3.
-    omega.
+    lia.
   Qed.
 
 End nat_minimize.
@@ -613,14 +613,14 @@ Section first_which_ni.
   Fact bounded_search_ni n : (forall i, i < n -> P i \/ ~ P i) -> (forall i, i < n -> ~ P i) \/ exists i, i < n /\ P i /\ forall j, j < i -> ~ P j.
   Proof.
     revert P; induction n as [ | n IHn ]; intros P HP.
-    + left; intros; omega.
-    + destruct (HP 0) as [ H | H ]; try omega.
-      - right; exists 0; split; try omega; split; auto; intros; omega.
+    + left; intros; lia.
+    + destruct (HP 0) as [ H | H ]; try lia.
+      - right; exists 0; split; try lia; split; auto; intros; lia.
       - destruct IHn with (P := fun n => P (S n)) as [ H1 | (x & H1 & H2 & H3) ].
-        * intros; apply HP; omega.
-        * left; intros [] ?; auto; apply H1; omega.
-        * right; exists (S x); split; try omega; split; auto.
-          intros [] ?; auto; apply H3; omega.
+        * intros; apply HP; lia.
+        * left; intros [] ?; auto; apply H1; lia.
+        * right; exists (S x); split; try lia; split; auto.
+          intros [] ?; auto; apply H3; lia.
   Qed.
   
   Hypothesis HP : forall n, P n \/ ~ P n.
@@ -630,7 +630,7 @@ Section first_which_ni.
     intros (n & Hn).
     destruct (@bounded_search_ni (S n)) as [ H1 | (m & H1 & H2 & H3) ].
     + intros; auto.
-    + contradict Hn; apply H1; omega.
+    + contradict Hn; apply H1; lia.
     + exists m; auto.
   Qed.
 

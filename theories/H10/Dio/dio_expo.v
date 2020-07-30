@@ -9,7 +9,7 @@
 
 (** ** Object-level encoding of exponential *)
 
-Require Import Arith Nat Omega List.
+Require Import Arith ZArith List.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac sums rel_iter gcd.

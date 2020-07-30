@@ -17,7 +17,7 @@
 
  *)
 
-Require Import Arith Omega List Permutation.
+Require Import Arith Lia List Permutation.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import php.
@@ -80,11 +80,11 @@ Section seteq.
     + induction l as [ | y l IHl ].
       * exfalso; destruct H.
       * destruct H as [ -> | H ].
-        - exists (x::l); simpl; split; auto; omega.
+        - exists (x::l); simpl; split; auto; lia.
         - destruct (IHl H) as (m & H1 & H2).
-          exists (y::m); simpl in *; split; try omega.
+          exists (y::m); simpl in *; split; try lia.
           apply seteq_trans with (y::x::l); auto.
-    + exists (x::m); simpl; split; auto; omega.
+    + exists (x::m); simpl; split; auto; lia.
   Qed.
 
   (** The proof by induction on |l|+|m| for l ⊆ m and m ⊆ l
@@ -111,13 +111,13 @@ Section seteq.
     + destruct list_has_dup_seteq with (1 := H4) as (m' & H5 & H6).
       apply seteq_trans with m'; auto.
       apply seqeq_incl in H5; destruct H5.
-      apply IH; try omega; apply incl_tran with m; auto.
+      apply IH; try lia; apply incl_tran with m; auto.
     + apply seteq_sym, perm_seteq; auto.
     + generalize (finite_php_dup H3 H1); intros H4.
       destruct list_has_dup_seteq with (1 := H4) as (m' & H5 & H6).
       apply seteq_trans with m'; auto.
       apply seqeq_incl in H5; destruct H5.
-      apply IH; try omega; apply incl_tran with l; auto.
+      apply IH; try lia; apply incl_tran with l; auto.
   Qed.
 
   Hint Resolve seqeq_incl incl_seteq : core.

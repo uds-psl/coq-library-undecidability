@@ -12,7 +12,7 @@
     3) Tactics for the automagic recognition of Diophantine shapes
 *)
 
-Require Import Arith Nat Omega.
+Require Import Arith Nat ZArith Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac gcd sums bounded_quantification.
@@ -123,7 +123,7 @@ Section diophantine_logic_basics.
   Fact df_size_Z_spec f : df_size_Z f = Z.of_nat (df_size f).
   Proof.
     induction f as [ | | | ? f Hf g Hg | f Hf ]; simpl df_size;
-      rewrite Nat2Z.inj_succ; try rewrite Nat2Z.inj_add; unfold df_size_Z; fold df_size_Z; auto; try omega.
+      rewrite Nat2Z.inj_succ; try rewrite Nat2Z.inj_add; unfold df_size_Z; fold df_size_Z; auto; try lia.
   Qed.
 
   (** The semantics of Diophantine logic *)
@@ -486,7 +486,7 @@ Section True_False.
   Fact dio_rel_False : 𝔻R (fun _ => False).
   Proof.
     by dio equiv (fun _ => exists x, x = 1 /\ x = 0).
-    abstract (split; try tauto; intros (? & ? & ?); omega).
+    abstract (split; try tauto; intros (? & ? & ?); lia).
   Defined.
 
 End True_False.
@@ -497,16 +497,16 @@ Fact dio_rel_le_im x y : 𝔻R (fun ν => ν x <= ν y).
 Proof.
   by dio equiv (fun ν => exists a, ν y = a + ν x).
   abstract (intros v; split;
-    [ intros H; exists (v y - v x); omega
-    | intros (? & ->); omega ]).
+    [ intros H; exists (v y - v x); lia
+    | intros (? & ->); lia ]).
 Defined.
 
 Fact dio_rel_lt_im x y : 𝔻R (fun ν => ν x < ν y).
 Proof.
   by dio equiv (fun ν => exists a b c, ν y = c + ν x /\ b = 1 /\ c = a + b).
   abstract (intros v; split;
-    [ intros H; exists (v y - v x -1), 1, (v y - v x); omega
-    | intros (? & ? & ? & -> & -> & ->); omega ]).
+    [ intros H; exists (v y - v x -1), 1, (v y - v x); lia
+    | intros (? & ? & ? & -> & -> & ->); lia ]).
 Defined.
 
 Fact dio_rel_div_im x y : 𝔻R (fun ν => divides (ν x) (ν y)).
@@ -546,7 +546,7 @@ Proof.
   by dio equiv (fun v => exists a b, (a < b \/ b < a) /\ a = r v /\ b = t v).
   abstract (intros v; split;
     [ exists (r v), (t v)
-    | intros (? & ? & ?) ]; omega).
+    | intros (? & ? & ?) ]; lia).
 Defined.
 
 Fact dio_rel_div r t : 𝔻F r -> 𝔻F t -> 𝔻R (fun ν => divides (r ν) (t ν)).
@@ -631,13 +631,13 @@ Section dio_rel_ndivides.
       * right; exists (div y (S x)), (rem y (S x)); split.
         - apply div_rem_spec1.
         - rewrite divides_rem_eq in H.
-          generalize (@div_rem_spec2 y (S x)); intros; omega.
+          generalize (@div_rem_spec2 y (S x)); intros; lia.
     + intros [ (H1 & H2) | (a & b & H1 & H2) ].
       * subst; contradict H2; revert H2; apply divides_0_inv.
       * rewrite divides_rem_eq.
         rewrite (div_rem_spec1 y x) in H1.
-        apply div_rem_uniq in H1; try omega.
-        apply div_rem_spec2; omega.
+        apply div_rem_uniq in H1; try lia.
+        apply div_rem_spec2; lia.
   Qed.
   
   Fact dio_rel_ndivides x y : 𝔻F x -> 𝔻F y -> 𝔻R (fun ν => ~ divides (x ν) (y ν)).
@@ -731,12 +731,12 @@ Section multiple_exists.
   Fact df_mexists_size n f : df_size (df_mexists n f) = n + df_size f.
   Proof. 
     induction n as [ | n IHn ] in f |- *; auto; simpl.
-    rewrite IHn; simpl; omega.
+    rewrite IHn; simpl; lia.
   Qed.
 
   Fact df_mexists_size_Z n f : df_size_Z (df_mexists n f) = (Z.of_nat n + df_size_Z f)%Z.
   Proof.
-    rewrite df_size_Z_spec, df_mexists_size, Nat2Z.inj_add, df_size_Z_spec; omega.
+    rewrite df_size_Z_spec, df_mexists_size, Nat2Z.inj_add, df_size_Z_spec; lia.
   Qed.
 
   (* We only use it once so there is no need to automatize it 
@@ -749,7 +749,7 @@ Section multiple_exists.
   Proof.
     revert f ν; induction n as [ | n IHn ]; intros f v.
     + simpl; split; [ intros H; exists (fun _ => 0) | intros (? & H) ]; revert H; 
-        apply df_pred_ext; intros; f_equal; omega.
+        apply df_pred_ext; intros; f_equal; lia.
     + simpl df_mexists; rewrite IHn; split; intros (pi & Hpi).
       * revert Hpi; rewrite df_pred_exst.
         intros (u & Hu).
@@ -757,19 +757,19 @@ Section multiple_exists.
         revert Hu; apply df_pred_ext.
         Opaque le_lt_dec.
         simpl; intros [ | i ].
-        - replace (0-S n) with 0 by omega; auto.
-        - replace (S i - S n) with (i-n) by omega. 
+        - replace (0-S n) with 0 by lia; auto.
+        - replace (S i - S n) with (i-n) by lia. 
           simpl; destruct (le_lt_dec (S n) (S i)); 
-            destruct (le_lt_dec n i); auto; omega.
+            destruct (le_lt_dec n i); auto; lia.
       * exists (fun i => pi (S i)).
         rewrite df_pred_exst; exists (pi 0).
         revert Hpi; apply df_pred_ext.
         intros [ | i ].
-        - replace (0-S n) with 0 by omega; simpl; auto.
-        - replace (S i - S n) with (i-n) by omega.
+        - replace (0-S n) with 0 by lia; simpl; auto.
+        - replace (S i - S n) with (i-n) by lia.
           Opaque le_lt_dec.
           simpl; destruct (le_lt_dec (S n) (S i)); 
-            destruct (le_lt_dec n i); auto; omega.
+            destruct (le_lt_dec n i); auto; lia.
   Qed.
 
 End multiple_exists.
@@ -809,10 +809,10 @@ Section dio_rel_finite_conj.
   Fact df_mconj_spec n f ν : df_pred (df_mconj n f) ν <-> forall i, i < n -> df_pred (f i) ν.
   Proof.
     revert f ν; induction n as [ | n IHn ]; intros f v; simpl df_mconj.
-    + rewrite df_true_spec; split; auto; intros; omega.
+    + rewrite df_true_spec; split; auto; intros; lia.
     + rewrite df_pred_conj, IHn; split.
-      * intros (? & H2) [ | i ] ?; auto; apply H2; omega.
-      * intros H; split; intros; apply H; omega.
+      * intros (? & H2) [ | i ] ?; auto; apply H2; lia.
+      * intros H; split; intros; apply H; lia.
   Qed.
 
   Lemma dio_rel_finite_conj n (R : nat -> (nat -> nat) -> Prop) :

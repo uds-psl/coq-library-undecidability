@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega Permutation.
+Require Import List Arith Lia Permutation.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_list.
@@ -68,7 +68,7 @@ Section fp_quotient.
       set (T u v := ~ R x u /\ R u v).
       destruct (IHl m) with (R := T) as [ n cl rp Q1 Q2 Q3 ].
       * apply Permutation_length in G1; rewrite app_length in G1.
-        simpl; omega.
+        simpl; lia.
       * intros u; unfold T; split.
         - rewrite Hl.
           intros (F1 & w & [ -> | F2 ] & F3).

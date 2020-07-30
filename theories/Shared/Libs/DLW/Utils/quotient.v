@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega Permutation Relations Bool Eqdep_dec.
+Require Import List Arith Lia Permutation Relations Bool Eqdep_dec.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_nat.
@@ -135,7 +135,7 @@ Section ep_quotient.
         right; intros (G1 & G2).
         specialize (G2 p).
         rewrite Hr in G2, H3.
-        specialize (G2 H3); omega.
+        specialize (G2 H3); lia.
       * intros Hr; rewrite Hr in H3; tauto.
     + left; split; auto.
       intros m Hm.

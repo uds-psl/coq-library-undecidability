@@ -7,10 +7,10 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega Max.
+Require Import List Arith Lia Max.
 
 From Undecidability.Shared.Libs.DLW
-  Require Import Utils.utils Vec.pos Vec.vec Code.subcode Code.sss.
+  Require Import utils pos vec subcode sss.
 
 From Undecidability.MinskyMachines 
   Require Import env mm_defs mme_defs mme_utils.
@@ -74,7 +74,7 @@ Section mm_nat_pos.
   Fact mm_nat_bound_spec l : Forall (fun x => x < mm_nat_bound l) (mm_linstr_vars l).
   Proof.
     cut (Forall (fun x => x <= lmax (mm_linstr_vars l)) (mm_linstr_vars l)).
-    + apply Forall_impl; intros; unfold mm_nat_bound; omega.
+    + apply Forall_impl; intros; unfold mm_nat_bound; lia.
     + apply lmax_spec; auto.
   Qed.
 
@@ -82,7 +82,7 @@ Section mm_nat_pos.
   Proof.
     intros H; apply mm_nat_pos_full.
     generalize (mm_nat_bound_spec l).
-    apply Forall_impl; intros; omega.
+    apply Forall_impl; intros; lia.
   Qed.
 
 End mm_nat_pos.
@@ -213,7 +213,7 @@ Section ra_mm_comp.
     set (k := max (S n) (mm_nat_bound P)).
     assert (S n <= k) as H3 by apply le_max_l.
     assert { m | k = n+S m } as H4.
-    { exists (k-S n); omega. }
+    { exists (k-S n); lia. }
     clear H3.
     destruct H4 as (m & Hm).
     exists m.
@@ -225,10 +225,10 @@ Section ra_mm_comp.
         destruct (HP v (fun j => match le_lt_dec n j with left _ => 0 | right Hj => vec_pos v (nat2pos Hj) end))
           as [ H1 _ ].
         - intros p; generalize (pos2nat_prop p); intros H0; unfold get_env.
-          destruct (le_lt_dec n (pos2nat p)); try omega.
+          destruct (le_lt_dec n (pos2nat p)); try lia.
           f_equal; apply nat2pos_pos2nat.
         - intros j Hj; unfold get_env.
-          destruct (le_lt_dec n j); omega.
+          destruct (le_lt_dec n j); lia.
         - destruct (H1 _ H) as (e' & G1 & k & G2); auto.
           exists k.
           rewrite HQ in G2 at 1.
@@ -240,9 +240,9 @@ Section ra_mm_comp.
              ** intros p; rewrite G2, vec_pos_app_left, G1; simpl.
                 rewrite pos2nat_left.
                 generalize (pos2nat_prop p); intros G4.
-                rewrite get_set_env_neq; try omega.
+                rewrite get_set_env_neq; try lia.
                 unfold get_env.
-                destruct (le_lt_dec n (pos2nat p)); try omega.
+                destruct (le_lt_dec n (pos2nat p)); try lia.
                 f_equal; apply nat2pos_pos2nat.
              ** intros p.
                 rewrite vec_pos_app_right, G2, pos2nat_right; simpl snd.
@@ -252,19 +252,19 @@ Section ra_mm_comp.
                    rewrite G1; rew env.
                 -- rewrite pos2nat_nxt; simpl.
                    unfold vec_zero; rewrite vec_pos_set.
-                   rewrite G1, get_set_env_neq; try omega.
+                   rewrite G1, get_set_env_neq; try lia.
                    unfold get_env; simpl.
-                   destruct (le_lt_dec n (S (pos2nat p+n))); omega.
+                   destruct (le_lt_dec n (S (pos2nat p+n))); lia.
           ++ simpl; apply pos_left_right_rect.
              ** intros p; rewrite vec_pos_app_left, pos2nat_left.
                 unfold get_env.
                 generalize (pos2nat_prop p); intros.
-                destruct (le_lt_dec n (pos2nat p)); try omega; f_equal.
+                destruct (le_lt_dec n (pos2nat p)); try lia; f_equal.
                 rewrite nat2pos_pos2nat; auto.
              ** intros p; rewrite vec_pos_app_right, pos2nat_right.
                 unfold vec_zero; rewrite vec_pos_set.
                 unfold get_env.
-                destruct (le_lt_dec n (n+pos2nat p)); try omega.
+                destruct (le_lt_dec n (n+pos2nat p)); try lia.
       * intros v ((j,w) & (k & G1) & G2); simpl in G2.
         set (e1 := fun j => match le_lt_dec n j with left _ => 0 | right Hj => vec_pos v (nat2pos Hj) end).
         apply sss_steps_mm_pos_nat with (e1 := e1) in G1.
@@ -272,11 +272,11 @@ Section ra_mm_comp.
         apply HP with e1.
         - intros p; unfold e1, get_env.
           generalize (pos2nat_prop p); intros.
-          destruct (le_lt_dec n (pos2nat p)); try omega.
+          destruct (le_lt_dec n (pos2nat p)); try lia.
           rewrite nat2pos_pos2nat; auto.
         - intros p Hp.
           unfold e1, get_env.
-          destruct (le_lt_dec n p); omega.
+          destruct (le_lt_dec n p); lia.
         - rewrite HQ; exists (j,e2); split.
           ++ exists k; auto.
           ++ simpl; unfold mm_pos_nat; rew length; auto.
@@ -284,11 +284,11 @@ Section ra_mm_comp.
           ++ intros p; rewrite vec_pos_app_left, pos2nat_left.
              unfold e1, get_env.
              generalize (pos2nat_prop p); intros.
-             destruct (le_lt_dec n (pos2nat p)); try omega.
+             destruct (le_lt_dec n (pos2nat p)); try lia.
              rewrite nat2pos_pos2nat; auto.
           ++ intros p; rewrite vec_pos_app_right, pos2nat_right, vec_zero_spec.
              unfold e1, get_env.
-             destruct (le_lt_dec n (n+pos2nat p)); try omega.
+             destruct (le_lt_dec n (n+pos2nat p)); try lia.
   Qed.
 
 End ra_mm_comp.
