@@ -62,7 +62,7 @@ Section Fix_Sigma.
   | eval_step q' a q'' t' :
       halt M q = false ->
       trans M (q, Vector.map current t) = (q', a) ->
-      eval M q' (Vector.map2 (fun '(c,m) t''' => mv m (wr c t'''))  a t) q'' t' ->
+      eval M q' (Vector.map2 (fun tp '(c,m) => mv m (wr c tp)) t a) q'' t' ->
       eval M q t q'' t'.
 
 End Fix_Sigma.
@@ -72,8 +72,16 @@ Arguments leftof _ _ _, {_} _ _.
 Arguments rightof _ _ _, {_} _ _.
 Arguments midtape _ _ _ _, {_} _ _ _.
 
-Arguments eval {_ _} _ _ _ _ _.
+Arguments current {_} _.
+
+Arguments states {_ _} _.
+Arguments trans {_ _} _ _, {_ _ _} _.
 Arguments start {_ _} _.
+Arguments halt {_ _} _ _, {_ _ _} _.
+
+Arguments eval {_ _} _ _ _ _ _.
+
+Arguments Build_mTM {_ _ _} _ _ _.
 
 Definition HaltsTM {Σ: finType} {n: nat} (M : mTM Σ n) (t : Vector.t (tape Σ) n) :=
   exists q' t', eval M (start M) t q' t'.

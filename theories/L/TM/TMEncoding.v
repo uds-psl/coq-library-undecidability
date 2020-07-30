@@ -5,7 +5,7 @@ From Undecidability.L Require Import Functions.EqBool.
 From Undecidability Require Import TM.Util.VectorPrelim.
 
 
-From Undecidability Require Import TM.TM.
+From Undecidability Require Import TM.Util.TM_facts.
 Require Import PslBase.FiniteTypes.FinTypes.
 
 Import L_Notations.

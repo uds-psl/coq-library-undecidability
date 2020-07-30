@@ -87,6 +87,7 @@ Section LookupAssociativeList.
   Proof.
     eapply Realise_monotone.
     { unfold Lookup_Step. TM_Correct.
+      - eapply CaseList_Realise.
       - apply CompareValues_Realise with (1 := cX_injective).
       - apply MoveValue_Realise with (X := Y) (Y := X).
       - apply Reset_Realise with (X := X).
@@ -139,6 +140,8 @@ Section LookupAssociativeList.
   Proof.
     eapply TerminatesIn_monotone.
     { unfold Lookup_Step. TM_Correct.
+      - eapply CaseList_Realise.
+      - eapply CaseList_Terminates.
       - apply CompareValues_Realise with (1 := cX_injective).
       - apply CompareValues_TerminatesIn with (X := X).
       - apply MoveValue_Realise with (X := Y) (Y := X).

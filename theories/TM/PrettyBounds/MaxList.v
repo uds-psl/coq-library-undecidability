@@ -1,6 +1,6 @@
 (** * Maximum element in a list *)
 
-From Undecidability Require Export TM.Util.Prelim TM.ArithPrelim.
+From Undecidability Require Export TM.Util.Prelim TM.Util.ArithPrelim.
 
 (** ** Basic lemmas about upper bounds *)
 

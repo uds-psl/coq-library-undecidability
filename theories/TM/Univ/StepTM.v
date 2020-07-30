@@ -4,7 +4,7 @@ Require Import PslBase.Bijection. (* [injective] *)
 
 From Undecidability Require Import Basic.Duo.
 From Undecidability Require Import Code.CaseFin Code.CaseList Code.CasePair.
-From Undecidability Require Import Univ.LookupAssociativeListTM.
+From Undecidability Require Import TM.Univ.LookupAssociativeListTM.
 
 
 Local Arguments plus : simpl never.

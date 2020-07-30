@@ -314,15 +314,16 @@ TM/Code/BinNumbers/NTM.v
 # Multi-Tape to Single-Tape Compiler
 TM/Single/EncodeTapes.v
 TM/Single/StepTM.v
+TM/Reductions/L_to_mTM.v
 
 # Univ
 TM/Univ/LookupAssociativeListTM.v
 TM/Univ/StepTM.v
 
 # PrettyBounds
-# TM/PrettyBounds/PrettyBounds.v
-# TM/PrettyBounds/SizeBounds.v
-# TM/PrettyBounds/MaxList.v
+TM/PrettyBounds/PrettyBounds.v
+TM/PrettyBounds/SizeBounds.v
+TM/PrettyBounds/MaxList.v
 # TM/PrettyBounds/BaseCode.v
 # TM/PrettyBounds/UnivBounds.v
 # TM/PrettyBounds/M2MBounds.v
@@ -333,6 +334,9 @@ TM/Univ/StepTM.v
 
 # Multi-Univ Simulation Theorem
 # TM/PrettyBounds/MultiUnivTimeSpaceSimulation.v
+
+TM/Reductions/mTM_to_TM.v
+TM/TM_undec.v
 
 L/Prelim/MoreBase.v
 L/Prelim/ARS.v
@@ -666,6 +670,7 @@ Reductions/BSM_to_MM.v
 Reductions/PCPb_to_MM.v  
 Reductions/MM_to_ILL.v  
 Reductions/BPCP_to_FOL.v
+Reductions/BPCP_to_FOLFS.v
 Reductions/DIO_MUREC.v
 Reductions/H10C_RA_UNIV.v
 Reductions/MUREC_MM.v
@@ -673,6 +678,3 @@ Reductions/MM_to_FRACTRAN.v
 Reductions/FRACTRAN_to_MMA2.v
 Reductions/MM_to_MMA2.v
 Reductions/MMA2_to_MM2.v
-Reductions/L_to_mTM.v
-Reductions/mTM_to_TM.v
-Reductions/BPCP_to_FOLFS.v

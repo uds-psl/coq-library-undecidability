@@ -220,13 +220,13 @@ Definition Reach (S: (sigT (fun (sig:finType) =>
   reach c1 c2. 
      
 
-Definition single_TM_halt : { sig : _ & (mTM sig 1) * (tapes sig 1)}%type -> Prop :=
-  fun '(existT _ sig (M, t)) => exists outc k, TM.loopM (TM.initc M t) k = Some outc.
+Definition single_TM_halt : { sig : finType & (mTM sig 1) * (tapes sig 1)}%type -> Prop :=
+  fun '(existT _ sig (M, t)) => exists outc k, TM_facts.loopM (TM_facts.initc M t) k = Some outc.
 
-Equations (noeqns) f_config A B : TM.mconfig A B 1 -> mconfig A B :=
-  { f_config (TM.mk_mconfig a [|b|]) := mk_mconfig a b }.
+Equations (noeqns) f_config A B : TM_facts.mconfig A B 1 -> mconfig A B :=
+  { f_config (TM_facts.mk_mconfig a [|b|]) := mk_mconfig a b }.
 
-From Undecidability Require Import TM.Util.Prelim TM.TM.
+From Undecidability Require Import TM.Util.Prelim TM.Util.TM_facts.
 
 Lemma TM_conv : HaltTM 1 ⪯ Halt.
 Proof.
@@ -241,30 +241,32 @@ Proof.
     + exact h.
   - intros [sig [Q trans0 start0 halt0] t]. cbn. do 2 depelim t; cbn.
     unfold Halt. rewrite <- TM_terminates_Halt. cbn.
+    unfold HaltsTM at 1.
+    setoid_rewrite TM_eval_iff.
     split.
-    + intros (? & ? & ?). 
-      destruct x. do 2 depelim ctapes.
+    + intros (cstate & ctapes & x0 & H). 
+      do 2 depelim ctapes.
       eexists x0, (singleTM.mk_mconfig cstate h0). cbn in *. 
-      unfold loopM, TM.loopM in *.
+      unfold loopM, TM_facts.loopM in *.
       eapply loop_lift with (lift := @f_config _ _) in H.
       cbn in H. rewrite <- H.
       f_equal.
       * reflexivity.
       * intros. cbn. depelim x. depelim ctapes. depelim ctapes. reflexivity.
       * intros. cbn. depelim x. depelim ctapes. depelim ctapes. cbn in *.
-        unfold singleTM.step, TM.step. cbn.
+        unfold singleTM.step, TM_facts.step. cbn.
         unfold current_chars. cbn.
         destruct (trans0 (cstate0, [|current h1|])) eqn:E. 
         depelim t. depelim t. cbn. reflexivity.        
     + intros (? & ? & ?).
       cbn in *. destruct x0.
-      exists (TM.mk_mconfig cstate [| ctape0 |]), x.
-      unfold TM.loopM, singleTM.loopM in *.
-      eapply (loop_lift (lift := fun '(singleTM.mk_mconfig a b) => @TM.mk_mconfig sig Q 1 a [| b |])) in H. cbn.
+      exists cstate, [| ctape0 |], x.
+      unfold TM_facts.loopM, singleTM.loopM in *.
+      eapply (loop_lift (lift := fun '(singleTM.mk_mconfig a b) => @TM_facts.mk_mconfig sig Q 1 a [| b |])) in H. cbn.
       rewrite <- H.
       f_equal.
       * now intros [].
-      * intros [] ?. unfold singleTM.step, TM.step, current_chars.
+      * intros [] ?. unfold singleTM.step, TM_facts.step, current_chars.
         cbn. destruct (trans0 (cstate0, [|current ctape1|])) eqn:E.
         depelim t. depelim t. reflexivity.
 Qed. 

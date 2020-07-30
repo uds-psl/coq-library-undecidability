@@ -196,10 +196,12 @@ Proof.
       1-3: apply initValue_contains.
       intros i; destruct_fin i; cbn; apply initRight_isRight.
     }
-    hnf. eauto.
+    hnf. destruct outc as [q' t']. 
+    exists q', t'. eapply TM_eval_iff. eauto.
   }
   {
     intros (tout&k&HLoop).
+    eapply TM_eval_iff in HLoop as [n HLoop].
     pose proof Loop_Realise HLoop as HLoopRel. hnf in HLoopRel. modpon HLoopRel.
     1-3: apply initValue_contains_size.
     instantiate (1 := [|_;_;_;_;_;_;_;_|]).

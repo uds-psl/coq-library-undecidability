@@ -5,12 +5,12 @@ From Undecidability.L Require Export TM.TMEncoding.
 From Undecidability.L Require Import TM.TapeFuns.
 
 
-From Undecidability Require Import TM.TM.
+From Undecidability Require Import TM.Util.TM_facts.
 
-Definition Halt' Sigma n (M: mTM Sigma n) (start: mconfig Sigma (states M) n) :=
+Definition Halt' (Sigma : finType) n (M: mTM Sigma n) (start: mconfig Sigma (states M) n) :=
   exists (f: mconfig _ (states M) _), halt (cstate f)=true /\ exists k, loopM start k = Some f.
 
-Definition Halt :{ '(Sigma, n) : _ & mTM Sigma n & tapes Sigma n} -> _ :=
+Definition Halt :{ '(Sigma, n) : finType * nat & mTM Sigma n & tapes Sigma n} -> _ :=
   fun '(existT2 (Sigma, n) M tp) =>
     exists (f: mconfig _ (states M) _), halt (cstate f) = true
                                    /\ exists k, loopM (mk_mconfig (start M) tp) k = Some f.

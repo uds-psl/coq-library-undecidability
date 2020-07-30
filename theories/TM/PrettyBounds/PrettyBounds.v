@@ -1,7 +1,7 @@
 (** * Definitions and Automation for PrettyBounds *)
 
 From Undecidability Require Export TM.Util.Prelim.
-From Undecidability Require Export TM.ArithPrelim.
+From Undecidability Require Export TM.Util.ArithPrelim.
 From Undecidability Require Export TM.Code.Code.
 
 Arguments size {sig X cX}.

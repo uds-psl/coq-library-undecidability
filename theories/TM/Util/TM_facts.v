@@ -4,7 +4,7 @@
 
 From Undecidability Require Export TM.Util.Prelim TM.Util.Relations.
 Require Import PslBase.Vectors.Vectors.
-Require Export Undecidability.TM.Util.TM_facts.
+Require Export Undecidability.TM.TM.
        
 Section Fix_Sigma.
 
@@ -34,13 +34,6 @@ Section Fix_Sigma.
   Definition sizeOfmTapes n (v : tapes n) :=
     Vector.fold_left max 0 (Vector.map sizeOfTape v).
   
-  Definition current :=
-    fun (t : tape) =>
-      match t with
-      | midtape _ c _ => Some c
-      | _ => None
-      end.
-
   Definition left :=
     fun (t : tape) =>
       match t with
@@ -713,15 +706,7 @@ Section Semantics.
 
   Variable sig : finType.
   
-
-  Record mTM (n:nat) : Type :=
-    {
-      states : finType; (* states of the TM *)
-      trans : states * (Vector.t (option sig) n) -> states * (Vector.t ((option sig) * move) n); (* the transition function *)
-      start: states; (* the start state *)
-      halt : states -> bool (* decidable subset of halting states *)
-    }.
-
+  Notation mTM := (mTM sig).
   (** Labelled Multi-Tape Turing Machines *)
   Definition pTM (F: Type) (n:nat) := { M : mTM n & states M -> F }.
   
@@ -750,7 +735,7 @@ Section Semantics.
   
   (** Initial configuration *)  
   Definition initc n (M : mTM n) tapes :=
-    mk_mconfig (n := n) (@start n M) tapes.
+    mk_mconfig (n := n) (@start _ n M) tapes.
 
   (** *** Realisation *)
 
@@ -956,3 +941,41 @@ Smpl Create TM_Correct.
 (* This tactics apply exactly one tactic from the corresponding hint database *)
 Ltac TM_Correct_step := smpl TM_Correct.
 Ltac TM_Correct := repeat TM_Correct_step.
+
+(** ** TM evaluation and loop is equivalent  *)
+
+Lemma Vector_map2_ext {A B C} (f g : A -> B -> C) n (v1 : Vector.t A n) (v2 : Vector.t B n) :
+  (forall a b, f a b = g a b) ->
+  Vector.map2 f v1 v2 = Vector.map2 g v1 v2.
+Proof.
+  intros H.
+  pattern n, v1, v2; revert n v1 v2.
+  eapply Vector.rect2.
+  - reflexivity.
+  - intros n v1 v2 IH a b. cbn. now rewrite H, IH.
+Qed.
+
+Lemma TM_eval_iff (Σ : finType) n (M : mTM Σ n) q t q' t' :
+  TM.eval M q t q' t' <-> exists n, loopM (M := M) (mk_mconfig q t) n = Some (mk_mconfig q' t').
+Proof.
+  split.
+  - induction 1 as [ | q t q' a q'' t' H0 H1 H2 [m IH]].
+    + exists 0. cbn. unfold haltConf. cbn. now rewrite H.
+    + exists (S m). cbn. unfold haltConf. cbn. rewrite H0.
+      unfold step. cbn. unfold current_chars.
+      rewrite H1. erewrite Vector_map2_ext.
+      * now rewrite IH.
+      * intros [] [[] []]; reflexivity.
+  - intros [k H].
+    induction k in q, t, H, q', t' |- *; cbn in H; unfold haltConf in H; cbn in H.
+    + destruct halt eqn:E; inv H. now econstructor.
+    + destruct halt eqn:E; inv H.
+      * now econstructor.
+      * unfold step in H1. cbn in H1.
+        destruct trans eqn:E2.
+        econstructor; [ eassumption .. | ].
+        eapply IHk. erewrite Vector_map2_ext.
+        -- now rewrite H1.
+        -- intros [] [[] []]; reflexivity.
+Qed.
+
