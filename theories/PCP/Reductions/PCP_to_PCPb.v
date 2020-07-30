@@ -6,8 +6,6 @@ Require Import Undecidability.PCP.Util.Facts.
 
 Require Import Undecidability.Problems.Reduction.
 
-Require Import Undecidability.Shared.Prelim.
-
 (** ** PCP reduces to BPCP *)
 
 (* natural numbers n to bitstrings of the form 1^n *)
@@ -116,9 +114,11 @@ Proof.
   induction A in B |- *; intros H; cbn.
   * firstorder.
   * intros ? [| H0]; subst.
-    -- unfold f. eapply in_map_iff. exists a.
+    - unfold f. eapply in_map_iff. exists a.
       constructor; eauto.
-    -- eapply IHA in H0; eauto. 
+      apply H; simpl; auto.
+    - eapply IHA in H0; eauto.
+      intros ? ?; apply H; simpl; auto. 
 Qed.
 
 Lemma f_g_subset B A : A <<= f B -> g A <<= B.
