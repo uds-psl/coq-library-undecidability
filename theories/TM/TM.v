@@ -12,7 +12,7 @@ Section Fix_Sigma.
   Inductive tape : Type :=
   | niltape : tape
   | leftof : Σ -> list Σ -> tape
-  | rightof : Σ -> list Σ -> tape    (* DLW: With not rightof :  list Σ -> Σ -> tape ? *)
+  | rightof : Σ -> list Σ -> tape    (* DLW: why not rightof :  list Σ -> Σ -> tape ? *)
   | midtape : list Σ -> Σ -> list Σ -> tape.
 
   Definition tapes n := Vector.t tape n.
@@ -21,7 +21,7 @@ Section Fix_Sigma.
       Each time you import TM, L, R and N become unusable
 
       I suggest longer constructors names, with possibly
-      *local* notation *)
+      *local* notations *)
 
   Inductive move : Type := L : move | R : move | N : move.
 
@@ -117,7 +117,7 @@ Arguments eval {_ _} _ _ _ _ _.
 
 Arguments Build_mTM {_ _ _} _ _ _.
 
-(* Is there a reason for not always using tapes Σ n below ? *)
+(* DLW: is there a reason for not always using tapes Σ n below ? *)
 
 Definition HaltsTM {Σ: finType} {n: nat} (M : mTM Σ n) (t : Vector.t (tape Σ) n) :=
   exists q' t', eval M (start M) t q' t'.
