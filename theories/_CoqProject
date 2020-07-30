@@ -241,13 +241,13 @@ H10/H10Z_undec.v
 
 
 # Basics
-TM/Prelim.v
-TM/Relations.v
-TM/TM.v
-TM/Halting.v
-TM/ArithPrelim.v
-TM/VectorPrelim.v
+TM/Util/Prelim.v
+TM/Util/Relations.v
+TM/Util/ArithPrelim.v
+TM/Util/VectorPrelim.v
 
+TM/TM.v
+TM/Util/TM_facts.v
 
 # Basic Machines
 TM/Basic/Basic.v
@@ -320,19 +320,19 @@ TM/Univ/LookupAssociativeListTM.v
 TM/Univ/StepTM.v
 
 # PrettyBounds
-TM/PrettyBounds/PrettyBounds.v
-TM/PrettyBounds/SizeBounds.v
-TM/PrettyBounds/MaxList.v
-TM/PrettyBounds/BaseCode.v
-TM/PrettyBounds/UnivBounds.v
-TM/PrettyBounds/M2MBounds.v
+# TM/PrettyBounds/PrettyBounds.v
+# TM/PrettyBounds/SizeBounds.v
+# TM/PrettyBounds/MaxList.v
+# TM/PrettyBounds/BaseCode.v
+# TM/PrettyBounds/UnivBounds.v
+# TM/PrettyBounds/M2MBounds.v
 
-TM/PrettyBounds/SpaceBounds.v
-TM/PrettyBounds/BaseCodeSpace.v
-TM/PrettyBounds/UnivSpaceBounds.v
+# TM/PrettyBounds/SpaceBounds.v
+# TM/PrettyBounds/BaseCodeSpace.v
+# TM/PrettyBounds/UnivSpaceBounds.v
 
 # Multi-Univ Simulation Theorem
-TM/MultiUnivTimeSpaceSimulation.v
+# TM/PrettyBounds/MultiUnivTimeSpaceSimulation.v
 
 L/Prelim/MoreBase.v
 L/Prelim/ARS.v
