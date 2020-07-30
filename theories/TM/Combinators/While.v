@@ -1,4 +1,4 @@
-From Undecidability Require Export TM.TM.
+From Undecidability Require Export TM.Util.TM_facts.
 Require Import PslBase.FiniteTypes.DepPairs EqdepFacts.
 
 Section While.

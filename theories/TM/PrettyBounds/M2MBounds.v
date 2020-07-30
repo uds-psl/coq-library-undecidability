@@ -6,7 +6,7 @@ From Undecidability Require Import TM.PrettyBounds.BaseCode.
 
 From Undecidability Require Import TM.Single.StepTM.
 From Undecidability Require Import TM.Single.EncodeTapes.
-From Undecidability Require Import TM.VectorPrelim.
+From Undecidability Require Import TM.Util.VectorPrelim.
 
 
 

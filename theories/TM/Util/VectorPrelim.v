@@ -1,4 +1,4 @@
-From Undecidability Require Import TM.TM.
+From Undecidability Require Import TM.Util.TM_facts.
 Require Import Lia.
 
 (*For compability:  A more cbn-friendly version of Vector.to_list *)

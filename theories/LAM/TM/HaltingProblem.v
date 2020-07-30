@@ -2,7 +2,7 @@
 
 From Undecidability Require Import ProgrammingTools LM_heap_def.
 From Undecidability.LAM Require Import TM.Alphabets TM.StepTM.
-From Undecidability.Problems Require Import TM.
+From Undecidability Require Import TM.TM.
 
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.

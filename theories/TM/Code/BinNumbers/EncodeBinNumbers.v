@@ -1,6 +1,6 @@
 (** * Encoding for binary numbers *)
 
-From Undecidability Require Import TM.Prelim Code.
+From Undecidability Require Import TM.Util.Prelim Code.
 From Undecidability Require Import ArithPrelim.
 From PslBase Require Export Bijection.
 Require Export BinNums. (* Warning: There also is a constructor called [N] for the type [move] *)

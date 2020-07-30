@@ -1,4 +1,4 @@
-From Undecidability Require Import TM.TM TM.Basic.Mono TM.Combinators.Combinators TM.Compound.Multi.
+From Undecidability Require Import TM.Util.TM_facts TM.Basic.Mono TM.Combinators.Combinators TM.Compound.Multi.
 Require Import List.
 From Undecidability Require Import TMTac.
 

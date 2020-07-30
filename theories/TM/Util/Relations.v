@@ -1,4 +1,4 @@
-Require Import PslBase.Base PslBase.FiniteTypes Undecidability.TM.Prelim.
+Require Import PslBase.Base PslBase.FiniteTypes Undecidability.TM.Util.Prelim.
 Require Import PslBase.Vectors.Vectors.
 
 (** * Relations *)

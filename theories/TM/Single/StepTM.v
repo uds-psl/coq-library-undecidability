@@ -3,7 +3,7 @@ From Undecidability Require Import ArithPrelim.
 
 From Undecidability Require Import TM.Compound.Shift.
 
-From Undecidability Require Import EncodeTapes TM.VectorPrelim.
+From Undecidability Require Import EncodeTapes TM.Util.VectorPrelim.
 Require Import FunInd.
 
 

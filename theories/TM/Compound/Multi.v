@@ -1,5 +1,5 @@
-From Undecidability Require Import TM.Prelim.
-From Undecidability Require Import TM.TM.
+From Undecidability Require Import TM.Util.Prelim.
+From Undecidability Require Import TM.Util.TM_facts.
 From Undecidability Require Import TM.Basic.Basic.
 From Undecidability Require Import TM.Combinators.Combinators.
 From Undecidability Require Import TM.Lifting.Lifting.

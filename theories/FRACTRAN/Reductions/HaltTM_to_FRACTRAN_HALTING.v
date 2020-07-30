@@ -1,6 +1,6 @@
 Require Import Undecidability.Synthetic.Undecidability.
 
-Require Import Undecidability.TM.Halting.
+Require Import Undecidability.TM.TM.
 
 From Undecidability.MinskyMachines 
   Require Import MM HaltTM_to_MM.

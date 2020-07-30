@@ -1,4 +1,4 @@
-From Undecidability Require Import TM.Prelim TM.Code.CodeTM.
+From Undecidability Require Import TM.Util.Prelim TM.Code.CodeTM.
 From Undecidability Require Import TM.Lifting.LiftAlphabet.
 
 

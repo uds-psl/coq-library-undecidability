@@ -1,9 +1,9 @@
 
             
 From Undecidability Require Import MaxList.
-From Undecidability Require Import TM.TM TM.Code.CodeTM.
+From Undecidability Require Import TM.Util.TM_facts TM.Code.CodeTM.
 
-From Undecidability Require Import TM.VectorPrelim.
+From Undecidability Require Import TM.Util.VectorPrelim.
 
 (* MOVE : this file contains general lemmas from is all over the place... *)
 

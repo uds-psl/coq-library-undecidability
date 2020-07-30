@@ -8,7 +8,7 @@ From Undecidability Require Import PrettyBounds PrettyBounds.SizeBounds MaxList.
 From Undecidability Require UnivBounds.
 From Undecidability Require UnivSpaceBounds.
 From Undecidability Require M2MBounds.
-From Undecidability Require Import TM.VectorPrelim.
+From Undecidability Require Import TM.Util.VectorPrelim.
 
 Require Import Derive.
 

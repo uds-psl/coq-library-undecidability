@@ -1,4 +1,4 @@
-From Undecidability Require Import TM.Prelim.
+From Undecidability Require Import TM.Util.Prelim.
 From Undecidability Require Import TM.Basic.Mono.
 From Undecidability Require Import TM.Combinators.Combinators.
 From Undecidability Require Import TM.Compound.TMTac TM.Compound.Multi.

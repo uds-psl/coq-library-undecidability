@@ -1,5 +1,5 @@
-From Undecidability.TM Require Import Single.StepTM Code.CodeTM.
-From Undecidability.Problems Require Import TM Reduction.
+From Undecidability.TM Require Import Single.StepTM Code.CodeTM TM.
+From Undecidability.Problems Require Import Reduction.
 Require Import Undecidability.Shared.Prelim.
 
 Lemma nTM_to_MTM n :

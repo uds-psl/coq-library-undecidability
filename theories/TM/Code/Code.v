@@ -1,4 +1,4 @@
-From Undecidability Require Import TM.Prelim.
+From Undecidability Require Import TM.Util.Prelim.
 Require Import Coq.Lists.List.
 Require Import PslBase.Bijection. (* [injective] *)
 

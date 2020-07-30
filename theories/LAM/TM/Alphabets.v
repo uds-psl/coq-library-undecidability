@@ -1,4 +1,4 @@
-From Undecidability Require Import TM.Prelim.
+From Undecidability Require Import TM.Util.Prelim.
 From Undecidability Require Import TM.Code.Code.
 From Undecidability Require Import LM_heap_def.
 

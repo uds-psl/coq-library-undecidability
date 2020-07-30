@@ -1,5 +1,5 @@
 Require Export Undecidability.Synthetic.Definitions Undecidability.Synthetic.ReducibilityFacts.
-Require Import Undecidability.TM.Halting.
+Require Import Undecidability.TM.TM.
 
 Definition undecidable {X} (p : X -> Prop) :=
   decidable p -> decidable (HaltTM 1).

@@ -650,7 +650,6 @@ HilbertCalculi/Reductions/MPCPb_to_HSC_AX.v
 
 #Legacy Problems
 Problems/FOL.v
-Problems/TM.v
 Problems/MM.v
 Problems/MM2.v
 Problems/BSM.v

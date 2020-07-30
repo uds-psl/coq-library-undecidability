@@ -4,7 +4,7 @@ Derive Signature for Vector.t.
 
 Require Import Undecidability.Shared.Prelim.
 
-From Undecidability Require Import TM.TM.
+From Undecidability Require Import TM.Util.TM_facts.
 From Undecidability Require Import Problems.Reduction.
 (** * TM to SRH *)
 
@@ -226,7 +226,7 @@ Definition single_TM_halt : { sig : _ & (mTM sig 1) * (tapes sig 1)}%type -> Pro
 Equations (noeqns) f_config A B : TM.mconfig A B 1 -> mconfig A B :=
   { f_config (TM.mk_mconfig a [|b|]) := mk_mconfig a b }.
 
-From Undecidability Require Import TM.Prelim Problems.TM.
+From Undecidability Require Import TM.Util.Prelim TM.TM.
 
 Lemma TM_conv : HaltTM 1 ⪯ Halt.
 Proof.
