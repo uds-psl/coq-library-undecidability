@@ -32,7 +32,18 @@ Section Fix_Sigma.
   | rightof : Σ -> list Σ -> tape
   | midtape : list Σ -> Σ -> list Σ -> tape.
 
+  (** The current function returns the current symbol, if there is one. If None is returned, this means that the head is on a part of the tape which has never been written before.  *)
+
+  Definition current (t : tape) : option Σ :=
+    match t with
+    | midtape _ a _ => Some a
+    | _ => None
+    end.
+
   Inductive move : Type := Lmove : move | Rmove : move | Nmove : move.
+
+  (** Moving to the left on leftof and to the right on rightof has no effect.
+   *)
 
   Definition mv (m : move) (t : tape) :=
     match m, t with
@@ -45,6 +56,8 @@ Section Fix_Sigma.
     | _, _ => t
     end.
 
+  (** The write function wr takes option Σ as argument. None indicates that nothing should be written. This is necessary because the current symbol might be None, i.e. one can not simply write the current symbol since it might not exist.  *)
+
   Definition wr (s : option Σ) (t : tape) : tape :=
     match s, t with
     | None, t => t
@@ -54,13 +67,15 @@ Section Fix_Sigma.
     | Some a, rightof l ls => midtape (l :: ls) a nil
     end.
 
-  Definition current (t : tape) :=
-    match t with
-    | midtape _ a _ => Some a
-    | _ => None
-    end.
-
 End Fix_Sigma.
+
+(** Differences to traditional presentations:
+
+The tape representation and the implementation of mv is different to presentations of Turing machines in the literature. Moving to the right while on a rightof tape is the identity. One can obtain the more traditional behaviour by assuming a blank symbol as part of the alphabet and always writing a blank when the current symbol is None.
+
+This also means that moving n steps to the right, and then n steps to the left does not yield the same tape, since the moves to the right might have been uneffective. With an explicit blank symbol, moving n steps to the right while always writing the current symbol and the blank if current is None, and the moving n steps to the left is semantically the identity, but still not syntactically.
+
+*)
 
 Arguments niltape _, {_}.
 Arguments leftof _ _ _, {_} _ _.
