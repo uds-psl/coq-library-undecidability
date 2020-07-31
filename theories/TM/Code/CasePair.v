@@ -51,10 +51,10 @@ Section CasePair.
       ).
 
   Definition CasePair : pTM sigPair^+ unit 2 :=
-    LiftTapes (WriteMove (inl STOP) L) [|Fin1|];;
-    LiftTapes (MoveToSymbol stopAfterFirst id;; Move L) [|Fin0|];;
+    LiftTapes (WriteMove (inl STOP) Lmove) [|Fin1|];;
+    LiftTapes (MoveToSymbol stopAfterFirst id;; Move Lmove) [|Fin0|];;
     CopySymbols_L stopAtStart;;
-    LiftTapes (MoveToSymbol stopAfterFirst id;; Move L;; Write (inl START)) [|Fin0|].
+    LiftTapes (MoveToSymbol stopAfterFirst id;; Move Lmove;; Write (inl START)) [|Fin0|].
 
   Lemma CasePair_Realise : CasePair ⊨ CasePair_Rel.
   Proof.
@@ -171,7 +171,7 @@ Section CasePair.
 
 
   Definition Constr_pair : pTM sigPair^+ unit 2 :=
-    LiftTapes (MoveRight _;; Move L) [|Fin0|];;
+    LiftTapes (MoveRight _;; Move Lmove) [|Fin0|];;
     CopySymbols_L stopAtStart.
 
 
@@ -234,7 +234,7 @@ Section CasePair.
 
   Definition Snd : pTM sigPair^+ unit 1 :=
     MoveToSymbol stopAfterFirst id;;
-    Move L;;
+    Move Lmove;;
     Write (inl START).
 
 

@@ -19,14 +19,14 @@ Section Mk_Mono.
     - apply fin.
   Defined.
 
-  Variable (F : finType) (R : Rel (tape sig) (F * tape sig)).
+  Variable (F : finType) (Rmove : Rel (tape sig) (F * tape sig)).
 
   Definition Mk_R_p : Rel (tapes sig 1) (F * tapes sig 1) :=
-      fun tps1 '(p, tps2) => R (tps1[@Fin0]) (p, tps2[@Fin0]).
+      fun tps1 '(p, tps2) => Rmove (tps1[@Fin0]) (p, tps2[@Fin0]).
 
 End Mk_Mono.
 
-Arguments Mk_R_p { sig F } ( R ) x y /.
+Arguments Mk_R_p { sig F } ( Rmove ) x y /.
 
 
 
@@ -65,7 +65,7 @@ Section DoAct_Derived.
   Variable c : sig. (* for Write *)
   Variable (D : move). (* for Move *)
 
-  Definition Write : pTM sig unit 1 := DoAct (Some c, N).
+  Definition Write : pTM sig unit 1 := DoAct (Some c, Nmove).
 
   Definition Write_Rel : pRel sig unit 1 :=
     Mk_R_p (ignoreParam (fun t t' => t' = midtape (left t) c (right t))).
@@ -128,7 +128,7 @@ Section CaseChar.
 
   Definition CaseChar_TM : mTM sig 1 :=
     {|
-      trans := fun '(_, sym) => (Some (f sym[@Fin0]), [| (None, N) |]);
+      trans := fun '(_, sym) => (Some (f sym[@Fin0]), [| (None, Nmove) |]);
       start := None;
       halt := fun s => match s with
                     | None => false

@@ -23,10 +23,10 @@ Section LiftTapes_Rel.
   Definition not_index (i : Fin.t n) : Prop :=
     ~ Vector.In i I.
 
-  Variable (R : pRel sig F m).
+  Variable (Rmove : pRel sig F m).
 
   Definition LiftTapes_select_Rel : pRel sig F n :=
-    fun t '(y, t') => R (select I t) (y, select I t').
+    fun t '(y, t') => Rmove (select I t) (y, select I t').
 
   Definition LiftTapes_eq_Rel : pRel sig F n :=
     ignoreParam (fun t t' => forall i : Fin.t n, not_index i -> t'[@i] = t[@i]).
@@ -41,9 +41,9 @@ Section LiftTapes_Rel.
 End LiftTapes_Rel.
 
 Arguments not_index : simpl never.
-Arguments LiftTapes_select_Rel {sig F m n} I R x y /.
+Arguments LiftTapes_select_Rel {sig F m n} I Rmove x y /.
 Arguments LiftTapes_eq_Rel {sig F m n} I x y /.
-Arguments LiftTapes_Rel {sig F m n } I R x y /.
+Arguments LiftTapes_Rel {sig F m n } I Rmove x y /.
 Arguments LiftTapes_T {sig m n} I T x y /.          
 
 
@@ -173,7 +173,7 @@ Section LiftNM.
   Definition LiftTapes_trans :=
     fun '(q, sym ) =>
       let (q', act) := trans (m := projT1 pM) (q, select I sym) in
-      (q', fill_default I (None, N) act).
+      (q', fill_default I (None, Nmove) act).
 
   Definition LiftTapes_TM : mTM sig n :=
     {|
@@ -192,7 +192,7 @@ Section LiftNM.
   Proof. unfold current_chars, select. apply Vector.eq_nth_iff; intros i ? <-. now simpl_tape. Qed.
 
   Lemma doAct_select (t : tapes sig n) act :
-    doAct_multi (select I t) act = select I (doAct_multi t (fill_default I (None, N) act)).
+    doAct_multi (select I t) act = select I (doAct_multi t (fill_default I (None, Nmove) act)).
   Proof.
     unfold doAct_multi, select. apply Vector.eq_nth_iff; intros i ? <-. simpl_tape.
     unfold fill_default. f_equal. symmetry. now apply fill_correct_nth.
@@ -242,9 +242,9 @@ Section LiftNM.
     intros. now apply LiftTapes_comp_eq.
   Qed.
 
-  Lemma LiftTapes_Realise (R : Rel (tapes sig m) (F * tapes sig m)) :
-    pM ⊨ R ->
-    LiftTapes ⊨ LiftTapes_Rel I R.
+  Lemma LiftTapes_Realise (Rmove : Rel (tapes sig m) (F * tapes sig m)) :
+    pM ⊨ Rmove ->
+    LiftTapes ⊨ LiftTapes_Rel I Rmove.
   Proof.
     intros H. split.
     - apply (H (select I t) k (selectConf outc)).
@@ -276,9 +276,9 @@ Section LiftNM.
     pose proof (@LiftTapes_unlift k (initc LiftTapes_TM initTapes) outc H) as (X&X'&->). eauto.
   Qed.
 
-  Lemma LiftTapes_RealiseIn R k :
-    pM ⊨c(k) R ->
-    LiftTapes ⊨c(k) LiftTapes_Rel I R.
+  Lemma LiftTapes_RealiseIn Rmove k :
+    pM ⊨c(k) Rmove ->
+    LiftTapes ⊨c(k) LiftTapes_Rel I Rmove.
   Proof.
     intros (H1&H2) % Realise_total. apply Realise_total. split.
     - now apply LiftTapes_Realise.
@@ -300,15 +300,15 @@ Section AddTapes.
 
   Variable n : nat.
 
-  Eval simpl in Fin.L 4 (Fin1 : Fin.t 10).
-  Check @Fin.L.
-  Search Fin.L.
-  Eval simpl in Fin.R 4 (Fin1 : Fin.t 10).
-  Check @Fin.R.
-  Search Fin.R.
+  Eval simpl in Fin.Lmove 4 (Fin1 : Fin.t 10).
+  Check @Fin.Lmove.
+  Search Fin.Lmove.
+  Eval simpl in Fin.Rmove 4 (Fin1 : Fin.t 10).
+  Check @Fin.Rmove.
+  Search Fin.Rmove.
 
   Lemma Fin_L_fillive (m : nat) (i1 i2 : Fin.t n) :
-    Fin.L m i1 = Fin.L m i2 -> i1 = i2.
+    Fin.Lmove m i1 = Fin.Lmove m i2 -> i1 = i2.
   Proof.
     induction n as [ | n' IH].
     - dependent destruct i1.
@@ -317,7 +317,7 @@ Section AddTapes.
   Qed.
 
   Lemma Fin_R_fillive (m : nat) (i1 i2 : Fin.t n) :
-    Fin.R m i1 = Fin.R m i2 -> i1 = i2.
+    Fin.Rmove m i1 = Fin.Rmove m i2 -> i1 = i2.
   Proof.
     induction m as [ | n' IH]; cbn.
     - auto.
@@ -326,7 +326,7 @@ Section AddTapes.
 
 
   Definition add_tapes (m : nat) : Vector.t (Fin.t (m + n)) n :=
-    Vector.map (fun k => Fin.R m k) (Fin_initVect _).
+    Vector.map (fun k => Fin.Rmove m k) (Fin_initVect _).
 
 
   Lemma add_tapes_dupfree (m : nat) : dupfree (add_tapes m).
@@ -337,7 +337,7 @@ Section AddTapes.
   Qed.
 
   Lemma add_tapes_select_nth (X : Type) (m : nat) (ts : Vector.t X (m + n)) k :
-    (select (add_tapes m) ts)[@k] = ts[@Fin.R m k].
+    (select (add_tapes m) ts)[@k] = ts[@Fin.Rmove m k].
   Proof.
     unfold add_tapes. unfold select. erewrite !VectorSpec.nth_map; eauto.
     cbn. now rewrite Fin_initVect_nth.
@@ -345,7 +345,7 @@ Section AddTapes.
 
 
   Definition app_tapes (m : nat) : Vector.t (Fin.t (n + m)) n :=
-    Vector.map (Fin.L _) (Fin_initVect _).
+    Vector.map (Fin.Lmove _) (Fin_initVect _).
 
   Lemma app_tapes_dupfree (m : nat) : dupfree (app_tapes m).
   Proof.
@@ -355,7 +355,7 @@ Section AddTapes.
   Qed.
 
   Lemma app_tapes_select_nth (X : Type) (m : nat) (ts : Vector.t X (n + m)) k :
-    (select (app_tapes m) ts)[@k] = ts[@Fin.L m k].
+    (select (app_tapes m) ts)[@k] = ts[@Fin.Lmove m k].
   Proof.
     unfold app_tapes. unfold select. erewrite !VectorSpec.nth_map; eauto.
     cbn. now rewrite Fin_initVect_nth.
@@ -460,8 +460,8 @@ Eval cbn in ltac:(do_n_times_fin 3 ltac:(fun a => let x := eval simpl in (a : Fi
 Ltac simpl_not_in_add_tapes_step H m' :=
   let H' := fresh "HIndex_" H in
   unshelve epose proof (H ltac:(getFin m') _) as H';
-  [ hnf; unfold add_tapes, Fin_initVect; cbn [tabulate Vector.map Fin.L Fin.R]; vector_not_in
-  | cbn [Fin.L Fin.R] in H'
+  [ hnf; unfold add_tapes, Fin_initVect; cbn [tabulate Vector.map Fin.Lmove Fin.Rmove]; vector_not_in
+  | cbn [Fin.Lmove Fin.Rmove] in H'
   ].
 
 Ltac simpl_not_in_add_tapes_loop H m :=
@@ -497,9 +497,9 @@ Ltac simpl_not_in_add_tapes := repeat simpl_not_in_add_tapes_one.
 
 Ltac simpl_not_in_app_tapes_step H n m' :=
   let H' := fresh "HIndex_" H in
-  unshelve epose proof (H (Fin.R n ltac:(getFin m')) _) as H';
-  [ hnf; unfold app_tapes, Fin_initVect; cbn [tabulate Vector.map Fin.L Fin.R]; vector_not_in
-  | cbn [Fin.L Fin.R] in H'
+  unshelve epose proof (H (Fin.Rmove n ltac:(getFin m')) _) as H';
+  [ hnf; unfold app_tapes, Fin_initVect; cbn [tabulate Vector.map Fin.Lmove Fin.Rmove]; vector_not_in
+  | cbn [Fin.Lmove Fin.Rmove] in H'
   ].
 
 Ltac simpl_not_in_app_tapes_loop H n m :=

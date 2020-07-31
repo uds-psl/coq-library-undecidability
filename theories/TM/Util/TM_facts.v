@@ -86,7 +86,7 @@ Section Fix_Sigma.
   (** Declare finiteness of [move] *)
   Global Instance move_finC : finTypeC (EqType move).
   Proof.
-    apply (FinTypeC (enum := [L; R; N])).
+    apply (FinTypeC (enum := [Lmove; Rmove; Nmove])).
     intros []; now cbv.
   Qed.
 
@@ -126,9 +126,9 @@ Section Fix_Sigma.
 
   Definition tape_move (t : tape) (m : move) :=
     match m with
-    | R => tape_move_right t
-    | L => tape_move_left t
-    | N => t
+    | Rmove => tape_move_right t
+    | Lmove => tape_move_left t
+    | Nmove => t
     end.
 
   (** *** Rewriting Lemmas *)
@@ -143,11 +143,11 @@ Section Fix_Sigma.
 
   Lemma tapeToList_move_R (t : tape) :
     tapeToList (tape_move_right t) = tapeToList t.
-  Proof. apply (tapeToList_move t R). Qed.
+  Proof. apply (tapeToList_move t Rmove). Qed.
 
   Lemma tapeToList_move_L (t : tape) :
     tapeToList (tape_move_left t) = tapeToList t.
-  Proof. apply (tapeToList_move t L). Qed.
+  Proof. apply (tapeToList_move t Lmove). Qed.
 
   Lemma tape_move_right_left (t : tape) (s : sig) :
     current t = Some s ->
@@ -251,12 +251,12 @@ Arguments tapes (sig % type) (n % nat).
 
 (** ** Nop Action *)
 
-(** (∅, N)^n *)
+(** (∅, Nmove)^n *)
 Section Nop_Action.
   Variable n : nat.
   Variable sig : finType.
 
-  Definition nop_action := Vector.const (@None sig, N) n.
+  Definition nop_action := Vector.const (@None sig, Nmove) n.
 
   Lemma doAct_nop tapes :
     doAct_multi tapes nop_action = tapes.
@@ -372,7 +372,7 @@ Section MirrorTape.
     erewrite !Vector.nth_map in H; eauto. now apply mirror_tape_injective.
   Qed.
   
-  Definition mirror_move (D : move) : move := match D with | N => N | L => R | R => L end.
+  Definition mirror_move (D : move) : move := match D with | Nmove => Nmove | Lmove => Rmove | Rmove => Lmove end.
 
   Lemma mirror_move_involution (D : move) : mirror_move (mirror_move D) = D.
   Proof. now destruct D. Qed.
@@ -742,16 +742,16 @@ Section Semantics.
   (** Parametrised relations *)
   Definition pRel (sig : Type) (F: Type) (n : nat) := Rel (tapes sig n) (F * tapes sig n).
 
-  (** A (labelled) machine [M] realises a (labelled) relation [R], if: for every tape vectors [t], if [M] with [t] terminates in a configuration [c], then [R (t), (projT2 M (cstate c), ctapes c)]. That means that the pair of the input tape vectors, the labelof the state in that the machine terminated, and the output tape, must be in the relation [R]. *)
+  (** A (labelled) machine [M] realises a (labelled) relation [Rmove], if: for every tape vectors [t], if [M] with [t] terminates in a configuration [c], then [Rmove (t), (projT2 M (cstate c), ctapes c)]. That means that the pair of the input tape vectors, the labelof the state in that the machine terminated, and the output tape, must be in the relation [Rmove]. *)
   
-  Definition Realise n F (pM : pTM n F) (R : pRel sig n F) :=
-    forall t k outc, loopM (initc (projT1 pM) t) k = Some outc -> R t (projT2 pM (cstate outc), ctapes outc).
+  Definition Realise n F (pM : pTM n F) (Rmove : pRel sig n F) :=
+    forall t k outc, loopM (initc (projT1 pM) t) k = Some outc -> Rmove t (projT2 pM (cstate outc), ctapes outc).
 
-  Notation "M '⊨' R" := (Realise M R) (no associativity, at level 30, format "M  '⊨'  R").
+  Notation "M '⊨' Rmove" := (Realise M Rmove) (no associativity, at level 30, format "M  '⊨'  Rmove").
 
   (** Realisation is monotone *)
-  Lemma Realise_monotone n (F : finType) (pM : pTM F n) R R' :
-    pM ⊨ R' -> R' <<=2 R -> pM ⊨ R.
+  Lemma Realise_monotone n (F : finType) (pM : pTM F n) Rmove Rmove' :
+    pM ⊨ Rmove' -> Rmove' <<=2 Rmove -> pM ⊨ Rmove.
   Proof. firstorder. Qed.
 
 
@@ -784,12 +784,12 @@ Section Semantics.
   
 
   (** Realisation plus termination in constant time *)
-  Definition RealiseIn n (F : finType) (pM : pTM F n) (R : pRel sig F n) (k : nat) :=
-    forall input, exists outc, loopM (initc (projT1 pM) input) k = Some outc /\ R input ((projT2 pM (cstate outc)), ctapes outc).
-  Notation "M '⊨c(' k ')' R" := (RealiseIn M R k) (no associativity, at level 45, format "M  '⊨c(' k ')'  R").
+  Definition RealiseIn n (F : finType) (pM : pTM F n) (Rmove : pRel sig F n) (k : nat) :=
+    forall input, exists outc, loopM (initc (projT1 pM) input) k = Some outc /\ Rmove input ((projT2 pM (cstate outc)), ctapes outc).
+  Notation "M '⊨c(' k ')' Rmove" := (RealiseIn M Rmove k) (no associativity, at level 45, format "M  '⊨c(' k ')'  Rmove").
 
-  Lemma RealiseIn_monotone n (F : finType) (pM : pTM F n) (R R' : pRel sig F n) k k' :
-    pM ⊨c(k') R' -> k' <= k -> R' <<=2 R -> pM ⊨c(k) R.
+  Lemma RealiseIn_monotone n (F : finType) (pM : pTM F n) (Rmove Rmove' : pRel sig F n) k k' :
+    pM ⊨c(k') Rmove' -> k' <= k -> Rmove' <<=2 Rmove -> pM ⊨c(k) Rmove.
   Proof.
     unfold RealiseIn. intros H1 H2 H3 input.
     specialize (H1 input) as (outc & H1). exists outc.
@@ -798,8 +798,8 @@ Section Semantics.
     - intuition.
   Qed.
 
-  Lemma RealiseIn_monotone' n (F : finType) (pM : pTM F n) (R : pRel sig F n) k k' :
-    pM ⊨c(k') R -> k' <= k -> pM ⊨c(k) R.
+  Lemma RealiseIn_monotone' n (F : finType) (pM : pTM F n) (Rmove : pRel sig F n) k k' :
+    pM ⊨c(k') Rmove -> k' <= k -> pM ⊨c(k) Rmove.
   Proof.
     intros H1 H2. eapply RealiseIn_monotone. eapply H1. assumption. firstorder.
   Qed.
@@ -812,8 +812,8 @@ Section Semantics.
     pose proof loop_injective H1 H2 as <-. exists outc. split; hnf; eauto.
   Qed.
   
-  Lemma Realise_total n (F : finType) (pM : { M : mTM n & states M -> F }) R k :
-    pM ⊨ R /\ projT1 pM ↓ (fun _ i => k <= i) <-> pM ⊨c(k) R.
+  Lemma Realise_total n (F : finType) (pM : { M : mTM n & states M -> F }) Rmove k :
+    pM ⊨ Rmove /\ projT1 pM ↓ (fun _ i => k <= i) <-> pM ⊨c(k) Rmove.
   Proof.
     split.
     - intros (HR & Ht) t. edestruct (Ht t k). cbn; omega. eauto.
@@ -830,12 +830,12 @@ Section Semantics.
         exists x. eapply loop_monotone; eauto.
   Qed.
 
-  Lemma RealiseIn_Realise n (F : finType) (pM : pTM F n) R k :
-    pM ⊨c(k) R -> pM ⊨ R.
+  Lemma RealiseIn_Realise n (F : finType) (pM : pTM F n) Rmove k :
+    pM ⊨c(k) Rmove -> pM ⊨ Rmove.
   Proof. now intros (?&?) % Realise_total. Qed.
 
-  Lemma RealiseIn_TerminatesIn n (F : finType) (pM : { M : mTM n & states M -> F }) R k :
-    pM ⊨c(k) R -> projT1 pM ↓ (fun tin l => k <= l). 
+  Lemma RealiseIn_TerminatesIn n (F : finType) (pM : { M : mTM n & states M -> F }) Rmove k :
+    pM ⊨c(k) Rmove -> projT1 pM ↓ (fun tin l => k <= l). 
   Proof.
     intros HRel. hnf. intros tin l HSteps. hnf in HRel. specialize (HRel tin) as (outc&HLoop&Rloop).
     exists outc. eapply loop_monotone; eauto.
@@ -894,8 +894,8 @@ End Semantics.
 Notation "'(' M ';' labelling ')'" := (existT (fun x => states x -> _) M labelling).
 
 (** Notations for semantic of concrete Turing machines *)
-Notation "M '⊨' R" := (Realise M R) (no associativity, at level 60, format "M  '⊨'  R").
-Notation "M '⊨c(' k ')' R" := (RealiseIn M R k) (no associativity, at level 45, format "M  '⊨c(' k ')'  R").
+Notation "M '⊨' Rmove" := (Realise M Rmove) (no associativity, at level 60, format "M  '⊨'  Rmove").
+Notation "M '⊨c(' k ')' Rmove" := (RealiseIn M Rmove k) (no associativity, at level 45, format "M  '⊨c(' k ')'  Rmove").
 Notation "M '↓' t" := (TerminatesIn M t) (no associativity, at level 60, format "M  '↓'  t").
 
 

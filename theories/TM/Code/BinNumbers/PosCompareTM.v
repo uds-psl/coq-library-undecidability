@@ -208,7 +208,7 @@ Qed.
 
 
 Definition Compare := GoToLSB_start@[|Fin0|];; GoToLSB_start@[|Fin1|];;
-                       Switch (Compare_Loop Eq) (fun (r : comparison) => Return ((Move L)@[|Fin0|];; (Move L)@[|Fin1|]) r).
+                       Switch (Compare_Loop Eq) (fun (r : comparison) => Return ((Move Lmove)@[|Fin0|];; (Move Lmove)@[|Fin1|]) r).
 
 Definition Compare_Rel : pRel sigPos^+ comparison 2 :=
   fun tin '(yout, tout) =>

@@ -849,7 +849,7 @@ Section Append.
 
 
   Definition App' : pTM sigList^+ unit 2 :=
-    LiftTapes (MoveRight _;; Move L;; Move L) [|Fin0|];;
+    LiftTapes (MoveRight _;; Move Lmove;; Move Lmove) [|Fin0|];;
     CopySymbols_L stop.
 
   Lemma App'_Realise : App' ⊨ App'_Rel.

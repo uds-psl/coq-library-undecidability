@@ -5,53 +5,43 @@ Require Import Vector List.
 
 Unset Implicit Arguments.
 
+(** * Turing machines  *)
+
+(** The definition of Turing machines is due to Asperti & Ricciotti's "A formalization of multi-tape Turing machines" (2015) and the accompanying Matita code. *)  
+
 Section Fix_Sigma.
 
+  (** The alphabet type *)
   Variable Σ : Type.
+
+  (** ** Tapes
+
+     Tapes are either
+     - empty (niltape),
+     - non-empty with the head to the left of the content (leftof),
+     - non-empty with the head to the right of the content (rightof),
+     - or non-empty with the head on the content (midtape).
+
+      The representation does not allow for blank symbols, instead a blank symbol has to be part of the alphabet Σ. The seeming redundancy allows for a unique representation of every tape and no well-formedness predicate is needed.
+
+   *)
 
   Inductive tape : Type :=
   | niltape : tape
   | leftof : Σ -> list Σ -> tape
-  | rightof : Σ -> list Σ -> tape    (* DLW: why not rightof :  list Σ -> Σ -> tape ? *)
+  | rightof : Σ -> list Σ -> tape
   | midtape : list Σ -> Σ -> list Σ -> tape.
 
-  Definition tapes n := Vector.t tape n.
-
-  (** DLW: Are you sure you want one letter constructors ?
-      Each time you import TM, L, R and N become unusable
-
-      I suggest longer constructors names, with possibly
-      *local* notations *)
-
-  Inductive move : Type := L : move | R : move | N : move.
-
-  (** DLW: A small visual to explain the intuition
-      left/right/mid tape would be good 
-
-      The mv scheme here implies that written cells
-      must be contiguous, 
-      ie you cannot move right of a rightof tape
-      nor left of a leftof tape
-
-      a tape like ..... _ _ a b _ c d _ _ f e _ _ ...
-      would not be allowed
-
-      Not sure this corresponds to usual literature?
-      It is my understanding that TM can skip over empty cells
-
-      Using the l name for cells contents is unfortunate
-      because it suggests a list ...
-
-    *)
+  Inductive move : Type := Lmove : move | Rmove : move | Nmove : move.
 
   Definition mv (m : move) (t : tape) :=
     match m, t with
-    | L, rightof l ls => midtape ls l nil
-    | L, midtape nil m rs => leftof m rs
-    | L, midtape (l :: ls) m rs => midtape ls l (m :: rs)
-    | R, leftof r rs => midtape nil r rs
-    | R, midtape ls m nil => rightof m ls
-    | R, midtape ls m (r :: rs) => midtape (m :: ls) r rs
+    | Lmove, rightof l ls => midtape ls l nil
+    | Lmove, midtape nil m rs => leftof m rs
+    | Lmove, midtape (l :: ls) m rs => midtape ls l (m :: rs)
+    | Rmove, leftof r rs => midtape nil r rs
+    | Rmove, midtape ls m nil => rightof m ls
+    | Rmove, midtape ls m (r :: rs) => midtape (m :: ls) r rs
     | _, _ => t
     end.
 
@@ -70,13 +60,35 @@ Section Fix_Sigma.
     | _ => None
     end.
 
-  (* DLW: I suppose that finType below is much more workable that ns and states = Fin.t ns
-     but on the other hand, it requires understanding finType which belongs to
-     PslBase 
+End Fix_Sigma.
 
-     I guess it is possible to show that any finType is isomorphic to Fin.t ns 
-     for some ns. May be a reference to such a result would help *)
+Arguments niltape _, {_}.
+Arguments leftof _ _ _, {_} _ _.
+Arguments rightof _ _ _, {_} _ _.
+Arguments midtape _ _ _ _, {_} _ _ _.
 
+Arguments current {_} _.
+
+Arguments wr {_} _ _.
+Arguments mv {_} _.
+
+Section Fix_Alphabet.
+
+  (** The alphabet type, assumed as finite type *)
+  Variable Σ : finType.
+
+   (** finType is defined as a pair of a type with decidable equality, and a duplicate-free list of all elements of the type.
+
+      We have
+
+      Lemma finType_equiv (X : finType) :
+         {n & {f : X -> Fin.t n & { g : Fin.t n -> X | (forall x, g (f x) = x) /\ forall i, f (g i) = i }}}.
+
+      in PslBase.FiniteTypes.FinTypesEquiv.
+
+   *)
+  
+  (** The number of tapes  *)
   Variable n : nat.
 
   (* DLW: I suggest state instead of states, trans and start feels strange with states. *)
@@ -89,7 +101,7 @@ Section Fix_Sigma.
     halt : states -> bool (* decidable subset of halting states *)
     }.
 
-  Inductive eval (M : mTM) (q : states M) (t : Vector.t tape n) : states M -> Vector.t tape n -> Prop :=
+  Inductive eval (M : mTM) (q : states M) (t : Vector.t (tape Σ) n) : states M -> Vector.t (tape Σ) n -> Prop :=
   | eval_halt :
       halt M q = true ->
       eval M q t q t
@@ -99,14 +111,7 @@ Section Fix_Sigma.
       eval M q' (Vector.map2 (fun tp '(c,m) => mv m (wr c tp)) t a) q'' t' ->
       eval M q t q'' t'.
 
-End Fix_Sigma.
-
-Arguments niltape _, {_}.
-Arguments leftof _ _ _, {_} _ _.
-Arguments rightof _ _ _, {_} _ _.
-Arguments midtape _ _ _ _, {_} _ _ _.
-
-Arguments current {_} _.
+End Fix_Alphabet.
 
 Arguments states {_ _} _.
 Arguments trans {_ _} _ _, {_ _ _} _.
@@ -126,5 +131,5 @@ Arguments HaltsTM _ _ _ _, {_ _} _ _.
 Definition HaltTM (n : nat) : {Σ : finType & mTM Σ n & Vector.t (tape Σ) n} -> Prop :=
   fun '(existT2 _ _ Σ M t) => HaltsTM M t.
 
-Definition HaltMTM : {'(n,Σ) : nat * finType & mTM Σ n & tapes Σ n} -> Prop :=
+Definition HaltMTM : {'(n,Σ) : nat * finType & mTM Σ n & Vector.t (tape Σ) n} -> Prop :=
   fun '(existT2 _ _ (n, Σ) M t) => HaltsTM M t.

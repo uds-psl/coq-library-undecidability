@@ -8,10 +8,10 @@ Section CaseFin.
   Hypothesis defSig : inhabitedC sig.
 
   Definition CaseFin : pTM sig^+ sig 1 :=
-    Move R;;
+    Move Rmove;;
     Switch (ReadChar)
     (fun s => match s with
-           | Some (inr x) => Return (Move R) x
+           | Some (inr x) => Return (Move Rmove) x
            | _ => Return (Nop) default
            end).
 

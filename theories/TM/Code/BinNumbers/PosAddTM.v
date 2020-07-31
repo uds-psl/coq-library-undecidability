@@ -303,7 +303,7 @@ Qed.
 (* We still assume that [p0<=p1] *)
 Definition Add' : pTM sigPos^+ unit 2 :=
   GoToLSB_start@[|Fin0|];; GoToLSB_start@[|Fin1|];;
-  (Add_Loop false)@[|Fin0; Fin1|];; (Move L)@[|Fin0|];; (Move L)@[|Fin1|].
+  (Add_Loop false)@[|Fin0; Fin1|];; (Move Lmove)@[|Fin0|];; (Move Lmove)@[|Fin1|].
 
 
 Definition Add'_Rel : pRel sigPos^+ unit 2 :=

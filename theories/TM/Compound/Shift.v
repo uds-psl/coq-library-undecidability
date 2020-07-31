@@ -22,8 +22,8 @@ Section Shift.
       match current tin[@Fin0] with
       | Some c =>
         if f c
-        then tout[@Fin0] = doAct tin[@Fin0] (Some s, N) /\ yout = inr tt
-        else tout[@Fin0] = doAct tin[@Fin0] (Some s, R) /\ yout = inl c
+        then tout[@Fin0] = doAct tin[@Fin0] (Some s, Nmove) /\ yout = inr tt
+        else tout[@Fin0] = doAct tin[@Fin0] (Some s, Rmove) /\ yout = inl c
       | None => tout[@Fin0] = tape_write tin[@Fin0] (Some s) /\ yout = inr tt
       end.
 
@@ -32,7 +32,7 @@ Section Shift.
            (fun c => match c with
                   | Some c =>
                     if f c then Return (Write s) (inr tt)
-                    else Return (WriteMove s R) (inl c)
+                    else Return (WriteMove s Rmove) (inl c)
                   | None => Return (Write s) (inr tt)
                   end).
 
@@ -57,8 +57,8 @@ Section Shift.
   Function Shift_fun (s : sig) (t : tape sig) {measure Shift_fun_measure t} :=
     match current t with
     | Some c =>
-      if f c then doAct t (Some s, N)
-      else Shift_fun c (doAct t (Some s, R))
+      if f c then doAct t (Some s, Nmove)
+      else Shift_fun c (doAct t (Some s, Rmove))
     | None => tape_write t (Some s)
     end.
   Proof. intros. destruct t; cbn in *; inv teq. unfold Shift_fun_measure. simpl_tape. omega. Qed.
@@ -176,8 +176,8 @@ Section Shift.
   Function Shift_L_fun (s : sig) (t : tape sig) {measure Shift_L_fun_measure t} :=
     match current t with
     | Some c =>
-      if f c then doAct t (Some s, N)
-      else Shift_L_fun c (doAct t (Some s, L))
+      if f c then doAct t (Some s, Nmove)
+      else Shift_L_fun c (doAct t (Some s, Lmove))
     | None => tape_write t (Some s)
     end.
   Proof. intros. destruct t; cbn in *; inv teq. unfold Shift_L_fun_measure. simpl_tape. omega. Qed.

@@ -173,7 +173,7 @@ Definition GoToLSB_Rel : pRel sigPos^+ unit 1 :=
       | 1 => atHSB tout[@Fin0] p
       end.
 
-Definition GoToLSB : pTM sigPos^+ unit 1 := MoveRight _;; Move L.
+Definition GoToLSB : pTM sigPos^+ unit 1 := MoveRight _;; Move Lmove.
 
 Lemma tam_I p :
   forall x : boundary + sigPos, x el map inr (tl (encode_pos p ++ [sigPos_xI])) -> isStop x = false.
@@ -217,7 +217,7 @@ Qed.
 
 
 (* Go to LSB from [START] *)
-Definition GoToLSB_start : pTM sigPos^+ unit 1 := Move R;; GoToLSB.
+Definition GoToLSB_start : pTM sigPos^+ unit 1 := Move Rmove;; GoToLSB.
 
 Definition GoToLSB_start_Rel : pRel sigPos^+ unit 1 :=
   fun tin '(_, tout) =>
@@ -253,7 +253,7 @@ Definition movedToLeft (t : tape sigPos^+) (p : positive) (b : bool) (bits : lis
 
 Lemma atBit_writeMove_movedToLeft (t : tape sigPos^+) (p : positive) (b b' : bool) (bits : list bool) :
   atBit t p b' bits ->
-  movedToLeft (tape_move (tape_write t (Some (bitToSigPos' b))) L) p b bits.
+  movedToLeft (tape_move (tape_write t (Some (bitToSigPos' b))) Lmove) p b bits.
 Proof.
   intros (ls&->).
   destruct p; cbn in *.
@@ -269,7 +269,7 @@ Definition SetBitAndMoveLeft_Rel (b : bool) : pRel sigPos^+ unit 1 :=
       atBit tin[@Fin0] p b' bits ->
       movedToLeft tout[@Fin0] p b bits.
 
-Definition SetBitAndMoveLeft (b : bool) : pTM sigPos^+ unit 1 := WriteMove (bitToSigPos' b) L.
+Definition SetBitAndMoveLeft (b : bool) : pTM sigPos^+ unit 1 := WriteMove (bitToSigPos' b) Lmove.
 
 Lemma SetBitAndMoveLeft_Sem (b : bool) : SetBitAndMoveLeft b ⊨c(1) SetBitAndMoveLeft_Rel b.
 Proof.
@@ -291,7 +291,7 @@ Definition PushHSB_Rel (b : bool) : pRel sigPos^+ unit 1 :=
   fun tin '(_, tout) => forall p, atHSB tin[@Fin0] p -> atHSB tout[@Fin0] (pushHSB p b).
 
 (* Don't forget that we also have to write a new [START] symbol *)
-Definition PushHSB (b : bool) : pTM sigPos^+ unit 1 := WriteMove (bitToSigPos' b) L;; WriteMove (inr sigPos_xH) L;; WriteMove (inl START) R.
+Definition PushHSB (b : bool) : pTM sigPos^+ unit 1 := WriteMove (bitToSigPos' b) Lmove;; WriteMove (inr sigPos_xH) Lmove;; WriteMove (inl START) Rmove.
 
 Definition PushHSB_steps : nat := 5.
 

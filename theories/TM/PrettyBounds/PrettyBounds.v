@@ -276,12 +276,12 @@ Proof.
 Qed.
 
 
-Ltac pose_nice L H c:=
-  pose proof (proj2_sig L) as H;
+Ltac pose_nice Lmove H c:=
+  pose proof (proj2_sig Lmove) as H;
   unfold dominatedWith in H;
-  pose (c := proj1_sig L);
+  pose (c := proj1_sig Lmove);
   match type of H with
-    context C [proj1_sig L] =>
+    context C [proj1_sig Lmove] =>
     let H' := context C[c] in
     change H' in H
   end.

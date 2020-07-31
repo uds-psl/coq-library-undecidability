@@ -21,7 +21,7 @@ Definition ShiftLeft_Rel (bit : bool) : pRel sigPos^+ unit 1 :=
 Definition ShiftLeft (bit : bool) : pTM sigPos^+ unit 1 :=
   GoToLSB_start;;
   Shift_L (@isStart _) (bitToSigPos' bit);;
-  Move L;;
+  Move Lmove;;
   Write (inl START).
 
 Lemma ShiftLeft_Realise (bit : bool) : ShiftLeft bit ⊨ ShiftLeft_Rel bit.
@@ -138,7 +138,7 @@ Proof.
 Qed.
 
 
-Definition ShiftLeft_num : pTM sigPos^+ unit 2 := GoToLSB_start@[|Fin0|];; ShiftLeft_num_Loop;; (Move L)@[|Fin0|].
+Definition ShiftLeft_num : pTM sigPos^+ unit 2 := GoToLSB_start@[|Fin0|];; ShiftLeft_num_Loop;; (Move Lmove)@[|Fin0|].
 
 Definition ShiftLeft_num_Rel : pRel sigPos^+ unit 2 :=
   fun tin '(yout, tout) =>
@@ -168,12 +168,12 @@ Qed.
 (** *** Check whether the number is one *)
 
 Definition IsOne : pTM sigPos^+ bool 1 :=
-  Move R;; Move R;;
+  Move Rmove;; Move Rmove;;
   Switch (ReadChar)
   (fun (c : option sigPos^+) =>
      match c with
-     | Some (inr _) => Return (Move L;; Move L) false
-     | Some (inl _) => Return (Move L;; Move L) true
+     | Some (inr _) => Return (Move Lmove;; Move Lmove) false
+     | Some (inl _) => Return (Move Lmove;; Move Lmove) true
      | _ => Return Nop default (* undefined *)
      end).
 
@@ -254,7 +254,7 @@ Definition ShiftRight'_Rel : pRel sigPos^+ unit 1 :=
       tout[@Fin0] ≃ removeLSB p.
 
 Definition ShiftRight' : pTM sigPos^+ unit 1 :=
-  Move R;; (* Go to the HSB *)
+  Move Rmove;; (* Go to the HSB *)
   Shift (@isStop _) (inl START);; (* Shift it with a new [START] symbol. This will overwrite [STOP] with the last bit *)
   Write (inl STOP);; (* Overwrite this last bit with [STOP] again *)
   MoveLeft _. (* Go to the new [START] *)
@@ -399,7 +399,7 @@ Proof.
 Qed.
 
 
-Definition ShiftRight_num : pTM sigPos^+ unit 2 := GoToLSB_start@[|Fin0|];; ShiftRight_num_Loop;; (Move L)@[|Fin0|].
+Definition ShiftRight_num : pTM sigPos^+ unit 2 := GoToLSB_start@[|Fin0|];; ShiftRight_num_Loop;; (Move Lmove)@[|Fin0|].
 
 Definition ShiftRight_num_Rel : pRel sigPos^+ unit 2 :=
   fun tin '(yout, tout) =>

@@ -609,9 +609,9 @@ Section ToSingleTape.
     Definition tape_dir (t : tape sig) : option move :=
       match t with
       | niltape _ => None
-      | leftof _ _ => Some L
-      | midtape _ _ _ => Some N
-      | rightof _ _ => Some R
+      | leftof _ _ => Some Lmove
+      | midtape _ _ _ => Some Nmove
+      | rightof _ _ => Some Rmove
       end.
 
     Definition isMarked' (s : sigSim) : bool :=
@@ -668,9 +668,9 @@ Section ToSingleTape.
       Switch ReadChar
       (fun (c : option sigSim) =>
          match c with
-         | Some (inr (sigList_X (RightBlank true))) => Return Nop (Some R)
-         | Some (inr (sigList_X (LeftBlank true))) => Return Nop (Some L)
-         | Some (inr (sigList_X (MarkedSymbol _))) => Return Nop (Some N)
+         | Some (inr (sigList_X (RightBlank true))) => Return Nop (Some Rmove)
+         | Some (inr (sigList_X (LeftBlank true))) => Return Nop (Some Lmove)
+         | Some (inr (sigList_X (MarkedSymbol _))) => Return Nop (Some Nmove)
          | Some (inr (sigList_X NilBlank)) => Return Nop (None)
          | _ => Return Nop None
          end).
@@ -1249,9 +1249,9 @@ Section ToSingleTape.
 
     Definition ReadCurrentSymbols :=
       match (finMin_opt n) with
-      | None => Return (Move R) (Vector.const None n) (* Nothing to do, just move from the start to the nil symbol *)
+      | None => Return (Move Rmove) (Vector.const None n) (* Nothing to do, just move from the start to the nil symbol *)
       | Some min =>
-        Move R;; ReadCurrentSymbols_Loop (Vector.const None n, min)
+        Move Rmove;; ReadCurrentSymbols_Loop (Vector.const None n, min)
       end.
     
     Definition ReadCurrentSymbols_Rel : pRel sigSim (Vector.t (option sig) n) 1 :=
@@ -1466,32 +1466,32 @@ Section ToSingleTape.
 
     Definition DoWrite (d : option move) (s : sig) : pTM sigSim unit 1 :=
       match d with
-      | Some L => (* [leftof] ~> shift left and change boundary symbol to [LeftBlank false] *)
+      | Some Lmove => (* [leftof] ~> shift left and change boundary symbol to [LeftBlank false] *)
         Shift_L (fun _ => false) (inl UNKNOWN);;
         MoveToSymbol isReturnMarker id;;
-        WriteMove (inr (sigList_X (MarkedSymbol s))) L;;
-        WriteMove (inr (sigList_X (LeftBlank false))) R
-      | Some R => (* [rightof] ~> shift right and change boundary symbol to [RightBlank false] *)
+        WriteMove (inr (sigList_X (MarkedSymbol s))) Lmove;;
+        WriteMove (inr (sigList_X (LeftBlank false))) Rmove
+      | Some Rmove => (* [rightof] ~> shift right and change boundary symbol to [RightBlank false] *)
         Shift (fun _ => false) (inl UNKNOWN);;
         MoveToSymbol_L isReturnMarker id;;
-        WriteMove (inr (sigList_X (MarkedSymbol s))) R;;
-        WriteMove (inr (sigList_X (RightBlank false))) L
-      | Some N => (* [midtape] ~> just write the symbol *)
+        WriteMove (inr (sigList_X (MarkedSymbol s))) Rmove;;
+        WriteMove (inr (sigList_X (RightBlank false))) Lmove
+      | Some Nmove => (* [midtape] ~> just write the symbol *)
         Write (inr (sigList_X (MarkedSymbol s)))
       | None => (* [midtape] ~> we need to shift left and right and insert [RightBlank false] and [LeftBlank false] *)
         Shift (fun _ => false) (inl UNKNOWN);;
         MoveToSymbol_L isReturnMarker id;;
         Shift_L (fun _ => false) (inr (sigList_X (MarkedSymbol s)));;
         MoveToSymbol isReturnMarker id;;
-        WriteMove (inr (sigList_X (LeftBlank false))) R;;
-        Move R;;
-        WriteMove (inr (sigList_X (RightBlank false))) L
+        WriteMove (inr (sigList_X (LeftBlank false))) Rmove;;
+        Move Rmove;;
+        WriteMove (inr (sigList_X (RightBlank false))) Lmove
       end.
 
     Lemma DoWrite_Realise (d : option move) (s : sig) : DoWrite d s ⊨ DoWrite_Rel d s.
     Proof.
       unfold DoWrite. destruct d as [ [ | | ] | ].
-      { (* Some L (leftof) *) eapply Realise_monotone. TM_Correct.
+      { (* Some Lmove (leftof) *) eapply Realise_monotone. TM_Correct.
         intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons. unfold atCons_current in *. TMSimp.
         clear H1 tmid1. clear H2.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp. simpl_tape.
@@ -1503,7 +1503,7 @@ Section ToSingleTape.
         - rewrite map_rev, rev_involutive.
           intros ? [ [ (?&<-&?) % in_map_iff | [ <- | ] ] % in_app_iff | [ <- | ] ] % in_app_iff; cbn; auto.
       }
-      { (* Some R (rightof) *) eapply Realise_monotone. TM_Correct.
+      { (* Some Rmove (rightof) *) eapply Realise_monotone. TM_Correct.
         intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons. unfold atCons_current in *. TMSimp.
         clear H1 tmid1. clear H2.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp. simpl_tape.
@@ -1513,7 +1513,7 @@ Section ToSingleTape.
         - hnf. cbn. f_equal. f_equal. rewrite map_id, rev_app_distr; cbn. now rewrite rev_involutive.
         - intros ? [ (?&<-&?) % in_rev % in_map_iff | [ <- | ] ] % in_app_iff; cbn; auto.
       }
-      { (* Some N (midtape) *) eapply Realise_monotone. TM_Correct.
+      { (* Some Nmove (midtape) *) eapply Realise_monotone. TM_Correct.
         intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons. unfold atCons_current in *. TMSimp.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp.
         unfold atCons_current_midtape in HCons. TMSimp. clear HCons tin H tout. cbn.
@@ -1538,9 +1538,9 @@ Section ToSingleTape.
 
     Definition DoWrite_steps (d : option move) (tps1 tps2 : list (tape sig)) :=
       match d with
-      | Some L => 37 + 8 * length (encode_list _ tps1)
-      | Some R => 37 + 8 * length (encode_list _ tps2)
-      | Some N => 1
+      | Some Lmove => 37 + 8 * length (encode_list _ tps1)
+      | Some Rmove => 37 + 8 * length (encode_list _ tps2)
+      | Some Nmove => 1
       | None => 73 + 8 * length (encode_list _ tps1) + 8 * length (encode_list _ tps2)
       end.
 
@@ -1550,7 +1550,7 @@ Section ToSingleTape.
     Lemma DoWrite_Terminates (d : option move) (s : sig) : projT1 (DoWrite d s) ↓ DoWrite_T d.
     Proof.
       unfold DoWrite. destruct d as [ [ | | ] | ].
-      { (* [d = Some L] (leftof) *) eapply TerminatesIn_monotone. TM_Correct.
+      { (* [d = Some Lmove] (leftof) *) eapply TerminatesIn_monotone. TM_Correct.
         intros tin k (tps1&tps2&tp&HDir&HCons&Hk). cbn in *.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir.
         unfold atCons_current_leftof in HCons. TMSimp; clear HCons tin.
@@ -1563,7 +1563,7 @@ Section ToSingleTape.
         { omega. }
         intros ? [] ?. exists 1, 1. repeat split. reflexivity. reflexivity. intros _ _ _. reflexivity.
       }
-      { (* [d = Some R] (rightof) *) eapply TerminatesIn_monotone. TM_Correct.
+      { (* [d = Some Rmove] (rightof) *) eapply TerminatesIn_monotone. TM_Correct.
         intros tin k (tps1&tps2&tp&HDir&HCons&Hk). cbn in *.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir.
         unfold atCons_current_rightof in HCons. TMSimp; clear HCons tin.
@@ -1576,7 +1576,7 @@ Section ToSingleTape.
         { omega. }
         intros ? [] ?. exists 1, 1. repeat split. reflexivity. reflexivity. intros _ _ _. reflexivity.
       }
-      { (* [d = Somme N] (midtape) *) eapply TerminatesIn_monotone. TM_Correct.
+      { (* [d = Somme Nmove] (midtape) *) eapply TerminatesIn_monotone. TM_Correct.
         intros tin k (tps1&tps2&tp&HDir&HCons&Hk). cbn in *. assumption.
       }
       { (* [d = None] (niltapp) *) eapply TerminatesIn_monotone. TM_Correct.
@@ -1644,20 +1644,20 @@ Section ToSingleTape.
     (* this should take constant time *)
     Definition DoMove (d : option move) (m : move) : pTM sigSim unit 1 :=
       match d with
-      | Some L => match m with
-                 | N => Nop
-                 | L => Nop
-                 | R => ToggleMarked;; Move R;; ToggleMarked
+      | Some Lmove => match m with
+                 | Nmove => Nop
+                 | Lmove => Nop
+                 | Rmove => ToggleMarked;; Move Rmove;; ToggleMarked
                  end
-      | Some R => match m with
-                 | N => Nop
-                 | R => Nop
-                 | L => ToggleMarked;; Move L;; ToggleMarked
+      | Some Rmove => match m with
+                 | Nmove => Nop
+                 | Rmove => Nop
+                 | Lmove => ToggleMarked;; Move Lmove;; ToggleMarked
                  end
-      | Some N => match m with
-                 | N => Nop
-                 | R => ToggleMarked;; Move R;; ToggleMarked
-                 | L => ToggleMarked;; Move L;; ToggleMarked
+      | Some Nmove => match m with
+                 | Nmove => Nop
+                 | Rmove => ToggleMarked;; Move Rmove;; ToggleMarked
+                 | Lmove => ToggleMarked;; Move Lmove;; ToggleMarked
                  end
       | None => Nop
       end.
@@ -1696,7 +1696,7 @@ Section ToSingleTape.
       }
       { (* midtape *)
         destruct m; cbn.
-        { (* [L] *)
+        { (* [Lmove] *)
           eapply RealiseIn_monotone. TM_Correct; apply ToggleMarked_Sem. omega. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
           destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp.
           unfold atCons_current_midtape, atCons_current_midtape in *. TMSimp.
@@ -1705,7 +1705,7 @@ Section ToSingleTape.
           { specialize H1 with (1 := eq_refl). TMSimp. hnf. f_equal. }
           { specialize H1 with (1 := eq_refl). TMSimp. hnf. f_equal. }
         }
-        { (* [R] *)
+        { (* [Rmove] *)
           eapply RealiseIn_monotone. TM_Correct; apply ToggleMarked_Sem. omega. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
           destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp.
           unfold atCons_current_midtape in *. TMSimp.
@@ -1714,7 +1714,7 @@ Section ToSingleTape.
           { specialize H1 with (1 := eq_refl). TMSimp. hnf. f_equal. }
           { specialize H1 with (1 := eq_refl). TMSimp. hnf. f_equal. }
         }
-        { (* [N] *)
+        { (* [Nmove] *)
           eapply RealiseIn_monotone. TM_Correct; apply ToggleMarked_Sem. omega. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
           destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp.
           unfold atCons_current_midtape in *. TMSimp. f_equal. }
@@ -1741,7 +1741,7 @@ Section ToSingleTape.
 
     Definition DoAction (d : option move) (a : option sig * move) : pTM sigSim unit 1 :=
       match (fst a) with
-      | Some s => DoWrite d s;; DoMove (Some N) (snd a) (* after wrting, we have a [midtape] *)
+      | Some s => DoWrite d s;; DoMove (Some Nmove) (snd a) (* after wrting, we have a [midtape] *)
       | None => DoMove d (snd a)
       end.
 
@@ -2049,9 +2049,9 @@ Section ToSingleTape.
 
     Definition DoActions : pTM sigSim unit 1 :=
       match finMin_opt n with
-      | None => Move R (* Nothing to do, just move from the start to the nil symbol *)
+      | None => Move Rmove (* Nothing to do, just move from the start to the nil symbol *)
       | Some i =>
-        Move R;; (* Move from start to first cons *)
+        Move Rmove;; (* Move from start to first cons *)
         DoActions_Loop i
       end.
 

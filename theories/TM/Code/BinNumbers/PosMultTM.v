@@ -240,7 +240,7 @@ Definition Mult : pTM sigPos^+ unit 3 :=
   ShiftLeft_num @[|Fin0; Fin2|];;
   GoToLSB_start @[|Fin0|];;
   Mult_Loop;;
-  Move L @[|Fin0|];;
+  Move Lmove @[|Fin0|];;
   ShiftRight_num @[|Fin0; Fin1|].
 
 

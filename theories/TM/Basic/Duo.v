@@ -12,7 +12,7 @@ Section CaseChar2.
 
   Definition CaseChar2_TM : mTM sig 2 :=
     {|
-      trans := fun '(_, sym) => (Some (f sym[@Fin0] sym[@Fin1]), [| (None, N); (None, N) |]);
+      trans := fun '(_, sym) => (Some (f sym[@Fin0] sym[@Fin1]), [| (None, Nmove); (None, Nmove) |]);
       start := None;
       halt := fun s => match s with
                     | None => false

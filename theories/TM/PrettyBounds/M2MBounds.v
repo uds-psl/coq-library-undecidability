@@ -52,13 +52,13 @@ Smpl Add 12
 
 Lemma dominatedWith_match_move (c0 c1 c2 z : nat)
       (f0 f1 f2 : nat) (m : move) :
-  (m = L -> f0 <=(c0) z) ->
-  (m = R -> f1 <=(c1) z) ->
-  (m = N -> f2 <=(c2) z) ->
+  (m = Lmove -> f0 <=(c0) z) ->
+  (m = Rmove -> f1 <=(c1) z) ->
+  (m = Nmove -> f2 <=(c2) z) ->
   match m with
-  | L => f0
-  | R => f1
-  | N => f2
+  | Lmove => f0
+  | Rmove => f1
+  | Nmove => f2
   end <=(max c0 (max c1 c2)) z.
 Proof with reflexivity + apply Nat.mul_le_mono; eauto 4 using le_trans, Nat.le_max_r,Nat.le_max_l.
   intros H1 H2 H3. unfold dominatedWith in *.
@@ -70,7 +70,7 @@ Qed.
 
 Smpl Add 12
      match goal with
-     | [ |- (match _ with L => _ | _ => _ end) <=(_) _ ] =>
+     | [ |- (match _ with Lmove => _ | _ => _ end) <=(_) _ ] =>
        let H := fresh in
        (eapply dominatedWith_match_move; [ intros H | intros H | intros H]); try rewrite !H
      end : domWith_match.
@@ -222,9 +222,9 @@ Section ToSingleTape_bounds.
         DoWrite_steps d tps1 tps2
         <=(c)
            match d with
-           | Some L => size tps1
-           | Some R => size tps2
-           | Some N => 1
+           | Some Lmove => size tps1
+           | Some Rmove => size tps2
+           | Some Nmove => 1
            | None => size tps1 + size tps2
            end }.
   Proof.

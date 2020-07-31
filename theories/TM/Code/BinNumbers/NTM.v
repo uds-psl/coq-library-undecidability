@@ -1,4 +1,4 @@
-(** * Machines on [N] (binary natural numbers) *)
+(** * Machines on [Nmove] (binary natural numbers) *)
 
 From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import BinNumbers.EncodeBinNumbers.
@@ -12,16 +12,16 @@ Local Open Scope N_scope.
 
 (** ** Write a number *)
 
-Definition WriteNumber (n : N) : pTM sigN^+ unit 1 := WriteValue (encode n).
+Definition WriteNumber (n : Nmove) : pTM sigN^+ unit 1 := WriteValue (encode n).
 
-Definition WriteNumber_Rel (n : N) : pRel sigN^+ unit 1:=
+Definition WriteNumber_Rel (n : Nmove) : pRel sigN^+ unit 1:=
   fun tin '(_, tout) =>
     isRight tin[@Fin0] ->
     tout[@Fin0] ≃ n.
 
-Definition WriteNumber_steps (n : N) : nat := 2 * Encode_N_size n + 3.
+Definition WriteNumber_steps (n : Nmove) : nat := 2 * Encode_N_size n + 3.
 
-Lemma WriteNumber_Sem (n : N) : WriteNumber n ⊨c(WriteNumber_steps n) WriteNumber_Rel n.
+Lemma WriteNumber_Sem (n : Nmove) : WriteNumber n ⊨c(WriteNumber_steps n) WriteNumber_Rel n.
 Proof.
   eapply RealiseIn_monotone.
   { unfold WriteNumber. TM_Correct. }
@@ -74,7 +74,7 @@ Definition CaseN : pTM sigN^+ bool 1 := If (CaseOption _) (Return Nop true) (Ret
 
 Definition CaseN_Rel : pRel sigN^+ bool 1 :=
   fun tin '(yout, tout) =>
-    forall (x : N),
+    forall (x : Nmove),
       tin[@Fin0] ≃ x ->
       match yout, x with
       | true, Npos p => tout[@Fin0] ≃ p
@@ -107,9 +107,9 @@ Definition Increment_N : pTM sigN^+ unit 1 := If (CaseOption _) (Increment ⇑ _
 
 Definition Increment_N_Rel : pRel sigN^+ unit 1 :=
   fun tin '(_, tout) =>
-    forall (n : BinNums.N),
+    forall (n : BinNums.Nmove),
       tin[@Fin0] ≃ n ->
-      tout[@Fin0] ≃ N.succ n.
+      tout[@Fin0] ≃ Nmove.succ n.
 
 Lemma Increment_N_Realise : Increment_N ⊨ Increment_N_Rel.
 Proof.
@@ -142,7 +142,7 @@ Definition Add'_N : pTM sigN^+ unit 2 :=
 
 Definition Add'_N_Rel : pRel sigN^+ unit 2 :=
   fun tin '(_, tout) =>
-    forall (x y : N),
+    forall (x y : Nmove),
       tin[@Fin0] ≃ x ->
       tin[@Fin1] ≃ y ->
       x <= y ->
@@ -169,7 +169,7 @@ Proof.
         split; eauto.
       + modpon H0. destruct y as [ | y]; cbn in *; auto.
         modpon H1.
-        specialize (H2 (N.pos x)). modpon H2.
+        specialize (H2 (Nmove.pos x)). modpon H2.
         split; auto.
     - modpon H. destruct x as [ | x]; cbn in *; auto. modpon H0. auto.
   }
@@ -185,7 +185,7 @@ Definition Add_N : pTM sigN^+ unit 3 :=
 
 Definition Add_N_Rel : pRel sigN^+ unit 3 :=
   fun tin '(_, tout) =>
-    forall (x y : N),
+    forall (x y : Nmove),
       tin[@Fin0] ≃ x ->
       tin[@Fin1] ≃ y ->
       isRight tin[@Fin2] ->
@@ -224,7 +224,7 @@ Qed.
 
 From Undecidability Require Import PosMultTM.
 
-Print N.mul.
+Print Nmove.mul.
 
 Definition Mult_N : pTM sigN^+ unit 3 :=
   If (CaseN @[|Fin0|])
@@ -235,7 +235,7 @@ Definition Mult_N : pTM sigN^+ unit 3 :=
 
 Definition Mult_N_Rel : pRel sigN^+ unit 3 :=
   fun tin '(yout, tout) =>
-    forall (x y : N),
+    forall (x y : Nmove),
       tin[@Fin0] ≃ x ->
       tin[@Fin1] ≃ y ->
       isRight tin[@Fin2] ->

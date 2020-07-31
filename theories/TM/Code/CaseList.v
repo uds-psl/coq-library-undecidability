@@ -28,27 +28,27 @@ Section CaseList.
   
 
   Definition Skip_cons : pTM (sigList sigX)^+ unit 1 :=
-    Move R;;
+    Move Rmove;;
     MoveToSymbol stop id.
 
 
   Definition M1 : pTM (sigList sigX)^+ unit 2 :=
     LiftTapes Skip_cons [|Fin0|];;
     LiftTapes (Write (inl STOP)) [|Fin1|];;
-    MovePar L L;;
+    MovePar Lmove Lmove;;
     CopySymbols_L stop;;
     LiftTapes (Write (inl START)) [|Fin1|].
 
   Definition CaseList : pTM (sigList sigX)^+ bool 2 :=
-    LiftTapes (Move R) [|Fin0|];;
+    LiftTapes (Move Rmove) [|Fin0|];;
     Switch (LiftTapes (ReadChar) [|Fin0|])
           (fun s => match s with
                  | Some (inr sigList_nil) => (* nil *)
-                   Return (LiftTapes (Move L) [|Fin0|]) false 
+                   Return (LiftTapes (Move Lmove) [|Fin0|]) false 
                  | Some (inr sigList_cons) => (* cons *)
                    M1;; 
                    LiftTapes Skip_cons [|Fin0|];;
-                   Return (LiftTapes (Move L;; Write (inl START)) [|Fin0|]) true
+                   Return (LiftTapes (Move Lmove;; Write (inl START)) [|Fin0|]) true
                  | _ => Return Nop default (* invalid input *)
                  end).
 
@@ -306,13 +306,13 @@ Section CaseList.
   (** ** [IsNil] *)
 
   Definition IsNil : pTM (sigList sigX)^+ bool 1 :=
-    Move R;;
+    Move Rmove;;
     Switch ReadChar
     (fun s =>
        match s with
        | Some (inr sigList_nil) =>
-         Return (Move L) true
-       | _ => Return (Move L) false
+         Return (Move Lmove) true
+       | _ => Return (Move Lmove) false
        end).
   
   Definition IsNil_Rel : pRel (sigList sigX)^+ bool 1 :=
@@ -351,7 +351,7 @@ Section CaseList.
   
   Definition Constr_nil : pTM (sigList sigX)^+ unit 1 := WriteValue [sigList_nil].
 
-  Goal Constr_nil = WriteMove (inl STOP) L;; WriteMove (inr sigList_nil) L;; Write (inl START).
+  Goal Constr_nil = WriteMove (inl STOP) Lmove;; WriteMove (inr sigList_nil) Lmove;; Write (inl START).
   Proof. reflexivity. Qed.
 
 
@@ -374,9 +374,9 @@ Section CaseList.
   (** *** [cons] *)
   
   Definition Constr_cons : pTM (sigList sigX)^+ unit 2 :=
-    LiftTapes (MoveRight _;; Move L) [|Fin1|];;
+    LiftTapes (MoveRight _;; Move Lmove) [|Fin1|];;
     LiftTapes (CopySymbols_L stop) [|Fin1;Fin0|];;
-    LiftTapes (WriteMove (inr sigList_cons) L;; Write (inl START)) [|Fin0|].
+    LiftTapes (WriteMove (inr sigList_cons) Lmove;; Write (inl START)) [|Fin0|].
 
   
   Definition Constr_cons_size {sigX X : Type} {cX : codable sigX X} (y : X) (s0 : nat) := s0 - size _ y - 1.

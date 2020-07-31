@@ -71,9 +71,9 @@ Section Copy.
      midtape (rev rs ++ m :: left (t2)) x (skipn (S (|rs|)) (right t2))).
   Proof.
     intros HStopM HStopRs HStopX.
-    unshelve epose proof @CopySymbols_correct (midtape ls m (rs ++ x :: rs'), t2) (m::rs) x rs' _ _ _ as L; cbn in *; eauto.
+    unshelve epose proof @CopySymbols_correct (midtape ls m (rs ++ x :: rs'), t2) (m::rs) x rs' _ _ _ as Lmove; cbn in *; eauto.
     - intros ? [->|?]; auto.
-    - now rewrite <- !app_assoc in L.
+    - now rewrite <- !app_assoc in Lmove.
   Qed.
 
   Corollary CopySymbols_correct_moveright ls m rs x rs' t2:
@@ -99,9 +99,9 @@ Section Copy.
      midtape (skipn (|str1|) (left (snd t))) x (rev str1 ++ right (snd t))).
   Proof.
     intros HStop1 HStop2. intros HEnc.
-    pose proof @CopySymbols_correct (mirror_tape (fst t), mirror_tape (snd t)) str1 x str2 HStop1 HStop2 as L.
-    spec_assert L by now (cbn; simpl_tape).
-    apply CopySymbols_mirror. rewrite L. unfold mirror_tapes; cbn. f_equal; [ | f_equal]; now simpl_tape.
+    pose proof @CopySymbols_correct (mirror_tape (fst t), mirror_tape (snd t)) str1 x str2 HStop1 HStop2 as Lmove.
+    spec_assert Lmove by now (cbn; simpl_tape).
+    apply CopySymbols_mirror. rewrite Lmove. unfold mirror_tapes; cbn. f_equal; [ | f_equal]; now simpl_tape.
   Qed.
 
   Corollary CopySymbols_L_correct_midtape ls ls' m rs x t2 :
@@ -113,9 +113,9 @@ Section Copy.
      midtape (skipn (S (|ls|)) (left t2)) x (rev ls ++ m :: right t2)).
   Proof.
     intros HStopM HStopRs HStopX.
-    unshelve epose proof @CopySymbols_L_correct (midtape (ls ++ x :: ls') m rs, t2) (m::ls) x ls' _ _ _ as L; cbn in *; eauto.
+    unshelve epose proof @CopySymbols_L_correct (midtape (ls ++ x :: ls') m rs, t2) (m::ls) x ls' _ _ _ as Lmove; cbn in *; eauto.
     - intros ? [->|?]; auto.
-    - now rewrite <- !app_assoc in L.
+    - now rewrite <- !app_assoc in Lmove.
   Qed.
 
   Corollary CopySymbols_L_correct_moveleft ls x ls' m rs t2 :
@@ -164,9 +164,9 @@ Section Copy.
     midtape (rev (map f rs) ++ (f m) :: ls) (f x) rs'.
   Proof.
     intros HStopM HStopRs HStopX.
-    unshelve epose proof (@MoveToSymbol_correct (midtape ls m (rs ++ x :: rs')) (m::rs) rs' x _ HStopX eq_refl) as L.
+    unshelve epose proof (@MoveToSymbol_correct (midtape ls m (rs ++ x :: rs')) (m::rs) rs' x _ HStopX eq_refl) as Lmove.
     { intros ? [->|?]; auto. }
-    cbn in *. now rewrite <- app_assoc in L.
+    cbn in *. now rewrite <- app_assoc in Lmove.
   Qed.
 
   Corollary MoveToSymbol_correct_moveright ls m rs x rs' :
@@ -187,10 +187,10 @@ Section Copy.
     tape_local_l t = str1 ++ x :: str2 ->
     MoveToSymbol_L_Fun stop f t = midtape str2 (f x) (rev (map f str1) ++ right t).
   Proof.
-    intros. pose proof (@MoveToSymbol_correct (mirror_tape t) str1 str2 x) as L.
-    simpl_tape in L. repeat spec_assert L by auto.
-    erewrite (MoveToSymbol_mirror' (t' := mirror_tape (MoveToSymbol_L_Fun stop f t))) in L; simpl_tape in *; eauto.
-    now apply mirror_tape_inv_midtape in L.
+    intros. pose proof (@MoveToSymbol_correct (mirror_tape t) str1 str2 x) as Lmove.
+    simpl_tape in Lmove. repeat spec_assert Lmove by auto.
+    erewrite (MoveToSymbol_mirror' (t' := mirror_tape (MoveToSymbol_L_Fun stop f t))) in Lmove; simpl_tape in *; eauto.
+    now apply mirror_tape_inv_midtape in Lmove.
   Qed.
 
   Corollary MoveToSymbol_L_correct_midtape ls ls' rs m x :
@@ -201,9 +201,9 @@ Section Copy.
     midtape ls' (f x) (rev (map f ls) ++ (f m) :: rs).
   Proof.
     intros HStopM HStopRs HStopX.
-    unshelve epose proof (@MoveToSymbol_L_correct (midtape (ls ++ x :: ls') m rs) (m::ls) ls' x _ HStopX eq_refl) as L.
+    unshelve epose proof (@MoveToSymbol_L_correct (midtape (ls ++ x :: ls') m rs) (m::ls) ls' x _ HStopX eq_refl) as Lmove.
     { intros ? [->|?]; auto. }
-    cbn in *. now rewrite <- app_assoc in L.
+    cbn in *. now rewrite <- app_assoc in Lmove.
   Qed.
 
   Corollary MoveToSymbol_L_correct_moveleft ls x ls' m rs :
@@ -470,7 +470,7 @@ Section Move.
     projT1 Reset ↓ (fun tin k => exists x, tin[@Fin0] ≃ x /\ Reset_steps _ x <= k).
   Proof. exact MoveRight_Terminates. Qed.
 
-  Definition ResetEmpty : pTM sig^+ unit 1 := Move R.
+  Definition ResetEmpty : pTM sig^+ unit 1 := Move Rmove.
 
   Definition ResetEmpty_size : nat -> nat := S.
 
@@ -498,7 +498,7 @@ Section Move.
     }
   Qed.
 
-  Definition ResetEmpty1 : pTM sig^+ (FinType(EqType unit)) 1 := Move R;; Move R.
+  Definition ResetEmpty1 : pTM sig^+ (FinType(EqType unit)) 1 := Move Rmove;; Move Rmove.
 
   Definition ResetEmpty1_size : nat -> nat := S >> S.
 

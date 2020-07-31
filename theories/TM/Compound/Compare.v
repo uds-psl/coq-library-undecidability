@@ -35,7 +35,7 @@ Section Compare.
                     end))
       (fun x : option bool => match x with
                         | Some b => Return Nop (Some b)
-                        | None => Return (MovePar R R) None
+                        | None => Return (MovePar Rmove Rmove) None
                         end).
 
 
@@ -139,7 +139,7 @@ Section Compare.
       - eapply RealiseIn_TerminatesIn. apply Compare_Step_Sem. }
     { apply WhileCoInduction; intros. exists 5. split. reflexivity. intros [ yout | ].
       - intros. hnf in HT. TMCrush. all: rewrite <- HT. all: apply Compare_steps_ge.
-      - intros. hnf in HT. exists (Compare_steps (tape_move tin[@Fin0] R, tape_move tin[@Fin1] R)).
+      - intros. hnf in HT. exists (Compare_steps (tape_move tin[@Fin0] Rmove, tape_move tin[@Fin1] Rmove)).
         TMCrush.
         split.
         + hnf. TMSimp. auto.
