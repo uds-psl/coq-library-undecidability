@@ -1,4 +1,4 @@
-From Undecidability.L Require Import L.
+From Undecidability.L Require Import Util.L_facts.
 Require Import RelationClasses.
 
 (** * Resource Measures *)
@@ -71,9 +71,9 @@ Module Leftmost.
   Proof.
     intros R Heq.
     induction R as [s | s s'] in m',t,Heq |-* .
-    -apply redWithMaxSizeR. cbn. omega. 
+    -apply redWithMaxSizeR. cbn. lia. 
     -eapply redWithMaxSizeC. now eauto using step_lm. apply IHR. reflexivity.
-     subst m m'. cbn. repeat eapply Nat.max_case_strong;omega.
+     subst m m'. cbn. repeat eapply Nat.max_case_strong;lia.
   Qed.
 
   Lemma redWithMaxSizeL_congR m m' s t t':
@@ -81,16 +81,16 @@ Module Leftmost.
   Proof.
     intros R Heq.
     induction R as [t | t t'] in m',s,Heq |-* .
-    -apply redWithMaxSizeR. cbn in *. omega. 
+    -apply redWithMaxSizeR. cbn in *. lia. 
     -eapply redWithMaxSizeC. now eauto using step_lm. apply IHR. reflexivity.
-     subst m m'. cbn -[plus]. repeat eapply Nat.max_case_strong;omega.
+     subst m m'. cbn -[plus]. repeat eapply Nat.max_case_strong;lia.
   Defined.
 
 
   Lemma step_lm_evaluatesIn s s' t k: s ≻lm s' -> timeBS k s' t -> timeBS (S k) s t.
   Proof.
     intros H; induction H in t,k|-*; intros;  try inv H0; eauto 20 using timeBS.
-    eapply IHstep_lm in H4. econstructor; eauto. omega. 
+    eapply IHstep_lm in H4. econstructor; eauto. lia. 
   Qed.
 
   Lemma timeBS_correct_lm s t k:
@@ -105,7 +105,7 @@ Module Leftmost.
       destruct IHR3 as [R3'].
       split;[|assumption].
       subst l.
-      replace (i+j+1+k) with (i+(j+(1+k))) by omega. 
+      replace (i+j+1+k) with (i+(j+(1+k))) by lia. 
       eapply pow_add.
       eexists;split.
       eapply pow_step_lm_congL;now eauto.
@@ -137,8 +137,8 @@ Module Leftmost.
 
   Lemma spaceBS_ge s t m: spaceBS m s t -> size s<= m /\ size t <= m.
   Proof.
-    induction 1. omega.
-    subst m. cbn -[plus]. all:(repeat apply Nat.max_case_strong;try omega).
+    induction 1. lia.
+    subst m. cbn -[plus]. all:(repeat apply Nat.max_case_strong;try lia).
   Qed.
 
   Lemma step_lm_evaluatesSpace s s' t m: s ≻lm s' -> spaceBS m s' t -> spaceBS (max (size s) m) s t.
@@ -148,13 +148,13 @@ Module Leftmost.
      +destruct s;inv H1. destruct (Nat.eqb_spec n 0);inv H0.
       all:repeat econstructor.
       all:cbn -[plus].
-      all:(repeat apply Nat.max_case_strong;try omega).
+      all:(repeat apply Nat.max_case_strong;try lia).
      +destruct s;inv H. now destruct (Nat.eqb_spec n 0);inv H0.
       econstructor. 1,2:econstructor. cbn.
       econstructor.
       1-4:now eauto.
       cbn -[plus]. 
-      (repeat apply Nat.max_case_strong;intros;try omega).
+      (repeat apply Nat.max_case_strong;intros;try lia).
     -inv H'. inv H2.
      specialize (spaceBS_ge H3) as [? ?].
      specialize (spaceBS_ge H3) as [? ?].
@@ -163,7 +163,7 @@ Module Leftmost.
      specialize (spaceBS_ge H3) as [_ H''].
      econstructor;[now eauto using spaceBS..|]. 
      revert H''. cbn -[plus] in *. 
-     (repeat apply Nat.max_case_strong;intros;try omega).
+     (repeat apply Nat.max_case_strong;intros;try lia).
     -inv H'.
      specialize (spaceBS_ge H2) as [? ?].
      eapply IHstep_lm in H2.
@@ -174,7 +174,7 @@ Module Leftmost.
      1-3:eassumption.
      revert H7.
      cbn -[plus] in *. 
-     (repeat apply Nat.max_case_strong;intros;try omega).
+     (repeat apply Nat.max_case_strong;intros;try lia).
   Qed.
 
   Lemma spaceBS_correct_lm s t m:
@@ -196,7 +196,7 @@ Module Leftmost.
       { eapply redWithMaxSizeL_congR. eassumption. reflexivity. }
       econstructor. constructor. eassumption. reflexivity. reflexivity.
       specialize (spaceBS_ge R2) as [_ H3];cbn in H3.   
-      cbn - [plus]. repeat eapply Nat.max_case_strong;omega.
+      cbn - [plus]. repeat eapply Nat.max_case_strong;lia.
     -intros (R&H).
      induction R as [t | s s' t m].
      +inv H;rename x into t. eauto using spaceBS.
@@ -227,8 +227,8 @@ Lemma step_timeBS k s s' t: step s s' -> timeBS k s' t -> timeBS (S k) s t.
 Proof.
   intros R E. induction R in k,E,t|-*.
   -eauto using timeBS.
-  -inv E. eapply IHR in H2. econstructor. all:eauto;omega.
-  -inv E. eapply IHR in H1. econstructor. all:eauto;omega.
+  -inv E. eapply IHR in H2. econstructor. all:eauto;lia.
+  -inv E. eapply IHR in H1. econstructor. all:eauto;lia.
 Qed.
 
 Lemma timeBS_evalIn s t k :
@@ -271,14 +271,14 @@ Proof.
    +exists u0. rewrite R1. rewrite R2. rewrite step_Lproc. 2:now apply R2. easy.
    +exists (app s0 t0). split.
     *eapply star_step_app_proper. all:easy.
-    *cbn. omega.
+    *cbn. lia.
   -destruct H1 as [_ LB1]. destruct H2 as [_ LB2].
    intros m' (u1 & Ru & lequ1). remember (app s t) as st eqn:eqst.
    eapply Nat.max_le_iff.  
    induction Ru as [? |? ? Ru Ru'] in s,t,lequ1, eqst, LB1, LB2,R1,R2 |-*;subst x.
    +right. rewrite lequ1.
     erewrite <- LB1, <- LB2. 2,3:eexists;split;[reflexivity|reflexivity].
-    cbn;omega.
+    cbn;lia.
    +inv Ru'.
     *left. apply UB3. 
      replace s' with s0 in *.
@@ -316,7 +316,7 @@ Proof.
      eapply Leftmost.spaceBS_ge in BS1 as [].
      eapply Leftmost.spaceBS_ge in BS2 as [].
      eapply Leftmost.spaceBS_ge in BS3 as [].
-     repeat eapply Nat.max_case_strong;omega.
+     repeat eapply Nat.max_case_strong;lia.
    }
 Qed.
 

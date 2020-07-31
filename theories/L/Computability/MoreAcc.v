@@ -8,7 +8,7 @@ Proof.
                               !!(enc (int eva))
                               !!(int app (enc (int size')) (enc (var 0))))
                               (!!(int (enc (X:=term))) (!!(int app) "x" (!!(int (enc (X:=term))) "x"))))
-                              !!(enc (lam Omega)))
+                              !!(enc (lam Omega Lia)))
                               !!(enc I)))) : term).
   
   eapply self_div. cbn in w. assert (pw:proc w). subst w. Lproc.
@@ -16,13 +16,13 @@ Proof.
 
   intros s.
 
-  pose (v_s := (.\"y"; !!(int eva) (!!(int size') "y") !!(enc (s (enc s))) !!(lam Omega) !!I) : term ). 
+  pose (v_s := (.\"y"; !!(int eva) (!!(int size') "y") !!(enc (s (enc s))) !!(lam Omega Lia) !!I) : term ). 
 
   assert (~ pi s s <-> pi u v_s). {
     cbn in v_s.
     rewrite <- Hu.
     unfold pi.
-    assert (forall t, v_s (enc t) == ((enc (eva (size' t) (s (enc s)))) (λ Omega)) I) by (subst v_s; LsimplRed).
+    assert (forall t, v_s (enc t) == ((enc (eva (size' t) (s (enc s)))) (λ Omega Lia)) I) by (subst v_s; LsimplRed).
     split; intros A.
     - intros t. rewrite int_is_enc,H.
       eapply eval_converges. 
@@ -33,10 +33,10 @@ Proof.
       assert (B : eval (s (enc s)) v) by eauto. 
       destruct (eval_seval B) as [n C]. eapply seval_eva in C.
       destruct (size'_surj n) as [t Ht]. subst n. 
-      specialize (A t); specialize (H t). eapply lamOmega.
+      specialize (A t); specialize (H t). eapply lamOmega Lia.
       destruct A as [v' [A lv']]. exists v';split;[|auto].
       rewrite <- A, H. clear A H.
-      transitivity Omega. LsimplRed. symmetry. Lrewrite. rewrite C. LsimplRed.
+      transitivity Omega Lia. LsimplRed. symmetry. Lrewrite. rewrite C. LsimplRed.
   }
 
   assert (A : w (enc s) == u (enc v_s)). {
@@ -52,8 +52,8 @@ Proof.
   - firstorder.
   - intuition. apply H3.  intros. now rewrite H1.
   - exists (lam I). repeat split;try Lproc. intros [_ H]. eapply H. intros. eexists;split;[|eexists;reflexivity]. now Lsimpl.
-  - exists (lam Omega). repeat split;try  Lproc. intros H. eapply lamOmega. eauto.
-  - split.  Lproc. intros H; eapply lamOmega. eauto.
+  - exists (lam Omega Lia). repeat split;try  Lproc. intros H. eapply lamOmega Lia. eauto.
+  - split.  Lproc. intros H; eapply lamOmega Lia. eauto.
 Grab Existential Variables. repeat econstructor. repeat econstructor.
 Qed.
 

@@ -76,9 +76,9 @@ Section FOL.
   Proof.
     intros H x. apply H.
     induction (f x).
-    - intros y. omega.
+    - intros y. lia.
     - intros y. intros [] % le_lt_or_eq.
-      + apply IHn; omega.
+      + apply IHn; lia.
       + apply H. injection H0. now intros ->.
   Qed.
 
@@ -153,14 +153,14 @@ Section FOL.
     intros Hun. induction v in Hun |-*.
     - exists 0. intros n H. inv H.
     - destruct IHv as [k H]. 1: eauto. destruct (Hun h (vec_inB h v)) as [k' H'].
-      exists (k + k'). intros t H2. inv H2; intros m Hm; [apply H' | apply H]; now try omega.
+      exists (k + k'). intros t H2. inv H2; intros m Hm; [apply H' | apply H]; now try lia.
   Qed.
 
   Lemma find_unused_term t :
     { n | forall m, n <= m -> unused_term m t }.
   Proof.
     induction t using strong_term_ind.
-    - exists (S x). intros m Hm. constructor. omega.
+    - exists (S x). intros m Hm. constructor. lia.
     - destruct (vec_unused X) as [k H]. exists k. eauto using unused_term.
   Qed.
 
@@ -170,8 +170,8 @@ Section FOL.
     induction phi.
     - exists 0... 
     - destruct (@vec_unused _ t) as [k H]. 1: eauto using find_unused_term. exists k. eauto using unused.
-    - destruct IHphi1, IHphi2. exists (x + x0). intros m Hm. constructor; [ apply u | apply u0 ]; omega.
-    - destruct IHphi. exists x. intros m Hm. constructor. apply u. omega.
+    - destruct IHphi1, IHphi2. exists (x + x0). intros m Hm. constructor; [ apply u | apply u0 ]; lia.
+    - destruct IHphi. exists x. intros m Hm. constructor. apply u. lia.
   Qed.
 
   Lemma find_unused_L A :
@@ -181,8 +181,8 @@ Section FOL.
     - exists 0. unfold unused_L. intuition.
     - destruct IHA. destruct (find_unused a).
       exists (x + x0). intros m Hm. intros phi []; subst.
-      + apply u0. omega.
-      + apply u. omega. auto.
+      + apply u0. lia.
+      + apply u. lia. auto.
   Qed.
 
   Definition capture n phi := nat_rect _ phi (fun _ => All) n.
@@ -192,7 +192,7 @@ Section FOL.
   Proof.
     intros H. induction m; cbn; intros i Hi.
     - rewrite <- minus_n_O in *. intuition.
-    - constructor. apply IHm. omega.
+    - constructor. apply IHm. lia.
   Qed.
 
   Definition close phi := capture (proj1_sig (find_unused phi)) phi.
@@ -201,7 +201,7 @@ Section FOL.
     closed (close phi).
   Proof.
     intros n. unfold close. destruct (find_unused phi) as [m Hm]; cbn.
-    apply (capture_captures Hm). omega.
+    apply (capture_captures Hm). lia.
   Qed.
 
   Fixpoint big_imp A phi :=
@@ -270,14 +270,14 @@ Section FOL.
   Lemma subst_unused_closed xi sigma phi :
     closed phi -> subst_form xi phi = subst_form sigma phi.
   Proof.
-    intros Hcl. apply subst_unused_range with (n := 0); intuition. omega.
+    intros Hcl. apply subst_unused_range with (n := 0); intuition. lia.
   Qed.
 
   Lemma subst_unused_closed' xi phi :
     closed phi -> subst_form xi phi = phi.
   Proof.
     intros Hcl. rewrite <- idSubst_form with (sigmaterm := ids).
-    apply subst_unused_range with (n := 0). all: intuition; omega.
+    apply subst_unused_range with (n := 0). all: intuition; lia.
   Qed.
 
   Lemma vec_forall_map X Y (f : X -> Y) n (v : vector X n) (p : Y -> Type) :
@@ -442,9 +442,9 @@ Proof.
   intros HL Hv. induction v; cbn.
   - exists 0. tauto.
   - destruct IHv as [m H], (Hv h) as [m' H']. 1-3: eauto using vec_in. exists (m + m').
-    in_collect (pair h v). 1: apply (cum_ge' (n := m')); intuition omega.
+    in_collect (pair h v). 1: apply (cum_ge' (n := m')); intuition lia.
     apply vecs_from_correct. rewrite <- vecs_from_correct in H. intros x Hx.
-    apply (cum_ge' (n := m)). all: eauto. omega.
+    apply (cum_ge' (n := m)). all: eauto. lia.
 Qed.
 
 Fixpoint L_vec X (L : nat -> list X) n m : list (vector X n) :=
@@ -454,7 +454,7 @@ Fixpoint L_vec X (L : nat -> list X) n m : list (vector X n) :=
   end.
 
 Instance enumT_vec X L_T {HX : list_enumerator__T L_T X} n : list_enumerator__T (L_vec L_T n) (vector X n).
-Proof with try (eapply cum_ge'; eauto; omega).
+Proof with try (eapply cum_ge'; eauto; lia).
   intros v. enough (exists m, forall x, vec_in x v -> x el cumul L_T m) as [m Hm].
   { exists (S m). cbn. in_app 2. now rewrite <- vecs_from_correct. }
   induction v.
@@ -485,7 +485,7 @@ Section Enumerability.
   Qed.
 
   Global Instance enumT_term : list_enumerator__T L_term term.
-  Proof with try (eapply cum_ge'; eauto; omega).
+  Proof with try (eapply cum_ge'; eauto; lia).
     intros t. induction t using strong_term_ind.
     + exists (S x); cbn; eauto.
     + apply vec_forall_cml in H as [m H]. 2: exact L_term_cml. destruct (cumul_spec__T enum_Funcs F) as [m' H'].
@@ -510,7 +510,7 @@ Section Enumerability.
   Qed.
 
   Global Instance enumT_form : list_enumerator__T L_form form.
-  Proof with (try eapply cum_ge'; eauto; omega).
+  Proof with (try eapply cum_ge'; eauto; lia).
     intros phi. induction phi.
     + exists 1. cbn; eauto.
     + destruct (el_T P) as [m Hm], (el_T t) as [m' Hm']. exists (S (m + m')); cbn.
@@ -604,7 +604,7 @@ Section SigExt.
   Qed.
 
   Global Instance enumT_sig_ext_Funcs {Sigma : Signature} {f} {H : list_enumerator__T f Funcs} : inf_list_enumerable__T (@Funcs (sig_ext Sigma)).
-  Proof with (try eapply cum_ge'; eauto; omega).
+  Proof with (try eapply cum_ge'; eauto; lia).
     destruct Sigma. exists (fix f n := match n with 0 => List.map inl (L_T 0) | S n' => f n' ++ (inr n') :: List.map inl (L_T n') end).
     1: eauto. intros [f0|]. 2: exists (S n); in_app 2... destruct (el_T f0) as [m Hin]. exists (S m). in_app 3. in_collect f0...
   Qed.
@@ -684,7 +684,7 @@ Section SigExt.
   Proof.
     destruct x; comp. 1: reflexivity. destruct (fin_minus x n); comp.
     - rewrite nth_map with (p2 := Fin.of_nat_lt l). 2: apply Fin.of_nat_ext. apply ext_term. intros y.
-      destruct (fin_minus y 0). 1: omega. destruct s; subst. unfold ">>", shift. f_equal; omega.
+      destruct (fin_minus y 0). 1: lia. destruct s; subst. unfold ">>", shift. f_equal; lia.
     - destruct s. comp. now rewrite <- (plus_n_Sm x0 i).
   Qed.
 
@@ -728,7 +728,7 @@ Section SigExt.
   Proof.
     induction t using strong_term_ind; comp.
     - destruct (fin_minus x m); comp; [now rewrite nth_order_map | now destruct s].
-    - destruct F; comp. 2: destruct (fin_minus (n + m + n0) m); [| destruct s; subst; f_equal]; omega.
+    - destruct F; comp. 2: destruct (fin_minus (n + m + n0) m); [| destruct s; subst; f_equal]; lia.
       f_equal. erewrite! vec_comp. 2,3 : reflexivity. apply vec_map_ext. intros t Ht. now apply H.
   Qed.
 
@@ -742,11 +742,11 @@ Section SigExt.
     - cbn. f_equal. erewrite ext_form with (s := phi). 2: apply up_term_term_vsubs.
       erewrite ext_form with (s := (sig_drop' (S (n + m)) phi)). 2: apply up_term_term_vsubs.
       specialize (IHphi (S m) (S i) (cons (var_term 0) (map (subst_term (vsubs 1 nil)) v))).
-      replace (S (n + i)) with (n + S i) by omega. rewrite IHphi.
-      replace (n + S m) with (S (n + m)) by omega. apply ext_form. intros []. 1: reflexivity.
+      replace (S (n + i)) with (n + S i) by lia. rewrite IHphi.
+      replace (n + S m) with (S (n + m)) by lia. apply ext_form. intros []. 1: reflexivity.
       cbn. unfold vsubs at 1 3. cbn. destruct (fin_minus n0 m); cbn. 2: now destruct s.
       f_equal. erewrite! vec_comp. 2,3: reflexivity. apply vec_ext. intros t. unfold axioms.funcomp.
-      replace (n + S i) with (n + i + 1) by omega. replace (n + i) with (n + i + 0) at 2 by omega.
+      replace (n + S i) with (n + i + 1) by lia. replace (n + i) with (n + i + 0) at 2 by lia.
       change nil with (map (@sig_drop_term' f f_ar P P_ar (n + i + 1)) nil) at 2.
       apply sig_drop_subst_term' with (v := nil) (m := 0) (i := 1) (n := n + i) (t0 := t).
   Qed.
@@ -805,14 +805,14 @@ Section SigExt.
   Proof.
     destruct Sigma. erewrite ext_form with (s := sig_lift phi) (tauterm := @pref (sig_ext (B_S Funcs fun_ar Preds pred_ar)) 0 (ext_c' fun_ar pred_ar)).
     1: comp; rewrite lift_drop_inverse'; apply idSubst_form; now intros [].
-    intros x. comp. destruct (fin_minus x 0). 1: omega. destruct s; subst. now replace (x - 0) with x by omega.
+    intros x. comp. destruct (fin_minus x 0). 1: lia. destruct s; subst. now replace (x - 0) with x by lia.
   Qed.
 
   Lemma ext_c'_unused_term f f_ar P P_ar (n : nat) (t : @term (sig_ext (B_S f f_ar P P_ar))) m :
     n <= m -> @unused_term (sig_ext (B_S f f_ar P P_ar)) m t[pref n (ext_c' f_ar P_ar)].
   Proof.
     intros Hm; induction t using strong_term_ind; comp.
-    - destruct (fin_minus x n); comp. 1: constructor; omega.
+    - destruct (fin_minus x n); comp. 1: constructor; lia.
       destruct s. constructor. intros ?. inversion 1.
     - constructor. apply vec_forall_map, H. 
   Qed.
@@ -823,14 +823,14 @@ Section SigExt.
     intros Hm; induction phi in n, m, Hm |-*. 1,2,3 : comp; constructor; auto.
     - apply vec_forall_map. intros. capply ext_c'_unused_term.
     - cbn. auto_unfold. erewrite ext_form with (s := phi). 2: apply up_term_term_pref_ext_c'.
-      constructor. apply IHphi. omega.
+      constructor. apply IHphi. lia.
   Qed.
 
   Lemma lift_ext_c_closes {Sigma : Signature} phi :
     @closed (sig_ext Sigma) (sig_lift phi)[ext_c].
   Proof.
     destruct Sigma. unfold ext_c. intros n. auto_unfold; erewrite ext_form. apply ext_c'_unused with (n := 0) (m := n).
-    1: omega. now intros [].
+    1: lia. now intros [].
   Qed.
 
   Lemma lift_ext_c_closes_T {Sigma : Signature} (T : theory) :

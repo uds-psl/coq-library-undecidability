@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import Morphisms Omega. 
+Require Import Morphisms Omega Lia. 
 From Undecidability.HOU.calculus Require Export semantics typing order.
 
 

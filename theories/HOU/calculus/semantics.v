@@ -1,6 +1,6 @@
 Set Implicit Arguments.
 From Undecidability.HOU Require Export calculus.syntax std.std.
-Require Import Morphisms Omega FinFun. 
+Require Import Morphisms Omega Lia FinFun. 
 
 
 (** * Semantics **)

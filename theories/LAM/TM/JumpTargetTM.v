@@ -64,7 +64,7 @@ Proof.
   }
   {
     intros tin k (Q&Q'&HEncQ&HEncQ'&Hk).
-    exists (App'_steps Q), (MoveValue_steps (Q++Q') Q); cbn; repeat split; try omega.
+    exists (App'_steps Q), (MoveValue_steps (Q++Q') Q); cbn; repeat split; try lia.
     hnf; cbn. eauto. now rewrite Hk.
     intros tmid () (HApp&HInjApp); TMSimp. modpon HApp.
     exists (Q++Q'), Q. repeat split; eauto.
@@ -118,7 +118,7 @@ Proof.
   }
   {
     intros tin k. intros (Q&HEncQ&HRight&Hk).
-    exists (WriteValue_steps (size _ [ACom2Com t])), (App_Commands_steps Q [ACom2Com t]). cbn; repeat split; try omega.
+    exists (WriteValue_steps (size _ [ACom2Com t])), (App_Commands_steps Q [ACom2Com t]). cbn; repeat split; try lia.
     now rewrite Hk.
     intros tmid () (HWrite&HInjWrite); hnf; cbn; TMSimp.
     cbn in HWrite. specialize HWrite with (x := [ACom2Com t]) (1 := eq_refl).
@@ -183,12 +183,12 @@ Proof.
   }
   {
     intros tin k (Q&t&HEncQ&HEncT&HRight&Hk). unfold App_Com_steps in Hk.
-    exists (Constr_nil_steps), (1 + Constr_cons_steps t + 1 + App_Commands_steps Q [t] + Reset_steps t). cbn. repeat split; try omega.
+    exists (Constr_nil_steps), (1 + Constr_cons_steps t + 1 + App_Commands_steps Q [t] + Reset_steps t). cbn. repeat split; try lia.
     intros tmid () (HNil&HInjNil); TMSimp. modpon HNil.
-    exists (Constr_cons_steps t), (1 + App_Commands_steps Q [t] + Reset_steps t). cbn. repeat split; try omega.
+    exists (Constr_cons_steps t), (1 + App_Commands_steps Q [t] + Reset_steps t). cbn. repeat split; try lia.
     eauto.
     unfold sigPro in *. intros tmid0 () (HCons&HInjCons); TMSimp. modpon HCons.
-    exists (App_Commands_steps Q [t]), (Reset_steps t). cbn. repeat split; try omega.
+    exists (App_Commands_steps Q [t]), (Reset_steps t). cbn. repeat split; try lia.
     hnf; cbn. do 2 eexists; repeat split; eauto.
     intros tmid1 _ (HApp&HInjApp); TMSimp. modpon HApp.
     eexists. split; eauto.
@@ -385,30 +385,30 @@ Proof.
   {
     intros tin steps (P&Q&k&HEncP&HEncQ&HEncK&HRight3&HRight4&Hk). unfold JumpTarget_Step_steps in Hk. cbn in *.
     unfold sigPro in *.
-    exists (CaseList_steps P), (JumpTarget_Step_steps_CaseList P Q k). cbn; repeat split; try omega. eauto.
+    exists (CaseList_steps P), (JumpTarget_Step_steps_CaseList P Q k). cbn; repeat split; try lia. eauto.
     intros tmid bmatchlist (HCaseList&HCaseListInj); TMSimp. modpon HCaseList.
     destruct bmatchlist, P as [ | t P']; auto; modpon HCaseList.
     { (* P = t :: P' (* other case is done by auto *) *)
-      exists (CaseCom_steps), (JumpTarget_Step_steps_CaseCom Q k t). cbn; repeat split; try omega.
+      exists (CaseCom_steps), (JumpTarget_Step_steps_CaseCom Q k t). cbn; repeat split; try lia.
       intros tmid1 ytok (HCaseCom&HCaseComInj); TMSimp. modpon HCaseCom.
       destruct ytok as [ [ | | ] | ]; destruct t; auto; simpl_surject; TMSimp.
       { (* t = retT *)
         exists CaseNat_steps.
         destruct k as [ | k'].
         - (* k = 0 *)
-          exists ResetEmpty1_steps. repeat split; try omega.
+          exists ResetEmpty1_steps. repeat split; try lia.
           intros tmid2 bCaseNat (HCaseNat&HCaseNatInj); TMSimp. modpon HCaseNat. destruct bCaseNat; auto.
         - (* k = S k' *)
-          exists (App_ACom_steps Q retAT). repeat split; try omega.
+          exists (App_ACom_steps Q retAT). repeat split; try lia.
           intros tmid2 bCaseNat (HCaseNat&HCaseNatInj); TMSimp. modpon HCaseNat. destruct bCaseNat; auto. hnf; cbn. eauto.
       }
       { (* t = lamT *)
-        exists (Constr_S_steps), (App_ACom_steps Q lamAT). repeat split; try omega.
+        exists (Constr_S_steps), (App_ACom_steps Q lamAT). repeat split; try lia.
         intros tmid2 () (HS&HSInj); TMSimp. modpon HS. hnf; cbn. eauto.
       }
       { (* t = appT *) hnf; cbn; eauto. }
       { (* t = varT n *)
-        exists (Constr_varT_steps), (App_Com_steps Q (varT n)). repeat split; try omega.
+        exists (Constr_varT_steps), (App_Com_steps Q (varT n)). repeat split; try lia.
         intros tmid2 H (HVarT&HVarTInj); TMSimp. modpon HVarT. hnf; cbn. eauto 6.
       }
     }
@@ -431,12 +431,12 @@ Fixpoint jumpTarget_k (k:nat) (P:Pro) : nat :=
 Goal forall k P, jumpTarget_k k P <= k + |P|.
 Proof.
   intros k P. revert k. induction P as [ | t P IH]; intros; cbn in *.
-  - omega.
+  - lia.
   - destruct t; cbn.
-    + rewrite IH. omega.
-    + rewrite IH. omega.
-    + rewrite IH. omega.
-    + destruct k. omega. rewrite IH. omega.
+    + rewrite IH. lia.
+    + rewrite IH. lia.
+    + rewrite IH. lia.
+    + destruct k. lia. rewrite IH. lia.
 Qed.
 
 
@@ -645,10 +645,10 @@ Proof.
     intros tin k (P&HEncP&Hout&HInt&Hk). unfold JumpTarget_steps in Hk.
     specialize (HInt Fin0) as HRight2.
     exists (Constr_nil_steps), (1 + Constr_O_steps + 1 + JumpTarget_Loop_steps P nil 0).
-    cbn; repeat split; try omega.
+    cbn; repeat split; try lia.
     intros tmid () (HWrite&HWriteInj); TMSimp. modpon HWrite.
     exists (Constr_O_steps), (1 + JumpTarget_Loop_steps P nil 0).
-    cbn; repeat split; try omega.
+    cbn; repeat split; try lia.
     cbn in *. unfold sigPro in *. intros tmid1 () (HWrite'&HWriteInj'); TMSimp. modpon HWrite'.
     { hnf. do 3 eexists; repeat split; cbn in *; unfold sigPro in *; cbn in *; TMSimp_goal; eauto. }
   }

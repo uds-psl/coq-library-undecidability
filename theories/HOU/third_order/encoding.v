@@ -1,6 +1,6 @@
 Set Implicit Arguments.
 Require Import RelationClasses Morphisms List Lia
-        Omega Init.Nat Setoid.
+        Omega Lia Init.Nat Setoid.
 From Undecidability.HOU Require Import std.std calculus.calculus third_order.pcp.
 Import ListNotations.
 
@@ -176,7 +176,7 @@ Section Encoding.
     Proof.
       eapply normal_nf in N as N'. inv N'. destruct k; cbn in *; eauto; [|Discriminate].
       destruct (s0); cbn in H; intuition; clear H.
-      - assert(f < |S| \/ f >= |S|) as [] by omega; eauto.
+      - assert(f < |S| \/ f >= |S|) as [] by lia; eauto.
         eapply nth_error_lt_Some in H as H2; destruct H2; eauto.
         asimpl in EQ; rewrite sapp_ge_in in EQ; eauto.
         specialize (H1 (f - |S|)). intuition.
@@ -205,7 +205,7 @@ Section Encoding.
         inv H3. rewrite nth_error_app1, nth_error_repeated in H5; simplify in *; eauto.
         inv H2. inv H8. cbn in H5; injection H5 as ?.
         rewrite !Arr_app in H; cbn in H. eapply (f_equal arity) in H.
-        rewrite arity_Arr in H; cbn in H. omega.
+        rewrite arity_Arr in H; cbn in H. lia.
         all: eapply nth_error_Some_lt in H0; simplify in H0; eauto.
     Qed.
 
@@ -244,14 +244,14 @@ Section Encoding.
       pose (mv := fun x => match x == u, x == v with right _,right _ => x | _,_ => S(u + v + x) end).
       assert (forall x, mv x >= x) as GE.
       { eauto; intros; unfold funcomp; intuition; unfold mv in *.
-        eauto; intros; edestruct eq_dec; [omega|]; destruct eq_dec; eauto.
+        eauto; intros; edestruct eq_dec; [lia|]; destruct eq_dec; eauto.
       }
       assert (forall x, var (mv x) <> @var X u) as Nu.
-      { intros x H; injection H; unfold mv; destruct eq_dec; [omega|]; destruct eq_dec; [omega|].
+      { intros x H; injection H; unfold mv; destruct eq_dec; [lia|]; destruct eq_dec; [lia|].
         intros; subst; eauto.
       }
       assert (forall x, var (mv x) <> @var X v) as Nv.
-      { intros x H; injection H; unfold mv; destruct eq_dec; [omega|]; destruct eq_dec; [omega|].
+      { intros x H; injection H; unfold mv; destruct eq_dec; [lia|]; destruct eq_dec; [lia|].
         intros; subst; eauto.
       }
       replace s with (ren mv s).

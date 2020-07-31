@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import List Omega.
+Require Import List Omega Lia.
 From Undecidability.HOU.calculus Require Export syntax semantics equivalence typing.
 
  (** * Order Typing *)
@@ -37,7 +37,7 @@ Section OrderTyping.
     Lemma ord_arr_one A B: ~ ord (A → B) <= 1.
     Proof.
       intros H; rewrite ord_arr in H; eapply Nat.max_lub_l in H.
-      rewrite ord_1 with (A := A) in H; omega.
+      rewrite ord_1 with (A := A) in H; lia.
     Qed.
 
 
@@ -81,7 +81,7 @@ Section OrderTyping.
     Lemma ord'_cons n Gamma A:
       ord A < n -> ord' Gamma <= n -> ord' (A :: Gamma) <= n.
     Proof.
-      intros; cbn; eapply Max.max_lub; omega.
+      intros; cbn; eapply Max.max_lub; lia.
     Qed.
 
     Lemma order_head Gamma s A B:

@@ -47,7 +47,7 @@ Proof.
     + apply IHA. intros F. apply H. now right.
   - tauto.
   - cbn. dec.
-    + subst a. omega.
+    + subst a. lia.
     + intros H [E | E].
       * now symmetry in E.
       * tauto.

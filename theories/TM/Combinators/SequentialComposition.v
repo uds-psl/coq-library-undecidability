@@ -50,7 +50,7 @@ Section Composition.
     eapply (Switch_RealiseIn).
     - eapply H1.
     - intros f.  eapply H2.
-    - omega.
+    - lia.
     - firstorder.
   Qed.
 

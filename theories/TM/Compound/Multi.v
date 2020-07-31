@@ -125,9 +125,9 @@ Section Copy.
       - instantiate (2 := fun o : option sig => match o with Some s => _ | None => _ end).
         intros [ s | ]; cbn.
         + eapply LiftTapes_RealiseIn. vector_dupfree. apply Write_Sem.
-        + eapply RealiseIn_monotone'. apply Nop_Sem. omega.
+        + eapply RealiseIn_monotone'. apply Nop_Sem. lia.
     }
-    { omega. }
+    { lia. }
     {
       intros tin ((), tout) H. cbn in *. TMSimp.
       destruct (current tin[@Fin0]) eqn:E; TMSimp; auto.

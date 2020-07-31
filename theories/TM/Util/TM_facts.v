@@ -816,7 +816,7 @@ Section Semantics.
     pM ⊨ Rmove /\ projT1 pM ↓ (fun _ i => k <= i) <-> pM ⊨c(k) Rmove.
   Proof.
     split.
-    - intros (HR & Ht) t. edestruct (Ht t k). cbn; omega. eauto.
+    - intros (HR & Ht) t. edestruct (Ht t k). cbn; lia. eauto.
     - intros H.
       split.
       + intros t i cout Hc.

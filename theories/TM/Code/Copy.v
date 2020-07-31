@@ -229,11 +229,11 @@ Section Copy.
     MoveToSymbol_steps stop f t <= 4 + 4 * length r1.
   Proof.
     revert t sym r2. induction r1; intros t sym r2 HEnc HStop; cbn -[plus mult] in *.
-    - destruct t; cbn in HEnc; inv HEnc. rewrite MoveToSymbol_steps_equation. cbn. rewrite HStop. cbn. omega.
+    - destruct t; cbn in HEnc; inv HEnc. rewrite MoveToSymbol_steps_equation. cbn. rewrite HStop. cbn. lia.
     - destruct t; cbn in HEnc; try congruence. inv HEnc.
       rewrite MoveToSymbol_steps_equation. cbn. destruct (stop a).
-      + omega.
-      + apply Nat.add_le_mono_l. replace (4 * S (|r1|)) with (4 + 4 * |r1|) by omega.
+      + lia.
+      + apply Nat.add_le_mono_l. replace (4 * S (|r1|)) with (4 + 4 * |r1|) by lia.
         eapply IHr1; eauto. cbn. now simpl_tape.
   Qed.
 
@@ -243,7 +243,7 @@ Section Copy.
   Proof.
     intros.
     rewrite MoveToSymbol_steps_local with (r1 := m::rs) (sym := x) (r2 := rs'); auto.
-    cbn [length]. omega.
+    cbn [length]. lia.
   Qed.
 
   Corollary MoveToSymbol_steps_moveright ls m rs x rs' :
@@ -251,8 +251,8 @@ Section Copy.
     MoveToSymbol_steps stop f (tape_move_right' ls m (rs ++ x :: rs')) <= 4 + 4 * length rs.
   Proof.
     intros HStop. destruct rs as [ | s s'] eqn:E; cbn.
-    - rewrite MoveToSymbol_steps_equation. cbn. rewrite HStop; cbn. omega.
-    - rewrite MoveToSymbol_steps_midtape; auto. omega.
+    - rewrite MoveToSymbol_steps_equation. cbn. rewrite HStop; cbn. lia.
+    - rewrite MoveToSymbol_steps_midtape; auto. lia.
   Qed.
 
 
@@ -262,11 +262,11 @@ Section Copy.
     MoveToSymbol_L_steps stop f t <= 4 + 4 * length r1.
   Proof.
     revert t sym r2. induction r1; intros t sym r2 HEnc HStop; cbn -[plus mult] in *.
-    - destruct t; cbn in HEnc; inv HEnc. rewrite MoveToSymbol_L_steps_equation. cbn. rewrite HStop. cbn. omega.
+    - destruct t; cbn in HEnc; inv HEnc. rewrite MoveToSymbol_L_steps_equation. cbn. rewrite HStop. cbn. lia.
     - destruct t; cbn in HEnc; try congruence. inv HEnc.
       rewrite MoveToSymbol_L_steps_equation. cbn. destruct (stop a).
-      + omega.
-      + apply Nat.add_le_mono_l. replace (4 * S (|r1|)) with (4 + 4 * |r1|) by omega.
+      + lia.
+      + apply Nat.add_le_mono_l. replace (4 * S (|r1|)) with (4 + 4 * |r1|) by lia.
         eapply IHr1; eauto. cbn. now simpl_tape.
   Qed.
 
@@ -276,7 +276,7 @@ Section Copy.
   Proof.
     intros.
     rewrite MoveToSymbol_L_steps_local with (r1 := m::ls) (sym := x) (r2 := ls'); auto.
-    cbn [length]. omega.
+    cbn [length]. lia.
   Qed.
 
   Corollary MoveToSymbol_L_steps_moveleft ls ls' x m rs :
@@ -284,8 +284,8 @@ Section Copy.
     MoveToSymbol_L_steps stop f (tape_move_left' (ls ++ x :: ls') m rs) <= 4 + 4 * length ls.
   Proof.
     intros HStop. destruct ls as [ | s s'] eqn:E; cbn.
-    - rewrite MoveToSymbol_L_steps_equation. cbn. rewrite HStop; cbn. omega.
-    - rewrite MoveToSymbol_L_steps_midtape; auto. omega.
+    - rewrite MoveToSymbol_L_steps_equation. cbn. rewrite HStop; cbn. lia.
+    - rewrite MoveToSymbol_L_steps_midtape; auto. lia.
   Qed.
 
 
@@ -295,11 +295,11 @@ Section Copy.
     CopySymbols_steps stop t <= 8 + 8 * length r1.
   Proof.
     revert t sym r2. induction r1; intros t sym r2 HEnc HStop; cbn -[plus mult] in *.
-    - destruct t; cbn in HEnc; inv HEnc. rewrite CopySymbols_steps_equation. cbn. rewrite HStop. cbn. omega.
+    - destruct t; cbn in HEnc; inv HEnc. rewrite CopySymbols_steps_equation. cbn. rewrite HStop. cbn. lia.
     - destruct t; cbn in HEnc; try congruence. inv HEnc.
       rewrite CopySymbols_steps_equation. cbn. destruct (stop a).
-      + omega.
-      + apply Nat.add_le_mono_l. replace (8 * S (|r1|)) with (8 + 8 * |r1|) by omega.
+      + lia.
+      + apply Nat.add_le_mono_l. replace (8 * S (|r1|)) with (8 + 8 * |r1|) by lia.
         eapply IHr1; eauto. cbn. now simpl_tape.
   Qed.
 
@@ -307,7 +307,7 @@ Section Copy.
     stop x = true ->
     CopySymbols_steps stop (midtape ls m (rs ++ x :: rs')) <= 16 + 8 * length rs.
   Proof.
-    intros. erewrite CopySymbols_steps_local with (r1 := m :: rs); cbn -[plus mult]; eauto. omega.
+    intros. erewrite CopySymbols_steps_local with (r1 := m :: rs); cbn -[plus mult]; eauto. lia.
   Qed.
 
   Corollary CopySymbols_steps_moveright ls m rs x rs' :
@@ -315,8 +315,8 @@ Section Copy.
     CopySymbols_steps stop (tape_move_right' ls m (rs ++ x :: rs')) <= 8 + 8 * length rs.
   Proof.
     intros HStop. destruct rs as [ | s s'] eqn:E; cbn.
-    - rewrite CopySymbols_steps_equation. cbn. rewrite HStop; cbn. omega.
-    - rewrite CopySymbols_steps_midtape; auto. omega.
+    - rewrite CopySymbols_steps_equation. cbn. rewrite HStop; cbn. lia.
+    - rewrite CopySymbols_steps_midtape; auto. lia.
   Qed.
 
   Lemma CopySymbols_L_steps_local t r1 sym r2 :
@@ -325,11 +325,11 @@ Section Copy.
     CopySymbols_L_steps stop t <= 8 + 8 * length r1.
   Proof.
     revert t sym r2. induction r1; intros t sym r2 HEnc HStop; cbn -[plus mult] in *.
-    - destruct t; cbn in HEnc; inv HEnc. rewrite CopySymbols_L_steps_equation. cbn. rewrite HStop. cbn. omega.
+    - destruct t; cbn in HEnc; inv HEnc. rewrite CopySymbols_L_steps_equation. cbn. rewrite HStop. cbn. lia.
     - destruct t; cbn in HEnc; try congruence. inv HEnc.
       rewrite CopySymbols_L_steps_equation. cbn. destruct (stop a).
-      + omega.
-      + apply Nat.add_le_mono_l. replace (8 * S (|r1|)) with (8 + 8 * |r1|) by omega.
+      + lia.
+      + apply Nat.add_le_mono_l. replace (8 * S (|r1|)) with (8 + 8 * |r1|) by lia.
         eapply IHr1; eauto. cbn. now simpl_tape.
   Qed.
 
@@ -337,7 +337,7 @@ Section Copy.
     stop x = true ->
     CopySymbols_L_steps stop (midtape (ls ++ x :: ls') m rs) <= 16 + 8 * length ls.
   Proof.
-    intros. erewrite CopySymbols_L_steps_local with (r1 := m :: ls); cbn -[plus mult]; eauto. omega.
+    intros. erewrite CopySymbols_L_steps_local with (r1 := m :: ls); cbn -[plus mult]; eauto. lia.
   Qed.
 
   Corollary CopySymbols_L_steps_moveleft ls ls' x m rs :
@@ -345,8 +345,8 @@ Section Copy.
     CopySymbols_L_steps stop (tape_move_left' (ls ++ x :: ls') m rs) <= 8 + 8 * length ls.
   Proof.
     intros HStop. destruct ls as [ | s s'] eqn:E; cbn.
-    - rewrite CopySymbols_L_steps_equation. cbn. rewrite HStop; cbn. omega.
-    - rewrite CopySymbols_L_steps_midtape; auto. omega.
+    - rewrite CopySymbols_L_steps_equation. cbn. rewrite HStop; cbn. lia.
+    - rewrite CopySymbols_L_steps_midtape; auto. lia.
   Qed.
   
 
@@ -494,7 +494,7 @@ Section Move.
       intros tin ((), tout) H. cbn. intros s x HEncX HCod.
       unfold ResetEmpty_size in *.
       destruct HEncX as (ls&HEncX). TMSimp; clear_trivial_eqs.
-      hnf. do 2 eexists. split. f_equal. cbn. omega.
+      hnf. do 2 eexists. split. f_equal. cbn. lia.
     }
   Qed.
 
@@ -522,7 +522,7 @@ Section Move.
       unfold ResetEmpty1_size in *.
       destruct HEncX as (ls&HEncX). unfold size in *. TMSimp; clear_trivial_eqs.
       destruct (cX x); cbn in *; inv HCod. destruct l; cbn in *; inv H4.
-      hnf. do 2 eexists. split. f_equal. cbn. omega.
+      hnf. do 2 eexists. split. f_equal. cbn. lia.
     }
   Qed.
 
@@ -569,7 +569,7 @@ Section CopyValue.
       - apply pair_inv in HCopy as (HCopy1&HCopy2). TMSimp. split.
         + hnf. eexists. rewrite map_rev, rev_involutive. split. f_equal. auto.
         + hnf. eexists. rewrite map_rev, rev_involutive. split. f_equal.
-          simpl_list. rewrite skipn_length. cbn. unfold CopyValue_size, size. omega.
+          simpl_list. rewrite skipn_length. cbn. unfold CopyValue_size, size. lia.
       - now intros ? (?&<-&?) % in_map_iff.
     }
   Qed.
@@ -588,7 +588,7 @@ Section CopyValue.
       intros tin k (x&HEncX&Hk).
       exists (8 + 4 * length (Encode_map _ _ x : list sig)), (16 + 8 * length (Encode_map _ _ x : list sig)). repeat split; cbn; eauto.
       - exists x. split. auto. unfold MoveRight_steps, size. now rewrite map_length.
-      - unfold size in *. rewrite !map_length. omega.
+      - unfold size in *. rewrite !map_length. lia.
       - intros tmid () (H1&HInj). TMSimp.
         apply tape_contains_contains_size in HEncX.
         specialize H1 with (1 := HEncX).
@@ -662,12 +662,12 @@ Section MoveValue.
     {
       intros tin k (x&y&HEncX&HEncY&Hk).
       exists (8 + 4 * length (cY y)), (34 + 16 * length (cX x)). repeat split; cbn; eauto.
-      - unfold size in *. omega.
+      - unfold size in *. lia.
       - intros tmid1 () (H1&HInj1). TMSimp.
         apply tape_contains_contains_size in HEncX; apply tape_contains_contains_size in HEncY.
         specialize H1 with (1 := HEncY).
         exists (25 + 12 * length (cX x)), (8 + 4 * length (cX x)). repeat split; cbn; eauto.
-        + omega.
+        + lia.
         + intros tmid2 () H2.
           specialize H2 with (1 := HEncX) (2 := H1) as (H2&H2').
           exists x. split; eauto.
@@ -777,12 +777,12 @@ Section Translate.
     }
     {
       intros tin k (x&HEncX&Hk). unfold Translate_steps in *.
-      exists (8 + 4 * size cX x), (8 + 4 * size cX x). repeat split; try omega.
+      exists (8 + 4 * size cX x), (8 + 4 * size cX x). repeat split; try lia.
       eexists. repeat split; eauto.
       intros tmid () H. cbn in H.
       apply tape_contains_contains_size in HEncX.
       specialize H with (1 := HEncX). 
-      exists x. split. eauto. unfold MoveLeft_steps. omega.
+      exists x. split. eauto. unfold MoveLeft_steps. lia.
     }
   Qed.
 

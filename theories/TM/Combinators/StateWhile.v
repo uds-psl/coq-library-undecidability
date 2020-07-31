@@ -167,9 +167,9 @@ Section StateWhile.
     - apply loop_unlift with (f := step (projT1 (pM l))) (h := haltConf (M := projT1 (pM l))) in HLoop1 as (c2'&HLoop1&->).
       + exists c2'. destruct (projT2 (pM l) (cstate c2')) as [l1|l2] eqn:E.
         * exists k1. eapply StateWhile_split_repeat in HLoop2 as (k2'&HLoop2&->). exists k2'. repeat split. all: eauto.
-          -- omega.
+          -- lia.
           -- now apply loop_fulfills in HLoop1.
-        * split. eapply loop_monotone. apply HLoop1. omega. eapply StateWhile_split_break; eauto. now apply loop_fulfills in HLoop1.
+        * split. eapply loop_monotone. apply HLoop1. lia. eapply StateWhile_split_break; eauto. now apply loop_fulfills in HLoop1.
       + apply lifth_comp'.
       + apply step_comp.
     - apply lifth_comp.
@@ -203,7 +203,7 @@ Section StateWhile.
     loopM (StateWhileTM l) (lift c1) k = Some (lift c2).
   Proof.
     intros HLoop HHalt HL. unfold loopM in *.
-    replace k with (k + 0) by omega.
+    replace k with (k + 0) by lia.
     apply loop_merge with (f := step (StateWhileTM l)) (h := @lifth l) (a2 := lift c2).
     - apply lifth_comp.
     - eapply loop_lift with (lift := lift) (f' := step (StateWhileTM l)) (h' := @lifth l) in HLoop; auto.
@@ -242,7 +242,7 @@ Section StateWhile.
     destruct (projT2 (pM l) (cstate c2)) as [l1|l2] eqn:E.
     - destruct HLoop as (k1&k2&HLoop1&HLoop2&Hk).
       apply HRel in HLoop1. rewrite E in HLoop1. rewrite <- lift_init in HLoop2.
-      eapply startState_irrelevant in HLoop2. specialize IH with (2 := HLoop2). spec_assert IH by omega.
+      eapply startState_irrelevant in HLoop2. specialize IH with (2 := HLoop2). spec_assert IH by lia.
       econstructor 1; eauto.
     - destruct HLoop as (HLoop&->).
       apply HRel in HLoop. rewrite E in *.
@@ -271,8 +271,8 @@ Section StateWhile.
       specialize (Realise_M _ _ _ _ Hloop).
       destruct (projT2 (pM l) (cstate oconf)) as [ l1 | l2 ] eqn:E1.
       - specialize HT3 with (1 := Realise_M) as (k2&HT3&Hi).
-        specialize (IH k2 ltac:(omega) _ _ HT3) as (oconf2&Hloop2).
-        exists oconf2. apply loop_monotone with (k1 := k1 + (1 + k2)). 2: omega.
+        specialize (IH k2 ltac:(lia) _ _ HT3) as (oconf2&Hloop2).
+        exists oconf2. apply loop_monotone with (k1 := k1 + (1 + k2)). 2: lia.
         cbn -[plus]. rewrite lift_init.
         refine (StateWhile_merge_repeat Hloop _ _ Hloop2); auto.
         unfold loopM in *; now apply loop_fulfills in Hloop.
@@ -363,7 +363,7 @@ Section WhileCoInduction.
   Proof.
     intros. revert l. cofix IH. intros l tin k HT. specialize H with (1 := HT) as (k1&H1&H2). econstructor; eauto.
     - intros tmid ymid HR. specialize (H2 (inl ymid) tmid HR) as (k2&H2&Hk); cbn in *.
-      exists k2. split. 2: omega. now apply IH.
+      exists k2. split. 2: lia. now apply IH.
     - intros tmid l2 HR. now specialize (H2 (inr l2) tmid HR).
   Qed.
 

@@ -37,22 +37,22 @@ where " [ f ; v ; min ; c ] ~~> x " := (@ra_bs_c min c _ f v x).
 Lemma ra_bs_mono min k (f : recalg k) v c1 x :
   [f ; v ; min ; c1 ] ~~> x -> forall c2, c1 <= c2 -> [f ; v ; min; c2] ~~> x. 
 Proof.
-  induction 1; intros; try (destruct c2;[ omega | ]).
+  induction 1; intros; try (destruct c2;[ lia | ]).
   - econstructor.
   - econstructor.
   - econstructor.
   - econstructor.
-  - destruct c2; try omega. econstructor.
-    + intros. eapply H0. omega.
-    + eapply IHra_bs_c. omega.
-  - econstructor. eapply IHra_bs_c. omega.
+  - destruct c2; try lia. econstructor.
+    + intros. eapply H0. lia.
+    + eapply IHra_bs_c. lia.
+  - econstructor. eapply IHra_bs_c. lia.
   - econstructor.
-    + eapply IHra_bs_c1. omega.
-    + eapply IHra_bs_c2. omega.
+    + eapply IHra_bs_c1. lia.
+    + eapply IHra_bs_c2. lia.
   - econstructor.
-    + omega.
-    + intros. eapply H1. omega. omega.
-    + eapply IHra_bs_c. omega.
+    + lia.
+    + intros. eapply H1. lia. lia.
+    + eapply IHra_bs_c. lia.
 Qed.
 
 Lemma vec_sum_le:
@@ -62,8 +62,8 @@ Proof.
   induction cst; cbn.
   - invert pos j.
   - invert pos j.
-    + omega. 
-    + specialize (IHcst j); omega.
+    + lia. 
+    + specialize (IHcst j); lia.
 Qed.
 
 Lemma ra_bs_from_c k (f : recalg k) c v x :
@@ -72,7 +72,7 @@ Proof.
   remember 0 as min.
   induction 1; subst; eauto using ra_bs.
   econstructor.
-  + intros; eapply H1; omega.
+  + intros; eapply H1; lia.
   + auto.
 Qed.
 
@@ -90,27 +90,27 @@ Proof.
     econstructor.
     + intros. eapply ra_bs_mono. eauto.
       rewrite <- Nat.add_sub_assoc.
-      2: pose (pos2nat_prop j); omega.
+      2: pose (pos2nat_prop j); lia.
       enough (vec_pos cst j <= vec_sum cst).
       lia. eapply vec_sum_le.
-    + eapply ra_bs_mono. eauto. omega.
+    + eapply ra_bs_mono. eauto. lia.
   - destruct IHra_bs as [c]. exists (S c). now econstructor.
   - destruct IHra_bs1 as [c1].
     destruct IHra_bs2 as [c2].
     exists (1 + c1 + c2).
     cbn. econstructor.
-    + eapply ra_bs_mono. eauto. omega.
-    + eapply ra_bs_mono. eauto. omega.
+    + eapply ra_bs_mono. eauto. lia.
+    + eapply ra_bs_mono. eauto. lia.
   - destruct IHra_bs as [c].
     eapply vec_reif in H0 as [cst].
     exists (1 + c + vec_sum cst + x). cbn.
-    econstructor. omega. 
+    econstructor. lia. 
     + intros. eapply ra_bs_mono. eauto.
       rewrite <- Nat.add_sub_assoc.
-      2: pose (pos2nat_prop j); omega.
-      enough (vec_pos cst j <= vec_sum cst) by omega.
+      2: pose (pos2nat_prop j); lia.
+      enough (vec_pos cst j <= vec_sum cst) by lia.
       eapply vec_sum_le.
-    + eapply ra_bs_mono. eauto. omega.
+    + eapply ra_bs_mono. eauto. lia.
 Qed.
 
 Local Hint Resolve ra_bs_from_c ra_bs_to_c : core.
@@ -219,11 +219,11 @@ Proof.
     edestruct IHv as (? & ? & ?). eauto.
     exists (n1 ## x). split. cbn. firstorder congruence.
     intros j; pos_inv j.
-    + rewrite pos2nat_fst in *. assert (S n - 1 = n) by omega. rewrite H1 in *.
+    + rewrite pos2nat_fst in *. assert (S n - 1 = n) by lia. rewrite H1 in *.
       cbn -[eval].  eassumption.
     + rewrite pos2nat_nxt.
       specialize (H0 j). 
-      assert (S n - S (S (pos2nat j)) = n - S (pos2nat j)) by omega. rewrite H1 in *.
+      assert (S n - S (S (pos2nat j)) = n - S (pos2nat j)) by lia. rewrite H1 in *.
       cbn. rewrite H0. reflexivity.
 Qed.
 
@@ -243,10 +243,10 @@ Proof.
   induction w.
   - invert pos j.
   - invert pos j; cbn.
-    + invert pos k; cbn; auto; omega.
+    + invert pos k; cbn; auto; lia.
     + invert pos k; cbn; auto.
       apply IHw. 
-      rewrite !pos2nat_nxt in H; omega.
+      rewrite !pos2nat_nxt in H; lia.
 Qed.
 
 Lemma erase_correct k min (f : recalg k) v n c  :
@@ -285,24 +285,24 @@ Proof.
       eapply EqDec.inj_right_pair in H7. subst.
       eapply EqDec.inj_right_pair in H8. subst.
       assert (forall j : pos k, eval (c0 - pos2nat j) min (erase (vec_pos t j)) (vec_list v) = Some (inl (vec_pos w j))).
-      intros. eapply H. omega.
+      intros. eapply H. lia.
                                       
-      cbn. eapply H. omega. eapply H. omega. specialize (H9 j).
-      eapply H in H9. 2:omega. eapply H. omega. eauto.
+      cbn. eapply H. lia. eapply H. lia. specialize (H9 j).
+      eapply H in H9. 2:lia. eapply H. lia. eauto.
       remember (S c0) as c'. cbn.
 
       assert (eval c' min (rec_erase erase t) (vec_list v) = Some (inr (vec_list w))).
       { subst. clear - H1. revert c0 H1. induction t; intros.
         - cbn; vec nil w; reflexivity.
         - cbn. pose proof (H1 pos_fst). cbn in H. rewrite pos2nat_fst in H.
-          replace (c0 - 0) with c0 in H by omega. rewrite H.
+          replace (c0 - 0) with c0 in H by lia. rewrite H.
           revert H1 H; vec split w with y; intros H1 H.
           destruct c0. cbn in H. inv H. erewrite IHt.
           reflexivity.
           intros. specialize (H1 (pos_nxt j)). rewrite pos2nat_nxt in H1.
           eassumption.
       }
-      rewrite H2. subst. eapply H in H10. rewrite H10. reflexivity. omega.
+      rewrite H2. subst. eapply H in H10. rewrite H10. reflexivity. lia.
     + destruct n; inversion 1.
       destruct (eval n min (rec_erase erase t) (vec_list v)) eqn:E; try congruence.
       destruct s; try congruence.
@@ -314,33 +314,33 @@ Proof.
       destruct (eval_inv E) as (w & ? & ?). subst.
 
       eapply in_ra_bs_c_comp with (w := w).
-      * intros. eapply H. omega. specialize (H2 j). assert (S n - S (pos2nat j) = n - pos2nat j) by omega. rewrite H1 in *.
+      * intros. eapply H. lia. specialize (H2 j). assert (S n - S (pos2nat j) = n - pos2nat j) by lia. rewrite H1 in *.
         eauto.
-      * eapply H. omega. eassumption.
+      * eapply H. lia. eassumption.
   - split. inversion 1.
     + eapply EqDec.inj_right_pair in H4. subst.
       eapply EqDec.inj_right_pair in H6. subst.
       eapply EqDec.inj_right_pair in H7. subst.
       cbn.
-      eapply H in H8. 2:omega. rewrite H8. reflexivity.
+      eapply H in H8. 2:lia. rewrite H8. reflexivity.
     + eapply EqDec.inj_right_pair in H2. subst.
       eapply EqDec.inj_right_pair in H5. subst.
       eapply EqDec.inj_right_pair in H6. subst.
       eapply H in H7.
-      cbn. 2:omega. cbn in H7. rewrite H7.
-      eapply H in H9. 2:omega. cbn in H9. rewrite H9. reflexivity.
+      cbn. 2:lia. cbn in H7. rewrite H7.
+      eapply H in H9. 2:lia. cbn in H9. rewrite H9. reflexivity.
     + intros. destruct n; inv H0.
       revert H2; vec split v with n1; cbn; intros H2.
       destruct n1.
       * destruct (eval n min (erase f1) (vec_list v)) eqn:E.
         destruct s; inv H2.
-        -- econstructor. eapply H. omega. eauto.
+        -- econstructor. eapply H. lia. eauto.
         -- econstructor. congruence.
       * destruct eval eqn:E2; try congruence.
         destruct s; try congruence.
         destruct (eval n min (erase f2)) eqn:E3.
         destruct s; inv H2.
-        -- econstructor. eapply H. omega. eauto. eapply H. omega. eauto.
+        -- econstructor. eapply H. lia. eauto. eapply H. lia. eauto.
         -- congruence.
   - split.
     + inversion 1. subst.
@@ -349,26 +349,26 @@ Proof.
       clear H0. unfold ge in *.
       revert c0 H w H7 H8. pattern n0. revert min H3.
       eapply le_ind2; intros.
-      * cbn in *. eapply H in H8. 2:omega.
+      * cbn in *. eapply H in H8. 2:lia.
         assert (c0 - (n0 - n0) = c0) by lia. rewrite H0 in *.
         cbn in H8. rewrite H8. reflexivity.
-      * destruct n0; try omega.
-        assert (n < S n0) by omega.
+      * destruct n0; try lia.
+        assert (n < S n0) by lia.
         assert (H10 := H7).
         specialize (H7 (nat2pos H2)). rewrite pos2nat_nat2pos in H7.
-        assert (n <= n) by omega. eapply H7 in H3.
-        eapply H1 in H3. 2: omega. cbn.
-        assert (c0 - (n - n) = c0) by omega. rewrite H4 in *. cbn in H3. rewrite H3.
+        assert (n <= n) by lia. eapply H7 in H3.
+        eapply H1 in H3. 2: lia. cbn.
+        assert (c0 - (n - n) = c0) by lia. rewrite H4 in *. cbn in H3. rewrite H3.
 
         assert (eval c0 (S n) (rc_min (erase f)) (vec_list v) = Some (inl (S n0))).
-        eapply H1 with (f := ra_min f). omega.
+        eapply H1 with (f := ra_min f). lia.
 
         destruct c0. inv H3.
-        econstructor. omega.
+        econstructor. lia.
            
         intros ? ?. specialize (H10 j).
-        assert (S c0 - (pos2nat j - n) = c0 - (pos2nat j - S n)) by omega.
-        rewrite H6 in *.  eapply H10. omega.
+        assert (S c0 - (pos2nat j - n) = c0 - (pos2nat j - S n)) by lia.
+        rewrite H6 in *.  eapply H10. lia.
         assert (S c0 - (S n0 - n) = c0 - (S n0 - S n)) by lia. rewrite H5 in *.
         eassumption.
         now rewrite H5.
@@ -377,32 +377,32 @@ Proof.
       destruct (eval n) eqn:E1; try now inv H0.
       destruct s; try congruence.
       destruct n1; inv H0.
-      * econstructor. omega. intros. pose proof (pos2nat_prop j). omega.
-        eapply H. omega. assert (n - (n0 - n0) = n) as -> by omega. eassumption.
+      * econstructor. lia. intros. pose proof (pos2nat_prop j). lia.
+        eapply H. lia. assert (n - (n0 - n0) = n) as -> by lia. eassumption.
       * destruct (eval n (S min)) eqn:E2; try now inv H2.
         destruct s; inv H2.
-        eapply H with (f := ra_min f) in E2. 2:omega.
-        eapply H with (v := vec_cons min v) in E1. 2:omega.
+        eapply H with (f := ra_min f) in E2. 2:lia.
+        eapply H with (v := vec_cons min v) in E1. 2:lia.
         inversion E2; subst.
         eapply EqDec.inj_right_pair in H0. subst.
         eapply EqDec.inj_right_pair in H1. subst.
-        assert (min < n0) by omega.
+        assert (min < n0) by lia.
         eapply in_ra_bs_c_min with (w := vec_change w (nat2pos H0) n1).
-        -- omega.
+        -- lia.
         -- intros. inversion H1.
            ++ subst.
               rewrite nat2pos_pos2nat.
               rewrite vec_change_eq. 2:reflexivity.
-              assert (S c0 - (pos2nat j - pos2nat j) = S c0) as -> by omega.
+              assert (S c0 - (pos2nat j - pos2nat j) = S c0) as -> by lia.
               eassumption.
            ++ specialize (H6 j).
               assert (S c0 - (S m - min) = c0 - (pos2nat j - S min)) by lia. rewrite H5 in *.
               enough (vec_pos w j = vec_pos (vec_change w (nat2pos H0) n1) j).
-              rewrite H8 in H6. rewrite H3. eapply H6. omega.
-              assert (pos2nat j > min) by omega.
+              rewrite H8 in H6. rewrite H3. eapply H6. lia.
+              assert (pos2nat j > min) by lia.
               eapply vec_pos_gt.
-              rewrite pos2nat_nat2pos. omega.
-        -- assert (S c0 - (n0 - min) = c0 - (n0 - S min)) by omega. rewrite H1. eassumption.
+              rewrite pos2nat_nat2pos. lia.
+        -- assert (S c0 - (n0 - min) = c0 - (n0 - S min)) by lia. rewrite H1. eassumption.
            Grab Existential Variables. exact vec_zero.
 Qed.
 

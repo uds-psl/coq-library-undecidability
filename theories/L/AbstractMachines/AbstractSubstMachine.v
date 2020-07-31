@@ -37,7 +37,7 @@ Lemma correctTime' s t k c0 C V:
 Proof.
   intros Ev.
   induction Ev in c0, C,V |- *.
-  -exists (compile s),1. split. constructor. split. 2:omega. apply (rcomp_1 step). cbn. constructor.
+  -exists (compile s),1. split. constructor. split. 2:lia. apply (rcomp_1 step). cbn. constructor.
    autorewrite with list. apply jumpTarget_correct.
   -cbn [compile]. autorewrite with list. cbn [List.app].
    edestruct IHEv1 with (c0:=compile t ++ appT :: c0) (C:=C) (V:=V)
@@ -53,7 +53,7 @@ Proof.
      apply pow_add. eexists. split. eapply (rcomp_1 step). constructor.
      autorewrite with list in R3.
      rewrite <- substP_correct in R3. exact R3.
-   +omega. 
+   +lia. 
 Qed.
 
 Lemma correctTime s t k:
@@ -70,17 +70,17 @@ Qed.
 
 Lemma helperF P T: sumn (map sizeT P) + sumn (map sizeP T) <= sumn (map sizeP (tc P T)).
 Proof.
-  destruct P as [|[] []];cbn;try omega.   
+  destruct P as [|[] []];cbn;try lia.   
 Qed.
 
 Lemma helper2 s m: size s <= m -> 1+ sumn (map sizeT (compile s)) <= 2*m.
 Proof.
-  intros. pose (sizeP_size s). omega. 
+  intros. pose (sizeP_size s). lia. 
 Qed.
 
 Lemma helperF' P T:  sumn (map sizeP (tc P T)) <= sumn (map sizeT P) + sumn (map sizeP T) + 1.
 Proof.
-  destruct P as [|[] []];cbn;try omega. 
+  destruct P as [|[] []];cbn;try lia. 
 Qed.
 
 Definition sizeSt '(T',V') :=  (sumn (map sizeP T') + sumn (map sizeP V')).
@@ -103,10 +103,10 @@ Proof.
   -eexists _,(compile s). cbn - [sizeP]. autorewrite with list. split. constructor. split.
    {econstructor. 2:apply redWithMaxSizeR. constructor. now eauto using jumpTarget_correct. reflexivity. reflexivity. }
    repeat (cbn - [ Nat.max sizeP];autorewrite with list).
-   replace( sizeP (lamT :: compile s ++ retT :: P)) with (sizeP (compile s)+sizeP P + 1). 2:{unfold sizeP;repeat (cbn;autorewrite with list);try omega. }
+   replace( sizeP (lamT :: compile s ++ retT :: P)) with (sizeP (compile s)+sizeP P + 1). 2:{unfold sizeP;repeat (cbn;autorewrite with list);try lia. }
    specialize (sizeP_size' s). specialize (sizeP_size s).
    specialize (helperF' P T) as ?. specialize (helperF P T) as ?.
-   intros. unfold sizeP in *. eapply Nat.max_case_strong. all:omega.
+   intros. unfold sizeP in *. eapply Nat.max_case_strong. all:lia.
   -cbn [compile]. autorewrite with list. cbn [List.app].
 
     edestruct IHEv1 as (m1'&p1&rep1&R1&eq11&eq12).
@@ -174,5 +174,5 @@ Proof.
   autorewrite with list in *.
   split.
   -eapply R.
-  -cbn in leq. omega.
+  -cbn in leq. lia.
 Qed.

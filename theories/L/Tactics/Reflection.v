@@ -1,4 +1,4 @@
-From Undecidability.L Require Export L.
+From Undecidability.L Require Export Util.L_facts.
 From Undecidability.L.Tactics Require Export LClos_Eval.
 From Undecidability.L.Tactics Require Import mixedTactics.
 Require Import FunInd.
@@ -111,7 +111,7 @@ Definition rValidComp phi s := Proc phi /\validComp (denoteComp phi s).
 Lemma rSubstList_correct phi s x A: Proc phi -> denoteTerm phi (rSubstList s x A) = substList (denoteTerm phi s) x (map (denoteTerm phi) A).
 Proof.
   revert x. induction s; intros;simpl.
-  - decide (x < x0); decide (x0 > x); try omega ;intuition (try congruence);simpl.
+  - decide (x < x0); decide (x0 > x); try lia ;intuition (try congruence);simpl.
     now rewrite <-map_nth with (f:= denoteTerm phi).
   -now rewrite IHs1,IHs2.
   -now rewrite IHs.
@@ -290,10 +290,10 @@ Proof.
   -rewrite Bool.negb_true_iff in eq. apply leb_complete_conv in eq. now constructor.
   -rewrite Bool.andb_true_iff in eq. constructor; intuition.
   -constructor. auto.
-  -apply bound_ge with (k:=0);[|omega]. rewrite <- closed_dcl. apply pp.
+  -apply bound_ge with (k:=0);[|lia]. rewrite <- closed_dcl. apply pp.
   -unfold rho,r.
    repeat (eapply dclApp||eapply dcllam||eapply dclvar).
-   all:try omega. eauto.
+   all:try lia. eauto.
 Qed.
 
 Definition rClosed_decb s:= rClosed_decb' 0 s.

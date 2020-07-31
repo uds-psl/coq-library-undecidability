@@ -95,8 +95,8 @@ Proof.
   intros.
   destruct m eqn:E1, t eqn:E2; cbn; auto.
   - now rewrite !app_length.
-  - destruct l; cbn; auto. rewrite !app_length. f_equal. rewrite !map_length. cbn. rewrite !app_length. cbn. omega.
-  - destruct l0; cbn; auto. rewrite !app_length. f_equal. rewrite !app_length. cbn. rewrite !map_length. cbn. rewrite !app_length. cbn. omega.
+  - destruct l; cbn; auto. rewrite !app_length. f_equal. rewrite !map_length. cbn. rewrite !app_length. cbn. lia.
+  - destruct l0; cbn; auto. rewrite !app_length. f_equal. rewrite !app_length. cbn. rewrite !map_length. cbn. rewrite !app_length. cbn. lia.
 Qed.
   
 
@@ -121,7 +121,7 @@ Fixpoint split_vector {X : Type} {n : nat} (v : Vector.t X n) (k : nat) : Vector
 Proof.
   destruct k as [ | k']; cbn.
   - split. apply Vector.nil.
-    eapply Vector.cast. apply v. abstract omega.
+    eapply Vector.cast. apply v. abstract lia.
   - destruct v as [ | x n' v']; cbn.
     + split. apply Vector.nil. apply Vector.nil.
     + specialize (split_vector X n' v' k') as (rec1&rec2).
@@ -163,7 +163,7 @@ Qed.
 Lemma split_nat (n k : nat) : min k n + (n-k) = n.
 Proof.
   revert n. induction k as [ | ? IH]; intros; cbn.
-  - omega.
+  - lia.
   - destruct n; cbn; f_equal; auto.
 Qed.
   

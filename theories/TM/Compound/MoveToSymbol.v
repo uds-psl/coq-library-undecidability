@@ -74,7 +74,7 @@ Section MoveToSymbol.
       - apply Return_RealiseIn. eapply Nop_Sem.
     }
     {
-      (cbn; omega).
+      (cbn; lia).
     }
     {
       unfold MoveToSymbol_Step_Rel, MoveToSymbol_Step_Fun. intros tin (yout, tout) H.
@@ -100,7 +100,7 @@ Section MoveToSymbol.
     end.
   Proof.
     intros. cbn. unfold rlength. simpl_tape.
-    destruct t eqn:E; cbn in *; try now inv teq. omega.
+    destruct t eqn:E; cbn in *; try now inv teq. lia.
   Qed.
 
   Lemma MoveToSymbol_Step_Fun_M2_None t :
@@ -202,14 +202,14 @@ Section MoveToSymbol.
       - reflexivity.
       - intros ymid tmid. intros H. destruct ymid as [()| ]; TMSimp.
         + destruct (current tin[@Fin0]) eqn:E; TMSimp; auto.
-          * destruct (f e) eqn:Ef; inv H0. rewrite MoveToSymbol_steps_equation in HT. rewrite E, Ef in HT. omega.
-          * rewrite MoveToSymbol_steps_equation in HT. rewrite E in HT. omega.
+          * destruct (f e) eqn:Ef; inv H0. rewrite MoveToSymbol_steps_equation in HT. rewrite E, Ef in HT. lia.
+          * rewrite MoveToSymbol_steps_equation in HT. rewrite E in HT. lia.
         + destruct (current tin[@Fin0]) eqn:E.
           * destruct (f e) eqn:Ef; inv H0. rewrite MoveToSymbol_steps_equation in HT. rewrite E, Ef in HT.
             exists (MoveToSymbol_steps (doAct tin[@Fin0] (Some (g e), Rmove))). cbn.
             split.
             -- unfold MoveToSymbol_Step_Fun. rewrite E, Ef. cbn. reflexivity.
-            -- rewrite <- HT. cbn. omega.
+            -- rewrite <- HT. cbn. lia.
           * congruence.
     }
   Qed.
@@ -230,7 +230,7 @@ Section MoveToSymbol.
       else MoveToSymbol_L_Fun (doAct t (Some (g s), Lmove))
     | _ => t
     end.
-  Proof. intros. unfold llength. cbn. simpl_tape. destruct t; cbn in *; inv teq. omega. Qed.
+  Proof. intros. unfold llength. cbn. simpl_tape. destruct t; cbn in *; inv teq. lia. Qed.
 
   Lemma MoveToSymbol_mirror t t' :
     MoveToSymbol_Fun (mirror_tape t) = mirror_tape t' -> MoveToSymbol_L_Fun t = t'.
@@ -272,7 +272,7 @@ Section MoveToSymbol.
     | Some s => if f s then 4 else 4 + (MoveToSymbol_L_steps (doAct t (Some (g s), Lmove)))
     | _ => 4
     end.
-  Proof. intros. unfold llength. cbn. simpl_tape. destruct t; cbn in *; inv teq. omega. Qed.
+  Proof. intros. unfold llength. cbn. simpl_tape. destruct t; cbn in *; inv teq. lia. Qed.
 
   Lemma MoveToSymbol_steps_mirror t :
     MoveToSymbol_L_steps t = MoveToSymbol_steps (mirror_tape t).

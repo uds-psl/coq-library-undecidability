@@ -136,7 +136,7 @@ Section While.
     eapply loop_lift with (lift := id) (f' := step (WhileTM)) (h' := haltConf (M := projT1 pM)) in HLoop; cbv [id] in *; cbn; auto; cycle 1.
     { intros. symmetry. now apply step_comp. }
     unfold loopM.
-    replace k1 with (k1 + 0) by omega.
+    replace k1 with (k1 + 0) by lia.
     apply loop_merge with (h := haltConf (M := projT1 pM)) (a2 := c2).
     - apply halt_comp.
     - apply HLoop.
@@ -167,7 +167,7 @@ Section While.
     - apply While_split_term with (f := f) in HLoop2 as ->; auto. 2: apply (loop_fulfills HLoop1). unfold While_part. rewrite E.
       constructor 1. specialize HRel with (1 := HLoop1). now rewrite E in HRel.
     - apply While_split_repeat in HLoop2 as (k2'&->&HLoop2); auto. 2: apply (loop_fulfills HLoop1).
-      specialize IH with (2 := HLoop2); spec_assert IH by omega.
+      specialize IH with (2 := HLoop2); spec_assert IH by lia.
       econstructor 2.
       + specialize HRel with (1 := HLoop1). rewrite E in HRel. eassumption.
       + apply IH.
@@ -197,8 +197,8 @@ Section While.
       - specialize HT2 with (1 := Realise_M).
         exists oconf. eapply loop_monotone; eauto. eapply While_merge_term; eauto.
       - specialize HT3 with (1 := Realise_M) as (i2&HT3&Hi).
-        specialize (IH i2 ltac:(omega) _ HT3) as (oconf2&Hloop2).
-        exists oconf2. apply loop_monotone with (k1 := i1 + (1 + i2)). 2: omega.
+        specialize (IH i2 ltac:(lia) _ HT3) as (oconf2&Hloop2).
+        exists oconf2. apply loop_monotone with (k1 := i1 + (1 + i2)). 2: lia.
         eapply While_merge_repeat; eauto.
     Qed.
 

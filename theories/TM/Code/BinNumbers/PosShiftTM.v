@@ -216,7 +216,7 @@ Lemma IsOne_Sem : IsOne ⊨c(IsOne_steps) IsOne_Rel.
 Proof.
   eapply RealiseIn_monotone.
   { unfold IsOne. TM_Correct. }
-  { Unshelve. 5-10: reflexivity. 3: reflexivity. reflexivity. omega. }
+  { Unshelve. 5-10: reflexivity. 3: reflexivity. reflexivity. lia. }
   {
     intros tin (yout, tout) H. intros p Hp_enc. TMSimp.
     (* clear H H0. *) destruct Hp_enc as (ls&Hp_enc). TMSimp. clear Hp_enc. cbn in *.

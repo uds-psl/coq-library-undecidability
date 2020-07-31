@@ -30,7 +30,7 @@ Lemma mu_least (p : nat -> Prop) (d : forall x, dec (p x)) (H : ex p) :
   forall n, p n -> mu' d H <= n.
 Proof.
   intros n H'. unfold mu, constructive_indefinite_ground_description_nat_Acc.
-  unfold acc_implies_P_eventually. assert (Hn : 0 <= n) by omega. revert n H' Hn.
+  unfold acc_implies_P_eventually. assert (Hn : 0 <= n) by lia. revert n H' Hn.
   generalize 0, (P_eventually_implies_acc_ex p H). clear H.
   intros k H. pattern k, H. apply (@Acc_ind_dep nat (R p)). clear k H.
   intros k F IH n H1 H2. cbn. destruct (d k) as [H|H]; trivial.

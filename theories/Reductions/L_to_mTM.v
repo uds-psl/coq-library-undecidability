@@ -1,4 +1,4 @@
-From Undecidability Require Import Problems.Reduction Problems.cbvLambda TM.TM.
+From Undecidability Require Import Problems.Reduction TM.TM.
 From Undecidability.L Require Import L Seval LM_heap_def LM_heap_correct.
 Require Import Undecidability.LAM.TM.HaltingProblem.
 
@@ -13,10 +13,12 @@ Proof.
   intros ?.
   unfold HaltL, eva_LM_lin.
   split.
-  -intros (t&R). eapply completeness in R as (g&Hp&_&R). 2:easy.
+  -intros (t&R).
+   rewrite eval_iff in R.
+   eapply completeness in R as (g&Hp&_&R). 2:easy.
    eexists. split. eassumption.
    intros ? H'. inv H'.
-  -intros (?&E).
+  -intros (?&E). eapply eval_iff in E.
    eapply soundness in E as (?&?&?&?&?&?). all:eauto.
 Qed.
 

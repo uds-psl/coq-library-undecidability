@@ -8,7 +8,7 @@
 
 From Undecidability.L Require Import Tactics.
 
-Require Export Bool Omega List Setoid Morphisms.
+Require Export Bool Omega Lia List Setoid Morphisms.
 
 Global Set Implicit Arguments. 
 Global Unset Strict Implicit.
@@ -62,8 +62,8 @@ Proof.
   intros IH x. apply IH. 
   assert (G: forall n y, f y < n -> p y).
   { intros n. induction n.
-    - intros y B. exfalso. omega.
-    - intros y B. apply IH. intros z C. apply IHn. omega. }
+    - intros y B. exfalso. lia.
+    - intros y B. apply IH. intros z C. apply IHn. lia. }
   apply G.
 Qed.
 
@@ -75,8 +75,8 @@ Proof.
   intros IH l x. apply IH. intros l'.
   assert (G: forall n l' y, f l' y < n -> p l' y).
   { intros n. induction n; intros l'' y.
-    - intros B. exfalso. omega.
-    - intros B. apply IH. intros ll z C. eapply IHn. omega. }
+    - intros B. exfalso. lia.
+    - intros B. apply IH. intros ll z C. eapply IHn. lia. }
   apply G.
 Qed.
 
@@ -173,7 +173,7 @@ Hint Resolve app_incl_l app_incl_R cons_incl incl_sing.
 (*     + apply IHA. intros F. apply H. now right. *)
 (*   - tauto. *)
 (*   - cbn. destruct (Nat.eqb_spec x a). *)
-(*     + subst a. omega. *)
+(*     + subst a. lia. *)
 (*     + intros H [E | E]. *)
 (*       * now symmetry in E. *)
 (*       * tauto. *)
@@ -215,10 +215,10 @@ Section Positions.
   Proof.
     revert n.
     induction A as [|y A IH]; cbn; intros n H.
-    - exfalso. omega.
+    - exfalso. lia.
     - destruct n as [|n]; cbn.
       + now exists y.
-      + destruct (IH n) as [x H1]. omega. now exists x.
+      + destruct (IH n) as [x H1]. lia. now exists x.
   Qed.
   
  Lemma pos_nthe x A n :
@@ -257,8 +257,8 @@ Lemma pos_length X d (x : X) l n : pos d x l = Some n -> n < | l |.
 Proof.
   revert n; induction l; cbn; intros; try congruence.
   destruct (d x a).
-  - inv H. omega.
-  - destruct (pos d x l) eqn:E; inv H; try omega. specialize (IHl _ eq_refl). omega.
+  - inv H. lia.
+  - destruct (pos d x l) eqn:E; inv H; try lia. specialize (IHl _ eq_refl). lia.
 Qed.
 
 
@@ -376,7 +376,7 @@ Tactic Notation "decide" constr(p) "as" simple_intropattern(i) :=
   destruct (Dec p) as i.
 Tactic Notation "decide" "_" :=
   destruct (Dec _).
-Tactic Notation "have" constr(E) := let X := fresh "E" in decide E as [X|X]; subst; try congruence; try omega; clear X.
+Tactic Notation "have" constr(E) := let X := fresh "E" in decide E as [X|X]; subst; try congruence; try lia; clear X.
 
 Lemma Dec_true P {H : dec P} : dec2bool (Dec P) = true -> P.
 Proof.
@@ -571,7 +571,7 @@ Lemma list_cycle  (X : Type) (A : list X) x :
   x::A <> A.
 Proof.
   intros B.
-  assert (C: |x::A| <> |A|) by (cbn; omega).
+  assert (C: |x::A| <> |A|) by (cbn; lia).
   apply C. now rewrite B.
 Qed.
 

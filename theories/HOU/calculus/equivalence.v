@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import Morphisms Omega FinFun.
+Require Import Morphisms Omega Lia FinFun.
 From Undecidability.HOU Require Export std.std calculus.syntax calculus.semantics calculus.confluence. 
 
 (** * Equational Theory *)

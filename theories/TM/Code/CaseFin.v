@@ -27,11 +27,11 @@ Section CaseFin.
   Proof.
     unfold CaseFin_steps. eapply RealiseIn_monotone.
     { unfold CaseFin. TM_Correct. }
-    { Unshelve. 4,8:reflexivity. all:omega. }
+    { Unshelve. 4,8:reflexivity. all:lia. }
     {
       intros tin (yout, tout) H. intros x s HEncX.
       destruct HEncX as (ls&HEncX&Hs).
-      TMSimp. split; auto. hnf. do 2 eexists. split. f_equal. cbn. omega.
+      TMSimp. split; auto. hnf. do 2 eexists. split. f_equal. cbn. lia.
     }
   Qed.
 

@@ -176,12 +176,12 @@ Lemma computesTimeExpStep t1 t2 (tt1 : TT t1) (tt2 : TT t2) (f : t1 -> t2) (s:te
   computesTimeExp (tt1 ~> tt2) f s k fInt fT.
 
 Proof.
-  intros -> (R1&p1) ? H. split. split. eexists;split. 2:eassumption. omega. tauto. split. split. 2:tauto. rewrite <- R1. tauto. 
+  intros -> (R1&p1) ? H. split. split. eexists;split. 2:eassumption. lia. tauto. split. split. 2:tauto. rewrite <- R1. tauto. 
   intros y yInt yT yInted.
   edestruct (H y yInt yT yInted) as (v&H2&?).
   eexists v. split.
   edestruct (evalLe_trans_rev) as (H3&R3). exact H2. apply pow_step_congL. eassumption. reflexivity.
-  destruct fT. cbn in *. replace (n+k-k) with n in R3 by omega. apply R3. tauto. 
+  destruct fT. cbn in *. replace (n+k-k) with n in R3 by lia. apply R3. tauto. 
 Qed.
 
 

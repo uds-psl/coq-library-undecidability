@@ -1,4 +1,4 @@
-From Undecidability.L Require Export L.
+From Undecidability.L Require Export Util.L_facts.
 From Undecidability.L.Tactics Require Export LTactics GenEncode.
 Require Import PslBase.Numbers.
 
@@ -92,7 +92,7 @@ Proof with try solve [Coq.Init.Tactics.easy].
   destruct t. 3:easy.
   -destruct n0. easy. destruct n0. 2:easy. inv H. easy.
   -destruct t1. 2-3:easy. destruct n0. 2:easy. simpl in H. destruct (nat_unenc t2) eqn:A.
-   +apply IHt in A;simpl;try omega. destruct n. inv H. simpl. congruence.
+   +apply IHt in A;simpl;try lia. destruct n. inv H. simpl. congruence.
    +congruence.
 Qed.
 

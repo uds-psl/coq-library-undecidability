@@ -39,13 +39,13 @@ Section CaseNat.
   Proof.
     unfold CaseNat_steps. eapply RealiseIn_monotone.
     { unfold CaseNat. TM_Correct. }
-    { Unshelve. 4,8: reflexivity. all: omega. }
+    { Unshelve. 4,8: reflexivity. all: lia. }
     {
       intros tin (yout&tout) H. intros n s HEncN. TMSimp.
       destruct HEncN as (r1&HEncN&Hs). TMSimp.
       destruct n; cbn in *; TMSimp.
       - repeat econstructor; auto.
-      - hnf. eexists. split. f_equal. cbn. omega.
+      - hnf. eexists. split. f_equal. cbn. lia.
     }
   Qed.
 
@@ -66,12 +66,12 @@ Section CaseNat.
     Proof.
       unfold Constr_S_steps. eapply RealiseIn_monotone.
       { unfold Constr_S. TM_Correct. }
-      { cbn. omega. }
+      { cbn. lia. }
       {
         intros tin (yout, tout) H. intros n sn HEncN.
         TMSimp. clear all except HEncN.
         destruct HEncN as (r1&->&Hs). cbn. simpl_tape.
-        hnf. eexists. split. f_equal. simpl_list. omega.
+        hnf. eexists. split. f_equal. simpl_list. lia.
       }
     Qed.
 
@@ -93,7 +93,7 @@ Section CaseNat.
       { unfold Constr_O. TM_Correct. }
       { cbn. reflexivity. }
       { intros tin (yout, tout) H. intros s HRight. cbn in H. unfold Constr_O_size in *.
-        specialize (H 0 s eq_refl HRight). contains_ext. unfold WriteValue_size. cbn. omega.
+        specialize (H 0 s eq_refl HRight). contains_ext. unfold WriteValue_size. cbn. lia.
       }
     Qed.
 

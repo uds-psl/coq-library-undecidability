@@ -211,7 +211,7 @@ Lemma vector_sum_shift (X : Type) (n : nat) (xs : Vector.t X n) (f : X -> nat) (
 Proof.
   revert a. induction xs as [ | x n xs IH]; intros; cbn in *.
   - reflexivity.
-  - setoid_rewrite IH at 2. setoid_rewrite IH at 1. omega.
+  - setoid_rewrite IH at 2. setoid_rewrite IH at 1. lia.
 Qed.
 
 
@@ -223,7 +223,7 @@ Lemma list_sum_shift (X : Type) (xs : list X) (f : X -> nat) (a : nat) :
 Proof.
   revert a. induction xs as [ | x xs IH]; intros; cbn in *.
   - reflexivity.
-  - setoid_rewrite IH at 2. setoid_rewrite IH at 1. omega.
+  - setoid_rewrite IH at 2. setoid_rewrite IH at 1. lia.
 Qed.
 
 Lemma vector_to_list_sum (X : Type) (n : nat) (xs : Vector.t X n) (f : X -> nat) :
@@ -248,9 +248,9 @@ Lemma vector_sum_monotone_plus (X : Type) (n : nat) (a : nat) (xs : Vector.t X n
   vector_sum f1 xs <= vector_sum f2 xs + a * n.
 Proof.
   intros H. induction xs as [ | x n xs IH]; intros; cbn in *.
-  - omega.
+  - lia.
   - rewrite !vector_sum_shift. rewrite Nat.mul_succ_r.
-    rewrite H by constructor. rewrite IH by (intros; apply H; now constructor). omega.
+    rewrite H by constructor. rewrite IH by (intros; apply H; now constructor). lia.
 Qed.
 
 Lemma vector_sum_monotone_plus' (X : Type) (n : nat) (a : nat) (xs : Vector.t X n) (f1 f2 : X -> nat) :
@@ -258,9 +258,9 @@ Lemma vector_sum_monotone_plus' (X : Type) (n : nat) (a : nat) (xs : Vector.t X 
   vector_sum f1 xs + a * n <= vector_sum f2 xs.
 Proof.
   intros H. induction xs as [ | x n xs IH]; intros; cbn in *.
-  - omega.
+  - lia.
   - rewrite !vector_sum_shift. rewrite Nat.mul_succ_r.
-    rewrite <- H by constructor. rewrite <- IH by (intros; apply H; now constructor). omega.
+    rewrite <- H by constructor. rewrite <- IH by (intros; apply H; now constructor). lia.
 Qed.
 
 
@@ -293,11 +293,11 @@ Section MakeSingleTape.
     end.
 
   Lemma Encode_tape_hasSize : forall (tp : tape sigM), size tp = Encode_tape_size tp.
-  Proof. intros. unfold size. cbn. destruct tp; repeat progress (cbn; simpl_list); omega. Qed.
+  Proof. intros. unfold size. cbn. destruct tp; repeat progress (cbn; simpl_list); lia. Qed.
 
   Lemma Encode_tape_hasSize_le (tp : tape sigM) :
     Encode_tape_size tp <= sizeOfTape tp + 2.
-  Proof. destruct tp; cbn -[sizeOfTape]; omega. Qed.
+  Proof. destruct tp; cbn -[sizeOfTape]; lia. Qed.
 
 
   Lemma Encode_tapes_hasSize :
@@ -307,8 +307,8 @@ Section MakeSingleTape.
     unfold size. cbn. unfold encode_tapes. cbn.
     setoid_rewrite Encode_list_hasSize with (cX := Encode_tape sigM).
     induction T as [ | t n T IH]; cbn; intros.
-    - omega.
-    - rewrite Encode_tape_hasSize. rewrite vector_sum_shift. rewrite IH. omega.
+    - lia.
+    - rewrite Encode_tape_hasSize. rewrite vector_sum_shift. rewrite IH. lia.
   Qed.
 
   Lemma makeSingleTape_sizeOfTape (T : tapes sigM n) :
@@ -753,7 +753,7 @@ Section U.
   Proof.
     eexists. intros.
     setoid_rewrite Encode_tape_hasSize. unfold Encode_tape_size. domWith_match; cbn; domWith_approx.
-    apply dominatedWith_S'; domWith_approx. omega.
+    apply dominatedWith_S'; domWith_approx. lia.
   Qed.
 
   Lemma makeUnivTapes_size_nice M :
@@ -781,7 +781,7 @@ Section U.
     - apply dominatedWith_quad. domWith_approx.
       eapply dominatedWith_trans.
       + apply (proj2_sig (makeUnivTapes_size_nice M)).
-      + domWith_approx. apply dominatedWith_solve. rewrite Encode_nat_hasSize. omega.
+      + domWith_approx. apply dominatedWith_solve. rewrite Encode_nat_hasSize. lia.
     - domWith_approx.
   Qed.
 
@@ -864,7 +864,7 @@ Section Sum_bounded_by_max.
     list_sum f xs <= f y * length xs.
   Proof.
     induction xs as [ | x xs IH]; intros; cbn in *.
-    - omega.
+    - lia.
     - rewrite list_sum_shift. rewrite H by auto. rewrite IH by auto. nia.
   Qed.
 
@@ -1271,7 +1271,7 @@ Section UnivMultiTimeSpaceTheorem.
     eapply dominatedWith_trans with (y := Encode_tape_size T).
     - unfold Encode_tape_size. destruct T; cbn.
       all: repeat (cbn; simpl_list).
-      all: apply dominatedWith_solve; omega.
+      all: apply dominatedWith_solve; lia.
     - apply dominatedWith_solve. apply Nat.eq_le_incl. symmetry. apply Encode_tape_hasSize.
   Qed.
     

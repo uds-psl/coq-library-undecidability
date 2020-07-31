@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import List Omega.
+Require Import List Omega Lia.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.higher_order_unification.
 Import ListNotations.
 

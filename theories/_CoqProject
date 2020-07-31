@@ -345,6 +345,7 @@ L/Prelim/MoreList.v
 L/Prelim/LoopSum.v
 
 L/L.v
+L/Util/L_facts.v
 
 L/Tactics/Computable.v
 L/Tactics/ComputableTime.v
@@ -661,7 +662,7 @@ Problems/ILL.v
 Problems/FRACTRAN.v
 Problems/DIOPHANTINE.v
 Problems/RA_UNIV.v
-Problems/cbvLambda.v
+
 Problems/FOLFS.v
 
 #Legacy Reductions

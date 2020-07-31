@@ -1,4 +1,4 @@
-From Undecidability.Problems Require Import TM cbvLambda Reduction.
+From Undecidability.Problems Require Import TM Reduction.
 Require Import Undecidability.L.TM.TMEncoding.
 From Undecidability.L.Tactics Require Import LTactics GenEncode.
 From Undecidability.L.Datatypes Require Import LNat Lists LProd LBool.
@@ -6,7 +6,6 @@ From Undecidability.L.Computability Require Import MuRec.
 
 From Undecidability Require Import TM.TM.
 Require Import PslBase.FiniteTypes.FinTypes.
-
 
 Lemma TM_to_L :
   HaltMTM ⪯ HaltL.

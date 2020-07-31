@@ -1,4 +1,4 @@
-Require Import List Omega Morphisms.
+Require Import List Omega Lia Morphisms.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.higher_order_unification unification.systemunification.
 Import ListNotations.
 
@@ -126,10 +126,10 @@ Section NthOrderSystemUnification.
          H2₀ := _;
        }.
    Next Obligation.
-     assert (1 <= n) by (destruct n; omega); eauto.
+     assert (1 <= n) by (destruct n; lia); eauto.
    Qed.
    Next Obligation.
-     assert (1 <= n) by (destruct n; omega); eauto.
+     assert (1 <= n) by (destruct n; lia); eauto.
    Qed.
 
 

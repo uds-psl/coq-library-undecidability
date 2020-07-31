@@ -217,7 +217,7 @@ Section Switch.
     specialize H with (1 := HRel1).
     specialize (HTerm2 _ _ _ H) as (c2&HLoop2).
     pose proof Switch_merge HLoop1 HLoop2 as HLoop.
-    exists (lift_confR c2). eapply loop_monotone; eauto. omega.
+    exists (lift_confR c2). eapply loop_monotone; eauto. lia.
   Qed.
 
 

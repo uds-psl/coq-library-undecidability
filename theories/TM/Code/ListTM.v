@@ -327,7 +327,7 @@ Section Nth'.
       intros tin k. intros (l&n&HEncL&HEncN&HRight2&Hk). unfold Nth'_Step_steps in Hk.
       destruct n as [ | n'] eqn:E1, l as [ | x l'] eqn:E2; cbn.
       - (* [n = 0] and [l = nil] *)
-        exists (CaseNat_steps), (CaseList_steps_nil). repeat split; auto; try omega.
+        exists (CaseNat_steps), (CaseList_steps_nil). repeat split; auto; try lia.
         intros tmid b (HCaseNat&HCaseNatInj); TMSimp. modpon HCaseNat. destruct b; auto; simpl_surject.
         { eexists; repeat split; simpl_surject; eauto. }
       - (* [n = 0] and [l = x :: l'] *)
@@ -335,15 +335,15 @@ Section Nth'.
         intros tmid b (H&HInj1); TMSimp. modpon H. destruct b; cbn in *; auto; simpl_surject.
         { eexists; repeat split; simpl_surject; eauto. }
       - (* [n = S n'] and [l = nil] *)
-        exists (CaseNat_steps), (S (CaseList_steps_nil)). repeat split; try omega.
+        exists (CaseNat_steps), (S (CaseList_steps_nil)). repeat split; try lia.
         intros tmid b (HCaseNat&HCaseNatInj); TMSimp. modpon HCaseNat. destruct b; auto. simpl_surject.
-        exists (CaseList_steps_nil), 0. repeat split; try omega.
+        exists (CaseList_steps_nil), 0. repeat split; try lia.
         { eexists; repeat split; simpl_surject; eauto. }
         intros tmid0 b (HCaseList&HCaseListInj); TMSimp. modpon HCaseList. destruct b; auto.
       - (* [n = S n'] and [l = x :: l'] *)
         exists CaseNat_steps, (S (CaseList_steps_cons x + Reset_steps x)). repeat split; cbn; auto.
         intros tmid b (H&HInj1); TMSimp. modpon H. destruct b; cbn in *; auto; simpl_surject.
-        exists (CaseList_steps_cons x), (Reset_steps x). repeat split; cbn; try omega.
+        exists (CaseList_steps_cons x), (Reset_steps x). repeat split; cbn; try lia.
         { exists (x :: l'). repeat split; simpl_surject; auto. }
         intros tmid2 b (H2&HInj2); TMSimp. modpon H2. destruct b; cbn in *; auto; simpl_surject; modpon H2.
         exists x. repeat split; eauto.
@@ -393,7 +393,7 @@ Section Nth'.
         + destruct n; auto.
           * destruct l as [ | x l']; auto; modpon HLastStep.
           * destruct l as [ | x l']; auto. modpon HLastStep; repeat split; auto.
-            cbn. contains_ext. f_equal. omega.
+            cbn. contains_ext. f_equal. lia.
       - modpon HStar. destruct n as [ | n']; auto. destruct l as [ | x l']; auto. modpon HStar.
         modpon HLastStep. destruct yout.
         + destruct HLastStep as (y&HLastStep); modpon HLastStep. cbn. exists y. eauto.
@@ -444,7 +444,7 @@ Section Nth'.
         exists (Nth'_Step_steps (x::l') (S n')). repeat split.
         { hnf. exists (x :: l'), (S n'). auto. }
         intros b tmid H1. modpon H1. destruct b; auto; modpon H1. now destruct b.
-        exists (Nth'_Loop_steps l' n'). repeat split; auto; try omega.
+        exists (Nth'_Loop_steps l' n'). repeat split; auto; try lia.
         hnf. exists l', n'. auto.
     }
   Qed.
@@ -547,17 +547,17 @@ Section Nth'.
     {
       intros tin k (l&n&HEncL&HEncN&HRigh2&HRight3&Hk). unfold Nth'_steps in *.
       exists (CopyValue_steps l), (1 + Nth'_Loop_steps l n + 1 + Reset_steps (skipn (S n) l) + Reset_steps (n - S (length l))).
-      repeat split; cbn; try omega.
+      repeat split; cbn; try lia.
       exists l. repeat split; eauto.
       intros tmid () (HCopy&HInjCopy); TMSimp. modpon HCopy.
       exists (Nth'_Loop_steps l n), (1 + Reset_steps (skipn (S n) l) + Reset_steps (n - S (length l))).
-      repeat split; cbn; try omega.
+      repeat split; cbn; try lia.
       { hnf; cbn. eauto 7. }
       intros tmid2 b (HLoop&HInjLoop); TMSimp. modpon HLoop. destruct b.
       {
         destruct HLoop as (x&HLoop); modpon HLoop.
         exists (Reset_steps (skipn (S n) l)), (Reset_steps (n - S (length l))).
-        repeat split; cbn; try omega.
+        repeat split; cbn; try lia.
         do 1 eexists. repeat split; eauto. unfold Reset_steps.
         intros tmid3 () (HReset&HInjReset); TMSimp. modpon HReset.
         do 1 eexists. repeat split; eauto.
@@ -565,7 +565,7 @@ Section Nth'.
       {
         modpon HLoop.
         exists (Reset_steps (skipn (S n) l)), (Reset_steps (n - S (length l))).
-        repeat split; cbn; try omega.
+        repeat split; cbn; try lia.
         do 1 eexists. repeat split; eauto.
         intros tmid3 () (HReset&HInjReset); TMSimp. modpon HReset.
         eexists; repeat split; eauto.
@@ -647,11 +647,11 @@ Section Rev.
       - eapply RealiseIn_TerminatesIn. apply ResetEmpty1_Sem with (X := X). }
     {
       intros tin k. intros (xs&ys&Hxs&Hys&Hright&Hk). destruct xs; cbn in *.
-      - eexists (CaseList_steps _), ResetEmpty1_steps. repeat split; try omega; eauto.
+      - eexists (CaseList_steps _), ResetEmpty1_steps. repeat split; try lia; eauto.
         intros tmid b (H1&H1Inj); TMSimp. modpon H1. destruct b; cbn in *; auto.
-      - exists (CaseList_steps (x::xs)), (1 + Constr_cons_steps x + Reset_steps x). repeat split; try omega; eauto.
+      - exists (CaseList_steps (x::xs)), (1 + Constr_cons_steps x + Reset_steps x). repeat split; try lia; eauto.
         intros tmid b (H&HInj); TMSimp. modpon H. destruct b; cbn in *; auto. modpon H.
-        exists (Constr_cons_steps x), (Reset_steps x). repeat split; try omega; eauto.
+        exists (Constr_cons_steps x), (Reset_steps x). repeat split; try lia; eauto.
         intros tmid0 [] (?H&?HInj); TMSimp. modpon H1. TMSimp. eexists; split; eauto.
     }
   Qed.
@@ -712,7 +712,7 @@ Section Rev.
       - intros ymid tmid H. cbn in *. modpon H. destruct ymid as [ [] | ].
         + destruct xs as [ | x xs]; cbn in *; auto.
         + destruct xs as [ | x xs]; cbn in *; auto. modpon H.
-          exists (Rev_Loop_steps xs). repeat split; try omega.
+          exists (Rev_Loop_steps xs). repeat split; try lia.
           hnf; eauto 6.
     }
   Qed.
@@ -815,7 +815,7 @@ Section ListStuff.
   Proof.
     destruct (app_or_nil xs) as [ -> | (x&xs'&->)].
     - cbn. reflexivity.
-    - rewrite removelast_app_singleton. rewrite app_length. cbn. omega.
+    - rewrite removelast_app_singleton. rewrite app_length. cbn. lia.
   Qed.
 
 End ListStuff.
@@ -867,8 +867,8 @@ Section Append.
 
       pose proof app_or_nil xs as [ -> | (xs'&x&->) ]; cbn in *; auto.
       - rewrite CopySymbols_L_Fun_equation in HCopy; cbn in *. inv HCopy; TMSimp. repeat econstructor.
-        + omega.
-        + rewrite Encode_list_hasSize. cbn. omega.
+        + lia.
+        + rewrite Encode_list_hasSize. cbn. lia.
       - cbv [Encode_list] in *; cbn in *.
         rewrite encode_list_app in HCopy. cbn in *.
         rewrite !map_rev, !map_map, <- map_rev in HCopy.
@@ -886,7 +886,7 @@ Section Append.
                f_equal.
                ++ now rewrite rev_involutive, map_removelast.
                ++ f_equal. now rewrite map_app, List.map_map, <- app_assoc.
-            -- omega.
+            -- lia.
             -- f_equal. cbn. rewrite rev_involutive, <- !app_assoc, !map_map. rewrite !encode_list_app. rewrite map_app, <- app_assoc.
                rewrite <- map_removelast. f_equal. cbn [encode_list].
                rewrite removelast_cons by (intros (?&?) % appendNil; congruence).
@@ -894,7 +894,7 @@ Section Append.
                rewrite !map_app, <- !app_assoc.
                rewrite !removelast_app by congruence.
                now rewrite !map_app, <- !app_assoc, !map_map.
-            -- simpl_list. rewrite encode_list_app. rewrite skipn_length. cbn. simpl_list. rewrite removelast_length. cbn. simpl_list. simpl_list. rewrite removelast_length. cbn. omega.
+            -- simpl_list. rewrite encode_list_app. rewrite skipn_length. cbn. simpl_list. rewrite removelast_length. cbn. simpl_list. simpl_list. rewrite removelast_length. cbn. lia.
         + cbn.
           intros ? [ (?&<-&?) % in_rev % in_map_iff | H' % in_rev ] % in_app_iff. cbn. auto. cbn in *.
           rewrite rev_involutive, <- map_removelast in H'.
@@ -920,17 +920,17 @@ Section Append.
     }
     {
       intros tin k (xs&ys&HEncXS&HEncYs&Hk). unfold App'_steps in *.
-      exists (12+4*size _ xs), (16+8*size _ xs). repeat split; cbn; try omega.
-      exists (8+4*size _ xs), 3. repeat split; cbn; try omega. eauto.
+      exists (12+4*size _ xs), (16+8*size _ xs). repeat split; cbn; try lia.
+      exists (8+4*size _ xs), 3. repeat split; cbn; try lia. eauto.
       intros tmid1 () H. modpon H.
-      exists 1, 1. repeat split; try omega. eauto.
+      exists 1, 1. repeat split; try lia. eauto.
       intros tmid (). intros H; TMSimp; clear_trivial_eqs. modpon H.
       destruct H as (ls&HEncXs); TMSimp.
       cbv [Encode_list]; cbn in *.
 
       destruct (app_or_nil xs) as [-> | (xs'&x&->)]; cbn in *.
       { (* [xs = nil] *)
-        rewrite CopySymbols_L_steps_equation. cbn. omega.
+        rewrite CopySymbols_L_steps_equation. cbn. lia.
       }
       { (* [xs = xs' ++ [x]] *)
         rewrite encode_list_app.
@@ -938,7 +938,7 @@ Section Append.
         rewrite rev_app_distr. cbn. rewrite <- app_assoc, rev_app_distr, <- app_assoc. cbn.
         rewrite CopySymbols_L_steps_moveleft; cbn; auto.
         rewrite map_length, !app_length, rev_length. cbn. rewrite map_length, rev_length, !app_length, !map_length. cbn.
-        rewrite removelast_length. omega.
+        rewrite removelast_length. lia.
       }
     }
   Qed.
@@ -986,7 +986,7 @@ Section Append.
     {
       intros tin k (xs&ys&HEncXs&HEnYs&HRigh2&Hk).
       exists (25 + 12 * size _ ys), (App'_steps xs). repeat split; cbn; eauto.
-      unfold App'_steps, App_steps in *. omega.
+      unfold App'_steps, App_steps in *. lia.
       intros tmid () (HApp'&HInjApp'); TMSimp. modpon HApp'.
       hnf. cbn. do 2 eexists. repeat split; eauto.
     }
@@ -1079,15 +1079,14 @@ Section Lenght.
     {
       intros tin k (xs&n&HEncXs&HEncN&HRight2&Hk). unfold Length_Step_steps in Hk.
       destruct xs as [ | x xs'].
-      - exists CaseList_steps_nil, 0. repeat split; cbn in *; try omega.
+      - exists CaseList_steps_nil, 0. repeat split; cbn in *; try lia.
         eexists; repeat split; simpl_surject; eauto; cbn; eauto.
         intros tmid b (HCaseList&HInjCaseList); TMSimp. modpon HCaseList. destruct b; cbn in *; auto.
-      - exists (CaseList_steps_cons x), (1 + Reset_steps x + Constr_S_steps). repeat split; cbn in *; try omega.
+      - exists (CaseList_steps_cons x), (1 + Reset_steps x + Constr_S_steps). repeat split; cbn in *; try lia.
         eexists; repeat split; simpl_surject; eauto; cbn; eauto.
         intros tmid b (HCaseList&HInjCaseList); TMSimp. modpon HCaseList. destruct b; cbn in *; auto; modpon HCaseList.
-        exists (Reset_steps x), Constr_S_steps. repeat split; cbn; try omega.
-        eexists; repeat split; simpl_surject; eauto; cbn; eauto. unfold Reset_steps.
-        now intros _ _ _.
+        exists (Reset_steps x), Constr_S_steps. repeat split; cbn; try lia.
+        eexists; repeat split; simpl_surject; eauto; cbn; eauto. 
     }
   Qed.
 
@@ -1158,7 +1157,7 @@ Section Lenght.
       apply WhileCoInduction. intros tin k (xs&n&HEncXs&HEncN&HRight2&Hk). exists (Length_Step_steps xs). repeat split.
       - hnf. do 2 eexists. repeat split; eauto.
       - intros b tmid HStep. hnf in HStep. modpon HStep. destruct b as [ () | ], xs as [ | x xs']; cbn in *; auto; modpon HStep.
-        eexists (Length_Loop_steps xs'). repeat split; try omega. hnf. exists xs', (S n). repeat split; eauto.
+        eexists (Length_Loop_steps xs'). repeat split; try lia. hnf. exists xs', (S n). repeat split; eauto.
     }
   Qed.
 
@@ -1224,12 +1223,12 @@ Section Lenght.
     }
     {
       intros tin k (xs&HEncXs&HRight1&HRight2&HRigth3&Hk). unfold Length_steps in *.
-      exists (25 + 12 * size _ xs), (10 + Length_Loop_steps xs). repeat split; cbn; try omega.
+      exists (25 + 12 * size _ xs), (10 + Length_Loop_steps xs). repeat split; cbn; try lia.
       eexists. repeat split; eauto. unfold CopyValue_steps.
       intros tmid () (HO&HOInj); TMSimp. modpon HO.
-      exists 5, (4 + Length_Loop_steps xs). unfold Constr_O_steps. repeat split; cbn; try omega.
+      exists 5, (4 + Length_Loop_steps xs). unfold Constr_O_steps. repeat split; cbn; try lia.
       intros tmid0 () (HLoop&HLoopInj); TMSimp. modpon HLoop.
-      exists (Length_Loop_steps xs), 3. repeat split; cbn; try omega.
+      exists (Length_Loop_steps xs), 3. repeat split; cbn; try lia.
       hnf. cbn. do 2 eexists. repeat split; eauto.
       now intros _ _ _.
     }

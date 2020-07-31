@@ -10,10 +10,10 @@ Fixpoint natsLess n : list nat :=
 Lemma natsLess_in_iff n m:
   n el natsLess m <-> n < m.
 Proof.
-  induction m in n|-*;cbn. omega.
+  induction m in n|-*;cbn. lia.
   split.
-  -intuition. destruct n;intuition. apply IHm in H0. omega.
-  -intros. decide (m=n). intuition. right. apply IHm. omega.
+  -intuition. destruct n;intuition. apply IHm in H0. lia.
+  -intros. decide (m=n). intuition. right. apply IHm. lia.
 Qed.
 
 
@@ -34,23 +34,23 @@ Fixpoint sumn (A:list nat) :=
 
 Lemma sumn_app A B : sumn (A++B) = sumn A + sumn B.
 Proof.
-  induction A;cbn;omega.
+  induction A;cbn;lia.
 Qed.
 
 Hint Rewrite sumn_app : list. 
 
 Lemma length_concat X (A : list (list X)) :
   length (concat A) = sumn (map (@length _) A).
-  induction A;cbn. reflexivity. autorewrite with list in *. omega.
+  induction A;cbn. reflexivity. autorewrite with list in *. lia.
 Qed.
 
 Lemma sumn_rev A :
   sumn A = sumn (rev A).
 Proof.
   enough (H:forall B, sumn A + sumn B = sumn (rev A++B)).
-  {specialize (H []). cbn in H. autorewrite with list in H. cbn in H. omega. }
+  {specialize (H []). cbn in H. autorewrite with list in H. cbn in H. lia. }
   induction A as [|a A];intros B. reflexivity.
-  cbn in *. specialize (IHA (a::B)). autorewrite with list in *. cbn in *. omega.
+  cbn in *. specialize (IHA (a::B)). autorewrite with list in *. cbn in *. lia.
 Qed.
 
 Lemma sumn_map_natsLess f n :

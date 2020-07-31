@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import List Omega.
+Require Import List Omega Lia.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.higher_order_unification unification.nth_order_unification.
 
 (** * Enumerability *)
@@ -111,7 +111,7 @@ Section ListEnumerability.
     intros [[Gamma s] A]; split.
     - intros H. destruct (el_T Gamma) as [x1], (el_T s) as [x2], (el_T A) as [x3], (el_T H) as [x4]. exists (S (x1+x2+x3+x4)); cbn.
       in_app 2. in_collect (Gamma, s, A). 
-      1 - 3: eapply cum_ge'; eauto; omega.
+      1 - 3: eapply cum_ge'; eauto; lia.
       eapply dec_decb. eapply cum_ge' with (m := x1 + x2 + x3 + x4) in H3; eauto.
       destruct (@L_T (Gamma ⊢ s : A) _ _); cbn; eauto.
     - intros [m H];  induction m in Gamma, s, A, H |-*; cbn in *. eauto.
@@ -137,7 +137,7 @@ Section ListEnumerability.
       destruct (el_T Gamma) as [x1], (el_T s) as [x2], (el_T t) as [x3], (el_T A) as [x4], (el_T H1) as [x5], (el_T H2) as [x6].
       exists (S (x1 + x2 + x3 + x4 + x5 + x6)); cbn. in_app 2.
       eapply in_flat_map. exists (Gamma, s, t, A). intuition.
-      + in_collect (Gamma, s, t, A); eapply cum_ge'; eauto;omega.
+      + in_collect (Gamma, s, t, A); eapply cum_ge'; eauto;lia.
       + in_collect (H1, H2)...
   Qed.
 
@@ -160,10 +160,10 @@ Section ListEnumerability.
     - intros [H1 H2].
       induction Gamma as [| A Gamma] in sigma, tau, H1, H2 |-*.  
       + destruct (el_T Delta) as [x]; exists (S x); cbn.
-        in_app 2. in_collect Delta; eauto. repeat f_equal. symmetry; fext; intros; eapply H2; cbn; omega.
+        in_app 2. in_collect Delta; eauto. repeat f_equal. symmetry; fext; intros; eapply H2; cbn; lia.
       + specialize (IHGamma (S >> tau) (S >> sigma) ); mp IHGamma; [| mp IHGamma]; eauto.
         * intros ???. now eapply H1.
-        * intros; unfold funcomp; eapply H2; cbn; omega.
+        * intros; unfold funcomp; eapply H2; cbn; lia.
         * assert (Delta ⊢ sigma 0 : A) by eauto. 
           specialize (E' (Delta, sigma 0, A)); cbn in E'. eapply E' in H as [x1].
           destruct IHGamma as [x2]. exists (1 + x1 + x2); cbn.
@@ -175,8 +175,8 @@ Section ListEnumerability.
       + intros []?; cbn; discriminate.
       + eapply decb_dec in H1; subst. eapply typingSubst_cons.
         eapply IHm; eauto. eapply (E' (c, e, t)). eauto.
-      + eapply decb_dec in H2; subst. destruct x; cbn in H0; try omega; cbn.
-        edestruct IHm as [_ ->]; eauto; omega.
+      + eapply decb_dec in H2; subst. destruct x; cbn in H0; try lia; cbn.
+        edestruct IHm as [_ ->]; eauto; lia.
   Qed.
 
 
@@ -206,10 +206,10 @@ Section ListEnumerability.
         eapply xi_correct in E2 as E2'; destruct E2' as [x4].
       exists (S (x1 + x2 + x3 + x4)); cbn. in_app 2.
       in_collect (I, (Delta, sigma, Gammaᵤ)).
-      + eapply cum_ge'; eauto; omega.
-      + eapply cum_ge'; eauto; omega.
-      + eapply xi_monotone with (m := x1 + x2 + x3 + x4) in H0; [|omega].
-        eapply xi_monotone with (m := x1 + x2 + x3 + x4) in H1; [|omega].
+      + eapply cum_ge'; eauto; lia.
+      + eapply cum_ge'; eauto; lia.
+      + eapply xi_monotone with (m := x1 + x2 + x3 + x4) in H0; [|lia].
+        eapply xi_monotone with (m := x1 + x2 + x3 + x4) in H1; [|lia].
         eapply dec_decb; intuition; try congruence.
         rewrite H0, H1. f_equal. destruct E1, E2.
         rewrite H2, H7 in H4. eapply equiv_unique_normal_forms; eauto.

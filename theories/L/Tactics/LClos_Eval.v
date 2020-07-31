@@ -71,7 +71,7 @@ Proof with (repeat inv_validComp;repeat (constructor || intuition|| subst ; eaut
   change (let (k, t) := CompSeval n p in k >= fst p /\ (snd p) >[(k-(fst p))] t).
   generalize p. clear l s p. intros p. 
   functional induction (CompSeval n p); intros;cbn...
-  -apply CompBeta_sound in e2. destruct (CompSeval _ _);split... eapply CPow_trans;try  eassumption. omega.
+  -apply CompBeta_sound in e2. destruct (CompSeval _ _);split... eapply CPow_trans;try  eassumption. lia.
   -repeat destruct (CompSeval _ _)... eapply CPow_trans...
   -repeat destruct (CompSeval _ _)... eapply CPow_trans...
 Qed.
@@ -152,7 +152,7 @@ Proof with auto.
   revert s t. induction n. simpl;intros.
   -subst. exists 0;simpl. intuition.
   -intros. simpl in H0. destruct s. case_eq (CompBeta s1 s2);intros;rewrite H1 in H0.
-   +apply IHn in H0 as [n' [ge R]]... exists (S n'). split. omega. exists c. split... apply CompBeta_correct in H1...
+   +apply IHn in H0 as [n' [ge R]]... exists (S n'). split. lia. exists c. split... apply CompBeta_correct in H1...
    +apply CompBeta_lamComp2 in H1 as [H1|H1].  exists (s1 s2). simpl. 
 
 Lemma CompSeval_correct2'  s n: ~lamComp s -> exists k, CompSeval  s >[]> CompSeval (S n') s.
@@ -184,17 +184,17 @@ Lemma CompSeval_mono s t n m:  validComp s -> n<=m -> s >[]* t -> CompSeval n s 
 Proof with intuition;eauto.
   revert m s. induction n.
   -intros. simpl. rewrite H1. apply CompSeval_correct. eapply validComp_star;eauto. 
-  -intros m. induction m; intros. omega.
+  -intros m. induction m; intros. lia.
    decide (n=m).
    +subst. simpl. inv H. destruct s. destruct s1.
     *clear IHm. specialize (IHn m). rewrite IHn.
-   +subst. admit. rewrite IHm... omega. 
+   +subst. admit. rewrite IHm... lia. 
    simpl. destruct s. destruct s1. 
    
     vc lt. [t' A] eq m gt. clear t. revert m A s vs t' eq gt. induction n.
   -intros m. induction m;intros.
    +auto.
-   +simpl. apply IHm. simpl. destruct s. destruct s1. simpl in *. erewrite <-!IHm. apply IHm in eq. simpl. assert (n=0) by omega. now subst.
+   +simpl. apply IHm. simpl. destruct s. destruct s1. simpl in *. erewrite <-!IHm. apply IHm in eq. simpl. assert (n=0) by lia. now subst.
   -simpl. destruct s. destruct s1. decide (m=n).
    +subst. auto. apply IHm in eq.
 Qed.

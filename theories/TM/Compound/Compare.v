@@ -58,7 +58,7 @@ Section Compare.
   Proof.
     eapply RealiseIn_monotone.
     { unfold Compare_Step. TM_Correct. }
-    { Unshelve. 4,7: reflexivity. all: omega. }
+    { Unshelve. 4,7: reflexivity. all: lia. }
     { intros tin (yout, tout) H. TMCrush; TMSolve 1. }
   Qed.
 
@@ -83,7 +83,7 @@ Section Compare.
   Proof.
     intros (t1&t2). intros c1 Hc1 c2 Hc2 HStopC1 HStopC2. cbn in *. 
     destruct t1; cbn in *; inv Hc1. destruct t2; cbn in *; inv Hc2.
-    unfold Compare_fun_measure. cbn. simpl_tape. intros. omega.
+    unfold Compare_fun_measure. cbn. simpl_tape. intros. lia.
   Qed.
 
 
@@ -119,7 +119,7 @@ Section Compare.
   Proof.
     intros (t1&t2). intros c1 Hc1 c2 Hc2 HStopC1 HStopC2. cbn in *. 
     destruct t1; cbn in *; inv Hc1. destruct t2; cbn in *; inv Hc2.
-    unfold Compare_fun_measure. cbn. simpl_tape. intros. omega.
+    unfold Compare_fun_measure. cbn. simpl_tape. intros. lia.
   Qed.
 
 
@@ -128,7 +128,7 @@ Section Compare.
 
 
   Lemma Compare_steps_ge t : 5 <= Compare_steps t.
-  Proof. functional induction Compare_steps t; auto. omega. Qed.
+  Proof. functional induction Compare_steps t; auto. lia. Qed.
     
 
   Lemma Compare_TerminatesIn : projT1 Compare ↓ Compare_T.
@@ -143,7 +143,7 @@ Section Compare.
         TMCrush.
         split.
         + hnf. TMSimp. auto.
-        + rewrite Compare_steps_equation in HT. cbn in HT. rewrite E, E0, E1, E2 in HT. TMSimp. omega.
+        + rewrite Compare_steps_equation in HT. cbn in HT. rewrite E, E0, E1, E2 in HT. TMSimp. lia.
     }
   Qed.
     

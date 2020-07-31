@@ -168,12 +168,12 @@ Proof.
           -- do 3 eexists. eexists 0. cbn -[step_fun]. repeat split; eauto.
              ++ econstructor; eauto.
              ++ intros i0. specialize HStep3 with (i := i0). isRight_mono.
-          -- omega.
+          -- lia.
         * exists (Loop_steps T1 V1 Heap1 k). split.
           -- do 3 eexists. exists k. repeat split; eauto.
              ++ econstructor; eauto.
              ++ intros i0. specialize HStep3 with (i := i0). isRight_mono.
-          -- omega.
+          -- lia.
   }
 Qed.
 

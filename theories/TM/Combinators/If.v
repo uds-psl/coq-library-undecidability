@@ -59,7 +59,7 @@ Section If.
       + eapply RealiseIn_monotone. destruct pM2. eassumption. instantiate (1 := Nat.max k2 k3); firstorder.
         instantiate (1 := fun t => match t with true => R2 | _ => R3 end). reflexivity.
       + eapply RealiseIn_monotone. destruct pM3. eassumption. firstorder. reflexivity.
-    - omega.
+    - lia.
     - hnf. intros H2 (f& t). intros ([ | ]& (y & H3&H3')). left. hnf. eauto. right. hnf. eauto.
   Qed.
 

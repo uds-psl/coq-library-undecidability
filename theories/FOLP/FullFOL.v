@@ -101,9 +101,9 @@ Section FullFOL.
   Proof.
     intros H x. apply H.
     induction (f x).
-    - intros y. omega.
+    - intros y. lia.
     - intros y. intros [] % le_lt_or_eq.
-      + apply IHn; omega.
+      + apply IHn; lia.
       + apply H. injection H0. now intros ->.
   Qed.
 
@@ -188,14 +188,14 @@ Section FullFOL.
     intros Hun. induction v in Hun |-*.
     - exists 0. intros n H. inv H.
     - destruct IHv as [k H]. 1: eauto. destruct (Hun h (vec_inB h v)) as [k' H'].
-      exists (k + k'). intros t H2. inv H2; intros m Hm; [apply H' | apply H]; now try omega.
+      exists (k + k'). intros t H2. inv H2; intros m Hm; [apply H' | apply H]; now try lia.
   Qed.
 
   Lemma find_unused_term t :
     { n | forall m, n <= m -> unused_term m t }.
   Proof.
     induction t using strong_term_ind.
-    - exists (S x). intros m Hm. constructor. omega.
+    - exists (S x). intros m Hm. constructor. lia.
     - destruct (vec_unused X) as [k H]. exists k. eauto using unused_term.
   Qed.
 
@@ -205,11 +205,11 @@ Section FullFOL.
     induction phi.
     - exists 0... 
     - destruct (@vec_unused _ t) as [k H]. 1: eauto using find_unused_term. exists k. eauto using unused.
-    - destruct IHphi1, IHphi2. exists (x + x0). intros m Hm. constructor; [ apply u | apply u0 ]; omega.
-    - destruct IHphi1, IHphi2. exists (x + x0). intros m Hm. constructor; [ apply u | apply u0 ]; omega.
-    - destruct IHphi1, IHphi2. exists (x + x0). intros m Hm. constructor; [ apply u | apply u0 ]; omega.
-    - destruct IHphi. exists x. intros m Hm. constructor. apply u. omega.
-    - destruct IHphi. exists x. intros m Hm. constructor. apply u. omega.
+    - destruct IHphi1, IHphi2. exists (x + x0). intros m Hm. constructor; [ apply u | apply u0 ]; lia.
+    - destruct IHphi1, IHphi2. exists (x + x0). intros m Hm. constructor; [ apply u | apply u0 ]; lia.
+    - destruct IHphi1, IHphi2. exists (x + x0). intros m Hm. constructor; [ apply u | apply u0 ]; lia.
+    - destruct IHphi. exists x. intros m Hm. constructor. apply u. lia.
+    - destruct IHphi. exists x. intros m Hm. constructor. apply u. lia.
   Qed.
 
   Lemma find_unused_L A :
@@ -219,8 +219,8 @@ Section FullFOL.
     - exists 0. unfold unused_L. intuition.
     - destruct IHA. destruct (find_unused a).
       exists (x + x0). intros m Hm. intros phi []; subst.
-      + apply u0. omega.
-      + apply u. omega. auto.
+      + apply u0. lia.
+      + apply u. lia. auto.
   Qed.
 
   Definition capture n phi := nat_rect _ phi (fun _ => All) n.
@@ -230,7 +230,7 @@ Section FullFOL.
   Proof.
     intros H. induction m; cbn; intros i Hi.
     - rewrite <- minus_n_O in *. intuition.
-    - constructor. apply IHm. omega.
+    - constructor. apply IHm. lia.
   Qed.
 
   Definition close phi := capture (proj1_sig (find_unused phi)) phi.
@@ -239,7 +239,7 @@ Section FullFOL.
     closed (close phi).
   Proof.
     intros n. unfold close. destruct (find_unused phi) as [m Hm]; cbn.
-    apply (capture_captures Hm). omega.
+    apply (capture_captures Hm). lia.
   Qed.
 
   Fixpoint big_imp A phi :=
@@ -316,14 +316,14 @@ Section FullFOL.
   Lemma subst_unused_closed xi sigma phi :
     closed phi -> subst_form xi phi = subst_form sigma phi.
   Proof.
-    intros Hcl. apply subst_unused_range with (n := 0); intuition. omega.
+    intros Hcl. apply subst_unused_range with (n := 0); intuition. lia.
   Qed.
 
   Lemma subst_unused_closed' xi phi :
     closed phi -> subst_form xi phi = phi.
   Proof.
     intros Hcl. rewrite <- idSubst_form with (sigmaterm := ids).
-    apply subst_unused_range with (n := 0). all: intuition; omega.
+    apply subst_unused_range with (n := 0). all: intuition; lia.
   Qed.
 
   Lemma vec_forall_map X Y (f : X -> Y) n (v : vector X n) (p : Y -> Type) :

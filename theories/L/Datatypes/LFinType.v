@@ -70,13 +70,13 @@ Qed.
 
 
 Lemma size_finType_any_le (X:finType) `{registered X} (x:X):
-  L.size (enc x) <= maxl (map (fun x => L.size (enc x)) (elem X)).
+  L_facts.size (enc x) <= maxl (map (fun x => L_facts.size (enc x)) (elem X)).
 Proof.
   apply maxl_leq. eauto.
 Qed.
 
 Lemma size_finType_any_le_c (X:finType) `{registered X}:
-  (fun (x:X) => L.size (enc x)) <=c (fun _ => 1).
+  (fun (x:X) => L_facts.size (enc x)) <=c (fun _ => 1).
 Proof.
   setoid_rewrite size_finType_any_le. smpl_upToC_solve.
 Qed.

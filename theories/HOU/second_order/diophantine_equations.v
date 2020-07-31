@@ -1,4 +1,4 @@
-Require Import Omega List.
+Require Import Omega Lia List.
 From Undecidability.HOU Require Import calculus.prelim.
 Import ListNotations.
 

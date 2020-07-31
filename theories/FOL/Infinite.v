@@ -53,7 +53,7 @@ Section Inf.
     Proof.
       induction n; cbn; repeat constructor; auto.
       intros (n'&H1&H2) % LX_el.
-      apply Hf in H2. omega.
+      apply Hf in H2. lia.
     Qed.
 
     Lemma sub_dec (A B : list X) :
@@ -72,7 +72,7 @@ Section Inf.
     Proof.
       intros A. destruct (sub_dec (LX (|A|)) A) as [H|H].
       - apply NoDup_incl_length in H; try apply LX_NoDup.
-        rewrite LX_len in H. omega.
+        rewrite LX_len in H. lia.
       - destruct H as [x [_ H] ]. now exists x.
     Qed.
 
@@ -173,7 +173,7 @@ Section Inf.
     intros H. apply (cum_ge' (n:=S n)).
     - apply LL_cum.
     - apply F_el.
-    - omega.
+    - lia.
   Qed.
 
   Lemma F_inj' n m :
@@ -196,10 +196,10 @@ Section Inf.
     Acc lt n.
   Proof.
     induction n.
-    - constructor. intros m H. omega.
+    - constructor. intros m H. lia.
     - constructor. intros m H.
       destruct (Nat.lt_total n m) as [H'|[->|H'] ].
-      + omega.
+      + lia.
       + assumption.
       + now apply IHn.
   Qed.
@@ -218,7 +218,7 @@ Section Inf.
       now apply (cum_ge' LL_cum (IH n' H3)).
     - apply n0. rewrite H1. apply in_app_iff; fold LL.
       right. left. reflexivity.
-    - omega.
+    - lia.
   Qed.
 
   Lemma LL_F x n :

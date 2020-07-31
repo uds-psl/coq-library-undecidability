@@ -67,7 +67,7 @@ Proof.
   + exists (S v); cbn; eauto.
   + exists (S p); cbn; eauto.
   + destruct IHt as [m1], (el_T b) as [m2].
-    exists (1 + m1 + m2). cbn. in_app 4. in_collect (b, t); eapply cum_ge'; eauto; omega.
+    exists (1 + m1 + m2). cbn. in_app 4. in_collect (b, t); eapply cum_ge'; eauto; lia.
   + exists 0. cbn; eauto.
 Qed.
 
@@ -86,7 +86,7 @@ Fixpoint L_form {b} n : list (form b) :=
   end.
 
 Instance enumT_form {b} : list_enumerator__T L_form (form b).
-Proof with (try eapply cum_ge'; eauto; omega).
+Proof with (try eapply cum_ge'; eauto; lia).
   intros phi. induction phi.
   + destruct (el_T t) as [m1], (el_T t0) as [m2]. exists (1 + m1 + m2). cbn.
     in_app 3. in_collect (t, t0)...

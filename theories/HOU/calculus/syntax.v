@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import List Omega.
+Require Import List Omega Lia.
 Import ListNotations.
 From Undecidability.HOU Require Export calculus.prelim std.std.
 

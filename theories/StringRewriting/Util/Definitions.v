@@ -180,12 +180,12 @@ Lemma fresh_spec' l a : a el l -> a < fresh l.
 Proof.
   induction l.
   - firstorder.
-  - cbn; intros [ | ]; firstorder omega.
+  - cbn; intros [ | ]; firstorder lia.
 Qed.
 
 Lemma fresh_spec (a : symbol) (l : string) : a el l -> fresh l <> a.
 Proof.
-  intros H % fresh_spec'. intros <-. omega.
+  intros H % fresh_spec'. intros <-. lia.
 Qed.
 
 

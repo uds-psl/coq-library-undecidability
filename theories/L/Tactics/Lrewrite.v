@@ -11,7 +11,7 @@ Lemma redLe_app_helper s s' t t' u i j k:
   s >(<= i) s' -> t >(<= j) t' -> s' t' >(<=k) u -> s t >(<=i+j+k) u.
 Proof.
   intros (i' & ? & R1)  (j' & ? & R2)  (k' & ? & R3).
-  exists ((i'+j')+k'). split. omega. apply pow_trans with (t:=s' t').
+  exists ((i'+j')+k'). split. lia. apply pow_trans with (t:=s' t').
   apply pow_trans with (t:=s' t).
   now apply pow_step_congL.
   now apply pow_step_congR. eauto. 

@@ -1,9 +1,8 @@
 Set Implicit Arguments.
-Require Import RelationClasses Morphisms List Omega Init.Nat Setoid.
+Require Import RelationClasses Morphisms List Omega Lia Init.Nat Setoid.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.unification.
 From Undecidability.HOU Require Import third_order.pcp third_order.encoding.
 Import ListNotations.
-
 
 (** * Huet Reduction *)
 Section HuetReduction.
@@ -83,7 +82,7 @@ Section HuetReduction.
       rewrite select_repeated; eauto.
       unfold ginst; cbn; asimpl; simplify.
       rewrite sapp_ge_in; simplify; eauto.
-      replace (_ - _) with 3 by omega.
+      replace (_ - _) with 3 by lia.
       destruct I; intuition.
     Qed.
 
@@ -129,7 +128,7 @@ Section HuetReduction.
     Lemma end_is_var:
       (forall x, x ∈ S -> isVar x) -> exists i e, i < |S| /\ s = var i e.
     Proof.
-      intros H2; edestruct @end_head_var with (X:=X) (u := 0) as (h' & T & s' & H5 & ?); eauto. subst s. 
+      intros H2; edestruct @end_head_var with (X:=X) as (h' & T & s' & H5 & ?); eauto. subst s. 
       destruct T as [| t1 [| t2 T]].
       all: cbn in EQ; specialize (H1 h').
       all: destruct (sigma h') eqn: H'; cbn in *; intuition.
@@ -171,19 +170,19 @@ Section HuetReduction.
     eapply id in H0 as T2.
     assert (|L | <= |S'|) as L1 by
           (eapply (f_equal arity) in H1; simplify in H1; rewrite H1; eauto).
-    symmetry in H1; eapply Arr_inversion in H1 as (L2 & H1 & H2); simplify; try omega.
+    symmetry in H1; eapply Arr_inversion in H1 as (L2 & H1 & H2); simplify; try lia.
     eapply repeated_app_inv in H1 as (H1 & H3 & H4); eauto.
     rewrite H4 in H2; subst B.
     rewrite H3 in *; simplify in *. clear H3 H4 L1. revert H0 H1 EQ1 EQ2 T2 N2.
     generalize (length L); generalize (length L2); clear L L2. intros l k H0 H1 EQ1 EQ2 T2 N2.
-    edestruct (@list_decompose_alt  k _ S') as (S1 & S2 & H4 & H5); try omega; subst S'. 
+    edestruct (@list_decompose_alt  k _ S') as (S1 & S2 & H4 & H5); try lia; subst S'. 
     rewrite !Lambda_ren in EQ1; rewrite !Lambda_ren in EQ2. 
     simplify in EQ1 EQ2; rewrite !AppR_app in EQ1; rewrite !AppR_app in EQ2.
-    simplify in H1; assert (length S1 = l) as H2 by omega; clear H1; subst.
+    simplify in H1; assert (length S1 = l) as H2 by lia; clear H1; subst.
     rewrite !AppR_Lambda' in EQ1, EQ2; simplify; eauto.
     rewrite AppR_Lambda' in EQ2; simplify; eauto.
-    rewrite it_up_var_sapp in EQ1; simplify; intros; try omega.
-    rewrite !it_up_var_sapp in EQ2; simplify; intros; try omega. 
+    rewrite it_up_var_sapp in EQ1; simplify; intros; try lia.
+    rewrite !it_up_var_sapp in EQ2; simplify; intros; try lia. 
 
     destruct (AppL_decomposition (AppR x T') (|S2|)) as [[I t] (H1&H2&H3)]. 
     rewrite H2 in EQ1, EQ2.
@@ -198,13 +197,13 @@ Section HuetReduction.
       eapply enc_eq in EQ2; eauto.
       2 - 3: split; intros EQ3;
         eapply end_is_var_typed in EQ3 as (? & ? & ? & ?); cbn; simplify.
-      6, 12, 18, 24: eauto. 3, 8, 13, 18: eauto. 
+      6, 9, 15, 21 :now eauto. 3, 8, 13, 17: now eauto.
       (* close False goals *) 
-      2, 6, 10, 14: eapply H3; cbn; eauto; cbn; now simplify in *.
+      2, 5, 8, 11: eapply H3; cbn; eauto; cbn; now simplify in *.
       (* close normal term goals *)
-      3, 6, 9, 12: eauto.
+      2, 7, 9: eauto.
       (* close typing goals *)
-      3, 5, 7, 9: eauto.
+      4: eauto.
       (* close var goals *)
       2 - 5: intros; cbn; unfold funcomp, u, v; intuition discriminate.
       exists I; intuition; eauto using nats_lt; eauto.
@@ -219,11 +218,11 @@ Section HuetReduction.
       eapply AppR_ordertyping_inv in T2 as (L' & T2 & T4).          
       destruct x as [i | | |]; cbn in H; eauto.  
       * inv T4.       
-        assert (i < length S2 \/ i >= length S2) as [H42|H42] by omega.
+        assert (i < length S2 \/ i >= length S2) as [H42|H42] by lia.
         ** rewrite nth_error_app1, nth_error_repeated in H6; simplify; eauto.
            injection H6 as H6. eapply (f_equal ord) in H6. simplify in H6.
            symmetry in H6; eapply Nat.eq_le_incl in H6; simplify in H6.
-           intuition. cbn in H6. omega. 
+           intuition. cbn in H6. lia. 
         ** rewrite <-H2 in EQ1. asimpl in EQ1. rewrite sapp_ge_in in EQ1; simplify; eauto.
            eapply equiv_head_equal in EQ1; simplify; cbn; eauto.
            simplify in EQ1; cbn in EQ1. discriminate EQ1.

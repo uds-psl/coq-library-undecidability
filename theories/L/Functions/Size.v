@@ -12,12 +12,12 @@ Abort. (*possible, but the run time of this implementation is not good enough. *
 Lemma size'_surj : surjective size'.
 Proof.
   intros n. induction n.
-  -exists (var 0). cbn. omega.
+  -exists (var 0). cbn. lia.
   -destruct IHn as [x <-].
    exists (lam x). cbn. easy. 
 Qed.
 
-Import L.
+Import Util.L_facts.
 Definition sizeTR' '(stack,res) : (list term * nat) + nat :=
   match stack with
     [] => inr res

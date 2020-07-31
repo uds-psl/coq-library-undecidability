@@ -117,7 +117,7 @@ Section fix_sig.
     Proof.
       extract.
       solverec.
-      rewrite map_time_const,to_list_length.  omega.
+      rewrite map_time_const,to_list_length.  lia.
     Qed.
 
     Global Instance term_doAct: computableTime' (doAct (sig:=sig)) (fun _ _ => (1,fun _ _ => (89,tt))).

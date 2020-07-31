@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import List Omega Morphisms Wf.
+Require Import List Omega Lia Morphisms Wf.
 Import ListNotations.
 
 Definition funcomp {X Y Z} (g : Y -> Z) (f : X -> Y)  :=
@@ -61,7 +61,7 @@ Qed.
 Lemma Sum_app N1 N2:
   Sum (N1 ++ N2) = Sum N1 + Sum N2.
 Proof.
-  induction N1; cbn; omega.
+  induction N1; cbn; lia.
 Qed.
 
 Hint Rewrite Sum_app : listdb.

@@ -1,9 +1,10 @@
-From Undecidability Require Import Problems.Reduction Problems.cbvLambda TM.TM.
+From Undecidability Require Import Problems.Reduction TM.TM.
 From Undecidability.L Require Import L Seval LM_heap_def LM_heap_correct.
 Require Import Undecidability.LAM.TM.HaltingProblem.
 
 (** * L to TM *)
 
+-Definition HaltLclosed (s : {s : term | closed s}) := exists t, eval (proj1_sig s) t. (* Halting problem for call-by-value lambda-calculus *)
 
 Definition eva_LM_lin sigma := exists tau, evaluates step sigma tau.
 
@@ -13,17 +14,22 @@ Proof.
   intros ?.
   unfold HaltL, eva_LM_lin.
   split.
-  -intros (t&R). eapply completeness in R as (g&Hp&_&R). 2:easy.
+  -intros (t&R).
+   eapply eval_iff in R.
+   eapply completeness in R as (g&Hp&_&R). 2:easy.
    eexists. split. eassumption.
    intros ? H'. inv H'.
-  -intros (?&E).
+  -intros (?&E). 
    eapply soundness in E as (?&?&?&?&?&?). all:eauto.
+   eexists. eapply eval_iff. eauto.
 Qed.
 
 Lemma LM_halting_LM_halting : HaltLclosed ⪯ eva_LM_lin.
 Proof.
   eexists (fun '(exist s _ ) => _). intros [s].
-  cbn; now eapply red_haltL_to_LM_Lin.
+  unfold HaltLclosed. cbn.
+  setoid_rewrite <- eval_iff.
+  now eapply red_haltL_to_LM_Lin.
 Qed.
 
 Require Import Undecidability.L.Functions.Encoding Undecidability.L.Functions.Eval Undecidability.L.Tactics.LTactics.
@@ -35,8 +41,9 @@ Proof.
   unshelve eexists.
   - intros s. exists (Eval (enc s)). unfold Eval. Lproc. 
   - cbn. intros s. unfold HaltL. split; intros (t & Ht).
-    + eapply eval_converges. edestruct Eval_converges. eapply H. eauto.
-    + eapply eval_converges. eapply Eval_converges. eapply Seval.eval_converges. eauto.
+    + eapply eval_converges. edestruct Eval_converges. eapply H.
+      eapply eval_iff in Ht. eauto.
+    + setoid_rewrite eval_iff. eapply eval_converges. eapply Eval_converges. eapply Seval.eval_converges. eauto.
 Qed.
 
 

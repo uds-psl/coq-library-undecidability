@@ -88,7 +88,7 @@ Proof.
       exists n. Lsimpl.
     + assert (R':= S'_n_Sn_none HH).
       apply star_pow in R' as [k' R']. destruct k'.
-      *inversion R'. apply enc_injective in H1. omega.
+      *inversion R'. apply enc_injective in H1. lia.
       *destruct proc_v as [? [? ?]]. subst v. destruct (pow_trans_lam H R') as [k'' [le R'']].
        assert (R1 : (λ ((S' (enc (S n))) F) 0) (in_enc t) >* (λ x)) by (rewrite star_pow; eauto).
        specialize (IHn _ le _ R1 R''). auto.

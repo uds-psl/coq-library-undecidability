@@ -2,11 +2,13 @@
 
 (** ** Syntax   *)
 
+(** The terms of L are the terms of the full lambda-calculus, using de Bruijn encoding  *)
 Inductive term : Type :=
 | var (n : nat) : term
 | app (s : term) (t : term) : term
 | lam (s : term).
 
+(** We define a simple, capturing substitution operation *)
 Fixpoint subst (s : term) (k : nat) (u : term) :=
   match s with
       | var n => if Nat.eqb n k then u else var n
@@ -16,13 +18,16 @@ Fixpoint subst (s : term) (k : nat) (u : term) :=
 
 (** ** Evaluation   *)
 
+(** Big-step evaluation is weak (no evaluations below abstractions) and call-by-value (arguments are fully evaluated when pased) *)
 Inductive eval : term -> term -> Prop :=
 | eval_abs s : eval (lam s) (lam s)
 | eval_app s u t t' v :
     eval s (lam u) -> eval t t' -> eval (subst u 0 t') v -> eval (app s t) v.
 
+(** The L-halting problem  *)
 Definition HaltL (s : term) := exists t, eval s t.
 
+(** Scott encoding of natural numbers  *)
 Fixpoint nat_enc (n : nat) := 
   match n with
   | 0 => lam (lam (var 1))

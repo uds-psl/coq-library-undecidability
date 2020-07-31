@@ -23,7 +23,7 @@ Section CaseList_nice.
 
   Lemma CaseList_steps_nil_nice :
     { c | CaseList_steps_nil <=(c) 1 }.
-  Proof. eexists. apply dominatedWith_const. omega. Qed.
+  Proof. eexists. apply dominatedWith_const. lia. Qed.
 
   Lemma CaseList_steps_cons_nice :
     { c | forall  sigX X (cX:codable sigX X) (x : X), CaseList_steps_cons x <=(c) size x + 1 }.
@@ -43,15 +43,15 @@ Section CaseNat_steps_nice.
 
   Lemma CaseNat_steps_nice :
     { c | CaseNat_steps <=(c) 1 }.
-  Proof. eexists. apply dominatedWith_const. omega. Qed.
+  Proof. eexists. apply dominatedWith_const. lia. Qed.
 
   Lemma Constr_O_steps_nice :
     { c | Constr_O_steps <=(c) 1 }.
-  Proof. eexists. apply dominatedWith_const. omega. Qed.
+  Proof. eexists. apply dominatedWith_const. lia. Qed.
 
   Lemma Constr_S_steps_nice :
     { c | Constr_S_steps <=(c) 1 }.
-  Proof. eexists. apply dominatedWith_const. omega. Qed.
+  Proof. eexists. apply dominatedWith_const. lia. Qed.
 
 End CaseNat_steps_nice.
 
@@ -67,22 +67,22 @@ Section encodeList_size_eq.
     size (l1 ++ l2) <= size l1 + size l2.
   Proof.
     rewrite !Encode_list_hasSize in *.
-    cbn. induction l1;cbn. eauto. cbn. cbn. autorewrite with list. omega.
+    cbn. induction l1;cbn. eauto. cbn. cbn. autorewrite with list. lia.
   Qed.
 
   Lemma encodeList_size_app_eq (l1 l2 : list X) :
     size (l1 ++ l2) = size l1 + size l2 - 1.
   Proof.
     rewrite !Encode_list_hasSize in *.
-    cbn. induction l1;cbn. omega. autorewrite with list. rewrite IHl1.
-    assert ((Encode_list_size cX l2) > 0) by (induction l2;cbn;omega). omega.
+    cbn. induction l1;cbn. lia. autorewrite with list. rewrite IHl1.
+    assert ((Encode_list_size cX l2) > 0) by (induction l2;cbn;lia). lia.
   Qed.
 
   Lemma encodeList_size_cons  x (l : list X) :
     size (x::l) = 1 + size x + size l.
   Proof.
     rewrite !Encode_list_hasSize in *.
-    cbn. unfold size. autorewrite with list. omega.
+    cbn. unfold size. autorewrite with list. lia.
   Qed.
 
   Lemma encodeList_size_nil:
@@ -113,7 +113,7 @@ Section Copy_very_nice.
     eexists. intros ? ? ? x. unfold CopyValue_steps. domWith_approx.
     (*
     - apply dominatedWith_const; auto.
-    - apply dominatedWith_refl. instantiate (1 := 1). omega.
+    - apply dominatedWith_refl. instantiate (1 := 1). lia.
 *)
   Qed.
 
@@ -123,7 +123,7 @@ Section Copy_very_nice.
     eexists. intros ? ? ? x. unfold Reset_steps. domWith_approx.
     (*
     - apply dominatedWith_const; auto.
-    - apply dominatedWith_refl. instantiate (1 := 1). omega.
+    - apply dominatedWith_refl. instantiate (1 := 1). lia.
 *)
   Qed.
 
@@ -146,10 +146,10 @@ Section Copy_very_nice.
     rewrite <- Nat.add_assoc. eapply dominatedWith_add_l.
     - apply dominatedWith_add.
       + apply dominatedWith_mult_l. apply dominatedWith_solve.
-        enough (1 <= size y) by omega. apply sizeGt1'.
+        enough (1 <= size y) by lia. apply sizeGt1'.
       + apply dominatedWith_mult_l. apply dominatedWith_solve.
-        enough (1 <= size x) by omega. apply sizeGt1.
-    - enough (1 <= size x) by omega. apply sizeGt1.
+        enough (1 <= size x) by lia. apply sizeGt1.
+    - enough (1 <= size x) by lia. apply sizeGt1.
   Qed.
 
 End Copy_very_nice.
@@ -174,12 +174,12 @@ Section Nth'_nice.
     intros. unfold Nth'_Step_steps.
     apply dominatedWith_match_nat.
     - intros ->. apply dominatedWith_match_list.
-      + intros ->. cbn. unfold dominatedWith. unfold CaseList_steps_nil. do 11 instantiate (1 := S _). instantiate (1 := 0). omega.
+      + intros ->. cbn. unfold dominatedWith. unfold CaseList_steps_nil. do 11 instantiate (1 := S _). instantiate (1 := 0). lia.
       + intros x xs' ->. unfold CaseNat_steps, CaseList_steps_cons. hnf. rewrite Encode_list_hasSize. cbn [Encode_list_size].
         ring_simplify. instantiate (1 := 48). lia.
     - intros x ->. apply dominatedWith_match_list.
       + intros ->. ring_simplify. rewrite Encode_list_hasSize; cbn [Encode_list_size].
-        apply dominatedWith_const. omega.
+        apply dominatedWith_const. lia.
       + intros x' xs' ->. rewrite Encode_list_hasSize; cbn [Encode_list_size].
         unfold CaseList_steps_cons, Reset_steps, CaseNat_steps. ring_simplify. instantiate (1 := 100). hnf. ring_simplify. nia.
   Qed.
@@ -190,8 +190,8 @@ Section Nth'_nice.
   Proof.
     evar (c:nat). exists c.
     intros. unfold Nth'_Step_steps. apply dominatedWith_match_nat.
-    - intros ->. unfold CaseNat_steps, CaseList_steps_cons. ring_simplify. hnf. apply dominatedWith_const. omega.
-    - intros n' ->. unfold CaseNat_steps, CaseList_steps_cons. ring_simplify. hnf. apply dominatedWith_const. omega.
+    - intros ->. unfold CaseNat_steps, CaseList_steps_cons. ring_simplify. hnf. apply dominatedWith_const. lia.
+    - intros n' ->. unfold CaseNat_steps, CaseList_steps_cons. ring_simplify. hnf. apply dominatedWith_const. lia.
   Qed.
 
   Lemma Nth'_Step_steps_nice_cons :
@@ -206,13 +206,13 @@ Section Nth'_nice.
   Lemma max_plus_l a b c :
     max a (c + max b a) <= c + max b a.
   Proof.
-    assert (a <= b \/ b <= a) as [H | H] by omega.
+    assert (a <= b \/ b <= a) as [H | H] by lia.
     - replace (max b a) with b.
-      rewrite max_r by omega. omega.
-      now rewrite max_l by omega.
+      rewrite max_r by lia. lia.
+      now rewrite max_l by lia.
     - replace (max b a) with a.
-      rewrite max_r by omega. omega.
-      now rewrite max_r by omega.
+      rewrite max_r by lia. lia.
+      now rewrite max_r by lia.
   Qed.
 
   Lemma Nth'_Loop_steps_nice :
@@ -252,7 +252,7 @@ Section Nth'_nice.
   (*   rewrite !Encode_list_hasSize. rewrite Encode_list_hasSize_skipn. *)
   (*   rewrite Encode_nat_hasSize. rewrite H, Encode_list_hasSize. *)
   (*   ring_simplify. *)
-  (*   assert (n - (1 + |xs|) <= n) as H' by omega; rewrite H'; clear H'. *)
+  (*   assert (n - (1 + |xs|) <= n) as H' by lia; rewrite H'; clear H'. *)
   (*   (* Encode_list_size cX xs * c + 16 * Encode_list_size cX xs + 4 * n + 48 <= *)
   (*      Encode_list_size cX xs * c + Encode_list_size cX xs * ?m + 20 * Encode_list_size cX xs + c * n + c + ?m * n + ?m + 20 * n + 20 *) *)
   (*   instantiate (1 := 28). *)
@@ -267,12 +267,12 @@ Section Nth'_nice.
   (*   all: ring_simplify. *)
   (*   (* The second tactic can solve more and is faster *) *)
   (*   all: domWith_approx. *)
-  (*   all: try solve [ eauto | apply dominatedWith_const; omega | apply dominatedWith_solve; omega *)
-  (*                  | eapply dominatedWith_trans; eauto; apply dominatedWith_solve; omega ]. *)
+  (*   all: try solve [ eauto | apply dominatedWith_const; lia | apply dominatedWith_solve; lia *)
+  (*                  | eapply dominatedWith_trans; eauto; apply dominatedWith_solve; lia ]. *)
   (*   (* Specific part for [Nth'] *) *)
-  (*   1-4: apply dominatedWith_solve; rewrite !Encode_list_hasSize; etransitivity; [ apply (Encode_list_hasSize_skipn _ xs (1+n)) | omega ]. *)
+  (*   1-4: apply dominatedWith_solve; rewrite !Encode_list_hasSize; etransitivity; [ apply (Encode_list_hasSize_skipn _ xs (1+n)) | lia ]. *)
   (*   1-4: assert (1 <= size xs) by (rewrite Encode_list_hasSize; apply Encode_list_hasSize_ge1); *)
-  (*     apply dominatedWith_solve; rewrite Encode_nat_hasSize; omega. *)
+  (*     apply dominatedWith_solve; rewrite Encode_nat_hasSize; lia. *)
   (* Restart. *)
     (* Another proof with more automation *)
     pose_nice Nth'_Loop_steps_nice H c.
@@ -288,18 +288,18 @@ Section Nth'_nice.
     - eapply dominatedWith_trans.
       apply (proj2_sig Reset_steps_nice).
       apply dominatedWith_S''.
-      2:omega.
+      2:lia.
       2:{ apply dominatedWith_solve. rewrite !Encode_list_hasSize.
-           hnf. rewrite Encode_list_hasSize_skipn. omega. }
-      pose proof (Encode_list_hasSize_ge1 _ xs). rewrite Encode_list_hasSize. omega.
+           hnf. rewrite Encode_list_hasSize_skipn. lia. }
+      pose proof (Encode_list_hasSize_ge1 _ xs). rewrite Encode_list_hasSize. lia.
     - eapply dominatedWith_trans.
       apply (proj2_sig Reset_steps_nice).
       (* This is the [Nth']-specific complication *)
       apply dominatedWith_S''.
-      2: omega.
+      2: lia.
       2: { apply dominatedWith_solve. rewrite !Encode_list_hasSize. rewrite Encode_nat_hasSize.
-           pose proof (Encode_list_hasSize_ge1 _ xs). omega. }
-      pose proof (Encode_list_hasSize_ge1 _ xs). rewrite Encode_list_hasSize. omega. 
+           pose proof (Encode_list_hasSize_ge1 _ xs). lia. }
+      pose proof (Encode_list_hasSize_ge1 _ xs). rewrite Encode_list_hasSize. lia. 
   Qed.
 
 End Nth'_nice.
@@ -315,7 +315,7 @@ Section Length_steps_nice.
 
   Lemma Length_Step_steps_nice_nil :
     {c | Length_Step_steps nil <=(c) 1 }.
-  Proof. eexists. cbn. intros. apply dominatedWith_const. omega. Qed.
+  Proof. eexists. cbn. intros. apply dominatedWith_const. lia. Qed.
 
   Lemma Length_Step_steps_nice_cons :
     {c | forall (xs : list X) (x : X), Length_Step_steps (x :: xs) <=(c) size x + 1 }.
@@ -344,10 +344,10 @@ Section Length_steps_nice.
       hnf in IH. cbn. rewrite IH. ring_simplify.
       enough (c_cons * size x + c_cons <=
               size x * Init.Nat.max c_nil c_cons + size x +
-              Init.Nat.max c_nil c_cons) by omega.
+              Init.Nat.max c_nil c_cons) by lia.
       enough (c_cons * size x <=
               size x * Init.Nat.max c_nil c_cons + size x) by lia.
-      enough (c_cons * size x <= size x * max c_nil c_cons) by omega.
+      enough (c_cons * size x <= size x * max c_nil c_cons) by lia.
       Fail enough (c_cons <= max c_nil c_cons) by lia.
       rewrite Nat.mul_comm.
       apply Nat.mul_le_mono_l.
@@ -392,15 +392,15 @@ End App_nice.
 Lemma Encode_pair_hasSize_ge1 (sigX sigY X Y : Type) (cX : codable sigX X) (cY : codable sigY Y) (p : X * Y) :
   1 <= size (fst p) \/ 1 <= size (snd p) ->
   1 <= Encode_pair_size _ _ p.
-Proof. destruct p as (x,y). cbn in *. intros [H|H]; cbn; rewrite H; omega. Qed.
+Proof. destruct p as (x,y). cbn in *. intros [H|H]; cbn; rewrite H; lia. Qed.
 
 Lemma Encode_nat_hasSize_ge1 (n : nat) :
   1 <= size n.
-Proof. rewrite Encode_nat_hasSize. omega. Qed.
+Proof. rewrite Encode_nat_hasSize. lia. Qed.
 
 Lemma Encode_option_hasSize_ge1 (sigX X : Type) (cX : codable sigX X) (o : option X) :
   1 <= Encode_option_size _ o.
-Proof. destruct o; cbn; omega. Qed.
+Proof. destruct o; cbn; lia. Qed.
 
 (** *** CasePair *)
 
@@ -458,8 +458,8 @@ Proof.
   induction xs as [ | x' xs' IH].
   - intros [].
   - intros [<- | H].
-    + cbn. omega.
-    + specialize IH with (1 := H). cbn. omega.
+    + cbn. lia.
+    + specialize IH with (1 := H). cbn. lia.
 Qed.
 
 

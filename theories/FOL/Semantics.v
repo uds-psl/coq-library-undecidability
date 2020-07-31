@@ -60,12 +60,12 @@ Lemma mkfresh_spec l a : a el l -> a < mkfresh l.
 Proof.
   induction l.
   - firstorder.
-  - cbn; intros [ | ]; firstorder omega.
+  - cbn; intros [ | ]; firstorder lia.
 Qed.
 
 Lemma make_fresh A : {z | fresh z A}.
 Proof.
-  exists (mkfresh A). intros ? % mkfresh_spec. omega.
+  exists (mkfresh A). intros ? % mkfresh_spec. lia.
 Defined.
 
 Lemma app_sub X (A A' B B' : list X) :

@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import List Omega Morphisms FinFun Init.Wf.
+Require Import List Omega Lia Morphisms FinFun Init.Wf.
 From Undecidability.HOU Require Import std.decidable.
 Import ListNotations.
 
@@ -201,7 +201,7 @@ Section BasicLemmas.
       eapply le_lt_or_eq in H4 as []; eauto; exfalso.
       eapply NoDup_length_incl in H3. 
       rewrite !nodup_seteq in H3; intuition.
-      eapply NoDup_nodup. omega.
+      eapply NoDup_nodup. lia.
     Qed.
     
   End WellFoundedStrictInclusion.
@@ -305,7 +305,7 @@ Section BasicLemmas.
 
   (* filter *)
   Lemma filter_length p A: length (filter p A) <= length A.
-  Proof. induction A; cbn; [ constructor | ]; destruct (p a); cbn; omega. Qed.
+  Proof. induction A; cbn; [ constructor | ]; destruct (p a); cbn; lia. Qed.
 
 
   Global Instance filter_incl_proper: Proper (eq ++> incl ++> incl) (@filter X).

@@ -121,7 +121,7 @@ Section WriteValue.
     unfold WriteValue_steps. eapply RealiseIn_monotone.
     { unfold WriteValue. eapply WriteString_Sem. }
     { unfold WriteString_steps. rewrite !rev_length. cbn [length]. rewrite app_length.
-      unfold size. cbn. rewrite map_length. omega. }
+      unfold size. cbn. rewrite map_length. lia. }
     {
       intros tin ((), tout) H. intros x s0 <- (m&(rs&HRight&Hs)).
       unfold WriteValue_size in *.
@@ -129,7 +129,7 @@ Section WriteValue.
       eapply tape_local_contains_size. rewrite WriteString_L_local.
       - rewrite Encode_map_id. rewrite rev_app_distr, <- !app_assoc, rev_involutive, <- !app_assoc. cbn. f_equal.
       - rewrite rev_app_distr, <- !app_assoc. cbn. congruence.
-      - rewrite WriteString_L_left. simpl_list; cbn. rewrite skipn_length. unfold size. omega.
+      - rewrite WriteString_L_left. simpl_list; cbn. rewrite skipn_length. unfold size. lia.
     }
   Qed.
 
