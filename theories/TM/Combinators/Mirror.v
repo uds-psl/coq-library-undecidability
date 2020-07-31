@@ -26,8 +26,8 @@ Section Mirror.
   Variable pM : pTM sig F n.
 
   Definition Mirror_trans :
-    states (projT1 pM) * Vector.t (option sig) n ->
-    states (projT1 pM) *
+    state (projT1 pM) * Vector.t (option sig) n ->
+    state (projT1 pM) *
     Vector.t (option sig * move) n :=
     fun qsym =>
       let (q', act) := trans qsym in
@@ -43,7 +43,7 @@ Section Mirror.
   Definition Mirror : pTM sig F n :=
     (MirrorTM; projT2 pM).
 
-  Definition mirrorConf : mconfig sig (states (projT1 pM)) n -> mconfig sig (states (projT1 pM)) n :=
+  Definition mirrorConf : mconfig sig (state (projT1 pM)) n -> mconfig sig (state (projT1 pM)) n :=
     fun c => mk_mconfig (cstate c) (mirror_tapes (ctapes c)).
 
   Lemma mirrorConf_involution c : mirrorConf (mirrorConf c) = c.

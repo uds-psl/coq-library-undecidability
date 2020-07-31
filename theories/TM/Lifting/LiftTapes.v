@@ -184,7 +184,7 @@ Section LiftNM.
 
   Definition LiftTapes : pTM sig F n := (LiftTapes_TM; projT2 pM).
 
-  Definition selectConf : mconfig sig (states LiftTapes_TM) n -> mconfig sig (states (projT1 pM)) m :=
+  Definition selectConf : mconfig sig (state LiftTapes_TM) n -> mconfig sig (state (projT1 pM)) m :=
     fun c => mk_mconfig (cstate c) (select I (ctapes c)).
 
   Lemma current_chars_select (t : tapes sig n) :
@@ -198,7 +198,7 @@ Section LiftNM.
     unfold fill_default. f_equal. symmetry. now apply fill_correct_nth.
   Qed.
 
-  Lemma LiftTapes_comp_step (c1 : mconfig sig (states (projT1 pM)) n) :
+  Lemma LiftTapes_comp_step (c1 : mconfig sig (state (projT1 pM)) n) :
     step (M := projT1 pM) (selectConf c1) = selectConf (step (M := LiftTapes_TM) c1).
   Proof.
     unfold selectConf. unfold step; cbn.
@@ -209,7 +209,7 @@ Section LiftNM.
     f_equal. apply doAct_select.
   Qed.
 
-  Lemma LiftTapes_lift (c1 c2 : mconfig sig (states LiftTapes_TM) n) (k : nat) :
+  Lemma LiftTapes_lift (c1 c2 : mconfig sig (state LiftTapes_TM) n) (k : nat) :
     loopM (M := LiftTapes_TM) c1 k = Some c2 ->
     loopM (M := projT1 pM) (selectConf c1) k = Some (selectConf c2).
   Proof.
@@ -220,7 +220,7 @@ Section LiftNM.
     - apply HLoop.
   Qed.
 
-  Lemma LiftTapes_comp_eq (c1 c2 : mconfig sig (states LiftTapes_TM) n) (i : Fin.t n) :
+  Lemma LiftTapes_comp_eq (c1 c2 : mconfig sig (state LiftTapes_TM) n) (i : Fin.t n) :
     not_index I i ->
     step (M := LiftTapes_TM) c1 = c2 ->
     (ctapes c2)[@i] = (ctapes c1)[@i].
@@ -232,7 +232,7 @@ Section LiftNM.
     inv H. erewrite Vector.nth_map2; eauto. now rewrite fill_default_not_index.
   Qed.
 
-  Lemma LiftTapes_eq (c1 c2 : mconfig sig (states LiftTapes_TM) n) (k : nat) (i : Fin.t n) :
+  Lemma LiftTapes_eq (c1 c2 : mconfig sig (state LiftTapes_TM) n) (k : nat) (i : Fin.t n) :
     not_index I i ->
     loopM (M := LiftTapes_TM) c1 k = Some c2 ->
     (ctapes c2)[@i] = (ctapes c1)[@i].
@@ -253,10 +253,10 @@ Section LiftNM.
   Qed.
 
   Lemma LiftTapes_unlift (k : nat)
-        (c1 : mconfig sig (states (LiftTapes_TM)) n)
-        (c2 : mconfig sig (states (LiftTapes_TM)) m) :
+        (c1 : mconfig sig (state (LiftTapes_TM)) n)
+        (c2 : mconfig sig (state (LiftTapes_TM)) m) :
     loopM (M := projT1 pM) (selectConf c1) k = Some c2 ->
-    exists c2' : mconfig sig (states (LiftTapes_TM)) n,
+    exists c2' : mconfig sig (state (LiftTapes_TM)) n,
       loopM (M := LiftTapes_TM) c1 k = Some c2' /\
       c2 = selectConf c2'.
   Proof.
@@ -300,15 +300,15 @@ Section AddTapes.
 
   Variable n : nat.
 
-  Eval simpl in Fin.Lmove 4 (Fin1 : Fin.t 10).
-  Check @Fin.Lmove.
-  Search Fin.Lmove.
-  Eval simpl in Fin.Rmove 4 (Fin1 : Fin.t 10).
-  Check @Fin.Rmove.
-  Search Fin.Rmove.
+  (* Eval simpl in Fin.L 4 (Fin1 : Fin.t 10). *)
+  (* Check @Fin.L. *)
+  (* Search Fin.L. *)
+  (* Eval simpl in Fin.R 4 (Fin1 : Fin.t 10). *)
+  (* Check @Fin.R. *)
+  (* Search Fin.R. *)
 
   Lemma Fin_L_fillive (m : nat) (i1 i2 : Fin.t n) :
-    Fin.Lmove m i1 = Fin.Lmove m i2 -> i1 = i2.
+    Fin.L m i1 = Fin.L m i2 -> i1 = i2.
   Proof.
     induction n as [ | n' IH].
     - dependent destruct i1.
@@ -317,7 +317,7 @@ Section AddTapes.
   Qed.
 
   Lemma Fin_R_fillive (m : nat) (i1 i2 : Fin.t n) :
-    Fin.Rmove m i1 = Fin.Rmove m i2 -> i1 = i2.
+    Fin.R m i1 = Fin.R m i2 -> i1 = i2.
   Proof.
     induction m as [ | n' IH]; cbn.
     - auto.
@@ -326,7 +326,7 @@ Section AddTapes.
 
 
   Definition add_tapes (m : nat) : Vector.t (Fin.t (m + n)) n :=
-    Vector.map (fun k => Fin.Rmove m k) (Fin_initVect _).
+    Vector.map (fun k => Fin.R m k) (Fin_initVect _).
 
 
   Lemma add_tapes_dupfree (m : nat) : dupfree (add_tapes m).
@@ -337,7 +337,7 @@ Section AddTapes.
   Qed.
 
   Lemma add_tapes_select_nth (X : Type) (m : nat) (ts : Vector.t X (m + n)) k :
-    (select (add_tapes m) ts)[@k] = ts[@Fin.Rmove m k].
+    (select (add_tapes m) ts)[@k] = ts[@Fin.R m k].
   Proof.
     unfold add_tapes. unfold select. erewrite !VectorSpec.nth_map; eauto.
     cbn. now rewrite Fin_initVect_nth.
@@ -345,7 +345,7 @@ Section AddTapes.
 
 
   Definition app_tapes (m : nat) : Vector.t (Fin.t (n + m)) n :=
-    Vector.map (Fin.Lmove _) (Fin_initVect _).
+    Vector.map (Fin.L _) (Fin_initVect _).
 
   Lemma app_tapes_dupfree (m : nat) : dupfree (app_tapes m).
   Proof.
@@ -355,7 +355,7 @@ Section AddTapes.
   Qed.
 
   Lemma app_tapes_select_nth (X : Type) (m : nat) (ts : Vector.t X (n + m)) k :
-    (select (app_tapes m) ts)[@k] = ts[@Fin.Lmove m k].
+    (select (app_tapes m) ts)[@k] = ts[@Fin.L m k].
   Proof.
     unfold app_tapes. unfold select. erewrite !VectorSpec.nth_map; eauto.
     cbn. now rewrite Fin_initVect_nth.
@@ -460,8 +460,8 @@ Eval cbn in ltac:(do_n_times_fin 3 ltac:(fun a => let x := eval simpl in (a : Fi
 Ltac simpl_not_in_add_tapes_step H m' :=
   let H' := fresh "HIndex_" H in
   unshelve epose proof (H ltac:(getFin m') _) as H';
-  [ hnf; unfold add_tapes, Fin_initVect; cbn [tabulate Vector.map Fin.Lmove Fin.Rmove]; vector_not_in
-  | cbn [Fin.Lmove Fin.Rmove] in H'
+  [ hnf; unfold add_tapes, Fin_initVect; cbn [tabulate Vector.map Fin.L Fin.R]; vector_not_in
+  | cbn [Fin.L Fin.R] in H'
   ].
 
 Ltac simpl_not_in_add_tapes_loop H m :=
@@ -497,9 +497,9 @@ Ltac simpl_not_in_add_tapes := repeat simpl_not_in_add_tapes_one.
 
 Ltac simpl_not_in_app_tapes_step H n m' :=
   let H' := fresh "HIndex_" H in
-  unshelve epose proof (H (Fin.Rmove n ltac:(getFin m')) _) as H';
-  [ hnf; unfold app_tapes, Fin_initVect; cbn [tabulate Vector.map Fin.Lmove Fin.Rmove]; vector_not_in
-  | cbn [Fin.Lmove Fin.Rmove] in H'
+  unshelve epose proof (H (Fin.R n ltac:(getFin m')) _) as H';
+  [ hnf; unfold app_tapes, Fin_initVect; cbn [tabulate Vector.map Fin.L Fin.R]; vector_not_in
+  | cbn [Fin.L Fin.R] in H'
   ].
 
 Ltac simpl_not_in_app_tapes_loop H n m :=

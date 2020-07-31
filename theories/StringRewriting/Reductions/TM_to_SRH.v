@@ -304,24 +304,26 @@ Section Fix_TM.
    Definition get_rules_right (q1 q2: states T) : list (list rsig * list rsig) :=
      List.map (fun a => ([state q1; #; sym a],[#; state q2; sym a])) (elem sig).
    
-
+   Local Notation L := TM.Lmove.
+   Local Notation R := TM.Rmove.
+   Local Notation N := TM.Nmove.
    Definition get_rules (q1 q2: states T) (old new: option sig) (m: move) :
      list (list rsig * list rsig) :=
     match old,new,m with
     |None,None,L => [([state q1; #],[state q2; #])] ++ (get_rules_left q1 q2 None None)
-    |None,None,TM.N => [([state q1; #],[state q2; #]);([state q1; $],[state q2; $])]
+    |None,None,TM.Nmove => [([state q1; #],[state q2; #]);([state q1; $],[state q2; $])]
     |None,None,R => [([state q1; #;$],[state q2; #;$]); ([state q1; $],[state q2; $])]
                      ++ (get_rules_right q1 q2)
     |None,Some b,L => [([state q1; #],[state q2; #; sym b])] ++ (get_rules_left q1 q2 None (Some b))
-    |None,Some b,TM.N => [([state q1; #],[#; state q2; sym b]); ([state q1; $],[state q2; sym b; $])]
+    |None,Some b,TM.Nmove => [([state q1; #],[#; state q2; sym b]); ([state q1; $],[state q2; sym b; $])]
     |None,Some b,R => [([state q1; #],[#; sym b; state q2]); ([state q1; $],[sym b; state q2; $])]
     |Some a,None,L => [([#;state q1; sym a],[state q2; #; sym a])]
                        ++ (get_rules_left q1 q2 (Some a) None)
-    |Some a,None,TM.N => [([state q1; sym a],[state q2; sym a])]
+    |Some a,None,TM.Nmove => [([state q1; sym a],[state q2; sym a])]
     |Some a,None,R => [([state q1; sym a],[sym a; state q2])]
     |Some a,Some b,L => [([#; state q1; sym a],[state q2; #; sym b])]
                          ++ (get_rules_left q1 q2 (Some a) (Some b))
-    |Some a,Some b,TM.N => [([state q1; sym a],[state q2; sym b])]
+    |Some a,Some b,TM.Nmove => [([state q1; sym a],[state q2; sym b])]
     |Some a,Some b,R => [([state q1; sym a],[sym b; state q2])]
     end.
 

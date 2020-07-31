@@ -11,8 +11,8 @@ Section While.
   Variable pM : pTM sig (option F) n.
 
   Definition While_trans :
-    (TM.states (projT1 pM)) * Vector.t (option sig) n ->
-    (TM.states (projT1 pM)) * Vector.t (option sig * move) n :=
+    (TM.state (projT1 pM)) * Vector.t (option sig) n ->
+    (TM.state (projT1 pM)) * Vector.t (option sig * move) n :=
     fun '(q,s) =>
       if halt q
       then (start (projT1 pM), nop_action)
@@ -27,7 +27,7 @@ Section While.
 
   Hypothesis (defF : inhabitedC F).
 
-  Definition While_part : states (projT1 pM) -> F :=
+  Definition While_part : state (projT1 pM) -> F :=
     fun q =>
       match projT2 pM q with
       | Some y => y
@@ -41,7 +41,7 @@ Section While.
   Local Arguments halt {_ _} _ _.
   Local Arguments step {_ _} _ _.
 
-  Lemma step_comp (c : mconfig sig (states (projT1 pM)) n) :
+  Lemma step_comp (c : mconfig sig (state (projT1 pM)) n) :
     haltConf c = false ->
     step (projT1 pM) c = step WhileTM c.
   Proof.
@@ -50,7 +50,7 @@ Section While.
     cbv [step]. cbn. rewrite HHalt. reflexivity.
   Qed.
 
-  Lemma halt_comp (c : mconfig sig (states (projT1 pM)) n) :
+  Lemma halt_comp (c : mconfig sig (state (projT1 pM)) n) :
     haltConf (M := projT1 pM) c = false ->
     haltConf (M := WhileTM)     c = false.
   Proof.
@@ -59,7 +59,7 @@ Section While.
     apply andb_false_iff. now left.
   Qed.
 
-  Lemma While_trans_repeat (c : mconfig sig (states WhileTM) n) :
+  Lemma While_trans_repeat (c : mconfig sig (state WhileTM) n) :
     haltConf (M := projT1 pM) c = true ->
     projT2 pM (cstate c) = None ->
     step WhileTM c = initc (WhileTM) (ctapes c).
@@ -69,7 +69,7 @@ Section While.
     unfold step. cbn -[doAct_multi] in *. rewrite HHalt. unfold initc. f_equal. apply doAct_nop.
   Qed.
 
-  Lemma While_split k (c1 c3 : mconfig sig (states (projT1 pM)) n) :
+  Lemma While_split k (c1 c3 : mconfig sig (state (projT1 pM)) n) :
     loopM WhileTM c1 k = Some c3 ->
     exists k1 k2 c2,
       loopM (projT1 pM) c1 k1 = Some c2 /\
@@ -86,7 +86,7 @@ Section While.
     - apply halt_comp.
   Qed.
 
-  Lemma While_split_repeat k (c1 c2 : mconfig sig (states WhileTM) n) :
+  Lemma While_split_repeat k (c1 c2 : mconfig sig (state WhileTM) n) :
     loopM WhileTM c1 k = Some c2 ->
     haltConf (M := projT1 pM) c1 = true ->
     projT2 pM (cstate c1) = None ->
@@ -101,7 +101,7 @@ Section While.
       now rewrite While_trans_repeat in HLoop by auto.
   Qed.
 
-  Lemma While_split_term k (c1 c2 : mconfig sig (states WhileTM) n) (f : F) :
+  Lemma While_split_term k (c1 c2 : mconfig sig (state WhileTM) n) (f : F) :
     loopM WhileTM c1 k = Some c2 ->
     haltConf (M := projT1 pM) c1 = true ->
     projT2 pM (cstate c1) = Some f ->
@@ -111,7 +111,7 @@ Section While.
     eapply loop_eq_0. 2: apply HLoop. unfold haltConf in *. cbn in *. now rewrite HHalt, HTerm.
   Qed.
 
-  Lemma While_merge_repeat k1 k2 (c1 c2 c3 : mconfig sig (states WhileTM) n) :
+  Lemma While_merge_repeat k1 k2 (c1 c2 c3 : mconfig sig (state WhileTM) n) :
     loopM (projT1 pM) c1 k1 = Some c2 ->
     (projT2 pM) (cstate c2) = None ->
     loopM WhileTM (initc WhileTM (ctapes c2)) k2 = Some c3 ->
@@ -127,7 +127,7 @@ Section While.
       cbn in *. setoid_rewrite (loop_fulfills HLoop1). now rewrite HRepeat.
   Qed.
 
-  Lemma While_merge_term k1 (c1 c2 : mconfig sig (states WhileTM) n) (f : F) :
+  Lemma While_merge_term k1 (c1 c2 : mconfig sig (state WhileTM) n) (f : F) :
     loopM (projT1 pM) c1 k1 = Some c2 ->
     (projT2 pM) (cstate c2) = Some f ->
     loopM WhileTM c1 k1 = Some c2.

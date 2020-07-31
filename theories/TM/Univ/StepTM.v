@@ -345,20 +345,20 @@ Section Univ.
 
   
 
-  Definition containsState (t : tape sig^+) (M : mTM sigM 1) (q : states M) :=
+  Definition containsState (t : tape sig^+) (M : mTM sigM 1) (q : state M) :=
     t ≃(retr_sigCurrentState_sig) (halt q, index q).
 
-  Definition containsState_size (t : tape sig^+) (M : mTM sigM 1) (q : states M) (s : nat) :=
+  Definition containsState_size (t : tape sig^+) (M : mTM sigM 1) (q : state M) (s : nat) :=
     t ≃(retr_sigCurrentState_sig; s) (halt q, index q).
 
-  Lemma containsState_size_containsState t M (q : states M) s :
+  Lemma containsState_size_containsState t M (q : state M) s :
     containsState_size t q s -> containsState t q.
   Proof. firstorder. Qed.
 
   Hint Resolve containsState_size_containsState : core.
 
   (*
-  Definition IsFinal_size (M : mTM sigM 1) (q : states M) :=
+  Definition IsFinal_size (M : mTM sigM 1) (q : state M) :=
     [| (*0*) CasePair_size0 _ (halt q) >> SetFinal_size@>Fin0; (*1*) CasePair_size1 _ (halt q) >> (S >> S) >> SetFinal_size@>Fin1|].
    *)
 
@@ -366,7 +366,7 @@ Section Univ.
 
   Definition IsFinal_Rel : pRel sig^+ bool 2 :=
     fun tin '(yout, tout) =>
-      forall (M : mTM sigM 1) (q : states M) (s0 s1 : nat),
+      forall (M : mTM sigM 1) (q : state M) (s0 s1 : nat),
         let size := IsFinal_size in
         containsState_size tin[@Fin0] q s0 ->
         isRight_size tin[@Fin1] s1 ->
@@ -401,7 +401,7 @@ Section Univ.
   Definition IsFinal_steps (final : bool) := 2 + CasePair_steps (final) + CaseFin_steps + SetFinal_steps.
 
   Definition IsFinal_T : tRel sig^+ 2 :=
-    fun tin k => exists (M : mTM sigM 1) (q : states M), containsState tin[@Fin0] q /\ isRight tin[@Fin1] /\ IsFinal_steps (halt q) <= k.
+    fun tin k => exists (M : mTM sigM 1) (q : state M), containsState tin[@Fin0] q /\ isRight tin[@Fin1] /\ IsFinal_steps (halt q) <= k.
 
   Lemma IsFinal_Terminates : projT1 IsFinal ↓ IsFinal_T.
   Proof.
@@ -425,19 +425,19 @@ Section Univ.
     
 
   (** Alternative form for the transition function (for efficiency) *)
-  Definition graph_function (M : mTM sigM 1) : option sigM * states M -> ((option sigM * move) * states M) :=
+  Definition graph_function (M : mTM sigM 1) : option sigM * state M -> ((option sigM * move) * state M) :=
     (fun '(s, q) =>
        let (q', acts) := trans (q, [|s|]) in
        let (w, m) := acts[@Fin0] in
        ((w, m), q')).
 
   Definition trans_map_keys (M : mTM sigM 1) :=
-    fun (key : option sigM * (states M)) =>
+    fun (key : option sigM * (state M)) =>
       let (s,q) := key in
       (s, (halt q, index q)).
 
   Definition trans_map_values (M : mTM sigM 1) :=
-    fun (value : (option sigM * move) * (states M)) =>
+    fun (value : (option sigM * move) * (state M)) =>
       let (act, q') := value in
       (act, (halt q', index q')).
         
@@ -454,7 +454,7 @@ Section Univ.
   Lemma trans_map_keys_injective (M : mTM sigM 1) : injective (trans_map_keys (M:=M)).
   Proof. hnf. unfold trans_map_keys. intros (s1&q1) (s2&q2). intros H. inv H. f_equal. now apply injective_index in H3. Qed.
 
-  Lemma lookup_graph (M : mTM sigM 1) (tp : tape sigM) (q : states M) :
+  Lemma lookup_graph (M : mTM sigM 1) (tp : tape sigM) (q : state M) :
     lookup (current tp, (halt q, index q)) (graph_of_TM M) =
     let (q', acts) := trans (q, [|current tp|]) in
     Some (acts[@Fin0], (halt q', index q')).
@@ -485,7 +485,7 @@ Section Univ.
   Local Arguments ReadCurrent_size : simpl never.
   Local Arguments Lookup_size : simpl never.
 
-  Definition Univ_Step_size (M : mTM sigM 1) (tp : tape sigM) (q : states M) : Vector.t (nat->nat) 6 :=
+  Definition Univ_Step_size (M : mTM sigM 1) (tp : tape sigM) (q : state M) : Vector.t (nat->nat) 6 :=
     (* Note that the size function for tape 0 is semantically irrelevant because there is no size associated to this (working) tape *)
     if halt q
     then [|IsFinal_size|]@>>[|Fin3|]
@@ -502,7 +502,7 @@ Section Univ.
 
   Definition Univ_Step_Rel : pRel sig^+ (option unit) 6 :=
     fun tin '(yout, tout) =>
-      forall (M : mTM sigM 1) (tp : tape sigM) (q : states M) (s1 s2: nat) (sr : Vector.t nat 3),
+      forall (M : mTM sigM 1) (tp : tape sigM) (q : state M) (s1 s2: nat) (sr : Vector.t nat 3),
         let size := Univ_Step_size tp q in
         containsWorkingTape tin[@Fin0] tp ->
         containsTrans_size tin[@Fin1] M s1 ->
@@ -601,16 +601,16 @@ Section Univ.
   Definition Univ_Step_steps_ResetSymbol (tp : tape sigM) :=
     Reset_steps (current tp).
 
-  Definition Univ_Step_steps_Lookup (M : mTM sigM 1) (q : states M) (tp : tape sigM) :=
+  Definition Univ_Step_steps_Lookup (M : mTM sigM 1) (q : state M) (tp : tape sigM) :=
     Lookup_steps (current tp, (halt q, index q)) (graph_of_TM M).
 
   Definition Univ_Step_steps_CasePair (a : option sigM * move) :=
     CasePair_steps a.
 
-  Definition Univ_Step_steps_Translate (M : mTM sigM 1) (q' : states M) :=
+  Definition Univ_Step_steps_Translate (M : mTM sigM 1) (q' : state M) :=
     Translate_steps (halt q', index q').
 
-  Definition Univ_Step_steps_IsFinal (M : mTM sigM 1) (q : states M) (tp : tape sigM) :=
+  Definition Univ_Step_steps_IsFinal (M : mTM sigM 1) (q : state M) (tp : tape sigM) :=
     if halt q
     then 0
     else
@@ -618,12 +618,12 @@ Section Univ.
       6 + ReadCurrent'_steps + Univ_Step_steps_ConstrPair tp + Univ_Step_steps_ResetSymbol tp +
       Univ_Step_steps_Lookup q tp + Univ_Step_steps_CasePair acts[@Fin0] + DoAction'_steps + Univ_Step_steps_Translate q'.
 
-  Definition Univ_Step_steps (M : mTM sigM 1) (q : states M) (tp : tape sigM) : nat :=
+  Definition Univ_Step_steps (M : mTM sigM 1) (q : state M) (tp : tape sigM) : nat :=
     1 + IsFinal_steps (halt q) + Univ_Step_steps_IsFinal q tp.
 
   Definition Univ_Step_T : tRel sig^+ 6 :=
     fun tin k =>
-      exists (M : mTM sigM 1) (tp : tape sigM) (q : states M),
+      exists (M : mTM sigM 1) (tp : tape sigM) (q : state M),
         containsWorkingTape tin[@Fin0] tp /\
         containsTrans tin[@Fin1] M /\
         containsState tin[@Fin2] q /\
@@ -713,7 +713,7 @@ Section Univ.
   Definition Univ := While Univ_Step.
 
 
-  Fixpoint Univ_size (M : mTM sigM 1) (tp : tape sigM) (q : states M) (k : nat) {struct k} : Vector.t (nat->nat) 6 :=
+  Fixpoint Univ_size (M : mTM sigM 1) (tp : tape sigM) (q : state M) (k : nat) {struct k} : Vector.t (nat->nat) 6 :=
     match k with
     | 0 => Univ_Step_size tp q
     | S k' =>
@@ -726,12 +726,12 @@ Section Univ.
 
   Definition Univ_Rel : pRel sig^+ unit 6 :=
     fun tin '(_, tout) =>
-      forall (M : mTM sigM 1) (tp : tape sigM) (q : states M) (s1 s2 : nat) (sr : Vector.t nat 3),
+      forall (M : mTM sigM 1) (tp : tape sigM) (q : state M) (s1 s2 : nat) (sr : Vector.t nat 3),
         containsWorkingTape tin[@Fin0] tp ->
         containsTrans_size tin[@Fin1] M s1 ->
         containsState_size tin[@Fin2] q s2 ->
         (forall (i : Fin.t 3), isRight_size tin[@FinR 3 i] sr[@i]) ->
-        exists k (oconf : mconfig sigM (states M) 1),
+        exists k (oconf : mconfig sigM (state M) 1),
           let size := Univ_size tp q k in
           loopM (mk_mconfig q [|tp|]) k = Some oconf /\
           containsWorkingTape tout[@Fin0] (ctapes oconf)[@Fin0] /\
@@ -757,7 +757,7 @@ Section Univ.
   Qed.
 
 
-  Fixpoint Univ_steps (M : mTM sigM 1) (q : states M) (tp : tape sigM) (k : nat) : nat :=
+  Fixpoint Univ_steps (M : mTM sigM 1) (q : state M) (tp : tape sigM) (k : nat) : nat :=
     match k with
     | 0 => Univ_Step_steps q tp
     | S k' =>
@@ -769,7 +769,7 @@ Section Univ.
 
   Definition Univ_T : tRel sig^+ 6 :=
     fun tin k =>
-      exists (M : mTM sigM 1) (tp : tape sigM) (q : states M) (k' : nat) (q' : states M) (tp' : tape sigM),
+      exists (M : mTM sigM 1) (tp : tape sigM) (q : state M) (k' : nat) (q' : state M) (tp' : tape sigM),
         containsWorkingTape tin[@Fin0] tp /\
         containsTrans tin[@Fin1] M /\
         containsState tin[@Fin2] q /\

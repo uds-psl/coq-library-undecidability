@@ -25,8 +25,8 @@ Section Switch.
   Notation "'p2' y" := (projT2 (pMf y)) (at level 10).
 
   Definition Switch_trans :
-    (TM.states M1 + { f : F & TM.states (Mf f) }) * Vector.t (option sig) n ->
-    (TM.states M1 + { f : F & TM.states (Mf f) }) * Vector.t (option sig * move) n :=
+    (TM.state M1 + { f : F & TM.state (Mf f) }) * Vector.t (option sig) n ->
+    (TM.state M1 + { f : F & TM.state (Mf f) }) * Vector.t (option sig * move) n :=
     fun '(q, s) =>
         match q with
         | inl q =>
@@ -38,7 +38,7 @@ Section Switch.
           (inr (existT _ (projT1 q) q'), a)
         end.
 
-  Definition Switch_halt : (TM.states M1 + { f : F & TM.states (Mf f) }) -> bool :=
+  Definition Switch_halt : (TM.state M1 + { f : F & TM.state (Mf f) }) -> bool :=
     fun q => 
       match q with
       | inl _ => false
@@ -52,7 +52,7 @@ Section Switch.
       start := inl (start M1);
     |}.
 
-  Definition Switch_p : (states SwitchTM) -> F' :=
+  Definition Switch_p : (state SwitchTM) -> F' :=
     fun q => match q with
           | inl q => p2 (p1 q) (start (Mf (p1 q))) (* Canonical value *)
           | inr q => p2 (projT1 q) (projT2 q)
@@ -63,16 +63,16 @@ Section Switch.
   
 
   (** Lift configurations of [M1] to configurations of [Switch] *)
-  Definition lift_confL (c : mconfig sig (states M1) n) : mconfig sig (states SwitchTM) n :=
+  Definition lift_confL (c : mconfig sig (state M1) n) : mconfig sig (state SwitchTM) n :=
     mk_mconfig (inl (cstate c)) (ctapes c).
 
 
   (** Lift configuration of [M2] to configurations of [Switch] *)
-  Definition lift_confR (f : F) (c : mconfig sig (states (Mf f) ) n) : mconfig sig (states SwitchTM) n :=
-    mk_mconfig (inr (existT (fun f0 : F => states (Mf f0)) f (cstate c))) (ctapes c).
+  Definition lift_confR (f : F) (c : mconfig sig (state (Mf f) ) n) : mconfig sig (state SwitchTM) n :=
+    mk_mconfig (inr (existT (fun f0 : F => state (Mf f0)) f (cstate c))) (ctapes c).
 
-  (** Lifted Steps of [M1] are compatible with steps in [M1], for non-halting states *)
-  Lemma step_comp_liftL (c : mconfig sig (states M1) n) :
+  (** Lifted Steps of [M1] are compatible with steps in [M1], for non-halting state *)
+  Lemma step_comp_liftL (c : mconfig sig (state M1) n) :
     haltConf c = false -> step (lift_confL c) = lift_confL (step c).
   Proof.
     unfold lift_confL, step, haltConf. cbn. destruct c as [q t]; cbn in *. intros H. rewrite H.
@@ -80,23 +80,23 @@ Section Switch.
   Qed.
 
   (** Lifted steps of case-machines [Mf f] are compatible with steps in [Mf f] *)
-  Lemma step_comp_liftR f (c : mconfig sig (states (Mf f)) n) :
+  Lemma step_comp_liftR f (c : mconfig sig (state (Mf f)) n) :
     step (lift_confR c) = lift_confR (step c).
   Proof.
     destruct c. unfold lift_confR, step. cbn.
     destruct (trans _) eqn:E. cbn. reflexivity.
   Qed.
 
-  (** Lifted halting states of [M1] *)
-  Definition halt_liftL (c : mconfig sig (states (SwitchTM)) n) :=
+  (** Lifted halting state of [M1] *)
+  Definition halt_liftL (c : mconfig sig (state (SwitchTM)) n) :=
     match cstate c with
     | inl q => halt (m := M1) q
     | inr q => true
     end.
 
 
-  (** Non-halting states of [M1] are non-halting states of [Switch] *)
-  Lemma halt_conf_liftL (c : mconfig sig (states SwitchTM) n) :
+  (** Non-halting state of [M1] are non-halting state of [Switch] *)
+  Lemma halt_conf_liftL (c : mconfig sig (state SwitchTM) n) :
     halt_liftL c = false -> halt (cstate c) = false.
   Proof.
     intros H. cbn. unfold Switch_halt.
@@ -105,7 +105,7 @@ Section Switch.
   Qed.
 
   (** The "nop" transition jumps from a halting configuration of [M1] to the initial configuration of the corresponding case-machine. *)
-  Lemma step_nop_transition (c : mconfig sig (states M1) n) :
+  Lemma step_nop_transition (c : mconfig sig (state M1) n) :
     haltConf c = true ->
      step (lift_confL c) = lift_confR (initc (Mf (p1 (cstate c))) (ctapes c)).
   Proof.
@@ -123,8 +123,8 @@ Section Switch.
 
   (** This lemma is needed for the termination part. Suppose [M1] terminates in [c1].  The case machine [Mf f] starts with the tapes of [c1] and terminates in a configuration [c2]. Then, if we start [Switch] with the same tapes as [M1], [Switch] terminates in the lifted configuration of [c2]. *)
   Lemma Switch_merge t (k1 k2 : nat)
-        (c1 : mconfig sig (states M1) n)
-        (c2 : mconfig sig (states (Mf (p1 (cstate c1)))) n) :
+        (c1 : mconfig sig (state M1) n)
+        (c2 : mconfig sig (state (Mf (p1 (cstate c1)))) n) :
     loopM (initc M1 t) k1 = Some c1 ->
     loopM (initc (Mf (p1 (cstate c1))) (ctapes c1)) k2 = Some c2 ->
     loopM (initc SwitchTM t) (k1 + (1 + k2)) = Some (lift_confR c2).
@@ -148,7 +148,7 @@ Section Switch.
 
 
   (** The [Switch] machine must take the "nop" action if it is in a final state of [M1]. *)
-  Lemma step_nop_split (k2 : nat) (c2 : mconfig sig (states M1) n) (outc : mconfig sig (states SwitchTM) n) :
+  Lemma step_nop_split (k2 : nat) (c2 : mconfig sig (state M1) n) (outc : mconfig sig (state SwitchTM) n) :
     haltConf c2 = true ->
     loopM (M := SwitchTM) (lift_confL c2) k2 = Some outc ->
     exists k2' c2',
@@ -171,9 +171,9 @@ Section Switch.
   Qed.
 
 
-  Lemma Switch_split k t (outc : mconfig sig (states SwitchTM) n) :
+  Lemma Switch_split k t (outc : mconfig sig (state SwitchTM) n) :
     loopM (initc SwitchTM t) k = Some outc ->
-    exists k1 (c1 : mconfig sig (states M1) n) k2 (c2 : mconfig sig (states (Mf (p1 (cstate c1)))) n),
+    exists k1 (c1 : mconfig sig (state M1) n) k2 (c2 : mconfig sig (state (Mf (p1 (cstate c1)))) n),
       loopM (initc M1 t) k1 = Some c1 /\
       loopM (initc (Mf (p1 (cstate c1))) (ctapes c1)) k2 = Some c2 /\
       outc = lift_confR c2.

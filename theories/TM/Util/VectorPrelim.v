@@ -93,7 +93,7 @@ Lemma vector_nth_error_fin X n' i (xs : Vector.t X n') :
 Proof.
   clear. rewrite <- vector_to_list_correct. induction xs in i|-*. now inv  i. cbn;rewrite vector_to_list_correct in *.
   cbn in *. edestruct (fin_destruct_S) as [ (i'&->)| -> ]. 2:now cbn.
-  unshelve erewrite (_ : Fin.FS = Fin.Rmove 1). reflexivity.
+  unshelve erewrite (_ : Fin.FS = Fin.R 1). reflexivity.
   setoid_rewrite (Fin.R_sanity 1 i'). cbn. easy.
 Qed.
 

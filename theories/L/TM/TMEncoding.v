@@ -17,6 +17,10 @@ Run TemplateProgram (tmGenEncode "move_enc" move).
 Hint Resolve move_enc_correct : Lrewrite.
 
 Import TM.
+Local Notation L := TM.Lmove.
+Local Notation R := TM.Rmove.
+Local Notation N := TM.Nmove.
+
 Definition move_eqb (m n : move) : bool :=
   match m,n with
     N,N => true

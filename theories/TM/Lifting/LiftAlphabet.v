@@ -126,11 +126,11 @@ Section LiftAlphabet.
     (LiftAlphabet_TM; projT2 pMSig).
 
   
-  Definition surjectConf : (mconfig tau (states LiftAlphabet_TM) n) -> (mconfig sig (states (projT1 pMSig)) n) :=
+  Definition surjectConf : (mconfig tau (state LiftAlphabet_TM) n) -> (mconfig sig (state (projT1 pMSig)) n) :=
     fun c => mk_mconfig (cstate c) (surjectTapes Retr_g def (ctapes c)).
 
   (*
-  Definition injectConf : (mconfig sig (states (projT1 pMSig)) n) -> (mconfig tau (states liftM) n) :=
+  Definition injectConf : (mconfig sig (state (projT1 pMSig)) n) -> (mconfig tau (state liftM) n) :=
     fun c => mk_mconfig (cstate c) (injectTapes Retr_f (ctapes c)).
 *)
 
@@ -155,7 +155,7 @@ Section LiftAlphabet.
     unfold surjectTape, surject. now simpl_tape.
   Qed.
 
-  Lemma LiftAlphabet_comp_step (c : mconfig tau (states (projT1 pMSig)) n) :
+  Lemma LiftAlphabet_comp_step (c : mconfig tau (state (projT1 pMSig)) n) :
     step (M := projT1 pMSig) (surjectConf c) = surjectConf (step (M := LiftAlphabet_TM) c).
   Proof.
     unfold surjectConf. destruct c as [q t]. cbn in *.
@@ -165,7 +165,7 @@ Section LiftAlphabet.
     f_equal. unfold doAct_multi, surjectTapes. apply Vector.eq_nth_iff; intros i ? <-. simpl_tape. apply doAct_surject.
   Qed.
 
-  Lemma LiftAlphabet_lift (c1 c2 : mconfig tau (states LiftAlphabet_TM) n) (k : nat) :
+  Lemma LiftAlphabet_lift (c1 c2 : mconfig tau (state LiftAlphabet_TM) n) (k : nat) :
     loopM (M := LiftAlphabet_TM) c1 k = Some c2 ->
     loopM (M := projT1 pMSig) (surjectConf c1) k = Some (surjectConf c2).
   Proof.
@@ -183,9 +183,9 @@ Section LiftAlphabet.
     now apply (@LiftAlphabet_lift (initc LiftAlphabet_TM t) outc i).
   Qed.
 
-  Lemma LiftAlphabet_unlift (k : nat) iconf (oconf : mconfig sig (states (projT1 pMSig)) n) :
+  Lemma LiftAlphabet_unlift (k : nat) iconf (oconf : mconfig sig (state (projT1 pMSig)) n) :
     loopM (surjectConf iconf) k = Some oconf ->
-    exists oconf' : mconfig tau (states LiftAlphabet_TM) n,
+    exists oconf' : mconfig tau (state LiftAlphabet_TM) n,
       loopM iconf k = Some oconf'.
   Proof.
     intros HLoop. unfold loopM in *.

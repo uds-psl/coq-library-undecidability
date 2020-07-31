@@ -2122,9 +2122,9 @@ Section ToSingleTape.
 
   Section Step.
 
-    Variable (q : states (projT1 pM)).
+    Variable (q : state (projT1 pM)).
 
-    Definition Step_Rel : pRel sigSim (states (projT1 pM) + F) 1 :=
+    Definition Step_Rel : pRel sigSim (state (projT1 pM) + F) 1 :=
       fun tin '(yout, tout) =>
         forall (T : tapes sig n),
           tin[@Fin0] ≃ T ->
@@ -2135,7 +2135,7 @@ Section ToSingleTape.
             let (q', T') := step c in
             tout[@Fin0] ≃ T' /\ yout = inl q'.
 
-    Definition Step : pTM sigSim (states (projT1 pM) + F) 1 :=
+    Definition Step : pTM sigSim (state (projT1 pM) + F) 1 :=
       if halt q
       then Return Nop (inr (projT2 pM q))
       else

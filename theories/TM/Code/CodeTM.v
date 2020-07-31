@@ -108,7 +108,7 @@ Section Fix_Sig.
 
   (** A tape [t] contains a value [x], if [t=midtape rs (inl START) (map inr (encode x) ++ [inl STOP])] for some [rs : list (sig^+)]. This means, the pointer is on the start symbol, right to the pointer is the encoding of [x], which is terminated by the stop symbol [inl STOP]. We write [t ≃ x] for tape [t] contains [x]. *)
 
-  (** We also define a dual predicate for value-containment: reversed value containment. It is, however, only used internally. The difference is, that the pointer is on the stop symbol, instead of the start symbol. This predicate is useful for intermediate states of a machine, for example in the machine [CopyValue], which first has to move the head to the stop symbol. We write [t ≂ x] for [t] reversedly contains [x]. *)
+  (** We also define a dual predicate for value-containment: reversed value containment. It is, however, only used internally. The difference is, that the pointer is on the stop symbol, instead of the start symbol. This predicate is useful for intermediate state of a machine, for example in the machine [CopyValue], which first has to move the head to the stop symbol. We write [t ≂ x] for [t] reversedly contains [x]. *)
 
   Section Tape_Contains.
     Variable (sigX : Type) (X : Type) (cX : codable sigX X) (I : Retract sigX sig).

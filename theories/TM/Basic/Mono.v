@@ -5,13 +5,13 @@ From Undecidability Require Import TM.Util.TM_facts.
 
 (** ** Helper functions *)
 Section Mk_Mono.
-  Variable (sig states : finType).
-  Variable mono_trans : states -> option sig -> states * (option sig * move).
-  Variable (init : states) (fin : states -> bool).
+  Variable (sig state : finType).
+  Variable mono_trans : state -> option sig -> state * (option sig * move).
+  Variable (init : state) (fin : state -> bool).
 
   Definition Mk_Mono_TM : mTM sig 1.
   Proof.
-    split with (states := states).
+    split with (state := state).
     - intros (q&tape).
       pose proof (mono_trans q (tape[@Fin0])) as (q', act).
       apply (q', [| act |]).

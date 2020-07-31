@@ -15,7 +15,7 @@ Proof.
   - intros [[n sig] M t].
     exact ((mu
      (@ext (nat -> bool) (! nat ~> ! bool)
-        (fun k : nat => @LOptions.isSome (mconfig sig (@states sig n M) n) (@loopM sig n M (initc M t) k))
+        (fun k : nat => @LOptions.isSome (mconfig sig (@state sig n M) n) (@loopM sig n M (initc M t) k))
         (@term_test sig n M (initc M t))))).
   - intros [[n sig] M t].
     unfold HaltL.

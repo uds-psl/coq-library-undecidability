@@ -81,10 +81,10 @@ End Loop.
 
 Section LoopLift.
 
-  Variable A B : Type. (** Abstract states *)
-  Variable lift : A -> B. (** Lifting function between states *)
+  Variable A B : Type. (** Abstract state *)
+  Variable lift : A -> B. (** Lifting function between state *)
   Variable (f : A -> A) (f' : B -> B). (** Abstract steps *)
-  Variable (h : A -> bool) (h' : B -> bool). (** Abstract halting states *)
+  Variable (h : A -> bool) (h' : B -> bool). (** Abstract halting state *)
 
   Hypothesis halt_lift_comp : forall x:A, h' (lift x) = h x.
   Hypothesis step_lift_comp : forall x:A, h x = false -> f' (lift x) = lift (f x).
@@ -119,7 +119,7 @@ End LoopLift.
 
 Section LoopMerge.
 
-  Variable A : Type. (** abstract states *)
+  Variable A : Type. (** abstract state *)
   Variable f : A -> A. (** abstract step function *)
   Variable (h h' : A -> bool). (** abstract halting functions *)
 
@@ -216,7 +216,7 @@ Notation "g >> f" := (funcomp f g) (at level 40).
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 >>
-to avoid unfolding [*] and [+] in running time polynoms. However, this can break proofs that use [Fin.Rmove], since the [plus] in the type of [Fin.Rmove] doesn't simplify with [cbn] any more. To work around this problem, we have a copy of [Fin.Rmove] and [plus], that isn't affected by these commands. *)
+to avoid unfolding [*] and [+] in running time polynoms. However, this can break proofs that use [Fin.R], since the [plus] in the type of [Fin.R] doesn't simplify with [cbn] any more. To work around this problem, we have a copy of [Fin.R] and [plus], that isn't affected by these commands. *)
 
 Fixpoint plus' (n m : nat) { struct n } : nat :=
   match n with

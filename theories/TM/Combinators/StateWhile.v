@@ -9,11 +9,11 @@ Section StateWhile.
   Variable F1 F2 : finType.
   Variable pM : F1 -> pTM sig (F1 + F2) n.
 
-  Definition StateWhile_states : Type := { l : F1 & states (projT1 (pM l)) }.
+  Definition StateWhile_states : Type := { l : F1 & state (projT1 (pM l)) }.
 
-  Definition liftState {l : F1} (q : states (projT1 (pM l))) : StateWhile_states := ltac:(eexists; apply q). (* existT _ l q *)
+  Definition liftState {l : F1} (q : state (projT1 (pM l))) : StateWhile_states := ltac:(eexists; apply q). (* existT _ l q *)
 
-  Definition lift {l : F1} (c : mconfig sig (states (projT1 (pM l))) n) : mconfig sig (FinType(EqType StateWhile_states)) n :=
+  Definition lift {l : F1} (c : mconfig sig (state (projT1 (pM l))) n) : mconfig sig (FinType(EqType StateWhile_states)) n :=
     {|
       cstate := liftState (cstate c);
       ctapes := ctapes c;
@@ -60,7 +60,7 @@ Section StateWhile.
   Local Arguments step {_ _} _ _.
 
   
-  Lemma step_comp (l : F1) (c : mconfig sig (states (projT1 (pM l))) n) :
+  Lemma step_comp (l : F1) (c : mconfig sig (state (projT1 (pM l))) n) :
     haltConf c = false ->
     step (StateWhileTM l) (lift c) = lift (step (projT1 (pM l)) c).
   Proof.
@@ -71,7 +71,7 @@ Section StateWhile.
   Qed.
   
 
-  Lemma halt_comp (l : F1) (c : mconfig sig (states (projT1 (pM l))) n) :
+  Lemma halt_comp (l : F1) (c : mconfig sig (state (projT1 (pM l))) n) :
     haltConf (M := projT1 (pM l)) c = false ->
     haltConf (M := StateWhileTM l) (lift c) = false.
   Proof.
@@ -80,13 +80,13 @@ Section StateWhile.
     apply andb_false_iff. cbn. now left.
   Qed.
 
-  Lemma halt_comp' (l : F1) (c : mconfig sig (states (projT1 (pM l))) n) :
+  Lemma halt_comp' (l : F1) (c : mconfig sig (state (projT1 (pM l))) n) :
     haltConf (M := StateWhileTM l) (lift c) = haltConf (M := projT1 (pM l)) c.
   Proof.
     cbn in *. destruct c as [q t]. cbn in *. unfold StateWhile_halt, haltConf. cbn.
   Abort.
 
-  Lemma StateWhile_trans_repeat (l l_ : F1) (c : mconfig sig (states (projT1 (pM l))) n) (l' : F1) :
+  Lemma StateWhile_trans_repeat (l l_ : F1) (c : mconfig sig (state (projT1 (pM l))) n) (l' : F1) :
     haltConf (M := projT1 (pM l)) c = true ->
     projT2 (pM l) (cstate c) = inl l' ->
     step (StateWhileTM l_) (lift c) = lift (initc (projT1 (pM l')) (ctapes c)).
@@ -109,7 +109,7 @@ Section StateWhile.
   Proof. reflexivity. Qed.
 
   
-  Definition lifth l : mconfig sig (states (StateWhileTM l)) n -> bool.
+  Definition lifth l : mconfig sig (state (StateWhileTM l)) n -> bool.
   Proof.
     intros ((l'&q)&t).
     decide (l=l') as [_ | ].
@@ -118,12 +118,12 @@ Section StateWhile.
   Defined.
 
   
-  Lemma lifth_comp l (c : mconfig sig (states (StateWhileTM l)) n) :
+  Lemma lifth_comp l (c : mconfig sig (state (StateWhileTM l)) n) :
     lifth c = false -> haltConf c = false.
   Proof. destruct c as ((l'&q)&t). cbn. decide (l=l') as [->| _]; intros H; auto. unfold StateWhile_halt. cbn. now rewrite H. Qed.
 
   
-  Lemma lifth_comp' l (c : mconfig sig (states (projT1 (pM l))) n) :
+  Lemma lifth_comp' l (c : mconfig sig (state (projT1 (pM l))) n) :
     @lifth l (lift c) = haltConf c.
   Proof. unfold haltConf. destruct c as (q,t). cbn. decide (l=l); tauto. Qed.
 
@@ -150,9 +150,9 @@ Section StateWhile.
     c3 = lift c2.
   Proof. intros HLoop H E. eapply loop_eq_0 in HLoop; auto. unfold haltConf in *. cbn in *. unfold StateWhile_halt in *. cbn in *. now rewrite H, E. Qed.
 
-  Lemma StateWhile_split k l (c1 : mconfig sig (states (projT1 (pM l))) n) (c3 : mconfig sig (FinType (EqType StateWhile_states)) n) :
+  Lemma StateWhile_split k l (c1 : mconfig sig (state (projT1 (pM l))) n) (c3 : mconfig sig (FinType (EqType StateWhile_states)) n) :
     loopM (StateWhileTM l) (lift c1) k = Some c3 ->
-    exists (c2 : mconfig sig (states (projT1 (pM l))) n),
+    exists (c2 : mconfig sig (state (projT1 (pM l))) n),
       match projT2 (pM l) (cstate c2) with
       | inl l1 =>
         exists (k1 k2 : nat),
@@ -176,7 +176,7 @@ Section StateWhile.
   Qed.
 
 
-  Lemma StateWhile_merge_repeat k1 k2 l l1 (c1 : mconfig sig (states (projT1 (pM l))) n) (c2 : mconfig sig (states (projT1 (pM l))) n) c3 :
+  Lemma StateWhile_merge_repeat k1 k2 l l1 (c1 : mconfig sig (state (projT1 (pM l))) n) (c2 : mconfig sig (state (projT1 (pM l))) n) c3 :
     loopM (projT1 (pM l)) c1 k1 = Some c2 ->
     haltConf c2 = true ->
     projT2 (pM l) (cstate c2) = inl l1 ->
@@ -196,7 +196,7 @@ Section StateWhile.
   Qed.
 
   
-  Lemma StateWhile_merge_break k l l2 (c1 : mconfig sig (states (projT1 (pM l))) n) (c2 : mconfig sig (states (projT1 (pM l))) n) :
+  Lemma StateWhile_merge_break k l l2 (c1 : mconfig sig (state (projT1 (pM l))) n) (c2 : mconfig sig (state (projT1 (pM l))) n) :
     loopM (projT1 (pM l)) c1 k = Some c2 ->
     haltConf c2 = true ->
     projT2 (pM l) (cstate c2) = inr l2 ->

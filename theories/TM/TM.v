@@ -91,17 +91,21 @@ Section Fix_Alphabet.
   (** The number of tapes  *)
   Variable n : nat.
 
-  (* DLW: I suggest state instead of states, trans and start feels strange with states. *)
-
+  (** Definition of multi-tape Turing machines  *)
   Record mTM : Type :=
     {
-    states : finType; (* states of the TM *)
-    trans : states * (Vector.t (option Σ) n) -> states * (Vector.t ((option Σ) * move) n); (* the transition function *)
-    start: states; (* the start state *)
-    halt : states -> bool (* decidable subset of halting states *)
+    (* type of states of the TM: *)
+    state : finType;
+    (* transition function: *)
+    trans : state * (Vector.t (option Σ) n) -> state * (Vector.t ((option Σ) * move) n);
+    (* start state: *)
+    start: state;
+    (* decidable subset of halting states: *)
+    halt : state -> bool 
     }.
 
-  Inductive eval (M : mTM) (q : states M) (t : Vector.t (tape Σ) n) : states M -> Vector.t (tape Σ) n -> Prop :=
+  (** evaluation relation, uses trans until a halting state is reached:  *)
+  Inductive eval (M : mTM) (q : state M) (t : Vector.t (tape Σ) n) : state M -> Vector.t (tape Σ) n -> Prop :=
   | eval_halt :
       halt M q = true ->
       eval M q t q t
@@ -113,7 +117,7 @@ Section Fix_Alphabet.
 
 End Fix_Alphabet.
 
-Arguments states {_ _} _.
+Arguments state {_ _} _.
 Arguments trans {_ _} _ _, {_ _ _} _.
 Arguments start {_ _} _.
 Arguments halt {_ _} _ _, {_ _ _} _.
@@ -121,8 +125,6 @@ Arguments halt {_ _} _ _, {_ _ _} _.
 Arguments eval {_ _} _ _ _ _ _.
 
 Arguments Build_mTM {_ _ _} _ _ _.
-
-(* DLW: is there a reason for not always using tapes Σ n below ? *)
 
 Definition HaltsTM {Σ: finType} {n: nat} (M : mTM Σ n) (t : Vector.t (tape Σ) n) :=
   exists q' t', eval M (start M) t q' t'.

@@ -708,27 +708,27 @@ Section Semantics.
   
   Notation mTM := (mTM sig).
   (** Labelled Multi-Tape Turing Machines *)
-  Definition pTM (F: Type) (n:nat) := { M : mTM n & states M -> F }.
+  Definition pTM (F: Type) (n:nat) := { M : mTM n & state M -> F }.
   
 
   (** *** Configurations of TMs *)
   
-  Record mconfig (states:finType) (n:nat): Type :=
+  Record mconfig (state:finType) (n:nat): Type :=
     mk_mconfig
       {
-        cstate : states;
+        cstate : state;
         ctapes : tapes sig n
       }.
 
 
   (** *** Machine execution *)
   
-  Definition step {n} (M:mTM n) : mconfig (states M) n -> mconfig (states M) n :=
+  Definition step {n} (M:mTM n) : mconfig (state M) n -> mconfig (state M) n :=
     fun c =>
       let (news,actions) := trans (cstate c, current_chars  (ctapes c)) in 
       mk_mconfig news (doAct_multi (ctapes c) actions).
 
-  Definition haltConf {n} (M : mTM n) : mconfig (states M) n -> bool := fun c => halt (cstate c).
+  Definition haltConf {n} (M : mTM n) : mconfig (state M) n -> bool := fun c => halt (cstate c).
 
   (** Run the machine i steps until it halts *)
   Definition loopM n (M : mTM n) := loop (@step _ M) (@haltConf _ M).
@@ -812,7 +812,7 @@ Section Semantics.
     pose proof loop_injective H1 H2 as <-. exists outc. split; hnf; eauto.
   Qed.
   
-  Lemma Realise_total n (F : finType) (pM : { M : mTM n & states M -> F }) Rmove k :
+  Lemma Realise_total n (F : finType) (pM : { M : mTM n & state M -> F }) Rmove k :
     pM ⊨ Rmove /\ projT1 pM ↓ (fun _ i => k <= i) <-> pM ⊨c(k) Rmove.
   Proof.
     split.
@@ -834,7 +834,7 @@ Section Semantics.
     pM ⊨c(k) Rmove -> pM ⊨ Rmove.
   Proof. now intros (?&?) % Realise_total. Qed.
 
-  Lemma RealiseIn_TerminatesIn n (F : finType) (pM : { M : mTM n & states M -> F }) Rmove k :
+  Lemma RealiseIn_TerminatesIn n (F : finType) (pM : { M : mTM n & state M -> F }) Rmove k :
     pM ⊨c(k) Rmove -> projT1 pM ↓ (fun tin l => k <= l). 
   Proof.
     intros HRel. hnf. intros tin l HSteps. hnf in HRel. specialize (HRel tin) as (outc&HLoop&Rloop).
@@ -891,7 +891,7 @@ End Semantics.
 
 
 (** Notation for parametrised Turing machines *)
-Notation "'(' M ';' labelling ')'" := (existT (fun x => states x -> _) M labelling).
+Notation "'(' M ';' labelling ')'" := (existT (fun x => state x -> _) M labelling).
 
 (** Notations for semantic of concrete Turing machines *)
 Notation "M '⊨' Rmove" := (Realise M Rmove) (no associativity, at level 60, format "M  '⊨'  Rmove").
@@ -900,11 +900,11 @@ Notation "M '↓' t" := (TerminatesIn M t) (no associativity, at level 60, forma
 
 
 
-(** [inhabitedC] instances for states and labels *)
+(** [inhabitedC] instances for state and labels *)
 
 Instance inhabited_move : inhabitedC move := ltac:(repeat constructor).
 
-Instance inhabited_TM_Q (n : nat) (sig : finType) (M : mTM sig n) : inhabitedC (states M).
+Instance inhabited_TM_Q (n : nat) (sig : finType) (M : mTM sig n) : inhabitedC (state M).
 Proof. constructor. apply start. Qed.
 
 Lemma inhabited_pTM_lab (n : nat) (sig : finType) (F : Type) (pM : pTM sig F n) : inhabitedC F.
@@ -917,7 +917,7 @@ Hint Extern 4 => lazymatch goal with
 Section Test_def.
   Variable (n : nat) (sig : finType) (F : Type).
   Variable (pM : pTM sig F n).
-  Check default : states (projT1 pM).
+  Check default : state (projT1 pM).
   Check default : F.
 End Test_def.
 
@@ -928,7 +928,7 @@ End Test_def.
 Definition execTM (sig : finType) (n : nat) (M : mTM sig n) (tapes : tapes sig n) (k : nat) :=
   option_map (@ctapes _ _ _) (loopM (initc M tapes) k).
 
-Definition execTM_p (sig : finType) (n : nat) (F : finType) (pM : { M : mTM sig n & states M -> F }) (tapes : tapes sig n) (k : nat) :=
+Definition execTM_p (sig : finType) (n : nat) (F : finType) (pM : { M : mTM sig n & state M -> F }) (tapes : tapes sig n) (k : nat) :=
   option_map (fun x => (ctapes x, projT2 pM (cstate x))) (loopM (initc (projT1 pM) tapes) k ).
 
 
