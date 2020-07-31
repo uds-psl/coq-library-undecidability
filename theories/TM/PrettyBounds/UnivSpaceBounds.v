@@ -157,7 +157,7 @@ Section Univ_nice.
   (** The alphabet of the simulated machine *)
   Variable (sigM : finType).
   (** The simulated machine *)
-  Variable (M : mTM sigM 1).
+  Variable (M : TM sigM 1).
 
 
   Lemma SetFinal_size_nice :

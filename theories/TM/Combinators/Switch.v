@@ -45,7 +45,7 @@ Section Switch.
       | inr q => halt (projT2 q)
       end.
   
-  Definition SwitchTM : mTM sig n :=
+  Definition SwitchTM : TM sig n :=
     {|
       trans := Switch_trans;
       halt  := Switch_halt;

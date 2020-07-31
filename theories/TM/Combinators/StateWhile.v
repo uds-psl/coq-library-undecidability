@@ -37,7 +37,7 @@ Section StateWhile.
                | inr l2 => true
                end.
 
-  Definition StateWhileTM (l1 : F1) : mTM sig n :=
+  Definition StateWhileTM (l1 : F1) : TM sig n :=
     {|
       start := liftState (start (projT1 (pM l1)));
       trans := StateWhile_trans;
@@ -98,7 +98,7 @@ Section StateWhile.
 
 
 
-  (** The definition of [mTM] already contains the start state. The parameter of [StateWhile] somehow corresponds to the start state, but it is irrelevant when we choose a concrete starting state for [loopM]. *)
+  (** The definition of [TM] already contains the start state. The parameter of [StateWhile] somehow corresponds to the start state, but it is irrelevant when we choose a concrete starting state for [loopM]. *)
   Lemma startState_irrelevant k l l' c1 c2 :
     loopM (StateWhileTM l ) c1 k = Some c2 ->
     loopM (StateWhileTM l') c1 k = Some c2.

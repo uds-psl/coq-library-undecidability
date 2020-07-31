@@ -22,7 +22,7 @@ End Id.
 Section Relabel.
   Variable (sig : finType) (n : nat).
   Variable F F' : finType.
-  Variable pM : { M : mTM sig n & state M -> F }.
+  Variable pM : { M : TM sig n & state M -> F }.
   Variable p : F -> F'.
 
   Definition Relabel : pTM sig F' n :=
@@ -58,7 +58,7 @@ Section Return.
 
   Variable (sig : finType) (n : nat).
   Variable F : finType.
-  Variable pM : { M : mTM sig n & state M -> F }.
+  Variable pM : { M : TM sig n & state M -> F }.
   Variable F' : finType.
   Variable p : F'.
 

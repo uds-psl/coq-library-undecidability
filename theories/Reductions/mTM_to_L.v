@@ -8,7 +8,7 @@ From Undecidability Require Import TM.TM.
 Require Import PslBase.FiniteTypes.FinTypes.
 
 
-Lemma mTM_to_L :
+Lemma TM_to_L :
   HaltMTM ⪯ HaltL.
 Proof.
   unshelve eexists.

@@ -11,10 +11,10 @@ Local Notation L := TM.Lmove.
 Local Notation R := TM.Rmove.
 Local Notation N := TM.Nmove.
 
-Definition Halt' (Sigma : finType) n (M: mTM Sigma n) (start: mconfig Sigma (state M) n) :=
+Definition Halt' (Sigma : finType) n (M: TM Sigma n) (start: mconfig Sigma (state M) n) :=
   exists (f: mconfig _ (state M) _), halt (cstate f)=true /\ exists k, loopM start k = Some f.
 
-Definition Halt :{ '(Sigma, n) : finType * nat & mTM Sigma n & tapes Sigma n} -> _ :=
+Definition Halt :{ '(Sigma, n) : finType * nat & TM Sigma n & tapes Sigma n} -> _ :=
   fun '(existT2 (Sigma, n) M tp) =>
     exists (f: mconfig _ (state M) _), halt (cstate f) = true
                                    /\ exists k, loopM (mk_mconfig (start M) tp) k = Some f.
@@ -27,7 +27,7 @@ Section loopM.
   Let eqb_sig := eqbFinType_inst (X:=sig).
   Existing Instance eqb_sig.
   Variable n : nat.
-  Variable M : mTM sig n.
+  Variable M : TM sig n.
 
   Let reg_state := @registered_finType (state M).
   Existing Instance reg_state.

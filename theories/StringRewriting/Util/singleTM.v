@@ -220,7 +220,7 @@ Definition Reach (S: (sigT (fun (sig:finType) =>
   reach c1 c2. 
      
 
-Definition single_TM_halt : { sig : finType & (mTM sig 1) * (tapes sig 1)}%type -> Prop :=
+Definition single_TM_halt : { sig : finType & (TM sig 1) * (tapes sig 1)}%type -> Prop :=
   fun '(existT _ sig (M, t)) => exists outc k, TM_facts.loopM (TM_facts.initc M t) k = Some outc.
 
 Equations (noeqns) f_config A B : TM_facts.mconfig A B 1 -> mconfig A B :=

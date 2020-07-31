@@ -9,7 +9,7 @@ Section Mk_Mono.
   Variable mono_trans : state -> option sig -> state * (option sig * move).
   Variable (init : state) (fin : state -> bool).
 
-  Definition Mk_Mono_TM : mTM sig 1.
+  Definition Mk_Mono_TM : TM sig 1.
   Proof.
     split with (state := state).
     - intros (q&tape).
@@ -126,7 +126,7 @@ Section CaseChar.
   Variable sig : finType.
   Variable (F : finType) (f : option sig -> F).
 
-  Definition CaseChar_TM : mTM sig 1 :=
+  Definition CaseChar_TM : TM sig 1 :=
     {|
       trans := fun '(_, sym) => (Some (f sym[@Fin0]), [| (None, Nmove) |]);
       start := None;

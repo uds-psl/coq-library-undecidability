@@ -175,7 +175,7 @@ Section LiftNM.
       let (q', act) := trans (m := projT1 pM) (q, select I sym) in
       (q', fill_default I (None, Nmove) act).
 
-  Definition LiftTapes_TM : mTM sig n :=
+  Definition LiftTapes_TM : TM sig n :=
     {|
       trans := LiftTapes_trans;
       start := start (projT1 pM);

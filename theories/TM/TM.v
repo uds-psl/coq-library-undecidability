@@ -107,7 +107,7 @@ Section Fix_Alphabet.
   Variable n : nat.
 
   (** Definition of multi-tape Turing machines  *)
-  Record mTM : Type :=
+  Record TM : Type :=
     {
     (* type of states of the TM: *)
     state : finType;
@@ -120,7 +120,7 @@ Section Fix_Alphabet.
     }.
 
   (** evaluation relation, uses trans until a halting state is reached:  *)
-  Inductive eval (M : mTM) (q : state M) (t : Vector.t (tape Σ) n) : state M -> Vector.t (tape Σ) n -> Prop :=
+  Inductive eval (M : TM) (q : state M) (t : Vector.t (tape Σ) n) : state M -> Vector.t (tape Σ) n -> Prop :=
   | eval_halt :
       halt M q = true ->
       eval M q t q t
@@ -132,21 +132,21 @@ Section Fix_Alphabet.
 
 End Fix_Alphabet.
 
-Arguments state {_ _} _.
-Arguments trans {_ _} _ _, {_ _ _} _.
-Arguments start {_ _} _.
-Arguments halt {_ _} _ _, {_ _ _} _.
+Arguments state {_ _} m : rename.
+Arguments trans {_ _} m _, {_ _ m} _ : rename.
+Arguments start {_ _} m : rename.
+Arguments halt {_ _} m _, {_ _ m} _ : rename.
 
 Arguments eval {_ _} _ _ _ _ _.
 
-Arguments Build_mTM {_ _ _} _ _ _.
+Arguments Build_TM {_ _ _} _ _ _.
 
-Definition HaltsTM {Σ: finType} {n: nat} (M : mTM Σ n) (t : Vector.t (tape Σ) n) :=
+Definition HaltsTM {Σ: finType} {n: nat} (M : TM Σ n) (t : Vector.t (tape Σ) n) :=
   exists q' t', eval M (start M) t q' t'.
 Arguments HaltsTM _ _ _ _, {_ _} _ _.
 
-Definition HaltTM (n : nat) : {Σ : finType & mTM Σ n & Vector.t (tape Σ) n} -> Prop :=
+Definition HaltTM (n : nat) : {Σ : finType & TM Σ n & Vector.t (tape Σ) n} -> Prop :=
   fun '(existT2 _ _ Σ M t) => HaltsTM M t.
 
-Definition HaltMTM : {'(n,Σ) : nat * finType & mTM Σ n & Vector.t (tape Σ) n} -> Prop :=
+Definition HaltMTM : {'(n,Σ) : nat * finType & TM Σ n & Vector.t (tape Σ) n} -> Prop :=
   fun '(existT2 _ _ (n, Σ) M t) => HaltsTM M t.

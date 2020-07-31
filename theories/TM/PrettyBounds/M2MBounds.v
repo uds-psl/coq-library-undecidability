@@ -617,7 +617,7 @@ Section ToSingleTape_bounds.
 
 
   (** Same structure as [Loop_steps], but with bounded terms *)
-  Fixpoint Loop_steps_asym {n : nat} sig {M : mTM sig n} q (T : tapes sig n) (k : nat) {struct k} :=
+  Fixpoint Loop_steps_asym {n : nat} sig {M : TM sig n} q (T : tapes sig n) (k : nat) {struct k} :=
     if halt q
     then 0
     else match k with
@@ -627,7 +627,7 @@ Section ToSingleTape_bounds.
            size (vector_to_list T) * size (vector_to_list T) + Loop_steps_asym q' (doAct_multi T acts) k'
          end.
 
-  Lemma Loop_steps_asym_halt {n : nat} sig {M : mTM sig n} (q : state M) (T : tapes sig n) (k : nat) :
+  Lemma Loop_steps_asym_halt {n : nat} sig {M : TM sig n} (q : state M) (T : tapes sig n) (k : nat) :
     halt q = true ->
     Loop_steps_asym q T k = 0.
   Proof. now destruct k; cbn; intros ->. Qed.
@@ -656,7 +656,7 @@ Section ToSingleTape_bounds.
     size (vector_to_list (doAct_multi T act)) <= size (vector_to_list T) + 2 * n.
   Proof. unfold doAct_multi. rewrite <- map_vect_list_eq. apply size_doActions. Qed.
 
-  Lemma size_final_tapes {sig : finType} {n : nat} {M : mTM sig n} (q : state M) (T : tapes sig n) (k : nat) (q_fin : state M) (T_fin : tapes sig n) :
+  Lemma size_final_tapes {sig : finType} {n : nat} {M : TM sig n} (q : state M) (T : tapes sig n) (k : nat) (q_fin : state M) (T_fin : tapes sig n) :
     loopM (mk_mconfig q T) k = Some (mk_mconfig q_fin T_fin) ->
     size (vector_to_list T) <= size (vector_to_list T_fin).
   Proof.
@@ -670,7 +670,7 @@ Section ToSingleTape_bounds.
         rewrite <- IH. apply size_doAct_multi.
   Qed.        
 
-  Lemma size_final_tapes' {sig : finType} {n : nat} {M : mTM sig n} (q : state M) (T : tapes sig n) (k : nat) (q_fin : state M) (T_fin : tapes sig n) :
+  Lemma size_final_tapes' {sig : finType} {n : nat} {M : TM sig n} (q : state M) (T : tapes sig n) (k : nat) (q_fin : state M) (T_fin : tapes sig n) :
     loopM (mk_mconfig q T) k = Some (mk_mconfig q_fin T_fin) ->
     size (vector_to_list T_fin) <= size (vector_to_list T) + 2 * n * k.
   Proof.
@@ -686,7 +686,7 @@ Section ToSingleTape_bounds.
   
 
   (** Bound every step term with the term for the tape after the execution *)
-  Lemma Loop_steps_asym_bounded sig {n : nat} {M : mTM sig n} (q : state M) (T : tapes sig n) (k : nat) (q_fin : state M) (T_fin : tapes sig n) :
+  Lemma Loop_steps_asym_bounded sig {n : nat} {M : TM sig n} (q : state M) (T : tapes sig n) (k : nat) (q_fin : state M) (T_fin : tapes sig n) :
     loopM (mk_mconfig q T) k = Some (mk_mconfig q_fin T_fin) ->
     Loop_steps_asym q T k <= size (vector_to_list T_fin) * size (vector_to_list T_fin) * k.
   Proof.
@@ -715,7 +715,7 @@ Section ToSingleTape_bounds.
 
 
   (** Bound for the final tape size after k steps *)
-  Lemma Loop_steps_asym_bounded' sig {n : nat} {M : mTM sig n} (q : state M) (T : tapes sig n) (k : nat) (* (q_fin : state M) (T_fin : tapes sig n) *) :
+  Lemma Loop_steps_asym_bounded' sig {n : nat} {M : TM sig n} (q : state M) (T : tapes sig n) (k : nat) (* (q_fin : state M) (T_fin : tapes sig n) *) :
     (* loopM (mk_mconfig q T) k = Some (mk_mconfig q_fin T_fin) -> *)
     Loop_steps_asym q T k <= (size (vector_to_list T) + 2 * n * k) * (size (vector_to_list T) + 2 * n * k) * k.
   Proof.

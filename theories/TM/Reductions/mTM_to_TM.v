@@ -12,7 +12,7 @@ Proof.
     firstorder.
 Qed.
 
-Lemma mk_pTM n (sig : finType) (m : mTM sig n) : pTM sig unit n.
+Lemma mk_pTM n (sig : finType) (m : TM sig n) : pTM sig unit n.
 Proof.
   unshelve econstructor. exact m. exact (fun _ => tt).
 Defined.  

@@ -706,9 +706,9 @@ Section Semantics.
 
   Variable sig : finType.
   
-  Notation mTM := (mTM sig).
+  Notation TM := (TM sig).
   (** Labelled Multi-Tape Turing Machines *)
-  Definition pTM (F: Type) (n:nat) := { M : mTM n & state M -> F }.
+  Definition pTM (F: Type) (n:nat) := { M : TM n & state M -> F }.
   
 
   (** *** Configurations of TMs *)
@@ -723,18 +723,18 @@ Section Semantics.
 
   (** *** Machine execution *)
   
-  Definition step {n} (M:mTM n) : mconfig (state M) n -> mconfig (state M) n :=
+  Definition step {n} (M:TM n) : mconfig (state M) n -> mconfig (state M) n :=
     fun c =>
       let (news,actions) := trans (cstate c, current_chars  (ctapes c)) in 
       mk_mconfig news (doAct_multi (ctapes c) actions).
 
-  Definition haltConf {n} (M : mTM n) : mconfig (state M) n -> bool := fun c => halt (cstate c).
+  Definition haltConf {n} (M : TM n) : mconfig (state M) n -> bool := fun c => halt (cstate c).
 
   (** Run the machine i steps until it halts *)
-  Definition loopM n (M : mTM n) := loop (@step _ M) (@haltConf _ M).
+  Definition loopM n (M : TM n) := loop (@step _ M) (@haltConf _ M).
   
   (** Initial configuration *)  
-  Definition initc n (M : mTM n) tapes :=
+  Definition initc n (M : TM n) tapes :=
     mk_mconfig (n := n) (@start _ n M) tapes.
 
   (** *** Realisation *)
@@ -761,7 +761,7 @@ Section Semantics.
 
   Definition tRel sig n := Rel (tapes sig n) nat.
 
-  Definition TerminatesIn {n : nat} (M : mTM n) (T : tRel sig n) :=
+  Definition TerminatesIn {n : nat} (M : TM n) (T : tRel sig n) :=
     forall tin k, T tin k -> exists conf, loopM (initc M tin) k = Some conf.
   
 
@@ -769,11 +769,11 @@ Section Semantics.
   Notation "M ↓ T" := (TerminatesIn M T) (no associativity, at level 60, format "M  '↓'  T").
 
   (** Termination is anti-monotone *)
-  Lemma TerminatesIn_monotone {n : nat} (M : mTM n) (T T' : tRel sig n) :
+  Lemma TerminatesIn_monotone {n : nat} (M : TM n) (T T' : tRel sig n) :
     M ↓ T' -> (T <<=2 T') -> M ↓ T.
   Proof. intros H1 H2. firstorder. Qed.
 
-  Lemma TerminatesIn_extend {n : nat} (M : mTM n) (T : tRel sig n) :
+  Lemma TerminatesIn_extend {n : nat} (M : TM n) (T : tRel sig n) :
     M ↓ T ->
     M ↓ (fun tin k => exists k', k' <= k /\ T tin k').
   Proof.
@@ -812,7 +812,7 @@ Section Semantics.
     pose proof loop_injective H1 H2 as <-. exists outc. split; hnf; eauto.
   Qed.
   
-  Lemma Realise_total n (F : finType) (pM : { M : mTM n & state M -> F }) Rmove k :
+  Lemma Realise_total n (F : finType) (pM : { M : TM n & state M -> F }) Rmove k :
     pM ⊨ Rmove /\ projT1 pM ↓ (fun _ i => k <= i) <-> pM ⊨c(k) Rmove.
   Proof.
     split.
@@ -834,7 +834,7 @@ Section Semantics.
     pM ⊨c(k) Rmove -> pM ⊨ Rmove.
   Proof. now intros (?&?) % Realise_total. Qed.
 
-  Lemma RealiseIn_TerminatesIn n (F : finType) (pM : { M : mTM n & state M -> F }) Rmove k :
+  Lemma RealiseIn_TerminatesIn n (F : finType) (pM : { M : TM n & state M -> F }) Rmove k :
     pM ⊨c(k) Rmove -> projT1 pM ↓ (fun tin l => k <= l). 
   Proof.
     intros HRel. hnf. intros tin l HSteps. hnf in HRel. specialize (HRel tin) as (outc&HLoop&Rloop).
@@ -874,7 +874,7 @@ Section Semantics.
 
   Section Canonical_Termination.
     Variable (n : nat).
-    Variable (M : mTM n).
+    Variable (M : TM n).
 
     Definition Canonical_T : tRel sig n :=
       fun t k => exists outc, loopM (M := M) (initc M t) k = Some outc.
@@ -904,7 +904,7 @@ Notation "M '↓' t" := (TerminatesIn M t) (no associativity, at level 60, forma
 
 Instance inhabited_move : inhabitedC move := ltac:(repeat constructor).
 
-Instance inhabited_TM_Q (n : nat) (sig : finType) (M : mTM sig n) : inhabitedC (state M).
+Instance inhabited_TM_Q (n : nat) (sig : finType) (M : TM sig n) : inhabitedC (state M).
 Proof. constructor. apply start. Qed.
 
 Lemma inhabited_pTM_lab (n : nat) (sig : finType) (F : Type) (pM : pTM sig F n) : inhabitedC F.
@@ -925,10 +925,10 @@ End Test_def.
 
 
 (** Auxiliary function to actually execute a machine *)
-Definition execTM (sig : finType) (n : nat) (M : mTM sig n) (tapes : tapes sig n) (k : nat) :=
+Definition execTM (sig : finType) (n : nat) (M : TM sig n) (tapes : tapes sig n) (k : nat) :=
   option_map (@ctapes _ _ _) (loopM (initc M tapes) k).
 
-Definition execTM_p (sig : finType) (n : nat) (F : finType) (pM : { M : mTM sig n & state M -> F }) (tapes : tapes sig n) (k : nat) :=
+Definition execTM_p (sig : finType) (n : nat) (F : finType) (pM : { M : TM sig n & state M -> F }) (tapes : tapes sig n) (k : nat) :=
   option_map (fun x => (ctapes x, projT2 pM (cstate x))) (loopM (initc (projT1 pM) tapes) k ).
 
 
@@ -955,7 +955,7 @@ Proof.
   - intros n v1 v2 IH a b. cbn. now rewrite H, IH.
 Qed.
 
-Lemma TM_eval_iff (Σ : finType) n (M : mTM Σ n) q t q' t' :
+Lemma TM_eval_iff (Σ : finType) n (M : TM Σ n) q t q' t' :
   TM.eval M q t q' t' <-> exists n, loopM (M := M) (mk_mconfig q t) n = Some (mk_mconfig q' t').
 Proof.
   split.

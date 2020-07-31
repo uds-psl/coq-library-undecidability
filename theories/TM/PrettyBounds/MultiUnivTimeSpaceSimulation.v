@@ -102,7 +102,7 @@ Arguments bogus_tape : simpl never.
 
 
 
-Definition terminates (sigM : finType) (n : nat) (M : mTM sigM n) (tp : tapes sigM n) (k : nat) (tp' : tapes sigM n) :=
+Definition terminates (sigM : finType) (n : nat) (M : TM sigM n) (tp : tapes sigM n) (k : nat) (tp' : tapes sigM n) :=
   exists (q : state M), loopM _ (initc M tp) k = Some (mk_mconfig q tp').
 
 
@@ -141,7 +141,7 @@ Section InitUniv.
     - intros ->. apply makeUnivWorkingTape_correct.
   Qed.
 
-  Derive makeUnivGraphTape SuchThat (forall (M : mTM sigM 1), containsTrans_size retr_sigGraph_sig (makeUnivGraphTape M : tape sig^+) M 0) As makeUnivGraphTape_correct_size.
+  Derive makeUnivGraphTape SuchThat (forall (M : TM sigM 1), containsTrans_size retr_sigGraph_sig (makeUnivGraphTape M : tape sig^+) M 0) As makeUnivGraphTape_correct_size.
   Proof.
     subst makeUnivGraphTape. cbn. intros.
     instantiate (1 := fun M => _). cbn.
@@ -151,7 +151,7 @@ Section InitUniv.
   Lemma makeUnivGraphTape_correct M : containsTrans _ (makeUnivGraphTape M) M.
   Proof. eapply containsTrans_size_containsTrans. apply makeUnivGraphTape_correct_size. Qed.
 
-  Derive makeUnivStartStateTape SuchThat (forall (M : mTM sigM 1), containsState_size retr_sigGraph_sig (makeUnivStartStateTape M : tape sig^+) (start M) 0) As makeUnivStartStateTape_correct_size.
+  Derive makeUnivStartStateTape SuchThat (forall (M : TM sigM 1), containsState_size retr_sigGraph_sig (makeUnivStartStateTape M : tape sig^+) (start M) 0) As makeUnivStartStateTape_correct_size.
   Proof.
     subst makeUnivStartStateTape. cbn. intros.
     instantiate (1 := fun M => _). cbn.
@@ -162,10 +162,10 @@ Section InitUniv.
   Proof. eapply containsState_size_containsState. apply makeUnivStartStateTape_correct_size. Qed.
 
 
-  Definition makeUnivTapes (M : mTM sigM 1) (t : tape sigM) : tapes sig^+ 6 :=
+  Definition makeUnivTapes (M : TM sigM 1) (t : tape sigM) : tapes sig^+ 6 :=
     [| makeUnivWorkingTape t; makeUnivGraphTape M; makeUnivStartStateTape M; initRight _; initRight _; initRight _ |].
 
-  Lemma makeUnivTapes_correct_size (M : mTM sigM 1) (tp : tape sigM) :
+  Lemma makeUnivTapes_correct_size (M : TM sigM 1) (tp : tape sigM) :
     containsWorkingTape _ (makeUnivTapes M tp)[@Fin0] tp /\
     containsTrans_size _ (makeUnivTapes M tp)[@Fin1] M 0 /\
     containsState_size _ (makeUnivTapes M tp)[@Fin2] (start M) 0 /\
@@ -178,7 +178,7 @@ Section InitUniv.
     - intros i; destruct_fin i; cbn; apply initRight_isRight_size.
   Qed.
 
-  Lemma makeUnivTapes_correct (M : mTM sigM 1) (tp : tape sigM) :
+  Lemma makeUnivTapes_correct (M : TM sigM 1) (tp : tape sigM) :
     containsWorkingTape _ (makeUnivTapes M tp)[@Fin0] tp /\
     containsTrans _ (makeUnivTapes M tp)[@Fin1] M /\
     containsState _ (makeUnivTapes M tp)[@Fin2] (start M) /\
@@ -353,7 +353,7 @@ Proof. setoid_rewrite Encode_tape_hasSize. apply makeSingleTape_size'. Qed.
 
 
 (*
-Definition sigTM (sigM : finType) (n : nat) (M : mTM sigM n) : finType := sigM.
+Definition sigTM (sigM : finType) (n : nat) (M : TM sigM n) : finType := sigM.
 Arguments sigTM {sigM n} M.
 *)
 
@@ -550,26 +550,26 @@ Section U.
 
 
   (** Encode [pM] and the initial tape [T] to a tape of [U]. *)
-  Definition initTapes_U (M : mTM sigM 1) (T : tape sigM) : tape sigU :=
+  Definition initTapes_U (M : TM sigM 1) (T : tape sigM) : tape sigU :=
     let tp := T in (* The tapes compressed into a single-tape *)
     let T_univ := makeUnivTapes _ _ M tp in
     makeSingleTape T_univ.
 
   (** [contains_conf_U] is a predicate for [U] that says that the tape [t] "contains" the transition function for [M] and the simulated tapes [T : tapes sigM n]. *)
-  Definition contains_conf_Univ (M : mTM sigM 1) (T_univ : tapes sigUniv 6) (q : state M) (T : tape sigM) : Prop :=
+  Definition contains_conf_Univ (M : TM sigM 1) (T_univ : tapes sigUniv 6) (q : state M) (T : tape sigM) : Prop :=
     containsWorkingTape _ T_univ[@Fin0] T /\
     containsTrans _ T_univ[@Fin1] M /\
     containsState _ T_univ[@Fin2] q /\
     (forall (i : Fin.t 3), isRight T_univ[@FinR 3 i]).
 
   (** Variant with size. Note that [s_Univ[@Fin0]] is irrelevant. *)
-  Definition contains_conf_Univ_size (M : mTM sigM 1) (T_univ : tapes sigUniv 6) (q : state M) (T : tape sigM) (s_Univ : Vector.t nat 6) : Prop :=
+  Definition contains_conf_Univ_size (M : TM sigM 1) (T_univ : tapes sigUniv 6) (q : state M) (T : tape sigM) (s_Univ : Vector.t nat 6) : Prop :=
     containsWorkingTape _ T_univ[@Fin0] T /\
     containsTrans_size _ T_univ[@Fin1] M s_Univ[@Fin1] /\
     containsState_size _ T_univ[@Fin2] q s_Univ[@Fin2] /\
     (forall (i : Fin.t 3), isRight_size T_univ[@FinR 3 i] s_Univ[@FinR 3 i]).
 
-  Lemma contains_conf_Univ_size_contains_conf_Univ (M : mTM sigM 1) (T_univ : tapes sigUniv 6) (q : state M) (T : tape sigM) (s_Univ : Vector.t nat 6) :
+  Lemma contains_conf_Univ_size_contains_conf_Univ (M : TM sigM 1) (T_univ : tapes sigUniv 6) (q : state M) (T : tape sigM) (s_Univ : Vector.t nat 6) :
     contains_conf_Univ_size T_univ q T s_Univ ->
     contains_conf_Univ      T_univ q T.
   Proof.
@@ -580,20 +580,20 @@ Section U.
     - intros. eapply isRight_size_isRight. apply H3.
   Qed.
 
-  Definition contains_conf_U' (M : mTM sigM 1) (t : tape sigU) (T_univ : tapes sigUniv 6) (q : state M) (T : tape sigM) : Prop :=
+  Definition contains_conf_U' (M : TM sigM 1) (t : tape sigU) (T_univ : tapes sigUniv 6) (q : state M) (T : tape sigM) : Prop :=
     contains_tapes t T_univ /\ contains_conf_Univ T_univ q T.
 
-  Definition contains_conf_U'_size (M : mTM sigM 1) (t : tape sigU) (T_univ : tapes sigUniv 6) (q : state M) (T : tape sigM) (s_Univ : Vector.t nat 6) : Prop :=
+  Definition contains_conf_U'_size (M : TM sigM 1) (t : tape sigU) (T_univ : tapes sigUniv 6) (q : state M) (T : tape sigM) (s_Univ : Vector.t nat 6) : Prop :=
     contains_tapes t T_univ /\ contains_conf_Univ_size T_univ q T s_Univ.
 
-  Definition contains_conf_U (M : mTM sigM 1) (t : tape sigU) (q : state M) (T : tape sigM) : Prop :=
+  Definition contains_conf_U (M : TM sigM 1) (t : tape sigU) (q : state M) (T : tape sigM) : Prop :=
     exists (T_univ : tapes sigUniv 6), contains_conf_U' t T_univ q T.
 
-  Definition contains_conf_U_size (M : mTM sigM 1) (t : tape sigU) (q : state M) (T : tape sigM) (s_Univ : Vector.t nat 6) : Prop :=
+  Definition contains_conf_U_size (M : TM sigM 1) (t : tape sigU) (q : state M) (T : tape sigM) (s_Univ : Vector.t nat 6) : Prop :=
     exists (T_univ : tapes sigUniv 6), contains_conf_U'_size t T_univ q T s_Univ.
 
 
-  Lemma initTapes_U_correct (M : mTM sigM 1) (T : tape sigM) :
+  Lemma initTapes_U_correct (M : TM sigM 1) (T : tape sigM) :
     contains_conf_U (initTapes_U M T) (start M) T.
   Proof.
     unfold contains_conf_U, initTapes_U. cbn.
@@ -602,7 +602,7 @@ Section U.
     - apply makeUnivTapes_correct.
   Qed.
 
-  Lemma initTapes_U_correct_size (M : mTM sigM 1) (T : tape sigM) :
+  Lemma initTapes_U_correct_size (M : TM sigM 1) (T : tape sigM) :
     contains_conf_U_size (initTapes_U M T) (start M) T (Vector.const 0 _).
   Proof.
     unfold contains_conf_U, initTapes_U. cbn.
@@ -617,12 +617,12 @@ Section U.
 
   (** Build correctness and termination relations for [U] *)
 
-  Definition U_steps (M : mTM sigM 1) (T_Univ : tapes sigUniv 6) (q_M : state M) (T : tape sigM) (k_M : nat) :=
+  Definition U_steps (M : TM sigM 1) (T_Univ : tapes sigUniv 6) (q_M : state M) (T : tape sigM) (k_M : nat) :=
     Loop_steps (start (projT1 Univ)) T_Univ (Univ_steps q_M T k_M).
 
   Definition U_T : tRel sigU 1 :=
     fun tp k =>
-      exists (M : mTM sigM 1) (T_Univ : tapes sigUniv 6) (T : tape sigM) (q_M : state M) (c_M : mconfig sigM (state M) 1) (k_M : nat),
+      exists (M : TM sigM 1) (T_Univ : tapes sigUniv 6) (T : tape sigM) (q_M : state M) (c_M : mconfig sigM (state M) 1) (k_M : nat),
         contains_conf_U' tp[@Fin0] T_Univ q_M T /\
         loopM _ (mk_mconfig q_M [|T|]) k_M = Some c_M /\
         U_steps T_Univ q_M T k_M <= k.
@@ -667,7 +667,7 @@ Section U.
 
 
   (** First, we write a running time function that still depends on the original input tape [T : tape sigM]. [k] is the number of steps that [M] needs on input [T] *)
-  Definition fp (M : mTM sigM 1) (T : tape sigM) (k : nat) : nat :=
+  Definition fp (M : TM sigM 1) (T : tape sigM) (k : nat) : nat :=
     let k_Univ := Univ_steps (start M) T k in (* steps that [Univ] needs *)
     let T_Univ := makeUnivTapes _ _ M T in (* Tapes for [Univ] *)
     ToSingleTape_steps Univ T_Univ k_Univ. (* Steps of [U] *)
@@ -676,10 +676,10 @@ Section U.
   (*
   Hypthesis (inhSigM : inhabitedC sigM).
   (** Because the asymtopic behaviour of [fp] only depends on the size of the tapes, we will just insert bogus tapes with the corresponding tapes size. *)
-  Definition f (M : mTM sigM 1) : nat * nat -> nat := fun '(k, s) => fp M (bogus_tape s) k.
+  Definition f (M : TM sigM 1) : nat * nat -> nat := fun '(k, s) => fp M (bogus_tape s) k.
 *)
 (*
-  Check (projT1 U) : mTM sigU 1.
+  Check (projT1 U) : TM sigU 1.
   Check forall (tp tp' : tape sigU), terminates (projT1 U) [|tp|] 42 [|tp'|].
 *)
   (** [fp] is literally only another definition for [U_steps] *)
@@ -842,7 +842,7 @@ Section U.
 End U.
 
 
-Lemma loopM_halt (sigM : finType) (n : nat) (M : mTM sigM n) (iconf oconf : mconfig sigM (state M) n) (k : nat) :
+Lemma loopM_halt (sigM : finType) (n : nat) (M : TM sigM n) (iconf oconf : mconfig sigM (state M) n) (k : nat) :
   loopM M iconf k = Some oconf ->
   halt M (cstate oconf) = true.
 Proof.
@@ -851,7 +851,7 @@ Proof.
   intros H % loop_fulfills. cbn in *. auto.
 Qed.
 
-Lemma loopM_halt' (sigM : finType) (n : nat) (M : mTM sigM n) (iconf : mconfig sigM (state M) n) ostate otapes (k : nat) :
+Lemma loopM_halt' (sigM : finType) (n : nat) (M : TM sigM n) (iconf : mconfig sigM (state M) n) ostate otapes (k : nat) :
   loopM M iconf k = Some (mk_mconfig ostate otapes) ->
   halt M ostate = true.
 Proof. apply loopM_halt. Qed.
@@ -965,13 +965,13 @@ Section UnivMultiTimeSpaceTheorem.
 
 
   (** The simulated multi-tape machine over alphabet [sigM] *)
-  Variable (M : mTM sigM n).
+  Variable (M : TM sigM n).
   (** We use the state of [M] as labels for [M]. When [M'] terminated, we know exactly in which state [M] terminated. *)
   Definition pM : pTM sigM (state M) n := (M; id).
 
   Notation pM' := (ToSingleTape pM).
   Notation M' := (projT1 pM').
-  (* )Check M' : mTM sigM' 1. *)
+  (* )Check M' : TM sigM' 1. *)
 
   Notation "'castState' q" := (q : (state (projT1 pM))) (at level 1).
 

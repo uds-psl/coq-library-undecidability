@@ -33,7 +33,7 @@ Section Mirror.
       let (q', act) := trans qsym in
       (q', mirror_acts act).
 
-  Definition MirrorTM : mTM sig n :=
+  Definition MirrorTM : TM sig n :=
     {|
       trans := Mirror_trans;
       start := start (projT1 pM);

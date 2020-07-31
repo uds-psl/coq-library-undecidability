@@ -10,7 +10,7 @@ Section CaseChar2.
   Variable sig : finType.
   Variable (F : finType) (f : option sig -> option sig -> F).
 
-  Definition CaseChar2_TM : mTM sig 2 :=
+  Definition CaseChar2_TM : TM sig 2 :=
     {|
       trans := fun '(_, sym) => (Some (f sym[@Fin0] sym[@Fin1]), [| (None, Nmove); (None, Nmove) |]);
       start := None;

@@ -18,8 +18,8 @@ Section While.
       then (start (projT1 pM), nop_action)
       else trans (q,s).
 
-  Definition WhileTM : mTM sig n :=
-    Build_mTM While_trans (start (projT1 pM))
+  Definition WhileTM : TM sig n :=
+    Build_TM While_trans (start (projT1 pM))
               (fun q => halt q && match projT2 pM q with
                                | Some _ => true
                                | None => false

@@ -117,7 +117,7 @@ Section LiftAlphabet.
       let (q', act) := trans (m := projT1 pMSig) (q, surjectReadSymbols sym) in
       (q', Vector.map (map_act Retr_f) act).
 
-  Definition LiftAlphabet_TM : mTM tau n :=
+  Definition LiftAlphabet_TM : TM tau n :=
     {| trans := lift_trans;
        start := start (projT1 pMSig);
        halt := halt (m := projT1 pMSig) |}.
