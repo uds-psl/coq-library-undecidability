@@ -112,7 +112,7 @@ Section prime.
   (** This is a somewhat naive algo. to test for primality *)
 
   Definition prime_bool p := 
-    Nat.eqb p 2 || Nat.leb 3 p && negb (divides_bool 2 p) && prime_bool_rec (p-2) p.
+    Nat.eqb p 2 || Nat.le 3 p && negb (divides_bool 2 p) && prime_bool_rec (p-2) p.
 
   Theorem prime_bool_spec p : prime_bool p = true <-> prime p.
   Proof.

@@ -26,7 +26,7 @@ Set Implicit Arguments.
   Local Notation lb := (list bool).
   Local Notation "⟘" := false.
   Local Notation "⟙" := true.
-  Local Infix "⪦" := leb (at level 70, no associativity).
+  Local Infix "⪦" := Bool.le (at level 70, no associativity).
 
   Fact leb_refl : forall x, x ⪦ x.
   Proof. intros []; simpl; auto. Qed.
@@ -55,7 +55,7 @@ Set Implicit Arguments.
   Fact lb_mask_inv_left x l : x::l ⪯  nil -> x = ⟘ /\ l ⪯  nil.
   Proof. inversion 1; auto. Qed. 
 
-  Fact lb_mask_inv_cons x y l m : x::l ⪯ y::m -> leb x y /\ l ⪯  m.
+  Fact lb_mask_inv_cons x y l m : x::l ⪯ y::m -> Bool.le x y /\ l ⪯  m.
   Proof. inversion 1; tauto. Qed.
 
   Fact lb_mask_inv_cons_nil l : ⟙::l ⪯ nil -> False.
@@ -221,7 +221,7 @@ Set Implicit Arguments.
         * do 2 rewrite lb_pointwise_cons; f_equal; auto.
     Qed.
 
-    Variable (Hf1 : forall x a b, leb a b -> leb (f x a) (f x b)) 
+    Variable (Hf1 : forall x a b, Bool.le a b -> Bool.le (f x a) (f x b)) 
              (Hf2 : f ⟘ ⟘ = ⟘).
 
     Let lbpw_mono_1 l m :  lb_pointwise l nil ⪯   lb_pointwise l m.
@@ -234,7 +234,7 @@ Set Implicit Arguments.
         * apply lb_mask_leb; auto.
     Qed.
 
-    Let lbpw_mono_f_0 g l m : g ⟘ = ⟘ -> leb (g ⟘) (g ⟙) -> l ⪯ m -> map g l ⪯  map g m.
+    Let lbpw_mono_f_0 g l m : g ⟘ = ⟘ -> Bool.le (g ⟘) (g ⟙) -> l ⪯ m -> map g l ⪯  map g m.
     Proof.
       intros H1 H2.
       assert (Hg : forall x y, x ⪦ y -> g x ⪦ g y).

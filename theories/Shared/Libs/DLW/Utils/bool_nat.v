@@ -98,7 +98,7 @@ Local Hint Resolve power2_gt_0 : core.
 
 Local Notation lb := (list bool).
 
-Local Infix "⪦" := leb (at level 70, no associativity).
+Local Infix "⪦" := Bool.le (at level 70, no associativity).
 Local Infix "⪯" := lb_mask (at level 70, no associativity).
 Local Infix "≂" := lb_mask_equiv (at level 70, no associativity).
 Local Infix "⟂" := lb_ortho (at level 70, no associativity).

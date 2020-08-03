@@ -811,7 +811,9 @@ Fact Forall_app X (P : X -> Prop) ll mm : Forall P (ll++mm) <-> Forall P ll /\ F
 Proof.
   repeat rewrite Forall_forall.
   split.
-  firstorder.
+  firstorder.  
+  1,2: eapply H, in_app_iff; eauto.
+
   intros (H1 & H2) x Hx.
   apply in_app_or in Hx; firstorder.
 Qed.
