@@ -7,7 +7,7 @@ From Undecidability.L Require Import Datatypes.LBool Functions.EqBool.
 Import GenEncode. Import Nat.
 (** ** Encoding of natural numbers *)
 
-Run TemplateProgram (tmGenEncode "nat_enc" nat).
+MetaCoq Run (tmGenEncode "nat_enc" nat).
 Hint Resolve nat_enc_correct : Lrewrite.
 
 Instance termT_S : computableTime' S (fun _ _ => (1,tt)).

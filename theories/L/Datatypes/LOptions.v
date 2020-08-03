@@ -8,7 +8,7 @@ Section Fix_X.
   Context {intX : registered X}.
 
 
-  Run TemplateProgram (tmGenEncode "option_enc" (option X)).
+  MetaCoq Run (tmGenEncode "option_enc" (option X)).
   Hint Resolve option_enc_correct : Lrewrite.
 
   (* now we must register the non-constant constructors*)

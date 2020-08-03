@@ -10,7 +10,7 @@ Defined.
 Hint Extern 0 (L.app (L.app (@enc (@BSRS) _ _) _) _ >( _ ) _)=> apply list_enc_correct : Lrewrite.
 
 
-Run TemplateProgram (tmGenEncode "term_enc" term).
+MetaCoq Run (tmGenEncode "term_enc" term).
 
 Instance computable_V : computable V.
 Proof.
@@ -34,7 +34,7 @@ Inductive form' : Set :=
 | Impl' :form' -> form' -> form'
 | All' : nat -> form' -> form'.
 
-Run TemplateProgram (tmGenEncode "form'_enc" form').
+MetaCoq Run (tmGenEncode "form'_enc" form').
 Hint Rewrite form'_enc_correct : Lrewrite.
 
 Fixpoint form_to_form' {b} (phi : form b) :=

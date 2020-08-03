@@ -12,7 +12,7 @@ Section Fix_XY.
   Context {intX : registered X}.
   Context {intY : registered Y}.
 
-  Run TemplateProgram (tmGenEncode "prod_enc" (X * Y)).
+  MetaCoq Run (tmGenEncode "prod_enc" (X * Y)).
   Hint Resolve prod_enc_correct : Lrewrite.
   
   (* now we must register the constructors*)

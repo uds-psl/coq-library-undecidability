@@ -10,7 +10,7 @@ Section Fix_X.
   Variable (X:Type).
   Context {intX : registered X}.
   Import GenEncode.
-  Run TemplateProgram (tmGenEncode "list_enc" (list X)).  
+  MetaCoq Run (tmGenEncode "list_enc" (list X)).  
   Hint Resolve list_enc_correct : Lrewrite.
   
   (* now we must register the non-constant constructors*)

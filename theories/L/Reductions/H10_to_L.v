@@ -15,7 +15,7 @@ Inductive poly : Set :=
   | poly_add : poly -> poly -> poly
   | poly_mul : poly -> poly -> poly.
 
-Run TemplateProgram (tmGenEncode "enc_poly" poly).
+MetaCoq Run (tmGenEncode "enc_poly" poly).
 Hint Resolve enc_poly_correct : Lrewrite.
 
 Instance term_poly_cnst: computable poly_cnst. extract constructor. Qed.

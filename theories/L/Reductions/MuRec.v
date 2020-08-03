@@ -406,7 +406,7 @@ Proof.
            Grab Existential Variables. exact vec_zero.
 Qed.
 
-Run TemplateProgram (tmGenEncode "enc_reccode" reccode).
+MetaCoq Run (tmGenEncode "enc_reccode" reccode).
 Hint Resolve enc_reccode_correct : Lrewrite.
 
 Instance term_rc_comp: computable rc_comp. extract constructor. Qed.

@@ -13,7 +13,7 @@ Import L_Notations.
 (** ** Extraction of Turing Machine interpreter  *)
 
 Import GenEncode.
-Run TemplateProgram (tmGenEncode "move_enc" move).
+MetaCoq Run (tmGenEncode "move_enc" move).
 Hint Resolve move_enc_correct : Lrewrite.
 
 Import TM.
@@ -83,7 +83,7 @@ Section reg_tapes.
   
   Implicit Type (t : TM.tape sig).
   Import GenEncode.
-  Run TemplateProgram (tmGenEncode "tape_enc" (TM.tape sig)).
+  MetaCoq Run (tmGenEncode "tape_enc" (TM.tape sig)).
   Hint Resolve tape_enc_correct : Lrewrite.
 
   (**Internalize constructors **)

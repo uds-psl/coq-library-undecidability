@@ -9,7 +9,7 @@ Section Fix_XY.
   Variable intX : registered X.
   Variable intY : registered Y.
 
-  Run TemplateProgram (tmGenEncode "sum_enc" (X + Y)).
+  MetaCoq Run (tmGenEncode "sum_enc" (X + Y)).
   Hint Resolve sum_enc_correct : Lrewrite.
   
   (* now we must register the non-constant constructors*)
