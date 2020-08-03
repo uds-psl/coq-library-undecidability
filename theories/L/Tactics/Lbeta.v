@@ -1,4 +1,4 @@
-From Undecidability.L Require Import L.
+From Undecidability.L Require Import Util.L_facts.
 Require Import ListTactics.
 From Undecidability.L.Tactics Require Import Lproc Reflection. 
 
@@ -24,7 +24,7 @@ Lemma evalIn_refl n s : proc s -> s ⇓(<=n) s.
 Proof.
   intros. split.
   -exists 0;split.
-   +omega.
+   +lia.
    +reflexivity.
   -Lproc.
 Defined.

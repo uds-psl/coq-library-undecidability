@@ -116,7 +116,7 @@ Proof.
 Qed.
 
 
-Definition Increment := GoToLSB_start;; Increment_Loop;; Move L.
+Definition Increment := GoToLSB_start;; Increment_Loop;; Move Lmove.
 
 Definition Increment_Rel : pRel sigPos^+ unit 1 :=
   fun tin '(_, tout) =>

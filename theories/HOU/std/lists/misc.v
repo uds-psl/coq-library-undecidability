@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import List Omega.
+Require Import List Omega Lia.
 Import ListNotations.
 
 Lemma list_decompose k {X} (A: list X):
@@ -9,7 +9,7 @@ Proof.
   - exists nil. exists nil; cbn. destruct k; intuition.
   - destruct k.
     + exists nil; exists (a :: A); intuition.
-    + cbn in *; assert (k <= length A) by omega. destruct (IHA _ H0) as (A1 & A2 & ?).
+    + cbn in *; assert (k <= length A) by lia. destruct (IHA _ H0) as (A1 & A2 & ?).
       intuition. exists (a :: A1). exists A2. subst. 
       intuition.
 Qed.
@@ -18,11 +18,11 @@ Lemma list_decompose_alt k {X} (A: list X):
   k <= length A -> exists A1 A2, A = A1 ++ A2 /\ length A2 = k.
 Proof.
   intros H.
-  assert (length A - k <= length A) by omega.
+  assert (length A - k <= length A) by lia.
   destruct (list_decompose _ H0) as (A1 & A2 & ?).
   intuition. exists A1. exists A2. intuition.
   specialize (app_length A1 A2) as H4.
-  rewrite <-H2 in H4. rewrite H4 in H3. omega.
+  rewrite <-H2 in H4. rewrite H4 in H3. lia.
 Qed.
 
 
@@ -86,6 +86,6 @@ Lemma app_injective_right Y (A1 A2 B1 B2 : list Y):
   length A2 = length B2 -> A1 ++ A2 = B1 ++ B2 -> A1 = B1 /\ A2 = B2.
 Proof.
   intros H; induction A1 in B1 |-*; destruct B1; cbn; eauto.
-  1 - 2: intros; subst; cbn in H; autorewrite with list in H; omega.  
+  1 - 2: intros; subst; cbn in H; autorewrite with list in H; lia.  
   intros [= -> ? % IHA1]; intuition; now subst.
 Qed.

@@ -1,4 +1,4 @@
-From Undecidability Require Import TM.Prelim TM.TM.
+From Undecidability Require Import TM.Util.Prelim TM.Util.TM_facts.
 
 (** * 0-tape Turing machine that does nothing. *)
 
@@ -6,7 +6,7 @@ Section Mono_Nop.
 
   Variable sig : finType.
 
-  Definition NullTM : mTM sig 0 :=
+  Definition NullTM : TM sig 0 :=
     {|
       trans := fun '(q, s) => (q, Vector.nil _);
       start := tt;

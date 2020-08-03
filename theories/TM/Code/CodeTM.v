@@ -1,4 +1,4 @@
-From Undecidability Require Export TM.Prelim TM.TM TM.Code.Code.
+From Undecidability Require Export TM.Util.Prelim TM.Util.TM_facts TM.Code.Code.
 From Undecidability Require Export TM.Lifting.Lifting.
 From Undecidability Require Export TM.Combinators.Combinators.
 
@@ -23,7 +23,7 @@ Section IsRight.
 
   Lemma isRight_size_monotone (sig : Type) (t : tape sig) (s1 s2 : nat) :
     isRight_size t s1 -> s1 <= s2 -> isRight_size t s2.
-  Proof. intros (x&rs&->&Hr) Hs. exists x, rs. split. eauto. omega. Qed.
+  Proof. intros (x&rs&->&Hr) Hs. exists x, rs. split. eauto. lia. Qed.
 
   
   Lemma mapTape_isRight_size (sig tau : Type) (t : tape sig) (s : nat) (f : sig -> tau) :
@@ -63,19 +63,19 @@ Section IsRight.
   Lemma isRight_size_sizeOfTape (sig : Type) (t : tape sig) (s : nat) :
     isRight_size t s ->
     sizeOfTape t <= 1 + s.
-  Proof. intros [m (r1&->&H)]. cbn. simpl_list; cbn. omega. Qed.
+  Proof. intros [m (r1&->&H)]. cbn. simpl_list; cbn. lia. Qed.
 
 End IsRight.
 
 Ltac isRight_mono :=
   lazymatch goal with
   | [ H : isRight_size ?t ?s1 |- isRight_size ?t ?s2 ] =>
-    apply isRight_size_monotone with (1 := H); eauto; simpl_comp; try omega
+    apply isRight_size_monotone with (1 := H); eauto; simpl_comp; try lia
   | [ H : isRight_size ?t ?s1 |- isRight ?t ] =>
     apply isRight_size_isRight with (1 := H)
   | [ H : isRight ?t |- isRight_size ?t ?s2 ] =>
     eapply isRight_size_monotone;
-    [ apply (isRight_isRight_size H) | eauto; simpl_comp; try omega ]
+    [ apply (isRight_isRight_size H) | eauto; simpl_comp; try lia ]
   | [ H : isRight ?t |- isRight ?t ] =>
     apply H
   end.
@@ -108,7 +108,7 @@ Section Fix_Sig.
 
   (** A tape [t] contains a value [x], if [t=midtape rs (inl START) (map inr (encode x) ++ [inl STOP])] for some [rs : list (sig^+)]. This means, the pointer is on the start symbol, right to the pointer is the encoding of [x], which is terminated by the stop symbol [inl STOP]. We write [t ≃ x] for tape [t] contains [x]. *)
 
-  (** We also define a dual predicate for value-containment: reversed value containment. It is, however, only used internally. The difference is, that the pointer is on the stop symbol, instead of the start symbol. This predicate is useful for intermediate states of a machine, for example in the machine [CopyValue], which first has to move the head to the stop symbol. We write [t ≂ x] for [t] reversedly contains [x]. *)
+  (** We also define a dual predicate for value-containment: reversed value containment. It is, however, only used internally. The difference is, that the pointer is on the stop symbol, instead of the start symbol. This predicate is useful for intermediate state of a machine, for example in the machine [CopyValue], which first has to move the head to the stop symbol. We write [t ≂ x] for [t] reversedly contains [x]. *)
 
   Section Tape_Contains.
     Variable (sigX : Type) (X : Type) (cX : codable sigX X) (I : Retract sigX sig).
@@ -137,7 +137,7 @@ Section Fix_Sig.
       isRight_size t (S (size _ x + s)).
     Proof.
       intros (r1&->&Hs). hnf.
-      do 2 eexists. repeat split. simpl_list. cbn. unfold size. simpl_list. omega.
+      do 2 eexists. repeat split. simpl_list. cbn. unfold size. simpl_list. lia.
     Qed.
 
     Lemma tape_contains_size_contains t x s :
@@ -156,18 +156,18 @@ Section Fix_Sig.
       tape_contains_rev t x -> tape_contains_rev_size t x (length (left t) - S (size _ x)).
     Proof.
       intros (r1&->). cbn. hnf. eexists. split. reflexivity.
-      apply Nat.eq_le_incl. simpl_list; cbn. unfold size. omega.
+      apply Nat.eq_le_incl. simpl_list; cbn. unfold size. lia.
     Qed.
 
     Lemma tape_contains_size_sizeOfTape (t : tape (sig^+)) x s :
       tape_contains_size t x s ->
       sizeOfTape t <= 2 + s + size _ x.
-    Proof. intros (rs&->&H). cbn. simpl_list; cbn. simpl_list; cbn. unfold size. omega. Qed.
+    Proof. intros (rs&->&H). cbn. simpl_list; cbn. simpl_list; cbn. unfold size. lia. Qed.
 
     Lemma tape_contains_rev_size_sizeOfTape (t : tape (sig^+)) x s :
       tape_contains_rev_size t x s ->
       sizeOfTape t <= 2 + s + size _ x.
-    Proof. intros (rs&->&H). cbn. simpl_list; cbn. simpl_list; cbn. unfold size. omega. Qed.
+    Proof. intros (rs&->&H). cbn. simpl_list; cbn. simpl_list; cbn. unfold size. lia. Qed.
 
   End Tape_Contains.
 
@@ -202,7 +202,7 @@ Section Fix_Sig.
       Encode_map _ _ x = Encode_map _ _ y ->
       s1 <= s2 ->
       t ≃(I2;s2) y.
-    Proof. cbn. intros (r1&->&Hs) H. repeat econstructor. cbn. do 2 f_equal. now rewrite H. omega. Qed.
+    Proof. cbn. intros (r1&->&Hs) H. repeat econstructor. cbn. do 2 f_equal. now rewrite H. lia. Qed.
 
     Lemma tape_contains_rev_ext (t : tape (sig^+)) (x : X) (y : Y) :
       t ≃(I1) x ->
@@ -215,7 +215,7 @@ Section Fix_Sig.
       Encode_map _ _ x = Encode_map _ _ y ->
       s1 <= s2 ->
       t ≂(I2;s2) y.
-    Proof. cbn. intros (r1&->&Hs) H. repeat econstructor. cbn. do 2 f_equal. now rewrite H. omega. Qed.
+    Proof. cbn. intros (r1&->&Hs) H. repeat econstructor. cbn. do 2 f_equal. now rewrite H. lia. Qed.
 
   End Encodes_Ext.
 
@@ -268,7 +268,7 @@ Notation "t ≂( ';' s ) x" := (t ≂(_;s) x) (at level 70, no associativity, on
 (** The tactic [contains_ext] applys [tape_contains_ext] *)
 
 Ltac contains_solve_le :=
-  try now (cbn; solve [omega]).
+  try now (cbn; solve [lia]).
 
 Ltac contains_ext :=
   lazymatch goal with

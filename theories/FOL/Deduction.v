@@ -195,8 +195,8 @@ P full ⊥ ->
 (forall (b : logic) (n : var) (f4 : form b), (forall x, P b (subst n x f4)) -> P b (∀ n; f4)) -> forall (f5 : logic) (f6 : form f5), P f5 f6.
 Proof.
   intros. eapply size_induction_dep with (f := @size). intros b x IH. destruct x; eauto.
-  - eapply H2; eapply IH; cbn; omega.
-  - eapply H3. intros. eapply IH. rewrite size_subst. cbn. omega.
+  - eapply H2; eapply IH; cbn; lia.
+  - eapply H3. intros. eapply IH. rewrite size_subst. cbn. lia.
 Qed.
 
 Lemma form_logic_ind_subst :
@@ -208,8 +208,8 @@ P Q ->
 Proof.
   intros. remember frag as b.  revert Heqb. pattern f8. eapply size_induction with (f := @size b). intros x IH E. destruct x; eauto.
   - inv E.
-  - eapply H1; eapply IH; cbn; eauto; omega.
-  - eapply H2. intros. eapply IH. rewrite size_subst. cbn. omega. eauto.
+  - eapply H1; eapply IH; cbn; eauto; lia.
+  - eapply H2. intros. eapply IH. rewrite size_subst. cbn. lia. eauto.
 Qed.
 
 (** ** Enumerability *)
@@ -251,7 +251,7 @@ Opaque in_dec.
 Hint Constructors prv : core.
 
 Lemma enum_prv b s A : list_enumerator (L_ded A) (@prv s b A) .
-Proof with try (eapply cum_ge'; eauto; omega).
+Proof with try (eapply cum_ge'; eauto; lia).
   intros phi; split.
   - induction 1; try congruence; subst.
     + now exists 0.

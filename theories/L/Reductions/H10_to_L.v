@@ -58,9 +58,9 @@ Proof.
   + destruct (el_T n) as [m].
     exists (1 + m). cbn. in_app 3. eauto.
   + destruct IHp1 as [m1]. destruct IHp2 as [m2].
-    exists (1 + m1 + m2). cbn. in_app 4. in_collect (p1, p2); eapply cum_ge'; eauto; omega.
+    exists (1 + m1 + m2). cbn. in_app 4. in_collect (p1, p2); eapply cum_ge'; eauto; lia.
   + destruct IHp1 as [m1]. destruct IHp2 as [m2].
-    exists (1 + m1 + m2). cbn. in_app 5. in_collect (p1, p2); eapply cum_ge'; eauto; omega.
+    exists (1 + m1 + m2). cbn. in_app 5. in_collect (p1, p2); eapply cum_ge'; eauto; lia.
 Defined.
 
 Fixpoint conv n (p : dio_single.dio_polynomial (pos n) (pos 0)) : poly.
@@ -183,7 +183,7 @@ Proof.
     destruct (enum_poly p1) as [m1], (enum_poly p2) as [m2], (enumerator__T_list opt_to_list _ L) as [m3].
     exists (1 + m1 + m2 + m3). in_app 2.
     fold plus. eapply in_filter_iff. split.
-    + rewrite !in_prod_iff. repeat split; eapply cum_ge'; try eassumption; eauto; omega.
+    + rewrite !in_prod_iff. repeat split; eapply cum_ge'; try eassumption; eauto; lia.
     + unfold test_eq. edestruct (Nat.eqb_spec (eval p1 L) (eval p2 L)); eauto.
   - destruct x as [[p1 p2] L]. intros [m].
     induction m.

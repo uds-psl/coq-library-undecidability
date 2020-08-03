@@ -1,6 +1,6 @@
 Set Implicit Arguments.
 Unset Strict Implicit.
-Require Import List Omega.
+Require Import List Omega Lia.
 From Undecidability.HOU Require Import std.decidable std.lists.basics std.lists.advanced std.tactics.
 Import ListNotations.
 
@@ -187,7 +187,7 @@ Qed.
 
 Lemma T_nat_length n : length (L_T nat n) = S n.
 Proof.
-  induction n; cbn; try rewrite app_length. omega. cbn in *. omega. 
+  induction n; cbn; try rewrite app_length. lia. cbn in *. lia. 
 Qed.
 
 Section enumerable_prod.
@@ -218,7 +218,7 @@ Section enumerable_prod.
   Proof.
     destruct a. destruct (el_T x) as [m1], (el_T y) as [m2].
     exists (1 + m1 + m2). cbn. in_app 2.
-    in_collect (x,y); eapply cum_ge'; eauto; omega.
+    in_collect (x,y); eapply cum_ge'; eauto; lia.
   Qed.
 
   Global Instance prod_enumerable (LX : enumT X) (LY : enumT Y) : enumT (X * Y). 
@@ -232,14 +232,14 @@ End enumerable_prod.
 
 Lemma C_exhaustive n m : (n,m) ∈ L_T (1 + n + m).
 Proof.
-  cbn. in_app 2. in_collect (n, m); apply T_nat_in; omega.  
+  cbn. in_app 2. in_collect (n, m); apply T_nat_in; lia.  
 Qed.
 
 Lemma C_longenough n : length (L_T (nat * nat) n) > n.
 Proof.
   induction n; cbn.
-  - omega.
-  - rewrite app_length, map_length, prod_length, T_nat_length. cbn in *. remember (n + n * S n) as k. omega.
+  - lia.
+  - rewrite app_length, map_length, prod_length, T_nat_length. cbn in *. remember (n + n * S n) as k. lia.
 Qed.
 
 
@@ -254,7 +254,7 @@ Proof.
     destruct (le_lt_dec k (1 + n + m)) as [D | ?].
     + destruct (cum_ge (@cum_T (nat * nat) _) D) as [B' HB]. rewrite HB in A.
       erewrite (nth_error_app1 _ _), B in A. now injection A. eapply nth_error_Some_lt; eauto.
-    + assert (1 + n + m <= k) as D by omega.
+    + assert (1 + n + m <= k) as D by lia.
       destruct (cum_ge (@cum_T (nat * nat) _) D) as [B' HB]. rewrite HB in B.
        erewrite (nth_error_app1 _ _), A in B. now injection B. eapply nth_error_Some_lt; eauto.
   - exfalso. edestruct nth_error_lt_Some. 2:{ rewrite H in B. inv B. } eapply C_longenough.
@@ -363,7 +363,7 @@ Section enumerable_list.
       destruct (el_T a) as [m ?].
       exists (1 + n + m). cbn. intros. in_app 2.
       in_collect (a,l).
-      all: eapply cum_ge'; eauto using T_list_cum; omega. 
+      all: eapply cum_ge'; eauto using T_list_cum; lia. 
   Qed.
   
   Global Instance enumerable_list (LX : enumT X) : enumT (list X).
@@ -408,8 +408,8 @@ Proof.
   - intros. split.
     + intros []. eapply H in H1 as [m1]. eapply H0 in H2 as [m2].
       exists (1 + m1 + m2). cbn. in_app 2. in_collect x.
-      eapply cum_ge'; eauto. firstorder. omega. eapply dec_decb, cum_ge'; eauto. 
-      firstorder. omega.
+      eapply cum_ge'; eauto. firstorder. lia. eapply dec_decb, cum_ge'; eauto. 
+      firstorder. lia.
     + intros [m]. induction m.
       * inv H1.
       * inv_collect; eapply decb_dec in H1; firstorder. 

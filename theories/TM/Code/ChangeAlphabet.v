@@ -1,4 +1,4 @@
-From Undecidability Require Import TM.Prelim TM.Code.CodeTM.
+From Undecidability Require Import TM.Util.Prelim TM.Code.CodeTM.
 From Undecidability Require Import TM.Lifting.LiftAlphabet.
 
 
@@ -118,7 +118,7 @@ Section MapCode.
       + symmetry. eapply map_injective with (f := retract_sum_f id (Retr_f _)); eauto.
         { intros. eapply retract_f_injective; eauto. }
         now rewrite map_app, !map_map.
-      + unfold surjectSymbols. rewrite map_length in Hs. simpl_list. omega.
+      + unfold surjectSymbols. rewrite map_length in Hs. simpl_list. lia.
   Qed.
 
   Corollary contains_translate_sig (x : X) (t : tape (sig^+)) :

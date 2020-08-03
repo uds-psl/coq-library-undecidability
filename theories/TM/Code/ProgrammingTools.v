@@ -68,16 +68,16 @@ Tactic Notation "tacInEvar" constr(E) tactic3(tac) :=
 
 Tactic Notation "introsSwitch" ne_simple_intropattern_list(P):=
   match goal with
-    |- (forall f' , ?REL _ (?R f')) =>
-    tacInEvar R intros P;cbn beta;intros P
+    |- (forall f' , ?REL _ (?Rmove f')) =>
+    tacInEvar Rmove intros P;cbn beta;intros P
   end.
 
 Tactic Notation "destructBoth" constr(g) "as" simple_intropattern(P) :=
   lazymatch goal with
-    |- (RealiseIn _ ?R _) =>
-    tacInEvar R (destruct g as P);destruct g as P;cbn zeta iota beta
-  | |- (?REL _ ?R) =>
-    tacInEvar R (destruct g as P);destruct g as P;cbn zeta iota beta
+    |- (RealiseIn _ ?Rmove _) =>
+    tacInEvar Rmove (destruct g as P);destruct g as P;cbn zeta iota beta
+  | |- (?REL _ ?Rmove) =>
+    tacInEvar Rmove (destruct g as P);destruct g as P;cbn zeta iota beta
   end.
 
 
@@ -101,7 +101,7 @@ Ltac length_not_eq :=
 (** Machine Notations *)
 
 Notation "pM @ ts" := (LiftTapes pM ts) (at level 41, only parsing).
-Notation "pM ⇑ R" := (ChangeAlphabet pM R) (at level 40, only parsing).
+Notation "pM ⇑ Rmove" := (ChangeAlphabet pM Rmove) (at level 40, only parsing).
 
 From Coq.ssr Require ssrfun.
 Module Option := ssrfun.Option.

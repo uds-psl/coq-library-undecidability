@@ -1,4 +1,4 @@
-From Undecidability Require Import TM.Prelim.
+From Undecidability Require Import TM.Util.Prelim.
 From Undecidability Require Import TM.Basic.Basic.
 From Undecidability Require Import TM.Combinators.Combinators.
 From Undecidability Require Import TM.Compound.TMTac.
@@ -35,7 +35,7 @@ Section Compare.
                     end))
       (fun x : option bool => match x with
                         | Some b => Return Nop (Some b)
-                        | None => Return (MovePar R R) None
+                        | None => Return (MovePar Rmove Rmove) None
                         end).
 
 
@@ -58,7 +58,7 @@ Section Compare.
   Proof.
     eapply RealiseIn_monotone.
     { unfold Compare_Step. TM_Correct. }
-    { Unshelve. 4,7: reflexivity. all: omega. }
+    { Unshelve. 4,7: reflexivity. all: lia. }
     { intros tin (yout, tout) H. TMCrush; TMSolve 1. }
   Qed.
 
@@ -83,7 +83,7 @@ Section Compare.
   Proof.
     intros (t1&t2). intros c1 Hc1 c2 Hc2 HStopC1 HStopC2. cbn in *. 
     destruct t1; cbn in *; inv Hc1. destruct t2; cbn in *; inv Hc2.
-    unfold Compare_fun_measure. cbn. simpl_tape. intros. omega.
+    unfold Compare_fun_measure. cbn. simpl_tape. intros. lia.
   Qed.
 
 
@@ -119,7 +119,7 @@ Section Compare.
   Proof.
     intros (t1&t2). intros c1 Hc1 c2 Hc2 HStopC1 HStopC2. cbn in *. 
     destruct t1; cbn in *; inv Hc1. destruct t2; cbn in *; inv Hc2.
-    unfold Compare_fun_measure. cbn. simpl_tape. intros. omega.
+    unfold Compare_fun_measure. cbn. simpl_tape. intros. lia.
   Qed.
 
 
@@ -128,7 +128,7 @@ Section Compare.
 
 
   Lemma Compare_steps_ge t : 5 <= Compare_steps t.
-  Proof. functional induction Compare_steps t; auto. omega. Qed.
+  Proof. functional induction Compare_steps t; auto. lia. Qed.
     
 
   Lemma Compare_TerminatesIn : projT1 Compare ↓ Compare_T.
@@ -139,11 +139,11 @@ Section Compare.
       - eapply RealiseIn_TerminatesIn. apply Compare_Step_Sem. }
     { apply WhileCoInduction; intros. exists 5. split. reflexivity. intros [ yout | ].
       - intros. hnf in HT. TMCrush. all: rewrite <- HT. all: apply Compare_steps_ge.
-      - intros. hnf in HT. exists (Compare_steps (tape_move tin[@Fin0] R, tape_move tin[@Fin1] R)).
+      - intros. hnf in HT. exists (Compare_steps (tape_move tin[@Fin0] Rmove, tape_move tin[@Fin1] Rmove)).
         TMCrush.
         split.
         + hnf. TMSimp. auto.
-        + rewrite Compare_steps_equation in HT. cbn in HT. rewrite E, E0, E1, E2 in HT. TMSimp. omega.
+        + rewrite Compare_steps_equation in HT. cbn in HT. rewrite E, E0, E1, E2 in HT. TMSimp. lia.
     }
   Qed.
     

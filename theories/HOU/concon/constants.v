@@ -1,4 +1,4 @@
-Require Import List Omega Morphisms Setoid.
+Require Import List Omega Lia Morphisms Setoid.
 From Undecidability.HOU Require Import std.std calculus.calculus.
 From Undecidability.HOU Require Import
         unification.higher_order_unification unification.nth_order_unification
@@ -215,7 +215,7 @@ Section RemoveConstants.
         eapply AppR_ordertyping.
         + eapply map_var_typing with (L := map (ctype X) C). 
           * intros x; rewrite dom_lt_iff; simplify.
-            intros ? % nats_lt; omega. 
+            intros ? % nats_lt; lia. 
           * rewrite select_nats.
             rewrite firstn_app; simplify.
             rewrite <-firstn_all; cbn; now simplify.
@@ -468,7 +468,7 @@ Section RemoveConstants.
         (H: ord' (map (ctype X) (iConsts I)) < n):
     OU n X I -> OU n Y (remove_constants n I H).
   Proof.
-    assert (1 <= n) as L by omega. 
+    assert (1 <= n) as L by lia. 
     destruct I as [Gamma s t A H1 H2]; intros (Delta & tau' & T' & E'); cbn in *.
     eapply downcast_constants_ordered in T'
       as (Sigma & tau & T & E & _ & Cs); eauto; clear tau' E'.
@@ -508,7 +508,7 @@ Section RemoveConstants.
   Proof.
     intros L ?.
     assert (forall I: orduni n X, ord' (map (ctype X) (iConsts I)) < n) as O.
-    - intros ?; destruct n; try omega.
+    - intros ?; destruct n; try lia.
       eapply le_n_S, ord'_elements.
       intros; mapinj. cbn in H2; simplify in H2.
       eapply filter_In in H2 as [].

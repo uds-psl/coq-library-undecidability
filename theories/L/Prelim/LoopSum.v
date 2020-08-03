@@ -14,7 +14,7 @@ Definition loopSum_mono X Y f x y n n':
   n <= n' -> @loopSum X Y n f x = Some y -> loopSum n' f x = Some y.
 Proof.
   induction n in n',x|-*;intros H. now inversion 1.
-  -inv H. easy. cbn. destruct _. 2:easy. apply IHn. omega. 
+  -inv H. easy. cbn. destruct _. 2:easy. apply IHn. lia. 
 Qed.
 
 Lemma loopSum_sound_rel X Y {R:X->X->Prop} k n x y (f: X -> X + Y):
@@ -49,7 +49,7 @@ Proof.
   -eapply IHk in Heq as (i&x'&?&?&?&?&?).
    eexists (1 + i),x'.
    repeat eapply conj.
-   +omega.
+   +lia.
    +cbn. rewrite eqf. easy.
    +eapply pow_add;do 2 esplit.
     eapply rcomp_1 with (R:=R). all:eassumption.
@@ -58,5 +58,5 @@ Proof.
   -inv Heq.
    exists 0,x.
    repeat eapply conj.
-   all:solve [easy|omega].
+   all:solve [easy|lia].
 Qed.

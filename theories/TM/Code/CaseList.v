@@ -28,27 +28,27 @@ Section CaseList.
   
 
   Definition Skip_cons : pTM (sigList sigX)^+ unit 1 :=
-    Move R;;
+    Move Rmove;;
     MoveToSymbol stop id.
 
 
   Definition M1 : pTM (sigList sigX)^+ unit 2 :=
     LiftTapes Skip_cons [|Fin0|];;
     LiftTapes (Write (inl STOP)) [|Fin1|];;
-    MovePar L L;;
+    MovePar Lmove Lmove;;
     CopySymbols_L stop;;
     LiftTapes (Write (inl START)) [|Fin1|].
 
   Definition CaseList : pTM (sigList sigX)^+ bool 2 :=
-    LiftTapes (Move R) [|Fin0|];;
+    LiftTapes (Move Rmove) [|Fin0|];;
     Switch (LiftTapes (ReadChar) [|Fin0|])
           (fun s => match s with
                  | Some (inr sigList_nil) => (* nil *)
-                   Return (LiftTapes (Move L) [|Fin0|]) false 
+                   Return (LiftTapes (Move Lmove) [|Fin0|]) false 
                  | Some (inr sigList_cons) => (* cons *)
                    M1;; 
                    LiftTapes Skip_cons [|Fin0|];;
-                   Return (LiftTapes (Move L;; Write (inl START)) [|Fin0|]) true
+                   Return (LiftTapes (Move Lmove;; Write (inl START)) [|Fin0|]) true
                  | _ => Return Nop default (* invalid input *)
                  end).
 
@@ -122,14 +122,14 @@ Section CaseList.
         2: setoid_rewrite <- in_rev; apply stop_lemma.
         inv HCopy. TMSimp.
         cbn. rewrite !rev_involutive. repeat econstructor. cbn. f_equal. simpl_tape. reflexivity.
-        + simpl_list. rewrite skipn_length. simpl_tape. unfold size. rewrite tl_length. omega.
+        + simpl_list. rewrite skipn_length. simpl_tape. unfold size. rewrite tl_length. lia.
       - rewrite CopySymbols_L_correct_moveleft in HCopy; cbn; auto.
         2: setoid_rewrite <- in_rev; apply stop_lemma.
         inv HCopy. TMSimp.
         cbn. rewrite !rev_involutive. repeat econstructor.
         + f_equal. cbn. rewrite !map_map, map_app, <- app_assoc, map_map. reflexivity.
         + cbn. f_equal. simpl_tape. reflexivity.
-        + simpl_list. rewrite skipn_length. simpl_tape. unfold size. rewrite tl_length. omega.
+        + simpl_list. rewrite skipn_length. simpl_tape. unfold size. rewrite tl_length. lia.
     }
   Qed.
 
@@ -173,10 +173,10 @@ Section CaseList.
         TMSimp. symmetry in H0. specialize H2 with (1 := eq_refl).
         destruct l' as [ | x' l'']; TMSimp.
         - repeat split; auto. hnf. eexists. split. simpl_tape. f_equal.
-          + rewrite tl_length. simpl_list. cbn. unfold size. omega.
+          + rewrite tl_length. simpl_list. cbn. unfold size. lia.
         - repeat split; auto. hnf. eexists. simpl_tape. rewrite List.map_map. cbn. simpl_list. split.
           + f_equal. f_equal. now rewrite !map_map.
-          + rewrite tl_length. simpl_list. cbn. unfold size. omega.
+          + rewrite tl_length. simpl_list. cbn. unfold size. lia.
       }
     }
   Qed.
@@ -197,7 +197,7 @@ Section CaseList.
     { unfold Skip_cons. TM_Correct. }
     {
       intros tin k (ls&rs&x&l&HTin&Hk). TMSimp. clear HTin.
-      exists 1, (4 + 4 * size cX x). repeat split. 1-2: omega.
+      exists 1, (4 + 4 * size cX x). repeat split. 1-2: lia.
       intros tmid () H. TMSimp. clear H.
       destruct l as [ | x' l]; cbn.
       - rewrite MoveToSymbol_steps_moveright; cbn; auto. now rewrite !map_length.
@@ -218,24 +218,22 @@ Section CaseList.
     { unfold M1. TM_Correct. eapply Skip_cons_Realise. eapply Skip_cons_Terminates. }
     {
       intros tin k (ls&rs&x&l&HTin&Hk). TMSimp. clear HTin.
-      exists (6 + 4 * size cX x), (16 + 8 * size cX x). repeat split; try omega. eauto 6.
+      exists (6 + 4 * size cX x), (16 + 8 * size cX x). repeat split; try lia. eauto 6.
       intros tmid (). intros (H&HInj); TMSimp. specialize H with (1 := eq_refl).
       destruct l as [ | x' l']; TMSimp. (* Both cases are identical *)
-      1-2: exists 1, (14 + 8 * size cX x); repeat split; try omega.
+      1-2: exists 1, (14 + 8 * size cX x); repeat split; try lia.
       - intros tmid2 (). intros (_&HInj2); TMSimp.
-        exists 3, (10 + 8 * size cX x). repeat split; try omega.
+        exists 3, (10 + 8 * size cX x). repeat split; try lia.
         intros tmid3 (). intros (H3&H3'); TMSimp.
-        exists (8+8*size cX x), 1. repeat split; cbn; try omega.
+        exists (8+8*size cX x), 1. repeat split; cbn; try lia.
         + rewrite CopySymbols_L_steps_moveleft; auto.
           now rewrite rev_length, !map_length.
-        + intros tmid4 () _. omega.
       - intros tmid2 (). intros (_&HInj2); TMSimp.
-        exists 3, (10 + 8 * size cX x). repeat split; try omega.
+        exists 3, (10 + 8 * size cX x). repeat split; try lia.
         intros tmid3 (). intros (H3&H3'); TMSimp.
-        exists (8+8*size cX x), 1. repeat split; cbn; try omega.
+        exists (8+8*size cX x), 1. repeat split; cbn; try lia.
         + rewrite CopySymbols_L_steps_moveleft; auto.
           now rewrite rev_length, !map_length.
-        + intros tmid4 () _. omega.
     }
   Qed.
 
@@ -269,34 +267,34 @@ Section CaseList.
       destruct HEncL as (ls&HEncL); TMSimp.
       destruct l as [ | x l']; cbn.
       {
-        exists 1, 3. repeat split; try omega.
+        exists 1, 3. repeat split; try lia.
         intros tmid (). intros (H1&HInj1); TMSimp.
-        exists 1, 1. repeat split; try omega.
+        exists 1, 1. repeat split; try lia.
         intros tmid2 ymid2 ((H2&H2')&HInj2). apply Vector.cons_inj in H2' as (H2'&_). TMSimp.
-        omega.
+        lia.
       }
       {
-        exists 1, (40 + 16 * size cX x). repeat split; try omega.
+        exists 1, (40 + 16 * size cX x). repeat split; try lia.
         intros tmid (). intros (H1&HInj1); TMSimp.
-        exists 1, (38 + 16 * size cX x). repeat split; try omega.
+        exists 1, (38 + 16 * size cX x). repeat split; try lia.
         intros tmid2 ymid2 ((H2&H2')&HInj2). apply Vector.cons_inj in H2' as (H2'&_). TMSimp.
-        exists (23 + 12 * size cX x), (14 + 4 * size cX x). repeat split; try omega.
+        exists (23 + 12 * size cX x), (14 + 4 * size cX x). repeat split; try lia.
         { TMSimp_goal. rewrite !map_map, List.map_app, <- app_assoc, !map_map. do 4 eexists; eauto. split.
           - f_equal. now rewrite !map_map.
-          - omega.
+          - lia.
         }
         intros tmid3 () H3'. 
         rewrite !map_map, map_app, <- app_assoc in H3'.
         setoid_rewrite map_map in H3'.
         specialize H3' with (1 := eq_refl) (2 := isRight_isRight_size HRight). TMSimp.
-        exists (6 + 4 * size cX x), 3. repeat split; try omega.
+        exists (6 + 4 * size cX x), 3. repeat split; try lia.
         { do 4 eexists; repeat split; eauto. now rewrite !map_map. }
         intros tmid4 () (H4&HInj4); TMSimp.
         setoid_rewrite map_map in H4.
         specialize H4 with (1 := eq_refl).
         destruct l' as [ | x' l'']; TMSimp. (* both cases are equal *)
-        - exists 1, 1. repeat split; try omega. intros ? _ _. omega.
-        - exists 1, 1. repeat split; try omega. intros ? _ _. omega.
+        - exists 1, 1. repeat split; try lia. 
+        - exists 1, 1. repeat split; try lia. 
       }
     }
   Qed.
@@ -306,13 +304,13 @@ Section CaseList.
   (** ** [IsNil] *)
 
   Definition IsNil : pTM (sigList sigX)^+ bool 1 :=
-    Move R;;
+    Move Rmove;;
     Switch ReadChar
     (fun s =>
        match s with
        | Some (inr sigList_nil) =>
-         Return (Move L) true
-       | _ => Return (Move L) false
+         Return (Move Lmove) true
+       | _ => Return (Move Lmove) false
        end).
   
   Definition IsNil_Rel : pRel (sigList sigX)^+ bool 1 :=
@@ -332,7 +330,7 @@ Section CaseList.
   Proof.
     unfold IsNil_steps. eapply RealiseIn_monotone.
     { unfold IsNil. TM_Correct. }
-    { Unshelve. 4-11: reflexivity. omega. }
+    { Unshelve. 4-11: reflexivity. lia. }
     {
       intros tin (yout, tout) H. cbn. intros xs s HEncXs.
       destruct HEncXs as (ls & HEncXs & Hs). TMSimp.
@@ -351,7 +349,7 @@ Section CaseList.
   
   Definition Constr_nil : pTM (sigList sigX)^+ unit 1 := WriteValue [sigList_nil].
 
-  Goal Constr_nil = WriteMove (inl STOP) L;; WriteMove (inr sigList_nil) L;; Write (inl START).
+  Goal Constr_nil = WriteMove (inl STOP) Lmove;; WriteMove (inr sigList_nil) Lmove;; Write (inl START).
   Proof. reflexivity. Qed.
 
 
@@ -367,16 +365,16 @@ Section CaseList.
     { unfold Constr_nil. TM_Correct. }
     { reflexivity. }
     { intros tin ((), tout) H. cbn in *. intros s HRight.
-      specialize H with (x := nil) (1 := eq_refl) (2 := HRight). modpon H. contains_ext. unfold WriteValue_size. omega. }
+      specialize H with (x := nil) (1 := eq_refl) (2 := HRight). modpon H. contains_ext. unfold WriteValue_size. lia. }
   Qed.
   
 
   (** *** [cons] *)
   
   Definition Constr_cons : pTM (sigList sigX)^+ unit 2 :=
-    LiftTapes (MoveRight _;; Move L) [|Fin1|];;
+    LiftTapes (MoveRight _;; Move Lmove) [|Fin1|];;
     LiftTapes (CopySymbols_L stop) [|Fin1;Fin0|];;
-    LiftTapes (WriteMove (inr sigList_cons) L;; Write (inl START)) [|Fin0|].
+    LiftTapes (WriteMove (inr sigList_cons) Lmove;; Write (inl START)) [|Fin0|].
 
   
   Definition Constr_cons_size {sigX X : Type} {cX : codable sigX X} (y : X) (s0 : nat) := s0 - size _ y - 1.
@@ -408,7 +406,7 @@ Section CaseList.
       repeat econstructor.
       - cbn. f_equal. simpl_tape. rewrite !map_rev, rev_involutive. f_equal.
         now rewrite !List.map_map, map_app, <- app_assoc, List.map_map.
-      - simpl_tape. rewrite tl_length. simpl_list. rewrite skipn_length. unfold size. omega.
+      - simpl_tape. rewrite tl_length. simpl_list. rewrite skipn_length. unfold size. lia.
       - f_equal. now rewrite !map_rev, rev_involutive.
       - auto.
     }
@@ -432,16 +430,15 @@ Section CaseList.
     }
     {
       intros tin k (l&y&HEncL&HEncY&Hk). cbn.
-      exists (10 + 4 * size _ y), (12 + 8 * size _ y). repeat split; try omega.
-      - cbn. exists (8 + 4 * size _ y), 1. repeat split; try omega.
+      exists (10 + 4 * size _ y), (12 + 8 * size _ y). repeat split; try lia.
+      - cbn. exists (8 + 4 * size _ y), 1. repeat split; try lia.
         + eexists. split. eauto. reflexivity.
-        + now intros _ _ _.
       - intros tmid () (H&HInj). TMSimp.
         modpon H. destruct H as (ls&HEncY'). TMSimp.
-        exists (8 + 8 * size _ y), 3. repeat split; try omega.
+        exists (8 + 8 * size _ y), 3. repeat split; try lia.
         + erewrite CopySymbols_L_steps_moveleft; eauto. now rewrite map_length, rev_length, map_length.
         + intros tmid2 (). intros (H2&HInj2). TMSimp.
-          exists 1, 1. repeat split; try omega. intros ? _ _. omega.
+          exists 1, 1. repeat split; try lia. 
     }
   Qed.
 

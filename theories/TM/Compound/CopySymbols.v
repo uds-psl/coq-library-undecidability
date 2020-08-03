@@ -1,4 +1,4 @@
-From Undecidability Require Import TM.Prelim.
+From Undecidability Require Import TM.Util.Prelim.
 From Undecidability Require Import TM.Basic.Mono.
 From Undecidability Require Import TM.Combinators.Combinators.
 From Undecidability Require Import TM.Compound.TMTac TM.Compound.Multi.
@@ -29,7 +29,7 @@ Section CopySymbols.
                  Return (LiftTapes (Write x) [|Fin1|]) (Some tt)
                else (* wrong symbol: write it to tape 1 and move both tapes right and continue *)
                  Return (LiftTapes (Write x) [|Fin1|];;
-                         MovePar R R) (None)
+                         MovePar Rmove Rmove) (None)
              | _ => Return Nop (Some tt) (* there is no such symbol, break and return *)
              end).
 
@@ -42,7 +42,7 @@ Section CopySymbols.
              tout[@Fin1] = tape_write tin[@Fin1] (Some x) /\
              yout = Some tt (* break *)
         else tout[@Fin0] = tape_move_right tin[@Fin0] /\
-             tout[@Fin1] = doAct tin[@Fin1] (Some x, R) /\
+             tout[@Fin1] = doAct tin[@Fin1] (Some x, Rmove) /\
              yout = None (* continue *)
       | _ => tout = tin /\
             yout = Some tt
@@ -59,7 +59,7 @@ Section CopySymbols.
       - destruct (f e); swap 1 2.
         + apply Return_RealiseIn. eapply Seq_RealiseIn. eapply LiftTapes_RealiseIn; [vector_dupfree | eapply Write_Sem]. eapply MovePar_Sem.
         + apply Return_RealiseIn, LiftTapes_RealiseIn; [vector_dupfree | eapply Write_Sem].
-      - cbn. eapply RealiseIn_monotone'. apply Return_RealiseIn. eapply Nop_Sem. omega.
+      - cbn. eapply RealiseIn_monotone'. apply Return_RealiseIn. eapply Nop_Sem. lia.
     }
     { cbn. reflexivity. }
     {
@@ -83,12 +83,12 @@ Section CopySymbols.
     | Some s =>
       if f s
       then (fst tin, tape_write (snd tin) (Some s))
-      else CopySymbols_Fun (tape_move_right (fst tin), doAct (snd tin) (Some s, R))
+      else CopySymbols_Fun (tape_move_right (fst tin), doAct (snd tin) (Some s, Rmove))
     | _ => tin
     end.
   Proof.
     intros (t1,t2) m HC Hs. unfold rlength', rlength. cbn.
-    destruct t1; cbn in *; inv HC. simpl_tape. omega.
+    destruct t1; cbn in *; inv HC. simpl_tape. lia.
   Qed.
 
 
@@ -98,7 +98,7 @@ Section CopySymbols.
   Lemma CopySymbols_false s t1 t2 :
     current t1 = Some s ->
     f s = false ->
-    CopySymbols_Fun (t1, t2) = CopySymbols_Fun (tape_move_right t1, doAct t2 (Some s, R)).
+    CopySymbols_Fun (t1, t2) = CopySymbols_Fun (tape_move_right t1, doAct t2 (Some s, Rmove)).
   Proof. intros HCurrent Hs. rewrite CopySymbols_Fun_equation. cbn. now rewrite HCurrent, Hs. Qed.
 
   Lemma CopySymbols_true s t1 t2 :
@@ -148,7 +148,7 @@ Section CopySymbols.
     end.
   Proof.
     intros tin m HC Hs. unfold rlength', rlength. cbn.
-    destruct tin; cbn in *; inv HC. simpl_tape. omega.
+    destruct tin; cbn in *; inv HC. simpl_tape. lia.
   Qed.
 
 
@@ -164,8 +164,8 @@ Section CopySymbols.
       - reflexivity.
       - intros ymid tmid H. cbn in *. destruct ymid as [()| ]; cbn in *.
         + destruct (current tin[@Fin0]) eqn:E; TMSimp.
-          * destruct (f e) eqn:Ef; TMSimp. rewrite CopySymbols_steps_equation, E, Ef in HT. omega.
-          * rewrite CopySymbols_steps_equation, E in HT. omega.
+          * destruct (f e) eqn:Ef; TMSimp. rewrite CopySymbols_steps_equation, E, Ef in HT. lia.
+          * rewrite CopySymbols_steps_equation, E in HT. lia.
         + destruct (current tin[@Fin0]) eqn:E; TMSimp. destruct (f e) eqn:Ef; TMSimp.
           rewrite CopySymbols_steps_equation, E, Ef in HT.
           exists (CopySymbols_steps (tape_move_right tin[@Fin0])). split; auto.
@@ -186,12 +186,12 @@ Section CopySymbols.
     | Some s =>
       if f s
       then (fst tin, tape_write (snd tin) (Some s))
-      else CopySymbols_L_Fun (tape_move_left (fst tin), doAct (snd tin) (Some s, L))
+      else CopySymbols_L_Fun (tape_move_left (fst tin), doAct (snd tin) (Some s, Lmove))
     | _ => tin
     end.
   Proof.
     intros (t1,t2) m HC Hs. unfold llength', llength. cbn.
-    destruct t1; cbn in *; inv HC. simpl_tape. omega.
+    destruct t1; cbn in *; inv HC. simpl_tape. lia.
   Qed.
 
   Lemma CopySymbols_mirror t t1' t2' :
@@ -251,7 +251,7 @@ Section CopySymbols.
     end.
   Proof.
     intros tin m HC Hs. unfold llength', llength. cbn.
-    destruct tin; cbn in *; inv HC. simpl_tape. omega.
+    destruct tin; cbn in *; inv HC. simpl_tape. lia.
   Qed.
 
 
@@ -262,7 +262,7 @@ Section CopySymbols.
       simpl_tape in *; cbn in *;
         rewrite CopySymbols_steps_equation; simpl_tape.
     - now rewrite e, e0.
-    - rewrite e, e0. omega.
+    - rewrite e, e0. lia.
     - destruct (current t); cbn; auto.
   Qed.
 

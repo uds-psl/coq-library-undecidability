@@ -1,4 +1,4 @@
-From Undecidability Require Import TM.TM TM.Basic.Mono TM.Combinators.Combinators TM.Compound.Multi.
+From Undecidability Require Import TM.Util.TM_facts TM.Basic.Mono TM.Combinators.Combinators TM.Compound.Multi.
 Require Import List.
 From Undecidability Require Import TMTac.
 
@@ -60,7 +60,7 @@ Section Write_String.
     - change (WriteString (s :: s' :: str')) with (WriteMove s D;; WriteString (s' :: str')).
       eapply RealiseIn_monotone.
       { TM_Correct. TM_Correct. apply IH. }
-      { unfold WriteString_steps. cbn. omega. }
+      { unfold WriteString_steps. cbn. lia. }
       { intros t1 t3 H. destruct H as (()&t2&H1&H2).
         change (WriteString_sem_fix (s :: s' :: str')) with (WriteMove_Rel s D |_tt ∘ WriteString_sem_fix (s' :: str')).
         exists t2. split; auto.

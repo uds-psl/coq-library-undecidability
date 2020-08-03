@@ -29,7 +29,7 @@ Lemma sum_list_rec_plus (s1 s2 : nat) (xs : list nat) :
 Proof.
   revert s1 s2. induction xs as [ | x xs IH]; intros; cbn in *.
   - reflexivity.
-  - rewrite IH. rewrite IH. omega.
+  - rewrite IH. rewrite IH. lia.
 Qed.
 
 Lemma sum_list_rec_S (s : nat) (xs : list nat) :
@@ -41,7 +41,7 @@ Lemma sum_list_rec_ge (s : nat) (xs : list nat) :
 Proof.
   induction xs as [ | x xs]; cbn in *.
   - reflexivity.
-  - rewrite sum_list_rec_plus. omega.
+  - rewrite sum_list_rec_plus. lia.
 Qed.
 
 

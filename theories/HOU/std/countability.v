@@ -72,7 +72,7 @@ Proof.
 Qed.
 
 
-Require Import Omega Nat Arith.Div2.
+Require Import Omega Lia Nat Arith.Div2.
 
 Definition I__S (s: nat + nat) :=
   match s with

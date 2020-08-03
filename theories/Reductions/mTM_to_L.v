@@ -1,4 +1,4 @@
-From Undecidability.Problems Require Import TM cbvLambda Reduction.
+From Undecidability.Problems Require Import TM Reduction.
 Require Import Undecidability.L.TM.TMEncoding.
 From Undecidability.L.Tactics Require Import LTactics GenEncode.
 From Undecidability.L.Datatypes Require Import LNat Lists LProd LBool.
@@ -7,15 +7,14 @@ From Undecidability.L.Computability Require Import MuRec.
 From Undecidability Require Import TM.TM.
 Require Import PslBase.FiniteTypes.FinTypes.
 
-
-Lemma mTM_to_L :
+Lemma TM_to_L :
   HaltMTM ⪯ HaltL.
 Proof.
   unshelve eexists.
   - intros [[n sig] M t].
     exact ((mu
      (@ext (nat -> bool) (! nat ~> ! bool)
-        (fun k : nat => @LOptions.isSome (mconfig sig (@states sig n M) n) (@loopM sig n M (initc M t) k))
+        (fun k : nat => @LOptions.isSome (mconfig sig (@state sig n M) n) (@loopM sig n M (initc M t) k))
         (@term_test sig n M (initc M t))))).
   - intros [[n sig] M t].
     unfold HaltL.

@@ -18,7 +18,7 @@ From Undecidability.Shared.Libs.DLW
 
 Require Import Undecidability.Synthetic.Undecidability.
 
-Require Import Undecidability.TM.Halting.
+Require Import Undecidability.TM.TM.
 
 From Undecidability.StringRewriting
   Require Import SR TM_to_SRH SRH_to_SR.

@@ -1,4 +1,4 @@
-From Undecidability.L Require Import L Complexity.ResourceMeasures.
+From Undecidability.L Require Import Util.L_facts Complexity.ResourceMeasures.
 From Undecidability.L Require Import LM_heap_def.
 
 Import Lia.
@@ -73,7 +73,7 @@ Lemma unfolds_bound H k s s' a:
 Proof.
   induction 1.
   -now constructor. 
-  -inv H2. inv H3. constructor. inv IHunfolds. eapply bound_ge. eauto. omega.
+  -inv H2. inv H3. constructor. inv IHunfolds. eapply bound_ge. eauto. lia.
   -now constructor.
   -now constructor. 
 Qed.
@@ -100,14 +100,14 @@ Proof.
     decide _. 
     econstructor. all:eauto.
     econstructor. all:eauto.    
-   +decide _. econstructor; eauto. omega.
-    econstructor. omega.
+   +decide _. econstructor; eauto. lia.
+    econstructor. lia.
   -rename s into u.
    assert (H':lookup H a' (n-k) = Some (b,P)).
-   {destruct n. omega. rewrite Nat.sub_succ_l. cbn. rewrite H1. now rewrite Nat.sub_succ in H2. omega. }
+   {destruct n. lia. rewrite Nat.sub_succ_l. cbn. rewrite H1. now rewrite Nat.sub_succ in H2. lia. }
    rewrite bound_closed_k.
-   2:{ eapply bound_ge with (k:=0). 2:omega. now eauto using unfolds_bound. }
-   econstructor. all:try eassumption;omega.
+   2:{ eapply bound_ge with (k:=0). 2:lia. now eauto using unfolds_bound. }
+   econstructor. all:try eassumption;lia.
   -econstructor. all:eauto.
   -econstructor. all:eauto.
    Unshelve. all: repeat econstructor.
@@ -298,7 +298,7 @@ Proof.
   induction k as [k IH] using lt_wf_ind .
   intros s s0 P a T V H R Unf.
   induction s0 as [|s01 IHs01 s02 IHs02 | s0] in IH,k,s,Unf,T,R,P,V,H|-*.
-  -inv Unf. omega.
+  -inv Unf. lia.
    assert (exists k', k = 1 + k') as (k'&->).
    {destruct k. 2:eauto. exfalso.
     inv R. eapply Ter. econstructor. rewrite Nat.sub_0_r in *. eassumption. }
@@ -350,7 +350,7 @@ Proof.
    inversion Rg3 as [AA BB CC DD EE FF]. subst g3 AA EE. destruct FF. (*inv H1. inv H2. *)
    eexists (k11+(k21+(1+k31))),k32,_,_,_.
    repeat eexists.
-   +omega.
+   +lia.
    +cbn [compile]. autorewrite with list.
     rewrite app_nil_r in R31. unfold tailRecursion in R31 at 2. 
     repeat (eapply pow_add with (R:=step);eexists;split).

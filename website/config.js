@@ -38,7 +38,7 @@ coqdocjs.repl = {
     "lambda": "λ",
     "mu": "μ",
     "nu": "ν",
-    "omega": "ω",
+    "lia": "ω",
     "phi": "ϕ",
     "pi": "π",
     "psi": "ψ",
@@ -52,7 +52,7 @@ coqdocjs.repl = {
     "Gamma": "Γ",
     "Pi": "Π",
     "Sigma": "Σ",
-    "Omega": "Ω",
+    "Lia": "Ω",
     "Xi": "Ξ"
 };
 

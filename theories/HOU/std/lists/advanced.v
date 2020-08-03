@@ -1,4 +1,4 @@
-Require Import List Omega. 
+Require Import List Omega Lia. 
 Import ListNotations.
 From Undecidability.HOU Require Import std.tactics std.lists.basics std.decidable. 
 
@@ -48,17 +48,17 @@ Section Nats.
   Proof.
     induction k; cbn; intuition.
     eapply in_map_iff in H0. destruct H0; intuition; subst.
-    specialize (IHk x H1); omega.
+    specialize (IHk x H1); lia.
   Qed.
 
   Lemma nth_nats m k:
     m < k -> nth (nats k) m = Some m.
   Proof.
     induction k in m |-*.
-    - omega.
+    - lia.
     - intros; destruct m; cbn in *; eauto.
       erewrite map_nth_error; eauto.
-      eapply IHk; omega.
+      eapply IHk; lia.
   Qed.
   
   Lemma lt_nats x k:
@@ -102,7 +102,7 @@ Section Tabulate.
   
   Lemma tab_length X (f: nat -> X) k: length (tab f k) = k.
   Proof.
-    induction k; cbn; lsimpl; cbn; lsimpl; omega. 
+    induction k; cbn; lsimpl; cbn; lsimpl; lia. 
   Qed.
 
   Lemma tab_map X Y (f: nat -> X) (g: X -> Y) k:
@@ -218,7 +218,7 @@ Section Repeated.
     repeat x n = tab (Basics.const x) n.
   Proof.
     induction n; eauto; cbn [tab].
-    replace (S n) with (n + 1) by omega.
+    replace (S n) with (n + 1) by lia.
     rewrite repeated_plus; cbn.
     rewrite IHn; reflexivity. 
   Qed.

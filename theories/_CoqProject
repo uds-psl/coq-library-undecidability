@@ -241,13 +241,13 @@ H10/H10Z_undec.v
 
 
 # Basics
-TM/Prelim.v
-TM/Relations.v
-TM/TM.v
-TM/Halting.v
-TM/ArithPrelim.v
-TM/VectorPrelim.v
+TM/Util/Prelim.v
+TM/Util/Relations.v
+TM/Util/ArithPrelim.v
+TM/Util/VectorPrelim.v
 
+TM/TM.v
+TM/Util/TM_facts.v
 
 # Basic Machines
 TM/Basic/Basic.v
@@ -314,6 +314,7 @@ TM/Code/BinNumbers/NTM.v
 # Multi-Tape to Single-Tape Compiler
 TM/Single/EncodeTapes.v
 TM/Single/StepTM.v
+TM/Reductions/L_to_mTM.v
 
 # Univ
 TM/Univ/LookupAssociativeListTM.v
@@ -323,16 +324,19 @@ TM/Univ/StepTM.v
 TM/PrettyBounds/PrettyBounds.v
 TM/PrettyBounds/SizeBounds.v
 TM/PrettyBounds/MaxList.v
-TM/PrettyBounds/BaseCode.v
-TM/PrettyBounds/UnivBounds.v
-TM/PrettyBounds/M2MBounds.v
+# TM/PrettyBounds/BaseCode.v
+# TM/PrettyBounds/UnivBounds.v
+# TM/PrettyBounds/M2MBounds.v
 
-TM/PrettyBounds/SpaceBounds.v
-TM/PrettyBounds/BaseCodeSpace.v
-TM/PrettyBounds/UnivSpaceBounds.v
+# TM/PrettyBounds/SpaceBounds.v
+# TM/PrettyBounds/BaseCodeSpace.v
+# TM/PrettyBounds/UnivSpaceBounds.v
 
 # Multi-Univ Simulation Theorem
-TM/MultiUnivTimeSpaceSimulation.v
+# TM/PrettyBounds/MultiUnivTimeSpaceSimulation.v
+
+TM/Reductions/mTM_to_TM.v
+TM/TM_undec.v
 
 L/Prelim/MoreBase.v
 L/Prelim/ARS.v
@@ -341,6 +345,9 @@ L/Prelim/MoreList.v
 L/Prelim/LoopSum.v
 
 L/L.v
+L/L_undec.v
+
+L/Util/L_facts.v
 
 L/Tactics/Computable.v
 L/Tactics/ComputableTime.v
@@ -650,7 +657,6 @@ HilbertCalculi/Reductions/MPCPb_to_HSC_AX.v
 
 #Legacy Problems
 Problems/FOL.v
-Problems/TM.v
 Problems/MM.v
 Problems/MM2.v
 Problems/BSM.v
@@ -658,7 +664,7 @@ Problems/ILL.v
 Problems/FRACTRAN.v
 Problems/DIOPHANTINE.v
 Problems/RA_UNIV.v
-Problems/cbvLambda.v
+
 Problems/FOLFS.v
 
 #Legacy Reductions
@@ -667,6 +673,7 @@ Reductions/BSM_to_MM.v
 Reductions/PCPb_to_MM.v  
 Reductions/MM_to_ILL.v  
 Reductions/BPCP_to_FOL.v
+Reductions/BPCP_to_FOLFS.v
 Reductions/DIO_MUREC.v
 Reductions/H10C_RA_UNIV.v
 Reductions/MUREC_MM.v
@@ -674,6 +681,3 @@ Reductions/MM_to_FRACTRAN.v
 Reductions/FRACTRAN_to_MMA2.v
 Reductions/MM_to_MMA2.v
 Reductions/MMA2_to_MM2.v
-Reductions/L_to_mTM.v
-Reductions/mTM_to_TM.v
-Reductions/BPCP_to_FOLFS.v

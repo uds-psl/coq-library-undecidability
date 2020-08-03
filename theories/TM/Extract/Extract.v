@@ -10,7 +10,7 @@ Eval vm_compute in length (FinTypes.elem (finType_CS sigStep)).
 
 
 
-Definition Loop_states : finType := TM.states (projT1 Loop).
+Definition Loop_states : finType := TM.state (projT1 Loop).
 Definition Loop_states_card : nat := length (FinTypes.elem Loop_states).
 
 

@@ -193,7 +193,7 @@ Section Length_size_nice.
     {
       repeat split; cbn; intros.
       - rewrite IH0. projk_rewrite Length_Step_size_nice 0. rewrite !Encode_list_hasSize; cbn. nia.
-      - replace (n + S (|xs|)) with (S n + |xs|) by omega.
+      - replace (n + S (|xs|)) with (S n + |xs|) by lia.
         rewrite IH1. rewrite Nat.add_comm. cbn.
         projk_rewrite (Length_Step_size_nice) 1.
         rewrite !Encode_nat_hasSize. cbn. nia.

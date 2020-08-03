@@ -1,4 +1,4 @@
-From Undecidability Require Import TM.Prelim.
+From Undecidability Require Import TM.Util.Prelim.
 From Undecidability Require Import TM.Basic.Mono.
 From Undecidability Require Import TM.Combinators.Combinators.
 From Undecidability Require Import TM.Compound.TMTac.
@@ -35,7 +35,7 @@ Section MoveToSymbol.
              | Some x => if f x
                         (* then Return (Nop) (Some tt) (* found the symbol, break *) *)
                         then Return (Write (g x)) (Some tt) (* found the symbol, break *)
-                        else Return (WriteMove (g x) R) (None) (* wrong symbol, move right and continue *)
+                        else Return (WriteMove (g x) Rmove) (None) (* wrong symbol, move right and continue *)
              | _ => Return (Nop) (Some tt) (* there is no such symbol, break *)
              end).
 
@@ -44,7 +44,7 @@ Section MoveToSymbol.
       match current t1 with
       | Some s => if (f s)
                  then tape_write t1 (Some (g s))
-                 else doAct t1 (Some (g s), R)
+                 else doAct t1 (Some (g s), Rmove)
       | _ => t1
       end.
 
@@ -74,7 +74,7 @@ Section MoveToSymbol.
       - apply Return_RealiseIn. eapply Nop_Sem.
     }
     {
-      (cbn; omega).
+      (cbn; lia).
     }
     {
       unfold MoveToSymbol_Step_Rel, MoveToSymbol_Step_Fun. intros tin (yout, tout) H.
@@ -95,12 +95,12 @@ Section MoveToSymbol.
     match current t with
     | Some m => if f m
                then tape_write t (Some (g m))
-               else MoveToSymbol_Fun (doAct t (Some (g m), R))
+               else MoveToSymbol_Fun (doAct t (Some (g m), Rmove))
     | _ => t
     end.
   Proof.
     intros. cbn. unfold rlength. simpl_tape.
-    destruct t eqn:E; cbn in *; try now inv teq. omega.
+    destruct t eqn:E; cbn in *; try now inv teq. lia.
   Qed.
 
   Lemma MoveToSymbol_Step_Fun_M2_None t :
@@ -128,7 +128,7 @@ Section MoveToSymbol.
   Lemma MoveToSymbol_Step_false t x :
     current t = Some x ->
     f x = false ->
-    MoveToSymbol_Step_Fun t = doAct t (Some (g x), R).
+    MoveToSymbol_Step_Fun t = doAct t (Some (g x), Rmove).
   Proof.
     intros H1 H2. unfold MoveToSymbol_Step_Fun. destruct t; cbn in *; inv H1. rewrite H2. auto.
   Qed.
@@ -144,7 +144,7 @@ Section MoveToSymbol.
   Lemma MoveToSymbol_skip t s :
     current t = Some s ->
     f s = false ->
-    MoveToSymbol_Fun (doAct t (Some (g s), R)) = MoveToSymbol_Fun t.
+    MoveToSymbol_Fun (doAct t (Some (g s), Rmove)) = MoveToSymbol_Fun t.
   Proof. intros H1 H2. cbn. symmetry. rewrite MoveToSymbol_Fun_equation. cbn. now rewrite H1, H2. Qed.
 
   Definition MoveToSymbol_Rel : Rel (tapes sig 1) (unit * tapes sig 1) :=
@@ -178,7 +178,7 @@ Section MoveToSymbol.
 
   Function MoveToSymbol_steps (t : tape sig) { measure rlength t } : nat :=
     match current t with
-    | Some m => if f m then 4 else 4 + (MoveToSymbol_steps (doAct t (Some (g m), R)))
+    | Some m => if f m then 4 else 4 + (MoveToSymbol_steps (doAct t (Some (g m), Rmove)))
     | _ => 4
     end.
   Proof.
@@ -202,14 +202,14 @@ Section MoveToSymbol.
       - reflexivity.
       - intros ymid tmid. intros H. destruct ymid as [()| ]; TMSimp.
         + destruct (current tin[@Fin0]) eqn:E; TMSimp; auto.
-          * destruct (f e) eqn:Ef; inv H0. rewrite MoveToSymbol_steps_equation in HT. rewrite E, Ef in HT. omega.
-          * rewrite MoveToSymbol_steps_equation in HT. rewrite E in HT. omega.
+          * destruct (f e) eqn:Ef; inv H0. rewrite MoveToSymbol_steps_equation in HT. rewrite E, Ef in HT. lia.
+          * rewrite MoveToSymbol_steps_equation in HT. rewrite E in HT. lia.
         + destruct (current tin[@Fin0]) eqn:E.
           * destruct (f e) eqn:Ef; inv H0. rewrite MoveToSymbol_steps_equation in HT. rewrite E, Ef in HT.
-            exists (MoveToSymbol_steps (doAct tin[@Fin0] (Some (g e), R))). cbn.
+            exists (MoveToSymbol_steps (doAct tin[@Fin0] (Some (g e), Rmove))). cbn.
             split.
             -- unfold MoveToSymbol_Step_Fun. rewrite E, Ef. cbn. reflexivity.
-            -- rewrite <- HT. cbn. omega.
+            -- rewrite <- HT. cbn. lia.
           * congruence.
     }
   Qed.
@@ -227,10 +227,10 @@ Section MoveToSymbol.
     | Some s  =>
       if f s
       then tape_write t (Some (g s))
-      else MoveToSymbol_L_Fun (doAct t (Some (g s), L))
+      else MoveToSymbol_L_Fun (doAct t (Some (g s), Lmove))
     | _ => t
     end.
-  Proof. intros. unfold llength. cbn. simpl_tape. destruct t; cbn in *; inv teq. omega. Qed.
+  Proof. intros. unfold llength. cbn. simpl_tape. destruct t; cbn in *; inv teq. lia. Qed.
 
   Lemma MoveToSymbol_mirror t t' :
     MoveToSymbol_Fun (mirror_tape t) = mirror_tape t' -> MoveToSymbol_L_Fun t = t'.
@@ -269,10 +269,10 @@ Section MoveToSymbol.
 
   Function MoveToSymbol_L_steps (t : tape sig) { measure llength t } : nat :=
     match current t with
-    | Some s => if f s then 4 else 4 + (MoveToSymbol_L_steps (doAct t (Some (g s), L)))
+    | Some s => if f s then 4 else 4 + (MoveToSymbol_L_steps (doAct t (Some (g s), Lmove)))
     | _ => 4
     end.
-  Proof. intros. unfold llength. cbn. simpl_tape. destruct t; cbn in *; inv teq. omega. Qed.
+  Proof. intros. unfold llength. cbn. simpl_tape. destruct t; cbn in *; inv teq. lia. Qed.
 
   Lemma MoveToSymbol_steps_mirror t :
     MoveToSymbol_L_steps t = MoveToSymbol_steps (mirror_tape t).

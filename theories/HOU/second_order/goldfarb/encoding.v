@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import RelationClasses Morphisms List Omega Init.Nat Setoid.
+Require Import RelationClasses Morphisms List Omega Lia Init.Nat Setoid.
 From Undecidability.HOU Require Import calculus.calculus unification.unification second_order.diophantine_equations.
 Import ListNotations.
 
@@ -469,7 +469,7 @@ Section Typing.
     intros H. unfold Gamma__deq. rewrite tab_nth.
     destruct (partition_F_G) as [[x ?]|[[[x y] z] ? ]]; subst; intuition.
     eapply G_not_in_F in H as [].
-    eapply Sum_in in H. omega.
+    eapply Sum_in in H. lia.
   Qed.
 
   Lemma Gamma__deq_nth_G h:
@@ -478,7 +478,7 @@ Section Typing.
     intros H. unfold Gamma__deq. rewrite tab_nth.
     destruct (partition_F_G) as [[x ?]|[[[x y] z] ? ]]; subst; intuition.
     eapply F_not_in_G in H as [].
-    eapply Sum_in in H. omega.
+    eapply Sum_in in H. lia.
   Qed.
 
 

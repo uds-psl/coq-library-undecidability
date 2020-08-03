@@ -14,7 +14,7 @@ From Undecidability.Shared.Libs.DLW
 
 From Undecidability.Synthetic Require Import Undecidability.
 
-Require Import Undecidability.TM.Halting.
+Require Import Undecidability.TM.TM.
 
 From Undecidability.PCP 
   Require Import PCP HALT_TM1_to_PCPb.

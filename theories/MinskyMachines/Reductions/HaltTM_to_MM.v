@@ -9,7 +9,7 @@
 
 Require Import Undecidability.Synthetic.Undecidability.
 
-Require Import Undecidability.TM.Halting.
+Require Import Undecidability.TM.TM.
 From Undecidability.PCP                  Require Import PCP HALT_TM1_to_PCPb.
 From Undecidability.MinskyMachines       Require Import MM PCPb_to_MM.
  

@@ -37,8 +37,8 @@ Proof.
   intros H. induction n.
   -reflexivity.
   -rewrite IHn. 
-   +apply mu'_n_false. apply H. omega.
-   +intros. apply H. omega. 
+   +apply mu'_n_false. apply H. lia.
+   +intros. apply H. lia. 
 Qed.
 
 Lemma mu'_n_true (n:nat): P (ext n)  == ext true -> mu' P (ext n) == ext n.
@@ -59,9 +59,9 @@ Proof.
   -assert (R':=mu'_n_false eq). apply star_pow in R'. destruct R' as [k' R'].
    destruct (parametrized_confluence uniform_confluence R R') as [x [l [u [le1 [le2 [R1 [R2 eq']]]]]]]. destruct x.
    +inv R1. apply IH in R2 as [n0 [ge1 [Rn0 [eq0 H0]]]].
-    *exists n0. repeat split;try assumption;omega.
-    *decide (l=k);[|omega]. subst l. assert (k'=0) by omega. subst k'. inv R'. apply inj_enc in H1. omega.
-    *intros. decide (n'=n). subst. tauto.  apply H. omega.
+    *exists n0. repeat split;try assumption;lia.
+    *decide (l=k);[|lia]. subst l. assert (k'=0) by lia. subst k'. inv R'. apply inj_enc in H1. lia.
+    *intros. decide (n'=n). subst. tauto.  apply H. lia.
    +destruct R1 as [? [C _]]. destruct pv as [_ [v']]. subst v. inv C.
 Qed.
   
@@ -90,21 +90,21 @@ Proof.
   unfold mu. intros lv R. standardizeHypo 100. apply mu'_sound in R.
   -destruct R as [n ?]. exists n. intuition. apply unique_normal_forms;try Lproc. assumption.
   -split;[|Lproc]. apply equiv_lambda in R;auto. apply closed_star in R;Lproc.
-  -intros. omega.
+  -intros. lia.
 Qed.
 
 Lemma mu_complete (n:nat) : P (ext n) == ext true -> exists n0:nat, mu P == ext n0. 
 Proof.
   remember 0 as n0.
-  assert (forall n':nat, n'< n-(n-n0) -> P (ext n') == ext false) by (intros;omega).
-  assert ((n-n0)+n0=n) by omega. remember (n-n0) as k. clear Heqk Heqn0 H0 n0. induction k.
-  -simpl in *. subst. intros. eexists. unfold mu. Lsimpl. apply mu'_complete;eauto. intros. apply H. omega. 
+  assert (forall n':nat, n'< n-(n-n0) -> P (ext n') == ext false) by (intros;lia).
+  assert ((n-n0)+n0=n) by lia. remember (n-n0) as k. clear Heqk Heqn0 H0 n0. induction k.
+  -simpl in *. subst. intros. eexists. unfold mu. Lsimpl. apply mu'_complete;eauto. intros. apply H. lia. 
   -intros. destruct (dec_P (n-S k)) as [y P'].
    destruct y.
    +eexists. unfold mu. Lsimpl. apply mu'_complete. exact P'. exact H.
    +apply IHk. intros. decide (n' = n - (S k)).
      *subst. exact P'.
-     *apply H. omega.
+     *apply H. lia.
      *assumption.
 Qed.
 

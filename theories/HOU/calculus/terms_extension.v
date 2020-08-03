@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import List Omega Morphisms FinFun.
+Require Import List Omega Lia Morphisms FinFun.
 Import ListNotations.
 From Undecidability.HOU.calculus Require Export semantics typing.
 From Undecidability.HOU Require Import calculus.order.
@@ -268,7 +268,7 @@ Section TermsExtension.
       all: eapply Arr_inversion in H as [L3]; eauto; intuition.
       all: destruct L3; simplify in *; eauto.
       all: eapply (f_equal arity) in H1; cbn in H1; rewrite arity_Arr in H1.
-      all: omega.
+      all: lia.
     Qed.
 
 
@@ -288,7 +288,7 @@ Section TermsExtension.
     Lemma ord_repeated n A: ord' (repeat A n) <= ord A.
     Proof.
       induction n; cbn; eauto.
-      omega. 
+      lia. 
     Qed.
 
   End ArrowProperties.
@@ -504,7 +504,7 @@ Section TermsExtension.
     AppR (sigma • Lambda (length T + n) s) T >* T .+ sigma • Lambda n s.
   Proof.
     revert s n sigma; induction T; intros; cbn [AppR length]; eauto. 
-    replace (S (length T) + n) with (length T + S n) by omega.
+    replace (S (length T) + n) with (length T + S n) by lia.
     rewrite IHT; cbn; econstructor 2; eauto; now asimpl. 
   Qed.
 
@@ -512,7 +512,7 @@ Section TermsExtension.
     m = length T -> AppR (Lambda m s) T >* T .+ var • s.
   Proof.
     intros ?; replace (Lambda m s) with (var • Lambda m s) by now asimpl.
-    replace m with (length T + 0) by omega. 
+    replace m with (length T + 0) by lia. 
     eapply AppR_Lambda with (n := 0).
   Qed.
 

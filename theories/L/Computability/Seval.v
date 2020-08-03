@@ -1,4 +1,4 @@
-From Undecidability.L Require Export L.
+From Undecidability.L Require Export Util.L_facts.
 Require Import Coq.Logic.ConstructiveEpsilon. 
 
 Import L_Notations.

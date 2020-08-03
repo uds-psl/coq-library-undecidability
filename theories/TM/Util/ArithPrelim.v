@@ -1,5 +1,5 @@
 From smpl Require Import Smpl.
-Require Import Omega.
+Require Import Omega Lia.
 Require Export Psatz Arith.
 Require Export RelationClasses Morphisms.
 
@@ -11,11 +11,11 @@ Instance mult_le_mono : Proper (le ==> le ==> le) mult.
 Proof. repeat intro. now apply Nat.mul_le_mono. Qed.
 
 Instance max_le_mono : Proper (le ==> le ==> le) max.
-Proof. repeat intro. repeat eapply Nat.max_case_strong;omega. Qed.
+Proof. repeat intro. repeat eapply Nat.max_case_strong;lia. Qed.
 
 Instance max'_le_mono : Proper (le ==> le ==> le) Init.Nat.max.
-Proof. repeat intro. repeat eapply Nat.max_case_strong;omega. Qed.
+Proof. repeat intro. repeat eapply Nat.max_case_strong;lia. Qed.
 
 Instance S_le_mono : Proper (le ==> le) S.
-Proof. repeat intro. omega. Qed.
+Proof. repeat intro. lia. Qed.
 

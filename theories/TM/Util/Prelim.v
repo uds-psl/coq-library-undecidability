@@ -9,7 +9,7 @@ Require Export PslBase.Inhabited.
 Require Export PslBase.Base.
 Require Export PslBase.Vectors.Vectors PslBase.Vectors.VectorDupfree.
 
-Require Export smpl.Smpl.
+Require Export smpl.Smpl Lia.
 
 Global Open Scope vector_scope.
 
@@ -72,8 +72,8 @@ Section Loop.
     - destruct (p a) eqn:E.
       + inv HLoop. now apply loop_0.
       + destruct k2 as [ | k2']; cbn in *; rewrite E.
-        * exfalso. omega.
-        * apply IH. assumption. omega.
+        * exfalso. lia.
+        * apply IH. assumption. lia.
   Qed.
 
 End Loop.
@@ -81,10 +81,10 @@ End Loop.
 
 Section LoopLift.
 
-  Variable A B : Type. (** Abstract states *)
-  Variable lift : A -> B. (** Lifting function between states *)
+  Variable A B : Type. (** Abstract state *)
+  Variable lift : A -> B. (** Lifting function between state *)
   Variable (f : A -> A) (f' : B -> B). (** Abstract steps *)
-  Variable (h : A -> bool) (h' : B -> bool). (** Abstract halting states *)
+  Variable (h : A -> bool) (h' : B -> bool). (** Abstract halting state *)
 
   Hypothesis halt_lift_comp : forall x:A, h' (lift x) = h x.
   Hypothesis step_lift_comp : forall x:A, h x = false -> f' (lift x) = lift (f x).
@@ -119,7 +119,7 @@ End LoopLift.
 
 Section LoopMerge.
 
-  Variable A : Type. (** abstract states *)
+  Variable A : Type. (** abstract state *)
   Variable f : A -> A. (** abstract step function *)
   Variable (h h' : A -> bool). (** abstract halting functions *)
 
@@ -134,7 +134,7 @@ Section LoopMerge.
     revert a1 a2 a3. induction k1 as [ | k1' IH]; intros a1 a2 a3 HLoop1 HLoop2; cbn in HLoop1.
     - now destruct (h a1); inv HLoop1.
     - destruct (h a1) eqn:E.
-      + inv HLoop1. eapply loop_monotone; eauto. omega.
+      + inv HLoop1. eapply loop_monotone; eauto. lia.
       + cbn. rewrite (halt_comp E). eapply IH; eauto.
   Qed.
 
@@ -155,8 +155,8 @@ Section LoopMerge.
     - destruct (h a1) eqn:E.
       + exists 0, a1, (S k'). cbn. rewrite E. auto.
       + rewrite (halt_comp E) in HLoop.
-        apply IH in HLoop as (k1&c2&k2&IH1&IH2&IH3); [ | omega].
-        exists (S k1), c2, k2. cbn. rewrite E. repeat split; auto. omega.
+        apply IH in HLoop as (k1&c2&k2&IH1&IH2&IH3); [ | lia].
+        exists (S k1), c2, k2. cbn. rewrite E. repeat split; auto. lia.
   Qed.
   
 End LoopMerge.

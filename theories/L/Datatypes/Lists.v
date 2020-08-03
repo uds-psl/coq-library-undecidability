@@ -220,7 +220,7 @@ Section int.
     -> list_eqbTime eqbT A B <= length A * (k+22) + 9.
   Proof.
     intros H'. induction A in B|-*.
-    -cbn. omega.
+    -cbn. lia.
     -destruct B.
      {cbn. intuition. }
      cbn - [callTime2]. setoid_rewrite IHA.

@@ -5,14 +5,18 @@ From Undecidability.L Require Export TM.TMEncoding.
 From Undecidability.L Require Import TM.TapeFuns.
 
 
-From Undecidability Require Import TM.TM.
+From Undecidability Require Import TM.Util.TM_facts.
 
-Definition Halt' Sigma n (M: mTM Sigma n) (start: mconfig Sigma (states M) n) :=
-  exists (f: mconfig _ (states M) _), halt (cstate f)=true /\ exists k, loopM start k = Some f.
+Local Notation L := TM.Lmove.
+Local Notation R := TM.Rmove.
+Local Notation N := TM.Nmove.
 
-Definition Halt :{ '(Sigma, n) : _ & mTM Sigma n & tapes Sigma n} -> _ :=
+Definition Halt' (Sigma : finType) n (M: TM Sigma n) (start: mconfig Sigma (state M) n) :=
+  exists (f: mconfig _ (state M) _), halt (cstate f)=true /\ exists k, loopM start k = Some f.
+
+Definition Halt :{ '(Sigma, n) : finType * nat & TM Sigma n & tapes Sigma n} -> _ :=
   fun '(existT2 (Sigma, n) M tp) =>
-    exists (f: mconfig _ (states M) _), halt (cstate f) = true
+    exists (f: mconfig _ (state M) _), halt (cstate f) = true
                                    /\ exists k, loopM (mk_mconfig (start M) tp) k = Some f.
 
 Section loopM.
@@ -23,17 +27,17 @@ Section loopM.
   Let eqb_sig := eqbFinType_inst (X:=sig).
   Existing Instance eqb_sig.
   Variable n : nat.
-  Variable M : mTM sig n.
+  Variable M : TM sig n.
 
-  Let reg_states := @registered_finType (states M).
-  Existing Instance reg_states.
+  Let reg_state := @registered_finType (state M).
+  Existing Instance reg_state.
 
-  Let eqb_states := eqbFinType_inst (X:=states M).
-  Existing Instance eqb_states.
+  Let eqb_state := eqbFinType_inst (X:=state M).
+  Existing Instance eqb_state.
 
   Local Definition c__trans :=
-       (length ( elem (states M) ) * 4 + (n * (4 * length ( elem sig ) + 10) + 4) + 4) *
-       c__eqbComp (finType_CS (states M * VectorDef.t (option sig) n)).
+       (length ( elem (state M) ) * 4 + (n * (4 * length ( elem sig ) + 10) + 4) + 4) *
+       c__eqbComp (finType_CS (state M * VectorDef.t (option sig) n)).
   Definition transTime := (| funTable (trans (m:=M)) |) * (c__trans + 24) + 4 + 9.
   (** *** Computability of transition relation *)
   Global Instance term_trans : computableTime' (trans (m:=M)) (fun _ _ => (transTime,tt)).
@@ -44,7 +48,7 @@ Section loopM.
         Import Vector. extract. solverec. subst lock__t .
         rewrite lookupTime_leq.
                                         setoid_rewrite size_prod;cbn [fst snd].
-         unfold reg_states;rewrite (size_finType_le a).
+         unfold reg_state;rewrite (size_finType_le a).
          
          rewrite enc_vector_eq. evar (c__elem' : nat).
          evar (c__elem : nat). 
@@ -65,7 +69,7 @@ Section loopM.
     cbn -[t] ;intro. subst t.  setoid_rewrite lookup_funTable. reflexivity.
   Qed.
 
-  Definition step' (c :  mconfig sig (states M) n) : mconfig sig (states M) n :=
+  Definition step' (c :  mconfig sig (state M) n) : mconfig sig (state M) n :=
     let (news, actions) := trans (cstate c, current_chars (ctapes c)) in
     mk_mconfig news (doAct_multi (ctapes c) actions).
 
@@ -85,7 +89,7 @@ Section loopM.
     solverec.
   Qed.
 
-  Local Definition cHalt := ((| elem (states M) |) * 4 * c__eqbComp (states M) + 24).
+  Local Definition cHalt := ((| elem (state M) |) * 4 * c__eqbComp (state M) + 24).
 
   Definition haltTime := length (funTable (halt (m:=M))) * cHalt + 12.
 
@@ -96,7 +100,7 @@ Section loopM.
     2:{extract.
        solverec.
        rewrite lookupTime_leq.
-       unfold reg_states at 1;rewrite size_finType_le.
+       unfold reg_state at 1;rewrite size_finType_le.
        unfold haltTime. subst t. unfold cHalt. nia.
     }
     cbn;intro. subst t. setoid_rewrite lookup_funTable. reflexivity.

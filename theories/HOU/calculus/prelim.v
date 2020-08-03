@@ -1,6 +1,6 @@
 (** Considered preliminaries *)
 Set Implicit Arguments.
-Require Import List Omega Morphisms.
+Require Import List Omega Lia Morphisms.
 Import ListNotations.
 From Undecidability.HOU Require Export calculus.terms std.std.
 
@@ -104,10 +104,10 @@ Lemma it_up_spec X n (sigma: fin -> @exp X) x:
   if dec2 lt x n then var_exp x else ren_exp (plus n) (sigma (x - n)).
 Proof.
   induction n in x, sigma |-*; cbn.
-  - asimpl; destruct dec2; [omega|]; now destruct x. 
-  - destruct x; cbn; destruct dec2; intuition; [omega| |].
+  - asimpl; destruct dec2; [lia|]; now destruct x. 
+  - destruct x; cbn; destruct dec2; intuition; [lia| |].
     all: unfold funcomp; erewrite IHn.
-    all: destruct dec2; intuition; try omega; now asimpl.
+    all: destruct dec2; intuition; try lia; now asimpl.
 Qed.
 
 Lemma it_up_lt X n (sigma: fin -> @exp X) x:
@@ -119,7 +119,7 @@ Qed.
 Lemma it_up_ge X n (sigma: fin -> @exp X) x:
   x >= n -> it n up_exp_exp sigma x = ren_exp (plus n) (sigma (x - n)).
 Proof.
-  intros; rewrite it_up_spec; destruct dec2; intuition; omega.
+  intros; rewrite it_up_spec; destruct dec2; intuition; lia.
 Qed.
 
 Lemma it_up_var_sapp X A n delta e:
@@ -128,12 +128,12 @@ Lemma it_up_var_sapp X A n delta e:
 Proof.
   intros; subst. asimpl. eapply ext_exp. 
   intros; unfold funcomp.
-  assert (x < length A \/ x >= length A) as [] by omega.
+  assert (x < length A \/ x >= length A) as [] by lia.
   + rewrite it_up_ren_lt; eauto.  
     eapply nth_error_lt_Some in H0 as [a].
     erewrite !nth_error_sapp; eauto. 
   + rewrite it_up_ren_ge; simplify; eauto.
-    erewrite !sapp_ge_in; simplify; eauto. omega.
+    erewrite !sapp_ge_in; simplify; eauto. lia.
 Qed.
 
 
@@ -147,7 +147,7 @@ Proof.
     f_equal. now eapply nth_error_sapp.
   + exfalso. apply nth_error_None in H1.
     specialize (H a).  mp H; [now left|].
-    eapply nats_lt in H. omega.
+    eapply nats_lt in H. lia.
 Qed.
 
 

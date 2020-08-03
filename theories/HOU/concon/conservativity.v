@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import Morphisms Omega List.
+Require Import Morphisms Omega Lia List.
 From Undecidability.HOU Require Import std.std calculus.calculus 
         unification.higher_order_unification unification.systemunification
         unification.nth_order_unification.
@@ -305,7 +305,7 @@ Section Constants.
         induction k in zeta |-*; cbn; asimpl; eauto.
         f_equal. rewrite IHk. f_equal. f_equal.
         asimpl. fext; intros x; unfold funcomp; f_equal; fext; intros ?.
-        unfold shift; simplify; f_equal; omega.
+        unfold shift; simplify; f_equal; lia.
     Qed.
 
     Lemma subst_consts_AppL X Y (tau: X -> exp Y) S t:
@@ -350,7 +350,7 @@ Section InhabitingTypes.
     specialize (arity_decomposed L beta) as H3.
     rewrite H3. eapply Lambda_ordertyping; eauto.
     econstructor; cbn; eauto.
-    rewrite nth_error_app2; simplify; eauto; omega.
+    rewrite nth_error_app2; simplify; eauto; lia.
   Qed.
 
 
@@ -362,7 +362,7 @@ Section InhabitingTypes.
     eapply Lambda_ordertyping_inv in H as (L & B & ? & ? & ?); subst.
     inv H. rewrite <-H1 in H3.
     rewrite nth_error_app2 in H3; simplify in *; eauto.
-    destruct B; cbn in H1; try omega. now rewrite H3.
+    destruct B; cbn in H1; try lia. now rewrite H3.
   Qed.
 
   Lemma inhab_app Gamma Delta x A:
@@ -476,7 +476,7 @@ Section Conservativity.
     Proof.
       intros [m H] % ordertypingSubst_complete EQ.
       eapply ordertypingSubst_monotone with (m0 := S m) in H; eauto.
-      eapply downcast_constants_ordered in H as (Sigma & tau & ?); [|omega|eauto].
+      eapply downcast_constants_ordered in H as (Sigma & tau & ?); [|lia|eauto].
       exists Sigma; exists tau; intuition. eapply ordertypingSubst_soundness; eauto.
     Qed.
 

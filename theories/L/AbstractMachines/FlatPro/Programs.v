@@ -1,4 +1,4 @@
-From Undecidability.L Require Import Prelim.MoreBase L AbstractMachines.LargestVar.
+From Undecidability.L Require Import Prelim.MoreBase Util.L_facts AbstractMachines.LargestVar.
 Require Import Lia.
 Require Export Undecidability.L.AbstractMachines.FlatPro.ProgramsDef.
 
@@ -18,19 +18,19 @@ Hint Unfold sizeP : core.
 
 Lemma size_geq_1 s: 1<= size s.
 Proof.
-  induction s;cbn. all:try omega.
+  induction s;cbn. all:try lia.
 Qed.
 
 Lemma sizeP_size' s :size s <= sumn (map sizeT (compile s)).
 Proof.
   induction s;cbn.
-  all:autorewrite with list. all:cbn. all:try omega.
+  all:autorewrite with list. all:cbn. all:try lia.
 Qed.
 
 Lemma sizeP_size s: sumn (map sizeT (compile s)) + 1<= 2*size s.
 Proof.
   induction s;cbn.
-  all:autorewrite with list. all:cbn. all:try omega.
+  all:autorewrite with list. all:cbn. all:try lia.
 Qed.
 
 

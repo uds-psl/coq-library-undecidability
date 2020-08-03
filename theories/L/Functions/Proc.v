@@ -18,7 +18,7 @@ Defined.
 Lemma boundb_spec k t : Bool.reflect (bound k t) (boundb k t).
 Proof.
   revert k. induction t;intros;cbn. simpl.  
-  -destruct (Nat.leb_spec0 k n); simpl;constructor.  intros H. inv H. omega. constructor. omega.
+  -destruct (Nat.leb_spec0 k n); simpl;constructor.  intros H. inv H. lia. constructor. lia.
   -specialize (IHt1 k). specialize (IHt2 k). inv IHt1;simpl.
    +inv IHt2;constructor.
     *now constructor.

@@ -157,7 +157,7 @@ Section Univ_nice.
   (** The alphabet of the simulated machine *)
   Variable (sigM : finType).
   (** The simulated machine *)
-  Variable (M : mTM sigM 1).
+  Variable (M : TM sigM 1).
 
 
   Lemma SetFinal_size_nice :
@@ -187,7 +187,7 @@ Section Univ_nice.
   
   (** Lemmas about [graph_of_fun] and [graph_of_TM] in particular *)
   
-  Lemma graph_of_TM_In (Q Q' : states M) (s s' : option sigM) (q q' : nat) (b b' : bool) (m : move) (tp : tape sigM) :
+  Lemma graph_of_TM_In (Q Q' : state M) (s s' : option sigM) (q q' : nat) (b b' : bool) (m : move) (tp : tape sigM) :
     In (s, (b, q), (s', m, (b', q'))) (graph_of_TM M) ->
     index Q = q ->
     index Q' = q' ->
@@ -204,7 +204,7 @@ Section Univ_nice.
 
   Lemma graph_of_TM_In' (s s' : option sigM) (q q' : nat) (b b' : bool) (m : move) :
     In (s, (b, q), (s', m, (b', q'))) (graph_of_TM M) ->
-    exists (Q Q' : states M),
+    exists (Q Q' : state M),
       index Q = q /\
       index Q' = q' /\
       trans (Q, [|s|]) = (Q', [|(s', m)|]).
@@ -253,17 +253,17 @@ Section Univ_nice.
     size act = 1.
   Proof. apply Encode_Finite_hasSize. Qed.
 
-  Local Lemma Encode_state_hasSize (q : states M) (halt : bool) :
+  Local Lemma Encode_state_hasSize (q : state M) (halt : bool) :
     size (halt, index q) = index q + 2.
   Proof. do 1 (rewrite Encode_pair_hasSize; cbn). rewrite Encode_nat_hasSize. setoid_rewrite Encode_bool_hasSize. nia. Qed.
 
   (** x-values in [graph_of_TM] *)
-  Local Lemma Encode_graph_x_hasSize (s : option sigM) (q : states M) (halt : bool) :
+  Local Lemma Encode_graph_x_hasSize (s : option sigM) (q : state M) (halt : bool) :
     size (s, (halt, index q)) = index q + 3.
   Proof. do 2 (rewrite Encode_pair_hasSize; cbn). rewrite Encode_bool_hasSize. rewrite Encode_nat_hasSize. setoid_rewrite Encode_Finite_hasSize. nia. Qed.
 
   (** x-values in [graph_of_TM] *)
-  Local Lemma Encode_graph_y_hasSize (act : option sigM * move) (q' : states M) (halt' : bool) :
+  Local Lemma Encode_graph_y_hasSize (act : option sigM * move) (q' : state M) (halt' : bool) :
     size (act, (halt', index q')) = index q' + 3.
   Proof. do 2 (rewrite Encode_pair_hasSize; cbn). rewrite Encode_bool_hasSize. rewrite Encode_nat_hasSize. setoid_rewrite Encode_Finite_hasSize. nia. Qed.
     
@@ -280,48 +280,48 @@ Section Univ_nice.
 
 
   (* Constr_pair_size (current tp) >> (Lookup_size (graph_of_TM M) (current tp, (halt q, index q)) @> Fin1) >> (CasePair_size0 act) *)
-  Definition Univ_Step_size_bound2 (q q' : states M) (s2 : nat) :=
+  Definition Univ_Step_size_bound2 (q q' : state M) (s2 : nat) :=
     (max (s2 + index q + 2) (max (index q) (index q') + 3)).
 
-  Definition Univ_Step_size_bound3 (tp : tape sigM) (act : option sigM * move) (q : states M) (s3 : nat) :=
+  Definition Univ_Step_size_bound3 (tp : tape sigM) (act : option sigM * move) (q : state M) (s3 : nat) :=
     max (max_list_rec (Init.Nat.max s3 2)
                       (map (fun p : option sigM * (bool * nat) * (option sigM * move * (bool * nat)) => size p + 1) (lookup_hd (current tp, (false, index q)) (graph_of_TM M))))
         (size act + 1).
   
-  Definition Univ_Step_size_bound4 (tp : tape sigM) (q : states M) (s4 : nat) :=
+  Definition Univ_Step_size_bound4 (tp : tape sigM) (q : state M) (s4 : nat) :=
     max_list_rec s4 (map (fun p : option sigM * (bool * nat) * (option sigM * move * (bool * nat)) => size (fst p) + 1) (lookup_hd (current tp, (false, index q)) (graph_of_TM M))).
 
   Definition Univ_Step_size_bound5 (s5 : nat) :=
     max s5 (size (graph_of_TM M) + 1).
 
 
-  Lemma state_index_lt (q : states M) :
+  Lemma state_index_lt (q : state M) :
     index q < number_of_states M.
   Proof. apply index_le. Qed.
 
-  Lemma state_index_le (q : states M) :
+  Lemma state_index_le (q : state M) :
     index q <= number_of_states M.
   Proof. apply Nat.lt_le_incl. apply state_index_lt. Qed.
 
   (*
-  Lemma state_index_le (q : states M) :
+  Lemma state_index_le (q : state M) :
     index q <= number_of_states M.
   Proof. apply Nat.lt_le_incl. apply state_index_lt. Qed.
   *)
 
-  Lemma size_state_lt (q : states M) (halt : bool) :
+  Lemma size_state_lt (q : state M) (halt : bool) :
     size (halt, index q) < number_of_states M + 2.
   Proof.
     rewrite Encode_pair_hasSize; cbn. rewrite Encode_bool_hasSize. rewrite Encode_nat_hasSize.
     pose proof state_index_lt q. nia.
   Qed.
 
-  Lemma size_state_le (q : states M) (halt : bool) :
+  Lemma size_state_le (q : state M) (halt : bool) :
     size (halt, index q) <= number_of_states M + 2.
   Proof. apply Nat.lt_le_incl. apply size_state_lt. Qed.
 
 
-  Lemma Univ_Step_size_bound2_lt (q q' : states M) (s2 : nat) :
+  Lemma Univ_Step_size_bound2_lt (q q' : state M) (s2 : nat) :
     Univ_Step_size_bound2 q q' s2 < max (s2 + number_of_states M + 2) (number_of_states M + 3).
   Proof.
     pose proof state_index_lt q. pose proof state_index_lt q'.
@@ -331,7 +331,7 @@ Section Univ_nice.
 
 
   (** We only consider the case where [halt q = false]. No assertions about tape [0] (the object tape). *)
-  Lemma Univ_Step_size_nice (tp : tape sigM) (q : states M) :
+  Lemma Univ_Step_size_nice (tp : tape sigM) (q : state M) :
     let space := Univ_Step_size tp q in
     let (q', act) := trans (q, [|current tp|]) in
     let act := act[@Fin0] in
@@ -368,7 +368,7 @@ Section Univ_nice.
 
   (** Bound for tape 2 *)
 
-  Example Univ_Step_tape2_twice (tp : tape sigM) (q : states M) (s2 : nat) :
+  Example Univ_Step_tape2_twice (tp : tape sigM) (q : state M) (s2 : nat) :
     halt q = false ->
     let (q', a) := trans (q, [|current tp|]) in
     let tp' := doAct tp a[@Fin0] in
@@ -393,7 +393,7 @@ Section Univ_nice.
     nia.
   Qed.
 
-  Example Univ_Step_tape2_trice (tp : tape sigM) (q : states M) (s2 : nat) :
+  Example Univ_Step_tape2_trice (tp : tape sigM) (q : state M) (s2 : nat) :
     halt q = false ->
     let (q', a) := trans (q, [|current tp|]) in
     let tp' := doAct tp a[@Fin0] in
@@ -437,7 +437,7 @@ Fixpoint Univ_size_bound2_fix
 
   
   (** Why not write a function [execution] that yields a list of configurations? We can then simply apply [max_list_rec] on this list to get the exact bound *)
-  Fixpoint execution (q : states M) (tp : tape sigM) (k : nat) : list (states M * tape sigM) :=
+  Fixpoint execution (q : state M) (tp : tape sigM) (k : nat) : list (state M * tape sigM) :=
     match k with
     | 0 => [(q, tp)]
     | S k' => if halt q then [(q, tp)]
@@ -445,7 +445,7 @@ Fixpoint Univ_size_bound2_fix
                   (q, tp) :: execution q' (doAct tp act[@Fin0]) k'
     end.
 
-  Definition Univ_size_bound2 (q : states M) (tp : tape sigM) (k : nat) (s2 : nat) :=
+  Definition Univ_size_bound2 (q : state M) (tp : tape sigM) (k : nat) (s2 : nat) :=
     max_list_rec (s2 + index q + 2) (map (fun '(q', tp') => index q' + 3) (execution q tp k)).
 
 
@@ -471,7 +471,7 @@ Fixpoint Univ_size_bound2_fix
     max_list_rec (max s3 2) (map (fun p : option sigM * (bool * nat) * (option sigM * move * (bool * nat)) => size p + 1) (graph_of_TM M)).
 
   
-  Lemma graph_of_TM_In'' (s s' : option sigM) (b b' : bool) (qi qi' : nat) (q q' : states M) (m : move) :
+  Lemma graph_of_TM_In'' (s s' : option sigM) (b b' : bool) (qi qi' : nat) (q q' : state M) (m : move) :
     trans (q, [|s|]) = (q', [|(s', m)|]) ->
     qi = index q ->
     b = halt q ->
@@ -490,7 +490,7 @@ Fixpoint Univ_size_bound2_fix
       apply graph_of_fun_In.
   Qed.
 
-  Local Lemma helper_lemma_without_name3 (o w : option sigM) (b b' : bool) (x x' : states M) (m : move) (s3 : nat) :
+  Local Lemma helper_lemma_without_name3 (o w : option sigM) (b b' : bool) (x x' : state M) (m : move) (s3 : nat) :
     trans (x, [|o|]) = (x', [|(w, m)|]) ->
     size (o, (b, index x), (w, m, (b', index x'))) + 1 <= Univ_size_bound3 s3.
   Proof.
@@ -523,7 +523,7 @@ Fixpoint Univ_size_bound2_fix
 
 
   (** This lemma is needed in the induction step for tape 4 *)
-  Local Lemma helper_lemma_without_name4 (o : option sigM) (b : bool) (x : states M) s4 :
+  Local Lemma helper_lemma_without_name4 (o : option sigM) (b : bool) (x : state M) s4 :
     size (o, (b, index x)) + 1 <= max_list_rec s4 (map (fun p : option sigM * (bool * nat) * (option sigM * move * (bool * nat)) => size (fst p) + 1) (graph_of_TM M)).
   Proof.
     apply max_list_rec_ge_el.
@@ -539,7 +539,7 @@ Fixpoint Univ_size_bound2_fix
   (** Bound for tape 5 is the same as in the step, i.e. the size of the lookup table *)
 
 
-  Lemma Univ_size_nice' (k : nat) (tp : tape sigM) (q : states M) (tp_final : tape sigM) (q_final : states M) :
+  Lemma Univ_size_nice' (k : nat) (tp : tape sigM) (q : state M) (tp_final : tape sigM) (q_final : state M) :
     let space := Univ_size tp q k in
     loopM (mk_mconfig q [|tp|]) k = Some (mk_mconfig q_final [|tp_final|]) ->
     True /\
@@ -635,7 +635,7 @@ Fixpoint Univ_size_bound2_fix
 
   Lemma tam (a b : nat) : a < b -> a + 1 <= b. Proof. nia. Qed.
 
-  Lemma tamtam (q : states M) :
+  Lemma tamtam (q : state M) :
     index q + 2 <= size (graph_of_TM M).
   Proof.
     setoid_rewrite Encode_list_hasSize.
@@ -649,7 +649,7 @@ Fixpoint Univ_size_bound2_fix
       setoid_rewrite Encode_Finite_hasSize. nia.
   Qed.
   
-  Lemma Univ_size_nice (k : nat) (tp : tape sigM) (q : states M) (tp_final : tape sigM) (q_final : states M) :
+  Lemma Univ_size_nice (k : nat) (tp : tape sigM) (q : state M) (tp_final : tape sigM) (q_final : state M) :
     let space := Univ_size tp q k in
     loopM (mk_mconfig q [|tp|]) k = Some (mk_mconfig q_final [|tp_final|]) ->
     True /\

@@ -1,21 +1,21 @@
-Require Export PslBase.Base.
+Require Export PslBase.Base Lia.
 From Undecidability.L Require Export MoreList.
 
 (** * Preliminaries *)
 
 Instance le_preorder : PreOrder le.
 Proof.
-  constructor. all:cbv. all:intros;omega. 
+  constructor. all:cbv. all:intros;lia. 
 Qed.
 
 Instance S_le_proper : Proper (le ==> le) S.
 Proof.
-  cbv. fold plus. intros. omega.
+  cbv. fold plus. intros. lia.
 Qed.
 
 Instance plus_le_proper : Proper (le ==> le ==> le) plus.
 Proof.
-  cbv. fold plus. intros. omega.
+  cbv. fold plus. intros. lia.
 Qed.
 
 Instance mult_le_proper : Proper (le ==> le ==> le) mult.
@@ -26,11 +26,11 @@ Qed.
 
 
 Instance max_le_proper : Proper (le ==> le ==> le) max.
-repeat intro. repeat eapply Nat.max_case_strong;omega.
+repeat intro. repeat eapply Nat.max_case_strong;lia.
 Qed.
 
 Instance min_le_proper : Proper (le ==> le ==> le) min.
-repeat intro. repeat eapply Nat.min_case_strong;omega.
+repeat intro. repeat eapply Nat.min_case_strong;lia.
 Qed.
 
 Instance Nat_log2_le_Proper : Proper (le ==> le) Nat.log2.
@@ -49,7 +49,7 @@ Qed.
 
 Lemma nth_error_Some_lt A (H:list A) a x : nth_error H a = Some x -> a < |H|.
 Proof.
-  intros eq. revert H eq. induction a;intros;destruct H;cbn in *;inv eq. omega. apply IHa in H1. omega.
+  intros eq. revert H eq. induction a;intros;destruct H;cbn in *;inv eq. lia. apply IHa in H1. lia.
 Qed.
 
 Definition maxP (P:nat -> Prop) m := P m /\ (forall m', P m' -> m' <= m). 

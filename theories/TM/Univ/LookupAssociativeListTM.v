@@ -87,6 +87,7 @@ Section LookupAssociativeList.
   Proof.
     eapply Realise_monotone.
     { unfold Lookup_Step. TM_Correct.
+      - eapply CaseList_Realise.
       - apply CompareValues_Realise with (1 := cX_injective).
       - apply MoveValue_Realise with (X := Y) (Y := X).
       - apply Reset_Realise with (X := X).
@@ -139,6 +140,8 @@ Section LookupAssociativeList.
   Proof.
     eapply TerminatesIn_monotone.
     { unfold Lookup_Step. TM_Correct.
+      - eapply CaseList_Realise.
+      - eapply CaseList_Terminates.
       - apply CompareValues_Realise with (1 := cX_injective).
       - apply CompareValues_TerminatesIn with (X := X).
       - apply MoveValue_Realise with (X := Y) (Y := X).
@@ -153,25 +156,25 @@ Section LookupAssociativeList.
     }
     {
       intros tin k (xs&x&HEncXs&HEncX&HRight2&HRight3&Hk). cbn. unfold Lookup_Step_steps in Hk.
-      exists (CaseList_steps xs), (Lookup_Step_steps_CaseList xs x). repeat split; try omega. eauto. 
+      exists (CaseList_steps xs), (Lookup_Step_steps_CaseList xs x). repeat split; try lia. eauto. 
       intros tmid yout (HCaseList&HCaseListInj); TMSimp. modpon HCaseList. unfold Lookup_Step_steps_CaseList in *.
       destruct yout, xs as [ | p xs']; cbn in *; auto; modpon HCaseList.
       { (* cons case *) destruct p as [x' y]; cbn in *.
-        exists (CasePair_steps x'), (1 + CompareValues_steps x x' + Lookup_Step_steps_Compare x x' y xs'). repeat split; try omega.
+        exists (CasePair_steps x'), (1 + CompareValues_steps x x' + Lookup_Step_steps_Compare x x' y xs'). repeat split; try lia.
         { hnf; eauto. cbn. eexists. split; simpl_surject; eauto. }
         intros tmid0 [] (HCasePair&HCasePairInj); TMSimp. modpon HCasePair. cbn in *.
-        exists (CompareValues_steps x x'), (Lookup_Step_steps_Compare x x' y xs'). repeat split; try omega.
+        exists (CompareValues_steps x x'), (Lookup_Step_steps_Compare x x' y xs'). repeat split; try lia.
         { hnf. cbn. do 2 eexists. repeat split; simpl_surject; eauto. }
         intros tmid1 ymid1 (HCompare&HCompareInj); TMSimp. modpon HCompare. subst.
         unfold Lookup_Step_steps_Compare in *. decide (x = x') as [ <- | HDec].
-        - exists (MoveValue_steps y x), (1 + Reset_steps x + Reset_steps xs'). repeat split; try omega.
+        - exists (MoveValue_steps y x), (1 + Reset_steps x + Reset_steps xs'). repeat split; try lia.
           { do 2 eexists; repeat split; eauto. }
           intros tmid2 []. intros (HMove&HMoveInj); TMSimp. modpon HMove.
-          exists (Reset_steps x), (Reset_steps xs'). repeat split; try omega.
+          exists (Reset_steps x), (Reset_steps xs'). repeat split; try lia.
           { hnf. eexists; repeat split; eauto. }
           intros tmid3 [] (HReset&HResetInj); TMSimp. modpon HReset.
           eexists. repeat split; eauto.
-        - exists (Reset_steps x'), (Reset_steps y). repeat split; try omega.
+        - exists (Reset_steps x'), (Reset_steps y). repeat split; try lia.
           { eexists; repeat split; eauto.  }
           intros tmid2 [] (HReset&HRestInj); TMSimp. modpon HReset.
           eexists; repeat split; eauto.
@@ -329,7 +332,7 @@ Section LookupAssociativeList.
       - apply Lookup_Loop_Terminates. }
     {
       intros tin k (xs&x&HEncXs&HEncX&HRight2&HRight3&HRight4&Hk). unfold Lookup_steps in Hk.
-      exists (CopyValue_steps xs), (Lookup_Loop_steps x xs). repeat split; try omega.
+      exists (CopyValue_steps xs), (Lookup_Loop_steps x xs). repeat split; try lia.
       { hnf. eauto. }
       intros tmid [] (HCopy&HCopyInj); TMSimp. modpon HCopy.
       cbn. hnf. do 2 eexists; repeat split; cbn; eauto.

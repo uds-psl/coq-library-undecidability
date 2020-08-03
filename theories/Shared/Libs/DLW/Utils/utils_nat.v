@@ -149,10 +149,10 @@ Qed.
 (* Fact interval_dec a b n : { a <= n < b } + { ~ a <= n < b }.
 Proof.
   destruct (le_lt_dec a n).
-  2: right; omega.
+  2: right; lia.
   destruct (le_lt_dec b n).
-  1: right; omega.
-  left; omega.
+  1: right; lia.
+  left; lia.
 Qed. *)
 
 

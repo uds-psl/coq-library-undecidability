@@ -1,4 +1,4 @@
-From Undecidability.L Require Import L.
+From Undecidability.L Require Import Util.L_facts.
 Import L_Notations.
 
 Notation "A '.[' i  ']'" := (elAt A i) (no associativity, at level 50).
@@ -73,14 +73,14 @@ Proof with
   simpl; repeat rewrite in_app_iff; repeat rewrite in_filter_iff; try rewrite <- appCross_correct; eauto using in_filter_iff, in_app_iff, appCross_correct, el_elAt, elAt_el, T_ge, in_map.
   induction s.
   - destruct n; simpl; auto.
-  - eapply T_app; eapply T_el_ge; try eassumption; fold exh_size plus; omega.
+  - eapply T_app; eapply T_el_ge; try eassumption; fold exh_size plus; lia.
   - now eapply T_lam.
 Qed.
 
 Lemma T_longenough m : |T m| > m.
   induction m.
-  - simpl; omega.
-  - simpl. rewrite app_length. simpl. omega.
+  - simpl; lia.
+  - simpl. rewrite app_length. simpl. lia.
 Qed.
 
 Definition g s := match pos s (T (exh_size s)) with None => 0 | Some n => n end.
@@ -92,11 +92,11 @@ Proof.
   unfold g_inv. destruct (T n .[ n ] ) eqn:B.
   - eapply pos_elAt in A.
     destruct (lt_eq_lt_dec n (exh_size s)) as [[D | D] | D].
-    + eapply T_ge in B. rewrite B in A. now inv A. omega.
+    + eapply T_ge in B. rewrite B in A. now inv A. lia.
     + subst. assert (Some s = Some t) by now rewrite <- A, <- B. congruence.
-    + eapply T_ge in A. rewrite A in B. now inv B. omega.
+    + eapply T_ge in A. rewrite A in B. now inv B. lia.
   - eapply nth_error_none in B.
-    assert (|T n| > n) by eapply T_longenough. omega.
+    assert (|T n| > n) by eapply T_longenough. lia.
   - assert (HIn : s el T (exh_size s)) by eapply T_exhaustive.
     eapply el_elAt in HIn; eauto. destruct HIn. eapply elAt_el in H. eapply el_pos in H. destruct H. rewrite H in *; congruence. 
 Qed.
@@ -123,11 +123,11 @@ Qed.
 Lemma T_var_not n m : m > n -> ~ #m el T n.
 Proof.
   induction n.
-  - destruct m; destruct 2; try omega. congruence. auto.
+  - destruct m; destruct 2; try lia. congruence. auto.
   - simpl; intros A; rewrite !in_app_iff.
     intros [H | H]. 
-    + eapply IHn; now try omega.
-    + destruct H as [H | H]. inv H; omega.
+    + eapply IHn; now try lia.
+    + destruct H as [H | H]. inv H; lia.
       rewrite filter_app in H. rewrite in_app_iff in H.
       destruct H as [H | H]; rewrite in_filter_iff in H; destruct H as [H1 H2].
       * rewrite in_map_iff in H1. destruct H1 as [x [H1 _]]. inv H1.
@@ -150,7 +150,7 @@ Proof.
   - simpl. repeat econstructor. eauto.
   - simpl. eapply dupfree_app.
     + eapply disjoint_symm, disjoint_cons. split.
-      * eapply T_var_not; omega.
+      * eapply T_var_not; lia.
       * rewrite filter_app, disjoint_symm, disjoint_forall.
         intros s A B. eapply in_app_iff in B. destruct B; eapply in_filter_iff in H;rewrite Dec_reflect in *;tauto.
     + eassumption.
@@ -183,7 +183,7 @@ Proof.
     eapply elAt_el in H. eapply el_pos in H. destruct H. rewrite H in A. congruence.
   - eapply nth_error_none in B.
     assert (|T n| > n) by eapply T_longenough.
-    omega.
+    lia.
 Qed.
 
 Hint Unfold left_inverse injective surjective g g_inv : core.
@@ -228,15 +228,15 @@ Proof.
     + auto.
     + eapply in_app_iff. right. right.
       eapply in_filter_iff. split.
-      * eapply in_map_iff. exists (n, m). split. reflexivity. assert (n + S m = 1 + n + m) by omega. rewrite H. eassumption.
+      * eapply in_map_iff. exists (n, m). split. reflexivity. assert (n + S m = 1 + n + m) by lia. rewrite H. eassumption.
       * rewrite Dec_reflect. eassumption.
 Qed.
 
 Lemma C_longenough n : |C n| > n.
 Proof.
   induction n; simpl.
-  - omega.
-  - rewrite app_length. simpl. omega.
+  - lia.
+  - rewrite app_length. simpl. lia.
 Qed.
 
 Definition c n : nat * nat := match elAt (C n) n with None => (0,0) | Some p => p end.
@@ -248,11 +248,11 @@ Proof.
   unfold c. destruct (elAt (C n) n ) eqn:B.
   - eapply pos_elAt in A.
     destruct (lt_eq_lt_dec n (eSize p)) as [[D | D] | D].
-    + eapply C_ge in B. rewrite B in A. now inv A. omega.
+    + eapply C_ge in B. rewrite B in A. now inv A. lia.
     + subst. cut (Some p = Some p0); try congruence. now rewrite <- A, <- B.
-    + eapply C_ge in A. rewrite A in B. now inv B. omega.
+    + eapply C_ge in A. rewrite A in B. now inv B. lia.
   - eapply nth_error_none in B.
-    assert (|C n| > n) by eapply C_longenough. omega.
+    assert (|C n| > n) by eapply C_longenough. lia.
   - assert (HIn : p el C (eSize p)) by eapply C_exhaustive.
     eapply el_elAt in HIn. destruct HIn. eapply elAt_el in H. eapply el_pos in H. destruct H. rewrite H in *. congruence. 
 Qed.

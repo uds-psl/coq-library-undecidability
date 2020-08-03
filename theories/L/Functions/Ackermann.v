@@ -24,7 +24,7 @@ Local Lemma Ack_pos n m : 0 < ackermann n m.
   induction m as [m IHm] using lt_wf_ind.
   destruct n. all:destruct m.
   all:eauto.
-  all:cbn in *. all:try omega.
+  all:cbn in *. all:try lia.
   all:eauto.
 Qed.
 

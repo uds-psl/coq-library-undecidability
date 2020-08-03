@@ -29,7 +29,7 @@ Section CaseSum.
 
 
   Definition CaseSum : pTM (sigSum sigX sigY)^+ bool 1 :=
-    Move R;; (* skip the [START] symbol *)
+    Move Rmove;; (* skip the [START] symbol *)
     Switch (ReadChar) (* read the "constructor" symbol *)
           (fun o => match o with (* Write a new [START] symbol and terminate in the corresponding label *)
                  | Some (inr sigSum_inl) => Return (Write (inl START)) true  (* inl *)
@@ -43,13 +43,13 @@ Section CaseSum.
   Proof.
     unfold CaseSum_steps. eapply RealiseIn_monotone.
     { unfold CaseSum. TM_Correct. }
-    { Unshelve. 4,10,11: constructor. all: cbn. all: omega. }
+    { Unshelve. 4,10,11: constructor. all: cbn. all: lia. }
     {
       intros tin (yout&tout) H.
       intros s ss HEncS. destruct HEncS as (ls&HEncS&Hss). TMSimp; clear_trivial_eqs. clear HEncS tin.
       destruct s as [x|y]; cbn in *; TMSimp.
-      - (* s = inl x *) hnf. eexists. split. cbn. rewrite !List.map_map. f_equal. cbn. omega.
-      - (* s = inr y *) hnf. eexists. split. cbn. rewrite !List.map_map. f_equal. cbn. omega.
+      - (* s = inl x *) hnf. eexists. split. cbn. rewrite !List.map_map. f_equal. cbn. lia.
+      - (* s = inr y *) hnf. eexists. split. cbn. rewrite !List.map_map. f_equal. cbn. lia.
     }
   Qed.
 
@@ -64,10 +64,10 @@ Section CaseSum.
       Mk_R_p (ignoreParam (fun tin tout => forall (y:Y) (ss:nat), tin ≃(;ss) y -> tout ≃(;pred ss) inr y)).
 
     Definition Constr_inl : pTM (sigSum sigX sigY)^+ unit 1 :=
-      WriteMove (inr sigSum_inl) L;; Write (inl START).
+      WriteMove (inr sigSum_inl) Lmove;; Write (inl START).
 
     Definition Constr_inr : pTM (sigSum sigX sigY)^+ unit 1 :=
-      WriteMove (inr sigSum_inr) L;; Write (inl START).
+      WriteMove (inr sigSum_inr) Lmove;; Write (inl START).
 
 
     Definition Constr_inl_steps := 3.
@@ -81,7 +81,7 @@ Section CaseSum.
         cbn. intros x s HEncX. destruct HEncX as (ls&HEncX). TMSimp; clear_trivial_eqs.
         hnf. simpl_tape. eexists. split.
         - cbn. rewrite !List.map_map. f_equal.
-        - cbn. rewrite tl_length. omega.
+        - cbn. rewrite tl_length. lia.
       }
     Qed.
 
@@ -96,7 +96,7 @@ Section CaseSum.
         cbn. intros y ss HEncY. destruct HEncY as (ls&HEncY&Hss). TMSimp; clear_trivial_eqs.
         hnf. simpl_tape. eexists. split.
         - cbn. rewrite !List.map_map. f_equal.
-        - cbn. rewrite tl_length. omega.
+        - cbn. rewrite tl_length. lia.
       }
     Qed.
 
@@ -273,7 +273,7 @@ Section CaseOption.
 
   Definition Constr_None : pTM tau^+ unit 1 := WriteValue [ sigOption_None ].
 
-  Goal Constr_None = WriteMove (inl STOP) L;; WriteMove (inr sigOption_None) L;; Write (inl START).
+  Goal Constr_None = WriteMove (inl STOP) Lmove;; WriteMove (inr sigOption_None) Lmove;; Write (inl START).
   Proof. reflexivity. Qed.
     
   Definition Constr_None_steps := 5.
@@ -283,7 +283,7 @@ Section CaseOption.
     { unfold Constr_None. TM_Correct. }
     { cbn. reflexivity. }
     { intros tin ((), tout) H. intros s HRight.
-      cbn in H. specialize H with (x := None). modpon H. cbn in H. contains_ext. unfold WriteValue_size. omega.
+      cbn in H. specialize H with (x := None). modpon H. cbn in H. contains_ext. unfold WriteValue_size. lia.
     }
   Qed.
 

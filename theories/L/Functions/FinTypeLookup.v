@@ -29,11 +29,11 @@ Section Lookup.
     lookupTime x l <= length l * (x* c__eqbComp X + 24) + 4.
   Proof.
     induction l as [ | [a b] l].
-    -cbn. omega.
+    -cbn. lia.
     -unfold lookupTime. cbn [fold_right]. fold (lookupTime x l).
      rewrite eqbTime_le_l.
      setoid_rewrite IHl. cbn [length].
-     ring_simplify. unfold eqb. omega.
+     ring_simplify. unfold eqb. lia.
   Qed.
 
 End Lookup.

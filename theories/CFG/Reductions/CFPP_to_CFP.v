@@ -57,7 +57,7 @@ Proof.
   eapply notInZero.
   eapply (f_equal (fun a => count a s)) in H. rewrite <- !countSplit in H. cbn in H.
   rewrite !Nat.eqb_refl in H. eapply notInZero in H0. eapply notInZero in H1.
-  rewrite H0, H1 in *. omega.
+  rewrite H0, H1 in *. lia.
 Qed.
 
 Section CFGs.
@@ -153,7 +153,7 @@ Section Post_CFG.
       + eauto.
       + unfold Sigma. simpl_list. rewrite <- !countSplit in *. cbn in *.
         rewrite Nat.eqb_refl in *.
-        enough (count l S = 0) as ->. enough (count l0 S = 0) as ->. omega.
+        enough (count l S = 0) as ->. enough (count l0 S = 0) as ->. lia.
         * eapply notInZero. intros D.
           edestruct (fresh_spec) with (l := Sigma); try reflexivity.
           eapply sym_word_R in H1. unfold Sigma. eauto. 
@@ -165,7 +165,7 @@ Section Post_CFG.
         assert (S =? a = false) as ->. eapply Nat.eqb_neq. intros D.
         edestruct fresh_spec with (l := Sigma); try reflexivity.
         unfold S in *. rewrite D. unfold Sigma; eauto.
-        enough (count l S = 0) as ->. enough (count l0 S = 0) as ->. omega.
+        enough (count l S = 0) as ->. enough (count l0 S = 0) as ->. lia.
         * eapply notInZero. intros D.
           edestruct (fresh_spec) with (l := Sigma); try reflexivity.
           eapply sym_word_R in H1. unfold Sigma. eauto. 
@@ -208,9 +208,9 @@ Section Post_CFG.
           edestruct fresh_spec with (l := sym R ++ [a]); try reflexivity.
           eapply in_app_iff. left. eapply sym_mono. eauto. eauto.
           -- eapply rewt_count in H. rewrite <- !countSplit in H. cbn in H.
-             rewrite Nat.eqb_refl in H. eapply notInZero. omega.
+             rewrite Nat.eqb_refl in H. eapply notInZero. lia.
           -- eapply rewt_count in H. rewrite <- !countSplit in H. cbn in H.
-             rewrite Nat.eqb_refl in H. eapply notInZero. omega.
+             rewrite Nat.eqb_refl in H. eapply notInZero. lia.
         * eauto.
       + destruct x0 as [u' v']. inv H3.
         destruct IHrewt as (A & m & HA & IHA & Hm).
@@ -225,9 +225,9 @@ Section Post_CFG.
           edestruct fresh_spec with (l := sym R ++ [a]); try reflexivity.
           eapply in_app_iff. left. eapply sym_mono. eauto. eauto.
           -- eapply rewt_count in H. rewrite <- !countSplit in H. cbn in H.
-             rewrite Nat.eqb_refl in H. eapply notInZero. omega.
+             rewrite Nat.eqb_refl in H. eapply notInZero. lia.
           -- eapply rewt_count in H. rewrite <- !countSplit in H. cbn in H.
-             rewrite Nat.eqb_refl in H. eapply notInZero. omega.
+             rewrite Nat.eqb_refl in H. eapply notInZero. lia.
         * destruct A; firstorder.
   Qed.
 

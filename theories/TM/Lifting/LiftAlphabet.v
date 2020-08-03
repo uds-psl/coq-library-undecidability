@@ -1,4 +1,4 @@
-From Undecidability Require Import TM.Prelim TM.Relations TM.TM.
+From Undecidability Require Import TM.Util.Prelim TM.Util.Relations TM.Util.TM_facts.
 
 (** * Alphabet-Lift *)
 
@@ -26,9 +26,9 @@ Section lift_sigma_tau.
   Definition surjectTapes : tapes tau n -> tapes sig n :=
     Vector.map (surjectTape g def).
   
-  Definition lift_sigma_tau_Rel (R : Rel (tapes sig n) (F * tapes sig n)) :
+  Definition lift_sigma_tau_Rel (Rmove : Rel (tapes sig n) (F * tapes sig n)) :
     Rel (tapes tau n) (F * tapes tau n) :=
-    fun tin '(yout,tout) => R (surjectTapes tin) (yout, surjectTapes tout).
+    fun tin '(yout,tout) => Rmove (surjectTapes tin) (yout, surjectTapes tout).
 
   Definition lift_sigma_tau_T (T : Rel (Vector.t (tape sig) n) nat) :
     Rel (Vector.t (tape tau) n) nat :=
@@ -44,7 +44,7 @@ Arguments surjectTapes {n sig tau} (g) def !t.
 Hint Rewrite surjectTapes_nth : tape.
 
 
-Arguments lift_sigma_tau_Rel {n sig tau} (g def) {F} (R) x y /.
+Arguments lift_sigma_tau_Rel {n sig tau} (g def) {F} (Rmove) x y /.
 Arguments lift_sigma_tau_T {n sig tau} (g def T) x y /.
 
 
@@ -117,7 +117,7 @@ Section LiftAlphabet.
       let (q', act) := trans (m := projT1 pMSig) (q, surjectReadSymbols sym) in
       (q', Vector.map (map_act Retr_f) act).
 
-  Definition LiftAlphabet_TM : mTM tau n :=
+  Definition LiftAlphabet_TM : TM tau n :=
     {| trans := lift_trans;
        start := start (projT1 pMSig);
        halt := halt (m := projT1 pMSig) |}.
@@ -126,11 +126,11 @@ Section LiftAlphabet.
     (LiftAlphabet_TM; projT2 pMSig).
 
   
-  Definition surjectConf : (mconfig tau (states LiftAlphabet_TM) n) -> (mconfig sig (states (projT1 pMSig)) n) :=
+  Definition surjectConf : (mconfig tau (state LiftAlphabet_TM) n) -> (mconfig sig (state (projT1 pMSig)) n) :=
     fun c => mk_mconfig (cstate c) (surjectTapes Retr_g def (ctapes c)).
 
   (*
-  Definition injectConf : (mconfig sig (states (projT1 pMSig)) n) -> (mconfig tau (states liftM) n) :=
+  Definition injectConf : (mconfig sig (state (projT1 pMSig)) n) -> (mconfig tau (state liftM) n) :=
     fun c => mk_mconfig (cstate c) (injectTapes Retr_f (ctapes c)).
 *)
 
@@ -155,7 +155,7 @@ Section LiftAlphabet.
     unfold surjectTape, surject. now simpl_tape.
   Qed.
 
-  Lemma LiftAlphabet_comp_step (c : mconfig tau (states (projT1 pMSig)) n) :
+  Lemma LiftAlphabet_comp_step (c : mconfig tau (state (projT1 pMSig)) n) :
     step (M := projT1 pMSig) (surjectConf c) = surjectConf (step (M := LiftAlphabet_TM) c).
   Proof.
     unfold surjectConf. destruct c as [q t]. cbn in *.
@@ -165,7 +165,7 @@ Section LiftAlphabet.
     f_equal. unfold doAct_multi, surjectTapes. apply Vector.eq_nth_iff; intros i ? <-. simpl_tape. apply doAct_surject.
   Qed.
 
-  Lemma LiftAlphabet_lift (c1 c2 : mconfig tau (states LiftAlphabet_TM) n) (k : nat) :
+  Lemma LiftAlphabet_lift (c1 c2 : mconfig tau (state LiftAlphabet_TM) n) (k : nat) :
     loopM (M := LiftAlphabet_TM) c1 k = Some c2 ->
     loopM (M := projT1 pMSig) (surjectConf c1) k = Some (surjectConf c2).
   Proof.
@@ -173,9 +173,9 @@ Section LiftAlphabet.
     - intros ? _. apply LiftAlphabet_comp_step.
   Qed.
 
-  Lemma LiftAlphabet_Realise (R : Rel (tapes sig n) (F * tapes sig n)) :
-    pMSig ⊨ R ->
-    LiftAlphabet ⊨ lift_sigma_tau_Rel Retr_g def R.
+  Lemma LiftAlphabet_Realise (Rmove : Rel (tapes sig n) (F * tapes sig n)) :
+    pMSig ⊨ Rmove ->
+    LiftAlphabet ⊨ lift_sigma_tau_Rel Retr_g def Rmove.
   Proof.
     intros H. intros t i outc Hloop. unfold lift_sigma_tau_Rel. hnf in H.
     specialize (H (surjectTapes Retr_g def t) i (mk_mconfig (cstate outc) (surjectTapes Retr_g def (ctapes outc)))).
@@ -183,9 +183,9 @@ Section LiftAlphabet.
     now apply (@LiftAlphabet_lift (initc LiftAlphabet_TM t) outc i).
   Qed.
 
-  Lemma LiftAlphabet_unlift (k : nat) iconf (oconf : mconfig sig (states (projT1 pMSig)) n) :
+  Lemma LiftAlphabet_unlift (k : nat) iconf (oconf : mconfig sig (state (projT1 pMSig)) n) :
     loopM (surjectConf iconf) k = Some oconf ->
-    exists oconf' : mconfig tau (states LiftAlphabet_TM) n,
+    exists oconf' : mconfig tau (state LiftAlphabet_TM) n,
       loopM iconf k = Some oconf'.
   Proof.
     intros HLoop. unfold loopM in *.
@@ -201,9 +201,9 @@ Section LiftAlphabet.
     eapply LiftAlphabet_unlift; eauto.
   Qed.
 
-  Lemma LiftAlphabet_RealiseIn (R : Rel (tapes sig n) (F * tapes sig n)) (k : nat) :
-    pMSig ⊨c(k) R ->
-    LiftAlphabet ⊨c(k) lift_sigma_tau_Rel Retr_g def R.
+  Lemma LiftAlphabet_RealiseIn (Rmove : Rel (tapes sig n) (F * tapes sig n)) (k : nat) :
+    pMSig ⊨c(k) Rmove ->
+    LiftAlphabet ⊨c(k) lift_sigma_tau_Rel Retr_g def Rmove.
   Proof.
     intros [H1 H2] % Realise_total. eapply Realise_total. split; cbn in *.
     - now eapply LiftAlphabet_Realise.

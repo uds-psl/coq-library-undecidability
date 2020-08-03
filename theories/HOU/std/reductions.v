@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import Omega List.
+Require Import Omega Lia List.
 From Undecidability.HOU Require Import std.lists.basics std.misc std.enumerable std.decidable.
 Import ListNotations.
 
@@ -67,7 +67,7 @@ Section enum_red.
       + intros H.
         eapply Hf in H. eapply qe in H as [m1]. destruct (el_T x) as [m2 ?]. 
         exists (1 + m1 + m2). cbn. in_app 2.
-        in_collect x; [|eapply dec_decb]; eapply cum_ge'; eauto; try omega.
+        in_collect x; [|eapply dec_decb]; eapply cum_ge'; eauto; try lia.
         eapply qe.
       + intros [m H]. induction m.
         * inversion H.
@@ -110,8 +110,8 @@ Section enum_red2.
     split.
     - intros H. eapply Hf in H. eapply qe in H as [m1]. destruct (el_T x) as [m2 ?].
       exists (1 + m1 + m2). cbn. in_app 2.
-      in_collect x; [|eapply dec_decb].  eapply cum_ge'; eauto; try omega.
-      eapply in_map, cum_ge'; eauto; try omega. eapply qe. 
+      in_collect x; [|eapply dec_decb].  eapply cum_ge'; eauto; try lia.
+      eapply in_map, cum_ge'; eauto; try lia. eapply qe. 
     - intros [m H]. induction m.
       + inversion H.
       + cbn in H. inv_collect. eapply decb_dec in H.

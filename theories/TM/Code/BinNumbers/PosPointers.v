@@ -15,7 +15,7 @@ Definition atLSB (t : tape sigPos^+) (lp : positive) (mb : bool) := atBit t lp m
 
 Lemma atLSB_moveRight_contains_rev (t : tape sigPos^+) (lp : positive) (mb : bool) :
   atLSB t lp mb ->
-  tape_move t R ≂ lp ~~ mb.
+  tape_move t Rmove ≂ lp ~~ mb.
 Proof.
   intros (ls&->); cbn. hnf; destruct mb; cbn; eexists; f_equal.
   - unfold bitToSigPos'; cbn. simpl_list. rewrite <- map_rev; cbn. simpl_list. f_equal. f_equal.
@@ -27,7 +27,7 @@ Qed.
 
 Lemma atBit_moveRight_cons (t : tape sigPos^+) (lp : positive) (b b' : bool) (rs : list bool) :
   atBit t lp b (b' :: rs) ->
-  atBit (tape_move t R) (lp ~~ b) b' rs.
+  atBit (tape_move t Rmove) (lp ~~ b) b' rs.
 Proof.
   intros (ls&->). hnf. cbn.
   rewrite Encode_positive_app_xIO. rewrite rev_app_distr. cbn.
@@ -40,8 +40,8 @@ Qed.
 Lemma atBit_moveRight (t : tape sigPos^+) (lp : positive) (b : bool) (rs : list bool) :
   atBit t lp b rs ->
   match rs with
-  | nil => tape_move t R ≂ lp ~~ b
-  | b' :: rs' => atBit (tape_move t R) (lp ~~ b) b' rs'
+  | nil => tape_move t Rmove ≂ lp ~~ b
+  | b' :: rs' => atBit (tape_move t Rmove) (lp ~~ b) b' rs'
   end.
 Proof.
   intros H. destruct rs as [ | b' rs'].
@@ -52,7 +52,7 @@ Qed.
 
 Lemma contains_rev_moveLeft_atLSB (t : tape sigPos^+) (lp : positive) (mb : bool) :
   t ≂ (lp ~~ mb) ->
-  atLSB (tape_move t L) lp mb.
+  atLSB (tape_move t Lmove) lp mb.
 Proof.
   intros (ls&->); cbn. hnf.
   rewrite Encode_positive_app_xIO.
@@ -64,7 +64,7 @@ Qed.
 
 Lemma atBit_moveLeft_cons (t : tape sigPos^+) (lp : positive) (b b' : bool) (rs : list bool) :
   atBit t (lp ~~ b) b' rs ->
-  atBit (tape_move t L) lp b (b' :: rs).
+  atBit (tape_move t Lmove) lp b (b' :: rs).
 Proof.
   intros (ls&->); cbn. hnf.
   rewrite Encode_positive_app_xIO.
@@ -79,7 +79,7 @@ Definition atHSB (t : tape sigPos^+) (p : positive) :=
 
 Lemma atHSB_moveLeft_contains (t : tape sigPos^+) (p : positive) :
   atHSB t p ->
-  tape_move t L ≃ p.
+  tape_move t Lmove ≃ p.
 Proof.
   intros (ls&->). hnf. cbn.
   pose proof Encode_positive_startsWith_xH p as (str'&H); setoid_rewrite H; clear H; cbn.
@@ -88,7 +88,7 @@ Qed.
 
 Lemma contains_moveRight_atHSB (t : tape sigPos^+) (p : positive) :
   t ≃ p ->
-  atHSB (tape_move t R) p.
+  atHSB (tape_move t Rmove) p.
 Proof.
   intros (ls&->). hnf. cbn.
   pose proof Encode_positive_startsWith_xH p as (str'&H); setoid_rewrite H; clear H; cbn.
@@ -97,7 +97,7 @@ Qed.
 
 Lemma atBit_moveLeft_atHSB (t : tape sigPos^+) (b : bool) (rs : list bool) :
   atBit t 1 b rs ->
-  atHSB (tape_move t L) (bits_to_pos (b :: rs)).
+  atHSB (tape_move t Lmove) (bits_to_pos (b :: rs)).
 Proof.
   intros (ls&->). cbn -[bits_to_pos]. hnf. exists ls. f_equal. cbn -[bits_to_pos]. rewrite app_comm_cons. f_equal.
   rewrite encode_bits_to_pos. cbn. f_equal. now rewrite map_map.

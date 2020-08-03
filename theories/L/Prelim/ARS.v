@@ -1,7 +1,7 @@
 (** ** Abstract Reduction Systems *)
 (** from Semantics Lecture at Programming Systems Lab, https://www.ps.uni-saarland.de/courses/sem-ws13/ *)
 
-Require Export PslBase.Base.
+Require Export PslBase.Base Lia.
 
 Module ARSNotations.
   Notation "p '<=1' q" := (forall x, p x -> q x) (at level 70).
@@ -253,13 +253,13 @@ Section FixX.
     intros unifConfR; revert s t1 t2; induction m; intros s t1 t2 s_to_t1 s_to_t2.
     - unfold pow in s_to_t1. simpl in *. subst s.
       exists 1, 0, t2.
-      repeat split; try omega.
+      repeat split; try lia.
       econstructor. split; try eassumption; econstructor.
     - destruct s_to_t1 as [v [s_to_v v_to_t1]].
       destruct (unifConfR _ _ _ s_to_v s_to_t2) as [H | [u [v_to_u t2_to_u]]].
-      + subst v. eexists 0, m, t1; repeat split; try omega; eassumption.
+      + subst v. eexists 0, m, t1; repeat split; try lia; eassumption.
       + destruct (IHm _ _ _ v_to_t1 v_to_u) as [k [l [u' H]]].
-        eexists k, (S l), u'; repeat split; try omega; try tauto.
+        eexists k, (S l), u'; repeat split; try lia; try tauto.
         econstructor. split. eassumption. tauto.
   Qed.
   
@@ -284,7 +284,7 @@ Section FixX.
   Proof.
     revert n s t1 t2; induction m; intros n s t1 t2 unifConR s_to_t1 s_to_t2.
     - unfold pow in s_to_t1. simpl in s_to_t1. subst s.
-      exists n, 0, t2. repeat split; try now omega. eassumption.
+      exists n, 0, t2. repeat split; try now lia. eassumption.
     - unfold pow in s_to_t1. simpl in *.
       destruct s_to_t1 as [v [s_to_v v_to_t1]].
       destruct (parametrized_semi_confluence unifConR s_to_t2 s_to_v) as
@@ -292,7 +292,7 @@ Section FixX.
       destruct (IHm _ _ _ _ unifConR v_to_t1 v_to_u) as
           [l'[k'[u'[l'_lt_l [k'_lt_m [t1_to_u' [u_to_u' H2]]]]]]].
       exists l', (k + k'), u'.
-      repeat split; try omega. eassumption.
+      repeat split; try lia. eassumption.
       rewrite pow_add.
       econstructor; split; eassumption.
   Qed.
@@ -308,7 +308,7 @@ Section FixX.
      1,2:eassumption.
      now eapply pow_add;eexists;split;eassumption.
      destruct i0. destruct i1.
-     +now omega.
+     +now lia.
      +destruct H2 as (?&?&_). edestruct Term. eauto.
      +destruct H1 as (?&?&_). edestruct Term. eauto.
     -edestruct parametrized_semi_confluence with (R:=R) (2:= R0) as (i0&?&?&?&?&?&?&?). 1,2:eassumption.
@@ -360,7 +360,7 @@ Inductive redWithMaxSize {X} (size:X -> nat) (step : X -> X -> Prop): nat -> X -
 Lemma redWithMaxSize_ge X size step (s t:X) m:
   redWithMaxSize size step m s t -> size s<= m /\ size t <= m.
 Proof.
-  induction 1;subst;firstorder (repeat eapply Nat.max_case_strong; try omega).
+  induction 1;subst;firstorder (repeat eapply Nat.max_case_strong; try lia).
 Qed.
 
 Lemma redWithMaxSize_trans X size step (s t u:X) m1 m2 m3:
@@ -369,7 +369,7 @@ Proof.
   induction 1 in m2,u,m3|-*;intros.
   -specialize (redWithMaxSize_ge H0) as [].
    revert H1;
-     repeat eapply Nat.max_case_strong; subst m;intros. all:replace m3 with m2 by omega. all:eauto.
+     repeat eapply Nat.max_case_strong; subst m;intros. all:replace m3 with m2 by lia. all:eauto.
   - specialize (redWithMaxSize_ge H0) as [].
     specialize (redWithMaxSize_ge H2) as [].
     eassert (H1':=Max.le_max_l _ _);rewrite H3 in H1'.
@@ -377,7 +377,7 @@ Proof.
     econstructor. eassumption.
      
     eapply IHredWithMaxSize. eassumption. reflexivity.
-    subst m;revert H3;repeat eapply Nat.max_case_strong;intros;try omega. 
+    subst m;revert H3;repeat eapply Nat.max_case_strong;intros;try lia. 
 Qed.
 
 Lemma redWithMaxSize_star {X} f (step : X -> X -> Prop) n x y:
@@ -436,7 +436,7 @@ Proof.
   intros H1 H2 H2' H3 H4.
   specialize (parametrized_confluence H1 H3 H4) as (n0&n'&?&?&?&R'&R''&?).
   destruct n0. destruct n'.
-  -inv R'. inv H5. split;first [omega | easy].
+  -inv R'. inv H5. split;first [lia | easy].
   -exfalso. destruct R'' as (?&?&?). eapply H2'. eauto.
   -exfalso. destruct R' as (?&?&?). eapply H2. eauto.
 Qed.

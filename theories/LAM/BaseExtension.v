@@ -1,15 +1,15 @@
-Require Export PslBase.Base.
+Require Export PslBase.Base Lia.
 
 Lemma nth_error_lt_Some A (H:list A) a : a < |H| -> exists x, nth_error H a = Some x.
 Proof.
-  intros eq. revert H eq. induction a;intros;destruct H;cbn in *;inv eq;eauto. all:edestruct (IHa H); try omega; eauto.
+  intros eq. revert H eq. induction a;intros;destruct H;cbn in *;inv eq;eauto. all:edestruct (IHa H); try lia; eauto.
 Qed.
 
 Lemma map_nth_lt (A B : Type) (f : A -> B) x (l : list A) (d : A) (n : nat): 
   n < | l | -> nth n (map f l) x = f (nth n l d).
 Proof.
   revert n.
-  induction l;cbn;intros;try firstorder omega.
+  induction l;cbn;intros;try firstorder lia.
   destruct _;firstorder.
 Qed.
 
@@ -23,12 +23,12 @@ Qed.
 
 Lemma nth_error_Some_lt A (H:list A) a x : nth_error H a = Some x -> a < |H|.
 Proof.
-  intros eq. revert H eq. induction a;intros;destruct H;cbn in *;inv eq. omega. apply IHa in H1. omega.
+  intros eq. revert H eq. induction a;intros;destruct H;cbn in *;inv eq. lia. apply IHa in H1. lia.
 Qed.
 
 Lemma nth_length X (d:X) A n: nth n A d <> d -> n < length A.
 Proof.
-  revert n. induction A;intros [] neq;cbn in *;try congruence;try firstorder omega.
+  revert n. induction A;intros [] neq;cbn in *;try congruence;try firstorder lia.
 Qed.
 
 Lemma Forall_map X Y (A:list X) p (f:X->Y):
@@ -55,7 +55,7 @@ Qed.
 
 Lemma Forall2_length X Y (P:X->Y->Prop) A B: Forall2 P A B -> length A = length B.
 Proof.
-  intros. induction H;cbn in *;omega.
+  intros. induction H;cbn in *;lia.
 Qed.
 
 Lemma Forall2_impl X Y (P1 P2:X->Y->Prop) A B: (forall x y, P1 x y -> P2 x y) -> Forall2 P1 A B -> Forall2 P2 A B.

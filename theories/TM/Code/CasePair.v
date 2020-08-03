@@ -51,10 +51,10 @@ Section CasePair.
       ).
 
   Definition CasePair : pTM sigPair^+ unit 2 :=
-    LiftTapes (WriteMove (inl STOP) L) [|Fin1|];;
-    LiftTapes (MoveToSymbol stopAfterFirst id;; Move L) [|Fin0|];;
+    LiftTapes (WriteMove (inl STOP) Lmove) [|Fin1|];;
+    LiftTapes (MoveToSymbol stopAfterFirst id;; Move Lmove) [|Fin0|];;
     CopySymbols_L stopAtStart;;
-    LiftTapes (MoveToSymbol stopAfterFirst id;; Move L;; Write (inl START)) [|Fin0|].
+    LiftTapes (MoveToSymbol stopAfterFirst id;; Move Lmove;; Write (inl START)) [|Fin0|].
 
   Lemma CasePair_Realise : CasePair ⊨ CasePair_Rel.
   Proof.
@@ -76,9 +76,9 @@ Section CasePair.
           2:{ now intros ? (?&<-&?) % in_map_iff. }
           split.
           * hnf. eexists. split. simpl_tape. cbn. rewrite EY. cbn. f_equal.
-            { rewrite tl_length; simpl_list; cbn. unfold CasePair_size0, size. omega. }
+            { rewrite tl_length; simpl_list; cbn. unfold CasePair_size0, size. lia. }
           * hnf. eexists. simpl_tape. rewrite rev_involutive, List.map_map. cbn. f_equal. rewrite (isRight_size_right HRight). cbn. f_equal. split. now rewrite List.map_map.
-            { simpl_list. rewrite skipn_length, tl_length. unfold CasePair_size1, size. pose proof (isRight_size_left HRight). omega. }
+            { simpl_list. rewrite skipn_length, tl_length. unfold CasePair_size1, size. pose proof (isRight_size_left HRight). lia. }
         + rewrite List.map_map. now intros ? (?&<-&?) % in_rev % in_map_iff.
         + rewrite List.map_map. now intros ? (?&<-&?) % in_map_iff.
       - rewrite MoveToSymbol_correct_midtape in HCopy; cbn in *; auto.
@@ -89,9 +89,9 @@ Section CasePair.
           2:{ now intros ? (?&<-&?) % in_map_iff. }
           split.
           * hnf. eexists. split. simpl_tape. cbn. rewrite EY. cbn. f_equal.
-            { rewrite tl_length; simpl_list; cbn. unfold CasePair_size0, size. omega. }
+            { rewrite tl_length; simpl_list; cbn. unfold CasePair_size0, size. lia. }
           * hnf. eexists. simpl_tape. rewrite rev_involutive, List.map_map. cbn. f_equal. rewrite (isRight_size_right HRight). cbn. f_equal. split. now rewrite List.map_map.
-            { simpl_list. rewrite skipn_length, tl_length. unfold CasePair_size1, size. pose proof (isRight_size_left HRight). omega. }
+            { simpl_list. rewrite skipn_length, tl_length. unfold CasePair_size1, size. pose proof (isRight_size_left HRight). lia. }
         + rewrite List.map_map. now intros ? (?&<-&?) % in_rev % in_map_iff.
         + rewrite List.map_map. now intros ? (?&<-&?) % in_map_iff.
     }
@@ -112,18 +112,18 @@ Section CasePair.
     { unfold CasePair. TM_Correct. }
     {
       intros tin k ((x&y)&HEncP&Hk). unfold CasePair_steps in *. cbn in *.
-      exists 1, (32 + 16 * size _ x). repeat split; try omega.
+      exists 1, (32 + 16 * size _ x). repeat split; try lia.
       intros tmid () ?; TMSimp.
-      exists (10 + 4 * size _ x), (21 + 12 * size _ x). repeat split; try omega.
+      exists (10 + 4 * size _ x), (21 + 12 * size _ x). repeat split; try lia.
       {
-        exists (8 + 4 * size _ x), 1. repeat split; try omega. 2: now intros _ _ _.
+        exists (8 + 4 * size _ x), 1. repeat split; try lia. 
         destruct HEncP as (ls&->). cbn. destruct (cY y) eqn:EY.
         - rewrite app_nil_r. rewrite MoveToSymbol_steps_midtape; cbn; auto. now rewrite !map_length.
         - rewrite map_map, map_app, <- app_assoc. cbn.
           rewrite MoveToSymbol_steps_midtape; cbn; auto. now rewrite !map_length.
       }
       intros tmid1 (). intros ?; TMSimp.
-      exists (8 + 8 * size _ x), (12 + 4 * size _ x). repeat split; try omega.
+      exists (8 + 8 * size _ x), (12 + 4 * size _ x). repeat split; try lia.
       {
         destruct HEncP as (ls&->). cbn. destruct (cY y) eqn:EY.
         - rewrite app_nil_r. rewrite MoveToSymbol_correct_midtape; cbn; auto.
@@ -135,7 +135,7 @@ Section CasePair.
           + rewrite List.map_map. now intros ? (?&<-&?) % in_map_iff.
       }
       intros tmid2 () HCopy.
-      exists (8 + 4 * size _ x), 3. repeat split; try omega.
+      exists (8 + 4 * size _ x), 3. repeat split; try lia.
       {
         destruct HEncP as (ls&HEncP); TMSimp. cbn in *. destruct (cY y) eqn:EY.
         - rewrite app_nil_r in HCopy. rewrite MoveToSymbol_correct_midtape in HCopy; cbn in *; auto.
@@ -149,7 +149,7 @@ Section CasePair.
             * rewrite List.map_map. now intros ? (?&<-&?) % in_rev % in_map_iff.
           + rewrite List.map_map. now intros ? (?&<-&?) % in_map_iff.
       }
-      intros tmid3 _ _. exists 1, 1. split. omega. split. omega. intros _ _ _. omega.
+      intros tmid3 _ _. exists 1, 1. split. lia. split. lia. intros _ _ _. lia.
     }
   Qed.
         
@@ -171,7 +171,7 @@ Section CasePair.
 
 
   Definition Constr_pair : pTM sigPair^+ unit 2 :=
-    LiftTapes (MoveRight _;; Move L) [|Fin0|];;
+    LiftTapes (MoveRight _;; Move Lmove) [|Fin0|];;
     CopySymbols_L stopAtStart.
 
 
@@ -187,13 +187,13 @@ Section CasePair.
       modpon HMoveRight. destruct HMoveRight as (ls&HMoveRight&Hs); TMSimp.
       rewrite CopySymbols_L_correct_moveleft in HCopy; cbn in *; auto.
       - apply pair_eq in HCopy as (HCopy1&HCopy2). TMSimp. split.
-        + repeat econstructor. cbn. f_equal. now rewrite map_rev, rev_involutive. omega.
+        + repeat econstructor. cbn. f_equal. now rewrite map_rev, rev_involutive. lia.
         + repeat econstructor. cbn. f_equal. simpl_tape.
           destruct HEncY as (ls'&HEncY&Hs'); TMSimp_goal.
           rewrite map_map, map_rev, rev_involutive. cbn.
           * now rewrite !map_map, map_app, <- app_assoc, !map_map.
           * simpl_list. rewrite skipn_length. unfold Constr_pair_size.
-            destruct HEncY as (ls'&HEncY&Hs'). TMSimp. unfold size. omega.
+            destruct HEncY as (ls'&HEncY&Hs'). TMSimp. unfold size. lia.
       - rewrite map_rev, List.map_map. now intros ? (?&<-&?) % in_rev % in_map_iff.
     }
   Qed.
@@ -214,9 +214,9 @@ Section CasePair.
     }
     {
       intros tin k (x & HEncX & Hk). unfold Constr_pair_steps in *. cbn in *.
-      exists (10 + 4 * size _ x), (8 + 8 * size _ x). repeat split; try omega.
+      exists (10 + 4 * size _ x), (8 + 8 * size _ x). repeat split; try lia.
       {
-        exists (8 + 4 * size _ x), 1. repeat split; try omega. 2: now intros _ _ _.
+        exists (8 + 4 * size _ x), 1. repeat split; try lia. 
         eexists. repeat split; eauto.
       }
       intros tmid () ?; TMSimp. modpon H. destruct H as (ls&->&Hs). cbn.
@@ -234,7 +234,7 @@ Section CasePair.
 
   Definition Snd : pTM sigPair^+ unit 1 :=
     MoveToSymbol stopAfterFirst id;;
-    Move L;;
+    Move Lmove;;
     Write (inl START).
 
 
@@ -250,12 +250,12 @@ Section CasePair.
       - rewrite app_nil_r.
         rewrite MoveToSymbol_correct_midtape; cbn; auto.
         + cbn. simpl_tape. repeat econstructor. cbn. rewrite EY. cbn. f_equal.
-          { rewrite tl_length. simpl_list. cbn. unfold Snd_size, size. omega. }
+          { rewrite tl_length. simpl_list. cbn. unfold Snd_size, size. lia. }
         + rewrite !List.map_map. now intros ? (?&<-&?) % in_map_iff.
       - cbn. rewrite map_map, map_app, <- app_assoc; cbn.
         rewrite MoveToSymbol_correct_midtape; cbn; auto.
         + simpl_tape. repeat econstructor. f_equal. cbn. now rewrite EY.
-          { rewrite tl_length. simpl_list. cbn. unfold Snd_size, size. omega. }
+          { rewrite tl_length. simpl_list. cbn. unfold Snd_size, size. lia. }
         + rewrite List.map_map. now intros ? (?&<-&?) % in_map_iff.
     }
   Qed.
@@ -272,11 +272,11 @@ Section CasePair.
     { unfold Snd. TM_Correct. }
     {
       intros tin k ((x,y)&HEncP&Hk). unfold Snd_steps in *; cbn in *.
-      exists (8+4*size _ x), 3. repeat split; try omega.
+      exists (8+4*size _ x), 3. repeat split; try lia.
       {
         destruct HEncP as (ls&->). destruct (cY y) eqn:EY; cbn in *.
         - rewrite MoveToSymbol_steps_midtape; cbn; auto. rewrite EY. cbn.
-          rewrite map_map, map_length, app_length, map_length. cbn. unfold size. omega.
+          rewrite map_map, map_length, app_length, map_length. cbn. unfold size. lia.
         - rewrite map_map, map_app, <- app_assoc, EY. cbn.
           rewrite MoveToSymbol_steps_midtape; cbn; auto. now rewrite !map_length.
       }
@@ -287,7 +287,7 @@ Section CasePair.
 
   (* Case and Cons doesn't allocate new memory *)
   Goal forall (x : X) (s : nat), Constr_pair_size x (CasePair_size0 x s) = s.
-  Proof. intros. unfold Constr_pair_size, CasePair_size0. omega. Qed.
+  Proof. intros. unfold Constr_pair_size, CasePair_size0. lia. Qed.
 
 End CasePair.
 

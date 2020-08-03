@@ -35,8 +35,8 @@ Lemma time_loopSum_bound_onlyByN {X Y} (H : registered X) (H0 : registered Y) (f
     time_loopSum f fT n x <= n * (boundL + 15) + boundR n + 15.
 Proof.
   intros H' n x.
-  pose (n':=n). assert (Hleq : n<=n') by (cbn;omega).
-  replace 0 with (n'-n) at 1 by (cbn;omega).
+  pose (n':=n). assert (Hleq : n<=n') by (cbn;lia).
+  replace 0 with (n'-n) at 1 by (cbn;lia).
   replace (boundR n) with (boundR n') by reflexivity.
   clearbody n'.
   induction n in x,Hleq |-*. 1:now cbn;Lia.nia.

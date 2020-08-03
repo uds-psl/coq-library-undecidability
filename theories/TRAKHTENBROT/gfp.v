@@ -17,13 +17,13 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Kleene's greatest fixpoint of omega-continous operators *)
+(** * Kleene's greatest fixpoint of lia-continous operators *)
 
 Section gfp.
 
   (** We develop the theory of Kleene's greatest fixpoint for binary relations
       and establish the fact that the gfp is an equivalence (under suitable hyps),
-      reached after omega many steps (under omega continuity) and
+      reached after lia many steps (under lia continuity) and
       reached after finitely many steps (under finiteness of the domain and
       preservation of decidability *)
 

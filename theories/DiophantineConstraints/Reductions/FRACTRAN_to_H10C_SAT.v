@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega Max.
+Require Import List Arith Omega Lia Max.
 
 Require Import Undecidability.Synthetic.Undecidability.
 
@@ -88,11 +88,11 @@ Section dc_list_h10c.
              -> dc_eval φ ν c <-> h10c_sem (dc_h10c c) Ψ.
     Proof.
       destruct c as (x,[ n | y | p | [] y z ]); unfold dc_eval; simpl; intros H.
-      + do 2 (rewrite H; auto); rewrite Hpsy_odd; omega.
-      + rewrite H; auto; do 2 rewrite Hpsy_odd; omega.
-      + do 2 (rewrite H; auto); rewrite Hpsy_odd; omega.
-      + do 3 rewrite Hpsy_odd; omega.
-      + do 3 rewrite Hpsy_odd; omega.
+      + do 2 (rewrite H; auto); rewrite Hpsy_odd; lia.
+      + rewrite H; auto; do 2 rewrite Hpsy_odd; lia.
+      + do 2 (rewrite H; auto); rewrite Hpsy_odd; lia.
+      + do 3 rewrite Hpsy_odd; lia.
+      + do 3 rewrite Hpsy_odd; lia.
     Qed.
 
   End dc_h10c_equiv.
@@ -110,8 +110,8 @@ Section dc_list_h10c.
   Let dc_list_const_prop c l : In c l -> incl (0::dee_const (snd c)) (dc_list_const l).
   Proof.
     intros Hc x [ Hx | Hx ]; apply list_an_spec.
-    + subst; omega.
-    + split; try omega; apply le_n_S.
+    + subst; lia.
+    + split; try lia; apply le_n_S.
       revert x Hx; rewrite <- Forall_forall.
       revert c Hc; rewrite <- Forall_forall.
       induction l as [ | (x,c) l IHl ].
@@ -143,7 +143,7 @@ Section dc_list_h10c.
       assert (Hpsy_even : forall n, psy (even n) = n).
       { intros n.
         unfold even.
-        replace (2*n+2) with (2*(S n)) by omega.
+        replace (2*n+2) with (2*(S n)) by lia.
         unfold psy; rewrite div2_2p0; trivial. }
       assert (Hpsy_odd : forall n, psy (odd n) = phi n).
       { intros n.
@@ -158,7 +158,7 @@ Section dc_list_h10c.
         unfold h10c_nat in H1.
         destruct k as [ | k ]; rewrite <- H1; simpl; auto.
         repeat rewrite Hpsy_even.
-        rewrite Hpsy_0; omega.
+        rewrite Hpsy_0; lia.
       * intros c; rewrite in_map_iff.
         intros (k & H1 & H2).
         rewrite <- H1, <- dc_h10c_equiv with (φ := phi); auto.
@@ -178,20 +178,20 @@ Section dc_list_h10c.
       * apply H3, in_map_iff; exists c; auto.
       * assert (forall n, n <= dc_max l -> h10c_sem (h10c_nat n) psy) as H4.
         { intros n Hn; apply H2, in_map_iff; exists n; split; auto.
-          apply list_an_spec; omega. }
+          apply list_an_spec; lia. }
         simpl in H1.
         clear H2 H3.
         intros n Hn.
         apply dc_list_const_prop with (1 := Hc) in Hn.
         apply list_an_spec in Hn.
         clear Hc.
-        assert (n <= dc_max l) as H5 by omega.
+        assert (n <= dc_max l) as H5 by lia.
         clear Hn.
         revert n H4 H5; generalize (dc_max l).
         intros m n H2.
         induction n as [ | n IHn ]; intros Hn; specialize (H2 _ Hn); simpl in H2. 
-        - omega.
-        - rewrite IHn, H1 in H2; omega.
+        - lia.
+        - rewrite IHn, H1 in H2; lia.
   Qed.
 
 End dc_list_h10c. 

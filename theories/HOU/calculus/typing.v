@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import List Omega.
+Require Import List Omega Lia.
 From Undecidability.HOU.calculus Require Export syntax semantics equivalence.
 
 (** * Simple Typing *)

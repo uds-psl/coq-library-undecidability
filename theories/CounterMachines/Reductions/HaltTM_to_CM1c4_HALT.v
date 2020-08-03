@@ -1,6 +1,6 @@
 Require Import Undecidability.Synthetic.Undecidability.
 
-Require Import Undecidability.TM.Halting.
+Require Import Undecidability.TM.TM.
 
 From Undecidability.FRACTRAN
   Require Import FRACTRAN HaltTM_to_FRACTRAN_HALTING.

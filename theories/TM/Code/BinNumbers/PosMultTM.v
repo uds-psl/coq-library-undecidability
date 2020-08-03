@@ -240,13 +240,13 @@ Definition Mult : pTM sigPos^+ unit 3 :=
   ShiftLeft_num @[|Fin0; Fin2|];;
   GoToLSB_start @[|Fin0|];;
   Mult_Loop;;
-  Move L @[|Fin0|];;
+  Move Lmove @[|Fin0|];;
   ShiftRight_num @[|Fin0; Fin1|].
 
 
 Lemma pos_size_shift_left (p : positive) (n : nat) :
   (pos_size (shift_left p n) = pos_size p + n) % nat.
-Proof. revert p. induction n; intros; cbn in *; auto. rewrite IHn. cbn. omega. Qed.
+Proof. revert p. induction n; intros; cbn in *; auto. rewrite IHn. cbn. lia. Qed.
 
 
 Local Arguments mult_TR_cont : simpl never.

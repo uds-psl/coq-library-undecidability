@@ -25,11 +25,11 @@ Section CaseNat.
            end).
 
   Definition CaseNat : pTM sigNat^+ bool 1 :=
-    Move R;;
+    Move Rmove;;
     Switch (ReadChar)
           (fun o => match o with
                  | Some (inr sigNat_S) => Return (Write (inl START)) true (* S *)
-                 | Some (inr sigNat_O) => Return (Move L) false (* O *)
+                 | Some (inr sigNat_O) => Return (Move Lmove) false (* O *)
                  | _ => Return (Nop) default (* invalid input *)
                  end).
 
@@ -39,13 +39,13 @@ Section CaseNat.
   Proof.
     unfold CaseNat_steps. eapply RealiseIn_monotone.
     { unfold CaseNat. TM_Correct. }
-    { Unshelve. 4,8: reflexivity. all: omega. }
+    { Unshelve. 4,8: reflexivity. all: lia. }
     {
       intros tin (yout&tout) H. intros n s HEncN. TMSimp.
       destruct HEncN as (r1&HEncN&Hs). TMSimp.
       destruct n; cbn in *; TMSimp.
       - repeat econstructor; auto.
-      - hnf. eexists. split. f_equal. cbn. omega.
+      - hnf. eexists. split. f_equal. cbn. lia.
     }
   Qed.
 
@@ -57,7 +57,7 @@ Section CaseNat.
       Mk_R_p (ignoreParam (fun tin tout => forall n sn : nat, tin ≃(;sn) n -> tout ≃(;pred sn) S n)).
 
     Definition Constr_S : pTM sigNat^+ unit 1 :=
-      WriteMove (inr sigNat_S) L;; Write (inl START).
+      WriteMove (inr sigNat_S) Lmove;; Write (inl START).
 
 
     Definition Constr_S_steps := 3.
@@ -66,12 +66,12 @@ Section CaseNat.
     Proof.
       unfold Constr_S_steps. eapply RealiseIn_monotone.
       { unfold Constr_S. TM_Correct. }
-      { cbn. omega. }
+      { cbn. lia. }
       {
         intros tin (yout, tout) H. intros n sn HEncN.
         TMSimp. clear all except HEncN.
         destruct HEncN as (r1&->&Hs). cbn. simpl_tape.
-        hnf. eexists. split. f_equal. simpl_list. omega.
+        hnf. eexists. split. f_equal. simpl_list. lia.
       }
     Qed.
 
@@ -83,7 +83,7 @@ Section CaseNat.
 
     Definition Constr_O : pTM sigNat^+ unit 1 := WriteValue [ sigNat_O ].
 
-    Goal Constr_O = WriteMove (inl STOP) L;; WriteMove (inr sigNat_O) L;; Write (inl START).
+    Goal Constr_O = WriteMove (inl STOP) Lmove;; WriteMove (inr sigNat_O) Lmove;; Write (inl START).
     Proof. unfold Constr_O, WriteValue, WriteString.WriteString, encode, Encode_map, map, rev, Encode_nat, encode, repeat, app. reflexivity. Qed.
     Definition Constr_O_steps := 5.
 
@@ -93,7 +93,7 @@ Section CaseNat.
       { unfold Constr_O. TM_Correct. }
       { cbn. reflexivity. }
       { intros tin (yout, tout) H. intros s HRight. cbn in H. unfold Constr_O_size in *.
-        specialize (H 0 s eq_refl HRight). contains_ext. unfold WriteValue_size. cbn. omega.
+        specialize (H 0 s eq_refl HRight). contains_ext. unfold WriteValue_size. cbn. lia.
       }
     Qed.
 

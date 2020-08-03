@@ -43,7 +43,7 @@ From Undecidability.Synthetic Require Export Definitions DecidabilityFacts Enume
 (*       + intros H. *)
 (*         eapply Hf in H. eapply qe in H as [m1]. destruct (el_T x) as [m2 ?].  *)
 (*         exists (1 + m1 + m2). cbn. in_app 2. *)
-(*         in_collect x; eapply cum_ge'; eauto; try omega. *)
+(*         in_collect x; eapply cum_ge'; eauto; try lia. *)
 (*         eapply qe. *)
 (*       + intros [m H]. induction m. *)
 (*         * inv H. *)

@@ -1,5 +1,5 @@
 From Undecidability.L.Datatypes Require Export LNat.
-From Undecidability.L Require Export L.
+From Undecidability.L Require Export Util.L_facts.
 From Undecidability.L.Tactics Require Import LTactics GenEncode.
 
 (** ** Encoding for L-terms *)

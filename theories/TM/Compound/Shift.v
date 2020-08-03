@@ -1,4 +1,4 @@
-From Undecidability Require Import TM.Prelim.
+From Undecidability Require Import TM.Util.Prelim.
 From Undecidability Require Import TM.Basic.Mono.
 From Undecidability Require Import TM.Combinators.Combinators.
 From Undecidability Require Import TM.Compound.TMTac.
@@ -22,8 +22,8 @@ Section Shift.
       match current tin[@Fin0] with
       | Some c =>
         if f c
-        then tout[@Fin0] = doAct tin[@Fin0] (Some s, N) /\ yout = inr tt
-        else tout[@Fin0] = doAct tin[@Fin0] (Some s, R) /\ yout = inl c
+        then tout[@Fin0] = doAct tin[@Fin0] (Some s, Nmove) /\ yout = inr tt
+        else tout[@Fin0] = doAct tin[@Fin0] (Some s, Rmove) /\ yout = inl c
       | None => tout[@Fin0] = tape_write tin[@Fin0] (Some s) /\ yout = inr tt
       end.
 
@@ -32,7 +32,7 @@ Section Shift.
            (fun c => match c with
                   | Some c =>
                     if f c then Return (Write s) (inr tt)
-                    else Return (WriteMove s R) (inl c)
+                    else Return (WriteMove s Rmove) (inl c)
                   | None => Return (Write s) (inr tt)
                   end).
 
@@ -57,11 +57,11 @@ Section Shift.
   Function Shift_fun (s : sig) (t : tape sig) {measure Shift_fun_measure t} :=
     match current t with
     | Some c =>
-      if f c then doAct t (Some s, N)
-      else Shift_fun c (doAct t (Some s, R))
+      if f c then doAct t (Some s, Nmove)
+      else Shift_fun c (doAct t (Some s, Rmove))
     | None => tape_write t (Some s)
     end.
-  Proof. intros. destruct t; cbn in *; inv teq. unfold Shift_fun_measure. simpl_tape. omega. Qed.
+  Proof. intros. destruct t; cbn in *; inv teq. unfold Shift_fun_measure. simpl_tape. lia. Qed.
 
   Definition Shift_Rel (s : sig) : pRel sig unit 1 :=
     ignoreParam (fun tin tout => tout[@Fin0] = Shift_fun s tin[@Fin0]).
@@ -135,8 +135,8 @@ Section Shift.
     Shift_steps rs <= 4 + 4 * length rs.
   Proof.
     induction rs; cbn in *.
-    - omega.
-    - destruct (f a); omega.
+    - lia.
+    - destruct (f a); lia.
   Qed.
 
 
@@ -155,13 +155,13 @@ Section Shift.
       - destruct (current tin[@Fin0]) eqn:E.
         + destruct (f e) eqn:Ee; destruct H as [H H']; inv H'.
           destruct tin[@Fin0] eqn:E'; cbn in *; inv E. rename l into ls, l0 into rs.
-          TMSimp. simpl_tape. eexists. split. reflexivity. omega.
+          TMSimp. simpl_tape. eexists. split. reflexivity. lia.
         + destruct H. congruence.
       - destruct (current tin[@Fin0]) eqn:E.
         + destruct (f e) eqn:Ee; destruct H as [H H']; inv H'.
           destruct tin[@Fin0] eqn:E'; cbn in *; inv E. rename l into ls, l0 into rs.
-          rewrite Ee in *. omega.
-        + apply tape_local_nil in E. TMSimp. omega.
+          rewrite Ee in *. lia.
+        + apply tape_local_nil in E. TMSimp. lia.
     }
   Qed.
 
@@ -176,11 +176,11 @@ Section Shift.
   Function Shift_L_fun (s : sig) (t : tape sig) {measure Shift_L_fun_measure t} :=
     match current t with
     | Some c =>
-      if f c then doAct t (Some s, N)
-      else Shift_L_fun c (doAct t (Some s, L))
+      if f c then doAct t (Some s, Nmove)
+      else Shift_L_fun c (doAct t (Some s, Lmove))
     | None => tape_write t (Some s)
     end.
-  Proof. intros. destruct t; cbn in *; inv teq. unfold Shift_L_fun_measure. simpl_tape. omega. Qed.
+  Proof. intros. destruct t; cbn in *; inv teq. unfold Shift_L_fun_measure. simpl_tape. lia. Qed.
 
   Definition Shift_L_Rel (s : sig) : pRel sig unit 1 :=
     ignoreParam (fun tin tout => tout[@Fin0] = Shift_L_fun s tin[@Fin0]).

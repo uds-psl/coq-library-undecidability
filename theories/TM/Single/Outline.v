@@ -14,9 +14,9 @@ Section CompilerOutline.
 
   Hypothesis (defF : inhabitedC F).
   
-  Hypothesis Step : states (projT1 pM) -> pTM (sigSim^+) (states (projT1 pM) + F) 1.
+  Hypothesis Step : state (projT1 pM) -> pTM (sigSim^+) (state (projT1 pM) + F) 1.
 
-  Definition Step_Rel (q : states (projT1 pM)) : pRel (sigSim^+) (states (projT1 pM) + F) 1 :=
+  Definition Step_Rel (q : state (projT1 pM)) : pRel (sigSim^+) (state (projT1 pM) + F) 1 :=
     fun tin '(yout, tout) =>
       forall (T : tapes sig n),
         tin[@Fin0] ≃ T ->

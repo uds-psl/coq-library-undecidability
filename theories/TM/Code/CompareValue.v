@@ -262,14 +262,14 @@ Section Compare_fun_lemmas.
     Compare_steps stop t <= 5 + 6 * max (length str1) (length str2).
   Proof.
     revert rs1 rs2 str1 str2. functional induction (Compare_steps stop t); intros rs1 rs2 str1 str2; intros Hs1 Hs2 HT1 HT2; destruct t as [t1 t2]; cbn in *.
-    all: try omega. (* this solves all but the inductive case *)
+    all: try lia. (* this solves all but the inductive case *)
     destruct str1 as [ | s str1], str2 as [ | s' str2]; cbn in *;
       apply midtape_tape_local_cons in HT1; apply midtape_tape_local_cons in HT2; rewrite HT1, HT2 in *; cbn in *;
         inv e; inv e0.
     - exfalso. rewrite Hs1 in e1. cbn in e1. congruence.
     - exfalso. rewrite Hs1 in e1. cbn in e1. congruence.
     - exfalso. rewrite Hs2 in e2. cbn in e2. congruence.
-    - simpl_tape in IHn. specialize IHn with (1 := Hs1) (2 := Hs2) (3 := eq_refl) (4 := eq_refl). omega.
+    - simpl_tape in IHn. specialize IHn with (1 := Hs1) (2 := Hs2) (3 := eq_refl) (4 := eq_refl). lia.
   Qed.
 
   Lemma Compare_steps_correct_midtape (str1 str2 : list X) (s1 s2 : X) (m : X) ls1 ls2 rs1 rs2 :
@@ -277,7 +277,7 @@ Section Compare_fun_lemmas.
     stop s2 = true ->
     Compare_steps stop (midtape ls1 m (str1 ++ s1 :: rs1), midtape ls2 m (str2 ++ s2 :: rs2)) <= 11 + 6 * max (length str1) (length str2).
   Proof.
-    intros Hs1 Hs2. rewrite Compare_steps_correct with (str1 := m :: str1) (str2 := m :: str2) (s1 := s1) (s2 := s2); cbn; eauto. omega.
+    intros Hs1 Hs2. rewrite Compare_steps_correct with (str1 := m :: str1) (str2 := m :: str2) (s1 := s1) (s2 := s2); cbn; eauto. lia.
   Qed.
 
   (* Worst case steps for moving back after comparing *)
@@ -295,10 +295,10 @@ Section Compare_fun_lemmas.
   Proof.
     intros.
     pose proof compare_lists str1 str2 as[ HC | [ (a&b&l1&l2&l3&HC1&HC2&HC3) | [ (a&l1&l2&HC1&HC2) | (a&l1&l2&HC1&HC2) ]]]; subst.
-    - rewrite Compare_correct_eq_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. omega.
-    - simpl_list; cbn. rewrite Compare_correct_neq_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. omega.
-    - simpl_list; cbn. rewrite Compare_correct_short_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. omega.
-    - simpl_list; cbn. rewrite Compare_correct_long_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. omega.
+    - rewrite Compare_correct_eq_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
+    - simpl_list; cbn. rewrite Compare_correct_neq_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
+    - simpl_list; cbn. rewrite Compare_correct_short_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
+    - simpl_list; cbn. rewrite Compare_correct_long_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
   Qed.
 
   Lemma Compare_Move_steps_midtape2 (stop' : X -> bool) (str1 str2 : list X) (s1 s2 : X) (m : X) ls1 ls2 rs1 rs2 :
@@ -315,10 +315,10 @@ Section Compare_fun_lemmas.
   Proof.
     intros.
     pose proof compare_lists str1 str2 as[ HC | [ (a&b&l1&l2&l3&HC1&HC2&HC3) | [ (a&l1&l2&HC1&HC2) | (a&l1&l2&HC1&HC2) ]]]; subst.
-    - rewrite Compare_correct_eq_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. omega.
-    - simpl_list; cbn. rewrite Compare_correct_neq_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. omega.
-    - simpl_list; cbn. rewrite Compare_correct_short_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. omega.
-    - simpl_list; cbn. rewrite Compare_correct_long_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. omega.
+    - rewrite Compare_correct_eq_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
+    - simpl_list; cbn. rewrite Compare_correct_neq_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
+    - simpl_list; cbn. rewrite Compare_correct_short_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
+    - simpl_list; cbn. rewrite Compare_correct_long_midtape; cbn; auto. rewrite MoveToSymbol_L_steps_midtape; auto. simpl_list. lia.
   Qed.
 
 End Compare_fun_lemmas.
@@ -405,7 +405,7 @@ Section CompareValues.
       }
       { (* Case [x1] is longer [x2] *)
         decide (x1 = x2) as [ <- | ].
-        { exfalso. eapply list_length_neq with (xs := l1 ++ a :: l2) (ys := l1); eauto. simpl_list; cbn; omega. congruence. }
+        { exfalso. eapply list_length_neq with (xs := l1 ++ a :: l2) (ys := l1); eauto. simpl_list; cbn; lia. congruence. }
         rewrite HC1, HC2 in H. rewrite !map_app, <- !app_assoc, !map_cons in H. cbn in H.
         rewrite Compare_correct_short_midtape in H; cbn; auto.
         - inv H. rewrite H2, H3. repeat split; auto.
@@ -423,7 +423,7 @@ Section CompareValues.
       }
       { (* Case [x1] is shorter [x2] *)
         decide (x1 = x2) as [ <- | ].
-        { exfalso. eapply list_length_neq with (xs := l1 ++ a :: l2) (ys := l1); eauto. simpl_list; cbn; omega. congruence. }
+        { exfalso. eapply list_length_neq with (xs := l1 ++ a :: l2) (ys := l1); eauto. simpl_list; cbn; lia. congruence. }
         rewrite HC1, HC2 in H. rewrite !map_app, <- !app_assoc, !map_cons in H. cbn in H.
         rewrite Compare_correct_long_midtape in H; cbn; auto.
         - inv H. rewrite H2, H3. repeat split; auto.
@@ -462,7 +462,7 @@ Section CompareValues.
     {
       intros tin k (x1&x2&HEncX1&HEncX2&Hk). unfold CompareValues_steps in Hk. cbn.
       destruct HEncX1 as (r1&HEncX1). destruct HEncX2 as (r2&HEncX2). TMSimp.
-      exists (11 + 6 * max (size _ x1) (size _ x2)), (17 + 4 * (size _ x1) + 4 * (size _ x2)). repeat split; try omega.
+      exists (11 + 6 * max (size _ x1) (size _ x2)), (17 + 4 * (size _ x1) + 4 * (size _ x2)). repeat split; try lia.
       { hnf. TMSimp. rewrite Compare_steps_correct_midtape; auto. simpl_list. reflexivity. }
       intros tmid ymid HCompare.
       rewrite surjective_pairing in HCompare. apply pair_inv in HCompare as [-> HCompare].
@@ -470,14 +470,14 @@ Section CompareValues.
       (* Both cases are actually the same *)
       match goal with [ |- (if ?H then _ else _) _ _ ] => destruct H end.
       {
-        exists (8 + 4 * (size _ x1)), (8 + 4 * (size _ x2)). repeat split; try omega.
+        exists (8 + 4 * (size _ x1)), (8 + 4 * (size _ x2)). repeat split; try lia.
         { rewrite HCompare1. rewrite Compare_Move_steps_midtape1; cbn; auto.
           simpl_list; reflexivity. all: now intros ? (?&<-&?) % in_map_iff. }
         { intros tmid0 [] (HMove1&HMoveInj). TMSimp. rewrite Compare_Move_steps_midtape2; cbn; auto.
           simpl_list; reflexivity. all: now intros ? (?&<-&?) % in_map_iff. }
       }
       {
-        exists (8 + 4 * (size _ x1)), (8 + 4 * (size _ x2)). repeat split; try omega.
+        exists (8 + 4 * (size _ x1)), (8 + 4 * (size _ x2)). repeat split; try lia.
         { rewrite HCompare1. rewrite Compare_Move_steps_midtape1; cbn; auto.
           simpl_list; reflexivity. all: now intros ? (?&<-&?) % in_map_iff. }
         { intros tmid0 [] (HMove1&HMoveInj). TMSimp. rewrite Compare_Move_steps_midtape2; cbn; auto.

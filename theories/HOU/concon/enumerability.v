@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import List Omega.
+Require Import List Omega Lia.
 From Undecidability.HOU Require Import std.std calculus.calculus concon.conservativity unification.unification.
 
 (** * Enumerability from Conservativity *)
@@ -104,7 +104,7 @@ Section ListEnumerabilityOrdered.
       destruct (el_T Gamma) as [x1], (el_T s) as [x2], (el_T t) as [x3], (el_T A) as [x4], (el_T H1) as [x5], (el_T H2) as [x6].
       exists (S (x1 + x2 + x3 + x4 + x5 + x6)); cbn. in_app 2.
       eapply in_flat_map. exists (Gamma, s, t, A). intuition.
-      + in_collect (Gamma, s, t, A); eapply cum_ge'; eauto;omega.
+      + in_collect (Gamma, s, t, A); eapply cum_ge'; eauto;lia.
       + in_collect (H1, H2)...
   Qed.
 

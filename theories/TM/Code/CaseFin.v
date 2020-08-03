@@ -8,10 +8,10 @@ Section CaseFin.
   Hypothesis defSig : inhabitedC sig.
 
   Definition CaseFin : pTM sig^+ sig 1 :=
-    Move R;;
+    Move Rmove;;
     Switch (ReadChar)
     (fun s => match s with
-           | Some (inr x) => Return (Move R) x
+           | Some (inr x) => Return (Move Rmove) x
            | _ => Return (Nop) default
            end).
 
@@ -27,11 +27,11 @@ Section CaseFin.
   Proof.
     unfold CaseFin_steps. eapply RealiseIn_monotone.
     { unfold CaseFin. TM_Correct. }
-    { Unshelve. 4,8:reflexivity. all:omega. }
+    { Unshelve. 4,8:reflexivity. all:lia. }
     {
       intros tin (yout, tout) H. intros x s HEncX.
       destruct HEncX as (ls&HEncX&Hs).
-      TMSimp. split; auto. hnf. do 2 eexists. split. f_equal. cbn. omega.
+      TMSimp. split; auto. hnf. do 2 eexists. split. f_equal. cbn. lia.
     }
   Qed.
 

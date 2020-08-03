@@ -1,6 +1,6 @@
 (** * Encoding for binary numbers *)
 
-From Undecidability Require Import TM.Prelim Code.
+From Undecidability Require Import TM.Util.Prelim Code.
 From Undecidability Require Import ArithPrelim.
 From PslBase Require Export Bijection.
 Require Export BinNums. (* Warning: There also is a constructor called [N] for the type [move] *)
@@ -34,11 +34,11 @@ Global Instance Encode_positive : codable sigPos positive :=
   |}.
 
 Lemma Encode_positive_hasSize x : size _ x = Pos.size_nat x.
-Proof. induction x; cbn; auto; simpl_list; setoid_rewrite IHx; cbn; auto; omega. Qed.
+Proof. induction x; cbn; auto; simpl_list; setoid_rewrite IHx; cbn; auto; lia. Qed.
 
 Corollary Encode_positive_eq_nil x :
   Encode_positive x <> nil.
-Proof. intros H % length_zero_iff_nil. setoid_rewrite Encode_positive_hasSize in H. destruct x; cbn in *; omega. Qed.
+Proof. intros H % length_zero_iff_nil. setoid_rewrite Encode_positive_hasSize in H. destruct x; cbn in *; lia. Qed.
 
 Lemma app_singleton_inv (X : Type) (xs ys : list X) (x y : X) :
   xs ++ [x] = ys ++ [y] -> xs = ys /\ x = y.

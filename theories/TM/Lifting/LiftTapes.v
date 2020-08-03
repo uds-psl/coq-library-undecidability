@@ -1,4 +1,4 @@
-From Undecidability Require Import TM.Prelim TM.Relations TM.TM.
+From Undecidability Require Import TM.Util.Prelim TM.Util.Relations TM.Util.TM_facts.
 
 (** * Tapes-Lift *)
 
@@ -23,10 +23,10 @@ Section LiftTapes_Rel.
   Definition not_index (i : Fin.t n) : Prop :=
     ~ Vector.In i I.
 
-  Variable (R : pRel sig F m).
+  Variable (Rmove : pRel sig F m).
 
   Definition LiftTapes_select_Rel : pRel sig F n :=
-    fun t '(y, t') => R (select I t) (y, select I t').
+    fun t '(y, t') => Rmove (select I t) (y, select I t').
 
   Definition LiftTapes_eq_Rel : pRel sig F n :=
     ignoreParam (fun t t' => forall i : Fin.t n, not_index i -> t'[@i] = t[@i]).
@@ -41,9 +41,9 @@ Section LiftTapes_Rel.
 End LiftTapes_Rel.
 
 Arguments not_index : simpl never.
-Arguments LiftTapes_select_Rel {sig F m n} I R x y /.
+Arguments LiftTapes_select_Rel {sig F m n} I Rmove x y /.
 Arguments LiftTapes_eq_Rel {sig F m n} I x y /.
-Arguments LiftTapes_Rel {sig F m n } I R x y /.
+Arguments LiftTapes_Rel {sig F m n } I Rmove x y /.
 Arguments LiftTapes_T {sig m n} I T x y /.          
 
 
@@ -173,9 +173,9 @@ Section LiftNM.
   Definition LiftTapes_trans :=
     fun '(q, sym ) =>
       let (q', act) := trans (m := projT1 pM) (q, select I sym) in
-      (q', fill_default I (None, N) act).
+      (q', fill_default I (None, Nmove) act).
 
-  Definition LiftTapes_TM : mTM sig n :=
+  Definition LiftTapes_TM : TM sig n :=
     {|
       trans := LiftTapes_trans;
       start := start (projT1 pM);
@@ -184,7 +184,7 @@ Section LiftNM.
 
   Definition LiftTapes : pTM sig F n := (LiftTapes_TM; projT2 pM).
 
-  Definition selectConf : mconfig sig (states LiftTapes_TM) n -> mconfig sig (states (projT1 pM)) m :=
+  Definition selectConf : mconfig sig (state LiftTapes_TM) n -> mconfig sig (state (projT1 pM)) m :=
     fun c => mk_mconfig (cstate c) (select I (ctapes c)).
 
   Lemma current_chars_select (t : tapes sig n) :
@@ -192,13 +192,13 @@ Section LiftNM.
   Proof. unfold current_chars, select. apply Vector.eq_nth_iff; intros i ? <-. now simpl_tape. Qed.
 
   Lemma doAct_select (t : tapes sig n) act :
-    doAct_multi (select I t) act = select I (doAct_multi t (fill_default I (None, N) act)).
+    doAct_multi (select I t) act = select I (doAct_multi t (fill_default I (None, Nmove) act)).
   Proof.
     unfold doAct_multi, select. apply Vector.eq_nth_iff; intros i ? <-. simpl_tape.
     unfold fill_default. f_equal. symmetry. now apply fill_correct_nth.
   Qed.
 
-  Lemma LiftTapes_comp_step (c1 : mconfig sig (states (projT1 pM)) n) :
+  Lemma LiftTapes_comp_step (c1 : mconfig sig (state (projT1 pM)) n) :
     step (M := projT1 pM) (selectConf c1) = selectConf (step (M := LiftTapes_TM) c1).
   Proof.
     unfold selectConf. unfold step; cbn.
@@ -209,7 +209,7 @@ Section LiftNM.
     f_equal. apply doAct_select.
   Qed.
 
-  Lemma LiftTapes_lift (c1 c2 : mconfig sig (states LiftTapes_TM) n) (k : nat) :
+  Lemma LiftTapes_lift (c1 c2 : mconfig sig (state LiftTapes_TM) n) (k : nat) :
     loopM (M := LiftTapes_TM) c1 k = Some c2 ->
     loopM (M := projT1 pM) (selectConf c1) k = Some (selectConf c2).
   Proof.
@@ -220,7 +220,7 @@ Section LiftNM.
     - apply HLoop.
   Qed.
 
-  Lemma LiftTapes_comp_eq (c1 c2 : mconfig sig (states LiftTapes_TM) n) (i : Fin.t n) :
+  Lemma LiftTapes_comp_eq (c1 c2 : mconfig sig (state LiftTapes_TM) n) (i : Fin.t n) :
     not_index I i ->
     step (M := LiftTapes_TM) c1 = c2 ->
     (ctapes c2)[@i] = (ctapes c1)[@i].
@@ -232,7 +232,7 @@ Section LiftNM.
     inv H. erewrite Vector.nth_map2; eauto. now rewrite fill_default_not_index.
   Qed.
 
-  Lemma LiftTapes_eq (c1 c2 : mconfig sig (states LiftTapes_TM) n) (k : nat) (i : Fin.t n) :
+  Lemma LiftTapes_eq (c1 c2 : mconfig sig (state LiftTapes_TM) n) (k : nat) (i : Fin.t n) :
     not_index I i ->
     loopM (M := LiftTapes_TM) c1 k = Some c2 ->
     (ctapes c2)[@i] = (ctapes c1)[@i].
@@ -242,9 +242,9 @@ Section LiftNM.
     intros. now apply LiftTapes_comp_eq.
   Qed.
 
-  Lemma LiftTapes_Realise (R : Rel (tapes sig m) (F * tapes sig m)) :
-    pM ⊨ R ->
-    LiftTapes ⊨ LiftTapes_Rel I R.
+  Lemma LiftTapes_Realise (Rmove : Rel (tapes sig m) (F * tapes sig m)) :
+    pM ⊨ Rmove ->
+    LiftTapes ⊨ LiftTapes_Rel I Rmove.
   Proof.
     intros H. split.
     - apply (H (select I t) k (selectConf outc)).
@@ -253,10 +253,10 @@ Section LiftNM.
   Qed.
 
   Lemma LiftTapes_unlift (k : nat)
-        (c1 : mconfig sig (states (LiftTapes_TM)) n)
-        (c2 : mconfig sig (states (LiftTapes_TM)) m) :
+        (c1 : mconfig sig (state (LiftTapes_TM)) n)
+        (c2 : mconfig sig (state (LiftTapes_TM)) m) :
     loopM (M := projT1 pM) (selectConf c1) k = Some c2 ->
-    exists c2' : mconfig sig (states (LiftTapes_TM)) n,
+    exists c2' : mconfig sig (state (LiftTapes_TM)) n,
       loopM (M := LiftTapes_TM) c1 k = Some c2' /\
       c2 = selectConf c2'.
   Proof.
@@ -276,9 +276,9 @@ Section LiftNM.
     pose proof (@LiftTapes_unlift k (initc LiftTapes_TM initTapes) outc H) as (X&X'&->). eauto.
   Qed.
 
-  Lemma LiftTapes_RealiseIn R k :
-    pM ⊨c(k) R ->
-    LiftTapes ⊨c(k) LiftTapes_Rel I R.
+  Lemma LiftTapes_RealiseIn Rmove k :
+    pM ⊨c(k) Rmove ->
+    LiftTapes ⊨c(k) LiftTapes_Rel I Rmove.
   Proof.
     intros (H1&H2) % Realise_total. apply Realise_total. split.
     - now apply LiftTapes_Realise.
@@ -300,12 +300,12 @@ Section AddTapes.
 
   Variable n : nat.
 
-  Eval simpl in Fin.L 4 (Fin1 : Fin.t 10).
-  Check @Fin.L.
-  Search Fin.L.
-  Eval simpl in Fin.R 4 (Fin1 : Fin.t 10).
-  Check @Fin.R.
-  Search Fin.R.
+  (* Eval simpl in Fin.L 4 (Fin1 : Fin.t 10). *)
+  (* Check @Fin.L. *)
+  (* Search Fin.L. *)
+  (* Eval simpl in Fin.R 4 (Fin1 : Fin.t 10). *)
+  (* Check @Fin.R. *)
+  (* Search Fin.R. *)
 
   Lemma Fin_L_fillive (m : nat) (i1 i2 : Fin.t n) :
     Fin.L m i1 = Fin.L m i2 -> i1 = i2.

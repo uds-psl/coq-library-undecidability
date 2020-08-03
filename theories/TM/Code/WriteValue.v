@@ -42,7 +42,7 @@ Qed.
 
 Lemma WriteString_L_local (sig : Type) (str : list sig) t :
   str <> nil ->
-  tape_local (WriteString_Fun L t str) = rev str ++ right t.
+  tape_local (WriteString_Fun Lmove t str) = rev str ++ right t.
 Proof.
   revert t. induction str as [ | s [ | s' str'] IH]; intros; cbn in *.
   - tauto.
@@ -54,15 +54,15 @@ Qed.
 Section Test.
   Let t : tape nat := midtape [3;2;1] 4 [5;6;7].
   Let str := [3;2;1].
-  Compute WriteString_Fun L t str.
+  Compute WriteString_Fun Lmove t str.
   Compute (left t).
-  Compute (left (WriteString_Fun L t str)).
+  Compute (left (WriteString_Fun Lmove t str)).
   Compute (skipn (length str - 1) (left t)).
 End Test.
 *)
 
 Lemma WriteString_L_left (sig : Type) (str : list sig) t :
-  left (WriteString_Fun L t str) = skipn (pred (length str)) (left t).
+  left (WriteString_Fun Lmove t str) = skipn (pred (length str)) (left t).
 Proof.
   revert t. induction str as [ | s [ | s' str'] IH]; intros; cbn -[skipn] in *.
   - reflexivity.
@@ -102,7 +102,7 @@ Section WriteValue.
   Variable (sig: finType) (X: Type) (cX: codable sig X).
 
   Definition WriteValue (str : list sig) : pTM sig^+ unit 1 :=
-    WriteString L (rev (inl START :: map inr str ++ [inl STOP])).
+    WriteString Lmove (rev (inl START :: map inr str ++ [inl STOP])).
 
   Definition WriteValue_size (sig:Type) (cX: codable sig X) (x : X) (s : nat) : nat := s - (S (size _ x)).
 
@@ -121,7 +121,7 @@ Section WriteValue.
     unfold WriteValue_steps. eapply RealiseIn_monotone.
     { unfold WriteValue. eapply WriteString_Sem. }
     { unfold WriteString_steps. rewrite !rev_length. cbn [length]. rewrite app_length.
-      unfold size. cbn. rewrite map_length. omega. }
+      unfold size. cbn. rewrite map_length. lia. }
     {
       intros tin ((), tout) H. intros x s0 <- (m&(rs&HRight&Hs)).
       unfold WriteValue_size in *.
@@ -129,7 +129,7 @@ Section WriteValue.
       eapply tape_local_contains_size. rewrite WriteString_L_local.
       - rewrite Encode_map_id. rewrite rev_app_distr, <- !app_assoc, rev_involutive, <- !app_assoc. cbn. f_equal.
       - rewrite rev_app_distr, <- !app_assoc. cbn. congruence.
-      - rewrite WriteString_L_left. simpl_list; cbn. rewrite skipn_length. unfold size. omega.
+      - rewrite WriteString_L_left. simpl_list; cbn. rewrite skipn_length. unfold size. lia.
     }
   Qed.
 

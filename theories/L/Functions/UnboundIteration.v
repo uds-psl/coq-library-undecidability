@@ -61,7 +61,7 @@ Section uiter.
     2:{ eapply evalLe_trans with (t := (L.app uiter (enc (preprocess z)))).
         -now Lsimpl.
         -eapply uiter_sound. apply total. }
-    omega.
+    lia.
   Qed.
     
 
@@ -76,8 +76,8 @@ Section uiter.
     uiterTime n0 x0 <= n0 * (boundL + 9) + boundR n0.
   Proof.
     intros H'.
-    pose (n0':=n0). assert (Hleq : n0<=n0') by (cbn;omega).
-    replace 0 with (n0'-n0) at 1 by (cbn;omega).
+    pose (n0':=n0). assert (Hleq : n0<=n0') by (cbn;lia).
+    replace 0 with (n0'-n0) at 1 by (cbn;lia).
     change (boundR n0) with (boundR n0').
     change n0 with n0' in H'.
     clearbody n0'.
@@ -86,7 +86,7 @@ Section uiter.
     cbn -[plus].
     specialize H' with (x:=x0).
     destruct (f x0).
-    -edestruct H' as [? ->]. 2:eassumption. omega. rewrite IHn0. 2:easy.
+    -edestruct H' as [? ->]. 2:eassumption. lia. rewrite IHn0. 2:easy.
      now Lia.lia.
      replace (n0'-n0) with (S (n0'-S n0)) by Lia.nia. eapply H2. 
     -rewrite H' with (n:=n0'-S n0) (n':=n0'). all:try now Lia.lia. eassumption.
@@ -102,8 +102,8 @@ Section uiter.
       uiterTime n x <= iterT x.
   Proof.
     intros H' n x.
-    pose (n':=n). assert (Hleq : n<=n') by (cbn;omega).
-    replace 0 with (n'-n) at 1 by (cbn;omega).
+    pose (n':=n). assert (Hleq : n<=n') by (cbn;lia).
+    replace 0 with (n'-n) at 1 by (cbn;lia).
     clearbody n'.
     induction n in x,Hleq |-*. 1:cbn;Lia.nia.
     intros HPx.
@@ -163,9 +163,9 @@ Section uiter.
      specialize H' with (1:=lt'') (2:=R') as [H' H''].
      destruct (f x).
      +split. 2:easy. 
-      replace (S n) with (n+1) by omega.
+      replace (S n) with (n+1) by lia.
       eapply pow_add. eexists x. split. eauto. apply rcomp_1 with (R:=R). tauto.
-     +intro. omega.
+     +intro. lia.
     -reflexivity. 
   Qed.  
     

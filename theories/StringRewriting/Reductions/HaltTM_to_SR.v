@@ -2,7 +2,7 @@ Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Red
 
 Require Undecidability.StringRewriting.Util.singleTM.
 
-Require Import Undecidability.TM.Halting.
+Require Import Undecidability.TM.TM.
 Require Import Undecidability.StringRewriting.SR.
 
 Require Import Undecidability.StringRewriting.Reductions.TM_to_SRH.

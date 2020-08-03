@@ -1,4 +1,4 @@
-From Undecidability.L Require Export L Tactics.Extract.
+From Undecidability.L Require Export Util.L_facts Tactics.Extract.
 Require Import PslBase.Bijection String.
 
 (** * Correctness and time bounds *)

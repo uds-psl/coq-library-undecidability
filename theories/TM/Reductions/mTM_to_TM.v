@@ -1,5 +1,5 @@
-From Undecidability.TM Require Import Single.StepTM Code.CodeTM.
-From Undecidability.Problems Require Import TM Reduction.
+From Undecidability.TM Require Import Single.StepTM Code.CodeTM TM.
+From Undecidability.Problems Require Import Reduction.
 Require Import Undecidability.Shared.Prelim.
 
 Lemma nTM_to_MTM n :
@@ -12,7 +12,7 @@ Proof.
     firstorder.
 Qed.
 
-Lemma mk_pTM n sig (m : mTM n sig) : pTM n unit sig.
+Lemma mk_pTM n (sig : finType) (m : TM sig n) : pTM sig unit n.
 Proof.
   unshelve econstructor. exact m. exact (fun _ => tt).
 Defined.  
@@ -30,18 +30,21 @@ Proof.
     econstructor. 2:econstructor.
     refine (midtape nil (inl START) (map inr t ++ [inl STOP])).
   - intros [ [n sig] M t]. cbn.
+    unfold HaltsTM.
+    setoid_rewrite TM_eval_iff.
     intuition.
-    + destruct H as (C & k & H).
+    + destruct H as (q' & t' & k & H).
       assert (M ↓ (fun t' k' => t = t' /\ k' = k)).
       { intros ? ? []. subst. eauto. }
       eapply (ToSingleTape_Terminates' (pM := mk_pTM M)) in H0.
       specialize (H0 [|midtape [] (inl START) ([inr p | p ∈ EncodeTapes.encode_tapes t] ++ [inl STOP])|]).
       edestruct H0. 
       * exists t, k. repeat split; eauto.
-      * exists x. eexists. 
+      * destruct x as [q'' t'']. exists q'', t''. 
         destruct ((ToSingleTape (mk_pTM M))).
+        eexists.
         eapply H1.
-    + destruct H as (C & k & H). cbn in *.
+    + destruct H as (q' & t' & k & H). cbn in *.
       pose proof (ToSingleTape_Realise' (pM := mk_pTM M)).
       specialize (H0 (fun t '(f,t') => exists outc k, loopM (initc M t) k = Some outc /\ ctapes outc = t')).
       edestruct H0.
@@ -49,5 +52,6 @@ Proof.
       * eapply H.
       * firstorder.
       * intuition. destruct H2 as (? & ? & ? & ?). subst.
-        now exists x0, x1.
+        destruct x0 as [q'' t''].
+        now exists q'', t'', x1.
 Qed.

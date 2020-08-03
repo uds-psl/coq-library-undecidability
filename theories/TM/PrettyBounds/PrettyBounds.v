@@ -1,7 +1,7 @@
 (** * Definitions and Automation for PrettyBounds *)
 
-From Undecidability Require Export TM.Prelim.
-From Undecidability Require Export TM.ArithPrelim.
+From Undecidability Require Export TM.Util.Prelim.
+From Undecidability Require Export TM.Util.ArithPrelim.
 From Undecidability Require Export TM.Code.Code.
 
 Arguments size {sig X cX}.
@@ -80,7 +80,7 @@ Lemma dominatedWith_const x y:
   1 <= y ->
   x <=(x) y.
 Proof.
-  unfold dominatedWith. intros;destruct y. omega. ring_simplify. lia.
+  unfold dominatedWith. intros;destruct y. lia. ring_simplify. lia.
 Qed.
 
 Smpl Add 50 (simple eapply dominatedWith_const;(lia + nia)) : domWith.
@@ -88,7 +88,7 @@ Smpl Add 50 (simple eapply dominatedWith_const;(lia + nia)) : domWith.
 Lemma dominatedWith_solve x y:
   x <= y ->
   x <=(1) y.
-Proof. unfold dominatedWith. intros;destruct y. omega. ring_simplify. lia. Qed.
+Proof. unfold dominatedWith. intros;destruct y. lia. ring_simplify. lia. Qed.
 
 
 Smpl Add 50 (simple eapply dominatedWith_solve;(lia+nia)) : domWith.
@@ -98,7 +98,7 @@ Lemma dominatedWith_S c x y :
   x <=(c) y ->
   x <=(c) S y.
 Proof.
-  unfold dominatedWith. intros H. rewrite Nat.mul_succ_r. omega.
+  unfold dominatedWith. intros H. rewrite Nat.mul_succ_r. lia.
 Qed.
 
 Lemma dominatedWith_S' c x y :
@@ -109,7 +109,7 @@ Proof.
   unfold dominatedWith. intros H. rewrite Nat.mul_succ_l.
   transitivity (S (c * y)).
   - now rewrite H0.
-  - omega.
+  - lia.
 Qed.
 
 (* We can use this lemma if we know that the input is bound *)
@@ -271,17 +271,17 @@ Lemma dominatedWith_refl (c x : nat) : c > 0 -> x <=(c) x.
 Proof.
   intros H.
   induction c.
-  - omega.
+  - lia.
   - hnf. cbn. lia.
 Qed.
 
 
-Ltac pose_nice L H c:=
-  pose proof (proj2_sig L) as H;
+Ltac pose_nice Lmove H c:=
+  pose proof (proj2_sig Lmove) as H;
   unfold dominatedWith in H;
-  pose (c := proj1_sig L);
+  pose (c := proj1_sig Lmove);
   match type of H with
-    context C [proj1_sig L] =>
+    context C [proj1_sig Lmove] =>
     let H' := context C[c] in
     change H' in H
   end.

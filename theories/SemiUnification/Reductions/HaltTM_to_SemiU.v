@@ -1,6 +1,6 @@
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.ReducibilityFacts.
 
-Require Import Undecidability.TM.Halting.
+Require Import Undecidability.TM.TM.
 Require Import Undecidability.SemiUnification.SemiU.
 
 Require Import Undecidability.StackMachines.Reductions.HaltTM_to_CSSM_UB.
