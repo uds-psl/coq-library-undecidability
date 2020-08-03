@@ -228,7 +228,7 @@ Section Post_CFG.
              rewrite Nat.eqb_refl in H. eapply notInZero. lia.
           -- eapply rewt_count in H. rewrite <- !countSplit in H. cbn in H.
              rewrite Nat.eqb_refl in H. eapply notInZero. lia.
-        * destruct A; firstorder.
+        * destruct A; cbn; firstorder congruence.
   Qed.
 
   Lemma reduction_full x :

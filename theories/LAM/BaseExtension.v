@@ -10,7 +10,9 @@ Lemma map_nth_lt (A B : Type) (f : A -> B) x (l : list A) (d : A) (n : nat):
 Proof.
   revert n.
   induction l;cbn;intros;try firstorder lia.
-  destruct _;firstorder.
+  destruct n.
+  - reflexivity.
+  - eapply IHl. lia.
 Qed.
 
 Lemma nth_error_nth (A : Type) x (l : list A) (d : A) (n : nat): 

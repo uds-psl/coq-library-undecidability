@@ -135,7 +135,7 @@ Proof.
     * intros H; split; intros; apply H; lia.
 Qed.
 
-Definition nxtprime_bool n p := Nat.le (S n) p && notprime_bool_rec (S n) (p - S n) && prime_bool p.
+Definition nxtprime_bool n p := Nat.leb (S n) p && notprime_bool_rec (S n) (p - S n) && prime_bool p.
 
 Fact nxtprime_bool_spec n p : nxtprime_bool n p = true <-> nxtprime n = p.
 Proof.

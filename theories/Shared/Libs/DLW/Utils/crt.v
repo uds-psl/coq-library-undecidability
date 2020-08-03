@@ -53,11 +53,6 @@ Section Informative_Chinese_Remainder_theorems.
         rewrite rem_plus_rem, plus_comm.
         symmetry; apply rem_plus_div; auto.
       + apply lt_le_trans with (3*1); try lia.
-        do 2 apply le_trans with (2 := le_plus_l _ _).
-        apply mult_le_compat_l.
-        cut (u*v <> 0).
-        * generalize (u*v); intros; lia.
-        * intros G; apply mult_is_O in G; lia.
     Qed.
 
   End Binary.
@@ -85,7 +80,6 @@ Section Informative_Chinese_Remainder_theorems.
       destruct (IHn (m1*m2 ## m) (w0 ## v)) as (w & Hw).
       * intros p; invert pos p.
         - assert (0 < m1 * m2); try lia.
-          apply Nat.mul_pos_pos; lia.
         - apply H1 with (p := pos_nxt (pos_nxt p)).
       * intros p q; invert pos p; invert pos q; intros H; try (destruct H; auto; fail).
         2: apply is_gcd_sym.

@@ -135,16 +135,16 @@ Section BasicLemmas.
 
 
   Lemma incl_distr_left A B C: A ⊆ B -> A ⊆ B ++ C.
-  Proof. firstorder. Qed.
+  Proof. intuition. Qed.
 
   Lemma incl_distr_right A B C: A ⊆ C -> A ⊆ B ++ C. 
-  Proof. firstorder.  Qed.
+  Proof. intuition.  Qed.
 
   Lemma incl_app_project_left A B C: A ++ B ⊆ C -> A ⊆ C.
-  Proof. firstorder. Qed. 
+  Proof. intros H x Hx. eapply H, in_app_iff. eauto. Qed.
 
   Lemma incl_app_project_right A B C: A ++ B ⊆ C -> B ⊆ C.
-  Proof. firstorder. Qed.
+  Proof. intros H x Hx. eapply H, in_app_iff. eauto. Qed.
 
   Lemma incl_app_build A B C: A ⊆ C -> B ⊆ C -> A ++ B ⊆ C.
   Proof. intros; eapply incl_app; intuition. Qed.

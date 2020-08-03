@@ -813,7 +813,6 @@ Proof.
   split.
   firstorder.  
   1,2: eapply H, in_app_iff; eauto.
-
   intros (H1 & H2) x Hx.
   apply in_app_or in Hx; firstorder.
 Qed.

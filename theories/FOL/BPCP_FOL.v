@@ -200,7 +200,7 @@ Theorem BPCP_satis R :
   ~ PCPb R <-> satis (¬ F R).
 Proof.
   rewrite PCPb_iff_dPCPb. split.
-  - intros H. exists _, (fun _ => nil), (IB R), (fun _ => nil).
+  - intros H. exists (list bool), (fun _ => nil), (IB R), (fun _ => nil).
     intros H'. cbn. apply H, (IB_F H').
   - rewrite <- PCPb_iff_dPCPb. intros H1 H2 % (BPCP_valid R (b:=full)).
     apply (valid_satis H2), H1.

@@ -196,8 +196,10 @@ Section MPCP_PCP.
   Proof.
     split.
     - intros (A & Hi & (B & HiB & H) % MPCP_PCP).
-      exists (d :: B). firstorder.
-      cbn. f_equal. now rewrite H. eassumption.
+      exists (d :: B). 
+      + firstorder try congruence. 
+        * cbn. f_equal. now rewrite H.
+      +  eassumption.
     - intros ([|d' B] & Hi & He & H); firstorder.
       pose proof H as -> % match_start; eauto.
       cbn -[fresh] in H. inv H.

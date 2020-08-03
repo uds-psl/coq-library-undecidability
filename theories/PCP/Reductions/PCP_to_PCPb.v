@@ -14,7 +14,7 @@ Definition to_bitstring (n : nat) : string bool := Nat.iter n (cons true) [].
 
 Lemma bitstring_false a : ~ false el to_bitstring a.
 Proof.
-  induction a; cbn; firstorder.
+  induction a; cbn; firstorder congruence.
 Qed.
 
 (* strings of natural numbers to bitstrings, [ n1, ... n2 ] |-> 1^n1 0 ... 1^n2 0 *)

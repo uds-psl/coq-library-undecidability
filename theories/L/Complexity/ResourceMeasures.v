@@ -220,7 +220,7 @@ Definition hasSpace m s := maxP (fun m => exists s', s >* s' /\ m = size s' ) m.
 Lemma hasSpace_iff m s :
   hasSpace m s <-> (forall s', s >* s' -> size s' <= m) /\ (exists s', s >* s' /\ size s' = m).
 Proof.
-  unfold hasSpace,maxP. firstorder.
+  unfold hasSpace,maxP. firstorder. subst. firstorder.
 Qed.
 
 Lemma step_timeBS k s s' t: step s s' -> timeBS k s' t -> timeBS (S k) s t.

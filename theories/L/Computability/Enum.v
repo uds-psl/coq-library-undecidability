@@ -217,7 +217,7 @@ Proof.
   remember (S n1) as n1'. induction 1; inv Heqn1'; eauto using C_S.
 Qed.
 
-Fixpoint eSize (p : nat * nat) := let (n,m) := p in 1 + n + m.
+Definition eSize (p : nat * nat) := let (n,m) := p in 1 + n + m.
 
 Lemma C_exhaustive p : p el C( eSize p ).
 Proof.
