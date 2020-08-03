@@ -147,7 +147,7 @@ Section expo_diophantine.
         + rewrite <- Nat.sub_add_distr, <- plus_assoc, <- Nat.add_sub_assoc; try lia.
           apply plus_le_compat; try lia.
           apply mult_le_compat; lia. }
-      rewrite <- (rem_lt H9), <- (rem_lt Hq).
+      rewrite <- (rem_lt Hm H9), <- (rem_lt Hm Hq).
       revert H10. 
       rewrite Hm1 in Hm |- *.
       do 2 rewrite <- nat2Zp_inj with (Hp := Hm).

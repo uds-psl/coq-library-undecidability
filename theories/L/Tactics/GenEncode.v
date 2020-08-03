@@ -34,6 +34,8 @@ Definition mkMatch (t1 t2 d : Ast.term) (cases : nat -> list term -> Core.Templa
   ret (tCase (ind, params) (tLambda nAnon t1 t2) d
                                                 body).
 
+Definition L_facts_mp := MPfile ["L_facts"; "Util"; "L"; "Undecidability"].
+
 Definition tmMatchCorrect (A : Type) : Core.TemplateMonad Prop :=
   t <- (tmEval hnf A >>= tmQuote) ;; 
   hs_num <- tmGetOption (split_head_symbol t) "no inductive";;
@@ -53,13 +55,13 @@ Definition tmMatchCorrect (A : Type) : Core.TemplateMonad Prop :=
    l <- tmQuote t';;
    encn <- ret (tApp l [tRel (2*num) ]) ;;
    lhs <- ret (mkLApp encn ((fix f n := match n with 0 => [] | S n => tRel (2 * n + 1) :: f n end ) num)) ;;
-   ter <- ret (tProd nAnon t (it (fun s : term => tProd nAnon tTerm (tProd nAnon (tApp (tConst (term_mp, "proc") []) [tRel 0]) s)) num ((tApp (tConst (term_mp, "redLe") []) [mkNat num; lhs; mtch]))));;
+   ter <- ret (tProd nAnon t (it (fun s : term => tProd nAnon tTerm (tProd nAnon (tApp (tConst (L_facts_mp, "proc") []) [tRel 0]) s)) num ((tApp (tConst (L_facts_mp, "redLe") []) [mkNat num; lhs; mtch]))));;
    ter <- tmEval cbv ter ;;
    tmUnquoteTyped Prop ter.
 
 Definition matchlem n A := (Core.tmBind (tmMatchCorrect A) (fun m => tmLemma n m ;; ret tt)).
 
-Definition tmGenEncode (n : ident) (A : Type) :=
+Definition tmGenEncode (n : ident) (A : Type) : TemplateMonad unit :=
   e <- tmEncode n A;;
   modpath <- tmCurrentModPath tt ;;
   e <- tmUnquoteTyped (encodable A) (tConst (modpath, n) []);;
@@ -68,7 +70,7 @@ Definition tmGenEncode (n : ident) (A : Type) :=
   i <- Core.tmLemma n2  (injective (@enc_f _ e)) ;;
   n3 <- tmEval cbv ("registered_" ++ n) ;;
   d <- Core.tmDefinition n3  (@mk_registered A e p i);;
-  tmExistingInstance (ConstRef (modpath, n3));;
+  tmExistingInstance (ConstRef (modpath, n3)) ;;
   m <- tmMatchCorrect A;;
   n4 <- tmEval cbv (n ++ "_correct") ;;
   (Core.tmBind (tmMatchCorrect A) (fun m => tmLemma n4 m ;; ret tt)).
@@ -91,3 +93,4 @@ Global Obligation Tactic := try fold (injective (enc_f)); match goal with
                            | [ |- injective ?f ] => register_inj
                            | [ |- context [_ >(<= _) _] ] => extract match
                            end || Tactics.program_simpl.
+

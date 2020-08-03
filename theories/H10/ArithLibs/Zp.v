@@ -1135,7 +1135,6 @@ End Zp.
 Fact divides_not_0_interval p q : q <> 0 -> divides p q -> 1 <= p <= q.
 Proof.
   intros Hq ([ | k ] & Hk); try lia.
-  destruct p as [ | p ]; try lia.
 Qed.
 
 Fact divides_fact_lt q n : 1 <= q <= n -> divides q (fact n).

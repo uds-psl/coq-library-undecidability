@@ -884,7 +884,7 @@ Section sums.
       Let H19 : u*u = u1 + u2.
       Proof.
         rewrite Hu1, Hu. 
-        apply const_u_square; auto.
+        apply const_u_square with (k' := 0) (w := 0); eauto.
       Qed.
 
       Let k := S (power (S l) 2).
@@ -1370,7 +1370,7 @@ Section sums.
       destruct Hb as (_ & Hb1 & Hb2).
       destruct Hc as (_ & Hc1 & Hc2).
       destruct (eq_nat_dec l 0) as [ | Hl ].
-      + subst l; rewrite msum_0 in *; split; intros; lia.
+      + clear Hc Hb Ha. subst l; rewrite msum_0 in *; split; intros; lia.
       + rewrite Hc2, Ha2, Hb2, <- sum_0n_distr_in_out.
         split.
         * intros; apply msum_ext; intros; f_equal; auto.
@@ -1515,7 +1515,7 @@ Section sums.
       destruct Hb as (_ & Hb1 & Hb2).
       destruct Hc as (_ & Hc1 & Hc2).
       destruct (eq_nat_dec l 0) as [ | Hl ].
-      + subst l; split; intros; auto; lia.
+      + rewrite e in *; split; intros; auto; lia.
       + split.
         * intros H; right; split; try lia.
           exists u, u1, (r-1), r, (ca * u ⇣ ((r-1) * u1)).
@@ -1560,7 +1560,7 @@ Section sums.
       split.
       + intros (H1 & H2 & H3).
         destruct (le_lt_dec l 0) as [ | Hl ].
-        - assert (l = 0) by lia; subst l.
+        - assert (l = 0) as -> by lia.
           rewrite msum_0 in H3; left; lia.
         - right; split; auto.
           exists (∑ l (fun i => (S i) * power (power (S i) 2) r)), u, u1; split; auto.

@@ -209,7 +209,7 @@ Section BasicLemmas.
   (* app *)
   Global Instance proper_app_incl: Proper (incl ++> incl ++> incl) (@app X).
   Proof.
-    intros A A' H1 B B' H2; induction A; firstorder.  
+    intros A A' H1 B B' H2; induction A; firstorder auto with *.
   Qed.
   
   Global Instance proper_app_seteq: Proper (seteq ++> seteq ++> seteq) (@app X).

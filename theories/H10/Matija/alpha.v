@@ -692,8 +692,7 @@ Section Pell.
     red in H3.
     assert (0 <= - (b *x*y)) as H4.
     { replace (-(b*x*y)) with (b*x*-y) by ring.
-      apply Z.mul_nonneg_nonneg; try lia.
-      apply Z.mul_nonneg_nonneg; lia. }
+      apply Z.mul_nonneg_nonneg; try lia. }
     assert (0 < x*x) as H5.
     { apply Z.mul_pos_pos; auto. }
     assert (0 < y*y) as H6.
