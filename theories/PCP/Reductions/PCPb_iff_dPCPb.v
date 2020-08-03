@@ -1,13 +1,7 @@
-Require Import List.
-Import ListNotations.
+Require Import Undecidability.Synthetic.Undecidability.
 
-Require Import Undecidability.PCP.PCP.
-Require Import Undecidability.PCP.Util.Facts.
-Require Import Undecidability.PCP.Reductions.PCPX_iff_dPCP.
-
-Require Import Undecidability.Problems.Reduction.
-
-Require Import Undecidability.Shared.Prelim.
+From Undecidability.PCP
+  Require Import PCP Util.Facts PCPX_iff_dPCP.
 
 Lemma PCPb_iff_dPCPb P : PCPb P <-> dPCPb P.
 Proof. apply PCPX_iff_dPCP. Qed.

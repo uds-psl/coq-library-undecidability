@@ -8,8 +8,8 @@
 (**************************************************************)
 
 Require Import List Arith Lia.
+Import ListNotations.
 
-Require Import Undecidability.Shared.Prelim.
 Require Import Undecidability.Synthetic.Undecidability.
 
 From Undecidability.Shared.Libs.DLW 
@@ -62,7 +62,7 @@ Section iPCPb_to_BSM_HALTING.
     exact (vec_set_pos (fun _ => nil)).
   Defined.
 
-  Goal forall x, | pcp_bsm x| >= 80.
+  Goal forall x, length(pcp_bsm x) >= 80.
     intros; rewrite pcp_bsm_size; lia.
   Qed.
   
