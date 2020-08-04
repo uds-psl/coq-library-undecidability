@@ -526,8 +526,8 @@ Proof.
   move /in_split_informative => /(_ ltac:(by do 5 (decide equality))) => [[[M21 M22] HM2]].
   pose M3 := Reordering.M' M21 M22 (a :: l) r l' r' x y.
   pose M4 := DerivableRule.M' (M21 ++ M22) (a::l) r l' r' x y.
-  have ? : x <> z by admit. (*  (move: HM => /fresh_StateP; lia). *)
-  have ? : y <> z by admit. (* (move: HM => /fresh_StateP; lia). *)
+  have ? : x <> z by (move: HM => /fresh_StateP; subst z; lia).
+  have ? : y <> z by (move: HM => /fresh_StateP; subst z; lia). 
   (* lzar -> l'yr' is derivable *)
   have ? : reachable M1 (l, a :: r, z) (l', r', y).
   { apply: AddFreshLoop.step_fresh_rI; first by (move=> /=; lia).
@@ -564,7 +564,7 @@ Proof.
     rewrite /Reordering.M -HM2.
     rewrite -(DerivableRule.boundedness); last by eassumption.
     rewrite -(AddFreshLoop.boundedness); [done | done | by apply: fresh_StateP' | by move=> /=; lia ].
-Admitted.
+Qed.
 
 Lemma minimize_weight_rhs {M: SMN} {a r l' r' x y} : 
   In (([], r, x), (a :: l', r', y)) M ->
@@ -582,8 +582,8 @@ Proof.
   move /in_split_informative => /(_ ltac:(by do 5 (decide equality))) => [[[M21 M22] HM2]].
   pose M3 := Reordering.M' M21 M22 [] r (a::l') r' x y.
   pose M4 := DerivableRule.M' (M21 ++ M22) [] r (a::l') r' x y.
-  have ? : x <> z by admit. (*  by  (move: HM => /fresh_StateP; lia). *)
-  have ? : y <> z by admit. (*  (move: HM => /fresh_StateP; lia). *)
+  have ? : x <> z by  (move: HM => /fresh_StateP; subst z; lia).
+  have ? : y <> z by  (move: HM => /fresh_StateP; subst z; lia). 
   (* xr -> l'zar' is derivable *)
   have ? : reachable M1 ([], r, x) (l', a::r', z).
   { apply: AddFreshLoop.step_fresh_lI; first by (move=> /=; lia).
@@ -618,7 +618,7 @@ Proof.
     rewrite /Reordering.M -HM2.
     rewrite -(DerivableRule.boundedness); last by eassumption.
     rewrite -(AddFreshLoop.boundedness); [done | done | by apply: fresh_StateP' | by move=> /=; lia ].
-Admitted.
+Qed.
 
 Lemma minimize_weight_short {M: SMN} {a b x y} : 
   In (([], [a], x), ([], [b], y)) M ->
@@ -635,8 +635,8 @@ Proof.
   move /in_split_informative => /(_ ltac:(by do 5 (decide equality))) => [[[M21 M22] HM2]].
   pose M3 := Reordering.M' M21 M22 [] [a] [] [b] x y.
   pose M4 := DerivableRule.M' (M21 ++ M22) [] [a] [] [b] x y.
-  have ? : x <> z by admit. (*  (move: HM => /fresh_StateP; lia). *)
-  have ? : y <> z by admit. (*  (move: HM => /fresh_StateP; lia). *)
+  have ? : x <> z by (move: HM => /fresh_StateP; subst z; lia). 
+  have ? : y <> z by (move: HM => /fresh_StateP; subst z; lia). 
   (* az -> yb is derivable *)
   have ? : reachable M1 ([a], [], z) ([], [b], y).
   { apply: AddFreshLoop.step_fresh_rI; first by (move=> /=; lia).
@@ -668,7 +668,7 @@ Proof.
     rewrite /Reordering.M -HM2.
     rewrite -(DerivableRule.boundedness); last by eassumption.
     rewrite -(AddFreshLoop.boundedness); [done | done | by apply: fresh_StateP' | by move=> /=; lia ].
-Admitted.
+Qed.
 
 Lemma minimize_weight_length {M: SMN} {a r b r' x y} : 
   In (([], a :: r, x), ([], b :: r', y)) M ->
@@ -689,8 +689,8 @@ Proof.
   move /in_split_informative => /(_ ltac:(by do 5 (decide equality))) => [[[M31 M32] HM3]].
   pose M4 := Reordering.M' M31 M32 [] (a::r) [] (b::r') x y.
   pose M5 := DerivableRule.M' (M31 ++ M32) [] (a::r) [] (b::r') x y.
-  have ? : x <> z1 by admit. (* (move: HM => /fresh_StateP; lia). *)
-  have ? : y <> z1 by admit. (* (move: HM => /fresh_StateP; lia). *)
+  have ? : x <> z1 by (move: HM => /fresh_StateP; subst z1; lia). 
+  have ? : y <> z1 by (move: HM => /fresh_StateP; subst z1; lia). 
   have [? ?] : x <> z2 /\ y <> z2.
   { have /fresh_StateP : In ([], a :: r, x, ([], b :: r', y)) M1.
       rewrite /M1 /AddFreshLoop.M' ?in_app_iff. by right. cbn in *.
