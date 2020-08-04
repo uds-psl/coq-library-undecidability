@@ -725,7 +725,7 @@ Proof.
       case; first by congruence.
       case; last done.
       move=> + [] *. move=> [] *. by subst.
-    move /fresh_StateP=> ? [] *. admit. (* by lia. *) }
+    move /fresh_StateP=> ? [] *. subst z1. by lia. }
   (* z1 is only entered with a on the left stack *)
   have ? : forall l'' r'' z , step M2 z (l'', r'', z1) -> l'' = [a] ++ skipn 1 l''.
   { move=> l'' r'' z. move HZ1: (l'', r'', z1) => Z1 HZ1z. case: HZ1z HZ1.
@@ -735,7 +735,7 @@ Proof.
       case.
         move=> + [] * => [[]] *. by subst.
       case; [by congruence | done].
-    move /fresh_StateP=> ? [] *. admit. (* by lia.  *)}
+    move /fresh_StateP=> ? [] *. subst z1. by lia. }  
   exists (M31 ++ M32). constructor; [| constructor; [| constructor]].
   - suff: weight M3 < weight M + (weight_Instruction ([], (a::r), x, ([], (b::r'), y))).
     { rewrite HM3 weight_split. move: (weight_Instruction _) (weight _). by lia. }
@@ -761,7 +761,7 @@ Proof.
     rewrite -(DerivableRule'.boundedness); [ | by eassumption | done | done | done | done ].
     rewrite -(AddFreshLoop.boundedness); [ | done | by apply: fresh_StateP' | by move=> /=; lia ].
     rewrite -(AddFreshLoop.boundedness); [ done | done | by apply: fresh_StateP' | by move=> /=; lia ].
-Admitted.
+Qed.
 
 Lemma overweight_Instruction {M} : weight M <> 0 -> { op | In op M /\ weight_Instruction op <> 0 }.
 Proof.

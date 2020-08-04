@@ -178,11 +178,6 @@ Qed.
 
 From Coq Require Strings.String.
 
-(* Labelled Todo-notes, useful for deriving objects during proofs.*)
-Definition TODO {X Y} (x:X) : Y.
-Admitted.
-Arguments TODO _ _ _%string_scope.
-
 Section bla.
   Import FinTypes.
   Lemma leUpToC_finCases X (Y:finType) Z__case (cases : forall (y:Y), Z__case y -> X) (f F : X -> nat) :
