@@ -738,10 +738,9 @@ Section Reduction.
         (§0^(CM.value p' - (k + 1) * (1 + p'n)) ++ [§1] ++ l) (§0^((k + 1) * (1 + p'n) + k) ++ [§1] ++ r));
           [by lia | by auto with M | done | ].
 
-      apply: (first_goto_1 HN 0); [by eauto with M | (* by lia *) | by lia |].
-      admit. 
+      apply: (first_goto_1 HN 0); [by eauto with M | by move: ((k + 1) * (1 + p'n)); lia | by lia |].
       apply: reachable_n_refl'. rewrite ?app_norm ?nat_norm. do 4 f_equal. by lia.
-  Admitted.
+  Qed.  
 
   Section Reflection.
   (* Assume that M is uniformly bounded by NM,
@@ -1577,10 +1576,10 @@ Section Reduction.
     apply: (maybe_first_step (index_try_spec (i, (j, n))) l (§0^m ++ [§1] ++ r)); 
       [ by nia  | by auto with M | by rewrite ?app_norm | ]. 
 
-    rewrite ?app_norm. apply: (maybe_first_goto_1 maybe_index_yes_grow_time); first by admit.
+    rewrite ?app_norm. apply: (maybe_first_goto_1 maybe_index_yes_grow_time); first by nia.
     subst x. have [_ ->]:= in_iP_unique (n := n) (n' := n') ltac:(eassumption) ltac:(eassumption).
     rewrite Hmn'. move: He. by apply: maybe_reachable_mon'; first by lia.
-  Admitted. 
+  Qed.
   
   Lemma maybe_increase_try_grow l r m i :
     exists '(l', r', n, X, Y), maybe_reachable 1 (l, §0^m ++ r, '$?i) (l', §0^(m+1) ++ r', goto n X Y).
