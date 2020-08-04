@@ -24,7 +24,7 @@ Section NthOrderUnificationDefinition.
 End NthOrderUnificationDefinition.
 Arguments orduni _ : clear implicits.
 Arguments OU _ : clear implicits.
-Hint Resolve @H1₀ @H2₀ : core.
+Hint Resolve H1₀ H2₀ : core.
 
 
 
@@ -97,7 +97,7 @@ Section NthOrderSystemUnification.
 
   Arguments SOU: clear implicits.
 
-  Hint Resolve @H₀' : core.
+  Hint Resolve H₀' : core.
 
 
   Lemma linearize_terms_ordertyping n Gamma (S: list (exp X)) L A:

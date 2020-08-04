@@ -160,7 +160,7 @@ Section SystemUnification.
       (Delta ⊩ sigma : Gammaᵤ') /\ forall s t, (s, t) ∈ Eᵤ' -> sigma • s ≡ sigma • t.
 
   Arguments SU: clear implicits.
-  Hint Resolve @Hᵤ' : core.
+  Hint Resolve Hᵤ' : core.
 
 
 
