@@ -294,19 +294,6 @@ Section Fin.
     finMin_opt n = Some i -> fin_to_nat i = 0.
   Proof. destruct n; cbn; intros H; inv H; auto. Qed.
 
-  (*
-  Lemma finSucc_opt_correct (n : nat) (i i' : Fin.t n) (H : n <> 0) :
-    finSucc_opt i = Some i' -> i <> finMax H.
-  Proof.
-    induction i; cbn; intros.
-    - destruct n; cbn. congruence. congruence.
-    - destruct n; cbn in *. congruence.
-      intros -> % Fin.FS_inj. cbn in *.
-      eapply IHi; clear IHi. decide (n=0) as [-> | Hdec]; cbn in *.
-      + congruence.
-      + destruct n; cbn in *. congruence. decide (n = 0) as [ -> | ?]. admit.
-*)
-
   Lemma finSucc_correct (n : nat) (i : Fin.t n) (H1 : n <> 0) (H2 : i <> finMax H1) :
     fin_to_nat (finSucc H2) = S (fin_to_nat i).
   Proof.
@@ -319,23 +306,6 @@ Section Fin.
           rewrite fin_to_nat_S. f_equal. rewrite finMin_val. reflexivity.
         * rewrite !fin_to_nat_S. f_equal. now rewrite IH.
   Qed.
-
-
-  (*
-  Fixpoint finShrink (n : nat) (i : Fin.t (S n)) (Hneq0 : S n <> 0) (HneqMax : i <> finMax Hneq0) {struct n} : Fin.t n.
-  Proof.
-    revert n i Hneq0 HneqMax.
-    eapply (Fin.caseS (fun n (i : Fin.t (S n)) => forall (Hneq0 : S n <> 0), i <> finMax Hneq0 -> Fin.t n)).
-    - intros n Hneq0 HNeqMax. cbn in *. decide (n = 0) as [ -> | HDec].
-      + abstract congruence.
-      + destruct n as [ | n']. congruence. apply Fin.F1.
-    - intros n i Hneq0 HneqMax.
-      destruct n as [ | n']. congruence.
-      apply Fin.FS.
-      Show Existentials.
-      assert (S n' <> 0) by lia.
-  Defined.
-  *)
 
 
 End Fin.
