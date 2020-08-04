@@ -1,5 +1,5 @@
 opam-version: "2.0"
-version: "dev+8.11"
+version: "dev+8.12"
 maintainer: "forster@ps.uni-saarland.de"
 homepage: "https://github.com/uds-psl/coq-library-undecidability/"
 dev-repo: "git+https://github.com/uds-psl/coq-library-undecidability/"
@@ -25,17 +25,17 @@ remove: [
   ["rm" "-R" "%{lib}%/coq/user-contrib/Undecidability"]
 ]
 depends: [
-  "coq" {>= "8.11" & < "8.12~"}
-  "coq-equations" {= "1.2.1+8.11"}
-  "ocaml" 
-  "coq-smpl" {= "8.11"}
-  "coq-psl-base-library" {="1.0.1+8.11"}
-  "coq-metacoq-template" {="1.0~alpha2-uds-psl+8.11" }
-  "coq-metacoq-checker" {="1.0~alpha2-uds-psl+8.11" }
+  "coq" {>= "8.12" & < "8.13~"}
+  "coq-equations" {= "1.2.3+8.12"}
+  "ocaml"
+  "coq-smpl" {= "8.12"}
+  "coq-psl-base-library" {="1.0.2+8.12"}
+  "coq-metacoq-template" {="1.0~alpha3-uds-psl+8.12" }
+  "coq-metacoq-checker" {="1.0~alpha3-uds-psl+8.12" }
 ]
 
 synopsis: "A Coq Library of Undecidability Proofs"
 flags: light-uninstall
 url {
-  git: "https://github.com/uds-psl/coq-library-undecidability.git#coq-8.11"
+  git: "https://github.com/uds-psl/coq-library-undecidability.git#coq-8.12"
 }
