@@ -257,33 +257,33 @@ Proof.
   destruct f; cbn. 
   - split.
     + inversion 1. subst.
-      eapply EqDec.inj_right_pair in H4. subst.
+      eapply (Eqdep_dec.inj_pair2_eq_dec _ nat_eq_dec) in H4. subst.
+      reflexivity. 
+    + destruct n; inversion 1. subst. econstructor.
+  - split.
+    + inversion 1. subst.
+      eapply (Eqdep_dec.inj_pair2_eq_dec _ nat_eq_dec) in H3. subst.
       reflexivity.
     + destruct n; inversion 1. subst. econstructor.
   - split.
     + inversion 1. subst.
-      eapply EqDec.inj_right_pair in H3. subst.
-      reflexivity.
-    + destruct n; inversion 1. subst. econstructor.
-  - split.
-    + inversion 1. subst.
-      eapply EqDec.inj_right_pair in H3. subst.
+      eapply (Eqdep_dec.inj_pair2_eq_dec _ nat_eq_dec) in H3. subst.
       cbn; revert H0; vec split v with x; auto. 
     + destruct n; inversion 1. 
       revert H0 H2; vec split v with x; cbn.
       intros [=] _; subst; constructor.
   - split.
     + inversion 1. subst.
-      eapply EqDec.inj_right_pair in H5. subst.
-      eapply EqDec.inj_right_pair in H6. subst.
+      eapply (Eqdep_dec.inj_pair2_eq_dec _ nat_eq_dec) in H5. subst.
+      eapply (Eqdep_dec.inj_pair2_eq_dec _ nat_eq_dec) in H6. subst.
       cbn. rewrite vec_list_nth. reflexivity.
     + destruct n; inversion 1. rewrite vec_list_nth in H2. inv H2. econstructor.
   - split.
     + inversion 1. subst.
-      eapply EqDec.inj_right_pair in H2. subst.
-      eapply EqDec.inj_right_pair in H7. subst.
-      eapply EqDec.inj_right_pair in H7. subst.
-      eapply EqDec.inj_right_pair in H8. subst.
+      eapply (Eqdep_dec.inj_pair2_eq_dec _ nat_eq_dec) in H2. subst.
+      eapply (Eqdep_dec.inj_pair2_eq_dec _ nat_eq_dec) in H7. subst.
+      eapply (Eqdep_dec.inj_pair2_eq_dec _ nat_eq_dec) in H7. subst.
+      eapply (Eqdep_dec.inj_pair2_eq_dec _ nat_eq_dec) in H8. subst.
       assert (forall j : pos k, eval (c0 - pos2nat j) min (erase (vec_pos t j)) (vec_list v) = Some (inl (vec_pos w j))).
       intros. eapply H. lia.
                                       
@@ -318,14 +318,14 @@ Proof.
         eauto.
       * eapply H. lia. eassumption.
   - split. inversion 1.
-    + eapply EqDec.inj_right_pair in H4. subst.
-      eapply EqDec.inj_right_pair in H6. subst.
-      eapply EqDec.inj_right_pair in H7. subst.
+    + eapply (Eqdep_dec.inj_pair2_eq_dec _ nat_eq_dec) in H4. subst.
+      eapply (Eqdep_dec.inj_pair2_eq_dec _ nat_eq_dec) in H6. subst.
+      eapply (Eqdep_dec.inj_pair2_eq_dec _ nat_eq_dec) in H7. subst.
       cbn.
       eapply H in H8. 2:lia. rewrite H8. reflexivity.
-    + eapply EqDec.inj_right_pair in H2. subst.
-      eapply EqDec.inj_right_pair in H5. subst.
-      eapply EqDec.inj_right_pair in H6. subst.
+    + eapply (Eqdep_dec.inj_pair2_eq_dec _ nat_eq_dec) in H2. subst.
+      eapply (Eqdep_dec.inj_pair2_eq_dec _ nat_eq_dec) in H5. subst.
+      eapply (Eqdep_dec.inj_pair2_eq_dec _ nat_eq_dec) in H6. subst.
       eapply H in H7.
       cbn. 2:lia. cbn in H7. rewrite H7.
       eapply H in H9. 2:lia. cbn in H9. rewrite H9. reflexivity.
@@ -344,8 +344,8 @@ Proof.
         -- congruence.
   - split.
     + inversion 1. subst.
-      eapply EqDec.inj_right_pair in H1. subst.
-      eapply EqDec.inj_right_pair in H2. subst.
+      eapply (Eqdep_dec.inj_pair2_eq_dec _ nat_eq_dec) in H1. subst.
+      eapply (Eqdep_dec.inj_pair2_eq_dec _ nat_eq_dec) in H2. subst.
       clear H0. unfold ge in *.
       revert c0 H w H7 H8. pattern n0. revert min H3.
       eapply le_ind2; intros.
@@ -384,8 +384,8 @@ Proof.
         eapply H with (f := ra_min f) in E2. 2:lia.
         eapply H with (v := vec_cons min v) in E1. 2:lia.
         inversion E2; subst.
-        eapply EqDec.inj_right_pair in H0. subst.
-        eapply EqDec.inj_right_pair in H1. subst.
+        eapply (Eqdep_dec.inj_pair2_eq_dec _ nat_eq_dec) in H0. subst.
+        eapply (Eqdep_dec.inj_pair2_eq_dec _ nat_eq_dec) in H1. subst.
         assert (min < n0) by lia.
         eapply in_ra_bs_c_min with (w := vec_change w (nat2pos H0) n1).
         -- lia.

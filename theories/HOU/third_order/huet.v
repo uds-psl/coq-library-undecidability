@@ -129,8 +129,8 @@ Section HuetReduction.
       (forall x, x ∈ S -> isVar x) -> exists i e, i < |S| /\ s = var i e.
     Proof.
       intros H2; edestruct @end_head_var with (X:=X) as (h' & T & s' & H5 & ?); eauto. subst s. 
-      destruct T as [| t1 [| t2 T]].
-      all: cbn in EQ; specialize (H1 h').
+      destruct T as [| t1 [| t2 T]]. 
+      all: cbn in EQ; specialize (H1 h'). 
       all: destruct (sigma h') eqn: H'; cbn in *; intuition.
       1, 3: eapply nth_error_In in H as H7; eapply H2 in H7.
       1, 2: eapply nth_error_sapp in H; rewrite ?H in EQ.
@@ -142,6 +142,7 @@ Section HuetReduction.
         exfalso. symmetry in EQ1.
         eapply equiv_neq_var_app; eauto; simplify; eauto.  
       + exists h'. exists t1. intuition. eauto using nth_error_Some_lt.
+      Unshelve. exact 0.
     Qed.
 
   End BackwardDirection.
@@ -197,15 +198,16 @@ Section HuetReduction.
       eapply enc_eq in EQ2; eauto.
       2 - 3: split; intros EQ3;
         eapply end_is_var_typed in EQ3 as (? & ? & ? & ?); cbn; simplify.
-      6, 9, 15, 21 :now eauto. 3, 8, 13, 17: now eauto.
+      6, 9, 15, 21 :now eauto. 
+      3, 8, 13, 16 : now eauto.
       (* close False goals *) 
-      2, 5, 8, 11: eapply H3; cbn; eauto; cbn; now simplify in *.
+      2, 6, 10, 13: eapply H3; cbn; eauto; cbn; now simplify in *.
       (* close normal term goals *)
-      2, 7, 9: eauto.
+      3, 5, 8, 11: eauto.
       (* close typing goals *)
-      4: eauto.
+      3, 5, 9: eauto. 3, 4, 6:eauto.
       (* close var goals *)
-      2 - 5: intros; cbn; unfold funcomp, u, v; intuition discriminate.
+      2 - 3: intros; cbn; unfold funcomp, u, v; intuition discriminate.
       exists I; intuition; eauto using nats_lt; eauto.
       2: rewrite <-!select_map; eauto. 
       subst; cbn [map select concat AppL] in H6, EQ1.

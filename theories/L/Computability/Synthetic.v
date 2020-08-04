@@ -67,7 +67,7 @@ Section L_enum_rec.
         eapply unique_normal_forms in H3; try Lproc.
         eapply inj_enc in H3.
         unfold test in H3. destruct (f n); inv H3.
-        destruct (H_d x x0); firstorder.
+        destruct (H_d x x0); firstorder congruence.
   Qed.
 
 End L_enum_rec.

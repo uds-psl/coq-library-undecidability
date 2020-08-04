@@ -68,8 +68,6 @@ Section OrderTyping.
     Lemma ord'_in A Gamma: A ∈ Gamma -> ord A <= ord' Gamma.
     Proof.
       induction Gamma; cbn in *; intuition; subst; eauto.
-      eauto using Max.max_lub_l. 
-      transitivity (ord' Gamma); eauto using Max.max_lub_r. 
     Qed.
     
     Lemma ord'_elements n Gamma: (forall A, A ∈ Gamma -> ord A <= n) <-> ord' Gamma <= n.

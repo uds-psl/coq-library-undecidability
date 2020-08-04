@@ -438,7 +438,7 @@ Section fol_semantics.
   Proof.
     do 3 rewrite fol_sem_ldisj; split.
     + intros (f & H1 & H2); revert H1; rewrite in_app_iff; firstorder.
-    + intros [ (? & ? & ?) | (? & ? & ?) ]; firstorder.
+    + intros [ (? & ? & ?) | (? & ? & ?) ]; firstorder auto with *.
   Qed.
 
   Definition fol_vec_fa n (A : vec 𝔽 n) := fol_lconj (vec_list A).
