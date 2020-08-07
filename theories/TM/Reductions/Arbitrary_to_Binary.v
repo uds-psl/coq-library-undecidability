@@ -453,15 +453,15 @@ Proof.
   4:{ eapply H. } all:exact 0.
 Qed.
 
-Lemma MoveB_total (n : nat) m :
-  isTotal (MoveB m n).
+Lemma MoveB_total (n : nat) :
+  exists c, forall m, projT1 (MoveB m n) ↓ fun t k => c <= k.
 Proof.
   destruct (@TestLeftof_total (finType_CS bool)) as [c Hlo].
   destruct (@MoveM_isTotal (finType_CS bool) Lmove n) as [c1 H1].
   destruct (@MoveM_isTotal (finType_CS bool) Nmove n) as [c2 H2].
-  destruct (@MoveM_isTotal (finType_CS bool) m n) as [c3 H3].
+  destruct (@MoveM_isTotal (finType_CS bool) Rmove n) as [c3 H3].
 
-  eexists. eapply TerminatesIn_monotone.
+  eexists. intros m. eapply TerminatesIn_monotone.
   unfold MoveB.
   eapply Switch_TerminatesIn.
   TM_Correct. eapply TestLeftof_Realise. eapply Hlo.
@@ -473,14 +473,35 @@ Proof.
     TM_Correct. eapply MoveM_Realise. eapply MoveM_Realise.
   - instantiate (1 := ltac:(destruct f; refine _)); cbn.
     TM_Correct. eapply MoveM_Realise. eapply MoveM_Realise.
+    destruct m. instantiate (1 := ltac:(destruct m; refine _)); cbn. all: cbn.
+    all:eassumption.
   - cbn. intros ? ? ?. repeat eexists; help.
     TMSimp. destruct_tapes. TMSimp.
     destruct h; TMSimp. repeat eexists; help. destruct m.
+    instantiate (1:= ltac:(destruct m; refine _)); cbn. all:cbn.
+    all:help.
+    destruct m. instantiate (1:= ltac:(destruct m; refine _)); cbn. all:cbn.
+
     repeat eexists; help. lia.
-    repeat eexists; help. 
-    repeat eexists; help.
-    repeat eexists; help.
-    Unshelve. all: try destruct x; cbn. 8: eapply H. all:try exact 0. all: try lia. all: exact (fun _ _ => True).
+    repeat eexists; help.     
+    repeat eexists. destruct m. instantiate (1:= ltac:(destruct m; refine _)); cbn. all:cbn.
+    all:help.
+    repeat eexists. destruct m. instantiate (1:= ltac:(destruct m; refine _)); cbn. all:cbn.
+    all:help.
+    Unshelve. all: try destruct x; cbn in *.
+      all: try destruct x; cbn in *. 
+      all:try destruct m; cbn in *.
+      17:{ eapply H. }
+      16:{
+      instantiate (6 := c1).
+      instantiate (6 := c3) in H. ring_simplify in H.
+      ring_simplify.
+      replace (c + c1 + c3) with (c + c3 + c1) by lia. eapply H. }
+      14:{ring_simplify. ring_simplify in H.
+      instantiate (6 := c3). instantiate (5 := c1).
+      instantiate (5 := c2) in H.
+      replace (c + c3 + c2 + c1) with (c + c3 + c1 + c2) by lia. eapply H. }
+      all:try exact 0. all: try lia. all: exact (fun _ _ => True).
 Qed.
 
 Section FixM.
@@ -588,27 +609,22 @@ Section FixM.
   Lemma Step_total q :
     isTotal (Step q).
   Proof.
+    destruct (MoveB_total n).
     destruct (ReadB_total n).
     eexists. eapply TerminatesIn_monotone.
     - unfold Step. eapply Switch_TerminatesIn.
-      TM_Correct.  cbn in *. eapply H. cbn.
+      TM_Correct.  cbn in *. eapply H0. cbn.
       intros []. instantiate (1 := ltac:(intros []; refine _)); cbn.
       instantiate (1 := ltac:(destruct (halt q); refine _)); cbn.
       destruct halt.  
       TM_Correct. 
       instantiate (1 := ltac:(destruct (trans (q, [| Some (g t) |])),
       (destruct_vector_cons t0),
-      x0 ; refine _)).
+      x1 ; refine _)); cbn.
       
       destruct (trans (q, [| Some (g t) |])); cbn.
       destruct (destruct_vector_cons t0); cbn.
-      destruct x0. 
-      
-      eapply Seq_TerminatesIn. eapply WriteB_Realise.
-      admit.
-      eapply Seq_TerminatesIn. eapply MoveB_Realise.
-      2:TM_Correct.
-      
+      destruct x1. TM_Correct. 2:eapply H.      
 
   Theorem WhileStep_Realise :
     StateWhile Step (start M) ⊨ 
