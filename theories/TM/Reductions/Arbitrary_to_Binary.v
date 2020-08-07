@@ -437,7 +437,7 @@ Section FixM.
       destruct trans as [q' T] eqn:Eqt.
       destruct destruct_vector_cons as [[m c'] [nl ->]].
       TMSimp. destruct_vector. split. reflexivity.
-      eapply H0. admit.
+      eapply H0. 
   Admitted.
 
   Theorem WhileStep_Realise :
@@ -457,45 +457,19 @@ Section FixM.
     remember (l, [|t'|]) as cout.
     induction H in t_sig, l, t', Heqtin, Heqcout |- *.
     - TMSimp. destruct_tapes. specialize (H _ eq_refl).
-      rename l0 into q. destruct (halt q).
+      rename l0 into q. destruct (halt q) eqn:Eq.
       + inv Heqcout. destruct H as [[= ->] [= ->]].
-      + inv Heqcout.
-
-    
-    rename l0 into q. destruct (halt q) eqn:Eq.
-      + TMSimp. inv H2.
-      + TMSimp. clear H0. destruct trans as [q' T] eqn:Eqt.
-        destruct destruct_vector_cons as [[m c'] [nl ->]] eqn:E.
-        destruct_vector.
-        TMSimp. destruct_tapes. TMSimp. inv H4.
-        inv H1.
-        eexists. split.
-        * econstructor. eassumption. cbn in *.
-        2:{ instantiate (3 := q'). instantiate (1 := ymid).
-        instantiate (1 := [| (m, c') |]). cbn.
-    - TMSimp. rename l into q. destruct (halt q) eqn:Eq.
-      + TMSimp. inv H0. exists t_sig. split.
-        * destruct pM as [M lab]. cbn in *. unfold Realise in HM. cbn in *.
-          specialize (HM [|t_sig|] 1 (mk_mconfig q [|t_sig|])). cbn in *.
-          unfold haltConf in *. cbn in *.
-    + TMSimp. destruct trans as [q' T]. clear H0.
-      destruct destruct_vector_cons as [[m c'] [nl ->]].
-      destruct_vector.
-      TMSimp. destruct_tapes. TMSimp. inv H4.
-      eexists. split. eassumption. reflexivity.
-
-
-    - TMSimp. rename l into q. destruct (halt q) eqn:Eq.
-      + TMSimp. inv H0. 
-      + destruct trans as [q' T].
+      + inv Heqcout. destruct trans as [q' T] eqn:Eqt.
         destruct destruct_vector_cons as [[m c'] [nl ->]].
-        destruct_vector.
-        TMSimp. destruct_tapes. TMSimp. inv H2.
-
-
-
-
-
-
-
-  
+        destruct_vector. destruct H as [[= ->] [= ->]].
+        specialize (IHStateWhile_Rel _ _ _ eq_refl eq_refl) as [t_sig' [H1 [= ->]]].
+        exists t_sig'. split; try reflexivity.
+        econstructor. eassumption. eassumption. cbn. eassumption.
+    - inv Heqcout. specialize (H _ eq_refl).
+      rename l0 into q. destruct (halt q) eqn:Eq.
+      + destruct H as [[= ->] [= ->]]. eexists; split; try reflexivity.
+        now econstructor.
+      + destruct trans as [q' T] eqn:Eqt.
+        destruct destruct_vector_cons as [[m c'] [nl ->]].
+        destruct_vector. destruct H as [[= ->] [= ->]].
+  Qed.
