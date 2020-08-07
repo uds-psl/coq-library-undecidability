@@ -9,6 +9,7 @@ Shared/ListAutomation.v
 Shared/FilterFacts.v
 Shared/embed_nat.v
 Shared/FinTypeEquiv.v
+Shared/FinTypeForallExists.v
 
 Synthetic/Definitions.v
 Synthetic/Undecidability.v

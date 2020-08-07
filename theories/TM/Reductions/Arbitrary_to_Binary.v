@@ -1,15 +1,6 @@
 From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import ArithPrelim.
-Require Import Undecidability.Shared.FinTypeEquiv.
-
-Lemma nat_rec_S (P : nat -> Type) : P 1 -> (forall n, P n -> P (S n)) -> forall n, n > 0 -> P n. 
-Proof.
-  intros H1 H2. induction n.
-  - intros. lia.
-  - intros. destruct n.
-    + eapply H1.
-    + eapply H2, IHn. lia.
-Defined.
+Require Import Undecidability.Shared.FinTypeEquiv Undecidability.Shared.FinTypeForallExists.
 
 Section fix_Sigma.
 
@@ -344,7 +335,7 @@ Proof.
         -- TMSimp. repeat eexists. rewrite !app_length, length_encode_sym. cbn.
            eapply le_plus_l. cbn. shelve. eapply le_plus_l. eapply le_plus_l. intros. eapply le_plus_l.
     + lia.
-    Unshelve. all: try exact 0. lia.
+    Unshelve. all: try exact 0. lia. lia. lia.
 Qed.
 
 Definition MoveB (m : move) n : pTM (finType_CS bool) unit 1 :=
@@ -555,10 +546,7 @@ Section FixM.
     cbn. destruct l0; cbn; reflexivity.
   Qed.
 
-  Variable L : finType.
-  Variable pM : pTM Σ L 1.
-
-  Notation M := (projT1 pM).
+  Variable M : TM Σ 1.
   
   Definition Step (q : state M) : pTM (finType_CS bool) (state M + state M) 1 :=
         Switch (ReadB n) (fun c_i => if halt q then Return Nop (inr q) 
@@ -606,25 +594,60 @@ Section FixM.
       now eapply H0, H.
   Qed.
 
+  Lemma WriteB_total'  :
+    exists C, forall (c : option (Fin.t n)), projT1 (WriteB c) ↓ fun t k => k >= C.
+  Proof.
+    eapply fintype_forall_exists; cbn.
+    - intros. eapply TerminatesIn_monotone. eassumption. 
+      intros ? ? ?. lia.
+    - eapply WriteB_TerminatesIn.
+  Qed.
+
   Lemma Step_total q :
     isTotal (Step q).
   Proof.
     destruct (MoveB_total n).
     destruct (ReadB_total n).
+    destruct (WriteB_total').
     eexists. eapply TerminatesIn_monotone.
     - unfold Step. eapply Switch_TerminatesIn.
       TM_Correct.  cbn in *. eapply H0. cbn.
-      intros []. instantiate (1 := ltac:(intros []; refine _)); cbn.
+      intros c_i. instantiate (1 := ltac:(intros c_i; refine _)); cbn.
+        instantiate (1 := ltac:(destruct (halt q); refine _)); cbn.
+        destruct halt.  
+        TM_Correct. 
+        instantiate (1 := ltac:(destruct (trans (q, [| map_opt g c_i |])),
+        (destruct_vector_cons t),
+        x2 ; refine _)); cbn.
+        
+        destruct (trans (q, [| map_opt g c_i |])); cbn.
+        destruct (destruct_vector_cons t); cbn.
+        destruct x2. TM_Correct. eapply H1. eapply H.
+    - cbn. intros ? ? ?. repeat eexists; help.  
       instantiate (1 := ltac:(destruct (halt q); refine _)); cbn.
-      destruct halt.  
-      TM_Correct. 
-      instantiate (1 := ltac:(destruct (trans (q, [| Some (g t) |])),
-      (destruct_vector_cons t0),
-      x1 ; refine _)); cbn.
-      
-      destruct (trans (q, [| Some (g t) |])); cbn.
-      destruct (destruct_vector_cons t0); cbn.
-      destruct x1. TM_Correct. 2:eapply H.      
+      destruct halt. lia. rename yout into c_i.
+      destruct (trans (q, [| map_opt g c_i |])); cbn.
+      destruct (destruct_vector_cons t); cbn.
+      instantiate (1 := ltac:(destruct x2; refine _)).
+      destruct x2. TM_Correct.
+      repeat eexists. 
+      eapply le_plus_l. eapply le_plus_l. eapply le_plus_l.
+      eapply le_plus_l. intros. eapply le_plus_l.
+    Unshelve. all:cbn.
+    all: try destruct x2; cbn in *.
+    3:{ destruct halt. cbn. eapply H2. eapply H2. }
+    all:exact 0.
+    Unshelve. all:exact 0.
+  Qed.
+
+
+  Lemma Step_total' :
+    exists C, forall q, projT1 (Step q) ↓ fun t k => C <= k.
+  Proof.
+    eapply fintype_forall_exists.
+    - intros. eapply TerminatesIn_monotone. eassumption. intros ? ?. lia.
+    - intros q. eapply Step_total.
+  Qed.
 
   Theorem WhileStep_Realise :
     StateWhile Step (start M) ⊨ 
@@ -658,6 +681,66 @@ Section FixM.
       + destruct trans as [q' T] eqn:Eqt.
         destruct destruct_vector_cons as [[m c'] [nl ->]].
         destruct_vector. destruct H as [[= ->] [= ->]].
+  Qed.
+
+  Lemma mono_ex {X} (P : X -> Prop) (Q : X -> Prop) :
+    (forall x, P x -> Q x) ->
+    (exists n, P n) -> exists n, Q n.
+  Proof.
+    firstorder.
+  Qed.
+
+  Theorem WhileStep_Terminates :
+   exists C1 C2,
+    projT1 (StateWhile Step (start M)) ↓ fun t k => 
+            exists t_sig, t = [| encode_tape' t_sig |] /\ 
+            exists k' t_sig' q', loopM (initc M [| t_sig |]) k' = Some (mk_mconfig q' [| t_sig' |] ) /\
+             k >= C1 * k' + C2.
+  Proof.
+    unfold initc.
+    generalize (start M). intros q.
+    destruct (Step_total') as [C HC].
+    eexists. eexists.
+
+    eapply TerminatesIn_monotone.
+
+    {
+      eapply StateWhile_TerminatesIn. intros. eapply Step_Realise. intros. eapply HC.
+    }
+    
+    revert q. eapply StateWhileCoInduction.
+    intros q tin k H. TMSimp. 
+    rename ymid0 into steps, ymid into t_sig, ymid1 into t_sig', ymid2 into q'.
+    remember [|t_sig|] as tin. remember [|t_sig'|] as tout.
+    induction steps in tin, t_sig, Heqtin, q, H0, H |- *.
+    - cbn in H. unfold haltConf in H. cbn in *.
+      destruct (halt q) eqn:Eq; cbn.
+      + inv H. eexists. split. eapply le_plus_l.
+        intros. destruct_tapes. specialize (H _ eq_refl) as [[= ->] [= ->]].
+        ring_simplify in H0. shelve.
+      + inv H.
+    - cbn in H. unfold haltConf in H. cbn in *.
+      destruct (halt q) eqn:Eq; cbn.  
+      + inv H. eexists. split. eapply le_plus_l.
+        intros. destruct_tapes. specialize (H _ eq_refl) as [[= ->] [= ->]].
+        ring_simplify in H0. shelve.
+      + subst. unfold step in H. cbn in *.
+        unfold current_chars in *. cbn in *.
+        destruct trans as (qnxt, A) eqn:Et. cbn in *.
+        destruct (destruct_vector_cons A) eqn:E2.
+        destruct x as (c', m) eqn:E3. destruct s as [? ->].
+        destruct_vector.
+        cbn in *. pose proof (Hrem := H).
+        eapply IHsteps in H. eexists. split.
+        eapply le_plus_l.
+        intros. specialize (H1 _ eq_refl).
+        rewrite Et in H1. rewrite E2 in H1. destruct H1. subst.
+        repeat eexists. rewrite <- Hrem. repeat f_equal. now destruct t_sig, m, c'.
+        shelve. shelve. reflexivity. shelve.
+  Unshelve.
+    exact (1 + C). exact (2 + 2 * C). exact 0.
+    2: exact 0. 3: exact 0. 3: (exact ((2 + steps) * S C)).
+    all:lia.
   Qed.
 
   End FixM.
