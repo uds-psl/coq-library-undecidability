@@ -317,6 +317,8 @@ TM/Single/EncodeTapes.v
 TM/Single/StepTM.v
 TM/Reductions/L_to_mTM.v
 
+TM/Reductions/Arbitrary_to_Binary.v
+
 # Univ
 TM/Univ/LookupAssociativeListTM.v
 TM/Univ/StepTM.v

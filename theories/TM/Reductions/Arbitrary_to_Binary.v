@@ -129,6 +129,56 @@ Proof.
     destruct t_sig; cbn in *; eauto.
 Qed.
 
+Definition isTotal {Σ} {L} {n} (M : pTM Σ L n) := exists c, projT1 M ↓ fun t k => c <= k.
+
+
+Ltac help :=
+  intros;TMSimp; destruct_tapes; TMSimp; try lia;
+  try match goal with
+  [ |- ?L <= ?R ] => tryif (is_evar R) then (eapply le_plus_l) else (ring_simplify; shelve)
+  | _ => idtac
+  end.
+
+Lemma ReadB_total n :
+  isTotal (ReadB n).
+Proof. 
+  induction n. 
+  - cbn. eexists. eapply TerminatesIn_monotone. TM_Correct. 
+    intros ? ? H. exact H.
+  - destruct IHn as [c IH].
+    eexists. eapply TerminatesIn_monotone. cbn.
+    eapply Switch_TerminatesIn. TM_Correct. TM_Correct.
+    intros []. instantiate (1 := fun f => if f then _ else _). cbn.
+    instantiate (1 := ltac:(clear f; refine _)).
+    eapply Seq_TerminatesIn. TM_Correct. TM_Correct.
+    eapply Switch_TerminatesIn. TM_Correct. TM_Correct.
+    intros []. instantiate (1 := fun f => match f with Some true => _ | Some false => _ | None => _ end). cbn.
+    destruct b0 as [[] | ].
+    + cbn. instantiate (1 := ltac:(clear f b0; refine _)).
+      TM_Correct.
+    + instantiate (1 := ltac:(clear f b0; refine _)).
+      eapply Switch_TerminatesIn. eapply ReadB_Realise. eassumption.
+      intros []. cbn. TM_Correct.
+      instantiate (1 := fun f => if f then _ else _). cbn.
+      instantiate (1 := ltac:(clear f; refine _)). TM_Correct.
+      cbn.
+      instantiate (1 := ltac:(clear f; refine _)).  TM_Correct.
+    + cbn. instantiate (1 := ltac:(clear f; refine _)).  TM_Correct.
+    + cbn. instantiate (1 := ltac:(clear f; refine _)).  TM_Correct.
+    + cbn. intros ? ? ?. exists 1. eexists. split.
+      lia. split. 2:{ intros. TMSimp. destruct_tapes. TMSimp.
+      destruct (current h).
+      * exists 1. eexists. split. lia. split. 2:{ intros. TMSimp. destruct_tapes. TMSimp.
+        exists 1. eexists. split. lia. split. 2:{ intros. TMSimp. destruct_tapes. TMSimp.
+        destruct current. destruct b0. instantiate (1 := S _). lia. 2:lia.
+        exists c. eexists. split. lia. split. 2:{ intros. destruct yout. instantiate (1 := S _). lia. lia. }
+        ring_simplify. shelve. }
+        ring_simplify. shelve. }
+        ring_simplify. cbn. shelve. 
+      * shelve. } shelve.
+      Unshelve. 2:exact 0. 4: exact (S c). all: try lia. 2:{ eapply H. }
+Qed.
+
 Require Import Undecidability.TM.Compound.WriteString.
 
 Fixpoint MoveM {Σ : finType} (D : move) (n : nat) : pTM Σ unit 1 :=
@@ -210,7 +260,7 @@ Proof.
 Qed.
 
 Lemma WriteB_Realise (n : nat) (c : option (Fin.t n)) :
-  WriteB c ⊨ fun t '(_, t') => forall t_sig, t = [| encode_tape t_sig |] -> t' = [| encode_tape (tape_write t_sig c) |].
+  WriteB c ⊨ fun t '(_, t') => forall t_sig, t = [| encode_tape t_sig |] -> t' = [| encode_tape (wr c t_sig) |].
 Proof.
   destruct c as [c | ].
   - eapply Realise_monotone. unfold WriteB. eapply Switch_Realise.
@@ -243,6 +293,58 @@ Proof.
       destruct (encode_sym) eqn:E.
       * cbn in *. subst. reflexivity.
       * cbn in *. inv H. rewrite skipn_app. reflexivity. rewrite app_length. cbn. lia.
+      * now rewrite <- app_assoc.
+  - cbn. eapply Realise_monotone. TM_Correct.
+    intros t ([], t') ->. eauto.
+Qed.
+
+Lemma MoveM_isTotal {Σ : finType} D (n : nat) :
+  isTotal (@MoveM Σ D n).
+Proof.
+  induction n; cbn.
+  - eexists. TM_Correct.
+  - destruct IHn as [c IH]. eexists. eapply TerminatesIn_monotone.
+    TM_Correct. eapply MoveM_Realise. intros ? ? ?.
+    repeat eexists. eapply le_plus_l. cbn. 2: intros; eapply le_plus_l.
+    eapply H.
+  Unshelve. all:exact 0.
+Qed.
+
+Lemma WriteB_TerminatesIn (n : nat) (c : option (Fin.t n)) :
+  isTotal (WriteB c).
+Proof.
+  destruct (@MoveM_isTotal (finType_CS bool) Lmove n) as [MoveM_c H_MoveM].
+  red. eexists. eapply TerminatesIn_monotone.
+  unfold WriteB. destruct c; cbn.
+  - instantiate (1 := ltac:(destruct c; refine _ )). cbn.
+    TM_Correct. eapply TestLeftof_Realise. unfold TestLeftof.
+    TM_Correct. eapply RealiseIn_TerminatesIn, WriteString_Sem.
+    eapply RealiseIn_Realise, WriteString_Sem.
+    eapply RealiseIn_TerminatesIn, WriteString_Sem.
+    eapply MoveM_Realise.
+  - cbn. TM_Correct.
+  - cbn. intros ? ? ?. destruct c; cbn.
+    + repeat eexists. help. eapply le_plus_l.
+      intros. TMSimp. destruct_tapes. cbn.
+      destruct (current h).
+      * destruct b; help.
+      * repeat eexists. help. help. help. eapply le_plus_l.
+        intros. TMSimp. destruct_tapes. TMSimp. destruct current.
+        destruct b; help. lia.
+      * eapply H.
+      * intros. TMSimp. destruct_tapes. destruct h; help.
+        -- TMSimp. repeat eexists.
+           rewrite !app_length, length_encode_sym. cbn. eapply le_plus_l. cbn.
+           instantiate (1 := ltac:(destruct c; refine _ )). cbn in *.
+           eapply le_plus_l. eapply le_plus_l. eapply le_plus_l. intros. eapply le_plus_l.
+        -- TMSimp. rewrite !app_length, rev_length, !app_length, length_encode_sym. cbn. lia.
+        -- TMSimp. repeat eexists. rewrite !app_length, length_encode_sym. cbn. eapply le_plus_l.
+           2: eapply le_plus_l. 2:eapply le_plus_l. 2: intros; eapply le_plus_l.
+           ring_simplify. shelve.
+        -- TMSimp. repeat eexists. rewrite !app_length, length_encode_sym. cbn.
+           eapply le_plus_l. cbn. shelve. eapply le_plus_l. eapply le_plus_l. intros. eapply le_plus_l.
+    + lia.
+    Unshelve. all: try exact 0. lia.
 Qed.
 
 Definition MoveB (m : move) n : pTM (finType_CS bool) unit 1 :=
@@ -338,6 +440,49 @@ Proof.
     + cbn. rewrite Nat_iter_id. reflexivity.
 Qed.
 
+Lemma TestLeftof_total {Σ} :
+  isTotal (@TestLeftof Σ).
+Proof.
+  unfold TestLeftof.
+  eexists. eapply TerminatesIn_monotone.
+  TM_Correct. intros ? ? ?. repeat eexists; help.
+  destruct current; help.
+  repeat eexists. help. help. help. instantiate (1 := ltac:(destruct x; refine _)). cbn. eapply le_plus_l.
+  help. destruct current. help. help.
+  Unshelve. all: try destruct x; cbn.
+  4:{ eapply H. } all:exact 0.
+Qed.
+
+Lemma MoveB_total (n : nat) m :
+  isTotal (MoveB m n).
+Proof.
+  destruct (@TestLeftof_total (finType_CS bool)) as [c Hlo].
+  destruct (@MoveM_isTotal (finType_CS bool) Lmove n) as [c1 H1].
+  destruct (@MoveM_isTotal (finType_CS bool) Nmove n) as [c2 H2].
+  destruct (@MoveM_isTotal (finType_CS bool) m n) as [c3 H3].
+
+  eexists. eapply TerminatesIn_monotone.
+  unfold MoveB.
+  eapply Switch_TerminatesIn.
+  TM_Correct. eapply TestLeftof_Realise. eapply Hlo.
+  intros f. instantiate (1 := fun f => if f then _ else _). cbn.
+  destruct f.
+  - destruct m. instantiate (1 := ltac:(destruct m, f; refine _)). all: cbn.
+    eapply Seq_TerminatesIn. TM_Correct. eapply MoveM_Realise. TM_Correct.
+    eapply MoveM_Realise. TM_Correct. TM_Correct.
+    TM_Correct. eapply MoveM_Realise. eapply MoveM_Realise.
+  - instantiate (1 := ltac:(destruct f; refine _)); cbn.
+    TM_Correct. eapply MoveM_Realise. eapply MoveM_Realise.
+  - cbn. intros ? ? ?. repeat eexists; help.
+    TMSimp. destruct_tapes. TMSimp.
+    destruct h; TMSimp. repeat eexists; help. destruct m.
+    repeat eexists; help. lia.
+    repeat eexists; help. 
+    repeat eexists; help.
+    repeat eexists; help.
+    Unshelve. all: try destruct x; cbn. 8: eapply H. all:try exact 0. all: try lia. all: exact (fun _ _ => True).
+Qed.
+
 Section FixM.
 
   Variable Σ : finType.
@@ -368,13 +513,13 @@ Section FixM.
   Qed.
 
   Lemma WriteB_Realise' (c : option Σ) :
-    WriteB (map_opt f c) ⊨ fun t '(_, t') => forall t_sig, t = [| encode_tape' t_sig |] -> t' = [| encode_tape' (tape_write t_sig c) |].
+    WriteB (map_opt f c) ⊨ fun t '(_, t') => forall t_sig, t = [| encode_tape' t_sig |] -> t' = [| encode_tape' (wr c t_sig) |].
   Proof.
     eapply Realise_monotone. eapply WriteB_Realise.
     intros t (?, t') ? t_sig ->. destruct_tapes. cbn in *.
     specialize (H (mapTape f t_sig) eq_refl) as [= ->].
     unfold tape_write. destruct c.
-    - cbn. now rewrite mapTape_left, mapTape_right.
+    - cbn. destruct t_sig; reflexivity.
     - reflexivity.
   Qed.
 
@@ -437,8 +582,33 @@ Section FixM.
       destruct trans as [q' T] eqn:Eqt.
       destruct destruct_vector_cons as [[m c'] [nl ->]].
       TMSimp. destruct_vector. split. reflexivity.
-      eapply H0. 
-  Admitted.
+      now eapply H0, H.
+  Qed.
+
+  Lemma Step_total q :
+    isTotal (Step q).
+  Proof.
+    destruct (ReadB_total n).
+    eexists. eapply TerminatesIn_monotone.
+    - unfold Step. eapply Switch_TerminatesIn.
+      TM_Correct.  cbn in *. eapply H. cbn.
+      intros []. instantiate (1 := ltac:(intros []; refine _)); cbn.
+      instantiate (1 := ltac:(destruct (halt q); refine _)); cbn.
+      destruct halt.  
+      TM_Correct. 
+      instantiate (1 := ltac:(destruct (trans (q, [| Some (g t) |])),
+      (destruct_vector_cons t0),
+      x0 ; refine _)).
+      
+      destruct (trans (q, [| Some (g t) |])); cbn.
+      destruct (destruct_vector_cons t0); cbn.
+      destruct x0. 
+      
+      eapply Seq_TerminatesIn. eapply WriteB_Realise.
+      admit.
+      eapply Seq_TerminatesIn. eapply MoveB_Realise.
+      2:TM_Correct.
+      
 
   Theorem WhileStep_Realise :
     StateWhile Step (start M) ⊨ 
@@ -473,3 +643,5 @@ Section FixM.
         destruct destruct_vector_cons as [[m c'] [nl ->]].
         destruct_vector. destruct H as [[= ->] [= ->]].
   Qed.
+
+  End FixM.
