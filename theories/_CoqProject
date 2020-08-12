@@ -319,6 +319,9 @@ TM/Single/StepTM.v
 TM/Reductions/L_to_mTM.v
 
 TM/Reductions/Arbitrary_to_Binary.v
+TM/SBTM.v
+TM/Reductions/TM_to_SBTM.v
+StackMachines/Reductions/SBTM_to_BSM.v
 
 # Univ
 TM/Univ/LookupAssociativeListTM.v

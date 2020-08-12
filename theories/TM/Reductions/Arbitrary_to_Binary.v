@@ -683,13 +683,6 @@ Section FixM.
         destruct_vector. destruct H as [[= ->] [= ->]].
   Qed.
 
-  Lemma mono_ex {X} (P : X -> Prop) (Q : X -> Prop) :
-    (forall x, P x -> Q x) ->
-    (exists n, P n) -> exists n, Q n.
-  Proof.
-    firstorder.
-  Qed.
-
   Theorem WhileStep_Terminates :
    exists C1 C2,
     projT1 (StateWhile Step (start M)) ↓ fun t k => 
@@ -744,3 +737,33 @@ Section FixM.
   Qed.
 
   End FixM.
+
+
+  Lemma Sim_Realise {Σ} (L : finType) (M : pTM Σ L 1) R :
+    M ⊨ R ->
+    Relabel (StateWhile (@Step Σ (projT1 M)) (start (projT1 M))) (projT2 M) ⊨  
+      fun t '(l, t') => forall t_sig, t = [| encode_tape' t_sig |] ->
+                        exists t_sig', R [| t_sig |] (l, [| t_sig' |]) /\ t' = [| encode_tape' t_sig' |].
+  Proof.
+    intros HM.
+    eapply Realise_monotone. { eapply Relabel_Realise, WhileStep_Realise. }
+    intros ? ? ?. TMSimp. intros ? ->. specialize (H0 _ eq_refl). TMSimp.
+    repeat eexists. unfold Realise in HM.
+    eapply TM_eval_iff in H as [k H].
+    now eapply HM in H.
+  Qed.
+
+  Lemma Sim_Terminates {Σ} (L : finType) (M : pTM Σ L 1) T :
+    projT1 M ↓ T ->
+    exists C1 C2,
+    projT1 (Relabel (StateWhile (@Step Σ (projT1 M)) (start (projT1 M))) (projT2 M)) ↓  
+      fun t k => exists t_sig k', t = [| encode_tape' t_sig |] /\ T [| t_sig |] k' /\ k >= C1 * k' + C2.
+  Proof.
+    intros HM.
+    destruct (WhileStep_Terminates (projT1 M)) as (C1 & C2 & HC).
+    exists C1, C2.
+    eapply TerminatesIn_monotone. { eapply Relabel_Terminates, HC. }
+    intros ? ? ?. TMSimp.
+    eapply HM in H. TMSimp. 
+    destruct ymid1. destruct_tapes. repeat eexists; eassumption.
+  Qed.
