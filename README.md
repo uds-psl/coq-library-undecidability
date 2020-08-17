@@ -60,7 +60,7 @@ opam install coq-library-undecidability.dev+8.12
 You need `Coq 8.12` built on OCAML `>= 4.07.1`, the [Smpl](https://github.com/uds-psl/smpl) package, the [PSL Base](https://github.com/uds-psl/base-library) library, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
 
 ```
-opam switch create coq-library-undecidability 4.09.1+flambda
+opam switch create coq-library-undecidability 4.07.1+flambda
 eval $(opam env)
 opam repo add coq-released https://coq.inria.fr/opam/released
 opam repo add psl-opam-repository https://github.com/uds-psl/psl-opam-repository.git
@@ -73,6 +73,20 @@ opam install . --deps-only
 - `make html` generates clickable coqdoc `.html` in the `website` subdirectory
 - `make clean` removes all build files in `theories` and `.html` files in the `website` directory
 - `make realclean` also removes all build files in the `external` directory. You have to run `make deps` again after this.
+
+### Troubleshooting
+
+#### Windows
+
+If you use Visual Studio Code on Windows 10 with Windows Subsystem for Linux (WSL), then local opam switches may cause issues.
+To avoid this, you can use a non-local opam switch, i.e. `opam switch create 4.07.1+flambda`.
+
+#### Coq version
+
+Be careful that this branch only compiles under Coq 8.12. If you want to use a different Coq version you have to change to a different branch.
+Due to compatibility issues, not every branch contains exactly the same problems. 
+We recommend to use the newest branch if possible.
+
 
 ## Published work and technical reports
 
