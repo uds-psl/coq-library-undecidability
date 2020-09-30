@@ -625,7 +625,9 @@ SemiUnification/SemiU_undec.v
 SemiUnification/Util/Facts.v
 SemiUnification/Util/Enumerable.v
 SemiUnification/Reductions/CSSM_UB_to_SSemiU.v
-SemiUnification/Reductions/SSemiU_to_SemiU.v
+SemiUnification/Reductions/SSemiU_to_RU2SemiU.v
+SemiUnification/Reductions/RU2SemiU_to_SemiU.v
+SemiUnification/Reductions/RU2SemiU_to_LU2SemiU.v
 SemiUnification/Reductions/HaltTM_to_SemiU.v
 
 #Diophantine Constraints
@@ -661,6 +663,29 @@ HilbertCalculi/Util/Facts.v
 HilbertCalculi/Util/HSCFacts.v
 HilbertCalculi/Reductions/MPCPb_to_HSC_PRV.v
 HilbertCalculi/Reductions/MPCPb_to_HSC_AX.v
+
+#System F (second-order lambda calculus)
+
+SystemF/SysF.v
+SystemF/SysF_undec.v
+
+SystemF/Autosubst/unscoped.v
+SystemF/Autosubst/syntax.v
+
+SystemF/Util/Facts.v
+SystemF/Util/poly_type_facts.v
+SystemF/Util/pure_term_facts.v
+SystemF/Util/term_facts.v
+SystemF/Util/typing_facts.v
+SystemF/Util/pure_typing_facts.v
+SystemF/Util/iipc2_facts.v
+SystemF/Util/step.v
+SystemF/Util/sn_facts.v
+SystemF/Util/pure_typable_prenex.v
+
+SystemF/Reductions/H10C_SAT_to_SysF_INH.v
+SystemF/Reductions/LU2SemiU_to_SysF_TYP.v
+SystemF/Reductions/SysF_TYP_to_SysF_TC.v
 
 #Legacy Problems
 Problems/FOL.v

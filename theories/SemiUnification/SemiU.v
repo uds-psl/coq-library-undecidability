@@ -59,3 +59,15 @@ Definition solution (φ : valuation) : inequality -> Prop :=
 (* is there a substitution φ that solves all inequalities? *)
 Definition SemiU (p: list inequality) := 
   exists (φ: valuation), forall (c: inequality), In c p -> solution φ c.
+
+(* Right-uniform Two-Inequality Semi-unification *)
+(* All right-hand sides of inequalities are identical, there are exactly two inequlities *)
+Definition RU2SemiU : term * term * term -> Prop := 
+  fun '(s0, s1, t) => exists (φ ψ0 ψ1: valuation), 
+    substitute ψ0 (substitute φ s0) = substitute φ t /\ substitute ψ1 (substitute φ s1) = substitute φ t.
+
+(* Left-uniform Two-Inequality Semi-unification *)
+(* All right-hand sides of inequalities are identical, there are exactly two inequlities *)
+Definition LU2SemiU : term * term * term -> Prop := 
+  fun '(s, t0, t1) => exists (φ ψ0 ψ1: valuation), 
+    substitute ψ0 (substitute φ s) = substitute φ t0 /\ substitute ψ1 (substitute φ s) = substitute φ t1.
