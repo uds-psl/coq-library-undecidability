@@ -23,11 +23,12 @@ Proof.
 Defined.
 
 
+Definition c__termsize := c__natsizeS + 7. 
 Lemma size_term_enc (s:term) :
-  size (enc s) <= size s *11.
+  size (enc s) <= size s *c__termsize.
 Proof.
   induction s;cbv [enc registered_term_enc] in *. all:cbn [size term_enc] in *.
-  rewrite size_nat_enc. all:solverec.
+  rewrite size_nat_enc. all: unfold c__termsize, c__natsizeS, c__natsizeO in *; solverec.
 Qed.
 
 

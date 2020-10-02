@@ -441,6 +441,14 @@ Proof.
   -exfalso. destruct R' as (?&?&?). eapply H2. eauto.
 Qed.
 
+Lemma uniform_confluent_confluent (X : Type) (R : X -> X -> Prop):
+  uniform_confluent R -> confluent R.
+Proof.
+  intros H x y y' Hy Hy'. apply ARS.star_pow in Hy as (?&Hy). apply ARS.star_pow in Hy' as (?&Hy').
+  edestruct parametrized_confluence as (?&?&z&?&?&?&?&?).
+  eassumption. exact Hy. exact Hy'. exists z. split;eapply pow_star. all:eauto.
+Qed.
+
 Definition computesRel {X Y} (f : X -> option Y) (R:X -> Y -> Prop) :=
   forall x, match f x with
          Some y => R x y
@@ -448,3 +456,9 @@ Definition computesRel {X Y} (f : X -> option Y) (R:X -> Y -> Prop) :=
        end.
 
 Definition evaluatesIn (X : Type) (R : X -> X -> Prop) n (x y : X) := pow R n x y /\ terminal R y.
+
+Lemma evalevaluates_evaluatesIn X (step:X->X->Prop) s t:
+  evaluates step s t -> exists k, evaluatesIn step k s t.
+Proof.
+  intros [(R&?)%star_pow ?]. unfold evaluatesIn. eauto.
+Qed.

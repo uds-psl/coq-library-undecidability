@@ -77,7 +77,7 @@ Proof. unfold addTR. generalize (proj1 (addTR_rec_correct [] x y)). simpl_list. 
 (* Full adder (computes "output bit" and "carry bit") *)
 Definition fullAdder (x y c : bool) : bool*bool := (xorb (xorb x y) c, (x && y) || (x && c) || (y && c)).
 
-Compute fullAdder false true true. (* (false, true) *)
+(* Compute fullAdder false true true. *) (* (false, true) *)
 
 
 
@@ -117,7 +117,7 @@ Definition add_baseCase (b carry : bool) (p : positive) :=
   if (b || carry) then (Pos.succ p) ~~ (negb (xorb b carry))
   else p ~~ (negb (xorb b carry)).
 
-Compute add_baseCase true false 1.
+(* Compute add_baseCase true false 1. *)
 
 (* This base case is complex enough that I write an auxilliary machine for this *)
 

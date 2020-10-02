@@ -29,6 +29,11 @@ Proof.
   intros ? ? H ? ? H0 H1. cbv - [iff] in *. destruct H1. eexists. intro. rewrite <-H, <- H0. easy.
 Qed.
 
+Instance leUpToC_proper_eq_flip X: Proper (Morphisms.pointwise_relation X eq ==> Morphisms.pointwise_relation X eq ==> flip arrow) (@leUpToC X).
+Proof.
+  intros ? ? H ? ? H0 H1. cbv - [iff] in *. destruct H1. eexists. intro. rewrite H, H0. easy.
+Qed.
+
 Instance le_leUpToC_subrelation X: subrelation (pointwise_relation X le) leUpToC.
 Proof.
   intros ? ? H. exists 1. intros. hnf in H. setoid_rewrite H. nia.
@@ -39,7 +44,7 @@ Proof.
   intros ? ? H. exists 1. hnf in H. setoid_rewrite H. intros;nia.
 Qed.
 
-(* A record for easily expressing the subtype of functions up to come multiplicative conctant. *)
+(* A record for easily expressing the subtype of functions up to some multiplicative constant. *)
 Record UpToC {X} (F : X -> nat) : Type :=
   mkUpToC
   {
@@ -111,6 +116,33 @@ Lemma upToC_S X (F f :X->nat) :
   -> (fun x => S (f x)) <=c F.
 Proof.
   intros. apply upToC_add with (f1:=(fun _ => 1)). 2:easy. now apply upToC_c.
+Qed.
+
+Lemma upToC_mul X (F1 F2 f1 f2 :X->nat) :
+  f1 <=c F1
+  -> f2 <=c F2
+  -> (fun x => f1 x * f2 x) <=c (fun x => F1 x * F2 x).
+Proof.
+  intros [c H] [c' H'].
+  exists (c*c'). intro. rewrite H,H'. all:nia.
+Qed.
+
+Lemma upToC_pow_r_drop X c (f F : X -> nat):
+  0 < c -> f <=c F -> f <=c (fun x => F x ^ c).
+Proof.
+  intros ? (c'&Hc'). exists c'. intros x. decide (F x = 0) as [H'|H'].
+  { rewrite Hc',H'. nia. }
+  rewrite <- (Nat.pow_le_mono_r) with (b:=1). 2,3:nia. cbn. rewrite Hc'. nia.
+Qed.
+
+Lemma upToC_pow_le_compat X c c' (f f' : X -> nat):
+  0 < c -> c <= c' -> f <=c f' -> (fun x => f x ^ c)<=c (fun x => f' x ^ c').
+Proof.
+  intros ? ? (c''&Hc'). exists (c''^c). intros x. decide (f' x = 0) as [H'|H'].
+  { rewrite Hc',H'. rewrite Nat.mul_0_r. destruct c; cbn;nia. }
+  { setoid_rewrite <- (Nat.pow_le_mono_r) with (b:=c). 2,3:nia.
+    rewrite Hc'. rewrite Nat.pow_mul_l. nia.
+  }
 Qed.
 
 Tactic Notation  "_applyIfNotConst_nat" tactic(t):=

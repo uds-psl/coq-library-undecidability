@@ -1,11 +1,11 @@
 From Coq Require Import Extraction.
 From Undecidability Require Import TM.Code.ProgrammingTools.
-From Undecidability Require Import TM.LM.HaltingProblem.
+From Undecidability Require Import Undecidability.L.AbstractMachines.TM_LHeapInterpreter.HaltingProblem.M_LHeapInterpreter.
 
 
 (* The number of symbols in the alphabet *)
 (* You must change the [Retract] instances in [TM.Code.Code] to [Defined.] *)
-Eval vm_compute in length (FinTypes.elem (finType_CS sigStep)).
+(* Eval vm_compute in length (FinTypes.elem (finType_CS sigStep)). *)
 
 
 

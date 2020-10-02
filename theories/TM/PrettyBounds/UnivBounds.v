@@ -436,7 +436,8 @@ Module Univ_nice.
         + rewrite Encode_nat_hasSize. ring_simplify. replace (size 0) with 1 by reflexivity. nia. 
       -specialize (Encode_nat_hasSize_ge1 (S k')) as ?.
        specialize (Hc_Step _ M q tp). hnf. destruct halt eqn:E.
-        + rewrite Hc_Step. ring_simplify. enough (1 <= size (1 + k') /\ 1 <= size (graph_of_TM M)) by nia. split. apply Encode_nat_hasSize_ge1. apply Encode_graph_hasSize_ge1.
+        + rewrite Hc_Step. change (S k') with (1+k') in *.  ring_simplify.
+        rewrite <- Encode_nat_hasSize_ge1. rewrite <- Encode_graph_hasSize_ge1. nia.
         + destruct (step (mk_mconfig q [|tp|])) as (q',tp') eqn:E'. specialize (IH q' tp'[@Fin0]); hnf in IH. rewrite IH. rewrite Hc_Step. clear_all.
           ring_simplify. rewrite !Encode_nat_hasSize. ring_simplify. enough (1 <= size (graph_of_TM M)) by nia. apply Encode_graph_hasSize_ge1.
     Qed.

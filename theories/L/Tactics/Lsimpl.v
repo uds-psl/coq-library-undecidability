@@ -62,7 +62,7 @@ Tactic Notation "redStep" "in" hyp(h) := redStep in h at 1.
 
 Lemma rho_correct s t : proc s -> lambda t -> rho s t >* s (rho s) t.
 Proof.
-  intros. unfold rho,r. redStep at 1. apply star_trans_l. Lsimpl. 
+  intros. unfold rho,r. redStep at 1. apply star_trans_l. Lsimpl.
 Qed.
 
 Lemma rho_correctPow s t : proc s -> lambda t -> rho s t >(3) s (rho s) t.

@@ -249,8 +249,16 @@ Definition encode_arguments (B : term) (a i : nat) A_j :=
       l <- tmQuote t;;
       ret (tApp l [tRel (a - i - 1) ]).
 
+Definition tmInstanceRed name red {X} (x:X) :=
+  def' <- tmDefinitionRed name red x;;
+  def <- tmQuote def';;
+  match def with
+    tConst name _ => tmExistingInstance (ConstRef name)
+  | _ => tmFail "internal invariant violated : tmInstanceRed"
+  end;;
+  tmReturn def'.
 
-Definition tmEncode (name : ident) (A : Type) :=
+Definition tmEncode (name : string) (A : Type) :=
   t <- (tmEval hnf A >>= tmQuote) ;; 
   hs_num <- tmGetOption (split_head_symbol t) "no inductive";;
   let '(ind, Params) := hs_num in
@@ -265,10 +273,8 @@ Definition tmEncode (name : ident) (A : Type) :=
                                (it mkLam num ((fun s => mkAppList s C) (mkVar (mkNat (num - i - 1))))))
            ) ;;
   u <- tmUnquoteTyped (encodable A) ter;; 
-  tmDefinitionRed name None u ;;
-  modpath <- tmCurrentModPath tt ;;
-  tmExistingInstance (ConstRef (modpath, name));;
-  tmEval hnf u.
+ tmInstanceRed name None u;;
+ tmEval hnf u.
 
 (** **** Examples *)
 (* Commented out for less printing while compiling *)
@@ -304,14 +310,12 @@ Definition tmEncode (name : ident) (A : Type) :=
 Definition gen_constructor args num i  := 
   it lam args (it lam num (it_i (fun n s => L.app s #(n + num)) args (var (num - i - 1)))).
 
-Definition extract_constr {A} (a : A) (n : kername) (i : nat) (t : Ast.term) (def : option ident) :=
+Definition extract_constr {A} (a : A) n (i : nat) (t : Ast.term) def' :=
   num <- tmNumConstructors n ;;
       r <- tmEval cbv (gen_constructor (|argument_types t|) num i : extracted a) ;;
-      match def with
-      |  Some def =>  def <- tmFreshName def ;;
-                     tmDefinitionRed def None r ;;
-                     modpath <- tmCurrentModPath tt ;;
-                     tmExistingInstance (ConstRef (modpath, def))
+      match def' with
+      |  Some def =>  def2 <- tmFreshName def ;;
+                     tmInstanceRed def2 None r;;tmReturn tt
       | None => tmReturn tt
       end;;
       ret r.
@@ -523,9 +527,7 @@ Polymorphic Definition tmExtract (nm : option string) {A} (a : A) : TemplateMona
   t <- extract (fun x => x) q FUEL ;;
   match nm with
     Some nm => nm <- tmFreshName nm ;;
-              @tmDefinitionRed nm None (extracted a) t ;;
-              modpath <- tmCurrentModPath tt ;;
-              tmExistingInstance (ConstRef (modpath,nm));;
+              @tmInstanceRed nm None (extracted a) t ;;
               ret t
   | None => ret t
   end.
