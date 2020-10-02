@@ -327,20 +327,8 @@ StackMachines/Reductions/SBTM_to_BSM.v
 TM/Univ/LookupAssociativeListTM.v
 TM/Univ/StepTM.v
 
-# PrettyBounds
-TM/PrettyBounds/PrettyBounds.v
-TM/PrettyBounds/SizeBounds.v
 TM/PrettyBounds/MaxList.v
-TM/PrettyBounds/BaseCode.v
-TM/PrettyBounds/UnivBounds.v
-TM/PrettyBounds/M2MBounds.v
-
-TM/PrettyBounds/SpaceBounds.v
-TM/PrettyBounds/BaseCodeSpace.v
-TM/PrettyBounds/UnivSpaceBounds.v
-
-# Multi-Univ Simulation Theorem
-TM/PrettyBounds/MultiUnivTimeSpaceSimulation.v
+TM/PrettyBounds/SizeBounds.v
 
 TM/Reductions/mTM_to_TM.v
 TM/TM_undec.v
