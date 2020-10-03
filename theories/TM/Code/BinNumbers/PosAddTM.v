@@ -324,7 +324,7 @@ Proof.
     - apply Add_Loop_Realise. }
   {
     intros tin ([], tout) H. intros p0 p1 Hp0 Hp1 HRight. TMSimp.
-    rename H into HGoToHSB, H0 into HGoToHSB', H1 into HLoopA, H3 into HLoopB, H4 into HLoopC.
+    rename H into HGoToHSB, H0 into HGoToHSB', H2 into HLoopA, H6 into HLoopB, H7 into HLoopC.
     modpon HGoToHSB. modpon HGoToHSB'.
     destruct p0; destruct p1; try nia.
     - modpon HLoopA; cbn in *.

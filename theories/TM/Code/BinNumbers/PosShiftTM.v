@@ -32,24 +32,23 @@ Proof.
   {
     intros tin ([], tout) H. intros p Hp. TMSimp. simpl_tape.
     modpon H. destruct p; cbn.
-    - clear H1 H2. (* clear hypotheses for tape-rewriting *)
-      destruct H as (ls&->). cbn.
+    - destruct H as (ls&->). cbn.
       pose proof Encode_positive_startsWith_xH p as (str'&Hstr'). cbn in *. rewrite Hstr'. cbn. simpl_list. cbn.
       rewrite Shift_L_fun_correct_midtape_stop; cbn; auto.
       + hnf. eexists. cbn. simpl_tape. f_equal.
         setoid_rewrite Encode_positive_app_xIO; cbn.
         simpl_list; cbn. rewrite Hstr'. cbn. f_equal. rewrite !map_rev. simpl_list. cbn. rewrite map_id. auto.
-      + intros x (?&<-&?%in_rev)%in_map_iff. replace str' with (tl (encode_pos p)) in H1 by now rewrite Hstr'. now pose proof Encode_positive_tl_bits H1 as [-> | ->].
-    - clear H1 H2. (* clear hypotheses for tape-rewriting *)
-      destruct H as (ls&->). cbn.
+      + intros x (?&<-&?%in_rev)%in_map_iff. replace str' with (tl (encode_pos p)) in H0 by now rewrite Hstr'.
+      now pose proof Encode_positive_tl_bits H0 as [-> | ->].
+    - destruct H as (ls&->). cbn.
       pose proof Encode_positive_startsWith_xH p as (str'&Hstr'). cbn in *. rewrite Hstr'. cbn. simpl_list. cbn.
       rewrite Shift_L_fun_correct_midtape_stop; cbn; auto.
       + hnf. eexists. cbn. simpl_tape. f_equal.
         setoid_rewrite Encode_positive_app_xIO; cbn.
         simpl_list; cbn. rewrite Hstr'. cbn. f_equal. rewrite !map_rev. simpl_list. cbn. rewrite map_id. auto.
-      + intros x (?&<-&?%in_rev)%in_map_iff. replace str' with (tl (encode_pos p)) in H1 by now rewrite Hstr'. now pose proof Encode_positive_tl_bits H1 as [-> | ->].
-    - clear H1 H2. (* clear hypotheses for tape-rewriting *)
-      destruct H as (ls&->). cbn.
+      + intros x (?&<-&?%in_rev)%in_map_iff. replace str' with (tl (encode_pos p)) in H0 by now rewrite Hstr'.
+      now pose proof Encode_positive_tl_bits H0 as [-> | ->].
+    - destruct H as (ls&->). cbn.
       do 2 (rewrite Shift_L_fun_equation; cbn).
       hnf. eexists. f_equal. cbn. simpl_tape. cbn. now rewrite Encode_positive_app_xIO.
   }
@@ -91,10 +90,10 @@ Proof.
       + apply ShiftLeft_Realise. }
   {
     intros tin (yout, tout) H. TMSimp.
-    rename H into HReadSymA, H1 into HReadSymB, H0 into HSwitch. split.
+    rename H into HReadSymA, H2 into HReadSymB, H0 into HSwitch. split.
     - intros. modpon HReadSymA. destruct ymid as [ [ | ] | ]; auto; destruct bx; TMSimp; auto.
-      + modpon H3. modpon H4. auto.
-      + modpon H3. modpon H4. auto.
+      + modpon H4. modpon H5. auto.
+      + modpon H4. modpon H5. auto.
     - intros. modpon HReadSymB. destruct ymid as [ [ | ] | ]; auto; TMSimp.
       destruct_tapes; TMSimp; auto.
   }
@@ -159,7 +158,7 @@ Proof.
     modpon H. destruct p0; cbn in *.
     - modpon H2. modpon H3. repeat split; auto. now apply atHSB_moveLeft_contains.
     - modpon H2. modpon H3. repeat split; auto. now apply atHSB_moveLeft_contains.
-    - modpon H4. TMSimp. repeat split; auto. now apply atHSB_moveLeft_contains.
+    - modpon H6. TMSimp. repeat split; auto. now apply atHSB_moveLeft_contains.
   }
 Qed.
 
@@ -219,7 +218,7 @@ Proof.
   { Unshelve. 5-10: reflexivity. 3: reflexivity. reflexivity. lia. }
   {
     intros tin (yout, tout) H. intros p Hp_enc. TMSimp.
-    (* clear H H0. *) destruct Hp_enc as (ls&Hp_enc). TMSimp. clear Hp_enc. cbn in *.
+    (* clear H H0. *) destruct Hp_enc as (ls&Hp_enc). TMSimp. 
     destruct p; cbn in *.
     - pose proof Encode_positive_startsWith_xH as (str'&Hstr'). cbn in *. rewrite Hstr' in *. cbn in *.
       replace str' with (tl (encode_pos p)) in * by now rewrite Hstr'.
@@ -269,19 +268,21 @@ Proof.
     specialize (H2 (removeLSB p)). modpon H2.
     {
       clear H2. apply tape_contains_rev_contains_rev_size.
-      destruct Hp_enc as (ls&->). clear H0 H1. cbn.
+      destruct Hp_enc as (ls&->). cbn.
       rewrite <- (app_nil_r ([inl STOP])).
       destruct p; cbn in *; try congruence.
       - pose proof Encode_positive_startsWith_xH p as (str'&Hstr'). cbn in *. rewrite Hstr'. cbn. simpl_list. cbn.
         rewrite Shift_fun_correct_midtape_stop; cbn; auto.
         + hnf. exists (inl START :: ls). cbn. rewrite !map_id, !map_rev. rewrite Hstr'. cbn. simpl_list. cbn. auto.
         + rewrite map_id.
-          intros ? (?&<-&?)%in_map_iff. replace str' with (tl (encode_pos p)) in H0 by now rewrite Hstr'. now pose proof Encode_positive_tl_bits H0 as [-> | ->].
+          intros ? (?&<-&?)%in_map_iff. replace str' with (tl (encode_pos p)) in H by now rewrite Hstr'.
+          now pose proof Encode_positive_tl_bits H as [-> | ->].
       - pose proof Encode_positive_startsWith_xH p as (str'&Hstr'). cbn in *. rewrite Hstr'. cbn. simpl_list. cbn.
         rewrite Shift_fun_correct_midtape_stop; cbn; auto.
         + hnf. exists (inl START :: ls). cbn. rewrite !map_id, !map_rev. rewrite Hstr'. cbn. simpl_list. cbn. auto.
         + rewrite map_id.
-          intros ? (?&<-&?)%in_map_iff. replace str' with (tl (encode_pos p)) in H0 by now rewrite Hstr'. now pose proof Encode_positive_tl_bits H0 as [-> | ->].
+          intros ? (?&<-&?)%in_map_iff. replace str' with (tl (encode_pos p)) in H by now rewrite Hstr'.
+          now pose proof Encode_positive_tl_bits H as [-> | ->].
     }
     eapply tape_contains_size_contains in H2. contains_ext.
   }
@@ -308,9 +309,9 @@ Proof.
     destruct H; TMSimp.
     - intros. modpon H. destruct p; auto.
     - intros. modpon H.
-      specialize (H0 p). destruct p; auto.
-      + modpon H0; auto. congruence.
-      + modpon H0; auto. congruence.
+      specialize (H1 p). destruct p; auto.
+      + modpon H1; auto. congruence.
+      + modpon H1; auto. congruence.
   }
 Qed.
 
@@ -352,10 +353,10 @@ Proof.
       + apply ShiftRight_Realise. }
   {
     intros tin (yout, tout) H. TMSimp.
-    rename H into HReadSymA, H1 into HReadSymB, H0 into HSwitch. split.
+    rename H into HReadSymA, H2 into HReadSymB, H0 into HSwitch. split.
     - intros. modpon HReadSymA. destruct ymid as [ [ | ] | ]; auto; destruct bx; TMSimp; auto.
-      + modpon H3. modpon H4. auto.
-      + modpon H3. modpon H4. auto.
+      + modpon H4. modpon H5. auto.
+      + modpon H4. modpon H5. auto.
     - intros. modpon HReadSymB. destruct ymid as [ [ | ] | ]; auto; TMSimp.
       destruct_tapes; TMSimp; auto.
   }
@@ -420,7 +421,7 @@ Proof.
     modpon H. destruct p0; cbn in *.
     - modpon H2. modpon H3. repeat split; auto. now apply atHSB_moveLeft_contains.
     - modpon H2. modpon H3. repeat split; auto. now apply atHSB_moveLeft_contains.
-    - modpon H4. TMSimp. repeat split; auto. now apply atHSB_moveLeft_contains.
+    - modpon H6. TMSimp. repeat split; auto. now apply atHSB_moveLeft_contains.
   }
 Qed.
 

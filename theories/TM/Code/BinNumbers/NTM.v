@@ -118,7 +118,7 @@ Proof.
     - apply Increment_Realise.
     - eapply RealiseIn_Realise. apply WriteNumber_Sem. }
   {
-    intros tin ([], tout) H. intros n Hn. destruct H as [H|H]; TMSimp.
+    intros tin ([], tout) H. intros n Hn. destruct H as [H|H]; TMSimp_old.
     - modpon H. destruct n; cbn in *; auto.
       modpon H0; simpl_surject.
       { simpl_tape; simpl_surject. contains_ext. (* TODO: [simpl_tape] should be added to [simpl_surject] or [contains_ext]. *) }
@@ -158,18 +158,18 @@ Proof.
   {
     intros tin ([], tout) H. intros x y Hx Hy Hle. destruct H as [H|H]; TMSimp.
     - modpon H. destruct x as [ | x]; cbn in *; auto.
-      destruct H0; TMSimp.
+      destruct H0; TMSimp_old.
       + modpon H0. destruct y as [ | y]; cbn in *; auto.
         specialize (H1 x y).
         modpon H1.
-        { simpl_tape. simpl_surject. TMSimp. contains_ext. }
+        { simpl_tape. simpl_surject. TMSimp_old. contains_ext. }
         { simpl_tape. simpl_surject. contains_ext. }
         simpl_tape in *; simpl_surject.
-        modpon H2. modpon H3.
+        modpon H3. modpon H4.
         split; eauto.
       + modpon H0. destruct y as [ | y]; cbn in *; auto.
         modpon H1.
-        specialize (H2 (N.pos x)). modpon H2.
+        specialize (H3 (N.pos x)). modpon H3.
         split; auto.
     - modpon H. destruct x as [ | x]; cbn in *; auto. modpon H0. auto.
   }
@@ -204,18 +204,18 @@ Lemma Add_N_Realise : Add_N ⊨ Add_N_Rel.
     - modpon H. destruct x as [ | x]; cbn in *; auto.
       destruct H0; TMSimp.
       +
-        rename H0 into HCaseOption, H1 into HAdd, H2 into HSome0, H3 into HSome1, H4 into HSome2.
+        rename H0 into HCaseOption, H1 into HAdd, H3 into HSome0, H4 into HSome1, H6 into HSome2.
         modpon HCaseOption. destruct y as [ | y]; cbn in *; auto.
         specialize (HAdd x y). modpon HAdd; simpl_tape in *; simpl_surject; TMSimp; auto.
         modpon HSome0. modpon HSome1. modpon HSome2.
         repeat split; eauto.
       + modpon H0. destruct y as [ | y]; cbn in *; auto.
         modpon H1.
-        modpon H2.
-        specialize (H3 (Npos x)). modpon H3.
+        modpon H3.
+        specialize (H5 (Npos x)). modpon H5.
         TMSimp.
         repeat split; auto.
-    - modpon H. destruct x as [ | x]; cbn in *; auto. modpon H0. modpon H1. auto.
+    - modpon H. destruct x as [ | x]; cbn in *; auto. modpon H0. modpon H2. auto.
   }
 Qed.
 

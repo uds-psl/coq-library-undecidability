@@ -112,11 +112,11 @@ Proof.
     - apply ShiftLeft_Realise. }
   {
     intros tin (yout, tout) H. TMSimp.
-    rename H into HReadSymA, H1 into HReadSymB, H0 into HSwitch. split.
+    rename H into HReadSymA, H2 into HReadSymB, H0 into HSwitch. split.
     - intros. modpon HReadSymA. destruct ymid; cbn in *; auto.
       destruct b, bx; cbn in *; TMSimp; auto.
-      + modpon H5. modpon H6. modpon H7. repeat split; eauto. contains_ext. f_equal. nia.
-      + modpon H5. modpon H6. repeat split; eauto.
+      + modpon H7. modpon H6. modpon H9. repeat split; eauto. contains_ext. f_equal. nia.
+      + modpon H6. modpon H7. repeat split; eauto.
     - intros. modpon HReadSymB. destruct_tapes; TMSimp. repeat split; auto.
   }
 Qed.
@@ -262,7 +262,7 @@ Proof.
     - apply ShiftRight_num_Realise. }
   {
     intros tin ([], tout) H. hnf; intros x y Hx Hy Hright. TMSimp.
-    rename H into HCopyValue, H0 into HShiftLeft, H1 into HGoToLSB, H2 into HLoopA, H4 into HLoopB, H5 into HShiftRight.
+    rename H into HCopyValue, H0 into HShiftLeft, H2 into HGoToLSB, H4 into HLoopA, H7 into HLoopB, H8 into HShiftRight.
     modpon HCopyValue. modpon HShiftLeft. modpon HGoToLSB.
     destruct x; cbn -[shift_left shift_right mult_TR_cont] in *.
     - modpon HLoopA; cbn -[shift_left shift_right mult_TR_cont]in *.

@@ -160,7 +160,7 @@ Proof.
   }
   { intros tin ((), tout) H. cbn. intros Q t s0 s1 s2 HEncQ HEncT HRight.
     unfold sigPro, sigCom in *. TMSimp.
-    rename H into HNil, H0 into HCons, H1 into HApp, H2 into HReset.
+    rename H into HNil, H0 into HCons, H2 into HApp, H4 into HReset.
     modpon HNil. modpon HCons. modpon HApp. modpon HReset. repeat split; auto.
   }
 Qed.
@@ -184,13 +184,13 @@ Proof.
   {
     intros tin k (Q&t&HEncQ&HEncT&HRight&Hk). unfold App_Com_steps in Hk.
     exists (Constr_nil_steps), (1 + Constr_cons_steps t + 1 + App_Commands_steps Q [t] + Reset_steps t). cbn. repeat split; try lia.
-    intros tmid () (HNil&HInjNil); TMSimp. modpon HNil.
+    intros tmid_ () (HNil&HInjNil); TMSimp. modpon HNil.
     exists (Constr_cons_steps t), (1 + App_Commands_steps Q [t] + Reset_steps t). cbn. repeat split; try lia.
     eauto.
     unfold sigPro in *. intros tmid0 () (HCons&HInjCons); TMSimp. modpon HCons.
     exists (App_Commands_steps Q [t]), (Reset_steps t). cbn. repeat split; try lia.
     hnf; cbn. do 2 eexists; repeat split; eauto.
-    intros tmid1 _ (HApp&HInjApp); TMSimp. modpon HApp.
+    intros tmid1_ _ (HApp&HInjApp); TMSimp. modpon HApp.
     eexists. split; eauto.
   }
 Qed.
@@ -294,32 +294,32 @@ Proof.
     intros tin (yout, tout) H. cbn. intros P Q k s0 s1 s2 s3 s4 HEncP HEncQ HEncK HInt3 HInt4.
     unfold sigPro in *. rename H into HIf.
     destruct HIf; TMSimp.
-    { (* Then of [CaseList], i.e. P = t :: P' *) rename H into HCaseList, H0 into HCaseCom, H1 into HCase.
+    { (* Then of [CaseList], i.e. P = t :: P' *) rename H into HCaseList, H0 into HCaseCom, H2 into HCase.
       modpon HCaseList. destruct P as [ | t P']; auto; modpon HCaseList.
       modpon HCaseCom.
       destruct ymid as [ [ | | ] | ]; try destruct t; auto; simpl_surject; TMSimp.
       { (* t = retT *)
         destruct HCase; TMSimp.
-        { (* k = S k' *) rename H into HCaseNat, H0 into HApp.
+        { (* k = S k' *) rename H into HCaseNat, H1 into HApp.
           modpon HCaseNat. destruct k as [ | k']; auto; modpon HCaseNat.
           modpon HApp.
           repeat split; auto.
         }
-        { (* k = 0 *) rename H into HCaseNat. rename H0 into HReset.
+        { (* k = 0 *) rename H into HCaseNat. rename H1 into HReset.
           modpon HCaseNat. destruct k as [ | k']; auto; modpon HCaseNat. modpon HReset .
           repeat split; auto.
         }
       }
-      { (* t = lamT *) rename H into HS, H0 into HApp.
+      { (* t = lamT *) rename H0 into HS, H1 into HApp.
         modpon HS.
         modpon HApp.
         repeat split; auto.
       }
-      { (* t = appT *) rename H into HApp.
+      { (* t = appT *) rename H0 into HApp.
         modpon HApp.
         repeat split; auto.
       }
-      { (* t = varT *) rename H into HVar, H0 into HApp.
+      { (* t = varT *) rename H0 into HVar, H1 into HApp.
         modpon HVar.
         modpon HApp.
         repeat split; auto.
@@ -386,30 +386,30 @@ Proof.
     intros tin steps (P&Q&k&HEncP&HEncQ&HEncK&HRight3&HRight4&Hk). unfold JumpTarget_Step_steps in Hk. cbn in *.
     unfold sigPro in *.
     exists (CaseList_steps P), (JumpTarget_Step_steps_CaseList P Q k). cbn; repeat split; try lia. eauto.
-    intros tmid bmatchlist (HCaseList&HCaseListInj); TMSimp. modpon HCaseList.
+    intros tmid_ bmatchlist (HCaseList&HCaseListInj); TMSimp. modpon HCaseList.
     destruct bmatchlist, P as [ | t P']; auto; modpon HCaseList.
     { (* P = t :: P' (* other case is done by auto *) *)
       exists (CaseCom_steps), (JumpTarget_Step_steps_CaseCom Q k t). cbn; repeat split; try lia.
-      intros tmid1 ytok (HCaseCom&HCaseComInj); TMSimp. modpon HCaseCom.
+      intros tmid1_ ytok (HCaseCom&HCaseComInj); TMSimp. modpon HCaseCom.
       destruct ytok as [ [ | | ] | ]; destruct t; auto; simpl_surject; TMSimp.
       { (* t = retT *)
         exists CaseNat_steps.
         destruct k as [ | k'].
         - (* k = 0 *)
           exists ResetEmpty1_steps. repeat split; try lia.
-          intros tmid2 bCaseNat (HCaseNat&HCaseNatInj); TMSimp. modpon HCaseNat. destruct bCaseNat; auto.
+          intros tmid2_ bCaseNat (HCaseNat&HCaseNatInj); TMSimp. modpon HCaseNat. destruct bCaseNat; auto.
         - (* k = S k' *)
           exists (App_ACom_steps Q retAT). repeat split; try lia.
           intros tmid2 bCaseNat (HCaseNat&HCaseNatInj); TMSimp. modpon HCaseNat. destruct bCaseNat; auto. hnf; cbn. eauto.
       }
       { (* t = lamT *)
         exists (Constr_S_steps), (App_ACom_steps Q lamAT). repeat split; try lia.
-        intros tmid2 () (HS&HSInj); TMSimp. modpon HS. hnf; cbn. eauto.
+        intros tmid2_ () (HS&HSInj); TMSimp. modpon HS. hnf; cbn. eauto.
       }
       { (* t = appT *) hnf; cbn; eauto. }
       { (* t = varT n *)
         exists (Constr_varT_steps), (App_Com_steps Q (varT n)). repeat split; try lia.
-        intros tmid2 H (HVarT&HVarTInj); TMSimp. modpon HVarT. hnf; cbn. eauto 6.
+        intros tmid2_ H (HVarT&HVarTInj); TMSimp. modpon HVarT. hnf; cbn. eauto 6.
       }
     }
   }
@@ -609,13 +609,15 @@ Proof.
   }
   {
     intros tin (yout, tout) H. cbn. intros P s0 s1 sr HEncP HOut HInt.
-    TMSimp ( unfold sigPro, sigCom in * ). rename H into HWriteNil, H0 into HWriteO, H1 into HLoop.
+    TMSimp ( unfold sigPro, sigCom in * ). rename H into HWriteNil, H0 into HWriteO, H2 into HLoop.
     specialize (HInt Fin0) as HRight2.
+    specialize (HInt Fin1) as HRight3.
+    specialize (HInt Fin2) as HRight4.
     modpon HWriteNil.
     modpon HWriteO.
     modpon HLoop.
     destruct yout.
-    - destruct HLoop as (P'&Q'&HLoop); modpon HLoop. do 2 eexists; repeat split; eauto.
+    - TMSimp. do 2 eexists; repeat split; eauto. 
       intros i; destruct_fin i; TMSimp_goal; auto.
     - eauto.
   }
@@ -644,9 +646,11 @@ Proof.
   {
     intros tin k (P&HEncP&Hout&HInt&Hk). unfold JumpTarget_steps in Hk.
     specialize (HInt Fin0) as HRight2.
+    specialize (HInt Fin1) as HRight3.
+    specialize (HInt Fin2) as HRight4.
     exists (Constr_nil_steps), (1 + Constr_O_steps + 1 + JumpTarget_Loop_steps P nil 0).
     cbn; repeat split; try lia.
-    intros tmid () (HWrite&HWriteInj); TMSimp. modpon HWrite.
+    intros tmid_ () (HWrite&HWriteInj); TMSimp. modpon HWrite.
     exists (Constr_O_steps), (1 + JumpTarget_Loop_steps P nil 0).
     cbn; repeat split; try lia.
     cbn in *. unfold sigPro in *. intros tmid1 () (HWrite'&HWriteInj'); TMSimp. modpon HWrite'.

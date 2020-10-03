@@ -73,6 +73,7 @@ Ltac TMSimp1 T :=
   subst;
   unfold finType_CS in *;
   try T;
+  repeat
   match goal with
   | [ H : _ ::: _ = [||]  |- _ ] => inv H
   | [ H : [||] = _ ::: _ |- _ ] => inv H
@@ -98,18 +99,17 @@ Ltac TMSimp1 T :=
       destruct H as (ymid&H)
     end
   | [ x : _ * _    |- _ ] => destruct x
-  | _ => idtac
   end.
 
-Ltac TMSimp2 :=
+Ltac TMSimp2_old :=
   match goal with
   | [ H: ?X = _ |- _ ] => rewrite H in *; lock H
   end.
 
-Tactic Notation "TMSimp" tactic(T) :=
-  repeat progress (repeat progress TMSimp1 T; repeat TMSimp2; unlock all).
+Tactic Notation "TMSimp_old" tactic(T) :=
+  repeat progress (repeat progress TMSimp1 T; repeat TMSimp2_old; unlock all).
 
-Tactic Notation "TMSimp" := TMSimp idtac.
+Tactic Notation "TMSimp_old" := TMSimp_old idtac.
 
 
 (** Rewrite [eq]-assumptions, but only in the goal. This is much faster than [TMSimp]. *)
@@ -117,8 +117,53 @@ Ltac TMSimp_goal :=
   repeat multimatch goal with
          | [ H : ?X = _ |- _ ] => rewrite H
          end.
-  
 
+Fixpoint all_vec {X:Type} {n:nat}  {struct n}: (Vector.t X n -> Prop) -> Prop :=
+  match n with
+      0 => fun A => A (@Vector.nil _)
+    | S n => fun A => forall x, all_vec (fun xs => A (x:::xs))
+  end.
+  
+Lemma all_vec_correct {X:Type} {n:nat} (P : Vector.t X n -> Prop):
+  all_vec P -> forall xs, P xs.
+Proof.  
+  revert P. induction n;cbn;intros. now apply Vector.case0.
+  intros. apply Vector.caseS'. intro. now eapply IHn.
+Qed.    
+Tactic Notation "vector_destruct" hyp(tin) :=
+  let rec introT n :=
+      lazymatch n with
+        0 => idtac
+      |  S ?n =>
+        let x := fresh tin in
+        intro x;introT n
+      end 
+  in
+  let tac n :=  revert dependent tin; intros tin; pattern tin; refine (all_vec_correct _ _);
+    cbv [all_vec];introT n;intros;cbn in *
+  in
+    lazymatch type of tin with
+      tapes _ ?n => tac n
+    | Vector.t _ ?n => tac n
+    end.
+  
+Ltac TMSimp2 :=
+  let tac ts n :=
+    lazymatch InitialRing.isnatcst n with
+      true => vector_destruct ts;try clear ts
+    end
+  in
+    lazymatch goal with
+    | [ ts: tapes _ ?n|- _ ] => tac ts n
+    | [ ts: Vector.t _ ?n|- _ ] => tac ts n
+    | [H : @Vector.nil _ = @Vector.nil _ |-_ ] => clear H
+    end.
+
+
+Tactic Notation "TMSimp" tactic(T) :=
+  repeat progress (repeat progress TMSimp1 T; repeat TMSimp2; unlock all).
+
+Tactic Notation "TMSimp" := TMSimp idtac.
 
 
 (** DO NOT USE THE FOLLOWING (deprecated) TACTICS, except in [TM.Compound]! *)
@@ -156,13 +201,13 @@ Tactic Notation "TMSolve" int_or_var(k) :=
 Tactic Notation "TMCrush" tactic(T) :=
   repeat progress
          (
-           TMSimp T;
+           TMSimp_old T;
            try TMBranche
          ).
 
 Tactic Notation "TMCrush" :=
   repeat progress
          (
-           TMSimp;
+           TMSimp_old;
            try TMBranche
          ).
