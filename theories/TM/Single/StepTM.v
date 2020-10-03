@@ -1158,7 +1158,7 @@ Section ToSingleTape.
            - (* continue case *)
              specialize HStep_cons with (1 := HL1) (2 := HL2) (3 := HCons) (4 := HRead).
              destruct tps2 as [ | tp' tps2']; cbn in *.
-             + TMSimp congruence.
+             + TMSimp. congruence.
              + destruct HStep_cons as (HStep_cons1&HStep_cons2). destruct (finSucc_opt i) as [ i'' | ] eqn:Ei; inv HStep_cons2; rename i'' into i'.
                eexists. split. 2: apply Hk. left. exists (tps1 ++ [tp]), (tps2'), tp'. repeat split.
                * simpl_list. cbn. apply finSucc_opt_Some' in Ei. apply Nat.eqb_eq. apply Nat.eqb_eq in HL1. lia.

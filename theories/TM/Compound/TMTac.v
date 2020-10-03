@@ -44,13 +44,13 @@ Section test.
 End test.
 
 Ltac inv_pair :=
-  match goal with
+  lazymatch goal with
   | [ H : (_, _) = (_, _) |- _] => inv H
   | [ |- (_, _) = (_, _) ] => f_equal
   end.
 
 Ltac destruct_param_tape_pair :=
-  match goal with
+  lazymatch goal with
   | [ x : _ * tapes _ _ |- _] =>
     let ymid := fresh "ymid" in
     let tmid := fresh "tmid" in
@@ -58,7 +58,7 @@ Ltac destruct_param_tape_pair :=
   end.
 
 Ltac destruct_unit :=
-  repeat match goal with
+  repeat lazymatch goal with
          | [ x : unit |- _ ] => destruct x
          end.
 
@@ -66,7 +66,7 @@ Ltac destruct_unit :=
 
 (** TMSimp destructs conjunctive assumptions and rewrites assumptions like [t'[@i] = t[@j]] automatically. *)
 
-Ltac TMSimp1 T :=
+Ltac TMSimp1_old T :=
   try destruct_param_tape_pair; destruct_unit;
   simpl_not_in;
   cbn in *;
@@ -74,7 +74,7 @@ Ltac TMSimp1 T :=
   unfold finType_CS in *;
   try T;
   repeat
-  match goal with
+  lazymatch goal with
   | [ H : _ ::: _ = [||]  |- _ ] => inv H
   | [ H : [||] = _ ::: _ |- _ ] => inv H
   | [ H : _ ::: _ = _ ::: _ |- _ ] => apply VectorSpec.cons_inj in H
@@ -90,7 +90,7 @@ Ltac TMSimp1 T :=
 
   | [ H : _ /\ _ |- _] => destruct H
   | [ H : ex ?P |- _] =>
-    match type of P with
+    lazymatch type of P with
     | tapes _ _ -> Prop =>
       let tmid := fresh "tmid" in
       destruct H as (tmid&H)
@@ -100,6 +100,7 @@ Ltac TMSimp1 T :=
     end
   | [ x : _ * _    |- _ ] => destruct x
   end.
+  
 
 Ltac TMSimp2_old :=
   match goal with
@@ -107,7 +108,7 @@ Ltac TMSimp2_old :=
   end.
 
 Tactic Notation "TMSimp_old" tactic(T) :=
-  repeat progress (repeat progress TMSimp1 T; repeat TMSimp2_old; unlock all).
+  repeat progress (repeat progress TMSimp1_old T; repeat TMSimp2_old; unlock all).
 
 Tactic Notation "TMSimp_old" := TMSimp_old idtac.
 
@@ -146,6 +147,42 @@ Tactic Notation "vector_destruct" hyp(tin) :=
       tapes _ ?n => tac n
     | Vector.t _ ?n => tac n
     end.
+  
+Ltac TMSimp1 T :=
+  try destruct_param_tape_pair; destruct_unit;
+  simpl_not_in;
+  cbn in *;
+  subst;
+  unfold finType_CS in *;
+  try T;
+  repeat
+  lazymatch goal with
+  | [ x : unit |- _ ] => destruct x
+  | [ H : _ ::: _ = [||]  |- _ ] => discriminate H
+  | [ H : [||] = _ ::: _ |- _ ] => discriminate H
+  | [ H : _ ::: _ = _ ::: _ |- _ ] => apply VectorSpec.cons_inj in H
+
+  | [ H : _ ::  _ = []  |- _ ] => discriminate H
+  | [ H : [] = _ :: _ |- _ ] => discriminate H
+  | [ H : _ ::  _ = _ :: _ |- _ ] => inv H
+
+
+  | [ H : Some _ = Some _ |- _ ] => inv H
+  | [ H : None   = Some _ |- _ ] => discriminate H
+  | [ H : Some _ = None   |- _ ] => discriminate H
+
+  | [ H : _ /\ _ |- _] => destruct H
+  | [ H : ex ?P |- _] =>
+    lazymatch type of P with
+    | tapes _ _ -> Prop =>
+      let tmid := fresh "tmid" in
+      destruct H as (tmid&H)
+    | _ => (* probably some label *)
+      let ymid := fresh "ymid" in
+      destruct H as (ymid&H)
+    end
+  | [ x : _ * _    |- _ ] => destruct x
+  end.
   
 Ltac TMSimp2 :=
   let tac ts n :=

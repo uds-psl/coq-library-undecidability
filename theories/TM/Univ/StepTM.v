@@ -22,6 +22,8 @@ Section Graph.
 
   Variable (A : finType) (B : Type) (f : A -> B).
 
+  Set Default Proof Using "Type".
+
   Definition graph_of_fun : list (A*B) := map (fun x => (x, f x)) enum.
 
   Lemma graph_of_fun_functional x y1 y2 :
@@ -584,7 +586,7 @@ Section Univ.
         specialize (HLookup (graph_of_TM M)).
         modpon HLookup.
         rewrite lookup_graph in HLookup. destruct (trans (q, [|current tp|])) as [q' acts] eqn:E.
-        destruct ymid3; auto; modpon HLookup.
+        destruct ymid; auto; modpon HLookup.
         unfold Univ_Step_size in *.
         unfold step; cbn; unfold current_chars; cbn. rewrite E. simpl_vector. cbn.
         specialize (HCaseResult (acts[@Fin0], (halt q', index q'))). modpon HCaseResult. modpon HDoAction.

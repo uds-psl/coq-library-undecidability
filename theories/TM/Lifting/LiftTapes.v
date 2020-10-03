@@ -433,10 +433,10 @@ Ltac do_n_times_fin_rect n m t :=
   lazymatch n with
   | O => idtac
   | S ?n' =>
-    let m' := eval simpl in (pred m) in
-    let one := eval simpl in (@Fin.F1 _ : Fin.t m) in
+    let m' := eval hnf in (pred m) in
+    let one := eval cbv in (@Fin.F1 _ : Fin.t m) in
     t one;
-    do_n_times_fin_rect n' m' ltac:(fun i => let next := eval simpl in (Fin.FS i) in t next)
+    do_n_times_fin_rect n' m' ltac:(fun i => let next := eval hnf in (Fin.FS i) in t next)
   end.
 
 Ltac do_n_times_fin n t := do_n_times_fin_rect n n t.
@@ -594,8 +594,4 @@ Ltac simpl_not_in_vector := repeat simpl_not_in_vector_one.
 
 
 Ltac simpl_not_in :=
-  repeat match goal with
-         | _ => progress simpl_not_in_add_tapes
-         | _ => progress simpl_not_in_app_tapes
-         | _ => progress simpl_not_in_vector
-         end.
+  repeat ( simpl_not_in_add_tapes || simpl_not_in_app_tapes || simpl_not_in_vector).
