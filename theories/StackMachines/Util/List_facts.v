@@ -126,3 +126,9 @@ Qed.
 Lemma in_split_rest {X: Type} {x y: X} {L1 L2: list X} : 
   In y (L1 ++ x :: L2) -> x <> y -> In y (L1 ++ L2).
 Proof. rewrite ?in_app_iff /=. by firstorder done. Qed. 
+
+Lemma in_app_l {X: Type} {x: X} {l1 l2: list X} : In x l1 -> In x (l1 ++ l2).
+Proof. move=> ?. apply /in_app_iff. by left. Qed.
+
+Lemma in_app_r {X: Type} {x: X} {l1 l2: list X} : In x l2 -> In x (l1 ++ l2).
+Proof. move=> ?. apply /in_app_iff. by right. Qed.

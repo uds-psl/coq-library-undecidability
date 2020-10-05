@@ -5,12 +5,14 @@ Require Import Undecidability.SemiUnification.SemiU.
 
 Require Import Undecidability.StackMachines.Reductions.HaltTM_to_CSSM_UB.
 Require Undecidability.SemiUnification.Reductions.CSSM_UB_to_SSemiU.
-Require Undecidability.SemiUnification.Reductions.SSemiU_to_SemiU.
+Require Undecidability.SemiUnification.Reductions.SSemiU_to_RU2SemiU.
+Require Undecidability.SemiUnification.Reductions.RU2SemiU_to_SemiU.
 
 (** Many-one reduction from Turing machine halting to semi-unification *)
 Lemma HaltTM_to_SemiU : HaltTM 1 ⪯ SemiU.
 Proof.
   apply (reduces_transitive HaltTM_to_CSSM_UB).
   apply (reduces_transitive CSSM_UB_to_SSemiU.reduction).
-  exact SSemiU_to_SemiU.reduction.
+  apply (reduces_transitive SSemiU_to_RU2SemiU.reduction).
+  exact RU2SemiU_to_SemiU.reduction.
 Qed.
