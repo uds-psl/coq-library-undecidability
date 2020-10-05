@@ -3,6 +3,10 @@
 -arg -w -arg -notation-overridden
 COQDOCFLAGS = "--charset utf-8 -s --with-header ../website/resources/header.html --with-footer ../website/resources/footer.html --index indexpage"
 
+LAM/Compiler_spec.v
+LAM/Compiler_facts.v
+LAM/Compiler.v
+
 Shared/Prelim.v
 Shared/Dec.v
 Shared/ListAutomation.v
@@ -299,6 +303,7 @@ TM/Code/CaseSum.v
 TM/Code/CaseList.v
 TM/Code/CaseFin.v
 TM/Code/CasePair.v
+TM/Code/CaseBool.v
 
 # Programming case studies
 #TM/Code/SumTM.v
