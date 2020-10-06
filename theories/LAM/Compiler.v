@@ -5,7 +5,7 @@ Require Import Vector List.
 
 Require Import Undecidability.TM.Util.TM_facts.
 
-From Undecidability Require Import ProgrammingTools LM_heap_def WriteValue Copy.
+From Undecidability Require Import ProgrammingTools LM_heap_def WriteValue Copy ListTM  JumpTargetTM WriteValue.
 From Undecidability.L.AbstractMachines.TM_LHeapInterpreter Require Import Alphabets StepTM M_LHeapInterpreter.
 From Undecidability Require Import TM.TM L.AbstractMachines.FlatPro.LM_heap_correct.
 
@@ -20,22 +20,32 @@ From Undecidability.LAM Require Import Compiler_spec Compiler_facts.
 
 Require Import Equations.Prop.DepElim.
 
-Import VectorNotations.
 
 Set Default Proof Using "Type".
 
 Section APP_right.
 
-  Definition APP_right : pTM (sigPro)^+ unit 2.
-  Admitted.
+  Definition APP_right : pTM (sigPro)^+ unit 2 :=
+    App_Commands;;
+    (LiftTapes (WriteValue (encode [appT]%list)) [|Fin1|]);;
+    App_Commands.
 
   Lemma APP_right_realise :
     Realise APP_right (fun t '(r, t') =>
     forall s1 s2 : L.term,
     t[@Fin0] ≃ compile s1
     -> t[@Fin1] ≃ compile s2
-    -> t'[@Fin0] ≃ compile (L.app s1 s2)).
-  Admitted.
+    -> t'[@Fin0] ≃ compile (L.app s1 s2)
+      /\ isRight (t'[@Fin1])).
+  Proof.
+    eapply Realise_monotone.
+    {unfold APP_right. TM_Correct. all: apply App_Commands_Realise. }
+    hnf. intros ? [] ? s1 s2. intros;TMSimp.
+    specialize H2 with (x:=[appT]%list).
+    modpon H. modpon H2. modpon H3.
+    split. 2:solve isRight_mono.
+    contains_ext. now autorewrite with list.
+  Qed.  
 
 End APP_right.
 

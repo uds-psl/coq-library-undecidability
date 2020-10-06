@@ -6,6 +6,7 @@ COQDOCFLAGS = "--charset utf-8 -s --with-header ../website/resources/header.html
 LAM/Compiler_spec.v
 LAM/Compiler_facts.v
 LAM/Compiler.v
+LAM/encTM_boolList.v
 
 Shared/Prelim.v
 Shared/Dec.v

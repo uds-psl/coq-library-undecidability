@@ -13,6 +13,8 @@ From Undecidability.LAM Require Import Compiler_spec.
 Import ListNotations.
 Import VectorNotations.
 
+Set Default Proof Using "Type".
+
 
 Module boolList2encTM.
 Section Fix.
@@ -72,17 +74,47 @@ Section Fix.
   Qed.
 
   Definition M : pTM (Σ) ^+ unit 3 :=
-    LiftTapes (MoveToSymbol (fun _ => false) id) [|Fin1|];;M__loop.
+    (*LiftTapes (MoveToSymbol (fun _ => false) id) [|Fin1|];;*) M__loop.
 
   Theorem Realises :
     Realise M (fun t '(r, t') =>
                      forall (l : list bool),
                         t[@Fin0] ≃ l ->
-                        sizeOfTape(t[@Fin1]) <= length l + 1 ->
+                        t[@Fin1] = niltape ->
                         isRight (t[@Fin2]) ->
                         t'[@Fin1] = encTM s b (rev l)
-                        /\ (isRight (t'[@Fin1]) /\ isRight (t'[@Fin2]))).
-  Proof.    
-  Admitted.
+                        /\ (isRight (t'[@Fin0]) /\ isRight (t'[@Fin2]))).
+  Proof.
+    eapply Realise_monotone.
+    {unfold M. TM_Correct. apply Realises__loop. }
+    hnf. intros;TMSimp. specialize H with (l':= nil). modpon H. nia. autorewrite with list in H. eauto.
+  Qed.   
+
 End Fix.
 End boolList2encTM.
+
+
+Module encTM2boolList.
+Section Fix.
+
+  Variable Σ : finType.
+  Variable s b : Σ^+.
+
+  Variable (retr_list : Retract (sigList bool) Σ).
+  Local Instance retr_bool : Retract bool Σ := ComposeRetract retr_list (Retract_sigList_X _).
+
+  
+  Definition M : pTM (Σ) ^+ unit 3. Admitted.
+
+  Theorem Realises :
+    Realise M (fun t '(r, t') =>
+                     forall (l : list bool),
+                        t[@Fin0] = encTM s b l ->
+                        isRight t[@Fin1] ->
+                        isRight (t[@Fin2]) ->
+                        t'[@Fin1] ≃ l
+                        /\ (isRight (t'[@Fin0]) /\ isRight (t'[@Fin2]))).
+  Admitted.
+
+End Fix.
+End encTM2boolList.
