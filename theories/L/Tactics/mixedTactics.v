@@ -1,4 +1,4 @@
-Require Import PslBase.Base Lia Ring.
+Require Import PslBase.Base Lia Ring. 
 
 Tactic Notation "destruct" "_":= 
   match goal with
@@ -23,6 +23,7 @@ Ltac trace :=
     |- ?G => idtac "Trace:";idtac G
   end.
 
+Require Export ZArith. 
 Ltac leq_crossout :=
        try zify;try apply Zle_0_minus_le; ring_simplify;
        repeat eapply Z.add_nonneg_nonneg;try now (repeat eapply Z.mul_nonneg_nonneg;easy).

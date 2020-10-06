@@ -1,3 +1,6 @@
+Require Import Equations.Equations.
+Require Equations.Prop.EqDec. (*TODO: Remove Import *)
+
 From Undecidability.H10 Require Import H10 dio_single dio_logic.
 From Undecidability.L.Datatypes Require Import LNat Lists LOptions LSum.
 From Undecidability.L Require Import Tactics.LTactics Computability.MuRec Computability.Synthetic Tactics.GenEncode.

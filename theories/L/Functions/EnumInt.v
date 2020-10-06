@@ -6,9 +6,10 @@ Require Import PslBase.Base Nat List Datatypes.
 
 Import Nat.
 (** ** Enumeratibility of L-terms *)
-Instance term_appCross : computableTime' appCross (fun A _ => (5,fun B _ => (length A * length B * 29 + length A * 30 +  4,tt))).
+Instance term_appCross : computableTime' appCross (fun A _ => (5,fun B _ => (length A * length B * 29 + length A * 46 +  4,tt))).
 Proof.
-  extract. solverec. fold appCross;rewrite map_time_const,map_length. Lia.nia.
+  extract. solverec. fold appCross;rewrite map_time_const,map_length. 
+  unfold c__map, c__app. Lia.nia.
 Defined.
 
 Instance term_exh_size : computable exh_size.
@@ -127,6 +128,5 @@ Qed.
 
 Instance term_c : computable c.
 Proof.
-  unfold c. (* TODO: Wy is this needed?*)
   extract. 
 Qed.

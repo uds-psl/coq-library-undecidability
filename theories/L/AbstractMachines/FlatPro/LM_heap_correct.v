@@ -260,13 +260,6 @@ Proof.
    exact R.
 Qed.
 
-(*MOVE*)
-Lemma eval_evalIn s t:
-  eval s t -> exists k, evalIn k s t.
-Proof.
-  intros [(R&?)%star_pow ?]. unfold evalIn. eauto.
-Qed.
-
 Lemma completeness s t:
   eval s t -> closed s ->
   exists g H, reprC H g t
@@ -413,13 +406,6 @@ Proof.
   -easy. 
   -apply bound_unfolds_id. eapply closed_dcl. eassumption.
   -eexists _,_,_. all:eauto. 
-Qed.
-
-(*MOVE*)
-Lemma evalevaluates_evaluatesIn X (step:X->X->Prop) s t:
-  evaluates step s t -> exists k, evaluatesIn step k s t.
-Proof.
-  intros [(R&?)%star_pow ?]. unfold evaluatesIn. eauto.
 Qed.
 
 Lemma soundness s sigma:

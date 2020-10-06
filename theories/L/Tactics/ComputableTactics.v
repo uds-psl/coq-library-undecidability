@@ -436,10 +436,11 @@ Import Intern.
 Ltac register_inj :=   abstract (intros x; induction x; let y := fresh "y" in destruct y;simpl; intros eq; try (injection eq || discriminate eq);intros;f_equal;auto;try apply inj_enc;try easy).
 
 Ltac register_proc :=
+  solve [
   unfold enc_f; let x := fresh "x" in
-  (((induction x || intros *);
+  (((intros x;induction x || intros *);
     cbn; fold_encs;Lproc
-                        )).
+                        ))].
 
 Ltac register encf :=   refine (@mk_registered _ encf _ _);[
                           (((let x := fresh "x" in induction x || intros);(let f := visibleHead encf in unfold f;cbn [f]);

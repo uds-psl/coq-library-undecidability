@@ -20,8 +20,8 @@ Definition Increment_Step_Rel : pRel sigPos^+ (option unit) 1 :=
         atHSB tin[@Fin0] p ->
         atHSB tout[@Fin0] (pushHSB p false) /\ yout = Some tt).
 
-Compute append_bits 1 [false; true; true].
-Compute pushHSB (append_bits 1 [false; true; true]) false.
+(* Compute append_bits 1 [false; true; true]. *)
+(* Compute pushHSB (append_bits 1 [false; true; true]) false. *)
 
 
 Definition Increment_Step : pTM sigPos^+ (option unit) 1 :=

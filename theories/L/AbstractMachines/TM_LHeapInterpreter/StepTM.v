@@ -1,8 +1,8 @@
 (** * Step Machine of the Heap Machine Simulator *)
 
 From Undecidability Require Import TM.Code.ProgrammingTools LM_heap_def.
-From Undecidability.LAM Require Import TM.Alphabets.
-From Undecidability.LAM.TM Require Import CaseCom LookupTM JumpTargetTM.
+From Undecidability.L.AbstractMachines.TM_LHeapInterpreter Require Import Alphabets.
+From Undecidability.L.AbstractMachines.TM_LHeapInterpreter Require Import CaseCom LookupTM JumpTargetTM.
 From Undecidability Require Import TM.Code.ListTM TM.Code.CaseList TM.Code.CasePair TM.Code.CaseSum.
 
 Local Arguments plus : simpl never.

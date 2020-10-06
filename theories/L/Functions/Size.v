@@ -60,9 +60,9 @@ Instance termT_sizeTR' : computableTime' sizeTR'
                                                     match stack with
                                                       var n ::_ =>  n*11
                                                     | _ => 0
-                                                    end + 28,tt)).
+                                                    end + 35,tt)).
 Proof.
- extract. solverec.
+ extract. solverec. unfold LNat.c__add1, LNat.add_time, LNat.c__add. nia. 
 Qed.
 
 Lemma sizeTR'_fuel_leq_size s : sizeTR'_fuel s <= size s.
@@ -70,7 +70,7 @@ Proof.
   induction s;cbn [size sizeTR'_fuel];try Lia.lia.
 Qed.
 
-Instance termT_size : computableTime' size (fun s _ => (108 * size s + 43,tt)).
+Instance termT_size : computableTime' size (fun s _ => (108 * size s + 50,tt)).
 Proof.
   eexists.
   eapply computesTime_timeLeq.
@@ -82,7 +82,7 @@ Proof.
   split. 2:exact Logic.I.
   cbn [fst].
   erewrite uiterTime_bound_recRel with (iterT := fun _ '(stack,res) => ((sumn (map size stack)) * 108
-                                                                   + 28 + 9))
+                                                                   + 35 + 9))
                                        (P:= fun n x => True).
   { cbn [length map sumn]. Lia.lia. }
   {intros n [stack res] H. cbn.

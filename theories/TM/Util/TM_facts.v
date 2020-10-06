@@ -88,7 +88,7 @@ Section Fix_Sigma.
   Proof.
     apply (FinTypeC (enum := [Lmove; Rmove; Nmove])).
     intros []; now cbv.
-  Qed.
+  Defined.
 
   (** We outsource the second [match] of [tape_move_right] in the [midtape] case to another named definition. This has the advantage that the [cbn] tactic will not reduce [tape_move_left (midtape ls m rs)] to a long term that contains [match]. It reduces to [tape_move_left' ls m rs] instead. Furthermore, there are rewrite lemmas available for [tape_move_left']. *)
 
@@ -682,6 +682,33 @@ Section MatchTapes.
   Lemma mirror_tape_move_right' rs (x : sig) ls :
     mirror_tape (tape_move_right' rs x ls) = tape_move_left' ls x rs.
   Proof. now destruct ls; cbn. Qed.
+ 
+
+  Lemma tape_move_niltape (m : move) :
+    tape_move (niltape sig) m = niltape sig.
+  Proof. now destruct m. Qed.
+
+  Lemma tape_write_left (t : tape sig) s :
+    left (tape_write t s) = left t.
+  Proof. destruct s; auto. Qed.
+
+  Lemma tape_write_right (t : tape sig) s :
+    right (tape_write t s) = right t.
+  Proof. destruct s; auto. Qed.
+
+
+  Lemma tape_write_current_Some (t : tape sig) s :
+    current (tape_write t (Some s)) = Some s.
+  Proof. auto. Qed.
+
+
+  Lemma tape_write_current_None (t : tape sig) :
+    current (tape_write t None) = current t.
+  Proof. auto. Qed.
+
+  Lemma tape_write_current (t : tape sig) s :
+    current (tape_write t s) = fold_opt (@Some _) (current t) s.
+  Proof. destruct s; auto. Qed.
 
 End MatchTapes.
 
@@ -698,6 +725,9 @@ Hint Rewrite tape_right_move_left' : tape.
 Hint Rewrite tape_right_move_right' : tape.
 Hint Rewrite tape_local_move_right' : tape.
 Hint Rewrite mirror_tape_move_right' : tape.
+
+Hint Rewrite tape_move_niltape tape_write_left tape_write_right tape_write_current_Some tape_write_current_None tape_write_current : tape.
+
 
 
 
@@ -917,8 +947,8 @@ Hint Extern 4 => lazymatch goal with
 Section Test_def.
   Variable (n : nat) (sig : finType) (F : Type).
   Variable (pM : pTM sig F n).
-  Check default : state (projT1 pM).
-  Check default : F.
+  Goal let _ := default : state (projT1 pM) in True. Proof. exact I. Qed.  
+  Goal let _ :=  default : F in True. Proof. exact I. Qed.  
 End Test_def.
 
 

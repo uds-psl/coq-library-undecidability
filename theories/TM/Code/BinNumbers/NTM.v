@@ -224,7 +224,7 @@ Qed.
 
 From Undecidability Require Import PosMultTM.
 
-Print N.mul.
+(* Print N.mul. *)
 
 Definition Mult_N : pTM sigN^+ unit 3 :=
   If (CaseN @[|Fin0|])

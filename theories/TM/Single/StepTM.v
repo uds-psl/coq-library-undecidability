@@ -15,40 +15,6 @@ Local Arguments Vector.to_list {A n} (!v).
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 
-(*
-Compute Vector.to_list _. (1 ::: _).
-*)
-
-
-(* MOVE TODO This should go to TM/TM.v *)
-
-Lemma tape_move_niltape (sig : Type) (m : move) :
-  tape_move (niltape sig) m = niltape sig.
-Proof. now destruct m. Qed.
-
-Lemma tape_write_left (sig : Type) (t : tape sig) s :
-  left (tape_write t s) = left t.
-Proof. destruct s; auto. Qed.
-
-Lemma tape_write_right (sig : Type) (t : tape sig) s :
-  right (tape_write t s) = right t.
-Proof. destruct s; auto. Qed.
-
-
-Lemma tape_write_current_Some (sig : Type) (t : tape sig) s :
-  current (tape_write t (Some s)) = Some s.
-Proof. auto. Qed.
-
-
-Lemma tape_write_current_None (sig : Type) (t : tape sig) :
-  current (tape_write t None) = current t.
-Proof. auto. Qed.
-
-Lemma tape_write_current (sig : Type) (t : tape sig) s :
-  current (tape_write t s) = fold_opt (@Some _) (current t) s.
-Proof. destruct s; auto. Qed.
-
-Hint Rewrite tape_move_niltape tape_write_left tape_write_right tape_write_current_Some tape_write_current_None tape_write_current : tape.
 
 
 Lemma removelast_cons (X : Type) (xs : list X) (x : X) :
@@ -60,8 +26,6 @@ Proof.
   - intros _. auto.
 Qed.
 
-
-(* MOVE TODO: ~> somewhere else *)
 Lemma vector_to_list_inj (X : Type) (n : nat) (xs ys : Vector.t X n) :
   vector_to_list xs = vector_to_list ys -> xs = ys.
 Proof.

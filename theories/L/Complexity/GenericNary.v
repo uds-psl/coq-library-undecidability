@@ -13,7 +13,7 @@ end.
 
 Fixpoint Rtuple (domain : list Type) : Type :=
   match domain with
-  | nil => unit
+  | nil => unit 
   | d :: nil => d
   | d :: ds => prod (Rtuple ds) d
   end.

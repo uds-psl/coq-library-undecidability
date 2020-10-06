@@ -45,7 +45,7 @@ Section PaperExample.
     all:    cstep.
   Qed.
 
-  Print cnst.
+  (* Print cnst. *)
 
   (** Comming up with the conditions for the time bound *)
   Goal forall fT, computableTime' orb fT.
