@@ -1,13 +1,19 @@
 all:
-	+make -C theories all
+	export TIMED
+	$(MAKE) -C theories all
 
 install:
-	+make -C theories install
+	$(MAKE) -C theories install
 
 clean:
-	+make -C theories clean
+	$(MAKE) -C theories clean
 
 html:
-	+make -C theories html
+	$(MAKE) -C theories html
 
 .PHONY: all install html clean 
+
+dummy:
+
+%.vo: dummy
+	cd theories && $(MAKE) $@

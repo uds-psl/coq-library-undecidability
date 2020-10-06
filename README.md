@@ -1,6 +1,6 @@
 # A Coq Library of Undecidability Proofs
 
-[![Build Status](https://travis-ci.org/uds-psl/coq-library-undecidability.svg?branch=coq-8.12)](https://travis-ci.org/uds-psl/coq-library-undecidability)
+[![Build Status](https://travis-ci.com/uds-psl/coq-library-undecidability.svg?branch=coq-8.12)](https://travis-ci.com/uds-psl/coq-library-undecidability)
 
 This library contains undecidable problems and formalised reductions between them.
 Feel free to contribute or start using the problems!
@@ -73,7 +73,6 @@ opam install . --deps-only
 - `make all` builds the library
 - `make html` generates clickable coqdoc `.html` in the `website` subdirectory
 - `make clean` removes all build files in `theories` and `.html` files in the `website` directory
-- `make realclean` also removes all build files in the `external` directory. You have to run `make deps` again after this.
 
 ### Troubleshooting
 
