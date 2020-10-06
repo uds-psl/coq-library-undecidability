@@ -11,7 +11,9 @@ Require Import List Permutation.
 
 Set Implicit Arguments.
 
-(** * Classical Linear Logic *)
+(** * Classical Linear Logic vs Intuitionnisitc Linear Logic 
+
+       derived from the work of H. Schellinx JLC 91 *)
 
 Local Infix "~p" := (@Permutation _) (at level 70).
 
