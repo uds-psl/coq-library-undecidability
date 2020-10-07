@@ -17,11 +17,9 @@ Local Infix "~p" := (@Permutation _) (at level 70).
 
 Definition ll_vars := nat.
 
-(** We only consider the fragment of ILL which
-   contains !, -o and & ... 
- 
-   ILL can be faithfully embedded into that fragment 
-   but this does not matter for undecidability 
+(** We consider four fragments of ILL:
+    - the (!,-o,&) fragment wit or without cut
+    - full fragment with or without cut
 *)
 
 Inductive ll_conn := ll_with | ll_limp | ll_times | ll_plus.
@@ -33,7 +31,7 @@ Inductive ll_form : Set :=
   | ll_ban  : ll_form -> ll_form
   | ll_bin  : ll_conn -> ll_form -> ll_form -> ll_form.
 
-(* Symbols for cut&paste ⟙   ⟘   𝝐  ﹠ ⊗  ⊕  ⊸  ❗   ‼  ∅  ⊢ *)
+(* Symbols for cut&paste ⟙   ⟘   𝝐  ﹠ ⊗  ⊕  ⊸  !   ‼  ∅  ⊢ *)
 
 Notation "⟙" := (ll_zero ll_top).
 Notation "⟘" := (ll_zero ll_bot).
@@ -43,17 +41,14 @@ Infix "&" := (ll_bin ll_with) (at level 50, only parsing).
 Infix "﹠" := (ll_bin ll_with) (at level 50).
 Infix "⊗" := (ll_bin ll_times) (at level 50).
 Infix "⊕" := (ll_bin ll_plus) (at level 50).
-(* Infix "-o" := (ll_bin ll_limp) (at level 51, only parsing, right associativity). *)
 Infix "⊸" := (ll_bin ll_limp) (at level 51, right associativity).
 
 Notation "'!' x" := (ll_ban x) (at level 52).
-(* Notation "❗ x" := (ll_ban x) (at level 52). *)
 
 Notation "£" := ll_var.
 
 Definition ll_lbang := map (fun x => !x).
 
-(* Notation "'!l' x" := (ll_lbang x) (at level 60, only parsing). *)
 Notation "‼ x" := (ll_lbang x) (at level 60).
 
 Notation "∅" := nil (only parsing).
