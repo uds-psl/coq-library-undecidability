@@ -129,12 +129,12 @@ Section CopySymbols.
     }
     {
       apply WhileInduction; intros; TMSimp.
-      - destruct (current tin[@Fin0]) eqn:E.
+      - destruct (current _) eqn:E.
         + destruct (f e) eqn:Ef; TMSimp. erewrite CopySymbols_true; eauto. f_equal.
-        + destruct HLastStep as (->&_). rewrite CopySymbols_Fun_equation. cbn. now rewrite E.
-      - destruct (current tin[@Fin0]) eqn:E.
+        + destruct HLastStep as (eq&_). inv eq.  rewrite CopySymbols_Fun_equation. cbn. now rewrite E.
+      - destruct (current _) eqn:E.
         + destruct (f e) eqn:Ef; TMSimp. symmetry. erewrite CopySymbols_false; eauto. cbn. auto.
-        + destruct HStar as (->&_). rewrite CopySymbols_Fun_equation. cbn. now rewrite E.
+        + destruct HStar as (eq&_). inv eq. easy.
     }
   Qed.
 
@@ -168,7 +168,7 @@ Section CopySymbols.
           * rewrite CopySymbols_steps_equation, E in HT. lia.
         + destruct (current tin[@Fin0]) eqn:E; TMSimp. destruct (f e) eqn:Ef; TMSimp.
           rewrite CopySymbols_steps_equation, E, Ef in HT.
-          exists (CopySymbols_steps (tape_move_right tin[@Fin0])). split; auto.
+          eexists (CopySymbols_steps (tape_move_right _)). split; auto.
     }
   Qed.
 

@@ -158,7 +158,7 @@ Proof.
     + cbn. instantiate (1 := ltac:(clear f; refine _)).  TM_Correct.
     + cbn. intros ? ? ?. exists 1. eexists. split.
       lia. split. 2:{ intros. TMSimp. destruct_tapes. TMSimp.
-      destruct (current h).
+      destruct (current _).
       * exists 1. eexists. split. lia. split. 2:{ intros. TMSimp. destruct_tapes. TMSimp.
         exists 1. eexists. split. lia. split. 2:{ intros. TMSimp. destruct_tapes. TMSimp.
         destruct current. destruct b0. instantiate (1 := S _). lia. 2:lia.
@@ -185,7 +185,7 @@ Lemma TestLeftof_Realise {Σ : finType} :
   @TestLeftof Σ ⊨ fun t '(b, t') => t = t' /\ match t with [| leftof _ _ |] => b = true | _ => b = false end.
 Proof.
   eapply Realise_monotone. unfold TestLeftof. TM_Correct.
-  intros t (b, t') ?. TMSimp. destruct_tapes. TMSimp. rename h0 into t, h into t'.
+  intros t (b, t') ?. TMSimp. destruct_tapes. TMSimp. rename t0 into t.
   destruct t; cbn in *; TMSimp; eauto.
 Qed.
 
@@ -236,7 +236,7 @@ Lemma WriteString_MoveBack {Σ : finType} (x : Σ) l :
   (WriteString Rmove (x :: l) ;; MoveM Lmove (|l|)) ⊨ fun t '(_, t') => t' = Vector.map (fun t => midtape (left t) x (l ++ skipn (|l|) (right t))) t.
 Proof.
   eapply Realise_monotone. TM_Correct. eapply RealiseIn_Realise, WriteString_Sem. eapply MoveM_Realise.
-  intros t ([], t') ([] & t1 & ? & ?). TMSimp. destruct_tapes. TMSimp. f_equal. rename h0 into t.
+  intros t ([], t') ([] & t1 & ? & ?). TMSimp. destruct_tapes. TMSimp. f_equal. rename t1 into t.
   induction l in x, t |- *.
   - reflexivity.
   - cbn [length plus]. rewrite Nat_iter_S'.
@@ -317,13 +317,13 @@ Proof.
   - cbn. intros ? ? ?. destruct c; cbn.
     + repeat eexists. help. eapply le_plus_l.
       intros. TMSimp. destruct_tapes. cbn.
-      destruct (current h).
+      destruct (current _).
       * destruct b; help.
       * repeat eexists. help. help. help. eapply le_plus_l.
         intros. TMSimp. destruct_tapes. TMSimp. destruct current.
         destruct b; help. lia.
       * eapply H.
-      * intros. TMSimp. destruct_tapes. destruct h; help.
+      * intros. TMSimp. destruct_tapes. rename tout0 into h. destruct h; help.
         -- TMSimp. repeat eexists.
            rewrite !app_length, length_encode_sym. cbn. eapply le_plus_l. cbn.
            instantiate (1 := ltac:(destruct c; refine _ )). cbn in *.
@@ -468,7 +468,7 @@ Proof.
     all:eassumption.
   - cbn. intros ? ? ?. repeat eexists; help.
     TMSimp. destruct_tapes. TMSimp.
-    destruct h; TMSimp. repeat eexists; help. destruct m.
+    rename tout0 into h. destruct h; TMSimp. repeat eexists; help. destruct m.
     instantiate (1:= ltac:(destruct m; refine _)); cbn. all:cbn.
     all:help.
     destruct m. instantiate (1:= ltac:(destruct m; refine _)); cbn. all:cbn.
@@ -581,8 +581,8 @@ Section FixM.
       destruct x. TM_Correct.
     }
 
-    intros t (q_, t') ? t_sig ->. TMSimp. destruct_tapes.
-    rename h0 into t'. rename h into t.
+    intros t (q_, t') ? t_sig ->. TMSimp. 
+    rename t'0 into t'.
     destruct (halt q) eqn:Eq.
     - TMSimp. split. reflexivity. eapply H. reflexivity.
     - specialize (H _ eq_refl) as [[= ->] ->]. cbn in *.
@@ -661,7 +661,7 @@ Section FixM.
     }
 
     intros t (l, t') ? t_sig E.
-    TMSimp. destruct_tapes. rename h into t'.
+    TMSimp. destruct_tapes. rename t'0 into t'.
     remember ([|encode_tape' t_sig|]) as tin.
     remember (l, [|t'|]) as cout.
     induction H in t_sig, l, t', Heqtin, Heqcout |- *.
@@ -705,6 +705,7 @@ Section FixM.
     intros q tin k H. TMSimp. 
     rename ymid0 into steps, ymid into t_sig, ymid1 into t_sig', ymid2 into q'.
     remember [|t_sig|] as tin. remember [|t_sig'|] as tout.
+    rename H0 into H. rename H1 into H0.
     induction steps in tin, t_sig, Heqtin, q, H0, H |- *.
     - cbn in H. unfold haltConf in H. cbn in *.
       destruct (halt q) eqn:Eq; cbn.
@@ -747,7 +748,7 @@ Section FixM.
   Proof.
     intros HM.
     eapply Realise_monotone. { eapply Relabel_Realise, WhileStep_Realise. }
-    intros ? ? ?. TMSimp. intros ? ->. specialize (H0 _ eq_refl). TMSimp.
+    intros ? ? ?. TMSimp. specialize (H0 _ eq_refl). TMSimp.
     repeat eexists. unfold Realise in HM.
     eapply TM_eval_iff in H as [k H].
     now eapply HM in H.
@@ -764,6 +765,6 @@ Section FixM.
     exists C1, C2.
     eapply TerminatesIn_monotone. { eapply Relabel_Terminates, HC. }
     intros ? ? ?. TMSimp.
-    eapply HM in H. TMSimp. 
+    eapply HM in H0. TMSimp. 
     destruct ymid1. destruct_tapes. repeat eexists; eassumption.
   Qed.

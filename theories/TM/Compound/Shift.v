@@ -155,13 +155,13 @@ Section Shift.
       - destruct (current tin[@Fin0]) eqn:E.
         + destruct (f e) eqn:Ee; destruct H as [H H']; inv H'.
           destruct tin[@Fin0] eqn:E'; cbn in *; inv E. rename l into ls, l0 into rs.
-          TMSimp. simpl_tape. eexists. split. reflexivity. lia.
+          TMSimp_old. simpl_tape. eexists. split. reflexivity. lia.
         + destruct H. congruence.
       - destruct (current tin[@Fin0]) eqn:E.
         + destruct (f e) eqn:Ee; destruct H as [H H']; inv H'.
           destruct tin[@Fin0] eqn:E'; cbn in *; inv E. rename l into ls, l0 into rs.
           rewrite Ee in *. lia.
-        + apply tape_local_nil in E. TMSimp. lia.
+        + apply tape_local_nil in E. TMSimp_old. lia.
     }
   Qed.
 

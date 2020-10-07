@@ -98,19 +98,19 @@ Section LookupAssociativeList.
     }
     {
       intros tin (yout, tout) H. cbn. intros xs x s0 s1 s2 s3 HEncXS HEncX HRight2 HRight3. destruct H; TMSimp.
-      { (* CaseList -> Then *) rename H into HMatchList, H0 into HMatchPair, H1 into HCompare.
+      { (* CaseList -> Then *) rename H into HMatchList, H0 into HMatchPair, H2 into HCompare.
         modpon HMatchList. destruct xs as [ | p xs']; modpon HMatchList; auto.
         modpon HMatchPair. destruct p as [ x' y]; cbn in *.
         destruct HCompare; TMSimp.
-        { (* CompareValue ~> Then *) rename H into HCompareValue, H0 into HReset2, H1 into HReset3, H2 into HReset0.
+        { (* CompareValue ~> Then *) rename H into HCompareValue, H1 into HReset2, H3 into HReset3, H5 into HReset0.
           modpon HCompareValue. decide (x=x') as [ <- | H ]; auto.
           modpon HReset2. modpon HReset3. modpon HReset0. repeat split; auto.
         }
-        { (* CompareValue ~> Else *) rename H into HCompareValue, H0 into HReset3, H1 into HReset2.
+        { (* CompareValue ~> Else *) rename H into HCompareValue, H1 into HReset3, H3 into HReset2.
           modpon HCompareValue. decide (x=x') as [ <- | H ]; auto.
           modpon HReset3. modpon HReset2. repeat split; auto. }
       }
-      { (* CaseList ~> Else *) modpon H. destruct xs as [ | ]; auto; modpon H. modpon H0. cbn. repeat split; auto. }
+      { (* CaseList ~> Else *) modpon H. destruct xs as [ | ]; auto; modpon H. modpon H1. cbn. repeat split; auto. }
     }
   Qed.
 
@@ -157,7 +157,7 @@ Section LookupAssociativeList.
     {
       intros tin k (xs&x&HEncXs&HEncX&HRight2&HRight3&Hk). cbn. unfold Lookup_Step_steps in Hk.
       exists (CaseList_steps xs), (Lookup_Step_steps_CaseList xs x). repeat split; try lia. eauto. 
-      intros tmid yout (HCaseList&HCaseListInj); TMSimp. modpon HCaseList. unfold Lookup_Step_steps_CaseList in *.
+      intros tmid_ yout (HCaseList&HCaseListInj); TMSimp_old. modpon HCaseList. unfold Lookup_Step_steps_CaseList in *.
       destruct yout, xs as [ | p xs']; cbn in *; auto; modpon HCaseList.
       { (* cons case *) destruct p as [x' y]; cbn in *.
         exists (CasePair_steps x'), (1 + CompareValues_steps x x' + Lookup_Step_steps_Compare x x' y xs'). repeat split; try lia.
@@ -165,11 +165,11 @@ Section LookupAssociativeList.
         intros tmid0 [] (HCasePair&HCasePairInj); TMSimp. modpon HCasePair. cbn in *.
         exists (CompareValues_steps x x'), (Lookup_Step_steps_Compare x x' y xs'). repeat split; try lia.
         { hnf. cbn. do 2 eexists. repeat split; simpl_surject; eauto. }
-        intros tmid1 ymid1 (HCompare&HCompareInj); TMSimp. modpon HCompare. subst.
+        intros tmid1 ymid1 (HCompare&HCompareInj); TMSimp_old. modpon HCompare. subst.
         unfold Lookup_Step_steps_Compare in *. decide (x = x') as [ <- | HDec].
         - exists (MoveValue_steps y x), (1 + Reset_steps x + Reset_steps xs'). repeat split; try lia.
           { do 2 eexists; repeat split; eauto. }
-          intros tmid2 []. intros (HMove&HMoveInj); TMSimp. modpon HMove.
+          intros tmid2 []. intros (HMove&HMoveInj); TMSimp_old. modpon HMove.
           exists (Reset_steps x), (Reset_steps xs'). repeat split; try lia.
           { hnf. eexists; repeat split; eauto. }
           intros tmid3 [] (HReset&HResetInj); TMSimp. modpon HReset.

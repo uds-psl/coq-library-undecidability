@@ -130,7 +130,7 @@ Section Copy.
     { lia. }
     {
       intros tin ((), tout) H. cbn in *. TMSimp.
-      destruct (current tin[@Fin0]) eqn:E; TMSimp; auto.
+      destruct (current _) eqn:E; TMSimp; auto.
     }
   Qed.
 

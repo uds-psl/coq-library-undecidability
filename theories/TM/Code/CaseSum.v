@@ -46,7 +46,7 @@ Section CaseSum.
     { Unshelve. 4,10,11: constructor. all: cbn. all: lia. }
     {
       intros tin (yout&tout) H.
-      intros s ss HEncS. destruct HEncS as (ls&HEncS&Hss). TMSimp; clear_trivial_eqs. clear HEncS tin.
+      intros s ss HEncS. destruct HEncS as (ls&HEncS&Hss). TMSimp; clear_trivial_eqs.
       destruct s as [x|y]; cbn in *; TMSimp.
       - (* s = inl x *) hnf. eexists. split. cbn. rewrite !List.map_map. f_equal. cbn. lia.
       - (* s = inr y *) hnf. eexists. split. cbn. rewrite !List.map_map. f_equal. cbn. lia.

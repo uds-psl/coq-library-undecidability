@@ -404,7 +404,7 @@ Section Move.
     { unfold MoveRight. TM_Correct. }
     {
       intros tin ((), tout) H. intros x s HEncX.
-      TMSimp; clear_trivial_eqs. clear H0.
+      TMSimp; clear_trivial_eqs.
       destruct HEncX as (r1&->&Hs).
       erewrite MoveToSymbol_correct_midtape; eauto.
       - repeat econstructor. now rewrite map_id, map_rev. auto.
@@ -418,7 +418,7 @@ Section Move.
     { unfold MoveLeft. TM_Correct. }
     {
       intros tin ((), tout) H. intros x s HEncX.
-      TMSimp; clear_trivial_eqs. clear H0.
+      TMSimp; clear_trivial_eqs.
       destruct HEncX as (r1&->&Hs).
       erewrite MoveToSymbol_L_correct_midtape; eauto.
       - repeat econstructor. now rewrite map_id, <- map_rev, rev_involutive. auto.
@@ -493,7 +493,7 @@ Section Move.
     {
       intros tin ((), tout) H. cbn. intros s x HEncX HCod.
       unfold ResetEmpty_size in *.
-      destruct HEncX as (ls&HEncX). TMSimp; clear_trivial_eqs.
+      destruct HEncX as (ls&HEncX). TMSimp_old; clear_trivial_eqs.
       hnf. do 2 eexists. split. f_equal. cbn. lia.
     }
   Qed.
@@ -520,7 +520,7 @@ Section Move.
     {
       intros tin ((), tout) H. cbn. intros x s HEncX HCod.
       unfold ResetEmpty1_size in *.
-      destruct HEncX as (ls&HEncX). unfold size in *. TMSimp; clear_trivial_eqs.
+      destruct HEncX as (ls&HEncX). unfold size in *. TMSimp_old; clear_trivial_eqs.
       destruct (cX x); cbn in *; inv HCod. destruct l; cbn in *; inv H4.
       hnf. do 2 eexists. split. f_equal. cbn. lia.
     }
@@ -641,7 +641,7 @@ Section MoveValue.
       TMSimp. unfold MoveValue_size_x, MoveValue_size_y, CopyValue_size, Reset_size in *.
       specialize H with (1 := HEncY).
       specialize H0 with (1 := HEncX) (2 := H) as (H0&H0').
-      specialize H1 with (1 := H0).
+      specialize H2 with (1 := H0).
       repeat split; auto.
     }
   Qed.
@@ -668,7 +668,7 @@ Section MoveValue.
         specialize H1 with (1 := HEncY).
         exists (25 + 12 * length (cX x)), (8 + 4 * length (cX x)). repeat split; cbn; eauto.
         + lia.
-        + intros tmid2 () H2.
+        + intros tmid2_ () H2.
           specialize H2 with (1 := HEncX) (2 := H1) as (H2&H2').
           exists x. split; eauto.
     }

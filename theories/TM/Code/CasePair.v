@@ -64,7 +64,7 @@ Section CasePair.
       intros tin ((), tout) H.
       intros (x,y) s0 s1 HEncXY HRight.
       destruct HEncXY as (ls&HEncXY&Hs0).
-      TMSimp; clear_trivial_eqs. rename H1 into HCopy. cbn in *.
+      TMSimp; clear_trivial_eqs. rename H2 into HCopy. cbn in *.
       rewrite map_map, map_app, <- app_assoc in HCopy.
       (* We need a case distinction, whether the encoding of [y] is empty, because [MoveToSymbol] either stops in a symbol of [cY y] or on [inl STOP]. However, both parts of the proof have identical proof scripts. *)
       destruct (cY y) eqn:EY; cbn in *.

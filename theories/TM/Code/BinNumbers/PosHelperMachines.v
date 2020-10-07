@@ -201,7 +201,7 @@ Proof.
   { unfold GoToLSB. unfold MoveRight. TM_Correct. }
   {
     intros tin ([], tout) H. TMSimp.
-    intros p. intros (ls&->).
+    destruct H2 as (ls&->).
     destruct p; cbn in *.
     - hnf. exists ls. cbn. rewrite MoveToSymbol_correct_midtape; cbn; auto.
       pose proof Encode_positive_startsWith_xH p as (str'&Hstr'). cbn in *.
@@ -301,7 +301,7 @@ Proof.
   { unfold PushHSB. TM_Correct. }
   { reflexivity. }
   {
-    intros tin ([], tout) H. TMSimp. intros p (ls&->). hnf; cbn.
+    intros tin ([], tout) H. TMSimp. destruct H2 as (ls&->). hnf; cbn.
     pose proof Encode_positive_startsWith_xH p as (str'&Hstr'). repeat setoid_rewrite Hstr'. cbn.
     rewrite !encode_pushHSB; cbn.
     destruct ls; cbn.
