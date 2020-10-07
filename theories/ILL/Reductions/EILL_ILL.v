@@ -14,12 +14,26 @@ Require Import Undecidability.Synthetic.Undecidability.
 From Undecidability.ILL
   Require Import EILL ILL ill eill. 
 
-Section EILL_ILL.
+Theorem EILL_rILL_cf_PROVABILITY : EILL_PROVABILITY ⪯ rILL_cf_PROVABILITY.
+Proof.
+  exists (fun p => match p with (Σ,Γ,p) => (map (fun c => !⦑c⦒) Σ ++ map £ Γ,£ p) end).
+  intros ((?&?)&?); apply G_eill_S_ill_restr.
+Qed.
 
-  Theorem EILL_ILL_PROVABILITY : EILL_PROVABILITY ⪯ ILL_PROVABILITY.
-  Proof.
-    exists (fun p => match p with (Si,Ga,p) => (map (fun c => ![i c]) Si ++ map £ Ga,£ p) end).
-    intros ((Si,Ga),p); apply G_eill_correct.
-  Qed.
+Theorem EILL_rILL_PROVABILITY : EILL_PROVABILITY ⪯ rILL_PROVABILITY.
+Proof.
+  exists (fun p => match p with (Σ,Γ,p) => (map (fun c => !⦑c⦒) Σ ++ map £ Γ,£ p) end).
+  intros ((?&?)&?); apply G_eill_S_ill_restr_wc.
+Qed.
 
-End EILL_ILL.
+Theorem EILL_ILL_cf_PROVABILITY : EILL_PROVABILITY ⪯ ILL_cf_PROVABILITY.
+Proof.
+  exists (fun p => match p with (Σ,Γ,p) => (map (fun c => !⦑c⦒) Σ ++ map £ Γ,£ p) end).
+  intros ((?&?)&?); apply G_eill_S_ill.
+Qed.
+
+Theorem EILL_ILL_PROVABILITY : EILL_PROVABILITY ⪯ ILL_PROVABILITY.
+Proof.
+  exists (fun p => match p with (Σ,Γ,p) => (map (fun c => !⦑c⦒) Σ ++ map £ Γ,£ p) end).
+  intros ((?&?)&?); apply G_eill_S_ill_wc.
+Qed.

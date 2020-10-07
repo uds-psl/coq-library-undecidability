@@ -28,7 +28,7 @@ Section MM_HALTING_EILL_PROVABILITY.
   Let f : MM_PROBLEM -> EILL_SEQUENT.
   Proof.
     intros (n & P & v).
-    exact (Sig (1,P) 0, vec_map_list v (fun p : pos n => pos2nat p), 2 * n + 1).
+    exact (Σ (1,P) 0, vec_map_list v (fun p : pos n => pos2nat p), 2 * n + 1).
   Defined.
 
   Theorem MM_HALTS_ON_ZERO_EILL_PROVABILITY : MM_HALTS_ON_ZERO ⪯ EILL_PROVABILITY.

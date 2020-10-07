@@ -82,6 +82,12 @@ Inductive S_ill : list cll_form -> cll_form -> Prop :=
 
   | in_ill_ax    : forall A,                         A::∅ ⊢i A
 
+(*
+  | in_ill_cut   : forall Γ Δ A B,              Γ ⊢i A    ->   A::Δ ⊢i B
+                                           (*-----------------------------*)    
+                                      ->              Γ++Δ ⊢i B
+*)
+
   | in_ill_perm  : forall Γ Δ A,              Γ ~p Δ     ->   Γ ⊢i A 
                                            (*-----------------------------*)
                                       ->                 Δ ⊢i A
@@ -158,6 +164,12 @@ where "l ⊢i x" := (S_ill l x).
 Inductive S_cll : list cll_form -> list cll_form -> Prop :=
 
   | in_cll_ax    : forall A,                         A::∅ ⊢c A::∅
+
+(*
+  | in_cll_cut   : forall Γ Δ Γ' Δ' A,          Γ ⊢c A::Δ    ->   A::Γ' ⊢c Δ'
+                                           (*-----------------------------*)    
+                                      ->              Γ++Γ' ⊢c Δ++Δ'
+*)
 
   | in_cll_perm  : forall Γ Δ Γ' Δ',        Γ ~p Γ' -> Δ ~p Δ' ->   Γ ⊢c Δ 
                                            (*-----------------------------*)
@@ -263,11 +275,11 @@ Inductive S_cll : list cll_form -> list cll_form -> Prop :=
 
 where "Γ ⊢c Δ" := (S_cll Γ Δ).
 
-Theorem ill_cll Γ A : Γ ⊢i A -> Γ ⊢c A::∅.
+Theorem ill_cll_wc Γ A : Γ ⊢i A -> Γ ⊢c A::∅.
 Proof.
-  induction 1 as [ | Γ Δ A H S IS | | | | | | | | | | | | | | | | | | ].
-  + constructor.
-  + now apply in_cll_perm with (3 := IS).
+  induction 1.
+  + apply in_cll_ax.
+  + now apply (@in_cll_perm Γ (A::nil)).
   + now apply in_cll_limp_l with (Δ := ∅) (Δ' := _::_).
   + now apply in_cll_limp_r with (Δ := ∅).
   + now apply in_cll_with_l1.
@@ -292,7 +304,7 @@ Section cll_ill_empty.
 
 Let cll_ill_empty_rec Γ Δ : Γ ⊢c Δ -> Δ = ∅ -> exists f, In f Γ /\ cll_contains_bz f.
   Proof.
-  induction 1 as [ A 
+  induction 1 as [ A
                  | Γ Δ Γ' Δ' H1 H2 H3 IH3 
                  | Γ Δ Γ' Δ' A B H1 IH1 H2 IH2 | Γ Δ A B H1 IH1 
                  | Γ Δ A B H1 IH1 | Γ Δ A B H1 IH1 | Γ Δ A B H1 IH1 H2 IH2
