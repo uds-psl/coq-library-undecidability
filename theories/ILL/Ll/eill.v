@@ -12,7 +12,7 @@ Require Import List Permutation Arith.
 From Undecidability.Shared.Libs.DLW 
   Require Import utils pos vec.
 
-From Undecidability.ILL Require Import ILL EILL ill.
+From Undecidability.ILL Require Import ILL EILL ill CLL cll.
 
 Set Implicit Arguments.
 
@@ -21,6 +21,9 @@ Local Infix "~p" := (@Permutation _) (at level 70).
 (* Symbols for cut&paste ⟙   ⟘   𝝐  ﹠ ⊗  ⊕  ⊸  ❗   ‼  ∅  ⊢ ⟦ ⟧ Γ Δ Σ *)
 
 Notation "⦑ c ⦒" := (eill_cmd_map c) (at level 0).
+
+Fact eill_no_bot c : ~ ll_has_bot ⦑ c ⦒.
+Proof. induction c; simpl; tauto. Qed.
 
 Notation "Σ ; Γ ⊦ u" := (G_eill Σ Γ u) (at level 70, no associativity).
 
@@ -332,5 +335,21 @@ Section correctness_results_for_the_reduction.
 
   Corollary G_eill_S_ill_wc : Σ; Γ ⊦ u <-> S_ill_wc (Σ'++Γ') (£u).
   Proof. solve with 3 1. Qed.
+
+  Theorem G_eill_S_cll : Σ; Γ ⊦ u <-> S_cll (Σ'++Γ') (£u::nil).
+  Proof.
+    split.
+    + rewrite G_eill_S_ill.
+      apply S_ill_cll.
+    + intros H.
+      apply S_cll_ill in H.
+      destruct H as [ H | [ [] | (f & Hf1 & Hf2) ] ].
+      * now apply G_eill_S_ill.
+      * apply in_app_or in Hf1 as [ Hf1 | Hf1 ].
+        - apply in_map_iff in Hf1 as (c & <- & ?); simpl in Hf2.
+          apply eill_no_bot in Hf2 as [].
+        - apply in_map_iff in Hf1 as (? & <- & ?).
+          destruct Hf2.
+  Qed.
 
 End correctness_results_for_the_reduction.
