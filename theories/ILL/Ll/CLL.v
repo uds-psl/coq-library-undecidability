@@ -352,6 +352,57 @@ Let cll_ill_empty_rec Γ Δ : Γ ⊢c Δ -> Δ <> ∅.
   + intros H; now app inv nil in H.
 Qed.
 
+Fact qmarkinv A Σ : A::nil = ⁇Σ -> exists B, A = ？B /\ Σ = B::nil.
+Proof.
+  intros H.
+  destruct Σ as [ | B [ | ] ]; try discriminate.
+  inversion H; exists B; auto.
+Qed.
+
+Tactic Notation "singleton" "qmark" "inv" "in" hyp(H) "as" ident(B) :=
+  apply qmarkinv in H as (B & -> & ->). 
+
+Let cll_ill_empty_rec' Γ Δ : Γ ⊢c Δ -> forall Σ, Δ = ⁇Σ -> exists A, Γ = ？A::nil /\ Δ = ？A::nil.
+  Proof.
+  induction 1 as [ A                                                        (* ax *)
+                 | Γ Δ Γ' Δ' H1 H2 H3 IH3                                   (* perm *)
+                 | Γ Δ Γ' Δ' A B H1 IH1 H2 IH2 | Γ Δ A B H1 IH1             (* -o *)
+                 | Γ Δ A B H1 IH1 | Γ Δ A B H1 IH1 | Γ Δ A B H1 IH1 H2 IH2  (* & *)
+                 | Γ A B Δ H1 IH1 | Γ Δ Γ' Δ' A B H1 IH1 H2 IH2             (* * *)
+               (* | Γ Δ Γ' Δ' A B H1 IH1 H2 IH2 | Γ A B Δ H1 IH1  *)           (* par *)
+                 | Γ A B Δ H1 IH1 H2 IH2 | Γ A B Δ H1 IH1 | Γ A B Δ H1 IH1  (* + *)
+               (*  | *) |                                                        (* bot, top *)
+                 | Γ Δ H1 IH1 |                                             (* unit *)
+               (*  | |  *)                                                       (* zero *) 
+                 | Γ A Δ H1 IH1 | Γ A Δ H1 IH1                              (* bang *)
+               (*  | Γ A Δ H1 IH1 |  *)                                         (* qmrk *)
+                 | Γ A Δ H1 IH1 |                                           (* weak *)
+                 | Γ A Δ H1 IH1 | ]; intros Σ HΣ; try discriminate.                (* cntr *)
+  + singleton qmark inv in HΣ as B; exists B; auto.
+  + subst.
+    apply Permutation_map_inv in H2.
+    destruct H2 as (Σ' & -> & H2).
+    destruct (IH3 _ eq_refl) as (A & G1 & G2).
+    symmetry in G2. apply qmarkinv in G2.
+    destruct G2 as (B & HB & ->); inversion HB; subst B.
+    apply Permutation_sym, Permutation_length_1_inv in H2.
+    subst; apply Permutation_length_1_inv in H1; subst.
+    exists A; auto.
+  + symmetry in HΣ.
+    apply map_eq_app in HΣ as (Σ1 & Σ2 & -> & <- & <-).
+    destruct (IH2 _ eq_refl) as (C & HC1 & HC2).
+    inversion HC1; subst.
+    rewrite HC2 in H2.
+Search map app.
+    s
+    Search Permutation nil.
+singleton qmark inv in G2 as B.
+
+intros ->; now apply IH3, Permutation_nil, Permutation_sym.
+  + intros H; now app inv nil in H.
+Qed.
+
+
 (*
 Let cll_ill_empty_rec Γ Δ : Γ ⊢c Δ -> Δ = ∅ -> exists f, In f Γ /\ cll_contains_bz f.
   Proof.
@@ -503,14 +554,8 @@ Proof.
     constructor; apply IH1; auto.
   + subst; apply in_ill_weak; auto.
   + inversion HC; subst.
-    destruct (HS (？A)); simpl; auto.
-  + subst.
-    apply in_ill_cntr, IH1; auto.
-    intros f [ <- | [ <- | [ <- | Hf1 ] ] ] Hf2.
-    * apply (HS C); simpl; auto.
-    * apply (HS (!A)); simpl; auto.
-    * apply (HS (!A)); simpl; auto.
-    * revert Hf2; apply HS; simpl; auto.
+    apply cll_ill_empty in H as [].
+  + subst; apply in_ill_cntr; auto.
   + inversion HC; subst.
     destruct (HS (？A)); simpl; auto.
 Qed.
