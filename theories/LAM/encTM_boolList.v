@@ -5,8 +5,8 @@ From Undecidability Require Import ProgrammingTools WriteValue Copy.
 Require Import PslBase.FiniteTypes.FinTypes PslBase.Vectors.Vectors.
 Require Import Vector List.
 
-From Undecidability.TM.Compound Require Import MoveToSymbol.
-From Undecidability.TM.Code Require Import CaseBool CaseList Copy.
+From Undecidability.TM.Compound Require Import MoveToSymbol WriteString.
+From Undecidability.TM.Code Require Import CaseBool CaseList Copy List.Cons_constant.
 
 From Undecidability.LAM Require Import Compiler_spec.
 
@@ -41,9 +41,9 @@ Section Fix.
         t[@Fin0] ≃ l ->
         right t[@Fin1] = map (fun (x:bool) => if x then s else b) l' ->
         length (left t[@Fin1]) <= length l ->
-        isRight (t[@Fin2]) ->
+        isVoid (t[@Fin2]) ->
         t'[@Fin1] = encTM s b (rev l++l')
-        /\ (isRight (t'[@Fin0]) /\ isRight (t'[@Fin2]))).
+        /\ (isVoid (t'[@Fin0]) /\ isVoid (t'[@Fin2]))).
   Proof.
     eapply Realise_monotone.
     {unfold M__loop,M__step.  TM_Correct_noSwitchAuto. TM_Correct. cbn. intros. TM_Correct. 
@@ -81,9 +81,9 @@ Section Fix.
                      forall (l : list bool),
                         t[@Fin0] ≃ l ->
                         t[@Fin1] = niltape ->
-                        isRight (t[@Fin2]) ->
+                        isVoid (t[@Fin2]) ->
                         t'[@Fin1] = encTM s b (rev l)
-                        /\ (isRight (t'[@Fin0]) /\ isRight (t'[@Fin2]))).
+                        /\ (isVoid (t'[@Fin0]) /\ isVoid (t'[@Fin2]))).
   Proof.
     eapply Realise_monotone.
     {unfold M. TM_Correct. apply Realises__loop. }
@@ -103,6 +103,58 @@ Section Fix.
   Variable (retr_list : Retract (sigList bool) Σ).
   Local Instance retr_bool : Retract bool Σ := ComposeRetract retr_list (Retract_sigList_X _).
 
+  Definition M__step : pTM (Σ) ^+ (option unit) 2 :=
+    Switch (ReadChar @ [|Fin0|])
+      (fun x =>
+        match x with
+          None => Return Nop (Some tt)
+        | Some x => Move Lmove @ [|Fin0|];;
+                    If (Relabel (ReadChar @ [|Fin0|]) ssrbool.isSome)
+                       ((Cons_constant.M (if Dec (x=s) then true else false)) ⇑ retr_list @ [|Fin1|];;Return Nop (None))
+                       (Return (Move Rmove @ [|Fin0|]) (Some tt))
+        end).
+
+  Definition M__loop := While M__step.
+  
+  Definition Realises__loop (H__neq : s <> b):
+    Realise M__loop (fun t '(_, t') =>
+      forall (l l': list bool),
+        tape_local_l t[@Fin0] = (map (fun (x:bool) => if x then s else b) l++[b])%list ->
+        right t[@Fin0] = map (fun (x:bool) => if x then s else b) l' ->
+        t[@Fin1] ≃ l' ->
+        t'[@Fin0] = encTM s b (rev l++l')
+        /\  t'[@Fin1] ≃ (rev l++l')%list).
+  Proof.
+    eapply Realise_monotone.
+    {
+      unfold M__loop,M__step. TM_Correct_noSwitchAuto. TM_Correct. cbn. intros f.
+      destructBoth f as [].
+      all:TM_Correct. apply Cons_constant.Realises. 
+    }
+    unfold encTM.
+    eapply WhileInduction; intros;hnf.
+    - destruct HLastStep;TMSimp.
+      destruct tape_local_l eqn:H' in H. { destruct l;discriminate H. }
+      specialize (tape_local_l_current_cons H') as H''.
+      rewrite H'' in H3. TMSimp. destruct H3;TMSimp.
+      destruct tin0 as [ | | | []];cbn in *;try discriminate.
+      destruct l as [ | ? []]. all:inv H. 2-3:discriminate.
+      cbn. split. congruence. assumption.
+    - TMSimp. 
+      destruct tape_local_l eqn:H' in H. { destruct l;discriminate H. }
+      specialize (tape_local_l_current_cons H') as H''.
+      rewrite H'' in H3. TMSimp. destruct H3;TMSimp.
+      destruct tin0 as [ | | | []];cbn in *. 1-4:discriminate.
+      inv H'. destruct l;cbn in H;inv H.
+      modpon H3;[]. cbn. rewrite <- app_assoc. 
+      apply HLastStep. 1-2: easy. 
+      destruct sum_eq_dec as [e|e].
+      all:destruct b0. all:try inv e. 
+      all:try solve contains_ext.
+      all:exfalso;congruence.
+  Qed. 
+
+  (*
   
   Definition M : pTM (Σ) ^+ unit 3. Admitted.
 
@@ -110,11 +162,11 @@ Section Fix.
     Realise M (fun t '(r, t') =>
                      forall (l : list bool),
                         t[@Fin0] = encTM s b l ->
-                        isRight t[@Fin1] ->
-                        isRight (t[@Fin2]) ->
+                        isVoid t[@Fin1] ->
+                        isVoid (t[@Fin2]) ->
                         t'[@Fin1] ≃ l
-                        /\ (isRight (t'[@Fin0]) /\ isRight (t'[@Fin2]))).
+                        /\ (isVoid (t'[@Fin0]) /\ isVoid (t'[@Fin2]))).
   Admitted.
-
+  *)
 End Fix.
 End encTM2boolList.

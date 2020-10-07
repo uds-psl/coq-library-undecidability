@@ -8,7 +8,7 @@ From Undecidability Require Export TM.Combinators.Combinators.
 (** ** Right tapes *)
 
 (** Tape proposition that says that the pointer is on (but not off) the right-most symbol *)
-Section IsRight.
+Section isVoid.
 
   Definition isVoid (sig : Type) (t : tape sig) :=
     exists x rs, t = midtape rs x nil.
@@ -65,7 +65,7 @@ Section IsRight.
     sizeOfTape t <= 1 + s.
   Proof. intros [m (r1&->&H)]. cbn. simpl_list; cbn. lia. Qed.
 
-End IsRight.
+End isVoid.
 
 Ltac isVoid_mono :=
   lazymatch goal with
@@ -330,7 +330,3 @@ Notation "f '@>>' I" := (injectSizeFun f I) (at level 41).
 (* FIXME: this doesn't work yet. Use parenthesis *)
 
 
-
-(** Compatibility notations *)
-Notation "'isRight'" := (isVoid) (only parsing).
-Notation "'isRight_size'" := (isVoid_size) (only parsing).

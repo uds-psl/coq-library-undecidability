@@ -310,6 +310,11 @@ TM/Code/CaseBool.v
 #TM/Code/SumTM.v
 TM/Code/NatTM.v
 TM/Code/ListTM.v
+TM/Code/List/App.v
+TM/Code/List/Cons_constant.v
+TM/Code/List/Length.v
+TM/Code/List/Nth.v
+TM/Code/List/Rev.v
 
 # Binary Numbers
 TM/Code/BinNumbers/EncodeBinNumbers.v
@@ -353,7 +358,6 @@ TM/Hoare/HoareRegister.v
 TM/Hoare/HoareTactics.v
 TM/Hoare/HoareTacticsView.v
 TM/Hoare/HoareExamples.v
-TM/Hoare/HoareNth.v
 TM/Hoare/HoareMult.v
 TM/Hoare/HoareStdLib.v
 TM/Hoare/HoareLegacy.v

@@ -5,6 +5,7 @@ From Undecidability Require Export TM.Hoare.HoareCombinators. (** Rules for the 
 From Undecidability Require Export TM.Hoare.HoareRegister. (** Definition of a specification language for Register machines; rules for lifts *)
 From Undecidability Require Export TM.Hoare.HoareTactics TM.Hoare.HoareTacticsView. (** Verification step tactics *)
 From Undecidability Require Export TM.Hoare.HoareStdLib. (** Hoare rules for standard machine *)
+From Undecidability Require Export TM.Hoare.HoareLegacy. (** generating Legacy Lemmas for Realise/Terminates *)
 
 
 (* TODO:

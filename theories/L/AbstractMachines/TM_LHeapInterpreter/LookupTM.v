@@ -114,24 +114,24 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
         tin[@Fin0] ≃(;s0) H ->
         tin[@Fin1] ≃(retr_nat_lookup_clos_ad ;s1) a ->
         tin[@Fin2] ≃(retr_nat_lookup_clos_var;s2) n ->
-        isRight_size tin[@Fin3] s3 -> isRight_size tin[@Fin4] s4 ->
+        isVoid_size tin[@Fin3] s3 -> isVoid_size tin[@Fin4] s4 ->
         match yout, n with
         | Some true, O => (* return true *)
           exists g b,
           nth_error H a = Some (Some (g, b)) /\
           tout[@Fin0] ≃(;size @>Fin0 s0) H /\
-          isRight_size tout[@Fin1] (size @>Fin1 s1) /\
-          isRight_size tout[@Fin2] (size @>Fin2 s2) /\
+          isVoid_size tout[@Fin1] (size @>Fin1 s1) /\
+          isVoid_size tout[@Fin2] (size @>Fin2 s2) /\
           tout[@Fin3] ≃(retr_clos_lookup; size @>Fin3 s3) g /\
-          isRight_size tout[@Fin4] (size @>Fin4 s4)
+          isVoid_size tout[@Fin4] (size @>Fin4 s4)
         | None, S n' => (* continue *)
           exists g b,
           nth_error H a = Some (Some (g, b)) /\
           tout[@Fin0] ≃(; size @>Fin0 s0) H /\
           tout[@Fin1] ≃(retr_nat_lookup_clos_ad ; size @>Fin1 s1) b /\
           tout[@Fin2] ≃(retr_nat_lookup_clos_var; size @>Fin2 s2) n' /\
-          isRight_size tout[@Fin3] (size @>Fin3 s3) /\
-          isRight_size tout[@Fin4] (size @>Fin4 s4)
+          isVoid_size tout[@Fin3] (size @>Fin3 s3) /\
+          isVoid_size tout[@Fin4] (size @>Fin4 s4)
         | Some false, _ =>
           lookup H a n = None (* Tapes are not specified *)
         | _, _ => False (* Unreachable *)
@@ -222,7 +222,7 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
         tin[@Fin0] ≃ H /\
         tin[@Fin1] ≃(retr_nat_lookup_clos_ad ) a /\
         tin[@Fin2] ≃(retr_nat_lookup_clos_var) n /\
-        isRight tin[@Fin3] /\ isRight tin[@Fin4] /\
+        isVoid tin[@Fin3] /\ isVoid tin[@Fin4] /\
         Lookup_Step_steps H a n <= k.
 
 
@@ -332,16 +332,16 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
         tin[@Fin0] ≃(;s0) H ->
         tin[@Fin1] ≃(retr_nat_lookup_clos_ad ; s1) a ->
         tin[@Fin2] ≃(retr_nat_lookup_clos_var; s2) n ->
-        isRight_size tin[@Fin3] s3 -> isRight_size tin[@Fin4] s4 ->
+        isVoid_size tin[@Fin3] s3 -> isVoid_size tin[@Fin4] s4 ->
         match yout with
         | true =>
           exists g,
           lookup H a n = Some g /\
           tout[@Fin0] ≃(;size @>Fin0 s0) H /\ (* [H] is saved *)
-          isRight_size tout[@Fin1] (size @>Fin1 s1) /\ (* [a] is discarded *)
-          isRight_size tout[@Fin2] (size @>Fin2 s2) /\ (* [n] is discarded *)
+          isVoid_size tout[@Fin1] (size @>Fin1 s1) /\ (* [a] is discarded *)
+          isVoid_size tout[@Fin2] (size @>Fin2 s2) /\ (* [n] is discarded *)
           tout[@Fin3] ≃(retr_clos_lookup; size @>Fin3 s3) g /\ (* result *)
-          isRight_size tout[@Fin4] (size @>Fin4 s4) (* internal tape *)
+          isVoid_size tout[@Fin4] (size @>Fin4 s4) (* internal tape *)
         | false =>
           lookup H a n = None (* Tapes are not specified *)
         end.
@@ -385,7 +385,7 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
         tin[@Fin0] ≃ H /\
         tin[@Fin1] ≃(retr_nat_lookup_clos_ad) a /\
         tin[@Fin2] ≃(retr_nat_lookup_clos_var) n /\
-        isRight tin[@Fin3] /\ isRight tin[@Fin4] /\
+        isVoid tin[@Fin3] /\ isVoid tin[@Fin4] /\
         Lookup_steps H a n <= k.
 
   Lemma Lookup_Terminates : projT1 Lookup ↓ Lookup_T.

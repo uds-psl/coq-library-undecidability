@@ -21,9 +21,9 @@ Definition CaseCom_Rel : pRel sigCom^+ (FinType (EqType (option ACom))) 1 :=
     forall (t : Tok) (s : nat),
       tin[@Fin0] ≃(;s) t ->
       match yout, t with
-      | Some appAT, appT => isRight_size tout[@Fin0] (CaseCom_size t s)
-      | Some lamAT, lamT => isRight_size tout[@Fin0] (CaseCom_size t s)
-      | Some retAT, retT => isRight_size tout[@Fin0] (CaseCom_size t s)
+      | Some appAT, appT => isVoid_size tout[@Fin0] (CaseCom_size t s)
+      | Some lamAT, lamT => isVoid_size tout[@Fin0] (CaseCom_size t s)
+      | Some retAT, retT => isVoid_size tout[@Fin0] (CaseCom_size t s)
       | None, varT n => tout[@Fin0] ≃(;CaseCom_size t s) n
       | _, _ => False
       end
@@ -60,7 +60,7 @@ Qed.
 
 Definition Constr_ACom (t : ACom) : pTM sigCom^+ unit 1 := WriteValue (encode (ACom2Com t)).
 Definition Constr_ACom_Rel (t : ACom) : pRel sigCom^+ unit 1 :=
-  Mk_R_p (ignoreParam (fun tin tout => isRight tin -> tout ≃ ACom2Com t)).
+  Mk_R_p (ignoreParam (fun tin tout => isVoid tin -> tout ≃ ACom2Com t)).
 Definition Constr_ACom_steps := 7.
 Lemma Constr_ACom_Sem t : Constr_ACom t ⊨c(Constr_ACom_steps)Constr_ACom_Rel t.
 Proof.

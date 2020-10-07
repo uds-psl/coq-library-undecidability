@@ -36,14 +36,14 @@ Section APP_right.
     t[@Fin0] ≃ compile s1
     -> t[@Fin1] ≃ compile s2
     -> t'[@Fin0] ≃ compile (L.app s1 s2)
-      /\ isRight (t'[@Fin1])).
+      /\ isVoid (t'[@Fin1])).
   Proof.
     eapply Realise_monotone.
     {unfold APP_right. TM_Correct. all: apply App_Commands_Realise. }
     hnf. intros ? [] ? s1 s2. intros;TMSimp.
     specialize H2 with (x:=[appT]%list).
     modpon H. modpon H2. modpon H3.
-    split. 2:solve isRight_mono.
+    split. 2:solve isVoid_mono.
     contains_ext. now autorewrite with list.
   Qed.  
 
@@ -62,8 +62,8 @@ Section mk_init_one.
     Realise M_init_one (fun t '(r, t') =>
                           forall (n:list bool) (ter : L.term),
                             t[@Fin0] = encTM s b n ->
-                            (* isRight (t[@Fin1]) -> *)
-                            (* isRight (t[@Fin2]) -> *)
+                            (* isVoid (t[@Fin1]) -> *)
+                            (* isVoid (t[@Fin2]) -> *)
                             t[@Fin1] ≃ compile ter ->
                             t'[@Fin1] ≃ compile (L.app ter (encL' n))
                        ).
@@ -162,18 +162,18 @@ Section conv_output.
 
 End conv_output.
 
-Section MK_isRight.
+Section MK_isVoid.
 
   Context {Σ : finType}.
 
-  Definition MK_isRight : pTM Σ unit 1.
+  Definition MK_isVoid : pTM Σ unit 1.
   Admitted.
 
-  Lemma MK_isRight_realise :
-    Realise MK_isRight (fun t '(r, t') => isRight (t'[@Fin0])).
+  Lemma MK_isVoid_realise :
+    Realise MK_isVoid (fun t '(r, t') => isVoid (t'[@Fin0])).
   Admitted.
 
-End MK_isRight.
+End MK_isVoid.
 
 Section main.
 
@@ -218,14 +218,14 @@ Section main.
   Proof using k s.
     refine (
         M_init sym_s sym_b Fin1 Fin2 Fin3 Fin4 Fin5 s k ;;
-        LiftTapes MK_isRight [|aux Fin5 |] ;;
-        LiftTapes MK_isRight [|aux Fin6 |] ;;
-        LiftTapes MK_isRight [|aux Fin7 |] ;;
-        LiftTapes MK_isRight [|aux Fin8 |] ;;
-        LiftTapes MK_isRight [|aux Fin9 |] ;;
-        LiftTapes MK_isRight [|aux Fin10 |] ;;
-        LiftTapes MK_isRight [|aux Fin11 |] ;;
-        LiftTapes MK_isRight [|aux Fin12 |] ;;
+        LiftTapes MK_isVoid [|aux Fin5 |] ;;
+        LiftTapes MK_isVoid [|aux Fin6 |] ;;
+        LiftTapes MK_isVoid [|aux Fin7 |] ;;
+        LiftTapes MK_isVoid [|aux Fin8 |] ;;
+        LiftTapes MK_isVoid [|aux Fin9 |] ;;
+        LiftTapes MK_isVoid [|aux Fin10 |] ;;
+        LiftTapes MK_isVoid [|aux Fin11 |] ;;
+        LiftTapes MK_isVoid [|aux Fin12 |] ;;
         LiftAlphabet (LiftTapes Loop [| aux Fin0 ; aux Fin1 ; aux Fin2 ; aux Fin5 ; aux Fin6 ; aux Fin7 ; aux Fin8 ; aux Fin9 ; aux Fin10 ; aux Fin11 ; aux Fin12 |]) _ (inl UNKNOWN)  ;;
         M_unf (aux Fin1) (aux Fin2) (aux Fin13);;
         (LiftTapes (M_out sym_s sym_b) [|(aux Fin13);Fin0|])
@@ -246,7 +246,7 @@ Section main.
     {
       unfold M_main.
       TM_Correct.
-      all:eauto using M_init_rel, MK_isRight_realise, Loop_Realise, M_unf_realise, M_out_realise.
+      all:eauto using M_init_rel, MK_isVoid_realise, Loop_Realise, M_unf_realise, M_out_realise.
     }
     (* intros tin ([] & tout) H v ->. *)
     (* unfold n_main in *. cbn in tout. *)

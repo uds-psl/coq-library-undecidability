@@ -15,7 +15,7 @@ Section CaseBool.
            end).
 
   Definition CaseBool_Rel : pRel bool^+ bool 1 :=
-    fun tin '(yout, tout) => forall (x : sig) (s : nat), tin[@Fin0] ≃(;s) x -> isRight_size tout[@Fin0] (S(S(s))) /\ yout = x.
+    fun tin '(yout, tout) => forall (x : sig) (s : nat), tin[@Fin0] ≃(;s) x -> isVoid_size tout[@Fin0] (S(S(s))) /\ yout = x.
 
   Definition CaseBool_steps := 5.
 

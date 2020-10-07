@@ -30,7 +30,7 @@ Definition App_Commands_Rel : pRel sigPro^+ (FinType(EqType unit)) 2 :=
           tin[@Fin0] ≃(;s0) Q ->
           tin[@Fin1] ≃(;s1) Q' ->
           tout[@Fin0] ≃(;App_Commands_size Q Q' @>Fin0 s0) Q ++ Q' /\
-          isRight_size tout[@Fin1] (App_Commands_size Q Q' @>Fin1 s1)
+          isVoid_size tout[@Fin1] (App_Commands_size Q Q' @>Fin1 s1)
     ).
 
 Lemma App_Commands_Realise : App_Commands ⊨ App_Commands_Rel.
@@ -85,9 +85,9 @@ Definition App_ACom_Rel (t : ACom) : pRel sigPro^+ unit 2 :=
       fun tin tout =>
         forall (Q : list Tok) (s0 s1:nat),
           tin[@Fin0] ≃(;s0) Q ->
-          isRight_size tin[@Fin1] s1 ->
+          isVoid_size tin[@Fin1] s1 ->
           tout[@Fin0] ≃(;App_ACom_size t Q @>Fin0 s0) Q ++ [ACom2Com t] /\
-          isRight_size tout[@Fin1] (App_ACom_size t Q @>Fin1 s1)
+          isVoid_size tout[@Fin1] (App_ACom_size t Q @>Fin1 s1)
     ).
 
 Lemma App_ACom_Realise t : App_ACom t ⊨ App_ACom_Rel t.
@@ -108,7 +108,7 @@ Arguments App_ACom_size : simpl never.
 Definition App_ACom_steps (Q: Pro) (t: ACom) := 1 + WriteValue_steps (size _ [ACom2Com t]) + App_Commands_steps Q [ACom2Com t].
 
 Definition App_ACom_T (t: ACom) : tRel sigPro^+ 2 :=
-  fun tin k => exists (Q: list Tok), tin[@Fin0] ≃ Q /\ isRight tin[@Fin1] /\ App_ACom_steps Q t <= k.
+  fun tin k => exists (Q: list Tok), tin[@Fin0] ≃ Q /\ isVoid tin[@Fin1] /\ App_ACom_steps Q t <= k.
 
 Lemma App_ACom_Terminates (t: ACom) : projT1 (App_ACom t) ↓ App_ACom_T t.
 Proof.
@@ -144,10 +144,10 @@ Definition App_Com_Rel : pRel sigPro^+ (FinType(EqType unit)) 3 :=
         forall (Q : list Tok) (t : Tok) (s0 s1 s2 : nat),
           tin[@Fin0] ≃(;s0) Q ->
           tin[@Fin1] ≃(;s1) t ->
-          isRight_size tin[@Fin2] s2 ->
+          isVoid_size tin[@Fin2] s2 ->
           tout[@Fin0] ≃(;App_Com_size Q t @>Fin0 s0) Q ++ [t] /\
-          isRight_size tout[@Fin1] (App_Com_size Q t @>Fin1 s1) /\
-          isRight_size tout[@Fin2] (App_Com_size Q t @>Fin2 s2)
+          isVoid_size tout[@Fin1] (App_Com_size Q t @>Fin1 s1) /\
+          isVoid_size tout[@Fin2] (App_Com_size Q t @>Fin2 s2)
     ).
 
 
@@ -171,7 +171,7 @@ Definition App_Com_steps (Q: Pro) (t:Tok) :=
   3 + Constr_nil_steps + Constr_cons_steps t + App_Commands_steps Q [t] + Reset_steps t.
 
 Definition App_Com_T : tRel sigPro^+ 3 :=
-  fun tin k => exists (Q: list Tok) (t: Tok), tin[@Fin0] ≃ Q /\ tin[@Fin1] ≃ t /\ isRight tin[@Fin2] /\ App_Com_steps Q t <= k.
+  fun tin k => exists (Q: list Tok) (t: Tok), tin[@Fin0] ≃ Q /\ tin[@Fin1] ≃ t /\ isVoid tin[@Fin2] /\ App_Com_steps Q t <= k.
 
 Lemma App_Com_Terminates : projT1 App_Com ↓ App_Com_T.
 Proof.
@@ -248,14 +248,14 @@ Definition JumpTarget_Step_Rel : pRel sigPro^+ (option bool) 5 :=
       tin[@Fin0] ≃(;s0) P ->
       tin[@Fin1] ≃(;s1) Q ->
       tin[@Fin2] ≃(;s2) k ->
-      isRight_size tin[@Fin3] s3 -> isRight_size tin[@Fin4] s4 ->
+      isVoid_size tin[@Fin3] s3 -> isVoid_size tin[@Fin4] s4 ->
       match yout, P with
       | _, retT :: P =>
         match yout, k with
         | Some true, O => (* return true *)
           tout[@Fin0] ≃(;size @>Fin0 s0) P /\
           tout[@Fin1] ≃(;size @>Fin1 s1) Q /\
-          isRight_size tout[@Fin2] (size @>Fin2 s2)
+          isVoid_size tout[@Fin2] (size @>Fin2 s2)
         | None, S k' => (* continue *)
           tout[@Fin0] ≃(;size @>Fin0 s0) P /\
           tout[@Fin1] ≃(;size @>Fin1 s1) Q ++ [retT] /\
@@ -274,8 +274,8 @@ Definition JumpTarget_Step_Rel : pRel sigPro^+ (option bool) 5 :=
         True
       | _, _ => False (* not the case *)
       end /\
-      isRight_size tout[@Fin3] (size@>Fin3 s3) /\
-      isRight_size tout[@Fin4] (size@>Fin4 s4).
+      isVoid_size tout[@Fin3] (size@>Fin3 s3) /\
+      isVoid_size tout[@Fin4] (size@>Fin4 s4).
 
 
 Lemma JumpTarget_Step_Realise : JumpTarget_Step ⊨ JumpTarget_Step_Rel.
@@ -365,7 +365,7 @@ Definition JumpTarget_Step_T : tRel sigPro^+ 5 :=
       tin[@Fin0] ≃ P /\
       tin[@Fin1] ≃ Q /\
       tin[@Fin2] ≃ k /\
-      isRight tin[@Fin3] /\ isRight tin[@Fin4] /\
+      isVoid tin[@Fin3] /\ isVoid tin[@Fin4] /\
       JumpTarget_Step_steps P Q k <= steps.
 
 Lemma JumpTarget_Step_Terminates : projT1 JumpTarget_Step ↓ JumpTarget_Step_T.
@@ -468,15 +468,15 @@ Definition JumpTarget_Loop_Rel : pRel sigPro^+ bool 5 :=
       tin[@Fin0] ≃(;s0) P ->
       tin[@Fin1] ≃(;s1) Q ->
       tin[@Fin2] ≃(;s2) k ->
-      isRight_size tin[@Fin3] s3 -> isRight_size tin[@Fin4] s4 ->
+      isVoid_size tin[@Fin3] s3 -> isVoid_size tin[@Fin4] s4 ->
       match yout with
       | true =>
         exists (P' Q' : Pro),
         jumpTarget k Q P = Some (Q', P') /\
         tout[@Fin0] ≃(;size@>Fin0 s0) P' /\
         tout[@Fin1] ≃(;size@>Fin1 s1) Q' /\
-        isRight_size tout[@Fin2] (size@>Fin2 s2) /\
-        isRight_size tout[@Fin3] (size@>Fin3 s3) /\ isRight_size tout[@Fin4] (size@>Fin4 s4)
+        isVoid_size tout[@Fin2] (size@>Fin2 s2) /\
+        isVoid_size tout[@Fin3] (size@>Fin3 s3) /\ isVoid_size tout[@Fin4] (size@>Fin4 s4)
       | false =>
         jumpTarget k Q P = None
       end.
@@ -529,7 +529,7 @@ Definition JumpTarget_Loop_T : tRel sigPro^+ 5 :=
       tin[@Fin0] ≃ P /\
       tin[@Fin1] ≃ Q /\
       tin[@Fin2] ≃ k /\
-      isRight tin[@Fin3] /\ isRight tin[@Fin4] /\
+      isVoid tin[@Fin3] /\ isVoid tin[@Fin4] /\
       JumpTarget_Loop_steps P Q k <= steps.
 
 
@@ -587,15 +587,15 @@ Definition JumpTarget_Rel : pRel sigPro^+ bool 5 :=
   fun tin '(yout, tout) =>
     forall (P : Pro) (s0 s1 : nat) (si : Vector.t nat 3),
       tin[@Fin0] ≃(;s0) P ->
-      isRight_size tin[@Fin1] s1 ->
-      (forall i : Fin.t 3, isRight_size tin[@FinR 2 i : Fin.t 5] si[@i]) ->
+      isVoid_size tin[@Fin1] s1 ->
+      (forall i : Fin.t 3, isVoid_size tin[@FinR 2 i : Fin.t 5] si[@i]) ->
       match yout with
       | true =>
         exists (P' Q' : Pro),
         jumpTarget 0 nil P = Some (Q', P') /\
         tout[@Fin0] ≃(;JumpTarget_size P @>Fin0 s0) P' /\
         tout[@Fin1] ≃(;JumpTarget_size P @>Fin1 s1) Q' /\
-        (forall i : Fin.t 3, isRight_size tout[@FinR 2 i : Fin.t 5] (JumpTarget_size P @>(FinR 2 i) si[@i]))
+        (forall i : Fin.t 3, isVoid_size tout[@FinR 2 i : Fin.t 5] (JumpTarget_size P @>(FinR 2 i) si[@i]))
       | false =>
         jumpTarget 0 nil P = None
       end.
@@ -632,8 +632,8 @@ Definition JumpTarget_T : tRel sigPro^+ 5 :=
   fun tin k =>
     exists (P : Pro),
       tin[@Fin0] ≃ P /\
-      isRight tin[@Fin1] /\
-      (forall i : Fin.t 3, isRight tin[@Fin.R 2 i]) /\
+      isVoid tin[@Fin1] /\
+      (forall i : Fin.t 3, isVoid tin[@Fin.R 2 i]) /\
       JumpTarget_steps P <= k.
 
 

@@ -5,6 +5,8 @@ From Undecidability Require Import ProgrammingTools.
 
 Local Arguments plus : simpl never. Local Arguments mult : simpl never.
 
+Set Default Proof Using "Type".
+
 
 Lemma tl_length (X : Type) (xs : list X) :
   length (tl xs) = pred (length xs).

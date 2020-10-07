@@ -7,6 +7,7 @@ From Undecidability Require Import TM.Compound.Multi.
 From Coq Require Import FunInd.
 From Coq Require Import Recdef.
 
+Set Default Proof Using "Type".
 
 (** * Move to a symbol and translate read symbols *)
 
@@ -303,3 +304,173 @@ Ltac smpl_TM_MoveToSymbol :=
   end.
 
 Smpl Add smpl_TM_MoveToSymbol : TM_Correct.
+
+Section MoveToSymbol_Sem.
+
+  Local Arguments skipn { A } !n !l.
+  Local Arguments plus : simpl never.
+  Local Arguments mult : simpl never.
+  
+  Variable sig : finType.
+
+  (** Halt function *)
+  Variable stop : sig -> bool.
+
+  (** Rewrite function *)
+  Variable f : sig -> sig.
+
+  Lemma MoveToSymbol_correct t str1 str2 x :
+  (forall x, List.In x str1 -> stop x = false) ->
+  (stop x = true) ->
+  tape_local t = str1 ++ x :: str2 ->
+  MoveToSymbol_Fun stop f t = midtape (rev (map f str1) ++ left t) (f x) str2.
+  Proof.
+  intros H H0. destruct t as [ | r rs | l ls | ls m rs]; cbn in *.
+  1,3: rewrite MoveToSymbol_Fun_equation; cbn; destruct str1; cbn in *; try congruence.
+  1: destruct str1; cbn in *; congruence.
+  revert m ls str1 H. revert rs.
+  refine (@size_induction _ (@length sig) _ _); intros [ | s rs'] IH; intros.
+  - rewrite MoveToSymbol_Fun_equation; cbn. destruct str1; cbn in *; inv H1.
+    + rewrite H0. cbn. auto.
+    + destruct str1; cbn in *; congruence.
+  - rewrite MoveToSymbol_Fun_equation; cbn.
+    destruct (stop m) eqn:E1.
+    + cbn. destruct str1; cbn in *; inv H1; eauto. specialize (H _ ltac:(eauto)). congruence.
+    + destruct str1; cbn in *; inv H1.
+      * congruence.
+      * simpl_list. eapply IH; cbn; eauto.
+  Qed.
+
+  Corollary MoveToSymbol_correct_midtape ls rs rs' m x :
+  stop m = false ->
+  (forall x, List.In x rs -> stop x = false) ->
+  stop x = true ->
+  MoveToSymbol_Fun stop f (midtape ls m (rs ++ x :: rs')) =
+  midtape (rev (map f rs) ++ (f m) :: ls) (f x) rs'.
+  Proof.
+  intros HStopM HStopRs HStopX.
+  unshelve epose proof (@MoveToSymbol_correct (midtape ls m (rs ++ x :: rs')) (m::rs) rs' x _ HStopX eq_refl) as Lmove.
+  { intros ? [->|?]; auto. }
+  cbn in *. now rewrite <- app_assoc in Lmove.
+  Qed.
+
+  Corollary MoveToSymbol_correct_moveright ls m rs x rs' :
+  (forall x, List.In x rs -> stop x = false) ->
+  stop x = true ->
+  MoveToSymbol_Fun stop f (tape_move_right' ls m (rs ++ x :: rs')) =
+  midtape (rev (map f rs) ++ m :: ls) (f x) rs'.
+  Proof.
+  intros HStopR HStopX.
+  destruct rs as [ | s s'] eqn:E; cbn.
+  - rewrite MoveToSymbol_Fun_equation. cbn. rewrite HStopX. reflexivity.
+  - rewrite MoveToSymbol_correct_midtape; auto. rewrite <- !app_assoc. reflexivity.
+  Qed.
+
+  Corollary MoveToSymbol_L_correct t str1 str2 x :
+  (forall x, List.In x str1 -> stop x = false) ->
+  (stop x = true) ->
+  tape_local_l t = str1 ++ x :: str2 ->
+  MoveToSymbol_L_Fun stop f t = midtape str2 (f x) (rev (map f str1) ++ right t).
+  Proof.
+  intros. pose proof (@MoveToSymbol_correct (mirror_tape t) str1 str2 x) as Lmove.
+  simpl_tape in Lmove. repeat spec_assert Lmove by auto.
+  erewrite (MoveToSymbol_mirror' (t' := mirror_tape (MoveToSymbol_L_Fun stop f t))) in Lmove; simpl_tape in *; eauto.
+  now apply mirror_tape_inv_midtape in Lmove.
+  Qed.
+
+  Corollary MoveToSymbol_L_correct_midtape ls ls' rs m x :
+  stop m = false ->
+  (forall x, List.In x ls -> stop x = false) ->
+  stop x = true ->
+  MoveToSymbol_L_Fun stop f (midtape (ls ++ x :: ls') m rs) =
+  midtape ls' (f x) (rev (map f ls) ++ (f m) :: rs).
+  Proof.
+  intros HStopM HStopRs HStopX.
+  unshelve epose proof (@MoveToSymbol_L_correct (midtape (ls ++ x :: ls') m rs) (m::ls) ls' x _ HStopX eq_refl) as Lmove.
+  { intros ? [->|?]; auto. }
+  cbn in *. now rewrite <- app_assoc in Lmove.
+  Qed.
+
+  Corollary MoveToSymbol_L_correct_moveleft ls x ls' m rs :
+  (forall x, List.In x ls -> stop x = false) ->
+  stop x = true ->
+  MoveToSymbol_L_Fun stop f (tape_move_left' (ls ++ x :: ls') m rs) =
+  midtape ls' (f x) (rev (map f ls) ++ m :: rs).
+  Proof.
+  intros HStopL HStopX.
+  destruct ls as [ | s s'] eqn:E; cbn.
+  - rewrite MoveToSymbol_L_Fun_equation. cbn. rewrite HStopX. reflexivity.
+  - rewrite MoveToSymbol_L_correct_midtape; auto. rewrite <- !app_assoc. reflexivity.
+  Qed.
+
+
+  (** Termination times *)
+
+  (* The termination times of CopySymbols and MoveTosymbol only differ in the factors *)
+
+  Lemma MoveToSymbol_steps_local t r1 sym r2 :
+  tape_local t = r1 ++ sym :: r2 ->
+  stop sym = true ->
+  MoveToSymbol_steps stop f t <= 4 + 4 * length r1.
+  Proof.
+  revert t sym r2. induction r1; intros t sym r2 HEnc HStop; cbn -[plus mult] in *.
+  - destruct t; cbn in HEnc; inv HEnc. rewrite MoveToSymbol_steps_equation. cbn. rewrite HStop. cbn. lia.
+  - destruct t; cbn in HEnc; try congruence. inv HEnc.
+    rewrite MoveToSymbol_steps_equation. cbn. destruct (stop a).
+    + lia.
+    + apply Nat.add_le_mono_l. replace (4 * S (|r1|)) with (4 + 4 * |r1|) by lia.
+      eapply IHr1; eauto. cbn. now simpl_tape.
+  Qed.
+
+  Corollary MoveToSymbol_steps_midtape ls x m rs rs' :
+  stop x = true ->
+  MoveToSymbol_steps stop f (midtape ls m (rs ++ x :: rs')) <= 8 + 4 * length rs.
+  Proof.
+  intros.
+  rewrite MoveToSymbol_steps_local with (r1 := m::rs) (sym := x) (r2 := rs'); auto.
+  cbn [length]. lia.
+  Qed.
+
+  Corollary MoveToSymbol_steps_moveright ls m rs x rs' :
+  stop x = true ->
+  MoveToSymbol_steps stop f (tape_move_right' ls m (rs ++ x :: rs')) <= 4 + 4 * length rs.
+  Proof.
+  intros HStop. destruct rs as [ | s s'] eqn:E; cbn.
+  - rewrite MoveToSymbol_steps_equation. cbn. rewrite HStop; cbn. lia.
+  - rewrite MoveToSymbol_steps_midtape; auto. lia.
+  Qed.
+
+
+  Lemma MoveToSymbol_L_steps_local t r1 sym r2 :
+  tape_local_l t = r1 ++ sym :: r2 ->
+  stop sym = true ->
+  MoveToSymbol_L_steps stop f t <= 4 + 4 * length r1.
+  Proof.
+  revert t sym r2. induction r1; intros t sym r2 HEnc HStop; cbn -[plus mult] in *.
+  - destruct t; cbn in HEnc; inv HEnc. rewrite MoveToSymbol_L_steps_equation. cbn. rewrite HStop. cbn. lia.
+  - destruct t; cbn in HEnc; try congruence. inv HEnc.
+    rewrite MoveToSymbol_L_steps_equation. cbn. destruct (stop a).
+    + lia.
+    + apply Nat.add_le_mono_l. replace (4 * S (|r1|)) with (4 + 4 * |r1|) by lia.
+      eapply IHr1; eauto. cbn. now simpl_tape.
+  Qed.
+
+  Corollary MoveToSymbol_L_steps_midtape ls ls' x m rs :
+  stop x = true ->
+  MoveToSymbol_L_steps stop f (midtape (ls ++ x :: ls') m rs) <= 8 + 4 * length ls.
+  Proof.
+  intros.
+  rewrite MoveToSymbol_L_steps_local with (r1 := m::ls) (sym := x) (r2 := ls'); auto.
+  cbn [length]. lia.
+  Qed.
+
+  Corollary MoveToSymbol_L_steps_moveleft ls ls' x m rs :
+  stop x = true ->
+  MoveToSymbol_L_steps stop f (tape_move_left' (ls ++ x :: ls') m rs) <= 4 + 4 * length ls.
+  Proof.
+  intros HStop. destruct ls as [ | s s'] eqn:E; cbn.
+  - rewrite MoveToSymbol_L_steps_equation. cbn. rewrite HStop; cbn. lia.
+  - rewrite MoveToSymbol_L_steps_midtape; auto. lia.
+  Qed.
+
+End MoveToSymbol_Sem.

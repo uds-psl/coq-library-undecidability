@@ -53,7 +53,7 @@ Definition isLeftBlank {sig : Type} (s : sigTape sig) : bool :=
   | _ => false
   end.
 
-Definition isRightBlank {sig : Type} (s : sigTape sig) : bool :=
+Definition isVoidBlank {sig : Type} (s : sigTape sig) : bool :=
   match s with
   | RightBlank _ => true
   | _ => false
