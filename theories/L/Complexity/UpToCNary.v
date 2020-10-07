@@ -99,6 +99,27 @@ Proof.
   prove_nary upToC_S.
 Qed.
 
+Lemma upToC_mul_nary (domain : list Set) (F1 F2 f1 f2 : Rarrow domain nat) :
+  Uncurry f1 <=c Uncurry F1
+  -> Uncurry f2 <=c Uncurry F2
+  -> Fun' (fun x => App f1 x * App f2 x) <=c Fun' (fun x => App F1 x * App F2 x).
+Proof.
+  prove_nary upToC_mul.
+Qed.
+
+Lemma upToC_pow_r_drop_nary domain c f (F : Rarrow domain nat) :
+  0 < c
+  -> f <=c Uncurry F
+  -> f <=c Fun' (fun x => (App F x) ^ c).
+  now prove_nary upToC_pow_r_drop.
+Qed.
+
+Lemma upToC_pow_le_compat_nary domain c c' (f f' : Rarrow domain nat) :
+  0 < c -> c <= c'
+  -> Uncurry f <=c Uncurry f'
+  -> Fun' (fun x => (App f x) ^ c) <=c Fun' (fun x => (App f' x) ^ c').
+  now prove_nary upToC_pow_le_compat.
+Qed.    
 
 
 (** Applying n-ary leUpToC lemmas *)

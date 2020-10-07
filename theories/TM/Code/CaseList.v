@@ -18,6 +18,8 @@ Section CaseList.
   Variable (sigX : finType).
   Hypothesis (cX : codable sigX X).
 
+  Set Default Proof Using "Type".
+
   Definition stop (s: (sigList sigX)^+) :=
     match s with
     | inr (sigList_cons) => true
@@ -113,8 +115,8 @@ Section CaseList.
     { unfold M1. TM_Correct. eapply Skip_cons_Realise. }
     {
       intros tin ((), tout) H. intros ls rs x l s HTin0 HRight. TMSimp; clear_trivial_eqs.
-      rename H2 into HCopy.
-      destruct HRight as (r1&r2&HRight&Hs). TMSimp. clear HRight.
+      rename H4 into HCopy.
+      destruct HRight as (r1&r2&HRight&Hs). TMSimp. 
 
       specialize H with (1 := eq_refl).
       destruct l as [ | x' l']; TMSimp.
@@ -168,9 +170,9 @@ Section CaseList.
       }
       { (* cons *)
         rewrite !map_map, map_app, <- app_assoc in *.
-        setoid_rewrite map_map in H1. setoid_rewrite map_map in H2.
-        specialize H1 with (1 := eq_refl) (2 := HRight).
-        TMSimp. symmetry in H0. specialize H2 with (1 := eq_refl).
+        setoid_rewrite map_map in H. setoid_rewrite map_map in H0.
+        specialize H with (1 := eq_refl) (2 := HRight).
+        TMSimp. specialize H0 with (1 := eq_refl).
         destruct l' as [ | x' l'']; TMSimp.
         - repeat split; auto. hnf. eexists. split. simpl_tape. f_equal.
           + rewrite tl_length. simpl_list. cbn. unfold size. lia.
@@ -196,9 +198,9 @@ Section CaseList.
     eapply TerminatesIn_monotone.
     { unfold Skip_cons. TM_Correct. }
     {
-      intros tin k (ls&rs&x&l&HTin&Hk). TMSimp. clear HTin.
+      intros tin k (ls&rs&x&l&HTin&Hk). TMSimp.
       exists 1, (4 + 4 * size cX x). repeat split. 1-2: lia.
-      intros tmid () H. TMSimp. clear H.
+      intros tmid () H. TMSimp.
       destruct l as [ | x' l]; cbn.
       - rewrite MoveToSymbol_steps_moveright; cbn; auto. now rewrite !map_length.
       - rewrite MoveToSymbol_steps_moveright; cbn; auto. now rewrite !map_length.
@@ -217,9 +219,9 @@ Section CaseList.
     eapply TerminatesIn_monotone.
     { unfold M1. TM_Correct. eapply Skip_cons_Realise. eapply Skip_cons_Terminates. }
     {
-      intros tin k (ls&rs&x&l&HTin&Hk). TMSimp. clear HTin.
+      intros tin k (ls&rs&x&l&HTin&Hk). TMSimp.
       exists (6 + 4 * size cX x), (16 + 8 * size cX x). repeat split; try lia. eauto 6.
-      intros tmid (). intros (H&HInj); TMSimp. specialize H with (1 := eq_refl).
+      intros tmid_ (). intros (H&HInj); TMSimp. specialize H with (1 := eq_refl).
       destruct l as [ | x' l']; TMSimp. (* Both cases are identical *)
       1-2: exists 1, (14 + 8 * size cX x); repeat split; try lia.
       - intros tmid2 (). intros (_&HInj2); TMSimp.

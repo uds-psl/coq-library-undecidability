@@ -268,7 +268,7 @@ End Encode_sum.
 
 Arguments sigSum_inl {sigX sigY}. Arguments sigSum_inr {sigX sigY}. Arguments sigSum_X {sigX sigY}. Arguments sigSum_Y {sigX sigY}.
 Hint Extern 4 (finTypeC (EqType (sigSum _ _))) => eapply sigSum_fin : typeclass_instances.
-Check FinType (EqType (sigSum bool bool)).
+(* Check FinType (EqType (sigSum bool bool)). *)
 
 
 Lemma cons_injective (X : Type) (x1 x2 : X) (l1 l2 : list X) :
@@ -349,12 +349,12 @@ End Encode_pair.
 Arguments sigPair_X {sigX sigY}. Arguments sigPair_Y {sigX sigY}.
 
 Hint Extern 4 (finTypeC (EqType (sigPair _ _))) => eapply sigPair_fin : typeclass_instances.
-Check FinType (EqType (sigPair bool bool)).
+(* Check FinType (EqType (sigPair bool bool)). *)
 
 
-Compute Encode_pair Encode_bool (Encode_sum Encode_unit Encode_bool) (true, inl tt).
+(* Compute Encode_pair Encode_bool (Encode_sum Encode_unit Encode_bool) (true, inl tt). *)
 
-Check _ : codable (sigPair bool (sigSum Empty_set bool)) unit.
+(* Check _ : codable (sigPair bool (sigSum Empty_set bool)) unit. *)
 
 
 
@@ -418,11 +418,11 @@ Arguments sigOption_Some {sigX}. Arguments sigOption_None {sigX}. Arguments sigO
 
 
 Hint Extern 4 (finTypeC (EqType (sigOption _))) => eapply sigOption_fin : typeclass_instances.
-Check FinType (EqType (sigOption bool)).
+(* Check FinType (EqType (sigOption bool)). *)
 
 
-Compute Encode_option Encode_bool None.
-Compute Encode_option Encode_bool (Some false).
+(* Compute Encode_option Encode_bool None. *)
+(* Compute Encode_option Encode_bool (Some false). *)
 
 
 Lemma app_seperate (X : Type) (xs1 xs2 ys1 ys2 : list X) (s1 s2 : X) :
@@ -615,13 +615,13 @@ End Encode_list.
 Arguments sigList_nil {sigX}. Arguments sigList_cons {sigX}. Arguments sigList_X {sigX}.
 
 Hint Extern 4 (finTypeC (EqType (sigList _))) => eapply sigList_fin : typeclass_instances.
-Check FinType(EqType (sigList bool)).
+(* Check FinType(EqType (sigList bool)). *)
 
 
-Compute Encode_list Encode_bool (nil).
+(* Compute Encode_list Encode_bool (nil). *)
 (* This cannot reduce to [sigList_cons :: sigList_X true :: Encode_list _] *)
-Eval cbn in Encode_list Encode_bool (true :: _).
-Compute Encode_list Encode_bool (true :: false :: nil).
+(* Eval cbn in Encode_list Encode_bool (true :: _). *)
+(* Compute Encode_list Encode_bool (true :: false :: nil). *)
 
 
 Section Encode_nat.
@@ -658,7 +658,7 @@ Section Encode_nat.
 
 End Encode_nat.
 
-Check FinType(EqType sigNat).
+(* Check FinType(EqType sigNat). *)
 
 
 

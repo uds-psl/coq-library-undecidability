@@ -35,8 +35,7 @@ Instance term_vector_map X Y `{registered X} `{registered Y} n (f:X->Y) fT:
 Proof.
   intros ?.
   computable_casted_result.
-  set (WA:=@List.map X Y) (* Workaround for https://github.com/MetaCoq/metacoq/issues/385 *).
-  apply computableTimeExt with (x:= fun x => WA f (Vector.to_list x)).
+  apply computableTimeExt with (x:= fun x => List.map f (Vector.to_list x)).
   2:{
     extract.
     solverec.
@@ -148,9 +147,10 @@ Proof.
   setoid_rewrite size_list.
   induction l;intros l'.
   -cbn - [plus mult c max min] in *.
+    unfold c__listsizeNil, c__listsizeCons. 
    enough (10<= c). nia. shelve.
   -destruct l' as [ |? l'].
-   all:cbn - [plus mult c max min] in *.
+   all:cbn - [plus mult c max min] in *; unfold c__listsizeNil, c__listsizeCons in *. 
    1:{ enough (10<= c). nia. shelve. }
    specialize (IHl l').
    unfold eqbTime at 1.

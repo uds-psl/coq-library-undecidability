@@ -1,6 +1,6 @@
 # A Coq Library of Undecidability Proofs
 
-[![Build Status](https://travis-ci.org/uds-psl/coq-library-undecidability.svg?branch=coq-8.12)](https://travis-ci.org/uds-psl/coq-library-undecidability)
+[![Build Status](https://travis-ci.com/uds-psl/coq-library-undecidability.svg?branch=coq-8.12)](https://travis-ci.com/uds-psl/coq-library-undecidability)
 
 This library contains undecidable problems and formalised reductions between them.
 Feel free to contribute or start using the problems!
@@ -73,7 +73,6 @@ opam install . --deps-only
 - `make all` builds the library
 - `make html` generates clickable coqdoc `.html` in the `website` subdirectory
 - `make clean` removes all build files in `theories` and `.html` files in the `website` directory
-- `make realclean` also removes all build files in the `external` directory. You have to run `make deps` again after this.
 
 ### Troubleshooting
 
@@ -105,7 +104,7 @@ A Coq Library of Undecidable Problems. Yannick Forster, Dominique Larchey-Wendli
 - A certifying extraction with time bounds from Coq to call-by-value lambda-calculus. ITP '19. Subdirectory `L`. https://github.com/uds-psl/certifying-extraction-with-time-bounds
 - Certified Undecidability of Intuitionistic Linear Logic via Binary Stack Machines and Minsky Machines. Yannick Forster and Dominique Larchey-Wendling. CPP '19. Subdirectory `ILL`. http://uds-psl.github.io/ill-undecidability/
 - On Synthetic Undecidability in Coq, with an Application to the Entscheidungsproblem. Yannick Forster, Dominik Kirst, and Gert Smolka. CPP '19. Subdirectory `FOL`. https://www.ps.uni-saarland.de/extras/fol-undec
-- Formal Small-step Verification of a Call-by-value Lambda Calculus Machine. Fabian Kunze, Gert Smolka, and Yannick Forster. APLAS 2018. Subdirectory `LAM`. https://www.ps.uni-saarland.de/extras/cbvlcm2/
+- Formal Small-step Verification of a Call-by-value Lambda Calculus Machine. Fabian Kunze, Gert Smolka, and Yannick Forster. APLAS 2018. Subdirectory `L/AbstractMachines`. https://www.ps.uni-saarland.de/extras/cbvlcm2/
 - Towards a library of formalised undecidable problems in Coq: The undecidability of intuitionistic linear logic. Yannick Forster and Dominique Larchey-Wendling. LOLA 2018. Subdirectory `ILL`. https://www.ps.uni-saarland.de/~forster/downloads/LOLA-2018-coq-library-undecidability.pdf 
 - Verification of PCP-Related Computational Reductions in Coq. Yannick Forster, Edith Heiter, and Gert Smolka. ITP 2018. Subdirectory `PCP`. https://ps.uni-saarland.de/extras/PCP 
 - Call-by-Value Lambda Calculus as a Model of Computation in Coq. Yannick Forster and Gert Smolka. Journal of Automated Reasoning (2018) Subdirectory `L`. https://www.ps.uni-saarland.de/extras/L-computability/

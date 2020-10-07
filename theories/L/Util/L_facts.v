@@ -661,6 +661,12 @@ Proof.
   all:eauto using lam_terminal,uniform_confluence.
 Qed.
 
+Lemma eval_evalIn s t:
+  eval s t -> exists k, evalIn k s t.
+Proof.
+  intros [(R&?)%star_pow ?]. unfold evalIn. eauto.
+Qed.
+
 (* Helpfull Lemmas*)
 
 Lemma pow_trans_lam' t v s k j:

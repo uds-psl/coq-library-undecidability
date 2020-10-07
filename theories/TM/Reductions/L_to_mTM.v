@@ -1,6 +1,6 @@
 From Undecidability Require Import Problems.Reduction TM.TM.
 From Undecidability.L Require Import L Seval LM_heap_def LM_heap_correct.
-Require Import Undecidability.LAM.TM.HaltingProblem.
+Require Import Undecidability.L.AbstractMachines.TM_LHeapInterpreter.M_LHeapInterpreter.
 
 (** * L to TM *)
 

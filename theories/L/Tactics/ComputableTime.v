@@ -228,6 +228,9 @@ Proof.
 Qed.
     
 Definition cnst {X} (x:X):nat. exact 0. Qed.
+
+Definition callTime X (fT : X -> unit -> nat * unit) x: nat := fst (fT x tt). 
+Arguments callTime / {_}.
  
 Definition callTime2 X Y
            (fT : X -> unit -> nat * (Y -> unit -> nat * unit)) x y : nat :=
@@ -253,4 +256,10 @@ Proof.
    exists v. specialize (eq y yT) as (Hleq&?). split.
    +rewrite <- Hleq. eassumption.
    +eauto.
+Qed.
+
+Lemma computableTime_timeLeq X (tt : TT X) (x:X) fT fT':
+  timeComplexity_leq fT fT' -> computableTime x fT -> computableTime x fT'.
+Proof.
+  intros ? []. eexists. eapply computesTime_timeLeq. all:easy.
 Qed.

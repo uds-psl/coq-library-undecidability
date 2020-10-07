@@ -1,7 +1,7 @@
 (** * Heap Lookup *)
 
 From Undecidability Require Import TM.Code.ProgrammingTools LM_heap_def.
-From Undecidability.LAM Require Import TM.Alphabets.
+From Undecidability.L.AbstractMachines.TM_LHeapInterpreter Require Import Alphabets.
 From Undecidability Require Import TM.Code.ListTM TM.Code.CasePair TM.Code.CaseSum TM.Code.CaseNat.
 
 Local Arguments plus : simpl never.
@@ -157,23 +157,24 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
       destruct H; TMSimp.
       { (* Then of [Nth'], i.e. nth_error H a = Some e *) rename H into HNth, H0 into HCaseOption.
         modpon HNth. destruct HNth as (e&HNth); modpon HNth.
-        destruct HCaseOption; TMSimp.
-        { (* Then of [CaseOption], i.e. e = Some e', where e' = (g, b) *) rename H into HCaseOption, H0 into HCasePair, H1 into HCaseNat.
+        destruct HCaseOption; TMSimp_old.
+        { (* Then of [CaseOption], i.e. e = Some e', where e' = (g, b) *)
+        rename H into HCaseOption, H0 into HCasePair, H2 into HCaseNat.
           modpon HCaseOption. destruct e as [ (g,b) | ]; auto; simpl_surject.
           modpon HCasePair.
           destruct HCaseNat; TMSimp.
           { (* Then of [CaseNat], i.e. n = S n' *)
-            rename H into HCaseNat, H0 into HCopy, H1 into HTranslate, H2 into HReset, H3 into HReset'.
+            rename H into HCaseNat, H1 into HCopy, H3 into HTranslate, H5 into HReset, H7 into HReset'.
             modpon HCaseNat. destruct n as [ | n']; auto; simpl_surject.
             modpon HCopy.
             modpon HTranslate.
             modpon HReset.
             modpon HReset'.
             cbn in *.
-            do 2 eexists. repeat split; auto.
+            do 2 eexists. repeat split; eauto.
           }
           { (* Else of [CaseNat], i.e. n = 0 *)
-            rename H into HCaseNat, H0 into HReset, H1 into HReset', H2 into HTranslate.
+            rename H into HCaseNat, H1 into HReset, H3 into HReset', H5 into HTranslate.
             modpon HCaseNat. destruct n as [ | n']; auto; simpl_surject.
             modpon HReset.
             modpon HReset'.
@@ -250,44 +251,44 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
       repeat split; try lia.
       { hnf; cbn; eauto 7. }
       unfold Lookup_Step_steps_Nth' in *.
-      intros tmid b (HNth&HNthInj); TMSimp. modpon HNth. destruct b; modpon HNth.
+      intros tmid_ b (HNth&HNthInj); TMSimp. modpon HNth. destruct b; modpon HNth.
       { (* nth_error H a = Some e *) destruct HNth as (e&HNth); modpon HNth. rewrite HNth in *.
         exists (CaseOption_steps), (Lookup_Step_steps_CaseOption n e).
         repeat split; try lia. unfold Lookup_Step_steps_CaseOption in *.
-        intros tmid0 b (HCaseOption&HCaseOptionInj); TMSimp. modpon HCaseOption. destruct b; auto.
+        intros tmid0_ b (HCaseOption&HCaseOptionInj); TMSimp. modpon HCaseOption. destruct b; auto.
         { (* e = Some e', where e' = (g,b) *) destruct e as [ e' | ]; auto; simpl_surject.
           destruct e' as [g b] eqn:Ee'.
           exists (CasePair_steps g), (1 + CaseNat_steps + Lookup_Step_steps_CaseNat n e'); subst.
           repeat split; try lia. 2: now rewrite !Nat.add_assoc.
           { hnf; cbn. exists (g,b). repeat split; simpl_surject; eauto. }
-          intros tmid1 () (HCasePair&HCasePairInj). specialize (HCasePair (g,b)); modpon HCasePair.
+          intros tmid1_ () (HCasePair&HCasePairInj). specialize (HCasePair (g,b)); modpon HCasePair.
           exists (CaseNat_steps), (Lookup_Step_steps_CaseNat n (g,b)).
           repeat split; try lia.
-          intros tmid2 bif (HCaseNat&HCaseNatInj); TMSimp. modpon HCaseNat. destruct bif, n as [ | n']; auto; simpl_surject.
+          intros tmid2_ bif (HCaseNat&HCaseNatInj); TMSimp. modpon HCaseNat. destruct bif, n as [ | n']; auto; simpl_surject.
           { (* n = S n' *)
             exists (CopyValue_steps b), (1 + Translate_steps b + 1 + Reset_steps b + Reset_steps g).
             repeat split; try lia.
             { eexists; repeat split; eauto. }
-            intros tmid3 () (HCopyValue&HCopyValueInj); TMSimp. modpon HCopyValue.
+            intros tmid3_ () (HCopyValue&HCopyValueInj); TMSimp. modpon HCopyValue.
             exists (Translate_steps b), (1 + Reset_steps b + Reset_steps g).
             repeat split; try lia.
             { hnf; cbn. eauto. }
-            intros tmid4 () (HTranslate&HTranslateInj); TMSimp. modpon HTranslate.
+            intros tmid4_ () (HTranslate&HTranslateInj); TMSimp. modpon HTranslate.
             exists (Reset_steps b), (Reset_steps g).
             repeat split; try lia.
             { hnf; cbn. eexists; repeat split; eauto. }
-            intros tmid5 () (HReset&HResetInj); TMSimp. modpon HReset.
+            intros tmid5_ () (HReset&HResetInj); TMSimp. modpon HReset.
             { hnf; cbn. eexists; repeat split; eauto. }
           }
           { (* n = 0 *)
             exists (Reset_steps b), (1 + Reset_steps 0 + Translate_steps g).
             repeat split; try lia.
             { eexists; split; eauto. }
-            intros tmid3 () (HReset&HResetInj); TMSimp. modpon HReset.
+            intros tmid3_ () (HReset&HResetInj); TMSimp. modpon HReset.
             exists (Reset_steps 0), (Translate_steps g).
             repeat split; try lia.
             { eexists; split; eauto. }
-            intros tmid4 () (HReset'&HResetInj'); TMSimp. modpon HReset'.
+            intros tmid4_ () (HReset'&HResetInj'); TMSimp. modpon HReset'.
             { hnf; cbn. eexists; split; eauto. }
           }
         }

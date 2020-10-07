@@ -72,13 +72,13 @@ Shared/Libs/DLW/Code/compiler_correction.v
 Problems/Reduction.v
 
 # Abstract L simulator as Turing Machine
-LAM/TM/Alphabets.v
-LAM/TM/CaseCom.v
-LAM/TM/LookupTM.v
-LAM/TM/JumpTargetTM.v
+L/AbstractMachines/TM_LHeapInterpreter/Alphabets.v
+L/AbstractMachines/TM_LHeapInterpreter/CaseCom.v
+L/AbstractMachines/TM_LHeapInterpreter/LookupTM.v
+L/AbstractMachines/TM_LHeapInterpreter/JumpTargetTM.v
 #The following file takes very long, so we start it early for faster multi-core-compilation
-LAM/TM/StepTM.v
-LAM/TM/HaltingProblem.v
+L/AbstractMachines/TM_LHeapInterpreter/StepTM.v
+L/AbstractMachines/TM_LHeapInterpreter/M_LHeapInterpreter.v
 
 #Post correspondence problem
 PCP/PCP.v
@@ -332,24 +332,11 @@ StackMachines/Reductions/SBTM_to_BSM.v
 TM/Univ/LookupAssociativeListTM.v
 TM/Univ/StepTM.v
 
-# PrettyBounds
-TM/PrettyBounds/PrettyBounds.v
-TM/PrettyBounds/SizeBounds.v
 TM/PrettyBounds/MaxList.v
-# TM/PrettyBounds/BaseCode.v
-# TM/PrettyBounds/UnivBounds.v
-# TM/PrettyBounds/M2MBounds.v
-
-# TM/PrettyBounds/SpaceBounds.v
-# TM/PrettyBounds/BaseCodeSpace.v
-# TM/PrettyBounds/UnivSpaceBounds.v
-
-# Multi-Univ Simulation Theorem
-# TM/PrettyBounds/MultiUnivTimeSpaceSimulation.v
+TM/PrettyBounds/SizeBounds.v
 
 TM/Reductions/mTM_to_TM.v
 TM/TM_undec.v
-
 L/Prelim/MoreBase.v
 L/Prelim/ARS.v
 L/Prelim/StringBase.v
@@ -426,6 +413,7 @@ L/Complexity/UpToCNary.v
 L/Complexity/GenericNary.v
 L/Complexity/ResourceMeasures.v
 
+
 L/AbstractMachines/LargestVar.v
 L/AbstractMachines/FlatPro/Programs.v
 L/AbstractMachines/FlatPro/ProgramsDef.v
@@ -449,8 +437,6 @@ L/Computability/Scott.v
 L/Computability/Seval.v
 L/Computability/Synthetic.v
 
-#Reduction L to TM with abstract Heap Machine
-LAM/BaseExtension.v
 
 ## Higher order unficiation
 

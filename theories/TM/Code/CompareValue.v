@@ -364,8 +364,8 @@ Section CompareValues.
     eapply Realise_monotone.
     { unfold CompareValues. apply Switch_Realise. apply Compare_Realise. intros res. TM_Correct. }
     {
-      intros tin (yout, tout) H. intros x1 x2 sx sy HEncX1 HEncX2. TMSimp. clear tout H2_0 H1. clear tmid0 H2_1 H0.
-      hnf in HEncX1. destruct HEncX1 as (r1&HEncX1&Hsx). destruct HEncX2 as (r2&HEncX2&Hsy). TMSimp. clear HEncX1 HEncX2.
+      intros tin (yout, tout) H. intros x1 x2 sx sy HEncX1 HEncX2. TMSimp.
+      hnf in HEncX1. destruct HEncX1 as (r1&HEncX1&Hsx). destruct HEncX2 as (r2&HEncX2&Hsy). TMSimp. 
 
       pose proof compare_lists (cX x1) (cX x2) as[ HC | [ (a&b&l1&l2&l3&HC1&HC2&HC3) | [ (a&l1&l2&HC1&HC2) | (a&l1&l2&HC1&HC2) ]]].
       { (* Case [x1=x2] *)
@@ -389,7 +389,7 @@ Section CompareValues.
         { exfalso. eapply app_cons_neq with (xs := l1) (x := a) (y := b); eauto. rewrite <- HC2. eauto. }
         rewrite HC2, HC3 in H. rewrite !map_app, <- !app_assoc, !map_cons in H. cbn in H.
         rewrite Compare_correct_neq_midtape in H; cbn; auto.
-        - inv H. rewrite H2, H3. repeat split; auto.
+        - inv H. repeat split; auto.
           + hnf. rewrite MoveToSymbol_L_correct_midtape; cbn; auto. eauto. rewrite map_id, rev_involutive, HC2.
             * eexists. split.
               -- f_equal. simpl_list. auto.
@@ -408,7 +408,7 @@ Section CompareValues.
         { exfalso. eapply list_length_neq with (xs := l1 ++ a :: l2) (ys := l1); eauto. simpl_list; cbn; lia. congruence. }
         rewrite HC1, HC2 in H. rewrite !map_app, <- !app_assoc, !map_cons in H. cbn in H.
         rewrite Compare_correct_short_midtape in H; cbn; auto.
-        - inv H. rewrite H2, H3. repeat split; auto.
+        - inv H. repeat split; auto.
           + hnf. rewrite MoveToSymbol_L_correct_midtape; cbn; auto. eauto. rewrite map_id, rev_involutive, HC1.
             * eexists. split.
               -- f_equal. simpl_list. auto.
@@ -426,7 +426,7 @@ Section CompareValues.
         { exfalso. eapply list_length_neq with (xs := l1 ++ a :: l2) (ys := l1); eauto. simpl_list; cbn; lia. congruence. }
         rewrite HC1, HC2 in H. rewrite !map_app, <- !app_assoc, !map_cons in H. cbn in H.
         rewrite Compare_correct_long_midtape in H; cbn; auto.
-        - inv H. rewrite H2, H3. repeat split; auto.
+        - inv H. repeat split; auto.
           + hnf. rewrite MoveToSymbol_L_correct_midtape; cbn; auto. eauto. rewrite map_id, rev_involutive.
             * eexists. split.
               -- f_equal.

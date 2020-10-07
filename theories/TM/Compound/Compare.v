@@ -143,7 +143,7 @@ Section Compare.
         TMCrush.
         split.
         + hnf. TMSimp. auto.
-        + rewrite Compare_steps_equation in HT. cbn in HT. rewrite E, E0, E1, E2 in HT. TMSimp. lia.
+        + rewrite Compare_steps_equation in HT. cbn in HT. rewrite E, E0, E1, E2 in HT. TMSimp_old. lia.
     }
   Qed.
     

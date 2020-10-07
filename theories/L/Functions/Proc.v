@@ -10,9 +10,11 @@ match t with
 | lam s => boundb (S k) s
 end.
 
+
 Instance term_boundb : computableTime' boundb (fun _ _ => (5,fun s _ => (size s * 31+9,tt))).
 Proof.
   extract. solverec.
+  unfold c__leb2, leb_time, c__leb. nia. 
 Defined.
 
 Lemma boundb_spec k t : Bool.reflect (bound k t) (boundb k t).
@@ -43,7 +45,7 @@ Proof.
 Defined.
 
 
-Fixpoint lambdab (t : term) : bool :=
+Definition lambdab (t : term) : bool :=
 match t with
 | lam _ => true
 | _ => false

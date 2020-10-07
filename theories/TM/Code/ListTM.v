@@ -284,7 +284,7 @@ Section Nth'.
       { (* First "Then"; n = S n' *) rename H into HCaseNat, H0 into HIf.
         modpon HCaseNat. destruct n as [ | n']; auto; simpl_surject.
         destruct HIf; TMSimp.
-        { (* Second "Then"; l = x :: l' *) rename H into HCaseList, H0 into HReset.
+        { (* Second "Then"; l = x :: l' *) rename H into HCaseList, H1 into HReset.
           modpon HCaseList. destruct l as [ | x l']; auto. modpon HCaseList.
           modpon HReset. repeat split; auto.
         }
@@ -292,7 +292,7 @@ Section Nth'.
           modpon HCaseList. destruct l as [ | x l']; auto. modpon HCaseList. repeat split; auto.
         }
       }
-      { (* The first "Else"; n = 0 *) rename H into HCaseNat, H0 into HCaseList.
+      { (* The first "Else"; n = 0 *) rename H into HCaseNat, H2 into HCaseList.
         modpon HCaseNat. destruct n as [ | n']; auto; simpl_surject.
         modpon HCaseList. destruct ymid, l; auto; modpon HCaseList; repeat split; auto.
       }
@@ -327,7 +327,7 @@ Section Nth'.
       intros tin k. intros (l&n&HEncL&HEncN&HRight2&Hk). unfold Nth'_Step_steps in Hk.
       destruct n as [ | n'] eqn:E1, l as [ | x l'] eqn:E2; cbn.
       - (* [n = 0] and [l = nil] *)
-        exists (CaseNat_steps), (CaseList_steps_nil). repeat split; auto; try lia.
+        exists (CaseNat_steps), (CaseList_steps_nil). repeat split; auto; try lia. subst.
         intros tmid b (HCaseNat&HCaseNatInj); TMSimp. modpon HCaseNat. destruct b; auto; simpl_surject.
         { eexists; repeat split; simpl_surject; eauto. }
       - (* [n = 0] and [l = x :: l'] *)
@@ -507,11 +507,11 @@ Section Nth'.
       intros tin (yout, tout) H. cbn. intros l n s0 s1 s2 s3 HEncL HEncN HRight2 HRight3.
       TMSimp. rename H into HCopy, H0 into HIf.
       destruct HIf; TMSimp.
-      { rename H into HLoop, H0 into HReset, H1 into HReset'.
+      { rename H into HLoop, H3 into HReset, H1 into HReset'.
         modpon HCopy. modpon HLoop. destruct HLoop as (HLoop1&HLoop2&HLoop3&HLoop4&HLoop5).
         modpon HReset. modpon HReset'. eexists; repeat split; eauto.
       }
-      { rename H into HLoop, H0 into HReset, H1 into HReset'.
+      { rename H into HLoop, H3 into HReset, H1 into HReset'.
         modpon HCopy. modpon HLoop.
         modpon HReset. modpon HReset'. eexists; repeat split; eauto.
       }
@@ -549,7 +549,7 @@ Section Nth'.
       exists (CopyValue_steps l), (1 + Nth'_Loop_steps l n + 1 + Reset_steps (skipn (S n) l) + Reset_steps (n - S (length l))).
       repeat split; cbn; try lia.
       exists l. repeat split; eauto.
-      intros tmid () (HCopy&HInjCopy); TMSimp. modpon HCopy.
+      intros tmid_ () (HCopy&HInjCopy); TMSimp. modpon HCopy.
       exists (Nth'_Loop_steps l n), (1 + Reset_steps (skipn (S n) l) + Reset_steps (n - S (length l))).
       repeat split; cbn; try lia.
       { hnf; cbn. eauto 7. }
@@ -559,7 +559,7 @@ Section Nth'.
         exists (Reset_steps (skipn (S n) l)), (Reset_steps (n - S (length l))).
         repeat split; cbn; try lia.
         do 1 eexists. repeat split; eauto. unfold Reset_steps.
-        intros tmid3 () (HReset&HInjReset); TMSimp. modpon HReset.
+        intros tmid3_ () (HReset&HInjReset); TMSimp. modpon HReset.
         do 1 eexists. repeat split; eauto.
       }
       {
@@ -567,7 +567,7 @@ Section Nth'.
         exists (Reset_steps (skipn (S n) l)), (Reset_steps (n - S (length l))).
         repeat split; cbn; try lia.
         do 1 eexists. repeat split; eauto.
-        intros tmid3 () (HReset&HInjReset); TMSimp. modpon HReset.
+        intros tmid3_ () (HReset&HInjReset); TMSimp. modpon HReset.
         eexists; repeat split; eauto.
       }
     }
@@ -624,8 +624,8 @@ Section Rev.
       - eapply RealiseIn_Realise. apply ResetEmpty1_Sem with (X := list X). }
     {
       intros tin (yout, tout) H. cbn. intros xs ys sx sy sz Hxs Hys Hright. destruct H as [H|H]; TMSimp.
-      - modpon H. destruct xs as [ | x xs]; cbn in *; auto. TMSimp. modpon H0. modpon H1. repeat split; auto.
-      - modpon H. destruct xs as [ | x xs]; cbn in *; auto. TMSimp. modpon H0. repeat split; auto.
+      - modpon H. destruct xs as [ | x xs]; cbn in *; auto. TMSimp. modpon H1. modpon H3. repeat split; auto.
+      - modpon H. destruct xs as [ | x xs]; cbn in *; auto. TMSimp. modpon H1. repeat split; auto.
     }
   Qed.
 
@@ -652,7 +652,7 @@ Section Rev.
       - exists (CaseList_steps (x::xs)), (1 + Constr_cons_steps x + Reset_steps x). repeat split; try lia; eauto.
         intros tmid b (H&HInj); TMSimp. modpon H. destruct b; cbn in *; auto. modpon H.
         exists (Constr_cons_steps x), (Reset_steps x). repeat split; try lia; eauto.
-        intros tmid0 [] (?H&?HInj); TMSimp. modpon H1. TMSimp. eexists; split; eauto.
+        intros tmid0_ [] (?H&?HInj); TMSimp. modpon H1. TMSimp. eexists; split; eauto.
     }
   Qed.
 
@@ -1048,7 +1048,7 @@ Section Lenght.
     {
       intros tin (yout, tout) H. cbn. intros xs n s0 s1 s2 HEncXS HEncN HRight.
       destruct H; TMSimp.
-      { (* Then *) rename H into HCaseList, H0 into HReset, H1 into HS.
+      { (* Then *) rename H into HCaseList, H1 into HReset, H3 into HS.
         modpon HCaseList. destruct xs as [ | x xs']; cbn in *; auto; modpon HCaseList.
         modpon HReset.
         modpon HS. repeat split; auto.
@@ -1200,7 +1200,7 @@ Section Lenght.
     }
     {
       intros tin ((), tout) H. intros xs s0 s1 s2 s3 HEncXs Hout HInt2 HInt3.
-      TMSimp. modpon H. modpon H0. modpon H1. modpon H2. modpon H3.
+      TMSimp. modpon H. modpon H0. modpon H2. modpon H4. modpon H3.
       repeat split; auto.
     }
   Qed.
@@ -1227,7 +1227,7 @@ Section Lenght.
       eexists. repeat split; eauto. unfold CopyValue_steps.
       intros tmid () (HO&HOInj); TMSimp. modpon HO.
       exists 5, (4 + Length_Loop_steps xs). unfold Constr_O_steps. repeat split; cbn; try lia.
-      intros tmid0 () (HLoop&HLoopInj); TMSimp. modpon HLoop.
+      intros tmid0_ () (HLoop&HLoopInj); TMSimp. modpon HLoop.
       exists (Length_Loop_steps xs), 3. repeat split; cbn; try lia.
       hnf. cbn. do 2 eexists. repeat split; eauto.
       now intros _ _ _.

@@ -32,7 +32,7 @@ Definition mkMatch (t1 t2 d : Ast.term) (cases : nat -> list term -> Core.Templa
                           l' <- monad_map_i (insert_params FUEL Params) (skipn params l) ;;
                           t <- cases i l' ;; ret (args, t)) L ;; 
   ret (tCase (ind, params) (tLambda nAnon t1 t2) d
-                                                body).
+             body).
 
 Definition L_facts_mp := MPfile ["L_facts"; "Util"; "L"; "Undecidability"].
 
@@ -69,12 +69,12 @@ Definition tmGenEncode (n : ident) (A : Type) : TemplateMonad unit :=
   n2 <- tmEval cbv ((n ++ "_inj"));;
   i <- Core.tmLemma n2  (injective (@enc_f _ e)) ;;
   n3 <- tmEval cbv ("registered_" ++ n) ;;
-  d <- Core.tmDefinition n3  (@mk_registered A e p i);;
-  tmExistingInstance (ConstRef (modpath, n3)) ;;
+  d <- tmInstanceRed n3 None (@mk_registered A e p i);;
   m <- tmMatchCorrect A;;
   n4 <- tmEval cbv (n ++ "_correct") ;;
   (Core.tmBind (tmMatchCorrect A) (fun m => tmLemma n4 m ;; ret tt)).
 
+(*
 Definition tmGenEncode' (n : ident) (A : Type) :=
   e <- tmEncode n A;;
   modpath <- tmCurrentModPath tt ;;
@@ -83,13 +83,12 @@ Definition tmGenEncode' (n : ident) (A : Type) :=
   n2 <- tmEval cbv ((n ++ "_inj"));;
   i <- Core.tmLemma n2  (injective (@enc_f _ e)) ;;
   n3 <- tmEval cbv ("registered_" ++ n) ;;
-  d <- Core.tmDefinition n3  (@mk_registered A e p i);;
-  tmExistingInstance (ConstRef (modpath, n3));;
-  m <- tmMatchCorrect A ;; ret tt.
+  d <- tmInstanceRed n3 None  (@mk_registered A e p i);;
+  m <- tmMatchCorrect A ;; ret tt. *)
 
 (* TODO : use other methode instead, e.g. with typeclasses, as default obligation tactic is very fragile *)
 Global Obligation Tactic := try fold (injective (enc_f)); match goal with
-                           | [ |- forall x : ?X, proc ?f ] => register_proc
+                           | [ |- forall x : ?X, proc ?f ] => try register_proc
                            | [ |- injective ?f ] => register_inj
                            | [ |- context [_ >(<= _) _] ] => extract match
                            end || Tactics.program_simpl.

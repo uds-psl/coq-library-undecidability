@@ -69,7 +69,6 @@ Proof.
       * now constructor; auto.
 Qed.
 
-(*MOVE*)
 Lemma list_eq_nth_error X (xs ys : list X) :
   (forall n, nth_error xs n = nth_error ys n) -> xs = ys.
 Proof.

@@ -83,6 +83,23 @@ Proof.
   induction l;cbn;nia.
 Qed.
 
+Lemma sumn_le_in n xs: n el xs -> n <= sumn xs.
+Proof.
+  induction xs. easy. intros [ | ]. now cbn;nia.
+  cbn;etransitivity. apply IHxs. easy. nia.
+Qed.
+
+Lemma sumn_concat xs: sumn (concat xs) = sumn (map sumn xs).
+Proof.
+  induction xs;cbn. easy. etransitivity. apply sumn_app. nia.
+Qed.
+
+
+Lemma sumn_repeat c n: sumn (repeat c n) = c * n.
+Proof.
+  induction n;cbn. all:nia.
+Qed.
+
 Definition maxl := fold_right max 0.
 Lemma maxl_leq n l: n el l -> n <= maxl l.
 Proof.

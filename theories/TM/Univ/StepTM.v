@@ -22,6 +22,8 @@ Section Graph.
 
   Variable (A : finType) (B : Type) (f : A -> B).
 
+  Set Default Proof Using "Type".
+
   Definition graph_of_fun : list (A*B) := map (fun x => (x, f x)) enum.
 
   Lemma graph_of_fun_functional x y1 y2 :
@@ -318,7 +320,8 @@ Section Univ.
       TM_Correct.
       eapply RealiseIn_Realise; apply ResetEmpty1_Sem with (cX := Encode_map Encode_bool retr_sigCurrentStateFinal_sig). }
     {
-      intros tin ([], tout) H. cbn. intros q s0 s1 HEncQ HRight. TMSimp. rename H into HWriteValue, H0 into HConstrPair, H1 into HReset.
+      intros tin ([], tout) H. cbn. intros q s0 s1 HEncQ HRight. TMSimp.
+      rename H into HWriteValue, H0 into HConstrPair, H2 into HReset.
       modpon HWriteValue. unfold tape_contains in HWriteValue. modpon HConstrPair. modpon HReset. auto.
     }
   Qed.
@@ -391,9 +394,9 @@ Section Univ.
       unfold containsState_size in *.
       modpon HCase. cbn in *.
       destruct HIf; TMSimp.
-      - modpon H. modpon H0. repeat split; auto. unfold containsState_size. contains_ext. congruence.
+      - modpon H. modpon H1. repeat split; auto. unfold containsState_size. contains_ext. congruence.
         unfold Constr_pair_size, CasePair_size0. cbn. lia.
-      - modpon H. modpon H0. repeat split; auto. unfold containsState_size. contains_ext. congruence.
+      - modpon H. modpon H1. repeat split; auto. unfold containsState_size. contains_ext. congruence.
         unfold Constr_pair_size, CasePair_size0. cbn. lia.
     }
   Qed.
@@ -413,10 +416,10 @@ Section Univ.
       intros tin k (M&q&HEncQ&HRight&Hk). unfold IsFinal_steps in Hk.
       exists (CasePair_steps (halt q)), (1 + CaseFin_steps + SetFinal_steps). repeat split; try lia.
       { hnf. cbn. eexists. split. simpl_surject. unfold containsState in HEncQ. eauto. cbn. reflexivity. }
-      intros tmid [] (HCasePair&HCasePairInj); TMSimp. modpon HCasePair. cbn in *.
+      intros tmid_ [] (HCasePair&HCasePairInj); TMSimp. modpon HCasePair. cbn in *.
       { unfold containsState in *. cbn in *. simpl_surject. contains_ext. }
       exists (CaseFin_steps), (SetFinal_steps). repeat split; try lia.
-      intros tmid0 ymid0 (HCaseFin&HCaseFinInj); TMSimp. modpon HCaseFin. subst.
+      intros tmid0_ ymid0 (HCaseFin&HCaseFinInj); TMSimp. modpon HCaseFin. subst.
       destruct (halt q).
       - hnf. cbn. eexists. repeat split. contains_ext. eauto. reflexivity.
       - hnf. cbn. eexists. repeat split. contains_ext. eauto. reflexivity.
@@ -561,16 +564,19 @@ Section Univ.
     }
     {
       intros tin (yout, tout) H. cbn. intros M tp q s1 s2 sr HEncTp HEncM HEncQ HRight.
+      specialize (HRight Fin0) as H';cbn in H'. 
+      specialize (HRight Fin1) as H1';cbn in H1'. 
+      specialize (HRight Fin2) as H2';cbn in H2'. 
       destruct H; TMSimp.
       { (* Halting state *)
-        unfold Univ_Step_size. 
+        unfold Univ_Step_size.
         modpon H. rewrite <- H1. repeat split; eauto.
         - intros i; destruct_fin i; TMSimp_goal; auto.
-          all: cbn. all: apply HRight.
+          all: cbn. all:easy.
       }
       { (* Not a halting state *)
-        rename H into HIsFinal, H0 into HReadCurrent, H1 into HConstrPair, H2 into HReset, H3 into HLookup,
-        H4 into HCaseResult, H5 into HDoAction, H6 into HTranslate.
+        rename H into HIsFinal, H1 into HReadCurrent, H3 into HConstrPair, H5 into HReset, H7 into HLookup,
+        H9 into HCaseResult, H11 into HDoAction, H13 into HTranslate.
         unfold Univ_Step_size in *.
         modpon HIsFinal. rewrite <- HIsFinal1.
         modpon HReadCurrent.
@@ -579,7 +585,8 @@ Section Univ.
         modpon HReset.
         specialize (HLookup (graph_of_TM M)).
         modpon HLookup.
-        rewrite lookup_graph in HLookup. destruct (trans (q, [|current tp|])) as [q' acts] eqn:E. destruct ymid; auto; modpon HLookup.
+        rewrite lookup_graph in HLookup. destruct (trans (q, [|current tp|])) as [q' acts] eqn:E.
+        destruct ymid; auto; modpon HLookup.
         unfold Univ_Step_size in *.
         unfold step; cbn; unfold current_chars; cbn. rewrite E. simpl_vector. cbn.
         specialize (HCaseResult (acts[@Fin0], (halt q', index q'))). modpon HCaseResult. modpon HDoAction.
@@ -668,11 +675,13 @@ Section Univ.
     }
     {
       intros tin k. intros (M&tp&q&HEncTp&HEncM&HEncQ&HRight&Hk). unfold Univ_Step_steps in Hk.
+      specialize (HRight Fin0) as H';cbn in H'. 
+      specialize (HRight Fin1) as H1';cbn in H1'. 
+      specialize (HRight Fin2) as H2';cbn in H2'. 
       exists (IsFinal_steps (halt q)), (Univ_Step_steps_IsFinal q tp). repeat split; try lia.
-      { hnf; cbn. do 3 eexists; repeat split; eauto. apply HRight. }
-      intros tmid ymid (HIsFinal&HIsFinalInj); TMSimp. modpon HIsFinal; eauto.
+      { hnf; cbn. do 3 eexists; repeat split; eauto. }
+      intros tmid_ ymid (HIsFinal&HIsFinalInj); TMSimp. modpon HIsFinal; eauto.
       { unfold containsState, containsState_size in *. contains_ext. }
-      { apply isRight_isRight_size; auto. }
       subst. unfold Univ_Step_steps_IsFinal. destruct (halt q).
       { (* halting state *) eauto. }
       { (* no halting state *)
@@ -680,29 +689,30 @@ Section Univ.
         exists (ReadCurrent'_steps),
         (5 + Univ_Step_steps_ConstrPair tp + Univ_Step_steps_ResetSymbol tp +
          Univ_Step_steps_Lookup q tp + Univ_Step_steps_CasePair acts[@Fin0] + DoAction'_steps + Univ_Step_steps_Translate q'). repeat split; try lia.
-        intros tmid0 [] (HReadCurrent&HReadCurrentInj); TMSimp. modpon HReadCurrent.
-        exists (Univ_Step_steps_ConstrPair tp),
+        intros tmid0_ [] (HReadCurrent&HReadCurrentInj); TMSimp. modpon HReadCurrent.
+        eexists (Univ_Step_steps_ConstrPair tp),
         (4 + Univ_Step_steps_ResetSymbol tp +
-         Univ_Step_steps_Lookup q tp + Univ_Step_steps_CasePair acts[@Fin0] + DoAction'_steps + Univ_Step_steps_Translate q'). repeat split; try lia.
+         Univ_Step_steps_Lookup q tp + Univ_Step_steps_CasePair (o,m)
+         + DoAction'_steps + Univ_Step_steps_Translate q'). repeat split; try lia.
         { hnf; cbn. eexists; repeat split; eauto. simpl_surject. eauto. }
-        intros tmid1 [] (HConstrPair&HConstrPairInj); TMSimp.
+        intros tmid1_ [] (HConstrPair&HConstrPairInj); TMSimp.
         specialize (HConstrPair (current tp) (halt q, index q)). modpon HConstrPair.
-        exists (Univ_Step_steps_ResetSymbol tp), (3 + Univ_Step_steps_Lookup q tp + Univ_Step_steps_CasePair acts[@Fin0] + DoAction'_steps + Univ_Step_steps_Translate q'). repeat split; try lia.
+        exists (Univ_Step_steps_ResetSymbol tp),
+        (3 + Univ_Step_steps_Lookup q tp + Univ_Step_steps_CasePair (o,m) + DoAction'_steps + Univ_Step_steps_Translate q'). repeat split; try lia.
         { eexists. repeat split; eauto. }
-        intros tmid2 [] (HReset&HResetInj); TMSimp. modpon HReset.
-        exists (Univ_Step_steps_Lookup q tp), (2 + Univ_Step_steps_CasePair acts[@Fin0] + DoAction'_steps + Univ_Step_steps_Translate q'). repeat split; try lia.
+        intros tmid2_ [] (HReset&HResetInj); TMSimp. modpon HReset.
+        exists (Univ_Step_steps_Lookup q tp),
+        (2 + Univ_Step_steps_CasePair (o,m) + DoAction'_steps + Univ_Step_steps_Translate q'). repeat split; try lia.
         { hnf; cbn. eexists. exists (current tp, (halt q, index q)). repeat split; simpl_surject; eauto. }
-        intros tmid3 ymid3 (HLookup&HLookupInj); TMSimp. modpon HLookup.
+        intros tmid3_ ymid3 (HLookup&HLookupInj); TMSimp. modpon HLookup.
         { simpl_surject. unfold containsTrans in *. contains_ext. }
-        { simpl_surject. apply isRight_isRight_size; eauto. }
-        { simpl_surject. apply isRight_isRight_size; eauto. }
         rewrite lookup_graph in HLookup. cbn in *. rewrite E in HLookup.
         destruct ymid3; auto. modpon HLookup.
-        exists (Univ_Step_steps_CasePair acts[@Fin0]), (1 + DoAction'_steps + Univ_Step_steps_Translate q'). repeat split; try lia.
-        { hnf; cbn. exists (acts[@Fin0], (halt q', index q')). repeat split; simpl_surject; eauto. }
-        intros tmid4 [] (HCasePair&HCasePairInj); TMSimp. modpon HCasePair. cbn in *.
+        exists (Univ_Step_steps_CasePair (o,m)), (1 + DoAction'_steps + Univ_Step_steps_Translate q'). repeat split; try lia.
+        { hnf; cbn. exists ((o,m), (halt q', index q')). repeat split; simpl_surject; eauto. }
+        intros tmid4_ [] (HCasePair&HCasePairInj); TMSimp. modpon HCasePair. cbn in *.
         exists (DoAction'_steps), (Univ_Step_steps_Translate q'). repeat split; try lia.
-        intros tmid5  [] (HDoAction&HDoActionInj); TMSimp. modpon HDoAction.
+        intros tmid5_  [] (HDoAction&HDoActionInj); TMSimp. modpon HDoAction.
         { hnf; cbn. exists (halt q', index q'). split; auto. }
       }
     }

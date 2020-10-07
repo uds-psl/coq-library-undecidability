@@ -48,9 +48,9 @@ lazymatch _s with
 end.
 
 Ltac allVarsSubstL vars :=
-lazymatch eval hnf in vars with
+lazymatch vars with
 | [] => idtac
-| ?x::?vars'' => allVarsSubstL vars'';try subst x
+| ?x::?vars'' => try subst x;allVarsSubstL vars''
 end.
 
 Ltac allVars' vars _s :=
@@ -98,13 +98,15 @@ Ltac vm_hypo :=
     | H: ?s == ?t |- _ => revert H;try vm_hypo;intros H; vm_compute in H
   end.
 
-Ltac ProcPhi' vars H := let eq := fresh "eq" in (exfalso;exact H) || (destruct H as [eq|H];[rewrite <-eq;repeat allVarsSubstL vars;Lproc|ProcPhi' vars H]).
-
-
 Ltac ProcPhi vars := 
   let H := fresh "H" in
   let s := fresh "s" in
-  apply liftPhi_correct;intros s H;ProcPhi' vars H.
+  apply liftPhi_correct,Forall_forall;allVarsSubstL vars;
+  repeat
+    lazymatch goal with
+    | |- Forall _ (@nil _) => solve [simple apply Forall_nil]
+    | |- _ => simple apply Forall_cons;[Lproc| ]
+    end .
 
 (* solve goals of shape s >(?l) ?t for evars ?l, ?t!*)
 Ltac simplify_L' n:=
@@ -114,25 +116,25 @@ Ltac simplify_L' n:=
     lazymatch goal with
       |- ?s >(_) _ =>
       let vars:= allVars s in
-      let vars' := fresh "vars'" in
-      pose (vars':=vars);
+  (*    let vars' := fresh "vars'" in
+     pose (vars':=vars); *)
       let s' := reifyTerm vars s in
       let phi := fresh "phi" in
       pose (phi := Reflection.liftPhi vars);
       let pp := fresh "pp" in
       let cs := fresh "cs" in
-      assert (pp:Reflection.Proc phi) by (ProcPhi vars');
-      assert (cs :Reflection.rClosed phi s') by (apply Reflection.rClosed_decb_correct;[exact pp|vm_compute;reflexivity]);
+      assert (pp:Reflection.Proc phi) by (ProcPhi vars;shelve);
+      assert (cs :Reflection.rClosed phi s') by (simple apply Reflection.rClosed_decb_correct;[exact pp|vm_cast_no_check (@eq_refl bool true) ]);
       let R := fresh "R" in
       assert (R:= Reflection.rStandardizeUsePow n pp cs);
       let eq := fresh "eq" in
       let s'' := fresh "s''" in
-      remember ( Reflection.rCompSeval n (0, Reflection.rCompClos (s') [])) as s'' eqn:eq in R;
-      vm_compute in eq;
-      rewrite eq in R; lazy -[rho pow phi Reflection.liftPhi] in R;
+      set (s'':= Reflection.rCompSeval n (0, Reflection.rCompClos (s') [])) in R;
+      vm_compute in (value of s'');
+      subst s''; lazy -[rho pow phi Reflection.liftPhi] in R;
       lazy [phi Reflection.liftPhi nth] in R;
       (*repeat allVarsSubstL vars';*)      
-      clear vars' eq s'' cs phi pp; exact R
+      clear (*vars' eq *) cs phi pp; exact  R
     end
   end.
 

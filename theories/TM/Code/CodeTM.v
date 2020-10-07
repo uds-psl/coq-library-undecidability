@@ -169,6 +169,11 @@ Section Fix_Sig.
       sizeOfTape t <= 2 + s + size _ x.
     Proof. intros (rs&->&H). cbn. simpl_list; cbn. simpl_list; cbn. unfold size. lia. Qed.
 
+    Lemma sizeOfTape_tape_contains_size (t : tape (sig^+)) (x:X) s :
+      tape_contains_size t x s ->
+      size _ x <= sizeOfTape t.
+    Proof. intros (rs&->&H). cbn. simpl_list; cbn. simpl_list; cbn. unfold size. lia. Qed.
+
   End Tape_Contains.
 
   Arguments tape_contains {sigX X cX} (I t x) : simpl never.

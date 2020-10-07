@@ -42,9 +42,9 @@ Section finType_eqb.
     unfold enc;cbn.
     extract. unfold eqbTime.
     solverec. 
-    [c]:exact (c__eqbComp nat + 2).
+    [c]:exact (c__eqbComp nat + 8).
     rewrite !size_nat_enc.
-    all:unfold c;try nia. 
+    all:unfold c, c__natsizeO;try nia. 
   Qed.
 
 (*  
@@ -65,7 +65,8 @@ Qed.
 Lemma size_finType_le (X:finType) (x:X):
   size (enc (registered := registered_finType) x) <= length (elem X) * 4.
 Proof.
-  rewrite enc_finType_eq,size_nat_enc. specialize (index_le x). lia.
+  rewrite enc_finType_eq,size_nat_enc. specialize (index_le x). 
+  unfold c__natsizeS, c__natsizeO. lia.
 Qed.
 
 

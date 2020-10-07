@@ -82,6 +82,21 @@ Proof.
    +destruct H2 as [[]|]. all:easy.
 Qed.
 
+Lemma lookup_sound (A: Type) (B: Type) eqbA `{eqbClass (X:=A) eqbA} (L : list (A * B)) a b def : 
+  (forall a' b1 b2, (a', b1) el L -> (a', b2) el L -> b1 = b2) -> (a, b) el L -> lookup a L def = b.
+Proof. 
+  intros H1 H2. induction L; cbn; [ destruct H2 | ]. 
+  destruct a0 as [a0 b0]. specialize (H a a0) as Heqb. apply reflect_iff in Heqb.
+  unfold EqBool.eqb. 
+  destruct eqbA. 
+  - specialize (proj2 Heqb eq_refl) as ->.
+    destruct H2 as [H2 | H2]; [easy | ].
+    apply (H1 a0); easy.
+  - assert (not (a = a0)). { intros ->. easy. }
+    destruct H2 as [H2 | H2]; [ congruence | ].
+    apply IHL in H2; [easy | intros; now eapply H1]. 
+Qed. 
+
 Lemma lookup_complete (A: Type) (B: Type) eqbA `{eqbClass (X:=A) eqbA} (L : list (prod A B)) a def :
   {(a,lookup a L def) el L } + {~(exists b, (a,b) el L) /\ lookup a L def  = def}.
 Proof.
@@ -94,3 +109,20 @@ Proof.
    +split. 2:easy.
     now intros (?&[]). 
 Qed.
+
+
+Section finFun.
+  Context (X : finType) Y {reg__X:registered X} {reg__Y:registered Y}.
+  Context {eqbX : X -> X -> bool} `{eqbClass X eqbX} `{@eqbCompT X _ eqbX _}.
+    
+  Lemma finFun_computableTime_const (f:X -> Y) (d:Y):
+    {c & computableTime' f (fun _ _ => (c,tt))}.
+  Proof.
+    evar (c:nat). exists c.
+    apply computableTimeExt with (x:= (fun c => lookup c (funTable f) d )).
+    { cbn. intros ?. now rewrite lookup_funTable. }
+    extract.
+    solverec. rewrite lookupTime_leq.
+    unfold funTable. rewrite map_length,size_finType_any_le. unfold c. reflexivity.
+  Qed.
+End finFun.

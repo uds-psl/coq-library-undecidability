@@ -29,19 +29,19 @@ Ltac fLproc :=intros;
 
 Ltac Lproc' :=
   lazymatch goal with
-  | |- lambda (match ?c with _ => _ end) => destruct c;now repeat Lproc'
+  | |- lambda (match ?c with _ => _ end) => destruct c
   | |- lambda (@enc ?t ?H ?x) => exact (proc_lambda (@proc_enc t H x))
   | |- lambda (@ext ?X ?tt ?x ?H) => exact (proc_lambda (@proc_ext X tt x H))
   | |- lambda (@extT ?X ?tt ?x _ ?H) => exact (proc_lambda (@proc_extT X tt x _ H))
   (*| |- lambda (@ext_ext ?X ?x ?H) => exact (proc_lambda (@proc_extT X tt x _))*)
-  | |- lambda _ => (apply proc_lambda;(trivial with nocore LProc || tauto)) || tauto || (eexists;reflexivity)
-  | |- rClosed ?phi _ => solve [apply rClosed_decb_correct;[assumption|vm_compute;reflexivity]]
-  | |- L_facts.closed _ => apply closed_dcl
-  | |- bound _  (match ?c with _ => _ end) => destruct c;now repeat Lproc'
+  | |- lambda _ => (simple apply proc_lambda;(trivial with nocore LProc || tauto)) || tauto || (eexists;reflexivity)
+  | |- rClosed ?phi _ => solve [simple apply rClosed_decb_correct;[assumption|vm_compute;reflexivity]]
+  | |- L_facts.closed _ => refine (proj2 (closed_dcl _) _)
+  | |- bound _  (match ?c with _ => _ end) => destruct c
   | |- bound _ (L.var _) => solve [constructor;lia]
   | |- bound _ (L.app _ _) => constructor
   | |- bound _ (L.lam _) => constructor
-  | |- bound _ (rho ?s) => apply rho_dcls
+  | |- bound _ (rho ?s) => simple apply rho_dcls
   | |- bound ?k (@ext ?X ?tt ?x ?H) =>
     exact (closed_dcl_x k (proc_closed (@proc_ext X tt x H)))
             | |- bound ?k (@extT ?X ?tt ?x _ ?H) =>
@@ -51,18 +51,20 @@ Ltac Lproc' :=
   | |- bound ?k (@enc ?t ?H ?x) =>
     exact (closed_dcl_x k (proc_closed (@proc_enc t H x)))
   | |- bound _ ?s => refine (closed_dcl_x _ _); (trivial with LProc || (apply proc_closed;trivial with LProc || tauto) || tauto )
+  | |- ?s => idtac s;fail 1000
   end.
 
 
 (* early abort for speed!*)
 
 Ltac Lproc :=
-  lazymatch goal with
+  repeat lazymatch goal with
   | |- proc (app _ _) => fail
-  | |- proc _ => split;[|now Lproc];Lproc
+  | |- proc _ => split;[|solve [Lproc]]
                                     
-  | |- closed _ => now (repeat Lproc')
+  | |- closed _ => solve [repeat Lproc']
                      
   | |- lambda (app _ _) => fail
-  | |- lambda _ => Lproc'
-  end.
+  | |- lambda _ => repeat Lproc'
+  | s := _ |- ?p ?s => unfold s
+         end.

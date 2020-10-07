@@ -160,13 +160,13 @@ Section MoveToSymbol.
     {
       eapply WhileInduction; intros; hnf in *.
       - destruct HLastStep as (H1&H2); TMSimp.
-        destruct (current tin[@Fin0]) as [s | ] eqn:E.
+        destruct (current _) as [s | ] eqn:E.
         + destruct (f s) eqn:E'; cbn in *; inv H2.
           rewrite MoveToSymbol_Fun_equation. rewrite E, E'. cbn. now apply MoveToSymbol_Step_true.
         + rewrite MoveToSymbol_Step_None; auto.
           now rewrite MoveToSymbol_Fun_equation, E.
       - destruct HStar as (H1&H2); TMSimp.
-        destruct (current tin[@Fin0]) as [s | ] eqn:E; cbn in *.
+        destruct (current _) as [s | ] eqn:E; cbn in *.
         + destruct (f s) eqn:E'; cbn in *; inv H2.
           erewrite MoveToSymbol_Step_false; eauto. eapply MoveToSymbol_skip; eauto.
         + inv H2.
@@ -201,12 +201,12 @@ Section MoveToSymbol.
       exists 3. repeat split.
       - reflexivity.
       - intros ymid tmid. intros H. destruct ymid as [()| ]; TMSimp.
-        + destruct (current tin[@Fin0]) eqn:E; TMSimp; auto.
+        + destruct (current _) eqn:E; TMSimp; auto.
           * destruct (f e) eqn:Ef; inv H0. rewrite MoveToSymbol_steps_equation in HT. rewrite E, Ef in HT. lia.
           * rewrite MoveToSymbol_steps_equation in HT. rewrite E in HT. lia.
-        + destruct (current tin[@Fin0]) eqn:E.
+        + destruct (current _) eqn:E.
           * destruct (f e) eqn:Ef; inv H0. rewrite MoveToSymbol_steps_equation in HT. rewrite E, Ef in HT.
-            exists (MoveToSymbol_steps (doAct tin[@Fin0] (Some (g e), Rmove))). cbn.
+            eexists (MoveToSymbol_steps (doAct _ (Some (g e), Rmove))). cbn.
             split.
             -- unfold MoveToSymbol_Step_Fun. rewrite E, Ef. cbn. reflexivity.
             -- rewrite <- HT. cbn. lia.

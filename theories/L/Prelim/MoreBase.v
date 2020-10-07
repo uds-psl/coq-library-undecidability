@@ -24,6 +24,11 @@ Proof.
   apply mult_le_compat. all:eauto. 
 Qed.
 
+Instance pow_le_proper : Proper (le ==> eq ==> le) Nat.pow.
+Proof.
+  cbv - [Nat.pow]. intros. subst. apply Nat.pow_le_mono_l. easy.
+Qed.
+
 
 Instance max_le_proper : Proper (le ==> le ==> le) max.
 repeat intro. repeat eapply Nat.max_case_strong;lia.
