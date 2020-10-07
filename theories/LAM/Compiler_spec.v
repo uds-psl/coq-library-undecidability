@@ -9,12 +9,13 @@ Import L.L TM.TM.
 Require Import List.
 Import ListNotations.
 
+Definition encListTM {Σ : Type} (s b : Σ) (l : list bool) :=
+  (map (fun (x : bool) => (if x then s else b)) l).
 
 Definition encTM {Σ : Type} (s b : Σ) (l : list bool) :=
-  @midtape Σ [] b (map (fun (x : bool) => (if x then s else b)) l).
+  @midtape Σ [] b (encListTM s b l).
 
 Import VectorNotations.
-
 
 Definition TM_computable {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
   exists n : nat, exists Σ : finType, exists s b : Σ, s <> b /\ 
@@ -35,6 +36,13 @@ Definition TM_computable_rel {k} (R : Vector.t (list bool) k -> (list bool) -> P
     exists f,
       TerminatesIn (projT1 M) (fun t i => exists v m, R v m /\ t = (Vector.map (encTM s b) v ++ [niltape]) ++ Vector.const niltape n /\ i >= f k v).
 
+Definition TM₁_computable {k} (Σ : finType) (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
+  exists s1 s2 b : Σ, s1 <> s2 /\ s1 <> b /\ s2 <> b /\
+  exists M : TM Σ 1,
+  forall v : Vector.t (list bool) k, 
+  (forall m, R v m <-> exists q, TM.eval M (start M) [midtape [] b (Vector.fold_right (fun l s => encListTM s1 s2 l ++ s)%list v List.nil)] q [encTM s1 s2 m]) /\
+  (forall q t, TM.eval M (start M) [midtape [] b (Vector.fold_right (fun l s => encListTM s1 s2 l ++ s)%list v List.nil)] q t ->
+          exists m, t = [encTM s1 s2 m]).
       
 Definition encL (l : list bool) := list_enc l.
 

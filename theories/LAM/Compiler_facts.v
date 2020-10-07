@@ -13,7 +13,6 @@ From Undecidability Require Import L.L TM.TM.
 Require Import List.
 Import ListNotations.
 
-
 Import VectorNotations.
 
 From Undecidability.LAM Require Import Compiler_spec.
@@ -110,6 +109,77 @@ Proof.
   induction v1; cbn; congruence.
 Qed.
 
+Lemma Vector_in_app {X n1 n2} (x : X) (v1 : Vector.t X n1) (v2 : Vector.t X n2):
+  Vector.In x (v1 ++ v2) <-> Vector.In x v1 \/ Vector.In x v2.
+Proof.
+  induction v1; cbn.
+  - firstorder. inversion H.
+  - split.
+    + intros [-> | H] % In_cons.
+      * left. econstructor.
+      * eapply IHv1 in H as [ | ]; eauto. left. now econstructor.
+    + intros [ [ -> | ] % In_cons | ]; econstructor; intuition.
+Qed.
+
+From Equations.Prop Require Import DepElim.
+
+Lemma Vector_dupfree_app {X n1 n2} (v1 : Vector.t X n1) (v2 : Vector.t X n2) :
+  VectorDupfree.dupfree (v1 ++ v2) <-> VectorDupfree.dupfree v1 /\ VectorDupfree.dupfree v2 /\ forall x, Vector.In x v1 -> Vector.In x v2 -> False.
+Proof.
+  induction v1; cbn.
+  - firstorder. econstructor. inversion H0.
+  - split.
+    + intros [] % VectorDupfree.dupfree_cons. repeat split.
+      * econstructor. intros ?. eapply H0. eapply Vector_in_app. eauto. eapply IHv1; eauto.
+      * eapply IHv1; eauto.
+      * intros ? [-> | ?] % In_cons ?.
+        -- eapply H0. eapply Vector_in_app. eauto.
+        -- eapply IHv1; eauto.
+    + intros (? & ? & ?). econstructor. 2:eapply IHv1; repeat split.
+      * intros [? | ?] % Vector_in_app.
+        -- eapply VectorDupfree.dupfree_cons in H as []. eauto.
+        -- eapply H1; eauto. econstructor.
+      * eapply VectorDupfree.dupfree_cons in H as []. eauto.
+      * eauto.
+      * intros. eapply H1. econstructor 2. eauto. eauto.
+Qed.
+
+Lemma dupfree_help k n : VectorDupfree.dupfree (Fin.L n (Fin.R k Fin0) :: tabulate (fun x : Fin.t n => Fin.R (k + 1) x) ++ tabulate (fun x : Fin.t k => Fin.L n (Fin.L 1 x))).
+Proof.
+  econstructor. intros [ [i Hi % (f_equal (fun x => proj1_sig (Fin.to_nat x)))] % in_tabulate | [i Hi % (f_equal (fun x => proj1_sig (Fin.to_nat x)))] % in_tabulate ] % Vector_in_app.
+  3: eapply Vector_dupfree_app; repeat split.
+  + rewrite Fin.L_sanity, !Fin.R_sanity in Hi. cbn in Hi. lia.
+  + rewrite !Fin.L_sanity, !Fin.R_sanity in Hi. destruct (Fin.to_nat i); cbn in *; lia.
+  + eapply dupfree_tabulate_injective. eapply Fin_R_fillive.
+  + eapply dupfree_tabulate_injective. intros. eapply Fin_L_fillive. eapply Fin_L_fillive. eassumption.
+  + intros ? (? & ?) % in_tabulate (? & ?) % in_tabulate. subst.
+    eapply (f_equal (fun H => proj1_sig (Fin.to_nat H))) in H0. rewrite Fin.R_sanity, !Fin.L_sanity in H0.
+    destruct Fin.to_nat, Fin.to_nat. cbn in *. lia.
+Qed.
+
+Lemma Vector_map_tabulate {k X Y} (f : X -> Y) g :
+  Vector.map f (tabulate (n := k) g) = tabulate (fun x => f (g x)).
+Proof.
+  induction k; cbn.
+  - reflexivity.
+  - f_equal. eapply IHk.
+Qed.
+
+Lemma Vector_tabulate_const {n X} (c : X) f :
+  (forall n, f n = c) ->
+  tabulate f = const c n.
+Proof.
+  induction n; cbn.
+  - reflexivity.
+  - intros. rewrite H. f_equal. eapply IHn. intros. eapply H.
+Qed.
+
+Lemma const_at n X (c : X) i :
+  (const c n)[@i] = c.
+Proof.
+  induction i; cbn; eauto.
+Qed.
+
 Lemma TM_computable_rel'_spec k R :
   functional R ->
   @TM_computable_rel' k R -> TM_computable R.
@@ -119,27 +189,30 @@ Proof.
   exists n, Σ, s, b. split. exact Hdiff.
   eexists (LiftTapes M (Fin.L n (Fin.R k Fin0) :::  tabulate (n := n) (fun x => Fin.R (k + 1) x) ++ (tabulate (n := k) (fun x => Fin.L n (Fin.L 1 x))))).
   split.
-  - eapply Realise_monotone. eapply LiftTapes_Realise. admit. eapply H1.
-    intros tps [[] tps'] H v ->.
+  - eapply Realise_monotone. eapply LiftTapes_Realise. eapply dupfree_help.
+    eapply H1. intros tps [[] tps'] H v ->.
     cbn in H. destruct H as [H H'].
     destruct (H v) as (m & Hm1 & Hm2).
     + f_equal.
       * rewrite Vector_nth_L, Vector_nth_R. reflexivity.
-      * admit.
+      * rewrite Vector_map_app. rewrite !Vector_map_tabulate. f_equal.
+        -- eapply Vector_tabulate_const. intros. now rewrite Vector_nth_R, const_at.
+        -- clear. induction v; cbn.
+           ++ reflexivity.
+           ++ f_equal. eapply IHv. 
     + exists m. split. 2:eassumption. erewrite nth_error_to_list, Hm1. reflexivity.
       rewrite Fin.L_sanity, Fin.R_sanity. cbn. lia.
   - exists f. eapply TerminatesIn_monotone.
-    eapply LiftTapes_Terminates. admit. eapply H2.
+    eapply LiftTapes_Terminates. eapply dupfree_help. eapply H2.
     intros tps i (v & m & HR & -> & Hf); subst.
     exists v, m. split. eauto. split; try eassumption.
     { unfold select. clear. cbn. f_equal.
       now rewrite Vector_nth_L, Vector_nth_R.
       rewrite Vector_map_app. f_equal.
-      - admit.
-      - admit.
+      - rewrite !Vector_map_tabulate. eapply Vector_tabulate_const. intros. now rewrite Vector_nth_R, const_at.
+      - clear. rewrite Vector_map_tabulate.  induction v; cbn. reflexivity. f_equal. eapply IHv.
     }
-Admitted.
-
+Qed.
 
 Fixpoint encL' (l : list bool) :=
   match l with
