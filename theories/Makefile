@@ -1,19 +1,20 @@
 all: Makefile.coq
-	+make -f Makefile.coq all
+	export TIMED
+	$(MAKE) -f Makefile.coq all
 
 html: Makefile.coq
-	+make -f Makefile.coq html
+	$(MAKE) -f Makefile.coq html
 	mv html/*.html ../website
 	rm -rf html
 
 install: Makefile.coq
-	+make -f Makefile.coq install
+	$(MAKE) -f Makefile.coq install
 
 uninstall: Makefile.coq
-	+make -f Makefile.coq uninstall
+	$(MAKE) -f Makefile.coq uninstall
 
 clean: Makefile.coq
-	+make -f Makefile.coq clean
+	$(MAKE) -f Makefile.coq clean
 	rm -f Makefile.coq Makefile.coq.conf
 
 Makefile.coq: _CoqProject
@@ -24,4 +25,4 @@ Makefile.coq: _CoqProject
 dummy:
 
 %.vo: Makefile.coq dummy
-	+make -f Makefile.coq $@
+	$(MAKE) -f Makefile.coq $@
