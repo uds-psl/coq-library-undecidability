@@ -311,6 +311,7 @@ TM/Code/CaseBool.v
 TM/Code/NatTM.v
 TM/Code/ListTM.v
 TM/Code/List/App.v
+TM/Code/List/Concat_Repeat.v
 TM/Code/List/Cons_constant.v
 TM/Code/List/Length.v
 TM/Code/List/Nth.v
@@ -446,6 +447,7 @@ L/AbstractMachines/FlatPro/Programs.v
 L/AbstractMachines/FlatPro/ProgramsDef.v
 L/AbstractMachines/FlatPro/LM_heap_def.v
 L/AbstractMachines/FlatPro/LM_heap_correct.v
+TM/L/Boollist_to_Enc.v
 
 L/Computability/Acceptability.v
 #L/Computability/AD.v

@@ -366,6 +366,24 @@ Section MoveToSymbol_Sem.
   - rewrite MoveToSymbol_correct_midtape; auto. rewrite <- !app_assoc. reflexivity.
   Qed.
 
+  Lemma MoveToSymbol_correct_midtape_end tl c tr :
+    (forall x, List.In x (c::tr) -> stop x = false) ->
+    let t' := (MoveToSymbol_Fun stop f (midtape tl c tr)) in
+    (
+      left t'= rev (map f tr) ++ [f c]++tl
+        /\ tape_local t' = []). 
+  Proof.
+    revert c tl. revert tr. cbn. 
+    refine (@size_induction _ (@length sig) _ _); intros [ | c' tr'] IH; intros.
+    all:rewrite MoveToSymbol_Fun_equation.
+    all:cbn.
+    all:erewrite (H c);[ |now eauto].
+    - rewrite MoveToSymbol_Fun_equation;cbn. easy. 
+    - edestruct IH as (IH1&IH2).
+     3:rewrite IH1,IH2. solve [cbn;nia]. solve [intros;apply H;eauto]. 
+     autorewrite with list;cbn. easy. 
+  Qed.
+
   Corollary MoveToSymbol_L_correct t str1 str2 x :
   (forall x, List.In x str1 -> stop x = false) ->
   (stop x = true) ->

@@ -250,3 +250,32 @@ End Lenght.
 
 Arguments Length_steps {sigX X cX} : simpl never.
 Arguments Length_size {sigX X cX} : simpl never.
+
+From Undecidability.L.Complexity Require Import UpToC.
+
+Section Length_steps_nice.
+
+  Variable (sigX X : Type) (cX : codable sigX X). 
+
+  Lemma Length_Loop_steps_nice :
+    Length_Loop_steps <=c size _ .
+  Proof.
+    evar (c:nat). exists (1+max CaseList_steps_nil c). setoid_rewrite Encode_list_hasSize.
+    induction x. all:cbn. nia.
+    rewrite IHx. ring_simplify. 
+    set (c1:=Init.Nat.max CaseList_steps_nil c * Encode_list_size cX x).
+    set (c2:=Encode_list_size cX x).
+    unfold Reset_steps,CaseList_steps_cons.
+    unify ?c (24+16+8+4+ Constr_S_steps +2). nia.
+  Qed. 
+
+  Lemma Length_steps_nice :
+    Length_steps <=c size _.
+  Proof.
+    unfold Length_steps. smpl_upToC.
+    -apply upToC_le. setoid_rewrite (Encode_list_hasSize _). apply Encode_list_hasSize_ge1.
+    -upToC_le_solve.
+    -apply Length_Loop_steps_nice.
+  Qed. 
+
+End Length_steps_nice.

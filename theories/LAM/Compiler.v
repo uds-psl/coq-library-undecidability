@@ -30,7 +30,7 @@ Section APP_right.
     (LiftTapes (WriteValue (encode [appT]%list)) [|Fin1|]);;
     App_Commands.
 
-  Lemma APP_right_realise :
+  Lemma APP_right_realises :
     Realise APP_right (fun t '(r, t') =>
     forall s1 s2 : L.term,
     t[@Fin0] ≃ compile s1
@@ -49,25 +49,64 @@ Section APP_right.
 
 End APP_right.
 
+From Undecidability Require Import TM.L.Boollist_to_Enc.
+From Undecidability Require Import encTM_boolList.
+
+
 Section mk_init_one.
 
   Variable Σ : finType.
 
   Variable s b : Σ^+.
-  Context {H : codable Σ (list Tok)}.
+  Variable (retr_pro : Retract sigPro Σ).
+  Variable (retr_list : Retract (sigList bool) Σ).
 
-  Definition M_init_one : pTM (Σ) ^+ unit 3. Admitted.
+  Variable (H_disj : s <> b).
 
-  Lemma M_init_one_realise :
+
+   (* Tapes: 
+       0: bs (input, encTM)
+       1: ter (input) 
+       2: intern, bs als listBool
+       3: intern 
+       4: intern 
+       5: intern 
+     *)
+  
+
+  Definition M_init_one : pTM (Σ) ^+ unit 6:= 
+    encTM2boolList.M s retr_list @[|Fin0;Fin3|];;
+    Rev _ ⇑ retr_list @ [|Fin3;Fin2;Fin4|];;
+    BoollistToEnc.M retr_list retr_pro @[|Fin2;Fin3;Fin4;Fin5|];;
+    APP_right ⇑ retr_pro  @[|Fin1;Fin3|].
+
+  Lemma M_init_one_realises :
     Realise M_init_one (fun t '(r, t') =>
-                          forall (n:list bool) (ter : L.term),
-                            t[@Fin0] = encTM s b n ->
-                            (* isVoid (t[@Fin1]) -> *)
-                            (* isVoid (t[@Fin2]) -> *)
+                          forall (bs:list bool) (ter : L.term),
+                            t[@Fin0] = encTM s b bs ->
                             t[@Fin1] ≃ compile ter ->
-                            t'[@Fin1] ≃ compile (L.app ter (encL' n))
-                       ).
-  Admitted.
+                            isVoid (t[@Fin2]) ->
+                            isVoid (t[@Fin3]) ->
+                            isVoid (t[@Fin4]) ->
+                            isVoid (t[@Fin5]) ->
+                            t'[@Fin0] = t[@Fin0] 
+                            /\ t'[@Fin1] ≃ compile (L.app ter (encL bs))
+                            /\ isVoid (t[@Fin2])/\ isVoid (t[@Fin3])/\ isVoid (t[@Fin4])/\ isVoid (t[@Fin5])).
+  Proof using H_disj.
+    eapply Realise_monotone.
+    {
+      unfold M_init_one. TM_Correct.
+      -apply encTM2boolList.Realises. exact H_disj.
+      -apply Rev_Realise.      
+      -apply BoollistToEnc.Realises.     
+      -apply APP_right_realises.
+      (* -apply Reset_Realise with (X:=Pro). *)
+    }
+    intros ? [] ? bs s2. TMSimp.
+    modpon H. modpon H0. modpon H2. modpon H4.
+    rewrite rev_involutive in H4.
+    easy.  
+  Qed.  
 
 End  mk_init_one.
 
@@ -184,10 +223,10 @@ Section main.
 
   Variable Hs1 : (forall v, forall m : list bool,
    R v m <->
-   L.eval (Vector.fold_left (fun (s0 : term) (n : list bool) => L.app s0 (encL' n)) s v) (encL m)).
+   L.eval (Vector.fold_left (fun (s0 : term) (n : list bool) => L.app s0 (encL n)) s v) (encL m)).
 
   Variable Hs2 : (forall v, forall o : term,
-                     L.eval (Vector.fold_left (n := k) (fun (s0 : term) (n : list bool) => L.app s0 (encL' n)) s v) o ->
+                     L.eval (Vector.fold_left (n := k) (fun (s0 : term) (n : list bool) => L.app s0 (encL n)) s v) o ->
                      exists m : list bool, o = encL m).
 
   Axiom todo : forall {A : Type}, A.
@@ -293,7 +332,7 @@ Proof.
   intros H. 
   eapply TM_computable_rel'_spec.
   eapply L_computable_function; eauto.
-  eapply L_computable'_spec in H as [sim Hsim].
+  destruct H as [sim Hsim].
   exists n_main, Σ, sym_s, sym_b. split. eapply syms_diff. exists (M_main k sim). split.
   - eapply Realise_monotone. { eapply M_main_realise. }
     intros t [[] t'] H v ->.

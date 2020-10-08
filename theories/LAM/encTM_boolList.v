@@ -153,20 +153,36 @@ Section Fix.
       all:try solve contains_ext.
       all:exfalso;congruence.
   Qed. 
-
-  (*
   
-  Definition M : pTM (Σ) ^+ unit 3. Admitted.
+  Definition M : pTM (Σ) ^+ unit 2 :=
+    (MoveToSymbol (fun _ => false) (fun x => x);;Move Lmove) @ [|Fin0|];;
+    WriteValue (encode (X:=list bool) nil ) ⇑ retr_list @ [|Fin1|];;
+    M__loop.
 
-  Theorem Realises :
+  Theorem Realises (H__neq : s <> b):
     Realise M (fun t '(r, t') =>
                      forall (l : list bool),
                         t[@Fin0] = encTM s b l ->
                         isVoid t[@Fin1] ->
-                        isVoid (t[@Fin2]) ->
-                        t'[@Fin1] ≃ l
-                        /\ (isVoid (t'[@Fin0]) /\ isVoid (t'[@Fin2]))).
-  Admitted.
-  *)
+                        t[@Fin0] = t'[@Fin0]
+                        /\ t'[@Fin1] ≃ l).
+  Proof.  
+    eapply Realise_monotone.
+    {
+      unfold M. TM_Correct. now apply Realises__loop. 
+    }
+    intros ? []. TMSimp.
+    specialize (@MoveToSymbol_correct_midtape_end _ (fun _ => false)
+    (fun x => x) [] b (encListTM s b l)) as (H1'&H2'). easy.
+    unfold encTM in *. specialize (H0 []%list). modpon H0. specialize (H3 (rev l) nil). 
+    cbn in *. remember (MoveToSymbol_Fun _ _ _) as t'.
+    destruct t'. 4:discriminate.
+    1,2:solve [symmetry in H1';apply app_eq_nil in H1' as[? [=]]].
+    cbn in *. unfold encListTM in *.
+    rewrite rev_involutive,map_map,map_app,map_rev in *.
+    autorewrite with list in *.
+    modpon H3. split. all:easy.
+  Qed.
+
 End Fix.
 End encTM2boolList.

@@ -144,6 +144,24 @@ Proof.
       * intros. eapply H1. econstructor 2. eauto. eauto.
 Qed.
 
+
+Lemma Fin_L_fillive (n m : nat) (i1 i2 : Fin.t n) :
+  Fin.L m i1 = Fin.L m i2 -> i1 = i2.
+Proof.
+  induction n as [ | n' IH].
+  - dependent destruct i1.
+  - dependent destruct i1; dependent destruct i2; cbn in *; auto; try congruence.
+    apply Fin.FS_inj in H. now apply IH in H as ->.
+Qed.
+
+Lemma Fin_R_fillive (n m : nat) (i1 i2 : Fin.t n) :
+  Fin.R m i1 = Fin.R m i2 -> i1 = i2.
+Proof.
+  induction m as [ | n' IH]; cbn.
+  - auto.
+  - intros H % Fin.FS_inj. auto.
+Qed.
+
 Lemma dupfree_help k n : VectorDupfree.dupfree (Fin.L n (Fin.R k Fin0) :: tabulate (fun x : Fin.t n => Fin.R (k + 1) x) ++ tabulate (fun x : Fin.t k => Fin.L n (Fin.L 1 x))).
 Proof.
   econstructor. intros [ [i Hi % (f_equal (fun x => proj1_sig (Fin.to_nat x)))] % in_tabulate | [i Hi % (f_equal (fun x => proj1_sig (Fin.to_nat x)))] % in_tabulate ] % Vector_in_app.
@@ -212,48 +230,4 @@ Proof.
       - rewrite !Vector_map_tabulate. eapply Vector_tabulate_const. intros. now rewrite Vector_nth_R, const_at.
       - clear. rewrite Vector_map_tabulate.  induction v; cbn. reflexivity. f_equal. eapply IHv.
     }
-Qed.
-
-Fixpoint encL' (l : list bool) :=
-  match l with
-  | nil => enc (@List.nil bool)
-  | b :: l => L.app (L.app (ext (@List.cons bool)) (ext b)) (encL' l)
-  end%list.
-
-Definition L_computable' {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
-  exists s, forall v : Vector.t (list bool) k, 
-      (forall m, R v m <-> L.eval (Vector.fold_left (fun s n => L.app s (encL' n)) s v) (encL m)) /\
-      (forall o, L.eval (Vector.fold_left (fun s n => L.app s (encL' n)) s v) o -> exists m, o = encL m).
-
-Lemma encL_encL' l :
-  encL' l >* encL l.
-Proof.
-  induction l.
-  - reflexivity.
-  - cbn. Lsimpl.
-Admitted.
-
-Lemma encL_encL'_fold_eval s t {k} (v : Vector.t (list bool) k) res :
-  s >* t ->
-  L.eval (Vector.fold_left (fun (s0 : term) (n : list bool) => L.app s0 (encL' n)) s v) res <->
-  L.eval (Vector.fold_left (fun (s0 : term) (n : list bool) => L.app s0 (encL n)) t v) res.
-Proof.
-  intros Hst.
-  induction v as [ | l k v IH] in s, t, Hst |- *; cbn.
-  - rewrite !eval_iff. split; intros []; split; eauto.
-    + eapply equiv_lambda. eauto. now rewrite <- Hst, H.
-    + now rewrite Hst.
-  - rewrite IH. reflexivity.
-    now rewrite encL_encL', Hst.
-Qed.
-
-Lemma L_computable'_spec k R :
-  @L_computable k R -> L_computable' R.
-Proof.
-  intros [s H]. exists s. intros v.
-  specialize (H v) as [H1 H2].
-  split.
-  - intros res. now rewrite H1, encL_encL'_fold_eval.
-  - intros res H. eapply encL_encL'_fold_eval in H. 2:reflexivity.
-    now eapply H2 in H.
 Qed.

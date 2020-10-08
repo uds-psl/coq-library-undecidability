@@ -246,3 +246,19 @@ End Append.
 Arguments App'_steps {sigX X cX} : simpl never.
 Arguments App'_size {sigX X cX} : simpl never.
 
+From Undecidability.L.Complexity Require Import UpToC.
+
+Section App_nice.
+  Variable (sigX X : Type) (cX : codable sigX X).
+
+  Local Arguments size {sig X cX}.
+
+  Lemma App'_steps_nice :
+    App'_steps <=c size.
+  Proof.
+    eexists (29+12). intros xs. unfold App'_steps.
+    rewrite Encode_list_hasSize. 
+    specialize (Encode_list_hasSize_ge1 _ xs). nia.
+  Qed.
+
+End App_nice.
