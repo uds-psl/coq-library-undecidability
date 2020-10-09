@@ -67,7 +67,7 @@ Proof.
   induction Ga as [ | A Ga IH ]; simpl; auto; intros De.
   intros H.
   apply in_ill1_cntr.
-  apply in_ill1_perm with (map ll_ban Ga ++ (!A::!A::De)).
+  apply in_ill1_perm with (‼Ga ++ (!A::!A::De)).
   + apply Permutation_sym.
     do 2 apply Permutation_cons_app; auto.
   + apply IH.
@@ -85,7 +85,7 @@ Proof.
   induction Ga as [ | A Ga IH ]; simpl; auto; intros De.
   intros H.
   apply in_ill4_cntr.
-  apply in_ill4_perm with (map ll_ban Ga ++ (!A::!A::De)).
+  apply in_ill4_perm with (‼Ga ++ (!A::!A::De)).
   + apply Permutation_sym.
     do 2 apply Permutation_cons_app; auto.
   + apply IH.
@@ -141,7 +141,7 @@ Qed.
 
 Section trivial_phase_semantics.
 
-  Variables (n : nat) (s : ll_vars -> vec nat n -> Prop).
+  Variables (n : nat) (s : ill_vars -> vec nat n -> Prop).
 
   Reserved Notation "'⟦' A '⟧'" (at level 65).
 
@@ -160,12 +160,10 @@ Section trivial_phase_semantics.
     exists a, b; auto.
   Qed.
 
-  (* Symbols for cut&paste ⟙   ⟘   𝝐  ﹠ ⊗  ⊕  ⊸  ❗   ‼  ∅  ⊢ ⟦ ⟧ Γ Δ Σ*)
-
   Fixpoint ill_tps A x : Prop :=
     match A with
       | £ X     => s X x
-      | A ﹠ B  => ⟦A⟧ x /\ ⟦B⟧ x
+      | A & B   => ⟦A⟧ x /\ ⟦B⟧ x
       | !A      => ⟦A⟧ x /\ x = vec_zero
       | A ⊸ B   => (⟦A⟧ -* ⟦B⟧) x
       | A ⊗ B   => (⟦A⟧ ** ⟦B⟧) x

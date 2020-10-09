@@ -12,7 +12,7 @@ Require Import List.
 Require Import Undecidability.Synthetic.Undecidability.
 
 From Undecidability.ILL
-  Require Import EILL ILL CLL ill eill cll.
+  Require Import EILL ILL CLL ill eill ill_cll schellinx.
 
 Theorem EILL_CLL_cf_PROVABILITY : EILL_PROVABILITY ⪯ CLL_cf_PROVABILITY.
 Proof.

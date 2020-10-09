@@ -15,41 +15,38 @@ Set Implicit Arguments.
 
 Local Infix "~p" := (@Permutation _) (at level 70).
 
-Definition ll_vars := nat.
-
 (** We consider four fragments of ILL:
-    - the (!,-o,&) fragment wit or without cut
+    - the (!,-o,&) fragment with or without cut
     - full fragment with or without cut
 *)
 
-Inductive ll_conn := ll_with | ll_limp | ll_times | ll_plus.
-Inductive ll_cst := ll_one | ll_bot | ll_top.
+Notation ill_vars := nat.
 
-Inductive ll_form : Set :=
-  | ll_var  : ll_vars -> ll_form
-  | ll_zero : ll_cst  -> ll_form
-  | ll_ban  : ll_form -> ll_form
-  | ll_bin  : ll_conn -> ll_form -> ll_form -> ll_form.
+Inductive ill_connective := ill_with | ill_limp | ill_times | ill_plus.
+Inductive ill_constant := ill_1 | ill_bot | ill_top.
+
+Inductive ill_form : Set :=
+  | ill_var  : ill_vars -> ill_form
+  | ill_cst  : ill_constant -> ill_form
+  | ill_ban  : ill_form -> ill_form
+  | ill_bin  : ill_connective -> ill_form -> ill_form -> ill_form.
 
 (* Symbols for cut&paste ⟙   ⟘   𝝐  ﹠ ⊗  ⊕  ⊸  !   ‼  ∅  ⊢ *)
 
-Notation "⟙" := (ll_zero ll_top).
-Notation "⟘" := (ll_zero ll_bot).
-Notation "𝟙" := (ll_zero ll_one).
+Notation "⟙" := (ill_cst ill_top).
+Notation "⟘" := (ill_cst ill_bot).
+Notation "𝟙" := (ill_cst ill_1).
 
-Infix "&" := (ll_bin ll_with) (at level 50, only parsing).
-Infix "﹠" := (ll_bin ll_with) (at level 50).
-Infix "⊗" := (ll_bin ll_times) (at level 50).
-Infix "⊕" := (ll_bin ll_plus) (at level 50).
-Infix "⊸" := (ll_bin ll_limp) (at level 51, right associativity).
+Infix "&" := (ill_bin ill_with) (at level 50).
+Infix "⊗" := (ill_bin ill_times) (at level 50).
+Infix "⊕" := (ill_bin ill_plus) (at level 50).
+Infix "⊸" := (ill_bin ill_limp) (at level 51, right associativity).
 
-Notation "'!' x" := (ll_ban x) (at level 52).
+Notation "'!' x" := (ill_ban x) (at level 52).
 
-Notation "£" := ll_var.
+Notation "£" := ill_var.
 
-Definition ll_lbang := map (fun x => !x).
-
-Notation "‼ x" := (ll_lbang x) (at level 60).
+Notation "‼ x" := (map ill_ban x) (at level 60).
 
 Notation "∅" := nil (only parsing).
 
@@ -59,7 +56,7 @@ Section S_ill_restr_without_cut.
 
   (** These are the SILL rules in the CPP'19 paper w/o the cut *)
 
-  Inductive S_ill_restr : list ll_form -> ll_form -> Prop :=
+  Inductive S_ill_restr : list ill_form -> ill_form -> Prop :=
 
     | in_ill1_ax     : forall A,                        A::∅ ⊢ A
 
@@ -77,15 +74,15 @@ Section S_ill_restr_without_cut.
 
     | in_ill1_with_l1 : forall Γ A B C,               A::Γ ⊢ C 
                                            (*-----------------------------*)
-                                      ->           A﹠B::Γ ⊢ C
+                                      ->           A&B::Γ ⊢ C
 
     | in_ill1_with_l2 : forall Γ A B C,               B::Γ ⊢ C 
                                            (*-----------------------------*)
-                                      ->           A﹠B::Γ ⊢ C
+                                      ->           A&B::Γ ⊢ C
  
     | in_ill1_with_r : forall Γ A B,            Γ ⊢ A     ->   Γ ⊢ B
                                            (*-----------------------------*)
-                                      ->              Γ ⊢ A﹠B
+                                      ->              Γ ⊢ A&B
 
     | in_ill1_bang_l : forall Γ A B,                   A::Γ ⊢ B
                                            (*-----------------------------*)
@@ -111,7 +108,7 @@ Section S_ill_restr_with_cut.
 
   (** These are the SILL rules in the CPP'19 paper including the cut rule *)
 
-  Inductive S_ill_restr_wc : list ll_form -> ll_form -> Prop :=
+  Inductive S_ill_restr_wc : list ill_form -> ill_form -> Prop :=
 
     | in_ill2_ax     : forall A,                        A::∅ ⊢ A
 
@@ -133,15 +130,15 @@ Section S_ill_restr_with_cut.
 
     | in_ill2_with_l1 : forall Γ A B C,               A::Γ ⊢ C 
                                            (*-----------------------------*)
-                                      ->           A﹠B::Γ ⊢ C
+                                      ->           A&B::Γ ⊢ C
 
     | in_ill2_with_l2 : forall Γ A B C,               B::Γ ⊢ C 
                                            (*-----------------------------*)
-                                      ->           A﹠B::Γ ⊢ C
+                                      ->           A&B::Γ ⊢ C
  
     | in_ill2_with_r : forall Γ A B,            Γ ⊢ A     ->   Γ ⊢ B
                                            (*-----------------------------*)
-                                      ->              Γ ⊢ A﹠B
+                                      ->              Γ ⊢ A&B
 
     | in_ill2_bang_l : forall Γ A B,                   A::Γ ⊢ B
                                            (*-----------------------------*)
@@ -167,7 +164,7 @@ Section S_ill_without_cut.
 
   (** These are the rules for the whole ILL, without cut *)
 
-  Inductive S_ill : list ll_form -> ll_form -> Prop :=
+  Inductive S_ill : list ill_form -> ill_form -> Prop :=
 
     | in_ill3_ax     : forall A,                        A::∅ ⊢ A
 
@@ -185,15 +182,15 @@ Section S_ill_without_cut.
 
     | in_ill3_with_l1 : forall Γ A B C,               A::Γ ⊢ C 
                                            (*-----------------------------*)
-                                      ->           A﹠B::Γ ⊢ C
+                                      ->           A&B::Γ ⊢ C
 
     | in_ill3_with_l2 : forall Γ A B C,               B::Γ ⊢ C 
                                            (*-----------------------------*)
-                                      ->           A﹠B::Γ ⊢ C
+                                      ->           A&B::Γ ⊢ C
  
     | in_ill3_with_r : forall Γ A B,            Γ ⊢ A     ->   Γ ⊢ B
                                            (*-----------------------------*)
-                                      ->              Γ ⊢ A﹠B
+                                      ->              Γ ⊢ A&B
 
     | in_ill3_bang_l : forall Γ A B,                   A::Γ ⊢ B
                                            (*-----------------------------*)
@@ -249,7 +246,7 @@ Section S_ill_with_cut.
 
   (** These are the rules for the whole ILL, without cut *)
 
-  Inductive S_ill_wc : list ll_form -> ll_form -> Prop :=
+  Inductive S_ill_wc : list ill_form -> ill_form -> Prop :=
 
     | in_ill4_ax     : forall A,                        A::∅ ⊢ A
 
@@ -271,15 +268,15 @@ Section S_ill_with_cut.
 
     | in_ill4_with_l1 : forall Γ A B C,               A::Γ ⊢ C 
                                            (*-----------------------------*)
-                                      ->           A﹠B::Γ ⊢ C
+                                      ->           A&B::Γ ⊢ C
 
     | in_ill4_with_l2 : forall Γ A B C,               B::Γ ⊢ C 
                                            (*-----------------------------*)
-                                      ->           A﹠B::Γ ⊢ C
+                                      ->           A&B::Γ ⊢ C
  
     | in_ill4_with_r : forall Γ A B,            Γ ⊢ A     ->   Γ ⊢ B
                                            (*-----------------------------*)
-                                      ->              Γ ⊢ A﹠B
+                                      ->              Γ ⊢ A&B
 
     | in_ill4_bang_l : forall Γ A B,                   A::Γ ⊢ B
                                            (*-----------------------------*)
@@ -331,8 +328,8 @@ Section S_ill_with_cut.
 
 End S_ill_with_cut.
 
-Definition rILL_cf_PROVABILITY (c : (list ll_form) * ll_form) := let (Ga,A) := c in S_ill_restr Ga A.
-Definition rILL_PROVABILITY (c : (list ll_form) * ll_form) := let (Ga,A) := c in S_ill_restr_wc Ga A. 
+Definition rILL_cf_PROVABILITY (S : _*_) := let (Γ,A) := S in S_ill_restr Γ A.
+Definition rILL_PROVABILITY (S : _*_) := let (Γ,A) := S in S_ill_restr_wc Γ A. 
 
-Definition ILL_cf_PROVABILITY (c : (list ll_form) * ll_form) := let (Ga,A) := c in S_ill Ga A.
-Definition ILL_PROVABILITY (c : (list ll_form) * ll_form) := let (Ga,A) := c in S_ill_wc Ga A. 
+Definition ILL_cf_PROVABILITY (S : _*_) := let (Γ,A) := S in S_ill Γ A.
+Definition ILL_PROVABILITY (S : _*_) := let (Γ,A) := S in S_ill_wc Γ A. 

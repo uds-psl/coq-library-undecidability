@@ -12,7 +12,7 @@ Require Import List Permutation Arith.
 From Undecidability.Shared.Libs.DLW 
   Require Import utils pos vec.
 
-From Undecidability.ILL Require Import ILL EILL ill CLL cll.
+From Undecidability.ILL Require Import ILL EILL ill.
 
 Set Implicit Arguments.
 
@@ -21,9 +21,6 @@ Local Infix "~p" := (@Permutation _) (at level 70).
 (* Symbols for cut&paste ⟙   ⟘   𝝐  ﹠ ⊗  ⊕  ⊸  ❗   ‼  ∅  ⊢ ⟦ ⟧ Γ Δ Σ *)
 
 Notation "⦑ c ⦒" := (eill_cmd_map c) (at level 0).
-
-Fact eill_no_bot c : ~ ll_has_bot ⦑ c ⦒.
-Proof. induction c; simpl; tauto. Qed.
 
 Notation "Σ ; Γ ⊦ u" := (G_eill Σ Γ u) (at level 70, no associativity).
 
@@ -66,7 +63,7 @@ Proof.
     apply Permutation_app; auto.
     apply Permutation_map; auto.
   + rewrite <- map_map; apply S_ill_restr_weak_cntr with (1 := in_map _ _ _ H1); simpl.
-    unfold ll_lbang; rewrite map_map.
+    rewrite map_map.
     apply in_ill1_bang_l.
     apply in_ill1_perm with (((£ a ⊸ £ p) ⊸ £ q) :: ((map (fun c => !⦑c⦒) Si ++ map £ Ga) ++ nil)).
     * rewrite <- app_nil_end; auto.
@@ -77,14 +74,13 @@ Proof.
       simpl; apply Permutation_sym, Permutation_cons_app; auto.
   + rewrite <- map_map.
     apply S_ill_restr_cntr.
-    unfold ll_lbang; rewrite map_map.
+    rewrite map_map.
     rewrite <- map_map; apply S_ill_restr_weak_cntr with (1 := in_map _ _ _ H1); simpl; rewrite map_map.
     apply in_ill1_bang_l.
     rewrite map_app.
     apply in_ill1_perm with (£ p ⊸ £ q ⊸ £ r :: (map (fun c => !⦑c⦒) Si ++ map £ Ga) 
                                              ++ (map (fun c => !⦑c⦒) Si ++ map £ De)).
     * apply Permutation_cons; auto.
-      unfold ll_lbang; rewrite map_map.
       rewrite app_ass; apply Permutation_app; auto.
       do 2 rewrite <- app_ass; apply Permutation_app; auto.
       apply Permutation_app_comm.
@@ -94,7 +90,7 @@ Proof.
       - apply in_ill1_limp_l; auto.
         apply in_ill1_ax.
   + rewrite <- map_map; apply S_ill_restr_weak_cntr with (1 := in_map _ _ _ H1); simpl.
-    unfold ll_lbang; rewrite map_map.
+    rewrite map_map.
     apply in_ill1_bang_l.
     apply in_ill1_perm with (£ p & £ q ⊸ £ r :: ((map (fun c => !⦑c⦒) Si ++ map £ Ga) ++ nil)).
     * rewrite <- app_nil_end; auto.
@@ -105,7 +101,7 @@ Qed.
 
 Section TPS.
 
-  Variables (n : nat) (s : ll_vars -> vec nat n -> Prop) (rx : pos n -> ll_vars).
+  Variables (n : nat) (s : ill_vars -> vec nat n -> Prop) (rx : pos n -> ill_vars).
 
   Fact ill_tps_vec_map_list_mono : 
        (forall (p : pos n), s (rx p) (vec_one p)) 
@@ -155,13 +151,13 @@ End TPS.
 
 Section g_eill_complete_bound.
  
-  Variable (Σ : list eill_cmd) (Γ : list ll_vars) (n : nat).
+  Variable (Σ : list eill_cmd) (Γ : list eill_vars) (n : nat).
 
   Notation vars := (flat_map eill_cmd_vars Σ ++ Γ).
 
   (* This is a surjection from [0,n-1] into the vars of Si,Ga *)
 
-  Hypothesis (w : vec ll_vars n)
+  Hypothesis (w : vec eill_vars n)
              (w_surj : forall u, In u vars -> exists p, u = vec_pos w p).
 
   Let rx p := vec_pos w p.
@@ -252,7 +248,7 @@ End g_eill_complete_bound.
 
 Section g_eill_complete.
  
-  Variable (Σ : list eill_cmd) (Γ : list ll_vars).
+  Variable (Σ : list eill_cmd) (Γ : list eill_vars).
 
   Notation vars := (flat_map eill_cmd_vars Σ ++ Γ).
 
@@ -266,7 +262,7 @@ Section g_eill_complete.
   Proof. apply nat_sort_eq. Qed.
 
   Let n := length vv.
-  Let w : vec ll_vars n := proj1_sig (list_vec_full vv).
+  Let w : vec eill_vars n := proj1_sig (list_vec_full vv).
   Let Hw : vec_list w = vv.
   Proof. apply (proj2_sig (list_vec_full vv)). Qed.
 
@@ -277,7 +273,7 @@ Section g_eill_complete.
     revert Hu; apply vec_list_inv.
   Qed.
 
-  Variables (x : ll_vars)
+  Variables (x : eill_vars)
             (Hvalid : forall n s, @ill_sequent_tps n s (map (fun c => !⦑c⦒) Σ ++ map £ Γ) (£ x) vec_zero).
 
   Theorem G_eill_complete : Σ; Γ ⊦ x.
@@ -287,20 +283,31 @@ Section g_eill_complete.
 
 End g_eill_complete.
 
+From Undecidability.ILL Require Import CLL ill_cll.
+
+Fact eill_no_bot c : ~ ill_has_bot ⦑ c ⦒.
+Proof. induction c; simpl; tauto. Qed.
+
 (* eill is a fragment of ILL and G-eill is sound and complete for it *)
 
 Section correctness_results_for_the_reduction.
 
-  Variables (Σ : list eill_cmd) (Γ : list ll_vars) (u : nat).
-  Notation Σ' := (map (fun c => !⦑c⦒) Σ).
-  Notation Γ' := (map £ Γ).
+  Variables (Σ : list eill_cmd) (Γ : list eill_vars) (u : nat).
 
-  Theorem G_eill_correct : (Σ; Γ ⊦ u -> S_ill_restr (Σ'++Γ') (£u))
-                        /\ (S_ill_restr (Σ'++Γ') (£u) -> S_ill_restr_wc (Σ'++Γ') (£u))
-                        /\ (S_ill_restr (Σ'++Γ') (£u) -> S_ill (Σ'++Γ') (£u))
-                        /\ (S_ill_restr_wc (Σ'++Γ') (£u) -> S_ill_wc (Σ'++Γ') (£u))
-                        /\ (S_ill (Σ'++Γ') (£u) -> S_ill_wc (Σ'++Γ') (£u))
-                        /\ (S_ill_wc (Σ'++Γ') (£u) -> Σ; Γ ⊦ u).
+  Notation Σi := (map (fun c => ill_ban ⦑c⦒) Σ).
+  Notation Γi := (map ill_var Γ).
+  Notation ui := (ill_var u).
+
+  Notation Σc := (map (fun c => cll_una cll_bang [⦑c⦒]) Σ).
+  Notation Γc := (map cll_var Γ).
+  Notation uc := (cll_var u). 
+
+  Theorem G_eill_correct : (Σ; Γ ⊦ u -> S_ill_restr (Σi++Γi) ui)
+                        /\ (S_ill_restr (Σi++Γi) ui -> S_ill_restr_wc (Σi++Γi) ui)
+                        /\ (S_ill_restr (Σi++Γi) ui -> S_ill (Σi++Γi) ui)
+                        /\ (S_ill_restr_wc (Σi++Γi) ui -> S_ill_wc (Σi++Γi) ui)
+                        /\ (S_ill (Σi++Γi) ui -> S_ill_wc (Σi++Γi) ui)
+                        /\ (S_ill_wc (Σi++Γi) ui -> Σ; Γ ⊦ u).
   Proof.
     msplit 5.
     + apply G_eill_sound.
@@ -318,25 +325,25 @@ Section correctness_results_for_the_reduction.
  
    (* The reduction is correct for the cut-free (!,&,-o) fragment of ILL *)
 
-  Corollary G_eill_S_ill_restr : Σ; Γ ⊦ u <-> S_ill_restr (Σ'++Γ') (£u).
+  Corollary G_eill_S_ill_restr : Σ; Γ ⊦ u <-> S_ill_restr (Σi++Γi) ui.
   Proof. solve with 1 3. Qed.
 
   (* The reduction is correct for the (!,&,-o) fragment of ILL with cut *)
 
-  Corollary G_eill_S_ill_restr_wc : Σ; Γ ⊦ u <-> S_ill_restr_wc (Σ'++Γ') (£u).
+  Corollary G_eill_S_ill_restr_wc : Σ; Γ ⊦ u <-> S_ill_restr_wc (Σi++Γi) ui.
   Proof. solve with 2 2. Qed.
 
   (* The reduction is correct for cut-free ILL *)
 
-  Corollary G_eill_S_ill : Σ; Γ ⊦ u <-> S_ill (Σ'++Γ') (£u).
+  Corollary G_eill_S_ill : Σ; Γ ⊦ u <-> S_ill (Σi++Γi) ui.
   Proof. solve with 2 2. Qed.
 
   (* The reduction is correct for ILL *)
 
-  Corollary G_eill_S_ill_wc : Σ; Γ ⊦ u <-> S_ill_wc (Σ'++Γ') (£u).
+  Corollary G_eill_S_ill_wc : Σ; Γ ⊦ u <-> S_ill_wc (Σi++Γi) ui.
   Proof. solve with 3 1. Qed.
 
-  Theorem G_eill_S_cll : Σ; Γ ⊦ u <-> S_cll (Σ'++Γ') (£u::nil).
+  Theorem G_eill_S_cll : Σ; Γ ⊦ u <-> S_cll (Σc++Γc) (uc::nil).
   Proof.
     split.
     + rewrite G_eill_S_ill.
