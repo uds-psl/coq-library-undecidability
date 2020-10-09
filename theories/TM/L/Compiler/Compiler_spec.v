@@ -3,9 +3,7 @@ From Undecidability.L Require Import L Datatypes.Lists.
 Require Import PslBase.FiniteTypes.FinTypes PslBase.Vectors.Vectors.
 Require Import Vector List.
 
-Require Import Undecidability.TM.Util.TM_facts.
-
-Import L.L TM.TM.
+From Undecidability Require Import L.L TM.TM TM.Util.TM_facts.
 Require Import List.
 Import ListNotations.
 

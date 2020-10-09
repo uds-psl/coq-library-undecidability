@@ -10,6 +10,8 @@ Definition loopSum {X} {Y} :=
           end
   end.
 
+Arguments loopSum _ _ !_.
+
 Definition loopSum_mono X Y f x y n n':
   n <= n' -> @loopSum X Y n f x = Some y -> loopSum n' f x = Some y.
 Proof.

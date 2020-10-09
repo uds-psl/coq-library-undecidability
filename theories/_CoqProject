@@ -3,10 +3,11 @@
 -arg -w -arg -notation-overridden
 COQDOCFLAGS = "--charset utf-8 -s --with-header ../website/resources/header.html --with-footer ../website/resources/footer.html --index indexpage"
 
-LAM/Compiler_spec.v
-LAM/Compiler_facts.v
-LAM/Compiler.v
-LAM/encTM_boolList.v
+TM/L/Compiler/Compiler_spec.v
+TM/L/Compiler/Compiler_facts.v
+TM/L/Compiler/Compiler.v
+TM/L/UnfoldHeap.v
+TM/L/Compiler/encTM_boolList.v
 
 Shared/Prelim.v
 Shared/Dec.v
@@ -77,13 +78,14 @@ Shared/Libs/DLW/Code/compiler_correction.v
 Problems/Reduction.v
 
 # Abstract L simulator as Turing Machine
-L/AbstractMachines/TM_LHeapInterpreter/Alphabets.v
-L/AbstractMachines/TM_LHeapInterpreter/CaseCom.v
-L/AbstractMachines/TM_LHeapInterpreter/LookupTM.v
-L/AbstractMachines/TM_LHeapInterpreter/JumpTargetTM.v
+TM/L/Alphabets.v
+TM/L/CaseCom.v
+TM/L/LookupTM.v
+TM/L/Boollist_to_Enc.v
+TM/L/HeapInterpreter/JumpTargetTM.v
 #The following file takes very long, so we start it early for faster multi-core-compilation
-L/AbstractMachines/TM_LHeapInterpreter/StepTM.v
-L/AbstractMachines/TM_LHeapInterpreter/M_LHeapInterpreter.v
+TM/L/HeapInterpreter/StepTM.v
+TM/L/HeapInterpreter/M_LHeapInterpreter.v
 
 #Post correspondence problem
 PCP/PCP.v
@@ -447,7 +449,8 @@ L/AbstractMachines/FlatPro/Programs.v
 L/AbstractMachines/FlatPro/ProgramsDef.v
 L/AbstractMachines/FlatPro/LM_heap_def.v
 L/AbstractMachines/FlatPro/LM_heap_correct.v
-TM/L/Boollist_to_Enc.v
+L/AbstractMachines/FlatPro/UnfoldHeap.v
+
 
 L/Computability/Acceptability.v
 #L/Computability/AD.v

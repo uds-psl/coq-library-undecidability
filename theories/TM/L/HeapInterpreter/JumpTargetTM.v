@@ -1,8 +1,7 @@
 (** * Implementation of [ϕ] (aka SplitBody) *)
 
 From Undecidability Require Import TM.Code.ProgrammingTools LM_heap_def.
-From Undecidability.L.AbstractMachines.TM_LHeapInterpreter Require Import Alphabets.
-From Undecidability.L.AbstractMachines.TM_LHeapInterpreter Require Import CaseCom.
+From Undecidability.TM.L Require Import Alphabets CaseCom.
 From Undecidability Require Import TM.Code.ListTM TM.Code.CaseList TM.Code.CaseNat.
 
 Local Arguments plus : simpl never.

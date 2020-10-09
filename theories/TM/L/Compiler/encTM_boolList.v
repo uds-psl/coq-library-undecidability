@@ -8,7 +8,7 @@ Require Import Vector List.
 From Undecidability.TM.Compound Require Import MoveToSymbol WriteString.
 From Undecidability.TM.Code Require Import CaseBool CaseList Copy List.Cons_constant.
 
-From Undecidability.LAM Require Import Compiler_spec.
+From Undecidability.TM.L.Compiler Require Import Compiler_spec.
 
 Import ListNotations.
 Import VectorNotations.

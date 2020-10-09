@@ -9,7 +9,7 @@ From Undecidability.L.AbstractMachines Require Import FlatPro.Programs.
      
 Unset Printing Coercions.
 
-From Undecidability.L.AbstractMachines.TM_LHeapInterpreter Require Alphabets.
+From Undecidability.TM.L Require Alphabets.
 
 From Coq Require Import Lia Ring Arith.
 

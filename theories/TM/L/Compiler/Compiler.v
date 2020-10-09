@@ -6,7 +6,7 @@ Require Import Vector List.
 Require Import Undecidability.TM.Util.TM_facts.
 
 From Undecidability Require Import ProgrammingTools LM_heap_def WriteValue Copy ListTM  JumpTargetTM WriteValue.
-From Undecidability.L.AbstractMachines.TM_LHeapInterpreter Require Import Alphabets StepTM M_LHeapInterpreter.
+From Undecidability.TM.L Require Import Alphabets HeapInterpreter.StepTM M_LHeapInterpreter.
 From Undecidability Require Import TM.TM L.AbstractMachines.FlatPro.LM_heap_correct.
 
 From Undecidability Require Import L.L TM.TM.
@@ -16,7 +16,7 @@ Import ListNotations.
 
 Import VectorNotations.
 
-From Undecidability.LAM Require Import Compiler_spec Compiler_facts.
+From Undecidability.TM.L Require Import Compiler_spec Compiler_facts UnfoldHeap.
 
 Require Import Equations.Prop.DepElim.
 
@@ -156,33 +156,6 @@ Section mk_init.
 
 End mk_init.
 
-Section unfold.
-
-  Variable Σ : finType.
-  Context {Henc1 : codable Σ Heap}.
-  Context {Henc2 : codable Σ (list HClos)}.
-  Context {Henc3 : codable Σ term}.
-
-  Variable n : nat.
-
-  Variable i_g : Fin.t n.
-  Variable i_H : Fin.t n.
-  Variable o_t : Fin.t n.
-    
-  Definition M_unf : pTM (Σ) ^+ unit n. Admitted.
-
-  Theorem M_unf_realise :
-    Realise M_unf (fun t '(r, t') =>
-                     forall g, forall H : Heap, 
-                         t[@i_g] ≃ [g]%list ->
-                         t[@i_H] ≃ H ->
-                         exists t,
-                           reprC H g t /\
-                           t'[@o_t] ≃ t).
-  Admitted.
-
-End unfold.
-
 Section conv_output.
 
   Variable Σ : finType.
@@ -266,7 +239,7 @@ Section main.
         LiftTapes MK_isVoid [|aux Fin11 |] ;;
         LiftTapes MK_isVoid [|aux Fin12 |] ;;
         LiftAlphabet (LiftTapes Loop [| aux Fin0 ; aux Fin1 ; aux Fin2 ; aux Fin5 ; aux Fin6 ; aux Fin7 ; aux Fin8 ; aux Fin9 ; aux Fin10 ; aux Fin11 ; aux Fin12 |]) _ (inl UNKNOWN)  ;;
-        M_unf (aux Fin1) (aux Fin2) (aux Fin13);;
+        UnfoldHeap.M _ _ (aux Fin1) (aux Fin2) (aux Fin13);;
         (LiftTapes (M_out sym_s sym_b) [|(aux Fin13);Fin0|])
       ).
     all: exact todo.
@@ -285,7 +258,7 @@ Section main.
     {
       unfold M_main.
       TM_Correct.
-      all:eauto using M_init_rel, MK_isVoid_realise, Loop_Realise, M_unf_realise, M_out_realise.
+      all:eauto using M_init_rel, MK_isVoid_realise, Loop_Realise, UnfoldHeap.Realises, M_out_realise.
     }
     (* intros tin ([] & tout) H v ->. *)
     (* unfold n_main in *. cbn in tout. *)

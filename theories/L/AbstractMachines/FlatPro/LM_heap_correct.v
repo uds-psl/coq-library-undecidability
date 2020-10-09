@@ -4,9 +4,6 @@ From Undecidability.L Require Import LM_heap_def.
 Import Lia.
 (** ** Direct correctness proof  *)
 
-Inductive reprP : Pro -> term -> Prop :=
-  reprPC s : reprP (compile s) (lam s).
-
 (** *** Correctnes Heap-interaction *)
 
 Definition extended (H H' : Heap) := forall alpha m, nth_error H alpha = Some m -> nth_error H' alpha = Some m.
@@ -66,6 +63,29 @@ Inductive unfolds H a: nat -> term -> term -> Prop :=
     unfolds H a k s s' ->
     unfolds H a k t t' ->
     unfolds H a k (s t) (s' t').
+
+Definition unfolds_ind' (H : Heap) (P : HAdd -> nat -> term -> term -> Prop)
+(f : forall (a : HAdd) (k n : nat), n < k -> P a k n n)
+(f0 : forall (a : HAdd) (k : nat) (b : HAdd) (P0 : list Tok) 
+      (s s' : term) (n : nat),
+      n >= k ->
+      lookup H a (n - k) = Some (b, P0) ->
+      P0 = compile s -> unfolds H b 1 s s' -> P b 1 s s' -> P a k n (lam s'))
+(f1 : forall (a : HAdd) (k : nat) (s s' : term),
+      unfolds H a (S k) s s' -> P a (S k) s s' -> P a k (lam s) (lam s'))
+(f2 : forall (a : HAdd) (k : nat) (s t s' t' : term),
+      unfolds H a k s s' ->
+      P a k s s' -> unfolds H a k t t' -> P a k t t' -> P a k (s t) (s' t'))
+      : forall (a : HAdd) (n : nat) (t t0 : term),
+      unfolds H a n t t0 -> P a n t t0.
+Proof.
+  intros a n s t. induction t in a,n,s,t|-*;intros Ht.
+  all:inv Ht.
+  all:eauto.
+  -now inv H2.
+  -now inv H2.
+  -inv H2. inv H3. eapply f0. all:try reflexivity;try eassumption. eauto.   
+Qed.
 
 Lemma unfolds_bound H k s s' a:
   unfolds H a k s s'
