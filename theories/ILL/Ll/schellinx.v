@@ -52,9 +52,9 @@ Inductive cll_form : Set :=
   | cll_una  : cll_modality -> cll_form -> cll_form
   | cll_bin  : cll_connective -> cll_form -> cll_form -> cll_form.
 
-(* Symbols for cut&paste ⟙   ⟘  𝟙 ﹠ ⊗  ⊕  ⊸  ?   ‼  ∅  ⊢ ⟦ ⟧ Γ Δ Σ *)
-
 Section mapping_ill_to_cll.
+
+  (* Syntatic translations from/to ILL and CLL formulas *)
 
   Reserved Notation "[ f ]" (at level 1).
   Reserved Notation "⟨ f ⟩" (at level 1).
@@ -102,7 +102,7 @@ Section mapping_ill_to_cll.
       | _ => False
     end.
 
-  Fact ill_cll_ill f : ⟨[f]⟩= f.
+  Fact ill_cll_ill f : ⟨[f]⟩ = f.
   Proof. induction f as [ | [] | | [] ]; simpl; f_equal; auto. Qed.
 
   Fact cll_ill_cll f : from_ill f -> [⟨f⟩] = f.
@@ -113,13 +113,12 @@ Section mapping_ill_to_cll.
   Fact ill_cll_from_ill f : from_ill [f].
   Proof. induction f as [ | [] | | [] ]; simpl; tauto. Qed. 
 
-  Fixpoint cll_has_bot f := 
+  Fixpoint cll_has_bot_zero_neg f := 
     match f with
       | cll_var _ => False
-      | cll_cst cll_bot => True
-      | cll_una _ f => cll_has_bot f
-      | cll_bin _ f g => cll_has_bot f \/ cll_has_bot g
-      | _ => False
+      | cll_cst c => c = cll_bot \/ c = cll_0
+      | cll_una m f => m = cll_neg \/ cll_has_bot_zero_neg f
+      | cll_bin _ f g => cll_has_bot_zero_neg f \/ cll_has_bot_zero_neg g
     end.
 
   Fixpoint ill_has_bot f := 
@@ -131,13 +130,16 @@ Section mapping_ill_to_cll.
       | _ => False
     end.
 
-  Fact cll_ill_has_bot f : cll_has_bot f -> ill_has_bot ⟨f⟩.
-  Proof. induction f as  [ | [] | [] | [] ]; simpl; tauto. Qed.
+  Fact cll_ill_has_bot f : cll_has_bot_zero_neg f -> ill_has_bot ⟨f⟩.
+  Proof. 
+    induction f as  [ | [] | [] | [] ]; simpl; try tauto.
+    all: intros []; auto; discriminate. 
+  Qed.
 
-  Fact ill_cll_has_bot f : ill_has_bot f -> cll_has_bot [f].
+  Fact ill_cll_has_bot f : ill_has_bot f -> cll_has_bot_zero_neg [f].
   Proof. induction f as [ | [] | | [] ]; simpl; tauto. Qed.
 
-  Fact ill_cll_has_bot_eq f : ill_has_bot f <-> cll_has_bot [f].
+  Fact ill_cll_has_bot_eq f : ill_has_bot f <-> cll_has_bot_zero_neg [f].
   Proof.
     split.
     + apply ill_cll_has_bot.
@@ -146,170 +148,48 @@ Section mapping_ill_to_cll.
       now rewrite ill_cll_ill in H.
   Qed.
 
-  Fixpoint from_ill_no_bot f := 
-    match f with
-      | cll_var _ => True
-      | cll_cst cll_top => True
-      | cll_cst cll_1 => True
-      | cll_una cll_bang f => from_ill_no_bot f
-      | cll_bin cll_times f g => from_ill_no_bot f /\ from_ill_no_bot g
-      | cll_bin cll_with  f g => from_ill_no_bot f /\ from_ill_no_bot g
-      | cll_bin cll_plus  f g => from_ill_no_bot f /\ from_ill_no_bot g
-      | cll_bin cll_limp  f g => from_ill_no_bot f /\ from_ill_no_bot g
-      | _ => False
-    end.
-
-  Fact from_ill_no_bot_from_ill f : from_ill_no_bot f -> from_ill f.
-  Proof.
-    induction f as [ | [] | [] | [] ]; simpl; tauto.
-  Qed.
-
 End mapping_ill_to_cll.
 
-Section cut_free_cll.
+(* Symbols for cut&paste ⟙   ⟘  𝟙 ﹠ ⊗  ⊕  ⊸ ! ‼ ‽ ⁇ ∅  ⊢ *)
 
-  Notation "'£' x" := (cll_var x) (at level 1).
+(* These notations replace the ILL notations *)
 
-  Notation "⟙" := (cll_cst cll_top).
-  Notation "⟘" := (cll_cst cll_bot).
-  Notation "𝟙" := (cll_cst cll_1).
-  Notation "𝟘" := (cll_cst cll_0).
+(* Variables *)
 
-  Infix "&" := (cll_bin cll_with) (at level 50).
-  Infix "⅋" := (cll_bin cll_par) (at level 50).
-  Infix "⊗" := (cll_bin cll_times) (at level 50).
-  Infix "⊕" := (cll_bin cll_plus) (at level 50).
-  Infix "⊸" := (cll_bin cll_limp) (at level 51, right associativity).
+Notation "'£' x" := (cll_var x) (at level 1).
 
-  Notation "'!' x" := (cll_una cll_bang x) (at level 52).
-  Notation "'‽' x" := (cll_una cll_qmrk x) (at level 52).
+(* Constants *)
 
-  Notation "‼ x" := (map (cll_una cll_bang) x) (at level 60).
-  Notation "⁇ x" := (map (cll_una cll_qmrk) x) (at level 60).
+Notation "⟙" := (cll_cst cll_top).
+Notation "⟘" := (cll_cst cll_bot).
+Notation "𝟙" := (cll_cst cll_1).
+Notation "𝟘" := (cll_cst cll_0).
 
-  (* Symbols for cut&paste ⟙   ⟘   𝝐  ﹠ ⊗  ⊕  ⊸  ! ‼ ‽ ⁇ ∅  ⊢ *)
+(* Unary connectives: linear negation and modalities *)
+(* ? cannot be used because it is reserved by Coq so we use ‽ instead *)
 
-  Notation "∅" := nil.
+Notation "'⊖' x" := (cll_una cll_neg x) (at level 50, format "⊖ x").
+Notation "'!' x" := (cll_una cll_bang x) (at level 52).
+Notation "'‽' x" := (cll_una cll_qmrk x) (at level 52).
 
-  Reserved Notation "Γ '⊢c' Δ" (at level 70, no associativity).
+(* Binary connectives *)
 
-  (* All the rules of Cut-free CLL *)
+Infix "&" := (cll_bin cll_with) (at level 50).
+Infix "⅋" := (cll_bin cll_par) (at level 50).
+Infix "⊗" := (cll_bin cll_times) (at level 50).
+Infix "⊕" := (cll_bin cll_plus) (at level 50).
+Infix "⊸" := (cll_bin cll_limp) (at level 51, right associativity).
 
-  Inductive S_cll : list cll_form -> list cll_form -> Prop :=
+(* Modalities iterated over lists *)
 
-    | in_cll_ax    : forall A,                         A::∅ ⊢c A::∅
+Notation "‼ x" := (map (cll_una cll_bang) x) (at level 60).
+Notation "⁇ x" := (map (cll_una cll_qmrk) x) (at level 60).
 
-(*
-    | in_cll_cut   : forall Γ Δ Γ' Δ' A,       Γ ⊢c A::Δ    ->   A::Γ' ⊢c Δ'
-                                             (*-----------------------------*)    
-                                        ->           Γ++Γ' ⊢c Δ++Δ'
-*)
+(* The empty list *)
 
-    | in_cll_perm  : forall Γ Δ Γ' Δ',        Γ ~p Γ'  ->  Δ ~p Δ'  ->  Γ ⊢c Δ 
-                                             (*-----------------------------*)
-                                        ->              Γ' ⊢c Δ'
+Notation "∅" := nil.
 
-    | in_cll_limp_l : forall Γ Δ Γ' Δ' A B,   Γ ⊢c A::Δ      ->   B::Γ' ⊢c Δ'
-                                             (*-----------------------------*)    
-                                        ->         A ⊸ B::Γ++Γ' ⊢c Δ++Δ'
-
-    | in_cll_limp_r : forall Γ Δ A B,                 A::Γ ⊢c B::Δ
-                                             (*-----------------------------*)
-                                        ->            Γ ⊢c A ⊸ B::Δ
-
-    | in_cll_with_l1 : forall Γ Δ A B,                  A::Γ ⊢c Δ 
-                                             (*-----------------------------*)
-                                        ->           A&B::Γ ⊢c Δ
-
-    | in_cll_with_l2 : forall Γ Δ A B,                  B::Γ ⊢c Δ 
-                                             (*-----------------------------*)
-                                        ->           A&B::Γ ⊢c Δ
- 
-    | in_cll_with_r : forall Γ Δ A B,          Γ ⊢c A::Δ     ->   Γ ⊢c B::Δ
-                                             (*-----------------------------*)
-                                        ->              Γ ⊢c A&B::Δ
-
-    | in_cll_times_l : forall Γ A B Δ,               A::B::Γ ⊢c Δ 
-                                             (*-----------------------------*)
-                                        ->            A⊗B::Γ ⊢c Δ
- 
-    | in_cll_times_r : forall Γ Δ Γ' Δ' A B,   Γ ⊢c A::Δ    ->   Γ' ⊢c B::Δ'
-                                             (*-----------------------------*)
-                                        ->         Γ++Γ' ⊢c A⊗B::Δ++Δ'
-
-    | in_cll_par_l : forall Γ Δ Γ' Δ' A B,     A::Γ ⊢c Δ    ->   B::Γ' ⊢c Δ'
-                                             (*-----------------------------*)
-                                        ->         A⅋B::Γ++Γ' ⊢c Δ++Δ'
-
-    | in_cll_par_r : forall Γ A B Δ,                   Γ ⊢c A::B::Δ 
-                                             (*-----------------------------*)
-                                        ->             Γ ⊢c A⅋B::Δ
-
-    | in_cll_plus_l :  forall Γ A B Δ,          A::Γ ⊢c Δ  ->  B::Γ ⊢c Δ 
-                                             (*-----------------------------*)
-                                        ->          A⊕B::Γ ⊢c Δ
-
-    | in_cll_plus_r1 : forall Γ A B Δ,                  Γ ⊢c A::Δ  
-                                             (*-----------------------------*)
-                                        ->              Γ ⊢c A⊕B::Δ
-
-    | in_cll_plus_r2 : forall Γ A B Δ,                  Γ ⊢c B::Δ  
-                                             (*-----------------------------*)
-                                        ->              Γ ⊢c A⊕B::Δ
-
-    | in_cll_bot_l : forall Γ Δ,                     ⟘::Γ ⊢c Δ
-
-    | in_cll_top_r : forall Γ Δ,                        Γ ⊢c ⟙::Δ
-
-    | in_cll_unit_l : forall Γ Δ,                       Γ ⊢c Δ  
-                                             (*-----------------------------*)
-                                        ->           𝟙::Γ ⊢c Δ
-
-    | in_cll_unit_r :                                   ∅ ⊢c 𝟙::∅
-
-    | in_cll_zero_l :                        (*-----------------------------*)
-                                             (* *)      𝟘::∅ ⊢c ∅
-
-    | in_cll_zero_r : forall Γ Δ,                       Γ ⊢c Δ  
-                                             (*-----------------------------*)
-                                        ->              Γ ⊢c 𝟘::Δ
-
-
-    | in_cll_bang_l : forall Γ A Δ,                    A::Γ ⊢c Δ
-                                             (*-----------------------------*)
-                                        ->            !A::Γ ⊢c Δ
-
-    | in_cll_bang_r : forall Γ A Δ,                     ‼Γ ⊢c A::⁇Δ
-                                             (*-----------------------------*)
-                                        ->              ‼Γ ⊢c !A::⁇Δ
-
-    | in_cll_qmrk_l : forall Γ A Δ,                     A::‼Γ ⊢c ⁇Δ
-                                             (*-----------------------------*)
-                                        ->              ‽A::‼Γ ⊢c ⁇Δ
-
-    | in_cll_qmrk_r : forall Γ A Δ,                    Γ ⊢c A::Δ
-                                             (*-----------------------------*)
-                                        ->             Γ ⊢c ‽A::Δ
-
-    | in_cll_weak_l : forall Γ A Δ,                      Γ ⊢c Δ
-                                             (*-----------------------------*)
-                                        ->           !A::Γ ⊢c Δ
-
-    | in_cll_weak_r : forall Γ A Δ,                      Γ ⊢c Δ
-                                             (*-----------------------------*)
-                                        ->               Γ ⊢c ‽A::Δ
-
-    | in_cll_cntr_l : forall Γ A Δ,                !A::!A::Γ ⊢c Δ
-                                           (*-----------------------------*)
-                                        ->             !A::Γ ⊢c Δ
-
-    | in_cll_cntr_r : forall Γ A Δ,                    Γ ⊢c ‽A::‽A::Δ
-                                           (*-----------------------------*)
-                                        ->             Γ ⊢c ‽A::Δ
-
-  where "Γ ⊢c Δ" := (S_cll Γ Δ).
-
-End cut_free_cll.
+(* Some basic commutativity lemmas for the ILL <-> CLL translations over lists *)
 
 Notation "[ f ]" := (ill_cll f).
 Notation "⟨ f ⟩" := (cll_ill f).
@@ -322,14 +202,148 @@ Local Hint Resolve ill_cll_ill : core.
 Fact ill_cll_ill_list Γ : ⟪⟦Γ⟧⟫ = Γ.
 Proof. induction Γ; simpl; f_equal; auto. Qed.
 
-Fact ill_cll_lbang Γ : ⟦‼Γ⟧ = map (cll_una cll_bang) ⟦Γ⟧.
+Fact ill_cll_lbang Γ : ⟦map ll_ban Γ⟧ = ‼⟦Γ⟧.
 Proof. induction Γ; simpl; f_equal; auto. Qed.
 
-Fact cll_ill_lbang Γ : ⟪map (cll_una cll_bang) Γ⟫ = ‼⟪Γ⟫.
+Fact cll_ill_lbang Γ : ⟪‼Γ⟫ = map ll_ban ⟪Γ⟫.
 Proof. induction Γ; simpl; f_equal; auto. Qed.
 
-Local Notation "Γ '⊢i' A" := (S_ill Γ A) (at level 70, no associativity).
-Local Notation "Γ '⊢c' Δ" := (S_cll Γ Δ) (at level 70, no associativity).
+Section cut_free_cll.
+
+  (* All the rules of Cut-free CLL *)
+
+  Reserved Notation "Γ ⊢ Δ" (at level 70, no associativity).
+
+  Inductive S_cll : list cll_form -> list cll_form -> Prop :=
+
+    | in_cll_ax    : forall A,                         A::∅ ⊢ A::∅
+
+(*
+    | in_cll_cut   : forall Γ Δ Γ' Δ' A,        Γ ⊢ A::Δ    ->   A::Γ' ⊢ Δ'
+                                             (*-----------------------------*)
+                                        ->           Γ++Γ' ⊢ Δ++Δ'
+*)
+
+    | in_cll_perm  : forall Γ Δ Γ' Δ',        Γ ~p Γ'  ->  Δ ~p Δ'  ->  Γ ⊢ Δ 
+                                             (*-----------------------------*)
+                                        ->              Γ' ⊢ Δ'
+
+    | in_cll_neg_l :   forall Γ Δ A,                    Γ ⊢ A::Δ
+                                             (*-----------------------------*)
+                                        ->          ⊖A::Γ ⊢ Δ
+
+    | in_cll_neg_r :   forall Γ Δ A,                 A::Γ ⊢ Δ
+                                             (*-----------------------------*)
+                                        ->              Γ ⊢ ⊖A::Δ
+
+
+    | in_cll_limp_l : forall Γ Δ Γ' Δ' A B,   Γ ⊢ A::Δ      ->   B::Γ' ⊢ Δ'
+                                             (*-----------------------------*)
+                                        ->         A ⊸ B::Γ++Γ' ⊢ Δ++Δ'
+
+    | in_cll_limp_r : forall Γ Δ A B,                 A::Γ ⊢ B::Δ
+                                             (*-----------------------------*)
+                                        ->            Γ ⊢ A ⊸ B::Δ
+
+    | in_cll_with_l1 : forall Γ Δ A B,                  A::Γ ⊢ Δ 
+                                             (*-----------------------------*)
+                                        ->           A&B::Γ ⊢ Δ
+
+    | in_cll_with_l2 : forall Γ Δ A B,                  B::Γ ⊢ Δ 
+                                             (*-----------------------------*)
+                                        ->           A&B::Γ ⊢ Δ
+ 
+    | in_cll_with_r : forall Γ Δ A B,          Γ ⊢ A::Δ     ->   Γ ⊢ B::Δ
+                                             (*-----------------------------*)
+                                        ->              Γ ⊢ A&B::Δ
+
+    | in_cll_times_l : forall Γ A B Δ,               A::B::Γ ⊢ Δ 
+                                             (*-----------------------------*)
+                                        ->            A⊗B::Γ ⊢ Δ
+ 
+    | in_cll_times_r : forall Γ Δ Γ' Δ' A B,   Γ ⊢ A::Δ    ->   Γ' ⊢ B::Δ'
+                                             (*-----------------------------*)
+                                        ->         Γ++Γ' ⊢ A⊗B::Δ++Δ'
+
+    | in_cll_par_l : forall Γ Δ Γ' Δ' A B,     A::Γ ⊢ Δ    ->   B::Γ' ⊢ Δ'
+                                             (*-----------------------------*)
+                                        ->         A⅋B::Γ++Γ' ⊢ Δ++Δ'
+
+    | in_cll_par_r : forall Γ A B Δ,                   Γ ⊢ A::B::Δ 
+                                             (*-----------------------------*)
+                                        ->             Γ ⊢ A⅋B::Δ
+
+    | in_cll_plus_l :  forall Γ A B Δ,          A::Γ ⊢ Δ  ->  B::Γ ⊢ Δ 
+                                             (*-----------------------------*)
+                                        ->          A⊕B::Γ ⊢ Δ
+
+    | in_cll_plus_r1 : forall Γ A B Δ,                  Γ ⊢ A::Δ  
+                                             (*-----------------------------*)
+                                        ->              Γ ⊢ A⊕B::Δ
+
+    | in_cll_plus_r2 : forall Γ A B Δ,                  Γ ⊢ B::Δ  
+                                             (*-----------------------------*)
+                                        ->              Γ ⊢ A⊕B::Δ
+
+    | in_cll_bot_l : forall Γ Δ,                     ⟘::Γ ⊢ Δ
+
+    | in_cll_top_r : forall Γ Δ,                        Γ ⊢ ⟙::Δ
+
+    | in_cll_unit_l : forall Γ Δ,                       Γ ⊢ Δ  
+                                             (*-----------------------------*)
+                                        ->           𝟙::Γ ⊢ Δ
+
+    | in_cll_unit_r :                                   ∅ ⊢ 𝟙::∅
+
+    | in_cll_zero_l :                        (*-----------------------------*)
+                                             (* *)      𝟘::∅ ⊢ ∅
+
+    | in_cll_zero_r : forall Γ Δ,                       Γ ⊢ Δ  
+                                             (*-----------------------------*)
+                                        ->              Γ ⊢ 𝟘::Δ
+
+
+    | in_cll_bang_l : forall Γ A Δ,                    A::Γ ⊢ Δ
+                                             (*-----------------------------*)
+                                        ->            !A::Γ ⊢ Δ
+
+    | in_cll_bang_r : forall Γ A Δ,                     ‼Γ ⊢ A::⁇Δ
+                                             (*-----------------------------*)
+                                        ->              ‼Γ ⊢ !A::⁇Δ
+
+    | in_cll_qmrk_l : forall Γ A Δ,                     A::‼Γ ⊢ ⁇Δ
+                                             (*-----------------------------*)
+                                        ->              ‽A::‼Γ ⊢ ⁇Δ
+
+    | in_cll_qmrk_r : forall Γ A Δ,                    Γ ⊢ A::Δ
+                                             (*-----------------------------*)
+                                        ->             Γ ⊢ ‽A::Δ
+
+    | in_cll_weak_l : forall Γ A Δ,                      Γ ⊢ Δ
+                                             (*-----------------------------*)
+                                        ->           !A::Γ ⊢ Δ
+
+    | in_cll_weak_r : forall Γ A Δ,                      Γ ⊢ Δ
+                                             (*-----------------------------*)
+                                        ->               Γ ⊢ ‽A::Δ
+
+    | in_cll_cntr_l : forall Γ A Δ,                !A::!A::Γ ⊢ Δ
+                                             (*-----------------------------*)
+                                        ->             !A::Γ ⊢ Δ
+
+    | in_cll_cntr_r : forall Γ A Δ,                    Γ ⊢ ‽A::‽A::Δ
+                                             (*-----------------------------*)
+                                        ->             Γ ⊢ ‽A::Δ
+
+  where "Γ ⊢ Δ" := (S_cll Γ Δ).
+
+End cut_free_cll.
+
+(* Γ ⊢i A stands for the sequent Γ ⊢ A is cut-free ILL provable *)
+(* Γ ⊢c Δ stands for the sequent Γ ⊢ Δ is cut-free CLL provable *)
+
+Notation "Γ '⊢i' A" := (S_ill Γ A) (at level 70, no associativity).
+Notation "Γ '⊢c' Δ" := (S_cll Γ Δ) (at level 70, no associativity).
 
 Section ill_cll_is_sound.
 
@@ -365,39 +379,21 @@ Section ill_cll_is_sound.
 
 End ill_cll_is_sound.
 
-Tactic Notation "solve" "Forall" :=
-  repeat rewrite Forall_cons_inv in *;
-  repeat rewrite Forall_app in *; simpl in *; tauto.
-
 Section Schellinx_observation.
 
-  (* One cannot get a cut free proof of Γ ⊢c ∅ unless ⟘ occurs in Γ *)
+  (** This is an observation purely about cut-free CLL 
 
-  Notation "'£' x" := (cll_var x) (at level 1).
+      One cannot get a cut-free CLL proof of Γ ⊢ ∅ 
+      unless ⟘ or 𝟘 or a negation occurs in Γ *)
 
-  Notation "⟙" := (cll_cst cll_top).
-  Notation "⟘" := (cll_cst cll_bot).
-  Notation "𝟙" := (cll_cst cll_1).
-  Notation "𝟘" := (cll_cst cll_0).
-
-  Infix "&" := (cll_bin cll_with) (at level 50).
-  Infix "⅋" := (cll_bin cll_par) (at level 50).
-  Infix "⊗" := (cll_bin cll_times) (at level 50).
-  Infix "⊕" := (cll_bin cll_plus) (at level 50).
-  Infix "⊸" := (cll_bin cll_limp) (at level 51, right associativity).
-
-  Notation "'!' x" := (cll_una cll_bang x) (at level 52).
-  Notation "'‽' x" := (cll_una cll_qmrk x) (at level 52).
-
-  Notation "‼ x" := (map (cll_una cll_bang) x) (at level 60).
-  Notation "⁇ x" := (map (cll_una cll_qmrk) x) (at level 60).
-
-  Notation "∅" := nil.
-
-  Let schellinx_rec Γ Δ : Γ ⊢c Δ -> Δ = ∅ -> Forall from_ill Γ -> exists f, In f Γ /\ cll_has_bot f.
+  Let schellinx_rec Γ Δ : 
+               Γ ⊢c Δ 
+            -> Δ = ∅ 
+            -> exists f, In f Γ /\ cll_has_bot_zero_neg f.
   Proof.
     induction 1 as [ A                                                        (* ax *)
                    | Γ Δ Γ' Δ' H1 H2 H3 IH3                                   (* perm *)
+                   | Γ Δ A H1 IH1 | Γ Δ A H1 IH1                              (* negation *)
                    | Γ Δ Γ' Δ' A B H1 IH1 H2 IH2 | Γ Δ A B H1 IH1             (* -o *)
                    | Γ Δ A B H1 IH1 | Γ Δ A B H1 IH1 | Γ Δ A B H1 IH1 H2 IH2  (* & *)
                    | Γ A B Δ H1 IH1 | Γ Δ Γ' Δ' A B H1 IH1 H2 IH2             (* * *)
@@ -411,108 +407,93 @@ Section Schellinx_observation.
                    | Γ A Δ H1 IH1 |                                           (* weak *)
                    | Γ A Δ H1 IH1 | ];                                        (* cntr *)
               try discriminate.
-    + intros -> H'.
+    + intros ->.
       apply Permutation_sym, Permutation_nil in H2 as ->; auto.
       destruct IH3 as (f & G1 & G2); auto.
-      * revert H'; apply Permutation_Forall, Permutation_sym; auto.
-      * exists f; split; auto.
-        revert G1; now apply Permutation_in.
-    + intros H H'.
+      exists f; split; auto.
+      revert G1; now apply Permutation_in.
+    + intros ->; exists (⊖A); simpl; auto.
+    + intros H.
       app inv nil in H.
       destruct IH2 as (f & [ <- | ] & ?); auto.
-      * solve Forall.
       * exists (A ⊸ B); simpl; split; auto.
       * exists f; split; auto.
         right; apply in_or_app; tauto.
-    + intros -> H'.
+    + intros ->.
       destruct IH1 as (f & [ <- | ] & ?); auto.
-      * solve Forall.
       * exists (A&B); simpl; auto.
       * exists f; simpl; auto.
-    + intros -> H'.
+    + intros ->.
       destruct IH1 as (f & [ <- | ] & ?); auto.
-      * solve Forall.
       * exists (A&B); simpl; auto.
       * exists f; simpl; auto.
-    + intros -> H'.
+    + intros ->.
       destruct IH1 as (f & [ <- | [ <- | ] ] & ?); auto.
-      * solve Forall.
       * exists (A⊗B); simpl; auto.
       * exists (A⊗B); simpl; auto.
       * exists f; simpl; auto.
-    + intros H H'.
+    + intros H.
       app inv nil in H.
       destruct IH1 as (f & [ <- | ] & ?); auto.
-      * solve Forall.
       * exists (A⅋B); simpl; auto.
       * exists f; simpl; split; auto.
         rewrite in_app_iff; auto.
-    + intros -> H'. 
+    + intros ->. 
       destruct IH1 as (f & [ <- | ] & ?); auto.
-      * solve Forall.
       * exists (A⊕B); simpl; auto.
       * exists f; simpl; auto.
     + exists ⟘; simpl; auto.
-    + intros -> H'.
+    + intros ->.
       destruct IH1 as (f & ? & ?); auto.
-      * solve Forall. 
-      * exists f; simpl; auto.
-    + intros; solve Forall.
-    + intros -> H'.
+      exists f; simpl; auto.
+    + exists 𝟘; simpl; auto.
+    + intros ->.
       destruct IH1 as (f & [ <- | ] & ?); auto.
-      * solve Forall.
       * exists (!A); simpl; auto.
       * exists f; simpl; auto.
-    + destruct Δ; try discriminate; intros _ H'; simpl in *.
+    + destruct Δ; try discriminate; intros _ ; simpl in *.
       destruct IH1 as (f & [ <- | ] & ?); auto.
-      * solve Forall.
       * exists (‽A); simpl; auto.
       * exists f; simpl; auto.
-    + intros -> H'.
+    + intros ->.
       destruct IH1 as (f & ? & ?); auto.
-      * solve Forall.
       * exists f; simpl; auto.
-    + intros -> H'.
+    + intros ->.
       destruct IH1 as (f & [ <- | [ <- | ] ] & ?); auto.
-      * solve Forall.
       * exists (!A); simpl; auto.
       * exists (!A); simpl; auto.
       * exists f; simpl; auto.
   Qed.
 
-  Lemma Schellinx_observation Γ : Γ ⊢c ∅ -> Forall from_ill Γ -> exists f, In f Γ /\ cll_has_bot f.
+  Lemma Schellinx_observation Γ : 
+          Γ ⊢c ∅ -> exists f, In f Γ /\ cll_has_bot_zero_neg f.
   Proof. intros; now apply schellinx_rec with (2 := eq_refl). Qed.
 
 End Schellinx_observation.
 
 Section cll_ill_soundness.
 
-  Notation "'£' x" := (cll_var x) (at level 1).
+  (** If an ILL sequent Γ ⊢ A is cut-free CLL provable then 
+     it is also cut-free ILL provable unless it contains ⟘ *)
 
-  Notation "⟙" := (cll_cst cll_top).
-  Notation "⟘" := (cll_cst cll_bot).
-  Notation "𝟙" := (cll_cst cll_1).
-  Notation "𝟘" := (cll_cst cll_0).
+  (* A handy tactic for Forall goals ... *)
 
-  Infix "&" := (cll_bin cll_with) (at level 50).
-  Infix "⅋" := (cll_bin cll_par) (at level 50).
-  Infix "⊗" := (cll_bin cll_times) (at level 50).
-  Infix "⊕" := (cll_bin cll_plus) (at level 50).
-  Infix "⊸" := (cll_bin cll_limp) (at level 51, right associativity).
+  Tactic Notation "solve" "Forall" :=
+    repeat rewrite Forall_cons_inv in *;
+    repeat rewrite Forall_app in *; simpl in *; tauto.
 
-  Notation "'!' x" := (cll_una cll_bang x) (at level 52).
-  Notation "'‽' x" := (cll_una cll_qmrk x) (at level 52).
-
-  Notation "‼ x" := (map (cll_una cll_bang) x) (at level 60).
-  Notation "⁇ x" := (map (cll_una cll_qmrk) x) (at level 60).
-
-  Notation "∅" := nil.
-
-  Theorem cll_ill_rec Γ Δ A : Γ ⊢c Δ -> Δ = A::∅ -> Forall from_ill (A::Γ) -> ⟪Γ⟫ ⊢i ⟨A⟩ \/ cll_has_bot A \/ exists f, In f Γ /\ cll_has_bot f.
+  Let cll_ill_rec Γ Δ A : 
+               Γ ⊢c Δ 
+            -> Δ = A::∅ 
+            -> Forall from_ill (A::Γ) 
+            -> ⟪Γ⟫ ⊢i ⟨A⟩ 
+            \/ cll_has_bot_zero_neg A 
+            \/ exists f, In f Γ /\ cll_has_bot_zero_neg f.
   Proof.
     intros H; revert H A.
     induction 1 as [ A                                                        (* ax *)
                    | Γ Δ Γ' Δ' H1 H2 H3 IH3                                   (* perm *)
+                   | Γ Δ A H1 IH1 | Γ Δ A H1 IH1                              (* negation *)
                    | Γ Δ Γ' Δ' A B H1 IH1 H2 IH2 | Γ Δ A B H1 IH1             (* -o *)
                    | Γ Δ A B H1 IH1 | Γ Δ A B H1 IH1 | Γ Δ A B H1 IH1 H2 IH2  (* & *)
                    | Γ A B Δ H1 IH1 | Γ Δ Γ' Δ' A B H1 IH1 H2 IH2             (* * *)
@@ -537,6 +518,8 @@ Section cll_ill_soundness.
         now apply Permutation_map.
       * do 2 right; exists f; split; auto.
         revert H; now apply Permutation_in.
+    + contradict HΓ; solve Forall.
+    + inversion HΔ; subst; contradict HΓ; solve Forall.
     + app inv singleton in HΔ.
       * destruct (IH1 _ eq_refl) as [ ? | [ | (f & ? & ?) ] ]; auto.
         - solve Forall.
@@ -550,7 +533,6 @@ Section cll_ill_soundness.
       * apply Schellinx_observation in H2 as (f & [ <- | ] & ?).
         - do 2 right; exists (A⊸B); simpl; tauto.
         - do 2 right; exists f; split; auto; right; apply in_or_app; tauto.
-        - solve Forall.
     + inversion HΔ; subst.
       destruct (IH1 _ eq_refl) as [ ? | [ | (f & [ <- | ] & ?) ] ]; simpl; auto.
       * solve Forall.
@@ -594,9 +576,8 @@ Section cll_ill_soundness.
           apply in_or_app; auto.
       * do 2 right; exists f; split; auto.
         apply in_or_app; auto.
-    + rewrite !Forall_cons_inv in HΓ; simpl in HΓ; tauto.
-    + inversion HΔ; subst.
-      rewrite Forall_cons_inv in HΓ; simpl in HΓ; tauto.
+    + contradict HΓ; solve Forall.
+    + inversion HΔ; subst; contradict HΓ; solve Forall.
     + subst. 
       destruct (IH1 _ eq_refl) as [ ? | [ | (f & [ <- | ] & ?) ] ]; simpl; auto.
       * solve Forall.
@@ -626,13 +607,12 @@ Section cll_ill_soundness.
       * do 2 right; exists f; auto.
     + inversion HΔ; subst; left; constructor.
     + discriminate.
-    + inversion HΔ; subst.
-      rewrite Forall_cons_inv in HΓ; simpl in HΓ; tauto.
+    + inversion HΔ; subst; contradict HΓ; solve Forall.
     + subst.
       destruct (IH1 _ eq_refl) as [ ? | [ | (f & [ <- | ] & ?) ] ]; simpl; auto.
       * solve Forall.
       * left; now constructor.
-      * do 2 right; exists (!A); auto.
+      * do 2 right; exists (!A); simpl; auto.
       * do 2 right; exists f; auto.
     + destruct Δ; try discriminate.
       inversion HΔ; subst.
@@ -641,10 +621,8 @@ Section cll_ill_soundness.
       * left; rewrite cll_ill_lbang in *; now constructor.
       * do 2 right; exists f; auto.
     + destruct Δ as [ |  D [ ] ]; try discriminate.
-      inversion HΔ; subst.
-      rewrite Forall_cons_inv in HΓ; simpl in HΓ; tauto.
-    + inversion HΔ; subst.
-      rewrite Forall_cons_inv in HΓ; simpl in HΓ; tauto.
+      inversion HΔ; subst; contradict HΓ; solve Forall.
+    + inversion HΔ; subst; contradict HΓ; solve Forall.
     + subst.
       destruct (IH1 _ eq_refl) as [ ? | [ | (f & ? & ?) ] ]; simpl; auto.
       * solve Forall.
@@ -659,13 +637,14 @@ Section cll_ill_soundness.
       * do 2 right; exists (!A); simpl; auto.
       * do 2 right; exists (!A); simpl; auto.
       * do 2 right; exists f; auto.
-    + inversion HΔ; subst.
-      rewrite Forall_cons_inv in HΓ; simpl in HΓ; tauto.
+    + inversion HΔ; subst; contradict HΓ; solve Forall.
   Qed.
 
-  (* If an ILL sequent is cut-free CLL provable then it is also cut-free ILL provable unless it contains ⟘ *)
-
-  Theorem cll_ill_soundness Γ A : ⟦Γ⟧ ⊢c [A]::∅ -> Γ ⊢i A \/ ill_has_bot A \/ exists f, In f Γ /\ ill_has_bot f.
+  Lemma cll_ill_soundness Γ A : 
+             ⟦Γ⟧ ⊢c [A]::∅ 
+          -> Γ ⊢i A 
+          \/ ill_has_bot A 
+          \/ exists f, In f Γ /\ ill_has_bot f.
   Proof.
     intros H.
     apply cll_ill_rec with (2 := eq_refl) in H.
@@ -676,13 +655,15 @@ Section cll_ill_soundness.
       destruct G1 as (g & <- & ?).
       exists g; rewrite ill_cll_has_bot_eq; auto.
     * rewrite -> Forall_map with (f := ill_cll) (ll := A::Γ), Forall_forall.
-      intros ? _; apply ill_cll_from_ill.
+      intros; apply ill_cll_from_ill.
   Qed.
 
 End cll_ill_soundness.
 
 (* If the ILL sequent Γ ⊢ A does not contain any occurences of ⟘   then 
-   it is provable in ILL iff it is provable in CLL  *)
+   it is provable in ILL iff it is provable in CLL 
+
+   Which gives a direct reduction for CLL undecidability *)
 
 Theorem ill_cll_equiv Γ A  : 
           (forall f, In f (A::Γ) -> ~ ill_has_bot f) 
