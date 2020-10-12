@@ -37,7 +37,7 @@ Section Minsky.
 
    **)
    
-  Let q (i : nat) : ll_vars := 2*n+i. 
+  Let q (i : nat) : eill_vars := 2*n+i. 
   Let rx (p : pos n) := pos2nat p.
   Let ry (p : pos n) := n+pos2nat p. 
 
@@ -135,7 +135,7 @@ Section Minsky.
 
   (* We define the semantics as in the paper ToCL 2013 (DLW & Galmiche) *)
 
-  Local Definition s (x : ll_vars) (v : vec nat n) : Prop.
+  Local Definition s (x : eill_vars) (v : vec nat n) : Prop.
   Proof.
     refine (match le_lt_dec n x with
                  | left H1  => match le_lt_dec (2*n) x with

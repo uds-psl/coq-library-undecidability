@@ -283,7 +283,7 @@ Section g_eill_complete.
 
 End g_eill_complete.
 
-From Undecidability.ILL Require Import CLL ill_cll.
+From Undecidability.ILL Require Import CLL ill_cll schellinx.
 
 Fact eill_no_bot c : ~ ill_has_bot ⦑ c ⦒.
 Proof. induction c; simpl; tauto. Qed.
@@ -343,20 +343,25 @@ Section correctness_results_for_the_reduction.
   Corollary G_eill_S_ill_wc : Σ; Γ ⊦ u <-> S_ill_wc (Σi++Γi) ui.
   Proof. solve with 3 1. Qed.
 
+  Let not_bot f : In f (ui :: Σi ++ Γi) -> ~ ill_has_bot f.
+  Proof.
+    simpl; rewrite in_app_iff, !in_map_iff.
+    intros [ <- | [ (? & <- & ?) | (? & <- & ?) ] ];
+      simpl; auto; apply eill_no_bot.
+  Qed.
+
   Theorem G_eill_S_cll : Σ; Γ ⊦ u <-> S_cll (Σc++Γc) (uc::nil).
   Proof.
     split.
     + rewrite G_eill_S_ill.
-      apply S_ill_cll.
+      intros H.
+      rewrite ill_cll_equiv in H; auto.
+      eq goal H; f_equal.
+      now rewrite map_app, !map_map.
     + intros H.
-      apply S_cll_ill in H.
-      destruct H as [ H | [ [] | (f & Hf1 & Hf2) ] ].
-      * now apply G_eill_S_ill.
-      * apply in_app_or in Hf1 as [ Hf1 | Hf1 ].
-        - apply in_map_iff in Hf1 as (c & <- & ?); simpl in Hf2.
-          apply eill_no_bot in Hf2 as [].
-        - apply in_map_iff in Hf1 as (? & <- & ?).
-          destruct Hf2.
+      apply G_eill_S_ill, ill_cll_equiv; auto.
+      eq goal H; f_equal.
+      now rewrite map_app, !map_map.
   Qed.
 
 End correctness_results_for_the_reduction.
