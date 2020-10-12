@@ -28,7 +28,7 @@ Local Hint Resolve rILL_rCLL_cf_PROVABILITY
 Theorem rCLL_cf_undec : undecidable rCLL_cf_PROVABILITY.
 Proof. undec from rILL_cf_undec; auto. Qed.
 
-(* (𝟘,?,⅋) free fragment of CLL without cut *)
+(* full CLL without cut *)
 
 Theorem CLL_cf_undec : undecidable CLL_cf_PROVABILITY.
 Proof. undec from EILL_undec; auto. Qed.
