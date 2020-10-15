@@ -22,6 +22,53 @@ Local Infix "~p" := (@Permutation _) (at level 70).
     - the (!^*,-o) fragment with or without cut
 *)
 
+Notation eimsell_vars := nat.
+
+Inductive eimsell_cmd : Set :=
+  | eimsell_cmd_stop  : eimsell_vars -> eimsell_cmd
+  | eimsell_cmd_inc  : bool -> eimsell_vars -> eimsell_vars -> eimsell_cmd
+  | eimsell_cmd_dec  : bool -> eimsell_vars -> eimsell_vars -> eimsell_cmd
+  | eimsell_cmd_zero : bool -> eimsell_vars -> eimsell_vars -> eimsell_cmd.
+
+Notation LL_STOP := eimsell_cmd_stop.
+Notation LL_INC  := eimsell_cmd_inc.
+Notation LL_DEC  := eimsell_cmd_dec.
+Notation LL_ZERO := eimsell_cmd_zero.
+
+Definition eimsell_cmd_vars c := 
+  match c with
+    | LL_STOP p     => p::nil
+    | LL_INC  _ p q => p::q::nil
+    | LL_DEC  _ p q => p::q::nil
+    | LL_ZERO _ p q => p::q::nil
+  end.
+
+(* Section GeIMSELL. *)
+
+  Reserved Notation "Σ ; a ⊕ b ⊦ u" (at level 70, no associativity).
+
+  Inductive G_eimsell (Σ : list eimsell_cmd) : nat -> nat -> eimsell_vars -> Prop :=
+    | in_geimsell_stop  : forall p,         In (LL_STOP p) Σ         ->  Σ; 0 ⊕ 0 ⊦ p
+
+    | in_geimsell_inc_1 : forall a b p q,   In (LL_INC true p q) Σ   ->  Σ; 1+a ⊕ b  ⊦ p
+                                                                     ->  Σ;   a ⊕ b  ⊦ q
+    | in_geimsell_inc_0 : forall a b p q,   In (LL_INC false p q) Σ  ->  Σ; a ⊕ 1+b  ⊦ p
+                                                                     ->  Σ; a ⊕ b    ⊦ q
+
+    | in_geimsell_dec_1 : forall a b p q,   In (LL_DEC true p q) Σ   ->  Σ;   a ⊕ b  ⊦ p
+                                                                     ->  Σ; 1+a ⊕ b  ⊦ q
+    | in_geimsell_dec_0 : forall a b p q,   In (LL_DEC false p q) Σ  ->  Σ; a ⊕   b  ⊦ p
+                                                                     ->  Σ; a ⊕ 1+b  ⊦ q
+
+    | in_geimsell_zero_1 : forall b p q,    In (LL_ZERO true p q) Σ  ->  Σ;   0 ⊕ b  ⊦ p
+                                                                     ->  Σ;   0 ⊕ b  ⊦ q
+    | in_geimsell_zero_0 : forall a p q,    In (LL_ZERO false p q) Σ ->  Σ;   a ⊕ 0  ⊦ p
+                                                                     ->  Σ;   a ⊕ 0  ⊦ q
+
+  where "Σ ; a ⊕ b ⊦ u" := (G_eimsell Σ a b u).
+
+(* End GeIMSELL. *)
+
 Notation imsell_vars := nat.
 
 Section IMSELL.
@@ -43,7 +90,6 @@ Section IMSELL.
 
   Notation "£" := imsell_var.
 
-
   Reserved Notation "‼ x" (at level 60, format "‼ x").
   Reserved Notation "l '⊢' x" (at level 70, no associativity).
 
@@ -53,6 +99,9 @@ Section IMSELL.
       | (u,A)::l => (![u] A)::‼l
     end
   where "'‼' l" := (imsell_lban l).
+
+  Fact imsell_lban_map l : imsell_lban l = map (fun '(u,A) => ![u]A) l.
+  Proof. induction l as [ | [] ]; simpl; f_equal; auto. Qed.
 
   Fact imsell_lban_perm Σ Γ : Σ ~p Γ -> ‼Σ ~p ‼Γ.
   Proof.
@@ -138,6 +187,151 @@ Section IMSELL.
         change (![u]A::‼Σ'++Γ) with (‼((u,A)::Σ')++Γ).
         apply Permutation_app; auto.
         apply imsell_lban_perm, Permutation_sym; auto.
+  Qed.
+
+  Variable (a b i : bang).
+
+  Notation "∞" := i. 
+
+  Hypothesis (Hai : bang_le a ∞) (Hbi : bang_le b ∞) (Hi : bang_U ∞) (Hbang : forall x, bang_le x x).
+
+  Definition bool2form x := 
+    match x with 
+      | true  => ![a]£0
+      | false => ![b]£1
+    end.
+
+  Definition bool2bang_op x :=
+    match x with 
+      | true  => b
+      | false => a
+    end.
+
+  Definition eill_map_imsell c :=
+  match c with
+    | LL_STOP p     => (£p ⊸ £p) ⊸ £p 
+    | LL_INC  x p q => (bool2form x ⊸ £p) ⊸ £q
+    | LL_DEC  x p q => bool2form x ⊸ £p ⊸ £q
+    | LL_ZERO x p q  => (![bool2bang_op x]£p) ⊸ £q
+  end.
+
+  Check repeat.
+
+  Definition eimsell_imsell Σ x y := map (fun c => ![∞](eill_map_imsell c)) Σ ++ repeat (![a]£0) x ++ repeat (![b]£1) y. 
+
+  Fact eill_map_imsell_eq Σ :  map (fun c => ![∞](eill_map_imsell c)) Σ
+                            = ‼(map (fun c => (∞,eill_map_imsell c)) Σ).
+  Proof. induction Σ; simpl; f_equal; auto. Qed.
+
+  Fact eill_map_imsell_eq2 Σ x y :  eimsell_imsell Σ x y
+                            = ‼(map (fun c => (∞,eill_map_imsell c)) Σ ++ repeat (a,£0) x ++ repeat (b,£1) y).
+  Proof.
+    unfold eimsell_imsell.
+    rewrite imsell_lban_map, !map_app, map_map; f_equal.
+    induction x; simpl; f_equal; auto.
+    induction y; simpl; f_equal; auto.
+  Qed.
+
+  Theorem G_eimsell_weak c Σ x y u :
+            In c Σ
+        ->  eimsell_imsell Σ x y ⊢ £u 
+       <-> ![∞](eill_map_imsell c)::eimsell_imsell Σ x y ++ nil ⊢ £u.
+  Proof.
+    intros H; rewrite <- app_nil_end.
+    unfold eimsell_imsell.
+    rewrite !eill_map_imsell_eq.
+    apply S_imsell_weak_cntr with (u := ∞) (A := eill_map_imsell c); auto.
+    apply in_map_iff; eauto.
+  Qed.
+
+  Theorem G_eimsell_sound Σ x y u : Σ ; x ⊕ y ⊦ u -> eimsell_imsell Σ x y ⊢ £u .
+  Proof.
+    induction 1 as [ p H1 
+                   | x y p q H1 H2 IH2 | x y p q H1 H2 IH2 
+                   | x y p q H1 H2 IH2 | x y p q H1 H2 IH2
+                   | y p q H1 H2 IH2 | x p q H1 H2 IH2 ].
+    + apply G_eimsell_weak with (1 := H1); simpl.
+      apply in_imsell_bang_l, in_imsell_limp_l.
+      * apply in_imsell_limp_r.
+        apply in_imsell_perm with (1 := Permutation_sym (Permutation_cons_append _ _)).
+        unfold eimsell_imsell.
+        rewrite eill_map_imsell_eq; simpl; rewrite <- app_nil_end.
+        apply S_imsell_weak.
+        - apply Forall_forall; intros ?; rewrite in_map_iff.
+          intros (? & <- & ?); auto.
+        - apply in_imsell_ax.
+      * apply in_imsell_ax.
+
+    + apply G_eimsell_weak with (1 := H1); simpl.
+      apply in_imsell_bang_l, in_imsell_limp_l.
+      * apply in_imsell_limp_r.
+        revert IH2; apply in_imsell_perm.
+        unfold eimsell_imsell.
+        apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _).
+        rewrite !app_ass; apply Permutation_app; auto.
+        simpl; apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _).
+        now rewrite app_ass.
+      * apply in_imsell_ax.
+    + apply G_eimsell_weak with (1 := H1); simpl.
+      apply in_imsell_bang_l, in_imsell_limp_l.
+      * apply in_imsell_limp_r.
+        revert IH2; apply in_imsell_perm.
+        unfold eimsell_imsell.
+        apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _).
+        rewrite !app_ass; repeat apply Permutation_app; auto.
+        simpl; apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _); auto.
+      * apply in_imsell_ax.
+
+    + apply G_eimsell_weak with (1 := H1); simpl.
+      apply in_imsell_bang_l.
+      apply in_imsell_perm with (Γ := (![a]£0) ⊸ £p ⊸ £q :: (![a]£0 :: nil) ++ eimsell_imsell Σ x y).
+      * apply perm_skip; rewrite <- app_nil_end.
+        simpl; apply perm_trans with (1 := Permutation_cons_append _ _).
+        unfold eimsell_imsell; simpl; rewrite !app_ass.
+        apply Permutation_app; auto.
+        apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _).
+        now rewrite !app_ass.
+      * apply in_imsell_limp_l.
+        - apply in_imsell_ax.
+        - rewrite app_nil_end with (l := eimsell_imsell Σ x y).
+          apply in_imsell_limp_l; auto.
+          apply in_imsell_ax.
+
+    + apply G_eimsell_weak with (1 := H1); simpl.
+      apply in_imsell_bang_l.
+      apply in_imsell_perm with (Γ := (![b]£1) ⊸ £p ⊸ £q :: (![b]£1 :: nil) ++ eimsell_imsell Σ x y).
+      * apply perm_skip; rewrite <- app_nil_end.
+        simpl; apply perm_trans with (1 := Permutation_cons_append _ _).
+        unfold eimsell_imsell; simpl; rewrite !app_ass.
+        repeat apply Permutation_app; auto.
+        apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _); auto.
+      * apply in_imsell_limp_l.
+        - apply in_imsell_ax.
+        - rewrite app_nil_end with (l := eimsell_imsell Σ x y).
+          apply in_imsell_limp_l; auto.
+          apply in_imsell_ax.
+
+    + apply G_eimsell_weak with (1 := H1); simpl.
+      apply in_imsell_bang_l.
+      apply in_imsell_limp_l.
+      * rewrite eill_map_imsell_eq2.
+        apply in_imsell_bang_r.
+        - intros z; simpl; rewrite !in_app_iff, in_map_iff.
+          intros [ (c & <- & Hc) | H ]; simpl; auto.
+          apply repeat_spec in H as ->; simpl; auto.
+        - now rewrite eill_map_imsell_eq2 in IH2.
+      * apply in_imsell_ax.
+
+    + apply G_eimsell_weak with (1 := H1); simpl.
+      apply in_imsell_bang_l.
+      apply in_imsell_limp_l.
+      * rewrite eill_map_imsell_eq2.
+        apply in_imsell_bang_r.
+        - intros z; simpl; rewrite !in_app_iff, in_map_iff.
+          intros [ (c & <- & Hc) | [ H | [] ] ]; simpl; auto.
+          apply repeat_spec in H as ->; simpl; auto.
+        - now rewrite eill_map_imsell_eq2 in IH2.
+      * apply in_imsell_ax.
   Qed.
 
   Variables (n : nat) (s : imsell_vars -> vec nat n -> Prop)
