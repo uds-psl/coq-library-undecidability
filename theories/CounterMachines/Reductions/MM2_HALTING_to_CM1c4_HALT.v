@@ -15,7 +15,7 @@ Require Import List.
 Import ListNotations.
 Require Import PeanoNat Lia Relations.Relation_Operators Relations.Operators_Properties.
 
-Require Import Undecidability.Problems.MM2.
+Require Import Undecidability.MinskyMachines.MM2.
 Require Undecidability.CounterMachines.CM1.
 From Undecidability.CounterMachines.Util Require Import 
   Nat_facts List_facts CM1_facts MM2_facts.
