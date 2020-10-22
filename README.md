@@ -9,21 +9,21 @@ Feel free to contribute or start using the problems!
 
 - Post correspondence problem (`PCP` in [`PCP/PCP.v`](theories/PCP/PCP.v)), **`good seed`**
 - Halting problems for single-tape and multi-tape Turing machines (`HaltTM` in [`TM/TM.v`](theories/TM/TM.v))
-- Halting problem for Minsky machines (`MM_HALTING` in [`Problems/MM.v`](theories/Problems/MM.v))
-- Halting problem for two counters Minsky machines (`MM2_HALTING` in [`Problems/MM2.v`](theories/Problems/MM2.v)) with 
+- Halting problem for Minsky machines (`MM_HALTING` in [`MinskyMachines/MM.v`](theories/MinskyMachines/MM.v))
+- Halting problem for two counters Minsky machines (`MM2_HALTING` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v)) with 
   self-contained explanations, **`good seed`**
-- Halting problem for Binary Stack Machines (`BSM_HALTING` in [`Problems/BSM.v`](theories/Problems/BSM.v))
+- Halting problem for Binary Stack Machines (`BSM_HALTING` in [`MinskyMachines/MM.v`](theories/MinskyMachines/MM.v))
 - Halting problem for the call-by-value lambda-calculus (`HaltL` in [`L/L.v`](theories/L/L.v))
 - String rewriting (`SR` in [`StringRewriting/SR.v`](theories/StringRewriting/SR.v))
-- Entailment in Elementary Intuitionistic Linear Logic (`EILL_PROVABILITY` in [`Problems/ILL.v`](theories/Problems/ILL.v))
-- Entailment in Intuitionistic Linear Logic (`ILL_PROVABILITY` in [`Problems/ILL.v`](theories/Problems/ILL.v))
-- Entailment in Classical Linear Logic (`CLL_cf_PROVABILITY` in [`Problems/CLL.v`](theories/Problems/CLL.v))
+- Entailment in Elementary Intuitionistic Linear Logic (`EILL_PROVABILITY` in [`ILL/EILL.v`](theories/ILL/EILL.v))
+- Entailment in Intuitionistic Linear Logic (`ILL_PROVABILITY` in [`ILL/ILL.v`](theories/ILL/ILL.v))
+- Entailment in Classical Linear Logic (`CLL_cf_PROVABILITY` in [`ILL/CLL.v`](theories/ILL/CLL.v))
 - Provability in Minimal (Intuitionistic, Classical) First-Order Logic (`prv` in [`Problems/FOL.v`](theories/Problems/FOL.v))
 - Validity in Minimal (Intuitionistic, Classical) First-Order Logic (`valid` in [`Problems/FOL.v`](theories/Problems/FOL.v), `kvalid` in [`Problems/FOL.v`](theories/Problems/FOL.v))
 - Satisfiability in Intuitionistic (Classical) First-Order Logic (`satis` in [`Problems/FOL.v`](theories/Problems/FOL.v), `ksatis` in [`Problems/FOL.v`](theories/Problems/FOL.v))
-- Halting problem for FRACTRAN programs (`FRACTRAN_REG_HALTING` in [`Problems/FRACTRAN.v`](theories/Problems/FRACTRAN.v)), **`good seed`**
+- Halting problem for FRACTRAN programs (`FRACTRAN_REG_HALTING` in [`FRACTRAN/FRACTRAN.v`](theories/FRACTRAN/FRACTRAN.v)), **`good seed`**
 - [Hilbert's 10th problem](https://uds-psl.github.io/H10), i.e. solvability of a single diophantine equation (`H10` in 
-  in [`Problems/DIOPHANTINE.v`](theories/Problems/DIOPHANTINE.v))
+  in [`H10/H10.v`](theories/H10/H10.v))
 - Satisfiability of elementary Diophantine constraints of the form `x = 1`, `x = y + z` or `x = y · z` (`H10C_SAT` in [`DiophantineConstraints/H10C.v`](theories/DiophantineConstraints/H10C.v)), **`good seed`**
 - Satisfiability of uniform Diophantine constraints of the form `x = 1 + y + z · z` (`H10UC_SAT` in [`DiophantineConstraints/H10C.v`](theories/DiophantineConstraints/H10C.v)), **`good seed`**
 - One counter machine halting problem (`CM1c4_HALT` in [`CounterMachines/CM1.v`](theories/CounterMachines/CM1.v)), **`good seed`**
