@@ -12,8 +12,7 @@ Require Import List.
 From Undecidability.MuRec 
   Require Import recalg ra_univ ra_univ_andrej.
 
-From Undecidability.Problems 
-  Require Import RA_UNIV.
+Require Import Undecidability.MuRec.RA_UNIV_HALT.
 
 Require Import Undecidability.DiophantineConstraints.H10C.
 

@@ -69,7 +69,6 @@ Shared/Libs/DLW/Code/compiler.v
 Shared/Libs/DLW/Code/compiler_correction.v
 
 
-Problems/Reduction.v
 
 # Abstract L simulator as Turing Machine
 L/AbstractMachines/TM_LHeapInterpreter/Alphabets.v
@@ -94,9 +93,9 @@ PCP/Reductions/PCP_to_PCPb.v
 PCP/Reductions/PCPb_iff_iPCPb.v
 PCP/Reductions/SR_to_MPCP.v
 PCP/Reductions/MPCP_to_MPCPb.v
-PCP/Reductions/HaltTM_to_PCP.v
-PCP/Reductions/HaltTM_to_iPCPb.v
-PCP/Reductions/HALT_TM1_to_PCPb.v
+PCP/Reductions/HaltTM_1_to_PCP.v
+PCP/Reductions/HaltTM_1_to_iPCPb.v
+PCP/Reductions/HaltTM_1_to_PCPb.v
 
 #String rewriting
 StringRewriting/SR.v
@@ -106,7 +105,7 @@ StringRewriting/Util/Definitions.v
 StringRewriting/Util/singleTM.v
 StringRewriting/Reductions/SRH_to_SR.v
 StringRewriting/Reductions/TM_to_SRH.v
-StringRewriting/Reductions/HaltTM_to_SR.v
+StringRewriting/Reductions/HaltTM_1_to_SR.v
 
 #Context-free grammars
 CFG/CFP.v
@@ -145,12 +144,13 @@ MinskyMachines/MM2_undec.v      # undec for MM2
 
 MinskyMachines/Reductions/BSM_MM.v
 MinskyMachines/Reductions/PCPb_to_MM.v
-MinskyMachines/Reductions/HaltTM_to_MM.v
+MinskyMachines/Reductions/HaltTM_1_to_MM.v
 MinskyMachines/Reductions/FRACTRAN_to_MMA2.v
 MinskyMachines/Reductions/MMA2_to_MM2.v
 MinskyMachines/Reductions/MMA2_to_MMA2_zero.v
 MinskyMachines/Reductions/MM_to_MMA2.v
 MinskyMachines/Reductions/MUREC_MM.v
+MinskyMachines/Reductions/BSM_HALTING_to_MM2_HALTING.v
 
 MinskyMachines/MM/mm_defs.v         # (pos n)-bounded MM
 MinskyMachines/MM/mm_utils.v        # utilities
@@ -174,7 +174,6 @@ ILL/CLL.v
 ILL/ILL_undec.v
 ILL/CLL_undec.v
 
-ILL/Reductions/PCP_iBPCP.v
 ILL/Reductions/iBPCP_MM.v
 ILL/Reductions/MM_EILL.v
 ILL/Reductions/EILL_ILL.v
@@ -210,11 +209,17 @@ MuRec/recursor.v
 MuRec/ra_sem_eq.v
 MuRec/ra_ca.v
 
+MuRec/RA_UNIV_HALT.v
+MuRec/RA_UNIV_HALT_undec.v
+
+MuRec/Reductions/H10_to_MUREC_HALTING.v
+MuRec/Reductions/H10C_SAT_to_RA_UNIV_HALT.v
+
 # FRACTRAN (from H10 FSCD'19, DLW & YF)
 FRACTRAN/FRACTRAN.v
 FRACTRAN/FRACTRAN_undec.v
 FRACTRAN/Reductions/MM_FRACTRAN.v
-FRACTRAN/Reductions/HaltTM_to_FRACTRAN_HALTING.v
+FRACTRAN/Reductions/HaltTM_1_to_FRACTRAN_HALTING.v
 FRACTRAN/Utils/prime_seq.v
 FRACTRAN/FRACTRAN/fractran_utils.v
 FRACTRAN/FRACTRAN/mm_fractran.v
@@ -580,7 +585,7 @@ CounterMachines/Util/CM1_facts.v
 CounterMachines/Util/MM2_facts.v
 CounterMachines/Reductions/MM2_HALTING_to_CM1c4_HALT.v
 CounterMachines/Reductions/MM2_HALTING_to_CM2_HALT.v
-CounterMachines/Reductions/HaltTM_to_CM1c4_HALT.v
+CounterMachines/Reductions/HaltTM_1_to_CM1c4_HALT.v
 
 #Stack Machines
 StackMachines/BSM.v
@@ -608,7 +613,7 @@ StackMachines/Reductions/CM1_to_SMX.v
 StackMachines/Reductions/CM1c4_HALT_to_SMNdl_UB.v
 StackMachines/Reductions/SMN_transform.v
 StackMachines/Reductions/SMNdl_UB_to_CSSM_UB.v
-StackMachines/Reductions/HaltTM_to_CSSM_UB.v
+StackMachines/Reductions/HaltTM_1_to_CSSM_UB.v
 StackMachines/Reductions/iPCPb_to_BSM_HALTING.v
 
 #Semi-unification
@@ -621,7 +626,8 @@ SemiUnification/Reductions/CSSM_UB_to_SSemiU.v
 SemiUnification/Reductions/SSemiU_to_RU2SemiU.v
 SemiUnification/Reductions/RU2SemiU_to_SemiU.v
 SemiUnification/Reductions/RU2SemiU_to_LU2SemiU.v
-SemiUnification/Reductions/HaltTM_to_SemiU.v
+SemiUnification/Reductions/HaltTM_1_to_SemiU.v
+SemiUnification/Reductions/HaltTM_1_chain_SemiU.v
 
 #Diophantine Constraints
 DiophantineConstraints/H10C.v
@@ -682,28 +688,8 @@ SystemF/Reductions/SysF_TYP_to_SysF_TC.v
 
 #Legacy Problems
 Problems/FOL.v
-Problems/MM.v
-Problems/MM2.v
-Problems/BSM.v
-Problems/ILL.v
-Problems/CLL.v
-Problems/FRACTRAN.v
-Problems/DIOPHANTINE.v
-Problems/RA_UNIV.v
-
 Problems/FOLFS.v
 
 #Legacy Reductions
-Reductions/BPCP_to_BSM.v
-Reductions/BSM_to_MM.v  
-Reductions/PCPb_to_MM.v  
-Reductions/MM_to_ILL.v  
 Reductions/BPCP_to_FOL.v
 Reductions/BPCP_to_FOLFS.v
-Reductions/DIO_MUREC.v
-Reductions/H10C_RA_UNIV.v
-Reductions/MUREC_MM.v
-Reductions/MM_to_FRACTRAN.v
-Reductions/FRACTRAN_to_MMA2.v
-Reductions/MM_to_MMA2.v
-Reductions/MMA2_to_MM2.v

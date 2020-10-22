@@ -7,9 +7,8 @@ Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.Facts.
 Require Import Undecidability.PCP.Util.PCP_facts.
 
-Require Import Undecidability.Problems.Reduction.
-
 Require Import Undecidability.Shared.Prelim.
+Require Import Undecidability.Synthetic.Definitions.
 
 (** * PCP to CFPI *)
 
@@ -108,8 +107,7 @@ Section PCP_CFPI.
 
 End PCP_CFPI.
 
-
-Lemma reduction :
+Theorem reduction :
   PCP ⪯ CFPI. 
 Proof.
   exists (fun P => (gamma1 P P, gamma2 P P, fresh (sym P))). intros P.

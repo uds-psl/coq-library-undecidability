@@ -1,4 +1,5 @@
-From Undecidability Require Import Problems.Reduction TM.TM.
+Require Import Undecidability.TM.TM.
+Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.ReducibilityFacts.
 From Undecidability.L Require Import L Seval LM_heap_def LM_heap_correct.
 Require Import Undecidability.L.AbstractMachines.TM_LHeapInterpreter.M_LHeapInterpreter.
 

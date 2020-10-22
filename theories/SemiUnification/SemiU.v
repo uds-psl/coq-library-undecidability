@@ -9,6 +9,15 @@
   Problem(s):
     Simple Semi-unification (SSemiU)
     Semi-unification (SemiU)
+    Right-uniform Two-Inequality Semi-unification (RU2SemiU)
+    Left-uniform Two-Inequality Semi-unification (LU2SemiU)
+*)
+
+(*
+  Literature:
+  [1] Andrej Dudenhefner. "Undecidability of Semi-Unification on a Napkin"
+      5th International Conference on Formal Structures for Computation and Deduction (FSCD 2020): 9:1-9:16
+      https://drops.dagstuhl.de/opus/volltexte/2020/12331
 *)
 
 Require Import List.
@@ -42,6 +51,7 @@ Definition models (φ ψ0 ψ1: valuation) : constraint -> Prop :=
     | arr s t => (if b then t else s) = substitute (if a then ψ1 else ψ0) (φ x)
     end.
 
+(* Simple Semi-unification *)
 (* are there substitutions (φ, ψ0, ψ1) that model each constraint? *)
 Definition SSemiU (p : list constraint) := 
   exists (φ ψ0 ψ1: valuation), forall (c : constraint), In c p -> models φ ψ0 ψ1 c.
@@ -56,6 +66,7 @@ Definition inequality : Set := (term * term).
 Definition solution (φ : valuation) : inequality -> Prop := 
   fun '(s, t) => exists (ψ : valuation), substitute ψ (substitute φ s) = substitute φ t.
 
+(* Semi-unification *)
 (* is there a substitution φ that solves all inequalities? *)
 Definition SemiU (p: list inequality) := 
   exists (φ: valuation), forall (c: inequality), In c p -> solution φ c.

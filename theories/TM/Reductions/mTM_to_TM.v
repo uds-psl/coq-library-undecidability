@@ -1,6 +1,5 @@
 From Undecidability.TM Require Import Single.StepTM Code.CodeTM TM.
-From Undecidability.Problems Require Import Reduction.
-Require Import Undecidability.Shared.Prelim.
+Require Import Undecidability.Synthetic.Definitions.
 
 Lemma nTM_to_MTM n :
   HaltTM n ⪯ HaltMTM.
@@ -16,6 +15,8 @@ Lemma mk_pTM n (sig : finType) (m : TM sig n) : pTM sig unit n.
 Proof.
   unshelve econstructor. exact m. exact (fun _ => tt).
 Defined.  
+
+Local Notation "[ s | p ∈ A ]" := (map (fun p => s) A) (p pattern).
 
 Lemma MTM_to_stM :
   HaltMTM ⪯ HaltTM 1.

@@ -1,1 +1,0 @@
-From Undecidability.MinskyMachines Require Export FRACTRAN_to_MMA2.

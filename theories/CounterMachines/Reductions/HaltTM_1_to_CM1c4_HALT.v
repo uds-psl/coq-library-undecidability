@@ -3,7 +3,7 @@ Require Import Undecidability.Synthetic.Undecidability.
 Require Import Undecidability.TM.TM.
 
 From Undecidability.FRACTRAN
-  Require Import FRACTRAN HaltTM_to_FRACTRAN_HALTING.
+  Require Import FRACTRAN HaltTM_1_to_FRACTRAN_HALTING.
 
 From Undecidability.MinskyMachines
   Require Import MMA MM2 FRACTRAN_to_MMA2 MMA2_to_MM2.
@@ -13,7 +13,7 @@ From Undecidability.CounterMachines
 
 (** Many-one reduction from Turing machine halting to 
   one counter machine (with denominators at most 4) halting *)
-Lemma HaltTM_to_CM1c4_HALT : HaltTM 1 ⪯ CM1c4_HALT.
+Theorem reduction : HaltTM 1 ⪯ CM1c4_HALT.
 Proof.
   eapply reduces_transitive. exact HaltTM_to_FRACTRAN_REG_HALTING.
   eapply reduces_transitive. exact FRACTRAN_REG_MMA2_HALTING.

@@ -1,7 +1,11 @@
 Require Import Undecidability.StringRewriting.SR.
 Require Import Undecidability.StringRewriting.Util.Definitions.
-Require Import Undecidability.Shared.Prelim.
+Require Import List.
+Import ListNotations.
 Require Import Undecidability.Synthetic.Definitions.
+
+Require Import Undecidability.Shared.Prelim.
+
 (** * SRH to SR *)
 
 Section SRH_SR.
@@ -44,6 +48,15 @@ Section SRH_SR.
       cbn. unfold P. rewrite !in_app_iff, !in_map_iff. eauto 9. now simpl_list.
       rewrite app_nil_r. firstorder.
   Qed.
+
+  Lemma cons_incl X (a : X) (A B : list X) : a :: A <<= B -> A <<= B.
+  Proof. intros ? ? ?. eapply H. firstorder. Qed.
+  
+  Lemma app_incl_l X (A B C : list X) : A ++ B <<= C -> A <<= C.
+  Proof. firstorder eauto. Qed.
+
+  Lemma app_incl_R X (A B C : list X) : A ++ B <<= C -> B <<= C.
+  Proof. firstorder eauto. Qed.
 
   Lemma x_rewt_a0 x :
     a0 el x -> x <<= Sigma -> rewt P x [a0].

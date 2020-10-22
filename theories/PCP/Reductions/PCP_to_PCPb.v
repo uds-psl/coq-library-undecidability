@@ -4,7 +4,7 @@ Import ListNotations.
 Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.Facts.
 
-Require Import Undecidability.Problems.Reduction.
+Require Import Undecidability.Synthetic.Definitions.
 
 (** ** PCP reduces to BPCP *)
 
