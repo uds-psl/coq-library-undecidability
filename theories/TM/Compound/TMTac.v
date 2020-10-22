@@ -152,7 +152,10 @@ Ltac TMSimp1 T :=
   try destruct_param_tape_pair; destruct_unit;
   simpl_not_in;
   cbn in *;
-  subst;
+  repeat match goal with
+  | [ H : ?x = _ |- _ ] => is_var x;move x at bottom;subst x
+  | [ H : _ = ?x |- _ ] => is_var x;move x at bottom;subst x
+  end;
   unfold finType_CS in *;
   try T;
   repeat
