@@ -682,13 +682,6 @@ SystemF/Reductions/SysF_TYP_to_SysF_TC.v
 
 #Legacy Problems
 Problems/FOL.v
-Problems/MM.v
-Problems/MM2.v
-Problems/BSM.v
-Problems/ILL.v
-Problems/CLL.v
-Problems/FRACTRAN.v
-Problems/DIOPHANTINE.v
 Problems/RA_UNIV.v
 
 Problems/FOLFS.v
