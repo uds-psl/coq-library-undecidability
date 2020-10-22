@@ -12,7 +12,7 @@ Feel free to contribute or start using the problems!
 - Halting problem for Minsky machines (`MM_HALTING` in [`MinskyMachines/MM.v`](theories/MinskyMachines/MM.v))
 - Halting problem for two counters Minsky machines (`MM2_HALTING` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v)) with 
   self-contained explanations, **`good seed`**
-- Halting problem for Binary Stack Machines (`BSM_HALTING` in [`MinskyMachines/MM.v`](theories/MinskyMachines/MM.v))
+- Halting problem for Binary Stack Machines (`BSM_HALTING` in [`StackMachines/BSM.v`](theories/StackMachines/BSM.v))
 - Halting problem for the call-by-value lambda-calculus (`HaltL` in [`L/L.v`](theories/L/L.v))
 - String rewriting (`SR` in [`StringRewriting/SR.v`](theories/StringRewriting/SR.v))
 - Entailment in Elementary Intuitionistic Linear Logic (`EILL_PROVABILITY` in [`ILL/EILL.v`](theories/ILL/EILL.v))
