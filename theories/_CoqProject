@@ -170,16 +170,23 @@ MinskyMachines/MMenv/mme_utils.v    # nat-bounded MM utils for MuRec ~~> MM(nat)
 # Intuitionistic Linear Logic (cf CPP'19 YF&DLW)
 ILL/EILL.v
 ILL/ILL.v
+ILL/CLL.v
 ILL/ILL_undec.v
+ILL/CLL_undec.v
 
 ILL/Reductions/PCP_iBPCP.v
 ILL/Reductions/iBPCP_MM.v
 ILL/Reductions/MM_EILL.v
 ILL/Reductions/EILL_ILL.v
+ILL/Reductions/EILL_CLL.v
+ILL/Reductions/ILL_CLL.v
 
-ILL/Ll/ill.v
 ILL/Ll/eill.v
 ILL/Ll/eill_mm.v
+ILL/Ll/ill.v
+ILL/Ll/ill_cll.v
+ILL/Ll/ill_cll_restr.v
+ILL/Ll/schellinx.v
 
 # µ-recursive algorithms
 MuRec/recalg.v
@@ -679,6 +686,7 @@ Problems/MM.v
 Problems/MM2.v
 Problems/BSM.v
 Problems/ILL.v
+Problems/CLL.v
 Problems/FRACTRAN.v
 Problems/DIOPHANTINE.v
 Problems/RA_UNIV.v

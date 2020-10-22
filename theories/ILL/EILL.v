@@ -15,16 +15,16 @@ Set Implicit Arguments.
 
 Local Infix "~p" := (@Permutation _) (at level 70).
 
-Definition ll_vars := nat.
+Notation eill_vars := nat.
 
 Inductive eill_cmd : Set :=
-  | in_ll_cmd_inc  : ll_vars -> ll_vars -> ll_vars -> eill_cmd
-  | in_ll_cmd_dec  : ll_vars -> ll_vars -> ll_vars -> eill_cmd
-  | in_ll_cmd_fork : ll_vars -> ll_vars -> ll_vars -> eill_cmd.
+  | in_eill_cmd_inc  : eill_vars -> eill_vars -> eill_vars -> eill_cmd
+  | in_eill_cmd_dec  : eill_vars -> eill_vars -> eill_vars -> eill_cmd
+  | in_eill_cmd_fork : eill_vars -> eill_vars -> eill_vars -> eill_cmd.
 
-Notation LL_INC  := in_ll_cmd_inc.
-Notation LL_DEC  := in_ll_cmd_dec.
-Notation LL_FORK := in_ll_cmd_fork.
+Notation LL_INC  := in_eill_cmd_inc.
+Notation LL_DEC  := in_eill_cmd_dec.
+Notation LL_FORK := in_eill_cmd_fork.
 
 Definition eill_cmd_vars c := 
   match c with
@@ -38,29 +38,33 @@ Definition eill_cmd_vars c :=
 
 Definition eill_cmd_map c :=
   match c with
-    | LL_INC  a p q => (£a ⊸ £p) -o £ q
-    | LL_DEC  a p q => £a ⊸ £p -o £ q
-    | LL_FORK p q r => (£p ﹠ £q) -o £ r
+    | LL_INC  a p q => (£a ⊸ £p) ⊸ £ q
+    | LL_DEC  a p q => £a ⊸ £p ⊸ £ q
+    | LL_FORK p q r => (£p & £q) ⊸ £ r
   end. 
 
-(* Symbols for cut&paste ⟙   ⟘   𝝐  ﹠ ⊗  ⊕  ⊸  ❗   ‼  ∅  ⊢ ⟦ ⟧ Γ Δ Σ *)
+(* Symbols for cut&paste ⟙   ⟘   𝝐  ﹠ ⊗  ⊕  ⊸  !  ‼  ∅  ⊢ ⟦ ⟧ Γ Δ Σ *)
 
-Reserved Notation "Si ; Ga '⊦' x" (at level 70, no associativity).
+Section GeILL.
 
-Inductive G_eill (Σ : list eill_cmd) : list ll_vars -> ll_vars -> Prop :=
-  | in_eill_ax  : forall u,                                    Σ; u::∅ ⊦ u
-  | in_eill_perm : forall Γ Δ p,    Γ ~p Δ                 ->  Σ; Γ     ⊦ p
-                                                           ->  Σ; Δ     ⊦ p
-  | in_eill_inc : forall Γ a p q,   In (LL_INC a p q) Σ    ->  Σ; a::Γ  ⊦ p
-                                                           ->  Σ; Γ     ⊦ q
-  | in_eill_dec : forall Γ Δ p q r, In (LL_DEC p q r) Σ    ->  Σ; Γ     ⊦ p
-                                                           ->  Σ; Δ     ⊦ q
-                                                           ->  Σ; Γ++Δ  ⊦ r
-  | in_eill_fork : forall Γ p q r,  In (LL_FORK p q r) Σ   ->  Σ; Γ     ⊦ p
-                                                           ->  Σ; Γ     ⊦ q
-                                                           ->  Σ; Γ     ⊦ r
-where "Si ; Ga ⊦ u" := (G_eill Si Ga u).
+  Reserved Notation "Σ ; Γ ⊦ u" (at level 70, no associativity).
 
-Definition EILL_SEQUENT := (list eill_cmd * list ll_vars * ll_vars)%type.
+  Inductive G_eill (Σ : list eill_cmd) : list eill_vars -> eill_vars -> Prop :=
+    | in_geill_ax  : forall u,                                    Σ; u::∅ ⊦ u
+    | in_geill_perm : forall Γ Δ p,    Γ ~p Δ                 ->  Σ; Γ     ⊦ p
+                                                              ->  Σ; Δ     ⊦ p
+    | in_geill_inc : forall Γ a p q,   In (LL_INC a p q) Σ    ->  Σ; a::Γ  ⊦ p
+                                                              ->  Σ; Γ     ⊦ q
+    | in_geill_dec : forall Γ Δ p q r, In (LL_DEC p q r) Σ    ->  Σ; Γ     ⊦ p
+                                                              ->  Σ; Δ     ⊦ q
+                                                              ->  Σ; Γ++Δ  ⊦ r
+    | in_geill_fork : forall Γ p q r,  In (LL_FORK p q r) Σ   ->  Σ; Γ     ⊦ p
+                                                              ->  Σ; Γ     ⊦ q
+                                                              ->  Σ; Γ     ⊦ r
+  where "Σ ; Γ ⊦ u" := (G_eill Σ Γ u).
 
-Definition EILL_PROVABILITY (c : EILL_SEQUENT) := match c with (Σ,Γ,A) => Σ; Γ ⊦ A end. 
+End GeILL.
+
+Definition EILL_SEQUENT := (list eill_cmd * list eill_vars * eill_vars)%type.
+
+Definition EILL_PROVABILITY (c : EILL_SEQUENT) := match c with (Σ,Γ,u) => G_eill Σ Γ u end. 

@@ -37,7 +37,7 @@ Section Minsky.
 
    **)
    
-  Let q (i : nat) : ll_vars := 2*n+i. 
+  Let q (i : nat) : eill_vars := 2*n+i. 
   Let rx (p : pos n) := pos2nat p.
   Let ry (p : pos n) := n+pos2nat p. 
 
@@ -122,20 +122,20 @@ Section Minsky.
      
   *)
                   
-  Definition Sig0 := LL_INC (q k) (q k) (q k)
+  Definition Σ0 :=   LL_INC (q k) (q k) (q k)
                   :: map (fun c => LL_DEC (rx (fst c)) (ry (snd c)) (ry (snd c))) (pos_not_diag n)
                   ++ map (fun j => LL_INC (ry j) (ry j) (ry j)) (pos_list n).
 
-  Definition SigI := match P with (i,l) => mm_linstr_enc i l end.
+  Definition ΣI := match P with (i,l) => mm_linstr_enc i l end.
 
-  Definition Sig := Sig0 ++ SigI.
+  Definition Σ := Σ0++ΣI.
 
   Notation "P // s -[ k ]-> t" := (sss_steps (@mm_sss _) P k s t).
   Notation "P // s ->> t" := (sss_compute (@mm_sss _) P s t).
 
   (* We define the semantics as in the paper ToCL 2013 (DLW & Galmiche) *)
 
-  Local Definition s (x : ll_vars) (v : vec nat n) : Prop.
+  Local Definition s (x : eill_vars) (v : vec nat n) : Prop.
   Proof.
     refine (match le_lt_dec n x with
                  | left H1  => match le_lt_dec (2*n) x with
@@ -181,14 +181,14 @@ Section Minsky.
 
   (* This is a notation for the trivial phase semantics *)
  
-  Notation "'[[' A ']]'" := (ll_tps s A) (at level 65).
+  Notation "'[[' A ']]'" := (ill_tps s A) (at level 65).
 
   (* i -o (_j_ -o _j_) *)
   
-  Let sem_x_y_y i j : i <> j -> [[ [i LL_DEC (rx i) (ry j) (ry j) ] ]] vec_zero.
+  Let sem_x_y_y i j : i <> j -> [[ ⦑ LL_DEC (rx i) (ry j) (ry j)⦒ ]] vec_zero.
   Proof.
     intros Hij.
-    simpl; unfold ll_tps_imp.
+    simpl; unfold ill_tps_imp.
     intros v Hv.
     rewrite H_s_rx in Hv.
     intros w Hw.
@@ -199,9 +199,9 @@ Section Minsky.
     subst; rewrite Hw, vec_one_spec_neq; auto.
   Qed.
   
-  Let sem_y_y_y j : [[ [i LL_INC (ry j) (ry j) (ry j) ] ]] vec_zero.
+  Let sem_y_y_y j : [[ ⦑ LL_INC (ry j) (ry j) (ry j)⦒ ]] vec_zero.
   Proof.
-    simpl; unfold ll_tps_imp.
+    simpl; unfold ill_tps_imp.
     intros x Hx; rew vec.
     generalize (Hx vec_zero); rew vec.
     intros H; apply H, H_s_ry; rew vec.
@@ -219,235 +219,213 @@ Section Minsky.
     inversion H; auto.
   Qed.
   
-  Let sem_k_k_k : [[ [i LL_INC (q k) (q k) (q k) ] ]] vec_zero.
+  Let sem_k_k_k : [[ ⦑LL_INC (q k) (q k) (q k)⦒ ]] vec_zero.
   Proof.
-    simpl; unfold ll_tps_imp.
+    simpl; unfold ill_tps_imp.
     intros x Hx; rew vec.
     generalize (Hx vec_zero); rew vec.
     intros H; apply H, sem_k; auto.
   Qed.
 
-  Let Sig0_zero A : In A Sig0 -> [[ [iA] ]] vec_zero.
+  Let Σ0_zero c : In c Σ0 -> [[ ⦑c⦒ ]] vec_zero.
   Proof.
-    unfold Sig0.
-    intros [ H | H ]; subst. 
-    
-    apply sem_k_k_k.
-    
-    apply in_app_or in H.
-    destruct H as [ H | H ]; 
-    apply in_map_iff in H.
-    
-    destruct H as ((i & j) & H1 & H2); subst.
-    apply sem_x_y_y; simpl.
-    apply pos_not_diag_spec in H2; auto.
-    
-    destruct H as (y & H1 & _); subst.
-    apply sem_y_y_y.
+    unfold Σ0.
+    intros [ H | H ]; subst.
+    + apply sem_k_k_k.
+    + apply in_app_or in H.
+      destruct H as [ H | H ];
+      apply in_map_iff in H.
+      * destruct H as ((i & j) & H1 & H2); subst.
+        apply sem_x_y_y; simpl.
+        apply pos_not_diag_spec in H2; auto.
+      * destruct H as (y & H1 & _); subst.
+        apply sem_y_y_y.
   Qed.
   
-  Let SigI_zero A : In A SigI -> [[ [iA] ]] vec_zero.
+  Let ΣI_zero c : In c ΣI -> [[ ⦑c⦒  ]] vec_zero.
   Proof.
-    unfold SigI.
+    unfold ΣI.
     destruct P as (i & lP).
     intros H.
     apply mm_linstr_enc_spec in H.
-    destruct H as [ (j & x & H1 & H2) | (j & x & p & H1 & [ H2 | H2 ]) ]; subst A.
-    
-    simpl; unfold ll_tps_imp.
-    intros v Hv.
-    rewrite vec_plus_comm, vec_zero_plus.
-    apply H_s_q.
-    apply mm_compute_INC with (1 := H1).
-    specialize (Hv (vec_one x)).
-    replace (vec_change v x (S (vec_pos v x))) with (vec_plus (vec_one x) v).
-    apply H_s_q.
-    apply Hv.
-    apply H_s_rx; split.
-    apply vec_pos_ext.
-    intros p; rewrite vec_pos_plus.
-    destruct (pos_eq_dec x p).
-    subst; rewrite vec_one_spec_eq, vec_change_eq; auto.
-    rewrite vec_one_spec_neq, vec_change_neq; auto.
-    
-    simpl; unfold ll_tps_imp.
-    intros v (Hv1 & Hv2).
-    rewrite vec_plus_comm, vec_zero_plus.
-    apply H_s_q.
-    rewrite H_s_ry in Hv1.
-    apply mm_compute_DEC_0 with (1 := H1); auto.
-    apply H_s_q; auto.
-    
-    simpl; unfold ll_tps_imp.
-    intros v Hv w Hw.
-    rewrite (vec_plus_comm v), vec_zero_plus.
-    apply H_s_q.
-    apply H_s_rx in Hv.
-    rewrite vec_plus_comm.
-    assert (exists u, vec_pos (vec_plus v w) x = S u) as Hu.
-      exists (vec_pos w x).
+    destruct H as [ (j & x & H1 & H2) | (j & x & p & H1 & [ H2 | H2 ]) ]; subst c.
+    + simpl; unfold ill_tps_imp.
+      intros v Hv.
+      rewrite vec_plus_comm, vec_zero_plus.
+      apply H_s_q.
+      apply mm_compute_INC with (1 := H1).
+      specialize (Hv (vec_one x)).
+      replace (vec_change v x (S (vec_pos v x))) with (vec_plus (vec_one x) v).
+      apply H_s_q.
+      * apply Hv, H_s_rx; trivial.
+      * apply vec_pos_ext.
+        intros p; rewrite vec_pos_plus.
+        destruct (pos_eq_dec x p).
+        - subst; rewrite vec_one_spec_eq, vec_change_eq; auto.
+        - rewrite vec_one_spec_neq, vec_change_neq; auto.
+    + simpl; unfold ill_tps_imp.
+      intros v (Hv1 & Hv2).
+      rewrite vec_plus_comm, vec_zero_plus.
+      apply H_s_q.
+      rewrite H_s_ry in Hv1.
+      apply mm_compute_DEC_0 with (1 := H1); auto.
+      apply H_s_q; auto.
+    + simpl; unfold ill_tps_imp.
+      intros v Hv w Hw.
+      rewrite (vec_plus_comm v), vec_zero_plus.
+      apply H_s_q.
+      apply H_s_rx in Hv.
+      rewrite vec_plus_comm.
+      assert (exists u, vec_pos (vec_plus v w) x = S u) as Hu.
+      1: { exists (vec_pos w x).
+           rewrite vec_pos_plus; subst.
+           rewrite vec_one_spec_eq; auto. }
+      destruct Hu as (u & Hu).
+      apply mm_compute_DEC_S with (1 := H1) (u := vec_pos w x); auto.
       rewrite vec_pos_plus; subst.
       rewrite vec_one_spec_eq; auto.
-    destruct Hu as (u & Hu).
-    apply mm_compute_DEC_S with (1 := H1) (u := vec_pos w x); auto.
-    rewrite vec_pos_plus; subst.
-    rewrite vec_one_spec_eq; auto.
-    apply H_s_q.
-    eq goal Hw; f_equal.
-    apply vec_pos_ext.
-    intros r.
-    destruct (pos_eq_dec x r).
-    subst; rewrite vec_change_eq; auto.
-    rewrite vec_change_neq, vec_pos_plus; auto.
-    subst; rewrite vec_one_spec_neq; auto.
+      apply H_s_q.
+      eq goal Hw; f_equal.
+      apply vec_pos_ext.
+      intros r.
+      destruct (pos_eq_dec x r).
+      * subst; rewrite vec_change_eq; auto.
+      * rewrite vec_change_neq, vec_pos_plus; auto.
+        subst; rewrite vec_one_spec_neq; auto.
   Qed.
  
-  Lemma Sig_zero A : In A Sig -> [[ [i A] ]] vec_zero.
-  Proof.
-    intros H; apply in_app_or in H; destruct H.
-    apply Sig0_zero; auto.
-    apply SigI_zero; auto.
-  Qed.
+  Lemma Σ_zero c : In c Σ -> [[ ⦑c⦒  ]] vec_zero.
+  Proof. intros H; apply in_app_or in H as []; auto. Qed.
   
-  Corollary ll_tps_Sig_zero : ll_tps_list s (map (fun c => ❗[i c]) Sig) vec_zero.
+  Corollary ill_tps_Σ_zero : ill_tps_list s (map (fun c => !⦑c⦒) Σ) vec_zero.
   Proof.
-    generalize Sig Sig_zero; intros S.
+    generalize Σ Σ_zero; intros S.
     induction S as [ | A S IHS ]; intros HS.
-    simpl; auto.
-    simpl; exists vec_zero, vec_zero; repeat split; auto.
-    rew vec.
-    apply HS; left; auto.
-    apply IHS; intros; apply HS; right; auto.
+    + simpl; auto.
+    + simpl; exists vec_zero, vec_zero; repeat split; auto.
+      * rew vec.
+      * apply HS; left; auto.
+      * apply IHS; intros; apply HS; right; auto.
   Qed.
  
-  Theorem lemma_5_5 v i : Sig; vec_map_list v rx ⊦ q i -> P // (i,v) ->> (k,vec_zero).
+  Theorem lemma_5_5 v i : Σ; vec_map_list v rx ⊦ q i -> P // (i,v) ->> (k,vec_zero).
   Proof.
     intros H.
-    apply G_eill_sound in H.
-    apply ll_tps_sound with (s := s) in H.
+    apply G_eill_S_ill_wc in H.
+    apply ill_tps_sound with (s := s) in H.
     red in H.
     specialize (H v).
     rewrite vec_plus_comm, vec_zero_plus in H.
     apply H_s_q; auto.
     apply H.
-    rewrite ll_tps_app.
+    rewrite ill_tps_app.
     exists vec_zero, v; repeat split.
-    rew vec.
-    apply ll_tps_Sig_zero.
-    apply ll_tps_vec_map_list; auto.
+    + rew vec.
+    + apply ill_tps_Σ_zero.
+    + apply ill_tps_vec_map_list; auto.
   Qed.
   
   Let prop_5_2_rec (p : pos n) v Ga : 
          vec_pos v p = 0 
-      -> Sig0;                      Ga ⊦ ry p 
-      -> Sig0; vec_map_list v rx ++ Ga ⊦ ry p.
+      -> Σ0;                      Ga ⊦ ry p 
+      -> Σ0; vec_map_list v rx ++ Ga ⊦ ry p.
   Proof.
     revert Ga.
     induction v as [ | r | v w Hv Hw ] using (@vec_nat_induction _); intros Ga.
-
-    intros _.
-    rewrite vec_map_list_zero.
-    auto.
-    
-    destruct (pos_eq_dec r p) as [ H | H ]; rew vec.
-    discriminate.
-    intros _ H1.
-    rewrite vec_map_list_one.
-    apply in_eill_dec with (rx r) (ry p); auto.
-    right; apply in_or_app; left.
-    apply in_map_iff.
-    exists (r,p); simpl; split; auto.
-    apply pos_not_diag_spec; auto.
-    apply in_eill_ax.
-    
-    intros H1 H2.
-    rewrite vec_pos_plus in H1.
-    apply in_eill_perm with (vec_map_list v rx ++ vec_map_list w rx ++ Ga).
-    rewrite vec_map_list_plus, app_ass; auto.
-    apply Hv.
-    lia.
-    apply Hw; auto; lia.
+    + intros _.
+      rewrite vec_map_list_zero.
+      auto.
+    +  destruct (pos_eq_dec r p) as [ H | H ]; rew vec; try discriminate.
+       intros _ H1.
+       rewrite vec_map_list_one.
+       apply in_geill_dec with (rx r) (ry p); auto.
+      right; apply in_or_app; left.
+      apply in_map_iff.
+      exists (r,p); simpl; split; auto.
+      apply pos_not_diag_spec; auto.
+      apply in_geill_ax.
+    + intros H1 H2.
+      rewrite vec_pos_plus in H1.
+      apply in_geill_perm with (vec_map_list v rx ++ vec_map_list w rx ++ Ga).
+      rewrite vec_map_list_plus, app_ass; auto.
+      apply Hv.
+      lia.
+      apply Hw; auto; lia.
   Qed.
   
   Lemma prop_5_2 p v : 
            vec_pos v p = 0 
-        -> Sig; vec_map_list v rx ⊦ ry p.
+        -> Σ; vec_map_list v rx ⊦ ry p.
   Proof.
     rewrite (app_nil_end (_ _ rx)).
     intros H.
-    apply g_eill_mono_Si with Sig0.
-    unfold Sig; intros ? ?; apply in_or_app; left; auto.
+    apply g_eill_mono_Si with Σ0.
+    unfold Σ; intros ? ?; apply in_or_app; left; auto.
     apply prop_5_2_rec; auto.
-    apply in_eill_inc with (ry p) (ry p).
+    apply in_geill_inc with (ry p) (ry p).
     right; apply in_or_app; right.
     apply in_map_iff.
     exists p; split; auto.
     apply pos_list_prop.
-    apply in_eill_ax.
+    apply in_geill_ax.
   Qed.
   
-  Lemma lemma_5_3 i v : P // (i,v) ->> (k,vec_zero) -> Sig; vec_map_list v rx ⊦ q i.
+  Lemma lemma_5_3 i v : P // (i,v) ->> (k,vec_zero) -> Σ; vec_map_list v rx ⊦ q i.
   Proof.
     intros (r & Hr); revert i v Hr.
     induction r as [ | r IHr ]; intros i v Hr.
-    
-    apply sss_steps_0_inv in Hr.
-    inversion Hr; subst i v; clear Hr.
-    rewrite vec_map_list_zero.
-    apply in_eill_inc with (q k) (q k).
-    left; auto.
-    apply in_eill_ax.
-    
-    apply sss_steps_S_inv' in Hr.
-    destruct Hr as ((j,w) & H1 & H2).
-    apply IHr in H2.
-    generalize (sss_step_in_code H1); simpl fst; intros H3.
-    apply in_code_subcode in H3.
-    destruct H3 as (ii & Hii).
-    apply sss_step_subcode_inv with (1 := Hii) in H1.
-    destruct ii as [ p | p l ].
-    
-    apply mm_sss_INC_inv in H1.
-    destruct H1; subst.
-    apply in_eill_inc with (rx p) (q (1+i)).
-    apply in_or_app; right.
-    unfold SigI; destruct P as (ip,lP).
-    apply subcode_mm_linstr_enc; auto.
-    revert H2; apply in_eill_perm.
-    rewrite vec_change_succ, vec_map_list_plus, vec_map_list_one; auto.
-    
-    case_eq (vec_pos v p).
-    
-    intros Hv.
-    apply mm_sss_DEC0_inv in H1; auto.
-    destruct H1; subst l w.
-    apply in_eill_fork with (ry p) (q j); auto.
-    apply in_or_app; right.
-    unfold SigI; destruct P as (ip,lP).
-    apply subcode_mm_linstr_dec with (1 := Hii); auto.
-    left; auto.
-    apply prop_5_2; auto.
-    
-    intros u Hu.
-    apply mm_sss_DEC1_inv with (u := u) in H1; auto.
-    destruct H1; subst j w.
-    rewrite vec_change_pred with (1 := Hu).
-    apply in_eill_perm with (1 := Permutation_sym (vec_map_list_plus _ _ _)).
-    rewrite vec_map_list_one.
-    apply in_eill_dec with (rx p) (q (1+i)); auto.
-    apply in_or_app; right.
-    unfold SigI; destruct P as (ip,lP).
-    apply subcode_mm_linstr_dec with (1 := Hii); auto.
-    right; left; auto.
-    apply in_eill_ax.
+    + apply sss_steps_0_inv in Hr.
+      inversion Hr; subst i v; clear Hr.
+      rewrite vec_map_list_zero.
+      apply in_geill_inc with (q k) (q k).
+      left; auto.
+      apply in_geill_ax.
+    + apply sss_steps_S_inv' in Hr.
+      destruct Hr as ((j,w) & H1 & H2).
+      apply IHr in H2.
+      generalize (sss_step_in_code H1); simpl fst; intros H3.
+      apply in_code_subcode in H3.
+      destruct H3 as (ii & Hii).
+      apply sss_step_subcode_inv with (1 := Hii) in H1.
+      destruct ii as [ p | p l ].
+      * apply mm_sss_INC_inv in H1.
+        destruct H1; subst.
+        apply in_geill_inc with (rx p) (q (1+i)).
+        - apply in_or_app; right.
+          unfold ΣI; destruct P as (ip,lP).
+          apply subcode_mm_linstr_enc; auto.
+        - revert H2; apply in_geill_perm.
+          rewrite vec_change_succ, vec_map_list_plus, vec_map_list_one; auto.
+      * case_eq (vec_pos v p).
+        - intros Hv.
+          apply mm_sss_DEC0_inv in H1; auto.
+          destruct H1; subst l w.
+          apply in_geill_fork with (ry p) (q j); auto.
+          ++ apply in_or_app; right.
+             unfold ΣI; destruct P as (ip,lP).
+             apply subcode_mm_linstr_dec with (1 := Hii); auto.
+             left; auto.
+          ++ apply prop_5_2; auto.
+        - intros u Hu.
+          apply mm_sss_DEC1_inv with (u := u) in H1; auto.
+          destruct H1; subst j w.
+          rewrite vec_change_pred with (1 := Hu).
+          apply in_geill_perm with (1 := Permutation_sym (vec_map_list_plus _ _ _)).
+          rewrite vec_map_list_one.
+          apply in_geill_dec with (rx p) (q (1+i)); auto.
+          ++ apply in_or_app; right.
+             unfold ΣI; destruct P as (ip,lP).
+             apply subcode_mm_linstr_dec with (1 := Hii); auto.
+             right; left; auto.
+          ++ apply in_geill_ax.
   Qed.
    
   Theorem G_eill_mm i v : P // (i,v) ->> (k,vec_zero) 
-                      <-> Sig; vec_map_list v rx ⊦ q i.
+                      <-> Σ; vec_map_list v rx ⊦ q i.
   Proof.
     split.
-    apply lemma_5_3.
-    apply lemma_5_5; auto.
+    + apply lemma_5_3.
+    + now apply lemma_5_5.
   Qed.
   
 End Minsky.
