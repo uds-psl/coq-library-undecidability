@@ -249,7 +249,7 @@ Section Move.
     {
       intros tin ((), tout) H. intros x s HEncX.
       TMSimp; clear_trivial_eqs.
-      destruct HEncX as (r1&->&Hs).
+      destruct HEncX as (r1&->&Hs). 
       erewrite MoveToSymbol_correct_midtape; eauto.
       - repeat econstructor. now rewrite map_id, map_rev. auto.
       - apply stop_not_in.

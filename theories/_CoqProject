@@ -311,6 +311,7 @@ TM/Code/CaseBool.v
 # Programming case studies
 #TM/Code/SumTM.v
 TM/Code/NatTM.v
+TM/Code/NatSub.v
 TM/Code/ListTM.v
 TM/Code/List/App.v
 TM/Code/List/Concat_Repeat.v

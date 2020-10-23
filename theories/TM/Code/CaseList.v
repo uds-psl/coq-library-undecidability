@@ -369,7 +369,7 @@ Section CaseList.
     { unfold Constr_nil. TM_Correct. }
     { reflexivity. }
     { intros tin ((), tout) H. cbn in *. intros s HRight.
-      specialize H with (x := nil) (1 := eq_refl) (2 := HRight). modpon H. contains_ext. unfold WriteValue_size. lia. }
+      specialize H with (x := nil) (1 := eq_refl) (2 := HRight). contains_ext. unfold WriteValue_size. lia. }
   Qed.
   
 

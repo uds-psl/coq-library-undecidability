@@ -20,14 +20,11 @@ Definition CaseCom_Rel : pRel sigCom^+ (FinType (EqType (option ACom))) 1 :=
   fun tin '(yout, tout) =>
     forall (t : Tok) (s : nat),
       tin[@Fin0] ≃(;s) t ->
-      match yout, t with
-      | Some appAT, appT => isVoid_size tout[@Fin0] (CaseCom_size t s)
-      | Some lamAT, lamT => isVoid_size tout[@Fin0] (CaseCom_size t s)
-      | Some retAT, retT => isVoid_size tout[@Fin0] (CaseCom_size t s)
-      | None, varT n => tout[@Fin0] ≃(;CaseCom_size t s) n
-      | _, _ => False
-      end
-.
+      match yout with
+      | Some c => 
+          isVoid_size tout[@Fin0] (CaseCom_size t s) /\ ACom2Com c = t
+      | None => exists n, t = varT n /\ tout[@Fin0] ≃(;CaseCom_size t s) n
+      end.
 
 Definition CaseCom_steps := 11.
 
@@ -42,7 +39,7 @@ Proof.
     destruct H; TMSimp.
     { (* "Then" branche *)
       specialize (H t s HEncT).
-      destruct t; auto.
+      destruct t; cbn in H;now eauto.
     }
     { (* "Else" branche *)
       rename H into HCaseSum.

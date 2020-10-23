@@ -156,8 +156,8 @@ Proof.
   {
     intros tin ([], tout) H. hnf; intros. TMSimp.
     modpon H. destruct p0; cbn in *.
-    - modpon H2. modpon H3. repeat split; auto. now apply atHSB_moveLeft_contains.
-    - modpon H2. modpon H3. repeat split; auto. now apply atHSB_moveLeft_contains.
+    - modpon H2. repeat split; auto. now apply atHSB_moveLeft_contains.
+    - modpon H2. repeat split; auto. now apply atHSB_moveLeft_contains.
     - modpon H6. TMSimp. repeat split; auto. now apply atHSB_moveLeft_contains.
   }
 Qed.
@@ -419,8 +419,8 @@ Proof.
   {
     intros tin ([], tout) H. hnf; intros. TMSimp.
     modpon H. destruct p0; cbn in *.
-    - modpon H2. modpon H3. repeat split; auto. now apply atHSB_moveLeft_contains.
-    - modpon H2. modpon H3. repeat split; auto. now apply atHSB_moveLeft_contains.
+    - modpon H2. repeat split; auto. now apply atHSB_moveLeft_contains.
+    - modpon H2. repeat split; auto. now apply atHSB_moveLeft_contains.
     - modpon H6. TMSimp. repeat split; auto. now apply atHSB_moveLeft_contains.
   }
 Qed.

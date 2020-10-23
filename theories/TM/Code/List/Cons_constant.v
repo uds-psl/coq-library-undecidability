@@ -25,7 +25,7 @@ Section Fix.
     ).
 
   
-  Lemma Realises : M ⊨ Rel.
+  Lemma Realise : M ⊨ Rel.
   Proof.
     eapply Realise_monotone.
     { unfold M. TM_Correct. eapply RealiseIn_Realise,WriteString_Sem. }

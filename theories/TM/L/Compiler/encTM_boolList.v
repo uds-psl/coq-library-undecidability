@@ -35,7 +35,7 @@ Section Fix.
   
   Definition M__loop := While M__step.
   
-  Definition Realises__loop :
+  Definition Realise__loop :
     Realise M__loop (fun t '(r, t') =>
       forall (l l': list bool),
         t[@Fin0] ≃ l ->
@@ -76,7 +76,7 @@ Section Fix.
   Definition M : pTM (Σ) ^+ unit 3 :=
     (*LiftTapes (MoveToSymbol (fun _ => false) id) [|Fin1|];;*) M__loop.
 
-  Theorem Realises :
+  Theorem Realise :
     Realise M (fun t '(r, t') =>
                      forall (l : list bool),
                         t[@Fin0] ≃ l ->
@@ -86,7 +86,7 @@ Section Fix.
                         /\ (isVoid (t'[@Fin0]) /\ isVoid (t'[@Fin2]))).
   Proof.
     eapply Realise_monotone.
-    {unfold M. TM_Correct. apply Realises__loop. }
+    {unfold M. TM_Correct. apply Realise__loop. }
     hnf. intros;TMSimp. specialize H with (l':= nil). modpon H. nia. autorewrite with list in H. eauto.
   Qed.   
 
@@ -116,7 +116,7 @@ Section Fix.
 
   Definition M__loop := While M__step.
   
-  Definition Realises__loop (H__neq : s <> b):
+  Definition Realise__loop (H__neq : s <> b):
     Realise M__loop (fun t '(_, t') =>
       forall (l l': list bool),
         tape_local_l t[@Fin0] = (map (fun (x:bool) => if x then s else b) l++[b])%list ->
@@ -129,7 +129,7 @@ Section Fix.
     {
       unfold M__loop,M__step. TM_Correct_noSwitchAuto. TM_Correct. cbn. intros f.
       destructBoth f as [].
-      all:TM_Correct. apply Cons_constant.Realises. 
+      all:TM_Correct. apply Cons_constant.Realise. 
     }
     unfold encTM.
     eapply WhileInduction; intros;hnf.
@@ -159,7 +159,7 @@ Section Fix.
     WriteValue (encode (X:=list bool) nil ) ⇑ retr_list @ [|Fin1|];;
     M__loop.
 
-  Theorem Realises (H__neq : s <> b):
+  Theorem Realise (H__neq : s <> b):
     Realise M (fun t '(r, t') =>
                      forall (l : list bool),
                         t[@Fin0] = encTM s b l ->
@@ -169,7 +169,7 @@ Section Fix.
   Proof.  
     eapply Realise_monotone.
     {
-      unfold M. TM_Correct. now apply Realises__loop. 
+      unfold M. TM_Correct. now apply Realise__loop. 
     }
     intros ? []. TMSimp.
     specialize (@MoveToSymbol_correct_midtape_end _ (fun _ => false)

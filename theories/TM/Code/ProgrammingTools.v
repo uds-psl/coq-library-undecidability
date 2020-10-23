@@ -10,7 +10,7 @@ Require Import Lia.
 
 
 (** This tactic automatically solves/instantiates premises of a hypothesis. If the hypothesis is a conjunction, it is destructed. *)
-Ltac modpon H :=
+Ltac modpon' H :=
   simpl_surject;
   lazymatch type of H with
   | forall (i : Fin.t _), ?P => idtac
@@ -25,24 +25,25 @@ Ltac modpon H :=
                  ]
           )
       then idtac (* "solved premise of type" X *);
-           modpon H
+           modpon' H
       else (spec_assert H;
             [ idtac (* "could not solve premise" X *) (* new goal for the user *)
-            | modpon H (* continue after the user has proved the premise manually *)
+            | modpon' H (* continue after the user has proved the premise manually *)
             ]
            )
     | _ =>
       (* instantiate variable [x] with evar *)
       let x' := fresh "x" in
       evar (x' : X); specialize (H x'); subst x';
-      modpon H
+      modpon' H
     end
   | ?X /\ ?Y =>
     let H' := fresh H in
-    destruct H as [H H']; modpon H; modpon H'
+    destruct H as [H H']; modpon' H; modpon' H'
   | _ => idtac
   end.
 
+Ltac modpon H := progress (modpon' H).
 
 
 (** To get rid of all those uggly tape rewriting hypothesises. Be warned that maybe the goal can't be solved after that. *)
@@ -67,7 +68,7 @@ Tactic Notation "tacInEvar" constr(E) tactic3(tac) :=
   (only [__tmp_callInEvar]:tac);unify E __tmp_callInEvar;subst __tmp_callInEvar;instantiate.
 
 Tactic Notation "introsSwitch" ne_simple_intropattern_list(P):=
-  match goal with
+  lazymatch goal with
     |- (forall f' , ?REL _ (?Rmove f')) =>
     tacInEvar Rmove intros P;cbn beta;intros P
   end.

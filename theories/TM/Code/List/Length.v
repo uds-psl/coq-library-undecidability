@@ -212,7 +212,7 @@ Section Lenght.
     }
     {
       intros tin ((), tout) H. intros xs s0 s1 s2 s3 HEncXs Hout HInt2 HInt3.
-      TMSimp. modpon H. modpon H0. modpon H2. modpon H4. modpon H3.
+      TMSimp. modpon H. modpon H0. modpon H2. modpon H4.
       repeat split; auto.
     }
   Qed.

@@ -119,7 +119,7 @@ Module BoollistToEnc.
              /\ tout[@Fin3] = tin[@Fin3]).
 
     
-    Lemma Realises__step : M__step ⊨ Rel__step .
+    Lemma Realise__step : M__step ⊨ Rel__step .
     Proof.
       eapply Realise_monotone.
       {unfold M__step. TM_Correct_noSwitchAuto. TM_Correct. 
@@ -201,10 +201,10 @@ Module BoollistToEnc.
              /\ isVoid tout[@Fin2]
              /\ tout[@Fin3] = tin[@Fin3]).
 
-    Lemma Realises__loop : M__loop ⊨ Rel__loop .
+    Lemma Realise__loop : M__loop ⊨ Rel__loop .
     Proof.
       eapply Realise_monotone.
-      {unfold M__loop. TM_Correct_noSwitchAuto. TM_Correct. apply Realises__step. }
+      {unfold M__loop. TM_Correct_noSwitchAuto. TM_Correct. apply Realise__step. }
       eapply WhileInduction;intros;hnf;intros bs res Hbs Hres Ht2.
       -hnf in HLastStep. modpon HLastStep. destruct bs. 2:easy.
        TMSimp. easy.
@@ -222,7 +222,7 @@ Module BoollistToEnc.
       evar (c1 : nat). evar (c2 : nat).
       exists_UpToC (fun l => l * c1 + c2). 2:now smpl_upToC_solve.
       eapply TerminatesIn_monotone.
-      -unfold M__loop. TM_Correct. now apply Realises__step. now apply Terminates__step.
+      -unfold M__loop. TM_Correct. now apply Realise__step. now apply Terminates__step.
       -apply WhileCoInduction. unfold Ter'.
        intros tin k (bs&res&Hbs&Hres&Hxtin2&Hk).
        eexists. split.
@@ -252,11 +252,11 @@ Module BoollistToEnc.
                 LiftTapes (Reset _) [|Fin2|];;(*2: empty*)
                 M__loop.
 
-    Lemma Realises : M ⊨ M.Rel.
+    Lemma Realise : M ⊨ M.Rel.
     Proof.
       eapply Realise_monotone.
       {unfold M. TM_Correct_noSwitchAuto. TM_Correct.
-       all:eauto 1 using Length_Computes, ConcatRepeat.Realises,  App'_Realise,Realises__loop, Realises__step.
+       all:eauto 1 using Length_Computes, ConcatRepeat.Realise,  App'_Realise,Realise__loop, Realise__step.
        all:now (refine (Reset_Realise (X:=Pro) (I:=_))). }
       intros tin (yout,tout) H. hnf. intros bs Hbs Htin1 Htin2 Htin3.
       hnf in H. cbn in H. TMSimp. modpon H;[]. specialize H0 with (x:=[]). modpon H0;[].
@@ -282,7 +282,7 @@ Module BoollistToEnc.
       eexists_UpToC time.
       eapply TerminatesIn_monotone.
       { unfold M. TM_Correct.
-        all: eauto 2 using App'_Terminates,App'_Realise,Length_Computes,ConcatRepeat.Realises,ConcatRepeat.Terminates,Length_Terminates,Realises__loop.
+        all: eauto 2 using App'_Terminates,App'_Realise,Length_Computes,ConcatRepeat.Realise,ConcatRepeat.Terminates,Length_Terminates,Realise__loop.
         1,3:now (refine (Reset_Realise (X:=Pro) (I:=_))).
         1,2:now (refine ((Reset_Terminates (X:=Pro) (I:=_)))).
         simple apply Terminates__loop. }

@@ -71,7 +71,7 @@ Module ConcatRepeat.
 
 
 
-    Lemma Realises__step : M__step ⊨ Rel__step .
+    Lemma Realise__step : M__step ⊨ Rel__step .
     Proof.
       eapply Realise_monotone.
       {unfold M__step. TM_Correct. now apply App'_Realise. now apply Reset_Realise. }
@@ -103,10 +103,10 @@ Module ConcatRepeat.
 
     Definition M : pTM sig^+ unit 3 := While M__step.
 
-    Lemma Realises : M ⊨ Rel .
+    Lemma Realise : M ⊨ Rel .
     Proof.
       eapply Realise_monotone.
-      {unfold M. TM_Correct. apply Realises__step. }
+      {unfold M. TM_Correct. apply Realise__step. }
       eapply WhileInduction;intros;hnf;intros cs n xs Hcs Hn Hxs.
       -hnf in HLastStep. modpon HLastStep. destruct yout,n. 2:easy.
        TMSimp. easy.
@@ -169,7 +169,7 @@ Module ConcatRepeat.
       evar (c1 : nat). evar (c2 : nat).
       exists_UpToC (fun '(l,n) => n * l * c1 + c2). unfold M.
       eapply TerminatesIn_monotone.
-      -TM_Correct. now apply Realises__step. now apply Terminates__step.
+      -TM_Correct. now apply Realise__step. now apply Terminates__step.
       -apply WhileCoInduction. unfold Ter.
        intros tin k (cs&n&xs&Hcs&Hn&Hxs&Hk).
        eexists. unfold Ter__step. split.

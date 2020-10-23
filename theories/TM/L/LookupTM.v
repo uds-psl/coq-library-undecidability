@@ -251,7 +251,7 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
       repeat split; try lia.
       { hnf; cbn; eauto 7. }
       unfold Lookup_Step_steps_Nth' in *.
-      intros tmid_ b (HNth&HNthInj); TMSimp. modpon HNth. destruct b; modpon HNth.
+      intros tmid_ b (HNth&HNthInj); TMSimp. modpon HNth. destruct b; try modpon HNth.
       { (* nth_error H a = Some e *) destruct HNth as (e&HNth); modpon HNth. rewrite HNth in *.
         exists (CaseOption_steps), (Lookup_Step_steps_CaseOption n e).
         repeat split; try lia. unfold Lookup_Step_steps_CaseOption in *.
@@ -365,7 +365,7 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
         modpon HLastStep. destruct yout.
         + destruct HLastStep as (g'&HLastStep); modpon HLastStep.
           eexists. rewrite lookup_eq, HStar. eauto 10.
-        + modpon HLastStep. cbn. rewrite HStar. repeat split; auto.
+        +cbn. rewrite HStar. repeat split; auto.
     }
   Qed.
 

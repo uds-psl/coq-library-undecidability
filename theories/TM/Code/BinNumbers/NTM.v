@@ -260,7 +260,7 @@ Proof.
     intros tin ([], tout) H. intros x y Hx Hy Hright. destruct H as [H|H]; TMSimp.
     - modpon H. destruct x as [ | x]; cbn in *; auto. destruct H0 as [?|?]; TMSimp.
       + modpon H0. destruct y as [ | y]; cbn in *; auto. simpl_tape in *; simpl_surject. TMSimp.
-        modpon H1. modpon H2. modpon H2. modpon H3. modpon H4. repeat split; eauto.
+        modpon H1. modpon H3. modpon H4. repeat split; eauto.
       + modpon H0. destruct y as [ | y]; cbn in *; auto.
     - modpon H. destruct x as [ | x]; cbn in *; auto.
   }

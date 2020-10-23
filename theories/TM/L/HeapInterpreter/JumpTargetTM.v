@@ -295,30 +295,30 @@ Proof.
     destruct HIf; TMSimp.
     { (* Then of [CaseList], i.e. P = t :: P' *) rename H into HCaseList, H0 into HCaseCom, H2 into HCase.
       modpon HCaseList. destruct P as [ | t P']; auto; modpon HCaseList.
-      modpon HCaseCom.
-      destruct ymid as [ [ | | ] | ]; try destruct t; auto; simpl_surject; TMSimp.
+      modpon HCaseCom. 
+      destruct ymid as [ c | ]. 1:destruct HCaseCom as (?&<-). destruct c. all:TMSimp.
       { (* t = retT *)
         destruct HCase; TMSimp.
-        { (* k = S k' *) rename H into HCaseNat, H1 into HApp.
+        { (* k = S k' *) rename H0 into HCaseNat, H2 into HApp.
           modpon HCaseNat. destruct k as [ | k']; auto; modpon HCaseNat.
           modpon HApp.
           repeat split; auto.
         }
-        { (* k = 0 *) rename H into HCaseNat. rename H1 into HReset.
+        { (* k = 0 *) rename H0 into HCaseNat. rename H2 into HReset.
           modpon HCaseNat. destruct k as [ | k']; auto; modpon HCaseNat. modpon HReset .
           repeat split; auto.
         }
       }
-      { (* t = lamT *) rename H0 into HS, H1 into HApp.
+      { (* t = lamT *) rename H1 into HS, H2 into HApp.
         modpon HS.
         modpon HApp.
         repeat split; auto.
       }
-      { (* t = appT *) rename H0 into HApp.
+      { (* t = appT *) rename H1 into HApp.
         modpon HApp.
         repeat split; auto.
       }
-      { (* t = varT *) rename H0 into HVar, H1 into HApp.
+      { (* t = varT *) rename H0 into HVar, H3 into HApp.
         modpon HVar.
         modpon HApp.
         repeat split; auto.
@@ -390,7 +390,7 @@ Proof.
     { (* P = t :: P' (* other case is done by auto *) *)
       exists (CaseCom_steps), (JumpTarget_Step_steps_CaseCom Q k t). cbn; repeat split; try lia.
       intros tmid1_ ytok (HCaseCom&HCaseComInj); TMSimp. modpon HCaseCom.
-      destruct ytok as [ [ | | ] | ]; destruct t; auto; simpl_surject; TMSimp.
+      destruct ytok as [ c | ]. 1:destruct HCaseCom as (?&<-). destruct c as [ | | ]. all:TMSimp.
       { (* t = retT *)
         exists CaseNat_steps.
         destruct k as [ | k'].
@@ -407,7 +407,7 @@ Proof.
       }
       { (* t = appT *) hnf; cbn; eauto. }
       { (* t = varT n *)
-        exists (Constr_varT_steps), (App_Com_steps Q (varT n)). repeat split; try lia.
+        exists (Constr_varT_steps), (App_Com_steps Q (varT ymid)). repeat split; try lia.
         intros tmid2_ H (HVarT&HVarTInj); TMSimp. modpon HVarT. hnf; cbn. eauto 6.
       }
     }
@@ -496,7 +496,7 @@ Proof.
     }
     {
       modpon HStar.
-      destruct P as [ | [ | | | ] P']; auto; modpon HStar.
+      destruct P as [ | [ | | | ] P']; auto; try modpon HStar.
       - (* P = varT n :: P' *) modpon HLastStep. destruct yout; auto.
       - (* P = appT :: P' *) modpon HLastStep. destruct yout; auto.
       - (* P = lamT :: P' *) modpon HLastStep. destruct yout; auto.
@@ -550,7 +550,7 @@ Proof.
     }
     { (* recursion cases *)
       destruct P as [ | t P ]; auto.
-      destruct t; modpon HStep.
+      destruct t; try modpon HStep.
       - (* t = varT n *)
         exists (JumpTarget_Loop_steps P (Q++[varT n]) k). split.
         + hnf. do 3 eexists; repeat split; eauto.

@@ -96,9 +96,9 @@ Section mk_init_one.
     eapply Realise_monotone.
     {
       unfold M_init_one. TM_Correct.
-      -apply encTM2boolList.Realises. exact H_disj.
+      -apply encTM2boolList.Realise. exact H_disj.
       -apply Rev_Realise.      
-      -apply BoollistToEnc.Realises.     
+      -apply BoollistToEnc.Realise.     
       -apply APP_right_realises.
       (* -apply Reset_Realise with (X:=Pro). *)
     }
