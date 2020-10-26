@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Permutation Arith Lia.
+Require Import List Permutation Arith Lia Relations.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import utils pos vec.
@@ -43,7 +43,7 @@ Definition eimsell_cmd_vars c :=
     | LL_ZERO _ p q => p::q::nil
   end.
 
-(* Section GeIMSELL. *)
+Section GeIMSELL.
 
   Reserved Notation "Σ ; a ⊕ b ⊦ u" (at level 70, no associativity).
 
@@ -67,9 +67,96 @@ Definition eimsell_cmd_vars c :=
 
   where "Σ ; a ⊕ b ⊦ u" := (G_eimsell Σ a b u).
 
-(* End GeIMSELL. *)
+End GeIMSELL.
+
+Local Notation "Σ ; a ⊕ b ⊦e u" := (G_eimsell Σ a b u) (at level 70, no associativity).
 
 Notation imsell_vars := nat.
+
+From Undecidability.MinskyMachines Require Import MM2.
+
+Section MM2_GeIMSEL.
+
+  Variable q : eimsell_vars -> nat.
+
+  Definition mm2_instr_enc i ρ :=
+    match ρ with
+      | mm2_inc_a   => LL_INC true  (q (1+i)) (q i) :: nil
+      | mm2_inc_b   => LL_INC false (q (1+i)) (q i) :: nil
+      | mm2_dec_a j => LL_DEC true  (q j) (q i) :: LL_ZERO true  (q (1+i)) (q i) :: nil
+      | mm2_dec_b j => LL_DEC false (q j) (q i) :: LL_ZERO false (q (1+i)) (q i) :: nil
+    end.
+
+  Fact mm2_instr_enc_sound Σ ρ s1 s2 : mm2_atom ρ s1 s2 ->
+          match s1, s2 with (i,(a,b)), (j,(a',b')) =>
+            incl (mm2_instr_enc i ρ) Σ -> G_eimsell Σ a' b' (q j) -> G_eimsell Σ a b (q i)
+          end.
+  Proof.
+    induction 1 as [ i a b | i a b | i j a b | i j a b | i j b | i j a ]; simpl; intros HΣ H.
+    + constructor 2 with (q (S i)); auto; apply HΣ; simpl; auto.
+    + constructor 3 with (q (S i)); auto; apply HΣ; simpl; auto.
+    + constructor 4 with (q j); auto; apply HΣ; simpl; auto.
+    + constructor 5 with (q j); auto; apply HΣ; simpl; auto.
+    + constructor 6 with (q (1+i)); auto; apply HΣ; simpl; auto.
+    + constructor 7 with (q (1+i)); auto; apply HΣ; simpl; auto.
+  Qed.
+
+  Fixpoint mm2_linstr_enc i l :=
+    match l with
+      | nil => nil
+      | ρ::l => mm2_instr_enc i ρ ++ mm2_linstr_enc (1+i) l
+    end.
+
+  Fact mm2_linstr_enc_app i l m : mm2_linstr_enc i (l++m) = mm2_linstr_enc i l ++ mm2_linstr_enc (length l+i) m.
+  Proof.
+    revert i; induction l as [ | ? l IHl ]; intros ?; simpl; auto.
+    rewrite app_ass, IHl; do 3 f_equal; auto.
+  Qed.
+
+  Lemma mm2_step_linstr_sound Σ P s1 s2 : mm2_step P s1 s2 -> 
+          match s1, s2 with (i,(a,b)), (j,(a',b')) =>
+            incl (mm2_linstr_enc 1 P) Σ -> G_eimsell Σ a' b' (q j) -> G_eimsell Σ a b (q i)
+          end.
+  Proof.
+    intros (ρ & (l&r&H1&H2) & H3).
+    apply mm2_instr_enc_sound with (Σ := Σ) in H3; revert s1 s2 H2 H3.
+    intros (i,(a,b)) (j,(a',b')); simpl; intros H2 H3 H4 H5.
+    apply H3; auto.
+    apply incl_tran with (2 := H4).
+    rewrite H1, mm2_linstr_enc_app.
+    apply incl_appr; simpl.
+    apply incl_appl.
+    rewrite <- H2, plus_comm.
+    apply incl_refl.
+  Qed.
+
+  Variable P : list mm2_instr.
+
+  Definition mm2_prog_enc := LL_STOP (q 0) :: mm2_linstr_enc 1 P.
+
+  Notation Σ := mm2_prog_enc.
+
+  Lemma mm2_prog_enc_stop : G_eimsell Σ 0 0 (q 0).
+  Proof. constructor 1; simpl; auto. Qed.
+
+  Lemma mm2_prog_enc_compute s1 s2 : clos_refl_trans _ (mm2_step P) s1 s2 ->
+          match s1, s2 with (i,(a,b)), (j,(a',b')) =>
+             G_eimsell Σ a' b' (q j) -> G_eimsell Σ a b (q i)
+          end.
+  Proof.
+    induction 1 as [ (?,(?,?)) (?,(?,?)) | (?,(?,?)) | (?,(?,?)) (?,(?,?)) (?,(?,?))  ]; eauto.
+    + apply mm2_step_linstr_sound with (Σ := Σ) in H.
+      apply H, incl_tl, incl_refl.
+  Qed.
+
+  Theorem mm2_prog_enc_correct a b : MM2_HALTS_ON_ZERO (P,a,b) -> G_eimsell Σ a b (q 1).
+  Proof.
+    intros H.
+    apply mm2_prog_enc_compute in H.
+    apply H, mm2_prog_enc_stop.
+  Qed.
+
+End MM2_GeIMSEL.
 
 Section IMSELL.
 
@@ -244,7 +331,7 @@ Section IMSELL.
     apply in_map_iff; eauto.
   Qed.
 
-  Theorem G_eimsell_sound Σ x y u : Σ ; x ⊕ y ⊦ u -> eimsell_imsell Σ x y ⊢ £u .
+  Theorem G_eimsell_sound Σ x y u : Σ ; x ⊕ y ⊦e u -> eimsell_imsell Σ x y ⊢ £u .
   Proof.
     induction 1 as [ p H1 
                    | x y p q H1 H2 IH2 | x y p q H1 H2 IH2 
@@ -429,14 +516,14 @@ Section IMSELL.
          ⟦A⟧ ⊆ ⟦B⟧ -> [< Γ |- A >] ⊆ [< Γ |- B >].
   Proof.
     intros H x; simpl; unfold imsell_sequent_tps.
-    intros H1 a H2.
+    intros H1 ? H2.
     apply H, H1; auto.
   Qed.
 
   Fact imsell_perm_tps Γ Δ : Γ ~p Δ -> forall A, [< Γ |- A >] ⊆ [< Δ |- A >].
   Proof.
     intros H1 B x; unfold imsell_sequent_tps.
-    intros H2 a H3.
+    intros H2 ? H3.
     apply H2; revert H3. 
     apply imsell_tps_perm, Permutation_sym; auto.
   Qed.
@@ -477,13 +564,13 @@ Section IMSELL.
       * subst; apply vec_plus_assoc.
       * eq goal H6; f_equal; rew vec.
 
-    + simpl; intros y Hy a Ha.
+    + simpl; intros y Hy x Hx.
       rewrite vec_plus_assoc.
       apply IH1.
-      exists a, y; repeat split; auto; lia.
+      exists x, y; repeat split; auto; lia.
 
-    + intros x (a & g & H2 & H3 & H4).
-      apply IH1; exists a, g; repeat split; auto.
+    + intros x (y & z & H2 & H3 & H4).
+      apply IH1; exists y, z; repeat split; auto.
       apply H3.
 
     + intros x Hx; split.
@@ -491,19 +578,21 @@ Section IMSELL.
       * rew vec.
         revert Hx; apply imsell_tps_lbang; auto. 
 
-    + intros x (a & g & -> & H3 & H4); rew vec.
+    + intros x (y & z & -> & H3 & H4); rew vec.
       apply proj2, HK_unit1 in H3; auto; subst.
       rewrite vec_plus_comm.
       now apply IH2.
   
-    + intros x (a & g & G2 & G3 & G4).
+    + intros x (y & z & G2 & G3 & G4).
       apply IH2.
-      exists a, g.
-      repeat (split; auto).
-      exists a, g.
-      repeat (split; auto).
+      exists y, z; repeat (split; auto).
+      exists y, z; repeat (split; auto).
       apply proj2, HK_unit1 in G3; auto.
       subst; rew vec; auto.
   Qed.
+
+  Section completeness.
+
+    
 
 End IMSELL.
