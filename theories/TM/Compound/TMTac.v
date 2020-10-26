@@ -89,9 +89,9 @@ Ltac TMSimp1_old T :=
   | [ H : Some _ = None   |- _ ] => inv H
 
   | [ H : _ /\ _ |- _] => destruct H
-  | [ H : ex ?P |- _] =>
-    lazymatch type of P with
-    | tapes _ _ -> Prop =>
+  | [ H : @ex ?A ?P |- _] =>
+    lazymatch A with
+    | tapes _ _ =>
       let tmid := fresh "tmid" in
       destruct H as (tmid&H)
     | _ => (* probably some label *)
@@ -175,9 +175,9 @@ Ltac TMSimp1 T :=
   | [ H : Some _ = None   |- _ ] => discriminate H
 
   | [ H : _ /\ _ |- _] => destruct H
-  | [ H : ex ?P |- _] =>
-    lazymatch type of P with
-    | tapes _ _ -> Prop =>
+  | [ H : @ex ?A ?P |- _] =>
+    lazymatch A with
+    | tapes _ _  =>
       let tmid := fresh "tmid" in
       destruct H as (tmid&H)
     | _ => (* probably some label *)
