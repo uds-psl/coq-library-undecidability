@@ -5,10 +5,9 @@ Require Import Undecidability.CFG.CFP.
 Require Import Undecidability.CFG.CFG.
 Require Undecidability.CFG.Reductions.CFPP_to_CFP.
 
-Require Import Undecidability.Shared.Prelim.
-Require Import Undecidability.Problems.Reduction.
+Require Import Undecidability.Synthetic.Definitions.
 
-Lemma reduction :
+Theorem reduction :
   CFPI ⪯ CFI.
 Proof.
   exists (fun '(R1, R2, a) => (CFPP_to_CFP.G R1 a, CFPP_to_CFP.G R2 a)). intros [[R1 R2] a].

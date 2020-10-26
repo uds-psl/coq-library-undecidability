@@ -16,8 +16,8 @@ From Undecidability.Synthetic Require Import Undecidability.
 
 Require Import Undecidability.TM.TM.
 
-From Undecidability.PCP 
-  Require Import PCP HALT_TM1_to_PCPb.
+Require Import Undecidability.PCP.PCP.
+Require Import Undecidability.PCP.Reductions.HaltTM_1_to_PCPb.
 
 From Undecidability.MinskyMachines
   Require Import MM PCPb_to_MM.
@@ -70,7 +70,7 @@ Theorem Hilberts_Tenth :
   ⎩ HaltTM 1 ⪯ₘ PCPb ⪯ₘ MM_HALTING ⪯ₘ FRACTRAN_HALTING ⪯ₘ DIO_LOGIC_SAT ⪯ₘ DIO_ELEM_SAT ⪯ₘ DIO_SINGLE_SAT ⪯ₘ H10 ⎭.
 Proof.
   msplit 6.
-  + apply HALT_TM1_to_PCPb.
+  + apply HaltTM_1_to_PCPb.
   + apply PCPb_MM_HALTING.
   + apply MM_FRACTRAN_HALTING.
   + apply FRACTRAN_HALTING_DIO_LOGIC_SAT.

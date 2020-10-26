@@ -9,8 +9,7 @@
 
 Require Import List Arith Bool Eqdep_dec.
 
-From Undecidability.Problems
-  Require Import Reduction.
+Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.ReducibilityFacts.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.

@@ -1,1 +1,0 @@
-From Undecidability.MinskyMachines Require Export MUREC_MM.

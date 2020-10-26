@@ -9,7 +9,7 @@ Require Import Undecidability.PCP.Util.Facts.
 Require Import Undecidability.PCP.Util.PCP_facts.
 
 Require Import Undecidability.Shared.Prelim.
-Require Import Undecidability.Problems.Reduction.
+Require Import Undecidability.Synthetic.Definitions.
 
 (** * PCP to CFPP *)
 Hint Rewrite concat_app map_app map_map : list.
@@ -253,7 +253,7 @@ Section Post_CFG.
   
 End Post_CFG.
 
-Lemma reduction :
+Theorem reduction :
   CFPP ⪯ CFP.
 Proof.
   exists (fun '(R, a) => (G R a)). intros [R a].

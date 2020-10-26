@@ -1,1 +1,0 @@
-From Undecidability.MinskyMachines.Reductions Require Export MM_to_MMA2.

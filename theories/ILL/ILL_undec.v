@@ -19,7 +19,9 @@ From Undecidability.StackMachines    Require Import BSM.
 From Undecidability.MinskyMachines   Require Import MM.
 
 From Undecidability.ILL 
-  Require Import EILL ILL PCP_iBPCP iBPCP_MM MM_EILL EILL_ILL.
+  Require Import EILL ILL iBPCP_MM MM_EILL EILL_ILL.
+
+Require Import Undecidability.PCP.Reductions.HaltTM_1_to_PCPb.
 
 (** The reduction chain from the CPP 2019, Y. Forster & D. Larchey-Wendling *)
 

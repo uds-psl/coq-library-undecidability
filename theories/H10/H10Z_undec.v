@@ -32,8 +32,7 @@ From Undecidability.H10
 From Undecidability.H10.ArithLibs 
   Require Import Zp lagrange.
 
-From Undecidability.Problems 
-  Require Import Reduction.
+Require Import Undecidability.Synthetic.Definitions.
 
 Local Definition inj k n := 4 * n + k.
 

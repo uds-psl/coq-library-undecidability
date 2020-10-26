@@ -426,7 +426,7 @@ Definition evalfun fuel c v := match eval fuel 0 c v with Some (inl x) => Some x
 
 Definition UMUREC_HALTING c := exists fuel, evalfun fuel c nil <> None.
 
-From Undecidability.Problems Require Import Reduction.
+Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.ReducibilityFacts.
 
 Lemma MUREC_red : MUREC_HALTING ⪯ UMUREC_HALTING.
 Proof.

@@ -7,7 +7,7 @@ Require Import Undecidability.PCP.Util.PCP_facts.
 Require Import Undecidability.StringRewriting.SR.
 Require Import Undecidability.StringRewriting.Util.Definitions.
 
-Require Import Undecidability.Problems.Reduction.
+Require Import Undecidability.Synthetic.Definitions.
 
 (** * SR to MPCP *)
 
