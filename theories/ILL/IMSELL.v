@@ -77,6 +77,8 @@ From Undecidability.MinskyMachines Require Import MM2.
 
 Section MM2_GeIMSEL.
 
+  (* Encoding of MM2 termination on zero in G_eimsell *)
+
   Variable q : eimsell_vars -> nat.
 
   Definition mm2_instr_enc i ρ :=
@@ -136,24 +138,28 @@ Section MM2_GeIMSEL.
 
   Notation Σ := mm2_prog_enc.
 
-  Lemma mm2_prog_enc_stop : G_eimsell Σ 0 0 (q 0).
-  Proof. constructor 1; simpl; auto. Qed.
-
   Lemma mm2_prog_enc_compute s1 s2 : clos_refl_trans _ (mm2_step P) s1 s2 ->
           match s1, s2 with (i,(a,b)), (j,(a',b')) =>
              G_eimsell Σ a' b' (q j) -> G_eimsell Σ a b (q i)
           end.
   Proof.
-    induction 1 as [ (?,(?,?)) (?,(?,?)) | (?,(?,?)) | (?,(?,?)) (?,(?,?)) (?,(?,?))  ]; eauto.
-    + apply mm2_step_linstr_sound with (Σ := Σ) in H.
-      apply H, incl_tl, incl_refl.
+    induction 1 as [ (?,(?,?)) (?,(?,?)) H
+                   | (?,(?,?)) 
+                   | (?,(?,?)) (?,(?,?)) (?,(?,?))  ]; eauto.
+    apply mm2_step_linstr_sound with (Σ := Σ) in H.
+    apply H, incl_tl, incl_refl.
   Qed.
 
-  Theorem mm2_prog_enc_correct a b : MM2_HALTS_ON_ZERO (P,a,b) -> G_eimsell Σ a b (q 1).
+  Lemma mm2_prog_enc_stop : G_eimsell Σ 0 0 (q 0).
+  Proof. constructor 1; simpl; auto. Qed.
+
+  Hint Resolve mm2_prog_enc_stop : core.
+
+  Theorem mm2_prog_enc_correct a b : 
+             MM2_HALTS_ON_ZERO (P,a,b) 
+          -> G_eimsell Σ a b (q 1).
   Proof.
-    intros H.
-    apply mm2_prog_enc_compute in H.
-    apply H, mm2_prog_enc_stop.
+    intros H; apply mm2_prog_enc_compute in H; auto.
   Qed.
 
 End MM2_GeIMSEL.
@@ -421,6 +427,8 @@ Section IMSELL.
       * apply in_imsell_ax.
   Qed.
 
+  Section sem.
+
   Variables (n : nat) (s : imsell_vars -> vec nat n -> Prop)
             (K : bang -> vec nat n -> Prop).
 
@@ -591,8 +599,105 @@ Section IMSELL.
       subst; rew vec; auto.
   Qed.
 
-  Section completeness.
+  End sem.
+
+End IMSELL.
+
+Section completeness.
+
+    Variable P : list mm2_instr.
+
+    Let Σ := mm2_prog_enc (fun i => 2+i) P.
+
+    Let bang := option bool.
+
+    Let a := Some true.
+    Let b := Some false.
+    Let i : bang := None.
+
+    Notation "∞" := i. 
+
+    Let bang_le (u v : bang) := 
+      match v with
+        | None   => True
+        | Some _ => u = v
+      end.
+
+    Let bang_U := eq ∞.
+
+    Let Hai : bang_le a ∞ := I.
+    Let Hbi : bang_le b ∞ := I. 
+    Let Hi : bang_U ∞ := eq_refl.
+    Let Hbang : forall x, bang_le x x.
+    Proof. intros [ [] | ]; simpl; auto. Qed. 
+
+    Let K (u : bang) (v : vec nat 2) := 
+      let x := vec_head v in
+      let y := vec_head (vec_tail v) in
+        match u with 
+          | None       => x = 0 /\ y = 0
+          | Some true  => x = 0
+          | Some false => y = 0
+        end. 
+
+    Tactic Notation "pair" "split" hyp(v) "as" ident(x) ident(y) :=
+      vec split v with x; vec split v with y; vec nil v; clear v.
+
+    Let HK1 u v : bang_le u v -> forall a : vec nat 2, K v a -> K u a.
+    Proof.
+      intros Huv w; pair split w as x y.
+      revert u v Huv; intros [[]|] [[]|]; simpl; try discriminate; tauto.
+    Qed.
+
+    Let HK2 : forall u, K u vec_zero.
+    Proof. intros [[]|]; simpl; auto. Qed.
+
+    Let pair_plus x1 y1 x2 y2 : vec_plus (x1##y1##vec_nil) (x2##y2##vec_nil) = (x1+x2)##(y1+y2)##vec_nil.
+    Proof. reflexivity. Qed.
+
+    Let HK3 u w : imsell_tps_mult (K u) (K u) w -> K u w.
+    Proof.
+      pair split w as x y.
+      revert u; intros [[]|]; simpl; 
+        intros (u & v & H1 & H2 & H3);
+        simpl in H2, H3; revert H1 H2 H3;
+        pair split u as x1 y1; pair split v as x2 y2; simpl;
+        rewrite pair_plus; inversion 1; lia.
+    Qed.
+
+    Let HK4 u : bang_U u -> forall w, K u w -> w = vec_zero.
+    Proof. 
+      revert u; intros [[]|]; simpl; try discriminate.
+      intros _ w; pair split w as x y; simpl.
+      intros (-> & ->); auto.
+    Qed.
+ 
+    Check imsell_tps_sound.
+
+    Let sem u (v : vec nat 2) := 
+      let x := vec_head v in
+      let y := vec_head (vec_tail v) in
+        match u with
+          | 0 => x = 0
+          | 1 => y = 0
+          | S (S i) => clos_refl_trans _ (mm2_step P) (i,(x,y)) (0,(0,0)) 
+        end.
+
+    Variables (x y : nat) (Hxy : MM2_HALTS_ON_ZERO (P,x,y)).
+
+    (* Using soundness of TPS, we get that *)
+     
+    Fact soundness1 : imsell_sequent_tps sem K (eimsell_imsell a b ∞ Σ x y) (imsell_var _ 3) vec_zero.
+    Proof.
+      apply imsell_tps_sound with (bang_le := bang_le) (bang_U := bang_U); auto.
+      apply G_eimsell_sound; auto.
+      apply mm2_prog_enc_correct with (q := fun i => 2+i); auto.
+    Qed.
+
+End IMSELL.
+
+
 
     
 
-End IMSELL.
+
