@@ -10,6 +10,7 @@ From Undecidability.TM Require Import CaseList CasePair CaseCom CaseNat NatSub.
 
 From Undecidability Require Import L.L TM.TM.
 
+From Undecidability.L.Prelim Require Import LoopSum.
 
 
 Import VectorNotations.
@@ -20,11 +21,13 @@ Notation todo := (utils.todo).
 Open Scope string_scope.
 Require Import String.
 
+Set Default Proof Using "Type".
+
 From Undecidability Require Cons_constant.
 
 Require Import Equations.Prop.DepElim.
 
-Module UnfoldClosStep.
+Module UnfoldClos.
 Section Fix.
 
   Variable Σ : finType. 
@@ -54,14 +57,14 @@ Section Fix.
   (** Instance of the [Lookup] and [JumpTarget] machine *)
   Local Definition Lookup := Lookup retr_clos retr_heap.
 
-  Local Notation n := 20 (only parsing).
+  Local Notation n := 10 (only parsing).
 
-  Local Notation i_a := Fin0 (only parsing).
-  Local Notation i_P := Fin1 (only parsing).
-  Local Notation i_k := Fin2 (only parsing).
-  Local Notation i_stack' := Fin3 (only parsing).
-  Local Notation i_res := Fin4 (only parsing).
-  Local Notation i_H := Fin5 (only parsing).
+  Local Notation i_H := Fin0 (only parsing).
+  Local Notation i_a := Fin1 (only parsing).
+  Local Notation i_P := Fin2 (only parsing).
+  Local Notation i_k := Fin3 (only parsing).
+  Local Notation i_stack' := Fin4 (only parsing).
+  Local Notation i_res := Fin5 (only parsing).
   Local Notation i_aux1 := Fin6 (only parsing).
   Local Notation i_aux2 := Fin7 (only parsing).
   Local Notation i_aux3 := Fin8 (only parsing).
@@ -205,13 +208,9 @@ Section Fix.
          destructBoth a. all:TM_Correct.
       }
       TM_Correct.
-      all: (try (notypeclasses refine (@Reset_Realise _ _ _ _ _);shelve)).
-      all: try (notypeclasses refine (@CopyValue_Realise _ _ _ _ _);shelve).
       now apply Subtract_Realise.
       now apply Lookup_Realise.
       1-2:now apply Cons_constant.Realise.
-      1,4:(notypeclasses refine (@Translate_Realise _  _ _ _ _ _);shelve).
-      now simple notypeclasses refine  (@MoveValue_Realise _ _ _ _ _ _ _ _ _);shelve.
       now eapply RealiseIn_Realise, Constr_varT_Sem.
     }
     unfold Rel__step. hnf.
@@ -251,54 +250,97 @@ Section Fix.
       modpon H13;[]. destruct stack'. easy. TMSimp.
       modpon H16;[]. TMSimp. modpon H18;[]. modpon H20;[].
       easy.
-  Qed.                     
+  Qed.                
+  
+  Definition M__loop := While (Relabel M__step (fun b => if b then None else Some tt)).
+  
+  Definition Rel__loop : pRel Σ^+ unit n :=
+    (fun t '(r, t') =>
+     forall (H : Heap) a P k stack' (res:Pro), 
+      t[@i_H] ≃(retr_heap) H
+      -> t[@i_a] ≃(retr_nat_clos_ad) a
+      -> t[@i_P] ≃(retr_pro) P
+      -> t[@i_k] ≃(retr_nat_clos_var) k
+      -> t[@i_stack'] ≃(retr_stack) stack'
+      -> t[@i_res] ≃(retr_pro) res
+      -> isRight t[@i_aux1]
+      -> isRight t[@i_aux2]
+      -> isRight t[@i_aux3]
+      -> isRight t[@i_aux4]
+      -> forall n res', loopSum n (unfoldTailRecStep H) (((a,P),k)::stack',res) = Some (Some res')
+        -> t'[@i_H] ≃(retr_heap) H
+        /\ isRight t'[@i_a]
+        /\ isRight t'[@i_P]
+        /\ isRight t'[@i_k]
+        /\ isRight t'[@i_stack']
+        /\ t'[@i_res] ≃(retr_pro) res' 
+        /\ isRight t'[@i_aux1] 
+        /\ isRight t'[@i_aux2] 
+        /\ isRight t'[@i_aux3] 
+        /\ isRight t'[@i_aux4]).
+
+  Local Arguments unfoldTailRecStep : simpl never.
+
+  Theorem Realise__loop : Realise M__loop Rel__loop.
+  Proof.
+    eapply Realise_monotone.
+    { unfold M__loop. TM_Correct. apply Realise__step. }
+    apply WhileInduction; intros; intros H a P k stack' res HH Ha HP Hl Hstack' Hres Ha1 Ha2 Ha3 Ha4 n Hres' Hn.
+    all:cbn in HLastStep.
+    - destruct HLastStep as ([]&[=->]&Hstep).
+      hnf in Hstep. modpon Hstep. rename Hstep4 into H'.
+      destruct n;cbn in Hn. easy.
+      destruct unfoldTailRecStep as [([ | [[? ?] ?] stack1]&res1) | ] eqn:Hfstep in Hn,H'. 2,3:easy.
+      destruct n;cbn in Hn. easy.
+      unfold unfoldTailRecStep in Hn. injection Hn as [= ->]. easy.
+    - cbn in HStar. destruct HStar as ([]&[=]&HStep);[].
+      hnf in HStep. modpon HStep. rename HStep4 into H'.
+      destruct n;cbn in Hn. easy.
+      destruct unfoldTailRecStep as [([ | [[? ?] ?] stack1]&res1) | ] eqn:Hfstep in Hn,H'. 1,3:easy.
+      TMSimp. eapply HLastStep. all:eassumption.
+  Qed.
 
 
-End Fix.
-End UnfoldClosStep.
+  Definition M :=
+    WriteValue (encode []) ⇑ retr_stack @ [|i_stack'|];;
+    WriteValue (encode []) ⇑ retr_pro @ [|i_res|];;
+    M__loop.
+  
+  Definition Rel : pRel Σ^+ unit n :=
+    (fun t '(r, t') =>
+     forall (H : Heap) a k s s',
+      unfolds H a k s s' 
+      -> t[@i_H] ≃(retr_heap) H
+      -> t[@i_a] ≃(retr_nat_clos_ad) a
+      -> t[@i_P] ≃(retr_pro) (compile s)
+      -> t[@i_k] ≃(retr_nat_clos_var) k
+      -> isRight t[@i_stack'] 
+      -> isRight t[@i_res]
+      -> isRight t[@i_aux1]
+      -> isRight t[@i_aux2]
+      -> isRight t[@i_aux3]
+      -> isRight t[@i_aux4]
+      -> t'[@i_H] ≃(retr_heap) H
+        /\ isRight t'[@i_a]
+        /\ isRight t'[@i_P]
+        /\ isRight t'[@i_k]
+        /\ isRight t'[@i_stack']
+        /\ t'[@i_res] ≃(retr_pro) (rev (compile s'))
+        /\ isRight t'[@i_aux1] 
+        /\ isRight t'[@i_aux2] 
+        /\ isRight t'[@i_aux3] 
+        /\ isRight t'[@i_aux4]).
 
-Module UnfoldClos.
-Section Fix.
-
-  Variable Σ : finType.
-
-  Variable retr_clos : Retract sigHClos Σ.
-  Variable retr_heap : Retract sigHeap Σ.
-
-  (* Closure addresses *)
-
-  Definition retr_pro_clos : Retract sigPro sigHClos := _.
-  Local Definition retr_pro : Retract sigPro Σ := ComposeRetract retr_clos retr_pro_clos.
-  Local Definition retr_tok : Retract sigCom Σ := ComposeRetract retr_pro _.
-
-  Local Definition retr_nat_clos_ad : Retract sigNat sigHClos := Retract_sigPair_X _ (Retract_id _).
-  Local Definition retr_nat_step_clos_ad : Retract sigNat Σ := ComposeRetract retr_clos retr_nat_clos_ad.
-
-  Local Definition retr_nat_clos_var : Retract sigNat sigHClos := Retract_sigPair_Y _ _.
-  Local Definition retr_nat_step_clos_var : Retract sigNat Σ := ComposeRetract retr_clos retr_nat_clos_var.
-
-  (** Instance of the [Lookup] and [JumpTarget] machine *)
-  Local Definition Step_Lookup := Lookup retr_clos retr_heap.
-
-    Variable n : nat.
-
-    Variable i_g : Fin.t n.
-    Variable i_H : Fin.t n.
-    Variable o_t : Fin.t n.
-
-    Definition M : pTM (Σ) ^+ unit n. Admitted.
-
-    Theorem Realise :
-    Realise M (fun t '(r, t') =>
-                        forall g : HClos, forall H : Heap, 
-                            t[@i_g] ≃ g->
-                            t[@i_H] ≃ H ->
-                            exists t,
-                            reprC H g t /\
-                            t'[@o_t] ≃(retr_pro) compile t).
-    
-    Admitted.
-
+  Theorem Realise : Realise M Rel.
+  Proof.
+    eapply Realise_monotone.
+    { unfold M. TM_Correct. apply Realise__loop. }
+    hnf;cbn. intros ? ([]&?). TMSimp. 
+    specialize (H nil); modpon H;[].
+    specialize (H12 []); modpon H12;[].
+    eapply unfoldTailRecStep_complete in H1. 2:reflexivity. 
+    modpon H14;[]. easy.
+  Qed.
 
 End Fix.
 End UnfoldClos.
@@ -307,50 +349,57 @@ End UnfoldClos.
 Module UnfoldHeap.
 Section Fix.
 
-  Variable Σ : finType.
+  Variable Σ : finType. 
 
-  Variable retr_closures : Retract (sigList sigHClos) Σ.
+  Variable retr_stack : Retract (sigList (sigPair sigHClos sigNat)) Σ.
   Variable retr_heap : Retract sigHeap Σ.
 
-  Axiom retr_closures_REMOVE : Retract (sigList sigHClos) Σ.
+  Variable retr_clos : Retract sigHClos Σ.
+  Definition retr_pro : Retract sigPro Σ := ComposeRetract retr_clos _.
+  Definition retr_clos_stack : Retract sigHClos Σ := ComposeRetract retr_stack _.
 
-  (** Retracts *)
-  (* Closures *)
-  Local Definition retr_clos : Retract sigHClos Σ := ComposeRetract retr_closures _.
+  Definition retr_stackEl : Retract (sigPair sigHClos sigNat) Σ :=
+    (ComposeRetract retr_stack _).
+  Definition retr_nat_stack : Retract sigNat Σ :=
+    ComposeRetract retr_stackEl
+            (Retract_sigPair_Y _ _) .
 
-  (* Closure addresses *)
+  Local Notation n := 10 (only parsing).
 
-  Definition retr_pro_clos : Retract sigPro sigHClos := _.
-  Local Definition retr_pro : Retract sigPro Σ := ComposeRetract retr_clos retr_pro_clos.
-  Local Definition retr_tok : Retract sigCom Σ := ComposeRetract retr_pro _.
+  Local Notation i_io := Fin0 (only parsing).
+  Local Notation i_H := Fin1 (only parsing).
 
-  Local Definition retr_nat_clos_ad : Retract sigNat sigHClos := Retract_sigPair_X _ (Retract_id _).
-  Local Definition retr_nat_step_clos_ad : Retract sigNat Σ := ComposeRetract retr_clos retr_nat_clos_ad.
+  Definition M : pTM (Σ) ^+ unit n:= 
+    Translate retr_clos retr_clos_stack @[|i_io|];;
+    CasePair _ _ ⇑ retr_clos_stack @ [|i_io;Fin2|];;
+    WriteValue (encode 1) ⇑ UnfoldClos.retr_nat_clos_var retr_stack @ [|Fin3|];;
+    UnfoldClos.M retr_stack retr_heap @ [|i_H;Fin2;i_io;Fin3;Fin4;Fin5;Fin6;Fin7;Fin8;Fin9|];;
+    Translate (UnfoldClos.retr_pro retr_stack) retr_pro @ [|Fin5|];;
+    WriteValue (encode [retT]) ⇑ retr_pro @ [|i_io|];;
+    Rev_Append _ ⇑ retr_pro @ [| Fin5;i_io;Fin6 |];;
+    Cons_constant.M lamT ⇑ retr_pro @ [| i_io|].
 
-  Local Definition retr_nat_clos_var : Retract sigNat sigHClos := Retract_sigPair_Y _ _.
-  Local Definition retr_nat_step_clos_var : Retract sigNat Σ := ComposeRetract retr_clos retr_nat_clos_var.
-
-  (** Instance of the [Lookup] and [JumpTarget] machine *)
-  Local Definition Step_Lookup := Lookup retr_clos retr_heap.
-
-    Variable n : nat.
-
-    Variable i_g : Fin.t n.
-    Variable i_H : Fin.t n.
-    Variable o_t : Fin.t n.
-
-    Definition M : pTM (Σ) ^+ unit n. Admitted.
-
-    Theorem Realise :
-    Realise M (fun t '(r, t') =>
-                        forall g, forall H : Heap, 
-                            t[@i_g] ≃(retr_closures_REMOVE) [g]%list (*TODO: change to clos?*) ->
-                            t[@i_H] ≃ H ->
-                            exists t,
-                            reprC H g t /\
-                            t'[@o_t] ≃(retr_pro) compile t).
-    
-    Admitted.
+  Theorem Realise :
+  Realise M (fun t '(r, t') =>
+                      forall g (H : Heap) s,
+                          reprC H g s 
+                          -> t[@i_io] ≃(retr_clos) g
+                          -> t[@i_H] ≃ H
+                          -> (forall i : Fin.t 8, isRight t[@ Fin.R 2 i])
+                          -> t'[@i_io] ≃(retr_pro) compile s
+                          /\ t[@i_H] ≃ H 
+                          /\ (forall i : Fin.t 8, isRight t'[@ Fin.R 2 i])).
+  Proof.  
+    eapply Realise_monotone.
+    { unfold M. TM_Correct. apply UnfoldClos.Realise. apply Rev_Append_Realise. apply Cons_constant.Realise. }
+    hnf. intros ? [] H' (a&P) H s Hs. inv Hs. inv H4. inv H6. TMSimp.
+    specializeFin H7; clear H7. modpon H0;[]. modpon H1;[]. 
+    specialize (H4 1). modpon H4;[]. TMSimp. modpon H6;[].
+    modpon H8;[]. specialize (H10 [retT]). modpon H10;[]. modpon H12;[]. modpon H14;[].
+    rewrite rev_involutive in H14. split. 2:split.
+    1-2:easy.
+    intros i;destruct_fin i;cbn;try easy. 
+  Qed.
 
 End Fix.
 End UnfoldHeap.

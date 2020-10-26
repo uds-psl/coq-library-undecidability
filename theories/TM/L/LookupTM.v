@@ -143,13 +143,6 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
     eapply Realise_monotone.
     { unfold Lookup_Step. TM_Correct.
       - apply Nth'_Realise.
-      - apply CopyValue_Realise with (I := retr_nat_lookup_entry).
-      - apply Translate_Realise with (X := nat).
-      - apply Reset_Realise with (I := retr_nat_lookup_entry).
-      - apply Reset_Realise with (I := retr_clos_lookup_heap).
-      - apply Reset_Realise with (I := retr_nat_lookup_entry).
-      - apply Reset_Realise with (I := retr_nat_lookup_clos_var).
-      - apply Translate_Realise with (X := HClos).
     }
     {
       intros tin (yout, tout) H. cbn. intros heap a n s0 s1 s2 s3 s4 HEncHeap HEncA HEncN HRight3 HRight4.
@@ -232,18 +225,6 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
     { unfold Lookup_Step. TM_Correct.
       - apply Nth'_Realise.
       - apply Nth'_Terminates.
-      - apply CopyValue_Realise with (I := retr_nat_lookup_entry).
-      - apply CopyValue_Terminates with (I := retr_nat_lookup_entry).
-      - apply Translate_Realise with    (X := nat).
-      - apply Translate_Terminates with (X := nat).
-      - apply Reset_Realise with        (I := retr_nat_lookup_entry).
-      - apply Reset_Terminates with     (I := retr_nat_lookup_entry).
-      - apply Reset_Terminates with     (I := retr_clos_lookup_heap).
-      - apply Reset_Realise with        (I := retr_nat_lookup_entry).
-      - apply Reset_Terminates with     (I := retr_nat_lookup_entry).
-      - apply Reset_Realise with        (I := retr_nat_lookup_clos_var).
-      - apply Reset_Terminates with     (I := retr_nat_lookup_clos_var).
-      - apply Translate_Terminates with (X := HClos).
     }
     {
       intros tin k. cbn. intros (H&a&n&HEncH&HEncA&HEncN&HRight3&HRight4&Hk). unfold Lookup_Step_steps in Hk.

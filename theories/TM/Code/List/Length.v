@@ -54,9 +54,7 @@ Section Lenght.
   Lemma Length_Step_Realise : Length_Step ⊨ Length_Step_Rel.
   Proof.
     eapply Realise_monotone.
-    { unfold Length_Step. TM_Correct.
-      - apply Reset_Realise with (X := X) (I := retr_X_list').
-    }
+    { unfold Length_Step. TM_Correct. }
     {
       intros tin (yout, tout) H. cbn. intros xs n s0 s1 s2 HEncXS HEncN HRight.
       destruct H; TMSimp.
@@ -85,8 +83,6 @@ Section Lenght.
   Proof.
     eapply TerminatesIn_monotone.
     { unfold Length_Step. TM_Correct.
-      - apply Reset_Realise with (X := X) (I := retr_X_list').
-      - apply Reset_Terminates with (X := X) (I := retr_X_list').
     }
     {
       intros tin k (xs&n&HEncXs&HEncN&HRight2&Hk). unfold Length_Step_steps in Hk.
@@ -100,6 +96,7 @@ Section Lenght.
         exists (Reset_steps x), Constr_S_steps. repeat split; cbn; try lia.
         eexists; repeat split; simpl_surject; eauto; cbn; eauto. 
     }
+    Unshelve. all:try exact _.
   Qed.
 
 
@@ -206,7 +203,6 @@ Section Lenght.
   Proof.
     eapply Realise_monotone.
     { unfold Length. TM_Correct.
-      - apply CopyValue_Realise with (X := list X).
       - apply Length_Loop_Realise.
       - eapply RealiseIn_Realise. apply ResetEmpty1_Sem with (X := list X).
     }
@@ -227,8 +223,6 @@ Section Lenght.
   Proof.
     eapply TerminatesIn_monotone.
     { unfold Length. TM_Correct.
-      - apply CopyValue_Realise with (X := list X).
-      - apply CopyValue_Terminates with (X := list X).
       - apply Length_Loop_Realise.
       - apply Length_Loop_Terminates.
       - eapply RealiseIn_TerminatesIn. apply ResetEmpty1_Sem.

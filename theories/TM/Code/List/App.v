@@ -223,19 +223,20 @@ Section Append.
   Definition App_T : tRel sigList^+ 3 :=
     fun tin k => exists (xs ys : list X), tin[@Fin0] ≃ xs /\ tin[@Fin1] ≃ ys /\ isVoid tin[@Fin2] /\ App_steps xs ys <= k.
 
+    
   Lemma App_Terminates : projT1 App ↓ App_T.
   Proof.
     eapply TerminatesIn_monotone.
     { unfold App. TM_Correct.
-      - apply CopyValue_Realise with (X := list X).
-      - apply CopyValue_Terminates with (X := list X).
       - apply App'_Terminates.
     }
     {
       intros tin k (xs&ys&HEncXs&HEnYs&HRigh2&Hk).
       exists (25 + 12 * size _ ys), (App'_steps xs). repeat split; cbn; eauto.
       unfold App'_steps, App_steps in *. lia.
-      intros tmid () (HApp'&HInjApp'); TMSimp. modpon HApp'.
+      intros tmid () (HApp'&HInjApp'); TMSimp.
+      specialize (HApp' ys).
+      modpon HApp'.
       hnf. cbn. do 2 eexists. repeat split; eauto.
     }
   Qed.

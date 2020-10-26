@@ -275,16 +275,18 @@ Notation "t ≂( ';' s ) x" := (t ≂(_;s) x) (at level 70, no associativity, on
 Ltac contains_solve_le :=
   try now (cbn; solve [lia]).
 
+Local Ltac eUnify I1 I2 := ((is_evar I1 || is_evar I2);unify I1 I2).
+
 Ltac contains_ext :=
   lazymatch goal with
-  | [H : ?t ≃(_;?s1) ?x |- ?t ≃(_;?s2) ?y] =>
-    apply tape_contains_size_ext with (1 := H); simpl_comp; try reflexivity; try contains_solve_le
+  | [H : ?t ≃(?I1;?s1) ?x |- ?t ≃(?I2;?s2) ?y] =>
+    apply tape_contains_size_ext with (1 := H); try eUnify I1 I2;simpl_comp; try reflexivity; try contains_solve_le
   | [H : ?t ≃(_;?s1) ?x |- ?t ≃(_) ?y] =>
     eapply tape_contains_size_contains; contains_ext
   | [H : ?t ≃(_) ?x |- ?t ≃(_;?s2) ?y] =>
     eapply tape_contains_contains_size; contains_ext
-  | [H : ?t ≃(_) ?x |- ?t ≃(_) ?y] =>
-    apply tape_contains_ext with (1 := H); simpl_comp; try reflexivity
+  | [H : ?t ≃(?I1) ?x |- ?t ≃(?I2) ?y] =>
+    apply tape_contains_ext with (1 := H); try eUnify I1 I2; simpl_comp; try reflexivity
   (* [≂] is only used "internally"! *)
   | [H : ?t ≂(_;?s1) ?x |- ?t ≂(_;?s2) ?y] =>
     apply tape_contains_rev_size_ext with (1 := H); simpl_comp; try reflexivity; contains_solve_le

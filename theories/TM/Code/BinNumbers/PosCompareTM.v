@@ -273,9 +273,7 @@ Proof.
   eapply Realise_monotone.
   { unfold Max. TM_Correct.
     - apply Compare_Realise.
-    - apply CopyValue_Realise with (X := positive).
-    - apply CopyValue_Realise with (X := positive).
-    - apply CopyValue_Realise with (X := positive). }
+  }
   {
     intros tin (yout, tout) H. cbn in *. intros p0 p1 Hp0 Hp1 HRight. TMSimp.
     modpon H. destruct ymid.

@@ -74,7 +74,7 @@ Module ConcatRepeat.
     Lemma Realise__step : M__step ⊨ Rel__step .
     Proof.
       eapply Realise_monotone.
-      {unfold M__step. TM_Correct. now apply App'_Realise. now apply Reset_Realise. }
+      {unfold M__step. TM_Correct. now apply App'_Realise. }
       intros t (y,t') H. cbn.
       intros cs n xs Hcs Hn Hxs. cbn in H.
       destruct H as [H|H].
@@ -128,7 +128,7 @@ Module ConcatRepeat.
     Proof.
       eexists_UpToC time. [time]:refine (fun '(n,l) => if n =? 0 then _ else _).
       eapply TerminatesIn_monotone.
-      { unfold M__step. TM_Correct. now apply App'_Terminates with (cX:=cX). now apply Reset_Terminates with (X := nat) (I := retr2). }
+      { unfold M__step. TM_Correct. now apply App'_Terminates with (cX:=cX). }
       {
         intros tin k (cs&n&xs&Hcs&Hn&Hxs&Hk). cbn. eexists. eexists (if n =? 0 then _ else _).
         infTer 3. rewrite <- Hk.

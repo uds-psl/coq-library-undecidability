@@ -52,7 +52,6 @@ Section Rev.
   Proof.
     eapply Realise_monotone.
     { unfold Rev_Step. TM_Correct.
-      - apply Reset_Realise with (X := X).
       - eapply RealiseIn_Realise. apply ResetEmpty1_Sem with (X := list X). }
     {
       intros tin (yout, tout) H. cbn. intros xs ys sx sy sz Hxs Hys Hright. destruct H as [H|H]; TMSimp.
@@ -75,7 +74,6 @@ Section Rev.
   Proof.
     eapply TerminatesIn_monotone.
     { unfold Rev_Step. TM_Correct.
-      - apply Reset_Terminates with (X := X).
       - eapply RealiseIn_TerminatesIn. apply ResetEmpty1_Sem with (X := X). }
     {
       intros tin k. intros (xs&ys&Hxs&Hys&Hright&Hk). destruct xs; cbn in *.
@@ -89,18 +87,18 @@ Section Rev.
   Qed.
 
 
-  Definition Rev_Loop := While Rev_Step.
+  Definition Rev_Append := While Rev_Step.
 
-  Fixpoint Rev_Loop_size (xs : list X) : Vector.t (nat->nat) 3 :=
+  Fixpoint Rev_Append_size (xs : list X) : Vector.t (nat->nat) 3 :=
     match xs with
     | nil => Rev_Step_size xs
-    | x :: xs' => Rev_Step_size xs >>> Rev_Loop_size xs'
+    | x :: xs' => Rev_Step_size xs >>> Rev_Append_size xs'
     end.
 
-  Definition Rev_Loop_Rel : pRel (sigList sigX)^+ unit 3 :=
+  Definition Rev_Append_Rel : pRel (sigList sigX)^+ unit 3 :=
     fun tin '(yout, tout) =>
       forall (xs ys : list X) (sx sy sz : nat),
-        let size := Rev_Loop_size xs in
+        let size := Rev_Append_size xs in
         tin[@Fin0] ≃(;sx) xs ->
         tin[@Fin1] ≃(;sy) ys ->
         isVoid_size tin[@Fin2] sz ->
@@ -108,10 +106,10 @@ Section Rev.
         tout[@Fin1] ≃(;size@>Fin1 sy) rev xs ++ ys /\
         isVoid_size tout[@Fin2] (size@>Fin2 sz).
 
-  Lemma Rev_Loop_Realise : Rev_Loop ⊨ Rev_Loop_Rel.
+  Lemma Rev_Append_Realise : Rev_Append ⊨ Rev_Append_Rel.
   Proof.
     eapply Realise_monotone.
-    { unfold Rev_Loop. TM_Correct.
+    { unfold Rev_Append. TM_Correct.
       - apply Rev_Step_Realise. }
     {
       apply WhileInduction; intros.
@@ -121,20 +119,20 @@ Section Rev.
     }
   Qed.
 
-  Fixpoint Rev_Loop_steps (xs : list X) : nat :=
+  Fixpoint Rev_Append_steps (xs : list X) : nat :=
     match xs with
     | nil => Rev_Step_steps xs
-    | x :: xs' => 1 + Rev_Step_steps xs + Rev_Loop_steps xs'
+    | x :: xs' => 1 + Rev_Step_steps xs + Rev_Append_steps xs'
     end.
 
-  Definition Rev_Loop_T : tRel (sigList sigX)^+ 3 :=
+  Definition Rev_Append_T : tRel (sigList sigX)^+ 3 :=
     fun tin k => exists (xs ys : list X),
-        tin[@Fin0] ≃ xs /\ tin[@Fin1] ≃ ys /\ isVoid tin[@Fin2] /\ Rev_Loop_steps xs <= k.
+        tin[@Fin0] ≃ xs /\ tin[@Fin1] ≃ ys /\ isVoid tin[@Fin2] /\ Rev_Append_steps xs <= k.
 
-  Lemma Rev_Loop_Terminates : projT1 Rev_Loop ↓ Rev_Loop_T.
+  Lemma Rev_Append_Terminates : projT1 Rev_Append ↓ Rev_Append_T.
   Proof.
     eapply TerminatesIn_monotone.
-    { unfold Rev_Loop. TM_Correct.
+    { unfold Rev_Append. TM_Correct.
       - apply Rev_Step_Realise.
       - apply Rev_Step_Terminates. }
     { apply WhileCoInduction; intros.
@@ -144,15 +142,15 @@ Section Rev.
       - intros ymid tmid H. cbn in *. modpon H. destruct ymid as [ [] | ].
         + destruct xs as [ | x xs]; cbn in *; auto.
         + destruct xs as [ | x xs]; cbn in *; auto. modpon H.
-          exists (Rev_Loop_steps xs). repeat split; try lia.
+          exists (Rev_Append_steps xs). repeat split; try lia.
           hnf; eauto 6.
     }
   Qed.
 
 
-  Definition Rev := Constr_nil _ @[|Fin1|];; Rev_Loop.
+  Definition Rev := Constr_nil _ @[|Fin1|];; Rev_Append.
 
-  Definition Rev_size (xs : list X) := [| Rev_Loop_size xs @>Fin0; pred >> Rev_Loop_size xs @>Fin1; Rev_Loop_size xs @>Fin2 |].
+  Definition Rev_size (xs : list X) := [| Rev_Append_size xs @>Fin0; pred >> Rev_Append_size xs @>Fin1; Rev_Append_size xs @>Fin2 |].
 
   Definition Rev_Rel : pRel (sigList sigX)^+ unit 3 :=
     fun tin '(yout, tout) =>
@@ -169,12 +167,12 @@ Section Rev.
   Proof.
     eapply Realise_monotone.
     { unfold Rev. TM_Correct.
-      - apply Rev_Loop_Realise. }
+      - apply Rev_Append_Realise. }
     { intros tin ([], tout) H. TMSimp. intros. modpon H. modpon H0.
       repeat split; auto. contains_ext. now simpl_list. }
   Qed.
 
-  Definition Rev_steps (xs : list X) := 1 + Constr_nil_steps + Rev_Loop_steps xs.
+  Definition Rev_steps (xs : list X) := 1 + Constr_nil_steps + Rev_Append_steps xs.
 
   Definition Rev_T : tRel (sigList sigX)^+ 3 :=
     fun tin k => exists (xs : list X),
@@ -184,9 +182,9 @@ Section Rev.
   Proof.
     eapply TerminatesIn_monotone.
     { unfold Rev. TM_Correct.
-      - apply Rev_Loop_Terminates. }
+      - apply Rev_Append_Terminates. }
     { intros tin k (xs&Hxs&Hright1&Hright2&Hk).
-      exists (Constr_nil_steps), (Rev_Loop_steps xs). repeat split; hnf; eauto.
+      exists (Constr_nil_steps), (Rev_Append_steps xs). repeat split; hnf; eauto.
       intros tmid [] (H&HInj); TMSimp. modpon H. hnf. do 2 eexists; repeat split; TMSimp; eauto. }
   Qed.
 

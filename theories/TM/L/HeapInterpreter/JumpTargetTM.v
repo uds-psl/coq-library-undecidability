@@ -37,7 +37,6 @@ Proof.
   eapply Realise_monotone.
   { unfold App_Commands. TM_Correct.
     - apply App'_Realise with (X := Tok).
-    - apply MoveValue_Realise with (X := Pro).
   }
   {
     intros tin ((), tout) H. intros Q Q' s0 s1 HEncQ HEncQ'.
@@ -59,7 +58,6 @@ Proof.
   { unfold App_Commands. TM_Correct.
     - apply App'_Realise with (X := Tok).
     - apply App'_Terminates with (X := Tok).
-    - apply MoveValue_Terminates with (X := Pro) (Y := Pro).
   }
   {
     intros tin k (Q&Q'&HEncQ&HEncQ'&Hk).
@@ -155,7 +153,6 @@ Proof.
   eapply Realise_monotone.
   { unfold App_Com. TM_Correct.
     - apply App_Commands_Realise.
-    - apply Reset_Realise with (X := Tok).
   }
   { intros tin ((), tout) H. cbn. intros Q t s0 s1 s2 HEncQ HEncT HRight.
     unfold sigPro, sigCom in *. TMSimp.
@@ -178,7 +175,6 @@ Proof.
   { unfold App_Com. TM_Correct.
     - apply App_Commands_Realise.
     - apply App_Commands_Terminates.
-    - apply Reset_Terminates with (X := Tok).
   }
   {
     intros tin k (Q&t&HEncQ&HEncT&HRight&Hk). unfold App_Com_steps in Hk.

@@ -123,8 +123,7 @@ Module BoollistToEnc.
     Proof.
       eapply Realise_monotone.
       {unfold M__step. TM_Correct_noSwitchAuto. TM_Correct. 
-       2: now (notypeclasses refine (@Reset_Realise _ _ _ _ _);shelve).
-       intros b. TM_Correct. 2:now (notypeclasses refine (@Reset_Realise _ _ _ _ _);shelve).
+       intros b. TM_Correct. 
        now apply App'_Realise. }
       intros t (y,t') H. cbn. 
       intros bs res Hbs Hres Ht2. 
@@ -166,7 +165,7 @@ Module BoollistToEnc.
           all:TMSimp;simpl_surject.
           2:{ do 2 eexists. now contains_ext. unfold Reset_steps. cbv -[mult plus]. reflexivity. }
           infTer 4. intros ? ? H1. modpon H1. TMSimp.
-          infTer 4. intros ? ? H2. modpon H2. TMSimp.
+          infTer 4. intros ? ? H2. modpon H2. TMSimp. 
           unfold App'_T. cbn.
           infTer 6. 1,2:now simpl_surject;contains_ext.
           1:now rewrite (correct__leUpToC (App'_steps_nice _)).
@@ -257,7 +256,7 @@ Module BoollistToEnc.
       eapply Realise_monotone.
       {unfold M. TM_Correct_noSwitchAuto. TM_Correct.
        all:eauto 1 using Length_Computes, ConcatRepeat.Realise,  App'_Realise,Realise__loop, Realise__step.
-       all:now (refine (Reset_Realise (X:=Pro) (I:=_))). }
+      }
       intros tin (yout,tout) H. hnf. intros bs Hbs Htin1 Htin2 Htin3.
       hnf in H. cbn in H. TMSimp. modpon H;[]. specialize H0 with (x:=[]). modpon H0;[].
       modpon H2;[]. modpon H4;[]. modpon H6;[].  modpon H8;[]. modpon H10;[]. modpon H12;[].
@@ -283,8 +282,6 @@ Module BoollistToEnc.
       eapply TerminatesIn_monotone.
       { unfold M. TM_Correct.
         all: eauto 2 using App'_Terminates,App'_Realise,Length_Computes,ConcatRepeat.Realise,ConcatRepeat.Terminates,Length_Terminates,Realise__loop.
-        1,3:now (refine (Reset_Realise (X:=Pro) (I:=_))).
-        1,2:now (refine ((Reset_Terminates (X:=Pro) (I:=_)))).
         simple apply Terminates__loop. }
       intros tin k H. hnf in H. destruct H as (bs&Hbs&Hres&Htin2&Htin3&Hl).
       cbn -[plus]. infTer 3.
@@ -297,8 +294,9 @@ Module BoollistToEnc.
           infTer 5. intros t2_ _ (Ht2&Ht2Rem). TMSimp. modpon Ht2;[].
           unfold ConcatRepeat.Ter. cbn. 
           infTer 5. 1:{ repeat simple apply conj. 1,2,3:now contains_ext.  rewrite UpToC_le. reflexivity. }
-          intros t3_ _ (Ht3&Ht3Rem). TMSimp. modpon Ht3;[]. rewrite app_nil_r in Ht4. 
-          infTer 5. contains_ext. intros t4 _ (Htp4&Ht4Rem). TMSimp. modpon Htp4;[].
+          intros t3_ _ (Ht3&Ht3Rem). TMSimp. modpon Ht3;[]. rewrite app_nil_r in Ht4.
+          infTer 4. 1-2:easy. 
+          intros t4 _ (Htp4&Ht4Rem). TMSimp. modpon Htp4;[].
           infTer 5. intros t5 _ (Htp5&Ht5Rem). TMSimp. modpon Htp5;[].
           infTer 5.
           1:{

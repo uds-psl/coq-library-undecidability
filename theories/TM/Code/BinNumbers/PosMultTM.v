@@ -255,7 +255,6 @@ Lemma Mult_Realise : Mult ⊨ Mult_Rel.
 Proof.
   eapply Realise_monotone.
   { unfold Mult. TM_Correct.
-    - apply CopyValue_Realise with (X := positive).
     - apply ShiftLeft_num_Realise.
     - apply GoToLSB_start_Realise.
     - apply Mult_Loop_Realise.

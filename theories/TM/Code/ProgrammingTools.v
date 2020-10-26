@@ -87,7 +87,11 @@ Tactic Notation "destructBoth" constr(g) :=
 
 
 Tactic Notation "infTer" int_or_var(n) :=
-  let t := try (first [simple eapply ex_intro | simple apply conj | simple eapply Nat.le_refl])
+  let t := try (first
+  [match goal with
+   |- exists x:_,_ => simple notypeclasses refine (@ex_intro _ _ _ _);[shelve|cbn beta]
+  end
+   | simple apply conj | simple eapply Nat.le_refl])
   in t;do n t.
 
 

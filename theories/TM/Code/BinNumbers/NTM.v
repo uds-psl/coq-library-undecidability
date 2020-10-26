@@ -154,7 +154,7 @@ Proof.
   eapply Realise_monotone.
   { unfold Add'_N. TM_Correct.
     - apply Add'_Realise.
-    - apply CopyValue_Realise. }
+    }
   {
     intros tin ([], tout) H. intros x y Hx Hy Hle. destruct H as [H|H]; TMSimp.
     - modpon H. destruct x as [ | x]; cbn in *; auto.
@@ -196,9 +196,7 @@ Definition Add_N_Rel : pRel sigN^+ unit 3 :=
 Lemma Add_N_Realise : Add_N ⊨ Add_N_Rel.
   eapply Realise_monotone.
   { unfold Add_N. TM_Correct.
-    - apply Add_Realise.
-    - apply CopyValue_Realise.
-    - apply CopyValue_Realise. }
+    - apply Add_Realise. }
   {
     intros tin ([], tout) H. intros x y Hx Hy Hright. destruct H as [H|H]; TMSimp.
     - modpon H. destruct x as [ | x]; cbn in *; auto.
@@ -211,8 +209,7 @@ Lemma Add_N_Realise : Add_N ⊨ Add_N_Rel.
         repeat split; eauto.
       + modpon H0. destruct y as [ | y]; cbn in *; auto.
         modpon H1.
-        modpon H3.
-        specialize (H5 (Npos x)). modpon H5.
+        modpon H3. modpon H5.
         TMSimp.
         repeat split; auto.
     - modpon H. destruct x as [ | x]; cbn in *; auto. modpon H0. modpon H2. auto.

@@ -634,3 +634,19 @@ End Translate.
 
 Arguments Translate_steps {X sigX cX}.
 (* no size *)
+
+
+(* The exact retracts can be instantiated later, during the relation-inclusion proof *)
+Ltac smpl_TM_Copy :=
+  lazymatch goal with
+  | [ |- Translate _ _ ⊨ _] => notypeclasses refine (@Translate_Realise _  _ _ _ _ _);shelve
+  | [ |- projT1 (Translate _ _) ↓ _] => notypeclasses refine (@Translate_Terminates _ _ _ _ _ _);shelve
+  | [ |- Reset _ ⊨ _] => notypeclasses refine (@Reset_Realise _ _ _ _ _);shelve
+  | [ |- projT1 (Reset _) ↓ _] => notypeclasses refine (@Reset_Terminates _ _ _ _ _);shelve
+  | [ |- CopyValue _ ⊨ _] => notypeclasses refine (@CopyValue_Realise _ _ _ _ _);shelve
+  | [ |- projT1 (CopyValue _) ↓ _] => notypeclasses refine (@CopyValue_Terminates _ _ _ _ _);shelve
+  | [ |- MoveValue _ ⊨ _] => notypeclasses refine (@MoveValue_Realise _ _ _ _ _ _ _ _ _);shelve
+  | [ |- projT1 (MoveValue _) ↓ _] => notypeclasses refine (@MoveValue_Terminates _ _ _ _ _ _ _ _ _);shelve
+  end.
+
+Smpl Add smpl_TM_Copy : TM_Correct.

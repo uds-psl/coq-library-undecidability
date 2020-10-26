@@ -5,7 +5,7 @@ Require Import Vector List.
 
 Require Import Undecidability.TM.Util.TM_facts.
 
-From Undecidability Require Import ProgrammingTools LM_heap_def WriteValue Copy ListTM  JumpTargetTM WriteValue.
+From Undecidability Require Import ProgrammingTools LM_heap_def WriteValue CaseList Copy ListTM  JumpTargetTM WriteValue.
 From Undecidability.TM.L Require Import Alphabets HeapInterpreter.StepTM M_LHeapInterpreter.
 From Undecidability Require Import TM.TM L.AbstractMachines.FlatPro.LM_heap_correct.
 
@@ -115,6 +115,7 @@ Section mk_init.
   Variable Σ : finType.
   Variable s b : Σ^+.
   Context {Henc1 : codable Σ (list Tok)}.
+  Fail Check "Change to Retract".
   Context {Henc2 : codable Σ (list (nat * list Tok))}.
 
   Variable n : nat.
@@ -206,10 +207,14 @@ Section main.
 
   Definition n_main := 18.
 
-  Definition Σ : finType := (sigStep + bool) ^+.
+  Definition Σ : Type := (sigStep + bool + sigList (sigPair sigHClos sigNat)).
 
-  Definition sym_s : Σ := inr (inr true).
-  Definition sym_b : Σ := inr (inr false).
+  Definition retr_closs : Retract (sigList sigHClos) Σ := ComposeRetract _ M_LHeapInterpreter.retr_closures_step.
+  Definition retr_clos : Retract sigHClos Σ := ComposeRetract retr_closs _.
+  Definition retr_pro : Retract sigPro Σ := ComposeRetract retr_clos _.
+
+  Definition sym_s : Σ^+ := inr (inl (inr true)).
+  Definition sym_b : Σ^+ := inr (inl (inr false)).
 
   (*
     auxiliary tapes:
@@ -224,11 +229,11 @@ Section main.
 
   Notation aux n := (Fin.L k (Fin.R 1 n)).
 
-  Definition garb : Σ := inl UNKNOWN.
+  Definition garb : Σ^+ := inl UNKNOWN.
 
-  Definition M_main : pTM Σ unit (1 + n_main + k).
+  Definition M_main : pTM (Σ ^+)  unit (1 + n_main + k).
   Proof using k s.
-    refine (
+    notypeclasses refine (
         M_init sym_s sym_b Fin1 Fin2 Fin3 Fin4 Fin5 s k ;;
         LiftTapes MK_isVoid [|aux Fin5 |] ;;
         LiftTapes MK_isVoid [|aux Fin6 |] ;;
@@ -239,9 +244,11 @@ Section main.
         LiftTapes MK_isVoid [|aux Fin11 |] ;;
         LiftTapes MK_isVoid [|aux Fin12 |] ;;
         LiftAlphabet (LiftTapes Loop [| aux Fin0 ; aux Fin1 ; aux Fin2 ; aux Fin5 ; aux Fin6 ; aux Fin7 ; aux Fin8 ; aux Fin9 ; aux Fin10 ; aux Fin11 ; aux Fin12 |]) _ (inl UNKNOWN)  ;;
-        UnfoldHeap.M _ _ (aux Fin1) (aux Fin2) (aux Fin13);;
+        CaseList _ ⇑ _ @ [| aux Fin1;aux Fin13 |];;
+        UnfoldHeap.M _ _ retr_clos @ [| aux Fin13;aux Fin2;aux Fin5;aux Fin6;aux Fin7;aux Fin8;aux Fin9;aux Fin10;aux Fin11;aux Fin12|];;
         (LiftTapes (M_out sym_s sym_b) [|(aux Fin13);Fin0|])
       ).
+      all:try exact _.
     all: exact todo.
   Defined.
 
@@ -258,7 +265,7 @@ Section main.
     {
       unfold M_main.
       TM_Correct.
-      all:eauto using M_init_rel, MK_isVoid_realise, Loop_Realise, UnfoldHeap.Realises, M_out_realise.
+      all:eauto 8 using M_init_rel, MK_isVoid_realise, Loop_Realise, UnfoldHeap.Realise, M_out_realise, UnfoldHeap.Realise.
     }
     (* intros tin ([] & tout) H v ->. *)
     (* unfold n_main in *. cbn in tout. *)

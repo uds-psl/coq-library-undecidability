@@ -46,9 +46,7 @@ Section Fix.
         /\ (isVoid (t'[@Fin0]) /\ isVoid (t'[@Fin2]))).
   Proof.
     eapply Realise_monotone.
-    {unfold M__loop,M__step.  TM_Correct_noSwitchAuto. TM_Correct. cbn. intros. TM_Correct. 
-      eapply Reset_Realise with (X:=list bool).
-    }
+    {unfold M__loop,M__step.  TM_Correct_noSwitchAuto. TM_Correct. cbn. intros. TM_Correct. }
     eapply WhileInduction; intros;hnf.
     - destruct HLastStep;TMSimp.
       specialize (H3 l). modpon H3. 
