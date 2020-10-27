@@ -118,17 +118,18 @@ Section mk_init.
   Variable retr_closs : Retract (sigList (sigHClos)) Σ.
   Variable retr_heap : Retract sigHeap Σ.
 
-  Variable n : nat.
-
-  Variable output1 : Fin.t n.
-  Variable output2 : Fin.t n.
-  Variable output3 : Fin.t n.
-  Variable help1 : Fin.t n.
-  Variable help2 : Fin.t n.
+  Variable m : nat.
 
   Variable sim : term.
 
-  Definition M_init k : pTM (Σ) ^+ unit (n + k). 
+  Print Init.Nat.max.
+
+  Notation aux n := (Fin.L _ (Fin.L m n)) (only parsing).
+  Notation auxm n := (Fin.L _ (Fin.R _ n)) (only parsing).
+  Notation auxk n := (Fin.R (_ + m) n) (only parsing).
+
+
+  Definition M_init k : pTM (Σ) ^+ unit ((5 + m)+ k). 
   Proof using All.
   (*   induction k as [ | k_ M_init]. *)
   (*   - exact (LiftTapes (WriteValue (encode (compile sim))) [| Fin.R ( k + 1) (help1) |]). *)
@@ -139,16 +140,17 @@ Section mk_init.
   (* Defined. *)
   Admitted.
 
-  Theorem M_init_rel k :
+  Theorem M_init_rel k (v:Vector.t (list bool) k):
     Realise (M_init k) (fun t '(r, t') =>
-                 forall (v:Vector.t (list bool) k), 
-                   t = Vector.const niltape n ++ Vector.map (encTM s b) v ->
-                   t'[@Fin.L k output1] ≃(retr_closs) [(0, compile (Vector.fold_left (fun s l_i => L.app s (encL l_i)) sim v))]%list /\
-                   t'[@Fin.L k output2] ≃(retr_closs) []%list /\
-                   t'[@Fin.L k output3] ≃(retr_heap) []%list
+                   t = Vector.const niltape (5+m) ++ Vector.map (encTM s b) v ->
+                   t'[@aux Fin1] ≃(retr_closs) [(0, compile (Vector.fold_left (fun s l_i => L.app s (encL l_i)) sim v))]%list /\
+                   t'[@aux Fin2] ≃(retr_closs) []%list /\
+                   t'[@aux Fin3] ≃(retr_heap) []%list /\
+                   t'[@Fin0] = niltape /\
+                   (forall i, t'[@auxm i] = niltape)
                    ).
   Proof.
-    induction k.
+    depind v. all:cbn [compile Vector.fold_left].
     - (* cbn. eapply Realise_monotone. TM_Correct. *)
       (* intros t [[] t'] [H1 H2] v ->. *)
       (* destruct_tapes. cbn in *. *)
@@ -179,13 +181,18 @@ End conv_output.
 Section MK_isVoid.
 
   Context {Σ : finType}.
+  
+  Definition MK_isVoid : pTM Σ^+ unit 1 := 
+    Write (inl UNKNOWN).
 
-  Definition MK_isVoid : pTM Σ unit 1.
-  Admitted.
-
-  Lemma MK_isVoid_realise :
-    Realise MK_isVoid (fun t '(r, t') => isVoid (t'[@Fin0])).
-  Admitted.
+  Lemma MK_isVoid_Sem :
+    RealiseIn MK_isVoid (fun t '(r, t') => t = [| niltape|] -> isVoid (t'[@Fin0])) 1.
+  Proof. 
+    eapply RealiseIn_monotone.
+    { unfold MK_isVoid. TM_Correct. }
+    easy.
+    intros ? [] H ->. hnf in H. cbn in *. rewrite H. hnf. eauto.
+  Qed.
 
 End MK_isVoid.
 
@@ -196,7 +203,7 @@ Section main.
 
   Variable s : term.
 
-  Hypothesis cl_s : closed s.
+  Hypothesis Hscl : closed s.
 
   Variable Hs1 : (forall v, forall m : list bool,
    R v m <->
@@ -237,7 +244,7 @@ Section main.
   Definition M_main : pTM (Σ ^+)  unit (1 + n_main + k).
   Proof using k s.
     notypeclasses refine (
-        M_init sym_s sym_b _ _ Fin1 Fin2 Fin3 Fin4 Fin5 s k ;;
+        M_init sym_s sym_b _ _ (1 + n_main - 5) s k ;;
         LiftTapes MK_isVoid [|aux Fin5 |] ;;
         LiftTapes MK_isVoid [|aux Fin6 |] ;;
         LiftTapes MK_isVoid [|aux Fin7 |] ;;
@@ -271,16 +278,22 @@ Section main.
     {
       unfold M_main.
       TM_Correct.
-      now apply M_init_rel. 1-9:now apply MK_isVoid_realise.
+      now apply M_init_rel. 1-9:now eapply RealiseIn_Realise, MK_isVoid_Sem.
       now apply Loop_Realise. now apply UnfoldHeap.Realise. now apply M_out_realise.
     }
     cbn.
     intros tin ([] & tout) H v ?. subst tin. 
     unfold n_main in *.   
     TMSimp. specialize H with (1:=eq_refl).
-    modpon H;[]. specialize H17 with (V:=nil) (H:=nil).
+    TMSimp. rename H8 into Hnil. specializeFin Hnil.
+    repeat lazymatch goal with
+    | [H : [?t] = [niltape] -> isVoid _ , Heq : ?t = niltape |- _ ] =>
+       modpon H;[f_equal;exact Heq| clear Heq] 
+       end;[].
+    specialize H23 with (2:=eq_refl). 
+    specialize H17 with (V:=nil) (H:=nil).
     modpon H17;[ | ]. 
-    { clear H15. instantiate (1:= [| _;_;_;_;_;_;_;_|]);intros i;cbn;destruct_fin i;cbn;simpl_surject;isVoid_mono. }
+    { clear H17. instantiate (1:= [| _;_;_;_;_;_;_;_|]);intros i;cbn;destruct_fin i;cbn;simpl_surject;isVoid_mono. }
     TMSimp.
     edestruct soundness as (g__res&H__res'&s__res&Heq&H__Red&H__res).
     2:{ split;[ apply star_pow;eexists;eassumption| ]. eassumption. }
@@ -293,7 +306,7 @@ Section main.
     edestruct Hs2 as (bs&H__bs). { apply eval_iff. eassumption. } subst s__res.
     exists bs.
     specialize (H23 bs). unfold encL in H21.
-    modpon H23. admit (*Adjust M_init *). 
+    modpon H23.
     split. easy.
     apply Hs1,eval_iff. easy.
   Admitted. 
