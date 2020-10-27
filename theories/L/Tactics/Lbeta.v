@@ -103,17 +103,17 @@ Ltac ProcPhi vars :=
   let s := fresh "s" in
   apply liftPhi_correct,Forall_forall;allVarsSubstL vars;
   repeat
-    lazymatch goal with
+    once lazymatch goal with
     | |- Forall _ (@nil _) => solve [simple apply Forall_nil]
     | |- _ => simple apply Forall_cons;[Lproc| ]
     end .
 
 (* solve goals of shape s >(?l) ?t for evars ?l, ?t!*)
 Ltac simplify_L' n:=
-  lazymatch goal with
+  once lazymatch goal with
     |- ?s >(_) _ =>
     allVarsPrep s;
-    lazymatch goal with
+    once lazymatch goal with
       |- ?s >(_) _ =>
       let vars:= allVars s in
   (*    let vars' := fresh "vars'" in
@@ -144,7 +144,7 @@ Lemma pow_trans_eq: forall (s t u : term) (i j k: nat), s >(i) t -> t >(j) u -> 
 Qed.
 
 Ltac Lreflexivity :=
-  lazymatch goal with
+  once lazymatch goal with
   | |- _ ⇓(<=_) _ => solve [apply (@evalIn_refl 0);Lproc | apply evalIn_refl;Lproc ]
   | |- _ >(<= _ ) _ => apply redLe_refl
   | |- _ ⇓(?i) _ => unify i 0;split;[reflexivity|Lproc]
@@ -156,9 +156,9 @@ Ltac Lreflexivity :=
 
 
 Ltac Lbeta' n :=
-  lazymatch goal with
+  once lazymatch goal with
     |- ?rel ?s _ =>    
-    lazymatch goal with
+    once lazymatch goal with
     | |- _ >(?i) _ => tryif is_evar i
       then eapply pow_trans;[simplify_L' n|]
       else (eapply pow_trans_eq;[simplify_L' n| |try reflexivity])
@@ -172,7 +172,7 @@ Ltac Lbeta' n :=
     | |- _ >* _ => etransitivity;[eapply pow_star_subrelation;simplify_L' n|]
     | |- ?G => fail "Not supported for LSimpl (or other failed):" G 
     end;
-    lazymatch goal with
+    once lazymatch goal with
       |- ?rel s _ => fail "No Progress (progress in indexes are not currently noticed...)"
     | |- _ => idtac
     (* don;t change evars if you did not make progress!*)
@@ -206,7 +206,7 @@ Tactic Notation "standardize" ident(R) constr(n) constr(s) :=
 
 Ltac standardizeGoal' _n:=
   let R:= fresh "R" in
-  lazymatch goal with (* try etransitivity is for debugging, so we can disable ProcPhi iff needed*)
+  once lazymatch goal with (* try etransitivity is for debugging, so we can disable ProcPhi iff needed*)
     | |- ?s == _ => let R:= fresh "R" in standardize R _n s;try (etransitivity;[exact (star_equiv R)|];clear R)
     | |- ?s >* _ => let R:= fresh "R" in standardize R _n s;try (etransitivity;[exact R|];clear R)
   end.

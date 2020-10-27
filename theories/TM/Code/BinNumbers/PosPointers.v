@@ -128,7 +128,7 @@ Lemma atHSB_ext (t : tape sigPos^+) (p0 : positive) (p1 : positive) :
 Proof. now intros H ->. Qed.
 
 Ltac atBit_ext :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ H : atBit ?t ?p0 ?b0 ?bits0 |- atBit ?t ?p1 ?b1 ?bits0 ] => apply (atBit_ext H); auto
   | [ H : atLSB ?t ?p0 ?b0        |- atLSB ?t ?p1 ?b1        ] => apply (atLSB_ext H); auto
   | [ H : atHSB ?t ?p0            |- atHSB ?t ?p1            ] => apply (atHSB_ext H); auto

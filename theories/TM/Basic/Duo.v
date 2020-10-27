@@ -69,7 +69,7 @@ Arguments ReadChar2_Rel sig x y /.
 (** ** Tactic Support *)
 
 Ltac smpl_TM_Duo :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- CaseChar2 _ ⊨ _] => eapply RealiseIn_Realise; eapply CaseChar2_Sem
   | [ |- CaseChar2 _ ⊨c(_) _] => eapply CaseChar2_Sem
   | [ |- projT1 (CaseChar2 _) ↓ _] => eapply RealiseIn_TerminatesIn; eapply CaseChar2_Sem

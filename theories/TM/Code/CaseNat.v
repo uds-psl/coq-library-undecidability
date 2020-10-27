@@ -105,7 +105,7 @@ End CaseNat.
 (** ** Tactic Support *)
 
 Ltac smpl_TM_CaseNat :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- CaseNat ⊨ _ ] => eapply RealiseIn_Realise; apply CaseNat_Sem
   | [ |- CaseNat ⊨c(_) _ ] => apply CaseNat_Sem
   | [ |- projT1 (CaseNat) ↓ _ ] => eapply RealiseIn_TerminatesIn; apply CaseNat_Sem

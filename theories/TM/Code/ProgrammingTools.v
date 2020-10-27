@@ -12,10 +12,10 @@ Require Import Lia.
 (** This tactic automatically solves/instantiates premises of a hypothesis. If the hypothesis is a conjunction, it is destructed. *)
 Ltac modpon' H :=
   simpl_surject;
-  lazymatch type of H with
+  once lazymatch type of H with
   | forall (i : Fin.t _), ?P => idtac
   | forall (x : ?X), ?P =>
-    lazymatch type of X with
+    once lazymatch type of X with
     | Prop =>
       tryif spec_assert H by
           (simpl_surject;
@@ -48,7 +48,7 @@ Ltac modpon H := progress (modpon' H).
 
 (** To get rid of all those uggly tape rewriting hypothesises. Be warned that maybe the goal can't be solved after that. *)
 Ltac clear_tape_eqs :=
-  repeat lazymatch goal with
+  repeat once lazymatch goal with
          | [ H: ?t'[@ ?x] = ?t[@ ?x] |- _ ] => clear H
          end.
 
@@ -68,13 +68,13 @@ Tactic Notation "tacInEvar" constr(E) tactic3(tac) :=
   (only [__tmp_callInEvar]:tac);unify E __tmp_callInEvar;subst __tmp_callInEvar;instantiate.
 
 Tactic Notation "introsSwitch" ne_simple_intropattern_list(P):=
-  lazymatch goal with
+  once lazymatch goal with
     |- (forall f' , ?REL _ (?Rmove f')) =>
     tacInEvar Rmove intros P;cbn beta;intros P
   end.
 
 Tactic Notation "destructBoth" constr(g) "as" simple_intropattern(P) :=
-  lazymatch goal with
+  once lazymatch goal with
     |- (RealiseIn _ ?Rmove _) =>
     tacInEvar Rmove (destruct g as P);destruct g as P;cbn zeta iota beta
   | |- (?REL _ ?Rmove) =>

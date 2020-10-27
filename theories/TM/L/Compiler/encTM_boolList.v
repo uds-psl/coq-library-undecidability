@@ -54,7 +54,7 @@ Section Fix.
       TMSimp;cbn in *. simpl_surject.
       modpon H4. split. 2:easy.
       rewrite H0. unfold encTM. 
-      destruct tin1 as [ | | | ] eqn:Heq;cbn in *. 
+      destruct tin_1 as [ | | | ] eqn:Heq;cbn in *. 
       all:(destruct l';revert Heq;inv H0;cbn;intros Heq).  
       1,2:reflexivity.
       1:exfalso;nia. 
@@ -135,21 +135,20 @@ Section Fix.
       destruct tape_local_l eqn:H' in H. { destruct l;discriminate H. }
       specialize (tape_local_l_current_cons H') as H''.
       rewrite H'' in H3. TMSimp. destruct H3;TMSimp.
-      destruct tin0 as [ | | | []];cbn in *;try discriminate.
+      destruct tin_0 as [ | | | []];cbn in *;try discriminate.
       destruct l as [ | ? []]. all:inv H. 2-3:discriminate.
       cbn. split. congruence. assumption.
     - TMSimp. 
       destruct tape_local_l eqn:H' in H. { destruct l;discriminate H. }
       specialize (tape_local_l_current_cons H') as H''.
       rewrite H'' in H3. TMSimp. destruct H3;TMSimp.
-      destruct tin0 as [ | | | []];cbn in *. 1-4:discriminate.
+      destruct tin_0 as [ | | | []];cbn in *. 1-4:discriminate.
       inv H'. destruct l;cbn in H;inv H.
       modpon H3;[]. cbn. rewrite <- app_assoc. 
       apply HLastStep. 1-2: easy. 
-      destruct sum_eq_dec as [e|e].
-      all:destruct b0. all:try inv e. 
-      all:try solve contains_ext.
-      all:exfalso;congruence.
+      destruct sum_eq_dec as [e|e];cbn.
+      all:destruct b0. 2,3:congruence.
+      all:contains_ext.
   Qed. 
   
   Definition M : pTM (Σ) ^+ unit 2 :=

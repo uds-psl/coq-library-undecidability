@@ -21,7 +21,7 @@ Ltac Lreduce :=
 
 (*Lsimpl that uses correctnes lemmas*)
 Ltac Lsimpl :=intros(*;repeat foldLocalInts*);
-  lazymatch goal with
+  once lazymatch goal with
   | |- _ >(<= _ ) _ => Lreduce;try Lreflexivity
   | |- _ ⇓(_ ) _ => repeat progress Lbeta;try Lreflexivity
   | |- _ ⇓(<= _ ) _ => Lreduce;try Lreflexivity

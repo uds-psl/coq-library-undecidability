@@ -280,7 +280,7 @@ End CopySymbols.
 
 
 Ltac smpl_TM_CopySymbols :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- CopySymbols _ ⊨ _ ] => eapply CopySymbols_Realise
   | [ |- projT1 (CopySymbols _) ↓ _ ] => eapply CopySymbols_Terminates
   | [ |- CopySymbols_L _ ⊨ _ ] => eapply CopySymbols_L_Realise

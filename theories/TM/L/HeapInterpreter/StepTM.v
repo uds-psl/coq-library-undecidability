@@ -272,9 +272,7 @@ Section StepMachine.
         specializeFin HJumpTarget2. clear HJumpTarget2.
         cbn; TMSimp_goal. unfold id.
         intros. simpl_surject.
-        destruct_fin i; TMSimp; cbn in *;auto. 
-        + isVoid_mono. now rewrite !vector_tl_nth.
-        + isVoid_mono. now rewrite !vector_tl_nth.
+        destruct_fin i; TMSimp; cbn in *;auto.
       }
       { (* Else, i.e. [jumpTarget 0 [] = None] *)
         modpon H.
@@ -561,6 +559,7 @@ Section StepMachine.
        (Return Nop false)
   .
 
+  Arguments Step_app_size : simpl never.
 
   Lemma Step_app_Realise : Step_app ⊨ Step_app_Rel.
   Proof.
@@ -592,8 +591,6 @@ Section StepMachine.
           modpon HConsClos.
           repeat split; auto.
           - intros i; destruct_fin i; cbn; auto; TMSimp_goal; auto.
-            + isVoid_mono. cbn. now rewrite !vector_tl_nth.
-            + isVoid_mono. cbn. now rewrite !vector_tl_nth.
         }
         { modpon H5. destruct V'; auto. }
       }
@@ -881,6 +878,8 @@ Section StepMachine.
         end.
 
   Arguments Step_size : simpl never.
+  Opaque Step_app_size.
+
 
   Lemma Step_Realise : Step ⊨ Step_Rel.
   Proof.
@@ -917,8 +916,6 @@ Section StepMachine.
             - cbn. destruct HStepLam as (jump_P&jump_Q&HStepLam); modpon HStepLam.
               do 3 eexists. unfold Step_size;cbn. repeat split; eauto.
               + econstructor. eauto.
-              + contains_ext. now rewrite !vector_tl_nth.
-              + contains_ext. now rewrite !vector_tl_nth.
               + generalize (HStepLam4 Fin0); generalize (HStepLam4 Fin1); generalize (HStepLam4 Fin2); generalize (HStepLam4 Fin3); generalize (HStepLam4 Fin4); generalize (HStepLam4 Fin5); generalize (HStepLam4 Fin6); cbn; TMSimp_goal; intros.
                 cbn.
                 specialize (HStepLam0 Fin10) as H'. cbn in H'. revert H'. intros -> . 2:now vector_not_in.
@@ -934,10 +931,13 @@ Section StepMachine.
             destruct ymid; cbn.
             - destruct V as [ | g V']; auto.
               destruct V' as [ | (b, Q) V'']; auto. modpon HStepApp;[].
-              do 3 eexists. repeat split. 2-4:now unfold Step_size;cbn;eauto.  
-              + econstructor. reflexivity.
-              + generalize (HStepApp2 Fin0); generalize (HStepApp2 Fin1); generalize (HStepApp2 Fin2); generalize (HStepApp2 Fin3); generalize (HStepApp2 Fin4); generalize (HStepApp2 Fin5); generalize (HStepApp2 Fin6); generalize (HStepApp2 Fin7); cbn; TMSimp_goal; intros.
-                destruct_fin i; TMSimp_goal; cbn; auto; try rewrite HStepLam0 by vector_not_in; TMSimp_goal; try rewrite !vector_tl_nth; auto.
+              
+              do 3 eexists. repeat split.
+               +econstructor;reflexivity.
+               +abstract (vm_cast_no_check HStepApp).
+               +abstract (vm_cast_no_check HStepApp0).
+               +abstract (vm_cast_no_check HStepApp1).
+               +abstract (intros i; specialize (HStepApp2 i);cbv delta [Step_size]; cbn in *;unfold Step_size; destruct_fin i; cbn; assumption).
             - split; auto. intros s' HStep. now inv HStep.
           }
           { (* varT *)
@@ -947,13 +947,8 @@ Section StepMachine.
             - destruct HStepVar as (g&HStepVar); modpon HStepVar.
               do 3 eexists; repeat split; eauto.
               + econstructor; eauto.
-              + unfold Step_size. cbn. contains_ext. now rewrite !vector_tl_nth.
-              + unfold Step_size. contains_ext. cbn. now rewrite !vector_tl_nth.
               + generalize (HStepVar4 Fin0); generalize (HStepVar4 Fin1); generalize (HStepVar4 Fin2); generalize (HStepVar4 Fin3); generalize (HStepVar4 Fin4); cbn; TMSimp_goal; intros.
                 simpl_not_in. destruct_fin i; cbn; auto; TMSimp_goal; auto.
-                all:unfold Step_size;cbn in *;subst.
-                all: try rewrite !vector_tl_nth; try apply HInt.
-                all: isVoid_mono.
             - split; auto. intros s' HStep. inv HStep. congruence.
           }
         }
@@ -965,7 +960,7 @@ Section StepMachine.
         specializeFin HInt. clear HInt.
         modpon H. destruct T; auto. modpon H. split; auto. intros s HStep. now inv HStep.
         repeat split; eauto.
-        intros i; destruct_fin i; TMSimp_goal; cbn in *; auto.
+        abstract (intros i; destruct_fin i; TMSimp_goal; cbn in *; auto).
       }
     }
   Qed.

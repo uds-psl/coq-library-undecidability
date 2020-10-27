@@ -111,7 +111,7 @@ Arguments Constr_inr : simpl never.
 (** ** Tactic Support for Sum Types *)
 
 Ltac smpl_TM_CaseSum :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- CaseSum _ _ ⊨ _ ] => eapply RealiseIn_Realise; apply CaseSum_Sem
   | [ |- CaseSum _ _ ⊨c(_) _ ] => apply CaseSum_Sem
   | [ |- projT1 (CaseSum _ _) ↓ _ ] => eapply RealiseIn_TerminatesIn; apply CaseSum_Sem
@@ -297,7 +297,7 @@ Arguments Constr_Some : simpl never.
 (** ** Tactic Support for Option Types *)
 
 Ltac smpl_TM_CaseOption :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- CaseOption _ ⊨ _ ] => eapply RealiseIn_Realise; apply CaseOption_Sem
   | [ |- CaseOption _ ⊨c(_) _ ] => apply CaseOption_Sem
   | [ |- projT1 (CaseOption _) ↓ _ ] => eapply RealiseIn_TerminatesIn; apply CaseOption_Sem

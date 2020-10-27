@@ -215,7 +215,7 @@ End LiftAlphabet.
 Arguments LiftAlphabet : simpl never.
 
 Ltac smpl_TM_LiftAlphabetSigma :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- LiftAlphabet _ _ _ ⊨ _] => eapply LiftAlphabet_Realise; swap 1 2
   | [ |- LiftAlphabet _ _ _ ⊨c(_) _] => eapply LiftAlphabet_RealiseIn; swap 1 2
   | [ |- projT1 (LiftAlphabet _ _ _) ↓ _] => eapply LiftAlphabet_TerminatesIn; swap 1 2

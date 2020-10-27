@@ -95,9 +95,11 @@ Section Compare.
     eapply Realise_monotone.
     { unfold Compare. TM_Correct. eapply RealiseIn_Realise. apply Compare_Step_Sem. }
     { apply WhileInduction; intros; cbn in *.
-      - revert yout HLastStep. TMCrush; intros; rewrite Compare_fun_equation; cbn; TMSolve 1. all: TMCrush; TMSolve 1.
-      - revert yout HLastStep. TMCrush; intros. TMSimp.
-        symmetry. rewrite Compare_fun_equation. cbn. rewrite E, E0, E1, E2. decide (e0=e0) as [ | Tamtam]; [ | now contradiction Tamtam] . auto.
+      - revert yout HLastStep. TMCrush; intros; rewrite Compare_fun_equation; cbn; TMSolve 1.
+        all:try rewrite E in *; try rewrite E0 in *;try rewrite E1 in *;try rewrite E2 in *. 
+        all: TMCrush; TMSolve 1.  
+      - revert yout HLastStep. TMCrush; intros. all:TMSimp. all:rewrite HLastStep.
+        all:symmetry. all:rewrite Compare_fun_equation. all:cbn. all:rewrite E, E0, E1, E2. all:decide (e0=e0) as [ | Tamtam]; [ | now contradiction Tamtam] . all:auto.
     }
   Qed.
 
@@ -143,7 +145,7 @@ Section Compare.
         TMCrush.
         split.
         + hnf. TMSimp. auto.
-        + rewrite Compare_steps_equation in HT. cbn in HT. rewrite E, E0, E1, E2 in HT. TMSimp_old. lia.
+        + rewrite Compare_steps_equation in HT. cbn in HT. rewrite E, E0, E1, E2 in HT. rewrite E3 in *. lia.
     }
   Qed.
     

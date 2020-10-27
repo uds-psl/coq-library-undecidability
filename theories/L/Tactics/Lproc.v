@@ -21,14 +21,14 @@ Qed.
 
 
 Ltac fLproc :=intros;
-              lazymatch goal with
+              once lazymatch goal with
               | [ |- proc _ ] => split;fLproc
               | [ |- lambda ?s ] => eexists; reflexivity || fail "Prooving 'lambda " s " ' by computation failed. It is either not a fixed term, some used identifier is opaqie or the goal does not hold"
               | [ |- closed ?s ] => vm_compute; reflexivity || fail "Prooving 'closed " s " ' by computation failed. It is either not a fixed term, some used identifier is opaque or the goal does not hold"
               end.
 
 Ltac Lproc' :=
-  lazymatch goal with
+  once lazymatch goal with
   | |- lambda (match ?c with _ => _ end) => destruct c
   | |- lambda (@enc ?t ?H ?x) => exact (proc_lambda (@proc_enc t H x))
   | |- lambda (@ext ?X ?tt ?x ?H) => exact (proc_lambda (@proc_ext X tt x H))
@@ -58,7 +58,7 @@ Ltac Lproc' :=
 (* early abort for speed!*)
 
 Ltac Lproc :=
-  repeat lazymatch goal with
+  repeat once lazymatch goal with
   | |- proc (app _ _) => fail
   | |- proc _ => split;[|solve [Lproc]]
                                     

@@ -305,7 +305,7 @@ Arguments CasePair_steps    {sigX X cX} : simpl never.
 (** ** Tactic Support *)
 
 Ltac smpl_TM_CasePair :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- CasePair _ _ ⊨ _ ] => apply CasePair_Realise
   | [ |- projT1 (CasePair _ _) ↓ _ ] => apply CasePair_Terminates
 

@@ -940,7 +940,7 @@ Proof. constructor. apply start. Qed.
 Lemma inhabited_pTM_lab (n : nat) (sig : finType) (F : Type) (pM : pTM sig F n) : inhabitedC F.
 Proof. constructor. apply (projT2 pM). apply default. Qed.
 
-Hint Extern 4 => lazymatch goal with
+Hint Extern 4 => once lazymatch goal with
                 | [ pM : pTM ?sig ?F ?n |- inhabitedC ?F ] => apply (inhabited_pTM_lab pM)
                 end : typeclass_instances.
 

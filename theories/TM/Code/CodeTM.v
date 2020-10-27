@@ -68,7 +68,7 @@ Section isVoid.
 End isVoid.
 
 Ltac isVoid_mono :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ H : isVoid_size ?t ?s1 |- isVoid_size ?t ?s2 ] =>
     apply isVoid_size_monotone with (1 := H); eauto; simpl_comp; try lia
   | [ H : isVoid_size ?t ?s1 |- isVoid ?t ] =>
@@ -278,7 +278,7 @@ Ltac contains_solve_le :=
 Local Ltac eUnify I1 I2 := ((is_evar I1 || is_evar I2);unify I1 I2).
 
 Ltac contains_ext :=
-  lazymatch goal with
+  once lazymatch goal with
   | [H : ?t ≃(?I1;?s1) ?x |- ?t ≃(?I2;?s2) ?y] =>
     apply tape_contains_size_ext with (1 := H); try eUnify I1 I2;simpl_comp; try reflexivity; try contains_solve_le
   | [H : ?t ≃(_;?s1) ?x |- ?t ≃(_) ?y] =>

@@ -272,7 +272,7 @@ End ChangeAlphabet.
 
 (** This tactic removes [surjectTape] in hypothesises and in the goal *)
 Ltac simpl_surject_step :=
-  lazymatch goal with
+  once lazymatch goal with
   (* encodings *)
   | [ |- surjectTape _ _ ?t ≃ _ ] => apply contains_translate_tau1
   | [ H : surjectTape _ _ ?t ≃ _ |- _ ] => apply contains_translate_tau2 in H
@@ -291,7 +291,7 @@ Ltac simpl_surject := repeat simpl_surject_step.
 (** ** Tactic Support *)
 
 Ltac smpl_TM_ChangeAlphabet :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- ChangeAlphabet ?pM ?retr ⊨ _ ] => apply LiftAlphabet_Realise
   | [ |- ChangeAlphabet ?pM ?retr ⊨c(_) _ ] => apply LiftAlphabet_RealiseIn
   | [ |- projT1 (ChangeAlphabet ?pM ?retr) ↓ _ ] => apply LiftAlphabet_TerminatesIn

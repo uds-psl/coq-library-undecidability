@@ -355,7 +355,7 @@ Proof. vector_dupfree. Qed.
 
 
 Ltac smpl_dupfree :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- dupfree [|Fin.F1 |] ] => apply smpl_dupfree_helper1
   | [ |- dupfree [|Fin.FS |] ] => apply smpl_dupfree_helper2
   | [ |- dupfree _ ] => now vector_dupfree (* fallback tactic *)
@@ -363,7 +363,7 @@ Ltac smpl_dupfree :=
 
 
 Ltac smpl_TM_LiftN :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- LiftTapes _ _ ⊨ _] =>
     apply LiftTapes_Realise; [ smpl_dupfree | ]
   | [ |- LiftTapes _ _ ⊨c(_) _] => apply LiftTapes_RealiseIn; [ smpl_dupfree | ]
@@ -373,7 +373,7 @@ Smpl Add smpl_TM_LiftN : TM_Correct.
 
 
 Ltac is_num_const n :=
-  lazymatch n with
+  once lazymatch n with
   | O => idtac
   | S ?n => is_num_const n
   | _ => fail "Not a number"
@@ -404,7 +404,7 @@ Eval cbn in ltac:(do_n_times 42 ltac:(fun a => idtac a)).
 
 (* This similiar tactical executes [t Fin0], ..., [t Fin_(n-1)]. *)
 Ltac do_n_times_fin_rect n m t :=
-  lazymatch n with
+  once lazymatch n with
   | O => idtac
   | S ?n' =>
     let m' := eval hnf in (pred m) in
@@ -424,7 +424,7 @@ Eval cbn in ltac:(do_n_times_fin 3 ltac:(fun a => let x := eval simpl in (a : Fi
 
 (* Check whether a vector (syntactically) contains an element *)
 Ltac vector_contains a vect :=
-  lazymatch vect with
+  once lazymatch vect with
   | @Vector.nil ?A => fail "Vector doesn't contain" a
   | @Vector.cons ?A a ?n ?vect' => idtac
   | @Vector.cons ?A ?b ?n ?vect' => vector_contains a vect'
@@ -440,22 +440,87 @@ Ltac vector_contains a vect :=
  * with [i := Fin0], ..., [i := Fin(n-1)] to new assumptions [H_0].
  *)
 
-Ltac simpl_not_in_vector_step H vect n m' :=
-  let H' := fresh H "_" in
-  tryif vector_contains m' vect
-  then idtac (* skip m' *)
-  else pose proof (H m' ltac:(vector_not_in)) as H'.
+Lemma splitAllFin k' n (P : Fin.t (k'+n) -> Prop):
+  (forall i, P i) -> (forall (i : Fin.t k'), P (Fin.L n i)) /\ (forall (i : Fin.t n), P (Fin.R k' i)).
+Proof.
+  easy.
+Qed.  
 
-Ltac simpl_not_in_vector_loop H vect n :=
-  let H' := fresh H "_" in
-  pose proof I as H';
-  do_n_times_fin n ltac:(fun m' => simpl_not_in_vector_step H vect n m');
-  clear H'.
+Fixpoint not_indexb {n} (v : list (Fin.t n)) (i : Fin.t n) {struct v}: bool :=
+match v with
+  []%list => true
+| (i'::v)%list => if Fin.eqb i' i then false else not_indexb v i
+end.
+
+
+Require Import Equations.Prop.DepElim.
+Lemma not_index_reflect n m (v : Vector.t _ m) (i : Fin.t n):
+  not_index v i <-> not_indexb (Vector.to_list v) i = true.
+Proof.
+  unfold Vector.to_list. depind v;cbn. easy. 
+  specialize (Fin.eqb_eq _ h i) as H'.
+  destruct Fin.eqb. { destruct H' as [->]. 2:easy. split. 2:easy. destruct 1. constructor. }
+  rewrite <- IHv. cbv;intuition. apply H1. now constructor. apply H1.  
+  inversion H2;subst. now specialize (H0 eq_refl). apply Eqdep_dec.inj_pair2_eq_dec in H6;subst. easy.
+  decide equality. 
+Qed.
+
+Arguments not_indexb : simpl nomatch.
+
+Lemma not_index_reflect_helper n m (v : Vector.t _ m) (P : Fin.t n -> Prop):
+(forall i : Fin.t n, not_index v i  -> P i)
+-> (forall i : Fin.t n, if not_indexb (Vector.to_list v) i then P i else True).
+Proof.
+  intros H i. specialize (H i). setoid_rewrite not_index_reflect in H. destruct not_indexb;now eauto.
+Qed.
+
+Lemma not_index_reflect_helper2 n' (l : list _) (P : Fin.t n' -> Prop):
+(forall i : Fin.t n', if not_indexb l i then P i else True)
+-> (forall i : Fin.t n', not_index (Vector.of_list l) i  -> P i).
+Proof.
+  intros H i. specialize (H i). setoid_rewrite not_index_reflect.  
+  rewrite VectorSpec.to_list_of_list_opp. destruct not_indexb;now eauto.
+Qed.
 
 Ltac simpl_not_in_vector_one :=
-  lazymatch goal with
+  let moveCnstLeft :=
+    let rec loop k n :=
+      lazymatch n with
+        S ?n => loop uconstr:(S k) n
+      | _ => uconstr:(k + n)
+      end
+    in loop 0
+    in
+  once lazymatch goal with
   | [ H : forall i : Fin.t ?n, not_index ?vect i -> _ |- _ ] =>
-    simpl_not_in_vector_loop H vect n; clear H
+    specialize (not_index_reflect_helper H);clear H;intros H;
+    let n' := moveCnstLeft n in
+    change n with n' in H at 1;
+    let tmp := fresh "tmp" in
+    apply splitAllFin in H as [tmp H];
+    cbn [not_indexb Vector.to_list Fin.R Vector.caseS Fin.eqb Vector.nth] in H;
+    let helper i :=
+      let H' := fresh H "_0" in
+      assert (H':= tmp i);
+      cbn in H';
+      once lazymatch type of H' with
+        | if (if Nat.eqb ?k ?k then false else true) then _ else True => clear H'
+        | ?i = ?j => move H' at bottom;symmetry in H';subst i
+        | True => clear H'
+        | ?G => fail "simpl_not_in_vector_one" G
+      end
+    in
+    lazymatch type of tmp with 
+      forall i : Fin.t ?n, _ => 
+        do_n_times_fin n helper;clear tmp     
+    end;
+    lazymatch type of H with
+    | forall i : Fin.t 0, _ => clear H
+    | forall u, if _ then _ else _ =>
+          try (specialize (not_index_reflect_helper2 H);clear H;intros H;cbn [Vector.of_list] in H)
+          
+    | ?t => idtac "unexpected" t
+    end
   end.
 
 Ltac simpl_not_in_vector := repeat simpl_not_in_vector_one.

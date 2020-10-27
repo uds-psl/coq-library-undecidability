@@ -133,7 +133,7 @@ Arguments Mirror_T { n sig } T x y /.
 
 
 Ltac smpl_TM_Mirror :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- Mirror _ ⊨ _ ] => eapply Mirror_Realise
   | [ |- Mirror _ ⊨c(_) _ ] => eapply Mirror_RealiseIn
   | [ |- projT1 (Mirror _) ↓ _ ] => eapply Mirror_Terminates

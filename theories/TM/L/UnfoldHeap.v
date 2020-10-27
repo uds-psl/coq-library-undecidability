@@ -79,15 +79,15 @@ Section Fix.
       -> t[@i_k] ≃(retr_nat_clos_var) k
       -> t[@i_stack'] ≃(retr_stack) stack'
       -> t[@i_res] ≃(retr_pro) res
-      -> isRight t[@i_aux1]
-      -> isRight t[@i_aux2]
-      -> isRight t[@i_aux3]
-      -> isRight t[@i_aux4]
+      -> isVoid t[@i_aux1]
+      -> isVoid t[@i_aux2]
+      -> isVoid t[@i_aux3]
+      -> isVoid t[@i_aux4]
       -> t'[@i_H] ≃(retr_heap) H
-      /\ isRight t'[@i_aux1] 
-      /\ isRight t'[@i_aux2] 
-      /\ isRight t'[@i_aux3] 
-      /\ isRight t'[@i_aux4]
+      /\ isVoid t'[@i_aux1] 
+      /\ isVoid t'[@i_aux2] 
+      /\ isVoid t'[@i_aux3] 
+      /\ isVoid t'[@i_aux4]
       /\ match unfoldTailRecStep H (((a,P),k)::stack',res) with
             inr _ => False
           | inl (stack2,res2) =>
@@ -95,10 +95,10 @@ Section Fix.
             match stack2 with
             | [] =>
               r = false
-              /\ isRight t'[@i_a]
-              /\ isRight t'[@i_P]
-              /\ isRight t'[@i_k]
-              /\ isRight t'[@i_stack']
+              /\ isVoid t'[@i_a]
+              /\ isVoid t'[@i_P]
+              /\ isVoid t'[@i_k]
+              /\ isVoid t'[@i_stack']
             | ((a2,P2),k2)::stack2' =>
               r = true /\
               t'[@i_a] ≃(retr_nat_clos_ad) a2
@@ -218,10 +218,10 @@ Section Fix.
     - TMSimp. modpon H6. destruct P. easy. TMSimp.
       modpon H7. destruct ymid as [ c | ].
       + TMSimp. modpon H9. destruct c. all:TMSimp.
-        * modpon H14. destruct k,ymid. all:try contradiction. all:now simpl_surject.
-        * modpon H14. easy.    
+        * modpon H10. destruct k,ymid. all:try contradiction. all:now simpl_surject.
+        * modpon H10. easy.    
         * easy. 
-      + destruct H7 as (n&->&?). all:TMSimp. modpon H9;[]. modpon H14;[].
+      + destruct H7 as (n&->&?). all:TMSimp. modpon H9;[]. modpon H10;[].
         destruct H16. 
         2:{
           TMSimp. modpon H16;[]. modpon H19;[]. modpon H21;[]. modpon H23;[]. modpon H25;[].
@@ -244,11 +244,11 @@ Section Fix.
       modpon H8.
       destruct H13 as [Htrue | Hfalse]. all:TMSimp.
       2:{
-        modpon H13. destruct stack'. 2:easy. TMSimp.
-        modpon H17. modpon H16. easy.
+        modpon H10. destruct stack'. 2:easy. TMSimp.
+        modpon H11. easy.
       }
-      modpon H13;[]. destruct stack'. easy. TMSimp.
-      modpon H16;[]. TMSimp. modpon H18;[]. modpon H20;[].
+      modpon H10;[]. destruct stack'. easy. TMSimp.
+      modpon H11;[]. TMSimp. modpon H14;[]. modpon H20;[].
       easy.
   Qed.                
   
@@ -263,21 +263,21 @@ Section Fix.
       -> t[@i_k] ≃(retr_nat_clos_var) k
       -> t[@i_stack'] ≃(retr_stack) stack'
       -> t[@i_res] ≃(retr_pro) res
-      -> isRight t[@i_aux1]
-      -> isRight t[@i_aux2]
-      -> isRight t[@i_aux3]
-      -> isRight t[@i_aux4]
+      -> isVoid t[@i_aux1]
+      -> isVoid t[@i_aux2]
+      -> isVoid t[@i_aux3]
+      -> isVoid t[@i_aux4]
       -> forall n res', loopSum n (unfoldTailRecStep H) (((a,P),k)::stack',res) = Some (Some res')
         -> t'[@i_H] ≃(retr_heap) H
-        /\ isRight t'[@i_a]
-        /\ isRight t'[@i_P]
-        /\ isRight t'[@i_k]
-        /\ isRight t'[@i_stack']
+        /\ isVoid t'[@i_a]
+        /\ isVoid t'[@i_P]
+        /\ isVoid t'[@i_k]
+        /\ isVoid t'[@i_stack']
         /\ t'[@i_res] ≃(retr_pro) res' 
-        /\ isRight t'[@i_aux1] 
-        /\ isRight t'[@i_aux2] 
-        /\ isRight t'[@i_aux3] 
-        /\ isRight t'[@i_aux4]).
+        /\ isVoid t'[@i_aux1] 
+        /\ isVoid t'[@i_aux2] 
+        /\ isVoid t'[@i_aux3] 
+        /\ isVoid t'[@i_aux4]).
 
   Local Arguments unfoldTailRecStep : simpl never.
 
@@ -314,22 +314,22 @@ Section Fix.
       -> t[@i_a] ≃(retr_nat_clos_ad) a
       -> t[@i_P] ≃(retr_pro) (compile s)
       -> t[@i_k] ≃(retr_nat_clos_var) k
-      -> isRight t[@i_stack'] 
-      -> isRight t[@i_res]
-      -> isRight t[@i_aux1]
-      -> isRight t[@i_aux2]
-      -> isRight t[@i_aux3]
-      -> isRight t[@i_aux4]
+      -> isVoid t[@i_stack'] 
+      -> isVoid t[@i_res]
+      -> isVoid t[@i_aux1]
+      -> isVoid t[@i_aux2]
+      -> isVoid t[@i_aux3]
+      -> isVoid t[@i_aux4]
       -> t'[@i_H] ≃(retr_heap) H
-        /\ isRight t'[@i_a]
-        /\ isRight t'[@i_P]
-        /\ isRight t'[@i_k]
-        /\ isRight t'[@i_stack']
+        /\ isVoid t'[@i_a]
+        /\ isVoid t'[@i_P]
+        /\ isVoid t'[@i_k]
+        /\ isVoid t'[@i_stack']
         /\ t'[@i_res] ≃(retr_pro) (rev (compile s'))
-        /\ isRight t'[@i_aux1] 
-        /\ isRight t'[@i_aux2] 
-        /\ isRight t'[@i_aux3] 
-        /\ isRight t'[@i_aux4]).
+        /\ isVoid t'[@i_aux1] 
+        /\ isVoid t'[@i_aux2] 
+        /\ isVoid t'[@i_aux3] 
+        /\ isVoid t'[@i_aux4]).
 
   Theorem Realise : Realise M Rel.
   Proof.
@@ -385,15 +385,15 @@ Section Fix.
                           reprC H g s 
                           -> t[@i_io] ≃(retr_clos) g
                           -> t[@i_H] ≃ H
-                          -> (forall i : Fin.t 8, isRight t[@ Fin.R 2 i])
+                          -> (forall i : Fin.t 8, isVoid t[@ Fin.R 2 i])
                           -> t'[@i_io] ≃(retr_pro) compile s
                           /\ t[@i_H] ≃ H 
-                          /\ (forall i : Fin.t 8, isRight t'[@ Fin.R 2 i])).
+                          /\ (forall i : Fin.t 8, isVoid t'[@ Fin.R 2 i])).
   Proof.  
     eapply Realise_monotone.
     { unfold M. TM_Correct. apply UnfoldClos.Realise. apply Rev_Append_Realise. apply Cons_constant.Realise. }
     hnf. intros ? [] H' (a&P) H s Hs. inv Hs. inv H4. inv H6. TMSimp.
-    specializeFin H7; clear H7. modpon H0;[]. modpon H1;[]. 
+    specializeFin H19; clear H19. modpon H0;[]. modpon H1;[]. 
     specialize (H4 1). modpon H4;[]. TMSimp. modpon H6;[].
     modpon H8;[]. specialize (H10 [retT]). modpon H10;[]. modpon H12;[]. modpon H14;[].
     rewrite rev_involutive in H14. split. 2:split.

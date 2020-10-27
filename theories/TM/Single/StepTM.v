@@ -1202,7 +1202,7 @@ Section ToSingleTape.
       {
         eapply Realise_monotone.
         { TM_Correct. }
-        { intros tin (yout, tout) H. intros T HEncT. unfold contains_tapes in *. TMSimp_old.
+        { intros tin (yout, tout) H. intros T HEncT. unfold contains_tapes in *. TMSimp.
           clear_except E. apply finMin_opt_None in E as ->. destruct_tapes. cbn.
           split; cbn; auto. hnf. reflexivity.
         }
@@ -1210,7 +1210,7 @@ Section ToSingleTape.
       {
         eapply Realise_monotone.
         { TM_Correct. apply ReadCurrentSymbols_Loop_Realise. }
-        { intros tin (yout, tout) H. intros T HEncT. unfold contains_tapes in *. TMSimp_old.
+        { intros tin (yout, tout) H. intros T HEncT. unfold contains_tapes in *. TMSimp.
           rename H0 into HLoop_cons, H1 into HLoop_nil. clear HLoop_nil.
           pose proof finMin_opt_Some E as (n'&E'). pose (T' := Vector.cast T E').
           pose proof finMin_opt_Some_val E as E_val.

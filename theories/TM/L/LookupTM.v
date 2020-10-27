@@ -149,20 +149,20 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
       unfold Lookup_Step_size.
       destruct H; TMSimp.
       { (* Then of [Nth'], i.e. nth_error H a = Some e *) rename H into HNth, H0 into HCaseOption.
-        modpon HNth. destruct HNth as (e&HNth); modpon HNth.
-        destruct HCaseOption; TMSimp_old.
+        modpon HNth. destruct HNth as (e&HNth); modpon HNth. rewrite !HNth.
+        destruct HCaseOption; TMSimp. 
         { (* Then of [CaseOption], i.e. e = Some e', where e' = (g, b) *)
         rename H into HCaseOption, H0 into HCasePair, H2 into HCaseNat.
           modpon HCaseOption. destruct e as [ (g,b) | ]; auto; simpl_surject.
           modpon HCasePair.
-          destruct HCaseNat; TMSimp.
+          destruct HCaseNat; TMSimp.  
           { (* Then of [CaseNat], i.e. n = S n' *)
             rename H into HCaseNat, H1 into HCopy, H3 into HTranslate, H5 into HReset, H7 into HReset'.
-            modpon HCaseNat. destruct n as [ | n']; auto; simpl_surject.
-            modpon HCopy.
-            modpon HTranslate.
-            modpon HReset.
-            modpon HReset'.
+            modpon HCaseNat;[]. destruct n as [ | n']; auto; simpl_surject.
+            modpon HCopy;[].
+            modpon HTranslate;[].
+            modpon HReset;[].
+            modpon HReset';[].
             cbn in *.
             do 2 eexists. repeat split; eauto.
           }

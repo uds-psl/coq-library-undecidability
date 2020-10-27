@@ -335,9 +335,9 @@ Section Move.
     { unfold ResetEmpty. TM_Correct. }
     { reflexivity. }
     {
-      intros tin ((), tout) H. cbn. intros s x HEncX HCod.
+      intros tin ((), tout) H. cbn. intros s x HEncX HCod. 
       unfold ResetEmpty_size in *.
-      destruct HEncX as (ls&HEncX). TMSimp_old; clear_trivial_eqs.
+      destruct HEncX as (ls&HEncX). TMSimp; clear_trivial_eqs. rewrite HCod;cbn.
       hnf. do 2 eexists. split. f_equal. cbn. lia.
     }
   Qed.
@@ -364,8 +364,8 @@ Section Move.
     {
       intros tin ((), tout) H. cbn. intros x s HEncX HCod.
       unfold ResetEmpty1_size in *.
-      destruct HEncX as (ls&HEncX). unfold size in *. TMSimp_old; clear_trivial_eqs.
-      destruct (cX x); cbn in *; inv HCod. destruct l; cbn in *; inv H4.
+      destruct HEncX as (ls&HEncX). unfold size in *. TMSimp; clear_trivial_eqs.
+      destruct (cX x); cbn in *; inv HCod. destruct l; cbn in *; inv H0.
       hnf. do 2 eexists. split. f_equal. cbn. lia.
     }
   Qed.
@@ -638,7 +638,7 @@ Arguments Translate_steps {X sigX cX}.
 
 (* The exact retracts can be instantiated later, during the relation-inclusion proof *)
 Ltac smpl_TM_Copy :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- Translate _ _ ⊨ _] => notypeclasses refine (@Translate_Realise _  _ _ _ _ _);shelve
   | [ |- projT1 (Translate _ _) ↓ _] => notypeclasses refine (@Translate_Terminates _ _ _ _ _ _);shelve
   | [ |- Reset _ ⊨ _] => notypeclasses refine (@Reset_Realise _ _ _ _ _);shelve

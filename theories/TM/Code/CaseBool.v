@@ -44,7 +44,7 @@ End CaseBool.
 Arguments CaseBool : simpl never.
 
 Ltac smpl_TM_CaseBool :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- CaseBool ⊨ _ ] => eapply RealiseIn_Realise; apply CaseBool_Sem
   | [ |- CaseBool ⊨c(_) _ ] => apply CaseBool_Sem
   | [ |- projT1 CaseBool ↓ _ ] => eapply RealiseIn_TerminatesIn; apply CaseBool_Sem

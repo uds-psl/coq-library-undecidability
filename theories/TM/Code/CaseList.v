@@ -496,7 +496,7 @@ End Steps_comp.
 (** ** Tactic Support *)
 
 Ltac smpl_TM_CaseList :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- CaseList _ ⊨ _ ] => apply CaseList_Realise
   | [ |- projT1 (CaseList _) ↓ _ ] => apply CaseList_Terminates
 

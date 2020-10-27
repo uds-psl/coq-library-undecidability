@@ -46,7 +46,7 @@ Arguments CaseFin sig {_}. (** Default element is infered and inserted automatic
 
 
 Ltac smpl_TM_CaseFin :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- CaseFin _ ⊨ _ ] => eapply RealiseIn_Realise; apply CaseFin_Sem
   | [ |- CaseFin _ ⊨c(_) _ ] => apply CaseFin_Sem
   | [ |- projT1 (CaseFin _) ↓ _ ] => eapply RealiseIn_TerminatesIn; apply CaseFin_Sem

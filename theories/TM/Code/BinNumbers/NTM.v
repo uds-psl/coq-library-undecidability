@@ -118,12 +118,10 @@ Proof.
     - apply Increment_Realise.
     - eapply RealiseIn_Realise. apply WriteNumber_Sem. }
   {
-    intros tin ([], tout) H. intros n Hn. destruct H as [H|H]; TMSimp_old.
+    intros tin ([], tout) H. intros n Hn. destruct H as [H|H]; TMSimp.
     - modpon H. destruct n; cbn in *; auto.
-      modpon H0; simpl_surject.
-      { simpl_tape; simpl_surject. contains_ext. (* TODO: [simpl_tape] should be added to [simpl_surject] or [contains_ext]. *) }
-      simpl_tape in *; simpl_surject.
-      modpon H1; auto.
+      modpon H0;[].
+      modpon H1;[]. eauto.
     - modpon H. destruct n; cbn in *; auto.
   }
 Qed.
@@ -158,12 +156,10 @@ Proof.
   {
     intros tin ([], tout) H. intros x y Hx Hy Hle. destruct H as [H|H]; TMSimp.
     - modpon H. destruct x as [ | x]; cbn in *; auto.
-      destruct H0; TMSimp_old.
+      destruct H0; TMSimp.
       + modpon H0. destruct y as [ | y]; cbn in *; auto.
         specialize (H1 x y).
-        modpon H1.
-        { simpl_tape. simpl_surject. TMSimp_old. contains_ext. }
-        { simpl_tape. simpl_surject. contains_ext. }
+        modpon H1;[].
         simpl_tape in *; simpl_surject.
         modpon H3. modpon H4.
         split; eauto.

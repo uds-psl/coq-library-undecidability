@@ -70,7 +70,7 @@ Arguments WriteValue_size {X sig cX}.
 
 
 Ltac smpl_TM_WriteValue :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- WriteValue _ ⊨ _ ] => eapply RealiseIn_Realise; apply WriteValue_Sem
   | [ |- WriteValue _ ⊨c(_) _ ] => apply WriteValue_Sem
   | [ |- projT1 (WriteValue _) ↓ _ ] => eapply RealiseIn_TerminatesIn; apply WriteValue_Sem
