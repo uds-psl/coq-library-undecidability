@@ -218,10 +218,10 @@ Section Fix.
     - TMSimp. modpon H6. destruct P. easy. TMSimp.
       modpon H7. destruct ymid as [ c | ].
       + TMSimp. modpon H9. destruct c. all:TMSimp.
-        * modpon H10. destruct k,ymid. all:try contradiction. all:now simpl_surject.
-        * modpon H10. easy.    
+        * modpon H14. destruct k,ymid. all:try contradiction. all:now simpl_surject.
+        * modpon H14. easy.    
         * easy. 
-      + destruct H7 as (n&->&?). all:TMSimp. modpon H9;[]. modpon H10;[].
+      + destruct H7 as (n&->&?). all:TMSimp. modpon H9;[]. modpon H14;[].
         destruct H16. 
         2:{
           TMSimp. modpon H16;[]. modpon H19;[]. modpon H21;[]. modpon H23;[]. modpon H25;[].
@@ -244,11 +244,11 @@ Section Fix.
       modpon H8.
       destruct H13 as [Htrue | Hfalse]. all:TMSimp.
       2:{
-        modpon H10. destruct stack'. 2:easy. TMSimp.
-        modpon H11. easy.
+        modpon H13. destruct stack'. 2:easy. TMSimp.
+        modpon H16. easy.
       }
-      modpon H10;[]. destruct stack'. easy. TMSimp.
-      modpon H11;[]. TMSimp. modpon H14;[]. modpon H20;[].
+      modpon H13;[]. destruct stack'. easy. TMSimp.
+      modpon H11;[]. TMSimp. modpon H16;[]. modpon H20;[]. modpon H18;[].
       easy.
   Qed.                
   
@@ -393,7 +393,7 @@ Section Fix.
     eapply Realise_monotone.
     { unfold M. TM_Correct. apply UnfoldClos.Realise. apply Rev_Append_Realise. apply Cons_constant.Realise. }
     hnf. intros ? [] H' (a&P) H s Hs. inv Hs. inv H4. inv H6. TMSimp.
-    specializeFin H19; clear H19. modpon H0;[]. modpon H1;[]. 
+    specializeFin H7; clear H7. modpon H0;[]. modpon H1;[]. 
     specialize (H4 1). modpon H4;[]. TMSimp. modpon H6;[].
     modpon H8;[]. specialize (H10 [retT]). modpon H10;[]. modpon H12;[]. modpon H14;[].
     rewrite rev_involutive in H14. split. 2:split.

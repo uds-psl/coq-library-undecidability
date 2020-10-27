@@ -504,22 +504,25 @@ Ltac simpl_not_in_vector_one :=
       assert (H':= tmp i);
       cbn in H';
       once lazymatch type of H' with
-        | if (if Nat.eqb ?k ?k then false else true) then _ else True => clear H'
-        | ?i = ?j => move H' at bottom;symmetry in H';subst i
+        | if (if Nat.eqb ?k ?k then false else true) then _ else True =>
+        fail 1000 "arguments for not_indexb should have been set to [simpl nomatch]";clear H'
+        | if not_indexb (?i::_)%list ?i then _ else True => clear H'
+        | ?i = ?j => idtac
         | True => clear H'
-        | ?G => fail "simpl_not_in_vector_one" G
+        | ?G => idtac "simpl_not_in_vector_one is not intended for this kind of non-ground tape index" G
       end
     in
-    lazymatch type of tmp with 
+    once lazymatch type of tmp with 
       forall i : Fin.t ?n, _ => 
         do_n_times_fin n helper;clear tmp     
     end;
-    lazymatch type of H with
+    match type of H with
     | forall i : Fin.t 0, _ => clear H
     | forall u, if _ then _ else _ =>
-          try (specialize (not_index_reflect_helper2 H);clear H;intros H;cbn [Vector.of_list] in H)
-          
-    | ?t => idtac "unexpected" t
+          specialize (not_index_reflect_helper2 H);clear H;intros H;cbn [Vector.of_list] in H
+    | forall i : Fin.t _, _[@ _] = _[@ _] => idtac
+
+    | ?t => idtac "unexpected case in simpl_not_in_vector_one" t
     end
   end.
 

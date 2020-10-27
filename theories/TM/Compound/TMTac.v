@@ -105,6 +105,10 @@ Tactic Notation "vector_destruct" hyp(tin) :=
       tapes _ ?n => tac n
     | Vector.t _ ?n => tac n
     end.
+
+Lemma eq_nth_iff' X n (v w : Vector.t X n):
+(forall i : Fin.t n, v[@i] = w[@i]) -> v = w.
+Proof. intros. eapply Vector.eq_nth_iff. now intros ? ? ->. Qed.
   
 Ltac TMSimp1 T :=
   try destruct_param_tape_pair; destruct_unit;
@@ -113,6 +117,7 @@ Ltac TMSimp1 T :=
   repeat match goal with
   | [ H : ?x = _ |- _ ] => is_var x;move x at bottom;subst x
   | [ H : _ = ?x |- _ ] => is_var x;move x at bottom;symmetry in H;subst x
+  | [ H : (forall i : Fin.t _, _[@i] = _[@i])  |- _ ] => apply eq_nth_iff' in H
   end;
   unfold finType_CS in *;
   try T;

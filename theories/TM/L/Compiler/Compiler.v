@@ -115,7 +115,8 @@ Section mk_init.
   Variable Σ : finType.
   Variable s b : Σ^+.
 
-  Variable (retr_closs : Retract (sigList (sigHClos)) Σ).
+  Variable retr_closs : Retract (sigList (sigHClos)) Σ.
+  Variable retr_heap : Retract sigHeap Σ.
 
   Variable n : nat.
 
@@ -142,9 +143,9 @@ Section mk_init.
     Realise (M_init k) (fun t '(r, t') =>
                  forall (v:Vector.t (list bool) k), 
                    t = Vector.const niltape n ++ Vector.map (encTM s b) v ->
-                   t'[@Fin.L k output1] ≃ [(0, compile (Vector.fold_left (fun s l_i => L.app s (encL l_i)) sim v))]%list /\
-                   t'[@Fin.L k output2] ≃ []%list /\
-                   t'[@Fin.L k output3] ≃ []%list
+                   t'[@Fin.L k output1] ≃(retr_closs) [(0, compile (Vector.fold_left (fun s l_i => L.app s (encL l_i)) sim v))]%list /\
+                   t'[@Fin.L k output2] ≃(retr_closs) []%list /\
+                   t'[@Fin.L k output3] ≃(retr_heap) []%list
                    ).
   Proof.
     induction k.
@@ -195,6 +196,8 @@ Section main.
 
   Variable s : term.
 
+  Hypothesis cl_s : closed s.
+
   Variable Hs1 : (forall v, forall m : list bool,
    R v m <->
    L.eval (Vector.fold_left (fun (s0 : term) (n : list bool) => L.app s0 (encL n)) s v) (encL m)).
@@ -234,7 +237,7 @@ Section main.
   Definition M_main : pTM (Σ ^+)  unit (1 + n_main + k).
   Proof using k s.
     notypeclasses refine (
-        M_init sym_s sym_b _ Fin1 Fin2 Fin3 Fin4 Fin5 s k ;;
+        M_init sym_s sym_b _ _ Fin1 Fin2 Fin3 Fin4 Fin5 s k ;;
         LiftTapes MK_isVoid [|aux Fin5 |] ;;
         LiftTapes MK_isVoid [|aux Fin6 |] ;;
         LiftTapes MK_isVoid [|aux Fin7 |] ;;
@@ -243,15 +246,19 @@ Section main.
         LiftTapes MK_isVoid [|aux Fin10 |] ;;
         LiftTapes MK_isVoid [|aux Fin11 |] ;;
         LiftTapes MK_isVoid [|aux Fin12 |] ;;
-        LiftAlphabet (LiftTapes Loop [| aux Fin0 ; aux Fin1 ; aux Fin2 ; aux Fin5 ; aux Fin6 ; aux Fin7 ; aux Fin8 ; aux Fin9 ; aux Fin10 ; aux Fin11 ; aux Fin12 |]) _ (inl UNKNOWN)  ;;
-        CaseList _ ⇑ _ @ [| aux Fin1;aux Fin13 |];;
+        LiftTapes MK_isVoid [|aux Fin13 |] ;;
+        Loop ⇑ _ @ [| aux Fin0 ; aux Fin1 ; aux Fin2; aux Fin5 ; aux Fin6 ; aux Fin7 ; aux Fin8 ; aux Fin9 ; aux Fin10 ; aux Fin11 ; aux Fin12 |] ;;
+        CaseList _ ⇑ retr_closs @ [| aux Fin1;aux Fin13 |];;
         UnfoldHeap.M _ _ retr_clos @ [| aux Fin13;aux Fin2;aux Fin5;aux Fin6;aux Fin7;aux Fin8;aux Fin9;aux Fin10;aux Fin11;aux Fin12|];;
-        (LiftTapes (M_out sym_s sym_b _) [|(aux Fin13);Fin0|])
+        M_out sym_s sym_b retr_pro @ [|(aux Fin13);Fin0|]
       ).
       all:exact _.
   Defined.
 
   Lemma syms_diff : sym_s <> sym_b. Proof. cbv. congruence. Qed.
+
+  Local Ltac compressHyp :=    repeat match goal with H : _ |- _ => simple apply isVoid_size_isVoid in H end;
+  repeat match goal with H : _ |- _ => simple apply tape_contains_size_contains in H end.
 
   Lemma M_main_realise :
     Realise M_main (fun t '(r, t') =>
@@ -264,205 +271,32 @@ Section main.
     {
       unfold M_main.
       TM_Correct.
-      all:eauto 8 using M_init_rel, MK_isVoid_realise, Loop_Realise, UnfoldHeap.Realise, M_out_realise, UnfoldHeap.Realise.
+      now apply M_init_rel. 1-9:now apply MK_isVoid_realise.
+      now apply Loop_Realise. now apply UnfoldHeap.Realise. now apply M_out_realise.
     }
     cbn.
     intros tin ([] & tout) H v ?. subst tin. 
     unfold n_main in *.   
+    TMSimp. specialize H with (1:=eq_refl).
+    modpon H;[]. specialize H17 with (V:=nil) (H:=nil).
+    modpon H17;[ | ]. 
+    { clear H15. instantiate (1:= [| _;_;_;_;_;_;_;_|]);intros i;cbn;destruct_fin i;cbn;simpl_surject;isVoid_mono. }
     TMSimp.
-    
-    
-    Set Nested Proofs Allowed.
-
-    
-    
-
-    
-    Fixpoint not_indexb {n} (v : list (Fin.t n)) (i : Fin.t n) {struct v}: bool :=
-      match v with
-       []%list => true
-      | (i'::v)%list => if Fin.eqb i' i then false else not_indexb v i
-      end.
-
-    Lemma not_index_reflect n m (v : Vector.t _ m) (i : Fin.t n):
-    not_index v i <-> not_indexb (to_list v) i = true.
-   Proof.
-     admit.
-     (* depind v;cbn. easy.
-     specialize (Fin.eqb_eq _ h i) as H'. split.
-     intros H''. hnf in H''. inversion H''. destruct Fin.eqb;cbn.
-     +split. 2:easy. intros H' . intuition. hnf. intros [-> | ]%In_cons. easy.
-     eapply IHv. all:eauto. *)
-   Admitted.
-
-   Lemma not_index_reflect_helper n m (v : Vector.t _ m) (P : Fin.t n -> Prop):
-    (forall i : Fin.t n, not_index v i  -> P i)
-    -> (forall i : Fin.t n, if not_indexb (to_list v) i then P i else True).
-    intros H i. specialize (H i). setoid_rewrite not_index_reflect in H. destruct not_indexb;easy.
-    Qed.  
-
-    Ltac simpl_not_in_vector_one :=
-      let moveCnstLeft :=
-        let rec loop k n :=
-          lazymatch n with
-           S ?n => loop uconstr:(S k) n
-          | _ => uconstr:(k + n)
-          end
-        in loop 0
-        in
-      once lazymatch goal with
-      | [ H : forall i : Fin.t ?n, not_index ?vect i -> _ |- _ ] =>
-      specialize (not_index_reflect_helper H);clear H;intros H;
-      let n' := moveCnstLeft n in
-      change n with n' in H at 1;
-      let tmp := fresh "tmp" in
-      apply splitAllFin in H as [tmp H];
-      cbn beta in H;
-      let helper i :=
-        let H' := fresh H "_0" in
-        assert (H':= tmp i);
-        cbn in H';
-        once lazymatch type of H' with
-          | if (if Nat.eqb ?k ?k then false else true) then _ else True => clear H'
-          | ?i = ?j => move H' at bottom;symmetry in H';subst i
-        end
-      in
-      match type of tmp with 
-        forall i : Fin.t ?n, _ => 
-         do_n_times_fin n helper;clear tmp     
-      end
-        (*simpl_not_in_vector_loop H vect n; clear H*)
-      end.
-      Set Ltac Profiling.
-
-      simpl_not_in_vector_one. Show Ltac Profile. Check k.
-      About Fin.eqb.
-      Set
-      
-
-Ltac simpl_not_in_vector := repeat simpl_not_in_vector_one.
-
-    Ltac 
-
-
-
-    Lemma all_vec_correct2 {X:Type} {n:nat} (P : Vector.t X n -> Prop):
-    (forall xs, P xs) -> all_vec P.
-    Proof.  
-      revert P. induction n;cbn;intros. now apply Vector.case0. easy.
-    Qed.    
-    
-
-
-
-
-    vector_destruct tmid9.
-
-
-
-
-
-  Lemma all_not_index_start n m  (v : Vector.t _ m) (P : _ -> Prop):
-    (forall (i:Fin.t n),not_index v i -> P i) -> (forall i,not_index v (Fin.R 0 i) -> P (Fin.R 0 i)).
-   easy.
-  Qed.
-
-  Lemma all_not_index_S n m k' (v : Vector.t _ m) (P : _ -> Prop):
-  (forall (i:Fin.t (S n)),not_index v (Fin.R k' i) -> P (Fin.R k' i))
-  -> P (Fin.R k' Fin0) /\ (forall (i:Fin.t n),not_index v (Fin.R (S k') i) -> P (Fin.R (S k') i)).
-
-    (not_index v (Fin.R k i) -> P i).
-   easy.
-  Qed.
-
-  Lemma all_not_index_S :
-
-  Fixpoint AllFin (n:nat) : (Fin.t n -> Prop) -> Prop :=
-    match n with
-       0 => fun _ => True
-      | S n => fun P => P Fin0 /\ AllFin (fun x => P (Fin.FS x))
-    end.
-    
-    Lemma AllFin_correct n (P: Fin.t n -> Prop): AllFin P <-> forall x, P x.
-    Proof.
-      induction n in P|-*;cbn.
-      {split. 2:easy. intros ? i. easy. }
-      rewrite IHn. split. 2:easy.
-      intros [] i. now eapply Fin.caseS'.
-    Qed.
-
-  Ltac decomposeAllFin H t :=
-    is_var H;
-    apply (proj2 (AllFin_correct _)) in H;
-    cbn [AllFin] in H;
-    repeat (let H' := fresh H in pose proof (H':= proj1 H);t H';simple apply proj2 in H );
-    once lazymatch type of H with
-       True => idtac
-    | _ => setoid_rewrite -> (AllFin_correct) in H
-    end.
-
-    exfalso. clear - H23.
-
-
-    Set Ltac Profiling. Search Fin.t "-".
-    Ltac simpl_not_in_vector_one':=
-      let helper H' := 
-      is_var H';
-      cbn [Fin.eqb not_indexb] in H';
-       once lazymatch type of H' with
-        | false = true -> _=> clear H'
-        | true = true -> _ => specialize (H' eq_refl)
-      end
-      in
-    once lazymatch goal with
-    | [ H : forall i : Fin.t ?n, not_index ?vect i -> _ |- _ ] =>
-    specialize (not_index_reflect H);clear H;intro H;
-    cbn [to_list] in H;
-    decomposeAllFin H helper;
-    once lazymatch type of H with
-       True => clear H
-    | _ => idtac
-    end;
-    try helper H
-    end.
-
-    
-    simpl_not_in_vector_one'.  
-
-    rewrite <- (AllFin_correct) in H23.
-
-    Fixpoint notInVector i vect
-    
-    Ltac simpl_not_in_vector_step H vect n m' :=
-  let H' := fresh H "_" in
-  tryif vector_contains m' vect
-  then idtac (* skip m' *)
-  else pose proof (H m' ltac:(vector_not_in)) as H'.
-
-Ltac simpl_not_in_vector_loop H:=
-  match type of H with
-
-  let H' := fresh H "_" in
-  pose proof I as H';
-  do_n_times_fin n ltac:(fun m' => simpl_not_in_vector_step H vect n m');
-  clear H'.
-
-Ltac simpl_not_in_vector_one :=
-  once lazymatch goal with
-  | [ H : forall i : Fin.t ?n, not_index ?vect i -> _ |- _ ] =>
-    simpl_not_in_vector_loop H
-  end.
-
-Ltac simpl_not_in_vector := repeat simpl_not_in_vector_one.
-    
-    simpl_not_in_vector.
-
-    destruct_tapes. TMSimp. 
-    rewrite <- H2, <- H4, <- H6, <- H8, <- H10, <- H12, <- H14, <- H16 in H, H20, H21.
-    all: try now inversion 1.
-    modpon H15. simpl_surject.
-    TMSimp.
-  Admitted.
+    edestruct soundness as (g__res&H__res'&s__res&Heq&H__Red&H__res).
+    2:{ split;[ apply star_pow;eexists;eassumption| ]. eassumption. }
+    { admit. (*TODO: in Compiler_facts*) }
+    injection Heq as [= ? ? ?]. subst ymid0 ymid1 ymid2.
+    TMSimp. specializeFin H16;clear H16. compressHyp. simpl_surject.
+    specialize H19 with (l:=[g__res]%list).
+    modpon H19;[]. destruct ymid. 2:easy. TMSimp.
+    modpon H21;[ | ]. { intros i;cbn;destruct_fin i;cbn;simpl_surject;isVoid_mono.  }
+    edestruct Hs2 as (bs&H__bs). { apply eval_iff. eassumption. } subst s__res.
+    exists bs.
+    specialize (H23 bs). unfold encL in H21.
+    modpon H23. admit (*Adjust M_init *). 
+    split. easy.
+    apply Hs1,eval_iff. easy.
+  Admitted. 
 
 End main.
 
@@ -500,7 +334,7 @@ Proof.
   eapply TM_computable_rel'_spec.
   eapply L_computable_function; eauto.
   destruct H as [sim Hsim].
-  exists n_main, Σ, sym_s, sym_b. split. eapply syms_diff. exists (M_main k sim). split.
+  eexists _, _, sym_s, sym_b. split. eapply syms_diff. exists (M_main k sim). split.
   - eapply Realise_monotone. { eapply M_main_realise. }
     intros t [[] t'] H v ->.
     destruct (H v) as [m [Hm1 Hm2]]. reflexivity.
