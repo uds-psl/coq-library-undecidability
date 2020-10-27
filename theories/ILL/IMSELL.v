@@ -164,9 +164,13 @@ Section MM2_GeIMSEL.
 
 End MM2_GeIMSEL.
 
-Section IMSELL.
+Local Notation "X ⊆ Y" := (forall a, X a -> Y a : Prop) (at level 70).
 
-  Notation "X ⊆ Y" := (forall a, X a -> Y a : Prop) (at level 70).
+Local Reserved Notation "'⟦' A '⟧'" (at level 65, format "⟦ A ⟧").
+Local Reserved Notation "A ⊸ B" (at level 51, right associativity).
+Local Reserved Notation "'![' u ']' x" (at level 52, format "![ u ] x").
+
+Section IMSELL.
 
   Variable bang : Type.
 
@@ -177,9 +181,9 @@ Section IMSELL.
 
   (* Symbols for cut&paste ⟙   ⟘   𝝐  ﹠ ⊗  ⊕  ⊸  !   ‼  ∅  ⊢ *)
 
-  Infix "⊸" := (imsell_imp) (at level 51, right associativity).
+  Infix "⊸" := imsell_imp.
 
-  Notation "'![' u ']' x" := (imsell_ban u x) (at level 52, format "![ u ] x").
+  Notation "![ u ] x" := (imsell_ban u x).
 
   Notation "£" := imsell_var.
 
@@ -300,7 +304,7 @@ Section IMSELL.
       | false => a
     end.
 
-  Definition eill_map_imsell c :=
+  Definition eimsell_map_imsell c :=
   match c with
     | LL_STOP p     => (£p ⊸ £p) ⊸ £p 
     | LL_INC  x p q => (bool2form x ⊸ £p) ⊸ £q
@@ -310,14 +314,14 @@ Section IMSELL.
 
   Check repeat.
 
-  Definition eimsell_imsell Σ x y := map (fun c => ![∞](eill_map_imsell c)) Σ ++ repeat (![a]£0) x ++ repeat (![b]£1) y. 
+  Definition eimsell_imsell Σ x y := map (fun c => ![∞](eimsell_map_imsell c)) Σ ++ repeat (![a]£0) x ++ repeat (![b]£1) y. 
 
-  Fact eill_map_imsell_eq Σ :  map (fun c => ![∞](eill_map_imsell c)) Σ
-                            = ‼(map (fun c => (∞,eill_map_imsell c)) Σ).
+  Fact eimsell_map_imsell_eq Σ :  map (fun c => ![∞](eimsell_map_imsell c)) Σ
+                            = ‼(map (fun c => (∞,eimsell_map_imsell c)) Σ).
   Proof. induction Σ; simpl; f_equal; auto. Qed.
 
-  Fact eill_map_imsell_eq2 Σ x y :  eimsell_imsell Σ x y
-                            = ‼(map (fun c => (∞,eill_map_imsell c)) Σ ++ repeat (a,£0) x ++ repeat (b,£1) y).
+  Fact eimsell_map_imsell_eq2 Σ x y :  eimsell_imsell Σ x y
+                            = ‼(map (fun c => (∞,eimsell_map_imsell c)) Σ ++ repeat (a,£0) x ++ repeat (b,£1) y).
   Proof.
     unfold eimsell_imsell.
     rewrite imsell_lban_map, !map_app, map_map; f_equal.
@@ -328,12 +332,12 @@ Section IMSELL.
   Theorem G_eimsell_weak c Σ x y u :
             In c Σ
         ->  eimsell_imsell Σ x y ⊢ £u 
-       <-> ![∞](eill_map_imsell c)::eimsell_imsell Σ x y ++ nil ⊢ £u.
+       <-> ![∞](eimsell_map_imsell c)::eimsell_imsell Σ x y ++ nil ⊢ £u.
   Proof.
     intros H; rewrite <- app_nil_end.
     unfold eimsell_imsell.
-    rewrite !eill_map_imsell_eq.
-    apply S_imsell_weak_cntr with (u := ∞) (A := eill_map_imsell c); auto.
+    rewrite !eimsell_map_imsell_eq.
+    apply S_imsell_weak_cntr with (u := ∞) (A := eimsell_map_imsell c); auto.
     apply in_map_iff; eauto.
   Qed.
 
@@ -348,7 +352,7 @@ Section IMSELL.
       * apply in_imsell_limp_r.
         apply in_imsell_perm with (1 := Permutation_sym (Permutation_cons_append _ _)).
         unfold eimsell_imsell.
-        rewrite eill_map_imsell_eq; simpl; rewrite <- app_nil_end.
+        rewrite eimsell_map_imsell_eq; simpl; rewrite <- app_nil_end.
         apply S_imsell_weak.
         - apply Forall_forall; intros ?; rewrite in_map_iff.
           intros (? & <- & ?); auto.
@@ -407,23 +411,23 @@ Section IMSELL.
     + apply G_eimsell_weak with (1 := H1); simpl.
       apply in_imsell_bang_l.
       apply in_imsell_limp_l.
-      * rewrite eill_map_imsell_eq2.
+      * rewrite eimsell_map_imsell_eq2.
         apply in_imsell_bang_r.
         - intros z; simpl; rewrite !in_app_iff, in_map_iff.
           intros [ (c & <- & Hc) | H ]; simpl; auto.
           apply repeat_spec in H as ->; simpl; auto.
-        - now rewrite eill_map_imsell_eq2 in IH2.
+        - now rewrite eimsell_map_imsell_eq2 in IH2.
       * apply in_imsell_ax.
 
     + apply G_eimsell_weak with (1 := H1); simpl.
       apply in_imsell_bang_l.
       apply in_imsell_limp_l.
-      * rewrite eill_map_imsell_eq2.
+      * rewrite eimsell_map_imsell_eq2.
         apply in_imsell_bang_r.
         - intros z; simpl; rewrite !in_app_iff, in_map_iff.
           intros [ (c & <- & Hc) | [ H | [] ] ]; simpl; auto.
           apply repeat_spec in H as ->; simpl; auto.
-        - now rewrite eill_map_imsell_eq2 in IH2.
+        - now rewrite eimsell_map_imsell_eq2 in IH2.
       * apply in_imsell_ax.
   Qed.
 
@@ -436,13 +440,20 @@ Section IMSELL.
 
   Notation ø := vec_zero.
 
-  Reserved Notation "'⟦' A '⟧'" (at level 65).
+
 
   Definition imsell_tps_imp (X Y : _ -> Prop) (v : vec _ n) := forall x, X x -> Y (vec_plus x v).
-  Definition imsell_tps_mult (X Y : _ -> Prop) (x : vec _ n) := exists a b, x = vec_plus a b /\ X a /\ Y b. 
-  
+  Definition imsell_tps_mult (X Y : _ -> Prop) (x : vec _ n) := exists a b, x = vec_plus a b /\ X a /\ Y b.
+ 
   Infix "**" := imsell_tps_mult (at level 65, right associativity).
   Infix "-*" := imsell_tps_imp (at level 65, right associativity).
+
+  Fact imsell_tps_imp_zero X Y : (X -* Y) ø <-> X ⊆ Y.
+  Proof.
+    split.
+    + intros ? ? ?; rewrite <- vec_zero_plus, vec_plus_comm; auto.
+    + intros ? ?; rewrite vec_plus_comm, vec_zero_plus; auto.
+  Qed.
 
   Hypothesis HK_unit0 : forall u, K u ø.
   Hypothesis HK_plus  : forall u, (K u)**(K u) ⊆ K u.
@@ -462,6 +473,9 @@ Section IMSELL.
       | A ⊸ B   => (⟦A⟧ -* ⟦B⟧) x
     end
   where "⟦ A ⟧" := (imsell_tps A).
+
+  Fact imsell_tps_bang_zero u A : ⟦![u]A⟧ ø <-> ⟦A⟧ ø.
+  Proof. simpl; split; auto; tauto. Qed.
 
   Reserved Notation "⟪ Γ ⟫" (at level 0, format "⟪ Γ ⟫").
 
@@ -605,6 +619,8 @@ End IMSELL.
 
 Section completeness.
 
+    Notation ø := vec_zero.
+
     Variable P : list mm2_instr.
 
     Let Σ := mm2_prog_enc (fun i => 2+i) P.
@@ -625,10 +641,10 @@ Section completeness.
 
     Let bang_U := eq ∞.
 
-    Let Hai : bang_le a ∞ := I.
-    Let Hbi : bang_le b ∞ := I. 
-    Let Hi : bang_U ∞ := eq_refl.
-    Let Hbang : forall x, bang_le x x.
+    Local Definition Hai : bang_le a ∞ := I.
+    Local Definition Hbi : bang_le b ∞ := I. 
+    Local Definition Hi : bang_U ∞ := eq_refl.
+    Local Fact Hbang : forall x, bang_le x x.
     Proof. intros [ [] | ]; simpl; auto. Qed. 
 
     Let K (u : bang) (v : vec nat 2) := 
@@ -643,19 +659,19 @@ Section completeness.
     Tactic Notation "pair" "split" hyp(v) "as" ident(x) ident(y) :=
       vec split v with x; vec split v with y; vec nil v; clear v.
 
-    Let HK1 u v : bang_le u v -> forall a : vec nat 2, K v a -> K u a.
+    Local Fact HK1 u v : bang_le u v -> K v ⊆ K u.
     Proof.
       intros Huv w; pair split w as x y.
       revert u v Huv; intros [[]|] [[]|]; simpl; try discriminate; tauto.
     Qed.
 
-    Let HK2 : forall u, K u vec_zero.
+    Local Fact HK2 : forall u, K u ø.
     Proof. intros [[]|]; simpl; auto. Qed.
 
-    Let pair_plus x1 y1 x2 y2 : vec_plus (x1##y1##vec_nil) (x2##y2##vec_nil) = (x1+x2)##(y1+y2)##vec_nil.
+    Local Fact pair_plus x1 y1 x2 y2 : vec_plus (x1##y1##vec_nil) (x2##y2##vec_nil) = (x1+x2)##(y1+y2)##vec_nil.
     Proof. reflexivity. Qed.
 
-    Let HK3 u w : imsell_tps_mult (K u) (K u) w -> K u w.
+    Local Fact HK3 u w : imsell_tps_mult (K u) (K u) w -> K u w.
     Proof.
       pair split w as x y.
       revert u; intros [[]|]; simpl; 
@@ -665,7 +681,7 @@ Section completeness.
         rewrite pair_plus; inversion 1; lia.
     Qed.
 
-    Let HK4 u : bang_U u -> forall w, K u w -> w = vec_zero.
+    Local Fact HK4 u : bang_U u -> forall w, K u w -> w = ø.
     Proof. 
       revert u; intros [[]|]; simpl; try discriminate.
       intros _ w; pair split w as x y; simpl.
@@ -678,10 +694,33 @@ Section completeness.
       let x := vec_head v in
       let y := vec_head (vec_tail v) in
         match u with
-          | 0 => x = 0
-          | 1 => y = 0
+          | 0 => y = 0
+          | 1 => x = 0
           | S (S i) => clos_refl_trans _ (mm2_step P) (i,(x,y)) (0,(0,0)) 
         end.
+
+    Infix "⊸" := imsell_imp.
+
+    Notation "![ u ] x" := (imsell_ban u x).
+
+    Notation "£" := imsell_var.
+
+    Notation "⟦ A ⟧" := (imsell_tps sem K A).
+
+    Fact eimsell_map_imsell_tps_zero c : ⟦![∞](eimsell_map_imsell a b c)⟧ ø.
+    Proof.
+      simpl; split; auto.
+      destruct c as [ p | [] p q | [] q p | [] p q ]; simpl.
+      + apply imsell_tps_imp_zero; intros v; pair split v as x y.
+        admit.
+      + apply imsell_tps_imp_zero.
+        intros v; pair split v as x y.
+        destruct b0; simpl; intros H.
+        specialize (H ø).
+        rewrite vec_zero_plus in H.
+        apply H; auto.
+        unfold imsell_tps_imp in H.
+
 
     Variables (x y : nat) (Hxy : MM2_HALTS_ON_ZERO (P,x,y)).
 
