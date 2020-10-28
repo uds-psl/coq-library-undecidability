@@ -148,11 +148,13 @@ Section MM2_GeIMSEL.
 
   Variable P : list mm2_instr.
 
+  Notation "x ↠ y" := (clos_refl_trans _ (mm2_step P) x y) (at level 70).
+
   Definition mm2_prog_enc := LL_STOP (q 0) :: mm2_linstr_enc 1 P.
 
   Notation Σ := mm2_prog_enc.
 
-  Lemma mm2_prog_enc_compute s1 s2 : clos_refl_trans _ (mm2_step P) s1 s2 ->
+  Lemma mm2_prog_enc_compute s1 s2 : s1 ↠ s2 ->
           match s1, s2 with (i,(a,b)), (j,(a',b')) =>
              G_eimsell Σ a' b' (q j) -> G_eimsell Σ a b (q i)
           end.
@@ -174,6 +176,125 @@ Section MM2_GeIMSEL.
           -> G_eimsell Σ a b (q 1).
   Proof.
     intros H; apply mm2_prog_enc_compute in H; auto.
+  Qed.
+
+  Hypothesis Hq : forall u v, q u = q v -> u = v.
+
+  Theorem mm2_prog_enc_complete a b p : 
+             G_eimsell Σ a b p 
+          -> forall i, p = q i 
+          -> (i,(a,b)) ↠ (0,(0,0)).
+  Proof.
+    induction 1 as [ u H 
+                   | a b u v H H1 IH1
+                   | a b u v H H1 IH1
+                   | a b u v H H1 IH1
+                   | a b u v H H1 IH1
+                   | b p u H H1 IH1
+                   | a p u H H1 IH1 ]; intros i Hi.
+    + destruct H as [ H | H ]. 
+      * inversion H.
+        rewrite Hi in H1.
+        apply Hq in H1 as <-.
+        constructor 2.
+      * apply mm2_linstr_enc_In in H
+          as (l & r & [ | | | ] & H1 & H2); simpl in H2.
+        1-2: now destruct H2.
+        1-2: now destruct H2 as [ | [] ].
+    + destruct H as [ H | H ]; try discriminate.
+      apply mm2_linstr_enc_In in H
+        as (l & r & [ | | | ] & H3 & H2); simpl in H2.
+      2: now destruct H2.
+      2-3: now destruct H2 as [ | [] ].
+      destruct H2 as [ H2 | [] ]; inversion H2.
+      rewrite Hi in H4; apply Hq in H4; subst i.
+      constructor 3 with (length l+2, (S a,b)).
+      * constructor 1.
+        exists mm2_inc_a; split.
+        - exists l, r; simpl; split; auto; lia.
+        - rewrite !(plus_comm (length l)); constructor.
+      * apply IH1; subst; f_equal; lia.
+    + destruct H as [ H | H ]; try discriminate.
+      apply mm2_linstr_enc_In in H
+        as (l & r & [ | | | ] & H3 & H2); simpl in H2.
+      1: now destruct H2.
+      2-3: now destruct H2 as [ | [] ].
+      destruct H2 as [ H2 | [] ].
+      inversion H2.
+      rewrite Hi in H4; apply Hq in H4; subst i.
+      constructor 3 with (length l+2, (a,S b)).
+      * constructor 1.
+        exists mm2_inc_b; split.
+        - exists l, r; simpl; split; auto; lia.
+        - rewrite !(plus_comm (length l)); constructor.
+      * apply IH1; subst; f_equal; lia.
+    + destruct H as [ H | H ]; try discriminate.
+      apply mm2_linstr_enc_In in H
+        as (l & r & [ | | | ] & H3 & H2); simpl in H2.
+      1-2: now destruct H2.
+      2: now destruct H2 as [ | [] ].
+      destruct H2 as [ H2 | H2 ].
+      2: now destruct H2.
+      inversion H2.
+      rewrite Hi in H4; apply Hq in H4; subst i.
+      constructor 3 with (n, (a,b)).
+      * constructor 1.
+        exists (mm2_dec_a n); split.
+        - exists l, r; simpl; split; auto; lia.
+        - rewrite !(plus_comm (length l)); constructor.
+      * apply IH1; subst; f_equal; lia.
+    + destruct H as [ H | H ]; try discriminate.
+      apply mm2_linstr_enc_In in H
+        as (l & r & [ | | | ] & H3 & H2); simpl in H2.
+      1-2: now destruct H2.
+      1: now destruct H2 as [ | [] ].
+      destruct H2 as [ H2 | H2 ].
+      2: now destruct H2.
+      inversion H2.
+      rewrite Hi in H4; apply Hq in H4; subst i.
+      constructor 3 with (n, (a,b)).
+      * constructor 1.
+        exists (mm2_dec_b n); split.
+        - exists l, r; simpl; split; auto; lia.
+        - rewrite !(plus_comm (length l)); constructor.
+      * apply IH1; subst; f_equal; lia.
+    + destruct H as [ H | H ]; try discriminate.
+      apply mm2_linstr_enc_In in H
+        as (l & r & [ | | | ] & H3 & H2); simpl in H2.
+      1-2: now destruct H2.
+      2: now destruct H2 as [ | [] ].
+      destruct H2 as [ H2 | [ H2 | [] ] ].
+      1: easy.
+      inversion H2.
+      rewrite Hi in H4; apply Hq in H4; subst i.
+      constructor 3 with (length l+2, (0,b)).
+      * constructor 1.
+        exists (mm2_dec_a n); split.
+        - exists l, r; simpl; split; auto; lia.
+        - rewrite !(plus_comm (length l)); constructor.
+      * apply IH1; subst; f_equal; lia.
+    + destruct H as [ H | H ]; try discriminate.
+      apply mm2_linstr_enc_In in H
+        as (l & r & [ | | | ] & H3 & H2); simpl in H2.
+      1-2: now destruct H2.
+      1: now destruct H2 as [ | [] ].
+      destruct H2 as [ H2 | [ H2 | [] ] ].
+      1: easy.
+      inversion H2.
+      rewrite Hi in H4; apply Hq in H4; subst i.
+      constructor 3 with (length l+2, (a,0)).
+      * constructor 1.
+        exists (mm2_dec_b n); split.
+        - exists l, r; simpl; split; auto; lia.
+        - rewrite !(plus_comm (length l)); constructor.
+      * apply IH1; subst; f_equal; lia.
+  Qed.
+
+  Theorem MM2_GeIMSELL_reduction a b : MM2_HALTS_ON_ZERO (P,a,b) <-> G_eimsell Σ a b (q 1).
+  Proof.
+    split.
+    + apply mm2_prog_enc_correct.
+    + intros H; now apply mm2_prog_enc_complete with (q 1).
   Qed.
 
 End MM2_GeIMSEL.
