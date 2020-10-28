@@ -167,13 +167,13 @@ MinskyMachines/MMenv/env.v          # environments for nat-bounded MM
 MinskyMachines/MMenv/mme_defs.v     # X-bounded MM definitions      
 MinskyMachines/MMenv/mme_utils.v    # nat-bounded MM utils for MuRec ~~> MM(nat) compiler
 
-# Intuitionistic Linear Logic (cf CPP'19 YF&DLW)
+# Linear Logic (including CPP'19 YF&DLW)
 ILL/EILL.v
 ILL/ILL.v
-ILL/CLL.v
-ILL/IMSELL.v
 ILL/ILL_undec.v
+ILL/CLL.v
 ILL/CLL_undec.v
+ILL/IMSELL.v
 ILL/IMSELL_undec.v
 
 ILL/Reductions/PCP_iBPCP.v
