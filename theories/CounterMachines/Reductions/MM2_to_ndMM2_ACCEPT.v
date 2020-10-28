@@ -22,10 +22,10 @@ Set Implicit Arguments.
 
 Section MM2_ndMM2.
 
-  Notation STOP := (@ndmm_stop _).
-  Notation INC  := (@ndmm_inc _).
-  Notation DEC  := (@ndmm_dec _).
-  Notation ZERO := (@ndmm_zero _).
+  Notation STOP := (@ndmm2_stop _).
+  Notation INC  := (@ndmm2_inc _).
+  Notation DEC  := (@ndmm2_dec _).
+  Notation ZERO := (@ndmm2_zero _).
 
   Definition mm2_instr_enc i ρ :=
     match ρ with
@@ -61,7 +61,7 @@ Section MM2_ndMM2.
         - eq goal H2; do 2 f_equal; simpl; lia.
   Qed.
 
-  Notation "Σ ; a ⊕ b ⊦ u" := (ndmm_accept Σ a b u) (at level 70, no associativity).
+  Notation "Σ ; a ⊕ b ⊦ u" := (ndmm2_accept Σ a b u) (at level 70, no associativity).
 
   Local Fact mm2_instr_enc_sound Σ ρ s1 s2 : 
           mm2_atom ρ s1 s2 

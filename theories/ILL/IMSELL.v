@@ -85,10 +85,10 @@ End IMSELL.
 
 Record IMSELL_sig : Type :=
   { IMSELL_Λ : Type; 
-    IMSELL_U : IMSELL_Λ -> Prop;
     IMSELL_le : IMSELL_Λ -> IMSELL_Λ -> Prop;
     IMSELL_refl : forall m, IMSELL_le m m;
     IMSELL_trans : forall u v w, IMSELL_le u v -> IMSELL_le v w -> IMSELL_le u w;
+    IMSELL_U : IMSELL_Λ -> Prop;
     IMSELL_clos : forall u v, IMSELL_U u -> IMSELL_le u v -> IMSELL_U v
   }.
 

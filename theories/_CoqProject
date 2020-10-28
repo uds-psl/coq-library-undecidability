@@ -182,6 +182,7 @@ ILL/Reductions/MM_EILL.v
 ILL/Reductions/EILL_ILL.v
 ILL/Reductions/EILL_CLL.v
 ILL/Reductions/ILL_CLL.v
+ILL/Reductions/ndMM2_IMSELL.v
 
 ILL/Ll/eill.v
 ILL/Ll/eill_mm.v
@@ -190,7 +191,6 @@ ILL/Ll/ill_cll.v
 ILL/Ll/ill_cll_restr.v
 ILL/Ll/schellinx.v
 ILL/Ll/imsell.v
-ILL/Ll/ndmm2_imsell.v
 
 # µ-recursive algorithms
 MuRec/recalg.v
