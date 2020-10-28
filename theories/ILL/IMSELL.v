@@ -92,6 +92,31 @@ Record IMSELL_sig : Type :=
     IMSELL_clos : forall u v, IMSELL_U u -> IMSELL_le u v -> IMSELL_U v
   }.
 
+Section imsell3.
+
+  (* The minimal signature for this undecidability proof 
+
+     3 modalities {a,b,∞} with a,b < ∞ and ∞ is the only 
+     universal modality *)
+
+  Let bang := option bool.
+
+  Let bang_le (u v : bang) :=
+    match v with
+      | None   => True
+      | Some _ => u = v
+    end.
+
+  Let bang_U := @eq bang None.
+
+  Definition imsell3 : IMSELL_sig.
+  Proof.
+    exists bang bang_le bang_U; trivial.
+    all: repeat intros [[]|]; now simpl.
+  Defined.
+
+End imsell3.
+
 Definition IMSELL_problem (S : IMSELL_sig) := 
   let F := imsell_form nat (IMSELL_Λ S) 
   in (list F * F)%type.

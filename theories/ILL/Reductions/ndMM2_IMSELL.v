@@ -39,40 +39,25 @@ Local Tactic Notation "pair" "split" hyp(v) "as" ident(x) ident(y) :=
 Local Tactic Notation "intro" "pair" "as" ident(x) ident (y) :=
   let v := fresh in intro v; pair split v as x y.
 
+Local Notation ø := vec_zero.
+
 Section ndmm2_imsell.
 
-  Notation ø := vec_zero.
+  Notation bang := (IMSELL_Λ imsell3).
 
-  Let bang := option bool.
+  Notation a := (Some true : bang).
+  Notation b := (Some false : bang).
+  Notation "∞" := (None : bang). 
 
-  Let a := Some true.
-  Let b := Some false.
-  Let i : bang := None.
-
-  Notation "∞" := i. 
-
-  Let bang_le (u v : bang) := 
-    match v with
-      | None   => True
-      | Some _ => u = v
-    end.
-
-  Let bang_U := eq ∞.
+  Notation bang_le := (IMSELL_le imsell3).
+  Notation bang_U := (IMSELL_U imsell3).
 
   Local Definition Hai : bang_le a ∞ := I.
   Local Definition Hbi : bang_le b ∞ := I. 
   Local Definition Hi : bang_U ∞ := eq_refl.
-  Local Fact Hbang : forall x, bang_le x x.
-  Proof. intros [ [] | ]; simpl; auto. Qed. 
+  Local Definition Hbang : forall x, bang_le x x := IMSELL_refl imsell3.
 
   Hint Resolve Hai Hbi Hi Hbang : core.
-
-  Definition imsell3 : IMSELL_sig.
-  Proof.
-    exists bang bang_le bang_U; trivial.
-    + do 3 intros [[]|]; now simpl.
-    + do 2 intros [[]|]; now simpl.
-  Defined.
 
   Infix "⊸" := (@imsell_imp _ _).
   Notation "![ m ] x" := (@imsell_ban _ _ m x).
