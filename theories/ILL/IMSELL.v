@@ -441,10 +441,10 @@ Section IMSELL.
 
   Definition eimsell_map_imsell c :=
   match c with
-    | LL_STOP p     => (£p ⊸ £p) ⊸ £p 
-    | LL_INC  x p q => (bool2form x ⊸ £p) ⊸ £q
-    | LL_DEC  x p q => bool2form x ⊸ £p ⊸ £q
-    | LL_ZERO x p q  => (![bool2bang_op x]£p) ⊸ £q
+    | LL_STOP p     => (£(2+p) ⊸ £(2+p)) ⊸ £(2+p) 
+    | LL_INC  x p q => (bool2form x ⊸ £(2+p)) ⊸ £(2+q)
+    | LL_DEC  x p q => bool2form x ⊸ £(2+p) ⊸ £(2+q)
+    | LL_ZERO x p q  => (![bool2bang_op x]£(2+p)) ⊸ £(2+q)
   end.
 
   Check repeat.
@@ -476,7 +476,7 @@ Section IMSELL.
     apply in_map_iff; eauto.
   Qed.
 
-  Theorem G_eimsell_sound Σ x y u : Σ ; x ⊕ y ⊦e u -> eimsell_imsell Σ x y ⊢ £u .
+  Theorem G_eimsell_sound Σ x y u : Σ ; x ⊕ y ⊦e u -> eimsell_imsell Σ x y ⊢ £(2+u) .
   Proof.
     induction 1 as [ p H1 
                    | x y p q H1 H2 IH2 | x y p q H1 H2 IH2 
@@ -516,7 +516,7 @@ Section IMSELL.
 
     + apply G_eimsell_weak with (1 := H1); simpl.
       apply in_imsell_bang_l.
-      apply in_imsell_perm with (Γ := (![a]£0) ⊸ £p ⊸ £q :: (![a]£0 :: nil) ++ eimsell_imsell Σ x y).
+      apply in_imsell_perm with (Γ := (![a]£0) ⊸ £(2+p) ⊸ £(2+q) :: (![a]£0 :: nil) ++ eimsell_imsell Σ x y).
       * apply perm_skip; rewrite <- app_nil_end.
         simpl; apply perm_trans with (1 := Permutation_cons_append _ _).
         unfold eimsell_imsell; simpl; rewrite !app_ass.
@@ -531,7 +531,7 @@ Section IMSELL.
 
     + apply G_eimsell_weak with (1 := H1); simpl.
       apply in_imsell_bang_l.
-      apply in_imsell_perm with (Γ := (![b]£1) ⊸ £p ⊸ £q :: (![b]£1 :: nil) ++ eimsell_imsell Σ x y).
+      apply in_imsell_perm with (Γ := (![b]£1) ⊸ £(2+p) ⊸ £(2+q) :: (![b]£1 :: nil) ++ eimsell_imsell Σ x y).
       * apply perm_skip; rewrite <- app_nil_end.
         simpl; apply perm_trans with (1 := Permutation_cons_append _ _).
         unfold eimsell_imsell; simpl; rewrite !app_ass.
@@ -574,8 +574,6 @@ Section IMSELL.
   Hypothesis HK_le : forall u v, bang_le u v -> K v ⊆ K u.
 
   Notation ø := vec_zero.
-
-
 
   Definition imsell_tps_imp (X Y : _ -> Prop) (v : vec _ n) := forall x, X x -> Y (vec_plus x v).
   Definition imsell_tps_mult (X Y : _ -> Prop) (x : vec _ n) := exists a b, x = vec_plus a b /\ X a /\ Y b.
@@ -652,17 +650,10 @@ Section IMSELL.
         exists g, d; auto.
   Qed.
 
-  Fact imsell_tps_list_zero Γ : (forall A, In A Γ -> forall x, ⟦A⟧ x <-> x = ø) -> (forall x, ⟪Γ⟫ x <-> x = ø).
+  Fact imsell_tps_list_zero Γ : (forall A, In A Γ -> ⟦A⟧ ø) -> ⟪Γ⟫ ø.
   Proof.
-    induction Γ as [ | A Γ IH ]; simpl.
-    + now intros _ ?.
-    + intros H x; simpl; split.
-      * intros (u & v & H1).
-        rewrite H, IH in H1; eauto.
-        destruct H1 as (? & ? & ?); subst; rewrite vec_zero_plus; auto.
-      * intros ->; exists ø, ø; rewrite vec_zero_plus; msplit 2; auto.
-        - apply H; auto.
-        - apply IH; auto.
+    induction Γ as [ | A Γ IH ]; simpl; auto; intros H.
+    exists ø, ø; msplit 2; auto; now rewrite vec_zero_plus.
   Qed.
 
   Fact imsell_tps_lbang u Γ : u ≼ Γ -> ⟪‼Γ⟫ ⊆ K u.
@@ -773,6 +764,183 @@ Section IMSELL.
   End sem.
 
 End IMSELL.
+
+Section completeness.
+
+    Notation ø := vec_zero.
+
+    Variable Σ : list eimsell_cmd.
+
+    Let bang := option bool.
+
+    Let a := Some true.
+    Let b := Some false.
+    Let i : bang := None.
+
+    Notation "∞" := i. 
+
+    Let bang_le (u v : bang) := 
+      match v with
+        | None   => True
+        | Some _ => u = v
+      end.
+
+    Let bang_U := eq ∞.
+
+    Local Definition Hai : bang_le a ∞ := I.
+    Local Definition Hbi : bang_le b ∞ := I. 
+    Local Definition Hi : bang_U ∞ := eq_refl.
+    Local Fact Hbang : forall x, bang_le x x.
+    Proof. intros [ [] | ]; simpl; auto. Qed. 
+
+    Let K (u : bang) (v : vec nat 2) := 
+      let x := vec_head v in
+      let y := vec_head (vec_tail v) in
+        match u with 
+          | None       => x = 0 /\ y = 0
+          | Some true  => y = 0
+          | Some false => x = 0
+        end. 
+
+    Tactic Notation "pair" "split" hyp(v) "as" ident(x) ident(y) :=
+      vec split v with x; vec split v with y; vec nil v; clear v.
+
+    Local Fact HK1 u v : bang_le u v -> K v ⊆ K u.
+    Proof.
+      intros Huv w; pair split w as x y.
+      revert u v Huv; intros [[]|] [[]|]; simpl; try discriminate; tauto.
+    Qed.
+
+    Local Fact HK2 : forall u, K u ø.
+    Proof. intros [[]|]; simpl; auto. Qed.
+
+    Local Fact pair_plus x1 y1 x2 y2 : vec_plus (x1##y1##vec_nil) (x2##y2##vec_nil) = (x1+x2)##(y1+y2)##vec_nil.
+    Proof. reflexivity. Qed.
+
+    Local Fact HK3 u w : imsell_tps_mult (K u) (K u) w -> K u w.
+    Proof.
+      pair split w as x y.
+      revert u; intros [[]|]; simpl; 
+        intros (u & v & H1 & H2 & H3);
+        simpl in H2, H3; revert H1 H2 H3;
+        pair split u as x1 y1; pair split v as x2 y2; simpl;
+        rewrite pair_plus; inversion 1; lia.
+    Qed.
+
+    Local Fact HK4 u : bang_U u -> forall w, K u w -> w = ø.
+    Proof. 
+      revert u; intros [[]|]; simpl; try discriminate.
+      intros _ w; pair split w as x y; simpl.
+      intros (-> & ->); auto.
+    Qed.
+ 
+    Check imsell_tps_sound.
+
+    Let sem u (v : vec nat 2) := 
+      let x := vec_head v in
+      let y := vec_head (vec_tail v) in
+        match u with
+          | 0 => x = 1 /\ y = 0
+          | 1 => x = 0 /\ y = 1
+          | S (S i) => Σ ; x ⊕ y ⊦e i
+        end.
+
+    Local Fact sem_0 x y : sem 0 (x##y##vec_nil) <-> x = 1 /\ y = 0.
+    Proof. simpl; tauto. Qed.
+ 
+    Local Fact sem_1 x y : sem 1 (x##y##vec_nil) <-> x = 0 /\ y = 1.
+    Proof. simpl; tauto. Qed.
+
+    Local Fact sem_2 u x y : sem (2+u) (x##y##vec_nil) <-> Σ ; x ⊕ y ⊦e u.
+    Proof. simpl; tauto. Qed.
+
+    Infix "⊸" := imsell_imp.
+
+    Notation "![ u ] x" := (imsell_ban u x).
+
+    Notation "£" := imsell_var.
+
+    Notation "⟦ A ⟧" := (imsell_tps sem K A).
+    Notation "⟪ Γ ⟫" := (imsell_tps_list sem K Γ).
+
+    Tactic Notation "intro" "pair" "as" ident(x) ident (y) :=
+       let v := fresh in intro v; pair split v as x y.
+
+    Check mm2_instr_enc.
+
+    Local Lemma sem_Σ  c : In c Σ -> ⟦eimsell_map_imsell a b c⟧ ø.
+    Proof.
+      intros H.
+      destruct c as [ p | [] p q | [] p q | [] p q ]; simpl; 
+        apply imsell_tps_imp_zero; intro pair as x y; simpl; intros H1.
+      + specialize (H1 ø); rewrite vec_zero_plus in H1.
+        apply H1; constructor; auto.
+      + constructor 2 with (1 := H).
+        apply (H1 (1##0##vec_nil)); auto.
+      + constructor 3 with (1 := H).
+        apply (H1 (0##1##vec_nil)); auto.
+      + destruct H1 as ((-> & ->) & _); simpl.
+        intro pair as x y; simpl; rewrite (plus_comm x), (plus_comm y).
+        constructor 4 with p; auto.
+      + destruct H1 as ((-> & ->) & _); simpl.
+        intro pair as x y; simpl; rewrite (plus_comm x), (plus_comm y).
+        constructor 5 with p; auto.
+      + destruct H1 as (H1 & ->).
+        constructor 6 with p; auto.
+      + destruct H1 as (H1 & ->).
+        constructor 7 with p; auto.
+    Qed.
+
+    Hint Resolve HK1 HK2 HK3 HK4 sem_Σ : core.
+
+    Local Fact sem_Σ_zero : ⟪map (fun c => ![∞](eimsell_map_imsell a b c)) Σ⟫ ø.
+    Proof.
+      apply imsell_tps_list_zero.
+      intros A; rewrite in_map_iff.
+      intros (c & <- & Hc); simpl; auto. 
+    Qed.
+
+    Section completeness.
+
+      Variable (x y : nat).
+      Hypothesis Hxy : S_imsell bang_le bang_U (eimsell_imsell a b ∞ Σ x y) (imsell_var _ 3).
+
+      Theorem completeness : Σ ; x ⊕ y ⊦e 1.
+      Proof.
+        apply imsell_tps_sound with (s := sem) (K := K) in Hxy; eauto.
+        specialize (Hxy (x##y##vec_nil)).
+        rewrite vec_plus_comm, vec_zero_plus in Hxy.
+        apply Hxy.
+        unfold eimsell_imsell.
+        apply imsell_tps_app.
+        exists ø, (x##y##vec_nil).
+        rewrite vec_zero_plus; msplit 2; auto.
+        + apply sem_Σ_zero; auto.
+        + apply imsell_tps_app.
+          clear Hxy.
+          exists (x##0##vec_nil), (0##y##vec_nil); msplit 2; auto.
+          * rewrite pair_plus; f_equal; lia.
+          * generalize x; clear x y; intros n. 
+            induction n as [ | n IHn ]; simpl; auto.
+            exists (1##0##vec_nil), (n##0##vec_nil); auto.
+          * generalize y; clear x y; intros n. 
+            induction n as [ | n IHn ]; simpl; auto.
+            exists (0##1##vec_nil), (0##n##vec_nil); auto.
+      Qed.
+
+   End completeness.
+
+   Hint Resolve Hai Hbi Hi Hbang : core.
+
+   Theorem reduction x y : Σ ; x ⊕ y ⊦e 1 <-> S_imsell bang_le bang_U (eimsell_imsell a b ∞ Σ x y) (imsell_var _ 3).
+   Proof.
+     split.
+     + intros; apply G_eimsell_sound; eauto.
+     + apply completeness.
+   Qed.
+
+End completeness.
+
 
 Section completeness.
 
