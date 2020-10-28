@@ -12,7 +12,7 @@ Require Import List Arith Omega Lia Max.
 Require Import Undecidability.Synthetic.Undecidability.
 
 From Undecidability Require Import Shared.Libs.DLW.Utils.utils H10.Dio.dio_logic H10.Dio.dio_elem.
-From Undecidability Require Import H10.FRACTRAN_DIO Problems.FRACTRAN.
+From Undecidability Require Import H10.FRACTRAN_DIO FRACTRAN.FRACTRAN.
 Require Import Undecidability.DiophantineConstraints.H10C.
 
 Set Implicit Arguments.

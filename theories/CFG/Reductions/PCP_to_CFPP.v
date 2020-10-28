@@ -7,9 +7,8 @@ Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.Facts.
 Require Import Undecidability.PCP.Util.PCP_facts.
 
-Require Import Undecidability.Problems.Reduction.
-
 Require Import Undecidability.Shared.Prelim.
+Require Import Undecidability.Synthetic.Definitions.
 
 (** * PCP to CFPP *)
 

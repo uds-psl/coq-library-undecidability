@@ -1,7 +1,7 @@
 Require Import List Arith Lia.
 Import ListNotations.
 
-Require Import Undecidability.Problems.MM2.
+Require Import Undecidability.MinskyMachines.MM2.
 
 From Coq Require Import ssreflect ssrbool ssrfun.
 

@@ -3,7 +3,7 @@ Require Import List.
 Import ListNotations.
 
 Require Import Undecidability.PCP.PCP.
-Require Import Undecidability.Problems.Reduction.
+Require Import Undecidability.Synthetic.Definitions.
 
 (* map a n-ary string to a binary string *)
 Definition bin (x: list nat) : list bool := 

@@ -13,7 +13,7 @@
 Require Import Undecidability.Synthetic.Undecidability.
 
 From Undecidability.CounterMachines
-  Require Import CM2 MM2_HALTING_to_CM2_HALT.
+  Require Import CM2 Reductions.MM2_HALTING_to_CM2_HALT.
 
 From Undecidability.MinskyMachines
   Require Import MM2 MM2_undec.

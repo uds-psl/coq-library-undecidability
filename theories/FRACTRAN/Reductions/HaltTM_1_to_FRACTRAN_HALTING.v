@@ -3,7 +3,7 @@ Require Import Undecidability.Synthetic.Undecidability.
 Require Import Undecidability.TM.TM.
 
 From Undecidability.MinskyMachines 
-  Require Import MM HaltTM_to_MM.
+  Require Import MM HaltTM_1_to_MM.
 
 From Undecidability.FRACTRAN
   Require Import FRACTRAN Reductions.MM_FRACTRAN.
