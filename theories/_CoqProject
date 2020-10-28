@@ -574,6 +574,8 @@ CounterMachines/CM1.v
 CounterMachines/CM1_undec.v
 CounterMachines/CM2.v
 CounterMachines/CM2_undec.v
+CounterMachines/ndMM2.v
+CounterMachines/ndMM2_undec.v
 
 CounterMachines/Util/Nat_facts.v
 CounterMachines/Util/List_facts.v
@@ -582,6 +584,7 @@ CounterMachines/Util/MM2_facts.v
 CounterMachines/Reductions/MM2_HALTING_to_CM1c4_HALT.v
 CounterMachines/Reductions/MM2_HALTING_to_CM2_HALT.v
 CounterMachines/Reductions/HaltTM_to_CM1c4_HALT.v
+CounterMachines/Reductions/MM2_to_ndMM2_ACCEPT.v
 
 #Stack Machines
 StackMachines/BSM.v
