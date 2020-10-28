@@ -224,8 +224,13 @@ Section mk_init.
     }
   Qed.
 
-  Axiom startRen : Vector.t (Fin.t k) k.
-  Axiom startRen_spec : forall A (v:Vector.t A _), select startRen v = Vector.rev v.
+  Definition startRen : Vector.t (Fin.t k) k := Vector.rev (tabulate (fun i => i)).
+
+  Lemma startRen_spec A (v:Vector.t A _): select startRen v = Vector.rev v.
+  Proof.
+    apply eq_nth_iff'. intros H.
+    unfold startRen.
+  Admitted.
 
   Import CasePair Code.CaseList.
 
