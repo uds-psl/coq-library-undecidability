@@ -1,7 +1,7 @@
 From Undecidability Require Import L.Datatypes.LBool L.Datatypes.Lists L.Tactics.LTactics L.Tactics.GenEncode L.Util.L_facts.
 
 Require Import PslBase.FiniteTypes.FinTypes PslBase.Vectors.Vectors.
-Require Import Vector List.
+Require Import List.
 
 Require Import Undecidability.TM.Util.TM_facts.
 
@@ -14,9 +14,9 @@ Require Import List.
 Import ListNotations.
 
 
-Import VectorNotations.
+Import Vector.VectorNotations.
 
-From Undecidability.TM.L Require Import Compiler_spec Compiler_facts UnfoldHeap.
+From Undecidability.TM.L Require Import Compiler_spec Compiler_facts UnfoldHeap Compiler.AddToBase.
 
 Require Import Equations.Prop.DepElim.
 
@@ -151,8 +151,6 @@ Section mk_init.
 
   Variable sim : term.
 
-  Print Init.Nat.max.
-
   Notation aux n := (Fin.L k (Fin.L m n)) (only parsing).
   Notation auxm n := (Fin.L k (Fin.R 6 n)) (only parsing).
   Notation auxk n := (Fin.R (6 + m) n) (only parsing).
@@ -203,7 +201,8 @@ Section mk_init.
       eapply Realise_monotone.
       { TM_Correct. eassumption. now eapply M_init_one_realises. }
       clear IHren. 
-      intros tin ([] & tout) H v ?. cbn in H. progress fold Nat.add in H. TMSimp.
+      intros tin ([] & tout) H v ?. cbn in H. progress fold Nat.add in H. 
+      pose (_tmp:=LiftTapes._flag_DisableWarning); TMSimp; clear _tmp. 
       modpon H;[]. subst tmid_0.
       specializeFin H5. clear H5.
       rename H4 into Hv. rename H3 into Hnil.
@@ -211,7 +210,7 @@ Section mk_init.
       modpon H0;[ | ]. 1:now rewrite Hv,nth_map'.
       rename H1 into Hm'.
       replace tmid with tout in *. 1:clear Hm'.
-      2:{ eapply eq_nth_iff.
+      2:{ eapply Vector.eq_nth_iff.
         intros i. specialize (Hm' i);unfold not_indexb in Hm';cbn in Hm'.
         destruct Fin.eqb eqn:H' in Hm'. 2:easy. apply Fin.eqb_eq in H' as <-. easy. 
        }
@@ -224,13 +223,19 @@ Section mk_init.
     }
   Qed.
 
-  Definition startRen : Vector.t (Fin.t k) k := Vector.rev (tabulate (fun i => i)).
+  Program Definition startRen := Vectors.tabulate (n:=k) (fun i => Fin.of_nat_lt (n:=k) (p:=k - 1 -proj1_sig (Fin.to_nat i)) _).
+  Next Obligation.
+  destruct Fin.to_nat;cbn. nia.
+  Defined.
 
   Lemma startRen_spec A (v:Vector.t A _): select startRen v = Vector.rev v.
   Proof.
-    apply eq_nth_iff'. intros H.
+    unfold select.
+    apply eq_nth_iff'. intros i. rewrite nth_map'.
     unfold startRen.
-  Admitted.
+    unshelve erewrite nth_tabulate, vector_nth_rev. 1:abstract (inv i;nia).
+    f_equal.  eapply Fin.of_nat_ext.
+  Qed.  
 
   Import CasePair Code.CaseList.
 
@@ -271,7 +276,7 @@ Section mk_init.
     modpon H11;[]. modpon H13;[]. specialize (H15 []%list). modpon H15;[].
     specialize (H17 []%list). modpon H17;[].
     repeat simple apply conj. 1-4:easy. 
-    intros. now rewrite Hnil,const_nth. 
+    intros. now rewrite Hnil,Vector.const_nth. 
   Qed.
 
 End mk_init.
@@ -370,7 +375,7 @@ Section main.
   Lemma M_main_realise :
     Realise M_main (fun t '(r, t') =>
                       forall v,
-                      t = const niltape (S n_main) ++ Vector.map (encTM sym_s sym_b) v  ->
+                      t = Vector.const niltape (S n_main) ++ Vector.map (encTM sym_s sym_b) v  ->
                       exists m, 
                         t'[@ Fin0] = encTM sym_s sym_b m /\ R v m).
   Proof.
@@ -383,7 +388,7 @@ Section main.
     }
     cbn.
     intros tin ([] & tout) H v ?. subst tin. 
-    unfold n_main in *.   
+    unfold n_main in *.
     TMSimp. specialize H with (1:=eq_refl).
     TMSimp. rename H8 into Hnil. specializeFin Hnil.
     repeat lazymatch goal with

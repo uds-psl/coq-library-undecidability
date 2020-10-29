@@ -8,6 +8,7 @@ TM/L/Compiler/Compiler_facts.v
 TM/L/Compiler/Compiler.v
 TM/L/UnfoldHeap.v
 TM/L/Compiler/encTM_boolList.v
+TM/L/Compiler/AddToBase.v
 
 Shared/Prelim.v
 Shared/Dec.v

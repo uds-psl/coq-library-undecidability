@@ -482,6 +482,10 @@ Proof.
   rewrite VectorSpec.to_list_of_list_opp. destruct not_indexb;now eauto.
 Qed.
 
+Local Definition _Flag_DisableWarning := Lock unit.
+
+Local Definition _flag_DisableWarning : _Flag_DisableWarning := tt.
+
 Ltac simpl_not_in_vector_one :=
   let moveCnstLeft :=
     let rec loop k n :=
@@ -521,8 +525,10 @@ Ltac simpl_not_in_vector_one :=
     | forall u, if _ then _ else _ =>
           specialize (not_index_reflect_helper2 H);clear H;intros H;cbn [Vector.of_list] in H
     | forall i : Fin.t _, _[@ _] = _[@ _] => idtac
-
-    | ?t => idtac "unexpected case in simpl_not_in_vector_one" t
+    | ?t => match goal with 
+            | H : _Flag_DisableWarning |- _ => idtac 
+            | |- _ =>  idtac "unexpected case in simpl_not_in_vector_one" t
+            end
     end
   end.
 
