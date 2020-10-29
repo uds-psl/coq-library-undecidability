@@ -1,6 +1,6 @@
 # A Coq library of Undecidability Proofs
 
-[![Build Status](https://travis-ci.org/uds-psl/coq-library-undecidability.svg?branch=coq-8.10)](https://travis-ci.org/uds-psl/coq-library-undecidability)
+[![Build Status](https://travis-ci.com/uds-psl/coq-library-undecidability.svg?branch=coq-8.10)](https://travis-ci.com/uds-psl/coq-library-undecidability)
 
 This library contains undecidable problems and formalised reductions between them.
 Feel free to contribute or start using the problems!
