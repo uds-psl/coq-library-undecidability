@@ -3,6 +3,21 @@ Require Import Undecidability.StringRewriting.SR Undecidability.Shared.Prelim.
 
 (** *Some basic things concerning lists *)
 
+Lemma cons_inj {X} (x1 x2 : X) l1 l2 :
+  x1 :: l1 = x2 :: l2 -> x1 = x2 /\ l1 = l2.
+Proof.
+   now inversion 1.
+Qed.
+
+Lemma list_prefix_inv' X (a a' : X) x u y v :
+~ In a' x -> ~ In a u -> 
+x ++ a :: y = u ++ a' :: v -> a = a' /\ x = u /\ y = v.
+Proof.
+    intro. revert u.
+    induction x; intros; destruct u; inversion H1; subst; try now firstorder.
+    eapply IHx in H4; try now firstorder. intuition congruence.
+Qed.
+
 Lemma list_prefix_inv X (a : X) x u y v :
   ~ a el x -> ~ a el u -> x ++ a :: y = u ++ a :: v -> x = u /\ y = v.
 Proof.
@@ -95,6 +110,22 @@ Proof.
   induction 1; eauto.
   + intros. eapply rewS; eauto. eapply rewR.
   + intros. eapply rewS; eauto. 
+Qed.
+
+Lemma rew_subset {X} R P x y :
+  SR.rew R x y -> incl R P -> @SR.rew X P x y.
+Proof.
+  intros H1 H2. inversion H1; subst.
+  econstructor. eauto.
+Qed.
+
+Lemma do_rew {X} (R : SR.SRS X) a b x y u v :
+  In (u, v) R ->
+  a = x ++ u ++ y ->
+  b = x ++ v ++ y ->
+  SR.rew R a b.
+Proof.
+  intros; subst; now econstructor.
 Qed.
 
 (** ** Post Grammars *)

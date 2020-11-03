@@ -105,6 +105,7 @@ StringRewriting/Util/Definitions.v
 StringRewriting/Util/singleTM.v
 StringRewriting/Reductions/SRH_to_SR.v
 StringRewriting/Reductions/TM_to_SRH.v
+StringRewriting/Reductions/SBTM_to_SRH.v
 StringRewriting/Reductions/HaltTM_1_to_SR.v
 
 #Context-free grammars

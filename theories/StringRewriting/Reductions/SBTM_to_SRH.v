@@ -1,6 +1,7 @@
 Require Import List Lia.
 
 Require Import Undecidability.TM.SBTM.
+Require Import Undecidability.TM.Reductions.HaltSBTM_to_HaltSBTMuniq.
 
 Require Undecidability.StringRewriting.SR.
 Require Import Undecidability.StringRewriting.Util.Definitions.
@@ -8,37 +9,6 @@ Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts.
 
 Import ListNotations.
-
-Lemma rew_subset {X} R P x y :
-  SR.rew R x y -> incl R P -> @SR.rew X P x y.
-Proof.
-  intros H1 H2. inversion H1; subst.
-  econstructor. eauto.
-Qed.
-
-Lemma do_rew {X} (R : SR.SRS X) a b x y u v :
-  In (u, v) R ->
-  a = x ++ u ++ y ->
-  b = x ++ v ++ y ->
-  SR.rew R a b.
-Proof.
-  intros; subst; now econstructor.
-Qed.
-
-Lemma cons_inj {X} (x1 x2 : X) l1 l2 :
-  x1 :: l1 = x2 :: l2 -> x1 = x2 /\ l1 = l2.
-Proof.
-   now inversion 1.
-Qed.
-
-Lemma list_prefix_inv X (a a' : X) x u y v :
-~ In a' x -> ~ In a u -> 
-x ++ a :: y = u ++ a' :: v -> a = a' /\ x = u /\ y = v.
-Proof.
-    intro. revert u.
-    induction x; intros; destruct u; inversion H1; subst; try now firstorder.
-    eapply IHx in H4; try now firstorder. intuition congruence.
-Qed.
 
 Lemma nil_app_tail {X} (x : X) l : ~ [] = l ++ [x]. destruct l; cbn; firstorder congruence. Qed.
 Lemma nil_app_tail' {X} (x : X) l : ~ l ++ [x] = []. destruct l; cbn; firstorder congruence. Qed.
@@ -220,19 +190,33 @@ Section FixM.
          end.
   Qed.
 
+  Lemma enc_state_inv q t q' :
+    In (enc_state q) (enc_conf t q') -> q = q'.
+  Proof.
+    destruct t as [[ls o] rs].
+    unfold enc_conf.
+    rewrite !in_app_iff, !in_map_iff; repeat setoid_rewrite <- in_rev. cbn. firstorder try lia.
+    all: try (destruct x; lia). eapply Fin.to_nat_inj. lia. destruct o as [[]|]; cbn in *; lia.
+  Qed.
+
 End FixM.
 
 Lemma reduction :
-    HaltSBTM ⪯ SRH'.
+    HaltSBTMuniq ⪯ SR.SRH.
 Proof.
-    exists (fun '(M, t) => (R M, @enc_conf M t (Fin.F1), map (@enc_state M) (filter (fun q => trans M q  (all_fins (S (num_states M)))))).
-    intros [M t]. split.
-    - intros (q' & t' & H).
-      exists (enc_conf t' q'). split.
-      + now eapply simulation.
-      + exists (enc_state q'). split. eapply in_map_iff. exists q'.
-        split. reflexivity. eapply in_all_fins. destruct t' as [[ls o] rs].
+    unshelve eexists. { intros [ [[M q] H] t ]. exact (R M, @enc_conf M t Fin.F1, enc_state q). }
+    intros [[[M q] Hq] t]. split.
+    - cbn -[enc_state]. intros (t' & H).
+      exists (enc_conf t' q). split.
+      + now eapply simulation. 
+      + destruct t' as [[ls o] rs].
         cbn -[Nat.add]. right. rewrite !in_app_iff. cbn; eauto.
-    - intros (x & H & q_ & H2 & H3).
-      eapply in_map_iff in H2 as (q & <- & Hhalt).
-      
+    - cbn -[R Nat.add]. intros (x & H1 & H2). revert H1.
+      generalize (@Fin.F1 (num_states M)). intros q1 H.
+      revert q Hq H2. remember (enc_conf t q1) as y.
+      induction H in q1, Heqy, t |- *; subst; intros q Hq H2.
+      + exists t. eapply enc_state_inv in H2. subst. econstructor. eapply Hq.
+      + eapply rev_sim in H as (q' & w & m & H1 & H3). subst.
+        edestruct IHrewt as (H4 & H5). reflexivity. eauto. eauto. eexists. econstructor. 2:eassumption.
+        eassumption.
+Qed.
