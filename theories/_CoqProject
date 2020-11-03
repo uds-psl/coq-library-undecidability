@@ -333,6 +333,7 @@ TM/Reductions/L_to_mTM.v
 TM/Reductions/Arbitrary_to_Binary.v
 TM/SBTM.v
 TM/Reductions/TM_to_SBTM.v
+TM/Reductions/HaltSBTM_to_HaltSBTMuniq.v
 StackMachines/Reductions/SBTM_to_BSM.v
 
 # Univ
