@@ -230,3 +230,12 @@ Proof.
       - clear. rewrite Vector_map_tabulate.  induction v; cbn. reflexivity. f_equal. eapply IHv.
     }
 Qed.
+
+Lemma closed_compiler_helper s n v: closed s ->
+closed
+  (Vector.fold_left (n:=n)
+     (fun (s0 : term) (l_i : list bool) => L.app s0 (encL l_i)) s v).
+Proof.
+  revert s. depind v. all:cbn. easy.
+  intros. eapply IHv. change (encL h) with (enc h). Lproc.
+Qed. 

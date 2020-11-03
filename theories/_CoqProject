@@ -82,7 +82,9 @@ Problems/Reduction.v
 TM/L/Alphabets.v
 TM/L/CaseCom.v
 TM/L/LookupTM.v
-TM/L/Boollist_to_Enc.v
+TM/L/Transcode/Boollist_to_Enc.v
+TM/L/Transcode/Enc_to_Boollist.v
+TM/L/Transcode/BoollistEnc.v
 TM/L/HeapInterpreter/JumpTargetTM.v
 #The following file takes very long, so we start it early for faster multi-core-compilation
 TM/L/HeapInterpreter/StepTM.v

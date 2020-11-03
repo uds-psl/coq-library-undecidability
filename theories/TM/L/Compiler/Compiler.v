@@ -67,7 +67,7 @@ Section MK_isVoid.
 
 End MK_isVoid.
 
-From Undecidability Require Import TM.L.Boollist_to_Enc.
+From Undecidability Require Import TM.L.Transcode.Boollist_to_Enc.
 From Undecidability Require Import encTM_boolList.
 
 
@@ -94,7 +94,7 @@ Section mk_init_one.
   
 
   Definition M_init_one : pTM (Σ) ^+ unit 6:= 
-    encTM2boolList.M s retr_list @[|Fin0;Fin3|];;
+    EncTM2boollist.M s retr_list @[|Fin0;Fin3|];;
     Rev _ ⇑ retr_list @ [|Fin3;Fin2;Fin4|];;
     BoollistToEnc.M retr_list retr_pro @[|Fin2;Fin3;Fin4;Fin5|];;
     APP_right ⇑ retr_pro  @[|Fin1;Fin3|].
@@ -115,7 +115,7 @@ Section mk_init_one.
     eapply Realise_monotone.
     {
       unfold M_init_one. TM_Correct.
-      -apply encTM2boolList.Realise. exact H_disj.
+      -apply EncTM2boollist.Realise. exact H_disj.
       -apply Rev_Realise.      
       -apply BoollistToEnc.Realise.     
       -apply APP_right_realises.
@@ -281,22 +281,34 @@ Section mk_init.
 
 End mk_init.
 
+From Undecidability Require Import Enc_to_Boollist.
+
 Section conv_output.
 
   Variable Σ : finType.
   Variable s b : Σ^+.
   Variable (retr_pro : Retract sigPro Σ).
+  Variable (retr_list : Retract (sigList bool) Σ).
 
     
 
-  Definition M_out : pTM (Σ) ^+ unit 2. Admitted.
+  Definition M_out : pTM (Σ) ^+ unit 4 :=
+    EncToBoollist.M _ _ @ [|Fin0;Fin2;Fin3|];;
+    Boollist2encTM.M s b _ @ [|Fin2;Fin1;Fin3|].
+
 
   Theorem M_out_realise :
     Realise M_out (fun t '(r, t') =>
                      forall l : list bool, t[@Fin0] ≃ compile (list_enc l) ->
-                        t[@Fin1] = niltape ->
-                        t'[@Fin1] = encTM s b l).
-  Admitted.
+                        t[@Fin1] = niltape
+                        -> isVoid (t[@Fin2])
+                        -> isVoid (t[@Fin3])
+                        -> t'[@Fin1] = encTM s b l).
+  Proof.
+    eapply Realise_monotone.
+    { unfold M_out. TM_Correct. apply EncToBoollist.Realise. apply Boollist2encTM.Realise. }
+    hnf. intros. TMSimp. modpon H. modpon H0. now rewrite rev_involutive in H0.
+  Qed.
 
 End conv_output.
 
@@ -317,8 +329,6 @@ Section main.
   Variable Hs2 : (forall v, forall o : term,
                      L.eval (Vector.fold_left (n := k) (fun (s0 : term) (n : list bool) => L.app s0 (encL n)) s v) o ->
                      exists m : list bool, o = encL m).
-
-  Axiom todo : forall {A : Type}, A.
 
   Definition n_main := 14.
 
@@ -362,7 +372,7 @@ Section main.
         Loop ⇑ _ @ [| aux Fin0 ; aux Fin1 ; aux Fin2; aux Fin5 ; aux Fin6 ; aux Fin7 ; aux Fin8 ; aux Fin9 ; aux Fin10 ; aux Fin11 ; aux Fin12 |] ;;
         CaseList _ ⇑ retr_closs @ [| aux Fin1;aux Fin13 |];;
         UnfoldHeap.M _ _ retr_clos @ [| aux Fin13;aux Fin2;aux Fin5;aux Fin6;aux Fin7;aux Fin8;aux Fin9;aux Fin10;aux Fin11;aux Fin12|];;
-        M_out sym_s sym_b retr_pro @ [|(aux Fin13);Fin0|]
+        M_out sym_s sym_b retr_pro _ @ [|aux Fin13;Fin.L k Fin0;aux Fin7;aux Fin8|]
       ).
       all:exact _.
   Defined.
@@ -378,7 +388,7 @@ Section main.
                       t = Vector.const niltape (S n_main) ++ Vector.map (encTM sym_s sym_b) v  ->
                       exists m, 
                         t'[@ Fin0] = encTM sym_s sym_b m /\ R v m).
-  Proof.
+  Proof using Hscl Hs2 Hs1.
     eapply Realise_monotone.
     {
       unfold M_main.
@@ -402,7 +412,7 @@ Section main.
     TMSimp.
     edestruct soundness as (g__res&H__res'&s__res&Heq&H__Red&H__res).
     2:{ split;[ apply star_pow;eexists;eassumption| ]. eassumption. }
-    { admit. (*TODO: in Compiler_facts*) }
+    { now eapply closed_compiler_helper. }
     injection Heq as [= ? ? ?]. subst ymid0 ymid1 ymid2.
     TMSimp. specializeFin H16;clear H16. compressHyp. simpl_surject.
     specialize H19 with (l:=[g__res]%list).
@@ -411,10 +421,11 @@ Section main.
     edestruct Hs2 as (bs&H__bs). { apply eval_iff. eassumption. } subst s__res.
     exists bs.
     specialize (H23 bs). unfold encL in H21.
-    modpon H23.
+    specializeFin H29;clear H29.
+    modpon H23;[].
     split. easy.
     apply Hs1,eval_iff. easy.
-  Admitted. 
+  Qed. 
 
 End main.
 
@@ -453,7 +464,7 @@ Proof.
   eapply L_computable_function; eauto.
   destruct H as [sim Hsim].
   eexists _, _, sym_s, sym_b. split. eapply syms_diff. exists (M_main k sim). split.
-  - eapply Realise_monotone. { eapply M_main_realise. }
+  - eapply Realise_monotone. { eapply M_main_realise. admit. all:intros. all:edestruct Hsim as [H1 H2];easy. }
     intros t [[] t'] H v ->.
     destruct (H v) as [m [Hm1 Hm2]]. reflexivity.
     exists m. split; eauto. rewrite <- Hm1.

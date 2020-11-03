@@ -16,7 +16,7 @@ Import VectorNotations.
 Set Default Proof Using "Type".
 
 
-Module boolList2encTM.
+Module Boollist2encTM.
 Section Fix.
 
   Variable Σ : finType.
@@ -89,10 +89,10 @@ Section Fix.
   Qed.   
 
 End Fix.
-End boolList2encTM.
+End Boollist2encTM.
 
 
-Module encTM2boolList.
+Module EncTM2boollist.
 Section Fix.
 
   Variable Σ : finType.
@@ -182,4 +182,4 @@ Section Fix.
   Qed.
 
 End Fix.
-End encTM2boolList.
+End EncTM2boollist.
