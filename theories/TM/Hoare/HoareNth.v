@@ -41,6 +41,7 @@ Section Nth.
                   | _, _, _ => SpecFalse
                   end (appSize (Nth'_Step_size n xs) ss))).
   Proof.
+    start_TM.
     unfold Nth'_Step.
     eapply If_SpecT with (k1 := CaseNat_steps) (k2 := Nth'_Step_steps_CaseList xs) (k3 := CaseList_steps xs).
     - hstep; cbn.
@@ -108,6 +109,7 @@ Section Nth.
                   | _, _ => SpecFalse
                   end (appSize (Nth'_size xs n) ss))).
   Proof.
+    start_TM.
     unfold Nth'.
     hstep; cbn. hstep; cbn. apply CopyValue_SpecT_size.
     cbn. intros _. eapply If_SpecT; cbn.

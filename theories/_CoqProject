@@ -345,8 +345,10 @@ TM/Hoare/HoareLogic.v
 TM/Hoare/HoareCombinators.v
 TM/Hoare/HoareRegister.v
 TM/Hoare/HoareTactics.v
+TM/Hoare/HoareTacticsView.v
 TM/Hoare/HoareExamples.v
 TM/Hoare/HoareNth.v
+TM/Hoare/HoareMult.v
 TM/Hoare/HoareStdLib.v
 TM/Hoare/HoareLegacy.v
 

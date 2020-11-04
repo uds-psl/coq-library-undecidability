@@ -87,6 +87,7 @@ Section LookupAssociativeList.
             | _, _ => SpecFalse
             end) (appSize (Lookup_Step_size xs x) ss))).
   Proof.
+    start_TM.
     unfold Lookup_Step. unfold Lookup_Step_size; cbn.
     eapply If_SpecT with (k1 := CaseList_steps xs) (k2 := Lookup_Step_steps_CaseList xs x) (k3 := Lookup_Step_steps_CaseList xs x).
     - hstep; cbn. apply CaseList_SpecT_size.
@@ -116,7 +117,7 @@ Section LookupAssociativeList.
         * intros tin ymid tmid H1 H2. cbn in *. destruct ymid; decide (x=x') as [Hx|Hx]; cbn in *; auto.
       + cbn. lia.
     - cbn. (* The top-most "Else": We have [xs=nil] *) destruct xs as [ | ]; cbn in *; auto.
-      hstep. hstep. cbn. eapply ResetEmpty1_SpecT_space with (X := list (X*Y)). reflexivity. cbn. eauto.
+      hstep. hstep; cbn. eapply ResetEmpty1_SpecT_space with (X := list (X*Y)). reflexivity. cbn. eauto.
     - (* Finall running time *) intros tin yout tout _ _. destruct yout; reflexivity.
   Qed.
 
@@ -219,6 +220,7 @@ Section LookupAssociativeList.
               | _, _ => SpecFalse
               end (appSize (Lookup_size xs x) ss))).
   Proof.
+    start_TM.
     unfold Lookup. hsteps_cbn; cbn.
     apply CopyValue_SpecT_size with (X := list (X*Y)).
     cbn. apply Lookup_Loop_SpecT_space.

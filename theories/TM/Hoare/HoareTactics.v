@@ -1,7 +1,7 @@
 (** ** Very Convienient Verification Tactics for Hoare Logic *)
 
 From Undecidability Require Import ProgrammingTools.
-From Undecidability Require Import TM.Hoare.HoareLogic TM.Hoare.HoareCombinators TM.Hoare.HoareRegister.
+From Undecidability Require Import TM.Hoare.HoareLogic TM.Hoare.HoareCombinators TM.Hoare.HoareRegister TM.Hoare.HoareTacticsView.
 From smpl Require Import Smpl.
 
 (** We define tactics to "execute" the machine step-by-step during the verification. It uses [smpl] to be user-extensible. *)
@@ -200,7 +200,7 @@ Ltac hstep_forall_unit :=
 
 Ltac hstep_Combinators := hstep_Seq || hstep_If || hstep_Switch || hstep_Return. (* Not [While]! *)
 Ltac hstep_Lifts := (hstep_LiftTapes || hstep_ChangeAlphabet).
-Ltac hstep := (*repeat hstep_withSpace_swap;*) (hstep_forall_unit || hstep_Combinators || hstep_Lifts || hstep_user)(*; repeat hstep_withSpace_swap*).
+Ltac hstep := clear_abbrevs; (hstep_forall_unit || hstep_Combinators || hstep_Lifts || hstep_user)(*; repeat hstep_withSpace_swap*).
 Ltac hsteps := repeat hstep.
 Ltac hsteps_cbn := repeat (cbn; hstep). (* Calls [cbn] before each verification step *)
 
@@ -238,6 +238,7 @@ end.
 (** Proofs assertions like [tspec (SpecVector ?R) ?t] given [tspec (SpecVector ?R') ?t]. Similar to [contains_ext] and [isVoid_mono]. *)
 (** Normally, [eauto] should be able to solve this kind of goal. This tactic helps to find out if there is an error. *)
 Ltac tspec_ext :=
+  unfold_abbrev;
   (*tspec_withSpace_swap;*)
   lazymatch goal with
   | [ |- forall t, t ≃≃ ?P -> t ≃≃ ?Q ] =>

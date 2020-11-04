@@ -4,7 +4,7 @@ From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import Hoare.Hoare.
 
 From Undecidability Require Import CaseNat.
-From Undecidability Require Import ArithRing. (* for [ring_simplify] *)
+Require Import ArithRing. (* for [ring_simplify] *)
 
 Arguments mult : simpl never.
 Arguments plus : simpl never.
@@ -40,6 +40,7 @@ Lemma Add_Step_SpecT_space (a b : nat) (ss : Vector.t nat 2) :
                     end
          (appSize (Add_Step_size a b) ss))).
 Proof.
+  start_TM.
   unfold Add_Step. eapply If_SpecT with (k3 := 0).
   - hstep. (* This automatically calls [apply LiftTapes_SpecT_space; [smpl_dupfree | ]]. *)
     cbn. apply CaseNat_SpecT_size.
@@ -107,6 +108,7 @@ Lemma Add_SpecT_space (a b : nat) (ss : Vector.t nat 4) :
     (fun _ => tspec (withSpace (SpecVector [|Contains _ a; Contains _ b; Contains _ (a+b); Void|])
                             (appSize (Add_space a b) ss))).
 Proof. (* The tactic [hstep] takes also takes care of moving [withSpace] to the head symbol of each precondition *)
+  start_TM.
   unfold Add.
   hstep. hstep.
   apply CopyValue_SpecT_size.
@@ -161,6 +163,7 @@ Lemma Mult_Step_SpecT_size m' n c ss :
             | _, _ => SpecFalse
             end (appSize (Mult_Step_space m' n c) ss))).
 Proof.
+  start_TM.
   eapply If_SpecT.
   - hsteps.
   - destruct m' as [ | m'']; cbn; auto.
@@ -234,6 +237,7 @@ Lemma Mult_SpecT_space (m n : nat) (ss : Vector.t nat 6) :
     (fun _ => tspec (withSpace (SpecVector [|Contains _ m; Contains _ n; Contains _ (m * n); Void; Void; Void|])
                             (appSize (Mult_size m n) ss))).
 Proof.
+  start_TM.
   unfold Mult.
   hstep. hstep. cbn. 
   apply CopyValue_SpecT_size.

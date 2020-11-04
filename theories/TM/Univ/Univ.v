@@ -248,7 +248,8 @@ Section Univ.
                end
                (appSize (Univ_Step_size tp q) ss))).
   Proof.
-    unfold Univ_Step_size. cbn. destruct step eqn:HStep. cbn.
+    unfold Univ_Step_size.  start_TM.
+    cbn. destruct step eqn:HStep. cbn.
     destruct (trans (q, [|current tp|])) as (q'&a) eqn:Etrans.
     unfold step, current_chars in HStep. cbn in *. rewrite Etrans in HStep.
     symmetry in HStep. inv HStep.
@@ -260,64 +261,50 @@ Section Univ.
         * apply IsFinal_SpecT_space with (q := q).
         * cbn. intros. rewrite Ehalt. tspec_ext.
         * reflexivity.
-      + cbn. rewrite Ehalt. cbn. hsteps_cbn.
+      + cbn. rewrite Ehalt. cbn. unfold_abbrev. cbn. hsteps_cbn.
         apply Nop_SpecT_con; cbn; auto.
-        cbn. tspec_ext.
+        cbn. unfold_abbrev;cbn. tspec_ext.
       + cbn. rewrite Ehalt. cbn. eauto.
       + cbn. intros ? ? ? _ _. destruct yout; auto.
     - eapply If_SpecT with (k2 := Univ_Step_steps_IsFinal q tp) (k3 := Univ_Step_steps_IsFinal q tp). (* [halt q = false] *)
       + hsteps_cbn. cbn.
-        eapply ConsequenceT_pre.
+        eapply ConsequenceT_pre. 3:reflexivity.
         * apply IsFinal_SpecT_space with (q := q).
         * cbn. rewrite <- Ehalt. tspec_ext.
-        * reflexivity.
       + cbn. rewrite Ehalt. cbn. auto.
-      + rewrite Ehalt. cbn. hsteps_cbn; cbn.
-        apply ReadCurrent'_SpecT_space.
-        cbn. intros. tspec_ext.
+      + rewrite Ehalt in *. cbn. hsteps_cbn; cbn. 7-9:reflexivity.
+        * apply ReadCurrent'_SpecT_space.
+        * cbn. intros. tspec_ext.
+        * cbn. eapply ConsequenceT_pre.
+          -- apply Reset_SpecT_space with (I := LowLevel.retr_sigCurrentSymbol_sig _). 
+          -- instantiate (1 := [|_|]). cbn. tspec_ext.
+          -- reflexivity.
+        * eapply Lookup_SpecT_space. apply transition_graph_injective.
+        * cbn. tspec_ext.
+        * cbn. intros.
+          rewrite <- Ehalt.
+          erewrite lookup_graph with (tp := tp).
 
-        cbn. eapply ConsequenceT_pre.
-        { apply Reset_SpecT_space with (I := LowLevel.retr_sigCurrentSymbol_sig _). }
-        { instantiate (1 := [|_|]). cbn. tspec_ext. }
-        { reflexivity. }
+          (** We know that [Lookup] had succeeded. *)
+          rewrite Etrans; cbn.
+          destruct ymid; cbn in *; auto.
 
-        eapply Lookup_SpecT_space.
-        { apply transition_graph_injective. }
+          hstep; cbn. 3:reflexivity. hstep; cbn. hstep; cbn. hstep; cbn.
 
-        cbn. tspec_ext.
+          instantiate (1 := (a[@Fin0], (halt q', index q'))). cbn. tspec_ext.
 
-        cbn. intros .
-        rewrite <- Ehalt.
-        erewrite lookup_graph with (tp := tp).
-
-        (** We know that [Lookup] had succeeded. *)
-        rewrite Etrans; cbn.
-        destruct ymid; cbn in *; auto.
-
-        hstep; cbn. hstep; cbn. hstep; cbn. hstep; cbn.
-
-        instantiate (1 := (a[@Fin0], (halt q', index q'))). cbn. tspec_ext.
-
-        cbn. intros _. hstep; cbn. hstep; cbn. eapply ConsequenceT_pre.
-        { apply DoAction'_SpecT_space with (a := a[@Fin0]). }
-        { instantiate (1 := [|_;_|]). cbn. tspec_ext. }
-        { reflexivity. }
-
-        cbn. intros _. hstep; cbn. eapply ConsequenceT_pre.
-        { apply Translate_SpecT_size with (X := (bool * nat)%type). }
-
-        cbn. instantiate (1 := [|_|]). cbn. tspec_ext.
-        reflexivity. reflexivity. reflexivity. reflexivity. reflexivity. reflexivity.
-
-        (** The final runnint time calculation *)
-        {
+          cbn. intros _. hstep; cbn. 3:reflexivity. hstep; cbn. eapply ConsequenceT_pre. 3:reflexivity.
+          --apply DoAction'_SpecT_space with (a := a[@Fin0]). 
+          --instantiate (1 := [|_;_|]). cbn. tspec_ext. 
+          --cbn. intros _. hstep; cbn. eapply ConsequenceT_pre. 3:reflexivity.
+            ++apply Translate_SpecT_size with (X := (bool * nat)%type).
+            ++cbn. instantiate (1 := [|_|]). cbn. tspec_ext.
+        * (** The final runnint time calculation *)
           unfold Univ_Step_steps_IsFinal. rewrite Ehalt, Etrans. cbn.
           unfold Univ_Step_steps_ConstrPair, Univ_Step_steps_CasePair, Univ_Step_steps_Lookup, Univ_Step_steps_ResetSymbol, Univ_Step_steps_Translate.
           rewrite <- !Ehalt. ring_simplify. set (Lookup_steps _ _). nia.
-        }
-
-        rewrite <- Ehalt.
-        cbn. tspec_ext. cbn. specialize (Htout Fin0). cbn in *. simpl_tape. auto.
+        * unfold_abbrev. cbn. rewrite <- Ehalt.
+          cbn. tspec_ext. cbn. specialize (Htout Fin0). cbn in *. simpl_tape. auto.
       + cbn. intros ? ? ? _ _. destruct yout; auto.
   Qed.
 
