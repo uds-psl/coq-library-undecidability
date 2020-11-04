@@ -80,6 +80,26 @@ Proof.
     intros tin k' (?&Hk). firstorder.
 Qed.
 
+Lemma Triple_Realise {sig : finType} {n : nat} {F : Type} (P : Assert sig n) (pM : pTM sig F n) (Q : F -> Assert sig n) :
+  Triple P pM Q ->
+  pM ⊨ (fun tin '(yout,tout) => P tin -> Q yout tout).
+Proof.
+  unfold Triple, Triple_Rel in *. easy.
+Qed.
+
+Lemma TripleT_Realise {sig : finType} {n : nat} {F : Type} (P : Assert sig n) k (pM : pTM sig F n) (Q : F -> Assert sig n) :
+  TripleT P k pM Q ->
+  pM ⊨ (fun tin '(yout,tout) => P tin -> Q yout tout).
+Proof.
+  unfold TripleT. intros. now apply Triple_Realise .
+Qed.
+
+Lemma TripleT_TerminatesIn {sig : finType} {n : nat} {F : Type} (P : Assert sig n) (k : nat) (pM : pTM sig F n) (Q : F -> Assert sig n):
+  TripleT P k pM Q ->
+  projT1 pM ↓ (fun tin k' => P tin /\ k <= k').
+Proof.
+  unfold TripleT, Triple_TRel in *. tauto.
+Qed.
 
 (** A convienient lemma to convert constant-time realisation to a Hoare triple. Note that the reverse doesn't hold. *)
 Lemma RealiseIn_TripleT {sig : finType} {n : nat} {F : Type} (P : Assert sig n) k (pM : pTM sig F n) (Q : F -> Assert sig n) (R : pRel sig F n) :
@@ -287,8 +307,16 @@ Lemma TripleT_and_con {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
 Proof. unfold TripleT, Triple, Triple_Rel. firstorder. Qed.
 
 
-(*
+Lemma Triple_Def [sig : finType] [n : nat] [F : Type] P (pM : pTM sig F n) Q :
+  Triple P pM Q = pM ⊨ Triple_Rel P Q.
+Proof. reflexivity. Qed.
+
+Definition TripleT_Def [sig : finType] [n : nat] [F : Type] (P : Assert sig n) (k : nat) (pM : pTM sig F n) (Q : F -> Assert sig n) :
+  TripleT P k pM Q = (Triple P pM Q /\ projT1 pM ↓ Triple_TRel P k).
+Proof. reflexivity. Qed.
+
 (** In gernal, we shouldn't rely on the definition of [Triple] and [TripleT]. *)
 Global Opaque Triple TripleT.
+
 (* TODO: This makes problems in [HoareRegister.v]. *)
-*)
+

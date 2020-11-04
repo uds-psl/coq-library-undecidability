@@ -1,6 +1,7 @@
 From Undecidability Require Import Hoare.HoareLogic.
 From Undecidability Require Import ProgrammingTools.
 
+Local Transparent Triple TripleT.
 
 (** ** Tape/Register Specification *)
 

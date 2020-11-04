@@ -3,6 +3,7 @@
 From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import TM.Hoare.HoareLogic.
 
+Local Transparent Triple TripleT.
 
 (** *** Nop *)
 

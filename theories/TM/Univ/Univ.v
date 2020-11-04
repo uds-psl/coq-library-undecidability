@@ -1,10 +1,17 @@
 From Undecidability Require Import ProgrammingTools.
-From Undecidability Require Import Hoare.Hoare.
+From Undecidability Require Import Hoare.Hoare HoareLegacy.
 From Undecidability Require Import Univ.LookupAssociativeListTM.
-From Undecidability Require Import Univ.HoareLookupAssociativeListTM.
 
-From Undecidability Require Import Univ.StepTM.
+From Undecidability Require Import Code.CaseFin Code.CaseList Code.CasePair.
+
+
+From Undecidability Require Import Univ.LowLevel.
 From Coq Require Import ArithRing Lia.
+
+
+Local Arguments plus : simpl never.
+Local Arguments mult : simpl never.
+Set Default Proof Using "Type".
 
 Section Univ.
 
@@ -22,41 +29,41 @@ Section Univ.
   Variable (retr_sigTape_sig : Retract sigM sig).
 
   (** Encoding of the current state number *)
-  Local Existing Instance StepTM.retr_sigCurrentStateNumber_sigGraph.
-  Local Existing Instance StepTM.retr_sigCurrentStateNumber_sig.
+  Local Existing Instance LowLevel.retr_sigCurrentStateNumber_sigGraph.
+  Local Existing Instance LowLevel.retr_sigCurrentStateNumber_sig.
 
   (** Encoding of the current state (= halt bit + number) *)
-  Local Existing Instance StepTM.retr_sigCurrentState_sigGraph.
-  Local Existing Instance StepTM.retr_sigCurrentState_sig.
+  Local Existing Instance LowLevel.retr_sigCurrentState_sigGraph.
+  Local Existing Instance LowLevel.retr_sigCurrentState_sig.
 
   (** Encoding of final bit of the current state *)
-  Local Existing Instance StepTM.retr_sigCurrentStateFinal_sigGraph.
-  Local Existing Instance StepTM.retr_sigCurrentStateFinal_sig.
+  Local Existing Instance LowLevel.retr_sigCurrentStateFinal_sigGraph.
+  Local Existing Instance LowLevel.retr_sigCurrentStateFinal_sig.
 
   (** Encoding of the next state *)
-  Local Existing Instance StepTM.retr_sigNextState_sigGraph.
-  Local Existing Instance StepTM.retr_sigNextState_sig.
+  Local Existing Instance LowLevel.retr_sigNextState_sigGraph.
+  Local Existing Instance LowLevel.retr_sigNextState_sig.
 
   (** Encoding the current symbol *)
-  Local Existing Instance StepTM.retr_sigCurrentSymbol_sigGraph.
-  Local Existing Instance StepTM.retr_sigCurrentSymbol_sig.
+  Local Existing Instance LowLevel.retr_sigCurrentSymbol_sigGraph.
+  Local Existing Instance LowLevel.retr_sigCurrentSymbol_sig.
 
   (** Encoding of actions *)
-  Local Existing Instance StepTM.retr_act_sigGraph.
-  Local Existing Instance StepTM.retr_act_sig.
+  Local Existing Instance LowLevel.retr_act_sigGraph.
+  Local Existing Instance LowLevel.retr_act_sig.
 
   (** Encoding of the keys for [Lookup] ([option sig * Q]) *)
-  Local Existing Instance StepTM.retr_key_sigGraph.
-  Local Existing Instance StepTM.retr_key_sig.
+  Local Existing Instance LowLevel.retr_key_sigGraph.
+  Local Existing Instance LowLevel.retr_key_sig.
 
   (** Encoding of the value for [Lookup] ([option sig * Q]) *)
-  Local Existing Instance StepTM.retr_value_sigGraph.
-  Local Existing Instance StepTM.retr_value_sig.
+  Local Existing Instance LowLevel.retr_value_sigGraph.
+  Local Existing Instance LowLevel.retr_value_sig.
 
 
-  Local Existing Instance StepTM.Encode_graph.
-  Local Existing Instance StepTM.Encode_optSigM.
-  Local Existing Instance StepTM.Encode_action.
+  Local Existing Instance LowLevel.Encode_graph.
+  Local Existing Instance LowLevel.Encode_optSigM.
+  Local Existing Instance LowLevel.Encode_action.
 
 
   (** We have to define a [RegSpec] for [containsWorkingTape] *)
@@ -76,7 +83,7 @@ Section Univ.
       Thus, we just convert the relations to Hare triples. *)
 
   Lemma DoAction'_SpecT_space (tp : tape sigM) (a : option sigM * move) ss :
-    TripleT (tspec (withSpace (SpecVector [|ContainsWorkingTape tp; Contains (StepTM.retr_act_sig _) a|]) ss))
+    TripleT (tspec (withSpace (SpecVector [|ContainsWorkingTape tp; Contains (LowLevel.retr_act_sig _) a|]) ss))
             (DoAction'_steps) (DoAction' _ _)
             (fun _ => tspec (withSpace (SpecVector [|ContainsWorkingTape (doAct tp a); Void|]) (appSize (DoAction'_size a) ss))).
   Proof.
@@ -89,10 +96,10 @@ Section Univ.
 
 
   Lemma SetFinal_SpecT_space (final : bool) (q : nat) ss :
-    TripleT (tspec (withSpace (SpecVector [|Contains (StepTM.retr_sigCurrentStateNumber_sig _) q; Void |]) ss))
+    TripleT (tspec (withSpace (SpecVector [|Contains (LowLevel.retr_sigCurrentStateNumber_sig _) q; Void |]) ss))
             (SetFinal_steps) (SetFinal _ final)
             (fun yout => tspec
-                        (withSpace (SpecVector [|Contains (StepTM.retr_sigCurrentState_sig _) (final, q); Void|])
+                        (withSpace (SpecVector [|Contains (LowLevel.retr_sigCurrentState_sig _) (final, q); Void|])
                                    (appSize (SetFinal_size) ss))).
   Proof.
     eapply Realise_TripleT.
@@ -108,10 +115,10 @@ Section Univ.
 
 
   Notation "'ContainsState' q" :=
-    (Contains (StepTM.retr_sigCurrentState_sig _) (halt q, index q)) (at level 0).
+    (Contains (LowLevel.retr_sigCurrentState_sig _) (halt q, index q)) (at level 0).
 
   Notation "'ContainsState_size' q s" :=
-    (Contains_size (StepTM.retr_sigCurrentState_sig _) (halt q, index q) s) (at level 0).
+    (Contains_size (LowLevel.retr_sigCurrentState_sig _) (halt q, index q) s) (at level 0).
 
   Definition IsFinal_size' : Vector.t (nat->nat) 2 :=
     [| (*0*) id; IsFinal_size |].
@@ -148,7 +155,7 @@ Section Univ.
   Lemma ReadCurrent'_SpecT_space (tp : tape sigM) ss :
     TripleT (tspec (withSpace (SpecVector [|ContainsWorkingTape tp; Void|]) ss))
             (ReadCurrent'_steps) (ReadCurrent' _ _)
-            (fun _ => tspec (withSpace (SpecVector [|ContainsWorkingTape tp; Contains (StepTM.retr_sigCurrentSymbol_sig _) (current tp)|])
+            (fun _ => tspec (withSpace (SpecVector [|ContainsWorkingTape tp; Contains (LowLevel.retr_sigCurrentSymbol_sig _) (current tp)|])
                                     (appSize ReadCurrent'_size ss))).
   Proof.
     eapply RealiseIn_TripleT.
@@ -170,10 +177,64 @@ Section Univ.
 
   Local Arguments graph_of_TM : simpl never.
 
+  
+  Definition Univ_Step_size (M : TM sigM 1) (tp : tape sigM) (q : state M) : Vector.t (nat->nat) 6 :=
+    (* Note that the size function for tape 0 is semantically irrelevant because there is no size associated to this (working) tape *)
+    if halt q
+    then [|IsFinal_size|]@>>[|Fin3|]
+    else let (q', act) := trans (q, [|current tp|]) in
+         ([|IsFinal_size|]@>>[|Fin3|]) >>>
+         ([|ReadCurrent_size|]@>>[|Fin3|]) >>>
+         ([|Constr_pair_size (current tp)|]@>>[|Fin2|]) >>>
+         ([|Reset_size (current tp)|] @>> [|Fin3|]) >>>
+         (Lookup_size (graph_of_TM M) (current tp, (halt q, index q)) @>> [|Fin1; Fin2; Fin3; Fin4; Fin5|]) >>>
+         ([|CasePair_size0 act[@Fin0];
+            CasePair_size1 act[@Fin0]|] @>> [|Fin2; Fin3|]) >>>
+         ([|DoAction_size act[@Fin0]|] @>> [|Fin3|]).
+
+
+  Definition Univ_Step_steps_ConstrPair (tp : tape sigM) :=
+    Constr_pair_steps (current tp).
+
+  Definition Univ_Step_steps_ResetSymbol (tp : tape sigM) :=
+    Reset_steps (current tp).
+
+  Definition Univ_Step_steps_Lookup (M : TM sigM 1) (q : state M) (tp : tape sigM) :=
+    Lookup_steps (current tp, (halt q, index q)) (graph_of_TM M).
+
+  Definition Univ_Step_steps_CasePair (a : option sigM * move) :=
+    CasePair_steps a.
+
+  Definition Univ_Step_steps_Translate (M : TM sigM 1) (q' : state M) :=
+    Translate_steps (halt q', index q').
+
+  Definition Univ_Step_steps_IsFinal (M : TM sigM 1) (q : state M) (tp : tape sigM) :=
+    if halt q
+    then 0
+    else
+      let (q', acts) := trans (q, [|current tp|]) in
+      6 + ReadCurrent'_steps + Univ_Step_steps_ConstrPair tp + Univ_Step_steps_ResetSymbol tp +
+      Univ_Step_steps_Lookup q tp + Univ_Step_steps_CasePair acts[@Fin0] + DoAction'_steps + Univ_Step_steps_Translate q'.
+
+  Definition Univ_Step_steps (M : TM sigM 1) (q : state M) (tp : tape sigM) : nat :=
+    1 + IsFinal_steps (halt q) + Univ_Step_steps_IsFinal q tp.
+
+  Definition Univ_Step : pTM sig^+ (option unit) 6 :=
+    If (IsFinal _ @ [|Fin2; Fin3|])
+        (Return Nop (Some tt))
+        (Return
+          (ReadCurrent' _ _ @ [|Fin0; Fin3|];;
+            Constr_pair (FinType(EqType (option sigM))) (FinType(EqType sigState)) ⇑ LowLevel.retr_key_sig _ @ [|Fin3; Fin2|];;
+            Reset _ @ [|Fin3|];;
+            Lookup _ _ ⇑ retr_sigGraph_sig @ [|Fin1; Fin2; Fin3; Fin4; Fin5|];;
+            CasePair (FinType(EqType(option sigM * move))) (FinType(EqType(sigState))) ⇑ LowLevel.retr_value_sig _ @ [|Fin2; Fin3|];;
+            DoAction' _ _ @ [|Fin0; Fin3|];;
+            Translate (LowLevel.retr_sigNextState_sig _) (LowLevel.retr_sigCurrentState_sig _) @ [|Fin2|]) None).
+
   Lemma Univ_Step_SpecT_space (M : TM sigM 1) (tp : tape sigM) (q : state M) ss :
     TripleT
       (tspec (withSpace (SpecVector [|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]) ss))
-      (Univ_Step_steps q tp) (Univ_Step _ _)
+      (Univ_Step_steps q tp) Univ_Step
       (fun yout =>
          tspec (
              withSpace
@@ -216,7 +277,7 @@ Section Univ.
         cbn. intros. tspec_ext.
 
         cbn. eapply ConsequenceT_pre.
-        { apply Reset_SpecT_space with (I := StepTM.retr_sigCurrentSymbol_sig _). }
+        { apply Reset_SpecT_space with (I := LowLevel.retr_sigCurrentSymbol_sig _). }
         { instantiate (1 := [|_|]). cbn. tspec_ext. }
         { reflexivity. }
 
@@ -265,7 +326,7 @@ Section Univ.
   Lemma Univ_Step_SpecT (M : TM sigM 1) (tp : tape sigM) (q : state M) :
     TripleT
       (tspec (SpecVector [|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]))
-      (Univ_Step_steps q tp) (Univ_Step _ _)
+      (Univ_Step_steps q tp) Univ_Step
       (fun yout =>
          tspec 
            match yout, halt q with
@@ -286,10 +347,24 @@ Section Univ.
     Vector.map2 (doAct (sig:=sigM)) [|tp|] a = [|doAct tp a[@Fin0]|].
   Proof. destruct_vector. reflexivity. Qed.
 
+  
+
+  Definition Univ := While Univ_Step.
+
+
+  Fixpoint Univ_size (M : TM sigM 1) (tp : tape sigM) (q : state M) (k : nat) {struct k} : Vector.t (nat->nat) 6 :=
+    match k with
+    | 0 => Univ_Step_size tp q
+    | S k' =>
+      if halt q
+      then Univ_Step_size tp q
+      else let (q', tp') := step (mk_mconfig q [|tp|]) in
+           Univ_Step_size tp q >>> Univ_size tp'[@Fin0] q' k'
+    end.
 
   Lemma Univ_Spec_space (M : TM sigM 1) (tp : tape sigM) (q : state M) ss :
     Triple (tspec (withSpace (SpecVector [|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]) ss))
-           (Univ _ _)
+           Univ
            (fun _ tout =>
               exists k (q' : state M) (tp' : tape sigM),
                 loopM (mk_mconfig q [|tp|]) k = Some (mk_mconfig q' [|tp'|]) /\
@@ -318,6 +393,16 @@ Section Univ.
         * cbn. rewrite Eh. unfold step, current_chars. cbn. rewrite Etrans. cbn. rewrite !tam. cbn. tspec_ext.
   Qed.
 
+  
+  Fixpoint Univ_steps (M : TM sigM 1) (q : state M) (tp : tape sigM) (k : nat) : nat :=
+    match k with
+    | 0 => Univ_Step_steps q tp
+    | S k' =>
+      if halt q
+      then Univ_Step_steps q tp
+      else let (q', tp') := step (mk_mconfig q [|tp|]) in
+           1 + Univ_Step_steps q tp + Univ_steps q' tp'[@Fin0] k'
+    end.
 
   (** Complete Correctness: If [M] terminates, so does [Univ]. Note that we need a new triple for this. We also don't need spaces in this triple. *)
 
@@ -340,7 +425,7 @@ Section Univ.
       (fun tin => exists (q' : state M) (tp' : tape sigM),
            tspec (SpecVector [|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]) tin /\
            loopM (mk_mconfig q [|tp|]) k' = Some (mk_mconfig q' [|tp'|]))
-      (Univ_steps q tp k') (Univ _ _)
+      (Univ_steps q tp k') Univ
       (fun _ tout =>
          exists (q' : state M) (tp' : tape sigM),
            loopM (mk_mconfig q [|tp|]) k' = Some (mk_mconfig q' [|tp'|]) /\
@@ -377,5 +462,59 @@ Section Univ.
         * eauto.
   Qed.
 
+  Section LegacyLemmas.
+
+    Definition Univ_Rel : pRel sig^+ unit 6 :=
+      fun tin '(_, tout) =>
+        forall (M : TM sigM 1) (tp : tape sigM) (q : state M) (s1 s2 : nat) (sr : Vector.t nat 3),
+          containsWorkingTape _ tin[@Fin0] tp ->
+          containsTrans_size _ tin[@Fin1] M s1 ->
+          containsState_size _ tin[@Fin2] q s2 ->
+          (forall (i : Fin.t 3), isVoid_size tin[@FinR 3 i] sr[@i]) ->
+          exists k (oconf : mconfig sigM (state M) 1),
+            let size := Univ_size tp q k in
+            loopM (mk_mconfig q [|tp|]) k = Some oconf /\
+            containsWorkingTape _ tout[@Fin0] (ctapes oconf)[@Fin0] /\
+            containsTrans_size _ tout[@Fin1] M              (size@>Fin1 s1) /\
+            containsState_size _ tout[@Fin2] (cstate oconf) (size@>Fin2 s2) /\
+            (forall (i : Fin.t 3), isVoid_size tout[@FinR 3 i] (size@>(FinR 3 i) sr[@i])).
+
+    Lemma Univ_Realise : Univ ⊨ Univ_Rel.
+    Proof.
+      repeat (eapply RealiseIntroAll;intro). eapply Realise_monotone.
+      -eapply Triple_Realise,Univ_Spec_space with (ss:= 0:::_:::_:::x4).
+      -intros ? [] H **. specializeFin H3;clear H3.
+       modpon H.
+      { destruct_vector. unfold "≃≃",withSpace,withSpace_single;cbn. 
+        intros i; destruct_fin i; cbn. all:eassumption. }
+      repeat destruct _;unfold "≃≃",withSpace in H;cbn in H.
+      destruct H as (?&?&?&?&H). specializeFin H.
+      do 2 eexists;repeat simple apply conj.
+      5:intros i; destruct_fin i;cbn. all:eauto.
+    Qed.
+
+    
+    Definition Univ_T : tRel sig^+ 6 :=
+      fun tin k =>
+        exists (M : TM sigM 1) (tp : tape sigM) (q : state M) (k' : nat) (q' : state M) (tp' : tape sigM),
+          containsWorkingTape _ tin[@Fin0] tp /\
+          containsTrans _ tin[@Fin1] M /\
+          containsState _ tin[@Fin2] q /\
+          (forall (i : Fin.t 3), isVoid tin[@FinR 3 i]) /\
+          loopM (mk_mconfig q [|tp|]) k' = Some (mk_mconfig q' [|tp'|]) /\
+          Univ_steps q tp k' <= k.
+
+          
+    Lemma Univ_Terminates : projT1 Univ ↓ Univ_T.
+    Proof.
+      repeat (eapply TerminatesInIntroEx;intro). eapply TerminatesIn_monotone.
+      -eapply TripleT_TerminatesIn. eapply Univ_SpecT.
+      -intros ? k H **. modpon H.
+      split. 2:eassumption.
+      specializeFin H2;clear H2. 
+      unfold "≃≃",withSpace;cbn. do 2 eexists. split. intros i; destruct_fin i;cbn. all:eassumption. 
+    Qed.
+
+  End LegacyLemmas.
 
 End Univ.

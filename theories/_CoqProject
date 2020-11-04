@@ -329,7 +329,8 @@ StackMachines/Reductions/SBTM_to_BSM.v
 
 # Univ
 TM/Univ/LookupAssociativeListTM.v
-TM/Univ/StepTM.v
+TM/Univ/LowLevel.v
+TM/Univ/Univ.v
 
 TM/PrettyBounds/MaxList.v
 TM/PrettyBounds/SizeBounds.v
@@ -347,10 +348,7 @@ TM/Hoare/HoareTactics.v
 TM/Hoare/HoareExamples.v
 TM/Hoare/HoareNth.v
 TM/Hoare/HoareStdLib.v
-
-# Univ with Hoare
-TM/Univ/HoareLookupAssociativeListTM.v
-TM/Univ/HoareUniv.v
+TM/Hoare/HoareLegacy.v
 
 #########
 

@@ -97,6 +97,10 @@ Tactic Notation "length_not_eq" "in" constr(H):=
 Ltac length_not_eq :=
   let H := fresh "H" in intros H;exfalso;length_not_eq in H.
 
+Ltac specializeFin H' :=
+  match type of H' with 
+    forall i : Fin.t ?n, _ => do_n_times_fin n ltac:(fun i => let H := fresh H' in specialize (H' i) as H;cbn in H)
+  end.
 
 (** Machine Notations *)
 
