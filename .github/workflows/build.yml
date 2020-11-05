@@ -16,7 +16,7 @@ jobs:
 
       - name: Install OCaml
         uses: avsm/setup-ocaml@v1
-        with
+        with:
           ocaml-version: 4.07.1
 
       - name: Checkout code
