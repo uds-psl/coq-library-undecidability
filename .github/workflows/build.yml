@@ -4,6 +4,10 @@ on: [push, pull_request]
 
 jobs:
   build:
+    strategy:
+      matrix:
+        ocaml-version:
+          - 4.09.1
     runs-on: ubuntu-latest
     steps:
 
@@ -17,7 +21,7 @@ jobs:
       - name: Use OCaml 4.09.1
         uses: avsm/setup-ocaml@v1
         with:
-          ocaml-version: 4.09.1
+          ocaml-version: ${{ matrix.ocaml-version }}
 
       - name: Checkout code
         uses: actions/checkout@v2
