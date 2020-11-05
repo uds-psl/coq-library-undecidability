@@ -27,6 +27,5 @@ jobs:
 
       - run: opam repo add coq-released https://coq.inria.fr/opam/released
       - run: opam install . --deps-only --with-doc --with-test
-      - run: eval $(opam env) 
 
       - run: opam exec -- make -j 2 all TIMED=1
