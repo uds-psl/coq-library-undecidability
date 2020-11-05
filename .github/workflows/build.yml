@@ -13,10 +13,11 @@ jobs:
         with:
           path: "~/.opam"
           key: opam-cache-key
-      - name: Use OCaml ${{ matrix.ocaml-version }}
+
+      - name: Use OCaml 4.09.1
         uses: avsm/setup-ocaml@v1
         with:
-          ocaml-version: 4.07.1
+          ocaml-version: 4.09.1
 
       - name: Checkout code
         uses: actions/checkout@v2
