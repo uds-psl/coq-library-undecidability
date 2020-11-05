@@ -18,7 +18,7 @@ jobs:
       - name: Install OCaml
         uses: avsm/setup-ocaml@v1
         with:
-          ocaml-version: 4.07.1-flambda
+          ocaml-version: 4.07.1
 
       - name: Checkout code
         uses: actions/checkout@v2
@@ -27,5 +27,6 @@ jobs:
 
       - run: opam repo add coq-released https://coq.inria.fr/opam/released
       - run: opam install . --deps-only --with-doc --with-test
+      - run: eval $(opam env) 
 
       - run: opam exec -- make -j 2 all TIMED=1
