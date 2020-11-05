@@ -1,0 +1,32 @@
+name: Test compilation
+
+on: [push, pull request]
+
+runs-on: ubuntu-latest
+
+jobs:
+  deps:
+    steps:
+      - name: Try to restore opam cache
+        id: opam-cache
+        uses: actions/cache@v2
+        with:
+          path: "~/.opam"
+          key: opam-cache-key
+      - name: Use OCaml ${{ matrix.ocaml-version }}
+        uses: avsm/setup-ocaml@v1
+        with:
+          ocaml_version: ['4.07.1-flambda']
+
+  build:
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+
+      - run: opam repo add coq-released https://coq.inria.fr/opam/released
+      - run: opam repo add psl-opam-repository https://github.com/uds-psl/psl-opam-repository.git 
+      - run: opam install . --deps-only --with-doc --with-test
+
+      - run:  make -j 2 all TIMED=1
