@@ -16,7 +16,7 @@ jobs:
       - name: Use OCaml ${{ matrix.ocaml-version }}
         uses: avsm/setup-ocaml@v1
         with:
-          ocaml_version: '4.07.1-flambda'
+          ocaml-version: '4.07.1-flambda'
 
       - name: Checkout code
         uses: actions/checkout@v2
