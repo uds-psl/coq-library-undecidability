@@ -1,5 +1,5 @@
 Require Import PslBase.FiniteTypes.FinTypes PslBase.Vectors.Vectors.
-Require Import Undecidability.TM.Util.TM_facts.
+From Undecidability Require Import TM.Util.TM_facts Hoare UpToC.
 From Undecidability Require Import ProgrammingTools WriteValue Copy.
 
 Require Import PslBase.FiniteTypes.FinTypes PslBase.Vectors.Vectors.
@@ -26,15 +26,39 @@ Section Fix.
   Local Instance retr_bool : Retract bool Σ := ComposeRetract retr_list (Retract_sigList_X _).
 
   Definition M__step : pTM (Σ) ^+ (option unit) 3 := 
-    If (LiftTapes (ChangeAlphabet (CaseList _) retr_list) [|Fin0;Fin2|])
-       (Switch (LiftTapes (ChangeAlphabet (CaseBool) retr_bool) [|Fin2|])
+    If (CaseList _ ⇑ retr_list @ [|Fin0;Fin2|])
+       (Switch (CaseBool ⇑ retr_bool @ [|Fin2|])
             (fun x =>
-            LiftTapes (WriteMove (if x then s else b) Lmove) [|Fin1|];;
+            WriteMove (if x then s else b) Lmove @ [|Fin1|];;
             Return Nop None))
-       (Reset _ @[|Fin0|];;Return (LiftTapes (Write b) [|Fin1|]) (Some tt)).
+       (Reset _ @[|Fin0|];;Return (Write b @ [|Fin1|]) (Some tt)).
   
   Definition M__loop := While M__step.
-  
+
+  Lemma loop_SpecT':
+    { f : UpToC (fun bs => length bs + 1) &
+    forall bs res,
+      TripleT 
+        (tspec (SpecVector [|Contains _ bs; Custom (fun t => right t = map (fun (x:bool) => if x then s else b) res /\ length (left t) <= length bs); Void|]) )
+        (f bs)
+        M__loop
+        (fun _ => tspec (SpecVector [|Void; Custom (eq (encTM s b (rev bs++res))) ; Void  |])) }.
+  Proof.
+    evar (c1 : nat);evar (c2 :nat).
+    exists_UpToC (fun bs => c1 * length bs + c2). 2:now smpl_upToC_solve.
+    intros bs res.
+    unfold M__loop.
+    eapply While_SpecT with (P := fun '(bs,res) => _) (Q := fun '(bs,res) => _) (R := fun '(bs,res) => _)
+    (g := fun '(bs,res) => _) (f := fun '(bs,res) => _) (x := (bs,res));
+    clear bs res; intros (bs,res); cbn in *.
+    { unfold M__step. hstep.
+      - hsteps. cbn. tspec_ext.
+      - cbn. hsteps_cbn.
+      -
+      -
+         }
+
+
   Definition Realise__loop :
     Realise M__loop (fun t '(r, t') =>
       forall (l l': list bool),
