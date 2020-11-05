@@ -4,10 +4,6 @@ on: [push, pull_request]
 
 jobs:
   build:
-    strategy:
-      matrix:
-        ocaml-version:
-          - 4.09.1
     runs-on: ubuntu-latest
     steps:
 
@@ -18,10 +14,10 @@ jobs:
           path: "~/.opam"
           key: opam-cache-key
 
-      - name: Use OCaml 4.09.1
+      - name: Install OCaml
         uses: avsm/setup-ocaml@v1
-        with:
-          ocaml-version: ${{ matrix.ocaml-version }}
+        with
+          ocaml-version: 4.07.1
 
       - name: Checkout code
         uses: actions/checkout@v2
