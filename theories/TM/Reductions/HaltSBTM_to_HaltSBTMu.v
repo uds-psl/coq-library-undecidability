@@ -66,9 +66,7 @@ Lemma reduction :
   HaltSBTM ⪯ HaltSBTMu.
 Proof.
   unshelve eexists.
-  - intros [M t]. unshelve eexists. unshelve eexists. unshelve eexists.
-    exact (M' M). exact (Fin.FS Fin.F1). split. eapply spec1. eapply spec2.
-    exact t.
+  - intros [M t]. refine (_, t). exists (@M' M). exists (Fin.FS Fin.F1). split. eapply spec1. eapply spec2.
   - intros [M t]. cbn. split.
     + intros (q' & t' & H). assert (conv_state M Fin.F1 = Fin.F1) as E by reflexivity. cbn [Nat.add] in E.
       rewrite <- E. clear E. revert H. 

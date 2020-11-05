@@ -112,18 +112,18 @@ Proof.
   + intros. eapply rewS; eauto. 
 Qed.
 
-Lemma rew_subset {X} R P x y :
-  SR.rew R x y -> incl R P -> @SR.rew X P x y.
+Lemma rew_subset (R P : SRS) x y :
+  rew R x y -> incl R P -> SR.rew P x y.
 Proof.
   intros H1 H2. inversion H1; subst.
   econstructor. eauto.
 Qed.
 
-Lemma do_rew {X} (R : SR.SRS X) a b x y u v :
+Lemma do_rew (R : SRS) x1 x2 x y u v :
   In (u, v) R ->
-  a = x ++ u ++ y ->
-  b = x ++ v ++ y ->
-  SR.rew R a b.
+  x1 = x ++ u ++ y ->
+  x2 = x ++ v ++ y ->
+  rew R x1 x2.
 Proof.
   intros; subst; now econstructor.
 Qed.

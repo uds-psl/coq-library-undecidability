@@ -1,7 +1,7 @@
 Require Import List Lia.
 
 Require Import Undecidability.TM.SBTM.
-Require Import Undecidability.TM.Reductions.HaltSBTM_to_HaltSBTMuniq.
+Require Import Undecidability.TM.Reductions.HaltSBTM_to_HaltSBTMu.
 
 Require Undecidability.StringRewriting.SR.
 Require Import Undecidability.StringRewriting.Util.Definitions.
@@ -54,18 +54,18 @@ Section FixM.
     Definition rules q₁ : list (list nat * list nat):= 
         match encode_trans (trans M (q₁, None)) q₁ with
         | Some (q₁, q₂, X, Lmove) => all_syms (fun l => ([l;q₁;X], [q₂;l])) ++ [([⦇;q₁;X],[⦇;q₂;X])]
-        | Some (q₁, q₂, X, Rmove) => all_syms (fun r => ([q₁;X;r], [q₂;r])) ++ [([q₁;X;⦈],[q₂;X;⦈])]
         | Some (q₁, q₂, X, Nmove) => [([q₁;X], [q₂;X])]
+        | Some (q₁, q₂, X, Rmove) => all_syms (fun r => ([q₁;X;r], [q₂;r])) ++ [([q₁;X;⦈],[q₂;X;⦈])]
         | Some (q₁, q₂, c, Lmove) => all_syms (fun l => ([l;q₁;X], [q₂;l;c])) ++ [([⦇;q₁;X],[⦇;q₂;X;c])]
-        | Some (q₁, q₂, c, Rmove) => all_syms (fun r => ([q₁;X;r], [c;q₂;r])) ++ [([q₁;X;⦈],[c;q₂;X;⦈])]
         | Some (q₁, q₂, c, Nmove) => [([q₁;X], [q₂;c])]
+        | Some (q₁, q₂, c, Rmove) => all_syms (fun r => ([q₁;X;r], [c;q₂;r])) ++ [([q₁;X;⦈],[c;q₂;X;⦈])]
         | None => []
         end ++
         let a := tt in
         match encode_trans (trans M (q₁, Some true)) q₁ with
         | Some (q₁, q₂, X, Lmove) => all_syms (fun l => ([l;q₁;a], [q₂;l;a])) ++ [([⦇;q₁;a],[⦇;q₂;X;a])]
-        | Some (q₁, q₂, X, Rmove) => all_syms (fun r => ([q₁;a;r], [a;q₂;r])) ++ [([q₁;a;⦈],[a;q₂;X;⦈])]
         | Some (q₁, q₂, X, Nmove) => [([q₁;a], [q₂;a])]
+        | Some (q₁, q₂, X, Rmove) => all_syms (fun r => ([q₁;a;r], [a;q₂;r])) ++ [([q₁;a;⦈],[a;q₂;X;⦈])]
         | Some (q₁, q₂, c, Lmove) => all_syms (fun l => ([l;q₁;a], [q₂;l;c])) ++ [([⦇;q₁;a],[⦇;q₂;X;c])]
         | Some (q₁, q₂, c, Rmove) => all_syms (fun r => ([q₁;a;r], [c;q₂;r])) ++ [([q₁;a;⦈],[c;q₂;X;⦈])]
         | Some (q₁, q₂, c, Nmove) => [([q₁;a], [q₂;c])]
@@ -127,6 +127,15 @@ Section FixM.
         all: eapply do_rew; [ (now left + (right; now left) + (right; right; now left) + (right; right; right; now left))  | help1 | help2].
     Qed.
 
+    Lemma enc_state_inv q t q' :
+      In (enc_state q) (enc_conf t q') -> q = q'.
+    Proof.
+      destruct t as [[ls o] rs].
+      unfold enc_conf.
+      rewrite !in_app_iff, !in_map_iff; repeat setoid_rewrite <- in_rev. cbn. firstorder try lia.
+      all: try (destruct x; lia). eapply Fin.to_nat_inj. lia. destruct o as [[]|]; cbn in *; lia.
+    Qed.
+
     Lemma enc_conf_inv xs q c ys ls o rs q' :
       xs ++ !q ++ [c] ++ ys = enc_conf (ls, o, rs) q' ->
       xs = [⦇] ++ map (fun b : bool => !!b) (rev ls) /\
@@ -137,14 +146,14 @@ Section FixM.
       intros. pose proof (H' := H). cbn - [Nat.add] in H.
       destruct xs; cbn -[Nat.add] in H; inversion H; subst n; clear H.
 
-      eapply list_prefix_inv in H2 as (H1 & -> & H3).
+      eapply list_prefix_inv' in H2 as (H1 & -> & H3).
       - inversion H3; subst; clear H3; repeat split. eapply Fin.to_nat_inj. unfold "!" in H1. lia.
       - clear H'. induction xs in ls, H2 |- *.
         + firstorder.
         + cbn -[Nat.add]. destruct ls as [ | ? ? _] using rev_ind.
           * cbn -[Nat.add] in H2. inversion H2. subst. destruct xs; inversion H1; subst.
             destruct o as [ [] | ]; cbn in H0; lia.
-            assert (In (!q) (map (fun b : bool => !! b) rs ++ [2])). rewrite <- H3. rewrite in_app_iff. cbn[In]. eauto.
+            assert (In (!q) (map (fun b : bool => !! b) rs ++ [2])). rewrite <- H3. rewrite in_app_iff. cbn[In]. solve [eauto].
             eapply in_app_iff in H as [ (? & ? & ?) % in_map_iff | [ | []]]; try destruct x; cbn in H; lia.
           * rewrite rev_app_distr in H2. cbn -[Nat.add] in H2. inversion H2; subst.
             intros [ | ].
@@ -190,22 +199,13 @@ Section FixM.
          end.
   Qed.
 
-  Lemma enc_state_inv q t q' :
-    In (enc_state q) (enc_conf t q') -> q = q'.
-  Proof.
-    destruct t as [[ls o] rs].
-    unfold enc_conf.
-    rewrite !in_app_iff, !in_map_iff; repeat setoid_rewrite <- in_rev. cbn. firstorder try lia.
-    all: try (destruct x; lia). eapply Fin.to_nat_inj. lia. destruct o as [[]|]; cbn in *; lia.
-  Qed.
-
 End FixM.
 
 Lemma reduction :
-    HaltSBTMuniq ⪯ SR.SRH.
+    HaltSBTMu ⪯ SR.SRH.
 Proof.
-    unshelve eexists. { intros [ [[M q] H] t ]. exact (R M, @enc_conf M t Fin.F1, enc_state q). }
-    intros [[[M q] Hq] t]. split.
+    unshelve eexists. { intros [(M & q & H) t]. exact (R M, @enc_conf M t Fin.F1, enc_state q). }
+    intros [(M & q & Hq) t]. split.
     - cbn -[enc_state]. intros (t' & H).
       exists (enc_conf t' q). split.
       + now eapply simulation. 
@@ -217,6 +217,6 @@ Proof.
       induction H in q1, Heqy, t |- *; subst; intros q Hq H2.
       + exists t. eapply enc_state_inv in H2. subst. econstructor. eapply Hq.
       + eapply rev_sim in H as (q' & w & m & H1 & H3). subst.
-        edestruct IHrewt as (H4 & H5). reflexivity. eauto. eauto. eexists. econstructor. 2:eassumption.
-        eassumption.
+        edestruct IHrewt as (H4 & H5); [reflexivity | eauto | eauto |].
+        eexists. econstructor. 2:eassumption. eassumption.
 Qed.

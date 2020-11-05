@@ -2,16 +2,15 @@
 Require Import Undecidability.Synthetic.Undecidability.
 
 Require Import Undecidability.StringRewriting.SR.
+Require Import Undecidability.TM.SBTM_undec.
 
-From Undecidability.StringRewriting.Reductions Require 
-  TM_to_SRH SRH_to_SR.
+From Undecidability.StringRewriting.Reductions Require HaltSBTMu_to_SRH SRH_to_SR.
 
 (** String rewriting with a halting symbol is undecidable. *)
 Lemma SRH_undec : undecidable SRH.
 Proof.
-  apply (undecidability_from_reducibility undecidability_HaltTM).
-  apply (reduces_transitive singleTM.TM_conv).
-  exact TM_to_SRH.Halt_SRH.
+  apply (undecidability_from_reducibility HaltSBTMu_undec).
+  apply HaltSBTMu_to_SRH.reduction.
 Qed.
 
 Check SRH_undec.
