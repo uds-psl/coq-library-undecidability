@@ -1,7 +1,6 @@
 Require Import List Lia.
 
 Require Import Undecidability.TM.SBTM.
-Require Import Undecidability.TM.Reductions.HaltSBTM_to_HaltSBTMu.
 
 Require Undecidability.StringRewriting.SR.
 Require Import Undecidability.StringRewriting.Util.Definitions.
