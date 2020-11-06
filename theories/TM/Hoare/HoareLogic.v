@@ -116,17 +116,33 @@ Proof.
     + now intros tin k' (H&Hk).
 Qed.
 
+Definition Entails (sig : Type) (n : nat) (P1 P2 : Assert sig n) :=
+  forall tin, P1 tin -> P2 tin.
 
+Lemma EntailsI (sig : Type) (n : nat) (P1 P2 : Assert sig n):
+(forall tin, P1 tin -> P2 tin) -> Entails P1 P2.
+Proof. easy. Qed.
+
+Lemma EntailsE (sig : Type) (n : nat) (P1 P2 : Assert sig n):
+Entails P1 P2 -> (forall tin, P1 tin -> P2 tin).
+Proof. easy. Qed.
+
+Hint Unfold Entails : core.
+Arguments Entails {_ _} _ _: simpl never.
+
+Hint Resolve EntailsI : core.
+Instance Entails_PO (sig : finType) (n : nat): PreOrder (@Entails sig n).
+Proof. unfold Entails;cbn. split;hnf. all:eauto. Qed.
 
 (** *** Consequence Rule *)
 
 Lemma Consequence (sig : finType) (n : nat) (F : Type) (P1 P2 : Assert sig n) (Q1 Q2 : F -> Assert sig n) (pM : pTM sig F n) :
   Triple P2 pM Q2 ->
-  (forall t, P1 t -> P2 t) ->
-  (forall (y : F) t, Q2 y t -> Q1 y t) ->
+  Entails P1 P2 ->
+  (forall y, Entails (Q2 y) (Q1 y)) ->
   Triple P1 pM Q1.
 Proof.
-  intros H1 H2 H3.
+  intros H1 H2 H3. unfold Entails in *.
   eapply Realise_monotone.
   { apply H1. }
   {
@@ -134,46 +150,52 @@ Proof.
   }
 Qed.
 
+Lemma asPointwise A X (R: A -> A -> Prop) f g: (forall (x:X), R (f x) (g x)) -> pointwise_relation X R f g.
+Proof. now cbv. Qed. 
+
+Instance Triple_Entails_Proper sig n F: Proper (Entails --> eq ==> pointwise_relation F Entails ==> Basics.impl) (@Triple sig n F).
+Proof. repeat intro. subst. eapply Consequence;eauto. Qed.
+
 Lemma Consequence_pre (sig : finType) (n : nat) (F : Type) (P1 P2 : Assert sig n) (Q : F -> Assert sig n) (pM : pTM sig F n) :
   Triple P2 pM Q ->
-  (forall t, P1 t -> P2 t) ->
+  Entails P1 P2 ->
   Triple P1 pM Q.
-Proof. intros. eapply Consequence; eauto. Qed.
+Proof. now intros ? ->. Qed.
 
 Lemma Consequence_post (sig : finType) (n : nat) (F : Type) (P : Assert sig n) (Q1 Q2 : F -> Assert sig n) (pM : pTM sig F n) :
   Triple P pM Q2 ->
-  (forall (y : F) t, Q2 y t -> Q1 y t) ->
+  (forall y, Entails (Q2 y) (Q1 y)) ->
   Triple P pM Q1.
-Proof. intros. eapply Consequence; eauto. Qed.
+Proof. now intros ? <-%asPointwise. Qed.
 
 
 Lemma ConsequenceT (sig : finType) (n : nat) (F : Type) (P1 P2 : Assert sig n) (k1 k2 : nat) (Q1 Q2 : F -> Assert sig n) (pM : pTM sig F n) :
   TripleT P2 k2 pM Q2 ->
-  (forall t, P1 t -> P2 t) ->
-  (forall (y : F) t, Q2 y t -> Q1 y t) ->
+  Entails P1 P2 ->
+  (forall y, Entails (Q2 y) (Q1 y)) ->
   k2 <= k1 ->
   TripleT P1 k1 pM Q1.
 Proof.
-  intros (H0&H1) H2 H3 H4.
-  split.
-  - eapply Consequence.
-    + apply H0.
-    + intros t H. firstorder.
-    + apply H3.
+  unfold TripleT.
+  intros (H0&H1) H2 H3%asPointwise H4. 
+  split. now rewrite H2, <- H3.
   - eapply TerminatesIn_monotone.
     + apply H1.
     + unfold Triple_TRel. intros tin k (H&H'). split; eauto. lia.
 Qed.
 
+Instance TripleT_Entails_Proper sig n F: Proper (Entails --> le ==> eq ==> pointwise_relation F Entails ==> Basics.impl) (@TripleT sig n F).
+Proof. repeat intro. subst. eapply ConsequenceT;eauto. Qed.
+
 Lemma ConsequenceT_post (sig : finType) (n : nat) (F : Type) (P : Assert sig n) (k : nat) (Q1 Q2 : F -> Assert sig n) (pM : pTM sig F n) :
   TripleT P k pM Q2 ->
-  (forall (y : F) t, Q2 y t -> Q1 y t) ->
+  (forall y, Entails (Q2 y) (Q1 y)) ->
   TripleT P k pM Q1.
 Proof. intros. eapply ConsequenceT; eauto. Qed.
 
 Lemma ConsequenceT_pre (sig : finType) (n : nat) (F : Type) (P1 P2 : Assert sig n) (k1 k2 : nat) (Q : F -> Assert sig n) (pM : pTM sig F n) :
   TripleT P2 k2 pM Q ->
-  (forall t, P1 t -> P2 t) ->
+  Entails P1 P2 ->
   k2 <= k1 ->
   TripleT P1 k1 pM Q.
 Proof. intros. eapply ConsequenceT; eauto. Qed.
@@ -316,7 +338,7 @@ Definition TripleT_Def [sig : finType] [n : nat] [F : Type] (P : Assert sig n) (
 Proof. reflexivity. Qed.
 
 (** In gernal, we shouldn't rely on the definition of [Triple] and [TripleT]. *)
-Global Opaque Triple TripleT.
+Global Opaque Triple TripleT Entails.
 
 (* TODO: This makes problems in [HoareRegister.v]. *)
 

@@ -177,9 +177,6 @@ Lemma Constr_S_Spec :
 Proof. intros y. eapply TripleT_Triple. apply Constr_S_SpecT. Qed.
 
 
-(** For the deconstructor, we have the same weird [match] as in the Realisation rules. Note, that [tspec] must be the head of the expression.
-This is way we had to embed [SpecFalse] as a [Spec]. *)
-
 Definition CaseNat_size (n : nat) : Vector.t (nat->nat) 1 :=
   match n with
   | O => [|id|]
@@ -193,21 +190,16 @@ Lemma CaseNat_SpecT_size (y : nat) (ss : Vector.t nat 1) :
     CaseNat
     (fun yout =>
        tspec
-         (withSpace
-            (match yout, y with
-             | true, S y' => SpecVector [|Contains _ y'|]
-             | false, 0 => SpecVector [|Contains _ 0|]
-             | _, _ => SpecFalse
-             end)
-            (appSize (CaseNat_size y) ss))). (** Note that we add [withSpac] between the [tspec] and the [match] *)
+         (withSpace ([if yout then y <> 0 else y = 0],[|Contains _ (pred y)|])
+            (appSize (CaseNat_size y) ss))). 
 Proof.
   start_TM.
   eapply RealiseIn_TripleT.
   - apply CaseNat_Sem.
   - intros tin yout tout H HEnc. specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H.
     destruct yout, y; cbn in *; auto.
-    + hnf. intros i; destruct_fin i; cbn; eauto.
-    + hnf. intros i; destruct_fin i; cbn; eauto.
+    + hnf. split. easy. intros i; destruct_fin i; cbn; eauto.
+    + hnf. split. easy.  intros i; destruct_fin i; cbn; eauto.
 Qed.
 
 Lemma CaseNat_SpecT (y : nat) :
@@ -216,12 +208,7 @@ Lemma CaseNat_SpecT (y : nat) :
     CaseNat_steps
     CaseNat
     (fun yout =>
-       tspec
-         match yout, y with
-         | true, S y' => SpecVector [|Contains _ y'|]
-         | false, 0 => SpecVector [|Contains _ 0|]
-         | _, _ => SpecFalse
-         end).
+       tspec  ([if yout then y <> 0 else y = 0],[|Contains _ (pred y)|])).
 Proof. eapply TripleT_RemoveSpace. apply CaseNat_SpecT_size. Qed.
 
 Lemma CaseNat_Spec (y : nat) :
@@ -229,11 +216,7 @@ Lemma CaseNat_Spec (y : nat) :
          CaseNat
          (fun yout =>
             tspec
-              match yout, y with
-              | true, S y' => SpecVector [|Contains _ y'|]
-              | false, 0 => SpecVector [|Contains _ 0|]
-              | _, _ => SpecFalse
-              end).
+            ([if yout then y <> 0 else y = 0],[|Contains _ (pred y)|])).
 Proof. eapply TripleT_Triple. apply CaseNat_SpecT. Qed.
 
 
@@ -479,12 +462,8 @@ Definition Add_Step_Rel : pRel sigNat^+ (option unit) 2 :=
 Definition Add_Step_Post : nat*nat -> option unit -> Assert sigNat^+ 2 :=
   fun '(a,b) =>
   (fun yout =>
-     tspec
-       match yout, b with
-       | Some _, 0 => SpecVector [|Contains _ a; Contains _ b|]
-       | None, S b' => SpecVector [|Contains _ (S a); Contains _ b'|]
-       | _, _ => SpecFalse
-       end).
+     tspec (([yout = if b then Some tt else None]
+            ,[|Contains _ (match b with 0 => a | _ => S a end);Contains _ (pred b)|]))).
 
 Lemma Add_Step_Spec (a b : nat) :
   Triple (tspec (SpecVector [|Contains _ a; Contains _ b|])) Add_Step
@@ -495,17 +474,17 @@ Proof.
   - apply LiftTapes_Spec.
     + smpl_dupfree.
     + cbn. eapply CaseNat_Spec.
-  - cbn. destruct b as [ | b']; cbn [Frame]; eauto.
+  - cbn. hintros ?. destruct b as [ | b']; cbn [Frame]. contradiction.
     eapply Return_Spec_con.
     + cbn [Vector.nth Vector.caseS Vector.case0].
       apply LiftTapes_Spec.
       * smpl_dupfree.
       * cbn [Downlift select]. apply Constr_S_Spec.
-    + intros []. auto.
-  - cbn. destruct b as [ | b']; cbn [Frame]; eauto.
+    + cbn. intros. tspec_ext.
+  - cbn. hintros ->.
     eapply Return_Spec_con.
     + cbn [Vector.nth Vector.caseS Vector.case0]. apply Nop_Spec.
-    + intros []. auto.
+    + intros []. tspec_ext.
 Qed.
 
 Definition Add_Loop : pTM sigNat^+ unit 2 := While Add_Step.
@@ -532,11 +511,13 @@ Proof.
       (* (Q := _) (* to be instantiated by the first proof obligation *) *)
       (R := fun '(a,b) => _) (x := (a,b)).
   - intros (x,y). apply Add_Step_Spec. (* Instantiate correctness of [AddStep] *)
-  - intros (x,y) yout tmid tout H. cbn in *. (* Termination case *)
-    destruct y as [ | y']; cbn in *; auto.
-    intros H1 H3. replace (x+0) with x by lia. auto.
-  - intros (x,y) tin tmid H1 H2. cbn in *.
-    destruct y as [ | y']; cbn in *; auto.
+  - intros (x,y) yout tmid H. cbn in *. (* Termination case *)
+    intros _. eapply  hintros Hy.
+    destruct y as [ | y']; cbn in *. 2:easy. 
+    apply EntailsI. intros H1 H3. replace (x+0) with x by lia. auto.
+  - intros (x,y) tin tmid. eexists (_,_).  
+    destruct y as [ | y']; cbn in *. 
+    all:hintros ?. easy.   
     eexists (_,_); cbn. split.
     + eauto.
     + intros _ tout. replace (S x + y') with (x + S y') by lia. auto.

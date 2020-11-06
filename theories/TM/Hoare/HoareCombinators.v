@@ -3,7 +3,7 @@
 From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import TM.Hoare.HoareLogic.
 
-Local Transparent Triple TripleT.
+Local Transparent Triple TripleT Entails.
 
 (** *** Nop *)
 
@@ -50,13 +50,13 @@ Qed.
 
 Lemma Relabel_Spec_con (sig : finType) (F1 F2 : finType) (n : nat) (P : Assert sig n) (Q : F1 -> Assert sig n) (Q' : F2 -> Assert sig n) (pM : pTM sig F1 n) (f : F1->F2) :
   Triple P pM Q ->
-  (forall yout tout, Q yout tout -> Q' (f yout) tout) ->
+  (forall yout, Entails (Q yout) (Q' (f yout))) ->
   Triple P (Relabel pM f) Q'.
 Proof.
   intros.
   eapply Consequence_post.
   - apply Relabel_Spec; eauto.
-  - intros. TMSimp. eauto.
+  - unfold Entails in *. intros. TMSimp. eauto.
 Qed.
 
 Lemma Relabel_SpecT (sig : finType) (F1 F2 : finType) (n : nat) (P : Assert sig n) (k : nat) (Q : F1 -> Assert sig n) (pM : pTM sig F1 n) (f : F1->F2) :
@@ -73,13 +73,13 @@ Qed.
 Lemma Relabel_SpecT_con (sig : finType) (F1 F2 : finType) (n : nat) (P : Assert sig n) (k : nat) (Q : F1 -> Assert sig n) (Q' : F2 -> Assert sig n) (pM : pTM sig F1 n)
       (f : F1->F2) :
   TripleT P k pM Q ->
-  (forall yout tout, Q yout tout -> Q' (f yout) tout) ->
+  (forall yout, Entails (Q yout) (Q' (f yout))) ->
   TripleT P k (Relabel pM f) Q'.
 Proof.
   intros.
   eapply ConsequenceT_post.
   - apply Relabel_SpecT; eauto.
-  - intros. TMSimp. firstorder.
+  - unfold Entails in *. intros. TMSimp. firstorder.
 Qed.
 
 
@@ -96,13 +96,13 @@ Qed.
 
 Lemma Return_Spec_con (sig : finType) (F1 F2 : finType) (n : nat) (P : Assert sig n) (Q : F1 -> Assert sig n) (Q' : F2 -> Assert sig n) (pM : pTM sig F1 n) (y : F2) :
   Triple P pM Q ->
-  (forall yout tout, Q yout tout -> Q' y tout) ->
-  Triple P (Return pM y) Q'.
+  (forall yout, Entails (Q yout) (Q' y)) ->
+    Triple P (Return pM y) Q'.
 Proof.
   intros.
   eapply Consequence_post.
   - apply Return_Spec; eauto.
-  - intros ? ? (->&(?&?)). eauto.
+  - unfold Entails in *. intros ? ? (->&(?&?)). eauto.
 Qed.
 
 
@@ -119,13 +119,13 @@ Qed.
 
 Lemma Return_SpecT_con (sig : finType) (F1 F2 : finType) (n : nat) (P : Assert sig n) (k : nat) (Q : F1 -> Assert sig n) (Q' : F2 -> Assert sig n) (pM : pTM sig F1 n) (y : F2) :
   TripleT P k pM Q ->
-  (forall yout tout, Q yout tout -> Q' y tout) ->
+  (forall yout, Entails (Q yout) (Q' y)) ->
   TripleT P k (Return pM y) Q'.
 Proof.
   intros.
   eapply ConsequenceT_post.
   - apply Return_SpecT; eauto.
-  - intros ? ? (->&(?&?)). eauto.
+  - unfold Entails in *. intros ? ? (->&(?&?)). eauto.
 Qed.
 
 

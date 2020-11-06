@@ -25,7 +25,7 @@ Proof.
   - intros tin [] tout H HEnc. cbn in *. 
     specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. cbn in *. 
     cbn in *; simpl_vector in *; cbn in *.
-    modpon H. tspec_solve.
+    modpon H. tspec_solve. 
   - intros tin k HEnc. cbn in *.
     specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1.
     cbn in *; simpl_vector in *; cbn in *. eauto.
@@ -223,12 +223,7 @@ Section CompareValues.
   Lemma CompareValue_SpecT_size (x y : X) (ss : Vector.t nat 2) :
     TripleT (tspec (withSpace (SpecVector [|Contains _ x; Contains _ y|]) ss))
             (CompareValues_steps x y) (CompareValues sigX)
-            (fun yout => tspec (withSpace (
-                                 match yout, Dec (x=y) with
-                                 | true,  Specif.left  _ => SpecVector [|Contains _ x; Contains _ y|]
-                                 | false, Specif.right _ => SpecVector [|Contains _ x; Contains _ y|]
-                                 | _, _ => SpecFalse
-                                 end) (appSize [|id; id|] ss))).
+            (fun yout => tspec (withSpace ([if yout then x=y else x<>y],[|Contains _ x; Contains _ y|]) (appSize [|id; id|] ss))).
   Proof.
     eapply Realise_TripleT.
     - now apply CompareValues_Realise.
@@ -236,9 +231,7 @@ Section CompareValues.
     - intros tin yout tout H HEnc. cbn in *. 
       specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. cbn in *. 
       cbn in *; simpl_vector in *; cbn in *.
-      modpon H. decide (x=y); subst; cbn in *.
-      + tspec_solve.
-      + tspec_solve.
+      modpon H. rewrite H. tspec_solve. now decide _.
     - intros tin k HEnc Hk. cbn in *.
       specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1.
       cbn in *; simpl_vector in *; cbn in *.
@@ -248,39 +241,24 @@ Section CompareValues.
   Lemma CompareValue_SpecT (x y : X) :
     TripleT (tspec (SpecVector [|Contains _ x; Contains _ y|]))
             (CompareValues_steps x y) (CompareValues sigX)
-            (fun yout => tspec (match yout, Dec (x=y) with
-                             | true,  Specif.left  _ => SpecVector [|Contains _ x; Contains _ y|]
-                             | false, Specif.right _ => SpecVector [|Contains _ x; Contains _ y|]
-                             | _, _ => SpecFalse
-                             end)).
+            (fun yout => tspec ([if yout then x=y else x<>y],[|Contains _ x; Contains _ y|])).
   Proof. eapply TripleT_RemoveSpace. cbn. intros s. apply CompareValue_SpecT_size. Qed.
 
   Lemma CompareValue_Spec_size (x y : X) (ss : Vector.t nat 2) :
     Triple (tspec (withSpace (SpecVector [|Contains _ x; Contains _ y|]) ss))
            (CompareValues sigX)
-           (fun yout => tspec (withSpace (
-                                match yout, Dec (x=y) with
-                                | true,  Specif.left  _ => SpecVector [|Contains _ x; Contains _ y|]
-                                | false, Specif.right _ => SpecVector [|Contains _ x; Contains _ y|]
-                                | _, _ => SpecFalse
-                                end) (appSize [|id; id|] ss))).
+           (fun yout => tspec (withSpace ([if yout then x=y else x<>y],[|Contains _ x; Contains _ y|]) (appSize [|id; id|] ss))).
   Proof. eapply TripleT_Triple. apply CompareValue_SpecT_size. Qed.
 
   Lemma CompareValue_Spec (x y : X) :
     Triple (tspec (SpecVector [|Contains _ x; Contains _ y|]))
            (CompareValues sigX)
-           (fun yout => tspec (match yout, Dec (x=y) with
-                            | true,  Specif.left  _ => SpecVector [|Contains _ x; Contains _ y|]
-                            | false, Specif.right _ => SpecVector [|Contains _ x; Contains _ y|]
-                            | _, _ => SpecFalse
-                            end)).
+           (fun yout => tspec ([if yout then x=y else x<>y],[|Contains _ x; Contains _ y|])).
   Proof. eapply Triple_RemoveSpace. apply CompareValue_Spec_size. Qed.
 
 End CompareValues.
 
 (** Again, no automation for this *)
-
-
 
 (** *** CaseNat *)
 
@@ -321,20 +299,15 @@ Lemma CaseNat_SpecT_size (y : nat) (ss : Vector.t nat 1) :
     CaseNat
     (fun yout =>
        tspec
-         (withSpace
-            (match yout, y with
-             | true, S y' => SpecVector [|Contains _ y'|]
-             | false, 0 => SpecVector [|Contains _ 0|]
-             | _, _ => SpecFalse
-             end)
-            (appSize (CaseNat_size y) ss))). (** Note that we add [withSpac] between the [tspec] and the [match] *)
+         (withSpace ([if yout then y <> 0 else y = 0],[|Contains _ (pred y)|])
+            (appSize (CaseNat_size y) ss))).
 Proof.
   eapply RealiseIn_TripleT.
   - apply CaseNat_Sem.
   - intros tin yout tout H HEnc. specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H.
     destruct yout, y; cbn in *; auto.
-    + tspec_solve.
-    + tspec_solve.
+    + tspec_solve. easy.
+    + tspec_solve. easy.
 Qed.
 
 Ltac hstep_Nat :=
@@ -345,6 +318,40 @@ Ltac hstep_Nat :=
   end.
 
 Smpl Add hstep_Nat : hstep_smpl.
+
+
+
+(** *** CaseBool *)
+
+From Undecidability Require Import TM.Code.CaseBool.
+
+
+Definition CaseBool_size (_ : bool) : Vector.t (nat->nat) 1 :=
+   [|plus 2|].
+
+Lemma CaseBool_SpecT_size (b : bool) (ss : Vector.t nat 1) :
+  TripleT
+    (tspec (withSpace (SpecVector [|Contains _ b|]) ss))
+    CaseBool_steps
+    CaseBool
+    (fun yout =>
+       tspec
+         (withSpace
+            ([yout = b],[|Void|])
+            (appSize (CaseBool_size b) ss))). 
+Proof.
+  eapply RealiseIn_TripleT.
+  - apply CaseBool_Sem.
+  - intros tin yout tout H HEnc. specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H.
+    subst yout. tspec_solve. easy.
+Qed.
+
+Ltac hstep_Bool :=
+  lazymatch goal with
+  | [ |- TripleT ?P ?k CaseBool ?Q ] => eapply CaseBool_SpecT_size
+  end.
+
+Smpl Add hstep_Bool : hstep_smpl.
 
 
 (** *** CaseSum *)
@@ -380,18 +387,15 @@ Section CaseSum.
     TripleT
       (tspec (withSpace (SpecVector [|Contains _ s|]) ss)) (CaseSum_steps) (CaseSum sigX sigY)
       (fun yout => tspec (withSpace
-                         (match yout, s with
-                          | true, inl x => SpecVector [|Contains _ x|]
-                          | false, inr y => SpecVector [|Contains _ y|]
-                          | _, _ => SpecFalse
-                          end)
+                         ([yout = if s then true else false],
+                          match s with inl x => [|Contains _ x|] | inr y =>  [|Contains _ y|] end)
                          (appSize [|S|] ss))).
   Proof.
     eapply RealiseIn_TripleT.
     - apply CaseSum_Sem.
     - intros tin yout tout H HEnc. cbn in *.
       specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H.
-      destruct yout, s; cbn in *; auto; tspec_solve.
+      destruct yout, s; cbn in *; auto; tspec_solve. all:easy.
   Qed.
   
 End CaseSum.
@@ -433,10 +437,10 @@ Section CaseOpton.
     TripleT
       (tspec (withSpace (SpecVector [|Contains _ o|]) ss)) (CaseOption_steps) (CaseOption sigX)
       (fun yout => tspec (withSpace
-                         (match yout, o with
-                          | true, Some x => SpecVector [|Contains _ x|]
-                          | false, None  => SpecVector [|Void|]
-                          | _, _ => SpecFalse
+                         ([yout = match o with None => false | _ => true end ],
+                          match o with
+                          |  Some x => [|Contains _ x|]
+                          |  None  => [|Void|]
                           end)
                          (appSize (CaseOption_size o) ss))).
   Proof.
@@ -444,13 +448,13 @@ Section CaseOpton.
     - apply CaseOption_Sem.
     - intros tin yout tout H HEnc. cbn in *.
       specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H.
-      destruct yout, o; cbn in *; auto; tspec_solve.
+      destruct yout, o; cbn in *; auto; tspec_solve. all:easy.
   Qed.
   
 End CaseOpton.
 
 
-Ltac hstep_Sum :=
+Ltac hstep_Sum_Option :=
   match goal with
   | [ |- TripleT ?P ?k (Constr_inl _ _) ?Q ] => eapply Constr_inl_SpecT_size
   | [ |- TripleT ?P ?k (Constr_inr _ _) ?Q ] => eapply Constr_inr_SpecT_size
@@ -461,7 +465,7 @@ Ltac hstep_Sum :=
   | [ |- TripleT ?P ?k (CaseOption  _)  ?Q ] => eapply CaseSum_SpecT_size
   end.
 
-Smpl Add hstep_Sum : hstep_smpl.
+Smpl Add hstep_Sum_Option : hstep_smpl.
 
 
 (** *** CaseList *)
@@ -512,10 +516,9 @@ Section CaseList.
     TripleT
       (tspec (withSpace (SpecVector [|Contains _ xs; Void|]) ss)) (CaseList_steps xs) (CaseList sigX)
       (fun yout => tspec (withSpace
-                         (match yout, xs with
-                          | true,  x::xs' => SpecVector [|Contains _ xs'; Contains _ x|]
-                          | false,   nil => SpecVector [|Contains _ xs; Void|]
-                          | _, _ => SpecFalse
+                         ([yout = match xs with [] => false | _ => true end] ,match xs with
+                          |   x::xs' => [|Contains _ xs'; Contains _ x|]
+                          |    nil => [|Contains _ xs; Void|]
                           end)
                          (appSize (CaseList_size xs) ss))).
   Proof.
@@ -525,8 +528,8 @@ Section CaseList.
     - intros tin yout tout H HEnc. cbn in *.
       specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1; simpl_vector in *; cbn in *.
       modpon H. destruct yout, xs; cbn in *; eauto.
-      + destruct H as (H1&H2). tspec_solve.
-      + destruct H as (H1&H2). tspec_solve.
+      + destruct H as (H1&H2). tspec_solve. easy.
+      + destruct H as (H1&H2). tspec_solve. easy.
     - intros tin k HEnc Hk. cbn.
       specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1; simpl_vector in *; cbn in *.
       eauto.

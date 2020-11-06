@@ -9,10 +9,7 @@ From smpl Require Import Smpl.
 
 
 (** Checks whether the given term contains an evar *)
-Ltac contains_evar e :=
-  match e with
-  | context [?x] => is_evar x
-  end.
+Ltac contains_evar e := has_evar e.
 
 (** Check if the goal triple is with space *)
 Ltac triple_with_space :=
@@ -197,26 +194,32 @@ Ltac hstep_forall_unit :=
   | [ |- forall (y : unit), ?H] => intros []
   end.
 
+Ltac hstep_pre := clear_abbrevs.
 
 Ltac hstep_Combinators := hstep_Seq || hstep_If || hstep_Switch || hstep_Return. (* Not [While]! *)
 Ltac hstep_Lifts := (hstep_LiftTapes || hstep_ChangeAlphabet).
-Ltac hstep := clear_abbrevs; (hstep_forall_unit || hstep_Combinators || hstep_Lifts || hstep_user)(*; repeat hstep_withSpace_swap*).
+Ltac hstep := hstep_pre; (hstep_forall_unit || hstep_Combinators || hstep_Lifts || hstep_user)(*; repeat hstep_withSpace_swap*).
 Ltac hsteps := repeat hstep.
 Ltac hsteps_cbn := repeat (cbn; hstep). (* Calls [cbn] before each verification step *)
 
 
 (** *** More automation for register specifications *)
 
+Ltac openFoldRight :=
+  lazymatch goal with
+  | |- fold_right and _ (_::_) => refine (conj _ _);[ | openFoldRight]
+  | |- _ => idtac
+  end.
 
 (** Proofs assertions like [tspec (SpecVector ?R) ?t] *)
 Ltac tspec_solve :=
   lazymatch goal with
-  | [ |- tspec (SpecVector ?R) ?t ] =>
-    eapply tspec_solve; intros i; destruct_fin i;
-    cbn [tspec_single Vector.nth Vector.case0 Vector.caseS]; try (contains_ext || isVoid_mono)
-  | [ |- tspec (withSpace (SpecVector ?R) ?ss) ?t ] => (* We may unfold [withSpace] and simplify now *)
-    eapply tspec_space_solve; intros i; destruct_fin i;
-    cbn [tspec_single withSpace_single Vector.map Vector.nth Vector.case0 Vector.caseS]; try (contains_ext || isVoid_mono)
+  | [ |- tspec (?P,?R) ?t ] =>
+    eapply tspec_solve;openFoldRight;[ .. | intros i; destruct_fin i;
+    cbn [tspec_single Vector.nth Vector.case0 Vector.caseS]; try (contains_ext || isVoid_mono)]
+  | [ |- tspec (withSpace (?P,?R) ?ss) ?t ] => (* We may unfold [withSpace] and simplify now *)
+    eapply tspec_space_solve;openFoldRight;[ .. | intros i; destruct_fin i;
+    cbn [tspec_single withSpace_single Vector.map Vector.nth Vector.case0 Vector.caseS]; try (contains_ext || isVoid_mono)]
   end.
 
 
@@ -238,26 +241,36 @@ end.
 (** Proofs assertions like [tspec (SpecVector ?R) ?t] given [tspec (SpecVector ?R') ?t]. Similar to [contains_ext] and [isVoid_mono]. *)
 (** Normally, [eauto] should be able to solve this kind of goal. This tactic helps to find out if there is an error. *)
 Ltac tspec_ext :=
-  unfold_abbrev;
+  unfold_abbrev;intros;
   (*tspec_withSpace_swap;*)
   lazymatch goal with
-  | [ |- forall t, t ≃≃ ?P -> t ≃≃ ?Q ] =>
+  | [ |- Entails (tspec _) (tspec _) ] => simple apply EntailsI;intros ? ?; tspec_ext
+  | [ |- forall t, t ≃≃ ?P -> t ≃≃ ?Q ] => idtac "tspec_ext: Branch 1 is depricated, pone should see Entails everywhere";
     let Ht := fresh "H"t in
     intros t Ht; tspec_ext; eauto
-  | [ H : tspec (SpecVector ?R') ?t |- tspec (SpecVector ?R) ?t ] =>
-    apply tspec_ext with (1 := H);
+  | [ H : tspec (?P',?R') ?t |- tspec (?P,?R) ?t ] => idtac "tspec_ext: Branch 2 is depricated, pone should see Entails everywhere";
+    apply tspec_ext with (1 := H);[ try cbn; tauto |
     ((now eauto)
      || (intros i; destruct_fin i;
         cbn [tspec_single Vector.nth Vector.case0 Vector.caseS];
-        intros; try (contains_ext || isVoid_mono)))
-    | [ H : tspec (withSpace (SpecVector ?R') ?ss) ?t |- tspec (withSpace (SpecVector ?R) ?ss') ?t ] =>
-    apply tspec_space_ext with (1 := H);
+        intros; try (contains_ext || isVoid_mono)))]
+    | [ H : tspec (withSpace (?P',?R') ?ss) ?t |- tspec (withSpace (?P,?R) ?ss') ?t ] =>
+    apply tspec_space_ext with (1 := H);[try cbn;tauto |
     ((now eauto)
      || (intros i; destruct_fin i;
         cbn [tspec_single withSpace_single Vector.nth Vector.case0 Vector.caseS];
-        intros; try (contains_ext || isVoid_mono)))
+        intros; try (contains_ext || isVoid_mono)))]
   end.
 
 (* (* Maybe not a good idea *)
 Hint Extern 10 => tspec_ext.
 *)
+
+Ltac introPure_prepare :=
+  lazymatch goal with
+  | |- Entails (tspec ((_,_))) _ => eapply tspec_introPure
+  | |- Triple (tspec (?P,_)) _ _ => eapply Triple_introPure
+  | |- TripleT (tspec (?P,_)) _ _ _ => eapply TripleT_introPure
+  end;unfold Basics.impl at 1;simpl fold_right at 1.
+
+Tactic Notation "hintros" simple_intropattern_list(pat) := introPure_prepare;intros pat.

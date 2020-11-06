@@ -1,7 +1,8 @@
 From Undecidability Require Import Hoare.HoareLogic.
 From Undecidability Require Import ProgrammingTools.
 
-Local Transparent Triple TripleT.
+(* This is dependent on the exact definitons to simplify the proofs in this file *)
+Local Transparent Triple TripleT Entails.
 
 (** ** Tape/Register Specification *)
 
@@ -38,16 +39,35 @@ Section RegSpec.
     tspec_single (Contains_size r x s) t -> tspec_single (Contains r x) t.
   Proof. cbn. auto. Qed.
 
-  Inductive Spec (n : nat) : Type :=
-  | SpecVector : Vector.t (RegSpec) n -> Spec n
-  | SpecFalse : Spec n.
+  Definition SpecV n := Vector.t (RegSpec) n.
+  Definition Spec n :Type := list Prop * SpecV n.
 
   Definition tspec {n : nat} (spec : Spec n) : Assert sig^+ n :=
     match spec with
-    | SpecVector spec => fun (t : tapes sig^+ n) => forall (i : Fin.t n), tspec_single spec[@i] t[@i]
-    | SpecFalse _ => fun (t : tapes sig^+ n) => False
+    | (P,spec) => fun (t : tapes sig^+ n) =>
+       List.fold_right and (forall (i : Fin.t n), tspec_single spec[@i] t[@i]) P
     end.
 
+  (* These rules are needed for abstract lemmas, where Ps is a variable *)
+  Lemma tspecE {n : nat} Ps Pv t:
+  tspec (n:=n) (Ps,Pv) t -> (List.fold_right and True Ps /\ forall (i : Fin.t n), tspec_single Pv[@i] t[@i]).
+  Proof.
+    cbn. induction Ps;cbn in *. easy. intros []. specialize (IHPs H0) as [H' ?]. split. all:eauto. 
+  Qed.
+
+  Lemma tspecI {n : nat} P t:
+  (List.fold_right and True (fst P))
+  -> (forall (i : Fin.t n), tspec_single (snd P)[@i] t[@i])
+  -> tspec (n:=n) P t.
+  Proof.
+    destruct P as (Ps&P). induction Ps;cbn in *. easy. intros H' ?. split. now eapply H';left.
+    eapply IHPs. all:easy. 
+  Qed.
+
+(* 
+  Lemma tspec_pureE {n : nat} Ps Pv v:
+    tspec (n:=n) (Ps,Pv) v -> (forall P, In P Ps -> P).
+  Proof. intros ?%tspecE. easy. Qed. *)
 
   (** Enrich the specification with spaces *)
   Definition withSpace_single (P : RegSpec) (size : nat) :=
@@ -59,8 +79,7 @@ Section RegSpec.
 
   Definition withSpace {n : nat} (P : Spec n) (spaces : Vector.t nat n) : Spec n :=
     match P with
-    | SpecVector spec => SpecVector (Vector.map2 withSpace_single spec spaces)
-    | SpecFalse _ => SpecFalse _
+    | (P,spec) => (P,Vector.map2 withSpace_single spec spaces)
     end.
 
   (** Drop the spaces *)
@@ -70,7 +89,7 @@ Section RegSpec.
 
   Lemma tspec_withSpace_tspec {n : nat} (P : Spec n) (s : Vector.t nat n) t :
     tspec (withSpace P s) t -> tspec P t.
-  Proof. intros. destruct P; cbn in *; auto. intros i; specialize (H i). simpl_vector in *. eapply tspec_single_withSpace_tspec_single; eauto. Qed.
+  Proof. destruct P;intros [HP H]%tspecE. apply tspecI. easy. intros i; specialize (H i). simpl_vector in *. eapply tspec_single_withSpace_tspec_single; eauto. Qed.
 
   (** Invent some dummy spaces *)
 
@@ -88,14 +107,13 @@ Section RegSpec.
 
   Definition dummy_sizes (n : nat) (t : tapes sig^+ n) (P : Spec n) : Vector.t nat n :=
     match P with
-    | SpecVector vect => Vector.map2 dummy_size t vect
-    | SpecFalse _ => Vector.const 0 n
+    | (P,vect) => Vector.map2 dummy_size t vect
     end.
 
   Lemma tspec_tspec_withSpace (n : nat) (P : Spec n) t :
     tspec P t -> tspec (withSpace P (dummy_sizes t P)) t.
   Proof.
-    intros; destruct P; cbn in *; auto.
+    destruct P;intros [HP ?]%tspecE. eapply tspecI. cbn in *; auto.
     intros i; specialize (H i); cbn in *. simpl_vector. now apply tspec_single_tspec_single_withSpace.
   Qed.
 
@@ -134,30 +152,73 @@ End RegSpec.
 Arguments Custom {sig}.
 Arguments Void {sig}.
 Arguments Void_size {sig}.
-Arguments SpecFalse {sig n}.
 Arguments dummy_sizes : simpl never.
 Hint Resolve tspec_single_Contains_size_Contains : core.
 
-Notation "t ≃≃ S" := (tspec S t) (at level 70, no associativity).
+Declare Scope spec_scope.
+Delimit Scope spec_scope with spec.
+Bind Scope spec_scope with Spec.
+Notation "'(' '≃≃' S ')'" := (tspec S%spec) (at level 0, S at level 200, no associativity, format "'(' '≃≃'  S  ')'").
+Notation "t ≃≃ S" := (tspec S%spec t) (at level 70, no associativity).
+
+Arguments tspec _%spec _.
+
+Definition coerceSpec {sig n} V : Spec sig n := ([],V).
+Coercion coerceSpec : SpecV >-> Spec.
+Notation "'SpecFalse'" := ([False],_): spec_scope.
+
+(* TODO: remove legacy *)
+Notation SpecVector P := ([],P) (only parsing).
 
 
+Lemma genImp_ext P (Ps : list Prop):
+  List.fold_right Basics.impl P Ps
+  <-> (forall P', List.fold_right and P' Ps -> P).
+Proof.
+  induction Ps in P|-*;cbn. firstorder. now eapply H;eauto. rewrite IHPs. unfold Basics.impl. firstorder eauto.
+Qed.
+
+Lemma tspec_introPure (sig: finType) (n : nat) P (Ps : SpecV sig n) Q:
+  List.fold_right Basics.impl (Entails (tspec ([],Ps)) Q) P
+  -> Entails (tspec (P,Ps)) Q.
+Proof.
+  unfold Entails. rewrite genImp_ext. intros H ? []%tspecE. eapply H. eassumption. now apply tspecI.
+Qed.
+
+Lemma Triple_introPure (F sig: finType) (n : nat) P (Ps : SpecV sig n) Q (pM : pTM sig^+ F n) :
+  List.fold_right Basics.impl (Triple (tspec ([],Ps)) pM Q) P
+  -> Triple (tspec (P,Ps)) pM Q.
+Proof.
+  unfold Triple,Triple_Rel; cbn -[tspec]. intros H ? ? ? Hloop (H'&H'')%tspecE.
+  rewrite genImp_ext in H. specialize (H _ H').
+  eapply H. eassumption. eapply tspecI. all:easy.
+Qed.
+
+Lemma TripleT_introPure (sig F : finType) (n : nat) P (Ps : SpecV sig n) Q k (pM : pTM sig^+ F n) :
+  List.fold_right Basics.impl (TripleT (tspec ([],Ps)) k pM Q) P
+  -> TripleT (tspec (P,Ps)) k pM Q.
+Proof.
+  unfold TripleT ,Triple_TRel; cbn - [tspec]. intros H. rewrite genImp_ext in H. split.
+  {eapply Triple_introPure. rewrite genImp_ext. intros. eapply H. eauto. }
+  hnf. intros ? ? [[]%tspecE ?]. eapply H. eassumption. easy.
+Qed.
 
 
-Lemma Triple_SpecFalse {sig : finType} {n : nat} {F : Type} (pM : pTM sig^+ F n) Q :
-  Triple (tspec SpecFalse) pM Q.
-Proof. cbn. apply Triple_False. Qed.
+Lemma Triple_SpecFalse {sig : finType} {n : nat} {F : Type} P (pM : pTM sig^+ F n) Q :
+  Triple (tspec ([False],P)) pM Q.
+Proof. hnf;cbn. tauto. Qed.
 
-Lemma TripleT_SpecFalse {sig : finType} {n : nat} {F : Type} (k : nat) (pM : pTM sig^+ F n) Q :
-  TripleT (tspec SpecFalse) k pM Q.
-Proof. cbn. apply TripleT_False. Qed.
+Lemma TripleT_SpecFalse {sig : finType} {n : nat} {F : Type} P (k : nat) (pM : pTM sig^+ F n) Q :
+  TripleT (tspec ([False],P)) k pM Q.
+Proof. eapply ConsequenceT. 1,3,4:now eauto. hnf;cbn;tauto. Qed.
 
-Lemma tspec_not_SpecFalse {sig : Type} {n : nat} (t : tapes (boundary+sig) n) :
-  t ≃≃ SpecFalse -> False.
-Proof. cbn. auto. Qed.
+Lemma tspec_not_SpecFalse {sig : Type} {n : nat} (t : tapes (boundary+sig) n) P :
+  t ≃≃ ([False],P) -> False.
+Proof. cbn. tauto. Qed.
 
-Lemma tspec_not_SpecFalse_withSpace {sig : Type} {n : nat} (t : tapes (boundary+sig) n) (ss : Vector.t nat n) :
-  t ≃≃ withSpace SpecFalse ss -> False.
-Proof. cbn. auto. Qed.
+Lemma tspec_not_SpecFalse_withSpace {sig : Type} {n : nat} (t : tapes (boundary+sig) n) P (ss : Vector.t nat n) :
+  t ≃≃ withSpace ([False],P) ss -> False.
+Proof. cbn. tauto. Qed.
 
 
 Hint Immediate Triple_SpecFalse TripleT_SpecFalse : core.
@@ -165,7 +226,7 @@ Hint Immediate Triple_SpecFalse TripleT_SpecFalse : core.
 
 
 (* TODO: [SpecFalse] could be defined in the same manner. We could then remove the unhandy [SpecVector] constructor. *)
-Definition SpecTrue {sig : Type} {n : nat} : Spec sig n := SpecVector (Vector.const (Custom (fun _ => True)) n).
+Definition SpecTrue {sig : Type} {n : nat} : Spec sig n := ([],Vector.const (Custom (fun _ => True)) n).
 Arguments SpecTrue : simpl never.
 
 Lemma tspec_SpecTrue {sig : finType} {n : nat} (t : tapes sig^+ n) :
@@ -193,8 +254,8 @@ Hint Extern 4 =>
      | [H : _ ≃≃ withSpace SpecFalse _ |- _] => exfalso; now eapply tspec_not_SpecFalse_withSpace in H
      end : core.
 
-Goal forall t : tapes sigNat^+ 4,
-    t ≃≃ SpecFalse -> 3 = 4.
+Goal forall (t : tapes sigNat^+ 4) P,
+    t ≃≃ ([False],P) -> 3 = 4.
 Proof. auto. Qed.
 
 
@@ -232,40 +293,54 @@ Proof.
     + unfold Triple_TRel. intros tin k' (HP&Hk). eauto.
 Qed.
 
+Instance Forall2_refl X (R: X -> _): Reflexive R -> Reflexive (Forall2 R).
+Proof. intros ? xs;induction xs;eauto. Qed. 
+
+Instance fold_right_and : Proper (iff ==> Forall2 iff ==> iff) (fold_right and).
+Proof. intros ? ? ? xs;induction xs;cbn;intros ? H';inv H';cbn. easy. firstorder. Qed.
+
+Instance fold_right_and' : Proper (Basics.impl ==> Forall2 iff ==> Basics.impl) (fold_right and).
+Proof. intros ? ? ? xs;induction xs;cbn;intros ? H';inv H';cbn. easy. firstorder. Qed.
+Instance fold_right_impl' : Proper (Basics.impl ==> Forall2 iff ==> Basics.impl) (fold_right Basics.impl).
+Proof. intros ? ? ? xs;induction xs;cbn;intros ? H';inv H';cbn. easy. firstorder. Qed.
+
 
 
 (** For good reasons, [tspec] will be declared to don't simplify with [cbn]. However, [tspec_single] simplifies with [cbn]. *)
-Lemma tspec_solve (sig : Type) (n : nat) (t : tapes (boundary+sig) n) (R : Vector.t (RegSpec sig) n) :
-  (forall i, tspec_single R[@i] t[@i]) ->
-  tspec (SpecVector R) t.
+Lemma tspec_solve (sig : Type) (n : nat) (t : tapes (boundary+sig) n) (R : SpecV sig n) P:
+List.fold_right and (forall i, tspec_single R[@i] t[@i]) P ->
+  tspec (P,R) t.
 Proof. refine (fun P => P). Qed.
 
 (** [withSpace] does also not simplify; but [withSpace_single] does. *)
-Lemma tspec_space_solve (sig : Type) (n : nat) (t : tapes (boundary+sig) n) (R : Vector.t (RegSpec sig) n) (ss : Vector.t nat n) :
-  (forall i, tspec_single (withSpace_single R[@i] ss[@i]) t[@i]) ->
-  tspec (withSpace (SpecVector R) ss) t.
+Lemma tspec_space_solve (sig : Type) (n : nat) (t : tapes (boundary+sig) n) (R : SpecV sig n) P (ss : Vector.t nat n) :
+  List.fold_right and (forall i, tspec_single (withSpace_single R[@i] ss[@i]) t[@i]) P ->
+  tspec (withSpace (P,R) ss) t.
 Proof. intros. apply tspec_solve. simpl_vector. auto. Qed.
 
-Lemma tspec_ext (sig : finType) (n : nat) (t : tapes (boundary+sig) n) (R R' : Vector.t (RegSpec sig) n) :
-  tspec (SpecVector R') t ->
+Lemma tspec_ext (sig : finType) (n : nat) (t : tapes (boundary+sig) n) (P P' : list Prop) (R R' : Vector.t (RegSpec sig) n) :
+  tspec (P',R') t ->
+  (List.fold_right Basics.impl (List.fold_right and True P) P') ->
   (forall i, tspec_single R'[@i] t[@i] -> tspec_single R[@i] t[@i]) ->
-  tspec (SpecVector R) t.
+  tspec (P,R) t.
 Proof.
-  intros H1 H2. apply tspec_solve.
+  intros [HP H1]%tspecE H1' H2. eapply tspecI.
+  eapply genImp_ext. 2:eassumption. eapply fold_right_impl'. 2:reflexivity. 2:eassumption. easy.
   intros i; specialize (H1 i); specialize (H2 i); eauto.
 Qed.
 
-Lemma tspec_space_ext (sig : finType) (n : nat) (t : tapes (boundary+sig) n) (R R' : Vector.t (RegSpec sig) n)
+Lemma tspec_space_ext (sig : finType) (n : nat) (t : tapes (boundary+sig) n) (P P':list Prop) (R R' : SpecV sig n)
       (ss ss' : Vector.t nat n) :
-  tspec (withSpace (SpecVector R') ss') t ->
+  tspec (withSpace (P',R') ss') t ->
+  (List.fold_right Basics.impl (List.fold_right and True P) P') ->
   (forall i, tspec_single (withSpace_single R'[@i] ss'[@i]) t[@i] -> tspec_single (withSpace_single R[@i] ss[@i]) t[@i]) ->
-  tspec (withSpace (SpecVector R) ss) t.
+  tspec (withSpace (P,R) ss) t.
 Proof.
-  intros H1 H2. apply tspec_solve.
-  intros i; specialize (H1 i); specialize (H2 i).
-  simpl_vector in *; cbn. eauto.
+  intros [HP H1]%tspecE H1' H2. eapply tspecI.
+  eapply genImp_ext. 2:eassumption. eapply fold_right_impl'. 2:reflexivity. 2:eassumption. easy.
+  intros i; specialize (H1 i); specialize (H2 i); eauto.
+  cbn. simpl_vector in *; cbn. eauto.
 Qed.
-
 
 
 
@@ -288,28 +363,25 @@ Section Lifting.
   (** We want to extract from [P] the premise [P'] for [M] *)
   Definition Downlift : @Spec sig m :=
     match P with
-    | SpecVector v => SpecVector (select I v)
-    | SpecFalse => SpecFalse
+    | (P,v) => (P,select I v)
     end.
 
   Lemma tape_fulfill_Downlift_select tp :
     tspec P tp ->
     tspec Downlift (select I tp).
   Proof.
-    intros H.
-    hnf in H. hnf.
-    unfold Downlift.
-    destruct P as [ vect | ].
-    - intros i. unfold Downlift. rewrite !select_nth. apply H.
-    - assumption.
+    unfold Downlift. 
+    destruct P as (?&vect).
+    intros [? H]%tspecE.
+    eapply tspecI. easy. 
+    intros i;cbn. rewrite !select_nth. easy.
   Qed.
 
 
   (** Same specification as in [P] on indices not in [I], but as in [Q] for indices in [I] (lifted).  *)
   Definition Frame (Q : @Spec sig m) : @Spec sig n :=
     match P, Q with
-    | SpecVector p, SpecVector q => SpecVector (fill I p q)
-    | _, _ => SpecFalse
+    | (P',p), (Q',q) => (P' ++ Q',fill I p q)
     end. 
 
 End Lifting.
@@ -320,21 +392,25 @@ Lemma LiftTapes_Spec (sig : finType) (F : finType) (m n : nat) (I : Vector.t (Fi
   Triple (tspec (Downlift P I)) pM (fun y => tspec (Q y)) ->
   Triple (tspec P) (pM@I) (fun y => tspec (Frame P I (Q y))).
 Proof.
-  intros HDup HTrip.
-  destruct P as [ v | ]; auto.
+  intros HDup HTrip. destruct P as [P' v]. 
+
 
   eapply Realise_monotone.
   { apply LiftTapes_Realise. assumption. apply HTrip. }
   {
-    intros tin (yout, tout) (H&HInj). cbn -[Downlift] in *. intros HP.
+    intros tin (yout, tout) (H&HInj). cbn -[Downlift] in *. destruct Q as [Q' w];cbn.
+    intros HP.
     spec_assert H by now apply tape_fulfill_Downlift_select.
-
-    hnf. destruct (Q yout); eauto.
+    eapply tspecE in H as [H' H]. eapply tspecE in HP as [HP' HP].
+    eapply tspecI;cbn.
+    { clear - H' HP'. induction P';cbn in *. all:firstorder. }
+    clear H' HP'.
+    hnf. destruct (Q yout); eauto.  
     intros j. decide (Vector.In j I) as [HD|HD].
     - unfold Frame.
       apply vect_nth_In' in HD as (ij&HD).
       erewrite fill_correct_nth; eauto.
-      hnf in H. specialize (H ij).
+      specialize (H ij).
       now rewrite select_nth, HD in H.
     - unfold Frame. rewrite fill_not_index; eauto.
       specialize (HInj j HD). rewrite HInj. now apply HP.
@@ -379,7 +455,7 @@ Lemma LiftTapes_SpecT_con (sig : finType) (F : finType) (m n : nat) (I : Vector.
       (k : nat) (pM : pTM sig^+ F m) :
   dupfree I ->
   TripleT (tspec (Downlift P I)) k pM (fun y => tspec (Q y)) ->
-  (forall yout tout, tspec (Frame P I (Q yout)) tout -> tspec (R yout) tout) ->
+  (forall yout, Entails (tspec (Frame P I (Q yout))) (tspec (R yout))) ->
   TripleT (tspec P) k (pM@I) (fun y => tspec (R y)).
 Proof. eauto using ConsequenceT_post, LiftTapes_SpecT. Qed.
 
@@ -393,32 +469,21 @@ Proof.
   simpl_vector. rewrite !select_nth. simpl_vector. reflexivity.
 Qed.
 
-Lemma tspec_Downlift_withSpace (m n : nat) (sig : Type) (P : Spec sig n) (I : Vector.t (Fin.t n) m) (ss : Vector.t nat n)
-      (t : tapes (boundary+sig) m) :
-  t ≃≃ Downlift (withSpace P ss) I ->
-  t ≃≃ withSpace (Downlift P I) (select I ss).
+Lemma tspec_Downlift_withSpace (m n : nat) (sig : Type) (P : Spec sig n) (I : Vector.t (Fin.t n) m) (ss : Vector.t nat n):
+  Entails (≃≃ Downlift (sig:=sig) (m:=m) (n:=n) (withSpace P ss) I) (≃≃ withSpace (Downlift P I) (select I ss)).
 Proof. intros H. erewrite <- Downlift_withSpace; eauto. Qed.
 
 Lemma Triple_Downlift_withSpace (m n : nat) (sig : finType) (P : Spec sig n) (I : Vector.t (Fin.t n) m) (ss : Vector.t nat n)
       (F : Type) (M : pTM sig^+ F m) (Q : F -> Assert sig^+ m) :
   Triple (tspec (withSpace (Downlift P I) (select I ss))) M Q ->
   Triple (tspec (Downlift (withSpace P ss) I)) M Q.
-Proof.
-  intros H. eapply Consequence_pre.
-  - apply H.
-  - intros t Ht. now rewrite <- Downlift_withSpace.
-Qed.
+Proof. now rewrite <- tspec_Downlift_withSpace. Qed.
 
 Lemma TripleT_Downlift_withSpace (m n : nat) (sig : finType) (P : Spec sig n) (I : Vector.t (Fin.t n) m) (ss : Vector.t nat n)
       (F : Type) (k : nat) (M : pTM sig^+ F m) (Q : F -> Assert sig^+ m) :
   TripleT (tspec (withSpace (Downlift P I) (select I ss))) k M Q ->
   TripleT (tspec (Downlift (withSpace P ss) I)) k M Q.
-Proof.
-  intros H. eapply ConsequenceT_pre.
-  - apply H.
-  - intros t Ht. now rewrite <- Downlift_withSpace.
-  - reflexivity.
-Qed.
+Proof. now rewrite <- tspec_Downlift_withSpace. Qed.
 
 
 (* TODO: Move into base *)
@@ -458,12 +523,10 @@ Lemma tspec_Frame_withSpace
 Proof. intros H1 H2. erewrite <- Frame_withSpace; eauto. Qed.
 
 Lemma tspec_Frame_withSpace'
-      (m n : nat) (sig : Type) (P : Spec sig n) (P' : Spec sig m) (I : Vector.t (Fin.t n) m) (ss : Vector.t nat n) (ss' : Vector.t nat m)
-      (t : tapes (boundary+sig) n) :
-  dupfree I ->
-  t ≃≃ Frame (withSpace P ss) I (withSpace P' ss') ->
-  t ≃≃ withSpace (Frame P I P') (fill I ss ss').
-Proof. intros H1 H2. erewrite <- Frame_withSpace; eauto. Qed.
+      (m n : nat) (I : Vector.t (Fin.t n) m):
+  dupfree I -> forall (sig : Type) (P : Spec sig n) (P' : Spec sig m) (ss : Vector.t nat n) (ss' : Vector.t nat m),
+  Entails (≃≃ Frame (withSpace P ss) I (withSpace P' ss')) (≃≃ withSpace (Frame P I P') (fill I ss ss')).
+Proof. intros H1 **. erewrite <- Frame_withSpace; eauto. Qed.
 
 Lemma Triple_Frame_withSpace 
       (m n : nat) (sig : finType) (P : Spec sig n) (P' : Spec sig m)(I : Vector.t (Fin.t n) m) (ss : Vector.t nat n) (ss' : Vector.t nat m)
@@ -491,11 +554,7 @@ Lemma LiftTapes_Spec_space (sig F : finType) (m n : nat) (I : Vector.t (Fin.t n)
   Triple (tspec (withSpace (Downlift P I) (select I ss))) pM (fun y => tspec (withSpace (Q y) ss')) ->
   Triple (tspec (withSpace P ss)) (pM@I) (fun y => tspec (withSpace (Frame P I (Q y)) (fill I ss ss'))).
 Proof.
-  intros H1 H2. rewrite <- Downlift_withSpace in H2.
-  eapply Consequence.
-  - eapply LiftTapes_Spec; eauto. apply H2.
-  - auto.
-  - intros. cbn in *. eapply tspec_Frame_withSpace in H; eauto.
+  intros H1 H2. rewrite <- Downlift_withSpace in H2. apply LiftTapes_Spec in H2. setoid_rewrite tspec_Frame_withSpace' in H2. all:eauto.
 Qed.
 
 Lemma LiftTapes_SpecT_space (sig F : finType) (m n : nat) (I : Vector.t (Fin.t n) m) (P : Spec sig n) (k : nat) (Q : F -> Spec sig m) (pM : pTM sig^+ F m)
@@ -504,12 +563,7 @@ Lemma LiftTapes_SpecT_space (sig F : finType) (m n : nat) (I : Vector.t (Fin.t n
   TripleT (tspec (withSpace (Downlift P I) (select I ss))) k pM (fun y => tspec (withSpace (Q y) ss')) ->
   TripleT (tspec (withSpace P ss)) k (pM@I) (fun y => tspec (withSpace (Frame P I (Q y)) (fill I ss ss'))).
 Proof.
-  intros H1 H2. rewrite <- Downlift_withSpace in H2.
-  eapply ConsequenceT.
-  - eapply LiftTapes_SpecT; eauto. apply H2.
-  - auto.
-  - intros. cbn in *. eapply tspec_Frame_withSpace in H; eauto.
-  - reflexivity.
+  intros H1 H2. rewrite <- Downlift_withSpace in H2. apply LiftTapes_SpecT in H2. setoid_rewrite tspec_Frame_withSpace' in H2. all:eauto.
 Qed.
 
 
@@ -518,14 +572,11 @@ Lemma LiftTapes_Spec_space_con (sig : finType) (F : finType) (m n : nat) (I : Ve
       (pM : pTM sig^+ F m) :
   dupfree I ->
   Triple (tspec (withSpace (Downlift P I) (select I ss))) pM (fun y => tspec (withSpace (Q y) ss')) ->
-  (forall yout tout, tspec (withSpace (Frame P I (Q yout)) (fill I ss ss')) tout -> tspec (withSpace (R yout) ss'') tout) ->
+  (forall yout, Entails (tspec (withSpace (Frame P I (Q yout)) (fill I ss ss'))) (tspec (withSpace (R yout) ss''))) ->
   Triple (tspec (withSpace P ss)) (pM@I) (fun y => tspec (withSpace (R y) ss'')).
 Proof.
-  intros H1 H2 H3. rewrite <- Downlift_withSpace in H2. 
-  eapply Consequence.
-  - apply LiftTapes_Spec; eauto. apply H2.
-  - eauto.
-  - intros. cbn in *. apply tspec_Frame_withSpace in H; eauto.
+  intros H1 H2 <-%asPointwise. rewrite <- Downlift_withSpace in H2. apply LiftTapes_Spec in H2. 
+  setoid_rewrite tspec_Frame_withSpace' in H2. all:easy.
 Qed.
 
 Lemma LiftTapes_SpecT_space_con (sig : finType) (F : finType) (m n : nat) (I : Vector.t (Fin.t n) m)
@@ -533,15 +584,11 @@ Lemma LiftTapes_SpecT_space_con (sig : finType) (F : finType) (m n : nat) (I : V
       (k : nat) (pM : pTM sig^+ F m) :
   dupfree I ->
   TripleT (tspec (withSpace (Downlift P I) (select I ss))) k pM (fun y => tspec (withSpace (Q y) ss')) ->
-  (forall yout tout, tspec (withSpace (Frame P I (Q yout)) (fill I ss ss')) tout -> tspec (withSpace (R yout) ss'') tout) ->
+  (forall yout, Entails (tspec (withSpace (Frame P I (Q yout)) (fill I ss ss'))) (tspec (withSpace (R yout) ss''))) ->
   TripleT (tspec (withSpace P ss)) k (pM@I) (fun y => tspec (withSpace (R y) ss'')).
 Proof.
-  intros H1 H2 H3. rewrite <- Downlift_withSpace in H2. 
-  eapply ConsequenceT.
-  - apply LiftTapes_SpecT; eauto. apply H2.
-  - eauto.
-  - intros. cbn in *. apply tspec_Frame_withSpace in H; eauto.
-  - reflexivity.
+  intros H1 H2 <-%asPointwise. rewrite <- Downlift_withSpace in H2. apply LiftTapes_SpecT in H2. 
+  setoid_rewrite tspec_Frame_withSpace' in H2. all:easy.
 Qed.
 
 
@@ -572,8 +619,7 @@ Section AlphabetLifting.
 
   Definition LiftSpec (T : Spec sig n) : Spec tau n :=
     match T with
-    | SpecVector vect => SpecVector (Vector.map LiftSpec_single vect)
-    | SpecFalse => SpecFalse
+    | (P,vect) => (P,Vector.map LiftSpec_single vect)
     end.
 
   Lemma LiftSpec_surjectTape_tspec_single t T :
@@ -590,7 +636,8 @@ Section AlphabetLifting.
     tin ≃≃ LiftSpec P ->
     surjectTapes Retr_g (inl UNKNOWN) tin ≃≃ P.
   Proof.
-    unfold tspec. intros H. destruct P; auto. cbn in *.
+    destruct P;cbn.
+    intros (H'&H)%tspecE. eapply tspecI. easy. 
     intros i; specialize (H i); cbn.
     simpl_tape in *. now apply LiftSpec_surjectTape_tspec_single.
   Qed.
@@ -599,7 +646,8 @@ Section AlphabetLifting.
     surjectTapes Retr_g (inl UNKNOWN) tin ≃≃ P ->
     tin ≃≃ LiftSpec P.
   Proof.
-    unfold tspec. intros H. destruct P; auto. cbn in *.
+    destruct P;cbn.
+    intros (H'&H)%tspecE. eapply tspecI. easy. 
     intros i; specialize (H i); cbn.
     simpl_tape in *. now apply LiftSpec_surjectTape_tspec_single'.
   Qed.
@@ -620,16 +668,12 @@ Proof.
   simpl_vector. apply LiftSpec_withSpace_single.
 Qed.
 
-Lemma tspec_LiftSpec_withSpace (sig tau : Type) (n : nat) (I : Retract sig tau) (P : Spec sig n) (ss : Vector.t nat n)
-      (t : tapes (boundary+tau) n) :
-  t ≃≃ LiftSpec I (withSpace P ss) ->
-  t ≃≃ withSpace (LiftSpec I P) ss.
+Lemma tspec_LiftSpec_withSpace (sig tau : Type) (n : nat) (I : Retract sig tau) (P : Spec sig n) (ss : Vector.t nat n):
+  Entails (≃≃ LiftSpec I (withSpace P ss)) (≃≃ withSpace (LiftSpec I P) ss).
 Proof. now rewrite LiftSpec_withSpace. Qed.
 
-Lemma tspec_LiftSpec_withSpace' (sig tau : Type) (n : nat) (I : Retract sig tau) (P : Spec sig n) (ss : Vector.t nat n)
-      (t : tapes (boundary+tau) n) :
-  t ≃≃ withSpace (LiftSpec I P) ss ->
-  t ≃≃ LiftSpec I (withSpace P ss).
+Lemma tspec_LiftSpec_withSpace' (sig tau : Type) (n : nat) (I : Retract sig tau) (P : Spec sig n) (ss : Vector.t nat n):
+  Entails (≃≃ withSpace (LiftSpec I P) ss) (≃≃ LiftSpec I (withSpace P ss)).
 Proof. now rewrite LiftSpec_withSpace. Qed.
 
 Lemma Triple_LiftSpec_withSpace (sig tau : finType) (n : nat) (I : Retract sig tau) (P : Spec sig n) (ss : Vector.t nat n)
@@ -686,8 +730,8 @@ Section AlphabetLifting'.
         (pM : pTM sig^+ F n)
         (Q : F -> Spec sig n) (Q' : F -> Spec tau n) :
     Triple (tspec P) pM (fun yout => tspec (Q yout) ) ->
-    (forall t : tapes tau^+ n, t ≃≃ P' -> t ≃≃ LiftSpec retr P) ->
-    (forall yout tout, tspec (LiftSpec retr (Q yout)) tout ->  tspec (Q' yout) tout ) ->
+    Entails (≃≃ P') (≃≃ LiftSpec retr P) ->
+    (forall yout, Entails (≃≃ LiftSpec retr (Q yout)) (≃≃ (Q' yout))) ->
     Triple (tspec P') (pM ⇑ retr) (fun yout => tspec (Q' yout)).
   Proof.
     intros H1 H2 H3.
@@ -702,8 +746,8 @@ Section AlphabetLifting'.
         (k : nat) (pM : pTM sig^+ F n)
         (Q : F -> Spec sig n) (Q' : F -> Spec tau n) :
     TripleT (tspec P) k pM (fun yout => tspec (Q yout) ) ->
-    (forall t : tapes tau^+ n, t ≃≃ P' -> t ≃≃ LiftSpec retr P) ->
-    (forall yout tout, tspec (LiftSpec retr (Q yout)) tout ->  tspec (Q' yout) tout ) ->
+    Entails (≃≃ P') (≃≃ LiftSpec retr P) ->
+    (forall yout, Entails (tspec (LiftSpec retr (Q yout))) (tspec (Q' yout))) ->
     TripleT (tspec P') k (pM ⇑ retr) (fun yout => tspec (Q' yout)).
   Proof.
     intros H1 H2 H3.
@@ -720,7 +764,7 @@ Section AlphabetLifting'.
         (pM : pTM sig^+ F n)
         (Q : F -> Spec sig n) :
     Triple (tspec P) pM (fun yout => tspec (Q yout)) ->
-    (forall t : tapes tau^+ n, t ≃≃ P' -> t ≃≃ LiftSpec retr P) ->
+    (Entails (≃≃ P') (≃≃ LiftSpec retr P)) ->
     Triple (tspec P') (pM ⇑ retr) (fun yout => tspec (LiftSpec retr (Q yout))).
   Proof.
     intros H1 H2.
@@ -735,7 +779,7 @@ Section AlphabetLifting'.
         (k : nat) (pM : pTM sig^+ F n)
         (Q : F -> Spec sig n) :
     TripleT (tspec P) k pM (fun yout => tspec (Q yout)) ->
-    (forall t : tapes tau^+ n, t ≃≃ P' -> t ≃≃ LiftSpec retr P) ->
+    (Entails (≃≃ P') (≃≃ LiftSpec retr P)) ->
     TripleT (tspec P') k (pM ⇑ retr) (fun yout => tspec (LiftSpec retr (Q yout))).
   Proof.
     intros H1 H2.
@@ -756,15 +800,15 @@ Section AlphabetLifting'.
         (Q : F -> Spec sig n) (Q' : F -> Spec tau n)
         (ss ss' : Vector.t nat n) :
     Triple (tspec (withSpace P ss)) pM (fun yout => tspec (withSpace (Q yout) ss')) ->
-    (forall t : tapes tau^+ n, t ≃≃ withSpace P' ss -> t ≃≃ withSpace (LiftSpec retr P) ss) ->
-    (forall yout tout, tspec (withSpace (LiftSpec retr (Q yout)) ss') tout ->  tspec (withSpace (Q' yout) ss') tout ) ->
+    (Entails (≃≃ withSpace P' ss) (≃≃ withSpace (LiftSpec retr P) ss)) ->
+    (forall yout, Entails (≃≃ withSpace (LiftSpec retr (Q yout)) ss') (tspec (withSpace (Q' yout) ss'))) ->
     Triple (tspec (withSpace P' ss)) (pM ⇑ retr) (fun yout => tspec (withSpace (Q' yout) ss')).
   Proof.
     intros H1 H2 H3.
     eapply Consequence.
     - apply ChangeAlphabet_Spec. apply H1.
     - rewrite LiftSpec_withSpace. apply H2.
-    - cbn. intros. rewrite LiftSpec_withSpace in H. now apply H3.
+    - unfold Entails in *. cbn. intros. rewrite LiftSpec_withSpace in H. now apply H3.
   Qed.
 
   Lemma ChangeAlphabet_SpecT_space_pre_post (F : finType)
@@ -773,15 +817,15 @@ Section AlphabetLifting'.
         (Q : F -> Spec sig n) (Q' : F -> Spec tau n)
         (ss ss' : Vector.t nat n) :
     TripleT (tspec (withSpace P ss)) k pM (fun yout => tspec (withSpace (Q yout) ss')) ->
-    (forall t : tapes tau^+ n, t ≃≃ withSpace P' ss -> t ≃≃ withSpace (LiftSpec retr P) ss) ->
-    (forall yout tout, tspec (withSpace (LiftSpec retr (Q yout)) ss') tout ->  tspec (withSpace (Q' yout) ss') tout ) ->
+    (Entails (≃≃ withSpace P' ss) (≃≃ withSpace (LiftSpec retr P) ss)) ->
+    (forall yout, Entails (tspec (withSpace (LiftSpec retr (Q yout)) ss')) (tspec (withSpace (Q' yout) ss'))) ->
     TripleT (tspec (withSpace P' ss)) k (pM ⇑ retr) (fun yout => tspec (withSpace (Q' yout) ss')).
   Proof.
     intros H1 H2 H3.
     eapply ConsequenceT.
     - apply ChangeAlphabet_SpecT. apply H1.
     - rewrite LiftSpec_withSpace. apply H2.
-    - cbn. intros. rewrite LiftSpec_withSpace in H. now apply H3.
+    - unfold Entails in *. cbn. intros. rewrite LiftSpec_withSpace in H. now apply H3.
     - reflexivity.
   Qed.
 
@@ -793,14 +837,14 @@ Section AlphabetLifting'.
         (Q : F -> Spec sig n)
         (ss ss' : Vector.t nat n) :
     Triple (tspec (withSpace P ss)) pM (fun yout => tspec (withSpace (Q yout) ss')) ->
-    (forall t : tapes tau^+ n, t ≃≃ withSpace P' ss -> t ≃≃ withSpace (LiftSpec retr P) ss) ->
+    Entails (≃≃ withSpace P' ss) (≃≃ withSpace (LiftSpec retr P) ss) ->
     Triple (tspec (withSpace P' ss)) (pM ⇑ retr) (fun yout => tspec (withSpace (LiftSpec retr (Q yout)) ss')).
   Proof.
     intros H1 H2.
     eapply Consequence.
     - apply ChangeAlphabet_Spec. apply H1.
     - rewrite LiftSpec_withSpace. apply H2.
-    - cbn. intros. rewrite LiftSpec_withSpace in H. now apply H.
+    - unfold Entails in *. cbn. intros. rewrite LiftSpec_withSpace in H. now apply H.
   Qed.
 
   Lemma ChangeAlphabet_SpecT_space_pre (F : finType)
@@ -809,14 +853,14 @@ Section AlphabetLifting'.
         (Q : F -> Spec sig n)
         (ss ss' : Vector.t nat n) :
     TripleT (tspec (withSpace P ss)) k pM (fun yout => tspec (withSpace (Q yout) ss')) ->
-    (forall t : tapes tau^+ n, t ≃≃ withSpace P' ss -> t ≃≃ withSpace (LiftSpec retr P) ss) ->
+    Entails (≃≃ withSpace P' ss) (≃≃ withSpace (LiftSpec retr P) ss) ->
     TripleT (tspec (withSpace P' ss)) k (pM ⇑ retr) (fun yout => tspec (withSpace (LiftSpec retr (Q yout)) ss')).
   Proof.
     intros H1 H2.
     eapply ConsequenceT.
     - apply ChangeAlphabet_SpecT. apply H1.
     - rewrite LiftSpec_withSpace. apply H2.
-    - cbn. intros. rewrite LiftSpec_withSpace in H. now apply H.
+    - unfold Entails in *. cbn. intros. rewrite LiftSpec_withSpace in H. now apply H.
     - reflexivity.
   Qed.
   
