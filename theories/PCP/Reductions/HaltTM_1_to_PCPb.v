@@ -20,21 +20,25 @@ Require Import Undecidability.Synthetic.Undecidability.
 
 Require Import Undecidability.TM.TM.
 
+From Undecidability.TM
+  Require Import TM SBTM Reductions.HaltTM_1_to_HaltSBTM Reductions.HaltSBTM_to_HaltSBTMu.
+
 From Undecidability.StringRewriting
-  Require Import SR TM_to_SRH SRH_to_SR.
+  Require Import SR HaltSBTMu_to_SRH SRH_to_SR.
 
 From Undecidability.PCP
   Require Import PCP.
 
 From Undecidability.PCP.Reductions
-  Require Import SR_to_MPCP MPCP_to_PCP PCP_to_PCPb PCPb_iff_iPCPb.
+     Require Import SR_to_MPCP MPCP_to_PCP PCP_to_PCPb PCPb_iff_iPCPb.
 
 Lemma HaltTM_1_chain_iPCPb : 
-  ⎩ HaltTM 1 ⪯ₘ singleTM.Halt ⪯ₘ SRH ⪯ₘ SR ⪯ₘ MPCP ⪯ₘ PCP ⪯ₘ PCPb ⪯ₘ iPCPb ⎭.
+  ⎩ HaltTM 1 ⪯ₘ HaltSBTM ⪯ₘ HaltSBTMu ⪯ₘ SRH ⪯ₘ SR ⪯ₘ MPCP ⪯ₘ PCP ⪯ₘ PCPb ⪯ₘ iPCPb ⎭.
 Proof.
-  msplit 6.
-  + apply singleTM.TM_conv.
-  + apply Halt_SRH.
+  msplit 7.
+  + apply HaltTM_1_to_HaltSBTM.reduction.
+  + apply HaltSBTM_to_HaltSBTMu.reduction.
+  + apply HaltSBTMu_to_SRH.reduction.
   + apply SRH_to_SR.reduction.
   + apply SR_to_MPCP.reduction.
   + apply MPCP_to_PCP.reduction.

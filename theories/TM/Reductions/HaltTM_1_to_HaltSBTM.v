@@ -1,11 +1,10 @@
 From Undecidability Require TM.TM TM.SBTM.
 Require Import Undecidability.Shared.FinTypeEquiv.
-Require Import Undecidability.L.Functions.FinTypeLookup.
+(* Require Import Undecidability.L.Functions.FinTypeLookup. *)
 Require Import PslBase.FiniteTypes.FinTypes PslBase.Vectors.Vectors.
 Require Undecidability.TM.Util.TM_facts.
 Import VectorNotations2.
 Local Open Scope vector.
-
 
 Notation vector_hd v := (projT1 (destruct_vector_cons v)).  
 
@@ -64,10 +63,9 @@ Section red.
     Qed.
 
     Lemma red_correct1 q q' t t' :
-      TM.eval M q t q' t' <-> SBTM.eval (SBTM.Build_SBTM num_states trans) (conv_state q) (conv_tape t) (conv_state q') (conv_tape t').
+      TM.eval M q t q' t' -> SBTM.eval (SBTM.Build_SBTM num_states trans) (conv_state q) (conv_tape t) (conv_state q') (conv_tape t').
     Proof.
-      split.
-      - induction 1.
+      induction 1.
         + eapply SBTM.eval_halt. cbn. now rewrite Hg, H.
         + TM_facts.destruct_tapes. cbn in *.
           rewrite <- current_red in H0.
@@ -75,30 +73,28 @@ Section red.
           eapply SBTM.eval_step with (q' := conv_state q') (w := w) (m := conv_move m). cbn. rewrite Hg, H, E.
           destruct destruct_vector_cons as (? & ? & ?), x; cbn. inv e. reflexivity.
           now rewrite wr_red, mv_red.
-      - intros H.
+    Qed.
+
+    Lemma red_correct2 q t q'_ t'_ :
+      SBTM.eval (SBTM.Build_SBTM num_states trans) (conv_state q) (conv_tape t) q'_ t'_ ->
+      exists q' t', q'_ = conv_state q' /\ t'_ = conv_tape t' /\
+      TM.eval M q t q' t'.
+    Proof.
+      intros H.
         remember (conv_state q) as q_.
         remember (conv_tape t) as t_.
-        remember (conv_state q') as q'_.
-        remember (conv_tape t') as t'_.
-        induction H in q, q', t, t', Heqq_, Heqq'_, Heqt_, Heqt'_ |- *; subst.
-        + enough (q = q' /\ t = t') as [-> ->].
-          * unfold SBTM.trans, trans in H.
-            revert H.
-            generalize (eq_refl (conv_state q')).
-            pattern (conv_state q') at 1 3.
+        induction H in q, t, Heqq_, Heqt_ |- *; subst.
+        + exists q, t. repeat split. econstructor.
+          unfold SBTM.trans, trans in H.
+          revert H.
+          generalize (eq_refl (conv_state q)).
+            pattern (conv_state q) at 1 3.
             eapply Fin.caseS'; cbn.
             -- intros ? [=].
             -- intros ? ? ?. destruct TM.halt eqn:E.
-               ++ econstructor. unfold conv_state in H.
+               ++ unfold conv_state in H.
                   eapply Fin.FS_inj in H as ->. now rewrite Hg in E.
                ++ destruct TM.trans, destruct_vector_cons, x; inv H0.
-          * split. 
-            -- unfold conv_state in *. eapply Fin.FS_inj in Heqq'_.
-               eapply (f_equal g) in Heqq'_. now rewrite !Hg in Heqq'_.
-            -- TM_facts.destruct_tapes. unfold conv_tape in *.
-               destruct destruct_vector_cons as (? & ? & ?); subst. inv e. clear H2. cbn in *.
-               destruct destruct_vector_cons as (? & ? & ?); subst. inv e0. clear H2. cbn in *.
-               destruct x, x1; inv Heqt'_; reflexivity.
         + unfold SBTM.trans, trans in H. revert H.
           generalize (eq_refl (conv_state q)).
           pattern (conv_state q) at 1 3.
@@ -110,13 +106,27 @@ Section red.
             -- intros [=].
             -- TM_facts.destruct_tapes.
                destruct TM.trans eqn:Et, destruct_vector_cons as (? & ? & ?), x; cbn. intros [=]; subst.
-               econstructor. eassumption. rewrite current_red in Et. eassumption.
-               cbn. eapply IHeval; eauto. rewrite wr_red, mv_red. destruct_vector; cbn. reflexivity.
+               rewrite current_red in Et.
+               cbn. edestruct IHeval as (q' & t'_ & -> & -> & H); eauto.
+               ++ rewrite wr_red, mv_red. destruct_vector; cbn. reflexivity.
+               ++ repeat esplit. cbn in *. econstructor. eauto. eauto. cbn. destruct_vector. eassumption.
     Qed.
 
 End red.
 
+Require Undecidability.TM.TM Undecidability.TM.SBTM.
+Require Import Undecidability.Synthetic.Definitions.
+Require Import Undecidability.Synthetic.ReducibilityFacts.
+Require Undecidability.TM.Reductions.Arbitrary_to_Binary.
 
-
-
-
+Theorem reduction :
+  TM.HaltTM 1 ⪯ SBTM.HaltSBTM.
+Proof.
+  eapply reduces_transitive. eapply Arbitrary_to_Binary.reduction.
+  unshelve eexists. { intros [M t]. refine (_, conv_tape t). refine (SBTM.Build_SBTM (num_states M) (@trans M)). }
+  intros [M t]. split.
+  - intros [q' [t' H]]. eapply red_correct1 in H.
+    exists (conv_state q'), (conv_tape t'). econstructor. cbn. reflexivity. eapply H.
+  - intros [q' [t' H]]. inversion H; subst; clear H. cbn in H0. inv H0. cbn in *. inv H0.
+    eapply red_correct2 in H1 as (? & ? & -> & -> & H). eexists. eexists. eauto.
+Qed.
