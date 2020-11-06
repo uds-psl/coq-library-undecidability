@@ -13,6 +13,16 @@ Proof.
    now inversion 1.
 Qed.
 
+Lemma list_prefix_inv'' X (a : X) x u y v :
+  ~ a el u -> ~ a el v -> x ++ a :: y = u ++ a :: v -> x = u /\ y = v.
+Proof.
+  induction x in u, v |- *; intros Hu Hv H; cbn in *.
+  - destruct u. split. reflexivity. now inversion H. inversion H; subst. cbn in Hu. tauto.
+  - destruct u. 
+    + inversion H; subst. destruct Hv. eauto.
+    + inversion H; subst. eapply IHx in H2 as [-> ->]; eauto.
+Qed.
+
 Lemma list_prefix_inv' X (a a' : X) x u y v :
 ~ In a' x -> ~ In a u -> 
 x ++ a :: y = u ++ a' :: v -> a = a' /\ x = u /\ y = v.

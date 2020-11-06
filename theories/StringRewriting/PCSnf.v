@@ -12,7 +12,7 @@ Definition SRS X := list (string X * string X).
 
 (** If u / v is a rewriting rule, then x ++ u ++ y rewrites to x ++ v ++ y. *)
 Inductive der {X : Type} (R : SRS X) : string X -> string X -> Prop :=
-  derB x u v : In (u / v) R -> der R (u ++ x) (v ++ x).
+  derB x u v : In (u / v) R -> der R (u ++ x) (x ++ v).
 (** rewt is the reflexive, transitive closure of rew. *)
 Inductive derv {X : Type} (R : SRS X) : string X -> string X -> Prop :=
   derR z : derv R z z

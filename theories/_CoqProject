@@ -138,6 +138,7 @@ StringRewriting/PCSnf.v
 
 StringRewriting/Util/Definitions.v
 StringRewriting/Reductions/SRH_to_SR.v
+StringRewriting/Reductions/SR_to_PCSnf.v
 StringRewriting/Reductions/HaltSBTMu_to_SRH.v
 StringRewriting/Reductions/HaltTM_1_to_SR.v
 
