@@ -15,16 +15,16 @@ From Undecidability Require Import TM.Code.Copy.
 Definition CopyValue_sizefun {sigX X : Type} {cX : codable sigX X} (x : X) : Vector.t (nat->nat) 2 := [|id; CopyValue_size x|].
 
 Lemma CopyValue_SpecT_size (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) (ss : Vector.t nat 2) :
-  TripleT (tspec (withSpace (SpecVector [|Contains _ x; Void|]) ss))
+  TripleT (tspec (withSpace [|Contains _ x; Void|] ss))
           (CopyValue_steps x) (CopyValue _)
-          (fun _ => tspec (withSpace (SpecVector [|Contains _ x; Contains _ x|]) (appSize (CopyValue_sizefun x) ss))).
+          (fun _ => tspec (withSpace [|Contains _ x; Contains _ x|] (appSize (CopyValue_sizefun x) ss))).
 Proof.
   eapply Realise_TripleT.
   - apply CopyValue_Realise.
   - apply CopyValue_Terminates.
   - intros tin [] tout H HEnc. cbn in *. 
-    specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. cbn in *. 
-    cbn in *; simpl_vector in *; cbn in *.
+    specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. hnf. cbn in *. 
+    cbn in *; simpl_vector in *; cbn in *. unfold tspec_single in *. cbn in *.
     modpon H. tspec_solve. 
   - intros tin k HEnc. cbn in *.
     specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1.
