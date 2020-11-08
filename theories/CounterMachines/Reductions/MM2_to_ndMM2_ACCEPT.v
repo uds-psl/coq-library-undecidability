@@ -27,12 +27,15 @@ Section MM2_ndMM2.
   Notation DEC  := (@ndmm2_dec _).
   Notation ZERO := (@ndmm2_zero _).
 
+  Notation α := true. 
+  Notation β := false.
+
   Definition mm2_instr_enc i ρ :=
     match ρ with
-      | mm2_inc_a   => INC true  (1+i) i :: nil
-      | mm2_inc_b   => INC false (1+i) i :: nil
-      | mm2_dec_a j => DEC true  j i :: ZERO true  (1+i) i :: nil
-      | mm2_dec_b j => DEC false j i :: ZERO false (1+i) i :: nil
+      | mm2_inc_a   => INC α i (1+i) :: nil
+      | mm2_inc_b   => INC β i (1+i) :: nil
+      | mm2_dec_a j => DEC α i j :: ZERO true  i (1+i) :: nil
+      | mm2_dec_b j => DEC β i j :: ZERO false i (1+i) :: nil
     end.
 
   Fixpoint mm2_linstr_enc i l :=
@@ -61,14 +64,14 @@ Section MM2_ndMM2.
         - eq goal H2; do 2 f_equal; simpl; lia.
   Qed.
 
-  Notation "Σ ; a ⊕ b ⊦ u" := (ndmm2_accept Σ a b u) (at level 70, no associativity).
+  Notation "Σ // a ⊕ b ⊦ u" := (ndmm2_accept Σ a b u) (at level 70, no associativity).
 
   Local Fact mm2_instr_enc_sound Σ ρ s1 s2 : 
           mm2_atom ρ s1 s2 
        -> match s1, s2 with 
             | (i,(a,b)), (j,(a',b')) => incl (mm2_instr_enc i ρ) Σ 
-                                     -> Σ ; a' ⊕ b' ⊦ j 
-                                     -> Σ ; a  ⊕ b  ⊦ i
+                                     -> Σ // a' ⊕ b' ⊦ j 
+                                     -> Σ // a  ⊕ b  ⊦ i
           end.
   Proof.
     induction 1 as [ i a b | i a b | i j a b | i j a b | i j b | i j a ]; simpl; intros HΣ H.
@@ -84,8 +87,8 @@ Section MM2_ndMM2.
           mm2_step P s1 s2 
        -> match s1, s2 with 
             | (i,(a,b)), (j,(a',b')) => incl (mm2_linstr_enc 1 P) Σ 
-                                     -> Σ ; a' ⊕ b' ⊦ j 
-                                     -> Σ ; a  ⊕ b  ⊦ i
+                                     -> Σ // a' ⊕ b' ⊦ j 
+                                     -> Σ // a  ⊕ b  ⊦ i
           end.
   Proof.
     intros (ρ & (l&r&H1&H2) & H3).
@@ -111,8 +114,8 @@ Section MM2_ndMM2.
   Local Lemma mm2_prog_enc_compute s1 s2 : 
           P // s1 ↠ s2 
        -> match s1, s2 with 
-            | (i,(a,b)), (j,(a',b')) => Σ ; a' ⊕ b' ⊦ j 
-                                     -> Σ ; a  ⊕ b  ⊦ i
+            | (i,(a,b)), (j,(a',b')) => Σ // a' ⊕ b' ⊦ j 
+                                     -> Σ // a  ⊕ b  ⊦ i
           end.
   Proof.
     induction 1 as [ (?,(?,?)) (?,(?,?)) H
@@ -122,13 +125,13 @@ Section MM2_ndMM2.
     apply H, incl_tl, incl_refl.
   Qed.
 
-  Local Lemma mm2_prog_enc_stop : Σ ; 0 ⊕ 0 ⊦ 0.
+  Local Lemma mm2_prog_enc_stop : Σ // 0 ⊕ 0 ⊦ 0.
   Proof. constructor 1; simpl; auto. Qed.
 
   Hint Resolve mm2_prog_enc_stop : core.
 
   Local Lemma mm2_prog_enc_complete a b p : 
-             Σ ; a ⊕ b ⊦ p -> P // (p,(a,b)) ↠ (0,(0,0)).
+             Σ // a ⊕ b ⊦ p -> P // (p,(a,b)) ↠ (0,(0,0)).
   Proof.
     induction 1 as [ u H 
                    | a b u v H H1 IH1
@@ -175,9 +178,9 @@ Section MM2_ndMM2.
       destruct H2 as [ H2 | H2 ].
       2: now destruct H2.
       inversion H2; subst.
-      constructor 3 with (u, (a,b)); auto.
+      constructor 3 with (v, (a,b)); auto.
       constructor 1.
-      exists (mm2_dec_a u); split; auto.
+      exists (mm2_dec_a v); split; auto.
       * exists l, r; simpl; split; auto; lia.
       * rewrite !(plus_comm (length l)); constructor.
     + destruct H as [ H | H ]; try discriminate.
@@ -188,9 +191,9 @@ Section MM2_ndMM2.
       destruct H2 as [ H2 | H2 ].
       2: now destruct H2.
       inversion H2; subst.
-      constructor 3 with (u, (a,b)); auto.
+      constructor 3 with (v, (a,b)); auto.
       constructor 1.
-      exists (mm2_dec_b u); split; auto.
+      exists (mm2_dec_b v); split; auto.
       * exists l, r; simpl; split; auto; lia.
       * rewrite !(plus_comm (length l)); constructor.
     + destruct H as [ H | H ]; try discriminate.
@@ -223,7 +226,7 @@ Section MM2_ndMM2.
       * eq goal IH1; do 2 f_equal; lia.
   Qed.
 
-  Theorem MM2_ndMM2_equiv a b : MM2_HALTS_ON_ZERO (P,a,b) <-> Σ ; a ⊕ b ⊦ 1.
+  Theorem MM2_ndMM2_equiv a b : MM2_HALTS_ON_ZERO (P,a,b) <-> Σ // a ⊕ b ⊦ 1.
   Proof.
     split.
     + intros H; apply mm2_prog_enc_compute in H; auto.

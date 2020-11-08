@@ -24,6 +24,7 @@ Set Implicit Arguments.
 
 Local Infix "~p" := (@Permutation _) (at level 70).
 Local Notation "X ⊆ Y" := (forall a, X a -> Y a : Prop) (at level 70).
+Local Infix "∊" := In (at level 70).
 
 Local Reserved Notation "'⟦' A '⟧'" (at level 1, format "⟦ A ⟧").
 
@@ -31,8 +32,6 @@ Section IMSELL.
 
   Variable bang : Type.
 
-  Infix "⊸" := (@imsell_imp _ _).
-  Notation "![ m ] x" := (@imsell_ban _ _ m x).
   Notation "£ A" := (@imsell_var _ _ A) (at level 1).
   Notation "‼ l" := (@imsell_lban nat bang l).
 
@@ -41,9 +40,10 @@ Section IMSELL.
 
   Variable (bang_le : bang -> bang -> Prop) (bang_U : bang -> Prop).
 
-  Notation "u ≼ l" := (forall '(v,A), In (v,A) l -> bang_le u v) (at level 70).
+  Infix "≤" := bang_le (at level 70).
   Notation U := bang_U. 
 
+  Notation "u ≼ l" := (forall '(v,A), (v,A) ∊ l -> u ≤ v) (at level 70).
   Notation "Γ ⊢ A" := (S_imsell bang_le bang_U Γ A) (at level 70).
 
   Fact S_imsell_weak Γ Δ B : Forall (fun '(u,_) => U u) Γ -> Δ ⊢ B -> ‼Γ++Δ ⊢ B.
@@ -70,7 +70,7 @@ Section IMSELL.
       apply Permutation_cons_app; auto.
   Qed.
 
-  Theorem S_imsell_weak_cntr Σ Γ u A B : In (u,A) Σ -> U u -> ‼Σ++Γ ⊢ B <-> ![u]A::‼Σ++Γ ⊢ B.
+  Theorem S_imsell_weak_cntr Σ Γ u A B : (u,A) ∊ Σ -> U u -> ‼Σ++Γ ⊢ B <-> ![u]A::‼Σ++Γ ⊢ B.
   Proof.
     intros H H1; apply In_perm in H as (Σ' & H).
     split.
@@ -89,20 +89,22 @@ Section IMSELL.
 
   Section Trivial_Phase_semantics.
 
+    (* We only consider the monoids nat^n *)
+
     Variables (n : nat) (s : nat -> vec nat n -> Prop)
               (K : bang -> vec nat n -> Prop).
 
-    Hypothesis HK_le : forall u v, bang_le u v -> K v ⊆ K u.
+    Hypothesis HK_antitone : forall u v, u ≤ v -> K v ⊆ K u.
 
     Notation ø := vec_zero.
 
-    Definition imsell_tps_imp (X Y : _ -> Prop) (v : vec _ n) := forall x, X x -> Y (vec_plus x v).
     Definition imsell_tps_mult (X Y : _ -> Prop) (x : vec _ n) := exists a b, x = vec_plus a b /\ X a /\ Y b.
+    Definition imsell_tps_imp (X Y : _ -> Prop) (v : vec _ n) := forall x, X x -> Y (vec_plus x v).
  
-    Infix "**" := imsell_tps_mult (at level 65, right associativity).
-    Infix "-*" := imsell_tps_imp (at level 65, right associativity).
+    Infix "⊛" := imsell_tps_mult (at level 65, right associativity).
+    Infix "-⊛" := imsell_tps_imp (at level 65, right associativity).
 
-    Fact imsell_tps_imp_zero X Y : (X -* Y) ø <-> X ⊆ Y.
+    Fact imsell_tps_imp_zero X Y : (X -⊛ Y) ø <-> X ⊆ Y.
     Proof.
       split.
       + intros ? ? ?; rewrite <- vec_zero_plus, vec_plus_comm; auto.
@@ -110,11 +112,11 @@ Section IMSELL.
     Qed.
 
     Hypothesis HK_unit0 : forall u, K u ø.
-    Hypothesis HK_plus  : forall u, (K u)**(K u) ⊆ K u.
-    Hypothesis HK_unit1 : forall u, bang_U u -> forall x, K u x -> x = ø.
+    Hypothesis HK_plus  : forall u, K u ⊛ K u ⊆ K u.
+    Hypothesis HK_unit1 : forall u, U u -> forall x, K u x -> x = ø.
 
     Fact imsell_tps_mult_mono (X1 X2 Y1 Y2 : _ -> Prop) : 
-              X1 ⊆ X2 -> Y1 ⊆ Y2 -> X1**Y1 ⊆ X2**Y2.
+              X1 ⊆ X2 -> Y1 ⊆ Y2 -> X1⊛Y1 ⊆ X2⊛Y2.
     Proof.
       intros H1 H2 x (y & z & H3 & H4 & H5); subst.
       exists y, z; auto.
@@ -122,16 +124,16 @@ Section IMSELL.
 
     Fixpoint imsell_tps (A : imsell_form nat bang) x : Prop :=
       match A with
-        | £ X     => s X x
-        | ![u]A   => ⟦A⟧ x /\ K u x
-        | A ⊸ B   => (⟦A⟧ -* ⟦B⟧) x
+        | £ X   => s X x
+        | ![u]A => ⟦A⟧ x /\ K u x
+        | A⊸B   => (⟦A⟧-⊛⟦B⟧) x
       end
     where "⟦ A ⟧" := (imsell_tps A).
 
     Fact imsell_tps_bang_zero u A : ⟦![u]A⟧ ø <-> ⟦A⟧ ø.
     Proof. simpl; split; auto; tauto. Qed.
 
-    Fact imsell_tps_bang_U u A : bang_U u -> (forall v, ⟦![u]A⟧ v <-> v = ø) <-> ⟦A⟧ ø.
+    Fact imsell_tps_bang_U u A : U u -> (forall v, ⟦![u]A⟧ v <-> v = ø) <-> ⟦A⟧ ø.
     Proof.
       intros Hu; split.
       + intros H; rewrite <- imsell_tps_bang_zero, H; auto.
@@ -144,12 +146,12 @@ Section IMSELL.
 
     Fixpoint imsell_tps_list Γ :=
       match Γ with
-        | nil  => eq vec_zero
-        | A::Γ => ⟦A⟧ ** ⟪Γ⟫
+        | nil  => eq ø
+        | A::Γ => ⟦A⟧⊛⟪Γ⟫
       end
     where "⟪ Γ ⟫" := (imsell_tps_list Γ).
 
-    Fact imsell_tps_app Γ Δ x : ⟪Γ++Δ⟫ x <-> (⟪Γ⟫**⟪Δ⟫) x.
+    Fact imsell_tps_app Γ Δ x : ⟪Γ++Δ⟫ x <-> (⟪Γ⟫⊛⟪Δ⟫) x.
     Proof.
       revert Γ Δ x; intros Ga De.
       induction Ga as [ | A Ga IH ]; intros x; simpl; split; intros Hx.
@@ -170,7 +172,7 @@ Section IMSELL.
           exists g, d; auto.
     Qed.
 
-    Fact imsell_tps_list_zero Γ : (forall A, In A Γ -> ⟦A⟧ ø) -> ⟪Γ⟫ ø.
+    Fact imsell_tps_list_zero Γ : (forall A, A ∊ Γ -> ⟦A⟧ ø) -> ⟪Γ⟫ ø.
     Proof.
       induction Γ as [ | A Γ IH ]; simpl; auto; intros H.
       exists ø, ø; msplit 2; auto; now rewrite vec_zero_plus.
@@ -182,7 +184,7 @@ Section IMSELL.
       + intros <-; auto.
       + intros (y & z & -> & (G1 & G2) & G3).
         apply HK_plus; exists y, z; msplit 2; auto.
-        * revert G2; apply HK_le; auto.
+        * revert G2; apply HK_antitone; auto.
           apply (H1 (v,A)); auto.
         * revert G3; apply IH.
           intros (w,B) ?; apply (H1 (_,B)); auto.
@@ -200,7 +202,7 @@ Section IMSELL.
           exists y, d; auto.
     Qed.
   
-    Definition imsell_sequent_tps Γ A := ⟪Γ⟫ -* ⟦A⟧.
+    Definition imsell_sequent_tps Γ A := ⟪Γ⟫ -⊛ ⟦A⟧.
 
     Notation "'[<' Γ '|-' A '>]'" := (imsell_sequent_tps Γ A) (at level 1, format "[<  Γ  |-  A  >]").
 
@@ -208,15 +210,13 @@ Section IMSELL.
            ⟦A⟧ ⊆ ⟦B⟧ -> [< Γ |- A >] ⊆ [< Γ |- B >].
     Proof.
       intros H x; simpl; unfold imsell_sequent_tps.
-      intros H1 ? H2.
-      apply H, H1; auto.
+      intros H1 ? H2; apply H, H1; auto.
     Qed.
 
     Fact imsell_perm_tps Γ Δ : Γ ~p Δ -> forall A, [< Γ |- A >] ⊆ [< Δ |- A >].
     Proof.
       intros H1 B x; unfold imsell_sequent_tps.
-      intros H2 ? H3.
-      apply H2; revert H3. 
+      intros H2 ? H3; apply H2; revert H3.
       apply imsell_tps_perm, Permutation_sym; auto.
     Qed.
 

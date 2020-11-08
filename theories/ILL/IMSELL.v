@@ -11,15 +11,13 @@ Require Import List Permutation.
 
 Set Implicit Arguments.
 
-(** * Intuionistic Multiplicative Linear Logic with several exponentials and modabilities *)
+(** * Intuitionistic Multiplicative Sub-Exponential Linear Logic 
+
+      derived from  https://doi.org/10.1017/S0960129516000293 *)
 
 Local Infix "~p" := (@Permutation _) (at level 70).
 
-(** We consider  IMSELL:
-    - the (!^,-o) fragment without cut
-*)
-
-Reserved Notation "A ⊸ B" (at level 51, right associativity).
+Reserved Notation "A ⊸ B" (at level 51, right associativity, format "A ⊸ B").
 Reserved Notation "'![' m ']' x" (at level 52, format "![ m ] x").
 Reserved Notation "‼ x" (at level 60, format "‼ x").
 
@@ -47,41 +45,51 @@ Section IMSELL.
 
   Reserved Notation "l ⊢ x" (at level 70, no associativity).
 
-  Inductive S_imsell : _ -> _ -> Prop :=
+  (** We consider the (![.],-o) fragment of IMSELL without cut *)
 
-    | in_imsell_ax     : forall A,                        A::nil ⊢ A
+  Inductive S_imsell : list imsell_form -> imsell_form -> Prop :=
 
-    | in_imsell_perm   : forall Γ Δ A,              Γ ~p Δ     ->   Γ ⊢ A 
-                                           (*-----------------------------*)
-                                        ->                 Δ ⊢ A
+    | in_imsell_ax A :                        A::nil ⊢ A          (* [identity] *)
 
-    | in_imsell_limp_l : forall Γ Δ A B C,         Γ ⊢ A      ->   B::Δ ⊢ C
-                                           (*-----------------------------*)    
-                                      ->           A ⊸ B::Γ++Δ ⊢ C
+    | in_imsell_perm Γ Δ A :  Γ ~p Δ ->            Γ ⊢ A 
+                                    (*-----------------------------  [permutation] *)
+                                ->                 Δ ⊢ A
 
-    | in_imsell_limp_r : forall Γ A B,                  A::Γ ⊢ B
-                                           (*-----------------------------*)
-                                        ->            Γ ⊢ A ⊸ B
+    | in_imsell_limp_l Γ Δ A B C :      Γ ⊢ A      ->   B::Δ ⊢ C
+                                    (*-----------------------------  [⊸L] *)
+                                ->          A⊸B::Γ++Δ ⊢ C
 
-    | in_imsell_bang_l : forall m Γ A B,                 A::Γ ⊢ B
-                                           (*-----------------------------*)
-                                      ->           ![m]A::Γ ⊢ B
+    | in_imsell_limp_r Γ A B :                   A::Γ ⊢ B
+                                    (*-----------------------------  [⊸R] *)
+                                ->                  Γ ⊢ A⊸B
 
-    | in_imsell_bang_r : forall m Γ A,            m ≼ Γ    ->     ‼Γ ⊢ A
-                                           (*-----------------------------*)
-                                      ->              ‼Γ ⊢ ![m]A
+    | in_imsell_bang_l Γ m A B :                 A::Γ ⊢ B
+                                    (*-----------------------------  [!L] *)
+                                ->           ![m]A::Γ ⊢ B
 
-    | in_imsell_weak : forall u Γ A B,              U u    ->   Γ ⊢ B
-                                           (*-----------------------------*)
-                                      ->             ![u]A::Γ ⊢ B
+    | in_imsell_bang_r Γ m A : m ≼ Γ ->            ‼Γ ⊢ A
+                                    (*-----------------------------  [!R] *)
+                                ->                 ‼Γ ⊢ ![m]A
 
-    | in_imsell_cntr : forall u Γ A B,         U u  -> ![u]A::![u]A::Γ ⊢ B
-                                           (*-----------------------------*)
-                                      ->               ![u]A::Γ ⊢ B
+    | in_imsell_weak Γ u A B : U u ->               Γ ⊢ B
+                                    (*-----------------------------  [weakening] *)
+                                ->           ![u]A::Γ ⊢ B
+
+    | in_imsell_cntr Γ u A B : U u -> ![u]A::![u]A::Γ ⊢ B
+                                    (*-----------------------------  [contraction] *)
+                                ->           ![u]A::Γ ⊢ B
 
   where "Γ ⊢ A" := (S_imsell Γ A).
 
 End IMSELL.
+
+Infix "⊸" := imsell_imp.
+Notation "![ m ] x" := (imsell_ban m x).
+Notation "£" := imsell_var.
+Notation "‼ Γ" := (imsell_lban Γ).
+
+(** An IMSELL signature is a type of modalities pre-ordered
+    and an upper-closed subset of exponentials *)
 
 Record IMSELL_sig : Type :=
   { IMSELL_Λ : Type; 
@@ -118,13 +126,11 @@ Section imsell3.
 End imsell3.
 
 Definition IMSELL_problem (S : IMSELL_sig) := 
-  let F := imsell_form nat (IMSELL_Λ S) 
-  in (list F * F)%type.
+  let F := imsell_form nat (IMSELL_Λ S) in (list F * F)%type.
 
 (* Cut-free provability over an IMSELL signature *)
 
 Definition IMSELL_cf_provable S (P : IMSELL_problem S) := 
-  let (Γ,A) := P 
-  in S_imsell (IMSELL_le S) (IMSELL_U S) Γ A.
+  let (Γ,A) := P in S_imsell (IMSELL_le S) (IMSELL_U S) Γ A.
  
 
