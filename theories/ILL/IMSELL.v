@@ -92,7 +92,7 @@ Notation "‼ Γ" := (imsell_lban Γ).
     and an upper-closed subset of exponentials *)
 
 Record IMSELL_sig : Type :=
-  { IMSELL_Λ : Type; 
+  { IMSELL_Λ :> Type; 
     IMSELL_le : IMSELL_Λ -> IMSELL_Λ -> Prop;
     IMSELL_refl : forall m, IMSELL_le m m;
     IMSELL_trans : forall u v w, IMSELL_le u v -> IMSELL_le v w -> IMSELL_le u w;
@@ -130,7 +130,7 @@ Definition IMSELL_problem (S : IMSELL_sig) :=
 
 (* Cut-free provability over an IMSELL signature *)
 
-Definition IMSELL_cf_provable S (P : IMSELL_problem S) := 
+Definition IMSELL_cf_PROVABILITY S (P : IMSELL_problem S) := 
   let (Γ,A) := P in S_imsell (IMSELL_le S) (IMSELL_U S) Γ A.
  
 

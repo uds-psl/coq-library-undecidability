@@ -42,42 +42,31 @@ Local Tactic Notation "intro" "pair" "as" ident(x) ident (y) :=
 
 Local Notation ø := vec_zero.
 
+Local Infix "≤" := (@IMSELL_le _) (at level 70).
+Local Notation "u ≰ v" := (~ u ≤ v) (at level 70).
+Local Notation U := (@IMSELL_U _).
+
 Section ndmm2_imsell.
 
-  Variable (sig : IMSELL_sig).
-
-  Notation bang := (IMSELL_Λ sig).
-
-  Variables (a b i : bang).
+  Variable (sig : IMSELL_sig) (a b i : sig).
 
   Notation "∞" := i.
 
   Notation bang_le := (IMSELL_le sig).
-  Notation U := (IMSELL_U sig).
-
-  Infix "≤" := bang_le (at level 70).
-  Notation "u ≰ v" := (~ u ≤ v) (at level 70).
-
-
-(*
-  Notation "u ≼ l" := (forall '(v,A), (v,A) ∊ l -> u ≤ v) (at level 70).
-  Notation "Γ ⊢ A" := (S_imsell bang_le bang_U Γ A) (at level 70).
-*)
 
   Hypothesis (Hai : a ≤ ∞) (Hbi : b ≤ ∞) (Hab : a ≰ b) (Hba : b ≰ a)
              (Ha : ~ U a) (Hb : ~ U b) (Hi : U ∞).
 
-  Local Definition bang_le_refl : forall x, x ≤ x := IMSELL_refl _.
+  Implicit Type u v w : sig.
+
+  Local Definition bang_le_refl : forall u, u ≤ u := IMSELL_refl _.
   Local Definition bang_le_trans : forall u v w, u ≤ v -> v ≤ w -> u ≤ w := IMSELL_trans _.
   Local Definition bang_U_clos : forall u v, U u -> u ≤ v -> U v := IMSELL_clos _.
 
   Hint Resolve Hai Hbi Ha Hb Hi Hab Hba bang_le_refl bang_U_clos : core.
 
-(*
-  Infix "⊸" := (@imsell_imp _ _).
-  Notation "![ m ] x" := (@imsell_ban _ _ m x). *)
   Notation "£ A" := (@imsell_var _ _ A) (at level 1).
-  Notation "‼ l" := (@imsell_lban nat bang l).
+  Notation "‼ l" := (@imsell_lban nat sig l).
 
   Definition bool2form (x : bool) := if x then ![a]£0 else ![b]£1.
   Definition bool2bang_op (x : bool) := if x then b else a.
@@ -117,10 +106,10 @@ Section ndmm2_imsell.
 
   Notation "Γ ⊢ A" := (S_imsell bang_le U Γ A) (at level 70).
 
-  Theorem ndmm2_imsell_weak c Σ x y u :
+  Theorem ndmm2_imsell_weak c Σ x y p :
             In c Σ
-        ->  ndmm2_imsell_ctx Σ x y ⊢ £u 
-       <-> (![∞]⟬c⟭)::ndmm2_imsell_ctx Σ x y ++ nil ⊢ £u.
+        ->  ndmm2_imsell_ctx Σ x y ⊢ £p 
+       <-> (![∞]⟬c⟭)::ndmm2_imsell_ctx Σ x y ++ nil ⊢ £p.
   Proof.
     intros H; rewrite <- app_nil_end.
     unfold ndmm2_imsell_ctx.
@@ -129,9 +118,9 @@ Section ndmm2_imsell.
     apply in_map_iff; eauto.
   Qed.
 
-  Notation "Σ // a ⊕ b ⊦ u" := (ndmm2_accept Σ a b u) (at level 70, no associativity).
+  Notation "Σ // a ⊕ b ⊦ p" := (ndmm2_accept Σ a b p) (at level 70, no associativity).
 
-  Theorem ndmm2_imsell_sound Σ x y u : Σ // x ⊕ y ⊦ u -> ndmm2_imsell_ctx Σ x y ⊢ £(2+u) .
+  Theorem ndmm2_imsell_sound Σ x y p : Σ // x ⊕ y ⊦ p -> ndmm2_imsell_ctx Σ x y ⊢ £(2+p) .
   Proof.
     induction 1 as [ p H1 
                    | x y p q H1 H2 IH2 | x y p q H1 H2 IH2 
@@ -244,10 +233,10 @@ Section ndmm2_imsell.
   Local Fact sem_1 x y : sem 1 (x##y##vec_nil) <-> x = 0 /\ y = 1.
   Proof. simpl; tauto. Qed.
 
-  Local Fact sem_2 u x y : sem (2+u) (x##y##vec_nil) <-> Σ // x ⊕ y ⊦ u.
+  Local Fact sem_2 p x y : sem (2+p) (x##y##vec_nil) <-> Σ // x ⊕ y ⊦ p.
   Proof. simpl; tauto. Qed.
 
-  Let K (u : bang) (w : vec nat 2) := 
+  Let K u (w : vec nat 2) := 
     let x := vec_head w in
     let y := vec_head (vec_tail w) 
     in (a ≤ u -> y = 0)
@@ -286,7 +275,7 @@ Section ndmm2_imsell.
     + destruct H6; subst; auto.
   Qed.
 
-  Local Fact HK4 u : U u -> forall w, K u w -> w = ø.
+  Local Fact HK4 u : U u -> forall x, K u x -> x = ø.
   Proof.
     intros Hu; intro pair as x y; unfold K; simpl.
     intros (_ & _ & H); destruct H; subst; auto.
@@ -306,7 +295,7 @@ Section ndmm2_imsell.
     + intros ->; msplit 2; auto; tauto.
   Qed.
 
-  Local Fact HKi : forall w, K ∞ w -> w = ø.
+  Local Fact HKi : forall x, K ∞ x -> x = ø.
   Proof.
     intro pair as x y; unfold K; simpl.
     intros (H1 & H2 & ?); rewrite H1, H2; auto.
@@ -348,9 +337,9 @@ Section ndmm2_imsell.
     intros (c & <- & Hc); simpl; auto. 
   Qed.
 
-  Theorem ndmm2_imsell_complete u x y : 
-           ndmm2_imsell_ctx Σ x y ⊢ £ (2+u)
-        -> Σ // x ⊕ y ⊦ u.
+  Theorem ndmm2_imsell_complete p x y : 
+           ndmm2_imsell_ctx Σ x y ⊢ £ (2+p)
+        -> Σ // x ⊕ y ⊦ p.
   Proof.
     intros Hxy; apply imsell_tps_sound with (s := sem) (K := K) in Hxy; eauto.
     specialize (Hxy (x##y##vec_nil)).
@@ -376,15 +365,19 @@ Section ndmm2_imsell.
 
   Hint Resolve ndmm2_imsell_sound ndmm2_imsell_complete : core.
 
-  Theorem ndmm2_imsell_correct u x y : Σ // x ⊕ y ⊦ u <-> ndmm2_imsell_ctx Σ x y ⊢ £ (2+u).
+  Theorem ndmm2_imsell_correct p x y : Σ // x ⊕ y ⊦ p <-> ndmm2_imsell_ctx Σ x y ⊢ £ (2+p).
   Proof. split; auto. Qed.
 
 End ndmm2_imsell.
 
-Theorem reduction : @ndMM2_ACCEPT nat ⪯ @IMSELL_cf_provable imsell3.
+Theorem reduction (S : IMSELL_sig) :
+      (exists a b i : S, a ≤ i /\ b ≤ i /\ a ≰ b /\ b ≰ a /\ ~ U a /\ ~ U b /\ U i)
+   -> @ndMM2_ACCEPT nat ⪯ @IMSELL_cf_PROVABILITY S.
 Proof.
+  intros (a & b & i & ?).
   apply reduces_dependent; exists.
   intros (Σ & u & x & y).
-  exists (ndmm2_imsell_ctx imsell3 (Some true) (Some false) None Σ x y, imsell_var _ (2+u)).
-  apply ndmm2_imsell_correct; simpl; easy.
+  exists (ndmm2_imsell_ctx _ a b i Σ x y, imsell_var _ (2+u)).
+  apply ndmm2_imsell_correct; simpl; tauto.
 Qed.
+

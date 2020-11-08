@@ -18,6 +18,7 @@ Feel free to contribute or start using the problems!
 - Entailment in Elementary Intuitionistic Linear Logic (`EILL_PROVABILITY` in [`ILL/EILL.v`](theories/ILL/EILL.v))
 - Entailment in Intuitionistic Linear Logic (`ILL_PROVABILITY` in [`ILL/ILL.v`](theories/ILL/ILL.v))
 - Entailment in Classical Linear Logic (`CLL_cf_PROVABILITY` in [`ILL/CLL.v`](theories/ILL/CLL.v))
+- Entailment in Intuitionistic Multiplicative Sub-Exponential Linear Logic (`IMSELL_cf_PROVABILITY` in [`ILL/IMSELL.v`](theories/ILL/IMSELL.v))
 - Provability in Minimal (Intuitionistic, Classical) First-Order Logic (`prv` in [`Problems/FOL.v`](theories/Problems/FOL.v))
 - Validity in Minimal (Intuitionistic, Classical) First-Order Logic (`valid` in [`Problems/FOL.v`](theories/Problems/FOL.v), `kvalid` in [`Problems/FOL.v`](theories/Problems/FOL.v))
 - Satisfiability in Intuitionistic (Classical) First-Order Logic (`satis` in [`Problems/FOL.v`](theories/Problems/FOL.v), `ksatis` in [`Problems/FOL.v`](theories/Problems/FOL.v))
