@@ -125,12 +125,22 @@ Section imsell3.
 
 End imsell3.
 
+Local Infix "≤" := (@IMSELL_le _) (at level 70).
+Local Notation "u ≰ v" := (~ u ≤ v) (at level 70).
+Local Notation U := (@IMSELL_U _).
+
+Definition IMSELL_sig3 := 
+  { S : IMSELL_sig | exists a b i : S, a ≤ i /\ b ≤ i /\ a ≰ b /\ b ≰ a 
+                                    /\ ~ U a /\ ~ U b /\ U i }.
+
 Definition IMSELL_problem (S : IMSELL_sig) := 
   let F := imsell_form nat (IMSELL_Λ S) in (list F * F)%type.
+
+Definition IMSELL_problem3 (S : IMSELL_sig3) := IMSELL_problem (proj1_sig S). 
 
 (* Cut-free provability over an IMSELL signature *)
 
 Definition IMSELL_cf_PROVABILITY S (P : IMSELL_problem S) := 
   let (Γ,A) := P in S_imsell (IMSELL_le S) (IMSELL_U S) Γ A.
- 
 
+Definition IMSELL_cf_PROVABILITY3 S (P : IMSELL_problem3 S) := IMSELL_cf_PROVABILITY P.

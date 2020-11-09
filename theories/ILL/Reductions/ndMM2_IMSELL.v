@@ -370,7 +370,7 @@ Section ndmm2_imsell.
 
 End ndmm2_imsell.
 
-Theorem reduction (S : IMSELL_sig) :
+Theorem conditional_reduction (S : IMSELL_sig) :
       (exists a b i : S, a ≤ i /\ b ≤ i /\ a ≰ b /\ b ≰ a /\ ~ U a /\ ~ U b /\ U i)
    -> @ndMM2_ACCEPT nat ⪯ @IMSELL_cf_PROVABILITY S.
 Proof.
@@ -379,5 +379,11 @@ Proof.
   intros (Σ & u & x & y).
   exists (ndmm2_imsell_ctx _ a b i Σ x y, imsell_var _ (2+u)).
   apply ndmm2_imsell_correct; simpl; tauto.
+Qed.
+
+Theorem reduction (S : IMSELL_sig3) : @ndMM2_ACCEPT nat ⪯ @IMSELL_cf_PROVABILITY3 S.
+Proof.
+  destruct S as (S & HS).
+  apply conditional_reduction, HS.
 Qed.
 
