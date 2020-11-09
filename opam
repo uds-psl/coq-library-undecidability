@@ -32,7 +32,6 @@ depends: [
 ]
 
 synopsis: "A Coq Library of Undecidability Proofs"
-flags: light-uninstall
 url {
   git: "https://github.com/uds-psl/coq-library-undecidability.git#coq-8.12"
 }
