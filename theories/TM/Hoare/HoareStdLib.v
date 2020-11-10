@@ -75,6 +75,13 @@ Lemma Reset_Spec (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retr
   Triple (tspec ([],  [|Contains _ x|])) (Reset sig) (fun _ => tspec ([],  [|Void|])).
 Proof. eapply TripleT_Triple. apply Reset_SpecT. Qed.
 
+Ltac hstep_Reset :=
+  lazymatch goal with
+  | [ |- TripleT ?P ?k (Reset _) ?Q ] => eapply @Reset_SpecT
+  end.
+
+Smpl Add hstep_Reset : hstep_smpl.
+
 
 Lemma ResetEmpty_SpecT_space (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) (ss : Vector.t nat 1) :
   cX x = [] ->
@@ -679,3 +686,22 @@ Ltac hstep_WriteValue :=
   end.
 
 Smpl Add hstep_WriteValue : hstep_smpl.
+
+Lemma DoAct_SpecT (sig : finType) act (P : tape (boundary + sig) -> Prop):
+TripleT (tspec (([], [|Custom P|]))) 1 (DoAct act)
+        (fun _ => tspec (([], [|Custom (fun t => exists t', t = doAct t' act /\ P t')|]))).
+Proof.
+eapply RealiseIn_TripleT.
+- apply DoAct_Sem.
+- intros tin [] tout H HEnc. cbn in *.
+specialize (HEnc Fin0). simpl_vector in *; cbn in *. tspec_solve. eauto.
+Qed.
+
+Ltac hstep_DoAct :=
+  lazymatch goal with
+  | [ |- TripleT ?P ?k (DoAct _) ?Q ] => eapply DoAct_SpecT
+  | [ |- TripleT ?P ?k (Write _) ?Q ] => eapply DoAct_SpecT
+  | [ |- TripleT ?P ?k (WriteMove _ _) ?Q ] => eapply DoAct_SpecT
+  end.
+
+  Smpl Add hstep_DoAct : hstep_smpl.

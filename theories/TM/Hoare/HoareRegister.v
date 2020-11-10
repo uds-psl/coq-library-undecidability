@@ -458,12 +458,13 @@ Proof.
 Qed.
 
 
-Lemma LiftTapes_SpecT_con (sig : finType) (F : finType) (m n : nat) (I : Vector.t (Fin.t n) m) P' (P : SpecV sig n) Q' (Q : F -> SpecV sig m) (R : F -> Spec sig n)
+Lemma LiftTapes_SpecT_con (sig : finType) (F : finType) (m n : nat) (I : Vector.t (Fin.t n) m)
+P' (P : SpecV sig n) Q' (Q : F -> SpecV sig m) R' (R : F -> SpecV sig n)
       (k : nat) (pM : pTM sig^+ F m) :
   dupfree I ->
   TripleT (tspec (P',Downlift P I)) k pM (fun y => tspec (Q' y,Q y)) ->
-  (forall yout, Entails (tspec (Q' yout,Frame P I (Q yout))) (tspec (R yout))) ->
-  TripleT (tspec (P',P)) k (pM@I) (fun y => tspec (R y)).
+  (forall yout, Entails (tspec (Q' yout,Frame P I (Q yout))) (tspec (R' yout,R yout))) ->
+  TripleT (tspec (P',P)) k (pM@I) (fun y => tspec (R' y,R y)).
 Proof. eauto using ConsequenceT_post, LiftTapes_SpecT. Qed.
 
 

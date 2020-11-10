@@ -42,6 +42,8 @@ Ltac hstep_Seq :=
 Ltac hstep_If :=
   lazymatch goal with
   | [ |- Triple ?P (If ?M1 ?M2 ?M3) ?Q ] => eapply If_Spec
+  | [ |- TripleT (≃≃ _,_) ?k (If ?M1 ?M2 ?M3) ?Q ] =>
+    eapply If_SpecTReg with (R:= fun y => (_,_))
   | [ |- TripleT ?P ?k (If ?M1 ?M2 ?M3) ?Q ] => eapply If_SpecT
   end.
 
@@ -82,17 +84,17 @@ Ltac hstep_LiftTapes :=
     tryif contains_evar POST then (* The post-condition is yet to be instantiated. *)
       (tryif triple_with_space
         then (eapply LiftTapes_Spec_space with (Q':= fun y => _) (Q:= fun y => _); [smpl_dupfree | ])
-        else (eapply LiftTapes_Spec; [smpl_dupfree | ]))
+        else (eapply LiftTapes_Spec with (Q':= fun y => _) (Q:= fun y => _); [smpl_dupfree | ]))
     else (* Otherwise, we have to use the Consequence rule *)
       (tryif triple_with_space then (eapply LiftTapes_Spec_space_con with (R':= fun y => _) (R:= fun y => _); [smpl_dupfree | | ])
-        else (eapply LiftTapes_Spec_con; [smpl_dupfree | | ]))
+        else (eapply LiftTapes_Spec_con with (R':= fun y => _) (R:= fun y => _); [smpl_dupfree | | ]))
   | [ |- TripleT ?PRE ?k (?M @ ?I) ?POST ] =>
     tryif contains_evar POST then
       (tryif triple_with_space then (eapply LiftTapes_SpecT_space with (Q':= fun y => _) (Q:= fun y => _); [smpl_dupfree | ])
-        else (eapply LiftTapes_SpecT; [smpl_dupfree | ]))
+        else (eapply LiftTapes_SpecT with (Q':= fun y => _) (Q:= fun y => _); [smpl_dupfree | ]))
     else
       (tryif triple_with_space then (eapply LiftTapes_SpecT_space_con with (R':= fun y => _) (R:= fun y => _); [smpl_dupfree | | ])
-        else (eapply LiftTapes_SpecT_con; [smpl_dupfree | | ]))
+        else (eapply LiftTapes_SpecT_con with (R':= fun y => _) (R:= fun y => _); [smpl_dupfree | | ]))
   end.
 
 
@@ -102,17 +104,17 @@ Ltac hstep_ChangeAlphabet :=
   | [ |- Triple ?PRE (?M ⇑ ?I) ?POST ] =>
     tryif contains_evar POST then (* The post-condition is yet to be instantiated. *)
       (tryif triple_with_space then (eapply ChangeAlphabet_Spec_space_pre with (Q:= fun y => _) (Q0:= fun y => _); [ | ])
-        else (eapply ChangeAlphabet_Spec_pre; [ | ]))
+        else (eapply ChangeAlphabet_Spec_pre with (Q:= fun y => _) (Q0:= fun y => _); [ | ]))
     else (* Otherwise, we have to use the Consequence rule *)
       (tryif triple_with_space then (eapply ChangeAlphabet_Spec_space_pre_post  with (Q':= fun y => _) (Q0:= fun y => _); [ | | ])
-        else (eapply ChangeAlphabet_Spec_pre_post; [ | | ]))
+        else (eapply ChangeAlphabet_Spec_pre_post with (Q':= fun y => _) (Q':= fun y => _) (Q0:= fun y => _); [ | | ]))
   | [ |- TripleT ?PRE ?k (?M ⇑ ?I) ?POST ] =>
     tryif contains_evar POST then
       (tryif triple_with_space then (eapply ChangeAlphabet_SpecT_space_pre with (Q:= fun y => _) (Q0:= fun y => _); [ | ])
-        else (eapply ChangeAlphabet_SpecT_pre; [ | ]))
+        else (eapply ChangeAlphabet_SpecT_pre with (Q:= fun y => _) (Q0:= fun y => _); [ | ]))
     else
       (tryif triple_with_space then (eapply ChangeAlphabet_SpecT_space_pre_post with (Q':= fun y => _) (Q0:= fun y => _); [ | | ])
-        else (eapply ChangeAlphabet_SpecT_pre_post; [ | | ]))
+        else (eapply ChangeAlphabet_SpecT_pre_post with (Q:= fun y => _) (Q':= fun y => _) (Q0:= fun y => _); [ | | ]))
   end.
 
 (*

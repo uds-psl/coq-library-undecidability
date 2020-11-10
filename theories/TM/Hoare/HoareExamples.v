@@ -368,7 +368,7 @@ Proof.
     + cbn. auto.
   - reflexivity.  (* <- This is the only difference to the above lemma (without time)! We actually don't need to prove [Incr2_Spec] first. *)
 Restart.
-  intros x y. unfold Incr2. hsteps_cbn. eauto. reflexivity.
+  intros x y. unfold Incr2. hsteps_cbn. all:reflexivity.
 Qed.
 
 

@@ -11,7 +11,6 @@ From Undecidability.TM.Code Require Import CaseBool CaseList Copy List.Cons_cons
 From Undecidability.TM.L.Compiler Require Import Compiler_spec.
 
 Import ListNotations.
-Import VectorNotations.
 
 Set Default Proof Using "Type".
 
@@ -34,30 +33,53 @@ Section Fix.
        (Reset _ @[|Fin0|];;Return (Write b @ [|Fin1|]) (Some tt)).
   
   Definition M__loop := While M__step.
-(*
+
   Lemma loop_SpecT':
     { f : UpToC (fun bs => length bs + 1) &
     forall bs res,
       TripleT 
-        (tspec (SpecVector [|Contains _ bs; Custom (fun t => right t = map (fun (x:bool) => if x then s else b) res /\ length (left t) <= length bs); Void|]) )
+        (tspec ([],[|Contains _ bs; Custom (fun t => right t = map (fun (x:bool) => if x then s else b) res
+        /\ length (left t) <= length bs); Void|]) )
         (f bs)
         M__loop
-        (fun _ => tspec (SpecVector [|Void; Custom (eq (encTM s b (rev bs++res))) ; Void  |])) }.
+        (fun _ => tspec ([],[|Void; Custom (eq (encTM s b (rev bs++res))) ; Void  |])) }.
   Proof.
     evar (c1 : nat);evar (c2 :nat).
     exists_UpToC (fun bs => c1 * length bs + c2). 2:now smpl_upToC_solve.
     intros bs res.
     unfold M__loop.
-    eapply While_SpecT with (P := fun '(bs,res) => _) (Q := fun '(bs,res) => _) (R := fun '(bs,res) => _)
-    (g := fun '(bs,res) => _) (f := fun '(bs,res) => _) (x := (bs,res));
+    eapply While_SpecTReg with
+      (PRE := fun '(bs,res) => (_,_)) (INV := fun '(bs,res) y => ([y = match bs with [] => Some tt | _ => None end],_)) (POST := fun '(bs,res) y => (_,_))
+    (f__step := fun '(bs,res) => _) (f__loop := fun '(bs,res) => _) (x := (bs,res));
     clear bs res; intros (bs,res); cbn in *.
     { unfold M__step. hstep.
-      - hsteps. cbn. tspec_ext.
-      - cbn. hsteps_cbn.
-      -
-      -
-         }
-*)
+      - hsteps_cbn. cbn. tspec_ext.
+      - cbn. hintros H.   
+        refine (_ :  TripleT _ _  _ (fun y => (≃≃ _ ,match bs with nil => _ | b0::bs => _ end))).
+        destruct bs as [ | b0 bs]. easy. hsteps_cbn;cbn. now tspec_ext. 
+        + hintros ? ->. hsteps_cbn. 2:cbn;reflexivity. tspec_ext.
+        +reflexivity.
+      - cbn. hintros H. destruct bs. 2:easy.
+        hsteps_cbn; cbn. tspec_ext. now unfold Reset_steps;cbn;reflexivity.
+      - cbn. intros ? ->. reflexivity.
+    }
+    cbn. split.
+    -intros. destruct bs. 2:easy. split.
+      +tspec_ext. unfold encTM,encListTM. destruct H1 as (t&->&H'&Hr). rewrite H'.
+       destruct (left t). all:easy.
+      + cbn. rewrite Nat.mul_0_r. cbn. shelve.
+    - intros. destruct bs as [ | b' bs]. easy. eexists (_,_);cbn.
+      split.
+      +tspec_ext. destruct H1 as (t&->&?&?).
+       rewrite tape_right_move_left',tape_left_move_left'. rewrite H1.
+       instantiate (1:=b'::res). split. easy. destruct (left t);cbn in H2|-*. all:nia.
+      + split. 2:{ tspec_ext. rewrite <- H1. now rewrite <- app_assoc. }
+        shelve.
+    Unshelve.
+    3:unfold c2;reflexivity.
+    2:{ unfold CaseList_steps,CaseList_steps_cons. rewrite Encode_bool_hasSize.
+     ring_simplify. [c1]:exact 68. subst c1. nia. } 
+  Qed.
 
   Definition Realise__loop :
     Realise M__loop (fun t '(r, t') =>
