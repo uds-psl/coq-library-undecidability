@@ -131,7 +131,8 @@ Hint Unfold Entails : core.
 Arguments Entails {_ _} _ _: simpl never.
 
 Hint Resolve EntailsI : core.
-Instance Entails_PO (sig : finType) (n : nat): PreOrder (@Entails sig n).
+
+Instance Entails_PO (sig : Type) (n : nat): PreOrder (@Entails sig n).
 Proof. unfold Entails;cbn. split;hnf. all:eauto. Qed.
 
 (** *** Consequence Rule *)

@@ -28,29 +28,24 @@ Definition Add_Step_size (a b : nat) : Vector.t (nat->nat) 2 :=
 
 Lemma Add_Step_SpecT_space (a b : nat) (ss : Vector.t nat 2) :
   TripleT
-    (tspec (withSpace (SpecVector [|Contains _ a; Contains _ b|]) ss))
+    (tspec ([], withSpace ( [|Contains _ a; Contains _ b|]) ss))
     Add_Step_steps
     Add_Step
     (fun yout =>
-       tspec
-         (withSpace match yout, b with
-                    | Some _, 0 => SpecVector [|Contains _ a; Contains _ b|]
-                    | None, S b' => SpecVector [|Contains _ (S a); Contains _ b'|]
-                    | _, _ => SpecFalse
-                    end
-         (appSize (Add_Step_size a b) ss))).
+            tspec ([yout = if b then Some tt else None]
+                    ,withSpace [|Contains _ (match b with 0 => a | _ => S a end);Contains _ (pred b)|]
+          (appSize (Add_Step_size a b) ss))).
 Proof.
   start_TM.
   unfold Add_Step. eapply If_SpecT with (k3 := 0).
-  - hstep. (* This automatically calls [apply LiftTapes_SpecT_space; [smpl_dupfree | ]]. *)
-    cbn. apply CaseNat_SpecT_size.
-  - cbn. destruct b as [ | b']; cbn in *; auto. hsteps_cbn; cbn. auto.
-  - destruct b as [ | b']; cbn in *; auto.
-    hsteps. cbn. cbn. eauto.
-  - cbn. intros. destruct yout. (* reflexivity. unfold CaseNat_steps, Add_Step_steps. lia. *)
+  - hsteps_cbn.
+  - cbn. hintros ?.  destruct b as [ | b']; cbn in *. easy. hsteps_cbn; cbn. tspec_ext.
+  - cbn. hintros ->. hsteps. cbn. tspec_ext.
+  - intros. destruct yout. (* reflexivity. unfold CaseNat_steps, Add_Step_steps. lia. *)
     + reflexivity.
     + unfold CaseNat_steps, Add_Step_steps. lia.
 Qed.
+
 
 Definition Add_Loop : pTM sigNat^+ unit 2 := While Add_Step.
 
@@ -64,27 +59,26 @@ Fixpoint Add_Loop_size (a b : nat) : Vector.t (nat->nat) 2 :=
 
 Lemma Add_Loop_SpecT_size (a b : nat) (ss : Vector.t nat 2) :
   TripleT
-    (tspec (withSpace (SpecVector [|Contains _ a; Contains _ b|]) ss))
+    (tspec ([], withSpace ( [|Contains _ a; Contains _ b|]) ss))
     (Add_Loop_steps b)
     (Add_Loop)
     (fun _ => tspec
-             (withSpace
-                (SpecVector [|Contains _ (a+b); Contains _ 0|])
+             ([], withSpace [|Contains _ (a+b); Contains _ 0|]
                 (appSize (Add_Loop_size a b) ss))).
 Proof.
   (** We have to add the space vector to the abstract state *)
-  eapply While_SpecT with (P := fun '(a,b,ss) => _) (Q := fun '(a,b,ss) => _) (R := fun '(a,b,ss) => _) (f := fun '(a,b,ss) => _) (g := fun '(a,b,ss) => _) (x := (a,b,ss));
+  eapply While_SpecTReg with (PRE := fun '(a,b,ss) => (_,_)) (INV := fun '(a,b,ss) y => (_,_)) 
+    (POST := fun '(a,b,ss) y => (_,_)) (f__loop := fun '(a,b,ss) => _) (f__step := fun '(a,b,ss) => _) (x := (a,b,ss));
     clear a b ss; intros ((x,y),ss).
     - apply Add_Step_SpecT_space.
-    - intros [] tmid tout H1 H2.
-      destruct y as [ | y']; cbn in *; auto.
-      replace (x+0) with x by lia. split; eauto.
-    - intros tin tmid H1 H2.
-      destruct y as [ | y']; cbn in *; auto.
+    - cbn. split.
+      +intros []. split. 2:unfold Add_Step_steps, Add_Loop_steps;lia.
+       destruct y as [ | y']; cbn in *. 2:easy. tspec_ext. f_equal. nia.
+      +destruct y as [ | y']; cbn in *. easy. intros _.
       eexists (S x, y', _); cbn. repeat split.
-      + eauto.
-      + unfold Add_Step_steps, Add_Loop_steps. lia.
-      + replace (S x + y') with (x + S y') by lia. auto.
+      * tspec_ext.
+      * unfold Add_Step_steps, Add_Loop_steps. lia.
+      * tspec_ext. f_equal. nia.
 Qed.
 
 
@@ -102,10 +96,10 @@ Definition Add_space (a b : nat) : Vector.t (nat->nat) 4 :=
 
 Lemma Add_SpecT_space (a b : nat) (ss : Vector.t nat 4) :
   TripleT
-    (tspec (withSpace (SpecVector [|Contains _ a; Contains _ b; Void; Void|]) ss))
+    (tspec ([], withSpace ( [|Contains _ a; Contains _ b; Void; Void|]) ss))
     (Add_steps a b)
     Add
-    (fun _ => tspec (withSpace (SpecVector [|Contains _ a; Contains _ b; Contains _ (a+b); Void|])
+    (fun _ => tspec ([], withSpace ( [|Contains _ a; Contains _ b; Contains _ (a+b); Void|])
                             (appSize (Add_space a b) ss))).
 Proof. (* The tactic [hstep] takes also takes care of moving [withSpace] to the head symbol of each precondition *)
   start_TM.
@@ -150,30 +144,24 @@ Definition Mult_Step_space m' n c : Vector.t (nat->nat) 5 :=
   end.
 
 Lemma Mult_Step_SpecT_size m' n c ss :
-  TripleT
-    (tspec (withSpace (SpecVector [|Contains _ m'; Contains _ n; Contains _ c; Void; Void|]) ss))
-    (Mult_Step_steps m' n c)
-    (Mult_Step)
-    (fun yout =>
-       tspec
-         (withSpace
-            match yout, m' with
-            | Some _, 0 => SpecVector [|Contains _ m'; Contains _ n; Contains _ c; Void; Void|]
-            | None, S m'' => SpecVector [|Contains _ m''; Contains _ n; Contains _ (n+c); Void; Void|]
-            | _, _ => SpecFalse
-            end (appSize (Mult_Step_space m' n c) ss))).
+TripleT
+  (tspec ([], withSpace ( [|Contains _ m'; Contains _ n; Contains _ c; Void; Void|]) ss))
+  (Mult_Step_steps m' n c)
+  (Mult_Step)
+  (fun yout =>
+      tspec ([yout = if m' then Some tt else None],
+        withSpace 
+        [|Contains _ (pred m'); Contains _ n; Contains _ ( if m' then c else (n + c)); Void; Void|] (appSize (Mult_Step_space m' n c) ss))).
 Proof.
   start_TM.
-  eapply If_SpecT.
+  eapply If_SpecTReg.
   - hsteps.
-  - destruct m' as [ | m'']; cbn; auto.
-    hsteps. apply Add_SpecT_space. cbn. hsteps. cbn. apply MoveValue_SpecT_size. reflexivity. cbn. auto.
-  - destruct m' as [ | m'']; cbn; auto.
-    hsteps. auto.
-  - intros tin ymid tout HEnc H1. (* This part is the same *)
-    cbn. destruct ymid, m' as [ | m'']; cbn in *; auto.
-    unfold Mult_Step_steps, MoveValue_steps, CaseNat_steps, Add_steps. rewrite !Encode_nat_hasSize.
-    lia.
+  - cbn. hintros ?. destruct m' as [ | m'']. contradiction. cbn.
+    hsteps. apply Add_SpecT_space. cbn. hsteps. cbn. apply MoveValue_SpecT_size. reflexivity. cbn. tspec_ext.
+  - cbn. hintros ->. hsteps. tspec_ext.
+  - cbn. destruct m'; intros []. 1,4:easy. 
+    all:unfold Mult_Step_steps, MoveValue_steps, CaseNat_steps, Add_steps. 2:rewrite !Encode_nat_hasSize.
+    all:lia.
 Qed.
 
 
@@ -194,20 +182,23 @@ Fixpoint Mult_Loop_size m' n c :=
 
 Lemma Mult_Loop_SpecT_size m' n c ss :
   TripleT
-    (tspec (withSpace (SpecVector [|Contains _ m'; Contains _ n; Contains _ c; Void; Void|]) ss))
+    (tspec ([], withSpace ( [|Contains _ m'; Contains _ n; Contains _ c; Void; Void|]) ss))
     (Mult_Loop_steps m' n c)
     (Mult_Loop)
-    (fun _ => tspec (withSpace
-                    (SpecVector [|Contains _ 0; Contains _ n; Contains _ (m' * n + c); Void; Void|])
+    (fun _ => tspec ([],withSpace
+                    [|Contains _ 0; Contains _ n; Contains _ (m' * n + c); Void; Void|]
                     (appSize (Mult_Loop_size m' n c) ss))).
 Proof.
-  eapply While_SpecT with (P := fun '(m',n,c,ss) => _) (Q := fun '(m',n,c,ss) => _) (R := fun '(m',n,c,ss) => _) (f := fun '(m,n,c,ss) => _) (g := fun '(m,n,c,ss) => _) (x := (m',n,c,ss));
+  eapply While_SpecTReg with (PRE := fun '(m',n,c,ss) => (_,_)) (INV := fun '(m',n,c,ss) y => (_,_)) (POST := fun '(m',n,c,ss) y => (_,_))
+   (f__loop := fun '(m,n,c,ss) => _) (f__step := fun '(m,n,c,ss) => _) (x := (m',n,c,ss));
     clear m' n c ss; intros (((m',n),c),ss).
   - apply Mult_Step_SpecT_size.
-  - cbn. intros _ tmid tout H1 H2. destruct m' as [ | m'']; cbn in *; auto.
-  - cbn. intros tin tmid H1 H2. destruct m' as [ | m'']; cbn in *; auto.
-    eexists (_,_,_,_). repeat split; eauto.
-    intros _ tout. replace (m'' * n + (n + c)) with (S m'' * n + c) by (ring_simplify; lia). auto.
+  - cbn. split.
+    +intros y Hy. destruct m'. 2:easy. split. 2:cbn;lia. tspec_ext.
+    +destruct m'. easy. intros _. eexists (_,_,_,_). repeat split.
+      *tspec_ext.
+      *cbn;nia.
+      *tspec_ext. f_equal. cbn. nia.
 Qed.
 
   
@@ -231,10 +222,10 @@ Definition Mult_size (m n : nat) : Vector.t (nat->nat) 6 :=
 
 Lemma Mult_SpecT_space (m n : nat) (ss : Vector.t nat 6) :
   TripleT
-    (tspec (withSpace (SpecVector [|Contains _ m; Contains _ n; Void; Void; Void; Void|]) ss))
+    (tspec ([], withSpace ( [|Contains _ m; Contains _ n; Void; Void; Void; Void|]) ss))
     (Mult_steps m n)
     (Mult)
-    (fun _ => tspec (withSpace (SpecVector [|Contains _ m; Contains _ n; Contains _ (m * n); Void; Void; Void|])
+    (fun _ => tspec ([], withSpace ( [|Contains _ m; Contains _ n; Contains _ (m * n); Void; Void; Void|])
                             (appSize (Mult_size m n) ss))).
 Proof.
   start_TM.
@@ -244,8 +235,7 @@ Proof.
   cbn. intros _. hsteps.
   cbn. intros _. hstep. cbn. hstep. cbn. apply Mult_Loop_SpecT_size.
   cbn. intros. hstep. cbn. apply Reset_SpecT_space.
-  cbn. intros _ t. replace (m * n + 0) with (m * n) by lia. auto. (** Now it is fine! *)
-
+  cbn. intros t. replace (m * n + 0) with (m * n) by lia. auto.
   reflexivity. reflexivity.
   unfold Mult_steps. ring_simplify. unfold CopyValue_steps, Constr_O_steps, Reset_steps. rewrite !Encode_nat_hasSize. cbn. ring_simplify. reflexivity.
 Qed.

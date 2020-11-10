@@ -34,7 +34,7 @@ Section Fix.
        (Reset _ @[|Fin0|];;Return (Write b @ [|Fin1|]) (Some tt)).
   
   Definition M__loop := While M__step.
-
+(*
   Lemma loop_SpecT':
     { f : UpToC (fun bs => length bs + 1) &
     forall bs res,
@@ -57,7 +57,7 @@ Section Fix.
       -
       -
          }
-
+*)
 
   Definition Realise__loop :
     Realise M__loop (fun t '(r, t') =>

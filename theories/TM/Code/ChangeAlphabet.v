@@ -6,6 +6,7 @@ From Undecidability Require Import TM.Lifting.LiftAlphabet.
 
 (** All "programmed" Turing machines are defined on an alphabet [Σ^+]. In this module, we instanciate the [LiftAlphabet] operator. Given a machine [M:TM_{Σ^+}] and a retraction [f: Σ ↪ Γ], we define a machine [⇑M : TM_{Γ^+}]. *)
 
+Local Hint Mode Retract - - : typeclass_instances.
 
 Generalizable All Variables.
 

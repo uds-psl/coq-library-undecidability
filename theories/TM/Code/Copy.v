@@ -569,7 +569,7 @@ Section Translate.
   Definition Translate'_steps {sigX X : Type} {cX : codable sigX X} x := 8 + 4 * size cX x.
 
   Lemma Translate'_Terminates :
-    projT1 Translate' ↓ (fun tin k => exists x, tin[@Fin0] ≃(I1) x /\ Translate'_steps x <= k).
+    projT1 Translate' ↓ (fun tin k => exists x, tin[@Fin0] ≃(I1) x /\ Translate'_steps (cX:=cX) x <= k).
   Proof.
     eapply TerminatesIn_monotone.
     { unfold Translate'. TM_Correct. }
@@ -596,7 +596,7 @@ Section Translate.
     eapply Realise_monotone.
     { unfold Translate. TM_Correct.
       - apply Translate'_Realise.
-      - apply MoveLeft_Realise with (I := I2).
+      - apply MoveLeft_Realise with (I := I2) (cX:=cX).
     }
     {
       intros tin ((), tout) H. intros x s HEncX.

@@ -56,18 +56,18 @@ Ltac hstep_Switch :=
 Ltac hstep_Return :=
   lazymatch goal with
   | [ |- Triple ?P (Return ?M ?x) ?Q ] =>
-    tryif contains_evar Q then (eapply Return_Spec)
-    else (eapply Return_Spec_con)
+    (*tryif contains_evar Q then (eapply Return_Spec)
+    else*) (eapply Return_Spec_con)
   | [ |- TripleT ?P ?k (Return ?M ?x) ?Q ] =>
-    tryif contains_evar Q then (eapply Return_SpecT)
-    else (eapply Return_SpecT_con)
+    (*tryif contains_evar Q then (eapply Return_SpecT)
+    else*) (eapply Return_SpecT_con)
 
   | [ |- Triple ?P (Relabel ?M ?f) ?Q ] =>
-    tryif contains_evar Q then (eapply Relabel_Spec)
-    else (eapply Relabel_Spec_con)
+    (*tryif contains_evar Q then (eapply Relabel_Spec)
+    else*) (eapply Relabel_Spec_con)
   | [ |- TripleT ?P ?k (Relabel ?M ?f) ?Q ] =>
-    tryif contains_evar Q then (eapply Relabel_SpecT)
-    else (eapply Relabel_SpecT_con)
+    (* tryif contains_evar Q then (eapply Relabel_SpecT)
+    else *) (eapply Relabel_SpecT_con)
   end.
 
 
@@ -78,19 +78,20 @@ Ltac hstep_Return :=
 (** We have special rules for specifications with space; and we also have to check whether the post-condition already is instantiated. *)
 Ltac hstep_LiftTapes :=
   lazymatch goal with
-  | [ |- Triple ?P (?M @ ?I) ?Q ] =>
-    tryif contains_evar Q then (* The post-condition is yet to be instantiated. *)
-      (tryif triple_with_space then (eapply LiftTapes_Spec_space; [smpl_dupfree | ])
+  | [ |- Triple ?PRE (?M @ ?I) ?POST ] =>
+    tryif contains_evar POST then (* The post-condition is yet to be instantiated. *)
+      (tryif triple_with_space
+        then (eapply LiftTapes_Spec_space with (Q':= fun y => _) (Q:= fun y => _); [smpl_dupfree | ])
         else (eapply LiftTapes_Spec; [smpl_dupfree | ]))
     else (* Otherwise, we have to use the Consequence rule *)
-      (tryif triple_with_space then (eapply LiftTapes_Spec_space_con; [smpl_dupfree | | ])
+      (tryif triple_with_space then (eapply LiftTapes_Spec_space_con with (R':= fun y => _) (R:= fun y => _); [smpl_dupfree | | ])
         else (eapply LiftTapes_Spec_con; [smpl_dupfree | | ]))
-  | [ |- TripleT ?P ?k (?M @ ?I) ?Q ] =>
-    tryif contains_evar Q then
-      (tryif triple_with_space then (eapply LiftTapes_SpecT_space; [smpl_dupfree | ])
+  | [ |- TripleT ?PRE ?k (?M @ ?I) ?POST ] =>
+    tryif contains_evar POST then
+      (tryif triple_with_space then (eapply LiftTapes_SpecT_space with (Q':= fun y => _) (Q:= fun y => _); [smpl_dupfree | ])
         else (eapply LiftTapes_SpecT; [smpl_dupfree | ]))
     else
-      (tryif triple_with_space then (eapply LiftTapes_SpecT_space_con; [smpl_dupfree | | ])
+      (tryif triple_with_space then (eapply LiftTapes_SpecT_space_con with (R':= fun y => _) (R:= fun y => _); [smpl_dupfree | | ])
         else (eapply LiftTapes_SpecT_con; [smpl_dupfree | | ]))
   end.
 
@@ -98,19 +99,19 @@ Ltac hstep_LiftTapes :=
 (** [ChangeAlphabet] is similar to [LiftTapes], but we always have to apply at least [Consequence_pre]. We also have specialised rules for space. *)
 Ltac hstep_ChangeAlphabet :=
   lazymatch goal with
-  | [ |- Triple ?P (?M ⇑ ?I) ?Q ] =>
-    tryif contains_evar Q then (* The post-condition is yet to be instantiated. *)
-      (tryif triple_with_space then (eapply ChangeAlphabet_Spec_space_pre; [ | ])
+  | [ |- Triple ?PRE (?M ⇑ ?I) ?POST ] =>
+    tryif contains_evar POST then (* The post-condition is yet to be instantiated. *)
+      (tryif triple_with_space then (eapply ChangeAlphabet_Spec_space_pre with (Q:= fun y => _) (Q0:= fun y => _); [ | ])
         else (eapply ChangeAlphabet_Spec_pre; [ | ]))
     else (* Otherwise, we have to use the Consequence rule *)
-      (tryif triple_with_space then (eapply ChangeAlphabet_Spec_space_pre_post; [ | | ])
+      (tryif triple_with_space then (eapply ChangeAlphabet_Spec_space_pre_post  with (Q':= fun y => _) (Q0:= fun y => _); [ | | ])
         else (eapply ChangeAlphabet_Spec_pre_post; [ | | ]))
-  | [ |- TripleT ?P ?k (?M ⇑ ?I) ?Q ] =>
-    tryif contains_evar Q then
-      (tryif triple_with_space then (eapply ChangeAlphabet_SpecT_space_pre; [ | ])
+  | [ |- TripleT ?PRE ?k (?M ⇑ ?I) ?POST ] =>
+    tryif contains_evar POST then
+      (tryif triple_with_space then (eapply ChangeAlphabet_SpecT_space_pre with (Q:= fun y => _) (Q0:= fun y => _); [ | ])
         else (eapply ChangeAlphabet_SpecT_pre; [ | ]))
     else
-      (tryif triple_with_space then (eapply ChangeAlphabet_SpecT_space_pre_post; [ | | ])
+      (tryif triple_with_space then (eapply ChangeAlphabet_SpecT_space_pre_post with (Q':= fun y => _) (Q0:= fun y => _); [ | | ])
         else (eapply ChangeAlphabet_SpecT_pre_post; [ | | ]))
   end.
 
@@ -194,12 +195,14 @@ Ltac hstep_forall_unit :=
   | [ |- forall (y : unit), ?H] => intros []
   end.
 
-Ltac hstep_pre := clear_abbrevs.
+Ltac hstep_pre := clear_abbrevs;cbn beta.
+Ltac hstep_post := cbn beta.
+
 
 Ltac hstep_Combinators := hstep_Seq || hstep_If || hstep_Switch || hstep_Return. (* Not [While]! *)
 Ltac hstep_Lifts := (hstep_LiftTapes || hstep_ChangeAlphabet).
-Ltac hstep := hstep_pre; (hstep_forall_unit || hstep_Combinators || hstep_Lifts || hstep_user)(*; repeat hstep_withSpace_swap*).
-Ltac hsteps := repeat hstep.
+Ltac hstep := hstep_pre; (hstep_forall_unit || hstep_Combinators || hstep_Lifts || hstep_user); hstep_post.
+Ltac hsteps := repeat first [hstep | hstep_post] (*execute "left to right" *).
 Ltac hsteps_cbn := repeat (cbn; hstep). (* Calls [cbn] before each verification step *)
 
 
@@ -214,12 +217,12 @@ Ltac openFoldRight :=
 (** Proofs assertions like [tspec (SpecVector ?R) ?t] *)
 Ltac tspec_solve :=
   lazymatch goal with
+  | [ |- tspec (_,withSpace _ ?ss) ?t ] => (* We may unfold [withSpace] and simplify now *)
+    eapply tspec_space_solve;openFoldRight;[ .. | intros i; destruct_fin i;
+    cbn [tspec_single withSpace_single Vector.map Vector.nth Vector.case0 Vector.caseS]; try (contains_ext || isVoid_mono)]
   | [ |- tspec (?P,?R) ?t ] =>
     eapply tspec_solve;openFoldRight;[ .. | intros i; destruct_fin i;
     cbn [tspec_single Vector.nth Vector.case0 Vector.caseS]; try (contains_ext || isVoid_mono)]
-  | [ |- tspec (withSpace (?P,?R) ?ss) ?t ] => (* We may unfold [withSpace] and simplify now *)
-    eapply tspec_space_solve;openFoldRight;[ .. | intros i; destruct_fin i;
-    cbn [tspec_single withSpace_single Vector.map Vector.nth Vector.case0 Vector.caseS]; try (contains_ext || isVoid_mono)]
   end.
 
 
@@ -245,20 +248,20 @@ Ltac tspec_ext :=
   (*tspec_withSpace_swap;*)
   lazymatch goal with
   | [ |- Entails (tspec _) (tspec _) ] => simple apply EntailsI;intros ? ?; tspec_ext
-  | [ |- forall t, t ≃≃ ?P -> t ≃≃ ?Q ] => idtac "tspec_ext: Branch 1 is depricated, pone should see Entails everywhere";
+  | [ |- forall t, t ≃≃ ?P -> t ≃≃ ?Q ] => (* idtac "tspec_ext: Branch 1 is depricated, pone should see Entails everywhere"; *)
     let Ht := fresh "H"t in
     intros t Ht; tspec_ext; eauto
-  | [ H : tspec (?P',?R') ?t |- tspec (?P,?R) ?t ] => idtac "tspec_ext: Branch 2 is depricated, pone should see Entails everywhere";
-    apply tspec_ext with (1 := H);[ try cbn; tauto |
-    ((now eauto)
-     || (intros i; destruct_fin i;
-        cbn [tspec_single Vector.nth Vector.case0 Vector.caseS];
-        intros; try (contains_ext || isVoid_mono)))]
-    | [ H : tspec (withSpace (?P',?R') ?ss) ?t |- tspec (withSpace (?P,?R) ?ss') ?t ] =>
-    apply tspec_space_ext with (1 := H);[try cbn;tauto |
+  | [ H : tspec (_,withSpace _ ?ss) ?t |- tspec (_,withSpace _ ?ss') ?t ] =>
+    apply tspec_space_ext with (1 := H);[try (cbn;tauto) |
     ((now eauto)
      || (intros i; destruct_fin i;
         cbn [tspec_single withSpace_single Vector.nth Vector.case0 Vector.caseS];
+        intros; try (contains_ext || isVoid_mono)))]
+  | [ H : tspec (?P',?R') ?t |- tspec (?P,?R) ?t ] => (* idtac "tspec_ext: Branch 2 is depricated, pone should see Entails everywhere"; *)
+    apply tspec_ext with (1 := H);[ try (cbn; tauto) |
+    ((now eauto)
+     || (intros i; destruct_fin i;
+        cbn [tspec_single Vector.nth Vector.case0 Vector.caseS];
         intros; try (contains_ext || isVoid_mono)))]
   end.
 
@@ -266,11 +269,18 @@ Ltac tspec_ext :=
 Hint Extern 10 => tspec_ext.
 *)
 
+Ltac underBinders t :=
+  lazymatch goal with
+  | |- forall x, _ => let x := fresh x in intros x;underBinders t;revert x
+  | |- _ => t
+  end.
+
+
 Ltac introPure_prepare :=
   lazymatch goal with
   | |- Entails (tspec ((_,_))) _ => eapply tspec_introPure
   | |- Triple (tspec (?P,_)) _ _ => eapply Triple_introPure
   | |- TripleT (tspec (?P,_)) _ _ _ => eapply TripleT_introPure
-  end;unfold Basics.impl at 1;simpl fold_right at 1.
+  end;simpl implList at 1.
 
-Tactic Notation "hintros" simple_intropattern_list(pat) := introPure_prepare;intros pat.
+Tactic Notation "hintros" simple_intropattern_list(pat) := underBinders introPure_prepare;intros pat.

@@ -5,7 +5,7 @@ From Undecidability Require Import TMTac.
 
 
 Lemma tape_local_contains (sig sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) t :
-  tape_local t = inl START :: map inr (Encode_map _ _ x) ++ [inl STOP] ->
+  tape_local t = inl START :: map inr (Encode_map cX I x) ++ [inl STOP] ->
   t ≃ x.
 Proof. intros -> % midtape_tape_local_cons. repeat econstructor. Qed.
 

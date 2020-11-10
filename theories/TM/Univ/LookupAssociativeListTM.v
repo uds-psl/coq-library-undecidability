@@ -69,56 +69,53 @@ Section LookupAssociativeList.
 
   Lemma Lookup_Step_SpecT_space (xs : list (X*Y)) (x : X) (ss : Vector.t nat 4) :
     TripleT
-      (tspec (withSpace (SpecVector [|Contains _ xs; Contains _ x; Void; Void|]) ss))
+      (tspec ([],withSpace ([|Contains _ xs; Contains _ x; Void; Void|]) ss))
       (Lookup_Step_steps xs x)
       Lookup_Step
       (fun yout =>
-         tspec (withSpace
-           (match yout, xs with
-            | Some false, nil => SpecVector [|Void; Contains _ x; Void; Void|]
-            | _, (x',y) :: xs' =>
-              match yout, (Dec (x=x') : bool) with
-              | Some true, true =>
-                SpecVector [|Void; Contains _ y; Void; Void|]
-              | None, false =>
-                SpecVector [|Contains _ xs'; Contains _ x; Void; Void|]
-              | _, _ => SpecFalse
-              end
-            | _, _ => SpecFalse
-            end) (appSize (Lookup_Step_size xs x) ss))).
+         tspec ([match xs with
+                  | [] => yout = Some false
+                | (x',y)::xs' => yout = if Dec (x=x') then Some true else None
+         end], withSpace
+           (match xs with
+            | nil => [|Void; Contains _ x; Void; Void|]
+            | (x',y) :: xs' =>
+              if Dec (x=x') then [|Void; Contains _ y; Void; Void|] else [|Contains _ xs'; Contains _ x; Void; Void|]
+           end)
+              (appSize (Lookup_Step_size xs x) ss))).
   Proof.
     start_TM.
     unfold Lookup_Step. unfold Lookup_Step_size; cbn.
-    eapply If_SpecT with (k1 := CaseList_steps xs) (k2 := Lookup_Step_steps_CaseList xs x) (k3 := Lookup_Step_steps_CaseList xs x).
+    eapply If_SpecTReg with (k1 := CaseList_steps xs) (k2 := Lookup_Step_steps_CaseList xs x) (k3 := Lookup_Step_steps_CaseList xs x).
     - hstep; cbn. apply CaseList_SpecT_size.
     - (* First "Then"; we have [xs = (x',y) :: xs']. *)
-      cbn. destruct xs as [ | (x', y) xs']; cbn in *; auto.
+      cbn. destruct xs as [ | (x', y) xs']. all:hintros [=].
       hstep.
-      + (* CasePair *) cbn.
-        hstep; cbn. hstep; cbn. hstep; cbn. cbn. tspec_ext.
+      + (* CasePair *) 
+        hstep; cbn. hstep; cbn. now hstep; cbn. cbn. tspec_ext.
       + cbn. intros _.
-        eapply If_SpecT with (k1 := CompareValues_steps x x') (k2 := Lookup_Step_steps_Compare x x' y xs') (k3 := Lookup_Step_steps_Compare x x' y xs').
+        eapply If_SpecTReg with (k1 := CompareValues_steps x x') (k2 := Lookup_Step_steps_Compare x x' y xs') (k3 := Lookup_Step_steps_Compare x x' y xs').
         * hsteps_cbn; cbn. apply CompareValue_SpecT_size with (X := X). assumption. cbn. tspec_ext.
-        * (* Second "Then"; we have [x=x'] *) decide (x=x') as [Hx | ]; cbn in *; auto.
+        * cbn. hintros ->. (* Second "Then"; we have [x=x'] *) decide (x'=x') as [Hx | ]. 2:easy.
           hstep. (* Return *) hstep. (* Seq *)
           -- (* MoveValue *) hstep; cbn. apply MoveValue_SpecT_size with (X := Y) (Y := X).
           -- cbn. intros _. hstep. (* Seq *)
              ++ (* Reset X *) hstep; cbn.  apply Reset_SpecT_space with (X := X).
              ++ (* Reset Y *) cbn. intros _. hstep. cbn. apply Reset_SpecT_space with (X := list (X*Y)).
              ++ reflexivity.
-          -- unfold Lookup_Step_steps_Compare. dec_pos (x=x'). lia.
+          -- unfold Lookup_Step_steps_Compare. decide _. 2:easy. lia.
           -- cbn. intros _. tspec_ext.
-        * cbn. (* "Else": We have [x<>x'] *) decide (x=x') as [ | Hx]; cbn in *; auto.
+        * cbn. hintros ?. (* "Else": We have [x<>x'] *) decide (x=x') as [ | Hx]. easy.
           hstep. hstep.
           -- hstep. cbn. eapply Reset_SpecT_space with (X := X).
           -- cbn. intros _. hstep. cbn. apply Reset_SpecT_space with (X := Y).
           -- unfold Lookup_Step_steps_Compare. dec_neg (x=x'). reflexivity.
           -- cbn. intros _. tspec_ext.
-        * intros tin ymid tmid H1 H2. cbn in *. destruct ymid; decide (x=x') as [Hx|Hx]; cbn in *; auto.
+        * cbn. intros []. all:reflexivity.
       + cbn. lia.
-    - cbn. (* The top-most "Else": We have [xs=nil] *) destruct xs as [ | ]; cbn in *; auto.
-      hstep. hstep; cbn. eapply ResetEmpty1_SpecT_space with (X := list (X*Y)). reflexivity. cbn. eauto.
-    - (* Finall running time *) intros tin yout tout _ _. destruct yout; reflexivity.
+    - cbn. hintros H'. (* The top-most "Else": We have [xs=nil] *) destruct xs as [ | ]. 2:easy.
+      hstep. hstep; cbn. eapply ResetEmpty1_SpecT_space with (X := list (X*Y)). reflexivity. cbn. tspec_ext.
+    - cbn. intros ? ->. destruct _;reflexivity.
   Qed.
 
   Definition Lookup_Loop := While Lookup_Step.
@@ -144,32 +141,31 @@ Section LookupAssociativeList.
 
   Lemma Lookup_Loop_SpecT_space (xs : list (X*Y)) (x : X) (ss : Vector.t nat 4) :
   TripleT
-    (tspec (withSpace (SpecVector [|Contains _ xs; Contains _ x; Void; Void|]) ss))
+    (tspec ([],withSpace ([|Contains _ xs; Contains _ x; Void; Void|]) ss))
     (Lookup_Loop_steps x xs) Lookup_Loop
     (fun yout =>
       tspec
-        (withSpace
-            match yout, lookup x xs with
-            | true, Some y => SpecVector [|Void; Contains _ y; Void; Void|]
-            | false,  None => SpecVector [|Void; Contains _ x; Void; Void|]
-            | _, _ => SpecFalse
+        ([yout = match lookup x xs with Some _ => true | _ => false end], withSpace
+            match lookup x xs with
+            | Some y => [|Void; Contains _ y; Void; Void|]
+            | None => [|Void; Contains _ x; Void; Void|]
             end (appSize (Lookup_Loop_size xs x) ss))).
   Proof.
   unfold Lookup_Loop.
-  eapply While_SpecT with (P := fun '(xs, x, ss) => _) (Q := fun '(xs, x, ss) => _) (R := fun '(xs, x, ss) => _) (g := fun '(xs,x,ss) => _) (f := fun '(xs,x,ss) => _)
+  eapply While_SpecTReg with
+  (PRE := fun '(xs, x, ss) => (_,_)) (INV := fun '(xs, x, ss) y => (_,_)) (POST := fun '(xs, x, ss) y => (_,_)) 
+  (f__step := fun '(xs,x,ss) => _) (f__loop := fun '(xs,x,ss) => _)
                           (x := (xs,x,ss)); clear x xs ss; intros ((xs, x), ss).
-  - apply Lookup_Step_SpecT_space.
-  - intros [] tmid tout H1 H2.
-    destruct xs as [ | (x', y) xs']; cbn in *; auto.
-    + decide (x = x'); cbn in *; eauto.
-    + destruct xs as [ | (x', y) xs']; cbn in *; auto.
-  - cbn. intros tin tmid Htin Hmid.
-    destruct xs as [ | (x', y) xs']; cbn in *; auto.
-    decide (x = x'); cbn in *; eauto.
-    eexists (_, _, _); cbn. repeat split.
-    + eauto.
-    + reflexivity.
-    + eauto.
+  { apply Lookup_Step_SpecT_space. }
+  cbn. split. 
+  - intros b Hb. set (sizeStep := Lookup_Step_size xs x);set (sizeLoop := Lookup_Loop_size xs x). destruct xs as [ | (x', y) xs'].
+    + inv Hb. cbn. split. tspec_ext. reflexivity.
+    + cbn - [sizeLoop sizeStep]. cbn in sizeStep,sizeLoop. decide (x=x'). 2:easy.
+      inv Hb. split. 2:reflexivity. tspec_ext.
+  -intros Hb.  set (sizeStep := Lookup_Step_size xs x);set (sizeLoop := Lookup_Loop_size xs x).
+   destruct xs as [ | []]. easy. cbn - [sizeLoop sizeStep]. cbn in *|-.  decide _. easy.
+    eexists (_, _, _); cbn - [sizeLoop sizeStep]. repeat split.
+    all:reflexivity.
   Qed.
 
   Definition Lookup : pTM sig^+ bool 5 :=
@@ -209,24 +205,21 @@ Section LookupAssociativeList.
 
     Lemma Lookup_SpecT_space (xs : list (X*Y)) (x : X) (ss : Vector.t nat 5) :
     TripleT
-      (tspec (withSpace (SpecVector [|Contains _ xs; Contains _ x; Void; Void; Void|]) ss))
+      (tspec ([],withSpace ([|Contains _ xs; Contains _ x; Void; Void; Void|]) ss))
       (Lookup_steps x xs) Lookup
       (fun yout =>
          tspec
-           (withSpace
-              match yout, lookup x xs with
-              | true, Some y => SpecVector [|Contains _ xs; Contains _ y; Void; Void; Void|]
-              | false,  None => SpecVector [|Contains _ xs; Contains _ x; Void; Void; Void|]
-              | _, _ => SpecFalse
-              end (appSize (Lookup_size xs x) ss))).
+           ([yout = match lookup x xs with Some y => true | _ => false end],
+           withSpace
+           [|Contains _ xs; (match lookup x xs with Some y => Contains _ y | _ =>  Contains _ x end); Void; Void; Void|]
+           (appSize (Lookup_size xs x) ss))).
   Proof.
     start_TM.
     unfold Lookup. hsteps_cbn; cbn.
     apply CopyValue_SpecT_size with (X := list (X*Y)).
     cbn. apply Lookup_Loop_SpecT_space.
-    intros yout tout H. cbn in *.
-    destruct yout, (lookup x xs); cbn in *; eauto.
-    reflexivity.
+    intros yout;cbn.
+    hintros ->. destruct (lookup x xs); cbn. 1-2:now tspec_ext. reflexivity.
   Qed.
 
   (* Legacy Lemma *)
@@ -236,8 +229,8 @@ Section LookupAssociativeList.
     -eapply TripleT_Realise, (Lookup_SpecT_space x x0 [|x1;x2;x3;x4;x5|]).
     -intros ? [] H **. modpon H.
     {unfold "≃≃",withSpace;cbn. intros i; destruct_fin i;cbn. all:assumption. }
-    repeat destruct _;unfold "≃≃",withSpace in H;cbn in H.
-    2,3:contradiction.
+    repeat destruct _;unfold "≃≃",withSpace in H;cbn in H;destruct H as [H' H].
+    2,3:discriminate.
     all:specializeFin H;tauto.
   Qed.
 

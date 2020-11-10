@@ -12,6 +12,10 @@ Class codable (sig: Type) (X: Type) := {
 }.
 Arguments encode {sig} {X} {_}.
 
+(*Hint Mode codable - + : typeclass_instances.*)
+Hint Mode Retract - + : typeclass_instances.
+Local Hint Mode Retract - - : typeclass_instances.
+
 Hint Extern 4 (codable (FinType(EqType ?sigX)) ?X) => cbn : typeclass_instances.
 
 (** We often use the above coercion to write [cX x] instead of [encode x], because [encode x] can be ambigious, see [Encode_map] *)
@@ -151,7 +155,6 @@ Ltac build_simple_retract_g :=
     let x := fresh "x" in
     intros x; destruct x; intros; try solve [now apply Retr_g ]; right
   end.
-
 
 Ltac build_simple_retract :=
   once lazymatch goal with
@@ -657,6 +660,7 @@ Section Encode_nat.
   Qed.
 
 End Encode_nat.
+
 
 (* Check FinType(EqType sigNat). *)
 

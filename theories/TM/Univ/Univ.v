@@ -83,9 +83,9 @@ Section Univ.
       Thus, we just convert the relations to Hare triples. *)
 
   Lemma DoAction'_SpecT_space (tp : tape sigM) (a : option sigM * move) ss :
-    TripleT (tspec (withSpace (SpecVector [|ContainsWorkingTape tp; Contains (LowLevel.retr_act_sig _) a|]) ss))
+    TripleT (tspec ([],withSpace ([|ContainsWorkingTape tp; Contains (LowLevel.retr_act_sig _) a|]) ss))
             (DoAction'_steps) (DoAction' _ _)
-            (fun _ => tspec (withSpace (SpecVector [|ContainsWorkingTape (doAct tp a); Void|]) (appSize (DoAction'_size a) ss))).
+            (fun _ => tspec ([],withSpace [|ContainsWorkingTape (doAct tp a); Void|] (appSize (DoAction'_size a) ss))).
   Proof.
     unfold DoAction'_size; cbn. eapply RealiseIn_TripleT.
     - apply DoAction'_Sem.
@@ -96,10 +96,10 @@ Section Univ.
 
 
   Lemma SetFinal_SpecT_space (final : bool) (q : nat) ss :
-    TripleT (tspec (withSpace (SpecVector [|Contains (LowLevel.retr_sigCurrentStateNumber_sig _) q; Void |]) ss))
-            (SetFinal_steps) (SetFinal _ final)
+    TripleT (tspec ([],withSpace ([|Contains (LowLevel.retr_sigCurrentStateNumber_sig _) q; Void |]) ss))
+            (SetFinal_steps) (SetFinal retr_sigGraph_sig final)
             (fun yout => tspec
-                        (withSpace (SpecVector [|Contains (LowLevel.retr_sigCurrentState_sig _) (final, q); Void|])
+                        ([],withSpace ([|Contains (LowLevel.retr_sigCurrentState_sig _) (final, q); Void|])
                                    (appSize (SetFinal_size) ss))).
   Proof.
     eapply Realise_TripleT.
@@ -124,16 +124,12 @@ Section Univ.
     [| (*0*) id; IsFinal_size |].
 
   Lemma IsFinal_SpecT_space (M : TM sigM 1) (q : state M) ss :
-    TripleT (tspec (withSpace (SpecVector [|ContainsState q; Void|]) ss))
-            (IsFinal_steps (halt q)) (IsFinal _)
+    TripleT (tspec ([],withSpace ([|ContainsState q; Void|]) ss))
+            (IsFinal_steps (halt q)) (IsFinal retr_sigGraph_sig)
             (fun yout =>
                tspec
-                 (withSpace
-                    match yout, halt q with
-                    | true,  true  => SpecVector [|ContainsState q; Void|]
-                    | false, false => SpecVector [|ContainsState q; Void|]
-                    | _, _ => SpecFalse
-                    end (appSize (IsFinal_size') ss))).
+                 ([yout = halt q],
+                 withSpace [|ContainsState q; Void|] (appSize (IsFinal_size') ss))).
   Proof.
     eapply Realise_TripleT.
     - apply IsFinal_Realise.
@@ -153,9 +149,9 @@ Section Univ.
     [| (*0*) id; ReadCurrent_size |].
 
   Lemma ReadCurrent'_SpecT_space (tp : tape sigM) ss :
-    TripleT (tspec (withSpace (SpecVector [|ContainsWorkingTape tp; Void|]) ss))
+    TripleT (tspec ([],withSpace ([|ContainsWorkingTape tp; Void|]) ss))
             (ReadCurrent'_steps) (ReadCurrent' _ _)
-            (fun _ => tspec (withSpace (SpecVector [|ContainsWorkingTape tp; Contains (LowLevel.retr_sigCurrentSymbol_sig _) (current tp)|])
+            (fun _ => tspec ([],withSpace ([|ContainsWorkingTape tp; Contains (LowLevel.retr_sigCurrentSymbol_sig _) (current tp)|])
                                     (appSize ReadCurrent'_size ss))).
   Proof.
     eapply RealiseIn_TripleT.
@@ -233,61 +229,43 @@ Section Univ.
 
   Lemma Univ_Step_SpecT_space (M : TM sigM 1) (tp : tape sigM) (q : state M) ss :
     TripleT
-      (tspec (withSpace (SpecVector [|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]) ss))
+      (tspec ([],withSpace ([|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]) ss))
       (Univ_Step_steps q tp) Univ_Step
       (fun yout =>
-         tspec (
+         tspec ([yout = if halt q then Some tt else None],
              withSpace
-               match yout, halt q with
-               | Some tt, true  => SpecVector [|ContainsWorkingTape tp;  ContainsTrans M; ContainsState q;  Void; Void; Void|]
-               | None,    false =>
+               (if halt q then [|ContainsWorkingTape tp;  ContainsTrans M; ContainsState q;  Void; Void; Void|]
+                else 
                  let (q', tp') := step (mk_mconfig q [|tp|]) in
                  let tp' := tp'[@Fin0] in
-                 SpecVector [|ContainsWorkingTape tp'; ContainsTrans M; ContainsState q'; Void; Void; Void|]
-               | _, _ => SpecFalse
-               end
+                 [|ContainsWorkingTape tp'; ContainsTrans M; ContainsState q'; Void; Void; Void|])
                (appSize (Univ_Step_size tp q) ss))).
   Proof.
-    unfold Univ_Step_size.  start_TM.
     cbn. destruct step eqn:HStep. cbn.
     destruct (trans (q, [|current tp|])) as (q'&a) eqn:Etrans.
     unfold step, current_chars in HStep. cbn in *. rewrite Etrans in HStep.
     symmetry in HStep. inv HStep.
 
-    destruct (halt q) eqn:Ehalt; cbn in *.
-    - eapply If_SpecT with (k2 := Univ_Step_steps_IsFinal q tp) (k3 := Univ_Step_steps_IsFinal q tp). (* [halt q = true] *)
+    eapply If_SpecT with (k2 := Univ_Step_steps_IsFinal q tp) (k3 := Univ_Step_steps_IsFinal q tp).
       + hsteps_cbn. cbn.
         eapply ConsequenceT_pre.
         * apply IsFinal_SpecT_space with (q := q).
-        * cbn. intros. rewrite Ehalt. tspec_ext.
         * reflexivity.
-      + cbn. rewrite Ehalt. cbn. unfold_abbrev. cbn. hsteps_cbn.
-        apply Nop_SpecT_con; cbn; auto.
-        cbn. unfold_abbrev;cbn. tspec_ext.
-      + cbn. rewrite Ehalt. cbn. eauto.
-      + cbn. intros ? ? ? _ _. destruct yout; auto.
-    - eapply If_SpecT with (k2 := Univ_Step_steps_IsFinal q tp) (k3 := Univ_Step_steps_IsFinal q tp). (* [halt q = false] *)
-      + hsteps_cbn. cbn.
-        eapply ConsequenceT_pre. 3:reflexivity.
-        * apply IsFinal_SpecT_space with (q := q).
-        * cbn. rewrite <- Ehalt. tspec_ext.
-      + cbn. rewrite Ehalt. cbn. auto.
-      + rewrite Ehalt in *. cbn. hsteps_cbn; cbn. 7-9:reflexivity.
+        * reflexivity. 
+      + cbn. hintros Ehalt. hsteps_cbn. apply Nop_SpecT_con.
+      unfold Univ_Step_size. rewrite <- Ehalt. tspec_ext.
+      + cbn. hintros Ehalt. rewrite <- Ehalt. hsteps_cbn; cbn. 7-9:reflexivity.
         * apply ReadCurrent'_SpecT_space.
         * cbn. intros. tspec_ext.
         * cbn. eapply ConsequenceT_pre.
           -- apply Reset_SpecT_space with (I := LowLevel.retr_sigCurrentSymbol_sig _). 
           -- instantiate (1 := [|_|]). cbn. tspec_ext.
           -- reflexivity.
-        * eapply Lookup_SpecT_space. apply transition_graph_injective.
+        * cbn. refine (Lookup_SpecT_space _ _ _ _ _). 2:apply transition_graph_injective. all:shelve.
         * cbn. tspec_ext.
-        * cbn. intros.
-          rewrite <- Ehalt.
-          erewrite lookup_graph with (tp := tp).
-
+        * cbn. hintros ? ->. rewrite Ehalt. erewrite lookup_graph with (tp := tp).
           (** We know that [Lookup] had succeeded. *)
           rewrite Etrans; cbn.
-          destruct ymid; cbn in *; auto.
 
           hstep; cbn. 3:reflexivity. hstep; cbn. hstep; cbn. hstep; cbn.
 
@@ -295,16 +273,16 @@ Section Univ.
 
           cbn. intros _. hstep; cbn. 3:reflexivity. hstep; cbn. eapply ConsequenceT_pre. 3:reflexivity.
           --apply DoAction'_SpecT_space with (a := a[@Fin0]). 
-          --instantiate (1 := [|_;_|]). cbn. tspec_ext. 
+          --instantiate (1 := [|_;_|]). tspec_ext. eassumption.
           --cbn. intros _. hstep; cbn. eapply ConsequenceT_pre. 3:reflexivity.
-            ++apply Translate_SpecT_size with (X := (bool * nat)%type).
-            ++cbn. instantiate (1 := [|_|]). cbn. tspec_ext.
+            ++ refine (@Translate_SpecT_size _ _ (bool * nat)%type _ _ _ _ _). all:shelve.
+            ++ instantiate (1 := [|_|]). tspec_ext.
         * (** The final runnint time calculation *)
-          unfold Univ_Step_steps_IsFinal. rewrite Ehalt, Etrans. cbn.
+          unfold Univ_Step_steps_IsFinal. rewrite <- Ehalt. rewrite Etrans. cbn.
           unfold Univ_Step_steps_ConstrPair, Univ_Step_steps_CasePair, Univ_Step_steps_Lookup, Univ_Step_steps_ResetSymbol, Univ_Step_steps_Translate.
           rewrite <- !Ehalt. ring_simplify. set (Lookup_steps _ _). nia.
         * unfold_abbrev. cbn. rewrite <- Ehalt.
-          cbn. tspec_ext. cbn. specialize (Htout Fin0). cbn in *. simpl_tape. auto.
+          cbn. unfold Univ_Step_size. rewrite <- Ehalt,Etrans.  tspec_ext. cbn. specialize (H Fin0). cbn in *. simpl_tape. auto.
       + cbn. intros ? ? ? _ _. destruct yout; auto.
   Qed.
 
@@ -312,18 +290,14 @@ Section Univ.
   (** Version without space (actually needed later) *)
   Lemma Univ_Step_SpecT (M : TM sigM 1) (tp : tape sigM) (q : state M) :
     TripleT
-      (tspec (SpecVector [|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]))
+      (tspec ([],[|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]))
       (Univ_Step_steps q tp) Univ_Step
-      (fun yout =>
-         tspec 
-           match yout, halt q with
-           | Some tt, true  => SpecVector [|ContainsWorkingTape tp;  ContainsTrans M; ContainsState q;  Void; Void; Void|]
-           | None,    false =>
-             let (q', tp') := step (mk_mconfig q [|tp|]) in
-             let tp' := tp'[@Fin0] in
-             SpecVector [|ContainsWorkingTape tp'; ContainsTrans M; ContainsState q'; Void; Void; Void|]
-           | _, _ => SpecFalse
-           end).
+      (fun yout => tspec ([yout = if halt q then Some tt else None],
+               if halt q then [|ContainsWorkingTape tp;  ContainsTrans M; ContainsState q;  Void; Void; Void|]
+                else 
+                 let (q', tp') := step (mk_mconfig q [|tp|]) in
+                 let tp' := tp'[@Fin0] in
+                 [|ContainsWorkingTape tp'; ContainsTrans M; ContainsState q'; Void; Void; Void|])).
   Proof. eapply TripleT_RemoveSpace. apply Univ_Step_SpecT_space. Qed.
 
 
@@ -350,12 +324,11 @@ Section Univ.
     end.
 
   Lemma Univ_Spec_space (M : TM sigM 1) (tp : tape sigM) (q : state M) ss :
-    Triple (tspec (withSpace (SpecVector [|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]) ss))
+    Triple (tspec ([],withSpace ([|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]) ss))
            Univ
            (fun _ tout =>
               exists k (q' : state M) (tp' : tape sigM),
-                loopM (mk_mconfig q [|tp|]) k = Some (mk_mconfig q' [|tp'|]) /\
-                tspec (withSpace (SpecVector [|ContainsWorkingTape tp'; ContainsTrans M; ContainsState q'; Void; Void; Void|])
+                tspec ([loopM (mk_mconfig q [|tp|]) k = Some (mk_mconfig q' [|tp'|])],withSpace ([|ContainsWorkingTape tp'; ContainsTrans M; ContainsState q'; Void; Void; Void|])
                                  (appSize (Univ_size tp q k) ss))
                       tout).
   Proof.
@@ -364,20 +337,24 @@ Section Univ.
     - eapply TripleT_Triple. apply Univ_Step_SpecT_space.
     - cbn. intros [] tmid tout H.
       unfold step, current_chars; cbn.
-      destruct (halt q) eqn:Eh; auto. (* [halt q = true] *)
-      intros Hout. eexists 0, _, _; cbn. unfold haltConf. cbn. rewrite Eh. split.
+      intros [[Heq _] Hout]%tspecE.
+      destruct (halt q) eqn:Eh. 2:easy. (* [halt q = true] *)
+      eexists 0, _, _; cbn. unfold haltConf. cbn. rewrite Eh. split.
       + reflexivity.
-      + rewrite Eh. auto.
+      + rewrite Eh. cbn. apply Hout.
     - cbn. intros tin tmid H1.
-      unfold step, current_chars; cbn. destruct trans as [q' a] eqn:Etrans. cbn.
-      destruct (halt q) eqn:Eh; auto. (* [halt q = false] *)
 
-      intros H2. rewrite tam in H2; cbn in *.
+      unfold step, current_chars; cbn. destruct trans as [q' a] eqn:Etrans. cbn.
+      intros [[Heq _] Hout]%tspecE.
+
+      destruct (halt q) eqn:Eh. easy. (* [halt q = false] *)
+
+      rewrite tam in Hout; cbn in *.
       eexists (doAct tp a[@Fin0], q', _); cbn. split.
-      + tspec_ext.
-      + intros _ tout. intros (k&q''&tp''&Hloop&HEnc). eexists (S k), q'', tp''. repeat split.
+      + hnf. eapply Hout.
+      + intros _ tout. intros (k&q''&tp''&Hloop&HEnc). cbn in HEnc. eexists (S k), q'', tp''. repeat split.
         * cbn. unfold haltConf. cbn. rewrite Eh. unfold step, current_chars. cbn. rewrite Etrans. rewrite tam. eauto.
-        * cbn. rewrite Eh. unfold step, current_chars. cbn. rewrite Etrans. cbn. rewrite !tam. cbn. tspec_ext.
+        * cbn. rewrite Eh. unfold step, current_chars. cbn. rewrite Etrans. cbn. rewrite !tam. cbn. apply HEnc.
   Qed.
 
   
@@ -410,13 +387,13 @@ Section Univ.
   Lemma Univ_SpecT (M : TM sigM 1) (tp : tape sigM) (q : state M) (k' : nat) :
     TripleT
       (fun tin => exists (q' : state M) (tp' : tape sigM),
-           tspec (SpecVector [|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]) tin /\
+           tspec ([],[|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]) tin /\
            loopM (mk_mconfig q [|tp|]) k' = Some (mk_mconfig q' [|tp'|]))
       (Univ_steps q tp k') Univ
       (fun _ tout =>
          exists (q' : state M) (tp' : tape sigM),
            loopM (mk_mconfig q [|tp|]) k' = Some (mk_mconfig q' [|tp'|]) /\
-           tspec (SpecVector [|ContainsWorkingTape tp'; ContainsTrans M; ContainsState q'; Void; Void; Void|]) tout).
+           tspec ([],[|ContainsWorkingTape tp'; ContainsTrans M; ContainsState q'; Void; Void; Void|]) tout).
   Proof.
     eapply While_SpecT with (P := fun '(tp,q,k') => _) (Q := fun '(tp,q,k') => _) (R := fun '(tp,q,k') => _)
                             (f := fun '(tp,q,k') => _) (g := fun '(tp,q,k') => Univ_Step_steps q tp)
@@ -427,20 +404,22 @@ Section Univ.
       apply Univ_Step_SpecT. (* Here we need the version without space again. *)
     - cbn. intros [] tmid tout (q'&tp'&HEnc&HLoop).
       unfold step, current_chars; cbn.
-      destruct (halt q) eqn:Eh; auto. (* [halt q = true] *)
-      intros Hout. repeat split.
+      intros ([Hh _]&Hout)%tspecE.
+      destruct (halt q) eqn:Eh. 2:easy. (* [halt q = true] *)
+      repeat split.
       + exists q', tp'. cbn. unfold haltConf; cbn.
-        apply loop_eq_0 in HLoop as HLoop'; eauto. inv HLoop'. rewrite Eh. split; auto.
+        apply loop_eq_0 in HLoop as HLoop'; eauto. inv HLoop'. rewrite Eh. split. easy. hnf. eauto.
       + rewrite Univ_steps_eq. destruct k'; auto. rewrite Eh. reflexivity.
     - intros tin tmid (q'&tp'&HEnc&HLoop). cbn.
       unfold step, current_chars; cbn. destruct trans as [q'' a] eqn:Etrans. cbn.
-      destruct (halt q) eqn:Eh; auto. (* [halt q = false] *)
+      intros ([Hh _]&H2)%tspecE.
+      destruct (halt q) eqn:Eh. easy. (* [halt q = false] *)
 
       destruct k' as [ | k'']; cbn in *; unfold haltConf in HLoop; cbn in *; rewrite Eh in HLoop. congruence.
       unfold step, current_chars in HLoop. cbn in *. rewrite Etrans in HLoop. rewrite tam in HLoop. cbn in *.
 
-      intros H2. exists (doAct tp a[@Fin0], q'', k''). repeat split.
-      + eexists q', tp'. repeat split; auto. tspec_ext. rewrite tam in H; cbn in *. eauto.
+      exists (doAct tp a[@Fin0], q'', k''). repeat split.
+      + eexists q', tp'. repeat split. 2:easy. hnf. rewrite tam in H2. easy.
       + rewrite Eh. cbn. unfold step, current_chars. cbn. rewrite Etrans. cbn. rewrite tam. cbn. reflexivity.
       + cbn. intros _ tout (q'''&tp'''&HLoop'&HEnc').
         apply (loop_injective HLoop) in HLoop'. inv HLoop'.

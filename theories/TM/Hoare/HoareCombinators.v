@@ -1,7 +1,7 @@
 (** ** Some Hoare Rules *)
 
 From Undecidability Require Import ProgrammingTools.
-From Undecidability Require Import TM.Hoare.HoareLogic.
+From Undecidability.TM.Hoare Require Import HoareLogic HoareRegister.
 
 Local Transparent Triple TripleT Entails.
 
@@ -267,8 +267,7 @@ Lemma If_SpecT (sig : finType) (n : nat) (F : finType) (pM1 : pTM sig bool n) (p
   TripleT (Q true)  k2 pM2 R ->
   TripleT (Q false) k3 pM3 R ->
   (forall tin yout tout, P tin -> Q yout tout ->
-                    if yout then 1 + k1 + k2 <= k
-                    else 1 + k1 + k3 <= k) ->
+                    (1 + k1 + if yout then k2 else k3) <= k) ->
   TripleT P k (If pM1 pM2 pM3) R.
 Proof.
   intros H1 H2 H3 H4. split.
@@ -293,6 +292,21 @@ Proof.
         + exists k2. repeat split; auto. lia.
         + exists k3. repeat split; auto. lia.
     }
+Qed.
+
+
+(** more usable version for register machines *)
+Lemma If_SpecTReg (sig : finType) (n : nat) (F : finType) (pM1 : pTM _ bool n) (pM2 pM3 : pTM _ F n)
+      (P : Spec sig n) (Q : bool -> Spec sig n) (R : F -> Spec sig n)
+      (k k1 k2 k3 : nat) :
+  TripleT (≃≃ P) k1 pM1 (fun y => (≃≃ Q y)) ->
+  TripleT (≃≃ Q true)  k2 pM2 (fun y => (≃≃ R y)) ->
+  TripleT (≃≃ Q false) k3 pM3 (fun y => (≃≃  R y)) ->
+  (implList (fst P) (forall b, implList (fst (Q b)) (1 + k1 + (if b then k2 else k3) <= k))) ->
+  TripleT (≃≃ P) k (If pM1 pM2 pM3) (fun y => (≃≃ R y)).
+Proof.
+  intros H1 H2 H3 H4. eapply If_SpecT. 1-3:eassumption. cbn.
+  intros. do 2 setoid_rewrite genImp_ext in H4. specialize H4 with (b:=yout). destruct P,(Q yout). eapply H4;cbn. all:eapply tspecE;eauto.
 Qed.
 
 (** Version were we don't care about the output label of [M1] *)
@@ -467,6 +481,30 @@ Proof.
   }
 Qed.
 
+(* For Register machines, we handle the pure part of the assertion differently for a more in-line rule. *)
+Lemma While_SpecReg (sig : finType) (n : nat) (F : finType) {inF : inhabitedC F} (pM : pTM _ (option F) n)
+      (X : Type)
+      (P : X -> Spec sig n) (Q : X -> option F -> Spec sig n) (R : X -> F -> Spec sig n) :
+  (forall x, Triple (≃≃ P x) pM (fun y => (≃≃ Q x y))) ->
+  (forall x , implList (fst (P x))
+       (forall yout, implList (fst (Q x (Some yout))) (Entails (≃≃ [],snd (Q x (Some yout))) (≃≃ R x yout)))
+     /\ (implList (fst (Q x None)) (exists x', Entails (≃≃ [],snd (Q x None)) (≃≃ P x')
+                                    /\ (forall yout, Entails (≃≃ R x' yout) (≃≃ R x yout))))) ->
+  forall (x : X), Triple (≃≃ P x) (While pM) (fun y => (≃≃ R x y)).
+Proof.
+  intros H1 H2. eapply While_Spec with (1:=H1).
+  - intros ? ? ? ? ?. revert tout. apply EntailsE.
+    specialize (H2 x) as [H2 ?]. destruct (P x);cbn in *. apply tspecE in H as [H _].
+    do 2 setoid_rewrite genImp_ext in H2. specialize (H2 _ H yout). 
+    destruct (Q x (Some yout));cbn in *. eapply tspec_introPure. rewrite genImp_ext. eauto.
+  - intros **. specialize (H2 x) as [? H2]. destruct (P x);cbn in *.
+    apply tspecE in H as [H _]. setoid_rewrite genImp_ext in H2.
+    destruct (Q x None);cbn in *.
+    eapply tspecE in H0 as (H0&?). specialize (H2 _ H0) as (x'&H2&H'). eexists x'.
+    split. {eapply (EntailsE H2). eapply tspecI. now hnf. easy. }
+    intros ? . now eapply EntailsE.
+Qed. 
+
 
 (** Termination rule: We additionally have an abstract running time function [f : X -> nat]. The machine [M] terminates in time [g x] for every
 abstract [x]. We have to show that [f x] also decreases by [1 + g x] whenever [While M] repeats the loop. *)
@@ -524,3 +562,43 @@ Proof.
     }
   }
 Qed.
+
+
+Lemma While_SpecTReg (sig : finType) (n : nat) (F : finType) {inF : inhabitedC F} (pM : pTM _ (option F) n)
+      (X : Type) (f__loop f__step : X -> nat)
+      (PRE : X -> Spec sig n) (INV : X -> option F -> Spec sig n) (POST : X -> F -> Spec sig n) :
+  (forall x, TripleT (≃≃ PRE x) (f__step x) pM (fun y => (≃≃ INV x y))) ->
+  (forall x , implList (fst (PRE x)) (forall yout, implList (fst (INV x (Some yout))) (Entails (≃≃ [],snd (INV x (Some yout))) (≃≃ POST x yout) /\ f__step x <= f__loop x))
+     /\ (implList (fst (INV x None)) (exists x', Entails (≃≃ [],snd (INV x None)) (≃≃ PRE x') /\ 1 + f__step x + f__loop x' <= f__loop x
+                                    /\ (forall yout, Entails (≃≃ POST x' yout) (≃≃ POST x yout))))) ->
+  forall (x : X), TripleT (≃≃ PRE x) (f__loop x) (While pM) (fun y => (≃≃ POST x y)).
+Proof.
+  intros H1 H2. eapply While_SpecT with (1:=H1).
+  - intros x y ? ? ? H'. 
+    specialize (H2 x) as [H2 ?]. setoid_rewrite genImp_ext in H2. destruct (PRE _).  apply tspecE in H as [H _].
+    specialize (H2 _ H y).
+    destruct (POST x y). destruct (INV x (Some _)). specialize (tspecE H') as [H'1 ?].
+    setoid_rewrite genImp_ext in H2. specialize (H2 _ H'1) as []. split. 2:easy. eapply H2. eapply tspecI. all:easy.  
+  - intros **. specialize (H2 x) as [? H2]. destruct (PRE _). destruct (INV _ _).
+    apply tspecE in H as [H _]. setoid_rewrite genImp_ext in H2.
+    eapply tspecE in H0 as (H0&?). specialize (H2 _ H0) as (x'&H2&?&H'). eexists x'.
+    split. {eapply (EntailsE H2). eapply tspecI. now hnf. easy. }
+    split. easy. 
+    intros ? . now eapply EntailsE.
+Qed.
+
+
+Lemma While_SpecTReg' (sig : finType) (n : nat) (F : finType) {inF : inhabitedC F} (pM : pTM _ (option F) n)
+      (X : Type) (f g : X -> nat)
+      P' Q' R' (P : X -> SpecV sig n) (Q : X -> option F -> SpecV sig n) (R : X -> F -> SpecV sig n) :
+  (forall x, TripleT (≃≃ P' x, P x) (g x) pM (fun y => (≃≃ Q' x y, Q x y))) ->
+  (forall x , implList (P' x)
+       (forall yout, implList (Q' x (Some yout)) (Entails (≃≃ [],Q x (Some yout)) (≃≃ R' x yout,R x yout) /\ g x <= f x))
+     /\ (implList (Q' x None) (exists x', Entails (≃≃ [],Q x None) (≃≃ P' x', P x') /\ 1 + g x + f x' <= f x
+                                    /\ (forall yout, Entails (≃≃ R' x' yout,R x' yout) (≃≃ R' x yout,R x yout))))) ->
+  forall (x : X), TripleT (≃≃ P' x,P x) (f x) (While pM) (fun y => (≃≃ R' x y,R x y)).
+Proof.
+  intros H1 H2. eapply While_SpecTReg with (INV := fun _ _ => (_,_)). all:easy.
+Qed.
+
+

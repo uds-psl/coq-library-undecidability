@@ -195,7 +195,7 @@ Section Fix_Sig.
 
     Lemma tape_contains_ext (t : tape (sig^+)) (x : X) (y : Y) :
       t ≃(I1) x ->
-      Encode_map _ _ x = Encode_map _ _ y ->
+      Encode_map _ I1 x = Encode_map _ _ y ->
       t ≃(I2) y.
     Proof. cbn. intros (r1&->). repeat econstructor. cbn. do 2 f_equal. now rewrite H. Qed.
 
@@ -204,20 +204,20 @@ Section Fix_Sig.
     
     Lemma tape_contains_size_ext (t : tape (sig^+)) x y s1 s2 :
       t ≃(I1;s1) x ->
-      Encode_map _ _ x = Encode_map _ _ y ->
+      Encode_map _ I1 x = Encode_map _ _ y ->
       s1 <= s2 ->
       t ≃(I2;s2) y.
     Proof. cbn. intros (r1&->&Hs) H. repeat econstructor. cbn. do 2 f_equal. now rewrite H. lia. Qed.
 
     Lemma tape_contains_rev_ext (t : tape (sig^+)) (x : X) (y : Y) :
       t ≃(I1) x ->
-      Encode_map _ _ x = Encode_map _ _ y ->
+      Encode_map _ I1 x = Encode_map _ _ y ->
       t ≃(I2) y.
     Proof. cbn. intros (r1&->) H. repeat econstructor. cbn. do 2 f_equal. now rewrite H. Qed.
 
     Lemma tape_contains_rev_size_ext (t : tape (sig^+)) x y s1 s2 :
       t ≂(I1;s1) x ->
-      Encode_map _ _ x = Encode_map _ _ y ->
+      Encode_map _ I1 x = Encode_map _ _ y ->
       s1 <= s2 ->
       t ≂(I2;s2) y.
     Proof. cbn. intros (r1&->&Hs) H. repeat econstructor. cbn. do 2 f_equal. now rewrite H. lia. Qed.
@@ -230,7 +230,7 @@ Section Fix_Sig.
     Variable (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig).
 
     Definition initValue (x : X) :=
-      midtape nil (inl START) (map inr (Encode_map _ _ x) ++ [inl STOP]).
+      midtape nil (inl START) (map inr (Encode_map _ I x) ++ [inl STOP]).
 
     Lemma initValue_contains_size (x : X) :
       initValue x ≃(;0) x.

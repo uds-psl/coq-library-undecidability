@@ -66,44 +66,41 @@ Section Nth'.
   
     Lemma Nth'_Step_SpecT_size (n : nat) (xs : list X) (ss : Vector.t nat 3) :
       TripleT
-        (tspec (withSpace (SpecVector [|Contains _ xs; Contains _ n; Void|]) ss))
+        (tspec ([],withSpace ([|Contains _ xs; Contains _ n; Void|]) ss))
         (Nth'_Step_steps xs n) Nth'_Step
         (fun yout =>
-           tspec (withSpace
-                    match yout, n, xs with
-                    | None,       S n', x::xs' => SpecVector [|Contains _ xs'; Contains _ n'; Void|]
-                    | Some true,     0, x::xs' => SpecVector [|Contains _ xs'; Contains _ 0;  Contains _ x|]
-                    | Some false,    O,   nil => SpecVector [|Contains _ nil; Contains _ 0;  Void|]
-                    | Some false, S n',   nil => SpecVector [|Contains _ nil; Contains _ n'; Void|]
-                    | _, _, _ => SpecFalse
+           tspec ([yout = match xs,n with [],_ => Some false | _ , 0 => Some true | _,__ => None end ],
+                      withSpace
+                    match xs,n with
+                    | nil,_ => [|Contains _ nil; Contains _ (pred n); Void|]
+                    | x::xs', S n' => [|Contains _ xs'; Contains _ n'; Void|]
+                    | x::xs', 0 => [|Contains _ xs'; Contains _ 0;  Contains _ x|]
                     end (appSize (Nth'_Step_size n xs) ss))).
     Proof.
       start_TM.
       unfold Nth'_Step.
-      eapply If_SpecT with (k1 := CaseNat_steps) (k2 := Nth'_Step_steps_CaseList xs) (k3 := CaseList_steps xs).
-      - hstep; cbn.
+      eapply If_SpecTReg with (k1 := CaseNat_steps) (k2 := Nth'_Step_steps_CaseList xs) (k3 := CaseList_steps xs).
+      - unfold_abbrev. hstep; cbn.
         hstep; cbn. (* or [eapply ChangeAlphabet_SpecT_space_pre.] *)
         hstep; cbn. cbn. tspec_ext.
-      - cbn. destruct n as [ | n']; cbn in *; auto.
-        (** Like in the Realisation proof, we make a case-distinction over the value of [xs]. *)
-        destruct xs as [ | x xs']; cbn in *; auto.
-        + eapply If_SpecT with (k2 := 0).
+      - cbn. hintros ?. destruct n as [ | n'];cbn. nia.
+        + eapply If_SpecTReg.
           * hstep; cbn. hstep; cbn. hstep; cbn. cbn. tspec_ext.
-          * cbn. auto. (* The "Then" case of the "If CaseList". We are not in this state, since [xs=nil]. *)
-          * cbn. hstep; cbn. hstep; cbn. cbn. intros _. tspec_ext.
-          * cbn. intros tin yout tout. destruct yout; cbn in *; auto.
-        + eapply If_SpecT.
-          * hstep; cbn. hstep; cbn. hstep; cbn. cbn. tspec_ext.
-          * cbn. hstep; cbn. hstep; cbn. apply Reset_SpecT_space. cbn. intros _. tspec_ext.
-          * cbn. auto. (* The "Else" case of the "If CaseList". We are not in this state, since [xs=x::xs']. *)
-          * cbn. intros tin yout tout. destruct yout; cbn in *; auto.
-      - cbn. destruct n as [ | n']; cbn in *; auto.
-        hstep; cbn. hstep; cbn. hstep; cbn. hstep; cbn.
-        cbn. tspec_ext.
-        intros yout tout. destruct yout, xs as [ | x xs']; cbn in *; auto.
-        + intros. tspec_ext.
-        + intros. tspec_ext.
-      - intros ? ? ? ? ?. destruct yout, n as [ | n'], xs as [ | x xs']; cbn in *; auto.
+          * cbn. hintros H'.
+            refine (_ : TripleT _ (match xs with x::xs => _ | _ => 0 end) _ _).
+            destruct xs. easy. hstep; cbn. hstep; cbn.  
+            now apply Reset_SpecT_space. cbn. tspec_ext.
+          * cbn. hintros H'.
+            destruct xs. 2:easy.
+            hstep; cbn. hstep; cbn. cbn. tspec_ext.
+          * cbn. intros ? ->. destruct xs; cbn in *; auto.
+      - cbn. hintros ->. cbn.
+        hstep; cbn.
+        { hstep; cbn. hstep; cbn. hstep; cbn.  cbn. tspec_ext. }
+        cbn. hintros yout ->. destruct xs as [ | x xs'];cbn.
+        + tspec_ext.
+        + tspec_ext.
+      - cbn. unfold Nth'_Step_steps. intros b Hb. destruct b,xs,n;cbn;unfold CaseList_steps. all:lia.
     Qed.
 
   Fixpoint Nth'_Loop_size {sigX X : Type} {cX : codable sigX X} (n : nat) (l : list X) {struct n} : Vector.t (nat -> nat) 3 :=
@@ -124,30 +121,28 @@ Section Nth'.
 
     Lemma Nth'_Loop_SpecT_size xs n (ss : Vector.t nat 3) :
     TripleT
-      (tspec (withSpace (SpecVector [|Contains _ xs; Contains _ n; Void|]) ss))
+      (tspec ([],withSpace ([|Contains _ xs; Contains _ n; Void|]) ss))
       (Nth'_Loop_steps xs n) Nth'_Loop
       (fun yout =>
          tspec
-           (withSpace
-              match yout, nth_error xs n with
-              | true, Some x => SpecVector [|Contains _ (skipn (S n) xs); Contains _ (n - (S (length xs))); Contains _ x|]
-              | false, None  => SpecVector [|Contains _ (skipn (S n) xs); Contains _ (n - (S (length xs))); Void|]
-              | _, _ => SpecFalse
+           ([yout = match nth_error xs n with None => false | _ => true end],
+              withSpace match nth_error xs n with
+              | Some x => [|Contains _ (skipn (S n) xs); Contains _ (n - (S (length xs))); Contains _ x|]
+              | None  => [|Contains _ (skipn (S n) xs); Contains _ (n - (S (length xs))); Void|]
               end
               (appSize (Nth'_Loop_size n xs) ss))).
   Proof.
-    eapply While_SpecT with (P := fun '(xs,n,ss) => _) (Q := fun '(xs,n,ss) => _) (R := fun '(xs,n,ss) => _) (g := fun '(xs,n,ss) => _) (f := fun '(xs,n,ss) => _) (x := (xs,n,ss));
+    eapply While_SpecTReg with (PRE := fun '(xs,n,ss) => (_,_)) (INV := fun '(xs,n,ss) y => (_,_)) (POST := fun '(xs,n,ss) y  => _)
+       (f__step := fun '(xs,n,ss) => _) (f__loop := fun '(xs,n,ss) => _) (x := (xs,n,ss));
       clear xs n ss; intros ((xs,n),ss).
-    - apply Nth'_Step_SpecT_size.
-    - cbn. intros yout tmid tout H1 H2.
-      destruct yout, n as [ | n'], xs as [ | x xs']; cbn in *; auto.
-      replace (n' - 0) with n' by lia. auto.
-    - cbn. intros yout tmid tout H1.
-      destruct n as [ | n'], xs as [ | x xs']; cbn in *; auto.
+    { apply Nth'_Step_SpecT_size. }
+    cbn. split.
+    - intros b Hb. split.
+      + destruct xs, n;inv Hb. all:cbn [nth_error]. all:tspec_ext. f_equal. cbn;nia.
+      + unfold Nth'_Loop_steps. destruct xs,n;inv Hb. all:cbn;nia.
+    - destruct xs as [ | ? xs'],n as [ | n']. all:intros [=].
       eexists (xs', n', _). repeat split; cbn.
-      + eauto.
-      + reflexivity.
-      + eauto.
+      all:reflexivity.
   Qed.
 
 
@@ -178,31 +173,30 @@ Section Nth'.
      
   Lemma Nth'_SpecT_size (xs : list X) (n : nat) (ss : Vector.t nat 4) :
     TripleT
-      (tspec (withSpace (SpecVector [|Contains _ xs; Contains _ n; Void; Void|]) ss))
+      (tspec ([],withSpace ([|Contains _ xs; Contains _ n; Void; Void|]) ss))
       (Nth'_steps xs n) Nth'
       (fun yout =>
-        tspec (withSpace
-                  match yout, nth_error xs n with
-                  | true, Some x => SpecVector [|Contains _ xs; Void; Contains _ x; Void|]
-                  | false, None => SpecVector [|Contains _ xs; Void; Void; Void|]
-                  | _, _ => SpecFalse
-                  end (appSize (Nth'_size xs n) ss))).
+    tspec ([yout = match nth_error xs n with None => false | _ => true end],
+      withSpace match nth_error xs n with
+      | Some x => [|Contains _ xs; Void; Contains _ x;Void|]
+      | None  => [|Contains _ xs; Void; Void;Void|]
+      end
+       (appSize (Nth'_size xs n) ss))).
   Proof.
-    start_TM.
     unfold Nth'.
     hstep; cbn. hstep; cbn. apply CopyValue_SpecT_size.
-    cbn. intros _. eapply If_SpecT; cbn.
+    cbn. intros _. eapply If_SpecTReg; cbn.
     - hstep; cbn. eapply ConsequenceT_pre. apply Nth'_Loop_SpecT_size. tspec_ext. reflexivity.
-    - cbn. destruct (nth_error xs n) as [ x | ]; cbn in *; auto.
+    - cbn. destruct (nth_error xs n) as [ x | ]. all:hintros [=].
       hstep; cbn. hstep; cbn. hstep; cbn. apply Reset_SpecT_space with (X := list X).
       cbn. intros []. eauto. hstep; cbn. apply Reset_SpecT_space with (X := nat). reflexivity.
-      cbn. intros _. auto.
-    - cbn. destruct (nth_error xs n) as [ x | ]; cbn in *; auto.
+      cbn. intros _. cbn. tspec_ext.
+    - cbn. destruct (nth_error xs n) as [ x | ]. all:hintros [=].
       hstep; cbn. hstep; cbn. hstep; cbn. apply Reset_SpecT_space with (X := list X).
       cbn. intros []. eauto. hstep; cbn. apply Reset_SpecT_space with (X := nat). reflexivity.
-      cbn. intros _. auto.
-    - cbn. intros tin yout tout ? ?. cbn. destruct yout; cbn in *; auto.
-    - unfold Nth'_steps. cbn. lia.
+      cbn. intros _. tspec_ext.
+    - cbn. destruct b;reflexivity.
+    - unfold Nth'_steps. lia.
   Qed.
 
 
@@ -234,11 +228,12 @@ Section Nth'.
     Lemma Nth'_Realise : Nth' ⊨ Nth'_Rel.
     Proof.
       repeat (eapply RealiseIntroAll;intro). eapply Realise_monotone.
-      -eapply TripleT_Realise. eapply Nth'_SpecT_size with (ss:=[|_;_;_;_|]).
-      -unfold Nth'_Rel. intros ? [] H **. modpon H.
+      -eapply TripleT_Realise. eapply Nth'_SpecT_size with (ss:=[|_;_;_;_|]) (xs:=x) (n:=x0).
+      -cbn. unfold Nth'_Rel. intros ? [] H **. modpon H.
       {unfold "≃≃",withSpace;cbn. intros i; destruct_fin i;cbn. exact H3. all:eassumption. }
       repeat destruct _;unfold "≃≃",withSpace in H;cbn in H.
-      2,3:contradiction.
+      all:destruct H as [Heq H].  
+      2,3:discriminate Heq.
       all:specializeFin H;eauto 6.
     Qed.
 
