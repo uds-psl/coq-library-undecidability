@@ -382,13 +382,12 @@ Section Univ.
     end.
   Proof. destruct k; cbn; auto. Qed.
 
-  Opaque Triple TripleT.
-
   Lemma Univ_SpecT (M : TM sigM 1) (tp : tape sigM) (q : state M) (k' : nat) :
     TripleT
       (fun tin => exists (q' : state M) (tp' : tape sigM),
-           tspec ([],[|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]) tin /\
-           loopM (mk_mconfig q [|tp|]) k' = Some (mk_mconfig q' [|tp'|]))
+           loopM (mk_mconfig q [|tp|]) k' = Some (mk_mconfig q' [|tp'|]) /\
+           tspec ([],[|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]) tin
+           )
       (Univ_steps q tp k') Univ
       (fun _ tout =>
          exists (q' : state M) (tp' : tape sigM),
@@ -402,15 +401,15 @@ Section Univ.
     - do 2 (eapply TripleT_exists_pre; intros). eapply TripleT_and_pre; intros _. (* First remove the pure preconditions *)
       (* eapply TripleT_RemoveSpace. apply Univ_Step_SpecT_space. *)
       apply Univ_Step_SpecT. (* Here we need the version without space again. *)
-    - cbn. intros [] tmid tout (q'&tp'&HEnc&HLoop).
+    - cbn. intros [] tmid tout (q'&tp'&HLoop&HEnc).
       unfold step, current_chars; cbn.
       intros ([Hh _]&Hout)%tspecE.
       destruct (halt q) eqn:Eh. 2:easy. (* [halt q = true] *)
-      repeat split.
+      repeat apply conj.
       + exists q', tp'. cbn. unfold haltConf; cbn.
         apply loop_eq_0 in HLoop as HLoop'; eauto. inv HLoop'. rewrite Eh. split. easy. hnf. eauto.
       + rewrite Univ_steps_eq. destruct k'; auto. rewrite Eh. reflexivity.
-    - intros tin tmid (q'&tp'&HEnc&HLoop). cbn.
+    - intros tin tmid (q'&tp'&HLoop&HEnc). cbn.
       unfold step, current_chars; cbn. destruct trans as [q'' a] eqn:Etrans. cbn.
       intros ([Hh _]&H2)%tspecE.
       destruct (halt q) eqn:Eh. easy. (* [halt q = false] *)
@@ -418,8 +417,8 @@ Section Univ.
       destruct k' as [ | k'']; cbn in *; unfold haltConf in HLoop; cbn in *; rewrite Eh in HLoop. congruence.
       unfold step, current_chars in HLoop. cbn in *. rewrite Etrans in HLoop. rewrite tam in HLoop. cbn in *.
 
-      exists (doAct tp a[@Fin0], q'', k''). repeat split.
-      + eexists q', tp'. repeat split. 2:easy. hnf. rewrite tam in H2. easy.
+      exists (doAct tp a[@Fin0], q'', k''). repeat apply conj.
+      + eexists q', tp'. repeat split. easy. hnf. rewrite tam in H2. easy.
       + rewrite Eh. cbn. unfold step, current_chars. cbn. rewrite Etrans. cbn. rewrite tam. cbn. reflexivity.
       + cbn. intros _ tout (q'''&tp'''&HLoop'&HEnc').
         apply (loop_injective HLoop) in HLoop'. inv HLoop'.
@@ -478,7 +477,7 @@ Section Univ.
       -intros ? k H **. modpon H.
       split. 2:eassumption.
       specializeFin H2;clear H2. 
-      unfold "≃≃",withSpace;cbn. do 2 eexists. split. intros i; destruct_fin i;cbn. all:eassumption. 
+      unfold "≃≃",withSpace;cbn. do 2 eexists. split. eassumption. intros i; destruct_fin i;cbn. all:eassumption. 
     Qed.
 
   End LegacyLemmas.

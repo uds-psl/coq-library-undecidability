@@ -164,7 +164,7 @@ Section LookupAssociativeList.
       inv Hb. split. 2:reflexivity. tspec_ext.
   -intros Hb.  set (sizeStep := Lookup_Step_size xs x);set (sizeLoop := Lookup_Loop_size xs x).
    destruct xs as [ | []]. easy. cbn - [sizeLoop sizeStep]. cbn in *|-.  decide _. easy.
-    eexists (_, _, _); cbn - [sizeLoop sizeStep]. repeat split.
+    eexists (_, _, _); cbn - [sizeLoop sizeStep]. repeat apply conj.
     all:reflexivity.
   Qed.
 

@@ -1,9 +1,6 @@
 From Undecidability Require Import Hoare.HoareLogic.
 From Undecidability Require Import ProgrammingTools.
 
-(* This is dependent on the exact definitons to simplify the proofs in this file *)
-Local Transparent Triple TripleT Entails.
-
 (** ** Tape/Register Specification *)
 
 (* Register specifications are deep embeded because this makes it
@@ -65,6 +62,14 @@ Section RegSpec.
     destruct P as (Ps&P). induction Ps;cbn in *. easy. intros H' ?. split. now eapply H';left.
     eapply IHPs. all:easy. 
   Qed.
+
+Lemma tspec_iff {n : nat} Ps Pv t:
+  tspec (n:=n) (Ps,Pv) t <-> (List.fold_right and True Ps /\ forall (i : Fin.t n), tspec_single Pv[@i] t[@i]).
+Proof. split. eapply tspecE;eauto. intros []. eapply tspecI;eauto. Qed. 
+
+Lemma tspec_Entails {n : nat} Ps Pv:
+Entails (tspec (n:=n) (Ps,Pv)) (fun t => List.fold_right and True Ps /\ forall (i : Fin.t n), tspec_single Pv[@i] t[@i]).
+Proof. apply EntailsI. now setoid_rewrite tspec_iff. Qed.
 
 (* 
   Lemma tspec_pureE {n : nat} Ps Pv v:
@@ -170,39 +175,50 @@ Fixpoint implList (Ps : list Prop) (Q : Prop) :=
   end.
 Arguments implList !_ _.
 
-Lemma genImp_ext P (Ps : list Prop):
+Instance fold_right_impl' : Proper (Forall2 Basics.impl --> Basics.impl ==> Basics.impl) (implList).
+Proof. intros xs;induction xs;cbn;intros ? H';inv H';cbn. easy. firstorder. Qed.
+
+Instance fold_right_iff : Proper (Forall2 iff ==> iff ==> iff) (implList).
+Proof. intros xs;induction xs;cbn;intros ? H';inv H';cbn. easy. firstorder. Qed.
+
+Lemma implList_iff P (Ps : list Prop):
   implList Ps P
-  <-> (forall P', List.fold_right and P' Ps -> P).
+  <-> (List.fold_right and True Ps -> P).
 Proof.
-  induction Ps in P|-*;cbn. firstorder. now eapply H;eauto. rewrite IHPs. firstorder eauto.
+  induction Ps in P|-*;cbn. firstorder. setoid_rewrite IHPs. tauto.
 Qed.
+
+Lemma implListE P (Ps : list Prop): implList Ps P -> (List.fold_right and True Ps -> P).
+Proof. now rewrite implList_iff. Qed.
+
+Lemma implListI (P:Prop) (Ps : list Prop): (List.fold_right and True Ps -> P) -> implList Ps P.
+Proof. now rewrite implList_iff. Qed.
+
+Instance Forall2_refl X (R: X -> _): Reflexive R -> Reflexive (Forall2 R).
+Proof. intros ? xs;induction xs;eauto. Qed. 
 
 Lemma tspec_introPure (sig: finType) (n : nat) P (Ps : SpecV sig n) Q:
   implList P (Entails (tspec ([],Ps)) Q)
   -> Entails (tspec (P,Ps)) Q.
 Proof.
-  unfold Entails. rewrite genImp_ext. intros H ? []%tspecE. eapply H. eassumption. now apply tspecI.
+  setoid_rewrite Entails_iff. rewrite implList_iff. intros H ? []%tspecE. eapply H. eassumption. now apply tspecI.
 Qed.
 
 Lemma Triple_introPure (F sig: finType) (n : nat) P (Ps : SpecV sig n) Q (pM : pTM sig^+ F n) :
   implList P (Triple (tspec ([],Ps)) pM Q)
   -> Triple (tspec (P,Ps)) pM Q.
 Proof.
-  unfold Triple,Triple_Rel; cbn -[tspec]. intros H ? ? ? Hloop (H'&H'')%tspecE.
-  rewrite genImp_ext in H. specialize (H _ H').
-  eapply H. eassumption. eapply tspecI. all:easy.
+  intros. rewrite tspec_Entails. apply Triple_and_pre. cbn in H. now rewrite <- implList_iff.
 Qed.
 
 Lemma TripleT_introPure (sig F : finType) (n : nat) P (Ps : SpecV sig n) Q k (pM : pTM sig^+ F n) :
   implList P (TripleT (tspec ([],Ps)) k pM Q)
   -> TripleT (tspec (P,Ps)) k pM Q.
 Proof.
-  unfold TripleT ,Triple_TRel; cbn - [tspec]. intros H. rewrite genImp_ext in H. split.
-  {eapply Triple_introPure. rewrite genImp_ext. intros. eapply H. eauto. }
-  hnf. intros ? ? [[]%tspecE ?]. eapply H. eassumption. easy.
+  intros. rewrite tspec_Entails. apply TripleT_and_pre. cbn in H. now rewrite <- implList_iff.
 Qed.
 
-
+(*
 Lemma Triple_SpecFalse {sig : finType} {n : nat} {F : Type} P (pM : pTM sig^+ F n) Q :
   Triple (tspec ([False],P)) pM Q.
 Proof. hnf;cbn. tauto. Qed.
@@ -221,7 +237,7 @@ Proof. cbn. tauto. Qed.
 
 
 Hint Immediate Triple_SpecFalse TripleT_SpecFalse : core.
-
+*)
 
 (*
 (* TODO: [SpecFalse] could be defined in the same manner. We could then remove the unhandy [SpecVector] constructor. *)
@@ -269,9 +285,9 @@ Lemma Triple_RemoveSpace (n : nat) (sig : finType) (F : Type) (P : SpecV sig n) 
   (forall s, Triple (tspec (P',withSpace P s)) M (fun y => tspec (Q' y,withSpace (Q y) (appSize fs s)))) -> (* Specifications with size will always have this form *)
   Triple (tspec (P',P)) M (fun y => tspec (Q' y ,Q y)).
 Proof.
-  intro HTrip. 
+  intro HTrip. setoid_rewrite Triple_iff in HTrip. rewrite Triple_iff. 
   eapply Realise_monotone with (R' := fun tin '(yout, tout) => forall s, tspec (P',withSpace P s) tin -> tspec (Q' yout,withSpace (Q yout) (appSize fs s)) tout).
-  - unfold Triple, Triple_Rel, Realise in *. intros tin k outc HLoop. intros s HP.
+  - unfold Triple_Rel, Realise in *. intros tin k outc HLoop. intros s HP.
     now specialize HTrip with (1 := HLoop) (2 := HP).
   - clear HTrip. intros tin (yout, tout). intros H HP.
     specialize (H (dummy_sizes tin P)). spec_assert H by now apply tspec_tspec_withSpace.
@@ -284,8 +300,9 @@ Lemma TripleT_RemoveSpace (n : nat) (sig : finType) (F : Type) P' (P : SpecV sig
 Proof.
   intros HTrip. split.
   - eapply Triple_RemoveSpace. intros s. apply HTrip.
-  - eapply TerminatesIn_monotone with (T' := fun tin k' => tspec (P',P) tin /\ k <= k').
-    + unfold TripleT, Triple_TRel, TerminatesIn in *. intros tin k' (HP&Hk).
+  - setoid_rewrite TripleT_iff in HTrip. 
+   eapply TerminatesIn_monotone with (T' := fun tin k' => tspec (P',P) tin /\ k <= k').
+    + unfold Triple_TRel, TerminatesIn in *. intros tin k' (HP&Hk).
       specialize (HTrip (dummy_sizes tin P)) as (_&HT).
       specialize HT with (tin0 := tin) (k0 := k). spec_assert HT as (conf&HLoop).
       { split. now apply tspec_tspec_withSpace. reflexivity. }
@@ -293,16 +310,13 @@ Proof.
     + unfold Triple_TRel. intros tin k' (HP&Hk). eauto.
 Qed.
 
-Instance Forall2_refl X (R: X -> _): Reflexive R -> Reflexive (Forall2 R).
-Proof. intros ? xs;induction xs;eauto. Qed. 
 
 Instance fold_right_and : Proper (iff ==> Forall2 iff ==> iff) (fold_right and).
 Proof. intros ? ? ? xs;induction xs;cbn;intros ? H';inv H';cbn. easy. firstorder. Qed.
 
 Instance fold_right_and' : Proper (Basics.impl ==> Forall2 iff ==> Basics.impl) (fold_right and).
 Proof. intros ? ? ? xs;induction xs;cbn;intros ? H';inv H';cbn. easy. firstorder. Qed.
-Instance fold_right_impl' : Proper (Forall2 iff ==> Basics.impl ==> Basics.impl) (implList).
-Proof. intros xs;induction xs;cbn;intros ? H';inv H';cbn. easy. firstorder. Qed.
+
 
 
 
@@ -325,7 +339,7 @@ Lemma tspec_ext (sig : finType) (n : nat) (t : tapes (boundary+sig) n) (P P' : l
   tspec (P,R) t.
 Proof.
   intros [HP H1]%tspecE H1' H2. eapply tspecI.
-  eapply genImp_ext. 2:eassumption. eapply fold_right_impl'. 2:reflexivity. 2:eassumption. easy.
+  eapply implList_iff. 2:eassumption. eapply fold_right_impl'. 2:reflexivity. 2:eassumption. easy.
   intros i; specialize (H1 i); specialize (H2 i); eauto.
 Qed.
 
@@ -337,7 +351,7 @@ Lemma tspec_space_ext (sig : finType) (n : nat) (t : tapes (boundary+sig) n) (P 
   tspec (P,withSpace R ss) t.
 Proof.
   unfold withSpace. intros [HP H1]%tspecE H1' H2. eapply tspecI.
-  eapply genImp_ext. 2:eassumption. eapply fold_right_impl'. 2:reflexivity. 2:eassumption. easy.
+  eapply implList_iff. 2:eassumption. eapply fold_right_impl'. 2:reflexivity. 2:eassumption. easy.
   intros i; specialize (H1 i); specialize (H2 i); eauto.
   cbn. simpl_vector in *; cbn. eauto.
 Qed.
@@ -386,7 +400,7 @@ Lemma LiftTapes_Spec (sig : finType) (F : finType) (m n : nat) (I : Vector.t (Fi
   Triple (tspec (P',Downlift P I)) pM (fun y => tspec (Q' y,Q y)) ->
   Triple (tspec (P',P)) (pM@I) (fun y => tspec (Q' y,Frame P I (Q y))).
 Proof.
-  unfold Frame.
+  unfold Frame. rewrite !Triple_iff.
   intros HDup HTrip. 
   eapply Realise_monotone.
   { apply LiftTapes_Realise. assumption. apply HTrip. }
@@ -464,7 +478,7 @@ Qed.
 
 Lemma tspec_Downlift_withSpace (m n : nat) (sig : Type) P' (P : SpecV sig n) (I : Vector.t (Fin.t n) m) (ss : Vector.t nat n):
   Entails (≃≃ P', Downlift (sig:=sig) (m:=m) (n:=n) (withSpace P ss) I) (≃≃ P',withSpace (Downlift P I) (select I ss)).
-Proof. intros H. erewrite <- Downlift_withSpace; eauto. Qed.
+Proof. rewrite Entails_iff. intros H. erewrite <- Downlift_withSpace; eauto. Qed.
 
 Lemma Triple_Downlift_withSpace (m n : nat) (sig : finType) P' (P : SpecV sig n) (I : Vector.t (Fin.t n) m) (ss : Vector.t nat n)
       (F : Type) (M : pTM sig^+ F m) (Q : F -> Assert sig^+ m) :
@@ -692,7 +706,7 @@ Section AlphabetLifting'.
     Triple (tspec (P',P)) pM (fun yout => tspec (Q' yout,Q yout)) ->
     Triple (tspec (P',LiftSpec retr P)) (ChangeAlphabet pM retr) (fun yout => tspec (Q' yout,LiftSpec retr (Q yout))).
   Proof.
-    intros HTrip. eapply Realise_monotone.
+    rewrite !Triple_iff. intros HTrip. eapply Realise_monotone.
     - TM_Correct. eassumption.
     - intros tin (yout, tout) H Henc. cbn in *.
       spec_assert H by now apply LiftSpec_surjectTapes_tspec.
@@ -800,7 +814,7 @@ Section AlphabetLifting'.
     eapply Consequence.
     - apply ChangeAlphabet_Spec. apply H1.
     - rewrite LiftSpec_withSpace. apply H2.
-    - unfold Entails in *. cbn. intros. rewrite LiftSpec_withSpace in H. now apply H3.
+    - setoid_rewrite Entails_iff. cbn. intros. rewrite LiftSpec_withSpace in H. now apply H3.
   Qed.
 
   Lemma ChangeAlphabet_SpecT_space_pre_post (F : finType)
@@ -817,7 +831,7 @@ Section AlphabetLifting'.
     eapply ConsequenceT.
     - apply ChangeAlphabet_SpecT. apply H1.
     - rewrite LiftSpec_withSpace. apply H2.
-    - unfold Entails in *. cbn. intros. rewrite LiftSpec_withSpace in H. now apply H3.
+    - setoid_rewrite Entails_iff.  cbn. intros. rewrite LiftSpec_withSpace in H. now apply H3.
     - reflexivity.
   Qed.
 
@@ -836,7 +850,7 @@ Section AlphabetLifting'.
     eapply Consequence.
     - apply ChangeAlphabet_Spec. apply H1.
     - rewrite LiftSpec_withSpace. apply H2.
-    - unfold Entails in *. cbn. intros. rewrite LiftSpec_withSpace in H. now apply H.
+    - setoid_rewrite Entails_iff. cbn. intros. rewrite LiftSpec_withSpace in H. now apply H.
   Qed.
 
   Lemma ChangeAlphabet_SpecT_space_pre (F : finType)
@@ -852,7 +866,7 @@ Section AlphabetLifting'.
     eapply ConsequenceT.
     - apply ChangeAlphabet_SpecT. apply H1.
     - rewrite LiftSpec_withSpace. apply H2.
-    - unfold Entails in *. cbn. intros. rewrite LiftSpec_withSpace in H. now apply H.
+    - setoid_rewrite Entails_iff. cbn. intros. rewrite LiftSpec_withSpace in H. now apply H.
     - reflexivity.
   Qed.
   

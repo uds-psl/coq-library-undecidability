@@ -11,9 +11,16 @@ Definition Assert (sig : Type) (n : nat) : Type := tapes sig n -> Prop.
 Definition Triple_Rel {sig : finType} {n : nat} {F : Type} (P : Assert sig n) (Q : F -> Assert sig n) : pRel sig F n :=
   fun tin '(yout, tout) => P tin -> Q yout tout.
 
-Definition Triple {sig : finType} {n : nat} {F : Type} P (pM : pTM sig F n) Q :=
-  pM ⊨ Triple_Rel P Q.
+Inductive Triple {sig : finType} {n : nat} {F : Type} P (pM : pTM sig F n) Q :=
+  TripleI : pM ⊨ Triple_Rel P Q -> Triple P pM Q.
 
+Lemma TripleE {sig : finType} {n : nat} {F : Type} P (pM : pTM sig F n) Q:
+  Triple P pM Q -> pM ⊨ Triple_Rel P Q.
+Proof. now inversion 1. Qed.  
+
+Lemma Triple_iff {sig : finType} {n : nat} {F : Type} P (pM : pTM sig F n) Q:
+  Triple P pM Q <-> pM ⊨ Triple_Rel P Q.
+Proof. split;eauto using TripleE,TripleI. Qed. 
 
 (** Triples for total correctness have an additional time parameter in the precondition.
 The following definition relates such a precondition to a termination relation: *)
@@ -21,18 +28,23 @@ The following definition relates such a precondition to a termination relation: 
 Definition Triple_TRel {sig : finType} {n : nat} (P : Assert sig n) (k : nat) : tRel sig n :=
   fun tin k' => P tin /\ k <= k'.
 
-Definition TripleT {sig : finType} {n : nat} {F : Type} (P : Assert sig n) (k : nat) (pM : pTM sig F n) (Q : F -> Assert sig n) :=
-  Triple P pM Q /\ projT1 pM ↓ Triple_TRel P k.
+Inductive TripleT {sig : finType} {n : nat} {F : Type} (P : Assert sig n) (k : nat) (pM : pTM sig F n) (Q : F -> Assert sig n) :=
+ TripleTI : Triple P pM Q -> projT1 pM ↓ Triple_TRel P k -> TripleT P k pM Q.
 
+ Lemma TripleTE {sig : finType} {n : nat} {F : Type} P k (pM : pTM sig F n) Q:
+  TripleT P k pM Q -> Triple P pM Q /\ projT1 pM ↓ Triple_TRel P k.
+Proof. now inversion 1. Qed.  
 
+Lemma TripleT_iff {sig : finType} {n : nat} {F : Type} P k (pM : pTM sig F n) Q:
+  TripleT P k pM Q <-> (Triple P pM Q /\ projT1 pM ↓ Triple_TRel P k).
+Proof. split;firstorder eauto using TripleTE,TripleTI. Qed. 
 
 Lemma TripleT_Triple {sig : finType} {n : nat} {F : Type} P k (pM : pTM sig F n) Q :
   TripleT P k pM Q ->
   Triple P pM Q.
-Proof. now unfold TripleT. Qed.
+Proof. now intros ?%TripleTE. Qed.
 
 Hint Resolve TripleT_Triple : core.
-
 
 Lemma Triple_False {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n) Q :
   Triple (fun _ => False) pM Q.
@@ -62,7 +74,7 @@ Lemma Realise_Triple {sig : finType} {n : nat} {F : Type} (P : Assert sig n) (pM
   (forall tin yout tout, R tin (yout, tout) -> P tin -> Q yout tout) ->
   Triple P pM Q.
 Proof.
-  intros H1 H2. unfold Triple, Triple_Rel. eapply Realise_monotone.
+  intros H1 H2. apply TripleI. unfold Triple_Rel. eapply Realise_monotone.
   + eapply H1.
   + intros tin (yout, tout). firstorder.
 Qed.
@@ -84,21 +96,21 @@ Lemma Triple_Realise {sig : finType} {n : nat} {F : Type} (P : Assert sig n) (pM
   Triple P pM Q ->
   pM ⊨ (fun tin '(yout,tout) => P tin -> Q yout tout).
 Proof.
-  unfold Triple, Triple_Rel in *. easy.
+  intros ?%TripleE. now unfold Triple_Rel in *.
 Qed.
 
 Lemma TripleT_Realise {sig : finType} {n : nat} {F : Type} (P : Assert sig n) k (pM : pTM sig F n) (Q : F -> Assert sig n) :
   TripleT P k pM Q ->
   pM ⊨ (fun tin '(yout,tout) => P tin -> Q yout tout).
 Proof.
-  unfold TripleT. intros. now apply Triple_Realise .
+  intros ?%TripleTE. now apply Triple_Realise .
 Qed.
 
 Lemma TripleT_TerminatesIn {sig : finType} {n : nat} {F : Type} (P : Assert sig n) (k : nat) (pM : pTM sig F n) (Q : F -> Assert sig n):
   TripleT P k pM Q ->
   projT1 pM ↓ (fun tin k' => P tin /\ k <= k').
 Proof.
-  unfold TripleT, Triple_TRel in *. tauto.
+  intros ?%TripleTE. unfold Triple_TRel in *. tauto.
 Qed.
 
 (** A convienient lemma to convert constant-time realisation to a Hoare triple. Note that the reverse doesn't hold. *)
@@ -116,24 +128,23 @@ Proof.
     + now intros tin k' (H&Hk).
 Qed.
 
-Definition Entails (sig : Type) (n : nat) (P1 P2 : Assert sig n) :=
-  forall tin, P1 tin -> P2 tin.
-
-Lemma EntailsI (sig : Type) (n : nat) (P1 P2 : Assert sig n):
-(forall tin, P1 tin -> P2 tin) -> Entails P1 P2.
-Proof. easy. Qed.
+Inductive Entails (sig : Type) (n : nat) (P1 P2 : Assert sig n) :=
+  EntailsI : (forall tin, P1 tin -> P2 tin) -> Entails P1 P2.
 
 Lemma EntailsE (sig : Type) (n : nat) (P1 P2 : Assert sig n):
 Entails P1 P2 -> (forall tin, P1 tin -> P2 tin).
-Proof. easy. Qed.
+Proof. now inversion 1. Qed.
 
-Hint Unfold Entails : core.
-Arguments Entails {_ _} _ _: simpl never.
+Arguments Entails {_ _} _ _.
+
+Lemma Entails_iff (sig : Type) (n : nat) (P1 P2 : Assert sig n):
+Entails P1 P2 <-> (forall tin, P1 tin -> P2 tin).
+Proof. split;firstorder eauto using EntailsE,EntailsI. Qed.
 
 Hint Resolve EntailsI : core.
 
 Instance Entails_PO (sig : Type) (n : nat): PreOrder (@Entails sig n).
-Proof. unfold Entails;cbn. split;hnf. all:eauto. Qed.
+Proof. split;hnf. all:setoid_rewrite Entails_iff. all:eauto. Qed.
 
 (** *** Consequence Rule *)
 
@@ -143,11 +154,10 @@ Lemma Consequence (sig : finType) (n : nat) (F : Type) (P1 P2 : Assert sig n) (Q
   (forall y, Entails (Q2 y) (Q1 y)) ->
   Triple P1 pM Q1.
 Proof.
-  intros H1 H2 H3. unfold Entails in *.
+  intros H1%TripleE H2 H3. apply TripleI. setoid_rewrite Entails_iff in H2.  setoid_rewrite Entails_iff in H3.
   eapply Realise_monotone.
   { apply H1. }
-  {
-    intros tin (yout, tout) H4. cbn in H4. cbn. intros H5. auto.
+  { intros tin (yout, tout) H4. cbn in H4. cbn. intros H5. auto.
   }
 Qed.
 
@@ -177,12 +187,11 @@ Lemma ConsequenceT (sig : finType) (n : nat) (F : Type) (P1 P2 : Assert sig n) (
   k2 <= k1 ->
   TripleT P1 k1 pM Q1.
 Proof.
-  unfold TripleT.
-  intros (H0&H1) H2 H3%asPointwise H4. 
+  intros (H0&H1)%TripleTE H2 H3%asPointwise H4. 
   split. now rewrite H2, <- H3.
   - eapply TerminatesIn_monotone.
-    + apply H1.
-    + unfold Triple_TRel. intros tin k (H&H'). split; eauto. lia.
+    + apply H1. 
+    + unfold Triple_TRel. intros tin k (H&H'). split. 2: lia. setoid_rewrite Entails_iff in H2. eauto. 
 Qed.
 
 Instance TripleT_Entails_Proper sig n F: Proper (Entails --> le ==> eq ==> pointwise_relation F Entails ==> Basics.impl) (@TripleT sig n F).
@@ -211,58 +220,58 @@ Lemma Triple_exists_pre {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (X : Type) (P : X -> Assert sig n) (Q : F -> Assert sig n) :
   (forall (x : X), Triple (P x) pM Q) ->
   Triple (fun tin => exists x : X, P x tin) pM (Q).
-Proof. unfold Triple, Triple_Rel. firstorder. Qed.
+Proof. setoid_rewrite Triple_iff. unfold Triple_Rel. firstorder. Qed.
 
 Lemma Triple_exists_con {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (X : Type) (P : Assert sig n) (Q : X -> F -> Assert sig n) :
   (exists (x : X), Triple P pM (Q x)) ->
   Triple P pM (fun yout tout => exists x : X, Q x yout tout).
-Proof. unfold Triple, Triple_Rel. firstorder. Qed.
+Proof. setoid_rewrite Triple_iff. unfold  Triple_Rel. firstorder. Qed.
 
 Lemma Triple_forall_pre {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (X : Type) (P : X -> Assert sig n) (Q : F -> Assert sig n) :
   (exists (x : X), Triple (P x) pM Q) ->
   Triple (fun tin => forall x : X, P x tin) pM (Q).
-Proof. unfold Triple, Triple_Rel. firstorder. Qed.
+Proof.  setoid_rewrite Triple_iff. unfold Triple_Rel. firstorder. Qed.
 
 Lemma Triple_forall_con {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (X : Type) (P : Assert sig n) (Q : X -> F -> Assert sig n) :
   (forall (x : X), Triple P pM (Q x)) ->
   Triple P pM (fun yout tout => forall x : X, Q x yout tout).
-Proof. unfold Triple, Triple_Rel. firstorder. Qed.
+Proof.  setoid_rewrite Triple_iff. unfold Triple_Rel. firstorder. Qed.
 
 
 Lemma Triple_eta_pre {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (P : Assert sig n) (Q : F -> Assert sig n) :
   Triple P pM Q ->
   Triple (fun tin => P tin) pM Q.
-Proof. unfold Triple, Triple_Rel. firstorder. Qed.
+Proof. setoid_rewrite Triple_iff. unfold Triple_Rel. firstorder. Qed.
 
 Lemma Triple_eta_con {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (P : Assert sig n) (Q : F -> Assert sig n) :
   Triple P pM Q ->
   Triple P pM (fun yout => Q yout).
-Proof. unfold Triple, Triple_Rel. firstorder. Qed.
+Proof. setoid_rewrite Triple_iff. unfold Triple_Rel. firstorder. Qed.
 
 Lemma Triple_eta_con2 {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (P : Assert sig n) (Q : F -> Assert sig n) :
   Triple P pM Q ->
   Triple P pM (fun yout tout => Q yout tout).
-Proof. unfold Triple, Triple_Rel. firstorder. Qed.
+Proof.  setoid_rewrite Triple_iff. unfold Triple_Rel. firstorder. Qed.
 
 
 Lemma Triple_and_pre {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (P1 : Assert sig n) (P2 : Prop) (Q : F -> Assert sig n) :
   (P2 -> Triple P1 pM Q) ->
-  Triple (fun tin => P1 tin /\ P2) pM Q.
-Proof. unfold Triple, Triple_Rel. firstorder. Qed.
+  Triple (fun tin => P2 /\ P1 tin) pM Q.
+Proof.  setoid_rewrite Triple_iff. unfold Triple_Rel. firstorder. Qed.
 
 Lemma Triple_and_con {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (P : Assert sig n) (Q1 : F -> Assert sig n) (Q2 : Prop) :
   Triple P pM Q1 ->
   Q2 ->
-  Triple P pM (fun yout tout => Q1 yout tout /\ Q2).
-Proof. unfold Triple, Triple_Rel. firstorder. Qed.
+  Triple P pM (fun yout tout => Q2 /\ Q1 yout tout).
+Proof.  setoid_rewrite Triple_iff. unfold Triple_Rel. firstorder. Qed.
 
 
 
@@ -272,19 +281,19 @@ Lemma TripleT_exists_pre {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (X : Type) (P : X -> Assert sig n) (Q : F -> Assert sig n) k :
   (forall (x : X), TripleT (P x) k pM Q) ->
   TripleT (fun tin => exists x : X, P x tin) k pM (Q).
-Proof. unfold TripleT, Triple, Triple_Rel. firstorder. Qed.
+Proof. setoid_rewrite TripleT_iff;setoid_rewrite Triple_iff. unfold Triple_Rel,Triple_TRel. firstorder. Qed.
 
 Lemma TripleT_exists_con {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (X : Type) (P : Assert sig n) (Q : X -> F -> Assert sig n) k :
   (exists (x : X), TripleT P k pM (Q x)) ->
   TripleT P k pM (fun yout tout => exists x : X, Q x yout tout).
-Proof. unfold TripleT, Triple, Triple_Rel. firstorder. Qed.
+Proof. setoid_rewrite TripleT_iff;setoid_rewrite Triple_iff. unfold Triple_Rel,Triple_TRel. firstorder. Qed.
 
 Lemma TripleT_forall_pre {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (X : Type) (P : X -> Assert sig n) (Q : F -> Assert sig n) k :
   (exists (x : X), TripleT (P x) k pM Q) ->
   TripleT (fun tin => forall x : X, P x tin) k pM (Q).
-Proof. unfold TripleT, Triple, Triple_Rel. firstorder. Qed.
+Proof. setoid_rewrite TripleT_iff;setoid_rewrite Triple_iff. unfold Triple_Rel,Triple_TRel. firstorder. Qed.
 
 Lemma TripleT_forall_con {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (X : Type) (P : Assert sig n) (Q : X -> F -> Assert sig n) k {inhX: inhabitedC X} :
@@ -301,45 +310,35 @@ Lemma TripleT_eta_pre {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (P : Assert sig n) (Q : F -> Assert sig n) k :
   TripleT P k pM Q ->
   TripleT (fun tin => P tin) k pM Q.
-Proof. unfold TripleT, Triple, Triple_Rel. firstorder. Qed.
+Proof. setoid_rewrite TripleT_iff;setoid_rewrite Triple_iff. unfold Triple_Rel,Triple_TRel. firstorder. Qed.
 
 Lemma TripleT_eta_con {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (P : Assert sig n) (Q : F -> Assert sig n) k :
   TripleT P k pM Q ->
   TripleT P k pM (fun yout => Q yout).
-Proof. unfold TripleT, Triple, Triple_Rel. firstorder. Qed.
+Proof. setoid_rewrite TripleT_iff;setoid_rewrite Triple_iff. unfold Triple_Rel,Triple_TRel. firstorder. Qed.
 
 Lemma TripleT_eta_con2 {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (P : Assert sig n) (Q : F -> Assert sig n) k :
   TripleT P k pM Q ->
   TripleT P k pM (fun yout tout => Q yout tout).
-Proof. unfold TripleT, Triple, Triple_Rel. firstorder. Qed.
+Proof. setoid_rewrite TripleT_iff;setoid_rewrite Triple_iff. unfold Triple_Rel,Triple_TRel. firstorder. Qed.
 
 
 Lemma TripleT_and_pre {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (P1 : Assert sig n) (P2 : Prop) (Q : F -> Assert sig n) k :
   (P2 -> TripleT P1 k pM Q) ->
-  TripleT (fun tin => P1 tin /\ P2) k pM Q.
-Proof. unfold TripleT, Triple, Triple_Rel. firstorder. Qed.
+  TripleT (fun tin => P2 /\ P1 tin) k pM Q.
+Proof. setoid_rewrite TripleT_iff;setoid_rewrite Triple_iff. unfold Triple_Rel,Triple_TRel. firstorder. Qed.
 
 Lemma TripleT_and_con {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (P : Assert sig n) (Q1 : F -> Assert sig n) (Q2 : Prop) k :
   TripleT P k pM Q1 ->
   Q2 ->
-  TripleT P k pM (fun yout tout => Q1 yout tout /\ Q2).
-Proof. unfold TripleT, Triple, Triple_Rel. firstorder. Qed.
-
-
-Lemma Triple_Def [sig : finType] [n : nat] [F : Type] P (pM : pTM sig F n) Q :
-  Triple P pM Q = pM ⊨ Triple_Rel P Q.
-Proof. reflexivity. Qed.
-
-Definition TripleT_Def [sig : finType] [n : nat] [F : Type] (P : Assert sig n) (k : nat) (pM : pTM sig F n) (Q : F -> Assert sig n) :
-  TripleT P k pM Q = (Triple P pM Q /\ projT1 pM ↓ Triple_TRel P k).
-Proof. reflexivity. Qed.
+  TripleT P k pM (fun yout tout => Q2 /\ Q1 yout tout).
+Proof. setoid_rewrite TripleT_iff;setoid_rewrite Triple_iff. unfold Triple_Rel,Triple_TRel. firstorder. Qed.
 
 (** In gernal, we shouldn't rely on the definition of [Triple] and [TripleT]. *)
-Global Opaque Triple TripleT Entails.
 
 (* TODO: This makes problems in [HoareRegister.v]. *)
 

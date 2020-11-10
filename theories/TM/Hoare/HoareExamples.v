@@ -634,8 +634,6 @@ Fixpoint Add_Loop_size (a b : nat) : Vector.t (nat->nat) 2 :=
   | S b' => Add_Step_size a b >>> Add_Loop_size (S a) b'
   end.
 
-Opaque Triple TripleT.
-
 Lemma Add_Loop_SpecT_size (a b : nat) (ss : Vector.t nat 2) :
   TripleT
     (tspec ([], withSpace ( [|Contains _ a; Contains _ b|]) ss))

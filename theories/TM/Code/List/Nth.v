@@ -141,7 +141,7 @@ Section Nth'.
       + destruct xs, n;inv Hb. all:cbn [nth_error]. all:tspec_ext. f_equal. cbn;nia.
       + unfold Nth'_Loop_steps. destruct xs,n;inv Hb. all:cbn;nia.
     - destruct xs as [ | ? xs'],n as [ | n']. all:intros [=].
-      eexists (xs', n', _). repeat split; cbn.
+      eexists (xs', n', _). repeat apply conj; cbn.
       all:reflexivity.
   Qed.
 

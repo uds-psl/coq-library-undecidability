@@ -3,8 +3,6 @@
 From Undecidability Require Import ProgrammingTools.
 From Undecidability.TM.Hoare Require Import HoareLogic HoareRegister.
 
-Local Transparent Triple TripleT Entails.
-
 (** *** Nop *)
 
 (* A classic example for Hoare logic *)
@@ -12,7 +10,7 @@ Local Transparent Triple TripleT Entails.
 Lemma Nop_Spec (sig : finType) (n : nat) (P : Assert sig n) :
   Triple P Nop (fun _ => P).
 Proof.
-  eapply Realise_monotone.
+  eapply TripleI,Realise_monotone.
   { TM_Correct. }
   { intros tin ([], tout) ->. hnf. auto. }
 Qed.
@@ -43,7 +41,7 @@ Lemma Relabel_Spec (sig : finType) (F1 F2 : finType) (n : nat) (P : Assert sig n
   Triple P pM Q ->
   Triple P (Relabel pM f) (fun y' t => exists y'', y' = f y'' /\ Q y'' t).
 Proof.
-  intros HT. eapply Realise_monotone.
+  intros HT. eapply TripleI, Realise_monotone.
   { TM_Correct. apply HT. }
   { intros tin (yout, tout) H. TMSimp. intros. eauto. }
 Qed.
@@ -56,7 +54,7 @@ Proof.
   intros.
   eapply Consequence_post.
   - apply Relabel_Spec; eauto.
-  - unfold Entails in *. intros. TMSimp. eauto.
+  - setoid_rewrite Entails_iff in H0. setoid_rewrite Entails_iff. intros. TMSimp. eauto.
 Qed.
 
 Lemma Relabel_SpecT (sig : finType) (F1 F2 : finType) (n : nat) (P : Assert sig n) (k : nat) (Q : F1 -> Assert sig n) (pM : pTM sig F1 n) (f : F1->F2) :
@@ -79,7 +77,7 @@ Proof.
   intros.
   eapply ConsequenceT_post.
   - apply Relabel_SpecT; eauto.
-  - unfold Entails in *. intros. TMSimp. firstorder.
+  - setoid_rewrite Entails_iff in H0. setoid_rewrite Entails_iff. intros. TMSimp. firstorder.
 Qed.
 
 
@@ -89,7 +87,7 @@ Lemma Return_Spec (sig : finType) (F1 F2 : finType) (n : nat) (P : Assert sig n)
   Triple P pM Q ->
   Triple P (Return pM y) (fun y' t => y' = y /\ exists y'', Q y'' t).
 Proof.
-  intros HT. eapply Realise_monotone.
+  intros HT. eapply TripleI, Realise_monotone.
   { TM_Correct. apply HT. }
   { intros tin (yout, tout) H. TMSimp. intros. eauto. }
 Qed.
@@ -102,7 +100,7 @@ Proof.
   intros.
   eapply Consequence_post.
   - apply Return_Spec; eauto.
-  - unfold Entails in *. intros ? ? (->&(?&?)). eauto.
+  - setoid_rewrite Entails_iff in H0. setoid_rewrite Entails_iff. intros ? ? (->&(?&?)). eauto.
 Qed.
 
 
@@ -125,7 +123,7 @@ Proof.
   intros.
   eapply ConsequenceT_post.
   - apply Return_SpecT; eauto.
-  - unfold Entails in *. intros ? ? (->&(?&?)). eauto.
+  - setoid_rewrite Entails_iff in H0. setoid_rewrite Entails_iff. intros ? ? (->&(?&?)). eauto.
 Qed.
 
 
@@ -139,7 +137,7 @@ Lemma Seq_Spec (sig : finType) (n : nat) (F1 F2 : finType) (pM1 : pTM sig F1 n) 
   Triple P (pM1;;pM2) R.
 Proof.
   intros HT1 HT2.
-  eapply Realise_monotone.
+  eapply TripleI, Realise_monotone.
   { TM_Correct. apply HT1.
     (* We need a little hack here, because we don't know yet in which label [pM1] will terminate. *)
     instantiate (1 := fun tin '(yout, tout) =>
@@ -147,7 +145,7 @@ Proof.
                           Q ymid tin ->
                           R yout tout).
     {
-      clear HT1 P pM1. unfold Triple in HT2. unfold Realise in *.
+      clear HT1 P pM1. setoid_rewrite Triple_iff in HT2. unfold Realise in *.
       intros tin k outc HLoop.
       intros ymid Hmid.
       specialize HT2 with (1 := HLoop). cbn in *.
@@ -208,7 +206,7 @@ Proof. (* We need the same hack here as in the partital correctness lemma. *)
       - apply H1.
       - instantiate (1 := fun tmid k2' => exists ymid, Q ymid tmid /\ k2 <= k2').
         {
-          clear H1 H3. unfold TripleT in H2. unfold TerminatesIn in *. firstorder.
+          clear H1 H3. setoid_rewrite TripleT_iff in H2. unfold TerminatesIn in *. firstorder.
         }
     }
     {
@@ -253,7 +251,7 @@ Lemma If_Spec (sig : finType) (n : nat) (F : finType) (pM1 : pTM sig bool n) (pM
   Triple (Q false) pM3 R ->
   Triple P (If pM1 pM2 pM3) R.
 Proof.
-  intros H1 H2 H3.
+  rewrite !Triple_iff. intros H1 H2 H3.
   eapply Realise_monotone.
   - TM_Correct; eauto.
   - intros tin (yout, tout) H. cbn in *. firstorder.
@@ -306,7 +304,7 @@ Lemma If_SpecTReg (sig : finType) (n : nat) (F : finType) (pM1 : pTM _ bool n) (
   TripleT (≃≃ P) k (If pM1 pM2 pM3) (fun y => (≃≃ R y)).
 Proof.
   intros H1 H2 H3 H4. eapply If_SpecT. 1-3:eassumption. cbn.
-  intros. do 2 setoid_rewrite genImp_ext in H4. specialize H4 with (b:=yout). destruct P,(Q yout). eapply H4;cbn. all:eapply tspecE;eauto.
+  intros. do 2 setoid_rewrite implList_iff in H4. specialize H4 with (b:=yout). destruct P,(Q yout). eapply H4;cbn. all:eapply tspecE;eauto.
 Qed.
 
 (** Version were we don't care about the output label of [M1] *)
@@ -356,7 +354,7 @@ Lemma Switch_Spec (sig : finType) (n : nat) (F1 F2 : finType) (pM1 : pTM sig F1 
   Triple P (Switch pM1 pM2) R.
 Proof.
   intros H1 H2.
-  eapply Realise_monotone.
+  eapply TripleI, Realise_monotone.
   - apply Switch_Realise.
     + apply H1.
     + apply H2.
@@ -430,7 +428,7 @@ Lemma While_Spec0 (sig : finType) (n : nat) (F : finType) {inF : inhabitedC F} (
   Triple P (While pM) R.
 Proof.
   intros H1 H3 H2.
-  eapply Realise_monotone.
+  eapply TripleI, Realise_monotone.
   { TM_Correct. apply H1. }
   { clear H1.
     unfold Triple_Rel in *.
@@ -464,13 +462,13 @@ Proof.
   intros H1 H2 H3.
   enough (While pM ⊨ fun tin '(yout, tout) => forall (x : X), P x tin -> R x yout tout) as H.
   { (* Note that we can not apply [Realise_monotone] here, because we need to "push" [x] inside the relation. *)
-    clear H1 H2 H3. unfold Triple, Triple_Rel, Realise in *. eauto.
+    clear H1 H2 H3. intros. rewrite Triple_iff.  unfold Triple_Rel, Realise in *. eauto.
   }
   {
     eapply Realise_monotone.
     { clear H2 H3.
       apply While_Realise with (R := fun tin '(yout, tout) => forall (x : X), P x tin -> Q x yout tout).
-      hnf. unfold Triple, Triple_Rel in *. firstorder. }
+      hnf. setoid_rewrite Triple_iff in H1. unfold Triple_Rel in *. firstorder. }
     {
       clear H1. apply WhileInduction; intros.
       - eapply H2; eauto.
@@ -495,12 +493,12 @@ Proof.
   intros H1 H2. eapply While_Spec with (1:=H1).
   - intros ? ? ? ? ?. revert tout. apply EntailsE.
     specialize (H2 x) as [H2 ?]. destruct (P x);cbn in *. apply tspecE in H as [H _].
-    do 2 setoid_rewrite genImp_ext in H2. specialize (H2 _ H yout). 
-    destruct (Q x (Some yout));cbn in *. eapply tspec_introPure. rewrite genImp_ext. eauto.
+    do 2 setoid_rewrite implList_iff in H2. specialize (H2 H yout). 
+    destruct (Q x (Some yout));cbn in *. eapply tspec_introPure. rewrite implList_iff. eauto.
   - intros **. specialize (H2 x) as [? H2]. destruct (P x);cbn in *.
-    apply tspecE in H as [H _]. setoid_rewrite genImp_ext in H2.
+    apply tspecE in H as [H _]. setoid_rewrite implList_iff in H2.
     destruct (Q x None);cbn in *.
-    eapply tspecE in H0 as (H0&?). specialize (H2 _ H0) as (x'&H2&H'). eexists x'.
+    eapply tspecE in H0 as (H0&?). specialize (H2 H0) as (x'&H2&H'). eexists x'.
     split. {eapply (EntailsE H2). eapply tspecI. now hnf. easy. }
     intros ? . now eapply EntailsE.
 Qed. 
@@ -531,12 +529,13 @@ Proof.
       clear H2 H3. (* Again, we encode [H1] (the correctness and termination of [M]) into a nice relation. *)
       apply While_TerminatesIn with (R := fun tin '(yout, tout) => forall (x : X), P x tin -> Q x yout tout)
                                     (T := fun tin k' => exists (x : X), P x tin /\ g x <= k').
-      - hnf. unfold TripleT, Triple_Rel in *.
+      - hnf. setoid_rewrite TripleT_iff in H1. unfold Triple_TRel in *.
         intros tin k' outc HLoop x Hx.
         specialize H1 with (x := x) as (H1&H1').
-        unfold Triple, Triple_Rel, Realise in H1; clear H1'.
+        setoid_rewrite Triple_iff in H1.
+        unfold Triple_Rel, Realise in H1; clear H1'.
         firstorder.
-      - hnf. unfold TripleT, Triple_Rel in *.
+      - hnf. setoid_rewrite TripleT_iff in H1. unfold Triple_TRel in *.
         intros tin k' (x&H&Hk). specialize H1 with (x := x) as (H1&H1').
         unfold Triple_TRel, TerminatesIn in H1'; clear H1. firstorder.
     }
@@ -575,13 +574,13 @@ Lemma While_SpecTReg (sig : finType) (n : nat) (F : finType) {inF : inhabitedC F
 Proof.
   intros H1 H2. eapply While_SpecT with (1:=H1).
   - intros x y ? ? ? H'. 
-    specialize (H2 x) as [H2 ?]. setoid_rewrite genImp_ext in H2. destruct (PRE _).  apply tspecE in H as [H _].
-    specialize (H2 _ H y).
+    specialize (H2 x) as [H2 ?]. setoid_rewrite implList_iff in H2. destruct (PRE _).  apply tspecE in H as [H _].
+    specialize (H2 H y).
     destruct (POST x y). destruct (INV x (Some _)). specialize (tspecE H') as [H'1 ?].
-    setoid_rewrite genImp_ext in H2. specialize (H2 _ H'1) as []. split. 2:easy. eapply H2. eapply tspecI. all:easy.  
+    setoid_rewrite implList_iff in H2. specialize (H2 H'1) as []. split. 2:easy. eapply H2. eapply tspecI. all:easy.  
   - intros **. specialize (H2 x) as [? H2]. destruct (PRE _). destruct (INV _ _).
-    apply tspecE in H as [H _]. setoid_rewrite genImp_ext in H2.
-    eapply tspecE in H0 as (H0&?). specialize (H2 _ H0) as (x'&H2&?&H'). eexists x'.
+    apply tspecE in H as [H _]. setoid_rewrite implList_iff in H2.
+    eapply tspecE in H0 as (H0&?). specialize (H2 H0) as (x'&H2&?&H'). eexists x'.
     split. {eapply (EntailsE H2). eapply tspecI. now hnf. easy. }
     split. easy. 
     intros ? . now eapply EntailsE.

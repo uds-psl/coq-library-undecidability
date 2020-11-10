@@ -15,6 +15,9 @@ From Coq Require Import Lia Ring Arith.
 
 From Undecidability Require Import TM.Code.List.Concat_Repeat.
 
+From Undecidability Require Import Cons_constant CaseCom CaseNat CaseList.
+
+
 Set Default Proof Using "Type".
 
 Module EncToBoollist.
@@ -62,13 +65,6 @@ Module EncToBoollist.
        2: head of bs
        3: intern (length of bs for concatReepat [1])
      *)
-
-     Compute (fun b => enc_bool_nil).
-     Compute (fun b => (enc_bool_perElem true)).
-     Compute (fun b => (enc_bool_perElem false)).
-     From Undecidability Require Import Cons_constant CaseCom CaseNat CaseList.
-
-     Locate M.
 
     Definition M__step : pTM sig^+ (option unit) 3 :=
       CaseList _ ⇑ retr__Pro @ [|Fin0;Fin2|];;Reset _ @ [|Fin2|];;
