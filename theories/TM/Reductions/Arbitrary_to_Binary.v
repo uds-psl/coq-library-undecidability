@@ -737,34 +737,59 @@ Section FixM.
     all:lia.
   Qed.
 
-  End FixM.
+End FixM.
 
+Lemma Sim_Realise {Σ} (L : finType) (M : pTM Σ L 1) R :
+  M ⊨ R ->
+  Relabel (StateWhile (@Step Σ (projT1 M)) (start (projT1 M))) (projT2 M) ⊨  
+    fun t '(l, t') => forall t_sig, t = [| encode_tape' t_sig |] ->
+                      exists t_sig', R [| t_sig |] (l, [| t_sig' |]) /\ t' = [| encode_tape' t_sig' |].
+Proof.
+  intros HM.
+  eapply Realise_monotone. { eapply Relabel_Realise, WhileStep_Realise. }
+  intros ? ? ?. TMSimp. specialize (H0 _ eq_refl). TMSimp.
+  repeat eexists. unfold Realise in HM.
+  eapply TM_eval_iff in H as [k H].
+  now eapply HM in H.
+Qed.
+Lemma Sim_Terminates {Σ} (L : finType) (M : pTM Σ L 1) T :
+  projT1 M ↓ T ->
+  exists C1 C2,
+  projT1 (Relabel (StateWhile (@Step Σ (projT1 M)) (start (projT1 M))) (projT2 M)) ↓  
+    fun t k => exists t_sig k', t = [| encode_tape' t_sig |] /\ T [| t_sig |] k' /\ k >= C1 * k' + C2.
+Proof.
+  intros HM.
+  destruct (WhileStep_Terminates (projT1 M)) as (C1 & C2 & HC).
+  exists C1, C2.
+  eapply TerminatesIn_monotone. { eapply Relabel_Terminates, HC. }
+  intros ? ? ?. TMSimp.
+  eapply HM in H0. TMSimp. 
+  destruct ymid1. destruct_tapes. repeat eexists; eassumption.
+Qed.
 
-  Lemma Sim_Realise {Σ} (L : finType) (M : pTM Σ L 1) R :
-    M ⊨ R ->
-    Relabel (StateWhile (@Step Σ (projT1 M)) (start (projT1 M))) (projT2 M) ⊨  
-      fun t '(l, t') => forall t_sig, t = [| encode_tape' t_sig |] ->
-                        exists t_sig', R [| t_sig |] (l, [| t_sig' |]) /\ t' = [| encode_tape' t_sig' |].
-  Proof.
-    intros HM.
-    eapply Realise_monotone. { eapply Relabel_Realise, WhileStep_Realise. }
-    intros ? ? ?. TMSimp. specialize (H0 _ eq_refl). TMSimp.
-    repeat eexists. unfold Realise in HM.
-    eapply TM_eval_iff in H as [k H].
-    now eapply HM in H.
-  Qed.
+Require Import Undecidability.Synthetic.Definitions.
+Require Import Undecidability.Synthetic.ReducibilityFacts Undecidability.TM.Util.TM_facts.
+From Equations Require Import Equations.
 
-  Lemma Sim_Terminates {Σ} (L : finType) (M : pTM Σ L 1) T :
-    projT1 M ↓ T ->
-    exists C1 C2,
-    projT1 (Relabel (StateWhile (@Step Σ (projT1 M)) (start (projT1 M))) (projT2 M)) ↓  
-      fun t k => exists t_sig k', t = [| encode_tape' t_sig |] /\ T [| t_sig |] k' /\ k >= C1 * k' + C2.
-  Proof.
-    intros HM.
-    destruct (WhileStep_Terminates (projT1 M)) as (C1 & C2 & HC).
-    exists C1, C2.
-    eapply TerminatesIn_monotone. { eapply Relabel_Terminates, HC. }
-    intros ? ? ?. TMSimp.
-    eapply HM in H0. TMSimp. 
-    destruct ymid1. destruct_tapes. repeat eexists; eassumption.
-  Qed.
+Theorem reduction :
+  HaltTM 1 ⪯ fun '(M,t) => @HaltsTM (finType_CS bool) 1 M t.
+Proof.
+  unshelve eexists.
+  - intros [Σ M t]. split. exact (projT1 (StateWhile (@Step Σ M) (start M))).
+    exact (Vector.map (fun t => encode_tape' t) t).
+  - intros [Σ M t]. cbn. split.
+    + intros (q' & t' & [n H] % TM_eval_iff).
+      edestruct @Sim_Terminates with (M := (existT _ M (fun _ : state M => tt))) (T := fun tin k => tin = t /\ k >= n).
+      * intros tin k [-> Hk]. cbn. exists (mk_mconfig q' t').  eapply @loop_monotone. exact H. eapply Hk.
+      * destruct H0 as [k H0]. cbn in H0. edestruct H0 as [[] H1].
+        -- exists (Vector.hd t), n. split. reflexivity. split. 2: now unfold ge. split. 2:lia. dependent elimination t. 
+           dependent elimination t. reflexivity.
+        -- exists cstate. eexists ctapes. eapply TM_eval_iff. exists (x * n + k). unfold Relabel, initc in H1. cbn in H1.
+           repeat dependent elimination t. exact H1.
+    + intros (q' & t' & [n H] % TM_eval_iff). 
+      eapply (Sim_Realise (M := (existT _ M (fun _ : state M => tt))) (R := fun tin '(_,tout) => exists q', eval M (start M) tin q' tout)) in H.
+      * repeat dependent elimination t. rename h into t.
+        specialize (H t eq_refl) as [t'_sig [[q'_ H1] H2]]. cbn in H1. 
+        cbn in H2. subst. exists q'_, [|t'_sig|]. eassumption. 
+      * intros tin k [q'_ tout] Hter. cbn in *. exists q'_. eapply TM_eval_iff. exists k. exact Hter.
+Qed.

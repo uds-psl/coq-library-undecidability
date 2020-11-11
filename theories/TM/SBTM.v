@@ -38,17 +38,6 @@ Definition mv (m : move) (t : tape) :=
   | Nmove => t
   end.
 
-
-(*   match t, m with
-  | (l :: ls, None,   rs), Lmove => (ls, Some l, rs)
-  | (l :: ls, Some c, rs), Lmove => (ls, Some l, c :: rs)
-  | ([]     , Some c, rs), Lmove => ([], None ,  c :: rs)
-  | (ls, None,   r :: rs), Rmove => (ls, Some r, rs)
-  | (ls, Some c, r :: rs), Rmove => (c :: ls, Some r, rs)
-  | (ls, Some c, []),      Rmove => (c :: ls, None, [])
-  | _, _                         => t
-  end.
- *)
 Record SBTM :=  { num_states : nat ; trans : Fin.t (S num_states) * option bool -> option (Fin.t (S num_states) * option bool * move)}.
 
 Notation state M := (Fin.t (S (num_states M))).
@@ -64,3 +53,5 @@ Inductive eval (M : SBTM) : state M -> tape -> state M -> tape -> Prop :=
 
 Definition HaltSBTM '( (M, t) : SBTM * tape) :=
   exists q' t', eval M (Fin.F1) t q' t'.
+
+Definition HaltSBTMu : { M : SBTM & {q : state M | forall c, trans M (q,c) = None /\ forall q', trans M (q',c) = None -> q' = q }} * tape -> Prop := fun '((existT _ M (exist _ q H)), t) => exists t', eval M Fin.F1 t q t'.

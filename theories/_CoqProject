@@ -112,9 +112,8 @@ StringRewriting/SR.v
 StringRewriting/SR_undec.v
 
 StringRewriting/Util/Definitions.v
-StringRewriting/Util/singleTM.v
 StringRewriting/Reductions/SRH_to_SR.v
-StringRewriting/Reductions/TM_to_SRH.v
+StringRewriting/Reductions/HaltSBTMu_to_SRH.v
 StringRewriting/Reductions/HaltTM_1_to_SR.v
 
 #Context-free grammars
@@ -354,8 +353,10 @@ TM/Reductions/L_to_mTM.v
 
 TM/Reductions/Arbitrary_to_Binary.v
 TM/SBTM.v
-TM/Reductions/TM_to_SBTM.v
-StackMachines/Reductions/SBTM_to_BSM.v
+TM/Reductions/HaltTM_1_to_HaltSBTM.v
+TM/Reductions/HaltSBTM_to_HaltSBTMu.v
+TM/SBTM_undec.v
+StackMachines/Reductions/HaltSBTM_to_HaltBSM.v
 
 # Univ
 TM/Univ/LookupAssociativeListTM.v
