@@ -297,11 +297,11 @@ Qed.
 Lemma If_SpecTReg (sig : finType) (n : nat) (F : finType) (pM1 : pTM _ bool n) (pM2 pM3 : pTM _ F n)
       (P : Spec sig n) (Q : bool -> Spec sig n) (R : F -> Spec sig n)
       (k k1 k2 k3 : nat) :
-  TripleT (≃≃ P) k1 pM1 (fun y => (≃≃ Q y)) ->
-  TripleT (≃≃ Q true)  k2 pM2 (fun y => (≃≃ R y)) ->
-  TripleT (≃≃ Q false) k3 pM3 (fun y => (≃≃  R y)) ->
+  TripleT ≃≃( P) k1 pM1 (fun y => ≃≃( Q y)) ->
+  TripleT ≃≃( Q true)  k2 pM2 (fun y => ≃≃( R y)) ->
+  TripleT ≃≃( Q false) k3 pM3 (fun y => ≃≃(  R y)) ->
   (implList (fst P) (forall b, implList (fst (Q b)) (1 + k1 + (if b then k2 else k3) <= k))) ->
-  TripleT (≃≃ P) k (If pM1 pM2 pM3) (fun y => (≃≃ R y)).
+  TripleT ≃≃( P) k (If pM1 pM2 pM3) (fun y => ≃≃( R y)).
 Proof.
   intros H1 H2 H3 H4. eapply If_SpecT. 1-3:eassumption. cbn.
   intros. do 2 setoid_rewrite implList_iff in H4. specialize H4 with (b:=yout). destruct P,(Q yout). eapply H4;cbn. all:eapply tspecE;eauto.
@@ -483,12 +483,12 @@ Qed.
 Lemma While_SpecReg (sig : finType) (n : nat) (F : finType) {inF : inhabitedC F} (pM : pTM _ (option F) n)
       (X : Type)
       (P : X -> Spec sig n) (Q : X -> option F -> Spec sig n) (R : X -> F -> Spec sig n) :
-  (forall x, Triple (≃≃ P x) pM (fun y => (≃≃ Q x y))) ->
+  (forall x, Triple ≃≃( P x) pM (fun y => ≃≃( Q x y))) ->
   (forall x , implList (fst (P x))
-       (forall yout, implList (fst (Q x (Some yout))) (Entails (≃≃ [],snd (Q x (Some yout))) (≃≃ R x yout)))
-     /\ (implList (fst (Q x None)) (exists x', Entails (≃≃ [],snd (Q x None)) (≃≃ P x')
-                                    /\ (forall yout, Entails (≃≃ R x' yout) (≃≃ R x yout))))) ->
-  forall (x : X), Triple (≃≃ P x) (While pM) (fun y => (≃≃ R x y)).
+       (forall yout, implList (fst (Q x (Some yout))) (Entails ≃≃( [],snd (Q x (Some yout))) ≃≃( R x yout)))
+     /\ (implList (fst (Q x None)) (exists x', Entails ≃≃( [],snd (Q x None)) ≃≃( P x')
+                                    /\ (forall yout, Entails ≃≃( R x' yout) ≃≃( R x yout))))) ->
+  forall (x : X), Triple ≃≃( P x) (While pM) (fun y => ≃≃( R x y)).
 Proof.
   intros H1 H2. eapply While_Spec with (1:=H1).
   - intros ? ? ? ? ?. revert tout. apply EntailsE.
@@ -566,11 +566,11 @@ Qed.
 Lemma While_SpecTReg (sig : finType) (n : nat) (F : finType) {inF : inhabitedC F} (pM : pTM _ (option F) n)
       (X : Type) (f__loop f__step : X -> nat)
       (PRE : X -> Spec sig n) (INV : X -> option F -> Spec sig n) (POST : X -> F -> Spec sig n) :
-  (forall x, TripleT (≃≃ PRE x) (f__step x) pM (fun y => (≃≃ INV x y))) ->
-  (forall x , implList (fst (PRE x)) (forall yout, implList (fst (INV x (Some yout))) (Entails (≃≃ [],snd (INV x (Some yout))) (≃≃ POST x yout) /\ f__step x <= f__loop x))
-     /\ (implList (fst (INV x None)) (exists x', Entails (≃≃ [],snd (INV x None)) (≃≃ PRE x') /\ 1 + f__step x + f__loop x' <= f__loop x
-                                    /\ (forall yout, Entails (≃≃ POST x' yout) (≃≃ POST x yout))))) ->
-  forall (x : X), TripleT (≃≃ PRE x) (f__loop x) (While pM) (fun y => (≃≃ POST x y)).
+  (forall x, TripleT ≃≃( PRE x) (f__step x) pM (fun y => ≃≃( INV x y))) ->
+  (forall x , implList (fst (PRE x)) (forall yout, implList (fst (INV x (Some yout))) (Entails ≃≃( [],snd (INV x (Some yout))) ≃≃( POST x yout) /\ f__step x <= f__loop x))
+     /\ (implList (fst (INV x None)) (exists x', Entails ≃≃( [],snd (INV x None)) ≃≃( PRE x') /\ 1 + f__step x + f__loop x' <= f__loop x
+                                    /\ (forall yout, Entails ≃≃( POST x' yout) ≃≃( POST x yout))))) ->
+  forall (x : X), TripleT ≃≃( PRE x) (f__loop x) (While pM) (fun y => ≃≃( POST x y)).
 Proof.
   intros H1 H2. eapply While_SpecT with (1:=H1).
   - intros x y ? ? ? H'. 
@@ -590,12 +590,12 @@ Qed.
 Lemma While_SpecTReg' (sig : finType) (n : nat) (F : finType) {inF : inhabitedC F} (pM : pTM _ (option F) n)
       (X : Type) (f g : X -> nat)
       P' Q' R' (P : X -> SpecV sig n) (Q : X -> option F -> SpecV sig n) (R : X -> F -> SpecV sig n) :
-  (forall x, TripleT (≃≃ P' x, P x) (g x) pM (fun y => (≃≃ Q' x y, Q x y))) ->
+  (forall x, TripleT ≃≃( P' x, P x) (g x) pM (fun y => ≃≃( Q' x y, Q x y))) ->
   (forall x , implList (P' x)
-       (forall yout, implList (Q' x (Some yout)) (Entails (≃≃ [],Q x (Some yout)) (≃≃ R' x yout,R x yout) /\ g x <= f x))
-     /\ (implList (Q' x None) (exists x', Entails (≃≃ [],Q x None) (≃≃ P' x', P x') /\ 1 + g x + f x' <= f x
-                                    /\ (forall yout, Entails (≃≃ R' x' yout,R x' yout) (≃≃ R' x yout,R x yout))))) ->
-  forall (x : X), TripleT (≃≃ P' x,P x) (f x) (While pM) (fun y => (≃≃ R' x y,R x y)).
+       (forall yout, implList (Q' x (Some yout)) (Entails ≃≃( [],Q x (Some yout)) ≃≃( R' x yout,R x yout) /\ g x <= f x))
+     /\ (implList (Q' x None) (exists x', Entails ≃≃( [],Q x None) ≃≃( P' x', P x') /\ 1 + g x + f x' <= f x
+                                    /\ (forall yout, Entails ≃≃( R' x' yout,R x' yout) ≃≃( R' x yout,R x yout))))) ->
+  forall (x : X), TripleT ≃≃( P' x,P x) (f x) (While pM) (fun y => ≃≃( R' x y,R x y)).
 Proof.
   intros H1 H2. eapply While_SpecTReg with (INV := fun _ _ => (_,_)). all:easy.
 Qed.

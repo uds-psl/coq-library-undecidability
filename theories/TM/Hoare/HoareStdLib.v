@@ -75,14 +75,6 @@ Lemma Reset_Spec (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retr
   Triple (tspec ([],  [|Contains _ x|])) (Reset sig) (fun _ => tspec ([],  [|Void|])).
 Proof. eapply TripleT_Triple. apply Reset_SpecT. Qed.
 
-Ltac hstep_Reset :=
-  lazymatch goal with
-  | [ |- TripleT ?P ?k (Reset _) ?Q ] => eapply @Reset_SpecT
-  end.
-
-Smpl Add hstep_Reset : hstep_smpl.
-
-
 Lemma ResetEmpty_SpecT_space (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) (ss : Vector.t nat 1) :
   cX x = [] ->
   TripleT (tspec (([], withSpace  [|Contains _ x |] ss))) (ResetEmpty_steps) (ResetEmpty sig) (fun _ => tspec (([], withSpace  [|Void|] (appSize [|ResetEmpty_size|] ss)))).
@@ -110,6 +102,8 @@ Lemma ResetEmpty_Spec (sig : finType) (sigX X : Type) (cX : codable sigX X) (I :
 Proof. intros. eapply TripleT_Triple. now apply ResetEmpty_SpecT. Qed.
 
 
+
+
 Lemma ResetEmpty1_SpecT_space (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) (ss : Vector.t nat 1) :
   size cX x = 1 ->
   TripleT (tspec (([], withSpace  [|Contains _ x |] ss))) (ResetEmpty1_steps) (ResetEmpty1 sig) (fun _ => tspec (([], withSpace  [|Void|] (appSize [|ResetEmpty1_size|] ss)))).
@@ -135,7 +129,6 @@ Lemma ResetEmpty1_Spec (sig : finType) (sigX X : Type) (cX : codable sigX X) (I 
   size cX x = 1 ->
   Triple (tspec ([],  [|Contains _ x|])) (ResetEmpty1 sig) (fun _ => tspec ([],  [|Void|])).
 Proof. intros. eapply TripleT_Triple. now apply ResetEmpty1_SpecT. Qed.
-
 
 
 (* TODO: Move to [Code/Copy.v] *)
@@ -206,6 +199,18 @@ Lemma Translate_Spec (sig : finType) (sigX X : Type)
   Triple (tspec ([],  [|Contains I1 x|])) (Translate I1 I2)
          (fun _ => tspec ([],  [|Contains I2 x|])).
 Proof. eapply TripleT_Triple. apply Translate_SpecT. Qed.
+
+Ltac hstep_Reset :=
+  lazymatch goal with
+  | [ |- TripleT ?P ?k (CopyValue _) ?Q ] => eapply @CopyValue_SpecT_size
+  | [ |- TripleT ?P ?k (Reset _) ?Q ] => eapply @Reset_SpecT_space
+  | [ |- TripleT ?P ?k (ResetEmpty _) ?Q ] => eapply @ResetEmpty_SpecT_space
+  | [ |- TripleT ?P ?k (ResetEmpty1 _) ?Q ] => eapply @ResetEmpty1_SpecT_space
+  | [ |- TripleT ?P ?k (MoveValue _) ?Q ] => eapply @MoveValue_SpecT_size
+  | [ |- TripleT ?P ?k (Translate _ _) ?Q ] => eapply @Translate_SpecT_size
+  end.
+
+Smpl Add hstep_Reset : hstep_smpl.
 
 
 (** We must not add these tactics to the automation! (As in [TM_Correct].) *)
@@ -458,14 +463,14 @@ End CaseOpton.
 
 
 Ltac hstep_Sum_Option :=
-  match goal with
+  lazymatch goal with
   | [ |- TripleT ?P ?k (Constr_inl _ _) ?Q ] => eapply Constr_inl_SpecT_size
   | [ |- TripleT ?P ?k (Constr_inr _ _) ?Q ] => eapply Constr_inr_SpecT_size
   | [ |- TripleT ?P ?k (CaseSum    _ _) ?Q ] => eapply CaseSum_SpecT_size
 
   | [ |- TripleT ?P ?k (Constr_Some _)  ?Q ] => eapply Constr_Some_SpecT_size
   | [ |- TripleT ?P ?k (Constr_None _)  ?Q ] => eapply Constr_None_SpecT_size
-  | [ |- TripleT ?P ?k (CaseOption  _)  ?Q ] => eapply CaseSum_SpecT_size
+  | [ |- TripleT ?P ?k (CaseOption  _)  ?Q ] => eapply CaseOption_SpecT_size
   end.
 
 Smpl Add hstep_Sum_Option : hstep_smpl.

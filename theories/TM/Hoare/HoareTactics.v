@@ -42,7 +42,7 @@ Ltac hstep_Seq :=
 Ltac hstep_If :=
   lazymatch goal with
   | [ |- Triple ?P (If ?M1 ?M2 ?M3) ?Q ] => eapply If_Spec
-  | [ |- TripleT (≃≃ _,_) ?k (If ?M1 ?M2 ?M3) ?Q ] =>
+  | [ |- TripleT ≃≃( _,_) ?k (If ?M1 ?M2 ?M3) ?Q ] =>
     eapply If_SpecTReg with (R:= fun y => (_,_))
   | [ |- TripleT ?P ?k (If ?M1 ?M2 ?M3) ?Q ] => eapply If_SpecT
   end.
@@ -221,10 +221,10 @@ Ltac tspec_solve :=
   lazymatch goal with
   | [ |- tspec (_,withSpace _ ?ss) ?t ] => (* We may unfold [withSpace] and simplify now *)
     eapply tspec_space_solve;openFoldRight;[ .. | intros i; destruct_fin i;
-    cbn [tspec_single withSpace_single Vector.map Vector.nth Vector.case0 Vector.caseS]; try (contains_ext || isVoid_mono)]
+    cbn [tspec_single withSpace_single Vector.map Vector.nth Vector.case0 Vector.caseS]; try (simple apply I || contains_ext || isVoid_mono)]
   | [ |- tspec (?P,?R) ?t ] =>
     eapply tspec_solve;openFoldRight;[ .. | intros i; destruct_fin i;
-    cbn [tspec_single Vector.nth Vector.case0 Vector.caseS]; try (contains_ext || isVoid_mono)]
+    cbn [tspec_single Vector.nth Vector.case0 Vector.caseS]; try (simple apply I || contains_ext || isVoid_mono)]
   end.
 
 
@@ -258,13 +258,13 @@ Ltac tspec_ext :=
     ((now eauto)
      || (intros i; destruct_fin i;
         cbn [tspec_single withSpace_single Vector.nth Vector.case0 Vector.caseS];
-        intros; try (contains_ext || isVoid_mono)))]
+        intros; try (simple apply I ||contains_ext || isVoid_mono)))]
   | [ H : tspec (?P',?R') ?t |- tspec (?P,?R) ?t ] => (* idtac "tspec_ext: Branch 2 is depricated, pone should see Entails everywhere"; *)
     apply tspec_ext with (1 := H);[ try (cbn; tauto) |
     ((now eauto)
      || (intros i; destruct_fin i;
         cbn [tspec_single Vector.nth Vector.case0 Vector.caseS];
-        intros; try (contains_ext || isVoid_mono)))]
+        intros; try (simple apply I || contains_ext || isVoid_mono)))]
   end.
 
 (* (* Maybe not a good idea *)

@@ -55,7 +55,7 @@ Section Fix.
     { unfold M__step. hstep.
       - hsteps_cbn. cbn. tspec_ext.
       - cbn. hintros H.   
-        refine (_ :  TripleT _ _  _ (fun y => (≃≃ _ ,match bs with nil => _ | b0::bs => _ end))).
+        refine (_ :  TripleT _ _  _ (fun y => ≃≃( _ ,match bs with nil => _ | b0::bs => _ end))).
         destruct bs as [ | b0 bs]. easy. hsteps_cbn;cbn. now tspec_ext. 
         + hintros ? ->. hsteps_cbn. 2:cbn;reflexivity. tspec_ext.
         +reflexivity.

@@ -2,7 +2,7 @@
 
 From Undecidability Require Import TM.Code.ProgrammingTools LM_heap_def.
 From Undecidability.TM.L Require Import Alphabets.
-From Undecidability Require Import TM.Code.ListTM TM.Code.CasePair TM.Code.CaseSum TM.Code.CaseNat.
+From Undecidability Require Import TM.Code.ListTM TM.Code.CasePair TM.Code.CaseSum TM.Code.CaseNat Hoare.Hoare.
 
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
@@ -107,83 +107,6 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
     | _ => default (* not specified *)
     end.
 
-  Definition Lookup_Step_Rel : pRel sigLookup^+ (option bool) 5 :=
-    fun tin '(yout, tout) =>
-      forall (H: Heap) (a n: nat) (s0 s1 s2 s3 s4 : nat),
-        let size := Lookup_Step_size H a n in (* shortcut; this immediatly evaulates *)
-        tin[@Fin0] ≃(;s0) H ->
-        tin[@Fin1] ≃(retr_nat_lookup_clos_ad ;s1) a ->
-        tin[@Fin2] ≃(retr_nat_lookup_clos_var;s2) n ->
-        isVoid_size tin[@Fin3] s3 -> isVoid_size tin[@Fin4] s4 ->
-        match yout, n with
-        | Some true, O => (* return true *)
-          exists g b,
-          nth_error H a = Some (Some (g, b)) /\
-          tout[@Fin0] ≃(;size @>Fin0 s0) H /\
-          isVoid_size tout[@Fin1] (size @>Fin1 s1) /\
-          isVoid_size tout[@Fin2] (size @>Fin2 s2) /\
-          tout[@Fin3] ≃(retr_clos_lookup; size @>Fin3 s3) g /\
-          isVoid_size tout[@Fin4] (size @>Fin4 s4)
-        | None, S n' => (* continue *)
-          exists g b,
-          nth_error H a = Some (Some (g, b)) /\
-          tout[@Fin0] ≃(; size @>Fin0 s0) H /\
-          tout[@Fin1] ≃(retr_nat_lookup_clos_ad ; size @>Fin1 s1) b /\
-          tout[@Fin2] ≃(retr_nat_lookup_clos_var; size @>Fin2 s2) n' /\
-          isVoid_size tout[@Fin3] (size @>Fin3 s3) /\
-          isVoid_size tout[@Fin4] (size @>Fin4 s4)
-        | Some false, _ =>
-          lookup H a n = None (* Tapes are not specified *)
-        | _, _ => False (* Unreachable *)
-        end.
-
-
-  Lemma Lookup_Step_Realise : Lookup_Step ⊨ Lookup_Step_Rel.
-  Proof.
-    eapply Realise_monotone.
-    { unfold Lookup_Step. TM_Correct.
-      - apply Nth'_Realise.
-    }
-    {
-      intros tin (yout, tout) H. cbn. intros heap a n s0 s1 s2 s3 s4 HEncHeap HEncA HEncN HRight3 HRight4.
-      unfold Lookup_Step_size.
-      destruct H; TMSimp.
-      { (* Then of [Nth'], i.e. nth_error H a = Some e *) rename H into HNth, H0 into HCaseOption.
-        modpon HNth. destruct HNth as (e&HNth); modpon HNth. rewrite !HNth.
-        destruct HCaseOption; TMSimp. 
-        { (* Then of [CaseOption], i.e. e = Some e', where e' = (g, b) *)
-        rename H into HCaseOption, H0 into HCasePair, H2 into HCaseNat.
-          modpon HCaseOption. destruct e as [ (g,b) | ]; auto; simpl_surject.
-          modpon HCasePair.
-          destruct HCaseNat; TMSimp.  
-          { (* Then of [CaseNat], i.e. n = S n' *)
-            rename H into HCaseNat, H1 into HCopy, H3 into HTranslate, H5 into HReset, H7 into HReset'.
-            modpon HCaseNat;[]. destruct n as [ | n']; auto; simpl_surject.
-            modpon HCopy;[].
-            modpon HTranslate;[].
-            modpon HReset;[].
-            modpon HReset';[].
-            cbn in *.
-            do 2 eexists. repeat split; eauto.
-          }
-          { (* Else of [CaseNat], i.e. n = 0 *)
-            rename H into HCaseNat, H1 into HReset, H3 into HReset', H5 into HTranslate.
-            modpon HCaseNat. destruct n as [ | n']; auto; simpl_surject.
-            modpon HReset.
-            modpon HReset'.
-            modpon HTranslate.
-            do 2 eexists. repeat split; auto.
-          }
-        }
-        { (* Else of [CaseOption], i.e. e = None *) rename H into HCaseOption.
-          modpon HCaseOption. destruct e; auto; simpl_surject. rewrite lookup_eq, HNth. auto.
-        }
-      }
-      { (* Else of [Nth'], i.e. nth_error H a = None *) rename H into HNth.
-        modpon HNth. rewrite lookup_eq, HNth. auto.
-      }
-    }
-  Qed.
 
   
   Local Definition Lookup_Step_steps_CaseNat (n: nat) (e': HClos * HAdd) :=
@@ -208,75 +131,51 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
   Definition Lookup_Step_steps (H: Heap) (a: HAdd) (n: nat) :=
     1 + Nth'_steps H a + Lookup_Step_steps_Nth' H a n.
 
-    
-  Definition Lookup_Step_T : tRel sigLookup^+ 5 :=
-    fun tin k =>
-      exists (H: Heap) (a n: nat),
-        tin[@Fin0] ≃ H /\
-        tin[@Fin1] ≃(retr_nat_lookup_clos_ad ) a /\
-        tin[@Fin2] ≃(retr_nat_lookup_clos_var) n /\
-        isVoid tin[@Fin3] /\ isVoid tin[@Fin4] /\
-        Lookup_Step_steps H a n <= k.
-
-
-  Lemma Lookup_Step_Terminates : projT1 Lookup_Step ↓ Lookup_Step_T.
+  
+  Lemma Lookup_Step_SpecT_space H a n ss:
+  TripleT
+    ≃≃([],withSpace [| ≃(_) H ; ≃(retr_nat_lookup_clos_ad) a;≃(retr_nat_lookup_clos_var) n;Void;Void |] ss)
+    (Lookup_Step_steps H a n) Lookup_Step
+    (fun yout => ≃≃([yout = match nth_error (A:=HEntr) H a with Some (Some _ ) => match n with 0 => Some true | _ => None end | _ => Some false end]
+       ,withSpace
+       match nth_error (A:=HEntr) H a with
+        Some (Some (g,b) ) =>
+        match n with
+        | 0 => [| ≃(_) H; Void;Void;≃(retr_clos_lookup) g;Void|]
+        | S n' => [| ≃(_) H;≃(retr_nat_lookup_clos_ad) b;≃(retr_nat_lookup_clos_var) n';Void;Void|]
+        end
+       | _ => SpecVTrue
+       end (appSize (Lookup_Step_size H a n) ss))).
   Proof.
-    eapply TerminatesIn_monotone.
-    { unfold Lookup_Step. TM_Correct.
-      - apply Nth'_Realise.
-      - apply Nth'_Terminates.
-    }
+    unfold Lookup_Step. remember (Lookup_Step_size H a n) as F eqn:HF.
+    eapply If_SpecTReg with (k2:= match nth_error H a with Some (Some (g,b)) => _ | Some _ => _ | None => _ end) (k3:=0).
+    now hsteps_cbn.
+    2:{ destruct nth_error. hintros [=]. cbn. hsteps_cbn. tspec_ext. }
     {
-      intros tin k. cbn. intros (H&a&n&HEncH&HEncA&HEncN&HRight3&HRight4&Hk). unfold Lookup_Step_steps in Hk.
-      exists (Nth'_steps H a), (Lookup_Step_steps_Nth' H a n).
-      repeat split; try lia.
-      { hnf; cbn; eauto 7. }
-      unfold Lookup_Step_steps_Nth' in *.
-      intros tmid_ b (HNth&HNthInj); TMSimp. modpon HNth. destruct b; try modpon HNth.
-      { (* nth_error H a = Some e *) destruct HNth as (e&HNth); modpon HNth. rewrite HNth in *.
-        exists (CaseOption_steps), (Lookup_Step_steps_CaseOption n e).
-        repeat split; try lia. unfold Lookup_Step_steps_CaseOption in *.
-        intros tmid0_ b (HCaseOption&HCaseOptionInj); TMSimp. modpon HCaseOption. destruct b; auto.
-        { (* e = Some e', where e' = (g,b) *) destruct e as [ e' | ]; auto; simpl_surject.
-          destruct e' as [g b] eqn:Ee'.
-          exists (CasePair_steps g), (1 + CaseNat_steps + Lookup_Step_steps_CaseNat n e'); subst.
-          repeat split; try lia. 2: now rewrite !Nat.add_assoc.
-          { hnf; cbn. exists (g,b). repeat split; simpl_surject; eauto. }
-          intros tmid1_ () (HCasePair&HCasePairInj). specialize (HCasePair (g,b)); modpon HCasePair.
-          exists (CaseNat_steps), (Lookup_Step_steps_CaseNat n (g,b)).
-          repeat split; try lia.
-          intros tmid2_ bif (HCaseNat&HCaseNatInj); TMSimp. modpon HCaseNat. destruct bif, n as [ | n']; auto; simpl_surject.
-          { (* n = S n' *)
-            exists (CopyValue_steps b), (1 + Translate_steps b + 1 + Reset_steps b + Reset_steps g).
-            repeat split; try lia.
-            { eexists; repeat split; eauto. }
-            intros tmid3_ () (HCopyValue&HCopyValueInj); TMSimp. modpon HCopyValue.
-            exists (Translate_steps b), (1 + Reset_steps b + Reset_steps g).
-            repeat split; try lia.
-            { hnf; cbn. eauto. }
-            intros tmid4_ () (HTranslate&HTranslateInj); TMSimp. modpon HTranslate.
-            exists (Reset_steps b), (Reset_steps g).
-            repeat split; try lia.
-            { hnf; cbn. eexists; repeat split; eauto. }
-            intros tmid5_ () (HReset&HResetInj); TMSimp. modpon HReset.
-            { hnf; cbn. eexists; repeat split; eauto. }
-          }
-          { (* n = 0 *)
-            exists (Reset_steps b), (1 + Reset_steps 0 + Translate_steps g).
-            repeat split; try lia.
-            { eexists; split; eauto. }
-            intros tmid3_ () (HReset&HResetInj); TMSimp. modpon HReset.
-            exists (Reset_steps 0), (Translate_steps g).
-            repeat split; try lia.
-            { eexists; split; eauto. }
-            intros tmid4_ () (HReset'&HResetInj'); TMSimp. modpon HReset'.
-            { hnf; cbn. eexists; split; eauto. }
-          }
-        }
-        { (* e = None *) destruct e; auto. }
-      }
-      { (* nth_error H a = None *) now rewrite HNth. }
+      unfold Lookup_Step_size in HF.
+      cbn. destruct nth_error as [ h | ];hintros [=];[].
+      eapply If_SpecTReg  with (k2:= match h with Some (g,b)=> _ |  None => _ end) (k3:=0).
+      { hsteps_cbn. cbn. tspec_ext. } 
+      2:{ cbn. destruct h; hintros [=]. hsteps_cbn. cbn. tspec_ext. }
+      2:{ cbn. intros ? ->. destruct h as [[]| ]. 2:reflexivity. shelve. }
+      cbn. destruct h as [[g b] | ];hintros [=];[].
+      hstep. { hsteps_cbn. cbn. tspec_ext. }
+      2:{cbn. unfold CasePair_steps. reflexivity. } 
+      intros ?. hstep. { hsteps_cbn. cbn. tspec_ext. }
+      - cbn. hintros Hn. destruct n. easy.
+        hsteps_cbn. cbn.
+        { eapply ConsequenceT_pre. refine (Translate_SpecT_size _ _ _ _ [|_|]). 3:tspec_ext. reflexivity. }
+        1-3:reflexivity.
+        subst F. cbn. tspec_ext.
+      - cbn. hintros ->.
+        hsteps_cbn. cbn. { eapply ConsequenceT_pre. refine (Translate_SpecT_size _ _ _ _ [|_|]). 3:tspec_ext. reflexivity. }
+        1-2:reflexivity.
+        subst F. cbn; tspec_ext.
+      - cbn. intros b0 Hb. refine (_ : _ <= match n with 0 => _ | _ => _ end).
+        destruct b0, n. 1,4:exfalso;clear - Hb;lia. all:reflexivity.  
     }
+    Unshelve. 5:reflexivity. 2,3:exact 0.
+    cbn. intros ? ->. unfold Lookup_Step_steps,Lookup_Step_steps_Nth'. destruct nth_error as [[[[] ]| ]| ]. all:cbn. 2,3:nia. unfold CasePair_steps. destruct n; cbn. all:rewrite !Nat.add_assoc. all:reflexivity. 
   Qed.
     
 
@@ -305,7 +204,6 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
     end.
   Proof. destruct n; auto. Qed.
 
-
   Definition Lookup_Rel : pRel sigLookup^+ bool 5 :=
     fun tin '(yout, tout) =>
       forall (H: Heap) (a n: nat) (s0 s1 s2 s3 s4 : nat),
@@ -328,28 +226,7 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
         end.
 
   Arguments Lookup_Step_size : simpl never.
-
-
-  Lemma Lookup_Realise : Lookup ⊨ Lookup_Rel.
-  Proof.
-    eapply Realise_monotone.
-    { unfold Lookup. TM_Correct.
-      - apply Lookup_Step_Realise.
-    }
-    {
-      apply WhileInduction; intros; intros heap a n s0 s1 s2 s3 s4 size HEncHeap HEncA HEncN HRight3 HRight4; cbn in *; subst size.
-      - rewrite Lookup_size_eq. modpon HLastStep. destruct yout, n as [ | n']; auto.
-        destruct HLastStep as (g&b&HLastStep); modpon HLastStep.
-        eexists. rewrite lookup_eq, HLastStep. repeat split; auto.
-      - rewrite Lookup_size_eq in *. modpon HStar. destruct n as [ | n']; auto.
-        destruct HStar as (g&b&HStar); modpon HStar.
-        modpon HLastStep. destruct yout.
-        + destruct HLastStep as (g'&HLastStep); modpon HLastStep.
-          eexists. rewrite lookup_eq, HStar. eauto 10.
-        +cbn. rewrite HStar. repeat split; auto.
-    }
-  Qed.
-
+    
   Fixpoint Lookup_steps (H : Heap) (a : HAdd) (n : nat) : nat :=
     match nth_error H a with
     | Some (Some (g, b)) =>
@@ -359,6 +236,49 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
       end
     | _ => Lookup_Step_steps H a n
     end.
+
+      
+  Lemma Lookup_SpecT_space H a n ss:
+  TripleT
+    ≃≃([],withSpace [| ≃(_) H ; ≃(retr_nat_lookup_clos_ad) a;≃(retr_nat_lookup_clos_var) n;Void;Void |] ss)
+    (Lookup_steps H a n) Lookup
+    (fun yout => ≃≃([yout = match lookup H a n with Some _ => true | _ => false end]
+    , withSpace match lookup H a n with Some g => [| ≃(_) H;Void;Void;≃(retr_clos_lookup) g; Void|] | _ => SpecVTrue end (appSize (Lookup_size H a n) ss))).
+  Proof.
+    unfold Lookup.
+    eapply While_SpecTReg with (PRE := fun '(a,n,ss) => (_,_))(INV := fun '(a,n,ss) y => ([y = match nth_error H a with
+    | Some (Some _) => match n with | 0 => Some true | S _ => None end | _ => Some false end],_)) (POST := fun '(a,n,ss) y => (_,_))
+       (f__step := fun '(a,n,ss) => Lookup_Step_steps H a n ) (f__loop := fun '(a,n,ss) => _ ) (x:= (a,n,ss));clear a n ss;intros [[a n] ss].
+    { eapply ConsequenceT. eapply Lookup_Step_SpecT_space. 2:intros. 1,2:cbn - [appSize SpecVTrue].  1,2:now tspec_ext. reflexivity. }   
+    all:cbn - [SpecVTrue appSize Lookup_size]. 
+    remember (Lookup_size H a n) as F eqn:HF. remember (Lookup_steps H a n) as F' eqn:HF'. split.
+    -destruct n;unfold Lookup_size in HF;unfold Lookup_steps in HF';fold Lookup_size in HF;fold Lookup_steps in HF'.
+      +intros ? H'. cbn[lookup Lookup_Step_size]. destruct nth_error as [[[]| ]| ] eqn:Hnth. all:split;[ | subst F';reflexivity].
+      all:revert H';intros [= ->]. now rewrite <- HF. 1-2:tspec_ext.
+      +intros ? H'. cbn [lookup]. unfold Lookup_Step_steps. destruct nth_error as [[[]| ]| ] eqn:Hnth. easy.
+        all:split;[ | subst F';reflexivity]. all:inv H'. all:tspec_ext.
+    - destruct (nth_error H a) as [[[g' b]| ]| ] eqn:Hnth. 2-3:easy. destruct n as [ | n]. easy. intros _.
+      cbn [lookup]. rewrite Hnth.
+      unfold Lookup_size in HF;fold Lookup_size in HF. rewrite Hnth in HF.
+      eexists (b,n,_). repeat apply conj. 
+      + subst F. cbn. tspec_ext.
+      + subst F'. cbn. rewrite Hnth. reflexivity.
+      +intros. subst F. reflexivity.
+  Qed.
+
+
+  (*legacy *)
+  Lemma Lookup_Realise : Lookup ⊨ Lookup_Rel.
+  Proof.
+    repeat (eapply RealiseIntroAll;intro). eapply Realise_monotone.
+    -eapply TripleT_Realise. eapply Lookup_SpecT_space with (ss:=[|_;_;_;_;_|]).
+    -cbn.  intros ? [] H **. modpon H.
+    {unfold "≃≃",withSpace;cbn. intros i; destruct_fin i;cbn. all:eassumption. }
+    repeat destruct _;unfold "≃≃",withSpace in H;cbn in H.
+    all:destruct H as [Heq H].  
+    2,3:discriminate Heq. 2:easy.
+    all:specializeFin H. eexists;repeat split; easy.
+  Qed.
 
   Definition Lookup_T : tRel sigLookup^+ 5 :=
     fun tin k =>
@@ -371,21 +291,11 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
 
   Lemma Lookup_Terminates : projT1 Lookup ↓ Lookup_T.
   Proof.
-    eapply TerminatesIn_monotone.
-    { unfold Lookup. TM_Correct.
-      - apply Lookup_Step_Realise.
-      - apply Lookup_Step_Terminates. }
-    {
-      apply WhileCoInduction. intros tin k (Heap&a&n&HEncHeap&HEncA&HEncN&HRight3&HRight4&Hk).
-      exists (Lookup_Step_steps Heap a n). split.
-      - hnf. do 3 eexists; repeat split; eauto.
-      - intros ymid tmid HStep. cbn in *. modpon HStep. destruct ymid as [ [ | ] | ], n as [ | n']; cbn in *; auto.
-        + destruct HStep as (g&b&HStep); modpon HStep. rewrite HStep in Hk. auto.
-        + destruct (nth_error Heap a) as [ [ (g&b) | ] | ] eqn:E; auto.
-        + destruct (nth_error Heap a) as [ [ (g&b) | ] | ] eqn:E; auto. lia.
-        + destruct HStep as (g&b&HStep); modpon HStep. rewrite HStep in Hk.
-          eexists; repeat split; eauto. hnf. do 3 eexists; repeat split; eauto.
-    }
+    repeat (eapply TerminatesInIntroEx;intro). eapply TerminatesIn_monotone.
+    -eapply TripleT_TerminatesIn. eapply TripleT_RemoveSpace,Lookup_SpecT_space.
+    -intros ? k H **. modpon H.
+    split. 2:eassumption. 
+    unfold "≃≃",withSpace;cbn. intros i; destruct_fin i;cbn. all:assumption. 
   Qed.
 
 End Lookup.

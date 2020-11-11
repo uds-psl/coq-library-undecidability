@@ -384,6 +384,9 @@ Definition Incr3_steps := 2 + Constr_S_steps + Constr_S_steps + IncrementTwice_s
 Lemma Incr3_Spec :
   forall (x y z : nat), Triple (tspec ([], [|Contains _ x; Contains _ y; Contains _ z|])) Incr3 (fun _ => tspec ([], [|Contains _ (S x); Contains _ (S y); Contains _ (S (S z))|])).
 Proof.
+
+
+
   intros x y z. start_TM.
   eapply Seq_Spec.
   - eapply LiftTapes_Spec.

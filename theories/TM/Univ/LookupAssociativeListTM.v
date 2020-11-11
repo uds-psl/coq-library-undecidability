@@ -216,8 +216,7 @@ Section LookupAssociativeList.
   Proof.
     start_TM.
     unfold Lookup. hsteps_cbn; cbn.
-    apply CopyValue_SpecT_size with (X := list (X*Y)).
-    cbn. apply Lookup_Loop_SpecT_space.
+    apply Lookup_Loop_SpecT_space.
     intros yout;cbn.
     hintros ->. destruct (lookup x xs); cbn. 1-2:now tspec_ext. reflexivity.
   Qed.

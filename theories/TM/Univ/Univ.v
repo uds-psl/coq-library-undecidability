@@ -254,13 +254,9 @@ Section Univ.
         * reflexivity. 
       + cbn. hintros Ehalt. hsteps_cbn. apply Nop_SpecT_con.
       unfold Univ_Step_size. rewrite <- Ehalt. tspec_ext.
-      + cbn. hintros Ehalt. rewrite <- Ehalt. hsteps_cbn; cbn. 7-9:reflexivity.
+      + cbn. hintros Ehalt. rewrite <- Ehalt. hsteps_cbn; cbn. 6-8:reflexivity.
         * apply ReadCurrent'_SpecT_space.
         * cbn. intros. tspec_ext.
-        * cbn. eapply ConsequenceT_pre.
-          -- apply Reset_SpecT_space with (I := LowLevel.retr_sigCurrentSymbol_sig _). 
-          -- instantiate (1 := [|_|]). cbn. tspec_ext.
-          -- reflexivity.
         * cbn. refine (Lookup_SpecT_space _ _ _ _ _). 2:apply transition_graph_injective. all:shelve.
         * cbn. tspec_ext.
         * cbn. hintros ? ->. rewrite Ehalt. erewrite lookup_graph with (tp := tp).

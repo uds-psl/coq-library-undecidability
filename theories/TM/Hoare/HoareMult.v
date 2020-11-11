@@ -156,8 +156,8 @@ Proof.
   start_TM.
   eapply If_SpecTReg.
   - hsteps.
-  - cbn. hintros ?. destruct m' as [ | m'']. contradiction. cbn.
-    hsteps. apply Add_SpecT_space. cbn. hsteps. cbn. apply MoveValue_SpecT_size. reflexivity. cbn. tspec_ext.
+  - cbn. hintros H. destruct m' as [ | m'']. now contradiction H. cbn.
+    hsteps. apply Add_SpecT_space. cbn. hsteps. reflexivity. cbn. tspec_ext.
   - cbn. hintros ->. hsteps. tspec_ext.
   - cbn. destruct m'; intros []. 1,4:easy. 
     all:unfold Mult_Step_steps, MoveValue_steps, CaseNat_steps, Add_steps. 2:rewrite !Encode_nat_hasSize.

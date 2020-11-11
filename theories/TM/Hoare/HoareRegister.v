@@ -158,13 +158,17 @@ Arguments Void_size {sig}.
 Arguments dummy_sizes : simpl never.
 Hint Resolve tspec_single_Contains_size_Contains : core.
 
+
 Declare Scope spec_scope.
 Delimit Scope spec_scope with spec.
 Bind Scope spec_scope with Spec.
-Notation "'(' '≃≃' S ')'" := (tspec S%spec) (at level 0, S at level 200, no associativity, format "'(' '≃≃'  S ')'").
-Notation "'(' '≃≃' P ',' S ')'" := (tspec (P,S)%spec) (at level 0, S at level 200, no associativity, format "'(' '≃≃'  P ','  S ')'").
+Notation "'≃≃(' S ')'" := (tspec S%spec) (at level 0, S at level 200, no associativity, format "'≃≃(' S ')'").
+Notation "'≃≃(' P ',' S ')'" := (tspec (P,S)%spec) (at level 0, P at level 200, S at level 200, no associativity, format "'≃≃(' P ','  S ')'").
 
 Notation "t ≃≃ S" := (tspec S%spec t) (at level 70, no associativity).
+
+Notation "≃( I ) x" := (Contains I x) (at level 70, I at level 200, no associativity, format "'≃(' I ')'  x").
+Notation "≃( I ';' s ) x" := (Contains_size I s x) (at level 70, I at level 200, s at level 200, no associativity, format "'≃(' I ';' s ')'  x").
 
 Arguments tspec _%spec _.
 
@@ -239,11 +243,11 @@ Proof. cbn. tauto. Qed.
 Hint Immediate Triple_SpecFalse TripleT_SpecFalse : core.
 *)
 
-(*
-(* TODO: [SpecFalse] could be defined in the same manner. We could then remove the unhandy [SpecVector] constructor. *)
-Definition SpecTrue {sig : Type} {n : nat} : Spec sig n := ([],Vector.const (Custom (fun _ => True)) n).
-Arguments SpecTrue : simpl never.
 
+(* TODO: [SpecFalse] could be defined in the same manner. We could then remove the unhandy [SpecVector] constructor. *)
+Definition SpecVTrue {sig : Type} {n : nat} : SpecV sig n := Vector.const (Custom (fun _ => True)) n.
+
+(*
 Lemma tspec_SpecTrue {sig : finType} {n : nat} (t : tapes sig^+ n) :
   t ≃≃ SpecTrue.
 Proof. cbn. intros i. unfold tspec_single, SpecTrue. cbn. now rewrite Vector.const_nth. Qed.
@@ -478,7 +482,7 @@ Proof.
 Qed.
 
 Lemma tspec_Downlift_withSpace (m n : nat) (sig : Type) P' (P : SpecV sig n) (I : Vector.t (Fin.t n) m) (ss : Vector.t nat n):
-  Entails (≃≃ P', Downlift (sig:=sig) (m:=m) (n:=n) (withSpace P ss) I) (≃≃ P',withSpace (Downlift P I) (select I ss)).
+  Entails ≃≃( P', Downlift (sig:=sig) (m:=m) (n:=n) (withSpace P ss) I) ≃≃( P',withSpace (Downlift P I) (select I ss)).
 Proof. rewrite Entails_iff. intros H. erewrite <- Downlift_withSpace; eauto. Qed.
 
 Lemma Triple_Downlift_withSpace (m n : nat) (sig : finType) P' (P : SpecV sig n) (I : Vector.t (Fin.t n) m) (ss : Vector.t nat n)
@@ -535,7 +539,7 @@ Proof. intros H1 H2. erewrite <- Frame_withSpace; eauto. Qed.
 Lemma tspec_Frame_withSpace'
       (m n : nat) (I : Vector.t (Fin.t n) m):
   dupfree I -> forall (sig : Type) Q (P : SpecV sig n) (P' : SpecV sig m) (ss : Vector.t nat n) (ss' : Vector.t nat m),
-  Entails (≃≃ Q , Frame (withSpace P ss) I (withSpace P' ss')) (≃≃ Q, withSpace (Frame P I P') (fill I ss ss')).
+  Entails ≃≃( Q , Frame (withSpace P ss) I (withSpace P' ss')) ≃≃( Q, withSpace (Frame P I P') (fill I ss ss')).
 Proof. intros H1 **. erewrite <- Frame_withSpace; eauto. Qed.
 
 (*
@@ -676,11 +680,11 @@ Proof.
 Qed.
 (*
 Lemma tspec_LiftSpec_withSpace (sig tau : Type) (n : nat) (I : Retract sig tau) P' (P : SpecV sig n) (ss : Vector.t nat n):
-  Entails (≃≃ P',LiftSpec I (withSpace P ss)) (≃≃ P', withSpace (LiftSpec I P) ss).
+  Entails ≃≃( P',LiftSpec I (withSpace P ss)) ≃≃( P', withSpace (LiftSpec I P) ss).
 Proof. now rewrite LiftSpec_withSpace. Qed.
 
 Lemma tspec_LiftSpec_withSpace' (sig tau : Type) (n : nat) (I : Retract sig tau) (P : Spec sig n) (ss : Vector.t nat n):
-  Entails (≃≃ withSpace (LiftSpec I P) ss) (≃≃ LiftSpec I (withSpace P ss)).
+  Entails ≃≃( withSpace (LiftSpec I P) ss) ≃≃( LiftSpec I (withSpace P ss)).
 Proof. now rewrite LiftSpec_withSpace. Qed.
 
 Lemma Triple_LiftSpec_withSpace (sig tau : finType) (n : nat) (I : Retract sig tau) (P : Spec sig n) (ss : Vector.t nat n)
@@ -737,8 +741,8 @@ Section AlphabetLifting'.
         (pM : pTM sig^+ F n)
         Q0 (Q : F -> SpecV sig n) (Q' : F -> SpecV tau n) :
     Triple (tspec (P0,P)) pM (fun yout => tspec (Q0 yout, Q yout) ) ->
-    (Entails (≃≃ P0,P') (≃≃ P0,LiftSpec retr P)) ->
-    (forall yout, Entails (≃≃ Q0 yout, LiftSpec retr (Q yout)) (≃≃ (Q0 yout,Q' yout))) ->
+    (Entails ≃≃( P0,P') ≃≃( P0,LiftSpec retr P)) ->
+    (forall yout, Entails ≃≃( Q0 yout, LiftSpec retr (Q yout)) ≃≃( (Q0 yout,Q' yout))) ->
     Triple (tspec (P0, P')) (pM ⇑ retr) (fun yout => tspec (Q0 yout, Q' yout)).
   Proof.
     intros H1 H2 H3.
@@ -753,8 +757,8 @@ Section AlphabetLifting'.
         (k : nat) (pM : pTM sig^+ F n)
         Q0 (Q : F -> SpecV sig n) (Q' : F -> SpecV tau n) :
     TripleT (tspec (P0,P)) k pM (fun yout => tspec (Q0 yout, Q yout) ) ->
-    (Entails (≃≃ P0,P') (≃≃ P0,LiftSpec retr P)) ->
-    (forall yout, Entails (≃≃ Q0 yout, LiftSpec retr (Q yout)) (≃≃ (Q0 yout,Q' yout))) ->
+    (Entails ≃≃( P0,P') ≃≃( P0,LiftSpec retr P)) ->
+    (forall yout, Entails ≃≃( Q0 yout, LiftSpec retr (Q yout)) ≃≃( (Q0 yout,Q' yout))) ->
     TripleT (tspec (P0, P')) k (pM ⇑ retr) (fun yout => tspec (Q0 yout, Q' yout)).
   Proof.
     intros H1 H2 H3.
@@ -771,7 +775,7 @@ Section AlphabetLifting'.
         (pM : pTM sig^+ F n)
         Q0 (Q : F -> SpecV sig n) :
     Triple (tspec (P0,P)) pM (fun yout => tspec (Q0 yout, Q yout)) ->
-    (Entails (≃≃ P0,P') (≃≃ P0, LiftSpec retr P)) ->
+    (Entails ≃≃( P0,P') ≃≃( P0, LiftSpec retr P)) ->
     Triple (tspec (P0,P')) (pM ⇑ retr) (fun yout => tspec (Q0 yout,LiftSpec retr (Q yout))).
   Proof.
     intros H1 H2.
@@ -786,7 +790,7 @@ Section AlphabetLifting'.
         (k : nat) (pM : pTM sig^+ F n)
         Q0 (Q : F -> SpecV sig n) :
     TripleT (tspec (P0,P)) k pM (fun yout => tspec (Q0 yout, Q yout)) ->
-    (Entails (≃≃ P0, P') (≃≃ P0,LiftSpec retr P)) ->
+    (Entails ≃≃( P0, P') ≃≃( P0,LiftSpec retr P)) ->
     TripleT (tspec (P0,P')) k (pM ⇑ retr) (fun yout => tspec (Q0 yout,LiftSpec retr (Q yout))).
   Proof.
     intros H1 H2.
@@ -807,8 +811,8 @@ Section AlphabetLifting'.
         Q0 (Q : F -> SpecV sig n) (Q' : F -> SpecV tau n)
         (ss ss' : Vector.t nat n) :
     Triple (tspec (P0,withSpace P ss)) pM (fun yout => tspec (Q0 yout,withSpace (Q yout) ss')) ->
-    (Entails (≃≃ P0, withSpace P' ss) (≃≃ P0, withSpace (LiftSpec retr P) ss)) ->
-    (forall yout, Entails (≃≃ Q0 yout, withSpace (LiftSpec retr (Q yout)) ss') (tspec (Q0 yout,withSpace (Q' yout) ss'))) ->
+    (Entails ≃≃( P0, withSpace P' ss) ≃≃( P0, withSpace (LiftSpec retr P) ss)) ->
+    (forall yout, Entails ≃≃( Q0 yout, withSpace (LiftSpec retr (Q yout)) ss') (tspec (Q0 yout,withSpace (Q' yout) ss'))) ->
     Triple (tspec (P0,withSpace P' ss)) (pM ⇑ retr) (fun yout => tspec (Q0 yout, withSpace (Q' yout) ss')).
   Proof.
     intros H1 H2 H3.
@@ -824,8 +828,8 @@ Section AlphabetLifting'.
         Q0  (Q : F -> SpecV sig n) (Q' : F -> SpecV tau n)
         (ss ss' : Vector.t nat n) :
         TripleT (tspec (P0,withSpace P ss)) k pM (fun yout => tspec (Q0 yout,withSpace (Q yout) ss')) ->
-        (Entails (≃≃ P0, withSpace P' ss) (≃≃ P0, withSpace (LiftSpec retr P) ss)) ->
-        (forall yout, Entails (≃≃ Q0 yout, withSpace (LiftSpec retr (Q yout)) ss') (tspec (Q0 yout,withSpace (Q' yout) ss'))) ->
+        (Entails ≃≃( P0, withSpace P' ss) ≃≃( P0, withSpace (LiftSpec retr P) ss)) ->
+        (forall yout, Entails ≃≃( Q0 yout, withSpace (LiftSpec retr (Q yout)) ss') (tspec (Q0 yout,withSpace (Q' yout) ss'))) ->
         TripleT (tspec (P0,withSpace P' ss)) k (pM ⇑ retr) (fun yout => tspec (Q0 yout, withSpace (Q' yout) ss')).
   Proof.
     intros H1 H2 H3.
@@ -844,7 +848,7 @@ Section AlphabetLifting'.
         Q0 (Q : F -> SpecV sig n)
         (ss ss' : Vector.t nat n) :
     Triple (tspec (P0,withSpace P ss)) pM (fun yout => tspec (Q0 yout,withSpace (Q yout) ss')) ->
-    Entails (≃≃ P0, withSpace P' ss) (≃≃ P0, withSpace (LiftSpec retr P) ss) ->
+    Entails ≃≃( P0, withSpace P' ss) ≃≃( P0, withSpace (LiftSpec retr P) ss) ->
     Triple (tspec (P0, withSpace P' ss)) (pM ⇑ retr) (fun yout => tspec (Q0 yout, withSpace (LiftSpec retr (Q yout)) ss')).
   Proof.
     intros H1 H2.
@@ -860,7 +864,7 @@ Section AlphabetLifting'.
         Q0 (Q : F -> SpecV sig n)
         (ss ss' : Vector.t nat n) :
     TripleT (tspec (P0,withSpace P ss)) k pM (fun yout => tspec (Q0 yout, withSpace (Q yout) ss')) ->
-    Entails (≃≃ P0, withSpace P' ss) (≃≃ P0, withSpace (LiftSpec retr P) ss) ->
+    Entails ≃≃( P0, withSpace P' ss) ≃≃( P0, withSpace (LiftSpec retr P) ss) ->
     TripleT (tspec (P0, withSpace P' ss)) k (pM ⇑ retr) (fun yout => tspec (Q0 yout,withSpace (LiftSpec retr (Q yout)) ss')).
   Proof.
     intros H1 H2.
