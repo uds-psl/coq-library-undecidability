@@ -8,6 +8,8 @@
 (* 
   Undecidability Result(s):
     Simple Semi-unification (SSemiU)
+    Right-uniform Two-inequality Semi-unification (RU2SemiU)
+    Left-uniform Two-inequality Semi-unification (LU2SemiU)
     Semi-unification (SemiU)
 *)
 

@@ -1,4 +1,6 @@
-Require Import Undecidability.PCP.PCP Undecidability.Shared.Prelim.
+
+Require Import List.
+Require Import Undecidability.PCP.PCP.
 
 (** A string is a list of symbols. *)
 Definition string X := list X.

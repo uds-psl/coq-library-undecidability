@@ -14,7 +14,7 @@
 Require Import List Lia Relations.Relation_Operators Relations.Operators_Properties.
 Import ListNotations.
 
-Require Import Undecidability.Problems.MM2.
+Require Import Undecidability.MinskyMachines.MM2.
 Require Undecidability.CounterMachines.CM2.
 
 From Undecidability.CounterMachines.Util Require Import 

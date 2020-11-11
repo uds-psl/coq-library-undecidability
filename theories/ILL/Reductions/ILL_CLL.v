@@ -7,20 +7,17 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+Require Import List.
+
 Require Import Undecidability.Synthetic.Undecidability.
 
-Require Import Undecidability.TM.TM.
-From Undecidability.PCP                  Require Import PCP HALT_TM1_to_PCPb.
-From Undecidability.MinskyMachines       Require Import MM PCPb_to_MM.
- 
-Theorem HaltTM_to_MM_HALTS_ON_ZERO : HaltTM 1 ⪯ MM_HALTS_ON_ZERO.
-Proof.
-  eapply reduces_transitive. exact HALT_TM1_to_PCPb.
-  apply PCPb_MM_HALTS_ON_ZERO.
-Qed.
+From Undecidability.ILL
+  Require Import ILL CLL ill ill_cll ill_cll_restr.
 
-Theorem HaltTM_to_MM_HALTING : HaltTM 1 ⪯ MM_HALTING.
+Theorem rILL_rCLL_cf_PROVABILITY : rILL_cf_PROVABILITY ⪯ rCLL_cf_PROVABILITY.
 Proof.
-  eapply reduces_transitive. exact HALT_TM1_to_PCPb.
-  apply PCPb_MM_HALTING.
+  apply reduces_dependent; exists.
+  intros (Γ,A). 
+  exists (⟦Γ⟧,[A]::nil).
+  apply S_ill_cll_restr_equiv.
 Qed.

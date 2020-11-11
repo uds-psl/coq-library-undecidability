@@ -2,10 +2,9 @@ Require Import Equations.Equations Vector.
 
 Derive Signature for Vector.t.
 
-Require Import Undecidability.Shared.Prelim.
-
 From Undecidability Require Import TM.Util.TM_facts.
-From Undecidability Require Import Problems.Reduction.
+Require Import Undecidability.Synthetic.Definitions.
+
 (** * TM to SRH *)
 
 (** ** Definition of single-tape Turing Machines  *)
