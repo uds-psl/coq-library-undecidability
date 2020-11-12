@@ -136,10 +136,12 @@ FOL/Infinite.v
 MinskyMachines/MM.v             # generic X-bounded MM (X=pos n or X=nat is type of registers) 
                                 # with CPP19 semantics (MM) and alternate semantics (MMA)
 MinskyMachines/MMA.v            # simply exports MM.v
-MinskyMachines/MM2.v            # self contained two counter MM with alternate semantics
+MinskyMachines/MM2.v            # self contained two counters MM with alternate semantics
+MinskyMachines/ndMM2.v          # self contained two counters non-deterministic MM 
 MinskyMachines/MM_undec.v       # undec for MM(n), CPP2019
 MinskyMachines/MMA2_undec.v     # undec for MMA(2)
 MinskyMachines/MM2_undec.v      # undec for MM2
+MinskyMachines/ndMM2_undec.v    # undec for ndMM2
 
 MinskyMachines/Reductions/BSM_MM.v
 MinskyMachines/Reductions/PCPb_to_MM.v
@@ -150,6 +152,7 @@ MinskyMachines/Reductions/MMA2_to_MMA2_zero.v
 MinskyMachines/Reductions/MM_to_MMA2.v
 MinskyMachines/Reductions/MUREC_MM.v
 MinskyMachines/Reductions/BSM_HALTING_to_MM2_HALTING.v
+MinskyMachines/Reductions/MM2_to_ndMM2_ACCEPT.v
 
 MinskyMachines/MM/mm_defs.v         # (pos n)-bounded MM
 MinskyMachines/MM/mm_utils.v        # utilities
@@ -165,6 +168,8 @@ MinskyMachines/MMA/fractran_mma.v   # FRACTRAN to MMA2 compiler
 MinskyMachines/MMenv/env.v          # environments for nat-bounded MM
 MinskyMachines/MMenv/mme_defs.v     # X-bounded MM definitions      
 MinskyMachines/MMenv/mme_utils.v    # nat-bounded MM utils for MuRec ~~> MM(nat) compiler
+
+MinskyMachines/ndMM2/ndmm2_utils.v  # some utilities for ndMM2, for now just monotonicity
 
 # Linear Logic (including CPP'19 YF&DLW)
 ILL/EILL.v
@@ -583,8 +588,6 @@ CounterMachines/CM1.v
 CounterMachines/CM1_undec.v
 CounterMachines/CM2.v
 CounterMachines/CM2_undec.v
-CounterMachines/ndMM2.v
-CounterMachines/ndMM2_undec.v
 
 CounterMachines/Util/Nat_facts.v
 CounterMachines/Util/List_facts.v
@@ -593,7 +596,7 @@ CounterMachines/Util/MM2_facts.v
 CounterMachines/Reductions/MM2_HALTING_to_CM1c4_HALT.v
 CounterMachines/Reductions/MM2_HALTING_to_CM2_HALT.v
 CounterMachines/Reductions/HaltTM_1_to_CM1c4_HALT.v
-CounterMachines/Reductions/MM2_to_ndMM2_ACCEPT.v
+
 
 #Stack Machines
 StackMachines/BSM.v

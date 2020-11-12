@@ -9,8 +9,8 @@
 
 Require Import List Arith Lia Relations.
 
-Require Import Undecidability.MinskyMachines.MM2.
-Require Import Undecidability.CounterMachines.ndMM2.
+From Undecidability.MinskyMachines
+  Require Import MM2 ndMM2.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import utils.

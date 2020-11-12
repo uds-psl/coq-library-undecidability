@@ -9,7 +9,7 @@
 
 Require Import List Permutation Arith Lia.
 
-From Undecidability.CounterMachines
+From Undecidability.MinskyMachines
   Require Import ndMM2.
 
 From Undecidability.ILL 

@@ -9,9 +9,6 @@
 
 Require Import List Permutation.
 
-From Undecidability.CounterMachines
-  Require Import ndMM2.
-
 From Undecidability.ILL 
   Require Import IMSELL.
 

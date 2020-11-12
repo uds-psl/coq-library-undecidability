@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Lia.
+Require Import List.
 
 Set Implicit Arguments.
 
@@ -64,7 +64,8 @@ Section Non_deterministic_Minsky_Machines.
      or decrement β (if not zero already) and jump to location 2
 
      Also repetitions and order do not matter hence these
-     lists are viewed as finite sets, see below
+     lists are viewed as finite sets, see ndmm2_accept_mono 
+     in ndMM2/ndmm2_utils.v
   *)
 
   Reserved Notation "Σ // a ⊕ b ⊦ u" (at level 70, no associativity).

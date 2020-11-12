@@ -9,7 +9,7 @@
 
 Require Import Undecidability.Synthetic.Undecidability.
 
-From Undecidability.CounterMachines
+From Undecidability.MinskyMachines
   Require Import ndMM2 ndMM2_undec.
 
 From Undecidability.ILL

@@ -10,10 +10,7 @@
 Require Import Undecidability.Synthetic.Undecidability.
 
 From Undecidability.MinskyMachines
-  Require Import MM2 MM2_undec.
-
-From Undecidability.CounterMachines
-  Require Import ndMM2 MM2_to_ndMM2_ACCEPT.
+  Require Import MM2 MM2_undec ndMM2 MM2_to_ndMM2_ACCEPT.
 
 (* Undecidability of acceptance for two counters non-deterministic
    Minsky machines with nat indexed instructions *)
