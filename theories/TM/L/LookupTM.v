@@ -131,6 +131,8 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
   Definition Lookup_Step_steps (H: Heap) (a: HAdd) (n: nat) :=
     1 + Nth'_steps H a + Lookup_Step_steps_Nth' H a n.
 
+
+
   
   Lemma Lookup_Step_SpecT_space H a n ss:
   TripleT

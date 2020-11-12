@@ -56,9 +56,8 @@ Section Fix.
       - hsteps_cbn. cbn. tspec_ext.
       - cbn. hintros H.   
         refine (_ :  TripleT _ _  _ (fun y => ≃≃( _ ,match bs with nil => _ | b0::bs => _ end))).
-        destruct bs as [ | b0 bs]. easy. hsteps_cbn;cbn. now tspec_ext. 
+        destruct bs as [ | b0 bs]. easy. hsteps_cbn;cbn. 3:reflexivity. now tspec_ext. 
         + hintros ? ->. hsteps_cbn. 2:cbn;reflexivity. tspec_ext.
-        +reflexivity.
       - cbn. hintros H. destruct bs. 2:easy.
         hsteps_cbn; cbn. tspec_ext. now unfold Reset_steps;cbn;reflexivity.
       - cbn. intros ? ->. reflexivity.
@@ -181,7 +180,7 @@ Section Fix.
       ([match y with None => bs <> nil | _ => bs = nil end;
       right tin = map (fun (x:bool) => if x then s else b) res;
       tape_local_l tin = (map (fun (x:bool) => if x then s else b) bs++[b])],
-      match bs with nil => [|Custom (eq (encTM s b (rev bs++res))) ; Contains _ res|]
+      match bs with nil => [|Custom (eq tin) ; Contains _ res|]
                | b'::bs => [|Custom (eq (tape_move_left tin));Contains _ (b'::res)|] end)) (POST := fun '(bs,res,tin) y => (_,_))
     (f__step := fun '(bs,res,tin) => _) (f__loop := fun '(bs,res,tin) => _) (x := (bs,res,tin));
     clear bs res tin; intros [[bs res] tin]; cbn in *.
@@ -197,28 +196,27 @@ Section Fix.
       { hsteps_cbn;cbn. intros yout. hintros (?&Hy&?&->&_&<-).
         set (y:=@ssrbool.isSome (boundary + Σ) yout).
         refine (_ : Entails _ ≃≃([ y=match bs with [] => false | _ => true end],_)). subst y yout.
-        tspec_ext. split. 2:easy. 
+        tspec_ext. 
         destruct bs;cbn in Hbs;eapply tape_local_l_move_left in Hbs;cbn in Hbs.
         now destruct (tape_move_left tin);cbn in Hbs|-*;congruence.
         destruct bs;cbn in Hbs;eapply tape_local_l_current_cons in Hbs. all:now rewrite Hbs.
       }
       2:{destruct bs;hintros [=];[]. cbn in *. hsteps. cbn.
-        tspec_ext. destruct H0 as (?&?&?&?&->&?&<-). rewrite H0.
-        erewrite tape_move_left_right. 2:easy.
-        Search tape_local_l midtape. 
-        apply midtape_tape_local_l_cons in Hbs. rewrite Hres in Hbs.
-        rewrite Hbs. reflexivity.   
+        tspec_ext. 1-2:assumption. destruct H0 as (?&?&?&?&->&?&<-). rewrite H0.
+        erewrite tape_move_left_right. all:easy.
       }
       { destruct bs;hintros [=];[]. cbn in *. hsteps.
         { tspec_ext;cbn in *. contains_ext. }
-        { intros. hsteps_cbn. tspec_ext. now cbn. 2:now destruct H0 as (?&?&?&?&?);congruence.
+        { intros. hsteps_cbn. tspec_ext. 1-3:easy. 2:now destruct H0 as (?&?&?&?&?);congruence.
           f_equal. destruct b0;decide _. all:congruence. } cbv. reflexivity.
       }
       cbn. intros ? ->. destruct bs. 2:reflexivity. nia.
     }
     split. 
-    - intros [? ?] _;cbn. split. 2:{ cbn. [c2]:exact 14. subst c2. nia. }
-      destruct bs as [ | ];cbn. 2:easy. reflexivity.
+    - intros [Hres Hbs] _;cbn. split. 2:{ cbn. [c2]:exact 14. subst c2. nia. }
+      destruct bs as [ | ];cbn. 2:easy.
+      apply midtape_tape_local_l_cons in Hbs. rewrite Hres in Hbs.
+      rewrite Hbs. reflexivity.    
     - intros H. destruct bs as [ | b' bs]. easy.
       intros Hres Hbs. cbn in Hbs.
       apply midtape_tape_local_l_cons in Hbs. rewrite Hres in Hbs.
@@ -227,10 +225,24 @@ Section Fix.
       +cbn.
       erewrite tape_right_move_left. 2:subst;reflexivity.
       erewrite tape_local_l_move_left. 2:subst;reflexivity.
-      rewrite Hres. tspec_ext. 
+      rewrite Hres. tspec_ext. easy. 
      + subst c2;cbn;ring_simplify. [c1]:exact 15. unfold c1;nia.
      + cbn. rewrite <- !app_assoc. reflexivity.
   Qed.   
+      
+  Lemma MoveToSymbol_SpecTReg (sig : finType) (f : boundary + sig -> _) g tin:
+  TripleT ≃≃([],  [|Custom (eq tin) |])
+      (MoveToSymbol_steps f g tin) (MoveToSymbol f g)
+      (fun _ => ≃≃([], [|Custom (eq (MoveToSymbol_Fun f g tin))|])).
+  Proof. 
+  eapply Realise_TripleT.
+  - apply MoveToSymbol_Realise.
+  - apply MoveToSymbol_Terminates.
+  - intros ? [] tout H HEnc. cbn in *.
+    specialize (HEnc Fin0). cbn in HEnc. subst. now tspec_solve.
+  - intros ? k HEnc Hk.
+    specialize (HEnc Fin0) as HEnc0. simpl_vector in *; cbn in *. now subst.
+  Qed.
 
   Definition Realise__loop (H__neq : s <> b):
     Realise M__loop (fun t '(_, t') =>
@@ -272,7 +284,38 @@ Section Fix.
   Definition M : pTM (Σ) ^+ unit 2 :=
     (MoveToSymbol (fun _ => false) (fun x => x);;Move Lmove) @ [|Fin0|];;
     WriteValue (encode (X:=list bool) nil ) ⇑ retr_list @ [|Fin1|];;
-    M__loop.
+    M__loop. Search MoveToSymbol_steps.
+
+(*  Local Arguments encode : simpl never.
+
+  Lemma SpecT' (H__neq : s <> b):
+    { f : UpToC (fun bs => length bs + 1) &
+      forall bs,
+      TripleT 
+        (tspec ([],[| Custom (eq (encTM s b bs)); Void|]) )
+        (f bs)
+        M
+        (fun _ => tspec ([],[|Custom (eq (encTM s b bs)) ; Contains _ bs|])) }. 
+  Proof.
+    evar (c1 : nat);evar (c2 :nat).
+    exists_UpToC (fun bs => c1 * length bs + c2). 2:now smpl_upToC_solve.
+    unfold M.
+    intros bs.
+    hstep. {hsteps_cbn. now eapply MoveToSymbol_SpecTReg. 2:reflexivity. hsteps_cbn. }
+    hnf.
+    intros _.
+    hstep. {hsteps_cbn. reflexivity. } 2:reflexivity.
+    cbn. intros _.
+    {
+      eapply ConsequenceT. eapply (projT2 (loop_SpecT' H__neq)) with (bs:=rev bs)(res:=[]) (tin:=encTM s b bs).
+       3:reflexivity. 2:{ intro;cbn. rewrite rev_involutive,app_nil_r. reflexivity. }
+      tspec_ext. unfold encTM;cbn. split. reflexivity. easy. cbn [implList]. cbn. } ] as H. cbn in H. cbn;intros. hsteps_cbn. }
+    hstep.
+    hstep;cbn.
+    eexists (fun _ => _);cbn. *)
+
+    
+    
 
   Theorem Realise (H__neq : s <> b):
     Realise M (fun t '(r, t') =>

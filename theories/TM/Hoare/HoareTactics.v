@@ -91,8 +91,8 @@ Ltac hstep_LiftTapes :=
         else (eapply LiftTapes_Spec_con with (R':= fun y => _) (R:= fun y => _); [smpl_dupfree | | ]))
   | [ |- TripleT ?PRE ?k (?M @ ?I) ?POST ] =>
     tryif contains_evar POST then
-      (tryif triple_with_space then (eapply LiftTapes_SpecT_space with (Q':= fun y => _) (Q:= fun y => _); [smpl_dupfree | ])
-        else (eapply LiftTapes_SpecT with (Q':= fun y => _) (Q:= fun y => _); [smpl_dupfree | ]))
+      (tryif triple_with_space then (refine (LiftTapes_SpecT_space (Q':= fun y => _) (Q:= fun y => _) _ _); [smpl_dupfree | ])
+        else (refine (LiftTapes_SpecT (Q':= fun y => _) (Q:= fun y => _) _ _); [smpl_dupfree | ]))
     else
       (tryif triple_with_space then (eapply LiftTapes_SpecT_space_con with (R':= fun y => _) (R:= fun y => _); [smpl_dupfree | | ])
         else (eapply LiftTapes_SpecT_con with (R':= fun y => _) (R:= fun y => _); [smpl_dupfree | | ]))
@@ -199,7 +199,7 @@ Ltac hstep_forall_unit :=
   end.
 
 Ltac hstep_pre := clear_abbrevs;cbn beta.
-Ltac hstep_post := cbn beta.
+Ltac hstep_post := lazy beta.
 
 
 Ltac hstep_Combinators := hstep_Seq || hstep_If || hstep_Switch || hstep_Return. (* Not [While]! *)
@@ -212,10 +212,11 @@ Ltac hsteps_cbn := repeat (cbn; hstep). (* Calls [cbn] before each verification 
 (** *** More automation for register specifications *)
 
 Ltac openFoldRight :=
+  try (hnf;
   lazymatch goal with
-  | |- fold_right and _ (_::_) => refine (conj _ _);[ | openFoldRight]
-  | |- _ => idtac
-  end.
+  | |- _ /\ _ => refine (conj _ _);[ | openFoldRight]
+  | |- True => exact I
+  end).
 
 (** Proofs assertions like [tspec (SpecVector ?R) ?t] *)
 Ltac tspec_solve :=
@@ -243,7 +244,7 @@ Ltac tspec_withSpace_swap :=
 end.
 *)
 
-
+Ltac trySolveTrivEq := lazymatch goal with |- ?s = ?s => reflexivity | |- _ => idtac end.
 (** Proofs assertions like [tspec (SpecVector ?R) ?t] given [tspec (SpecVector ?R') ?t]. Similar to [contains_ext] and [isVoid_mono]. *)
 (** Normally, [eauto] should be able to solve this kind of goal. This tactic helps to find out if there is an error. *)
 Ltac tspec_ext :=
@@ -255,13 +256,13 @@ Ltac tspec_ext :=
     let Ht := fresh "H"t in
     intros t Ht; tspec_ext; eauto
   | [ H : tspec (_,withSpace _ ?ss) ?t |- tspec (_,withSpace _ ?ss') ?t ] =>
-    apply tspec_space_ext with (1 := H);[try (cbn;tauto) |
+    apply tspec_space_ext with (1 := H);[ cbn [implList];intros; openFoldRight;trySolveTrivEq |
     ((now eauto)
      || (intros i; destruct_fin i;
         cbn [tspec_single withSpace_single Vector.nth Vector.case0 Vector.caseS];
         intros; try (simple apply I ||contains_ext || isVoid_mono)))]
   | [ H : tspec (?P',?R') ?t |- tspec (?P,?R) ?t ] => (* idtac "tspec_ext: Branch 2 is depricated, pone should see Entails everywhere"; *)
-    apply tspec_ext with (1 := H);[ try (cbn; tauto) |
+    apply tspec_ext with (1 := H);[ cbn [implList];intros; openFoldRight;trySolveTrivEq |
     ((now eauto)
      || (intros i; destruct_fin i;
         cbn [tspec_single Vector.nth Vector.case0 Vector.caseS];

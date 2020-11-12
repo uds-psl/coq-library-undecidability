@@ -692,7 +692,7 @@ Ltac hstep_WriteValue :=
 
 Smpl Add hstep_WriteValue : hstep_smpl.
 
-Lemma DoAct_SpecT (sig : finType) act (P : tape (boundary + sig) -> Prop):
+Lemma DoAct_SpecTReg (sig : finType) act (P : tape (boundary + sig) -> Prop):
 TripleT (tspec (([], [|Custom P|]))) 1 (DoAct act)
         (fun _ => tspec (([], [|Custom (fun t => exists t', t = doAct t' act /\ P t')|]))).
 Proof.
@@ -706,16 +706,16 @@ Qed.
 
 Ltac hstep_DoAct :=
   lazymatch goal with
-  | [ |- TripleT ?P ?k (DoAct _) ?Q ] => eapply DoAct_SpecT
-  | [ |- TripleT ?P ?k (Write _) ?Q ] => eapply DoAct_SpecT
-  | [ |- TripleT ?P ?k (WriteMove _ _) ?Q ] => eapply DoAct_SpecT
-  | [ |- TripleT ?P ?k (Move _) ?Q ] => eapply DoAct_SpecT
+  | [ |- TripleT ?P ?k (DoAct _) ?Q ] => eapply DoAct_SpecTReg
+  | [ |- TripleT ?P ?k (Write _) ?Q ] => eapply DoAct_SpecTReg
+  | [ |- TripleT ?P ?k (WriteMove _ _) ?Q ] => eapply DoAct_SpecTReg
+  | [ |- TripleT ?P ?k (Move _) ?Q ] => eapply DoAct_SpecTReg
   end.
 
 Smpl Add hstep_DoAct : hstep_smpl.
 
-(*
-Lemma CaseChar_SpecT (sig F : finType) (f : option (boundary + sig) -> F) P:
+
+Lemma CaseChar_SpecTReg (sig F : finType) (f : option (boundary + sig) -> F) P:
 TripleT ≃≃([],[|Custom P|])
   1 (CaseChar f) (fun y => ≃≃([exists t, y = f (current t) /\ P t],[|Custom (fun t => y = f (current t) /\ P t) |])).
 Proof.
@@ -725,8 +725,7 @@ Qed.
 
 Ltac hstep_CaseChar :=
 lazymatch goal with
-| [ |- TripleT ?P ?k (CaseChar _) ?Q ] => eapply CaseChar_SpecT
-| [ |- TripleT ?P ?k ReadChar ?Q ] => refine (_ : TripleT _ _ (CaseChar (fun x => x)) _);eapply CaseChar_SpecT
+| [ |- TripleT ?P ?k (CaseChar _) ?Q ] => eapply CaseChar_SpecTReg
+| [ |- TripleT ?P ?k ReadChar ?Q ] => refine (_ : TripleT _ _ (CaseChar (fun x => x)) _);eapply CaseChar_SpecTReg
 end.
 Smpl Add hstep_CaseChar : hstep_smpl.
-*)
