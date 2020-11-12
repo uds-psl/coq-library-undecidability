@@ -40,10 +40,11 @@ Ltac hstep_Seq :=
 (** Note: We often want to specify the running times ([k2] and [k3]) of [M2] and [M3] manually. For that, the user has to apply [If_SpecT] manually. *)
 (** If desired, the user can apply the weak version [If_SpecT_weak] or [If_SpecT_weak'] manually. *)
 Ltac hstep_If :=
+  cbn beta;
   lazymatch goal with
-  | [ |- Triple ?P (If ?M1 ?M2 ?M3) ?Q ] => eapply If_Spec
-  | [ |- TripleT ≃≃( _,_) ?k (If ?M1 ?M2 ?M3) ?Q ] =>
-    eapply If_SpecTReg with (R:= fun y => (_,_))
+  | [ |- Triple _ (If ?M1 ?M2 ?M3) _ ] => eapply If_Spec
+  | [ |- TripleT ≃≃( _,_) ?k (If ?M1 ?M2 ?M3) _ ] =>
+    eapply If_SpecTReg with (R:= fun y => (_,_)) (Q:= fun y => (_,_))
   | [ |- TripleT ?P ?k (If ?M1 ?M2 ?M3) ?Q ] => eapply If_SpecT
   end.
 

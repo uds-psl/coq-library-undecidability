@@ -5,7 +5,7 @@ Require Import List.
 
 Require Import Undecidability.TM.Util.TM_facts.
 
-From Undecidability Require Import ProgrammingTools LM_heap_def WriteValue CaseList Copy ListTM  JumpTargetTM WriteValue.
+From Undecidability Require Import ProgrammingTools LM_heap_def WriteValue CaseList Copy ListTM  JumpTargetTM WriteValue Hoare.
 From Undecidability.TM.L Require Import Alphabets HeapInterpreter.StepTM M_LHeapInterpreter.
 From Undecidability Require Import TM.TM L.AbstractMachines.FlatPro.LM_heap_correct.
 
@@ -13,8 +13,6 @@ From Undecidability Require Import L.L TM.TM.
 Require Import List.
 Import ListNotations.
 
-
-Import Vector.VectorNotations.
 
 From Undecidability.TM.L Require Import Compiler_spec Compiler_facts UnfoldHeap Compiler.AddToBase.
 
@@ -64,6 +62,13 @@ Section MK_isVoid.
     easy.
     intros ? [] H ->. hnf in H. cbn in *. rewrite H. hnf. eauto.
   Qed.
+
+  Lemma Mk_isVoid_Spec :
+   TripleT ≃≃([],[|Custom (eq niltape)|]) 1 MK_isVoid (fun _ => ≃≃([],[|Void|])).
+  Proof.
+    eapply RealiseIn_TripleT. now apply MK_isVoid_Sem. cbn. intros ? ? ? ? [_ H']%tspecE.
+    specialize  (H' Fin0). eapply tspecI. easy. intros i; destruct_fin i;cbn. apply H. now vector_destruct tin.
+  Qed.  
 
 End MK_isVoid.
 
