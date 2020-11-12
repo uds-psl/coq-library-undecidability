@@ -160,7 +160,7 @@ Section Fix.
 
   Definition M__loop := While M__step.
 
-  (*
+  
   Lemma loop_SpecT' (H__neq : s <> b):
     { f : UpToC (fun bs => length bs + 1) &
     forall bs res tin,
@@ -181,7 +181,8 @@ Section Fix.
       ([match y with None => bs <> nil | _ => bs = nil end;
       right tin = map (fun (x:bool) => if x then s else b) res;
       tape_local_l tin = (map (fun (x:bool) => if x then s else b) bs++[b])],
-      match bs with nil => _ | b'::bs => [|Custom (eq (tape_move_left tin));Contains _ (b'::res)|] end)) (POST := fun '(bs,res,tin) y => (_,_))
+      match bs with nil => [|Custom (eq (encTM s b (rev bs++res))) ; Contains _ res|]
+               | b'::bs => [|Custom (eq (tape_move_left tin));Contains _ (b'::res)|] end)) (POST := fun '(bs,res,tin) y => (_,_))
     (f__step := fun '(bs,res,tin) => _) (f__loop := fun '(bs,res,tin) => _) (x := (bs,res,tin));
     clear bs res tin; intros [[bs res] tin]; cbn in *.
     { unfold M__step. hintros [Hres Hbs]. hsteps_cbn;cbn. 2:reflexivity.
@@ -201,25 +202,35 @@ Section Fix.
         now destruct (tape_move_left tin);cbn in Hbs|-*;congruence.
         destruct bs;cbn in Hbs;eapply tape_local_l_current_cons in Hbs. all:now rewrite Hbs.
       }
-      2:{destruct bs;hintros [=];[]. cbn in *. hsteps. tspec_ext. }
+      2:{destruct bs;hintros [=];[]. cbn in *. hsteps. cbn.
+        tspec_ext. destruct H0 as (?&?&?&?&->&?&<-). rewrite H0.
+        erewrite tape_move_left_right. 2:easy.
+        Search tape_local_l midtape. 
+        apply midtape_tape_local_l_cons in Hbs. rewrite Hres in Hbs.
+        rewrite Hbs. reflexivity.   
+      }
       { destruct bs;hintros [=];[]. cbn in *. hsteps.
         { tspec_ext;cbn in *. contains_ext. }
         { intros. hsteps_cbn. tspec_ext. now cbn. 2:now destruct H0 as (?&?&?&?&?);congruence.
           f_equal. destruct b0;decide _. all:congruence. } cbv. reflexivity.
       }
       cbn. intros ? ->. destruct bs. 2:reflexivity. nia.
-    } Check While_SpecTReg.
+    }
     split. 
     - intros [? ?] _;cbn. split. 2:{ cbn. [c2]:exact 14. subst c2. nia. }
-      destruct bs as [ | ];cbn. 2:easy.
-      {cbn in *. tspec_ext. destruct H5 as (?&->&?&?&?&?&<-). subst.
-      eapply midtape_tape_local_l_cons in H0 as ->. unfold encTM,encListTM. cbn in *. congruence.
-      }
+      destruct bs as [ | ];cbn. 2:easy. reflexivity.
     - intros H. destruct bs as [ | b' bs]. easy.
-      eexists ((bs,b'::res),midtape match bs with nil => _ | b'::bs' => map _ bs ++ [_] end _ _).
+      intros Hres Hbs. cbn in Hbs.
+      apply midtape_tape_local_l_cons in Hbs. rewrite Hres in Hbs.
+       eexists ((bs,b'::res),tape_move_left tin).
       repeat eapply conj.
-      +cbn. tspec_ext. repeat split. {destruct bs; cbn. all: try reflexivity. 
-      *)
+      +cbn.
+      erewrite tape_right_move_left. 2:subst;reflexivity.
+      erewrite tape_local_l_move_left. 2:subst;reflexivity.
+      rewrite Hres. tspec_ext. 
+     + subst c2;cbn;ring_simplify. [c1]:exact 15. unfold c1;nia.
+     + cbn. rewrite <- !app_assoc. reflexivity.
+  Qed.   
 
   Definition Realise__loop (H__neq : s <> b):
     Realise M__loop (fun t '(_, t') =>
