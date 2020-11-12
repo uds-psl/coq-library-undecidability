@@ -714,6 +714,7 @@ Ltac hstep_DoAct :=
 
 Smpl Add hstep_DoAct : hstep_smpl.
 
+(*
 Lemma CaseChar_SpecT (sig F : finType) (f : option (boundary + sig) -> F) P:
 TripleT ≃≃([],[|Custom P|])
   1 (CaseChar f) (fun y => ≃≃([exists t, y = f (current t) /\ P t],[|Custom (fun t => y = f (current t) /\ P t) |])).
@@ -728,3 +729,4 @@ lazymatch goal with
 | [ |- TripleT ?P ?k ReadChar ?Q ] => refine (_ : TripleT _ _ (CaseChar (fun x => x)) _);eapply CaseChar_SpecT
 end.
 Smpl Add hstep_CaseChar : hstep_smpl.
+*)

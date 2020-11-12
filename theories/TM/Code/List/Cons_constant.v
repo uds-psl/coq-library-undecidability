@@ -1,5 +1,5 @@
 From Undecidability Require Import ProgrammingTools.
-From Undecidability Require Import CaseList WriteString. 
+From Undecidability Require Import CaseList WriteString Hoare. 
 
 Module Cons_constant.
 Section Fix.
@@ -67,5 +67,23 @@ Section Fix.
     } 
   Qed.
 
+  Lemma SpecT l ss:
+    TripleT ≃≃([],withSpace [|Contains _ l|] ss) time M (fun _ => ≃≃([],withSpace [|Contains _ (c::l)|] (appSize [|fun s0 => s0 - size _ c - 1|] ss ))).
+  Proof.
+    unfold withSpace in *.
+    eapply Realise_TripleT. now apply Realise. now apply Terminates.
+    - intros tin yout tout H HEnc. cbn in *.
+      specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H. tspec_solve.
+    - intros tin k HEnc Hk. cbn in *.
+      specialize (HEnc Fin0). simpl_vector in *; cbn in *. do 2 eexists. 2:assumption. contains_ext.
+  Qed.
+
 End Fix.  
 End Cons_constant.
+
+Ltac hstep_Cons_constant :=
+  match goal with
+  | [ |- TripleT ?P ?k (Cons_constant.M _) ?Q ] => eapply Cons_constant.SpecT
+  end.
+
+Smpl Add hstep_Cons_constant : hstep_smpl.

@@ -160,80 +160,67 @@ Section Fix.
 
   Definition M__loop := While M__step.
 
-(* 
-  Lemma CaseChar_SpecT (sig F : finType) (f : option (boundary + sig) -> F) P:
-  TripleT ≃≃([],[|Custom P|])
-    1 (CaseChar f) (fun y t => exists t0, t ≃≃ ([y = f (current t0) /\ P t0],[|Custom (eq t0) |])).
-  Proof.
-    eapply RealiseIn_TripleT. now apply CaseChar_Sem. cbn. intros ? ? ? [-> ->] [[] H']%tspecE.
-    specialize  (H' Fin0). cbn in H'. eexists.  eapply tspecI;cbn. now eauto. intros i; destruct_fin i. easy.
-  Qed. *)
-  
+  (*
   Lemma loop_SpecT' (H__neq : s <> b):
     { f : UpToC (fun bs => length bs + 1) &
-    forall bs res,
+    forall bs res tin,
       TripleT 
-        (tspec ([],[|Custom (fun t => right t = map (fun (x:bool) => if x then s else b) res
-        /\ tape_local_l t = (map (fun (x:bool) => if x then s else b) bs++[b])%list); Contains _ res|]) )
+        (tspec ([right tin = map (fun (x:bool) => if x then s else b) res
+           /\ tape_local_l tin = (map (fun (x:bool) => if x then s else b) bs++[b]) ],[| Custom (eq tin); Contains _ res|]) )
         (f bs)
         M__loop
         (fun _ => tspec ([],[|Custom (eq (encTM s b (rev bs++res))) ; Contains _ (rev bs ++ res)|])) }.
   Proof.
     evar (c1 : nat);evar (c2 :nat).
     exists_UpToC (fun bs => c1 * length bs + c2). 2:now smpl_upToC_solve.
-    intros bs res.
+    intros bs res tin.
     unfold M__loop.
     eapply While_SpecTReg with
-      (PRE := fun '(bs,res) => (_,_)) (INV := fun '(bs,res) y => ([y = match bs with [] => Some tt | _ => None end],_)) (POST := fun '(bs,res) y => (_,_))
-    (f__step := fun '(bs,res) => _) (f__loop := fun '(bs,res) => _) (x := (bs,res));
-    clear bs res; intros (bs,res); cbn in *.
-    { unfold M__step. hstep. now hsteps_cbn. 2:reflexivity.
-      cbn. intros [].
-      2:{hintros (t&?&?&Hbs). destruct bs;cbn in Hbs. all:now apply tape_local_l_current_cons in Hbs. }
-      hintros Ht.
+      (PRE := fun '(bs,res,tin) => (_,_))
+      (INV := fun '(bs,res,tin) y =>
+      ([match y with None => bs <> nil | _ => bs = nil end;
+      right tin = map (fun (x:bool) => if x then s else b) res;
+      tape_local_l tin = (map (fun (x:bool) => if x then s else b) bs++[b])],
+      match bs with nil => _ | b'::bs => [|Custom (eq (tape_move_left tin));Contains _ (b'::res)|] end)) (POST := fun '(bs,res,tin) y => (_,_))
+    (f__step := fun '(bs,res,tin) => _) (f__loop := fun '(bs,res,tin) => _) (x := (bs,res,tin));
+    clear bs res tin; intros [[bs res] tin]; cbn in *.
+    { unfold M__step. hintros [Hres Hbs]. hsteps_cbn;cbn. 2:reflexivity.
+      cbn. intros y.
+      hintros (?&->&<-).
+      assert (Hcur : current tin = Some (hd s (map (fun x : bool => if x then s else b) bs ++ [b]))).
+      { destruct bs;cbn in Hbs. all:now eapply tape_local_l_current_cons in Hbs as ->. }
+      setoid_rewrite Hcur at 2;cbn.
       hstep;cbn. now hsteps_cbn. 2:reflexivity.
-      cbn;intros _. hstep;cbn. { hsteps_cbn. cbn. intros. reflexivity. unfold isSS cbn. reflexivity. tspec_ext. all:cbn.
-      
-      lazymatch goal with
-      | [ |- TripleT ≃≃( _,_) ?k (If ?M1 ?M2 ?M3) ?Q ] =>
-        eapply If_SpecTReg with (R:= fun y => (_,_))
-      end.
-      
-      hstep_If.
+      cbn;intros _.
+      hstep. 
+      { hsteps_cbn;cbn. intros yout. hintros (?&Hy&?&->&_&<-).
+        set (y:=@ssrbool.isSome (boundary + Σ) yout).
+        refine (_ : Entails _ ≃≃([ y=match bs with [] => false | _ => true end],_)). subst y yout.
+        tspec_ext. split. 2:easy. 
+        destruct bs;cbn in Hbs;eapply tape_local_l_move_left in Hbs;cbn in Hbs.
+        now destruct (tape_move_left tin);cbn in Hbs|-*;congruence.
+        destruct bs;cbn in Hbs;eapply tape_local_l_current_cons in Hbs. all:now rewrite Hbs.
+      }
+      2:{destruct bs;hintros [=];[]. cbn in *. hsteps. tspec_ext. }
+      { destruct bs;hintros [=];[]. cbn in *. hsteps.
+        { tspec_ext;cbn in *. contains_ext. }
+        { intros. hsteps_cbn. tspec_ext. now cbn. 2:now destruct H0 as (?&?&?&?&?);congruence.
+          f_equal. destruct b0;decide _. all:congruence. } cbv. reflexivity.
+      }
+      cbn. intros ? ->. destruct bs. 2:reflexivity. nia.
+    } Check While_SpecTReg.
+    split. 
+    - intros [? ?] _;cbn. split. 2:{ cbn. [c2]:exact 14. subst c2. nia. }
+      destruct bs as [ | ];cbn. 2:easy.
+      {cbn in *. tspec_ext. destruct H5 as (?&->&?&?&?&?&<-). subst.
+      eapply midtape_tape_local_l_cons in H0 as ->. unfold encTM,encListTM. cbn in *. congruence.
+      }
+    - intros H. destruct bs as [ | b' bs]. easy.
+      eexists ((bs,b'::res),midtape match bs with nil => _ | b'::bs' => map _ bs ++ [_] end _ _).
+      repeat eapply conj.
+      +cbn. tspec_ext. repeat split. {destruct bs; cbn. all: try reflexivity. 
+      *)
 
-      cbn. intros _. Check If_SpecTReg.
-      hstep. {hsteps_cbn;cbn. intros ?. clear Ht. tspec_ext.
-
-      } refine (_:TripleT _ (match bs with _::_ => _ | _ => _ end) _ _). destruct y.
-      2:{ hsteps_cbn. tspec_ext. }
-      hstep.
-      - cbn. hintros H.   
-        refine (_ :  TripleT _ _  _ (fun y => ≃≃( _ ,match bs with nil => _ | b0::bs => _ end))).
-        destruct bs as [ | b0 bs]. easy. hsteps_cbn;cbn. now tspec_ext. 
-        + hintros ? ->. hsteps_cbn. 2:cbn;reflexivity. tspec_ext.
-        +reflexivity.
-      - cbn. hintros H. destruct bs. 2:easy.
-        hsteps_cbn; cbn. tspec_ext. now unfold Reset_steps;cbn;reflexivity.
-      - cbn. intros ? ->. reflexivity.
-    }
-    cbn. split.
-    -intros. destruct bs. 2:easy. split.
-      +tspec_ext. unfold encTM,encListTM. destruct H1 as (t&->&H'&Hr). rewrite H'.
-       destruct (left t). all:easy.
-      + cbn. rewrite Nat.mul_0_r. cbn. shelve.
-    - intros. destruct bs as [ | b' bs]. easy. eexists (_,_);cbn.
-      split.
-      +tspec_ext. destruct H1 as (t&->&?&?).
-       rewrite tape_right_move_left',tape_left_move_left'. rewrite H1.
-       instantiate (1:=b'::res). split. easy. destruct (left t);cbn in H2|-*. all:nia.
-      + split. 2:{ tspec_ext. rewrite <- H1. now rewrite <- app_assoc. }
-        shelve.
-    Unshelve.
-    3:unfold c2;reflexivity.
-    2:{ unfold CaseList_steps,CaseList_steps_cons. rewrite Encode_bool_hasSize.
-     ring_simplify. [c1]:exact 68. subst c1. nia. } 
-  Qed.
-  
   Definition Realise__loop (H__neq : s <> b):
     Realise M__loop (fun t '(_, t') =>
       forall (l l': list bool),
