@@ -33,7 +33,7 @@ Global Instance Encode_positive : codable sigPos positive :=
     encode := encode_pos;
   |}.
 
-Lemma Encode_positive_hasSize x : size _ x = Pos.size_nat x.
+Lemma Encode_positive_hasSize x : size x = Pos.size_nat x.
 Proof. induction x; cbn; auto; simpl_list; setoid_rewrite IHx; cbn; auto; lia. Qed.
 
 Corollary Encode_positive_eq_nil x :
@@ -106,7 +106,7 @@ Definition Encode_N_size (n : N) : nat :=
   end.
 
 Lemma Encode_N_hasSize (n : N) :
-  size _ n = Encode_N_size n.
+  size n = Encode_N_size n.
 Proof. destruct n; cbn; auto. simpl_list. f_equal. apply Encode_positive_hasSize. Qed.
 
 

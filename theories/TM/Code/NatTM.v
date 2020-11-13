@@ -164,7 +164,7 @@ Definition Add_Main_Rel : pRel sigNat^+ unit 4 :=
           isVoid_size tin[@Fin3] s3 ->
           tout[@Fin0] ≃(;sm) m /\
           tout[@Fin1] ≃(;sn) n /\
-          tout[@Fin2] ≃(; s2 - (S (size _ n)) - m) m + n /\
+          tout[@Fin2] ≃(; s2 - (S (size n)) - m) m + n /\
           tout[@Fin3] ≃(; s3 - (2 + m) + m) 0
     ).
 
@@ -232,7 +232,7 @@ Definition Add_Loop_steps b := 9 + 10 * b.
 
 Lemma Add_Loop_Terminates :
   projT1 Add_Loop ↓
-         (fun tin i => exists a b,
+         (fun tin i => exists (a b:nat),
               tin[@Fin0] ≃ a /\
               tin[@Fin1] ≃ b /\
               Add_Loop_steps b <= i).
@@ -259,7 +259,7 @@ Proof.
         *)
     - exists 9. repeat split.
       + lia.
-      + intros o tmid H. cbn in H. modpon H. destruct o; auto.
+      + intros o tmid H. cbn in H. modpon H;[]. destruct o; auto.
     - exists 9. repeat split.
       + lia.
       + intros o tmid H. cbn in H. modpon H. cbn -[plus mult] in *.

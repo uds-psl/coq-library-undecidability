@@ -134,7 +134,7 @@ Section Fix_Sig.
 
     Lemma tape_contains_rev_size_isVoid t x s :
       tape_contains_rev_size t x s ->
-      isVoid_size t (S (size _ x + s)).
+      isVoid_size t (S (size x + s)).
     Proof.
       intros (r1&->&Hs). hnf.
       do 2 eexists. repeat split. simpl_list. cbn. unfold size. simpl_list. lia.
@@ -153,7 +153,7 @@ Section Fix_Sig.
     Proof. intros (r1&->). cbn. hnf. eexists. split. reflexivity. reflexivity. Qed.
 
     Lemma tape_contains_rev_contains_rev_size t x :
-      tape_contains_rev t x -> tape_contains_rev_size t x (length (left t) - S (size _ x)).
+      tape_contains_rev t x -> tape_contains_rev_size t x (length (left t) - S (size x)).
     Proof.
       intros (r1&->). cbn. hnf. eexists. split. reflexivity.
       apply Nat.eq_le_incl. simpl_list; cbn. unfold size. lia.
@@ -161,17 +161,17 @@ Section Fix_Sig.
 
     Lemma tape_contains_size_sizeOfTape (t : tape (sig^+)) x s :
       tape_contains_size t x s ->
-      sizeOfTape t <= 2 + s + size _ x.
+      sizeOfTape t <= 2 + s + size x.
     Proof. intros (rs&->&H). cbn. simpl_list; cbn. simpl_list; cbn. unfold size. lia. Qed.
 
     Lemma tape_contains_rev_size_sizeOfTape (t : tape (sig^+)) x s :
       tape_contains_rev_size t x s ->
-      sizeOfTape t <= 2 + s + size _ x.
+      sizeOfTape t <= 2 + s + size x.
     Proof. intros (rs&->&H). cbn. simpl_list; cbn. simpl_list; cbn. unfold size. lia. Qed.
 
     Lemma sizeOfTape_tape_contains_size (t : tape (sig^+)) (x:X) s :
       tape_contains_size t x s ->
-      size _ x <= sizeOfTape t.
+      size x <= sizeOfTape t.
     Proof. intros (rs&->&H). cbn. simpl_list; cbn. simpl_list; cbn. unfold size. lia. Qed.
 
   End Tape_Contains.

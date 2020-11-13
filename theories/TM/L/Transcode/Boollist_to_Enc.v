@@ -68,7 +68,7 @@ Module BoollistToEnc.
     Definition M__step : pTM sig^+ (option unit) 4 :=
       If (LiftTapes (ChangeAlphabet (CaseList.CaseList _) retr__list) [|Fin0;Fin2|])
          (Switch (LiftTapes (ChangeAlphabet CaseBool retr__bool) [|Fin2|])
-                 (fun b => LiftTapes (ChangeAlphabet (WriteValue (encode (enc_bool_perElem b))) _) [| Fin2|];;
+                 (fun b => LiftTapes (ChangeAlphabet (WriteValue ( (enc_bool_perElem b))) _) [| Fin2|];;
                                   LiftTapes (ChangeAlphabet (App' _) _) [|Fin2;Fin1|];;
                                   Return (LiftTapes (Reset _) [|Fin2|]) None))
          (Return (LiftTapes (Reset _) [|Fin0|]) (Some tt)).
@@ -211,11 +211,11 @@ Module BoollistToEnc.
     
     Definition M : pTM sig^+ unit 4 :=
       LiftTapes (Length retr__list retr__nat) [|Fin0;Fin3;Fin1;Fin2|];; (*0: still bs, 3:length bs, 1,2:right *)
-                LiftTapes (ChangeAlphabet (WriteValue (encode ([] : Pro))) retr__Pro) [|Fin1|];; (* 1:res *)
-                LiftTapes (ChangeAlphabet (WriteValue (encode (enc_bool_closing))) retr__Pro) [|Fin2|];; (* 2:const for repeat *)
+                LiftTapes (ChangeAlphabet (WriteValue ( ([] : Pro))) retr__Pro) [|Fin1|];; (* 1:res *)
+                LiftTapes (ChangeAlphabet (WriteValue ( (enc_bool_closing))) retr__Pro) [|Fin2|];; (* 2:const for repeat *)
                 LiftTapes (ConcatRepeat.M retr__Pro retr__nat) [|Fin2;Fin3;Fin1|];; (* 2:cnst for repeat, 3:length/empty, 1:res *)
                 LiftTapes (Reset _) [|Fin2|];;(*2: empty*)
-                LiftTapes (ChangeAlphabet (WriteValue (encode  (enc_bool_nil))) retr__Pro ) [|Fin2|];;(*2:nil*)
+                LiftTapes (ChangeAlphabet (WriteValue (  (enc_bool_nil))) retr__Pro ) [|Fin2|];;(*2:nil*)
                 LiftTapes (ChangeAlphabet (App' _) retr__Pro) [|Fin2;Fin1|];;(* 1 : res with nil part *)
                 LiftTapes (Reset _) [|Fin2|];;(*2: empty*)
                 M__loop.
@@ -227,7 +227,7 @@ Module BoollistToEnc.
        all:eauto 1 using Length_Computes, ConcatRepeat.Realise,  App'_Realise,Realise__loop, Realise__step.
       }
       intros tin (yout,tout) H. hnf. intros bs Hbs Htin1 Htin2 Htin3.
-      hnf in H. cbn in H. TMSimp. modpon H;[]. specialize H0 with (x:=[]). modpon H0;[].
+      hnf in H. cbn in H. TMSimp. modpon H;[]. modpon H0;[].
       modpon H2;[]. modpon H4;[]. modpon H6;[].  modpon H8;[]. modpon H10;[]. modpon H12;[].
       modpon H14;[]. TMSimp.  repeat (simple apply conj). 1,3,4:now isVoid_mono.
       { rewrite enc_bool_explicit,rev_length. autorewrite with list in H13. contains_ext. }
@@ -259,7 +259,7 @@ Module BoollistToEnc.
         rewrite (correct__leUpToC (Length_steps_nice _) bs),(correct__leUpToC boollist_size).  reflexivity.
       }
       2:{ intros tout _ (H&Hrem). TMSimp. modpon H.
-          infTer 5. intros t1_ _ (Ht1&Ht1Rem). TMSimp. specialize (Ht1 []). modpon Ht1;[].
+          infTer 5. intros t1_ _ (Ht1&Ht1Rem). TMSimp. modpon Ht1;[].
           infTer 5. intros t2_ _ (Ht2&Ht2Rem). TMSimp. modpon Ht2;[].
           unfold ConcatRepeat.Ter. cbn. 
           infTer 5. 1:{ repeat simple apply conj. 1,2,3:now contains_ext.  rewrite UpToC_le. reflexivity. }

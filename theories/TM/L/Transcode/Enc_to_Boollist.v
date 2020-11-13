@@ -197,7 +197,7 @@ Module EncToBoollist.
     Import ListTM.
     
     Definition M : pTM sig^+ unit 3 :=
-      WriteValue (encode ([]:list bool)) ⇑ _ @ [|Fin1|];;
+      WriteValue ( (nil:list bool)) ⇑ _ @ [|Fin1|];;
       M__loop.
 
     Lemma Realise : M ⊨ M.Rel.
@@ -206,7 +206,7 @@ Module EncToBoollist.
       {unfold M. TM_Correct_noSwitchAuto. TM_Correct. apply Realise__loop. }
       intros tin (yout,tout) (?&?&?&H). hnf. intros bs Htin1 Htin2 Htin3. hnf in H.
       rewrite enc_bool_explicit in Htin1.
-      TMSimp autoModPon. specialize (H0 []). TMSimp autoModPon.
+      TMSimp autoModPon. TMSimp autoModPon.
       rewrite app_nil_r in H1. easy.
     Qed.
 

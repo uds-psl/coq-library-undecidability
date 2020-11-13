@@ -32,29 +32,28 @@ Section WriteValue.
 
   Variable (sig: finType) (X: Type) (cX: codable sig X).
 
-  Definition WriteValue (str : list sig) : pTM sig^+ unit 1 :=
-    WriteString Lmove (rev (inl START :: map inr str ++ [inl STOP])).
+  Definition WriteValue (x : X) : pTM sig^+ unit 1 :=
+    WriteString Lmove (rev (inl START :: map inr (encode x) ++ [inl STOP])).
 
-  Definition WriteValue_size (sig:Type) (cX: codable sig X) (x : X) (s : nat) : nat := s - (S (size _ x)).
+  Definition WriteValue_size (sig:Type) (cX: codable sig X) (x : X) (s : nat) : nat := s - (S (size x)).
 
-  Definition WriteValue_Rel (str : list sig) : Rel (tapes sig^+ 1) (unit * tapes sig^+ 1) :=
+  Definition WriteValue_Rel (x:X) : Rel (tapes sig^+ 1) (unit * tapes sig^+ 1) :=
     fun tin '(_, tout) =>
-      forall (x:X) (s0:nat),
-        encode x = str ->
+      forall (s0:nat),
         isVoid_size tin[@Fin0] s0 ->
         tout[@Fin0] ≃(;WriteValue_size cX x s0) x.
 
   Definition WriteValue_steps (l : nat) := 3 + 2 * l.
   
-  Lemma WriteValue_Sem (str : list sig) :
-    WriteValue str ⊨c(WriteValue_steps (length str)) WriteValue_Rel str.
+  Lemma WriteValue_Sem (x:X) :
+    WriteValue x ⊨c(WriteValue_steps (length (encode x))) WriteValue_Rel x.
   Proof.
     unfold WriteValue_steps. eapply RealiseIn_monotone.
     { unfold WriteValue. eapply WriteString_Sem. }
     { unfold WriteString_steps. rewrite !rev_length. cbn [length]. rewrite app_length.
       unfold size. cbn. rewrite map_length. lia. }
     {
-      intros tin ((), tout) H. intros x s0 <- (m&(rs&HRight&Hs)).
+      intros tin ((), tout) H. intros s0 (m&(rs&HRight&Hs)).
       unfold WriteValue_size in *.
       TMSimp; clear_trivial_eqs.
       eapply tape_local_contains_size. rewrite WriteString_L_local.
@@ -67,7 +66,7 @@ Section WriteValue.
 End WriteValue.
 
 Arguments WriteValue_size {X sig cX}.
-
+Arguments WriteValue [sig X cX].
 
 Ltac smpl_TM_WriteValue :=
   once lazymatch goal with

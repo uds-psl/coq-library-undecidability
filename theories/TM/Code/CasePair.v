@@ -36,9 +36,9 @@ Section CasePair.
           | _ => false
           end.
 
-  Definition CasePair_size0 {sigX X : Type} {cX : codable sigX X} (x : X) (s0 : nat) := s0 + size _ x.
+  Definition CasePair_size0 {sigX X : Type} {cX : codable sigX X} (x : X) (s0 : nat) := s0 + size x.
 
-  Definition CasePair_size1 {sigX X : Type} {cX : codable sigX X} (x : X) (s1 : nat) := s1 - (size _ x) - 1.
+  Definition CasePair_size1 {sigX X : Type} {cX : codable sigX X} (x : X) (s1 : nat) := s1 - (size x) - 1.
 
   Definition CasePair_Rel : pRel sigPair^+ unit 2 :=
     ignoreParam (
@@ -101,7 +101,7 @@ Section CasePair.
   Local Arguments size : simpl never.
 
   Definition CasePair_steps {sigX X : Type} {cX : codable sigX X} (x : X) :=
-    34 + 16 * size _ x.
+    34 + 16 * size x.
 
   Definition CasePair_T : tRel sigPair^+ 2 :=
     fun tin k => exists (p : X * Y), tin[@Fin0] ≃ p /\ CasePair_steps (fst p) <= k.
@@ -112,18 +112,18 @@ Section CasePair.
     { unfold CasePair. TM_Correct. }
     {
       intros tin k ((x&y)&HEncP&Hk). unfold CasePair_steps in *. cbn in *.
-      exists 1, (32 + 16 * size _ x). repeat split; try lia.
+      exists 1, (32 + 16 * size x). repeat split; try lia.
       intros tmid () ?; TMSimp.
-      exists (10 + 4 * size _ x), (21 + 12 * size _ x). repeat split; try lia.
+      exists (10 + 4 * size x), (21 + 12 * size x). repeat split; try lia.
       {
-        exists (8 + 4 * size _ x), 1. repeat split; try lia. 
+        exists (8 + 4 * size x), 1. repeat split; try lia. 
         destruct HEncP as (ls&->). cbn. destruct (cY y) eqn:EY.
         - rewrite app_nil_r. rewrite MoveToSymbol_steps_midtape; cbn; auto. now rewrite !map_length.
         - rewrite map_map, map_app, <- app_assoc. cbn.
           rewrite MoveToSymbol_steps_midtape; cbn; auto. now rewrite !map_length.
       }
       intros tmid1 (). intros ?; TMSimp.
-      exists (8 + 8 * size _ x), (12 + 4 * size _ x). repeat split; try lia.
+      exists (8 + 8 * size x), (12 + 4 * size x). repeat split; try lia.
       {
         destruct HEncP as (ls&->). cbn. destruct (cY y) eqn:EY.
         - rewrite app_nil_r. rewrite MoveToSymbol_correct_midtape; cbn; auto.
@@ -135,7 +135,7 @@ Section CasePair.
           + rewrite List.map_map. now intros ? (?&<-&?) % in_map_iff.
       }
       intros tmid2 () HCopy.
-      exists (8 + 4 * size _ x), 3. repeat split; try lia.
+      exists (8 + 4 * size x), 3. repeat split; try lia.
       {
         destruct HEncP as (ls&HEncP); TMSimp. cbn in *. destruct (cY y) eqn:EY.
         - rewrite app_nil_r in HCopy. rewrite MoveToSymbol_correct_midtape in HCopy; cbn in *; auto.
@@ -157,7 +157,7 @@ Section CasePair.
 
   (** ** Constructor *)
 
-  Definition Constr_pair_size {sigX X : Type} {cX : codable sigX X} (x : X) (s1 : nat) := s1 - size _ x.
+  Definition Constr_pair_size {sigX X : Type} {cX : codable sigX X} (x : X) (s1 : nat) := s1 - size x.
   
   Definition Constr_pair_Rel : pRel sigPair^+ unit 2 :=
     ignoreParam (
@@ -199,7 +199,7 @@ Section CasePair.
   Qed.
 
 
-  Definition Constr_pair_steps {sigX X : Type} {cX : codable sigX X} (x : X) : nat := 19 + 12 * size _ x.
+  Definition Constr_pair_steps {sigX X : Type} {cX : codable sigX X} (x : X) : nat := 19 + 12 * size x.
 
   Definition Constr_pair_T : tRel sigPair^+ 2 :=
     fun tin k => exists (x : X), tin[@Fin0] ≃ x /\ Constr_pair_steps x <= k.
@@ -214,9 +214,9 @@ Section CasePair.
     }
     {
       intros tin k (x & HEncX & Hk). unfold Constr_pair_steps in *. cbn in *.
-      exists (10 + 4 * size _ x), (8 + 8 * size _ x). repeat split; try lia.
+      exists (10 + 4 * size x), (8 + 8 * size x). repeat split; try lia.
       {
-        exists (8 + 4 * size _ x), 1. repeat split; try lia. 
+        exists (8 + 4 * size x), 1. repeat split; try lia. 
         eexists. repeat split; eauto.
       }
       intros tmid () ?; TMSimp. modpon H. destruct H as (ls&->&Hs). cbn.
@@ -227,7 +227,7 @@ Section CasePair.
 
   (** [Snd] simply discard the first element *)
 
-  Definition Snd_size {sigX X : Type} {cX : codable sigX X} (x : X) (s : nat) := s + size _ x.
+  Definition Snd_size {sigX X : Type} {cX : codable sigX X} (x : X) (s : nat) := s + size x.
 
   Definition Snd_Rel : pRel sigPair^+ unit 1 :=
     ignoreParam (fun tin tout => forall (p : X*Y) (s : nat), tin[@Fin0] ≃(;s) p -> tout[@Fin0] ≃(; Snd_size (fst p) s) snd p).
@@ -261,7 +261,7 @@ Section CasePair.
   Qed.
 
 
-  Definition Snd_steps {sigX X : Type} {cX : codable sigX X} (x : X) := 12 + 4 * size _ x.
+  Definition Snd_steps {sigX X : Type} {cX : codable sigX X} (x : X) := 12 + 4 * size x.
 
   Definition Snd_T : tRel sigPair^+ 1 :=
     fun tin k => exists p : X*Y, tin[@Fin0] ≃ p /\ Snd_steps (fst p) <= k.
@@ -272,7 +272,7 @@ Section CasePair.
     { unfold Snd. TM_Correct. }
     {
       intros tin k ((x,y)&HEncP&Hk). unfold Snd_steps in *; cbn in *.
-      exists (8+4*size _ x), 3. repeat split; try lia.
+      exists (8+4*size x), 3. repeat split; try lia.
       {
         destruct HEncP as (ls&->). destruct (cY y) eqn:EY; cbn in *.
         - rewrite MoveToSymbol_steps_midtape; cbn; auto. rewrite EY. cbn.

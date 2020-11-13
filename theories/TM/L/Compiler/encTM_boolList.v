@@ -283,7 +283,7 @@ Section Fix.
   
   Definition M : pTM (Σ) ^+ unit 2 :=
     (MoveToSymbol (fun _ => false) (fun x => x);;Move Lmove) @ [|Fin0|];;
-    WriteValue (encode (X:=list bool) nil ) ⇑ retr_list @ [|Fin1|];;
+    WriteValue (@nil bool)⇑ retr_list @ [|Fin1|];;
     M__loop.
 
 (*  Local Arguments encode : simpl never.
@@ -332,7 +332,7 @@ Section Fix.
     intros ? []. TMSimp.
     specialize (@MoveToSymbol_correct_midtape_end _ (fun _ => false)
     (fun x => x) [] b (encListTM s b l)) as (H1'&H2'). easy.
-    unfold encTM in *. specialize (H0 []%list). modpon H0. specialize (H3 (rev l) nil). 
+    unfold encTM in *. modpon H0. specialize (H3 (rev l) nil). 
     cbn in *. remember (MoveToSymbol_Fun _ _ _) as t'.
     destruct t'. 4:discriminate.
     1,2:solve [symmetry in H1';apply app_eq_nil in H1' as[? [=]]].

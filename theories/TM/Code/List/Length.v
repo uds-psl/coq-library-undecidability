@@ -41,7 +41,7 @@ Section Lenght.
         isVoid_size tin[@Fin2] s2 ->
         match yout, xs with
         | (Some tt), nil => (* break *)
-          tout[@Fin0] ≃(;s0) nil /\
+          tout[@Fin0] ≃(;s0) xs /\
           tout[@Fin1] ≃(;s1) n /\
           isVoid_size tout[@Fin2] s2
         | None, x :: xs' => (* continue *)
@@ -96,7 +96,7 @@ Section Lenght.
         exists (Reset_steps x), Constr_S_steps. repeat split; cbn; try lia.
         eexists; repeat split; simpl_surject; eauto; cbn; eauto. 
     }
-    Unshelve. all:try exact _.
+    Unshelve. 3:try eassumption. exact _.
   Qed.
 
 
@@ -117,7 +117,7 @@ Section Lenght.
             tin[@Fin0] ≃(;s0) xs ->
             tin[@Fin1] ≃(;s1) n ->
             isVoid_size tin[@Fin2] s2 ->
-            tout[@Fin0] ≃(; (Length_Loop_size xs)[@Fin0]s0) nil /\
+            tout[@Fin0] ≃(; (Length_Loop_size xs)[@Fin0]s0) @nil X /\
             tout[@Fin1] ≃(; (Length_Loop_size xs)[@Fin1]s1) n + length xs /\
             isVoid_size tout[@Fin2] ((Length_Loop_size xs)[@Fin2]s2)
       ).
@@ -181,7 +181,7 @@ Section Lenght.
     [|id; (* 0 *)
       Constr_O_size >> (Length_Loop_size xs)[@Fin1]; (* 1 *)
       (Length_Loop_size xs)[@Fin2]; (* 2 *)
-      CopyValue_size xs >> (Length_Loop_size xs)[@Fin0] >> Reset_size nil (* 3 *)
+      CopyValue_size xs >> (Length_Loop_size xs)[@Fin0] >> Reset_size (@nil X) (* 3 *)
      |].
 
   Definition Length_Rel : pRel sig^+ unit 4 :=
@@ -214,7 +214,7 @@ Section Lenght.
   Qed.
 
 
-  Definition Length_steps {sigX X : Type} {cX : codable sigX X} (xs : list X) := 36 + 12 * size _ xs + Length_Loop_steps xs.
+  Definition Length_steps {sigX X : Type} {cX : codable sigX X} (xs : list X) := 36 + 12 * size xs + Length_Loop_steps xs.
 
   Definition Length_T : tRel sig^+ 4 :=
     fun tin k => exists (xs : list X), tin[@Fin0] ≃ xs /\ isVoid tin[@Fin1] /\ isVoid tin[@Fin2] /\ isVoid tin[@Fin3] /\ Length_steps xs <= k.
@@ -225,11 +225,11 @@ Section Lenght.
     { unfold Length. TM_Correct.
       - apply Length_Loop_Realise.
       - apply Length_Loop_Terminates.
-      - eapply RealiseIn_TerminatesIn. apply ResetEmpty1_Sem.
+      - eapply RealiseIn_TerminatesIn. eapply ResetEmpty1_Sem.
     }
     {
       intros tin k (xs&HEncXs&HRight1&HRight2&HRigth3&Hk). unfold Length_steps in *.
-      exists (25 + 12 * size _ xs), (10 + Length_Loop_steps xs). repeat split; cbn; try lia.
+      exists (25 + 12 * size xs), (10 + Length_Loop_steps xs). repeat split; cbn; try lia.
       eexists. repeat split; eauto. unfold CopyValue_steps.
       intros tmid () (HO&HOInj); TMSimp. modpon HO.
       exists 5, (4 + Length_Loop_steps xs). unfold Constr_O_steps. repeat split; cbn; try lia.
@@ -252,7 +252,7 @@ Section Length_steps_nice.
   Variable (sigX X : Type) (cX : codable sigX X). 
 
   Lemma Length_Loop_steps_nice :
-    Length_Loop_steps <=c size _ .
+    Length_Loop_steps <=c size (X:=list X).
   Proof.
     evar (c:nat). exists (1+max CaseList_steps_nil c). setoid_rewrite Encode_list_hasSize.
     induction x. all:cbn. nia.
@@ -264,10 +264,10 @@ Section Length_steps_nice.
   Qed. 
 
   Lemma Length_steps_nice :
-    Length_steps <=c size _.
+    Length_steps <=c size (X:=list X).
   Proof.
     unfold Length_steps. smpl_upToC.
-    -apply upToC_le. setoid_rewrite (Encode_list_hasSize _). apply Encode_list_hasSize_ge1.
+    -apply upToC_le. setoid_rewrite (Encode_list_hasSize cX). apply Encode_list_hasSize_ge1.
     -upToC_le_solve.
     -apply Length_Loop_steps_nice.
   Qed. 

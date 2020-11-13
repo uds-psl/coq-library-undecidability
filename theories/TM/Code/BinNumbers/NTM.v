@@ -12,7 +12,7 @@ Local Open Scope N_scope.
 
 (** ** Write a number *)
 
-Definition WriteNumber (n : N) : pTM sigN^+ unit 1 := WriteValue (encode n).
+Definition WriteNumber (n : N) : pTM sigN^+ unit 1 := WriteValue n.
 
 Definition WriteNumber_Rel (n : N) : pRel sigN^+ unit 1:=
   fun tin '(_, tout) =>
@@ -27,7 +27,7 @@ Proof.
   { unfold WriteNumber. TM_Correct. }
   { setoid_rewrite Encode_N_hasSize. cbn. ring_simplify. reflexivity. }
   {
-    intros tin ([], tout) H. hnf in H. intros Hright. specialize H with (x := n). modpon H. auto.
+    intros tin ([], tout) H. hnf in H. intros Hright. modpon H. auto.
   }
 Qed.
 

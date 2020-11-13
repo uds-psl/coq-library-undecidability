@@ -25,7 +25,7 @@ Section APP_right.
 
   Definition APP_right : pTM (sigPro)^+ unit 2 :=
     App_Commands;;
-    (LiftTapes (WriteValue (encode [appT]%list)) [|Fin1|]);;
+    (LiftTapes (WriteValue ( [appT]%list)) [|Fin1|]);;
     App_Commands.
 
   Lemma APP_right_realises :
@@ -39,7 +39,6 @@ Section APP_right.
     eapply Realise_monotone.
     {unfold APP_right. TM_Correct. all: apply App_Commands_Realise. }
     hnf. intros ? [] ? s1 s2. intros;TMSimp.
-    specialize H2 with (x:=[appT]%list).
     modpon H. modpon H2. modpon H3.
     split. 2:solve [isVoid_mono].
     contains_ext. now autorewrite with list.
@@ -168,7 +167,7 @@ Section mk_init.
          MK_isVoid @ [|aux Fin3|];;
          MK_isVoid @ [|aux Fin4|];;
          MK_isVoid @ [|aux Fin5|];;
-        WriteValue (encode (compile sim)) ⇑ retr_pro1 @ [|aux Fin1|]
+        WriteValue ( (compile sim)) ⇑ retr_pro1 @ [|aux Fin1|]
     | S k' => 
     fun ren =>
       _;;M_init_one s retr_pro1 retr_bools @ [|auxk (ren[@Fin0]);aux Fin1;aux Fin2;aux Fin3;aux Fin4;aux Fin5|]
@@ -248,14 +247,14 @@ Section mk_init.
     M_init' startRen;;
     CopyValue _ ⇑ retr_pro1 @ [|Fin1;Fin2|];;
     Reset _ @ [|Fin1|];;
-    WriteValue (encode 0) ⇑ retr_nat_clos_ad @ [| Fin1|];;
+    WriteValue ( 0) ⇑ retr_nat_clos_ad @ [| Fin1|];;
     Constr_pair _ _ ⇑ retr_clos1 @ [|Fin1;Fin2|];;
     Reset _ @ [|Fin1|];;
-    WriteValue (encode []%list) ⇑ retr_closs @ [| Fin1|];;
+    WriteValue ( []%list) ⇑ retr_closs @ [| Fin1|];;
     Constr_cons _ ⇑ retr_closs @ [|Fin1;Fin2|];;
     Reset _ @ [|Fin2|];;
-    WriteValue (encode []%list) ⇑ retr_closs @ [| Fin2|];;
-    WriteValue (encode []%list) ⇑ retr_heap @ [| Fin3|].
+    WriteValue ( []%list) ⇑ retr_closs @ [| Fin2|];;
+    WriteValue ( []%list) ⇑ retr_heap @ [| Fin3|].
 
   Theorem M_init_rel:
     Realise M_init (fun t '(r, t') =>
@@ -274,12 +273,12 @@ Section mk_init.
     rewrite vector_fold_left_right with (v:=v), <- (startRen_spec v).
     modpon H;[]. specializeFin H8;clear H8;[].
     modpon H0;[]. modpon H1;[].
-    specialize (H3 0);modpon H3;[].
+    modpon H3;[].
     rename H6 into Hv. rename H4 into Hnil.
     setoid_rewrite Vector_nth_R in Hv. setoid_rewrite Vector_nth_L in Hnil.
-    modpon H5;[]. modpon H7;[]. specialize (H9 []%list). modpon H9;[].
-    modpon H11;[]. modpon H13;[]. specialize (H15 []%list). modpon H15;[].
-    specialize (H17 []%list). modpon H17;[].
+    modpon H5;[]. modpon H7;[]. modpon H9;[].
+    modpon H11;[]. modpon H13;[]. modpon H15;[].
+    modpon H17;[].
     repeat simple apply conj. 1-4:easy. 
     intros. now rewrite Hnil,Vector.const_nth. 
   Qed.

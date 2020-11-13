@@ -141,11 +141,11 @@ Section CompareValues.
   Qed.
 
 
-  (* 11 + 6 * max (size _ x1) (size _ x2) for Compare *)
-  (* 8 + 4 * (size _ x1) for MoveToSymbol_L @ [|Fin0|] *)
-  (* 8 + 4 * (size _ x2) for MoveToSymbol_L @ [|Fin1|] *)
+  (* 11 + 6 * max (size x1) (size x2) for Compare *)
+  (* 8 + 4 * (size x1) for MoveToSymbol_L @ [|Fin0|] *)
+  (* 8 + 4 * (size x2) for MoveToSymbol_L @ [|Fin1|] *)
   Definition CompareValues_steps {sigX X : Type} {cX : codable sigX X} (x1 x2 : X) :=
-    29 + 6 * max (size _ x1) (size _ x2) + 4 * (size _ x1) + 4 * (size _ x2).
+    29 + 6 * max (size x1) (size x2) + 4 * (size x1) + 4 * (size x2).
 
   Definition CompareValues_T : tRel sigX^+ 2 :=
     fun tin k => exists (x1 x2 : X), tin[@Fin0] ≃ x1 /\ tin[@Fin1] ≃ x2 /\ CompareValues_steps x1 x2 <= k.
@@ -160,7 +160,7 @@ Section CompareValues.
     {
       intros tin k (x1&x2&HEncX1&HEncX2&Hk). unfold CompareValues_steps in Hk. cbn.
       destruct HEncX1 as (r1&HEncX1). destruct HEncX2 as (r2&HEncX2). TMSimp.
-      exists (11 + 6 * max (size _ x1) (size _ x2)), (17 + 4 * (size _ x1) + 4 * (size _ x2)). repeat split; try lia.
+      exists (11 + 6 * max (size x1) (size x2)), (17 + 4 * (size x1) + 4 * (size x2)). repeat split; try lia.
       { hnf. TMSimp. rewrite Compare_steps_correct_midtape; auto. simpl_list. reflexivity. }
       intros tmid ymid HCompare.
       rewrite surjective_pairing in HCompare. apply pair_inv in HCompare as [-> HCompare].
@@ -168,14 +168,14 @@ Section CompareValues.
       (* Both cases are actually the same *)
       match goal with [ |- (if ?H then _ else _) _ _ ] => destruct H end.
       {
-        exists (8 + 4 * (size _ x1)), (8 + 4 * (size _ x2)). repeat split; try lia.
+        exists (8 + 4 * (size x1)), (8 + 4 * (size x2)). repeat split; try lia.
         { rewrite HCompare1. rewrite Compare_Move_steps_midtape1; cbn; auto.
           simpl_list; reflexivity. all: now intros ? (?&<-&?) % in_map_iff. }
         { intros tmid0 [] (HMove1&HMoveInj). TMSimp. rewrite Compare_Move_steps_midtape2; cbn; auto.
           simpl_list; reflexivity. all: now intros ? (?&<-&?) % in_map_iff. }
       }
       {
-        exists (8 + 4 * (size _ x1)), (8 + 4 * (size _ x2)). repeat split; try lia.
+        exists (8 + 4 * (size x1)), (8 + 4 * (size x2)). repeat split; try lia.
         { rewrite HCompare1. rewrite Compare_Move_steps_midtape1; cbn; auto.
           simpl_list; reflexivity. all: now intros ? (?&<-&?) % in_map_iff. }
         { intros tmid0 [] (HMove1&HMoveInj). TMSimp. rewrite Compare_Move_steps_midtape2; cbn; auto.

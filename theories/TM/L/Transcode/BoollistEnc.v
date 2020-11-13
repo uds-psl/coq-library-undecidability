@@ -36,12 +36,12 @@ Lemma enc_boollist_helper bs :
    destruct bs;reflexivity.
  Qed.
 
-Lemma enc_bool_perElem_size :( fun b => Code.size _ (enc_bool_perElem b)) <=c (fun _ => 1).
+Lemma enc_bool_perElem_size :( fun b => Code.size (enc_bool_perElem b)) <=c (fun _ => 1).
 Proof.
   eexists. intros []. all:cbv - [mult]. now rewrite Nat.mul_1_r. easy.
 Qed.
 
-Lemma boollist_size :( fun (bs:list bool) => Code.size _ bs) <=c (fun bs => length bs + 1).
+Lemma boollist_size :( fun (bs:list bool) => Code.size bs) <=c (fun bs => length bs + 1).
 Proof.
   eexists. intros bs. rewrite size_list. erewrite (MoreBase.sumn_map_le_pointwise (f2:=fun _ => _)).
   2:{ intros [] ?;cbv. all:reflexivity. } setoid_rewrite MoreList.sumn_map_c. instantiate (1:=2). nia.

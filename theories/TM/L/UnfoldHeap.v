@@ -172,7 +172,7 @@ Section Fix.
                    Constr_cons _ ⇑ retr_stack @ [| i_stack';i_k|];;
                    Reset _ @ [|i_k|];;
                    CasePair _ _ ⇑ retr_clos @ [|i_P;i_a|];;
-                   Return (WriteValue (encode 1) ⇑ retr_nat_clos_var @ [|i_k|]) true 
+                   Return (WriteValue ( 1) ⇑ retr_nat_clos_var @ [|i_k|]) true 
                   )
                   (Return Diverge false)
                )
@@ -232,7 +232,7 @@ Section Fix.
         destruct H22. 2:{ TMSimp;contradiction. }
         TMSimp. modpon H22;[]. TMSimp.  modpon H24;[].  modpon H26;[].  modpon H28;[].  modpon H30.  modpon H32;[].
         modpon H34;[]. modpon H36;[]. modpon H38;[]. modpon H40;[]. modpon H42;[].
-        modpon H44 ;[]. specialize (H47 1). modpon H47;[].
+        modpon H44 ;[]. modpon H47;[].
         rename ymid into g.
         replace (lookup H a (n - k)) with (Some g) by easy.
         destruct g. easy.
@@ -302,8 +302,8 @@ Section Fix.
 
 
   Definition M :=
-    WriteValue (encode []) ⇑ retr_stack @ [|i_stack'|];;
-    WriteValue (encode []) ⇑ retr_pro @ [|i_res|];;
+    WriteValue ( []) ⇑ retr_stack @ [|i_stack'|];;
+    WriteValue ( []) ⇑ retr_pro @ [|i_res|];;
     M__loop.
   
   Definition Rel : pRel Σ^+ unit n :=
@@ -336,8 +336,8 @@ Section Fix.
     eapply Realise_monotone.
     { unfold M. TM_Correct. apply Realise__loop. }
     hnf;cbn. intros ? ([]&?). TMSimp. 
-    specialize (H nil); modpon H;[].
-    specialize (H12 []); modpon H12;[].
+    modpon H;[].
+    modpon H12;[].
     eapply unfoldTailRecStep_complete in H1. 2:reflexivity. 
     modpon H14;[]. easy.
   Qed.
@@ -372,10 +372,10 @@ Section Fix.
   Definition M : pTM (Σ) ^+ unit n:= 
     Translate retr_clos retr_clos_stack @[|i_io|];;
     CasePair _ _ ⇑ retr_clos_stack @ [|i_io;Fin2|];;
-    WriteValue (encode 1) ⇑ UnfoldClos.retr_nat_clos_var retr_stack @ [|Fin3|];;
+    WriteValue ( 1) ⇑ UnfoldClos.retr_nat_clos_var retr_stack @ [|Fin3|];;
     UnfoldClos.M retr_stack retr_heap @ [|i_H;Fin2;i_io;Fin3;Fin4;Fin5;Fin6;Fin7;Fin8;Fin9|];;
     Translate (UnfoldClos.retr_pro retr_stack) retr_pro @ [|Fin5|];;
-    WriteValue (encode [retT]) ⇑ retr_pro @ [|i_io|];;
+    WriteValue ( [retT]) ⇑ retr_pro @ [|i_io|];;
     Rev_Append _ ⇑ retr_pro @ [| Fin5;i_io;Fin6 |];;
     Cons_constant.M lamT ⇑ retr_pro @ [| i_io|].
 
@@ -394,8 +394,8 @@ Section Fix.
     { unfold M. TM_Correct. apply UnfoldClos.Realise. apply Rev_Append_Realise. apply Cons_constant.Realise. }
     hnf. intros ? [] H' (a&P) H s Hs. inv Hs. inv H4. inv H6. TMSimp.
     specializeFin H7; clear H7. modpon H0;[]. modpon H1;[]. 
-    specialize (H4 1). modpon H4;[]. TMSimp. modpon H6;[].
-    modpon H8;[]. specialize (H10 [retT]). modpon H10;[]. modpon H12;[]. modpon H14;[].
+    modpon H4;[]. TMSimp. modpon H6;[].
+    modpon H8;[]. modpon H10;[]. modpon H12;[]. modpon H14;[].
     rewrite rev_involutive in H14. split. 2:split.
     1-2:easy.
     intros i;destruct_fin i;cbn;try easy. 

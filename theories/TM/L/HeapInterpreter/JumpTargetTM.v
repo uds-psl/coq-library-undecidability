@@ -71,7 +71,7 @@ Qed.
 
 (** append a token to the token list *)
 Definition App_ACom (t : ACom) : pTM sigPro^+ unit 2 :=
-  WriteValue (encode [ACom2Com t]) @ [|Fin1|];;
+  WriteValue [ACom2Com t] @ [|Fin1|];;
   App_Commands.
 
 Definition App_ACom_size (t : ACom) (Q : list Tok) : Vector.t (nat->nat) 2 :=
@@ -95,14 +95,14 @@ Proof.
   }
   {
     intros tin ((), tout) H. intros Q s0 s1 HENcQ HRight1.
-    TMSimp. cbn in H. specialize H with (x := [ACom2Com t]) (1 := eq_refl). modpon H. modpon H0. auto.
+    TMSimp. cbn in H. modpon H. modpon H0. auto.
   }
 Qed.
 
 Arguments App_ACom_size : simpl never.
 
 
-Definition App_ACom_steps (Q: Pro) (t: ACom) := 1 + WriteValue_steps (size _ [ACom2Com t]) + App_Commands_steps Q [ACom2Com t].
+Definition App_ACom_steps (Q: Pro) (t: ACom) := 1 + WriteValue_steps (size [ACom2Com t]) + App_Commands_steps Q [ACom2Com t].
 
 Definition App_ACom_T (t: ACom) : tRel sigPro^+ 2 :=
   fun tin k => exists (Q: list Tok), tin[@Fin0] ≃ Q /\ isVoid tin[@Fin1] /\ App_ACom_steps Q t <= k.
@@ -115,10 +115,10 @@ Proof.
   }
   {
     intros tin k. intros (Q&HEncQ&HRight&Hk).
-    exists (WriteValue_steps (size _ [ACom2Com t])), (App_Commands_steps Q [ACom2Com t]). cbn; repeat split; try lia.
+    exists (WriteValue_steps (size [ACom2Com t])), (App_Commands_steps Q [ACom2Com t]). cbn; repeat split; try lia.
     now rewrite Hk.
     intros tmid () (HWrite&HInjWrite); hnf; cbn; TMSimp.
-    cbn in HWrite. specialize HWrite with (x := [ACom2Com t]) (1 := eq_refl).
+    cbn in HWrite.
     modpon HWrite. eauto.
   }
 Qed.

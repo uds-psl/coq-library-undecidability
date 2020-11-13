@@ -55,7 +55,7 @@ Qed.
 
 (** Use [WriteValue] for [appT], [lamT], and [retT] *)
 
-Definition Constr_ACom (t : ACom) : pTM sigCom^+ unit 1 := WriteValue (encode (ACom2Com t)).
+Definition Constr_ACom (t : ACom) : pTM sigCom^+ unit 1 := WriteValue (ACom2Com t).
 Definition Constr_ACom_Rel (t : ACom) : pRel sigCom^+ unit 1 :=
   Mk_R_p (ignoreParam (fun tin tout => isVoid tin -> tout ≃ ACom2Com t)).
 Definition Constr_ACom_steps := 7.
@@ -65,7 +65,7 @@ Proof.
   - unfold Constr_ACom. apply WriteValue_Sem.
   - cbn. destruct t; cbn; reflexivity.
   - intros tin ((), tout) H. cbn in *. intros HRight.
-    specialize H with (x := t) (1 := eq_refl). modpon H. contains_ext.
+    modpon H. contains_ext.
 Qed.
 
 

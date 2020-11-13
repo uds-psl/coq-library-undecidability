@@ -119,7 +119,7 @@ Module ConcatRepeat.
 
     Definition Ter__step time : tRel sig^+ 3 :=
       fun tin k => exists (cs : list X) (n:nat) ( xs : list X) ,
-          tin[@Fin0] ≃ cs /\ tin[@Fin1] ≃ n /\ tin[@Fin2] ≃ xs /\ time (n,size _ cs) <= k.
+          tin[@Fin0] ≃ cs /\ tin[@Fin1] ≃ n /\ tin[@Fin2] ≃ xs /\ time (n,size cs) <= k.
 
 
 
@@ -143,7 +143,7 @@ Module ConcatRepeat.
         unfold time. 
         destruct Nat.eqb. reflexivity.
         rewrite (correct__leUpToC (App'_steps_nice _)). 
-        set (size _ cs) as l. reflexivity.
+        set (size cs) as l. reflexivity.
       }
       unfold time.
       apply leUpToC_finCases with
@@ -161,7 +161,7 @@ Module ConcatRepeat.
 
     Definition Ter time : tRel sig^+ 3 :=
       fun tin k => exists (cs : list X) (n:nat) ( xs : list X) ,
-          tin[@Fin0] ≃ cs /\ tin[@Fin1] ≃ n /\ tin[@Fin2] ≃ xs /\ time (size _ cs,n) <= k.
+          tin[@Fin0] ≃ cs /\ tin[@Fin1] ≃ n /\ tin[@Fin2] ≃ xs /\ time (size cs,n) <= k.
 
     Lemma _Terminates : {time : UpToC (fun '(l,n) => n * l + 1)
                                 & projT1 M ↓ Ter time }.
@@ -181,7 +181,7 @@ Module ConcatRepeat.
         eexists. split.
         *repeat simple eapply ex_intro. repeat simple apply conj. 1-3:contains_ext.  reflexivity.
         * rewrite <- Hk. ring_simplify. set (c' := c__leUpToC).
-          assert (size _ cs > 0). 1:{rewrite Encode_list_hasSize. destruct cs;cbn;nia.  }
+          assert (size cs > 0). 1:{rewrite Encode_list_hasSize. destruct cs;cbn;nia.  }
           replace c1 with (2 + 2*c').  2:now unfold c',c1. nia.
       - smpl_upToC_solve.
     Qed.

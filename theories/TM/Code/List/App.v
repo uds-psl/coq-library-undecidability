@@ -153,7 +153,7 @@ Section Append.
 
 
   Definition App'_steps {sigX X : Type} {cX : codable sigX X} (xs : list X) :=
-    29 + 12 * size _ xs.
+    29 + 12 * size xs.
 
   Definition App'_T : tRel sigList^+ 2 :=
     fun tin k => exists (xs ys : list X), tin[@Fin0] ≃ xs /\ tin[@Fin1] ≃ ys /\ App'_steps xs <= k.
@@ -168,8 +168,8 @@ Section Append.
     }
     {
       intros tin k (xs&ys&HEncXS&HEncYs&Hk). unfold App'_steps in *.
-      exists (12+4*size _ xs), (16+8*size _ xs). repeat split; cbn; try lia.
-      exists (8+4*size _ xs), 3. repeat split; cbn; try lia. eauto.
+      exists (12+4*size xs), (16+8*size xs). repeat split; cbn; try lia.
+      exists (8+4*size xs), 3. repeat split; cbn; try lia. eauto.
       intros tmid1 () H. modpon H.
       exists 1, 1. repeat split; try lia. eauto.
       intros tmid (). intros H; TMSimp; clear_trivial_eqs. modpon H.
@@ -217,7 +217,7 @@ Section Append.
 
 
   Definition App_steps {sigX X : Type} {cX : codable sigX X} (xs ys : list X) :=
-    55 + 12 * size _ xs + 12 * size _ ys.
+    55 + 12 * size xs + 12 * size ys.
 
 
   Definition App_T : tRel sigList^+ 3 :=
@@ -232,7 +232,7 @@ Section Append.
     }
     {
       intros tin k (xs&ys&HEncXs&HEnYs&HRigh2&Hk).
-      exists (25 + 12 * size _ ys), (App'_steps xs). repeat split; cbn; eauto.
+      exists (25 + 12 * size ys), (App'_steps xs). repeat split; cbn; eauto.
       unfold App'_steps, App_steps in *. lia.
       intros tmid () (HApp'&HInjApp'); TMSimp.
       specialize (HApp' ys).
@@ -252,10 +252,8 @@ From Undecidability.L.Complexity Require Import UpToC.
 Section App_nice.
   Variable (sigX X : Type) (cX : codable sigX X).
 
-  Local Arguments size {sig X cX}.
-
   Lemma App'_steps_nice :
-    App'_steps <=c size.
+    App'_steps <=c size (X:=list X).
   Proof.
     eexists (29+12). intros xs. unfold App'_steps.
     rewrite Encode_list_hasSize. 

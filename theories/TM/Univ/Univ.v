@@ -271,7 +271,7 @@ Section Univ.
           --apply DoAction'_SpecT_space with (a := a[@Fin0]). 
           --instantiate (1 := [|_;_|]). tspec_ext. eassumption.
           --cbn. intros _. hstep; cbn. eapply ConsequenceT_pre. 3:reflexivity.
-            ++ refine (@Translate_SpecT_size _ _ (bool * nat)%type _ _ _ _ _). all:shelve.
+            ++ refine (@Translate_SpecT_size _ _ _ _ _ _ _ _). all:shelve.
             ++ instantiate (1 := [|_|]). tspec_ext.
         * (** The final runnint time calculation *)
           unfold Univ_Step_steps_IsFinal. rewrite <- Ehalt. rewrite Etrans. cbn.

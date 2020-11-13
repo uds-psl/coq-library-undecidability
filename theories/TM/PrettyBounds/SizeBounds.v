@@ -52,7 +52,7 @@ Proof.
 Qed.
 
 Lemma size_list X sigX (cX: codable sigX X) (l:list X) :
-  size _ l = sumn (map (size cX) l) + length l + 1.
+  size l = sumn (map size l) + length l + 1.
 Proof.
   unfold size. cbn. rewrite encode_list_concat.
   rewrite app_length, length_concat, map_map. cbn.

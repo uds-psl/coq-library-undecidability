@@ -21,7 +21,7 @@ Section Fix.
         fun tin tout =>
           forall l (s0 : nat),
             tin[@Fin0] ≃(;s0) l ->
-            tout[@Fin0] ≃(;s0 - size _ c - 1) c :: l
+            tout[@Fin0] ≃(;s0 - size c - 1) c :: l
     ).
 
   
@@ -43,14 +43,14 @@ Section Fix.
     }
   Qed.
 
-  Definition time {sigX X : Type} {cX : codable sigX X} := 5 + 2 * size _ c.
+  Definition time {sigX} {X : Type} {cX : codable sigX X} (c:X) := 5 + 2 * size c.
 
   Lemma Terminates :
     projT1 M ↓
            (fun tin k =>
               exists (l: list X) ,
                 tin[@Fin0] ≃ l /\
-                time <= k).
+                time c<= k).
   Proof.
     unfold Constr_cons_steps. eapply TerminatesIn_monotone.
     { unfold M. TM_Correct.
@@ -67,8 +67,8 @@ Section Fix.
     } 
   Qed.
 
-  Lemma SpecT l ss:
-    TripleT ≃≃([],withSpace [|Contains _ l|] ss) time M (fun _ => ≃≃([],withSpace [|Contains _ (c::l)|] (appSize [|fun s0 => s0 - size _ c - 1|] ss ))).
+  Lemma SpecT (l:list X) ss:
+    TripleT ≃≃([],withSpace [|Contains _ l|] ss) (time c) M (fun _ => ≃≃([],withSpace [|Contains _ (c::l)|] (appSize [|fun s0 => s0 - size c - 1|] ss ))).
   Proof.
     unfold withSpace in *.
     eapply Realise_TripleT. now apply Realise. now apply Terminates.

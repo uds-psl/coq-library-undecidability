@@ -12,6 +12,7 @@ From Undecidability Require Import TM.Lifting.LiftAlphabet.
 
 
 Local Generalizable All Variables.
+Set Default Proof Using "Type".
 
 
 (* Don't simplify [skipn (S n) xs]; only, if the number and the lists are constructors *)
@@ -233,14 +234,14 @@ Section Move.
            tin[@Fin0] ≂(;s) x ->
            tout[@Fin0] ≃(;s) x).
 
-  Definition Reset_size {sigX : Type} (cX : codable sigX X) (x : X) (s : nat) := S (size cX x + s).
+  Definition Reset_size {sigX : Type} {cX : codable sigX X} (x : X) (s : nat) := S (size x + s).
 
   Definition Reset_Rel : Rel (tapes (sig^+) 1) (unit * tapes (sig^+) 1) :=
     ignoreParam
       (fun tin tout =>
          forall (s : nat) (x:X),
            tin[@Fin0] ≃(;s) x ->
-           isVoid_size tout[@Fin0] (Reset_size _ x s)).
+           isVoid_size tout[@Fin0] (Reset_size x s)).
 
   Lemma MoveRight_Realise : MoveRight ⊨ MoveRight_Rel.
   Proof.
@@ -280,7 +281,7 @@ Section Move.
     }
   Qed.
 
-  Definition MoveRight_steps {sigX : Type} (cX : codable sigX X) (x : X) := 8 + 4 * size cX x.
+  Definition MoveRight_steps {sigX : Type} (cX : codable sigX X) (x : X) := 8 + 4 *size x.
 
   Lemma MoveRight_Terminates :
     projT1 MoveRight ↓ (fun tin k => exists x, tin[@Fin0] ≃ x /\ MoveRight_steps _ x <= k).
@@ -294,10 +295,10 @@ Section Move.
     }
   Qed.
 
-  Definition MoveLeft_steps {sigX : Type} (cX : codable sigX X) x := 8 + 4 * size cX x.
+  Definition MoveLeft_steps {sigX : Type} {cX : codable sigX X} (x:X) := 8 + 4 *size x.
 
   Lemma MoveLeft_Terminates :
-    projT1 MoveLeft ↓ (fun tin k => exists x, tin[@Fin0] ≂ x /\ MoveLeft_steps _ x <= k).
+    projT1 MoveLeft ↓ (fun tin k => exists x, tin[@Fin0] ≂ x /\ MoveLeft_steps x <= k).
   Proof.
     unfold MoveLeft_steps. eapply TerminatesIn_monotone.
     { unfold MoveLeft. TM_Correct. }
@@ -308,10 +309,10 @@ Section Move.
     }
   Qed.
 
-  Definition Reset_steps {sigX : Type} (cX : codable sigX X) x := 8 + 4 * size cX x.
+  Definition Reset_steps {sigX : Type} {cX : codable sigX X} (x:X) := 8 + 4 *size x.
 
   Definition Reset_Terminates :
-    projT1 Reset ↓ (fun tin k => exists x, tin[@Fin0] ≃ x /\ Reset_steps _ x <= k).
+    projT1 Reset ↓ (fun tin k => exists x, tin[@Fin0] ≃ x /\ Reset_steps x <= k).
   Proof. exact MoveRight_Terminates. Qed.
 
   Definition ResetEmpty : pTM sig^+ unit 1 := Move Rmove.
@@ -351,7 +352,7 @@ Section Move.
         fun tin tout =>
           forall (x : X) (s : nat),
             tin[@Fin0] ≃(;s) x ->
-            size cX x = 1 ->
+           size x = 1 ->
             isVoid_size tout[@Fin0] (ResetEmpty1_size s)).
 
   Definition ResetEmpty1_steps := 3.
@@ -385,7 +386,7 @@ Section CopyValue.
   Definition CopyValue :=
     LiftTapes (MoveRight _) [|Fin0|];; CopySymbols_L (@isStart sig).
 
-  Definition CopyValue_size {sig: Type} (cX : codable sig X) (x : X) (s1 : nat) := s1 - S (size _ x).
+  Definition CopyValue_size {sig: Type} {cX : codable sig X} (x : X) (s1 : nat) := s1 - S (size x).
 
   Definition CopyValue_Rel : Rel (tapes (sig^+) 2) (unit * tapes (sig^+) 2) :=
     ignoreParam (
@@ -394,7 +395,7 @@ Section CopyValue.
             tin[@Fin0] ≃(;sx) x ->
             isVoid_size tin[@Fin1] s1 ->
             tout[@Fin0] ≃(;sx) x /\
-            tout[@Fin1] ≃(;CopyValue_size _ x s1) x
+            tout[@Fin1] ≃(;CopyValue_size x s1) x
       ).
 
 
@@ -419,10 +420,10 @@ Section CopyValue.
   Qed.
 
 
-  Definition CopyValue_steps {sig:Type} (cX : codable sig X) x := 25 + 12 * size cX x.
+  Definition CopyValue_steps {sig:Type} {cX : codable sig X} (x:X) := 25 + 12 *size x.
 
   Lemma CopyValue_Terminates :
-    projT1 CopyValue ↓ (fun tin k => exists x:X, tin[@Fin0] ≃ x /\ CopyValue_steps _ x <= k).
+    projT1 CopyValue ↓ (fun tin k => exists x:X, tin[@Fin0] ≃ x /\ CopyValue_steps x <= k).
   Proof.
     unfold CopyValue_steps. eapply TerminatesIn_monotone.
     { unfold CopyValue. TM_Correct.
@@ -460,8 +461,8 @@ Section MoveValue.
     CopyValue _;;
     LiftTapes (Reset _) [|Fin0|].
 
-  Definition MoveValue_size_x {sigX : Type} {cX : codable sigX X} (x : X) (sx : nat) := S (size cX x + sx).
-  Definition MoveValue_size_y {sigX sigY : Type} {cX : codable sigX X} {cY : codable sigY Y} (x : X) (y : Y) (sy : nat) := sy + size cY y - size cX x.
+  Definition MoveValue_size_x {sigX : Type} {cX : codable sigX X} (x : X) (sx : nat) := S (size x + sx).
+  Definition MoveValue_size_y {sigX sigY : Type} {cX : codable sigX X} {cY : codable sigY Y} (x : X) (y : Y) (sy : nat) := sy + size cY y -size x.
 
   Definition MoveValue_Rel : pRel sig^+ unit 2 :=
     ignoreParam (
@@ -490,7 +491,7 @@ Section MoveValue.
     }
   Qed.
 
-  Definition MoveValue_steps {sigX sigY:Type} {cX : codable sigX X} {cY : codable sigY Y} x y := 43 + 16 * size cX x + 4 * size cY y.
+  Definition MoveValue_steps {sigX sigY:Type} {cX : codable sigX X} {cY : codable sigY Y} (x:X) (y:Y) := 43 + 16 *size x + 4 * size cY y.
 
   Lemma MoveValue_Terminates :
     projT1 MoveValue ↓ (fun tin k => exists (x : X) (y : Y), tin[@Fin0] ≃ x /\ tin[@Fin1] ≃ y /\ MoveValue_steps x y <= k).
@@ -566,7 +567,7 @@ Section Translate.
     }
   Qed.
 
-  Definition Translate'_steps {sigX X : Type} {cX : codable sigX X} x := 8 + 4 * size cX x.
+  Definition Translate'_steps {sigX X : Type} {cX : codable sigX X} (x:X) := 8 + 4 *size x.
 
   Lemma Translate'_Terminates :
     projT1 Translate' ↓ (fun tin k => exists x, tin[@Fin0] ≃(I1) x /\ Translate'_steps (cX:=cX) x <= k).
@@ -605,7 +606,7 @@ Section Translate.
   Qed.
 
 
-  Definition Translate_steps {sigX:Type} {cX : codable sigX X} (x : X) := 17 + 8 * size cX x.
+  Definition Translate_steps {sigX:Type} {cX : codable sigX X} (x : X) := 17 + 8 *size x.
 
   Definition Translate_T : tRel sig^+ 1 :=
     fun tin k => exists x, tin[@Fin0] ≃(I1) x /\ Translate_steps x <= k.
@@ -617,11 +618,11 @@ Section Translate.
     { unfold Translate. TM_Correct.
       - apply Translate'_Realise.
       - apply Translate'_Terminates.
-      - apply MoveLeft_Terminates.
+      - eapply MoveLeft_Terminates.
     }
     {
       intros tin k (x&HEncX&Hk). unfold Translate_steps in *.
-      exists (8 + 4 * size cX x), (8 + 4 * size cX x). repeat split; try lia.
+      exists (8 + 4 *size x), (8 + 4 *size x). repeat split; try lia.
       eexists. repeat split; eauto.
       intros tmid () H. cbn in H.
       apply tape_contains_contains_size in HEncX.

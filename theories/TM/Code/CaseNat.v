@@ -81,7 +81,7 @@ Section CaseNat.
     Definition O_Rel : Rel (tapes sigNat^+ 1) (unit * tapes sigNat^+ 1) :=
       fun tin '(_, tout) => forall sn, isVoid_size tin[@Fin0] sn -> tout[@Fin0] ≃(;Constr_O_size sn) O.
 
-    Definition Constr_O : pTM sigNat^+ unit 1 := WriteValue [ sigNat_O ].
+    Definition Constr_O : pTM sigNat^+ unit 1 := WriteValue 0.
 
     Goal Constr_O = WriteMove (inl STOP) Lmove;; WriteMove (inr sigNat_O) Lmove;; Write (inl START).
     Proof. unfold Constr_O, WriteValue, WriteString.WriteString, encode, Encode_map, map, rev, Encode_nat, encode, repeat, app. reflexivity. Qed.
@@ -93,7 +93,7 @@ Section CaseNat.
       { unfold Constr_O. TM_Correct. }
       { cbn. reflexivity. }
       { intros tin (yout, tout) H. intros s HRight. cbn in H. unfold Constr_O_size in *.
-        specialize (H 0 s eq_refl HRight). contains_ext. unfold WriteValue_size. cbn. lia.
+        specialize (H _ HRight). contains_ext. unfold WriteValue_size. cbn. lia.
       }
     Qed.
 

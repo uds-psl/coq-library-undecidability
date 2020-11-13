@@ -42,10 +42,10 @@ Instance Encode_Com : codable sigCom Tok :=
   |}.
 
 Definition Encode_Com_size (t : Tok) : nat :=
-  size _ (Com_to_sum t).
+  size (Com_to_sum t).
 
 Lemma Encode_Com_hasSize (t : Tok) :
-  size _ t = Encode_Com_size t.
+  size t = Encode_Com_size t.
 Proof. reflexivity. Qed.
 
 

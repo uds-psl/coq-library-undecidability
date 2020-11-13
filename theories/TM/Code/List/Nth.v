@@ -72,7 +72,7 @@ Section Nth'.
            tspec ([yout = match xs,n with [],_ => Some false | _ , 0 => Some true | _,__ => None end ],
                       withSpace
                     match xs,n with
-                    | nil,_ => [|Contains _ nil; Contains _ (pred n); Void|]
+                    | nil,_ => [|Contains _ xs; Contains _ (pred n); Void|]
                     | x::xs', S n' => [|Contains _ xs'; Contains _ n'; Void|]
                     | x::xs', 0 => [|Contains _ xs'; Contains _ 0;  Contains _ x|]
                     end (appSize (Nth'_Step_size n xs) ss))).
@@ -119,7 +119,7 @@ Section Nth'.
     | O, nil => Nth'_Step_steps l n (* only [CaseNat] and [If] *)
     end.
 
-    Lemma Nth'_Loop_SpecT_size xs n (ss : Vector.t nat 3) :
+    Lemma Nth'_Loop_SpecT_size (xs:list X) n (ss : Vector.t nat 3) :
     TripleT
       (tspec ([],withSpace ([|Contains _ xs; Contains _ n; Void|]) ss))
       (Nth'_Loop_steps xs n) Nth'_Loop

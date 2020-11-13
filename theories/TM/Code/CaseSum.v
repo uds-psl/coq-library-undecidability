@@ -58,10 +58,10 @@ Section CaseSum.
 
 
     Definition Constr_inl_Rel : Rel (tapes (sigSum sigX sigY)^+ 1) (unit * tapes (sigSum sigX sigY)^+ 1) :=
-      Mk_R_p (ignoreParam (fun tin tout => forall (x:X) (ss:nat), tin ≃(;ss) x -> tout ≃(;pred ss) inl x)).
+      Mk_R_p (ignoreParam (fun tin tout => forall (x:X) (ss:nat), tin ≃(;ss) x -> tout ≃(;pred ss) inl (B:=Y) x)).
 
     Definition Constr_inr_Rel : Rel (tapes (sigSum sigX sigY)^+ 1) (unit * tapes (sigSum sigX sigY)^+ 1) :=
-      Mk_R_p (ignoreParam (fun tin tout => forall (y:Y) (ss:nat), tin ≃(;ss) y -> tout ≃(;pred ss) inr y)).
+      Mk_R_p (ignoreParam (fun tin tout => forall (y:Y) (ss:nat), tin ≃(;ss) y -> tout ≃(;pred ss) inr (A:=X)y)).
 
     Definition Constr_inl : pTM (sigSum sigX sigY)^+ unit 1 :=
       WriteMove (inr sigSum_inl) Lmove;; Write (inl START).
@@ -269,9 +269,9 @@ Section CaseOption.
          (fun tin tout =>
             forall (s : nat),
               isVoid_size tin s ->
-              tout ≃(; pred s) None)).
+              tout ≃(; pred s) @None X)).
 
-  Definition Constr_None : pTM tau^+ unit 1 := WriteValue [ sigOption_None ].
+  Definition Constr_None : pTM tau^+ unit 1 := WriteValue (@None X).
 
   Goal Constr_None = WriteMove (inl STOP) Lmove;; WriteMove (inr sigOption_None) Lmove;; Write (inl START).
   Proof. reflexivity. Qed.
@@ -283,14 +283,14 @@ Section CaseOption.
     { unfold Constr_None. TM_Correct. }
     { cbn. reflexivity. }
     { intros tin ((), tout) H. intros s HRight.
-      cbn in H. specialize H with (x := None). modpon H. cbn in H. contains_ext. unfold WriteValue_size. lia.
+      cbn in H. modpon H. cbn in H. contains_ext. unfold WriteValue_size. lia.
     }
   Qed.
 
 End CaseOption.
 
 Arguments CaseOption : simpl never.
-Arguments Constr_None : simpl never.
+Arguments Constr_None _ {_ _} : simpl never.
 Arguments Constr_Some : simpl never.
 
 

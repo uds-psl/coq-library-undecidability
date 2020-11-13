@@ -19,8 +19,8 @@ Lemma CopyValue_SpecT_size (sig : finType) (sigX X : Type) (cX : codable sigX X)
           (fun _ => tspec ([],withSpace [|Contains _ x; Contains _ x|] (appSize (CopyValue_sizefun x) ss))).
 Proof.
   eapply Realise_TripleT.
-  - apply CopyValue_Realise.
-  - apply CopyValue_Terminates.
+  - eapply CopyValue_Realise.
+  - eapply CopyValue_Terminates.
   - intros tin [] tout H HEnc. unfold withSpace in *|-. cbn in *. 
     specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. 
     cbn in *; simpl_vector in *; cbn in *.
@@ -104,7 +104,7 @@ Proof. intros. eapply TripleT_Triple. now apply ResetEmpty_SpecT. Qed.
 
 
 Lemma ResetEmpty1_SpecT_space (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) (ss : Vector.t nat 1) :
-  size cX x = 1 ->
+ size x = 1 ->
   TripleT (tspec (([], withSpace  [|Contains _ x |] ss))) (ResetEmpty1_steps) (ResetEmpty1 sig) (fun _ => tspec (([], withSpace  [|Void|] (appSize [|ResetEmpty1_size|] ss)))).
 Proof.
   intros HEncEmpty. eapply RealiseIn_TripleT.
@@ -115,17 +115,17 @@ Proof.
 Qed.
 
 Lemma ResetEmpty1_SpecT (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) :
-  size cX x = 1 ->
+ size x = 1 ->
   TripleT (tspec ([],  [|Contains _ x|])) (ResetEmpty1_steps) (ResetEmpty1 sig) (fun _ => tspec ([],  [|Void|])).
 Proof. intros. eapply TripleT_RemoveSpace. intros. now apply ResetEmpty1_SpecT_space. Qed.
 
 Lemma ResetEmpty1_Spec_size (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) ss :
-  size cX x = 1 ->
+ size x = 1 ->
   Triple (tspec (([], withSpace  [|Contains _ x |] ss))) (ResetEmpty1 sig) (fun _ => tspec (([], withSpace  [|Void|] (appSize [|ResetEmpty1_size|] ss)))).
 Proof. intros. eapply TripleT_Triple. now apply ResetEmpty1_SpecT_space. Qed.
 
 Lemma ResetEmpty1_Spec (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) :
-  size cX x = 1 ->
+ size x = 1 ->
   Triple (tspec ([],  [|Contains _ x|])) (ResetEmpty1 sig) (fun _ => tspec ([],  [|Void|])).
 Proof. intros. eapply TripleT_Triple. now apply ResetEmpty1_SpecT. Qed.
 
@@ -373,7 +373,7 @@ Section CaseSum.
   Lemma Constr_inl_SpecT_size (x : X) (ss : Vector.t nat 1) :
     TripleT
       (tspec (([], withSpace  [|Contains _ x |] ss))) Constr_inl_steps (Constr_inl sigX sigY)
-      (fun _ => tspec (([], withSpace  [|Contains _ (inl x)|] (appSize [|pred|] ss)))).
+      (fun _ => tspec (([], withSpace  [|Contains _ (inl (B:=Y)x)|] (appSize [|pred|] ss)))).
   Proof. unfold withSpace.
     eapply RealiseIn_TripleT.
     - apply Constr_inl_Sem.
@@ -384,7 +384,7 @@ Section CaseSum.
   Lemma Constr_inr_SpecT_size (y : Y) (ss : Vector.t nat 1) :
     TripleT
       (tspec (([], withSpace  [|Contains _ y |] ss))) Constr_inr_steps (Constr_inr sigX sigY)
-      (fun _ => tspec (([], withSpace  [|Contains _ (inr y)|] (appSize [|pred|] ss)))).
+      (fun _ => tspec (([], withSpace  [|Contains _ (inr (A:=X) y)|] (appSize [|pred|] ss)))).
   Proof. unfold withSpace.
     eapply RealiseIn_TripleT.
     - apply Constr_inr_Sem.
@@ -426,8 +426,8 @@ Section CaseOpton.
 
   Lemma Constr_None_SpecT_size (ss : Vector.t nat 1) :
     TripleT
-      (tspec (([], withSpace  [|Void |] ss))) Constr_None_steps (Constr_None sigX)
-      (fun _ => tspec (([], withSpace  [|Contains _ None|] (appSize [|pred|] ss)))).
+      (tspec (([], withSpace  [|Void |] ss))) Constr_None_steps (Constr_None X)
+      (fun _ => tspec (([], withSpace  [|Contains _ (None (A:=X))|] (appSize [|pred|] ss)))).
   Proof. unfold withSpace.
     eapply RealiseIn_TripleT.
     - apply Constr_None_Sem.
@@ -504,8 +504,8 @@ Section CaseList.
 
   Lemma Constr_nil_SpecT_size (ss : Vector.t nat 1) :
     TripleT
-      (tspec (([], withSpace  [|Void |] ss))) Constr_nil_steps (Constr_nil sigX)
-      (fun _ => tspec (([], withSpace  [|Contains _ nil|] (appSize [|pred|] ss)))).
+      (tspec (([], withSpace  [|Void |] ss))) Constr_nil_steps (Constr_nil X)
+      (fun _ => tspec (([], withSpace  [|Contains _ (@nil X) |] (appSize [|pred|] ss)))).
   Proof. unfold withSpace.
     eapply RealiseIn_TripleT.
     - apply Constr_nil_Sem.
@@ -610,8 +610,8 @@ End CasePair.
 
 Ltac hstep_Pair :=
   match goal with
-  | [ |- TripleT ?P ?k (Constr_pair _ _) ?Q ] => eapply (Constr_pair_SpecT_size _ _ _ _ _)
-  | [ |- TripleT ?P ?k (CasePair    _ _) ?Q ] => eapply (CasePair_SpecT_size _ _ _ _)
+  | [ |- TripleT ?P ?k (Constr_pair _ _) ?Q ] => eapply (Constr_pair_SpecT_size _ _ _ _)
+  | [ |- TripleT ?P ?k (CasePair    _ _) ?Q ] => eapply (CasePair_SpecT_size _ _ _)
   end.
 
 Smpl Add hstep_Pair : hstep_smpl.
@@ -673,7 +673,7 @@ Section WriteValue.
   
   Lemma WriteValue_SpecT_size (x : X) (ss : Vector.t nat 1) :
     TripleT (tspec (([], withSpace  [|Void |] ss)))
-            (WriteValue_steps (size _ x)) (WriteValue (encode x))
+            (WriteValue_steps (size x)) (WriteValue x)
             (fun _ => tspec (([], withSpace  [|Contains _ x|] (appSize (WriteValue_sizefun x) ss)))).
   Proof. unfold withSpace.
     eapply RealiseIn_TripleT.

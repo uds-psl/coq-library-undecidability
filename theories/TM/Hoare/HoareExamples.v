@@ -29,8 +29,8 @@ Lemma CopyValue_SpecT_size (sig : finType) (sigX X : Type) (cX : codable sigX X)
 Proof.
   start_TM.
   eapply Realise_TripleT.
-  - apply CopyValue_Realise.
-  - apply CopyValue_Terminates.
+  - eapply CopyValue_Realise.
+  - eapply CopyValue_Terminates.
   - intros tin [] tout H HEnc. unfold withSpace in HEnc.  cbn in *. 
     specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. cbn in *. 
     cbn in *; simpl_vector in *; cbn in *.
@@ -51,8 +51,8 @@ Lemma Reset_SpecT_space (sig : finType) (sigX X : Type) (cX : codable sigX X) (I
 Proof.
   start_TM.
   eapply Realise_TripleT.
-  - apply Reset_Realise.
-  - apply Reset_Terminates.
+  - eapply Reset_Realise.
+  - eapply Reset_Terminates.
   - intros tin [] tout H HEnc. unfold withSpace in HEnc.  cbn in *.
     specialize (HEnc Fin0); cbn in *. simpl_vector in *; cbn in *.
     modpon H. intros i; destruct_fin i; cbn; eauto.

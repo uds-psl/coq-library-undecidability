@@ -209,16 +209,14 @@ Section Univ.
       destruct (current tp); cbn; auto. now retract_adjoint. }
   Qed.
 
+
+  Local Instance Encode_optSigM : codable (option sigM) (option sigM) := Encode_Finite _.
   (** Read the current symbol and write it to another tape *)
   Definition ReadCurrent' : pTM sig^+ unit 2 :=
     Switch (ReadCurrent @ [|Fin0|])
-           (fun c => WriteValue [Retr_f (Retract := retr_sigCurrentSymbol_sig) c] @ [|Fin1|]).
+           (fun c => WriteValue c ⇑ retr_sigCurrentSymbol_sig @ [|Fin1|]).
 
-  Definition ReadCurrent_size := pred >> pred.
-
-
-  Local Instance Encode_optSigM : codable (option sigM) (option sigM) := Encode_Finite _.
-  
+  Definition ReadCurrent_size := pred >> pred. 
 
   Definition ReadCurrent'_Rel : pRel sig^+ unit 2 :=
     ignoreParam(
@@ -235,7 +233,7 @@ Section Univ.
   Proof.
     unfold ReadCurrent'_steps. eapply RealiseIn_monotone.
     { unfold ReadCurrent'. apply Switch_RealiseIn. TM_Correct. apply ReadCurrent_Sem. intros c. TM_Correct.
-      instantiate (1 := WriteValue_steps 1). apply WriteValue_Sem with (cX := Encode_map Encode_optSigM retr_sigCurrentSymbol_sig). }
+      instantiate (1 := WriteValue_steps 1). apply WriteValue_Sem. }
     { cbn. reflexivity. }
     { intros tin ([], tout) H. cbn. intros tp s HCont HRight1. TMSimp. modpon H. modpon H0. subst. split; auto.
       contains_ext. unfold WriteValue_size, ReadCurrent_size. cbn. lia. }
@@ -295,7 +293,7 @@ Section Univ.
 
 
   Definition SetFinal (final : bool) : pTM sig^+ unit 2 :=
-    WriteValue [final] ⇑ retr_sigCurrentStateFinal_sig @ [|Fin1|];;
+    WriteValue final ⇑ retr_sigCurrentStateFinal_sig @ [|Fin1|];;
     Constr_pair (FinType(EqType bool)) (FinType(EqType sigNat)) ⇑ retr_sigCurrentState_sig  @ [|Fin1; Fin0|];;
     ResetEmpty1 _ @ [|Fin1|].
 

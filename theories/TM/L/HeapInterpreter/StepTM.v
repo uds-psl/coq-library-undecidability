@@ -340,9 +340,9 @@ Section StepMachine.
 
   Definition Put_size (H : Heap) (g : HClos) (b : HAdd) : Vector.t (nat->nat) 6 :=
     (*
-    (Length_size _ H @>> [|Fin0; Fin3; Fin4; Fin5|]) >>>
+    (Length_size H @>> [|Fin0; Fin3; Fin4; Fin5|]) >>>
     ([|pred|] @>> [|Fin4|]) >>> (* nil *)
-    ([|Constr_pair_size _ g >> pred|] @>>[|Fin2|]) >>> (* pair and [Some] on tape 2 *)
+    ([|Constr_pair_size g >> pred|] @>>[|Fin2|]) >>> (* pair and [Some] on tape 2 *)
      ...
     *)
     [| (*0*) Length_size H @>Fin0 >> MoveValue_size_y (H++[Some(g,b)]) H;
@@ -383,7 +383,7 @@ Section StepMachine.
   
   Definition Put : pTM sigStep^+ unit 6 :=
     Length retr_heap_step retr_nat_step_clos_ad @ [|Fin0; Fin3; Fin4; Fin5|];;
-    Constr_nil sigHEntr_fin ⇑ _ @ [|Fin4|];;
+    Constr_nil HEntr ⇑ _ @ [|Fin4|];;
     Translate retr_nat_step_clos_ad retr_nat_step_hent @ [|Fin2|];;
     Translate retr_clos_step retr_clos_step_hent @ [|Fin1|];;
     Constr_pair sigHClos_fin sigHAdd_fin ⇑ retr_hent'_step @ [|Fin1; Fin2|];;
