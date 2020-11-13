@@ -86,3 +86,29 @@ Qed.
 Arguments CaseCom : simpl never.
 Arguments Constr_ACom : simpl never.
 Arguments Constr_varT : simpl never.
+
+From Undecidability Require Import Hoare.
+
+Lemma CaseCom_SpecT_size (t : Tok) (ss : Vector.t nat 1) :
+  TripleT
+    ≃≃([], withSpace  [|Contains _ t |] ss)
+    CaseCom_steps
+    CaseCom
+     (fun yout => ≃≃([match yout with Some c => t = ACom2Com c | None => exists n, t = varT n end]
+        ,withSpace ([|match Com_to_sum t with inr _ => Void | inl n => Contains _ n end|]) (appSize ([|CaseCom_size t|]) ss))).  
+Proof.
+  unfold withSpace.
+  eapply RealiseIn_TripleT.
+  - apply CaseCom_Sem.
+  - intros tin yout tout H HEnc. specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H.
+    destruct yout.
+    +destruct H as [? <-]. tspec_solve. easy. destruct a;cbn in *. all:isVoid_mono.
+    +destruct H as (?&->&?). cbn. tspec_solve. easy.
+Qed.
+
+Ltac hstep_Com :=
+  lazymatch goal with
+  | [ |- TripleT ?P ?k CaseCom ?Q ] => eapply CaseCom_SpecT_size
+  end.
+
+Smpl Add hstep_Com : hstep_smpl.

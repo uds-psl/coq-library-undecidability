@@ -700,8 +700,8 @@ Lemma Reset_SpecT_space (sig : finType) (sigX X : Type) (cX : codable sigX X) (I
   TripleT (tspec ([], withSpace  [|Contains _ x |] ss)) (Reset_steps x) (Reset sig) (fun _ => tspec (([], withSpace  [|Void|] (appSize [|Reset_size x|] ss)))).
 Proof.
   eapply Realise_TripleT.
-  - apply Reset_Realise.
-  - apply Reset_Terminates.
+  - eapply Reset_Realise.
+  - eapply Reset_Terminates.
   - intros tin [] tout H HEnc. unfold withSpace in *. cbn in *.
     specialize (HEnc Fin0); cbn in *. simpl_vector in *; cbn in *.
     modpon H.
@@ -727,7 +727,7 @@ Lemma ResetEmpty_SpecT_space (sig : finType) (sigX X : Type) (cX : codable sigX 
   TripleT (tspec (([], withSpace  [|Contains _ x |] ss))) (ResetEmpty_steps) (ResetEmpty sig) (fun _ => tspec (([], withSpace  [|Void|] (appSize [|ResetEmpty_size|] ss)))).
 Proof.
   intros HEncEmpty. eapply RealiseIn_TripleT.
-  - apply ResetEmpty_Sem.
+  - eapply ResetEmpty_Sem.
   - intros tin [] tout H HEnc. unfold withSpace in *. cbn in *.
     specialize (HEnc Fin0); cbn in *. simpl_vector in *; cbn in *.
     modpon H. tspec_solve.
@@ -756,7 +756,7 @@ Lemma ResetEmpty1_SpecT_space (sig : finType) (sigX X : Type) (cX : codable sigX
   TripleT (tspec (([], withSpace  [|Contains _ x |] ss))) (ResetEmpty1_steps) (ResetEmpty1 sig) (fun _ => tspec (([], withSpace  [|Void|] (appSize [|ResetEmpty1_size|] ss)))).
 Proof.
   intros HEncEmpty. eapply RealiseIn_TripleT.
-  - apply ResetEmpty1_Sem.
+  - eapply ResetEmpty1_Sem.
   - intros tin [] tout H HEnc. cbn in *. unfold withSpace in *.
     specialize (HEnc Fin0); cbn in *. simpl_vector in *; cbn in *.
     modpon H. tspec_solve.
@@ -849,7 +849,7 @@ Proof. eapply TripleT_Triple. apply Translate_SpecT. Qed.
 
 Ltac hstep_Reset :=
   lazymatch goal with
-  | [ |- TripleT ?P ?k (CopyValue _) ?Q ] => eapply @CopyValue_SpecT_size
+  | [ |- TripleT ?P ?k (CopyValue _) ?Q ] => notypeclasses refine (CopyValue_SpecT_size _ _ _ _)
   | [ |- TripleT ?P ?k (Reset _) ?Q ] => eapply @Reset_SpecT_space
   | [ |- TripleT ?P ?k (ResetEmpty _) ?Q ] => eapply @ResetEmpty_SpecT_space
   | [ |- TripleT ?P ?k (ResetEmpty1 _) ?Q ] => eapply @ResetEmpty1_SpecT_space

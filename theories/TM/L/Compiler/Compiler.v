@@ -214,9 +214,62 @@ Section mk_init.
       _;;M_init_one s retr_pro1 retr_bools @ [|auxk (ren[@Fin0]);aux Fin1;aux Fin2;aux Fin3;aux Fin4;aux Fin5|]
     end). all:try exact _.
     2:{apply (M_init' _ (Vector.tl ren)). }
-  Defined. 
+  Defined.
+
+  Lemma tabulate_nth [X : Type] [n : nat] (v : Vector.t X n): tabulate (fun i => v[@i]) = v.
+  Proof. depind v;cbn. all:congruence. Qed.
+
+  Lemma fin_destruct_add
+  : forall (n m : nat) (i : Fin.t (n+m)),
+      {i' : Fin.t n | i = Fin.L _ i'} + {i' : Fin.t m | i = Fin.R _ i'}.
+  Proof.
+    depind n;cbn. now right.
+    intros ? i. destruct (fin_destruct_S i) as [[i' ->]| ->].
+    -destruct (IHn _ i') as [ [? ->] | [? ->]].
+      --left. now eexists (Fin.FS _).
+      --now right.
+    -left. now exists Fin.F1.
+  Qed.  
+
+  Hint Rewrite  Nat.eqb_refl tabulate_nth nth_tabulate: cleanupParamTM.
+
+  Ltac cleanupParamTM :=
+    try fold Nat.add;rewrite ?Nat.eqb_refl, ?tabulate_nth, ?nth_tabulate;cbn.
 
 
+  Theorem M_init'_SpecT k' (ren :Vector.t (Fin.t k) k') (v:Vector.t (list bool) k):
+  { k &
+  TripleT ≃≃([],Vector.const (Custom (eq niltape)) (6+m) ++ Vector.map (fun bs => Custom (eq (encTM s b bs))) v)
+    k (M_init' ren)
+    (fun _ => ≃≃([],
+      ([|Custom (eq niltape);
+        Contains retr_pro1 (compile (Vector.fold_right (fun l_i s => L.app s (encL l_i)) (select ren v) sim))
+         ;Void;Void;Void;Void|]++Vector.const (Custom (eq niltape)) m) ++ Vector.map (fun bs => Custom (eq (encTM s b bs))) v))}.
+  Proof using All.
+    depind ren. all:cbn [compile Vector.fold_left M_init' Vector.tl Vector.caseS].
+    {
+      eexists. cbn.
+      do 5 (hstep;[ hsteps_cbn; cbn;eapply Mk_isVoid_Spec |cbn; cleanupParamTM;cbn;intros _ |reflexivity]).
+      hsteps_cbn. reflexivity.
+      cleanupParamTM.
+      apply EntailsI. intros t H. eapply tspec_ext. eassumption. easy.
+      intros i. clear - i.
+      repeat (destruct (fin_destruct_S i) as [(i'&->) | ->];[rename i' into i;cbn| ]);try (intros H;exact H).
+    }
+    {
+      eexists. cbn. hstep.
+      3:reflexivity. now apply (projT2 (IHren v)). clear IHren.
+      cbn. intros _. hstep. { cbn. rewrite Vector_nth_R,nth_map'. cbn. eapply (projT2 (M_init_one_Spec H_disj _ _)). }
+      cbn;fold Nat.add;rewrite Nat.eqb_refl;cbn. intros _.
+      apply EntailsI. intros t H. eapply tspec_ext. eassumption. easy.
+      intros i. clear - i. 
+      repeat (destruct (fin_destruct_S i) as [(i'&->) | ->];[rename i' into i;cbn| ]);try (intros H;exact H).
+      rewrite nth_tabulate. destruct (Fin.eqb _ _) eqn:H'. 2:tauto.
+      cbn. eapply Fin.eqb_eq in H' as ->. rewrite Vector_nth_R,nth_map'. cbn. tauto.
+    }
+  Qed.
+  
+  
   Theorem M_init'_rel k' (ren :Vector.t (Fin.t k) k') :
     Realise (M_init' ren) (fun t '(r, t') =>
     forall (v:Vector.t (list bool) k),
@@ -227,7 +280,9 @@ Section mk_init.
                    /\ (forall i, t'[@auxk i] = t[@auxk i])
                    /\ (forall i, isVoid (t'[@aux (Fin.R 2 i)]))
                    ).
+                   
   Proof using All.
+  Admitted. (*
     depind ren. all:cbn [compile Vector.fold_left M_init' Vector.tl Vector.caseS].
     {
       eapply Realise_monotone.
@@ -267,6 +322,7 @@ Section mk_init.
       -intros i;destruct_fin i;cbn. all:try easy.
     }
   Qed.
+  *)
 
   Program Definition startRen := Vectors.tabulate (n:=k) (fun i => Fin.of_nat_lt (n:=k) (p:=k - 1 -proj1_sig (Fin.to_nat i)) _).
   Next Obligation.
@@ -296,6 +352,33 @@ Section mk_init.
     Reset _ @ [|Fin2|];;
     WriteValue ( []%list) ⇑ retr_closs @ [| Fin2|];;
     WriteValue ( []%list) ⇑ retr_heap @ [| Fin3|].
+
+    
+  Theorem M_init_SpecT (v:Vector.t (list bool) k):
+  { k &
+  TripleT ≃≃([],Vector.const (Custom (eq niltape)) (6+m) ++ Vector.map (fun bs => Custom (eq (encTM s b bs))) v)
+    k M_init
+    (fun _ => ≃≃([],
+      ([|Custom (eq niltape);
+        Contains retr_closs [(0, compile (Vector.fold_left (fun s l_i => L.app s (encL l_i)) sim v))]%list
+         ;Contains (retr_closs) []%list;Contains (retr_heap) []%list;Void;Void|]
+         ++Vector.const (Custom (eq niltape)) m) ++ Vector.map (fun bs => Custom (eq (encTM s b bs))) v))}.
+  Proof using H_disj.
+    eexists. unfold M_init.
+    hstep. now eapply (projT2 (M_init'_SpecT _ _)). 2:reflexivity.
+    cbn. intros _.
+    hstep. { hstep. cbn. hstep. notypeclasses refine (CopyValue_SpecT _ _ _). 4:cbn;tspec_ext. } 2:reflexivity.
+    cbn;cleanupParamTM.
+    intros _.
+    do 8 (hstep;[now (hsteps_cbn;cbn;tspec_ext)|cbn;cleanupParamTM;intros _|reflexivity]).
+    hsteps_cbn. reflexivity.
+    cleanupParamTM.
+    rewrite vector_fold_left_right with (v:=v), <- (startRen_spec v).
+    apply EntailsI. intros t H. eapply tspec_ext. eassumption. easy.
+      intros i. clear - i. 
+      repeat (destruct (fin_destruct_S i) as [(i'&->) | ->];[rename i' into i;cbn| ]);try (intros H;exact H).
+  Qed.
+
 
   Theorem M_init_rel:
     Realise M_init (fun t '(r, t') =>
@@ -340,6 +423,22 @@ Section conv_output.
   Definition M_out : pTM (Σ) ^+ unit 4 :=
     EncToBoollist.M _ _ @ [|Fin0;Fin2;Fin3|];;
     Boollist2encTM.M s b _ @ [|Fin2;Fin1;Fin3|].
+
+  
+  Theorem M_out_SpecT bs:
+    { k &
+    TripleT ≃≃([],[|Contains _ (compile (list_enc bs));Custom (eq niltape);Void;Void|])
+      k M_out
+      (fun _ => ≃≃([],
+        ([|Custom (fun _ => True); Custom (eq (encTM s b bs)); Void;Void|])))}.
+  Proof.
+    eexists. unfold M_out. hsteps_cbn;cbn.
+    -eapply (projT2 (@EncToBoollist.SpecT _ _ _)).
+    -eapply (projT2 (Boollist2encTM.SpecT _ _ _)).
+    - cbn. rewrite rev_involutive. tspec_ext. easy.
+    -reflexivity.
+  Qed.
+
 
 
   Theorem M_out_realise :

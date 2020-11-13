@@ -17,7 +17,7 @@ Hint Mode codable - ! : typeclass_instances.
 Hint Mode codable ! - : typeclass_instances.
 
 (* right side must be fully known, left side at head *)
-Hint Mode Retract - + : typeclass_instances.
+Hint Mode Retract ! + : typeclass_instances.
 
 (* (* Both sides must be known at head. *)
 Hint Mode Retract ! - : typeclass_instances.
