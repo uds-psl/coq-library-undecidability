@@ -229,64 +229,11 @@ Section Fix.
      + subst c2;cbn;ring_simplify. [c1]:exact 15. unfold c1;nia.
      + cbn. rewrite <- !app_assoc. reflexivity.
   Qed.   
-      
-  Lemma MoveToSymbol_SpecTReg (sig : finType) (f : boundary + sig -> _) g tin:
-  TripleT ≃≃([],  [|Custom (eq tin) |])
-      (MoveToSymbol_steps f g tin) (MoveToSymbol f g)
-      (fun _ => ≃≃([], [|Custom (eq (MoveToSymbol_Fun f g tin))|])).
-  Proof. 
-  eapply Realise_TripleT.
-  - apply MoveToSymbol_Realise.
-  - apply MoveToSymbol_Terminates.
-  - intros ? [] tout H HEnc. cbn in *.
-    specialize (HEnc Fin0). cbn in HEnc. subst. now tspec_solve.
-  - intros ? k HEnc Hk.
-    specialize (HEnc Fin0) as HEnc0. simpl_vector in *; cbn in *. now subst.
-  Qed.
-
-  Definition Realise__loop (H__neq : s <> b):
-    Realise M__loop (fun t '(_, t') =>
-      forall (l l': list bool),
-        tape_local_l t[@Fin0] = (map (fun (x:bool) => if x then s else b) l++[b])%list ->
-        right t[@Fin0] = map (fun (x:bool) => if x then s else b) l' ->
-        t[@Fin1] ≃ l' ->
-        t'[@Fin0] = encTM s b (rev l++l')
-        /\  t'[@Fin1] ≃ (rev l++l')%list).
-  Proof.
-    eapply Realise_monotone.
-    {
-      unfold M__loop,M__step. TM_Correct_noSwitchAuto. TM_Correct. cbn. intros f.
-      destructBoth f as [].
-      all:TM_Correct. apply Cons_constant.Realise. 
-    }
-    unfold encTM.
-    eapply WhileInduction; intros;hnf.
-    - destruct HLastStep;TMSimp.
-      destruct tape_local_l eqn:H' in H. { destruct l;discriminate H. }
-      specialize (tape_local_l_current_cons H') as H''.
-      rewrite H'' in H3. TMSimp. destruct H3;TMSimp.
-      destruct tin_0 as [ | | | []];cbn in *;try discriminate.
-      destruct l as [ | ? []]. all:inv H. 2-3:discriminate.
-      cbn. split. congruence. assumption.
-    - TMSimp. 
-      destruct tape_local_l eqn:H' in H. { destruct l;discriminate H. }
-      specialize (tape_local_l_current_cons H') as H''.
-      rewrite H'' in H3. TMSimp. destruct H3;TMSimp.
-      destruct tin_0 as [ | | | []];cbn in *. 1-4:discriminate.
-      inv H'. destruct l;cbn in H;inv H.
-      modpon H3;[]. cbn. rewrite <- app_assoc. 
-      apply HLastStep. 1-2: easy. 
-      destruct sum_eq_dec as [e|e];cbn.
-      all:destruct b0. 2,3:congruence.
-      all:contains_ext.
-  Qed. 
   
   Definition M : pTM (Σ) ^+ unit 2 :=
     (MoveToSymbol (fun _ => false) (fun x => x);;Move Lmove) @ [|Fin0|];;
     WriteValue (@nil bool)⇑ retr_list @ [|Fin1|];;
     M__loop.
-
-(*  Local Arguments encode : simpl never.
 
   Lemma SpecT' (H__neq : s <> b):
     { f : UpToC (fun bs => length bs + 1) &
@@ -297,25 +244,36 @@ Section Fix.
         M
         (fun _ => tspec ([],[|Custom (eq (encTM s b bs)) ; Contains _ bs|])) }. 
   Proof.
-    evar (c1 : nat);evar (c2 :nat).
-    exists_UpToC (fun bs => c1 * length bs + c2). 2:now smpl_upToC_solve.
+    evar (f : nat -> nat).
+    exists_UpToC (fun bs => f (length bs)). 2:now shelve. 
     unfold M.
     intros bs.
-    hstep. {hsteps_cbn. now eapply MoveToSymbol_SpecTReg. 2:reflexivity. hsteps_cbn. }
+    hstep. {hsteps_cbn. reflexivity. }
     hnf.
     intros _.
     hstep. {hsteps_cbn. reflexivity. } 2:reflexivity.
     cbn. intros _.
     {
-      eapply ConsequenceT. eapply (projT2 (loop_SpecT' H__neq)) with (bs:=rev bs)(res:=[]) (tin:=encTM s b bs).
-       3:reflexivity. 2:{ intro;cbn. rewrite rev_involutive,app_nil_r. reflexivity. }
-      tspec_ext. unfold encTM;cbn. split. reflexivity. easy. cbn [implList]. cbn. } ] as H. cbn in H. cbn;intros. hsteps_cbn. }
-    hstep.
-    hstep;cbn.
-    eexists (fun _ => _);cbn. *)
+      eapply ConsequenceT. eapply (projT2 (loop_SpecT' H__neq)) with (bs:=_)(res:=_) (tin:=_).
+      3:reflexivity. 2:{ intro;cbn. rewrite rev_involutive,app_nil_r. reflexivity. }
+      eapply EntailsI. intros tin.
+      unfold encTM,encListTM.
+      rewrite MoveToSymbol_correct_midtape_end. 2:easy.
+      intros [_ H]%tspecE.
+      specializeFin H. 
+      destruct H0 as (?&H0&<-).
+      tspec_solve. 2:rewrite H0;reflexivity.
+      cbn. split. easy. rewrite <- map_rev,map_map;cbn. destruct (rev bs);cbn. all:easy.
+    }
+    cbn - ["+"]. 
+    rewrite UpToC_le. ring_simplify.
+    unfold encTM,encListTM.
+    rewrite MoveToSymbol_steps_midtape_end. 2:easy.
+    rewrite map_length,rev_length.
+    [f]:intros n. now unfold f;set (n:=length bs);reflexivity.
 
-    
-    
+    Unshelve. subst f;cbn beta. smpl_upToC_solve. 
+  Qed.    
 
   Theorem Realise (H__neq : s <> b):
     Realise M (fun t '(r, t') =>
@@ -325,21 +283,12 @@ Section Fix.
                         t[@Fin0] = t'[@Fin0]
                         /\ t'[@Fin1] ≃ l).
   Proof.  
-    eapply Realise_monotone.
-    {
-      unfold M. TM_Correct. now apply Realise__loop. 
-    }
-    intros ? []. TMSimp.
-    specialize (@MoveToSymbol_correct_midtape_end _ (fun _ => false)
-    (fun x => x) [] b (encListTM s b l)) as (H1'&H2'). easy.
-    unfold encTM in *. modpon H0. specialize (H3 (rev l) nil). 
-    cbn in *. remember (MoveToSymbol_Fun _ _ _) as t'.
-    destruct t'. 4:discriminate.
-    1,2:solve [symmetry in H1';apply app_eq_nil in H1' as[? [=]]].
-    cbn in *. unfold encListTM in *.
-    rewrite rev_involutive,map_map,map_app,map_rev in *.
-    autorewrite with list in *.
-    modpon H3. split. all:easy.
+    repeat (eapply RealiseIntroAll;intro). eapply Realise_monotone.
+    -eapply TripleT_Realise,(projT2 (SpecT' H__neq)).
+    -intros ? [] H **. modpon H.
+    {unfold "≃≃",withSpace;cbn. intros i; destruct_fin i;cbn. all:eauto. }
+    repeat destruct _;unfold "≃≃",withSpace in H;cbn in H.
+    specializeFin H. cbn in *;easy.
   Qed.
 
 End Fix.

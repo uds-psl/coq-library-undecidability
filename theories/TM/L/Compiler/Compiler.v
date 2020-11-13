@@ -12,7 +12,9 @@ From Undecidability Require Import TM.TM L.AbstractMachines.FlatPro.LM_heap_corr
 From Undecidability Require Import L.L TM.TM.
 Require Import List.
 
-Infix "++" := Vector.append : vector_scope.
+Import Vector.VectorNotations.
+Import ListNotations.
+
 
 From Undecidability.TM.L Require Import Compiler_spec Compiler_facts UnfoldHeap Compiler.AddToBase.
 
@@ -63,7 +65,7 @@ Section MK_isVoid.
   Qed.
 
   Lemma Mk_isVoid_Spec :
-   TripleT ≃≃([]%list,[|Custom (eq niltape)|]) 1 MK_isVoid (fun _ => ≃≃([]%list,[|Void|])).
+   TripleT ≃≃([],[|Custom (eq niltape)|]) 1 MK_isVoid (fun _ => ≃≃([],[|Void|])).
   Proof.
     eapply RealiseIn_TripleT. now apply MK_isVoid_Sem. cbn. intros ? ? ? ? [_ H']%tspecE.
     specialize  (H' Fin0). eapply tspecI. easy. intros i; destruct_fin i;cbn. apply H. now vector_destruct tin.

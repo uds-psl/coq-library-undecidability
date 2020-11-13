@@ -4,6 +4,8 @@ From Undecidability Require Import TM.Combinators.Combinators.
 From Undecidability Require Import TM.Compound.TMTac.
 From Undecidability Require Import TM.Compound.Multi.
 
+From Undecidability Require Import ArithPrelim.
+
 From Coq Require Import FunInd.
 From Coq Require Import Recdef.
 
@@ -366,22 +368,18 @@ Section MoveToSymbol_Sem.
   - rewrite MoveToSymbol_correct_midtape; auto. rewrite <- !app_assoc. reflexivity.
   Qed.
 
+
   Lemma MoveToSymbol_correct_midtape_end tl c tr :
     (forall x, List.In x (c::tr) -> stop x = false) ->
-    let t' := (MoveToSymbol_Fun stop f (midtape tl c tr)) in
-    (
-      left t'= rev (map f tr) ++ [f c]++tl
-        /\ tape_local t' = []). 
+    MoveToSymbol_Fun stop f (midtape tl c tr) = rightof (hd (f c) (map f (rev tr))) (List.tl (map f (rev tr) ++ f c::tl)).
   Proof.
     revert c tl. revert tr. cbn. 
     refine (@size_induction _ (@length sig) _ _); intros [ | c' tr'] IH; intros.
     all:rewrite MoveToSymbol_Fun_equation.
     all:cbn.
     all:erewrite (H c);[ |now eauto].
-    - rewrite MoveToSymbol_Fun_equation;cbn. easy. 
-    - edestruct IH as (IH1&IH2).
-     3:rewrite IH1,IH2. solve [cbn;nia]. solve [intros;apply H;eauto]. 
-     autorewrite with list;cbn. easy. 
+    - rewrite MoveToSymbol_Fun_equation;cbn. eauto. 
+    - rewrite IH. 2,3:now eauto. destruct (rev tr'); cbn. easy. now autorewrite with list;cbn. 
   Qed.
 
   Corollary MoveToSymbol_L_correct t str1 str2 x :
@@ -458,6 +456,31 @@ Section MoveToSymbol_Sem.
   - rewrite MoveToSymbol_steps_midtape; auto. lia.
   Qed.
 
+  Lemma MoveToSymbol_steps_local_end t :
+  (forall x, List.In x (tape_local t) -> stop x = false) ->
+  MoveToSymbol_steps stop f t <= 4 + 4 * length (tape_local t).
+  Proof.
+    remember (tape_local t) as tr eqn:Ht.
+    induction tr in t,Ht |-*;intros Hhalt.
+    all: specialize (tape_local_nil t) as Hcur.
+    - rewrite MoveToSymbol_steps_equation.
+      destruct Hcur as [-> _]. all:easy.
+    - rewrite <- Ht in Hcur. destruct (current t) eqn:Hcur'.
+      2:{exfalso. destruct Hcur as [? H']. now discriminate H'. }
+      rewrite MoveToSymbol_steps_equation. rewrite Hcur'.
+      rewrite Hhalt. 2:{destruct t;inv Hcur'. now inv Ht. }
+      setoid_rewrite IHtr.
+      +now cbn;nia.
+      +cbn. rewrite tape_local_move_right'. symmetry in Ht. erewrite tape_local_right;eauto.
+      +intros. eapply Hhalt. eauto.
+  Qed.
+
+  Corollary MoveToSymbol_steps_midtape_end tl c tr :
+  (forall x, List.In x (c::tr) -> stop x = false) ->
+  MoveToSymbol_steps stop f (midtape tl c tr) <= 8 + 4 * length tr.
+  Proof.
+    intros. rewrite MoveToSymbol_steps_local_end. 2:easy. cbn. nia.
+  Qed.
 
   Lemma MoveToSymbol_L_steps_local t r1 sym r2 :
   tape_local_l t = r1 ++ sym :: r2 ->
