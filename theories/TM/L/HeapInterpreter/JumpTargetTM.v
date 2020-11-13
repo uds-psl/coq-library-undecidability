@@ -15,67 +15,12 @@ Definition retr_nat_prog : Retract sigNat sigPro := Retract_sigList_X _.
 
 
 (** append a token to the token list *)
-Definition App_Commands : pTM sigPro^+ (FinType(EqType unit)) 2 :=
-  App' _ @ [|Fin0; Fin1|];;
-  MoveValue _ @ [|Fin1; Fin0|].
-
-Definition App_Commands_size (Q Q' : list Tok) : Vector.t (nat->nat) 2 :=
-  [| MoveValue_size_y (Q ++ Q') Q; App'_size Q >> MoveValue_size_x (Q ++ Q') |].
-
-Definition App_Commands_Rel : pRel sigPro^+ (FinType(EqType unit)) 2 :=
-  ignoreParam (
-      fun tin tout =>
-        forall (Q Q' : list Tok) (s0 s1 : nat),
-          tin[@Fin0] ≃(;s0) Q ->
-          tin[@Fin1] ≃(;s1) Q' ->
-          tout[@Fin0] ≃(;App_Commands_size Q Q' @>Fin0 s0) Q ++ Q' /\
-          isVoid_size tout[@Fin1] (App_Commands_size Q Q' @>Fin1 s1)
-    ).
-
-Lemma App_Commands_Realise : App_Commands ⊨ App_Commands_Rel.
-Proof.
-  eapply Realise_monotone.
-  { unfold App_Commands. TM_Correct.
-    - apply App'_Realise with (X := Tok).
-  }
-  {
-    intros tin ((), tout) H. intros Q Q' s0 s1 HEncQ HEncQ'.
-    TMSimp. modpon H. modpon H0. auto.
-  }
-Qed.
-
-Arguments App_Commands_size : simpl never.
-
-
-Definition App_Commands_steps (Q Q': Pro) := 1 + App'_steps Q + MoveValue_steps (Q ++ Q') Q.
-
-Definition App_Commands_T : tRel sigPro^+ 2 :=
-  fun tin k => exists (Q Q' : list Tok), tin[@Fin0] ≃ Q /\ tin[@Fin1] ≃ Q' /\ App_Commands_steps Q Q' <= k.
-
-Lemma App_Commands_Terminates : projT1 App_Commands ↓ App_Commands_T.
-Proof.
-  eapply TerminatesIn_monotone.
-  { unfold App_Commands. TM_Correct.
-    - apply App'_Realise with (X := Tok).
-    - apply App'_Terminates with (X := Tok).
-  }
-  {
-    intros tin k (Q&Q'&HEncQ&HEncQ'&Hk).
-    exists (App'_steps Q), (MoveValue_steps (Q++Q') Q); cbn; repeat split; try lia.
-    hnf; cbn. eauto. now rewrite Hk.
-    intros tmid () (HApp&HInjApp); TMSimp. modpon HApp.
-    exists (Q++Q'), Q. repeat split; eauto.
-  }
-Qed.
-
-
-(** append a token to the token list *)
 Definition App_ACom (t : ACom) : pTM sigPro^+ unit 2 :=
   WriteValue [ACom2Com t] @ [|Fin1|];;
-  App_Commands.
+  App _.
 
 Definition App_ACom_size (t : ACom) (Q : list Tok) : Vector.t (nat->nat) 2 :=
-  [| id; WriteValue_size [ACom2Com t] |] >>> App_Commands_size Q [ACom2Com t].
+  [| id; WriteValue_size [ACom2Com t] |] >>> App_size Q [ACom2Com t].
 
 Definition App_ACom_Rel (t : ACom) : pRel sigPro^+ unit 2 :=
   ignoreParam (
@@ -91,7 +36,7 @@ Lemma App_ACom_Realise t : App_ACom t ⊨ App_ACom_Rel t.
 Proof.
   eapply Realise_monotone.
   { unfold App_ACom. TM_Correct.
-    - apply App_Commands_Realise.
+    - apply App_Realise.
   }
   {
     intros tin ((), tout) H. intros Q s0 s1 HENcQ HRight1.
@@ -102,7 +47,7 @@ Qed.
 Arguments App_ACom_size : simpl never.
 
 
-Definition App_ACom_steps (Q: Pro) (t: ACom) := 1 + WriteValue_steps (size [ACom2Com t]) + App_Commands_steps Q [ACom2Com t].
+Definition App_ACom_steps (Q: Pro) (t: ACom) := 1 + WriteValue_steps (size [ACom2Com t]) + App_steps Q [ACom2Com t].
 
 Definition App_ACom_T (t: ACom) : tRel sigPro^+ 2 :=
   fun tin k => exists (Q: list Tok), tin[@Fin0] ≃ Q /\ isVoid tin[@Fin1] /\ App_ACom_steps Q t <= k.
@@ -111,11 +56,11 @@ Lemma App_ACom_Terminates (t: ACom) : projT1 (App_ACom t) ↓ App_ACom_T t.
 Proof.
   eapply TerminatesIn_monotone.
   { unfold App_ACom. TM_Correct.
-    - apply App_Commands_Terminates.
+    - apply App_Terminates.
   }
   {
     intros tin k. intros (Q&HEncQ&HRight&Hk).
-    exists (WriteValue_steps (size [ACom2Com t])), (App_Commands_steps Q [ACom2Com t]). cbn; repeat split; try lia.
+    exists (WriteValue_steps (size [ACom2Com t])), (App_steps Q [ACom2Com t]). cbn; repeat split; try (reflexivity + nia).
     now rewrite Hk.
     intros tmid () (HWrite&HInjWrite); hnf; cbn; TMSimp.
     cbn in HWrite.
@@ -129,11 +74,11 @@ Qed.
 Definition App_Com : pTM sigPro^+ (FinType(EqType unit)) 3 :=
   Constr_nil _ @ [|Fin2|];;
   Constr_cons _@ [|Fin2; Fin1|];;
-  App_Commands @ [|Fin0; Fin2|];;
+  App _ @ [|Fin0; Fin2|];;
   Reset _ @ [|Fin1|].
 
 Definition App_Com_size (Q : list Tok) (t : Tok) : Vector.t (nat->nat) 3 :=
-  [| App_Commands_size Q [t] @>Fin0; Reset_size t; pred >> Constr_cons_size t >> App_Commands_size Q [t] @>Fin1 |].
+  [| App_size Q [t] @>Fin0; Reset_size t; pred >> Constr_cons_size t >> App_size Q [t] @>Fin1 |].
 
 Definition App_Com_Rel : pRel sigPro^+ (FinType(EqType unit)) 3 :=
   ignoreParam (
@@ -152,7 +97,7 @@ Lemma App_Com_Realise : App_Com ⊨ App_Com_Rel.
 Proof.
   eapply Realise_monotone.
   { unfold App_Com. TM_Correct.
-    - apply App_Commands_Realise.
+    - apply App_Realise.
   }
   { intros tin ((), tout) H. cbn. intros Q t s0 s1 s2 HEncQ HEncT HRight.
     unfold sigPro, sigCom in *. TMSimp.
@@ -164,7 +109,7 @@ Qed.
 Arguments App_Com_size : simpl never.
 
 Definition App_Com_steps (Q: Pro) (t:Tok) :=
-  3 + Constr_nil_steps + Constr_cons_steps t + App_Commands_steps Q [t] + Reset_steps t.
+  3 + Constr_nil_steps + Constr_cons_steps t + App_steps Q [t] + Reset_steps t.
 
 Definition App_Com_T : tRel sigPro^+ 3 :=
   fun tin k => exists (Q: list Tok) (t: Tok), tin[@Fin0] ≃ Q /\ tin[@Fin1] ≃ t /\ isVoid tin[@Fin2] /\ App_Com_steps Q t <= k.
@@ -173,18 +118,18 @@ Lemma App_Com_Terminates : projT1 App_Com ↓ App_Com_T.
 Proof.
   eapply TerminatesIn_monotone.
   { unfold App_Com. TM_Correct.
-    - apply App_Commands_Realise.
-    - apply App_Commands_Terminates.
+    - apply App_Realise.
+    - apply App_Terminates.
   }
   {
     intros tin k (Q&t&HEncQ&HEncT&HRight&Hk). unfold App_Com_steps in Hk.
-    exists (Constr_nil_steps), (1 + Constr_cons_steps t + 1 + App_Commands_steps Q [t] + Reset_steps t). cbn. repeat split; try lia.
+    exists (Constr_nil_steps), (1 + Constr_cons_steps t + 1 + App_steps Q [t] + Reset_steps t). cbn. repeat split; try lia.
     intros tmid_ () (HNil&HInjNil); TMSimp. modpon HNil.
-    exists (Constr_cons_steps t), (1 + App_Commands_steps Q [t] + Reset_steps t). cbn. repeat split; try lia.
-    eauto.
+    exists (Constr_cons_steps t), (1 + App_steps Q [t] + Reset_steps t). cbn. repeat split; try lia.
+    now eauto. now rewrite !Nat.add_assoc.
     unfold sigPro in *. intros tmid0 () (HCons&HInjCons); TMSimp. modpon HCons.
-    exists (App_Commands_steps Q [t]), (Reset_steps t). cbn. repeat split; try lia.
-    hnf; cbn. do 2 eexists; repeat split; eauto.
+    exists (App_steps Q [t]), (Reset_steps t). cbn. repeat split; try lia.
+    hnf; cbn. do 2 eexists; repeat split; eauto. reflexivity. 
     intros tmid1_ _ (HApp&HInjApp); TMSimp. modpon HApp.
     eexists. split; eauto.
   }

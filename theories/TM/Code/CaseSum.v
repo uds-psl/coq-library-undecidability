@@ -310,3 +310,113 @@ Ltac smpl_TM_CaseOption :=
   end.
 
 Smpl Add smpl_TM_CaseOption : TM_Correct.
+
+
+From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+
+Section CaseSum.
+  Variable (X Y : Type) (sigX sigY : finType) (codX : codable sigX X) (codY : codable sigY Y).
+
+  Lemma Constr_inl_SpecT_size (x : X) (ss : Vector.t nat 1) :
+    TripleT
+      (tspec (([], withSpace  [|Contains _ x |] ss))) Constr_inl_steps (Constr_inl sigX sigY)
+      (fun _ => tspec (([], withSpace  [|Contains _ (inl (B:=Y)x)|] (appSize [|pred|] ss)))).
+  Proof. unfold withSpace.
+    eapply RealiseIn_TripleT.
+    - apply Constr_inl_Sem.
+    - intros tin [] tout H HEnc. cbn in *.
+      specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H. tspec_solve.
+  Qed.
+
+  Lemma Constr_inr_SpecT_size (y : Y) (ss : Vector.t nat 1) :
+    TripleT
+      (tspec (([], withSpace  [|Contains _ y |] ss))) Constr_inr_steps (Constr_inr sigX sigY)
+      (fun _ => tspec (([], withSpace  [|Contains _ (inr (A:=X) y)|] (appSize [|pred|] ss)))).
+  Proof. unfold withSpace.
+    eapply RealiseIn_TripleT.
+    - apply Constr_inr_Sem.
+    - intros tin [] tout H HEnc. cbn in *.
+      specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H. tspec_solve.
+  Qed.
+
+  Lemma CaseSum_SpecT_size (s : X+Y) (ss : Vector.t nat 1) :
+    TripleT
+      (tspec (([], withSpace  [|Contains _ s |] ss))) (CaseSum_steps) (CaseSum sigX sigY)
+      (fun yout => tspec ([yout = if s then true else false],withSpace
+                         (match s with inl x => [|Contains _ x|] | inr y =>  [|Contains _ y|] end)
+                         (appSize [|S|] ss))).
+  Proof. unfold withSpace.
+    eapply RealiseIn_TripleT.
+    - apply CaseSum_Sem.
+    - intros tin yout tout H HEnc. cbn in *.
+      specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H.
+      destruct yout, s; cbn in *; auto; tspec_solve. all:easy.
+  Qed.
+  
+End CaseSum.
+
+
+Section CaseOpton.
+  
+  Variable (X : Type) (sigX : finType) (codX : codable sigX X).
+
+  Lemma Constr_Some_SpecT_size (x : X) (ss : Vector.t nat 1) :
+    TripleT
+      (tspec (([], withSpace  [|Contains _ x |] ss))) Constr_Some_steps (Constr_Some sigX)
+      (fun _ => tspec (([], withSpace  [|Contains _ (Some x)|] (appSize [|pred|] ss)))).
+  Proof. unfold withSpace.
+    eapply RealiseIn_TripleT.
+    - apply Constr_Some_Sem.
+    - intros tin [] tout H HEnc. cbn in *.
+      specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H. tspec_solve.
+  Qed.
+
+  Lemma Constr_None_SpecT_size (ss : Vector.t nat 1) :
+    TripleT
+      (tspec (([], withSpace  [|Void |] ss))) Constr_None_steps (Constr_None X)
+      (fun _ => tspec (([], withSpace  [|Contains _ (None (A:=X))|] (appSize [|pred|] ss)))).
+  Proof. unfold withSpace.
+    eapply RealiseIn_TripleT.
+    - apply Constr_None_Sem.
+    - intros tin [] tout H HEnc. cbn in *.
+      specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H. tspec_solve.
+  Qed.
+
+  Definition CaseOption_size (o : option X) : Vector.t (nat->nat) 1 :=
+    match o with
+    | None => [|CaseOption_size_None|]
+    | Some _ => [|CaseOption_size_Some|]
+    end.
+
+  Lemma CaseOption_SpecT_size (o : option X) (ss : Vector.t nat 1) :
+    TripleT
+      (tspec (([], withSpace  [|Contains _ o |] ss))) (CaseOption_steps) (CaseOption sigX)
+      (fun yout => tspec ([yout = match o with None => false | _ => true end ],withSpace
+                         (match o with
+                          |  Some x => [|Contains _ x|]
+                          |  None  => [|Void|]
+                          end)
+                         (appSize (CaseOption_size o) ss))).
+  Proof. unfold withSpace.
+    eapply RealiseIn_TripleT.
+    - apply CaseOption_Sem.
+    - intros tin yout tout H HEnc. cbn in *.
+      specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H.
+      destruct yout, o; cbn in *; auto; tspec_solve. all:easy.
+  Qed.
+  
+End CaseOpton.
+
+
+Ltac hstep_Sum_Option :=
+  lazymatch goal with
+  | [ |- TripleT ?P ?k (Constr_inl _ _) ?Q ] => eapply Constr_inl_SpecT_size
+  | [ |- TripleT ?P ?k (Constr_inr _ _) ?Q ] => eapply Constr_inr_SpecT_size
+  | [ |- TripleT ?P ?k (CaseSum    _ _) ?Q ] => eapply CaseSum_SpecT_size
+
+  | [ |- TripleT ?P ?k (Constr_Some _)  ?Q ] => eapply Constr_Some_SpecT_size
+  | [ |- TripleT ?P ?k (Constr_None _)  ?Q ] => eapply Constr_None_SpecT_size
+  | [ |- TripleT ?P ?k (CaseOption  _)  ?Q ] => eapply CaseOption_SpecT_size
+  end.
+
+Smpl Add hstep_Sum_Option : hstep_smpl.

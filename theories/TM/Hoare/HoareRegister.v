@@ -1,5 +1,7 @@
 From Undecidability Require Import Hoare.HoareLogic.
-From Undecidability Require Import ProgrammingTools.
+From Undecidability.TM Require Import TMTac.
+From Undecidability.TM Require Export CodeTM LiftTapes ChangeAlphabet.
+
 
 (** ** Tape/Register Specification *)
 
@@ -402,7 +404,7 @@ End Lifting.
 Lemma LiftTapes_Spec (sig : finType) (F : finType) (m n : nat) (I : Vector.t (Fin.t n) m) P' (P : SpecV sig n) Q' (Q : F -> SpecV sig m) (pM : pTM sig^+ F m) :
   dupfree I ->
   Triple (tspec (P',Downlift P I)) pM (fun y => tspec (Q' y,Q y)) ->
-  Triple (tspec (P',P)) (pM@I) (fun y => tspec (Q' y,Frame P I (Q y))).
+  Triple (tspec (P',P)) (LiftTapes pM I) (fun y => tspec (Q' y,Frame P I (Q y))).
 Proof.
   unfold Frame. rewrite !Triple_iff.
   intros HDup HTrip. 
@@ -432,9 +434,10 @@ Lemma LiftTapes_Spec_con (sig : finType) (F : finType) (m n : nat) (I : Vector.t
   dupfree I ->
   Triple (tspec (P',Downlift P I)) pM (fun y => tspec (Q' y,Q y)) ->
   (forall yout, Entails (tspec (Q' yout,Frame P I (Q yout))) (tspec (R' yout,R yout))) ->
-  Triple (tspec (P',P)) (pM@I) (fun y => tspec (R' y,R y)).
+  Triple (tspec (P',P)) (LiftTapes pM I) (fun y => tspec (R' y,R y)).
 Proof.
-   intros ? ? <-%asPointwise. eapply LiftTapes_Spec. all:easy. Qed.
+   intros ? ? <-%asPointwise. eapply LiftTapes_Spec. all:easy.
+Qed.
 
 
 (*
@@ -442,7 +445,7 @@ Proof.
 Lemma LiftTapes_Spec' (sig : finType) (F : Type) (m n : nat) (I : Vector.t (Fin.t n) m) (P : Spec sig n) (Q : Spec sig m) (pM : pTM sig^+ F m) :
   dupfree I ->
   Triple (tspec (Downlift I P)) pM (fun y => tspec Q) ->
-  Triple (tspec P) (pM@I) (fun _ => tspec (Frame I P Q)).
+  Triple (tspec P) (LiftTapes pM  I) (fun _ => tspec (Frame I P Q)).
 Proof. apply LiftTapes_Spec. Qed.
 *)
 
@@ -450,7 +453,7 @@ Proof. apply LiftTapes_Spec. Qed.
 Lemma LiftTapes_SpecT (sig F : finType)(m n : nat) (I : Vector.t (Fin.t n) m) P' (P : SpecV sig n) (k : nat) Q' (Q : F -> SpecV sig m) (pM : pTM sig^+ F m) :
   dupfree I ->
   TripleT (tspec (P',Downlift P I)) k pM (fun y => tspec (Q' y,Q y)) ->
-  TripleT (tspec (P',P)) k (pM@I) (fun y => tspec (Q' y,Frame P I (Q y))).
+  TripleT (tspec (P',P)) k (LiftTapes pM  I) (fun y => tspec (Q' y,Frame P I (Q y))).
 Proof.
   intros HDup (HTrip&HTrip').
   split.
@@ -468,7 +471,7 @@ P' (P : SpecV sig n) Q' (Q : F -> SpecV sig m) R' (R : F -> SpecV sig n)
   dupfree I ->
   TripleT (tspec (P',Downlift P I)) k pM (fun y => tspec (Q' y,Q y)) ->
   (forall yout, Entails (tspec (Q' yout,Frame P I (Q yout))) (tspec (R' yout,R yout))) ->
-  TripleT (tspec (P',P)) k (pM@I) (fun y => tspec (R' y,R y)).
+  TripleT (tspec (P',P)) k (LiftTapes pM  I) (fun y => tspec (R' y,R y)).
 Proof. eauto using ConsequenceT_post, LiftTapes_SpecT. Qed.
 
 
@@ -567,7 +570,7 @@ Lemma LiftTapes_Spec_space (sig F : finType) (m n : nat) (I : Vector.t (Fin.t n)
      (ss : Vector.t nat n) (ss' : Vector.t nat m) :
   dupfree I ->
   Triple (tspec (P',withSpace (Downlift P I) (select I ss))) pM (fun y => tspec (Q' y,withSpace (Q y) ss')) ->
-  Triple (tspec (P',withSpace P ss)) (pM@I) (fun y => tspec (Q' y,withSpace (Frame P I (Q y)) (fill I ss ss'))).
+  Triple (tspec (P',withSpace P ss)) (LiftTapes pM  I) (fun y => tspec (Q' y,withSpace (Frame P I (Q y)) (fill I ss ss'))).
 Proof.
   intros H1 H2. rewrite <- Downlift_withSpace in H2. apply LiftTapes_Spec in H2. setoid_rewrite tspec_Frame_withSpace' in H2. all:eauto.
 Qed.
@@ -576,7 +579,7 @@ Lemma LiftTapes_SpecT_space (sig F : finType) (m n : nat) (I : Vector.t (Fin.t n
      (ss : Vector.t nat n) (ss' : Vector.t nat m) :
   dupfree I ->
   TripleT (tspec (P',withSpace (Downlift P I) (select I ss))) k pM (fun y => tspec (Q' y,withSpace (Q y) ss')) ->
-  TripleT (tspec (P',withSpace P ss)) k (pM@I) (fun y => tspec (Q' y,withSpace (Frame P I (Q y)) (fill I ss ss'))).
+  TripleT (tspec (P',withSpace P ss)) k (LiftTapes pM  I) (fun y => tspec (Q' y,withSpace (Frame P I (Q y)) (fill I ss ss'))).
 Proof.
   intros H1 H2. rewrite <- Downlift_withSpace in H2. apply LiftTapes_SpecT in H2. setoid_rewrite tspec_Frame_withSpace' in H2. all:eauto.
 Qed.
@@ -588,7 +591,7 @@ Lemma LiftTapes_Spec_space_con (sig : finType) (F : finType) (m n : nat) (I : Ve
   dupfree I ->
   Triple (tspec (P',withSpace (Downlift P I) (select I ss))) pM (fun y => tspec (Q' y,withSpace (Q y) ss')) ->
   (forall yout, Entails (tspec (Q' yout,withSpace (Frame P I (Q yout)) (fill I ss ss'))) (tspec (R' yout,withSpace (R yout) ss''))) ->
-  Triple (tspec (P',withSpace P ss)) (pM@I) (fun y => tspec (R' y,withSpace (R y) ss'')).
+  Triple (tspec (P',withSpace P ss)) (LiftTapes pM  I) (fun y => tspec (R' y,withSpace (R y) ss'')).
 Proof.
   intros H1 H2 <-%asPointwise. rewrite <- Downlift_withSpace in H2. apply LiftTapes_Spec in H2. 
   setoid_rewrite tspec_Frame_withSpace' in H2. all:easy.
@@ -600,7 +603,7 @@ Lemma LiftTapes_SpecT_space_con (sig : finType) (F : finType) (m n : nat) (I : V
   dupfree I ->
   TripleT (tspec (P',withSpace (Downlift P I) (select I ss))) k pM (fun y => tspec (Q' y,withSpace (Q y) ss')) ->
   (forall yout, Entails (tspec (Q' yout,withSpace (Frame P I (Q yout)) (fill I ss ss'))) (tspec (R' yout,withSpace (R yout) ss''))) ->
-  TripleT (tspec (P',withSpace P ss)) k (pM@I) (fun y => tspec (R' y,withSpace (R y) ss'')).
+  TripleT (tspec (P',withSpace P ss)) k (LiftTapes pM  I) (fun y => tspec (R' y,withSpace (R y) ss'')).
 Proof.
   intros H1 H2 <-%asPointwise. rewrite <- Downlift_withSpace in H2. apply LiftTapes_SpecT in H2. 
   setoid_rewrite tspec_Frame_withSpace' in H2. all:easy.
@@ -743,7 +746,7 @@ Section AlphabetLifting'.
     Triple (tspec (P0,P)) pM (fun yout => tspec (Q0 yout, Q yout) ) ->
     (Entails ≃≃( P0,P') ≃≃( P0,LiftSpec retr P)) ->
     (forall yout, Entails ≃≃( Q0 yout, LiftSpec retr (Q yout)) ≃≃( (Q0 yout,Q' yout))) ->
-    Triple (tspec (P0, P')) (pM ⇑ retr) (fun yout => tspec (Q0 yout, Q' yout)).
+    Triple (tspec (P0, P')) (ChangeAlphabet pM retr) (fun yout => tspec (Q0 yout, Q' yout)).
   Proof.
     intros H1 H2 H3.
     eapply Consequence.
@@ -759,7 +762,7 @@ Section AlphabetLifting'.
     TripleT (tspec (P0,P)) k pM (fun yout => tspec (Q0 yout, Q yout) ) ->
     (Entails ≃≃( P0,P') ≃≃( P0,LiftSpec retr P)) ->
     (forall yout, Entails ≃≃( Q0 yout, LiftSpec retr (Q yout)) ≃≃( (Q0 yout,Q' yout))) ->
-    TripleT (tspec (P0, P')) k (pM ⇑ retr) (fun yout => tspec (Q0 yout, Q' yout)).
+    TripleT (tspec (P0, P')) k (ChangeAlphabet pM retr) (fun yout => tspec (Q0 yout, Q' yout)).
   Proof.
     intros H1 H2 H3.
     eapply ConsequenceT.
@@ -776,7 +779,7 @@ Section AlphabetLifting'.
         Q0 (Q : F -> SpecV sig n) :
     Triple (tspec (P0,P)) pM (fun yout => tspec (Q0 yout, Q yout)) ->
     (Entails ≃≃( P0,P') ≃≃( P0, LiftSpec retr P)) ->
-    Triple (tspec (P0,P')) (pM ⇑ retr) (fun yout => tspec (Q0 yout,LiftSpec retr (Q yout))).
+    Triple (tspec (P0,P')) (ChangeAlphabet pM retr) (fun yout => tspec (Q0 yout,LiftSpec retr (Q yout))).
   Proof.
     intros H1 H2.
     eapply Consequence.
@@ -791,7 +794,7 @@ Section AlphabetLifting'.
         Q0 (Q : F -> SpecV sig n) :
     TripleT (tspec (P0,P)) k pM (fun yout => tspec (Q0 yout, Q yout)) ->
     (Entails ≃≃( P0, P') ≃≃( P0,LiftSpec retr P)) ->
-    TripleT (tspec (P0,P')) k (pM ⇑ retr) (fun yout => tspec (Q0 yout,LiftSpec retr (Q yout))).
+    TripleT (tspec (P0,P')) k (ChangeAlphabet pM retr) (fun yout => tspec (Q0 yout,LiftSpec retr (Q yout))).
   Proof.
     intros H1 H2.
     eapply ConsequenceT.
@@ -813,7 +816,7 @@ Section AlphabetLifting'.
     Triple (tspec (P0,withSpace P ss)) pM (fun yout => tspec (Q0 yout,withSpace (Q yout) ss')) ->
     (Entails ≃≃( P0, withSpace P' ss) ≃≃( P0, withSpace (LiftSpec retr P) ss)) ->
     (forall yout, Entails ≃≃( Q0 yout, withSpace (LiftSpec retr (Q yout)) ss') (tspec (Q0 yout,withSpace (Q' yout) ss'))) ->
-    Triple (tspec (P0,withSpace P' ss)) (pM ⇑ retr) (fun yout => tspec (Q0 yout, withSpace (Q' yout) ss')).
+    Triple (tspec (P0,withSpace P' ss)) (ChangeAlphabet pM retr) (fun yout => tspec (Q0 yout, withSpace (Q' yout) ss')).
   Proof.
     intros H1 H2 H3.
     eapply Consequence.
@@ -830,7 +833,7 @@ Section AlphabetLifting'.
         TripleT (tspec (P0,withSpace P ss)) k pM (fun yout => tspec (Q0 yout,withSpace (Q yout) ss')) ->
         (Entails ≃≃( P0, withSpace P' ss) ≃≃( P0, withSpace (LiftSpec retr P) ss)) ->
         (forall yout, Entails ≃≃( Q0 yout, withSpace (LiftSpec retr (Q yout)) ss') (tspec (Q0 yout,withSpace (Q' yout) ss'))) ->
-        TripleT (tspec (P0,withSpace P' ss)) k (pM ⇑ retr) (fun yout => tspec (Q0 yout, withSpace (Q' yout) ss')).
+        TripleT (tspec (P0,withSpace P' ss)) k (ChangeAlphabet pM retr) (fun yout => tspec (Q0 yout, withSpace (Q' yout) ss')).
   Proof.
     intros H1 H2 H3.
     eapply ConsequenceT.
@@ -849,7 +852,7 @@ Section AlphabetLifting'.
         (ss ss' : Vector.t nat n) :
     Triple (tspec (P0,withSpace P ss)) pM (fun yout => tspec (Q0 yout,withSpace (Q yout) ss')) ->
     Entails ≃≃( P0, withSpace P' ss) ≃≃( P0, withSpace (LiftSpec retr P) ss) ->
-    Triple (tspec (P0, withSpace P' ss)) (pM ⇑ retr) (fun yout => tspec (Q0 yout, withSpace (LiftSpec retr (Q yout)) ss')).
+    Triple (tspec (P0, withSpace P' ss)) (ChangeAlphabet pM retr) (fun yout => tspec (Q0 yout, withSpace (LiftSpec retr (Q yout)) ss')).
   Proof.
     intros H1 H2.
     eapply Consequence.
@@ -865,7 +868,7 @@ Section AlphabetLifting'.
         (ss ss' : Vector.t nat n) :
     TripleT (tspec (P0,withSpace P ss)) k pM (fun yout => tspec (Q0 yout, withSpace (Q yout) ss')) ->
     Entails ≃≃( P0, withSpace P' ss) ≃≃( P0, withSpace (LiftSpec retr P) ss) ->
-    TripleT (tspec (P0, withSpace P' ss)) k (pM ⇑ retr) (fun yout => tspec (Q0 yout,withSpace (LiftSpec retr (Q yout)) ss')).
+    TripleT (tspec (P0, withSpace P' ss)) k (ChangeAlphabet pM retr) (fun yout => tspec (Q0 yout,withSpace (LiftSpec retr (Q yout)) ss')).
   Proof.
     intros H1 H2.
     eapply ConsequenceT.

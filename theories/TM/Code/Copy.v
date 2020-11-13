@@ -651,3 +651,210 @@ Ltac smpl_TM_Copy :=
   end.
 
 Smpl Add smpl_TM_Copy : TM_Correct.
+
+
+
+From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+
+(** We give all rule variants here, because automation is forbidden for these machines *)
+
+(* TODO: [CopyValue_size] should be renamed, and this function should be moved to [Code.v] *)
+Definition CopyValue_sizefun {sigX X : Type} {cX : codable sigX X} (x : X) : Vector.t (nat->nat) 2 := [|id; CopyValue_size x|].
+
+Lemma CopyValue_SpecT_size (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) (ss : Vector.t nat 2) :
+  TripleT (tspec ([],withSpace [|Contains _ x; Void|] ss))
+          (CopyValue_steps x) (CopyValue sig)
+          (fun _ => tspec ([],withSpace [|Contains _ x; Contains _ x|] (appSize (CopyValue_sizefun x) ss))).
+Proof.
+  eapply Realise_TripleT.
+  - eapply CopyValue_Realise.
+  - eapply CopyValue_Terminates.
+  - intros tin [] tout H HEnc. unfold withSpace in *|-. cbn in *. 
+    specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. 
+    cbn in *; simpl_vector in *; cbn in *.
+    modpon H. tspec_solve.
+  - intros tin k HEnc. cbn in *. unfold withSpace in *.
+    specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1.
+    cbn in *; simpl_vector in *; cbn in *. eauto.
+Qed.
+
+Lemma CopyValue_SpecT (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) :
+  TripleT (tspec ([],[|Contains _ x; Void|])) (CopyValue_steps x) (CopyValue sig) (fun _ => tspec ([],[|Contains _ x; Contains _ x|])).
+Proof. eapply TripleT_RemoveSpace. cbn. intros s. apply CopyValue_SpecT_size. Qed.
+
+Lemma CopyValue_Spec_size (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) (ss : Vector.t nat 2) :
+  Triple (tspec (([], withSpace  [|Contains _ x; Void|] ss)))
+         (CopyValue sig)
+         (fun _ => tspec (([], withSpace  [|Contains _ x; Contains _ x|] (appSize (CopyValue_sizefun x) ss)))).
+Proof. eapply TripleT_Triple. apply CopyValue_SpecT_size. Qed.
+
+Lemma CopyValue_Spec (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) :
+  Triple (tspec ([],  [|Contains _ x; Void|]))
+         (CopyValue sig)
+         (fun _ => tspec ([],  [|Contains _ x; Contains _ x|])).
+Proof. eapply Triple_RemoveSpace. apply CopyValue_Spec_size. Qed.
+
+
+
+Lemma Reset_SpecT_space (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) (ss : Vector.t nat 1) :
+  TripleT (tspec ([], withSpace  [|Contains _ x |] ss)) (Reset_steps x) (Reset sig) (fun _ => tspec (([], withSpace  [|Void|] (appSize [|Reset_size x|] ss)))).
+Proof.
+  eapply Realise_TripleT.
+  - apply Reset_Realise.
+  - apply Reset_Terminates.
+  - intros tin [] tout H HEnc. unfold withSpace in *. cbn in *.
+    specialize (HEnc Fin0); cbn in *. simpl_vector in *; cbn in *.
+    modpon H.
+    tspec_solve.
+  - intros tin k HEnc. unfold withSpace in *. cbn in *.
+    specialize (HEnc Fin0). simpl_vector in *; cbn in *. eauto.
+Qed.
+
+Lemma Reset_SpecT (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) :
+  TripleT (tspec ([],  [|Contains _ x|])) (Reset_steps x) (Reset sig) (fun _ => tspec ([],  [|Void|])).
+Proof. eapply TripleT_RemoveSpace. apply Reset_SpecT_space. Qed.
+
+Lemma Reset_Spec_size (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) ss :
+  Triple (tspec (([], withSpace  [|Contains _ x |] ss))) (Reset sig) (fun _ => tspec (([], withSpace  [|Void|] (appSize [|Reset_size x|] ss)))).
+Proof. eapply TripleT_Triple. apply Reset_SpecT_space. Qed.
+
+Lemma Reset_Spec (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) :
+  Triple (tspec ([],  [|Contains _ x|])) (Reset sig) (fun _ => tspec ([],  [|Void|])).
+Proof. eapply TripleT_Triple. apply Reset_SpecT. Qed.
+
+Lemma ResetEmpty_SpecT_space (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) (ss : Vector.t nat 1) :
+  cX x = [] ->
+  TripleT (tspec (([], withSpace  [|Contains _ x |] ss))) (ResetEmpty_steps) (ResetEmpty sig) (fun _ => tspec (([], withSpace  [|Void|] (appSize [|ResetEmpty_size|] ss)))).
+Proof.
+  intros HEncEmpty. eapply RealiseIn_TripleT.
+  - apply ResetEmpty_Sem.
+  - intros tin [] tout H HEnc. unfold withSpace in *. cbn in *.
+    specialize (HEnc Fin0); cbn in *. simpl_vector in *; cbn in *.
+    modpon H. tspec_solve.
+Qed.
+
+Lemma ResetEmpty_SpecT (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) :
+  cX x = [] ->
+  TripleT (tspec ([],  [|Contains _ x|])) (ResetEmpty_steps) (ResetEmpty sig) (fun _ => tspec ([],  [|Void|])).
+Proof. intros. eapply TripleT_RemoveSpace. intros. now apply ResetEmpty_SpecT_space. Qed.
+
+Lemma ResetEmpty_Spec_size (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) ss :
+  cX x = [] ->
+  Triple (tspec (([], withSpace  [|Contains _ x |] ss))) (ResetEmpty sig) (fun _ => tspec (([], withSpace  [|Void|] (appSize [|ResetEmpty_size|] ss)))).
+Proof. intros. eapply TripleT_Triple. now apply ResetEmpty_SpecT_space. Qed.
+
+Lemma ResetEmpty_Spec (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) :
+  cX x = [] ->
+  Triple (tspec ([],  [|Contains _ x|])) (ResetEmpty sig) (fun _ => tspec ([],  [|Void|])).
+Proof. intros. eapply TripleT_Triple. now apply ResetEmpty_SpecT. Qed.
+
+
+
+
+Lemma ResetEmpty1_SpecT_space (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) (ss : Vector.t nat 1) :
+ size x = 1 ->
+  TripleT (tspec (([], withSpace  [|Contains _ x |] ss))) (ResetEmpty1_steps) (ResetEmpty1 sig) (fun _ => tspec (([], withSpace  [|Void|] (appSize [|ResetEmpty1_size|] ss)))).
+Proof.
+  intros HEncEmpty. eapply RealiseIn_TripleT.
+  - apply ResetEmpty1_Sem.
+  - intros tin [] tout H HEnc. cbn in *. unfold withSpace in *.
+    specialize (HEnc Fin0); cbn in *. simpl_vector in *; cbn in *.
+    modpon H. tspec_solve.
+Qed.
+
+Lemma ResetEmpty1_SpecT (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) :
+ size x = 1 ->
+  TripleT (tspec ([],  [|Contains _ x|])) (ResetEmpty1_steps) (ResetEmpty1 sig) (fun _ => tspec ([],  [|Void|])).
+Proof. intros. eapply TripleT_RemoveSpace. intros. now apply ResetEmpty1_SpecT_space. Qed.
+
+Lemma ResetEmpty1_Spec_size (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) ss :
+ size x = 1 ->
+  Triple (tspec (([], withSpace  [|Contains _ x |] ss))) (ResetEmpty1 sig) (fun _ => tspec (([], withSpace  [|Void|] (appSize [|ResetEmpty1_size|] ss)))).
+Proof. intros. eapply TripleT_Triple. now apply ResetEmpty1_SpecT_space. Qed.
+
+Lemma ResetEmpty1_Spec (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) :
+ size x = 1 ->
+  Triple (tspec ([],  [|Contains _ x|])) (ResetEmpty1 sig) (fun _ => tspec ([],  [|Void|])).
+Proof. intros. eapply TripleT_Triple. now apply ResetEmpty1_SpecT. Qed.
+
+
+(* TODO: Move to [Code/Copy.v] *)
+Definition MoveValue_size {X Y sigX sigY : Type} {cX : codable sigX X} {cY : codable sigY Y} (x : X) (y : Y) : Vector.t (nat->nat) 2 :=
+  [|MoveValue_size_x x; MoveValue_size_y x y|].
+
+Lemma MoveValue_SpecT_size (sig : finType) (sigX sigY X Y : Type)
+      (cX : codable sigX X) (cY : codable sigY Y) (I1 : Retract sigX sig) (I2 : Retract sigY sig) (x : X) (y : Y) (ss : Vector.t nat 2) :
+  TripleT (tspec (([], withSpace  [|Contains _ x; Contains _ y |] ss))) (MoveValue_steps x y) (MoveValue sig)
+          (fun _ => tspec (([], withSpace  [|Void; Contains _ x|] (appSize (MoveValue_size x y) ss)))).
+Proof. unfold withSpace.
+  eapply Realise_TripleT.
+  - apply MoveValue_Realise with (X := X) (Y := Y).
+  - apply MoveValue_Terminates with (X := X) (Y := Y).
+  - intros tin [] tout H HEnc. cbn in *.
+    specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. simpl_vector in *; cbn in *.
+    modpon H. tspec_solve.
+  - intros tin k HEnc. cbn in *.
+    specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. simpl_vector in *; cbn in *. eauto.
+Qed.
+
+Lemma MoveValue_SpecT (sig : finType) (sigX sigY X Y : Type)
+      (cX : codable sigX X) (cY : codable sigY Y) (I1 : Retract sigX sig) (I2 : Retract sigY sig) (x : X) (y : Y) :
+  TripleT (tspec ([],  [|Contains _ x; Contains _ y|])) (MoveValue_steps x y) (MoveValue sig) (fun _ => tspec ([],  [|Void; Contains _ x|])).
+Proof. eapply TripleT_RemoveSpace. apply MoveValue_SpecT_size. Qed.
+
+Lemma MoveValue_Spec_size (sig : finType) (sigX sigY X Y : Type)
+      (cX : codable sigX X) (cY : codable sigY Y) (I1 : Retract sigX sig) (I2 : Retract sigY sig) (x : X) (y : Y) (ss : Vector.t nat 2) :
+  Triple (tspec (([], withSpace  [|Contains _ x; Contains _ y |] ss))) (MoveValue sig)
+         (fun _ => tspec (([], withSpace  [|Void; Contains _ x|] (appSize (MoveValue_size x y) ss)))).
+Proof. eapply TripleT_Triple. apply MoveValue_SpecT_size. Qed.
+
+Lemma MoveValue_Spec (sig : finType) (sigX sigY X Y : Type)
+      (cX : codable sigX X) (cY : codable sigY Y) (I1 : Retract sigX sig) (I2 : Retract sigY sig) (x : X) (y : Y) :
+  Triple (tspec ([],  [|Contains _ x; Contains _ y|])) (MoveValue sig) (fun _ => tspec ([],  [|Void; Contains _ x|])).
+Proof. eapply TripleT_Triple. apply MoveValue_SpecT. Qed.
+
+
+Lemma Translate_SpecT_size (sig : finType) (sigX X : Type)
+      (cX : codable sigX X) (I1 I2 : Retract sigX sig) (x : X) (ss : Vector.t nat 1) :
+  TripleT (tspec (([], withSpace  [|Contains I1 x |] ss))) (Translate_steps x) (Translate I1 I2)
+          (fun _ => tspec (([], withSpace  [|Contains I2 x|] (appSize [|id|] ss)))).
+Proof. unfold withSpace.
+  eapply Realise_TripleT.
+  - apply Translate_Realise with (X := X).
+  - apply Translate_Terminates with (X := X).
+  - intros tin [] tout H HEnc. cbn in *.
+    specialize (HEnc Fin0) as HEnc0; simpl_vector in *; cbn in *.
+    modpon H. tspec_solve.
+  - intros tin k HEnc Hk. cbn in *.
+    specialize (HEnc Fin0) as HEnc0. simpl_vector in *; cbn in *. unfold Translate_T. eauto.
+Qed.
+
+Lemma Translate_SpecT (sig : finType) (sigX X : Type)
+      (cX : codable sigX X) (I1 I2 : Retract sigX sig) (x : X) :
+  TripleT (tspec ([],  [|Contains I1 x|])) (Translate_steps x) (Translate I1 I2)
+          (fun _ => tspec ([],  [|Contains I2 x|])).
+Proof. eapply TripleT_RemoveSpace. apply Translate_SpecT_size. Qed.
+
+Lemma Translate_Spec_size (sig : finType) (sigX X : Type)
+      (cX : codable sigX X) (I1 I2 : Retract sigX sig) (x : X) (ss : Vector.t nat 1) :
+  Triple (tspec (([], withSpace  [|Contains I1 x |] ss))) (Translate I1 I2)
+         (fun _ => tspec (([], withSpace  [|Contains I2 x|] (appSize [|id|] ss)))).
+Proof. eapply TripleT_Triple. apply Translate_SpecT_size. Qed.
+
+Lemma Translate_Spec (sig : finType) (sigX X : Type)
+      (cX : codable sigX X) (I1 I2 : Retract sigX sig) (x : X) :
+  Triple (tspec ([],  [|Contains I1 x|])) (Translate I1 I2)
+         (fun _ => tspec ([],  [|Contains I2 x|])).
+Proof. eapply TripleT_Triple. apply Translate_SpecT. Qed.
+
+Ltac hstep_Reset :=
+  lazymatch goal with
+  | [ |- TripleT ?P ?k (CopyValue _) ?Q ] => eapply @CopyValue_SpecT_size
+  | [ |- TripleT ?P ?k (Reset _) ?Q ] => eapply @Reset_SpecT_space
+  | [ |- TripleT ?P ?k (ResetEmpty _) ?Q ] => eapply @ResetEmpty_SpecT_space
+  | [ |- TripleT ?P ?k (ResetEmpty1 _) ?Q ] => eapply @ResetEmpty1_SpecT_space
+  | [ |- TripleT ?P ?k (MoveValue _) ?Q ] => eapply @MoveValue_SpecT_size
+  | [ |- TripleT ?P ?k (Translate _ _) ?Q ] => eapply @Translate_SpecT_size
+  end.
+
+Smpl Add hstep_Reset : hstep_smpl.

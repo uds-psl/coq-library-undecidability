@@ -1,7 +1,7 @@
 From Undecidability.L Require Import LTactics Datatypes.Lists Datatypes.LNat Datatypes.LBool.
 From Undecidability.TM Require TM ProgrammingTools CaseList CaseBool ListTM.
 
-From Undecidability.TM Require Import TM_facts SizeBounds L.Transcode.BoollistEnc.
+From Undecidability.TM Require Import TM_facts SizeBounds L.Transcode.BoollistEnc Hoare.
 
 From Undecidability.L.Complexity  Require Import UpToCNary.
 
@@ -285,7 +285,32 @@ Module BoollistToEnc.
 
     Definition Terminates := projT2 _Terminates.
 
+    Lemma SpecT  :
+    { f : UpToC (fun bs => length bs + 1) &
+      forall (bs : list bool),
+      TripleT 
+        (tspec ([],[| Contains _ bs;Void;Void; Void|]) )
+        (f bs)
+        M
+        (fun _ => tspec ([],[|Void; Contains _ (compile (Computable.enc (rev bs)));Void;Void|])) }. 
+    Proof.
+      evar (f: list bool -> nat).
+      exists_UpToC f.
+      intros.
+      unfold withSpace in *.
+      eapply Realise_TripleT. now apply Realise. now apply Terminates.
+      - intros tin yout tout H [_ HEnc]%tspecE. cbn in *.
+        specializeFin HEnc. simpl_vector in *; cbn in *. modpon H. tspec_solve.
+      - intros tin k [_ HEnc]%tspecE Hk. cbn in *.
+        specializeFin HEnc. simpl_vector in *; cbn in *. eexists. repeat split. contains_ext. 1-3:isVoid_mono.
+        rewrite <- Hk. [f]:intro. now unfold f.
+      - subst f. setoid_rewrite UpToC_le. smpl_upToC_solve.
+    Qed.     
+
   End M.
+
+  
+
 End BoollistToEnc.
 Arguments BoollistToEnc.M : clear implicits.
 Arguments BoollistToEnc.M {_} _ _.

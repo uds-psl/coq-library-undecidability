@@ -692,7 +692,8 @@ Proof.
   unfold CopyValue_steps, Add_Loop_steps, Add_steps, Reset_steps. rewrite !Encode_nat_hasSize. lia.
 Restart.
   start_TM.
-  unfold Add. hsteps_cbn. eapply CopyValue_SpecT. apply CopyValue_SpecT. apply Add_Loop_SpecT. cbn. apply Reset_SpecT. cbn.
+  unfold Add. hsteps_cbn. now apply Add_Loop_SpecT. now apply Reset_SpecT.
+  
   (* The only interesting part of the proof! *)
   replace (a+b) with (b+a) by lia. auto.
   reflexivity. reflexivity.
@@ -810,7 +811,7 @@ Restart.
   eapply If_SpecTReg.
   - hsteps.
   - cbn. hintros Hm.  
-    hsteps. apply Add_SpecT. cbn. hsteps. cbn. apply MoveValue_SpecT. reflexivity. cbn.
+    hsteps. apply Add_SpecT. cbn. hsteps. reflexivity. cbn.
     destruct m'. easy. cbn. tspec_ext.
   - cbn. hsteps. hintros ? ->. tspec_ext.
   - cbn. intros b. (* This part is the same *)
@@ -844,7 +845,7 @@ Proof.
   eapply If_SpecTReg.
   - hsteps.
   - cbn. hintros ?. destruct m' as [ | m'']. contradiction. cbn.
-    hsteps. apply Add_SpecT_space. cbn. hsteps. cbn. apply MoveValue_SpecT_size. reflexivity. cbn. tspec_ext.
+    hsteps. apply Add_SpecT_space. cbn. hsteps. cbn. reflexivity. cbn. tspec_ext.
   - cbn. hintros ->. hsteps. tspec_ext.
   - cbn. destruct m'; intros []. 1,4:easy. 
     all:unfold Mult_Step_steps, MoveValue_steps, CaseNat_steps, Add_steps. 2:rewrite !Encode_nat_hasSize.
@@ -937,7 +938,6 @@ Proof.
   unfold Mult_steps. ring_simplify. unfold CopyValue_steps, Constr_O_steps, Reset_steps. rewrite !Encode_nat_hasSize. cbn. ring_simplify. reflexivity.
 Restart.
   unfold Mult. hsteps_cbn.
-  apply CopyValue_SpecT. hsteps_cbn.
   apply Mult_Loop_SpecT. apply Reset_SpecT.
   cbn. replace (m * n + 0) with (m * n) by lia. auto. (* This part is the same. *)
   reflexivity. reflexivity.
@@ -1009,7 +1009,3 @@ Proof.
   unfold Mult_steps. ring_simplify. unfold CopyValue_steps, Constr_O_steps, Reset_steps. rewrite !Encode_nat_hasSize. cbn. ring_simplify. reflexivity.
 Qed.
 
-
-(* TODO:
-- Examples using the Sigma-lift
-*)

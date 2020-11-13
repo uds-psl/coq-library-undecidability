@@ -118,3 +118,58 @@ Ltac smpl_TM_CaseNat :=
   end.
 
 Smpl Add smpl_TM_CaseNat : TM_Correct.
+
+From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+
+Lemma Constr_O_SpecT_size (ss : Vector.t nat 1) :
+  TripleT (tspec (([], withSpace  [|Void |] ss))) Constr_O_steps Constr_O (fun _ => tspec (([], withSpace  [|Contains _ 0|] (appSize [|Constr_O_size|] ss)))).
+Proof.  unfold withSpace.
+  eapply RealiseIn_TripleT.
+  - apply Constr_O_Sem.
+  - intros tin [] tout H1 H2. cbn in *. specialize (H2 Fin0). simpl_vector in *; cbn in *. modpon H1. tspec_solve.
+Qed.
+
+Lemma Constr_S_SpecT_size :
+  forall (y : nat) ss,
+    TripleT (tspec (([], withSpace  [|Contains _ y |] ss))) Constr_S_steps Constr_S
+            (fun _ => tspec (([], withSpace  [|Contains _ (S y)|] (appSize [|S|] ss)))).
+Proof.  unfold withSpace.
+  intros y ss.
+  eapply RealiseIn_TripleT.
+  - apply Constr_S_Sem.
+  - intros tin [] tout H HEnc. cbn in *.
+    specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H. tspec_solve.
+Qed.
+
+Definition CaseNat_size (n : nat) : Vector.t (nat->nat) 1 :=
+  match n with
+  | O => [|id|]
+  | S n' => [|S|]
+  end.
+
+Lemma CaseNat_SpecT_size (y : nat) (ss : Vector.t nat 1) :
+  TripleT
+    (tspec (([], withSpace  [|Contains _ y |] ss)))
+    CaseNat_steps
+    CaseNat
+    (fun yout =>
+       tspec
+         ([if yout then y <> 0 else y = 0],withSpace ([|Contains _ (pred y)|])
+            (appSize (CaseNat_size y) ss))).
+Proof.  unfold withSpace.
+  eapply RealiseIn_TripleT.
+  - apply CaseNat_Sem.
+  - intros tin yout tout H HEnc. specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H.
+    destruct yout, y; cbn in *; auto.
+    + tspec_solve. easy.
+    + tspec_solve. easy.
+Qed.
+
+Ltac hstep_Nat :=
+  lazymatch goal with
+  | [ |- TripleT ?P ?k Constr_O ?Q ] => eapply Constr_O_SpecT_size
+  | [ |- TripleT ?P ?k Constr_S ?Q ] => eapply Constr_S_SpecT_size
+  | [ |- TripleT ?P ?k CaseNat ?Q ] => eapply CaseNat_SpecT_size
+  end.
+
+Smpl Add hstep_Nat : hstep_smpl.

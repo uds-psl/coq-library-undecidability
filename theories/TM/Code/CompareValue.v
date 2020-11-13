@@ -12,6 +12,7 @@ From Undecidability Require Import TM.Lifting.LiftTapes.
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 
+Set Default Proof Using "Type".
 
 Lemma pair_inv (X Y : Type) (x1 x2 : X) (y1 y2 : Y) :
   (x1, y1) = (x2, y2) -> x1 = x2 /\ y1 = y2.
@@ -58,7 +59,7 @@ Section CompareValues.
 
 
   Lemma CompareValues_Realise : CompareValues ⊨ CompareValues_Rel.
-  Proof.
+  Proof using cX_injective.
     eapply Realise_monotone.
     { unfold CompareValues. apply Switch_Realise. apply Compare_Realise. intros res. TM_Correct. }
     {
@@ -202,3 +203,48 @@ Section CompareValues_steps_comp.
 
 End CompareValues_steps_comp.
 *)
+
+From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+
+Section CompareValues.
+
+  Variable (sigX : finType) (X : eqType) (cX : codable sigX X).
+  Hypothesis (HInj : forall x y, cX x = cX y -> x = y).
+
+  Lemma CompareValue_SpecT_size (x y : X) (ss : Vector.t nat 2) :
+    TripleT (tspec (([], withSpace  [|Contains _ x; Contains _ y |] ss)))
+            (CompareValues_steps x y) (CompareValues sigX)
+            (fun yout => tspec ([if yout then x=y else x<>y],withSpace [|Contains _ x; Contains _ y|] (appSize [|id; id|] ss))).
+  Proof using HInj. unfold withSpace.
+    eapply Realise_TripleT.
+    - now apply CompareValues_Realise.
+    - now apply CompareValues_TerminatesIn.
+    - intros tin yout tout H HEnc. cbn in *. 
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. cbn in *. 
+      cbn in *; simpl_vector in *; cbn in *.
+      modpon H. rewrite H. tspec_solve. now decide _.
+    - intros tin k HEnc Hk. cbn in *.
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1.
+      cbn in *; simpl_vector in *; cbn in *.
+      unfold CompareValues_T. eauto.
+  Qed.
+
+  Lemma CompareValue_SpecT (x y : X) :
+    TripleT (tspec ([],  [|Contains _ x; Contains _ y|]))
+            (CompareValues_steps x y) (CompareValues sigX)
+            (fun yout => tspec ([if yout then x=y else x<>y],[|Contains _ x; Contains _ y|])).
+  Proof using HInj. eapply TripleT_RemoveSpace. cbn. intros s. apply CompareValue_SpecT_size. Qed.
+
+  Lemma CompareValue_Spec_size (x y : X) (ss : Vector.t nat 2) :
+    Triple (tspec (([], withSpace  [|Contains _ x; Contains _ y |] ss)))
+           (CompareValues sigX)
+           (fun yout => tspec ([if yout then x=y else x<>y],withSpace [|Contains _ x; Contains _ y|] (appSize [|id; id|] ss))).
+  Proof using HInj. eapply TripleT_Triple. apply CompareValue_SpecT_size. Qed.
+
+  Lemma CompareValue_Spec (x y : X) :
+    Triple (tspec ([],  [|Contains _ x; Contains _ y|]))
+           (CompareValues sigX)
+           (fun yout => tspec ([if yout then x=y else x<>y],[|Contains _ x; Contains _ y|])).
+  Proof using HInj. eapply Triple_RemoveSpace. apply CompareValue_Spec_size. Qed.
+
+End CompareValues.

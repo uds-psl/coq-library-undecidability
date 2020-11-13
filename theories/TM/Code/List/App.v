@@ -1,5 +1,6 @@
 From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import CaseNat CaseList CaseSum. (* [TM.Code.CaseSum] contains [Constr_Some] and [Constr_None]. *)
+From Undecidability.TM Require Hoare.
 
 Local Arguments skipn { A } !n !l.
 Local Arguments plus : simpl never.
@@ -191,13 +192,34 @@ Section Append.
     }
   Qed.
 
+  Import Hoare.
+  
 
+  Definition App'_sizeV (xs : list X) :=
+    [| id;
+       App'_size xs 
+     |].
+
+
+  Lemma App'_SpecT (xs ys:list X) ss:
+  TripleT ≃≃([],withSpace [|Contains _ xs;Contains _ ys|] ss) (App'_steps xs) App'
+  (fun _ => ≃≃([],withSpace [|Contains _ xs;Contains _ (xs++ys)|] (appSize (App'_sizeV xs) ss ))).
+  Proof.
+    unfold withSpace in *.
+    eapply Realise_TripleT. now apply App'_Realise. now apply App'_Terminates.
+    - intros tin yout tout H [_ HEnc]%tspecE. cbn in *.
+      specializeFin HEnc. simpl_vector in *; cbn in *. modpon H. tspec_solve.
+    - intros tin k [_ HEnc]%tspecE Hk. cbn in *.
+      specializeFin HEnc. simpl_vector in *; cbn in *. do 2 eexists. repeat split. 1-2:contains_ext. easy.
+  Qed.
+
+(*
   Definition App : pTM sigList^+ unit 3 :=
     LiftTapes (CopyValue _) [|Fin1; Fin2|];;
     LiftTapes (App') [|Fin0; Fin2|].
 
 
-  (*
+  
   Lemma App_Computes : App ⊨ Computes2_Rel (@app X).
   Proof.
     eapply Realise_monotone.
@@ -213,7 +235,7 @@ Section Append.
       - intros i; destruct_fin i.
     }
   Qed.
-*)
+
 
 
   Definition App_steps {sigX X : Type} {cX : codable sigX X} (xs ys : list X) :=
@@ -239,13 +261,91 @@ Section Append.
       modpon HApp'.
       hnf. cbn. do 2 eexists. repeat split; eauto.
     }
+  Qed. *)
+
+  Definition App :pTM  _ _ 2 :=
+    App' @ [|Fin0; Fin1|];;
+    MoveValue _ @ [|Fin1; Fin0|].
+
+  Definition App_size (Q Q' : list X) : Vector.t (nat->nat) 2 :=
+    [| MoveValue_size_y (Q ++ Q') Q; App'_size Q >> MoveValue_size_x (Q ++ Q') |].
+
+  Definition App_Rel : pRel ((sigList sigX) ^+) unit 2 :=
+    ignoreParam (
+        fun tin tout =>
+          forall (Q Q' : list X) (s0 s1 : nat),
+            tin[@Fin0] ≃(;s0) Q ->
+            tin[@Fin1] ≃(;s1) Q' ->
+            tout[@Fin0] ≃(;App_size Q Q' @>Fin0 s0) Q ++ Q' /\
+            isVoid_size tout[@Fin1] (App_size Q Q' @>Fin1 s1)
+      ).
+
+  Lemma App_Realise : App ⊨ App_Rel.
+  Proof.
+    eapply Realise_monotone.
+    { unfold App. TM_Correct.
+      - apply App'_Realise.
+    }
+    {
+      intros tin ((), tout) H. intros Q Q' s0 s1 HEncQ HEncQ'.
+      TMSimp. modpon H. modpon H0. auto.
+    }
   Qed.
 
+  Arguments App_size : simpl never.
+
+
+  Definition App_steps (Q Q': list X) := 1 + App'_steps Q + MoveValue_steps (Q ++ Q') Q.
+
+  Definition App_T : tRel (sigList sigX) ^+ 2 :=
+    fun tin k => exists (Q Q' : list X), tin[@Fin0] ≃ Q /\ tin[@Fin1] ≃ Q' /\ App_steps Q Q' <= k.
+
+  Lemma App_Terminates : projT1 App ↓ App_T.
+  Proof.
+    eapply TerminatesIn_monotone.
+    { unfold App. TM_Correct.
+      - apply App'_Realise.
+      - apply App'_Terminates.
+    }
+    {
+      intros tin k (Q&Q'&HEncQ&HEncQ'&Hk).
+      exists (App'_steps Q), (MoveValue_steps (Q++Q') Q); cbn; repeat split; try lia.
+      hnf; cbn. eauto. now rewrite Hk.
+      intros tmid () (HApp&HInjApp); TMSimp. modpon HApp.
+      exists (Q++Q'), Q. repeat split; eauto.
+    }
+  Qed.
+
+  Lemma App_SpecT (xs ys:list X) ss:
+  TripleT ≃≃([],withSpace [|Contains _ xs;Contains _ ys|] ss) (App_steps xs ys) App
+  (fun _ => ≃≃([],withSpace [|Contains _ (xs++ys);Void|] (appSize (App_size xs ys) ss ))).
+  Proof.
+    unfold withSpace in *.
+    eapply Realise_TripleT. now apply App_Realise. now apply App_Terminates.
+    - intros tin yout tout H [_ HEnc]%tspecE. cbn in *.
+      specializeFin HEnc. simpl_vector in *; cbn in *. modpon H. tspec_solve.
+    - intros tin k [_ HEnc]%tspecE Hk. cbn in *.
+      specializeFin HEnc. simpl_vector in *; cbn in *. do 2 eexists. repeat split. 1-2:contains_ext. easy.
+  Qed.
+
+
 End Append.
+
+Import Hoare.
+
+Ltac hstep_App :=
+  lazymatch goal with
+  | [ |- TripleT ?P ?k (App' _) ?Q ] => eapply App'_SpecT
+  | [ |- TripleT ?P ?k (App _) ?Q ] => eapply App_SpecT
+  end.
+
+Smpl Add hstep_App : hstep_smpl.
 
 
 Arguments App'_steps {sigX X cX} : simpl never.
 Arguments App'_size {sigX X cX} : simpl never.
+Arguments App_steps {sigX X cX} : simpl never.
+Arguments App_size {sigX X cX} : simpl never.
 
 From Undecidability.L.Complexity Require Import UpToC.
 

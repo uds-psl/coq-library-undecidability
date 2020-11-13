@@ -76,3 +76,32 @@ Ltac smpl_TM_WriteValue :=
   end.
 
 Smpl Add smpl_TM_WriteValue : TM_Correct.
+
+
+From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+
+Section WriteValue.
+
+  Variable (sig: finType) (X: Type) (cX: codable sig X).
+
+  Definition WriteValue_sizefun (x : X) : Vector.t (nat->nat) 1 := [| WriteValue_size x |].
+  
+  Lemma WriteValue_SpecT_size (x : X) (ss : Vector.t nat 1) :
+    TripleT (tspec (([], withSpace  [|Void |] ss)))
+            (WriteValue_steps (size x)) (WriteValue x)
+            (fun _ => tspec (([], withSpace  [|Contains _ x|] (appSize (WriteValue_sizefun x) ss)))).
+  Proof. unfold withSpace.
+    eapply RealiseIn_TripleT.
+    - apply WriteValue_Sem.
+    - intros tin yout tout H HEnc. cbn in *.
+      specialize (HEnc Fin0). simpl_vector in *; cbn in *. tspec_solve. now apply H.
+  Qed.
+
+End WriteValue.
+
+Ltac hstep_WriteValue :=
+  match goal with
+  | [ |- TripleT ?P ?k (WriteValue _) ?Q ] => eapply WriteValue_SpecT_size
+  end.
+
+Smpl Add hstep_WriteValue : hstep_smpl.

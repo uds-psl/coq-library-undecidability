@@ -34,7 +34,7 @@ Section Fix.
   
   Definition M__loop := While M__step.
 
-  Lemma loop_SpecT':
+  Lemma loop_SpecT:
     { f : UpToC (fun bs => length bs + 1) &
     forall bs res,
       TripleT 
@@ -80,44 +80,24 @@ Section Fix.
      ring_simplify. [c1]:exact 68. subst c1. nia. } 
   Qed.
 
-  Definition Realise__loop :
-    Realise M__loop (fun t '(r, t') =>
-      forall (l l': list bool),
-        t[@Fin0] ≃ l ->
-        right t[@Fin1] = map (fun (x:bool) => if x then s else b) l' ->
-        length (left t[@Fin1]) <= length l ->
-        isVoid (t[@Fin2]) ->
-        t'[@Fin1] = encTM s b (rev l++l')
-        /\ (isVoid (t'[@Fin0]) /\ isVoid (t'[@Fin2]))).
-  Proof.
-    eapply Realise_monotone.
-    {unfold M__loop,M__step.  TM_Correct_noSwitchAuto. TM_Correct. cbn. intros. TM_Correct. }
-    eapply WhileInduction; intros;hnf.
-    - destruct HLastStep;TMSimp.
-      specialize (H3 l). modpon H3. 
-      destruct l. 2:contradiction H3.
-      TMSimp;cbn in *. simpl_surject.
-      modpon H4. split. 2:easy.
-      rewrite H0. unfold encTM. 
-      destruct tin_1 as [ | | | ] eqn:Heq;cbn in *. 
-      all:(destruct l';revert Heq;inv H0;cbn;intros Heq).  
-      1,2:reflexivity.
-      1:exfalso;nia. 
-      all: destruct l;[reflexivity | ].
-      all:exfalso; revert H1; clear;cbn. all:nia.
-    - destruct HStar. all:TMSimp. simpl_surject.
-      modpon H3. destruct l. contradiction.
-      TMSimp. simpl_surject.
-      modpon H4. TMSimp.
-      autorewrite with tape in HLastStep.
-      rewrite H0 in HLastStep. rewrite tl_length in HLastStep.
-      specialize (HLastStep l (cons b0 l')).
-      modpon  HLastStep. lia.
-      split. 2:easy. autorewrite with list. assumption.
-  Qed.
-
   Definition M : pTM (Σ) ^+ unit 3 :=
     (*LiftTapes (MoveToSymbol (fun _ => false) id) [|Fin1|];;*) M__loop.
+
+  Lemma SpecT:
+  { f : UpToC (fun bs => length bs + 1) &
+    forall bs,
+      TripleT 
+        (tspec ([],[|Contains _ bs; Custom (eq niltape); Void|]) )
+        (f bs)
+        M
+        (fun _ => tspec ([],[|Void; Custom (eq (encTM s b (rev bs))) ; Void  |])) }.
+  Proof.
+    eexists. intros. eapply ConsequenceT.
+    eapply (projT2 loop_SpecT) with (res:=[]).
+    -tspec_ext. rewrite <- H0. now cbn.
+    -intros []. now rewrite app_nil_r.
+    -reflexivity.
+  Qed.
 
   Theorem Realise :
     Realise M (fun t '(r, t') =>
@@ -128,9 +108,12 @@ Section Fix.
                         t'[@Fin1] = encTM s b (rev l)
                         /\ (isVoid (t'[@Fin0]) /\ isVoid (t'[@Fin2]))).
   Proof.
-    eapply Realise_monotone.
-    {unfold M. TM_Correct. apply Realise__loop. }
-    hnf. intros;TMSimp. specialize H with (l':= nil). modpon H. nia. autorewrite with list in H. eauto.
+    repeat (eapply RealiseIntroAll;intro). eapply Realise_monotone.
+    -eapply TripleT_Realise. eapply (projT2 SpecT).
+    -cbn. intros ? [] H **. modpon H.
+    {unfold "≃≃",withSpace;cbn. intros i; destruct_fin i;cbn. all:easy. }
+    repeat destruct _;unfold "≃≃",withSpace in H;cbn in H.
+    all:specializeFin H;eauto 6.
   Qed.   
 
 End Fix.
@@ -160,7 +143,7 @@ Section Fix.
   Definition M__loop := While M__step.
 
   
-  Lemma loop_SpecT' (H__neq : s <> b):
+  Lemma loop_SpecT (H__neq : s <> b):
     { f : UpToC (fun bs => length bs + 1) &
     forall bs res tin,
       TripleT 
@@ -235,7 +218,7 @@ Section Fix.
     WriteValue (@nil bool)⇑ retr_list @ [|Fin1|];;
     M__loop.
 
-  Lemma SpecT' (H__neq : s <> b):
+  Lemma SpecT (H__neq : s <> b):
     { f : UpToC (fun bs => length bs + 1) &
       forall bs,
       TripleT 
@@ -254,7 +237,7 @@ Section Fix.
     hstep. {hsteps_cbn. reflexivity. } 2:reflexivity.
     cbn. intros _.
     {
-      eapply ConsequenceT. eapply (projT2 (loop_SpecT' H__neq)) with (bs:=_)(res:=_) (tin:=_).
+      eapply ConsequenceT. eapply (projT2 (loop_SpecT H__neq)) with (bs:=_)(res:=_) (tin:=_).
       3:reflexivity. 2:{ intro;cbn. rewrite rev_involutive,app_nil_r. reflexivity. }
       eapply EntailsI. intros tin.
       unfold encTM,encListTM.
@@ -284,7 +267,7 @@ Section Fix.
                         /\ t'[@Fin1] ≃ l).
   Proof.  
     repeat (eapply RealiseIntroAll;intro). eapply Realise_monotone.
-    -eapply TripleT_Realise,(projT2 (SpecT' H__neq)).
+    -eapply TripleT_Realise,(projT2 (SpecT H__neq)).
     -intros ? [] H **. modpon H.
     {unfold "≃≃",withSpace;cbn. intros i; destruct_fin i;cbn. all:eauto. }
     repeat destruct _;unfold "≃≃",withSpace in H;cbn in H.

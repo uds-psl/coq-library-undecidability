@@ -1,6 +1,7 @@
 (** ** Some Hoare Rules *)
 
-From Undecidability Require Import ProgrammingTools.
+From Undecidability Require Import TMTac TM.Util.Prelim.
+From Undecidability Require Export TM.Compound.Multi TM.Combinators.Combinators.
 From Undecidability.TM.Hoare Require Import HoareLogic HoareRegister.
 
 (** *** Nop *)

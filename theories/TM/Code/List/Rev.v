@@ -1,5 +1,5 @@
 From Undecidability Require Import ProgrammingTools.
-From Undecidability Require Import CaseNat CaseList CaseSum. (* [TM.Code.CaseSum] contains [Constr_Some] and [Constr_None]. *)
+From Undecidability Require Import CaseNat CaseList CaseSum Hoare. (* [TM.Code.CaseSum] contains [Constr_Some] and [Constr_None]. *)
 
 
 Local Arguments skipn { A } !n !l.
@@ -189,4 +189,27 @@ Section Rev.
   Qed.
 
 
+  Lemma Rev_SpecT (xs:list X) ss:
+  TripleT ≃≃([],withSpace [|Contains _ xs;Void;Void|] ss) (Rev_steps xs) Rev
+  (fun _ => ≃≃([],withSpace [|Void;Contains _ (rev xs);Void|] (appSize (Rev_size xs) ss))).
+  Proof.
+    unfold withSpace in *.
+    eapply Realise_TripleT. now apply Rev_Realise. now apply Rev_Terminates.
+    - intros tin yout tout H [_ HEnc]%tspecE. cbn in *.
+      specializeFin HEnc. simpl_vector in *; cbn in *. modpon H. tspec_solve.
+    - intros tin k [_ HEnc]%tspecE Hk. cbn in *.
+      specializeFin HEnc. simpl_vector in *; cbn in *. hnf. eexists. repeat split.
+       1:contains_ext. 1-2:isVoid_mono. easy.
+  Qed.
+
+
 End Rev.
+
+Import Hoare.
+
+Ltac hstep_App :=
+  lazymatch goal with
+  | [ |- TripleT ?P ?k (Rev _) ?Q ] => eapply Rev_SpecT
+  end.
+
+Smpl Add hstep_App : hstep_smpl.

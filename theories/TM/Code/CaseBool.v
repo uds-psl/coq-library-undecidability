@@ -51,3 +51,33 @@ Ltac smpl_TM_CaseBool :=
   end.
 
 Smpl Add smpl_TM_CaseBool : TM_Correct.
+
+
+From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+
+Definition CaseBool_size (_ : bool) : Vector.t (nat->nat) 1 :=
+   [|plus 2|].
+
+Lemma CaseBool_SpecT_size (b : bool) (ss : Vector.t nat 1) :
+  TripleT
+    (tspec (([], withSpace  [|Contains _ b |] ss)))
+    CaseBool_steps
+    CaseBool
+    (fun yout =>
+       tspec
+         ([yout = b],withSpace
+            ([|Void|])
+            (appSize (CaseBool_size b) ss))). 
+Proof.  unfold withSpace.
+  eapply RealiseIn_TripleT.
+  - apply CaseBool_Sem.
+  - intros tin yout tout H HEnc. specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H.
+    subst yout. tspec_solve. easy.
+Qed.
+
+Ltac hstep_Bool :=
+  lazymatch goal with
+  | [ |- TripleT ?P ?k CaseBool ?Q ] => eapply CaseBool_SpecT_size
+  end.
+
+Smpl Add hstep_Bool : hstep_smpl.

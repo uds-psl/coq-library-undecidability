@@ -53,3 +53,37 @@ Ltac smpl_TM_CaseFin :=
   end.
 
 Smpl Add smpl_TM_CaseFin : TM_Correct.
+
+From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+
+Section CaseFin.
+
+  Variable sig : finType.
+  Hypothesis defSig : inhabitedC sig.
+
+  (** A non-standard encoding! *)
+  Local Existing Instance Encode_Finite.
+
+  Definition CaseFin_size : Vector.t (nat->nat) 1 := [|S>>S|].
+
+  Lemma CaseFin_SpecT_size (x : sig) (ss : Vector.t nat 1) :
+    TripleT (tspec (([], withSpace  [|Contains _ x |] ss)))
+            (CaseFin_steps) (CaseFin sig)
+            (fun yout => tspec ([yout = x], withSpace  [|Void|] (appSize CaseFin_size ss))).
+  Proof. unfold withSpace in *.
+    eapply RealiseIn_TripleT.
+    - apply CaseFin_Sem.
+    - intros tin yout tout H HEnc. cbn in *.
+      specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H. tspec_solve. easy.
+  Qed.
+
+End CaseFin.
+
+(* There is no constructor. It is just [WriteValue x]. *)
+
+Ltac hstep_Fin :=
+  match goal with
+  | [ |- TripleT ?P ?k (CaseFin _) ?Q ] => eapply CaseFin_SpecT_size
+  end.
+
+Smpl Add hstep_Fin : hstep_smpl.

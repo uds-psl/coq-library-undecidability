@@ -26,9 +26,9 @@ Set Default Proof Using "Type".
 Section APP_right.
 
   Definition APP_right : pTM (sigPro)^+ unit 2 :=
-    App_Commands;;
+    App _;;
     (LiftTapes (WriteValue ( [appT]%list)) [|Fin1|]);;
-    App_Commands.
+    App _.
 
   Lemma APP_right_realises :
     Realise APP_right (fun t '(r, t') =>
@@ -39,12 +39,29 @@ Section APP_right.
       /\ isVoid (t'[@Fin1])).
   Proof.
     eapply Realise_monotone.
-    {unfold APP_right. TM_Correct. all: apply App_Commands_Realise. }
+    {unfold APP_right. TM_Correct. all: apply App_Realise. }
     hnf. intros ? [] ? s1 s2. intros;TMSimp.
     modpon H. modpon H2. modpon H3.
     split. 2:solve [isVoid_mono].
     contains_ext. now autorewrite with list.
-  Qed.  
+  Qed.
+  
+  Lemma APP_right_Spec :
+    { f & forall s1 s2 : term,
+    TripleT ≃≃([],[|Contains _ (compile s1);Contains _ (compile s2)|])
+    (f s1 s2) APP_right (fun _ => ≃≃([],[|Contains _ (compile (L.app s1 s2));Void|])) }.
+  Proof.
+    evar (f : term -> term -> nat).
+    eexists f. [f]:intros s1 s2.
+    intros s1 s2.
+    unfold APP_right.
+    hsteps_cbn.
+    -rewrite app_assoc.  reflexivity.
+    -reflexivity.
+    -unfold f. reflexivity.
+  Qed.
+
+
 
 End APP_right.
 
@@ -104,6 +121,28 @@ Section mk_init_one.
     Rev _ ⇑ retr_list @ [|Fin3;Fin2;Fin4|];;
     BoollistToEnc.M retr_list retr_pro @[|Fin2;Fin3;Fin4;Fin5|];;
     APP_right ⇑ retr_pro  @[|Fin1;Fin3|].
+
+    
+  Lemma M_init_one_Spec :
+    { f & forall (bs:list bool) (ter : L.term),
+    TripleT ≃≃([],[|Custom (eq (encTM s b bs));Contains _ (compile ter);Void;Void;Void;Void|])
+    (f bs ter) M_init_one (fun _ => ≃≃([],[|Custom (eq (encTM s b bs));Contains _ (compile (L.app ter (encL bs)));Void;Void;Void;Void|])) }.
+  Proof using H_disj.
+    evar (f : list bool -> term -> nat).
+    eexists f. [f]:intros bs ter.
+    intros bs ter.
+    unfold M_init_one.
+    hstep. { hsteps_cbn. cbn. eapply (projT2 (EncTM2boollist.SpecT _ H_disj)). }
+    cbn. intros _. hstep. { hsteps_cbn. cbn. tspec_ext. } 2:reflexivity.
+    cbn. intros _. hstep.
+    {
+      hsteps_cbn. cbn. eapply ConsequenceT. eapply (projT2 (@BoollistToEnc.SpecT _ _ _) (rev bs)).
+      all:cbn. now tspec_ext. now rewrite rev_involutive. reflexivity.
+    } 2:reflexivity.
+    cbn. intros _. hsteps_cbn.
+     now eapply (projT2 (APP_right_Spec)). 1,2:now cbn;tspec_ext.
+     subst f. cbn beta. reflexivity.
+  Qed.
 
   Lemma M_init_one_realises :
     Realise M_init_one (fun t '(r, t') =>
@@ -417,7 +456,7 @@ Section main.
     { clear H17. instantiate (1:= [| _;_;_;_;_;_;_;_|]);intros i;cbn;destruct_fin i;cbn;simpl_surject;isVoid_mono. }
     TMSimp.
     edestruct soundness as (g__res&H__res'&s__res&Heq&H__Red&H__res).
-    2:{ split;[ apply star_pow;eexists;eassumption| ]. eassumption. }
+    2:{ split;[ (apply ARS.star_pow;eexists;eassumption) | ]. eassumption. }
     { now eapply closed_compiler_helper. }
     injection Heq as [= ? ? ?]. subst ymid0 ymid1 ymid2.
     TMSimp. specializeFin H16;clear H16. compressHyp. simpl_surject.

@@ -317,3 +317,61 @@ Ltac smpl_TM_CasePair :=
   end.
 
 Smpl Add smpl_TM_CasePair : TM_Correct.
+
+
+From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+Section CasePair.
+
+  Variable (X Y : Type) (sigX sigY : finType) (codX : codable sigX X) (codY : codable sigY Y).
+
+  Definition Constr_pair_sizefun (x : X) : Vector.t (nat->nat) 2 :=
+    [|id; Constr_pair_size x|].
+
+  
+  Lemma Constr_pair_SpecT_size (x : X) (y : Y) (ss : Vector.t nat 2) :
+    TripleT (tspec (([], withSpace  [|Contains _ x; Contains _ y |] ss)))
+            (Constr_pair_steps x) (Constr_pair sigX sigY)
+            (fun _ => tspec (([], withSpace  [|Contains _ x; Contains _ (x,y)|]
+                                    (appSize (Constr_pair_sizefun x) ss)))).
+  Proof. unfold withSpace.
+    eapply Realise_TripleT.
+    - apply Constr_pair_Realise.
+    - apply Constr_pair_Terminates.
+    - intros tin [] yout H HEnc.
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. simpl_vector in *; cbn in *. 
+      modpon H. simpl_vector in *. tspec_solve.
+    - intros tin k HEnc Hk.
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. simpl_vector in *; cbn in *. 
+      unfold Constr_pair_T. eauto.
+  Qed.
+
+  Definition CasePair_size (p : X*Y) : Vector.t (nat->nat) 2 :=
+    [| CasePair_size0 (fst p); CasePair_size1 (fst p) |].
+
+  Lemma CasePair_SpecT_size (p : X*Y) (ss : Vector.t nat 2) :
+    TripleT (tspec (([], withSpace  [|Contains _ p; Void |] ss)))
+            (CasePair_steps (fst p)) (CasePair sigX sigY)
+            (fun _ => tspec (([], withSpace  [|Contains _ (snd p); Contains _ (fst p)|]
+                                    (appSize (CasePair_size p) ss)))).
+  Proof. unfold withSpace.
+    eapply Realise_TripleT.
+    - apply CasePair_Realise.
+    - apply CasePair_Terminates.
+    - intros tin [] tout H HEnc. cbn in *.
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. simpl_vector in *; cbn in *. 
+      modpon H. simpl_vector in *. tspec_solve.
+    - intros tin k HEnc Hk.
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1. simpl_vector in *; cbn in *. 
+      unfold CasePair_T. eauto.
+  Qed.
+
+End CasePair.
+
+
+Ltac hstep_Pair :=
+  match goal with
+  | [ |- TripleT ?P ?k (Constr_pair _ _) ?Q ] => eapply (Constr_pair_SpecT_size _ _ _ _)
+  | [ |- TripleT ?P ?k (CasePair    _ _) ?Q ] => eapply (CasePair_SpecT_size _ _ _)
+  end.
+
+Smpl Add hstep_Pair : hstep_smpl.

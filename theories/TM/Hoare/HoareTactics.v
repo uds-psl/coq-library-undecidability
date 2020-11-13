@@ -1,6 +1,6 @@
 (** ** Very Convienient Verification Tactics for Hoare Logic *)
 
-From Undecidability Require Import ProgrammingTools.
+From Undecidability Require Import TMTac.
 From Undecidability Require Import TM.Hoare.HoareLogic TM.Hoare.HoareCombinators TM.Hoare.HoareRegister TM.Hoare.HoareTacticsView.
 From smpl Require Import Smpl.
 
@@ -81,7 +81,7 @@ Ltac hstep_Return :=
 (** We have special rules for specifications with space; and we also have to check whether the post-condition already is instantiated. *)
 Ltac hstep_LiftTapes :=
   lazymatch goal with
-  | [ |- Triple ?PRE (?M @ ?I) ?POST ] =>
+  | [ |- Triple ?PRE (LiftTapes ?M ?I) ?POST ] =>
     tryif contains_evar POST then (* The post-condition is yet to be instantiated. *)
       (tryif triple_with_space
         then (eapply LiftTapes_Spec_space with (Q':= fun y => _) (Q:= fun y => _); [smpl_dupfree | ])
@@ -89,7 +89,7 @@ Ltac hstep_LiftTapes :=
     else (* Otherwise, we have to use the Consequence rule *)
       (tryif triple_with_space then (eapply LiftTapes_Spec_space_con with (R':= fun y => _) (R:= fun y => _); [smpl_dupfree | | ])
         else (eapply LiftTapes_Spec_con with (R':= fun y => _) (R:= fun y => _); [smpl_dupfree | | ]))
-  | [ |- TripleT ?PRE ?k (?M @ ?I) ?POST ] =>
+  | [ |- TripleT ?PRE ?k (LiftTapes ?M ?I) ?POST ] =>
     tryif contains_evar POST then
       (tryif triple_with_space then (refine (LiftTapes_SpecT_space (Q':= fun y => _) (Q:= fun y => _) _ _); [smpl_dupfree | ])
         else (refine (LiftTapes_SpecT (Q':= fun y => _) (Q:= fun y => _) _ _); [smpl_dupfree | ]))
@@ -102,14 +102,14 @@ Ltac hstep_LiftTapes :=
 (** [ChangeAlphabet] is similar to [LiftTapes], but we always have to apply at least [Consequence_pre]. We also have specialised rules for space. *)
 Ltac hstep_ChangeAlphabet :=
   lazymatch goal with
-  | [ |- Triple ?PRE (?M ⇑ ?I) ?POST ] =>
+  | [ |- Triple ?PRE (ChangeAlphabet ?M ?I)?POST ] =>
     tryif contains_evar POST then (* The post-condition is yet to be instantiated. *)
       (tryif triple_with_space then (eapply ChangeAlphabet_Spec_space_pre with (Q:= fun y => _) (Q0:= fun y => _); [ | ])
         else (eapply ChangeAlphabet_Spec_pre with (Q:= fun y => _) (Q0:= fun y => _); [ | ]))
     else (* Otherwise, we have to use the Consequence rule *)
       (tryif triple_with_space then (eapply ChangeAlphabet_Spec_space_pre_post  with (Q':= fun y => _) (Q0:= fun y => _); [ | | ])
         else (eapply ChangeAlphabet_Spec_pre_post with (Q':= fun y => _) (Q':= fun y => _) (Q0:= fun y => _); [ | | ]))
-  | [ |- TripleT ?PRE ?k (?M ⇑ ?I) ?POST ] =>
+  | [ |- TripleT ?PRE ?k (ChangeAlphabet ?M ?I)?POST ] =>
     tryif contains_evar POST then
       (tryif triple_with_space then (eapply ChangeAlphabet_SpecT_space_pre with (Q:= fun y => _) (Q0:= fun y => _); [ | ])
         else (eapply ChangeAlphabet_SpecT_pre with (Q:= fun y => _) (Q0:= fun y => _); [ | ]))
@@ -121,10 +121,10 @@ Ltac hstep_ChangeAlphabet :=
 (*
 Ltac hstep_ChangeAlphabet :=
   lazymatch goal with
-  | [ |- Triple ?P (?M ⇑ ?I) ?Q ] =>
+  | [ |- Triple ?P (ChangeAlphabet ?M ?I)?Q ] =>
     tryif contains_evar Q then (eapply ChangeAlphabet_Spec)
     else (eapply ChangeAlphabet_Spec_con; [ | ])
-  | [ |- TripleT ?P ?k (?M ⇑ ?I) ?Q ] =>
+  | [ |- TripleT ?P ?k (ChangeAlphabet ?M ?I)?Q ] =>
     tryif contains_evar Q then (eapply ChangeAlphabet_SpecT)
     else (eapply ChangeAlphabet_SpecT_pre_post; [ | ])
   end.

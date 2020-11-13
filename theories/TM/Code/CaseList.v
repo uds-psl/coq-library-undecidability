@@ -513,3 +513,83 @@ Ltac smpl_TM_CaseList :=
   end.
 
 Smpl Add smpl_TM_CaseList : TM_Correct.
+
+
+
+From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+
+Section CaseList.
+
+  Variable (X : Type) (sigX : finType) (codX : codable sigX X).
+
+  Definition Constr_cons_sizefun (x : X) : Vector.t (nat->nat) 2 :=
+    [|Constr_cons_size x; id|].
+
+  Lemma Constr_cons_SpecT_size (x : X) (xs : list X) (ss : Vector.t nat 2) :
+    TripleT
+      (tspec (([], withSpace  [|Contains _ xs; Contains _ x |] ss))) (Constr_cons_steps x) (Constr_cons sigX)
+      (fun _ => tspec (([], withSpace  [|Contains _ (x::xs); Contains _ x|] (appSize (Constr_cons_sizefun x) ss)))).
+  Proof. unfold withSpace.
+    eapply Realise_TripleT.
+    - apply Constr_cons_Realise.
+    - apply Constr_cons_Terminates.
+    - intros tin [] tout H HEnc. cbn in *.
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1; simpl_vector in *; cbn in *.
+      modpon H. tspec_solve.
+    - intros tin k HEnc Hk. cbn.
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1; simpl_vector in *; cbn in *.
+      eauto.
+  Qed.
+
+  Lemma Constr_nil_SpecT_size (ss : Vector.t nat 1) :
+    TripleT
+      (tspec (([], withSpace  [|Void |] ss))) Constr_nil_steps (Constr_nil X)
+      (fun _ => tspec (([], withSpace  [|Contains _ (@nil X) |] (appSize [|pred|] ss)))).
+  Proof. unfold withSpace.
+    eapply RealiseIn_TripleT.
+    - apply Constr_nil_Sem.
+    - intros tin [] tout H HEnc. cbn in *.
+      specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H. tspec_solve.
+  Qed.
+
+  Definition CaseList_size (xs : list X) : Vector.t (nat->nat) 2 :=
+    match xs with
+    | nil => [|id;id|]
+    | x :: xs => [|CaseList_size0 x; CaseList_size1 x|]
+    end.
+
+  Lemma CaseList_SpecT_size (xs : list X) (ss : Vector.t nat 2) :
+    TripleT
+      (tspec (([], withSpace  [|Contains _ xs; Void |] ss))) (CaseList_steps xs) (CaseList sigX)
+      (fun yout => tspec ([yout = match xs with [] => false | _ => true end],withSpace
+                         (match xs with
+                          |   x::xs' => [|Contains _ xs'; Contains _ x|]
+                          |    nil => [|Contains _ xs; Void|]
+                          end)
+                         (appSize (CaseList_size xs) ss))).
+  Proof. unfold withSpace.
+    eapply Realise_TripleT.
+    - apply CaseList_Realise.
+    - apply CaseList_Terminates.
+    - intros tin yout tout H HEnc. cbn in *.
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1; simpl_vector in *; cbn in *.
+      modpon H. destruct yout, xs; cbn in *; eauto.
+      + destruct H as (H1&H2). tspec_solve. easy.
+      + destruct H as (H1&H2). tspec_solve. easy.
+    - intros tin k HEnc Hk. cbn.
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1; simpl_vector in *; cbn in *.
+      eauto.
+  Qed.
+  
+
+End CaseList.
+
+
+Ltac hstep_List :=
+  match goal with
+  | [ |- TripleT ?P ?k (Constr_cons _) ?Q ] => eapply Constr_cons_SpecT_size
+  | [ |- TripleT ?P ?k (Constr_nil  _) ?Q ] => eapply Constr_nil_SpecT_size
+  | [ |- TripleT ?P ?k (CaseList    _) ?Q ] => eapply CaseList_SpecT_size
+  end.
+
+Smpl Add hstep_List : hstep_smpl.
