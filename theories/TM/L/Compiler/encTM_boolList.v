@@ -284,7 +284,7 @@ Section Fix.
   Definition M : pTM (Σ) ^+ unit 2 :=
     (MoveToSymbol (fun _ => false) (fun x => x);;Move Lmove) @ [|Fin0|];;
     WriteValue (encode (X:=list bool) nil ) ⇑ retr_list @ [|Fin1|];;
-    M__loop. Search MoveToSymbol_steps.
+    M__loop.
 
 (*  Local Arguments encode : simpl never.
 

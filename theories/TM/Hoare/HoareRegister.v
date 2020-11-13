@@ -163,7 +163,7 @@ Declare Scope spec_scope.
 Delimit Scope spec_scope with spec.
 Bind Scope spec_scope with Spec.
 Notation "'≃≃(' S ')'" := (tspec S%spec) (at level 0, S at level 200, no associativity, format "'≃≃(' S ')'").
-Notation "'≃≃(' P ',' S ')'" := (tspec (P,S)%spec) (at level 0, P at level 200, S at level 200, no associativity, format "'≃≃(' P ','  S ')'").
+Notation "'≃≃(' P ',' S ')'" := (tspec (P,S)) (at level 0, P at level 200, S at level 200, no associativity, format "'≃≃(' P ','  S ')'").
 
 Notation "t ≃≃ S" := (tspec S%spec t) (at level 70, no associativity).
 

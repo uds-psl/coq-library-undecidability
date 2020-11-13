@@ -10,7 +10,6 @@ From Undecidability Require Import TM.Code.Copy.
 
 (** We give all rule variants here, because automation is forbidden for these machines *)
 
-
 (* TODO: [CopyValue_size] should be renamed, and this function should be moved to [Code.v] *)
 Definition CopyValue_sizefun {sigX X : Type} {cX : codable sigX X} (x : X) : Vector.t (nat->nat) 2 := [|id; CopyValue_size x|].
 

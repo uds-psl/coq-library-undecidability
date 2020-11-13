@@ -11,8 +11,8 @@ From Undecidability Require Import TM.TM L.AbstractMachines.FlatPro.LM_heap_corr
 
 From Undecidability Require Import L.L TM.TM.
 Require Import List.
-Import ListNotations.
 
+Infix "++" := Vector.append : vector_scope.
 
 From Undecidability.TM.L Require Import Compiler_spec Compiler_facts UnfoldHeap Compiler.AddToBase.
 
@@ -64,7 +64,7 @@ Section MK_isVoid.
   Qed.
 
   Lemma Mk_isVoid_Spec :
-   TripleT ≃≃([],[|Custom (eq niltape)|]) 1 MK_isVoid (fun _ => ≃≃([],[|Void|])).
+   TripleT ≃≃([]%list,[|Custom (eq niltape)|]) 1 MK_isVoid (fun _ => ≃≃([]%list,[|Void|])).
   Proof.
     eapply RealiseIn_TripleT. now apply MK_isVoid_Sem. cbn. intros ? ? ? ? [_ H']%tspecE.
     specialize  (H' Fin0). eapply tspecI. easy. intros i; destruct_fin i;cbn. apply H. now vector_destruct tin.
@@ -180,7 +180,7 @@ Section mk_init.
   Theorem M_init'_rel k' (ren :Vector.t (Fin.t k) k') :
     Realise (M_init' ren) (fun t '(r, t') =>
     forall (v:Vector.t (list bool) k),
-                   t = Vector.const niltape (_+m) ++ (Vector.map (encTM s b) v)
+                   t = (Vector.const niltape (_+m) ++ (Vector.map (encTM s b) v))%vector
                    -> t'[@aux Fin1] ≃(retr_pro1) (compile (Vector.fold_right (fun l_i s => L.app s (encL l_i)) (select ren v) sim))
                    /\ t'[@Fin0] = niltape
                    /\ (forall i, t'[@auxm i] = t[@auxm i])
@@ -260,7 +260,7 @@ Section mk_init.
   Theorem M_init_rel:
     Realise M_init (fun t '(r, t') =>
                    forall v,
-                   t = Vector.const niltape (6+m) ++ Vector.map (encTM s b) v ->
+                   t = (Vector.const niltape (6+m) ++ Vector.map (encTM s b) v)%vector ->
                    t'[@aux Fin1] ≃(retr_closs) [(0, compile (Vector.fold_left (fun s l_i => L.app s (encL l_i)) sim v))]%list /\
                    t'[@aux Fin2] ≃(retr_closs) []%list /\
                    t'[@aux Fin3] ≃(retr_heap) []%list /\
@@ -390,7 +390,7 @@ Section main.
   Lemma M_main_realise :
     Realise M_main (fun t '(r, t') =>
                       forall v,
-                      t = Vector.const niltape (S n_main) ++ Vector.map (encTM sym_s sym_b) v  ->
+                      t = (Vector.const niltape (S n_main) ++ Vector.map (encTM sym_s sym_b) v)%vector  ->
                       exists m, 
                         t'[@ Fin0] = encTM sym_s sym_b m /\ R v m).
   Proof using Hscl Hs2 Hs1.
@@ -406,8 +406,8 @@ Section main.
     unfold n_main in *.
     TMSimp. specialize H with (1:=eq_refl).
     TMSimp. rename H8 into Hnil. specializeFin Hnil.
-    repeat lazymatch goal with
-    | [H : [?t] = [niltape] -> isVoid _ , Heq : ?t = niltape |- _ ] =>
+    do 9 lazymatch goal with
+    | [H : [|?t|] = [|niltape|] -> isVoid _ , Heq : ?t = niltape |- _ ] =>
        modpon H;[f_equal;exact Heq| clear Heq] 
        end;[].
     specialize H23 with (2:=eq_refl). 
