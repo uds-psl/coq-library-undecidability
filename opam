@@ -26,7 +26,6 @@ depends: [
   "coq-equations" {= "1.2.3+8.12"}
   "ocaml"
   "coq-smpl" {= "8.12"}
-  "coq-psl-base-library" {="1.0.2+8.12"}
   "coq-metacoq-template" {="1.0~beta1+8.12" }
   "coq-metacoq-checker" {="1.0~beta1+8.12" }
 ]

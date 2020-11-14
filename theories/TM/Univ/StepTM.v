@@ -1,5 +1,5 @@
 From Undecidability Require Import TM.Code.ProgrammingTools.
-Require Import PslBase.Bijection. (* [injective] *)
+Require Import Undecidability.Shared.Libs.PSL.Bijection. (* [injective] *)
 
 
 From Undecidability Require Import Basic.Duo.

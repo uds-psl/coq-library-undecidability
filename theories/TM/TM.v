@@ -1,6 +1,6 @@
 (** * Definition of Multi-Tape Turing Machines *)
 
-Require Import PslBase.FiniteTypes.FinTypes.
+Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
 Require Import Vector List.
 
 Unset Implicit Arguments.
@@ -99,7 +99,7 @@ Section Fix_Alphabet.
       Lemma finType_equiv (X : finType) :
          {n & {f : X -> Fin.t n & { g : Fin.t n -> X | (forall x, g (f x) = x) /\ forall i, f (g i) = i }}}.
 
-      in PslBase.FiniteTypes.FinTypesEquiv.
+      in Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesEquiv.
 
    *)
   

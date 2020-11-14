@@ -2,7 +2,7 @@ From Undecidability.L.Tactics Require Import LTactics GenEncode.
 From Undecidability.L Require Import Functions.EqBool.
 From Undecidability.L.Datatypes Require Import LBool LNat LOptions LProd.
 From Undecidability.L Require Import UpToC.
-Require Export List PslBase.Lists.Filter Datatypes.
+Require Export List Undecidability.Shared.Libs.PSL.Lists.Filter Datatypes.
 
 (** ** Encoding of lists *)
 

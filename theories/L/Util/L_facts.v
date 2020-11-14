@@ -1,5 +1,5 @@
 From Undecidability.L Require Export Prelim.ARS Prelim.MoreBase.
-From PslBase Require Export Base Bijection.
+From Undecidability.Shared.Libs.PSL Require Export Base Bijection.
 From Undecidability.L Require Export L.
 
 Require Import Lia.

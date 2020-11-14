@@ -1,6 +1,6 @@
 Require Import Undecidability.TM.SBTM.
 
-Require Import PslBase.Vectors.FinNotation PslBase.Vectors.Vectors PslBase.EqDec.
+Require Import Undecidability.Shared.Libs.PSL.Vectors.FinNotation Undecidability.Shared.Libs.PSL.Vectors.Vectors Undecidability.Shared.Libs.PSL.EqDec.
 
 Require Import List Arith Lia Bool.
 

@@ -1,5 +1,5 @@
 From Undecidability.L Require Export Util.L_facts Tactics.Extract.
-Require Import PslBase.Bijection String.
+Require Import Undecidability.Shared.Libs.PSL.Bijection String.
 
 (** * Correctness and time bounds *)
 

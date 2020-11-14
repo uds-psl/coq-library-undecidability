@@ -1,4 +1,4 @@
-Require Export PslBase.Base Lia.
+Require Export Undecidability.Shared.Libs.PSL.Base Lia.
 From Undecidability.L Require Export MoreList.
 
 (** * Preliminaries *)

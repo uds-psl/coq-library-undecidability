@@ -1,5 +1,5 @@
-Require Import PslBase.Base PslBase.FiniteTypes Undecidability.TM.Util.Prelim.
-Require Import PslBase.Vectors.Vectors.
+Require Import Undecidability.Shared.Libs.PSL.Base Undecidability.Shared.Libs.PSL.FiniteTypes Undecidability.TM.Util.Prelim.
+Require Import Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 
 (** * Relations *)
 
