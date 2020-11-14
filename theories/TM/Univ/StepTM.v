@@ -758,7 +758,7 @@ Section Univ.
         exists 0. eexists. cbn. unfold haltConf. cbn. rewrite E. repeat split; eauto.
       - modpon HStar. destruct (halt q) eqn:E; auto. destruct (step (mk_mconfig q [|tp|])) as [q' tp'] eqn:E2. modpon HStar.
         modpon HLastStep.
-        { instantiate (1:=[|_;_;_|]). cbn. intros i. specialize(HStar2 i). destruct_fin i; cbn; auto. }
+        { instantiate (1:=[| _;_;_|]). cbn. intros i. specialize(HStar2 i). destruct_fin i; cbn; auto. }
         destruct HLastStep as (k&oconf&HLastStep); modpon HLastStep.
         exists (S k). eexists. cbn. unfold haltConf. cbn. rewrite !E, !E2. repeat split; eauto.
         rewrite <- HLastStep. unfold loopM. f_equal. clear_all. destruct_tapes; auto.
@@ -804,12 +804,12 @@ Section Univ.
       - modpon HStep.
         { unfold containsTrans, containsTrans_size in *. contains_ext. }
         { unfold containsState, containsState_size in *. contains_ext. }
-        { instantiate (1 := [|_;_;_|]). intros i. specialize (HRight i). destruct_fin i; cbn; auto. }
+        { instantiate (1 := [| _;_;_|]). intros i. specialize (HRight i). destruct_fin i; cbn; auto. }
         destruct (halt q) eqn:E; auto; modpon HStep. destruct k'; cbn in Hk; auto. rewrite E in Hk. auto.
       - modpon HStep.
         { unfold containsTrans, containsTrans_size in *. contains_ext. }
         { unfold containsState, containsState_size in *. contains_ext. }
-        { instantiate (1 := [|_;_;_|]). intros i. specialize (HRight i). destruct_fin i; cbn; auto. }
+        { instantiate (1 := [| _;_;_|]). intros i. specialize (HRight i). destruct_fin i; cbn; auto. }
         destruct (halt q) eqn:E; auto.
         unfold step, current_chars in HStep. cbn in *. destruct (trans (q, [|current tp|])) as [q'' acts] eqn:E'; modpon HStep. simpl_vector in HStep. cbn in *.
         pose proof destruct_vector1 acts as (act&->); cbn in *.

@@ -37,11 +37,12 @@ Local Open Scope vector.
 
 Module VectorNotations2.
 
-Notation "[||]" := (nil _) : vector_scope.
+Notation "[ | | ]" := (nil _) (format "[ |  | ]"): vector_scope.
 Notation "h ':::' t" := (cons _ h _ t) (at level 60, right associativity) : vector_scope.
 
-Notation " [| x |] " := (x ::: [||]) : vector_scope.
-Notation " [| x ; y ; .. ; z |] " := (cons _ x _ (cons _ y _ .. (cons _ z _ (nil _)) ..)) : vector_scope.
+Notation "[ | x | ]" := (x ::: [| |]) : vector_scope.
+Notation "[ | x ; y ; .. ; z | ] " := (cons _ x _ (cons _ y _ .. (cons _ z _ (nil _)) ..))
+   (format "[ | x ;  y ;  .. ;  z | ] ") : vector_scope.
 Notation "v [@ p ]" := (nth v p) (at level 1, format "v [@ p ]") : vector_scope.
 
 End VectorNotations2.
@@ -98,7 +99,7 @@ Proof.
 Qed.
 
 Lemma destruct_vector_nil (X : Type) :
-  forall v : Vector.t X 0, v = [||].
+  forall v : Vector.t X 0, v = [| |].
 Proof.
   now apply case0.
 Qed.
@@ -111,7 +112,7 @@ Qed.
 
 
 Lemma In_nil (X : Type) (x : X) :
-  ~ In x [||].
+  ~ In x [| |].
 Proof. intros H. inv H. Qed.
 
 Lemma In_cons (X : Type) (n : nat) (x y : X) (xs : Vector.t X n) :
@@ -122,7 +123,7 @@ Qed.
 
 Ltac destruct_vector_in :=
   lazymatch goal with
-  | [ H: Vector.In _ [||] |- _ ] => solve [exfalso;simple apply In_nil in H;exact H]
+  | [ H: Vector.In _ [| |] |- _ ] => solve [exfalso;simple apply In_nil in H;exact H]
   | [ H: Vector.In _ (?x ::: _) |- _ ] => simple apply In_cons in H as [H| H] ; try (is_var x;move H at bottom;subst x) 
   end.
 
@@ -140,7 +141,7 @@ Section In_Dec.
 
   Fixpoint in_dec (n : nat) (x : X) (xs : Vector.t X n) { struct xs } : bool :=
     match xs with
-    | [||] => false
+    | [| |] => false
     | y ::: xs' => if Dec (x = y) then true else in_dec x xs'
     end.
 
@@ -331,8 +332,8 @@ Qed.
 
 Ltac simpl_vector_inv :=
   repeat match goal with
-         | [ H : [||] = (_ ::: _) |- _ ] => solve [discriminate H]
-         | [ H : (_ ::: _) = [||]  |- _ ] => solve [discriminate H]
+         | [ H : [| |] = (_ ::: _) |- _ ] => solve [discriminate H]
+         | [ H : (_ ::: _) = [| |]  |- _ ] => solve [discriminate H]
          | [ H : Fin.F1 = Fin.FS _ |- _] => solve [discriminate H]
          | [ H : Fin.FS _ = Fin.F1 |- _] => solve [discriminate H]
          | [ H : Fin.FS ?i = Fin.FS ?j |- _] =>

@@ -75,8 +75,8 @@ Ltac TMSimp1_old T :=
   try T;
   repeat
   lazymatch goal with
-  | [ H : _ ::: _ = [||]  |- _ ] => inv H
-  | [ H : [||] = _ ::: _ |- _ ] => inv H
+  | [ H : _ ::: _ = [| |]  |- _ ] => inv H
+  | [ H : [| |] = _ ::: _ |- _ ] => inv H
   | [ H : _ ::: _ = _ ::: _ |- _ ] => apply VectorSpec.cons_inj in H
 
   | [ H : _ ::  _ = []  |- _ ] => inv H
@@ -158,8 +158,8 @@ Ltac TMSimp1 T :=
   repeat
   lazymatch goal with
   | [ x : unit |- _ ] => destruct x
-  | [ H : _ ::: _ = [||]  |- _ ] => discriminate H
-  | [ H : [||] = _ ::: _ |- _ ] => discriminate H
+  | [ H : _ ::: _ = [| |]  |- _ ] => discriminate H
+  | [ H : [| |] = _ ::: _ |- _ ] => discriminate H
   | [ H : _ ::: _ = _ ::: _ |- _ ] => apply VectorSpec.cons_inj in H
 
   | [ H : _ ::  _ = []  |- _ ] => discriminate H
