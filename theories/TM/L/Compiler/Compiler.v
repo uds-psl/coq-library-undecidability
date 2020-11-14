@@ -1,6 +1,6 @@
 From Undecidability Require Import L.Datatypes.LBool L.Datatypes.Lists L.Tactics.LTactics L.Tactics.GenEncode L.Util.L_facts.
 
-Require Import PslBase.FiniteTypes.FinTypes PslBase.Vectors.Vectors.
+Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 Require Import List.
 
 Require Import Undecidability.TM.Util.TM_facts.

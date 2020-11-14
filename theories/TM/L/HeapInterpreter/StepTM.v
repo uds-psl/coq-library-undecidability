@@ -261,7 +261,7 @@ Section StepMachine.
         rename H into HJumpTarget, H1 into HTailRec, H3 into HConsClos.
         modpon HJumpTarget.
         {
-          instantiate (1 := [|_;_;_|]).
+          instantiate (1 := [| _;_;_|]).
           intros i; destruct_fin i;cbn;simpl_surject;isVoid_mono.
         }
         destruct HJumpTarget as (P'&Q'&HJumpTarget); modpon HJumpTarget.
@@ -276,7 +276,7 @@ Section StepMachine.
       }
       { (* Else, i.e. [jumpTarget 0 [] = None] *)
         modpon H.
-        { instantiate (1 := [|_;_;_|]).
+        { instantiate (1 := [| _;_;_|]).
           intros i; destruct_fin i; cbn; simpl_surject; auto. }
         assumption.
       }
@@ -322,7 +322,7 @@ Section StepMachine.
       { hnf; cbn. do 1 eexists; repeat split; simpl_surject; eauto. intros i; destruct_fin i;cbn;simpl_surject;easy. }
       intros tmid ymid (HJump&HJumpInj); TMSimp. modpon HJump.
       {
-        instantiate (1 := [|_;_;_|]).
+        instantiate (1 := [| _;_;_|]).
         intros i. destruct_fin i; cbn; simpl_surject; TMSimp_goal; isVoid_mono.
       }
       destruct ymid.
@@ -909,7 +909,7 @@ Section StepMachine.
         }
           { (* lamT *)
             rename HCase into HStepLam. modpon HStepLam; TMSimp_goal; eauto; try contains_ext.
-            { instantiate (1 := [|_;_;_;_;_|]).
+            { instantiate (1 := [| _;_;_;_;_|]).
               intros i; destruct_fin i; auto; TMSimp_goal; cbn. all:eauto.
             }
             destruct ymid.
@@ -925,7 +925,7 @@ Section StepMachine.
           { (* appT *)
             rename HCase into HStepApp. cbn in HStepApp.
             cbv [put] in *. modpon HStepApp; TMSimp_goal; eauto; try contains_ext.
-            { instantiate (1 := [|_;_;_;_;_;_|]).
+            { instantiate (1 := [| _;_;_;_;_;_|]).
               intros i; destruct_fin i; auto; TMSimp_goal. all:cbn;eauto.
             }
             destruct ymid; cbn.

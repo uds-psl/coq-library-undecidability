@@ -1,6 +1,6 @@
 From Undecidability.L Require Import Util.L_facts Prelim.StringBase.
 From MetaCoq Require Import Template.All Checker.Checker.
-Require Import PslBase.Base. 
+Require Import Undecidability.Shared.Libs.PSL.Base. 
 Require Import String Ascii.
 
 Open Scope string_scope.

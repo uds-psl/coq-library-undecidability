@@ -161,8 +161,8 @@ Ltac TMSimp1 T :=
   repeat
   once lazymatch goal with
   | [ x : unit |- _ ] => destruct x
-  | [ H : _ ::: _ = [||]  |- _ ] => discriminate H
-  | [ H : [||] = _ ::: _ |- _ ] => discriminate H
+  | [ H : _ ::: _ = [| |]  |- _ ] => discriminate H
+  | [ H : [| |] = _ ::: _ |- _ ] => discriminate H
   | [ H : _ ::: _ = _ ::: _ |- _ ] => apply VectorSpec.cons_inj in H
 
   | [ H : _ ::  _ = []  |- _ ] => discriminate H

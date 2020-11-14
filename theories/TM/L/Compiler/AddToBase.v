@@ -1,4 +1,4 @@
-From PslBase Require Import Vectors.
+From Undecidability.Shared.Libs.PSL Require Import Vectors.
 Import Vector.VectorNotations Lia PeanoNat.
 Require Import Equations.Prop.DepElim.
 

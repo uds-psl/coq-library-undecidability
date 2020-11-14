@@ -2,7 +2,7 @@
 
 From Undecidability Require Import TM.Util.Prelim Code.
 From Undecidability Require Import ArithPrelim.
-From PslBase Require Export Bijection.
+From Undecidability.Shared.Libs.PSL Require Export Bijection.
 Require Export BinNums. 
 
 

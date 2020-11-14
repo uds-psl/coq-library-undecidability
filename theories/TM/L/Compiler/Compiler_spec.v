@@ -1,6 +1,6 @@
 From Undecidability.L Require Import L Datatypes.Lists.
 
-Require Import PslBase.FiniteTypes.FinTypes PslBase.Vectors.Vectors.
+Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 Require Import Vector List.
 
 From Undecidability Require Import L.L TM.TM TM.Util.TM_facts.

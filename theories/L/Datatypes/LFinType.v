@@ -3,7 +3,7 @@ From Undecidability.L Require Import Datatypes.LNat Functions.EqBool.
 From Undecidability.L Require Import UpToC.
 
 Import Nat.
-Require Export PslBase.FiniteTypes.FinTypes.
+Require Export Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
 
 (** *** Encoding finite types *)
 (* This is not an instance because we only want it for very specific types. *)

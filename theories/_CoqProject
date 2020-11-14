@@ -76,6 +76,41 @@ Shared/Libs/DLW/Code/compiler.v
 Shared/Libs/DLW/Code/compiler_correction.v
 
 
+Shared/Libs/PSL/Base.v
+
+Shared/Libs/PSL/Tactics/Tactics.v
+Shared/Libs/PSL/Tactics/AutoIndTac.v
+Shared/Libs/PSL/Prelim.v
+Shared/Libs/PSL/EqDec.v
+Shared/Libs/PSL/Numbers.v
+Shared/Libs/PSL/Bijection.v
+Shared/Libs/PSL/Retracts.v
+Shared/Libs/PSL/Inhabited.v
+Shared/Libs/PSL/FCI.v
+
+Shared/Libs/PSL/Lists/BaseLists.v
+Shared/Libs/PSL/Lists/Cardinality.v
+Shared/Libs/PSL/Lists/Dupfree.v
+Shared/Libs/PSL/Lists/Filter.v
+Shared/Libs/PSL/Lists/Position.v
+Shared/Libs/PSL/Lists/Power.v
+Shared/Libs/PSL/Lists/Removal.v
+
+Shared/Libs/PSL/Vectors/Fin.v
+Shared/Libs/PSL/Vectors/Vectors.v
+Shared/Libs/PSL/Vectors/FinNotation.v
+Shared/Libs/PSL/Vectors/VectorDupfree.v
+
+Shared/Libs/PSL/FiniteTypes.v
+Shared/Libs/PSL/FiniteTypes/BasicDefinitions.v
+Shared/Libs/PSL/FiniteTypes/FinTypes.v
+Shared/Libs/PSL/FiniteTypes/BasicFinTypes.v
+Shared/Libs/PSL/FiniteTypes/CompoundFinTypes.v
+Shared/Libs/PSL/FiniteTypes/FiniteFunction.v
+Shared/Libs/PSL/FiniteTypes/Cardinality.v
+Shared/Libs/PSL/FiniteTypes/DepPairs.v
+Shared/Libs/PSL/FiniteTypes/Arbitrary.v
+Shared/Libs/PSL/FiniteTypes/VectorFin.v
 
 # Abstract L simulator as Turing Machine
 TM/L/Alphabets.v

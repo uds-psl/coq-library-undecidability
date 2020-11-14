@@ -228,7 +228,7 @@ Section Nth'.
     Lemma Nth'_Realise : Nth' ⊨ Nth'_Rel.
     Proof.
       repeat (eapply RealiseIntroAll;intro). eapply Realise_monotone.
-      -eapply TripleT_Realise. eapply Nth'_SpecT_size with (ss:=[|_;_;_;_|]) (xs:=x) (n:=x0).
+      -eapply TripleT_Realise. eapply Nth'_SpecT_size with (ss:=[| _;_;_;_|]) (xs:=x) (n:=x0).
       -cbn. unfold Nth'_Rel. intros ? [] H **. modpon H.
       {unfold "≃≃",withSpace;cbn. intros i; destruct_fin i;cbn. exact H3. all:eassumption. }
       repeat destruct _;unfold "≃≃",withSpace in H;cbn in H.

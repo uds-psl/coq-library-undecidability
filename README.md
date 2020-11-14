@@ -65,7 +65,6 @@ You need `Coq 8.12` built on OCAML `>= 4.07.1`, the [Smpl](https://github.com/ud
 opam switch create coq-library-undecidability 4.07.1+flambda
 eval $(opam env)
 opam repo add coq-released https://coq.inria.fr/opam/released
-opam repo add psl-opam-repository https://github.com/uds-psl/psl-opam-repository.git
 opam install . --deps-only
 ```
 
@@ -130,3 +129,4 @@ A Coq Library of Undecidable Problems. Yannick Forster, Dominique Larchey-Wendli
 - Maximilian Wuttke
 - Andrej Dudenhefner
 
+Parts of the Coq Library of Undecidability Proofs reuse generic code initially developed as a library for the lecture ["Introduction to Computational Logics"](https://courses.ps.uni-saarland.de/icl_16/) at [Saarland University](https://www.uni-saarland.de/nc/en/home.html). That reused code was written by a subset of the above contributors, as well as Sigurd Schneider and Jan Christian Menz.

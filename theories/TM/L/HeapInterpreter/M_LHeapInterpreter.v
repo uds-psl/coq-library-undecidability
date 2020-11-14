@@ -99,7 +99,7 @@ Proof.
     {
       modpon HStar. destruct HStar as (T1&V1&heap1&HStar); modpon HStar.
       modpon HLastStep.
-      { instantiate (1 := [|_;_;_;_;_;_;_;_|]).
+      { instantiate (1 := [| _;_;_;_;_;_;_;_|]).
         intros i. destruct_fin i; eauto. }
       destruct HLastStep as (T2&V2&heap2&k&HLastStep). modpon HLastStep.
       do 3 eexists. exists (1 + k). repeat split. apply pow_add. do 2 eexists. rewrite <- rcomp_1. 1-3:now eauto.
@@ -148,7 +148,7 @@ Proof.
     exists (Step_steps T V Heap). repeat split.
     { hnf. do 3 eexists; repeat split; eauto. }
     intros ymid tmid HStep. cbn in HStep. modpon HStep.
-    { instantiate (1 := [|_;_;_;_;_;_;_;_|]).
+    { instantiate (1 := [| _;_;_;_;_;_;_;_|]).
       intros i0. specialize HInt with (i := i0). isVoid_mono; cbn. destruct_fin i0; cbn; constructor.
     }
     destruct ymid as [ () | ]. 
@@ -204,7 +204,7 @@ Proof.
     eapply TM_eval_iff in HLoop as [n HLoop].
     pose proof Loop_Realise HLoop as HLoopRel. hnf in HLoopRel. modpon HLoopRel.
     1-3: apply initValue_contains_size.
-    instantiate (1 := [|_;_;_;_;_;_;_;_|]).
+    instantiate (1 := [| _;_;_;_;_;_;_;_|]).
     - intros i; destruct_fin i; cbn; eapply initRight_isVoid_size.
     - destruct HLoopRel as (T'&V'&H'&k'&HStep&HTerm&_). cbn in *. hnf. eauto.
       apply steps_k_steps in HStep. eauto.

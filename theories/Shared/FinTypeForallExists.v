@@ -1,4 +1,4 @@
-From PslBase Require Import FiniteTypes.
+From Undecidability.Shared.Libs.PSL Require Import FiniteTypes.
 
 Lemma list_forall_exists (F : Type) (P : F -> nat -> Prop) L :
     (forall x n, P x n -> forall m, m >= n -> P x m) ->

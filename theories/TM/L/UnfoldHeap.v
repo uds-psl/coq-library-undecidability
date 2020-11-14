@@ -1,4 +1,4 @@
-Require Import PslBase.FiniteTypes.FinTypes PslBase.Vectors.Vectors.
+Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 Require Import Vector List.
 
 Require Import Undecidability.TM.Util.TM_facts.

@@ -269,10 +269,10 @@ Section Univ.
 
           cbn. intros _. hstep; cbn. 3:reflexivity. hstep; cbn. eapply ConsequenceT_pre. 3:reflexivity.
           --apply DoAction'_SpecT_space with (a := a[@Fin0]). 
-          --instantiate (1 := [|_;_|]). tspec_ext. eassumption.
+          --instantiate (1 := [| _;_|]). tspec_ext. eassumption.
           --cbn. intros _. hstep; cbn. eapply ConsequenceT_pre. 3:reflexivity.
             ++ refine (@Translate_SpecT_size _ _ _ _ _ _ _ _). all:shelve.
-            ++ instantiate (1 := [|_|]). tspec_ext.
+            ++ instantiate (1 := [| _|]). tspec_ext.
         * (** The final runnint time calculation *)
           unfold Univ_Step_steps_IsFinal. rewrite <- Ehalt. rewrite Etrans. cbn.
           unfold Univ_Step_steps_ConstrPair, Univ_Step_steps_CasePair, Univ_Step_steps_Lookup, Univ_Step_steps_ResetSymbol, Univ_Step_steps_Translate.

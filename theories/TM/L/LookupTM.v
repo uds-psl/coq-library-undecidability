@@ -166,11 +166,11 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
       intros ?. hstep. { hsteps_cbn. cbn. tspec_ext. }
       - cbn. hintros Hn. destruct n. easy.
         hsteps_cbn. cbn.
-        { eapply ConsequenceT_pre. refine (Translate_SpecT_size _ _ _ _ [|_|]). 3:tspec_ext. reflexivity. }
+        { eapply ConsequenceT_pre. refine (Translate_SpecT_size _ _ _ _ [| _|]). 3:tspec_ext. reflexivity. }
         1-3:reflexivity.
         subst F. cbn. tspec_ext.
       - cbn. hintros ->.
-        hsteps_cbn. cbn. { eapply ConsequenceT_pre. refine (Translate_SpecT_size _ _ _ _ [|_|]). 3:tspec_ext. reflexivity. }
+        hsteps_cbn. cbn. { eapply ConsequenceT_pre. refine (Translate_SpecT_size _ _ _ _ [| _|]). 3:tspec_ext. reflexivity. }
         1-2:reflexivity.
         subst F. cbn; tspec_ext.
       - cbn. intros b0 Hb. refine (_ : _ <= match n with 0 => _ | _ => _ end).
@@ -273,7 +273,7 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
   Lemma Lookup_Realise : Lookup ⊨ Lookup_Rel.
   Proof.
     repeat (eapply RealiseIntroAll;intro). eapply Realise_monotone.
-    -eapply TripleT_Realise. eapply Lookup_SpecT_space with (ss:=[|_;_;_;_;_|]).
+    -eapply TripleT_Realise. eapply Lookup_SpecT_space with (ss:=[| _;_;_;_;_|]).
     -cbn.  intros ? [] H **. modpon H.
     {unfold "≃≃",withSpace;cbn. intros i; destruct_fin i;cbn. all:eassumption. }
     repeat destruct _;unfold "≃≃",withSpace in H;cbn in H.

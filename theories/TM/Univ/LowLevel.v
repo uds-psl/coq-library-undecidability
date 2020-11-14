@@ -1,6 +1,5 @@
 From Undecidability Require Import ProgrammingTools.
-From PslBase Require Import Bijection. (* [injective] *)
-
+Require Import Undecidability.Shared.Libs.PSL.Bijection. (* [injective] *)
 
 From Undecidability Require Import Basic.Duo.
 From Undecidability Require Import Code.CaseFin Code.CaseList Code.CasePair.

@@ -1,7 +1,7 @@
 From Undecidability.L.Tactics Require Import LTactics GenEncode.
 From Undecidability.L.Datatypes Require Import LNat Lists LFinType.
 
-Require Import PslBase.Vectors.Vectors.
+Require Import Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 
 (** *** Encoding vectors *)
 

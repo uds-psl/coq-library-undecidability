@@ -280,7 +280,7 @@ Fixpoint map_vect_list (X Y : Type) (f : X -> Y -> X) (n : nat) (vs : Vector.t Y
   | nil => nil
   | x :: ls' =>
     match vs with
-    | [||] => ls
+    | [| |] => ls
     | y ::: vs' =>
       f x y :: map_vect_list f vs' ls'
     end
@@ -1233,7 +1233,7 @@ Section ToSingleTape.
 
     Definition ReadCurrentSymbols_steps (n : nat) (T : tapes sig n) :=
       match T with
-      | [||] => ReadCurrentSymbols_Loop_steps_nil
+      | [| |] => ReadCurrentSymbols_Loop_steps_nil
       | tp ::: T' => 2 + ReadCurrentSymbols_Loop_steps_cons (vector_to_list T') tp
       end.
 

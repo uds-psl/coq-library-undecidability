@@ -1,8 +1,8 @@
-Require Import PslBase.FiniteTypes.FinTypes PslBase.Vectors.Vectors.
+Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 From Undecidability Require Import TM.Util.TM_facts Hoare UpToC.
 From Undecidability Require Import ProgrammingTools WriteValue Copy.
 
-Require Import PslBase.FiniteTypes.FinTypes PslBase.Vectors.Vectors.
+Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 Require Import Vector List.
 
 From Undecidability.TM.Compound Require Import MoveToSymbol WriteString.
