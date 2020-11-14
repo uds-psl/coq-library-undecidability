@@ -198,28 +198,28 @@ Section Fix.
           (Reset _ @ [|i_stack'|];;Return Nop false)
       ).
 
+  Local Arguments "+"%nat : simpl never.
+  Local Arguments "*"%nat : simpl never.
+
 
   Lemma SpecT__step :
-  forall (H:Heap) a P k (stack' : list (HAdd * list Tok * nat)) res,
+  forall (H:Heap) a P k (stack' : list (HAdd * list Tok * nat)) res nextState,
   { f & 
+  unfoldTailRecStep H (((a,P),k)::stack',res)%list = inl nextState ->
     TripleT
       ≃≃([],[|Contains retr_heap H;Contains retr_nat_clos_ad a;Contains retr_pro P;Contains retr_nat_clos_var k; Contains retr_stack stack';
               Contains retr_pro res;Void;Void;Void;Void|])
       f M__step
-      (fun r => ≃≃([r = match unfoldTailRecStep H (((a,P),k)::stack',res) with inl ([],_) => false | _ => true end]
+      (fun r => ≃≃([r = match fst nextState with [] => false | _ => true end]
           ,[|Contains _ H|]
-          ++match unfoldTailRecStep H (((a,P),k)::stack',res)%list with
-            | inl (stack2,res2) =>
+          ++let (stack2,res2) := nextState in 
             match stack2 with
             | []%list => Vector.const Void 4
             | ((a2,P2),k2)::stack2' => [|Contains retr_nat_clos_ad a2;Contains retr_pro P2;Contains retr_nat_clos_var k2;Contains retr_stack stack2'|]
             end%list
-                ++[|Contains retr_pro res2|]
-            | _ => Vector.const (Custom (fun _ => False)) 5
-            end
-          ++[|Void;Void;Void;Void|]))}.
+                ++[|Contains retr_pro res2;Void;Void;Void;Void|]))}.
   Proof.
-    intros H a P k stack' res. eexists _.  unfold M__step.
+    intros H a P k stack' res nextState. eexists _. intros HnS.  unfold M__step.
     hstep.
     { cbn;hsteps_cbn. cbn. tspec_ext. }
     2:{
@@ -231,19 +231,22 @@ Section Fix.
       all:cbn.
       - refine (_ : TripleT _ (match stack' with ((_,_),_)::_ => _ | _ => 0 end) _ _).
         destruct stack' as [ |[[]]]; hintros [=].
-        cbn. hsteps_cbn. 1-3:now cbn;tspec_ext. all:reflexivity.
+        injection HnS as [= <-].
+        cbn. hsteps_cbn. 1-3:try now cbn;tspec_ext. all:reflexivity.
       - refine (_ : TripleT _ (match stack' with []=> _ | _ => 0 end) _ _).
         destruct stack';hintros [=].
+        injection HnS as [=<-].
         hsteps_cbn. now tspec_ext. reflexivity.
       -intros ? ->. reflexivity.
     }
     2:{cbn [fst implList]. intros ? ->. reflexivity. }
-    cbn. destruct P;hintros [=].
+    cbn. refine (_ : TripleT _ (match P with [] => _ | t::P => match t with appT => _ | _ => _ end end) _ _).
+    destruct P;hintros [=]. cbn in HnS.
     eapply Switch_SpecTReg.
     {cbn. hsteps_cbn. cbn. tspec_ext. }
     {
       cbn. hintros [ y| ] Hy.
-      - rewrite Hy. cbn.
+      - subst t. cbn.
         hstep. {hsteps_cbn. cbn. tspec_ext. }
         cbn. intros _. 
         hstep.
@@ -255,37 +258,48 @@ Section Fix.
          --reflexivity.
          --cbn. tspec_ext.
          --cbn. eapply ConsequenceT. apply Nop_SpecT. all:try reflexivity. cbn;intros. tspec_ext.
-        +cbn. destruct y;cbn.
+        +cbn. destruct y;cbn in HnS|-*. all:injection HnS as [= <-];cbn.
          all:intro;tspec_ext.
         +unfold Constr_S_steps,Cons_constant.time.
-         destruct y;cbn. refine (_ : _ <= (fun x => match x with Some _ => 16 | _ => _ end) _);[ |shelve]. all:cbn;nia.
-      - destruct Hy as (x&->).
+         destruct y;cbn. refine (_ : _ <= (fun x => match x with Some _ => 16 | _ => _ end) _);[ |shelve]. all:unfold CaseNat_steps;abstract lia.
+      - destruct Hy as (x&Ht).
+        refine (_ : TripleT _ (match t with varT x => _ | _ => 0 end) _ _).
+        subst t.
         hstep. now hsteps_cbn. 2:reflexivity.
         cbn. intro. hstep. now hsteps_cbn.
         cbn. intro. hstep.
         +cbn. hsteps_cbn. cbn. tspec_ext.
-        +hintros Hlt. cbn.
-        hstep. now hsteps_cbn. 2:reflexivity.
-        cbn;intros _. hstep. now hsteps_cbn. 2:reflexivity.
-        cbn;intros _.
-        hstep. 1:{ hsteps_cbn;cbn. refine (TripleT_RemoveSpace _ (Q:= fun _ => _) (Q':= fun _ => _));intros.
+        +hintros Hlt. rewrite <- Hlt in HnS. cbn. 
+          hstep. now hsteps_cbn. 2:reflexivity.
+          cbn;intros _. hstep. now hsteps_cbn. 2:reflexivity.
+          cbn;intros _.
+          refine (_ : TripleT _ match lookup H a (x-k) with Some (_,_) => _ | _ => 0 end _ _).
+          hstep. 1:{ hsteps_cbn;cbn. refine (TripleT_RemoveSpace _ (Q:= fun _ => _) (Q':= fun _ => _));intros.
           eapply ConsequenceT. eapply Lookup_SpecT_space. now tspec_ext. cbn. intros. reflexivity. reflexivity. }
-          destruct lookup eqn:Hlook;hintros [=].
-          *cbn. hsteps_cbn;cbn.
+          destruct lookup as [[]|]eqn:Hlook;hintros [=].
+          *injection HnS as [= <-]. cbn. hsteps_cbn;cbn.
            1-4:try tspec_ext.
            { eapply ConsequenceT. notypeclasses refine (Translate_SpecT _ _ _ _ ).
             3:tspec_ext. cbn;intro. all:reflexivity.
             }
             1-5:cbn;try solve [tspec_ext].
-            { rewrite <- Hlt. destruct h. cbn. tspec_ext. }
-            11:reflexivity. all:try reflexivity.
-            evar (n:nat). refine (_ : _ <= n).
-            ring_simplify.
-            [n]:refine (match lookup H a (x-k) with Some h => _ | _ => _ end).
-            subst n. rewrite Hlook. reflexivity.
-          * destruct lookup eqn:Hlook;hintros [=].
-          cbn. rewrite <- Hlt.
-  Admitted. 
+            11:reflexivity. all:try (cbn;reflexivity).
+            refine (_ : _ <= match lookup H a (x-k) with Some (_,_) => _ | _ => 0 end).
+            rewrite Hlook. reflexivity.
+          * destruct lookup eqn:Hlook;hintros [=]. now exfalso.
+          * cbn. destruct lookup as [[]|]. 2:exfalso;easy.
+            intros ? ->. reflexivity.
+        + cbn. hintros Hlt. rewrite <- Hlt in HnS.
+          injection HnS as [= <-]. cbn.
+          hsteps_cbn;cbn. 1-2:now tspec_ext. 1-3:reflexivity. tspec_ext.
+        +cbn. intros ? ->. reflexivity.
+        +reflexivity.
+     }
+     cbn. intros [c|] Hy.
+     2:{destruct Hy as (?&->). reflexivity. }
+     rewrite Hy. destruct c;cbn;reflexivity.
+  Unshelve. all:exact 0.
+  Qed.
 
   Theorem Realise__step : Realise M__step Rel__step.
   Proof.

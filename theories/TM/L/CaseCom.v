@@ -106,9 +106,24 @@ Proof.
     +destruct H as (?&->&?). cbn. tspec_solve. easy.
 Qed.
 
+Lemma Constr_varT_SpecT_size (n : nat) (ss : Vector.t nat 1) :
+  TripleT
+    ≃≃([], withSpace  [|Contains _ n |] ss)
+    Constr_varT_steps
+    Constr_varT
+     (fun yout => ≃≃([],withSpace ([|Contains _ (varT n)|]) (appSize ([|pred|]) ss))).  
+Proof.
+  unfold withSpace.
+  eapply RealiseIn_TripleT.
+  - apply Constr_varT_Sem.
+  - intros tin yout tout H HEnc. specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H.
+    destruct yout. tspec_solve.
+Qed.
+
 Ltac hstep_Com :=
   lazymatch goal with
   | [ |- TripleT ?P ?k CaseCom ?Q ] => eapply CaseCom_SpecT_size
+  | [ |- TripleT ?P ?k Constr_varT ?Q ] => eapply Constr_varT_SpecT_size
   end.
 
 Smpl Add hstep_Com : hstep_smpl.
