@@ -8,10 +8,11 @@ From Undecidability.TM.L Require Import Alphabets LookupTM.
 From Undecidability.L.AbstractMachines.FlatPro Require Import LM_heap_def LM_heap_correct UnfoldHeap.
 From Undecidability.TM Require Import CaseList CasePair CaseCom CaseNat NatSub.
 
-From Undecidability Require Import L.L TM.TM.
+From Undecidability Require Import L.L TM.TM Hoare.
 
 From Undecidability.L.Prelim Require Import LoopSum.
 
+Require Import Ring Arith.
 
 Import VectorNotations.
 Import ListNotations.
@@ -196,6 +197,95 @@ Section Fix.
           )
           (Reset _ @ [|i_stack'|];;Return Nop false)
       ).
+
+
+  Lemma SpecT__step :
+  forall (H:Heap) a P k (stack' : list (HAdd * list Tok * nat)) res,
+  { f & 
+    TripleT
+      ≃≃([],[|Contains retr_heap H;Contains retr_nat_clos_ad a;Contains retr_pro P;Contains retr_nat_clos_var k; Contains retr_stack stack';
+              Contains retr_pro res;Void;Void;Void;Void|])
+      f M__step
+      (fun r => ≃≃([r = match unfoldTailRecStep H (((a,P),k)::stack',res) with inl ([],_) => false | _ => true end]
+          ,[|Contains _ H|]
+          ++match unfoldTailRecStep H (((a,P),k)::stack',res)%list with
+            | inl (stack2,res2) =>
+            match stack2 with
+            | []%list => Vector.const Void 4
+            | ((a2,P2),k2)::stack2' => [|Contains retr_nat_clos_ad a2;Contains retr_pro P2;Contains retr_nat_clos_var k2;Contains retr_stack stack2'|]
+            end%list
+                ++[|Contains retr_pro res2|]
+            | _ => Vector.const (Custom (fun _ => False)) 5
+            end
+          ++[|Void;Void;Void;Void|]))}.
+  Proof.
+    intros H a P k stack' res. eexists _.  unfold M__step.
+    hstep.
+    { cbn;hsteps_cbn. cbn. tspec_ext. }
+    2:{
+      destruct P;cbn;hintros [=]. cbn.
+      hstep. now hsteps_cbn. 2:reflexivity.
+      cbn. hintros _. hstep. now hsteps_cbn. 2:reflexivity.
+      cbn. hintros _. hstep. now hsteps_cbn. 2:reflexivity.
+      cbn. hintros _. hstep. {hsteps_cbn;cbn. tspec_ext. }
+      all:cbn.
+      - refine (_ : TripleT _ (match stack' with ((_,_),_)::_ => _ | _ => 0 end) _ _).
+        destruct stack' as [ |[[]]]; hintros [=].
+        cbn. hsteps_cbn. 1-3:now cbn;tspec_ext. all:reflexivity.
+      - refine (_ : TripleT _ (match stack' with []=> _ | _ => 0 end) _ _).
+        destruct stack';hintros [=].
+        hsteps_cbn. now tspec_ext. reflexivity.
+      -intros ? ->. reflexivity.
+    }
+    2:{cbn [fst implList]. intros ? ->. reflexivity. }
+    cbn. destruct P;hintros [=].
+    eapply Switch_SpecTReg.
+    {cbn. hsteps_cbn. cbn. tspec_ext. }
+    {
+      cbn. hintros [ y| ] Hy.
+      - rewrite Hy. cbn.
+        hstep. {hsteps_cbn. cbn. tspec_ext. }
+        cbn. intros _. 
+        hstep.
+        +refine (_:TripleT _ (match y with retAT => _ | _ => _ end) _ (fun x => ≃≃([],match y with retAT => _ | _ => _ end))).
+         destruct y;cbn.
+         all:hsteps_cbn;cbn.
+         --now tspec_ext.
+         --hintros y' Hy'. hsteps_cbn;cbn. tspec_ext.
+         --reflexivity.
+         --cbn. tspec_ext.
+         --cbn. eapply ConsequenceT. apply Nop_SpecT. all:try reflexivity. cbn;intros. tspec_ext.
+        +cbn. destruct y;cbn.
+         all:intro;tspec_ext.
+        +unfold Constr_S_steps,Cons_constant.time.
+         destruct y;cbn. refine (_ : _ <= (fun x => match x with Some _ => 16 | _ => _ end) _);[ |shelve]. all:cbn;nia.
+      - destruct Hy as (x&->).
+        hstep. now hsteps_cbn. 2:reflexivity.
+        cbn. intro. hstep. now hsteps_cbn.
+        cbn. intro. hstep.
+        +cbn. hsteps_cbn. cbn. tspec_ext.
+        +hintros Hlt. cbn.
+        hstep. now hsteps_cbn. 2:reflexivity.
+        cbn;intros _. hstep. now hsteps_cbn. 2:reflexivity.
+        cbn;intros _.
+        hstep. 1:{ hsteps_cbn;cbn. refine (TripleT_RemoveSpace _ (Q:= fun _ => _) (Q':= fun _ => _));intros.
+          eapply ConsequenceT. eapply Lookup_SpecT_space. now tspec_ext. cbn. intros. reflexivity. reflexivity. }
+          destruct lookup eqn:Hlook;hintros [=].
+          *cbn. hsteps_cbn;cbn.
+           1-4:try tspec_ext.
+           { eapply ConsequenceT. notypeclasses refine (Translate_SpecT _ _ _ _ ).
+            3:tspec_ext. cbn;intro. all:reflexivity.
+            }
+            1-5:cbn;try solve [tspec_ext].
+            { rewrite <- Hlt. destruct h. cbn. tspec_ext. }
+            11:reflexivity. all:try reflexivity.
+            evar (n:nat). refine (_ : _ <= n).
+            ring_simplify.
+            [n]:refine (match lookup H a (x-k) with Some h => _ | _ => _ end).
+            subst n. rewrite Hlook. reflexivity.
+          * destruct lookup eqn:Hlook;hintros [=].
+          cbn. rewrite <- Hlt.
+  Admitted. 
 
   Theorem Realise__step : Realise M__step Rel__step.
   Proof.

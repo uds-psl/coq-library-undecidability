@@ -164,15 +164,15 @@ Ltac hstep_user :=
           (* Without time, but with space *)
           ((eapply TripleT_Triple; hstep_smpl) (* Weaken a registered rule with time and space *)
            || (hstep_smpl))
-        else ((eapply TripleT_Triple; eapply TripleT_RemoveSpace; now (intros; hstep_smpl)) (* Weaken a registered rule with time and space *)
-              || (eapply Triple_RemoveSpace; now (intros; hstep_smpl)) (* Weaken a registered rule without time but with space *)
+        else ((eapply TripleT_Triple;refine (TripleT_RemoveSpace (Q:=fun y => _) (Q':=fun y => _) _); now (intros; hstep_smpl)) (* Weaken a registered rule with time and space *)
+              || (refine (TripleT_RemoveSpace (Q:=fun y => _) (Q':=fun y => _) _); now (intros; hstep_smpl)) (* Weaken a registered rule without time but with space *)
               || (eapply TripleT_Triple; hstep_smpl) (* Weaken a registered rule with time but without space *)
               || (hstep_smpl))) (* A registered rule without time and without space *)
     else (eapply Consequence_post; [ hstep_user | ]) (* First apply the consequence rule, then try again *)
   | [ |- TripleT ?P ?k ?M ?Q ] => (* With time *)
     tryif contains_evar Q then
       (tryif triple_with_space then hstep_smpl (* Apply the rule with time and space *)
-        else (eapply TripleT_RemoveSpace; now (intros; hstep_smpl)) (* Weaken a rule with time and space *)
+        else (refine (TripleT_RemoveSpace (Q:=fun y => _) (Q':=fun y => _)_); now (intros; hstep_smpl)) (* Weaken a rule with time and space *)
              || (hstep_smpl))
     else (eapply ConsequenceT_post; [ hstep_user | ]) (* First apply the consequence rule, then try again *)
   end.
