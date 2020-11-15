@@ -136,10 +136,12 @@ FOL/Infinite.v
 MinskyMachines/MM.v             # generic X-bounded MM (X=pos n or X=nat is type of registers) 
                                 # with CPP19 semantics (MM) and alternate semantics (MMA)
 MinskyMachines/MMA.v            # simply exports MM.v
-MinskyMachines/MM2.v            # self contained two counter MM with alternate semantics
+MinskyMachines/MM2.v            # self contained two counters MM with alternate semantics
+MinskyMachines/ndMM2.v          # self contained two counters non-deterministic MM 
 MinskyMachines/MM_undec.v       # undec for MM(n), CPP2019
 MinskyMachines/MMA2_undec.v     # undec for MMA(2)
 MinskyMachines/MM2_undec.v      # undec for MM2
+MinskyMachines/ndMM2_undec.v    # undec for ndMM2
 
 MinskyMachines/Reductions/BSM_MM.v
 MinskyMachines/Reductions/PCPb_to_MM.v
@@ -150,6 +152,7 @@ MinskyMachines/Reductions/MMA2_to_MMA2_zero.v
 MinskyMachines/Reductions/MM_to_MMA2.v
 MinskyMachines/Reductions/MUREC_MM.v
 MinskyMachines/Reductions/BSM_HALTING_to_MM2_HALTING.v
+MinskyMachines/Reductions/MM2_to_ndMM2_ACCEPT.v
 
 MinskyMachines/MM/mm_defs.v         # (pos n)-bounded MM
 MinskyMachines/MM/mm_utils.v        # utilities
@@ -166,18 +169,23 @@ MinskyMachines/MMenv/env.v          # environments for nat-bounded MM
 MinskyMachines/MMenv/mme_defs.v     # X-bounded MM definitions      
 MinskyMachines/MMenv/mme_utils.v    # nat-bounded MM utils for MuRec ~~> MM(nat) compiler
 
-# Intuitionistic Linear Logic (cf CPP'19 YF&DLW)
+MinskyMachines/ndMM2/ndmm2_utils.v  # some utilities for ndMM2, for now just monotonicity
+
+# Linear Logic (including CPP'19 YF&DLW)
 ILL/EILL.v
 ILL/ILL.v
-ILL/CLL.v
 ILL/ILL_undec.v
+ILL/CLL.v
 ILL/CLL_undec.v
+ILL/IMSELL.v
+ILL/IMSELL_undec.v
 
 ILL/Reductions/iBPCP_MM.v
 ILL/Reductions/MM_EILL.v
 ILL/Reductions/EILL_ILL.v
 ILL/Reductions/EILL_CLL.v
 ILL/Reductions/ILL_CLL.v
+ILL/Reductions/ndMM2_IMSELL.v
 
 ILL/Ll/eill.v
 ILL/Ll/eill_mm.v
@@ -185,6 +193,7 @@ ILL/Ll/ill.v
 ILL/Ll/ill_cll.v
 ILL/Ll/ill_cll_restr.v
 ILL/Ll/schellinx.v
+ILL/Ll/imsell.v
 
 # µ-recursive algorithms
 MuRec/recalg.v
@@ -587,6 +596,7 @@ CounterMachines/Util/MM2_facts.v
 CounterMachines/Reductions/MM2_HALTING_to_CM1c4_HALT.v
 CounterMachines/Reductions/MM2_HALTING_to_CM2_HALT.v
 CounterMachines/Reductions/HaltTM_1_to_CM1c4_HALT.v
+
 
 #Stack Machines
 StackMachines/BSM.v
