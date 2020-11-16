@@ -94,7 +94,6 @@ Proof.
   - econstructor.
   - hnf. intros. induction H; eauto using rewR, rewS.
 Qed.
-
 Lemma rewt_app_L R x x' y : rewt R x x' -> rewt R (y ++ x) (y ++ x').
 Proof.
   induction 1. reflexivity.
@@ -134,6 +133,16 @@ Lemma rew_subset (R P : SRS) x y :
 Proof.
   intros H1 H2. inversion H1; subst.
   econstructor. eauto.
+Qed.
+
+Lemma rew_app_inv (R1 R2 : SR.SRS nat) x y :
+  SR.rew (R1 ++ R2) x y <-> SR.rew R1 x y \/ SR.rew R2 x y.
+Proof.
+  split.
+  - inversion 1 as [x0 y0 u v H0]; subst; eapply in_app_iff in H0 as [H0 | H0].
+    + left. econstructor. eauto.
+    + right. econstructor. eauto.
+  - intros [H | H]; eapply rew_subset; eauto.
 Qed.
 
 Lemma do_rew (R : SRS) x1 x2 x y u v :
