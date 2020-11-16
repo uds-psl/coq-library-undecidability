@@ -1,11 +1,12 @@
 (** * Trakhtenbrot's Theorem *)
 
 Require Import Equations.Equations.
-Require Import Lia.
+Require Import Lia Arith.
 
 Require Import Undecidability.PCP.PCP.
 From Undecidability Require Import Problems.FOLFS.
-
+Require Import Undecidability.Shared.ListAutomation.
+Import ListAutomationNotations.
 
 
 (** ** Bounded boolean strings *)
@@ -31,8 +32,10 @@ Proof.
   - depelim H2; try apply le_irrel'. f_equal. apply IHl.
 Qed.
 
+Local Notation "| s |" := (length s) (at level 100).
+
 Definition bstring n :=
-  { s : string bool | |s| <= n}.
+  { s : string bool | | s | <= n}.
 
 Lemma string_nil (s : string bool) :
   |s| <= 0 <-> s = nil.
@@ -151,7 +154,9 @@ Section FIB.
     listable (obstring n).
   Proof.
     destruct (listable_bstring n) as [L HL]. exists (None :: map Some L).
-    intros [x|]; trivial. right. apply in_map, HL.
+    intros [x|].
+    - right. apply in_map, HL.
+    - cbn. eauto.
   Qed.
 
   Notation obcast H := (Some (bcast H)).

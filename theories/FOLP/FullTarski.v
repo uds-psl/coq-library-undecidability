@@ -5,6 +5,7 @@ From Undecidability.FOLP Require Export FullFOL.
 (* *** Tarki Models **)
 
 Section Tarski.
+  Local Notation "x 'el' L" := (In x L) (at level 60).
   Context {Sigma : Signature}.
 
   (* **** Semantic notions *)

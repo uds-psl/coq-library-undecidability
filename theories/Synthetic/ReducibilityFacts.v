@@ -1,7 +1,7 @@
 From Undecidability.Synthetic Require Import DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts MoreEnumerabilityFacts.
 From Undecidability.Shared Require Import ListAutomation.
 Require Import List.
-Import ListNotations.
+Import ListNotations ListAutomationNotations.
 
 Set Implicit Arguments.
 

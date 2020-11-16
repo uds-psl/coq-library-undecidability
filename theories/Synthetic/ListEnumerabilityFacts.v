@@ -181,6 +181,7 @@ Proof.
 Qed.
 
 Require Import Undecidability.Shared.ListAutomation.
+Import ListAutomationNotations.
 
 Notation cumul := (to_cumul).
 

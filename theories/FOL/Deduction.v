@@ -1,6 +1,8 @@
 (** * Natural Deduction *)
 
 From Undecidability Require Export FOL.Semantics.
+Import ListAutomationNotations.
+Local Set Implicit Arguments.
 
 (** ** Definition *)
 
@@ -129,15 +131,15 @@ Proof.
   - reflexivity.
   - reflexivity.
   - cbn. firstorder.
-  - cbn. dec.
+  - cbn. destruct (Dec (x = n)).
     + split; intros H d; specialize (H d).
-      * eapply (sat_ext H). intros. decs.
-      * eapply (sat_ext H). intros. decs.
+      * eapply (sat_ext _ _ _ _ H). intros. decs.
+      * eapply (sat_ext _ _ _ _ H). intros. decs.
     + split; intros H d; specialize (H d).
       * rewrite IHphi in H. rewrite eval_empty with (rho':=rho) in H; trivial.
-        apply (sat_ext H). intros y. decs.
+        apply (sat_ext _ _ _ _ H). intros y. decs.
       * rewrite IHphi. rewrite eval_empty with (rho':=rho); trivial.
-        apply (sat_ext H). intros y. decs.
+        apply (sat_ext _ _ _ _ H). intros y. decs.
 Qed.
 
 Lemma substconst_sat b (phi : form b) dom eta rho x a d (I : interp dom eta) :
@@ -154,14 +156,14 @@ Lemma soundness' {b} A (phi : form b) :
 Proof.
   remember intu as s. induction 1; intros D eta I rho; eapply impl_sat; intros; subst; try congruence.
   - eauto.
-  - intros ?. eapply (impl_sat' (IHprv eq_refl D eta I rho)). now firstorder subst. 
-  - now eapply (impl_sat' (IHprv1 eq_refl D eta I rho)), (impl_sat' (IHprv2 eq_refl D eta I rho)).
+  - intros ?. eapply (impl_sat' _ _ _ (IHprv eq_refl D eta I rho)). now firstorder subst. 
+  - now eapply (impl_sat' _ _ _ (IHprv1 eq_refl D eta I rho)), (impl_sat' _ _ _ (IHprv2 eq_refl D eta I rho)).
   - intros d. specialize (IHprv eq_refl D (eta [[y := d]]) (cast _ I) rho ).
     rewrite impl_sat in IHprv. rewrite <- substconst_sat. apply IHprv. 2: firstorder.
     eapply sat_ext_p_list. all:destruct I. 3: eapply H1. all:firstorder.
     cbn. decs. destruct H; firstorder. 
   - eapply subst_sat; trivial.
-    now eapply (impl_sat' (IHprv eq_refl D eta I rho)).
+    now eapply (impl_sat' _ _ _  (IHprv eq_refl D eta I rho)).
   - specialize (IHprv eq_refl D eta I rho) as []  % impl_sat; eauto.
 Qed.
 
@@ -184,6 +186,30 @@ Lemma size_subst {b : logic} x t phi :
   size (subst x t phi) = size phi.
 Proof.
   induction phi; cbn; try congruence; decs.
+Qed.
+
+Lemma size_induction_dep L (X : L -> Type) (f : forall l, X l -> nat) (p : forall l, X l -> Type) :
+  (forall l x, (forall l' y, f l' y < f l x -> p l' y) -> p l x) -> 
+  forall l x, p l x.
+Proof. 
+  intros IH l x. apply IH. intros l'.
+  assert (G: forall n l' y, f l' y < n -> p l' y).
+  { intros n. induction n; intros l'' y.
+    - intros B. exfalso. lia.
+    - intros B. apply IH. intros ll z C. eapply IHn. lia. }
+  apply G.
+Qed.
+
+Lemma size_induction X (f : X -> nat) (p : X -> Prop) :
+  (forall x, (forall y, f y < f x -> p y) -> p x) -> 
+  forall x, p x.
+Proof. 
+  intros IH x. apply IH. 
+  assert (G: forall n y, f y < n -> p y).
+  { intros n. induction n.
+    - intros y B. exfalso. lia.
+    - intros y B. apply IH. intros z C. apply IHn. lia. }
+  apply G.
 Qed.
 
 Lemma form_ind_subst :
@@ -221,8 +247,8 @@ Qed.
 
 Lemma incl_dec X (A B : list X) `{eq_dec X} : dec (A <<= B).
 Proof.
-  pose proof (forallb_forall (fun a => list_in_dec a B _) A).
-  destruct (forallb (fun a : X => list_in_dec a B H) A).
+  pose proof (forallb_forall (fun a => list_in_dec _ a B _) A).
+  destruct (forallb (fun a : X => list_in_dec _ a B H) A).
   - left. intros ? ?. eapply H0 in H1. destruct list_in_dec; now inv H1. reflexivity.
   - right. intros ?. enough (false = true) by congruence. eapply H0.
     intros. destruct list_in_dec; cbn. reflexivity. exfalso; eauto.

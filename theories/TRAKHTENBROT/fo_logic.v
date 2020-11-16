@@ -712,12 +712,10 @@ Section fo_model_nosyms.
   Theorem fo_model_nosyms : fol_sem M φ A <-> fol_sem M' φ A.
   Proof.
     apply fo_model_projection' with (ls := nil) (lr := fol_rels A) (i := fun x => x) (j := fun x => x); auto.
-    + intros ? ? [].
     + intros; rewrite H; auto.
       apply fol_equiv_ext; f_equal.
       apply vec_pos_ext; intro; rew vec.
     + rewrite HA; apply incl_refl.
-    + apply incl_refl.
   Qed.
 
 End fo_model_nosyms.

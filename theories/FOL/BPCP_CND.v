@@ -25,7 +25,7 @@ Fixpoint cast {b} (phi : form b) : form full :=
 Lemma subst_cast {b} x t phi :
   cast (subst x t phi) = subst x t (cast phi).
 Proof.
-  induction phi; cbn in *; dec; congruence.
+  induction phi; cbn in *; try destruct Dec; congruence.
 Qed.
 
 Lemma consts_casts {b} phi :
@@ -84,7 +84,7 @@ Proof.
 Qed.
 
 Lemma appCtx b psi1 psi2 A :
-  psi1 --> psi2 el A -> A ⊢I psi1 -> A ⊢I psi2.
+  In (psi1 --> psi2) A -> A ⊢I psi1 -> A ⊢I psi2.
 Proof.
   intros. eapply (ImpE (phi1 := psi1) (phi2 := psi2)); eauto using Ctx.
 Qed.

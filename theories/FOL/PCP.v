@@ -2,6 +2,7 @@
 
 From Undecidability Require Export Reductions PCP.PCP.
 From Undecidability.Shared Require Export ListAutomation.
+Import ListAutomationNotations.
 
 Lemma stack_discrete :
   discrete (stack bool).

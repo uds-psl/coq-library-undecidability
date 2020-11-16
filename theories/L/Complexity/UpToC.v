@@ -1,4 +1,4 @@
-From Undecidability Require Import Shared.Prelim L.Prelim.MoreBase.
+From Undecidability Require Import L.Prelim.MoreBase.
 
 Require Import smpl.Smpl.
 Require Export Lia Arith Ring.

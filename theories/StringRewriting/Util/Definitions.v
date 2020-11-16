@@ -1,5 +1,9 @@
-Require Import Undecidability.StringRewriting.SR Undecidability.Shared.Prelim.
-
+Require Import Undecidability.StringRewriting.SR.
+Require Import Undecidability.Shared.ListAutomation.
+Require Import Setoid Morphisms Lia.
+Import ListAutomationNotations.
+Local Set Implicit Arguments.
+Local Unset Strict Implicit.
 
 (** *Some basic things concerning lists *)
 
@@ -155,7 +159,7 @@ Lemma sym_map X (f : X -> card) l Sigma :
 Proof.
   intros. induction l as [ | ]; cbn in *.
   - firstorder.
-  - pose proof (H a). destruct _. repeat eapply incl_app.
+  - pose proof (H a). destruct f. repeat eapply incl_app.
     + eapply app_incl_l, H0. eauto.
     + eapply app_incl_l, app_incl_R; eauto.
     + eauto.

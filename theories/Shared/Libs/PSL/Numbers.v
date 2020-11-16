@@ -23,6 +23,18 @@ Proof.
   apply G.
 Qed.
 
+Lemma size_induction_dep L (X : L -> Type) (f : forall l, X l -> nat) (p : forall l, X l -> Type) :
+  (forall l x, (forall l' y, f l' y < f l x -> p l' y) -> p l x) -> 
+  forall l x, p l x.
+Proof. 
+  intros IH l x. apply IH. intros l'.
+  assert (G: forall n l' y, f l' y < n -> p l' y).
+  { intros n. induction n; intros l'' y.
+    - intros B. exfalso. lia.
+    - intros B. apply IH. intros ll z C. eapply IHn. lia. }
+  apply G.
+Qed.
+
 Instance nat_le_dec (x y : nat) : dec (x <= y) := 
   le_dec x y.
 

@@ -1,7 +1,9 @@
 (** ** Operations & Properties of FOL* *)
 
 
-Require Import Equations.Equations Equations.Prop.DepElim.
+Require Import Undecidability.Shared.ListAutomation.
+Import ListAutomationNotations.
+Require Import Equations.Equations Equations.Prop.DepElim Arith Undecidability.Shared.Libs.PSL.Numbers List Setoid.
 From Undecidability.FOL  Require Export DecidableEnumerable.
 From Undecidability.FOLP Require Export Syntax.
 Require Export Lia.
@@ -143,7 +145,7 @@ Section FOL.
   | uf_Impl phi psi : unused n phi -> unused n psi -> unused n (Impl phi psi)
   | uf_All phi : unused (S n) phi -> unused n (All phi).
 
-  Definition unused_L n A := forall phi, phi el A -> unused n phi.
+  Definition unused_L n A := forall phi, List.In phi A -> unused n phi.
   Definition closed phi := forall n, unused n phi.
 
   Lemma vec_unused n (v : vector term n)  :
@@ -178,7 +180,7 @@ Section FOL.
     { n | forall m, n <= m -> unused_L m A }.
   Proof.
     induction A.
-    - exists 0. unfold unused_L. intuition.
+    - exists 0. unfold unused_L. firstorder.
     - destruct IHA. destruct (find_unused a).
       exists (x + x0). intros m Hm. intros phi []; subst.
       + apply u0. lia.
@@ -313,9 +315,9 @@ Section FOL.
 
   Definition theory := form -> Prop.
   Definition contains phi (T : theory) := T phi.
-  Definition contains_L (A : list form) (T : theory) := forall f, f el A -> contains f T.
+  Definition contains_L (A : list form) (T : theory) := forall f, List.In f A -> contains f T.
   Definition subset_T (T1 T2 : theory) := forall (phi : form), contains phi T1 -> contains phi T2.
-  Definition list_T A : theory := fun phi => phi el A.
+  Definition list_T A : theory := fun phi => List.In phi A.
 
   Infix "⊏" := contains_L (at level 20).
   Infix "⊑" := subset_T (at level 20).
@@ -343,7 +345,7 @@ Section FOL.
   Section ContainsAutomation.
     Lemma contains_nil T :
       List.nil ⊏ T.
-    Proof. intuition. Qed.
+    Proof. firstorder. Qed.
 
     Lemma contains_cons a A T :
       a ∈ T -> A ⊏ T -> (a :: A) ⊏ T.
@@ -408,9 +410,10 @@ Ltac use_theory A := exists A; split; [eauto 15 with contains_theory|].
 
 (* **** Enumerability *)
 
+
 Fixpoint vecs_from X (A : list X) (n : nat) : list (vector X n) :=
   match n with
-  | 0 => [nil]
+  | 0 => [Vector.nil]
   | S n => [ cons x v | (x,  v) ∈ (A × vecs_from A n) ]
   end.
 
@@ -487,7 +490,7 @@ Section Enumerability.
   Global Instance enumT_term : list_enumerator__T L_term term.
   Proof with try (eapply cum_ge'; eauto; lia).
     intros t. induction t using strong_term_ind.
-    + exists (S x); cbn; eauto.
+    + exists (S x); cbn. now in_app 2.
     + apply vec_forall_cml in H as [m H]. 2: exact L_term_cml. destruct (cumul_spec__T enum_Funcs F) as [m' H'].
       exists (S (m + m')); cbn. in_app 3. eapply in_concat_iff. eexists. split. 2: in_collect F...
       apply in_map. rewrite <- vecs_from_correct in H |-*. intros x H''. specialize (H x H'')...

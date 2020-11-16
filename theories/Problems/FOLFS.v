@@ -5,7 +5,7 @@ From Undecidability Require Export FOLP.FullTarski.
 (* We use listability as notion of finiteness. *)
 
 Definition listable X :=
-  exists L, forall x : X, x el L.
+  exists L, forall x : X, In x L.
 
 Section Finsat.
 

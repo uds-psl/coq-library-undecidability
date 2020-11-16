@@ -1,6 +1,9 @@
 (** * Kripke Semantics *)
 
 From Undecidability Require Export FOL.Deduction.
+Import ListAutomationNotations.
+Local Set Implicit Arguments.
+Local Unset Strict Implicit.
 
 (** ** Kripke Models *)
 

@@ -203,16 +203,16 @@ End FixM.
 Lemma reduction :
     HaltSBTMu ⪯ SR.SRH.
 Proof.
-    unshelve eexists. { intros [(M & q & H) t]. exact (R M, @enc_conf M t Fin.F1, enc_state q). }
+    unshelve eexists. { intros [(M & q & H) t]. exact (R M, @enc_conf M t Fin.F1, enc_state M q). }
     intros [(M & q & Hq) t]. split.
     - cbn -[enc_state]. intros (t' & H).
-      exists (enc_conf t' q). split.
+      exists (enc_conf M t' q). split.
       + now eapply simulation. 
       + destruct t' as [[ls o] rs].
         cbn -[Nat.add]. right. rewrite !in_app_iff. cbn; eauto.
     - cbn -[R Nat.add]. intros (x & H1 & H2). revert H1.
       generalize (@Fin.F1 (num_states M)). intros q1 H.
-      revert q Hq H2. remember (enc_conf t q1) as y.
+      revert q Hq H2. remember (enc_conf M t q1) as y.
       induction H in q1, Heqy, t |- *; subst; intros q Hq H2.
       + exists t. eapply enc_state_inv in H2. subst. econstructor. eapply Hq.
       + eapply rev_sim in H as (q' & w & m & H1 & H3). subst.

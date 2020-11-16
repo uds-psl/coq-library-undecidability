@@ -1,7 +1,20 @@
 Require Export List Undecidability.Shared.Dec Undecidability.Shared.FilterFacts.
 Export ListNotations.
 
-Notation "x 'el' L" := (In x L) (at level 70).
+Module ListAutomationNotations.
+
+  Notation "x 'el' L" := (In x L) (at level 70).
+  Notation "A '<<=' B" := (incl A B) (at level 70).
+
+  Notation "( A × B × .. × C )" := (list_prod .. (list_prod A B) .. C) (at level 0, left associativity).
+
+  Notation "[ s | p ∈ A ',' P ]" :=
+    (map (fun p => s) (filter (fun p => Dec P) A)) (p pattern).
+  Notation "[ s | p ∈ A ]" :=
+    (map (fun p => s) A) (p pattern).
+
+End ListAutomationNotations.
+Import ListAutomationNotations.
 
 Instance list_in_dec X (x : X) (A : list X) :
   eq_dec X -> dec (x el A).
@@ -15,13 +28,6 @@ Proof.
   - intuition. now destruct H. 
   - rewrite in_app_iff, IHl. clear. firstorder subst. auto.
 Qed.
-
-Notation "( A × B × .. × C )" := (list_prod .. (list_prod A B) .. C) (at level 0, left associativity).
-
-Notation "[ s | p ∈ A ',' P ]" :=
-  (map (fun p => s) (filter (fun p => Dec P) A)) (p pattern).
-Notation "[ s | p ∈ A ]" :=
-  (map (fun p => s) A) (p pattern).
 
 Ltac in_app n :=
   (match goal with
@@ -52,3 +58,163 @@ Ltac inv_collect :=
     | [ H : _ el _ ++ _ |- _ ] => try eapply in_app_iff in H as []
     | [H : _ el _ :: _ |- _ ] => destruct H
      end; intuition; subst).
+
+Require Import Lia Arith.
+Local Set Implicit Arguments.
+Local Unset Strict Implicit.
+
+Hint Extern 4 => 
+match goal with
+|[ H: ?x el nil |- _ ] => destruct H
+end : core.
+
+Hint Extern 4 => 
+match goal with
+|[ H: False |- _ ] => destruct H
+|[ H: true=false |- _ ] => discriminate H
+|[ H: false=true |- _ ] => discriminate H
+end : core.
+Lemma incl_nil X (A : list X) :
+  nil <<= A.
+Proof. intros x []. Qed.
+
+Hint Rewrite <- app_assoc : list.
+Hint Rewrite rev_app_distr map_app prod_length : list.
+Hint Resolve in_eq in_nil in_cons in_or_app : core.
+Hint Resolve incl_refl incl_tl incl_cons incl_appl incl_appr incl_app incl_nil : core.
+
+Lemma app_incl_l X (A B C : list X) :
+A ++ B <<= C -> A <<= C.
+Proof.
+firstorder eauto.
+Qed.
+
+Lemma app_incl_R X (A B C : list X) :
+A ++ B <<= C -> B <<= C.
+Proof.
+firstorder eauto.
+Qed.
+
+Lemma cons_incl X (a : X) (A B : list X) : a :: A <<= B -> A <<= B.
+Proof.
+intros ? ? ?. eapply H. firstorder.
+Qed.
+
+Lemma incl_sing X (a : X) A : a el A -> [a] <<= A.
+Proof.
+now intros ? ? [-> | [] ].
+Qed.
+
+Hint Resolve app_incl_l app_incl_R cons_incl incl_sing : core.
+
+Hint Extern 4 (_ el map _ _) => eapply in_map_iff : core.
+Hint Extern 4 (_ el filter _ _) => eapply filter_In : core.
+
+Section Inclusion.
+  Variable X : Type.
+  Implicit Types A B : list X.
+
+  Lemma incl_nil_eq A :
+    A <<= nil -> A=nil.
+
+  Proof.
+    intros D. destruct A as [|x A].
+    - reflexivity.
+    - exfalso. apply (D x). auto.
+  Qed.
+
+  Lemma incl_shift x A B :
+    A <<= B -> x::A <<= x::B.
+
+  Proof. auto. Qed.
+
+  Lemma incl_lcons x A B :
+    x::A <<= B <-> x el B /\ A <<= B.
+  Proof. 
+    split. 
+    - intros D. split; hnf; auto.
+    - intros [D E] z [F|F]; subst; auto.
+  Qed.
+
+  Lemma incl_rcons x A B :
+    A <<= x::B -> ~ x el A -> A <<= B.
+
+  Proof. intros C D y E. destruct (C y E) as [F|F]; congruence. Qed.
+
+  Lemma incl_lrcons x A B :
+    x::A <<= x::B -> ~ x el A -> A <<= B.
+
+  Proof.
+    intros C D y E.
+    assert (F: y el x::B) by auto.
+    destruct F as [F|F]; congruence.
+  Qed.
+
+  Lemma incl_app_left A B C :
+    A ++ B <<= C -> A <<= C /\ B <<= C.
+  Proof.
+    firstorder.
+  Qed.
+
+End Inclusion.
+
+Require Import Setoid Morphisms.
+
+Instance incl_preorder X : 
+  PreOrder (@incl X).
+Proof. 
+  constructor; hnf; unfold incl; auto. 
+Qed.
+
+Definition equi X (A B : list X) : Prop := incl A B /\ incl B A.
+Local Notation "A === B" := (equi A B) (at level 70).
+Hint Unfold equi : core.
+
+Instance equi_Equivalence X : 
+  Equivalence (@equi X).
+Proof. 
+  constructor; hnf; firstorder. 
+Qed.
+
+Instance incl_equi_proper X : 
+  Proper (@equi X ==> @equi X ==> iff) (@incl X).
+Proof. 
+  hnf. intros A B D. hnf. firstorder. 
+Qed.
+
+Instance cons_incl_proper X x : 
+  Proper (@incl X ==> @incl X) (@cons X x).
+Proof.
+  hnf. apply incl_shift.
+Qed.
+
+Instance cons_equi_proper X x : 
+  Proper (@equi X ==> @equi X) (@cons X x).
+Proof. 
+  hnf. firstorder.
+Qed.
+
+Instance in_incl_proper X x : 
+  Proper (@incl X ==> Basics.impl) (@In X x).
+Proof.
+  intros A B D. hnf. auto.
+Qed.
+
+Instance in_equi_proper X x : 
+  Proper (@equi X ==> iff) (@In X x).
+Proof. 
+  intros A B D. firstorder. 
+Qed.
+
+Instance app_incl_proper X : 
+  Proper (@incl X ==> @incl X ==> @incl X) (@app X).
+Proof. 
+  intros A B D A' B' E. auto.
+Qed.
+
+Instance app_equi_proper X : 
+  Proper (@equi X ==> @equi X ==> @equi X) (@app X).
+Proof. 
+  hnf. intros A B D. hnf. intros A' B' E.
+  destruct D, E; auto.
+Qed.

@@ -3,7 +3,6 @@
 -arg -w -arg -notation-overridden
 COQDOCFLAGS = "--charset utf-8 -s --with-header ../website/resources/header.html --with-footer ../website/resources/footer.html --index indexpage"
 
-Shared/Prelim.v
 Shared/Dec.v
 Shared/ListAutomation.v
 Shared/FilterFacts.v
@@ -147,6 +146,7 @@ CFG/CFP_undec.v
 CFG/CFG.v
 CFG/CFG_undec.v
 
+CFG/Utils/Facts.v
 CFG/Reductions/PCP_to_CFPP.v
 CFG/Reductions/PCP_to_CFPI.v
 CFG/Reductions/CFPP_to_CFP.v
@@ -155,7 +155,6 @@ CFG/Reductions/CFPI_to_CFI.v
 # First order logic
 FOL/DecidableEnumerable.v
 FOL/Reductions.v
-FOL/MarkovPost.v
 FOL/PCP.v
 FOL/FOL.v
 FOL/Semantics.v
