@@ -71,46 +71,6 @@ Section Fix.
   Local Notation i_aux3 := Fin8 (only parsing).
   Local Notation i_aux4 := Fin9 (only parsing).
 
-  Definition Rel__step : pRel Σ^+ bool n :=
-    (fun t '(r, t') =>
-     forall (H : Heap) a P k stack' (res:Pro), 
-      t[@i_H] ≃(retr_heap) H
-      -> t[@i_a] ≃(retr_nat_clos_ad) a
-      -> t[@i_P] ≃(retr_pro) P
-      -> t[@i_k] ≃(retr_nat_clos_var) k
-      -> t[@i_stack'] ≃(retr_stack) stack'
-      -> t[@i_res] ≃(retr_pro) res
-      -> isVoid t[@i_aux1]
-      -> isVoid t[@i_aux2]
-      -> isVoid t[@i_aux3]
-      -> isVoid t[@i_aux4]
-      -> t'[@i_H] ≃(retr_heap) H
-      /\ isVoid t'[@i_aux1] 
-      /\ isVoid t'[@i_aux2] 
-      /\ isVoid t'[@i_aux3] 
-      /\ isVoid t'[@i_aux4]
-      /\ match unfoldTailRecStep H (((a,P),k)::stack',res) with
-            inr _ => False
-          | inl (stack2,res2) =>
-            t'[@i_res] ≃(retr_pro) res2 /\
-            match stack2 with
-            | [] =>
-              r = false
-              /\ isVoid t'[@i_a]
-              /\ isVoid t'[@i_P]
-              /\ isVoid t'[@i_k]
-              /\ isVoid t'[@i_stack']
-            | ((a2,P2),k2)::stack2' =>
-              r = true /\
-              t'[@i_a] ≃(retr_nat_clos_ad) a2
-              /\ t'[@i_P] ≃(retr_pro) P2
-              /\ t'[@i_k] ≃(retr_nat_clos_var) k2
-              /\ t'[@i_stack'] ≃(retr_stack) stack2'
-            end
-      end).
-
-    Arguments Rel__step : simpl never.
-
     (* Print unfoldTailRecStep. *)
     (*
       Definition unfoldTailRecStep '(stack,res) : (list (HClos*nat) * Pro) + option Pro :=
@@ -141,7 +101,7 @@ Section Fix.
 
 
 
-  Definition M__step : pTM (Σ) ^+ bool n :=
+  Definition M__step : pTM (Σ) ^+ (option unit) n :=
     If
       (CaseList _ ⇑ retr_pro @ [| i_P;i_aux1|]) 
       (Switch (CaseCom ⇑ retr_com @ [|i_aux1|])
@@ -154,7 +114,7 @@ Section Fix.
             | lamAT => Constr_S  ⇑ retr_nat_clos_var @ [|i_k|]
             | appAT => Nop
             end
-            true
+            None
           | None (*var*) =>
             CopyValue _  @ [| i_k;i_aux2|];;
             CopyValue _  @ [| i_aux1;i_aux3|];;
@@ -173,16 +133,16 @@ Section Fix.
                    Constr_cons _ ⇑ retr_stack @ [| i_stack';i_k|];;
                    Reset _ @ [|i_k|];;
                    CasePair _ _ ⇑ retr_clos @ [|i_P;i_a|];;
-                   Return (WriteValue ( 1) ⇑ retr_nat_clos_var @ [|i_k|]) true 
+                   Return (WriteValue ( 1) ⇑ retr_nat_clos_var @ [|i_k|]) None
                   )
-                  (Return Diverge false)
+                  (Return Diverge (Some tt))
                )
                (Return
                  (Constr_varT ⇑ retr_com @ [|i_aux1|];;
                   Constr_cons _ ⇑ retr_pro @ [| i_res;i_aux1|];;
                   Reset _  @ [|i_aux1|];;
                   Reset _ @ [|i_aux3|])
-                 true)
+                 None)
         end)
       )
       ( Reset _ @ [|i_P|];;
@@ -193,9 +153,9 @@ Section Fix.
           (CasePair _ _ ⇑ retr_stackEl @ [|i_k;i_P|];;
            CasePair _ _ ⇑ retr_clos @ [|i_P;i_a|];;
            Translate retr_nat_stack retr_nat_clos_var @[|i_k|];;
-           Return Nop true
+           Return Nop None
           )
-          (Reset _ @ [|i_stack'|];;Return Nop false)
+          (Reset _ @ [|i_stack'|];;Return Nop (Some tt))
       ).
 
   Local Arguments "+"%nat : simpl never.
@@ -203,14 +163,17 @@ Section Fix.
 
 
   Lemma SpecT__step :
-  forall (H:Heap) a P k (stack' : list (HAdd * list Tok * nat)) res nextState,
+  forall (H:Heap) a P k (stack' : list (HAdd * list Tok * nat)) res nextState n' finalRes,
   { f & 
-  unfoldTailRecStep H (((a,P),k)::stack',res)%list = inl nextState ->
-    TripleT
-      ≃≃([],[|Contains retr_heap H;Contains retr_nat_clos_ad a;Contains retr_pro P;Contains retr_nat_clos_var k; Contains retr_stack stack';
+      TripleT
+      ≃≃([unfoldTailRecStep H (((a,P),k)::stack',res)%list = inl nextState;
+          loopSum n' (unfoldTailRecStep H) (((a,P),k)::stack',res) = Some (Some finalRes)],
+      [|Contains retr_heap H;Contains retr_nat_clos_ad a;Contains retr_pro P;Contains retr_nat_clos_var k; Contains retr_stack stack';
               Contains retr_pro res;Void;Void;Void;Void|])
       f M__step
-      (fun r => ≃≃([r = match fst nextState with [] => false | _ => true end]
+      (fun r => ≃≃([
+      loopSum (pred n') (unfoldTailRecStep H) nextState = Some (Some finalRes);
+      match r with Some tt => nextState = ([],finalRes) | _ => fst nextState <> [] end;n' <> 0]
           ,[|Contains _ H|]
           ++let (stack2,res2) := nextState in 
             match stack2 with
@@ -219,7 +182,7 @@ Section Fix.
             end%list
                 ++[|Contains retr_pro res2;Void;Void;Void;Void|]))}.
   Proof.
-    intros H a P k stack' res nextState. eexists _. intros HnS.  unfold M__step.
+    intros H a P k stack' res nextState n' finalRes. eexists _. hintros HnS Hloop. unfold M__step.
     hstep.
     { cbn;hsteps_cbn. cbn. tspec_ext. }
     2:{
@@ -232,11 +195,19 @@ Section Fix.
       - refine (_ : TripleT _ (match stack' with ((_,_),_)::_ => _ | _ => 0 end) _ _).
         destruct stack' as [ |[[]]]; hintros [=].
         injection HnS as [= <-].
-        cbn. hsteps_cbn. 1-3:try now cbn;tspec_ext. all:reflexivity.
+        destruct n'. now inv Hloop. cbn in Hloop.
+        remember (unfoldTailRecStep H ((h, l, n) :: stack', res)) as st.
+        cbn. hsteps_cbn. 1-3:try now cbn;tspec_ext. all:reflexivity. (*
+        destruct n'. now inv Hloop.
+        cbn - [unfoldTailRecStep] in Hloop|-*. rewrite <- Heqst in Hloop|-*.
+        destruct st. 2:{inv Hloop. tspec_ext. }
+        tspec_ext. all: easy. *)
       - refine (_ : TripleT _ (match stack' with []=> _ | _ => 0 end) _ _).
         destruct stack';hintros [=].
         injection HnS as [=<-].
-        hsteps_cbn. now tspec_ext. reflexivity.
+        hsteps_cbn.
+        { destruct n' as [|[]]. 1,2:now discriminate Hloop. injection Hloop as ->. now tspec_ext. }
+        reflexivity.
       -intros ? ->. reflexivity.
     }
     2:{cbn [fst implList]. intros ? ->. reflexivity. }
@@ -245,10 +216,12 @@ Section Fix.
     eapply Switch_SpecTReg.
     {cbn. hsteps_cbn. cbn. tspec_ext. }
     {
+      destruct n'. 1:easy. cbn in Hloop. rewrite HnS in Hloop.
+      remember (unfoldTailRecStep H nextState) as ns'.
       cbn. hintros [ y| ] Hy.
       - subst t. cbn.
         hstep. {hsteps_cbn. cbn. tspec_ext. }
-        cbn. intros _. 
+        cbn. intros _.
         hstep.
         +refine (_:TripleT _ (match y with retAT => _ | _ => _ end) _ (fun x => ≃≃([],match y with retAT => _ | _ => _ end))).
          destruct y;cbn.
@@ -259,10 +232,10 @@ Section Fix.
          --cbn. tspec_ext.
          --cbn. eapply ConsequenceT. apply Nop_SpecT. all:try reflexivity. cbn;intros. tspec_ext.
         +cbn. destruct y;cbn in HnS|-*. all:injection HnS as [= <-];cbn.
-         all:intro;tspec_ext.
+         all:intro;tspec_ext;easy. 
         +unfold Constr_S_steps,Cons_constant.time.
          destruct y;cbn. refine (_ : _ <= (fun x => match x with Some _ => 16 | _ => _ end) _);[ |shelve]. all:unfold CaseNat_steps;abstract lia.
-      - destruct Hy as (x&Ht).
+      - destruct Hy as (x&Ht). 
         refine (_ : TripleT _ (match t with varT x => _ | _ => 0 end) _ _).
         subst t.
         hstep. now hsteps_cbn. 2:reflexivity.
@@ -280,10 +253,10 @@ Section Fix.
           *injection HnS as [= <-]. cbn. hsteps_cbn;cbn.
            1-4:try tspec_ext.
            { eapply ConsequenceT. notypeclasses refine (Translate_SpecT _ _ _ _ ).
-            3:tspec_ext. cbn;intro. all:reflexivity.
+            3:tspec_ext. cbn;intro. all:reflexivity. 
             }
             1-5:cbn;try solve [tspec_ext].
-            11:reflexivity. all:try (cbn;reflexivity).
+            11:reflexivity. now tspec_ext. 1-9:reflexivity.
             refine (_ : _ <= match lookup H a (x-k) with Some (_,_) => _ | _ => 0 end).
             rewrite Hlook. reflexivity.
           * destruct lookup eqn:Hlook;hintros [=]. now exfalso.
@@ -291,124 +264,128 @@ Section Fix.
             intros ? ->. reflexivity.
         + cbn. hintros Hlt. rewrite <- Hlt in HnS.
           injection HnS as [= <-]. cbn.
-          hsteps_cbn;cbn. 1-2:now tspec_ext. 1-3:reflexivity. tspec_ext.
-        +cbn. intros ? ->. reflexivity.
+          hsteps_cbn;cbn. 1-2:now tspec_ext. 1-3:reflexivity. now tspec_ext.
+        +cbn. intros ? ->. reflexivity. 
         +reflexivity.
      }
      cbn. intros [c|] Hy.
      2:{destruct Hy as (?&->). reflexivity. }
      rewrite Hy. destruct c;cbn;reflexivity.
-  Unshelve. all:exact 0.
+     Grab Existential Variables. all:exact 0. 
   Qed.
-
-  Theorem Realise__step : Realise M__step Rel__step.
-  Proof.
-    eapply Realise_monotone.
-    {unfold M__step. TM_Correct_noSwitchAuto. TM_Correct.
-      1:now eapply RealiseIn_Realise, CaseCom_Sem. intros f.
-      destructBoth f.
-      {
-        TM_Correct. apply Cons_constant.Realise.
-         destructBoth a. all:TM_Correct.
-      }
-      TM_Correct.
-      now apply Subtract_Realise.
-      now apply Lookup_Realise.
-      1-2:now apply Cons_constant.Realise.
-      now eapply RealiseIn_Realise, Constr_varT_Sem.
-    }
-    unfold Rel__step. hnf.
-    intros tin [y tout] Hif H a P k stack' res ? ? ? ? ? ?. destruct Hif as [Htrue | Hfalse]. 
-    - TMSimp. modpon H6. destruct P. easy. TMSimp.
-      modpon H7. destruct ymid as [ c | ].
-      + TMSimp. modpon H9. destruct c. all:TMSimp.
-        * modpon H14. destruct k,ymid. all:try contradiction. all:now simpl_surject.
-        * modpon H14. easy.    
-        * easy. 
-      + destruct H7 as (n&->&?). all:TMSimp. modpon H9;[]. modpon H14;[].
-        destruct H16. 
-        2:{
-          TMSimp. modpon H16;[]. modpon H19;[]. modpon H21;[]. modpon H23;[]. modpon H25;[].
-          replace (k <=? n) with false by easy. easy.
-        }
-        TMSimp. modpon H16;[]. modpon H18;[]. modpon H20;[].
-        replace (k <=? n) with true by easy.
-        destruct H22. 2:{ TMSimp;contradiction. }
-        TMSimp. modpon H22;[]. TMSimp.  modpon H24;[].  modpon H26;[].  modpon H28;[].  modpon H30.  modpon H32;[].
-        modpon H34;[]. modpon H36;[]. modpon H38;[]. modpon H40;[]. modpon H42;[].
-        modpon H44 ;[]. modpon H47;[].
-        rename ymid into g.
-        replace (lookup H a (n - k)) with (Some g) by easy.
-        destruct g. easy.
-    - destruct Hfalse as (t0_ & Hfalse & t1_ & HRes1 & t2_ & HRes2 & t3_ & HRes3 & Hif).
-      TMSimp.      
-      modpon H12;[]. modpon H10;[]. modpon H6. 
-      destruct P. 2:contradiction.
-      TMSimp.
-      modpon H8.
-      destruct H13 as [Htrue | Hfalse]. all:TMSimp.
-      2:{
-        modpon H13. destruct stack'. 2:easy. TMSimp.
-        modpon H16. easy.
-      }
-      modpon H13;[]. destruct stack'. easy. TMSimp.
-      modpon H11;[]. TMSimp. modpon H16;[]. modpon H20;[]. modpon H18;[].
-      easy.
-  Qed.                
   
-  Definition M__loop := While (Relabel M__step (fun b => if b then None else Some tt)).
-  
-  Definition Rel__loop : pRel Σ^+ unit n :=
-    (fun t '(r, t') =>
-     forall (H : Heap) a P k stack' (res:Pro), 
-      t[@i_H] ≃(retr_heap) H
-      -> t[@i_a] ≃(retr_nat_clos_ad) a
-      -> t[@i_P] ≃(retr_pro) P
-      -> t[@i_k] ≃(retr_nat_clos_var) k
-      -> t[@i_stack'] ≃(retr_stack) stack'
-      -> t[@i_res] ≃(retr_pro) res
-      -> isVoid t[@i_aux1]
-      -> isVoid t[@i_aux2]
-      -> isVoid t[@i_aux3]
-      -> isVoid t[@i_aux4]
-      -> forall n res', loopSum n (unfoldTailRecStep H) (((a,P),k)::stack',res) = Some (Some res')
-        -> t'[@i_H] ≃(retr_heap) H
-        /\ isVoid t'[@i_a]
-        /\ isVoid t'[@i_P]
-        /\ isVoid t'[@i_k]
-        /\ isVoid t'[@i_stack']
-        /\ t'[@i_res] ≃(retr_pro) res' 
-        /\ isVoid t'[@i_aux1] 
-        /\ isVoid t'[@i_aux2] 
-        /\ isVoid t'[@i_aux3] 
-        /\ isVoid t'[@i_aux4]).
+  Definition M__loop := While M__step.
 
   Local Arguments unfoldTailRecStep : simpl never.
 
-  Theorem Realise__loop : Realise M__loop Rel__loop.
+  Lemma tspec_revertPure (sig: finType) (n : nat) (P0:Prop) P (Ps : SpecV sig n) Q:
+  P0
+  -> Entails (tspec (P0::P,Ps)) Q
+  -> Entails (tspec (P,Ps)) Q.
   Proof.
-    eapply Realise_monotone.
-    { unfold M__loop. TM_Correct. apply Realise__step. }
-    apply WhileInduction; intros; intros H a P k stack' res HH Ha HP Hl Hstack' Hres Ha1 Ha2 Ha3 Ha4 n Hres' Hn.
-    all:cbn in HLastStep.
-    - destruct HLastStep as ([]&[=->]&Hstep).
-      hnf in Hstep. modpon Hstep. rename Hstep4 into H'.
-      destruct n;cbn in Hn. easy.
-      destruct unfoldTailRecStep as [([ | [[? ?] ?] stack1]&res1) | ] eqn:Hfstep in Hn,H'. 2,3:easy.
-      destruct n;cbn in Hn. easy.
-      unfold unfoldTailRecStep in Hn. injection Hn as [= ->]. easy.
-    - cbn in HStar. destruct HStar as ([]&[=]&HStep);[].
-      hnf in HStep. modpon HStep. rename HStep4 into H'.
-      destruct n;cbn in Hn. easy.
-      destruct unfoldTailRecStep as [([ | [[? ?] ?] stack1]&res1) | ] eqn:Hfstep in Hn,H'. 1,3:easy.
-      TMSimp. eapply HLastStep. all:eassumption.
+    setoid_rewrite Entails_iff. unfold tspec;cbn. easy.
   Qed.
 
+  Set Keyed Unification.
+
+  Lemma SpecT__loop :
+  forall (H:Heap) a P k (stack' : list (HAdd * list Tok * nat)) res n' finalRes,
+  { f & 
+    TripleT
+      ≃≃([loopSum n' (unfoldTailRecStep H) (((a,P),k)::stack',res) = Some (Some finalRes)]
+          ,[|Contains retr_heap H;Contains retr_nat_clos_ad a;Contains retr_pro P;Contains retr_nat_clos_var k; Contains retr_stack stack';
+              Contains retr_pro res;Void;Void;Void;Void|])
+      f M__loop
+      (fun r => ≃≃([]
+          ,[|Contains _ H;Void;Void;Void;Void;Contains retr_pro finalRes;Void;Void;Void;Void|]))}.
+  Proof.
+    intros H a P k stack' res n' finalRes.
+    eexists.
+    refine (While_SpecTReg _ _ (a,P,k,stack',res,n')
+      (PRE := fun '(a,P,k,stack',res,n') => (_,_)) (POST := fun '(a,P,k,stack',res,n') y => (_,_))
+      (INV := fun '(a,P,k,stack',res,n') y  => (*
+          match unfoldTailRecStep H (((a,P),k)::stack',res)%list with 
+            inl nextState => ([y = match unfoldTailRecStep with [] => Some tt | _ => None end;
+                               loopSum n' (unfoldTailRecStep H) (((a,P),k)::stack',res) = Some (Some finalRes)],_)
+          | inr _ => ([ ],_)
+          end*) _ )
+    (f__step := fun '(a,P,k,stack',res,n') => _)
+    (f__loop := fun '(a,P,k,stack',res,n') =>
+      ((fix f_loop (n' : nat) st {struct n'} :=
+      match n' with
+      0 => 0
+      | S n' =>
+      match st with
+      | ((a,P,k)::stack',res) => 
+      1 + projT1
+      (SpecT__step H a P k stack' res
+        match unfoldTailRecStep H st with
+        | inl x' => x'
+        | inr _ => ([], [])
+        end (S n') finalRes) 
+      | _ => 0
+      end
+      + match unfoldTailRecStep H st with inl st' => f_loop n' st' | _ => 0 end end) n' ((a,P,k)::stack',res))));
+    clear a P k stack' res n';intros [[[[[a P] k]stack']res]n'].
+    { hsteps_cbn.
+      - hintros Hloop. 
+        eapply (ConsequenceT
+            (Q1 := fun y =>  _)
+            (Q2:= fun y => _)).
+        now eapply (projT2 (SpecT__step H a P k stack' res match unfoldTailRecStep H ((a, P, k) :: stack', res) with
+            | inl x' => _ | _ => ([],[]) end _ _) ).
+        3:reflexivity.
+        { destruct unfoldTailRecStep eqn:H'. { tspec_ext. reflexivity. eassumption. }
+          exfalso.
+          destruct n'; cbn. now inv Hloop. cbn in Hloop. rewrite H' in Hloop. 
+          exfalso. unfold unfoldTailRecStep in H'. repeat destruct _ in H'. all:congruence. }
+        { intros ?. reflexivity. }
+    } 
+    cbn. split.
+    + intros Hloop [] Hloop' Hloop'' Hn'. split.
+     {
+       destruct unfoldTailRecStep as [res'|]eqn:?.
+       *subst res'. reflexivity.
+       *injection Hloop'' as [= <-]. reflexivity.
+     }
+     destruct n'. now contradiction Hn'. cbn. nia.
+    +intros Hloop' Hnil Hn'.
+     destruct (unfoldTailRecStep H ((a, P, k) :: stack', res)) as [[[| [[a' P'] k'] stack''] res'']|] eqn:H' in Hloop',Hnil.
+     {exfalso;clear - Hnil;easy. }
+     clear Hnil.
+     eexists (a',P',k',stack'',res'',(pred n')). split.
+      -rewrite H'. 
+      rewrite Hloop'.  tspec_ext.
+      - split. 2:easy. destruct n';cbn. exfalso;easy. set (c1 := projT1 _). rewrite H' at 1. reflexivity.
+      -easy.
+  Qed.
 
   Definition M :=
     WriteValue ( []) ⇑ retr_stack @ [|i_stack'|];;
     WriteValue ( []) ⇑ retr_pro @ [|i_res|];;
     M__loop.
+
+    
+  Lemma SpecT :
+    forall (H:Heap) a k s s',
+    { f & 
+      TripleT
+        ≃≃([unfolds H a k s s']
+            ,[|Contains retr_heap H;Contains retr_nat_clos_ad a;Contains retr_pro (compile s);Contains retr_nat_clos_var k; Void;
+                Void;Void;Void;Void;Void|])
+        f M
+        (fun r => ≃≃([]
+            ,[|Contains _ H;Void;Void;Void;Void;Contains retr_pro (rev (compile s'));Void;Void;Void;Void|]))}.
+  Proof.
+    intros. eexists.
+    unfold M. hintros H'.
+    eapply unfoldTailRecStep_complete in H'. 2:reflexivity.
+    hsteps_cbn;cbn. 1,2,4,5:reflexivity.
+    eapply ConsequenceT_pre.
+    -eapply (projT2 (SpecT__loop _ _ _ _ _ _ _ _)).
+    -tspec_ext. eassumption.
+    -
+
   
   Definition Rel : pRel Σ^+ unit n :=
     (fun t '(r, t') =>
