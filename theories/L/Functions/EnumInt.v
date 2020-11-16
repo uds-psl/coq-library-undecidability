@@ -2,7 +2,7 @@ From Undecidability.L.Tactics Require Import LTactics.
 From Undecidability.L.Computability Require Import Enum.
 From Undecidability.L.Functions Require Import Encoding Equality.
 From Undecidability.L.Datatypes Require Import LNat Lists LProd.
-Require Import PslBase.Base Nat List Datatypes.
+Require Import Undecidability.Shared.Libs.PSL.Base Nat List Datatypes.
 
 Import Nat.
 (** ** Enumeratibility of L-terms *)

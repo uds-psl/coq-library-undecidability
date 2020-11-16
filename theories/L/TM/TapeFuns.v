@@ -4,7 +4,7 @@ From Undecidability.L Require Import TM.TMEncoding.
 
 
 From Undecidability Require Import TM.Util.TM_facts.
-Require Import PslBase.FiniteTypes.FinTypes.
+Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
 
 
 Section fix_sig.

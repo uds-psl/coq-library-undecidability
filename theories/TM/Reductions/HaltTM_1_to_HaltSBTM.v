@@ -1,7 +1,7 @@
 From Undecidability Require TM.TM TM.SBTM.
 Require Import Undecidability.Shared.FinTypeEquiv.
 (* Require Import Undecidability.L.Functions.FinTypeLookup. *)
-Require Import PslBase.FiniteTypes.FinTypes PslBase.Vectors.Vectors.
+Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 Require Undecidability.TM.Util.TM_facts.
 Import VectorNotations2.
 Local Open Scope vector.

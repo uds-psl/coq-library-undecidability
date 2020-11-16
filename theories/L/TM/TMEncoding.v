@@ -8,7 +8,7 @@ From Undecidability Require Import TM.Util.VectorPrelim.
 
 From Undecidability Require Import TM.Util.VectorPrelim.
 From Undecidability Require Import TM.Util.TM_facts.
-Require Import PslBase.FiniteTypes.FinTypes.
+Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
 
 Import L_Notations.
 
