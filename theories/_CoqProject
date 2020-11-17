@@ -18,6 +18,7 @@ Synthetic/EnumerabilityFacts.v
 Synthetic/ListEnumerabilityFacts.v
 Synthetic/MoreEnumerabilityFacts.v
 Synthetic/ReducibilityFacts.v
+Synthetic/Infinite.v
 
 Shared/Libs/DLW/Utils/focus.v
 Shared/Libs/DLW/Utils/utils_tac.v
@@ -149,25 +150,24 @@ CFG/CFP_undec.v
 CFG/CFG.v
 CFG/CFG_undec.v
 
-CFG/Utils/Facts.v
+CFG/Util/Facts.v
 CFG/Reductions/PCP_to_CFPP.v
 CFG/Reductions/PCP_to_CFPI.v
 CFG/Reductions/CFPP_to_CFP.v
 CFG/Reductions/CFPI_to_CFI.v
 
 # First order logic
-FOL/DecidableEnumerable.v
-FOL/Reductions.v
-FOL/PCP.v
 FOL/FOL.v
-FOL/Semantics.v
-FOL/Deduction.v
-FOL/Kripke.v
-FOL/BPCP_FOL.v
-FOL/BPCP_IFOL.v
-FOL/BPCP_CND.v
-FOL/Weakening.v
-FOL/Infinite.v
+FOL/FOL_undec.v
+FOL/Util/FOL_facts.v
+FOL/Util/Semantics.v
+FOL/Util/Deduction.v
+FOL/Util/Kripke.v
+FOL/Util/Weakening.v
+
+FOL/Reductions/PCPb_to_FOL.v
+FOL/Reductions/PCPb_to_FOL_intu.v
+FOL/Reductions/PCPb_to_FOL_class.v
 
 # Minsky machines with n counter (2 different semantics) and with 2 counters 
 MinskyMachines/MM.v             # generic X-bounded MM (X=pos n or X=nat is type of registers) 
@@ -554,14 +554,14 @@ HOU/concon/constants.v
 HOU/concon/enumerability.v
 HOU/concon/concon.v
 
-FOLP/axioms.v
-FOLP/unscoped.v
-FOLP/Syntax.v
-FOLP/FOL.v
-FOLP/FullSyntax.v
-FOLP/FullFOL.v
-FOLP/FullTarski.v
-FOLP/Input.v
+FOLP/Util/axioms.v
+FOLP/Util/unscoped.v
+FOLP/Util/Syntax.v
+FOLP/Util/FOL.v
+FOLP/Util/FullSyntax.v
+FOLP/Util/FullFOL.v
+FOLP/Util/FullTarski.v
+FOLP/FOLFS.v
 
 #####
 # Full Trakhtenbrot with single binary rel
@@ -733,11 +733,3 @@ SystemF/Util/pure_typable_prenex.v
 SystemF/Reductions/H10C_SAT_to_SysF_INH.v
 SystemF/Reductions/LU2SemiU_to_SysF_TYP.v
 SystemF/Reductions/SysF_TYP_to_SysF_TC.v
-
-#Legacy Problems
-Problems/FOL.v
-Problems/FOLFS.v
-
-#Legacy Reductions
-Reductions/BPCP_to_FOL.v
-Reductions/BPCP_to_FOLFS.v

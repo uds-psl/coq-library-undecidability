@@ -3,7 +3,7 @@ Import ListNotations.
 
 Require Import Undecidability.CFG.CFP.
 Require Import Undecidability.CFG.CFG.
-Require Import Undecidability.CFG.Utils.Facts.
+Require Import Undecidability.CFG.Util.Facts.
 
 Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.Facts.

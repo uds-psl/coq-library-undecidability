@@ -17,8 +17,7 @@ Proof.
   - reflexivity.
   - cbn. assert ((x, y) el P) as [n E] % (el_pos card_eq) by firstorder.
     rewrite E. cbn. unfold f in IHA. rewrite IHA; eauto. 
-    + now erewrite pos_nth; eauto.
-    + intros ? ?; apply H; simpl; auto.
+    now erewrite pos_nth; eauto.
 Qed.
 
 Lemma itau_tau2 P A : A <<= P -> itau2 P (f P A) = tau2 A.
@@ -27,8 +26,7 @@ Proof.
   - reflexivity.
   - cbn. assert ((x, y) el P) as [n E] % (el_pos card_eq) by firstorder.
     rewrite E. cbn. unfold f in IHA. rewrite IHA; eauto. 
-    + now erewrite pos_nth; eauto.
-    + intros ? ?; apply H; simpl; auto.
+    now erewrite pos_nth; eauto.
 Qed.
 
 Definition g (P : stack bool) (A : list nat) := map (fun n => nth n P ( [], [] )) A.
