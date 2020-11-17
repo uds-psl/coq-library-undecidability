@@ -15,7 +15,7 @@ jobs:
           key: opam-noPslBase-${{github.base_ref}}-${{github.ref}} 
           restore-keys: |
             opam-noPslBase--refs/heads/${{github.base_ref}}
-            
+
       - name: Install OCaml
         uses: avsm/setup-ocaml@v1
         with:
