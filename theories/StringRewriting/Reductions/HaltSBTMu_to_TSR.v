@@ -35,7 +35,7 @@ Section FixM.
   Qed.
 
   Lemma rev_sim_swap t q z : 
-    SR.rew (map SR.swap (R M)) (enc_conf t q) z -> exists q' t' w m, trans M (q', curr t') = Some (q, w, m) /\ t = mv m (wr w t') /\ z = enc_conf t' q'.
+    SR.rew (map SR.swap (R M)) (enc_conf M t q) z -> exists q' t' w m, trans M (q', curr t') = Some (q, w, m) /\ t = mv m (wr w t') /\ z = enc_conf M t' q'.
   Proof.
     intros H. inversion H as [x y v u Hin HL HR]; subst z.
     eapply in_map_iff in Hin as ([? ?] & [= -> ->] & Hin).
@@ -59,7 +59,7 @@ Section FixM.
       end.
 
     all:
-      match type of HL with _ = enc_conf (?ls,?o,?rs) ?q =>
+      match type of HL with _ = enc_conf _ (?ls,?o,?rs) ?q =>
       let H1 := fresh "H" in let H2 := fresh "H" in let H3 := fresh "H" in let H4 := fresh "H" in let HH := fresh "H" in
       eapply enc_conf_inv in HL as (H1 & -> & H3 & H4); try rewrite H4 in *; destruct o as [ [] | ]; inversion H3; clear H3; cbn in H1;
       rewrite ?app_nil_r in H1; subst;
@@ -99,16 +99,16 @@ Section FixM.
                     all_symsX (fun c => ( [⦇; !q_halt; c ; ⦈], [END])).
 
   Lemma enc_conf_equiv ls o rs q :
-    enc_conf (ls, o, rs) q = ([⦇] ++ map (fun b : bool => !!b) (rev ls)) ++ ([!q] ++ [encode_sym o]) ++ (map (fun b : bool => !!b) rs ++ [⦈]).
+    enc_conf M (ls, o, rs) q = ([⦇] ++ map (fun b : bool => !!b) (rev ls)) ++ ([!q] ++ [encode_sym o]) ++ (map (fun b : bool => !!b) rs ++ [⦈]).
   Proof.
     unfold enc_conf. now simpl_list.
   Qed.
 
   Lemma sim_Del t :
-    SR.rewt Del (enc_conf t q_halt) [END].
+    SR.rewt Del (enc_conf M t q_halt) [END].
   Proof.
     destruct t as [[ls o] rs].
-    transitivity (enc_conf (ls, o, []) q_halt). {
+    transitivity (enc_conf M (ls, o, []) q_halt). {
       eapply rewt_subset. 2:{ unfold Del. eapply incl_appl. reflexivity. }
       induction rs.
       - reflexivity.
@@ -120,7 +120,7 @@ Section FixM.
         do 0 right; now left. reflexivity.
         do 1 right; now left. reflexivity.
     }
-    transitivity (enc_conf ([], o, []) q_halt). {
+    transitivity (enc_conf M ([], o, []) q_halt). {
       eapply rewt_subset. 2:{ unfold Del. eapply incl_appr. eapply incl_appl. reflexivity. }
       induction ls.
       - reflexivity.
@@ -135,7 +135,7 @@ Section FixM.
   Qed.
 
   Lemma rev_sim_Del t q z : 
-    SR.rew Del (enc_conf t q) z -> q = q_halt /\ (z = END \/ exists t', z = enc_conf t' q_halt).
+    SR.rew Del (enc_conf M t q) z -> q = q_halt /\ (z = END \/ exists t', z = enc_conf M t' q_halt).
   Proof.
     intros H. inversion H as [x y v u Hin HL HR]; subst z.
     cbn -[Nat.add] in Hin.
@@ -173,7 +173,7 @@ Section FixM.
   Qed.
   
   Lemma rev_sim_Del_swap t q z : 
-    SR.rew (map SR.swap Del) (enc_conf t q) z -> q = q_halt /\ exists t',  z = enc_conf t' q_halt.
+    SR.rew (map SR.swap Del) (enc_conf M t q) z -> q = q_halt /\ exists t',  z = enc_conf M t' q_halt.
   Proof.
     intros H. inversion H as [x y v u Hin HL HR]; subst z.
     cbn -[Nat.add] in Hin.
@@ -206,9 +206,9 @@ End FixM.
 
 Lemma backwards M t q1 q:
   (forall c, trans M (q,c) = None /\ (forall q', trans M (q', c) = None -> q' = q)) ->
-  SR.rewt ((R M ++ Del q) ++ map SR.swap (R M ++ Del q)) (enc_conf t q1) [0] -> exists t', eval M q1 t q t'. 
+  SR.rewt ((R M ++ Del M q) ++ map SR.swap (R M ++ Del M q)) (enc_conf M t q1) [0] -> exists t', eval M q1 t q t'.
 Proof.
-  intros Hq H. revert Hq. remember [0] as x. remember (enc_conf t q1) as y.
+  intros Hq H. revert Hq. remember [0] as x. remember (enc_conf M t q1) as y.
   induction H in q1, Heqy, Heqx, t |- *; subst; intros Hq.
   + edestruct enc_conf_END. rewrite <- Heqy. eauto.
   + rewrite map_app in H. rewrite !rew_app_inv in H. destruct H as [[H | H] | [H | H]].
@@ -230,11 +230,11 @@ Qed.
 Lemma reduction :
     HaltSBTMu ⪯ SR.TSR.
 Proof.
-    unshelve eexists. { intros [(M & q & H) t]. exact (R M ++ (Del q), @enc_conf M t Fin.F1, [0]). }
+    unshelve eexists. { intros [(M & q & H) t]. exact (R M ++ (Del M q), @enc_conf M t Fin.F1, [0]). }
     intros [(M & q & Hq) t]. split.
     - cbn -[Del R enc_state]. intros (t' & H).
       etransitivity. 
       + eapply rewt_subset. eapply simulation. eassumption. eauto.
       + eapply rewt_subset. eapply sim_Del. eauto.
-    - cbn -[Del R Nat.add]. intros H1. now eapply (backwards Hq).
+    - cbn -[Del R Nat.add]. intros H1. now eapply backwards.
 Qed. 
