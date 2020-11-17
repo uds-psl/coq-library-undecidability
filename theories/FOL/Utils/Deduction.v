@@ -1,6 +1,6 @@
 (** * Natural Deduction *)
 
-From Undecidability Require Export FOL.Semantics.
+From Undecidability Require Export FOL.Utils.Semantics.
 Import ListAutomationNotations.
 Local Set Implicit Arguments.
 

@@ -1,6 +1,6 @@
 (** * Weakening *)
 
-From Undecidability.FOL Require Import Deduction.
+From Undecidability.FOL.Utils Require Import Deduction.
 Import ListAutomationNotations.
 
 Fixpoint ren_t (rho : nat -> nat) t :=

@@ -1,6 +1,6 @@
 (** * Tarski Semantics *)
 
-Require Export Undecidability.FOL.FOL.
+Require Export Undecidability.FOL.Utils.FOL_facts.
 Import ListAutomationNotations.
 Local Set Implicit Arguments.
 

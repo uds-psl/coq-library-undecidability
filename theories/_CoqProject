@@ -18,6 +18,7 @@ Synthetic/EnumerabilityFacts.v
 Synthetic/ListEnumerabilityFacts.v
 Synthetic/MoreEnumerabilityFacts.v
 Synthetic/ReducibilityFacts.v
+Synthetic/Infinite.v
 
 Shared/Libs/DLW/Utils/focus.v
 Shared/Libs/DLW/Utils/utils_tac.v
@@ -154,14 +155,15 @@ CFG/Reductions/CFPI_to_CFI.v
 
 # First order logic
 FOL/FOL.v
-FOL/Semantics.v
-FOL/Deduction.v
-FOL/Kripke.v
-FOL/BPCP_FOL.v
-FOL/BPCP_IFOL.v
-FOL/BPCP_CND.v
-FOL/Weakening.v
-FOL/Infinite.v
+FOL/Utils/FOL_facts.v
+FOL/Utils/Semantics.v
+FOL/Utils/Deduction.v
+FOL/Utils/Kripke.v
+FOL/Utils/Weakening.v
+
+FOL/Reductions/BPCP_FOL.v
+FOL/Reductions/BPCP_IFOL.v
+FOL/Reductions/BPCP_CND.v
 
 # Minsky machines with n counter (2 different semantics) and with 2 counters 
 MinskyMachines/MM.v             # generic X-bounded MM (X=pos n or X=nat is type of registers) 
@@ -728,9 +730,7 @@ SystemF/Reductions/LU2SemiU_to_SysF_TYP.v
 SystemF/Reductions/SysF_TYP_to_SysF_TC.v
 
 #Legacy Problems
-Problems/FOL.v
 Problems/FOLFS.v
 
 #Legacy Reductions
-Reductions/BPCP_to_FOL.v
 Reductions/BPCP_to_FOLFS.v

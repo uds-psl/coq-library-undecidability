@@ -18,7 +18,8 @@ Section kvalidity.
   Proof.
     rewrite PCPb_iff_dPCPb. split.
     - apply BPCP_prv'.
-    - intros H % ksoundness'. rewrite <- PCPb_iff_dPCPb. now apply (BPCP_valid R), kvalid_valid.
+    - intros H. About prv.
+    eapply ksoundness' with (A := []) (phi := F R) in H. rewrite <- PCPb_iff_dPCPb. now apply (BPCP_valid R), kvalid_valid.
   Qed.
 
   Theorem BPCP_kvalid :
