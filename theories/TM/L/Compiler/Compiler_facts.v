@@ -57,6 +57,16 @@ Proof.
 Qed.
 
 
+Definition TM_computable_rel {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
+  exists n : nat, exists Σ : finType, exists s b : Σ, s <> b /\ 
+  exists M : pTM Σ unit (k + 1 + n),
+    Realise M (fun t '(_, t') =>
+                                       forall v, t = (Vector.map (encTM s b) v ++ [niltape]) ++ Vector.const niltape n ->
+                                            exists m, nth_error (Vector.to_list t') k = Some (encTM s b m) /\ R v m) /\
+    exists f,
+      TerminatesIn (projT1 M) (fun t i => exists v m, R v m /\ t = (Vector.map (encTM s b) v ++ [niltape]) ++ Vector.const niltape n /\ i >= f k v).
+
+
 Lemma TM_computable_rel_spec k R :
   functional R ->
   @TM_computable_rel k R -> @TM_computable k R.

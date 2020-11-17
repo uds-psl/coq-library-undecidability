@@ -24,16 +24,6 @@ Definition TM_computable {k} (R : Vector.t (list bool) k -> (list bool) -> Prop)
   (forall q t, TM.eval M (start M) ((Vector.map (encTM s b) v ++ [niltape]) ++ Vector.const niltape n) q t ->
           exists m, nth_error (Vector.to_list t) k = Some (encTM s b m)).
 
-
-Definition TM_computable_rel {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
-  exists n : nat, exists Σ : finType, exists s b : Σ, s <> b /\ 
-  exists M : pTM Σ unit (k + 1 + n),
-    Realise M (fun t '(_, t') =>
-                                       forall v, t = (Vector.map (encTM s b) v ++ [niltape]) ++ Vector.const niltape n ->
-                                            exists m, nth_error (Vector.to_list t') k = Some (encTM s b m) /\ R v m) /\
-    exists f,
-      TerminatesIn (projT1 M) (fun t i => exists v m, R v m /\ t = (Vector.map (encTM s b) v ++ [niltape]) ++ Vector.const niltape n /\ i >= f k v).
-
 Definition TM₁_computable {k} (Σ : finType) (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
   exists s1 s2 b : Σ, s1 <> s2 /\ s1 <> b /\ s2 <> b /\
   exists M : TM Σ 1,
