@@ -4,7 +4,6 @@ Require Import Setoid Morphisms Lia.
 Import ListAutomationNotations.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
-Require Import Undecidability.StringRewriting.SR Undecidability.Shared.Prelim.
 
 Import RuleNotation.
 
