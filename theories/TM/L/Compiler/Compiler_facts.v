@@ -14,7 +14,7 @@ Import ListNotations.
 
 Import VectorNotations.
 
-From Undecidability.TM.L.Compiler Require Import Compiler_spec.
+From Undecidability.TM.L.Compiler Require Import Compiler_spec AddToBase.
 
 Require Import Equations.Prop.DepElim.
       
@@ -56,132 +56,96 @@ Proof.
     + f_equal. eapply IHn1. unfold encTM. congruence.
 Qed.
 
+From Undecidability.TM Require Import Hoare.
 
-Definition TM_computable_rel {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
-  exists n : nat, exists Σ : finType, exists s b : Σ, s <> b /\ 
-  exists M : pTM Σ unit (k + 1 + n),
-    Realise M (fun t '(_, t') =>
-                                       forall v, t = (Vector.map (encTM s b) v ++ [niltape]) ++ Vector.const niltape n ->
-                                            exists m, nth_error (Vector.to_list t') k = Some (encTM s b m) /\ R v m) /\
-    exists f,
-      TerminatesIn (projT1 M) (fun t i => exists v m, R v m /\ t = (Vector.map (encTM s b) v ++ [niltape]) ++ Vector.const niltape n /\ i >= f k v).
+Definition TM_computable_hoare_in {k n Σ} s b (v: Vector.t (list bool) k): SpecV Σ (k+1+n)
+  := (Vector.map (fun bs => Custom (eq (encTM s b bs))) v ++ [Custom (eq niltape)]) ++ Vector.const (Custom (eq niltape)) _.
 
-
-Lemma TM_computable_rel_spec k R :
-  functional R ->
-  @TM_computable_rel k R -> @TM_computable k R.
+Lemma TM_computable_hoare_in_spec {k n Σ} (s b:_ + Σ) (v: Vector.t (list bool) k): 
+  (Vector.map (encTM s b) v ++ [niltape]) ++ const niltape n
+    ≃≃ ([]%list, TM_computable_hoare_in s b v).
 Proof.
-  intros Hfun (n & Σ & s & b & Hdiff & [M lab] & H1 & f & H2).
-  exists n, Σ, s, b. split. exact Hdiff. exists M.
-  intros v. split.
+  eapply tspecI;cbn;[easy|]; unfold TM_computable_hoare_in;intros i;
+  destruct_fin i;cbn;repeat (rewrite Vector_nth_L + rewrite Vector_nth_R + rewrite nth_map' + rewrite const_nth);cbn; reflexivity.
+Qed.
+
+
+Definition TM_computable_hoare_out {k n Σ} s b (bs :list bool): SpecV Σ (k+1+n)
+  := (Vector.const (Custom (fun _ => True)) _ ++ [Custom (eq (encTM s b bs)) ])++ Vector.const (Custom (fun _ => True)) _.
+
+Lemma TM_computable_hoare_out_spec {k n Σ} (s b:_ + Σ) bs t': 
+  t' ≃≃ ([]%list, TM_computable_hoare_out (k:=k) (n:=n)s b bs)
+  -> nth_error (to_list t') k = Some (encTM s b bs).
+Proof.
+  intros ([]&Hm2)%tspecE. specialize (Hm2 (Fin.L n (Fin.R k Fin0))).
+  unfold TM_computable_hoare_out in Hm2. rewrite Vector_nth_L,Vector_nth_R in Hm2.
+  cbn in Hm2. setoid_rewrite Hm2. erewrite nth_error_to_list. reflexivity.
+  rewrite Fin.L_sanity,Fin.R_sanity. easy. 
+Qed.
+
+
+Definition TM_computable_hoare {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
+  exists n : nat, exists Σ : finType, exists s b , s <> b /\ 
+    exists M : pTM (Σ^+) unit (k + 1 + n),
+    forall v, 
+      Triple ≃≃([],TM_computable_hoare_in s b v) M (fun y t => exists res, t ≃≃ ([R v res]%list,TM_computable_hoare_out s b res))
+      /\ forall res, R v res ->
+          exists k__steps, TripleT ≃≃([],TM_computable_hoare_in s b v) k__steps M (fun y => ≃≃([]%list,TM_computable_hoare_out s b res)).
+  
+Lemma TM_computable_hoare_spec k R :
+  functional R ->
+  @TM_computable_hoare k R -> @TM_computable k R.
+Proof.
+  intros Hfun (n & Σ & s & b & Hdiff & [M lab] & H).
+  eexists n, _, s, b. split. exact Hdiff. exists M.
+  intros v. specialize (H v) as [H1 H2]. split.
   - intros m. split.
     + intros HR.
-      destruct (H2 ((Vector.map (encTM s b) v ++ [niltape]) ++ Vector.const niltape n) (f k v)) as [[q' t'] Hconf].
-      * exists v, m. split. eauto. split. reflexivity. lia.
+      specialize H2 as [k__steps H2%TripleT_TerminatesIn]. eassumption.
+      cbn in H2.
+      destruct (H2 ((Vector.map (encTM s b) v ++ [niltape]) ++ Vector.const niltape n) k__steps) as [[q' t'] Hconf].
+      * split. 2:easy. now apply TM_computable_hoare_in_spec.        
       * exists q', t'. split. eapply TM_eval_iff. eexists. eapply Hconf.
-        eapply H1 in Hconf as (m' & Hm1 & Hm2). reflexivity.
-        now pose proof (Hfun _ _ _ HR Hm2) as ->.
+        eapply H1 in Hconf as (m' & Hm1 & Hm2%TM_computable_hoare_out_spec).
+        now apply TM_computable_hoare_in_spec.
+        pose proof (Hfun _ _ _ HR Hm1) as ->.
+        easy.
     + intros (q' & t' & [steps Hter] % TM_eval_iff & Hout).
-      eapply H1 in Hter as (m' & Hm1 & Hm2). reflexivity.
-      cbn -[to_list] in *. 
-      rewrite Hm1 in Hout.
+      eapply H1 in Hter as (m' & Hm1 & Hm2%TM_computable_hoare_out_spec).
+      now apply TM_computable_hoare_in_spec.
+      cbn -[to_list] in *.
       enough (m = m') by now subst.
       eapply encTM_inj; eauto. congruence.
   - intros q t [steps Hter] % TM_eval_iff.
-    eapply H1 in Hter as (m & Hm1 & Hm2). reflexivity.
-    exists m. eassumption.
-Qed.
-
-Definition TM_computable_rel' {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
-  exists n : nat, exists Σ : finType, exists s b : Σ, s <> b /\ 
-  exists M : pTM Σ unit (1 + n + k),
-    Realise M (fun t '(_, t') =>
-                                       forall v, t = ([niltape] ++ Vector.const niltape n ++ (Vector.map (encTM s b) v)) ->
-                                            exists m, Vector.hd t' = encTM s b m /\ R v m) /\
-    exists f,
-      TerminatesIn (projT1 M) (fun t i => exists v m, R v m /\ t = ([niltape] ++ Vector.const niltape n ++ (Vector.map (encTM s b) v)) /\ i >= f k v).
-
-Lemma Vector_nth_L {X k1 k2} (v1 : Vector.t X k1) (v2 : Vector.t X k2) i :
-  (v1 ++ v2)[@ Fin.L k2 i] = v1[@i].
-Proof.
-  revert k2 v2 i.
-  dependent induction v1; intros.
-  - dependent destruct i.
-  - dependent destruct i.
-    + reflexivity.
-    + cbn. eapply IHv1.
-Qed.
-
-Lemma Vector_nth_R {X k1 k2} (v1 : Vector.t X k1) (v2 : Vector.t X k2) i :
-  (v1 ++ v2)[@ Fin.R k1 i] = v2[@i].
-Proof.
-  revert k2 v2 i.
-  dependent induction v1; intros.
-  - reflexivity.
-  - cbn. eapply IHv1.
-Qed.
-
-Lemma Vector_map_app {X Y k1 k2} (v1 : Vector.t X k1) (v2 : Vector.t X k2) (f : X -> Y) :
-  Vector.map f (v1 ++ v2) = Vector.map f v1 ++ Vector.map f v2.
-Proof.
-  induction v1; cbn; congruence.
-Qed.
-
-Lemma Vector_in_app {X n1 n2} (x : X) (v1 : Vector.t X n1) (v2 : Vector.t X n2):
-  Vector.In x (v1 ++ v2) <-> Vector.In x v1 \/ Vector.In x v2.
-Proof.
-  induction v1; cbn.
-  - firstorder. inversion H.
-  - split.
-    + intros [-> | H] % In_cons.
-      * left. econstructor.
-      * eapply IHv1 in H as [ | ]; eauto. left. now econstructor.
-    + intros [ [ -> | ] % In_cons | ]; econstructor; intuition.
-Qed.
-
-From Equations.Prop Require Import DepElim.
-
-Lemma Vector_dupfree_app {X n1 n2} (v1 : Vector.t X n1) (v2 : Vector.t X n2) :
-  VectorDupfree.dupfree (v1 ++ v2) <-> VectorDupfree.dupfree v1 /\ VectorDupfree.dupfree v2 /\ forall x, Vector.In x v1 -> Vector.In x v2 -> False.
-Proof.
-  induction v1; cbn.
-  - firstorder. econstructor. inversion H0.
-  - split.
-    + intros [] % VectorDupfree.dupfree_cons. repeat split.
-      * econstructor. intros ?. eapply H0. eapply Vector_in_app. eauto. eapply IHv1; eauto.
-      * eapply IHv1; eauto.
-      * intros ? [-> | ?] % In_cons ?.
-        -- eapply H0. eapply Vector_in_app. eauto.
-        -- eapply IHv1; eauto.
-    + intros (? & ? & ?). econstructor. 2:eapply IHv1; repeat split.
-      * intros [? | ?] % Vector_in_app.
-        -- eapply VectorDupfree.dupfree_cons in H as []. eauto.
-        -- eapply H1; eauto. econstructor.
-      * eapply VectorDupfree.dupfree_cons in H as []. eauto.
-      * eauto.
-      * intros. eapply H1. econstructor 2. eauto. eauto.
+    eapply H1 in Hter as (m & Hm1 & Hm2%TM_computable_hoare_out_spec).
+    now apply TM_computable_hoare_in_spec. eauto.
 Qed.
 
 
-Lemma Fin_L_fillive (n m : nat) (i1 i2 : Fin.t n) :
-  Fin.L m i1 = Fin.L m i2 -> i1 = i2.
-Proof.
-  induction n as [ | n' IH].
-  - dependent destruct i1.
-  - dependent destruct i1; dependent destruct i2; cbn in *; auto; try congruence.
-    apply Fin.FS_inj in H. now apply IH in H as ->.
-Qed.
 
-Lemma Fin_R_fillive (n m : nat) (i1 i2 : Fin.t n) :
-  Fin.R m i1 = Fin.R m i2 -> i1 = i2.
-Proof.
-  induction m as [ | n' IH]; cbn.
-  - auto.
-  - intros H % Fin.FS_inj. auto.
-Qed.
+(** * The tape-order is different than in the implemented machine, so here again with the tape-order implemented: *)
+Definition TM_computable_hoare_in' {k n Σ} s b (v: Vector.t (list bool) k): SpecV Σ (1+n+k)
+  := Custom (eq niltape) :: Vector.const (Custom (eq niltape)) _ ++ Vector.map (fun bs => Custom (eq (encTM s b bs))) v.
 
-Lemma dupfree_help k n : VectorDupfree.dupfree (Fin.L n (Fin.R k Fin0) :: tabulate (fun x : Fin.t n => Fin.R (k + 1) x) ++ tabulate (fun x : Fin.t k => Fin.L n (Fin.L 1 x))).
+Definition TM_computable_hoare_out' {n Σ} s b (bs :list bool): SpecV Σ (1+n)
+  := Custom (eq (encTM s b bs)) :: Vector.const (Custom (fun _ => True)) _.
+
+Definition TM_computable_hoare' {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
+  exists n : nat, exists Σ : finType, exists s b , s <> b /\ 
+    exists M : pTM (Σ^+) unit (1 + n + k),
+    forall v, 
+      Triple ≃≃([],TM_computable_hoare_in' s b v) M (fun y t => exists res, t ≃≃ ([R v res]%list,TM_computable_hoare_out' s b res))
+      /\ forall res, R v res ->
+          exists k__steps, TripleT ≃≃([],TM_computable_hoare_in' s b v) k__steps M (fun y => ≃≃([]%list,TM_computable_hoare_out' s b res)).
+
+
+
+Local Definition tapeOrderSwap n k:=
+(Fin.L n (Fin.R k Fin0) :::  tabulate (n := n) (fun x => Fin.R (k + 1) x) ++ (tabulate (n := k) (fun x => Fin.L n (Fin.L 1 x)))).
+
+Local Lemma tapeOrderSwap_dupfree k n : VectorDupfree.dupfree (tapeOrderSwap n k).
 Proof.
+  unfold tapeOrderSwap.
   econstructor. intros [ [i Hi % (f_equal (fun x => proj1_sig (Fin.to_nat x)))] % in_tabulate | [i Hi % (f_equal (fun x => proj1_sig (Fin.to_nat x)))] % in_tabulate ] % Vector_in_app.
   3: eapply Vector_dupfree_app; repeat split.
   + rewrite Fin.L_sanity, !Fin.R_sanity in Hi. cbn in Hi. lia.
@@ -193,62 +157,92 @@ Proof.
     destruct Fin.to_nat, Fin.to_nat. cbn in *. lia.
 Qed.
 
-Lemma Vector_map_tabulate {k X Y} (f : X -> Y) g :
-  Vector.map f (tabulate (n := k) g) = tabulate (fun x => f (g x)).
+Lemma TM_computable_hoare_in'_spec {k n Σ} s b (v: Vector.t (list bool) k):
+  TM_computable_hoare_in' (Σ:=Σ) s b v = Downlift (TM_computable_hoare_in s b v) (tapeOrderSwap n k).
 Proof.
-  induction k; cbn.
-  - reflexivity.
-  - f_equal. eapply IHk.
+  unfold TM_computable_hoare_in,TM_computable_hoare_in'.
+  eapply eq_nth_iff';intros i.
+  destruct_fin i;cbn.
+  all:repeat (rewrite Vector_nth_L + rewrite Vector_nth_R + rewrite nth_map' + rewrite nth_tabulate + rewrite const_nth + cbn);cbn.
+  all:reflexivity.
 Qed.
 
-Lemma Vector_tabulate_const {n X} (c : X) f :
-  (forall n, f n = c) ->
-  tabulate f = const c n.
+
+Lemma helper n m' m f: 
+injective f ->
+  lookup_index_vector (n:=n)
+(tabulate (fun i : Fin.t m' => f i)) 
+(f m) = Some m.
 Proof.
-  induction n; cbn.
-  - reflexivity.
-  - intros. rewrite H. f_equal. eapply IHn. intros. eapply H.
+revert n m f. induction m';cbn. easy.
+intros n m f Hinj. specialize (Fin.eqb_eq _ (f m) (f Fin0)) as H'.
+destruct Fin.eqb.
+-destruct H' as [H' _]. specialize (H' eq_refl). apply Hinj in H' as ->. easy.
+-destruct H' as [_ H']. destruct (fin_destruct_S m) as [[i' ->]| ->]. 2:now discriminate H'.
+ specialize IHm' with (f:= fun m => f (Fin.FS m) ). cbn in IHm'. rewrite IHm'. easy. intros ? ? ?%Hinj. now apply Fin.FS_inj.
 Qed.
 
-Lemma const_at n X (c : X) i :
-  (const c n)[@i] = c.
+
+Lemma Fin_eqb_R_R  m n (i i' : Fin.t n):
+  Fin.eqb (Fin.R m i) (Fin.R m i') = Fin.eqb i i'.
+Proof. induction m;cbn. all:congruence. Qed.
+
+Lemma Fin_eqb_L_L m n (i i' : Fin.t n):
+  Fin.eqb (Fin.L m i) (Fin.L m i') = Fin.eqb i i'.
 Proof.
-  induction i; cbn; eauto.
+  revert i i'. induction n;intros i i'; destruct_fin i;destruct_fin i';cbn.
+  4:rewrite !Nat.eqb_refl. all:congruence.
 Qed.
 
-Lemma TM_computable_rel'_spec k R :
+
+Lemma Fin_eqb_R_L m n (i : Fin.t n) (i' : Fin.t m):
+  Fin.eqb(Fin.R n i')  (Fin.L m i)  = false.
+Proof.
+  revert m i i'. induction n;intros m i i'; destruct_fin i;destruct_fin i';cbn.
+  all:easy.
+Qed. 
+
+Lemma Fin_eqb_L_R m n (i : Fin.t n) (i' : Fin.t m):
+  Fin.eqb (Fin.L m i) (Fin.R n i') = false.
+Proof.
+  revert m i i'. induction n;intros m i i'; destruct_fin i;destruct_fin i';cbn.
+  all:easy.
+Qed. 
+
+Lemma TM_computable_hoare_out'_spec {k n Σ} s b bs w:
+  TM_computable_hoare_out (Σ:=Σ) s b bs = Frame w (tapeOrderSwap n k) (TM_computable_hoare_out' s b bs).
+Proof.
+  unfold TM_computable_hoare_out,TM_computable_hoare_out'.
+  eapply eq_nth_iff';intros i. unfold Frame,fill.
+  rewrite nth_tabulate.
+  destruct_fin i;cbn.
+  all:repeat (rewrite Vector_nth_L + rewrite Vector_nth_R + rewrite nth_map' + rewrite nth_tabulate + rewrite const_nth + cbn);cbn.
+  all:repeat (rewrite Fin_eqb_L_L + rewrite Fin_eqb_L_R  + rewrite Fin_eqb_R_L + rewrite Fin_eqb_R_R +cbn);cbn.
+  2:easy.
+  all:erewrite lookup_index_vector_Some;cbn;[now rewrite const_nth| |].
+  2:now rewrite Vector_nth_R,nth_tabulate.
+  3:now rewrite Vector_nth_L,nth_tabulate.
+  all:eapply dupfree_cons. all:apply tapeOrderSwap_dupfree. 
+Qed.
+
+Lemma TM_computable_hoare'_spec k R :
   functional R ->
-  @TM_computable_rel' k R -> TM_computable R.
+  @TM_computable_hoare' k R -> TM_computable R.
 Proof.
-  intros Hfun (n & Σ & s & b & Hdiff & M & H1 & f & H2).
-  eapply TM_computable_rel_spec. eassumption.
+  intros Hfun (n & Σ & s & b & Hdiff & M & H).
+  eapply TM_computable_hoare_spec. eassumption.
   exists n, Σ, s, b. split. exact Hdiff.
-  eexists (LiftTapes M (Fin.L n (Fin.R k Fin0) :::  tabulate (n := n) (fun x => Fin.R (k + 1) x) ++ (tabulate (n := k) (fun x => Fin.L n (Fin.L 1 x))))).
+  eexists (LiftTapes M (tapeOrderSwap n k)).
+  intros v. specialize (H v) as [H1 H2].
+  rewrite TM_computable_hoare_in'_spec in H1,H2.
   split.
-  - eapply Realise_monotone. eapply LiftTapes_Realise. eapply dupfree_help.
-    eapply H1. intros tps [[] tps'] H v ->.
-    cbn in H. destruct H as [H H'].
-    destruct (H v) as (m & Hm1 & Hm2).
-    + f_equal.
-      * rewrite Vector_nth_L, Vector_nth_R. reflexivity.
-      * rewrite Vector_map_app. rewrite !Vector_map_tabulate. f_equal.
-        -- eapply Vector_tabulate_const. intros. now rewrite Vector_nth_R, const_at.
-        -- clear. induction v; cbn.
-           ++ reflexivity.
-           ++ f_equal. eapply IHv. 
-    + exists m. split. 2:eassumption. erewrite nth_error_to_list, Hm1. reflexivity.
-      rewrite Fin.L_sanity, Fin.R_sanity. cbn. lia.
-  - exists f. eapply TerminatesIn_monotone.
-    eapply LiftTapes_Terminates. eapply dupfree_help. eapply H2.
-    intros tps i (v & m & HR & -> & Hf); subst.
-    exists v, m. split. eauto. split; try eassumption.
-    { unfold select. clear. cbn. f_equal.
-      now rewrite Vector_nth_L, Vector_nth_R.
-      rewrite Vector_map_app. f_equal.
-      - rewrite !Vector_map_tabulate. eapply Vector_tabulate_const. intros. now rewrite Vector_nth_R, const_at.
-      - clear. rewrite Vector_map_tabulate.  induction v; cbn. reflexivity. f_equal. eapply IHv.
-    }
-Qed.
+  - refine (Consequence _ _ _). refine (LiftTapes_Spec_ex _ _). now apply tapeOrderSwap_dupfree.
+    exact H1. reflexivity. cbn. intro. eapply EntailsI. intros ? []. eexists.
+    erewrite TM_computable_hoare_out'_spec. eassumption.
+  - intros. specialize H2 as [x H2]. easy. exists x.
+    refine (ConsequenceT _ _ _ _). refine (LiftTapes_SpecT _ _). now apply tapeOrderSwap_dupfree.
+    exact H2. reflexivity. cbn. now rewrite <- TM_computable_hoare_out'_spec. easy.
+Qed. 
 
 Lemma closed_compiler_helper s n v: closed s ->
 closed

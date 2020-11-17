@@ -1,11 +1,11 @@
-From Undecidability Require Import L.Datatypes.LBool L.Datatypes.Lists L.Tactics.LTactics L.Util.L_facts.
+From Undecidability Require Import L.Util.L_facts.
 
 From Undecidability.Shared.Libs.PSL Require Import FinTypes Vectors.
 Require Import List.
 
 Require Import Undecidability.TM.Util.TM_facts.
 
-From Undecidability Require Import ProgrammingTools LM_heap_def WriteValue CaseList Copy ListTM  JumpTargetTM WriteValue Hoare.
+From Undecidability Require Import ProgrammingTools LM_heap_def WriteValue CaseList Copy ListTM Hoare.
 From Undecidability.TM.L Require Import Alphabets Eval.
 
 From Undecidability Require Import L.L TM.TM.
@@ -87,18 +87,18 @@ Section MK_isVoid.
     | S m' => MK_isVoid @ [|Fin0|];;MK_isVoid_multi m'@(tabulate (fun i => Fin.FS i))
     end.
 
-  Lemma helper n m' m f: 
+  Lemma helper n m i f: 
     injective f ->
-      lookup_index_vector (n:=n)
-    (tabulate (fun i : Fin.t m' => f i)) 
-    (f m) = Some m.
+      lookup_index_vector (m:=m) (n:=n)
+    (tabulate f) 
+    (f i) = Some i.
   Proof.
-    revert n m f. induction m';cbn. easy.
-    intros n m f Hinj. specialize (Fin.eqb_eq _ (f m) (f Fin0)) as H'.
+    revert n i f. induction m;cbn. easy.
+    intros n i f Hinj. specialize (Fin.eqb_eq _ (f i) (f Fin0)) as H'.
     destruct Fin.eqb.
     -destruct H' as [H' _]. specialize (H' eq_refl). apply Hinj in H' as ->. easy.
-    -destruct H' as [_ H']. destruct (fin_destruct_S m) as [[i' ->]| ->]. 2:now discriminate H'.
-     specialize IHm' with (f:= fun m => f (Fin.FS m) ). cbn in IHm'. rewrite IHm'. easy. intros ? ? ?%Hinj. now apply Fin.FS_inj.
+    -destruct H' as [_ H']. destruct (fin_destruct_S i) as [[i' ->]| ->]. 2:now discriminate H'.
+     specialize IHm with (f:= fun m => f (Fin.FS m) ). cbn in IHm. rewrite IHm. easy. intros ? ? ?%Hinj. now apply Fin.FS_inj.
   Qed.
 
   Instance Proper_tabulate X n: Proper (pointwise_relation _ eq ==> eq) (@tabulate X n).
@@ -314,7 +314,7 @@ Section conv_output.
   
   Theorem M_out_SpecT bs:
     { k &
-    TripleT ≃≃([],[|Contains _ (compile (list_enc bs));Custom (eq niltape);Void;Void|])
+    TripleT ≃≃([],[|Contains _ (compile (encL bs));Custom (eq niltape);Void;Void|])
       k M_out
       (fun _ => ≃≃([],
         ([|Custom (fun _ => True); Custom (eq (encTM s b bs)); Void;Void|])))}.
@@ -392,7 +392,7 @@ Section main.
     start_TM.
     hstep. {hsteps_cbn;cbn. eapply TripleT_Triple. exact (MK_isVoid_multi_SpecT 9). }
     cbn;cleanupParamTM. intros _.
-    hstep. {eapply LiftTapes_Spec_ex. now smpl_dupfree. cbn. refine (EvalL.Spec' _ _ _). now apply closed_compiler_helper. }
+    hstep. {eapply LiftTapes_Spec_ex. now smpl_dupfree. cbn. refine (EvalL.Spec' _ _ _). now eapply closed_compiler_helper. }
     cbn;cleanupParamTM.
     intros _. eapply Triple_exists_pre. intros s'.
     change (fun x => ?f x) with f.
@@ -408,15 +408,31 @@ Section main.
     now simpl_vector. eassumption.
   Qed.
 
-  Lemma M_main_realise :
-    Realise M_main (fun t '(r, t') =>
-                      forall v,
-                      t = (Vector.const niltape (S n_main) ++ Vector.map (fun bs => (encTM sym_s sym_b bs)) v)  ->
-                      exists m, 
-                        t'[@ Fin0] = encTM sym_s sym_b m /\ R v m).
-  Proof using Hscl Hs2 Hs1.
-  
-  Admitted. 
+Theorem M_main_SpecT v res:
+  R v res -> exists k__steps,
+  TripleT ≃≃([],Vector.const (Custom (eq niltape)) (S n_main) ++ Vector.map (fun bs => Custom (eq (encTM sym_s sym_b bs))) v)
+  k__steps M_main
+    (fun _ => ≃≃([],Custom (eq (encTM sym_s sym_b res)):::Vector.const (Custom (fun _ => True)) _)).
+Proof  using Hscl Hs2 Hs1.
+  unfold M_main. intros ?.
+  apply Hs1 in H as H%eval_iff. eapply eval_evalIn in H as [? H].
+  edestruct EvalL.SpecT'. 2:eassumption. now eapply closed_compiler_helper.
+  eexists. 
+  hstep. { eapply (projT2 (M_init_SpecT syms_diff _ _ _ _ _)). } 2:reflexivity.
+  cbn. intros _.
+  start_TM.
+  hstep. {hsteps_cbn;cbn. exact (MK_isVoid_multi_SpecT 9). } 2:reflexivity.
+  cbn;cleanupParamTM. intros _.
+  hstep. { eapply LiftTapes_SpecT. now smpl_dupfree. cbn. refine H0. } 2:reflexivity.
+  cbn;cleanupParamTM.
+  intros _.
+  hstep. now refine (projT2 (M_out_SpecT _ _ _ _ res)). 
+  cbn;cleanupParamTM. intros _. 
+  eapply EntailsI. intros tin [[] Hin]%tspecE.
+  eapply tspecI;cbn. easy.
+  intros i. specialize (Hin i). destruct_fin i;try exact Logic.I;cbn in *.
+  now simpl_vector. eassumption.
+Qed.
 
 End main.
 
@@ -451,24 +467,12 @@ Theorem compiler_bool {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) :
   L_computable_bool_closed R -> TM_computable R.
 Proof.
   intros H. 
-  eapply TM_computable_rel'_spec.
-  eapply L_computable_function. now apply L_computable_bool_can_closed.
+  eapply TM_computable_hoare'_spec.
+  { eapply L_computable_function. now apply L_computable_bool_can_closed. }
   destruct H as [sim [cs Hsim]].
-  eexists _, _, sym_s, sym_b. split. eapply syms_diff. exists (M_main k sim). split.
-  - eapply RealiseIntroAll;intro v. eapply Realise_monotone.
-    { eapply Triple_Realise,  M_main_Spec with (v:=v). easy. all:intro v';edestruct Hsim as [H1 H2]; eassumption. }
-    cbn.
-    intros t [[] t'] H ->.
-    edestruct H as [m [Hm1 Hm2]];cbn in *.
-    {cbn. eapply tspecI. easy. intros i. destruct_fin i;try exact eq_refl;cbn. simpl_vector. reflexivity. }
-    rewrite Vector_hd_nth.
-    specialize (Hm2 Fin0);cbn in Hm2. eauto.
-  - (*eapply TerminatesIntroAll;intro v. eapply Realise_monotone.
-  { eapply Triple_Realise,  M_main_Spec with (v:=v). easy. all:intro v';edestruct Hsim as [H1 H2]; eassumption. }
-  cbn.
-  intros t [[] t'] H ->.
-  edestruct H as [m [Hm1 Hm2]];cbn in *.
-  {cbn. eapply tspecI. easy. intros i. destruct_fin i;try exact eq_refl;cbn. simpl_vector. reflexivity. }
-  rewrite Vector_hd_nth.
-  specialize (Hm2 Fin0);cbn in Hm2. eauto.*)
-Admitted.
+  hnf. 
+  eexists _, _, sym_s, sym_b. split. eapply syms_diff. exists (M_main k sim).
+  intros v. split.
+  - eapply M_main_Spec. easy. all:firstorder.
+  - eapply M_main_SpecT. easy. all:firstorder.
+Qed.

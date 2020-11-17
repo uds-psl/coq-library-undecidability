@@ -1,22 +1,21 @@
-From Undecidability Require Import L.Datatypes.LBool L.Datatypes.Lists L.Tactics.LTactics L.Util.L_facts.
+From Undecidability Require Import L.Util.L_facts.
 
-Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes Undecidability.Shared.Libs.PSL.Vectors.Vectors.
+From Undecidability.Shared.Libs.PSL Require Import FinTypes Vectors.
 Require Import List.
 
 Require Import Undecidability.TM.Util.TM_facts.
 
-From Undecidability Require Import ProgrammingTools LM_heap_def WriteValue CaseList Copy ListTM  JumpTargetTM WriteValue Hoare.
-From Undecidability.TM.L Require Import Alphabets M_LHeapInterpreter.
-From Undecidability Require Import TM.TM L.AbstractMachines.FlatPro.LM_heap_correct.
+From Undecidability Require Import ProgrammingTools LM_heap_def WriteValue CaseList Copy ListTM Hoare.
+From Undecidability.TM.L Require Import JumpTargetTM Alphabets M_LHeapInterpreter.
+From Undecidability Require Import L.AbstractMachines.FlatPro.LM_heap_correct.
 
-From Undecidability Require Import L.L TM.TM.
 Require Import List.
 
 Import Vector.VectorNotations.
 Import ListNotations ResourceMeasures.
 
 
-From Undecidability.TM.L Require Import Compiler_spec Compiler_facts UnfoldClos Compiler.AddToBase.
+From Undecidability.TM.L Require Import UnfoldClos.
 
 Require Import Equations.Prop.DepElim.
 
