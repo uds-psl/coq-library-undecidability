@@ -153,9 +153,6 @@ CFG/Reductions/CFPP_to_CFP.v
 CFG/Reductions/CFPI_to_CFI.v
 
 # First order logic
-FOL/DecidableEnumerable.v
-FOL/Reductions.v
-FOL/PCP.v
 FOL/FOL.v
 FOL/Semantics.v
 FOL/Deduction.v
@@ -558,7 +555,6 @@ FOLP/FOL.v
 FOLP/FullSyntax.v
 FOLP/FullFOL.v
 FOLP/FullTarski.v
-FOLP/Input.v
 
 #####
 # Full Trakhtenbrot with single binary rel
