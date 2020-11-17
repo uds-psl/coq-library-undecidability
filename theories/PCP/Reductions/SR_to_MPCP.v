@@ -9,6 +9,8 @@ Require Import Undecidability.StringRewriting.Util.Definitions.
 
 Require Import Undecidability.Synthetic.Definitions.
 
+Import RuleNotation.
+
 (** * SR to MPCP *)
 
 Section SR_to_MPCP.
