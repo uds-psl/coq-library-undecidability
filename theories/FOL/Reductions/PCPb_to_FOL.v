@@ -1,6 +1,6 @@
 (** * FOL Reductions *)
 
-From Undecidability.FOL Require Export PCP Deduction.
+From Undecidability Require Export PCP.PCP PCP.Util.PCP_facts FOL.Util.Deduction FOL.FOL.
 Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
 
 (** ** Validity *)
@@ -206,7 +206,25 @@ Proof.
     apply (valid_satis H2), H1.
 Qed.
 
+(** ** Reduction theorems *)
 
+Corollary valid_red :
+  PCPb ⪯ FOL*_valid.
+Proof.
+  exists (fun R => F R). intros R. apply (BPCP_valid R).
+Qed.
+
+Theorem prv_red :
+  PCPb ⪯ FOL*_prv_intu.
+Proof.
+  exists (fun R => F R). intros R. apply (BPCP_prv R).
+Qed.
+
+Theorem satis_red :
+  compl PCPb ⪯ FOL_satis.
+Proof.
+  exists (fun R => ¬ F R). intros R. apply (BPCP_satis R).
+Qed.
 
 (** ** Corollaries *)
 
@@ -221,12 +239,6 @@ Hint Resolve stack_enum form_discrete : core.
 Definition UA :=
   ~ enumerable (compl PCPb).
 
-Corollary valid_red :
-  PCPb ⪯ @valid frag.
-Proof.
-  exists (fun R => F R). intros R. apply (BPCP_valid R).
-Qed.
-
 Corollary valid_undec :
   UA -> ~ decidable (@valid frag).
 Proof.
@@ -239,12 +251,6 @@ Proof.
   intros H. now apply (not_coenumerable valid_red).
 Qed.
 
-Corollary prv_red :
-  PCPb ⪯ @prv intu frag nil.
-Proof.
-  exists (fun R => F R). intros R. apply (BPCP_prv R).
-Qed.
-
 Corollary prv_undec :
   UA -> ~ decidable (@prv intu frag nil).
 Proof.
@@ -255,12 +261,6 @@ Corollary prv_unenum :
   UA -> ~ enumerable (compl (@prv intu frag nil)).
 Proof.
   intros H. apply (not_coenumerable prv_red); trivial.
-Qed.
-
-Corollary satis_red :
-  compl PCPb ⪯ @satis full.
-Proof.
-  exists (fun R => ¬ F R). intros R. apply (BPCP_satis R).
 Qed.
 
 Corollary satis_undec :

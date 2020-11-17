@@ -1,9 +1,9 @@
 (** * Infinite Data Types *)
 
-From Undecidability Require Import Shared.ListAutomation.
-From Undecidability.FOL Require Import DecidableEnumerable.
-Require Import Arith.
-Require Import ConstructiveEpsilon.
+From Undecidability Require Import Shared.ListAutomation Shared.Dec.
+From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts MoreEnumerabilityFacts.
+Require Import Arith ConstructiveEpsilon.
+
 Import ListAutomationNotations.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
