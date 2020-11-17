@@ -155,6 +155,7 @@ CFG/Reductions/CFPI_to_CFI.v
 
 # First order logic
 FOL/FOL.v
+FOL/FOL_undec.v
 FOL/Util/FOL_facts.v
 FOL/Util/Semantics.v
 FOL/Util/Deduction.v
