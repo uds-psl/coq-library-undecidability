@@ -12,15 +12,15 @@
     System F Inhabitation (SysF_INH)
 
   Related Work:
-  [1] Dudenhefner, A., & Rehof, J. (2019). 
-      "A Simpler Undecidability Proof for System F Inhabitation". 
-      In 24th International Conference on Types for Proofs and Programs (TYPES 2018). 
-      Schloss Dagstuhl-Leibniz-Zentrum fuer Informatik.
+  [1] Andrej Dudenhefner and Jakob Rehof. 
+      "A Simpler Undecidability Proof for System F Inhabitation." 
+      24th International Conference on Types for Proofs and Programs (TYPES 2018). 
+      Schloss Dagstuhl-Leibniz-Zentrum fuer Informatik, 2019.
 *)
 
 Require Import List Lia.
 Import ListNotations.
-Require Import Undecidability.SystemF.SysF.
+Require Import Undecidability.SystemF.SysF Undecidability.SystemF.Autosubst.syntax.
 From Undecidability.SystemF.Util Require Import Facts poly_type_facts term_facts typing_facts iipc2_facts sn_facts.
 
 Require Import Undecidability.DiophantineConstraints.H10C.
@@ -747,7 +747,8 @@ End InverseTransport.
 (** inhabitation to Diophantine constraint solution *)
 Lemma inverse_transport : SysF_INH (GammaH, poly_var tt) -> H10C_SAT h10cs.
 Proof.
-  move=> [P] /typing_normal_form [{}P] [/construct_h10cs_solution] H /H{H}. apply.
+  move=> [M] /typing_of_type_assignment [P] [_] {M}.
+  move=> /typing_normal_form [{}P] [/construct_h10cs_solution] H /H{H}. apply.
   - constructor. { exists 0, 0, 0. do 3 (constructor; first by apply: encodes_natI). done. }
     constructor. { exists 1, 0, 1. do 3 (constructor; first by apply: encodes_natI). done. }
     constructor. { exists 0, 1, 1. do 3 (constructor; first by apply: encodes_natI). done. }
@@ -984,7 +985,9 @@ End Transport.
 (** Diophantine constraint solution to inhabitation *)
 Lemma transport : H10C_SAT h10cs -> SysF_INH (GammaH, poly_var tt).
 Proof.
-  move=> [φ Hφ]. apply: (introduce_Uts (S (ϵ φ))). 
+  move=> [φ Hφ]. suff: iipc2 GammaH (poly_var tt).
+  { move=> [?] /typing_to_type_assignment ?. eexists; by eassumption. }
+  apply: (introduce_Uts (S (ϵ φ))). 
   apply: (introduce_φ φ Hφ); first by lia.
   by apply: eliminate_φ.
 Qed.
@@ -999,6 +1002,6 @@ Theorem reduction : H10C_SAT ⪯ SysF_INH.
 Proof.
   exists (fun h10cs => (Argument.GammaH h10cs, poly_var Argument.tt)).
   move=> h10cs. constructor.
-  - by apply: Argument.transport.
-  - by apply Argument.inverse_transport.
+  - exact: Argument.transport.
+  - exact: Argument.inverse_transport.
 Qed.

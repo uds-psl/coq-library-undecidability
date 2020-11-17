@@ -3,7 +3,14 @@
     Andrej Dudenhefner (1) 
   Affiliation(s):
     (1) Saarland University, Saarbrücken, Germany
+
+  Related Work:
+    [1] Giannini, Paola, and Simona Ronchi Della Rocca. 
+        "Characterization of typings in polymorphic type discipline." 
+        Proceedings Third Annual Symposium on Logic in Computer Science. IEEE Computer Society, 1988.
 *)
+
+
 
 Require Import List Lia Relation_Definitions Relation_Operators Operators_Properties.
 Import ListNotations.
@@ -22,7 +29,10 @@ Inductive contains_step : poly_type -> poly_type -> Prop :=
 
 Definition contains := clos_refl_trans poly_type contains_step.
 
-(** system F type erased derivability predicate *)
+(** 
+  system F type erased derivability predicate
+  cf. containment type assignment [1]
+*)
 Inductive pure_typing : environment -> pure_term -> poly_type -> Prop :=
   | pure_typing_pure_var n {Gamma x t t'} : 
       nth_error (map (ren_poly_type (Nat.add n)) Gamma) x = Some t -> 
@@ -94,6 +104,10 @@ Proof.
     + move=> > ? [? ?]; by subst.
 Qed.
 
+Lemma contains_stepI {s t t'}:
+  t' = subst_poly_type (s .: poly_var) t -> contains_step (poly_abs t) t'.
+Proof. move=> ->. by apply: contains_step_subst. Qed.
+
 Lemma contains_ren_poly_typeI ξ {s t} : contains s t -> contains (ren_poly_type ξ s) (ren_poly_type ξ t).
 Proof.
   elim.
@@ -137,6 +151,32 @@ Proof.
   - case: t; [done | done | by left]. 
   - move=> > [] > /clos_rt_rt1n_iff ?. right. eexists. by eassumption.
 Qed.
+
+(* contains respect subtypes *)
+Lemma contains_sub {n s t t''} : 
+  contains (many_poly_abs n (poly_arr s t)) t'' ->
+  exists n' s' t', 
+    t'' = many_poly_abs n' (poly_arr s' t') /\
+    contains (many_poly_abs n s) (many_poly_abs n' s') /\
+    contains (many_poly_abs n t) (many_poly_abs n' t').
+Proof.
+  move Es1: (many_poly_abs n _) => s1 /clos_rt_rt1n_iff Hs1s2.
+  elim: Hs1s2 n s t Es1.
+  - move=> > <-. do 3 eexists. constructor; first done.
+    constructor; by apply: rt_refl.
+  - move=> > [] r > _ IH [|n] > /=; first done.
+    move=> [] /(congr1 (subst_poly_type (r .: poly_var))).
+    rewrite subst_poly_type_many_poly_abs /= => /IH [?] [?] [?] [->].
+    rewrite -?subst_poly_type_many_poly_abs => - [? ?].
+    do 3 eexists. constructor; first done.
+    constructor; (apply: rt_trans; [| by eassumption]); by apply /rt_step.
+Qed.
+
+Lemma contains_sub' {n s t n' s' t'} : 
+  contains (many_poly_abs n (poly_arr s t)) (many_poly_abs n' (poly_arr s' t')) ->
+  contains (many_poly_abs n s) (many_poly_abs n' s') /\
+    contains (many_poly_abs n t) (many_poly_abs n' t').
+Proof. by move=> /contains_sub [?] [?] [?] [/many_poly_abs_eqE'] [<-] [<- <-]. Qed.
 
 Lemma typing_contains {s t Gamma P} : contains s t -> typing Gamma P s -> 
   exists Q, erase P = erase Q /\ typing Gamma Q t.
@@ -425,17 +465,18 @@ Proof.
     move=> x /=. case H: (x-n) => /=; by lia.
 Qed.
 
-Lemma tidy_many_poly_abs n s : exists n' ξ', 
-  tidy (many_poly_abs n s) = many_poly_abs n' (tidy (ren_poly_type ξ' s)).
+Lemma tidy_many_poly_abs {n s} : 
+  { n'ξ' | tidy (many_poly_abs n s) = many_poly_abs (n'ξ'.1) (tidy (ren_poly_type (n'ξ'.2) s)) }.
 Proof.
   elim: n s.
-  - move=> s. exists 0, id. by rewrite ren_poly_type_id.
+  - move=> s. exists (0, id). by rewrite ren_poly_type_id.
   - move=> n IH s /=. case Hns: (fresh_inb 0 (many_poly_abs n s)).
-    + have := IH s. move=> [n'] [ξ'] ->.
+    + have := IH s. move=> [[n' ξ']] ->.
       rewrite ren_poly_type_many_poly_abs -tidy_ren_poly_type ?poly_type_norm.
-      by do 2 eexists.
-    + have := IH s. move=> [n'] [ξ'] ->.
-      by exists (1+n'), ξ'.
+      evar (n'': nat). evar (ξ'': nat -> nat).
+      exists (n'', ξ'') => /=. by subst n'' ξ''.
+    + have := IH s. move=> [[n' ξ']] ->.
+      by exists ((1+n'), ξ').
 Qed.
 
 (* note: hard to make more general because of cases like ∀x.x < ∀x.x < ∀xy.x *)
@@ -634,8 +675,9 @@ Proof. elim t; [done | by move=> ? IH1 ? IH2 /=; rewrite IH1 IH2 | done]. Qed.
 Lemma pure_typing_tidyRL {s n} : is_simple s -> allfv_poly_type (gt n) s ->
   pure_typing [many_poly_abs n s] (pure_var 0) (tidy (many_poly_abs n s)).
 Proof.
-  have [n' [ξ' ->]] := tidy_many_poly_abs n s.
-  move=> Hs Hns. apply: (pure_typing_pure_var n'); first done.
+  rewrite (svalP tidy_many_poly_abs).
+  move: (sval _) => [n' ξ'] /= Hs Hns.
+  apply: (pure_typing_pure_var n'); first done.
   rewrite tidy_is_simple; first by rewrite is_simple_ren_poly_type.
   rewrite ren_poly_type_many_poly_abs.
   have -> : ren_poly_type (Nat.iter n up_ren (Nat.add n')) s = s.
@@ -743,4 +785,12 @@ Proof.
       rewrite /many_pure_term_abs (ltac:(lia) : S n = n + 1) -iter_plus. apply.
       move=> /=. apply: allfv_pure_term_impl HnM.
       case; first done. move=> /=. by lia.
+Qed.
+
+Lemma pure_typing_iff_type_assignment {Gamma M t} :
+  pure_typing Gamma M t <-> type_assignment Gamma M t.
+Proof.
+  constructor.
+  - by move=> /pure_typing_to_typing [?] [->] /typing_to_type_assignment.
+  - by move=> /typing_of_type_assignment [?] [->] /typing_to_pure_typing.
 Qed.

@@ -1,6 +1,6 @@
 (** * Classical Natural Deduction *)
 
-From Undecidability Require Export PCPb_to_FOL FOL.
+From Undecidability.FOL Require Export PCPb_to_FOL FOL.
 Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
 (** ** Double Negation Translation *)
 

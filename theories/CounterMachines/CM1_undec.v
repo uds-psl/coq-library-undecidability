@@ -7,31 +7,21 @@
 
 (* 
   Undecidability Results(s):
-    One Counter Machine Halting (CM1_HALT)
-    One Counter Machine with Bounded Instructions Halting (CM1c4_HALT)
+    One Counter Machine Halting with Denominators at most 4 (CM1_HALT)
 *)
 
 Require Import Undecidability.Synthetic.Undecidability.
 
 Require Import Undecidability.CounterMachines.CM1.
-Require Import Undecidability.CounterMachines.Reductions.MM2_HALTING_to_CM1c4_HALT.
+Require Import Undecidability.CounterMachines.Reductions.MM2_HALTING_to_CM1_HALT.
 
 Require Import Undecidability.MinskyMachines.MM2 Undecidability.MinskyMachines.MM2_undec.
 
 (** Undecidability of The One Counter Machine (with Denominators at most 4) Halting Problem *)
-Lemma CM1c4_HALT_undec : undecidable CM1c4_HALT.
-Proof.
-  apply (undecidability_from_reducibility MM2_HALTING_undec).
-  exact MM2_HALTING_to_CM1c4_HALT.reduction.
-Qed.
-
-Check CM1c4_HALT_undec.
-
-(** Undecidability of The One Counter Machine Halting Problem *)
 Lemma CM1_HALT_undec : undecidable CM1_HALT.
 Proof.
-  apply (undecidability_from_reducibility CM1c4_HALT_undec).
-  now exists (fun M => proj1_sig M).
+  apply (undecidability_from_reducibility MM2_HALTING_undec).
+  exact MM2_HALTING_to_CM1_HALT.reduction.
 Qed.
 
 Check CM1_HALT_undec.

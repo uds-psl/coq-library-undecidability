@@ -627,9 +627,9 @@ CounterMachines/Util/Nat_facts.v
 CounterMachines/Util/List_facts.v
 CounterMachines/Util/CM1_facts.v
 CounterMachines/Util/MM2_facts.v
-CounterMachines/Reductions/MM2_HALTING_to_CM1c4_HALT.v
+CounterMachines/Reductions/MM2_HALTING_to_CM1_HALT.v
 CounterMachines/Reductions/MM2_HALTING_to_CM2_HALT.v
-CounterMachines/Reductions/HaltTM_1_to_CM1c4_HALT.v
+CounterMachines/Reductions/HaltTM_1_to_CM1_HALT.v
 
 
 #Stack Machines
@@ -649,14 +649,14 @@ StackMachines/Util/Facts.v
 StackMachines/Util/Nat_facts.v
 StackMachines/Util/List_facts.v
 StackMachines/Util/Enumerable.v
-StackMachines/Util/SMX.v
-StackMachines/Util/SMX_facts.v
+StackMachines/Reductions/CM1_HALT_to_SMNdl_UB/SMX.v
+StackMachines/Reductions/CM1_HALT_to_SMNdl_UB/SMX_facts.v
 StackMachines/Util/SMN_facts.v
 StackMachines/Util/CSSM_facts.v
 
-StackMachines/Reductions/CM1_to_SMX.v
-StackMachines/Reductions/CM1c4_HALT_to_SMNdl_UB.v
-StackMachines/Reductions/SMN_transform.v
+StackMachines/Reductions/CM1_HALT_to_SMNdl_UB/CM1_to_SMX.v
+StackMachines/Reductions/CM1_HALT_to_SMNdl_UB.v
+StackMachines/Util/SMN_transform.v
 StackMachines/Reductions/SMNdl_UB_to_CSSM_UB.v
 StackMachines/Reductions/HaltTM_1_to_CSSM_UB.v
 StackMachines/Reductions/iPCPb_to_BSM_HALTING.v
@@ -730,3 +730,6 @@ SystemF/Util/pure_typable_prenex.v
 SystemF/Reductions/H10C_SAT_to_SysF_INH.v
 SystemF/Reductions/LU2SemiU_to_SysF_TYP.v
 SystemF/Reductions/SysF_TYP_to_SysF_TC.v
+SystemF/Reductions/HaltTM_1_to_SysF_TYP.v
+SystemF/Reductions/HaltTM_1_to_SysF_TC.v
+SystemF/Reductions/HaltTM_1_to_SysF_INH.v

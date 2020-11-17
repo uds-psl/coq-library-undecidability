@@ -8,7 +8,7 @@
 (* 
   Problem(s):
     One Counter Machine Halting (CM1_HALT)
-    One Counter Machine with Bounded Instructions Halting (CM1c4_HALT)
+    One Counter Machine with Bounded Instructions Halting (CM1_HALT)
 *)
 
 Require Import List Nat.
@@ -43,17 +43,7 @@ Arguments step _ !x /.
 (** halting configuration property *)
 Definition halting (M : Cm1) (x: Config) : Prop := step M x = x.
 
-(** One Counter Machine Halting Problem *)
-Definition CM1_HALT : Cm1 -> Prop :=
-  fun M => exists (n: nat), 
-    halting M (Nat.iter n (step M) {| state := 0; value := 1 |}).
-
-(** numerators/denominators are bounded *)
-Definition capped (M: Cm1) (m: nat) := Forall (fun '(_, n) => n < m) M.
-
-(** deterministic one counter machines with denominators at most 4 *)
-Definition Cm1c4 := { M : Cm1 | capped M 4 }. 
-
-(** One Counter Machine Halting Problem with Denominators at most 4 *)
-Definition CM1c4_HALT : Cm1c4 -> Prop :=
-  fun M => CM1_HALT (proj1_sig M).
+(** One Counter Machine Halting Problem (with Denominators at most 4) *)
+Definition CM1_HALT : { M : Cm1 | Forall (fun '(_, n) => n < 4) M } -> Prop :=
+  fun '(exist _ M _) => 
+    exists n, halting M (Nat.iter n (step M) {| state := 0; value := 1 |}).

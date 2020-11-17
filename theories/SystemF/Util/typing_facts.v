@@ -16,6 +16,19 @@ Require Import ssreflect ssrbool ssrfun.
 
 Arguments funcomp {X Y Z} _ _ / _.
 
+(** Church-style System F Type Assignment Predicate *)
+Inductive typing : environment -> term -> poly_type -> Prop :=
+  | typing_var {Gamma x t} : 
+      nth_error Gamma x = Some t -> typing Gamma (var x) t
+  | typing_app {Gamma P Q s t} :
+      typing Gamma P (poly_arr s t) -> typing Gamma Q s -> typing Gamma (app P Q) t
+  | typing_abs {Gamma P s t} :
+      typing (s :: Gamma) P t -> typing Gamma (abs s P) (poly_arr s t)
+  | typing_ty_app {Gamma P s t} :
+      typing Gamma P (poly_abs s) -> typing Gamma (ty_app P t) (subst_poly_type (scons t poly_var) s)
+  | typing_ty_abs {Gamma P s} :
+      typing (map (ren_poly_type S) Gamma) P s -> typing Gamma (ty_abs P) (poly_abs s).
+
 (** case analysis on the typing predicate wrt. term *)
 Lemma typingE {Gamma P t} : typing Gamma P t ->
   match P with
@@ -242,4 +255,33 @@ Proof.
     move=> /copy [/typingE [?] [+ ?]].
     move=> /typing_functional H + /H{H} [? ?]. subst.
     move=> /IH ?. by constructor.
+Qed.
+
+(* Church-style typing induces Curry-style typing *)
+Theorem typing_to_type_assignment {Gamma P t} : 
+  typing Gamma P t -> type_assignment Gamma (erase P) t.
+Proof.
+  elim.
+  - move=> *. by apply: type_assignment_var.
+  - move=> * /=. apply: type_assignment_app; by eassumption.
+  - move=> * /=. by apply: type_assignment_abs.
+  - move=> * /=. by apply: type_assignment_inst.
+  - move=> * /=. by apply: type_assignment_gen.
+Qed.
+
+(* Curry-style typing induces Church-style typing *)
+Theorem typing_of_type_assignment {Gamma M t} : 
+  type_assignment Gamma M t -> exists P, M = erase P /\ typing Gamma P t.
+Proof.
+  elim.
+  - move=> ? x ? ?. exists (var x).
+    constructor; [done | by apply: typing_var].
+  - move=> > ? [P [? ?]] ? [Q [? ?]]. exists (app P Q). subst.
+    constructor; [done | by apply: typing_app; eassumption].
+  - move=> ? ? s ? ? [P [? ?]]. exists (abs s P). subst.
+    constructor; [done | by apply: typing_abs].
+  - move=> ? ? ? {}t ? [P [? ?]]. exists (ty_app P t). subst.
+    constructor; [done | by apply: typing_ty_app].
+  - move=> > ? [P [? ?]]. exists (ty_abs P). subst.
+    constructor; [done | by apply: typing_ty_abs].
 Qed.
