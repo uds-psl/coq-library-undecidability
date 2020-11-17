@@ -468,6 +468,7 @@ L/Datatypes/LVector.v
 L/Functions/EqBool.v
 L/Functions/Equality.v
 L/Functions/Encoding.v
+L/Functions/Decoding.v
 L/Functions/Proc.v
 L/Functions/Size.v
 L/Functions/Subst.v
@@ -495,6 +496,10 @@ L/Complexity/UpToC.v
 L/Complexity/UpToCNary.v
 L/Complexity/GenericNary.v
 L/Complexity/ResourceMeasures.v
+L/Complexity/LinDecode/LTD_def.v
+L/Complexity/LinDecode/LTDnat.v
+L/Complexity/LinDecode/LTDlist.v
+L/Complexity/LinDecode/LTDbool.v
 
 
 L/AbstractMachines/LargestVar.v
