@@ -23,7 +23,8 @@ Set Implicit Arguments.
 
 (* Fixpoint instead of Definition because of better unfolding properties *)
 
-Fixpoint de_bruijn_ext {X} (ν : nat -> X) x n { struct n } :=
+Definition de_bruijn_ext {X} (ν : nat -> X) x :=
+  fix dbe n :=
   match n with
     | 0   => x
     | S n => ν n
