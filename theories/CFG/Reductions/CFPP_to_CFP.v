@@ -3,19 +3,22 @@ Import ListNotations.
 
 Require Import Undecidability.CFG.CFP.
 Require Import Undecidability.CFG.CFG.
+Require Import Undecidability.CFG.Util.Facts.
 
 Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.Facts.
 Require Import Undecidability.PCP.Util.PCP_facts.
 
-Require Import Undecidability.Shared.Prelim.
+Require Import Undecidability.Shared.ListAutomation.
 Require Import Undecidability.Synthetic.Definitions.
+
+Require Import Setoid Morphisms Arith Lia.
 
 (** * PCP to CFPP *)
 Hint Rewrite concat_app map_app map_map : list.
 Hint Rewrite <- map_rev : list.
 
-Lemma nil_app_nil X (A : list X) :
+Lemma nil_app_nil {X} (A : list X) :
   A = [] ++ A ++ [].
 Proof.
   now autorewrite with list.
@@ -65,7 +68,7 @@ Section CFGs.
   Lemma rewrite_sing R a x :
     (a, x) el rules R -> rew_cfg R [a] x.
   Proof.
-    intros. rewrite nil_app_nil, (nil_app_nil [a]). now econstructor.
+    intro. rewrite nil_app_nil, (nil_app_nil [a]). now econstructor.
   Qed.
   
   Global Instance rewtTrans R :

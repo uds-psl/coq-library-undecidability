@@ -370,7 +370,7 @@ Proof. exact ((fun n => renRen_poly_type xipoly_type zetapoly_type n)). Qed.
 End poly_type.
 
 Section term.
-(*
+
 (** system F terms P, Q, .. *)
 Inductive term : Type :=
   | var : nat -> term  
@@ -378,7 +378,6 @@ Inductive term : Type :=
   | abs : poly_type -> term -> term  
   | ty_app : term -> poly_type -> term  
   | ty_abs : term -> term.
-*)
 
 Lemma congr_app  { s0 : term    } { s1 : term    } { t0 : term    } { t1 : term    } : ( s0 = t0 ) -> ( s1 = t1 ) -> app   s0 s1 = app   t0 t1 .
 Proof. congruence. Qed.

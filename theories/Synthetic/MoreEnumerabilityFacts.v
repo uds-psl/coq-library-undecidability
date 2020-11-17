@@ -1,7 +1,7 @@
 From Undecidability.Synthetic Require Import DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts.
 From Undecidability.Shared Require Import ListAutomation.
 Require Import List.
-Import ListNotations.
+Import ListNotations ListAutomationNotations.
 
 Lemma enumerable_enum {X} {p : X -> Prop} :
   enumerable p <-> list_enumerable p.

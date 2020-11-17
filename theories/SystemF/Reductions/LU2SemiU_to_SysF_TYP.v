@@ -18,7 +18,7 @@
 
 Require Import List Lia.
 Import ListNotations.
-Require Import Undecidability.SystemF.SysF.
+Require Import Undecidability.SystemF.SysF Undecidability.SystemF.Autosubst.syntax.
 From Undecidability.SystemF.Util Require Import Facts poly_type_facts pure_term_facts term_facts typing_facts pure_typing_facts pure_typable_prenex.
 
 Require Undecidability.SemiUnification.SemiU.
@@ -78,9 +78,7 @@ Definition HM_W1 := pure_typable_intro_prenex M_W t_0_W 2 is_simple_t_0_W closed
 Definition HM_W2 := pure_typable_intro_prenex (sval HM_W1) t_1_W n_W is_simple_t_1_W closed_t_1_W.
 
 Lemma SysF_TYPI Gamma {M} : pure_typable Gamma M -> SysF_TYP M.
-Proof.
-  move=> [t] /pure_typing_to_typing [P] [-> ?]. by exists Gamma, P, t.
-Qed.
+Proof. move=> [t] /pure_typing_iff_type_assignment ?. by exists Gamma, t. Qed.
 
 Lemma prenex_Gamma_W :
   Forall (fun t => exists n s, t = many_poly_abs n s /\ is_simple s /\ allfv_poly_type (gt n) s) Gamma_W.
@@ -148,56 +146,39 @@ Proof.
   rewrite ?poly_type_norm. by eexists.
 Qed.
 
-(** construct semi-unification term from a polymorphic type *)
-Fixpoint poly_type_to_SU_term (s: poly_type) :=
+(** construct semi-unification term from a polymorphic type pruning quantification *)
+Fixpoint prune (s: poly_type) : SU.term :=
   match s with
-  | poly_var x => SU.atom (1+x)
-  | poly_arr s t => SU.arr (poly_type_to_SU_term s) (poly_type_to_SU_term t)
+  | poly_var x => SU.atom (1 + x)
+  | poly_arr s t => SU.arr (prune s) (prune t)
   | poly_abs _ => SU.atom 0
   end.
 
-Definition make_simple (σ: nat -> poly_type) :=
-  funcomp poly_type_to_SU_term σ.
+Fact substitute_prune_ex τ t : exists ψ, SU.substitute ψ (prune t) = prune (subst_poly_type τ t).
+Proof.
+  exists (fun n=> if n is S n then prune (τ n) else SU.atom 0).
+  elim: t; [done | by move=> ? + ? /= => -> -> | done ].
+Qed.
 
-Fact substitute_poly_type_to_SU_term {σ t} : 
-  SU.substitute (fun n => if n is S n then poly_type_to_SU_term (σ n) else SU.atom 0) (poly_type_to_SU_term t) =
-  poly_type_to_SU_term (subst_poly_type σ t).
-Proof. elim: t; [done | move=> * /=; by congruence | done]. Qed.
-
-Fact substitute_poly_type_to_SU_term' {σ t} : 
-  SU.substitute (fun n => poly_type_to_SU_term (σ n)) t =
-  poly_type_to_SU_term (subst_poly_type σ (SU_term_to_poly_type t)).
-Proof. elim: t; [done | move=> * /=; by congruence]. Qed.
+Fact substitute_prune {σ t} : 
+  SU.substitute (funcomp prune σ) t = prune (subst_poly_type σ (SU_term_to_poly_type t)).
+Proof. elim: t; [done | by move=> ? + ? => /= -> -> ]. Qed.
 
 (** construct semi-unification valuations from polymorphic substitutions *)
 Lemma introduce_simple_substitutions {s t σ τ} : 
   subst_poly_type (funcomp (subst_poly_type τ) σ) (SU_term_to_poly_type s) = subst_poly_type σ (SU_term_to_poly_type t) ->
-  exists ψ, SU.substitute ψ (SU.substitute (make_simple σ) s) = SU.substitute (make_simple σ) t.
+  exists ψ, SU.substitute ψ (SU.substitute (funcomp prune σ) s) = SU.substitute (funcomp prune σ) t.
 Proof.
-  move=> Hst. exists (fun n => if n is S n then poly_type_to_SU_term (τ n) else SU.atom 0).
-  move: Hst. rewrite /make_simple /funcomp. elim: s t.
-  - move=> x t /=. move: (σ x) => s. elim: t s.
-    + move=> n s /= <-. by apply: substitute_poly_type_to_SU_term.
-    + move=> t1 IH1 t2 IH2 [].
-      * move=> {}x /= -> /=. by rewrite -?substitute_poly_type_to_SU_term'.
-      * move=> > /= [/IH1 + /IH2]. by congruence.
-      * done.
-  - move=> s1 IH1 s2 IH2 [].
-    + move=> n /= <- /=. clear. congr SU.arr.
-      * elim: s1.
-        ** move=> ? /=. by apply: substitute_poly_type_to_SU_term.
-        ** move=> * /=. by congruence.
-      * elim: s2.
-        ** move=> ? /=. by apply: substitute_poly_type_to_SU_term.
-        ** move=> * /=. by congruence.
-    + move=> ? ? [/IH1 + /IH2] /=. by congruence.
+  move=> H. have [ψ Hψ] := substitute_prune_ex τ (subst_poly_type σ (SU_term_to_poly_type s)).
+  exists ψ. by rewrite ?substitute_prune Hψ -H poly_type_norm.
 Qed.
+
 End InverseTransport.
 
 (** typability to semi-unification solution *)
 Lemma inverse_transport : SysF_TYP (sval HM_W2) -> SU.LU2SemiU (SUs, SUt0, SUt1).
 Proof.
-  move=> [Gamma] [P] [t] [HP] /typing_to_pure_typing. rewrite HP.
+  move=> [Gamma] [t] /pure_typing_iff_type_assignment.
   move=> /pure_typing_tidyI /pure_typableI /(svalP HM_W2) /(svalP HM_W1).
   move=> [?] /(pure_typing_ren_pure_term_allfv_pure_term id (Delta := map tidy Gamma_W)).
   apply: unnest; first done. rewrite ren_pure_term_id => /pure_typableI.
@@ -205,7 +186,7 @@ Proof.
   move=> /decompose_M_W [?] /decompose_N_W [?] [σ] [->].
   move=> [/decompose_x_W [?] + /decompose_x_W [?] +].
   move=> /introduce_simple_substitutions [ψ0 ?] /introduce_simple_substitutions [ψ1 ?].
-  by exists (make_simple σ), ψ0, ψ1.
+  by exists (funcomp prune σ), ψ0, ψ1.
 Qed.
 
 (** if the semi-unification instance (SUs, SUt0, SUt1) is solvable, then Gamma_W ⊢ M_W : poly_var 0 typechecks *)
@@ -359,12 +340,13 @@ End LU2SemiU_to_SysF_TYP.
 End Argument.
 
 Require Import Undecidability.Synthetic.Definitions.
+Import SemiU.
 
 (** Left-uniform Two-Inequality Semi-unification many-one reduces to System F Typability *)
-Theorem reduction : SU.LU2SemiU ⪯ SysF_TYP.
+Theorem reduction : LU2SemiU ⪯ SysF_TYP.
 Proof.
   exists (fun '(s, t0, t1) => (sval (Argument.HM_W2 s t0 t1))).
   move=> [[s t0] t1]. constructor.
-  - by apply: Argument.transport.
-  - by apply Argument.inverse_transport.
+  - exact: Argument.transport.
+  - exact: Argument.inverse_transport.
 Qed.

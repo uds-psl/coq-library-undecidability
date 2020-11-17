@@ -2295,6 +2295,3 @@ Section ToSingleTape.
   End Loop.
 
 End ToSingleTape.
-
-
-Print Assumptions ToSingleTape_Realise'.

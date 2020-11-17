@@ -4,7 +4,7 @@ Import ListNotations.
 Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.Facts.
 
-Require Import Undecidability.Shared.Prelim.
+Require Import Undecidability.Shared.ListAutomation.
 Require Import Undecidability.Synthetic.Definitions.
 
 Section derivable_iff_PCPX.

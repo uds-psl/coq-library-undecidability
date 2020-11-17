@@ -1,5 +1,11 @@
-Require Import Undecidability.StringRewriting.SR Undecidability.Shared.Prelim.
+Require Import Undecidability.StringRewriting.SR.
+Require Import Undecidability.Shared.ListAutomation.
+Require Import Setoid Morphisms Lia.
+Import ListAutomationNotations.
+Local Set Implicit Arguments.
+Local Unset Strict Implicit.
 
+Import RuleNotation.
 
 (** *Some basic things concerning lists *)
 
@@ -7,6 +13,16 @@ Lemma cons_inj {X} (x1 x2 : X) l1 l2 :
   x1 :: l1 = x2 :: l2 -> x1 = x2 /\ l1 = l2.
 Proof.
    now inversion 1.
+Qed.
+
+Lemma list_prefix_inv'' X (a : X) x u y v :
+  ~ a el u -> ~ a el v -> x ++ a :: y = u ++ a :: v -> x = u /\ y = v.
+Proof.
+  induction x in u, v |- *; intros Hu Hv H; cbn in *.
+  - destruct u. split. reflexivity. now inversion H. inversion H; subst. cbn in Hu. tauto.
+  - destruct u. 
+    + inversion H; subst. destruct Hv. eauto.
+    + inversion H; subst. eapply IHx in H2 as [-> ->]; eauto.
 Qed.
 
 Lemma list_prefix_inv' X (a a' : X) x u y v :
@@ -77,7 +93,6 @@ Proof.
   - econstructor.
   - hnf. intros. induction H; eauto using rewR, rewS.
 Qed.
-
 Lemma rewt_app_L R x x' y : rewt R x x' -> rewt R (y ++ x) (y ++ x').
 Proof.
   induction 1. reflexivity.
@@ -119,6 +134,16 @@ Proof.
   econstructor. eauto.
 Qed.
 
+Lemma rew_app_inv (R1 R2 : SR.SRS nat) x y :
+  SR.rew (R1 ++ R2) x y <-> SR.rew R1 x y \/ SR.rew R2 x y.
+Proof.
+  split.
+  - inversion 1 as [x0 y0 u v H0]; subst; eapply in_app_iff in H0 as [H0 | H0].
+    + left. econstructor. eauto.
+    + right. econstructor. eauto.
+  - intros [H | H]; eapply rew_subset; eauto.
+Qed.
+
 Lemma do_rew (R : SRS) x1 x2 x y u v :
   In (u, v) R ->
   x1 = x ++ u ++ y ->
@@ -155,7 +180,7 @@ Lemma sym_map X (f : X -> card) l Sigma :
 Proof.
   intros. induction l as [ | ]; cbn in *.
   - firstorder.
-  - pose proof (H a). destruct _. repeat eapply incl_app.
+  - pose proof (H a). destruct f. repeat eapply incl_app.
     + eapply app_incl_l, H0. eauto.
     + eapply app_incl_l, app_incl_R; eauto.
     + eauto.

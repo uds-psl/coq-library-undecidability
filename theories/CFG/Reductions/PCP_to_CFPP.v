@@ -2,13 +2,16 @@ Require Import List.
 Import ListNotations.
 
 Require Import Undecidability.CFG.CFP.
+Require Import Undecidability.CFG.Util.Facts.
 
 Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.Facts.
 Require Import Undecidability.PCP.Util.PCP_facts.
 
-Require Import Undecidability.Shared.Prelim.
+Require Import Undecidability.Shared.ListAutomation.
 Require Import Undecidability.Synthetic.Definitions.
+
+Require Import Arith Lia.
 
 (** * PCP to CFPP *)
 
@@ -29,7 +32,7 @@ Section PCP_CFPP.
     - rewrite IHA.  now simpl_list.
   Qed.
 
-  Definition palin X (A : list X) := A = rev A.
+  Definition palin {X} (A : list X) := A = rev A.
 
   Lemma tau_eq_iff A a :
     ~ a el sym A ->

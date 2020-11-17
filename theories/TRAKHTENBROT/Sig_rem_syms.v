@@ -422,7 +422,6 @@ Section completeness.
       apply fo_model_projection' with (i := fun x => x) (j := fun x => x) (ls := nil) 
              (lr := e :: map (fun r => inr (inl r)) (fol_syms A) 
                       ++ map (fun r => inr (inr r)) (fol_rels A)); auto.
-      + intros s v [].
       + intros r v; simpl In; rewrite in_app_iff, in_map_iff, in_map_iff.
         intros [ <- | [ (s & <- & Hs) | (r' & <- & Hr') ] ]; simpl.
         * vec split v with x; vec split v with y; vec nil v; simpl. 

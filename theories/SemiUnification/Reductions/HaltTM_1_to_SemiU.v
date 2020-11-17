@@ -1,3 +1,10 @@
+(* 
+  Reduction from:
+    Turing Machine Halting (HaltTM 1)
+  to:
+    Semi-unification (SemiU)
+*)
+
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.ReducibilityFacts.
 
 Require Import Undecidability.TM.TM.

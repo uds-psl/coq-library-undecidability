@@ -7,10 +7,8 @@
 
 (* 
   Definition(s): 
-    Deterministic Simple Stack Machines
-    Confluent Simple Stack Machines
+    Confluent Simple Stack Machines (cssm)
   Problems(s):
-    Uniform Boundedness of Deterministic Simple Stack Machines (DSSM_UB)
     Uniform Boundedness of Confluent Simple Stack Machines (CSSM_UB)
 *)
 
@@ -39,9 +37,6 @@ Inductive step (M : ssm) : config -> config -> Prop :=
   | step_r (x y: state) (a b: symbol) (A B: stack) : 
     In (x, y, b, a, false) M -> step M (A, b::B, x) (a::A, B, y).
 
-(* step is functional *)
-Definition deterministic (M: ssm) := forall (X Y Z: config), step M X Y -> step M X Z -> Y = Z.
-
 (* reflexive transitive closure of step *)
 Definition reachable (M: ssm) : config -> config -> Prop := clos_refl_trans config (step M).
 
@@ -49,19 +44,12 @@ Definition reachable (M: ssm) : config -> config -> Prop := clos_refl_trans conf
 Definition confluent (M: ssm) := forall (X Y1 Y2: config), reachable M X Y1 -> reachable M X Y2 -> 
   exists (Z: config), reachable M Y1 Z /\ reachable M Y2 Z.
 
-(* deterministic simple stack machine *)
-Definition dssm := { M : ssm | deterministic M }.
-
 (* confluent simple stack machine *)
 Definition cssm := { M : ssm | confluent M }.
 
 (* uniform bound for the number of reachable configurations *)
 Definition bounded (M: ssm) (n: nat) : Prop := 
   forall (X: config), exists (L: list config), (forall (Y: config), reachable M X Y -> In Y L) /\ length L <= n.
-
-(* given a deterministic simple stack machine M, 
-  is M uniformly bounded by some n? *)
-Definition DSSM_UB (M : dssm) := exists (n: nat), bounded (proj1_sig M) n.
 
 (* given a confluent simple stack machine M, 
   is M uniformly bounded by some n? *)
