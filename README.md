@@ -1,44 +1,71 @@
-# A Coq Library of Undecidability Proofs
+# Coq Library of Undecidability Proofs
 
 [![Test compilation](https://github.com/uds-psl/coq-library-undecidability/workflows/Test%20compilation/badge.svg?branch=coq-8.12)](https://github.com/uds-psl/coq-library-undecidability/actions)
 
-This library contains undecidable problems and formalised reductions between them.
-Feel free to contribute or start using the problems!
+The Coq Library of Undecidability Proofs contains mechanised reductions to establish undecidability results in Coq.
+The undecidability proofs are based on a synthetic approach to undecidability, where a problem `P` is considered [undecidable](theories/Synthetic/Undecidability.v#L4) if there is a [many-one reduction](theories/Synthetic/Definitions.v#L27) from the [halting problem of single-tape Turing machines](theories/TM/TM.v#L148) to `P`.
+For more information on the structure of the library, the synthetic approach, and included problems see [Publications](#publications) below and our [Wiki](wiki).
 
-## Existing undecidable problems
+The library is a collaborative effort, growing constantly and we invite everybody to contribute undecidability proofs!
 
-- Post correspondence problem (`PCP` in [`PCP/PCP.v`](theories/PCP/PCP.v)), **`good seed`**
-- Halting problems for single-tape and multi-tape Turing machines (`HaltTM` in [`TM/TM.v`](theories/TM/TM.v))
-- Halting problem for Minsky machines (`MM_HALTING` in [`MinskyMachines/MM.v`](theories/MinskyMachines/MM.v))
-- Halting problem for two counters Minsky machines (`MM2_HALTING` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v)) with 
-  self-contained explanations, **`good seed`**
-- Acceptance problem for two counters non-deterministic Minsky machines (`ndMM2_ACCEPT` in [`MinskyMachines/ndMM2.v`](theories/MinskyMachines/ndMM2.v)) with
-  self-contained explanations
-- Halting problem for Binary Stack Machines (`BSM_HALTING` in [`StackMachines/BSM.v`](theories/StackMachines/BSM.v))
+## Problems in the Library
+
+The problems in our library can mostly be categorized into seed
+problems, advanced problems, and target problems.
+
+Seed problems are simply to state and thus make for good starting points of undecidability proofs, leading to smooth reductions to other problems.
+
+Advanced problems do not work well as seeds, but they highlight the potential of our library as a framework for mechanically checking pen&paper proofs of potentially hard undecidability results.
+
+Target problems are very expressive and thus work well as targets for reduction, with the aim of closing loops in the reduction graph to establish the inter-reducibility of problems.
+
+### Seeds
+
+- Post correspondence problem (`PCP` in [`PCP/PCP.v`](theories/PCP/PCP.v))
+- Halting problem for two counters Minsky machines (`MM2_HALTING` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v)) 
+- Halting problem for FRACTRAN programs (`FRACTRAN_REG_HALTING` in [`FRACTRAN/FRACTRAN.v`](theories/FRACTRAN/FRACTRAN.v))
+- Satisfiability of elementary Diophantine constraints of the form `x = 1`, `x = y + z` or `x = y · z` (`H10C_SAT` in [`DiophantineConstraints/H10C.v`](theories/DiophantineConstraints/H10C.v))
+- Satisfiability of uniform Diophantine constraints of the form `x = 1 + y + z · z` (`H10UC_SAT` in [`DiophantineConstraints/H10C.v`](theories/DiophantineConstraints/H10C.v))
+
+### Traditional Models of Computation
+
 - Halting problem for the call-by-value lambda-calculus (`HaltL` in [`L/L.v`](theories/L/L.v))
-- String rewriting (`SR` in [`StringRewriting/SR.v`](theories/StringRewriting/SR.v))
-- Entailment in Elementary Intuitionistic Linear Logic (`EILL_PROVABILITY` in [`ILL/EILL.v`](theories/ILL/EILL.v))
-- Entailment in Intuitionistic Linear Logic (`ILL_PROVABILITY` in [`ILL/ILL.v`](theories/ILL/ILL.v))
-- Entailment in Classical Linear Logic (`CLL_cf_PROVABILITY` in [`ILL/CLL.v`](theories/ILL/CLL.v))
-- Entailment in Intuitionistic Multiplicative Sub-Exponential Linear Logic (`IMSELL_cf_PROVABILITY3` in [`ILL/IMSELL.v`](theories/ILL/IMSELL.v))
-- Provability in Minimal (Intuitionistic, Classical) First-Order Logic (`prv` in [`Problems/FOL.v`](theories/Problems/FOL.v))
-- Validity in Minimal (Intuitionistic, Classical) First-Order Logic (`valid` in [`Problems/FOL.v`](theories/Problems/FOL.v), `kvalid` in [`Problems/FOL.v`](theories/Problems/FOL.v))
-- Satisfiability in Intuitionistic (Classical) First-Order Logic (`satis` in [`Problems/FOL.v`](theories/Problems/FOL.v), `ksatis` in [`Problems/FOL.v`](theories/Problems/FOL.v))
-- Halting problem for FRACTRAN programs (`FRACTRAN_REG_HALTING` in [`FRACTRAN/FRACTRAN.v`](theories/FRACTRAN/FRACTRAN.v)), **`good seed`**
-- [Hilbert's 10th problem](https://uds-psl.github.io/H10), i.e. solvability of a single diophantine equation (`H10` in 
-  in [`H10/H10.v`](theories/H10/H10.v))
-- Satisfiability of elementary Diophantine constraints of the form `x = 1`, `x = y + z` or `x = y · z` (`H10C_SAT` in [`DiophantineConstraints/H10C.v`](theories/DiophantineConstraints/H10C.v)), **`good seed`**
-- Satisfiability of uniform Diophantine constraints of the form `x = 1 + y + z · z` (`H10UC_SAT` in [`DiophantineConstraints/H10C.v`](theories/DiophantineConstraints/H10C.v)), **`good seed`**
-- One counter machine halting problem (`CM1c4_HALT` in [`CounterMachines/CM1.v`](theories/CounterMachines/CM1.v)), **`good seed`**
-- Provability in Hilbert-style calculi (`HSC_PRV` in [`HilbertCalculi/HSC.v`](theories/HilbertCalculi/HSC.v))
-- Recognizing axiomatizations of Hilbert-style calculi (`HSC_AX` in [`HilbertCalculi/HSC.v`](theories/HilbertCalculi/HSC.v))
+- Halting problem for multi-tape Turing machines (`HaltMTM` in [`TM/TM.v`](theories/TM/TM.v))
+- Halting problem for single-tape Turing machines (`HaltTM 1` in [`TM/TM.v`](theories/TM/TM.v))
+- Halting problem for simple binary single-tape Turing machines (`HaltSBTM`) in [`TM/SBTM.v`](theories/TM/SBTM.v)
+- Halting problem for Binary Stack Machines (`BSM_HALTING` in [`StackMachines/BSM.v`](theories/StackMachines/BSM.v))
+- Halting problem for Minsky machines (`MM_HALTING` in [`MinskyMachines/MM.v`](theories/MinskyMachines/MM.v))
+- Halting problem for FRACTRAN programs (`FRACTRAN_REG_HALTING` in [`FRACTRAN/FRACTRAN.v`](theories/FRACTRAN/FRACTRAN.v))
+
+### Advanced Problems 
+
+- Acceptance problem for two counters non-deterministic Minsky machines (`ndMM2_ACCEPT` in [`MinskyMachines/ndMM2.v`](theories/MinskyMachines/ndMM2.v))
+- String rewriting in Semi-Thue and Thue-systems (`SR` and `TSR` in [`StringRewriting/SR.v`](theories/StringRewriting/SR.v))
+- Hilbert's 10th problem, i.e. solvability of a single diophantine equation (`H10` in [`H10/H10.v`](theories/H10/H10.v))
 - Solvability of linear polynomial (over N) constraints of the form `x = 1`, `x = y + z`, `x = X · y` (`LPolyNC_SAT` in [`PolynomialConstraints/LPolyNC.v`](theories/PolynomialConstraints/LPolyNC.v))
+- One counter machine halting problem (`CM1c4_HALT` in [`CounterMachines/CM1.v`](theories/CounterMachines/CM1.v)), **`good seed`**
 - Finite multiset constraint solvability (`FMsetC_SAT` in [`SetConstraints/FMsetC.v`](theories/SetConstraints/FMsetC.v)), **`good seed`**
 - Uniform boundedness of deterministic, length-preserving stack machines (`SMNdl_UB` in [`StackMachines/SMN.v`](theories/StackMachines/SMN.v))
 - Semi-unification (`SemiU` in [`SemiUnification/SemiU.v`](theories/SemiUnification/SemiU.v))
 - System F Inhabitation (`SysF_INH` in [`SystemF/SysF.v`](theories/SystemF/SysF.v)), System F Typability (`SysF_TYP` in [`SystemF/SysF.v`](theories/SystemF/SysF.v)), System F Type Checking (`SysF_TC` in [`SystemF/SysF.v`](theories/SystemF/SysF.v))
 
-## How to build
+#### Problems from Logic
+- Entailment in Elementary Intuitionistic Linear Logic (`EILL_PROVABILITY` in [`ILL/EILL.v`](theories/ILL/EILL.v))
+- Entailment in Intuitionistic Linear Logic (`ILL_PROVABILITY` in [`ILL/ILL.v`](theories/ILL/ILL.v))
+- Entailment in Classical Linear Logic (`CLL_cf_PROVABILITY` in [`ILL/CLL.v`](theories/ILL/CLL.v))
+- Entailment in Intuitionistic Multiplicative Sub-Exponential Linear Logic (`IMSELL_cf_PROVABILITY3` in [`ILL/IMSELL.v`](theories/ILL/IMSELL.v))
+- Provability in Minimal, Intuitionistic, and Classical First-Order Logic (`FOL*_prv_intu`, `FOL_prv_intu`, `FOL_prv_class` in [`FOL/FOL.v`](theories/FOL/FOL.v))
+- Validity in Minimal and Intuitionistic First-Order Logic (`FOL*_valid`, `FOL_valid_intu` in [`FOL/FOL.v`](theories/FOL/FOL.v))
+- Satisfiability in Minimal and Intuitionistic First-Order Logic (`FOL*_satis`, `FOL_satis_intu` in [`FOL/FOL.v`](theories/FOL/FOL.v))
+- Provability in Hilbert-style calculi (`HSC_PRV` in [`HilbertCalculi/HSC.v`](theories/HilbertCalculi/HSC.v))
+- Recognizing axiomatizations of Hilbert-style calculi (`HSC_AX` in [`HilbertCalculi/HSC.v`](theories/HilbertCalculi/HSC.v))
+
+### Target Problems
+
+- Halting problem for the call-by-value lambda-calculus (`HaltL` in [`L/L.v`](theories/L/L.v))
+- Provability or satisfiability in First-Order Logic (all problems in [`FOL/FOL.v`](theories/FOL/FOL.v))
+
+## Installation Instructions
 
 If you can use `opam 2` on your system, you can follow the instructions here.
 If you cannot use `opam 2`, you can use the `noopam` branch of this repository, which has no dependencies, but less available problems.
@@ -48,7 +75,7 @@ If you cannot use `opam 2`, you can use the `noopam` branch of this repository, 
 We recommend creating a fresh opam switch:
 
 ```
-opam switch create coq-library-undecidability 4.09.1+flambda
+opam switch create coq-library-undecidability 4.07.1+flambda
 eval $(opam env)
 ```
 
@@ -56,13 +83,12 @@ Then the following commands install the library:
 
 ```
 opam repo add coq-released https://coq.inria.fr/opam/released
-opam repo add psl-opam-repository https://github.com/uds-psl/psl-opam-repository.git
-opam install coq-library-undecidability.dev+8.12
+opam install coq-library-undecidability.1.0.0+8.12
 ```
 
 ### Manual installation
 
-You need `Coq 8.12` built on OCAML `>= 4.07.1`, the [Smpl](https://github.com/uds-psl/smpl) package, the [PSL Base](https://github.com/uds-psl/base-library) library, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
+You need `Coq 8.12` built on OCAML `>= 4.07.1`, the [Smpl](https://github.com/uds-psl/smpl) package, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
 
 ```
 opam switch create coq-library-undecidability 4.07.1+flambda
@@ -74,6 +100,7 @@ opam install . --deps-only
 ### Building the undecidability library
 
 - `make all` builds the library
+- `make TM/TM.vo` compiles only the file `theories/TM/TM.v` and its dependencies
 - `make html` generates clickable coqdoc `.html` in the `website` subdirectory
 - `make clean` removes all build files in `theories` and `.html` files in the `website` directory
 
@@ -90,8 +117,7 @@ Be careful that this branch only compiles under Coq 8.12. If you want to use a d
 Due to compatibility issues, not every branch contains exactly the same problems. 
 We recommend to use the newest branch if possible.
 
-
-## Published work and technical reports
+## Publications
 
 ### Papers and abstracts on the library
 
@@ -114,22 +140,20 @@ A Coq Library of Undecidable Problems. Yannick Forster, Dominique Larchey-Wendli
 
 ## How to contribute
 
-- Fork the project on GitHub.
-- Create a new subdirectory for your project and add your files.
-- Add a license for your project.
-- Edit the "Existing undecidable problems" and the "Contributors" section in this file
-- File a pull request.
+Fork the project on GitHub, add a new subdirectory for your project and your files, then file a pull request.
+We have [guidelines for the directory structure of projects](https://github.com/uds-psl/coq-library-undecidability/wiki/Structure-Guidelines).
 
 ## Contributors
 
 - Yannick Forster
+- Dominique Larchey-Wendling
+- Andrej Dudenhefner
 - Edith Heiter
 - Dominik Kirst 
 - Fabian Kunze
-- Dominique Larchey-Wendling
 - Gert Smolka
 - Simon Spies
+- Dominik Wehr
 - Maximilian Wuttke
-- Andrej Dudenhefner
 
 Parts of the Coq Library of Undecidability Proofs reuse generic code initially developed as a library for the lecture ["Introduction to Computational Logics"](https://courses.ps.uni-saarland.de/icl_16/) at [Saarland University](https://www.uni-saarland.de/nc/en/home.html). That reused code was written by a subset of the above contributors, as well as Sigurd Schneider and Jan Christian Menz.
