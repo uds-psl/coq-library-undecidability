@@ -1,8 +1,8 @@
 (** * First-Order Logic *)
 
-From Undecidability.FOL.Utils Require Import FOL_facts Deduction Semantics Kripke.
+From Undecidability.FOL.Util Require Import FOL_facts Deduction Semantics Kripke.
  
-(** ** Syntax as defined in Utils/FOL_facts.v 
+(** ** Syntax as defined in Util/FOL_facts.v 
 
 Inductive term : Type :=
   V (v : var) | P (p : par)

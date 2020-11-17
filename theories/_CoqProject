@@ -147,7 +147,7 @@ CFG/CFP_undec.v
 CFG/CFG.v
 CFG/CFG_undec.v
 
-CFG/Utils/Facts.v
+CFG/Util/Facts.v
 CFG/Reductions/PCP_to_CFPP.v
 CFG/Reductions/PCP_to_CFPI.v
 CFG/Reductions/CFPP_to_CFP.v
@@ -155,11 +155,11 @@ CFG/Reductions/CFPI_to_CFI.v
 
 # First order logic
 FOL/FOL.v
-FOL/Utils/FOL_facts.v
-FOL/Utils/Semantics.v
-FOL/Utils/Deduction.v
-FOL/Utils/Kripke.v
-FOL/Utils/Weakening.v
+FOL/Util/FOL_facts.v
+FOL/Util/Semantics.v
+FOL/Util/Deduction.v
+FOL/Util/Kripke.v
+FOL/Util/Weakening.v
 
 FOL/Reductions/BPCP_FOL.v
 FOL/Reductions/BPCP_IFOL.v

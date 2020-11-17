@@ -1,6 +1,6 @@
 (** * FOL Reductions *)
 
-From Undecidability Require Export PCP.PCP PCP.Util.PCP_facts FOL.Utils.Deduction.
+From Undecidability Require Export PCP.PCP PCP.Util.PCP_facts FOL.Util.Deduction.
 Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
 
 (** ** Validity *)
