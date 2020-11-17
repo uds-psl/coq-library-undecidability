@@ -159,11 +159,11 @@ Notation "↑__term" := (up_term_term) (only printing) : subst_scope.
 
 Instance Up_term_term (Sigma : Signature)   : Up_term (_) (_) := @up_term_term Sigma.
 
-Notation "s [ sigmaterm ]" := (subst_term sigmaterm s) (at level 7, left associativity, only printing) : subst_scope.
+Notation "s [ sigmaterm ]" := (subst_term sigmaterm s) (at level 7, left associativity, format "s '/' [ sigmaterm ]", only printing) : subst_scope.
 
 (* Notation "[ sigmaterm ]" := (subst_term sigmaterm) (at level 0, left associativity, only printing) : fscope. *)
 
-Notation "s [ sigmaterm ]" := (subst_form sigmaterm s) (at level 7, left associativity, only printing) : subst_scope.
+Notation "s [ sigmaterm ]" := (subst_form sigmaterm s) (at level 7, left associativity, format "s '/' [ sigmaterm ]", only printing) : subst_scope.
 
 Notation "[ sigmaterm ]" := (subst_form sigmaterm) (at level 0, left associativity, only printing) : fscope.
 
