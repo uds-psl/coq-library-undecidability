@@ -1,6 +1,8 @@
 (** * Tarski Semantics *)
 
 Require Export Undecidability.FOL.FOL.
+Import ListAutomationNotations.
+Local Set Implicit Arguments.
 
 (** ** Variables and Substitutions *)
 
@@ -136,6 +138,11 @@ Section Semantics.
   
 End Semantics.
 
+Tactic Notation "destruct" "_":=
+  match goal with
+  | [ |- context[match ?X with _ => _ end] ] => destruct X
+  | [ H : context[match ?X with _ => _ end] |- _ ] => destruct X 
+  end.
 Ltac decs :=
   unfold update; repeat destruct _;
   subst; cbn; try congruence; try reflexivity; auto.

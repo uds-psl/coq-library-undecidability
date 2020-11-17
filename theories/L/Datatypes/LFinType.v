@@ -73,7 +73,7 @@ Qed.
 Lemma size_finType_any_le (X:finType) `{registered X} (x:X):
   L_facts.size (enc x) <= maxl (map (fun x => L_facts.size (enc x)) (elem X)).
 Proof.
-  apply maxl_leq. eauto.
+  apply maxl_leq. eapply in_map_iff. eauto.
 Qed.
 
 Lemma size_finType_any_le_c (X:finType) `{registered X}:

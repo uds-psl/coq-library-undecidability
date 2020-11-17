@@ -1,6 +1,9 @@
 (** * First-Order Logic *)
 
-From Undecidability Require Export Shared.Prelim FOL.Reductions PCP.PCP.
+From Undecidability Require Export Shared.ListAutomation FOL.Reductions PCP.PCP.
+Import ListAutomationNotations.
+Local Set Implicit Arguments.
+Local Unset Strict Implicit.
 
 (** ** Syntax *)
 

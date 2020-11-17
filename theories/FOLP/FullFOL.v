@@ -1,10 +1,11 @@
 (** ** Operations & Properties of FOL *)
 
-
-Require Import Equations.Equations Equations.Prop.DepElim.
+Require Import Equations.Equations Equations.Prop.DepElim Arith Undecidability.Shared.Libs.PSL.Numbers List Setoid.
 From Undecidability.FOL  Require Export DecidableEnumerable.
 From Undecidability.FOLP Require Export FullSyntax.
+From Undecidability.Shared Require Import ListAutomation.
 Require Export Lia.
+Import ListAutomationNotations.
 
 (* Coercion var_term : fin >-> term. *)
 
@@ -216,7 +217,7 @@ Section FullFOL.
     { n | forall m, n <= m -> unused_L m A }.
   Proof.
     induction A.
-    - exists 0. unfold unused_L. intuition.
+    - exists 0. unfold unused_L. firstorder.
     - destruct IHA. destruct (find_unused a).
       exists (x + x0). intros m Hm. intros phi []; subst.
       + apply u0. lia.
@@ -366,7 +367,7 @@ Section FullFOL.
   Section ContainsAutomation.
     Lemma contains_nil T :
       List.nil ⊏ T.
-    Proof. intuition. Qed.
+    Proof. firstorder. Qed.
 
     Lemma contains_cons a A T :
       a ∈ T -> A ⊏ T -> (a :: A) ⊏ T.

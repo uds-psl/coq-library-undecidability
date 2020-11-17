@@ -1,6 +1,29 @@
 (** * Infinite Data Types *)
 
-From Undecidability Require Import Shared.Prelim FOL.MarkovPost.
+From Undecidability Require Import Shared.ListAutomation.
+From Undecidability.FOL Require Import DecidableEnumerable.
+Require Import Arith.
+Require Import ConstructiveEpsilon.
+Import ListAutomationNotations.
+Local Set Implicit Arguments.
+Local Unset Strict Implicit.
+
+Definition mu (p : nat -> Prop) :
+  (forall x, dec (p x)) -> ex p -> sig p.
+Proof.
+  apply constructive_indefinite_ground_description_nat. 
+Defined.
+
+Notation mu' d H := (proj1_sig (mu d H)).
+
+Lemma mu_least (p : nat -> Prop) (d : forall x, dec (p x)) (H : ex p) :
+  forall n, p n -> mu' d H <= n.
+Proof.
+  intros n H'.
+  destruct (Nat.le_gt_cases (mu' d H) n) as [Hl | Hl]; eauto. 
+  exfalso.
+  eapply linear_search_smallest with (start := 0). 2: exact H'. split. lia. eauto.
+Qed.
 
 (** ** Definition of infinite and generating types *)
 
@@ -33,7 +56,7 @@ Section Inf.
       end.
 
     Lemma LX_len n :
-      | LX n | = S n.
+      length (LX n) = S n.
     Proof.
       induction n; cbn; eauto.
     Qed.
@@ -70,7 +93,7 @@ Section Inf.
     Lemma X_gen :
       generating X.
     Proof.
-      intros A. destruct (sub_dec (LX (|A|)) A) as [H|H].
+      intros A. destruct (sub_dec (LX (length A)) A) as [H|H].
       - apply NoDup_incl_length in H; try apply LX_NoDup.
         rewrite LX_len in H. lia.
       - destruct H as [x [_ H] ]. now exists x.

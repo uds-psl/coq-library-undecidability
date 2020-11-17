@@ -132,7 +132,6 @@ Section fol_congruence.
         do 2 rewrite fol_syms_mquant.
         rewrite fol_syms_bin.
         apply incl_app; auto.
-        intros x Hx; destruct (HrA _ Hx).
       Qed.
 
       Local Fact congr_syms_rels : incl (fol_rels congr_syms) (e::nil).

@@ -1,6 +1,7 @@
 (** * Weakening *)
 
 From Undecidability.FOL Require Import Deduction.
+Import ListAutomationNotations.
 
 Fixpoint ren_t (rho : nat -> nat) t :=
   match t with
@@ -113,7 +114,7 @@ Lemma ren_subst_t {b : logic} rho x t s :
   ren_t rho (subst_t x t s) = subst_t x (ren_t rho t) (ren_t rho s).
 Proof.
   intros. induction s; cbn in *; try congruence.
-  - dec; cbn.
+  - destruct Dec; cbn.
     + reflexivity.
     + firstorder.
 Qed.
@@ -135,7 +136,7 @@ Qed.
 
 (** Weakening *)
 
-Theorem gen_weakening {s : nd} {b : logic} A phi : 
+Theorem gen_weakening {s : nd} {b : logic} {A phi} : 
   A ⊢ phi -> forall rho B, A <<= B -> ren_ctx rho B ⊢ ren rho phi.
 Proof.
   induction 1; cbn in *; intros.
@@ -152,7 +153,7 @@ Proof.
     }
     assert (subst x (P z) (ren rho phi) = ren rho0 (subst x (P y) phi)) as ->. {
       rewrite ren_subst. 2: now cbn. unfold rho0. cbn.
-      unfold update at 1. dec; try tauto; subst.
+      unfold update at 1. destruct Dec; try tauto; subst.
       f_equal. eapply ren_ext; eauto. intros ? ?. decs. destruct H. firstorder. destruct Hz. firstorder.
     }
     eapply IHprv.
@@ -167,7 +168,7 @@ Qed.
 Corollary Weak {s : nd} {b : logic} A B phi :
   A ⊢ phi -> A <<= B -> B ⊢ phi.
 Proof.
-  intros H1 H2. specialize (gen_weakening H1 (fun n => n) H2).
+  intros H1 H2. specialize (gen_weakening H1 (fun n => n) _ H2).
   now rewrite ren_id, ren_ctx_id.
 Qed.
 

@@ -4,6 +4,7 @@ Require Import Undecidability.Shared.Libs.PSL.FiniteTypes Undecidability.Shared.
 From Undecidability.L.Datatypes Require Import LNat Lists LProd.
 From Undecidability.L Require Import Tactics.LTactics Computability.MuRec Computability.Synthetic Tactics.GenEncode.
 From Undecidability.Shared.Libs.DLW.Vec Require Import pos.
+Import ListAutomationNotations.
 
 Require Import Nat Datatypes.
 

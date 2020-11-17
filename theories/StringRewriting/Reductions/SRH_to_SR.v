@@ -4,11 +4,14 @@ Require Import List.
 Import ListNotations.
 Require Import Undecidability.Synthetic.Definitions.
 
-Require Import Undecidability.Shared.Prelim.
+Require Import Undecidability.Shared.ListAutomation.
+Import ListAutomationNotations.
 
 (** * SRH to SR *)
 
 Section SRH_SR.
+
+  Local Notation "A <<= B" := (incl A B) (at level 70).
   Local Notation symbol := nat.
   Local Notation string := (string nat).
   Local Notation SRS := (SRS nat).
