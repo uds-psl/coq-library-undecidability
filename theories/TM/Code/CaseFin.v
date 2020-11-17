@@ -86,4 +86,4 @@ Ltac hstep_Fin :=
   | [ |- TripleT ?P ?k (CaseFin _) ?Q ] => eapply CaseFin_SpecT_size
   end.
 
-Smpl Add hstep_Fin : hstep_smpl.
+Smpl Add hstep_Fin : hstep_Spec.

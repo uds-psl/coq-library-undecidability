@@ -219,3 +219,70 @@ Qed.
 Closed under the global context
 >>
 *)
+
+Import Hoare.
+
+Lemma Interpreter_Spec_space T V H ss:
+  Triple
+    ≃≃([],
+      withSpace [|Contains _ T;Contains _ V;Contains _ H;Void;Void;Void;Void;Void;Void;Void;Void|] ss)
+    Loop
+    (fun _ t => exists x, 
+    (steps_k (snd x) (T,V,H) (fst x) /\ halt_state (fst x)) /\ ((fst (fst (fst x))) = [] -> t ≃≃ ([]%list,
+      withSpace (let '(T',V',H'):= fst x in [|Contains _ ([]:list HClos);Contains _ V';Contains _ H';Void;Void;Void;Void;Void;Void;Void;Void|])
+         ( appSize (let '(T',V',H'):= fst x in Loop_size T V H (snd x)) ss)))).
+Proof.
+  unfold withSpace in *.
+  eapply Realise_Triple. now apply Loop_Realise.
+  - intros tin yout tout H1 [[] HEnc]%tspecE. cbn in *.
+    specialize H1 with (sr:= tabulate (fun i => ss[@ Fin.R 3 i])).
+    specializeFin HEnc. simpl_vector in *; cbn in *.
+    modpon H1. { intros i;destruct_fin i;cbn;isVoid_mono. }
+    destruct H1 as (?&?&?&?&Hsteps'&Hhalt'&H'').
+    eexists (_,_,_,_). split. now split;eassumption. cbn. intros ->.
+    destruct H'' as (?&?&?&H'').
+    specializeFin H''. tspec_solve.
+Qed.
+
+Lemma Interpreter_Spec T V H :
+  Triple
+    ≃≃([],[|Contains _ T;Contains _ V;Contains _ H;Void;Void;Void;Void;Void;Void;Void;Void|])
+    Loop
+    (fun _ t => exists x, 
+    (steps_k (snd x) (T,V,H) (fst x) /\ halt_state (fst x))
+    /\ (fst (fst (fst x)) = [] -> t ≃≃ ([]%list,let '(T',V',H'):= fst x in
+      [|Contains _ ([]:list HClos);Contains _ V';Contains _ H';Void;Void;Void;Void;Void;Void;Void;Void|]))).
+Proof.
+  eapply Triple_RemoveSpace_ex with (M:= Loop)
+      (Ctx := fun (x :LM_heap_def.state * nat) (H' : Prop) => (steps_k (snd x) (T,V,H) (fst x) /\ halt_state (fst x)) /\ (fst (fst (fst x)) = [] -> H') )
+      (Q:=fun x _ => let '(T',V',H'):= fst x in [|Contains _ ([]:list HClos);Contains _ V';Contains _ H';Void;Void;Void;Void;Void;Void;Void;Void|])
+      (Q':=fun x _ => []) (fs:=fun x => (let '(T',V',H'):= fst x in Loop_size T V H (snd x))).
+  now apply (Interpreter_Spec_space T V H). unfold Proper, "==>", Basics.impl. tauto.
+Qed.
+
+Lemma Interpreter_SpecT T V H k V' H' ss:
+steps_k k (T,V,H) ([],V',H') -> halt_state ([],V',H') ->
+  TripleT
+    ≃≃([],
+      withSpace [|Contains _ T;Contains _ V;Contains _ H;Void;Void;Void;Void;Void;Void;Void;Void|] ss)
+    (Loop_steps T V H k) Loop
+    (fun _ =>  ≃≃([],
+      withSpace [|Contains _ (@nil HClos);Contains _ V';Contains _ H';Void;Void;Void;Void;Void;Void;Void;Void|]
+         (appSize (Loop_size T V H k) ss))).
+Proof.
+  unfold withSpace in *. intros Hsteps Hhalt.
+  eapply Realise_TripleT. now apply Loop_Realise. now apply Loop_Terminates.
+  - intros tin yout tout H1 [[] HEnc]%tspecE. cbn in *.
+    specialize H1 with (sr:= tabulate (fun i => ss[@ Fin.R 3 i])).
+    specializeFin HEnc. simpl_vector in *; cbn in *.
+    modpon H1. { intros i;destruct_fin i;cbn;isVoid_mono. }
+    destruct H1 as (?&?&?&?&Hsteps'&Hhalt'&H'').
+    edestruct uniform_confluence_parameterized_both_terminal with (4:=Hsteps) (5:=Hsteps') as [<- [= <- <- <-]].
+    2-3:assumption. now apply functional_uc,step_functional.
+    destruct H'' as (?&?&?&H'').
+    specializeFin H''. tspec_solve.
+  - intros tin k' [[] HEnc]%tspecE Hk'. cbn in *.
+    specializeFin HEnc. simpl_vector in *; cbn in *. hnf. eexists _,_,_,_.
+    repeat eapply conj. now eexists;split;eassumption. 1-3:easy. 2:easy.
+    { intros i;destruct_fin i;cbn;isVoid_mono. }
+Qed.

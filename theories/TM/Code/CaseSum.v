@@ -419,4 +419,4 @@ Ltac hstep_Sum_Option :=
   | [ |- TripleT ?P ?k (CaseOption  _)  ?Q ] => eapply CaseOption_SpecT_size
   end.
 
-Smpl Add hstep_Sum_Option : hstep_smpl.
+Smpl Add hstep_Sum_Option : hstep_Spec.

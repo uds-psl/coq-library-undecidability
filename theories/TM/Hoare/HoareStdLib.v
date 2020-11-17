@@ -25,7 +25,7 @@ Ltac hstep_DoAct :=
   | [ |- TripleT ?P ?k (Move _) ?Q ] => eapply DoAct_SpecTReg
   end.
 
-Smpl Add hstep_DoAct : hstep_smpl.
+Smpl Add hstep_DoAct : hstep_Spec.
 
 
 Lemma CaseChar_SpecTReg (sig F : finType) (f : option (boundary + sig) -> F) P:
@@ -41,7 +41,7 @@ lazymatch goal with
 | [ |- TripleT ?P ?k (CaseChar _) ?Q ] => eapply CaseChar_SpecTReg
 | [ |- TripleT ?P ?k ReadChar ?Q ] => refine (_ : TripleT _ _ (CaseChar (fun x => x)) _);eapply CaseChar_SpecTReg
 end.
-Smpl Add hstep_CaseChar : hstep_smpl.
+Smpl Add hstep_CaseChar : hstep_Spec.
 
 Lemma MoveToSymbol_SpecTReg (sig : finType) (f : boundary + sig -> _) g tin:
 TripleT ≃≃([],  [|Custom (eq tin) |])
@@ -61,4 +61,4 @@ Ltac hstep_MoveToSymbol :=
 lazymatch goal with
 | [ |- TripleT ?P ?k (MoveToSymbol _ _) ?Q ] => eapply MoveToSymbol_SpecTReg
 end.
-Smpl Add hstep_MoveToSymbol : hstep_smpl.
+Smpl Add hstep_MoveToSymbol : hstep_Spec.

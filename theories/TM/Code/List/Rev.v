@@ -147,6 +147,20 @@ Section Rev.
     }
   Qed.
 
+  
+  Lemma Rev_Append_SpecT (xs ys:list X) ss:
+  TripleT ≃≃([],withSpace [|Contains _ xs;Contains _ ys;Void|] ss) (Rev_Append_steps xs) Rev_Append
+  (fun _ => ≃≃([],withSpace [|Void;Contains _ (rev xs++ys);Void|] (appSize (Rev_Append_size xs) ss))).
+  Proof.
+    unfold withSpace in *.
+    eapply Realise_TripleT. now apply Rev_Append_Realise. now apply Rev_Append_Terminates.
+    - intros tin yout tout H [_ HEnc]%tspecE. cbn in *.
+      specializeFin HEnc. simpl_vector in *; cbn in *. modpon H. tspec_solve.
+    - intros tin k [_ HEnc]%tspecE Hk. cbn in *.
+      specializeFin HEnc. simpl_vector in *; cbn in *. hnf. eexists _,_. repeat split.
+       1,2:now contains_ext. now isVoid_mono. easy.
+  Qed.
+
 
   Definition Rev := Constr_nil _ @[|Fin1|];; Rev_Append.
 
@@ -210,6 +224,7 @@ Import Hoare.
 Ltac hstep_App :=
   lazymatch goal with
   | [ |- TripleT ?P ?k (Rev _) ?Q ] => eapply Rev_SpecT
+  | [ |- TripleT ?P ?k (Rev_Append _) ?Q ] => refine (Rev_Append_SpecT _ _ _ _);shelve
   end.
 
-Smpl Add hstep_App : hstep_smpl.
+Smpl Add hstep_App : hstep_Spec.

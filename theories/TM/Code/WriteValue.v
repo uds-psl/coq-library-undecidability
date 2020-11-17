@@ -104,4 +104,4 @@ Ltac hstep_WriteValue :=
   | [ |- TripleT ?P ?k (WriteValue _) ?Q ] => eapply WriteValue_SpecT_size
   end.
 
-Smpl Add hstep_WriteValue : hstep_smpl.
+Smpl Add hstep_WriteValue : hstep_Spec.

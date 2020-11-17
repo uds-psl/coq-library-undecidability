@@ -1,13 +1,12 @@
-From Undecidability Require Import L.Datatypes.LBool L.Datatypes.Lists L.Tactics.LTactics L.Tactics.GenEncode L.Util.L_facts.
+From Undecidability Require Import L.Datatypes.LBool L.Datatypes.Lists L.Tactics.LTactics L.Util.L_facts.
 
-Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes Undecidability.Shared.Libs.PSL.Vectors.Vectors.
+From Undecidability.Shared.Libs.PSL Require Import FinTypes Vectors.
 Require Import List.
 
 Require Import Undecidability.TM.Util.TM_facts.
 
 From Undecidability Require Import ProgrammingTools LM_heap_def WriteValue CaseList Copy ListTM  JumpTargetTM WriteValue Hoare.
-From Undecidability.TM.L Require Import Alphabets HeapInterpreter.StepTM M_LHeapInterpreter.
-From Undecidability Require Import TM.TM L.AbstractMachines.FlatPro.LM_heap_correct.
+From Undecidability.TM.L Require Import Alphabets Eval.
 
 From Undecidability Require Import L.L TM.TM.
 Require Import List.
@@ -16,7 +15,7 @@ Import Vector.VectorNotations.
 Import ListNotations.
 
 
-From Undecidability.TM.L Require Import Compiler_spec Compiler_facts UnfoldHeap Compiler.AddToBase.
+From Undecidability.TM.L Require Import Compiler_spec Compiler_facts UnfoldClos Compiler.AddToBase.
 
 Require Import Equations.Prop.DepElim.
 
@@ -27,24 +26,8 @@ Section APP_right.
 
   Definition APP_right : pTM (sigPro)^+ unit 2 :=
     App _;;
-    (LiftTapes (WriteValue ( [appT]%list)) [|Fin1|]);;
+    WriteValue ( [appT]%list) @ [|Fin1|];;
     App _.
-
-  Lemma APP_right_realises :
-    Realise APP_right (fun t '(r, t') =>
-    forall s1 s2 : L.term,
-    t[@Fin0] ≃ compile s1
-    -> t[@Fin1] ≃ compile s2
-    -> t'[@Fin0] ≃ compile (L.app s1 s2)
-      /\ isVoid (t'[@Fin1])).
-  Proof.
-    eapply Realise_monotone.
-    {unfold APP_right. TM_Correct. all: apply App_Realise. }
-    hnf. intros ? [] ? s1 s2. intros;TMSimp.
-    modpon H. modpon H2. modpon H3.
-    split. 2:solve [isVoid_mono].
-    contains_ext. now autorewrite with list.
-  Qed.
   
   Lemma APP_right_Spec :
     { f & forall s1 s2 : term,
@@ -60,10 +43,20 @@ Section APP_right.
     -reflexivity.
     -unfold f. reflexivity.
   Qed.
-
-
+ 
 
 End APP_right.
+
+
+
+Lemma tabulate_nth [X : Type] [n : nat] (v : Vector.t X n): tabulate (fun i => v[@i]) = v.
+Proof. depind v;cbn. all:congruence. Qed.
+
+
+Hint Rewrite  Nat.eqb_refl tabulate_nth nth_tabulate: cleanupParamTM.
+  
+Ltac cleanupParamTM :=
+  try fold Nat.add;rewrite ?Nat.eqb_refl, ?tabulate_nth, ?nth_tabulate;cbn.
 
 Section MK_isVoid.
 
@@ -81,14 +74,62 @@ Section MK_isVoid.
     intros ? [] H ->. hnf in H. cbn in *. rewrite H. hnf. eauto.
   Qed.
 
-  Lemma Mk_isVoid_Spec :
+  Lemma MK_isVoid_Spec :
    TripleT ≃≃([],[|Custom (eq niltape)|]) 1 MK_isVoid (fun _ => ≃≃([],[|Void|])).
   Proof.
     eapply RealiseIn_TripleT. now apply MK_isVoid_Sem. cbn. intros ? ? ? ? [_ H']%tspecE.
     specialize  (H' Fin0). eapply tspecI. easy. intros i; destruct_fin i;cbn. apply H. now vector_destruct tin.
   Qed.  
 
+  Fixpoint MK_isVoid_multi m' : pTM (Σ) ^+ unit m' :=
+    match m' with
+    0 => Nop
+    | S m' => MK_isVoid @ [|Fin0|];;MK_isVoid_multi m'@(tabulate (fun i => Fin.FS i))
+    end.
+
+  Lemma helper n m' m f: 
+    injective f ->
+      lookup_index_vector (n:=n)
+    (tabulate (fun i : Fin.t m' => f i)) 
+    (f m) = Some m.
+  Proof.
+    revert n m f. induction m';cbn. easy.
+    intros n m f Hinj. specialize (Fin.eqb_eq _ (f m) (f Fin0)) as H'.
+    destruct Fin.eqb.
+    -destruct H' as [H' _]. specialize (H' eq_refl). apply Hinj in H' as ->. easy.
+    -destruct H' as [_ H']. destruct (fin_destruct_S m) as [[i' ->]| ->]. 2:now discriminate H'.
+     specialize IHm' with (f:= fun m => f (Fin.FS m) ). cbn in IHm'. rewrite IHm'. easy. intros ? ? ?%Hinj. now apply Fin.FS_inj.
+  Qed.
+
+  Instance Proper_tabulate X n: Proper (pointwise_relation _ eq ==> eq) (@tabulate X n).
+  Proof.
+    unfold pointwise_relation.
+    induction n;hnf;intros f g H;cbn. reflexivity. f_equal. apply H. now apply IHn.
+  Qed.  
+
+  Theorem MK_isVoid_multi_SpecT m' :
+  TripleT ≃≃([],Vector.const (Custom (eq niltape)) m')
+    (m'*2) (MK_isVoid_multi m')
+    (fun _ => ≃≃([],Vector.const Void m')).
+  Proof using All.
+    depind m';cbn. now hsteps_cbn.
+    hstep. {hsteps_cbn;cbn. apply MK_isVoid_Spec. }
+    cbn;intros _. rewrite Nat.eqb_refl,tabulate_nth;cbn. 
+    eapply ConsequenceT.
+    {
+      eapply LiftTapes_SpecT with (Q:=fun _ => _)(Q':=fun _ => _) (P:= Void:::Vector.const (Custom (eq niltape)) _). now eapply dupfree_tabulate_injective,Fin.FS_inj.
+      eapply ConsequenceT . eassumption. 2:cbn;intro;reflexivity. 2:reflexivity.
+      unfold Downlift,select. rewrite Vector_map_tabulate. cbn. now rewrite tabulate_nth.
+    }
+    1,3,4:reflexivity. cbn. intros _.
+    rewrite lookup_index_vector_None. 2:{rewrite in_tabulate. intros (?&?). congruence. }
+    eapply EntailsI. intros ? [_ H]%tspecE. eapply tspecI. easy. intros i. cbn.
+    specialize (H i);cbn in H. destruct (fin_destruct_S i) as [[i' ->]| ->];cbn in H|-*. 2:easy.
+    rewrite nth_tabulate in H. rewrite helper in H. easy. hnf. eapply Fin.FS_inj.
+  Qed.
+
 End MK_isVoid.
+Opaque MK_isVoid_multi.
 
 From Undecidability Require Import TM.L.Transcode.Boollist_to_Enc.
 From Undecidability Require Import encTM_boolList.
@@ -144,34 +185,6 @@ Section mk_init_one.
      subst f. cbn beta. reflexivity.
   Qed.
 
-  Lemma M_init_one_realises :
-    Realise M_init_one (fun t '(r, t') =>
-                          forall (bs:list bool) (ter : L.term),
-                            t[@Fin0] = encTM s b bs ->
-                            t[@Fin1] ≃ compile ter ->
-                            isVoid (t[@Fin2]) ->
-                            isVoid (t[@Fin3]) ->
-                            isVoid (t[@Fin4]) ->
-                            isVoid (t[@Fin5]) ->
-                            t'[@Fin0] = t[@Fin0] 
-                            /\ t'[@Fin1] ≃ compile (L.app ter (encL bs))
-                            /\ isVoid (t'[@Fin2])/\ isVoid (t'[@Fin3])/\ isVoid (t'[@Fin4])/\ isVoid (t'[@Fin5])).
-  Proof using H_disj.
-    eapply Realise_monotone.
-    {
-      unfold M_init_one. TM_Correct.
-      -apply EncTM2boollist.Realise. exact H_disj.
-      -apply Rev_Realise.      
-      -apply BoollistToEnc.Realise.     
-      -apply APP_right_realises.
-      (* -apply Reset_Realise with (X:=Pro). *)
-    }
-    intros ? [] ? bs s2. TMSimp.
-    modpon H. modpon H0. modpon H2. modpon H4.
-    rewrite rev_involutive in H4.
-    easy.  
-  Qed.  
-
 End  mk_init_one.
 
 Section mk_init.
@@ -180,17 +193,7 @@ Section mk_init.
   Variable s b : Σ^+.
   Variable (H_disj : s <> b).
 
-  Variable retr_closs : Retract (sigList (sigHClos)) Σ.
-  Variable retr_heap : Retract sigHeap Σ.
-  Variable retr_bools : Retract (sigList bool) Σ.
-
-
-  Definition retr_clos1 : Retract sigHClos Σ := ComposeRetract retr_closs _.
-  Definition retr_pro1 : Retract sigPro Σ := ComposeRetract retr_clos1 _.
-
-  Local Definition retr_nat_clos_ad' : Retract sigNat sigHClos := Retract_sigPair_X _ (Retract_id _).
-  Local Definition retr_nat_clos_ad : Retract sigNat _ := ComposeRetract retr_clos1 retr_nat_clos_ad'.
-
+  Context (retr_pro : Retract sigPro Σ) (retr_bools : Retract (sigList bool) Σ).
 
   Variable m k : nat.
 
@@ -201,40 +204,17 @@ Section mk_init.
   Notation auxk n := (Fin.R (6 + m) n) (only parsing).
 
   Fixpoint M_init' k' : (Vector.t (Fin.t k) k') -> pTM (Σ) ^+ unit ((6 + m)+ k).
-  Proof using m s retr_bools sim retr_closs. 
+  Proof using m s retr_bools sim retr_pro. 
     simple notypeclasses refine (match k' with
-    0 => fun _ => MK_isVoid @ [|aux Fin1|];;
-         MK_isVoid @ [|aux Fin2|];;
-         MK_isVoid @ [|aux Fin3|];;
-         MK_isVoid @ [|aux Fin4|];;
-         MK_isVoid @ [|aux Fin5|];;
-        WriteValue ( (compile sim)) ⇑ retr_pro1 @ [|aux Fin1|]
+    0 => fun _ => MK_isVoid_multi _ @ [|aux Fin1;aux Fin2;aux Fin3;aux Fin4; aux Fin5|];;
+        WriteValue ( (compile sim)) ⇑ retr_pro @ [|aux Fin1|]
     | S k' => 
     fun ren =>
-      _;;M_init_one s retr_pro1 retr_bools @ [|auxk (ren[@Fin0]);aux Fin1;aux Fin2;aux Fin3;aux Fin4;aux Fin5|]
+      _;;M_init_one s retr_pro retr_bools @ [|auxk (ren[@Fin0]);aux Fin1;aux Fin2;aux Fin3;aux Fin4;aux Fin5|]
     end). all:try exact _.
     2:{apply (M_init' _ (Vector.tl ren)). }
   Defined.
 
-  Lemma tabulate_nth [X : Type] [n : nat] (v : Vector.t X n): tabulate (fun i => v[@i]) = v.
-  Proof. depind v;cbn. all:congruence. Qed.
-
-  Lemma fin_destruct_add
-  : forall (n m : nat) (i : Fin.t (n+m)),
-      {i' : Fin.t n | i = Fin.L _ i'} + {i' : Fin.t m | i = Fin.R _ i'}.
-  Proof.
-    depind n;cbn. now right.
-    intros ? i. destruct (fin_destruct_S i) as [[i' ->]| ->].
-    -destruct (IHn _ i') as [ [? ->] | [? ->]].
-      --left. now eexists (Fin.FS _).
-      --now right.
-    -left. now exists Fin.F1.
-  Qed.  
-
-  Hint Rewrite  Nat.eqb_refl tabulate_nth nth_tabulate: cleanupParamTM.
-
-  Ltac cleanupParamTM :=
-    try fold Nat.add;rewrite ?Nat.eqb_refl, ?tabulate_nth, ?nth_tabulate;cbn.
 
 
   Theorem M_init'_SpecT k' (ren :Vector.t (Fin.t k) k') (v:Vector.t (list bool) k):
@@ -243,13 +223,13 @@ Section mk_init.
     k (M_init' ren)
     (fun _ => ≃≃([],
       ([|Custom (eq niltape);
-        Contains retr_pro1 (compile (Vector.fold_right (fun l_i s => L.app s (encL l_i)) (select ren v) sim))
+        Contains retr_pro (compile (Vector.fold_right (fun l_i s => L.app s (encL l_i)) (select ren v) sim))
          ;Void;Void;Void;Void|]++Vector.const (Custom (eq niltape)) m) ++ Vector.map (fun bs => Custom (eq (encTM s b bs))) v))}.
   Proof using All.
     depind ren. all:cbn [compile Vector.fold_left M_init' Vector.tl Vector.caseS].
     {
       eexists. cbn.
-      do 5 (hstep;[ hsteps_cbn; cbn;eapply Mk_isVoid_Spec |cbn; cleanupParamTM;cbn;intros _ |reflexivity]).
+      hstep. hsteps_cbn;cbn. exact (MK_isVoid_multi_SpecT 5). cbn;cleanupParamTM. 2:reflexivity.
       hsteps_cbn. reflexivity.
       cleanupParamTM.
       apply EntailsI. intros t H. eapply tspec_ext. eassumption. easy.
@@ -268,61 +248,6 @@ Section mk_init.
       cbn. eapply Fin.eqb_eq in H' as ->. rewrite Vector_nth_R,nth_map'. cbn. tauto.
     }
   Qed.
-  
-  
-  Theorem M_init'_rel k' (ren :Vector.t (Fin.t k) k') :
-    Realise (M_init' ren) (fun t '(r, t') =>
-    forall (v:Vector.t (list bool) k),
-                   t = (Vector.const niltape (_+m) ++ (Vector.map (encTM s b) v))%vector
-                   -> t'[@aux Fin1] ≃(retr_pro1) (compile (Vector.fold_right (fun l_i s => L.app s (encL l_i)) (select ren v) sim))
-                   /\ t'[@Fin0] = niltape
-                   /\ (forall i, t'[@auxm i] = t[@auxm i])
-                   /\ (forall i, t'[@auxk i] = t[@auxk i])
-                   /\ (forall i, isVoid (t'[@aux (Fin.R 2 i)]))
-                   ).
-                   
-  Proof using All.
-  Admitted. (*
-    depind ren. all:cbn [compile Vector.fold_left M_init' Vector.tl Vector.caseS].
-    {
-      eapply Realise_monotone.
-      { TM_Correct. all:eapply RealiseIn_Realise,MK_isVoid_Sem. }
-      {
-        intros tin ([] & tout) H v ?. subst tin. cbn in H. progress fold Nat.add in H. TMSimp. 
-        modpon H;[]. modpon H0;[]. modpon H2;[]. modpon H4;[]. modpon H6;[].
-        modpon H8;[].
-        repeat simple apply conj.
-        1-3:easy.
-        -intros. now rewrite Vector_nth_R.
-        -intros i;destruct_fin i;cbn;simpl_surject. all:easy.   
-      }
-    } 
-    {
-      eapply Realise_monotone.
-      { TM_Correct. eassumption. now eapply M_init_one_realises. }
-      clear IHren. 
-      intros tin ([] & tout) H v ?. cbn in H. progress fold Nat.add in H. 
-      pose (_tmp:=LiftTapes._flag_DisableWarning); TMSimp; clear _tmp. 
-      modpon H;[]. subst tmid_0.
-      specializeFin H5. clear H5.
-      rename H4 into Hv. rename H3 into Hnil.
-      setoid_rewrite Vector_nth_R in Hv. setoid_rewrite Vector_nth_L in Hnil. 
-      modpon H0;[ | ]. 1:now rewrite Hv,nth_map'.
-      rename H1 into Hm'.
-      replace tmid with tout in *. 1:clear Hm'.
-      2:{ eapply Vector.eq_nth_iff.
-        intros i. specialize (Hm' i);unfold not_indexb in Hm';cbn in Hm'.
-        destruct Fin.eqb eqn:H' in Hm'. 2:easy. apply Fin.eqb_eq in H' as <-. easy. 
-       }
-      repeat simple apply conj.
-      -unfold select in H3. contains_ext.
-      -easy.
-      -intros. rewrite Vector_nth_L, Hnil. easy.
-      -intros. rewrite Vector_nth_R, Hv. easy.
-      -intros i;destruct_fin i;cbn. all:try easy.
-    }
-  Qed.
-  *)
 
   Program Definition startRen := Vectors.tabulate (n:=k) (fun i => Fin.of_nat_lt (n:=k) (p:=k - 1 -proj1_sig (Fin.to_nat i)) _).
   Next Obligation.
@@ -338,20 +263,15 @@ Section mk_init.
     f_equal.  eapply Fin.of_nat_ext.
   Qed.  
 
+  
   Import CasePair Code.CaseList.
 
+  
+
+
+
   Definition M_init : pTM (Σ) ^+ unit ((6 + m)+ k) :=
-    M_init' startRen;;
-    CopyValue _ ⇑ retr_pro1 @ [|Fin1;Fin2|];;
-    Reset _ @ [|Fin1|];;
-    WriteValue ( 0) ⇑ retr_nat_clos_ad @ [| Fin1|];;
-    Constr_pair _ _ ⇑ retr_clos1 @ [|Fin1;Fin2|];;
-    Reset _ @ [|Fin1|];;
-    WriteValue ( []%list) ⇑ retr_closs @ [| Fin1|];;
-    Constr_cons _ ⇑ retr_closs @ [|Fin1;Fin2|];;
-    Reset _ @ [|Fin2|];;
-    WriteValue ( []%list) ⇑ retr_closs @ [| Fin2|];;
-    WriteValue ( []%list) ⇑ retr_heap @ [| Fin3|].
+    M_init' startRen.
 
     
   Theorem M_init_SpecT (v:Vector.t (list bool) k):
@@ -360,52 +280,19 @@ Section mk_init.
     k M_init
     (fun _ => ≃≃([],
       ([|Custom (eq niltape);
-        Contains retr_closs [(0, compile (Vector.fold_left (fun s l_i => L.app s (encL l_i)) sim v))]%list
-         ;Contains (retr_closs) []%list;Contains (retr_heap) []%list;Void;Void|]
+        Contains retr_pro (compile (Vector.fold_left (fun s l_i => L.app s (encL l_i)) sim v));
+         Void;Void;Void;Void|]
          ++Vector.const (Custom (eq niltape)) m) ++ Vector.map (fun bs => Custom (eq (encTM s b bs))) v))}.
   Proof using H_disj.
     eexists. unfold M_init.
-    hstep. now eapply (projT2 (M_init'_SpecT _ _)). 2:reflexivity.
+    eapply ConsequenceT. eapply (projT2 (M_init'_SpecT _ _)). reflexivity. 2:reflexivity.
     cbn. intros _.
-    hstep. { hstep. cbn. hstep. notypeclasses refine (CopyValue_SpecT _ _ _). 4:cbn;tspec_ext. } 2:reflexivity.
-    cbn;cleanupParamTM.
-    intros _.
-    do 8 (hstep;[now (hsteps_cbn;cbn;tspec_ext)|cbn;cleanupParamTM;intros _|reflexivity]).
-    hsteps_cbn. reflexivity.
-    cleanupParamTM.
     rewrite vector_fold_left_right with (v:=v), <- (startRen_spec v).
     apply EntailsI. intros t H. eapply tspec_ext. eassumption. easy.
-      intros i. clear - i. 
-      repeat (destruct (fin_destruct_S i) as [(i'&->) | ->];[rename i' into i;cbn| ]);try (intros H;exact H).
+    intros i. clear - i. 
+    repeat (destruct (fin_destruct_S i) as [(i'&->) | ->];[rename i' into i;cbn| ]);try (intros H;exact H).
   Qed.
 
-
-  Theorem M_init_rel:
-    Realise M_init (fun t '(r, t') =>
-                   forall v,
-                   t = (Vector.const niltape (6+m) ++ Vector.map (encTM s b) v)%vector ->
-                   t'[@aux Fin1] ≃(retr_closs) [(0, compile (Vector.fold_left (fun s l_i => L.app s (encL l_i)) sim v))]%list /\
-                   t'[@aux Fin2] ≃(retr_closs) []%list /\
-                   t'[@aux Fin3] ≃(retr_heap) []%list /\
-                   t'[@Fin0] = niltape /\
-                   (forall i, t'[@auxm i] = niltape)
-                   ).
-  Proof using H_disj.
-    eapply Realise_monotone.
-    { unfold M_init. TM_Correct. now apply M_init'_rel. }
-    intros tin [[] tout] H v ->. cbn in H; progress fold Nat.add in H; TMSimp. 
-    rewrite vector_fold_left_right with (v:=v), <- (startRen_spec v).
-    modpon H;[]. specializeFin H8;clear H8;[].
-    modpon H0;[]. modpon H1;[].
-    modpon H3;[].
-    rename H6 into Hv. rename H4 into Hnil.
-    setoid_rewrite Vector_nth_R in Hv. setoid_rewrite Vector_nth_L in Hnil.
-    modpon H5;[]. modpon H7;[]. modpon H9;[].
-    modpon H11;[]. modpon H13;[]. modpon H15;[].
-    modpon H17;[].
-    repeat simple apply conj. 1-4:easy. 
-    intros. now rewrite Hnil,Vector.const_nth. 
-  Qed.
 
 End mk_init.
 
@@ -439,21 +326,6 @@ Section conv_output.
     -reflexivity.
   Qed.
 
-
-
-  Theorem M_out_realise :
-    Realise M_out (fun t '(r, t') =>
-                     forall l : list bool, t[@Fin0] ≃ compile (list_enc l) ->
-                        t[@Fin1] = niltape
-                        -> isVoid (t[@Fin2])
-                        -> isVoid (t[@Fin3])
-                        -> t'[@Fin1] = encTM s b l).
-  Proof.
-    eapply Realise_monotone.
-    { unfold M_out. TM_Correct. apply EncToBoollist.Realise. apply Boollist2encTM.Realise. }
-    hnf. intros. TMSimp. modpon H. modpon H0. now rewrite rev_involutive in H0.
-  Qed.
-
 End conv_output.
 
 
@@ -476,100 +348,75 @@ Section main.
 
   Definition n_main := 14.
 
-  Definition Σ : Type := (sigStep + sigList bool + sigList (sigPair sigHClos sigNat)).
+  Definition Σ : Type := sigList bool + EvalL.Σintern.
 
-  Definition retr_closs : Retract (sigList sigHClos) Σ := ComposeRetract _ M_LHeapInterpreter.retr_closures_step.
+  Definition retr_bools : Retract (sigList bool) Σ := (Retract_inl _ _).
+  Definition retr_intern : Retract EvalL.Σintern Σ := (Retract_inr _ _).
+
+  Definition retr_closs : Retract (sigList sigHClos) Σ
+  := ComposeRetract retr_intern _.
   Definition retr_clos : Retract sigHClos Σ := ComposeRetract retr_closs _.
   Definition retr_pro : Retract sigPro Σ := ComposeRetract retr_clos _.
 
-  Definition sym_s : Σ^+ := inr (inl (inr (sigList_X true))).
-  Definition sym_b : Σ^+ := inr (inl (inr (sigList_X false))).
+  Definition sym_s : Σ^+ := inr (inl (sigList_X true)).
+  Definition sym_b : Σ^+ := inr (inl (sigList_X false)).
 
   (*
     auxiliary tapes:
 
     0    : T
-    1    : V
-    2    : H
-    3-4  : aux for init
-    5-12 : aux for loop
-    13   : t
+
    *)
 
   Notation aux n := (Fin.L k (Fin.R 1 n)).
 
   Definition garb : Σ^+ := inl UNKNOWN.
 
-  Definition M_main : pTM (Σ ^+)  unit (1 + n_main + k).
-  Proof using k s.
-    notypeclasses refine (
-        M_init sym_s _ _ _ (1 + n_main - 6) k s ;;
-        LiftTapes MK_isVoid [|aux Fin5 |] ;;
-        LiftTapes MK_isVoid [|aux Fin6 |] ;;
-        LiftTapes MK_isVoid [|aux Fin7 |] ;;
-        LiftTapes MK_isVoid [|aux Fin8 |] ;;
-        LiftTapes MK_isVoid [|aux Fin9 |] ;;
-        LiftTapes MK_isVoid [|aux Fin10 |] ;;
-        LiftTapes MK_isVoid [|aux Fin11 |] ;;
-        LiftTapes MK_isVoid [|aux Fin12 |] ;;
-        LiftTapes MK_isVoid [|aux Fin13 |] ;;
-        Loop ⇑ _ @ [| aux Fin0 ; aux Fin1 ; aux Fin2; aux Fin5 ; aux Fin6 ; aux Fin7 ; aux Fin8 ; aux Fin9 ; aux Fin10 ; aux Fin11 ; aux Fin12 |] ;;
-        CaseList _ ⇑ retr_closs @ [| aux Fin1;aux Fin13 |];;
-        UnfoldHeap.M _ _ retr_clos @ [| aux Fin13;aux Fin2;aux Fin5;aux Fin6;aux Fin7;aux Fin8;aux Fin9;aux Fin10;aux Fin11;aux Fin12|];;
-        M_out sym_s sym_b retr_pro _ @ [|aux Fin13;Fin.L k Fin0;aux Fin7;aux Fin8|]
-      ).
-      all:exact _.
-  Defined.
+  Definition M_main : pTM (Σ ^+)  unit (1 + n_main + k):=
+        M_init sym_s retr_pro retr_bools (1 + n_main - 6) k s ;;
+        MK_isVoid_multi _ @ [|aux Fin5;aux Fin6;aux Fin7;aux Fin8;aux Fin9;aux Fin10;aux Fin11;aux Fin12;aux Fin13 |] ;;
+        EvalL.M retr_intern retr_pro @ [| aux Fin0 ; aux Fin1 ; aux Fin2; aux Fin5 ; aux Fin6 ; aux Fin7 ; aux Fin8 ; aux Fin9 ; aux Fin10 ; aux Fin11 ; aux Fin12 |] ;;
+        M_out sym_s sym_b retr_pro retr_bools @ [|aux Fin0;Fin.L k Fin0;aux Fin7;aux Fin8|].
 
   Lemma syms_diff : sym_s <> sym_b. Proof. cbv. congruence. Qed.
-
-  Local Ltac compressHyp :=    repeat match goal with H : _ |- _ => simple apply isVoid_size_isVoid in H end;
-  repeat match goal with H : _ |- _ => simple apply tape_contains_size_contains in H end.
+  
+  Theorem M_main_Spec v:
+    Triple ≃≃([],Vector.const (Custom (eq niltape)) (S n_main) ++ Vector.map (fun bs => Custom (eq (encTM sym_s sym_b bs))) v)
+       M_main
+      (fun _ t => exists m, t ≃≃ ([R v m]%list,
+        (Custom (eq (encTM sym_s sym_b m)):::Vector.const (Custom (fun _ => True)) _))).
+  Proof  using Hscl Hs2 Hs1.
+    unfold M_main.
+    hstep. { eapply TripleT_Triple,(projT2 (M_init_SpecT syms_diff _ _ _ _ _)). }
+    cbn. intros _.
+    start_TM.
+    hstep. {hsteps_cbn;cbn. eapply TripleT_Triple. exact (MK_isVoid_multi_SpecT 9). }
+    cbn;cleanupParamTM. intros _.
+    hstep. {eapply LiftTapes_Spec_ex. now smpl_dupfree. cbn. refine (EvalL.Spec' _ _ _). now apply closed_compiler_helper. }
+    cbn;cleanupParamTM.
+    intros _. eapply Triple_exists_pre. intros s'.
+    change (fun x => ?f x) with f.
+    hintros Heval%eval_iff. specialize (Hs2 Heval) as (res&->). 
+    unfold_abbrev.
+    eapply Triple_exists_con. eexists res. 
+    hstep. { eapply Consequence_pre. eapply TripleT_Triple. refine (projT2 (M_out_SpecT _ _ _ _ res)). cbn. reflexivity. }
+    cbn;cleanupParamTM. intros _.
+    apply Hs1 in Heval.
+    eapply EntailsI. intros tin [[] Hin]%tspecE.
+    eapply tspecI;cbn. easy.
+    intros i. specialize (Hin i). destruct_fin i;try exact Logic.I;cbn in *.
+    now simpl_vector. eassumption.
+  Qed.
 
   Lemma M_main_realise :
     Realise M_main (fun t '(r, t') =>
                       forall v,
-                      t = (Vector.const niltape (S n_main) ++ Vector.map (encTM sym_s sym_b) v)%vector  ->
+                      t = (Vector.const niltape (S n_main) ++ Vector.map (fun bs => (encTM sym_s sym_b bs)) v)  ->
                       exists m, 
                         t'[@ Fin0] = encTM sym_s sym_b m /\ R v m).
   Proof using Hscl Hs2 Hs1.
-    eapply Realise_monotone.
-    {
-      unfold M_main.
-      TM_Correct.
-      now apply M_init_rel,syms_diff. 1-9:now eapply RealiseIn_Realise, MK_isVoid_Sem.
-      now apply Loop_Realise. now apply UnfoldHeap.Realise. now apply M_out_realise.
-    }
-    cbn.
-    intros tin ([] & tout) H v ?. subst tin. 
-    unfold n_main in *.
-    TMSimp. specialize H with (1:=eq_refl).
-    TMSimp. rename H8 into Hnil. specializeFin Hnil.
-    do 9 lazymatch goal with
-    | [H : [|?t|] = [|niltape|] -> isVoid _ , Heq : ?t = niltape |- _ ] =>
-       modpon H;[f_equal;exact Heq| clear Heq] 
-       end;[].
-    specialize H23 with (2:=eq_refl). 
-    specialize H17 with (V:=nil) (H:=nil).
-    modpon H17;[ | ]. 
-    { clear H17. instantiate (1:= [| _;_;_;_;_;_;_;_|]);intros i;cbn;destruct_fin i;cbn;simpl_surject;isVoid_mono. }
-    TMSimp.
-    edestruct soundness as (g__res&H__res'&s__res&Heq&H__Red&H__res).
-    2:{ split;[ (apply ARS.star_pow;eexists;eassumption) | ]. eassumption. }
-    { now eapply closed_compiler_helper. }
-    injection Heq as [= ? ? ?]. subst ymid0 ymid1 ymid2.
-    TMSimp. specializeFin H16;clear H16. compressHyp. simpl_surject.
-    specialize H19 with (l:=[g__res]%list).
-    modpon H19;[]. destruct ymid. 2:easy. TMSimp.
-    modpon H21;[ | ]. { intros i;cbn;destruct_fin i;cbn;simpl_surject;isVoid_mono.  }
-    edestruct Hs2 as (bs&H__bs). { apply eval_iff. eassumption. } subst s__res.
-    exists bs.
-    specialize (H23 bs). unfold encL in H21.
-    specializeFin H29;clear H29.
-    modpon H23;[].
-    split. easy.
-    apply Hs1,eval_iff. easy.
-  Qed. 
+  
+  Admitted. 
 
 End main.
 
@@ -601,17 +448,27 @@ Proof.
 Qed.
 
 Theorem compiler_bool {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) :
-  L_computable R -> TM_computable R.
+  L_computable_bool_closed R -> TM_computable R.
 Proof.
   intros H. 
   eapply TM_computable_rel'_spec.
-  eapply L_computable_function; eauto.
-  destruct H as [sim Hsim].
+  eapply L_computable_function. now apply L_computable_bool_can_closed.
+  destruct H as [sim [cs Hsim]].
   eexists _, _, sym_s, sym_b. split. eapply syms_diff. exists (M_main k sim). split.
-  - eapply Realise_monotone. { eapply M_main_realise. admit. all:intros. all:edestruct Hsim as [H1 H2];easy. }
-    intros t [[] t'] H v ->.
-    destruct (H v) as [m [Hm1 Hm2]]. reflexivity.
-    exists m. split; eauto. rewrite <- Hm1.
-    eapply Vector_hd_nth.
-  - admit.
+  - eapply RealiseIntroAll;intro v. eapply Realise_monotone.
+    { eapply Triple_Realise,  M_main_Spec with (v:=v). easy. all:intro v';edestruct Hsim as [H1 H2]; eassumption. }
+    cbn.
+    intros t [[] t'] H ->.
+    edestruct H as [m [Hm1 Hm2]];cbn in *.
+    {cbn. eapply tspecI. easy. intros i. destruct_fin i;try exact eq_refl;cbn. simpl_vector. reflexivity. }
+    rewrite Vector_hd_nth.
+    specialize (Hm2 Fin0);cbn in Hm2. eauto.
+  - (*eapply TerminatesIntroAll;intro v. eapply Realise_monotone.
+  { eapply Triple_Realise,  M_main_Spec with (v:=v). easy. all:intro v';edestruct Hsim as [H1 H2]; eassumption. }
+  cbn.
+  intros t [[] t'] H ->.
+  edestruct H as [m [Hm1 Hm2]];cbn in *.
+  {cbn. eapply tspecI. easy. intros i. destruct_fin i;try exact eq_refl;cbn. simpl_vector. reflexivity. }
+  rewrite Vector_hd_nth.
+  specialize (Hm2 Fin0);cbn in Hm2. eauto.*)
 Admitted.

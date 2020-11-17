@@ -22,8 +22,8 @@ Ltac triple_with_space :=
 (** *** Smpl setup *)
 
 (* For user extensions, like in [TM_Correct] *)
-Smpl Create hstep_smpl.
-Ltac hstep_smpl := smpl hstep_smpl.
+Smpl Create hstep_Spec.
+Ltac hstep_Spec := smpl hstep_Spec.
 
 
 (** *** Combinators *)
@@ -151,10 +151,26 @@ Ltac hstep_withSpace_swap :=
 
 (** *** Custom machines *)
 
-(** We have to be carefull with [Nop] and custom machines, because usually the postcondition is already instantiated. *)
+(** We have to be careful with [Nop] and custom machines, because usually the postcondition is already instantiated. *)
 
 (** The user only needs to specify the Termination rule. If the user wants to prove partial correctness, it it first checked whether
 there is a corresponding Termination lemma. The tactic also takes care of whether we first have to apply the consequence rule. *)
+
+
+(* make sure we don't try a space-rule if we don't know we want to use a space rule and see no precondition *)
+Local Tactic Notation "noSpace" tactic(t) :=
+  let test :=
+  tryif triple_with_space
+   then fail
+    else reflexivity
+  in
+  lazymatch goal with
+  | [ |- Triple ?P ?M ?Q ] =>
+  eapply Consequence_pre;[t| test ]
+  | [ |- TripleT ?P _ ?M ?Q ] => 
+  eapply ConsequenceT_pre;[t| test |reflexivity]
+  end || fail "could not find user-rule applicable here".
+
 
 Ltac hstep_user :=
   lazymatch goal with
@@ -162,18 +178,18 @@ Ltac hstep_user :=
     tryif contains_evar Q then
       (tryif triple_with_space then
           (* Without time, but with space *)
-          ((eapply TripleT_Triple; hstep_smpl) (* Weaken a registered rule with time and space *)
-           || (hstep_smpl))
-        else ((eapply TripleT_Triple;refine (TripleT_RemoveSpace (Q:=fun y => _) (Q':=fun y => _) _); now (intros; hstep_smpl)) (* Weaken a registered rule with time and space *)
-              || (refine (TripleT_RemoveSpace (Q:=fun y => _) (Q':=fun y => _) _); now (intros; hstep_smpl)) (* Weaken a registered rule without time but with space *)
-              || (eapply TripleT_Triple; hstep_smpl) (* Weaken a registered rule with time but without space *)
-              || (hstep_smpl))) (* A registered rule without time and without space *)
+          ((eapply TripleT_Triple; hstep_Spec) (* Weaken a registered rule with time and space *)
+           || (hstep_Spec))
+        else ((eapply TripleT_Triple;refine (TripleT_RemoveSpace (Q:=fun y => _) (Q':=fun y => _) _); now (intros; hstep_Spec)) (* Weaken a registered rule with time and space *)
+              || (refine (TripleT_RemoveSpace (Q:=fun y => _) (Q':=fun y => _) _); now (intros; hstep_Spec)) (* Weaken a registered rule without time but with space *)
+              || (eapply TripleT_Triple; hstep_Spec) (* Weaken a registered rule with time but without space *)
+              || (noSpace hstep_Spec))) (* A registered rule without time and without space *)
     else (eapply Consequence_post; [ hstep_user | ]) (* First apply the consequence rule, then try again *)
   | [ |- TripleT ?P ?k ?M ?Q ] => (* With time *)
     tryif contains_evar Q then
-      (tryif triple_with_space then hstep_smpl (* Apply the rule with time and space *)
-        else (refine (TripleT_RemoveSpace (Q:=fun y => _) (Q':=fun y => _)_); now (intros; hstep_smpl)) (* Weaken a rule with time and space *)
-             || (hstep_smpl))
+      (tryif triple_with_space then hstep_Spec (* Apply the rule with time and space *)
+        else (refine (TripleT_RemoveSpace (Q:=fun y => _) (Q':=fun y => _)_); now (intros; hstep_Spec)) (* Weaken a rule with time and space *)
+             || (noSpace hstep_Spec))
     else (eapply ConsequenceT_post; [ hstep_user | ]) (* First apply the consequence rule, then try again *)
   end.
 
@@ -185,13 +201,14 @@ Ltac hstep_Nop :=
   | [ |- TripleT ?P ?k Nop ?Q ] => eapply Nop_SpecT
   end.
 
-Smpl Add hstep_Nop : hstep_smpl.
+Smpl Add hstep_Nop : hstep_Spec.
 
 
 (** *** Verification step tactic *)
 
 (** Removes [forall (x : unit] from the goal *)
 Ltac hstep_forall_unit :=
+  hnf;
   lazymatch goal with
   | [ |- unit -> ?H ] => intros _
   | [ |- forall (y : finType_CS unit), ?H] => intros [] (* This is usually simplified to the first case with [cbn] *)
@@ -288,3 +305,11 @@ Ltac introPure_prepare :=
   end;simpl implList at 1.
 
 Tactic Notation "hintros" simple_intropattern_list(pat) := underBinders introPure_prepare;intros pat.
+
+(* execute a single seq-step*)
+Ltac hstep_seq :=
+lazymatch goal with
+| |- ?R (_;;_) _ => hstep;[(hstep;hsteps_cbn;cbn);let n := numgoals in (tryif ( guard n = 1) then try tspec_ext else idtac ) |cbn;try hstep_forall_unit | reflexivity..]
+| |- ?R (LiftTapes _ _) _ => hsteps_cbn
+| |- ?R (ChangeAlphabet _ _) _ => hsteps_cbn
+end.

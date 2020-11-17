@@ -287,6 +287,25 @@ Arguments tspec : simpl never.
 Definition appSize {n : nat} : Vector.t (nat->nat) n -> Vector.t nat n -> Vector.t nat n :=
   fun fs s => tabulate (fun i => fs[@i] s[@i]).
 
+  
+Lemma Triple_RemoveSpace_ex (n : nat) (sig : finType) (F : Type) X
+(P : SpecV sig n) P' (M : pTM sig^+ F n) Q Q' Ctx (fs : _ -> Vector.t (nat->nat) n) :
+  (forall s, Triple (tspec (P',withSpace P s)) M (fun y t => exists x:X, Ctx x (tspec (Q' x y,withSpace (Q x y) (appSize (fs x) s)) t))) -> (* Specifications with size will always have this form *)
+  (forall x, Proper (Basics.impl ==> Basics.impl) (Ctx x)) ->
+  Triple (tspec (P',P)) M (fun y t => exists x, Ctx x (tspec (Q' x y ,Q x y) t)).
+Proof.
+  intros HTrip Hctx. setoid_rewrite Triple_iff in HTrip. rewrite Triple_iff. 
+  eapply Realise_monotone with
+  (R' := fun tin '(yout, tout) => forall s, tspec (P',withSpace P s) tin
+    -> exists x:X, Ctx x (tspec (Q' x yout,withSpace (Q x yout) (appSize (fs x) s)) tout)).
+  - unfold Triple_Rel, Realise in *. intros tin k outc HLoop. intros s HP.
+    specialize HTrip with (1 := HLoop) (2 := HP) as [x H'']. eexists. eauto.
+  - clear HTrip. intros tin (yout, tout). intros H HP.
+    specialize (H (dummy_sizes tin P)). spec_assert H by now apply tspec_tspec_withSpace.
+    destruct H as (x&H). exists x. eapply Hctx. 2:eassumption.
+    intro H'. now apply tspec_withSpace_tspec in H'.
+Qed.
+
 Lemma Triple_RemoveSpace (n : nat) (sig : finType) (F : Type) (P : SpecV sig n) P' (M : pTM sig^+ F n) (Q : F -> SpecV sig n) Q' (fs : Vector.t (nat->nat) n) :
   (forall s, Triple (tspec (P',withSpace P s)) M (fun y => tspec (Q' y,withSpace (Q y) (appSize fs s)))) -> (* Specifications with size will always have this form *)
   Triple (tspec (P',P)) M (fun y => tspec (Q' y ,Q y)).
@@ -399,6 +418,37 @@ Section Lifting.
   Definition Frame (Q : @SpecV sig m) : @SpecV sig n := fill I P Q.
 
 End Lifting.
+
+Lemma LiftTapes_Spec_ex (sig : finType) X (F : finType) (m n : nat) (I : Vector.t (Fin.t n) m) 
+P' P Q' Q (pM : pTM sig^+ F m) :
+  dupfree I ->
+  Triple (tspec (P',Downlift P I)) pM (fun y t => exists x:X, tspec (Q' x y,Q x y) t) ->
+  Triple (tspec (P',P)) (LiftTapes pM I) (fun y t=> exists x, tspec (Q' x y,Frame P I (Q x y)) t ).
+Proof.
+  unfold Frame. rewrite !Triple_iff.
+  intros HDup HTrip. 
+  eapply Realise_monotone.
+  { apply LiftTapes_Realise. assumption. apply HTrip. }
+  {
+    intros tin (yout, tout) (H&HInj). cbn -[Downlift tspec] in *.
+    intros HP.
+    spec_assert H by now apply tape_fulfill_Downlift_select.
+    destruct H as [x H].
+    eapply tspecE in H as [H' H]. eapply tspecE in HP as [HP' HP].
+    exists x.
+    eapply tspecI;cbn.
+    { clear - H' HP'. induction P';cbn in *. all:firstorder. }
+    clear H' HP'.
+    hnf. intros j. decide (Vector.In j I) as [HD|HD].
+    - unfold Frame.
+      apply vect_nth_In' in HD as (ij&HD).
+      erewrite fill_correct_nth; eauto.
+      specialize (H ij).
+      now rewrite select_nth, HD in H.
+    - unfold Frame. rewrite fill_not_index; eauto.
+      specialize (HInj j HD). rewrite HInj. now apply HP.
+  }
+Qed.
 
 
 Lemma LiftTapes_Spec (sig : finType) (F : finType) (m n : nat) (I : Vector.t (Fin.t n) m) P' (P : SpecV sig n) Q' (Q : F -> SpecV sig m) (pM : pTM sig^+ F m) :
@@ -708,7 +758,21 @@ Section AlphabetLifting'.
 
   Variable (sig tau : finType) (n : nat).
   Variable (retr : Retract sig tau).
+
   
+  Lemma ChangeAlphabet_Spec_ex (F : finType) X P' (Ctx : X -> Prop -> Prop) (P : SpecV sig n) (pM : pTM sig^+ F n) Q' (Q : X -> F -> SpecV sig n) :
+    Triple (tspec (P',P)) pM (fun y t => exists x:X, Ctx x (tspec (Q' x y,Q x y) t)) ->
+    (forall x, Proper (Basics.impl ==> Basics.impl) (Ctx x)) ->
+    Triple (tspec (P',LiftSpec retr P)) (ChangeAlphabet pM retr)
+      (fun yout t => exists x, Ctx x (tspec (Q' x yout,LiftSpec retr (Q x yout)) t)).
+  Proof.
+    rewrite !Triple_iff. intros HTrip HCtx. eapply Realise_monotone.
+    - TM_Correct. eassumption.
+    - intros tin (yout, tout) H Henc. cbn in *.
+      spec_assert H by now apply LiftSpec_surjectTapes_tspec.
+      destruct H as (x&H). exists x. cbv in HCtx. eapply HCtx. 2:apply H.
+      now apply LiftSpec_surjectTapes_tspec'.
+  Qed.
 
   Lemma ChangeAlphabet_Spec (F : finType) P' (P : SpecV sig n) (pM : pTM sig^+ F n) Q' (Q : F -> SpecV sig n) :
     Triple (tspec (P',P)) pM (fun yout => tspec (Q' yout,Q yout)) ->

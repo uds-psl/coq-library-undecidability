@@ -245,19 +245,19 @@ Lemma Triple_eta_pre {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (P : Assert sig n) (Q : F -> Assert sig n) :
   Triple P pM Q ->
   Triple (fun tin => P tin) pM Q.
-Proof. setoid_rewrite Triple_iff. unfold Triple_Rel. firstorder. Qed.
+Proof. exact id. Qed.
 
 Lemma Triple_eta_con {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (P : Assert sig n) (Q : F -> Assert sig n) :
   Triple P pM Q ->
   Triple P pM (fun yout => Q yout).
-Proof. setoid_rewrite Triple_iff. unfold Triple_Rel. firstorder. Qed.
+Proof. exact id. Qed.
 
 Lemma Triple_eta_con2 {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (P : Assert sig n) (Q : F -> Assert sig n) :
   Triple P pM Q ->
   Triple P pM (fun yout tout => Q yout tout).
-Proof.  setoid_rewrite Triple_iff. unfold Triple_Rel. firstorder. Qed.
+Proof. exact id. Qed.
 
 
 Lemma Triple_and_pre {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
@@ -310,19 +310,19 @@ Lemma TripleT_eta_pre {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (P : Assert sig n) (Q : F -> Assert sig n) k :
   TripleT P k pM Q ->
   TripleT (fun tin => P tin) k pM Q.
-Proof. setoid_rewrite TripleT_iff;setoid_rewrite Triple_iff. unfold Triple_Rel,Triple_TRel. firstorder. Qed.
+Proof. exact id.  Qed.
 
 Lemma TripleT_eta_con {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (P : Assert sig n) (Q : F -> Assert sig n) k :
   TripleT P k pM Q ->
   TripleT P k pM (fun yout => Q yout).
-Proof. setoid_rewrite TripleT_iff;setoid_rewrite Triple_iff. unfold Triple_Rel,Triple_TRel. firstorder. Qed.
+Proof. exact id. Qed.
 
 Lemma TripleT_eta_con2 {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (P : Assert sig n) (Q : F -> Assert sig n) k :
   TripleT P k pM Q ->
   TripleT P k pM (fun yout tout => Q yout tout).
-Proof. setoid_rewrite TripleT_iff;setoid_rewrite Triple_iff. unfold Triple_Rel,Triple_TRel. firstorder. Qed.
+Proof. exact id. Qed.
 
 
 Lemma TripleT_and_pre {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)

@@ -126,4 +126,4 @@ Ltac hstep_Com :=
   | [ |- TripleT ?P ?k Constr_varT ?Q ] => eapply Constr_varT_SpecT_size
   end.
 
-Smpl Add hstep_Com : hstep_smpl.
+Smpl Add hstep_Com : hstep_Spec.

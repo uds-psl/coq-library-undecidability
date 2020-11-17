@@ -857,4 +857,4 @@ Ltac hstep_Reset :=
   | [ |- TripleT ?P ?k (Translate _ _) ?Q ] => eapply @Translate_SpecT_size
   end.
 
-Smpl Add hstep_Reset : hstep_smpl.
+Smpl Add hstep_Reset : hstep_Spec.

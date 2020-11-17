@@ -80,4 +80,4 @@ Ltac hstep_Bool :=
   | [ |- TripleT ?P ?k CaseBool ?Q ] => eapply CaseBool_SpecT_size
   end.
 
-Smpl Add hstep_Bool : hstep_smpl.
+Smpl Add hstep_Bool : hstep_Spec.

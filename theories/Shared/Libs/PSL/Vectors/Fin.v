@@ -1,6 +1,6 @@
 (** * Tactics for [Fin.t] *)
 
-(* Author: Maximilian Wuttke *)
+(* Author: Maximilian Wuttke and Fabian Kunze *)
 
 
 From Undecidability.Shared.Libs.PSL Require Import Base.
@@ -31,8 +31,22 @@ Defined.
 Lemma fin_destruct_O (i : Fin.t 0) : Empty_set.
 Proof. refine (match i with end). Defined.
 
+
+Lemma fin_destruct_add
+: forall (n m : nat) (i : Fin.t (n+m)),
+    {i' : Fin.t n | i = Fin.L _ i'} + {i' : Fin.t m | i = Fin.R _ i'}.
+Proof.
+  induction n;cbn. right. now eauto.
+  intros ? i. destruct (fin_destruct_S i) as [[i' ->]| ->].
+  -destruct (IHn _ i') as [ [? ->] | [? ->]].
+    --left. now eexists (Fin.FS _).
+    --right. eauto.
+  -left. now exists Fin.F1.
+Qed.  
+
+
 Ltac destruct_fin i :=
-  match type of i with
+  lazymatch type of i with
   | Fin.t (S ?n) =>
     let i' := fresh i in
     pose proof fin_destruct_S i as [ (i'&->) | -> ];
@@ -40,6 +54,10 @@ Ltac destruct_fin i :=
     | idtac]
   | Fin.t O =>
     pose proof fin_destruct_O i as []
+  | Fin.t (_ + _) =>
+    let i' := fresh i in
+    pose proof fin_destruct_add i as [ (i'&->) | (i'&->)];destruct_fin i'
+  | Fin.t _ => idtac
   end.
 
 Goal True.

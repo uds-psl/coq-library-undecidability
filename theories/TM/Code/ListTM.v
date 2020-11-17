@@ -6,4 +6,4 @@ Ltac hstep_ListTM :=
   | [ |- TripleT ?P ?k (Nth' _ _) ?Q ] => eapply Nth'_SpecT_size
   end.
 
-Smpl Add hstep_ListTM : hstep_smpl.
+Smpl Add hstep_ListTM : hstep_Spec.

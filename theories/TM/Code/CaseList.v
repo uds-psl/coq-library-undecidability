@@ -592,4 +592,4 @@ Ltac hstep_List :=
   | [ |- TripleT ?P ?k (CaseList    _) ?Q ] => eapply CaseList_SpecT_size
   end.
 
-Smpl Add hstep_List : hstep_smpl.
+Smpl Add hstep_List : hstep_Spec.

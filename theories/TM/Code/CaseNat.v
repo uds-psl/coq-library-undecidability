@@ -172,4 +172,4 @@ Ltac hstep_Nat :=
   | [ |- TripleT ?P ?k CaseNat ?Q ] => eapply CaseNat_SpecT_size
   end.
 
-Smpl Add hstep_Nat : hstep_smpl.
+Smpl Add hstep_Nat : hstep_Spec.

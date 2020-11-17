@@ -105,6 +105,17 @@ Inductive reprC : Heap -> _ -> term -> Prop :=
     unfolds H a 0 s s' ->
     reprC H (a,P) s'.
 
+Lemma reprC_elim H g s': reprC H g s' -> exists s, reprP (snd g) s /\  unfolds H (fst g) 0 s s'.
+Proof. inversion 1;subst. cbn. eauto. Qed. 
+
+Lemma reprC_elim_deep H g t:
+  reprC H g t
+  -> exists s t' a, g = (a,compile s) /\ t = lam t' /\ unfolds H a 1 s t'.
+Proof.
+  intros (s&HP&?Hu)%reprC_elim. apply reprP_elim in HP as (?&?&?).
+  destruct g. cbn in *. subst. inv Hu. eauto 10.
+Qed.
+
 Lemma unfolds_subst' H s s' t' a a' k g:
   nth_error (A:=HEntr) H a' = Some (Some (g,a)) ->
   reprC H g t' ->

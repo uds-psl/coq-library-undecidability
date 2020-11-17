@@ -86,4 +86,4 @@ Ltac hstep_Cons_constant :=
   | [ |- TripleT ?P ?k (Cons_constant.M _) ?Q ] => eapply Cons_constant.SpecT
   end.
 
-Smpl Add hstep_Cons_constant : hstep_smpl.
+Smpl Add hstep_Cons_constant : hstep_Spec.

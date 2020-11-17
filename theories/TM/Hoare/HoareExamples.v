@@ -238,7 +238,7 @@ Ltac hstep_Nat :=
   | [ |- TripleT ?P ?k CaseNat ?Q ] => eapply CaseNat_SpecT_size
   end.
 
-Smpl Add hstep_Nat : hstep_smpl.
+Smpl Add hstep_Nat : hstep_Spec.
 
 
 
@@ -302,7 +302,7 @@ Restart.
   hsteps_cbn. eauto.
   (* The automation always applies the Consequence rule for user-defined specifications, if the postcondition is not an evar. *)
   (* The version [hstep_cbn] calls [cbn] before each step. [forall (x : unit)] will be automatically removed. *)
-  (* Note that [hstep_user] automatically converted [Constr_S_SpecT_size] to [Constr_S_Spec]. It can handle all combinations of such weakenings. *)
+  (* Note that [hstep_Spec] automatically converted [Constr_S_SpecT_size] to [Constr_S_Spec]. It can handle all combinations of such weakenings. *)
 Qed.
 
 Lemma IncrementTwice_SpecT (y : nat) :

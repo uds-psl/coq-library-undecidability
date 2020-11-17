@@ -92,4 +92,4 @@ Ltac hstep_Subtract :=
   | [ |- TripleT ?P ?k Subtract ?Q ] => notypeclasses refine (projT2 Subtract_SpecT _ _);shelve
   end.
 
-Smpl Add hstep_Subtract : hstep_smpl.
+Smpl Add hstep_Subtract : hstep_Spec.

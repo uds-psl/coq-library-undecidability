@@ -6,7 +6,8 @@ COQDOCFLAGS = "--charset utf-8 -s --with-header ../website/resources/header.html
 TM/L/Compiler/Compiler_spec.v
 TM/L/Compiler/Compiler_facts.v
 TM/L/Compiler/Compiler.v
-TM/L/UnfoldHeap.v
+TM/L/UnfoldClos.v
+TM/L/Eval.v
 TM/L/Compiler/encTM_boolList.v
 TM/L/Compiler/AddToBase.v
 
@@ -501,7 +502,7 @@ L/AbstractMachines/FlatPro/Programs.v
 L/AbstractMachines/FlatPro/ProgramsDef.v
 L/AbstractMachines/FlatPro/LM_heap_def.v
 L/AbstractMachines/FlatPro/LM_heap_correct.v
-L/AbstractMachines/FlatPro/UnfoldHeap.v
+L/AbstractMachines/FlatPro/UnfoldClos.v
 
 
 L/Computability/Acceptability.v

@@ -339,7 +339,7 @@ Ltac hstep_App :=
   | [ |- TripleT ?P ?k (App _) ?Q ] => eapply App_SpecT
   end.
 
-Smpl Add hstep_App : hstep_smpl.
+Smpl Add hstep_App : hstep_Spec.
 
 
 Arguments App'_steps {sigX X cX} : simpl never.

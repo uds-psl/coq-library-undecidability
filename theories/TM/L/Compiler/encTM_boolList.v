@@ -184,7 +184,7 @@ Section Fix.
         now destruct (tape_move_left tin);cbn in Hbs|-*;congruence.
         destruct bs;cbn in Hbs;eapply tape_local_l_current_cons in Hbs. all:now rewrite Hbs.
       }
-      2:{destruct bs;hintros [=];[]. cbn in *. hsteps. cbn.
+      2:{destruct bs;hintros [=];[]. cbn in *. hsteps_cbn.
         tspec_ext. 1-2:assumption. destruct H0 as (?&?&?&?&->&?&<-). rewrite H0.
         erewrite tape_move_left_right. all:easy.
       }

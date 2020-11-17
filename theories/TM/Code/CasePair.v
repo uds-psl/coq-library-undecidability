@@ -374,4 +374,4 @@ Ltac hstep_Pair :=
   | [ |- TripleT ?P ?k (CasePair    _ _) ?Q ] => eapply (CasePair_SpecT_size _ _ _)
   end.
 
-Smpl Add hstep_Pair : hstep_smpl.
+Smpl Add hstep_Pair : hstep_Spec.
