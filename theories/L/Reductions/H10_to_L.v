@@ -1,5 +1,5 @@
 From Undecidability.H10 Require Import H10 dio_single dio_logic.
-Require Import Undecidability.FOL.PCP.
+Require Import Undecidability.PCP.Util.PCP_facts.
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes Undecidability.Shared.Libs.PSL.FiniteTypes.Arbitrary.
 From Undecidability.L.Datatypes Require Import LNat Lists LProd.
 From Undecidability.L Require Import Tactics.LTactics Computability.MuRec Computability.Synthetic Tactics.GenEncode.

@@ -1,7 +1,7 @@
 (** ** Operations & Properties of FOL *)
 
 Require Import Equations.Equations Equations.Prop.DepElim Arith Undecidability.Shared.Libs.PSL.Numbers List Setoid.
-From Undecidability.FOL  Require Export DecidableEnumerable.
+From Undecidability.Synthetic Require Export DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
 From Undecidability.FOLP Require Export FullSyntax.
 From Undecidability.Shared Require Import ListAutomation.
 Require Export Lia.

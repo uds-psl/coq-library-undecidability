@@ -550,13 +550,14 @@ HOU/concon/constants.v
 HOU/concon/enumerability.v
 HOU/concon/concon.v
 
-FOLP/axioms.v
-FOLP/unscoped.v
-FOLP/Syntax.v
-FOLP/FOL.v
-FOLP/FullSyntax.v
-FOLP/FullFOL.v
-FOLP/FullTarski.v
+FOLP/Util/axioms.v
+FOLP/Util/unscoped.v
+FOLP/Util/Syntax.v
+FOLP/Util/FOL.v
+FOLP/Util/FullSyntax.v
+FOLP/Util/FullFOL.v
+FOLP/Util/FullTarski.v
+FOLP/FOLFS.v
 
 #####
 # Full Trakhtenbrot with single binary rel
@@ -728,9 +729,3 @@ SystemF/Util/pure_typable_prenex.v
 SystemF/Reductions/H10C_SAT_to_SysF_INH.v
 SystemF/Reductions/LU2SemiU_to_SysF_TYP.v
 SystemF/Reductions/SysF_TYP_to_SysF_TC.v
-
-#Legacy Problems
-Problems/FOLFS.v
-
-#Legacy Reductions
-Reductions/BPCP_to_FOLFS.v
