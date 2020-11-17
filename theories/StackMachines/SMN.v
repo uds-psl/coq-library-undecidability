@@ -52,9 +52,7 @@ Definition bounded (M: SMN) (n: nat) : Prop :=
 Definition length_preserving (M: SMN) : Prop :=
   forall s t X s' t' Y, In ((s, t, X), (s', t', Y)) M -> length (s ++ t) = length (s' ++ t') /\ 1 <= length (s ++ t).
 
-(* deterministic, length_preserving stack machine *)
-Definition SMNdl := { M : SMN | deterministic M /\ length_preserving M }.
-
 (* given a deterministic, length-preserving stack machine M, 
   is M uniformly bounded by some n? *)
-Definition SMNdl_UB (M : SMNdl) := exists (n: nat), bounded (proj1_sig M) n.
+Definition SMNdl_UB : { M : SMN | deterministic M /\ length_preserving M } -> Prop :=
+  fun '(exist _ M _) => exists (n: nat), bounded M n.

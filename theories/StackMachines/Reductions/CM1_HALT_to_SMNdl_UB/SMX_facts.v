@@ -3,7 +3,7 @@ Import ListNotations.
 Require Import Arith Lia Relations.Relation_Operators.
 
 From Undecidability.StackMachines.Util Require Import Nat_facts List_facts.
-Require Import Undecidability.StackMachines.Util.SMX.
+Require Import Undecidability.StackMachines.Reductions.CM1_HALT_to_SMNdl_UB.SMX.
 
 From Coq Require Import ssreflect ssrbool ssrfun.
 

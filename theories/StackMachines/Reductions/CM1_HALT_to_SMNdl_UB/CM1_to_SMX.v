@@ -7,7 +7,7 @@
 
 (* 
   Constructions(s): 
-    Halting Problem of 4-Capped One-Counter Machines (CM1c4_HALT) encoded as 
+    Halting Problem of One-Counter Machines (CM1_HALT) with denominators at most 4 encoded as 
     Uniform Boundedness of Deterministic, Flip-consistent, Length-preserving Stack Machines with Exchange
 *)
 
@@ -19,9 +19,10 @@ Module CM := CM1.
 Require Undecidability.CounterMachines.Util.CM1_facts.
 Module CM_facts := CM1_facts.
 
-Require Undecidability.StackMachines.Util.SMX.
+Require Undecidability.StackMachines.Reductions.CM1_HALT_to_SMNdl_UB.SMX.
+Require Import Undecidability.StackMachines.Reductions.CM1_HALT_to_SMNdl_UB.SMX_facts.
 Module SM := SMX.
-From Undecidability.StackMachines.Util Require Import Facts Nat_facts List_facts SMX_facts.
+From Undecidability.StackMachines.Util Require Import Facts Nat_facts List_facts.
 
 Require Import ssreflect ssrbool ssrfun.
 
@@ -94,7 +95,7 @@ Qed.
 
 Section Reduction.
   Variable P : CM.Cm1.
-  Variable capped_P : CM.capped P 4.
+  Variable capped_P : Forall (fun '(_, n) => n < 4) P.
 
   Definition iP : list (CM.State * (CM.State * nat)) := combine (seq 0 (length P)) P.
 

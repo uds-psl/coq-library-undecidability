@@ -299,7 +299,7 @@ Qed.
   then M is uniformly bounded *)
 Lemma completeness {M: cssm}: SSemiU (SM_to_SUcs (proj1_sig M)) -> CSSM_UB M.
 Proof.
-  case: M=> M confluent_M /=. rewrite /SSemiU /DSSM_UB.
+  case: M=> M confluent_M /=.
   move=> [φ [ψ0 [ψ1]]]. rewrite -Forall_forall => Hφ.
   pose f x := embed (([], [], x) : config).
   apply: (bounded_of_bounded' confluent_M (n := depth_bound φ (map f (enum_states M)))).

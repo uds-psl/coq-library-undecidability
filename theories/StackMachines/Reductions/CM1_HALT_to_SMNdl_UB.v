@@ -7,7 +7,7 @@
 
 (* 
   Reduction(s): 
-    Halting Problem of 4-Capped One-Counter Machines (CM1c4_HALT) to 
+    Halting Problem of One-Counter Machines (CM1_HALT) to 
     Uniform Boundedness of Deterministic, Length-preserving Stack Machines
 *)
 
@@ -19,11 +19,12 @@ Module CM := CM1.
 Require Undecidability.CounterMachines.Util.CM1_facts.
 Module CM_facts := CM1_facts.
 
-Require Undecidability.StackMachines.Util.SMX.
+Require Undecidability.StackMachines.Reductions.CM1_HALT_to_SMNdl_UB.SMX.
+
 Require Import Undecidability.StackMachines.SMN.
 
-From Undecidability.StackMachines.Util Require Import Facts Nat_facts List_facts Enumerable SMX_facts.
-Require Import Undecidability.StackMachines.Reductions.CM1_to_SMX.
+From Undecidability.StackMachines.Util Require Import Facts Nat_facts List_facts Enumerable.
+Require Import Undecidability.StackMachines.Reductions.CM1_HALT_to_SMNdl_UB.CM1_to_SMX.
 
 Require Import ssreflect ssrbool ssrfun.
 
@@ -367,25 +368,19 @@ End Argument.
 Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.CounterMachines.CM1.
 
-Local Definition Cm1c4_to_SMNdl : Cm1c4 -> SMNdl.
-Proof.
-  move=> P. exists (Argument.MN (M (sval P))).
-  constructor.
-  - apply: Argument.deterministic_MN.
-    + apply: deterministic_M.
-    + apply: flip_consistent_M.
-  - apply: Argument.length_preserving_MN.
-    apply: length_preserving_M.
-    apply: svalP.
-Defined.
-
 (* many-one reduction from counter machine halting to uniform boundedness of stack machines *)
-Theorem reduction : CM1c4_HALT ⪯ SMNdl_UB.
+Theorem reduction : CM1_HALT ⪯ SMNdl_UB.
 Proof.
-  exists Cm1c4_to_SMNdl. move=> [P HP]. constructor.
-  - move=> [nP] /(terminating_P_to_bounded_M P HP).
-    move /Argument.bounded_MN => bounded_MN. eexists. 
-    apply: bounded_MN. by apply: flip_consistent_M.
-  - move=> [nMN] /= /Argument.bounded_MX /(bounded_M_to_terminating_P P HP) H'P.
-    eexists. by eassumption.
+  unshelve eexists (fun '(exist _ P HP) => exist _ (Argument.MN (M P)) _).
+  (* establish domain properties *)
+  - constructor; [apply: Argument.deterministic_MN | apply: Argument.length_preserving_MN].
+    + by apply: deterministic_M.
+    + by apply: flip_consistent_M.
+    + by apply: length_preserving_M.
+  - move=> [P HP]. constructor.
+    + move=> [nP] /(terminating_P_to_bounded_M P HP).
+      move /Argument.bounded_MN => bounded_MN. eexists. 
+      apply: bounded_MN. by apply: flip_consistent_M.
+    + move=> [nMN] /= /Argument.bounded_MX /(bounded_M_to_terminating_P P HP) H'P.
+      eexists. by eassumption.
 Qed.

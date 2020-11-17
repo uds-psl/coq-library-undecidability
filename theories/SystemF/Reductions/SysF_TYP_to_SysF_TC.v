@@ -12,7 +12,7 @@
     System F Typechecking (SysF_TC)
 *)
 
-Require Import List Lia Relation_Definitions Relation_Operators Operators_Properties.
+Require Import List Lia Relation_Operators.
 Import ListNotations.
 Require Import Undecidability.SystemF.SysF.
 From Undecidability.SystemF.Util Require Import Facts poly_type_facts pure_term_facts term_facts typing_facts pure_typing_facts.
@@ -36,7 +36,7 @@ Definition t_M0 := poly_var 0.
 Lemma transport : 
   SysF_TYP M0 -> SysF_TC (Gamma_M0, M_M0, t_M0).
 Proof.
-  move=> [Gamma] [?] [t] [+] /typing_to_pure_typing => ->.
+  move=> [Gamma] [t] /pure_typing_iff_type_assignment.
   move=> /pure_typableI /pure_typable_many_pure_term_abs_allI [{}t].
   move=> /(pure_typing_ren_pure_term id (Delta := Gamma_M0)). rewrite ren_pure_term_id.
   apply: unnest; first by case.
@@ -44,15 +44,15 @@ Proof.
   apply: unnest.
   { apply: (pure_typing_pure_var 0); first by reflexivity. 
     apply: rt_step. by apply: contains_step_subst. }
-  move=> /pure_typing_to_typing /= [P] [? ?].
-  by exists P.
+  move=> /pure_typing_to_typing /= [P] [HP] /typing_to_type_assignment.
+  by rewrite -HP.
 Qed.
 
 (** type checking to typability *)
 Lemma inverse_transport : 
   SysF_TC (Gamma_M0, M_M0, t_M0) -> SysF_TYP M0.
 Proof.
-  move=> [?] [+] /typing_to_pure_typing => ->. rewrite /Gamma_M0 /M_M0 /t_M0.
+  move=> /pure_typing_iff_type_assignment. rewrite /Gamma_M0 /M_M0 /t_M0.
   move=> /pure_typingE' [?] [?] [_] [/pure_typableI HM0 _].
   have : exists Gamma, pure_typable Gamma M0.
   {
@@ -60,7 +60,8 @@ Proof.
     - move=> /= ? ?. eexists. by eassumption.
     - by move=> {}n IH Gamma /= /pure_typableE [?] /IH.
   }
-  move=> [Gamma] [t] /pure_typing_to_typing [P] [->] ?. by exists Gamma, P, t.
+  move=> [Gamma] [t] /pure_typing_to_typing [P] [->].
+  move=> /typing_to_type_assignment ?. by exists Gamma, t.
 Qed.
 
 End SysF_TYP_to_SysF_TC.
@@ -73,6 +74,6 @@ Theorem reduction : SysF_TYP ⪯ SysF_TC.
 Proof.
   exists (fun 'M0 => (Argument.Gamma_M0, Argument.M_M0 M0, Argument.t_M0)).
   move=> M0. constructor.
-  - by apply: Argument.transport.
-  - by apply Argument.inverse_transport.
+  - exact: Argument.transport.
+  - exact: Argument.inverse_transport.
 Qed.

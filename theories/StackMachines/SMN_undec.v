@@ -14,14 +14,14 @@ Require Import Undecidability.Synthetic.Undecidability.
 
 Require Import Undecidability.StackMachines.SMN.
 
-Require Undecidability.StackMachines.Reductions.CM1c4_HALT_to_SMNdl_UB.
+Require Undecidability.StackMachines.Reductions.CM1_HALT_to_SMNdl_UB.
 Require Import Undecidability.CounterMachines.CM1_undec.
 
 (* Undecidability of Uniform Boundedness of Deterministic, Length-preserving Stack Machines *)
 Theorem SMNdl_UB_undec : undecidable SMNdl_UB.
 Proof.
-  apply (undecidability_from_reducibility CM1c4_HALT_undec).
-  exact CM1c4_HALT_to_SMNdl_UB.reduction.
+  apply (undecidability_from_reducibility CM1_HALT_undec).
+  exact CM1_HALT_to_SMNdl_UB.reduction.
 Qed.
 
 Check SMNdl_UB_undec.
