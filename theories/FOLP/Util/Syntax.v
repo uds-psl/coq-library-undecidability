@@ -7,8 +7,6 @@ From Undecidability.FOLP Require Export unscoped.
 Class Signature := B_S { Funcs : Type; fun_ar : Funcs -> nat ;
               Preds : Type; pred_ar : Preds -> nat }.
 
-
-
 Section fix_sig.
 
 Context {Sigma : Signature}.
@@ -163,7 +161,7 @@ Instance Up_term_term (Sigma : Signature)   : Up_term (_) (_) := @up_term_term S
 
 Notation "s [ sigmaterm ]" := (subst_term sigmaterm s) (at level 7, left associativity, only printing) : subst_scope.
 
-Notation "[ sigmaterm ]" := (subst_term sigmaterm) (at level 0, left associativity, only printing) : fscope.
+(* Notation "[ sigmaterm ]" := (subst_term sigmaterm) (at level 0, left associativity, only printing) : fscope. *)
 
 Notation "s [ sigmaterm ]" := (subst_form sigmaterm s) (at level 7, left associativity, only printing) : subst_scope.
 

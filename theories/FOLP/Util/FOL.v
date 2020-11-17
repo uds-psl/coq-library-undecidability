@@ -4,7 +4,7 @@
 Require Import Undecidability.Shared.ListAutomation.
 Import ListAutomationNotations.
 Require Import Equations.Equations Equations.Prop.DepElim Arith Undecidability.Shared.Libs.PSL.Numbers List Setoid.
-From Undecidability.Synthetic Require Export DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
+From Undecidability.Synthetic Require Export DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 From Undecidability.FOLP Require Export Syntax.
 Require Export Lia.
 

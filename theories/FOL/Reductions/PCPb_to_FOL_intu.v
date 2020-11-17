@@ -1,6 +1,6 @@
 (** * Intuitionistic FOL *)
 
-From Undecidability.FOL Require Import Kripke BPCP_FOL.
+From Undecidability.FOL Require Import Kripke PCPb_to_FOL FOL.
 
 Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
 (** ** Reductions *)
@@ -41,16 +41,27 @@ Proof.
     now apply (H u), (H' D eta M u).
 Qed.
 
+(** Reduction theorems  *)
 
-
-
-(** ** Corollaries *)
-
-Corollary kvalid_red :
-  PCPb ⪯ @kvalid full.
+Theorem kvalid_red :
+  PCPb ⪯ FOL_valid_intu.
 Proof.
   exists (fun R => F R). intros R. apply (BPCP_kvalid R).
 Qed.
+
+Theorem kprv_red :
+  PCPb ⪯ FOL_prv_intu.
+Proof.
+  exists (fun R => F R). intros R. apply (BPCP_kprv R).
+Qed.
+
+Theorem ksatis_red :
+  compl PCPb ⪯ FOL_satis_intu.
+Proof.
+  exists (fun R => ¬ F R). intros R. apply (BPCP_ksatis R).
+Qed.
+
+(** ** Corollaries *)
 
 Corollary kvalid_undec :
   UA -> ~ decidable (@kvalid full).
@@ -64,12 +75,6 @@ Proof.
   intros H. now apply (not_coenumerable kvalid_red).
 Qed.
 
-Corollary kprv_red :
-  PCPb ⪯ @prv intu full nil.
-Proof.
-  exists (fun R => F R). intros R. apply (BPCP_kprv R).
-Qed.
-
 Corollary kprv_undec :
   UA -> ~ decidable (@prv intu full nil).
 Proof.
@@ -80,12 +85,6 @@ Corollary kprv_unenum :
   UA -> ~ enumerable (compl (@prv intu full nil)).
 Proof.
   intros H. apply (not_coenumerable kprv_red); trivial.
-Qed.
-
-Corollary ksatis_red :
-  compl PCPb ⪯ @ksatis full.
-Proof.
-  exists (fun R => ¬ F R). intros R. apply (BPCP_ksatis R).
 Qed.
 
 Corollary ksatis_undec :

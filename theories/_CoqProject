@@ -161,9 +161,9 @@ FOL/Util/Deduction.v
 FOL/Util/Kripke.v
 FOL/Util/Weakening.v
 
-FOL/Reductions/BPCP_FOL.v
-FOL/Reductions/BPCP_IFOL.v
-FOL/Reductions/BPCP_CND.v
+FOL/Reductions/PCPb_to_FOL.v
+FOL/Reductions/PCPb_to_FOL_intu.v
+FOL/Reductions/PCPb_to_FOL_class.v
 
 # Minsky machines with n counter (2 different semantics) and with 2 counters 
 MinskyMachines/MM.v             # generic X-bounded MM (X=pos n or X=nat is type of registers) 

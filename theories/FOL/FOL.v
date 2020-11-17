@@ -18,3 +18,11 @@ Inductive form : logic -> Type :=
 | Impl {b} : form b -> form b -> form b
 | All {b} : var -> form b -> form b.
 *)
+
+Notation "FOL*_prv_intu" := (@prv intu frag nil).
+Notation "FOL*_valid" := (@valid frag).
+Definition FOL_satis := @satis full.
+Definition FOL_valid_intu := (@kvalid full).
+Definition FOL_prv_intu := @prv intu full nil.
+Definition FOL_prv_class := @prv class full nil.
+Definition FOL_satis_intu := @ksatis full.

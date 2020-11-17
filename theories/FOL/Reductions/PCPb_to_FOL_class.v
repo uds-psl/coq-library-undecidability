@@ -1,6 +1,6 @@
 (** * Classical Natural Deduction *)
 
-From Undecidability Require Export BPCP_FOL.
+From Undecidability Require Export PCPb_to_FOL FOL.
 Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
 (** ** Double Negation Translation *)
 
@@ -194,15 +194,15 @@ Section BPCP_CND.
 
 End BPCP_CND.
 
+Theorem cprv_red :
+  PCPb ⪯ FOL_prv_class.
+Proof.
+  exists (fun R => F R). intros R. apply (BPCP_CND R).
+Qed.
 
 
 (** ** Corollaries **)
 
-Corollary cprv_red :
-  PCPb ⪯ cprv nil.
-Proof.
-  exists (fun R => F R). intros R. apply (BPCP_CND R).
-Qed.
 
 Corollary cprv_undec :
   UA -> ~ decidable (cprv nil).
