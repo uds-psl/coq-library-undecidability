@@ -12,7 +12,7 @@ Definition encTM {Σ : Type} (s b : Σ) (l : list bool) :=
   @midtape Σ [] b (encListTM s b l).
 
   
-Definition TM_computable {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
+Definition TM_booL_bool_computable {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
   exists n : nat, exists Σ : finType, exists s b : Σ, s <> b /\ 
   exists M : TM Σ (k + 1 + n),
   forall v : Vector.t (list bool) k, 
@@ -21,7 +21,7 @@ Definition TM_computable {k} (R : Vector.t (list bool) k -> (list bool) -> Prop)
   (forall q t, TM.eval M (start M) ((Vector.map (encTM s b) v ++ [niltape]) ++ Vector.const niltape n) q t ->
           exists m, nth_error (Vector.to_list t) k = Some (encTM s b m)).
 
-Definition TM₁_computable {k} (Σ : finType) (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
+Definition TM₁_booL_bool_computable {k} (Σ : finType) (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
   exists s1 s2 b : Σ, s1 <> s2 /\ s1 <> b /\ s2 <> b /\
   exists M : TM Σ 1,
   forall v : Vector.t (list bool) k, 
@@ -31,7 +31,7 @@ Definition TM₁_computable {k} (Σ : finType) (R : Vector.t (list bool) k -> (l
       
 Definition encL (l : list bool) := list_enc l.
 
-Definition L_computable {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
+Definition L_bool_computable {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
   exists s, forall v : Vector.t (list bool) k, 
       (forall m, R v m <-> L.eval (Vector.fold_left (fun s n => L.app s (encL n)) s v) (encL m)) /\
       (forall o, L.eval (Vector.fold_left (fun s n => L.app s (encL n)) s v) o -> exists m, o = encL m).

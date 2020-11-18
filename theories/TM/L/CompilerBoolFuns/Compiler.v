@@ -438,8 +438,8 @@ Proof.
     destruct a, b; now inversion H1.
 Qed.
 
-Lemma L_computable_function {k} R :
-  @L_computable k R -> functional R.
+Lemma L_bool_computable_function {k} R :
+  @L_bool_computable k R -> functional R.
 Proof.
   intros [s Hs] v m1 m2 H1 H2.
   eapply Hs in H1. eapply Hs in H2.
@@ -456,11 +456,11 @@ Proof.
 Qed.
 
 Theorem compiler_bool {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) :
-  L_computable_bool_closed R -> TM_computable R.
+  L_booL_bool_computable_closed R -> TM_booL_bool_computable R.
 Proof.
   intros H. 
-  eapply TM_computable_hoare'_spec.
-  { eapply L_computable_function. now apply L_computable_bool_can_closed. }
+  eapply TM_booL_bool_computable_hoare'_spec.
+  { eapply L_bool_computable_function. now apply L_booL_bool_computable_can_closed. }
   destruct H as [sim [cs Hsim]].
   hnf. 
   eexists _, _, sym_s, sym_b. split. eapply syms_diff. exists (M_main k sim).
