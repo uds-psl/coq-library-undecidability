@@ -1,6 +1,6 @@
 # Coq Library of Undecidability Proofs
 
-[![Test compilation](https://github.com/uds-psl/coq-library-undecidability/workflows/Test%20compilation/badge.svg?branch=coq-8.12)](https://github.com/uds-psl/coq-library-undecidability/actions)
+[![Build](https://github.com/uds-psl/coq-library-undecidability/workflows/Test%20compilation/badge.svg?branch=coq-8.12)](https://github.com/uds-psl/coq-library-undecidability/actions)
 
 The Coq Library of Undecidability Proofs contains mechanised reductions to establish undecidability results in Coq.
 The undecidability proofs are based on a synthetic approach to undecidability, where a problem `P` is considered [undecidable](theories/Synthetic/Undecidability.v#L4) if its [decidability](theories/Synthetic/Definitions.v#L6) in Coq would imply the decidability of the [halting problem of single-tape Turing machines](theories/TM/TM.v#L148) in Coq.
