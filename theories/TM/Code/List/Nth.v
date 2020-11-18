@@ -66,10 +66,10 @@ Section Nth'.
   
     Lemma Nth'_Step_SpecT_size (n : nat) (xs : list X) (ss : Vector.t nat 3) :
       TripleT
-        (tspec ([],withSpace ([|Contains _ xs; Contains _ n; Void|]) ss))
+        (≃≃([],withSpace ([|Contains _ xs; Contains _ n; Void|]) ss))
         (Nth'_Step_steps xs n) Nth'_Step
         (fun yout =>
-           tspec ([yout = match xs,n with [],_ => Some false | _ , 0 => Some true | _,__ => None end ],
+           ≃≃([yout = match xs,n with [],_ => Some false | _ , 0 => Some true | _,__ => None end ],
                       withSpace
                     match xs,n with
                     | nil,_ => [|Contains _ xs; Contains _ (pred n); Void|]
@@ -121,11 +121,10 @@ Section Nth'.
 
     Lemma Nth'_Loop_SpecT_size (xs:list X) n (ss : Vector.t nat 3) :
     TripleT
-      (tspec ([],withSpace ([|Contains _ xs; Contains _ n; Void|]) ss))
+      ≃≃([],withSpace ([|Contains _ xs; Contains _ n; Void|]) ss)
       (Nth'_Loop_steps xs n) Nth'_Loop
       (fun yout =>
-         tspec
-           ([yout = match nth_error xs n with None => false | _ => true end],
+         ≃≃([yout = match nth_error xs n with None => false | _ => true end],
               withSpace match nth_error xs n with
               | Some x => [|Contains _ (skipn (S n) xs); Contains _ (n - (S (length xs))); Contains _ x|]
               | None  => [|Contains _ (skipn (S n) xs); Contains _ (n - (S (length xs))); Void|]
@@ -173,10 +172,10 @@ Section Nth'.
      
   Lemma Nth'_SpecT_size (xs : list X) (n : nat) (ss : Vector.t nat 4) :
     TripleT
-      (tspec ([],withSpace ([|Contains _ xs; Contains _ n; Void; Void|]) ss))
+      (≃≃([],withSpace ([|Contains _ xs; Contains _ n; Void; Void|]) ss))
       (Nth'_steps xs n) Nth'
       (fun yout =>
-    tspec ([yout = match nth_error xs n with None => false | _ => true end],
+    ≃≃([yout = match nth_error xs n with None => false | _ => true end],
       withSpace match nth_error xs n with
       | Some x => [|Contains _ xs; Void; Contains _ x;Void|]
       | None  => [|Contains _ xs; Void; Void;Void|]

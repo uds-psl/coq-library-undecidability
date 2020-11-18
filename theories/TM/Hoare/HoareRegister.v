@@ -204,21 +204,21 @@ Instance Forall2_refl X (R: X -> _): Reflexive R -> Reflexive (Forall2 R).
 Proof. intros ? xs;induction xs;eauto. Qed. 
 
 Lemma tspec_introPure (sig: finType) (n : nat) P (Ps : SpecV sig n) Q:
-  implList P (Entails (tspec ([],Ps)) Q)
+  implList P (Entails (≃≃([],Ps)) Q)
   -> Entails (tspec (P,Ps)) Q.
 Proof.
   setoid_rewrite Entails_iff. rewrite implList_iff. intros H ? []%tspecE. eapply H. eassumption. now apply tspecI.
 Qed.
 
 Lemma Triple_introPure (F sig: finType) (n : nat) P (Ps : SpecV sig n) Q (pM : pTM sig^+ F n) :
-  implList P (Triple (tspec ([],Ps)) pM Q)
+  implList P (Triple (≃≃([],Ps)) pM Q)
   -> Triple (tspec (P,Ps)) pM Q.
 Proof.
   intros. rewrite tspec_Entails. apply Triple_and_pre. cbn in H. now rewrite <- implList_iff.
 Qed.
 
 Lemma TripleT_introPure (sig F : finType) (n : nat) P (Ps : SpecV sig n) Q k (pM : pTM sig^+ F n) :
-  implList P (TripleT (tspec ([],Ps)) k pM Q)
+  implList P (TripleT (≃≃([],Ps)) k pM Q)
   -> TripleT (tspec (P,Ps)) k pM Q.
 Proof.
   intros. rewrite tspec_Entails. apply TripleT_and_pre. cbn in H. now rewrite <- implList_iff.
@@ -226,11 +226,11 @@ Qed.
 
 (*
 Lemma Triple_SpecFalse {sig : finType} {n : nat} {F : Type} P (pM : pTM sig^+ F n) Q :
-  Triple (tspec ([False],P)) pM Q.
+  Triple (≃≃([False],P)) pM Q.
 Proof. hnf;cbn. tauto. Qed.
 
 Lemma TripleT_SpecFalse {sig : finType} {n : nat} {F : Type} P (k : nat) (pM : pTM sig^+ F n) Q :
-  TripleT (tspec ([False],P)) k pM Q.
+  TripleT (≃≃([False],P)) k pM Q.
 Proof. eapply ConsequenceT. 1,3,4:now eauto. hnf;cbn;tauto. Qed.
 
 Lemma tspec_not_SpecFalse {sig : Type} {n : nat} (t : tapes (boundary+sig) n) P :

@@ -60,14 +60,11 @@ Definition CaseBool_size (_ : bool) : Vector.t (nat->nat) 1 :=
 
 Lemma CaseBool_SpecT_size (b : bool) (ss : Vector.t nat 1) :
   TripleT
-    (tspec (([], withSpace  [|Contains _ b |] ss)))
+    (≃≃(([], withSpace  [|Contains _ b |] ss)))
     CaseBool_steps
     CaseBool
     (fun yout =>
-       tspec
-         ([yout = b],withSpace
-            ([|Void|])
-            (appSize (CaseBool_size b) ss))). 
+       ≃≃([yout = b], withSpace ([|Void|]) (appSize (CaseBool_size b) ss))). 
 Proof.  unfold withSpace.
   eapply RealiseIn_TripleT.
   - apply CaseBool_Sem.

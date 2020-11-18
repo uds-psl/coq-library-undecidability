@@ -212,9 +212,9 @@ Section CompareValues.
   Hypothesis (HInj : forall x y, cX x = cX y -> x = y).
 
   Lemma CompareValue_SpecT_size (x y : X) (ss : Vector.t nat 2) :
-    TripleT (tspec (([], withSpace  [|Contains _ x; Contains _ y |] ss)))
+    TripleT (≃≃(([], withSpace  [|Contains _ x; Contains _ y |] ss)))
             (CompareValues_steps x y) (CompareValues sigX)
-            (fun yout => tspec ([if yout then x=y else x<>y],withSpace [|Contains _ x; Contains _ y|] (appSize [|id; id|] ss))).
+            (fun yout => ≃≃([if yout then x=y else x<>y],withSpace [|Contains _ x; Contains _ y|] (appSize [|id; id|] ss))).
   Proof using HInj. unfold withSpace.
     eapply Realise_TripleT.
     - now apply CompareValues_Realise.
@@ -230,21 +230,21 @@ Section CompareValues.
   Qed.
 
   Lemma CompareValue_SpecT (x y : X) :
-    TripleT (tspec ([],  [|Contains _ x; Contains _ y|]))
+    TripleT (≃≃([], [|Contains _ x; Contains _ y|]))
             (CompareValues_steps x y) (CompareValues sigX)
-            (fun yout => tspec ([if yout then x=y else x<>y],[|Contains _ x; Contains _ y|])).
+            (fun yout => ≃≃([if yout then x=y else x<>y],[|Contains _ x; Contains _ y|])).
   Proof using HInj. eapply TripleT_RemoveSpace. cbn. intros s. apply CompareValue_SpecT_size. Qed.
 
   Lemma CompareValue_Spec_size (x y : X) (ss : Vector.t nat 2) :
-    Triple (tspec (([], withSpace  [|Contains _ x; Contains _ y |] ss)))
+    Triple (≃≃(([], withSpace  [|Contains _ x; Contains _ y |] ss)))
            (CompareValues sigX)
-           (fun yout => tspec ([if yout then x=y else x<>y],withSpace [|Contains _ x; Contains _ y|] (appSize [|id; id|] ss))).
+           (fun yout => ≃≃([if yout then x=y else x<>y],withSpace [|Contains _ x; Contains _ y|] (appSize [|id; id|] ss))).
   Proof using HInj. eapply TripleT_Triple. apply CompareValue_SpecT_size. Qed.
 
   Lemma CompareValue_Spec (x y : X) :
-    Triple (tspec ([],  [|Contains _ x; Contains _ y|]))
+    Triple (≃≃([], [|Contains _ x; Contains _ y|]))
            (CompareValues sigX)
-           (fun yout => tspec ([if yout then x=y else x<>y],[|Contains _ x; Contains _ y|])).
+           (fun yout => ≃≃([if yout then x=y else x<>y],[|Contains _ x; Contains _ y|])).
   Proof using HInj. eapply Triple_RemoveSpace. apply CompareValue_Spec_size. Qed.
 
 End CompareValues.

@@ -28,11 +28,11 @@ Definition Add_Step_size (a b : nat) : Vector.t (nat->nat) 2 :=
 
 Lemma Add_Step_SpecT_space (a b : nat) (ss : Vector.t nat 2) :
   TripleT
-    (tspec ([], withSpace ( [|Contains _ a; Contains _ b|]) ss))
+    (≃≃([],  withSpace ( [|Contains _ a; Contains _ b|]) ss))
     Add_Step_steps
     Add_Step
     (fun yout =>
-            tspec ([yout = if b then Some tt else None]
+            ≃≃([yout = if b then Some tt else None]
                     ,withSpace [|Contains _ (match b with 0 => a | _ => S a end);Contains _ (pred b)|]
           (appSize (Add_Step_size a b) ss))).
 Proof.
@@ -59,7 +59,7 @@ Fixpoint Add_Loop_size (a b : nat) : Vector.t (nat->nat) 2 :=
 
 Lemma Add_Loop_SpecT_size (a b : nat) (ss : Vector.t nat 2) :
   TripleT
-    (tspec ([], withSpace ( [|Contains _ a; Contains _ b|]) ss))
+    (≃≃([],  withSpace ( [|Contains _ a; Contains _ b|]) ss))
     (Add_Loop_steps b)
     (Add_Loop)
     (fun _ => tspec
@@ -96,10 +96,10 @@ Definition Add_space (a b : nat) : Vector.t (nat->nat) 4 :=
 
 Lemma Add_SpecT_space (a b : nat) (ss : Vector.t nat 4) :
   TripleT
-    (tspec ([], withSpace ( [|Contains _ a; Contains _ b; Void; Void|]) ss))
+    (≃≃([],  withSpace ( [|Contains _ a; Contains _ b; Void; Void|]) ss))
     (Add_steps a b)
     Add
-    (fun _ => tspec ([], withSpace ( [|Contains _ a; Contains _ b; Contains _ (a+b); Void|])
+    (fun _ => ≃≃([],  withSpace ( [|Contains _ a; Contains _ b; Contains _ (a+b); Void|])
                             (appSize (Add_space a b) ss))).
 Proof. (* The tactic [hstep] takes also takes care of moving [withSpace] to the head symbol of each precondition *)
   start_TM.
@@ -145,11 +145,11 @@ Definition Mult_Step_space m' n c : Vector.t (nat->nat) 5 :=
 
 Lemma Mult_Step_SpecT_size m' n c ss :
 TripleT
-  (tspec ([], withSpace ( [|Contains _ m'; Contains _ n; Contains _ c; Void; Void|]) ss))
+  (≃≃([],  withSpace ( [|Contains _ m'; Contains _ n; Contains _ c; Void; Void|]) ss))
   (Mult_Step_steps m' n c)
   (Mult_Step)
   (fun yout =>
-      tspec ([yout = if m' then Some tt else None],
+      ≃≃([yout = if m' then Some tt else None],
         withSpace 
         [|Contains _ (pred m'); Contains _ n; Contains _ ( if m' then c else (n + c)); Void; Void|] (appSize (Mult_Step_space m' n c) ss))).
 Proof.
@@ -182,10 +182,10 @@ Fixpoint Mult_Loop_size m' n c :=
 
 Lemma Mult_Loop_SpecT_size m' n c ss :
   TripleT
-    (tspec ([], withSpace ( [|Contains _ m'; Contains _ n; Contains _ c; Void; Void|]) ss))
+    (≃≃([],  withSpace ( [|Contains _ m'; Contains _ n; Contains _ c; Void; Void|]) ss))
     (Mult_Loop_steps m' n c)
     (Mult_Loop)
-    (fun _ => tspec ([],withSpace
+    (fun _ => ≃≃([],withSpace
                     [|Contains _ 0; Contains _ n; Contains _ (m' * n + c); Void; Void|]
                     (appSize (Mult_Loop_size m' n c) ss))).
 Proof.
@@ -222,10 +222,10 @@ Definition Mult_size (m n : nat) : Vector.t (nat->nat) 6 :=
 
 Lemma Mult_SpecT_space (m n : nat) (ss : Vector.t nat 6) :
   TripleT
-    (tspec ([], withSpace ( [|Contains _ m; Contains _ n; Void; Void; Void; Void|]) ss))
+    (≃≃([],  withSpace ( [|Contains _ m; Contains _ n; Void; Void; Void; Void|]) ss))
     (Mult_steps m n)
     (Mult)
-    (fun _ => tspec ([], withSpace ( [|Contains _ m; Contains _ n; Contains _ (m * n); Void; Void; Void|])
+    (fun _ => ≃≃([],  withSpace ( [|Contains _ m; Contains _ n; Contains _ (m * n); Void; Void; Void|])
                             (appSize (Mult_size m n) ss))).
 Proof.
   start_TM.

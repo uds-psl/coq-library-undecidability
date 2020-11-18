@@ -1,11 +1,9 @@
+From Coq Require List Vector.
+
 From Undecidability.L Require Import L Datatypes.Lists.
+From Undecidability.TM Require Import TM Util.TM_facts.
 
-Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes Undecidability.Shared.Libs.PSL.Vectors.Vectors.
-Require Import Vector List.
-
-From Undecidability Require Import L.L TM.TM TM.Util.TM_facts.
-Require Import List.
-Import ListNotations.
+Import ListNotations Vector.VectorNotations.
 
 Definition encListTM {Σ : Type} (s b : Σ) (l : list bool) :=
   (map (fun (x : bool) => (if x then s else b)) l).
@@ -13,8 +11,7 @@ Definition encListTM {Σ : Type} (s b : Σ) (l : list bool) :=
 Definition encTM {Σ : Type} (s b : Σ) (l : list bool) :=
   @midtape Σ [] b (encListTM s b l).
 
-Import VectorNotations.
-
+  
 Definition TM_computable {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
   exists n : nat, exists Σ : finType, exists s b : Σ, s <> b /\ 
   exists M : TM Σ (k + 1 + n),

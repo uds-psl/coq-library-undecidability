@@ -270,6 +270,8 @@ Section ChangeAlphabet.
 
 End ChangeAlphabet.
 
+Notation "pM ⇑ Rmove" := (ChangeAlphabet pM Rmove) (at level 40, only parsing).
+
 
 (** This tactic removes [surjectTape] in hypothesises and in the goal *)
 Ltac simpl_surject_step :=

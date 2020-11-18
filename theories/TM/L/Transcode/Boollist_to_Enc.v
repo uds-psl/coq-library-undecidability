@@ -289,10 +289,10 @@ Module BoollistToEnc.
     { f : UpToC (fun bs => length bs + 1) &
       forall (bs : list bool),
       TripleT 
-        (tspec ([],[| Contains _ bs;Void;Void; Void|]) )
+        (≃≃([],[| Contains _ bs;Void;Void; Void|]) )
         (f bs)
         M
-        (fun _ => tspec ([],[|Void; Contains _ (compile (Computable.enc (rev bs)));Void;Void|])) }. 
+        (fun _ => ≃≃([],[|Void; Contains _ (compile (Computable.enc (rev bs)));Void;Void|])) }. 
     Proof.
       evar (f: list bool -> nat).
       exists_UpToC f.

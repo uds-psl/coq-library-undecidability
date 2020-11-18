@@ -69,11 +69,11 @@ Section LookupAssociativeList.
 
   Lemma Lookup_Step_SpecT_space (xs : list (X*Y)) (x : X) (ss : Vector.t nat 4) :
     TripleT
-      (tspec ([],withSpace ([|Contains _ xs; Contains _ x; Void; Void|]) ss))
+      (≃≃([],withSpace ([|Contains _ xs; Contains _ x; Void; Void|]) ss))
       (Lookup_Step_steps xs x)
       Lookup_Step
       (fun yout =>
-         tspec ([match xs with
+         ≃≃([match xs with
                   | [] => yout = Some false
                 | (x',y)::xs' => yout = if Dec (x=x') then Some true else None
          end], withSpace
@@ -141,7 +141,7 @@ Section LookupAssociativeList.
 
   Lemma Lookup_Loop_SpecT_space (xs : list (X*Y)) (x : X) (ss : Vector.t nat 4) :
   TripleT
-    (tspec ([],withSpace ([|Contains _ xs; Contains _ x; Void; Void|]) ss))
+    (≃≃([],withSpace ([|Contains _ xs; Contains _ x; Void; Void|]) ss))
     (Lookup_Loop_steps x xs) Lookup_Loop
     (fun yout =>
       tspec
@@ -205,7 +205,7 @@ Section LookupAssociativeList.
 
     Lemma Lookup_SpecT_space (xs : list (X*Y)) (x : X) (ss : Vector.t nat 5) :
     TripleT
-      (tspec ([],withSpace ([|Contains _ xs; Contains _ x; Void; Void; Void|]) ss))
+      (≃≃([],withSpace ([|Contains _ xs; Contains _ x; Void; Void; Void|]) ss))
       (Lookup_steps x xs) Lookup
       (fun yout =>
          tspec

@@ -1,16 +1,19 @@
-Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes Undecidability.Shared.Libs.PSL.Vectors.Vectors.
-From Undecidability Require Import TM.Util.TM_facts Hoare UpToC.
-From Undecidability Require Import ProgrammingTools WriteValue Copy.
+From Undecidability.Shared.Libs.PSL Require Import FinTypes Vectors.
+From Undecidability.L Require Import L_facts UpToC.
 
-Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes Undecidability.Shared.Libs.PSL.Vectors.Vectors.
-Require Import Vector List.
-
-From Undecidability.TM.Compound Require Import MoveToSymbol WriteString.
-From Undecidability.TM.Code Require Import CaseBool CaseList Copy List.Cons_constant.
-
-From Undecidability.TM.L.Compiler Require Import Compiler_spec.
-
+From Coq Require Vector.
 Import ListNotations.
+
+From Coq Require Import List.
+
+
+From Undecidability.TM.L.CompilerBoolFuns Require Import Compiler_spec.
+
+Require Import Equations.Type.DepElim.
+
+From Undecidability.TM Require Import TM_facts Hoare ProgrammingTools.
+From Undecidability.TM.Code Require Import CaseBool CaseList WriteValue Copy ListTM.
+
 
 Set Default Proof Using "Type".
 
@@ -38,24 +41,24 @@ Section Fix.
     { f : UpToC (fun bs => length bs + 1) &
     forall bs res,
       TripleT 
-        (tspec ([],[|Contains _ bs; Custom (fun t => right t = map (fun (x:bool) => if x then s else b) res
+        (≃≃([]%list,[|Contains _ bs; Custom (fun t => right t = map (fun (x:bool) => if x then s else b) res
         /\ length (left t) <= length bs); Void|]) )
         (f bs)
         M__loop
-        (fun _ => tspec ([],[|Void; Custom (eq (encTM s b (rev bs++res))) ; Void  |])) }.
+        (fun _ => ≃≃([]%list,[|Void; Custom (eq (encTM s b (rev bs++res))) ; Void  |])) }.
   Proof.
     evar (c1 : nat);evar (c2 :nat).
     exists_UpToC (fun bs => c1 * length bs + c2). 2:now smpl_upToC_solve.
     intros bs res.
     unfold M__loop.
-    eapply While_SpecTReg with
-      (PRE := fun '(bs,res) => (_,_)) (INV := fun '(bs,res) y => ([y = match bs with [] => Some tt | _ => None end],_)) (POST := fun '(bs,res) y => (_,_))
-    (f__step := fun '(bs,res) => _) (f__loop := fun '(bs,res) => _) (x := (bs,res));
+    refine (While_SpecTReg _ _
+      (PRE := fun '(bs,res) => (_,_)) (INV := fun '(bs,res) y => ([y = match bs with []%list => Some tt | _ => None end]%list,_)) (POST := fun '(bs,res) y => (_,_))
+    (f__step := fun '(bs,res) => _) (f__loop := fun '(bs,res) => _) (bs,res));
     clear bs res; intros (bs,res); cbn in *.
     { unfold M__step. hstep.
       - hsteps_cbn. cbn. tspec_ext.
       - cbn. hintros H.   
-        refine (_ :  TripleT _ _  _ (fun y => ≃≃( _ ,match bs with nil => _ | b0::bs => _ end))).
+        refine (_ :  TripleT _ _  _ (fun y => ≃≃( _ ,match bs with nil => _ | cons b0 bs => _ end))).
         destruct bs as [ | b0 bs]. easy. hsteps_cbn;cbn. 3:reflexivity. now tspec_ext. 
         + hintros ? ->. hsteps_cbn. 2:cbn;reflexivity. tspec_ext.
       - cbn. hintros H. destruct bs. 2:easy.
@@ -77,7 +80,7 @@ Section Fix.
     Unshelve.
     3:unfold c2;reflexivity.
     2:{ unfold CaseList_steps,CaseList_steps_cons. rewrite Encode_bool_hasSize.
-     ring_simplify. [c1]:exact 68. subst c1. nia. } 
+     ring_simplify. [c1]:exact 68. subst c1. cbn - ["+" "*"] in *. fold Nat.add. nia. } 
   Qed.
 
   Definition M : pTM (Σ) ^+ unit 3 :=
@@ -87,10 +90,10 @@ Section Fix.
   { f : UpToC (fun bs => length bs + 1) &
     forall bs,
       TripleT 
-        (tspec ([],[|Contains _ bs; Custom (eq niltape); Void|]) )
+        (≃≃([],[|Contains _ bs; Custom (eq niltape); Void|]) )
         (f bs)
         M
-        (fun _ => tspec ([],[|Void; Custom (eq (encTM s b (rev bs))) ; Void  |])) }.
+        (fun _ => ≃≃([],[|Void; Custom (eq (encTM s b (rev bs))) ; Void  |])) }.
   Proof.
     eexists. intros. eapply ConsequenceT.
     eapply (projT2 loop_SpecT) with (res:=[]).
@@ -147,11 +150,11 @@ Section Fix.
     { f : UpToC (fun bs => length bs + 1) &
     forall bs res tin,
       TripleT 
-        (tspec ([right tin = map (fun (x:bool) => if x then s else b) res
+        (≃≃([right tin = map (fun (x:bool) => if x then s else b) res
            /\ tape_local_l tin = (map (fun (x:bool) => if x then s else b) bs++[b]) ],[| Custom (eq tin); Contains _ res|]) )
         (f bs)
         M__loop
-        (fun _ => tspec ([],[|Custom (eq (encTM s b (rev bs++res))) ; Contains _ (rev bs ++ res)|])) }.
+        (fun _ => ≃≃([],[|Custom (eq (encTM s b (rev bs++res))) ; Contains _ (rev bs ++ res)|])) }.
   Proof.
     evar (c1 : nat);evar (c2 :nat).
     exists_UpToC (fun bs => c1 * length bs + c2). 2:now smpl_upToC_solve.
@@ -222,10 +225,10 @@ Section Fix.
     { f : UpToC (fun bs => length bs + 1) &
       forall bs,
       TripleT 
-        (tspec ([],[| Custom (eq (encTM s b bs)); Void|]) )
+        (≃≃([],[| Custom (eq (encTM s b bs)); Void|]) )
         (f bs)
         M
-        (fun _ => tspec ([],[|Custom (eq (encTM s b bs)) ; Contains _ bs|])) }. 
+        (fun _ => ≃≃([],[|Custom (eq (encTM s b bs)) ; Contains _ bs|])) }. 
   Proof.
     evar (f : nat -> nat).
     exists_UpToC (fun bs => f (length bs)). 2:now shelve. 

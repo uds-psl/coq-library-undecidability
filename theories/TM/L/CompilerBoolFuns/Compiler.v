@@ -1,21 +1,12 @@
-From Undecidability Require Import L.Util.L_facts.
-
 From Undecidability.Shared.Libs.PSL Require Import FinTypes Vectors.
-Require Import List.
-
-Require Import Undecidability.TM.Util.TM_facts.
-
-From Undecidability Require Import ProgrammingTools LM_heap_def WriteValue CaseList Copy ListTM Hoare.
-From Undecidability.TM.L Require Import Alphabets Eval.
-
-From Undecidability Require Import L.L TM.TM.
-Require Import List.
-
-Import Vector.VectorNotations.
-Import ListNotations.
+From Undecidability.L Require Import L_facts LM_heap_def.
 
 
-From Undecidability.TM.L Require Import Compiler_spec Compiler_facts UnfoldClos Compiler.AddToBase.
+From Coq Require Import List.
+Import Vector.VectorNotations ListNotations.
+
+From Undecidability.TM Require Import TM_facts ProgrammingTools WriteValue CaseList Copy ListTM Hoare.
+From Undecidability.TM.L Require Import Alphabets Eval Compiler_spec Compiler_facts UnfoldClos AddToBase.
 
 Require Import Equations.Prop.DepElim.
 

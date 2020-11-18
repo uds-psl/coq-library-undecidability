@@ -70,8 +70,6 @@ Ltac specializeFin H' :=
 
 (** Machine Notations *)
 
-Notation "pM @ ts" := (LiftTapes pM ts) (at level 41, only parsing).
-Notation "pM ⇑ Rmove" := (ChangeAlphabet pM Rmove) (at level 40, only parsing).
 
 From Coq.ssr Require ssrfun.
 Module Option := ssrfun.Option.

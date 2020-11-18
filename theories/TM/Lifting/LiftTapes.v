@@ -338,6 +338,7 @@ Section LiftNM.
 End LiftNM.
 
 Arguments LiftTapes : simpl never.
+Notation "pM @ ts" := (LiftTapes pM ts) (at level 41, only parsing).
 
 
 (** * Tactic Support *)

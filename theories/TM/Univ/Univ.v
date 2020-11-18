@@ -83,9 +83,9 @@ Section Univ.
       Thus, we just convert the relations to Hare triples. *)
 
   Lemma DoAction'_SpecT_space (tp : tape sigM) (a : option sigM * move) ss :
-    TripleT (tspec ([],withSpace ([|ContainsWorkingTape tp; Contains (LowLevel.retr_act_sig _) a|]) ss))
+    TripleT (≃≃([],withSpace ([|ContainsWorkingTape tp; Contains (LowLevel.retr_act_sig _) a|]) ss))
             (DoAction'_steps) (DoAction' _ _)
-            (fun _ => tspec ([],withSpace [|ContainsWorkingTape (doAct tp a); Void|] (appSize (DoAction'_size a) ss))).
+            (fun _ => ≃≃([],withSpace [|ContainsWorkingTape (doAct tp a); Void|] (appSize (DoAction'_size a) ss))).
   Proof.
     unfold DoAction'_size; cbn. eapply RealiseIn_TripleT.
     - apply DoAction'_Sem.
@@ -96,7 +96,7 @@ Section Univ.
 
 
   Lemma SetFinal_SpecT_space (final : bool) (q : nat) ss :
-    TripleT (tspec ([],withSpace ([|Contains (LowLevel.retr_sigCurrentStateNumber_sig _) q; Void |]) ss))
+    TripleT (≃≃([],withSpace ([|Contains (LowLevel.retr_sigCurrentStateNumber_sig _) q; Void |]) ss))
             (SetFinal_steps) (SetFinal retr_sigGraph_sig final)
             (fun yout => tspec
                         ([],withSpace ([|Contains (LowLevel.retr_sigCurrentState_sig _) (final, q); Void|])
@@ -124,7 +124,7 @@ Section Univ.
     [| (*0*) id; IsFinal_size |].
 
   Lemma IsFinal_SpecT_space (M : TM sigM 1) (q : state M) ss :
-    TripleT (tspec ([],withSpace ([|ContainsState q; Void|]) ss))
+    TripleT (≃≃([],withSpace ([|ContainsState q; Void|]) ss))
             (IsFinal_steps (halt q)) (IsFinal retr_sigGraph_sig)
             (fun yout =>
                tspec
@@ -149,9 +149,9 @@ Section Univ.
     [| (*0*) id; ReadCurrent_size |].
 
   Lemma ReadCurrent'_SpecT_space (tp : tape sigM) ss :
-    TripleT (tspec ([],withSpace ([|ContainsWorkingTape tp; Void|]) ss))
+    TripleT (≃≃([],withSpace ([|ContainsWorkingTape tp; Void|]) ss))
             (ReadCurrent'_steps) (ReadCurrent' _ _)
-            (fun _ => tspec ([],withSpace ([|ContainsWorkingTape tp; Contains (LowLevel.retr_sigCurrentSymbol_sig _) (current tp)|])
+            (fun _ => ≃≃([],withSpace ([|ContainsWorkingTape tp; Contains (LowLevel.retr_sigCurrentSymbol_sig _) (current tp)|])
                                     (appSize ReadCurrent'_size ss))).
   Proof.
     eapply RealiseIn_TripleT.
@@ -229,10 +229,10 @@ Section Univ.
 
   Lemma Univ_Step_SpecT_space (M : TM sigM 1) (tp : tape sigM) (q : state M) ss :
     TripleT
-      (tspec ([],withSpace ([|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]) ss))
+      (≃≃([],withSpace ([|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]) ss))
       (Univ_Step_steps q tp) Univ_Step
       (fun yout =>
-         tspec ([yout = if halt q then Some tt else None],
+         ≃≃([yout = if halt q then Some tt else None],
              withSpace
                (if halt q then [|ContainsWorkingTape tp;  ContainsTrans M; ContainsState q;  Void; Void; Void|]
                 else 
@@ -286,9 +286,9 @@ Section Univ.
   (** Version without space (actually needed later) *)
   Lemma Univ_Step_SpecT (M : TM sigM 1) (tp : tape sigM) (q : state M) :
     TripleT
-      (tspec ([],[|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]))
+      (≃≃([],[|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]))
       (Univ_Step_steps q tp) Univ_Step
-      (fun yout => tspec ([yout = if halt q then Some tt else None],
+      (fun yout => ≃≃([yout = if halt q then Some tt else None],
                if halt q then [|ContainsWorkingTape tp;  ContainsTrans M; ContainsState q;  Void; Void; Void|]
                 else 
                  let (q', tp') := step (mk_mconfig q [|tp|]) in
@@ -320,11 +320,11 @@ Section Univ.
     end.
 
   Lemma Univ_Spec_space (M : TM sigM 1) (tp : tape sigM) (q : state M) ss :
-    Triple (tspec ([],withSpace ([|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]) ss))
+    Triple (≃≃([],withSpace ([|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]) ss))
            Univ
            (fun _ tout =>
               exists k (q' : state M) (tp' : tape sigM),
-                tspec ([loopM (mk_mconfig q [|tp|]) k = Some (mk_mconfig q' [|tp'|])],withSpace ([|ContainsWorkingTape tp'; ContainsTrans M; ContainsState q'; Void; Void; Void|])
+                ≃≃([loopM (mk_mconfig q [|tp|]) k = Some (mk_mconfig q' [|tp'|])],withSpace ([|ContainsWorkingTape tp'; ContainsTrans M; ContainsState q'; Void; Void; Void|])
                                  (appSize (Univ_size tp q k) ss))
                       tout).
   Proof.
@@ -382,13 +382,13 @@ Section Univ.
     TripleT
       (fun tin => exists (q' : state M) (tp' : tape sigM),
            loopM (mk_mconfig q [|tp|]) k' = Some (mk_mconfig q' [|tp'|]) /\
-           tspec ([],[|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]) tin
+           ≃≃([],[|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]) tin
            )
       (Univ_steps q tp k') Univ
       (fun _ tout =>
          exists (q' : state M) (tp' : tape sigM),
            loopM (mk_mconfig q [|tp|]) k' = Some (mk_mconfig q' [|tp'|]) /\
-           tspec ([],[|ContainsWorkingTape tp'; ContainsTrans M; ContainsState q'; Void; Void; Void|]) tout).
+           ≃≃([],[|ContainsWorkingTape tp'; ContainsTrans M; ContainsState q'; Void; Void; Void|]) tout).
   Proof.
     eapply While_SpecT with (P := fun '(tp,q,k') => _) (Q := fun '(tp,q,k') => _) (R := fun '(tp,q,k') => _)
                             (f := fun '(tp,q,k') => _) (g := fun '(tp,q,k') => Univ_Step_steps q tp)

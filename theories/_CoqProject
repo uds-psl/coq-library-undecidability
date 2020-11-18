@@ -107,24 +107,25 @@ Shared/Libs/PSL/FiniteTypes/DepPairs.v
 Shared/Libs/PSL/FiniteTypes/Arbitrary.v
 Shared/Libs/PSL/FiniteTypes/VectorFin.v
 
-# Abstract L simulator as Turing Machine
+# Abstract heap-based L simulator as Turing Machine
 TM/L/Alphabets.v
 TM/L/CaseCom.v
-TM/L/LookupTM.v
+TM/L/HeapInterpreter/LookupTM.v
+TM/L/HeapInterpreter/StepTM.v
+TM/L/HeapInterpreter/M_LHeapInterpreter.v
+TM/L/HeapInterpreter/UnfoldClos.v
+TM/L/HeapInterpreter/JumpTargetTM.v
 TM/L/Transcode/Boollist_to_Enc.v
 TM/L/Transcode/Enc_to_Boollist.v
 TM/L/Transcode/BoollistEnc.v
-TM/L/HeapInterpreter/JumpTargetTM.v
-#The following file takes very long, so we start it early for faster multi-core-compilation
-TM/L/HeapInterpreter/StepTM.v
-TM/L/HeapInterpreter/M_LHeapInterpreter.v
-TM/L/Compiler/Compiler_spec.v
-TM/L/Compiler/Compiler_facts.v
-TM/L/Compiler/Compiler.v
-TM/L/UnfoldClos.v
 TM/L/Eval.v
-TM/L/Compiler/encTM_boolList.v
-TM/L/Compiler/AddToBase.v
+
+#Computability of boolean functions
+TM/L/CompilerBoolFuns/Compiler_spec.v
+TM/L/CompilerBoolFuns/Compiler_facts.v
+TM/L/CompilerBoolFuns/Compiler.v
+TM/L/CompilerBoolFuns/encTM_boolList.v
+TM/L/CompilerBoolFuns/AddToBase.v
 
 #Post correspondence problem
 PCP/PCP.v

@@ -483,6 +483,7 @@ Section Fix.
   Definition SpecT := projT2 SpecT'.
   Opaque SpecT.
 
+(*
   Theorem Realise :
   Realise M (fun t '(r, t') =>
                       forall g (H : Heap) s,
@@ -493,7 +494,7 @@ Section Fix.
                           -> t'[@i_io] ≃(retr_pro) compile s
                           /\ t[@i_H] ≃ H 
                           /\ (forall i : Fin.t 8, isVoid t'[@ Fin.R 2 i])).
-  Admitted. 
+*)
 
 End Fix.
 End UnfoldClos.

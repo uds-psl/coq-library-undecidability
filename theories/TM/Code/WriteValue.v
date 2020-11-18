@@ -87,9 +87,9 @@ Section WriteValue.
   Definition WriteValue_sizefun (x : X) : Vector.t (nat->nat) 1 := [| WriteValue_size x |].
   
   Lemma WriteValue_SpecT_size (x : X) (ss : Vector.t nat 1) :
-    TripleT (tspec (([], withSpace  [|Void |] ss)))
+    TripleT (≃≃(([], withSpace  [|Void |] ss)))
             (WriteValue_steps (size x)) (WriteValue x)
-            (fun _ => tspec (([], withSpace  [|Contains _ x|] (appSize (WriteValue_sizefun x) ss)))).
+            (fun _ => ≃≃(([], withSpace  [|Contains _ x|] (appSize (WriteValue_sizefun x) ss)))).
   Proof. unfold withSpace.
     eapply RealiseIn_TripleT.
     - apply WriteValue_Sem.

@@ -319,8 +319,8 @@ Section CaseSum.
 
   Lemma Constr_inl_SpecT_size (x : X) (ss : Vector.t nat 1) :
     TripleT
-      (tspec (([], withSpace  [|Contains _ x |] ss))) Constr_inl_steps (Constr_inl sigX sigY)
-      (fun _ => tspec (([], withSpace  [|Contains _ (inl (B:=Y)x)|] (appSize [|pred|] ss)))).
+      (≃≃(([], withSpace  [|Contains _ x |] ss))) Constr_inl_steps (Constr_inl sigX sigY)
+      (fun _ => ≃≃(([], withSpace  [|Contains _ (inl (B:=Y)x)|] (appSize [|pred|] ss)))).
   Proof. unfold withSpace.
     eapply RealiseIn_TripleT.
     - apply Constr_inl_Sem.
@@ -330,8 +330,8 @@ Section CaseSum.
 
   Lemma Constr_inr_SpecT_size (y : Y) (ss : Vector.t nat 1) :
     TripleT
-      (tspec (([], withSpace  [|Contains _ y |] ss))) Constr_inr_steps (Constr_inr sigX sigY)
-      (fun _ => tspec (([], withSpace  [|Contains _ (inr (A:=X) y)|] (appSize [|pred|] ss)))).
+      (≃≃(([], withSpace  [|Contains _ y |] ss))) Constr_inr_steps (Constr_inr sigX sigY)
+      (fun _ => ≃≃(([], withSpace  [|Contains _ (inr (A:=X) y)|] (appSize [|pred|] ss)))).
   Proof. unfold withSpace.
     eapply RealiseIn_TripleT.
     - apply Constr_inr_Sem.
@@ -341,8 +341,8 @@ Section CaseSum.
 
   Lemma CaseSum_SpecT_size (s : X+Y) (ss : Vector.t nat 1) :
     TripleT
-      (tspec (([], withSpace  [|Contains _ s |] ss))) (CaseSum_steps) (CaseSum sigX sigY)
-      (fun yout => tspec ([yout = if s then true else false],withSpace
+      (≃≃(([], withSpace  [|Contains _ s |] ss))) (CaseSum_steps) (CaseSum sigX sigY)
+      (fun yout => ≃≃([yout = if s then true else false],withSpace
                          (match s with inl x => [|Contains _ x|] | inr y =>  [|Contains _ y|] end)
                          (appSize [|S|] ss))).
   Proof. unfold withSpace.
@@ -362,8 +362,8 @@ Section CaseOpton.
 
   Lemma Constr_Some_SpecT_size (x : X) (ss : Vector.t nat 1) :
     TripleT
-      (tspec (([], withSpace  [|Contains _ x |] ss))) Constr_Some_steps (Constr_Some sigX)
-      (fun _ => tspec (([], withSpace  [|Contains _ (Some x)|] (appSize [|pred|] ss)))).
+      (≃≃(([], withSpace  [|Contains _ x |] ss))) Constr_Some_steps (Constr_Some sigX)
+      (fun _ => ≃≃(([], withSpace  [|Contains _ (Some x)|] (appSize [|pred|] ss)))).
   Proof. unfold withSpace.
     eapply RealiseIn_TripleT.
     - apply Constr_Some_Sem.
@@ -373,8 +373,8 @@ Section CaseOpton.
 
   Lemma Constr_None_SpecT_size (ss : Vector.t nat 1) :
     TripleT
-      (tspec (([], withSpace  [|Void |] ss))) Constr_None_steps (Constr_None X)
-      (fun _ => tspec (([], withSpace  [|Contains _ (None (A:=X))|] (appSize [|pred|] ss)))).
+      (≃≃(([], withSpace  [|Void |] ss))) Constr_None_steps (Constr_None X)
+      (fun _ => ≃≃(([], withSpace  [|Contains _ (None (A:=X))|] (appSize [|pred|] ss)))).
   Proof. unfold withSpace.
     eapply RealiseIn_TripleT.
     - apply Constr_None_Sem.
@@ -390,8 +390,8 @@ Section CaseOpton.
 
   Lemma CaseOption_SpecT_size (o : option X) (ss : Vector.t nat 1) :
     TripleT
-      (tspec (([], withSpace  [|Contains _ o |] ss))) (CaseOption_steps) (CaseOption sigX)
-      (fun yout => tspec ([yout = match o with None => false | _ => true end ],withSpace
+      (≃≃(([], withSpace  [|Contains _ o |] ss))) (CaseOption_steps) (CaseOption sigX)
+      (fun yout => ≃≃([yout = match o with None => false | _ => true end ],withSpace
                          (match o with
                           |  Some x => [|Contains _ x|]
                           |  None  => [|Void|]

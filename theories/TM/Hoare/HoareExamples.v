@@ -23,9 +23,9 @@ Definition CopyValue_sizefun {sigX X : Type} {cX : codable sigX X} (x : X) : Vec
 (** This is how we specify partital correctness, time, and space in one lemma *)
 Lemma CopyValue_SpecT_size (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X)
 (ss : Vector.t nat 2) :
-  TripleT (tspec ([],withSpace [|Contains _ x; Void|] ss))
+  TripleT (≃≃([],withSpace [|Contains _ x; Void|] ss))
           (CopyValue_steps x) (CopyValue sig)
-          (fun _ => tspec ([],withSpace ([|Contains _ x; Contains _ x|]) (appSize (CopyValue_sizefun x) ss))).
+          (fun _ => ≃≃([],withSpace ([|Contains _ x; Contains _ x|]) (appSize (CopyValue_sizefun x) ss))).
 Proof.
   start_TM.
   eapply Realise_TripleT.
@@ -42,12 +42,12 @@ Qed.
 
 (** Recover version without space is easy. Normally, we wouldn't write down this lemma because the automation takes care of everything. (But not for [CopyValue], etc!) *)
 Lemma CopyValue_SpecT (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) :
-  TripleT (tspec ([],[|Contains _ x; Void|])) (CopyValue_steps x) (CopyValue sig) (fun _ => tspec ([],[|Contains _ x; Contains _ x|])).
+  TripleT (≃≃([],[|Contains _ x; Void|])) (CopyValue_steps x) (CopyValue sig) (fun _ => ≃≃([],[|Contains _ x; Contains _ x|])).
 Proof. eapply TripleT_RemoveSpace. cbn. intros s. apply CopyValue_SpecT_size. Qed.
 
 
 Lemma Reset_SpecT_space (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) (ss : Vector.t nat 1) :
-  TripleT (tspec ([],withSpace ([|Contains _ x|]) ss)) (Reset_steps x) (Reset sig) (fun _ => tspec ([],withSpace ([|Void|]) (appSize [|Reset_size x|] ss))).
+  TripleT (≃≃([],withSpace ([|Contains _ x|]) ss)) (Reset_steps x) (Reset sig) (fun _ => ≃≃([],withSpace ([|Void|]) (appSize [|Reset_size x|] ss))).
 Proof.
   start_TM.
   eapply Realise_TripleT.
@@ -62,12 +62,12 @@ Qed.
 
 (** This would also not normally be written down. *)
 Lemma Reset_SpecT (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) :
-  TripleT (tspec ([],[|Contains _ x|])) (Reset_steps x) (Reset sig) (fun _ => tspec ([], [|Void|])).
+  TripleT (≃≃([],[|Contains _ x|])) (Reset_steps x) (Reset sig) (fun _ => ≃≃([], [|Void|])).
 Proof. eapply TripleT_RemoveSpace. apply Reset_SpecT_space. Qed.
 
 (** This would also not normally be written down. *)
 Lemma Reset_Spec (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) :
-  Triple (tspec ([], [|Contains _ x|])) (Reset sig) (fun _ => tspec ([], [|Void|])).
+  Triple (≃≃([], [|Contains _ x|])) (Reset sig) (fun _ => ≃≃([], [|Void|])).
 Proof. eapply TripleT_Triple. apply Reset_SpecT. Qed.
 
 
@@ -80,8 +80,8 @@ Definition MoveValue_size {X Y sigX sigY : Type} {cX : codable sigX X} {cY : cod
 
 Lemma MoveValue_SpecT_size (sig : finType) (sigX sigY X Y : Type)
       (cX : codable sigX X) (cY : codable sigY Y) (I1 : Retract sigX sig) (I2 : Retract sigY sig) (x : X) (y : Y) (ss : Vector.t nat 2) :
-  TripleT (tspec ([], withSpace ( [|Contains _ x; Contains _ y|]) ss)) (MoveValue_steps x y) (MoveValue sig)
-          (fun _ => tspec ([], withSpace ( [|Void; Contains _ x|]) (appSize (MoveValue_size x y) ss))).
+  TripleT (≃≃([],  withSpace ( [|Contains _ x; Contains _ y|]) ss)) (MoveValue_steps x y) (MoveValue sig)
+          (fun _ => ≃≃([],  withSpace ( [|Void; Contains _ x|]) (appSize (MoveValue_size x y) ss))).
 Proof.
   start_TM.
   eapply Realise_TripleT.
@@ -96,12 +96,12 @@ Qed.
 
 Lemma MoveValue_SpecT (sig : finType) (sigX sigY X Y : Type)
       (cX : codable sigX X) (cY : codable sigY Y) (I1 : Retract sigX sig) (I2 : Retract sigY sig) (x : X) (y : Y) :
-  TripleT (tspec ([], [|Contains _ x; Contains _ y|])) (MoveValue_steps x y) (MoveValue sig) (fun _ => tspec ([], [|Void; Contains _ x|])).
+  TripleT (≃≃([], [|Contains _ x; Contains _ y|])) (MoveValue_steps x y) (MoveValue sig) (fun _ => ≃≃([], [|Void; Contains _ x|])).
 Proof. eapply TripleT_RemoveSpace. apply MoveValue_SpecT_size. Qed.
 
 Lemma MoveValue_Spec (sig : finType) (sigX sigY X Y : Type)
       (cX : codable sigX X) (cY : codable sigY Y) (I1 : Retract sigX sig) (I2 : Retract sigY sig) (x : X) (y : Y) :
-  Triple (tspec ([], [|Contains _ x; Contains _ y|])) (MoveValue sig) (fun _ => tspec ([], [|Void; Contains _ x|])).
+  Triple (≃≃([], [|Contains _ x; Contains _ y|])) (MoveValue sig) (fun _ => ≃≃([], [|Void; Contains _ x|])).
 Proof. eapply TripleT_Triple. apply MoveValue_SpecT. Qed.
 
 
@@ -138,7 +138,7 @@ Proof. eapply TripleT_Triple. apply Constr_S_SpecT_pure. Qed.
 (** Expressed using the specification language *)
 
 Lemma Constr_O_SpecT_size (ss : Vector.t nat 1) :
-  TripleT (tspec ([], withSpace ( [|Void|]) ss)) Constr_O_steps Constr_O (fun _ => tspec ([], withSpace ( [|Contains _ 0|]) (appSize [|Constr_O_size|] ss))).
+  TripleT (≃≃([],  withSpace ( [|Void|]) ss)) Constr_O_steps Constr_O (fun _ => ≃≃([],  withSpace ( [|Contains _ 0|]) (appSize [|Constr_O_size|] ss))).
 Proof.
   start_TM.
   eapply RealiseIn_TripleT.
@@ -148,17 +148,17 @@ Proof.
 Qed.
 
 Lemma Constr_O_SpecT :
-  TripleT (tspec ([], [|Void|])) Constr_O_steps Constr_O (fun _ => tspec ([], [|Contains _ 0|])).
+  TripleT (≃≃([], [|Void|])) Constr_O_steps Constr_O (fun _ => ≃≃([], [|Contains _ 0|])).
 Proof. eapply TripleT_RemoveSpace; apply Constr_O_SpecT_size. Qed.
 
 Lemma Constr_O_Spec :
-  Triple (tspec ([], [|Void|])) Constr_O (fun _ => tspec ([], [|Contains _ 0|])).
+  Triple (≃≃([], [|Void|])) Constr_O (fun _ => ≃≃([], [|Contains _ 0|])).
 Proof. eapply TripleT_Triple. apply Constr_O_SpecT. Qed.
 
 Lemma Constr_S_SpecT_size :
   forall (y : nat) ss,
-    TripleT (tspec ([], withSpace ( [|Contains _ y|]) ss)) Constr_S_steps Constr_S
-            (fun _ => tspec ([], withSpace ( [|Contains _ (S y)|]) (appSize [|S|] ss))).
+    TripleT (≃≃([],  withSpace ( [|Contains _ y|]) ss)) Constr_S_steps Constr_S
+            (fun _ => ≃≃([],  withSpace ( [|Contains _ (S y)|]) (appSize [|S|] ss))).
 Proof.
   intros y ss. start_TM.
   eapply RealiseIn_TripleT.
@@ -169,11 +169,11 @@ Proof.
 Qed.
 
 Lemma Constr_S_SpecT :
-  forall (y : nat), TripleT (tspec ([], [|Contains _ y|])) Constr_S_steps Constr_S (fun _ => tspec ([], [|Contains _ (S y)|])).
+  forall (y : nat), TripleT (≃≃([], [|Contains _ y|])) Constr_S_steps Constr_S (fun _ => ≃≃([], [|Contains _ (S y)|])).
 Proof. intros. eapply TripleT_RemoveSpace; apply Constr_S_SpecT_size. Qed.
 
 Lemma Constr_S_Spec :
-  forall (y : nat), Triple (tspec ([], [|Contains _ y|])) Constr_S (fun _ => tspec ([], [|Contains _ (S y)|])).
+  forall (y : nat), Triple (≃≃([], [|Contains _ y|])) Constr_S (fun _ => ≃≃([], [|Contains _ (S y)|])).
 Proof. intros y. eapply TripleT_Triple. apply Constr_S_SpecT. Qed.
 
 
@@ -185,7 +185,7 @@ Definition CaseNat_size (n : nat) : Vector.t (nat->nat) 1 :=
 
 Lemma CaseNat_SpecT_size (y : nat) (ss : Vector.t nat 1) :
   TripleT
-    (tspec ([], withSpace ( [|Contains _ y|]) ss))
+    (≃≃([],  withSpace ( [|Contains _ y|]) ss))
     CaseNat_steps
     CaseNat
     (fun yout =>
@@ -203,7 +203,7 @@ Qed.
 
 Lemma CaseNat_SpecT (y : nat) :
   TripleT
-    (tspec ([], [|Contains _ y|]))
+    (≃≃([], [|Contains _ y|]))
     CaseNat_steps
     CaseNat
     (fun yout =>
@@ -211,7 +211,7 @@ Lemma CaseNat_SpecT (y : nat) :
 Proof. eapply TripleT_RemoveSpace. apply CaseNat_SpecT_size. Qed.
 
 Lemma CaseNat_Spec (y : nat) :
-  Triple (tspec ([], [|Contains _ y|]))
+  Triple (≃≃([], [|Contains _ y|]))
          CaseNat
          (fun yout =>
             tspec
@@ -221,8 +221,8 @@ Proof. eapply TripleT_Triple. apply CaseNat_SpecT. Qed.
 
 (** A combination of the consequence rule and the above correctness lemma. (The automation also takes care of this.) *)
 Lemma Constr_S_Spec_con (n : nat) (Q : Assert sigNat^+ 1) :
-  (forall tout, tspec ([], [|Contains _ (S n)|]) tout -> Q tout) ->
-  Triple (tspec ([], [|Contains _ n|])) Constr_S (fun _ => Q).
+  (forall tout, ≃≃([], [|Contains _ (S n)|]) tout -> Q tout) ->
+  Triple (≃≃([], [|Contains _ n|])) Constr_S (fun _ => Q).
 Proof. eauto using Consequence_post, Constr_S_Spec. Qed.
 
 
@@ -285,7 +285,7 @@ Qed.
 (** Same example, but using the specification language *)
 
 Lemma IncrementTwice_Spec (y : nat) :
-  Triple (tspec ([], [|Contains _ y|])) (IncrementTwice) (fun _ => tspec ([], [|Contains _ (S (S y))|])).
+  Triple (≃≃([], [|Contains _ y|])) (IncrementTwice) (fun _ => ≃≃([], [|Contains _ (S (S y))|])).
 Proof.
   start_TM.
   eapply Seq_Spec.
@@ -306,7 +306,7 @@ Restart.
 Qed.
 
 Lemma IncrementTwice_SpecT (y : nat) :
-  TripleT (tspec ([], [|Contains _ y|])) (IncrementTwice_steps) (IncrementTwice) (fun _ => tspec ([], [|Contains _ (S (S y))|])).
+  TripleT (≃≃([], [|Contains _ y|])) (IncrementTwice_steps) (IncrementTwice) (fun _ => ≃≃([], [|Contains _ (S (S y))|])).
 Proof.
   start_TM.
   eapply Seq_SpecT.
@@ -334,7 +334,7 @@ Definition Incr2_steps := 1 + Constr_S_steps + Constr_S_steps.
 
 
 Lemma Incr2_Spec :
-  forall (x y : nat), Triple (tspec ([], [|Contains _ x; Contains _ y|])) Incr2 (fun _ => tspec ([], [|Contains _ (S x); Contains _ (S y)|])).
+  forall (x y : nat), Triple (≃≃([], [|Contains _ x; Contains _ y|])) Incr2 (fun _ => ≃≃([], [|Contains _ (S x); Contains _ (S y)|])).
 Proof.
   intros x y. start_TM.
   eapply Seq_Spec.
@@ -355,7 +355,7 @@ Restart.
 Qed.
 
 Lemma Incr2_SpecT :
-  forall (x y : nat), TripleT (tspec ([], [|Contains _ x; Contains _ y|])) Incr2_steps Incr2 (fun _ => tspec ([], [|Contains _ (S x); Contains _ (S y)|])).
+  forall (x y : nat), TripleT (≃≃([], [|Contains _ x; Contains _ y|])) Incr2_steps Incr2 (fun _ => ≃≃([], [|Contains _ (S x); Contains _ (S y)|])).
 Proof.
   intros x y. start_TM.
   eapply Seq_SpecT.
@@ -382,7 +382,7 @@ Definition Incr3 : pTM sigNat^+ unit 3 :=
 Definition Incr3_steps := 2 + Constr_S_steps + Constr_S_steps + IncrementTwice_steps.
 
 Lemma Incr3_Spec :
-  forall (x y z : nat), Triple (tspec ([], [|Contains _ x; Contains _ y; Contains _ z|])) Incr3 (fun _ => tspec ([], [|Contains _ (S x); Contains _ (S y); Contains _ (S (S z))|])).
+  forall (x y z : nat), Triple (≃≃([], [|Contains _ x; Contains _ y; Contains _ z|])) Incr3 (fun _ => ≃≃([], [|Contains _ (S x); Contains _ (S y); Contains _ (S (S z))|])).
 Proof.
 
 
@@ -409,7 +409,7 @@ Qed.
 
 (** The same with time! *)
 Lemma Incr3_SpecT :
-  forall (x y z : nat), TripleT (tspec ([], [|Contains _ x; Contains _ y; Contains _ z|])) (Incr3_steps) Incr3 (fun _ => tspec ([], [|Contains _ (S x); Contains _ (S y); Contains _ (S (S z))|])).
+  forall (x y z : nat), TripleT (≃≃([], [|Contains _ x; Contains _ y; Contains _ z|])) (Incr3_steps) Incr3 (fun _ => ≃≃([], [|Contains _ (S x); Contains _ (S y); Contains _ (S (S z))|])).
 Proof.
   intros x y z. start_TM.
   eapply Seq_SpecT.
@@ -464,11 +464,11 @@ Definition Add_Step_Rel : pRel sigNat^+ (option unit) 2 :=
 Definition Add_Step_Post : nat*nat -> option unit -> Assert sigNat^+ 2 :=
   fun '(a,b) =>
   (fun yout =>
-     tspec (([yout = if b then Some tt else None]
+     ≃≃(([yout = if b then Some tt else None]
             ,[|Contains _ (match b with 0 => a | _ => S a end);Contains _ (pred b)|]))).
 
 Lemma Add_Step_Spec (a b : nat) :
-  Triple (tspec ([], [|Contains _ a; Contains _ b|])) Add_Step
+  Triple (≃≃([], [|Contains _ a; Contains _ b|])) Add_Step
          (Add_Step_Post (a,b)).
 Proof.
   start_TM.
@@ -504,9 +504,9 @@ Definition Add_Loop_Rel : pRel sigNat^+ unit 2 :=
 *)
 
 Lemma Add_Loop_Spec (a b : nat) :
-  Triple (tspec ([], [|Contains _ a; Contains _ b|]))
+  Triple (≃≃([], [|Contains _ a; Contains _ b|]))
          Add_Loop
-         (fun _ => tspec ([], [|Contains _ (a+b); Contains _ 0|])).
+         (fun _ => ≃≃([], [|Contains _ (a+b); Contains _ 0|])).
 Proof.
   eapply While_SpecReg with
       (P := fun '(a,b) => (_,_))
@@ -527,7 +527,7 @@ Qed.
 Definition Add_Step_steps : nat := 9.
 
 Lemma Add_Step_SpecT (a b : nat) :
-  TripleT (tspec ([], [|Contains _ a; Contains _ b|]))
+  TripleT (≃≃([], [|Contains _ a; Contains _ b|]))
           Add_Step_steps
           Add_Step
          (Add_Step_Post (a,b)).
@@ -586,11 +586,11 @@ Definition Add_Step_size (a b : nat) : Vector.t (nat->nat) 2 :=
 
 Lemma Add_Step_SpecT_space (a b : nat) (ss : Vector.t nat 2) :
   TripleT
-    (tspec ([], withSpace ( [|Contains _ a; Contains _ b|]) ss))
+    (≃≃([],  withSpace ( [|Contains _ a; Contains _ b|]) ss))
     Add_Step_steps
     Add_Step
     (fun yout =>
-            tspec ([yout = if b then Some tt else None]
+            ≃≃([yout = if b then Some tt else None]
                    ,withSpace [|Contains _ (match b with 0 => a | _ => S a end);Contains _ (pred b)|]
          (appSize (Add_Step_size a b) ss))).
 Proof.
@@ -610,10 +610,10 @@ Definition Add_Loop_steps b := 9 + 10 * b.
 
 
 Lemma Add_Loop_SpecT (a b : nat) :
-  TripleT (tspec ([], [|Contains _ a; Contains _ b|]))
+  TripleT (≃≃([], [|Contains _ a; Contains _ b|]))
           (Add_Loop_steps b)
           (Add_Loop)
-          (fun _ => tspec ([], [|Contains _ (a+b); Contains _ 0|])).
+          (fun _ => ≃≃([], [|Contains _ (a+b); Contains _ 0|])).
 Proof.
   (* Unification can instantiate the abstractions for us. *)
   unfold Add_Loop. eapply While_SpecTReg with
@@ -639,7 +639,7 @@ Fixpoint Add_Loop_size (a b : nat) : Vector.t (nat->nat) 2 :=
 
 Lemma Add_Loop_SpecT_size (a b : nat) (ss : Vector.t nat 2) :
   TripleT
-    (tspec ([], withSpace ( [|Contains _ a; Contains _ b|]) ss))
+    (≃≃([],  withSpace ( [|Contains _ a; Contains _ b|]) ss))
     (Add_Loop_steps b)
     (Add_Loop)
     (fun _ => tspec
@@ -671,10 +671,10 @@ Definition Add : pTM sigNat^+ unit 4 :=
 Definition Add_steps m n := 98 + 12 * n + 22 * m.
 
 Lemma Add_SpecT (a b : nat) :
-  TripleT (tspec ([], [|Contains _ a; Contains _ b; Void; Void|]))
+  TripleT (≃≃([], [|Contains _ a; Contains _ b; Void; Void|]))
           (Add_steps a b)
           Add
-          (fun _ => tspec ([], [|Contains _ a; Contains _ b; Contains _ (a+b); Void|])).
+          (fun _ => ≃≃([], [|Contains _ a; Contains _ b; Contains _ (a+b); Void|])).
 Proof.
   start_TM.
   eapply Seq_SpecT.
@@ -712,10 +712,10 @@ Arguments appSize : simpl never.
 
 Lemma Add_SpecT_space (a b : nat) (ss : Vector.t nat 4) :
   TripleT
-    (tspec ([], withSpace ( [|Contains _ a; Contains _ b; Void; Void|]) ss))
+    (≃≃([],  withSpace ( [|Contains _ a; Contains _ b; Void; Void|]) ss))
     (Add_steps a b)
     Add
-    (fun _ => tspec ([], withSpace ( [|Contains _ a; Contains _ b; Contains _ (a+b); Void|])
+    (fun _ => ≃≃([],  withSpace ( [|Contains _ a; Contains _ b; Contains _ (a+b); Void|])
                             (appSize (Add_space a b) ss))).
 Proof. (* The tactic [hstep] takes also takes care of moving [withSpace] to the head symbol of each precondition *)
   start_TM.
@@ -772,7 +772,7 @@ Definition Mult_Step_Rel : pRel sigNat^+ (option unit) 5 :=
 Definition Mult_Step_Post : nat*nat*nat -> option unit -> Assert sigNat^+ 5 :=
   fun '(m',n,c) =>
   (fun yout =>
-     tspec ([yout = if m' then Some tt else None],
+     ≃≃([yout = if m' then Some tt else None],
         [|Contains _ (pred m'); Contains _ n; Contains _ ( if m' then c else (n + c)); Void; Void|])).
 
 Definition Mult_Step_steps m' n c :=
@@ -785,7 +785,7 @@ Definition Mult_Step_steps m' n c :=
 (** We need the strong version [If_SpecT_strong] here, becaue the running time depends on the path *)
 Lemma Mult_Step_SpecT m' n c :
   TripleT
-    (tspec ([], [|Contains _ m'; Contains _ n; Contains _ c; Void; Void|]))
+    (≃≃([], [|Contains _ m'; Contains _ n; Contains _ c; Void; Void|]))
     (Mult_Step_steps m' n c)
     (Mult_Step)
     ((Mult_Step_Post) (m',n,c)).
@@ -833,11 +833,11 @@ Definition Mult_Step_space m' n c : Vector.t (nat->nat) 5 :=
 
 Lemma Mult_Step_SpecT_size m' n c ss :
   TripleT
-    (tspec ([], withSpace ( [|Contains _ m'; Contains _ n; Contains _ c; Void; Void|]) ss))
+    (≃≃([],  withSpace ( [|Contains _ m'; Contains _ n; Contains _ c; Void; Void|]) ss))
     (Mult_Step_steps m' n c)
     (Mult_Step)
     (fun yout =>
-       tspec ([yout = if m' then Some tt else None],
+       ≃≃([yout = if m' then Some tt else None],
          withSpace 
          [|Contains _ (pred m'); Contains _ n; Contains _ ( if m' then c else (n + c)); Void; Void|] (appSize (Mult_Step_space m' n c) ss))).
 Proof.
@@ -865,10 +865,10 @@ Fixpoint Mult_Loop_steps m' n c :=
 
 Lemma Mult_Loop_SpecT m' n c :
   TripleT
-    (tspec ([], [|Contains _ m'; Contains _ n; Contains _ c; Void; Void|]))
+    (≃≃([], [|Contains _ m'; Contains _ n; Contains _ c; Void; Void|]))
     (Mult_Loop_steps m' n c)
     (Mult_Loop)
-    (fun _ => tspec ([], [|Contains _ 0; Contains _ n; Contains _ (m' * n + c); Void; Void|])).
+    (fun _ => ≃≃([], [|Contains _ 0; Contains _ n; Contains _ (m' * n + c); Void; Void|])).
 Proof.
   unfold Mult_Loop.
   eapply While_SpecTReg with (PRE := fun '(m',n,c) => (_,_)) (INV := fun '(m',n,c) y => (_,_)) (POST := fun '(m',n,c) y => (_,_))
@@ -887,10 +887,10 @@ Fixpoint Mult_Loop_size m' n c :=
 
 Lemma Mult_Loop_SpecT_size m' n c ss :
   TripleT
-    (tspec ([], withSpace ( [|Contains _ m'; Contains _ n; Contains _ c; Void; Void|]) ss))
+    (≃≃([],  withSpace ( [|Contains _ m'; Contains _ n; Contains _ c; Void; Void|]) ss))
     (Mult_Loop_steps m' n c)
     (Mult_Loop)
-    (fun _ => tspec ([],withSpace
+    (fun _ => ≃≃([],withSpace
                     [|Contains _ 0; Contains _ n; Contains _ (m' * n + c); Void; Void|]
                     (appSize (Mult_Loop_size m' n c) ss))).
 Proof.
@@ -919,10 +919,10 @@ Definition Mult_steps (m n : nat) : nat := 12 * m + Mult_Loop_steps m n 0 + 57.
 
 Lemma Mult_SpecT (m n : nat) :
   TripleT
-    (tspec ([], [|Contains _ m; Contains _ n; Void; Void; Void; Void|]))
+    (≃≃([], [|Contains _ m; Contains _ n; Void; Void; Void; Void|]))
     (Mult_steps m n)
     (Mult)
-    (fun _ => tspec ([], [|Contains _ m; Contains _ n; Contains _ (m * n); Void; Void; Void|])).
+    (fun _ => ≃≃([], [|Contains _ m; Contains _ n; Contains _ (m * n); Void; Void; Void|])).
 Proof.
   start_TM.
   eapply Seq_SpecT.
@@ -960,10 +960,10 @@ Definition Mult_size_bug (m n : nat) : Vector.t (nat->nat) 6 :=
 
 Lemma Mult_SpecT_space (m n : nat) (ss : Vector.t nat 6) :
   TripleT
-    (tspec ([], withSpace ( [|Contains _ m; Contains _ n; Void; Void; Void; Void|]) ss))
+    (≃≃([],  withSpace ( [|Contains _ m; Contains _ n; Void; Void; Void; Void|]) ss))
     (Mult_steps m n)
     (Mult)
-    (fun _ => tspec ([], withSpace ( [|Contains _ m; Contains _ n; Contains _ (m * n); Void; Void; Void|])
+    (fun _ => ≃≃([],  withSpace ( [|Contains _ m; Contains _ n; Contains _ (m * n); Void; Void; Void|])
                             (appSize (Mult_size_bug m n) ss))).
 Proof.
   start_TM.
@@ -990,10 +990,10 @@ Definition Mult_size (m n : nat) : Vector.t (nat->nat) 6 :=
 
 Lemma Mult_SpecT_space (m n : nat) (ss : Vector.t nat 6) :
   TripleT
-    (tspec ([], withSpace ( [|Contains _ m; Contains _ n; Void; Void; Void; Void|]) ss))
+    (≃≃([],  withSpace ( [|Contains _ m; Contains _ n; Void; Void; Void; Void|]) ss))
     (Mult_steps m n)
     (Mult)
-    (fun _ => tspec ([], withSpace ( [|Contains _ m; Contains _ n; Contains _ (m * n); Void; Void; Void|])
+    (fun _ => ≃≃([],  withSpace ( [|Contains _ m; Contains _ n; Contains _ (m * n); Void; Void; Void|])
                             (appSize (Mult_size m n) ss))).
 Proof.
   start_TM.

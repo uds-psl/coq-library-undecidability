@@ -527,8 +527,8 @@ Section CaseList.
 
   Lemma Constr_cons_SpecT_size (x : X) (xs : list X) (ss : Vector.t nat 2) :
     TripleT
-      (tspec (([], withSpace  [|Contains _ xs; Contains _ x |] ss))) (Constr_cons_steps x) (Constr_cons sigX)
-      (fun _ => tspec (([], withSpace  [|Contains _ (x::xs); Contains _ x|] (appSize (Constr_cons_sizefun x) ss)))).
+      (≃≃(([], withSpace  [|Contains _ xs; Contains _ x |] ss))) (Constr_cons_steps x) (Constr_cons sigX)
+      (fun _ => ≃≃(([], withSpace  [|Contains _ (x::xs); Contains _ x|] (appSize (Constr_cons_sizefun x) ss)))).
   Proof. unfold withSpace.
     eapply Realise_TripleT.
     - apply Constr_cons_Realise.
@@ -543,8 +543,8 @@ Section CaseList.
 
   Lemma Constr_nil_SpecT_size (ss : Vector.t nat 1) :
     TripleT
-      (tspec (([], withSpace  [|Void |] ss))) Constr_nil_steps (Constr_nil X)
-      (fun _ => tspec (([], withSpace  [|Contains _ (@nil X) |] (appSize [|pred|] ss)))).
+      (≃≃(([], withSpace  [|Void |] ss))) Constr_nil_steps (Constr_nil X)
+      (fun _ => ≃≃(([], withSpace  [|Contains _ (@nil X) |] (appSize [|pred|] ss)))).
   Proof. unfold withSpace.
     eapply RealiseIn_TripleT.
     - apply Constr_nil_Sem.
@@ -560,8 +560,8 @@ Section CaseList.
 
   Lemma CaseList_SpecT_size (xs : list X) (ss : Vector.t nat 2) :
     TripleT
-      (tspec (([], withSpace  [|Contains _ xs; Void |] ss))) (CaseList_steps xs) (CaseList sigX)
-      (fun yout => tspec ([yout = match xs with [] => false | _ => true end],withSpace
+      (≃≃(([], withSpace  [|Contains _ xs; Void |] ss))) (CaseList_steps xs) (CaseList sigX)
+      (fun yout => ≃≃([yout = match xs with [] => false | _ => true end],withSpace
                          (match xs with
                           |   x::xs' => [|Contains _ xs'; Contains _ x|]
                           |    nil => [|Contains _ xs; Void|]

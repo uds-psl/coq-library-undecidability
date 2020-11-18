@@ -4,7 +4,7 @@ From Undecidability.L Require Import TM.TMEncoding.
 
 
 From Undecidability Require Import TM.Util.TM_facts.
-Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
+From Undecidability.Shared.Libs.PSL Require Import FinTypes Vectors.
 
 
 Section fix_sig.
@@ -67,21 +67,6 @@ Section fix_sig.
       extract. unfold sizeOfTape. solverec. unfold c__length. solverec. 
     Qed.
 
-    Lemma Vector_fold_right_to_list (A B : Type) (f : A -> B -> B) (n : nat) (v : Vector.t A n) (a : B):
-      Vector.fold_right f v a = fold_right f a (Vector.to_list v).
-    Proof. unfold Vector.to_list.
-           induction n. all:destruct_vector. all:cbn;congruence.
-    Qed.
-    Lemma Vector_fold_left_to_list (A B : Type) (f : A -> B -> A) (n : nat) (v : VectorDef.t B n) (a : A):
-      VectorDef.fold_left f a v = fold_left f (Vector.to_list v) a.
-    Proof. unfold Vector.to_list.
-           induction n in v,a|-*. all:destruct_vector. all:cbn;congruence.
-    Qed.
-    Lemma Vector_map_to_list (A B : Type) (f : A -> B) (n : nat) (v : VectorDef.t A n):
-       Vector.to_list (VectorDef.map f v) = map f (Vector.to_list v).
-    Proof. unfold Vector.to_list. induction n in v|-*. all:destruct_vector. all:cbn;congruence.
-    Qed.
-
     Import Nat.
     Global Instance term_sizeOfmTapes n:
       computableTime' (@sizeOfmTapes sig n) (fun t _ => ((sizeOfmTapes t*105+101) * n + 56,tt)).
@@ -102,8 +87,8 @@ Section fix_sig.
 
       eapply computableTimeExt. exact H'.
       Import Vector.
-      extract. solverec. unfold sizeOfmTapes. rewrite Vector_fold_left_to_list,fold_symmetric. 2,3:intros;nia.
-      rewrite Vector_map_to_list,to_list_length.
+      extract. solverec. unfold sizeOfmTapes. rewrite vector_fold_left_to_list,fold_symmetric. 2,3:intros;nia.
+      rewrite vector_map_to_list,to_list_length.
       set (List.fold_right _ _ _). nia. 
     Qed.
 

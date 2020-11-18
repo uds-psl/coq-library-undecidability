@@ -329,9 +329,9 @@ Section CasePair.
 
   
   Lemma Constr_pair_SpecT_size (x : X) (y : Y) (ss : Vector.t nat 2) :
-    TripleT (tspec (([], withSpace  [|Contains _ x; Contains _ y |] ss)))
+    TripleT (≃≃(([], withSpace  [|Contains _ x; Contains _ y |] ss)))
             (Constr_pair_steps x) (Constr_pair sigX sigY)
-            (fun _ => tspec (([], withSpace  [|Contains _ x; Contains _ (x,y)|]
+            (fun _ => ≃≃(([], withSpace  [|Contains _ x; Contains _ (x,y)|]
                                     (appSize (Constr_pair_sizefun x) ss)))).
   Proof. unfold withSpace.
     eapply Realise_TripleT.
@@ -349,9 +349,9 @@ Section CasePair.
     [| CasePair_size0 (fst p); CasePair_size1 (fst p) |].
 
   Lemma CasePair_SpecT_size (p : X*Y) (ss : Vector.t nat 2) :
-    TripleT (tspec (([], withSpace  [|Contains _ p; Void |] ss)))
+    TripleT (≃≃(([], withSpace  [|Contains _ p; Void |] ss)))
             (CasePair_steps (fst p)) (CasePair sigX sigY)
-            (fun _ => tspec (([], withSpace  [|Contains _ (snd p); Contains _ (fst p)|]
+            (fun _ => ≃≃(([], withSpace  [|Contains _ (snd p); Contains _ (fst p)|]
                                     (appSize (CasePair_size p) ss)))).
   Proof. unfold withSpace.
     eapply Realise_TripleT.

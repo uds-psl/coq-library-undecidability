@@ -1,22 +1,13 @@
-From Undecidability Require Import L.Datatypes.LBool L.Datatypes.Lists L.Tactics.LTactics L.Util.L_facts.
+From Coq Require Import Vector List.
+From Undecidability.Shared.Libs.PSL Require Import FinTypes Vectors.
+From Undecidability.L Require Import Datatypes.Lists Tactics.LTactics Util.L_facts.
+From Undecidability.TM  Require Import TM_facts ProgrammingTools .
 
-Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes Undecidability.Shared.Libs.PSL.Vectors.Vectors.
-Require Import Vector List.
+Import ListNotations VectorNotations.
 
-Require Import Undecidability.TM.Util.TM_facts.
+From Undecidability.TM.L.CompilerBoolFuns Require Import Compiler_spec AddToBase.
 
-From Undecidability Require Import ProgrammingTools.
-From Undecidability Require Import TM.TM.
-
-From Undecidability Require Import L.L TM.TM.
-Require Import List.
-Import ListNotations.
-
-Import VectorNotations.
-
-From Undecidability.TM.L.Compiler Require Import Compiler_spec AddToBase.
-
-Require Import Equations.Prop.DepElim.
+Require Import Equations.Type.DepElim.
       
 Definition L_computable_bool_closed {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
   exists s, closed s /\ forall v : Vector.t (list bool) k, 
@@ -141,7 +132,7 @@ Definition TM_computable_hoare' {k} (R : Vector.t (list bool) k -> (list bool) -
 
 
 Local Definition tapeOrderSwap n k:=
-(Fin.L n (Fin.R k Fin0) :::  tabulate (n := n) (fun x => Fin.R (k + 1) x) ++ (tabulate (n := k) (fun x => Fin.L n (Fin.L 1 x)))).
+  (Fin.L n (Fin.R k Fin0) :::  tabulate (n := n) (fun x => Fin.R (k + 1) x) ++ (tabulate (n := k) (fun x => Fin.L n (Fin.L 1 x)))).
 
 Local Lemma tapeOrderSwap_dupfree k n : VectorDupfree.dupfree (tapeOrderSwap n k).
 Proof.
@@ -169,45 +160,20 @@ Qed.
 
 
 Lemma helper n m' m f: 
-injective f ->
-  lookup_index_vector (n:=n)
-(tabulate (fun i : Fin.t m' => f i)) 
-(f m) = Some m.
+  injective f ->
+    lookup_index_vector (n:=n)
+  (tabulate (fun i : Fin.t m' => f i)) 
+  (f m) = Some m.
 Proof.
-revert n m f. induction m';cbn. easy.
-intros n m f Hinj. specialize (Fin.eqb_eq _ (f m) (f Fin0)) as H'.
-destruct Fin.eqb.
--destruct H' as [H' _]. specialize (H' eq_refl). apply Hinj in H' as ->. easy.
--destruct H' as [_ H']. destruct (fin_destruct_S m) as [[i' ->]| ->]. 2:now discriminate H'.
- specialize IHm' with (f:= fun m => f (Fin.FS m) ). cbn in IHm'. rewrite IHm'. easy. intros ? ? ?%Hinj. now apply Fin.FS_inj.
+  revert n m f. induction m';cbn. easy.
+  intros n m f Hinj. specialize (Fin.eqb_eq _ (f m) (f Fin0)) as H'.
+  destruct Fin.eqb.
+  -destruct H' as [H' _]. specialize (H' eq_refl). apply Hinj in H' as ->. easy.
+  -destruct H' as [_ H']. destruct (fin_destruct_S m) as [[i' ->]| ->]. 2:now discriminate H'.
+  specialize IHm' with (f:= fun m => f (Fin.FS m) ). cbn in IHm'. rewrite IHm'. easy. intros ? ? ?%Hinj. now apply Fin.FS_inj.
 Qed.
 
 
-Lemma Fin_eqb_R_R  m n (i i' : Fin.t n):
-  Fin.eqb (Fin.R m i) (Fin.R m i') = Fin.eqb i i'.
-Proof. induction m;cbn. all:congruence. Qed.
-
-Lemma Fin_eqb_L_L m n (i i' : Fin.t n):
-  Fin.eqb (Fin.L m i) (Fin.L m i') = Fin.eqb i i'.
-Proof.
-  revert i i'. induction n;intros i i'; destruct_fin i;destruct_fin i';cbn.
-  4:rewrite !Nat.eqb_refl. all:congruence.
-Qed.
-
-
-Lemma Fin_eqb_R_L m n (i : Fin.t n) (i' : Fin.t m):
-  Fin.eqb(Fin.R n i')  (Fin.L m i)  = false.
-Proof.
-  revert m i i'. induction n;intros m i i'; destruct_fin i;destruct_fin i';cbn.
-  all:easy.
-Qed. 
-
-Lemma Fin_eqb_L_R m n (i : Fin.t n) (i' : Fin.t m):
-  Fin.eqb (Fin.L m i) (Fin.R n i') = false.
-Proof.
-  revert m i i'. induction n;intros m i i'; destruct_fin i;destruct_fin i';cbn.
-  all:easy.
-Qed. 
 
 Lemma TM_computable_hoare_out'_spec {k n Σ} s b bs w:
   TM_computable_hoare_out (Σ:=Σ) s b bs = Frame w (tapeOrderSwap n k) (TM_computable_hoare_out' s b bs).

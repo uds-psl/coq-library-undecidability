@@ -1,14 +1,16 @@
 (** ** Hoare Rules for Machines that do not reason on codes *)
 
-From Undecidability.TM Require Import TMTac Basic.Basic Compound.MoveToSymbol.
+From Undecidability.TM Require Import TMTac.
+From Undecidability.TM Require Export Basic.Basic Compound.MoveToSymbol.
+
 From Undecidability.TM.Hoare Require Import HoareLogic HoareCombinators HoareRegister HoareTactics HoareTacticsView.
 
 
 (** *** WriteValue *)
 
 Lemma DoAct_SpecTReg (sig : finType) act (P : tape (boundary + sig) -> Prop):
-TripleT (tspec (([], [|Custom P|]))) 1 (DoAct act)
-        (fun _ => tspec (([], [|Custom (fun t => exists t', t = doAct t' act /\ P t')|]))).
+TripleT (≃≃(([], [|Custom P|]))) 1 (DoAct act)
+        (fun _ => ≃≃(([], [|Custom (fun t => exists t', t = doAct t' act /\ P t')|]))).
 Proof.
   eapply RealiseIn_TripleT.
   - apply DoAct_Sem.
