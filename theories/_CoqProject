@@ -124,7 +124,7 @@ TM/L/Eval.v
 
 TM/L/CompilerBoolFuns/Compiler_spec.v
 TM/L/CompilerBoolFuns/Compiler_facts.v
-TM/L/CompilerBoolFuns/encTM_boolList.v
+TM/L/CompilerBoolFuns/EncBoolsTM_boolList.v
 TM/L/CompilerBoolFuns/Compiler.v
 TM/L/CompilerBoolFuns/NaryApp.v
 TM/L/CompilerBoolFuns/ClosedLAdmissible.v

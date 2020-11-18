@@ -25,27 +25,27 @@ Proof.
       now rewrite <- (Fin.of_nat_to_nat_inv p), E. 
 Qed.
 
-Lemma encTM_inj {Σ} (sym_s sym_b : Σ) n1 n2 :
-  sym_s <> sym_b -> encTM sym_s sym_b n1 = encTM sym_s sym_b n2 -> n1 = n2.
+Lemma encBoolsTM_inj {Σ} (sym_s sym_b : Σ) n1 n2 :
+  sym_s <> sym_b -> encBoolsTM sym_s sym_b n1 = encBoolsTM sym_s sym_b n2 -> n1 = n2.
 Proof.
   intros Hdiff.
   induction n1 in n2 |- *.
   - destruct n2; now inversion 1.
   - destruct n2; inversion 1.
     destruct a, b.
-    + f_equal. eapply IHn1. unfold encTM. congruence.
+    + f_equal. eapply IHn1. unfold encBoolsTM. congruence.
     + now exfalso.
     + now exfalso.
-    + f_equal. eapply IHn1. unfold encTM. congruence.
+    + f_equal. eapply IHn1. unfold encBoolsTM. congruence.
 Qed.
 
 From Undecidability.TM Require Import Hoare.
 
 Definition TM_booL_bool_computable_hoare_in {k n Σ} s b (v: Vector.t (list bool) k): SpecV Σ (k+1+n)
-  := (Vector.map (fun bs => Custom (eq (encTM s b bs))) v ++ [Custom (eq niltape)]) ++ Vector.const (Custom (eq niltape)) _.
+  := (Vector.map (fun bs => Custom (eq (encBoolsTM s b bs))) v ++ [Custom (eq niltape)]) ++ Vector.const (Custom (eq niltape)) _.
 
 Lemma TM_booL_bool_computable_hoare_in_spec {k n Σ} (s b:_ + Σ) (v: Vector.t (list bool) k): 
-  (Vector.map (encTM s b) v ++ [niltape]) ++ const niltape n
+  (Vector.map (encBoolsTM s b) v ++ [niltape]) ++ const niltape n
     ≃≃ ([]%list, TM_booL_bool_computable_hoare_in s b v).
 Proof.
   eapply tspecI;cbn;[easy|]; unfold TM_booL_bool_computable_hoare_in;intros i;
@@ -54,11 +54,11 @@ Qed.
 
 
 Definition TM_booL_bool_computable_hoare_out {k n Σ} s b (bs :list bool): SpecV Σ (k+1+n)
-  := (Vector.const (Custom (fun _ => True)) _ ++ [Custom (eq (encTM s b bs)) ])++ Vector.const (Custom (fun _ => True)) _.
+  := (Vector.const (Custom (fun _ => True)) _ ++ [Custom (eq (encBoolsTM s b bs)) ])++ Vector.const (Custom (fun _ => True)) _.
 
 Lemma TM_booL_bool_computable_hoare_out_spec {k n Σ} (s b:_ + Σ) bs t': 
   t' ≃≃ ([]%list, TM_booL_bool_computable_hoare_out (k:=k) (n:=n)s b bs)
-  -> nth_error (to_list t') k = Some (encTM s b bs).
+  -> nth_error (to_list t') k = Some (encBoolsTM s b bs).
 Proof.
   intros ([]&Hm2)%tspecE. specialize (Hm2 (Fin.L n (Fin.R k Fin0))).
   unfold TM_booL_bool_computable_hoare_out in Hm2. rewrite Vector_nth_L,Vector_nth_R in Hm2.
@@ -86,7 +86,7 @@ Proof.
     + intros HR.
       specialize H2 as [k__steps H2%TripleT_TerminatesIn]. eassumption.
       cbn in H2.
-      destruct (H2 ((Vector.map (encTM s b) v ++ [niltape]) ++ Vector.const niltape n) k__steps) as [[q' t'] Hconf].
+      destruct (H2 ((Vector.map (encBoolsTM s b) v ++ [niltape]) ++ Vector.const niltape n) k__steps) as [[q' t'] Hconf].
       * split. 2:easy. now apply TM_booL_bool_computable_hoare_in_spec.        
       * exists q', t'. split. eapply TM_eval_iff. eexists. eapply Hconf.
         eapply H1 in Hconf as (m' & Hm1 & Hm2%TM_booL_bool_computable_hoare_out_spec).
@@ -98,7 +98,7 @@ Proof.
       now apply TM_booL_bool_computable_hoare_in_spec.
       cbn -[to_list] in *.
       enough (m = m') by now subst.
-      eapply encTM_inj; eauto. congruence.
+      eapply encBoolsTM_inj; eauto. congruence.
   - intros q t [steps Hter] % TM_eval_iff.
     eapply H1 in Hter as (m & Hm1 & Hm2%TM_booL_bool_computable_hoare_out_spec).
     now apply TM_booL_bool_computable_hoare_in_spec. eauto.
@@ -108,10 +108,10 @@ Qed.
 
 (** * The tape-order is different than in the implemented machine, so here again with the tape-order implemented: *)
 Definition TM_booL_bool_computable_hoare_in' {k n Σ} s b (v: Vector.t (list bool) k): SpecV Σ (1+n+k)
-  := Custom (eq niltape) :: Vector.const (Custom (eq niltape)) _ ++ Vector.map (fun bs => Custom (eq (encTM s b bs))) v.
+  := Custom (eq niltape) :: Vector.const (Custom (eq niltape)) _ ++ Vector.map (fun bs => Custom (eq (encBoolsTM s b bs))) v.
 
 Definition TM_booL_bool_computable_hoare_out' {n Σ} s b (bs :list bool): SpecV Σ (1+n)
-  := Custom (eq (encTM s b bs)) :: Vector.const (Custom (fun _ => True)) _.
+  := Custom (eq (encBoolsTM s b bs)) :: Vector.const (Custom (fun _ => True)) _.
 
 Definition TM_booL_bool_computable_hoare' {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
   exists n : nat, exists Σ : finType, exists s b , s <> b /\ 

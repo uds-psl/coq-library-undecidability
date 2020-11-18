@@ -18,7 +18,7 @@ From Undecidability.TM.Code Require Import CaseBool CaseList WriteValue Copy Lis
 Set Default Proof Using "Type".
 
 
-Module Boollist2encTM.
+Module Boollist2encBoolsTM.
 Section Fix.
 
   Variable Σ : finType.
@@ -45,7 +45,7 @@ Section Fix.
         /\ length (left t) <= length bs); Void|]) )
         (f bs)
         M__loop
-        (fun _ => ≃≃([]%list,[|Void; Custom (eq (encTM s b (rev bs++res))) ; Void  |])) }.
+        (fun _ => ≃≃([]%list,[|Void; Custom (eq (encBoolsTM s b (rev bs++res))) ; Void  |])) }.
   Proof.
     evar (c1 : nat);evar (c2 :nat).
     exists_UpToC (fun bs => c1 * length bs + c2). 2:now smpl_upToC_solve.
@@ -67,7 +67,7 @@ Section Fix.
     }
     cbn. split.
     -intros. destruct bs. 2:easy. split.
-      +tspec_ext. unfold encTM,encListTM. destruct H1 as (t&->&H'&Hr). rewrite H'.
+      +tspec_ext. unfold encBoolsTM,encBoolsListTM. destruct H1 as (t&->&H'&Hr). rewrite H'.
        destruct (left t). all:easy.
       + cbn. rewrite Nat.mul_0_r. cbn. shelve.
     - intros. destruct bs as [ | b' bs]. easy. eexists (_,_);cbn.
@@ -93,7 +93,7 @@ Section Fix.
         (≃≃([],[|Contains _ bs; Custom (eq niltape); Void|]) )
         (f bs)
         M
-        (fun _ => ≃≃([],[|Void; Custom (eq (encTM s b (rev bs))) ; Void  |])) }.
+        (fun _ => ≃≃([],[|Void; Custom (eq (encBoolsTM s b (rev bs))) ; Void  |])) }.
   Proof.
     eexists. intros. eapply ConsequenceT.
     eapply (projT2 loop_SpecT) with (res:=[]).
@@ -108,7 +108,7 @@ Section Fix.
                         t[@Fin0] ≃ l ->
                         t[@Fin1] = niltape ->
                         isVoid (t[@Fin2]) ->
-                        t'[@Fin1] = encTM s b (rev l)
+                        t'[@Fin1] = encBoolsTM s b (rev l)
                         /\ (isVoid (t'[@Fin0]) /\ isVoid (t'[@Fin2]))).
   Proof.
     repeat (eapply RealiseIntroAll;intro). eapply Realise_monotone.
@@ -120,10 +120,10 @@ Section Fix.
   Qed.   
 
 End Fix.
-End Boollist2encTM.
+End Boollist2encBoolsTM.
 
 
-Module EncTM2boollist.
+Module encBoolsTM2boollist.
 Section Fix.
 
   Variable Σ : finType.
@@ -154,7 +154,7 @@ Section Fix.
            /\ tape_local_l tin = (map (fun (x:bool) => if x then s else b) bs++[b]) ],[| Custom (eq tin); Contains _ res|]) )
         (f bs)
         M__loop
-        (fun _ => ≃≃([],[|Custom (eq (encTM s b (rev bs++res))) ; Contains _ (rev bs ++ res)|])) }.
+        (fun _ => ≃≃([],[|Custom (eq (encBoolsTM s b (rev bs++res))) ; Contains _ (rev bs ++ res)|])) }.
   Proof.
     evar (c1 : nat);evar (c2 :nat).
     exists_UpToC (fun bs => c1 * length bs + c2). 2:now smpl_upToC_solve.
@@ -225,10 +225,10 @@ Section Fix.
     { f : UpToC (fun bs => length bs + 1) &
       forall bs,
       TripleT 
-        (≃≃([],[| Custom (eq (encTM s b bs)); Void|]) )
+        (≃≃([],[| Custom (eq (encBoolsTM s b bs)); Void|]) )
         (f bs)
         M
-        (fun _ => ≃≃([],[|Custom (eq (encTM s b bs)) ; Contains _ bs|])) }. 
+        (fun _ => ≃≃([],[|Custom (eq (encBoolsTM s b bs)) ; Contains _ bs|])) }. 
   Proof.
     evar (f : nat -> nat).
     exists_UpToC (fun bs => f (length bs)). 2:now shelve. 
@@ -243,7 +243,7 @@ Section Fix.
       eapply ConsequenceT. eapply (projT2 (loop_SpecT H__neq)) with (bs:=_)(res:=_) (tin:=_).
       3:reflexivity. 2:{ intro;cbn. rewrite rev_involutive,app_nil_r. reflexivity. }
       eapply EntailsI. intros tin.
-      unfold encTM,encListTM.
+      unfold encBoolsTM,encBoolsListTM.
       rewrite MoveToSymbol_correct_midtape_end. 2:easy.
       intros [_ H]%tspecE.
       specializeFin H. 
@@ -253,7 +253,7 @@ Section Fix.
     }
     cbn - ["+"]. 
     rewrite UpToC_le. ring_simplify.
-    unfold encTM,encListTM.
+    unfold encBoolsTM,encBoolsListTM.
     rewrite MoveToSymbol_steps_midtape_end. 2:easy.
     rewrite map_length,rev_length.
     [f]:intros n. now unfold f;set (n:=length bs);reflexivity.
@@ -264,7 +264,7 @@ Section Fix.
   Theorem Realise (H__neq : s <> b):
     Realise M (fun t '(r, t') =>
                      forall (l : list bool),
-                        t[@Fin0] = encTM s b l ->
+                        t[@Fin0] = encBoolsTM s b l ->
                         isVoid t[@Fin1] ->
                         t[@Fin0] = t'[@Fin0]
                         /\ t'[@Fin1] ≃ l).
@@ -278,4 +278,4 @@ Section Fix.
   Qed.
 
 End Fix.
-End EncTM2boollist.
+End encBoolsTM2boollist.

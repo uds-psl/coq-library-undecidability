@@ -124,7 +124,7 @@ End MK_isVoid.
 Opaque MK_isVoid_multi.
 
 From Undecidability Require Import TM.L.Transcode.Boollist_to_Enc.
-From Undecidability Require Import encTM_boolList.
+From Undecidability Require Import EncBoolsTM_boolList.
 
 
 Section mk_init_one.
@@ -140,7 +140,7 @@ Section mk_init_one.
 
 
    (* Tapes: 
-       0: bs (input, encTM)
+       0: bs (input, encBoolsTM)
        1: ter (input) 
        2: intern, bs als listBool
        3: intern 
@@ -150,7 +150,7 @@ Section mk_init_one.
   
 
   Definition M_init_one : pTM (Σ) ^+ unit 6:= 
-    EncTM2boollist.M s retr_list @[|Fin0;Fin3|];;
+    encBoolsTM2boollist.M s retr_list @[|Fin0;Fin3|];;
     Rev _ ⇑ retr_list @ [|Fin3;Fin2;Fin4|];;
     BoollistToEnc.M retr_list retr_pro @[|Fin2;Fin3;Fin4;Fin5|];;
     APP_right ⇑ retr_pro  @[|Fin1;Fin3|].
@@ -158,14 +158,14 @@ Section mk_init_one.
     
   Lemma M_init_one_Spec :
     { f & forall (bs:list bool) (ter : L.term),
-    TripleT ≃≃([],[|Custom (eq (encTM s b bs));Contains _ (compile ter);Void;Void;Void;Void|])
-    (f bs ter) M_init_one (fun _ => ≃≃([],[|Custom (eq (encTM s b bs));Contains _ (compile (L.app ter (encL bs)));Void;Void;Void;Void|])) }.
+    TripleT ≃≃([],[|Custom (eq (encBoolsTM s b bs));Contains _ (compile ter);Void;Void;Void;Void|])
+    (f bs ter) M_init_one (fun _ => ≃≃([],[|Custom (eq (encBoolsTM s b bs));Contains _ (compile (L.app ter (encL bs)));Void;Void;Void;Void|])) }.
   Proof using H_disj.
     evar (f : list bool -> term -> nat).
     eexists f. [f]:intros bs ter.
     intros bs ter.
     unfold M_init_one.
-    hstep. { hsteps_cbn. cbn. eapply (projT2 (EncTM2boollist.SpecT _ H_disj)). }
+    hstep. { hsteps_cbn. cbn. eapply (projT2 (encBoolsTM2boollist.SpecT _ H_disj)). }
     cbn. intros _. hstep. { hsteps_cbn. cbn. tspec_ext. } 2:reflexivity.
     cbn. intros _. hstep.
     {
@@ -211,12 +211,12 @@ Section mk_init.
 
   Theorem M_init'_SpecT k' (ren :Vector.t (Fin.t k) k') (v:Vector.t (list bool) k):
   { k &
-  TripleT ≃≃([],Vector.const (Custom (eq niltape)) (6+m) ++ Vector.map (fun bs => Custom (eq (encTM s b bs))) v)
+  TripleT ≃≃([],Vector.const (Custom (eq niltape)) (6+m) ++ Vector.map (fun bs => Custom (eq (encBoolsTM s b bs))) v)
     k (M_init' ren)
     (fun _ => ≃≃([],
       ([|Custom (eq niltape);
         Contains retr_pro (compile (Vector.fold_right (fun l_i s => L.app s (encL l_i)) (select ren v) sim))
-         ;Void;Void;Void;Void|]++Vector.const (Custom (eq niltape)) m) ++ Vector.map (fun bs => Custom (eq (encTM s b bs))) v))}.
+         ;Void;Void;Void;Void|]++Vector.const (Custom (eq niltape)) m) ++ Vector.map (fun bs => Custom (eq (encBoolsTM s b bs))) v))}.
   Proof using All.
     depind ren. all:cbn [compile Vector.fold_left M_init' Vector.tl Vector.caseS].
     {
@@ -268,13 +268,13 @@ Section mk_init.
     
   Theorem M_init_SpecT (v:Vector.t (list bool) k):
   { k &
-  TripleT ≃≃([],Vector.const (Custom (eq niltape)) (6+m) ++ Vector.map (fun bs => Custom (eq (encTM s b bs))) v)
+  TripleT ≃≃([],Vector.const (Custom (eq niltape)) (6+m) ++ Vector.map (fun bs => Custom (eq (encBoolsTM s b bs))) v)
     k M_init
     (fun _ => ≃≃([],
       ([|Custom (eq niltape);
         Contains retr_pro (compile (Vector.fold_left (fun s l_i => L.app s (encL l_i)) sim v));
          Void;Void;Void;Void|]
-         ++Vector.const (Custom (eq niltape)) m) ++ Vector.map (fun bs => Custom (eq (encTM s b bs))) v))}.
+         ++Vector.const (Custom (eq niltape)) m) ++ Vector.map (fun bs => Custom (eq (encBoolsTM s b bs))) v))}.
   Proof using H_disj.
     eexists. unfold M_init.
     eapply ConsequenceT. eapply (projT2 (M_init'_SpecT _ _)). reflexivity. 2:reflexivity.
@@ -301,7 +301,7 @@ Section conv_output.
 
   Definition M_out : pTM (Σ) ^+ unit 4 :=
     EncToBoollist.M _ _ @ [|Fin0;Fin2;Fin3|];;
-    Boollist2encTM.M s b _ @ [|Fin2;Fin1;Fin3|].
+    Boollist2encBoolsTM.M s b _ @ [|Fin2;Fin1;Fin3|].
 
   
   Theorem M_out_SpecT bs:
@@ -309,11 +309,11 @@ Section conv_output.
     TripleT ≃≃([],[|Contains _ (compile (encL bs));Custom (eq niltape);Void;Void|])
       k M_out
       (fun _ => ≃≃([],
-        ([|Custom (fun _ => True); Custom (eq (encTM s b bs)); Void;Void|])))}.
+        ([|Custom (fun _ => True); Custom (eq (encBoolsTM s b bs)); Void;Void|])))}.
   Proof.
     eexists. unfold M_out. hsteps_cbn;cbn.
     -eapply (projT2 (@EncToBoollist.SpecT _ _ _)).
-    -eapply (projT2 (Boollist2encTM.SpecT _ _ _)).
+    -eapply (projT2 (Boollist2encBoolsTM.SpecT _ _ _)).
     - cbn. rewrite rev_involutive. tspec_ext. easy.
     -reflexivity.
   Qed.
@@ -373,10 +373,10 @@ Section main.
   Lemma syms_diff : sym_s <> sym_b. Proof. cbv. congruence. Qed.
   
   Theorem M_main_Spec v:
-    Triple ≃≃([],Vector.const (Custom (eq niltape)) (S n_main) ++ Vector.map (fun bs => Custom (eq (encTM sym_s sym_b bs))) v)
+    Triple ≃≃([],Vector.const (Custom (eq niltape)) (S n_main) ++ Vector.map (fun bs => Custom (eq (encBoolsTM sym_s sym_b bs))) v)
        M_main
       (fun _ t => exists m, t ≃≃ ([R v m]%list,
-        (Custom (eq (encTM sym_s sym_b m)):::Vector.const (Custom (fun _ => True)) _))).
+        (Custom (eq (encBoolsTM sym_s sym_b m)):::Vector.const (Custom (fun _ => True)) _))).
   Proof  using Hscl Hs2 Hs1.
     unfold M_main.
     hstep. { eapply TripleT_Triple,(projT2 (M_init_SpecT syms_diff _ _ _ _ _)). }
@@ -402,9 +402,9 @@ Section main.
 
 Theorem M_main_SpecT v res:
   R v res -> exists k__steps,
-  TripleT ≃≃([],Vector.const (Custom (eq niltape)) (S n_main) ++ Vector.map (fun bs => Custom (eq (encTM sym_s sym_b bs))) v)
+  TripleT ≃≃([],Vector.const (Custom (eq niltape)) (S n_main) ++ Vector.map (fun bs => Custom (eq (encBoolsTM sym_s sym_b bs))) v)
   k__steps M_main
-    (fun _ => ≃≃([],Custom (eq (encTM sym_s sym_b res)):::Vector.const (Custom (fun _ => True)) _)).
+    (fun _ => ≃≃([],Custom (eq (encBoolsTM sym_s sym_b res)):::Vector.const (Custom (fun _ => True)) _)).
 Proof  using Hscl Hs2 Hs1.
   unfold M_main. intros ?.
   apply Hs1 in H as H%eval_iff. eapply eval_evalIn in H as [? H].
