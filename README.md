@@ -3,10 +3,10 @@
 [![Test compilation](https://github.com/uds-psl/coq-library-undecidability/workflows/Test%20compilation/badge.svg?branch=coq-8.12)](https://github.com/uds-psl/coq-library-undecidability/actions)
 
 The Coq Library of Undecidability Proofs contains mechanised reductions to establish undecidability results in Coq.
-The undecidability proofs are based on a synthetic approach to undecidability, where a problem `P` is considered [undecidable](theories/Synthetic/Undecidability.v#L4) if its (synthetic) decidability would imply the decidability of the [halting problem of single-tape Turing machines](theories/TM/TM.v#L148).
+The undecidability proofs are based on a synthetic approach to undecidability, where a problem `P` is considered [undecidable](theories/Synthetic/Undecidability.v#L4) if its [decidability](theories/Synthetic/Definitions.v#L6) in Coq would imply the decidability of the [halting problem of single-tape Turing machines](theories/TM/TM.v#L148) in Coq.
 As in the traditional literature, undecidability of a problem `P` in the library is often established by constructing a [many-one reduction](theories/Synthetic/Definitions.v#L27) from an undecidable problem to `P`.
 
-For more information on the structure of the library, the synthetic approach, and included problems see [Publications](#publications) below and our [Wiki](wiki).
+For more information on the structure of the library, the synthetic approach, and included problems see [Publications](#publications) below, our [Wiki](wiki), look at the [slides](https://www.ps.uni-saarland.de/~forster/downloads/slides_coqpl20.pdf) or the [recording](https://www.youtube.com/watch?v=mo_C6664n3E) of the talk on the Coq Library of Undecidability proofs at [CoqPL '20](https://popl20.sigplan.org/details/CoqPL-2020-papers/5/A-Coq-Library-of-Undecidable-Problems).
 
 The library is a collaborative effort, growing constantly and we invite everybody to contribute undecidability proofs!
 
