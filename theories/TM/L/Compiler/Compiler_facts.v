@@ -22,21 +22,7 @@ From Undecidability.TM.L.Compiler Require Import Compiler_spec.
 
 Require Import Equations.Equations.
 
-Import L_Notations.
-
-(* 
-Lemma help1 s n :
-  {s' : L.term | forall v : Vector.t (list bool) n, Vector.fold_left (fun s n => L.app s (encL n)) s v == s' (enc v)}.
-Proof.
-  revert s. induction n; intros s.
-  - exists (lam s). intros v. dependent elimination v. cbn. Lsimpl.
-  - exists (lam (0 0 (lam (lam (proj1_sig (IHn (s #1)) #0))))). intros v.
-    dependent elimination v. rename t0 into v.
-    cbn. Lsimpl. destruct IHn as [s' H]. cbn. unfold enc at 1. cbn.
-    fold (Vector.to_list v). rewrite list_enc_correct.
-    pose (enc v). unfold enc in t. cbn in t.
-Admitted.
- *)      
+Import L_Notations. 
 
 Instance term_enc_bool : computable bool_enc.
 Proof.
@@ -86,16 +72,6 @@ Lemma apply_to_equiv' s t {X k} (v : Vector.t X k) `{registered X} :
 Proof.
   eapply equiv_many_app_L.
 Qed.
-(* 
-Lemma apply_to_equiv s t {X k} (v : Vector.t X k) `{registered X} :
-  s == t -> apply_to (many_lam k s) v == apply_to (many_lam k t) v.
-Proof.
-  intros He. induction v in s, t, He |- *.
-  - cbn. exact He.
-  - cbn [many_lam]. rewrite !apply_to_cons. rewrite apply_to_equiv'. 2: now eapply beta_red; Lproc.
-    setoid_rewrite apply_to_equiv' at 2. 2: now eapply beta_red; Lproc. rewrite !subst_many_lam. eapply IHv.
-Admitted.
- *)
 
 Lemma subst_closed s n u :
   closed s -> subst s n u = s.
