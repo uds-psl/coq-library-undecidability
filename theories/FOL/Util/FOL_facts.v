@@ -4,63 +4,303 @@
 From Undecidability.Synthetic Require Export Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 From Undecidability Require Export Shared.ListAutomation.
 Import ListAutomationNotations.
-Local Set Implicit Arguments.
-Local Unset Strict Implicit.
 
-(** ** Syntax *)
+Require Import Vector.
+Definition vec := t.
 
-Notation var := nat (only parsing).
-Notation par := nat (only parsing).
 
-Inductive term : Type :=
-  V (v : var) | P (p : par)
-| t_f : bool -> term -> term
-| t_e : term.
+(** Some preliminary definitions for substitions  *)
+Definition scons {X: Type} (x : X) (xi : nat -> X) :=
+  fun n => match n with
+          |0 => x
+          |S n => xi n
+          end.
 
-Coercion V : var >-> term.
+Definition funcomp {X Y Z} (g : Y -> Z) (f : X -> Y)  :=
+  fun x => g (f x).
 
-Inductive logic := frag | full.
-Existing Class logic.
-Existing Instance full | 1.
-Existing Instance frag | 0.
+(** Signatures are a record to allow for easier definitions of general transformations on signatures *)
 
-Inductive form : logic -> Type :=
-| Pr {b} : term -> term -> form b
-| Q {b} : form b
-| Fal : form full
-| Impl {b} : form b -> form b -> form b
-| All {b} : var -> form b -> form b.
+Class funcs_signature :=
+  { syms : Type; ar_syms : syms -> nat }.
 
-Lemma form_frag_ind : forall P : form frag -> Prop,
-       (forall (t t0 : term), P (Pr t t0)) ->
-       (P Q) ->
-       (forall (f3 : form frag),
-        P f3 -> forall f4 : form frag, P f4 -> P (Impl f3 f4)) ->
-       (forall (n : var) (f6 : form frag), P f6 -> P (All n f6)) ->
-       forall (f8 : form frag), P f8.
-Proof.
-  intros. remember frag as b. induction f8; try now inv Heqb; firstorder.
-Qed.
+Coercion syms : funcs_signature >-> Sortclass.
 
-Notation "phi --> psi" := (Impl phi psi) (right associativity, at level 55).
-Notation "∀ v ; phi" := (All v phi) (at level 56, right associativity).
-Notation "⊥" := (Fal).
-Notation "¬ phi" := (phi --> ⊥) (at level 20).
+Class preds_signature :=
+  { preds : Type; ar_preds : preds -> nat }.
 
-Section fixb. Variable b : logic.
-Fixpoint impl (A : list (form b)) phi :=
-  match A with
-  | [] => phi
-  | psi :: A => Impl psi (impl A phi)
-  end.
-End fixb.
+Coercion preds : preds_signature >-> Sortclass.
 
-Notation "A ==> phi" := (impl A phi) (right associativity, at level 55).
+Section fix_signature.
+
+  Context {Σ_funcs : funcs_signature}.
+
+  (** We use the stdlib definition of vectors to be maximally compatible  *)
+
+  Unset Elimination Schemes.
+
+  Inductive term  : Type :=
+  | var : nat -> term
+  | func : forall (f : syms), vec term (ar_syms f) -> term.
+
+  Set Elimination Schemes.
+
+  Fixpoint subst_term (σ : nat -> term) (t : term) : term :=
+    match t with
+    | var t => σ t
+    | func f v => func f (map (subst_term σ) v)
+    end.
+
+  Context {Σ_preds : preds_signature}.
+
+  (** We use a flag to switch on and off a constant for falisity *)
+
+  Inductive falsity_flag := falsity_off | falsity_on.
+  Existing Class falsity_flag.
+  Existing Instance falsity_on | 1.
+  Existing Instance falsity_off | 0.
+
+  (** Syntax is parametrised in binary operators and quantifiers.
+      Most developments will fix these types in the beginning and never change them.
+   *)
+  Class operators := {binop : Type ; quantop : Type}.
+  Context {ops : operators}.
+
+  (** Formulas have falsity as fixed constant -- we could parametrise against this in principle *)
+  Inductive form : falsity_flag -> Type :=
+  | falsity : form falsity_on
+  | atom {b} : forall (P : preds), vec term (ar_preds P) -> form b
+  | bin {b} : binop -> form b -> form b -> form b
+  | quant {b} : quantop -> form b -> form b.
+  Arguments form {_}.
+
+  Definition up (σ : nat -> term) := scons (var 0) (funcomp (subst_term (funcomp var S)) σ).
+
+  Fixpoint subst_form `{falsity_flag} (σ : nat -> term) (phi : form) : form :=
+    match phi with
+    | falsity => falsity
+    | atom P v => atom P (map (subst_term σ) v)
+    | bin op phi1 phi2 => bin op (subst_form σ phi1) (subst_form σ phi2)
+    | quant op phi => quant op (subst_form (up σ) phi)
+    end.
+
+  (** Induction principle for terms *)
+
+  Inductive Forall {A : Type} (P : A -> Type) : forall {n}, t A n -> Type :=
+  | Forall_nil : Forall P (@Vector.nil A)
+  | Forall_cons : forall n (x : A) (l : t A n), P x -> Forall P l -> Forall P (@Vector.cons A x n l).
+
+  Inductive vec_in {A : Type} (a : A) : forall {n}, t A n -> Type :=
+  | vec_inB {n} (v : t A n) : vec_in a (cons A a n v)
+  | vec_inS a' {n} (v : t A n) : vec_in a v -> vec_in a (cons A a' n v).
+  Hint Constructors vec_in : core.
+  
+  Lemma term_rect' (p : term -> Type) :
+    (forall x, p (var x)) -> (forall F v, (Forall p v) -> p (func F v)) -> forall (t : term), p t.
+  Proof.
+    intros f1 f2. fix strong_term_ind' 1. destruct t as [n|F v].
+    - apply f1.
+    - apply f2. induction v.
+      + econstructor.
+      + econstructor. now eapply strong_term_ind'. eauto.
+  Qed.
+
+  Lemma term_rect (p : term -> Type) :
+    (forall x, p (var x)) -> (forall F v, (forall t, vec_in t v -> p t) -> p (func F v)) -> forall (t : term), p t.
+  Proof.
+    intros f1 f2. eapply term_rect'.
+    - apply f1.
+    - intros. apply f2. intros t. induction 1; inversion X; subst; eauto.
+      apply Eqdep_dec.inj_pair2_eq_dec in H2; subst; eauto. decide equality.
+  Qed.
+
+  Lemma term_ind (p : term -> Prop) :
+    (forall x, p (var x)) -> (forall F v (IH : forall t, In t v -> p t), p (func F v)) -> forall (t : term), p t.
+  Proof.
+    intros f1 f2. eapply term_rect'.
+    - apply f1.
+    - intros. apply f2. intros t. induction 1; inversion X; subst; eauto.
+      apply Eqdep_dec.inj_pair2_eq_dec in H3; subst; eauto. decide equality.
+  Qed.
+
+End fix_signature.
+
+
+
+(** Setting implicit arguments is crucial  *)
+(** We can write term both with and without arguments, but printing is without. *)
+Arguments term _, {_}.
+Arguments var _ _, {_} _.
+Arguments func _ _ _, {_} _ _.
+Arguments subst_term {_} _ _.
+
+(** Formulas can be written with the signatures explicit or not.
+    If the operations are explicit, the signatures are too.
+ *)
+Arguments form  _ _ _ _, _ _ {_ _}, {_ _ _ _}, {_ _ _} _.
+Arguments atom  _ _ _ _, _ _ {_ _}, {_ _ _ _}.
+Arguments bin   _ _ _ _, _ _ {_ _}, {_ _ _ _}.
+Arguments quant _ _ _ _, _ _ {_ _}, {_ _ _ _}.
+
+Arguments up         _, {_}.
+Arguments subst_form _ _ _ _, _ _ {_ _}, {_ _ _ _}.
+
+
+
+(** Substitution Notation *)
+
+Class Subst {Sigma : funcs_signature} Y := substfun : (nat -> term) -> Y -> Y.
+
+Instance Subst_term (Sigma : funcs_signature) : Subst term := subst_term.
+
+Instance Subst_form (Sigma : funcs_signature) (Sigma' : preds_signature) (ops : operators) (ff : falsity_flag) :
+  Subst form := @subst_form Sigma Sigma' ops ff.
+
+Definition shift {Sigma : funcs_signature} : nat -> term :=
+  fun n => var (S n).
+
+Declare Scope subst_scope.
+
+Notation "$ x" := (var x) (at level 30, format "$ '/' x").
+Notation "↑" := (shift) : subst_scope.
+Notation "s [ sigma ]" := (substfun sigma s) (at level 7, left associativity, format "s '/' [ sigma ]") : subst_scope.
+Notation "s .: sigma" := (scons s sigma) (at level 70) : subst_scope.
+Notation "f >> g" := (funcomp g f) (at level 50) : subst_scope.
+Notation "s '..'" := (scons s var) (at level 1, format "s ..") : subst_scope.
+
+Open Scope subst_scope.
+
+
+
+
+Section Subst.
+
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+  Context {ops : operators}.
+
+  Lemma subst_term_ext (t : term) sigma tau :
+    (forall n, sigma n = tau n) -> t[sigma] = t[tau].
+  Proof.
+    intros H. induction t; cbn.
+    - now apply H.
+    - f_equal. now apply map_ext_in.
+  Qed.
+
+  Lemma subst_term_id (t : term) sigma :
+    (forall n, sigma n = var n) -> t[sigma] = t.
+  Proof.
+    intros H. induction t; cbn.
+    - now apply H.
+    - f_equal. now erewrite map_ext_in, map_id.
+  Qed.
+
+  Lemma subst_term_var (t : term) :
+    t[var] = t.
+  Proof.
+    now apply subst_term_id.
+  Qed.
+
+  Lemma subst_term_comp (t : term) sigma tau :
+    t[sigma][tau] = t[sigma >> subst_term tau].
+  Proof.
+    induction t; cbn.
+    - reflexivity.
+    - f_equal. rewrite map_map. now apply map_ext_in.
+  Qed.
+
+  Lemma subst_term_shift (t : term) s :
+    t[↑][s..] = t.
+  Proof.
+    rewrite subst_term_comp. apply subst_term_id. now intros [|].
+  Qed.
+
+  Lemma up_term (t : term) xi :
+    t[↑][up xi] = t[xi][↑].
+  Proof.
+    rewrite !subst_term_comp. apply subst_term_ext. reflexivity.
+  Qed.
+
+  Lemma up_ext sigma tau :
+    (forall n, sigma n = tau n) -> forall n, up sigma n = up tau n.
+  Proof.
+    destruct n; cbn; trivial.
+    unfold funcomp. now rewrite H.
+  Qed.
+
+  Lemma up_var sigma :
+    (forall n, sigma n = var n) -> forall n, up sigma n = var n.
+  Proof.
+    destruct n; cbn; trivial.
+    unfold funcomp. now rewrite H.
+  Qed.
+
+  Lemma up_funcomp sigma tau :
+    forall n, (up sigma >> subst_term (up tau)) n = up (sigma >> subst_term tau) n.
+  Proof.
+    intros [|]; cbn; trivial.
+    setoid_rewrite subst_term_comp.
+    apply subst_term_ext. now intros [|].
+  Qed.
+
+  Ltac cbns :=
+    cbn; repeat (match goal with [ |- context f[subst_form ?sigma ?phi] ] => change (subst_form sigma phi) with (phi[sigma]) end).
+
+  Lemma subst_ext {ff : falsity_flag} (phi : form) sigma tau :
+    (forall n, sigma n = tau n) -> phi[sigma] = phi[tau].
+  Proof.
+    induction phi in sigma, tau |- *; cbns; intros H.
+    - reflexivity.
+    - f_equal. apply map_ext. intros s. now apply subst_term_ext.
+    - now erewrite IHphi1, IHphi2.
+    - erewrite IHphi; trivial. now apply up_ext.
+  Qed.
+
+  Lemma subst_id {ff : falsity_flag} (phi : form) sigma :
+    (forall n, sigma n = var n) -> phi[sigma] = phi.
+  Proof.
+    induction phi in sigma |- *; cbns; intros H.
+    - reflexivity.
+    - f_equal. erewrite map_ext; try apply map_id. intros s. now apply subst_term_id.
+    - now erewrite IHphi1, IHphi2.
+    - erewrite IHphi; trivial. now apply up_var.
+  Qed.
+
+  Lemma subst_var {ff : falsity_flag} (phi : form) :
+    phi[var] = phi.
+  Proof.
+    now apply subst_id.
+  Qed.
+
+  Lemma subst_comp {ff : falsity_flag} (phi : form) sigma tau :
+    phi[sigma][tau] = phi[sigma >> subst_term tau].
+  Proof.
+    induction phi in sigma, tau |- *; cbns.
+    - reflexivity.
+    - f_equal. rewrite map_map. apply map_ext. intros s. apply subst_term_comp.
+    - now rewrite IHphi1, IHphi2.
+    - rewrite IHphi. f_equal. now apply subst_ext, up_funcomp.
+  Qed.
+
+  Lemma subst_shift {ff : falsity_flag} (phi : form) s :
+    phi[↑][s..] = phi.
+  Proof.
+    rewrite subst_comp. apply subst_id. now intros [|].
+  Qed.
+
+  Lemma up_form {ff : falsity_flag} xi psi :
+    psi[↑][up xi] = psi[xi][↑].
+  Proof.
+    rewrite !subst_comp. apply subst_ext. reflexivity.
+  Qed.
+  
+End Subst.
+
 
 
 (** ** Enumerability *)
 
-Fixpoint L_term n : list term :=
+(*Fixpoint L_term n : list term :=
   match n with
   | 0 => [t_e]
   | S n => L_term n ++ [V n; P n] ++ [ t_f b t | (b,t) ∈ (L_T bool n × L_term n) ]
@@ -143,4 +383,4 @@ Proof.
   destruct (dec_form phi1 phi2).
   - eapply Eqdep_dec.eq_dep_eq_dec in e; try eapply dec_logic; subst. now left.
   - right. intros ->. now eapply n.
-Qed.
+Qed.*)

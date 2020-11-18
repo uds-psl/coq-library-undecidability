@@ -4,177 +4,112 @@ From Undecidability Require Export FOL.Util.Semantics.
 Import ListAutomationNotations.
 Local Set Implicit Arguments.
 
-(** ** Definition *)
 
-Inductive nd := intu | class.
-Existing Class nd.
 
-Inductive prv : forall {s : nd} {b : logic} (A : list (form b)), form b -> Prop :=
-| Ctx {b} {s : nd} (A : list (form b)) phi : In phi A -> prv A phi
-| ImpI {b} {s : nd} (A : list (form b)) phi1 phi2 : prv (phi1::A) phi2 -> prv A (phi1 --> phi2)
-| ImpE {b} {s : nd} (A : list (form b)) phi1 phi2 : prv A (phi1 --> phi2) -> prv A phi1 -> prv A phi2
-| AllI {b} {s : nd} (A : list (form b)) x y phi : fresh y (consts phi ++ consts_l A) -> prv A (subst x (P y) phi) -> prv A (∀ x ; phi)
-| AllE {b} {s : nd} (A : list (form b)) x t phi : vars_t t = [] 
-                                       -> prv A (All x phi) -> prv A (subst x t phi)
+Require Import List.
+Notation "x 'el' A" := (In x A) (at level 70).
+Notation "A '<<=' B" := (incl A B) (at level 70).
 
-| Exp A phi : @prv intu full A Fal -> @prv intu full A phi
-| DN A phi : @prv class full A (¬¬ phi) -> @prv class full A phi.
+Ltac comp := repeat (progress (cbn in *; autounfold in *)).
 
+Inductive peirce := class | intu.
+Existing Class peirce.
+
+Section ND_def.
+
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+
+  Reserved Notation "A ⊢ phi" (at level 61).
+  
+  (** ** Definition *)
+
+  Implicit Type p : peirce.
+  Implicit Type ff : falsity_flag.
+
+  Inductive prv : forall (ff : falsity_flag) (p : peirce), list form -> form -> Prop :=
+  | II {ff} {p} A phi psi : phi::A ⊢ psi -> A ⊢ phi --> psi
+  | IE {ff} {p} A phi psi : A ⊢ phi --> psi -> A ⊢ phi -> A ⊢ psi
+  | AllI {ff} {p} A phi : map (subst_form ↑) A ⊢ phi -> A ⊢ ∀ phi
+  | AllE {ff} {p} A t phi : A ⊢ ∀ phi -> A ⊢ phi [t..]
+  (*| ExI {p} A t phi : A ⊢ phi[t..] -> A ⊢ ∃ phi
+  | ExE {p} A phi psi : A ⊢ ∃ phi -> phi::(map (subst_form ↑) A) ⊢ psi[↑] -> A ⊢ psi*)
+  | Exp {p} A phi : prv p A falsity -> prv p A phi
+  | Ctx {ff} {p} A phi : phi el A -> A ⊢ phi
+  (*| CI {p} A phi psi : A ⊢ phi -> A ⊢ psi -> A ⊢ phi ∧ psi
+  | CE1 {p} A phi psi : A ⊢ phi ∧ psi -> A ⊢ phi
+  | CE2 {p} A phi psi : A ⊢ phi ∧ psi -> A ⊢ psi
+  | DI1 {p} A phi psi : A ⊢ phi -> A ⊢ phi ∨ psi
+  | DI2 {p} A phi psi : A ⊢ psi -> A ⊢ phi ∨ psi
+  | DE {p} A phi psi theta : A ⊢ phi ∨ psi -> phi::A ⊢ theta -> psi::A ⊢ theta -> A ⊢ theta*)
+  | Pc {ff} A phi psi : prv class A (((phi --> psi) --> phi) --> phi)
+  where "A ⊢ phi" := (prv _ A phi).
+
+  Arguments prv {_} _ _.
+
+  Context {ff : falsity_flag}.
+  Context {p : peirce}.
+
+  Theorem Weak A B phi :
+    A ⊢ phi -> A <<= B -> B ⊢ phi.
+  Proof.
+    intros H. revert B.
+    induction H; intros B HB; try unshelve (solve [econstructor; intuition]); try now econstructor.
+  Qed.
+    
+End ND_def.
+
+
+Hint Constructors prv : core.
+
+Arguments prv {_ _ _ _} _ _.
 Notation "A ⊢ phi" := (prv A phi) (at level 30).
+Notation "A ⊢C phi" := (@prv _ _ _ class A phi) (at level 30).
+Notation "A ⊢I phi" := (@prv _ _ _ intu A phi) (at level 30).
 
-Definition prv_min := @prv intu frag.
-Definition prv_class := @prv class full.
-Definition prv_intu := @prv intu full.
+Section Soundness.
 
-Notation "A ⊢M phi" := (prv_min A phi) (at level 30).
-Notation "A ⊢I phi" := (@prv intu _ A phi) (at level 30).
-Notation "A ⊢C phi" := (@prv class _ A phi) (at level 30).
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
 
-Lemma prv_ind_min :
-  forall p : list (form frag) -> form frag -> Prop,
-       (forall  (A : list (form frag)) (phi : form frag), phi el A -> p A phi) ->
-       (forall  (A : list (form frag)) (phi1 phi2 : form frag),
-        (phi1 :: A) ⊢I phi2 -> p (phi1 :: A) phi2 -> p A (phi1 --> phi2)) ->
-       (forall  (A : list (form frag)) (phi1 phi2 : form frag),
-        A ⊢I (phi1 --> phi2) -> p A (phi1 --> phi2) -> A ⊢I phi1 -> p A phi1 -> p A phi2) ->
-       (forall  (A : list (form frag)) (x y : nat) (phi : form frag),
-        fresh y (consts phi ++ consts_l A) ->
-        A ⊢I subst x (P y) phi -> p A (subst x (P y) phi) -> p A (∀ x; phi)) ->
-       (forall  (A : list (form frag)) (x : nat) (t : term) (phi : form frag),
-           vars_t t = [] ->
-        A ⊢I (∀ x; phi) -> p A (∀ x; phi) -> p A (subst x t phi)) ->
-       forall (A : list (form frag)) (f9 : form frag), A ⊢I f9 -> p A f9.
-Proof.
-  remember frag as b. remember intu as s. intros. induction H4; eauto; try congruence.
-  - firstorder. 
-  - eapply H1. eauto. eapply IHprv1. all:eauto. eapply IHprv2. all:eauto.
-  - eapply H2; eauto. eapply IHprv; eauto.
-  - eapply H3; eauto. eapply IHprv; eauto.
-Qed.
+  Definition valid {ff : falsity_flag} A phi :=
+    forall D (I : interp D) rho, (forall Phi, Phi el A -> rho ⊨ Phi) -> rho ⊨ phi.
+
+  Lemma Soundness {ff : falsity_flag} A phi :
+    A ⊢I phi -> valid A phi.
+  Proof.
+    remember intu as p.
+    induction 1; intros D I rho HA; comp.
+    - intros Hphi. apply IHprv; trivial. intros ? []; subst. assumption. now apply HA.
+    - now apply IHprv1, IHprv2.
+    - intros d. apply IHprv; trivial. intros psi [psi'[<- H' % HA]] % in_map_iff.
+      eapply sat_comp. now comp.
+    - eapply sat_comp, sat_ext. 2: apply (IHprv Heqp D I rho HA (eval rho t)). now intros [].
+    (* - exists (eval rho t). cbn. specialize (IHprv Heqp D I rho HA).
+      apply sat_comp in IHprv. eapply sat_ext; try apply IHprv. now intros [].
+    - edestruct IHprv1 as [d HD]; eauto.
+      assert (H' : forall psi, phi = psi \/ psi el map (subst_form ↑) A -> (d.:rho) ⊨ psi).
+      + intros P [<-|[psi'[<- H' % HA]] % in_map_iff]; trivial. apply sat_comp. apply H'.
+      + specialize (IHprv2 Heqp D I (d.:rho) H'). apply sat_comp in IHprv2. apply IHprv2. *)
+    - apply (IHprv Heqp) in HA. firstorder.
+    - firstorder.
+    (* - firstorder.
+    - firstorder. now apply H0.
+    - firstorder. now apply H0.
+    - firstorder.
+    - firstorder.
+    - edestruct IHprv1; eauto.
+      + apply IHprv2; trivial. intros xi [<-|HX]; auto.
+      + apply IHprv3; trivial. intros xi [<-|HX]; auto. *)
+    - discriminate.
+  Qed.
+
+End Soundness.
 
 
-
-(** ** Soundness *)
-
-
-Definition cast {domain} (eta eta' : nat -> domain) (I : interp eta) : interp eta'.
-  destruct I; econstructor; eauto.
-Defined.
-
-Lemma eval_ext_p t dom rho rho' eta eta' (I : interp dom eta) :
-  (forall v, v el vars_t t -> rho v = rho' v) ->
-  (forall p, p el consts_t t -> eta p = eta' p) ->
-  @eval _ _ I rho t = @eval _ _ (cast eta' I) rho' t.
-Proof.
-  intros. induction t; cbn in *; intros; eauto.
-  - rewrite IHt; destruct I; eauto.
-  - destruct I; eauto.
-Qed.
-
-Lemma eval_ext t dom rho rho' eta (I : interp dom eta) :
-  (forall v, v el vars_t t -> rho v = rho' v) -> eval rho t = eval rho' t.
-Proof.
-  intros H. destruct I. apply eval_ext_p; trivial.
-Qed.
-
-Lemma sat_ext_p b (phi : form b) dom rho rho' eta eta' (I : interp dom eta) :
-  (forall v, rho v = rho' v) ->
-  (forall p, p el consts phi -> eta p = eta' p) ->
-  sat I rho phi <-> sat (cast eta' I) rho' phi.
-Proof.
-  intros. revert rho rho' H; induction phi; cbn in *; intros.
-  - destruct I. erewrite eval_ext_p with (eta' := eta').
-    erewrite eval_ext_p with (eta := eta).
-    cbn. reflexivity. all: cbn in *; firstorder.
-  - destruct I; firstorder.
-  - firstorder.
-  - rewrite IHphi1, IHphi2. reflexivity. all:firstorder.
-  - firstorder; eapply IHphi. 6:eapply H1. 3:eapply H1. all:firstorder. all:decs.
-Qed.
-
-Lemma sat_ext b (phi : form b) dom rho rho' eta (I : interp dom eta) :
-  sat I rho phi -> (forall v, rho v = rho' v) -> sat I rho' phi.
-Proof.
-  intros H1 H2. rewrite sat_ext_p with (eta' := eta) in H1; trivial. now destruct I.
-Qed.
-
-Lemma sat_ext_p_list b (A : list (form b)) dom rho rho' eta eta' (I : interp dom eta) :
-  (forall v, rho v = rho' v) ->
-  (forall p, p el consts_l A -> eta p = eta' p) ->
-  (forall phi, phi el A -> sat I rho phi) <-> (forall phi, phi el A -> sat (cast eta' I) rho' phi).
-Proof.
-  firstorder.
-  - destruct I; cbn. eapply sat_ext_p. 3:eapply H1.
-    all:firstorder. symmetry. eapply H0. eapply in_flat_map; eauto.
-  - destruct I; cbn.  eapply sat_ext_p. 3:eapply H1.
-    all:firstorder. eapply H0. eapply in_flat_map; eauto.
-Qed.
-
-Lemma eval_empty t dom eta (I : interp dom eta) rho rho' :
-  vars_t t = [] -> eval rho t = eval rho' t.
-Proof.
-  intros H. apply eval_ext. rewrite H. now intros n [].
-Qed.
-
-Lemma subst_eval dom eta (I : interp dom eta) rho x t t' :
-  eval rho (subst_t x t' t) = eval (rho [[x:=eval rho t']]) t.
-Proof.
-  induction t; cbn; try congruence. decs.
-Qed.
-
-Lemma subst_sat b (phi : form b) dom eta (I : interp dom eta) rho x t :
-  vars_t t = [] -> sat I rho (subst x t phi) <-> sat I (rho [[x:=eval rho t]]) phi.
-Proof.
-  intros Hy. revert rho.
-  induction phi; intros rho; cbn in *; try rewrite fresh_app in *.
-  - cbn. now rewrite !subst_eval.
-  - reflexivity.
-  - reflexivity.
-  - cbn. firstorder.
-  - cbn. destruct (Dec (x = n)).
-    + split; intros H d; specialize (H d).
-      * eapply (sat_ext _ _ _ _ H). intros. decs.
-      * eapply (sat_ext _ _ _ _ H). intros. decs.
-    + split; intros H d; specialize (H d).
-      * rewrite IHphi in H. rewrite eval_empty with (rho':=rho) in H; trivial.
-        apply (sat_ext _ _ _ _ H). intros y. decs.
-      * rewrite IHphi. rewrite eval_empty with (rho':=rho); trivial.
-        apply (sat_ext _ _ _ _ H). intros y. decs.
-Qed.
-
-Lemma substconst_sat b (phi : form b) dom eta rho x a d (I : interp dom eta) :
-  fresh a (consts phi) ->
-  sat (eta [[a := d]]) (cast _ I) rho (subst x (P a) phi) <->
-  sat eta I (rho [[ x := d ]]) phi.
-Proof.
-  intros H. rewrite subst_sat; trivial.
-  symmetry. apply sat_ext_p; intros n; repeat decs.
-Qed.
-
-Lemma soundness' {b} A (phi : form b) :
-  A ⊢I phi -> valid (A ==> phi).
-Proof.
-  remember intu as s. induction 1; intros D eta I rho; eapply impl_sat; intros; subst; try congruence.
-  - eauto.
-  - intros ?. eapply (impl_sat' _ _ _ (IHprv eq_refl D eta I rho)). now firstorder subst. 
-  - now eapply (impl_sat' _ _ _ (IHprv1 eq_refl D eta I rho)), (impl_sat' _ _ _ (IHprv2 eq_refl D eta I rho)).
-  - intros d. specialize (IHprv eq_refl D (eta [[y := d]]) (cast _ I) rho ).
-    rewrite impl_sat in IHprv. rewrite <- substconst_sat. apply IHprv. 2: firstorder.
-    eapply sat_ext_p_list. all:destruct I. 3: eapply H1. all:firstorder.
-    cbn. decs. destruct H; firstorder. 
-  - eapply subst_sat; trivial.
-    now eapply (impl_sat' _ _ _  (IHprv eq_refl D eta I rho)).
-  - specialize (IHprv eq_refl D eta I rho) as []  % impl_sat; eauto.
-Qed.
-
-Theorem soundness {b} (phi : form b) :
-  nil ⊢I phi -> valid phi.
-Proof.
-  intros H I rho. now eapply (soundness' H).
-Qed.
 
 (** ** Generalised Induction *)
-
+(*
 Fixpoint size {b} (phi : form b) :=
   match phi with
   | Pr _ _ | Q | Fal => 1
@@ -320,4 +255,4 @@ Qed.
 Lemma enumerable_class_prv : enumerable (prv_class []).
 Proof.
   eapply list_enumerable_enumerable. eexists. eapply enum_prv.
-Qed.
+Qed.*)
