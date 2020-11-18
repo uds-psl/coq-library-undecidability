@@ -108,36 +108,54 @@ Lemma equiv_R (s t t' : term):
 Proof.
   now intros ->.
 Qed.
-Lemma subst_step s t n u : 
-  proc u -> 
-  s ≻ t -> subst s n u ≻ subst t n u.
-Proof. (* 
-  intros Hu.
-  induction 1.
-  - cbn. evar (t' : term). match goal with |- _ ≻ ?R => enough (R = t') end. rewrite H. subst t'. econstructor. subst t'.
-    subst t'. rewrite (bound_closed_k _ H1), (bound_closed_k _ H2). rewrite bound_closed_k. reflexivity.
-    eapply closed_subst. lia. eapply bound_ge eauto. now econstructor.
-     *)
-Admitted.
 
-Lemma many_subst_equiv s t {k} (v : Vector.t term k) n :
-  s >* t -> many_subst s n v >* many_subst t n v.
+Section lemma.
+
+  Context {X : Type}.
+  Context {Hr : registered X}.
+  Context {Hcmp : computable (@enc X _)}.
+
+Definition apply_encs_to (s : term) k := ((Vector.fold_left (fun s n => ext L.app s (ext (@enc X _) (var n))) s (many_vars k))).
+
+Lemma subst_apply_encs_to s n u k :
+  k >= n -> subst (apply_encs_to s n) k u = apply_encs_to (subst s k u) n.
 Proof.
-  intros H. induction v in s, t, H |- *.
-  - cbn. eauto.
-  - cbn. eapply IHv.
-Admitted.
+  induction n in s, k |- *; intros Hk; cbn -[many_vars].
+  + reflexivity.
+  + unfold apply_encs_to. rewrite many_vars_S. cbn. unfold apply_encs_to in IHn. rewrite IHn.
+    cbn. repeat (rewrite subst_closed; [| now Lproc]). destruct (Nat.eqb_spec n k). lia.
+    match goal with |- context[subst (ext ?s) _ _] => assert (closed (ext s)) by Lproc end.
+    repeat f_equal. eapply H. lia.
+Qed.
 
-Lemma total_decodable_closed_new k (s : L.term) {X Y} `{registered X} `{linTimeDecodable Y} :
-  (forall k, computable (@enc (Vector.t X k) _)) ->
-  (computable (@enc X _)) ->
+Lemma many_subst_apply_encs_to s n (u : Vector.t term n) :
+closed s -> (forall x, Vector.In x u -> closed x) ->
+  many_subst (apply_encs_to s n) 0 u = ((Vector.fold_left (fun s n => ext L.app s (ext (@enc X _) n)) s u)).
+Proof.
+  induction u in s |- *; intros Hs Hu; cbn -[many_vars].
+  - reflexivity.
+  - unfold apply_encs_to. rewrite many_vars_S. cbn. unfold apply_encs_to in IHu. rewrite <- IHu.
+    fold (apply_encs_to (ext L.app s (ext (@enc X _) n)) n).
+    rewrite subst_apply_encs_to. 2:lia. unfold apply_encs_to. repeat f_equal.
+    cbn. repeat (rewrite subst_closed; [| now Lproc]). now rewrite Nat.eqb_refl.
+    assert (closed h) as Hh. eapply Hu. econstructor. Lproc. intros. eapply Hu. now econstructor.
+Qed.
+
+Lemma equiv_fold_left n t1 t2 {v : Vector.t X n} : t1 == t2 -> Vector.fold_left (fun s n => ext L.app s (ext (@enc X _) n)) t1 (Vector.map enc v) == Vector.fold_left (fun s n => ext L.app s (ext (@enc X _) n)) t2 (Vector.map enc v).
+Proof.
+  induction v in t1, t2 |- *; cbn; intros H.
+  - exact H.
+  - eapply IHv. now rewrite H.
+Qed.
+
+Lemma total_decodable_closed_new k (s : L.term) { Y}  `{linTimeDecodable Y} :
   (forall v : Vector.t X k, forall o : L.term, L_facts.eval (apply_to s v)   o -> exists l : Y, o = enc l) ->
-  exists s', proc s' /\ forall v : Vector.t X k, forall o, L_facts.eval (apply_to s' v) o <-> L_facts.eval (apply_to s v) o.
+  exists s', closed s' /\ forall v : Vector.t X k, forall o, L_facts.eval (apply_to s' v) o <-> L_facts.eval (apply_to s v) o.
 Proof.
-  intros _ Hcomp2 Htot.
+  intros Htot.
   assert (closed Eval) as He. { unfold Eval. Lproc. }
-  exists (many_lam k (ext (decode Y) (Eval (Vector.fold_left (fun s n => ext L.app s (ext (@enc X _) (var n))) (enc s) (many_vars k))) (lam 0) (ext false))).
-  split. admit.
+  exists (many_lam k (ext (decode Y) (Eval (apply_encs_to (enc s) k)) (lam 0) (ext false))).
+  split. { intros n u. rewrite subst_many_lam. cbn -[Eval]. repeat (rewrite subst_closed; [| now Lproc]). rewrite subst_apply_encs_to. 2:lia. now repeat (rewrite subst_closed; [| now Lproc]). }
   intros v. revert s Htot. depind v; intros s Htot o.
   - cbn. specialize (Htot (Vector.nil _)). cbn in Htot. 
     eapply logical; clear o.
@@ -150,25 +168,41 @@ Proof.
       enough (o = o'). subst. econstructor; eauto. Lsimpl. eapply eval_unique.
       eapply Heval. eapply Hrev. rewrite Hc. split; eauto. Lsimpl.
   - cbn -[apply_to tabulate many_vars]. rewrite !apply_to_cons. specialize (IHv (s (enc h))). rewrite <- IHv.
-    + cbn -[many_vars]. rewrite many_vars_S. cbn. eapply equiv_eval_equiv. etransitivity. eapply apply_to_equiv'. eapply beta_red. Lproc. reflexivity.
+    + unfold apply_encs_to. cbn -[many_vars]. rewrite many_vars_S. cbn. eapply equiv_eval_equiv. etransitivity. eapply apply_to_equiv'. eapply beta_red. Lproc. reflexivity.
       rewrite subst_many_lam. cbn [subst]. replace (n + 0) with n by lia.
-      rewrite He. assert (closed (ext (decode Y))) by Lproc. unfold closed in H3. rewrite H3. clear H3. cbn.
-      assert (closed (ext false)) by Lproc. unfold closed in H3. rewrite H3. clear H3. unfold apply_to.
+      rewrite He. assert (closed (ext (decode Y))) as H2 by Lproc. unfold closed in H2. rewrite H2. clear H2. cbn.
+      assert (closed (ext false)) as H2 by Lproc. unfold closed in H2. rewrite H2. clear H2. unfold apply_to.
       rewrite many_beta. rewrite !many_subst_app. repeat (rewrite many_subst_closed; [ | now Lproc]).
       symmetry.
       rewrite many_beta. rewrite !many_subst_app. repeat (rewrite many_subst_closed; [ | now Lproc]).
-      2:{ clear. induction v; cbn; intros. inversion H0. inv H0. Lproc. eapply IHv. eapply Eqdep_dec.inj_pair2_eq_dec in H4. subst. eauto. eapply nat_eq_dec. }
-      2:{ clear. induction v; cbn; intros. inversion H0. inv H0. Lproc. eapply IHv. eapply Eqdep_dec.inj_pair2_eq_dec in H4. subst. eauto. eapply nat_eq_dec. }
-      repeat (eapply equiv_app_proper; try reflexivity). clear. symmetry.
-      rewrite many_subst_equiv; cycle 1.
-      -- instantiate (1 := Vector.fold_left (fun s n => ext L.app s (ext (enc n))) (enc (s (enc h))) (many_vars n)). admit.
-      -- cbn. 
-Admitted.
+      2:{ clear. induction v; cbn; intros ? Hi. inversion Hi. inv Hi. Lproc. eapply IHv. eapply Eqdep_dec.inj_pair2_eq_dec in H2. subst. eauto. eapply nat_eq_dec. }
+      2:{ clear. induction v; cbn; intros ? Hi. inversion Hi. inv Hi. Lproc. eapply IHv. eapply Eqdep_dec.inj_pair2_eq_dec in H2. subst. eauto. eapply nat_eq_dec. }
+      repeat (eapply equiv_app_proper; try reflexivity). clear.
+      fold (@apply_encs_to (enc (s (enc h))) n). fold (apply_encs_to (ext L.app (enc s) (ext (@enc X _) n)) n).
+      rewrite subst_apply_encs_to. cbn. repeat (rewrite subst_closed; [ | now Lproc]). rewrite Nat.eqb_refl.
+      rewrite !many_subst_apply_encs_to.
+      * rewrite equiv_fold_left. reflexivity. Lsimpl.
+      * Lproc.
+      * clear. induction v; cbn; intros ? Hi. inversion Hi. inv Hi. Lproc. eapply IHv. eapply Eqdep_dec.inj_pair2_eq_dec in H2. subst. eauto. eapply nat_eq_dec. 
+      * Lproc.
+      * clear. induction v; cbn; intros ? Hi. inversion Hi. inv Hi. Lproc. eapply IHv. eapply Eqdep_dec.inj_pair2_eq_dec in H2. subst. eauto. eapply nat_eq_dec. 
+      * lia.
+    + intros. now apply (Htot (h :: v0)).
+Qed.
+
+End lemma.
 
 Definition L_computable_bool_closed {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
   exists s, closed s /\ forall v : Vector.t (list bool) k, 
       (forall m, R v m <-> L.eval (Vector.fold_left (fun s n => L.app s (encL n)) s v) (encL m)) /\
       (forall o, L.eval (Vector.fold_left (fun s n => L.app s (encL n)) s v) o -> exists m, o = encL m).
+
+Lemma many_app_eq {k} (v : Vector.t (list bool) k) s :  many_app s (Vector.map enc v) = Vector.fold_left (fun (s : term) n => s (encL n)) s v.
+Proof.
+   induction v in s |- *.
+   * cbn. reflexivity.
+   * cbn. now rewrite IHv.
+Qed.
 
 Lemma L_computable_bool_can_closed k R:
   L_computable_bool_closed R <-> L_computable (k:=k) R.
@@ -176,11 +210,12 @@ Proof.
   split.
   - intros (s & _ & H). exists s. exact H.
   - intros (s & H).
-    unshelve edestruct (@total_decodable_closed_new k s (list bool) (list bool)) as (s' & Hcl & Hs'); try exact _.
-    + intros v o. rewrite <- eval_iff. intros. eapply H. unfold apply_to in H0. admit.
+    unshelve edestruct (@total_decodable_closed_new (list bool) _ _ k s (list bool) _  ) as (s' & Hcl & Hs'); try exact _.
+    + intros v o. rewrite <- eval_iff. intros. eapply (H v). unfold apply_to in H0. revert H0.
+      now rewrite many_app_eq.      
     + unfold apply_to in Hs'. exists s'. split. Lproc. intros v. split. 
-      * intros m. specialize (H v) as [H1 H2]. rewrite H1. rewrite !eval_iff. admit. (* rewrite Hs'.         *)
-      * intros o. rewrite eval_iff. admit. (* rewrite Hs'. rewrite <- eval_iff. eapply H. *)
+      * intros m. specialize (H v) as [H1 H2]. rewrite H1. rewrite !eval_iff. rewrite <- !many_app_eq. now rewrite Hs'.
+      * intros o. rewrite eval_iff. rewrite <- many_app_eq. rewrite Hs'. rewrite <- eval_iff. rewrite many_app_eq. eapply H.
 Qed.
 
 Lemma nth_error_to_list {X n} (v : Vector.t X n) i k :
