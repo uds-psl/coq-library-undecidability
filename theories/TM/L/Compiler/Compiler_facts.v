@@ -162,7 +162,7 @@ Proof.
       repeat (eapply equiv_app_proper; try reflexivity). clear. symmetry.
       rewrite many_subst_equiv; cycle 1.
       -- instantiate (1 := Vector.fold_left (fun s n => ext L.app s (ext (enc n))) (enc (s (enc h))) (many_vars n)). admit.
-      -- cbn. reflexivity.
+      -- cbn. 
 Admitted.
 
 Definition L_computable_bool_closed {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
@@ -177,10 +177,10 @@ Proof.
   - intros (s & _ & H). exists s. exact H.
   - intros (s & H).
     unshelve edestruct (@total_decodable_closed_new k s (list bool) (list bool)) as (s' & Hcl & Hs'); try exact _.
-    + intros v o. rewrite <- eval_iff. eapply H.
+    + intros v o. rewrite <- eval_iff. intros. eapply H. unfold apply_to in H0. admit.
     + unfold apply_to in Hs'. exists s'. split. Lproc. intros v. split. 
-      * intros m. specialize (H v) as [H1 H2]. rewrite H1. rewrite !eval_iff. now rewrite Hs'.        
-      * intros o. rewrite eval_iff. rewrite Hs'. rewrite <- eval_iff. eapply H.
+      * intros m. specialize (H v) as [H1 H2]. rewrite H1. rewrite !eval_iff. admit. (* rewrite Hs'.         *)
+      * intros o. rewrite eval_iff. admit. (* rewrite Hs'. rewrite <- eval_iff. eapply H. *)
 Qed.
 
 Lemma nth_error_to_list {X n} (v : Vector.t X n) i k :
