@@ -3,23 +3,13 @@ From Undecidability.L Require Import Functions.EqBool.
 From Undecidability.L.Datatypes Require Import LBool LNat LOptions LProd.
 From Undecidability.L Require Import UpToC.
 Require Export List Undecidability.Shared.Libs.PSL.Lists.Filter Datatypes.
+From Undecidability Require Export List.List_enc.
 
 (** ** Encoding of lists *)
 
 Section Fix_X.
   Variable (X:Type).
   Context {intX : registered X}.
-  Import GenEncode.
-  MetaCoq Run (tmGenEncode "list_enc" (list X)).  
-  Hint Resolve list_enc_correct : Lrewrite.
-  
-  (* now we must register the non-constant constructors*)
-  
-  Global Instance termT_cons : computableTime' (@cons X) (fun a aT => (1,fun A AT => (1,tt))).
-  Proof using intX.
-    extract constructor.
-    solverec.
-  Qed.
 
   Definition c__app := 16.
   Global Instance termT_append : computableTime' (@List.app X) (fun A _ => (5,fun B _ => (length A * c__app + c__app,tt))).
