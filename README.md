@@ -28,6 +28,8 @@ Target problems are very expressive and thus work well as targets for reduction,
 - Halting problem for FRACTRAN programs (`FRACTRAN_REG_HALTING` in [`FRACTRAN/FRACTRAN.v`](theories/FRACTRAN/FRACTRAN.v))
 - Satisfiability of elementary Diophantine constraints of the form `x = 1`, `x = y + z` or `x = y · z` (`H10C_SAT` in [`DiophantineConstraints/H10C.v`](theories/DiophantineConstraints/H10C.v))
 - Satisfiability of uniform Diophantine constraints of the form `x = 1 + y + z · z` (`H10UC_SAT` in [`DiophantineConstraints/H10C.v`](theories/DiophantineConstraints/H10C.v))
+- One counter machine halting problem (`CM1_HALT` in [`CounterMachines/CM1.v`](theories/CounterMachines/CM1.v)), **`good seed`**
+- Finite multiset constraint solvability (`FMsetC_SAT` in [`SetConstraints/FMsetC.v`](theories/SetConstraints/FMsetC.v)), **`good seed`**
 
 ### Advanced Problems 
 
@@ -59,8 +61,8 @@ Target problems are very expressive and thus work well as targets for reduction,
 - String rewriting in Post canonical systems in normal form (`PCSnf` in [`StringRewriting/PCSnf.v`](theories/StringRewriting/PCSnf.v))
 - Hilbert's 10th problem, i.e. solvability of a single diophantine equation (`H10` in [`H10/H10.v`](theories/H10/H10.v))
 - Solvability of linear polynomial (over N) constraints of the form `x = 1`, `x = y + z`, `x = X · y` (`LPolyNC_SAT` in [`PolynomialConstraints/LPolyNC.v`](theories/PolynomialConstraints/LPolyNC.v))
-- One counter machine halting problem (`CM1_HALT` in [`CounterMachines/CM1.v`](theories/CounterMachines/CM1.v)), **`good seed`**
-- Finite multiset constraint solvability (`FMsetC_SAT` in [`SetConstraints/FMsetC.v`](theories/SetConstraints/FMsetC.v)), **`good seed`**
+- One counter machine halting problem (`CM1_HALT` in [`CounterMachines/CM1.v`](theories/CounterMachines/CM1.v)), 
+- Finite multiset constraint solvability (`FMsetC_SAT` in [`SetConstraints/FMsetC.v`](theories/SetConstraints/FMsetC.v))
 - Uniform boundedness of deterministic, length-preserving stack machines (`SMNdl_UB` in [`StackMachines/SMN.v`](theories/StackMachines/SMN.v))
 - Semi-unification (`SemiU` in [`SemiUnification/SemiU.v`](theories/SemiUnification/SemiU.v))
 - System F Inhabitation (`SysF_INH` in [`SystemF/SysF.v`](theories/SystemF/SysF.v)), System F Typability (`SysF_TYP` in [`SystemF/SysF.v`](theories/SystemF/SysF.v)), System F Type Checking (`SysF_TC` in [`SystemF/SysF.v`](theories/SystemF/SysF.v))
