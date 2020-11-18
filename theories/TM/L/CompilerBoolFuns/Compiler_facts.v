@@ -10,21 +10,6 @@ From Undecidability.TM.L.CompilerBoolFuns Require Import Compiler_spec.
 Require Import Equations.Type.DepElim.
 
 
-Lemma nth_error_to_list {X n} (v : Vector.t X n) i k :
-  k = (proj1_sig (Fin.to_nat i)) ->
-  nth_error (Vector.to_list v) k = Some (Vector.nth v i).
-Proof.
-  intros ->. induction v; cbn.
-  - inversion i.
-  - dependent destruct i; cbn.
-    + reflexivity.
-    + destruct (Fin.to_nat p) as (i, P) eqn:E. cbn.
-      fold (to_list v).
-      specialize (IHv (Fin.of_nat_lt P)). cbn in *.
-      rewrite Fin.to_nat_of_nat in IHv. cbn in IHv.
-      now rewrite <- (Fin.of_nat_to_nat_inv p), E. 
-Qed.
-
 Lemma encBoolsTM_inj {Σ} (sym_s sym_b : Σ) n1 n2 :
   sym_s <> sym_b -> encBoolsTM sym_s sym_b n1 = encBoolsTM sym_s sym_b n2 -> n1 = n2.
 Proof.
@@ -37,6 +22,27 @@ Proof.
     + now exfalso.
     + now exfalso.
     + f_equal. eapply IHn1. unfold encBoolsTM. congruence.
+Qed.
+
+Lemma encL_inj l1 l2 :
+  encL l1 = encL l2 -> l1 = l2.
+Proof.
+  induction l1 in l2 |- *; intros H.
+  - destruct l2; cbn in *; congruence.
+  - destruct l2; cbn in *; try congruence.
+    inversion H. f_equal; eauto.
+    destruct a, b; now inversion H1.
+Qed.
+
+Lemma L_bool_computable_function {k} R :
+  @L_bool_computable k R -> functional R.
+Proof.
+  intros [s Hs] v m1 m2 H1 H2.
+  eapply Hs in H1. eapply Hs in H2.
+  rewrite eval_iff in H1, H2.
+  destruct H1 as [H1 H1'], H2 as [H2 H2'].
+  eapply encL_inj, L_facts.unique_normal_forms; eauto.
+  now rewrite <- H1, H2.
 Qed.
 
 From Undecidability.TM Require Import Hoare.
@@ -52,6 +58,21 @@ Proof.
   destruct_fin i;cbn;repeat (rewrite Vector_nth_L + rewrite Vector_nth_R + rewrite nth_map' + rewrite const_nth);cbn; reflexivity.
 Qed.
 
+
+Lemma nth_error_to_list {X n} (v : Vector.t X n) i k :
+  k = (proj1_sig (Fin.to_nat i)) ->
+  nth_error (Vector.to_list v) k = Some (Vector.nth v i).
+Proof.
+  intros ->. induction v; cbn.
+  - inversion i.
+  - dependent destruct i; cbn.
+    + reflexivity.
+    + destruct (Fin.to_nat p) as (i, P) eqn:E. cbn.
+      fold (to_list v).
+      specialize (IHv (Fin.of_nat_lt P)). cbn in *.
+      rewrite Fin.to_nat_of_nat in IHv. cbn in IHv.
+      now rewrite <- (Fin.of_nat_to_nat_inv p), E. 
+Qed.
 
 Definition TM_bool_computable_hoare_out {k n Σ} s b (bs :list bool): SpecV Σ (k+1+n)
   := (Vector.const (Custom (fun _ => True)) _ ++ [Custom (eq (encBoolsTM s b bs)) ])++ Vector.const (Custom (fun _ => True)) _.

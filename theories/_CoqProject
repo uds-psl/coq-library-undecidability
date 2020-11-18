@@ -123,6 +123,7 @@ TM/L/Eval.v
 #Computability of boolean functions
 
 TM/L/CompilerBoolFuns/Compiler_spec.v
+TM/L/CompilerBoolFuns/LComp_to_TMComp.v
 TM/L/CompilerBoolFuns/Compiler_facts.v
 TM/L/CompilerBoolFuns/EncBoolsTM_boolList.v
 TM/L/CompilerBoolFuns/Compiler.v

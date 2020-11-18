@@ -7,7 +7,7 @@ Import Vector.VectorNotations ListNotations.
 
 From Undecidability.TM Require Import TM_facts ProgrammingTools WriteValue CaseList Copy ListTM Hoare.
 From Undecidability.TM.L Require Import Alphabets Eval.
-From Undecidability.TM.L.CompilerBoolFuns Require Import Compiler_spec Compiler_facts.
+From Undecidability.TM.L.CompilerBoolFuns Require Import Compiler_spec Compiler_facts ClosedLAdmissible.
 
 Require Import Equations.Prop.DepElim.
 
@@ -428,39 +428,10 @@ Qed.
 
 End main.
 
-Lemma encL_inj l1 l2 :
-  encL l1 = encL l2 -> l1 = l2.
-Proof.
-  induction l1 in l2 |- *; intros H.
-  - destruct l2; cbn in *; congruence.
-  - destruct l2; cbn in *; try congruence.
-    inversion H. f_equal; eauto.
-    destruct a, b; now inversion H1.
-Qed.
-
-Lemma L_bool_computable_function {k} R :
-  @L_bool_computable k R -> functional R.
-Proof.
-  intros [s Hs] v m1 m2 H1 H2.
-  eapply Hs in H1. eapply Hs in H2.
-  rewrite eval_iff in H1, H2.
-  destruct H1 as [H1 H1'], H2 as [H2 H2'].
-  eapply encL_inj, L_facts.unique_normal_forms; eauto.
-  now rewrite <- H1, H2.
-Qed.
-
-Lemma Vector_hd_nth {k X} (v : Vector.t X (S k)) :
-  Vector.hd v = v[@Fin0].
-Proof.
-  dependent destruct v. reflexivity.
-Qed.
-
-Theorem compiler_bool_closed {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) :
-  L_bool_computable_closed R -> TM_bool_computable R.
+Theorem compiler_correct {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) :
+  L_bool_computable_closed R -> TM_bool_computable_hoare' R.
 Proof.
   intros H. 
-  eapply TM_bool_computable_hoare'_spec.
-  { eapply L_bool_computable_function. now apply L_bool_computable_can_closed. }
   destruct H as [sim [cs Hsim]].
   hnf. 
   eexists _, _, sym_s, sym_b. split. eapply syms_diff. exists (M_main k sim).
