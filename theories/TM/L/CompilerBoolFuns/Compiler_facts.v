@@ -5,18 +5,10 @@ From Undecidability.TM  Require Import TM_facts ProgrammingTools .
 
 Import ListNotations VectorNotations.
 
-From Undecidability.TM.L.CompilerBoolFuns Require Import Compiler_spec AddToBase.
+From Undecidability.TM.L.CompilerBoolFuns Require Import Compiler_spec.
 
 Require Import Equations.Type.DepElim.
-      
-Definition L_computable_bool_closed {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
-  exists s, closed s /\ forall v : Vector.t (list bool) k, 
-      (forall m, R v m <-> L.eval (Vector.fold_left (fun s n => L.app s (encL n)) s v) (encL m)) /\
-      (forall o, L.eval (Vector.fold_left (fun s n => L.app s (encL n)) s v) o -> exists m, o = encL m).
 
-Lemma L_computable_bool_can_closed k R:
-  L_computable_bool_closed R <-> L_computable (k:=k) R.
-Admitted.
 
 Lemma nth_error_to_list {X n} (v : Vector.t X n) i k :
   k = (proj1_sig (Fin.to_nat i)) ->

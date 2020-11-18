@@ -121,11 +121,13 @@ TM/L/Transcode/BoollistEnc.v
 TM/L/Eval.v
 
 #Computability of boolean functions
+
 TM/L/CompilerBoolFuns/Compiler_spec.v
 TM/L/CompilerBoolFuns/Compiler_facts.v
-TM/L/CompilerBoolFuns/Compiler.v
 TM/L/CompilerBoolFuns/encTM_boolList.v
-TM/L/CompilerBoolFuns/AddToBase.v
+TM/L/CompilerBoolFuns/Compiler.v
+TM/L/CompilerBoolFuns/NaryApp.v
+TM/L/CompilerBoolFuns/ClosedLAdmissible.v
 
 #Post correspondence problem
 PCP/PCP.v

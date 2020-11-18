@@ -6,7 +6,8 @@ From Coq Require Import List.
 Import Vector.VectorNotations ListNotations.
 
 From Undecidability.TM Require Import TM_facts ProgrammingTools WriteValue CaseList Copy ListTM Hoare.
-From Undecidability.TM.L Require Import Alphabets Eval Compiler_spec Compiler_facts UnfoldClos AddToBase.
+From Undecidability.TM.L Require Import Alphabets Eval.
+From Undecidability.TM.L.CompilerBoolFuns Require Import Compiler_spec Compiler_facts ClosedLAdmissible.
 
 Require Import Equations.Prop.DepElim.
 
