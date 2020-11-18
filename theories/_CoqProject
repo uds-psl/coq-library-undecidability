@@ -468,7 +468,13 @@ L/Tactics/mixedTactics.v
 
 L/Datatypes/LUnit.v
 L/Datatypes/LBool.v
+L/Datatypes/List/List_basics.v
 L/Datatypes/List/List_enc.v
+L/Datatypes/List/List_eqb.v
+L/Datatypes/List/List_extra.v
+L/Datatypes/List/List_fold.v
+L/Datatypes/List/List_in.v
+L/Datatypes/List/List_nat.v
 L/Datatypes/Lists.v
 L/Datatypes/LNat.v
 L/Datatypes/LOptions.v
