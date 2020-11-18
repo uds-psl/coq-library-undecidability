@@ -163,4 +163,4 @@ We have [guidelines for the directory structure of projects](https://github.com/
 - Dominik Wehr
 - Maximilian Wuttke
 
-Parts of the Coq Library of Undecidability Proofs reuse generic code initially developed as a library for the lecture ["Introduction to Computational Logics"](https://courses.ps.uni-saarland.de/icl_16/) at [Saarland University](https://www.uni-saarland.de/nc/en/home.html). That reused code was written by a subset of the above contributors, as well as Sigurd Schneider and Jan Christian Menz.
+Parts of the Coq Library of Undecidability Proofs reuse generic code initially developed as a library for the lecture ["Introduction to Computational Logics"](https://courses.ps.uni-saarland.de/icl_16/) at [Saarland University](https://www.uni-saarland.de/nc/en/home.html), which was written by a subset of the above contributors, Sigurd Schneider, and Jan Christian Menz.
