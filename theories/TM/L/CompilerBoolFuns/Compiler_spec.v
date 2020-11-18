@@ -12,7 +12,7 @@ Definition encBoolsTM {Σ : Type} (s b : Σ) (l : list bool) :=
   @midtape Σ [] b (encBoolsListTM s b l).
 
   
-Definition TM_booL_bool_computable {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
+Definition TM_bool_computable {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
   exists n : nat, exists Σ : finType, exists s b : Σ, s <> b /\ 
   exists M : TM Σ (k + 1 + n),
   forall v : Vector.t (list bool) k, 
@@ -21,7 +21,7 @@ Definition TM_booL_bool_computable {k} (R : Vector.t (list bool) k -> (list bool
   (forall q t, TM.eval M (start M) ((Vector.map (encBoolsTM s b) v ++ [niltape]) ++ Vector.const niltape n) q t ->
           exists m, nth_error (Vector.to_list t) k = Some (encBoolsTM s b m)).
 
-Definition TM₁_booL_bool_computable {k} (Σ : finType) (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
+Definition TM₁_bool_computable {k} (Σ : finType) (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
   exists s1 s2 b : Σ, s1 <> s2 /\ s1 <> b /\ s2 <> b /\
   exists M : TM Σ 1,
   forall v : Vector.t (list bool) k, 

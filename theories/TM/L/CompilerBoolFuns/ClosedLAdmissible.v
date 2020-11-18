@@ -14,7 +14,7 @@ Import ListNotations.
 Import VectorNotations.
 Import L_Notations. 
 
-Definition L_booL_bool_computable_closed {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
+Definition L_bool_computable_closed {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
   exists s, closed s /\ forall v : Vector.t (list bool) k, 
       (forall m, R v m <-> L.eval (Vector.fold_left (fun s n => L.app s (encL n)) s v) (encL m)) /\
       (forall o, L.eval (Vector.fold_left (fun s n => L.app s (encL n)) s v) o -> exists m, o = encL m).
@@ -154,8 +154,8 @@ Proof.
    * cbn. now rewrite IHv.
 Qed.
 
-Lemma L_booL_bool_computable_can_closed k R:
-  L_booL_bool_computable_closed R <-> L_bool_computable (k:=k) R.
+Lemma L_bool_computable_can_closed k R:
+  L_bool_computable_closed R <-> L_bool_computable (k:=k) R.
 Proof.
   split.
   - intros (s & _ & H). exists s. exact H.
