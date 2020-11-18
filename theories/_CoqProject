@@ -3,6 +3,7 @@
 -arg -w -arg -notation-overridden
 COQDOCFLAGS = "--charset utf-8 -s --with-header ../website/resources/header.html --with-footer ../website/resources/footer.html --index indexpage"
 
+TM/L/Compiler/Many.v
 TM/L/Compiler/Compiler_spec.v
 TM/L/Compiler/Compiler_facts.v
 TM/L/Compiler/Compiler.v

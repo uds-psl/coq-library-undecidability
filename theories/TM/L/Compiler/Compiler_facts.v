@@ -1,4 +1,8 @@
-From Undecidability Require Import L.Datatypes.LBool L.Datatypes.Lists L.Tactics.LTactics L.Util.L_facts.
+From Undecidability Require Import L.Datatypes.LBool L.Datatypes.Lists L.Tactics.LTactics L.Util.L_facts L.Datatypes.LVector.
+
+Require Import Undecidability.L.Util.L_facts.
+
+Require Import Undecidability.L.Functions.Eval Undecidability.L.Functions.Decoding Undecidability.L.Complexity.LinDecode.LTDbool Undecidability.L.Complexity.LinDecode.LTDlist Undecidability.L.Complexity.LinDecode.LTD_def.
 
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 Require Import Vector List.
@@ -16,8 +20,151 @@ Import VectorNotations.
 
 From Undecidability.TM.L.Compiler Require Import Compiler_spec.
 
-Require Import Equations.Prop.DepElim.
-      
+Require Import Equations.Equations.
+
+Import L_Notations.
+
+(* 
+Lemma help1 s n :
+  {s' : L.term | forall v : Vector.t (list bool) n, Vector.fold_left (fun s n => L.app s (encL n)) s v == s' (enc v)}.
+Proof.
+  revert s. induction n; intros s.
+  - exists (lam s). intros v. dependent elimination v. cbn. Lsimpl.
+  - exists (lam (0 0 (lam (lam (proj1_sig (IHn (s #1)) #0))))). intros v.
+    dependent elimination v. rename t0 into v.
+    cbn. Lsimpl. destruct IHn as [s' H]. cbn. unfold enc at 1. cbn.
+    fold (Vector.to_list v). rewrite list_enc_correct.
+    pose (enc v). unfold enc in t. cbn in t.
+Admitted.
+ *)      
+
+Instance term_enc_bool : computable bool_enc.
+Proof.
+  unfold enc. cbn. extract.
+Qed.
+
+Instance term_list_enc_bool : computable (@list_enc bool _).
+Proof.
+  unfold list_enc, enc. cbn. extract.
+Qed.
+
+Instance term_list_enc_list_bool : computable (@list_enc (list bool) _).
+Proof.
+  unfold list_enc, enc. cbn. extract.
+Qed.
+
+Instance vector_enc_bool {n} : computable (@enc (Vector.t (list bool) n) _).
+Proof.
+  unfold enc. cbn. unfold enc. cbn. extract.
+Qed.
+
+Lemma logical {X} (P Q : X -> Prop) :
+(forall x, Q x  -> P x) -> ((forall x, Q x  -> P x) -> forall x, P x -> Q x) -> forall x, P x <-> Q x.
+Proof.
+  firstorder.
+Qed.
+
+From Undecidability Require Import Many.
+
+Definition apply_to (s : L.term) {k} {X : Type} `{registered X} (v : Vector.t X k) :=
+  many_app s (Vector.map enc v).
+
+Lemma apply_to_cons (s : L.term) {k} {X : Type} `{registered X} (v : Vector.t X k) x :
+  apply_to s (x :: v) = apply_to (L.app s (enc x)) v.
+Proof.
+  reflexivity.
+Qed.
+
+Lemma equiv_eval_equiv s t o :
+  s == t -> s ⇓ o <-> t ⇓ o.
+Proof.
+  intros H. split; now rewrite H.
+Qed.
+
+Lemma apply_to_equiv' s t {X k} (v : Vector.t X k) `{registered X} :
+  s == t -> apply_to s v == apply_to t v.
+Proof.
+  eapply equiv_many_app_L.
+Qed.
+(* 
+Lemma apply_to_equiv s t {X k} (v : Vector.t X k) `{registered X} :
+  s == t -> apply_to (many_lam k s) v == apply_to (many_lam k t) v.
+Proof.
+  intros He. induction v in s, t, He |- *.
+  - cbn. exact He.
+  - cbn [many_lam]. rewrite !apply_to_cons. rewrite apply_to_equiv'. 2: now eapply beta_red; Lproc.
+    setoid_rewrite apply_to_equiv' at 2. 2: now eapply beta_red; Lproc. rewrite !subst_many_lam. eapply IHv.
+Admitted.
+ *)
+
+Lemma subst_closed s n u :
+  closed s -> subst s n u = s.
+Proof.
+  now intros ->.
+Qed.
+
+Lemma equiv_R (s t t' : term):
+  t == t' -> s t == s t'.
+Proof.
+  now intros ->.
+Qed.
+Lemma subst_step s t n u : 
+  proc u -> 
+  s ≻ t -> subst s n u ≻ subst t n u.
+Proof. (* 
+  intros Hu.
+  induction 1.
+  - cbn. evar (t' : term). match goal with |- _ ≻ ?R => enough (R = t') end. rewrite H. subst t'. econstructor. subst t'.
+    subst t'. rewrite (bound_closed_k _ H1), (bound_closed_k _ H2). rewrite bound_closed_k. reflexivity.
+    eapply closed_subst. lia. eapply bound_ge eauto. now econstructor.
+     *)
+Admitted.
+
+Lemma many_subst_equiv s t {k} (v : Vector.t term k) n :
+  s >* t -> many_subst s n v >* many_subst t n v.
+Proof.
+  intros H. induction v in s, t, H |- *.
+  - cbn. eauto.
+  - cbn. eapply IHv.
+Admitted.
+
+Lemma total_decodable_closed_new k (s : L.term) {X Y} `{registered X} `{linTimeDecodable Y} :
+  (forall k, computable (@enc (Vector.t X k) _)) ->
+  (computable (@enc X _)) ->
+  (forall v : Vector.t X k, forall o : L.term, L_facts.eval (apply_to s v)   o -> exists l : Y, o = enc l) ->
+  exists s', proc s' /\ forall v : Vector.t X k, forall o, L_facts.eval (apply_to s' v) o <-> L_facts.eval (apply_to s v) o.
+Proof.
+  intros _ Hcomp2 Htot.
+  assert (closed Eval) as He. { unfold Eval. Lproc. }
+  exists (many_lam k (ext (decode Y) (Eval (Vector.fold_left (fun s n => ext L.app s (ext (@enc X _) (var n))) (enc s) (many_vars k))) (lam 0) (ext false))).
+  split. admit.
+  intros v. revert s Htot. depind v; intros s Htot o.
+  - cbn. specialize (Htot (Vector.nil _)). cbn in Htot. 
+    eapply logical; clear o.
+    + intros o Hl. pose proof Hl as [y ->] % Htot. eapply eval_Eval in Hl. rewrite Hl.
+      split. 2: Lproc. Lsimpl. rewrite decode_correct. Lsimpl.
+    + intros Hrev o Heval. 
+      match type of Heval with L_facts.eval ?l _ => assert (Hc : converges l) by eauto end.
+      eapply app_converges in Hc as [[[_ Hc]%app_converges _] % app_converges _].
+      eapply Eval_converges in Hc as [o' [Hc Hl]]. rewrite Hc. 
+      enough (o = o'). subst. econstructor; eauto. Lsimpl. eapply eval_unique.
+      eapply Heval. eapply Hrev. rewrite Hc. split; eauto. Lsimpl.
+  - cbn -[apply_to tabulate many_vars]. rewrite !apply_to_cons. specialize (IHv (s (enc h))). rewrite <- IHv.
+    + cbn -[many_vars]. rewrite many_vars_S. cbn. eapply equiv_eval_equiv. etransitivity. eapply apply_to_equiv'. eapply beta_red. Lproc. reflexivity.
+      rewrite subst_many_lam. cbn [subst]. replace (n + 0) with n by lia.
+      rewrite He. assert (closed (ext (decode Y))) by Lproc. unfold closed in H3. rewrite H3. clear H3. cbn.
+      assert (closed (ext false)) by Lproc. unfold closed in H3. rewrite H3. clear H3. unfold apply_to.
+      rewrite many_beta. rewrite !many_subst_app. repeat (rewrite many_subst_closed; [ | now Lproc]).
+      symmetry.
+      rewrite many_beta. rewrite !many_subst_app. repeat (rewrite many_subst_closed; [ | now Lproc]).
+      2:{ clear. induction v; cbn; intros. inversion H0. inv H0. Lproc. eapply IHv. eapply Eqdep_dec.inj_pair2_eq_dec in H4. subst. eauto. eapply nat_eq_dec. }
+      2:{ clear. induction v; cbn; intros. inversion H0. inv H0. Lproc. eapply IHv. eapply Eqdep_dec.inj_pair2_eq_dec in H4. subst. eauto. eapply nat_eq_dec. }
+      repeat (eapply equiv_app_proper; try reflexivity). clear. symmetry.
+      rewrite many_subst_equiv; cycle 1.
+      -- instantiate (1 := Vector.fold_left (fun s n => ext L.app s (ext (enc n))) (enc (s (enc h))) (many_vars n)). admit.
+      -- cbn. reflexivity.
+Admitted.
+
 Definition L_computable_bool_closed {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
   exists s, closed s /\ forall v : Vector.t (list bool) k, 
       (forall m, R v m <-> L.eval (Vector.fold_left (fun s n => L.app s (encL n)) s v) (encL m)) /\
@@ -25,7 +172,16 @@ Definition L_computable_bool_closed {k} (R : Vector.t (list bool) k -> (list boo
 
 Lemma L_computable_bool_can_closed k R:
   L_computable_bool_closed R <-> L_computable (k:=k) R.
-Admitted.
+Proof.
+  split.
+  - intros (s & _ & H). exists s. exact H.
+  - intros (s & H).
+    unshelve edestruct (@total_decodable_closed_new k s (list bool) (list bool)) as (s' & Hcl & Hs'); try exact _.
+    + intros v o. rewrite <- eval_iff. eapply H.
+    + unfold apply_to in Hs'. exists s'. split. Lproc. intros v. split. 
+      * intros m. specialize (H v) as [H1 H2]. rewrite H1. rewrite !eval_iff. now rewrite Hs'.        
+      * intros o. rewrite eval_iff. rewrite Hs'. rewrite <- eval_iff. eapply H.
+Qed.
 
 Lemma nth_error_to_list {X n} (v : Vector.t X n) i k :
   k = (proj1_sig (Fin.to_nat i)) ->
