@@ -16,8 +16,8 @@ Import L_Notations.
 
 Definition L_bool_computable_closed {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
   exists s, closed s /\ forall v : Vector.t (list bool) k, 
-      (forall m, R v m <-> L.eval (Vector.fold_left (fun s n => L.app s (encL n)) s v) (encL m)) /\
-      (forall o, L.eval (Vector.fold_left (fun s n => L.app s (encL n)) s v) o -> exists m, o = encL m).
+      (forall m, R v m <-> L.eval (Vector.fold_left (fun s n => L.app s (encBoolsL n)) s v) (encBoolsL m)) /\
+      (forall o, L.eval (Vector.fold_left (fun s n => L.app s (encBoolsL n)) s v) o -> exists m, o = encBoolsL m).
 
 Local Instance vector_enc_bool {n} : computable (@enc (Vector.t (list bool) n) _).
 Proof.
@@ -147,7 +147,7 @@ End lemma.
 
 
 
-Lemma many_app_eq {k} (v : Vector.t (list bool) k) s :  many_app s (Vector.map enc v) = Vector.fold_left (fun (s : term) n => s (encL n)) s v.
+Lemma many_app_eq {k} (v : Vector.t (list bool) k) s :  many_app s (Vector.map enc v) = Vector.fold_left (fun (s : term) n => s (encBoolsL n)) s v.
 Proof.
    induction v in s |- *.
    * cbn. reflexivity.

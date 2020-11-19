@@ -7,7 +7,7 @@ Import ListNotations VectorNotations.
 
 From Undecidability.TM.L.CompilerBoolFuns Require Import Compiler_spec.
 
-Require Import Equations.Type.DepElim.
+Require Import Equations.Equations.
 
 
 Lemma encBoolsTM_inj {Σ} (sym_s sym_b : Σ) n1 n2 :
@@ -24,8 +24,8 @@ Proof.
     + f_equal. eapply IHn1. unfold encBoolsTM. congruence.
 Qed.
 
-Lemma encL_inj l1 l2 :
-  encL l1 = encL l2 -> l1 = l2.
+Lemma encBoolsL_inj l1 l2 :
+  encBoolsL l1 = encBoolsL l2 -> l1 = l2.
 Proof.
   induction l1 in l2 |- *; intros H.
   - destruct l2; cbn in *; congruence.
@@ -41,17 +41,17 @@ Proof.
   eapply Hs in H1. eapply Hs in H2.
   rewrite eval_iff in H1, H2.
   destruct H1 as [H1 H1'], H2 as [H2 H2'].
-  eapply encL_inj, L_facts.unique_normal_forms; eauto.
+  eapply encBoolsL_inj, L_facts.unique_normal_forms; eauto.
   now rewrite <- H1, H2.
 Qed.
 
 From Undecidability.TM Require Import Hoare.
 
-Definition TM_bool_computable_hoare_in {k n Σ} s b (v: Vector.t (list bool) k): SpecV Σ (k+1+n)
-  := (Vector.map (fun bs => Custom (eq (encBoolsTM s b bs))) v ++ [Custom (eq niltape)]) ++ Vector.const (Custom (eq niltape)) _.
+Definition TM_bool_computable_hoare_in {k n Σ} s b (v: Vector.t (list bool) k): SpecV Σ (1+k+n)
+  := ([Custom (eq niltape)] ++ Vector.map (fun bs => Custom (eq (encBoolsTM s b bs))) v) ++ Vector.const (Custom (eq niltape)) _.
 
 Lemma TM_bool_computable_hoare_in_spec {k n Σ} (s b:_ + Σ) (v: Vector.t (list bool) k): 
-  (Vector.map (encBoolsTM s b) v ++ [niltape]) ++ const niltape n
+  ([niltape] ++ Vector.map (encBoolsTM s b) v) ++ const niltape n
     ≃≃ ([]%list, TM_bool_computable_hoare_in s b v).
 Proof.
   eapply tspecI;cbn;[easy|]; unfold TM_bool_computable_hoare_in;intros i;
@@ -74,23 +74,21 @@ Proof.
       now rewrite <- (Fin.of_nat_to_nat_inv p), E. 
 Qed.
 
-Definition TM_bool_computable_hoare_out {k n Σ} s b (bs :list bool): SpecV Σ (k+1+n)
-  := (Vector.const (Custom (fun _ => True)) _ ++ [Custom (eq (encBoolsTM s b bs)) ])++ Vector.const (Custom (fun _ => True)) _.
+Definition TM_bool_computable_hoare_out {k n Σ} s b (bs :list bool): SpecV Σ (1+k+n)
+  := ([Custom (eq (encBoolsTM s b bs)) ] ++ Vector.const (Custom (fun _ => True)) _)++ Vector.const (Custom (fun _ => True)) _.
 
 Lemma TM_bool_computable_hoare_out_spec {k n Σ} (s b:_ + Σ) bs t': 
   t' ≃≃ ([]%list, TM_bool_computable_hoare_out (k:=k) (n:=n)s b bs)
-  -> nth_error (to_list t') k = Some (encBoolsTM s b bs).
+  -> Vector.hd t' = encBoolsTM s b bs.
 Proof.
-  intros ([]&Hm2)%tspecE. specialize (Hm2 (Fin.L n (Fin.R k Fin0))).
-  unfold TM_bool_computable_hoare_out in Hm2. rewrite Vector_nth_L,Vector_nth_R in Hm2.
-  cbn in Hm2. setoid_rewrite Hm2. erewrite nth_error_to_list. reflexivity.
-  rewrite Fin.L_sanity,Fin.R_sanity. easy. 
+  intros ([]&Hm2)%tspecE. specialize (Hm2 (Fin0)).
+  unfold TM_bool_computable_hoare_out in Hm2.
+  cbn in Hm2. setoid_rewrite Hm2. now dependent elimination t'.
 Qed.
-
 
 Definition TM_bool_computable_hoare {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
   exists n : nat, exists Σ : finType, exists s b , s <> b /\ 
-    exists M : pTM (Σ^+) unit (k + 1 + n),
+    exists M : pTM (Σ^+) unit (1 + k + n),
     forall v, 
       Triple ≃≃([],TM_bool_computable_hoare_in s b v) M (fun y t => exists res, t ≃≃ ([R v res]%list,TM_bool_computable_hoare_out s b res))
       /\ forall res, R v res ->
@@ -107,7 +105,7 @@ Proof.
     + intros HR.
       specialize H2 as [k__steps H2%TripleT_TerminatesIn]. eassumption.
       cbn in H2.
-      destruct (H2 ((Vector.map (encBoolsTM s b) v ++ [niltape]) ++ Vector.const niltape n) k__steps) as [[q' t'] Hconf].
+      destruct (H2 (([niltape] ++ Vector.map (encBoolsTM s b) v) ++ Vector.const niltape n) k__steps) as [[q' t'] Hconf].
       * split. 2:easy. now apply TM_bool_computable_hoare_in_spec.        
       * exists q', t'. split. eapply TM_eval_iff. eexists. eapply Hconf.
         eapply H1 in Hconf as (m' & Hm1 & Hm2%TM_bool_computable_hoare_out_spec).
@@ -125,8 +123,6 @@ Proof.
     now apply TM_bool_computable_hoare_in_spec. eauto.
 Qed.
 
-
-
 (** * The tape-order is different than in the implemented machine, so here again with the tape-order implemented: *)
 Definition TM_bool_computable_hoare_in' {k n Σ} s b (v: Vector.t (list bool) k): SpecV Σ (1+n+k)
   := Custom (eq niltape) :: Vector.const (Custom (eq niltape)) _ ++ Vector.map (fun bs => Custom (eq (encBoolsTM s b bs))) v.
@@ -142,20 +138,18 @@ Definition TM_bool_computable_hoare' {k} (R : Vector.t (list bool) k -> (list bo
       /\ forall res, R v res ->
           exists k__steps, TripleT ≃≃([],TM_bool_computable_hoare_in' s b v) k__steps M (fun y => ≃≃([]%list,TM_bool_computable_hoare_out' s b res)).
 
-
-
 Local Definition tapeOrderSwap n k:=
-  (Fin.L n (Fin.R k Fin0) :::  tabulate (n := n) (fun x => Fin.R (k + 1) x) ++ (tabulate (n := k) (fun x => Fin.L n (Fin.L 1 x)))).
+  (Fin0 :::  tabulate (n := n) (fun x => Fin.R (1 + k) x) ++ (tabulate (n := k) (fun x => Fin.L n (Fin.R 1 x)))).
 
 Local Lemma tapeOrderSwap_dupfree k n : VectorDupfree.dupfree (tapeOrderSwap n k).
 Proof.
   unfold tapeOrderSwap.
   econstructor. intros [ [i Hi % (f_equal (fun x => proj1_sig (Fin.to_nat x)))] % in_tabulate | [i Hi % (f_equal (fun x => proj1_sig (Fin.to_nat x)))] % in_tabulate ] % Vector_in_app.
   3: eapply Vector_dupfree_app; repeat split.
-  + rewrite Fin.L_sanity, !Fin.R_sanity in Hi. cbn in Hi. lia.
+  + rewrite !Fin.R_sanity in Hi. cbn in Hi. lia.
   + rewrite !Fin.L_sanity, !Fin.R_sanity in Hi. destruct (Fin.to_nat i); cbn in *; lia.
   + eapply dupfree_tabulate_injective. eapply Fin_R_fillive.
-  + eapply dupfree_tabulate_injective. intros. eapply Fin_L_fillive. eapply Fin_L_fillive. eassumption.
+  + eapply dupfree_tabulate_injective. intros. eapply Fin_R_fillive. eapply Fin_L_fillive. eassumption.
   + intros ? (? & ?) % in_tabulate (? & ?) % in_tabulate. subst.
     eapply (f_equal (fun H => proj1_sig (Fin.to_nat H))) in H0. rewrite Fin.R_sanity, !Fin.L_sanity in H0.
     destruct Fin.to_nat, Fin.to_nat. cbn in *. lia.
@@ -171,7 +165,6 @@ Proof.
   all:reflexivity.
 Qed.
 
-
 Lemma helper n m' m f: 
   injective f ->
     lookup_index_vector (n:=n)
@@ -186,22 +179,23 @@ Proof.
   specialize IHm' with (f:= fun m => f (Fin.FS m) ). cbn in IHm'. rewrite IHm'. easy. intros ? ? ?%Hinj. now apply Fin.FS_inj.
 Qed.
 
-
-
 Lemma TM_bool_computable_hoare_out'_spec {k n Σ} s b bs w:
   TM_bool_computable_hoare_out (Σ:=Σ) s b bs = Frame w (tapeOrderSwap n k) (TM_bool_computable_hoare_out' s b bs).
 Proof.
   unfold TM_bool_computable_hoare_out,TM_bool_computable_hoare_out'.
   eapply eq_nth_iff';intros i. unfold Frame,fill.
   rewrite nth_tabulate.
-  destruct_fin i;cbn.
-  all:repeat (rewrite Vector_nth_L + rewrite Vector_nth_R + rewrite nth_map' + rewrite nth_tabulate + rewrite const_nth + cbn);cbn.
-  all:repeat (rewrite Fin_eqb_L_L + rewrite Fin_eqb_L_R  + rewrite Fin_eqb_R_L + rewrite Fin_eqb_R_R +cbn);cbn.
-  2:easy.
-  all:erewrite lookup_index_vector_Some;cbn;[now rewrite const_nth| |].
-  2:now rewrite Vector_nth_R,nth_tabulate.
-  3:now rewrite Vector_nth_L,nth_tabulate.
-  all:eapply dupfree_cons. all:apply tapeOrderSwap_dupfree. 
+  destruct_fin i; cbn -[lookup_index_vector].
+  all:repeat (rewrite Vector_nth_L + rewrite Vector_nth_R + rewrite nth_map' + rewrite nth_tabulate + rewrite const_nth).
+  - erewrite lookup_index_vector_Some with (j := Fin0); try reflexivity. eapply tapeOrderSwap_dupfree. 
+  - erewrite lookup_index_vector_Some with (j := Fin.FS (Fin.R n i1)).
+    + cbn. now rewrite const_nth. 
+    + eapply tapeOrderSwap_dupfree.
+    + cbn. now rewrite Vector_nth_R, nth_tabulate.
+  - erewrite lookup_index_vector_Some with (j := Fin.FS (Fin.L k i0)).
+    + cbn. now rewrite const_nth. 
+    + eapply tapeOrderSwap_dupfree.
+    + cbn. now rewrite Vector_nth_L, nth_tabulate.
 Qed.
 
 Lemma TM_bool_computable_hoare'_spec k R :
@@ -216,18 +210,18 @@ Proof.
   rewrite TM_bool_computable_hoare_in'_spec in H1,H2.
   split.
   - refine (Consequence _ _ _). refine (LiftTapes_Spec_ex _ _). now apply tapeOrderSwap_dupfree.
-    exact H1. reflexivity. cbn. intro. eapply EntailsI. intros ? []. eexists.
-    erewrite TM_bool_computable_hoare_out'_spec. eassumption.
+    exact H1. reflexivity. cbn. intro. eapply EntailsI. intros ? []. (*  eexists.
+    erewrite tm_bool_computable_hoare_out'_spec. eassumption. *) admit.
   - intros. specialize H2 as [x H2]. easy. exists x.
     refine (ConsequenceT _ _ _ _). refine (LiftTapes_SpecT _ _). now apply tapeOrderSwap_dupfree.
-    exact H2. reflexivity. cbn. now rewrite <- TM_bool_computable_hoare_out'_spec. easy.
-Qed. 
+    exact H2. reflexivity. cbn. admit. (* now rewrite <- tm_bool_computable_hoare_out'_spec. *) easy.
+Admitted.
 
 Lemma closed_compiler_helper s n v: closed s ->
 closed
   (Vector.fold_left (n:=n)
-     (fun (s0 : term) (l_i : list bool) => L.app s0 (encL l_i)) s v).
+     (fun (s0 : term) (l_i : list bool) => L.app s0 (encBoolsL l_i)) s v).
 Proof.
   revert s. depind v. all:cbn. easy.
-  intros. eapply IHv. change (encL h) with (enc h). Lproc.
+  intros. eapply IHv. change (encBoolsL h) with (enc h). Lproc.
 Qed. 
