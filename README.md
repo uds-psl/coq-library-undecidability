@@ -21,7 +21,7 @@ Advanced problems do not work well as seeds, but they highlight the potential of
 
 Target problems are very expressive and thus work well as targets for reduction, with the aim of closing loops in the reduction graph to establish the inter-reducibility of problems.
 
-### Seeds
+### Seed Problems
 
 - Post correspondence problem (`PCP` in [`PCP/PCP.v`](theories/PCP/PCP.v))
 - Halting problem for two counters Minsky machines (`MM2_HALTING` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v)) 
