@@ -136,6 +136,7 @@ PCP/Reductions/HaltTM_1_to_PCPb.v
 StringRewriting/SR.v
 StringRewriting/SR_undec.v
 StringRewriting/PCSnf.v
+StringRewriting/PCSnf_undec.v
 
 StringRewriting/Util/Definitions.v
 StringRewriting/Reductions/SRH_to_SR.v
@@ -562,6 +563,7 @@ FOLP/Util/FullSyntax.v
 FOLP/Util/FullFOL.v
 FOLP/Util/FullTarski.v
 FOLP/FOLFS.v
+FOLP/Reductions/BPCP_to_FOLFS.v
 
 #####
 # Full Trakhtenbrot with single binary rel
