@@ -213,7 +213,7 @@ Qed.
 
 (** ** Reduction theorems *)
 
-Corollary valid_red :
+Corollary valid_star_red :
   PCPb ⪯ FOL*_valid.
 Proof.
   exists (fun R => F R). intros R. apply (BPCP_valid R).
@@ -223,6 +223,12 @@ Theorem prv_red :
   PCPb ⪯ FOL*_prv_intu.
 Proof.
   exists (fun R => F R). intros R. apply (BPCP_prv R).
+Qed.
+
+Corollary valid_red :
+  PCPb ⪯ FOL_valid.
+Proof.
+  exists (fun R => F R). intros R. apply (BPCP_valid R).
 Qed.
 
 Theorem satis_red :
@@ -246,13 +252,13 @@ Definition UA :=
 Corollary valid_undec :
   UA -> ~ decidable (@valid _ _ falsity_off).
 Proof.
-  intros H. now apply (not_decidable valid_red).
+  intros H. now apply (not_decidable valid_star_red).
 Qed.
 
 Corollary valid_unenum :
   UA -> ~ enumerable (compl (@valid _ _ falsity_off)).
 Proof.
-  intros H. now apply (not_coenumerable valid_red).
+  intros H. now apply (not_coenumerable valid_star_red).
 Qed.
 
 Corollary prv_undec :

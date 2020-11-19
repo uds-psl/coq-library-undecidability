@@ -60,7 +60,7 @@ Lemma cnd_XM:
   (forall (phi : form falsity_on), cprv nil phi -> valid phi) ->
   forall P, ~~ P -> P.
 Proof.
-  intros H P. specialize (H ( (¬¬Q) --> Q)).
+  intros H P. specialize (H ((¬¬Q) --> Q)).
   refine (H _ unit (iUnit P) (fun _ => tt)).
   eapply II. eapply DN. eauto.
 Qed.
@@ -109,33 +109,62 @@ Proof.
   intros. eapply appCtx; eauto.
 Qed.
 
-Lemma trans_trans b (phi : form b) A :
-  A ⊢I ((dnQ (trans phi)) --> trans phi).
+Lemma trans_trans' b (phi : form b) A sigma tau :
+  (map (subst_form tau) A) ⊢I ((dnQ (trans phi[sigma])) --> trans phi[sigma]).
 Proof.
-  revert A. induction phi; cbn; intros; try destruct P; try destruct b0; try destruct q.
+  revert A sigma tau. induction phi; cbn; intros; try destruct P; try destruct b0; try destruct q.
   - cbn. eapply II. eapply app1. eapply II. eapply Ctx. eauto.
   - eapply II. eapply II. eapply app2. eapply II.
     eapply app1. eapply Ctx. eauto.
   - eapply II. eapply app1. eapply II. eapply Ctx. eauto.
-  - eapply II. eapply II. eapply IE. eapply IHphi2.
+  - eapply II. eapply II. apply IE with (dnQ (trans phi2[sigma])). specialize (IHphi2 A sigma tau). apply (Weak IHphi2). auto.
     eapply II. eapply app3. eapply II. eapply app2. eapply app1. eapply Ctx. eauto.
-  - admit.
-Admitted.
+  - apply II, AllI. apply IE with (dnQ (trans phi[up sigma])).
+    + apply IHphi.
+    + apply II. eapply IE. { apply Ctx. right. left. cbn. reflexivity. }
+      apply II. eapply IE. { apply Ctx. right. left. reflexivity. }
+      replace (trans phi[up sigma]) with ((subst_form (up ↑) (trans (subst_form (up sigma) phi)))[($0)..]).
+      * apply AllE. apply Ctx. now left.
+      * setoid_rewrite trans_subst. cbn. repeat setoid_rewrite subst_comp.
+        apply subst_ext. intros n. unfold funcomp. cbn.
+        apply subst_term_id. now intros [].
+Qed.
+
+Lemma trans_trans b (phi : form b) A :
+  A ⊢I ((dnQ (trans phi)) --> trans phi).
+Proof.
+  specialize (trans_trans' phi A var var).
+  rewrite subst_var. intros H. apply (Weak H).
+  clear H. induction A; cbn; trivial. setoid_rewrite subst_var. auto.
+Qed.
+
+Goal (forall X, ~ ~ X -> X) -> (forall (X Y : Prop), ((X -> Y) -> X) -> X).
+Proof.
+  intros H X Y. apply H. intros H'. clear H.
+  apply H'. intros f. apply f. intros x. exfalso.
+  apply H'. intros _. exact x.
+Qed.
         
 Lemma Double' b A (phi : form b) :
   A ⊢C phi -> map trans A ⊢I trans phi.
 Proof.
-  remember class as s; induction 1; cbn in *; subst; try congruence.
-  - eapply II. eauto.
+  remember class as s; induction 1; subst.
+  - cbn. eapply II. eauto.
   - eapply IE; eauto.
-  - apply AllI. rewrite map_map. rewrite map_map in IHprv.
+  - cbn. apply AllI. rewrite map_map. rewrite map_map in IHprv.
     erewrite map_ext; try now apply IHprv. intros psi. cbn. now rewrite trans_subst.
   - setoid_rewrite trans_subst. eapply AllE; eauto.
-  - specialize (IHprv eq_refl). eapply IE. eapply trans_trans.
+  - specialize (IHprv eq_refl). eapply IE; try apply trans_trans.
     apply II. apply (Weak IHprv). auto.
   - eapply Ctx. now eapply in_map.
-  - admit.
-Admitted.
+  - eapply IE; try apply trans_trans.
+    apply II. eapply IE; try now apply Ctx.
+    cbn. apply II. eapply IE; try now apply Ctx.
+    apply II. eapply IE; try apply trans_trans.
+    apply II. eapply IE.
+    + apply Ctx. right. right. right. now left.
+    + apply II. apply Ctx. auto.
+Qed.
 
 Lemma Double b (phi : form b) :
   [] ⊢C phi -> [] ⊢I (trans phi).

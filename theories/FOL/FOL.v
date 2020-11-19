@@ -31,6 +31,7 @@ Instance sig_pred : preds_signature :=
 
 Notation "FOL*_prv_intu" := (@prv _ _ falsity_off intu nil).
 Notation "FOL*_valid" := (@valid _ _ falsity_off).
+Definition FOL_valid := @valid _ _ falsity_on.
 Definition FOL_satis := @satis _ _ falsity_on.
 Definition FOL_valid_intu := @kvalid _ _ falsity_on.
 Definition FOL_prv_intu := @prv _ _ falsity_on intu nil.
