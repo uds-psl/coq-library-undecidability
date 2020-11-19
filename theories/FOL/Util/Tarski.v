@@ -1,13 +1,13 @@
 (** * Tarski Semantics *)
 
-Require Export Undecidability.FOL.Util.FOL_facts.
+Require Export Undecidability.FOL.Util.Syntax.
 Import ListAutomationNotations.
 Require Import Vector.
 
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
-(*** Full Syntax ***)
+(*** Fragment Syntax ***)
 
 Inductive full_logic_binop : Type :=
 (*| Conj : full_logic_binop
@@ -161,9 +161,6 @@ End Tarski.
 Arguments sat {_ _ _ _ _} _ _, {_ _ _} _ {_} _ _.
 Arguments interp {_ _} _, _ _ _.
 
-
-
-Notation "p ⊫ A" := (forall psi, psi el A -> sat _ p psi) (at level 20).
 Notation "p ⊨ phi" := (sat _ p phi) (at level 20).
 
 Section Defs.
@@ -172,10 +169,11 @@ Section Defs.
   Context {Σ_preds : preds_signature}.
   Context {ff : falsity_flag}.
 
+  Definition valid_ctx A phi := forall D (I : interp D) rho, (forall psi, psi el A -> rho ⊨ psi) -> rho ⊨ phi.
   Definition valid phi := forall D (I : interp D) rho, rho ⊨ phi.
-  Definition valid_L A := forall D (I : interp D) rho, rho ⊫ A.
+  (*Definition valid_L A := forall D (I : interp D) rho, rho ⊫ A.*)
   Definition satis phi := exists D (I : interp D) rho, rho ⊨ phi.
-  Definition fullsatis A := exists D (I : interp D) rho, rho ⊫ A.
+  (*Definition fullsatis A := exists D (I : interp D) rho, rho ⊫ A.*)
 
 End Defs.
 
@@ -191,7 +189,7 @@ Section TM.
     {| i_f := fun _ _ => tt; i_P := fun _ _ => True; |}.
 
   Fact TM_sat (rho : nat -> unit) (phi : form falsity_off) :
-    sat TM rho phi.
+    rho ⊨ phi.
   Proof.
     revert rho. remember falsity_off as ff. induction phi; cbn; trivial.
     - discriminate.

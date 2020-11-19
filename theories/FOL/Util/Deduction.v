@@ -1,6 +1,6 @@
 (** * Natural Deduction *)
 
-From Undecidability Require Export FOL.Util.Semantics.
+From Undecidability Require Export FOL.Util.Tarski.
 Import ListAutomationNotations.
 Local Set Implicit Arguments.
 
@@ -72,11 +72,8 @@ Section Soundness.
   Context {Σ_funcs : funcs_signature}.
   Context {Σ_preds : preds_signature}.
 
-  Definition valid {ff : falsity_flag} A phi :=
-    forall D (I : interp D) rho, (forall Phi, Phi el A -> rho ⊨ Phi) -> rho ⊨ phi.
-
-  Lemma Soundness {ff : falsity_flag} A phi :
-    A ⊢I phi -> valid A phi.
+  Lemma soundness {ff : falsity_flag} A phi :
+    A ⊢I phi -> valid_ctx A phi.
   Proof.
     remember intu as p.
     induction 1; intros D I rho HA; comp.
@@ -102,6 +99,12 @@ Section Soundness.
       + apply IHprv2; trivial. intros xi [<-|HX]; auto.
       + apply IHprv3; trivial. intros xi [<-|HX]; auto. *)
     - discriminate.
+  Qed.
+
+  Lemma soundness' {ff : falsity_flag} phi :
+    [] ⊢I phi -> valid phi.
+  Proof.
+    intros H % soundness. firstorder.
   Qed.
 
 End Soundness.

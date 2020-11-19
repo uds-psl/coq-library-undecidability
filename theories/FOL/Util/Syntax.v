@@ -172,6 +172,8 @@ Open Scope subst_scope.
 
 
 
+Ltac cbns :=
+    cbn; repeat (match goal with [ |- context f[subst_form ?sigma ?phi] ] => change (subst_form sigma phi) with (phi[sigma]) end).
 
 Section Subst.
 
@@ -242,9 +244,6 @@ Section Subst.
     setoid_rewrite subst_term_comp.
     apply subst_term_ext. now intros [|].
   Qed.
-
-  Ltac cbns :=
-    cbn; repeat (match goal with [ |- context f[subst_form ?sigma ?phi] ] => change (subst_form sigma phi) with (phi[sigma]) end).
 
   Lemma subst_ext {ff : falsity_flag} (phi : form) sigma tau :
     (forall n, sigma n = tau n) -> phi[sigma] = phi[tau].
