@@ -242,7 +242,12 @@ Qed.
 Lemma form_discrete {ff : falsity_flag} :
   discrete (form ff).
 Proof.
-Admitted.
+  apply discrete_iff. constructor. apply dec_form.
+  - intros ? ?. unfold dec. repeat decide equality.
+  - intros ? ?. unfold dec. repeat decide equality.
+  - intros [] []. now left.
+  - intros [] []. now left.
+Qed.
 
 Hint Resolve stack_enum form_discrete : core.
 

@@ -297,89 +297,88 @@ End Subst.
 
 
 
-(** ** Enumerability *)
+(** ** Discreteness *)
 
-(*Fixpoint L_term n : list term :=
-  match n with
-  | 0 => [t_e]
-  | S n => L_term n ++ [V n; P n] ++ [ t_f b t | (b,t) ∈ (L_T bool n × L_term n) ]
-  end.
-
-Instance enumT_term : list_enumerator__T L_term term.
-Proof.
-  intros t. induction t.
-  + exists (S v); cbn; eauto.
-  + exists (S p); cbn; eauto.
-  + destruct IHt as [m1], (el_T b) as [m2].
-    exists (1 + m1 + m2). cbn. in_app 4. in_collect (b, t); eapply cum_ge'; eauto; lia.
-  + exists 0. cbn; eauto.
-Qed.
-
-Fixpoint L_form {b} n : list (form b) :=
-  match n with
-  | 0 => []
-  | S n => L_form n
-            ++ [Q]
-            ++ [ Pr s t | (s,t) ∈ (L_T term n × L_T term n) ]
-            ++ [ phi1 --> phi2 | (phi1, phi2) ∈ (L_form n × L_form n) ]
-            ++ [ ∀ n; phi | (n,phi) ∈ (L_T nat n × L_form n) ]
-            ++ match b with
-                 frag => []
-               | full => [Fal]
-               end
-  end.
-
-Instance enumT_form {b} : list_enumerator__T L_form (form b).
-Proof with (try eapply cum_ge'; eauto; lia).
-  intros phi. induction phi.
-  + destruct (el_T t) as [m1], (el_T t0) as [m2]. exists (1 + m1 + m2). cbn.
-    in_app 3. in_collect (t, t0)...
-  + exists 1. cbn; eauto.
-  + exists 1; cbn; firstorder.
-  + destruct IHphi1 as [m1], IHphi2 as [m2]. exists (1 + m1 + m2). cbn.
-    in_app 4. in_collect (phi1, phi2)...
-  + destruct IHphi as [m1], (el_T n) as [m2]. exists (1 + m1 + m2). cbn -[L_T].
-    in_app 5. in_collect (n, phi)...
-Qed.
-
-Instance dec_term : eq_dec term.
-Proof.
-  intros ? ?; unfold dec; repeat decide equality.
-Qed.
-
-Instance dec_logic : eq_dec logic.
-Proof.
-  intros ? ?; unfold dec; decide equality.
-Qed.
-
+From Equations Require Import Equations.
 Require Import EqdepFacts.
 
-Lemma dec_form {b1 b2} phi1 phi2 : dec (eq_dep logic form b1 phi1 b2 phi2).
+Lemma inj_pair2_eq_dec' A :
+  eq_dec A -> forall (P : A -> Type) (p : A) (x y : P p), existT P p x = existT P p y -> x = y.
 Proof.
-  unfold dec. revert phi2; induction phi1; intros; try destruct phi2.
-  all: try now right; inversion 1.
-  all: try decide (b0 = b); subst; try now right; inversion 1; congruence.
-  all: try now left.
-  - decide (t = t1); decide (t0 = t2); subst; try now right; inversion 1; congruence.
-    now left.
-  - destruct (IHphi1_1 phi2_1), (IHphi1_2 phi2_2); subst; try firstorder congruence.
-    left. eapply Eqdep_dec.eq_dep_eq_dec in e; eapply Eqdep_dec.eq_dep_eq_dec in e0.
-    all: try eapply dec_logic.
-    subst; econstructor.
-
-    all: right; intros ? % Eqdep_dec.eq_dep_eq_dec; try eapply dec_logic.
-    all: eapply n. all: inversion H0; eapply eq_sigT_eq_dep in H2; eapply Eqdep_dec.eq_dep_eq_dec in H2; try eapply dec_logic; subst. econstructor. 
-    all: eapply eq_sigT_eq_dep in H1; eapply Eqdep_dec.eq_dep_eq_dec in H1; try eapply dec_logic; subst.
-    all: econstructor. 
-  - decide (n = n0); destruct (IHphi1 phi2); subst.
-    eapply Eqdep_dec.eq_dep_eq_dec in e0; try eapply dec_logic; subst. now left.
-    all: right; inversion 1; try eapply eq_sigT_eq_dep in H2; try eapply Eqdep_dec.eq_dep_eq_dec in H2; try eapply dec_logic; subst.
-    eapply n1. econstructor. all:congruence.
+  apply Eqdep_dec.inj_pair2_eq_dec.
 Qed.
 
-Instance eq_dec_form {b : logic} phi1 phi2 : dec (phi1 = phi2 :> form b).
+Ltac resolve_existT := try
+  match goal with
+     | [ H2 : @existT ?X _ _ _ = existT _ _ _ |- _ ] => eapply Eqdep_dec.inj_pair2_eq_dec in H2;
+                                                      [subst | try (eauto || now intros; decide equality)]
+  end.
+
+Lemma dec_vec_in X n (v : vec X n) :
+  (forall x, vec_in x v -> forall y, dec (x = y)) -> forall v', dec (v = v').
+Proof with subst; try (now left + (right; intros[=])).
+  intros Hv. induction v; intros v'; dependent elimination v'...
+  destruct (Hv h (vec_inB h v) h0)... edestruct IHv.
+  - intros x H. apply Hv. now right.
+  - left. f_equal. apply e.
+  - right. intros H. inversion H. resolve_existT. tauto.
+Qed.
+
+Instance dec_vec X {HX : eq_dec X} n : eq_dec (vec X n).
 Proof.
-  destruct (dec_form phi1 phi2).
-  - eapply Eqdep_dec.eq_dep_eq_dec in e; try eapply dec_logic; subst. now left.
-  - right. intros ->. now eapply n.
-Qed.*)
+  intros v. refine (dec_vec_in _ _ _ _).
+Qed.
+
+Section EqDec.
+  
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+  Context {ops : operators}.
+
+  Hypothesis eq_dec_Funcs : eq_dec syms.
+  Hypothesis eq_dec_Preds : eq_dec preds.
+  Hypothesis eq_dec_binop : eq_dec binop.
+  Hypothesis eq_dec_quantop : eq_dec quantop.
+
+  Global Instance dec_term : eq_dec term.
+  Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence)).
+    intros t. induction t; intros []...
+    - decide (x = n)... 
+    - decide (F = f)... destruct (dec_vec_in _ _ _ X v0)...
+  Qed.
+
+  Instance dec_falsity : eq_dec falsity_flag.
+  Proof.
+    intros b b'. unfold dec. decide equality.
+  Qed.
+
+  Lemma eq_dep_falsity b phi psi :
+    eq_dep falsity_flag (@form Σ_funcs Σ_preds ops) b phi b psi <-> phi = psi.
+  Proof.
+    rewrite <- eq_sigT_iff_eq_dep. split.
+    - intros H. resolve_existT. reflexivity.
+    - intros ->. reflexivity.
+  Qed.
+
+  Lemma dec_form_dep {b1 b2} phi1 phi2 : dec (eq_dep falsity_flag (@form _ _ _) b1 phi1 b2 phi2).
+  Proof with subst; try (now left + (right; intros ? % eq_sigT_iff_eq_dep; resolve_existT; congruence)).
+    unfold dec. revert phi2; induction phi1; intros; try destruct phi2.
+    all: try now right; inversion 1. now left.
+    - decide (b = b0)... decide (P = P0)... decide (v = v0)... right.
+      intros [=] % eq_dep_falsity. resolve_existT. tauto.
+    - decide (b = b1)... decide (b0 = b2)... destruct (IHphi1_1 phi2_1).
+      + apply eq_dep_falsity in e as ->. destruct (IHphi1_2 phi2_2).
+        * apply eq_dep_falsity in e as ->. now left.
+        * right. rewrite eq_dep_falsity in *. intros [=]. now resolve_existT.
+      + right. rewrite eq_dep_falsity in *. intros [=]. now repeat resolve_existT.
+    - decide (b = b0)... decide (q = q0)... destruct (IHphi1 phi2).
+      + apply eq_dep_falsity in e as ->. now left.
+      + right. rewrite eq_dep_falsity in *. intros [=]. now resolve_existT.
+  Qed.
+
+  Global Instance dec_form {ff : falsity_flag} : eq_dec form.
+  Proof.
+    intros phi psi. destruct (dec_form_dep phi psi); rewrite eq_dep_falsity in *; firstorder.
+  Qed.
+
+End EqDec.
