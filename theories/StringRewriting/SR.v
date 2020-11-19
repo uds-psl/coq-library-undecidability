@@ -39,7 +39,7 @@ Definition swap {X Y} : X * Y -> Y * X := fun '(x,y) => (y,x).
 (** Thue system reachability TSR is
   given a string rewriting system R and two strings x and y,
   determine whether x is equivalent to y in R. *)
-  Definition TSR : SRS nat * string nat * string nat -> Prop :=
+Definition TSR : SRS nat * string nat * string nat -> Prop :=
     fun '(R, x, y) => rewt (R ++ map swap R) x y.
   
 (** Thue system reachability with a halting symbol TSRH is
