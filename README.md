@@ -48,7 +48,7 @@ Target problems are very expressive and thus work well as targets for reduction,
 - Provability in Minimal, Intuitionistic, and Classical First-Order Logic (`FOL*_prv_intu`, `FOL_prv_intu`, `FOL_prv_class` in [`FOL/FOL.v`](theories/FOL/FOL.v))
 - Validity in Minimal and Intuitionistic First-Order Logic (`FOL*_valid`, `FOL_valid_intu` in [`FOL/FOL.v`](theories/FOL/FOL.v))
 - Satisfiability in Minimal and Intuitionistic First-Order Logic (`FOL*_satis`, `FOL_satis_intu` in [`FOL/FOL.v`](theories/FOL/FOL.v))
-- Finite satisfiability in First-Order Logic, known as "Trakhtenbrot's theorem" (`FSAT` in [`TRAKTHENBROT/red_utils.v`](theories/red_utils.v))
+- Finite satisfiability in First-Order Logic, known as "Trakhtenbrot's theorem" (`FSAT` in [`TRAKHTENBROT/red_utils.v`](theories/TRAKHTENBROT/red_utils.v))
 - Entailment in Elementary Intuitionistic Linear Logic (`EILL_PROVABILITY` in [`ILL/EILL.v`](theories/ILL/EILL.v))
 - Entailment in Intuitionistic Linear Logic (`ILL_PROVABILITY` in [`ILL/ILL.v`](theories/ILL/ILL.v))
 - Entailment in Classical Linear Logic (`CLL_cf_PROVABILITY` in [`ILL/CLL.v`](theories/ILL/CLL.v))
