@@ -2,7 +2,7 @@
 Require Import Undecidability.Synthetic.Undecidability.
 
 Require Import Undecidability.StringRewriting.PCSnf.
-Require Import Undecidability.SR.SR_undec.
+Require Import Undecidability.StringRewriting.SR_undec.
 
 From Undecidability.StringRewriting.Reductions Require SR_to_PCSnf.
 
@@ -10,7 +10,7 @@ From Undecidability.StringRewriting.Reductions Require SR_to_PCSnf.
 Lemma PCSnf_undec : undecidable PCSnf.
 Proof.
   apply (undecidability_from_reducibility SR_undec).
-  exact SR_to_PCSnf.
+  exact SR_to_PCSnf.reduction.
 Qed.
 
 Check PCSnf_undec.

@@ -563,7 +563,7 @@ FOLP/Util/FullSyntax.v
 FOLP/Util/FullFOL.v
 FOLP/Util/FullTarski.v
 FOLP/FOLFS.v
-FOLP/Reductions/BPCP_to_FOLFS.v
+FOLP/Reductions/PCPb_to_FOLFS.v
 
 #####
 # Full Trakhtenbrot with single binary rel
