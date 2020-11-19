@@ -8,59 +8,68 @@ Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
 Local Definition BSRS := list(card bool).
 Local Notation "x / y" := (x, y).
 
+Notation t_f b t := (func (s_f b) (Vector.cons _ t _ (Vector.nil _))).
+Notation t_e := (func s_e (Vector.nil _)).
+Notation Pr t t' := (@atom _ sig_pred _ _ sPr (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
+Notation Q := (atom sQ (Vector.nil _)).
+
+ Notation i_f b i :=
+    (@i_func _ _ _ _ (s_f b) (Vector.cons _ i _ (Vector.nil _))).
+
+  Notation i_Pr i i' :=
+    (@i_atom _ _ _ _ sPr (Vector.cons _ i _ (Vector.cons _ i' _ (Vector.nil _)))).
+
 Section validity.
 
-  Notation u := 0. Notation v := 1.
-  Context {b : logic}.
+  Context {ff : falsity_flag}.
   Variable R : BSRS.
 
-  Definition prep (x : string bool) (t : term) : term := fold_right t_f t x.
-  Definition iprep domain eta {I : interp domain eta} (x : list bool) (y : domain) := fold_right i_f y x.
+  Fixpoint prep (x : string bool) (t : term) : term :=
+    match x with
+    | nil => t
+    | b::x => t_f b (prep x t)
+    end.
+
   Definition enc s := (prep s t_e).
 
+  Lemma prep_app x y t :
+    prep (x ++ y) t = prep x (prep y t).
+  Proof.
+    induction x; cbn; trivial. now rewrite <- IHx.
+  Qed.
+
+  Fixpoint iprep {domain} {I : interp domain} (x : list bool) (y : domain) :=
+    match x with
+    | nil => y
+    | b::x => i_f b (iprep x y)
+    end.
+
   Definition F1 := map (fun '(x,y) => Pr (enc x) (enc y)) R.
-  Definition F2 := map (fun '(x, y) => ∀ u; ∀ v; Pr u v --> Pr (prep x u) (prep y v)) R.
-  Definition F3 := (∀ u; Pr u u --> Q).
+  Definition F2 := map (fun '(x, y) => ∀ ∀ Pr $1 $0 --> Pr (prep x $1) (prep y $0)) R.
+  Definition F3 := (∀ Pr $0 $0 --> Q).
 
-  Definition F : form b := F1 ==> F2 ==> F3 --> Q.
+  Definition F : form := F1 ==> F2 ==> F3 --> Q.
 
-  Lemma enc_vars x :
-    vars_t (enc x) = [].
-  Proof.
-    induction x; trivial.
-  Qed.
-
-  Lemma prep_subst y t1 x t :
-    subst_t y t1 (prep x t) = prep x (subst_t y t1 t).
-  Proof.
-    induction x; cbn; f_equal; eauto.
-  Qed.
-
-  Lemma prep_vars x t :
-    vars_t (prep x t) = vars_t t.
-  Proof.
-    induction x; cbn; eauto.
-  Qed.
-
-  Lemma iprep_eval domain eta (I : interp domain eta) rho x s :
+  Lemma iprep_eval domain (I : interp domain) rho x s :
     eval rho (prep x s) = iprep x (eval rho s).
   Proof.
-    induction x; cbn; now do 2 f_equal.
+    induction x; cbn; trivial. now rewrite <- IHx.
   Qed.
 
-  Lemma iprep_app domain eta (I : interp domain eta) x y d :
+  Lemma iprep_app domain (I : interp domain) x y d :
     iprep (x ++ y) d = iprep x (iprep y d).
   Proof.
-    unfold iprep. now rewrite fold_right_app.
+    induction x; cbn; trivial. now rewrite <- IHx.
   Qed.
   
-  Global Instance IB : interp (string bool) (fun _ => []) :=
-    {|
-      i_f b s := b :: s ;
-      i_e := nil;
-      i_P u v := derivable R u v ;
-      i_Q := dPCPb R
-    |}.
+  Global Instance IB : interp (string bool).
+  Proof.
+    split; intros [] v.
+    - exact (b :: Vector.hd v).
+    - exact nil.
+    - exact (derivable R (Vector.hd v) (Vector.hd (Vector.tl v))).
+    - exact (dPCPb R).
+  Defined.
 
   Lemma IB_prep rho s t :
     eval rho (prep s t) = s ++ eval rho t.
@@ -112,13 +121,13 @@ Section validity.
     - apply IB_F3.
   Qed.
 
-  Lemma drv_val domain eta (I : interp domain eta) rho u v :
+  Lemma drv_val domain (I : interp domain) rho u v :
     derivable R u v -> rho ⊨ (F1 ==> F2 ==> Pr (enc u) (enc v)).
   Proof.
     rewrite !impl_sat. intros. induction H.
     - eapply H0. eapply in_map_iff. exists (x/y). eauto.
-    - eapply (H1 (∀ 0; ∀ 1; Pr 0 1 --> Pr (prep x 0) (prep y 1))) in IHderivable.
-      + cbn. unfold enc in *. rewrite !iprep_eval in *. cbn in IHderivable.
+    - eapply (H1 (∀ ∀ Pr $1 $0 --> Pr (prep x $1) (prep y $0))) in IHderivable.
+      + cbn in *. unfold enc in *. rewrite !iprep_eval in *. cbn in *.
         rewrite <- !iprep_app in IHderivable. eapply IHderivable.
       + eapply in_map_iff. exists (x/y). eauto.
   Qed.
@@ -127,8 +136,8 @@ Section validity.
     PCPb R <-> valid F.
   Proof.
     rewrite PCPb_iff_dPCPb. split.
-    - intros [u H] D eta I rho.
-      eapply (@drv_val _ _ I) in H. unfold F. cbn in *.
+    - intros [u H] D I rho.
+      eapply (@drv_val _ I) in H. unfold F. cbn in *.
       rewrite !impl_sat in *. cbn in *.
       intros. eapply (H2 (eval rho (enc u))). eauto.
     - intros H. apply IB_F with (rho := fun _ => nil), H.
@@ -136,45 +145,41 @@ Section validity.
 
   (** ** Provability *)
 
-  Hint Resolve enc_vars : core.
-
   Definition ctx_S :=
     F3 :: rev F2 ++ rev F1.
 
-  Lemma drv_prv s u v :
-    derivable R u v -> (@prv s b ctx_S (Pr (enc u) (enc v))).
+  Lemma prep_subst sigma t x :
+    subst_term sigma (prep x t) = prep x (subst_term sigma t).
+  Proof.
+    induction x; cbn; congruence.
+  Qed.
+
+  Lemma drv_prv (s : peirce) u v :
+    derivable R u v -> ctx_S ⊢ Pr (enc u) (enc v).
   Proof.
     induction 1.
-    - econstructor. right. eapply in_app_iff. right.
+    - apply Ctx. right. eapply in_app_iff. right.
       rewrite <- in_rev. eapply in_map_iff. exists (x/y). eauto.
-    - assert (@prv s b ctx_S (∀ 0; ∀ 1; Pr 0 1 --> Pr (prep x 0) (prep y 1))).
-      + econstructor. right. eapply in_app_iff. left.
+    - assert (ctx_S ⊢ ∀ ∀ Pr $1 $0 --> Pr (prep x $1) (prep y $0)).
+      + apply Ctx. right. eapply in_app_iff. left.
         rewrite <- in_rev. eapply in_map_iff. exists (x/y). eauto.
       + eapply AllE with (t := enc u) in H1; eauto.
         cbn in H1. rewrite !prep_subst in H1. cbn in H1.
         eapply AllE with (t := enc v) in H1; eauto. cbn in H1.
         unfold enc in H1. rewrite !prep_subst in H1. cbn in H1.
-        unfold enc, prep in *. rewrite !fold_right_app.
-        eapply (ImpE H1). eassumption.
+        unfold enc. rewrite !prep_app.
+        eapply (IE H1). eassumption.
   Qed.
 
-  Lemma impl_prv s A B phi :
-    @prv s b (rev B ++ A) phi -> @ prv s b A (B ==> phi).
-  Proof.
-    revert A; induction B; intros A; cbn; simpl_list; intros.
-    - firstorder.
-    - eapply ImpI. now eapply IHB.
-  Qed.
-
-  Lemma BPCP_prv' s :
-    dPCPb R -> @prv s b nil F.
+  Lemma BPCP_prv' (s : peirce) :
+    dPCPb R -> [] ⊢ F.
   Proof.
     intros [u H].
     apply drv_prv with (s:=s) in H. unfold F.
-    repeat eapply impl_prv. simpl_list. eapply ImpI.
-    assert (@prv s b ctx_S (∀ 0; Pr 0 0 --> Q)).
-    econstructor. now unfold ctx_S. eapply AllE with  (t := enc u) in H0.
-    cbn in H0. now eapply (ImpE H0). apply prep_vars.
+    repeat eapply impl_prv. simpl_list. eapply II.
+    assert (ctx_S ⊢ (∀ Pr $0 $0 --> Q)).
+    apply Ctx. now unfold ctx_S. eapply AllE with  (t := enc u) in H0.
+    cbn in H0. now eapply (IE H0).
   Qed.
 
 End validity.
@@ -184,7 +189,7 @@ Theorem BPCP_prv R :
 Proof.
   rewrite PCPb_iff_dPCPb. split.
   - apply BPCP_prv'.
-  - intros H % soundness. eapply PCPb_iff_dPCPb. now apply (BPCP_valid R).
+  - intros H % soundness'. eapply PCPb_iff_dPCPb. now apply (@BPCP_valid falsity_off R).
 Qed.
 
 (** ** Satisfiability *)
@@ -192,17 +197,17 @@ Qed.
 Lemma valid_satis phi :
   valid phi -> ~ satis (¬ phi).
 Proof.
-  intros H1 (D & eta & I & rho & H2).
-  apply H2, (H1 D eta I rho).
+  intros H1 (D & I & rho & H2).
+  apply H2, (H1 D I rho).
 Qed.
 
 Theorem BPCP_satis R :
   ~ PCPb R <-> satis (¬ F R).
 Proof.
   rewrite PCPb_iff_dPCPb. split.
-  - intros H. exists (list bool), (fun _ => nil), (IB R), (fun _ => nil).
+  - intros H. exists (list bool), (IB R), (fun _ => nil).
     intros H'. cbn. apply H, (IB_F H').
-  - rewrite <- PCPb_iff_dPCPb. intros H1 H2 % (BPCP_valid R (b:=full)).
+  - rewrite <- PCPb_iff_dPCPb. intros H1 H2 % (BPCP_valid R (ff:=falsity_on)).
     apply (valid_satis H2), H1.
 Qed.
 
@@ -228,11 +233,10 @@ Qed.
 
 (** ** Corollaries *)
 
-Lemma form_discrete {b : logic} :
-  discrete (form b).
+Lemma form_discrete {ff : falsity_flag} :
+  discrete (form ff).
 Proof.
-  apply discrete_iff. constructor. apply eq_dec_form.
-Qed.
+Admitted.
 
 Hint Resolve stack_enum form_discrete : core.
 
@@ -240,38 +244,38 @@ Definition UA :=
   ~ enumerable (compl PCPb).
 
 Corollary valid_undec :
-  UA -> ~ decidable (@valid frag).
+  UA -> ~ decidable (@valid _ _ falsity_off).
 Proof.
   intros H. now apply (not_decidable valid_red).
 Qed.
 
 Corollary valid_unenum :
-  UA -> ~ enumerable (compl (@valid frag)).
+  UA -> ~ enumerable (compl (@valid _ _ falsity_off)).
 Proof.
   intros H. now apply (not_coenumerable valid_red).
 Qed.
 
 Corollary prv_undec :
-  UA -> ~ decidable (@prv intu frag nil).
+  UA -> ~ decidable (@prv _ _ falsity_off intu nil).
 Proof.
   intros H. now apply (not_decidable prv_red).
 Qed.
 
 Corollary prv_unenum :
-  UA -> ~ enumerable (compl (@prv intu frag nil)).
+  UA -> ~ enumerable (compl (@prv _ _ falsity_off intu nil)).
 Proof.
   intros H. apply (not_coenumerable prv_red); trivial.
 Qed.
 
 Corollary satis_undec :
-  UA -> ~ decidable (@satis full).
+  UA -> ~ decidable (@satis _ _ falsity_on).
 Proof.
   intros H1 H2 % (dec_red satis_red).
   now apply H1, dec_count_enum.
 Qed.
 
 Corollary satis_enum :
-  UA -> ~ enumerable (@satis full).
+  UA -> ~ enumerable (@satis _ _ falsity_on).
 Proof.
   intros H1 H2 % (enumerable_red satis_red); auto.
 Qed.
@@ -288,27 +292,29 @@ Qed.
 Module NonStan. Section Nonstan.
 
   Variable R : BSRS.
+  Context {ff : falsity_flag}.
 
-  Instance IB : interp (option (string bool)) (fun _ => Some nil) :=
-    {|
-      i_f b x := match x with Some u => Some (b :: u) | None => None end ;
-      i_e := Some nil;
-      i_P x y := match x, y with Some u, Some v => derivable R u v | _, _ => True end ;
-      i_Q := False
-    |}.
+  Instance IB : interp (option (string bool)).
+  Proof.
+    split; intros [] v.
+    - exact (match Vector.hd v with Some u => Some (b :: u) | None => None end).
+    - exact (Some nil).
+    - exact (match Vector.hd v, Vector.hd (Vector.tl v) with Some u, Some v => derivable R u v | _, _ => True end).
+    - exact False.
+  Defined.
 
   Lemma IB_eval_Some rho t u v :
     eval rho t = Some v -> eval rho (prep u t) = Some (u ++ v).
   Proof.
     intros H. induction u; cbn; trivial.
-    unfold prep in IHu. now rewrite IHu.
+    unfold prep in IHu. fold prep in IHu. now rewrite IHu.
   Qed.
 
   Lemma IB_eval_None rho t u :
     eval rho t = None -> eval rho (prep u t) = None.
   Proof.
     intros H. induction u; cbn; trivial.
-    unfold prep in IHu. now rewrite IHu.
+    unfold prep in IHu. fold prep in IHu. now rewrite IHu.
   Qed.
 
   Lemma IB_enc rho u :
@@ -357,7 +363,7 @@ Module NonStan. Section Nonstan.
   Qed.
 
   Lemma IB_nonstandard rho :
-    rho ⊨ ¬ ∀ 0; ¬ Pr 0 0.
+    rho ⊨ ¬ ∀ ¬ Pr $0 $0.
   Proof.
     intros H. apply (H None). cbn. auto.
   Qed.

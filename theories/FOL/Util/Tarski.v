@@ -9,23 +9,24 @@ Local Unset Strict Implicit.
 
 (*** Fragment Syntax ***)
 
-Inductive full_logic_binop : Type :=
+Inductive frag_logic_binop : Type :=
 (*| Conj : full_logic_binop
 | Disj : full_logic_binop*)
-| Impl : full_logic_binop.
+| Impl : frag_logic_binop.
 
-Inductive full_logic_quant : Type :=
-| All : full_logic_quant
+Inductive frag_logic_quant : Type :=
+| All : frag_logic_quant
 (*| Ex : full_logic_quant*).
 
-Instance full_operators : operators :=
-{| binop := full_logic_binop ; quantop := full_logic_quant |}.
+Instance frag_operators : operators :=
+{| binop := frag_logic_binop ; quantop := frag_logic_quant |}.
 
-Notation "∀ Phi" := (quant All Phi) (at level 50).
+Notation "∀ Phi" := (@quant _ _ frag_operators _ All Phi) (at level 50).
 (*Notation "∃ Phi" := (quant Ex Phi) (at level 50).
 Notation "A ∧ B" := (bin Conj A B) (at level 41).
 Notation "A ∨ B" := (bin Disj A B) (at level 42).*)
-Notation "A '-->' B" := (bin Impl A B) (at level 43, right associativity).
+Notation "phi '-->' psi" := (@bin _ _ frag_operators _ Impl phi psi) (at level 43, right associativity).
+Notation "¬ phi" := (phi --> falsity) (at level 42).
 
 Section fixb.
 
@@ -40,6 +41,8 @@ Section fixb.
     end.
 
 End fixb.
+
+Notation "A ==> phi" := (impl A phi) (right associativity, at level 55).
 
 
 
@@ -58,8 +61,8 @@ Section Tarski.
 
     Class interp := B_I
       {
-        i_f : forall f : syms, vec domain (ar_syms f) -> domain ;
-        i_P : forall P : preds, vec domain (ar_preds P) -> Prop ;
+        i_func : forall f : syms, vec domain (ar_syms f) -> domain ;
+        i_atom : forall P : preds, vec domain (ar_preds P) -> Prop ;
       }.
 
     Definition env := nat -> domain.
@@ -69,12 +72,12 @@ Section Tarski.
     Fixpoint eval (rho : env) (t : term) : domain :=
       match t with
       | var s => rho s
-      | func f v => i_f (Vector.map (eval rho) v)
+      | func f v => i_func (Vector.map (eval rho) v)
       end.
 
     Fixpoint sat {ff : falsity_flag} (rho : env) (phi : form) : Prop :=
       match phi with
-      | atom P v => i_P (Vector.map (eval rho) v)
+      | atom P v => i_atom (Vector.map (eval rho) v)
       | falsity => False
       | bin Impl phi psi => sat rho phi -> sat rho psi
       (*| bin Conj phi psi => sat rho phi /\ sat rho psi
@@ -153,6 +156,17 @@ Section Tarski.
       rewrite sat_comp. apply sat_ext. now intros [].
     Qed.
 
+    Lemma impl_sat {ff : falsity_flag} A rho phi :
+      sat rho (A ==> phi) <-> ((forall psi, psi el A -> sat rho psi) -> sat rho phi).
+    Proof.
+      induction A; cbn; firstorder congruence.
+    Qed.
+
+    Lemma impl_sat' {ff : falsity_flag} A rho phi :
+      sat rho (A ==> phi) -> ((forall psi, psi el A -> sat rho psi) -> sat rho phi).
+    Proof.
+      eapply impl_sat.
+    Qed.
     
   End Substs.
 
@@ -162,6 +176,7 @@ Arguments sat {_ _ _ _ _} _ _, {_ _ _} _ {_} _ _.
 Arguments interp {_ _} _, _ _ _.
 
 Notation "p ⊨ phi" := (sat _ p phi) (at level 20).
+Notation "p ⊫ A" := (forall psi, psi el A -> sat _ p psi) (at level 20).
 
 Section Defs.
 
@@ -171,9 +186,9 @@ Section Defs.
 
   Definition valid_ctx A phi := forall D (I : interp D) rho, (forall psi, psi el A -> rho ⊨ psi) -> rho ⊨ phi.
   Definition valid phi := forall D (I : interp D) rho, rho ⊨ phi.
-  (*Definition valid_L A := forall D (I : interp D) rho, rho ⊫ A.*)
+  Definition valid_L A := forall D (I : interp D) rho, rho ⊫ A.
   Definition satis phi := exists D (I : interp D) rho, rho ⊨ phi.
-  (*Definition fullsatis A := exists D (I : interp D) rho, rho ⊫ A.*)
+  Definition fullsatis A := exists D (I : interp D) rho, rho ⊫ A.
 
 End Defs.
 
@@ -186,7 +201,7 @@ Section TM.
   Context {Σ_preds : preds_signature}.
 
   Instance TM : interp unit :=
-    {| i_f := fun _ _ => tt; i_P := fun _ _ => True; |}.
+    {| i_func := fun _ _ => tt; i_atom := fun _ _ => True; |}.
 
   Fact TM_sat (rho : nat -> unit) (phi : form falsity_off) :
     rho ⊨ phi.

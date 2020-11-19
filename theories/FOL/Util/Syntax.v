@@ -161,7 +161,7 @@ Definition shift {Sigma : funcs_signature} : nat -> term :=
 
 Declare Scope subst_scope.
 
-Notation "$ x" := (var x) (at level 30, format "$ '/' x").
+Notation "$ x" := (var x) (at level 5, format "$ '/' x").
 Notation "↑" := (shift) : subst_scope.
 Notation "s [ sigma ]" := (substfun sigma s) (at level 7, left associativity, format "s '/' [ sigma ]") : subst_scope.
 Notation "s .: sigma" := (scons s sigma) (at level 70) : subst_scope.

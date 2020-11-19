@@ -50,6 +50,14 @@ Section ND_def.
   Context {ff : falsity_flag}.
   Context {p : peirce}.
 
+  Lemma impl_prv A B phi :
+    (rev B ++ A) ⊢ phi -> A ⊢ (B ==> phi).
+  Proof.
+    revert A; induction B; intros A; cbn; simpl_list; intros.
+    - firstorder.
+    - eapply II. now eapply IHB.
+  Qed.
+
   Theorem Weak A B phi :
     A ⊢ phi -> A <<= B -> B ⊢ phi.
   Proof.
@@ -66,6 +74,7 @@ Arguments prv {_ _ _ _} _ _.
 Notation "A ⊢ phi" := (prv A phi) (at level 30).
 Notation "A ⊢C phi" := (@prv _ _ _ class A phi) (at level 30).
 Notation "A ⊢I phi" := (@prv _ _ _ intu A phi) (at level 30).
+Notation "A ⊢M phi" := (@prv _ _ falsity_off intu A phi) (at level 30).
 
 Section Soundness.
 
