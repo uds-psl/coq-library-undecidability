@@ -1,92 +1,94 @@
 (** * Classical Natural Deduction *)
 
-From Undecidability.FOL Require Export PCPb_to_FOL FOL.
+From Undecidability.FOL Require Export PCPb_to_FOL.
 Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
 (** ** Double Negation Translation *)
 
-Implicit Type b : logic.
+Implicit Type b : falsity_flag.
 
-Definition cprv := @prv class full.
+Definition cprv := @prv _ _ falsity_on class.
 
-Instance iUnit P : interp unit (fun _ => tt) :=
-  {| i_f _ _ := tt ; i_e := tt ; i_P _ _ := True ; i_Q := P  |}.
+Instance iUnit (P : Prop) : interp unit.
+Proof.
+  split; intros [] v.
+  - exact tt.
+  - exact tt.
+  - exact True.
+  - exact P.
+Defined.
 
 Hint Constructors prv : core.
 
-Fixpoint cast {b} (phi : form b) : form full :=
+Fixpoint cast {b} (phi : form b) : form falsity_on :=
   match phi with
-  | Pr s t => Pr s t
-  | Q => Q
-  | Fal => Fal
-  | Impl phi psi => Impl (cast phi) (cast psi)
-  | All x phi => All x (cast phi)
+  | atom P v => atom P v
+  | falsity => falsity
+  | bin Impl phi psi => bin (b := falsity_on) Impl (cast phi) (cast psi)
+  | quant All phi => quant (b := falsity_on) All (cast phi)
   end.
 
-Lemma subst_cast {b} x t phi :
-  cast (subst x t phi) = subst x t (cast phi).
+Lemma subst_cast {b} sigma phi :
+  cast (subst_form sigma phi) = subst_form sigma (cast phi).
 Proof.
-  induction phi; cbn in *; try destruct Dec; congruence.
-Qed.
-
-Lemma consts_casts {b} phi :
-  consts (cast phi) = consts phi.
-Proof.
-  induction phi; cbn in *; congruence.
+  induction phi in sigma |- *; cbn in *; trivial.
+  - destruct b0. cbn. congruence.
+  - destruct q. cbn. congruence.
 Qed.
   
-Lemma MND_CND A (phi : form frag) :
+Lemma MND_CND A (phi : form falsity_off) :
   A ⊢M phi -> map cast A ⊢C cast phi.
 Proof.
-  unfold prv_min. revert A phi. remember frag as b. intros.
+  revert A phi. remember falsity_off as b. intros.
   induction H; cbn in *; subst; try congruence.
+  - eapply II; eauto.
+  - eapply IE; try now apply IHprv1. now apply IHprv2.
+  - eapply AllI. rewrite map_map. rewrite map_map in IHprv.
+    erewrite map_ext; try now apply IHprv. intros psi. cbn. now rewrite subst_cast.
+  - setoid_rewrite subst_cast. eapply AllE; eauto.
   - eapply Ctx, in_map_iff; eauto.
-  - eapply ImpI; eauto.
-  - eapply ImpE; eauto.
-  - eapply AllI with (y0 := y).
-    + rewrite consts_casts. intros [] % in_app_iff; eapply H; eauto.
-      eapply in_app_iff. right. unfold consts_l in *.
-      eapply in_flat_map in H1 as (? & (? & <- & ?) % in_map_iff & ?).
-      rewrite consts_casts in H2. eapply in_flat_map. eauto.
-    + rewrite subst_cast in IHprv. eauto.
-  - rewrite subst_cast. eapply AllE; eauto.
+  - apply Pc.
+Qed.
+
+Lemma DN A phi :
+  A ⊢C (¬¬phi) -> A ⊢C phi.
+Proof.
+  intros H. eapply IE with ((phi --> falsity) --> phi); try apply Pc.
+  apply II, Exp. eapply IE. apply (Weak H); auto. now apply Ctx.
 Qed.
                                                     
 Lemma cnd_XM:
-  (forall (phi : form full), cprv [] phi -> valid phi) ->
+  (forall (phi : form falsity_on), cprv nil phi -> valid phi) ->
   forall P, ~~ P -> P.
 Proof.
   intros H P. specialize (H ( (¬¬Q) --> Q)).
-  refine (H _ unit _ (iUnit P) (fun _ => tt)).
-  eapply ImpI. eapply DN. eauto.
+  refine (H _ unit (iUnit P) (fun _ => tt)).
+  eapply II. eapply DN. eauto.
 Qed.
 
 Definition dnQ {b} (phi : form b) : form b := (phi --> Q) --> Q.
 
 Fixpoint trans {b} (phi : form b) : form b :=
   match phi with
-  | Impl phi1 phi2 => Impl (trans phi1) (trans phi2)
-  | All x phi => All x (trans phi)
-  | Pr s t => dnQ (Pr s t)
-  | Q =>  Q  
-  | Fal => Q
+  | bin Impl phi1 phi2 => bin Impl (trans phi1) (trans phi2)
+  | quant All phi => quant All (trans phi)
+  | atom sPr v => dnQ (atom sPr v)
+  | atom _ _ => atom sQ (Vector.nil _)
+  | falsity => @atom _ _ _ falsity_on sQ (Vector.nil _)
   end.
 
-Lemma consts_trans b phi :
-  consts (trans phi) = consts phi.
+Lemma trans_subst b sigma (phi : form b) :
+  trans (subst_form sigma phi) = subst_form sigma (trans phi).
 Proof.
-  induction phi; cbn; try congruence; destruct b; cbn; try now rewrite !app_nil_r.
-Qed.
-
-Lemma trans_subst b x t (phi : form b) :
-  trans (subst x t phi) = subst x t (trans phi).
-Proof.
-  induction phi; cbn; try congruence; decs.
+  induction phi in sigma |- *; cbn; trivial.
+  - now destruct P.
+  - destruct b0. cbn. congruence.
+  - destruct q. cbn. congruence.
 Qed.
 
 Lemma appCtx b psi1 psi2 A :
   In (psi1 --> psi2) A -> A ⊢I psi1 -> A ⊢I psi2.
 Proof.
-  intros. eapply (ImpE (phi1 := psi1) (phi2 := psi2)); eauto using Ctx.
+  intros. eapply (IE (phi := psi1) (psi := psi2)); eauto using Ctx.
 Qed.
 
 Lemma app1 b psi1 psi2 A :
@@ -110,41 +112,30 @@ Qed.
 Lemma trans_trans b (phi : form b) A :
   A ⊢I ((dnQ (trans phi)) --> trans phi).
 Proof.
-  revert A. induction phi using form_ind_subst; cbn; intros.
-  - eapply ImpI. eapply ImpI. eapply app2. eapply ImpI.
+  revert A. induction phi; cbn; intros; try destruct P; try destruct b0; try destruct q.
+  - cbn. eapply II. eapply app1. eapply II. eapply Ctx. eauto.
+  - eapply II. eapply II. eapply app2. eapply II.
     eapply app1. eapply Ctx. eauto.
-  - cbn. eapply ImpI. eapply app1 . eapply ImpI. eapply Ctx. eauto.
-  - eapply ImpI. eapply app1. eapply ImpI. eapply Ctx. eauto.
-  - eapply ImpI. eapply ImpI. eapply ImpE. eapply IHphi2.
-    eapply ImpI. eapply app3. eapply ImpI. eapply app2. eapply app1. eapply Ctx. eauto.
-  - eapply ImpI. destruct (make_fresh (n :: consts phi ++ consts_l A)) as [y Hy].
-    eapply AllI with (y0 := y).
-    + cbn. rewrite consts_trans. rewrite !app_nil_r.
-      intros [ | ] % in_app_iff; eauto.
-    + rewrite <- trans_subst.
-      assert ((dnQ (∀ n; trans phi) :: A) ⊢I ((dnQ (trans (subst n (P y) phi))) --> trans (subst n (P y) phi))) by eapply H.
-      eapply (ImpE H0). eapply ImpI. eapply app2. eapply ImpI.
-      eapply app2. rewrite trans_subst. eapply AllE.
-      * reflexivity.
-      * eapply Ctx. eauto.
-Qed.
+  - eapply II. eapply app1. eapply II. eapply Ctx. eauto.
+  - eapply II. eapply II. eapply IE. eapply IHphi2.
+    eapply II. eapply app3. eapply II. eapply app2. eapply app1. eapply Ctx. eauto.
+  - admit.
+Admitted.
         
 Lemma Double' b A (phi : form b) :
   A ⊢C phi -> map trans A ⊢I trans phi.
 Proof.
   remember class as s; induction 1; cbn in *; subst; try congruence.
+  - eapply II. eauto.
+  - eapply IE; eauto.
+  - apply AllI. rewrite map_map. rewrite map_map in IHprv.
+    erewrite map_ext; try now apply IHprv. intros psi. cbn. now rewrite trans_subst.
+  - setoid_rewrite trans_subst. eapply AllE; eauto.
+  - specialize (IHprv eq_refl). eapply IE. eapply trans_trans.
+    apply II. apply (Weak IHprv). auto.
   - eapply Ctx. now eapply in_map.
-  - eapply ImpI. eauto.
-  - eapply ImpE; eauto.
-  - eapply AllI with (y0 := y).
-    + rewrite consts_trans. unfold consts_l. rewrite flat_map_concat_map.
-      rewrite map_map. erewrite map_ext with (g := consts).
-      now rewrite <- flat_map_concat_map.
-      eapply consts_trans.
-    + rewrite <- trans_subst. eauto.
-  - rewrite trans_subst. eapply AllE; eauto.
-  - specialize (IHprv eq_refl). eapply ImpE. eapply trans_trans. eauto.    
-Qed.
+  - admit.
+Admitted.
 
 Lemma Double b (phi : form b) :
   [] ⊢C phi -> [] ⊢I (trans phi).
@@ -158,7 +149,7 @@ Qed.
 Section BPCP_CND.
   Local Definition BSRS := list (card bool).
   Variable R : BSRS.
-  Context {b : logic}.
+  Context {ff : falsity_flag}.
 
   Lemma BPCP_to_CND :
     PCPb R -> [] ⊢C (F R).
@@ -176,9 +167,9 @@ Section BPCP_CND.
     [] ⊢C (F R) -> PCPb R.
   Proof.
     intros H % Double % soundness.
-    specialize (H _ _ (IB R) (fun _ => nil)).
+    specialize (H _ (IB R) (fun _ => nil)).
     unfold F, F1, F2 in H. rewrite !impl_trans, !map_map, !impl_sat in H. cbn in H.
-    eapply PCPb_iff_dPCPb.  eapply H.
+    eapply PCPb_iff_dPCPb. eapply H; try tauto.
     - intros ? [(x,y) [<- ?] ] % in_map_iff ?. cbn in *. eapply H1.
       left. now rewrite !IB_enc.
     - intros ? [(x,y) [<- ?] ] % in_map_iff ? ? ? ?. cbn in *. eapply H1. intros.
@@ -189,7 +180,7 @@ Section BPCP_CND.
   Lemma BPCP_CND :
     PCPb R <-> [] ⊢C (F R).
   Proof. 
-    split. eapply BPCP_to_CND. intros ? % CND_BPCP.  eauto.
+    split. eapply BPCP_to_CND. intros ? % CND_BPCP. eauto.
   Qed.
 
 End BPCP_CND.

@@ -13,11 +13,11 @@ Notation t_e := (func s_e (Vector.nil _)).
 Notation Pr t t' := (@atom _ sig_pred _ _ sPr (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
 Notation Q := (atom sQ (Vector.nil _)).
 
- Notation i_f b i :=
-    (@i_func _ _ _ _ (s_f b) (Vector.cons _ i _ (Vector.nil _))).
+Notation i_f b i :=
+  (@i_func _ _ _ _ (s_f b) (Vector.cons _ i _ (Vector.nil _))).
 
-  Notation i_Pr i i' :=
-    (@i_atom _ _ _ _ sPr (Vector.cons _ i _ (Vector.cons _ i' _ (Vector.nil _)))).
+Notation i_Pr i i' :=
+  (@i_atom _ _ _ _ sPr (Vector.cons _ i _ (Vector.cons _ i' _ (Vector.nil _)))).
 
 Section validity.
 
