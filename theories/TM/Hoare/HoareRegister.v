@@ -210,6 +210,14 @@ Proof.
   setoid_rewrite Entails_iff. rewrite implList_iff. intros H ? []%tspecE. eapply H. eassumption. now apply tspecI.
 Qed.
 
+Lemma tspec_revertPure (sig: finType) (n : nat) (P0:Prop) P (Ps : SpecV sig n) Q:
+  P0
+  -> Entails (tspec (P0::P,Ps)) Q
+  -> Entails (tspec (P,Ps)) Q.
+Proof.
+  setoid_rewrite Entails_iff. unfold tspec;cbn. intuition.
+Qed.
+
 Lemma Triple_introPure (F sig: finType) (n : nat) P (Ps : SpecV sig n) Q (pM : pTM sig^+ F n) :
   implList P (Triple (≃≃([],Ps)) pM Q)
   -> Triple (tspec (P,Ps)) pM Q.

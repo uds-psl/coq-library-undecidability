@@ -1,4 +1,5 @@
 From Undecidability.L Require Export Util.L_facts.
+
 Require Import Coq.Logic.ConstructiveEpsilon. 
 
 Import L_Notations.
@@ -96,6 +97,12 @@ Proof.
   - destruct n; reflexivity.
   - simpl. rewrite IHseval1, IHseval2. eassumption.
 Qed.
+
+Lemma eva_seval_iff n s t : eva n s = Some t <-> seval n s t.
+Proof.
+  split;eauto using eva_seval,seval_eva.
+Qed.
+
 
 Lemma equiv_eva s t : lambda t -> s == t -> exists n, eva n s = Some t.
 Proof.
@@ -229,3 +236,66 @@ Proof.
   -apply list_cc in e. 2:eauto.
    destruct e as (?&H'&?). unfold eval. apply stepn_spec,pow_star in H'. eauto.
 Qed.
+
+Lemma informative_seval s t: eval s t -> {l | seval l s t}.
+Proof.
+  intros H%eval_seval.
+  eapply cChoice. 2:easy.
+  intro. eapply dec_transfer. now rewrite <- eva_seval_iff.
+  exact _.
+Qed. 
+
+Lemma informative_seval2 s: (exists t, eval s t) -> {t & {l | seval l s t}}.
+Proof.
+  intros (?&?)%informative_eval2. eexists. eapply informative_seval. eauto.
+Qed. 
+
+
+Lemma informative_evalIn s t: eval s t -> {l | s ⇓(l) t}.
+Proof.
+  intros H'. specialize (informative_eval H') as (l&H).
+  destruct H'. firstorder.
+Qed.
+
+Lemma seval_rect (P : nat -> term -> term -> Type)
+  (HR : forall (n : nat) (s : term), P n (lam s) (lam s))
+  (HS : forall (n : nat) (s t u v w : term),
+      seval n s (lam u) ->
+        P n s (lam u) ->
+        seval n t (lam v) ->
+        P n t (lam v) ->
+        seval n (subst u 0 (lam v)) w ->
+        P n (subst u 0 (lam v)) w -> P (S n) (s t) w):
+  forall n s t, seval n s t -> P n s t.
+Proof.
+  intros n. induction n as [n IHn]using lt_wf_rect.
+  intros s t H'.
+  eapply seval_eva in H'. destruct n.
+  { cbn in H'. destruct s;inv H'. easy. }
+  cbn in H'. destruct s. 1,3:now inv H'.
+  destruct eva eqn:H1. 2:easy.
+  destruct t0. 1,2:easy.
+  destruct eva eqn:H2 in H'. 2:easy.
+  specialize (eva_lam H2) as H''.
+  destruct t1. 1,2:now exfalso;inversion H''. clear H''.
+  specialize (eva_lam H') as H''.
+  destruct t. 1,2:now exfalso;inversion H''.
+  eapply HS. all:eauto using eva_seval.
+Qed.
+
+
+Lemma eval_rect (P : term -> term -> Type) (HR : forall s : term, P (lam s) (lam s))
+(HS : forall s u t t' v : term,
+    eval s (lam u) ->
+      P s (lam u) ->
+      eval t t' ->
+      P t t' -> eval (subst u 0 t') v -> P (subst u 0 t') v -> P (s t) v):
+  forall s t : term, eval s t -> P s t.
+Proof.
+  intros ? ? H. 
+  eapply informative_seval in H as (?&H).
+  induction H using seval_rect. easy.
+  eapply HS. all:  eauto.
+Qed. 
+
+

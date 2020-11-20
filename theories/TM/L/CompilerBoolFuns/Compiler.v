@@ -384,7 +384,7 @@ Section main.
     start_TM.
     hstep. {hsteps_cbn;cbn. eapply TripleT_Triple. exact (MK_isVoid_multi_SpecT 9). }
     cbn;cleanupParamTM. intros _.
-    hstep. {eapply LiftTapes_Spec_ex. now smpl_dupfree. cbn. refine (EvalL.Spec' _ _ _). now eapply closed_compiler_helper. }
+    hstep. {eapply LiftTapes_Spec_ex. now smpl_dupfree. cbn. refine (EvalL.Spec _ _ _). now eapply closed_compiler_helper. }
     cbn;cleanupParamTM.
     intros _. eapply Triple_exists_pre. intros s'.
     change (fun x => ?f x) with f.
@@ -408,14 +408,14 @@ Theorem M_main_SpecT v res:
 Proof  using Hscl Hs2 Hs1.
   unfold M_main. intros ?.
   apply Hs1 in H as H%eval_iff. eapply eval_evalIn in H as [? H].
-  edestruct EvalL.SpecT'. 2:eassumption. now eapply closed_compiler_helper.
+  (* edestruct EvalL.SpecT'. 2:eassumption. now eapply closed_compiler_helper. *)
   eexists. 
   hstep. { eapply (projT2 (M_init_SpecT syms_diff _ _ _ _ _)). } 2:reflexivity.
   cbn. intros _.
   start_TM.
   hstep. {hsteps_cbn;cbn. exact (MK_isVoid_multi_SpecT 9). } 2:reflexivity.
   cbn;cleanupParamTM. intros _.
-  hstep. { eapply LiftTapes_SpecT. now smpl_dupfree. cbn. refine H0. } 2:reflexivity.
+  hstep. { eapply LiftTapes_SpecT. now smpl_dupfree. cbn. apply @EvalL.SpecT. }
   cbn;cleanupParamTM.
   intros _.
   hstep. now refine (projT2 (M_out_SpecT _ _ _ _ res)). 
@@ -423,7 +423,8 @@ Proof  using Hscl Hs2 Hs1.
   eapply EntailsI. intros tin [[] Hin]%tspecE.
   eapply tspecI;cbn. easy.
   intros i. specialize (Hin i). destruct_fin i;try exact Logic.I;cbn in *.
-  now simpl_vector. eassumption.
+  now simpl_vector. eassumption. reflexivity.
+  Unshelve. 3:easy. now eapply closed_compiler_helper.
 Qed.
 
 End main.

@@ -62,3 +62,9 @@ Proof.
    repeat eapply conj.
    all:solve [easy|lia].
 Qed.
+
+Definition optionFToSum {X} f (x:X) : X + X :=
+  match f x with
+    None => inr x
+  | Some y => inl y
+  end.  

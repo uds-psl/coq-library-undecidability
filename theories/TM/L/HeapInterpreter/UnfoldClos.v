@@ -58,8 +58,6 @@ Section Fix.
   (** Instance of the [Lookup] and [JumpTarget] machine *)
   Local Definition Lookup := Lookup retr_clos retr_heap.
 
-  Local Notation n := 10 (only parsing).
-
   Local Notation i_H := Fin0 (only parsing).
   Local Notation i_a := Fin1 (only parsing).
   Local Notation i_P := Fin2 (only parsing).
@@ -101,7 +99,7 @@ Section Fix.
 
 
 
-  Definition M__step : pTM (Σ) ^+ (option unit) n :=
+  Definition M__step : pTM (Σ) ^+ (option unit) 10 :=
     If
       (CaseList _ ⇑ retr_pro @ [| i_P;i_aux1|]) 
       (Switch (CaseCom ⇑ retr_com @ [|i_aux1|])
@@ -161,16 +159,88 @@ Section Fix.
   Local Arguments "+"%nat : simpl never.
   Local Arguments "*"%nat : simpl never.
 
-  Lemma SpecT__step' :
-  { f & 
-  forall (H:Heap) a P k (stack' : list (HAdd * list Tok * nat)) res nextState n' finalRes,
+  Local Arguments UpToC.f__UpToC {_ _} _ _.
+
   
+  (* This function is copied from the end of the proof of SpecT__step' and not written by hand*)
+  Definition steps_step H (stack : list (HAdd * list Tok * nat)) :=
+    match stack with 
+      (a,P,k)::stack' =>
+    1 + CaseList_steps P +
+      (if match P with
+          | [] => false
+          | _ :: _ => true
+          end
+      then
+        match P with
+        | [] => 0
+        | t :: P0 =>
+            match t with
+            | varT n =>
+                1 + CaseCom_steps +
+                (1 + CopyValue_steps k +
+                (1 + CopyValue_steps n +
+                  (1 + UpToC.f__UpToC (projT1 Subtract_SpecT) k +
+                  (if k <=? n
+                    then
+                    1 + Reset_steps n +
+                    (1 + CopyValue_steps a +
+                      match lookup H a (n - k) with
+                      | Some h =>
+                          let (_, _) := h in
+                          Lookup_steps H a (n - k) + Cons_constant.time lamT +
+                          Cons_constant.time retT + Constr_S_steps +
+                          Constr_pair_steps a + Reset_steps a +
+                          Translate_steps (1 + k) +
+                          Constr_pair_steps (a, retT :: P0) +
+                          MoveValue_steps h (a, retT :: P0) +
+                          Constr_cons_steps (a, retT :: P0, 1 + k) +
+                          Reset_steps (a, retT :: P0, 1 + k) +
+                          CasePair_steps (fst h) + WriteValue_steps 2 +
+                          Pos.to_nat 11 + 1
+                      | None => 0
+                      end)
+                    else
+                    Constr_varT_steps + Constr_cons_steps t + Reset_steps t +
+                    Reset_steps (n - k) + Pos.to_nat 3))))
+            | _ => 1 + CaseCom_steps + 16
+            end
+        end
+      else
+        1 + Reset_steps P +
+        (1 + Reset_steps a +
+        (1 + Reset_steps k +
+          (1 + CaseList_steps stack' +
+          (if match stack' with
+              | [] => false
+              | _ :: _ => true
+              end
+            then
+            match stack' with
+            | [] => 0
+            | p :: _ =>
+                let (p0, _) := p in
+                let (_, _) := p0 in
+                1 + CasePair_steps (fst p) +
+                (1 + CasePair_steps (fst p0) + (1 + Translate_steps (snd p) + 0))
+            end
+            else
+            match stack' with
+            | [] => 1 + Reset_steps stack' + 0
+            | _ :: _ => 0
+            end)))))
+  | _ => 0
+  end.
+
+  Arguments steps_step : simpl never.
+
+  Lemma SpecT__step (H:Heap) a P k (stack' : list (HAdd * list Tok * nat)) res nextState n' finalRes:
       TripleT
       ≃≃([unfoldTailRecStep H (((a,P),k)::stack',res)%list = inl nextState;
           loopSum n' (unfoldTailRecStep H) (((a,P),k)::stack',res) = Some (Some finalRes)],
       [|Contains retr_heap H;Contains retr_nat_clos_ad a;Contains retr_pro P;Contains retr_nat_clos_var k; Contains retr_stack stack';
               Contains retr_pro res;Void;Void;Void;Void|])
-      (f H a P k stack' res nextState n') M__step
+      (steps_step H (((a,P),k)::stack') ) M__step
       (fun r => ≃≃([
       loopSum (pred n') (unfoldTailRecStep H) nextState = Some (Some finalRes);
       match r with Some tt => nextState = ([],finalRes) | _ => fst nextState <> [] end;n' <> 0]
@@ -180,14 +250,11 @@ Section Fix.
             | []%list => Vector.const Void 4
             | ((a2,P2),k2)::stack2' => [|Contains retr_nat_clos_ad a2;Contains retr_pro P2;Contains retr_nat_clos_var k2;Contains retr_stack stack2'|]
             end%list
-                ++[|Contains retr_pro res2;Void;Void;Void;Void|]))}.
+                ++[|Contains retr_pro res2;Void;Void;Void;Void|])).
   Proof.
-    evar (X:Type).
-    evar (f:X). subst X.
-    exists f. [f]:intros H a P k res nextState n' finalRes. 
-    unfold f.
-    intros H a P k stack' res nextState n' finalRes.
-     hintros HnS Hloop. unfold M__step.
+    hintros HnS Hloop. 
+    eapply ConsequenceT with (Q2:=fun y => _). 2,3:reflexivity.
+    unfold M__step.
     hstep.
     { cbn;hsteps_cbn. cbn. tspec_ext. }
     2:{
@@ -239,7 +306,7 @@ Section Fix.
         +cbn. destruct y;cbn in HnS|-*. all:injection HnS as [= <-];cbn.
          all:intro;tspec_ext;easy. 
         +unfold Constr_S_steps,Cons_constant.time.
-         destruct y;cbn. refine (_ : _ <= (fun x => match x with Some _ => 16 | _ => _ end) _);[ |shelve].
+         destruct y;cbn. refine (_ : _ <= (fun x => match x with Some _ => 16 | _ => _ end) _);[|shelve].
          all:unfold CaseNat_steps;lia.
       - destruct Hy as (x&Ht). 
         refine (_ : TripleT _ (match t with varT x => _ | _ => 0 end) _ _).
@@ -262,31 +329,30 @@ Section Fix.
             3:tspec_ext. cbn;intro. all:reflexivity. 
             }
             1-5:cbn;try solve [tspec_ext].
-            11:reflexivity. now tspec_ext. 1-9:reflexivity.
+            now tspec_ext. 1-10:reflexivity.
             refine (_ : _ <= match lookup H a (x-k) with Some (_,_) => _ | _ => 0 end).
-            rewrite Hlook. reflexivity.
+            rewrite Hlook. ring_simplify. reflexivity.
           * destruct lookup eqn:Hlook;hintros [=]. now exfalso.
           * cbn. destruct lookup as [[]|]. 2:exfalso;easy.
-            intros ? ->. reflexivity.
+            intros ? ->. ring_simplify; reflexivity.
         + cbn. hintros Hlt. rewrite <- Hlt in HnS.
           injection HnS as [= <-]. cbn.
-          hsteps_cbn;cbn. 1-2:now tspec_ext. 1-3:reflexivity. now tspec_ext.
+          hsteps_cbn;cbn. 1-2:now tspec_ext. 1-2:reflexivity. ring_simplify;reflexivity. now tspec_ext.
         +cbn. intros ? ->. reflexivity. 
         +reflexivity.
      }
      cbn. intros [c|] Hy.
      2:{destruct Hy as (?&->). reflexivity. }
      rewrite Hy. destruct c;cbn;reflexivity.
-     Grab Existential Variables. all:exact 0. 
+     (* copy this to define steps_step, replacing holes with 0*)
+     unfold steps_step. reflexivity. Unshelve. all:exact 0.
   Qed.
-
-  Definition SpecT__step := projT2 SpecT__step'.
-  Opaque SpecT__step.
   
   Definition M__loop := While M__step.
 
   Local Arguments unfoldTailRecStep : simpl never.
 
+  (*TODO: remove, already copied *)
   Lemma tspec_revertPure (sig: finType) (n : nat) (P0:Prop) P (Ps : SpecV sig n) Q:
   P0
   -> Entails (tspec (P0::P,Ps)) Q
@@ -295,48 +361,33 @@ Section Fix.
     setoid_rewrite Entails_iff. unfold tspec;cbn. easy.
   Qed.
 
+  (* This function is derived from the end of the proof of SpecT__step' and not written by hand*)
+  Fixpoint steps_loop H n x :=
+    match n with
+      0 => 0
+    | S n => 1 + steps_step H (fst x) +
+      match unfoldTailRecStep H x with 
+        inl y=> steps_loop H n y
+      | inr y=> 0
+      end
+    end.
+
   Set Keyed Unification.
 
-  Lemma SpecT__loop' :
-  { f & forall (H:Heap) a P k (stack' : list (HAdd * list Tok * nat)) res n' finalRes,
+  Lemma SpecT__loop (H:Heap) a P k (stack' : list (HAdd * list Tok * nat)) res n' finalRes:
     TripleT
       ≃≃([loopSum n' (unfoldTailRecStep H) (((a,P),k)::stack',res) = Some (Some finalRes)]
           ,[|Contains retr_heap H;Contains retr_nat_clos_ad a;Contains retr_pro P;Contains retr_nat_clos_var k; Contains retr_stack stack';
               Contains retr_pro res;Void;Void;Void;Void|])
-      (f H a P k stack' res n') M__loop
+      (steps_loop H n' ((a,P,k)::stack',res)) M__loop
       (fun r => ≃≃([]
-          ,[|Contains _ H;Void;Void;Void;Void;Contains retr_pro finalRes;Void;Void;Void;Void|]))}.
+          ,[|Contains _ H;Void;Void;Void;Void;Contains retr_pro finalRes;Void;Void;Void;Void|])).
   Proof.
-    evar (X:Type).
-    evar (f:X). subst X.
-    exists f. [f]:intros H a P k stack' res n'. 
-    unfold f.
-    intros H a P k stack' res n' finalRes.
     refine (While_SpecTReg _ _ (a,P,k,stack',res,n')
       (PRE := fun '(a,P,k,stack',res,n') => (_,_)) (POST := fun '(a,P,k,stack',res,n') y => (_,_))
-      (INV := fun '(a,P,k,stack',res,n') y  => (*
-          match unfoldTailRecStep H (((a,P),k)::stack',res)%list with 
-            inl nextState => ([y = match unfoldTailRecStep with [] => Some tt | _ => None end;
-                               loopSum n' (unfoldTailRecStep H) (((a,P),k)::stack',res) = Some (Some finalRes)],_)
-          | inr _ => ([ ],_)
-          end*) _ )
+      (INV := fun '(a,P,k,stack',res,n') y  => _ )
     (f__step := fun '(a,P,k,stack',res,n') => _)
-    (f__loop := fun '(a,P,k,stack',res,n') =>
-      ((fix f_loop (n' : nat) st {struct n'} :=
-      match n' with
-      0 => 0
-      | S n' =>
-      match st with
-      | ((a,P,k)::stack',res) => 
-      1 + projT1 SpecT__step'
-        H a P k stack' res
-          match unfoldTailRecStep H st with
-          | inl x' => x'
-          | inr _ => ([], [])
-          end (S n') 
-      | _ => 0
-      end
-      + match unfoldTailRecStep H st with inl st' => f_loop n' st' | _ => 0 end end) n' ((a,P,k)::stack',res))));
+    (f__loop := fun  '(a,P,k,stack',res,n') => _ ));
     clear a P k stack' res n';intros [[[[[a P] k]stack']res]n'].
     { hsteps_cbn.
       - hintros Hloop. 
@@ -367,44 +418,37 @@ Section Fix.
      eexists (a',P',k',stack'',res'',(pred n')). split.
       -rewrite H'. 
       rewrite Hloop'.  tspec_ext.
-      - split. 2:easy. destruct n';cbn. exfalso;easy. set (c1 := projT1 _ _ _ _ _ _ _ _). rewrite H' at 1. reflexivity.
+      - split. 2:easy. destruct n';cbn. exfalso;easy. rewrite H' at 1. reflexivity.
       -easy.
   Qed.
-
-  Definition SpecT__loop := projT2 SpecT__loop'.
-  Opaque SpecT__step.
 
   Definition M :=
     WriteValue ( []) ⇑ retr_stack @ [|i_stack'|];;
     WriteValue ( []) ⇑ retr_pro @ [|i_res|];;
     M__loop.
 
-    
-  Lemma SpecT' :
-    { f & forall (H:Heap) a k s s',
+  Definition steps H a k s s' := 2 * WriteValue_steps 1 +
+        steps_loop H (L_facts.size s' * 3 + 2) ([(a, compile s, k)], []) + 2.
+
+  Lemma SpecT (H:Heap) a k s s':
     unfolds H a k s s' ->
       TripleT
         ≃≃([]
             ,[|Contains retr_heap H;Contains retr_nat_clos_ad a;Contains retr_pro (compile s);Contains retr_nat_clos_var k; Void;
                 Void;Void;Void;Void;Void|])
-        (f H a k s s') M
+        (steps H a k s s') M
         (fun r => ≃≃([]
-            ,[|Contains _ H;Void;Void;Void;Void;Contains retr_pro (rev (compile s'));Void;Void;Void;Void|]))}.
+            ,[|Contains _ H;Void;Void;Void;Void;Contains retr_pro (rev (compile s'));Void;Void;Void;Void|])).
   Proof.
-    evar (X:Type).
-    evar (f:X). subst X.
-    exists f. [f]:intros H a k s s'. unfold f.
-    unfold M. intros ? ? ? ? ? H'.
+    unfold M. intros H'.
     eapply unfoldTailRecStep_complete in H'. 2:reflexivity.
+    eapply ConsequenceT_pre. 2:reflexivity.
     hsteps_cbn;cbn. 1,2,4,5:reflexivity.
     eapply ConsequenceT_pre. 3:reflexivity.
     -eapply SpecT__loop.
     - rewrite H'. tspec_ext.
+    -unfold steps. nia.
   Qed.
-
-  
-  Definition SpecT := projT2 SpecT'.
-  Opaque SpecT__step.
 
 
 End Fix.
@@ -445,43 +489,50 @@ Section Fix.
     Cons_constant.M lamT ⇑ retr_pro @ [| i_io|].
 
   
-  Lemma SpecT' :
-    { f & forall (H:Heap) g s,
+  Definition steps H '(a',P) t' :=
+    match t' with lam t' =>
+    match decompile 0 P [] with
+      inl [s'] =>
+      1 + Translate_steps (a', compile s') +
+      (1 + CasePair_steps (fst (a', compile s')) +
+       (1 + WriteValue_steps (size 1) +
+        (1 + Private_UnfoldClos.steps H a' 1 s' t' +
+         (1 + Translate_steps (rev (compile t')) +
+          (1 + WriteValue_steps (size [retT]) +
+           (1 + Rev_Append_steps Encode_Com (rev (compile t')) +
+            Cons_constant.time lamT))))))
+      | _ => 0
+    end
+    | _ => 0 end.
+    
+  Lemma SpecT (H:Heap) g s:
       reprC H g s ->
       TripleT
         ≃≃([]
             ,[|Contains retr_clos g;Contains retr_heap H;Void;Void;Void;Void;Void;Void;Void;Void|])
-        (f H g s) M
+        (steps H g s) M
         (fun r => ≃≃([]
-          ,[|Contains retr_pro (compile s);Contains retr_heap H;Void;Void;Void;Void;Void;Void;Void;Void|]))}.
+          ,[|Contains retr_pro (compile s);Contains retr_heap H;Void;Void;Void;Void;Void;Void;Void;Void|])).
   Proof.
-    evar (X:Type).
-    evar (f:X). subst X.
-    exists f.
-    [f]:intros H [a P] s
-        ;refine (match s with lam t' =>
-           match decompile 0 P [] with
-              inl [t'] => _ | _ => 0 end | _ => 0 end). unfold f.
-    intros H g s. hintros (s'&t'&a'&Hg&Hs&Hunf)%reprC_elim_deep.
+    unfold steps.
+    intros (s'&t'&a'&Hg&Hs&Hunf)%reprC_elim_deep.
     remember (compile s) as P.
     subst g s. rewrite decompile_correct. 
-    unfold M. 
+    unfold M.
+    eapply ConsequenceT. 2:reflexivity. 
     do 3 hstep_seq;[].
     hstep_seq;[|].
     {
       hsteps_cbn;cbn. eapply ConsequenceT_pre. 
-      now refine (Private_UnfoldClos.SpecT  _ _ Hunf).
+      now refine (Private_UnfoldClos.SpecT _ _ Hunf).
       now tspec_ext.
       reflexivity.
     }
     cbn.
     do 3 (hstep_seq;[]).
-    hsteps_cbn. now tspec_ext. {tspec_ext. f_equal. rewrite rev_involutive. now subst. }
+    hsteps_cbn. now tspec_ext. {intro;cbn. tspec_ext. f_equal. rewrite rev_involutive. now subst. }
+    reflexivity.
   Qed.
-
-  
-  Definition SpecT := projT2 SpecT'.
-  Opaque SpecT.
 
 (*
   Theorem Realise :

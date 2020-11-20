@@ -82,16 +82,35 @@ Section Fix.
   Arguments "+" : simpl never.
   Arguments "*" : simpl never.
 
-  Lemma SpecT' s k t:
-   closed s -> evalIn k s t ->
-   exists k0,
+  Definition steps (s : term) (k:nat) (t:term) Hcl (HR:evalIn k s t):=
+    1 + Translate_steps (compile s) +
+    (1 + CopyValue_steps (compile s) +
+    (1 + Reset_steps (compile s) +
+      (1 + WriteValue_steps (size 0) +
+      (1 + Constr_pair_steps 0 +
+        (1 + Reset_steps 0 +
+        (1 + WriteValue_steps (size []%list) +
+          (1 + Constr_cons_steps (0, compile s) +
+          (1 + Reset_steps (0, compile s) +
+            (1 + WriteValue_steps (size []%list) +
+            (1 + WriteValue_steps (size []%list) +
+              (1 + Loop_steps [(0, compile s)] [] []%list (3 * k + 1) +
+              (1 + Reset_steps []%list +
+                let (g,tmp) := completenessTimeInformative (proj2 (timeBS_evalIn _ _ _) HR) Hcl in
+                let (H,_):= tmp in
+                (1 + CaseList_steps [g] +
+                (1 + Reset_steps []%list +
+                  (1 + UnfoldClos.steps H g t +
+                  (1 + Reset_steps H + Translate_steps (compile t))))))))))))))))).
+  Arguments steps : clear implicits.
+
+  Lemma SpecT s k t (Hcl: closed s) (HR:evalIn k s t):
     TripleT ≃≃([],[|Contains retr_pro (compile s)|] ++ Vector.const Void _)
-      k0 M
+      (steps s k t Hcl HR) M
       (fun _ => ≃≃([],[|Contains retr_pro (compile t)|] ++ Vector.const Void _)).
   Proof.
-    intros cls HR%timeBS_evalIn.
-    eapply completenessTime in HR as (?&?&?&?). 2:easy.
-    eexists.
+    unfold steps. destruct completenessTimeInformative as (g&H&?&?). clear HR.
+    eapply ConsequenceT_pre. 2:reflexivity.
     unfold M.
     do 11 (hstep_seq;[]). cbn.
     hstep_seq;[| | ] .
@@ -104,10 +123,11 @@ Section Fix.
     { eapply UnfoldClos.SpecT. eassumption. }
     cbn.
     do 2 (hstep_seq;[]). reflexivity.
+    unfold steps. reflexivity.
   Qed.
 
   
-  Lemma Spec' s :
+  Lemma Spec s :
    closed s -> 
     Triple ≃≃([],[|Contains retr_pro (compile s)|] ++ Vector.const Void _)
       M

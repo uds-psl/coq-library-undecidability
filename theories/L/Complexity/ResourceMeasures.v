@@ -1,4 +1,4 @@
-From Undecidability.L Require Import Util.L_facts.
+From Undecidability.L Require Import Util.L_facts Seval.
 Require Import RelationClasses.
 
 (** * Resource Measures *)
@@ -247,6 +247,39 @@ Proof.
    induction k in s |- *.
    +unfold pow;cbn. intros [-> H]. inv H. constructor.
    +intros [(?&?&?) L]. eapply step_timeBS. all:eauto.
+Qed.
+
+Lemma timeBS_rect (P : nat -> term -> term -> Type)
+  (H0 : forall s : term, P 0 (lam s) (lam s))
+  (HR : forall (s s' t t' u : term) (i j k l : nat),
+      timeBS i s (lam s') ->
+        P i s (lam s') ->
+        timeBS j t (lam t') ->
+        P j t (lam t') ->
+        timeBS k (subst s' 0 (lam t')) u ->
+        P k (subst s' 0 (lam t')) u -> l = i + j + 1 + k -> P l (app s t) u):
+  forall k s t, timeBS k s t -> P k s t.
+Proof.
+  intros n. 
+  intros s t H'%timeBS_evalIn.
+  assert (H'':eval s t) by (eapply evalIn_eval_subrelation;eauto).
+  revert n H'.
+  induction H'' using eval_rect.
+  { intros []. easy. now intros H'%timeBS_evalIn;exfalso. }
+  intros n H'.
+  eapply informative_evalIn in H''1 as (?&H1).
+  eapply informative_evalIn in H''2 as (?&H2).
+  eapply informative_evalIn in H''3 as (?&H3).
+  destruct t'. 1,2:(now exfalso;destruct H2 as [? []]).
+  eapply HR. 1-6:try (eapply timeBS_evalIn); eauto.
+  eapply timeBS_evalIn in H'. inv H'.
+  Search evalIn eq. 
+  apply timeBS_evalIn in H5. apply timeBS_evalIn in H6. apply timeBS_evalIn in H8.
+  do 3 lazymatch goal with
+  | H : ?s ⇓(_) _ , H' : ?s ⇓(_) _ |- _ =>
+  eapply evalIn_unique in H;[|exact H'];try destruct H as [-> [= ->]]
+   end.
+   nia.
 Qed.
 
 Lemma hasSpaceVal s : hasSpace (size (lam s)) (lam s).
