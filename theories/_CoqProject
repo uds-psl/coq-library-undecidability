@@ -11,6 +11,7 @@ Shared/FinTypeEquiv.v
 Shared/FinTypeForallExists.v
 
 Synthetic/Definitions.v
+Synthetic/InformativeDefinitions.v
 Synthetic/Undecidability.v
 Synthetic/DecidabilityFacts.v
 Synthetic/SemiDecidabilityFacts.v
@@ -18,6 +19,7 @@ Synthetic/EnumerabilityFacts.v
 Synthetic/ListEnumerabilityFacts.v
 Synthetic/MoreEnumerabilityFacts.v
 Synthetic/ReducibilityFacts.v
+Synthetic/InformativeReducibilityFacts.v
 Synthetic/Infinite.v
 
 Shared/Libs/DLW/Utils/focus.v
@@ -135,10 +137,14 @@ PCP/Reductions/HaltTM_1_to_PCPb.v
 #String rewriting
 StringRewriting/SR.v
 StringRewriting/SR_undec.v
+StringRewriting/PCSnf.v
+StringRewriting/PCSnf_undec.v
 
 StringRewriting/Util/Definitions.v
 StringRewriting/Reductions/SRH_to_SR.v
+StringRewriting/Reductions/SR_to_PCSnf.v
 StringRewriting/Reductions/HaltSBTMu_to_SRH.v
+StringRewriting/Reductions/HaltSBTMu_to_TSR.v
 StringRewriting/Reductions/HaltTM_1_to_SR.v
 
 #Context-free grammars
@@ -558,6 +564,7 @@ FOLP/Util/FullSyntax.v
 FOLP/Util/FullFOL.v
 FOLP/Util/FullTarski.v
 FOLP/FOLFS.v
+FOLP/Reductions/PCPb_to_FOLFS.v
 
 #####
 # Full Trakhtenbrot with single binary rel
@@ -626,9 +633,9 @@ CounterMachines/Util/Nat_facts.v
 CounterMachines/Util/List_facts.v
 CounterMachines/Util/CM1_facts.v
 CounterMachines/Util/MM2_facts.v
-CounterMachines/Reductions/MM2_HALTING_to_CM1c4_HALT.v
+CounterMachines/Reductions/MM2_HALTING_to_CM1_HALT.v
 CounterMachines/Reductions/MM2_HALTING_to_CM2_HALT.v
-CounterMachines/Reductions/HaltTM_1_to_CM1c4_HALT.v
+CounterMachines/Reductions/HaltTM_1_to_CM1_HALT.v
 
 
 #Stack Machines
@@ -648,14 +655,14 @@ StackMachines/Util/Facts.v
 StackMachines/Util/Nat_facts.v
 StackMachines/Util/List_facts.v
 StackMachines/Util/Enumerable.v
-StackMachines/Util/SMX.v
-StackMachines/Util/SMX_facts.v
+StackMachines/Reductions/CM1_HALT_to_SMNdl_UB/SMX.v
+StackMachines/Reductions/CM1_HALT_to_SMNdl_UB/SMX_facts.v
 StackMachines/Util/SMN_facts.v
 StackMachines/Util/CSSM_facts.v
 
-StackMachines/Reductions/CM1_to_SMX.v
-StackMachines/Reductions/CM1c4_HALT_to_SMNdl_UB.v
-StackMachines/Reductions/SMN_transform.v
+StackMachines/Reductions/CM1_HALT_to_SMNdl_UB/CM1_to_SMX.v
+StackMachines/Reductions/CM1_HALT_to_SMNdl_UB.v
+StackMachines/Util/SMN_transform.v
 StackMachines/Reductions/SMNdl_UB_to_CSSM_UB.v
 StackMachines/Reductions/HaltTM_1_to_CSSM_UB.v
 StackMachines/Reductions/iPCPb_to_BSM_HALTING.v
@@ -729,3 +736,6 @@ SystemF/Util/pure_typable_prenex.v
 SystemF/Reductions/H10C_SAT_to_SysF_INH.v
 SystemF/Reductions/LU2SemiU_to_SysF_TYP.v
 SystemF/Reductions/SysF_TYP_to_SysF_TC.v
+SystemF/Reductions/HaltTM_1_to_SysF_TYP.v
+SystemF/Reductions/HaltTM_1_to_SysF_TC.v
+SystemF/Reductions/HaltTM_1_to_SysF_INH.v

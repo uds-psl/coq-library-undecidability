@@ -6,9 +6,10 @@
 *)
 
 (* 
-  Reduction(s):
-    Halting of Minsky machines with two counters (MM2_HALTING) to
-    Halting of one counter machines with denominators at most 4 (CM1c4_HALT)
+  Reduction from:
+    Halting of Minsky machines with two counters (MM2_HALTING)
+  to:
+    Halting of one counter machines with denominators at most 4 (CM1_HALT)
 *)
 
 Require Import List.
@@ -61,9 +62,9 @@ Section MM2_CM1.
     encode_init ++ flat_map (fun '(a, i) => encode_instruction a i) (combine P (seq 1 (length P))).
 
   (* M has denominators of at most 4 *)
-  Lemma M_capped : CM1.capped M 4.
+  Lemma M_capped : Forall (fun '(_, n) => n < 4) M.
   Proof.
-    rewrite /M /CM1.capped ?Forall_norm flat_map_concat_map Forall_concatP ?Forall_mapP ?Forall_forall.
+    rewrite /M ?Forall_norm flat_map_concat_map Forall_concatP ?Forall_mapP ?Forall_forall.
     constructor; first by (constructor; lia).
     move=> [+ i] _. move=> [||?|?] /=; rewrite ?Forall_norm; by lia.
   Qed.
@@ -354,10 +355,10 @@ Require Import Undecidability.Synthetic.Definitions.
 
 (* halting of Minsky machines with two counters 
   many-one reduces to halting of one counter machines with denominators at most 4 *)
-Theorem reduction : MM2_HALTING ⪯ CM1.CM1c4_HALT.
+Theorem reduction : MM2_HALTING ⪯ CM1.CM1_HALT.
 Proof.
   exists (fun '(P, a0, b0) => exist _ (Argument.M P a0 b0) (Argument.M_capped P a0 b0)).
-  move=> [[P a0] b0]. rewrite /CM1.CM1c4_HALT /CM1.CM1_HALT /=. constructor.
+  move=> [[P a0] b0]. rewrite /CM1.CM1_HALT /=. constructor.
   - move=> [i [/Argument.P_to_M Hi]] /Argument.P_stop_to_M_halting => /(_ a0 b0).
     case: (Hi a0 b0 {| CM1.state := a0 + b0 + b0; CM1.value := Argument.κ a0 b0 0 |});
       first by apply: Argument.encodes_configP.

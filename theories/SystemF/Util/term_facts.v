@@ -68,6 +68,16 @@ Proof.
       by eauto using normal_form, head_form.
 Qed.
 
+(** type annotation erasure *)
+Fixpoint erase (P: term) : pure_term :=
+  match P with
+  | var x => pure_var x
+  | app P Q => pure_app (erase P) (erase Q)
+  | abs _ P => pure_abs (erase P)
+  | ty_app P _ => erase P
+  | ty_abs P => erase P
+  end.
+  
 Fact erase_subst_term_var {P σ} : erase (subst_term σ var P) = erase P.
 Proof. 
   elim: P σ; move=> /= *; rewrite ?subst_term_up_term_term_var ?subst_term_up_poly_type_term_var; by congruence.

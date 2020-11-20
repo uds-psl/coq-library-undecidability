@@ -17,6 +17,8 @@ Proof.
   intros H [f Hf] [d Hd]. eapply H. exists (fun x => d (f x)). intros x. rewrite Hf. eapply Hd.
 Qed.
 
+Module UndecidabilityNotations.
+
 Tactic Notation "undec" "from" constr(H) :=
   apply (undecidability_from_reducibility H).
 
@@ -26,3 +28,4 @@ Tactic Notation "reduce" "with" "chain" constr(H) :=
 Tactic Notation "undec" "from" constr(U) "using" "chain" constr(C) :=
   undec from U; reduce with chain C.
 
+End UndecidabilityNotations.

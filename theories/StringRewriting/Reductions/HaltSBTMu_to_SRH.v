@@ -18,11 +18,11 @@ Section FixM.
 
     Variable M : SBTM.
 
-    Notation X := 0.
-    Notation "⦇" := 1.
-    Notation "⦈" := 2.
-    Notation tt := 3.
-    Notation ff := 4.
+    Notation X := 1.
+    Notation "⦇" := 2.
+    Notation "⦈" := 3.
+    Notation tt := 4.
+    Notation ff := 5.
     Notation "!! b" := (if b then tt else ff) (at level 1).
     Definition enc_state (q : Fin.t (S (num_states M))) := ((S ff) + proj1_sig (Fin.to_nat q)).
     Notation "! p" := (enc_state p) (at level 1).
@@ -126,13 +126,36 @@ Section FixM.
         all: eapply do_rew; [ (now left + (right; now left) + (right; right; now left) + (right; right; right; now left))  | help1 | help2].
     Qed.
 
+    Lemma enc_conf_inv' xs q ys ls o rs q' :
+      xs ++ !q ++ ys = enc_conf (ls, o, rs) q' ->
+      xs = [⦇] ++ map (fun b : bool => !!b) (rev ls) /\
+      q = q' /\
+      ys = encode_sym o :: map (fun b : bool => !!b) rs ++ [⦈].
+    Proof.
+      intros. pose proof (H' := H). cbn - [Nat.add] in H.
+      destruct xs; cbn -[Nat.add] in H; inversion H; subst n; clear H.
+
+      eapply list_prefix_inv' in H2 as (H1 & -> & H3).
+      - subst. repeat split. eapply Fin.to_nat_inj. unfold "!" in H1. lia.
+      - clear H'. induction xs in ls, H2 |- *.
+        + firstorder.
+        + cbn -[Nat.add]. destruct ls as [ | ? ? _] using rev_ind.
+          * cbn -[Nat.add] in H2. inversion H2. subst. destruct xs; inversion H1; subst.
+            destruct o as [ [] | ]; cbn in H0; lia.
+            assert (In (!q) (map (fun b : bool => !! b) rs ++ [⦈])). rewrite <- H3. rewrite in_app_iff. cbn[In]. solve [eauto].
+            eapply in_app_iff in H as [ (? & ? & ?) % in_map_iff | [ | []]]; try destruct x; cbn in H; lia.
+          * rewrite rev_app_distr in H2. cbn -[Nat.add] in H2. inversion H2; subst.
+            intros [ | ].
+            -- destruct x; cbn in *; lia.
+            -- eapply IHxs. 2:eauto. rewrite H1. reflexivity.
+      - intros (? & ? & ?) % in_map_iff. destruct x; cbn in *; lia.
+    Qed.
+
     Lemma enc_state_inv q t q' :
       In (enc_state q) (enc_conf t q') -> q = q'.
     Proof.
       destruct t as [[ls o] rs].
-      unfold enc_conf.
-      rewrite !in_app_iff, !in_map_iff; repeat setoid_rewrite <- in_rev. cbn. firstorder try lia.
-      all: try (destruct x; lia). eapply Fin.to_nat_inj. lia. destruct o as [[]|]; cbn in *; lia.
+      now intros (xs & ys & (-> & -> & ->) % eq_sym % enc_conf_inv') % in_split.
     Qed.
 
     Lemma enc_conf_inv xs q c ys ls o rs q' :
@@ -142,23 +165,7 @@ Section FixM.
       c = encode_sym o /\
       ys = map (fun b : bool => !!b) rs ++ [⦈].
     Proof.
-      intros. pose proof (H' := H). cbn - [Nat.add] in H.
-      destruct xs; cbn -[Nat.add] in H; inversion H; subst n; clear H.
-
-      eapply list_prefix_inv' in H2 as (H1 & -> & H3).
-      - inversion H3; subst; clear H3; repeat split. eapply Fin.to_nat_inj. unfold "!" in H1. lia.
-      - clear H'. induction xs in ls, H2 |- *.
-        + firstorder.
-        + cbn -[Nat.add]. destruct ls as [ | ? ? _] using rev_ind.
-          * cbn -[Nat.add] in H2. inversion H2. subst. destruct xs; inversion H1; subst.
-            destruct o as [ [] | ]; cbn in H0; lia.
-            assert (In (!q) (map (fun b : bool => !! b) rs ++ [2])). rewrite <- H3. rewrite in_app_iff. cbn[In]. solve [eauto].
-            eapply in_app_iff in H as [ (? & ? & ?) % in_map_iff | [ | []]]; try destruct x; cbn in H; lia.
-          * rewrite rev_app_distr in H2. cbn -[Nat.add] in H2. inversion H2; subst.
-            intros [ | ].
-            -- destruct x; cbn in *; lia.
-            -- eapply IHxs. 2:eauto. rewrite H1. reflexivity.
-      - intros (? & ? & ?) % in_map_iff. destruct x; cbn in *; lia.
+      intros. eapply enc_conf_inv' in H as (-> & -> & [= -> ->]). eauto.
     Qed.
 
     Lemma rev_sim t q z : 

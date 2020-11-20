@@ -9,8 +9,8 @@ Proof.
   rewrite H. firstorder. econstructor.
 Qed.
 
-Lemma decidable_compl_semi_decidable {X} {p : X -> Prop} :
-  decidable p -> semi_decidable (compl p).
+Lemma decidable_complement_semi_decidable {X} {p : X -> Prop} :
+  decidable p -> semi_decidable (complement p).
 Proof.
   intros H.
   now eapply decidable_semi_decidable, dec_compl.

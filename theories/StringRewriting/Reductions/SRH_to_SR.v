@@ -7,6 +7,8 @@ Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Shared.ListAutomation.
 Import ListAutomationNotations.
 
+Import RuleNotation.
+
 (** * SRH to SR *)
 
 Section SRH_SR.

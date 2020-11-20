@@ -5,7 +5,10 @@ Require Import Undecidability.PCP.PCP.
 (** A string is a list of symbols. *)
 Definition string X := list X.
 
+Module RuleNotation.
 Notation "x / y" := (x, y).
+End RuleNotation.
+Import RuleNotation.
 
 (** A string rewriting system SRS is a list of rules x / y 
   such that x rewrites to y. *)
@@ -30,3 +33,17 @@ Definition SR : SRS nat * string nat * string nat -> Prop :=
   determine whether x rewrites in R to some y that contains a. *)
 Definition SRH : SRS nat * string nat * nat -> Prop :=
   fun '(R, x, a) => exists y, rewt R x y /\ In a y.
+
+Definition swap {X Y} : X * Y -> Y * X := fun '(x,y) => (y,x).
+
+(** Thue system reachability TSR is
+  given a string rewriting system R and two strings x and y,
+  determine whether x is equivalent to y in R. *)
+Definition TSR : SRS nat * string nat * string nat -> Prop :=
+    fun '(R, x, y) => rewt (R ++ map swap R) x y.
+  
+(** Thue system reachability with a halting symbol TSRH is
+  given a string rewriting system R, a string x and a symbol a,
+  determine whether x is equivalent in R to somy y that contains a. *)
+  Definition TSRH : SRS nat * string nat * nat -> Prop :=
+    fun '(R, x, a) => exists y, rewt (R ++ map swap R) x y /\ In a y.  

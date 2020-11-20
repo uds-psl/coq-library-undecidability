@@ -22,7 +22,7 @@ Require Undecidability.StackMachines.SSM.
 
 From Undecidability.StackMachines.Util Require Import Nat_facts List_facts Enumerable SMN_facts.
 
-Require Import Undecidability.StackMachines.Reductions.SMN_transform.
+Require Import Undecidability.StackMachines.Util.SMN_transform.
 
 Require Import Lia PeanoNat.
 Require Import ssreflect ssrbool ssrfun.
@@ -114,7 +114,7 @@ End Argument.
 Require Import Undecidability.Synthetic.Definitions.
 
 (* compute from a deterministic, length-preserving SMN a confluent simple stack machine *)
-Local Definition SMNdl_to_cssm : SMNdl -> SSM.cssm.
+Local Definition SMNdl_to_cssm : { M : SMN | deterministic M /\ length_preserving M } -> SSM.cssm.
 Proof.
   move=> [M [/deterministic_confluent H1M H2M]].
   exists (Argument.M' (sval (construct_basic_SMN M H1M H2M))).

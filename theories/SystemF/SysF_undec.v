@@ -8,7 +8,7 @@
 (* 
   Undecidability Result(s):
     System F Inhabitation (SysF_INH)
-    System F Typability (SysF_TYP))
+    System F Typability (SysF_TYP)
     System F Type Checking (SysF_TC)
 *)
 

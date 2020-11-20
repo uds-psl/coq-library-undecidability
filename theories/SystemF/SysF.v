@@ -1,3 +1,22 @@
+(* 
+  Problem(s):
+    System F Type Checking (SysF_TC)
+    System F Typability (SysF_TYP)
+    System F Inhabitation (SysF_INH)
+*)
+
+(*
+  Literature:
+  [1] Andrej Dudenhefner and Jakob Rehof. 
+      "A Simpler Undecidability Proof for System F Inhabitation." 
+      24th International Conference on Types for Proofs and Programs (TYPES 2018). 
+      Schloss Dagstuhl-Leibniz-Zentrum fuer Informatik, 2019.
+  [2] Joe B. Wells.
+      "Typability and type checking in the second-order lambda-calculus are equivalent and undecidable." 
+      Proceedings Ninth Annual IEEE Symposium on Logic In Computer Science. 
+      IEEE, 1994.
+*)
+
 Require Import List.
 
 (** pure lambda-terms M, N, .. *)
@@ -12,14 +31,6 @@ Inductive poly_type : Type :=
   | poly_arr : poly_type -> poly_type -> poly_type 
   | poly_abs : poly_type -> poly_type.
 
-(** system F terms P, Q, .. *)
-Inductive term : Type :=
-  | var : nat -> term  
-  | app : term -> term -> term  
-  | abs : poly_type -> term -> term  
-  | ty_app : term -> poly_type -> term  
-  | ty_abs : term -> term.
-
 (** system F type environments *)
 Definition environment := list poly_type.
 
@@ -31,6 +42,7 @@ Definition funcomp {X Y Z} (g : Y -> Z) (f : X -> Y) :=
 Definition scons {X: Type} (x : X) (xi : nat -> X) :=
   fun n => match n with | 0 => x | S n => xi n end.
 
+(** polymorphic type variable renaming *)
 Fixpoint ren_poly_type (xi : nat -> nat) (s : poly_type) : poly_type  :=
   match s return poly_type with
   | poly_var x => poly_var (xi x)
@@ -38,6 +50,7 @@ Fixpoint ren_poly_type (xi : nat -> nat) (s : poly_type) : poly_type  :=
   | poly_abs s => poly_abs (ren_poly_type (scons 0 (funcomp S xi)) s)
   end.
 
+(** polymorphic type variable substitution *)
 Fixpoint subst_poly_type (sigma : nat -> poly_type) (s : poly_type) : poly_type  :=
   match s return poly_type with
   | poly_var s => sigma s
@@ -45,37 +58,35 @@ Fixpoint subst_poly_type (sigma : nat -> poly_type) (s : poly_type) : poly_type 
   | poly_abs s => poly_abs (subst_poly_type (scons (poly_var 0) (funcomp (ren_poly_type S) sigma)) s)
   end.
 
-(** system F type derivability predicate *)
-Inductive typing : environment -> term -> poly_type -> Prop :=
-  | typing_var {Gamma x t} : 
-      nth_error Gamma x = Some t -> typing Gamma (var x) t
-  | typing_app {Gamma P Q s t} :
-      typing Gamma P (poly_arr s t) -> typing Gamma Q s -> typing Gamma (app P Q) t
-  | typing_abs {Gamma P s t} :
-      typing (s :: Gamma) P t -> typing Gamma (abs s P) (poly_arr s t)
-  | typing_ty_app {Gamma P s t} :
-      typing Gamma P (poly_abs s) -> typing Gamma (ty_app P t) (subst_poly_type (scons t poly_var) s)
-  | typing_ty_abs {Gamma P s} :
-      typing (map (ren_poly_type S) Gamma) P s -> typing Gamma (ty_abs P) (poly_abs s).
-
-(** type annotation erasure *)
-Fixpoint erase (P: term) : pure_term :=
-  match P with
-  | var x => pure_var x
-  | app P Q => pure_app (erase P) (erase Q)
-  | abs _ P => pure_abs (erase P)
-  | ty_app P _ => erase P
-  | ty_abs P => erase P
-  end.
+(** 
+  Curry-style System F Type Assignment predicate 
+  Γ ⊢ M : τ is (type_assignment Γ M τ) 
+*)
+Inductive type_assignment : environment -> pure_term -> poly_type -> Prop :=
+| type_assignment_var {Gamma x t} : 
+    nth_error Gamma x = Some t -> 
+    type_assignment Gamma (pure_var x) t
+| type_assignment_app {Gamma M N s t} :
+    type_assignment Gamma M (poly_arr s t) -> type_assignment Gamma N s -> 
+    type_assignment Gamma (pure_app M N) t
+| type_assignment_abs {Gamma M s t} :
+    type_assignment (s :: Gamma) M t -> 
+    type_assignment Gamma (pure_abs M) (poly_arr s t)
+| type_assignment_inst {Gamma M s t} :
+    type_assignment Gamma M (poly_abs s) -> 
+    type_assignment Gamma M (subst_poly_type (scons t poly_var) s)
+| type_assignment_gen {Gamma M s} :
+    type_assignment (map (ren_poly_type S) Gamma) M s -> 
+    type_assignment Gamma M (poly_abs s).
 
 (** System F Type Checking *)
 Definition SysF_TC : environment * pure_term * poly_type -> Prop :=
-  fun '(Gamma, M, t) => exists P, erase P = M /\ typing Gamma P t.
+  fun '(Gamma, M, t) => type_assignment Gamma M t.
 
 (** System F Typability *)
 Definition SysF_TYP : pure_term -> Prop :=
-  fun M => exists Gamma P t, erase P = M /\ typing Gamma P t.
+  fun M => exists Gamma t, type_assignment Gamma M t.
 
 (** System F Inhabitation *)
 Definition SysF_INH : environment * poly_type -> Prop :=
-  fun '(Gamma, t) => exists P, typing Gamma P t.
+  fun '(Gamma, t) => exists M, type_assignment Gamma M t.
