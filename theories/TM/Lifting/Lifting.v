@@ -1,1 +1,1 @@
-From Undecidability.TM.Lifting Require Export LiftTapes LiftAlphabet.
+From Undecidability Require Export LiftTapes LiftAlphabet.

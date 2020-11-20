@@ -19,7 +19,7 @@ Section CaseFin.
   Local Existing Instance Encode_Finite.
 
   Definition CaseFin_Rel : pRel sig^+ sig 1 :=
-    fun tin '(yout, tout) => forall (x : sig) (s : nat), tin[@Fin0] ≃(;s) x -> isRight_size tout[@Fin0] (S(S(s))) /\ yout = x.
+    fun tin '(yout, tout) => forall (x : sig) (s : nat), tin[@Fin0] ≃(;s) x -> isVoid_size tout[@Fin0] (S(S(s))) /\ yout = x.
 
   Definition CaseFin_steps := 5.
 
@@ -46,10 +46,44 @@ Arguments CaseFin sig {_}. (** Default element is infered and inserted automatic
 
 
 Ltac smpl_TM_CaseFin :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- CaseFin _ ⊨ _ ] => eapply RealiseIn_Realise; apply CaseFin_Sem
   | [ |- CaseFin _ ⊨c(_) _ ] => apply CaseFin_Sem
   | [ |- projT1 (CaseFin _) ↓ _ ] => eapply RealiseIn_TerminatesIn; apply CaseFin_Sem
   end.
 
 Smpl Add smpl_TM_CaseFin : TM_Correct.
+
+From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+
+Section CaseFin.
+
+  Variable sig : finType.
+  Hypothesis defSig : inhabitedC sig.
+
+  (** A non-standard encoding! *)
+  Local Existing Instance Encode_Finite.
+
+  Definition CaseFin_size : Vector.t (nat->nat) 1 := [|S>>S|].
+
+  Lemma CaseFin_SpecT_size (x : sig) (ss : Vector.t nat 1) :
+    TripleT (≃≃(([], withSpace  [|Contains _ x |] ss)))
+            (CaseFin_steps) (CaseFin sig)
+            (fun yout => ≃≃([yout = x], withSpace  [|Void|] (appSize CaseFin_size ss))).
+  Proof. unfold withSpace in *.
+    eapply RealiseIn_TripleT.
+    - apply CaseFin_Sem.
+    - intros tin yout tout H HEnc. cbn in *.
+      specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H. tspec_solve. easy.
+  Qed.
+
+End CaseFin.
+
+(* There is no constructor. It is just [WriteValue x]. *)
+
+Ltac hstep_Fin :=
+  match goal with
+  | [ |- TripleT ?P ?k (CaseFin _) ?Q ] => eapply CaseFin_SpecT_size
+  end.
+
+Smpl Add hstep_Fin : hstep_Spec.

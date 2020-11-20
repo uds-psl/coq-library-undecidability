@@ -31,7 +31,7 @@ Arguments Null_Rel { sig } x y / : rename.
 (** ** Tactic Support *)
 
 Ltac smpl_TM_Null :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- Null ⊨ _] => eapply RealiseIn_Realise; eapply Null_Sem
   | [ |- Null ⊨c(_) _] => eapply Null_Sem
   | [ |- projT1 (Null) ↓ _] => eapply RealiseIn_TerminatesIn; eapply Null_Sem

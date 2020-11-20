@@ -93,11 +93,11 @@ Section Mirror.
   Qed.
 
 
-  Definition Mirror_Rel (Rmove : pRel sig F n) : pRel sig F n :=
-    fun t '(l, t') => Rmove (mirror_tapes t) (l, mirror_tapes t').
+  Definition Mirror_Rel (R : pRel sig F n) : pRel sig F n :=
+    fun t '(l, t') => R (mirror_tapes t) (l, mirror_tapes t').
 
-  Lemma Mirror_Realise Rmove :
-    pM ⊨ Rmove -> Mirror ⊨ Mirror_Rel Rmove.
+  Lemma Mirror_Realise R :
+    pM ⊨ R -> Mirror ⊨ Mirror_Rel R.
   Proof.
     intros HRealise. intros t i outc HLoop.
     apply (HRealise (mirror_tapes t) i (mirrorConf outc)).
@@ -114,8 +114,8 @@ Section Mirror.
     exists (mirrorConf outc). apply mirror_unlift. cbn. now rewrite mirrorConf_involution.
   Qed.
 
-  Lemma Mirror_RealiseIn Rmove (k : nat) :
-    pM ⊨c(k) Rmove -> Mirror ⊨c(k) Mirror_Rel Rmove.
+  Lemma Mirror_RealiseIn R (k : nat) :
+    pM ⊨c(k) R -> Mirror ⊨c(k) Mirror_Rel R.
   Proof.
     intros H.
     eapply Realise_total. split.
@@ -128,12 +128,12 @@ Section Mirror.
 End Mirror.
 
 Arguments Mirror : simpl never.
-Arguments Mirror_Rel { n sig F } Rmove x y /.
+Arguments Mirror_Rel { n sig F } R x y /.
 Arguments Mirror_T { n sig } T x y /.
 
 
 Ltac smpl_TM_Mirror :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- Mirror _ ⊨ _ ] => eapply Mirror_Realise
   | [ |- Mirror _ ⊨c(_) _ ] => eapply Mirror_RealiseIn
   | [ |- projT1 (Mirror _) ↓ _ ] => eapply Mirror_Terminates

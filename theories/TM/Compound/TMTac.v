@@ -1,7 +1,44 @@
 From Undecidability Require Import TM.Util.Prelim TM.Util.TM_facts.
-From Undecidability Require Import TM.Lifting.LiftTapes. (* for [simpl_not_in] *)
+From Undecidability.TM Require Import Lifting.LiftTapes CodeTM ChangeAlphabet. (* for [simpl_not_in] *)
 
 (** * Tactics that help verifying complex machines *)
+
+
+(** This tactic automatically solves/instantiates premises of a hypothesis. If the hypothesis is a conjunction, it is destructed. *)
+Ltac modpon' H :=
+  simpl_surject;
+  once lazymatch type of H with
+  | forall (i : Fin.t _), ?P => idtac
+  | forall (x : ?X), ?P =>
+    once lazymatch type of X with
+    | Prop =>
+      tryif spec_assert H by
+          (simpl_surject;
+           solve [ eauto
+                 | contains_ext
+                 | isVoid_mono
+                 ]
+          )
+      then idtac (* "solved premise of type" X *);
+           modpon' H
+      else (spec_assert H;
+            [ idtac (* "could not solve premise" X *) (* new goal for the user *)
+            | modpon' H (* continue after the user has proved the premise manually *)
+            ]
+           )
+    | _ =>
+      (* instantiate variable [x] with evar *)
+      let x' := fresh "x" in
+      evar (x' : X); specialize (H x'); subst x';
+      modpon' H
+    end
+  | ?X /\ ?Y =>
+    let H' := fresh H in
+    destruct H as [H H']; modpon' H; modpon' H'
+  | _ => idtac
+  end.
+
+Ltac modpon H := progress (modpon' H).
 
 
 Ltac dec_pos P := let H := fresh in destruct (Dec P) as [_ | H]; [ | now contradiction H].
@@ -44,13 +81,13 @@ Section test.
 End test.
 
 Ltac inv_pair :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ H : (_, _) = (_, _) |- _] => inv H
   | [ |- (_, _) = (_, _) ] => f_equal
   end.
 
 Ltac destruct_param_tape_pair :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ x : _ * tapes _ _ |- _] =>
     let ymid := fresh "ymid" in
     let tmid := fresh "tmid" in
@@ -58,59 +95,10 @@ Ltac destruct_param_tape_pair :=
   end.
 
 Ltac destruct_unit :=
-  repeat lazymatch goal with
+  repeat once lazymatch goal with
          | [ x : unit |- _ ] => destruct x
          end.
 
-
-
-(** TMSimp destructs conjunctive assumptions and rewrites assumptions like [t'[@i] = t[@j]] automatically. *)
-
-Ltac TMSimp1_old T :=
-  try destruct_param_tape_pair; destruct_unit;
-  simpl_not_in;
-  cbn in *;
-  subst;
-  unfold finType_CS in *;
-  try T;
-  repeat
-  lazymatch goal with
-  | [ H : _ ::: _ = [| |]  |- _ ] => inv H
-  | [ H : [| |] = _ ::: _ |- _ ] => inv H
-  | [ H : _ ::: _ = _ ::: _ |- _ ] => apply VectorSpec.cons_inj in H
-
-  | [ H : _ ::  _ = []  |- _ ] => inv H
-  | [ H : [] = _ :: _ |- _ ] => inv H
-  | [ H : _ ::  _ = _ :: _ |- _ ] => inv H
-
-
-  | [ H : Some _ = Some _ |- _ ] => inv H
-  | [ H : None   = Some _ |- _ ] => inv H
-  | [ H : Some _ = None   |- _ ] => inv H
-
-  | [ H : _ /\ _ |- _] => destruct H
-  | [ H : ex ?P |- _] =>
-    lazymatch type of P with
-    | tapes _ _ -> Prop =>
-      let tmid := fresh "tmid" in
-      destruct H as (tmid&H)
-    | _ => (* probably some label *)
-      let ymid := fresh "ymid" in
-      destruct H as (ymid&H)
-    end
-  | [ x : _ * _    |- _ ] => destruct x
-  end.
-  
-
-Ltac TMSimp2_old :=
-  match goal with
-  | [ H: ?X = _ |- _ ] => rewrite H in *; lock H
-  end.
-
-Tactic Notation "TMSimp_old" tactic(T) :=
-  repeat progress (repeat progress TMSimp1_old T; repeat TMSimp2_old; unlock all).
-
-Tactic Notation "TMSimp_old" := TMSimp_old idtac.
 
 
 (** Rewrite [eq]-assumptions, but only in the goal. This is much faster than [TMSimp]. *)
@@ -131,32 +119,47 @@ Proof.
   revert P. induction n;cbn;intros. now apply Vector.case0.
   intros. apply Vector.caseS'. intro. now eapply IHn.
 Qed.    
+Lemma all_vec_correct2 {X:Type} {n:nat} (P : Vector.t X n -> Prop):
+(forall xs, P xs) -> all_vec P.
+Proof.  
+  revert P. induction n;cbn;intros. now apply Vector.case0. eauto.
+Qed.  
+
 Tactic Notation "vector_destruct" hyp(tin) :=
   let rec introT n :=
-      lazymatch n with
-        0 => idtac
+      once lazymatch n with
       |  S ?n =>
-        let x := fresh tin in
+        let x := fresh tin "_0" in
         intro x;introT n
+      | 0 => try clear tin
+      | _ => simple apply all_vec_correct2;try clear tin;let tin' := fresh tin in intros tin'
       end 
   in
-  let tac n :=  revert dependent tin; intros tin; pattern tin; refine (all_vec_correct _ _);
-    cbv [all_vec];introT n;intros;cbn in *
+  let tac n :=  revert dependent tin; refine (all_vec_correct _);
+    cbn [all_vec];introT n;cbn [Vector.nth Vector.caseS];intros
   in
-    lazymatch type of tin with
+    once lazymatch type of tin with
       tapes _ ?n => tac n
     | Vector.t _ ?n => tac n
     end.
+
+Lemma eq_nth_iff' X n (v w : Vector.t X n):
+(forall i : Fin.t n, v[@i] = w[@i]) -> v = w.
+Proof. intros. eapply Vector.eq_nth_iff. now intros ? ? ->. Qed.
   
 Ltac TMSimp1 T :=
   try destruct_param_tape_pair; destruct_unit;
   simpl_not_in;
   cbn in *;
-  subst;
+  repeat match goal with
+  | [ H : ?x = _ |- _ ] => is_var x;move x at bottom;subst x
+  | [ H : _ = ?x |- _ ] => is_var x;move x at bottom;symmetry in H;subst x
+  | [ H : (forall i : Fin.t _, _[@i] = _[@i])  |- _ ] => apply eq_nth_iff' in H
+  end;
   unfold finType_CS in *;
   try T;
   repeat
-  lazymatch goal with
+  once lazymatch goal with
   | [ x : unit |- _ ] => destruct x
   | [ H : _ ::: _ = [| |]  |- _ ] => discriminate H
   | [ H : [| |] = _ ::: _ |- _ ] => discriminate H
@@ -172,9 +175,9 @@ Ltac TMSimp1 T :=
   | [ H : Some _ = None   |- _ ] => discriminate H
 
   | [ H : _ /\ _ |- _] => destruct H
-  | [ H : ex ?P |- _] =>
-    lazymatch type of P with
-    | tapes _ _ -> Prop =>
+  | [ H : @ex ?A ?P |- _] =>
+    once lazymatch A with
+    | tapes _ _ =>
       let tmid := fresh "tmid" in
       destruct H as (tmid&H)
     | _ => (* probably some label *)
@@ -183,14 +186,14 @@ Ltac TMSimp1 T :=
     end
   | [ x : _ * _    |- _ ] => destruct x
   end.
-  
-Ltac TMSimp2 :=
+
+  Ltac TMSimp2 :=
   let tac ts n :=
-    lazymatch InitialRing.isnatcst n with
-      true => vector_destruct ts;try clear ts
+    once lazymatch n with
+      S _ => vector_destruct ts
     end
   in
-    lazymatch goal with
+    once match goal with
     | [ ts: tapes _ ?n|- _ ] => tac ts n
     | [ ts: Vector.t _ ?n|- _ ] => tac ts n
     | [H : @Vector.nil _ = @Vector.nil _ |-_ ] => clear H
@@ -238,13 +241,13 @@ Tactic Notation "TMSolve" int_or_var(k) :=
 Tactic Notation "TMCrush" tactic(T) :=
   repeat progress
          (
-           TMSimp_old T;
+           TMSimp T;
            try TMBranche
          ).
 
 Tactic Notation "TMCrush" :=
   repeat progress
          (
-           TMSimp_old;
+           TMSimp;
            try TMBranche
          ).

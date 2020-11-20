@@ -3,6 +3,8 @@
 -arg -w -arg -notation-overridden
 COQDOCFLAGS = "--charset utf-8 -s --with-header ../website/resources/header.html --with-footer ../website/resources/footer.html --index indexpage"
 
+
+
 Shared/Dec.v
 Shared/ListAutomation.v
 Shared/FilterFacts.v
@@ -107,14 +109,29 @@ Shared/Libs/PSL/FiniteTypes/DepPairs.v
 Shared/Libs/PSL/FiniteTypes/Arbitrary.v
 Shared/Libs/PSL/FiniteTypes/VectorFin.v
 
-# Abstract L simulator as Turing Machine
-L/AbstractMachines/TM_LHeapInterpreter/Alphabets.v
-L/AbstractMachines/TM_LHeapInterpreter/CaseCom.v
-L/AbstractMachines/TM_LHeapInterpreter/LookupTM.v
-L/AbstractMachines/TM_LHeapInterpreter/JumpTargetTM.v
-#The following file takes very long, so we start it early for faster multi-core-compilation
-L/AbstractMachines/TM_LHeapInterpreter/StepTM.v
-L/AbstractMachines/TM_LHeapInterpreter/M_LHeapInterpreter.v
+# Abstract heap-based L simulator as Turing Machine
+TM/L/Alphabets.v
+TM/L/CaseCom.v
+TM/L/HeapInterpreter/LookupTM.v
+TM/L/HeapInterpreter/StepTM.v
+TM/L/HeapInterpreter/M_LHeapInterpreter.v
+TM/L/HeapInterpreter/UnfoldClos.v
+TM/L/HeapInterpreter/JumpTargetTM.v
+TM/L/Transcode/Boollist_to_Enc.v
+TM/L/Transcode/Enc_to_Boollist.v
+TM/L/Transcode/BoollistEnc.v
+TM/L/Eval.v
+
+#Computability of boolean functions
+
+TM/L/CompilerBoolFuns/Compiler_spec.v
+TM/L/CompilerBoolFuns/LComp_to_TMComp.v
+TM/L/CompilerBoolFuns/Compiler_facts.v
+TM/L/CompilerBoolFuns/Compiler_nat_facts.v
+TM/L/CompilerBoolFuns/EncBoolsTM_boolList.v
+TM/L/CompilerBoolFuns/Compiler.v
+TM/L/CompilerBoolFuns/NaryApp.v
+TM/L/CompilerBoolFuns/ClosedLAdmissible.v
 
 #Post correspondence problem
 PCP/PCP.v
@@ -302,6 +319,10 @@ H10/H10_undec.v
 H10/H10Z_undec.v
 
 
+# Turing Machines (Maxi)
+#################
+
+
 # Basics
 TM/Util/Prelim.v
 TM/Util/Relations.v
@@ -355,11 +376,19 @@ TM/Code/CaseSum.v
 TM/Code/CaseList.v
 TM/Code/CaseFin.v
 TM/Code/CasePair.v
+TM/Code/CaseBool.v
 
 # Programming case studies
 #TM/Code/SumTM.v
 TM/Code/NatTM.v
+TM/Code/NatSub.v
 TM/Code/ListTM.v
+TM/Code/List/App.v
+TM/Code/List/Concat_Repeat.v
+TM/Code/List/Cons_constant.v
+TM/Code/List/Length.v
+TM/Code/List/Nth.v
+TM/Code/List/Rev.v
 
 # Binary Numbers
 TM/Code/BinNumbers/EncodeBinNumbers.v
@@ -387,13 +416,30 @@ StackMachines/Reductions/HaltSBTM_to_HaltBSM.v
 
 # Univ
 TM/Univ/LookupAssociativeListTM.v
-TM/Univ/StepTM.v
+TM/Univ/LowLevel.v
+TM/Univ/Univ.v
 
 TM/PrettyBounds/MaxList.v
 TM/PrettyBounds/SizeBounds.v
 
+
 TM/Reductions/mTM_to_TM.v
 TM/TM_undec.v
+
+# Layer for Hoare Logic
+TM/Hoare/Hoare.v
+TM/Hoare/HoareLogic.v
+TM/Hoare/HoareCombinators.v
+TM/Hoare/HoareRegister.v
+TM/Hoare/HoareTactics.v
+TM/Hoare/HoareTacticsView.v
+TM/Hoare/HoareExamples.v
+TM/Hoare/HoareMult.v
+TM/Hoare/HoareStdLib.v
+TM/Hoare/HoareLegacy.v
+
+#########
+
 L/Prelim/MoreBase.v
 L/Prelim/ARS.v
 L/Prelim/StringBase.v
@@ -429,6 +475,13 @@ L/Tactics/mixedTactics.v
 
 L/Datatypes/LUnit.v
 L/Datatypes/LBool.v
+L/Datatypes/List/List_basics.v
+L/Datatypes/List/List_enc.v
+L/Datatypes/List/List_eqb.v
+L/Datatypes/List/List_extra.v
+L/Datatypes/List/List_fold.v
+L/Datatypes/List/List_in.v
+L/Datatypes/List/List_nat.v
 L/Datatypes/Lists.v
 L/Datatypes/LNat.v
 L/Datatypes/LOptions.v
@@ -442,6 +495,7 @@ L/Datatypes/LVector.v
 L/Functions/EqBool.v
 L/Functions/Equality.v
 L/Functions/Encoding.v
+L/Functions/Decoding.v
 L/Functions/Proc.v
 L/Functions/Size.v
 L/Functions/Subst.v
@@ -469,6 +523,10 @@ L/Complexity/UpToC.v
 L/Complexity/UpToCNary.v
 L/Complexity/GenericNary.v
 L/Complexity/ResourceMeasures.v
+L/Complexity/LinDecode/LTD_def.v
+L/Complexity/LinDecode/LTDnat.v
+L/Complexity/LinDecode/LTDlist.v
+L/Complexity/LinDecode/LTDbool.v
 
 
 L/AbstractMachines/LargestVar.v
@@ -476,6 +534,8 @@ L/AbstractMachines/FlatPro/Programs.v
 L/AbstractMachines/FlatPro/ProgramsDef.v
 L/AbstractMachines/FlatPro/LM_heap_def.v
 L/AbstractMachines/FlatPro/LM_heap_correct.v
+L/AbstractMachines/FlatPro/UnfoldClos.v
+
 
 L/Computability/Acceptability.v
 #L/Computability/AD.v

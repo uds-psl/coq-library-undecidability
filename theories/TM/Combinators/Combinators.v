@@ -28,9 +28,9 @@ Section Relabel.
   Definition Relabel : pTM sig F' n :=
     (projT1 pM; fun q => p (projT2 pM q)).
 
-  Lemma Relabel_Realise Rmove :
-    pM ⊨ Rmove ->
-    Relabel ⊨ ⋃_y (Rmove |_ y) ||_(p y).
+  Lemma Relabel_Realise R :
+    pM ⊨ R ->
+    Relabel ⊨ ⋃_y (R |_ y) ||_(p y).
   Proof.
     intros HRel.
     intros tin k outc HLoop.
@@ -38,9 +38,9 @@ Section Relabel.
     hnf. exists (projT2 pM (cstate outc)). hnf. cbn. auto.
   Qed.
 
-  Lemma Relabel_RealiseIn Rmove k :
-    pM ⊨c(k) Rmove ->
-    Relabel ⊨c(k) ⋃_y (Rmove |_ y) ||_(p y).
+  Lemma Relabel_RealiseIn R k :
+    pM ⊨c(k) R ->
+    Relabel ⊨c(k) ⋃_y (R |_ y) ||_(p y).
   Proof. firstorder. Qed.
 
   Lemma Relabel_Terminates T :
@@ -64,14 +64,14 @@ Section Return.
 
   Definition Return := Relabel pM (fun _ => p).
 
-  Lemma Return_Realise Rmove :
-    pM ⊨ Rmove ->
-    Return ⊨ (⋃_f (Rmove |_ f)) ||_ p.
+  Lemma Return_Realise R :
+    pM ⊨ R ->
+    Return ⊨ (⋃_f (R |_ f)) ||_ p.
   Proof. intros. intros tin k outc HLoop. hnf. split; hnf; eauto. exists (projT2 pM (cstate outc)). hnf. eauto. Qed.
 
-  Lemma Return_RealiseIn Rmove k :
-    pM ⊨c(k) Rmove ->
-    Return ⊨c(k) (⋃_f (Rmove |_ f)) ||_ p.
+  Lemma Return_RealiseIn R k :
+    pM ⊨c(k) R ->
+    Return ⊨c(k) (⋃_f (R |_ f)) ||_ p.
   Proof. firstorder. Qed.
 
   Lemma Return_Terminates T :
@@ -147,10 +147,10 @@ Opaque TM_Correct_noSwitchAuto.
 Ltac TM_Correct_noSwitchAuto := let f := fresh "flag" in assert (f := (tt:TM_Correct_noSwitchAuto)).
 
 Ltac smpl_match_RealiseIn :=
-  lazymatch goal with
+  once lazymatch goal with
   | H : TM_Correct_noSwitchAuto |- _ => eapply Switch_RealiseIn with (R2:= fun x => _ );[TM_Correct| ]
-  | [ |- Switch ?M1 ?M2 ⊨c(?k1) ?Rmove] =>
-    is_evar Rmove;
+  | [ |- Switch ?M1 ?M2 ⊨c(?k1) ?R] =>
+    is_evar R;
     let tM2 := type of M2 in
     let x := fresh "x" in
     match tM2 with
@@ -167,10 +167,10 @@ Ltac smpl_match_RealiseIn :=
 .
 
 Ltac smpl_match_Realise :=
-  lazymatch goal with
+  once lazymatch goal with
   | H : TM_Correct_noSwitchAuto |- _ => eapply Switch_Realise with (R2:= fun x => _ );[TM_Correct| ]
-  | [ |- Switch ?M1 ?M2 ⊨ ?Rmove] =>
-    is_evar Rmove;
+  | [ |- Switch ?M1 ?M2 ⊨ ?R] =>
+    is_evar R;
     let tM2 := type of M2 in
     let x := fresh "x" in
     match tM2 with
@@ -186,10 +186,10 @@ Ltac smpl_match_Realise :=
 
 
 Ltac smpl_match_Terminates :=
-  lazymatch goal with
+  once lazymatch goal with
   | H : TM_Correct_noSwitchAuto |- _ => eapply Switch_TerminatesIn with (T2:= fun x => _ );[TM_Correct|TM_Correct | ]
-  | [ |- projT1 (Switch ?M1 ?M2) ↓ ?Rmove] =>
-    is_evar Rmove;
+  | [ |- projT1 (Switch ?M1 ?M2) ↓ ?R] =>
+    is_evar R;
     let tM2 := type of M2 in
     let x := fresh "x" in
     match tM2 with
@@ -208,7 +208,7 @@ Ltac smpl_match_Terminates :=
 
 (* There is no rule for [Id] on purpose. *)
 Ltac smpl_TM_Combinators :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- Switch _ _ ⊨ _] => smpl_match_Realise
   | [ |- Switch _ _ ⊨c(_) _] => smpl_match_RealiseIn
   | [ |- projT1 (Switch _ _) ↓ _] => smpl_match_Terminates

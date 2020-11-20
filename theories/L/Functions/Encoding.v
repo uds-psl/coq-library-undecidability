@@ -15,6 +15,13 @@ Proof.
   extract. solverec.
 Qed.
 
+
+
+Instance bool_enc :computableTime' (@bool_enc) (fun l _ => (12,tt)).
+Proof.
+  unfold bool_enc. extract. solverec.
+Qed.
+
 (** ** Extracted tuple encoding *)
 
 Instance term_prod_enc X Y (R1:registered X) (R2:registered Y) t__X t__Y

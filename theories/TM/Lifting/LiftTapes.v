@@ -23,10 +23,10 @@ Section LiftTapes_Rel.
   Definition not_index (i : Fin.t n) : Prop :=
     ~ Vector.In i I.
 
-  Variable (Rmove : pRel sig F m).
+  Variable (R : pRel sig F m).
 
   Definition LiftTapes_select_Rel : pRel sig F n :=
-    fun t '(y, t') => Rmove (select I t) (y, select I t').
+    fun t '(y, t') => R (select I t) (y, select I t').
 
   Definition LiftTapes_eq_Rel : pRel sig F n :=
     ignoreParam (fun t t' => forall i : Fin.t n, not_index i -> t'[@i] = t[@i]).
@@ -41,9 +41,9 @@ Section LiftTapes_Rel.
 End LiftTapes_Rel.
 
 Arguments not_index : simpl never.
-Arguments LiftTapes_select_Rel {sig F m n} I Rmove x y /.
+Arguments LiftTapes_select_Rel {sig F m n} I R x y /.
 Arguments LiftTapes_eq_Rel {sig F m n} I x y /.
-Arguments LiftTapes_Rel {sig F m n } I Rmove x y /.
+Arguments LiftTapes_Rel {sig F m n } I R x y /.
 Arguments LiftTapes_T {sig m n} I T x y /.          
 
 
@@ -55,16 +55,102 @@ Proof. now destruct_vector. Qed.
 
 
 Section Fill.
+
+  Fixpoint lookup_index_vector {m n : nat} (I : Vector.t (Fin.t n) m) : Fin.t n -> option (Fin.t m) :=
+    match I with
+    | Vector.nil _ => fun (i : Fin.t n) => None
+    | Vector.cons _ i' m' I' =>
+      fun (i : Fin.t n) =>
+        if Fin.eqb i i' then Some Fin0
+        else match lookup_index_vector I' i with
+             | Some j => Some (Fin.FS j)
+             | None => None
+             end
+    end.
+
+  Lemma Some_inj (X : Type) (x y : X) :
+    Some x = Some y -> x = y.
+  Proof. congruence. Qed.
+
+  Lemma lookup_index_vector_Some (m n : nat) (I : Vector.t (Fin.t n) m) (i : Fin.t n) (j : Fin.t m) :
+    dupfree I ->
+    I[@j] = i ->
+    lookup_index_vector I i = Some j.
+  Proof.
+    induction 1 as [ | m i' I' H1 H2 IH]; intros Heq; cbn in *.
+    - contradict (fin_destruct_O j).
+    - destruct (Fin.eqb i i') eqn:Eqb; cbn in *.
+      + f_equal. apply Fin.eqb_eq in Eqb as ->.
+        pose proof (fin_destruct_S j) as [(j'&->) | ->]; cbn in *.
+        * exfalso. contradict H1. eapply vect_nth_In; eauto.
+        * reflexivity.
+      + destruct (lookup_index_vector I' i) as [j' | ] eqn:El.
+        * pose proof (fin_destruct_S j) as [(j''&->) | ->]; cbn in *.
+          -- specialize IH with (1 := Heq). apply Some_inj in IH as ->. reflexivity.
+          -- subst. enough (Fin.eqb i i = true) by congruence. now apply Fin.eqb_eq.
+        * exfalso. pose proof (fin_destruct_S j) as [(j''&->) | ->]; cbn in *.
+          -- specialize IH with (1 := Heq). congruence.
+          -- subst. enough (Fin.eqb i i = true) by congruence. now apply Fin.eqb_eq.
+  Qed.
+
+  Lemma lookup_index_vector_Some' (m n : nat) (I : Vector.t (Fin.t n) m) (i : Fin.t n) (j : Fin.t m) :
+    lookup_index_vector I i = Some j ->
+    I[@j] = i.
+  Proof.
+    revert i j. induction I as [ | i' n' I' IH ]; intros i j Hj.
+    - destruct_fin j.
+    - pose proof (fin_destruct_S j) as [(j'&->) | ->]; cbn in *.
+      + destruct (Fin.eqb i i'); inv Hj.
+        destruct (lookup_index_vector I' i) as [ j'' | ] eqn:Ej''.
+        * apply Some_inj in H0. apply Fin.FS_inj in H0 as ->. now apply IH.
+        * congruence.
+      + destruct (Fin.eqb i i') eqn:Ei'.
+        * now apply Fin.eqb_eq in Ei'.
+        * destruct (lookup_index_vector I' i) as [ j'' | ] eqn:Ej''.
+          -- congruence.
+          -- congruence.
+  Qed.
+
+  Lemma lookup_index_vector_None (m n : nat) (I : Vector.t (Fin.t n) m) (i : Fin.t n) :
+    (~ Vector.In i I) ->
+    lookup_index_vector I i = None.
+  Proof.
+    intros HNotIn.
+    destruct (lookup_index_vector I i) eqn:E; auto.
+    exfalso. apply lookup_index_vector_Some' in E.
+    contradict HNotIn. eapply vect_nth_In; eauto.
+  Qed.
+
+
+
   Variable X : Type.
 
   (** Replace the elements of [init] of which the index is in [I] with the element in [V] of that index. *)
-  Fixpoint fill {m n : nat} (I : Vector.t (Fin.t n) m) : forall (init : Vector.t X n) (V : Vector.t X m), Vector.t X n :=
-    match I with
-    | Vector.nil _ => fun init V => init
-    | Vector.cons _ i m' I' =>
-      fun init V =>
-        Vector.replace (fill I' init (Vector.tl V)) i (V[@Fin0])
-    end.
+  Definition fill {m n : nat} (I : Vector.t (Fin.t n) m) (init : Vector.t X n) (V : Vector.t X m) : Vector.t X n := 
+    tabulate (fun i => match lookup_index_vector I i with
+                    | Some j => V[@j]
+                    | None => init[@i]
+                    end).
+
+  Section Test.
+    Variable (a b x y z : X).
+
+    (** The following goals should hold by computation *)
+    Goal fill [|Fin0; Fin1|] [|x;y;z|] [|a;b|] = [|a;b;z|].
+    Proof. cbn. reflexivity. Qed.
+
+    Goal fill [|Fin2; Fin1|] [|x;y;z|] [|a;b|] = [|x;b;a|].
+    Proof. cbn. reflexivity. Qed.
+
+    Goal fill [|Fin1; Fin0|] [|x;y;z|] [|a;b|] = [|b;a;z|]. (* [a] and [b] are swapped, [z] is unchanged. *)
+    Proof. cbn. reflexivity. Qed.
+
+    (** This didn't hold (by computation) for the old version with replacement *)
+    Goal forall (ss : Vector.t X 3), fill [|Fin0; Fin1|] ss [|a;b|] = [|a;b; ss[@Fin2]|].
+    Proof. intros. cbn. reflexivity. Qed.
+
+  End Test.
+  
 
   Variable m n : nat.
   Implicit Types (i : Fin.t n) (j : Fin.t m).
@@ -75,62 +161,24 @@ Section Fill.
     I[@j] = i ->
     (fill I init V)[@i] = V[@j].
   Proof.
-    intros HDup Heq. revert V. induction HDup as [ | m index I' H1 H2 IH]; intros; cbn in *.
-    - exfalso. clear i Heq V. now apply fin_destruct_O in j.
-    - pose proof destruct_vector_cons V as (v&V'&->).
-      pose proof fin_destruct_S j as [(j'&?) | ? ]; cbn in *; subst; cbn in *.
-      + decide (index = I'[@j']) as [ -> | Hneq].
-        * contradict H1. eapply vect_nth_In; eauto.
-        * rewrite replace_nth2; auto.
-      + apply replace_nth.
+    intros HDup Heq.
+    unfold fill. simpl_vector.
+    erewrite lookup_index_vector_Some; eauto.
   Qed.
-
-  (* Not needed *)
-  (*
-  Corollary select_fill I init V :
-    dupfree I ->
-    select I (fill I init V) = V.
-  Proof. intros H. unfold select. apply Vector.eq_nth_iff. intros p ? <-. erewrite Vector.nth_map; eauto. erewrite fill_correct_nth; eauto. Qed.
-
-  Lemma fill_select_nth I init (i : Fin.t n) :
-    dupfree I ->
-    (fill I init (select I init))[@i] = init[@i].
-  Proof.
-    intros. induction H as [ | m index I H1 H2 IH]; cbn in *.
-    - reflexivity.
-    - decide (index = i) as [->|d].
-      + now rewrite replace_nth.
-      + rewrite <- IH. now rewrite replace_nth2.
-  Qed.
-
-  Corollary fill_select I t :
-    dupfree I ->
-    fill I t (select I t) = t.
-  Proof.
-    intros H. apply Vector.eq_nth_iff. intros p ? <-. now apply fill_select_nth.
-  Qed.
-   *)
 
   Lemma fill_not_index I init V (i : Fin.t n) :
-    dupfree I ->
     not_index I i ->
     (fill I init V)[@i] = init[@i].
   Proof.
-    intros HDupfree. revert V i. induction HDupfree as [ | m index I' H1 H2 IH]; intros; cbn in *.
-    - reflexivity.
-    - pose proof destruct_vector_cons V as (v&V'&->).
-      unfold not_index in *.
-      decide (index = i) as [ -> | Hneq].
-      + exfalso. contradict H. constructor.
-      + rewrite replace_nth2; eauto. apply IH; auto.
-        { intros ?. contradict H. now constructor. }
+    intros HNotIn. unfold not_index in HNotIn.
+    unfold fill. simpl_vector.
+    erewrite lookup_index_vector_None; eauto.
   Qed.
 
   Definition fill_default I (def : X) V :=
     fill I (Vector.const def n) V.
 
   Corollary fill_default_not_index I V def i :
-    dupfree I ->
     not_index I i ->
     (fill_default I def V)[@i] = def.
   Proof. intros. unfold fill_default. rewrite fill_not_index; auto. apply Vector.const_nth. Qed.
@@ -242,9 +290,9 @@ Section LiftNM.
     intros. now apply LiftTapes_comp_eq.
   Qed.
 
-  Lemma LiftTapes_Realise (Rmove : Rel (tapes sig m) (F * tapes sig m)) :
-    pM ⊨ Rmove ->
-    LiftTapes ⊨ LiftTapes_Rel I Rmove.
+  Lemma LiftTapes_Realise (R : Rel (tapes sig m) (F * tapes sig m)) :
+    pM ⊨ R ->
+    LiftTapes ⊨ LiftTapes_Rel I R.
   Proof.
     intros H. split.
     - apply (H (select I t) k (selectConf outc)).
@@ -276,9 +324,9 @@ Section LiftNM.
     pose proof (@LiftTapes_unlift k (initc LiftTapes_TM initTapes) outc H) as (X&X'&->). eauto.
   Qed.
 
-  Lemma LiftTapes_RealiseIn Rmove k :
-    pM ⊨c(k) Rmove ->
-    LiftTapes ⊨c(k) LiftTapes_Rel I Rmove.
+  Lemma LiftTapes_RealiseIn R k :
+    pM ⊨c(k) R ->
+    LiftTapes ⊨c(k) LiftTapes_Rel I R.
   Proof.
     intros (H1&H2) % Realise_total. apply Realise_total. split.
     - now apply LiftTapes_Realise.
@@ -290,83 +338,12 @@ Section LiftNM.
 End LiftNM.
 
 Arguments LiftTapes : simpl never.
-
-
-(* TODO: AddTapes is unused, remove it *)
-
-
-(* Indexes vector for adding a fixed number [m] of additional tapes at the begin. *)
-Section AddTapes.
-
-  Variable n : nat.
-
-  (* Eval simpl in Fin.L 4 (Fin1 : Fin.t 10). *)
-  (* Check @Fin.L. *)
-  (* Search Fin.L. *)
-  (* Eval simpl in Fin.R 4 (Fin1 : Fin.t 10). *)
-  (* Check @Fin.R. *)
-  (* Search Fin.R. *)
-
-  Lemma Fin_L_fillive (m : nat) (i1 i2 : Fin.t n) :
-    Fin.L m i1 = Fin.L m i2 -> i1 = i2.
-  Proof.
-    induction n as [ | n' IH].
-    - dependent destruct i1.
-    - dependent destruct i1; dependent destruct i2; cbn in *; auto; try congruence.
-      apply Fin.FS_inj in H. now apply IH in H as ->.
-  Qed.
-
-  Lemma Fin_R_fillive (m : nat) (i1 i2 : Fin.t n) :
-    Fin.R m i1 = Fin.R m i2 -> i1 = i2.
-  Proof.
-    induction m as [ | n' IH]; cbn.
-    - auto.
-    - intros H % Fin.FS_inj. auto.
-  Qed.
-
-
-  Definition add_tapes (m : nat) : Vector.t (Fin.t (m + n)) n :=
-    Vector.map (fun k => Fin.R m k) (Fin_initVect _).
-
-
-  Lemma add_tapes_dupfree (m : nat) : dupfree (add_tapes m).
-  Proof.
-    apply dupfree_map_injective.
-    - apply Fin_R_fillive.
-    - apply Fin_initVect_dupfree.
-  Qed.
-
-  Lemma add_tapes_select_nth (X : Type) (m : nat) (ts : Vector.t X (m + n)) k :
-    (select (add_tapes m) ts)[@k] = ts[@Fin.R m k].
-  Proof.
-    unfold add_tapes. unfold select. erewrite !VectorSpec.nth_map; eauto.
-    cbn. now rewrite Fin_initVect_nth.
-  Qed.
-
-
-  Definition app_tapes (m : nat) : Vector.t (Fin.t (n + m)) n :=
-    Vector.map (Fin.L _) (Fin_initVect _).
-
-  Lemma app_tapes_dupfree (m : nat) : dupfree (app_tapes m).
-  Proof.
-    apply dupfree_map_injective.
-    - apply Fin_L_fillive.
-    - apply Fin_initVect_dupfree.
-  Qed.
-
-  Lemma app_tapes_select_nth (X : Type) (m : nat) (ts : Vector.t X (n + m)) k :
-    (select (app_tapes m) ts)[@k] = ts[@Fin.L m k].
-  Proof.
-    unfold app_tapes. unfold select. erewrite !VectorSpec.nth_map; eauto.
-    cbn. now rewrite Fin_initVect_nth.
-  Qed.
-
-
-End AddTapes.
-
+Notation "pM @ ts" := (LiftTapes pM ts) (at level 41, only parsing).
 
 
 (** * Tactic Support *)
+
+(* TODO: Some of this is probably deprecated, e.g. the [app_tapes] stuff *)
 
 
 Lemma smpl_dupfree_helper1 (n : nat) :
@@ -379,17 +356,15 @@ Proof. vector_dupfree. Qed.
 
 
 Ltac smpl_dupfree :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- dupfree [|Fin.F1 |] ] => apply smpl_dupfree_helper1
   | [ |- dupfree [|Fin.FS |] ] => apply smpl_dupfree_helper2
-  | [ |- dupfree (add_tapes _ _)] => apply add_tapes_dupfree
-  | [ |- dupfree (app_tapes _ _)] => apply app_tapes_dupfree
   | [ |- dupfree _ ] => now vector_dupfree (* fallback tactic *)
   end.
 
 
 Ltac smpl_TM_LiftN :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- LiftTapes _ _ ⊨ _] =>
     apply LiftTapes_Realise; [ smpl_dupfree | ]
   | [ |- LiftTapes _ _ ⊨c(_) _] => apply LiftTapes_RealiseIn; [ smpl_dupfree | ]
@@ -399,7 +374,7 @@ Smpl Add smpl_TM_LiftN : TM_Correct.
 
 
 Ltac is_num_const n :=
-  lazymatch n with
+  once lazymatch n with
   | O => idtac
   | S ?n => is_num_const n
   | _ => fail "Not a number"
@@ -430,7 +405,7 @@ Eval cbn in ltac:(do_n_times 42 ltac:(fun a => idtac a)).
 
 (* This similiar tactical executes [t Fin0], ..., [t Fin_(n-1)]. *)
 Ltac do_n_times_fin_rect n m t :=
-  lazymatch n with
+  once lazymatch n with
   | O => idtac
   | S ?n' =>
     let m' := eval hnf in (pred m) in
@@ -448,89 +423,9 @@ Eval cbn in ltac:(do_n_times_fin 3 ltac:(fun a => let x := eval simpl in (a : Fi
 
 
 
-
-(* Support for [app_tapes] *)
-
-(*
- * The tactic [simpl_not_in_add_tapes] specialises hypothesises of the form
- * [H : forall i : Fin.t _, not_index (add_tapes _ m) i -> _]
- * with [i := Fin0], ..., [i := Fin(m-1)] and proves [not_index (add_tapes _ m) i.
- *)
-
-Ltac simpl_not_in_add_tapes_step H m' :=
-  let H' := fresh "HIndex_" H in
-  unshelve epose proof (H ltac:(getFin m') _) as H';
-  [ hnf; unfold add_tapes, Fin_initVect; cbn [tabulate Vector.map Fin.L Fin.R]; vector_not_in
-  | cbn [Fin.L Fin.R] in H'
-  ].
-
-Ltac simpl_not_in_add_tapes_loop H m :=
-  do_n_times m ltac:(simpl_not_in_add_tapes_step H); clear H.
-
-Ltac simpl_not_in_add_tapes_one :=
-  lazymatch goal with
-  | [ H : forall i : Fin.t _, not_index (add_tapes _ ?m) i -> _ |- _] =>
-    simpl_not_in_add_tapes_loop H m; clear H
-  | [ H : context [ (select (add_tapes _ ?m) _)[@_]] |- _ ] =>
-    rewrite ! (add_tapes_select_nth (m := m)) in H; cbn in H
-  | [ |- context [ (select (add_tapes _ ?m) _)[@_]] ] =>
-    rewrite ! (add_tapes_select_nth (m := m)); cbn
-  end.
-
-Ltac simpl_not_in_add_tapes := repeat simpl_not_in_add_tapes_one.
-
-(* (* Test *) *)
-(* Goal True. *)
-(*   assert (forall i : Fin.t 3, not_index (add_tapes _ 2) i -> i = i) by firstorder. *)
-(*   simpl_not_in_add_tapes. (* :-) *) *)
-(* Abort. *)
-
-(* goal True. *)
-(*   assert (n : nat) by constructor. *)
-(*   assert (forall i : Fin.t (S n), not_index (add_tapes n 1) i -> True) by firstorder. *)
-(*   simpl_not_in_add_tapes. *)
-(* Abort. *)
-
-
-(* Support for [app_tapes] *)
-
-
-Ltac simpl_not_in_app_tapes_step H n m' :=
-  let H' := fresh "HIndex_" H in
-  unshelve epose proof (H (Fin.R n ltac:(getFin m')) _) as H';
-  [ hnf; unfold app_tapes, Fin_initVect; cbn [tabulate Vector.map Fin.L Fin.R]; vector_not_in
-  | cbn [Fin.L Fin.R] in H'
-  ].
-
-Ltac simpl_not_in_app_tapes_loop H n m :=
-  do_n_times m ltac:(fun m' => simpl_not_in_app_tapes_step H n m'); clear H.
-
-Ltac simpl_not_in_app_tapes_one :=
-  lazymatch goal with
-  | [ H : forall i : Fin.t _, not_index (app_tapes ?n ?m) i -> _ |- _] =>
-    simpl_not_in_app_tapes_loop H n m; clear H
-  | [ H : context [ (select (app_tapes ?n ?m) _)[@_]] |- _ ] =>
-    rewrite ! (app_tapes_select_nth (n := n) (m := m)) in H; cbn in H
-  | [ |- context [ (select (app_tapes ?n ?m) _)[@_]] ] =>
-    rewrite ! (app_tapes_select_nth (n := n) (m := m)); cbn
-  end.
-
-
-Ltac simpl_not_in_app_tapes := repeat simpl_not_in_app_tapes_one.
-
-(* Goal True. *)
-(*   assert (forall i : Fin.t 10, not_index (app_tapes 8 _) i -> i = i) as Inj by firstorder. *)
-(*   simpl_not_in_app_tapes. *)
-(*   Check HIndex_Inj : Fin8 = Fin8. *)
-(*   Check HIndex_Inj0 : Fin9 = Fin9. *)
-(*   Fail Check HInj. *)
-(* Abort. *)
-
-
-
 (* Check whether a vector (syntactically) contains an element *)
 Ltac vector_contains a vect :=
-  lazymatch vect with
+  once lazymatch vect with
   | @Vector.nil ?A => fail "Vector doesn't contain" a
   | @Vector.cons ?A a ?n ?vect' => idtac
   | @Vector.cons ?A ?b ?n ?vect' => vector_contains a vect'
@@ -540,38 +435,102 @@ Ltac vector_contains a vect :=
 (* Fail Check ltac:(vector_contains 42 (@Vector.nil nat); idtac "yes!"). *)
 (* Check ltac:(vector_contains 42 [|4;8;15;16;23;42|]; idtac "yes!"). *)
 
-Ltac vector_doesnt_contain a vect :=
-  tryif vector_contains a vect then fail "Vector DOES contain" a else idtac.
-
-
-(* Check ltac:(vector_doesnt_contain 42 (@Vector.nil nat); idtac "yes!"). *)
-(* Check ltac:(vector_doesnt_contain 9 [|4;8;15;16;23;42|]; idtac "yes!"). *)
-(* Fail Check ltac:(vector_doesnt_contain 42 [|4;8;15;16;23;42|]; idtac "yes!"). *)
-
-
-
 (*
  * The tactic [simpl_not_in_vector] tries to specialise hypothesises of the form
  * [H : forall i : Fin.t n, not_index [F1; ...; Fk] i -> _]
  * with [i := Fin0], ..., [i := Fin(n-1)] to new assumptions [H_0].
  *)
 
-Ltac simpl_not_in_vector_step H vect n m' :=
-  let H' := fresh H "_" in
-  tryif vector_contains m' vect
-  then idtac (* skip m' *)
-  else pose proof (H m' ltac:(vector_not_in)) as H'.
+Lemma splitAllFin k' n (P : Fin.t (k'+n) -> Prop):
+  (forall i, P i) -> (forall (i : Fin.t k'), P (Fin.L n i)) /\ (forall (i : Fin.t n), P (Fin.R k' i)).
+Proof.
+  easy.
+Qed.  
 
-Ltac simpl_not_in_vector_loop H vect n :=
-  let H' := fresh H "_" in
-  pose proof I as H';
-  do_n_times_fin n ltac:(fun m' => simpl_not_in_vector_step H vect n m');
-  clear H'.
+Fixpoint not_indexb {n} (v : list (Fin.t n)) (i : Fin.t n) {struct v}: bool :=
+match v with
+  []%list => true
+| (i'::v)%list => if Fin.eqb i' i then false else not_indexb v i
+end.
+
+
+Require Import Equations.Prop.DepElim.
+Lemma not_index_reflect n m (v : Vector.t _ m) (i : Fin.t n):
+  not_index v i <-> not_indexb (Vector.to_list v) i = true.
+Proof.
+  unfold Vector.to_list. depind v;cbn. easy. 
+  specialize (Fin.eqb_eq _ h i) as H'.
+  destruct Fin.eqb. { destruct H' as [->]. 2:easy. split. 2:easy. destruct 1. constructor. }
+  rewrite <- IHv. cbv;intuition. apply H1. now constructor. apply H1.  
+  inversion H2;subst. now specialize (H0 eq_refl). apply Eqdep_dec.inj_pair2_eq_dec in H6;subst. easy.
+  decide equality. 
+Qed.
+
+Arguments not_indexb : simpl nomatch.
+
+Lemma not_index_reflect_helper n m (v : Vector.t _ m) (P : Fin.t n -> Prop):
+(forall i : Fin.t n, not_index v i  -> P i)
+-> (forall i : Fin.t n, if not_indexb (Vector.to_list v) i then P i else True).
+Proof.
+  intros H i. specialize (H i). setoid_rewrite not_index_reflect in H. destruct not_indexb;now eauto.
+Qed.
+
+Lemma not_index_reflect_helper2 n' (l : list _) (P : Fin.t n' -> Prop):
+(forall i : Fin.t n', if not_indexb l i then P i else True)
+-> (forall i : Fin.t n', not_index (Vector.of_list l) i  -> P i).
+Proof.
+  intros H i. specialize (H i). setoid_rewrite not_index_reflect.  
+  rewrite VectorSpec.to_list_of_list_opp. destruct not_indexb;now eauto.
+Qed.
+
+Local Definition _Flag_DisableWarning := Lock unit.
+
+Local Definition _flag_DisableWarning : _Flag_DisableWarning := tt.
 
 Ltac simpl_not_in_vector_one :=
-  lazymatch goal with
+  let moveCnstLeft :=
+    let rec loop k n :=
+      lazymatch n with
+        S ?n => loop uconstr:(S k) n
+      | _ => uconstr:(k + n)
+      end
+    in loop 0
+    in
+  once lazymatch goal with
   | [ H : forall i : Fin.t ?n, not_index ?vect i -> _ |- _ ] =>
-    simpl_not_in_vector_loop H vect n; clear H
+    specialize (not_index_reflect_helper H);clear H;intros H;
+    let n' := moveCnstLeft n in
+    change n with n' in H at 1;
+    let tmp := fresh "tmp" in
+    apply splitAllFin in H as [tmp H];
+    cbn [not_indexb Vector.to_list Fin.R Vector.caseS Fin.eqb Vector.nth] in H;
+    let helper i :=
+      let H' := fresh H "_0" in
+      assert (H':= tmp i);
+      cbn in H';
+      once lazymatch type of H' with
+        | if (if Nat.eqb ?k ?k then false else true) then _ else True =>
+        fail 1000 "arguments for not_indexb should have been set to [simpl nomatch]";clear H'
+        | if not_indexb (?i::_)%list ?i then _ else True => clear H'
+        | ?i = ?j => idtac
+        | True => clear H'
+        | ?G => idtac "simpl_not_in_vector_one is not intended for this kind of non-ground tape index" G
+      end
+    in
+    once lazymatch type of tmp with 
+      forall i : Fin.t ?n, _ => 
+        do_n_times_fin n helper;clear tmp     
+    end;
+    match type of H with
+    | forall i : Fin.t 0, _ => clear H
+    | forall u, if _ then _ else _ =>
+          specialize (not_index_reflect_helper2 H);clear H;intros H;cbn [Vector.of_list] in H
+    | forall i : Fin.t _, _[@ _] = _[@ _] => idtac
+    | ?t => match goal with 
+            | H : _Flag_DisableWarning |- _ => idtac 
+            | |- _ =>  idtac "unexpected case in simpl_not_in_vector_one" t
+            end
+    end
   end.
 
 Ltac simpl_not_in_vector := repeat simpl_not_in_vector_one.
@@ -592,6 +551,4 @@ Ltac simpl_not_in_vector := repeat simpl_not_in_vector_one.
 (* Abort. *)
 
 
-
-Ltac simpl_not_in :=
-  repeat ( simpl_not_in_add_tapes || simpl_not_in_app_tapes || simpl_not_in_vector).
+Ltac simpl_not_in := repeat simpl_not_in_vector.

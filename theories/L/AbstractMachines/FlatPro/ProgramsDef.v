@@ -19,3 +19,6 @@ Fixpoint compile (s: L.term) : Pro :=
 
 Inductive reprP : Pro -> term -> Prop :=
   reprPC s : reprP (compile s) (lam s).
+
+Lemma reprP_elim P s': reprP P s' -> exists s, P = compile s /\ s' = lam s.
+Proof. inversion 1. eauto. Qed. 

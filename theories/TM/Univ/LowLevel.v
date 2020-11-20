@@ -1,6 +1,5 @@
-From Undecidability Require Import TM.Code.ProgrammingTools.
+From Undecidability Require Import ProgrammingTools.
 Require Import Undecidability.Shared.Libs.PSL.Bijection. (* [injective] *)
-
 
 From Undecidability Require Import Basic.Duo.
 From Undecidability Require Import Code.CaseFin Code.CaseList Code.CasePair.
@@ -209,23 +208,21 @@ Section Univ.
       destruct (current tp); cbn; auto. now retract_adjoint. }
   Qed.
 
+
+  Local Instance Encode_optSigM : codable (option sigM) (option sigM) := Encode_Finite _.
   (** Read the current symbol and write it to another tape *)
   Definition ReadCurrent' : pTM sig^+ unit 2 :=
     Switch (ReadCurrent @ [|Fin0|])
-           (fun c => WriteValue [Retr_f (Retract := retr_sigCurrentSymbol_sig) c] @ [|Fin1|]).
+           (fun c => WriteValue c ⇑ retr_sigCurrentSymbol_sig @ [|Fin1|]).
 
-  Definition ReadCurrent_size := pred >> pred.
-
-
-  Local Instance Encode_optSigM : codable (option sigM) (option sigM) := Encode_Finite _.
-  
+  Definition ReadCurrent_size := pred >> pred. 
 
   Definition ReadCurrent'_Rel : pRel sig^+ unit 2 :=
     ignoreParam(
         fun tin tout =>
           forall (tp : tape sigM) (s : nat),
             containsWorkingTape tin[@Fin0] tp ->
-            isRight_size tin[@Fin1] s ->
+            isVoid_size tin[@Fin1] s ->
             containsWorkingTape tout[@Fin0] tp /\
             tout[@Fin1] ≃(retr_sigCurrentSymbol_sig; ReadCurrent_size s) current tp).
 
@@ -235,7 +232,7 @@ Section Univ.
   Proof.
     unfold ReadCurrent'_steps. eapply RealiseIn_monotone.
     { unfold ReadCurrent'. apply Switch_RealiseIn. TM_Correct. apply ReadCurrent_Sem. intros c. TM_Correct.
-      instantiate (1 := WriteValue_steps 1). apply WriteValue_Sem with (cX := Encode_map Encode_optSigM retr_sigCurrentSymbol_sig). }
+      instantiate (1 := WriteValue_steps 1). apply WriteValue_Sem. }
     { cbn. reflexivity. }
     { intros tin ([], tout) H. cbn. intros tp s HCont HRight1. TMSimp. modpon H. modpon H0. subst. split; auto.
       contains_ext. unfold WriteValue_size, ReadCurrent_size. cbn. lia. }
@@ -274,7 +271,7 @@ Section Univ.
            containsWorkingTape tin[@Fin0] tp ->
            tin[@Fin1] ≃(retr_act_sig; s) a ->
            containsWorkingTape tout[@Fin0] (doAct tp a) /\
-           isRight_size tout[@Fin1] (size s)).
+           isVoid_size tout[@Fin1] (size s)).
 
   Definition DoAction'_steps := 7.
 
@@ -295,7 +292,7 @@ Section Univ.
 
 
   Definition SetFinal (final : bool) : pTM sig^+ unit 2 :=
-    WriteValue [final] ⇑ retr_sigCurrentStateFinal_sig @ [|Fin1|];;
+    WriteValue final ⇑ retr_sigCurrentStateFinal_sig @ [|Fin1|];;
     Constr_pair (FinType(EqType bool)) (FinType(EqType sigNat)) ⇑ retr_sigCurrentState_sig  @ [|Fin1; Fin0|];;
     ResetEmpty1 _ @ [|Fin1|].
 
@@ -307,9 +304,9 @@ Section Univ.
       (fun tin tout =>
          forall (q : nat) (s0 s1 : nat),
            tin[@Fin0] ≃(retr_sigCurrentStateNumber_sig; s0) q ->
-           isRight_size tin[@Fin1] s1 ->
+           isVoid_size tin[@Fin1] s1 ->
            tout[@Fin0] ≃(retr_sigCurrentState_sig; SetFinal_size@>Fin0 s0) (final, q) /\
-           isRight_size tout[@Fin1] (SetFinal_size@>Fin1 s1)).
+           isVoid_size tout[@Fin1] (SetFinal_size@>Fin1 s1)).
 
   Lemma SetFinal_Realise (final : bool) : SetFinal final ⊨ SetFinal_Rel final.
   Proof.
@@ -329,7 +326,7 @@ Section Univ.
   Definition SetFinal_steps := 2 + WriteValue_steps 1 + Constr_pair_steps true + ResetEmpty1_steps.
 
   Definition SetFinal_T : tRel sig^+ 2 :=
-    fun tin k => exists (q:nat), tin[@Fin0] ≃(retr_sigCurrentStateNumber_sig) q /\ isRight tin[@Fin1] /\ SetFinal_steps <= k.
+    fun tin k => exists (q:nat), tin[@Fin0] ≃(retr_sigCurrentStateNumber_sig) q /\ isVoid tin[@Fin1] /\ SetFinal_steps <= k.
 
   Lemma SetFinal_Terminates final : projT1 (SetFinal final) ↓ SetFinal_T.
   Proof.
@@ -372,9 +369,9 @@ Section Univ.
       forall (M : TM sigM 1) (q : state M) (s0 s1 : nat),
         let size := IsFinal_size in
         containsState_size tin[@Fin0] q s0 ->
-        isRight_size tin[@Fin1] s1 ->
+        isVoid_size tin[@Fin1] s1 ->
         containsState_size tout[@Fin0] q s0 /\
-        isRight_size tout[@Fin1] (size s1) /\
+        isVoid_size tout[@Fin1] (size s1) /\
         yout = halt q.
 
   Definition IsFinal : pTM sig^+ bool 2 :=
@@ -404,7 +401,7 @@ Section Univ.
   Definition IsFinal_steps (final : bool) := 2 + CasePair_steps (final) + CaseFin_steps + SetFinal_steps.
 
   Definition IsFinal_T : tRel sig^+ 2 :=
-    fun tin k => exists (M : TM sigM 1) (q : state M), containsState tin[@Fin0] q /\ isRight tin[@Fin1] /\ IsFinal_steps (halt q) <= k.
+    fun tin k => exists (M : TM sigM 1) (q : state M), containsState tin[@Fin0] q /\ isVoid tin[@Fin1] /\ IsFinal_steps (halt q) <= k.
 
   Lemma IsFinal_Terminates : projT1 IsFinal ↓ IsFinal_T.
   Proof.
@@ -482,347 +479,6 @@ Section Univ.
   Lemma containsTrans_size_containsTrans t M s : containsTrans_size t M s -> containsTrans t M.
   Proof. intros H. unfold containsTrans, containsTrans_size in *. auto. Qed.
   Hint Resolve containsTrans_size_containsTrans : core.
-
-
-  Local Arguments IsFinal_size : simpl never.
-  Local Arguments ReadCurrent_size : simpl never.
-  Local Arguments Lookup_size : simpl never.
-
-  Definition Univ_Step_size (M : TM sigM 1) (tp : tape sigM) (q : state M) : Vector.t (nat->nat) 6 :=
-    (* Note that the size function for tape 0 is semantically irrelevant because there is no size associated to this (working) tape *)
-    if halt q
-    then [|IsFinal_size|]@>>[|Fin3|]
-    else let (q', act) := trans (q, [|current tp|]) in
-         ([|IsFinal_size|]@>>[|Fin3|]) >>>
-         ([|ReadCurrent_size|]@>>[|Fin3|]) >>>
-         ([|Constr_pair_size (current tp)|]@>>[|Fin2|]) >>>
-         ([|Reset_size (current tp)|] @>> [|Fin3|]) >>>
-         (Lookup_size (graph_of_TM M) (current tp, (halt q, index q)) @>> [|Fin1; Fin2; Fin3; Fin4; Fin5|]) >>>
-         ([|CasePair_size0 act[@Fin0];
-            CasePair_size1 act[@Fin0]|] @>> [|Fin2; Fin3|]) >>>
-         ([|DoAction_size act[@Fin0]|] @>> [|Fin3|]).
-  
-
-  Definition Univ_Step_Rel : pRel sig^+ (option unit) 6 :=
-    fun tin '(yout, tout) =>
-      forall (M : TM sigM 1) (tp : tape sigM) (q : state M) (s1 s2: nat) (sr : Vector.t nat 3),
-        let size := Univ_Step_size tp q in
-        containsWorkingTape tin[@Fin0] tp ->
-        containsTrans_size tin[@Fin1] M s1 ->
-        containsState_size tin[@Fin2] q s2 ->
-        (forall (i : Fin.t 3), isRight_size tin[@FinR 3 i] sr[@i]) ->
-        match yout, halt q with
-        | Some tt, true =>
-          containsWorkingTape tout[@Fin0] tp /\
-          containsTrans_size tout[@Fin1] M (size@>Fin1 s1) /\
-          containsState_size tout[@Fin2] q (size@>Fin2 s2) /\
-          (forall (i : Fin.t 3), isRight_size tout[@FinR 3 i] (size@>(FinR 3 i) sr[@i]))
-        | None, false =>
-          let (q', tp') := step (mk_mconfig q [|tp|]) in
-          containsWorkingTape tout[@Fin0] tp'[@Fin0] /\
-          containsTrans_size tout[@Fin1] M (size@>Fin1 s1) /\
-          containsState_size tout[@Fin2] q'(size@>Fin2 s2) /\
-          (forall (i : Fin.t 3), isRight_size tout[@FinR 3 i] (size@>(FinR 3 i) sr[@i]))
-        | _, _ => False
-        end.
-
-  Definition Univ_Step : pTM sig^+ (option unit) 6 :=
-    If (IsFinal @ [|Fin2; Fin3|])
-       (Return Nop (Some tt))
-       (Return
-          (ReadCurrent' @ [|Fin0; Fin3|];;
-           Constr_pair (FinType(EqType (option sigM))) (FinType(EqType sigState)) ⇑ retr_key_sig @ [|Fin3; Fin2|];;
-           Reset _ @ [|Fin3|];;
-           Lookup _ _ ⇑ retr_sigGraph_sig @ [|Fin1; Fin2; Fin3; Fin4; Fin5|];;
-           CasePair (FinType(EqType(option sigM * move))) (FinType(EqType(sigState))) ⇑ retr_value_sig @ [|Fin2; Fin3|];;
-           DoAction' @ [|Fin0; Fin3|];;
-           Translate retr_sigNextState_sig retr_sigCurrentState_sig @ [|Fin2|]) None).
-
-  Lemma Univ_Step_Realise : Univ_Step ⊨ Univ_Step_Rel.
-  Proof.
-    eapply Realise_monotone.
-    {
-      (* Every [TM_Correct_step] step is good, except for [Constr_pair] and [CasePair], because it uses "non-standard" encodings, i.e. [Encode_Finite] *)
-      unfold Univ_Step. TM_Correct_step. 2: TM_Correct. TM_Correct_step.
-      apply IsFinal_Realise.
-      TM_Correct_step. TM_Correct_step. TM_Correct_step.
-      eapply RealiseIn_Realise; apply ReadCurrent'_Sem.
-      TM_Correct_step. TM_Correct_step. TM_Correct_step.
-      apply Constr_pair_Realise with (cX := Encode_Finite (FinType(EqType(option sigM)))) (cY := Encode_pair Encode_bool Encode_nat).
-      TM_Correct_step. TM_Correct_step.
-      apply Reset_Realise with (I := retr_sigCurrentSymbol_sig).
-      TM_Correct_step. TM_Correct_step. TM_Correct_step.
-      apply Lookup_Realise with (cX := (Encode_pair (Encode_Finite _) (Encode_pair Encode_bool Encode_nat)))
-                                (cY := (Encode_pair (Encode_Finite _) (Encode_pair Encode_bool Encode_nat))).
-      { apply transition_graph_injective. }
-      TM_Correct_step. TM_Correct_step. TM_Correct_step.
-      apply CasePair_Realise with (cX := Encode_Finite (FinType(EqType(option sigM*move)))) (cY := Encode_pair Encode_bool Encode_nat).
-      TM_Correct_step. TM_Correct_step.
-      eapply RealiseIn_Realise; apply DoAction'_Sem.
-      TM_Correct_step.
-      apply Translate_Realise with (X := (bool * nat)%type).
-    }
-    {
-      intros tin (yout, tout) H. cbn. intros M tp q s1 s2 sr HEncTp HEncM HEncQ HRight.
-      specialize (HRight Fin0) as H';cbn in H'. 
-      specialize (HRight Fin1) as H1';cbn in H1'. 
-      specialize (HRight Fin2) as H2';cbn in H2'. 
-      destruct H; TMSimp.
-      { (* Halting state *)
-        unfold Univ_Step_size.
-        modpon H. rewrite <- H1. repeat split; eauto.
-        - intros i; destruct_fin i; TMSimp_goal; auto.
-          all: cbn. all:easy.
-      }
-      { (* Not a halting state *)
-        rename H into HIsFinal, H1 into HReadCurrent, H3 into HConstrPair, H5 into HReset, H7 into HLookup,
-        H9 into HCaseResult, H11 into HDoAction, H13 into HTranslate.
-        unfold Univ_Step_size in *.
-        modpon HIsFinal. rewrite <- HIsFinal1.
-        modpon HReadCurrent.
-        specialize (HConstrPair (current tp) (halt q, index q)).
-        modpon HConstrPair.
-        modpon HReset.
-        specialize (HLookup (graph_of_TM M)).
-        modpon HLookup.
-        rewrite lookup_graph in HLookup. destruct (trans (q, [|current tp|])) as [q' acts] eqn:E.
-        destruct ymid; auto; modpon HLookup.
-        unfold Univ_Step_size in *.
-        unfold step; cbn; unfold current_chars; cbn. rewrite E. simpl_vector. cbn.
-        specialize (HCaseResult (acts[@Fin0], (halt q', index q'))). modpon HCaseResult. modpon HDoAction.
-        modpon HTranslate. cbn in *.
-        repeat split; eauto.
-        - unfold containsState_size. contains_ext. rewrite !vector_tl_nth. unfold finType_CS.
-          apply Nat.eq_le_incl. now repeat f_equal. (* use assumption about the step *)
-        - intros i; destruct_fin i; cbn; TMSimp_goal; auto.
-      }
-    }
-  Qed.
-
-  Local Arguments Univ_Step_size : simpl never.
-
-
-  Definition Univ_Step_steps_ConstrPair (tp : tape sigM) :=
-    Constr_pair_steps (current tp).
-
-  Definition Univ_Step_steps_ResetSymbol (tp : tape sigM) :=
-    Reset_steps (current tp).
-
-  Definition Univ_Step_steps_Lookup (M : TM sigM 1) (q : state M) (tp : tape sigM) :=
-    Lookup_steps (current tp, (halt q, index q)) (graph_of_TM M).
-
-  Definition Univ_Step_steps_CasePair (a : option sigM * move) :=
-    CasePair_steps a.
-
-  Definition Univ_Step_steps_Translate (M : TM sigM 1) (q' : state M) :=
-    Translate_steps (halt q', index q').
-
-  Definition Univ_Step_steps_IsFinal (M : TM sigM 1) (q : state M) (tp : tape sigM) :=
-    if halt q
-    then 0
-    else
-      let (q', acts) := trans (q, [|current tp|]) in
-      6 + ReadCurrent'_steps + Univ_Step_steps_ConstrPair tp + Univ_Step_steps_ResetSymbol tp +
-      Univ_Step_steps_Lookup q tp + Univ_Step_steps_CasePair acts[@Fin0] + DoAction'_steps + Univ_Step_steps_Translate q'.
-
-  Definition Univ_Step_steps (M : TM sigM 1) (q : state M) (tp : tape sigM) : nat :=
-    1 + IsFinal_steps (halt q) + Univ_Step_steps_IsFinal q tp.
-
-  Definition Univ_Step_T : tRel sig^+ 6 :=
-    fun tin k =>
-      exists (M : TM sigM 1) (tp : tape sigM) (q : state M),
-        containsWorkingTape tin[@Fin0] tp /\
-        containsTrans tin[@Fin1] M /\
-        containsState tin[@Fin2] q /\
-        (forall (i : Fin.t 3), isRight tin[@FinR 3 i]) /\
-        Univ_Step_steps q tp <= k.
-  
-  Lemma Univ_Step_Terminates : projT1 Univ_Step ↓ Univ_Step_T.
-  Proof.
-    eapply TerminatesIn_monotone.
-    { unfold Univ_Step.
-      (* Every [TM_Correct_step] step is good, except for [Constr_pair] and [CasePair], because it uses "non-standard" encodings, i.e. [Encode_Finite] *)
-      unfold Univ_Step. TM_Correct_step. 2: TM_Correct. TM_Correct_step.
-      apply IsFinal_Realise. apply IsFinal_Terminates.
-      TM_Correct_step. TM_Correct_step. TM_Correct_step.
-      TM_Correct_step. TM_Correct_step. eapply RealiseIn_Realise; apply ReadCurrent'_Sem.
-      TM_Correct_step. eapply RealiseIn_TerminatesIn; apply ReadCurrent'_Sem.
-      TM_Correct_step. TM_Correct_step. TM_Correct_step.
-      apply Constr_pair_Realise with (cX := Encode_Finite (FinType(EqType(option sigM)))) (cY := Encode_pair Encode_bool Encode_nat).
-      TM_Correct_step. TM_Correct_step.
-      apply Constr_pair_Terminates with (cX := Encode_Finite (FinType(EqType(option sigM)))).
-      TM_Correct_step. TM_Correct_step.
-      apply Reset_Realise with (I := retr_sigCurrentSymbol_sig).
-      TM_Correct_step.
-      apply Reset_Terminates with (I := retr_sigCurrentSymbol_sig).
-      TM_Correct_step. TM_Correct_step. TM_Correct_step.
-      apply Lookup_Realise with (cX := (Encode_pair (Encode_Finite _) (Encode_pair Encode_bool Encode_nat)))
-                                (cY := (Encode_pair (Encode_Finite _) (Encode_pair Encode_bool Encode_nat))).
-      { apply transition_graph_injective. }
-      TM_Correct_step. TM_Correct_step.
-      apply Lookup_Terminates with (cX := (Encode_pair (Encode_Finite _) (Encode_pair Encode_bool Encode_nat)))
-                                (cY := (Encode_pair (Encode_Finite _) (Encode_pair Encode_bool Encode_nat))).
-      { apply transition_graph_injective. }
-      TM_Correct_step. TM_Correct_step. TM_Correct_step.
-      apply CasePair_Realise with (cX := Encode_Finite (FinType(EqType(option sigM*move)))) (cY := Encode_pair Encode_bool Encode_nat).
-      TM_Correct_step. TM_Correct_step.
-      apply CasePair_Terminates with (cX := Encode_Finite (FinType(EqType(option sigM*move)))) (cY := Encode_pair Encode_bool Encode_nat).
-      TM_Correct_step. TM_Correct_step.
-      eapply RealiseIn_Realise; apply DoAction'_Sem.
-      TM_Correct_step. eapply RealiseIn_TerminatesIn; apply DoAction'_Sem.
-      TM_Correct_step.
-      apply Translate_Terminates with (X := (bool * nat)%type).
-    }
-    {
-      intros tin k. intros (M&tp&q&HEncTp&HEncM&HEncQ&HRight&Hk). unfold Univ_Step_steps in Hk.
-      specialize (HRight Fin0) as H';cbn in H'. 
-      specialize (HRight Fin1) as H1';cbn in H1'. 
-      specialize (HRight Fin2) as H2';cbn in H2'. 
-      exists (IsFinal_steps (halt q)), (Univ_Step_steps_IsFinal q tp). repeat split; try lia.
-      { hnf; cbn. do 3 eexists; repeat split; eauto. }
-      intros tmid_ ymid (HIsFinal&HIsFinalInj); TMSimp. modpon HIsFinal; eauto.
-      { unfold containsState, containsState_size in *. contains_ext. }
-      subst. unfold Univ_Step_steps_IsFinal. destruct (halt q).
-      { (* halting state *) eauto. }
-      { (* no halting state *)
-        destruct (trans (q, [|current tp|])) as [q' acts] eqn:E.
-        exists (ReadCurrent'_steps),
-        (5 + Univ_Step_steps_ConstrPair tp + Univ_Step_steps_ResetSymbol tp +
-         Univ_Step_steps_Lookup q tp + Univ_Step_steps_CasePair acts[@Fin0] + DoAction'_steps + Univ_Step_steps_Translate q'). repeat split; try lia.
-        intros tmid0_ [] (HReadCurrent&HReadCurrentInj); TMSimp. modpon HReadCurrent.
-        eexists (Univ_Step_steps_ConstrPair tp),
-        (4 + Univ_Step_steps_ResetSymbol tp +
-         Univ_Step_steps_Lookup q tp + Univ_Step_steps_CasePair (o,m)
-         + DoAction'_steps + Univ_Step_steps_Translate q'). repeat split; try lia.
-        { hnf; cbn. eexists; repeat split; eauto. simpl_surject. eauto. }
-        intros tmid1_ [] (HConstrPair&HConstrPairInj); TMSimp.
-        specialize (HConstrPair (current tp) (halt q, index q)). modpon HConstrPair.
-        exists (Univ_Step_steps_ResetSymbol tp),
-        (3 + Univ_Step_steps_Lookup q tp + Univ_Step_steps_CasePair (o,m) + DoAction'_steps + Univ_Step_steps_Translate q'). repeat split; try lia.
-        { eexists. repeat split; eauto. }
-        intros tmid2_ [] (HReset&HResetInj); TMSimp. modpon HReset.
-        exists (Univ_Step_steps_Lookup q tp),
-        (2 + Univ_Step_steps_CasePair (o,m) + DoAction'_steps + Univ_Step_steps_Translate q'). repeat split; try lia.
-        { hnf; cbn. eexists. exists (current tp, (halt q, index q)). repeat split; simpl_surject; eauto. }
-        intros tmid3_ ymid3 (HLookup&HLookupInj); TMSimp. modpon HLookup.
-        { simpl_surject. unfold containsTrans in *. contains_ext. }
-        rewrite lookup_graph in HLookup. cbn in *. rewrite E in HLookup.
-        destruct ymid3; auto. modpon HLookup.
-        exists (Univ_Step_steps_CasePair (o,m)), (1 + DoAction'_steps + Univ_Step_steps_Translate q'). repeat split; try lia.
-        { hnf; cbn. exists ((o,m), (halt q', index q')). repeat split; simpl_surject; eauto. }
-        intros tmid4_ [] (HCasePair&HCasePairInj); TMSimp. modpon HCasePair. cbn in *.
-        exists (DoAction'_steps), (Univ_Step_steps_Translate q'). repeat split; try lia.
-        intros tmid5_  [] (HDoAction&HDoActionInj); TMSimp. modpon HDoAction.
-        { hnf; cbn. exists (halt q', index q'). split; auto. }
-      }
-    }
-  Qed.
-
-
-
-  Definition Univ := While Univ_Step.
-
-
-  Fixpoint Univ_size (M : TM sigM 1) (tp : tape sigM) (q : state M) (k : nat) {struct k} : Vector.t (nat->nat) 6 :=
-    match k with
-    | 0 => Univ_Step_size tp q
-    | S k' =>
-      if halt q
-      then Univ_Step_size tp q
-      else let (q', tp') := step (mk_mconfig q [|tp|]) in
-           Univ_Step_size tp q >>> Univ_size tp'[@Fin0] q' k'
-    end.
-  
-
-  Definition Univ_Rel : pRel sig^+ unit 6 :=
-    fun tin '(_, tout) =>
-      forall (M : TM sigM 1) (tp : tape sigM) (q : state M) (s1 s2 : nat) (sr : Vector.t nat 3),
-        containsWorkingTape tin[@Fin0] tp ->
-        containsTrans_size tin[@Fin1] M s1 ->
-        containsState_size tin[@Fin2] q s2 ->
-        (forall (i : Fin.t 3), isRight_size tin[@FinR 3 i] sr[@i]) ->
-        exists k (oconf : mconfig sigM (state M) 1),
-          let size := Univ_size tp q k in
-          loopM (mk_mconfig q [|tp|]) k = Some oconf /\
-          containsWorkingTape tout[@Fin0] (ctapes oconf)[@Fin0] /\
-          containsTrans_size tout[@Fin1] M              (size@>Fin1 s1) /\
-          containsState_size tout[@Fin2] (cstate oconf) (size@>Fin2 s2) /\
-          (forall (i : Fin.t 3), isRight_size tout[@FinR 3 i] (size@>(FinR 3 i) sr[@i])).
-
-  Lemma Univ_Realise : Univ ⊨ Univ_Rel.
-  Proof.
-    eapply Realise_monotone.
-    { unfold Univ. TM_Correct. apply Univ_Step_Realise. }
-    { apply WhileInduction; intros; cbn; intros M tp q s1 s2 sr HEncTp HEncM HEncQ HRight; cbn in *; destruct_unit.
-      - modpon HLastStep. destruct (halt q) eqn:E; auto; modpon HLastStep.
-        exists 0. eexists. cbn. unfold haltConf. cbn. rewrite E. repeat split; eauto.
-      - modpon HStar. destruct (halt q) eqn:E; auto. destruct (step (mk_mconfig q [|tp|])) as [q' tp'] eqn:E2. modpon HStar.
-        modpon HLastStep.
-        { instantiate (1:=[| _;_;_|]). cbn. intros i. specialize(HStar2 i). destruct_fin i; cbn; auto. }
-        destruct HLastStep as (k&oconf&HLastStep); modpon HLastStep.
-        exists (S k). eexists. cbn. unfold haltConf. cbn. rewrite !E, !E2. repeat split; eauto.
-        rewrite <- HLastStep. unfold loopM. f_equal. clear_all. destruct_tapes; auto.
-        { intros i. specialize(HLastStep3 i). destruct_fin i; cbn; auto. }
-    }
-  Qed.
-
-
-  Fixpoint Univ_steps (M : TM sigM 1) (q : state M) (tp : tape sigM) (k : nat) : nat :=
-    match k with
-    | 0 => Univ_Step_steps q tp
-    | S k' =>
-      if halt q
-      then Univ_Step_steps q tp
-      else let (q', tp') := step (mk_mconfig q [|tp|]) in
-           1 + Univ_Step_steps q tp + Univ_steps q' tp'[@Fin0] k'
-    end.
-
-  Definition Univ_T : tRel sig^+ 6 :=
-    fun tin k =>
-      exists (M : TM sigM 1) (tp : tape sigM) (q : state M) (k' : nat) (q' : state M) (tp' : tape sigM),
-        containsWorkingTape tin[@Fin0] tp /\
-        containsTrans tin[@Fin1] M /\
-        containsState tin[@Fin2] q /\
-        (forall (i : Fin.t 3), isRight tin[@FinR 3 i]) /\
-        loopM (mk_mconfig q [|tp|]) k' = Some (mk_mconfig q' [|tp'|]) /\
-        Univ_steps q tp k' <= k.
-
-
-  Lemma destruct_vector1 (X : Type) (v : Vector.t X 1) :
-    exists x, v = [| x |].
-  Proof. destruct_vector. eauto. Qed.
-  
-  Lemma Univ_Terminates : projT1 Univ ↓ Univ_T.
-  Proof.
-    eapply TerminatesIn_monotone.
-    { unfold Univ. TM_Correct.
-      - apply Univ_Step_Realise.
-      - apply Univ_Step_Terminates. }
-    { apply WhileCoInduction; intros. destruct HT as (M&tp&q&k'&q'&tp'&HEncTp&HEncM&HEncQ&HRight&HLoop&Hk).
-      exists (Univ_Step_steps q tp). split. hnf; eauto 8.
-      intros [ [] | ] tmid HStep; cbn in *.
-      - modpon HStep.
-        { unfold containsTrans, containsTrans_size in *. contains_ext. }
-        { unfold containsState, containsState_size in *. contains_ext. }
-        { instantiate (1 := [| _;_;_|]). intros i. specialize (HRight i). destruct_fin i; cbn; auto. }
-        destruct (halt q) eqn:E; auto; modpon HStep. destruct k'; cbn in Hk; auto. rewrite E in Hk. auto.
-      - modpon HStep.
-        { unfold containsTrans, containsTrans_size in *. contains_ext. }
-        { unfold containsState, containsState_size in *. contains_ext. }
-        { instantiate (1 := [| _;_;_|]). intros i. specialize (HRight i). destruct_fin i; cbn; auto. }
-        destruct (halt q) eqn:E; auto.
-        unfold step, current_chars in HStep. cbn in *. destruct (trans (q, [|current tp|])) as [q'' acts] eqn:E'; modpon HStep. simpl_vector in HStep. cbn in *.
-        pose proof destruct_vector1 acts as (act&->); cbn in *.
-        destruct k' as [ | k']; cbn in *; unfold haltConf in *; cbn in *.
-        + exfalso. rewrite E in HLoop. inv HLoop.
-        + rewrite E in HLoop. unfold step, haltConf, current_chars in HLoop, Hk; cbn in *. rewrite E' in HLoop, Hk. rewrite E in Hk. simpl_vector in *. cbn in *.
-          exists (Univ_steps q'' (doAct tp act) k'). split.
-          * hnf. do 6 eexists; repeat split; eauto.
-            intros i. specialize (HStep2 i). isRight_mono.
-          * lia.
-    }
-  Qed.
-
 
 End Univ.
 

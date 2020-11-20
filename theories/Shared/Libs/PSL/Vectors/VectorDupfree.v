@@ -207,3 +207,25 @@ Proof.
     + cbn in *. contradict H. eapply vect_nth_In; eauto.
     + f_equal. now apply IHdupfree.
 Qed.
+
+
+Lemma Vector_dupfree_app {X n1 n2} (v1 : Vector.t X n1) (v2 : Vector.t X n2) :
+  VectorDupfree.dupfree (Vector.append v1 v2) <-> VectorDupfree.dupfree v1 /\ VectorDupfree.dupfree v2 /\ forall x, Vector.In x v1 -> Vector.In x v2 -> False.
+Proof.
+  induction v1; cbn.
+  - firstorder. econstructor. inversion H0.
+  - split.
+    + intros [] % VectorDupfree.dupfree_cons. repeat split.
+      * econstructor. intros ?. eapply H0. eapply Vector_in_app. eauto. eapply IHv1; eauto.
+      * eapply IHv1; eauto.
+      * intros ? [-> | ?] % In_cons ?.
+        -- eapply H0. eapply Vector_in_app. eauto.
+        -- eapply IHv1; eauto.
+    + intros (? & ? & ?). econstructor. 2:eapply IHv1; repeat split.
+      * intros [? | ?] % Vector_in_app.
+        -- eapply VectorDupfree.dupfree_cons in H as []. eauto.
+        -- eapply H1; eauto. econstructor.
+      * eapply VectorDupfree.dupfree_cons in H as []. eauto.
+      * eauto.
+      * intros. eapply H1. econstructor 2. eauto. eauto.
+Qed.

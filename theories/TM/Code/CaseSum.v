@@ -58,10 +58,10 @@ Section CaseSum.
 
 
     Definition Constr_inl_Rel : Rel (tapes (sigSum sigX sigY)^+ 1) (unit * tapes (sigSum sigX sigY)^+ 1) :=
-      Mk_R_p (ignoreParam (fun tin tout => forall (x:X) (ss:nat), tin ≃(;ss) x -> tout ≃(;pred ss) inl x)).
+      Mk_R_p (ignoreParam (fun tin tout => forall (x:X) (ss:nat), tin ≃(;ss) x -> tout ≃(;pred ss) inl (B:=Y) x)).
 
     Definition Constr_inr_Rel : Rel (tapes (sigSum sigX sigY)^+ 1) (unit * tapes (sigSum sigX sigY)^+ 1) :=
-      Mk_R_p (ignoreParam (fun tin tout => forall (y:Y) (ss:nat), tin ≃(;ss) y -> tout ≃(;pred ss) inr y)).
+      Mk_R_p (ignoreParam (fun tin tout => forall (y:Y) (ss:nat), tin ≃(;ss) y -> tout ≃(;pred ss) inr (A:=X)y)).
 
     Definition Constr_inl : pTM (sigSum sigX sigY)^+ unit 1 :=
       WriteMove (inr sigSum_inl) Lmove;; Write (inl START).
@@ -111,7 +111,7 @@ Arguments Constr_inr : simpl never.
 (** ** Tactic Support for Sum Types *)
 
 Ltac smpl_TM_CaseSum :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- CaseSum _ _ ⊨ _ ] => eapply RealiseIn_Realise; apply CaseSum_Sem
   | [ |- CaseSum _ _ ⊨c(_) _ ] => apply CaseSum_Sem
   | [ |- projT1 (CaseSum _ _) ↓ _ ] => eapply RealiseIn_TerminatesIn; apply CaseSum_Sem
@@ -154,7 +154,7 @@ Section CaseOption.
                 tin ≃(;s) o ->
                 match yout, o with
                 | true, Some x => tout ≃(;CaseOption_size_Some s) x
-                | false, None => isRight_size tout (CaseOption_size_None s)
+                | false, None => isVoid_size tout (CaseOption_size_None s)
                 | _, _ => False
                 end).
 
@@ -268,10 +268,10 @@ Section CaseOption.
       (ignoreParam
          (fun tin tout =>
             forall (s : nat),
-              isRight_size tin s ->
-              tout ≃(; pred s) None)).
+              isVoid_size tin s ->
+              tout ≃(; pred s) @None X)).
 
-  Definition Constr_None : pTM tau^+ unit 1 := WriteValue [ sigOption_None ].
+  Definition Constr_None : pTM tau^+ unit 1 := WriteValue (@None X).
 
   Goal Constr_None = WriteMove (inl STOP) Lmove;; WriteMove (inr sigOption_None) Lmove;; Write (inl START).
   Proof. reflexivity. Qed.
@@ -283,21 +283,21 @@ Section CaseOption.
     { unfold Constr_None. TM_Correct. }
     { cbn. reflexivity. }
     { intros tin ((), tout) H. intros s HRight.
-      cbn in H. specialize H with (x := None). modpon H. cbn in H. contains_ext. unfold WriteValue_size. lia.
+      cbn in H. modpon H. cbn in H. contains_ext. unfold WriteValue_size. lia.
     }
   Qed.
 
 End CaseOption.
 
 Arguments CaseOption : simpl never.
-Arguments Constr_None : simpl never.
+Arguments Constr_None _ {_ _} : simpl never.
 Arguments Constr_Some : simpl never.
 
 
 (** ** Tactic Support for Option Types *)
 
 Ltac smpl_TM_CaseOption :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- CaseOption _ ⊨ _ ] => eapply RealiseIn_Realise; apply CaseOption_Sem
   | [ |- CaseOption _ ⊨c(_) _ ] => apply CaseOption_Sem
   | [ |- projT1 (CaseOption _) ↓ _ ] => eapply RealiseIn_TerminatesIn; apply CaseOption_Sem
@@ -310,3 +310,113 @@ Ltac smpl_TM_CaseOption :=
   end.
 
 Smpl Add smpl_TM_CaseOption : TM_Correct.
+
+
+From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+
+Section CaseSum.
+  Variable (X Y : Type) (sigX sigY : finType) (codX : codable sigX X) (codY : codable sigY Y).
+
+  Lemma Constr_inl_SpecT_size (x : X) (ss : Vector.t nat 1) :
+    TripleT
+      (≃≃(([], withSpace  [|Contains _ x |] ss))) Constr_inl_steps (Constr_inl sigX sigY)
+      (fun _ => ≃≃(([], withSpace  [|Contains _ (inl (B:=Y)x)|] (appSize [|pred|] ss)))).
+  Proof. unfold withSpace.
+    eapply RealiseIn_TripleT.
+    - apply Constr_inl_Sem.
+    - intros tin [] tout H HEnc. cbn in *.
+      specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H. tspec_solve.
+  Qed.
+
+  Lemma Constr_inr_SpecT_size (y : Y) (ss : Vector.t nat 1) :
+    TripleT
+      (≃≃(([], withSpace  [|Contains _ y |] ss))) Constr_inr_steps (Constr_inr sigX sigY)
+      (fun _ => ≃≃(([], withSpace  [|Contains _ (inr (A:=X) y)|] (appSize [|pred|] ss)))).
+  Proof. unfold withSpace.
+    eapply RealiseIn_TripleT.
+    - apply Constr_inr_Sem.
+    - intros tin [] tout H HEnc. cbn in *.
+      specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H. tspec_solve.
+  Qed.
+
+  Lemma CaseSum_SpecT_size (s : X+Y) (ss : Vector.t nat 1) :
+    TripleT
+      (≃≃(([], withSpace  [|Contains _ s |] ss))) (CaseSum_steps) (CaseSum sigX sigY)
+      (fun yout => ≃≃([yout = if s then true else false],withSpace
+                         (match s with inl x => [|Contains _ x|] | inr y =>  [|Contains _ y|] end)
+                         (appSize [|S|] ss))).
+  Proof. unfold withSpace.
+    eapply RealiseIn_TripleT.
+    - apply CaseSum_Sem.
+    - intros tin yout tout H HEnc. cbn in *.
+      specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H.
+      destruct yout, s; cbn in *; auto; tspec_solve. all:easy.
+  Qed.
+  
+End CaseSum.
+
+
+Section CaseOpton.
+  
+  Variable (X : Type) (sigX : finType) (codX : codable sigX X).
+
+  Lemma Constr_Some_SpecT_size (x : X) (ss : Vector.t nat 1) :
+    TripleT
+      (≃≃(([], withSpace  [|Contains _ x |] ss))) Constr_Some_steps (Constr_Some sigX)
+      (fun _ => ≃≃(([], withSpace  [|Contains _ (Some x)|] (appSize [|pred|] ss)))).
+  Proof. unfold withSpace.
+    eapply RealiseIn_TripleT.
+    - apply Constr_Some_Sem.
+    - intros tin [] tout H HEnc. cbn in *.
+      specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H. tspec_solve.
+  Qed.
+
+  Lemma Constr_None_SpecT_size (ss : Vector.t nat 1) :
+    TripleT
+      (≃≃(([], withSpace  [|Void |] ss))) Constr_None_steps (Constr_None X)
+      (fun _ => ≃≃(([], withSpace  [|Contains _ (None (A:=X))|] (appSize [|pred|] ss)))).
+  Proof. unfold withSpace.
+    eapply RealiseIn_TripleT.
+    - apply Constr_None_Sem.
+    - intros tin [] tout H HEnc. cbn in *.
+      specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H. tspec_solve.
+  Qed.
+
+  Definition CaseOption_size (o : option X) : Vector.t (nat->nat) 1 :=
+    match o with
+    | None => [|CaseOption_size_None|]
+    | Some _ => [|CaseOption_size_Some|]
+    end.
+
+  Lemma CaseOption_SpecT_size (o : option X) (ss : Vector.t nat 1) :
+    TripleT
+      (≃≃(([], withSpace  [|Contains _ o |] ss))) (CaseOption_steps) (CaseOption sigX)
+      (fun yout => ≃≃([yout = match o with None => false | _ => true end ],withSpace
+                         (match o with
+                          |  Some x => [|Contains _ x|]
+                          |  None  => [|Void|]
+                          end)
+                         (appSize (CaseOption_size o) ss))).
+  Proof. unfold withSpace.
+    eapply RealiseIn_TripleT.
+    - apply CaseOption_Sem.
+    - intros tin yout tout H HEnc. cbn in *.
+      specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H.
+      destruct yout, o; cbn in *; auto; tspec_solve. all:easy.
+  Qed.
+  
+End CaseOpton.
+
+
+Ltac hstep_Sum_Option :=
+  lazymatch goal with
+  | [ |- TripleT ?P ?k (Constr_inl _ _) ?Q ] => eapply Constr_inl_SpecT_size
+  | [ |- TripleT ?P ?k (Constr_inr _ _) ?Q ] => eapply Constr_inr_SpecT_size
+  | [ |- TripleT ?P ?k (CaseSum    _ _) ?Q ] => eapply CaseSum_SpecT_size
+
+  | [ |- TripleT ?P ?k (Constr_Some _)  ?Q ] => eapply Constr_Some_SpecT_size
+  | [ |- TripleT ?P ?k (Constr_None _)  ?Q ] => eapply Constr_None_SpecT_size
+  | [ |- TripleT ?P ?k (CaseOption  _)  ?Q ] => eapply CaseOption_SpecT_size
+  end.
+
+Smpl Add hstep_Sum_Option : hstep_Spec.

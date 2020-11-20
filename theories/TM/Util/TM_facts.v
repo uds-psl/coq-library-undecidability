@@ -772,16 +772,16 @@ Section Semantics.
   (** Parametrised relations *)
   Definition pRel (sig : Type) (F: Type) (n : nat) := Rel (tapes sig n) (F * tapes sig n).
 
-  (** A (labelled) machine [M] realises a (labelled) relation [Rmove], if: for every tape vectors [t], if [M] with [t] terminates in a configuration [c], then [Rmove (t), (projT2 M (cstate c), ctapes c)]. That means that the pair of the input tape vectors, the labelof the state in that the machine terminated, and the output tape, must be in the relation [Rmove]. *)
+  (** A (labelled) machine [M] realises a (labelled) relation [R], if: for every tape vectors [t], if [M] with [t] terminates in a configuration [c], then [R (t), (projT2 M (cstate c), ctapes c)]. That means that the pair of the input tape vectors, the labelof the state in that the machine terminated, and the output tape, must be in the relation [R]. *)
   
-  Definition Realise n F (pM : pTM n F) (Rmove : pRel sig n F) :=
-    forall t k outc, loopM (initc (projT1 pM) t) k = Some outc -> Rmove t (projT2 pM (cstate outc), ctapes outc).
+  Definition Realise n F (pM : pTM n F) (R : pRel sig n F) :=
+    forall t k outc, loopM (initc (projT1 pM) t) k = Some outc -> R t (projT2 pM (cstate outc), ctapes outc).
 
-  Notation "M '⊨' Rmove" := (Realise M Rmove) (no associativity, at level 30, format "M  '⊨'  Rmove").
+  Notation "M '⊨' R" := (Realise M R) (no associativity, at level 30, format "M  '⊨'  R").
 
   (** Realisation is monotone *)
-  Lemma Realise_monotone n (F : finType) (pM : pTM F n) Rmove Rmove' :
-    pM ⊨ Rmove' -> Rmove' <<=2 Rmove -> pM ⊨ Rmove.
+  Lemma Realise_monotone n (F : Type) (pM : pTM F n) R R' :
+    pM ⊨ R' -> R' <<=2 R -> pM ⊨ R.
   Proof. firstorder. Qed.
 
 
@@ -814,12 +814,12 @@ Section Semantics.
   
 
   (** Realisation plus termination in constant time *)
-  Definition RealiseIn n (F : finType) (pM : pTM F n) (Rmove : pRel sig F n) (k : nat) :=
-    forall input, exists outc, loopM (initc (projT1 pM) input) k = Some outc /\ Rmove input ((projT2 pM (cstate outc)), ctapes outc).
-  Notation "M '⊨c(' k ')' Rmove" := (RealiseIn M Rmove k) (no associativity, at level 45, format "M  '⊨c(' k ')'  Rmove").
+  Definition RealiseIn n (F : Type) (pM : pTM F n) (R : pRel sig F n) (k : nat) :=
+    forall input, exists outc, loopM (initc (projT1 pM) input) k = Some outc /\ R input ((projT2 pM (cstate outc)), ctapes outc).
+  Notation "M '⊨c(' k ')' R" := (RealiseIn M R k) (no associativity, at level 45, format "M  '⊨c(' k ')'  R").
 
-  Lemma RealiseIn_monotone n (F : finType) (pM : pTM F n) (Rmove Rmove' : pRel sig F n) k k' :
-    pM ⊨c(k') Rmove' -> k' <= k -> Rmove' <<=2 Rmove -> pM ⊨c(k) Rmove.
+  Lemma RealiseIn_monotone n (F : Type) (pM : pTM F n) (R R' : pRel sig F n) k k' :
+    pM ⊨c(k') R' -> k' <= k -> R' <<=2 R -> pM ⊨c(k) R.
   Proof.
     unfold RealiseIn. intros H1 H2 H3 input.
     specialize (H1 input) as (outc & H1). exists outc.
@@ -828,13 +828,13 @@ Section Semantics.
     - intuition.
   Qed.
 
-  Lemma RealiseIn_monotone' n (F : finType) (pM : pTM F n) (Rmove : pRel sig F n) k k' :
-    pM ⊨c(k') Rmove -> k' <= k -> pM ⊨c(k) Rmove.
+  Lemma RealiseIn_monotone' n (F : Type) (pM : pTM F n) (R : pRel sig F n) k k' :
+    pM ⊨c(k') R -> k' <= k -> pM ⊨c(k) R.
   Proof.
     intros H1 H2. eapply RealiseIn_monotone. eapply H1. assumption. firstorder.
   Qed.
 
-  Lemma RealiseIn_split n (F : finType) (pM : pTM F n) R1 R2 (k : nat) :
+  Lemma RealiseIn_split n (F : Type) (pM : pTM F n) R1 R2 (k : nat) :
     pM ⊨c(k) R1 /\ pM ⊨c(k) R2 <-> pM ⊨c(k) R1 ∩ R2.
   Proof.
     split; swap 1 2; [ intros H | intros (H1&H2)]; repeat intros ?. hnf; firstorder eauto.
@@ -842,8 +842,8 @@ Section Semantics.
     pose proof loop_injective H1 H2 as <-. exists outc. split; hnf; eauto.
   Qed.
   
-  Lemma Realise_total n (F : finType) (pM : { M : TM n & state M -> F }) Rmove k :
-    pM ⊨ Rmove /\ projT1 pM ↓ (fun _ i => k <= i) <-> pM ⊨c(k) Rmove.
+  Lemma Realise_total n (F : Type) (pM : { M : TM n & state M -> F }) R k :
+    pM ⊨ R /\ projT1 pM ↓ (fun _ i => k <= i) <-> pM ⊨c(k) R.
   Proof.
     split.
     - intros (HR & Ht) t. edestruct (Ht t k). cbn; lia. eauto.
@@ -860,18 +860,18 @@ Section Semantics.
         exists x. eapply loop_monotone; eauto.
   Qed.
 
-  Lemma RealiseIn_Realise n (F : finType) (pM : pTM F n) Rmove k :
-    pM ⊨c(k) Rmove -> pM ⊨ Rmove.
+  Lemma RealiseIn_Realise n (F : Type) (pM : pTM F n) R k :
+    pM ⊨c(k) R -> pM ⊨ R.
   Proof. now intros (?&?) % Realise_total. Qed.
 
-  Lemma RealiseIn_TerminatesIn n (F : finType) (pM : { M : TM n & state M -> F }) Rmove k :
-    pM ⊨c(k) Rmove -> projT1 pM ↓ (fun tin l => k <= l). 
+  Lemma RealiseIn_TerminatesIn n (F : Type) (pM : { M : TM n & state M -> F }) R k :
+    pM ⊨c(k) R -> projT1 pM ↓ (fun tin l => k <= l). 
   Proof.
     intros HRel. hnf. intros tin l HSteps. hnf in HRel. specialize (HRel tin) as (outc&HLoop&Rloop).
     exists outc. eapply loop_monotone; eauto.
   Qed.
   
-  Lemma Realise_strengthen n (F : finType) (pM : pTM F n) R1 R2 :
+  Lemma Realise_strengthen n (F : Type) (pM : pTM F n) R1 R2 :
     Realise pM R2 -> Realise pM R1 -> Realise pM (R1 ∩ R2).
   Proof.
     intros HwR HR t. firstorder.
@@ -882,7 +882,7 @@ Section Semantics.
 
   Section Canonical_Correctness.
     Variable (n : nat).
-    Variable (F : finType).
+    Variable (F : Type).
     Variable (pM : pTM F n).
 
     Definition Canonical_Rel : pRel sig F n :=
@@ -924,8 +924,8 @@ End Semantics.
 Notation "'(' M ';' labelling ')'" := (existT (fun x => state x -> _) M labelling).
 
 (** Notations for semantic of concrete Turing machines *)
-Notation "M '⊨' Rmove" := (Realise M Rmove) (no associativity, at level 60, format "M  '⊨'  Rmove").
-Notation "M '⊨c(' k ')' Rmove" := (RealiseIn M Rmove k) (no associativity, at level 45, format "M  '⊨c(' k ')'  Rmove").
+Notation "M '⊨' R" := (Realise M R) (no associativity, at level 60, format "M  '⊨'  R").
+Notation "M '⊨c(' k ')' R" := (RealiseIn M R k) (no associativity, at level 45, format "M  '⊨c(' k ')'  R").
 Notation "M '↓' t" := (TerminatesIn M t) (no associativity, at level 60, format "M  '↓'  t").
 
 
@@ -940,7 +940,7 @@ Proof. constructor. apply start. Qed.
 Lemma inhabited_pTM_lab (n : nat) (sig : finType) (F : Type) (pM : pTM sig F n) : inhabitedC F.
 Proof. constructor. apply (projT2 pM). apply default. Qed.
 
-Hint Extern 4 => lazymatch goal with
+Hint Extern 4 => once lazymatch goal with
                 | [ pM : pTM ?sig ?F ?n |- inhabitedC ?F ] => apply (inhabited_pTM_lab pM)
                 end : typeclass_instances.
 
@@ -958,7 +958,7 @@ End Test_def.
 Definition execTM (sig : finType) (n : nat) (M : TM sig n) (tapes : tapes sig n) (k : nat) :=
   option_map (@ctapes _ _ _) (loopM (initc M tapes) k).
 
-Definition execTM_p (sig : finType) (n : nat) (F : finType) (pM : { M : TM sig n & state M -> F }) (tapes : tapes sig n) (k : nat) :=
+Definition execTM_p (sig : finType) (n : nat) (F : Type) (pM : { M : TM sig n & state M -> F }) (tapes : tapes sig n) (k : nat) :=
   option_map (fun x => (ctapes x, projT2 pM (cstate x))) (loopM (initc (projT1 pM) tapes) k ).
 
 

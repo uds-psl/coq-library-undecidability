@@ -19,14 +19,14 @@ Section Mk_Mono.
     - apply fin.
   Defined.
 
-  Variable (F : finType) (Rmove : Rel (tape sig) (F * tape sig)).
+  Variable (F : finType) (R : Rel (tape sig) (F * tape sig)).
 
   Definition Mk_R_p : Rel (tapes sig 1) (F * tapes sig 1) :=
-      fun tps1 '(p, tps2) => Rmove (tps1[@Fin0]) (p, tps2[@Fin0]).
+      fun tps1 '(p, tps2) => R (tps1[@Fin0]) (p, tps2[@Fin0]).
 
 End Mk_Mono.
 
-Arguments Mk_R_p { sig F } ( Rmove ) x y /.
+Arguments Mk_R_p { sig F } ( R ) x y /.
 
 
 
@@ -184,7 +184,7 @@ Arguments ReadChar_Rel sig x y /.
 (** ** Tactic Support *)
 
 Ltac smpl_TM_Mono :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- DoAct _ ⊨ _] => eapply RealiseIn_Realise; eapply DoAct_Sem
   | [ |- DoAct _ ⊨c(_) _] => eapply DoAct_Sem
   | [ |- projT1 (DoAct _) ↓ _] => eapply RealiseIn_TerminatesIn; eapply DoAct_Sem

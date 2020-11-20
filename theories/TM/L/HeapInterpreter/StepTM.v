@@ -1,14 +1,13 @@
 (** * Step Machine of the Heap Machine Simulator *)
 
 From Undecidability Require Import TM.Code.ProgrammingTools LM_heap_def.
-From Undecidability.L.AbstractMachines.TM_LHeapInterpreter Require Import Alphabets.
-From Undecidability.L.AbstractMachines.TM_LHeapInterpreter Require Import CaseCom LookupTM JumpTargetTM.
+From Undecidability.TM.L Require Import Alphabets CaseCom LookupTM JumpTargetTM.
 From Undecidability Require Import TM.Code.ListTM TM.Code.CaseList TM.Code.CasePair TM.Code.CaseSum.
 
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 
-Local Hint Resolve isRight_isRight_size : core.
+Local Hint Resolve isVoid_isVoid_size : core.
 
 
 (** Here we compose the [Lookup] and [JumpTarget] machines. *)
@@ -66,7 +65,7 @@ Section StepMachine.
             tin[@Fin1] ≃(retr_pro_step;s1) P ->
             tin[@Fin2] ≃(retr_nat_step_clos_ad;s2) a ->
             tout[@Fin0] ≃(;TailRec_size T P a @>Fin0 s0) tailRecursion (a, P) T /\
-            isRight_size tout[@Fin1] (TailRec_size T P a @>Fin1 s1) /\
+            isVoid_size tout[@Fin1] (TailRec_size T P a @>Fin1 s1) /\
             tout[@Fin2] ≃(retr_nat_step_clos_ad; TailRec_size T P a @>Fin2 s2) a
       ).
   
@@ -81,10 +80,7 @@ Section StepMachine.
   Lemma TailRec_Realise : TailRec ⊨ TailRec_Rel.
   Proof.
     eapply Realise_monotone.
-    { unfold TailRec. TM_Correct.
-      - apply Reset_Realise with (I := retr_pro_step).
-      - apply Reset_Realise with (I := retr_clos_step).
-    }
+    { unfold TailRec. TM_Correct. }
     {
       intros tin ((), tout) H. intros T P a s0 s1 s2 HEncT HEncP HEncA.
       unfold TailRec_size.
@@ -118,8 +114,6 @@ Section StepMachine.
   Proof.
     eapply TerminatesIn_monotone.
     { unfold TailRec. TM_Correct.
-      - apply Reset_Terminates with (I := retr_pro_step).
-      - apply Reset_Terminates with (I := retr_clos_step).
     }
     {
       intros tin k (T&P&a&HEncT&HEncP&HEncA&Hk). unfold TailRec_steps in Hk.
@@ -153,8 +147,8 @@ Section StepMachine.
             tin[@Fin1] ≃(retr_nat_step_clos_ad;s1) a ->
             tin[@Fin2] ≃(retr_pro_step;s2) Q ->
             tout[@Fin0] ≃(;ConsClos_size T Q a @>Fin0 s0) (a, Q) :: T /\
-            isRight_size tout[@Fin1] (ConsClos_size T Q a @>Fin1 s1) /\
-            isRight_size tout[@Fin2] (ConsClos_size T Q a @>Fin2 s2)
+            isVoid_size tout[@Fin1] (ConsClos_size T Q a @>Fin1 s1) /\
+            isVoid_size tout[@Fin2] (ConsClos_size T Q a @>Fin2 s2)
       ).
   
   Definition ConsClos : pTM sigStep^+ unit 3 :=
@@ -167,8 +161,6 @@ Section StepMachine.
   Proof.
     eapply Realise_monotone.
     { unfold ConsClos. TM_Correct.
-      - apply Reset_Realise with (I := retr_clos_step).
-      - apply Reset_Realise with (I := retr_nat_step_clos_ad).
     }
     {
       intros tin ((), tout) H. intros T Q a s0 s1 s2 HEncT HEncA HEncQ.
@@ -199,9 +191,6 @@ Section StepMachine.
   Proof.
     eapply TerminatesIn_monotone.
     { unfold ConsClos. TM_Correct.
-      - apply Reset_Realise    with (I := retr_clos_step).
-      - apply Reset_Terminates with (I := retr_clos_step).
-      - apply Reset_Terminates with (I := retr_nat_step_clos_ad).
     }
     {
       intros tin k. intros (T&Q&a&HEncT&HEnca&HEncQ&Hk). unfold ConsClos_steps in Hk.
@@ -215,7 +204,7 @@ Section StepMachine.
       intros tmid0_ () (HCons&HConsInj); TMSimp. specialize (HCons T (a,Q)); modpon HCons.
       exists (Reset_steps (a,Q)), (Reset_steps a).
       cbn; repeat split; try lia; eauto.
-      intros tmid1_ () (HReset&HResetInj); TMSimp. clear HReset.
+      intros tmid1_ () (HReset&HResetInj); TMSimp. modpon HReset.
       exists a. split; eauto.
     }
   Qed.
@@ -237,7 +226,7 @@ Section StepMachine.
         tin[@Fin2] ≃(;s2) H ->
         tin[@Fin3] ≃(retr_pro_step;s3) P ->
         tin[@Fin4] ≃(retr_nat_step_clos_ad;s4) a ->
-        (forall i : Fin.t 5, isRight_size tin[@FinR 5 i] sr[@i]) ->
+        (forall i : Fin.t 5, isVoid_size tin[@FinR 5 i] sr[@i]) ->
         match yout with
         | true =>
           exists (P' Q : Pro),
@@ -245,7 +234,7 @@ Section StepMachine.
           tout[@Fin0] ≃(;size@>Fin0 s0) tailRecursion (a, P') T /\
           tout[@Fin1] ≃(;size@>Fin1 s1) (a, Q) :: V /\
           tout[@Fin2] ≃(;size@>Fin2 s2) H /\
-          (forall i : Fin.t 7, isRight_size tout[@FinR 3 i] (size@>(FinR 3 i) (s3:::s4:::sr)[@i]))
+          (forall i : Fin.t 7, isVoid_size tout[@FinR 3 i] (size@>(FinR 3 i) (s3:::s4:::sr)[@i]))
         | false => jumpTarget 0 [] P = None
         end.
 
@@ -266,24 +255,24 @@ Section StepMachine.
     }
     {
       intros tin (yout, tout) H. cbn. intros T V heap a P s0 s1 s2 s3 s4 sr HEncT HEncV HEncHeap HEncP HEncA HInt.
-      destruct H; TMSimp_old.
+      specializeFin HInt. clear HInt.
+      destruct H; TMSimp.
       { (* Then, i.e. [jumpTarget 0 [] = Some (Q', P')] *)
         rename H into HJumpTarget, H1 into HTailRec, H3 into HConsClos.
         modpon HJumpTarget.
         {
           instantiate (1 := [| _;_;_|]).
-          intros i; destruct_fin i; cbn; simpl_surject; auto.
+          intros i; destruct_fin i;cbn;simpl_surject;isVoid_mono.
         }
         destruct HJumpTarget as (P'&Q'&HJumpTarget); modpon HJumpTarget.
         unfold Step_lam_size; rewrite HJumpTarget.
         modpon HTailRec.
         modpon HConsClos.
         do 2 eexists; repeat split; eauto.
-        - generalize (HInt Fin0) (HJumpTarget2 Fin0); generalize (HJumpTarget2 Fin1); generalize (HJumpTarget2 Fin2); cbn; TMSimp_goal.
-          intros; simpl_surject.
-          destruct_fin i; TMSimp_goal; cbn; auto.
-          + isRight_mono. cbn. now rewrite !vector_tl_nth.
-          + isRight_mono. cbn. now rewrite !vector_tl_nth.
+        specializeFin HJumpTarget2. clear HJumpTarget2.
+        cbn; TMSimp_goal. unfold id.
+        intros. simpl_surject.
+        destruct_fin i; TMSimp; cbn in *;auto.
       }
       { (* Else, i.e. [jumpTarget 0 [] = None] *)
         modpon H.
@@ -312,7 +301,7 @@ Section StepMachine.
         tin[@Fin2] ≃ H /\
         tin[@Fin3] ≃(retr_pro_step) P /\
         tin[@Fin4] ≃(retr_nat_step_clos_ad) a /\
-        (forall i : Fin.t 5, isRight tin[@FinR 5 i]) /\
+        (forall i : Fin.t 5, isVoid tin[@FinR 5 i]) /\
         Step_lam_steps P a <= k.
 
   Lemma Step_lam_Terminates : projT1 Step_lam ↓ Step_lam_T.
@@ -326,17 +315,15 @@ Section StepMachine.
       - apply ConsClos_Terminates.
     }
     {
-      intros tin k. intros (T&V&H&a&P&HEncT&HEncV&HEncH&HEncP&HEncA&HInt&Hk). unfold Step_lam_steps in Hk.
+      intros tin k. intros (T&V&H&a&P&HEncT&HEncV&HEncH&HEncP&HEncA&HInt&Hk).
+      specializeFin HInt. clear HInt.
+      unfold Step_lam_steps in Hk.
       exists (JumpTarget_steps P), (Step_lam_steps_JumpTarget P a). cbn; repeat split; try lia.
-      { hnf; cbn. do 1 eexists; repeat split; simpl_surject; eauto.
-        - apply HInt.
-        - intros i; destruct_fin i; cbn; simpl_surject; TMSimp_goal; eauto; apply HInt. }
-      intros tmid ymid (HJump&HJumpInj); TMSimp_old. modpon HJump.
+      { hnf; cbn. do 1 eexists; repeat split; simpl_surject; eauto. intros i; destruct_fin i;cbn;simpl_surject;easy. }
+      intros tmid ymid (HJump&HJumpInj); TMSimp. modpon HJump.
       {
         instantiate (1 := [| _;_;_|]).
-        intros i.
-        generalize (HInt Fin0); generalize (HInt Fin1); generalize (HInt Fin2); intros.
-        destruct_fin i; cbn; simpl_surject; TMSimp_goal; eauto.
+        intros i. destruct_fin i; cbn; simpl_surject; TMSimp_goal; isVoid_mono.
       }
       destruct ymid.
       {
@@ -353,9 +340,9 @@ Section StepMachine.
 
   Definition Put_size (H : Heap) (g : HClos) (b : HAdd) : Vector.t (nat->nat) 6 :=
     (*
-    (Length_size _ H @>> [|Fin0; Fin3; Fin4; Fin5|]) >>>
+    (Length_size H @>> [|Fin0; Fin3; Fin4; Fin5|]) >>>
     ([|pred|] @>> [|Fin4|]) >>> (* nil *)
-    ([|Constr_pair_size _ g >> pred|] @>>[|Fin2|]) >>> (* pair and [Some] on tape 2 *)
+    ([|Constr_pair_size g >> pred|] @>>[|Fin2|]) >>> (* pair and [Some] on tape 2 *)
      ...
     *)
     [| (*0*) Length_size H @>Fin0 >> MoveValue_size_y (H++[Some(g,b)]) H;
@@ -375,13 +362,13 @@ Section StepMachine.
             tin[@Fin0] ≃(;s0) H ->
             tin[@Fin1] ≃(retr_clos_step;s1) g ->
             tin[@Fin2] ≃(retr_nat_step_clos_ad;s2) b ->
-            isRight_size tin[@Fin3] s3 -> isRight_size tin[@Fin4] s4 -> isRight_size tin[@Fin5] s5 ->
+            isVoid_size tin[@Fin3] s3 -> isVoid_size tin[@Fin4] s4 -> isVoid_size tin[@Fin5] s5 ->
             tout[@Fin0] ≃(;size @>Fin0 s0) H ++ [Some (g,b)] /\
-            isRight_size tout[@Fin1] (size @>Fin1 s1) /\
-            isRight_size tout[@Fin2] (size @>Fin2 s2) /\
+            isVoid_size tout[@Fin1] (size @>Fin1 s1) /\
+            isVoid_size tout[@Fin2] (size @>Fin2 s2) /\
             tout[@Fin3] ≃(retr_nat_step_clos_ad; size @>Fin3 s3) length H /\
-            isRight_size tout[@Fin4] (size @>Fin4 s4) /\
-            isRight_size tout[@Fin5] (size @>Fin5 s5)
+            isVoid_size tout[@Fin4] (size @>Fin4 s4) /\
+            isVoid_size tout[@Fin5] (size @>Fin5 s5)
       ).
 
 
@@ -396,7 +383,7 @@ Section StepMachine.
   
   Definition Put : pTM sigStep^+ unit 6 :=
     Length retr_heap_step retr_nat_step_clos_ad @ [|Fin0; Fin3; Fin4; Fin5|];;
-    Constr_nil sigHEntr_fin ⇑ _ @ [|Fin4|];;
+    Constr_nil HEntr ⇑ _ @ [|Fin4|];;
     Translate retr_nat_step_clos_ad retr_nat_step_hent @ [|Fin2|];;
     Translate retr_clos_step retr_clos_step_hent @ [|Fin1|];;
     Constr_pair sigHClos_fin sigHAdd_fin ⇑ retr_hent'_step @ [|Fin1; Fin2|];;
@@ -413,12 +400,7 @@ Section StepMachine.
     eapply Realise_monotone.
     { unfold Put. TM_Correct.
       - apply Length_Computes with (X := HEntr).
-      - apply Translate_Realise with (X := nat).
-      - apply Translate_Realise with (X := HClos).
       - apply App'_Realise with (X := HEntr).
-      - apply MoveValue_Realise with (X := Heap) (Y := Heap).
-      - apply Reset_Realise with (I := retr_hent_step).
-      - apply Reset_Realise with (I := retr_clos_step_hent).
     }
     {
       intros tin ((), tout) H. cbn. intros heap g b s0 s1 s2 s3 s4 s5 HEncHeap HEncG HEncB HRigh3 HRight4 HRight5.
@@ -455,7 +437,7 @@ Section StepMachine.
         tin[@Fin0] ≃ H /\
         tin[@Fin1] ≃(retr_clos_step) g /\
         tin[@Fin2] ≃(retr_nat_step_clos_ad) b /\
-        isRight tin[@Fin3] /\ isRight tin[@Fin4] /\ isRight tin[@Fin5] /\
+        isVoid tin[@Fin3] /\ isVoid tin[@Fin4] /\ isVoid tin[@Fin5] /\
         Put_steps H g b <= k.
             
   Lemma Put_Terminates : projT1 Put ↓ Put_T.
@@ -464,17 +446,8 @@ Section StepMachine.
     { unfold Put. TM_Correct.
       - apply Length_Computes with (X := HEntr).
       - apply Length_Terminates with (X := HEntr).
-      - apply Translate_Realise with (X := nat).
-      - apply Translate_Terminates with (X := nat).
-      - apply Translate_Realise with (X := HClos).
-      - apply Translate_Terminates with (X := HClos).
       - apply App'_Realise with (X := HEntr).
       - apply App'_Terminates with (X := HEntr).
-      - apply MoveValue_Realise with (X := Heap) (Y := Heap).
-      - apply MoveValue_Terminates with (X := Heap) (Y := Heap).
-      - apply Reset_Realise with (cX := Encode_map Encode_HEntr retr_hent_step).
-      - apply Reset_Terminates with (I := retr_hent_step).
-      - apply Reset_Terminates with (I := retr_clos_step_hent).
     }
     {
       intros tin k. intros (H&g&b&HEncH&HEncG&HEncB&HRight3&HRight4&HRight5&Hk). unfold Put_steps in Hk.
@@ -558,7 +531,7 @@ Section StepMachine.
         tin[@Fin2] ≃(;s2) H ->
         tin[@Fin3] ≃(retr_pro_step;s3) P ->
         tin[@Fin4] ≃(retr_nat_step_clos_ad;s4) a ->
-        (forall i : Fin.t 6, isRight_size tin[@FinR 5 i] sr[@i]) ->
+        (forall i : Fin.t 6, isVoid_size tin[@FinR 5 i] sr[@i]) ->
 
         match yout, V with
         | true, g :: (b, Q) :: V =>
@@ -566,7 +539,7 @@ Section StepMachine.
           tout[@Fin0] ≃(;size@>Fin0 s0) (c, Q) :: tailRecursion (a, P) T /\
           tout[@Fin1] ≃(;size@>Fin1 s1) V /\
           tout[@Fin2] ≃(;size@>Fin2 s2) H' /\
-          (forall i : Fin.t 8, isRight_size tout[@FinR 3 i] (size @>(FinR 3 i) (s3:::s4:::sr)[@i]))
+          (forall i : Fin.t 8, isVoid_size tout[@FinR 3 i] (size @>(FinR 3 i) (s3:::s4:::sr)[@i]))
         | false, [] => True
         | false, [_] => True
         | _, _ => False
@@ -586,13 +559,13 @@ Section StepMachine.
        (Return Nop false)
   .
 
+  Arguments Step_app_size : simpl never.
 
   Lemma Step_app_Realise : Step_app ⊨ Step_app_Rel.
   Proof.
     eapply Realise_monotone.
     { unfold Step_app. TM_Correct.
       - apply TailRec_Realise.
-      - apply Reset_Realise with (I := retr_nat_step_clos_ad).
       - apply Put_Realise.
       - apply ConsClos_Realise.
     }
@@ -618,8 +591,6 @@ Section StepMachine.
           modpon HConsClos.
           repeat split; auto.
           - intros i; destruct_fin i; cbn; auto; TMSimp_goal; auto.
-            + isRight_mono. cbn. now rewrite !vector_tl_nth.
-            + isRight_mono. cbn. now rewrite !vector_tl_nth.
         }
         { modpon H5. destruct V'; auto. }
       }
@@ -653,7 +624,7 @@ Section StepMachine.
         tin[@Fin2] ≃ H /\
         tin[@Fin3] ≃(retr_pro_step) P /\
         tin[@Fin4] ≃(retr_nat_step_clos_ad) a /\
-        (forall i : Fin.t 6, isRight tin[@FinR 5 i]) /\
+        (forall i : Fin.t 6, isVoid tin[@FinR 5 i]) /\
         Step_app_steps V H a P <= k.
 
   Lemma Step_app_Terminates : projT1 Step_app ↓ Step_app_T.
@@ -662,8 +633,6 @@ Section StepMachine.
     { unfold Step_app. TM_Correct.
       - apply TailRec_Realise.
       - apply TailRec_Terminates.
-      - apply Reset_Realise    with (I := retr_nat_step_clos_ad).
-      - apply Reset_Terminates with (I := retr_nat_step_clos_ad).
       - apply Put_Realise.
       - apply Put_Terminates.
       - apply ConsClos_Terminates.
@@ -733,7 +702,7 @@ Section StepMachine.
         tin[@Fin3] ≃(retr_pro_step;s3) P ->
         tin[@Fin4] ≃(retr_nat_step_clos_ad;s4) a ->
         tin[@Fin5] ≃(retr_nat_step_clos_var;s5) n ->
-        isRight_size tin[@Fin6] s6 -> isRight_size tin[@Fin7] s7 ->
+        isVoid_size tin[@Fin6] s6 -> isVoid_size tin[@Fin7] s7 ->
         match yout with
         | true =>
           exists (g : HClos),
@@ -741,7 +710,7 @@ Section StepMachine.
           tout[@Fin0] ≃(;size@>Fin0 s0) tailRecursion (a, P) T /\
           tout[@Fin1] ≃(;size@>Fin1 s1) g :: V /\
           tout[@Fin2] ≃(;size@>Fin2 s2) H /\
-          (forall i : Fin.t 5, isRight_size tout[@FinR 3 i] (size @>(FinR 3 i) [|s3;s4;s5;s6;s7|][@i]))
+          (forall i : Fin.t 5, isVoid_size tout[@FinR 3 i] (size @>(FinR 3 i) [|s3;s4;s5;s6;s7|][@i]))
         | false => lookup H a n = None
         end
   .
@@ -762,7 +731,6 @@ Section StepMachine.
     { unfold Step_var. TM_Correct.
       - apply TailRec_Realise.
       - apply Lookup_Realise.
-      - apply Reset_Realise with (I := retr_closure_step).
     }
     {
       intros tin (yout, tout) H. cbn. intros T V heap a n P s0 s1 s2 s3 s4 s5 s6 s7 HEncT HEncV HEncHeap HEncP HEncA HEncN HRight6 HRight7.
@@ -801,7 +769,7 @@ Section StepMachine.
         tin[@Fin3] ≃(retr_pro_step) P /\
         tin[@Fin4] ≃(retr_nat_step_clos_ad) a /\
         tin[@Fin5] ≃(retr_nat_step_clos_var) n /\
-        isRight tin[@Fin6] /\ isRight tin[@Fin7] /\
+        isVoid tin[@Fin6] /\ isVoid tin[@Fin7] /\
         Step_var_steps P H a n <= k.
 
   Lemma Step_var_Terminates : projT1 Step_var ↓ Step_var_T.
@@ -812,7 +780,6 @@ Section StepMachine.
       - apply TailRec_Terminates.
       - apply Lookup_Realise.
       - apply Lookup_Terminates.
-      - apply Reset_Terminates with (I := retr_closure_step).
     }
     {
       intros tin k. intros (T&V&H&a&n&P&HEncT&HEncV&HEncH&HEncP&HEncA&HEncN&HRight6&HRigth7&Hk). unfold Step_var_steps in Hk.
@@ -889,7 +856,7 @@ Section StepMachine.
         tin[@Fin0] ≃(;s0) T ->
         tin[@Fin1] ≃(;s1) V ->
         tin[@Fin2] ≃(;s2) H ->
-        (forall i : Fin.t 8, isRight_size tin[@FinR 3 i] (sr[@i])) ->
+        (forall i : Fin.t 8, isVoid_size tin[@FinR 3 i] (sr[@i])) ->
         match yout with
         | None =>
           exists T' V' H',
@@ -897,7 +864,7 @@ Section StepMachine.
           tout[@Fin0] ≃(;size@>Fin0 s0) T' /\
           tout[@Fin1] ≃(;size@>Fin1 s1) V' /\
           tout[@Fin2] ≃(;size@>Fin2 s2) H' /\
-          (forall i : Fin.t 8, isRight_size tout[@FinR 3 i] (size@>(FinR 3 i) sr[@i]))
+          (forall i : Fin.t 8, isVoid_size tout[@FinR 3 i] (size@>(FinR 3 i) sr[@i]))
         | Some tt =>
           halt_state (T,V,H) /\
           match T with
@@ -905,10 +872,14 @@ Section StepMachine.
             tout[@Fin0] ≃(;size@>Fin0 s0) (@nil HClos) /\
             tout[@Fin1] ≃(;size@>Fin1 s1) V /\
             tout[@Fin2] ≃(;size@>Fin2 s2) H /\
-            (forall i : Fin.t 8, isRight_size tout[@FinR 3 i] (size@>(FinR 3 i) sr[@i]))
+            (forall i : Fin.t 8, isVoid_size tout[@FinR 3 i] (size@>(FinR 3 i) sr[@i]))
           | _ => True
           end
         end.
+
+  Arguments Step_size : simpl never.
+  Opaque Step_app_size.
+
 
   Lemma Step_Realise : Step ⊨ Step_Rel.
   Proof.
@@ -921,77 +892,75 @@ Section StepMachine.
     }
     {
       intros tin (yout, tout) H. cbn. intros T V Heap s0 s1 s2 sr HEncT HEncV HEncHeap HInt.
-      TMSimp_old. rename H0 into HIf.
-      destruct HIf; TMSimp_old.
+      TMSimp. rename H0 into HIf.
+      destruct HIf; TMSimp.
       { (* Then of [CaseList], i.e. [T = (a, P) :: T'] *) rename H into HCaseList, H0 into HCasePair, H2 into HIf'.
-      modpon HCaseList. destruct T as [ | (a, P) T' ]; auto; modpon HCaseList.
-      specialize (HCasePair (a, P)); modpon HCasePair.
-      destruct HIf'; TMSimp_old.
-      { (* Then of second [CaseList], i.e [P = t :: P'] *) rename H into HCaseList', H0 into HCaseCom, H2 into HCase.
+      do_n_times_fin 8 ltac:(fun i => let H := fresh "H" in specialize (HInt i) as H;cbn in H);clear HInt.
+      modpon HCaseList;[]. destruct T as [ | (a, P) T' ]; auto;[]. modpon HCaseList;[].
+      specialize (HCasePair (a, P)); modpon HCasePair;[]. 
+      destruct HIf'; TMSimp.
+      { (* Then of second [CaseList], i.e [P = t :: P'] *) rename H7 into HCaseList', H8 into HCaseCom, H10 into HCase.
         modpon HCaseList'. destruct P as [ | t P']; auto; modpon HCaseList'.
-        modpon HCaseCom. destruct ymid0 as [ [ | | ] | ], t; auto; simpl_surject; cbn in *.
+        modpon HCaseCom. rename ymid0 into c.
+        destruct c as [ [ | | ] | ]; auto; simpl_surject; cbn in *.
+        1-3:destruct HCaseCom as [HCaseCom <-].
         { (* retT *)
-          destruct HCase as (->&(?&->)); cbn. split; auto. hnf. intros s HStep. inv HStep.
+          destruct HCase as (->&(?&[=])); cbn;subst. split; auto. hnf. intros s HStep. inv HStep.
         }
           { (* lamT *)
             rename HCase into HStepLam. modpon HStepLam; TMSimp_goal; eauto; try contains_ext.
             { instantiate (1 := [| _;_;_;_;_|]).
-              intros i; destruct_fin i; auto; TMSimp_goal; cbn.
-              all: try apply HInt.
-              apply HCaseCom. (* somehow, auto uses [contains_ext] not correctly. *)
+              intros i; destruct_fin i; auto; TMSimp_goal; cbn. all:eauto.
             }
             destruct ymid.
             - cbn. destruct HStepLam as (jump_P&jump_Q&HStepLam); modpon HStepLam.
-              do 3 eexists. repeat split; eauto.
+              do 3 eexists. unfold Step_size;cbn. repeat split; eauto.
               + econstructor. eauto.
-              + contains_ext. now rewrite !vector_tl_nth.
-              + contains_ext. now rewrite !vector_tl_nth.
               + generalize (HStepLam4 Fin0); generalize (HStepLam4 Fin1); generalize (HStepLam4 Fin2); generalize (HStepLam4 Fin3); generalize (HStepLam4 Fin4); generalize (HStepLam4 Fin5); generalize (HStepLam4 Fin6); cbn; TMSimp_goal; intros.
                 cbn.
+                specialize (HStepLam0 Fin10) as H'. cbn in H'. revert H'. intros -> . 2:now vector_not_in.
                 destruct_fin i; TMSimp_goal; cbn; auto; try rewrite HStepLam0 by vector_not_in; TMSimp_goal; try rewrite !vector_tl_nth; auto.
-                * apply HInt.
             - cbn. split; auto. intros s' HStep. inv HStep. congruence.
           }
           { (* appT *)
             rename HCase into HStepApp. cbn in HStepApp.
             cbv [put] in *. modpon HStepApp; TMSimp_goal; eauto; try contains_ext.
             { instantiate (1 := [| _;_;_;_;_;_|]).
-              intros i; destruct_fin i; auto; TMSimp_goal; auto.
-              all: try apply HInt.
-              apply HCaseCom. (* somehow, auto uses [contains_ext] not correctly. *)
+              intros i; destruct_fin i; auto; TMSimp_goal. all:cbn;eauto.
             }
             destruct ymid; cbn.
             - destruct V as [ | g V']; auto.
-              destruct V' as [ | (b, Q) V'']; auto. modpon HStepApp.
-              do 3 eexists. repeat split; eauto.
-              + econstructor. reflexivity.
-              + generalize (HStepApp2 Fin0); generalize (HStepApp2 Fin1); generalize (HStepApp2 Fin2); generalize (HStepApp2 Fin3); generalize (HStepApp2 Fin4); generalize (HStepApp2 Fin5); generalize (HStepApp2 Fin6); generalize (HStepApp2 Fin7); cbn; TMSimp_goal; intros.
-                destruct_fin i; TMSimp_goal; cbn; auto; try rewrite HStepLam0 by vector_not_in; TMSimp_goal; try rewrite !vector_tl_nth; auto.
+              destruct V' as [ | (b, Q) V'']; auto. modpon HStepApp;[].
+              
+              do 3 eexists. repeat split.
+               +econstructor;reflexivity.
+               +abstract (vm_cast_no_check HStepApp).
+               +abstract (vm_cast_no_check HStepApp0).
+               +abstract (vm_cast_no_check HStepApp1).
+               +abstract (intros i; specialize (HStepApp2 i);cbv delta [Step_size]; cbn in *;unfold Step_size; destruct_fin i; cbn; assumption).
             - split; auto. intros s' HStep. now inv HStep.
           }
           { (* varT *)
+            destruct HCaseCom as (n&->&HCaseCom).
             rename HCase into HStepVar. modpon HStepVar; TMSimp_goal; eauto; try contains_ext.
             destruct ymid; cbn.
             - destruct HStepVar as (g&HStepVar); modpon HStepVar.
               do 3 eexists; repeat split; eauto.
               + econstructor; eauto.
-              + contains_ext. now rewrite !vector_tl_nth.
-              + contains_ext. now rewrite !vector_tl_nth.
               + generalize (HStepVar4 Fin0); generalize (HStepVar4 Fin1); generalize (HStepVar4 Fin2); generalize (HStepVar4 Fin3); generalize (HStepVar4 Fin4); cbn; TMSimp_goal; intros.
                 simpl_not_in. destruct_fin i; cbn; auto; TMSimp_goal; auto.
-                all: try rewrite !vector_tl_nth; try apply HInt.
-                all: isRight_mono.
             - split; auto. intros s' HStep. inv HStep. congruence.
           }
         }
         { (* Else of the second [CaseList], i.e [P = nil] *)
-          modpon H. destruct P; auto. split; auto. intros s HStep. now inv HStep.
+          modpon H7. destruct P; auto. split; auto. intros s HStep. now inv HStep.
         }
       }
       { (* Else of the first [CaseList], i.e. [T = nil] *)
+        specializeFin HInt. clear HInt.
         modpon H. destruct T; auto. modpon H. split; auto. intros s HStep. now inv HStep.
         repeat split; eauto.
-        intros i; destruct_fin i; TMSimp_goal; cbn in *; auto. all: apply HInt.
+        abstract (intros i; destruct_fin i; TMSimp_goal; cbn in *; auto).
       }
     }
   Qed.
@@ -1029,7 +998,7 @@ Section StepMachine.
         tin[@Fin0] ≃ T /\
         tin[@Fin1] ≃ V /\
         tin[@Fin2] ≃ H /\
-        (forall i : Fin.t 8, isRight tin[@FinR 3 i]) /\
+        (forall i : Fin.t 8, isVoid tin[@FinR 3 i]) /\
         Step_steps T V H <= k.
 
 
@@ -1047,21 +1016,22 @@ Section StepMachine.
       intros tin k (T&V&H&HEncT&HEncV&HEncH&HInt&Hk). unfold Step_steps in Hk.
       exists (CaseList_steps T), (Step_steps_CaseList T V H). cbn; repeat split; try lia.
       { do 1 eexists; repeat split; simpl_surject; eauto. apply HInt. }
-      intros tmid bif (HCaseList&HCaseListInj); TMSimp_old. modpon HCaseList.
+      specializeFin HInt. clear HInt.
+      intros tmid bif (HCaseList&HCaseListInj); TMSimp. modpon HCaseList.
       destruct bif, T as [ | (a,P) T']; cbn; auto; modpon HCaseList.
       exists (CasePair_steps a), (1 + CaseList_steps P + Step_steps_CaseList' a P V H). cbn; repeat split; try lia.
       { hnf; cbn. exists (a, P); repeat split; simpl_surject; eauto. }
-      intros tmid0 () (HCasePair&HCasePairInj); TMSimp_old. specialize (HCasePair (a,P)). modpon HCasePair. cbn in *.
+      intros tmid0 () (HCasePair&HCasePairInj); TMSimp. specialize (HCasePair (a,P)). modpon HCasePair. cbn in *.
       exists (CaseList_steps P), (Step_steps_CaseList' a P V H). cbn; repeat split; try lia.
       { hnf; cbn. exists P; repeat split; simpl_surject; eauto. }
-      intros tmid1 bif (HCaseList'&HCaseListInj'); TMSimp_old. modpon HCaseList'.
+      intros tmid1 bif (HCaseList'&HCaseListInj'); TMSimp. modpon HCaseList'.
       destruct bif, P as [ | t P']; auto; modpon HCaseList'. cbn.
       exists (CaseCom_steps), (Step_steps_CaseCom a t P' V H). cbn; repeat split; try lia.
-      intros tmid2 ymid (HCaseCom&HCaseComInj); TMSimp_old. modpon HCaseCom.
-      destruct ymid as [ [ | | ] | ]; destruct t; cbn; auto; simpl_surject.
+      intros tmid2 ymid (HCaseCom&HCaseComInj); TMSimp. modpon HCaseCom.
+      destruct ymid as [ t' | ]. destruct HCaseCom as [? <-]. destruct t'. all:cbn; auto; simpl_surject.
       - hnf; cbn. do 5 eexists; repeat split; TMSimp_goal; eauto. intros i; destruct_fin i; cbn; TMSimp_goal; auto.
       - hnf; cbn. do 5 eexists; repeat split; TMSimp_goal; eauto. intros i; destruct_fin i; cbn; TMSimp_goal; auto.
-      - hnf; cbn. do 6 eexists; repeat split; TMSimp_goal; eauto.
+      - destruct HCaseCom as (?&->&?). hnf; cbn. do 6 eexists; repeat split; TMSimp_goal; eauto. simpl_surject. contains_ext.
     }
   Qed.
   

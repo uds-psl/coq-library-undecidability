@@ -5,6 +5,8 @@ From Undecidability Require Import ProgrammingTools.
 
 Local Arguments plus : simpl never. Local Arguments mult : simpl never.
 
+Set Default Proof Using "Type".
+
 
 Lemma tl_length (X : Type) (xs : list X) :
   length (tl xs) = pred (length xs).
@@ -104,9 +106,9 @@ Section CaseList.
           forall ls rs (x : X) (l : list X) (s1 : nat),
             tin[@Fin0] = midtape (inl START :: ls) (inr sigList_cons)
                                  (map inr (Encode_map _ _ x) ++ map inr (Encode_map _ _ l) ++ inl STOP :: rs) ->
-            isRight_size tin[@Fin1] s1 ->
+            isVoid_size tin[@Fin1] s1 ->
             tout[@Fin0] = tin[@Fin0] /\
-            tout[@Fin1] ≃(; s1 - (S (size _ x))) x).
+            tout[@Fin1] ≃(; s1 - (S (size x))) x).
             
 
   Lemma M1_Realise : M1 ⊨ M1_Rel.
@@ -136,18 +138,18 @@ Section CaseList.
   Qed.
 
 
-  Definition CaseList_size0 {sigX X : Type} {cX : codable sigX X} (x : X) (s0 : nat) := S (s0 + size _ x).
-  Definition CaseList_size1 {sigX X : Type} {cX : codable sigX X} (x : X) (s1 : nat) := s1 - (S (size _ x)).
+  Definition CaseList_size0 {sigX X : Type} {cX : codable sigX X} (x : X) (s0 : nat) := S (s0 + size x).
+  Definition CaseList_size1 {sigX X : Type} {cX : codable sigX X} (x : X) (s1 : nat) := s1 - (S (size x)).
 
   Definition CaseList_Rel : pRel (sigList sigX)^+ bool 2 :=
     fun tin '(yout, tout) =>
       forall (l : list X) (s0 s1 : nat),
         tin[@Fin0] ≃(;s0) l ->
-        isRight_size tin[@Fin1] s1 ->
+        isVoid_size tin[@Fin1] s1 ->
         match yout, l with
         | false, nil =>
-          tout[@Fin0] ≃(;s0) nil /\
-          isRight_size tout[@Fin1] s1
+          tout[@Fin0] ≃(;s0) @nil X /\
+          isVoid_size tout[@Fin1] s1
         | true, x :: l' =>
           tout[@Fin0] ≃(; CaseList_size0 x s0) l' /\
           tout[@Fin1] ≃(; CaseList_size1 x s1) x
@@ -193,13 +195,13 @@ Section CaseList.
               exists ls rs (x : X) (l : list X),
                 tin[@Fin0] = midtape (inl START :: ls) (inr sigList_cons)
                                      (map inr (Encode_map _ _ x) ++ map inr (Encode_map _ _ l) ++ inl STOP :: rs) /\
-                 6 + 4 * size cX x <= k).
+                 6 + 4 *size x <= k).
   Proof.
     eapply TerminatesIn_monotone.
     { unfold Skip_cons. TM_Correct. }
     {
       intros tin k (ls&rs&x&l&HTin&Hk). TMSimp.
-      exists 1, (4 + 4 * size cX x). repeat split. 1-2: lia.
+      exists 1, (4 + 4 *size x). repeat split. 1-2: lia.
       intros tmid () H. TMSimp.
       destruct l as [ | x' l]; cbn.
       - rewrite MoveToSymbol_steps_moveright; cbn; auto. now rewrite !map_length.
@@ -214,24 +216,24 @@ Section CaseList.
               exists ls rs (x : X) (l : list X),
                 tin[@Fin0] = midtape (inl START :: ls) (inr sigList_cons)
                                      (map inr (Encode_map _ _ x) ++ map inr (Encode_map _ _ l) ++ inl STOP :: rs) /\
-                 23 + 12 * size cX x <= k).
+                 23 + 12 *size x <= k).
   Proof.
     eapply TerminatesIn_monotone.
     { unfold M1. TM_Correct. eapply Skip_cons_Realise. eapply Skip_cons_Terminates. }
     {
       intros tin k (ls&rs&x&l&HTin&Hk). TMSimp.
-      exists (6 + 4 * size cX x), (16 + 8 * size cX x). repeat split; try lia. eauto 6.
+      exists (6 + 4 *size x), (16 + 8 *size x). repeat split; try lia. eauto 6.
       intros tmid_ (). intros (H&HInj); TMSimp. specialize H with (1 := eq_refl).
       destruct l as [ | x' l']; TMSimp. (* Both cases are identical *)
-      1-2: exists 1, (14 + 8 * size cX x); repeat split; try lia.
+      1-2: exists 1, (14 + 8 *size x); repeat split; try lia.
       - intros tmid2 (). intros (_&HInj2); TMSimp.
-        exists 3, (10 + 8 * size cX x). repeat split; try lia.
+        exists 3, (10 + 8 *size x). repeat split; try lia.
         intros tmid3 (). intros (H3&H3'); TMSimp.
         exists (8+8*size cX x), 1. repeat split; cbn; try lia.
         + rewrite CopySymbols_L_steps_moveleft; auto.
           now rewrite rev_length, !map_length.
       - intros tmid2 (). intros (_&HInj2); TMSimp.
-        exists 3, (10 + 8 * size cX x). repeat split; try lia.
+        exists 3, (10 + 8 *size x). repeat split; try lia.
         intros tmid3 (). intros (H3&H3'); TMSimp.
         exists (8+8*size cX x), 1. repeat split; cbn; try lia.
         + rewrite CopySymbols_L_steps_moveleft; auto.
@@ -239,11 +241,11 @@ Section CaseList.
     }
   Qed.
 
-  Definition CaseList_steps_cons {sigX X : Type} {cX : codable sigX X} (x : X) := 42 + 16 * size cX x.
+  Definition CaseList_steps_cons {sigX X : Type} {cX : codable sigX X} (x : X) := 42 + 16 *size x.
 
   Definition CaseList_steps_nil := 5.
 
-  Definition CaseList_steps {sigX X : Type} {cX : codable sigX X} l :=
+  Definition CaseList_steps {sigX X : Type} {cX : codable sigX X} (l:list X) :=
     match l with
     | nil => CaseList_steps_nil
     | x::l' => CaseList_steps_cons x
@@ -254,7 +256,7 @@ Section CaseList.
            (fun tin k =>
               exists l : list X,
                 tin[@Fin0] ≃ l /\
-                isRight tin[@Fin1] /\
+                isVoid tin[@Fin1] /\
                 CaseList_steps l <= k).
   Proof.
     unfold CaseList_steps, CaseList_steps_cons, CaseList_steps_nil. eapply TerminatesIn_monotone.
@@ -276,11 +278,11 @@ Section CaseList.
         lia.
       }
       {
-        exists 1, (40 + 16 * size cX x). repeat split; try lia.
+        exists 1, (40 + 16 *size x). repeat split; try lia.
         intros tmid (). intros (H1&HInj1); TMSimp.
-        exists 1, (38 + 16 * size cX x). repeat split; try lia.
+        exists 1, (38 + 16 *size x). repeat split; try lia.
         intros tmid2 ymid2 ((H2&H2')&HInj2). apply Vector.cons_inj in H2' as (H2'&_). TMSimp.
-        exists (23 + 12 * size cX x), (14 + 4 * size cX x). repeat split; try lia.
+        exists (23 + 12 *size x), (14 + 4 *size x). repeat split; try lia.
         { TMSimp_goal. rewrite !map_map, List.map_app, <- app_assoc, !map_map. do 4 eexists; eauto. split.
           - f_equal. now rewrite !map_map.
           - lia.
@@ -288,8 +290,8 @@ Section CaseList.
         intros tmid3 () H3'. 
         rewrite !map_map, map_app, <- app_assoc in H3'.
         setoid_rewrite map_map in H3'.
-        specialize H3' with (1 := eq_refl) (2 := isRight_isRight_size HRight). TMSimp.
-        exists (6 + 4 * size cX x), 3. repeat split; try lia.
+        specialize H3' with (1 := eq_refl) (2 := isVoid_isVoid_size HRight). TMSimp.
+        exists (6 + 4 *size x), 3. repeat split; try lia.
         { do 4 eexists; repeat split; eauto. now rewrite !map_map. }
         intros tmid4 () (H4&HInj4); TMSimp.
         setoid_rewrite map_map in H4.
@@ -349,14 +351,14 @@ Section CaseList.
 
   (** *** [nil] *)
   
-  Definition Constr_nil : pTM (sigList sigX)^+ unit 1 := WriteValue [sigList_nil].
+  Definition Constr_nil : pTM (sigList sigX)^+ unit 1 := WriteValue (@nil X).
 
   Goal Constr_nil = WriteMove (inl STOP) Lmove;; WriteMove (inr sigList_nil) Lmove;; Write (inl START).
   Proof. reflexivity. Qed.
 
 
   Definition Constr_nil_Rel : pRel (sigList sigX)^+ unit 1 :=
-    Mk_R_p (ignoreParam (fun tin tout => forall (s : nat), isRight_size tin s -> tout ≃(; pred s) nil)).
+    Mk_R_p (ignoreParam (fun tin tout => forall (s : nat), isVoid_size tin s -> tout ≃(; pred s) @nil X)).
 
 
   Definition Constr_nil_steps := 5.
@@ -367,7 +369,7 @@ Section CaseList.
     { unfold Constr_nil. TM_Correct. }
     { reflexivity. }
     { intros tin ((), tout) H. cbn in *. intros s HRight.
-      specialize H with (x := nil) (1 := eq_refl) (2 := HRight). modpon H. contains_ext. unfold WriteValue_size. lia. }
+      specialize H with (1 := HRight). contains_ext. unfold WriteValue_size. lia. }
   Qed.
   
 
@@ -379,12 +381,12 @@ Section CaseList.
     LiftTapes (WriteMove (inr sigList_cons) Lmove;; Write (inl START)) [|Fin0|].
 
   
-  Definition Constr_cons_size {sigX X : Type} {cX : codable sigX X} (y : X) (s0 : nat) := s0 - size _ y - 1.
+  Definition Constr_cons_size {sigX X : Type} {cX : codable sigX X} (y : X) (s0 : nat) := s0 - size y - 1.
 
   Definition Constr_cons_Rel : pRel (sigList sigX)^+ unit 2 :=
     ignoreParam (
         fun tin tout =>
-          forall l y (s0 s1 : nat),
+          forall (l:list X) (y:X) (s0 s1 : nat),
             tin[@Fin0] ≃(;s0) l ->
             tin[@Fin1] ≃(;s1) y ->
             tout[@Fin0] ≃(;Constr_cons_size y s0) y :: l /\
@@ -414,7 +416,7 @@ Section CaseList.
     }
   Qed.
 
-  Definition Constr_cons_steps {sigX X : Type} {cX : codable sigX X} (x : X) := 23 + 12 * size _ x.
+  Definition Constr_cons_steps {sigX X : Type} {cX : codable sigX X} (x : X) := 23 + 12 * size x.
 
   Lemma Constr_cons_Terminates :
     projT1 Constr_cons ↓
@@ -432,12 +434,12 @@ Section CaseList.
     }
     {
       intros tin k (l&y&HEncL&HEncY&Hk). cbn.
-      exists (10 + 4 * size _ y), (12 + 8 * size _ y). repeat split; try lia.
-      - cbn. exists (8 + 4 * size _ y), 1. repeat split; try lia.
+      exists (10 + 4 * size y), (12 + 8 * size y). repeat split; try lia.
+      - cbn. exists (8 + 4 * size y), 1. repeat split; try lia.
         + eexists. split. eauto. reflexivity.
       - intros tmid () (H&HInj). TMSimp.
         modpon H. destruct H as (ls&HEncY'). TMSimp.
-        exists (8 + 8 * size _ y), 3. repeat split; try lia.
+        exists (8 + 8 * size y), 3. repeat split; try lia.
         + erewrite CopySymbols_L_steps_moveleft; eauto. now rewrite map_length, rev_length, map_length.
         + intros tmid2 (). intros (H2&HInj2). TMSimp.
           exists 1, 1. repeat split; try lia. 
@@ -448,7 +450,7 @@ End CaseList.
 
 Arguments CaseList    : simpl never.
 Arguments IsNil       : simpl never.
-Arguments Constr_nil  : simpl never.
+Arguments Constr_nil _ {_ _}: simpl never.
 Arguments Constr_cons : simpl never.
 
 Arguments CaseList_size0      {sigX X cX} : simpl never.
@@ -494,7 +496,7 @@ End Steps_comp.
 (** ** Tactic Support *)
 
 Ltac smpl_TM_CaseList :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- CaseList _ ⊨ _ ] => apply CaseList_Realise
   | [ |- projT1 (CaseList _) ↓ _ ] => apply CaseList_Terminates
 
@@ -511,3 +513,83 @@ Ltac smpl_TM_CaseList :=
   end.
 
 Smpl Add smpl_TM_CaseList : TM_Correct.
+
+
+
+From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+
+Section CaseList.
+
+  Variable (X : Type) (sigX : finType) (codX : codable sigX X).
+
+  Definition Constr_cons_sizefun (x : X) : Vector.t (nat->nat) 2 :=
+    [|Constr_cons_size x; id|].
+
+  Lemma Constr_cons_SpecT_size (x : X) (xs : list X) (ss : Vector.t nat 2) :
+    TripleT
+      (≃≃(([], withSpace  [|Contains _ xs; Contains _ x |] ss))) (Constr_cons_steps x) (Constr_cons sigX)
+      (fun _ => ≃≃(([], withSpace  [|Contains _ (x::xs); Contains _ x|] (appSize (Constr_cons_sizefun x) ss)))).
+  Proof. unfold withSpace.
+    eapply Realise_TripleT.
+    - apply Constr_cons_Realise.
+    - apply Constr_cons_Terminates.
+    - intros tin [] tout H HEnc. cbn in *.
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1; simpl_vector in *; cbn in *.
+      modpon H. tspec_solve.
+    - intros tin k HEnc Hk. cbn.
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1; simpl_vector in *; cbn in *.
+      eauto.
+  Qed.
+
+  Lemma Constr_nil_SpecT_size (ss : Vector.t nat 1) :
+    TripleT
+      (≃≃(([], withSpace  [|Void |] ss))) Constr_nil_steps (Constr_nil X)
+      (fun _ => ≃≃(([], withSpace  [|Contains _ (@nil X) |] (appSize [|pred|] ss)))).
+  Proof. unfold withSpace.
+    eapply RealiseIn_TripleT.
+    - apply Constr_nil_Sem.
+    - intros tin [] tout H HEnc. cbn in *.
+      specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H. tspec_solve.
+  Qed.
+
+  Definition CaseList_size (xs : list X) : Vector.t (nat->nat) 2 :=
+    match xs with
+    | nil => [|id;id|]
+    | x :: xs => [|CaseList_size0 x; CaseList_size1 x|]
+    end.
+
+  Lemma CaseList_SpecT_size (xs : list X) (ss : Vector.t nat 2) :
+    TripleT
+      (≃≃(([], withSpace  [|Contains _ xs; Void |] ss))) (CaseList_steps xs) (CaseList sigX)
+      (fun yout => ≃≃([yout = match xs with [] => false | _ => true end],withSpace
+                         (match xs with
+                          |   x::xs' => [|Contains _ xs'; Contains _ x|]
+                          |    nil => [|Contains _ xs; Void|]
+                          end)
+                         (appSize (CaseList_size xs) ss))).
+  Proof. unfold withSpace.
+    eapply Realise_TripleT.
+    - apply CaseList_Realise.
+    - apply CaseList_Terminates.
+    - intros tin yout tout H HEnc. cbn in *.
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1; simpl_vector in *; cbn in *.
+      modpon H. destruct yout, xs; cbn in *; eauto.
+      + destruct H as (H1&H2). tspec_solve. easy.
+      + destruct H as (H1&H2). tspec_solve. easy.
+    - intros tin k HEnc Hk. cbn.
+      specialize (HEnc Fin0) as HEnc0; specialize (HEnc Fin1) as HEnc1; simpl_vector in *; cbn in *.
+      eauto.
+  Qed.
+  
+
+End CaseList.
+
+
+Ltac hstep_List :=
+  match goal with
+  | [ |- TripleT ?P ?k (Constr_cons _) ?Q ] => eapply Constr_cons_SpecT_size
+  | [ |- TripleT ?P ?k (Constr_nil  _) ?Q ] => eapply Constr_nil_SpecT_size
+  | [ |- TripleT ?P ?k (CaseList    _) ?Q ] => eapply CaseList_SpecT_size
+  end.
+
+Smpl Add hstep_List : hstep_Spec.

@@ -36,7 +36,7 @@ Definition mult_TR (x y : positive) : positive := mult_TR_cont (shift_left y (po
 
 
 (* (* NB: Haskell extraction is fun! *)
-From Coq Require Extraction.
+From Coq From Undecidability Require Extraction.
 Extraction Language Haskell.
 Recursive Extraction mult_TR Pos.mul.
 *)
@@ -229,7 +229,7 @@ Definition Mult_Rel : pRel sigPos^+ unit 3 :=
     forall (x y : positive),
       tin[@Fin0] ≃ x ->
       tin[@Fin1] ≃ y ->
-      isRight tin[@Fin2] ->
+      isVoid tin[@Fin2] ->
       tout[@Fin0] ≃ x /\
       tout[@Fin1] ≃ y /\
       tout[@Fin2] ≃ x*y.
@@ -255,7 +255,6 @@ Lemma Mult_Realise : Mult ⊨ Mult_Rel.
 Proof.
   eapply Realise_monotone.
   { unfold Mult. TM_Correct.
-    - apply CopyValue_Realise with (X := positive).
     - apply ShiftLeft_num_Realise.
     - apply GoToLSB_start_Realise.
     - apply Mult_Loop_Realise.

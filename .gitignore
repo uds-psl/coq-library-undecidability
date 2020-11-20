@@ -10,4 +10,6 @@
 *.nia.cache
 *.vok
 *.vos
+
+theories/.vscode
 *.#*

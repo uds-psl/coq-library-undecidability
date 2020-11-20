@@ -12,13 +12,24 @@ Class codable (sig: Type) (X: Type) := {
 }.
 Arguments encode {sig} {X} {_}.
 
+(* either the type or the alphabet must be know at head: *)
+Hint Mode codable - ! : typeclass_instances.
+Hint Mode codable ! - : typeclass_instances.
+
+(* right side must be fully known, left side at head *)
+Hint Mode Retract ! + : typeclass_instances.
+
+(* (* Both sides must be known at head. *)
+Hint Mode Retract ! - : typeclass_instances.
+Hint Mode Retract - ! : typeclass_instances. *)
+
 Hint Extern 4 (codable (FinType(EqType ?sigX)) ?X) => cbn : typeclass_instances.
 
 (** We often use the above coercion to write [cX x] instead of [encode x], because [encode x] can be ambigious, see [Encode_map] *)
 Coercion encode : codable >-> Funclass.
 
 Definition size (sig X : Type) (cX : codable sig X) (x : X) := length (cX x).
-Arguments size {sig X} (cX x).
+Arguments size {sig X cX} x, {_ _} _ _ (*legacy with two arguments*).
 
 
 (** Hint database for encoding compatibility lemmas. For example, size functions are usually parametrised over an encoding. It doesn't matter for the size, whether we apply [Encode_map] on this encoding. This kind of lemmas is registered in this HintDb. *)
@@ -32,8 +43,8 @@ Instance Encode_unit : codable Empty_set unit :=
     encode x := nil
   |}.
 
-Lemma Encode_unit_hasSize t :
-  size Encode_unit t = 0.
+Lemma Encode_unit_hasSize (t:unit) :
+  size t = 0.
 Proof. cbn. reflexivity. Qed.
 
 Lemma Encode_unit_injective : injective Encode_unit.
@@ -45,7 +56,7 @@ Instance Encode_bool : codable bool bool:=
     encode x := [x]
   |}.
 
-Lemma Encode_bool_hasSize b :
+Lemma Encode_bool_hasSize (b:bool) :
   size Encode_bool b = 1.
 Proof. cbn. reflexivity. Qed.
 
@@ -109,7 +120,7 @@ Section Encode_map.
     |}.
 
   Lemma Encode_map_hasSize x :
-    size Encode_map x = size cX x.
+    size Encode_map x =size x.
   Proof. cbn. now rewrite map_length. Qed.
 
   Lemma Encode_map_injective :
@@ -144,17 +155,17 @@ Hint Rewrite Encode_map_id Encode_map_comp : encode_comp.
 (** Builds simple retract functions like [sigSum -> option sigX] in the form
 [fun x => match x with constructor_name y => Retr_g y | _ => None] *)
 
+Local Hint Mode Retract - - : typeclass_instances.
 Ltac build_simple_retract_g :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- ?Y -> option ?X ] =>
     (* idtac "Retract function" X Y; *)
     let x := fresh "x" in
     intros x; destruct x; intros; try solve [now apply Retr_g ]; right
   end.
 
-
 Ltac build_simple_retract :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- Retract ?X ?Y ] =>
     (* idtac "Retract from" X "to" Y; *)
     let x := fresh "x" in
@@ -246,10 +257,10 @@ Section Encode_sum.
     |}.
 
 
-  Definition Encode_sum_size s :=
+  Definition Encode_sum_size (s:X+Y) :=
     match s with
-       | inl x => S (size cX x)
-       | inr y => S (size cY y)
+       | inl x => S (size x)
+       | inr y => S (size y)
     end.
 
   Lemma Encode_sum_hasSize s :
@@ -333,7 +344,7 @@ Section Encode_pair.
       encode '(x,y) := Encode_map _ _ x ++ Encode_map _ _ y;
     |}.
 
-  Definition Encode_pair_size (p : X * Y) := let (x, y) := p in size cX x + size cY y.
+  Definition Encode_pair_size (p : X * Y) := let (x, y) := p in size x + size y.
 
   Lemma Encode_pair_hasSize p : size Encode_pair p = Encode_pair_size p.
   Proof. destruct p; cbn; now rewrite app_length, !map_length. Qed.
@@ -399,10 +410,10 @@ Section Encode_option.
   Definition Encode_option_size (o : option X) :=
     match o with
     | None => 1
-    | Some x => S (size cX x)
+    | Some x => S (size x)
     end.
 
-  Lemma Encode_option_hasSize o : size _ o = Encode_option_size o.
+  Lemma Encode_option_hasSize o : size o = Encode_option_size o.
   Proof. destruct o; cbn; f_equal; now rewrite map_length. Qed.
 
   Lemma Encode_option_injective : injective cX -> injective Encode_option.
@@ -546,13 +557,13 @@ Section Encode_list.
   Fixpoint Encode_list_size (xs : list X) : nat :=
     match xs with
     | nil => 1
-    | x :: xs' => S (size cX x + Encode_list_size xs')
+    | x :: xs' => S (size x + Encode_list_size xs')
     end.
 
-  Lemma Encode_list_hasSize (xs : list X) : size _ xs = Encode_list_size xs.
+  Lemma Encode_list_hasSize (xs : list X) : size xs = Encode_list_size xs.
   Proof.
     induction xs as [ | x xs IH]; cbn; f_equal.
-    rewrite app_length, !map_length. fold (size cX x). now rewrite <- IH.
+    rewrite app_length, !map_length. fold (size x). now rewrite <- IH.
   Qed.
 
   Lemma Encode_list_hasSize_skipn (xs : list X) (n : nat) :
@@ -642,12 +653,12 @@ Section Encode_nat.
     |}.
 
 
-  Lemma Encode_nat_hasSize n : size _ n = S n.
+  Lemma Encode_nat_hasSize n : size n = S n.
   Proof. cbn. rewrite app_length, repeat_length. cbn. lia. Qed.
 
   Corollary Encode_nat_eq_nil n :
     Encode_nat n <> nil.
-  Proof. intros H % length_zero_iff_nil. fold (size _ n) in H. rewrite Encode_nat_hasSize in H. lia. Qed.
+  Proof. intros H % length_zero_iff_nil. fold (size n) in H. rewrite Encode_nat_hasSize in H. lia. Qed.
 
   Lemma Encode_nat_injective : injective Encode_nat.
   Proof.
@@ -657,6 +668,7 @@ Section Encode_nat.
   Qed.
 
 End Encode_nat.
+
 
 (* Check FinType(EqType sigNat). *)
 

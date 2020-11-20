@@ -78,6 +78,8 @@ Section MovePar.
   Definition MovePar : pTM sig unit 2 :=
     LiftTapes (Move D1) [|Fin0|];; LiftTapes (Move D2) [|Fin1|].
 
+    
+
   Lemma MovePar_Sem : MovePar ⊨c(3) MovePar_R.
   Proof.
     eapply RealiseIn_monotone.
@@ -157,6 +159,9 @@ Section ReadChar.
       yout = current tin[@k] /\
       tout = tin.
 
+
+
+
   Lemma ReadChar_at_Sem :
     ReadChar_at ⊨c(1) ReadChar_at_Rel.
   Proof.
@@ -182,7 +187,7 @@ Arguments ReadChar_at_Rel { sig n } ( k ) x y /.
 (** ** Tactic Support *)
 
 Ltac smpl_TM_Multi :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- Nop ⊨ _ ] => eapply RealiseIn_Realise; apply Nop_Sem
   | [ |- Nop ⊨c(_) _ ] => eapply Nop_Sem
   | [ |- projT1 (Nop) ↓ _ ] => eapply RealiseIn_TerminatesIn; apply Nop_Sem

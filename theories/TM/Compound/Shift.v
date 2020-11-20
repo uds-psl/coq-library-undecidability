@@ -4,8 +4,8 @@ From Undecidability Require Import TM.Combinators.Combinators.
 From Undecidability Require Import TM.Compound.TMTac.
 From Undecidability Require Import TM.Compound.Multi.
 
-Require Import FunInd.
-Require Import Recdef.
+From Coq Require Import FunInd.
+From Coq Require Import Recdef.
 
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
@@ -154,14 +154,14 @@ Section Shift.
       intros [ s' | [] ]; intros; cbn in *.
       - destruct (current tin[@Fin0]) eqn:E.
         + destruct (f e) eqn:Ee; destruct H as [H H']; inv H'.
-          destruct tin[@Fin0] eqn:E'; cbn in *; inv E. rename l into ls, l0 into rs.
-          TMSimp_old. simpl_tape. eexists. split. reflexivity. lia.
+          destruct tin[@Fin0] eqn:E'; cbn in *; inv E. rewrite Ee in HT. rename l into ls, l0 into rs.
+          TMSimp. simpl_tape. eexists. split. reflexivity. lia.
         + destruct H. congruence.
       - destruct (current tin[@Fin0]) eqn:E.
         + destruct (f e) eqn:Ee; destruct H as [H H']; inv H'.
           destruct tin[@Fin0] eqn:E'; cbn in *; inv E. rename l into ls, l0 into rs.
           rewrite Ee in *. lia.
-        + apply tape_local_nil in E. TMSimp_old. lia.
+        + apply tape_local_nil in E. rewrite E in *. TMSimp. lia.
     }
   Qed.
 
@@ -266,7 +266,7 @@ End Shift.
 
 
 Ltac smpl_TM_Shift :=
-  lazymatch goal with
+  once lazymatch goal with
   | [ |- Shift   _ _ ⊨ _ ] => eapply Shift_Realise
   | [ |- Shift_L _ _ ⊨ _ ] => eapply Shift_L_Realise
   | [ |- projT1 (Shift   _ _) ↓ _ ] => eapply Shift_TerminatesIn

@@ -215,17 +215,17 @@ Section StateWhile.
 
   (** ** Correctness of [StateWhile] *)
 
-  Variable Rmove : F1 -> pRel sig (F1 + F2) n.
+  Variable R : F1 -> pRel sig (F1 + F2) n.
 
   Inductive StateWhile_Rel : F1 -> pRel sig F2 n :=
   | StateWhile_Rel_loop :
       forall l t l1 t' l' t'',
-        Rmove l t (inl l1, t') ->
+        R l t (inl l1, t') ->
         StateWhile_Rel l1 t' (l', t'') ->
         StateWhile_Rel l t (l', t'')
   | StateWhile_Rel_break :
       forall l t l2 t',
-        Rmove l t (inr l2, t') ->
+        R l t (inr l2, t') ->
         StateWhile_Rel l t (l2, t').
 
 
@@ -234,7 +234,7 @@ Section StateWhile.
   Proof. reflexivity. Qed.
   
   Lemma StateWhile_Realise l :
-    (forall l, pM l ⊨ Rmove l) ->
+    (forall l, pM l ⊨ R l) ->
     StateWhile l ⊨ StateWhile_Rel l.
   Proof.
     intros HRel. hnf in HRel; hnf. intros t k; revert t l. apply complete_induction with (x := k); clear k; intros k IH. intros tin l c3 HLoop.
@@ -255,14 +255,14 @@ Section StateWhile.
     Variable (T T' : F1 -> tRel sig n).
 
     Lemma StateWhile_TerminatesIn_ind l :
-      (forall l, pM l ⊨ Rmove l) ->
+      (forall l, pM l ⊨ R l) ->
       (forall l, projT1 (pM l) ↓ T' l) ->
       (forall l (tin : tapes sig n) (k : nat),
           T l tin k ->
           exists k1,
             T' l tin k1 /\
-            (forall tmid l2, Rmove l tin (inr l2, tmid) -> k1 <= k) /\
-            (forall tmid l1, Rmove l tin (inl l1, tmid) -> exists k2, T l1 tmid k2 /\ 1 + k1 + k2 <= k)) ->
+            (forall tmid l2, R l tin (inr l2, tmid) -> k1 <= k) /\
+            (forall tmid l1, R l tin (inl l1, tmid) -> exists k2, T l1 tmid k2 /\ 1 + k1 + k2 <= k)) ->
       StateWhileTM l ↓ T l.
     Proof.
       intros Realise_M Term_M Hyp tin k. revert tin l. apply complete_induction with (x:=k); clear k; intros k IH tin l.
@@ -292,14 +292,14 @@ Section StateWhile.
     | StateWhile_T_intro l t k k1 :
         T l t k1 ->
         (forall t' l1,
-            Rmove l t (inl l1, t') ->
+            R l t (inl l1, t') ->
             exists k2, StateWhile_T l1 t' k2 /\ 1 + k1 + k2 <= k) ->
         (forall tmid l2,
-            Rmove l t (inr l2, tmid) -> k1 <= k) ->
+            R l t (inr l2, tmid) -> k1 <= k) ->
         StateWhile_T l t k.
 
     Lemma StateWhile_TerminatesIn l :
-      (forall l, pM l ⊨ Rmove l) ->
+      (forall l, pM l ⊨ R l) ->
       (forall l, projT1 (pM l) ↓ T l) ->
       StateWhileTM l ↓ StateWhile_T l.
     Proof.
@@ -346,7 +346,7 @@ End StateWhileInduction.
 Section WhileCoInduction.
   Variable (sig : finType) (n : nat) (F1 F2 : finType).
 
-  Variable Rmove : F1 -> pRel sig (F1 + F2) n.
+  Variable R : F1 -> pRel sig (F1 + F2) n.
   Variable T T' : F1 -> tRel sig n.
 
   Lemma StateWhileCoInduction :
@@ -354,12 +354,12 @@ Section WhileCoInduction.
         exists k1,
           T' l tin k1 /\
           forall (ymid : F1 + F2) tmid,
-            Rmove l tin (ymid, tmid) ->
+            R l tin (ymid, tmid) ->
             match ymid with
             | inl l1 => exists k2, T l1 tmid k2 /\ 1 + k1 + k2 <= k
             | inr _ => k1 <= k
             end) ->
-    (forall l, T l <<=2 StateWhile_T Rmove T' l).
+    (forall l, T l <<=2 StateWhile_T R T' l).
   Proof.
     intros. revert l. cofix IH. intros l tin k HT. specialize H with (1 := HT) as (k1&H1&H2). econstructor; eauto.
     - intros tmid ymid HR. specialize (H2 (inl ymid) tmid HR) as (k2&H2&Hk); cbn in *.

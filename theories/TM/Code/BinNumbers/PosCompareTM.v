@@ -254,7 +254,7 @@ Definition Max_Rel : pRel sigPos^+ comparison 3 :=
     forall (p0 p1 : positive),
       tin[@Fin0] ≃ p0 ->
       tin[@Fin1] ≃ p1 ->
-      isRight tin[@Fin2] ->
+      isVoid tin[@Fin2] ->
       tout[@Fin0] ≃ p0 /\
       tout[@Fin1] ≃ p1 /\
       tout[@Fin2] ≃ Pos.max p0 p1 /\
@@ -273,9 +273,7 @@ Proof.
   eapply Realise_monotone.
   { unfold Max. TM_Correct.
     - apply Compare_Realise.
-    - apply CopyValue_Realise with (X := positive).
-    - apply CopyValue_Realise with (X := positive).
-    - apply CopyValue_Realise with (X := positive). }
+  }
   {
     intros tin (yout, tout) H. cbn in *. intros p0 p1 Hp0 Hp1 HRight. TMSimp.
     modpon H. destruct ymid.

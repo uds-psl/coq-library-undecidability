@@ -1,8 +1,7 @@
 (** * Implementation of [ϕ] (aka SplitBody) *)
 
 From Undecidability Require Import TM.Code.ProgrammingTools LM_heap_def.
-From Undecidability.L.AbstractMachines.TM_LHeapInterpreter Require Import Alphabets.
-From Undecidability.L.AbstractMachines.TM_LHeapInterpreter Require Import CaseCom.
+From Undecidability.TM.L Require Import Alphabets CaseCom.
 From Undecidability Require Import TM.Code.ListTM TM.Code.CaseList TM.Code.CaseNat.
 
 Local Arguments plus : simpl never.
@@ -16,112 +15,55 @@ Definition retr_nat_prog : Retract sigNat sigPro := Retract_sigList_X _.
 
 
 (** append a token to the token list *)
-Definition App_Commands : pTM sigPro^+ (FinType(EqType unit)) 2 :=
-  App' _ @ [|Fin0; Fin1|];;
-  MoveValue _ @ [|Fin1; Fin0|].
-
-Definition App_Commands_size (Q Q' : list Tok) : Vector.t (nat->nat) 2 :=
-  [| MoveValue_size_y (Q ++ Q') Q; App'_size Q >> MoveValue_size_x (Q ++ Q') |].
-
-Definition App_Commands_Rel : pRel sigPro^+ (FinType(EqType unit)) 2 :=
-  ignoreParam (
-      fun tin tout =>
-        forall (Q Q' : list Tok) (s0 s1 : nat),
-          tin[@Fin0] ≃(;s0) Q ->
-          tin[@Fin1] ≃(;s1) Q' ->
-          tout[@Fin0] ≃(;App_Commands_size Q Q' @>Fin0 s0) Q ++ Q' /\
-          isRight_size tout[@Fin1] (App_Commands_size Q Q' @>Fin1 s1)
-    ).
-
-Lemma App_Commands_Realise : App_Commands ⊨ App_Commands_Rel.
-Proof.
-  eapply Realise_monotone.
-  { unfold App_Commands. TM_Correct.
-    - apply App'_Realise with (X := Tok).
-    - apply MoveValue_Realise with (X := Pro).
-  }
-  {
-    intros tin ((), tout) H. intros Q Q' s0 s1 HEncQ HEncQ'.
-    TMSimp. modpon H. modpon H0. auto.
-  }
-Qed.
-
-Arguments App_Commands_size : simpl never.
-
-
-Definition App_Commands_steps (Q Q': Pro) := 1 + App'_steps Q + MoveValue_steps (Q ++ Q') Q.
-
-Definition App_Commands_T : tRel sigPro^+ 2 :=
-  fun tin k => exists (Q Q' : list Tok), tin[@Fin0] ≃ Q /\ tin[@Fin1] ≃ Q' /\ App_Commands_steps Q Q' <= k.
-
-Lemma App_Commands_Terminates : projT1 App_Commands ↓ App_Commands_T.
-Proof.
-  eapply TerminatesIn_monotone.
-  { unfold App_Commands. TM_Correct.
-    - apply App'_Realise with (X := Tok).
-    - apply App'_Terminates with (X := Tok).
-    - apply MoveValue_Terminates with (X := Pro) (Y := Pro).
-  }
-  {
-    intros tin k (Q&Q'&HEncQ&HEncQ'&Hk).
-    exists (App'_steps Q), (MoveValue_steps (Q++Q') Q); cbn; repeat split; try lia.
-    hnf; cbn. eauto. now rewrite Hk.
-    intros tmid () (HApp&HInjApp); TMSimp. modpon HApp.
-    exists (Q++Q'), Q. repeat split; eauto.
-  }
-Qed.
-
-
-(** append a token to the token list *)
 Definition App_ACom (t : ACom) : pTM sigPro^+ unit 2 :=
-  WriteValue (encode [ACom2Com t]) @ [|Fin1|];;
-  App_Commands.
+  WriteValue [ACom2Com t] @ [|Fin1|];;
+  App _.
 
 Definition App_ACom_size (t : ACom) (Q : list Tok) : Vector.t (nat->nat) 2 :=
-  [| id; WriteValue_size [ACom2Com t] |] >>> App_Commands_size Q [ACom2Com t].
+  [| id; WriteValue_size [ACom2Com t] |] >>> App_size Q [ACom2Com t].
 
 Definition App_ACom_Rel (t : ACom) : pRel sigPro^+ unit 2 :=
   ignoreParam (
       fun tin tout =>
         forall (Q : list Tok) (s0 s1:nat),
           tin[@Fin0] ≃(;s0) Q ->
-          isRight_size tin[@Fin1] s1 ->
+          isVoid_size tin[@Fin1] s1 ->
           tout[@Fin0] ≃(;App_ACom_size t Q @>Fin0 s0) Q ++ [ACom2Com t] /\
-          isRight_size tout[@Fin1] (App_ACom_size t Q @>Fin1 s1)
+          isVoid_size tout[@Fin1] (App_ACom_size t Q @>Fin1 s1)
     ).
 
 Lemma App_ACom_Realise t : App_ACom t ⊨ App_ACom_Rel t.
 Proof.
   eapply Realise_monotone.
   { unfold App_ACom. TM_Correct.
-    - apply App_Commands_Realise.
+    - apply App_Realise.
   }
   {
     intros tin ((), tout) H. intros Q s0 s1 HENcQ HRight1.
-    TMSimp. cbn in H. specialize H with (x := [ACom2Com t]) (1 := eq_refl). modpon H. modpon H0. auto.
+    TMSimp. cbn in H. modpon H. modpon H0. auto.
   }
 Qed.
 
 Arguments App_ACom_size : simpl never.
 
 
-Definition App_ACom_steps (Q: Pro) (t: ACom) := 1 + WriteValue_steps (size _ [ACom2Com t]) + App_Commands_steps Q [ACom2Com t].
+Definition App_ACom_steps (Q: Pro) (t: ACom) := 1 + WriteValue_steps (size [ACom2Com t]) + App_steps Q [ACom2Com t].
 
 Definition App_ACom_T (t: ACom) : tRel sigPro^+ 2 :=
-  fun tin k => exists (Q: list Tok), tin[@Fin0] ≃ Q /\ isRight tin[@Fin1] /\ App_ACom_steps Q t <= k.
+  fun tin k => exists (Q: list Tok), tin[@Fin0] ≃ Q /\ isVoid tin[@Fin1] /\ App_ACom_steps Q t <= k.
 
 Lemma App_ACom_Terminates (t: ACom) : projT1 (App_ACom t) ↓ App_ACom_T t.
 Proof.
   eapply TerminatesIn_monotone.
   { unfold App_ACom. TM_Correct.
-    - apply App_Commands_Terminates.
+    - apply App_Terminates.
   }
   {
     intros tin k. intros (Q&HEncQ&HRight&Hk).
-    exists (WriteValue_steps (size _ [ACom2Com t])), (App_Commands_steps Q [ACom2Com t]). cbn; repeat split; try lia.
+    exists (WriteValue_steps (size [ACom2Com t])), (App_steps Q [ACom2Com t]). cbn; repeat split; try (reflexivity + nia).
     now rewrite Hk.
     intros tmid () (HWrite&HInjWrite); hnf; cbn; TMSimp.
-    cbn in HWrite. specialize HWrite with (x := [ACom2Com t]) (1 := eq_refl).
+    cbn in HWrite.
     modpon HWrite. eauto.
   }
 Qed.
@@ -132,11 +74,11 @@ Qed.
 Definition App_Com : pTM sigPro^+ (FinType(EqType unit)) 3 :=
   Constr_nil _ @ [|Fin2|];;
   Constr_cons _@ [|Fin2; Fin1|];;
-  App_Commands @ [|Fin0; Fin2|];;
+  App _ @ [|Fin0; Fin2|];;
   Reset _ @ [|Fin1|].
 
 Definition App_Com_size (Q : list Tok) (t : Tok) : Vector.t (nat->nat) 3 :=
-  [| App_Commands_size Q [t] @>Fin0; Reset_size t; pred >> Constr_cons_size t >> App_Commands_size Q [t] @>Fin1 |].
+  [| App_size Q [t] @>Fin0; Reset_size t; pred >> Constr_cons_size t >> App_size Q [t] @>Fin1 |].
 
 Definition App_Com_Rel : pRel sigPro^+ (FinType(EqType unit)) 3 :=
   ignoreParam (
@@ -144,10 +86,10 @@ Definition App_Com_Rel : pRel sigPro^+ (FinType(EqType unit)) 3 :=
         forall (Q : list Tok) (t : Tok) (s0 s1 s2 : nat),
           tin[@Fin0] ≃(;s0) Q ->
           tin[@Fin1] ≃(;s1) t ->
-          isRight_size tin[@Fin2] s2 ->
+          isVoid_size tin[@Fin2] s2 ->
           tout[@Fin0] ≃(;App_Com_size Q t @>Fin0 s0) Q ++ [t] /\
-          isRight_size tout[@Fin1] (App_Com_size Q t @>Fin1 s1) /\
-          isRight_size tout[@Fin2] (App_Com_size Q t @>Fin2 s2)
+          isVoid_size tout[@Fin1] (App_Com_size Q t @>Fin1 s1) /\
+          isVoid_size tout[@Fin2] (App_Com_size Q t @>Fin2 s2)
     ).
 
 
@@ -155,8 +97,7 @@ Lemma App_Com_Realise : App_Com ⊨ App_Com_Rel.
 Proof.
   eapply Realise_monotone.
   { unfold App_Com. TM_Correct.
-    - apply App_Commands_Realise.
-    - apply Reset_Realise with (X := Tok).
+    - apply App_Realise.
   }
   { intros tin ((), tout) H. cbn. intros Q t s0 s1 s2 HEncQ HEncT HRight.
     unfold sigPro, sigCom in *. TMSimp.
@@ -168,28 +109,27 @@ Qed.
 Arguments App_Com_size : simpl never.
 
 Definition App_Com_steps (Q: Pro) (t:Tok) :=
-  3 + Constr_nil_steps + Constr_cons_steps t + App_Commands_steps Q [t] + Reset_steps t.
+  3 + Constr_nil_steps + Constr_cons_steps t + App_steps Q [t] + Reset_steps t.
 
 Definition App_Com_T : tRel sigPro^+ 3 :=
-  fun tin k => exists (Q: list Tok) (t: Tok), tin[@Fin0] ≃ Q /\ tin[@Fin1] ≃ t /\ isRight tin[@Fin2] /\ App_Com_steps Q t <= k.
+  fun tin k => exists (Q: list Tok) (t: Tok), tin[@Fin0] ≃ Q /\ tin[@Fin1] ≃ t /\ isVoid tin[@Fin2] /\ App_Com_steps Q t <= k.
 
 Lemma App_Com_Terminates : projT1 App_Com ↓ App_Com_T.
 Proof.
   eapply TerminatesIn_monotone.
   { unfold App_Com. TM_Correct.
-    - apply App_Commands_Realise.
-    - apply App_Commands_Terminates.
-    - apply Reset_Terminates with (X := Tok).
+    - apply App_Realise.
+    - apply App_Terminates.
   }
   {
     intros tin k (Q&t&HEncQ&HEncT&HRight&Hk). unfold App_Com_steps in Hk.
-    exists (Constr_nil_steps), (1 + Constr_cons_steps t + 1 + App_Commands_steps Q [t] + Reset_steps t). cbn. repeat split; try lia.
+    exists (Constr_nil_steps), (1 + Constr_cons_steps t + 1 + App_steps Q [t] + Reset_steps t). cbn. repeat split; try lia.
     intros tmid_ () (HNil&HInjNil); TMSimp. modpon HNil.
-    exists (Constr_cons_steps t), (1 + App_Commands_steps Q [t] + Reset_steps t). cbn. repeat split; try lia.
-    eauto.
+    exists (Constr_cons_steps t), (1 + App_steps Q [t] + Reset_steps t). cbn. repeat split; try lia.
+    now eauto. now rewrite !Nat.add_assoc.
     unfold sigPro in *. intros tmid0 () (HCons&HInjCons); TMSimp. modpon HCons.
-    exists (App_Commands_steps Q [t]), (Reset_steps t). cbn. repeat split; try lia.
-    hnf; cbn. do 2 eexists; repeat split; eauto.
+    exists (App_steps Q [t]), (Reset_steps t). cbn. repeat split; try lia.
+    hnf; cbn. do 2 eexists; repeat split; eauto. reflexivity. 
     intros tmid1_ _ (HApp&HInjApp); TMSimp. modpon HApp.
     eexists. split; eauto.
   }
@@ -248,14 +188,14 @@ Definition JumpTarget_Step_Rel : pRel sigPro^+ (option bool) 5 :=
       tin[@Fin0] ≃(;s0) P ->
       tin[@Fin1] ≃(;s1) Q ->
       tin[@Fin2] ≃(;s2) k ->
-      isRight_size tin[@Fin3] s3 -> isRight_size tin[@Fin4] s4 ->
+      isVoid_size tin[@Fin3] s3 -> isVoid_size tin[@Fin4] s4 ->
       match yout, P with
       | _, retT :: P =>
         match yout, k with
         | Some true, O => (* return true *)
           tout[@Fin0] ≃(;size @>Fin0 s0) P /\
           tout[@Fin1] ≃(;size @>Fin1 s1) Q /\
-          isRight_size tout[@Fin2] (size @>Fin2 s2)
+          isVoid_size tout[@Fin2] (size @>Fin2 s2)
         | None, S k' => (* continue *)
           tout[@Fin0] ≃(;size @>Fin0 s0) P /\
           tout[@Fin1] ≃(;size @>Fin1 s1) Q ++ [retT] /\
@@ -274,8 +214,8 @@ Definition JumpTarget_Step_Rel : pRel sigPro^+ (option bool) 5 :=
         True
       | _, _ => False (* not the case *)
       end /\
-      isRight_size tout[@Fin3] (size@>Fin3 s3) /\
-      isRight_size tout[@Fin4] (size@>Fin4 s4).
+      isVoid_size tout[@Fin3] (size@>Fin3 s3) /\
+      isVoid_size tout[@Fin4] (size@>Fin4 s4).
 
 
 Lemma JumpTarget_Step_Realise : JumpTarget_Step ⊨ JumpTarget_Step_Rel.
@@ -296,30 +236,30 @@ Proof.
     destruct HIf; TMSimp.
     { (* Then of [CaseList], i.e. P = t :: P' *) rename H into HCaseList, H0 into HCaseCom, H2 into HCase.
       modpon HCaseList. destruct P as [ | t P']; auto; modpon HCaseList.
-      modpon HCaseCom.
-      destruct ymid as [ [ | | ] | ]; try destruct t; auto; simpl_surject; TMSimp.
+      modpon HCaseCom. 
+      destruct ymid as [ c | ]. 1:destruct HCaseCom as (?&<-). destruct c. all:TMSimp.
       { (* t = retT *)
         destruct HCase; TMSimp.
-        { (* k = S k' *) rename H into HCaseNat, H1 into HApp.
+        { (* k = S k' *) rename H0 into HCaseNat, H2 into HApp.
           modpon HCaseNat. destruct k as [ | k']; auto; modpon HCaseNat.
           modpon HApp.
           repeat split; auto.
         }
-        { (* k = 0 *) rename H into HCaseNat. rename H1 into HReset.
+        { (* k = 0 *) rename H0 into HCaseNat. rename H2 into HReset.
           modpon HCaseNat. destruct k as [ | k']; auto; modpon HCaseNat. modpon HReset .
           repeat split; auto.
         }
       }
-      { (* t = lamT *) rename H0 into HS, H1 into HApp.
+      { (* t = lamT *) rename H1 into HS, H2 into HApp.
         modpon HS.
         modpon HApp.
         repeat split; auto.
       }
-      { (* t = appT *) rename H0 into HApp.
+      { (* t = appT *) rename H1 into HApp.
         modpon HApp.
         repeat split; auto.
       }
-      { (* t = varT *) rename H0 into HVar, H1 into HApp.
+      { (* t = varT *) rename H0 into HVar, H3 into HApp.
         modpon HVar.
         modpon HApp.
         repeat split; auto.
@@ -365,7 +305,7 @@ Definition JumpTarget_Step_T : tRel sigPro^+ 5 :=
       tin[@Fin0] ≃ P /\
       tin[@Fin1] ≃ Q /\
       tin[@Fin2] ≃ k /\
-      isRight tin[@Fin3] /\ isRight tin[@Fin4] /\
+      isVoid tin[@Fin3] /\ isVoid tin[@Fin4] /\
       JumpTarget_Step_steps P Q k <= steps.
 
 Lemma JumpTarget_Step_Terminates : projT1 JumpTarget_Step ↓ JumpTarget_Step_T.
@@ -391,7 +331,7 @@ Proof.
     { (* P = t :: P' (* other case is done by auto *) *)
       exists (CaseCom_steps), (JumpTarget_Step_steps_CaseCom Q k t). cbn; repeat split; try lia.
       intros tmid1_ ytok (HCaseCom&HCaseComInj); TMSimp. modpon HCaseCom.
-      destruct ytok as [ [ | | ] | ]; destruct t; auto; simpl_surject; TMSimp.
+      destruct ytok as [ c | ]. 1:destruct HCaseCom as (?&<-). destruct c as [ | | ]. all:TMSimp.
       { (* t = retT *)
         exists CaseNat_steps.
         destruct k as [ | k'].
@@ -408,7 +348,7 @@ Proof.
       }
       { (* t = appT *) hnf; cbn; eauto. }
       { (* t = varT n *)
-        exists (Constr_varT_steps), (App_Com_steps Q (varT n)). repeat split; try lia.
+        exists (Constr_varT_steps), (App_Com_steps Q (varT ymid)). repeat split; try lia.
         intros tmid2_ H (HVarT&HVarTInj); TMSimp. modpon HVarT. hnf; cbn. eauto 6.
       }
     }
@@ -468,15 +408,15 @@ Definition JumpTarget_Loop_Rel : pRel sigPro^+ bool 5 :=
       tin[@Fin0] ≃(;s0) P ->
       tin[@Fin1] ≃(;s1) Q ->
       tin[@Fin2] ≃(;s2) k ->
-      isRight_size tin[@Fin3] s3 -> isRight_size tin[@Fin4] s4 ->
+      isVoid_size tin[@Fin3] s3 -> isVoid_size tin[@Fin4] s4 ->
       match yout with
       | true =>
         exists (P' Q' : Pro),
         jumpTarget k Q P = Some (Q', P') /\
         tout[@Fin0] ≃(;size@>Fin0 s0) P' /\
         tout[@Fin1] ≃(;size@>Fin1 s1) Q' /\
-        isRight_size tout[@Fin2] (size@>Fin2 s2) /\
-        isRight_size tout[@Fin3] (size@>Fin3 s3) /\ isRight_size tout[@Fin4] (size@>Fin4 s4)
+        isVoid_size tout[@Fin2] (size@>Fin2 s2) /\
+        isVoid_size tout[@Fin3] (size@>Fin3 s3) /\ isVoid_size tout[@Fin4] (size@>Fin4 s4)
       | false =>
         jumpTarget k Q P = None
       end.
@@ -497,7 +437,7 @@ Proof.
     }
     {
       modpon HStar.
-      destruct P as [ | [ | | | ] P']; auto; modpon HStar.
+      destruct P as [ | [ | | | ] P']; auto; try modpon HStar.
       - (* P = varT n :: P' *) modpon HLastStep. destruct yout; auto.
       - (* P = appT :: P' *) modpon HLastStep. destruct yout; auto.
       - (* P = lamT :: P' *) modpon HLastStep. destruct yout; auto.
@@ -529,7 +469,7 @@ Definition JumpTarget_Loop_T : tRel sigPro^+ 5 :=
       tin[@Fin0] ≃ P /\
       tin[@Fin1] ≃ Q /\
       tin[@Fin2] ≃ k /\
-      isRight tin[@Fin3] /\ isRight tin[@Fin4] /\
+      isVoid tin[@Fin3] /\ isVoid tin[@Fin4] /\
       JumpTarget_Loop_steps P Q k <= steps.
 
 
@@ -551,7 +491,7 @@ Proof.
     }
     { (* recursion cases *)
       destruct P as [ | t P ]; auto.
-      destruct t; modpon HStep.
+      destruct t; try modpon HStep.
       - (* t = varT n *)
         exists (JumpTarget_Loop_steps P (Q++[varT n]) k). split.
         + hnf. do 3 eexists; repeat split; eauto.
@@ -587,15 +527,15 @@ Definition JumpTarget_Rel : pRel sigPro^+ bool 5 :=
   fun tin '(yout, tout) =>
     forall (P : Pro) (s0 s1 : nat) (si : Vector.t nat 3),
       tin[@Fin0] ≃(;s0) P ->
-      isRight_size tin[@Fin1] s1 ->
-      (forall i : Fin.t 3, isRight_size tin[@FinR 2 i : Fin.t 5] si[@i]) ->
+      isVoid_size tin[@Fin1] s1 ->
+      (forall i : Fin.t 3, isVoid_size tin[@FinR 2 i : Fin.t 5] si[@i]) ->
       match yout with
       | true =>
         exists (P' Q' : Pro),
         jumpTarget 0 nil P = Some (Q', P') /\
         tout[@Fin0] ≃(;JumpTarget_size P @>Fin0 s0) P' /\
         tout[@Fin1] ≃(;JumpTarget_size P @>Fin1 s1) Q' /\
-        (forall i : Fin.t 3, isRight_size tout[@FinR 2 i : Fin.t 5] (JumpTarget_size P @>(FinR 2 i) si[@i]))
+        (forall i : Fin.t 3, isVoid_size tout[@FinR 2 i : Fin.t 5] (JumpTarget_size P @>(FinR 2 i) si[@i]))
       | false =>
         jumpTarget 0 nil P = None
       end.
@@ -632,8 +572,8 @@ Definition JumpTarget_T : tRel sigPro^+ 5 :=
   fun tin k =>
     exists (P : Pro),
       tin[@Fin0] ≃ P /\
-      isRight tin[@Fin1] /\
-      (forall i : Fin.t 3, isRight tin[@Fin.R 2 i]) /\
+      isVoid tin[@Fin1] /\
+      (forall i : Fin.t 3, isVoid tin[@Fin.R 2 i]) /\
       JumpTarget_steps P <= k.
 
 

@@ -372,7 +372,7 @@ Definition Add_Rel : pRel sigPos^+ unit 3 :=
     forall (p0 p1 : positive),
       tin[@Fin0] ≃ p0 ->
       tin[@Fin1] ≃ p1 ->
-      isRight tin[@Fin2] ->
+      isVoid tin[@Fin2] ->
       tout[@Fin0] ≃ p0 /\
       tout[@Fin1] ≃ p1 /\
       tout[@Fin2] ≃ p0 + p1.
@@ -408,17 +408,16 @@ Definition Add_onto_Rel : pRel sigPos^+ unit 3 :=
     forall (p0 p1 : positive),
       tin[@Fin0] ≃ p0 ->
       tin[@Fin1] ≃ p1 ->
-      isRight tin[@Fin2] ->
+      isVoid tin[@Fin2] ->
       tout[@Fin0] ≃ p0 /\
       tout[@Fin1] ≃ p0 + p1 /\
-      isRight tout[@Fin2].
+      isVoid tout[@Fin2].
 
 Lemma Add_onto_Realise : Add_onto ⊨ Add_onto_Rel.
 Proof.
   eapply Realise_monotone.
   { unfold Add_onto. TM_Correct.
-    - apply Add_Realise.
-    - apply MoveValue_Realise with (X := positive) (Y := positive). }
+    - apply Add_Realise. }
   {
     intros tin ([], tout) H. intros p0 p1 Hp0 Hp1 Hright.
     TMSimp. modpon H. modpon H0. auto.

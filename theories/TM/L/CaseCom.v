@@ -2,7 +2,7 @@
 
 From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import TM.Code.CaseNat TM.Code.CaseSum TM.Code.CaseFin LM_heap_def .
-From Undecidability.L.AbstractMachines.TM_LHeapInterpreter Require Import Alphabets.
+From Undecidability.TM.L Require Import Alphabets.
 
 Definition CaseCom : pTM sigCom^+ (option ACom) 1 :=
   If (CaseSum _ _)
@@ -20,14 +20,11 @@ Definition CaseCom_Rel : pRel sigCom^+ (FinType (EqType (option ACom))) 1 :=
   fun tin '(yout, tout) =>
     forall (t : Tok) (s : nat),
       tin[@Fin0] ≃(;s) t ->
-      match yout, t with
-      | Some appAT, appT => isRight_size tout[@Fin0] (CaseCom_size t s)
-      | Some lamAT, lamT => isRight_size tout[@Fin0] (CaseCom_size t s)
-      | Some retAT, retT => isRight_size tout[@Fin0] (CaseCom_size t s)
-      | None, varT n => tout[@Fin0] ≃(;CaseCom_size t s) n
-      | _, _ => False
-      end
-.
+      match yout with
+      | Some c => 
+          isVoid_size tout[@Fin0] (CaseCom_size t s) /\ ACom2Com c = t
+      | None => exists n, t = varT n /\ tout[@Fin0] ≃(;CaseCom_size t s) n
+      end.
 
 Definition CaseCom_steps := 11.
 
@@ -42,7 +39,7 @@ Proof.
     destruct H; TMSimp.
     { (* "Then" branche *)
       specialize (H t s HEncT).
-      destruct t; auto.
+      destruct t; cbn in H;now eauto.
     }
     { (* "Else" branche *)
       rename H into HCaseSum.
@@ -58,9 +55,9 @@ Qed.
 
 (** Use [WriteValue] for [appT], [lamT], and [retT] *)
 
-Definition Constr_ACom (t : ACom) : pTM sigCom^+ unit 1 := WriteValue (encode (ACom2Com t)).
+Definition Constr_ACom (t : ACom) : pTM sigCom^+ unit 1 := WriteValue (ACom2Com t).
 Definition Constr_ACom_Rel (t : ACom) : pRel sigCom^+ unit 1 :=
-  Mk_R_p (ignoreParam (fun tin tout => isRight tin -> tout ≃ ACom2Com t)).
+  Mk_R_p (ignoreParam (fun tin tout => isVoid tin -> tout ≃ ACom2Com t)).
 Definition Constr_ACom_steps := 7.
 Lemma Constr_ACom_Sem t : Constr_ACom t ⊨c(Constr_ACom_steps)Constr_ACom_Rel t.
 Proof.
@@ -68,7 +65,7 @@ Proof.
   - unfold Constr_ACom. apply WriteValue_Sem.
   - cbn. destruct t; cbn; reflexivity.
   - intros tin ((), tout) H. cbn in *. intros HRight.
-    specialize H with (x := t) (1 := eq_refl). modpon H. contains_ext.
+    modpon H. contains_ext.
 Qed.
 
 
@@ -89,3 +86,44 @@ Qed.
 Arguments CaseCom : simpl never.
 Arguments Constr_ACom : simpl never.
 Arguments Constr_varT : simpl never.
+
+From Undecidability Require Import Hoare.
+
+Lemma CaseCom_SpecT_size (t : Tok) (ss : Vector.t nat 1) :
+  TripleT
+    ≃≃([], withSpace  [|Contains _ t |] ss)
+    CaseCom_steps
+    CaseCom
+     (fun yout => ≃≃([match yout with Some c => t = ACom2Com c | None => exists n, t = varT n end]
+        ,withSpace ([|match Com_to_sum t with inr _ => Void | inl n => Contains _ n end|]) (appSize ([|CaseCom_size t|]) ss))).  
+Proof.
+  unfold withSpace.
+  eapply RealiseIn_TripleT.
+  - apply CaseCom_Sem.
+  - intros tin yout tout H HEnc. specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H.
+    destruct yout.
+    +destruct H as [? <-]. tspec_solve. easy. destruct a;cbn in *. all:isVoid_mono.
+    +destruct H as (?&->&?). cbn. tspec_solve. easy.
+Qed.
+
+Lemma Constr_varT_SpecT_size (n : nat) (ss : Vector.t nat 1) :
+  TripleT
+    ≃≃([], withSpace  [|Contains _ n |] ss)
+    Constr_varT_steps
+    Constr_varT
+     (fun yout => ≃≃([],withSpace ([|Contains _ (varT n)|]) (appSize ([|pred|]) ss))).  
+Proof.
+  unfold withSpace.
+  eapply RealiseIn_TripleT.
+  - apply Constr_varT_Sem.
+  - intros tin yout tout H HEnc. specialize (HEnc Fin0). simpl_vector in *; cbn in *. modpon H.
+    destruct yout. tspec_solve.
+Qed.
+
+Ltac hstep_Com :=
+  lazymatch goal with
+  | [ |- TripleT ?P ?k CaseCom ?Q ] => eapply CaseCom_SpecT_size
+  | [ |- TripleT ?P ?k Constr_varT ?Q ] => eapply Constr_varT_SpecT_size
+  end.
+
+Smpl Add hstep_Com : hstep_Spec.
