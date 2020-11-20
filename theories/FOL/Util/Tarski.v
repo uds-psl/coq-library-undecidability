@@ -10,21 +10,15 @@ Local Unset Strict Implicit.
 (*** Fragment Syntax ***)
 
 Inductive frag_logic_binop : Type :=
-(*| Conj : full_logic_binop
-| Disj : full_logic_binop*)
 | Impl : frag_logic_binop.
 
 Inductive frag_logic_quant : Type :=
-| All : frag_logic_quant
-(*| Ex : full_logic_quant*).
+| All : frag_logic_quant.
 
 Instance frag_operators : operators :=
 {| binop := frag_logic_binop ; quantop := frag_logic_quant |}.
 
 Notation "∀ Phi" := (@quant _ _ frag_operators _ All Phi) (at level 50).
-(*Notation "∃ Phi" := (quant Ex Phi) (at level 50).
-Notation "A ∧ B" := (bin Conj A B) (at level 41).
-Notation "A ∨ B" := (bin Disj A B) (at level 42).*)
 Notation "phi '-->' psi" := (@bin _ _ frag_operators _ Impl phi psi) (at level 43, right associativity).
 Notation "¬ phi" := (phi --> falsity) (at level 42).
 
@@ -80,9 +74,6 @@ Section Tarski.
       | atom P v => i_atom (Vector.map (eval rho) v)
       | falsity => False
       | bin Impl phi psi => sat rho phi -> sat rho psi
-      (*| bin Conj phi psi => sat rho phi /\ sat rho psi
-      | bin Disj phi psi => sat rho phi \/ sat rho psi
-      | quant Ex phi => exists d : domain, sat (d .: rho) phi*)
       | quant All phi => forall d : domain, sat (d .: rho) phi
       end.
 
@@ -120,7 +111,6 @@ Section Tarski.
       - specialize (IHphi1 rho xi). specialize (IHphi2 rho xi). destruct b0; intuition.
       - destruct q.
         + split; intros H' d; eapply IHphi; try apply (H' d). 1,2: intros []; cbn; intuition.
-        (* + split; intros [d H']; exists d; eapply IHphi; try apply H'. all: intros []; cbn; intuition.*)
     Qed.
 
     Lemma sat_ext' {ff : falsity_flag} rho xi phi :
@@ -140,8 +130,6 @@ Section Tarski.
       - destruct q.
         + setoid_rewrite IHphi. split; intros H d; eapply sat_ext. 2, 4: apply (H d).
           all: intros []; cbn; trivial; now setoid_rewrite eval_comp.
-        (* + setoid_rewrite IHphi. split; intros [d H]; exists d; eapply sat_ext. 2, 4: apply H.
-          all: intros []; cbn; trivial; now setoid_rewrite eval_comp.*)
     Qed.
 
     Lemma sat_subst {ff : falsity_flag} rho sigma phi :

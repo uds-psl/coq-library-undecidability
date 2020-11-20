@@ -12,9 +12,9 @@ Definition vec := t.
 (** Some preliminary definitions for substitions  *)
 Definition scons {X: Type} (x : X) (xi : nat -> X) :=
   fun n => match n with
-          |0 => x
-          |S n => xi n
-          end.
+        | 0 => x
+        | S n => xi n
+        end.
 
 Definition funcomp {X Y Z} (g : Y -> Z) (f : X -> Y)  :=
   fun x => g (f x).
@@ -171,6 +171,8 @@ Notation "s '..'" := (scons s var) (at level 1, format "s ..") : subst_scope.
 Open Scope subst_scope.
 
 
+
+(** ** Substituion lemmas *)
 
 Ltac cbns :=
     cbn; repeat (match goal with [ |- context f[subst_form ?sigma ?phi] ] => change (subst_form sigma phi) with (phi[sigma]) end).

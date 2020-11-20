@@ -89,19 +89,6 @@ Section Kripke.
 
   End Substs.
 
-  (*Definition kconstraint := forall D, kmodel D -> Prop.
-  Definition kcon_subs (C C' : kconstraint) := (forall D (M : kmodel D), C' D M -> C D M).
-
-  Definition kstandard D (M : kmodel D) := forall v, k_Bot v -> False.*)
-  (*Definition kexploding D (M : kmodel D) := forall v rho phi, rho ⊩(v) (falsity --> phi).
-  Definition kexploding' D (M : kmodel D) := forall v rho P t, rho ⊩(v) (⊥ --> Pred P t). 
-  Definition kbottomless D (M : kmodel D) := True.*)
-
-  (*Lemma kstandard_explodes :
-    kcon_subs kexploding kstandard.
-  Proof.
-    intros D M HC u rho P t v [] % HC. 
-  Qed.*)
 
   Context {ff : falsity_flag}.
 
@@ -114,16 +101,12 @@ Section Kripke.
   Definition ksatis phi :=
     exists D (M : kmodel D) u rho, ksat u rho phi.
 
-  (*Definition kvalid_T (C : kconstraint) T phi :=
-    forall D (M : @kmodel D), C _ M -> forall u rho, (forall psi, psi ∈ T -> ksat u rho psi) -> ksat u rho phi.*)
 
 End Kripke.
 
 Notation "rho  '⊩(' u ')'  phi" := (ksat u rho phi) (at level 20).
 Notation "rho '⊩(' u , M ')' phi" := (@ksat _ _ _ M _ u rho phi) (at level 20).
-(*Notation "A ⊫KE phi" := (kvalid_L kexploding A phi) (at level 20).*)
-(*Notation "A ⊫KS phi" := (kvalid A phi) (at level 20).*)
-(*Notation "A ⊫KBL phi" := (kvalid_L kbottomless A phi) (at level 20).*)
+
 Arguments ksat {_ _ _ _ _} _ _ _, {_ _ _} _ {_} _ _ _.
 
 (** ** Soundness **)
