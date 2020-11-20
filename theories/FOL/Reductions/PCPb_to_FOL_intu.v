@@ -67,7 +67,7 @@ Proof.
 Qed.
 
 Corollary kvalid_unenum :
-  UA -> ~ enumerable (complement (@kvalid full)).
+  UA -> ~ enumerable (complement (@kvalid _ _ falsity_on)).
 Proof.
   intros H. now apply (not_coenumerable kvalid_red).
 Qed.
@@ -79,7 +79,7 @@ Proof.
 Qed.
 
 Corollary kprv_unenum :
-  UA -> ~ enumerable (complement (@prv intu full nil)).
+  UA -> ~ enumerable (complement (@prv _ _ falsity_on intu nil)).
 Proof.
   intros H. apply (not_coenumerable kprv_red); trivial.
 Qed.

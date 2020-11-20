@@ -261,7 +261,7 @@ Proof.
 Qed.
 
 Corollary valid_unenum :
-  UA -> ~ enumerable (complement (@valid frag)).
+  UA -> ~ enumerable (complement (@valid _ _ falsity_off)).
 Proof.
   intros H. now apply (not_coenumerable valid_star_red).
 Qed.
@@ -273,7 +273,7 @@ Proof.
 Qed.
 
 Corollary prv_unenum :
-  UA -> ~ enumerable (complement (@prv intu frag nil)).
+  UA -> ~ enumerable (complement (@prv _ _ falsity_off intu nil)).
 Proof.
   intros H. apply (not_coenumerable prv_red); trivial.
 Qed.
