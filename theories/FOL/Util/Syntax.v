@@ -1,8 +1,8 @@
 (** * First-Order Logic *)
 
 
-From Undecidability.Synthetic Require Export Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
-From Undecidability Require Export Shared.ListAutomation.
+From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
+From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 
 Require Import Vector.

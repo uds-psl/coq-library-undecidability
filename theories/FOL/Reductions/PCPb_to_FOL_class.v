@@ -3,6 +3,7 @@
 
 From Undecidability.FOL Require Export PCPb_to_FOL.
 Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
+From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
 (** ** Double Negation Translation *)
 
 Implicit Type b : falsity_flag.
