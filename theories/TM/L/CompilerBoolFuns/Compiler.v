@@ -159,7 +159,7 @@ Section mk_init_one.
   Lemma M_init_one_Spec :
     { f & forall (bs:list bool) (ter : L.term),
     TripleT ≃≃([],[|Custom (eq (encBoolsTM s b bs));Contains _ (compile ter);Void;Void;Void;Void|])
-    (f bs ter) M_init_one (fun _ => ≃≃([],[|Custom (eq (encBoolsTM s b bs));Contains _ (compile (L.app ter (encL bs)));Void;Void;Void;Void|])) }.
+    (f bs ter) M_init_one (fun _ => ≃≃([],[|Custom (eq (encBoolsTM s b bs));Contains _ (compile (L.app ter (encBoolsL bs)));Void;Void;Void;Void|])) }.
   Proof using H_disj.
     evar (f : list bool -> term -> nat).
     eexists f. [f]:intros bs ter.
@@ -215,7 +215,7 @@ Section mk_init.
     k (M_init' ren)
     (fun _ => ≃≃([],
       ([|Custom (eq niltape);
-        Contains retr_pro (compile (Vector.fold_right (fun l_i s => L.app s (encL l_i)) (select ren v) sim))
+        Contains retr_pro (compile (Vector.fold_right (fun l_i s => L.app s (encBoolsL l_i)) (select ren v) sim))
          ;Void;Void;Void;Void|]++Vector.const (Custom (eq niltape)) m) ++ Vector.map (fun bs => Custom (eq (encBoolsTM s b bs))) v))}.
   Proof using All.
     depind ren. all:cbn [compile Vector.fold_left M_init' Vector.tl Vector.caseS].
@@ -272,7 +272,7 @@ Section mk_init.
     k M_init
     (fun _ => ≃≃([],
       ([|Custom (eq niltape);
-        Contains retr_pro (compile (Vector.fold_left (fun s l_i => L.app s (encL l_i)) sim v));
+        Contains retr_pro (compile (Vector.fold_left (fun s l_i => L.app s (encBoolsL l_i)) sim v));
          Void;Void;Void;Void|]
          ++Vector.const (Custom (eq niltape)) m) ++ Vector.map (fun bs => Custom (eq (encBoolsTM s b bs))) v))}.
   Proof using H_disj.
@@ -306,7 +306,7 @@ Section conv_output.
   
   Theorem M_out_SpecT bs:
     { k &
-    TripleT ≃≃([],[|Contains _ (compile (encL bs));Custom (eq niltape);Void;Void|])
+    TripleT ≃≃([],[|Contains _ (compile (encBoolsL bs));Custom (eq niltape);Void;Void|])
       k M_out
       (fun _ => ≃≃([],
         ([|Custom (fun _ => True); Custom (eq (encBoolsTM s b bs)); Void;Void|])))}.
@@ -332,11 +332,11 @@ Section main.
 
   Variable Hs1 : (forall v, forall m : list bool,
    R v m <->
-   L.eval (Vector.fold_left (fun (s0 : term) (n : list bool) => L.app s0 (encL n)) s v) (encL m)).
+   L.eval (Vector.fold_left (fun (s0 : term) (n : list bool) => L.app s0 (encBoolsL n)) s v) (encBoolsL m)).
 
   Variable Hs2 : (forall v, forall o : term,
-                     L.eval (Vector.fold_left (n := k) (fun (s0 : term) (n : list bool) => L.app s0 (encL n)) s v) o ->
-                     exists m : list bool, o = encL m).
+                     L.eval (Vector.fold_left (n := k) (fun (s0 : term) (n : list bool) => L.app s0 (encBoolsL n)) s v) o ->
+                     exists m : list bool, o = encBoolsL m).
 
   Definition n_main := 14.
 

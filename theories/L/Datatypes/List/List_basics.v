@@ -1,6 +1,6 @@
 From Undecidability.L.Tactics Require Import LTactics.
 From Undecidability.L Require Import UpToC.
-From Undecidability.L.Datatypes Require Export List.List_enc LBool.
+From Undecidability.L.Datatypes Require Export List.List_enc LBool LNat.
 From Undecidability.Shared.Libs.PSL.Lists Require Export Filter.
 
 Set Default Proof Using "Type".
@@ -77,6 +77,12 @@ Section Fix_X.
   pose (t:= extT (@filter X)). hnf in t. 
     computable using t.
   Defined.
+
+  Global Instance term_repeat: computable (@repeat X).
+  Proof using intX.
+    extract.
+  Qed.
+  
 End Fix_X.
 
 
