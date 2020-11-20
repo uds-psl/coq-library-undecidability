@@ -97,26 +97,43 @@ eapply validate_spec. eauto.
 Qed.
 
 Definition idbool := (fun x : bool => x).
-Definition alltrue x := forallb idbool x.
+Definition forallb' := @forallb bool.
+Definition alltrue x :=  idbool x.
+Definition forallb'' := @forallb (list bool).
+
+Local Instance term_forallb' : computable forallb' | 0.
+Proof.
+  unfold forallb'.
+  extract.
+Qed.
+
+Local Instance term_forallb'' : computable forallb'' | 0.
+Proof.
+  unfold forallb''.
+  extract.
+Qed.
 
 Instance term_idbool : computable idbool.
 Proof.
-extract.
+  extract.
 Qed.
 
 Instance term_alltrue : computable alltrue.
 Proof.
-unfold alltrue. 
-Admitted.
+  extract.
+Qed.
+
+Remove Hints term_forallb : typeclass_instances.
 
 Instance term_validate : computable validate.
 Proof.
-change (computable (fun l => forallb alltrue l)). 
-Admitted.
+  change (computable (fun l => forallb'' (forallb' alltrue) l)).
+  extract.
+Qed.
 
 Lemma forall_proc_help {X} {H : registered X} {k} {v : Vector.t X k} : forall x, Vector.In x (Vector.map enc v) -> proc x.
 Proof.
-clear. induction v; cbn; intros ? Hi. inversion Hi. inv Hi. Lproc. eapply IHv. eapply Eqdep_dec.inj_pair2_eq_dec in H3. subst. eauto. eapply nat_eq_dec.
+  clear. induction v; cbn; intros ? Hi. inversion Hi. inv Hi. Lproc. eapply IHv. eapply Eqdep_dec.inj_pair2_eq_dec in H3. subst. eauto. eapply nat_eq_dec.
 Qed.
 
 Lemma L_computable_to_L_bool_computable k (R : Vector.t nat k -> nat -> Prop) : 
@@ -142,7 +159,7 @@ Proof.
            ++ subst. eapply many_var_in in Ha. lia.
            ++ reflexivity. 
       * reflexivity.
-    }      
+    }
     split.
     - intros m. split.
       + intros (v' & m' & -> & -> & HR).
@@ -152,35 +169,35 @@ Proof.
         rewrite !Vector.map_map. erewrite Vector.map_ext. 2:intros; now rewrite repeat_length. Lsimpl.
       + rewrite eval_iff. rewrite HEQ. erewrite equiv_eval_equiv. 2:{ Lsimpl. reflexivity. }
         intros Heval. change (encNatL) with (@enc nat _) in *. change (encBoolsL) with (@enc (list bool) _) in *.
+        match type of Heval with L_facts.eval ?l _ => assert (Hc : converges l) by eauto end.
+        eapply app_converges in Hc as [H1 Hc]. eapply eval_converges in Hc as [o Hc % eval_iff].   
+        pose proof (Hc' := Hc). eapply eval_iff in Hc'.
+        eapply Hs in Hc as [m' ->].
         destruct (validate (to_list v)) eqn:E.
-        * clear HEQ. erewrite equiv_eval_equiv in Heval. 2:{ clear Heval. Lsimpl. reflexivity. } eapply validate_spec in E as [v' ->].
-          match type of Heval with L_facts.eval ?l _ => assert (Hc : converges l) by eauto end.
-          eapply app_converges in Hc as [H1 Hc]. eapply eval_converges in Hc as [o Hc % eval_iff].   
-          rewrite !Vector.map_map in *. erewrite Vector.map_ext in *. 2,3:intros; now rewrite repeat_length. 2: reflexivity.
-          pose proof (Hc' := Hc).
-          eapply Hs in Hc as [m' ->]. eexists v'. eapply eval_iff in Hc'. rewrite Hc' in Heval. erewrite equiv_eval_equiv in Heval.
-          2:{ clear Heval. now Lsimpl. }
+        * clear HEQ. rewrite Hc' in Heval.
+          erewrite equiv_eval_equiv in Heval. 2:{ clear Heval.  Lsimpl. reflexivity. }  eapply validate_spec in E as [v' ->].
+          eexists v'.
           assert (m = repeat true m') as ->. { eapply encBoolsL_inj. change (encBoolsL) with (@enc (list bool) _).
-          eapply unique_normal_forms; Lproc. now destruct Heval as [-> _]. }
-          exists m'. repeat split.  eapply Hs. now eapply eval_iff.
-        * erewrite equiv_eval_equiv in Heval. 2:{ clear Heval. Lsimpl. reflexivity. }
+          eapply unique_normal_forms; Lproc. now destruct Heval as [-> _]. } 
+          exists m'. repeat split.  eapply Hs.
+          rewrite !Vector.map_map in *. erewrite Vector.map_ext in *. 2:intros; now rewrite repeat_length. 2: reflexivity.
+          now eapply eval_iff.
+        * erewrite equiv_eval_equiv in Heval. 2:{ clear Heval. rewrite Hc'. eapply beta_red. Lproc. rewrite subst_closed. 2:Lproc. reflexivity. } 
           now eapply Omega_diverge in Heval.
     - intros o. rewrite eval_iff. rewrite HEQ. erewrite equiv_eval_equiv. 2:{ Lsimpl. reflexivity. }
       intros Heval. change (encNatL) with (@enc nat _) in *. change (encBoolsL) with (@enc (list bool) _) in *.
+      match type of Heval with L_facts.eval ?l _ => assert (Hc : converges l) by eauto end.
+      eapply app_converges in Hc as [H1 Hc]. eapply eval_converges in Hc as [o' Hc % eval_iff].   
+      pose proof (Hc' := Hc). eapply eval_iff in Hc'.
+      eapply Hs in Hc as [m' ->].
       destruct (validate (to_list v)) eqn:E.
       * clear HEQ. erewrite equiv_eval_equiv in Heval. 2:{ clear Heval. Lsimpl. reflexivity. } eapply validate_spec in E as [v' ->].
-        match type of Heval with L_facts.eval ?l _ => assert (Hc : converges l) by eauto end.
-        eapply app_converges in Hc as [H1 Hc].
-
-        eapply eval_converges in Hc as [o' Hc % eval_iff].   
-        rewrite !Vector.map_map in *. erewrite Vector.map_ext in *. 2,3:intros; now rewrite repeat_length.
-        pose proof (Hc' := Hc). eapply eval_iff in Hc'.
-        eapply Hs in Hc as [m ->]. erewrite equiv_eval_equiv in Heval.
-        2:{ clear Heval. Lsimpl. reflexivity. } exists (repeat true m). destruct Heval as [Heval ?].
+        rewrite !Vector.map_map in *. erewrite Vector.map_ext in *. 2:intros; now rewrite repeat_length.
+        exists (repeat true m'). destruct Heval as [Heval ?].
         eapply unique_normal_forms; Lproc. now rewrite Heval.
-      * erewrite equiv_eval_equiv in Heval. 2:{ clear Heval. Lsimpl. reflexivity. }
+      * erewrite equiv_eval_equiv in Heval. 2:{ clear Heval. rewrite Hc'. eapply beta_red. Lproc. rewrite subst_closed. 2:Lproc. reflexivity. } 
         now eapply Omega_diverge in Heval.
-Admitted.
+Qed.
 
 Lemma TM_bool_computable_to_TM_computable k (R : Vector.t nat k -> nat -> Prop) : 
 TM_bool_computable (fun v m => exists v' m', v = Vector.map (List.repeat true) v' /\ m = List.repeat true m' /\ R v' m') -> TM_computable R.
