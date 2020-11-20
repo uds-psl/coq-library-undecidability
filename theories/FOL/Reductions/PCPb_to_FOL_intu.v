@@ -56,7 +56,7 @@ Proof.
 Qed.
 
 Theorem ksatis_red :
-  compl PCPb ⪯ FOL_satis_intu.
+  complement PCPb ⪯ FOL_satis_intu.
 Proof.
   exists (fun R => ¬ F R). intros R. apply (BPCP_ksatis R).
 Qed.
@@ -70,7 +70,7 @@ Proof.
 Qed.
 
 Corollary kvalid_unenum :
-  UA -> ~ enumerable (compl (@kvalid full)).
+  UA -> ~ enumerable (complement (@kvalid full)).
 Proof.
   intros H. now apply (not_coenumerable kvalid_red).
 Qed.
@@ -82,7 +82,7 @@ Proof.
 Qed.
 
 Corollary kprv_unenum :
-  UA -> ~ enumerable (compl (@prv intu full nil)).
+  UA -> ~ enumerable (complement (@prv intu full nil)).
 Proof.
   intros H. apply (not_coenumerable kprv_red); trivial.
 Qed.

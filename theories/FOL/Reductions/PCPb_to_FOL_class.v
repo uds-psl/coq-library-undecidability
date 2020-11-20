@@ -211,7 +211,7 @@ Proof.
 Qed.
 
 Corollary cprv_unenum :
-  UA -> ~ enumerable (compl (@cprv nil)).
+  UA -> ~ enumerable (complement (@cprv nil)).
 Proof.
   intros H. apply (not_coenumerable cprv_red); trivial.
 Qed.

@@ -10,6 +10,8 @@
 Require Import List Arith Bool Lia Eqdep_dec.
 
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.ReducibilityFacts.
+Require Import Undecidability.Synthetic.InformativeDefinitions Undecidability.Synthetic.InformativeReducibilityFacts.
+
 From Undecidability.PCP Require Import PCP.
 
 From Undecidability.Shared.Libs.DLW.Utils

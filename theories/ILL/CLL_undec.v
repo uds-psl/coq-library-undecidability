@@ -16,6 +16,8 @@ Require Import Undecidability.Synthetic.Undecidability.
 From Undecidability.ILL 
   Require Import EILL ILL CLL ILL_undec EILL_CLL ILL_CLL.
 
+Import UndecidabilityNotations.
+
 (** Undecidability results *)
 
 Local Hint Resolve rILL_rCLL_cf_PROVABILITY
