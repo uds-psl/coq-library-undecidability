@@ -31,6 +31,8 @@ From Undecidability.H10
 From Undecidability.H10.Dio 
   Require Import dio_logic dio_elem dio_single.
 
+Import ReductionChainNotations UndecidabilityNotations.
+
 Set Implicit Arguments.
 
 Theorem DIO_SINGLE_SAT_H10 : DIO_SINGLE_SAT ⪯ H10.

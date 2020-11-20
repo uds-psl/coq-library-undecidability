@@ -25,6 +25,8 @@ From Undecidability.StackMachines
 From Undecidability.MinskyMachines
   Require Import MM BSM_MM.
 
+Import ReductionChainNotations UndecidabilityNotations.
+
 Lemma iBPCP_chain_MM : ⎩iPCPb ⪯ₘ BSM_HALTING ⪯ₘ MM_HALTS_ON_ZERO⎭.
 Proof.
   msplit 1.

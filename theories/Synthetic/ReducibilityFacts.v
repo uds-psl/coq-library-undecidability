@@ -5,10 +5,6 @@ Import ListNotations ListAutomationNotations.
 
 Set Implicit Arguments.
 
-(** ** Definitions *)
-
-Infix "⪯ᵢ" := inf_reduces (at level 70).
-
 (** ** Pre-order properties *)
 
 Section Properties.
@@ -20,9 +16,6 @@ Section Properties.
   Fact reduces_reflexive : P ⪯ P.
   Proof. exists (fun x => x); red; tauto. Qed.
 
-  Fact ireduces_reflexive : P ⪯ᵢ P.
-  Proof. exists (fun x => x); red; tauto. Qed.
-
   Fact reduces_transitive : P ⪯ Q -> Q ⪯ R -> P ⪯ R.
   Proof.
     unfold reduces, reduction.
@@ -31,50 +24,20 @@ Section Properties.
     intro; rewrite Hf, Hg; tauto.
   Qed.
 
-  Fact ireduces_transitive : P ⪯ᵢ Q -> Q ⪯ᵢ R -> P ⪯ᵢ R.
-  Proof.
-    unfold inf_reduces, reduction.
-    intros (f & Hf) (g & Hg).
-    exists (fun x => g (f x)).
-    intro; rewrite Hf, Hg; tauto.
-  Qed.
-
-  Fact ireduces_reduces : P ⪯ᵢ Q -> P ⪯ Q.
-  Proof. intros (f & ?); exists f; auto. Qed.
-
-  Fact reduces_ireduces : P ⪯ Q -> inhabited (P ⪯ᵢ Q).
-  Proof. intros (f & ?); exists; exists f; auto. Qed.
-
-  Fact reduces_ireduces_iff : P ⪯ Q <-> inhabited (P ⪯ᵢ Q).
-  Proof.
-    split.
-    + apply reduces_ireduces.
-    + intros []; apply ireduces_reduces; auto.
-  Qed.
-
   (** ** An equivalent dependent definition *)
 
-  Fact ireduces_dependent :
-         (P ⪯ᵢ Q -> forall x, { y | P x <-> Q y })
-       * ((forall x, { y | P x <-> Q y }) -> P ⪯ᵢ Q).
-  Proof.
-    unfold inf_reduces, reduction.
-    split.
-    + intros (f & Hf).
-      intros x; exists (f x); auto.
-    + intros f.
-      exists (fun x => proj1_sig (f x)).
-      intros; apply (proj2_sig (f x)).
-  Qed.
-
   Fact reduces_dependent :
-        P ⪯ Q <-> inhabited (forall x, { y | P x <-> Q y }).
+    P ⪯ Q <-> inhabited (forall x, { y | P x <-> Q y }).
   Proof.
-    rewrite reduces_ireduces_iff.
-    split; intros [H]; exists; revert H; apply ireduces_dependent.
+    constructor.
+    - intros [f Hf]. constructor. intros x. now exists (f x).
+    - intros [f]. exists (fun x => proj1_sig (f x)).
+      intros x. exact (proj2_sig (f x)).
   Qed.
 
 End Properties.
+
+Module ReductionChainNotations.
 
 (** DLW: Thx to M. Wuttke for the tip, see coq-club ML *)
 
@@ -135,6 +98,8 @@ Tactic Notation "red" "chain" "step" constr(H) := constructor 2; [ apply H | ].
 Tactic Notation "red" "chain" "app" constr(H) := apply reduction_chain_app with (1 := H).
 *)
 
+End ReductionChainNotations.
+
 Lemma dec_red X (p : X -> Prop) Y (q : Y -> Prop) :
   p ⪯ q -> decidable q -> decidable p.
 Proof.
@@ -194,8 +159,8 @@ Proof.
 Qed.
 
 Theorem not_decidable X Y (p : X -> Prop) (q : Y -> Prop) :
-  p ⪯ q -> enumerable__T X -> ~ enumerable (compl p) ->
-  ~ decidable q /\ ~ decidable (compl q).
+  p ⪯ q -> enumerable__T X -> ~ enumerable (complement p) ->
+  ~ decidable q /\ ~ decidable (complement q).
 Proof.
   intros. split; intros ?.
   - eapply H1. eapply dec_red in H2; eauto.
@@ -205,8 +170,8 @@ Proof.
 Qed.
 
 Theorem not_coenumerable X Y (p : X -> Prop) (q : Y -> Prop) :
-  p ⪯ q -> enumerable__T X -> ~ enumerable (compl p) -> discrete Y ->
-  ~ enumerable (compl q).
+  p ⪯ q -> enumerable__T X -> ~ enumerable (complement p) -> discrete Y ->
+  ~ enumerable (complement q).
 Proof.
   intros. intros ?. eapply H1. eapply enumerable_red in H3; eauto.
   now eapply red_comp.

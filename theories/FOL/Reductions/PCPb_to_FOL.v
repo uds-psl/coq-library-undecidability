@@ -221,7 +221,7 @@ Proof.
 Qed.
 
 Theorem satis_red :
-  compl PCPb ⪯ FOL_satis.
+  complement PCPb ⪯ FOL_satis.
 Proof.
   exists (fun R => ¬ F R). intros R. apply (BPCP_satis R).
 Qed.
@@ -237,7 +237,7 @@ Qed.
 Hint Resolve stack_enum form_discrete : core.
 
 Definition UA :=
-  ~ enumerable (compl PCPb).
+  ~ enumerable (complement PCPb).
 
 Corollary valid_undec :
   UA -> ~ decidable (@valid frag).
@@ -246,7 +246,7 @@ Proof.
 Qed.
 
 Corollary valid_unenum :
-  UA -> ~ enumerable (compl (@valid frag)).
+  UA -> ~ enumerable (complement (@valid frag)).
 Proof.
   intros H. now apply (not_coenumerable valid_red).
 Qed.
@@ -258,7 +258,7 @@ Proof.
 Qed.
 
 Corollary prv_unenum :
-  UA -> ~ enumerable (compl (@prv intu frag nil)).
+  UA -> ~ enumerable (complement (@prv intu frag nil)).
 Proof.
   intros H. apply (not_coenumerable prv_red); trivial.
 Qed.

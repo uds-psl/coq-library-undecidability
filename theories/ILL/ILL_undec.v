@@ -23,6 +23,8 @@ From Undecidability.ILL
 
 Require Import Undecidability.PCP.Reductions.HaltTM_1_to_PCPb.
 
+Import ReductionChainNotations UndecidabilityNotations.
+
 (** The reduction chain from the CPP 2019, Y. Forster & D. Larchey-Wendling *)
 
 Theorem PCP_chain_ILL : 
