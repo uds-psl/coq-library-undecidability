@@ -198,6 +198,8 @@ Proof.
     + cbn. now rewrite Vector_nth_L, nth_tabulate.
 Qed.
 
+Local Set Keyed Unification.
+
 Lemma TM_bool_computable_hoare'_spec k R :
   functional R ->
   @TM_bool_computable_hoare' k R -> TM_bool_computable R.
@@ -210,12 +212,12 @@ Proof.
   rewrite TM_bool_computable_hoare_in'_spec in H1,H2.
   split.
   - refine (Consequence _ _ _). refine (LiftTapes_Spec_ex _ _). now apply tapeOrderSwap_dupfree.
-    exact H1. reflexivity. cbn. intro. eapply EntailsI. intros ? []. (*  eexists.
-    erewrite tm_bool_computable_hoare_out'_spec. eassumption. *) admit.
+    exact H1. reflexivity. intro. eapply EntailsI. intros ? [].  eexists.
+    erewrite TM_bool_computable_hoare_out'_spec. eassumption. 
   - intros. specialize H2 as [x H2]. easy. exists x.
     refine (ConsequenceT _ _ _ _). refine (LiftTapes_SpecT _ _). now apply tapeOrderSwap_dupfree.
-    exact H2. reflexivity. cbn. admit. (* now rewrite <- tm_bool_computable_hoare_out'_spec. *) easy.
-Admitted.
+    exact H2. reflexivity. cbn beta. intros. 2:easy. now rewrite <- TM_bool_computable_hoare_out'_spec.
+Qed.
 
 Lemma closed_compiler_helper s n v: closed s ->
 closed

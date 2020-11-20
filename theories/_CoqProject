@@ -125,6 +125,7 @@ TM/L/Eval.v
 TM/L/CompilerBoolFuns/Compiler_spec.v
 TM/L/CompilerBoolFuns/LComp_to_TMComp.v
 TM/L/CompilerBoolFuns/Compiler_facts.v
+TM/L/CompilerBoolFuns/Compiler_nat_facts.v
 TM/L/CompilerBoolFuns/EncBoolsTM_boolList.v
 TM/L/CompilerBoolFuns/Compiler.v
 TM/L/CompilerBoolFuns/NaryApp.v

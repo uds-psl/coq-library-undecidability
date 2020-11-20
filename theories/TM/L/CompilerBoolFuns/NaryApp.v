@@ -65,6 +65,8 @@ Proof.
   intros [u ->] ->. repeat econstructor.
 Qed.
 
+From Equations Require Import Equations.
+
 Lemma many_beta k (v : Vector.t term k) s : 
   (forall x, Vector.In x v -> proc x) ->
   many_app (many_lam k s) v == many_subst s 0 v.
@@ -84,6 +86,16 @@ Proof.
   - cbn. now rewrite IHv.
 Qed.
 
+Lemma many_subst_many_app (s : term) {k} n (ts v : Vector.t term k) :
+  many_subst (many_app s ts) n v = many_app (many_subst s n v) (Vector.map (fun t => many_subst t n v) ts).
+Proof.
+  induction v in n, s, ts |- *.
+  - cbn. dependent elimination ts. reflexivity.
+  - cbn. dependent elimination ts. cbn.  
+    rewrite subst_many_app, IHv. cbn. rewrite many_subst_app. 
+    now rewrite Vector.map_map.
+Qed.
+
 Lemma many_subst_closed (s : term) {k} n (v : Vector.t term k) :
   closed s -> many_subst s n v = s.
 Proof.
@@ -91,3 +103,13 @@ Proof.
   - reflexivity.
   - cbn. intros H. rewrite H. now eapply IHv.
 Qed.
+
+Lemma many_var_in a k : Vector.In a (many_vars k) -> a < k.
+Proof.
+  induction k.
+  - inversion 1.
+  - intros Ha. rewrite many_vars_S in Ha. inv Ha.
+    + lia.
+    + transitivity k. 2:lia. eapply IHk. eapply Eqdep_dec.inj_pair2_eq_dec in H2. subst. eauto. eapply nat_eq_dec.
+Qed.
+      
