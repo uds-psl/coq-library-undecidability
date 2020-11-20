@@ -20,21 +20,6 @@ Proof.
    apply PCPb_to_FOL.valid_red.
 Qed.
 
-(*Lemma undecidable_comp X (P : X -> Prop) :
-  undecidable (compl P) -> undecidable P.
-Proof.
-  intros H H'. apply H. rewrite DecidabilityFacts.decidable_iff in *.
-  destruct H' as [d]. split. intros x. destruct (d x).
-  - right. intros Hx. now apply Hx.
-  - now left.
-Qed.
-
-Lemma reducible_comp X Y (P : X -> Prop) (Q : Y -> Prop) :
-  P ⪯ Q -> compl P ⪯ compl Q.
-Proof.
-  intros [f Hf]. exists f. firstorder.
-Qed.*)
-
 (*Lemma undecidable_FOL_satis : undecidable FOL_satis.
 Proof.
   apply (undecidability_from_reducibility PCPb_undec).
