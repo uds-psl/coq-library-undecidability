@@ -382,3 +382,133 @@ Section EqDec.
   Qed.
 
 End EqDec.
+
+
+
+
+
+(** ** Enumerability *)
+
+Section Enumerability.
+  
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+  Context {ops : operators}.
+
+  Variable list_Funcs : nat -> list syms.
+  Hypothesis enum_Funcs' : list_enumerator__T list_Funcs syms.
+
+  Variable list_Preds : nat -> list preds.
+  Hypothesis enum_Preds' : list_enumerator__T list_Preds preds.
+
+  Variable list_binop : nat -> list binop.
+  Hypothesis enum_binop' : list_enumerator__T list_binop binop.
+
+  Variable list_quantop : nat -> list quantop.
+  Hypothesis enum_quantop' : list_enumerator__T list_quantop quantop.
+
+  Fixpoint vecs_from X (A : list X) (n : nat) : list (vec X n) :=
+    match n with
+    | 0 => [Vector.nil X]
+    | S n => [ Vector.cons X x _ v | (x,  v) ∈ (A × vecs_from X A n) ]
+    end.
+
+  Fixpoint L_term n : list term :=
+    match n with
+    | 0 => []
+    | S n => L_term n ++ var n :: concat ([ [ func F v | v ∈ vecs_from _ (L_term n) (ar_syms F) ] | F ∈ L_T n])
+    end.
+
+  Lemma L_term_cml :
+    cumulative L_term.
+  Proof.
+    intros ?; cbn; eauto.
+  Qed.
+
+  Lemma list_prod_in X Y (x : X * Y) A B :
+    x el (A × B) -> exists a b, x = (a , b) /\ a el A /\ b el B.
+  Proof.
+    induction A; cbn.
+    - intros [].
+    - intros [H | H] % in_app_or. 2: firstorder.
+      apply in_map_iff in H as (y & <- & Hel). exists a, y. tauto.
+  Qed.
+
+  Lemma vecs_from_correct X (A : list X) (n : nat) (v : vec X n) :
+    (forall x, vec_in x v -> x el A) <-> v el vecs_from X A n.
+  Proof.
+    induction n; cbn.
+    - split.
+      + intros. left. now dependent elimination v.
+      + intros [<- | []] x H. inv H.
+    - split.
+      + intros. dependent elimination v. in_collect (pair h t0); destruct (IHn t0).
+        eauto using vec_inB. apply H0. intros x Hx. apply H. now right. 
+      + intros Hv. apply in_map_iff in Hv as ([h v'] & <- & (? & ? & [= <- <-] & ? & ?) % list_prod_in).
+        intros x H. inv H; destruct (IHn v'); eauto. apply H2; trivial. now resolve_existT.
+  Qed.
+
+  Lemma vec_forall_cml X (L : nat -> list X) n (v : vec X n) :
+    cumulative L -> (forall x, vec_in x v -> exists m, x el L m) -> exists m, v el vecs_from _ (L m) n.
+  Proof.
+    intros HL Hv. induction v; cbn.
+    - exists 0. tauto.
+    - destruct IHv as [m H], (Hv h) as [m' H']. 1,3: eauto using vec_inB.
+      + intros x Hx. apply Hv. now right.
+      + exists (m + m'). in_collect (pair h v). 1: apply (cum_ge' (n:=m')); intuition lia.
+      apply vecs_from_correct. rewrite <- vecs_from_correct in H. intros x Hx.
+      apply (cum_ge' (n:=m)). all: eauto. lia.
+  Qed.
+
+  Lemma enum_term :
+    list_enumerator__T L_term term.
+  Proof with try (eapply cum_ge'; eauto; lia).
+    intros t. induction t using term_rect.
+    - exists (S x); cbn; eauto.
+    - apply vec_forall_cml in H as [m H]. 2: exact L_term_cml. destruct (el_T F) as [m' H'].
+      exists (S (m + m')); cbn. in_app 3. eapply in_concat_iff. eexists. split. 2: in_collect F...
+      apply in_map. rewrite <- vecs_from_correct in H |-*. intros x H''. specialize (H x H'')...
+  Qed.
+
+  Lemma enumT_term :
+    enumerable__T term.
+  Proof.
+    apply enum_enumT. exists L_term. apply enum_term.
+  Qed.
+
+  Fixpoint L_form {ff : falsity_flag} n : list form :=
+    match n with
+    | 0 => match ff with falsity_on => [falsity] | falsity_off => [] end
+    | S n => L_form n
+              ++ concat ([ [ atom P v | v ∈ vecs_from _ (L_term n) (ar_preds P) ] | P ∈ L_T n])
+              ++ concat ([ [ bin op phi psi | (phi, psi) ∈ (L_form n × L_form n) ] | op ∈ L_T n])
+              ++ concat ([ [ quant op phi | phi ∈ L_form n ] | op ∈ L_T n])
+    end.
+
+  Lemma L_form_cml {ff : falsity_flag} :
+    cumulative L_form.
+  Proof.
+    intros ?; cbn; eauto.
+  Qed.
+
+  Lemma enum_form {ff : falsity_flag} :
+    list_enumerator__T L_form form.
+  Proof with (try eapply cum_ge'; eauto; lia).
+    intros phi. induction phi.
+    - exists 1. cbn; eauto.
+    - destruct (el_T P) as [m Hm], (vec_forall_cml term L_term _ v) as [m' Hm']; eauto using enum_term.
+      exists (S (m + m')); cbn. in_app 2. eapply in_concat_iff. eexists. split.
+      2: in_collect P... eapply in_map. rewrite <- vecs_from_correct in *. intuition...
+    - destruct (el_T b0) as [m Hm], IHphi1 as [m1], IHphi2 as [m2]. exists (1 + m + m1 + m2). cbn.
+      in_app 3. apply in_concat. eexists. split. apply in_map... in_collect (pair phi1 phi2)...
+    - destruct (el_T q) as [m Hm], IHphi as [m' Hm']. exists (1 + m + m'). cbn -[L_T].
+      in_app 4. apply in_concat. eexists. split. apply in_map... in_collect phi...
+  Qed.
+
+  Lemma enumT_form {ff : falsity_flag} :
+    enumerable__T form.
+  Proof.
+    apply enum_enumT. exists L_form. apply enum_form.
+  Defined.
+
+End Enumerability.
