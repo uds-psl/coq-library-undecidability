@@ -5,8 +5,8 @@ From Undecidability.Synthetic Require Import Definitions DecidabilityFacts Enume
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 
-Require Import Vector.
-Definition vec := t.
+Require Import Coq.Vectors.Vector.
+Notation vec := t.
 
 
 (** Some preliminary definitions for substitions  *)
@@ -344,9 +344,9 @@ Section EqDec.
 
   Global Instance dec_term : eq_dec term.
   Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence)).
-    intros t. induction t; intros []...
+    intros t. induction t as [ | ]; intros [|? v']...
     - decide (x = n)... 
-    - decide (F = f)... destruct (dec_vec_in _ _ _ X v0)...
+    - decide (F = f)... destruct (dec_vec_in _ _ _ X v')...
   Qed.
 
   Instance dec_falsity : eq_dec falsity_flag.
@@ -366,7 +366,7 @@ Section EqDec.
   Proof with subst; try (now left + (right; intros ? % eq_sigT_iff_eq_dep; resolve_existT; congruence)).
     unfold dec. revert phi2; induction phi1; intros; try destruct phi2.
     all: try now right; inversion 1. now left.
-    - decide (b = b0)... decide (P = P0)... decide (v = v0)... right.
+    - decide (b = b0)... decide (P = P0)... decide (t = t0)... right.
       intros [=] % eq_dep_falsity. resolve_existT. tauto.
     - decide (b = b1)... decide (b0 = b2)... destruct (IHphi1_1 phi2_1).
       + apply eq_dep_falsity in e as ->. destruct (IHphi1_2 phi2_2).
@@ -384,8 +384,6 @@ Section EqDec.
   Qed.
 
 End EqDec.
-
-
 
 
 
@@ -498,7 +496,7 @@ Section Enumerability.
   Proof with (try eapply cum_ge'; eauto; lia).
     intros phi. induction phi.
     - exists 1. cbn; eauto.
-    - destruct (el_T P) as [m Hm], (vec_forall_cml term L_term _ v) as [m' Hm']; eauto using enum_term.
+    - rename t into v. destruct (el_T P) as [m Hm], (vec_forall_cml term L_term _ v) as [m' Hm']; eauto using enum_term.
       exists (S (m + m')); cbn. in_app 2. eapply in_concat_iff. eexists. split.
       2: in_collect P... eapply in_map. rewrite <- vecs_from_correct in *. intuition...
     - destruct (el_T b0) as [m Hm], IHphi1 as [m1], IHphi2 as [m2]. exists (1 + m + m1 + m2). cbn.
@@ -514,3 +512,4 @@ Section Enumerability.
   Defined.
 
 End Enumerability.
+ 

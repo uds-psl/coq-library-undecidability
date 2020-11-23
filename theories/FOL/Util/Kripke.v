@@ -70,7 +70,7 @@ Section Kripke.
     Lemma ksat_ext {ff : falsity_flag} u rho xi phi :
       (forall x, rho x = xi x) -> rho ⊩(u,M) phi <-> xi ⊩(u,M) phi.
     Proof.
-      induction phi in rho, xi, u |-*; intros Hext; comp.
+      induction phi as [ | b P v | | ] in rho, xi, u |-*; intros Hext; comp.
       - tauto.
       - erewrite Vector.map_ext. reflexivity. intros t. now apply eval_ext.
       - destruct b0; split; intros H v Hv Hv'; now apply (IHphi2 v rho xi Hext), (H _ Hv), (IHphi1 v rho xi Hext).
@@ -80,7 +80,7 @@ Section Kripke.
     Lemma ksat_comp {ff : falsity_flag} u rho xi phi :
       rho ⊩(u,M) phi[xi] <-> (xi >> eval rho (I := @k_interp _ M)) ⊩(u,M) phi.
     Proof.
-      induction phi in rho, xi, u |-*; comp.
+      induction phi as [ | b P v | | ] in rho, xi, u |-*; comp.
       - tauto.
       - erewrite Vector.map_map. erewrite Vector.map_ext. 2: apply eval_comp. reflexivity.
       - destruct b0. setoid_rewrite IHphi1. now setoid_rewrite IHphi2.

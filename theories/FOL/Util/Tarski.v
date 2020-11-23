@@ -106,7 +106,7 @@ Section Tarski.
     Lemma sat_ext {ff : falsity_flag} rho xi phi :
       (forall x, rho x = xi x) -> rho ⊨ phi <-> xi ⊨ phi.
     Proof.
-      induction phi in rho, xi |- *; cbn; intros H.
+      induction phi  as [ | b P v | | ] in rho, xi |- *; cbn; intros H.
       - reflexivity.
       - erewrite map_ext; try reflexivity. intros t. now apply eval_ext.
       - specialize (IHphi1 rho xi). specialize (IHphi2 rho xi). destruct b0; intuition.
@@ -124,7 +124,7 @@ Section Tarski.
     Lemma sat_comp {ff : falsity_flag} rho xi phi :
       rho ⊨ (subst_form xi phi) <-> (xi >> eval rho) ⊨ phi.
     Proof.
-      induction phi in rho, xi |- *; cbn.
+      induction phi as [ | b P v | | ] in rho, xi |- *; cbn.
       - reflexivity.
       - erewrite map_map, map_ext; try reflexivity. intros t. apply eval_comp.
       - specialize (IHphi1 rho xi). specialize (IHphi2 rho xi). destruct b0; intuition.
