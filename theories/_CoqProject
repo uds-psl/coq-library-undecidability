@@ -179,11 +179,10 @@ CFG/Reductions/CFPI_to_CFI.v
 # First order logic
 FOL/FOL.v
 FOL/FOL_undec.v
-FOL/Util/FOL_facts.v
-FOL/Util/Semantics.v
+FOL/Util/Syntax.v
+FOL/Util/Tarski.v
 FOL/Util/Deduction.v
 FOL/Util/Kripke.v
-FOL/Util/Weakening.v
 
 FOL/Reductions/PCPb_to_FOL.v
 FOL/Reductions/PCPb_to_FOL_intu.v
