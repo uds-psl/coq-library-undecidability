@@ -1,5 +1,6 @@
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
-Require Import Undecidability.FOL.FOL Undecidability.PCP.PCP_undec.
+Require Import Undecidability.PCP.PCP_undec.
+Require Import Undecidability.FOL.FOL.
 From Undecidability.FOL.Reductions Require PCPb_to_FOL PCPb_to_FOL_intu PCPb_to_FOL_class.
 
 Lemma undecidable_FOLstar_prv_intu : undecidable FOL*_prv_intu.
@@ -11,14 +12,20 @@ Qed.
 Lemma undecidable_FOLstar_valid : undecidable FOL*_valid.
 Proof.
    apply (undecidability_from_reducibility PCPb_undec).
+   apply PCPb_to_FOL.valid_star_red.
+Qed.
+
+Lemma undecidable_FOL_valid : undecidable FOL_valid.
+Proof.
+   apply (undecidability_from_reducibility PCPb_undec).
    apply PCPb_to_FOL.valid_red.
 Qed.
 
-(* Lemma undecidable_FOL_satis : undecidable FOL_satis.
+(*Lemma undecidable_FOL_satis : undecidable FOL_satis.
 Proof.
-   apply (undecidability_from_reducibility PCPb_undec).
-   apply PCPb_to_FOL.satis_red.
-Qed. *)
+  apply (undecidability_from_reducibility PCPb_undec).
+  
+Qed.*)
 
 Lemma undecidable_FOL_valid_intu : undecidable FOL_valid_intu.
 Proof.
