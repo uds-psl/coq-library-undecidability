@@ -1,6 +1,6 @@
-From Undecidability Require Export CodeTM Copy ChangeAlphabet WriteValue.
-From Undecidability Require Export TMTac.
-From Undecidability Require Export Basic.Mono Compound.Multi.
+Require Export Undecidability.TM.Code.CodeTM Undecidability.TM.Code.Copy Undecidability.TM.Code.ChangeAlphabet Undecidability.TM.Code.WriteValue.
+Require Export Undecidability.TM.Compound.TMTac.
+Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
 Require Import Lia.
 (** * All tools for programming Turing machines *)
 
