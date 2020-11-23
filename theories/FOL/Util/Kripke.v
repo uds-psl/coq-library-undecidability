@@ -6,6 +6,8 @@ Import ListAutomationNotations.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
+Local Notation vec := Vector.t.
+
 Section Kripke.
   
   Context {Σ_funcs : funcs_signature}.

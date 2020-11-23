@@ -8,6 +8,8 @@ Require Import Vector.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
+Local Notation vec := Vector.t.
+
 (*** Fragment Syntax ***)
 
 Inductive frag_logic_binop : Type :=

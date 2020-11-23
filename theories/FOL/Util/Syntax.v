@@ -6,7 +6,7 @@ From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 
 Require Import Coq.Vectors.Vector.
-Notation vec := t.
+Local Notation vec := t.
 
 
 (** Some preliminary definitions for substitions  *)
