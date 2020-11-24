@@ -1,4 +1,4 @@
-(** ** Multiplication *)
+(* ** Multiplication *)
 
 From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import Hoare.Hoare.
@@ -10,7 +10,7 @@ Arguments mult : simpl never.
 Arguments plus : simpl never.
 
 
-(** *** Addition *)
+(* *** Addition *)
 
 
 Definition Add_Step : pTM sigNat^+ (option unit) 2 :=
@@ -66,7 +66,7 @@ Lemma Add_Loop_SpecT_size (a b : nat) (ss : Vector.t nat 2) :
              ([], withSpace [|Contains _ (a+b); Contains _ 0|]
                 (appSize (Add_Loop_size a b) ss))).
 Proof.
-  (** We have to add the space vector to the abstract state *)
+  (* We have to add the space vector to the abstract state *)
   eapply While_SpecTReg with (PRE := fun '(a,b,ss) => (_,_)) (INV := fun '(a,b,ss) y => (_,_)) 
     (POST := fun '(a,b,ss) y => (_,_)) (f__loop := fun '(a,b,ss) => _) (f__step := fun '(a,b,ss) => _) (x := (a,b,ss));
     clear a b ss; intros ((x,y),ss).
@@ -115,7 +115,7 @@ Proof. (* The tactic [hstep] takes also takes care of moving [withSpace] to the 
   unfold CopyValue_steps, Reset_steps, Add_Loop_steps, Add_steps. rewrite !Encode_nat_hasSize. lia.
 Qed.
 
-(** *** Multiplication *)
+(* *** Multiplication *)
 
 
 Definition Mult_Step : pTM sigNat^+ (option unit) 5 :=

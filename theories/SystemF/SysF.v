@@ -19,30 +19,30 @@
 
 Require Import List.
 
-(** pure lambda-terms M, N, .. *)
+(* pure lambda-terms M, N, .. *)
 Inductive pure_term : Type :=
   | pure_var : nat -> pure_term 
   | pure_app : pure_term -> pure_term -> pure_term 
   | pure_abs : pure_term -> pure_term.
 
-(** polymorphic types s, t, ..*)
+(* polymorphic types s, t, ..*)
 Inductive poly_type : Type :=
   | poly_var : nat -> poly_type 
   | poly_arr : poly_type -> poly_type -> poly_type 
   | poly_abs : poly_type -> poly_type.
 
-(** system F type environments *)
+(* system F type environments *)
 Definition environment := list poly_type.
 
-(** function composition *)
+(* function composition *)
 Definition funcomp {X Y Z} (g : Y -> Z) (f : X -> Y) :=
   fun x => g (f x).
 
-(** stream cons *)
+(* stream cons *)
 Definition scons {X: Type} (x : X) (xi : nat -> X) :=
   fun n => match n with | 0 => x | S n => xi n end.
 
-(** polymorphic type variable renaming *)
+(* polymorphic type variable renaming *)
 Fixpoint ren_poly_type (xi : nat -> nat) (s : poly_type) : poly_type  :=
   match s return poly_type with
   | poly_var x => poly_var (xi x)
@@ -50,7 +50,7 @@ Fixpoint ren_poly_type (xi : nat -> nat) (s : poly_type) : poly_type  :=
   | poly_abs s => poly_abs (ren_poly_type (scons 0 (funcomp S xi)) s)
   end.
 
-(** polymorphic type variable substitution *)
+(* polymorphic type variable substitution *)
 Fixpoint subst_poly_type (sigma : nat -> poly_type) (s : poly_type) : poly_type  :=
   match s return poly_type with
   | poly_var s => sigma s
@@ -58,7 +58,7 @@ Fixpoint subst_poly_type (sigma : nat -> poly_type) (s : poly_type) : poly_type 
   | poly_abs s => poly_abs (subst_poly_type (scons (poly_var 0) (funcomp (ren_poly_type S) sigma)) s)
   end.
 
-(** 
+(* 
   Curry-style System F Type Assignment predicate 
   Γ ⊢ M : τ is (type_assignment Γ M τ) 
 *)
@@ -79,14 +79,14 @@ Inductive type_assignment : environment -> pure_term -> poly_type -> Prop :=
     type_assignment (map (ren_poly_type S) Gamma) M s -> 
     type_assignment Gamma M (poly_abs s).
 
-(** System F Type Checking *)
+(* System F Type Checking *)
 Definition SysF_TC : environment * pure_term * poly_type -> Prop :=
   fun '(Gamma, M, t) => type_assignment Gamma M t.
 
-(** System F Typability *)
+(* System F Typability *)
 Definition SysF_TYP : pure_term -> Prop :=
   fun M => exists Gamma t, type_assignment Gamma M t.
 
-(** System F Inhabitation *)
+(* System F Inhabitation *)
 Definition SysF_INH : environment * poly_type -> Prop :=
   fun '(Gamma, t) => exists M, type_assignment Gamma M t.

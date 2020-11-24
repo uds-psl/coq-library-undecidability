@@ -30,7 +30,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Reduction from BPCP to specialized FSAT *)
+(* * Reduction from BPCP to specialized FSAT *)
 
 Local Notation ø := vec_nil.
 
@@ -103,7 +103,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
 
   Section soundness.
 
-    (** We assume a solution to pcp_hand and we build a finite and decidable model
+    (* We assume a solution to pcp_hand and we build a finite and decidable model
         of Σbpcp_encode from it *)
 
     Variable (l : list bool) (Hl : lc ⊳ l∕l). 
@@ -143,7 +143,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
         * exact (vec_head v = vec_head (vec_tail v)).
     Defined.
 
-    (** This model his decidable sem_pred *)
+    (* This model his decidable sem_pred *)
 
     Lemma Σbpcp_model_dec : fo_model_dec Σbpcp_model.
     Proof.
@@ -276,7 +276,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
 
     Opaque le_lt_dec.
 
-    (** (Σbpcp_model,φ0) is a model of phi_simul *)
+    (* (Σbpcp_model,φ0) is a model of phi_simul *)
 
     Let sem_phi_simul : ⟪ phi_simul ⟫ φ0.
     Proof.
@@ -346,7 +346,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
 
   Section completeness.
 
-    (** We assume an interpreted and finite model *)
+    (* We assume an interpreted and finite model *)
 
     Variable (X : Type) (M : fo_model Σbpcp X) 
              (HM : finite X)
@@ -380,7 +380,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
                            \/ v ⪡ y /\ u ≅ x
                            \/ u ⪡ x /\ v ⪡ y ).
 
-    (** The axiom interpreted directly gives us properties of the model *)
+    (* The axiom interpreted directly gives us properties of the model *)
 
     Let HP x y : P x y -> x <> ⋇ /\ y <> ⋇.
     Proof. do 2 rewrite <- He; apply model. Qed.

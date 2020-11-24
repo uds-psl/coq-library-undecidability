@@ -5,6 +5,8 @@
     (1) Saarland University, Saarbrücken, Germany
 *)
 
+(** ** FMsetC_SAT is undecidable *)
+
 (* 
   Undecidability Result(s):
     Finite Multiset Constraint Solvability (FMsetC_SAT)

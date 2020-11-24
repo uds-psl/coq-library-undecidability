@@ -53,7 +53,7 @@ Section dec.
 
 End dec.
 
-(** * The Post correspondence problem *)
+(* * The Post correspondence problem *)
 
 Notation "R ⊳ s ∕ t" := (derivable R s t) (at level 70, format "R  ⊳  s ∕ t").
 
@@ -63,7 +63,7 @@ Section pcp_hand_dec.
 
   Notation pcp_hand := (fun s t => lc ⊳ s∕t).
 
-  (** Any hand is either a card or of the for x++p/y++q where
+  (* Any hand is either a card or of the for x++p/y++q where
       x/y is a non-void card and p/q is a hand *)
 
   Lemma pcp_hand_inv p q : 
@@ -111,11 +111,11 @@ Section pcp_hand_dec.
 
   End pcp_induction.
 
-  (** ** PCP derivability is decidable *)
+  (* ** PCP derivability is decidable *)
     
   Section bounded_dec.
 
-    (** It is only possible to decide pcp_hand, when equality is decidable of course *)
+    (* It is only possible to decide pcp_hand, when equality is decidable of course *)
   
     Variable eqX_dec : forall x y : X, { x = y } + { x <> y }.
 
@@ -173,7 +173,7 @@ Section pcp_hand_dec.
 
 End pcp_hand_dec.
 
-(** ** Specializations to BPCP *)
+(* ** Specializations to BPCP *)
 
 Theorem bpcp_hand_dec R (s t : list bool) : { R ⊳ s∕t } + { ~ R ⊳ s∕t }.
 Proof. apply pcp_hand_dec, bool_dec. Qed.

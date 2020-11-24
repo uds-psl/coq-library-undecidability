@@ -13,10 +13,10 @@
 Require Import List.
 
 Definition State : Set := nat.
-(** a configuration consists of a state and two counter values *)
+(* a configuration consists of a state and two counter values *)
 Record Config : Set := mkConfig { state : State; value1 : nat; value2 : nat }.
 
-(** the instruction inc true maps 
+(* the instruction inc true maps 
       a configuration (p, (v1, v2)) to (1+p, (v1, 1+v2))
     the instruction inc false maps 
       a configuration (p, (v1, v2)) (1+p, (1+v1, v2))
@@ -30,10 +30,10 @@ Inductive Instruction : Set :=
   | inc : bool -> Instruction
   | dec : bool -> State -> Instruction.
 
-(** a two counter machine is a list of instructions *)
+(* a two counter machine is a list of instructions *)
 Definition Cm2 : Set := list Instruction.
 
-(** two counter machine step function *)
+(* two counter machine step function *)
 Definition step (M: Cm2) (x: Config) : Config :=
   match nth_error M (state x) with
   | None => x (* halting configuration *)
@@ -53,13 +53,13 @@ Definition step (M: Cm2) (x: Config) : Config :=
       | S n => {| state := y; value1 := n; value2 := value2 x |}
       end
   end.
-(** unfold step if the configuration is decomposed *)
+(* unfold step if the configuration is decomposed *)
 Arguments step _ !x /.
 
-(** halting configuration property *)
+(* halting configuration property *)
 Definition halting (M : Cm2) (x: Config) : Prop := step M x = x.
 
-(** Two Counter Machine Halting Problem *)
+(* Two Counter Machine Halting Problem *)
 Definition CM2_HALT : Cm2 -> Prop :=
   fun M => exists (n: nat), 
     halting M (Nat.iter n (step M) {| state := 0; value1 := 0; value2 := 0 |}).

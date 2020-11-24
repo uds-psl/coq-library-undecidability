@@ -6,7 +6,7 @@ Require Import Undecidability.PCP.Util.Facts.
 
 Require Import Undecidability.Synthetic.Definitions.
 
-(** ** PCP reduces to BPCP *)
+(* ** PCP reduces to BPCP *)
 
 (* natural numbers n to bitstrings of the form 1^n *)
 

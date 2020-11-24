@@ -11,7 +11,7 @@ Qed.
 
 Hint Resolve eval_converges : core.
 
-(** * Step indexed evaluation *)
+(* * Step indexed evaluation *)
 
 Inductive seval : nat -> term -> term -> Prop :=
 | sevalR n s : seval n (lam s) (lam s)
@@ -31,7 +31,7 @@ Qed.
 
 Hint Resolve seval_eval : core.
 
-(** Equivalence between step index evaluation and evaluation *)
+(* Equivalence between step index evaluation and evaluation *)
 
 Lemma seval_S n s t : seval n s t -> seval (S n) s t.
 Proof.
@@ -53,7 +53,7 @@ Proof.
     Grab Existential Variables. exact 0.
 Qed.
 
-(**  Evaluation as a function *)
+(*  Evaluation as a function *)
 
 Fixpoint eva (n : nat) (u : term) :=
   match u with
@@ -68,7 +68,7 @@ Fixpoint eva (n : nat) (u : term) :=
             end
   end.
 
-(** Equivalence between the evaluation function and step indexed evaluation *)
+(* Equivalence between the evaluation function and step indexed evaluation *)
 
 Lemma eva_lam n s t : eva n s = Some t -> lambda t.
 Proof.
@@ -148,7 +148,7 @@ Proof.
   destruct (eval_seval H) as [n A]. destruct H; eauto.
 Qed.
 
-(** Omega diverges *)
+(* Omega diverges *)
 
 Lemma Omega_diverges s : ~ (Omega == lam s).
 Proof.
@@ -159,7 +159,7 @@ Proof.
   - inv H6. decide (0 = 0); try now tauto. inv H2. inv H3. simpl in *. decide (0 = 0); try now tauto.
 Qed.
 
-(** If an application converges, both sides converge *)
+(* If an application converges, both sides converge *)
 
 Lemma app_converges (s t : term) : (converges (s t)) -> converges s /\ converges t.
 Proof.

@@ -1,13 +1,13 @@
 From Undecidability.L Require Export Functions.Subst Computability.Seval Computability.MuRec Datatypes.LOptions.
 
-(** ** Extracted step-indexed L-interpreter *)
+(* ** Extracted step-indexed L-interpreter *)
 
 Instance term_eva : computable eva.
 Proof. 
   extract.
 Qed.
 
-(** ** Computability of full evaluation *)
+(* ** Computability of full evaluation *)
 
 Definition doesHaltIn := fun u n => match eva n u with None => false | _ => true end.
 

@@ -16,7 +16,7 @@ Set Implicit Arguments.
 
 Reserved Notation "  '[' f ';' v ']' '-[' n '>>' x " (at level 70).
 
-(** The intuitive meaning of [f;v] -[n>> x is
+(* The intuitive meaning of [f;v] -[n>> x is
    
       There is a computation of f(v) which costs n and results in x
     
@@ -56,7 +56,7 @@ where " [ f ; v ] -[ n >> x " := (@ra_ca _ f v n x).
 
 Section inversion_lemmas.
 
-  (** The inversion tactic won't work for the dependent predicate ra_ca so
+  (* The inversion tactic won't work for the dependent predicate ra_ca so
       we build the inversion lemma by hand.
 
       Notice the presence of type-castings (eq_rect ...) which disappear

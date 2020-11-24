@@ -2,12 +2,12 @@ From Undecidability Require Export TM.Util.Prelim TM.Util.TM_facts TM.Code.Code.
 From Undecidability Require Export TM.Lifting.Lifting.
 From Undecidability Require Export TM.Combinators.Combinators.
 
-(** * Value-Containing *)
+(* * Value-Containing *)
 
 
-(** ** Right tapes *)
+(* ** Right tapes *)
 
-(** Tape proposition that says that the pointer is on (but not off) the right-most symbol *)
+(* Tape proposition that says that the pointer is on (but not off) the right-most symbol *)
 Section isVoid.
 
   Definition isVoid (sig : Type) (t : tape sig) :=
@@ -83,22 +83,22 @@ Hint Extern 10 => isVoid_mono : core.
 
 
 
-(** We add these three symbols the alphabets of every machine. [START] is the first symbol of the encoding and [STOP] is always the right-most symbol. [UNKNOWN] is always ignored (it serves as the default symbol for the alphabet-lift, see [ChangeAlphabet]). *)
+(* We add these three symbols the alphabets of every machine. [START] is the first symbol of the encoding and [STOP] is always the right-most symbol. [UNKNOWN] is always ignored (it serves as the default symbol for the alphabet-lift, see [ChangeAlphabet]). *)
 Inductive boundary : Type :=
 | START   : boundary
 | STOP    : boundary
 | UNKNOWN : boundary.
 
-(** Declare discreteness of [boundary] *)
+(* Declare discreteness of [boundary] *)
 Instance boundary_eq : eq_dec boundary.
 Proof. unfold dec. decide equality. Defined.
 
-(** Declare finiteness of [boundary] *)
+(* Declare finiteness of [boundary] *)
 Instance boundary_fin : finTypeC (EqType boundary).
 Proof. split with (enum := [START; STOP; UNKNOWN]). cbn. intros []; cbn; reflexivity. Defined.
 
 
-(** In this section, we define value-containment (≃). It is defined on tapes over arbitrary [Type]s (even infinite types), not [finType]. *)
+(* In this section, we define value-containment (≃). It is defined on tapes over arbitrary [Type]s (even infinite types), not [finType]. *)
 Section Fix_Sig.
 
   Variable (sig : Type).
@@ -106,9 +106,9 @@ Section Fix_Sig.
   Notation "sig '^+'" := ((boundary + sig) % type) (at level 0) : type_scope.
 
 
-  (** A tape [t] contains a value [x], if [t=midtape rs (inl START) (map inr (encode x) ++ [inl STOP])] for some [rs : list (sig^+)]. This means, the pointer is on the start symbol, right to the pointer is the encoding of [x], which is terminated by the stop symbol [inl STOP]. We write [t ≃ x] for tape [t] contains [x]. *)
+  (* A tape [t] contains a value [x], if [t=midtape rs (inl START) (map inr (encode x) ++ [inl STOP])] for some [rs : list (sig^+)]. This means, the pointer is on the start symbol, right to the pointer is the encoding of [x], which is terminated by the stop symbol [inl STOP]. We write [t ≃ x] for tape [t] contains [x]. *)
 
-  (** We also define a dual predicate for value-containment: reversed value containment. It is, however, only used internally. The difference is, that the pointer is on the stop symbol, instead of the start symbol. This predicate is useful for intermediate state of a machine, for example in the machine [CopyValue], which first has to move the head to the stop symbol. We write [t ≂ x] for [t] reversedly contains [x]. *)
+  (* We also define a dual predicate for value-containment: reversed value containment. It is, however, only used internally. The difference is, that the pointer is on the stop symbol, instead of the start symbol. This predicate is useful for intermediate state of a machine, for example in the machine [CopyValue], which first has to move the head to the stop symbol. We write [t ≂ x] for [t] reversedly contains [x]. *)
 
   Section Tape_Contains.
     Variable (sigX : Type) (X : Type) (cX : codable sigX X) (I : Retract sigX sig).
@@ -225,7 +225,7 @@ Section Fix_Sig.
   End Encodes_Ext.
 
 
-  (** Define tapes that contain a value or are right. *)
+  (* Define tapes that contain a value or are right. *)
   Section InitTape.
     Variable (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig).
 
@@ -270,7 +270,7 @@ Notation "t ≂( ';' s ) x" := (t ≂(_;s) x) (at level 70, no associativity, on
 
 
 
-(** The tactic [contains_ext] applys [tape_contains_ext] *)
+(* The tactic [contains_ext] applys [tape_contains_ext] *)
 
 Ltac contains_solve_le :=
   try now (cbn; solve [lia]).
@@ -301,34 +301,34 @@ Ltac contains_ext :=
 Hint Extern 10 => contains_ext : core.
 
 
-(** Because every machine is defined on an alphabet [Σ^+], the notation adds the discreteness and finiteness constructors, to cast [Σ^+ : finType]. *)
+(* Because every machine is defined on an alphabet [Σ^+], the notation adds the discreteness and finiteness constructors, to cast [Σ^+ : finType]. *)
 Notation "sig '^+'" := (FinType (EqType (boundary + sig) % type)) (at level 0) : type_scope.
 
 
 
 
-(** Size functions are functions of type [Vector.t (nat->nat) n]. They compute the memory usage (i.e. size of the left rest) on a tape, given its initial size value *)
+(* Size functions are functions of type [Vector.t (nat->nat) n]. They compute the memory usage (i.e. size of the left rest) on a tape, given its initial size value *)
 
-(** Compose two size functions *)
+(* Compose two size functions *)
 Definition compSizeFun (n : nat) (f1 f2 : Vector.t (nat -> nat) n) : Vector.t (nat -> nat) n :=
   tabulate (fun i => f1[@i] >> f2[@i]).
 
 Notation "f >>> g" := (compSizeFun f g) (at level 40).
 
-(** Get the size function of a tape *)
+(* Get the size function of a tape *)
 Notation "s '@>' i" := (s[@i]) (at level 10, only parsing).
 
-(** You can write [size_function values... @>Fin1 s0], which is equivialent to [(size_function values...)[@Fin1] s0], i.e. the evaluation of the size function [size_function values...] on tape 1. *)
+(* You can write [size_function values... @>Fin1 s0], which is equivialent to [(size_function values...)[@Fin1] s0], i.e. the evaluation of the size function [size_function values...] on tape 1. *)
 
 
-(** Tapes-lift for size functions *)
+(* Tapes-lift for size functions *)
 
 Definition injectSizeFun {m n : nat} (f : Vector.t (nat->nat) m) (I : Vector.t (Fin.t n) m) : Vector.t (nat->nat) n :=
   LiftTapes.fill I (Vector.const id _) f.
 
 Notation "f '@>>' I" := (injectSizeFun f I) (at level 41).
 
-(** You can write [ f1 @>> I1 >>> f2 @>>> I2], which is equivialent to [(f1 @>> I1) >>> (f2 @>> I2)], i.e. we lift [f1] with [I2] and compose this with the lifting of [f2]. *)
+(* You can write [ f1 @>> I1 >>> f2 @>>> I2], which is equivialent to [(f1 @>> I1) >>> (f2 @>> I2)], i.e. we lift [f1] with [I2] and compose this with the lifting of [f2]. *)
 (* FIXME: this doesn't work yet. Use parenthesis *)
 
 

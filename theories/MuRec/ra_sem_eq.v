@@ -103,7 +103,7 @@ Section soundness_and_completeness.
     apply in_ra_ca_min with (1 := Hm); auto.
   Qed.
   
-  (** Hence, there is a correspondance between the relational semantics
+  (* Hence, there is a correspondance between the relational semantics
       and the bigstep semantics of recalg.
    **)
 

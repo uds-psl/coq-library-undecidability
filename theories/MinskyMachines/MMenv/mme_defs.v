@@ -17,7 +17,7 @@ From Undecidability.MinskyMachines.MMenv Require Import env.
 
 Set Implicit Arguments.
 
-(** * Minsky Machines
+(* * Minsky Machines
 
     A Minsky machine has n registers and there are just two instructions
  
@@ -27,7 +27,7 @@ Set Implicit Arguments.
 
   *)
 
-(** Semantics for MM based on environments *)
+(* Semantics for MM based on environments *)
 
 Section Minsky_Machine_env_based.
 

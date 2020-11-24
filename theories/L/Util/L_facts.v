@@ -6,9 +6,9 @@ Require Import Lia.
 
 Hint Constructors ARS.star : cbv.
 
-(** * The call-by-value lambda calculus L *)
+(* * The call-by-value lambda calculus L *)
 
-(** ** Syntax   *)
+(* ** Syntax   *)
 
 Notation "'#' v" := (var v) (at level 1).
 (* Notation "(λ  s )" := (lam s) (right associativity, at level 0).  *)
@@ -22,7 +22,7 @@ Definition term_eq_dec_proc s t := if Dec (s = t) then true else false.
 
 Hint Resolve term_eq_dec : core.
 
-(** Notation using binders *)
+(* Notation using binders *)
 
 Inductive hoas : Type := hv (n : nat) | ha (s t : hoas) | hl (f : nat -> hoas) | hter (t : term).
 
@@ -72,7 +72,7 @@ Arguments convert /.
 
 Notation "'!!' s" := (hter s) (at level 0).
 
-(** Important terms *)
+(* Important terms *)
 
 (* Import L_Notations. *)
 Import HOAS_Notations.
@@ -88,9 +88,9 @@ Definition K : term := Eval simpl in λ x y, x.
 Definition omega : term := Eval simpl in λ x , x x.
 Definition Omega : term := app omega omega.
 
-(**  Substitution *)
+(*  Substitution *)
 
-(** Important definitions *)
+(* Important definitions *)
 
 Definition closed s := forall n u, subst s n u = s.
 
@@ -111,7 +111,7 @@ Proof.
 Defined.
 
 
-(** Size of terms *)
+(* Size of terms *)
 
 Fixpoint size (t : term) :=
   match t with
@@ -127,7 +127,7 @@ Fixpoint size' (t : term) :=
   | lam s => 1 + size' s
   end.
 
-(** Alternative definition of closedness *)
+(* Alternative definition of closedness *)
 
 Inductive bound : nat -> term -> Prop :=
   | dclvar k n : k > n -> bound k (var n)
@@ -207,7 +207,7 @@ Proof.
   decide (bound 0 s);[left|right];now rewrite closed_dcl.
 Defined.
 
-(** ** Reduction *)
+(* ** Reduction *)
 
 Reserved Notation "s '≻' t" (at level 50).
 
@@ -260,7 +260,7 @@ Proof.
   - destruct 1 as [? [? ?]]. subst. destruct 1 as [? B]. inv B.
 Qed.
 
-(** Properties of the reduction relation *)
+(* Properties of the reduction relation *)
 
 Theorem uniform_confluence : uniform_confluent step.
 Proof with repeat inv_step; eauto using step.
@@ -305,7 +305,7 @@ Proof.
   intros H ? R;inv H;inv R.  
 Qed.
 
-(** Properties of the reflexive, transitive closure of reduction *)
+(* Properties of the reflexive, transitive closure of reduction *)
 
 Notation "s '>*' t" := (star step s t) (at level 50).
 
@@ -357,7 +357,7 @@ Proof.
   exact closed_star.
 Defined.
 
-(**  Properties of star: *)
+(*  Properties of star: *)
 
 Instance pow_step_congL k:
   Proper ((pow step k) ==> eq ==> (pow step k)) app.
@@ -375,7 +375,7 @@ Proof.
   exists (app s t'). firstorder.
 Defined.
 
-(** Equivalence *)
+(* Equivalence *)
 
 Reserved Notation "s '==' t" (at level 50).
 
@@ -389,7 +389,7 @@ where "s '==' t" := (equiv s t).
 Hint Immediate eqRef : core.
 
 
-(** Properties of the equivalence relation *)
+(* Properties of the equivalence relation *)
 
 Instance equiv_Equivalence : Equivalence equiv.
 Proof.
@@ -456,7 +456,7 @@ Proof.
 Qed.
 
 
-(** Definition of convergence *)
+(* Definition of convergence *)
 
 Definition converges s := exists t, s == t /\ lambda t.
 
@@ -490,14 +490,14 @@ Proof.
   intros ls lt. intros H. apply equiv_lambda in H;try assumption. inv ls. inv H. reflexivity. inv H0.
 Qed.
 
-(** Eta expansion *)
+(* Eta expansion *)
 
 Lemma Eta (s : term ) t : closed s -> lambda t -> app (lam (app s #0)) t == app s t.
 Proof.
   intros cls_s lam_t. eapply star_equiv, starC; eauto using step_Lproc. simpl. rewrite cls_s. reflexivity.
 Qed.
 
-(** Useful lemmas *)
+(* Useful lemmas *)
 
 Lemma pow_trans s t u i j: pow step i s t -> pow step j t u -> pow step (i+j) s u.
 Proof.
@@ -510,7 +510,7 @@ Proof.
   eapply pow_star;eauto.
 Qed.
 
-(** Definition of evaluation *)
+(* Definition of evaluation *)
 
 Definition eval s t := s >* t /\ lambda t.
 Notation "s '⇓' t" := (eval s t) (at level 51).

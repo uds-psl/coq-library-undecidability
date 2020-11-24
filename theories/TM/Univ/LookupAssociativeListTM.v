@@ -9,7 +9,7 @@ Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 
 
-(** * Lookup an entry in an associative list *)
+(* * Lookup an entry in an associative list *)
 
 Section LookupAssociativeList.
   

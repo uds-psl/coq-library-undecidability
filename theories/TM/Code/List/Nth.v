@@ -12,11 +12,11 @@ Local Arguments Encode_nat : simpl never.
 
 Set Default Proof Using "Type".
 
-(** ** Other Implementation of [nth_error] *)
+(* ** Other Implementation of [nth_error] *)
 
 Section Nth'.
 
-  (** In this implementation of [nth_error], instead of encoding an option to the output tape, we use the finite parameter to indicate whether the result is [Some] or [None]. The advantage is that the client doesn't have to add the option to its alphabet. *)
+  (* In this implementation of [nth_error], instead of encoding an option to the output tape, we use the finite parameter to indicate whether the result is [Some] or [None]. The advantage is that the client doesn't have to add the option to its alphabet. *)
 
   Variable (sig sigX : finType) (X : Type) (cX : codable sigX X).
   (* Hypothesis (defX: inhabitedC sigX). *)
@@ -145,7 +145,7 @@ Section Nth'.
   Qed.
 
 
-  (** We don't want to save, but reset, [n]. *)
+  (* We don't want to save, but reset, [n]. *)
   Definition Nth' : pTM sig^+ bool 4 :=
     LiftTapes (CopyValue _) [|Fin0; Fin3|];; (* Save l (on t0) to t3 *)
     If (LiftTapes (Nth'_Loop) [|Fin3; Fin1; Fin2|]) (* Execute the loop with the copy of l *)

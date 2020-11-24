@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Elementary diophantine constraints *)
+(* ** Elementary diophantine constraints *)
 
 Require Import List Arith Lia.
 
@@ -21,7 +21,7 @@ Set Implicit Arguments.
 
 Section interval.
 
-  (** A small interval & valuation library *)
+  (* A small interval & valuation library *)
 
   Definition interval := (nat * nat)%type. (* (a,b) <~~~> [a,b[ *)
 
@@ -292,7 +292,7 @@ Section diophantine_system.
     + exists 0, (x-y); lia.
   Qed.
 
-  (** x = i <~~> s = 0 /\ exists p q u v w, s = p+q /\ u = p+v /\ u = q+w /\ v = x /\ w = i *)
+  (* x = i <~~> s = 0 /\ exists p q u v w, s = p+q /\ u = p+v /\ u = q+w /\ v = x /\ w = i *)
 
   Lemma dio_repr_at_cst x i a : dio_repr_at (fun ν => ν x = i) a 6 5.
   Proof.
@@ -317,7 +317,7 @@ Section diophantine_system.
         repeat rewrite Forall_cons_inv; simpl; lia.
   Defined.
 
-  (** x = y <~~> s = 0 /\ exists p q u v w, s = p+q /\ u = p+v /\ u = q+w /\ v = x /\ w = y *)
+  (* x = y <~~> s = 0 /\ exists p q u v w, s = p+q /\ u = p+v /\ u = q+w /\ v = x /\ w = y *)
 
   Lemma dio_repr_at_eq x y a : dio_repr_at (fun ν => ν x = ν y) a 6 5.
   Proof.
@@ -342,7 +342,7 @@ Section diophantine_system.
         repeat rewrite Forall_cons_inv; simpl; lia.
   Defined.
 
-  (** x = y o z <~~> s = 0 /\ exists p q u v w r t, s = p+q /\ t = p+u /\ t=q+r
+  (* x = y o z <~~> s = 0 /\ exists p q u v w r t, s = p+q /\ t = p+u /\ t=q+r
                                           /\ r = v+w /\ u = x /\ v = y /\ w = z *)
 
   Lemma dio_repr_at_op o x y z a : dio_repr_at (fun ν => ν x = de_op_sem o (ν y) (ν z)) a 8 7.
@@ -554,7 +554,7 @@ Section diophantine_system.
 
 End diophantine_system.
 
-(** For any diophantine logic formula f of size s, one can compute a list l 
+(* For any diophantine logic formula f of size s, one can compute a list l 
     of at most 1+8*s elementary diophantine constraints, containing at 
     most 7*s variables and such that df_pred f ν is equivalent to 
     the simultaneous satisfiability at ν of all the elementary constraints in l *)

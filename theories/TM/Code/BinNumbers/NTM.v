@@ -1,4 +1,4 @@
-(** * Machines on [N] (binary natural numbers) *)
+(* * Machines on [N] (binary natural numbers) *)
 
 From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import BinNumbers.EncodeBinNumbers.
@@ -10,7 +10,7 @@ From Coq Require Import BinNums.
 Local Open Scope N_scope.
 
 
-(** ** Write a number *)
+(* ** Write a number *)
 
 Definition WriteNumber (n : N) : pTM sigN^+ unit 1 := WriteValue n.
 
@@ -32,7 +32,7 @@ Proof.
 Qed.
 
 
-(** ** Constructor *)
+(* ** Constructor *)
 
 Definition Constr_N0 : pTM sigN^+ unit 1 := WriteNumber 0.
 
@@ -67,7 +67,7 @@ Proof.
   { intros tin ([], tout) H. cbn in *. intros x Hx. modpon H. auto. }
 Qed.
 
-(** ** Deconstructor *)
+(* ** Deconstructor *)
 
 (* Don't reset tape when [x=0], in contrast to [CaseOption] *)
 Definition CaseN : pTM sigN^+ bool 1 := If (CaseOption _) (Return Nop true) (Return (WriteNumber 0) false).
@@ -98,7 +98,7 @@ Proof.
 Qed.
 
 
-(** ** Increment *)
+(* ** Increment *)
 
 From Undecidability Require Import PosIncrementTM.
 
@@ -127,7 +127,7 @@ Proof.
 Qed.
 
 
-(** ** Addition *)
+(* ** Addition *)
 
 From Undecidability Require Import PosAddTM.
 
@@ -213,7 +213,7 @@ Lemma Add_N_Realise : Add_N ⊨ Add_N_Rel.
 Qed.
 
 
-(** ** Multiplication *)
+(* ** Multiplication *)
 
 From Undecidability Require Import PosMultTM.
 
@@ -260,7 +260,7 @@ Proof.
 Qed.
 
 
-(** ** Tactic Support *)
+(* ** Tactic Support *)
 
 Ltac smpl_TM_NTM :=
   match goal with

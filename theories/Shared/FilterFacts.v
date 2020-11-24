@@ -1,6 +1,6 @@
 Require Import List.
 
-(** Filter *)
+(* Filter *)
 
 Section Filter.
   Variable X : Type.

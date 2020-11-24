@@ -1,7 +1,7 @@
 Require Export Undecidability.Shared.Libs.PSL.Base Lia.
 From Undecidability.L Require Export MoreList.
 
-(** * Preliminaries *)
+(* * Preliminaries *)
 
 Instance le_preorder : PreOrder le.
 Proof.

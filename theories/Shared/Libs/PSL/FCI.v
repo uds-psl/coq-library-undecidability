@@ -1,6 +1,6 @@
 From Undecidability.Shared.Libs.PSL Require Import Lists.Cardinality Numbers.
 
-(** ** Finite inductive predicates *)
+(* ** Finite inductive predicates *)
 
 Section Fip.
   Variables (X: eqType) (sigma: list X -> X -> bool) (R: list X).
@@ -64,7 +64,7 @@ Section Fip.
 
 End Fip.
 
-(** ** Finite closure iteration *)
+(* ** Finite closure iteration *)
 
 Module FCI.
 Section FCI.

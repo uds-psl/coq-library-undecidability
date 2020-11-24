@@ -1,6 +1,6 @@
-(** * Preliminaries FOL*  *)
+(* * Preliminaries FOL*  *)
 
-(** ** Syntax of FOL* **)
+(* ** Syntax of FOL* **)
 
 From Undecidability.FOLP Require Export unscoped.
 

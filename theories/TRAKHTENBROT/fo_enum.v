@@ -21,11 +21,11 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Enumerability of the type of FO formulas *)
+(* * Enumerability of the type of FO formulas *)
 
 Section fol_enumerable.
 
-  (** Enumeration of FOL formulas *)
+  (* Enumeration of FOL formulas *)
 
   Variable (Σ : fo_signature) 
            (H1 : discrete (syms Σ)) 

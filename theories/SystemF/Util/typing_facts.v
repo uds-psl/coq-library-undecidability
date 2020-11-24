@@ -16,7 +16,7 @@ Require Import ssreflect ssrbool ssrfun.
 
 Arguments funcomp {X Y Z} _ _ / _.
 
-(** Church-style System F Type Assignment Predicate *)
+(* Church-style System F Type Assignment Predicate *)
 Inductive typing : environment -> term -> poly_type -> Prop :=
   | typing_var {Gamma x t} : 
       nth_error Gamma x = Some t -> typing Gamma (var x) t
@@ -29,7 +29,7 @@ Inductive typing : environment -> term -> poly_type -> Prop :=
   | typing_ty_abs {Gamma P s} :
       typing (map (ren_poly_type S) Gamma) P s -> typing Gamma (ty_abs P) (poly_abs s).
 
-(** case analysis on the typing predicate wrt. term *)
+(* case analysis on the typing predicate wrt. term *)
 Lemma typingE {Gamma P t} : typing Gamma P t ->
   match P with
   | var x => nth_error Gamma x = Some t
@@ -59,7 +59,7 @@ Proof.
     apply: map_ext. move=> ?. by rewrite ?poly_type_norm.
 Qed.
 
-(** typing is preserved under type renamings *)
+(* typing is preserved under type renamings *)
 Lemma typing_ren_poly_type {Gamma P t} ξ : typing Gamma P t -> 
   typing (map (ren_poly_type ξ) Gamma) (ren_term ξ id P) (ren_poly_type ξ t).
 Proof.
@@ -69,7 +69,7 @@ Proof.
   - by rewrite -[RHS]subst_poly_type_poly_var ?poly_type_norm.
 Qed.
 
-(** assigned types are unique *)
+(* assigned types are unique *)
 Lemma typing_functional {Gamma P t t'} : typing Gamma P t -> typing Gamma P t' -> t = t'.
 Proof.
   elim: P Gamma t t'.
@@ -123,7 +123,7 @@ Proof.
     move=> ?. rewrite /funcomp /=. by lia.
 Qed.
 
-(** typing Gamma P t implies that every free term variable of P is typed in Gamma *)
+(* typing Gamma P t implies that every free term variable of P is typed in Gamma *)
 Lemma typing_allfv_term_in_environment {Gamma P t} : 
   typing Gamma P t -> 
   allfv_term (fun x => exists s, nth_error Gamma x = Some s) P.
@@ -159,7 +159,7 @@ Proof.
     + apply: IH. apply: allfv_term_impl H => ?. rewrite ?nth_error_map. by move=> ->.
 Qed.
 
-(** copying, permuting, and adding new assumptions to the environment preserves derivations *)
+(* copying, permuting, and adding new assumptions to the environment preserves derivations *)
 Lemma typing_ren_term {ξ Gamma Delta P t} :
   (forall n s, nth_error Gamma n = Some s -> nth_error Delta (ξ n) = Some s) ->
   typing Gamma P t ->
@@ -175,7 +175,7 @@ Lemma typing_ren_term' {ξ Gamma Delta P t} :
   typing Delta (ren_term id ξ P) t.
 Proof. move=> H /typing_ren_term. apply => ? ?. by rewrite H. Qed.
 
-(** typing is preserved under substitutions *)
+(* typing is preserved under substitutions *)
 Lemma typing_subst_term {Gamma Delta P t} σ :
   typing Gamma P t ->
   (forall n s, nth_error Gamma n = Some s -> typing Delta (σ n) s) ->

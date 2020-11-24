@@ -39,7 +39,7 @@ Section Composition.
     - intros tin i (i1&i2&Hi&HT1&HT2). exists i1, i2; repeat split; auto.
   Qed.
 
-  (** Strong version *)
+  (* Strong version *)
   Lemma Seq_TerminatesIn' R1 T1 T2 :
     pM1 ⊨ R1 ->
     projT1 pM1 ↓ T1 ->

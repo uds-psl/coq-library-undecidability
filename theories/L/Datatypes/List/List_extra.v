@@ -23,7 +23,7 @@ Proof.
 Qed.
 
 
-(** seq *)
+(* seq *)
 Definition c__seq := 20.
 Definition seq_time (len : nat) := (len + 1) * c__seq.
 Instance term_seq : computableTime' seq (fun start _ => (5, fun len _ => (seq_time len, tt))). 
@@ -32,7 +32,7 @@ Proof.
   all: unfold seq_time, c__seq; solverec. 
 Defined. 
 
-(** prodLists *)
+(* prodLists *)
 Section fixprodLists. 
   Variable (X Y : Type).
   Context `{Xint : registered X} `{Yint : registered Y}.

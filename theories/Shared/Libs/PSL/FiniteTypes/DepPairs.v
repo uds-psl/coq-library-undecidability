@@ -1,4 +1,4 @@
-(** Instance declaration for dependent pairs *)
+(* Instance declaration for dependent pairs *)
 
 From Undecidability.Shared.Libs.PSL Require Import Base FinTypes.
 From Coq Require Import EqdepFacts List.
@@ -29,7 +29,7 @@ Qed.
 
 Hint Extern 4 (finTypeC (EqType ({_ : _ & _}))) => eapply finType_depPair : typeclass_instances.
 
-(* (** * Dependent pairs *) *)
+(* (* * Dependent pairs *) *)
 
 (* Fixpoint toSigTList (X: Type) (f: X -> finType) (A: list X) : list (sigT f) := *)
 (*   match A with *)

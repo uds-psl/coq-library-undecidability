@@ -17,12 +17,12 @@ Proof.
   now rewrite undup_id_equi.
 Qed.
 
-(* (** * finTypes from Lists  *) *)
+(* (* * finTypes from Lists  *) *)
 (* (* Conversion of lists over eqTypes to finite types *) *)
 (* (* *) *)
 
 
-(** * Pure predicates  *)
+(* * Pure predicates  *)
 (* taken from the development of Herditarily finite sets by Prof. Smolka and Kathrin Stark. *)
 (* *)
 
@@ -54,7 +54,7 @@ Proof.
   + contradiction p1.
 Qed.
 
-(* (** * Definition of subtypes *) *)
+(* (* * Definition of subtypes *) *)
 
 Definition subtype {X:Type} (p: X -> Prop) {D: forall x, dec (p x)} := { x:X | pure p x}.
 Arguments subtype {X} p {D}.
@@ -79,7 +79,7 @@ Qed.
 (*   now inv E. *)
 (* Qed. *)
 
-(* (** * Subtypes from lists *) *)
+(* (* * Subtypes from lists *) *)
 
 (* Lemma in_undup_iff (X: eqType) (A: list X) x : x el A <-> x el (undup A). *)
 (* Proof. *)
@@ -125,7 +125,7 @@ Notation "'Subtype' p"  := (finTypeC (EqType (subtype p))) (at level 5).
 (*   econstructor.  apply subType_enum_ok. *)
 (* Defined. *)
 
-(** * finTypes from Lists  *)
+(* * finTypes from Lists  *)
 (* Conversion of lists over eqTypes to finite types *)
 (* *)
 Lemma enum_ok_fromList (X: eqType) (A: list X) x : count (undup (toSubList A (fun x => x el A))) x = 1.

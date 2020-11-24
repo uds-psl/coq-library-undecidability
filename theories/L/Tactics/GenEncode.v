@@ -6,7 +6,7 @@ Export String.StringSyntax.
 Import MonadNotation.
 Open Scope string_scope.
 
-(** *** Generation of encoding functions *)
+(* *** Generation of encoding functions *)
 
 Fixpoint mkLApp (s : term) (L : list term) :=
   match L with

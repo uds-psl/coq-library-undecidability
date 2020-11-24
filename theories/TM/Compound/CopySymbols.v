@@ -7,15 +7,15 @@ From Undecidability Require Import TM.Lifting.LiftTapes.
 From Coq Require Import FunInd.
 From Coq Require Import Recdef.
 
-(** * Copy Symbols from t0 to t1 *)
+(* * Copy Symbols from t0 to t1 *)
 
-(** This two-tape Turing machine copies the symbols from tape 0 to tape 1, until it reads a symbol x on tape 0 such that f(x)=true. This machine is similar to MoveToSymbol, with the only difference, that it copies the read symbols to another tape (without translating it). *)
+(* This two-tape Turing machine copies the symbols from tape 0 to tape 1, until it reads a symbol x on tape 0 such that f(x)=true. This machine is similar to MoveToSymbol, with the only difference, that it copies the read symbols to another tape (without translating it). *)
 
 
 Section CopySymbols.
 
   Variable sig : finType.
-  (** Termination check *)
+  (* Termination check *)
   Variable f : sig -> bool.
 
   Definition CopySymbols_Step : pTM sig (option unit) 2 :=
@@ -139,7 +139,7 @@ Section CopySymbols.
   Qed.
 
 
-  (** Termination *)
+  (* Termination *)
 
   Function CopySymbols_steps (t : tape sig) { measure rlength t } : nat :=
     match current t with
@@ -173,7 +173,7 @@ Section CopySymbols.
   Qed.
 
 
-  (** Move to left *)
+  (* Move to left *)
 
   Definition CopySymbols_L := Mirror CopySymbols.
 

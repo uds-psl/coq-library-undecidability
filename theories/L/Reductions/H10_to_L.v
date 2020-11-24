@@ -9,7 +9,7 @@ Import ListAutomationNotations.
 
 Require Import Nat Datatypes.
 
-(** * Diophantine Equations *)
+(* * Diophantine Equations *)
 
 Inductive poly : Set :=
     poly_cnst : nat -> poly 

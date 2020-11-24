@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * First order theory of congruences *)
+(* * First order theory of congruences *)
 
 Section congruence.
 
@@ -289,7 +289,7 @@ Section fol_congruence.
         intros [ | [ <- | [] ] ]; subst; auto.
     Qed.
 
-    (** Σ_eq_congruence_spec encodes that ≈ is a congruence wrt to all
+    (* Σ_eq_congruence_spec encodes that ≈ is a congruence wrt to all
         the symbols in ls and lr *)
 
     Local Fact fol_congruent_spec φ :
@@ -347,7 +347,7 @@ Section fol_congruence.
         do 2 rewrite fol_sem_e; simpl; tauto.
     Qed.
 
-    (** Σ_eq_congruence encodes the fact that ≈ is a congruence wrt to all
+    (* Σ_eq_congruence encodes the fact that ≈ is a congruence wrt to all
         the symbols in ls and lr and this formula involve only the symbols
         of ls and lr, under the assumption that e belongs to lr *)
 

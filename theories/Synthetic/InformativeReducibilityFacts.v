@@ -2,7 +2,7 @@ From Undecidability.Synthetic Require Import InformativeDefinitions Decidability
 
 Set Implicit Arguments.
 
-(** ** Pre-order properties *)
+(* ** Pre-order properties *)
 
 Section Properties.
 
@@ -34,7 +34,7 @@ Section Properties.
     + intros []; apply ireduces_reduces; auto.
   Qed.
 
-  (** ** An equivalent dependent definition *)
+  (* ** An equivalent dependent definition *)
 
   Fact ireduces_dependent :
          (P ⪯ᵢ Q -> forall x, { y | P x <-> Q y })

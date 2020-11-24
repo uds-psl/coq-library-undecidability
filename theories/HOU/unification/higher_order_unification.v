@@ -2,7 +2,7 @@ Require Import List Omega Lia Morphisms.
 From Undecidability.HOU Require Import std.std calculus.calculus.
 Import ListNotations. 
 
-(** * Higher-Order Unification *)
+(* * Higher-Order Unification *)
 Section UnificationDefinitions.
 
   Context {X: Const}.
@@ -27,7 +27,7 @@ Arguments uni _ : clear implicits.
 Arguments U _ : clear implicits.
 Hint Resolve H1ᵤ H2ᵤ : core.
 
-(** ** Normalisation *)
+(* ** Normalisation *)
 
 
 Definition NU {X: Const} (I: uni X) :=

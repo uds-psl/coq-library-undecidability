@@ -17,7 +17,7 @@ From Undecidability.Shared.Libs.DLW
 
 Set Implicit Arguments.
 
-(** * Intuionistic Multiplicative Linear Logic with several exponentials and modabilities *)
+(* * Intuionistic Multiplicative Linear Logic with several exponentials and modabilities *)
 
 Local Infix "~p" := (@Permutation _) (at level 70).
 Local Notation "X ⊆ Y" := (forall a, X a -> Y a : Prop) (at level 70).

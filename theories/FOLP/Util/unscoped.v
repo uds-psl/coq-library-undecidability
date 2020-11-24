@@ -1,4 +1,4 @@
-(** ** Basic definitions for substiutions *)
+(* ** Basic definitions for substiutions *)
 
 (* Version: 19.09. *)
 

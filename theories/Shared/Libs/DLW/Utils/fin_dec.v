@@ -25,7 +25,7 @@ Proof.
   + left; exists x; apply Hl; simpl; auto.
 Qed.
 
-(** On discrete and finite types, one can weakly reify weak decidability 
+(* On discrete and finite types, one can weakly reify weak decidability 
     into inhabited strong decidability. But I do not think this could be done with 
     weak discreteness, weakly decidable equality *)
 

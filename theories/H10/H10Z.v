@@ -108,7 +108,7 @@ Notation dp_mul := (dp_comp do_mul).
 
 Definition H10Z_PROBLEM := { n : nat & dio_polynomial (pos n) (pos 0) }.
 
-(** The original H10 over relative intergers is P(x1,..,xn) = 0 *)
+(* The original H10 over relative intergers is P(x1,..,xn) = 0 *)
 
 Definition H10Z : H10Z_PROBLEM -> Prop.
 Proof.

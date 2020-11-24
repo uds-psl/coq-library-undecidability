@@ -14,7 +14,9 @@ From Undecidability.Shared.Libs.DLW
 
 Set Implicit Arguments.
 
-(** * Minsky Machines (MM)
+(** * Halting problem for Minsky machines MM_HALTING  *)
+
+(* * Minsky Machines (MM)
 
     A Minsky machine has n registers and there are just two instructions
  
@@ -24,7 +26,7 @@ Set Implicit Arguments.
 
   *)
 
-(** * Alternate Minsky Machines (MMA) such that two counters are enough for undec
+(* * Alternate Minsky Machines (MMA) such that two counters are enough for undec
 
     Minsky machine has n registers and there are just two instructions
  
@@ -44,7 +46,7 @@ Inductive mm_instr (X : Set) : Set :=
 Notation INC := mm_inc.
 Notation DEC := mm_dec.
 
-(** ** Semantics for MM, restricted to X = pos n for some n *)
+(* ** Semantics for MM, restricted to X = pos n for some n *)
 
 Section Minsky_Machine.
 

@@ -121,7 +121,7 @@ Proof.
         rewrite map_length. move=> ->. by exists (s :: ts), Qs.
 Qed.
 
-(** if one can type a normal form P by a type variable in a safe environment, then 
+(* if one can type a normal form P by a type variable in a safe environment, then 
   the shape of P is many_app (many_ty_app (var y) ts) Qs *)
 Lemma typing_is_safe_environment {Gamma P x} : normal_form P -> typing Gamma P (poly_var x) ->
   Forall (is_safe_poly_type 0) Gamma ->
@@ -744,7 +744,7 @@ Proof using h10cs.
 Qed.
 End InverseTransport.
 
-(** inhabitation to Diophantine constraint solution *)
+(* inhabitation to Diophantine constraint solution *)
 Lemma inverse_transport : SysF_INH (GammaH, poly_var tt) -> H10C_SAT h10cs.
 Proof.
   move=> [M] /typing_of_type_assignment [P] [_] {M}.
@@ -982,7 +982,7 @@ Proof.
 Qed.
 End Transport.
 
-(** Diophantine constraint solution to inhabitation *)
+(* Diophantine constraint solution to inhabitation *)
 Lemma transport : H10C_SAT h10cs -> SysF_INH (GammaH, poly_var tt).
 Proof.
   move=> [φ Hφ]. suff: iipc2 GammaH (poly_var tt).
@@ -997,7 +997,7 @@ End Argument.
 
 Require Import Undecidability.Synthetic.Definitions.
 
-(** Diophantine Constraint Solvability many-one reduces to System F Inhabitation *)
+(* Diophantine Constraint Solvability many-one reduces to System F Inhabitation *)
 Theorem reduction : H10C_SAT ⪯ SysF_INH.
 Proof.
   exists (fun h10cs => (Argument.GammaH h10cs, poly_var Argument.tt)).

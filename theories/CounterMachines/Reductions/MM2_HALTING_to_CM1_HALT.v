@@ -37,7 +37,7 @@ Section MM2_CM1.
   Definition fs (i: nat) : CM1.State :=
     if i is S i then i*6 + a0 + b0 + b0 else (length P)*6 + a0 + b0 + b0.
 
-  (** encode instruction mmi at position i using index map fs for current cm1 state p *)
+  (* encode instruction mmi at position i using index map fs for current cm1 state p *)
   Definition encode_instruction (mmi: mm2_instr) (i: nat) : list CM1.Instruction :=
     let p := fs i in
     match mmi with

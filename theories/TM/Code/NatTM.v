@@ -2,7 +2,7 @@ From Undecidability Require Import TM.Code.ProgrammingTools.
 From Undecidability Require Import TM.Code.CaseNat.
 
 
-(** * Machines that compte natural functions *)
+(* * Machines that compte natural functions *)
 
 (* Don't simplify [skipn (S n) xs]; only, if the number and the lists are constructors *)
 Local Arguments skipn { A } !n !l.
@@ -38,7 +38,7 @@ Qed.
 *)
 
 
-(** ** Addition *)
+(* ** Addition *)
 
 
 (*
@@ -96,7 +96,7 @@ Definition Add :=
   LiftTapes (Reset _) [|Fin3|]. (* Reset b *)
 
 
-(** *** Correctness of [Add] *)
+(* *** Correctness of [Add] *)
 
 Definition Add_Step_Rel : pRel sigNat^+ (option unit) 2 :=
   fun tin '(yout, tout) =>
@@ -223,7 +223,7 @@ Proof.
 Qed.
 
 
-(** *** Termination of [Add] *)
+(* *** Termination of [Add] *)
 
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
@@ -331,7 +331,7 @@ Qed.
 
 
 
-(** ** Multiplication *)
+(* ** Multiplication *)
 
 
 (*
@@ -405,7 +405,7 @@ Definition Mult : pTM sigNat^+ unit 6 :=
   LiftTapes (Reset _) [|Fin5|]. (* Reset m' *)
 
 
-(** *** Correctness of [Mult] *)
+(* *** Correctness of [Mult] *)
 
 Definition Mult_Step_Rel : pRel sigNat^+ (option unit) 5 :=
   fun tin '(yout, tout) =>
@@ -590,7 +590,7 @@ Proof.
 Qed.
 
 
-(** *** Termination of Mult *)
+(* *** Termination of Mult *)
 
 Definition Mult_Step_steps m' n c :=
   match m' with

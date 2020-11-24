@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Hilbert's tenth problem is undecidable *)
+(* ** Hilbert's tenth problem is undecidable *)
 
 From Undecidability.Shared.Libs.DLW
   Require Import utils_tac.
@@ -50,7 +50,7 @@ Qed.
 
 Check FRACTRAN_undec.
 
-(** DLW: Below is a prefered identical statement with a nice notation
+(* DLW: Below is a prefered identical statement with a nice notation
     tactic proposed by M. Wuttke
 
 Theorem Hilberts_Tenth : HaltTM 1 ⪯ PCPb

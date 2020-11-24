@@ -25,7 +25,7 @@ Local Notation " e [ v / x ] " := (vec_change e x v).
 
 Section discrete_quotient.
 
-  (** We show the FO bisimilarity/indistinguishability ≡ is both
+  (* We show the FO bisimilarity/indistinguishability ≡ is both
       decidable and first order definable, ie there is a FO formula
       A(.,.) such that
  
@@ -81,7 +81,7 @@ Section discrete_quotient.
  
   Variables (Σ : fo_signature) (ls : list (syms Σ)) (lr : list (rels Σ)).
 
-  (** fo_bisimilar means no FO formula can distinguish x from y. Beware that
+  (* fo_bisimilar means no FO formula can distinguish x from y. Beware that
       two free variables might be needed, see the remarks and counter-example 
       below *)
 
@@ -90,7 +90,7 @@ Section discrete_quotient.
                   -> incl (fol_rels A) lr
                   -> @fol_sem Σ X M x·φ A <-> fol_sem M y·φ A.
 
-  (** Let us assume a finite and Boolean model m *)
+  (* Let us assume a finite and Boolean model m *)
 
   Variables (X : Type) 
             (fin : finite_t X) 
@@ -99,7 +99,7 @@ Section discrete_quotient.
 
   Implicit Type (R T : X -> X -> Prop).
 
-  (** Construction of the greatest fixpoint of the following operator fom_op.
+  (* Construction of the greatest fixpoint of the following operator fom_op.
       Any prefixpoint R ⊆ fom_op R is a simulation for the model *)
 
   Local Definition fom_op1 R x y := forall s, In s ls 
@@ -112,7 +112,7 @@ Section discrete_quotient.
 
   Local Definition fom_op R x y := fom_op1 R x y /\ fom_op2 x y.
   
-  (** First we show properties of fom_op 
+  (* First we show properties of fom_op 
 
       a) Monotonicity
       b) preserves Reflexivity, Symmetry and Transitivity
@@ -124,12 +124,12 @@ Section discrete_quotient.
 
   Hint Resolve finite_t_pos finite_t_vec : core.
 
-  (** Monotonicity *)
+  (* Monotonicity *)
  
   Local Fact fom_op_mono R T : (forall x y, R x y -> T x y) -> (forall x y, fom_op R x y -> fom_op T x y).
   Proof. unfold fom_op, fom_op1, fom_op2; intros ? ? ? []; split; intros; auto. Qed.
 
-  (** Reflexivity, symmetry & transitivity *) 
+  (* Reflexivity, symmetry & transitivity *) 
 
   Local Fact fom_op_id x y : x = y -> fom_op (@eq _) x y.
   Proof. unfold fom_op, fom_op1, fom_op2; intros []; split; auto; tauto. Qed.
@@ -227,7 +227,7 @@ Section discrete_quotient.
                       -> fol_definable ls lr M (fun ψ => fom_op R (ψ 0) (ψ 1)).
   Proof. intro; apply fol_def_conj; auto. Qed.
 
-  (** Now we build the greatest fixpoint fom_eq and show its properties
+  (* Now we build the greatest fixpoint fom_eq and show its properties
 
       a) it is an equivalence relation
       b) it is a congruence wrt to the model functions and relations
@@ -256,7 +256,7 @@ Section discrete_quotient.
                     -> (forall x y, R x y -> x ≡ y).
   Proof. apply gfp_greatest; eauto. Qed.
 
-  (** We build the greatest bisimulation which is an equivalence 
+  (* We build the greatest bisimulation which is an equivalence 
       and a fixpoint for the above operator *) 
 
   Fact fom_eq_refl x : x ≡ x.
@@ -286,7 +286,7 @@ Section discrete_quotient.
 
   Section fol_characterization.
 
-    (** We show that the greatest bisimulation is equivalent to FOL undistinguishability. 
+    (* We show that the greatest bisimulation is equivalent to FOL undistinguishability. 
         This result is purely for the sake of completeness of the description of fom_eq,
         it is not used in the reduction below 
 
@@ -305,7 +305,7 @@ Section discrete_quotient.
          -> fol_sem M phi A <-> fol_sem M psi A.
     Proof. intros; apply fo_model_simulation with (R := f); auto. Qed.
 
-    (** By fom_eq_form_sem above, we know there is a FO formula
+    (* By fom_eq_form_sem above, we know there is a FO formula
         A(.,.) in two free variables such that x ≡ y <-> A(x,y).
 
         One obvious follow up question is can we show
@@ -385,7 +385,7 @@ Section discrete_quotient.
 
   End fol_characterization.
 
-  (** And because the signature is finite (ie the symbols and relations) 
+  (* And because the signature is finite (ie the symbols and relations) 
                   the model M is finite and composed of decidable relations 
 
       We do have a decidable equivalence here *) 
@@ -412,7 +412,7 @@ Section discrete_quotient.
       destruct (fom_eq_dec x y); [ left | right ]; rewrite <- fom_eq_fol_characterization; auto.
   Qed.
 
-  (** But we have a much stronger statement: fom_eq is first order definable 
+  (* But we have a much stronger statement: fom_eq is first order definable 
       which follows from the fact that X/M is finite *)
 
   Theorem fom_eq_finite : { n | forall x y, x ≡ y <-> iter fom_op (fun _ _ => True) n x y }.
@@ -430,7 +430,7 @@ Section discrete_quotient.
 
   Section fom_eq_form.
 
-    (** We build a single FO formula with two variables A[.,.] 
+    (* We build a single FO formula with two variables A[.,.] 
         such that x ≡ y <-> A(x,y)  *)
 
     Let A := proj1_sig fom_eq_fol_def.
@@ -470,7 +470,7 @@ Section discrete_quotient.
 
   Hint Resolve fom_eq_form_vars fom_eq_form_syms fom_eq_form_rels fom_eq_dec : core.
 
-  (** And now we can build a discrete model with this decidable 
+  (* And now we can build a discrete model with this decidable 
       equivalence. There is a fo_projection from M to Md where
       Md is a Boolean model based on the ground type pos n.
 
@@ -536,7 +536,7 @@ Section discrete_quotient.
       + intros []; red; tauto.
     Qed.
 
-    (** Every finite & decidable model can be projected to pos n
+    (* Every finite & decidable model can be projected to pos n
         with decidable relations and such that identity is exactly
         FO undistinguishability *)
 
@@ -558,7 +558,7 @@ End discrete_quotient.
 
 Section counter_model_to_class_FO_definability.
 
-  (** We show that there is a model over Σ = Σrel 2 = {ø,{=²}}
+  (* We show that there is a model over Σ = Σrel 2 = {ø,{=²}}
       where ≡ is identity but x ≡ _ is not definable by a
       FO formula with a single free variable 
 
@@ -627,7 +627,7 @@ Section counter_model_to_class_FO_definability.
     intros n Hn; apply H in Hn; subst; auto.
   Qed.
 
-  (** There is a model over Σ2 with two values such that no
+  (* There is a model over Σ2 with two values such that no
       FO formula with one free variable can distinguish those 
       two values, but there is a FO formula with 2 free variables
       that distinguishes them *)

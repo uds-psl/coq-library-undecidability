@@ -29,7 +29,7 @@ Inductive contains_step : poly_type -> poly_type -> Prop :=
 
 Definition contains := clos_refl_trans poly_type contains_step.
 
-(** 
+(* 
   system F type erased derivability predicate
   cf. containment type assignment [1]
 *)
@@ -50,7 +50,7 @@ Inductive pure_typing : environment -> pure_term -> poly_type -> Prop :=
 Definition pure_typable Gamma M := exists t, pure_typing Gamma M t.
 Arguments pure_typable : simpl never.
 
-(** case analysis on the pure_typing predicate wrt. pure_term *)
+(* case analysis on the pure_typing predicate wrt. pure_term *)
 Lemma pure_typingE {Gamma M t} : pure_typing Gamma M t ->
   match M with
   | pure_var x => exists n s t', 
@@ -68,7 +68,7 @@ Proof.
   case => *; [do 3 eexists | do 4 eexists | do 3 eexists]; by eauto.
 Qed.
 
-(** case analysis on the pure_typing predicate wrt. pure_term in case t is not an abstraction *)
+(* case analysis on the pure_typing predicate wrt. pure_term in case t is not an abstraction *)
 Lemma pure_typingE' {Gamma M t} : pure_typing Gamma M t ->
   match M with
   | pure_var x => 
@@ -571,7 +571,7 @@ Proof.
   by apply: rt_refl.
 Qed.
 
-(** pure typing is preserved under renaming *)
+(* pure typing is preserved under renaming *)
 Lemma pure_typing_ren_pure_term {Gamma Delta M t} (ξ : nat -> nat) :
   pure_typing Gamma M t ->
   (forall n s, nth_error Gamma n = Some s -> nth_error Delta (ξ n) = Some s) ->
@@ -581,7 +581,7 @@ Proof.
   by rewrite erase_ren_term.
 Qed.
 
-(** pure typing is preserved under renaming of occurring free variables *)
+(* pure typing is preserved under renaming of occurring free variables *)
 Lemma pure_typing_ren_pure_term_allfv_pure_term {Gamma Delta M t} (ξ : nat -> nat) :
   (allfv_pure_term (fun x => nth_error Gamma x = nth_error Delta (ξ x)) M) ->
   pure_typing Gamma M t -> pure_typing Delta (ren_pure_term ξ M) t.

@@ -1,10 +1,10 @@
-(** * FOL Reductions *)
+(* * FOL Reductions *)
 
 From Undecidability Require Export PCP.PCP PCP.Util.PCP_facts FOL.Util.Deduction FOL.Util.Tarski FOL.Util.Syntax FOL.FOL.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
 Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
 
-(** ** Validity *)
+(* ** Validity *)
 
 Local Definition BSRS := list(card bool).
 Local Notation "x / y" := (x, y).
@@ -144,7 +144,7 @@ Section validity.
     - intros H. apply IB_F with (rho := fun _ => nil), H.
   Qed.
 
-  (** ** Provability *)
+  (* ** Provability *)
 
   Definition ctx_S :=
     F3 :: rev F2 ++ rev F1.
@@ -193,7 +193,7 @@ Proof.
   - intros H % soundness'. eapply PCPb_iff_dPCPb. now apply (@BPCP_valid falsity_off R).
 Qed.
 
-(** ** Satisfiability *)
+(* ** Satisfiability *)
 
 Lemma valid_satis phi :
   valid phi -> ~ satis (¬ phi).
@@ -212,7 +212,7 @@ Proof.
     apply (valid_satis H2), H1.
 Qed.
 
-(** ** Reduction theorems *)
+(* ** Reduction theorems *)
 
 Corollary valid_star_red :
   PCPb ⪯ FOL*_valid.
@@ -238,7 +238,7 @@ Proof.
   exists (fun R => ¬ F R). intros R. apply (BPCP_satis R).
 Qed.
 
-(** ** Corollaries *)
+(* ** Corollaries *)
 
 Lemma form_discrete {ff : falsity_flag} :
   discrete (form ff).
@@ -299,7 +299,7 @@ Qed.
 
 
 
-(** ** Non-Standard Model *)
+(* ** Non-Standard Model *)
 
 Module NonStan. Section Nonstan.
 

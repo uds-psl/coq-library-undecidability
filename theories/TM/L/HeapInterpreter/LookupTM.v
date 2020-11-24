@@ -1,4 +1,4 @@
-(** * Heap Lookup *)
+(* * Heap Lookup *)
 
 From Undecidability Require Import TM.Code.ProgrammingTools LM_heap_def.
 From Undecidability.TM.L Require Import Alphabets.
@@ -9,9 +9,9 @@ Local Arguments mult : simpl never.
 
 Section Lookup.
 
-  (** There is no need to save [n]. [H] must be saved. We use the [Nth'] machine, because we don't want to introduce an additional [sigOption sigHEnt] to the alphabet. [Nth'] also doesn't save [a] (which is the parameter of [Nth'] here, not [n]). [Lookup] will overwrite and reset the variables [a] and [n], but save [H] (which is saved by [Nth']). *)
+  (* There is no need to save [n]. [H] must be saved. We use the [Nth'] machine, because we don't want to introduce an additional [sigOption sigHEnt] to the alphabet. [Nth'] also doesn't save [a] (which is the parameter of [Nth'] here, not [n]). [Lookup] will overwrite and reset the variables [a] and [n], but save [H] (which is saved by [Nth']). *)
 
-(** We could define [Lookup] over the alphabet [sigHeap], however, in the step machine, we want to read [a] and [n] from a different closure alphabet (sigList sigHClos). [a] is read from an address of a closure and [n] from a variable of this closure, and the output closure will also be copied to this alphabet. *)
+(* We could define [Lookup] over the alphabet [sigHeap], however, in the step machine, we want to read [a] and [n] from a different closure alphabet (sigList sigHClos). [a] is read from an address of a closure and [n] from a variable of this closure, and the output closure will also be copied to this alphabet. *)
 
 
   Variable sigLookup : finType.
@@ -20,7 +20,7 @@ Section Lookup.
   Variable retr_heap_lookup : Retract sigHeap sigLookup.
 
 
-  (**
+  (*
 There are (more than) three possible ways how to encode [nat] on the [Heap] alphabet [sigLookup]:
 
 - 1: as a heap address of a closure on the stack alphabet
@@ -30,26 +30,26 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
 [a] is stored in the second way and [n] in the third way.
 *)
 
-  (** No 1 *)
+  (* No 1 *)
   Definition retr_nat_clos_ad : Retract sigNat sigHClos :=
     Retract_sigPair_X _ _.
   Definition retr_nat_lookup_clos_ad : Retract sigNat sigLookup :=
     ComposeRetract retr_clos_lookup retr_nat_clos_ad.
 
-  (** No 2 *)
+  (* No 2 *)
   Definition retr_nat_clos_var : Retract sigNat sigHClos :=
     Retract_sigPair_Y _ _.
   Definition retr_nat_lookup_clos_var : Retract sigNat sigLookup :=
     ComposeRetract retr_clos_lookup retr_nat_clos_var.
 
-  (** No 3 *)
+  (* No 3 *)
   Definition retr_nat_heap_entry : Retract sigNat sigHeap :=
     Retract_sigList_X (Retract_sigOption_X (Retract_sigPair_Y _ (Retract_id _))).
   Local Definition retr_nat_lookup_entry : Retract sigNat sigLookup :=
     ComposeRetract retr_heap_lookup retr_nat_heap_entry.
 
   
-  (** Encoding of a closure on the heap alphabet *)
+  (* Encoding of a closure on the heap alphabet *)
   Definition retr_clos_heap : Retract sigHClos sigHeap := _.
   Definition retr_clos_lookup_heap : Retract sigHClos sigLookup := ComposeRetract retr_heap_lookup retr_clos_heap.
 

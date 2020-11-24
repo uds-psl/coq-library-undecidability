@@ -21,9 +21,9 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * FSATEQ reduces to FSAT *)
+(* * FSATEQ reduces to FSAT *)
 
-(** 1/ A is satisfiable in a fin/dec/interpreted model iff 
+(* 1/ A is satisfiable in a fin/dec/interpreted model iff 
      f(A) if satisfiable in a fin/dec model
 
     2/ A is satisfiable in a fin/dec iff 

@@ -11,7 +11,7 @@ Definition MPCP' '(c, C) :=
 Lemma MPCP_MPCP' c C: MPCP (c, C) <-> MPCP' (c, c::C).
 Proof. firstorder. Qed.
 
-(** * Simplified Reduction *)
+(* * Simplified Reduction *)
 Section SimplifiedReduction.
 
   Variable (X: Const).
@@ -29,7 +29,7 @@ Section SimplifiedReduction.
         econstructor; cbn; simplify; eauto.
   Qed.
 
-  (** ** Reduction Function *)
+  (* ** Reduction Function *)
   Program Instance MPCP'_to_U P : orduni 3 X :=
     { 
       Gamma₀ :=  redctx (length (snd P));
@@ -43,7 +43,7 @@ Section SimplifiedReduction.
   Next Obligation. now simplify. Qed.
 
 
-  (** ** Forward Direction *)
+  (* ** Forward Direction *)
   Lemma MPCP'_U3 P: MPCP' P -> OU 3 X (MPCP'_to_U P).
   Proof.
     destruct P as [c C]; intros (I & Sub & EQ).
@@ -61,7 +61,7 @@ Section SimplifiedReduction.
       now rewrite <-!enc_app, EQ. 
   Qed.  
 
-  (** ** Backward Direction *)
+  (* ** Backward Direction *)
   Lemma U3_MPCP' P:
     OU 3 X (MPCP'_to_U P) -> MPCP' P.
   Proof.

@@ -90,7 +90,7 @@ Proof.
   by constructor; [apply: is_simple_t_1_W | apply: closed_t_1_W ].
 Qed.
 
-(** if Gamma_W ⊢ M_W : poly_var 0 typechecks, then the semi-unification instance (SUs, SUt0, SUt1) is solvable *)
+(* if Gamma_W ⊢ M_W : poly_var 0 typechecks, then the semi-unification instance (SUs, SUt0, SUt1) is solvable *)
 Section InverseTransport.
 Local Arguments many_pure_app : simpl never.
 Local Arguments map : simpl never.
@@ -146,7 +146,7 @@ Proof.
   rewrite ?poly_type_norm. by eexists.
 Qed.
 
-(** construct semi-unification term from a polymorphic type pruning quantification *)
+(* construct semi-unification term from a polymorphic type pruning quantification *)
 Fixpoint prune (s: poly_type) : SU.term :=
   match s with
   | poly_var x => SU.atom (1 + x)
@@ -164,7 +164,7 @@ Fact substitute_prune {σ t} :
   SU.substitute (funcomp prune σ) t = prune (subst_poly_type σ (SU_term_to_poly_type t)).
 Proof. elim: t; [done | by move=> ? + ? => /= -> -> ]. Qed.
 
-(** construct semi-unification valuations from polymorphic substitutions *)
+(* construct semi-unification valuations from polymorphic substitutions *)
 Lemma introduce_simple_substitutions {s t σ τ} : 
   subst_poly_type (funcomp (subst_poly_type τ) σ) (SU_term_to_poly_type s) = subst_poly_type σ (SU_term_to_poly_type t) ->
   exists ψ, SU.substitute ψ (SU.substitute (funcomp prune σ) s) = SU.substitute (funcomp prune σ) t.
@@ -175,7 +175,7 @@ Qed.
 
 End InverseTransport.
 
-(** typability to semi-unification solution *)
+(* typability to semi-unification solution *)
 Lemma inverse_transport : SysF_TYP (sval HM_W2) -> SU.LU2SemiU (SUs, SUt0, SUt1).
 Proof.
   move=> [Gamma] [t] /pure_typing_iff_type_assignment.
@@ -189,10 +189,10 @@ Proof.
   by exists (funcomp prune σ), ψ0, ψ1.
 Qed.
 
-(** if the semi-unification instance (SUs, SUt0, SUt1) is solvable, then Gamma_W ⊢ M_W : poly_var 0 typechecks *)
+(* if the semi-unification instance (SUs, SUt0, SUt1) is solvable, then Gamma_W ⊢ M_W : poly_var 0 typechecks *)
 Section Transport.
 
-(** semi-unification solution *)
+(* semi-unification solution *)
 Variables φ ψ0 ψ1 : nat -> SU.term.
 Variable Hφψ0 : SU.substitute ψ0 (SU.substitute φ SUs) = SU.substitute φ SUt0.
 Variable Hφψ1 : SU.substitute ψ1 (SU.substitute φ SUs) = SU.substitute φ SUt1.
@@ -211,7 +211,7 @@ Definition ts_2_W : list poly_type := map (fun n => SU_term_to_poly_type (ψ1 n)
 Definition x_1_W : term := many_ty_app (var 0) ts_1_W.
 Definition x_2_W : term := many_ty_app (var 0) ts_2_W.
 Definition Q_W : term := abs t_x_W (many_ty_abs n_W' (app (app (many_ty_app (var 2) ts_0_W) x_1_W) x_2_W)).
-(** correctly annotated M_W, similar to Wells' construction *)
+(* correctly annotated M_W, similar to Wells' construction *)
 Definition P_W : term := app (ty_app (ty_app (var 0) (poly_var 0)) t_x_W) Q_W.
 
 Fact poly_var_bound_SUt0'_n_W : poly_var_bound SUt0' < n_W.
@@ -342,7 +342,7 @@ End Argument.
 Require Import Undecidability.Synthetic.Definitions.
 Import SemiU.
 
-(** Left-uniform Two-Inequality Semi-unification many-one reduces to System F Typability *)
+(* Left-uniform Two-Inequality Semi-unification many-one reduces to System F Typability *)
 Theorem reduction : LU2SemiU ⪯ SysF_TYP.
 Proof.
   exists (fun '(s, t0, t1) => (sval (Argument.HM_W2 s t0 t1))).

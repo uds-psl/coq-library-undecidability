@@ -122,7 +122,7 @@ Lemma upToC_pow_le_compat_nary domain c c' (f f' : Rarrow domain nat) :
 Qed.    
 
 
-(** Applying n-ary leUpToC lemmas *)
+(* Applying n-ary leUpToC lemmas *)
 
 Ltac domain_of_prod S :=
   let S := constr:(S) in   

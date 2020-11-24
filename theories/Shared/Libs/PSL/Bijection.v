@@ -1,4 +1,4 @@
-(** * Bijective functions *)
+(* * Bijective functions *)
 
 (* Author: Maximilian Wuttke *)
 

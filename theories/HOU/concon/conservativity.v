@@ -7,11 +7,11 @@ Import ListNotations.
 
 
 
-(** * Conservativity *)
+(* * Conservativity *)
 
 Section Constants.
 
-  (** ** Constant Operations *)
+  (* ** Constant Operations *)
   Section ConstantsOfTerm.
     Context {X: Const}.
     Implicit Types (s t: exp X).
@@ -326,7 +326,7 @@ End Constants.
 Hint Rewrite @consts_Lam @consts_AppL @consts_AppR : simplify.
 
 
-(** ** Inhabiting Types *)
+(* ** Inhabiting Types *)
 Section InhabitingTypes.
 
   Variable (X: Const).
@@ -397,7 +397,7 @@ End InhabitingTypes.
 Hint Resolve inhab_app inhab_typing inhab_typing' ord_target' : core.
 
 
-(** ** Conservativity *)
+(* ** Conservativity *)
 Section Conservativity.
   Variable (X: Const).
 
@@ -738,7 +738,7 @@ Section Conservativity.
 End Conservativity.
 
 
-(** ** Consequences *)
+(* ** Consequences *)
 From Undecidability.HOU Require Import third_order.pcp third_order.simplified third_order.huet.
 
 Corollary MPCP_U X: MPCP ⪯ U X.

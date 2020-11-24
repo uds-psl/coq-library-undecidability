@@ -166,7 +166,7 @@ Section Shift.
   Qed.
 
 
-  (** ** Shift to left *)
+  (* ** Shift to left *)
 
   Definition Shift_L (s : sig) := Mirror (Shift s).
 

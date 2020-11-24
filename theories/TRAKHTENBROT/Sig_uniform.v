@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Uniformize the arity of relations *)
+(* * Uniformize the arity of relations *)
 
 Local Notation ø := vec_nil.
 

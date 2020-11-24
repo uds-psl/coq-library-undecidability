@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** A Coq computable reduction from n-registers MM termination
+(* A Coq computable reduction from n-registers MM termination
     to 2-registers MMA termination. Beware that the semantics
     of MMA is a bit different than the semantics of MM: 
 
@@ -39,7 +39,7 @@ Check MM_MMA2_HALTING.
 From Undecidability.MinskyMachines Require Import mm_defs mma_defs fractran_mma.
 From Undecidability.FRACTRAN Require Import fractran_utils prime_seq mm_fractran.
 
-(** This is somewhat for direct proof that does not involve
+(* This is somewhat for direct proof that does not involve
     testing for (0,_) in the intermediate Fractran program *)
 
 Local Notation "P /MM/ s ↓" := (sss_terminates (@mm_sss _) P s) (at level 70, no associativity). 

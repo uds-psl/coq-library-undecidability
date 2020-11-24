@@ -1,13 +1,13 @@
-(** * Combinators *)
+(* * Combinators *)
 
-(** Export Modules for Combinators *)
+(* Export Modules for Combinators *)
 From Undecidability Require Export Switch If SequentialComposition StateWhile While Mirror.
 
-(** ** Simple Combinators *)
+(* ** Simple Combinators *)
 
-(** Identity operator *)
+(* Identity operator *)
 Section Id.
-  (** The purpose of this operator is to deactivate [TM_Correct]. *)
+  (* The purpose of this operator is to deactivate [TM_Correct]. *)
   Variable (sig : finType) (n : nat).
   Variable (F : finType).
 
@@ -18,7 +18,7 @@ End Id.
 
 
 
-(** Simple operator to change the labelling function *)
+(* Simple operator to change the labelling function *)
 Section Relabel.
   Variable (sig : finType) (n : nat).
   Variable F F' : finType.
@@ -53,7 +53,7 @@ End Relabel.
 Arguments Relabel : simpl never.
 
 
-(** Special case of the above operator, where we just fix a label *)
+(* Special case of the above operator, where we just fix a label *)
 Section Return.
 
   Variable (sig : finType) (n : nat).
@@ -85,10 +85,10 @@ Arguments Return : simpl never.
 
 
 
-(** ** Tactic Support *)
+(* ** Tactic Support *)
 
 
-(** Helper tactics for match *)
+(* Helper tactics for match *)
 
 Local Ltac print e := idtac.                                  (* idtac e *)
 Local Tactic Notation "print_str" string(e1) := idtac. (* idtac e1 *)
@@ -101,7 +101,7 @@ Ltac print_goal_cbn :=
     let H' := eval cbn in H in print H'
   end.
 
-(** This tactic destructs a variable recursivle and shelves each goal where it couldn't destruct the variable further. The purpose of this tactic is to pre-instantiate functions to relations with holes of the form [Param -> Rel _ _]. We need this for the [Switch] Machine.
+(* This tactic destructs a variable recursivle and shelves each goal where it couldn't destruct the variable further. The purpose of this tactic is to pre-instantiate functions to relations with holes of the form [Param -> Rel _ _]. We need this for the [Switch] Machine.
 The implementation of this tactic is quiete uggly but works for parameters with up to 9 constructor arguments. This tactic may generates a lot of warnings, which can be ignored. *)
 Export Set Warnings "-unused-intro-pattern".
 
@@ -139,7 +139,7 @@ Ltac destruct_shelve e :=
 Ltac smpl_match_case_solve_RealiseIn :=
   eapply RealiseIn_monotone'; [ | shelve].
 
-(** This disables the automatic exploration of all possible branvhes in a switch machine. 
+(* This disables the automatic exploration of all possible branvhes in a switch machine. 
 It is useful if some branches do perform the same work to nos split the proof unless required.
 See [CaseBool] for an example. Usage with the tactical [destructBoth] allows to refine the relation when performing caseSplits *)
 Definition TM_Correct_noSwitchAuto := unit.

@@ -27,7 +27,7 @@ Local Notation "P // s -+> t" := (sss_progress (@mma_sss _) P s t).
 Local Notation "P // s ->> t" := (sss_compute (@mma_sss _) P s t).
 Local Notation "P // s ↓" := (sss_terminates (@mma_sss _) P s). 
 
-(** Utils for FRACTRAN with two counter *)
+(* Utils for FRACTRAN with two counter *)
 
 Section Minsky_Machine_alt_utils.
 

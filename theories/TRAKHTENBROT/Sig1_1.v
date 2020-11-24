@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Removal of function symbols from full monadic signatures *)
+(* * Removal of function symbols from full monadic signatures *)
 
 Fixpoint find_non_empty_word X (l : list (list X)) : { s & { w | In (s::w) l } } + { concat l = nil }.
 Proof.
@@ -80,7 +80,7 @@ Section Σ11_words.
 
   Variable (X Y : Type).
 
-  (** Signatures with arity always 1 for both syms and rels *)
+  (* Signatures with arity always 1 for both syms and rels *)
 
   Definition Σ11 : fo_signature.
   Proof.
@@ -114,7 +114,7 @@ Section Σfull_mon_rem.
      invariants pose problems
   *)
 
-  (** Hence we do the conversion in a single pass !! *)
+  (* Hence we do the conversion in a single pass !! *)
 
   Variable (Y : Type) (HY : finite_t Y)
            (n m : nat).
@@ -133,7 +133,7 @@ Section Σfull_mon_rem.
   Let HlwY p : In p lwY.
   Proof. apply (proj2_sig YwY_fin). Qed.
 
-  (** The new signature is not finite (list X !!)
+  (* The new signature is not finite (list X !!)
       but this of no impact on decidability. However,
       the signature is discrete, if Y is discrete *)
 
@@ -185,7 +185,7 @@ Section Σfull_mon_rem.
                ↔ @fol_atom Σ' (inl (w,r)) (£n##ø)
     end.
 
-  (** We first deals with the non-skolemized reduction *)
+  (* We first deals with the non-skolemized reduction *)
 
   Definition Σfull_mon_red : fol_form Σ' :=
     Σfull_mon_rec A ⟑ ∀ fol_lconj (map Eq lwY).
@@ -349,7 +349,7 @@ Section Σfull_mon_rem.
       apply Σfull_mon_rem_complete with M' phi; auto.
   Qed.
 
-  (** Now we skolemize the right part and show correctness *)
+  (* Now we skolemize the right part and show correctness *)
 
   Definition Σfull_mon_red' : fol_form Σ' :=
     Σfull_mon_rec A ⟑ ∀ fol_mquant fol_ex n (fol_lconj (map Eq' lwY)).
@@ -430,7 +430,7 @@ Section Σfull_mon_rem.
 
   End Σfull_mon_red'_complete.
 
-  (** The non-skolemized reduction is correct *)
+  (* The non-skolemized reduction is correct *)
 
   Theorem Σfull_mon_red'_correct : 
           fo_form_fin_dec_SAT_in A K
@@ -443,7 +443,7 @@ Section Σfull_mon_rem.
       apply Σfull_mon_red'_complete with M phi; auto.
   Qed.
 
-  (** And produce a syms-free formula *)
+  (* And produce a syms-free formula *)
 
   Theorem Σfull_mon_red'_no_syms : fol_syms Σfull_mon_red' = nil.
   Proof.
@@ -466,7 +466,7 @@ End Σfull_mon_rem.
 
 Section Σ11_reduction.
 
-  (** We can lower the hypotheses now bu computing m from A *)
+  (* We can lower the hypotheses now bu computing m from A *)
 
   Variable (n : nat) (Y : Type) (HY : finite_t Y) (A : fol_form (Σ11 (pos n) Y)) (K : Type).
 
@@ -488,7 +488,7 @@ Section Σ11_reduction.
 
 End Σ11_reduction.
 
-(** We get the elimination of symbols *)
+(* We get the elimination of symbols *)
 
 Section Σ11_Σ1.
 

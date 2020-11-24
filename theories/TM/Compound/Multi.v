@@ -6,12 +6,12 @@ From Undecidability Require Import TM.Lifting.Lifting.
 
 From Undecidability Require Import TM.Compound.TMTac.
 
-(** * Simple compound multi-tape Machines *)
+(* * Simple compound multi-tape Machines *)
 
 
-(** ** Nop *)
+(* ** Nop *)
 
-(** The n-tape Machine that does nothing *)
+(* The n-tape Machine that does nothing *)
 Section Nop.
   Variable sig : finType.
   Variable n : nat.
@@ -38,7 +38,7 @@ Arguments Nop {sig n}.
 Arguments Nop : simpl never.
 
 
-(** ** Diverge *)
+(* ** Diverge *)
 
 Section Diverge.
   Variable sig : finType.
@@ -64,7 +64,7 @@ Arguments Diverge : simpl never.
 
 
 
-(** ** Move two tapes *)
+(* ** Move two tapes *)
 
 Section MovePar.
   Variable sig : finType.
@@ -95,9 +95,9 @@ Arguments MovePar {sig} (D1 D2).
 Arguments MovePar : simpl never.
 
 
-(** ** Copy Symbol *)
+(* ** Copy Symbol *)
 
-(** Copy the current symbol from tape 0 to tape 1 *)
+(* Copy the current symbol from tape 0 to tape 1 *)
 Section Copy.
   Variable sig : finType.
 
@@ -143,9 +143,9 @@ Arguments CopyChar { sig }.
 Arguments CopyChar : simpl never.
 
 
-(** ** Read Char *)
+(* ** Read Char *)
 
-(** Read a char at an arbitrary tape *)
+(* Read a char at an arbitrary tape *)
 Section ReadChar.
 
   Variable sig : finType.
@@ -184,7 +184,7 @@ Arguments ReadChar_at {sig n} k.
 Arguments ReadChar_at_Rel { sig n } ( k ) x y /.
 
 
-(** ** Tactic Support *)
+(* ** Tactic Support *)
 
 Ltac smpl_TM_Multi :=
   once lazymatch goal with

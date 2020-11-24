@@ -4,7 +4,7 @@ From Undecidability.HOU Require Import std.std calculus.calculus unification.hig
 Import ListNotations.
 
 
-(** * System Unification *)
+(* * System Unification *)
 Section SystemUnification.
 
   Variable (X: Const).
@@ -263,7 +263,7 @@ Notation "Gamma ⊢₂ e : A" := (eq_typing Gamma e A) (at level 80, e at level 
 Hint Rewrite all_terms_cons_iff all_terms_app Vars'_app Vars'_cons: simplify.
 Hint Resolve all_terms_nil : core.
 
-(** ** Normalisation *)
+(* ** Normalisation *)
 Definition NSU {X: Const} (I: sysuni X) := exists Delta sigma,
     Delta ⊩ sigma : Gammaᵤ' /\ (forall s t, (s, t) ∈ Eᵤ' -> sigma • s ≡ sigma • t) /\
                  forall x, normal (sigma x).

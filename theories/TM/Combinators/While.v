@@ -7,7 +7,7 @@ Section While.
   Variable sig : finType.
 
   Variable F : finType.
-  (** Label [None] indicates continueing, [Some f] means breaking out of the loop and terminating in the label [f]. *)
+  (* Label [None] indicates continueing, [Some f] means breaking out of the loop and terminating in the label [f]. *)
   Variable pM : pTM sig (option F) n.
 
   Definition While_trans :
@@ -145,7 +145,7 @@ Section While.
   
 
 
-  (** ** Correctness of [While] *)
+  (* ** Correctness of [While] *)
 
   Variable R : pRel sig (option F) n.
 
@@ -174,7 +174,7 @@ Section While.
   Qed.
 
 
-  (** ** Termination of [While] *)
+  (* ** Termination of [While] *)
   Section While_TerminatesIn.
     Variable (T T' : Rel (tapes sig n) nat).
 
@@ -204,7 +204,7 @@ Section While.
 
   End While_TerminatesIn.
 
-  (** Alternative for [While_TerminatesIn] using co-induction *)
+  (* Alternative for [While_TerminatesIn] using co-induction *)
   Section While_TerminatesIn_coind.
     Variable (T : Rel (tapes sig n) nat).
 
@@ -238,7 +238,7 @@ Arguments While {n sig F} pM {defF}.
 Notation WHILE := While (only parsing).
 
 
-(** ** (Co-) Induction Principle for Correctness (Running Time) of [While] *)
+(* ** (Co-) Induction Principle for Correctness (Running Time) of [While] *)
 
 Section WhileInduction.
   Variable (sig : finType) (n : nat) (F : finType).
@@ -282,7 +282,7 @@ Section WhileCoInduction.
 End WhileCoInduction.
 
 
-(** Alternative definition of [While_Rel] *)
+(* Alternative definition of [While_Rel] *)
 Section OtherWhileRel.
 
   Variable (sig : finType) (n : nat) (F : finType).

@@ -1,10 +1,10 @@
-(** * Classical Natural Deduction *)
+(* * Classical Natural Deduction *)
 
 
 From Undecidability.FOL Require Export PCPb_to_FOL.
 Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
-(** ** Double Negation Translation *)
+(* ** Double Negation Translation *)
 
 Implicit Type b : falsity_flag.
 
@@ -175,7 +175,7 @@ Proof.
 Qed.
 
 
-(** ** Reduction **)
+(* ** Reduction **)
     
 Section BPCP_CND.
   Local Definition BSRS := list (card bool).
@@ -223,7 +223,7 @@ Proof.
 Qed.
 
 
-(** ** Corollaries **)
+(* ** Corollaries **)
 
 
 Corollary cprv_undec :

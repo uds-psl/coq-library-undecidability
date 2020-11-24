@@ -12,7 +12,7 @@ From Undecidability.H10.Dio Require Import dio_single.
 
 Set Implicit Arguments.
 
-(** Hilbert's Tenth problem: given a diophantine equation with n
+(* Hilbert's Tenth problem: given a diophantine equation with n
     variable and no parameters, does it have a solution *)
 
 Definition H10_PROBLEM := { n : nat & dio_polynomial (pos n) (pos 0) 

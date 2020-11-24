@@ -1,7 +1,7 @@
 From Undecidability Require Export TM.Util.TM_facts.
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.DepPairs EqdepFacts.
 
-(** * Switch Combinator *)
+(* * Switch Combinator *)
 
 Section Switch.
 
@@ -14,14 +14,14 @@ Section Switch.
   Variable F' : finType.
   Variable pMf : F -> pTM sig F' n.
 
-  (** The (unlabelled) machine [M] *)
+  (* The (unlabelled) machine [M] *)
   Notation M1 := (projT1 pM1).
-  (** The labelling function of the machine [M] *)
+  (* The labelling function of the machine [M] *)
   Notation p1 := (projT2 pM1).
 
-  (** The (unlabelled) case-machine [M' y] *)
+  (* The (unlabelled) case-machine [M' y] *)
   Notation "'Mf' y" := (projT1 (pMf y)) (at level 10).
-  (** The labelling function of the case-machine [M' y] *)
+  (* The labelling function of the case-machine [M' y] *)
   Notation "'p2' y" := (projT2 (pMf y)) (at level 10).
 
   Definition Switch_trans :
@@ -62,16 +62,16 @@ Section Switch.
 
   
 
-  (** Lift configurations of [M1] to configurations of [Switch] *)
+  (* Lift configurations of [M1] to configurations of [Switch] *)
   Definition lift_confL (c : mconfig sig (state M1) n) : mconfig sig (state SwitchTM) n :=
     mk_mconfig (inl (cstate c)) (ctapes c).
 
 
-  (** Lift configuration of [M2] to configurations of [Switch] *)
+  (* Lift configuration of [M2] to configurations of [Switch] *)
   Definition lift_confR (f : F) (c : mconfig sig (state (Mf f) ) n) : mconfig sig (state SwitchTM) n :=
     mk_mconfig (inr (existT (fun f0 : F => state (Mf f0)) f (cstate c))) (ctapes c).
 
-  (** Lifted Steps of [M1] are compatible with steps in [M1], for non-halting state *)
+  (* Lifted Steps of [M1] are compatible with steps in [M1], for non-halting state *)
   Lemma step_comp_liftL (c : mconfig sig (state M1) n) :
     haltConf c = false -> step (lift_confL c) = lift_confL (step c).
   Proof.
@@ -79,7 +79,7 @@ Section Switch.
     destruct (trans _) eqn:E. cbn. reflexivity.
   Qed.
 
-  (** Lifted steps of case-machines [Mf f] are compatible with steps in [Mf f] *)
+  (* Lifted steps of case-machines [Mf f] are compatible with steps in [Mf f] *)
   Lemma step_comp_liftR f (c : mconfig sig (state (Mf f)) n) :
     step (lift_confR c) = lift_confR (step c).
   Proof.
@@ -87,7 +87,7 @@ Section Switch.
     destruct (trans _) eqn:E. cbn. reflexivity.
   Qed.
 
-  (** Lifted halting state of [M1] *)
+  (* Lifted halting state of [M1] *)
   Definition halt_liftL (c : mconfig sig (state (SwitchTM)) n) :=
     match cstate c with
     | inl q => halt (m := M1) q
@@ -95,7 +95,7 @@ Section Switch.
     end.
 
 
-  (** Non-halting state of [M1] are non-halting state of [Switch] *)
+  (* Non-halting state of [M1] are non-halting state of [Switch] *)
   Lemma halt_conf_liftL (c : mconfig sig (state SwitchTM) n) :
     halt_liftL c = false -> halt (cstate c) = false.
   Proof.
@@ -104,7 +104,7 @@ Section Switch.
     destruct q; cbn in *; auto.
   Qed.
 
-  (** The "nop" transition jumps from a halting configuration of [M1] to the initial configuration of the corresponding case-machine. *)
+  (* The "nop" transition jumps from a halting configuration of [M1] to the initial configuration of the corresponding case-machine. *)
   Lemma step_nop_transition (c : mconfig sig (state M1) n) :
     haltConf c = true ->
      step (lift_confL c) = lift_confR (initc (Mf (p1 (cstate c))) (ctapes c)).
@@ -116,12 +116,12 @@ Section Switch.
     apply doAct_nop.
   Qed.
 
-  (** The starting configuration of [Switch] corresponds to the starting configuration of [M1]. *)
+  (* The starting configuration of [Switch] corresponds to the starting configuration of [M1]. *)
   Lemma lift_initc t :
     initc SwitchTM t = lift_confL (initc M1 t).
   Proof. reflexivity. Qed.
 
-  (** This lemma is needed for the termination part. Suppose [M1] terminates in [c1].  The case machine [Mf f] starts with the tapes of [c1] and terminates in a configuration [c2]. Then, if we start [Switch] with the same tapes as [M1], [Switch] terminates in the lifted configuration of [c2]. *)
+  (* This lemma is needed for the termination part. Suppose [M1] terminates in [c1].  The case machine [Mf f] starts with the tapes of [c1] and terminates in a configuration [c2]. Then, if we start [Switch] with the same tapes as [M1], [Switch] terminates in the lifted configuration of [c2]. *)
   Lemma Switch_merge t (k1 k2 : nat)
         (c1 : mconfig sig (state M1) n)
         (c2 : mconfig sig (state (Mf (p1 (cstate c1)))) n) :
@@ -147,7 +147,7 @@ Section Switch.
   Qed.
 
 
-  (** The [Switch] machine must take the "nop" action if it is in a final state of [M1]. *)
+  (* The [Switch] machine must take the "nop" action if it is in a final state of [M1]. *)
   Lemma step_nop_split (k2 : nat) (c2 : mconfig sig (state M1) n) (outc : mconfig sig (state SwitchTM) n) :
     haltConf c2 = true ->
     loopM (M := SwitchTM) (lift_confL c2) k2 = Some outc ->
@@ -191,7 +191,7 @@ Section Switch.
 
 
   
-  (** Correctness *)
+  (* Correctness *)
   Lemma Switch_Realise (R1 : Rel _ (F * _)) (R2 : F -> Rel _ (F' * _)) :
     pM1 ⊨ R1 ->
     (forall f : F, pMf f ⊨ R2 f) -> Switch ⊨ (⋃_f (R1 |_ f) ∘ R2 f).
@@ -205,7 +205,7 @@ Section Switch.
   Qed.
 
 
-  (** Runtime *)
+  (* Runtime *)
   Lemma Switch_TerminatesIn (R1 : Rel _ (F * _)) T1 T2 :
     pM1 ⊨ R1 -> M1 ↓ T1 -> (forall f : F, Mf f ↓(T2 f)) ->
     projT1 Switch ↓ (fun tin i => exists i1 i2, T1 tin i1 /\ 1 + i1 + i2 <= i /\ forall tout yout, R1 tin (yout, tout) -> T2 yout tout i2).
@@ -221,7 +221,7 @@ Section Switch.
   Qed.
 
 
-  (** This is a stronger version where we can choose the running time of [Mf] depending on the output label of [M1]. This is usually not needed. *)
+  (* This is a stronger version where we can choose the running time of [Mf] depending on the output label of [M1]. This is usually not needed. *)
   Lemma Switch_TerminatesIn' (R1 : Rel _ (F * _)) T1 T2 :
     pM1 ⊨ R1 -> M1 ↓ T1 -> (forall f : F, Mf f ↓(T2 f)) ->
     projT1 Switch ↓ (fun tin i => exists i1, T1 tin i1 /\ forall tout yout, R1 tin (yout, tout) -> exists i2, 1 + i1 + i2 <= i /\ T2 yout tout i2).
@@ -237,7 +237,7 @@ Section Switch.
   Qed.
 
 
-  (** Correct + constant running time *)
+  (* Correct + constant running time *)
   Lemma Switch_RealiseIn (R1 : Rel _ (F * _)) (R2 : F -> Rel _ (F' * _)) k1 k2:
     pM1 ⊨c(k1) R1 ->
     (forall f : F, pMf f ⊨c(k2) R2 f) ->

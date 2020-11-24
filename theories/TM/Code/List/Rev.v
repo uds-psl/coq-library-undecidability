@@ -12,7 +12,7 @@ Local Arguments Encode_nat : simpl never.
 
 Set Default Proof Using "Type".
 
-(** Reverse a list *)
+(* Reverse a list *)
 Section Rev.
   (* Reversing is just consing and deconsing. We don't save the original list. *)
 

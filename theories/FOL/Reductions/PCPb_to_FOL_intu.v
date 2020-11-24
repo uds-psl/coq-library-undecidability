@@ -1,10 +1,10 @@
-(** * Intuitionistic FOL *)
+(* * Intuitionistic FOL *)
 
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
 From Undecidability.FOL Require Import Kripke PCPb_to_FOL.
 
 Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
-(** ** Reductions *)
+(* ** Reductions *)
 
 Section kvalidity.
 
@@ -39,7 +39,7 @@ Proof.
     apply (H u), (H' D M u). apply M.
 Qed.
 
-(** Reduction theorems  *)
+(* Reduction theorems  *)
 
 Theorem kvalid_red :
   PCPb ⪯ FOL_valid_intu.
@@ -59,7 +59,7 @@ Proof.
   exists (fun R => ¬ F R). intros R. apply (BPCP_ksatis R).
 Qed.
 
-(** ** Corollaries *)
+(* ** Corollaries *)
 
 Corollary kvalid_undec :
   UA -> ~ decidable (@kvalid _ _ falsity_on).

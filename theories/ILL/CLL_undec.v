@@ -18,7 +18,7 @@ From Undecidability.ILL
 
 Import UndecidabilityNotations.
 
-(** Undecidability results *)
+(* Undecidability results *)
 
 Local Hint Resolve rILL_rCLL_cf_PROVABILITY
                    EILL_CLL_cf_PROVABILITY

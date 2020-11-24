@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Exponentiation is Diophantine *)
+(* ** Exponentiation is Diophantine *)
 
 Require Import Arith ZArith Lia.
 

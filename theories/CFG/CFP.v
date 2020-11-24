@@ -3,9 +3,9 @@ Import ListNotations.
 
 Definition stack (X : Type) := list (list X * list X).
 
-(** ** Post Grammars *)
+(* ** Post Grammars *)
 
-(** Post Grammar Derivability 
+(* Post Grammar Derivability 
   A Post Grammar is a context-free grammar 
   with one non-terminal a
   and rules a => xay, where x and y are words over terminals *)
@@ -15,14 +15,14 @@ Fixpoint sigma {X: Type} (a : X) (A : stack X) :=
   | (x, y) :: A => x ++ (sigma a A) ++ y
   end.
 
-(** The Context-free Post Grammar Palindrome Problem is
+(* The Context-free Post Grammar Palindrome Problem is
   given a Post grammar to determine whether
   it contains a palindrome of length more than one. *)
 Definition CFPP : stack nat * nat -> Prop :=
   fun '(R, a) => exists (A : stack nat), 
     incl A R /\ A <> [] /\ sigma a A = rev (sigma a A).
 
-(** The Context-free Post Grammar Intersection Problem is
+(* The Context-free Post Grammar Intersection Problem is
   given two Post grammars to determine whether 
   their intersection is not empty. *)
 Definition CFPI : stack nat * stack nat * nat -> Prop :=

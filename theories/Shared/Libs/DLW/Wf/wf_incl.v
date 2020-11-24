@@ -17,7 +17,7 @@ From Undecidability.Shared.Libs.DLW.Wf
 
 Set Implicit Arguments.
 
-(** Results about the well-foundedness of strict (reverse)
+(* Results about the well-foundedness of strict (reverse)
     inclusion between lists 
 
     These proofs avoid the need of decidable equality
@@ -27,7 +27,7 @@ Set Implicit Arguments.
 
 Section sincl.
 
-  (** Strict inclusion between lists is a well founded relation *)
+  (* Strict inclusion between lists is a well founded relation *)
 
   Variable (X : Type).
 
@@ -95,7 +95,7 @@ Arguments wf_sincl {X}.
 
 Section rincl_fin.
 
-  (** Strict reverse inclusion between lists is well founded over a finite domain *)
+  (* Strict reverse inclusion between lists is well founded over a finite domain *)
  
   (* M the upper-bound/finiteness of the domain *)
 

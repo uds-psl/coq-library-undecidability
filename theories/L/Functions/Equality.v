@@ -2,9 +2,9 @@ From Undecidability.L Require Export Datatypes.LBool Datatypes.LNat Datatypes.LT
 Require Import Nat.
 From Undecidability.L Require Import Tactics.LTactics Functions.EqBool.
 Import EqBool.
-(** * Extracted Functions *)
+(* * Extracted Functions *)
 
-(** ** Extracted equality of encoded natural numbers *)
+(* ** Extracted equality of encoded natural numbers *)
 (*
 Instance term_nat_eqb : computable eqb.
 Proof.
@@ -19,7 +19,7 @@ Proof.
   eapply Nat.eqb_spec.
 Defined.*)
 
-(** ** Extracted equality of encoded terms *)
+(* ** Extracted equality of encoded terms *)
 
 Fixpoint term_eqb s t :=
   match s,t with

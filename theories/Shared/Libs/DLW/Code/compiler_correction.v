@@ -12,13 +12,13 @@ Require Import List Arith Lia.
 From Undecidability.Shared.Libs.DLW.Utils Require Import utils.
 From Undecidability.Shared.Libs.DLW.Code Require Import subcode sss compiler.
 
-(** ** Semantic Correctness of Compiled Code *)
+(* ** Semantic Correctness of Compiled Code *)
 
 Set Implicit Arguments.
 
 Section comp.
 
-  (** This is an abstract proof of compiler soundness & completeness 
+  (* This is an abstract proof of compiler soundness & completeness 
 
       The principle of this compiler is to map every source individual
       instruction into a list of target instructions that simulate the
@@ -67,7 +67,7 @@ Section comp.
   Notation "P '/Y/' s '~~>' t" := (sss_output step_Y P s t) (at level 70, no associativity).
   Notation "P '/Y/' s ↓" := (sss_terminates step_Y P s)(at level 70, no associativity).
 
-  (** We assume totality of X semantics, i.e. no instruction can block the computation
+  (* We assume totality of X semantics, i.e. no instruction can block the computation
       and functionality of Y semantics 
 
       Totality is not necessary achieved ... think of a HALT instruction 
@@ -79,13 +79,13 @@ Section comp.
   Hypothesis (step_X_tot : forall I st1, exists st2, I /X/ st1 -1> st2)
              (step_Y_fun : forall I st st1 st2, I /Y/ st -1> st1 -> I /Y/ st -1> st2 -> st1 = st2).
 
- (** simul is an invariant: simul st_X st_Y means that st_X is simulated by st_Y *)
+ (* simul is an invariant: simul st_X st_Y means that st_X is simulated by st_Y *)
 
   Variable (simul : state_X -> state_Y -> Prop).
 
   Infix "⋈" := simul (at level 70, no associativity).
 
-  (** Simulation is preserved by compiled instructions 
+  (* Simulation is preserved by compiled instructions 
       this of course ensures the *semantic correctness of
       the compilation of individual instructions*
 
@@ -112,7 +112,7 @@ Section comp.
 
   Section correctness. 
 
-    (** We assume each instruction in P is compiled in Q according to the individual 
+    (* We assume each instruction in P is compiled in Q according to the individual 
         instruction compiler combined with what the linker says for branching. 
         This is a *syntactic correctness criterion* for the whole compiled program Q
       *)
@@ -121,7 +121,7 @@ Section comp.
               (HPQ : forall i I, (i,I::nil) <sc P -> (linker i, icomp linker i I) <sc Q
                                                    /\ linker (1+i) = ilen I + linker i).
 
-    (** From semantic correctness of individually compiled instructions and
+    (* From semantic correctness of individually compiled instructions and
         syntactic correctness of the whole compiled program, we derive
         soundness and completeness of the compiled program Q wrt the
         source program P *)
@@ -232,9 +232,9 @@ Section comp.
 
   End correctness.
 
-  (** ** A Syntactically Correct Compiler *)
+  (* ** A Syntactically Correct Compiler *)
 
-  (** Now we build a correct linker & compiled program pair *)
+  (* Now we build a correct linker & compiled program pair *)
 
   Variable (P : nat * list X) (iQ : nat).
 

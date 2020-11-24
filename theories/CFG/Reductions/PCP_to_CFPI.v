@@ -12,7 +12,7 @@ Require Import Undecidability.Shared.ListAutomation.
 Require Import Undecidability.Synthetic.Definitions.
 
 Require Import Setoid Morphisms Arith Lia.
-(** * PCP to CFPI *)
+(* * PCP to CFPI *)
 
 Section PCP_CFPI.
 

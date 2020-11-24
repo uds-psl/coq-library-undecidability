@@ -1,7 +1,7 @@
 From Undecidability.L Require Import Computability.Decidability Datatypes.LNat L.
 Require Import Nat.
 
-(** ** Decidabiity of closedness, boundedness and procness *)
+(* ** Decidabiity of closedness, boundedness and procness *)
 
 Fixpoint boundb (k : nat) (t : term) : bool :=
 match t with

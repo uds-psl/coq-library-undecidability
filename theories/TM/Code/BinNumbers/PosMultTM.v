@@ -1,4 +1,4 @@
-(** * Multiplication of [positive] numbers *)
+(* * Multiplication of [positive] numbers *)
 
 From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import BinNumbers.EncodeBinNumbers.
@@ -13,7 +13,7 @@ From Undecidability Require Import BinNumbers.PosShiftTM.
 Local Open Scope positive_scope.
 
 
-(** ** Tail-recursive multiplication function *)
+(* ** Tail-recursive multiplication function *)
 
 (* The function [Pos.mult] isn't tail-recursive. *)
 
@@ -68,7 +68,7 @@ Lemma mult_TR_correct (x y : positive) : mult_TR x y = x * y.
 Proof. unfold mult_TR. apply (proj1 (mult_TR_cont_correct 42 x y)). Qed.
 
 
-(** ** Multiplication Machine *)
+(* ** Multiplication Machine *)
 
 (* This is rather easy, because we only iterate over [x]. We only add zeros to [y]. *)
 (* We can use the variant [Add'] (without internal tapes), because we maintain the invariant that [y<a]. *)

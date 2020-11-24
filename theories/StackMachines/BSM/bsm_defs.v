@@ -22,7 +22,7 @@ Tactic Notation "rew" "length" := autorewrite with length_db.
 Local Notation "e #> x" := (vec_pos e x).
 Local Notation "e [ v / x ]" := (vec_change e x v).
 
-(** ** Semantics results for BSM *)
+(* ** Semantics results for BSM *)
 
 Section Binary_Stack_Machine.
 

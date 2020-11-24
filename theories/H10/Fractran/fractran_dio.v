@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** FRACTRAN termination is Diophantine *)
+(* ** FRACTRAN termination is Diophantine *)
 
 (* Require Import dio_expr dio_logic dio_elem dio_poly. *)
 

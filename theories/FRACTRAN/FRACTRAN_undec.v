@@ -9,6 +9,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
+(** ** FRACTRAN_HALTING is undecidable *)
+
 Require Import Undecidability.Synthetic.Undecidability.
 
 From Undecidability.MinskyMachines

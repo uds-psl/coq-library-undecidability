@@ -16,7 +16,7 @@ Set Implicit Arguments.
 
 Section le_lt_pirr.
 
-  (** lt and lt are proof irrelevant *)
+  (* lt and lt are proof irrelevant *)
 
   (* a dependent induction principle for le *)
   

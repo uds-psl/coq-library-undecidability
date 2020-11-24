@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** A Coq computable reduction from n-registers MM termination
+(* A Coq computable reduction from n-registers MM termination
     to 2-registers MMA termination. Beware that the semantics
     of MMA is a bit different than the semantics of MM: 
 

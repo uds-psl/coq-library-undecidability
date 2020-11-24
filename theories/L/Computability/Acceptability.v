@@ -1,21 +1,21 @@
 From Undecidability.L Require Export LTerm Por Decidability Lbeta_nonrefl.
 Import L_Notations.
 
-(** * Definition of L-acceptability *)
+(* * Definition of L-acceptability *)
 
 Definition pi (s t:term) := converges (s (ext t)).
 
 Definition lacc (P : term -> Prop) := 
   exists u, proc u /\ forall t, P t <-> pi u t.
 
-(** * Properties of acceptance *)
+(* * Properties of acceptance *)
 
 Goal forall s1 s2 t, s1 == s2 -> (pi s1 t <-> pi s2 t).
 Proof. 
   intros s1 s2 t H; intuition; unfold pi; [now rewrite <- H | now rewrite H].
 Qed.
 
-(** * L-acceptable predicates are closed under conjunction and disjunction *)
+(* * L-acceptable predicates are closed under conjunction and disjunction *)
 
 Definition acc_conj (p q : term) := lam ((lam (q #1)) (p #0) ).
 Hint Unfold acc_conj : cbv.
@@ -64,7 +64,7 @@ Proof.
    apply Por_correct' in H0. destruct x;auto.                       
 Qed.
 
-(** * L-ecidable predicates are L-acceptable (and their complement too) *)
+(* * L-ecidable predicates are L-acceptable (and their complement too) *)
 
 Lemma dec_lacc M : ldec M -> lacc M.
 Proof.

@@ -4,7 +4,7 @@ From Undecidability.L.Tactics Require Import Lproc Computable ComputableTime Lsi
 Require Export Ring Arith Lia.
 Import L_Notations.
 
-(** ** Tactics proving correctness *)
+(* ** Tactics proving correctness *)
 Module Intern.
   
 Ltac visibleHead t :=
@@ -482,7 +482,7 @@ Tactic Notation "extract" "constructor":=
 
 Tactic Notation "extract" "match" := computable_match.
 
-(** recRel_simplify *)
+(* recRel_simplify *)
 Lemma recRel_prettify_drop A B C:
   (A -> B) -> (A -> (C -> B)).
   tauto.

@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Definition of FRACTRAN *)
+(* ** Definition of FRACTRAN *)
 
 Require Import List Arith Lia.
 

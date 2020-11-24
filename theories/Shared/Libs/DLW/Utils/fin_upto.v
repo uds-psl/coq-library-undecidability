@@ -39,7 +39,7 @@ Arguments finite_t_upto : clear implicits.
 
 Section finite_t_weak_dec_powerset.
 
-  (** We built a list containing all weakly decidable predicates,
+  (* We built a list containing all weakly decidable predicates,
       ie the weakly decidable powerset build as from atoms 
         x = _ and x <> _  *)
 
@@ -90,7 +90,7 @@ Section finite_t_weak_dec_powerset.
 
 End finite_t_weak_dec_powerset.
 
-(** We show that there is a finite_t bound over weakly (hence also strongly) decidable  
+(* We show that there is a finite_t bound over weakly (hence also strongly) decidable  
     binary relations upto equivalence. Notice that it is not guaranteed that the list l 
     below contains only decidable relations *)
 

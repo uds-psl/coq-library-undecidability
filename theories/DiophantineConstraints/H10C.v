@@ -7,6 +7,8 @@
     (2) Saarland University, Saarbrücken, Germany
 *)
 
+(** * Satisfiability of elementary and uniform Diophantine constraints H10C_sat and H10UC_sat *)
+
 (* 
   Problems(s):
     Diophantine Constraint Solvability (H10C_SAT)
@@ -15,7 +17,7 @@
 
 Require Import List.
 
-(** Diophantine constraints (h10c) are of three shapes:
+(* Diophantine constraints (h10c) are of three shapes:
       x = 1 | x + y = z | x * y = z  with x, y, z in nat 
 *)
 
@@ -31,13 +33,13 @@ Definition h10c_sem c φ :=
     | h10c_mult x y z => φ x * φ y = φ z
   end.
 
-(**
+(*
   Diophantine Constraint Solvability:
     given a list of Diophantine constraints, is there a valuation that satisfies each constraint?
 *)
 Definition H10C_SAT (cs: list h10c) := exists (φ: nat -> nat), forall c, In c cs -> h10c_sem c φ.
 
-(** Uniform Diophantine constraints (h10uc) are of shape:  
+(* Uniform Diophantine constraints (h10uc) are of shape:  
       1 + x + y * y = z
 *)
 Definition h10uc := (nat * nat * nat)%type.
@@ -47,7 +49,7 @@ Definition h10uc_sem φ (c : h10uc) :=
     | (x, y, z) => 1 + φ x + φ y * φ y = φ z
   end.
 
-(**
+(*
   Uniform Diophantine Constraint Solvability:
     given a list of uniform Diophantine constraints, is there a valuation that satisfies each constraint?
 *)

@@ -1,3 +1,5 @@
+(** * Halting problem for simple binary single-tape Turing machines HaltSBTM *)
+
 Require Import List Bool Nat.
 Require Coq.Vectors.Fin.
 Import ListNotations.

@@ -488,7 +488,7 @@ Section ToSingleTape.
 
 
 
-  (** Go to the current symbol of the selected tape *)
+  (* Go to the current symbol of the selected tape *)
   Section GoToCurrent.
 
     Definition atStart (t : tape sigSim) (tps : list (tape sig)) : Prop :=
@@ -895,7 +895,7 @@ Section ToSingleTape.
   End GoToNext.
 
 
-  (** Read the current symbols *)
+  (* Read the current symbols *)
   Section ReadCurrentSymbols.
 
     Local Arguments insertKnownSymbol : simpl never.
@@ -1389,7 +1389,7 @@ Section ToSingleTape.
       | _ => false
       end.
 
-    (** The more complicated part is writing, because we may have to alocate more memory by shifting *)
+    (* The more complicated part is writing, because we may have to alocate more memory by shifting *)
 
     Definition DoWrite_Rel (d : option move) (s : sig) : pRel sigSim unit 1 :=
       ignoreParam
@@ -1661,7 +1661,7 @@ Section ToSingleTape.
     Arguments DoMove : simpl never.
 
 
-    (** First write, then move *)
+    (* First write, then move *)
     Definition DoAction_Rel (d : option move) (a : option sig * move) : pRel sigSim unit 1 :=
       ignoreParam
         (fun tin tout =>

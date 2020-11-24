@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** FRACTRAN reduces to Diophantine logic *)
+(* ** FRACTRAN reduces to Diophantine logic *)
 
 Require Import List.
 
@@ -24,7 +24,7 @@ From Undecidability.H10.Dio      Require Import dio_elem dio_single dio_logic.
 
 Set Implicit Arguments.
 
-(** A diophantine logic satisfiability question is given
+(* A diophantine logic satisfiability question is given
     a diophantine logic formula f and a valuation for the
     parameters. Is the formula valid ? *)
 
@@ -44,7 +44,7 @@ Proof.
   + exists (f, fun _ => x); unfold DIO_LOGIC_SAT; rewrite Hf; tauto.
 Qed.
 
-(** An elementary diophantine problem is a list of elementary diophantine
+(* An elementary diophantine problem is a list of elementary diophantine
     constraints and a valuation for the parameters. The question is whether
     there exists a valuation for the variables that satisfies all the constraints
     simultaneously *)

@@ -1,4 +1,4 @@
-(** ** Operations & Properties of FOL* *)
+(* ** Operations & Properties of FOL* *)
 
 
 Require Import Undecidability.Shared.ListAutomation.

@@ -4,7 +4,7 @@ From Undecidability.HOU Require Import std.std calculus.calculus unification.uni
 From Undecidability.HOU Require Import third_order.pcp third_order.encoding.
 Import ListNotations.
 
-(** * Huet Reduction *)
+(* * Huet Reduction *)
 Section HuetReduction.
 
   Variable (X: Const).
@@ -16,7 +16,7 @@ Section HuetReduction.
   Let g: exp X := var 4.
 
 
-  (** ** Reduction Function *)
+  (* ** Reduction Function *)
   Program Instance PCP_to_U (S: list card) : orduni 3 X :=
     {
       Gamma₀ := [Arr (repeat (alpha → alpha) (length S)) alpha; (alpha → alpha) → alpha];
@@ -54,7 +54,7 @@ Section HuetReduction.
     Definition ginst (I: list nat) : exp X :=
       lambda AppL (repeat (var 0) (pred (|I|))) (var 1).
 
-    (** ** Forward Direction *)
+    (* ** Forward Direction *)
     
     Lemma ginst_typing I:
       [alpha] ⊢(3) ginst I : (alpha → alpha) → alpha. 
@@ -148,7 +148,7 @@ Section HuetReduction.
   End BackwardDirection.
 
 
-  (** ** Backward Direction *)
+  (* ** Backward Direction *)
   Lemma MU_PCP S':
     NOU 3 (PCP_to_U S') -> PCP S'.
   Proof.

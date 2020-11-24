@@ -45,7 +45,7 @@ Proof.
   unfold Cardinality, elem, enum. cbn. unfold Fin_initVect. now rewrite vector_to_list_length. 
 Qed.
 
-(** Function that produces a list of all Vectors of length n over A *)
+(* Function that produces a list of all Vectors of length n over A *)
 Fixpoint Vector_pow {X: Type} (A: list X) n {struct n} : list (Vector.t X n) :=
   match n with
   | 0 => [Vector.nil _]

@@ -32,7 +32,7 @@ Definition t_M0 := poly_var 0.
 
 (* overall, we show that M0 is typable iff Gamma_M0 ⊢ M_M0 : t_M0 holds *)
 
-(** typability to type checking *)
+(* typability to type checking *)
 Lemma transport : 
   SysF_TYP M0 -> SysF_TC (Gamma_M0, M_M0, t_M0).
 Proof.
@@ -48,7 +48,7 @@ Proof.
   by rewrite -HP.
 Qed.
 
-(** type checking to typability *)
+(* type checking to typability *)
 Lemma inverse_transport : 
   SysF_TC (Gamma_M0, M_M0, t_M0) -> SysF_TYP M0.
 Proof.
@@ -69,7 +69,7 @@ End Argument.
 
 Require Import Undecidability.Synthetic.Definitions.
 
-(** System F Typability many-one reduces to System F Type Checking *)
+(* System F Typability many-one reduces to System F Type Checking *)
 Theorem reduction : SysF_TYP ⪯ SysF_TC.
 Proof.
   exists (fun 'M0 => (Argument.Gamma_M0, Argument.M_M0 M0, Argument.t_M0)).

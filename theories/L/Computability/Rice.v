@@ -2,7 +2,7 @@ From Undecidability.L.Computability Require Export Scott Acceptability.
 Import Undecidability.L.Prelim.ARS.ARSNotations.
 Import L_Notations.
 
-(** * The self halting problem is not L-acceptable *)
+(* * The self halting problem is not L-acceptable *)
 
 Definition self_diverging (s : term) := ~ pi s s.
 
@@ -23,7 +23,7 @@ Proof.
   destruct H. unfold proc in *. tauto.
 Qed.
 
-(** * Rice's Theorem *)
+(* * Rice's Theorem *)
 
 Lemma Rice1 (M : term -> Prop) : (M <=1 proc) ->
                                  (forall (s t : term), proc t -> M s -> (forall u, pi s u <-> pi t u) -> M t) ->
@@ -142,7 +142,7 @@ Proof.
   }
 Qed.
 
-(** ** Rice's Theorem, classical *)
+(* ** Rice's Theorem, classical *)
 
 Theorem Rice (M : term -> Prop) : (M <=1 proc) ->
                                  (forall (s t : term), proc t -> M s -> (forall u, pi s u <-> pi t u) -> M t) ->
@@ -160,7 +160,7 @@ Proof.
    intros A. destruct A as [? [H l]]. inv l. eapply Omega_diverges. rewrite <- H. clear H. symmetry. now redSteps.
 Qed.
 
-(** * Applications of Rice's Theorem *)
+(* * Applications of Rice's Theorem *)
 
 Goal ~ ldec (fun s => proc s /\ forall t, pi s t).
 Proof.
@@ -183,7 +183,7 @@ Proof.
   - split. Lproc. exists I. eapply lamOmega. 
 Qed.
 
-(** * Rice's Theorem, classical, on combinators *)
+(* * Rice's Theorem, classical, on combinators *)
 
 Theorem Rice_classical (M : term -> Prop) : (M <=1 closed) ->
                                  (forall (s t : term), closed t -> M s -> (forall u, pi s u <-> pi t u) -> M t) ->

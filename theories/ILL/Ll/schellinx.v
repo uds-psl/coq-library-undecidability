@@ -36,7 +36,7 @@ Tactic Notation "app" "inv" "singleton" "in" hyp(H) :=
 Tactic Notation "app" "inv" "nil" "in" hyp(H) :=
   apply app_eq_nil in H as (-> & ->).
 
-(** * Classical Linear Logic vs Intuitionnisitc Linear Logic 
+(* * Classical Linear Logic vs Intuitionnisitc Linear Logic 
 
        derived from the work of H. Schellinx JLC 91 *)
 
@@ -84,7 +84,7 @@ End ill_cll_is_sound.
 
 Section Schellinx_observation.
 
-  (** This is an observation purely about cut-free CLL 
+  (* This is an observation purely about cut-free CLL 
 
       One cannot get a cut-free CLL proof of Γ ⊢ ∅ 
       unless ⟘ or 𝟘 or a negation occurs in Γ *)
@@ -176,7 +176,7 @@ End Schellinx_observation.
 
 Section cll_ill_soundness.
 
-  (** If an ILL sequent Γ ⊢ A is cut-free CLL provable then 
+  (* If an ILL sequent Γ ⊢ A is cut-free CLL provable then 
      it is also cut-free ILL provable unless it contains ⟘ *)
 
   (* A handy tactic for Forall goals ... *)

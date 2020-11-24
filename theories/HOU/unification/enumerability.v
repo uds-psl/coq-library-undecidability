@@ -2,9 +2,9 @@ Set Implicit Arguments.
 Require Import List Omega Lia.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.higher_order_unification unification.nth_order_unification.
 
-(** * Enumerability *)
+(* * Enumerability *)
 
-(** ** Terms, Types and Contexts *)
+(* ** Terms, Types and Contexts *)
 Section ListEnumerability.
   Variable (X: Const).
 
@@ -56,7 +56,7 @@ Section ListEnumerability.
         in_app 5. in_collect (A, B); eapply cum_ge'; eauto. 
   Qed.
 
-  (** ** Typing Proofs *)
+  (* ** Typing Proofs *)
   Fixpoint L_typingT Gamma s A n : list (Gamma ⊢ (s: exp X) : A) :=
     match n with
     | 0 => nil
@@ -151,7 +151,7 @@ Section ListEnumerability.
                     ++ [(Delta, s .: sigma, A :: Gamma) | ((Delta, sigma, Gamma), (Delta', s, A)) ∈ (L_subst (S >> tau) n × L_typing n), Delta = Delta']
     end.
 
-  (** ** Substitutions *)
+  (* ** Substitutions *)
   Lemma enum_substs tau:
     enum (fun '(Delta, sigma, Gamma) => Delta ⊩ (sigma: fin -> exp X) : Gamma /\ forall x, x >= | Gamma | -> sigma x = tau x) (L_subst tau).
   Proof.
@@ -231,7 +231,7 @@ End ListEnumerability.
 
 
 
-(** ** Higher-Order Unification *)
+(* ** Higher-Order Unification *)
 Theorem enumerable_unification (X: Const): enumerable__T X -> enumerable (U X).
 Proof.
   rewrite enum_enumT. intros [EX].

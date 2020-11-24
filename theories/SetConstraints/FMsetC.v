@@ -5,6 +5,8 @@
     (1) Saarland University, Saarbrücken, Germany
 *)
 
+(** * Solvability of finite multiset constraints FMsetC_SAT  *)
+
 (* 
   Problem:
     Finite Multiset Constraint Solvability (FMsetC_SAT)

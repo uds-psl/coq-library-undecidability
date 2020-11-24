@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Iteration of binary relations *)
+(* ** Iteration of binary relations *)
 
 Require Import Arith Nat Lia.
 
@@ -97,7 +97,7 @@ Section rel_iter_bound.
   Let Hk' : forall x y, R x y -> y <= (S k)*x.
   Proof. intros x y H; apply le_trans with (1 := Hk1 H), mult_le_compat_r; lia. Qed.
 
-  (** q represents a basis big enough so that all the sequence x=x0 R x1 R ... R xn = y can be
+  (* q represents a basis big enough so that all the sequence x=x0 R x1 R ... R xn = y can be
       encoded as the digits of c in base q 
 
       Since the growth of R is controlled by k, we can find a simple diophantine constraint
@@ -203,7 +203,7 @@ Section rel_iter_seq.
 
   Variable (R : nat -> nat -> Prop).
 
-  (** q represents a basis big enough so that all the sequence x=x0 R x1 R ... R xn = y can be
+  (* q represents a basis big enough so that all the sequence x=x0 R x1 R ... R xn = y can be
       encoded as the digits of c in base q *)
 
   Definition rel_iter_seq n x y := exists q c, is_seq R c q n /\ is_digit c q 0 x /\ is_digit c q n y.

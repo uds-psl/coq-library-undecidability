@@ -2,9 +2,9 @@ From Undecidability.L Require Import Util.L_facts.
 Require Import ListTactics.
 From Undecidability.L.Tactics Require Import Lproc Reflection. 
 
-(** *** Lbeta: symbolic beta reduction *)
+(* *** Lbeta: symbolic beta reduction *)
 
-(** This module procides tactics to simlify L-term w.r.t beta reduction in L.
+(* This module procides tactics to simlify L-term w.r.t beta reduction in L.
 It does so by the reflective tactic simplify_L' using the module Reflextion. *)
 
 Lemma eval_helper s t u: s >* u -> eval u t -> eval s t.

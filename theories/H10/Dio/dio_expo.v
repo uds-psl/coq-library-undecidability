@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Object-level encoding of exponential *)
+(* ** Object-level encoding of exponential *)
 
 Require Import Arith ZArith List.
 
@@ -25,7 +25,7 @@ Set Implicit Arguments.
 Local Notation power := (mscal mult 1).
 Local Notation expo := (mscal mult 1).
 
-(** Here one can witness how workable is automation of recognition
+(* Here one can witness how workable is automation of recognition
     of Diophantine shapes.
 
     Notice that alpha_conditions below could probably be optimized
@@ -57,7 +57,7 @@ Proof. dio auto. Defined.
 Fact dio_rel_alpha_size : df_size_Z (proj1_sig dio_rel_alpha_example) = 1445%Z.
 Proof. reflexivity. Qed.
 
-(** This is Matiyasevich theorem stating that q^r is a Diophantine function. 
+(* This is Matiyasevich theorem stating that q^r is a Diophantine function. 
     
     Notice that expo_conditions below could also probably be optimized *)
 
@@ -79,9 +79,9 @@ Proof. dio auto. Defined.
 Local Fact dio_fun_expo_example_size : df_size_Z (proj1_sig dio_fun_expo_example) = 4903%Z.
 Proof. reflexivity. Qed.
 
-(** We use the exponantial to characterize digits *)
+(* We use the exponantial to characterize digits *)
 
-(** The is_digit c q i y relation stating that 
+(* The is_digit c q i y relation stating that 
      
        "y is the i-th digit of c is base q" 
  *)

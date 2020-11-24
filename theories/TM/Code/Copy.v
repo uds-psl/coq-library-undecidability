@@ -1,4 +1,4 @@
-(** * Copying Machines and Helper functions for verifying machines using [CopySymbols] ane [MoveToSymbol] *)
+(* * Copying Machines and Helper functions for verifying machines using [CopySymbols] ane [MoveToSymbol] *)
 
 From Coq Require Import FunInd.
 
@@ -199,7 +199,7 @@ End Copy.
 
 
 
-(** Move between the start and the end symbol *)
+(* Move between the start and the end symbol *)
 Section Move.
   Variable (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig).
 
@@ -379,7 +379,7 @@ Typeclasses Opaque Reset_size.
 Typeclasses Opaque Reset_steps.
 
 
-(** Copy a value from to an internal (right) tape *)
+(* Copy a value from to an internal (right) tape *)
 Section CopyValue.
   Variable (sig: finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig).
 
@@ -451,7 +451,7 @@ Typeclasses Opaque CopyValue_size.
 Typeclasses Opaque CopyValue_steps.
 
 
-(** Copy and overwrite a value *)
+(* Copy and overwrite a value *)
 Section MoveValue.
   Variable sig : finType.
   Variable (sigX sigY X Y : Type) (cX : codable sigX X) (cY : codable sigY Y) (I1 : Retract sigX sig) (I2 : Retract sigY sig).
@@ -656,7 +656,7 @@ Smpl Add smpl_TM_Copy : TM_Correct.
 
 From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
 
-(** We give all rule variants here, because automation is forbidden for these machines *)
+(* We give all rule variants here, because automation is forbidden for these machines *)
 
 (* TODO: [CopyValue_size] should be renamed, and this function should be moved to [Code.v] *)
 Definition CopyValue_sizefun {sigX X : Type} {cX : codable sigX X} (x : X) : Vector.t (nat->nat) 2 := [|id; CopyValue_size x|].

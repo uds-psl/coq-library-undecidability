@@ -1,4 +1,4 @@
-(** * Tarski Semantics *)
+(* * Tarski Semantics *)
 
 Require Import Undecidability.FOL.Util.Syntax.
 From Undecidability Require Import Shared.ListAutomation.
@@ -10,7 +10,7 @@ Local Unset Strict Implicit.
 
 Local Notation vec := Vector.t.
 
-(*** Fragment Syntax ***)
+(** Fragment Syntax ***)
 
 Inductive frag_logic_binop : Type :=
 | Impl : frag_logic_binop.
@@ -43,14 +43,14 @@ Notation "A ==> phi" := (impl A phi) (right associativity, at level 55).
 
 
 
-(*** Tarski Semantics ***)
+(** Tarski Semantics ***)
 
 Section Tarski.
 
   Context {Σ_funcs : funcs_signature}.
   Context {Σ_preds : preds_signature}.
 
-  (** Semantic notions *)
+  (* Semantic notions *)
 
   Section Semantics.
 
@@ -184,7 +184,7 @@ Section Defs.
 End Defs.
 
 
-(** Trivial Model *)
+(* Trivial Model *)
 
 Section TM.
 

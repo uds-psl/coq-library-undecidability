@@ -70,9 +70,9 @@ Section ListStuff.
 End ListStuff.
 
 
-(** ** Append *)
+(* ** Append *)
 
-(** I simply copy memory instead of using constructors/deconstructors. The former approach is maybe easier, but I want to use fewer internal tapes. *)
+(* I simply copy memory instead of using constructors/deconstructors. The former approach is maybe easier, but I want to use fewer internal tapes. *)
 Section Append.
 
   Variable (sigX : finType) (X : Type) (cX : codable sigX X).

@@ -1,9 +1,9 @@
-(** ** Abstract specification using Hoare triples *)
+(* ** Abstract specification using Hoare triples *)
 
 From Undecidability.TM Require Import TM Util.TM_facts.
 
 
-(** Abstract Assertions over Tapes *)
+(* Abstract Assertions over Tapes *)
 Definition Assert (sig : Type) (n : nat) : Type := tapes sig n -> Prop.
 
 (* [{P} pM {fun c => Q c}] means that whenever [pM] starts with tapes that satisfy [P] and terminates in label [c] and tapes [tp'] that satisfy [Q c]. *)
@@ -22,7 +22,7 @@ Lemma Triple_iff {sig : finType} {n : nat} {F : Type} P (pM : pTM sig F n) Q:
   Triple P pM Q <-> pM ⊨ Triple_Rel P Q.
 Proof. split;eauto using TripleE,TripleI. Qed. 
 
-(** Triples for total correctness have an additional time parameter in the precondition.
+(* Triples for total correctness have an additional time parameter in the precondition.
 The following definition relates such a precondition to a termination relation: *)
 
 Definition Triple_TRel {sig : finType} {n : nat} (P : Assert sig n) (k : nat) : tRel sig n :=
@@ -67,7 +67,7 @@ Hint Resolve Triple_True : core.
 
 
 
-(** *** Conversion lemmas from realisation to Hoare triples *)
+(* *** Conversion lemmas from realisation to Hoare triples *)
 
 Lemma Realise_Triple {sig : finType} {n : nat} {F : Type} (P : Assert sig n) (pM : pTM sig F n) (Q : F -> Assert sig n) (R : pRel sig F n) :
   pM ⊨ R ->
@@ -113,7 +113,7 @@ Proof.
   intros ?%TripleTE. unfold Triple_TRel in *. tauto.
 Qed.
 
-(** A convienient lemma to convert constant-time realisation to a Hoare triple. Note that the reverse doesn't hold. *)
+(* A convienient lemma to convert constant-time realisation to a Hoare triple. Note that the reverse doesn't hold. *)
 Lemma RealiseIn_TripleT {sig : finType} {n : nat} {F : Type} (P : Assert sig n) k (pM : pTM sig F n) (Q : F -> Assert sig n) (R : pRel sig F n) :
   pM ⊨c(k) R ->
   (forall tin yout tout, R tin (yout, tout) -> P tin -> Q yout tout) ->
@@ -146,7 +146,7 @@ Hint Resolve EntailsI : core.
 Instance Entails_PO (sig : Type) (n : nat): PreOrder (@Entails sig n).
 Proof. split;hnf. all:setoid_rewrite Entails_iff. all:eauto. Qed.
 
-(** *** Consequence Rule *)
+(* *** Consequence Rule *)
 
 Lemma Consequence (sig : finType) (n : nat) (F : Type) (P1 P2 : Assert sig n) (Q1 Q2 : F -> Assert sig n) (pM : pTM sig F n) :
   Triple P2 pM Q2 ->
@@ -212,9 +212,9 @@ Proof. intros. eapply ConsequenceT; eauto. Qed.
 
 
 
-(** *** Introducing Quantors *)
+(* *** Introducing Quantors *)
 
-(** Many, may boring rules... I hope we won't ever need one of these. *)
+(* Many, may boring rules... I hope we won't ever need one of these. *)
 
 Lemma Triple_exists_pre {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (X : Type) (P : X -> Assert sig n) (Q : F -> Assert sig n) :
@@ -275,7 +275,7 @@ Proof.  setoid_rewrite Triple_iff. unfold Triple_Rel. firstorder. Qed.
 
 
 
-(** The same for [TripleT] *)
+(* The same for [TripleT] *)
 
 Lemma TripleT_exists_pre {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (X : Type) (P : X -> Assert sig n) (Q : F -> Assert sig n) k :
@@ -338,7 +338,7 @@ Lemma TripleT_and_con {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
   TripleT P k pM (fun yout tout => Q2 /\ Q1 yout tout).
 Proof. setoid_rewrite TripleT_iff;setoid_rewrite Triple_iff. unfold Triple_Rel,Triple_TRel. firstorder. Qed.
 
-(** In gernal, we shouldn't rely on the definition of [Triple] and [TripleT]. *)
+(* In gernal, we shouldn't rely on the definition of [Triple] and [TripleT]. *)
 
 (* TODO: This makes problems in [HoareRegister.v]. *)
 

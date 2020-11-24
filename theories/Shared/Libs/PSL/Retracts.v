@@ -1,4 +1,4 @@
-(** * Library for retracts  *)
+(* * Library for retracts  *)
 
 (* Author: Maximilian Wuttke *)
 
@@ -148,13 +148,13 @@ Section ComposeRetracts.
 End ComposeRetracts.
 
 
-(** We define some useful retracts. *)
+(* We define some useful retracts. *)
 Section Usefull_Retracts.
 
   Variable (A B C D : Type).
 
 
-  (** Identity retract *)
+  (* Identity retract *)
   Global Program Instance Retract_id : Retract A A :=
     {|
       Retr_f a := a;
@@ -163,7 +163,7 @@ Section Usefull_Retracts.
   Next Obligation. abstract now hnf; firstorder congruence. Defined.
 
 
-  (** Empty retract *)
+  (* Empty retract *)
   Global Program Instance Retract_Empty : Retract Empty_set A :=
     {|
       Retr_f e := @Empty_set_rect (fun _ => A) e;
@@ -171,7 +171,7 @@ Section Usefull_Retracts.
     |}.
   Next Obligation. abstract now intros x; elim x. Defined.
 
-  (** Eliminate the [Empty_set] from the source sum type *)
+  (* Eliminate the [Empty_set] from the source sum type *)
   Global Program Instance Retract_Empty_left `{retr: Retract A B} : Retract (A + Empty_set) B :=
     {|
       Retr_f a := match a with
@@ -209,7 +209,7 @@ Section Usefull_Retracts.
   Defined.
 
 
-  (** We can introduce an additional [Some] and use the identity as the retract function *)
+  (* We can introduce an additional [Some] and use the identity as the retract function *)
   Global Program Instance Retract_option `{retr: Retract A B} : Retract A (option B) :=
     {|
       Retr_f a := Some (Retr_f a);
@@ -229,7 +229,7 @@ Section Usefull_Retracts.
       ].
   Defined.
 
-  (** We can introduce an additional [inl] *)
+  (* We can introduce an additional [inl] *)
 
   Definition retract_inl_f (f : A -> B) : A -> (B + C) := fun a => inl (f a).
   Definition retract_inl_g (g : B -> option A) : B+C -> option A :=
@@ -252,7 +252,7 @@ Section Usefull_Retracts.
   Defined.
 
 
-  (** The same for [inr] *)
+  (* The same for [inr] *)
 
   Definition retract_inr_f (f : A -> B) : A -> (C + B) := fun a => inr (f a).
   Definition retract_inr_g (g : B -> option A) : C+B -> option A :=
@@ -276,7 +276,7 @@ Section Usefull_Retracts.
 
 
 
-  (** We can map retracts over sums, similiary as we have done with inversions *)
+  (* We can map retracts over sums, similiary as we have done with inversions *)
 
   Section Retract_sum.
 
@@ -378,7 +378,7 @@ End Join.
 
 
 
-(** More instances like [Retract_sum] for bigger sums. *)
+(* More instances like [Retract_sum] for bigger sums. *)
 
 Section MoreSums.
 

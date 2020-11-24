@@ -27,7 +27,7 @@ Local Notation "P // s ->> t" := (sss_compute (@mma_sss _) P s t).
 Local Notation "P // s ~~> t" := (sss_output (@mma_sss _) P s t).
 Local Notation "P // s ↓" := (sss_terminates (@mma_sss _) P s).
 
-(** We use the generic compiler with an identity map on instructions
+(* We use the generic compiler with an identity map on instructions
     to simulate termination with termination on (0,vec_zero) *)
 
 Section mma_sim.
@@ -119,7 +119,7 @@ Section mma_sim.
 
     Variable v : vec nat n.
  
-    (** Q simulates termination of (iP,cP) while ensuring tmp1 and tmp2 stay void when it terminates *)
+    (* Q simulates termination of (iP,cP) while ensuring tmp1 and tmp2 stay void when it terminates *)
 
     Let Q_spec1 : (iP,cP) // (iP,v) ↓ -> exists w', Q // (1,v) ~~> (code_end Q, w').
     Proof.
@@ -214,7 +214,7 @@ Section mma2_simul.
 
 End mma2_simul.
 
-(** Termination can be simulated with termination on (0,vec_zero) *)
+(* Termination can be simulated with termination on (0,vec_zero) *)
 
 Theorem mma2_simulator i (P : list (mm_instr (pos 2))) :
   { Q | forall v, (i,P) // (i,v) ↓ <-> (1,Q) // (1,v) ~~> (0,vec_zero) }.

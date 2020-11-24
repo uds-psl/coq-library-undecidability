@@ -1,4 +1,4 @@
-(** * First-Order Logic *)
+(* * First-Order Logic *)
 
 
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
@@ -9,7 +9,7 @@ Require Import Coq.Vectors.Vector.
 Local Notation vec := t.
 
 
-(** Some preliminary definitions for substitions  *)
+(* Some preliminary definitions for substitions  *)
 Definition scons {X: Type} (x : X) (xi : nat -> X) :=
   fun n => match n with
         | 0 => x
@@ -19,7 +19,7 @@ Definition scons {X: Type} (x : X) (xi : nat -> X) :=
 Definition funcomp {X Y Z} (g : Y -> Z) (f : X -> Y)  :=
   fun x => g (f x).
 
-(** Signatures are a record to allow for easier definitions of general transformations on signatures *)
+(* Signatures are a record to allow for easier definitions of general transformations on signatures *)
 
 Class funcs_signature :=
   { syms : Type; ar_syms : syms -> nat }.
@@ -35,7 +35,7 @@ Section fix_signature.
 
   Context {Σ_funcs : funcs_signature}.
 
-  (** We use the stdlib definition of vectors to be maximally compatible  *)
+  (* We use the stdlib definition of vectors to be maximally compatible  *)
 
   Unset Elimination Schemes.
 
@@ -53,20 +53,20 @@ Section fix_signature.
 
   Context {Σ_preds : preds_signature}.
 
-  (** We use a flag to switch on and off a constant for falisity *)
+  (* We use a flag to switch on and off a constant for falisity *)
 
   Inductive falsity_flag := falsity_off | falsity_on.
   Existing Class falsity_flag.
   Existing Instance falsity_on | 1.
   Existing Instance falsity_off | 0.
 
-  (** Syntax is parametrised in binary operators and quantifiers.
+  (* Syntax is parametrised in binary operators and quantifiers.
       Most developments will fix these types in the beginning and never change them.
    *)
   Class operators := {binop : Type ; quantop : Type}.
   Context {ops : operators}.
 
-  (** Formulas have falsity as fixed constant -- we could parametrise against this in principle *)
+  (* Formulas have falsity as fixed constant -- we could parametrise against this in principle *)
   Inductive form : falsity_flag -> Type :=
   | falsity : form falsity_on
   | atom {b} : forall (P : preds), vec term (ar_preds P) -> form b
@@ -84,7 +84,7 @@ Section fix_signature.
     | quant op phi => quant op (subst_form (up σ) phi)
     end.
 
-  (** Induction principle for terms *)
+  (* Induction principle for terms *)
 
   Inductive Forall {A : Type} (P : A -> Type) : forall {n}, t A n -> Type :=
   | Forall_nil : Forall P (@Vector.nil A)
@@ -127,14 +127,14 @@ End fix_signature.
 
 
 
-(** Setting implicit arguments is crucial  *)
-(** We can write term both with and without arguments, but printing is without. *)
+(* Setting implicit arguments is crucial  *)
+(* We can write term both with and without arguments, but printing is without. *)
 Arguments term _, {_}.
 Arguments var _ _, {_} _.
 Arguments func _ _ _, {_} _ _.
 Arguments subst_term {_} _ _.
 
-(** Formulas can be written with the signatures explicit or not.
+(* Formulas can be written with the signatures explicit or not.
     If the operations are explicit, the signatures are too.
  *)
 Arguments form  _ _ _ _, _ _ {_ _}, {_ _ _ _}, {_ _ _} _.
@@ -147,7 +147,7 @@ Arguments subst_form _ _ _ _, _ _ {_ _}, {_ _ _ _}.
 
 
 
-(** Substitution Notation *)
+(* Substitution Notation *)
 
 Class Subst {Sigma : funcs_signature} Y := substfun : (nat -> term) -> Y -> Y.
 
@@ -172,7 +172,7 @@ Open Scope subst_scope.
 
 
 
-(** ** Substituion lemmas *)
+(* ** Substituion lemmas *)
 
 Ltac cbns :=
     cbn; repeat (match goal with [ |- context f[subst_form ?sigma ?phi] ] => change (subst_form sigma phi) with (phi[sigma]) end).
@@ -299,7 +299,7 @@ End Subst.
 
 
 
-(** ** Discreteness *)
+(* ** Discreteness *)
 
 From Equations Require Import Equations.
 Require Import EqdepFacts.
@@ -387,7 +387,7 @@ End EqDec.
 
 
 
-(** ** Enumerability *)
+(* ** Enumerability *)
 
 Section Enumerability.
   

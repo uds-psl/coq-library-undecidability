@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Luca's theorem *)
+(* ** Luca's theorem *)
 
 Require Import Arith Nat Lia List.
 
@@ -142,7 +142,7 @@ Section fact.
     apply Zp_expo_invertible, Zp_invertible_factorial; auto; lia.
   Qed.
 
-  (** rewrite the binomial theorem
+  (* rewrite the binomial theorem
 
                fact k * fact (n-k) * binomial n k = fact n   
 
@@ -405,7 +405,7 @@ Section lucas_theorem.
 
   Implicit Types (l m : list nat).
 
-  (** base_p [x0;x1;x2;...] =  x0 + x1*p + x2*p² ...*)
+  (* base_p [x0;x1;x2;...] =  x0 + x1*p + x2*p² ...*)
 
   Notation base_p := (expand p).
 
@@ -433,7 +433,7 @@ Section lucas_theorem.
   Fact binomial_p_fix11 x l y m : binomial_p (x::l) (y::m) = binomial x y * binomial_p l m.
   Proof. auto. Qed.
 
-  (** This is Luca's thm as described eg on Wikipedia
+  (* This is Luca's thm as described eg on Wikipedia
 
       if p is prime
       and x = x0 + x1*p + x2*p² ...

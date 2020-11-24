@@ -3,8 +3,8 @@ From Undecidability.L.Tactics Require Export LClos_Eval.
 From Undecidability.L.Tactics Require Import mixedTactics.
 Require Import FunInd.
 
-(** *** Reflexted closure calculus *)
-(** This moduel provides definitions of an symbolic simplifier for reflected L-terms used in Lbeta *)
+(* *** Reflexted closure calculus *)
+(* This moduel provides definitions of an symbolic simplifier for reflected L-terms used in Lbeta *)
 
 Open Scope LClos.
 

@@ -15,48 +15,48 @@ Set Default Proof Using "Type".
 
 Section Univ.
 
-  (** Actually, we build a Universal Turing Machine for each alphabet [sigM] *)
+  (* Actually, we build a Universal Turing Machine for each alphabet [sigM] *)
   Variable (sigM : finType).
 
   Notation sigGraph := (sigList (sigPair (sigPair (option sigM) sigState) (sigPair (option sigM * move) sigState))).
 
 
-  (** We need to import all the Variables and Instances from the other file *)
+  (* We need to import all the Variables and Instances from the other file *)
 
-  (** The alphabet of [Univ] *)
+  (* The alphabet of [Univ] *)
   Variable (sig : finType).
   Variable (retr_sigGraph_sig : Retract sigGraph sig).
   Variable (retr_sigTape_sig : Retract sigM sig).
 
-  (** Encoding of the current state number *)
+  (* Encoding of the current state number *)
   Local Existing Instance LowLevel.retr_sigCurrentStateNumber_sigGraph.
   Local Existing Instance LowLevel.retr_sigCurrentStateNumber_sig.
 
-  (** Encoding of the current state (= halt bit + number) *)
+  (* Encoding of the current state (= halt bit + number) *)
   Local Existing Instance LowLevel.retr_sigCurrentState_sigGraph.
   Local Existing Instance LowLevel.retr_sigCurrentState_sig.
 
-  (** Encoding of final bit of the current state *)
+  (* Encoding of final bit of the current state *)
   Local Existing Instance LowLevel.retr_sigCurrentStateFinal_sigGraph.
   Local Existing Instance LowLevel.retr_sigCurrentStateFinal_sig.
 
-  (** Encoding of the next state *)
+  (* Encoding of the next state *)
   Local Existing Instance LowLevel.retr_sigNextState_sigGraph.
   Local Existing Instance LowLevel.retr_sigNextState_sig.
 
-  (** Encoding the current symbol *)
+  (* Encoding the current symbol *)
   Local Existing Instance LowLevel.retr_sigCurrentSymbol_sigGraph.
   Local Existing Instance LowLevel.retr_sigCurrentSymbol_sig.
 
-  (** Encoding of actions *)
+  (* Encoding of actions *)
   Local Existing Instance LowLevel.retr_act_sigGraph.
   Local Existing Instance LowLevel.retr_act_sig.
 
-  (** Encoding of the keys for [Lookup] ([option sig * Q]) *)
+  (* Encoding of the keys for [Lookup] ([option sig * Q]) *)
   Local Existing Instance LowLevel.retr_key_sigGraph.
   Local Existing Instance LowLevel.retr_key_sig.
 
-  (** Encoding of the value for [Lookup] ([option sig * Q]) *)
+  (* Encoding of the value for [Lookup] ([option sig * Q]) *)
   Local Existing Instance LowLevel.retr_value_sigGraph.
   Local Existing Instance LowLevel.retr_value_sig.
 
@@ -66,20 +66,20 @@ Section Univ.
   Local Existing Instance LowLevel.Encode_action.
 
 
-  (** We have to define a [RegSpec] for [containsWorkingTape] *)
+  (* We have to define a [RegSpec] for [containsWorkingTape] *)
 
   Definition ContainsWorkingTape (tp : tape sigM) : RegSpec sig :=
     Custom (fun t => containsWorkingTape _ t tp).
 
 
-  (** The first high-level rule *)
+  (* The first high-level rule *)
 
 
   Definition DoAction'_size (a : option sigM * move) : Vector.t (nat->nat) 2 :=
-    [| (*0*) id; (*1*) DoAction_size a |]. (** The entry for (*0*) is irrelevant, since it is a [Custom]. *)
+    [| (*0*) id; (*1*) DoAction_size a |]. (* The entry for (*0*) is irrelevant, since it is a [Custom]. *)
 
 
-  (** The low-level machines are still verified using Realisation. The Hoare-framework doesn't make sense for low-level machines.
+  (* The low-level machines are still verified using Realisation. The Hoare-framework doesn't make sense for low-level machines.
       Thus, we just convert the relations to Hare triples. *)
 
   Lemma DoAction'_SpecT_space (tp : tape sigM) (a : option sigM * move) ss :
@@ -163,7 +163,7 @@ Section Univ.
 
 
 
-  (** We now have rules for all auxiliary low-level machines of [Univ_Step], and can verify it now. *)
+  (* We now have rules for all auxiliary low-level machines of [Univ_Step], and can verify it now. *)
 
   Notation "'ContainsTrans' M" :=
     (Contains (retr_sigGraph_sig) (graph_of_TM M)) (at level 0).
@@ -260,7 +260,7 @@ Section Univ.
         * cbn. refine (Lookup_SpecT_space _ _ _ _ _). 2:apply transition_graph_injective. all:shelve.
         * cbn. tspec_ext.
         * cbn. hintros ? ->. rewrite Ehalt. erewrite lookup_graph with (tp := tp).
-          (** We know that [Lookup] had succeeded. *)
+          (* We know that [Lookup] had succeeded. *)
           rewrite Etrans; cbn.
 
           hstep; cbn. 3:reflexivity. hstep; cbn. hstep; cbn. hstep; cbn.
@@ -273,7 +273,7 @@ Section Univ.
           --cbn. intros _. hstep; cbn. eapply ConsequenceT_pre. 3:reflexivity.
             ++ refine (@Translate_SpecT_size _ _ _ _ _ _ _ _). all:shelve.
             ++ instantiate (1 := [| _|]). tspec_ext.
-        * (** The final runnint time calculation *)
+        * (* The final runnint time calculation *)
           unfold Univ_Step_steps_IsFinal. rewrite <- Ehalt. rewrite Etrans. cbn.
           unfold Univ_Step_steps_ConstrPair, Univ_Step_steps_CasePair, Univ_Step_steps_Lookup, Univ_Step_steps_ResetSymbol, Univ_Step_steps_Translate.
           rewrite <- !Ehalt. ring_simplify. set (Lookup_steps _ _). nia.
@@ -283,7 +283,7 @@ Section Univ.
   Qed.
 
   
-  (** Version without space (actually needed later) *)
+  (* Version without space (actually needed later) *)
   Lemma Univ_Step_SpecT (M : TM sigM 1) (tp : tape sigM) (q : state M) :
     TripleT
       (≃≃([],[|ContainsWorkingTape tp; ContainsTrans M; ContainsState q; Void; Void; Void|]))
@@ -298,7 +298,7 @@ Section Univ.
 
 
 
-  (** Partial correctness: If [Univ] terminates, so does [M] *)
+  (* Partial correctness: If [Univ] terminates, so does [M] *)
 
   Lemma tam (tp : tape sigM) a :
     Vector.map2 (doAct (sig:=sigM)) [|tp|] a = [|doAct tp a[@Fin0]|].
@@ -364,7 +364,7 @@ Section Univ.
            1 + Univ_Step_steps q tp + Univ_steps q' tp'[@Fin0] k'
     end.
 
-  (** Complete Correctness: If [M] terminates, so does [Univ]. Note that we need a new triple for this. We also don't need spaces in this triple. *)
+  (* Complete Correctness: If [M] terminates, so does [Univ]. Note that we need a new triple for this. We also don't need spaces in this triple. *)
 
   Lemma Univ_steps_eq (M : TM sigM 1) (q : state M) (tp : tape sigM) (k : nat) :
     Univ_steps q tp k =

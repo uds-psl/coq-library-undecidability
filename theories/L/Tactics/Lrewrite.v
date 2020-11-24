@@ -1,9 +1,9 @@
 From Undecidability.L Require Import Tactics.Computable Lproc Lbeta ComputableTime mixedTactics.
 Import L_Notations.
 
-(** *** Lrewrite: simplification with correctness statements*)
+(* *** Lrewrite: simplification with correctness statements*)
 
-(** This module simplifies L-terms by rewriting with correctness-lemmatas form the hint library Lrewrite *)
+(* This module simplifies L-terms by rewriting with correctness-lemmatas form the hint library Lrewrite *)
 
 (* For Time Complexity: *)
 

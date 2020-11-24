@@ -1,6 +1,6 @@
 From Undecidability.Shared.Libs.PSL Require Import BaseLists.
 
-(** *** Filter *)
+(* *** Filter *)
 
 Section Filter.
   Variable X : Type.

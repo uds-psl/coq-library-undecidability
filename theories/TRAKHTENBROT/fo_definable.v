@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * First order definability and closure properties *)
+(* * First order definability and closure properties *)
 
 Notation ø := vec_nil.
 
@@ -39,7 +39,7 @@ Section fo_definability.
           /\ incl (fol_rels A) lr 
           /\ forall φ, fol_sem M φ A <-> R φ }.
 
-  (** A FOL definable predicate is always extensional *)
+  (* A FOL definable predicate is always extensional *)
 
   Fact fot_def_ext t : fot_definable t -> forall φ ψ, (forall n, φ n = ψ n) -> t φ = t ψ.
   Proof.
@@ -54,7 +54,7 @@ Section fo_definability.
     intros; auto.
   Qed.
 
-  (** We derive closure properties *)
+  (* We derive closure properties *)
 
   Fact fot_def_proj n : fot_definable (fun φ => φ n).
   Proof. exists (£ n); intros; split; rew fot; auto; intros _ []. Qed.
@@ -289,7 +289,7 @@ Section extra.
   Variable (Σ : fo_signature) (ls : list (syms Σ)) (lr : list (rels Σ))
            (X : Type) (M : fo_model Σ X).
 
-  (** More closure properties *)
+  (* More closure properties *)
 
   Fact fol_def_iff R T : 
          fol_definable ls lr M R 

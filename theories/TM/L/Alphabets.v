@@ -2,7 +2,7 @@ From Undecidability Require Import TM.Util.Prelim.
 From Undecidability Require Import TM.Code.Code.
 From Undecidability Require Import LM_heap_def.
 
-(** * Alphabets *)
+(* * Alphabets *)
 
 Inductive ACom : Type := retAT | lamAT | appAT.
 

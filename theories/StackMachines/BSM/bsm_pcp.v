@@ -17,7 +17,7 @@ From Undecidability.StackMachines.BSM
 
 Set Implicit Arguments.
 
-(** ** iBPCP reduces to BSM *)
+(* ** iBPCP reduces to BSM *)
 
 Tactic Notation "rew" "length" := autorewrite with length_db.
 

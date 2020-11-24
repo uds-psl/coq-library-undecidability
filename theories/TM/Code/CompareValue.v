@@ -20,7 +20,7 @@ Proof. intros H. now inv H. Qed.
 
 
 
-(** * Compare two values *)
+(* * Compare two values *)
 
 
 Lemma app_cons_neq (X : Type) (xs ys1 ys2 : list X) (x y : X) :

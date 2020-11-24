@@ -63,7 +63,7 @@ match goal with
 | [ H : dec2bool (Dec ?P) = true |- _ ] => apply Dec_false in H
 end : core.
 
-(** Decided propositions behave classically *)
+(* Decided propositions behave classically *)
 
 Lemma dec_DN X : 
   dec X -> ~~ X -> X.
@@ -83,7 +83,7 @@ Proof.
   unfold dec; tauto. 
 Qed.
 
-(** Propagation rules for decisions *)
+(* Propagation rules for decisions *)
 
 Fact dec_transfer P Q :
   P <-> Q -> dec P -> dec Q.
@@ -136,7 +136,7 @@ Proof.
   unfold iff. auto.
 Qed.
 
-(** Discrete types *)
+(* Discrete types *)
 
 Notation "'eq_dec' X" := (forall x y : X, dec (x=y)) (at level 70).
 

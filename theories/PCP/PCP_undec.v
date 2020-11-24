@@ -6,7 +6,9 @@ From Undecidability.PCP.Reductions Require
 
 Require Undecidability.StringRewriting.SR_undec.
 
-(** The modified Post correspondence problem is undecidable. *)
+(** ** PCP is undecidable *)
+
+(* The modified Post correspondence problem is undecidable. *)
 Lemma MPCP_undec : undecidable MPCP.
 Proof.
   apply (undecidability_from_reducibility SR_undec.SR_undec).
@@ -15,7 +17,7 @@ Qed.
 
 Check MPCP_undec.
 
-(** The modified Post correspondence problem restricted to binary strings is undecidable. *)
+(* The modified Post correspondence problem restricted to binary strings is undecidable. *)
 Lemma MPCPb_undec : undecidable MPCPb.
 Proof.
   apply (undecidability_from_reducibility MPCP_undec).
@@ -24,7 +26,7 @@ Qed.
 
 Check MPCPb_undec.
 
-(** The Post correspondence problem is undecidable. *)
+(* The Post correspondence problem is undecidable. *)
 Lemma PCP_undec : undecidable PCP.
 Proof.
   apply (undecidability_from_reducibility MPCP_undec).
@@ -33,7 +35,7 @@ Qed.
 
 Check PCP_undec.
 
-(** The Post correspondence problem restricted to binary strings is undecidable. *)
+(* The Post correspondence problem restricted to binary strings is undecidable. *)
 Lemma PCPb_undec : undecidable PCPb.
 Proof.
   apply (undecidability_from_reducibility PCP_undec).
@@ -42,7 +44,7 @@ Qed.
 
 Check PCPb_undec.
 
-(** The Post correspondence problem restricted to binary strings is undecidable. *)
+(* The Post correspondence problem restricted to binary strings is undecidable. *)
 Lemma iPCPb_undec : undecidable iPCPb.
 Proof.
   apply (undecidability_from_reducibility PCPb_undec).
@@ -51,7 +53,7 @@ Qed.
 
 Check iPCPb_undec.
 
-(** The Post correspondence problem restricted to binary strings is undecidable. *)
+(* The Post correspondence problem restricted to binary strings is undecidable. *)
 Lemma dPCPb_undec : undecidable dPCPb.
 Proof.
   apply (undecidability_from_reducibility PCPb_undec).

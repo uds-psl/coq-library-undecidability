@@ -20,7 +20,7 @@ Local Open Scope positive_scope.
 (* Compute Pos.size_nat (42 ^ 42). *)
 
 
-(** ** General definitions and lemmas on binary numbers *)
+(* ** General definitions and lemmas on binary numbers *)
 
 (* Append a lower-order bit *)
 Definition append_bit (p : positive) (b : bool) := if b then p~1 else p~0.
@@ -43,7 +43,7 @@ Lemma Encode_positive_app_xIO (p : positive) (b : bool) :
 Proof. destruct b. apply Encode_positive_app_xO. apply Encode_positive_app_xI. Qed.
 
 
-(** Append (lower-order) bits to the binary number. The last bit in the list will be the LSB. *)
+(* Append (lower-order) bits to the binary number. The last bit in the list will be the LSB. *)
 Fixpoint append_bits (x : positive) (bits : list bool) : positive :=
   match bits with
   | nil => x
@@ -197,7 +197,7 @@ Proof.
 Qed.
 
 
-(** Shifting bits left and right *)
+(* Shifting bits left and right *)
 
 Fixpoint shift_left (p : positive) (n : nat) :=
   match n with
@@ -234,7 +234,7 @@ Proof.
 Qed.
 
 
-(** Number of non-HSB bits *)
+(* Number of non-HSB bits *)
 Fixpoint pos_size (p : positive) : nat :=
   match p with
   | 1 => 0

@@ -1,4 +1,4 @@
-(** Considered preliminaries *)
+(* Considered preliminaries *)
 Set Implicit Arguments.
 Require Import List Omega Lia Morphisms.
 Import ListNotations.

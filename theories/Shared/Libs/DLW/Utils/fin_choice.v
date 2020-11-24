@@ -18,9 +18,9 @@ From Undecidability.Shared.Libs.DLW.Vec
 
 Set Implicit Arguments.
 
-(** This files gathers all constructivelly valid choice principles *)
+(* This files gathers all constructivelly valid choice principles *)
 
-(** This is standart constructive strong choice, no finiteness assumptions here *)
+(* This is standart constructive strong choice, no finiteness assumptions here *)
 
 Theorem constructive_choice X (T : X -> Type) (R : forall x, T x -> Prop) :
           (forall x, sig (R x)) 
@@ -64,7 +64,7 @@ Proof.
   intro; rewrite vec_pos_set; trivial.
 Qed.
 
-(** Now weak choice principles that assume some finiteness and discreteness *)
+(* Now weak choice principles that assume some finiteness and discreteness *)
 
 Section finite_discrete_choice.
 
@@ -124,7 +124,7 @@ Qed.
 
 Section finite_t_dec_choose_one.
 
-  (** This compares to Constructive Epsilon but here over a finite type
+  (* This compares to Constructive Epsilon but here over a finite type
       instead of nat *) 
 
   Variable (X : Type) (P Q : X -> Prop) 
@@ -162,7 +162,7 @@ Section finite_t_dec_choose_one.
 
 End finite_t_dec_choose_one.
 
-(** Reification of a total relation into a function,
+(* Reification of a total relation into a function,
     ie this is relational choice over a finite co-domain
     with a decidable relation *)
 
@@ -180,7 +180,7 @@ Qed.
 Fact pos_dec_reif n (P : pos n -> Prop) (HP : forall p, { P p } + { ~ P p }) : ex P -> sig P.
 Proof. apply finite_t_dec_choose_one; auto. Qed.
 
-(** This is needed to reify a computable binary relation representing a unary function
+(* This is needed to reify a computable binary relation representing a unary function
     into an actual function *)
 
 Fact pos_dec_rel2fun n (R : pos n -> pos n -> Prop) :

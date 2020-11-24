@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * The syntax and semantics of FO logic *)
+(* * The syntax and semantics of FO logic *)
 
 Notation ø := vec_nil.
 
@@ -31,7 +31,7 @@ Opaque fo_term_subst fo_term_map fo_term_sem.
 Definition Σrel_var k : fol_term (Σrel k) -> nat.
 Proof. intros [ n | [] ]; exact n. Defined.
 
-(** Unscoped (nat) DeBruijn syntax for FOL formulas *)
+(* Unscoped (nat) DeBruijn syntax for FOL formulas *)
 
 Inductive fol_form (Σ : fo_signature) : Type :=
   | fol_false : fol_form Σ
@@ -227,7 +227,7 @@ Section fol_subst.
   Fact fol_subst_bigop c l A σ : (fol_bigop c A l)⦃σ⦄ = fol_bigop c (A⦃σ⦄) (map (fol_subst σ) l).
   Proof. induction l; simpl; f_equal; auto. Qed.
 
-  (** ∀ ... ∀ A  and  ∃ ... ∃ A *)
+  (* ∀ ... ∀ A  and  ∃ ... ∃ A *)
 
   Fixpoint fol_mquant q n (A : 𝔽) := 
     match n with 
@@ -244,7 +244,7 @@ Section fol_subst.
     apply fol_mquant_plus.
   Qed.
 
-  (** (Free) variables in ∀ ... ∀ A  and  ∃ ... ∃ A *)
+  (* (Free) variables in ∀ ... ∀ A  and  ∃ ... ∃ A *)
 
   Fact fol_vars_mquant q n (A : 𝔽) :
         fol_vars (fol_mquant q n A)
@@ -268,7 +268,7 @@ Section fol_subst.
   Fact fol_rels_mquant q n A : fol_rels (fol_mquant q n A) = fol_rels A.
   Proof. induction n; simpl; auto. Qed.
 
-  (** This theorem is the important one that shows substitutions do compose 
+  (* This theorem is the important one that shows substitutions do compose 
       hence De Bruijn notation are handled correctly by substitutions *)
 
   Fact fol_subst_subst σ ρ A : A⦃σ⦄⦃ρ⦄ = A⦃fun n => (σ n)⟬ρ⟭⦄.
@@ -324,7 +324,7 @@ Section fol_semantics.
   Fact fol_sem_quant_fix φ q A : fol_sem φ (fol_quant q A) = fol_quant_sem q (fun x => ⟪A⟫ x·φ).
   Proof. reflexivity. Qed.
 
-  (** Semantics depends only on occuring variables *)
+  (* Semantics depends only on occuring variables *)
 
   Fact fol_sem_ext φ ψ A : (forall n, In n (fol_vars A) -> φ n = ψ n) -> ⟪A⟫ φ <-> ⟪A⟫ ψ.
   Proof.
@@ -346,13 +346,13 @@ Section fol_semantics.
 
   Section decidable.
 
-    (** REMARK: not requiring the fom_rels M s relation to be decidable
+    (* REMARK: not requiring the fom_rels M s relation to be decidable
         would allow hiding uncomputability inside the model which
         would be kind of cheating. The semantic relation should be
         decidable, only the (finite) satisfiability relation should 
         be undec *)
 
-    (** For the semantics relation to be decidable over a finite domain,
+    (* For the semantics relation to be decidable over a finite domain,
         it is necessary and SUFFICIENT that the sem_pred relation is decidable
         or equivalently, each predicate is interpreted as a map: vec X _ -> bool *)
 
@@ -371,7 +371,7 @@ Section fol_semantics.
 
   End decidable.
 
-  (** Semantics commutes with substitutions ... good *)
+  (* Semantics commutes with substitutions ... good *)
 
   Theorem fol_sem_subst φ σ A : ⟪ A⦃σ⦄ ⟫ φ <-> ⟪A⟫ (fun n => ⟦σ n⟧ φ).
   Proof.
@@ -396,7 +396,7 @@ Section fol_semantics.
     apply fol_sem_ext; intros [ | n ] _; simpl; rew fot; auto.
   Qed.
 
-  (** Bigops, ie finitary conjunction and disjunction *)
+  (* Bigops, ie finitary conjunction and disjunction *)
 
   Fact fol_sem_lconj lf φ : ⟪fol_lconj lf⟫ φ <-> forall f, In f lf -> ⟪ f ⟫ φ.
   Proof.
@@ -470,7 +470,7 @@ Section fol_semantics.
       destruct Hf as (p & ->); auto.
   Qed.
 
-  (** [x1;...;xn] · φ := x1 · x2 ... · xn · φ *)
+  (* [x1;...;xn] · φ := x1 · x2 ... · xn · φ *)
 
   Fixpoint env_vlift φ n (v : vec X n) :=
     match v with
@@ -493,7 +493,7 @@ Section fol_semantics.
     replace (k+S n) with (S (k+n)) by lia; simpl; auto.
   Qed.
 
-  (** The semantics of ∀ ... ∀ A *)
+  (* The semantics of ∀ ... ∀ A *)
 
   Fact fol_sem_mforall n A φ : ⟪fol_mquant fol_fa n A⟫ φ 
                            <-> forall v : vec X n, ⟪A⟫ (env_vlift φ v).
@@ -507,7 +507,7 @@ Section fol_semantics.
       * intros H v; intros x; apply (H (x##v)).
   Qed.
 
-  (** The semantics of ∃ ... ∃ A *)
+  (* The semantics of ∃ ... ∃ A *)
 
   Fact fol_sem_mexists n A φ : ⟪fol_mquant fol_ex n A⟫ φ 
                            <-> exists v : vec X n, ⟪A⟫ (env_vlift φ v).
@@ -549,7 +549,7 @@ Qed.
 
 Section fo_model_simulation.
 
-  (** We state a general simulation result for models on a given 
+  (* We state a general simulation result for models on a given 
       formula build on a bounded list of symbols. The statement
       is so general that the proof is just obvious ;-) *)
 
@@ -557,7 +557,7 @@ Section fo_model_simulation.
              (X : Type) (M : fo_model Σ X)
              (Y : Type) (N : fo_model Σ Y).
 
-  (** We assume that ⋈ is a simulation, ie a congruence for all operators in ls
+  (* We assume that ⋈ is a simulation, ie a congruence for all operators in ls
       and all relations in lr *)
 
   Record fo_simulation := Mk_fo_simulation {
@@ -603,7 +603,7 @@ Section fo_model_simulation.
   Notation "⟪ A ⟫" := (fun φ => fol_sem M φ A).
   Notation "⟪ A ⟫'" := (fun φ => fol_sem N φ A) (at level 1, format "⟪ A ⟫'").
 
-  (** The simulation lifts from variables to terms *)
+  (* The simulation lifts from variables to terms *)
 
   Let fo_term_simulation t φ ψ :
            (forall n : nat, In n (fo_term_vars t) -> φ n ⋈ ψ n) 
@@ -629,7 +629,7 @@ Section fo_model_simulation.
           apply in_vec_list, in_vec_pos.
   Qed.
 
-  (** We assume the simulation to be total and surjective *)
+  (* We assume the simulation to be total and surjective *)
 
   Theorem fo_model_simulation A φ ψ :
            incl (fol_syms A) ls
@@ -679,7 +679,7 @@ Qed.
 
 Section fo_model_projection.
 
-  (** We specialize the previous simulation result on simulation
+  (* We specialize the previous simulation result on simulation
       obtained as surjective projections *)
 
   Variable (Σ : fo_signature) (ls : list (syms Σ)) (lr : list (rels Σ))

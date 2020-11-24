@@ -20,7 +20,7 @@ From Undecidability.MuRec
 
 Set Implicit Arguments.
 
-(** beta can enumerate ANY vector of ANY length by wisely choosing
+(* beta can enumerate ANY vector of ANY length by wisely choosing
     the parameter a *)
 
 Definition beta a n := godel_beta (decomp_l a) (decomp_r a) n.

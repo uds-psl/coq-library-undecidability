@@ -8,7 +8,7 @@ Proof.
   induction 1; eauto.
 Qed.
 
-(** ** Reducing halting problem for TMs to halting problem for L *)
+(* ** Reducing halting problem for TMs to halting problem for L *)
 Theorem HaltMTM_to_HaltL :
   HaltMTM ⪯ HaltL.
 Proof.

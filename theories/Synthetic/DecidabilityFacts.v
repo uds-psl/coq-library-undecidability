@@ -4,7 +4,7 @@ Require Import Setoid Morphisms.
 
 Definition discrete X := decidable (fun '(x,y) => x = y :> X).
 
-(** Facts on reflects *)
+(* Facts on reflects *)
 
 Lemma reflects_not b P :
   reflects b P -> reflects (negb b) (~P).
@@ -33,7 +33,7 @@ Proof.
   destruct b; cbn; firstorder.
 Qed.
 
-(** Type-theoretic characterisations *)
+(* Type-theoretic characterisations *)
 
 Lemma dec_decidable' X p :
   (forall x : X, dec (p x)) -> { f : _ | forall x, p x <-> f x = true}.
@@ -49,7 +49,7 @@ Proof.
   - intros [d]. eapply dec_decidable' in d as [f]. now exists f.
 Qed.
 
-(** Closure properties of decidability *)
+(* Closure properties of decidability *)
 
 Lemma discrete_iff X :
   discrete X <-> inhabited (eq_dec X).
@@ -80,7 +80,7 @@ Proof.
   intros x. eapply reflects_disj; eauto.
 Qed.
 
-(** Proper lemmas *)
+(* Proper lemmas *)
 
 Instance Proper_decides {X} :
   Proper (pointwise_relation X (@eq bool) ==> pointwise_relation X iff ==> iff ) (@decider X).
@@ -101,7 +101,7 @@ Proof.
   - now rewrite H2.
 Qed.
 
-(** Closure properties of discreteness *)
+(* Closure properties of discreteness *)
 
 Lemma discrete_bool : discrete bool.
 Proof.

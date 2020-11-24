@@ -1,4 +1,4 @@
-(** * Kripke Semantics *)
+(* * Kripke Semantics *)
 
 From Undecidability Require Import FOL.Util.Deduction FOL.Util.Tarski FOL.Util.Syntax.
 From Undecidability Require Import Shared.ListAutomation.
@@ -112,7 +112,7 @@ Notation "rho '⊩(' u , M ')' phi" := (@ksat _ _ _ M _ u rho phi) (at level 20)
 
 Arguments ksat {_ _ _ _ _} _ _ _, {_ _ _} _ {_} _ _ _.
 
-(** ** Soundness **)
+(* ** Soundness **)
 
 Section KSoundness.
 
@@ -149,7 +149,7 @@ End KSoundness.
 
 
 
-(** ** Connection to Tarski Semantics *)
+(* ** Connection to Tarski Semantics *)
 
 Section ToTarski.
 
