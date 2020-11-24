@@ -133,7 +133,7 @@ A Coq Library of Undecidable Problems. Yannick Forster, Dominique Larchey-Wendli
 
 ### Papers and abstracts on problems and proofs included in the library
 
-- Trakhtenbrot's Theorem in Coq - A Constructive Approach to Finite Model Theory. Dominik Kirst and Dominique Larchey-Wendkling. IJCAR 2020. Subdirectory `TRAKTHENBROT`. https://www.ps.uni-saarland.de/extras/fol-trakh/
+- Trakhtenbrot's Theorem in Coq - A Constructive Approach to Finite Model Theory. Dominik Kirst and Dominique Larchey-Wendling. IJCAR 2020. Subdirectory `TRAKTHENBROT`. https://www.ps.uni-saarland.de/extras/fol-trakh/
 - Undecidability of Semi-Unification on a Napkin. Andrej Dudenhefner. FSCD 2020. Subdirectory `SemiUnification`. https://www.ps.uni-saarland.de/Publications/documents/Dudenhefner_2020_Semi-unification.pdf
 - Undecidability of Higher-Order Unification Formalised in Coq. Simon Spies and Yannick Forster. Technical report. Subdirectory `HOU`. https://www.ps.uni-saarland.de/Publications/details/SpiesForster:2019:UndecidabilityHOU.html
 - Verified Programming of Turing Machines in Coq. Yannick Forster, Fabian Kunze, Maximilian Wuttke. Technical report. Subdirectory `TM`. https://github.com/uds-psl/tm-verification-framework/
