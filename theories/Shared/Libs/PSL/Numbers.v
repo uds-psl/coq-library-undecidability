@@ -1,7 +1,7 @@
 From Undecidability.Shared.Libs.PSL Require Import Prelim.
 From Undecidability.Shared.Libs.PSL Require Import EqDec.
 
-(** ** Numbers **)
+(* ** Numbers **)
 
 Lemma complete_induction (p : nat -> Prop) (x : nat) :
 (forall x, (forall y, y<x -> p y) -> p x) -> p x.

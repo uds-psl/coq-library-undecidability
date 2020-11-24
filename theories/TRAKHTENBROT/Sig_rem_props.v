@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Removing constant propositions from monadic signatures *)
+(* * Removing constant propositions from monadic signatures *)
 
 Local Reserved Notation "⟪ A ⟫'" (at level 1, format "⟪ A ⟫'").
 

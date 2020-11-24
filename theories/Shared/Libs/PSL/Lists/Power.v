@@ -1,6 +1,6 @@
 From Undecidability.Shared.Libs.PSL Require Import BaseLists Dupfree.
 
-(** *** Power lists *)
+(* *** Power lists *)
 
 Section Power.
   Variable X : Type.

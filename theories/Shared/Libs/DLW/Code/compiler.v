@@ -14,7 +14,7 @@ From Undecidability.Shared.Libs.DLW
 
 Set Implicit Arguments.
 
-(** * A certified low-level compiler *)
+(* * A certified low-level compiler *)
 
 Tactic Notation "dest" "eq" "nat" "dec" "as" simple_intropattern(H) :=
     match goal with 

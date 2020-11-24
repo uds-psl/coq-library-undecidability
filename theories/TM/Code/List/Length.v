@@ -10,11 +10,11 @@ Local Arguments Encode_list : simpl never.
 Local Arguments Encode_nat : simpl never.
 
 
-(** ** Length *)
+(* ** Length *)
 
 Section Lenght.
 
-  (** Instead of defining [Length] on the alphabet [sigList sigX + sigNat], we can define Length on any alphabet [sig] and assume a retracts from [sigList sigX] to [tau] and from [sigNat] to [tau]. This makes the invocation of the machine more flexible for a client. *)
+  (* Instead of defining [Length] on the alphabet [sigList sigX + sigNat], we can define Length on any alphabet [sig] and assume a retracts from [sigList sigX] to [tau] and from [sigNat] to [tau]. This makes the invocation of the machine more flexible for a client. *)
 
   Variable sig sigX : finType.
   Variable (X : Type) (cX : codable sigX X).

@@ -1,6 +1,6 @@
 From Undecidability.Shared.Libs.PSL Require Export BaseLists Filter Lists.Cardinality.
 
-(** *** Duplicate-free lists *)
+(* *** Duplicate-free lists *)
 
 Inductive dupfree (X : Type) : list X -> Prop :=
 | dupfreeN : dupfree nil

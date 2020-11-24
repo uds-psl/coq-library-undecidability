@@ -3,7 +3,7 @@ Require Import Morphisms Omega Lia.
 From Undecidability.HOU.calculus Require Export semantics typing order.
 
 
-(** * Weak Normalisation *)
+(* * Weak Normalisation *)
 
 
 Section SemanticTyping.
@@ -14,7 +14,7 @@ Section SemanticTyping.
 
   Definition SemType := exp X -> Prop.
 
-  (** ** Logical Relations *)
+  (* ** Logical Relations *)
   Definition active (s: exp X) :=
     match s with lambda s => True | _ => False end.
 
@@ -155,7 +155,7 @@ Section SemanticTyping.
 
 End SemanticTyping.
 
-(** ** Semantic Soundness *)
+(* ** Semantic Soundness *)
 Section Soundness.
 
   Context {X: Const}.
@@ -180,7 +180,7 @@ Section Soundness.
     - intros ??; cbn; eapply compat_app; eauto.
   Qed.
 
-  (** ** Termination *)
+  (* ** Termination *)
   Lemma termination_steps Gamma s A:
     Gamma ⊢ s : A -> exists t, s ▷ t.
   Proof.

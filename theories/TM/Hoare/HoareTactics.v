@@ -1,17 +1,17 @@
-(** ** Very Convienient Verification Tactics for Hoare Logic *)
+(* ** Very Convienient Verification Tactics for Hoare Logic *)
 
 From Undecidability Require Import TMTac.
 From Undecidability Require Import TM.Hoare.HoareLogic TM.Hoare.HoareCombinators TM.Hoare.HoareRegister TM.Hoare.HoareTacticsView.
 From smpl Require Import Smpl.
 
-(** We define tactics to "execute" the machine step-by-step during the verification. It uses [smpl] to be user-extensible. *)
+(* We define tactics to "execute" the machine step-by-step during the verification. It uses [smpl] to be user-extensible. *)
 
 
 
-(** Checks whether the given term contains an evar *)
+(* Checks whether the given term contains an evar *)
 Ltac contains_evar e := has_evar e.
 
-(** Check if the goal triple is with space *)
+(* Check if the goal triple is with space *)
 Ltac triple_with_space :=
   lazymatch goal with
   | [ |- context [withSpace] ] => idtac
@@ -19,16 +19,16 @@ Ltac triple_with_space :=
 
 
 
-(** *** Smpl setup *)
+(* *** Smpl setup *)
 
 (* For user extensions, like in [TM_Correct] *)
 Smpl Create hstep_Spec.
 Ltac hstep_Spec := smpl hstep_Spec.
 
 
-(** *** Combinators *)
+(* *** Combinators *)
 
-(** There is no tactic for While. *)
+(* There is no tactic for While. *)
 
 
 Ltac hstep_Seq :=
@@ -37,8 +37,8 @@ Ltac hstep_Seq :=
   | [ |- TripleT ?P ?k (?M1;; ?M2) ?Q ] => eapply Seq_SpecT
   end.
 
-(** Note: We often want to specify the running times ([k2] and [k3]) of [M2] and [M3] manually. For that, the user has to apply [If_SpecT] manually. *)
-(** If desired, the user can apply the weak version [If_SpecT_weak] or [If_SpecT_weak'] manually. *)
+(* Note: We often want to specify the running times ([k2] and [k3]) of [M2] and [M3] manually. For that, the user has to apply [If_SpecT] manually. *)
+(* If desired, the user can apply the weak version [If_SpecT_weak] or [If_SpecT_weak'] manually. *)
 Ltac hstep_If :=
   cbn beta;
   lazymatch goal with
@@ -55,7 +55,7 @@ Ltac hstep_Switch :=
   end.
 
 
-(** For [Return], we may have to use the rule [Return_Spec_con]. *)
+(* For [Return], we may have to use the rule [Return_Spec_con]. *)
 Ltac hstep_Return :=
   lazymatch goal with
   | [ |- Triple ?P (Return ?M ?x) ?Q ] =>
@@ -75,10 +75,10 @@ Ltac hstep_Return :=
 
 
 
-(** ** Lifts *)
+(* ** Lifts *)
 
-(** The rules for the lifts have been implemented for register machines only *)
-(** We have special rules for specifications with space; and we also have to check whether the post-condition already is instantiated. *)
+(* The rules for the lifts have been implemented for register machines only *)
+(* We have special rules for specifications with space; and we also have to check whether the post-condition already is instantiated. *)
 Ltac hstep_LiftTapes :=
   lazymatch goal with
   | [ |- Triple ?PRE (LiftTapes ?M ?I) ?POST ] =>
@@ -99,7 +99,7 @@ Ltac hstep_LiftTapes :=
   end.
 
 
-(** [ChangeAlphabet] is similar to [LiftTapes], but we always have to apply at least [Consequence_pre]. We also have specialised rules for space. *)
+(* [ChangeAlphabet] is similar to [LiftTapes], but we always have to apply at least [Consequence_pre]. We also have specialised rules for space. *)
 Ltac hstep_ChangeAlphabet :=
   lazymatch goal with
   | [ |- Triple ?PRE (ChangeAlphabet ?M ?I)?POST ] =>
@@ -132,28 +132,28 @@ Ltac hstep_ChangeAlphabet :=
 
 
 (*
-(** After applying lifts, we have to push [withSpace] to the front of the premise again. *)
+(* After applying lifts, we have to push [withSpace] to the front of the premise again. *)
 Ltac hstep_withSpace_swap :=
   lazymatch goal with
-  (** Rule for the tapes lift *)
+  (* Rule for the tapes lift *)
   | [ |- Triple  (tspec (Frame (withSpace ?P ?ss) ?I (withSpace ?P' ?ss')))    ?M ?Q ] => eapply Triple_Frame_withSpace;  [now smpl_dupfree | ]
   | [ |- TripleT (tspec (Frame (withSpace ?P ?ss) ?I (withSpace ?P' ?ss'))) ?k ?M ?Q ] => eapply TripleT_Frame_withSpace; [now smpl_dupfree | ]
 
   | [ |- Triple  (tspec (Downlift (withSpace ?P ?ss) ?I))    ?M ?Q ] => eapply Triple_Downlift_withSpace
   | [ |- TripleT (tspec (Downlift (withSpace ?P ?ss) ?I)) ?k ?M ?Q ] => eapply TripleT_Downlift_withSpace
 
-  (** Rules for the alphabet lift *)
+  (* Rules for the alphabet lift *)
   | [ |- Triple  (tspec (LiftSpec ?I (withSpace ?P ?ss)))    ?M ?Q ] => eapply Triple_LiftSpec_withSpace
   | [ |- TripleT (tspec (LiftSpec ?I (withSpace ?P ?ss))) ?k ?M ?Q ] => eapply TripleT_LiftSpec_withSpace
   end.
 *)
 
 
-(** *** Custom machines *)
+(* *** Custom machines *)
 
-(** We have to be careful with [Nop] and custom machines, because usually the postcondition is already instantiated. *)
+(* We have to be careful with [Nop] and custom machines, because usually the postcondition is already instantiated. *)
 
-(** The user only needs to specify the Termination rule. If the user wants to prove partial correctness, it it first checked whether
+(* The user only needs to specify the Termination rule. If the user wants to prove partial correctness, it it first checked whether
 there is a corresponding Termination lemma. The tactic also takes care of whether we first have to apply the consequence rule. *)
 
 
@@ -193,7 +193,7 @@ Ltac hstep_user :=
     else (eapply ConsequenceT_post; [ hstep_user | ]) (* First apply the consequence rule, then try again *)
   end.
 
-(** Example: [Nop] *)
+(* Example: [Nop] *)
 
 Ltac hstep_Nop :=
   lazymatch goal with
@@ -204,9 +204,9 @@ Ltac hstep_Nop :=
 Smpl Add hstep_Nop : hstep_Spec.
 
 
-(** *** Verification step tactic *)
+(* *** Verification step tactic *)
 
-(** Removes [forall (x : unit] from the goal *)
+(* Removes [forall (x : unit] from the goal *)
 Ltac hstep_forall_unit :=
   hnf;
   lazymatch goal with
@@ -226,7 +226,7 @@ Ltac hsteps := repeat first [hstep | hstep_post] (*execute "left to right" *).
 Ltac hsteps_cbn := repeat (cbn; hstep). (* Calls [cbn] before each verification step *)
 
 
-(** *** More automation for register specifications *)
+(* *** More automation for register specifications *)
 
 Ltac openFoldRight :=
   try (hnf;
@@ -235,7 +235,7 @@ Ltac openFoldRight :=
   | |- True => exact I
   end).
 
-(** Proofs assertions like [tspec (SpecVector ?R) ?t] *)
+(* Proofs assertions like [tspec (SpecVector ?R) ?t] *)
 Ltac tspec_solve :=
   lazymatch goal with
   | [ |- tspec (_,withSpace _ ?ss) ?t ] => (* We may unfold [withSpace] and simplify now *)
@@ -248,7 +248,7 @@ Ltac tspec_solve :=
 
 
 (*
-(** Pushes up [withSpace] in [tspec]s *)
+(* Pushes up [withSpace] in [tspec]s *)
 Ltac tspec_withSpace_swap :=
   lazymatch goal with
   | [ H : ?t ≃≃ Frame (withSpace ?P ?ss) ?I (withSpace ?P' ?ss') |- _ ] =>
@@ -262,8 +262,8 @@ end.
 *)
 
 Ltac trySolveTrivEq := lazymatch goal with |- ?s = ?s => reflexivity | |- _ => idtac end.
-(** Proofs assertions like [tspec (SpecVector ?R) ?t] given [tspec (SpecVector ?R') ?t]. Similar to [contains_ext] and [isVoid_mono]. *)
-(** Normally, [eauto] should be able to solve this kind of goal. This tactic helps to find out if there is an error. *)
+(* Proofs assertions like [tspec (SpecVector ?R) ?t] given [tspec (SpecVector ?R') ?t]. Similar to [contains_ext] and [isVoid_mono]. *)
+(* Normally, [eauto] should be able to solve this kind of goal. This tactic helps to find out if there is an error. *)
 Ltac tspec_ext :=
   unfold_abbrev;intros;
   (*tspec_withSpace_swap;*)

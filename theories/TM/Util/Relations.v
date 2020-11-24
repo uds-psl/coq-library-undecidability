@@ -1,7 +1,7 @@
 Require Import Undecidability.Shared.Libs.PSL.Base Undecidability.Shared.Libs.PSL.FiniteTypes Undecidability.TM.Util.Prelim.
 Require Import Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 
-(** * Relations *)
+(* * Relations *)
 
 Definition Rel (X : Type) (Y : Type) := X -> Y -> Prop.
 
@@ -72,21 +72,21 @@ Notation "R '=2' S"  := (eqrel R S) (at level 70).
 Instance eqrel_eq X Y : Equivalence (eqrel (X := X) (Y := Y)).
 Proof. constructor; firstorder. Qed.
 
-(** ** Relational operators on labelled relations *)
+(* ** Relational operators on labelled relations *)
 
-(** Restrict the label of a labelled relation and return an unlabelled relation *)
+(* Restrict the label of a labelled relation and return an unlabelled relation *)
 Definition restrict X Y Z (R : Rel X (Y * Z)) f : Rel X Z := (fun x1 x2 => R x1 (f, x2)).
 Notation "R '|_' f" := (restrict R f) (at level 30, format "R '|_' f").
 Arguments restrict { X Y Z } ( R f ) x y /.
 
-(** Introduce a label that is fixed to a value *)
+(* Introduce a label that is fixed to a value *)
 Definition rfix X Y Z (R : Rel X Z) (p : Y) : Rel X (Y*Z) := (fun x '(y, z) =>
 y = p /\ R x z).
 Notation "R '||_' f" := (rfix R f) (at level 30, format "R '||_' f").
 Arguments rfix { X Y Z } ( R p ) x y /.
 
 
-(** ** Relations over Vectors *)
+(* ** Relations over Vectors *)
 Export VectorNotations2.
 Section Fix_X2.
   Variable X Y Z : Type.
@@ -111,7 +111,7 @@ End Fix_X2.
 Arguments Eq_in { X n } P x y / : rename.
 
 
-(** ** Reflexive transitive closure and relational power *)
+(* ** Reflexive transitive closure and relational power *)
 Section Star_Pow.
   Variable X : Type.
   Variable R : Rel X X.

@@ -21,15 +21,15 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations utils fol_ops decidable.
 
-(** * Enumerability and closure properties *)
+(* * Enumerability and closure properties *)
 
 Set Implicit Arguments.
 
-(** We develop a basic theory of enumeration, ie empty types or
+(* We develop a basic theory of enumeration, ie empty types or
     types for which there is a surjection from nat.
     Same for predicates *)
 
-(** We need an arbitrary surjection nat -> nat * nat *)
+(* We need an arbitrary surjection nat -> nat * nat *)
 
 Local Definition surj n := 
   match pow2_2n1_dec n with
@@ -50,7 +50,7 @@ Section enumerable_definitions.
 
   Variable (X : Type).
 
-  (** enumerability of a Type *)
+  (* enumerability of a Type *)
 
   Definition type_enum := exists f : nat -> option X, forall x, exists n, Some x = f n.
   Definition type_enum_t := { f : nat -> option X | forall x, exists n, Some x = f n }.
@@ -58,12 +58,12 @@ Section enumerable_definitions.
   Definition list_enum := exists f : nat -> list X, forall x, exists n, In x (f n).
   Definition list_enum_t := { f : nat -> list X | forall x, exists n, In x (f n) }.
 
-  (** of a predicate, definition 1 *)
+  (* of a predicate, definition 1 *)
 
   Definition opt_enum P := exists f : nat -> option X, forall x, P x <-> exists n, Some x = f n.
   Definition opt_enum_t P := { f : nat -> option X | forall x, P x <-> exists n, Some x = f n }.
 
-  (** of a predicate, definition 2 *) 
+  (* of a predicate, definition 2 *) 
 
   Definition rec_enum P := exists (Q : nat -> X -> bool),
                            forall x, P x <-> exists n, Q n x = true.
@@ -96,7 +96,7 @@ Section enumerable_definitions.
       destruct (Hsurj a b) as (n & Hn); exists n; now rewrite Hn.
   Qed.
 
-  (** An alternate characterization with Boolean decider 
+  (* An alternate characterization with Boolean decider 
 
   Fact rec_enum_t_alt P : rec_enum_t P ≋ { Q : nat -> X -> bool | forall x, P x <-> exists n, Q n x = true }.
   Proof.
@@ -148,7 +148,7 @@ Section enumerable.
 
   Implicit Type (P : X -> Prop).
 
-  (** On a discrete type, opt_enum implies rec_enum *)
+  (* On a discrete type, opt_enum implies rec_enum *)
 
   Fact opt_enum_rec_enum_discrete P : opt_enum P -> rec_enum P.
   Proof.
@@ -184,7 +184,7 @@ Section enumerable.
       * discriminate.
   Qed.
 
-  (** On a enumerable type, rec_enum implies opt_enum *)
+  (* On a enumerable type, rec_enum implies opt_enum *)
 
   Fact rec_enum_opt_enum_type_enum P : rec_enum P -> opt_enum P.
   Proof.
@@ -235,7 +235,7 @@ Section enumerable.
   Hint Resolve opt_enum_rec_enum_discrete rec_enum_opt_enum_type_enum
                opt_enum_rec_enum_discrete_t rec_enum_opt_enum_type_enum_t : core.
 
-  (** On a datatype, opt_enum and rec_enum are equivalent *)
+  (* On a datatype, opt_enum and rec_enum are equivalent *)
 
   Theorem opt_rec_enum_equiv P : opt_enum P <-> rec_enum P.
   Proof. split; auto. Qed.

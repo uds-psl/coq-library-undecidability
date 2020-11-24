@@ -1,4 +1,4 @@
-(** * Pointer bookkeeping for machines using (positive) binary numbers *)
+(* * Pointer bookkeeping for machines using (positive) binary numbers *)
 
 From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import BinNumbers.EncodeBinNumbers.
@@ -104,7 +104,7 @@ Proof.
 Qed.
 
 
-(** *** Extensionality lemma and tactics *)
+(* *** Extensionality lemma and tactics *)
 
 Lemma atBit_ext (t : tape sigPos^+) (p0 : positive) (b0 : bool) (bits0 : list bool) (p1 : positive) (b1 : bool) (bits1 : list bool) :
   atBit t p0 b0 bits0 ->

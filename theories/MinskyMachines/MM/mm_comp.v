@@ -21,7 +21,7 @@ From Undecidability.MinskyMachines.MM
 
 Set Implicit Arguments.
 
-(** ** BSM recues to MM *)
+(* ** BSM recues to MM *)
 
 Tactic Notation "rew" "length" := autorewrite with length_db.
 
@@ -45,7 +45,7 @@ Section simulator.
 
   Variables (m : nat).
   
-  (** each stack of the BSM corresponds to a (unique) register in the MM 
+  (* each stack of the BSM corresponds to a (unique) register in the MM 
       and there are extra registers: tmp1, tmp2 which must have value 0 at start 
       they might change value during a simulated BSM instruction but when
       the instruction is finished, their values are back to 0 
@@ -175,7 +175,7 @@ Section simulator.
       rewrite vec_pos_map; trivial.
     Qed. 
 
-    (** (iQ,cQ) simulates termination of (iP,cP) while ensuring tmp1 and tmp2 stay void when it terminates *)
+    (* (iQ,cQ) simulates termination of (iP,cP) while ensuring tmp1 and tmp2 stay void when it terminates *)
 
     Let Q_spec1 : (iP,cP) /BSM/ (iP,v) ↓ -> exists w', Q /MM/ (1,w) ~~> (code_end Q, w') /\ w'#>tmp1 = 0 /\ w'#>tmp2 = 0.
     Proof.
@@ -208,7 +208,7 @@ Section simulator.
 
     Let iE := code_end Q.
 
-    (** We complete (iQ,cQ) with some code nullifying all variables except tmp1 & tmp2 *)
+    (* We complete (iQ,cQ) with some code nullifying all variables except tmp1 & tmp2 *)
 
     Let cN := mm_nullify tmp1 iE (map (fun p => pos_nxt (pos_nxt p)) (pos_list m)).
     Let cE := cN ++ DEC tmp1 0 :: nil.
@@ -252,7 +252,7 @@ Section simulator.
       rewrite (proj1 Hlnk); auto.
     Qed.
 
-    (** (1,bsm_sim) is a simulator for (iP,cP) *)
+    (* (1,bsm_sim) is a simulator for (iP,cP) *)
   
     Theorem bsm_mm_spec : (iP,cP) /BSM/ (iP,v) ↓ <-> (1,bsm_mm) /MM/ (1,w) ~~> (0,vec_zero).
     Proof.

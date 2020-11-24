@@ -1,6 +1,6 @@
 From Undecidability Require Export FOLP.Util.FullTarski.
 
-(** ** Finite Satisfiability *)
+(* ** Finite Satisfiability *)
 
 (* We use listability as notion of finiteness. *)
 

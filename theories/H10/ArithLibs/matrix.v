@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Matric computation *)
+(* ** Matric computation *)
 
 Require Import Arith ZArith.
 

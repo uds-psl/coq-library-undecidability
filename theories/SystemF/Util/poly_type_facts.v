@@ -22,7 +22,7 @@ Fixpoint allfv_poly_type (p: nat -> Prop) (t: poly_type) :=
   | poly_abs t => allfv_poly_type (scons True p) t
   end.
 
-(** is_simple t holds iff t does not contain quantifications *)
+(* is_simple t holds iff t does not contain quantifications *)
 Fixpoint is_simple (t: poly_type) :=
   match t with
   | poly_var _ => True
@@ -30,7 +30,7 @@ Fixpoint is_simple (t: poly_type) :=
   | poly_abs _ => False
   end.
 
-(** COMPOUND poly_type CONSTRUCTION *)
+(* COMPOUND poly_type CONSTRUCTION *)
 (* many_poly_arr [s1 .. sn] t = s1 -> .. sn -> t *)
 Definition many_poly_arr (arguments: list poly_type) (target: poly_type) :=
   fold_right poly_arr target arguments.
@@ -115,7 +115,7 @@ Proof. by case: t. Qed.
 Lemma up_poly_type_poly_type_poly_var {x} : up_poly_type_poly_type poly_var x = poly_var x.
 Proof. by case: x. Qed.
 
-(** axiom-free conposition of substitutions/renamings; use: rewrite ?poly_type_norm *)
+(* axiom-free conposition of substitutions/renamings; use: rewrite ?poly_type_norm *)
 Definition poly_type_norm := (renComp_poly_type, compComp_poly_type, renRen_poly_type, compRen_poly_type).
 
 Fact subst_poly_type_poly_var {t} : subst_poly_type poly_var t = t.
@@ -195,11 +195,11 @@ Proof.
   - move=> ? IH > /= H. apply: IH. apply: allfv_poly_type_impl H. by case.
 Qed.
 
-(** extensionality principle on allfv_poly_type *)
+(* extensionality principle on allfv_poly_type *)
 Lemma ext_allfv_poly_type {P1 P2 t}: (forall x, P1 x <-> P2 x) -> allfv_poly_type P1 t <-> allfv_poly_type P2 t.
 Proof. move=> H. by constructor; apply: allfv_poly_type_impl; move=> ? /H. Qed.
 
-(** extensionality principle on allfv_poly_type narrowed to free variables*)
+(* extensionality principle on allfv_poly_type narrowed to free variables*)
 Lemma ext_allfv_poly_type_allfv_poly_type {P1 P2 t}: 
   allfv_poly_type (fun x => P1 x <-> P2 x) t -> allfv_poly_type P1 t <-> allfv_poly_type P2 t.
 Proof. move=> H. by constructor; apply: allfv_poly_type_allfv_poly_type_impl; apply: allfv_poly_type_impl H => ? H /H. Qed.
@@ -278,7 +278,7 @@ Proof. rewrite -[RHS]ren_poly_type_id => ?. by apply: ext_ren_poly_type_allfv_po
 Lemma ren_poly_type_closed_id {ξ t} : allfv_poly_type (fun=> False) t -> ren_poly_type ξ t = t.
 Proof. move=> H. apply: ren_poly_type_allfv_id. by apply: allfv_poly_type_impl H. Qed.
 
-(** rough upper bound on the values of free variables *)
+(* rough upper bound on the values of free variables *)
 Fixpoint poly_var_bound (t: poly_type) : nat :=
   match t with
   | poly_var x => 1 + x

@@ -5,7 +5,7 @@ From Undecidability.HOU.calculus Require Export semantics typing.
 From Undecidability.HOU Require Import calculus.order.
 
 
-(** * Terms Extension *)
+(* * Terms Extension *)
 
 Notation "sigma •₊ A" := (map (subst_exp sigma) A) (at level 69).
 Notation renL delta A := (map (ren delta) A).
@@ -26,7 +26,7 @@ Section TermsExtension.
            (sigma tau: fin -> exp X) (delta xi: fin -> fin)
            (S T: list (exp X)) (L: list type).  
 
-  (** ** Typing *)
+  (* ** Typing *)
   Reserved Notation "Gamma ⊢₊ A : L" (at level 80, A at level 99).
 
   Inductive listtyping Gamma : list (exp X) -> list type -> Prop :=
@@ -153,7 +153,7 @@ Section TermsExtension.
   End ListTypingProperties.
 
 
-  (** ** Semantics *)
+  (* ** Semantics *)
   Notation "S >₊ T" := (lstep step S T) (at level 60).
   Notation "S >₊* T" := (star (lstep step) S T) (at level 60).
   Notation "S ≡₊ T" := (equiv (lstep step) S T) (at level 60).
@@ -204,7 +204,7 @@ Section TermsExtension.
 
   End ListSemanticProperties.
 
-  (** ** Big Arrow *)
+  (* ** Big Arrow *)
   Section ArrowProperties.
     
     Fixpoint Arr (B: list type) (A: type) :=
@@ -298,7 +298,7 @@ Section TermsExtension.
   Hint Rewrite ord_Arr target_Arr target_ord : simplify.
 
 
-  (** ** List Abstraction and Application *)
+  (* ** List Abstraction and Application *)
 
   Fixpoint Lambda (n: nat) (s: exp X) :=
     match n with
@@ -360,7 +360,7 @@ Section TermsExtension.
 
 
 
-  (** ** Substitutions and Renaming *)
+  (* ** Substitutions and Renaming *)
   Section ListOperatorsSubstitutionRenaming.
     
     Lemma Lambda_ren delta n s:
@@ -409,7 +409,7 @@ Section TermsExtension.
 
 
 
-  (** ** Compatibility Properties *)
+  (* ** Compatibility Properties *)
   Section ListOperatorsCompatibilityProperties.
 
     Global Instance Lambda_step_proper k:
@@ -517,7 +517,7 @@ Section TermsExtension.
   Qed.
 
 
-  (** ** Equivalence Inversions *)
+  (* ** Equivalence Inversions *)
   Section EquivalenceInversions.
 
     Lemma equiv_Lambda_elim k s t:
@@ -565,7 +565,7 @@ Section TermsExtension.
 
 
 
-  (** ** Normality *)
+  (* ** Normality *)
   Section Normality.
 
     Lemma normal_Lambda k s:
@@ -608,7 +608,7 @@ Section TermsExtension.
        normal_Lambda normal_AppR_left normal_AppR_right : core.
 
 
-  (** ** List Operators Typing *)
+  (* ** List Operators Typing *)
   Section ListOperatorsTyping.
     
     Lemma Lambda_typing Gamma L B k s:
@@ -748,7 +748,7 @@ Section TermsExtension.
   End ListOperatorsTyping.
 
 
-  (** ** Utilities *)
+  (* ** Utilities *)
   Section Utilities.
 
     Inductive nf: exp X -> Type :=

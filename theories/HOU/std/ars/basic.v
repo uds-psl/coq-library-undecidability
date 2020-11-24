@@ -284,7 +284,7 @@ Section ClosureRelations.
 
 
   
-  (** Right-recursive version of star. *)
+  (* Right-recursive version of star. *)
   Inductive starL R x:  X -> Prop :=
   | starReflL : starL R x x
   | starStepL  y y':  starL R x y -> R y y' -> starL R x y'.

@@ -3,7 +3,7 @@ Require Import List.
 From Undecidability.HOU Require Import std.std. 
 Import ListNotations.
 
-(** * PCP and MPCP *)
+(* * PCP and MPCP *)
 Notation symbol := bool.
 Notation word   := (list symbol).
 Notation card   := (word * word)%type.

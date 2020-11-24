@@ -3,7 +3,7 @@ Require Import List Lia.
 From Undecidability.HOU Require Import std.std axioms.
 Import ListNotations.
 
-(** ** Multiplication Motivation  *)
+(* ** Multiplication Motivation  *)
 Section Motivation.
 
   Variable (n: nat).

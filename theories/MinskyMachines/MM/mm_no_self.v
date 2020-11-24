@@ -7,8 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** * Minsky machines to FRACTRAN programs *)
-(** ** Removal of self-loops in MMs *)
+(* * Minsky machines to FRACTRAN programs *)
+(* ** Removal of self-loops in MMs *)
 
 Require Import List Arith Lia.
 
@@ -109,7 +109,7 @@ End no_self_loops.
 
 Section remove_self_loops.
 
-  (** To safely remove self loops from (1,P) 
+  (* To safely remove self loops from (1,P) 
         1/ we map them to 2+lP 
         2/ we map outside jumps to 0
         3/ we append to P to 3 following instructions

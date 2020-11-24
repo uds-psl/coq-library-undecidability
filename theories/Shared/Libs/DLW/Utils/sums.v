@@ -7,9 +7,9 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** * Shared libraries *)
+(* * Shared libraries *)
 
-(** ** Finitary sums and products over monoids *)
+(* ** Finitary sums and products over monoids *)
 
 Require Import List Arith ZArith Lia.
 
@@ -327,7 +327,7 @@ Section binomial_Newton.
     + do 2 rewrite msum_S; rewrite IHn, distr_r; auto.
   Qed.
 
-  (**   Newton Binomial theorem for (X,⊕,z,⊗,o) where
+  (*   Newton Binomial theorem for (X,⊕,z,⊗,o) where
           1) (X,⊕,z) is a cancellative commutative monoid
           2) (X,⊗,o) is a monoid
           3) ⊗ distributes over ⊕ on the left and one the right 

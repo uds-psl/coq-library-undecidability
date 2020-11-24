@@ -2,9 +2,9 @@ From Undecidability.L Require Import Prelim.MoreBase Util.L_facts AbstractMachin
 Require Import Lia.
 Require Export Undecidability.L.AbstractMachines.FlatPro.ProgramsDef.
 
-(** * Abstract L machines *)
+(* * Abstract L machines *)
 
-(** *** Program size *)
+(* *** Program size *)
 
 Definition sizeT t := 
   match t with
@@ -46,7 +46,7 @@ Proof.
   induction s;cbn. all:autorewrite with list;cbn. all:nia.
 Qed.
 
-(** *** Programm Decomposition *)
+(* *** Programm Decomposition *)
 
 
 Fixpoint jumpTarget (l:nat) (res:Pro) (P:Pro) : option (Pro*Pro) :=
@@ -74,7 +74,7 @@ Proof.
   -cbn. autorewrite with list. rewrite IHs. cbn. now autorewrite with list.
 Qed.
 
-(** *** Program Substitution *)
+(* *** Program Substitution *)
 
 Fixpoint substP (P:Pro) k Q : Pro :=
   match P with
@@ -107,9 +107,9 @@ Proof.
 Qed.
 
 
-(** *** Injectivity of Programm Encoding *)
+(* *** Injectivity of Programm Encoding *)
 
-(** returning the internal state as inr allows for stronger results w.r.t. decompiling initial segments*)
+(* returning the internal state as inr allows for stronger results w.r.t. decompiling initial segments*)
 Fixpoint decompile l P A {struct P}: (list term) + (nat * Pro * list term) :=
   match P with
     retT::P => match l with
@@ -144,7 +144,7 @@ Proof.
   specialize (decompile_correct' l s [] []) as H. autorewrite with list in H. rewrite H. easy.
 Qed.
 
-(** We can not show a lemma that if decompile produces a term, the inout was a compilation as decompile itself sometimes decompiles incorrect programs if the lamTs are at wrong positions*)
+(* We can not show a lemma that if decompile produces a term, the inout was a compilation as decompile itself sometimes decompiles incorrect programs if the lamTs are at wrong positions*)
 Lemma decompile_resSize l P A B:
   decompile l P A = inl B -> sumn (map size B) <= sumn (map size A) + sumn (map sizeT P).
 Proof.

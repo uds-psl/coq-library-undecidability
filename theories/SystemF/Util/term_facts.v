@@ -31,10 +31,10 @@ Proof. by apply: idSubst_term. Qed.
 Lemma subst_term_ren_term {σ σ' ξ ξ' P} : subst_term σ σ' (ren_term ξ ξ' P) = subst_term (ξ >> σ) (ξ' >> σ') P.
 Proof. by apply: compRenSubst_term. Qed.
 
-(** weaker, axiom-free replacement for asimpl; use: rewrite ?term_norm *)
+(* weaker, axiom-free replacement for asimpl; use: rewrite ?term_norm *)
 Definition term_norm := (@subst_term_up_term_term_var, @subst_term_up_term_poly_type, @subst_term_up_poly_type_term_var, @subst_term_ren_term).
 
-(** P is in head form if P = x A1 .. An *)
+(* P is in head form if P = x A1 .. An *)
 Inductive head_form : term -> Prop :=
   | head_form_var {x} : head_form (var x)
   | head_form_app {P Q} : head_form P -> normal_form Q -> head_form (app P Q)
@@ -44,7 +44,7 @@ with normal_form : term -> Prop :=
   | normal_form_abs {s P} : normal_form P -> normal_form (abs s P)
   | normal_form_ty_abs {P} : normal_form P -> normal_form (ty_abs P).
 
-(** mutual induction on head_form, normal_form *)
+(* mutual induction on head_form, normal_form *)
 Scheme normal_form_ind' := Induction for normal_form Sort Prop
   with head_form_ind' := Induction for head_form Sort Prop.
 
@@ -68,7 +68,7 @@ Proof.
       by eauto using normal_form, head_form.
 Qed.
 
-(** type annotation erasure *)
+(* type annotation erasure *)
 Fixpoint erase (P: term) : pure_term :=
   match P with
   | var x => pure_var x
@@ -83,7 +83,7 @@ Proof.
   elim: P σ; move=> /= *; rewrite ?subst_term_up_term_term_var ?subst_term_up_poly_type_term_var; by congruence.
 Qed.
 
-(** COMPOUND term CONSTRUCTION *)
+(* COMPOUND term CONSTRUCTION *)
 (* many_app P [Q1 .. Qn] = P Q1 .. Qn *)
 Definition many_app (P: term) (Qs: list term) :=
   fold_left app Qs P.
@@ -113,7 +113,7 @@ Proof. by rewrite /many_pure_app fold_left_app. Qed.
 Definition many_pure_term_abs (n: nat) (M: pure_term) :=
   Nat.iter n pure_abs M.
 
-(** either a term or a type *)
+(* either a term or a type *)
 Inductive argument : Type :=
   | argument_term : term -> argument
   | argument_poly_type : poly_type -> argument.

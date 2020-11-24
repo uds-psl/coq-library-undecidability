@@ -22,7 +22,7 @@ Set Implicit Arguments.
 
 Local Infix "~p" := (@Permutation _) (at level 70).
 
-(** ** MM reduces to eILL *)
+(* ** MM reduces to eILL *)
 
 Section Minsky.
 
@@ -30,7 +30,7 @@ Section Minsky.
 
   Variable (n : nat).
 
-  (** register p (0<=p<n) is encoded by p
+  (* register p (0<=p<n) is encoded by p
       its dual            is encoded by n+p
 
      positions in the program (PC) are encoded from 2*n until (potential) infinity

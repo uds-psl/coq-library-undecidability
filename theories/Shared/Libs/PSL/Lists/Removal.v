@@ -1,6 +1,6 @@
 From Undecidability.Shared.Libs.PSL Require Export BaseLists Filter.
 
-(** *** Element removal *)
+(* *** Element removal *)
 
 Section Removal.
   Variable X : eqType.

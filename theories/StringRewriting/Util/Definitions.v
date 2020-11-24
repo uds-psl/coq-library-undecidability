@@ -7,7 +7,7 @@ Local Unset Strict Implicit.
 
 Import RuleNotation.
 
-(** *Some basic things concerning lists *)
+(* *Some basic things concerning lists *)
 
 Lemma cons_inj {X} (x1 x2 : X) l1 l2 :
   x1 :: l1 = x2 :: l2 -> x1 = x2 /\ l1 = l2.
@@ -62,7 +62,7 @@ Proof.
       now exists (a0 :: y), z.
 Qed.
 
-(** * Definitions *)
+(* * Definitions *)
 
 Local Definition symbol := nat.
 Local Definition string := (string nat).
@@ -76,7 +76,7 @@ Implicit Types A R P : stack.
 
 Coercion sing (n : nat) := [n].
 
-(** ** String Rewriting *)
+(* ** String Rewriting *)
 
 Lemma rewt_induct :
   forall (R : SRS) z (P : string -> Prop),
@@ -153,7 +153,7 @@ Proof.
   intros; subst; now econstructor.
 Qed.
 
-(** ** Post Grammars *)
+(* ** Post Grammars *)
 
 Fixpoint sigma (a : symbol) A :=
   match A with
@@ -161,7 +161,7 @@ Fixpoint sigma (a : symbol) A :=
   | x/y :: A => x ++ (sigma a A) ++ y
   end.
 
-(** ** Alphabets *)
+(* ** Alphabets *)
 
 Fixpoint sym (R : list card) :=
   match R with
@@ -224,7 +224,7 @@ Proof.
     + eapply app_incl_R, app_incl_R. eauto.
 Qed.
 
-(** *** Fresh symbols *)
+(* *** Fresh symbols *)
 
 Fixpoint fresh (l : list nat) :=
   match l with

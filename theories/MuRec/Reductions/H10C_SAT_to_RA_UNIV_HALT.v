@@ -22,7 +22,7 @@ Set Implicit Arguments.
 
 Local Notation "'⟦' f '⟧'" := (@ra_rel _ f) (at level 0).
 
-(** We build a universal µ-recusive algorithm of size 8708
+(* We build a universal µ-recusive algorithm of size 8708
     (a shorter one is certainly possible)
 
       ra_univ : recalg 1
@@ -56,7 +56,7 @@ Qed.
 Check H10C_SAT_RA_UNIV_HALT.
 
 
-(** We build a similar one based on Andrej Dudenhefner
+(* We build a similar one based on Andrej Dudenhefner
     type of H10 constraints, ie 1+x+y*y = z *)
 
 Definition H10UC_RA_UNIV_AD : list h10uc -> RA_UNIV_PROBLEM.

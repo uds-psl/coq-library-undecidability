@@ -1,4 +1,4 @@
-(** * Notations for [Fin.t] *)
+(* * Notations for [Fin.t] *)
 (* Author: Maximilian Wuttke *)
 
 

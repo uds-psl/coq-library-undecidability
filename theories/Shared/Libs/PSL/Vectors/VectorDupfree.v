@@ -1,4 +1,4 @@
-(** * Dupfree vector *)
+(* * Dupfree vector *)
 (* Author: Maximilian Wuttke *)
 
 From Undecidability.Shared.Libs.PSL Require Import Prelim.

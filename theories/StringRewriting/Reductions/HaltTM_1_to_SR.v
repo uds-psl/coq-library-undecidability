@@ -8,7 +8,7 @@ Require Undecidability.TM.Reductions.HaltTM_1_to_HaltSBTM Undecidability.TM.Redu
 
 From Undecidability.StringRewriting.Reductions Require  HaltSBTMu_to_SRH SRH_to_SR.
 
-(** Many-one reduction from Turing machine halting to string rewriting *)
+(* Many-one reduction from Turing machine halting to string rewriting *)
 Theorem reduction : HaltTM 1 ⪯ SR.
 Proof.
   apply (reduces_transitive HaltTM_1_to_HaltSBTM.reduction).

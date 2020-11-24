@@ -1,7 +1,7 @@
 Set Implicit Arguments.
 From Undecidability.HOU Require Import std.ars.basic.
 
-(** Strong normalisation *)
+(* Strong normalisation *)
 Section StrongNormalisation.
 
   Variables (X A: Type).

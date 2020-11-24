@@ -6,7 +6,7 @@ From Undecidability.L Require Import Functions.EqBool GenEncode.
 (*
 From Undecidability.L Require Import LNat.*)
 
-(** ** Encoding of pairs *)
+(* ** Encoding of pairs *)
 
 Section Fix_XY.
 

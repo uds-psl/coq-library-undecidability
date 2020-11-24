@@ -1,6 +1,6 @@
-(** * Basis for the full TM library *)
+(* * Basis for the full TM library *)
 
-(** This file imports all shared libraries and defines [loop], lemmas about [loop], and some auxiliay functions. *)
+(* This file imports all shared libraries and defines [loop], lemmas about [loop], and some auxiliay functions. *)
 
 Require Export Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes Undecidability.Shared.Libs.PSL.FiniteTypes.BasicFinTypes Undecidability.Shared.Libs.PSL.FiniteTypes.CompoundFinTypes Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.
 Require Export Undecidability.Shared.Libs.PSL.Vectors.FinNotation.
@@ -81,10 +81,10 @@ End Loop.
 
 Section LoopLift.
 
-  Variable A B : Type. (** Abstract state *)
-  Variable lift : A -> B. (** Lifting function between state *)
-  Variable (f : A -> A) (f' : B -> B). (** Abstract steps *)
-  Variable (h : A -> bool) (h' : B -> bool). (** Abstract halting state *)
+  Variable A B : Type. (* Abstract state *)
+  Variable lift : A -> B. (* Lifting function between state *)
+  Variable (f : A -> A) (f' : B -> B). (* Abstract steps *)
+  Variable (h : A -> bool) (h' : B -> bool). (* Abstract halting state *)
 
   Hypothesis halt_lift_comp : forall x:A, h' (lift x) = h x.
   Hypothesis step_lift_comp : forall x:A, h x = false -> f' (lift x) = lift (f x).
@@ -119,11 +119,11 @@ End LoopLift.
 
 Section LoopMerge.
 
-  Variable A : Type. (** abstract state *)
-  Variable f : A -> A. (** abstract step function *)
-  Variable (h h' : A -> bool). (** abstract halting functions *)
+  Variable A : Type. (* abstract state *)
+  Variable f : A -> A. (* abstract step function *)
+  Variable (h h' : A -> bool). (* abstract halting functions *)
 
-  (** Every non-halting state w.r.t. [h] is also a non-halting state w.r.t. [h'] *)
+  (* Every non-halting state w.r.t. [h] is also a non-halting state w.r.t. [h'] *)
   Hypothesis halt_comp : forall a, h a = false -> h' a = false.
 
   Lemma loop_merge (k1 k2 : nat) (a1 a2 a3 : A) :
@@ -162,7 +162,7 @@ Section LoopMerge.
 End LoopMerge.
 
 
-(** Apply functions in tuples, options, etc. *)
+(* Apply functions in tuples, options, etc. *)
 Section Map.
   Variable X Y Z : Type.
 
@@ -194,7 +194,7 @@ End Map.
 
 
 
-(** Function composition *)
+(* Function composition *)
 
 (* Function composition in the standard mathematical way *)
 Definition funcomp {X Y Z : Type} (g : Y -> Z) (f : X -> Y) : X -> Z := fun x => g (f x).
@@ -211,7 +211,7 @@ Notation "g >> f" := (funcomp f g) (at level 40).
 
 
 
-(** We often use the vernacular commands
+(* We often use the vernacular commands
 <<
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
@@ -232,7 +232,7 @@ Fixpoint FinR {m} n (p : Fin.t m) : Fin.t (plus' n m) :=
 
 
 
-(** Folding for options *)
+(* Folding for options *)
 Definition fold_opt (X Y : Type) : (X -> Y) -> Y -> option X -> Y :=
   fun f def o => match o with
               | Some o' => f o'

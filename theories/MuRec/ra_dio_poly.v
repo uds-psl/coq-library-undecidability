@@ -168,7 +168,7 @@ Section dio_poly.
       exists e; auto.
   Qed.
 
-  (** ra_dio_poly_find terminates on w iff some solution of p(w,x1,...,xn) = q(w,x1,...,xn) exists 
+  (* ra_dio_poly_find terminates on w iff some solution of p(w,x1,...,xn) = q(w,x1,...,xn) exists 
 
       so termination of ra_dio_poly_find terminates on w simulates the existence of a solution
       to a given diophantine equation *)

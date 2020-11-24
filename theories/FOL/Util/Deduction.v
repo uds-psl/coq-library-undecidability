@@ -1,4 +1,4 @@
-(** * Natural Deduction *)
+(* * Natural Deduction *)
 
 From Undecidability Require Import FOL.Util.Tarski FOL.Util.Syntax.
 From Undecidability Require Import Shared.ListAutomation.
@@ -23,7 +23,7 @@ Section ND_def.
 
   Reserved Notation "A ⊢ phi" (at level 61).
   
-  (** ** Definition *)
+  (* ** Definition *)
 
   Implicit Type p : peirce.
   Implicit Type ff : falsity_flag.

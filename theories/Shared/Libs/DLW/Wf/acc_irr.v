@@ -20,7 +20,7 @@ Section Acc_irrelevance.
     | in_Acc_eq : forall x A1 A2, (forall y H, @Acc_eq y (A1 y H) (A2 y H)) 
                                -> @Acc_eq x (Acc_intro _ A1) (Acc_intro _ A2). 
 
-  (** All accessibility proofs are equivalent !!
+  (* All accessibility proofs are equivalent !!
       But equality between those proofs cannot be proved w/o FunExt 
       Notice that we use a dependent induction principle here *)
 
@@ -31,7 +31,7 @@ Section Acc_irrelevance.
     intros []; constructor; intros; apply IH.
   Qed.
 
-  (** This provides a way to show that a dependent function 
+  (* This provides a way to show that a dependent function 
                forall x, Acc R x -> P x 
       is Acc irrelevant *)
 

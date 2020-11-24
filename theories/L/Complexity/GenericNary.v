@@ -1,4 +1,4 @@
-(** Taken from coq-bigO / Armaël Guéneau *)
+(* Taken from coq-bigO / Armaël Guéneau *)
 Require Import Coq.Lists.List.
 Import List.ListNotations.
 From smpl Require Import Smpl.

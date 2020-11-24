@@ -5,7 +5,7 @@ Import ListNotations.
 From Undecidability.HOU.second_order Require Import diophantine_equations dowek.encoding.
 
 
-(** ** Equivalences *)
+(* ** Equivalences *)
 Section EquationEquivalences.
 
   Variable (X: Const) (sigma: fin -> exp X).
@@ -108,7 +108,7 @@ End  EquationEquivalences.
 
 
 
-(** ** Forward Direction **)
+(* ** Forward Direction **)
 Section Forward.
   Variable (X: Const) (E: list deq).
 
@@ -144,7 +144,7 @@ Section Forward.
 End Forward.
 
 
-(** ** Backward Direction **)
+(* ** Backward Direction **)
 Section Backward.
   Variable (X: Const).
   Implicit Types (sigma: nat -> exp X) (x y z c n: nat).

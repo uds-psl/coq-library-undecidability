@@ -1,6 +1,6 @@
 From Undecidability.Shared.Libs.PSL Require Import FinTypes.
 
-(** * Completeness Lemmas for lists of basic types *)
+(* * Completeness Lemmas for lists of basic types *)
 
 Lemma bool_enum_ok x:
   count  [true; false] x = 1.
@@ -32,7 +32,7 @@ Proof.
   tauto.
 Qed.
 
-(** ** Declaration of finTypeCs for base types as instances of the type class *)
+(* ** Declaration of finTypeCs for base types as instances of the type class *)
 
 Instance finTypeC_Empty_set: finTypeC (EqType Empty_set).
 Proof.

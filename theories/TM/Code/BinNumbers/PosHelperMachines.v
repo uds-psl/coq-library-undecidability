@@ -1,4 +1,4 @@
-(** ** Helper Machines for positive numbers *)
+(* ** Helper Machines for positive numbers *)
 
 From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import EncodeBinNumbers PosDefinitions PosPointers.
@@ -6,7 +6,7 @@ From Undecidability Require Import TM.Basic.Duo.
 
 Local Open Scope positive_scope.
 
-(** ** Read the current symbol *)
+(* ** Read the current symbol *)
 
 Definition ReadPosSym : pTM sigPos^+ (option bool) 1 :=
   CaseChar (fun (s : option sigPos^+) =>
@@ -40,7 +40,7 @@ Proof.
 Qed.
 
 
-(** ** Read the two current symbols *)
+(* ** Read the two current symbols *)
 
 Definition ReadPosSym2 : pTM sigPos^+ (option bool * option bool) 2 :=
   CaseChar2 (fun (s1 s2 : option sigPos^+) =>
@@ -105,7 +105,7 @@ Qed.
 
 
 
-(** *** Go from some bit to the HSB *)
+(* *** Go from some bit to the HSB *)
 
 Definition isxH (s : sigPos) := match s with sigPos_xH => true | _ => false end.
 Definition isxH' (s : sigPos^+) := match s with inr s => isxH s | _ => false end.
@@ -161,7 +161,7 @@ Proof.
 Qed.
 
 
-(** *** Go to the LSB (if it exists) *)
+(* *** Go to the LSB (if it exists) *)
 
 Definition GoToLSB_Rel : pRel sigPos^+ unit 1 :=
   fun tin '(_, tout) =>
@@ -241,7 +241,7 @@ Qed.
 
 
 
-(** *** Setting bits and moving *)
+(* *** Setting bits and moving *)
 
 (* A tape after overwriting the current bit (not HSB) with [b] and moving to right. The moved tape is at the HSB iff [p=1]. *)
 Definition movedToLeft (t : tape sigPos^+) (p : positive) (b : bool) (bits : list bool) :=
@@ -284,7 +284,7 @@ Proof.
 Qed.
 
 
-(** *** Overwrite the HSB *)
+(* *** Overwrite the HSB *)
 
 
 Definition PushHSB_Rel (b : bool) : pRel sigPos^+ unit 1 :=

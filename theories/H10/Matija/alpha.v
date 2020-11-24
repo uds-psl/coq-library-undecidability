@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Solutions of Pell's equation *)
+(* ** Solutions of Pell's equation *)
 
 Require Import Arith Lia ZArith.
 
@@ -1083,7 +1083,7 @@ Section divisibility_2.
 
 End divisibility_2.
 
-(** Second divisibility property *)
+(* Second divisibility property *)
 
 Theorem alpha_nat_divisibility_2 b k m : 
     2 <= b -> alpha_nat b k * alpha_nat b k │ alpha_nat b m <-> k*alpha_nat b k │ m.
@@ -1145,7 +1145,7 @@ Qed.
 
 Section congruence_2.
 
-  (** This section might notbe needed anymore *)
+  (* This section might notbe needed anymore *)
 
   Variable (b : nat) (Hb : b - 2 <> 0).
 

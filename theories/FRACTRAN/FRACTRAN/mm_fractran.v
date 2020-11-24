@@ -9,7 +9,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Compiler from MM to FRACTRAN *)
+(* ** Compiler from MM to FRACTRAN *)
 
 Require Import List Arith Lia Permutation.
 
@@ -232,7 +232,7 @@ Proof.
   - destruct st2. eapply one_step_forward in H1; eauto.
 Qed.
 
-(** The divisibility results are no so complicated when
+(* The divisibility results are no so complicated when
     we do not need to show that encode_state is injective ... *)
 
 Local Fact divides_from_eq x y t : x*y = t -> divides x t.

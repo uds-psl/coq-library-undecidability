@@ -262,7 +262,7 @@ Section relational_semantics.
 
     Definition s_comp f gj : natfun i := fun v x => exists gl, f gl x /\ forall p, vec_pos gj p v (vec_pos gl p).
       
-    (** the recursor s_rec_r f h n v x 
+    (* the recursor s_rec_r f h n v x 
                  <-> exists x0,...,xn,  f      v  x0,
                                         h (0##x0##v) x1,
                                         h (1##x1##v) x2,
@@ -282,7 +282,7 @@ Section relational_semantics.
 
   End defs.
   
-  (** we define the semantics of a recursive algorithm of arity k 
+  (* we define the semantics of a recursive algorithm of arity k 
       which is a relation vec nat k -> nat -> Prop, obviously functional (see below)
       We interpret the constants ra_* with the corresponding s_* operator on relations
    **) 

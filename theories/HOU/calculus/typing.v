@@ -2,7 +2,7 @@ Set Implicit Arguments.
 Require Import List Omega Lia.
 From Undecidability.HOU.calculus Require Export syntax semantics equivalence.
 
-(** * Simple Typing *)
+(* * Simple Typing *)
 
 Section Typing.
   
@@ -44,7 +44,7 @@ Section Typing.
     intros ??[|]; cbn; eauto; now intros ? [= ->].
   Qed.
 
-  (** ** Preservation *)
+  (* ** Preservation *)
   Section Preservation.
     Lemma preservation_under_renaming delta Gamma Delta s A:
       Gamma ⊢ s : A -> Delta ⊫ delta : Gamma -> Delta ⊢ ren_exp delta s : A.

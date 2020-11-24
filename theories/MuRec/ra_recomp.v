@@ -26,7 +26,7 @@ Opaque ra_plus ra_pred ra_minus ra_mult ra_exp ra_div ra_rem.
 Opaque ra_ite ra_eq.
 Opaque ra_div2 ra_mod2 ra_pow2 ra_notdiv_pow2.
 
-(** We build a primitive recursive bijection nat <-> nat*nat
+(* We build a primitive recursive bijection nat <-> nat*nat
     by implementing decomp_[lr] & recomp 
 
     see recomp.v *)

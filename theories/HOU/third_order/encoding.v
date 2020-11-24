@@ -5,7 +5,7 @@ From Undecidability.HOU Require Import std.std calculus.calculus third_order.pcp
 Import ListNotations.
 
 
-(** * Third-Order Encoding *)
+(* * Third-Order Encoding *)
 Section Encoding.
 
   Context {X: Const}.
@@ -13,19 +13,19 @@ Section Encoding.
   Hypothesis (u_neq_v: u <> v).
   
   
-  (** Encoding of symbols *)
+  (* Encoding of symbols *)
   Definition encb (b: symbol) : exp X :=
     var (if b then u else v).
 
-  (** Encoding of words *)
+  (* Encoding of words *)
   Definition enc (w: word) : exp X :=
     lambda (AppL (renL shift (map encb w)) (var 0)).
 
-  (** Encoding of words *)
+  (* Encoding of words *)
   Notation Enc := (map enc).
 
 
-  (** ** Encoding Typing *)
+  (* ** Encoding Typing *)
   Section Typing.
     
     Lemma encb_typing (Gamma: ctx) b:
@@ -63,10 +63,10 @@ Section Encoding.
 
 
 
-  (** ** Encoding Properities *)
+  (* ** Encoding Properities *)
   
 
-  (** *** Reduction *)
+  (* *** Reduction *)
   Section Reduction.
     
     Lemma enc_nil s: enc [] s ≡ s.
@@ -106,7 +106,7 @@ Section Encoding.
   
 
 
-  (** *** Substitution *)
+  (* *** Substitution *)
   Section Substitution.
 
     Lemma encb_subst_id a (sigma: fin -> exp X):
@@ -134,7 +134,7 @@ Section Encoding.
     
   End Substitution.
 
-  (** *** Injectivity *)
+  (* *** Injectivity *)
   
   Definition nostring (t: exp X) :=
     forall s, ~ t ≡ var u s /\  ~ t ≡ var v s.

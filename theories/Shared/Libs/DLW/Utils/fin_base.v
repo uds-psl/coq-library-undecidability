@@ -17,7 +17,7 @@ From Undecidability.Shared.Libs.DLW.Vec
 
 Set Implicit Arguments.
 
-(** * Definitions of finiteness, weak and strong *)
+(* * Definitions of finiteness, weak and strong *)
 
 Section finite.
 

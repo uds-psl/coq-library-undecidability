@@ -17,11 +17,11 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Kleene's greatest fixpoint of lia-continous operators *)
+(* * Kleene's greatest fixpoint of lia-continous operators *)
 
 Section gfp.
 
-  (** We develop the theory of Kleene's greatest fixpoint for binary relations
+  (* We develop the theory of Kleene's greatest fixpoint for binary relations
       and establish the fact that the gfp is an equivalence (under suitable hyps),
       reached after lia many steps (under lia continuity) and
       reached after finitely many steps (under finiteness of the domain and
@@ -136,7 +136,7 @@ Section gfp.
     revert H; apply HF0; auto.
   Qed.
 
-  (** This is ω-continuity *)
+  (* This is ω-continuity *)
 
   Definition gfp_continuous := forall (s : nat -> M -> M -> Prop), 
                         (forall n m, n <= m -> s m ⊆ s n) 
@@ -154,7 +154,7 @@ Section gfp.
   Fact gfp_fix x y : F gfp x y <-> gfp x y.
   Proof. split; auto. Qed.
 
-  (** This is for decidability *)
+  (* This is for decidability *)
 
   Let dec R := forall x y, { R x y } + { ~ R x y }.
 
@@ -167,10 +167,10 @@ Section gfp.
     + rewrite iS; apply HF5; auto.
   Qed.
 
-  (** For the decidability of gfp, we need the finiteness
+  (* For the decidability of gfp, we need the finiteness
       so that gfp = i n for a sufficiently large n *)
 
-  (** A good pair for i (ie n < m and i n ⊆ i m) means gfp is reached  at n *)
+  (* A good pair for i (ie n < m and i n ⊆ i m) means gfp is reached  at n *)
 
   Let i_dup n m : n < m -> i n ⊆ i m -> forall k, n <= k -> forall x y, gfp x y <-> i k x y.
   Proof.
@@ -190,7 +190,7 @@ Section gfp.
       revert H; apply i_decr; auto.
   Qed.
 
-  (** If there is a good pair below b, then gfp = i b *)
+  (* If there is a good pair below b, then gfp = i b *)
 
   Let gfp_reached b : (exists n m, n < m <= b /\ i n ⊆ i m) -> (forall x y, gfp x y <-> i b x y).
   Proof.
@@ -200,7 +200,7 @@ Section gfp.
 
   Variable HF6 : finite_t M.     (* Finiteness of the domain *)
 
-  (** When M is finite, there is a list [T1;...;Tk] of relations of
+  (* When M is finite, there is a list [T1;...;Tk] of relations of
       type M -> M -> Prop which contains every weakly decidable relations 
       upto equivalence. 
 
@@ -238,7 +238,7 @@ Section gfp.
       apply list_an_duplicate_inv in H7; lia.
   Qed.
 
-  (** As a consequence of been reached after a finite number of steps, 
+  (* As a consequence of been reached after a finite number of steps, 
       gfp is one of the i n (for some computable n) and thus decidable *)
 
   Theorem gfp_decidable : dec gfp.

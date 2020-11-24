@@ -1,4 +1,4 @@
-(** * Machines for shifting [positive] binary numbers *)
+(* * Machines for shifting [positive] binary numbers *)
 
 From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import EncodeBinNumbers.
@@ -10,7 +10,7 @@ Local Open Scope positive_scope.
 From Undecidability Require Import Compound.Shift.
 
 
-(** *** Machine for Shifting Left *)
+(* *** Machine for Shifting Left *)
 
 Definition ShiftLeft_Rel (bit : bool) : pRel sigPos^+ unit 1 :=
   fun tin '(yout, tout) =>
@@ -55,7 +55,7 @@ Proof.
 Qed.
 
 
-(** *** Machine for shifting a number [y] [pos_size x]-times left. *)
+(* *** Machine for shifting a number [y] [pos_size x]-times left. *)
 
 Definition ShiftLeft_num_Step_Rel : pRel sigPos^+ (option unit) 2 :=
   fun tin '(yout, tout) =>
@@ -164,7 +164,7 @@ Qed.
 
 
 
-(** *** Check whether the number is one *)
+(* *** Check whether the number is one *)
 
 Definition IsOne : pTM sigPos^+ bool 1 :=
   Move Rmove;; Move Rmove;;
@@ -242,7 +242,7 @@ Qed.
 
 
 
-(** *** Machine for Shifting Left *)
+(* *** Machine for Shifting Left *)
 
 (* We have to make a case-distinction whether [p=1] *)
 Definition ShiftRight'_Rel : pRel sigPos^+ unit 1 :=
@@ -318,7 +318,7 @@ Qed.
 
 
 
-(** *** Machine for shifting a number [y] [pos_size x] times left. *)
+(* *** Machine for shifting a number [y] [pos_size x] times left. *)
 
 Definition ShiftRight_num_Step_Rel : pRel sigPos^+ (option unit) 2 :=
   fun tin '(yout, tout) =>

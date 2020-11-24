@@ -1,6 +1,6 @@
 From Undecidability.L Require Export Util.L_facts.
 
-(** **** Closure calculus *)
+(* **** Closure calculus *)
 
 Inductive Comp : Type :=
 | CompVar (x:nat)
@@ -392,7 +392,7 @@ Proof.
 Qed.
 
 
-(** ** Properties of the extended reduction relation *)
+(* ** Properties of the extended reduction relation *)
 
 Instance reduceC_PreOrder : PreOrder reduceC.
 Proof.
@@ -431,7 +431,7 @@ Proof.
 Qed.
 
 
-(** ** Properties of the equivalence relation *)
+(* ** Properties of the equivalence relation *)
 
 Instance equivC_Equivalence : Equivalence equivC.
 Proof.

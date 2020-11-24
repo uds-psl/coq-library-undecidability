@@ -13,7 +13,7 @@ match goal with
 |[ H: ?x el nil |- _ ] => destruct H
 end : core.
 
-(** ** Lists *)
+(* ** Lists *)
 
 (* Register additional simplification rules with autorewrite / simpl_list *)
 (* Print Rewrite HintDb list. *)
@@ -28,7 +28,7 @@ Proof.
   apply C. now rewrite B.
 Qed.
 
-(** *** Decisions for lists *)
+(* *** Decisions for lists *)
 
 Instance list_in_dec X (x : X) (A : list X) :  
   eq_dec X -> dec (x el A).
@@ -97,7 +97,7 @@ Qed.
 
 
 
-(** *** Membership
+(* *** Membership
 
 We use the following lemmas from Coq's standard library List.
 - [in_eq :  x el x::A]
@@ -132,7 +132,7 @@ Section Membership.
     intuition; subst; auto.
   Qed.
 
-(** *** Disjointness *)
+(* *** Disjointness *)
 
   Definition disjoint A B :=
     ~ exists x, x el A /\ x el B.
@@ -196,7 +196,7 @@ End Membership.
 
 Hint Resolve disjoint_nil disjoint_nil' : core.
 
-(** *** Inclusion
+(* *** Inclusion
 
 We use the following lemmas from Coq's standard library List.
 - [incl_refl :  A <<= A]
@@ -282,7 +282,7 @@ End Inclusion.
 Definition inclp (X : Type) (A : list X) (p : X -> Prop) : Prop :=
   forall x, x el A -> p x.
 
-(** *** Setoid rewriting with list inclusion and list equivalence *)
+(* *** Setoid rewriting with list inclusion and list equivalence *)
 
 Instance incl_preorder X : 
   PreOrder (@incl X).
@@ -399,7 +399,7 @@ Lemma app_comm_cons' (A : Type) (x y : list A) (a : A) :
 Proof. rewrite <- app_assoc. cbn. trivial. Qed.
 
 
-(** skipn *)
+(* skipn *)
 
 Lemma skipn_nil (X : Type) (n : nat) : skipn n nil = @nil X.
 Proof. destruct n; cbn; auto. Qed.
@@ -421,7 +421,7 @@ Qed.
 
 
 
-(** Repeat *)
+(* Repeat *)
 
 Lemma map_repeat (X Y : Type) (f : X -> Y) (n : nat) (a : X) :
   map f (repeat a n) = repeat (f a) n.
@@ -488,7 +488,7 @@ Proof.
 Qed.
 
 
-(** Facts about equality for [map] and [rev] *)
+(* Facts about equality for [map] and [rev] *)
 Lemma rev_eq_nil (Z: Type) (l: list Z) :
   rev l = nil -> l = nil.
 Proof. intros. destruct l; cbn in *. reflexivity. symmetry in H. now apply app_cons_not_nil in H. Qed.
@@ -537,7 +537,7 @@ Proof. intros H. rewrite <- rev_involutive at 1. rewrite H. cbn. reflexivity. Qe
 
 
 
-(** Injectivity of [map], if the function is injective *)
+(* Injectivity of [map], if the function is injective *)
 Lemma map_injective (X Y: Type) (f: X -> Y) :
   (forall x y, f x = f y -> x = y) ->
   forall xs ys, map f xs = map f ys -> xs = ys.

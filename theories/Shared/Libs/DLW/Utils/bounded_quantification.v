@@ -7,13 +7,13 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Reification for bounded quantification *)
+(* ** Reification for bounded quantification *)
 
 Require Import Arith Lia.
 
 Set Implicit Arguments.
 
-(** A nat indexed finite number of conjunctions *) 
+(* A nat indexed finite number of conjunctions *) 
 
 Definition fmap_reifier_t X (Q : nat -> X -> Prop) k : 
              (forall i, i < k -> sig (Q i))
@@ -50,7 +50,7 @@ Proof.
   exfalso; revert Hi H1; apply lt_not_le.
 Defined.
 
-(** Given predicate P : nat -> nat -> Prop such that
+(* Given predicate P : nat -> nat -> Prop such that
       1/ P x is satisfiable for any x < n
     
     then there is a bound m such that for any x < n
@@ -100,7 +100,7 @@ Qed.
 
 Local Notation equal_upto := (fun m (f g : nat -> nat) => forall n, n < m -> f n = g n).
 
-(** Given a predicate P over nat * (nat -> nat), which is supposed to be finitary 
+(* Given a predicate P over nat * (nat -> nat), which is supposed to be finitary 
 
   1/ for any x, P x only takes the first p values of its argument into acounts 
   2/ P x is satisfiable for any value of x lower than n

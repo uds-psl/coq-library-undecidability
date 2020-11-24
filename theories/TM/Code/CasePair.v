@@ -1,4 +1,4 @@
-(** * Constructors and Deconstructors for Pair Types *)
+(* * Constructors and Deconstructors for Pair Types *)
 
 From Undecidability Require Import ProgrammingTools.
 
@@ -16,7 +16,7 @@ Local Arguments skipn { A } !n !l.
 
 Section CasePair.
 
-  (** ** Deconstructor *)
+  (* ** Deconstructor *)
 
   Variable (sigX sigY: finType) (X Y: Type) (cX: codable sigX X) (cY: codable sigY Y).
 
@@ -155,7 +155,7 @@ Section CasePair.
         
       
 
-  (** ** Constructor *)
+  (* ** Constructor *)
 
   Definition Constr_pair_size {sigX X : Type} {cX : codable sigX X} (x : X) (s1 : nat) := s1 - size x.
   
@@ -225,7 +225,7 @@ Section CasePair.
   Qed.
 
 
-  (** [Snd] simply discard the first element *)
+  (* [Snd] simply discard the first element *)
 
   Definition Snd_size {sigX X : Type} {cX : codable sigX X} (x : X) (s : nat) := s + size x.
 
@@ -291,7 +291,7 @@ Section CasePair.
 
 End CasePair.
 
-(** ** Compatibility of running time and size functions with mapping of encodings *)
+(* ** Compatibility of running time and size functions with mapping of encodings *)
 
 Arguments Constr_pair_size {sigX X cX} : simpl never.
 Arguments CasePair_size0   {sigX X cX} : simpl never.
@@ -302,7 +302,7 @@ Arguments CasePair_steps    {sigX X cX} : simpl never.
 Arguments CasePair_steps    {sigX X cX} : simpl never.
 
 
-(** ** Tactic Support *)
+(* ** Tactic Support *)
 
 Ltac smpl_TM_CasePair :=
   once lazymatch goal with

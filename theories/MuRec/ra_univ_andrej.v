@@ -45,7 +45,7 @@ Definition nat_h10luc k :=
    let b := decomp_r (decomp_l k) 
    in  map (fun p => idx_h10uc a b (pos2nat p)) (pos_list n).
 
-(** nat_h10luc is surjective 
+(* nat_h10luc is surjective 
 
     needed to map an H10UC instance to a instance of the universal solver 
 

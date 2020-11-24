@@ -18,7 +18,7 @@ From Undecidability.CounterMachines
 From Undecidability.MinskyMachines
   Require Import MM2 MM2_undec.
 
-(** Undecidability of The Two Counter Machine Halting Problem *)
+(* Undecidability of The Two Counter Machine Halting Problem *)
 Lemma CM2_HALT_undec : undecidable CM2_HALT.
 Proof.
   apply (undecidability_from_reducibility MM2_HALTING_undec).

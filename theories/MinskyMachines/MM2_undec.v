@@ -12,6 +12,8 @@ Require Import Undecidability.Synthetic.Undecidability.
 From Undecidability.MinskyMachines 
   Require Import MMA MM2 MMA2_undec MMA2_to_MM2.
 
+(** ** MM2_HALTING is undecidable *)
+
 Lemma MM2_HALTING_undec : undecidable MM2_HALTING.
 Proof.
   apply (undecidability_from_reducibility MMA2_HALTING_undec).

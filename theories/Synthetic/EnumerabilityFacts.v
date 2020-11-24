@@ -58,7 +58,7 @@ Proof.
   - intros [c Hc]. exists c. intros x. split; eauto.
 Qed.
 
-(** Type enumerability facts  *)
+(* Type enumerability facts  *)
 
 Definition nat_enum (n : nat) := Some n.
 Lemma enumerator__T_nat :

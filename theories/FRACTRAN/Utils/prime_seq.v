@@ -9,7 +9,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Two infinite sequences of primes *)
+(* ** Two infinite sequences of primes *)
 
 Require Import List Arith Lia Bool Permutation.
 
@@ -181,7 +181,7 @@ Proof.
   intros -> ?; simpl; auto.
 Qed.
 
-(** Certified Erastosthene sieve would be helpfull here *)
+(* Certified Erastosthene sieve would be helpfull here *)
 
 Fact nthprime_0 : nthprime 0 = 2.
 Proof. auto. Qed.

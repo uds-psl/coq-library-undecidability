@@ -1,5 +1,5 @@
-(** ** Abstract Reduction Systems *)
-(** from Semantics Lecture at Programming Systems Lab, https://www.ps.uni-saarland.de/courses/sem-ws13/ *)
+(* ** Abstract Reduction Systems *)
+(* from Semantics Lecture at Programming Systems Lab, https://www.ps.uni-saarland.de/courses/sem-ws13/ *)
 
 Require Export Undecidability.Shared.Libs.PSL.Base Lia.
 
@@ -12,13 +12,13 @@ End ARSNotations.
 
 Import ARSNotations.
 
-(** Relational composition *)
+(* Relational composition *)
 
 Definition rcomp X Y Z (R : X -> Y -> Prop) (S : Y -> Z -> Prop) 
 : X -> Z -> Prop :=
   fun x z => exists y, R x y /\ S y z.
 
-(** Power predicates *)
+(* Power predicates *)
 
 Require Import Arith.
 Definition pow X R n : X -> X -> Prop := it (rcomp R) n eq.
@@ -37,7 +37,7 @@ Section FixX.
 
 
 
-  (** Reflexive transitive closure *)
+  (* Reflexive transitive closure *)
 
   Inductive star R : X -> X -> Prop :=
   | starR x : star R x x
@@ -71,7 +71,7 @@ Section FixX.
     constructor;repeat intro;try eapply star_trans;  now eauto using star.
   Qed.
   
-  (** Power characterization *)
+  (* Power characterization *)
 
   Lemma star_pow R x y :
     star R x y <-> exists n, pow R n x y.
@@ -92,7 +92,7 @@ Section FixX.
     intros A. erewrite star_pow. eauto.
   Qed.
 
-  (** Equivalence closure *)
+  (* Equivalence closure *)
 
   Inductive ecl R : X -> X -> Prop :=
   | eclR x : ecl R x x
@@ -117,7 +117,7 @@ Section FixX.
     induction 1; eauto using ecl.
   Qed.
 
-  (** Diamond, confluence, Church-Rosser *)
+  (* Diamond, confluence, Church-Rosser *)
 
   Definition joinable R x y :=
     exists z, R x z /\ R y z.
@@ -195,7 +195,7 @@ Section FixX.
   (* End Semantics Library *)
 
   
-  (** Uniform confluence and parametrized confluence *)
+  (* Uniform confluence and parametrized confluence *)
 
   Definition uniform_confluent (R : X -> X -> Prop ) := forall s t1 t2, R s t1 -> R s t2 -> t1 = t2 \/ exists u, R t1 u /\ R t2 u.
 
@@ -331,10 +331,10 @@ Section FixX.
   Qed.  
 
 
-  (** classical *)
+  (* classical *)
   Definition classical R x := terminal R x \/ exists y, R x y.
 
-  (** Strong normalisation *)
+  (* Strong normalisation *)
   
   Inductive SN R : X -> Prop :=
   | SNC x : (forall y, R x y -> SN R y) -> SN R x.
@@ -351,7 +351,7 @@ End FixX.
 
 Existing Instance star_PO.
 
-(** A notion of a reduction sequence which keeps track of the largest occuring state *)
+(* A notion of a reduction sequence which keeps track of the largest occuring state *)
 
 Inductive redWithMaxSize {X} (size:X -> nat) (step : X -> X -> Prop): nat -> X -> X -> Prop:=
   redWithMaxSizeR m s: m = size s -> redWithMaxSize size step m s s 

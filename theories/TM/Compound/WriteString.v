@@ -3,12 +3,12 @@ Require Import List.
 From Undecidability Require Import TMTac.
 From Coq Require Import List.
 
-(** Useful for running time stuff *)
+(* Useful for running time stuff *)
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 
 
-(** The correctness and definition of [WriteString] is non-standard, because it is defined (and verified) by recursion (or induction). *)
+(* The correctness and definition of [WriteString] is non-standard, because it is defined (and verified) by recursion (or induction). *)
 Section Write_String.
 
   Variable sig : finType.

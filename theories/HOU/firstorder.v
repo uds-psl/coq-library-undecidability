@@ -8,9 +8,9 @@ Import ListNotations.
 Tactic Notation "simplify" := Undecidability.HOU.std.tactics.simplify.  
 
 
-(** * First-Order Unification *)
+(* * First-Order Unification *)
 
-(** ** Singlepoint Substitution *)
+(* ** Singlepoint Substitution *)
 Section Update.
 
   Context {X: Const}.
@@ -71,7 +71,7 @@ Section Update.
 End Update.
 
 
-(** ** Lambda-Freeness *)
+(* ** Lambda-Freeness *)
 Section LambdaFreeness.
 
   Context {X: Const}.
@@ -163,7 +163,7 @@ Section LambdaFreeness.
 
 End LambdaFreeness.
 
-(** ** Simplified First-Order Unification *)
+(* ** Simplified First-Order Unification *)
 Hint Constructors lambda_free : core. 
 Section Unification.
 
@@ -178,7 +178,7 @@ Section Unification.
     (forall x, bound x -> sigma x = var x) /\
     (forall x, free x -> forall y, y ∈ vars (sigma x) -> free y).
 
-  (** *** Term Decompositon *)
+  (* *** Term Decompositon *)
   Section Decomposition.
     
     Fixpoint decomp s t: option (eqs X) :=
@@ -394,7 +394,7 @@ Section Unification.
 
 
 
-  (** *** Unification Relation *)
+  (* *** Unification Relation *)
   Reserved Notation "E ↦ sigma" (at level 80).
 
   Inductive unify E: (fin -> exp X) -> Prop :=
@@ -407,7 +407,7 @@ Section Unification.
       E ↦ update x (sigma • s) sigma
   where "E ↦ sigma" := (unify E sigma).
 
-  (** *** Computability *)
+  (* *** Computability *)
   Section Computability.
 
     Definition subvars := MR strict_incl (@Vars' X).
@@ -575,7 +575,7 @@ Section Unification.
 
 
 
-  (** *** Soundness *)
+  (* *** Soundness *)
   Section Soundness.
     Lemma unify_lambda_free E sigma:
       E ↦ sigma -> all_terms (@lambda_free X) E -> forall x, lambda_free (sigma x).
@@ -648,7 +648,7 @@ Section Unification.
     
   End Soundness.
 
-  (** *** Completeness *)
+  (* *** Completeness *)
   Section Completeness.
 
     Lemma decomp_none_not_unifiable sigma s t:
@@ -813,7 +813,7 @@ End Unification.
 
 
 
-(** ** Retyping *)
+(* ** Retyping *)
 Section Retyping.
 
   Variable (X: Const).
@@ -917,7 +917,7 @@ Section Retyping.
 End Retyping.
 
 
-(** ** Full First-Order Unification  *)
+(* ** Full First-Order Unification  *)
 Section FirstOrderDecidable.
 
   Variable (X: Const).

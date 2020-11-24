@@ -1,4 +1,4 @@
-(** * Semantics of the Heap Machine *)
+(* * Semantics of the Heap Machine *)
 
 Require Import Undecidability.Shared.Libs.PSL.Base.
 Require Import FunInd.
@@ -77,7 +77,7 @@ Section Semantics.
       step ((a, (varT n :: P)) :: T, V, H) (tailRecursion (a, P) T, g :: V, H)
   .
 
-  (** ** Auxilliary Definitions *)
+  (* ** Auxilliary Definitions *)
 
   Definition halt_state (s : state) : Prop :=
     forall s', ~ step s s'.
@@ -101,7 +101,7 @@ Section Semantics.
   Definition halts_k (s : state) (k : nat) : Prop :=
     exists s', steps_k k s s' /\ halt_state s'.
 
-  (** *** Functional Characterisation *)
+  (* *** Functional Characterisation *)
 
   Definition step_fun : state -> option state :=
     fun '(T, V, H) =>

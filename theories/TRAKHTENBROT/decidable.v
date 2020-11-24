@@ -23,7 +23,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Decidability and discreteness and closure properties *)
+(* * Decidability and discreteness and closure properties *)
 
 Definition decidable (P : Prop) := { P } + { ~ P }.
 
@@ -73,7 +73,7 @@ Hint Resolve discrete_unit discrete_sum discrete_prod
 
 Section decidable_fun_pos_bool.
 
-  (** Decidability of quantification over extensional and
+  (* Decidability of quantification over extensional and
       decidable predicates of type (pos n -> bool) -> Prop *)
 
   Variable (n : nat) (K : (pos n -> bool) -> Prop)
@@ -121,7 +121,7 @@ End decidable_fun_pos_bool.
 
 Section decidable_fun_finite_bool.
 
-  (** Decidability of quantification over extensional and decidable
+  (* Decidability of quantification over extensional and decidable
       predicates of type (X -> bool) -> Prop when 
       X is a finite and discrete type *)
 
@@ -182,7 +182,7 @@ End decidable_fun_finite_bool.
 
 Section decidable_upto.
 
-  (** decidability of existential quantification 
+  (* decidability of existential quantification 
       for P : X -> Prop when X is finite upto some
       binary relation R which is a morphism for P *)
 
@@ -225,7 +225,7 @@ Definition prop_ext X (f g : X -> Prop) := forall x, f x <-> g x.
 
 Section fun_pos_finite_t_upto.
 
-  (** If X is finite then pos n -> X is finite upto
+  (* If X is finite then pos n -> X is finite upto
       extensional equality *)
 
   Variable (X : Type) (HX : finite_t X).
@@ -246,7 +246,7 @@ End fun_pos_finite_t_upto.
 
 Section fun_finite_t_upto.
 
-  (** If X is finite and discrete and Y is finite that 
+  (* If X is finite and discrete and Y is finite that 
       X -> Y is finite upto extensional equality *)
 
   Variable (X : Type) (HX1 : finite_t X) (HX2 : discrete X)
@@ -277,7 +277,7 @@ End fun_finite_t_upto.
 
 Section dec_pred_finite_t_upto.
 
-  (** If X is finite and discrete then decidable
+  (* If X is finite and discrete then decidable
       predicates of type X -> Prop are finitely
       many upto extensional equivalence *) 
 
@@ -309,7 +309,7 @@ End dec_pred_finite_t_upto.
 
 Section finite_t_valuations.
 
-  (** For a given list of variables ln : list nat, and X a finite,
+  (* For a given list of variables ln : list nat, and X a finite,
       discrete and inhabited type, there are finitely many
       valuations of type nat -> X, upto to equality over ln *)
 
@@ -354,7 +354,7 @@ End finite_t_valuations.
 
 Section finite_t_model.
 
-  (** For a given list of symbols ls : list syms, where syms is
+  (* For a given list of symbols ls : list syms, where syms is
       a discrete type, and a type X, finite and discrete, 
       and a type Y, finite and inhabited, 
       there are finitely many valuations of type

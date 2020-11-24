@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Prime numbers *)
+(* ** Prime numbers *)
 
 Require Import List Arith Lia Bool Permutation.
 
@@ -109,7 +109,7 @@ Section prime.
         eq goal G2; f_equal; lia.
   Qed.
 
-  (** This is a somewhat naive algo. to test for primality *)
+  (* This is a somewhat naive algo. to test for primality *)
 
   Definition prime_bool p := 
     Nat.eqb p 2 || Nat.leb 3 p && negb (divides_bool 2 p) && prime_bool_rec (p-2) p.

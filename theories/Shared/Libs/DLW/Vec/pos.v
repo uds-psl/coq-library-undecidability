@@ -15,7 +15,7 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 Set Implicit Arguments.
 
-(** @DLW: former definition
+(* @DLW: former definition
 
 Inductive pos : nat -> Set :=
   | pos_fst : forall n, pos (S n)
@@ -210,7 +210,7 @@ Proof.
   rewrite IHn; auto.
 Qed.
 
-(** A bijection between pos n + pos m <-> pos (n+m) **)
+(* A bijection between pos n + pos m <-> pos (n+m) **)
 
 Fact pos_both_lr n m p : @pos_both n m (pos_lr p) = p.
 Proof.

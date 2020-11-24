@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Euclidian division and Bezout's identity *)
+(* ** Euclidian division and Bezout's identity *)
 
 Require Import List Arith Lia Permutation Extraction.
 
@@ -18,7 +18,7 @@ Set Implicit Arguments.
 
 Section Euclid.
 
-  (** Simultaneous comparison and difference *)
+  (* Simultaneous comparison and difference *)
 
   Fixpoint cmp_sub x y : { z | z+y = x } + { x < y }.
   Proof.
@@ -571,7 +571,7 @@ Section bezout.
 
   Section bezout_generalized.
 
-    (** TODO, write this FULLY specified Bezout with a better extraction, following bezout_rel_prime above *)
+    (* TODO, write this FULLY specified Bezout with a better extraction, following bezout_rel_prime above *)
 
     Definition bezout_generalized_lt p q : 
                          0 < p < q 

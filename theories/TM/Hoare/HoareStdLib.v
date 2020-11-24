@@ -1,4 +1,4 @@
-(** ** Hoare Rules for Machines that do not reason on codes *)
+(* ** Hoare Rules for Machines that do not reason on codes *)
 
 From Undecidability.TM Require Import TMTac.
 From Undecidability.TM Require Export Basic.Basic Compound.MoveToSymbol.
@@ -6,7 +6,7 @@ From Undecidability.TM Require Export Basic.Basic Compound.MoveToSymbol.
 From Undecidability.TM.Hoare Require Import HoareLogic HoareCombinators HoareRegister HoareTactics HoareTacticsView.
 
 
-(** *** WriteValue *)
+(* *** WriteValue *)
 
 Lemma DoAct_SpecTReg (sig : finType) act (P : tape (boundary + sig) -> Prop):
 TripleT (≃≃(([], [|Custom P|]))) 1 (DoAct act)

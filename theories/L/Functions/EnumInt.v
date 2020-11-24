@@ -5,7 +5,7 @@ From Undecidability.L.Datatypes Require Import LNat Lists LProd.
 Require Import Undecidability.Shared.Libs.PSL.Base Nat List Datatypes.
 
 Import Nat.
-(** ** Enumeratibility of L-terms *)
+(* ** Enumeratibility of L-terms *)
 Instance term_appCross : computableTime' appCross (fun A _ => (5,fun B _ => (length A * length B * 29 + length A * 46 +  4,tt))).
 Proof.
   extract. solverec. fold appCross;rewrite map_time_const,map_length. 

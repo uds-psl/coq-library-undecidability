@@ -2,7 +2,7 @@ Require Import List Omega Lia Morphisms.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.higher_order_unification unification.systemunification.
 Import ListNotations.
 
-(** * Nth-Order Unification *)
+(* * Nth-Order Unification *)
 Section NthOrderUnificationDefinition.
 
   Context {n: nat} {X: Const}.
@@ -29,7 +29,7 @@ Hint Resolve H1₀ H2₀ : core.
 
 
 
-(** ** Nth-Order System Unification *)
+(* ** Nth-Order System Unification *)
 Section NthOrderSystemUnification.
 
   Variable (X: Const).
@@ -170,7 +170,7 @@ Hint Resolve eqs_ordertyping_soundness : core.
 
 
 
-(** ** Nth-Order Normalisation *)
+(* ** Nth-Order Normalisation *)
 Definition NOU {X: Const} n (I: orduni n X) :=
   exists Delta sigma, Delta ⊩(n) sigma : Gamma₀ /\ sigma • s₀ ≡ sigma • t₀ /\ forall x, normal (sigma x).
 

@@ -7,7 +7,7 @@ Import ListNotations.
 
 
 
-(** ** Equivalences *)
+(* ** Equivalences *)
 Section EquationEquivalences.
 
   Variable (sigma: fin -> exp ag).
@@ -77,7 +77,7 @@ Section EquationEquivalences.
   End Addition.
 
 
-  (** *** Multiplication *)
+  (* *** Multiplication *)
   Section Multiplication.
 
     Variable (m n p: nat) (x y z: nat).
@@ -107,7 +107,7 @@ Section EquationEquivalences.
 End EquationEquivalences.
 
 
-(** ** Forward Direction **)
+(* ** Forward Direction **)
 Section Forward.
 
 
@@ -189,7 +189,7 @@ Section Forward.
 
 End Forward.
 
-(** ** Backward Direction **)
+(* ** Backward Direction **)
 Section Backward.
 
 

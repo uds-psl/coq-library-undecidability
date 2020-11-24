@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Mapping a formula into a finitary signature *)
+(* * Mapping a formula into a finitary signature *)
 
 Local Notation ø := vec_nil.
 
@@ -323,7 +323,7 @@ Defined.
 
 Section discr_finite_to_pos.
 
-  (** Strangely this does not lead to transport hell ... I should
+  (* Strangely this does not lead to transport hell ... I should
       probably rework fol_transport_hell.v ... maybe there is a better way
       like in here *)
 

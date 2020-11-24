@@ -2,9 +2,9 @@ From Undecidability Require Import TM.Util.Prelim TM.Code.CodeTM.
 From Undecidability Require Import TM.Lifting.LiftAlphabet.
 
 
-(** * Alphabet-lift for "programmed" Turing Machines *)
+(* * Alphabet-lift for "programmed" Turing Machines *)
 
-(** All "programmed" Turing machines are defined on an alphabet [Σ^+]. In this module, we instanciate the [LiftAlphabet] operator. Given a machine [M:TM_{Σ^+}] and a retraction [f: Σ ↪ Γ], we define a machine [⇑M : TM_{Γ^+}]. *)
+(* All "programmed" Turing machines are defined on an alphabet [Σ^+]. In this module, we instanciate the [LiftAlphabet] operator. Given a machine [M:TM_{Σ^+}] and a retraction [f: Σ ↪ Γ], we define a machine [⇑M : TM_{Γ^+}]. *)
 
 Local Hint Mode Retract - - : typeclass_instances.
 
@@ -251,13 +251,13 @@ End MapCode.
 
 Hint Unfold surjectTape surjectTapes injectTape : tape.
 
-(** This makes sure that we can apply the above lemmas ([contains_translate_sig], [contains_translate_tau1], [contains_translate_tau2]), even after [cbn] *)
+(* This makes sure that we can apply the above lemmas ([contains_translate_sig], [contains_translate_tau1], [contains_translate_tau2]), even after [cbn] *)
 Arguments Retract_plus : simpl never.
 Arguments injectTape : simpl never.
 Arguments surjectTape : simpl never.
 
 
-(** ** Definition of the lifted machine *)
+(* ** Definition of the lifted machine *)
 
 Section ChangeAlphabet.
   Variable (sig tau : finType).
@@ -273,7 +273,7 @@ End ChangeAlphabet.
 Notation "pM ⇑ Rmove" := (ChangeAlphabet pM Rmove) (at level 40, only parsing).
 
 
-(** This tactic removes [surjectTape] in hypothesises and in the goal *)
+(* This tactic removes [surjectTape] in hypothesises and in the goal *)
 Ltac simpl_surject_step :=
   once lazymatch goal with
   (* encodings *)
@@ -291,7 +291,7 @@ Ltac simpl_surject_step :=
 Ltac simpl_surject := repeat simpl_surject_step.
 
 
-(** ** Tactic Support *)
+(* ** Tactic Support *)
 
 Ltac smpl_TM_ChangeAlphabet :=
   once lazymatch goal with

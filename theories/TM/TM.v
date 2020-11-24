@@ -1,20 +1,20 @@
-(** * Definition of Multi-Tape Turing Machines *)
+(** * Halting problem for multi-tape and single-tape Turing machines HaltMTM and HaltTM 1  *)
 
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
 Require Import Vector List.
 
 Unset Implicit Arguments.
 
-(** * Turing machines  *)
+(* * Turing machines  *)
 
-(** The definition of Turing machines is due to Asperti & Ricciotti's "A formalization of multi-tape Turing machines" (2015) and the accompanying Matita code. *)  
+(* The definition of Turing machines is due to Asperti & Ricciotti's "A formalization of multi-tape Turing machines" (2015) and the accompanying Matita code. *)  
 
 Section Fix_Sigma.
 
-  (** The alphabet type *)
+  (* The alphabet type *)
   Variable Σ : Type.
 
-  (** ** Tapes
+  (* ** Tapes
 
      Tapes are either
      - empty (niltape),
@@ -32,7 +32,7 @@ Section Fix_Sigma.
   | rightof : Σ -> list Σ -> tape
   | midtape : list Σ -> Σ -> list Σ -> tape.
 
-  (** The current function returns the current symbol, if there is one. If None is returned, this means that the head is on a part of the tape which has never been written before.  *)
+  (* The current function returns the current symbol, if there is one. If None is returned, this means that the head is on a part of the tape which has never been written before.  *)
 
   Definition current (t : tape) : option Σ :=
     match t with
@@ -42,7 +42,7 @@ Section Fix_Sigma.
 
   Inductive move : Type := Lmove : move | Rmove : move | Nmove : move.
 
-  (** Moving to the left on leftof and to the right on rightof has no effect.
+  (* Moving to the left on leftof and to the right on rightof has no effect.
    *)
 
   Definition mv (m : move) (t : tape) :=
@@ -56,7 +56,7 @@ Section Fix_Sigma.
     | _, _ => t
     end.
 
-  (** The write function wr takes option Σ as argument. None indicates that nothing should be written. This is necessary because the current symbol might be None, i.e. one can not simply write the current symbol since it might not exist.  *)
+  (* The write function wr takes option Σ as argument. None indicates that nothing should be written. This is necessary because the current symbol might be None, i.e. one can not simply write the current symbol since it might not exist.  *)
 
   Definition wr (s : option Σ) (t : tape) : tape :=
     match s, t with
@@ -69,7 +69,7 @@ Section Fix_Sigma.
 
 End Fix_Sigma.
 
-(** Differences to traditional presentations:
+(* Differences to traditional presentations:
 
 The tape representation and the implementation of mv is different to presentations of Turing machines in the literature. Moving to the right while on a rightof tape is the identity. One can obtain the more traditional behaviour by assuming a blank symbol as part of the alphabet and always writing a blank when the current symbol is None.
 
@@ -89,10 +89,10 @@ Arguments mv {_} _.
 
 Section Fix_Alphabet.
 
-  (** The alphabet type, assumed as finite type *)
+  (* The alphabet type, assumed as finite type *)
   Variable Σ : finType.
 
-   (** finType is defined as a pair of a type with decidable equality, and a duplicate-free list of all elements of the type.
+   (* finType is defined as a pair of a type with decidable equality, and a duplicate-free list of all elements of the type.
 
       We have
 
@@ -103,10 +103,10 @@ Section Fix_Alphabet.
 
    *)
   
-  (** The number of tapes  *)
+  (* The number of tapes  *)
   Variable n : nat.
 
-  (** Definition of multi-tape Turing machines  *)
+  (* Definition of multi-tape Turing machines  *)
   Record TM : Type :=
     {
     (* type of states of the TM: *)
@@ -119,7 +119,7 @@ Section Fix_Alphabet.
     halt : state -> bool 
     }.
 
-  (** evaluation relation, uses trans until a halting state is reached:  *)
+  (* evaluation relation, uses trans until a halting state is reached:  *)
   Inductive eval (M : TM) (q : state M) (t : Vector.t (tape Σ) n) : state M -> Vector.t (tape Σ) n -> Prop :=
   | eval_halt :
       halt M q = true ->

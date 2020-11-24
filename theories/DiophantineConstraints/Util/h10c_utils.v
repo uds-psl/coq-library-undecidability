@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** Elementary Diophantine constraints w/o parameters
+(* Elementary Diophantine constraints w/o parameters
     and with only the constant 1 i.e. constraints 
     are of three shapes:
 
@@ -30,7 +30,7 @@ Local Notation " '⟪' c '⟫' " := (fun φ => h10uc_sem φ c).
 
 Section decidability_of_validity.
 
-  (** Validity is decidable, this is easily proved in here
+  (* Validity is decidable, this is easily proved in here
       but of course satisfiability is undecidable but this 
       is much more complicated to establish *)
 
@@ -57,7 +57,7 @@ End decidability_of_validity.
 
 Section h10c_vars_bound.
 
-  (** A small utility library that help at encoding φ with a finitary map *)
+  (* A small utility library that help at encoding φ with a finitary map *)
 
   Definition h10c_vars c :=
     match c with

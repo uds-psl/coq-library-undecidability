@@ -1,9 +1,9 @@
 From Undecidability Require Import TM.Util.Prelim TM.Util.Relations TM.Util.TM_facts.
 
-(** * Tapes-Lift *)
+(* * Tapes-Lift *)
 
 
-(** Select the [m] elements of [V], of that their index is in [I] *)
+(* Select the [m] elements of [V], of that their index is in [I] *)
 Definition select (m n: nat) (X: Type) (I : Vector.t (Fin.t n) m) (V : Vector.t X n) : Vector.t X m :=
   Vector.map (Vector.nth V) I.
 
@@ -12,7 +12,7 @@ Corollary select_nth m n X (I : Vector.t (Fin.t n) m) (V : Vector.t X n) (k : Fi
 Proof. now apply Vector.nth_map. Qed.
 
 
-(** Relational tapes-lift *)
+(* Relational tapes-lift *)
 Section LiftTapes_Rel.
 
   Variable (sig : finType) (F : Type).
@@ -125,7 +125,7 @@ Section Fill.
 
   Variable X : Type.
 
-  (** Replace the elements of [init] of which the index is in [I] with the element in [V] of that index. *)
+  (* Replace the elements of [init] of which the index is in [I] with the element in [V] of that index. *)
   Definition fill {m n : nat} (I : Vector.t (Fin.t n) m) (init : Vector.t X n) (V : Vector.t X m) : Vector.t X n := 
     tabulate (fun i => match lookup_index_vector I i with
                     | Some j => V[@j]
@@ -135,7 +135,7 @@ Section Fill.
   Section Test.
     Variable (a b x y z : X).
 
-    (** The following goals should hold by computation *)
+    (* The following goals should hold by computation *)
     Goal fill [|Fin0; Fin1|] [|x;y;z|] [|a;b|] = [|a;b;z|].
     Proof. cbn. reflexivity. Qed.
 
@@ -145,7 +145,7 @@ Section Fill.
     Goal fill [|Fin1; Fin0|] [|x;y;z|] [|a;b|] = [|b;a;z|]. (* [a] and [b] are swapped, [z] is unchanged. *)
     Proof. cbn. reflexivity. Qed.
 
-    (** This didn't hold (by computation) for the old version with replacement *)
+    (* This didn't hold (by computation) for the old version with replacement *)
     Goal forall (ss : Vector.t X 3), fill [|Fin0; Fin1|] ss [|a;b|] = [|a;b; ss[@Fin2]|].
     Proof. intros. cbn. reflexivity. Qed.
 
@@ -341,7 +341,7 @@ Arguments LiftTapes : simpl never.
 Notation "pM @ ts" := (LiftTapes pM ts) (at level 41, only parsing).
 
 
-(** * Tactic Support *)
+(* * Tactic Support *)
 
 (* TODO: Some of this is probably deprecated, e.g. the [app_tapes] stuff *)
 

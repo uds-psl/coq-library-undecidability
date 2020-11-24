@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Removing constant functions from monadic signatures *)
+(* * Removing constant functions from monadic signatures *)
 
 Local Notation ø := vec_nil.
 

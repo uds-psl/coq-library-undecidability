@@ -2,13 +2,13 @@ Set Implicit Arguments.
 Require Import Morphisms Omega Lia FinFun.
 From Undecidability.HOU Require Export std.std calculus.syntax calculus.semantics calculus.confluence. 
 
-(** * Equational Theory *)
+(* * Equational Theory *)
 Section Equivalence.
   Context {X: Const}.
   Notation "s ≡ t" := (equiv (@step X) s t) (at level 70).
 
 
-  (** ** Compatibility Properties *)
+  (* ** Compatibility Properties *)
   Section CompatibilityProperties.
     
     Global Instance equiv_lam_proper:
@@ -69,7 +69,7 @@ Section Equivalence.
 
   End CompatibilityProperties.
 
-  (** ** Injectivity Properties *)
+  (* ** Injectivity Properties *)
   Section InjectivityProperties.
 
     Lemma equiv_var_eq (x y: fin):
@@ -120,7 +120,7 @@ Section Equivalence.
   
   End InjectivityProperties.
 
-  (** ** Disjointness Properties *)
+  (* ** Disjointness Properties *)
   Section DisjointnessProperties.
 
     Lemma equiv_neq_var_app (x: nat) (s t: exp X):
@@ -185,7 +185,7 @@ Section Equivalence.
   End DisjointnessProperties.
 
 
-  (** ** Huet Definition *)
+  (* ** Huet Definition *)
   Section HuetDefinition.
     Variable (s t v1 v2: exp X).
     Hypothesis (E1: s ▷ v1) (E2: t ▷ v2).

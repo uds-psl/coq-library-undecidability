@@ -5,6 +5,8 @@
     Halting of one counter machines with denominators at most 4 (CM1_HALT)
 *)
 
+(** ** HaltTM 1 reduces to CM1_HALT  *)
+
 Require Import Undecidability.Synthetic.Undecidability.
 
 Require Import Undecidability.TM.TM.
@@ -18,7 +20,7 @@ From Undecidability.MinskyMachines
 From Undecidability.CounterMachines
   Require Import CM1 MM2_HALTING_to_CM1_HALT.
 
-(** Many-one reduction from Turing machine halting to 
+(* Many-one reduction from Turing machine halting to 
   one counter machine halting (with denominators at most 4) *)
 Theorem reduction : HaltTM 1 ⪯ CM1_HALT.
 Proof.

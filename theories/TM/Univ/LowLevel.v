@@ -10,7 +10,7 @@ Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 
 
-(** * Universal Turing Machine *)
+(* * Universal Turing Machine *)
 
 
 Definition map_pair (X X' Y Y' : Type) (f : X -> X') (g : Y -> Y') : X*Y->X'*Y' :=
@@ -78,7 +78,7 @@ Section Graph.
 
 End Graph.
 
-(** map keys injectively and values arbitrarily *)
+(* map keys injectively and values arbitrarily *)
 Lemma lookup_map (X X' : eqType) (Y Y' : Type) (lst : list (X*Y)) (f : X -> X') (g : Y -> Y') (x : X) (y : Y) :
   injective f ->
   lookup x lst = Some y ->
@@ -92,7 +92,7 @@ Proof.
 Qed.
 
 
-(** States are encoded as numbers *)
+(* States are encoded as numbers *)
 
 Notation sigState := (sigPair bool sigNat).
 
@@ -122,55 +122,55 @@ Qed.
 
 Section Univ.
 
-  (** Actually, we build a Universal Turing Machine for each alphabet [sigM] *)
+  (* Actually, we build a Universal Turing Machine for each alphabet [sigM] *)
   Variable (sigM : finType).
 
   Notation sigGraph := (sigList (sigPair (sigPair (option sigM) sigState) (sigPair (option sigM * move) sigState))).
 
-  (** The alphabet of [Univ] *)
+  (* The alphabet of [Univ] *)
   Variable (sig : finType).
   Variable (retr_sigGraph_sig : Retract sigGraph sig).
   Variable (retr_sigTape_sig : Retract sigM sig).
 
-  (** Encoding of the current state number *)
+  (* Encoding of the current state number *)
   Local Definition retr_sigCurrentStateNumber_sigGraph : Retract sigNat sigGraph :=
     Retract_sigList_X (Retract_sigPair_X _ (Retract_sigPair_Y _ (Retract_sigPair_Y _ _))).
   Local Definition retr_sigCurrentStateNumber_sig : Retract sigNat sig :=
     ComposeRetract retr_sigGraph_sig retr_sigCurrentStateNumber_sigGraph.
 
-  (** Encoding of the current state (= halt bit + number) *)
+  (* Encoding of the current state (= halt bit + number) *)
   Local Definition retr_sigCurrentState_sigGraph : Retract sigState sigGraph :=
     Retract_sigList_X (Retract_sigPair_X _ (Retract_sigPair_Y _ (Retract_id _))).
   Local Definition retr_sigCurrentState_sig : Retract sigState sig := ComposeRetract retr_sigGraph_sig retr_sigCurrentState_sigGraph.
 
-  (** Encoding of final bit of the current state *)
+  (* Encoding of final bit of the current state *)
   Local Definition retr_sigCurrentStateFinal_sigGraph : Retract bool sigGraph :=
     Retract_sigList_X (Retract_sigPair_X _ (Retract_sigPair_Y _ (Retract_sigPair_X _ _))).
   Local Definition retr_sigCurrentStateFinal_sig : Retract bool sig := ComposeRetract retr_sigGraph_sig retr_sigCurrentStateFinal_sigGraph.
 
-  (** Encoding of the next state *)
+  (* Encoding of the next state *)
   Local Definition retr_sigNextState_sigGraph : Retract sigState sigGraph := Retract_sigList_X (Retract_sigPair_Y _ _).
   Local Definition retr_sigNextState_sig : Retract sigState sig := ComposeRetract retr_sigGraph_sig retr_sigNextState_sigGraph.
 
-  (** Encoding the current symbol *)
+  (* Encoding the current symbol *)
   Local Definition retr_sigCurrentSymbol_sigGraph : Retract (option sigM) sigGraph := Retract_sigList_X (Retract_sigPair_X _ (Retract_sigPair_X _ _)).
   Local Definition retr_sigCurrentSymbol_sig: Retract (option sigM) sig := ComposeRetract retr_sigGraph_sig retr_sigCurrentSymbol_sigGraph.
 
-  (** Encoding of actions *)
+  (* Encoding of actions *)
   Local Definition retr_act_sigGraph : Retract (option sigM * move) sigGraph := _.
   Local Definition retr_act_sig : Retract (option sigM * move) sig := ComposeRetract retr_sigGraph_sig retr_act_sigGraph.
 
-  (** Encoding of the keys for [Lookup] ([option sig * Q]) *)
+  (* Encoding of the keys for [Lookup] ([option sig * Q]) *)
   Local Definition retr_key_sigGraph : Retract _ sigGraph := Retract_sigList_X (Retract_sigPair_X _ (Retract_id _)).
   Local Definition retr_key_sig : Retract _ sig := ComposeRetract retr_sigGraph_sig retr_key_sigGraph.
 
-  (** Encoding of the value for [Lookup] ([option sig * Q]) *)
+  (* Encoding of the value for [Lookup] ([option sig * Q]) *)
   Local Definition retr_value_sigGraph : Retract _ sigGraph := Retract_sigList_X (Retract_sigPair_Y _ (Retract_id _)).
   Local Definition retr_value_sig : Retract _ sig := ComposeRetract retr_sigGraph_sig retr_value_sigGraph.
 
   
   
-  (** One tape is the working tape of the simulated machine. *)
+  (* One tape is the working tape of the simulated machine. *)
 
   Definition containsWorkingTape (t : tape sig^+) (tp : tape sigM) :=
     t = mapTape (fun s => inr (Retr_f (Retract := retr_sigTape_sig) s)) tp.
@@ -185,7 +185,7 @@ Section Univ.
     containsWorkingTape (doAct t (map_opt (fun s => inr (Retr_f s)) (fst a), snd a)) (doAct tp a).
   Proof. intros ->. hnf. cbn. now rewrite doAct_map. Qed.
 
-  (** Simply read a symbol from the working tape *)
+  (* Simply read a symbol from the working tape *)
   Definition ReadCurrent : pTM sig^+ (option sigM) 1 :=
     CaseChar (fun c => match c with
                     | Some (inr c') =>
@@ -210,7 +210,7 @@ Section Univ.
 
 
   Local Instance Encode_optSigM : codable (option sigM) (option sigM) := Encode_Finite _.
-  (** Read the current symbol and write it to another tape *)
+  (* Read the current symbol and write it to another tape *)
   Definition ReadCurrent' : pTM sig^+ unit 2 :=
     Switch (ReadCurrent @ [|Fin0|])
            (fun c => WriteValue c ⇑ retr_sigCurrentSymbol_sig @ [|Fin1|]).
@@ -254,7 +254,7 @@ Section Univ.
   Qed.
 
 
-  (** Read an action and execute it *)
+  (* Read an action and execute it *)
 
   Definition DoAction' : pTM sig^+ unit 2 :=
     Switch (CaseFin (FinType(EqType(option sigM * move))) ⇑ retr_act_sig @ [|Fin1|])
@@ -424,7 +424,7 @@ Section Univ.
   Qed.
     
 
-  (** Alternative form for the transition function (for efficiency) *)
+  (* Alternative form for the transition function (for efficiency) *)
   Definition graph_function (M : TM sigM 1) : option sigM * state M -> ((option sigM * move) * state M) :=
     (fun '(s, q) =>
        let (q', acts) := trans (q, [|s|]) in

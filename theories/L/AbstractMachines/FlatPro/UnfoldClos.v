@@ -5,7 +5,7 @@ Set Default Proof Using "Type".
 Section fixH.
   Variable H : Heap.
 
-  (** We define a function to unfold a closure, needed for the Turing machine M_unf. *)
+  (* We define a function to unfold a closure, needed for the Turing machine M_unf. *)
   (* function that unfolds if unfoldable *)
   Definition unfoldTailRecStep '(stack,res) : (list (HClos*nat) * Pro) + option Pro :=
   match stack with

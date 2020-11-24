@@ -27,11 +27,11 @@ Proof.
   extract.
 Qed.
 
-(** *** Interactive Demo *)
+(* *** Interactive Demo *)
 
 Section PaperExample.
 
-  (** Examples of the tactics that proof the correctness lemmata *)
+  (* Examples of the tactics that proof the correctness lemmata *)
 
   Import ComputableTactics.
   Import ComputableTactics.Intern.
@@ -47,7 +47,7 @@ Section PaperExample.
 
   (* Print cnst. *)
 
-  (** Comming up with the conditions for the time bound *)
+  (* Comming up with the conditions for the time bound *)
   Goal forall fT, computableTime' orb fT.
     intros.
     extractAs s.
@@ -60,7 +60,7 @@ Section PaperExample.
     solverec.
   Abort.  
 
-  (** Finding the Time Bound *)
+  (* Finding the Time Bound *)
   
   Goal computableTime' orb (fun _ _ => (cnst "c1",fun _ _ => (cnst "c2",tt))).
     extract. solverec. (* Now the values are clear *)

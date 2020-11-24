@@ -7,8 +7,6 @@ Require Undecidability.FRACTRAN.Reductions.MM_FRACTRAN.
 Require Undecidability.MinskyMachines.Reductions.FRACTRAN_to_MMA2.
 Require Undecidability.MinskyMachines.Reductions.MMA2_to_MM2.
 
-(** Many-one reduction from binary stack machine halting to 
-    two counters Minsky machine halting *)
 Theorem reduction : BSM_HALTING ⪯ MM2_HALTING.
 Proof.
   apply (reduces_transitive BSM_MM.BSM_MM_HALTING).

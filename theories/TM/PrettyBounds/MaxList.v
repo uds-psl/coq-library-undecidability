@@ -1,10 +1,10 @@
-(** * Maximum element in a list *)
+(* * Maximum element in a list *)
 
 From Undecidability Require Export TM.Util.Prelim TM.Util.ArithPrelim.
 
-(** ** Basic lemmas about upper bounds *)
+(* ** Basic lemmas about upper bounds *)
 
-(** An upper bound of a list is either in the list, or it is not in the list and is a strict upper bound *)
+(* An upper bound of a list is either in the list, or it is not in the list and is a strict upper bound *)
 Lemma upperBound_In (xs : list nat) (u : nat) :
   (forall x, In x xs -> x <= u) ->
   (In u xs) \/
@@ -23,7 +23,7 @@ Proof.
            ++ specialize (IH2 y H). lia.
 Qed.
 
-(** We assume that [M] is an upper bound of [s] and [xs]. We also assume that [M] is either in xs, or every element of [x] is smaller than [s]. Then, if [M] is actually a strict upper bound of [xs], then [s] is also a strict upper bound of [xs]. *)
+(* We assume that [M] is an upper bound of [s] and [xs]. We also assume that [M] is either in xs, or every element of [x] is smaller than [s]. Then, if [M] is actually a strict upper bound of [xs], then [s] is also a strict upper bound of [xs]. *)
 Lemma strict_greatest_upper_bound : forall (xs : list nat) (M s : nat),
     (In M xs \/ (M = s /\ forall x, In x xs -> x <= s)) ->
     (s <= M) ->
@@ -42,16 +42,16 @@ Qed.
 
 
 
-(** ** Tail Recursive Definition *)
+(* ** Tail Recursive Definition *)
 
-(** Compute the maximum of a list and a start-value tail-recursively *)
+(* Compute the maximum of a list and a start-value tail-recursively *)
 Fixpoint max_list_rec (s : nat) (xs : list nat) { struct xs } : nat :=
   match xs with
   | nil => s
   | x :: xs' => max_list_rec (max x s) xs'
   end.
 
-(** We can remove the tail-recursion *)
+(* We can remove the tail-recursion *)
 Lemma max_list_rec_max (xs : list nat) (s1 s2 : nat) :
   max_list_rec (max s1 s2) xs = max (max_list_rec s1 xs) (max_list_rec s2 xs).
 Proof.
@@ -60,7 +60,7 @@ Proof.
   - rewrite Max.max_assoc. rewrite !IH. nia.
 Qed.
 
-(** If the list is not empty, and every element in the list is greater than start-values [s1] and [s2], then the choice of start-value [s1] or [s2] doesn't matter *)
+(* If the list is not empty, and every element in the list is greater than start-values [s1] and [s2], then the choice of start-value [s1] or [s2] doesn't matter *)
 Lemma max_list_rec_irrelevant (xs : list nat) (s1 s2 : nat) :
   xs <> nil ->
   (forall x, In x xs -> s1 <= x /\ s2 <= x) ->
@@ -74,7 +74,7 @@ Proof.
     + rewrite !max_list_rec_max. rewrite IH; eauto. congruence.
 Qed.
 
-(** The maximum is always greater or equal than the start-value *)
+(* The maximum is always greater or equal than the start-value *)
 Lemma max_list_rec_ge (xs : list nat) (s : nat) :
   s <= max_list_rec s xs.
 Proof.
@@ -83,7 +83,7 @@ Proof.
   - rewrite <- IH. nia.
 Qed.
 
-(** The maximum is greater or equal than every element in the list *)
+(* The maximum is greater or equal than every element in the list *)
 Lemma max_list_rec_ge_el (xs : list nat) (s : nat) (x : nat) :
   In x xs ->
   x <= max_list_rec s xs.
@@ -102,7 +102,7 @@ Corollary max_list_rec_ge_el_ge (xs : list nat) (s : nat) (x y : nat) :
 Proof. intros. rewrite <- (max_list_rec_ge_el _ H); eauto. Qed.
 
 
-(** [max_list_rec] is monotone w.r.t. the start value *)
+(* [max_list_rec] is monotone w.r.t. the start value *)
 Lemma max_list_rec_monotone (xs : list nat) (s0 s1 : nat) :
   s0 <= s1 ->
   max_list_rec s0 xs <= max_list_rec s1 xs.
@@ -112,7 +112,7 @@ Proof.
   - rewrite IH; eauto. nia.
 Qed.
 
-(** ... and also w.r.t. the lists *)
+(* ... and also w.r.t. the lists *)
 Lemma max_list_rec_monotone' (xs1 xs2 : list nat) (s0 s1 : nat) :
   (Forall2 le xs1 xs2) ->
   s0 <= s1 ->
@@ -124,7 +124,7 @@ Proof.
     instantiate (1 := Init.Nat.max x s0). all:nia. 
 Qed.
 
-(** [max_list_rec] is a lower bound of [z], if every element is smaller than [z]. *)
+(* [max_list_rec] is a lower bound of [z], if every element is smaller than [z]. *)
 Lemma max_list_rec_lower_bound (xs : list nat) (s : nat) (z : nat) :
   s <= z ->
   (forall x, In x xs -> x <= z) ->
@@ -170,7 +170,7 @@ Proof.
     + intros. rewrite <- max_list_rec_ge. now apply max_list_rec_ge_el.
 Qed.
 
-(** Either the maximum (with start-value [s]) is in the list, or it is equal to [s] and [s] is greater (or equal) than every element *)
+(* Either the maximum (with start-value [s]) is in the list, or it is equal to [s] and [s] is greater (or equal) than every element *)
 Lemma max_list_rec_el_or_eq xs s :
   max_list_rec s xs el xs \/ max_list_rec s xs = s /\ (forall x : nat, x el xs -> x <= s).
 Proof.
@@ -191,7 +191,7 @@ Proof.
         -- now apply IH.
 Qed.
 
-(** This, is [max_list_rec s xs] is a strict upper bound, so is [s] *)
+(* This, is [max_list_rec s xs] is a strict upper bound, so is [s] *)
 Corollary max_list_rec_gt xs s :
   (forall y : nat, y el xs -> y < max_list_rec s xs) ->
   forall y : nat, y el xs -> y < s.
@@ -202,7 +202,7 @@ Proof.
   - apply max_list_rec_ge.
 Qed.
 
-(** ... and also [s] is equal to [max_list_rec s xs]. *)
+(* ... and also [s] is equal to [max_list_rec s xs]. *)
 Corollary max_list_rec_gt' xs s :
   (forall x : nat, x el xs -> x < max_list_rec s xs) ->
   max_list_rec s xs = s /\ (forall x : nat, x el xs -> x < s).
@@ -218,7 +218,7 @@ Proof.
   - now apply max_list_rec_gt.
 Qed.
 
-(** To conclude, either the maximum is euqal to the start value (and s is a strict upper bound), or the maximum is actually in the list *)
+(* To conclude, either the maximum is euqal to the start value (and s is a strict upper bound), or the maximum is actually in the list *)
 Corollary max_list_rec_In (xs : list nat) (s : nat) :
   (max_list_rec s xs = s /\ forall x, In x xs -> x < s) \/
   In (max_list_rec s xs) xs.
@@ -231,13 +231,13 @@ Proof.
 Qed.
 
 
-(** ** Definition of the maximum of a list *)
+(* ** Definition of the maximum of a list *)
 
 
-(** We simply instantiate the accu to [0] *)
+(* We simply instantiate the accu to [0] *)
 Definition max_list (xs : list nat) := max_list_rec 0 xs.
 
-(** The main lemmas can be simplified now *)
+(* The main lemmas can be simplified now *)
 Lemma max_list_ge (xs : list nat) (x : nat) :
   In x xs ->
   x <= max_list xs.
@@ -256,7 +256,7 @@ Proof.
   intros x Hx. rewrite H. apply max_list_ge. apply in_map_iff. eauto.
 Qed.
 
-(** If the list is not empty, then the maximum is in the list *)
+(* If the list is not empty, then the maximum is in the list *)
 Lemma max_list_In (xs : list nat) :
   xs <> nil ->
   In (max_list xs) xs.
@@ -268,15 +268,15 @@ Proof.
 Qed.
 
 
-(** ** Maximum of a function *)
+(* ** Maximum of a function *)
 
-(** A size of a largest element in a list, w.r.t. to a size function *)
+(* A size of a largest element in a list, w.r.t. to a size function *)
 Section max_list_map.
   Variable (X : Type) (f : X -> nat).
 
   Definition max_list_map (xs : list X) := max_list (map f xs).
 
-  (** This version may be useful sometimes *)
+  (* This version may be useful sometimes *)
   Definition max_list_map_rec (s : nat) (xs : list X) := max_list_rec s (map f xs).
 
   Lemma max_list_map_ge (xs : list X) (x : X) :
@@ -301,7 +301,7 @@ Section max_list_map.
 
 End max_list_map.
 
-(** [max_list_map] is monotone w.r.t. the function *)
+(* [max_list_map] is monotone w.r.t. the function *)
 Lemma max_list_map_monotone (X : Type) (f1 f2 : X -> nat) (xs : list X) :
   (forall (x : X), In x xs -> f1 x <= f2 x) ->
   max_list_map f1 xs <= max_list_map f2 xs.

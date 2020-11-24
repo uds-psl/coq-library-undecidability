@@ -1,6 +1,6 @@
 From Undecidability.Shared.Libs.PSL Require Import Prelim.
 
-(** * Decidable predicates *)
+(* * Decidable predicates *)
 
 
 Definition dec (X: Prop) : Type := {X} + {~ X}.
@@ -76,7 +76,7 @@ match goal with
 | [ |- dec2bool (Dec ?P) = false] => apply Dec_false'
 end : core.
 
-(** Decided propositions behave classically *)
+(* Decided propositions behave classically *)
 
 Lemma dec_DN X : 
   dec X -> ~~ X -> X.
@@ -96,7 +96,7 @@ Proof.
   unfold dec; tauto. 
 Qed.
 
-(** Propagation rules for decisions *)
+(* Propagation rules for decisions *)
 
 Fact dec_transfer P Q :
   P <-> Q -> dec P -> dec Q.
@@ -155,7 +155,7 @@ Proof.
   unfold iff. auto.
 Defined.
 
-(** ** Discrete types *)
+(* ** Discrete types *)
 
 Notation "'eq_dec' X" := (forall x y : X, dec (x=y)) (at level 70).
 
@@ -171,7 +171,7 @@ Canonical Structure eqType_CS X (A: eq_dec X) := EqType X.
 
 Existing Instance eqType_dec.
 
-(** Print the base type of [eqType] in the Canonical Structure. *)
+(* Print the base type of [eqType] in the Canonical Structure. *)
 Arguments eqType_CS (X) {_}.
 
 Instance unit_eq_dec :

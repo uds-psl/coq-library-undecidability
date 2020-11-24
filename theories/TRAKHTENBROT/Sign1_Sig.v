@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Expanding from Σ=({f^n};{P^1}) to any signature *)
+(* * Expanding from Σ=({f^n};{P^1}) to any signature *)
 
 Tactic Notation "iff" "equal" := apply fol_equiv_ext.
 

@@ -1,9 +1,9 @@
 From Undecidability.Shared.Libs.PSL Require Export BasicDefinitions.
 From Undecidability.Shared.Libs.PSL Require Import Bijection.
 
-(** ** Formalisation of finite types using canonical structures and type classes *)
+(* ** Formalisation of finite types using canonical structures and type classes *)
 
-(** * Definition of finite Types *)
+(* * Definition of finite Types *)
 
 Class finTypeC  (type:eqType) : Type :=
   FinTypeC {
@@ -27,7 +27,7 @@ Hint Extern 5 (finTypeC (EqType ?x)) => unfold x : typeclass_instances.
 
 Canonical Structure finType_CS (X : Type) {p : eq_dec X} {class : finTypeC (EqType X)} : finType := FinType (EqType X).
 
-(** Print the base type of [finType] in the Canonical Structure. *)
+(* Print the base type of [finType] in the Canonical Structure. *)
 Arguments finType_CS (X) {_ _}.
 
 Definition elem (F: finType) := @enum (type F) (class F).
@@ -48,7 +48,7 @@ Proof.
 Qed.
 Hint Resolve allSub : core.
 
-(** A properties that hold on every element of (elem X) hold for every element of the finType X *)
+(* A properties that hold on every element of (elem X) hold for every element of the finType X *)
 Theorem Equivalence_property_all (X: finType) (p: X -> Prop) :
   (forall x, p x) <-> forall x, x el (elem X) -> p x.
 Proof.
@@ -92,7 +92,7 @@ Proof.
   - tauto.
 Defined.
 
-(** * Properties of decidable Propositions *)
+(* * Properties of decidable Propositions *)
 
 Lemma DM_notAll (X: finType) (p: X -> Prop) (D:forall x, dec (p x)): (~ (forall x, p x)) <-> exists x, ~ (p x).
 Proof.     

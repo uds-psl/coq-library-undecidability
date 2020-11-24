@@ -20,13 +20,13 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Definition of first order satisfiability *)
+(* * Definition of first order satisfiability *)
 
 Section satisfiability.
 
   Variable (Σ : fo_signature) (e : rels Σ) (E : ar_rels Σ e = 2) (A : fol_form Σ).
 
-  (** A first order formula over signature Σ is finitely satisfiable over
+  (* A first order formula over signature Σ is finitely satisfiable over
       type X if there exists a model M interpreting the signature Σ over type X
       which is both finite (strongly listable) and strongly decidable,
       and a valuation φ : nat -> X in which A is satisfied *)

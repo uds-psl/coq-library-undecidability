@@ -1,6 +1,6 @@
 From Undecidability.Shared.Libs.PSL Require Export BaseLists Removal.
 
-(** *** Cardinality *)
+(* *** Cardinality *)
 
 Section Cardinality.
   Variable X : eqType.

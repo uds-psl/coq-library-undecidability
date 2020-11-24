@@ -1,9 +1,9 @@
 (* The code of this file is a modified version of the axioms included with Autosubst 2 *)
-(** * Axiomatic Assumptions
+(* * Axiomatic Assumptions
     For our development, we have to extend Coq with one well known axiomatic assumptions, namely _functional extensionality_.
 *)
 
-(** ** Functional Extensionality
+(* ** Functional Extensionality
     We import the axiom from the Coq Standard Library and derive a utility tactic to make the assumption practically usable.
 *)
 Require Import Coq.Logic.FunctionalExtensionality.

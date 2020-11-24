@@ -1,14 +1,14 @@
 From Undecidability.L Require Export Tactics.LTactics Functions.Encoding Datatypes.LBool L.
 Import HOAS_Notations.
 
-(** * Definition of L-decidability *)
+(* * Definition of L-decidability *)
 
 Definition decides (u:term) P := forall (s:term), exists b : bool, (app u (ext s) == ext b /\ (if b then P s else ~P s)).
 
 Definition ldec (P : term -> Prop) := 
   exists u : term, proc u /\ decides u P.
 
-(** * Complement, conj and disj of predicates *)
+(* * Complement, conj and disj of predicates *)
 
 Definition complement (P : term -> Prop) := fun t => ~ P t.
 
@@ -16,7 +16,7 @@ Definition conj (P : term -> Prop) (Q : term -> Prop) := fun t => P t /\ Q t.
 
 Definition disj (P : term -> Prop) (Q : term -> Prop) := fun t => P t \/ Q t.
 
-(** * Deciders for complement, conj and disj of ldec predicates *)
+(* * Deciders for complement, conj and disj of ldec predicates *)
 Definition tcompl (u : term) : term := Eval cbn in λ x, !!(ext negb) (!!u x).
 
 Definition tconj (u v : term) : term := Eval cbn in λ x, !!(ext andb) (!!u x) (!!v x).
@@ -26,7 +26,7 @@ Definition tdisj (u v : term) : term := Eval cbn in λ x, !!(ext orb) (!!u x) (!
 Hint Unfold tcompl tconj tdisj : Lrewrite.
 Hint Unfold tcompl tconj tdisj : LProc.
 
-(** * L-decidable predicates are closed under complement, conj and disj *)
+(* * L-decidable predicates are closed under complement, conj and disj *)
 
 Lemma ldec_complement P : ldec P -> ldec (complement P).
 Proof.

@@ -9,13 +9,15 @@
 
 (* Certified Undecidability of Intuitionistic Linear Logic via Binary Stack Machines and Minsky Machines. Yannick Forster and Dominique Larchey-Wendling. CPP '19. http://uds-psl.github.io/ill-undecidability/ *)
 
+(** * Halting problem for two counter Minsky machines MM2_HALTING  *)
+
 Require Import List Arith Relations.
 
 Set Implicit Arguments.
 
 Section self_contained_mm2.
 
-  (** Two counters Minsky machines. Counters are named A and B
+  (* Two counters Minsky machines. Counters are named A and B
 
       For instructions: INC{A,B} | DEC{A,B} j 
 
@@ -36,7 +38,7 @@ Section self_contained_mm2.
 
   Notation mm2_state := (nat*(nat*nat))%type.
 
-  (** Instruction step semantics:
+  (* Instruction step semantics:
 
       ρ // x ⇢ y : instruction ρ transforms state x into state y 
 
@@ -53,11 +55,11 @@ Section self_contained_mm2.
     | in_mm2s_dec_b0 : forall i j a,   mm2_dec_b j // (i,(  a,  0)) ⇢ (1+i,(  a,  0))
   where "ρ // x ⇢ y" := (mm2_atom ρ x y).
 
-  (** instruction ρ occurs at PC index i in the program (1,P) *)
+  (* instruction ρ occurs at PC index i in the program (1,P) *)
 
   Definition mm2_instr_at (ρ : mm2_instr) i P := exists l r, P = l++ρ::r /\ 1+length l = i.
 
-  (** Program step semantics:
+  (* Program step semantics:
 
       program P with first instruction at PC index 1 transforms 
       state x into state y in one step, using instruction a PC index (fst x) *)
@@ -66,11 +68,11 @@ Section self_contained_mm2.
 
   Notation "P // x → y" := (mm2_step P x y).
  
-  (** Halting condition: program P cannot progress anymore *)
+  (* Halting condition: program P cannot progress anymore *)
 
   Definition mm2_stop P s := forall s', ~ P // s → s'.
 
-  (** reflexive and transitive closure of program step semantics *)
+  (* reflexive and transitive closure of program step semantics *)
 
   Notation "P // x ↠ y" := (clos_refl_trans _ (mm2_step P) x y).
 

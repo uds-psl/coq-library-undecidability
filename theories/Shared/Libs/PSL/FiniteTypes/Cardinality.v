@@ -2,7 +2,7 @@ From Undecidability.Shared.Libs.PSL Require Import FinTypes.
 
 Definition Cardinality (F: finType) := | elem F |.
 
-(** * Dupfreeness *)
+(* * Dupfreeness *)
 (* Proofs about dupfreeness *)
 
 
@@ -48,7 +48,7 @@ Proof.
     + inv D; apply IHA; auto.
 Qed.     
 
-(* (** * Proofs about Cardinality *) *)
+(* (* * Proofs about Cardinality *) *)
 
 (* Lemma Card_positiv (X: finType) (x:X) : Cardinality X > 0. *)
 (* Proof. *)

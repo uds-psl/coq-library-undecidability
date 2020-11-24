@@ -25,7 +25,7 @@ Require Import Undecidability.PCP.Reductions.HaltTM_1_to_PCPb.
 
 Import ReductionChainNotations UndecidabilityNotations.
 
-(** The reduction chain from the CPP 2019, Y. Forster & D. Larchey-Wendling *)
+(* The reduction chain from the CPP 2019, Y. Forster & D. Larchey-Wendling *)
 
 Theorem PCP_chain_ILL : 
   ⎩ PCP ⪯ₘ PCPb ⪯ₘ iPCPb ⪯ₘ BSM_HALTING ⪯ₘ MM_HALTS_ON_ZERO ⪯ₘ EILL_PROVABILITY ⪯ₘ ILL_PROVABILITY ⎭.
@@ -37,7 +37,7 @@ Qed.
 
 Check PCP_chain_ILL.
 
-(** Undecidability results *)
+(* Undecidability results *)
 
 Local Hint Resolve EILL_rILL_cf_PROVABILITY 
                    EILL_rILL_PROVABILITY

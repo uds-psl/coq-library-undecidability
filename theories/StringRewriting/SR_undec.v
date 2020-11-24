@@ -6,7 +6,7 @@ Require Import Undecidability.TM.SBTM_undec.
 
 From Undecidability.StringRewriting.Reductions Require HaltSBTMu_to_SRH SRH_to_SR HaltSBTMu_to_TSR.
 
-(** String rewriting with a halting symbol is undecidable. *)
+(* String rewriting with a halting symbol is undecidable. *)
 Lemma SRH_undec : undecidable SRH.
 Proof.
   apply (undecidability_from_reducibility HaltSBTMu_undec).
@@ -15,7 +15,7 @@ Qed.
 
 Check SRH_undec.
 
-(** String rewriting is undecidable. *)
+(* String rewriting is undecidable. *)
 Lemma SR_undec : undecidable SR.
 Proof.
   apply (undecidability_from_reducibility SRH_undec).
@@ -24,7 +24,7 @@ Qed.
 
 Check SR_undec.
 
-(** Thue system reachability is undecidable. *)
+(* Thue system reachability is undecidable. *)
 Lemma TSR_undec : undecidable TSR.
 Proof.
   apply (undecidability_from_reducibility HaltSBTMu_undec).

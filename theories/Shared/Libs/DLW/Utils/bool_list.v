@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Bitwise operations on nat as list bool *)
+(* ** Bitwise operations on nat as list bool *)
 
 Require Import List Lia Bool Setoid.
 
@@ -39,7 +39,7 @@ Set Implicit Arguments.
 
   Hint Resolve leb_refl leb_trans leb_strict : core.
 
-  (** We develop the Boolean algebra of lists of Booleans *)
+  (* We develop the Boolean algebra of lists of Booleans *)
 
   (* The masking relation *)
 

@@ -30,9 +30,9 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Common Tools for reductions *)
+(* * Common Tools for reductions *)
 
-(** Inductively defined Boolean PCP as defined in PCP/PCP.v 
+(* Inductively defined Boolean PCP as defined in PCP/PCP.v 
       is equivalent to BPCP_problem here *)
 
 Theorem BPCP_BPCP_problem_eq R : BPCP_problem R <-> BPCP R.
@@ -42,7 +42,7 @@ Proof.
   + exists u; auto.
 Qed.
 
-(** The reduction from BPCP as defined in Problems/PCP.v
+(* The reduction from BPCP as defined in Problems/PCP.v
     and BPCP_problem as defined in ./bpcp.v *)
 
 Theorem BPCP_BPCP_problem : BPCP ⪯ᵢ BPCP_problem.
@@ -50,7 +50,7 @@ Proof.
   exists (fun x => x); red; symmetry; apply BPCP_BPCP_problem_eq.
 Qed.
 
-(** From a given (arbitrary) signature, 
+(* From a given (arbitrary) signature, 
     the reduction from 
     - finite and decidable SAT  
     - to finite and decidable and discrete SAT
@@ -80,7 +80,7 @@ Proof. exists (fun A => A); red; apply fo_form_fin_dec_SAT_discr_equiv. Qed.
 (* Check FIN_DEC_SAT_FIN_DISCR_DEC_SAT.
 Print Assumptions FIN_DEC_SAT_FIN_DISCR_DEC_SAT. *)
 
-(** With Σ = (sy,re) a signature and <<=_2>> : re and a proof that
+(* With Σ = (sy,re) a signature and <<=_2>> : re and a proof that
     arity of =_2 is 2, there is a reduction from
     - finite and decidable and interpreted SAT over Σ (=_2 is interpreted by =)
     - to finite and decidable SAT over Σ 

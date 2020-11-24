@@ -24,7 +24,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * From Σ=(ø;{R^n}) to Σ=(ø;{R^2}) *)
+(* * From Σ=(ø;{R^n}) to Σ=(ø;{R^2}) *)
 
 Local Notation ø := vec_nil.
 
@@ -61,7 +61,7 @@ Section Sign_Sig2_encoding.
 
   Variable R : Y -> X -> Prop.
 
-  (** R represent a relation  Mn <~> M2 = { x | x ∈ p } which
+  (* R represent a relation  Mn <~> M2 = { x | x ∈ p } which
       ensures the soundness & completeness of the encoding
       These are the conditions for correctness 
 
@@ -136,7 +136,7 @@ Section Sign_Sig2_encoding.
 
   Variable A : fol_form Σn.
 
-  (** We make some space for l and r *)
+  (* We make some space for l and r *)
 
   Let B := fol_subst (fun v => £ (2+v)) A.
   Let d := 0.
@@ -145,7 +145,7 @@ Section Sign_Sig2_encoding.
   (* Notice that Σn_Σ2 A has two more free variables than A,
      that could be quantified existentially over if needed *)
 
-  (** The FO set-theoretic axioms we need to add are somewhat minimal:
+  (* The FO set-theoretic axioms we need to add are somewhat minimal:
          - ∈ must be extensional (of course, this is a set-theoretic model)
          - ordered n-tuples encoded in the usual way should exists for elements ∈ l 
          - l should not be the empty set 
@@ -164,7 +164,7 @@ Section SAT2_SATn.
 
   Variable n : nat.
 
-  (** We show the easy implication, any model of Σn_Σ2_enc A
+  (* We show the easy implication, any model of Σn_Σ2_enc A
      gives rise to a model of A *)
 
   Section nested.
@@ -264,7 +264,7 @@ Section SATn_SAT2.
 
   Variable n : nat.
 
-  (** This is the hard implication. From a model of A, 
+  (* This is the hard implication. From a model of A, 
       build a model of Σn_Σ2_enc A in hereditary finite sets *)
 
   Section nested.

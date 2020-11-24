@@ -98,7 +98,7 @@ Section StateWhile.
 
 
 
-  (** The definition of [TM] already contains the start state. The parameter of [StateWhile] somehow corresponds to the start state, but it is irrelevant when we choose a concrete starting state for [loopM]. *)
+  (* The definition of [TM] already contains the start state. The parameter of [StateWhile] somehow corresponds to the start state, but it is irrelevant when we choose a concrete starting state for [loopM]. *)
   Lemma startState_irrelevant k l l' c1 c2 :
     loopM (StateWhileTM l ) c1 k = Some c2 ->
     loopM (StateWhileTM l') c1 k = Some c2.
@@ -213,7 +213,7 @@ Section StateWhile.
   Qed.
 
 
-  (** ** Correctness of [StateWhile] *)
+  (* ** Correctness of [StateWhile] *)
 
   Variable R : F1 -> pRel sig (F1 + F2) n.
 
@@ -250,7 +250,7 @@ Section StateWhile.
   Qed.
 
   
-  (** ** Termination of [StateWhile] *)
+  (* ** Termination of [StateWhile] *)
   Section StateWhile_TerminatesIn.
     Variable (T T' : F1 -> tRel sig n).
 
@@ -284,7 +284,7 @@ Section StateWhile.
 
   End StateWhile_TerminatesIn.
 
-  (** Alternative for [StateWhile_TerminatesIn] using co-induction *)
+  (* Alternative for [StateWhile_TerminatesIn] using co-induction *)
   Section StateWhile_TerminatesIn_coind.
     Variable (T : F1 -> tRel sig n).
 
@@ -311,7 +311,7 @@ Section StateWhile.
 
 
 
-  (** It's easy to show that the start-labels are irrevant if we fix the internal state. The transition functions are definitionally equal. *)
+  (* It's easy to show that the start-labels are irrevant if we fix the internal state. The transition functions are definitionally equal. *)
   Lemma StartState_irrelevant (y y' : F1) (k : nat) (iconf : mconfig sig (FinType(EqType StateWhile_states)) n) :
     loopM (projT1 (StateWhile y')) iconf k = loopM (projT1 (StateWhile y )) iconf k.
   Proof. auto. Qed.
@@ -323,7 +323,7 @@ Arguments StateWhile : simpl never.
 Arguments StateWhile {n sig F1 F2} pM {defF} l1.
 
 
-(** ** (Co-) Induction Principle for Correctness (Running Time) of [StateWhile] *)
+(* ** (Co-) Induction Principle for Correctness (Running Time) of [StateWhile] *)
 
 Section StateWhileInduction.
   Variable (sig : finType) (n : nat) (F1 F2 : finType).

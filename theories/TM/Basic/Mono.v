@@ -1,9 +1,9 @@
 From Undecidability Require Import TM.Util.TM_facts.
 
-(** * Basic 1-Tape Machines *)
+(* * Basic 1-Tape Machines *)
 
 
-(** ** Helper functions *)
+(* ** Helper functions *)
 Section Mk_Mono.
   Variable (sig state : finType).
   Variable mono_trans : state -> option sig -> state * (option sig * move).
@@ -30,7 +30,7 @@ Arguments Mk_R_p { sig F } ( R ) x y /.
 
 
 
-(** ** Do a single action *)
+(* ** Do a single action *)
 Section DoAct.
   Variable sig : finType.
   Variable c : sig.
@@ -58,7 +58,7 @@ Arguments DoAct : simpl never.
 Arguments DoAct_Rel { sig } act x y /.
 
 
-(** *** Derived Machines *)
+(* *** Derived Machines *)
 
 Section DoAct_Derived.
   Variable sig : finType.
@@ -120,7 +120,7 @@ Arguments WriteMove : simpl never.
 Arguments WriteMove_Rel { sig } (w D) x y / : rename.
 
 
-(** ** Read a symbol *)
+(* ** Read a symbol *)
 
 Section CaseChar.
   Variable sig : finType.
@@ -181,7 +181,7 @@ Arguments ReadChar {sig}.
 Arguments ReadChar_Rel sig x y /.
 
 
-(** ** Tactic Support *)
+(* ** Tactic Support *)
 
 Ltac smpl_TM_Mono :=
   once lazymatch goal with

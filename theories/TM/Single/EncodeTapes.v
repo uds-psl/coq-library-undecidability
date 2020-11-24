@@ -85,7 +85,7 @@ Instance Encode_tape (sig : Type) : codable (sigTape sig) (tape sig) :=
 (* Compute encode_tape (rightof 3 [2;1]). *)
 
 
-(** Moving does not change the number of symbols. *)
+(* Moving does not change the number of symbols. *)
 Goal forall (sig : Type) (m : move) (t : tape sig), length (encode_tape (tape_move t m)) = length (encode_tape t).
 Proof.
   intros.

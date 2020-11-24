@@ -19,7 +19,7 @@ Set Implicit Arguments.
 
 Local Notation "'⟦' f '⟧'" := (@ra_rel _ f) (at level 0).
 
-(** We build a universal µ-recusive algorithm of size 8708
+(* We build a universal µ-recusive algorithm of size 8708
 
       ra_univ : recalg 1
 

@@ -19,7 +19,7 @@ Set Implicit Arguments.
 
 Section dc_list_h10c.
 
-  (** Reduction from (l,ν) an instance of a DIO_ELEM_PROBLEM 
+  (* Reduction from (l,ν) an instance of a DIO_ELEM_PROBLEM 
       where 
          - l is a list of elementary Diophantine constraints
          - ν is a valuation for the paratemeters

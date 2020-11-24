@@ -13,7 +13,7 @@ Require Import Undecidability.Synthetic.Definitions.
 
 Require Import Arith Lia.
 
-(** * PCP to CFPP *)
+(* * PCP to CFPP *)
 
 Section PCP_CFPP.
 

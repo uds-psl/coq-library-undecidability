@@ -4,7 +4,7 @@ From Undecidability.HOU Require Import std.std.
 From Undecidability.HOU.calculus Require Export prelim.
 From Undecidability.HOU.calculus Require Import semantics.
 
-(** * Confluence *)
+(* * Confluence *)
 Section Confluence.
 
   Context {X: Const}.

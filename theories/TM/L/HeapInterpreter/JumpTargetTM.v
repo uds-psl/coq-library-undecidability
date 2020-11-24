@@ -1,4 +1,4 @@
-(** * Implementation of [ϕ] (aka SplitBody) *)
+(* * Implementation of [ϕ] (aka SplitBody) *)
 
 From Undecidability Require Import TM.Code.ProgrammingTools LM_heap_def.
 From Undecidability.TM.L Require Import Alphabets CaseCom.
@@ -8,13 +8,13 @@ Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 
 
-(** The [JumpTarget] machine only operates on programs. Thus we define [JumpTarget] on the alphabet [sigPro^+]. *)
+(* The [JumpTarget] machine only operates on programs. Thus we define [JumpTarget] on the alphabet [sigPro^+]. *)
 
-(** This is the only way we can encode [nat] on [sigPro]: as a variable token. *)
+(* This is the only way we can encode [nat] on [sigPro]: as a variable token. *)
 Definition retr_nat_prog : Retract sigNat sigPro := Retract_sigList_X _.
 
 
-(** append a token to the token list *)
+(* append a token to the token list *)
 Definition App_ACom (t : ACom) : pTM sigPro^+ unit 2 :=
   WriteValue [ACom2Com t] @ [|Fin1|];;
   App _.
@@ -70,7 +70,7 @@ Qed.
 
 
 
-(** Add a singleton list of tokes to [Q] *)
+(* Add a singleton list of tokes to [Q] *)
 Definition App_Com : pTM sigPro^+ (FinType(EqType unit)) 3 :=
   Constr_nil _ @ [|Fin2|];;
   Constr_cons _@ [|Fin2; Fin1|];;

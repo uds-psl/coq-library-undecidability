@@ -17,7 +17,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * First order signatures and models *)
+(* * First order signatures and models *)
 
 Record fo_signature := Mk_fo_signature {
   syms : Type;
@@ -26,7 +26,7 @@ Record fo_signature := Mk_fo_signature {
   ar_rels : rels -> nat
 }.
 
-(** Only one relational symbol of arity n *)
+(* Only one relational symbol of arity n *)
 
 Definition Σrel (n : nat) : fo_signature.
 Proof.
@@ -37,7 +37,7 @@ Proof.
   + exact (fun _ => n). (* The n-ary relation *)
 Defined.
 
-(** One relational symbol of arity n and (interpreted) equality *)
+(* One relational symbol of arity n and (interpreted) equality *)
 
 Definition Σrel_eq (n : nat) : fo_signature.
 Proof.
@@ -48,7 +48,7 @@ Proof.
   + exact (fun b => if b then n else 2).
 Defined.
 
-(** The signature for the encoding of the binary 
+(* The signature for the encoding of the binary 
     Post correspondance problem BPCP *)
 
 (* Σbpcp_bool _ is unary, the two others are constants *)
@@ -78,18 +78,18 @@ Proof.
   + exact (fun _ => 2).
 Defined.
 
-(** Semantics: FO models *)
+(* Semantics: FO models *)
 
 Record fo_model Σ (X : Type) := Mk_fo_model {
   fom_syms : forall s, vec X (ar_syms Σ s) -> X;
   fom_rels : forall r, vec X (ar_rels Σ r) -> Prop }.
 
-(** FO model decidability/computability *)
+(* FO model decidability/computability *)
 
 Definition fo_model_dec Σ X (M : fo_model Σ X) := 
   forall r (v : vec _ (ar_rels _ r)), { fom_rels M r v } + { ~ fom_rels M r v }.
 
-(** FO model from a binary rel *)
+(* FO model from a binary rel *)
 
 Definition rel2_on_vec X (R : X -> X -> Prop) (v : vec X 2) : Prop :=
   R (vec_head v) (vec_head (vec_tail v)).

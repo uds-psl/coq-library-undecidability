@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * First order terms, syntax and semantics *)
+(* * First order terms, syntax and semantics *)
 
 Local Hint Resolve in_vec_list in_vec_pos : core.
 
@@ -30,7 +30,7 @@ Section first_order_terms.
 
   Unset Elimination Schemes.       (* we do not want the autogen recursors *)
 
-  (** The Type of first order terms over signature s *)
+  (* The Type of first order terms over signature s *)
 
   Inductive fo_term : Type :=
     | in_var : nat -> fo_term
@@ -284,7 +284,7 @@ Section fo_term_extra.
     destruct Hx as (p & ->); apply IHv.
   Qed.
 
-  (** The identity is going to be complicated only permutation will do
+  (* The identity is going to be complicated only permutation will do
       the syms in the substitution are those in the original term + all
       those occuring in the substitution on the variables in t 
 

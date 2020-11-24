@@ -23,14 +23,14 @@ Section measure_rect.
 
   Let R x y := m x < m y.
 
-  (** R is WF when all elements are accessible *)
+  (* R is WF when all elements are accessible *)
 
   Let Rwf : forall x : X, Acc R x.
   Proof.
     apply wf_inverse_image with (f := m), lt_wf.
   Qed.
 
-  (** Structural decrease on the Acc predicate and no 
+  (* Structural decrease on the Acc predicate and no 
       singleton elimination here because the Acc predicated
       is pattern matched (by destruct) in Prop context *)
 
@@ -45,7 +45,7 @@ Section measure_rect.
     trivial. 
   Defined.
 
-  (** To evaluate @Fix_F x A, the recursive argument must reduce to a
+  (* To evaluate @Fix_F x A, the recursive argument must reduce to a
       term headed with an inductive constructor *)
 
   Let Fix_F_fix x A :
@@ -54,13 +54,13 @@ Section measure_rect.
 
   Definition measure_rect x : P x := Fix_F (Rwf x).
 
-  (** To establish the fixpoint equation for measure_rect, we need
+  (* To establish the fixpoint equation for measure_rect, we need
       to assume that the functional F is extensional because we do not
       use the FunExt axiom *)
 
   Hypothesis F_ext : forall x f g, (forall y H, f y H = g y H) -> F x f = F x g.
 
-  (** Another proof method here that in StdLib, using the characterisation
+  (* Another proof method here that in StdLib, using the characterisation
       of Acc irrelevant functionals *)
 
   Let Fix_F_Acc_irr : forall x f g, @Fix_F x f = Fix_F g.

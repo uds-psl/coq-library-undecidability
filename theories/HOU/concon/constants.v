@@ -5,8 +5,8 @@ From Undecidability.HOU Require Import
         concon.conservativity.
 Import ListNotations.
 
-(** * Constants *)
-(** ** Adding Constants *)
+(* * Constants *)
+(* ** Adding Constants *)
 Section Retracts.
     Variable (X Y: Const).
     Variable (RE: retract X Y).
@@ -154,7 +154,7 @@ End Retracts.
 
 
 
-(** ** Removing Constants *)
+(* ** Removing Constants *)
 Section RemoveConstants.
 
   Variable (X Y: Const) (RE: retract Y X).
@@ -525,7 +525,7 @@ End RemoveConstants.
 
 
 
-(** ** Goldfarb sharp *)
+(* ** Goldfarb sharp *)
 
 From Undecidability.HOU Require Import
    second_order.diophantine_equations second_order.goldfarb.reduction.

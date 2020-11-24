@@ -16,7 +16,9 @@ From Undecidability.Shared.Libs.DLW
 
 Set Implicit Arguments.
 
-(** * Binary Stack Machines
+(** * Halting problem for binary stack machines BSM_HALTING  *)
+
+(* * Binary Stack Machines
    Binary stack machines have n stacks and there are just two instructions
   
    1/ POP s p q : pops the value on stack s and
@@ -35,7 +37,7 @@ Inductive bsm_instr n : Set :=
 Notation POP  := bsm_pop.
 Notation PUSH := bsm_push.
 
-(** ** Semantics for BSM *)
+(* ** Semantics for BSM *)
 
 Section Binary_Stack_Machine.
 

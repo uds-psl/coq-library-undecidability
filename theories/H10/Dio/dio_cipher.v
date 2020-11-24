@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Object-level encoding of bounded universal quantification II *)
+(* ** Object-level encoding of bounded universal quantification II *)
 
 Require Import Arith List Bool.
 
@@ -28,7 +28,7 @@ Local Notation "∑" := (msum plus 0).
 Local Infix "⇣" := nat_meet (at level 40, left associativity).
 Local Infix "⇡" := nat_join (at level 50, left associativity).
 
-(** seqs_of_ones l q u u1 iff 
+(* seqs_of_ones l q u u1 iff 
 
             l+1 < q 
        and  u  = ∑(i<l) r^(2^(1+i))
@@ -89,7 +89,7 @@ Proof. intros; unfold Code_mult; dio auto. Defined.
 
 Hint Resolve dio_rel_Code_plus dio_rel_Code_mult : dio_rel_db.
 
-(** Now we have diophantine representations of q-cipher of the following l-tuple
+(* Now we have diophantine representations of q-cipher of the following l-tuple
 
     1) <x,...,x>  (for x < 2^q)
     2) <0,...,l-1> 

@@ -9,7 +9,7 @@ Import ListAutomationNotations.
 
 Import RuleNotation.
 
-(** * SRH to SR *)
+(* * SRH to SR *)
 
 Section SRH_SR.
 

@@ -21,7 +21,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Decidability of FSAT for monadic signatures *)
+(* * Decidability of FSAT for monadic signatures *)
 
 Local Notation ø := vec_nil.
 
@@ -118,7 +118,7 @@ Section Σ1_model.
 
 End Σ1_model.
 
-(** A monadic FO formula which has a model also has
+(* A monadic FO formula which has a model also has
     a model over base type X which is a decidable subtype of bool^n
     where n bound the number of unary predicates *)
 
@@ -137,7 +137,7 @@ Proof.
   exists G2, psi; auto.
 Qed.
 
-(** Monadic FO logic with n unary rels and no function symbols 
+(* Monadic FO logic with n unary rels and no function symbols 
     has a decidable FSAT *)
 
 Theorem FSAT_ΣP1_dec n V (A : fol_form (ΣP1 V n)) : (V -> False) -> decidable (fo_form_fin_dec_SAT A).

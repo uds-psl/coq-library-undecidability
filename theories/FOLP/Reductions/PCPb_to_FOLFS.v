@@ -1,4 +1,4 @@
-(** * Trakhtenbrot's Theorem *)
+(* * Trakhtenbrot's Theorem *)
 
 Require Import Equations.Equations.
 Require Import Lia Arith.
@@ -9,7 +9,7 @@ Require Import Undecidability.Shared.ListAutomation.
 Import ListAutomationNotations.
 
 
-(** ** Bounded boolean strings *)
+(* ** Bounded boolean strings *)
 
 Derive Signature for le.
 
@@ -98,7 +98,7 @@ Qed.
 
 
 
-(** ** Signature used in the proof *)
+(* ** Signature used in the proof *)
 
 Inductive what := pred | func.
 Definition make_sig (T : what -> nat -> Type) : Signature :=
@@ -141,7 +141,7 @@ Definition ienc domain {I : interp domain} (x : list bool) := iprep x i_e.
 Local Definition BSRS := list (card bool).
 Local Notation "x / y" := (x, y).
 
-(** ** Finite standard models *)
+(* ** Finite standard models *)
 
 Section FIB.
 
@@ -398,7 +398,7 @@ End FIB.
 
 
 
-(** ** Axiomatisation of finite standard models *)
+(* ** Axiomatisation of finite standard models *)
 
 Section Conv.
   
@@ -540,7 +540,7 @@ End Conv.
 
 
 
-(** ** Axioms stated as a concrete first-order formula *)
+(* ** Axioms stated as a concrete first-order formula *)
 
 Definition finsat phi :=
   exists D (I : interp D) rho, listable D /\ (forall x y, i_equiv x y <-> eq x y) /\ rho ⊨ phi.

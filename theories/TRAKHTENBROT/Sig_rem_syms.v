@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Converting functions symbols into relations symbols *) 
+(* * Converting functions symbols into relations symbols *) 
 
 Local Notation ø := vec_nil.
 
@@ -28,7 +28,7 @@ Section Sig_remove_symbols.
 
   Variable (Σ : fo_signature).
 
-  (** map every term symbol to a relation symbols of +1 arity
+  (* map every term symbol to a relation symbols of +1 arity
       and add an (interpreted) equality *)
 
   Definition Σnosyms : fo_signature.
@@ -342,10 +342,10 @@ Section Sig_remove_symbols.
 
 End Sig_remove_symbols.
 
-(** And now the reduction soundness and completeness results for Σsyms_Σnosyms 
+(* And now the reduction soundness and completeness results for Σsyms_Σnosyms 
     The reduction is from FIN_DEC_DISCR_SAT to FIN_DEC_EQ_SAT *)
 
-(** Soundess of Σsyms_Σnosyms *)
+(* Soundess of Σsyms_Σnosyms *)
 
 Theorem Σsyms_Σnosyms_sound Σ ls A X : 
              fo_form_fin_discr_dec_SAT_in A X
@@ -369,7 +369,7 @@ Proof.
   + revert H3; apply fol_rem_syms_spec.
 Qed.
 
-(** Completeness of Σsyms_Σnosyms *)
+(* Completeness of Σsyms_Σnosyms *)
 
 Section completeness.
 

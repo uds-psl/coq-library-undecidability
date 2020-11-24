@@ -1,7 +1,7 @@
 From Undecidability.L Require Import Tactics.LTactics Datatypes.LBool.
 From Undecidability.L Require Import Tactics.GenEncode.
 
-(** ** Encoding of sum type *)
+(* ** Encoding of sum type *)
 Section Fix_XY.
 
   Variable X Y:Type.
