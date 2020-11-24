@@ -747,6 +747,7 @@ DiophantineConstraints/H10C_undec.v
 DiophantineConstraints/Util/h10c_utils.v
 DiophantineConstraints/Reductions/H10C_SAT_to_H10UC_SAT.v
 DiophantineConstraints/Reductions/FRACTRAN_to_H10C_SAT.v
+DiophantineConstraints/Reductions/H10C_SAT_to_H10SQC_SAT.v
 
 #Set Constraints
 SetConstraints/FMsetC.v
