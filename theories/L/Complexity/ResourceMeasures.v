@@ -1,8 +1,8 @@
 From Undecidability.L Require Import Util.L_facts Seval.
 Require Import RelationClasses.
 
-(** * Resource Measures *)
-(** ** Big-Step Time Measure*)
+(* * Resource Measures *)
+(* ** Big-Step Time Measure*)
 
 Inductive timeBS : nat -> term -> term -> Prop :=
   timeBSVal s : timeBS 0 (lam s) (lam s)
@@ -11,7 +11,7 @@ Inductive timeBS : nat -> term -> term -> Prop :=
 
 Module Leftmost.
 
-  (** ** Leftmost reduction *)
+  (* ** Leftmost reduction *)
 
   Reserved Notation "s '≻lm' t" (at level 50).
 
@@ -39,7 +39,7 @@ Module Leftmost.
     end.
 
 
-  (** *** Small-Step_Lm Time Measure *)
+  (* *** Small-Step_Lm Time Measure *)
 
   Instance pow_step_lm_congL k:
     Proper ((pow step_lm k) ==> eq ==> (pow step_lm k)) app.
@@ -62,7 +62,7 @@ Module Leftmost.
     induction 1;eauto using step.
   Qed.
 
-  (** *** Small-Step_Lm Space Measure *)
+  (* *** Small-Step_Lm Space Measure *)
 
   Definition redWithMaxSizeL := redWithMaxSize size step_lm.
 
@@ -123,7 +123,7 @@ Module Leftmost.
       eapply (rcomp_1 step_lm) in R'. eapply step_lm_evaluatesIn;eauto 10.
   Qed.
 
-  (** *** Big-Step_Lm Space Measure*)
+  (* *** Big-Step_Lm Space Measure*)
 
   Inductive spaceBS : nat -> term -> term -> Prop :=
     spaceBSVal s : spaceBS (size (lam s)) (lam s) (lam s)
@@ -289,7 +289,7 @@ Proof.
   -intros ? (?&R&?). inv R. all:easy.
 Qed.
 
-(** TODO: decompose this into lemmata? *)
+(* TODO: decompose this into lemmata? *)
 
 Lemma hasSpaceBeta s s' m1 t t' m2 m3:
   hasSpace m1 s -> hasSpace m2 t ->

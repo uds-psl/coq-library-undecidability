@@ -13,7 +13,7 @@ Set Implicit Arguments.
 
 Section nat_rev_ind.
 
-  (** A reverse recursion principle *)
+  (* A reverse recursion principle *)
 
   Variables (P : nat -> Prop)
             (HP : forall n, P (S n) -> P n).
@@ -25,7 +25,7 @@ End nat_rev_ind.
 
 Section nat_rev_ind'.
 
-  (** A reverse recursion principle *)
+  (* A reverse recursion principle *)
 
   Variables (P : nat -> Prop) (k : nat)
             (HP : forall n, n < k -> P (S n) -> P n).
@@ -103,7 +103,7 @@ End minimizer_pred.
 (* Check minimizer_pred. *)
 (* Print Assumptions minimizer_pred. *)
 
-(* (** Let P be a computable predicate: *)
+(* (* Let P be a computable predicate: *)
 (*       - whenever P n has a value (P n or not P n) then that value can be computed *)
 (*     Then minimizer P is computable as well: *)
 (*       - whenever minimizer P holds for some n, then such an n can be computed *)

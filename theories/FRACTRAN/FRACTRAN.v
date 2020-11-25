@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Definition of FRACTRAN *)
+(** * Halting problem for FRACTRAN programs FRACTRAN_HALTING *)
 
 Require Import List Arith.
 
@@ -50,7 +50,7 @@ Proof.
   exact (l /F/ x ↓).
 Defined.
 
-(** Given a FRACTRAN program and a starting vector [v1,...,vn],
+(* Given a FRACTRAN program and a starting vector [v1,...,vn],
     does the program terminate starting from p1 * q1^v1 * ... qn^vn *)
 
 Definition FRACTRAN_ALT_PROBLEM := (list (nat*nat) * { n : nat & vec nat n })%type.

@@ -31,7 +31,7 @@ Local Notation "P /MM2/ s ↓" := (sss_terminates (@mma_sss _) P s) (at level 70
 
 Local Notation "l /F/ x → y" := (fractran_step l x y) (at level 70, no associativity).
 
-(** FRACTRAN with two counter *)
+(* FRACTRAN with two counter *)
 
 Section Fractran_with_two_counters.
 

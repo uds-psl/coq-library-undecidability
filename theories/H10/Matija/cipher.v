@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Sparse ciphers *)
+(* ** Sparse ciphers *)
 
 Require Import Arith Lia List Bool.
 

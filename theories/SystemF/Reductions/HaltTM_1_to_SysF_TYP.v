@@ -17,7 +17,7 @@ Require Undecidability.SemiUnification.Reductions.RU2SemiU_to_LU2SemiU.
 
 Require Undecidability.SystemF.Reductions.LU2SemiU_to_SysF_TYP.
 
-(** Many-one reduction from Turing machine halting to System F typability*)
+(* Many-one reduction from Turing machine halting to System F typability*)
 Theorem reduction : HaltTM 1 ⪯ SysF_TYP.
 Proof.
   apply (reduces_transitive HaltTM_1_to_CSSM_UB.reduction).

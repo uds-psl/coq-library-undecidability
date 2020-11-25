@@ -49,7 +49,7 @@ Section wf_strict_order_list.
     + destruct IH2; auto; subst l; intros _ [].
   Qed.
 
-  (** Any chain of length above length m contains a duplicated
+  (* Any chain of length above length m contains a duplicated
       value (by the PHP) hence a non nil sub-chain with identical 
       endpoints, contradicting chain_irrefl *)
 
@@ -81,7 +81,7 @@ Section wf_strict_order_list.
       * apply finite_php_dup with (2 := H1); lia.
   Qed.
 
-  (** Since chains have bounded length, we get WF *)
+  (* Since chains have bounded length, we get WF *)
 
   Theorem wf_strict_order_list : well_founded R.
   Proof.

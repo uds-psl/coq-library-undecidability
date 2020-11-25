@@ -1,15 +1,15 @@
-(** * Machine for comparing two [positive] binary numbers *)
+(* * Machine for comparing two [positive] binary numbers *)
 
 From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import EncodeBinNumbers PosDefinitions PosPointers PosHelperMachines.
 
-(** Declare discreteness of [comparison] *)
+(* Declare discreteness of [comparison] *)
 Global Instance comparison_eq_dec : eq_dec comparison.
 Proof.
   intros. hnf. decide equality.
 Defined.
 
-(** Declare finiteness of [comparison] *)
+(* Declare finiteness of [comparison] *)
 Global Instance comparison_finC : finTypeC (EqType comparison).
 Proof.
   apply (FinTypeC (enum := [Eq; Lt; Gt])).
@@ -245,7 +245,7 @@ Proof.
 Qed.
 
 
-(** ** Maximum *)
+(* ** Maximum *)
 
 (* Call [Compare] and copy the maximum to the third tape. *)
 

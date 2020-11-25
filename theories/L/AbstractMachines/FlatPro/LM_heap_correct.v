@@ -2,9 +2,9 @@ From Undecidability.L Require Import Util.L_facts Complexity.ResourceMeasures.
 From Undecidability.L Require Import LM_heap_def.
 
 Import Lia.
-(** ** Direct correctness proof  *)
+(* ** Direct correctness proof  *)
 
-(** *** Correctnes Heap-interaction *)
+(* *** Correctnes Heap-interaction *)
 
 Definition extended (H H' : Heap) := forall alpha m, nth_error H alpha = Some m -> nth_error H' alpha = Some m.
 
@@ -44,7 +44,7 @@ Proof.
 Qed.
 
 Import L_Notations.
-(** *** Unfolding *)
+(* *** Unfolding *)
 
 Inductive unfolds H a: nat -> term -> term -> Prop :=
 | unfoldsUnbound k n :
@@ -255,7 +255,7 @@ Proof.
   repeat intro. subst. eapply reprC_extend.  all:eassumption.
 Qed.
 
-(** *** BS correctness *)
+(* *** BS correctness *)
 
 
 Lemma completenessInformative' s t k s0 P a T V H:
@@ -364,7 +364,7 @@ Proof.
   do 3 eexists. all:easy.
 Qed.
 
-(** *** BS soundness *)
+(* *** BS soundness *)
 
 Lemma soundness' s0 s P a T V H k sigma:
   evaluatesIn step k ((a,compile s0++P)::T,V,H) sigma ->

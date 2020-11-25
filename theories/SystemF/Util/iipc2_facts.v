@@ -13,7 +13,7 @@ Require Import ssreflect ssrbool ssrfun.
 Local Arguments nth_error_In {A l n x}.
 Local Arguments In_nth_error {A l x}.
 
-(** intuitionistic implicational propositional calculus of order 2  *)
+(* intuitionistic implicational propositional calculus of order 2  *)
 Definition iipc2 (Gamma: environment) (t: poly_type) := exists P, typing Gamma P t.
 Arguments iipc2 : simpl never.
 
@@ -24,7 +24,7 @@ Lemma iipc2_weakening {Gamma Gamma' t} :
   incl Gamma Gamma' -> iipc2 Gamma t -> iipc2 Gamma' t.
 Proof. by move=> /incl_nth_error [?] /typing_ren_term' H [?] /H /iipc2I. Qed.
 
-(** generalized weakening in case if every assumption is derivable *)
+(* generalized weakening in case if every assumption is derivable *)
 Lemma iipc2_generalization {Gamma Gamma' t} : 
   Forall (iipc2 Gamma') Gamma -> iipc2 Gamma t -> iipc2 Gamma' t.
 Proof.
@@ -88,7 +88,7 @@ Qed.
 Lemma Forall2_typing_Forall_iipc2 {Gamma Ps ts} : Forall2 (typing Gamma) Ps ts -> Forall (iipc2 Gamma) ts.
 Proof. elim; [by constructor | by move=> > /iipc2I; constructor]. Qed.
 
-(** iipc2 is preserved under type renamings *)
+(* iipc2 is preserved under type renamings *)
 Lemma iipc2_ren_poly_type {Gamma t} ξ : iipc2 Gamma t -> 
   iipc2 (map (ren_poly_type ξ) Gamma) (ren_poly_type ξ t).
 Proof. by move=> [?] /(typing_ren_poly_type ξ) /iipc2I. Qed.

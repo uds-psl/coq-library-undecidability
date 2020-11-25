@@ -3,7 +3,7 @@ From Undecidability.L.Datatypes Require Import LNat Lists LFinType.
 
 Require Import Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 
-(** *** Encoding vectors *)
+(* *** Encoding vectors *)
 
 Instance register_vector X `{registered X} n : registered (Vector.t X n).
 Proof.

@@ -5,7 +5,7 @@ Import ListNotations ListAutomationNotations.
 
 Set Implicit Arguments.
 
-(** ** Pre-order properties *)
+(* ** Pre-order properties *)
 
 Section Properties.
 
@@ -24,7 +24,7 @@ Section Properties.
     intro; rewrite Hf, Hg; tauto.
   Qed.
 
-  (** ** An equivalent dependent definition *)
+  (* ** An equivalent dependent definition *)
 
   Fact reduces_dependent :
     P ⪯ Q <-> inhabited (forall x, { y | P x <-> Q y }).
@@ -39,7 +39,7 @@ End Properties.
 
 Module ReductionChainNotations.
 
-(** DLW: Thx to M. Wuttke for the tip, see coq-club ML *)
+(* DLW: Thx to M. Wuttke for the tip, see coq-club ML *)
 
 Ltac redchain2Prop_rec xs :=
   lazymatch xs with

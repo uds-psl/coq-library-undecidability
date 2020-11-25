@@ -20,11 +20,11 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * The first order theory of membership *)
+(* * The first order theory of membership *)
 
 Section membership.
 
-  (** We develop a theory of finitary and computable and 
+  (* We develop a theory of finitary and computable and 
       extensional membership. We build pair, ordered pairs
       and ordered triples and show their properties *)
 
@@ -42,7 +42,7 @@ Section membership.
 
   Definition mb_transitive t := forall x y, x ∈ y -> y ∈ t -> x ∈ t.
 
-  (** Hypothesis on the model *)
+  (* Hypothesis on the model *)
 
   Variable (Rdec : forall x y, { x ∈ y } + { x ∉ y }) (Xfin : finite_t X).
 
@@ -140,7 +140,7 @@ Section membership.
   Fact mb_is_pair_fun p q x y : mb_is_pair p x y -> mb_is_pair q x y -> p ≈ q.
   Proof. intros H1 H2; red in H1, H2; intro; rewrite H1, H2; tauto. Qed.
 
-  (** Many cases here, automation helps !! *)
+  (* Many cases here, automation helps !! *)
 
   Fact mb_is_pair_inj p x y x' y' : mb_is_pair p x y 
                                  -> mb_is_pair p x' y' 
@@ -170,7 +170,7 @@ Section membership.
 
   Hint Resolve mb_is_pair_dec : core.
 
-  (** Ordered pairs (x,y) := {{x},{x,y}}, Von Neuman encoding *)
+  (* Ordered pairs (x,y) := {{x},{x,y}}, Von Neuman encoding *)
 
   Definition mb_is_opair p x y := exists a b, mb_is_pair a x x /\ mb_is_pair b x y /\ mb_is_pair p a b.
 
@@ -217,7 +217,7 @@ Section membership.
 
   Hint Resolve mb_is_opair_dec : core.
 
-  (** Ordered triples (x,y,z) := ((x,y),z) *)
+  (* Ordered triples (x,y,z) := ((x,y),z) *)
 
   Definition mb_is_otriple t x y z := exists p, mb_is_opair p x y /\ mb_is_opair t p z.
  
@@ -257,7 +257,7 @@ Section membership.
 
   Hint Resolve mb_is_otriple_dec : core.
 
-  (** n-tuples *)
+  (* n-tuples *)
 
   Fixpoint mb_is_tuple t n (v : vec X n) :=
     match v with 
@@ -312,7 +312,7 @@ Section membership.
 
   Hint Resolve mb_is_tuple_dec : core.
 
-  (** mb_has .... *)
+  (* mb_has .... *)
 
   Definition mb_has_pairs (l : X) :=
      forall x y, x ∈ l -> y ∈ l -> exists p, mb_is_pair p x y.
@@ -347,7 +347,7 @@ Section membership.
     apply (fol_bin_sem_dec fol_conj); auto.
   Qed.
 
-  (** mb total and functiona *)
+  (* mb total and functiona *)
 
   Definition mb_is_tot n (l s : X) :=
     forall v, (forall p, vec_pos v p ∈ l) -> exists x p t, x ∈ l /\ p ∈ s /\ mb_is_opair p x t /\ @mb_is_tuple t n v.
@@ -363,9 +363,9 @@ End membership.
 
 Section FOL_encoding.
 
-  (** First order encoding here *)
+  (* First order encoding here *)
 
-  (** Maybe we can redo the whole devel here with fo_definable.v *)
+  (* Maybe we can redo the whole devel here with fo_definable.v *)
 
   Notation Σ2 := (Σrel 2).
   Variable (Y : Type) (M2 : fo_model Σ2 Y).

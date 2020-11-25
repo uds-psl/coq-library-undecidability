@@ -23,7 +23,7 @@ Reserved Notation "P '//' r '-]]' s" (at level 70, no associativity).
 Reserved Notation "P '//' r '~~>' s" (at level 70, no associativity).
 Reserved Notation "P '//' r ↓" (at level 70, no associativity).
 
-(** Intented meaning of notations
+(* Intented meaning of notations
 
   ρ // r -1> s :      execution of instruction ρ changes state r into state s
   P // r :1> s :      execution of ONE instruction in P changes state r into state s            (one step)
@@ -41,7 +41,7 @@ Reserved Notation "P '//' r ↓" (at level 70, no associativity).
 
 Section Small_Step_Semantics.
 
-  (** * Code
+  (* * Code
       A generic library to implement Small Step Semantics on programs described
       by lists of instructions that modify a state and a Program Counter (PC) 
      
@@ -52,7 +52,7 @@ Section Small_Step_Semantics.
       ie to derive properties of program from properties of sub-programs
    *)
 
-  (** ** Syntax *)
+  (* ** Syntax *)
 
 
   Variable (instr : Set) (data : Type).
@@ -73,7 +73,7 @@ Section Small_Step_Semantics.
   
   Notation code := (nat * list instr)%type.
   
-  (** ** Semantics *)
+  (* ** Semantics *)
   
   (* This a one step computation *) 
 
@@ -298,10 +298,10 @@ Section Small_Step_Semantics.
   Fact sss_steps_compute P n st1 st2 : P // st1 -[n]-> st2 -> P // st1 ->> st2.
   Proof. exists n; trivial. Qed.
   
-  (** We propose a library of locality lemmas that link computations
+  (* We propose a library of locality lemmas that link computations
       in subcode to computations in the code *)
 
-  (** ** Compisitional Reasoning over Subcode *)
+  (* ** Compisitional Reasoning over Subcode *)
 
   (* First inclusions lemmas *)
 
@@ -514,7 +514,7 @@ Section Small_Step_Semantics.
     apply sss_out_step_stall in H2; try red; tauto.
   Qed.
   
-  (** This is a critical lemma about the locality of computations
+  (* This is a critical lemma about the locality of computations
   
       If P is subcode of Q and a computation in Q starts in P and ends outside of P,
       then it is decomposed in a first computation in P ending outside of P

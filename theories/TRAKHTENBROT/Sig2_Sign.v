@@ -20,11 +20,11 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * From binary singleton to n-ary singleton with n >= 2 *)
+(* * From binary singleton to n-ary singleton with n >= 2 *)
 
 Local Notation ø := vec_nil.
 
-(** The reduction could be made to work for (infinite) SAT only *)
+(* The reduction could be made to work for (infinite) SAT only *)
 
 Section Sig2_Sig_n_encoding.
 
@@ -33,7 +33,7 @@ Section Sig2_Sig_n_encoding.
   Notation Σ2 := (Σrel 2).
   Notation Σn := (Σrel (S (S n))).
 
-  (** The encoding is trivial here : replace R2(x,y) with Rn(x,y,...,y) *)
+  (* The encoding is trivial here : replace R2(x,y) with Rn(x,y,...,y) *)
 
   Fixpoint Σ2_Σn (A : fol_form Σ2) : fol_form Σn :=
     match A with

@@ -1,4 +1,4 @@
-(** * Constructors and Deconstructors for Finite Types *)
+(* * Constructors and Deconstructors for Finite Types *)
 
 From Undecidability Require Import ProgrammingTools.
 
@@ -15,7 +15,7 @@ Section CaseFin.
            | _ => Return (Nop) default
            end).
 
-  (** Note that [Encode_Finite] is not globally declared as an instance, because that would cause ambiguity. For example, [bool+bool] is finite, but we might want to encode it with [Encode_sum Encode_bool Encode_bool]. *)
+  (* Note that [Encode_Finite] is not globally declared as an instance, because that would cause ambiguity. For example, [bool+bool] is finite, but we might want to encode it with [Encode_sum Encode_bool Encode_bool]. *)
   Local Existing Instance Encode_Finite.
 
   Definition CaseFin_Rel : pRel sig^+ sig 1 :=
@@ -35,13 +35,13 @@ Section CaseFin.
     }
   Qed.
 
-  (** There is no need for a constructor, just use [WriteValue] *)
+  (* There is no need for a constructor, just use [WriteValue] *)
 
 End CaseFin.
 
 
 Arguments CaseFin : simpl never.
-Arguments CaseFin sig {_}. (** Default element is infered and inserted automatically *)
+Arguments CaseFin sig {_}. (* Default element is infered and inserted automatically *)
 
 
 
@@ -61,7 +61,7 @@ Section CaseFin.
   Variable sig : finType.
   Hypothesis defSig : inhabitedC sig.
 
-  (** A non-standard encoding! *)
+  (* A non-standard encoding! *)
   Local Existing Instance Encode_Finite.
 
   Definition CaseFin_size : Vector.t (nat->nat) 1 := [|S>>S|].

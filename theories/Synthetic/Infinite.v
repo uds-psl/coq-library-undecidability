@@ -1,4 +1,4 @@
-(** * Infinite Data Types *)
+(* * Infinite Data Types *)
 
 From Undecidability Require Import Shared.ListAutomation Shared.Dec.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts MoreEnumerabilityFacts.
@@ -25,7 +25,7 @@ Proof.
   eapply linear_search_smallest with (start := 0). 2: exact H'. split. lia. eauto.
 Qed.
 
-(** ** Definition of infinite and generating types *)
+(* ** Definition of infinite and generating types *)
 
 Definition generating X :=
   forall (A : list X), exists x, ~ x el A.
@@ -42,7 +42,7 @@ Section Inf.
   Hypothesis Hf' : forall x, exists n, f' n = Some x.
   Hypothesis HX : eq_dec X.
   
-  (** ** Infinite data types are generating *)
+  (* ** Infinite data types are generating *)
 
   Section Gen.
     
@@ -101,7 +101,7 @@ Section Inf.
 
   End Gen.
 
-  (** ** Generating data types are infinite *)
+  (* ** Generating data types are infinite *)
 
   Hypothesis Hg : generating X.
 
@@ -213,7 +213,7 @@ Section Inf.
     - symmetry in Hnm. contradiction (F_inj' Hnm H).
   Qed.
 
-  (** ** Generating data types are in bijection to nat *)
+  (* ** Generating data types are in bijection to nat *)
 
   Lemma lt_acc n :
     Acc lt n.

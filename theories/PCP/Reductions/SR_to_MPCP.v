@@ -11,7 +11,7 @@ Require Import Undecidability.Synthetic.Definitions.
 
 Import RuleNotation.
 
-(** * SR to MPCP *)
+(* * SR to MPCP *)
 
 Section SR_to_MPCP.
   Local Definition string := string nat.

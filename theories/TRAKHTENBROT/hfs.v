@@ -23,7 +23,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * The Type Hereditary finite sets *)
+(* * The Type Hereditary finite sets *)
 
 Local Infix "⪧" := bt_node.
 
@@ -187,7 +187,7 @@ Section hfs.
     apply exists_equiv; intro; rewrite Hl; tauto.
   Qed.
 
-  (** This is the decidable comprehension *)  
+  (* This is the decidable comprehension *)  
 
   Fact hfs_select t (P : hfs -> Prop) : 
            (forall x, x ∈ t -> { P x } + { ~ P x })
@@ -342,7 +342,7 @@ Section hfs.
   Fact hfs_card_pos_pirr n x H1 H2 : @hfs_card_pos n x H1 = @hfs_card_pos n x H2.
   Proof. apply hfs_pos_inj; do 2 rewrite <- hfs_card_pos_spec; auto. Qed.
 
-  (** There is a bijective map from pos n <-> _ ∈ t where t is transitive *)
+  (* There is a bijective map from pos n <-> _ ∈ t where t is transitive *)
 
   Fact hfs_bij_t n : { t : hfs & 
                        { f : pos n -> hfs & 
@@ -362,7 +362,7 @@ Section hfs.
     + intros; rewrite <- hfs_card_pos_spec; auto.
   Qed.
 
-  (** For the non-empty finite type pos (S n), there is a computably
+  (* For the non-empty finite type pos (S n), there is a computably
       surjective map from a transitive set l onto pos (S n) 
 
       The case of the empty model is rules out in our case

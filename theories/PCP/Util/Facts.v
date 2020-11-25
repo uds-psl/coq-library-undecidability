@@ -12,7 +12,7 @@ Notation "| A |" := (length A) (at level 65).
 
 Ltac inv H := inversion H; subst; try clear H.
 
-(** *Some basic things concerning lists *)
+(* *Some basic things concerning lists *)
 
 Lemma list_prefix_inv X (a : X) x u y v :
   ~ a el x -> ~ a el u -> x ++ a :: y = u ++ a :: v -> x = u /\ y = v.
@@ -55,7 +55,7 @@ Proof.
 Qed.
 
 
-(** *** Fresh symbols *)
+(* *** Fresh symbols *)
 
 Fixpoint fresh (l : list nat) :=
   match l with

@@ -11,17 +11,17 @@ From Coq Require Import Recdef.
 
 Set Default Proof Using "Type".
 
-(** * Move to a symbol and translate read symbols *)
+(* * Move to a symbol and translate read symbols *)
 
 
 Section MoveToSymbol.
   
   Variable sig : finType.
 
-  (** Halt function *)
+  (* Halt function *)
   Variable f : sig -> bool.
 
-  (** Rewrite function *)
+  (* Rewrite function *)
   Variable g : sig -> sig.
 
 
@@ -177,7 +177,7 @@ Section MoveToSymbol.
   Qed.
 
 
-  (** Termination *)
+  (* Termination *)
 
   Function MoveToSymbol_steps (t : tape sig) { measure rlength t } : nat :=
     match current t with
@@ -218,7 +218,7 @@ Section MoveToSymbol.
   Qed.
   
 
-  (** Move to left *)
+  (* Move to left *)
 
   Definition MoveToSymbol_L := Mirror MoveToSymbol.
 
@@ -315,10 +315,10 @@ Section MoveToSymbol_Sem.
   
   Variable sig : finType.
 
-  (** Halt function *)
+  (* Halt function *)
   Variable stop : sig -> bool.
 
-  (** Rewrite function *)
+  (* Rewrite function *)
   Variable f : sig -> sig.
 
   Lemma MoveToSymbol_correct t str1 str2 x :
@@ -420,7 +420,7 @@ Section MoveToSymbol_Sem.
   Qed.
 
 
-  (** Termination times *)
+  (* Termination times *)
 
   (* The termination times of CopySymbols and MoveTosymbol only differ in the factors *)
 

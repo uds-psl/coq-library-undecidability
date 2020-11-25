@@ -26,7 +26,7 @@ Local Notation "P // s -[ k ]-> t" := (sss_steps (@mm_sss _) P k s t).
 Local Notation "P // s -+> t" := (sss_progress (@mm_sss _) P s t).
 Local Notation "P // s ->> t" := (sss_compute (@mm_sss _) P s t).
 
-(** ** Simulating Binary Stacks with numbers *)
+(* ** Simulating Binary Stacks with numbers *)
 
 Section Minsky_Machine_utils.
 

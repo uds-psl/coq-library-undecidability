@@ -84,17 +84,17 @@ Qed.
 
 
 
-(* (** * Definition of vectors (extensional/ set theoretic functions)  *)
+(* (* * Definition of vectors (extensional/ set theoretic functions)  *)
  (*   structure containing a list representing the image and a proof that the list has exactly as many elements as the source type *) *)
 (* Definition Card_X_eq X Y (A: list Y) := |A| = Cardinality X. *)
 (* Definition vector (X: finType) (Y: Type) := subtype (@Card_X_eq X Y). *)
 (* Notation "X --> Y" := (vector X Y) (at level 55, right associativity). *)
 (* Hint Unfold pure. *)
 (* Hint Unfold Card_X_eq. *)
-(* (** Projects the list from a STF *) *)
+(* (* Projects the list from a STF *) *)
 (* Definition image (X: finType) (Y: Type) (f: X --> Y) := proj1_sig  f. *)
 
-(* (** Instance Declaration for Type Dec Type class for vectors. *) *)
+(* (* Instance Declaration for Type Dec Type class for vectors. *) *)
 (* Instance vector_eq_dec (X: finType) (Y: eqType) : eq_dec (X --> Y). *)
 (* Proof. *)
 (*   auto. *)
@@ -102,7 +102,7 @@ Qed.
 
 (* Canonical Structure EqVect (X: finType) (Y: eqType) := EqType (X --> Y). *)
 
-(* (** Function which produces a list of all list containing elements from A with length n *) *)
+(* (* Function which produces a list of all list containing elements from A with length n *) *)
 (* Fixpoint images (Y: Type) (A: list Y) (n: nat): list (list Y) := *)
 (*   match n with *)
 (*   | 0 => [[]] *)
@@ -116,7 +116,7 @@ Qed.
 (*   - cbn. intro H. pose proof (app_eq_nil _ _ H) as [E1 E2]. clear H. pose proof (map_eq_nil _ _ E1).  auto. *)
 (* Qed. *)
 
-(* (** If x is unequal to y then a list starting with y cannot be found in a list of list all starting with x *) *)
+(* (* If x is unequal to y then a list starting with y cannot be found in a list of list all starting with x *) *)
 (* Lemma notInMapCons (X: Type) (x y: X) (A: list X) (B: list (list X)): *)
 (*   x <> y -> y::A el (map (cons x) B) -> False. *)
 (* Proof. *)
@@ -198,7 +198,7 @@ Qed.
 (*   - cbn. apply inConcatCons. auto. *)
 (* Qed.       *)
 
-(* (** images produces a list of containing all lists of correct length *) *)
+(* (* images produces a list of containing all lists of correct length *) *)
 (* Lemma vector_enum_ok (X: finType) (Y: finType) f: *)
 (* |f| = Cardinality X -> count (images  (elem Y) (Cardinality X)) f= 1. *)
 (* Proof. *)
@@ -207,7 +207,7 @@ Qed.
 (*   - rewrite <- H. now apply inImages. *)
 (* Qed. *)
 
-(* (** FunctionLists A n only produces lists of length n *) *)
+(* (* FunctionLists A n only produces lists of length n *) *)
 (* Lemma imagesInnerLength (Y: Type) (n: nat) : *)
 (*   forall (A: list Y) B, B el (images A n) -> | B | = n. *)
 (* Proof. *)
@@ -221,7 +221,7 @@ Qed.
 (*       * now apply (IHA C). *)
 (* Qed. *)
 
-(* (** Function converting a list (list Y) containing lists of length Cardinality X into a lists of vectors (X --> Y) *) *)
+(* (* Function converting a list (list Y) containing lists of length Cardinality X into a lists of vectors (X --> Y) *) *)
 (* Definition extensionalPower (X Y: finType) (L: list (list Y))  (P: L <<= images (elem Y) (Cardinality X)): list (X --> Y). *)
 (* Proof. *)
 (*   revert L P. *)
@@ -232,13 +232,13 @@ Qed.
 (*     + eapply extPow. intros A E. apply P. exact (or_intror E). *)
 (* Defined. *)
 
-(* (** To vectors  are equal if there images are equal *) *)
+(* (* To vectors  are equal if there images are equal *) *)
 (* Lemma vector_extensionality (X: finType) (Y: Type) (F G: X --> Y) : (image F = image G) -> F = G. *)
 (* Proof. *)
 (*   apply subtype_extensionality.  *)
 (* Qed. *)
 
-(* (** The number if occurences of a function in extensionalpower is equal to the number of occurences of its image in the original list given to extensionalpower as an argument *) *)
+(* (* The number if occurences of a function in extensionalpower is equal to the number of occurences of its image in the original list given to extensionalpower as an argument *) *)
 (*  Lemma counttFL X Y L P f : *)
 (*   count (@extensionalPower X Y L P) f = count L (image f). *)
 (* Proof. *)
@@ -282,10 +282,10 @@ Qed.
 (*   reflexivity. *)
 (* Qed. *)
 (* Unset Printing Coercions. *)
-(* (** ** Conversion between vectors and functions *) *)
+(* (* ** Conversion between vectors and functions *) *)
 
 
-(* (** Function that applies a vector to an argument *)                 *)
+(* (* Function that applies a vector to an argument *)                 *)
 (* Definition applyVect (X: finType) (Y: Type) (f: X --> Y): X -> Y. *)
 (* Proof. *)
 (*   refine (fun x: X => _). *)
@@ -298,21 +298,21 @@ Qed.
 
 (* Coercion applyVect: vector >-> Funclass. *)
 
-(* (** A function converting A function f into the list representing its image on elements of A*) *)
+(* (* A function converting A function f into the list representing its image on elements of A*) *)
 (* Definition getImage {X: finType} {Y: Type} (f: X -> Y) :=map f (elem X). *)
 
-(* (** getImage contains the right elements *) *)
+(* (* getImage contains the right elements *) *)
 (* Lemma getImage_in (X: finType) (Y: Type) (f: X -> Y) (x:X) : (f x) el (getImage f). *)
 (* Proof. *)
 (*   unfold getImage. now apply in_map. *)
 (*  Qed. *)
-(* (** getImage only produces lists of the correct length *) *)
+(* (* getImage only produces lists of the correct length *) *)
 (* Lemma getImage_length (X: finType) (Y: Type) (f: X -> Y) :  |getImage f| = Cardinality X. *)
 (* Proof. *)
 (*   apply map_length. *)
 (* Qed. *)
 
-(* (** Function converting a function into a vector *) *)
+(* (* Function converting a function into a vector *) *)
 (* Definition vectorise {X: finType} {Y: Type} (f: X -> Y) : X --> Y := *)
 (*   exist (pure (@Card_X_eq X Y)) (getImage f) (purify (getImage_length f)). *)
 
@@ -322,7 +322,7 @@ Qed.
 (*   reflexivity. *)
 (* Qed. *)
 
-(* (** A generalisation of a late case of apply_toVector_inverse *) *)
+(* (* A generalisation of a late case of apply_toVector_inverse *) *)
 (* Lemma HelpApply (X: eqType) (Y: Type) (A: list X) (f: X -> Y) x y (C: count A x > 0): *)
 (*   getAt (map f A) (getPosition A x) y = f x. *)
 (* Proof. *)
@@ -333,7 +333,7 @@ Qed.
 (*     + now apply IHA. *)
 (* Qed. *)
 
-(* (** If a function is converted into a vector and then applied to an argument the result is the same as if one had just applied the function to the argument *) *)
+(* (* If a function is converted into a vector and then applied to an argument the result is the same as if one had just applied the function to the argument *) *)
 (* Lemma apply_vectorise_inverse (X: finType) (Y: Type) (f: X -> Y) (x: X) : *)
 (*     (vectorise f) x = f x.   *)
 (* Proof. *)
@@ -344,7 +344,7 @@ Qed.
 (*     + apply HelpApply. lia. *)
 (* Qed. *)
 
-(* (** The position of x in a list containg x exactly once is one greater than the size of the sublist befor x *) *)
+(* (* The position of x in a list containg x exactly once is one greater than the size of the sublist befor x *) *)
 (* Lemma countNumberApp (X: eqType) (x:X) (A B: list X)  (ok : count (A ++ x::B) x = 1) : *)
 (*   getPosition (A ++ x::B) x = |A|. *)
 (* Proof. *)

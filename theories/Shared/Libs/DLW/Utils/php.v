@@ -9,7 +9,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** * Pigeonhole principle *)
+(* * Pigeonhole principle *)
 
 Require Import Arith Lia List Permutation Relations.
 
@@ -234,7 +234,7 @@ Section pigeon_list.
       left; apply in_list_hd1; auto.
   Qed.
 
-  (** length_le_and_incl_implies_dup_or_perm is a generalisation of the PHP
+  (* length_le_and_incl_implies_dup_or_perm is a generalisation of the PHP
       for which the inductive case works w/o needing decidable equality  
 
       A shorter proof
@@ -242,7 +242,7 @@ Section pigeon_list.
       The proof is by induction on l
    *)
 
-  (** ** Generalized statement *)
+  (* ** Generalized statement *)
 
   Lemma length_le_and_incl_implies_dup_or_perm l m :  
             length l <= length m 
@@ -262,7 +262,7 @@ Section pigeon_list.
         - right; apply perm_trans with (1 := H3); auto.
   Qed. 
 
-  (** If  m is strictly longer than l 
+  (* If  m is strictly longer than l 
       and m is (set) included in l
       then it has a duplicate 
 
@@ -279,7 +279,7 @@ Section pigeon_list.
     apply Permutation_length in H3; lia.
   Qed. 
 
-  (** ** The Finite PHP on lists of the same type *)
+  (* ** The Finite PHP on lists of the same type *)
 
   Theorem finite_pigeon_hole l m :
          length l < length m 
@@ -411,7 +411,7 @@ Section PHP_rel.
 
   Hypothesis (Hlm : length m < length l).
 
-  (** ** The finite relational PHP *)
+  (* ** The finite relational PHP *)
                           
   Theorem PHP_rel : exists a x b y c v, l = a++x::b++y::c
                                        /\ In v m /\ R x v /\ R y v.
@@ -432,7 +432,7 @@ End PHP_rel.
 
 Section php_upto.
 
-  (** If R is a partial equivalence relation, l is a
+  (* If R is a partial equivalence relation, l is a
       list contained in the list m (upto R), and m is 
       shorter than l, then l contains a duplicate upto R *)
 

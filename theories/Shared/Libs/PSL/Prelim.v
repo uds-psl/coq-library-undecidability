@@ -1,4 +1,4 @@
-(** * Base Library for ICL
+(* * Base Library for ICL
 
    - Version: 3 October 2016
    - Author: Gert Smolka, Saarland University
@@ -16,7 +16,7 @@ Global Set Regular Subst Tactic.
 
 Hint Extern 4 => exact _ : core.  (* makes auto use type class inference *)
 
-(** De Morgan laws *)
+(* De Morgan laws *)
 
 Lemma DM_or (X Y : Prop) :
   ~ (X \/ Y) <-> ~ X /\ ~ Y.
@@ -30,7 +30,7 @@ Proof.
   firstorder.
 Qed.
 
-(** ** Boolean propositions and decisions *)
+(* ** Boolean propositions and decisions *)
 
 Coercion is_true : bool >-> Sortclass.
 

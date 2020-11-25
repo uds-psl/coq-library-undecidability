@@ -1,6 +1,6 @@
 From Undecidability.Shared.Libs.PSL Require Import FinTypes.
 
-(** * Definition of prod as finType *)
+(* * Definition of prod as finType *)
 
 Lemma ProdCount (T1 T2: eqType) (A: list T1) (B: list T2) (a:T1) (b:T2)  :
   count (prodLists A B) (a,b) =  count A a * count B b .
@@ -24,9 +24,9 @@ Proof.
   econstructor.  apply prod_enum_ok.
 Defined.
 
-(** * Definition of option as finType *)
+(* * Definition of option as finType *)
 
-(** Wrapping elements in "Some" does not change the number of occurences in a list *)
+(* Wrapping elements in "Some" does not change the number of occurences in a list *)
 Lemma SomeElement (X: eqType) (A: list X) x:
   count (toOptionList A) (Some x) = count A x .
 Proof.
@@ -36,7 +36,7 @@ Proof.
   + simpl. dec; congruence.
 Qed.
 
-(** A list produced by toOptionList contains None exactly once *)
+(* A list produced by toOptionList contains None exactly once *)
 Lemma NoneElement (X: eqType) (A: list X) :
   count (toOptionList A) None = 1.
 Proof.
@@ -59,9 +59,9 @@ Proof.
   eapply FinTypeC.  apply option_enum_ok.
 Defined.
 
-(** * Definition of sum as finType *)
+(* * Definition of sum as finType *)
 
-(** The sum of two nats can only be 1 if one of them is 1 and the other one is 0 *)
+(* The sum of two nats can only be 1 if one of them is 1 and the other one is 0 *)
 Lemma proveOne m n: m = 1 /\ n = 0 \/ n = 1 /\ m = 0 -> m + n = 1.
 Proof.
   lia.
@@ -79,7 +79,7 @@ Proof.
     + apply toSumList1_missing.
 Qed.
 
-(** Instance declaration for sum types for  the type class *)
+(* Instance declaration for sum types for  the type class *)
 Instance finTypeC_sum (X Y: finType) : finTypeC (EqType ( X + Y)).
 Proof.
   eapply FinTypeC. apply sum_enum_ok.

@@ -48,7 +48,7 @@ Lemma vector_to_list_map2_eta (X Y Z : Type) (n : nat) (f : X -> Y -> Z) (xs : V
   vector_to_list (Vector.map2 f xs ys).
 Proof. now destruct_vector. Qed.
 
-(** Technical compatibility lemma: Coq's standard library is soo inconsistent... *)
+(* Technical compatibility lemma: Coq's standard library is soo inconsistent... *)
 Lemma fold_left_vector_to_list (X Y : Type) (n : nat) (f : Y -> X -> Y) (v : Vector.t X n) (a : Y) :
   Vector.fold_left f a v = fold_left f (vector_to_list v) a.
 Proof. revert a. induction v as [ | x n v IH]; intros; cbn in *; f_equal; auto. Qed.

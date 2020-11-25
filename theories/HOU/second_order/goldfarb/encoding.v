@@ -4,9 +4,9 @@ From Undecidability.HOU Require Import calculus.calculus unification.unification
 Import ListNotations.
 
 
-(** * Second-Order Realisation *)
+(* * Second-Order Realisation *)
 
-(** ** Goldfarb Numerals *)
+(* ** Goldfarb Numerals *)
 Definition ag : Const :=
   {|
     const_type := option (option False);
@@ -30,7 +30,7 @@ Proof. econstructor; cbn; eauto. Qed.
 
 Hint Resolve typing_a typing_g : core.
 
-(** ** Encoding *)
+(* ** Encoding *)
 Section Linearization.
 
   Implicit Types (S: list (exp ag)).
@@ -248,7 +248,7 @@ Hint Rewrite enc_ren enc_subst: asimpl.
 Arguments enc : simpl never.
 Notation Succ := (g a).
 
-(** ** Characteristic Equation **)
+(* ** Characteristic Equation **)
 Lemma normal_forms_encodes s:
   normal s -> lambda lambda (ren (add 2) s) (enc 1 (var 1)) ≡ lambda lambda Succ ((ren (add 2) s) (var 1)) ->
   exists n, encodes s n.
@@ -311,7 +311,7 @@ Proof.
 Qed.
 
 
-(** ** Variables *)
+(* ** Variables *)
 Section Variables.
 
   Definition F (x: nat): nat := (I__S (inl x)).
@@ -407,7 +407,7 @@ Arguments Gs : simpl never.
 
 Hint Resolve F_not_in_G G_not_in_F : core.
 
-(** ** Diophantine Equations Encoding *)
+(* ** Diophantine Equations Encoding *)
 Section Equations.
 
   Implicit Types (x y z: nat).
@@ -592,7 +592,7 @@ Section Typing.
 End Typing.
 
 
-(** ** Reduction Function *)
+(* ** Reduction Function *)
 Program Instance H10_to_SOU (E: list deq): ordsysuni ag 2 :=
   {
     Gamma₀' := Gamma__deq E;

@@ -1,6 +1,6 @@
 From Undecidability Require Import TM.Util.Prelim TM.Util.TM_facts.
 
-(** * 0-tape Turing machine that does nothing. *)
+(* * 0-tape Turing machine that does nothing. *)
 
 Section Mono_Nop.
 
@@ -28,7 +28,7 @@ Arguments Null {sig}.
 Arguments Null_Rel { sig } x y / : rename.
 
 
-(** ** Tactic Support *)
+(* ** Tactic Support *)
 
 Ltac smpl_TM_Null :=
   once lazymatch goal with

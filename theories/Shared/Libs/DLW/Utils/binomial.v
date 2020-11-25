@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Binomial theorem *)
+(* ** Binomial theorem *)
 
 Require Import Arith Lia.
 

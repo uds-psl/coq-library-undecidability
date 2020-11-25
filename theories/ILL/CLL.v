@@ -70,7 +70,7 @@ Local Reserved Notation "Γ ⊢ Δ" (at level 70, no associativity).
 
 Section S_cll_restr_without_cut.
 
-  (** CLL rules restricted to the (!,&,-o) fragment without cut *)
+  (* CLL rules restricted to the (!,&,-o) fragment without cut *)
 
   Inductive S_cll_restr : list cll_form -> list cll_form -> Prop :=
 
@@ -122,7 +122,7 @@ End S_cll_restr_without_cut.
 
 Section S_cll_without_cut_on_ill_syntax.
 
-  (** CLL rules restricted to the (𝟘,?,⅋) free fragment without cut 
+  (* CLL rules restricted to the (𝟘,?,⅋) free fragment without cut 
       which shares the same formula language as ILL, but of course 
       not the same rules *)
 

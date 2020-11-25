@@ -55,7 +55,7 @@ Section Fix.
     ComposeRetract retr_stackEl
             (Retract_sigPair_Y _ _) .
 
-  (** Instance of the [Lookup] and [JumpTarget] machine *)
+  (* Instance of the [Lookup] and [JumpTarget] machine *)
   Local Definition Lookup := Lookup retr_clos retr_heap.
 
   Local Notation i_H := Fin0 (only parsing).

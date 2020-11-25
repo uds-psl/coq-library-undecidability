@@ -3,7 +3,7 @@ From Undecidability.L Require Import Functions.EqBool.
 From Undecidability.L.Datatypes Require Import LBool LNat LOptions LProd.
 From Undecidability.L Require Import UpToC.
 
-(** ** Encoding of lists *)
+(* ** Encoding of lists *)
 
 From Undecidability.L.Datatypes.List Require List_enc.
 Include List_enc.

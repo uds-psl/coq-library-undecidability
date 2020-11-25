@@ -1,4 +1,4 @@
-(** ** Examples *)
+(* ** Examples *)
 
 From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import Hoare.HoareLogic Hoare.HoareCombinators Hoare.HoareRegister Hoare.HoareTactics Hoare.HoareTacticsView.
@@ -14,13 +14,13 @@ Arguments plus : simpl never.
 Set Warnings "-undo-batch-mode,-non-interactive".
 
 
-(** *** Copy.v *)
+(* *** Copy.v *)
 
 From Undecidability Require Import TM.Code.Copy.
 
 Definition CopyValue_sizefun {sigX X : Type} {cX : codable sigX X} (x : X) : Vector.t (nat->nat) 2 := [|id; CopyValue_size x|].
 
-(** This is how we specify partital correctness, time, and space in one lemma *)
+(* This is how we specify partital correctness, time, and space in one lemma *)
 Lemma CopyValue_SpecT_size (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X)
 (ss : Vector.t nat 2) :
   TripleT (≃≃([],withSpace [|Contains _ x; Void|] ss))
@@ -40,7 +40,7 @@ Proof.
     cbn in *; simpl_vector in *; cbn in *. eauto.
 Qed.
 
-(** Recover version without space is easy. Normally, we wouldn't write down this lemma because the automation takes care of everything. (But not for [CopyValue], etc!) *)
+(* Recover version without space is easy. Normally, we wouldn't write down this lemma because the automation takes care of everything. (But not for [CopyValue], etc!) *)
 Lemma CopyValue_SpecT (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) :
   TripleT (≃≃([],[|Contains _ x; Void|])) (CopyValue_steps x) (CopyValue sig) (fun _ => ≃≃([],[|Contains _ x; Contains _ x|])).
 Proof. eapply TripleT_RemoveSpace. cbn. intros s. apply CopyValue_SpecT_size. Qed.
@@ -60,19 +60,19 @@ Proof.
     specialize (HEnc Fin0). simpl_vector in *; cbn in *. eauto.
 Qed.
 
-(** This would also not normally be written down. *)
+(* This would also not normally be written down. *)
 Lemma Reset_SpecT (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) :
   TripleT (≃≃([],[|Contains _ x|])) (Reset_steps x) (Reset sig) (fun _ => ≃≃([], [|Void|])).
 Proof. eapply TripleT_RemoveSpace. apply Reset_SpecT_space. Qed.
 
-(** This would also not normally be written down. *)
+(* This would also not normally be written down. *)
 Lemma Reset_Spec (sig : finType) (sigX X : Type) (cX : codable sigX X) (I : Retract sigX sig) (x : X) :
   Triple (≃≃([], [|Contains _ x|])) (Reset sig) (fun _ => ≃≃([], [|Void|])).
 Proof. eapply TripleT_Triple. apply Reset_SpecT. Qed.
 
 
-(** Important: The types ([X] and [Y]) or the retractions ([I1] and [I2]) have to be manually instantiated when using these lemmas. *)
-(** (With some "non-standard" encodings, the encodings have to be instantiated, of course.) *)
+(* Important: The types ([X] and [Y]) or the retractions ([I1] and [I2]) have to be manually instantiated when using these lemmas. *)
+(* (With some "non-standard" encodings, the encodings have to be instantiated, of course.) *)
 
 (* TODO: Move to [Code/Copy.v] *)
 Definition MoveValue_size {X Y sigX sigY : Type} {cX : codable sigX X} {cY : codable sigY Y} (x : X) (y : Y) : Vector.t (nat->nat) 2 :=
@@ -105,11 +105,11 @@ Lemma MoveValue_Spec (sig : finType) (sigX sigY X Y : Type)
 Proof. eapply TripleT_Triple. apply MoveValue_SpecT. Qed.
 
 
-(** For the abve reasons, we must not add these tactics to the automation! (As in [TM_Correct].) *)
+(* For the abve reasons, we must not add these tactics to the automation! (As in [TM_Correct].) *)
 
-(** *** Constructors for [nat] *)
+(* *** Constructors for [nat] *)
 
-(** Pure triple (without register specification language); only for demonstration *)
+(* Pure triple (without register specification language); only for demonstration *)
 Lemma Constr_O_SpecT_pure :
   TripleT (fun tin => isVoid tin[@Fin0]) (Constr_O_steps) (Constr_O) (fun _ tout => tout[@Fin0] ≃ 0).
 Proof.
@@ -135,7 +135,7 @@ Lemma Constr_S_Spec_pure (y : nat) :
   Triple (fun tin => tin[@Fin0] ≃ y) (Constr_S) (fun _ tout => tout[@Fin0] ≃ (S y)).
 Proof. eapply TripleT_Triple. apply Constr_S_SpecT_pure. Qed.
 
-(** Expressed using the specification language *)
+(* Expressed using the specification language *)
 
 Lemma Constr_O_SpecT_size (ss : Vector.t nat 1) :
   TripleT (≃≃([],  withSpace ( [|Void|]) ss)) Constr_O_steps Constr_O (fun _ => ≃≃([],  withSpace ( [|Contains _ 0|]) (appSize [|Constr_O_size|] ss))).
@@ -219,7 +219,7 @@ Lemma CaseNat_Spec (y : nat) :
 Proof. eapply TripleT_Triple. apply CaseNat_SpecT. Qed.
 
 
-(** A combination of the consequence rule and the above correctness lemma. (The automation also takes care of this.) *)
+(* A combination of the consequence rule and the above correctness lemma. (The automation also takes care of this.) *)
 Lemma Constr_S_Spec_con (n : nat) (Q : Assert sigNat^+ 1) :
   (forall tout, ≃≃([], [|Contains _ (S n)|]) tout -> Q tout) ->
   Triple (≃≃([], [|Contains _ n|])) Constr_S (fun _ => Q).
@@ -227,8 +227,8 @@ Proof. eauto using Consequence_post, Constr_S_Spec. Qed.
 
 
 
-(** Add all [nat] (de)constructor lemmas to the automation. We only have to register the complete correctness lemmas. *)
-(** Here we demonstrate how to register specifications to the automation. We only have to register the strongest proven variant, e.g. with time & space.
+(* Add all [nat] (de)constructor lemmas to the automation. We only have to register the complete correctness lemmas. *)
+(* Here we demonstrate how to register specifications to the automation. We only have to register the strongest proven variant, e.g. with time & space.
 All other (weaker) variants will be derived by the automation on-the-fly, if needed. *)
 Ltac hstep_Nat :=
   lazymatch goal with
@@ -242,9 +242,9 @@ Smpl Add hstep_Nat : hstep_Spec.
 
 
 
-(** *** A simple example *)
+(* *** A simple example *)
 
-(** Pure example: increment a number twice *)
+(* Pure example: increment a number twice *)
 
 Definition IncrementTwice_steps := 1 + Constr_S_steps + Constr_S_steps.
 
@@ -264,7 +264,7 @@ Restart.
   cbn. intros _. apply Constr_S_Spec_pure.
 Qed.
 
-(** With time! *)
+(* With time! *)
 Lemma IncrementTwice_SpecT_pure (y : nat) :
   TripleT (fun tin => tin[@Fin0] ≃ y) (IncrementTwice_steps) (IncrementTwice) (fun _ tout => tout[@Fin0] ≃ S (S y)).
 Proof.
@@ -282,7 +282,7 @@ Qed.
 
 
 
-(** Same example, but using the specification language *)
+(* Same example, but using the specification language *)
 
 Lemma IncrementTwice_Spec (y : nat) :
   Triple (≃≃([], [|Contains _ y|])) (IncrementTwice) (fun _ => ≃≃([], [|Contains _ (S (S y))|])).
@@ -324,7 +324,7 @@ Qed.
 
 
 
-(** Example using the specification language and lifting: Increment two numbers *)
+(* Example using the specification language and lifting: Increment two numbers *)
 
 Definition Incr2 : pTM sigNat^+ unit 2 :=
   Constr_S@[|Fin0|];; Constr_S@[|Fin1|].
@@ -374,7 +374,7 @@ Qed.
 
 
 
-(** More increments *)
+(* More increments *)
 
 Definition Incr3 : pTM sigNat^+ unit 3 :=
   Constr_S@[|Fin0|];; Constr_S@[|Fin1|];; IncrementTwice@[|Fin2|].
@@ -407,7 +407,7 @@ Restart.
   hsteps_cbn. apply IncrementTwice_Spec. cbn. eauto.
 Qed.
 
-(** The same with time! *)
+(* The same with time! *)
 Lemma Incr3_SpecT :
   forall (x y z : nat), TripleT (≃≃([], [|Contains _ x; Contains _ y; Contains _ z|])) (Incr3_steps) Incr3 (fun _ => ≃≃([], [|Contains _ (S x); Contains _ (S y); Contains _ (S (S z))|])).
 Proof.
@@ -435,7 +435,7 @@ Qed.
 
 
 
-(** *** Addition *)
+(* *** Addition *)
 
 
 Definition Add_Step : pTM sigNat^+ (option unit) 2 :=
@@ -522,7 +522,7 @@ Proof.
 Qed.
  
 
-(** The same with termination! *)
+(* The same with termination! *)
 
 Definition Add_Step_steps : nat := 9.
 
@@ -574,7 +574,7 @@ Qed.
 
 
 
-(** With space *)
+(* With space *)
 
 
 
@@ -646,7 +646,7 @@ Lemma Add_Loop_SpecT_size (a b : nat) (ss : Vector.t nat 2) :
              ([], withSpace [|Contains _ (a+b); Contains _ 0|]
                 (appSize (Add_Loop_size a b) ss))).
 Proof.
-  (** We have to add the space vector to the abstract state *)
+  (* We have to add the space vector to the abstract state *)
   eapply While_SpecTReg with (PRE := fun '(a,b,ss) => (_,_)) (INV := fun '(a,b,ss) y => (_,_)) 
     (POST := fun '(a,b,ss) y => (_,_)) (f__loop := fun '(a,b,ss) => _) (f__step := fun '(a,b,ss) => _) (x := (a,b,ss));
     clear a b ss; intros ((x,y),ss).
@@ -732,7 +732,7 @@ Proof. (* The tactic [hstep] takes also takes care of moving [withSpace] to the 
 Qed.
 
 
-(** *** Multiplication *)
+(* *** Multiplication *)
 
 Definition Mult_Step : pTM sigNat^+ (option unit) 5 :=
   If (LiftTapes CaseNat [|Fin0|])
@@ -782,7 +782,7 @@ Definition Mult_Step_steps m' n c :=
   end.
 
 
-(** We need the strong version [If_SpecT_strong] here, becaue the running time depends on the path *)
+(* We need the strong version [If_SpecT_strong] here, becaue the running time depends on the path *)
 Lemma Mult_Step_SpecT m' n c :
   TripleT
     (≃≃([], [|Contains _ m'; Contains _ n; Contains _ c; Void; Void|]))
@@ -946,7 +946,7 @@ Qed.
 
 
 
-(** Example for bug-spotting in size functions. *)
+(* Example for bug-spotting in size functions. *)
 
 Definition Mult_size_bug (m n : nat) : Vector.t (nat->nat) 6 :=
   [|(*0*) id;
@@ -974,8 +974,8 @@ Proof.
   cbn. intros _. hstep. cbn. hstep. cbn. apply Mult_Loop_SpecT_size.
   cbn. intros. hstep. cbn. apply Reset_SpecT_space.
   cbn. intros _. replace (m * n + 0) with (m * n) by lia.
-  Fail now auto. (** If everything was fine, [auto] would have worked here. We can use [tspec_ext] to find what is wrong. *)
-  tspec_ext. (** Oh! I forgot to add [>> Reset_size 0]. And it should also be [Fin0] instead of [Fin0] *)
+  Fail now auto. (* If everything was fine, [auto] would have worked here. We can use [tspec_ext] to find what is wrong. *)
+  tspec_ext. (* Oh! I forgot to add [>> Reset_size 0]. And it should also be [Fin0] instead of [Fin0] *)
 Abort.
 
 
@@ -1003,7 +1003,7 @@ Proof.
   cbn. intros _. hsteps.
   cbn. intros _. hstep. cbn. hstep. cbn. apply Mult_Loop_SpecT_size.
   cbn. intros. hstep. cbn. apply Reset_SpecT_space.
-  cbn. intros t. replace (m * n + 0) with (m * n) by lia. auto. (** Now it is fine! *)
+  cbn. intros t. replace (m * n + 0) with (m * n) by lia. auto. (* Now it is fine! *)
 
   reflexivity. reflexivity.
   unfold Mult_steps. ring_simplify. unfold CopyValue_steps, Constr_O_steps, Reset_steps. rewrite !Encode_nat_hasSize. cbn. ring_simplify. reflexivity.

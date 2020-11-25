@@ -1,9 +1,9 @@
-(** ** Inversion *)
+(* ** Inversion *)
 
 Ltac inv H := inversion H; subst; try clear H.
 
 
-(** ** Destructing *)
+(* ** Destructing *)
 
 Tactic Notation "destruct" "_":=
   match goal with
@@ -40,10 +40,10 @@ Ltac destruct_pairs := repeat (destruct_one_pair).
 
 
 
-(** ** Assumption Locking *)
+(* ** Assumption Locking *)
 
 
-(** [lock H] "locks" the goal [H], which syntactically adds [Lock], but it doesn't change the proof script. *)
+(* [lock H] "locks" the goal [H], which syntactically adds [Lock], but it doesn't change the proof script. *)
 
 Definition Lock (X: Type) : Type := X.
 Global Opaque Lock. Arguments Lock : simpl never.
@@ -99,7 +99,7 @@ Abort.
 
 
 
-(** ** Modus ponens *)
+(* ** Modus ponens *)
 
 
 (* Prove the non-dependent hypothesis of a hypothesis that is a implication and specialize it *)
@@ -134,7 +134,7 @@ Tactic Notation "spec_assert" hyp(H) "as" simple_intropattern(p) "by" tactic(T) 
 
 
 
-(** ** Some debug tactics *)
+(* ** Some debug tactics *)
 
 Ltac print_goal :=
   match goal with

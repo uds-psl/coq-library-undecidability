@@ -1,4 +1,4 @@
-(** * Inhabited types *)
+(* * Inhabited types *)
 
 (* Author: Maximilian Wuttke *)
 
@@ -58,7 +58,7 @@ Instance inhabited_arrow_prod (A B C : Type) : inhabitedC (A->B) -> inhabitedC (
 Proof. intros iab iac. constructor. intros a. constructor. now apply iab. now apply iac. Defined.
 
 
-(** Derive inhabitedC instances, if an instance of this type is a hypothesis *)
+(* Derive inhabitedC instances, if an instance of this type is a hypothesis *)
 Hint Extern 10 => match goal with
                 | [ H : ?X |- inhabitedC ?X ] => now econstructor
                 end : typeclass_instances.

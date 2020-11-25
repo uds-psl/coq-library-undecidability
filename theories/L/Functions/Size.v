@@ -2,7 +2,7 @@ From Undecidability.L Require Import Tactics.LTactics Functions.Encoding Prelim.
 Require Import Nat.
 From Undecidability.L.Datatypes Require Import Lists.
 
-(** ** Extracted size of terms *)
+(* ** Extracted size of terms *)
 
 Instance term_size' : computable size'.
 Proof.

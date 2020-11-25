@@ -3,7 +3,7 @@ From Undecidability.TM Require Import TMTac.
 From Undecidability.TM Require Export CodeTM LiftTapes ChangeAlphabet.
 
 
-(** ** Tape/Register Specification *)
+(* ** Tape/Register Specification *)
 
 (* Register specifications are deep embeded because this makes it
 easier to do computation with the specifications. A tapes
@@ -22,7 +22,7 @@ Section RegSpec.
   | Contains_size {sigX X : Type} {cX : codable sigX X} (r : Retract sigX sig) : X -> nat -> RegSpec
   | Void : RegSpec
   | Void_size : nat -> RegSpec
-  | Custom : (tape sig^+ -> Prop) -> RegSpec. (** Allows the user to specify the tape manually *)
+  | Custom : (tape sig^+ -> Prop) -> RegSpec. (* Allows the user to specify the tape manually *)
 
   (* Semantics *)
   Definition tspec_single (spec : RegSpec) (t : tape sig^+) : Prop :=
@@ -78,7 +78,7 @@ Proof. apply EntailsI. now setoid_rewrite tspec_iff. Qed.
     tspec (n:=n) (Ps,Pv) v -> (forall P, In P Ps -> P).
   Proof. intros ?%tspecE. easy. Qed. *)
 
-  (** Enrich the specification with spaces *)
+  (* Enrich the specification with spaces *)
   Definition withSpace_single (P : RegSpec) (size : nat) :=
     match P with
     | Contains r x => Contains_size r x size
@@ -89,7 +89,7 @@ Proof. apply EntailsI. now setoid_rewrite tspec_iff. Qed.
   Definition withSpace {n : nat} (P : SpecV n) (spaces : Vector.t nat n) : SpecV n :=
     Vector.map2 withSpace_single P spaces.
 
-  (** Drop the spaces *)
+  (* Drop the spaces *)
   Lemma tspec_single_withSpace_tspec_single (P : RegSpec) (size : nat) t :
     tspec_single (withSpace_single P size) t -> tspec_single P t.
   Proof. intros. destruct P; cbn in *; auto. Qed.
@@ -98,7 +98,7 @@ Proof. apply EntailsI. now setoid_rewrite tspec_iff. Qed.
     tspec (Q,withSpace P s) t -> tspec (Q,P) t.
   Proof. unfold withSpace. intros [HP H]%tspecE. apply tspecI. easy. intros i; specialize (H i). simpl_vector in *. eapply tspec_single_withSpace_tspec_single; eauto. Qed.
 
-  (** Invent some dummy spaces *)
+  (* Invent some dummy spaces *)
 
   Definition dummy_size (t : tape sig^+) (P : RegSpec) : nat :=
     match P with
@@ -123,7 +123,7 @@ Proof. apply EntailsI. now setoid_rewrite tspec_iff. Qed.
   Qed.
 
   (*
-  (** Remove the space annotations *)
+  (* Remove the space annotations *)
   Definition removeSpace_reg (P : RegSpec) :=
     match P with
     | Contains_size r x size => Contains r x
@@ -353,13 +353,13 @@ Proof. intros ? ? ? xs;induction xs;cbn;intros ? H';inv H';cbn. easy. firstorder
 
 
 
-(** For good reasons, [tspec] will be declared to don't simplify with [cbn]. However, [tspec_single] simplifies with [cbn]. *)
+(* For good reasons, [tspec] will be declared to don't simplify with [cbn]. However, [tspec_single] simplifies with [cbn]. *)
 Lemma tspec_solve (sig : Type) (n : nat) (t : tapes (boundary+sig) n) (R : SpecV sig n) P:
 List.fold_right and (forall i, tspec_single R[@i] t[@i]) P ->
   tspec (P,R) t.
 Proof. refine (fun P => P). Qed.
 
-(** [withSpace] does also not simplify; but [withSpace_single] does. *)
+(* [withSpace] does also not simplify; but [withSpace_single] does. *)
 Lemma tspec_space_solve (sig : Type) (n : nat) (t : tapes (boundary+sig) n) (R : SpecV sig n) P (ss : Vector.t nat n) :
   List.fold_right and (forall i, tspec_single (withSpace_single R[@i] ss[@i]) t[@i]) P ->
   tspec (P,withSpace R ss) t.
@@ -391,7 +391,7 @@ Qed.
 
 
 
-(** ** Tape Lifting *)
+(* ** Tape Lifting *)
 
 
 Section Lifting.
@@ -400,14 +400,14 @@ Section Lifting.
 
   Variable (m n : nat).
 
-  (** [P] is the premise of the lifted machine [M@I]. *)
+  (* [P] is the premise of the lifted machine [M@I]. *)
   Variable (P : @SpecV sig n).
 
   Variable (I : Vector.t (Fin.t n) m). (* [m<=n] *)
   Hypothesis (HI : dupfree I).
 
 
-  (** We want to extract from [P] the premise [P'] for [M] *)
+  (* We want to extract from [P] the premise [P'] for [M] *)
   Definition Downlift : @SpecV sig m :=
     (select I P).
 
@@ -422,7 +422,7 @@ Section Lifting.
   Qed.
 
 
-  (** Same specification as in [P] on indices not in [I], but as in [Q] for indices in [I] (lifted).  *)
+  (* Same specification as in [P] on indices not in [I], but as in [Q] for indices in [I] (lifted).  *)
   Definition Frame (Q : @SpecV sig m) : @SpecV sig n := fill I P Q.
 
 End Lifting.
@@ -499,7 +499,7 @@ Qed.
 
 
 (*
-(** Version with disregarded labels *)
+(* Version with disregarded labels *)
 Lemma LiftTapes_Spec' (sig : finType) (F : Type) (m n : nat) (I : Vector.t (Fin.t n) m) (P : Spec sig n) (Q : Spec sig m) (pM : pTM sig^+ F m) :
   dupfree I ->
   Triple (tspec (Downlift I P)) pM (fun y => tspec Q) ->
@@ -533,7 +533,7 @@ P' (P : SpecV sig n) Q' (Q : F -> SpecV sig m) R' (R : F -> SpecV sig n)
 Proof. eauto using ConsequenceT_post, LiftTapes_SpecT. Qed.
 
 
-(** Swap [Downlift] and [withSpace] *)
+(* Swap [Downlift] and [withSpace] *)
 Lemma Downlift_withSpace (m n : nat) (sig : Type) (P : SpecV sig n) (I : Vector.t (Fin.t n) m) (ss : Vector.t nat n) :
   Downlift (withSpace P ss) I = withSpace (Downlift P I) (select I ss).
 Proof.
@@ -572,7 +572,7 @@ Proof.
 Qed.
 
 
-(** Move [withFrame] out of [Frame] *)
+(* Move [withFrame] out of [Frame] *)
 Lemma Frame_withSpace (m n : nat) (sig : Type) (P : SpecV sig n) (P' : SpecV sig m) (I : Vector.t (Fin.t n) m) (ss : Vector.t nat n) (ss' : Vector.t nat m) :
   dupfree I ->
   Frame (withSpace P ss) I (withSpace P' ss') = withSpace (Frame P I P') (fill I ss ss').
@@ -622,7 +622,7 @@ Proof. intros H1 H2. erewrite Frame_withSpace; eauto. Qed.
 
 *)
 
-(** Versions of [LiftTapes] with space *)
+(* Versions of [LiftTapes] with space *)
 
 Lemma LiftTapes_Spec_space (sig F : finType) (m n : nat) (I : Vector.t (Fin.t n) m) P' (P : SpecV sig n) Q' (Q : F -> SpecV sig m) (pM : pTM sig^+ F m)
      (ss : Vector.t nat n) (ss' : Vector.t nat m) :
@@ -673,10 +673,10 @@ Qed.
 
 
 
-(** ** Alphabet Lifting *)
+(* ** Alphabet Lifting *)
 
-(** Alphabet lifting is easy. We only have to add the retraction to the specification. *)
-(** We could also implement this for abstract hoare triples, like in the below rule for [Custom]. *)
+(* Alphabet lifting is easy. We only have to add the retraction to the specification. *)
+(* We could also implement this for abstract hoare triples, like in the below rule for [Custom]. *)
 
 Section AlphabetLifting.
 
@@ -809,7 +809,7 @@ Section AlphabetLifting'.
 
 
 
-  (** We always have to use at least [Consequence_pre], because the premise will never match. *)
+  (* We always have to use at least [Consequence_pre], because the premise will never match. *)
 
   Lemma ChangeAlphabet_Spec_pre_post (F : finType)
         P0 (P : SpecV sig n) (P' : SpecV tau n)
@@ -878,7 +878,7 @@ Section AlphabetLifting'.
 
 
 
-  (** Versions with space *)
+  (* Versions with space *)
 
   Lemma ChangeAlphabet_Spec_space_pre_post (F : finType)
         P0 (P : SpecV sig n) (P' : SpecV tau n)
@@ -971,7 +971,7 @@ Qed.
 
 
 
-(** We always want to keep [withSpace] right after [tspec] in the assertions. *)
+(* We always want to keep [withSpace] right after [tspec] in the assertions. *)
 Global Arguments withSpace : simpl never.
 
 

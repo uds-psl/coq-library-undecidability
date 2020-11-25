@@ -5,7 +5,7 @@ Require Import Undecidability.Shared.Libs.PSL.Numbers.
 Require Import Nat.
 From Undecidability.L Require Import Datatypes.LBool Functions.EqBool Datatypes.LProd. 
 Import GenEncode. Import Nat.
-(** ** Encoding of natural numbers *)
+(* ** Encoding of natural numbers *)
 
 MetaCoq Run (tmGenEncode "nat_enc" nat).
 Hint Resolve nat_enc_correct : Lrewrite.

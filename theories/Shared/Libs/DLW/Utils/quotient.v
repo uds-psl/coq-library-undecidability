@@ -14,7 +14,7 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 Set Implicit Arguments.
 
-(** Every class of X/~ is enumerated ie there is a surjective partial map
+(* Every class of X/~ is enumerated ie there is a surjective partial map
     from nat to representatives of class *) 
 
 Definition nat_enum_cls X (R : X -> X -> Prop) := 
@@ -22,7 +22,7 @@ Definition nat_enum_cls X (R : X -> X -> Prop) :=
 
 Notation dec := ((fun X Y (R : X -> Y -> Prop) => forall x y, { R x y } + { R x y -> False }) _ _).
 
-(** A class function and its inverse, a function that computes representatives
+(* A class function and its inverse, a function that computes representatives
     with two equations characterizing the quotient *)
 
 Definition quotient X (R : X -> X -> Prop) Y :=
@@ -257,7 +257,7 @@ Section ep_quotient.
 
 End ep_quotient.
 
-(** Given type X with a decidable equivalence ~ over X
+(* Given type X with a decidable equivalence ~ over X
     such that the classes of X/~ can be enumerated then
     one can build the quotient X/~ into a discrete type Y
     and Y is necessarily enumerated, see below
@@ -273,7 +273,7 @@ Proof.
   apply enum_quotient_rec with (1 := Hf) (R := R); auto.
 Qed.
 
-(** A quotient of enumerated classes is automatically enumerated (for equality *)
+(* A quotient of enumerated classes is automatically enumerated (for equality *)
 
 Fact quotient_is_enum X R Y : nat_enum_cls R -> @quotient X R Y -> nat_enum_cls (@eq Y).
 Proof.

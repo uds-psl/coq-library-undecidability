@@ -45,7 +45,7 @@ Section If.
   Qed.
 
 
-  (** Strong version. Usually not needed *)
+  (* Strong version. Usually not needed *)
   Lemma If_TerminatesIn' R1 T1 T2 T3 :
     pM1 ⊨ R1 ->
     projT1 pM1 ↓ T1 ->

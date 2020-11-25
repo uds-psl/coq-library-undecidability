@@ -1,4 +1,4 @@
-(** ** Definition of Tarski Semantics *)
+(* ** Definition of Tarski Semantics *)
 
 From Undecidability.FOLP Require Export FullFOL.
 

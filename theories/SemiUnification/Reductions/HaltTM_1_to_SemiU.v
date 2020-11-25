@@ -15,7 +15,7 @@ Require Undecidability.SemiUnification.Reductions.CSSM_UB_to_SSemiU.
 Require Undecidability.SemiUnification.Reductions.SSemiU_to_RU2SemiU.
 Require Undecidability.SemiUnification.Reductions.RU2SemiU_to_SemiU.
 
-(** Many-one reduction from Turing machine halting to semi-unification *)
+(* Many-one reduction from Turing machine halting to semi-unification *)
 Theorem reduction : HaltTM 1 ⪯ SemiU.
 Proof.
   apply (reduces_transitive HaltTM_1_to_CSSM_UB.reduction).

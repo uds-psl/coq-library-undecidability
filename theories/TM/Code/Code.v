@@ -3,10 +3,10 @@ Require Import Coq.Lists.List.
 Require Import Undecidability.Shared.Libs.PSL.Bijection. (* [injective] *)
 
 
-(** * Codable Class **)
+(* * Codable Class **)
 
 
-(** Class of minimally codable types *)
+(* Class of minimally codable types *)
 Class codable (sig: Type) (X: Type) := {
   encode : X -> list sig;
 }.
@@ -25,14 +25,14 @@ Hint Mode Retract - ! : typeclass_instances. *)
 
 Hint Extern 4 (codable (FinType(EqType ?sigX)) ?X) => cbn : typeclass_instances.
 
-(** We often use the above coercion to write [cX x] instead of [encode x], because [encode x] can be ambigious, see [Encode_map] *)
+(* We often use the above coercion to write [cX x] instead of [encode x], because [encode x] can be ambigious, see [Encode_map] *)
 Coercion encode : codable >-> Funclass.
 
 Definition size (sig X : Type) (cX : codable sig X) (x : X) := length (cX x).
 Arguments size {sig X cX} x, {_ _} _ _ (*legacy with two arguments*).
 
 
-(** Hint database for encoding compatibility lemmas. For example, size functions are usually parametrised over an encoding. It doesn't matter for the size, whether we apply [Encode_map] on this encoding. This kind of lemmas is registered in this HintDb. *)
+(* Hint database for encoding compatibility lemmas. For example, size functions are usually parametrised over an encoding. It doesn't matter for the size, whether we apply [Encode_map] on this encoding. This kind of lemmas is registered in this HintDb. *)
 Create HintDb encode_comp.
 
 Ltac simpl_comp := autorewrite with encode_comp.
@@ -105,7 +105,7 @@ End Encode_Finite.
 
 
 
-(** [Encode_map] is no longer an instance for [codable] *)
+(* [Encode_map] is no longer an instance for [codable] *)
 
 Section Encode_map.
   Variable (X : Type).
@@ -152,7 +152,7 @@ Hint Rewrite Encode_map_id Encode_map_comp : encode_comp.
 
 
 
-(** Builds simple retract functions like [sigSum -> option sigX] in the form
+(* Builds simple retract functions like [sigSum -> option sigX] in the form
 [fun x => match x with constructor_name y => Retr_g y | _ => None] *)
 
 Local Hint Mode Retract - - : typeclass_instances.
@@ -305,7 +305,7 @@ Qed.
 
 
 
-(** If [X] is encodable over [sigX] and [Y] over [sigY]. *)
+(* If [X] is encodable over [sigX] and [Y] over [sigY]. *)
 Section Encode_pair.
 
   Inductive sigPair (sigX sigY : Type) : Type :=
@@ -674,7 +674,7 @@ End Encode_nat.
 
 
 
-(** Test Playground *)
+(* Test Playground *)
 
 (*
 Compute encode (Some true).

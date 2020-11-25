@@ -1,4 +1,4 @@
-(** * Reduction of the Halting Problem of the Heap Machine to the Halting Problem of Turing Machines *)
+(* * Reduction of the Halting Problem of the Heap Machine to the Halting Problem of Turing Machines *)
 
 From Undecidability Require Import ProgrammingTools LM_heap_def.
 From Undecidability.TM.L Require Import Alphabets HeapInterpreter.StepTM.
@@ -8,7 +8,7 @@ Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 
 
-(** Initialise the alphabet of the [Step] Machine *)
+(* Initialise the alphabet of the [Step] Machine *)
 Definition sigStep : Type := sigList sigHClos + sigHeap.
 Definition retr_heap_step : Retract sigHeap sigStep := _.
 Definition retr_closures_step : Retract (sigList sigHClos) sigStep := _.
@@ -212,9 +212,9 @@ Proof.
 Qed.
 
 
-(** This vernacular command checks wether we have indeed assumed no axioms. *)
+(* This vernacular command checks wether we have indeed assumed no axioms. *)
 (* Print Assumptions HaltingProblem. *)
-(**
+(*
 <<
 Closed under the global context
 >>

@@ -123,7 +123,7 @@ Proof.
     now apply TM_bool_computable_hoare_in_spec. eauto.
 Qed.
 
-(** * The tape-order is different than in the implemented machine, so here again with the tape-order implemented: *)
+(* * The tape-order is different than in the implemented machine, so here again with the tape-order implemented: *)
 Definition TM_bool_computable_hoare_in' {k n Σ} s b (v: Vector.t (list bool) k): SpecV Σ (1+n+k)
   := Custom (eq niltape) :: Vector.const (Custom (eq niltape)) _ ++ Vector.map (fun bs => Custom (eq (encBoolsTM s b bs))) v.
 

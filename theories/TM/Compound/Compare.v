@@ -8,9 +8,9 @@ From Undecidability.TM.Compound Require Import TMTac Multi MoveToSymbol.
 Require Recdef.
 
 
-(** * Compare two tapes (from left to right) until a symbol is reached *)
+(* * Compare two tapes (from left to right) until a symbol is reached *)
 
-(** This two-tape machines reads symbols from the tapes. It moves right, until the read symbols are not equal, or one of the read symbol is a stop symbol. It returns [true] if both last read symbols are stop symbols. It returns [false] If one (or both) tapes finally are off the tape, or the last read symbols differ. *)
+(* This two-tape machines reads symbols from the tapes. It moves right, until the read symbols are not equal, or one of the read symbol is a stop symbol. It returns [true] if both last read symbols are stop symbols. It returns [false] If one (or both) tapes finally are off the tape, or the last read symbols differ. *)
 
 
 Section Compare.
@@ -389,7 +389,7 @@ Section Compare_fun_lemmas.
   Qed.
 
 
-  (** Worst-case time (read the full string) *)
+  (* Worst-case time (read the full string) *)
   Lemma Compare_steps_correct (str1 str2 : list X) (s1 s2 : X) rs1 rs2 t :
     stop s1 = true ->
     stop s2 = true ->

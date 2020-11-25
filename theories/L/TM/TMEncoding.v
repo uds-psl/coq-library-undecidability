@@ -12,7 +12,7 @@ Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
 
 Import L_Notations.
 
-(** ** Extraction of Turing Machine interpreter  *)
+(* ** Extraction of Turing Machine interpreter  *)
 
 Import GenEncode.
 MetaCoq Run (tmGenEncode "move_enc" move).
@@ -77,7 +77,7 @@ Proof.
    all:intros ? [= <-]. all:reflexivity.
 Defined.*)
 
-(** *** Encoding Tapes *)
+(* *** Encoding Tapes *)
 Section reg_tapes.
   Variable sig : Type.
   Context `{reg_sig : registered sig}.
@@ -88,7 +88,7 @@ Section reg_tapes.
   MetaCoq Run (tmGenEncode "tape_enc" (TM.tape sig)).
   Hint Resolve tape_enc_correct : Lrewrite.
 
-  (**Internalize constructors **)
+  (*Internalize constructors **)
 
   Global Instance term_leftof : computableTime' (@leftof sig) (fun _ _ => (1, fun _ _ => (1,tt))).
   Proof.

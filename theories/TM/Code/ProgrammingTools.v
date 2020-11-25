@@ -2,12 +2,12 @@ Require Export Undecidability.TM.Code.CodeTM Undecidability.TM.Code.Copy Undecid
 Require Export Undecidability.TM.Compound.TMTac.
 Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
 Require Import Lia.
-(** * All tools for programming Turing machines *)
+(* * All tools for programming Turing machines *)
 
-(** All Coq modules in that the user programms Turing machine should [From Undecidability Require Import TM.Code.ProgrammingTools]. The module should additionally require and import the modules containing the constructor and deconstructor machines, e.g. [Require Import TM.Code.CaseNat], etc. *)
+(* All Coq modules in that the user programms Turing machine should [From Undecidability Require Import TM.Code.ProgrammingTools]. The module should additionally require and import the modules containing the constructor and deconstructor machines, e.g. [Require Import TM.Code.CaseNat], etc. *)
 
 
-(** To get rid of all those uggly tape rewriting hypothesises. Be warned that maybe the goal can't be solved after that. *)
+(* To get rid of all those uggly tape rewriting hypothesises. Be warned that maybe the goal can't be solved after that. *)
 Ltac clear_tape_eqs :=
   repeat once lazymatch goal with
          | [ H: ?t'[@ ?x] = ?t[@ ?x] |- _ ] => clear H
@@ -68,7 +68,7 @@ Ltac specializeFin H' :=
     forall i : Fin.t ?n, _ => do_n_times_fin n ltac:(fun i => let H := fresh H' in specialize (H' i) as H;cbn in H)
   end.
 
-(** Machine Notations *)
+(* Machine Notations *)
 
 
 From Coq.ssr Require ssrfun.

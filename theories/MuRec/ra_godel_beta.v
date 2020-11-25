@@ -30,7 +30,7 @@ Opaque ra_decomp_l ra_decomp_r ra_recomp.
 
 Section ra_godel_beta.
 
-  (** Gödel Beta function *)
+  (* Gödel Beta function *)
 
   Definition ra_godel_beta : recalg 3.
   Proof.

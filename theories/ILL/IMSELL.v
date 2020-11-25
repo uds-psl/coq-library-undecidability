@@ -11,7 +11,7 @@ Require Import List Permutation.
 
 Set Implicit Arguments.
 
-(** * Intuitionistic Multiplicative Sub-Exponential Linear Logic 
+(* * Intuitionistic Multiplicative Sub-Exponential Linear Logic 
 
       derived from  https://doi.org/10.1017/S0960129516000293 *)
 
@@ -45,7 +45,7 @@ Section IMSELL.
 
   Reserved Notation "l ⊢ x" (at level 70, no associativity).
 
-  (** We consider the (![.],-o) fragment of IMSELL without cut *)
+  (* We consider the (![.],-o) fragment of IMSELL without cut *)
 
   Inductive S_imsell : list imsell_form -> imsell_form -> Prop :=
 
@@ -88,7 +88,7 @@ Notation "![ m ] x" := (imsell_ban m x).
 Notation "£" := imsell_var.
 Notation "‼ Γ" := (imsell_lban Γ).
 
-(** An IMSELL signature is a type of modalities pre-ordered
+(* An IMSELL signature is a type of modalities pre-ordered
     and an upper-closed subset of exponentials *)
 
 Record IMSELL_sig : Type :=

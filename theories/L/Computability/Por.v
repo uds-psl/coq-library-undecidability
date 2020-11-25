@@ -1,6 +1,6 @@
 From Undecidability.L.Functions Require Export Eval.
 From Undecidability.L.Tactics Require Import Lbeta_nonrefl.
-(** * Definition of parallel or *)
+(* * Definition of parallel or *)
 
 Section hoas. Import HOAS_Notations.
 Definition Por :term := Eval simpl in (λ s t , (λ n0,  !!(ext doesHaltIn) s n0 ) (!!mu (λ n ,!!(ext orb) (!!(ext doesHaltIn) s n) (!!(ext doesHaltIn) t n)))) .

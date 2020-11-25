@@ -13,7 +13,7 @@ Set Implicit Arguments.
 
 Section interval.
 
-  (** A small interval & valuation library *)
+  (* A small interval & valuation library *)
 
   Definition interval := (nat * nat)%type. (* (a,b) <~~~> [a,b[ *)
 

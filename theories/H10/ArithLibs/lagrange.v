@@ -188,7 +188,7 @@ End utils.
 
 Section half_modulus_lemma.
 
-  (** If x = +- m [ 2m ] then x² = m² [4m²] *)
+  (* If x = +- m [ 2m ] then x² = m² [4m²] *)
 
   Variable (m : nat) (H2m : 2*m <> 0) (Hm2 : 4*m*m <> 0).
 
@@ -351,7 +351,7 @@ Section lagrange_prelim_odd.
 
 End lagrange_prelim_odd.
 
-(** Preliminary lemma : any prime p has a (small) multiple n*p of the form 1+a²+b² with 0 < n < p *)
+(* Preliminary lemma : any prime p has a (small) multiple n*p of the form 1+a²+b² with 0 < n < p *)
 
 Lemma lagrange_prelim p : prime p -> exists n a b, n*p = 1+a*a+b*b /\ 0 < n < p.
 Proof.
@@ -388,7 +388,7 @@ Fact Euler_squares x y a1 b1 c1 d1 a2 b2 c2 d2 :
                              (a1*d2-d1*a2+c1*b2-b1*c2))%Z.
 Proof. intros -> ->; ring. Qed.
 
-(** The primes are sums of four square, the hard part *)
+(* The primes are sums of four square, the hard part *)
 
 Section lagrange_for_primes.
 
@@ -398,7 +398,7 @@ Section lagrange_for_primes.
 
   Let P n := exists a b c d, Z.of_nat (n*p) = four_squares a b c d.
 
-  (** DLW: This one was a pain in the ... *)
+  (* DLW: This one was a pain in the ... *)
 
   Section lagrange_prime_step.
 
@@ -611,7 +611,7 @@ Section lagrange.
       rewrite Nat2Z.inj_mul; apply Euler_squares; auto.
   Qed.
 
-  (** An relative integer is positive iff it is the sum of four squares *)
+  (* An relative integer is positive iff it is the sum of four squares *)
 
   Corollary lagrange_theorem_Z n : 0 <= n <-> exists a b c d, n = a*a+b*b+c*c+d*d.
   Proof.

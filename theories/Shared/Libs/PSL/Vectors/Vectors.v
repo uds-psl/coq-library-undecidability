@@ -1,4 +1,4 @@
-(** * Addendum for Vectors ([Vector.t]) *)
+(* * Addendum for Vectors ([Vector.t]) *)
 (* Author: Maximilian Wuttke *)
 
 
@@ -373,7 +373,7 @@ Qed.
 
 
 
-(** Tactic for simplifying a hypothesis of the form [In x v] *)
+(* Tactic for simplifying a hypothesis of the form [In x v] *)
 
 
 Ltac simpl_vector_inv :=
@@ -425,7 +425,7 @@ Proof. intros H. simpl_vector_in. Qed.
 
 
 
-(** Conversion between vectors and lists *)
+(* Conversion between vectors and lists *)
 Module VecToListCoercion.
   Coercion Vector.to_list : Vector.t >-> list.
 End VecToListCoercion.

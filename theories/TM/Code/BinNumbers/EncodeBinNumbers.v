@@ -1,4 +1,4 @@
-(** * Encoding for binary numbers *)
+(* * Encoding for binary numbers *)
 
 From Undecidability Require Import TM.Util.Prelim Code.
 From Undecidability Require Import ArithPrelim.

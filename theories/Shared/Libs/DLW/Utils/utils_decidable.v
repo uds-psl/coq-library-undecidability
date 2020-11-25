@@ -14,7 +14,7 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 Set Implicit Arguments.
 
-(** We show that unbounded decidable predicates are exactly
+(* We show that unbounded decidable predicates are exactly
     the direct images of strictly increasing sequences nat -> nat 
 
     Hence, this gives an easy construction of the sequence

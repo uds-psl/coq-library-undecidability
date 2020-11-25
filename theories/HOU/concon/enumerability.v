@@ -2,9 +2,9 @@ Set Implicit Arguments.
 Require Import List Omega Lia.
 From Undecidability.HOU Require Import std.std calculus.calculus concon.conservativity unification.unification.
 
-(** * Enumerability from Conservativity *)
+(* * Enumerability from Conservativity *)
 
-(** ** Nth-Order Unification  *)
+(* ** Nth-Order Unification  *)
 Section ListEnumerabilityOrdered.
 
   Variable (X: Const).  
@@ -124,7 +124,7 @@ Proof.
 Qed.
 
 
-(** ** System Unification *)
+(* ** System Unification *)
 From Undecidability.HOU Require Import unification.systemunification.
 
 Section ListEnumerabilitySystems.
@@ -181,7 +181,7 @@ Proof.
 Qed.
 
 
-(** ** Nth-Order System Unification *)
+(* ** Nth-Order System Unification *)
 Section ListEnumerabilityOrderedSystems.
 
   Variable (X: Const).

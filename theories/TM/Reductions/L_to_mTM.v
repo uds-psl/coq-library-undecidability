@@ -3,7 +3,7 @@ Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Red
 From Undecidability.L Require Import L Seval LM_heap_def LM_heap_correct.
 Require Import Undecidability.TM.L.HeapInterpreter.M_LHeapInterpreter.
 
-(** * L to TM *)
+(* * L to TM *)
 
 -Definition HaltLclosed (s : {s : term | closed s}) := exists t, eval (proj1_sig s) t. (* Halting problem for call-by-value lambda-calculus *)
 

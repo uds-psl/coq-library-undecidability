@@ -1,10 +1,10 @@
 From Undecidability Require Import TM.Util.Prelim TM.Util.TM_facts.
 From Undecidability.TM Require Import Lifting.LiftTapes CodeTM ChangeAlphabet. (* for [simpl_not_in] *)
 
-(** * Tactics that help verifying complex machines *)
+(* * Tactics that help verifying complex machines *)
 
 
-(** This tactic automatically solves/instantiates premises of a hypothesis. If the hypothesis is a conjunction, it is destructed. *)
+(* This tactic automatically solves/instantiates premises of a hypothesis. If the hypothesis is a conjunction, it is destructed. *)
 Ltac modpon' H :=
   simpl_surject;
   once lazymatch type of H with
@@ -101,7 +101,7 @@ Ltac destruct_unit :=
 
 
 
-(** Rewrite [eq]-assumptions, but only in the goal. This is much faster than [TMSimp]. *)
+(* Rewrite [eq]-assumptions, but only in the goal. This is much faster than [TMSimp]. *)
 Ltac TMSimp_goal :=
   repeat multimatch goal with
          | [ H : ?X = _ |- _ ] => rewrite H
@@ -206,7 +206,7 @@ Tactic Notation "TMSimp" tactic(T) :=
 Tactic Notation "TMSimp" := TMSimp idtac.
 
 
-(** DO NOT USE THE FOLLOWING (deprecated) TACTICS, except in [TM.Compound]! *)
+(* DO NOT USE THE FOLLOWING (deprecated) TACTICS, except in [TM.Compound]! *)
 
 Tactic Notation "TMBranche" :=
   (

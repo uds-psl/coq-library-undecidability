@@ -20,11 +20,11 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Construction of the Hereditary Finite Sets model *)
+(* * Construction of the Hereditary Finite Sets model *)
 
 Section bt_model_n.
 
-  (** This discussion briefly describes how we encode finite and discrete 
+  (* This discussion briefly describes how we encode finite and discrete 
       model X with a computable n-ary relation R into an hereditary finite 
       set (hfs) with to elements l and r, l representing the points in X
       and r representing the n-tuples in R.
@@ -69,7 +69,7 @@ Section bt_model_n.
 
       *)
 
-  (** We have computed the transitive closure, spec'ed and proved finite *)  
+  (* We have computed the transitive closure, spec'ed and proved finite *)  
 
   Variable (X : Type) (Xfin : finite_t X) (Xdiscr : discrete X) (x0 : X) (nt : nat).
 
@@ -99,7 +99,7 @@ Section bt_model_n.
     + intros p; rewrite G4; auto.
   Qed.
 
-  (** First a surjective map from some transitive set l to X *)
+  (* First a surjective map from some transitive set l to X *)
 
   Let l := projT1 X_surj_hfs.
   Let s := projT1 (projT2 X_surj_hfs).
@@ -116,7 +116,7 @@ Section bt_model_n.
   Let Hi' : forall s, s ∈ l -> exists x, s = i x.
   Proof. apply (proj2_sig (projT2 (projT2 (X_surj_hfs)))). Qed.
 
-  (** Now we build P^5 l that contains all the set of triples of l *)
+  (* Now we build P^5 l that contains all the set of triples of l *)
 
   Let p := iter hfs_pow l (1+(2*nt)).
 
@@ -143,7 +143,7 @@ Section bt_model_n.
 
   Hint Resolve finite_t_prod hfs_mem_fin_t : core.
 
-  (** We encode R as a subset of tuples of elements of l in p *)
+  (* We encode R as a subset of tuples of elements of l in p *)
 
   Let encode_R : { r | r ∈ p 
                       /\ (forall v, @hfs_tuple nt v ∈ r -> forall q, vec_pos v q ∈ l)
@@ -192,7 +192,7 @@ Section bt_model_n.
   Let Hr3 v : R v <-> hfs_tuple (vec_map i v) ∈ r.
   Proof. apply (proj2_sig encode_R). Qed.
 
-  (** The Boolean encoding of x ∈ p *)
+  (* The Boolean encoding of x ∈ p *)
 
   Let p_bool x := if hfs_mem_dec x p then true else false.
 
@@ -236,7 +236,7 @@ Section bt_model_n.
   Let yl : Y.    Proof. exists l; apply p_bool_spec, Hp2. Defined.
   Let yr : Y.    Proof. exists r; apply p_bool_spec, Hr1. Defined.
 
-  (** Membership equivalence is identity in the model *)
+  (* Membership equivalence is identity in the model *)
 
   Let is_equiv : forall x y, mb_equiv mem x y <-> proj1_sig x = proj1_sig y.
   Proof.
@@ -348,7 +348,7 @@ Section bt_model_n.
 
   Let s' (y : Y) : X := s (proj1_sig y).
 
-  (**
+  (*
     For finite and discrete type X, non empty (as witnessed by a given element)
     equipped with a Boolean ternary relation R, one can compute a type Y, finite
     and discrete, equipped with a Boolean binary membership predicate ∈ which is 

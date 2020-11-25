@@ -33,7 +33,7 @@ Tactic Notation "app" "inv" "nil" "in" hyp(H) :=
 
 Local Infix "~p" := (@Permutation _) (at level 70).
 
-(** * Classical Linear Logic vs Intuitionnisitc Linear Logic 
+(* * Classical Linear Logic vs Intuitionnisitc Linear Logic 
 
        derived from the work of H. Schellinx JLC 91 *)
 

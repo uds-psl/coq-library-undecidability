@@ -20,7 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Decidability results for FSAT *)
+(* * Decidability results for FSAT *)
 
 Local Notation ø := vec_nil.
 
@@ -256,7 +256,7 @@ End enum_models.
 
 Section FSAT_in_dec.
 
-  (** The main theorem here: 
+  (* The main theorem here: 
 
       - Given a discrete FO signature Σ
       - Given a finite and discrete base type X
@@ -298,7 +298,7 @@ End FSAT_in_dec.
 
 Section fo_form_fin_discr_dec_SAT_pos.
 
-  (** Having a finite and discrete model is the same
+  (* Having a finite and discrete model is the same
       as having a model over type pos n for some n *)
 
   Variables (Σ : fo_signature) (A : fol_form Σ).

@@ -37,7 +37,7 @@ Section ra_compiler.
 
   Ltac dest x y := destruct (eq_nat_dec x y) as [ | ]; [ subst x | ]; rew env.
 
-  (** We compile f : recalg n 
+  (* We compile f : recalg n 
       into (nat indexed) MM code at i where 
        a) inputs are indexed with registers between [p,p+n[, 
        b) output is indexed by o

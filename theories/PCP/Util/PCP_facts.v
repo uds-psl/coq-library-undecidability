@@ -162,7 +162,7 @@ Qed.
 
 Local Definition BSRS := list (card bool).
 Local Notation "x / y" := (x, y).
-(** ** Enumerability *)
+(* ** Enumerability *)
 
 Fixpoint L_PCP n : list (BSRS * (string bool * string bool)) :=
   match n with

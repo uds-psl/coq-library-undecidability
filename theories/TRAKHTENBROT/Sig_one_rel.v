@@ -9,7 +9,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** The code was initially developed by Dominik Kirst to be 
+(* The code was initially developed by Dominik Kirst to be 
     reimported to this alternate syntax & framework by @DLW 
 *) 
 
@@ -26,7 +26,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * From several relations to one, arity incremented by 1 *)
+(* * From several relations to one, arity incremented by 1 *)
 
 Local Reserved Notation "⟪ A ⟫'" (at level 1, format "⟪ A ⟫'").
 
@@ -87,7 +87,7 @@ Section Uniform_arities_to_one.
 
     Let vX n (v : vec _ n) := vec_map fX v.
 
-    (** The base type of the model X is extended with finitely
+    (* The base type of the model X is extended with finitely
         many points (rels Σ) that serve as indices for the
         original relations and are linked to corresponding
         constants *)
@@ -174,7 +174,7 @@ Section Uniform_arities_to_one.
 
     Variable (M' : fo_model Σ' X).
 
-    (** The model is recovered using constants as indices for each relation *)
+    (* The model is recovered using constants as indices for each relation *)
 
     Definition Σone_unif_rel_model : fo_model Σ X.
     Proof.

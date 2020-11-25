@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** * Main undecidability results for Minsky machines *)
+(* * Main undecidability results for Minsky machines *)
 
 Require Import Undecidability.Synthetic.Undecidability.
 

@@ -19,7 +19,7 @@ Require Undecidability.MinskyMachines.Reductions.BSM_HALTING_to_MM2_HALTING.
 Require Undecidability.StackMachines.Reductions.iPCPb_to_BSM_HALTING.
 Require Undecidability.PCP.Reductions.HaltTM_1_to_iPCPb.
 
-(** 
+(* 
   Comprehensive chain of many-one reductions from Turing machine halting to semi-unification 
     HaltTM 1 : Turing machine halting
     iPCPb : indexed, binary Post correspondence problem

@@ -1,7 +1,7 @@
 From Undecidability.L Require Import Datatypes.LNat Tactics.LTactics.
 Import Ring.
 
-(** ** Computability of Ackermann *)
+(* ** Computability of Ackermann *)
 
 Fixpoint ackermann n : nat -> nat :=
   match n with

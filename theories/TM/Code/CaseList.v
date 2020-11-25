@@ -1,4 +1,4 @@
-(** * Constructor and Deconstructor Machines for Lists *)
+(* * Constructor and Deconstructor Machines for Lists *)
 
 From Undecidability Require Import ProgrammingTools.
 
@@ -14,7 +14,7 @@ Proof. destruct xs; cbn; auto. Qed.
 
 Section CaseList.
 
-  (** ** Deconstructor *)
+  (* ** Deconstructor *)
 
   Variable X : Type.
   Variable (sigX : finType).
@@ -57,7 +57,7 @@ Section CaseList.
                  end).
 
 
-  (** *** Corectness *)
+  (* *** Corectness *)
 
   Definition Skip_cons_Rel : pRel (sigList sigX)^+ unit 1 :=
     Mk_R_p (
@@ -186,7 +186,7 @@ Section CaseList.
   Qed.
 
 
-  (** *** Termination *)
+  (* *** Termination *)
 
 
   Lemma Skip_cons_Terminates :
@@ -305,7 +305,7 @@ Section CaseList.
 
 
 
-  (** ** [IsNil] *)
+  (* ** [IsNil] *)
 
   Definition IsNil : pTM (sigList sigX)^+ bool 1 :=
     Move Rmove;;
@@ -346,10 +346,10 @@ Section CaseList.
 
 
 
-  (** ** Constructors *)
+  (* ** Constructors *)
 
 
-  (** *** [nil] *)
+  (* *** [nil] *)
   
   Definition Constr_nil : pTM (sigList sigX)^+ unit 1 := WriteValue (@nil X).
 
@@ -373,7 +373,7 @@ Section CaseList.
   Qed.
   
 
-  (** *** [cons] *)
+  (* *** [cons] *)
   
   Definition Constr_cons : pTM (sigList sigX)^+ unit 2 :=
     LiftTapes (MoveRight _;; Move Lmove) [|Fin1|];;
@@ -463,7 +463,7 @@ Arguments Constr_cons_steps   {sigX X cX} : simpl never.
 Arguments CaseList_steps_nil              : simpl never.
 
 (*
-(** ** Compatibility of running time functions with encoding mapping *)
+(* ** Compatibility of running time functions with encoding mapping *)
 
 Section Steps_comp.
   Variable (sig tau: finType) (X:Type) (cX: codable sig X).
@@ -493,7 +493,7 @@ End Steps_comp.
 *)
 
 
-(** ** Tactic Support *)
+(* ** Tactic Support *)
 
 Ltac smpl_TM_CaseList :=
   once lazymatch goal with

@@ -1,7 +1,7 @@
 From Undecidability.L.Computability Require Export Fixpoints Decidability Seval.
 From Undecidability.L.Functions Require Export Proc Encoding.
 Import ARS.ARSNotations L_Notations.
-(** * Scott's Theorem *)
+(* * Scott's Theorem *)
 
 Theorem Scott (M : term -> Prop) : M <=1 closed ->
   (forall s t, M s -> closed t -> t == s -> M t) ->
@@ -20,7 +20,7 @@ Proof.
   -symmetry. etransitivity. apply eqStep. apply step_Lproc;Lproc. simpl. now rewrite cls_u,cls_s1,cls_s2.
 Qed.
 
-(** * Applications of Scott's Theorem *)
+(* * Applications of Scott's Theorem *)
 
 Goal ~ ldec (fun x => closed x /\ converges x).
 Proof.

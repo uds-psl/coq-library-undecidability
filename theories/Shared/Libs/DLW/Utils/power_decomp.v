@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Base p representation *)
+(* ** Base p representation *)
 
 Require Import Arith Nat Lia.
 

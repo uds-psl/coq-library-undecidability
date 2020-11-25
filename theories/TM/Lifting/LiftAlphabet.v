@@ -1,6 +1,6 @@
 From Undecidability Require Import TM.Util.Prelim TM.Util.Relations TM.Util.TM_facts.
 
-(** * Alphabet-Lift *)
+(* * Alphabet-Lift *)
 
 Section SujectTape.
   Variable sig tau : Type.

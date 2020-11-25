@@ -20,13 +20,13 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * FSAT and FSAT over discrete model are equivalent *)
+(* * FSAT and FSAT over discrete model are equivalent *)
 
-(** This equivalence and hence reduction most probably cannot
+(* This equivalence and hence reduction most probably cannot
     be proved for infinite models, or at least the way it is
     proved in here *)
 
-(** Satisfiability of A in a finite and decidable model implies satisfiability 
+(* Satisfiability of A in a finite and decidable model implies satisfiability 
     of A in a finite, decidable and discrete model, in fact in a model based on 
     the finite type (pos n) *)
 

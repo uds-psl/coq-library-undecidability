@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** This file is mainly a complete re-implementation of the
+(* This file is mainly a complete re-implementation of the
     paper of Katrin Stark & Gert Smolka
 
           Finite Sets in Constructive Type Theory  
@@ -34,7 +34,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Binary trees as concrete Hereditary Finite Sets *)
+(* * Binary trees as concrete Hereditary Finite Sets *)
 
 Inductive bt : Set := bt_leaf | bt_node : bt -> bt -> bt.
 
@@ -43,7 +43,7 @@ Local Infix "⪧" := bt_node.     (* x⪧s is {x} ∪ s *)
 
 Section bt_rect'.
 
-  (** When we inspect bt as lists, we can switch to this principle 
+  (* When we inspect bt as lists, we can switch to this principle 
 
         In fact, btrees code HF-sets like this
 
@@ -245,7 +245,7 @@ Tactic Notation "btm" "simpl" :=
   end.
 
 
-(** Very important to build the finite HF-model 
+(* Very important to build the finite HF-model 
 
     Up to ≈, membership in t is finite *)
 
@@ -266,7 +266,7 @@ Section bte_depth.
 
   Opaque max.
 
-  (** Well-foundness *)
+  (* Well-foundness *)
 
   Fact bte_depth_eq s t : s ≈ t -> ⌞s⌟ = ⌞t⌟.
   Proof.
@@ -284,7 +284,7 @@ Section bte_depth.
     apply le_max_l.
   Qed.
 
-  (** bt is well-founded for ∈ *)
+  (* bt is well-founded for ∈ *)
 
   Theorem btm_wf : well_founded (fun s t => s ∈ t).
   Proof.
@@ -473,7 +473,7 @@ Section more_decidability.
   
     Variable (P : bt -> Prop) (HP : forall s t, s ≈ t -> P s -> P t).
 
-    (** Exist. quantification over subsets *)
+    (* Exist. quantification over subsets *)
 
     Theorem btm_ex_dec t : (forall x, x ∈ t -> { P x } + { ~ P x })
                         -> { s | s ∈ t /\ P s } + { forall s, s ∈ t -> ~ P s }.
@@ -492,7 +492,7 @@ Section more_decidability.
 
   End btm_ex_dec.
 
-  (** Univ. quantification of subsets *)
+  (* Univ. quantification of subsets *)
 
   Corollary btm_fa_dec (P : _ -> Prop) t : 
                              (forall s t, s ≈ t -> P s -> P t)
@@ -508,7 +508,7 @@ Section more_decidability.
       destruct (H2 _ Hs); tauto.
   Qed.
 
-  (** Decidable separation *)
+  (* Decidable separation *)
 
   Definition btm_select (P : _ -> Prop) t :
                              (forall s t, s ≈ t -> P s -> P t)
@@ -533,7 +533,7 @@ Section more_decidability.
           contradict H; revert H2; apply HP0; auto.
   Qed.
 
-  (** When x ∈ s, one can compute t st s = {x} U t /\ x ∉ t *)
+  (* When x ∈ s, one can compute t st s = {x} U t /\ x ∉ t *)
   
   Definition btm_partition x s : x ∈ s -> { t | s ≈ x⪧t /\ x ∉ t }.
   Proof.
@@ -698,7 +698,7 @@ Proof.
       revert Hz; btm simpl; intros []; auto.
 Qed.
 
-(** Set union *)
+(* Set union *)
 
 Fixpoint bt_cup s t := 
   match s with 
@@ -746,7 +746,7 @@ Qed.
 
 Hint Resolve bt_cup_mono : core.
 
-(** We compute the transitive closure *)
+(* We compute the transitive closure *)
 
 Definition bt_transitive t := forall u v, u ∈ v -> v ∈ t -> u ∈ t.
 
@@ -763,7 +763,7 @@ Fixpoint bt_tc t :=
   end
 where "↓ t" := (bt_tc t).
 
-(** ↓t contains t *)
+(* ↓t contains t *)
 
 Fact bt_tc_incr t : t ⊆ ↓t.
 Proof.
@@ -773,7 +773,7 @@ Qed.
 
 Hint Resolve bt_tc_incr : core.
 
-(** ↓t is transitive *)
+(* ↓t is transitive *)
 
 Theorem bt_tc_trans t : bt_transitive ↓t.
 Proof.
@@ -788,7 +788,7 @@ Qed.
 
 Hint Resolve bt_tc_trans : core.
 
-(** ↓s is the least transitive containing s *)
+(* ↓s is the least transitive containing s *)
 
 Fact bt_tc_incl_transitive s t : bt_transitive t -> s ⊆ t -> ↓s ⊆ t.
 Proof.
@@ -802,7 +802,7 @@ Proof.
   + revert H2; apply Hv; intros ? ?; apply H1; btm simpl.
 Qed.
 
-(** Hence it is a closure operator, ie as already proved, increasing
+(* Hence it is a closure operator, ie as already proved, increasing
     but also monotonic *)
 
 Fact bt_tc_mono s t : s ⊆ t -> ↓s ⊆ ↓t.
@@ -812,14 +812,14 @@ Proof.
   apply bti_trans with (1 := H); auto.
 Qed.
 
-(** And idempotent *)
+(* And idempotent *)
 
 Fact bt_tc_idem t : (↓↓t) ⊆ ↓t.
 Proof. apply bt_tc_incl_transitive; auto. Qed.
 
 Hint Resolve bt_tc_mono bt_tc_idem : core.
 
-(** It is nice to set union *)
+(* It is nice to set union *)
    
 Fact bt_tc_cup s t : ↓(s ∪ t) ⊆ ↓s ∪ ↓t.
 Proof.
@@ -848,7 +848,7 @@ Proof. intros; apply bte_ext; intro; apply bt_tc_congr_r; auto. Qed.
 
 Section bt_pow.
 
-  (** We build the power set *)
+  (* We build the power set *)
 
   (* bt_mcomp x {t1,...,tk} => {{x} ∪ t1,...,{x} ∪ tk} **)
 
@@ -894,7 +894,7 @@ Section bt_pow.
         revert H; rewrite Ht; auto.
   Qed.
 
-  (** Powerset of transitive is transitive *)
+  (* Powerset of transitive is transitive *)
 
   Fact bt_pow_transitive t : bt_transitive t -> bt_transitive (bt_pow t).
   Proof.
@@ -949,7 +949,7 @@ Local Notation "⟬ s , t ⟭" := (bt_opair s t).
 
 Section ordered_pairs.
  
-  (** We start workin with pairs *)
+  (* We start workin with pairs *)
 
   Fact bt_sg_inv x y : x⪧∅ ≈ y⪧∅ <-> x ≈ y.
   Proof.
@@ -987,7 +987,7 @@ Section ordered_pairs.
         do 2 (apply in_bte_cngr; auto).
   Qed.
 
-  (** ordered pairs   (x,y) = { {x},{x,y} } *)
+  (* ordered pairs   (x,y) = { {x},{x,y} } *)
 
   Fact bt_opair_spec x s t : x ∈ ⟬s,t⟭ <-> x ≈ s⪧∅ \/ x ≈ s⪧t⪧∅.
   Proof. unfold bt_opair; btm simpl. Qed.
@@ -1038,7 +1038,7 @@ Qed.
 
 Section FOL_encoding.
 
-  (** FOL encoding a triples belonging to a set *)
+  (* FOL encoding a triples belonging to a set *)
  
   Fact bt_enc_equiv s t : s ≈ t <-> forall x, x ∈ s <-> x ∈ t.
   Proof. apply bte_ext. Qed.

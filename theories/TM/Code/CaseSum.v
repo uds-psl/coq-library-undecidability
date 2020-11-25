@@ -1,6 +1,6 @@
 From Undecidability Require Import ProgrammingTools.
 
-(** * Constructor and Deconstructor Machines for Sum Types and Option Types *)
+(* * Constructor and Deconstructor Machines for Sum Types and Option Types *)
 
 Lemma tl_length (X : Type) (xs : list X) :
   length (tl xs) = pred (length xs).
@@ -11,7 +11,7 @@ Section CaseSum.
 
   Variable X Y : Type.
 
-  (** ** Deconstructor for Sum Types *)
+  (* ** Deconstructor for Sum Types *)
 
   Variable (sigX sigY : finType).
   Hypothesis (codX : codable sigX X) (codY : codable sigY Y).
@@ -53,7 +53,7 @@ Section CaseSum.
     }
   Qed.
 
-  (** ** Constructors for Sum Types *)
+  (* ** Constructors for Sum Types *)
   Section SumConstr.
 
 
@@ -108,7 +108,7 @@ Arguments CaseSum : simpl never.
 Arguments Constr_inl : simpl never.
 Arguments Constr_inr : simpl never.
 
-(** ** Tactic Support for Sum Types *)
+(* ** Tactic Support for Sum Types *)
 
 Ltac smpl_TM_CaseSum :=
   once lazymatch goal with
@@ -140,7 +140,7 @@ Section CaseOption.
   (* Compute encode (None : option nat). *)
   (* Compute encode (Some 42). *)
 
-  (** ** Deconstructor for Option Types *)
+  (* ** Deconstructor for Option Types *)
 
   Let sig := FinType (EqType (sigSum sigX (FinType(EqType Empty_set)))).
   Let tau := FinType (EqType (sigOption sigX)).
@@ -233,7 +233,7 @@ Section CaseOption.
     }
   Qed.
 
-  (** ** Constructors for Option Types *)
+  (* ** Constructors for Option Types *)
 
   Definition Constr_Some_Rel : Rel (tapes tau^+ 1) (unit * tapes tau^+ 1) :=
     Mk_R_p (ignoreParam(
@@ -294,7 +294,7 @@ Arguments Constr_None _ {_ _} : simpl never.
 Arguments Constr_Some : simpl never.
 
 
-(** ** Tactic Support for Option Types *)
+(* ** Tactic Support for Option Types *)
 
 Ltac smpl_TM_CaseOption :=
   once lazymatch goal with

@@ -1,4 +1,4 @@
-(** * Step Machine of the Heap Machine Simulator *)
+(* * Step Machine of the Heap Machine Simulator *)
 
 From Undecidability Require Import TM.Code.ProgrammingTools LM_heap_def.
 From Undecidability.TM.L Require Import Alphabets CaseCom LookupTM JumpTargetTM.
@@ -10,7 +10,7 @@ Local Arguments mult : simpl never.
 Local Hint Resolve isVoid_isVoid_size : core.
 
 
-(** Here we compose the [Lookup] and [JumpTarget] machines. *)
+(* Here we compose the [Lookup] and [JumpTarget] machines. *)
 
 Section StepMachine.
 
@@ -21,14 +21,14 @@ Section StepMachine.
   Implicit Types (P Q : Pro).
 
   
-  (** The machine operates on lists of closures and on a heap, so we need a closure-list alphabet and a heap alphabet. *)
+  (* The machine operates on lists of closures and on a heap, so we need a closure-list alphabet and a heap alphabet. *)
   Variable sigStep : finType.
   Variable retr_closures_step : Retract (sigList sigHClos) sigStep.
   Variable retr_heap_step : Retract sigHeap sigStep.
 
   Set Default Proof Using "Type".
 
-  (** Retracts *)
+  (* Retracts *)
   (* Closures *)
   Local Definition retr_clos_step : Retract sigHClos sigStep := ComposeRetract retr_closures_step _.
 
@@ -44,12 +44,12 @@ Section StepMachine.
   Local Definition retr_nat_clos_var : Retract sigNat sigHClos := Retract_sigPair_Y _ _.
   Local Definition retr_nat_step_clos_var : Retract sigNat sigStep := ComposeRetract retr_clos_step retr_nat_clos_var.
 
-  (** Instance of the [Lookup] and [JumpTarget] machine *)
+  (* Instance of the [Lookup] and [JumpTarget] machine *)
   Local Definition Step_Lookup := Lookup retr_clos_step retr_heap_step.
 
 
 
-  (** Cons a closure to a closure list, if the programm of the closure is not empty, and reset the program but not the address of the closure *)
+  (* Cons a closure to a closure list, if the programm of the closure is not empty, and reset the program but not the address of the closure *)
 
   Definition TailRec_size (T : list HClos) (P : Pro) (a : HAdd) : Vector.t (nat->nat) 3 :=
     match P with
@@ -134,7 +134,7 @@ Section StepMachine.
     }
   Qed. 
 
-  (** Like [TailRec], but doesn't check whether the program is empty, and resets [a] and [Q] *)
+  (* Like [TailRec], but doesn't check whether the program is empty, and resets [a] and [Q] *)
 
   Definition ConsClos_size (T : list HClos) (Q : Pro) (a : HAdd) : Vector.t (nat->nat) 3 :=
     [| Constr_cons_size (a,Q); Reset_size a; Constr_pair_size a >> Reset_size (a, Q) |].

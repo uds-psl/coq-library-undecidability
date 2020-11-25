@@ -1,4 +1,4 @@
-(** * Tactics for [Fin.t] *)
+(* * Tactics for [Fin.t] *)
 
 (* Author: Maximilian Wuttke and Fabian Kunze *)
 

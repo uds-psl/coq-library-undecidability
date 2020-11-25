@@ -39,7 +39,7 @@ Section loopM.
        (length ( elem (state M) ) * 4 + (n * (4 * length ( elem sig ) + 10) + 4) + 4) *
        c__eqbComp (finType_CS (state M * VectorDef.t (option sig) n)).
   Definition transTime := (| funTable (trans (m:=M)) |) * (c__trans + 24) + 4 + 9.
-  (** *** Computability of transition relation *)
+  (* *** Computability of transition relation *)
   Global Instance term_trans : computableTime' (trans (m:=M)) (fun _ _ => (transTime,tt)).
   Proof.
     pose (t:= (funTable (trans (m:=M)))).
@@ -112,7 +112,7 @@ Section loopM.
     solverec.
   Qed.
 
-  (** *** Computability of step-ndexed interpreter *)
+  (* *** Computability of step-ndexed interpreter *)
   Global Instance term_loopM :
   let c1 := (haltTime + n*130 + transTime + 85 + 108) in
     let c2 := 15 + haltTime in

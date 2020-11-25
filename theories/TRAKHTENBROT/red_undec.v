@@ -45,7 +45,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
-(** * Collection of high-level synthetic undecidability results *)
+(* * Collection of high-level synthetic undecidability results *)
 
 (* Summary of some of what is implement in here
 
@@ -69,7 +69,7 @@ Set Implicit Arguments.
 
 *)
 
-(** The reduction from BPCP to SAT of a FO formula over a finitary & discrete signature
+(* The reduction from BPCP to SAT of a FO formula over a finitary & discrete signature
      - over signature Σbpcp (2 unary funs, 2 constants, 3 rels)
      - within interpreted finite and decidable models
 
@@ -97,7 +97,7 @@ Proof.
   apply FIN_DEC_EQ_SAT_FIN_DEC_SAT.
 Qed.
 
-(** With Σ  = (sy,re) a signature with finitely many term symbols (sy)
+(* With Σ  = (sy,re) a signature with finitely many term symbols (sy)
     and  Σ' = (ø,sy+{=²}+re) where =² is interpreted and the arity of symbols 
               in sy is augmented by 1
     then there is a reduction
@@ -143,7 +143,7 @@ Proof.
   apply FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT; auto.
 Qed.
 
-(** If the relation symbols in Σ have all their 
+(* If the relation symbols in Σ have all their 
     arities upper bounded by n and 
     Σunif n is the signature with the same functions
     symbols and relations symbols as Σ except 
@@ -166,7 +166,7 @@ Proof.
     revert H; apply Σuniformize_complete; cbv; auto.
 Qed.
 
-(** With Σ=(sy,re) a signature with an empty type of term symbols
+(* With Σ=(sy,re) a signature with an empty type of term symbols
     and where all the finitely many relations in re have the same 
     uniform arity n there is a reduction
     - from finite & decidable SAT over Σ 
@@ -199,7 +199,7 @@ Proof.
     revert H3; apply Σunif_one_rel_complete.
 Qed.
 
-(** With Σ=(sy,re) a signature with a discrete type sy of term symbols
+(* With Σ=(sy,re) a signature with a discrete type sy of term symbols
     and among them, only constant symbols, there is a reduction
     - from finite & decidable SAT over Σ 
     - to finite & decodable SAT over (ø,re)
@@ -272,7 +272,7 @@ Proof.
   + apply Σ2_Σn_completeness.
 Qed.
 
-(** If Σ contains an n-ary relational symbol then there is a 
+(* If Σ contains an n-ary relational symbol then there is a 
     reduction 
 
                SAT(∅,{R^n},𝔽,ℂ) ---> SAT(Σ,𝔽,ℂ)  *)

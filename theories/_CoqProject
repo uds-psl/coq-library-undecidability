@@ -3,7 +3,45 @@
 -arg -w -arg -notation-overridden
 COQDOCFLAGS = "--charset utf-8 -s --with-header ../website/resources/header.html --with-footer ../website/resources/footer.html --index indexpage"
 
+# coqdoc files
 
+PCP/PCP.v
+PCP/Reductions/HaltTM_1_to_PCP.v
+PCP/PCP_undec.v
+
+MinskyMachines/MM2.v            
+MinskyMachines/MM2_undec.v
+
+FRACTRAN/FRACTRAN.v
+FRACTRAN/Reductions/HaltTM_1_to_FRACTRAN_HALTING.v
+FRACTRAN/FRACTRAN_undec.v
+
+DiophantineConstraints/H10C.v
+DiophantineConstraints/H10C_undec.v
+
+CounterMachines/CM1.v
+CounterMachines/Reductions/HaltTM_1_to_CM1_HALT.v
+CounterMachines/CM1_undec.v
+
+SetConstraints/FMsetC.v
+SetConstraints/FMsetC_undec.v
+
+L/L.v
+L/L_undec.v
+
+TM/TM.v
+TM/TM_undec.v
+
+TM/SBTM.v
+TM/SBTM_undec.v
+
+StackMachines/BSM.v
+StackMachines/BSM_undec.v
+
+MinskyMachines/MM.v
+MinskyMachines/MM_undec.v       
+
+# Non coqdoc files
 
 Shared/Dec.v
 Shared/ListAutomation.v
@@ -35,7 +73,7 @@ Shared/Libs/DLW/Utils/sorting.v
 Shared/Libs/DLW/Utils/utils_decidable.v
 Shared/Libs/DLW/Utils/interval.v
 
-Shared/Libs/DLW/Utils/list_bool.v       # used in iBPCP to BSM reduction
+Shared/Libs/DLW/Utils/list_bool.v       
 
 Shared/Libs/DLW/Utils/sums.v
 Shared/Libs/DLW/Utils/binomial.v
@@ -109,7 +147,6 @@ Shared/Libs/PSL/FiniteTypes/DepPairs.v
 Shared/Libs/PSL/FiniteTypes/Arbitrary.v
 Shared/Libs/PSL/FiniteTypes/VectorFin.v
 
-# Abstract heap-based L simulator as Turing Machine
 TM/L/Alphabets.v
 TM/L/CaseCom.v
 TM/L/HeapInterpreter/LookupTM.v
@@ -122,7 +159,6 @@ TM/L/Transcode/Enc_to_Boollist.v
 TM/L/Transcode/BoollistEnc.v
 TM/L/Eval.v
 
-#Computability of boolean functions
 
 TM/L/CompilerBoolFuns/Compiler_spec.v
 TM/L/CompilerBoolFuns/LComp_to_TMComp.v
@@ -132,10 +168,6 @@ TM/L/CompilerBoolFuns/EncBoolsTM_boolList.v
 TM/L/CompilerBoolFuns/Compiler.v
 TM/L/CompilerBoolFuns/NaryApp.v
 TM/L/CompilerBoolFuns/ClosedLAdmissible.v
-
-#Post correspondence problem
-PCP/PCP.v
-PCP/PCP_undec.v
 
 PCP/Util/Facts.v
 PCP/Util/PCP_facts.v
@@ -147,11 +179,9 @@ PCP/Reductions/PCP_to_PCPb.v
 PCP/Reductions/PCPb_iff_iPCPb.v
 PCP/Reductions/SR_to_MPCP.v
 PCP/Reductions/MPCP_to_MPCPb.v
-PCP/Reductions/HaltTM_1_to_PCP.v
 PCP/Reductions/HaltTM_1_to_iPCPb.v
 PCP/Reductions/HaltTM_1_to_PCPb.v
 
-#String rewriting
 StringRewriting/SR.v
 StringRewriting/SR_undec.v
 StringRewriting/PCSnf.v
@@ -164,7 +194,6 @@ StringRewriting/Reductions/HaltSBTMu_to_SRH.v
 StringRewriting/Reductions/HaltSBTMu_to_TSR.v
 StringRewriting/Reductions/HaltTM_1_to_SR.v
 
-#Context-free grammars
 CFG/CFP.v
 CFG/CFP_undec.v
 CFG/CFG.v
@@ -176,7 +205,6 @@ CFG/Reductions/PCP_to_CFPI.v
 CFG/Reductions/CFPP_to_CFP.v
 CFG/Reductions/CFPI_to_CFI.v
 
-# First order logic
 FOL/FOL.v
 FOL/FOL_undec.v
 FOL/Util/Syntax.v
@@ -188,16 +216,11 @@ FOL/Reductions/PCPb_to_FOL.v
 FOL/Reductions/PCPb_to_FOL_intu.v
 FOL/Reductions/PCPb_to_FOL_class.v
 
-# Minsky machines with n counter (2 different semantics) and with 2 counters 
-MinskyMachines/MM.v             # generic X-bounded MM (X=pos n or X=nat is type of registers) 
-                                # with CPP19 semantics (MM) and alternate semantics (MMA)
-MinskyMachines/MMA.v            # simply exports MM.v
-MinskyMachines/MM2.v            # self contained two counters MM with alternate semantics
-MinskyMachines/ndMM2.v          # self contained two counters non-deterministic MM 
-MinskyMachines/MM_undec.v       # undec for MM(n), CPP2019
-MinskyMachines/MMA2_undec.v     # undec for MMA(2)
-MinskyMachines/MM2_undec.v      # undec for MM2
-MinskyMachines/ndMM2_undec.v    # undec for ndMM2
+MinskyMachines/MMA.v            
+
+MinskyMachines/ndMM2.v          
+MinskyMachines/MMA2_undec.v     
+MinskyMachines/ndMM2_undec.v    
 
 MinskyMachines/Reductions/BSM_MM.v
 MinskyMachines/Reductions/PCPb_to_MM.v
@@ -210,24 +233,22 @@ MinskyMachines/Reductions/MUREC_MM.v
 MinskyMachines/Reductions/BSM_HALTING_to_MM2_HALTING.v
 MinskyMachines/Reductions/MM2_to_ndMM2_ACCEPT.v
 
-MinskyMachines/MM/mm_defs.v         # (pos n)-bounded MM
-MinskyMachines/MM/mm_utils.v        # utilities
-MinskyMachines/MM/mm_comp.v         # the CPP19 compiler
-#MinskyMachines/MM/mm_comp_old.v     # older compiler (not that modular)
-MinskyMachines/MM/mm_no_self.v      # Removal of self loops, ie i: DEC x i
+MinskyMachines/MM/mm_defs.v         
+MinskyMachines/MM/mm_utils.v        
+MinskyMachines/MM/mm_comp.v         
+MinskyMachines/MM/mm_no_self.v      
 
-MinskyMachines/MMA/mma_defs.v       # (pos n)-bounded MM with alternate semantics
-MinskyMachines/MMA/mma_utils.v      # utilities
-MinskyMachines/MMA/mma_simul.v      # simulation for HALTING HALTS_ON_ZERO reduction
-MinskyMachines/MMA/fractran_mma.v   # FRACTRAN to MMA2 compiler
+MinskyMachines/MMA/mma_defs.v       
+MinskyMachines/MMA/mma_utils.v      
+MinskyMachines/MMA/mma_simul.v      
+MinskyMachines/MMA/fractran_mma.v   
 
-MinskyMachines/MMenv/env.v          # environments for nat-bounded MM
-MinskyMachines/MMenv/mme_defs.v     # X-bounded MM definitions      
-MinskyMachines/MMenv/mme_utils.v    # nat-bounded MM utils for MuRec ~~> MM(nat) compiler
+MinskyMachines/MMenv/env.v          
+MinskyMachines/MMenv/mme_defs.v     
+MinskyMachines/MMenv/mme_utils.v    
 
-MinskyMachines/ndMM2/ndmm2_utils.v  # some utilities for ndMM2, for now just monotonicity
+MinskyMachines/ndMM2/ndmm2_utils.v  
 
-# Linear Logic (including CPP'19 YF&DLW)
 ILL/EILL.v
 ILL/ILL.v
 ILL/ILL_undec.v
@@ -251,7 +272,6 @@ ILL/Ll/ill_cll_restr.v
 ILL/Ll/schellinx.v
 ILL/Ll/imsell.v
 
-# µ-recursive algorithms
 MuRec/recalg.v
 MuRec/ra_utils.v
 MuRec/beta.v
@@ -279,16 +299,12 @@ MuRec/RA_UNIV_HALT_undec.v
 MuRec/Reductions/H10_to_MUREC_HALTING.v
 MuRec/Reductions/H10C_SAT_to_RA_UNIV_HALT.v
 
-# FRACTRAN (from H10 FSCD'19, DLW & YF)
-FRACTRAN/FRACTRAN.v
-FRACTRAN/FRACTRAN_undec.v
 FRACTRAN/Reductions/MM_FRACTRAN.v
-FRACTRAN/Reductions/HaltTM_1_to_FRACTRAN_HALTING.v
+
 FRACTRAN/Utils/prime_seq.v
 FRACTRAN/FRACTRAN/fractran_utils.v
 FRACTRAN/FRACTRAN/mm_fractran.v
 
-# Hilbert Tenth problem (FSCD'19, DLW & YF)
 
 H10/ArithLibs/Zp.v
 H10/ArithLibs/matrix.v
@@ -317,27 +333,18 @@ H10/H10Z.v
 H10/H10_undec.v
 H10/H10Z_undec.v
 
-
-# Turing Machines (Maxi)
-#################
-
-
-# Basics
 TM/Util/Prelim.v
 TM/Util/Relations.v
 TM/Util/ArithPrelim.v
 TM/Util/VectorPrelim.v
 
-TM/TM.v
 TM/Util/TM_facts.v
 
-# Basic Machines
 TM/Basic/Basic.v
 TM/Basic/Null.v
 TM/Basic/Mono.v
 TM/Basic/Duo.v
 
-# Programming combinators
 TM/Combinators/Combinators.v
 TM/Combinators/Switch.v
 TM/Combinators/SequentialComposition.v
@@ -346,12 +353,10 @@ TM/Combinators/While.v
 TM/Combinators/StateWhile.v
 TM/Combinators/Mirror.v
 
-# Machine Lifting
 TM/Lifting/Lifting.v
 TM/Lifting/LiftTapes.v
 TM/Lifting/LiftAlphabet.v
 
-# Compound Machines
 TM/Compound/TMTac.v
 TM/Compound/Multi.v
 TM/Compound/WriteString.v
@@ -360,7 +365,6 @@ TM/Compound/CopySymbols.v
 TM/Compound/Shift.v
 TM/Compound/Compare.v
 
-# Programming
 TM/Code/Code.v
 TM/Code/CodeTM.v
 TM/Code/WriteValue.v
@@ -369,7 +373,6 @@ TM/Code/Copy.v
 TM/Code/CompareValue.v
 TM/Code/ProgrammingTools.v
 
-# Cases and constructors
 TM/Code/CaseNat.v
 TM/Code/CaseSum.v
 TM/Code/CaseList.v
@@ -377,8 +380,6 @@ TM/Code/CaseFin.v
 TM/Code/CasePair.v
 TM/Code/CaseBool.v
 
-# Programming case studies
-#TM/Code/SumTM.v
 TM/Code/NatTM.v
 TM/Code/NatSub.v
 TM/Code/ListTM.v
@@ -389,7 +390,6 @@ TM/Code/List/Length.v
 TM/Code/List/Nth.v
 TM/Code/List/Rev.v
 
-# Binary Numbers
 TM/Code/BinNumbers/EncodeBinNumbers.v
 TM/Code/BinNumbers/PosDefinitions.v
 TM/Code/BinNumbers/PosPointers.v
@@ -401,19 +401,17 @@ TM/Code/BinNumbers/PosAddTM.v
 TM/Code/BinNumbers/PosMultTM.v
 TM/Code/BinNumbers/NTM.v
 
-# Multi-Tape to Single-Tape Compiler
 TM/Single/EncodeTapes.v
 TM/Single/StepTM.v
 TM/Reductions/L_to_mTM.v
 
 TM/Reductions/Arbitrary_to_Binary.v
-TM/SBTM.v
+
 TM/Reductions/HaltTM_1_to_HaltSBTM.v
 TM/Reductions/HaltSBTM_to_HaltSBTMu.v
-TM/SBTM_undec.v
+
 StackMachines/Reductions/HaltSBTM_to_HaltBSM.v
 
-# Univ
 TM/Univ/LookupAssociativeListTM.v
 TM/Univ/LowLevel.v
 TM/Univ/Univ.v
@@ -423,9 +421,7 @@ TM/PrettyBounds/SizeBounds.v
 
 
 TM/Reductions/mTM_to_TM.v
-TM/TM_undec.v
 
-# Layer for Hoare Logic
 TM/Hoare/Hoare.v
 TM/Hoare/HoareLogic.v
 TM/Hoare/HoareCombinators.v
@@ -437,16 +433,11 @@ TM/Hoare/HoareMult.v
 TM/Hoare/HoareStdLib.v
 TM/Hoare/HoareLegacy.v
 
-#########
-
 L/Prelim/MoreBase.v
 L/Prelim/ARS.v
 L/Prelim/StringBase.v
 L/Prelim/MoreList.v
 L/Prelim/LoopSum.v
-
-L/L.v
-L/L_undec.v
 
 L/Util/L_facts.v
 
@@ -510,11 +501,6 @@ L/TM/TMEncoding.v
 L/TM/TMinL.v
 L/TM/TapeFuns.v
 L/Reductions/TM_to_L.v
-
-# L/Reductions/SRH_SR_computable.v
-# L/Reductions/SR_MPCP_computable.v
-# L/Reductions/MPCP_PCP_computable.v
-# L/Reductions/PCP_CFG_computable.v
 L/Reductions/H10_to_L.v
 L/Reductions/MuRec.v
 
@@ -537,24 +523,19 @@ L/AbstractMachines/FlatPro/UnfoldClos.v
 
 
 L/Computability/Acceptability.v
-#L/Computability/AD.v
 L/Computability/Computability.v
-#L/Computability/DA.v
 L/Computability/Decidability.v
 L/Computability/Enum.v
 L/Computability/Fixpoints.v
-#L/Computability/MoreAcc.v
 L/Computability/MuRec.v
 L/Computability/Partial.v
 L/Computability/Por.v
-#L/Computability/RE.v
 L/Computability/Rice.v
 L/Computability/Scott.v
 L/Computability/Seval.v
 L/Computability/Synthetic.v
 
 
-## Higher order unficiation
 
 
 HOU/std/tactics.v
@@ -626,10 +607,6 @@ FOLP/Util/FullTarski.v
 FOLP/FOLFS.v
 FOLP/Reductions/PCPb_to_FOLFS.v
 
-#####
-# Full Trakhtenbrot with single binary rel
-#####
-
 TRAKHTENBROT/notations.v
 TRAKHTENBROT/bpcp.v
 TRAKHTENBROT/utils.v
@@ -681,11 +658,6 @@ TRAKHTENBROT/red_dec.v
 TRAKHTENBROT/red_enum.v
 TRAKHTENBROT/red_undec.v
 
-# TRAKHTENBROT/summary.v
-
-#Counter Machines
-CounterMachines/CM1.v
-CounterMachines/CM1_undec.v
 CounterMachines/CM2.v
 CounterMachines/CM2_undec.v
 
@@ -695,12 +667,7 @@ CounterMachines/Util/CM1_facts.v
 CounterMachines/Util/MM2_facts.v
 CounterMachines/Reductions/MM2_HALTING_to_CM1_HALT.v
 CounterMachines/Reductions/MM2_HALTING_to_CM2_HALT.v
-CounterMachines/Reductions/HaltTM_1_to_CM1_HALT.v
 
-
-#Stack Machines
-StackMachines/BSM.v
-StackMachines/BSM_undec.v
 StackMachines/SMN.v
 StackMachines/SMN_undec.v
 StackMachines/SSM.v
@@ -727,7 +694,6 @@ StackMachines/Reductions/SMNdl_UB_to_CSSM_UB.v
 StackMachines/Reductions/HaltTM_1_to_CSSM_UB.v
 StackMachines/Reductions/iPCPb_to_BSM_HALTING.v
 
-#Semi-unification
 SemiUnification/SemiU.v
 SemiUnification/SemiU_undec.v
 
@@ -740,26 +706,17 @@ SemiUnification/Reductions/RU2SemiU_to_LU2SemiU.v
 SemiUnification/Reductions/HaltTM_1_to_SemiU.v
 SemiUnification/Reductions/HaltTM_1_chain_SemiU.v
 
-#Diophantine Constraints
-DiophantineConstraints/H10C.v
-DiophantineConstraints/H10C_undec.v
-
 DiophantineConstraints/Util/h10c_utils.v
 DiophantineConstraints/Reductions/H10C_SAT_to_H10UC_SAT.v
 DiophantineConstraints/Reductions/FRACTRAN_to_H10C_SAT.v
 DiophantineConstraints/Reductions/H10C_SAT_to_H10SQC_SAT.v
 DiophantineConstraints/Reductions/H10SQC_SAT_to_H10UC_SAT.v
 
-#Set Constraints
-SetConstraints/FMsetC.v
-SetConstraints/FMsetC_undec.v
-
 SetConstraints/Util/Facts.v
 SetConstraints/Util/mset_eq_utils.v
 SetConstraints/Util/mset_poly_utils.v
 SetConstraints/Reductions/H10UC_SAT_to_FMsetC_SAT.v
 
-#Polynomial Constraints
 PolynomialConstraints/LPolyNC.v
 PolynomialConstraints/LPolyNC_undec.v
 
@@ -767,7 +724,6 @@ PolynomialConstraints/Util/Facts.v
 PolynomialConstraints/Util/PolyFacts.v
 PolynomialConstraints/Reductions/FMsetC_SAT_to_LPolyNC_SAT.v
 
-#Hilbert-style Calculi
 HilbertCalculi/HSC.v
 HilbertCalculi/HSC_undec.v
 
@@ -775,8 +731,6 @@ HilbertCalculi/Util/Facts.v
 HilbertCalculi/Util/HSCFacts.v
 HilbertCalculi/Reductions/MPCPb_to_HSC_PRV.v
 HilbertCalculi/Reductions/MPCPb_to_HSC_AX.v
-
-#System F (second-order lambda calculus)
 
 SystemF/SysF.v
 SystemF/SysF_undec.v

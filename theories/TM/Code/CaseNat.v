@@ -1,6 +1,6 @@
 From Undecidability Require Import TM.Code.ProgrammingTools.
 
-(** * Constructor and Deconstructor Machines for Natural Numbers *)
+(* * Constructor and Deconstructor Machines for Natural Numbers *)
 
 Lemma tl_length (X : Type) (xs : list X) :
   length (tl xs) = pred (length xs).
@@ -11,7 +11,7 @@ Hint Rewrite tl_length : list.
 
 Section CaseNat.
 
-  (** ** Deconstructor *)
+  (* ** Deconstructor *)
 
   Definition CaseNat_Rel : Rel (tapes sigNat^+ 1) (bool * tapes sigNat^+ 1) :=
     Mk_R_p
@@ -50,7 +50,7 @@ Section CaseNat.
   Qed.
 
 
-  (** ** Constructors *)
+  (* ** Constructors *)
   Section NatConstructor.
 
     Definition S_Rel : Rel (tapes sigNat^+ 1) (unit * tapes sigNat^+ 1) :=
@@ -102,7 +102,7 @@ Section CaseNat.
 End CaseNat.
 
 
-(** ** Tactic Support *)
+(* ** Tactic Support *)
 
 Ltac smpl_TM_CaseNat :=
   once lazymatch goal with

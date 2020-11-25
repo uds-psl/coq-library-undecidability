@@ -7,6 +7,8 @@
     (2) Saarland University, Saarbrücken, Germany
 *)
 
+(** ** H10C_sat and H10UC_sat are undecidable *)
+
 (* 
   Undecidability Result(s):
     Diophantine Constraint Solvability (H10C_SAT)

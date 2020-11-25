@@ -1,6 +1,6 @@
 From Undecidability.L.Tactics Require Import LTactics GenEncode.
 
-(** ** Encoding of lists *)
+(* ** Encoding of lists *)
 Set Default Proof Using "Type".
 
 Section Fix_X.

@@ -1,4 +1,4 @@
-(** * Constructors and Deconstructors for Comens *)
+(* * Constructors and Deconstructors for Comens *)
 
 From Undecidability Require Import ProgrammingTools.
 From Undecidability Require Import TM.Code.CaseNat TM.Code.CaseSum TM.Code.CaseFin LM_heap_def .
@@ -51,9 +51,9 @@ Proof.
 Qed.
 
 
-(** Constructors *)
+(* Constructors *)
 
-(** Use [WriteValue] for [appT], [lamT], and [retT] *)
+(* Use [WriteValue] for [appT], [lamT], and [retT] *)
 
 Definition Constr_ACom (t : ACom) : pTM sigCom^+ unit 1 := WriteValue (ACom2Com t).
 Definition Constr_ACom_Rel (t : ACom) : pRel sigCom^+ unit 1 :=

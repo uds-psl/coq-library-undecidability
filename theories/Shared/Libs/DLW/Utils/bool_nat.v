@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Bitwise operations on nat *)
+(* ** Bitwise operations on nat *)
 
 Require Import Arith Nat Lia List Bool Setoid.
 

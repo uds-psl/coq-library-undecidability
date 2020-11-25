@@ -13,11 +13,11 @@ Require Import List Permutation.
 
 Set Implicit Arguments.
 
-(** * Intuionistic Linear Logic *)
+(* * Intuionistic Linear Logic *)
 
 Local Infix "~p" := (@Permutation _) (at level 70).
 
-(** We consider four fragments of ILL:
+(* We consider four fragments of ILL:
     - the (!,-o,&) fragment with or without cut
     - full fragment with or without cut
 *)
@@ -56,7 +56,7 @@ Reserved Notation "l '⊢' x" (at level 70, no associativity).
 
 Section S_ill_restr_without_cut.
 
-  (** These are the SILL rules in the CPP'19 paper w/o the cut *)
+  (* These are the SILL rules in the CPP'19 paper w/o the cut *)
 
   Inductive S_ill_restr : list ill_form -> ill_form -> Prop :=
 
@@ -108,7 +108,7 @@ End S_ill_restr_without_cut.
 
 Section S_ill_restr_with_cut.
 
-  (** These are the SILL rules in the CPP'19 paper including the cut rule *)
+  (* These are the SILL rules in the CPP'19 paper including the cut rule *)
 
   Inductive S_ill_restr_wc : list ill_form -> ill_form -> Prop :=
 
@@ -164,7 +164,7 @@ End S_ill_restr_with_cut.
 
 Section S_ill_without_cut.
 
-  (** These are the rules for the whole ILL, without cut *)
+  (* These are the rules for the whole ILL, without cut *)
 
   Inductive S_ill : list ill_form -> ill_form -> Prop :=
 
@@ -246,7 +246,7 @@ End S_ill_without_cut.
 
 Section S_ill_with_cut.
 
-  (** These are the rules for the whole ILL, without cut *)
+  (* These are the rules for the whole ILL, without cut *)
 
   Inductive S_ill_wc : list ill_form -> ill_form -> Prop :=
 

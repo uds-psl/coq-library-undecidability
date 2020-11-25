@@ -1,6 +1,6 @@
 From Undecidability Require Import TM.Util.Prelim TM.Util.TM_facts.
 
-(** * Mirror Operator *)
+(* * Mirror Operator *)
 
 Section Mirror.
   Variable (n : nat) (sig : finType).

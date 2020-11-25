@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Euclidian division and Bezout's identity *)
+(* ** Euclidian division and Bezout's identity *)
 
 Require Import List Arith Lia Permutation Extraction.
 
@@ -62,7 +62,7 @@ Section Informative_Chinese_Remainder_theorems.
            -> (forall p q, p <> q -> is_gcd (vec_pos m p) (vec_pos m q) 1)
            -> { w | forall p, rem w (vec_pos m p) = rem (vec_pos v p) (vec_pos m p) }.
   Proof.
-    (** The case n = 0 is special, induction starts at 1 *)
+    (* The case n = 0 is special, induction starts at 1 *)
     destruct n as [ | n ]; [ exists 0; intros p; invert pos p | ].
     revert m v.
     induction n as [ | n IHn ]; intros m v H1 H2.
@@ -151,7 +151,7 @@ End sequence_of_coprimes.
 
 Section Godel_beta.
 
-  (** Gödel Beta function and its "inverse" as a Coq function
+  (* Gödel Beta function and its "inverse" as a Coq function
       for the reduction H10C -> termination of one particular µ-rec function *) 
 
   Definition godel_beta a b n := rem a (S ((S n)*b)).

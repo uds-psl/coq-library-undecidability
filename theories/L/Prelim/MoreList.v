@@ -1,5 +1,5 @@
 Require Import Undecidability.Shared.Libs.PSL.Base Lia.
-(** Nats smaller than n *)
+(* Nats smaller than n *)
 
 Fixpoint natsLess n : list nat :=
   match n with
@@ -24,7 +24,7 @@ Proof.
 Qed.
 
 
-(** Sum *)
+(* Sum *)
 
 Fixpoint sumn (A:list nat) :=
   match A with

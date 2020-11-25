@@ -1,4 +1,4 @@
-(** * Constructors and Deconstructors for Bool *)
+(* * Constructors and Deconstructors for Bool *)
 
 From Undecidability Require Import ProgrammingTools Code.
 
@@ -36,7 +36,7 @@ Section CaseBool.
     }
   Qed.
 
-  (** There is no need for a constructor, just use [WriteValue] *)
+  (* There is no need for a constructor, just use [WriteValue] *)
 
 End CaseBool.
 

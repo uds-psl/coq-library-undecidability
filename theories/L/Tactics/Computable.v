@@ -1,7 +1,7 @@
 From Undecidability.L Require Export Util.L_facts Tactics.Extract.
 Require Import Undecidability.Shared.Libs.PSL.Bijection String.
 
-(** * Correctness and time bounds *)
+(* * Correctness and time bounds *)
 
 (* Typeclass for registering types *)
 
@@ -17,7 +17,7 @@ Hint Mode registered + : typeclass_instances. (* treat argument as input and for
 
 Arguments enc : simpl never.  (* Never unfold with cbn/simpl *)
 
-(** ** Correctness *)
+(* ** Correctness *)
 
 (* Definition of the valid types for extraction *)
 
@@ -153,7 +153,7 @@ Proof.
   rewrite <- R. apply app_closed. now destruct H. specialize (computesProc yCorrect) as []. easy.
 Qed.
 
-(** Extensional equality to extract similar functions without unsopported features (e.g. informative deciders) instead *)
+(* Extensional equality to extract similar functions without unsopported features (e.g. informative deciders) instead *)
 
 Fixpoint extEq t {tt:TT t} : t -> t -> Prop:=
   match tt with
@@ -188,7 +188,7 @@ Lemma computableExt X (tt : TT X) (x x' : X):
   intros ? (s&?). exists s. eauto using computesExt.
 Defined.
 
-(** register a datatype via an (injectve) function to another, e.g. vectors as lists *)
+(* register a datatype via an (injectve) function to another, e.g. vectors as lists *)
 
 Lemma registerAs X Y `{registered X} (f:Y -> X) : injective f -> registered Y.
 Proof.
@@ -197,7 +197,7 @@ Proof.
 Defined.
 Arguments registerAs {_ _ _} _ _.
 
-(** Support for extracting registerAs-ed functions *)
+(* Support for extracting registerAs-ed functions *)
 
 Fixpoint changeResType t1 t2 (tt1:TT t1) (tt2 : TT t2) : {t & TT t}:=
   match tt1 with

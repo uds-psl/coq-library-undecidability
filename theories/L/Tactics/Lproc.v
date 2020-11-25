@@ -1,11 +1,11 @@
 From Undecidability.L Require Export Util.L_facts.
 From Undecidability.L.Tactics Require Import Reflection ComputableTime mixedTactics.
 
-(** ** Symbolic simplification for L*)
+(* ** Symbolic simplification for L*)
 
-(** *** Lproc *)
+(* *** Lproc *)
 
-(** This module provides tactics fLproc and Lproc that solve goals of the form [lambda s] or [proc s] or [closed s] for L-terms [s]. *)
+(* This module provides tactics fLproc and Lproc that solve goals of the form [lambda s] or [proc s] or [closed s] for L-terms [s]. *)
 
 Hint Resolve rho_lambda rho_cls : LProc.
 

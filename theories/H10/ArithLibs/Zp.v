@@ -7,8 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** * Arithmetic libraries for Matiyasevich's theorems *)
-(** ** Modular arithmetic *)
+(* * Arithmetic libraries for Matiyasevich's theorems *)
+(* ** Modular arithmetic *)
 
 Require Import Arith Lia ZArith List Permutation Eqdep_dec.
 
@@ -706,7 +706,7 @@ Section Zp.
    
     Section Z2Zp_canon.
 
-      (** Find a representative in the A interval [0,Z.of_nat p[ *) 
+      (* Find a representative in the A interval [0,Z.of_nat p[ *) 
 
       Let Z2Zp_canon_pos u : 0 <= u -> { v | 〘u〙=〘v〙 /\ 0 <= v < Z.of_nat p }.
       Proof.

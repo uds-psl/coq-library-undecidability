@@ -84,7 +84,7 @@ Tactic Notation "vec" "pos" "simpl" := simpl; repeat rewrite vec_pos_set; simpl;
 Local Fact eq_equiv X (e a b : X) : a = b -> (e = a <-> e = b).
 Proof. intros []; tauto. Qed.
 
-(** We start with primitive recursive iterators *)
+(* We start with primitive recursive iterators *)
 
 Section ra_iter_n.
 
@@ -171,7 +171,7 @@ End ra_iter.
 Opaque ra_iter.
 Hint Resolve ra_iter_prim_rec ra_iter_val : core.
 
-(** Then basic arithmetic -1, +, -, *, exp *)
+(* Then basic arithmetic -1, +, -, *, exp *)
 
 Section ra_pred_plus.
 
@@ -339,7 +339,7 @@ End ra_exp.
 Hint Resolve ra_exp_prim_rec ra_exp_val : core.
 Opaque ra_exp.
 
-(** The Boolean/branch operators *)
+(* The Boolean/branch operators *)
 
 (* if b=0 then p else q *)
 
@@ -443,7 +443,7 @@ End ra_eq.
 Hint Resolve ra_eq_prim_rec ra_eq_val : core.
 Opaque ra_eq.
 
-(** A primitive recursive bounded minimization *)
+(* A primitive recursive bounded minimization *)
 
 Section ra_prim_min.
 
@@ -506,7 +506,7 @@ End ra_prim_min.
 Hint Resolve ra_prim_min_prim_rec ra_prim_min_val : core.
 Opaque ra_prim_min.
 
-(** A primrec function than find i st f i <= b < f (S i) when f is a strictly
+(* A primrec function than find i st f i <= b < f (S i) when f is a strictly
     increasing 
 
     This provides an easy way to invert a primitive recursive function which is 
@@ -576,7 +576,7 @@ End ra_prim_max.
 Hint Resolve ra_prim_max_prim_rec : core.
 Opaque ra_prim_max.
 
-(** Hence we can implement division as the inverse of multiplication *)
+(* Hence we can implement division as the inverse of multiplication *)
 
 Section ra_div.
 
@@ -648,7 +648,7 @@ End ra_div.
 Hint Resolve ra_div_prim_rec ra_div_val : core.
 Opaque ra_div.
 
-(** And then the remainder using division and multiplication *)
+(* And then the remainder using division and multiplication *)
 
 Section ra_rem.
 
@@ -694,7 +694,7 @@ End ra_rem.
 Hint Resolve ra_rem_prim_rec ra_rem_val : core.
 Opaque ra_rem.
 
-(** Now we specialize to binary ops *)
+(* Now we specialize to binary ops *)
 
 Section ra_binary_ops.
 
@@ -810,7 +810,7 @@ Opaque ra_notdiv_pow2.
 
 Section ra_lsum.
 
-  (** Given a prim rec algo recalg 1 and n
+  (* Given a prim rec algo recalg 1 and n
       returns f 0 v + f 1 v + ... + f (n-1) v *) 
 
   Variable (n : nat) (f : recalg (S n)) (Hf : prim_rec f).
@@ -966,7 +966,7 @@ Qed.
 
 Section ra_choice3.
 
-  (** if   x=0 then p 
+  (* if   x=0 then p 
       elif x=1 then q
                else r *)
 

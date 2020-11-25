@@ -8,7 +8,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** A inductive characterization of list bi-inclusion
+(* A inductive characterization of list bi-inclusion
     as closure under contraction and permutation
 
     The proof does not require decidable equality
@@ -36,7 +36,7 @@ Section seteq.
 
   Variable X : Type.
 
-  (** When viewed as sets, the lists are equivalent,
+  (* When viewed as sets, the lists are equivalent,
       ie closed under perm + contraction + RST *)
 
   Inductive seteq : list X -> list X -> Prop :=
@@ -87,7 +87,7 @@ Section seteq.
     + exists (x::m); simpl; split; auto; lia.
   Qed.
 
-  (** The proof by induction on |l|+|m| for l ⊆ m and m ⊆ l
+  (* The proof by induction on |l|+|m| for l ⊆ m and m ⊆ l
 
       Three cases:
 
@@ -122,7 +122,7 @@ Section seteq.
 
   Hint Resolve seqeq_incl incl_seteq : core.
 
-  (** seteq is equivalent to bi-inclusion *)
+  (* seteq is equivalent to bi-inclusion *)
 
   Theorem seteq_bi_incl l m : l ≡ m <-> l ⊆ m /\ m ⊆ l.
   Proof. split; auto; intros []; auto. Qed.

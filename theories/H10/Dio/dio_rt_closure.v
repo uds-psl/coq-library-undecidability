@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** ** Reflexive transitive closure is Diophantine *)
+(* ** Reflexive transitive closure is Diophantine *)
 
 Require Import Arith List Bool.
 
@@ -23,7 +23,7 @@ Local Notation power := (mscal mult 1).
 
 Section df_seq.
 
-  (** If R is a diophantine binary relation then the predicate 
+  (* If R is a diophantine binary relation then the predicate 
       fun c q n => is_seq R c q n is also diophantine. It states 
       that the first (n+1) digits of c in base q say x0,...,xn 
       form a R-sequence, ie x0 R x1 R ... R xn *)
@@ -54,7 +54,7 @@ Defined.
 
 Section df_rel_iter_rt.
 
-  (** we show that for a diophantine binary relation R,
+  (* we show that for a diophantine binary relation R,
       the iterator fun n x y => rel_iter R n x y is also diophantine
       using the rel_iter_bounded characterization as:
 

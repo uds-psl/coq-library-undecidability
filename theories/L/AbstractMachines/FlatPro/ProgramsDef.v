@@ -1,7 +1,7 @@
 From Undecidability.L Require Import Prelim.MoreBase L.
 Require Import Lia.
 
-(** ** Encoding Terms as Programs *)
+(* ** Encoding Terms as Programs *)
 
 Inductive Tok := varT (n :nat) | appT | lamT | retT.
 Notation Pro := (list Tok) (only parsing).

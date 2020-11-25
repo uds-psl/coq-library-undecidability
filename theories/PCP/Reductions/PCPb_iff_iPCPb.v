@@ -7,7 +7,7 @@ Require Import Undecidability.PCP.Util.PCP_facts.
 
 Require Import Undecidability.Synthetic.Definitions.
 
-(** ** BPCP reduces to iBPCP *)
+(* ** BPCP reduces to iBPCP *)
 
 Definition f (P : stack bool) (A : stack bool) := omap (fun x => pos card_eq x P) A.
 

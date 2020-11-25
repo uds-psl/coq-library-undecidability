@@ -2,7 +2,7 @@ From Undecidability.L.Tactics Require Export LClos.
 Require Import FunInd. 
 Open Scope LClos.
 
-(** *** Closure calculus interpreter *)
+(* *** Closure calculus interpreter *)
 
 Definition CompBeta s t :=
   match s,t with

@@ -33,7 +33,7 @@ Section MM2_CM2.
   Definition fs (i: nat) : CM2.State :=
     if i is S i then i + a0 + b0 else (length P) + a0 + b0.
 
-  (** encode instruction mmi at position i using index map fs for current cm2 state p *)
+  (* encode instruction mmi at position i using index map fs for current cm2 state p *)
   Definition encode_instruction (mmi: mm2_instr) : CM2.Instruction :=
     match mmi with
     | mm2_inc_a => CM2.inc false
