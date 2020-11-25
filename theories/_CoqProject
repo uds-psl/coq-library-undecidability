@@ -707,7 +707,6 @@ SemiUnification/Reductions/HaltTM_1_to_SemiU.v
 SemiUnification/Reductions/HaltTM_1_chain_SemiU.v
 
 DiophantineConstraints/Util/h10c_utils.v
-DiophantineConstraints/Reductions/H10C_SAT_to_H10UC_SAT.v
 DiophantineConstraints/Reductions/FRACTRAN_to_H10C_SAT.v
 DiophantineConstraints/Reductions/H10C_SAT_to_H10SQC_SAT.v
 DiophantineConstraints/Reductions/H10SQC_SAT_to_H10UC_SAT.v

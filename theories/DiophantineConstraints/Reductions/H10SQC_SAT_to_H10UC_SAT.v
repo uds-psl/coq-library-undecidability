@@ -74,7 +74,10 @@ Definition θ (x y t: nat) := encode (1 + x, encode (1 + y, t)).
 (* values 0, 1, 2 *)
 Definition v (t: nat) := encode (0, t).
 
-(* v 0 ~ 0, v 1 ~ 1, v 2 ~ 2 *)
+(* v 0 ~ 0, v 1 ~ 1, v 2 ~ 2 via
+  1 + (v 0) + (v 1) * (v 1) = (v 2),
+  1 + (v 1) + (v 0) * (v 0) = (v 2),  
+  1 + (v 0) + (v 0) * (v 0) = (v 1) *)
 Definition v012 := [(v 0, v 1, v 2); (v 1, v 0, v 2); (v 0, v 0, v 1)].
 
 (* x^2 = y ~ 1 + 0 + x^2 = 1 + y + 0^2
