@@ -49,8 +49,7 @@ Lemma Forall_flat_map_iff {T U: Type} {P : T -> Prop} {ds : list U} {f : U -> li
   Forall P (flat_map f ds) <-> Forall (fun d => Forall P (f d)) ds.
 Proof.
   elim: ds; first by (constructor=> /=).
-  move=> a l IH. rewrite /flat_map -/(flat_map _) Forall_app.
-  constructor.
+  move=> a l IH /=. rewrite Forall_app. constructor.
   - move=> [? ?]. constructor; [done | by apply /IH].
   - by move=> /ForallE [? /IH ?].
 Qed.
@@ -78,6 +77,11 @@ Definition v (t: nat) := encode (0, t).
 (* v 0 ~ 0, v 1 ~ 1, v 2 ~ 2 *)
 Definition v012 := [(v 0, v 1, v 2); (v 1, v 0, v 2); (v 0, v 0, v 1)].
 
+(* x^2 = y ~ 1 + 0 + x^2 = 1 + y + 0^2
+   x + y = z ~
+   1 + 0 + (1 + x)^2 = 1 + u + x^2
+   1 + u + (1 + y)^2 = 1 + v + y^2
+   1 + 1 + (1 + z)^2 = 1 + v + z^2 *)
 Definition h10sqc_to_h10ucs (c : h10sqc) : list h10uc :=
   match c with
   | h10sqc_one x => [(v 0, v 0, ζ x 0)]
@@ -115,16 +119,15 @@ Definition φ' (n: nat) :=
     end
   end.
 
-
 Lemma h10sqc_to_h10ucs_spec {c} : h10sqc_sem φ c -> Forall (h10uc_sem φ') (h10sqc_to_h10ucs c).
 Proof.
   case: c => /=.
   - move=> x ?. constructor; last done.
     rewrite /= /ζ /φ' /v ?decode_encode /=. by lia.
-  - move=> x y z ?. do ? constructor;
-    rewrite /= /ζ /φ' /θ ?decode_encode /=; by nia.
-  - move=> x y ?. do ? constructor;
-    rewrite /= /ζ /φ' ?decode_encode /=; by nia.
+  - move=> x y z ?. (do ? constructor);
+      rewrite /= /ζ /φ' /θ ?decode_encode /=; by nia.
+  - move=> x y ?. (do ? constructor);
+      rewrite /= /ζ /φ' ?decode_encode /=; by nia.
 Qed.
 
 End Transport.
@@ -156,8 +159,7 @@ Lemma h10sqc_of_h10ucs_spec {c} : Forall (h10uc_sem φ') (h10sqc_to_h10ucs c) ->
 Proof.
   case: c => /=.
   - move=> x /ForallE []. rewrite /= ?(proj1 v_spec) /φ. by lia.
-  - move=> x y z /ForallE [+] /ForallE [+] /ForallE [+] /ForallE [+] 
-      /ForallE [+] /ForallE [+] /ForallE [+] /ForallE [+]  /ForallE [+ _].
+  - move=> x y z. do 9 (move=> /ForallE /and_comm []).
     rewrite /= ?(proj1 v_spec) ?(proj2 v_spec) /φ. by lia. 
   - move=> x y /ForallE [+] /ForallE [+ _]. rewrite /= ?(proj1 v_spec) /φ. by lia.
 Qed.
@@ -178,8 +180,7 @@ Require Import Undecidability.Synthetic.Definitions.
 (** Square Diophantine Constraint Solvability many-one reduces to Uniform Diophantine Constraint Solvability *)
 Theorem reduction : H10SQC_SAT ⪯ H10UC_SAT.
 Proof.
-  exists (fun sqcs => Argument.ucs sqcs).
-  move=> sqcs. constructor.
+  exists (fun sqcs => Argument.ucs sqcs) => sqcs. constructor.
   - exact: Argument.transport.
   - exact: Argument.inverse_transport.
 Qed.
