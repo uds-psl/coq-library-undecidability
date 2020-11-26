@@ -494,7 +494,6 @@ L/Functions/LoopSum.v
 L/Functions/UnboundIteration.v
 L/Functions/FinTypeLookup.v
 L/Functions/EnumInt.v
-L/Functions/Unenc.v
 L/Functions/Ackermann.v
 
 L/TM/TMEncoding.v

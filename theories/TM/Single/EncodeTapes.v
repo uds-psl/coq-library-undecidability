@@ -1,6 +1,6 @@
-From Undecidability Require Import ProgrammingTools.
+From Undecidability.TM Require Import ProgrammingTools.
 
-From Undecidability Require Export PrettyBounds.SizeBounds.
+From Undecidability.TM.PrettyBounds Require Export SizeBounds.
 
 From Undecidability Require Import TM.Util.VectorPrelim.
 

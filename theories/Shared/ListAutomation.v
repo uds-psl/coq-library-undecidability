@@ -1,5 +1,5 @@
 Require Export List Undecidability.Shared.Dec Undecidability.Shared.FilterFacts.
-Export ListNotations.
+Export List.ListNotations.
 
 Module ListAutomationNotations.
 

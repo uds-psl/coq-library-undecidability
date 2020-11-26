@@ -123,7 +123,7 @@ Ltac simplify_L' n:=
       pose (phi := Reflection.liftPhi vars);
       let pp := fresh "pp" in
       let cs := fresh "cs" in
-      assert (pp:Reflection.Proc phi) by (ProcPhi vars;shelve);
+      assert (pp:Reflection.Proc phi) by (ProcPhi vars);
       assert (cs :Reflection.rClosed phi s') by (simple apply Reflection.rClosed_decb_correct;[exact pp|vm_cast_no_check (@eq_refl bool true) ]);
       let R := fresh "R" in
       assert (R:= Reflection.rStandardizeUsePow n pp cs);
@@ -173,7 +173,7 @@ Ltac Lbeta' n :=
     | |- ?G => fail "Not supported for LSimpl (or other failed):" G 
     end;
     once lazymatch goal with
-      |- ?rel s _ => fail "No Progress (progress in indexes are not currently noticed...)"
+      |- ?rel s _ => fail "No Progress in beta' in " rel s "(progress in indexes are not currently noticed...)"
     | |- _ => idtac
     (* don;t change evars if you did not make progress!*)
     end

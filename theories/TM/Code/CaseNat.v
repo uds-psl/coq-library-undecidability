@@ -1,4 +1,4 @@
-From Undecidability Require Import TM.Code.ProgrammingTools.
+From Undecidability.TM.Code Require Import ProgrammingTools.
 
 (* * Constructor and Deconstructor Machines for Natural Numbers *)
 
@@ -119,7 +119,7 @@ Ltac smpl_TM_CaseNat :=
 
 Smpl Add smpl_TM_CaseNat : TM_Correct.
 
-From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+From Undecidability.TM.Hoare Require Import HoareLogic HoareRegister HoareTactics.
 
 Lemma Constr_O_SpecT_size (ss : Vector.t nat 1) :
   TripleT (≃≃(([], withSpace  [|Void |] ss))) Constr_O_steps Constr_O (fun _ => ≃≃(([], withSpace  [|Contains _ 0|] (appSize [|Constr_O_size|] ss)))).

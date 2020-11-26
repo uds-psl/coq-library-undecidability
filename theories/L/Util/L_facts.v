@@ -13,6 +13,16 @@ Hint Constructors ARS.star : cbv.
 Notation "'#' v" := (var v) (at level 1).
 (* Notation "(λ  s )" := (lam s) (right associativity, at level 0).  *)
 
+Module L_Notations_app.
+  Coercion app : term >-> Funclass. 
+End L_Notations_app.
+
+Module L_Notations.
+
+  Coercion var : nat >-> term.
+  Export L_Notations_app.
+End L_Notations.
+
 Instance term_eq_dec : eq_dec term.
 Proof.
   intros s t; unfold dec; repeat decide equality.
@@ -34,31 +44,22 @@ Fixpoint TH n s :=
   | hter t => t
   end.
 
+
 (* TODO: should not be a coercion *)
 Definition convert := TH 0.
-Coercion convert : hoas >-> term.
-
-Module L_Notations_app.
-  Coercion app : term >-> Funclass. 
-End L_Notations_app.
-
-Module L_Notations.
-
-  Coercion var : nat >-> term.
-  Export L_Notations_app.
-End L_Notations.
 
 Module HOAS_Notations.
 
   Coercion hv : nat >-> hoas.
   Coercion ha : hoas >-> Funclass.
+  Notation "'!!' s" := (hter s) (at level 0).
+
+  Notation "[ 'L_HOAS' p ]" := (convert p) (at level 0, format  "[ 'L_HOAS'  p ]").
 
   Notation "'λ' x .. y , p" := (hl (fun x => .. (hl (fun y => p)) ..))
     (at level 100, x binder, right associativity,
      format "'[' 'λ'  '/  ' x  ..  y ,  '/  ' p ']'").
-
-  (* Coercion hter : term >-> hoas. *)
-
+     
 End HOAS_Notations.
 
 (* Use Eval simpl in (term) when defining an term using convert.
@@ -70,22 +71,20 @@ Also: remember to give the type of combinators explicitly becuase we want to use
 
 Arguments convert /.
 
-Notation "'!!' s" := (hter s) (at level 0).
 
 (* Important terms *)
 
 (* Import L_Notations. *)
 Import HOAS_Notations.
 
-Definition r : term := Eval simpl in λ r f, f (λ x , r r f x). 
-Definition R : term := app r r.
+Definition r := Eval simpl in [L_HOAS λ r f, f (λ x , r r f x) ]. 
+Definition R := app r r.
+Definition rho (s : term)  := Eval simpl in [L_HOAS λ x, !!r !!r !!s x]. 
 
-Definition rho (s : term) : term := Eval simpl in λ x, !!r !!r !!s x. 
+Definition I := Eval simpl in [L_HOAS λ x, x].
+Definition K := Eval simpl in [L_HOAS λ x y, x].
 
-Definition I : term := Eval simpl in λ x, x.
-Definition K : term := Eval simpl in λ x y, x.
-
-Definition omega : term := Eval simpl in λ x , x x.
+Definition omega : term := Eval simpl in [L_HOAS λ x , x x].
 Definition Omega : term := app omega omega.
 
 (*  Substitution *)

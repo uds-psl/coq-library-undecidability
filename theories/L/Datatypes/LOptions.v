@@ -73,7 +73,7 @@ Section int.
                                                                                           | _,_ => 8 end,tt)))). cbn.
   Proof.
     extract. solverec.
-  Defined.
+  Qed.
 
   Global Instance eqbOption f `{eqbClass (X:=X) f}:
     eqbClass (option_eqb f).

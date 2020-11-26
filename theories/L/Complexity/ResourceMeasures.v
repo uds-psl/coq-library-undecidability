@@ -47,7 +47,7 @@ Module Leftmost.
     intros s t R u ? <-. revert s t R u.
     induction k;cbn in *;intros ? ? R ?. congruence. destruct R as [s' [R1 R2]].
     exists (app s' u). firstorder.
-  Defined.
+  Qed.
 
   Instance pow_step_lm_congR k:
     Proper (eq ==>(pow step_lm k) ==> (pow step_lm k)) (fun s t => app (lam s) t).
@@ -55,7 +55,7 @@ Module Leftmost.
     intros s ? <- t u R. revert s t u R.
     induction k;cbn in *;intros ? ? ? R. congruence. destruct R as [t' [R1 R2]].
     exists (app (lam s) t'). firstorder.
-  Defined.
+  Qed.
 
   Instance step_lm_step: subrelation step_lm step.
   Proof.
@@ -84,7 +84,7 @@ Module Leftmost.
     -apply redWithMaxSizeR. cbn in *. lia. 
     -eapply redWithMaxSizeC. now eauto using step_lm. apply IHR. reflexivity.
      subst m m'. cbn -[plus]. repeat eapply Nat.max_case_strong;lia.
-  Defined.
+  Qed.
 
 
   Lemma step_lm_evaluatesIn s s' t k: s ≻lm s' -> timeBS k s' t -> timeBS (S k) s t.
@@ -273,7 +273,6 @@ Proof.
   destruct t'. 1,2:(now exfalso;destruct H2 as [? []]).
   eapply HR. 1-6:try (eapply timeBS_evalIn); eauto.
   eapply timeBS_evalIn in H'. inv H'.
-  Search evalIn eq. 
   apply timeBS_evalIn in H5. apply timeBS_evalIn in H6. apply timeBS_evalIn in H8.
   do 3 lazymatch goal with
   | H : ?s ⇓(_) _ , H' : ?s ⇓(_) _ |- _ =>

@@ -1,5 +1,5 @@
 From Undecidability.L.Tactics Require Import LTactics.
-From Undecidability.L.Datatypes Require Import LNat LTerm LProd Lists.
+From Undecidability.L.Datatypes Require Import LNat LTerm LBool LProd List.List_enc LOptions.
 
 (* ** Extracted encoding of natural numbers *)
 

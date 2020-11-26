@@ -4,7 +4,7 @@ Require Import String List.
 Export String.StringSyntax.
 
 Import MonadNotation.
-Open Scope string_scope.
+Local Open Scope string_scope.
 
 (* *** Generation of encoding functions *)
 
@@ -73,6 +73,8 @@ Definition tmGenEncode (n : ident) (A : Type) : TemplateMonad unit :=
   m <- tmMatchCorrect A;;
   n4 <- tmEval cbv (n ++ "_correct") ;;
   (Core.tmBind (tmMatchCorrect A) (fun m => tmLemma n4 m ;; ret tt)).
+
+Arguments tmGenEncode _%string _%type.
 
 (*
 Definition tmGenEncode' (n : ident) (A : Type) :=

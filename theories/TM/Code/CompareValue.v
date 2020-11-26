@@ -204,7 +204,7 @@ Section CompareValues_steps_comp.
 End CompareValues_steps_comp.
 *)
 
-From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+From Undecidability.TM.Hoare Require Import HoareLogic HoareRegister HoareTactics.
 
 Section CompareValues.
 

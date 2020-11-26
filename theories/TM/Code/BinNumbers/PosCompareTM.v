@@ -1,6 +1,6 @@
 (* * Machine for comparing two [positive] binary numbers *)
 
-From Undecidability Require Import ProgrammingTools.
+From Undecidability.TM Require Import ProgrammingTools.
 From Undecidability Require Import EncodeBinNumbers PosDefinitions PosPointers PosHelperMachines.
 
 (* Declare discreteness of [comparison] *)

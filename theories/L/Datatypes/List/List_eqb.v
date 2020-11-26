@@ -85,7 +85,7 @@ Section int.
   Proof.
     extract.
     solverec.                                                                                             
-  Defined.
+  Qed.
 
   Definition list_eqbTime_leq (eqbT: timeComplexity (X -> X -> bool)) (A B:list X) k:
     (forall a b, callTime2 eqbT a b <= k)

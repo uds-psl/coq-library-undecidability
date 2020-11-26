@@ -1,6 +1,6 @@
 (* * Constructor and Deconstructor Machines for Lists *)
 
-From Undecidability Require Import ProgrammingTools.
+From Undecidability.TM Require Import ProgrammingTools.
 
 
 Local Arguments plus : simpl never. Local Arguments mult : simpl never.
@@ -516,7 +516,7 @@ Smpl Add smpl_TM_CaseList : TM_Correct.
 
 
 
-From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+From Undecidability.TM.Hoare Require Import HoareLogic HoareRegister HoareTactics.
 
 Section CaseList.
 

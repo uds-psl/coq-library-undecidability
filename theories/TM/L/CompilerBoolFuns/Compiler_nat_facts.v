@@ -49,8 +49,8 @@ n >= k ->
 subst (gen_list (X := X) (many_vars k)) n u = gen_list (X := X) (many_vars k).
 Proof.
 induction k in n |- *; rewrite ?many_vars_S; cbn.
-- rewrite subst_closed; Lproc. reflexivity.
-- intros Hn. rewrite subst_closed; Lproc. destruct (Nat.eqb_spec k n); try lia.
+- rewrite subst_closed. 2:Lproc. reflexivity.
+- intros Hn. rewrite subst_closed. 2: Lproc. destruct (Nat.eqb_spec k n); try lia.
   rewrite IHk. reflexivity. lia.
 Qed.
 
@@ -58,11 +58,11 @@ Lemma gen_list_spec {k} {X} {Hr : registered X} (v' : Vector.t X k) :
 many_subst (gen_list (X := X) (many_vars k)) 0 (Vector.map enc v') == enc v'.
 Proof.
 induction v'; cbn - [many_vars].
-- Lsimpl.
+- Lsimpl_old.
 - rewrite many_vars_S. cbn. rewrite Nat.eqb_refl.
   rewrite subst_closed; [ | now Lproc ]. rewrite subst_gen_list; try lia.
-  rewrite many_subst_app. rewrite many_subst_closed; Lproc. rewrite IHv'.
-  unfold enc at 2. cbn. Lsimpl.
+  rewrite many_subst_app. rewrite many_subst_closed. 2:Lproc. rewrite IHv'.
+  unfold enc at 2. cbn. now Lsimpl.
 Qed.
 
 Definition validate (l : list (list bool)) := forallb (forallb (fun x => x)) l.
@@ -166,7 +166,7 @@ Proof.
         eapply Hs in HR. eapply eval_iff in HR. rewrite eval_iff.
         rewrite HEQ. Lsimpl. change (encNatL m') with (enc m') in HR. change (encBoolsL) with (@enc (list bool) _).
         rewrite validate_spec'.
-        rewrite !Vector.map_map. erewrite Vector.map_ext. 2:intros; now rewrite repeat_length. Lsimpl.
+        rewrite !Vector.map_map. erewrite Vector.map_ext. 2:intros; now rewrite repeat_length. Lsimpl_old.
       + rewrite eval_iff. rewrite HEQ. erewrite equiv_eval_equiv. 2:{ Lsimpl. reflexivity. }
         intros Heval. change (encNatL) with (@enc nat _) in *. change (encBoolsL) with (@enc (list bool) _) in *.
         match type of Heval with L_facts.eval ?l _ => assert (Hc : converges l) by eauto end.
@@ -178,7 +178,7 @@ Proof.
           erewrite equiv_eval_equiv in Heval. 2:{ clear Heval.  Lsimpl. reflexivity. }  eapply validate_spec in E as [v' ->].
           eexists v'.
           assert (m = repeat true m') as ->. { eapply encBoolsL_inj. change (encBoolsL) with (@enc (list bool) _).
-          eapply unique_normal_forms; Lproc. now destruct Heval as [-> _]. } 
+          eapply unique_normal_forms;[Lproc..|]. now destruct Heval as [-> _]. } 
           exists m'. repeat split.  eapply Hs.
           rewrite !Vector.map_map in *. erewrite Vector.map_ext in *. 2:intros; now rewrite repeat_length. 2: reflexivity.
           now eapply eval_iff.
@@ -194,9 +194,10 @@ Proof.
       * clear HEQ. erewrite equiv_eval_equiv in Heval. 2:{ clear Heval. Lsimpl. reflexivity. } eapply validate_spec in E as [v' ->].
         rewrite !Vector.map_map in *. erewrite Vector.map_ext in *. 2:intros; now rewrite repeat_length.
         exists (repeat true m'). destruct Heval as [Heval ?].
-        eapply unique_normal_forms; Lproc. now rewrite Heval.
+        eapply unique_normal_forms;[Lproc..|]. now rewrite Heval.
       * erewrite equiv_eval_equiv in Heval. 2:{ clear Heval. rewrite Hc'. eapply beta_red. Lproc. rewrite subst_closed. 2:Lproc. reflexivity. } 
         now eapply Omega_diverge in Heval.
+      Unshelve. 
 Qed.
 
 Lemma TM_bool_computable_to_TM_computable k (R : Vector.t nat k -> nat -> Prop) : 

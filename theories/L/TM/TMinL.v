@@ -5,7 +5,7 @@ From Undecidability.L Require Export TM.TMEncoding.
 From Undecidability.L Require Import TM.TapeFuns.
 
 
-From Undecidability Require Import TM.Util.TM_facts.
+From Undecidability.TM Require Import TM_facts.
 
 Local Notation L := TM.Lmove.
 Local Notation R := TM.Rmove.
@@ -143,12 +143,12 @@ Section loopM.
       + exists (ext x). split. eauto. Lproc.
     - destruct H as (v & ? & ?). edestruct mu_sound as (k & ? & ? & _).
       + eapply term_test.
-      + intros. eexists. now Lsimpl.
+      + intros. eexists. now Lsimpl_old.
       + eassumption.
       + eauto.
       + subst.
         assert ((ext (fun k : nat => LOptions.isSome (loopM cfg k))) (ext k) ==
-                ext (LOptions.isSome (loopM cfg k))) by Lsimpl.
+                ext (LOptions.isSome (loopM cfg k))) by now Lsimpl.
         rewrite H1 in H2. clear H1.
         eapply unique_normal_forms in H2; try Lproc. eapply inj_enc in H2.
         destruct (loopM cfg k) eqn:E.

@@ -78,7 +78,7 @@ Ltac smpl_TM_WriteValue :=
 Smpl Add smpl_TM_WriteValue : TM_Correct.
 
 
-From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+From Undecidability.TM.Hoare Require Import HoareLogic HoareRegister HoareTactics.
 
 Section WriteValue.
 

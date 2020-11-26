@@ -66,10 +66,7 @@ Ltac recStepInit P:=
    end.
 
 
-Ltac recStepUnnamed :=
-  match goal with
-    [ P := rho _ |- ?G ] => recStepInit P
-  end.
+Ltac recStepNew P := recStepInit P.
 
 
 Ltac destructRefine :=
@@ -95,9 +92,6 @@ Ltac destructRefine :=
       let eq := fresh "eq" in destruct x eqn:eq
     end
   end.
-
-Ltac extractCorrectCrush :=
-  repeat(repeat destructRefine;Lsimpl).
 
 Ltac shelveIfUnsolved msg:= first[let n:= numgoals in guard n=0|
                                   match goal with
@@ -186,7 +180,7 @@ Ltac cstep' extractSimp:=
           (once lazymatch n with
            |  S ?n =>
               eexists;
-              eapply computesExpStep;[try recStep P;extractSimp idtac;shelveIfUnsolved "pos5"|Lproc;shelveIfUnsolved "pos6"|];
+              eapply computesExpStep;[try recStep P;extractSimp;shelveIfUnsolved "pos5"|Lproc;shelveIfUnsolved "pos6"|];
               (*simple notypeclasses refine (_:computes (_ ~> _) _ _ (fun x xInt xNorm => (_,_)));try exact tt;shelve_unifiable;*)
               let x := fresh "x" in  
               let xInt := fresh x "Int" in
@@ -213,7 +207,7 @@ Ltac cstep' extractSimp:=
               end in
           loop recArg;
           eexists;
-          (split;[try recStep P;extractSimp idtac;shelveIfUnsolved "pos7"|]))
+          (split;[try recStepNew P;extractSimp;shelveIfUnsolved "pos7"|]))
 
     (* a non-recursive function *)
     | _=>
@@ -230,7 +224,7 @@ Ltac cstep' extractSimp:=
                 clear xInt xInts;assert (xInt:True) by constructor; assert (xInts:True) by constructor
       | _ => idtac
       end;
-      eexists;split;[extractSimp idtac;shelveIfUnsolved "pos2" | intros vProc]
+      eexists;split;[extractSimp;shelveIfUnsolved "pos2" | intros vProc]
     end
 
   | |- computes (TyB _) _ ?t=> has_no_evar t;apply computesTyB
@@ -262,7 +256,7 @@ Ltac cstep' extractSimp:=
               let xT := fresh x "T" in
               let xInts := fresh x "Ints" in
               (refine (computesTimeExpStep (fT:=fun x xT => _) _ _ _ _) ;
-               [|try recStepUnnamed;extractSimp idtac;shelveIfUnsolved "pos8"|Lproc;shelveIfUnsolved "pos9"|]);
+               [|try recStepNew P;extractSimp;shelveIfUnsolved "pos8"|Lproc;shelveIfUnsolved "pos9"|]);
               [try reflexivity;is_assumed_add|];clean_assumed;
               (*simple notypeclasses refine (_:computes (_ ~> _) _ _ (fun x xInt xNorm => (_,_)));try exact tt;shelve_unifiable;*) 
               intros x xInt xT; intro_to_assumed x;intro_to_assumed xT;intro xInts;
@@ -298,7 +292,7 @@ Ltac cstep' extractSimp:=
                      once lazymatch goal with
                        |- evalLe ?k _ _ =>
                        refine (le_evalLe_proper _ eq_refl eq_refl _);[refine (proj1 H);shelve|apply proj2 in H;lock H];
-                       try recStepUnnamed;extractSimp idtac;shelveIfUnsolved "pos10"
+                       try recStepNew P;extractSimp;shelveIfUnsolved "pos10"
                      end
                     |apply proj2 in H;lock H])
              | S ?n' => loop n'
@@ -323,7 +317,7 @@ Ltac cstep' extractSimp:=
                 clear xInt xInts;assert (xInt:True) by constructor; assert (xInts:True) by constructor
       | _ => idtac
       end;
-      eexists;split;[extractSimp idtac;shelveIfUnsolved "pos4"| intros vProc]
+      eexists;split;[extractSimp;shelveIfUnsolved "pos4"| intros vProc]
     end
   (* complexity: *)
 
@@ -351,20 +345,23 @@ Tactic Notation "progress'" tactic(t) :=
     end
   end.
 
-Ltac extractCorrectCrush_new :=
-   Lrewrite_new;
-  repeat (progress (repeat Intern.destructRefine);Lrewrite_new);
+Ltac extractCorrectCrush :=
+  idtac;
+   try Lsimpl;try Lreflexivity;
+   try repeat' (repeat' Intern.destructRefine;Lsimpl;try Lreflexivity);
   try Lreflexivity.
 
-Ltac cstep := cstep' ltac:(fun _ => 
-                               once lazymatch goal with
-                                 |- eval _ _ => extractCorrectCrush_new
-                               | |- evalLe _ _ _ => extractCorrectCrush_new
-                               | |- evalIn _ _ _ => Lsimpl;fail "evalIn does not support full Lrewrite and should only occur when simplifying rho/recursion"
-                               | |- ?G => idtac "cstep found unexpected" G 
-                               end;try (idtac;[idtac "could not simplify some occuring term, shelved instead"];shelve)).
+Ltac extractSimple := 
+  lazymatch goal with
+    |- eval _ _ => extractCorrectCrush
+  | |- evalLe _ _ _ => extractCorrectCrush
+  | |- evalIn _ _ _ => Lsimpl_old;fail "evalIn does not support full Lrewrite and should only occur when simplifying rho/recursion"
+  | |- ?G => idtac "cstep found unexpected" G 
+  end;try (idtac;[idtac "could not simplify some occuring term, shelved instead"];shelve).
 
-                           Ltac computable_match:=
+Ltac cstep := cstep' extractSimple.
+
+Ltac computable_match:=
   intros;
   once lazymatch goal with
   | |- ?R ?lhs ?rhs =>
@@ -376,7 +373,7 @@ Ltac cstep := cstep' ltac:(fun _ =>
       cbn -[enc];
       repeat change encf with (@enc _ reg);
       fold_encs;
-      Lsimpl
+      Lsimpl_old
     end
   end.
 
@@ -401,12 +398,12 @@ Ltac computable_prepare t :=
 Ltac computable_using_noProof Lter:=
   once lazymatch goal with
   | [ |- computable ?t ] =>
-    eexists Lter;unfold Lter;
+    eexists Lter;unfold Lter;try clear Lter;
     let t' := eval hnf in t in
         let h := visibleHead t' in
         try unfold h;computable_prepare t;infer_instances
   | [ |- computableTime ?t _] =>
-    eexists Lter;unfold Lter;
+    eexists Lter;unfold Lter;try clear Lter;
     let t' := (eval hnf in t) in
     let h := visibleHead t' in
     try unfold h; computable_prepare t; infer_instancesT
@@ -464,6 +461,7 @@ Tactic Notation "computable" "infer" :=
   end.
 
 Tactic Notation "extract" :=
+  unshelve
     let term := fresh "used_term" in
     extractAs term;computable using term.
 
@@ -620,7 +618,7 @@ Lemma cast_computableTime X Y `{registered Y} (cast : X -> Y) (Hc : injective ca
 Proof.
   cbn.
   pose (t:=lam 0).
-  computable using t. solverec.
+  computable using t. solverec. Unshelve.
 Defined.
 
 

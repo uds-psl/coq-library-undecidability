@@ -1,6 +1,6 @@
 From Undecidability.Shared.Libs.PSL Require Export Prelim EqDec.
 
-Export ListNotations.
+Export List.ListNotations.
 Notation "x 'el' A" := (In x A) (at level 70).
 Notation "A <<= B" := (incl A B) (at level 70).
 Notation "| A |" := (length A) (at level 65).

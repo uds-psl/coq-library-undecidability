@@ -1,6 +1,6 @@
 (* * Pointer bookkeeping for machines using (positive) binary numbers *)
 
-From Undecidability Require Import ProgrammingTools.
+From Undecidability.TM Require Import ProgrammingTools.
 From Undecidability Require Import BinNumbers.EncodeBinNumbers.
 From Undecidability Require Import BinNumbers.PosDefinitions.
 
