@@ -1,6 +1,6 @@
 (* * Constructors and Deconstructors for Comens *)
 
-From Undecidability Require Import ProgrammingTools.
+From Undecidability.TM Require Import ProgrammingTools.
 From Undecidability Require Import TM.Code.CaseNat TM.Code.CaseSum TM.Code.CaseFin LM_heap_def .
 From Undecidability.TM.L Require Import Alphabets.
 

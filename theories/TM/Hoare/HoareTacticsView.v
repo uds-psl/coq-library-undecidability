@@ -4,7 +4,7 @@ Arguments abbreviate {A} {x}.
   
   (* The concept of abbreviations is taken from  VST*)
 
-  Tactic Notation "abbreviate" constr(y) "as"  ident(x)  :=
+Tactic Notation "abbreviate" constr(y) "as"  ident(x)  :=
   (first [ is_var y
           |  let x' := fresh x in pose (x':= @abbreviate _ y);
               change y with x']).

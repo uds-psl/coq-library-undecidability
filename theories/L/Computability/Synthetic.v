@@ -40,7 +40,7 @@ Section L_enum_rec.
   Import HOAS_Notations.
 
   Lemma proc_test (x : X) :
-    proc (λ y, !!(ext test) !!(enc x) y).
+    proc [L_HOAS λ y, !!(ext test) !!(enc x) y].
   Proof.
     cbn. Lproc.
   Qed.
@@ -48,23 +48,23 @@ Section L_enum_rec.
   Lemma L_enumerable_recognisable :
     L_recognisable' p.
   Proof.
-    exists (λ x, !!mu (λ y, !!(ext test) x y)).
+    exists [L_HOAS λ x, !!mu (λ y, !!(ext test) x y)].
     intros. split; intros.
     - eapply H_f in H0 as [n H0].
       edestruct (mu_complete (proc_test x)) with (n := n).
-      + intros. exists (test x n0). cbn. Lsimpl.
-      + cbn. Lsimpl. unfold test. rewrite H0. Lsimpl. destruct (H_d x x); intuition.
+      + intros. exists (test x n0). cbn. now Lsimpl.
+      + cbn. Lsimpl. unfold test. rewrite H0. destruct (H_d x x); intuition.
       + exists (ext x0). split; try Lproc.
         cbn. Lsimpl. now rewrite H1.
     - destruct H0 as (v & ? & ?).
       edestruct (mu_sound (proc_test x)) with (v := v) as (n & ? & ? & _).
-      + intros. exists (test x n). cbn. Lsimpl.
+      + intros. exists (test x n). cbn. now Lsimpl.
       + Lproc.
-      + rewrite <- H0. symmetry. cbn. Lsimpl.
+      + rewrite <- H0. symmetry. cbn. now Lsimpl.
       + subst. eapply H_f. exists n.
-        assert ((λ y, !! (ext test) !! (enc x) y) !!(ext n) == ext (test x n)).
-        cbn. Lsimpl. cbn in *. rewrite H2 in *.
-        eapply unique_normal_forms in H3; try Lproc.
+        assert ([L_HOAS (λ y, !! (ext test) !! (enc x) y) !!(ext n)] == ext (test x n)).
+        cbn. now Lsimpl. cbn in *. rewrite H2 in *.
+        eapply unique_normal_forms in H3;[|Lproc..].
         eapply inj_enc in H3.
         unfold test in H3. destruct (f n); inv H3.
         destruct (H_d x x0); firstorder congruence.
@@ -236,14 +236,14 @@ Proof.
   intros (f & [c_f] & H_f).
   exists (lam (mu (lam (ext f 1 0)))).
   intros. 
-  assert (((lam (mu (lam ((ext f 1) 0)))) (enc x)) >* mu (lam (ext f (enc x) 0))) by Lsimpl.
+  assert (((lam (mu (lam ((ext f 1) 0)))) (enc x)) >* mu (lam (ext f (enc x) 0))) by now Lsimpl.
   rewrite H0. rewrite mu_spec.
   - rewrite H_f. split; intros [n]; exists n.
     Lsimpl. now rewrite H1.
     eapply enc_extinj.
-    now assert ((lam (((ext f) (enc x)) 0)) (ext n) == enc (f x n)) as <- by Lsimpl.
+    now assert ((lam (((ext f) (enc x)) 0)) (ext n) == enc (f x n)) as <- by now Lsimpl.
   - Lproc.
-  - intros. exists (f x n). Lsimpl.
+  - intros. exists (f x n). now Lsimpl.
 Qed.    
 
 Lemma L_recognisable_halt {X} `{registered X} (p : X -> Prop) :

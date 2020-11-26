@@ -1,4 +1,4 @@
-From Undecidability Require Import TM.Code.ProgrammingTools.
+From Undecidability.TM.Code Require Import ProgrammingTools.
 From Undecidability Require Import TM.Code.CaseNat.
 
 

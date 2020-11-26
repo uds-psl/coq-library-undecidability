@@ -1,4 +1,4 @@
-From Undecidability Require Import ProgrammingTools.
+From Undecidability.TM Require Import ProgrammingTools.
 From Undecidability Require Import ArithPrelim.
 Require Import Undecidability.Shared.FinTypeEquiv Undecidability.Shared.FinTypeForallExists.
 

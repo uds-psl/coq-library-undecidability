@@ -1,6 +1,6 @@
 (* * Constructors and Deconstructors for Pair Types *)
 
-From Undecidability Require Import ProgrammingTools.
+From Undecidability.TM Require Import ProgrammingTools.
 
 (* TODO: ~> base *)
 Lemma pair_eq (A B : Type) (a1 a2 : A) (b1 b2 : B) :
@@ -319,7 +319,7 @@ Ltac smpl_TM_CasePair :=
 Smpl Add smpl_TM_CasePair : TM_Correct.
 
 
-From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+From Undecidability.TM.Hoare Require Import HoareLogic HoareRegister HoareTactics.
 Section CasePair.
 
   Variable (X Y : Type) (sigX sigY : finType) (codX : codable sigX X) (codY : codable sigY Y).

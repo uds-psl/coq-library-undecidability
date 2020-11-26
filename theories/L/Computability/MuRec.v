@@ -16,7 +16,7 @@ Qed.
 
 Section hoas.
   Import HOAS_Notations.
-  Definition mu' := Eval cbn -[enc] in rho (λ mu P n, (P n) (!!K n) (λ Sn, mu P Sn) (!!(ext S) n)).
+  Definition mu' := Eval cbn -[enc] in rho (convert (λ mu P n, (P n) (!!K n) (λ Sn, mu P Sn) (!!(ext S) n))).
 End hoas.
 
 Import L_Notations.
@@ -29,7 +29,7 @@ Hint Resolve mu'_proc : LProc.
 
 Lemma mu'_n_false n: P (ext n)  == ext false -> mu' P (ext n) >* mu' P (ext (S n)).
 Proof.
-  intros R. apply equiv_lambda in R;[|Lproc]. recStep mu'. unfold K. Lsimpl. 
+  intros R. apply equiv_lambda in R;[|Lproc]. recStep mu'. unfold K. now Lsimpl. 
 Qed.
 
 Lemma mu'_0_false n: (forall n', n' < n -> P (ext n')  == ext false) -> mu' P (ext 0) >* mu' P (ext n).
@@ -43,7 +43,7 @@ Qed.
 
 Lemma mu'_n_true (n:nat): P (ext n)  == ext true -> mu' P (ext n) == ext n.
 Proof.
-  intros R. recStep mu'. Lsimpl. rewrite R. unfold K.  Lsimpl.
+  intros R. recStep mu'. Lsimpl. rewrite R. unfold K. now Lsimpl.
 Qed.
 
 (* TODO: mu' sound*)
@@ -71,7 +71,7 @@ Lemma mu'_complete n0 : P (ext n0) == ext true
                         -> mu' P (ext 0) == ext n0.
 Proof.
   intros. rewrite mu'_0_false with (n:=n0);try tauto.
-  -recStep mu'. Lsimpl. rewrite H. unfold K. Lsimpl. 
+  -recStep mu'. Lsimpl. rewrite H. unfold K. now Lsimpl. 
 Qed.
 
 (* the mu combinator:*)

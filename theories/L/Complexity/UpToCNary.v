@@ -1,10 +1,8 @@
-From Undecidability Require Export UpToC.
+From Undecidability.L.Complexity Require Export UpToC GenericNary.
 
 Require Import smpl.Smpl.
 From Coq Require Import Setoid.
 From Coq Require Import CRelationClasses CMorphisms.
-From Undecidability Require Export UpToC.
-From Undecidability Require Export GenericNary.
 From Undecidability.Shared.Libs.PSL Require FinTypes.
 
 Local Set Universe Polymorphism. 

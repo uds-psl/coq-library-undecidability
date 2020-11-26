@@ -16,7 +16,7 @@ Section forallb.
     extract.
     solverec. 
     all: unfold forallb_time, c__forallb; solverec. 
-  Defined. 
+  Qed. 
 
   Lemma forallb_time_eq f (l:list X):
     forallb_time f l = sumn (map f l) + length l * c__forallb + c__forallb.

@@ -12,7 +12,7 @@ Section uiter.
   Context `{computableTime' f fT}.
 
   Import HOAS_Notations.
-  Definition uiter := Eval cbn -[enc] in rho (λ uiter x, !!(extT f) x (λ x' _ , uiter x') (λ y _ , y) !!I).
+  Definition uiter := Eval cbn -[enc] in rho [L_HOAS (λ uiter x, !!(extT f) x (λ x' _ , uiter x') (λ y _ , y) !!I)].
   
   Lemma uiter_proc : proc uiter.
   Proof. unfold uiter. Lproc. Qed.
@@ -37,8 +37,8 @@ Section uiter.
     2,3:reflexivity.
     2:{
       destruct (f x) eqn:eqfx.
-      -Intern.recStepUnnamed. Lrewrite_new. rewrite eqfx. Lrewrite_new. eapply IHn. eauto.
-      -inv Heq. Intern.recStepUnnamed. Lrewrite_new. rewrite eqfx. Lrewrite_new. Lreflexivity.
+      -Intern.recStepNew P. Lsimpl. rewrite eqfx. Lsimpl. eapply IHn. eauto.
+      -inv Heq. Intern.recStepNew P. Lsimpl. rewrite eqfx. Lsimpl. Lreflexivity.
     }
     destruct (f x).
     all:solverec.
@@ -48,9 +48,9 @@ Section uiter.
   Lemma uiter_total_instanceTime {Z} `{registered Z} (f':  Z -> Y) (preprocess : Z -> X) preprocessT (fuel : Z -> nat)
     `{computableTime' preprocess preprocessT} :
     (forall x, loopSum (fuel x) f (preprocess x) = Some (f' x)) ->
-    computesTime (TyArr _ _) f' (λ x, !!uiter !!(L.app (extT preprocess) x)) (fun z _ => (1 + fst (preprocessT z tt) + uiterTime (fuel z) (preprocess z),tt)).
+    computesTime (TyArr _ _) f' (convert (λ x, !!uiter (!!(extT preprocess) x))) (fun z _ => (1 + fst (preprocessT z tt) + uiterTime (fuel z) (preprocess z),tt)).
   Proof.
-    cbn [convert TH].
+    cbn [convert TH "-"].
     intros total.
     eapply computesTimeTyArr_helper with (time:=(fun x _ => _)).
     { unfold uiter. now Lproc. }
@@ -61,6 +61,7 @@ Section uiter.
     2:{ eapply evalLe_trans with (t := (L.app uiter (enc (preprocess z)))).
         -now Lsimpl.
         -eapply uiter_sound. apply total. }
+    cbn.
     lia.
   Qed.
     

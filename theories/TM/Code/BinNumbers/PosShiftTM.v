@@ -1,6 +1,6 @@
 (* * Machines for shifting [positive] binary numbers *)
 
-From Undecidability Require Import ProgrammingTools.
+From Undecidability.TM Require Import ProgrammingTools.
 From Undecidability Require Import EncodeBinNumbers.
 From Undecidability Require Import PosDefinitions.
 From Undecidability Require Import PosPointers.

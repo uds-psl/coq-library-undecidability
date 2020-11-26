@@ -2,7 +2,7 @@
 
 (* Definitions of tapes and (unlabelled) multi-tape Turing machines from Asperti, Riciotti "A formalization of multi-tape Turing machines" (2015) and the accompanying Matita code. *)
 
-From Undecidability Require Export TM.Util.Prelim TM.Util.Relations.
+From Undecidability.TM.Util Require Export Prelim Relations.
 Require Import Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 Require Export Undecidability.TM.TM.
        

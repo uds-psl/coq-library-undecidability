@@ -1,6 +1,6 @@
 (* ** Helper Machines for positive numbers *)
 
-From Undecidability Require Import ProgrammingTools.
+From Undecidability.TM Require Import ProgrammingTools.
 From Undecidability Require Import EncodeBinNumbers PosDefinitions PosPointers.
 From Undecidability Require Import TM.Basic.Duo.
 

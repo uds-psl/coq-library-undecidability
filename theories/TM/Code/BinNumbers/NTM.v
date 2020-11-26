@@ -1,6 +1,6 @@
 (* * Machines on [N] (binary natural numbers) *)
 
-From Undecidability Require Import ProgrammingTools.
+From Undecidability.TM Require Import ProgrammingTools.
 From Undecidability Require Import BinNumbers.EncodeBinNumbers.
 From Undecidability Require Import Code.CaseSum. (* [CaseOption] *)
 

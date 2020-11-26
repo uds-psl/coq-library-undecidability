@@ -3,7 +3,7 @@ From Undecidability.L.Tactics Require Import Lbeta_nonrefl.
 (* * Definition of parallel or *)
 
 Section hoas. Import HOAS_Notations.
-Definition Por :term := Eval simpl in (λ s t , (λ n0,  !!(ext doesHaltIn) s n0 ) (!!mu (λ n ,!!(ext orb) (!!(ext doesHaltIn) s n) (!!(ext doesHaltIn) t n)))) .
+Definition Por :term := Eval simpl in [L_HOAS λ s t , (λ n0,  !!(ext doesHaltIn) s n0 ) (!!mu (λ n ,!!(ext orb) (!!(ext doesHaltIn) s n) (!!(ext doesHaltIn) t n)))] .
 End hoas.
 
 Lemma Por_proc : proc Por.
@@ -21,8 +21,8 @@ Proof.
   apply seval_eva in H. edestruct mu_complete with (n:=n) (P:=(lam ((ext orb) ((ext doesHaltIn) (ext s) 0) ((ext doesHaltIn) (ext t) 0)))) as [v R].
   -Lproc.
   -eexists;now Lsimpl.
-  -Lsimpl. edestruct (doesHaltIn s n) eqn:eq;unfold doesHaltIn in eq;rewrite H in eq. 2:congruence. Lsimpl.
-  -eapply Seval.eval_converges. unfold Por. Lsimpl. rewrite R. Lsimpl.
+  -Lsimpl. edestruct (doesHaltIn s n) eqn:eq;unfold doesHaltIn in eq;rewrite H in eq. 2:congruence. reflexivity.
+  -eapply Seval.eval_converges. unfold Por. Lsimpl_old. rewrite R. Lsimpl. Lreflexivity.
 Qed.
 
 Lemma Por_correct_1b (s t:term) : converges t -> converges (Por (ext s) (ext t)).
@@ -31,8 +31,8 @@ Proof.
   apply seval_eva in H. edestruct mu_complete with (n:=n) (P:=lam ( (ext orb) ((ext doesHaltIn) (ext s) 0) ((ext doesHaltIn) (ext t) 0))) as [v R].
   -Lproc.
   -eexists;now Lsimpl.
-  -Lsimpl.  edestruct (doesHaltIn t n) eqn:eq;unfold doesHaltIn in eq;rewrite H in eq. 2:congruence. edestruct doesHaltIn;Lsimpl.
-  -eapply Seval.eval_converges. unfold Por. Lsimpl. rewrite R. Lsimpl.
+  -Lsimpl.  edestruct (doesHaltIn t n) eqn:eq;unfold doesHaltIn in eq;rewrite H in eq. 2:congruence. edestruct doesHaltIn;reflexivity.
+  -eapply Seval.eval_converges. unfold Por. Lsimpl_old. rewrite R. Lsimpl. Lreflexivity.
 Qed.
 
 Lemma Por_correct_1 s t : converges s \/ converges t -> converges (Por (ext s) (ext t)).
@@ -48,7 +48,7 @@ Proof.
   apply app_converges in C as [_ [v' [C lv']]].
   assert (C':=C).
   apply mu_sound in C as [n [eq [R' H]]];try Lproc.
-  -exists (doesHaltIn s n). subst. unfold Por. Lsimpl. rewrite C'. Lsimpl. 
+  -exists (doesHaltIn s n). subst. unfold Por. Lsimpl_old. rewrite C'. now Lsimpl. 
   -eexists. now Lsimpl.
 Qed.
 

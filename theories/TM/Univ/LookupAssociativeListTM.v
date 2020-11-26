@@ -1,5 +1,5 @@
 Require Import Undecidability.Shared.Libs.PSL.Bijection. (* [injective] *)
-From Undecidability Require Import ProgrammingTools.
+From Undecidability.TM Require Import ProgrammingTools.
 From Undecidability Require Import TM.Code.CompareValue.
 From Undecidability Require Import TM.Code.CasePair TM.Code.CaseList.
 From Undecidability.TM.Hoare Require Import Hoare HoareLegacy.

@@ -10,17 +10,17 @@ Hint Resolve term_enc_correct : Lrewrite.
 Instance term_var : computableTime' var (fun n _ => (1, tt)).
 Proof.
   extract constructor. solverec.
-Defined.
+Qed.
 
 Instance term_app : computableTime' L.app (fun s1 _ => (1, (fun s2 _ => (1, tt)))).
 Proof.
   extract constructor. solverec.
-Defined.
+Qed.
 
 Instance term_lam : computableTime' lam (fun s _ => (1, tt)).
 Proof.
   extract constructor. solverec.
-Defined.
+Qed.
 
 
 Definition c__termsize := c__natsizeS + 7. 

@@ -1,6 +1,6 @@
 (* ** Multiplication *)
 
-From Undecidability Require Import ProgrammingTools.
+From Undecidability.TM Require Import ProgrammingTools.
 From Undecidability Require Import Hoare.Hoare.
 
 From Undecidability Require Import CaseNat.

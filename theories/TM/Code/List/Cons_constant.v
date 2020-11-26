@@ -1,4 +1,4 @@
-From Undecidability Require Import ProgrammingTools.
+From Undecidability.TM Require Import ProgrammingTools.
 From Undecidability Require Import CaseList WriteString Hoare. 
 
 Module Cons_constant.

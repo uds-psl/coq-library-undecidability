@@ -3,7 +3,7 @@
 From Coq Require Import FunInd.
 
 From Undecidability Require Import TM.Code.CodeTM.
-From Undecidability Require Export TM.Compound.CopySymbols TM.Compound.MoveToSymbol.
+From Undecidability.TM.Compound Require Export CopySymbols MoveToSymbol.
 
 From Undecidability Require Import TM.Basic.Mono.
 From Undecidability Require Import TM.Combinators.Combinators.
@@ -654,7 +654,7 @@ Smpl Add smpl_TM_Copy : TM_Correct.
 
 
 
-From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+From Undecidability.TM.Hoare Require Import HoareLogic HoareRegister HoareTactics.
 
 (* We give all rule variants here, because automation is forbidden for these machines *)
 
