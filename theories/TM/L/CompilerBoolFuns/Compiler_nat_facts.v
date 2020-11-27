@@ -23,7 +23,7 @@ Qed.
 
 (* Section Fix_X.
 Variable (X:Type).
-Context {intX : registered X}.
+Context {intX : encodable X}.
 
 Global Instance term_repeat: computable (@repeat X).
 Proof using intX.
@@ -37,13 +37,13 @@ Qed.
 
 End Fix_X. *)
 
-Fixpoint gen_list {k} {X} {Hr : registered X} (v : Vector.t nat k) : term :=
+Fixpoint gen_list {k} {X} {Hr : encodable X} (v : Vector.t nat k) : term :=
 match v with
 | [] => ext (@nil X)
 | n :: v => ext (@Datatypes.cons X) (var n) (@gen_list _ X Hr v)
 end.
 
-Lemma subst_gen_list {k} {X} {Hr : registered X} u n :
+Lemma subst_gen_list {k} {X} {Hr : encodable X} u n :
 n >= k ->
 subst (gen_list (X := X) (many_vars k)) n u = gen_list (X := X) (many_vars k).
 Proof.
@@ -53,7 +53,7 @@ induction k in n |- *; rewrite ?many_vars_S; cbn.
   rewrite IHk. reflexivity. lia.
 Qed.
 
-Lemma gen_list_spec {k} {X} {Hr : registered X} (v' : Vector.t X k) :
+Lemma gen_list_spec {k} {X} {Hr : encodable X} (v' : Vector.t X k) :
 many_subst (gen_list (X := X) (many_vars k)) 0 (Vector.map enc v') == enc v'.
 Proof.
 induction v'; cbn - [many_vars].
@@ -133,7 +133,7 @@ Proof.
   extract.
 Qed.
 
-Lemma forall_proc_help {X} {H : registered X} {k} {v : Vector.t X k} : forall x, Vector.In x (Vector.map enc v) -> proc x.
+Lemma forall_proc_help {X} {H : encodable X} {k} {v : Vector.t X k} : forall x, Vector.In x (Vector.map enc v) -> proc x.
 Proof.
   clear. induction v; cbn; intros ? Hi. inversion Hi. inv Hi. Lproc. eapply IHv. eapply Eqdep_dec.inj_pair2_eq_dec in H3. subst. eauto. eapply nat_eq_dec.
 Qed.

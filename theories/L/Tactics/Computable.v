@@ -5,24 +5,20 @@ Require Import Undecidability.Shared.Libs.PSL.Bijection String.
 
 (* Typeclass for registering types *)
 
+(* Encodable is in GenEncode *)
 
-Class registered (X : Type) := mk_registered
-  {
-    enc :> encodable X ; (* the encoding function for X *)
-    proc_enc : forall x, proc (enc x) ; (* encodings need to be a procedure *)
-    inj_enc : injective enc (* encoding is injective *)
-  }.
+Class encInj (X : Type) `(R : encodable X) := 
+  inj_enc : injective (X:=X) enc (* encoding is injective *).
 
-#[export] Hint Mode registered + : typeclass_instances. (* treat argument as input and force evar-freeness*)
+#[export] Hint Mode encInj - + : typeclass_instances. (* treat argument as input and force evar-freeness*)
 
-Arguments enc : simpl never.  (* Never unfold with cbn/simpl *)
 
 (* ** Correctness *)
 
 (* Definition of the valid types for extraction *)
 
 Inductive TT : Type -> Type :=
-  TyB t (R : registered t) : TT t
+  TyB t (R : encodable t) : TT t
 | TyArr t1 t2 (tt1 : TT t1) (tt2 : TT t2)
   : TT (t1 -> t2).
 
@@ -80,13 +76,13 @@ Qed.
 
 
 #[global]
-Instance reg_is_ext ty (R : registered ty) (x : ty) : computable x.
+Instance reg_is_ext ty (R : encodable ty) (x : ty) : computable x.
 Proof.
   exists (enc x). reflexivity.
 Defined. (* because ? *)
 
 
-Lemma computesTyB (t:Type) (x:t) `{registered t}: computes (TyB t) x (ext x).
+Lemma computesTyB (t:Type) (x:t) `{encodable t}: computes (TyB t) x (ext x).
 Proof.
   unfold ext. now destruct R.
 Qed.
@@ -110,7 +106,7 @@ Proof.
   destruct correct0 as (?&?&?). tauto. 
 Qed.
 
-Lemma ext_is_enc t1 (R:registered t1) (x: t1) (Hf : computable x) :
+Lemma ext_is_enc t1 (R:encodable t1) (x: t1) (Hf : computable x) :
   @ext _ _ x Hf = enc x.
 Proof.
   now destruct Hf. 
@@ -192,14 +188,20 @@ Proof.
   intros ? (s&?). exists s. eauto using computesExt.
 Defined. (* because ? *)
 
-(* register a datatype via an (injectve) function to another, e.g. vectors as lists *)
+(* register a datatype via an function to another, e.g. vectors as lists *)
 
-Lemma registerAs X Y `{registered X} (f:Y -> X) : injective f -> registered Y.
+Lemma registerAs X Y `{encodable X} (f:Y -> X) : encodable Y.
 Proof.
-  intros Hf. eexists (fun x => enc (f x)). now destruct H.
-  intros ? ? ?. now eapply H, Hf in H0.
+  eexists (fun x => enc (f x)). now destruct H.
+Defined.
+Arguments registerAs {_ _ _} _.
+
+Lemma registerInjAs X Y R `{@encInj X R} (f:Y -> X) : injective f -> encInj (registerAs f).
+Proof.
+  unfold encInj.
+  intros ? ? ? H'. eapply H0, @inj_enc. all:easy. 
 Defined. (* because ? *)
-Arguments registerAs {_ _ _} _ _.
+
 
 (* Support for extracting registerAs-ed functions *)
 
@@ -210,13 +212,13 @@ Fixpoint changeResType t1 t2 (tt1:TT t1) (tt2 : TT t2) : {t & TT t}:=
     existT _ _ (TyArr tt11 (projT2 (changeResType tt12 tt2)))
   end.
 
-Fixpoint resType t1 (tt1 : TT t1) : {t & registered t} :=
+Fixpoint resType t1 (tt1 : TT t1) : {t & encodable t} :=
   match tt1 with
     @TyB _ R => existT _ _ R
   | TyArr _ _ _ t2 => resType t2
   end.
 
-Fixpoint insertCast t1 (tt1 : TT t1) Y (R: registered Y) {struct tt1}:
+Fixpoint insertCast t1 (tt1 : TT t1) Y (R: encodable Y) {struct tt1}:
   forall (cast : projT1 (resType tt1) -> Y) (f : t1), projT1 (changeResType tt1 (TyB Y)) :=
   match tt1 with
     TyB _ _ => fun cast x => cast x
@@ -224,15 +226,14 @@ Fixpoint insertCast t1 (tt1 : TT t1) Y (R: registered Y) {struct tt1}:
   end.
 
 
-Lemma cast_registeredAs t1 (tt1 : TT t1) Y (R: registered Y) (cast : projT1 (resType tt1) -> Y) (f:t1)
-  (Hc : injective cast) :
-  projT2 (resType tt1) = registerAs cast Hc ->
+Lemma cast_registeredAs t1 (tt1 : TT t1) Y (R: encodable Y) (cast : projT1 (resType tt1) -> Y) (f:t1) :
+  projT2 (resType tt1) = registerAs cast ->
   computable (ty:=projT2 (changeResType tt1 (TyB Y))) (insertCast R cast f) ->
   computable f.
 Proof.
   intros H (s&exts).
   exists s.
-  induction tt1 in cast,f,H,s,exts,Hc |- *.
+  induction tt1 in cast,f,H,s,exts |- *.
   -cbn in H,exts|-*;unfold enc in *. rewrite H. exact exts.
   -destruct exts as (?&exts). split. assumption.
    intros x s__x ext__x.

@@ -12,11 +12,14 @@ Section Fix_XY.
 
   Variable X Y:Type.
   
-  Context {intX : registered X}.
-  Context {intY : registered Y}.
+  Context {intX : encodable X}.
+  Context {intY : encodable Y}.
 
   MetaCoq Run (tmGenEncode "prod_enc" (X * Y)).
   Hint Resolve prod_enc_correct : Lrewrite.
+
+  Global Instance encInj_prod_enc {H : encInj intX} {H' : encInj intY} : encInj (encodable_prod_enc).
+  Proof. register_inj. Qed. 
   
   (* now we must register the constructors*)
   Global Instance term_pair : computableTime' (@pair X Y) (fun _ _ => (1,fun _ _ => (1,tt))).
@@ -65,9 +68,8 @@ Section Fix_XY.
     extract. unfold eqb,eqbTime. fold @enc.
     recRel_prettify2. easy.
     [c]:exact (c__eqbComp X + c__eqbComp Y + 6).
-    all:unfold c. cbn iota delta [prod_enc].
-    fold (@enc X _). fold (@enc Y _). 
-    cbn [size].  nia.
+    all:unfold c. 
+    cbn [size]. nia.
   Qed.
 
 
@@ -96,7 +98,7 @@ Section Fix_XY.
   Lemma size_prod (w:X*Y):
     size (enc w) = size (enc (fst w)) + size (enc (snd w)) + 4.
   Proof.
-    destruct w. unfold enc. now cbn.
+    destruct w. unfold enc at 1. now cbn.
   Qed.
 
   

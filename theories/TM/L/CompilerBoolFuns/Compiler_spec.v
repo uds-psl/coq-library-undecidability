@@ -40,7 +40,7 @@ Definition TM₁_bool_computable {k} (Σ : finType) (R : Vector.t (list bool) k 
   (forall q t, TM.eval M (start M) [midtape [] b (Vector.fold_right (fun l s => encBoolsListTM s1 s2 l ++ s)%list v List.nil)] q t ->
           exists m, t = [encBoolsTM s1 s2 m]).
       
-Definition encBoolsL (l : list bool) := list_enc l.
+Definition encBoolsL (l : list bool) := Eval cbv in (enc l).
 
 Definition L_bool_computable {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
   exists s, forall v : Vector.t (list bool) k, 

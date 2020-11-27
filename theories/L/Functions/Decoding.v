@@ -1,6 +1,6 @@
 From Undecidability.L Require Import Tactics.LTactics Datatypes.LNat Datatypes.LTerm.
 
-Class decodable X `{registered X}: Type :=
+Class decodable X `{encodable X}: Type :=
   {
     decode : term -> option X;
     decode_correct : forall (x:X), decode (enc x) = Some x;
@@ -46,22 +46,20 @@ Global
 Instance decode_term : decodable term.
 Proof.
   exists term_decode.
-  all:unfold enc at 1. all:cbn.
-  -induction x;cbn. change LNat.nat_enc with (enc (X:=nat)).
+  -unfold enc at 1;cbn. induction x;cbn.
    +rewrite (decode_correct n). congruence.
    +now rewrite IHx1,IHx2.
    +now rewrite IHx.  all:eauto using LNat.unenc_correct, LNat.unenc_correct2.
-  -apply (size_induction (f := size) (p := (fun t => forall x, term_decode t = Some x -> term_enc x = t))). intros t IHt s.
+  -apply (size_induction (f := size) (p := (fun t => forall x : term, term_decode t = Some x -> enc x = t))). intros t IHt s.
    destruct t eqn:eq. all:cbn.
    all:repeat let eq := fresh in destruct _ eqn:eq. all:try congruence.
    all:intros [= <-].
-   +cbn. erewrite IHt.
+   +unfold enc;cbn. erewrite IHt.
     *reflexivity.
     *cbn;lia.
     *easy.
-   +cbn. change LNat.nat_enc with (enc (X:=nat)).
-    erewrite decode_correct2. 2:eassumption.  reflexivity.
-   +cbn. erewrite !IHt. reflexivity.
+   +unfold enc;cbn. erewrite decode_correct2. 2:eassumption.  reflexivity.
+   +unfold enc;cbn. erewrite !IHt. reflexivity.
     1,3:cbn;lia.
     all:eassumption.
 Defined. (* because instance *)
@@ -84,21 +82,18 @@ Arguments list_decode : clear implicits.
 Arguments list_decode _ {_ _} _.
 
 Global
-Instance decode_list X `{registered X} {Hdec:decodable X}: decodable (list X).
+Instance decode_list X `{encodable X} {Hdec:decodable X}: decodable (list X).
 Proof.
   exists (list_decode X).
-  all:unfold enc at 1. all:cbn.
-  -induction x;cbn.
+  -unfold enc;cbn. induction x;cbn.
    +easy.
    +setoid_rewrite decode_correct. now rewrite IHx.
-  -apply (size_induction (f := size) (p := (fun t => forall x, list_decode X t = Some x -> list_enc x = t))). intros t IHt s.
+  -apply (size_induction (f := size) (p := (fun t => forall x, list_decode X t = Some x -> enc x = t))). intros t IHt s.
    destruct t eqn:eq. all:cbn.
    all:repeat let eq := fresh in destruct _ eqn:eq. all:try congruence.
    all:intros [= <-].
    +easy.
-   +cbn. change (match H with
-                | @mk_registered _ enc _ _ => enc
-                 end x) with (enc x). erewrite decode_correct2. 2:easy.
+   +unfold enc;cbn. erewrite decode_correct2. 2:easy.
     erewrite IHt.
     *reflexivity.
     *cbn;lia.
@@ -182,19 +177,16 @@ Arguments option_decode : clear implicits.
 Arguments option_decode _ {_ _} _.
 
 #[global]
-Instance decode_option X `{registered X} {Hdec:decodable X}: decodable (option X).
+Instance decode_option X `{encodable X} {Hdec:decodable X}: decodable (option X).
 Proof.
   exists (option_decode X).
-  all:unfold enc at 1. all:cbn.
-  -intros[];cbn. 2:easy. setoid_rewrite decode_correct. easy. 
+  -unfold enc;cbn. intros[];cbn. 2:easy. setoid_rewrite decode_correct. easy. 
   -destruct t eqn:eq. all:cbn.
    all:repeat let eq := fresh in destruct _ eqn:eq. all:try congruence.
    all:intros ? [= <-]. 
    +easy.
-   +cbn. change (match H with
-                | @mk_registered _ enc _ _ => enc
-                 end x) with (enc x). erewrite decode_correct2. all:easy.
-Defined. (* because instance *)
+   +unfold enc;cbn. erewrite decode_correct2. all:easy.
+Defined.  (* because instance *)
 
 From Undecidability.L Require Import Datatypes.LBool.
 

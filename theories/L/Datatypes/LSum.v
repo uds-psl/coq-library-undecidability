@@ -6,11 +6,14 @@ Section Fix_XY.
 
   Variable X Y:Type.
   
-  Variable intX : registered X.
-  Variable intY : registered Y.
+  Variable intX : encodable X.
+  Variable intY : encodable Y.
 
   MetaCoq Run (tmGenEncode "sum_enc" (X + Y)).
   Hint Resolve sum_enc_correct : Lrewrite.
+
+  Global Instance encInj_sum_enc {H : encInj intX} {H' : encInj intY} : encInj (encodable_sum_enc).
+  Proof. register_inj. Qed. 
   
   (* now we must register the non-constant constructors*)
   
@@ -30,14 +33,11 @@ End Fix_XY.
 
 #[export] Hint Resolve sum_enc_correct : Lrewrite.
 
-Lemma size_sum X Y `{registered X} `{registered Y} (l: X + Y):
+Lemma size_sum X Y `{encodable X} `{encodable Y} (l: X + Y):
   size (enc l) = match l with inl x => size (enc x) + 5 | inr x => size (enc x) + 4 end.
 Proof.
-  change (enc l) with (sum_enc _ _ l).
-  destruct l as [x|x]. all:cbn [sum_enc map sumn size]. 
-  all:change ((match _ with
-           | @mk_registered _ enc _ _ => enc
-           end x)) with (enc x).
+  unfold enc at 1.
+  destruct l as [x|x]. all:cbn.
   all:lia. 
 Qed.
 
@@ -70,7 +70,7 @@ From Undecidability Require Import EqBool.
 Section int.
 
   Variable X Y:Type.
-  Context {HX : registered X} {HY : registered Y}.
+  Context {HX : encodable X} {HY : encodable Y}.
 
   (*Global Instance term_sum_eqb : computableTime' (@sum_eqb X Y)
                                                     (fun eqb eqbX => (1, (fun _ eqbY => (1,fun a _ => (1,fun b _ => (match a,b with
@@ -91,22 +91,14 @@ Section int.
   Global Instance eqbComp_sum `{H:eqbCompT X (R:=HX)} `{H':eqbCompT Y (R:=HY)}:
     eqbCompT (sum X Y).
   Proof.
-    evar (c:nat). exists c. unfold sum_eqb. 
-    unfold enc;cbn.
+    evar (c:nat). exists c. unfold sum_eqb.
     change (eqb0) with (eqb (X:=X)).
     change (eqb1) with (eqb (X:=Y)).
     extract. unfold eqb,eqbTime.
-    fold (enc (X:=X)).  fold (enc (X:=Y)).
-    recRel_prettify2. easy.
+    all:set (f:=enc (X:=X + Y)); unfold enc in f;subst f;cbn - ["+"].
+    recRel_prettify2. all:cbn [size].
     [c]:exact (c__eqbComp X + c__eqbComp Y + 6).
-    all:unfold c. all:cbn iota beta delta [sum_enc].
-    all:  change ((match HX with
-           | @mk_registered _ enc _ _ => enc
-                   end)) with (enc (X:=X)).
-    all:  change ((match HY with
-           | @mk_registered _ enc _ _ => enc
-           end)) with (enc (X:=Y)).
-    all:cbn [size]. all: nia.
+    all:unfold c. all:nia. 
   Qed.
 
 End int.

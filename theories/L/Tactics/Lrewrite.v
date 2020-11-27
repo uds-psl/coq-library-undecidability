@@ -199,13 +199,13 @@ Tactic Notation "Lrewrite" "in" hyp(_H) :=
     | _ >* _ => idtac "not supported yet"
   end.
 
-Lemma ext_rel_helper X `(H:registered X) (x:X) (inst : computable x) (R: term -> term -> Prop) u:
+Lemma ext_rel_helper X `(H:encodable X) (x:X) (inst : computable x) (R: term -> term -> Prop) u:
   R (enc x) u -> R (@ext _ _ _ inst) u.
 Proof.
   now rewrite ext_is_enc.
 Qed.
 
-Lemma extT_rel_helper X `(H:registered X) (x:X) xT (inst : computableTime x xT) (R: term -> term -> Prop) u:
+Lemma extT_rel_helper X `(H:encodable X) (x:X) xT (inst : computableTime x xT) (R: term -> term -> Prop) u:
   R (enc x) u -> R (@extT _ _ _ _ inst) u.
 Proof.
   now rewrite extT_is_enc.

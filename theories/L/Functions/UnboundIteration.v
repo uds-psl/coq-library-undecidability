@@ -3,8 +3,8 @@ From Undecidability.L Require Export Prelim.LoopSum.
 
 Section uiter.
   Variable X Y : Type.
-  Context `{registered X}.
-  Context `{registered Y}.
+  Context `{encodable X}.
+  Context `{encodable Y}.
 
   Variable f : X -> X + Y.
 
@@ -45,7 +45,7 @@ Section uiter.
   Qed.
 
   
-  Lemma uiter_total_instanceTime {Z} `{registered Z} (f':  Z -> Y) (preprocess : Z -> X) preprocessT (fuel : Z -> nat)
+  Lemma uiter_total_instanceTime {Z} `{encodable Z} (f':  Z -> Y) (preprocess : Z -> X) preprocessT (fuel : Z -> nat)
     `{computableTime' preprocess preprocessT} :
     (forall x, loopSum (fuel x) f (preprocess x) = Some (f' x)) ->
     computesTime (TyArr _ _) f' (convert (λ x, !!uiter (!!(extT preprocess) x))) (fun z _ => (1 + fst (preprocessT z tt) + uiterTime (fuel z) (preprocess z),tt)).

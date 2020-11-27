@@ -55,7 +55,7 @@ Proof.
 intros. apply subst'_cls. Lproc.
 Qed.
 (*
-Lemma subst'_enc Y  (H:registered  Y): forall y x t, subst' (enc y) x t = (enc y).
+Lemma subst'_enc Y  (H:encodable  Y): forall y x t, subst' (enc y) x t = (enc y).
 Proof.
   intros. apply subst'_cls. Lproc.
 Qed.

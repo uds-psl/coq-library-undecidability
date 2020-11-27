@@ -61,7 +61,7 @@ Proof.
   intros [u [[cls_u lam_u] Hu]].
   pose (t := I).
   eapply (C27_proc (t := t)). Lproc.
-  pose (v := (lam(u ((ext (term_enc)) ((ext app) #0 (ext t)))))). 
+  pose (v := (lam(u ((ext (enc (X:=term))) ((ext app) #0 (ext t)))))). 
   exists v. split. subst v;Lproc.
   intros s. destruct (Hu (ext (s t))) as [b [eq C]].
   exists b. split.

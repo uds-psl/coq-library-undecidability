@@ -6,7 +6,7 @@ From Undecidability.L.Datatypes Require Export List.List_enc LBool LOptions LNat
 
 Section Fix_X.
   Variable (X:Type).
-  Context {intX : registered X}.
+  Context {intX : encodable X}.
 
   Fixpoint inb eqb (x:X) (A: list X) :=
     match A with
@@ -70,7 +70,7 @@ End list_eqb.
 Section int.
 
   Context {X : Type}.
-  Context {HX : registered X}.
+  Context {HX : encodable X}.
 
   Fixpoint list_eqbTime (eqbT: timeComplexity (X -> X -> bool)) (A B:list X) :=
     match A,B with
@@ -118,17 +118,11 @@ Section int.
   Global Instance eqbComp_List `{eqbCompT X (R:=HX)}:
     eqbCompT (list X).
   Proof.
-    evar (c:nat). exists c. unfold list_eqb. 
-    unfold enc;cbn.
-    change (eqb0) with (eqb (X:=X)).
-    extract. unfold eqb,eqbTime. fold @enc.
-    recRel_prettify2. easy.
+    evar (c:nat). exists c. unfold list_eqb.
+    extract. unfold eqb,eqbTime. cbn - ["+"].
     [c]:exact (c__eqbComp X + 6).
-    all:unfold c. all:cbn iota beta delta [list_enc].
-    all:  change ((match HX with
-                  | @mk_registered _ enc _ _ => enc
-                  end)) with (enc (X:=X)).
-    all:cbn [size]. all: nia.
+    all:unfold c. set (c__eqbComp X). 
+    solverec. all: set (f:=enc (X:=list X)); unfold enc in f;subst f;cbn [size encodable_list_enc].
+    all:try nia. 
   Qed.
-
 End int.

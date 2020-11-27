@@ -14,12 +14,12 @@ Section Lookup.
       if eqb x key then Lproc else lookup x A d
     end.
 
-  Context `{registered X} `{@eqbCompT X _ eqbX _}.
+  Context `{encodable X} `{@eqbCompT X _ eqbX _}.
 
   Definition lookupTime (x:nat) (l:list (X*Y)):=
     fold_right (fun '(a,b) res => eqbTime (X:=X) x (size (enc (a:X))) + res +24) 4 l.
 
-  Global Instance term_lookup `{registered Y}:
+  Global Instance term_lookup `{encodable Y}:
     computableTime' (lookup) (fun x _ => (5, fun l _ => (1, fun d _ => (lookupTime (size (enc x)) l,tt)))).
   Proof.
   unfold lookup. unfold eqb.
@@ -113,7 +113,7 @@ Qed.
 
 
 Section finFun.
-  Context (X : finType) Y {reg__X:registered X} {reg__Y:registered Y}.
+  Context (X : finType) Y {reg__X:encodable X} {reg__Y:encodable Y}.
   Context {eqbX : X -> X -> bool} `{eqbClass X eqbX} `{H0 : @eqbCompT X _ eqbX _}.
     
   Lemma finFun_computableTime_const (f:X -> Y) (d:Y):

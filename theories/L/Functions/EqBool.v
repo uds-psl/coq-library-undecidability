@@ -35,7 +35,7 @@ Proof.
   apply dec_reflect_remove. eapply eqb_spec.
 Qed.
 
-Class eqbCompT X {R:registered X} eqb {H:eqbClass (X:=X) eqb} :=
+Class eqbCompT X {R:encodable X} eqb {H:eqbClass (X:=X) eqb} :=
   { c__eqbComp :nat;
     eqbTime x y:= min x y* c__eqbComp;
     comp_eqb : computableTime' eqb (fun x _ =>(5,fun y _ => (eqbTime (size (enc x)) (size (enc y)),tt)))
@@ -59,14 +59,14 @@ Proof.
   all:unfold c;try lia.
 Qed.
 
-Lemma eqbTime_le_l X {R : registered X} (eqb : X -> X -> bool) {H : eqbClass eqb}
+Lemma eqbTime_le_l X {R : encodable X} (eqb : X -> X -> bool) {H : eqbClass eqb}
       {H' : eqbCompT X} x n':
   eqbTime (X:=X) x n' <= x * c__eqbComp X.
 Proof.
   unfold eqbTime. rewrite Nat.le_min_l. easy.
 Qed.
 
-Lemma eqbTime_le_r X (R : registered X) (eqb : X -> X -> bool) (H : eqbClass eqb)
+Lemma eqbTime_le_r X (R : encodable X) (eqb : X -> X -> bool) (H : eqbClass eqb)
       (eqbCompT : eqbCompT X) x n':
   eqbTime (X:=X) n' x <= x * c__eqbComp X.
 Proof.
@@ -74,7 +74,7 @@ Proof.
 Qed.
 
 (*
-Lemma eqbTime_upToC X {R:registered X} eqb {H:eqbClass (X:=X) eqb} {_:eqbCompT X}:
+Lemma eqbTime_upToC X {R:encodable X} eqb {H:eqbClass (X:=X) eqb} {_:eqbCompT X}:
   eqbTime (X:=X) <=c (fun (x y:nat) => min x y).
 Proof.
   unfold eqbTime. hnf.

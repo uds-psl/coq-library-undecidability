@@ -8,7 +8,7 @@ Fixpoint largestVar (s:term) : nat :=
   end.
 
 
-Lemma largestVar_prod X Y `{Rx : registered X} {Ry : registered Y} (w:X*Y):
+Lemma largestVar_prod X Y `{Rx : encodable X} {Ry : encodable Y} (w:X*Y):
   largestVar (enc w) = max (largestVar (enc (fst w))) (largestVar (enc (snd w))).
 Proof.
   destruct w.
@@ -17,13 +17,13 @@ Qed.
 Lemma largestVar_nat (n:nat):
   largestVar (enc n) <= 1.
 Proof.
-  unfold enc,registered_nat_enc.
+  unfold enc,encodable_nat_enc.
   induction n;cbn in *. all:Lia.lia.
 Qed.
 Lemma largestVar_term (s:term):
   largestVar (enc s) <= 2.
 Proof.
-  unfold enc,registered_term_enc.
+  unfold enc,encodable_term_enc.
   induction s;cbn -[max] in *.
   1:rewrite largestVar_nat.
   all:try Lia.lia.

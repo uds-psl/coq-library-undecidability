@@ -6,32 +6,32 @@ Require Import Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 (* *** Encoding vectors *)
 
 #[global]
-Instance register_vector X `{registered X} n : registered (Vector.t X n).
+Instance register_vector X `{encodable X} n : encodable (Vector.t X n).
 Proof.
-  apply (registerAs VectorDef.to_list).
+  apply (registerAs VectorDef.to_list). (*
   intros x. induction x.
   - intros y. pattern y. revert y. eapply VectorDef.case0. cbn. reflexivity.
   - intros y. clear H. revert h x IHx. pattern n, y. revert n y.
     eapply Vector.caseS. intros h n y h0 x IHx [=].
-    subst. f_equal. eapply IHx. eassumption.
+    subst. f_equal. eapply IHx. eassumption. *)
 Defined. (*because registerAs*)
 
 
-Lemma enc_vector_eq X `{registered X} m (x:Vector.t X m):
+Lemma enc_vector_eq X `{encodable X} m (x:Vector.t X m):
   enc x = enc (Vector.to_list x).
 Proof.
   reflexivity.
 Qed.
 
 #[global]
-Instance term_to_list X `{registered X} n : computableTime' (Vector.to_list (A:=X) (n:=n)) (fun _ _ => (1,tt)).
+Instance term_to_list X `{encodable X} n : computableTime' (Vector.to_list (A:=X) (n:=n)) (fun _ _ => (1,tt)).
 Proof.
   apply cast_computableTime.
 Qed.
 
 Import Vector.
 #[global]
-Instance term_vector_map X Y `{registered X} `{registered Y} n (f:X->Y) fT:
+Instance term_vector_map X Y `{encodable X} `{encodable Y} n (f:X->Y) fT:
   computableTime' f fT ->
   computableTime' (VectorDef.map f (n:=n))
                  (fun l _ => (map_time (fun x=> fst (fT x tt)) (Vector.to_list l) + 3,tt)).
@@ -51,7 +51,7 @@ Proof.
   setoid_rewrite IHn. reflexivity.
 Qed.
 
-(* Instance term_vector_map X Y `{registered X} `{registered Y} n (f:X->Y): computable f -> computable (VectorDef.map f (n:=n)). *)
+(* Instance term_vector_map X Y `{encodable X} `{encodable Y} n (f:X->Y): computable f -> computable (VectorDef.map f (n:=n)). *)
 (* Proof. *)
 (*   intros ?. *)
 
@@ -68,14 +68,14 @@ Qed.
 (*   setoid_rewrite IHn. reflexivity. *)
 (* Qed. *)
 
-Fixpoint time_map2 {X Y Z} `{registered X} `{registered Y} `{registered Z} (gT : timeComplexity (X->Y->Z)) (l1 :list X) (l2 : list Y) :=
+Fixpoint time_map2 {X Y Z} `{encodable X} `{encodable Y} `{encodable Z} (gT : timeComplexity (X->Y->Z)) (l1 :list X) (l2 : list Y) :=
   match l1,l2 with
   | x::l1,y::l2 => callTime2 gT x y + 18 + time_map2 gT l1 l2
   | _,_ => 9
   end.
 
 Global
-Instance term_map2 n A B C `{registered A} `{registered B} `{registered C} (g:A -> B -> C) gT:
+Instance term_map2 n A B C `{encodable A} `{encodable B} `{encodable C} (g:A -> B -> C) gT:
   computableTime' g gT-> computableTime' (Vector.map2 g (n:=n)) (fun l1 _ => (1,fun l2 _ => (time_map2 (X:=A) (Y:=B) (Z:=C) gT (Vector.to_list l1) (Vector.to_list l2) +8,tt))).
 Proof.
   intros ?.
@@ -100,7 +100,7 @@ Proof.
 Qed.
 
 
-Lemma time_map2_leq X Y Z `{registered X}  `{registered Y}  `{registered Z}  (fT:timeComplexity (X -> Y -> Z))(l1 : list X) (l2:list Y) k:
+Lemma time_map2_leq X Y Z `{encodable X}  `{encodable Y}  `{encodable Z}  (fT:timeComplexity (X -> Y -> Z))(l1 : list X) (l2:list Y) k:
   (forall x y, callTime2 fT x y <= k) ->
   time_map2 fT l1 l2<= length l1 * (k+18) + 9.
 Proof.
@@ -112,7 +112,7 @@ Proof.
 Qed.
 
 #[global]
-Instance term_vector_eqb X `{registered X} (n' m:nat) (eqb:X->X->bool) eqbT:
+Instance term_vector_eqb X `{encodable X} (n' m:nat) (eqb:X->X->bool) eqbT:
   computableTime' eqb eqbT
   -> computableTime'
       (VectorEq.eqb eqb (A:=X) (n:=n') (m:=m))
@@ -140,7 +140,7 @@ Proof.
   intros ? ?. eapply vector_eqb_spec. all:eauto using eqb_spec.
 Qed.
 
-Global Instance eqbComp_List X `{registered X} `{eqbCompT X (R:=_)} n:
+Global Instance eqbComp_List X `{encodable X} `{eqbCompT X (R:=_)} n:
   eqbCompT (Vector.t X n).
 Proof.
   evar (c:nat). exists c. edestruct term_vector_eqb with (X:=X). now eauto using comp_eqb.

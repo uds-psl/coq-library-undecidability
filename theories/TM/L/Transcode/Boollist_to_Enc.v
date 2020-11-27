@@ -51,7 +51,7 @@ Module BoollistToEnc.
              -> isVoid tin[@Fin2]
              -> isVoid tin[@Fin3]
              -> isVoid tout[@Fin0]
-               /\ tout[@Fin1]  ≃ compile (Computable.enc (rev bs))
+               /\ tout[@Fin1]  ≃ compile (enc (rev bs))
                /\ isVoid tout[@Fin2]
                /\ isVoid tout[@Fin3]).
 
@@ -290,7 +290,7 @@ Module BoollistToEnc.
         (≃≃([],[| Contains _ bs;Void;Void; Void|]) )
         (f bs)
         M
-        (fun _ => ≃≃([],[|Void; Contains _ (compile (Computable.enc (rev bs)));Void;Void|])) }. 
+        (fun _ => ≃≃([],[|Void; Contains _ (compile (enc (rev bs)));Void;Void|])) }. 
     Proof.
       evar (f: list bool -> nat).
       exists_UpToC f.

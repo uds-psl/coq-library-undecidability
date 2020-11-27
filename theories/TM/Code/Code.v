@@ -32,7 +32,7 @@ Definition size (sig X : Type) (cX : codable sig X) (x : X) := length (cX x).
 Arguments size {sig X cX} x, {_ _} _ _ (*legacy with two arguments*).
 
 
-(* Hint database for encoding compatibility lemmas. For example, size functions are usually parametrised over an encoding. It doesn't matter for the size, whether we apply [Encode_map] on this encoding. This kind of lemmas is registered in this HintDb. *)
+(* Hint database for encoding compatibility lemmas. For example, size functions are usually parametrised over an encoding. It doesn't matter for the size, whether we apply [Encode_map] on this encoding. This kind of lemmas is encodable in this HintDb. *)
 Create HintDb encode_comp.
 
 Ltac simpl_comp := autorewrite with encode_comp.

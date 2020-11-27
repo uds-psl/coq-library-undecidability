@@ -8,7 +8,11 @@ Section demo.
 
 Definition unit_enc := fun (x:unit) => I.
 
-Instance register_unit : registered  unit.
+
+
+
+
+Instance register_unit : encodable  unit.
 Proof.
   register unit_enc. 
 Defined. (* becuse class ? *)
@@ -137,7 +141,7 @@ Section PaperExample.
   Import Datatypes.Lists.
   Remove Hints term_map : typeclass_instances. 
 
-  Lemma map_term A B  (Rx : registered A)  (Ry: registered B):
+  Lemma map_term A B  (Rx : encodable A)  (Ry: encodable B):
     computable (@map A B).
   Proof.
     extractAs s.
@@ -149,7 +153,7 @@ Section PaperExample.
 
   (*comming up with the condition *)
 
-   Lemma termT_map A B (Rx : registered A)  (Ry: registered B):
+   Lemma termT_map A B (Rx : encodable A)  (Ry: encodable B):
     computableTime' (@map A B) (fun f fT => (cnst "c",fun xs _ => (cnst ("f",xs),tt))).
   Proof.
     extractAs s.
@@ -161,13 +165,13 @@ Section PaperExample.
   
   (* comming up with the time bound *)
 
-  Lemma termT_map A B (Rx : registered A)  (Ry: registered B):
+  Lemma termT_map A B (Rx : encodable A)  (Ry: encodable B):
     computableTime' (@map A B) (fun f fT => (cnst "c",fun xs _ => (cnst ("f",xs),tt))).
   Proof.
     extract. solverec.
   Abort.
 
-  Lemma term_map (X Y:Type) (Hx : registered X) (Hy:registered Y):
+  Lemma term_map (X Y:Type) (Hx : encodable X) (Hy:encodable Y):
     computableTime' (@map X Y)
                    (fun f fT => (1,fun l _ => (fold_right (fun x res => fst (fT x tt) + res + 12) 8 l,tt))).
   Proof.
@@ -180,7 +184,7 @@ Section PaperExample.
 
   (*
 (* this is more or lest just a test for internalization automation... *)
-Instance term_option_map X Y (Hy:registered Y) (Hx : registered X):computable (@option_map X Y).
+Instance term_option_map X Y (Hy:encodable Y) (Hx : encodable X):computable (@option_map X Y).
 Proof.
   compute' 0.  
   computePrettyStep.

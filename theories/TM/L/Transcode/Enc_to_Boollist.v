@@ -205,7 +205,7 @@ Module EncToBoollist.
     { f : UpToC (fun bs => length bs + 1) &
     forall (bs :list bool),
       TripleT 
-        ≃≃([],[|Contains _ (compile (Computable.enc bs));
+        ≃≃([],[|Contains _ (compile (enc bs));
                 Void;Void|])
         (f bs)
         M

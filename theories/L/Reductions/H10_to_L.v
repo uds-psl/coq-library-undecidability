@@ -165,7 +165,7 @@ Qed.
 Definition T_list_nat := @L_list nat opt_to_list.
 
 #[global]
-Instance computable_cumul {X} `{registered X} : computable (@cumul X).
+Instance computable_cumul {X} `{encodable X} : computable (@cumul X).
 Proof.
   extract.
 Qed.
