@@ -30,6 +30,8 @@ Notation "A ∧ B" := (@bin _ _ full_operators _ Conj A B) (at level 41).
 Notation "A ∨ B" := (@bin _ _ full_operators _ Disj A B) (at level 42).
 Notation "A '-->' B" := (@bin _ _ full_operators _ Impl A B) (at level 43, right associativity).
 Notation "⊥" := (falsity).
+Notation "¬ A" := (A --> ⊥) (at level 42).
+Notation "A '<-->' B" := ((A --> B) ∧ (B --> A)) (at level 43).
 
 Section fixb.
 
