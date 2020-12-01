@@ -214,6 +214,7 @@ FOL/Util/Tarski.v
 FOL/Util/Deduction.v
 FOL/Util/Kripke.v
 FOL/Util/FullTarski.v
+FOL/Util/Aczel.v
 FOL/Util/ZF_model.v
 
 FOL/Reductions/PCPb_to_FOL.v

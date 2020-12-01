@@ -1,78 +1,38 @@
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
-Require Import Undecidability.PCP.PCP_undec.
-Require Import Undecidability.FOL.ZF.
-From Undecidability.FOL.Reductions Require PCPb_to_ZF.
+From Undecidability.FOL Require Import ZF Util.FullTarski Util.Aczel Util.ZF_model Reductions.PCPb_to_ZF.
+From Undecidability.PCP Require Import PCP PCP_undec Util.PCP_facts Reductions.PCPb_iff_dPCPb.
 
-From Undecidability Require Export PCP.PCP PCP.Util.PCP_facts.
-Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
-
-Theorem PCP_ZF B :
-  (exists M : ZF_Model, extensional M /\ standard M) -> PCPb B <-> entailment_ZF (solvable B).
+Lemma undecidable_entailment_ZF :
+  (exists V (M : interp V), extensional M /\ standard M /\ forall rho psi, ZF psi -> rho ⊨ psi) -> undecidable entailment_ZF.
 Proof.
-  intros HZF. rewrite PCPb_iff_dPCPb. split; intros H.
-  - destruct H as [s H]. intros M HM. eapply PCP_ZF1; eauto.
-  - destruct HZF as [M[H1 H2]]. specialize (H M H1 (fun _ => @i_func _ _ _ _ eset Vector.nil)).
-    apply PCP_ZF2 in H as [s Hs]; trivial. now exists s.
+   intros H. apply (undecidability_from_reducibility PCPb_undec).
+   exists solvable. intros B. apply PCP_ZF. apply H.
 Qed.
 
-Lemma extnorm_stanmod :
-  inhabited extensional_normaliser -> exists M : ZF_Model, extensional M /\ standard M.
+Lemma undecidable_entailment_ZF' :
+  (exists V (M : interp V), extensional M /\ standard M /\ forall rho psi, In psi ZF' -> rho ⊨ psi) -> undecidable entailment_ZF'.
 Proof.
-  intros [H]. exists SET_ZF. split.
-  - apply SET_ext.
-  - apply SET_standard.
+   intros H. apply (undecidability_from_reducibility PCPb_undec).
+   exists solvable. intros B. apply PCP_ZF'. apply H.
 Qed.
 
-Corollary PCP_ZF' B :
-  inhabited extensional_normaliser -> BPCP' B <-> ZF_entails (solvable B).
+Corollary undecidable_model_entailment_ZF :
+  inhabited extensional_normaliser -> undecidable entailment_ZF.
 Proof.
-  intros H % extnorm_stanmod. now apply PCP_ZF.
+  intros [H]. apply undecidable_entailment_ZF.
+  exists SET, SET_interp. split; try apply SET_ext.
+  split; try apply SET_standard. intros rho psi [].
+  - now apply SET_ZF'.
+  - apply SET_sep.
+  - apply SET_rep.
 Qed.
 
-Lemma undecidable_ZF_entailment :
-  undecidable ZF_entailment.
+Corollary undecidable_model_entailment_ZF' :
+  inhabited extensional_normaliser -> undecidable entailment_ZF'.
 Proof.
-   
+  intros [H]. apply undecidable_entailment_ZF'.
+  exists SET, SET_interp. split; try apply SET_ext.
+  split; try apply SET_standard. apply SET_ZF'.
 Qed.
 
-Lemma undecidable_FOLstar_valid : undecidable FOL*_valid.
-Proof.
-   apply (undecidability_from_reducibility PCPb_undec).
-   apply PCPb_to_FOL.valid_star_red.
-Qed.
 
-Lemma undecidable_FOL_valid : undecidable FOL_valid.
-Proof.
-   apply (undecidability_from_reducibility PCPb_undec).
-   apply PCPb_to_FOL.valid_red.
-Qed.
-
-(*Lemma undecidable_FOL_satis : undecidable FOL_satis.
-Proof.
-  apply (undecidability_from_reducibility PCPb_undec).
-  
-Qed.*)
-
-Lemma undecidable_FOL_valid_intu : undecidable FOL_valid_intu.
-Proof.
-   apply (undecidability_from_reducibility PCPb_undec).
-   apply PCPb_to_FOL_intu.kvalid_red.
-Qed.
-
-Lemma undecidable_FOL_prv_intu : undecidable FOL_prv_intu.
-Proof.
-   apply (undecidability_from_reducibility PCPb_undec).
-   apply PCPb_to_FOL_intu.kprv_red.
-Qed.
-
-(* Lemma undecidable_FOL_satis_intu : undecidable FOL_satis_intu.
-Proof.
-   apply (undecidability_from_reducibility PCPb_undec).
-   apply PCPb_to_FOL.ksatis_red.
-Qed. *)
-
-Lemma undecidable_FOL_prv_class : undecidable FOL_prv_class.
-Proof.
-   apply (undecidability_from_reducibility PCPb_undec).
-   apply PCPb_to_FOL_class.cprv_red.
-Qed.

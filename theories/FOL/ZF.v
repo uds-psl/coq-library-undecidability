@@ -58,12 +58,6 @@ Notation "'PP' x" := (func ZF_func_sig power (Vector.cons x Vector.nil)) (at lev
 Notation "x ∪ y" := (⋃ {x; y}) (at level 32).
 Notation  "'σ' x" := (x ∪ {x; x}) (at level 32).
 
-Fixpoint shift n x :=
-  match n with 
-  | O => x
-  | S n => subst_term ↑ (shift n x)
-  end.
-
 Definition sub x y :=
   ∀ $0 ∈ x[↑] --> $0 ∈ y[↑].
 
@@ -106,13 +100,7 @@ Definition ZF' :=
   ax_ext :: ax_eset :: ax_pair :: ax_union :: ax_power :: ax_om1 :: ax_om2 :: nil.
 
 Inductive ZF : form -> Prop :=
-| ZF_ext : ZF ax_ext
-| ZF_eset : ZF ax_eset
-| ZF_pair : ZF ax_pair
-| ZF_union : ZF ax_union
-| ZF_power : ZF ax_power
-| ZF_om1 : ZF ax_om1
-| ZF_om2 : ZF ax_om2
+| ZF_base phi : In phi ZF' -> ZF phi
 | ZF_sep phi : ZF (ax_sep phi)
 | ZF_rep phi : ZF (ax_rep phi).
 
@@ -124,9 +112,9 @@ Notation extensional M :=
   (forall x y, @i_atom _ _ _ M equal (Vector.cons x (Vector.cons y Vector.nil)) <-> x = y).
 
 Definition entailment_ZF' phi :=
-  forall D (M : interp D) (rho : nat -> D), extensional M -> (forall psi, In psi ZF' -> rho ⊨ psi) -> rho ⊨ phi.
+  forall D (M : interp D) (rho : nat -> D), extensional M -> (forall sigma psi, In psi ZF' -> sigma ⊨ psi) -> rho ⊨ phi.
 
 Definition entailment_ZF phi :=
-  forall D (M : interp D) (rho : nat -> D), extensional M -> (forall psi, ZF psi -> rho ⊨ psi) -> rho ⊨ phi.
+  forall D (M : interp D) (rho : nat -> D), extensional M -> (forall sigma psi, ZF psi -> sigma ⊨ psi) -> rho ⊨ phi.
 
 

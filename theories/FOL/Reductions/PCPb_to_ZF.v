@@ -5,8 +5,7 @@ Require Import Undecidability.FOL.Util.FullTarski.
 Require Import Undecidability.FOL.ZF.
 Require Import Lia.
 
-From Undecidability Require Export PCP.PCP PCP.Util.PCP_facts.
-Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
+From Undecidability.PCP Require Import PCP Util.PCP_facts Reductions.PCPb_iff_dPCPb.
 
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
@@ -20,6 +19,12 @@ Local Unset Strict Implicit.
 
 Local Definition BSRS := list(card bool).
 Local Notation "x / y" := (x, y).
+
+Fixpoint shift n x :=
+  match n with 
+  | O => x
+  | S n => subst_term ↑ (shift n x)
+  end.
 
 Definition sing a :=
   {a; a}.
@@ -86,7 +91,7 @@ Notation "x ∈ y" := (@i_atom _ _ _ _ elem (Vector.cons x (Vector.cons y Vector
 Notation "x ≡ y" := (@i_atom _ _ _ _ equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : sem.
 Notation "x ⊆ y" := (forall z, z ∈ x -> z ∈ y) (at level 34) : sem.
 
-Notation "∅" := (@i_func _ _ _ _ eset Vector.nil) : sem.
+Notation "∅" := (@i_func ZF_func_sig ZF_pred_sig _ _ eset Vector.nil) : sem.
 Notation "'ω'" := (@i_func _ _ _ _ om Vector.nil) : sem.
 Notation "{ x ; y }" := (@i_func _ _ _ _ pair (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : sem.
 Notation "⋃ x" := (@i_func _ _ _ _ union (Vector.cons x Vector.nil)) (at level 32) : sem.
@@ -110,32 +115,31 @@ Section ZF.
   Lemma M_ext x y :
     x ⊆ y -> y ⊆ x -> x = y.
   Proof.
-    rewrite <- VIEQ. apply V_ext with (rho := fun _ => ∅).
+    rewrite <- VIEQ. apply (@M_ZF (fun _ => ∅) ax_ext). cbn; tauto.
   Qed.
 
   Lemma M_eset x :
     ~ x ∈ ∅.
   Proof.
-    specialize V_eset with (rho:=fun _ => ∅). cbn.
-    intros H1 H2. now apply (H1 x).
+    refine (@M_ZF (fun _ => ∅) ax_eset _ x). cbn; tauto.
   Qed.
 
   Lemma M_pair x y z :
     x ∈ {y; z} <-> x = y \/ x = z.
   Proof.
-    rewrite <- !VIEQ. apply V_pair with (rho:=fun _ => ∅).
+    rewrite <- !VIEQ. apply (@M_ZF (fun _ => ∅) ax_pair). cbn; tauto.
   Qed.
 
   Lemma M_union x y :
     x ∈ ⋃ y <-> exists z, z ∈ y /\ x ∈ z.
   Proof.
-    apply V_union with (rho:=fun _ => ∅).
+    apply (@M_ZF (fun _ => ∅) ax_union). cbn; tauto.
   Qed.
 
   Lemma M_power x y :
     x ∈ PP y <-> x ⊆ y.
   Proof.
-    apply V_power with (rho:=fun _ => ∅).
+    apply (@M_ZF (fun _ => ∅) ax_power). cbn; tauto.
   Qed.
 
   Definition M_inductive x :=
@@ -144,30 +148,30 @@ Section ZF.
   Lemma M_om1 :
     M_inductive ω.
   Proof.
-    apply V_om1 with (rho:=fun _ => ∅).
+    apply (@M_ZF (fun _ => ∅) ax_om1). cbn; tauto.
   Qed.
 
   Lemma M_om2 x :
     M_inductive x -> ω ⊆ x.
   Proof.
-    apply V_om2 with (rho:=fun _ => ∅).
+    apply (@M_ZF (fun _ => ∅) ax_om2). cbn; tauto.
   Qed.
 
-  Definition agrees_fun phi (P : M -> Prop) :=
+  Definition agrees_fun phi (P : V -> Prop) :=
     forall x rho, P x <-> (x.:rho) ⊨ phi.
 
-  Definition representable (P : V -> Prop) :=
+  Definition def_pred (P : V -> Prop) :=
     exists phi rho, forall d, P d <-> (d.:rho) ⊨ phi.
 
-  (*Lemma M_sep P x :
-    representable P -> exists y, forall z, z ∈ y <-> z ∈ x /\ P z.
+  Lemma M_sep P x :
+    (forall phi rho, rho ⊨ ax_sep phi) -> def_pred P -> exists y, forall z, z ∈ y <-> z ∈ x /\ P z.
   Proof.
-    intros [phi [rho Hp]]. specialize V_sep with (rho:=rho). cbn.
-    intros H. destruct (H phi x) as [y H']. clear H.
+    cbn. intros H [phi [rho Hp]].
+    destruct (H phi rho x) as [y H']; clear H.
     exists y. intros z. specialize (H' z). setoid_rewrite sat_comp in H'.
     rewrite (sat_ext _ _ (xi:=z.:rho)) in H'; try now intros [].
     firstorder.
-  Qed.*)
+  Qed.
 
   Definition M_is_rep R x y :=
     forall v, v ∈ y <-> exists u, u ∈ x /\ R u v.
@@ -180,17 +184,17 @@ Section ZF.
     - intros H % H2. now apply H1.
   Qed.
 
-  (*Definition functional (R : M -> M -> Prop) :=
+  Definition functional (R : V -> V -> Prop) :=
     forall x y y', R x y -> R x y' -> y = y'.
 
-  Definition def_rel (R : M -> M -> Prop) :=
-    exists phi rho, forall x y, R x y <-> (x.:(y.:rho)) ⊨ phi.
+  Definition def_rel (R : V -> V -> Prop) :=
+    exists phi rho, forall x y, R x y <-> (x.:y.:rho) ⊨ phi.
 
   Lemma M_rep R x :
-    def_rel R -> functional R -> exists y, M_is_rep R x y.
+    (forall phi rho, rho ⊨ ax_rep phi) -> def_rel R -> functional R -> exists y, M_is_rep R x y.
   Proof.
-    intros [phi [rho Hp]]. specialize V_rep with (rho:=rho). intros H1 H2.
-    cbn in H1. specialize (H1 phi). destruct H1 with x as [y Hy].
+    intros H1 [phi [rho Hp]]. intros H2.
+    cbn in H1. specialize (H1 phi rho). destruct H1 with x as [y Hy].
     - intros a b b'. setoid_rewrite sat_comp.
       erewrite sat_ext. rewrite <- (Hp a b). 2: now intros [|[]].
       erewrite sat_ext. rewrite <- (Hp a b'). 2: now intros [|[]].
@@ -200,7 +204,7 @@ Section ZF.
         setoid_rewrite sat_comp in U2. rewrite sat_ext in U2. rewrite (Hp u v). apply U2. now intros [|[]]; cbn.
       + intros [u[U1 U2]]. apply Hy. exists u. split; trivial.
         setoid_rewrite sat_comp. rewrite sat_ext. rewrite <- (Hp u v). apply U2. now intros [|[]]; cbn.
-  Qed.*)
+  Qed.
 
 
 
@@ -337,7 +341,7 @@ Section ZF.
     intros H. apply binunion_el. now right.
   Qed.
 
-  Hint Resolve binunionl binunionr.
+  Hint Resolve binunionl binunionr : core.
 
   Lemma binunion_assoc x y z :
     (x ∪ y) ∪ z = x ∪ (y ∪ z).
@@ -350,6 +354,12 @@ Section ZF.
   
   
   (** ** Numerals *)
+
+  Fixpoint numeral n :=
+    match n with 
+    | O => ∅
+    | S n => σ (numeral n)
+    end.
 
   Lemma numeral_omega n :
     numeral n ∈ ω.
@@ -776,8 +786,11 @@ Section ZF.
     exists s, t. split; trivial. eapply derivations_derivable; eauto.
   Qed.
 
+  Definition standard :=
+    forall x, x ∈ ω -> exists n, x = numeral n.
+
   Theorem PCP_ZF2 B rho :
-    standard M -> rho ⊨ solvable B -> exists s, derivable B s s.
+    standard -> rho ⊨ solvable B -> exists s, derivable B s s.
   Proof.
     intros VIN (n & f & p & s & X & [[[[[H1 H2] H3] H4] H5] H6]).
     assert (H1' : n ∈ ω) by apply H1. clear H1.
@@ -795,3 +808,33 @@ Section ZF.
   Qed.
   
 End ZF.
+
+
+
+(** ** Reduction Theorem *)
+
+Arguments standard {_} _.
+
+Theorem PCP_ZF' B :
+  (exists V (M : interp V), extensional M /\ standard M /\ forall rho, rho ⊫ ZF')
+  -> PCPb B <-> entailment_ZF' (solvable B).
+Proof.
+  intros HZF. rewrite PCPb_iff_dPCPb. split; intros H.
+  - clear HZF. destruct H as [s H]. intros M HM rho H1 H2. eapply PCP_ZF1; eauto.
+  - destruct HZF as (M & H1 & H2 & H3 & H4).
+    specialize (H M H1 (fun _ => @i_func _ _ _ _ eset Vector.nil) H2 H4).
+    apply PCP_ZF2 in H as [s Hs]; trivial. now exists s.
+Qed.
+
+Theorem PCP_ZF B :
+  (exists V (M : interp V), extensional M /\ standard M /\ forall rho psi, ZF psi -> rho ⊨ psi)
+  -> PCPb B <-> entailment_ZF (solvable B).
+Proof.
+  intros HZF. rewrite PCPb_iff_dPCPb. split; intros H.
+  - clear HZF. destruct H as [s H]. intros M HM rho H1 H2.
+    eapply PCP_ZF1; eauto. intros sigma phi HP. apply H2. now constructor.
+  - destruct HZF as (M & H1 & H2 & H3 & H4).
+    specialize (H M H1 (fun _ => @i_func _ _ _ _ eset Vector.nil) H2 H4).
+    apply PCP_ZF2 in H as [s Hs]; trivial; try now exists s.
+    intros sigma phi HP. apply H4. now constructor.
+Qed.
