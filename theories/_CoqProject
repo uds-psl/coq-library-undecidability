@@ -207,14 +207,20 @@ CFG/Reductions/CFPI_to_CFI.v
 
 FOL/FOL.v
 FOL/FOL_undec.v
+FOL/ZF.v
+FOL/ZF_undec.v
 FOL/Util/Syntax.v
 FOL/Util/Tarski.v
 FOL/Util/Deduction.v
 FOL/Util/Kripke.v
+FOL/Util/FullTarski.v
+FOL/Util/Aczel.v
+FOL/Util/ZF_model.v
 
 FOL/Reductions/PCPb_to_FOL.v
 FOL/Reductions/PCPb_to_FOL_intu.v
 FOL/Reductions/PCPb_to_FOL_class.v
+FOL/Reductions/PCPb_to_ZF.v
 
 MinskyMachines/MMA.v            
 

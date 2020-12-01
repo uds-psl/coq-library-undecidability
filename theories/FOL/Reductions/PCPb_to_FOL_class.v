@@ -1,9 +1,12 @@
 (* * Classical Natural Deduction *)
 
 
-From Undecidability.FOL Require Export PCPb_to_FOL.
-Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
+From Undecidability.FOL Require Import FOL Reductions.PCPb_to_FOL Util.Syntax Util.Deduction Util.Tarski.
+Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb Undecidability.PCP.PCP.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
+Require Import List.
+Import ListNotations.
+
 (* ** Double Negation Translation *)
 
 Implicit Type b : falsity_flag.

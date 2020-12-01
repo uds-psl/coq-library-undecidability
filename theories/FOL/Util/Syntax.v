@@ -164,7 +164,7 @@ Declare Scope subst_scope.
 Notation "$ x" := (var x) (at level 5, format "$ '/' x").
 Notation "↑" := (shift) : subst_scope.
 Notation "s [ sigma ]" := (substfun sigma s) (at level 7, left associativity, format "s '/' [ sigma ]") : subst_scope.
-Notation "s .: sigma" := (scons s sigma) (at level 70) : subst_scope.
+Notation "s .: sigma" := (scons s sigma) (at level 70, right associativity) : subst_scope.
 Notation "f >> g" := (funcomp g f) (at level 50) : subst_scope.
 Notation "s '..'" := (scons s var) (at level 1, format "s ..") : subst_scope.
 
