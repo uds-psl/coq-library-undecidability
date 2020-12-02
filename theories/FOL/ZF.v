@@ -2,6 +2,7 @@
 
 Require Import Undecidability.FOL.Util.Syntax.
 Require Import Undecidability.FOL.Util.FullTarski.
+Require Import Undecidability.FOL.Util.FullDeduction.
 Require Import List.
 
 
@@ -104,6 +105,26 @@ Inductive ZF : form -> Prop :=
 | ZF_sep phi : ZF (ax_sep phi)
 | ZF_rep phi : ZF (ax_rep phi).
 
+Definition ax_refl :=
+  ∀ $0 ≡ $0.
+
+Definition ax_sym :=
+  ∀ ∀ $1 ≡ $0 --> $0 ≡ $1.
+
+Definition ax_trans :=
+  ∀ ∀ ∀ $2 ≡ $1 --> $1 ≡ $0 --> $2 ≡ $0.
+
+Definition ax_eq_elem :=
+  ∀ ∀ ∀ ∀ $3 ≡ $1 --> $2 ≡ $0 --> $3 ∈ $2 --> $1 ∈ $0.
+
+Definition ZFeq' :=
+  ax_refl :: ax_sym :: ax_trans :: ax_eq_elem :: ZF'.
+
+Inductive ZFeq : form -> Prop :=
+| ZFeq_base phi : In phi ZFeq' -> ZFeq phi
+| ZFeq_sep phi : ZFeq (ax_sep phi)
+| ZFeq_rep phi : ZFeq (ax_rep phi).
+
 
 
 (** ** Problems *)
@@ -111,10 +132,24 @@ Inductive ZF : form -> Prop :=
 Notation extensional M :=
   (forall x y, @i_atom _ _ _ M equal (Vector.cons x (Vector.cons y Vector.nil)) <-> x = y).
 
+(* Semantic entailment restricted to extensional models and core axioms (without sep and rep). *)
+
 Definition entailment_ZF' phi :=
   forall D (M : interp D) (rho : nat -> D), extensional M -> (forall sigma psi, In psi ZF' -> sigma ⊨ psi) -> rho ⊨ phi.
 
+(* Semantic entailment restricted to extensional models. *)
+
 Definition entailment_ZF phi :=
   forall D (M : interp D) (rho : nat -> D), extensional M -> (forall sigma psi, ZF psi -> sigma ⊨ psi) -> rho ⊨ phi.
+
+(* Deductive entailment restricted to intuitionistic rules and core axioms (without sep and rep). *)
+
+Definition deduction_ZF' phi :=
+  ZFeq' ⊢I phi.
+
+(* Deductive entailment restricted to intuitionistic rules. *)
+
+Definition deduction_ZF phi :=
+  ZFeq ⊢TI phi.
 
 

@@ -214,6 +214,7 @@ FOL/Util/Tarski.v
 FOL/Util/Deduction.v
 FOL/Util/Kripke.v
 FOL/Util/FullTarski.v
+FOL/Util/FullDeduction.v
 FOL/Util/Aczel.v
 FOL/Util/ZF_model.v
 
@@ -221,6 +222,7 @@ FOL/Reductions/PCPb_to_FOL.v
 FOL/Reductions/PCPb_to_FOL_intu.v
 FOL/Reductions/PCPb_to_FOL_class.v
 FOL/Reductions/PCPb_to_ZF.v
+FOL/Reductions/PCPb_to_ZFD.v
 
 MinskyMachines/MMA.v            
 

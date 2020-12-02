@@ -1,9 +1,12 @@
 (* * Natural Deduction *)
 
-From Undecidability Require Import FOL.Util.Tarski FOL.Util.Syntax.
+From Undecidability Require Import FOL.Util.FullTarski FOL.Util.Syntax.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 Local Set Implicit Arguments.
+
+
+
 
 
 Ltac comp := repeat (progress (cbn in *; autounfold in *)).
@@ -28,8 +31,15 @@ Section ND_def.
   | IE {ff} {p} A phi psi : A ⊢ phi --> psi -> A ⊢ phi -> A ⊢ psi
   | AllI {ff} {p} A phi : map (subst_form ↑) A ⊢ phi -> A ⊢ ∀ phi
   | AllE {ff} {p} A t phi : A ⊢ ∀ phi -> A ⊢ phi [t..]
+  | ExI {ff} {p} A t phi : A ⊢ phi[t..] -> A ⊢ ∃ phi
+  | ExE {ff} {p} A phi psi : A ⊢ ∃ phi -> phi::(map (subst_form ↑) A) ⊢ psi[↑] -> A ⊢ psi
   | Exp {p} A phi : prv p A falsity -> prv p A phi
   | Ctx {ff} {p} A phi : phi el A -> A ⊢ phi
+  | CE1 {ff} {p} A phi psi : A ⊢ phi ∧ psi -> A ⊢ phi
+  | CE2 {ff} {p} A phi psi : A ⊢ phi ∧ psi -> A ⊢ psi
+  | DI1 {ff} {p} A phi psi : A ⊢ phi -> A ⊢ phi ∨ psi
+  | DI2 {ff} {p} A phi psi : A ⊢ psi -> A ⊢ phi ∨ psi
+  | DE {ff} {p} A phi psi theta : A ⊢ phi ∨ psi -> phi::A ⊢ theta -> psi::A ⊢ theta -> A ⊢ theta
   | Pc {ff} A phi psi : prv class A (((phi --> psi) --> phi) --> phi)
   where "A ⊢ phi" := (prv _ A phi).
 
@@ -52,6 +62,9 @@ Section ND_def.
     intros H. revert B.
     induction H; intros B HB; try unshelve (solve [econstructor; intuition]); try now econstructor.
   Qed.
+
+  Definition tprv (T : form -> Prop) phi :=
+    exists A, (forall psi, psi el A -> T psi) /\ A ⊢ phi.
     
 End ND_def.
 
@@ -63,6 +76,7 @@ Notation "A ⊢ phi" := (prv A phi) (at level 30).
 Notation "A ⊢C phi" := (@prv _ _ _ class A phi) (at level 30).
 Notation "A ⊢I phi" := (@prv _ _ _ intu A phi) (at level 30).
 Notation "A ⊢M phi" := (@prv _ _ falsity_off intu A phi) (at level 30).
+Notation "T ⊢TI phi" := (@tprv _ _ _ intu T phi) (at level 30).
 
 Section Soundness.
 
@@ -79,8 +93,21 @@ Section Soundness.
     - intros d. apply IHprv; trivial. intros psi [psi'[<- H' % HA]] % in_map_iff.
       eapply sat_comp. now comp.
     - eapply sat_comp, sat_ext. 2: apply (IHprv Heqp D I rho HA (eval rho t)). now intros [].
+    - exists (eval rho t). cbn. specialize (IHprv Heqp D I rho HA).
+      apply sat_comp in IHprv. eapply sat_ext; try apply IHprv. now intros [].
+    - edestruct IHprv1 as [d HD]; eauto.
+      assert (H' : forall psi, phi = psi \/ psi el map (subst_form ↑) A -> (d.:rho) ⊨ psi).
+      + intros P [<-|[psi'[<- H' % HA]] % in_map_iff]; trivial. apply sat_comp. apply H'.
+      + specialize (IHprv2 Heqp D I (d.:rho) H'). apply sat_comp in IHprv2. apply IHprv2.
     - apply (IHprv Heqp) in HA. firstorder.
     - firstorder.
+    - firstorder. now apply H0.
+    - firstorder. now apply H0.
+    - firstorder.
+    - firstorder.
+    - edestruct IHprv1; eauto.
+      + apply IHprv2; trivial. intros xi [<-|HX]; auto.
+      + apply IHprv3; trivial. intros xi [<-|HX]; auto.
     - discriminate.
   Qed.
 
@@ -88,6 +115,13 @@ Section Soundness.
     [] ⊢I phi -> valid phi.
   Proof.
     intros H % soundness. firstorder.
+  Qed.
+
+  Corollary tsoundness {ff : falsity_flag} T phi :
+    T ⊢TI phi -> forall D (I : interp D) rho, (forall psi, T psi -> rho ⊨ psi) -> rho ⊨ phi.
+  Proof.
+    intros (A & H1 & H2) D I rho HI. apply (soundness H2).
+    intros psi HP. apply HI, H1, HP.
   Qed.
 
 End Soundness.
