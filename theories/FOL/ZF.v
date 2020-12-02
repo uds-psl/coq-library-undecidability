@@ -60,7 +60,7 @@ Notation "x ∪ y" := (⋃ {x; y}) (at level 32).
 Notation  "'σ' x" := (x ∪ {x; x}) (at level 32).
 
 Definition sub x y :=
-  ∀ $0 ∈ x[↑] --> $0 ∈ y[↑].
+  ∀ $0 ∈ x`[↑] --> $0 ∈ y`[↑].
 
 Notation "x ⊆ y" := (sub x y) (at level 34).
 
@@ -80,7 +80,7 @@ Definition ax_power :=
   ∀ ∀ $0 ∈ PP $1 <--> $0 ⊆ $1.
 
 Definition inductive x :=
-  ∅ ∈ x ∧ ∀ $0 ∈ x[↑] --> σ $0 ∈ x[↑].
+  ∅ ∈ x ∧ ∀ $0 ∈ x`[↑] --> σ $0 ∈ x`[↑].
 
 Definition ax_om1 :=
   inductive ω.

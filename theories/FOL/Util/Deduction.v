@@ -27,7 +27,7 @@ Section ND_def.
   | II {ff} {p} A phi psi : phi::A ⊢ psi -> A ⊢ phi --> psi
   | IE {ff} {p} A phi psi : A ⊢ phi --> psi -> A ⊢ phi -> A ⊢ psi
   | AllI {ff} {p} A phi : map (subst_form ↑) A ⊢ phi -> A ⊢ ∀ phi
-  | AllE {ff} {p} A t phi : A ⊢ ∀ phi -> A ⊢ phi [t..]
+  | AllE {ff} {p} A t phi : A ⊢ ∀ phi -> A ⊢ phi[t..]
   | Exp {p} A phi : prv p A falsity -> prv p A phi
   | Ctx {ff} {p} A phi : phi el A -> A ⊢ phi
   | Pc {ff} A phi psi : prv class A (((phi --> psi) --> phi) --> phi)

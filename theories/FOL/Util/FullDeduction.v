@@ -63,6 +63,16 @@ Section ND_def.
     induction H; intros B HB; try unshelve (solve [econstructor; intuition]); try now econstructor.
   Qed.
 
+  Lemma nameless_equiv_all A phi :
+    { t : term | map (subst_form ↑) A ⊢ phi <-> A ⊢ phi[t..] }.
+  Proof.
+  Admitted.
+
+  Lemma nameless_equiv_ex A phi psi :
+    { t : term | phi :: map (subst_form ↑) A ⊢ psi[↑] <-> phi[t..]::A ⊢ psi }.
+  Proof.
+  Admitted.
+
   Definition tprv (T : form -> Prop) phi :=
     exists A, (forall psi, psi el A -> T psi) /\ A ⊢ phi.
     

@@ -149,33 +149,21 @@ Arguments subst_form _ _ _ _, _ _ {_ _}, {_ _ _ _}.
 
 (* Substitution Notation *)
 
-Class Subst {Sigma : funcs_signature} Y := substfun : (nat -> term) -> Y -> Y.
-
-Instance Subst_term (Sigma : funcs_signature) : Subst term := subst_term.
-
-Instance Subst_form (Sigma : funcs_signature) (Sigma' : preds_signature) (ops : operators) (ff : falsity_flag) :
-  Subst form := @subst_form Sigma Sigma' ops ff.
-
-Definition shift {Sigma : funcs_signature} : nat -> term :=
-  fun n => var (S n).
+Notation "$ x" := (var x) (at level 5, format "$ '/' x").
 
 Declare Scope subst_scope.
+Open Scope subst_scope.
 
-Notation "$ x" := (var x) (at level 5, format "$ '/' x").
-Notation "↑" := (shift) : subst_scope.
-Notation "s [ sigma ]" := (substfun sigma s) (at level 7, left associativity, format "s '/' [ sigma ]") : subst_scope.
+Notation "t `[ sigma ]" := (subst_term sigma t) (at level 7, left associativity, format "t '/' `[ sigma ]") : subst_scope.
+Notation "phi [ sigma ]" := (subst_form sigma phi) (at level 7, left associativity, format "phi '/' [ sigma ]") : subst_scope.
 Notation "s .: sigma" := (scons s sigma) (at level 70, right associativity) : subst_scope.
 Notation "f >> g" := (funcomp g f) (at level 50) : subst_scope.
 Notation "s '..'" := (scons s var) (at level 1, format "s ..") : subst_scope.
-
-Open Scope subst_scope.
+Notation "↑" := (S >> var) : subst_scope.
 
 
 
 (* ** Substituion lemmas *)
-
-Ltac cbns :=
-    cbn; repeat (match goal with [ |- context f[subst_form ?sigma ?phi] ] => change (subst_form sigma phi) with (phi[sigma]) end).
 
 Section Subst.
 
@@ -184,7 +172,7 @@ Section Subst.
   Context {ops : operators}.
 
   Lemma subst_term_ext (t : term) sigma tau :
-    (forall n, sigma n = tau n) -> t[sigma] = t[tau].
+    (forall n, sigma n = tau n) -> t`[sigma] = t`[tau].
   Proof.
     intros H. induction t; cbn.
     - now apply H.
@@ -192,7 +180,7 @@ Section Subst.
   Qed.
 
   Lemma subst_term_id (t : term) sigma :
-    (forall n, sigma n = var n) -> t[sigma] = t.
+    (forall n, sigma n = var n) -> t`[sigma] = t.
   Proof.
     intros H. induction t; cbn.
     - now apply H.
@@ -200,13 +188,13 @@ Section Subst.
   Qed.
 
   Lemma subst_term_var (t : term) :
-    t[var] = t.
+    t`[var] = t.
   Proof.
     now apply subst_term_id.
   Qed.
 
   Lemma subst_term_comp (t : term) sigma tau :
-    t[sigma][tau] = t[sigma >> subst_term tau].
+    t`[sigma]`[tau] = t`[sigma >> subst_term tau].
   Proof.
     induction t; cbn.
     - reflexivity.
@@ -214,13 +202,13 @@ Section Subst.
   Qed.
 
   Lemma subst_term_shift (t : term) s :
-    t[↑][s..] = t.
+    t`[↑]`[s..] = t.
   Proof.
     rewrite subst_term_comp. apply subst_term_id. now intros [|].
   Qed.
 
   Lemma up_term (t : term) xi :
-    t[↑][up xi] = t[xi][↑].
+    t`[↑]`[up xi] = t`[xi]`[↑].
   Proof.
     rewrite !subst_term_comp. apply subst_term_ext. reflexivity.
   Qed.
@@ -250,7 +238,7 @@ Section Subst.
   Lemma subst_ext {ff : falsity_flag} (phi : form) sigma tau :
     (forall n, sigma n = tau n) -> phi[sigma] = phi[tau].
   Proof.
-    induction phi in sigma, tau |- *; cbns; intros H.
+    induction phi in sigma, tau |- *; cbn; intros H.
     - reflexivity.
     - f_equal. apply map_ext. intros s. now apply subst_term_ext.
     - now erewrite IHphi1, IHphi2.
@@ -260,7 +248,7 @@ Section Subst.
   Lemma subst_id {ff : falsity_flag} (phi : form) sigma :
     (forall n, sigma n = var n) -> phi[sigma] = phi.
   Proof.
-    induction phi in sigma |- *; cbns; intros H.
+    induction phi in sigma |- *; cbn; intros H.
     - reflexivity.
     - f_equal. erewrite map_ext; try apply map_id. intros s. now apply subst_term_id.
     - now erewrite IHphi1, IHphi2.
@@ -276,7 +264,7 @@ Section Subst.
   Lemma subst_comp {ff : falsity_flag} (phi : form) sigma tau :
     phi[sigma][tau] = phi[sigma >> subst_term tau].
   Proof.
-    induction phi in sigma, tau |- *; cbns.
+    induction phi in sigma, tau |- *; cbn.
     - reflexivity.
     - f_equal. rewrite map_map. apply map_ext. intros s. apply subst_term_comp.
     - now rewrite IHphi1, IHphi2.

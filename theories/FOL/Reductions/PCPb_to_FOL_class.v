@@ -128,7 +128,7 @@ Proof.
     + apply IHphi.
     + apply II. eapply IE. { apply Ctx. right. left. cbn. reflexivity. }
       apply II. eapply IE. { apply Ctx. right. left. reflexivity. }
-      replace (trans phi[up sigma]) with ((subst_form (up ↑) (trans (subst_form (up sigma) phi)))[($0)..]).
+      replace (trans phi[up sigma]) with (((trans (phi[up sigma]))[up ↑])[($0)..]) at 4.
       * apply AllE. apply Ctx. now left.
       * setoid_rewrite trans_subst. cbn. repeat setoid_rewrite subst_comp.
         apply subst_ext. intros n. unfold funcomp. cbn.

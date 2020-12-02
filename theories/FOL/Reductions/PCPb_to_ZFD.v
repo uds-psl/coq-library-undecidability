@@ -21,15 +21,19 @@ Local Unset Strict Implicit.
 
 Close Scope sem.
 
+Section ZF.
+
+Context { p : peirce }.
+
 Lemma ZF_eset x :
-  ZFeq' ⊢I ¬ (x ∈ ∅).
+  ZFeq' ⊢ ¬ (x ∈ ∅).
 Proof.
-  change (ZFeq' ⊢I (¬ ($0 ∈ ∅))[x..]).
+  change (ZFeq' ⊢ (¬ ($0 ∈ ∅))[x..]).
   apply AllE. apply Ctx. firstorder.
 Qed.
 
 Lemma ZF_eset' T x :
-  ZFeq' <<= T -> T ⊢I ¬ (x ∈ ∅).
+  ZFeq' <<= T -> T ⊢ ¬ (x ∈ ∅).
 Proof.
   intros H. now apply (Weak (ZF_eset x)).
 Qed.
@@ -41,155 +45,160 @@ Fixpoint tnumeral n :=
 end.
 
 Lemma ZF_numeral n :
-  ZFeq' ⊢I tnumeral n ∈ ω.
+  ZFeq' ⊢ tnumeral n ∈ ω.
 Proof.
   induction n; cbn.
   - eapply CE1. apply Ctx. firstorder.
   - eapply IE; try apply IHn.
-    change (ZFeq' ⊢I ($0 ∈ ω --> σ ($0) ∈ ω)[(tnumeral n)..]).
+    change (ZFeq' ⊢ ($0 ∈ ω --> σ ($0) ∈ ω)[(tnumeral n)..]).
     apply AllE. eapply CE2. apply Ctx. firstorder.
 Qed.
 
 Lemma ZF_refl' T x :
-  ZFeq' <<= T -> T ⊢I x ≡ x.
+  ZFeq' <<= T -> T ⊢ x ≡ x.
 Proof.
-  intros H. change (T ⊢I ($0 ≡ $0)[x..]).
+  intros H. change (T ⊢ ($0 ≡ $0)[x..]).
   apply AllE. apply Ctx. firstorder.
 Qed.
 
 Lemma ZF_refl x :
-  ZFeq' ⊢I x ≡ x.
+  ZFeq' ⊢ x ≡ x.
 Proof.
   now apply ZF_refl'.
 Qed.
 
+(* Ltac subsimpl_in' H :=
+  rewrite !subst_term_comp, !subst_term_id in H; try now intros [|[|[|[|[|]]]]].
+
+Ltac subsimpl' :=
+  rewrite !subst_term_comp, !subst_term_id; try now intros [|[|[|[|[|]]]]]. *)
+
+Ltac subsimpl_in H :=
+  rewrite ?up_term, ?subst_term_shift in H.
+
+Ltac subsimpl :=
+  rewrite ?up_term, ?subst_term_shift.
+
 Lemma ZF_sym' T x y :
-  ZFeq' <<= T -> T ⊢I x ≡ y -> T ⊢I y ≡ x.
+  ZFeq' <<= T -> T ⊢ x ≡ y -> T ⊢ y ≡ x.
 Proof.
   intros H1 H2. eapply IE; try apply H2.
-  assert (H : T ⊢I ax_sym) by (apply Ctx; firstorder).
-  apply (AllE x), (AllE y) in H; cbn in H.
-
-  rewrite (subst_term_comp x (S >> var) (y..)) in H.
+  assert (H : T ⊢ ax_sym) by (apply Ctx; firstorder).
+  apply (AllE x), (AllE y) in H; cbn in H. now subsimpl_in H.
 Qed.
 
 Lemma ZF_trans' T x y z :
-  ZFeq' <<= T -> T ⊢I x ≡ y -> T ⊢I y ≡ z -> T ⊢I x ≡ z.
+  ZFeq' <<= T -> T ⊢ x ≡ y -> T ⊢ y ≡ z -> T ⊢ x ≡ z.
 Proof.
   intros H1 H2 H3. eapply IE; try apply H3.
   eapply IE; try apply H2.
-  assert (H : T ⊢I ax_trans) by (apply Ctx; firstorder).
-  now apply (AllE x), (AllE y), (AllE z) in H; cbn in H; asimpl in H.
+  assert (H : T ⊢ ax_trans) by (apply Ctx; firstorder).
+  now apply (AllE x), (AllE y), (AllE z) in H; cbn in H; subsimpl_in H.
 Qed.
 
 Lemma ZF_eq_elem T x y x' y' :
-  ZFeq' <<= T -> T ⊢I x ≡ x' -> T ⊢I y ≡ y' -> T ⊢I x ∈ y -> T ⊢I x' ∈ y'.
+  ZFeq' <<= T -> T ⊢ x ≡ x' -> T ⊢ y ≡ y' -> T ⊢ x ∈ y -> T ⊢ x' ∈ y'.
 Proof.
   intros H1 H2 H3 H4. eapply IE; try apply H4.
   eapply IE; try apply H3. eapply IE; try apply H2.
-  assert (H : T ⊢I ax_eq_elem) by (apply Ctx; firstorder).
-  now apply (AllE x), (AllE y), (AllE x'), (AllE y') in H; cbn in H; asimpl in H.
+  assert (H : T ⊢ ax_eq_elem) by (apply Ctx; firstorder).
+  now apply (AllE x), (AllE y), (AllE x'), (AllE y') in H; cbn in H; subsimpl_in H.
 Qed.
 
 Lemma ZF_ext' T x y :
-  ZFeq' <<= T -> T ⊢I sub x y -> T ⊢I sub y x -> T ⊢I x ≡ y.
+  ZFeq' <<= T -> T ⊢ sub x y -> T ⊢ sub y x -> T ⊢ x ≡ y.
 Proof.
   intros H1 H2 H3. eapply IE; try apply H3.
   eapply IE; try apply H2.
-  assert (H : T ⊢I ax_ext) by (apply Ctx; firstorder).
-  now apply (AllE x), (AllE y) in H; cbn in H; asimpl in H.
+  assert (H : T ⊢ ax_ext) by (apply Ctx; firstorder).
+  apply (AllE x), (AllE y) in H; cbn in H.
+  subsimpl_in H. apply H.
 Qed.
 
-Lemma ZF_pair_el' (T : theory) x y z :
-  ZFeq' <<= T -> T ⊢I (z ≡ x ∨ z ≡ y) <-> T ⊢I z ∈ {x; y}.
+Lemma ZF_pair_el' T x y z :
+  ZFeq' <<= T -> T ⊢ (z ≡ x ∨ z ≡ y) <-> T ⊢ z ∈ {x; y}.
 Proof.
   intros HT; split; intros H; eapply IE; try apply H.
-  all: assert (HP : T ⊢I ax_pair) by (apply Ctx; firstorder).
-  all: apply (AllE y), (AllE x), (AllE z) in HP; cbn in HP; asimpl in HP.
+  all: assert (HP : T ⊢ ax_pair) by (apply Ctx; firstorder).
+  all: apply (AllE y), (AllE x), (AllE z) in HP; cbn in HP; subsimpl_in HP.
   - eapply CE2, HP.
   - eapply CE1, HP.
 Qed.
 
 Lemma ZF_pair_el x y z :
-  ZFeq' ⊢I (z ≡ x ∨ z ≡ y) -> ZFeq' ⊢I z ∈ {x; y}.
+  ZFeq' ⊢ (z ≡ x ∨ z ≡ y) -> ZFeq' ⊢ z ∈ {x; y}.
 Proof.
   now apply ZF_pair_el'.
 Qed.
 
-Lemma ZF_sub_pair' x y x' y' :
-  ZFeq' ⊢I x ≡ x' --> y ≡ y'--> sub ({x; y}) ({x'; y'}).
-Proof.
-  repeat apply impl. apply bt_all. intros z. cbn. asimpl.
-  apply impl. apply ZF_pair_el'. repeat solve_tsub. eapply DE.
-  - eapply ZF_pair_el'. repeat solve_tsub. apply prv_T1.
-  - apply DI1. eapply ZF_trans'. repeat solve_tsub.
-    apply prv_T1. apply Ctx. unfold extend, contains. tauto.
-  - apply DI2. eapply ZF_trans'. repeat solve_tsub.
-    apply prv_T1. apply Ctx. unfold extend, contains. tauto.
-Qed.
+Ltac prv_all := let H := fresh in edestruct nameless_equiv_all as [? H];
+                                  apply AllI; apply H; clear H; cbn; subsimpl.
 
-Lemma ZF_eq_pair' x y x' y' :
-  ZFeq' ⊢I x ≡ x' --> y ≡ y'--> {x; y} ≡ {x'; y'}.
+Lemma ZF_sub_pair T x y x' y' :
+  ZFeq' <<= T -> T ⊢ x ≡ x' -> T ⊢ y ≡ y' -> T ⊢ {x; y} ⊆ {x'; y'}.
 Proof.
-  repeat apply impl. apply ZF_ext'; trivial. solve_tsub.
-  all: eapply IE. 1,3: eapply IE. 1,3: eapply Weak_T.
-  1,3: apply ZF_sub_pair'. 1,2: solve_tsub.
-  apply prv_T2. apply ZF_sym'; try apply prv_T2. solve_tsub.
-  apply prv_T1. apply ZF_sym'; try apply prv_T1. solve_tsub.
+  intros HT H1 H2. prv_all.
+  apply II. apply ZF_pair_el'; auto. eapply DE.
+  - apply ZF_pair_el'; auto.
+  - apply DI1. eapply ZF_trans'; auto. eapply Weak; eauto.
+  - apply DI2. eapply ZF_trans'; auto. eapply Weak; eauto.
 Qed.
 
 Lemma ZF_eq_pair T x y x' y' :
-  ZFeq' <<= T -> T ⊢I x ≡ x' -> T ⊢I y ≡ y' -> T ⊢I {x; y} ≡ {x'; y'}.
+  ZFeq' <<= T -> T ⊢ x ≡ x' -> T ⊢ y ≡ y' -> T ⊢ {x; y} ≡ {x'; y'}.
 Proof.
-  intros HT H1 H2. eapply IE; try apply H2.
-  eapply IE; try apply H1. eapply Weak_T; eauto.
-  apply ZF_eq_pair'.
+  intros HT H1 H2. apply ZF_ext'; trivial.
+  - now apply ZF_sub_pair.
+  - apply ZF_sub_pair; trivial. all: now apply ZF_sym'.
 Qed.
 
 Lemma ZF_eq_opair T x y x' y' :
-  ZFeq' <<= T -> T ⊢I x ≡ x' -> T ⊢I y ≡ y' -> T ⊢I opair x y ≡ opair x' y'.
+  ZFeq' <<= T -> T ⊢ x ≡ x' -> T ⊢ y ≡ y' -> T ⊢ opair x y ≡ opair x' y'.
 Proof.
   intros HT H1 H2. repeat apply ZF_eq_pair; trivial.
 Qed.
 
+Definition sing x :=
+  {x; x}.
+
 Lemma ZF_sing_el x :
-  ZFeq' ⊢I x ∈ (sing x).
+  ZFeq' ⊢ x ∈ sing x.
 Proof.
   apply ZF_pair_el. apply DI1. apply ZF_refl.
 Qed.
 
 Lemma ZF_sing_iff T x y :
-  ZFeq' <<= T -> T ⊢I x ∈ sing y <-> T ⊢I x ≡ y.
+  ZFeq' <<= T -> T ⊢ x ∈ sing y <-> T ⊢ x ≡ y.
 Proof.
   intros HT. unfold sing.
   rewrite <- ZF_pair_el'; trivial.
   split; intros H.
-  - now apply DS.
+  - apply (DE H); auto.
   - now apply DI1.
 Qed.
 
-Lemma ZF_union_el' (T : theory) x y z :
-  ZFeq' <<= T -> T ⊢I y ∈ x ∧ z ∈ y -> T ⊢I z ∈ ⋃ x.
+Lemma ZF_union_el' T x y z :
+  ZFeq' <<= T -> T ⊢ y ∈ x ∧ z ∈ y -> T ⊢ z ∈ ⋃ x.
 Proof.
   intros HT H.
-  assert (HU : T ⊢I ax_union) by (apply Ctx; firstorder).
-  apply (AllE x), (AllE z) in HU; cbn in HU; asimpl in HU.
+  assert (HU : T ⊢ ax_union) by (apply Ctx; firstorder).
+  apply (AllE x), (AllE z) in HU; cbn in HU. subsimpl_in HU.
   apply CE2 in HU. eapply IE; try apply HU.
-  apply ExI with y. cbn. asimpl. apply H.
+  apply ExI with y. cbn. subsimpl. apply H.
 Qed.
 
 Lemma ZF_union_el x y z :
-  ZFeq' ⊢I y ∈ x ∧ z ∈ y -> ZFeq' ⊢I z ∈ ⋃ x.
+  ZFeq' ⊢ y ∈ x ∧ z ∈ y -> ZFeq' ⊢ z ∈ ⋃ x.
 Proof.
   now apply ZF_union_el'.
 Qed.
 
-Lemma ZF_sub_union {T} {HB : bounded_theory T} x y :
-  ZFeq' <<= T -> T ⊢I x ≡ y -> T ⊢I sub (⋃ x) (⋃ y).
+Lemma ZF_sub_union T x y :
+  ZFeq' <<= T -> T ⊢ x ≡ y -> T ⊢ sub (⋃ x) (⋃ y).
 Proof.
   intros HT H. apply bt_all. intros z. cbn. asimpl. 
   apply impl. assert1 H'.
-  assert (HU : T ⋄ (z ∈ ⋃ x) ⊢I ax_union) by (apply Ctx; firstorder).
+  assert (HU : T ⋄ (z ∈ ⋃ x) ⊢ ax_union) by (apply Ctx; firstorder).
   apply (AllE x), (AllE z) in HU; cbn in HU; asimpl in HU.
   apply CE1 in HU. eapply (mp HU) in H'.
   use_exists H' u. cbn. asimpl. clear H' HU.
@@ -200,14 +209,14 @@ Proof.
 Qed.
 
 Lemma ZF_eq_union {T} {HB : bounded_theory T} x y :
-  ZFeq' <<= T -> T ⊢I x ≡ y -> T ⊢I ⋃ x ≡ ⋃ y.
+  ZFeq' <<= T -> T ⊢ x ≡ y -> T ⊢ ⋃ x ≡ ⋃ y.
 Proof.
   intros HT H. apply ZF_ext'; try apply ZF_sub_union; trivial.
   now apply ZF_sym'.
 Qed.
 
 Lemma ZF_bunion_el' T x y z :
-  ZFeq' <<= T -> T ⊢I (z ∈ x ∨ z ∈ y) -> T ⊢I z ∈ x ∪ y.
+  ZFeq' <<= T -> T ⊢ (z ∈ x ∨ z ∈ y) -> T ⊢ z ∈ x ∪ y.
 Proof.
   intros HT H. apply (DE H).
   - eapply ZF_union_el' with x. solve_tsub. apply CI; try apply prv_T1.
@@ -217,15 +226,15 @@ Proof.
 Qed.
 
 Lemma ZF_bunion_el x y z :
-  ZFeq' ⊢I (z ∈ x ∨ z ∈ y) -> ZFeq' ⊢I z ∈ x ∪ y.
+  ZFeq' ⊢ (z ∈ x ∨ z ∈ y) -> ZFeq' ⊢ z ∈ x ∪ y.
 Proof.
   now apply ZF_bunion_el'.
 Qed.
 
 Lemma ZF_bunion_inv' x y z :
-   ZFeq' ⊢I z ∈ x ∪ y --> z ∈ x ∨ z ∈ y.
+   ZFeq' ⊢ z ∈ x ∪ y --> z ∈ x ∨ z ∈ y.
 Proof.
-  assert (TU : ZFeq' ⊢I ax_union) by (apply Ctx; firstorder).
+  assert (TU : ZFeq' ⊢ ax_union) by (apply Ctx; firstorder).
   pose (upair (x y : term) := {x; y}).
   eapply (AllE (upair x y)), (AllE z) in TU; fold subst_form in TU.
   apply CE1 in TU; fold subst_form in TU. cbn in TU; asimpl in TU.
@@ -242,20 +251,20 @@ Proof.
 Qed.
 
 Lemma ZF_bunion_inv T x y z :
-   ZFeq' <<= T -> T ⊢I z ∈ x ∪ y -> T ⊢I z ∈ x ∨ z ∈ y.
+   ZFeq' <<= T -> T ⊢ z ∈ x ∪ y -> T ⊢ z ∈ x ∨ z ∈ y.
 Proof.
   intros HT H. eapply IE; try apply H.
   eapply Weak_T; try apply HT. apply ZF_bunion_inv'.
 Qed.
 
 Lemma ZF_eq_bunion {T} {HB : bounded_theory T} x y x' y' :
-  ZFeq' <<= T -> T ⊢I x ≡ x' -> T ⊢I y ≡ y' -> T ⊢I x ∪ y ≡ x' ∪ y'.
+  ZFeq' <<= T -> T ⊢ x ≡ x' -> T ⊢ y ≡ y' -> T ⊢ x ∪ y ≡ x' ∪ y'.
 Proof.
   intros HT H1 H2. now apply ZF_eq_union, ZF_eq_pair.
 Qed.
 
 Lemma ZF_sig_el T x :
-   ZFeq' <<= T -> T ⊢I x ∈ σ x.
+   ZFeq' <<= T -> T ⊢ x ∈ σ x.
 Proof.
   intros H. apply ZF_bunion_el'; trivial.
   apply DI2. apply ZF_sing_iff; trivial.
@@ -263,13 +272,13 @@ Proof.
 Qed.
 
 Lemma ZF_eq_sig {T} {HB : bounded_theory T} x y :
-  ZFeq' <<= T -> T ⊢I x ≡ y -> T ⊢I σ x ≡ σ y.
+  ZFeq' <<= T -> T ⊢ x ≡ y -> T ⊢ σ x ≡ σ y.
 Proof.
   intros HT H. now apply ZF_eq_bunion, ZF_eq_pair.
 Qed.
 
 Lemma sing_pair1 T x y z :
-  ZFeq' <<= T -> T ⊢I sing x ≡ {y; z} -> T ⊢I x ≡ y.
+  ZFeq' <<= T -> T ⊢ sing x ≡ {y; z} -> T ⊢ x ≡ y.
 Proof.
   intros HT H. apply ZF_sym'; trivial.
   apply ZF_sing_iff; trivial. eapply ZF_eq_elem; trivial.
@@ -278,7 +287,7 @@ Proof.
 Qed.
 
 Lemma sing_pair2 T x y z :
-  ZFeq' <<= T -> T ⊢I sing x ≡ {y; z} -> T ⊢I x ≡ z.
+  ZFeq' <<= T -> T ⊢ sing x ≡ {y; z} -> T ⊢ x ≡ z.
 Proof.
   intros HT H. apply ZF_sym'; trivial.
   apply ZF_sing_iff; trivial. eapply ZF_eq_elem; trivial.
@@ -287,9 +296,9 @@ Proof.
 Qed.
 
 Lemma opair_inj1 T x y x' y' :
-  ZFeq' <<= T -> T ⊢I opair x y ≡ opair x' y' -> T ⊢I x ≡ x'.
+  ZFeq' <<= T -> T ⊢ opair x y ≡ opair x' y' -> T ⊢ x ≡ x'.
 Proof.
-  intros HT He. assert (H : T ⊢I {x; x} ∈ opair x y).
+  intros HT He. assert (H : T ⊢ {x; x} ∈ opair x y).
   { apply ZF_pair_el'; trivial. apply DI1. now apply ZF_refl'. }
   eapply ZF_eq_elem in H; try apply He; try apply ZF_refl'; trivial.
   apply ZF_pair_el' in H; trivial.
@@ -297,10 +306,10 @@ Proof.
 Qed.
 
 Lemma opair_inj2 T x y x' y' :
-  ZFeq' <<= T -> T ⊢I opair x y ≡ opair x' y' -> T ⊢I y ≡ y'.
+  ZFeq' <<= T -> T ⊢ opair x y ≡ opair x' y' -> T ⊢ y ≡ y'.
 Proof.
-  intros HT H. assert (H' : T ⊢I y ≡ x' ∨ y ≡ y').
-  - assert (H2 : T ⊢I {x; y} ∈ opair x' y').
+  intros HT H. assert (H' : T ⊢ y ≡ x' ∨ y ≡ y').
+  - assert (H2 : T ⊢ {x; y} ∈ opair x' y').
     { eapply ZF_eq_elem; trivial. apply ZF_refl'; trivial. apply H.
       apply ZF_pair_el'; trivial. apply DI2. now apply ZF_refl'. }
     apply ZF_pair_el' in H2; trivial. apply (DE H2).
@@ -310,8 +319,8 @@ Proof.
       apply ZF_refl'. solve_tsub. apply ZF_pair_el'. solve_tsub.
       apply DI2. apply ZF_refl'. solve_tsub.
   - apply (DE H'); try apply prv_T1.
-    assert (H1 : T ⊢I x ≡ x') by apply (opair_inj1 HT H).
-    assert (H2 : T ⊢I {x'; y'} ∈ opair x y).
+    assert (H1 : T ⊢ x ≡ x') by apply (opair_inj1 HT H).
+    assert (H2 : T ⊢ {x'; y'} ∈ opair x y).
     { eapply ZF_eq_elem; trivial. apply ZF_refl'; trivial. apply ZF_sym', H; trivial.
       apply ZF_pair_el'; trivial. apply DI2. now apply ZF_refl'. }
     apply ZF_pair_el' in H2; trivial.
@@ -328,19 +337,19 @@ Proof.
 Qed.
 
 Lemma ZF_bunion_el1 T x y z :
-  ZFeq' <<= T -> T ⊢I z ∈ x -> T ⊢I z ∈ x ∪ y.
+  ZFeq' <<= T -> T ⊢ z ∈ x -> T ⊢ z ∈ x ∪ y.
 Proof.
   intros HT H. now apply ZF_bunion_el', DI1.
 Qed.
 
 Lemma ZF_bunion_el2 T x y z :
-  ZFeq' <<= T -> T ⊢I z ∈ y -> T ⊢I z ∈ x ∪ y.
+  ZFeq' <<= T -> T ⊢ z ∈ y -> T ⊢ z ∈ x ∪ y.
 Proof.
   intros HT H. now apply ZF_bunion_el', DI2.
 Qed.
  
 Lemma bunion_eset x :
-   ZFeq' ⊢I ∅ ∪ x ≡ x.
+   ZFeq' ⊢ ∅ ∪ x ≡ x.
 Proof.
   apply ZF_ext'; try apply ZF_all, impl; cbn. solve_tsub. 
   - eapply DE. eapply ZF_bunion_inv. repeat solve_tsub. apply prv_T1.
@@ -351,7 +360,7 @@ Proof.
 Qed.
 
 Lemma bunion_swap x y z :
-  ZFeq' ⊢I (x ∪ y) ∪ z ≡ (x ∪ z) ∪ y.
+  ZFeq' ⊢ (x ∪ y) ∪ z ≡ (x ∪ z) ∪ y.
 Proof.
   apply ZF_ext'; try apply ZF_all, impl; cbn. solve_tsub.
   - eapply DE. eapply ZF_bunion_inv. repeat solve_tsub. apply prv_T1.
@@ -367,7 +376,7 @@ Proof.
 Qed.
 
 Lemma bunion_use T x y z phi :
-  ZFeq' <<= T -> T ⋄ (x ∈ y) ⊢I phi -> T ⋄ (x ≡ z) ⊢I phi -> T ⊢I x ∈ y ∪ sing z --> phi.
+  ZFeq' <<= T -> T ⋄ (x ∈ y) ⊢ phi -> T ⋄ (x ≡ z) ⊢ phi -> T ⊢ x ∈ y ∪ sing z --> phi.
 Proof.
   intros HT H1 H2. apply impl. eapply DE.
   - eapply ZF_bunion_inv. repeat solve_tsub. apply prv_T1.
@@ -378,7 +387,7 @@ Proof.
 Qed.
 
 Lemma ZF_numeral_trans T n x y :
-  ZFeq' <<= T -> T ⊢I x ∈ tnumeral n --> y ∈ x --> y ∈ tnumeral n.
+  ZFeq' <<= T -> T ⊢ x ∈ tnumeral n --> y ∈ x --> y ∈ tnumeral n.
 Proof.
   intros HT. induction n; cbn.
   - apply impl, exf.
@@ -393,7 +402,7 @@ Proof.
 Qed.
 
 Lemma ZF_numeral_wf T n :
-  ZFeq' <<= T -> T ⊢I ¬ (tnumeral n ∈ tnumeral n).
+  ZFeq' <<= T -> T ⊢ ¬ (tnumeral n ∈ tnumeral n).
 Proof.
   intros HT. induction n; cbn.
   - now apply ZF_eset'.
@@ -413,7 +422,7 @@ Qed.
 (** ** Preservation proof *)
 
 Lemma enc_derivations_base R n :
-  ZFeq' ⊢I {{∅; ∅}; {∅; enc_stack R}} ∈ enc_derivations R n.
+  ZFeq' ⊢ {{∅; ∅}; {∅; enc_stack R}} ∈ enc_derivations R n.
 Proof.
   induction n; cbn.
   - apply ZF_sing_el.
@@ -421,7 +430,7 @@ Proof.
 Qed.
 
 Lemma enc_derivations_step B n :
-  ZFeq' ⊢I opair (tnumeral n) (enc_stack (derivations B n)) ∈ enc_derivations B n.
+  ZFeq' ⊢ opair (tnumeral n) (enc_stack (derivations B n)) ∈ enc_derivations B n.
 Proof.
   destruct n; cbn.
   - apply ZF_sing_el.
@@ -429,7 +438,7 @@ Proof.
 Qed.
 
 Lemma enc_stack_spec R s t :
-  s/t el R -> ZFeq' ⊢I opair (enc_string s) (enc_string t) ∈ enc_stack R.
+  s/t el R -> ZFeq' ⊢ opair (enc_string s) (enc_string t) ∈ enc_stack R.
 Proof.
   induction R as [|[u v] R IH]; cbn; auto.
   intros [[=]| H]; subst.
@@ -438,7 +447,7 @@ Proof.
 Qed.
 
 Lemma ZF_derivations_bound T B k n x :
-  ZFeq' <<= T -> T ⊢I opair k x ∈ enc_derivations B n -> T ⊢I k ∈ σ (tnumeral n).
+  ZFeq' <<= T -> T ⊢ opair k x ∈ enc_derivations B n -> T ⊢ k ∈ σ (tnumeral n).
 Proof.
   induction n in T |- *; cbn; intros HT H.
   - apply ZF_sing_iff in H; trivial. eapply ZF_eq_elem; trivial.
@@ -452,7 +461,7 @@ Proof.
 Qed.
 
 Lemma enc_derivations_functional B n :
-  ZFeq' ⊢I opair $2 $1 ∈ enc_derivations B n --> opair $2 $0 ∈ enc_derivations B n --> $ 1 ≡ $ 0.
+  ZFeq' ⊢ opair $2 $1 ∈ enc_derivations B n --> opair $2 $0 ∈ enc_derivations B n --> $ 1 ≡ $ 0.
 Proof.
   induction n; cbn -[derivations].
   - repeat apply impl. eapply opair_inj2. repeat solve_tsub. eapply ZF_trans'. repeat solve_tsub.
@@ -498,7 +507,7 @@ Proof.
 Qed.
 
 Lemma enc_derivations_eq T B n x :
-  ZFeq' <<= T -> T ⊢I opair (tnumeral n) x ∈ enc_derivations B n -> T ⊢I x ≡ enc_stack (derivations B n).
+  ZFeq' <<= T -> T ⊢ opair (tnumeral n) x ∈ enc_derivations B n -> T ⊢ x ≡ enc_stack (derivations B n).
 Proof.
   intros HT H. destruct n; cbn in *.
   - eapply opair_inj2; trivial. eapply ZF_sing_iff; eauto.
@@ -509,7 +518,7 @@ Proof.
 Qed.
 
 Lemma enc_stack_app {T} {HB : bounded_theory T} B C :
-  ZFeq' <<= T -> T ⊢I (enc_stack B) ∪ (enc_stack C) ≡ enc_stack (B ++ C).
+  ZFeq' <<= T -> T ⊢ (enc_stack B) ∪ (enc_stack C) ≡ enc_stack (B ++ C).
 Proof.
   intros HT. induction B as [|[s t] B IH]; cbn.
   - eapply Weak_T; try apply bunion_eset. assumption.
@@ -524,15 +533,15 @@ Proof.
 Qed.
 
 Lemma ZF_eq_prep T s x y :
-  ZFeq' <<= T -> T ⊢I x ≡ y -> T ⊢I prep_string s x ≡ prep_string s y.
+  ZFeq' <<= T -> T ⊢ x ≡ y -> T ⊢ prep_string s x ≡ prep_string s y.
 Proof.
   intros HT H. induction s; cbn; try tauto.
   apply ZF_eq_opair; trivial. now apply ZF_refl'.
 Qed.
 
 Lemma append_all_el T B s t x y :
-  ZFeq' <<= T -> T ⊢I opair x y ∈ enc_stack B
-  -> T ⊢I opair (prep_string s x) (prep_string t y) ∈ enc_stack (append_all B (s/t)).
+  ZFeq' <<= T -> T ⊢ opair x y ∈ enc_stack B
+  -> T ⊢ opair (prep_string s x) (prep_string t y) ∈ enc_stack (append_all B (s/t)).
 Proof.
   intros HT H. induction B as [|[u v] B IH] in T, HT, H |- *; cbn in *.
   - apply exf. eapply IE. 2: apply H. now apply ZF_eset'.
@@ -546,8 +555,8 @@ Proof.
 Qed.
 
 Lemma is_rep_eq {T} {HB : bounded_theory T} B s t x y :
-  ZFeq' <<= T -> T ⊢I x ≡ enc_stack B -> T ⊢I is_rep (comb_rel s t) x y
-  -> T ⊢I y ≡ enc_stack (append_all B (s / t)).
+  ZFeq' <<= T -> T ⊢ x ≡ enc_stack B -> T ⊢ is_rep (comb_rel s t) x y
+  -> T ⊢ y ≡ enc_stack (append_all B (s / t)).
 Proof.
   intros HT H1 H2. apply ZF_ext'; trivial.
   - apply bt_all. intros a. cbn.
@@ -573,7 +582,7 @@ Proof.
     + apply exf. eapply IE; try apply prv_T1. apply ZF_eset'. repeat solve_tsub.
     + apply imp. apply bunion_use; trivial.
       * specialize (IH T HB (enc_stack B) HT).
-        assert (H : T ⊢I enc_stack B ≡ enc_stack B) by now apply ZF_refl'.
+        assert (H : T ⊢ enc_stack B ≡ enc_stack B) by now apply ZF_refl'.
         apply IH in H. use_exists H z. clear H. apply ExI with z.
         cbn -[comb_rel]. asimpl. assert1 H. apply CE in H as [H H'].
         apply CI; trivial. eapply ZF_eq_elem. repeat solve_tsub.
@@ -592,7 +601,7 @@ Proof.
 Qed.
 
 Lemma combinations_eq {T} {HB : bounded_theory T} B C x y :
-  ZFeq' <<= T -> T ⊢I x ≡ enc_stack C -> T ⊢I combinations B x y -> T ⊢I y ≡ enc_stack (derivation_step B C).
+  ZFeq' <<= T -> T ⊢ x ≡ enc_stack C -> T ⊢ combinations B x y -> T ⊢ y ≡ enc_stack (derivation_step B C).
 Proof.
   induction B as [|[s t] B IH] in y, T, HB |-*; cbn; intros HT H1 H2; trivial.
   use_exists H2 u. clear H2. cbn -[is_rep]. asimpl. assert1 H. use_exists H v. clear H. apply prv_clear2.
@@ -608,7 +617,7 @@ Proof.
 Qed.
 
 Lemma combinations_step B n (i x y : term) :
-  ZFeq' ⊢I i ∈ tnumeral n --> opair i x ∈ enc_derivations B n
+  ZFeq' ⊢ i ∈ tnumeral n --> opair i x ∈ enc_derivations B n
      --> combinations B x y --> opair (σ i) y ∈ enc_derivations B n.
 Proof.
   induction n; cbn.
@@ -642,7 +651,7 @@ Proof.
 Qed.
 
 Theorem BPCP_slv B :
-  BPCP' B -> ZFeq' ⊢I solvable B.
+  BPCP' B -> ZFeq' ⊢ solvable B.
 Proof.
   intros [s H]. destruct (derivable_derivations H) as [n Hn].
   apply ExI with (tnumeral n);
@@ -671,17 +680,17 @@ Qed.
 (** ** Main Theorem *)
 
 Theorem dPCP_ZFD B :
-  dPCPb B -> ZFeq' ⊢I solvable B.
+  dPCPb B -> ZFeq' ⊢ solvable B.
 Proof.
 Admitted.
 
 Theorem PCP_ZFD B :
-  PCPb B -> ZFeq' ⊢I solvable B.
+  PCPb B -> ZFeq' ⊢ solvable B.
 Proof.
   rewrite PCPb_iff_dPCPb. apply dPCP_ZFD.
 Qed.
 
-
+End ZF.
 
 
 
