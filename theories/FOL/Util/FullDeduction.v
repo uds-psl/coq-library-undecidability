@@ -30,7 +30,7 @@ Section ND_def.
   | II {ff} {p} A phi psi : phi::A ⊢ psi -> A ⊢ phi --> psi
   | IE {ff} {p} A phi psi : A ⊢ phi --> psi -> A ⊢ phi -> A ⊢ psi
   | AllI {ff} {p} A phi : map (subst_form ↑) A ⊢ phi -> A ⊢ ∀ phi
-  | AllE {ff} {p} A t phi : A ⊢ ∀ phi -> A ⊢ phi [t..]
+  | AllE {ff} {p} A t phi : A ⊢ ∀ phi -> A ⊢ phi[t..]
   | ExI {ff} {p} A t phi : A ⊢ phi[t..] -> A ⊢ ∃ phi
   | ExE {ff} {p} A phi psi : A ⊢ ∃ phi -> phi::(map (subst_form ↑) A) ⊢ psi[↑] -> A ⊢ psi
   | Exp {p} A phi : prv p A falsity -> prv p A phi
@@ -72,11 +72,11 @@ End ND_def.
 Hint Constructors prv : core.
 
 Arguments prv {_ _ _ _} _ _.
-Notation "A ⊢ phi" := (prv A phi) (at level 30).
-Notation "A ⊢C phi" := (@prv _ _ _ class A phi) (at level 30).
-Notation "A ⊢I phi" := (@prv _ _ _ intu A phi) (at level 30).
-Notation "A ⊢M phi" := (@prv _ _ falsity_off intu A phi) (at level 30).
-Notation "T ⊢TI phi" := (@tprv _ _ _ intu T phi) (at level 30).
+Notation "A ⊢ phi" := (prv A phi) (at level 55).
+Notation "A ⊢C phi" := (@prv _ _ _ class A phi) (at level 55).
+Notation "A ⊢I phi" := (@prv _ _ _ intu A phi) (at level 55).
+Notation "A ⊢M phi" := (@prv _ _ falsity_off intu A phi) (at level 55).
+Notation "T ⊢TI phi" := (@tprv _ _ _ intu T phi) (at level 55).
 
 Section Soundness.
 
