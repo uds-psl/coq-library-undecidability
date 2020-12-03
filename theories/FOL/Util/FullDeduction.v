@@ -35,6 +35,7 @@ Section ND_def.
   | ExE {ff} {p} A phi psi : A ⊢ ∃ phi -> phi::(map (subst_form ↑) A) ⊢ psi[↑] -> A ⊢ psi
   | Exp {p} A phi : prv p A falsity -> prv p A phi
   | Ctx {ff} {p} A phi : phi el A -> A ⊢ phi
+  | CI {ff} {p} A phi psi : A ⊢ phi -> A ⊢ psi -> A ⊢ phi ∧ psi
   | CE1 {ff} {p} A phi psi : A ⊢ phi ∧ psi -> A ⊢ phi
   | CE2 {ff} {p} A phi psi : A ⊢ phi ∧ psi -> A ⊢ psi
   | DI1 {ff} {p} A phi psi : A ⊢ phi -> A ⊢ phi ∨ psi
@@ -110,6 +111,7 @@ Section Soundness.
       + intros P [<-|[psi'[<- H' % HA]] % in_map_iff]; trivial. apply sat_comp. apply H'.
       + specialize (IHprv2 Heqp D I (d.:rho) H'). apply sat_comp in IHprv2. apply IHprv2.
     - apply (IHprv Heqp) in HA. firstorder.
+    - firstorder.
     - firstorder.
     - firstorder. now apply H0.
     - firstorder. now apply H0.
