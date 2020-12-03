@@ -11,8 +11,9 @@ Require Import Undecidability.Synthetic.Definitions.
 
 Import RuleNotation.
 
-(* * SR to MPCP *)
+Set Default Proof Using "Type".
 
+(* * SR to MPCP *)
 Section SR_to_MPCP.
   Local Definition string := string nat.
   Variable R : stack nat.

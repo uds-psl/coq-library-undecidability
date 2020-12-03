@@ -14,6 +14,8 @@ Import ListNotations.
 Import VectorNotations2.
 Local Open Scope vector.
 
+Set Default Proof Using "Type".
+
 Tactic Notation "rew" "length" := autorewrite with length_db.
 
 Local Notation "e #> x" := (vec_pos e x).
@@ -311,13 +313,13 @@ Section fixM.
 
     Lemma case_Some_false o {X} (c1 c2 : X) : (if! o is Some false then c1 else c2 = c1 /\ o = Some false) 
                             \/ (if! o is Some false then c1 else c2 = c2 /\ o <> Some false).
-    Proof.
+    Proof using M.
       destruct o as [ [] | ]; firstorder congruence.
     Qed.
 
     Lemma case_Some_true o {X} (c1 c2 : X) : (if! o is Some true then c1 else c2 = c1 /\ o = Some true) 
                             \/ (if! o is Some true then c1 else c2 = c2 /\ o <> Some true).
-    Proof.
+    Proof using M.
       destruct o as [ [] | ]; firstorder congruence.
     Qed.
 

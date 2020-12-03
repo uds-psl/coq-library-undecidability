@@ -19,6 +19,8 @@ Require Import Undecidability.DiophantineConstraints.H10C.
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Proof Using "Type".
+
 Module Argument.
 
 (* bijection from nat * nat to nat *)

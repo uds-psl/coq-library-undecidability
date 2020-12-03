@@ -17,4 +17,5 @@ Definition reachable (srs: Srs) : list Symbol -> list Symbol -> Prop :=
 given a 2-2-srs and symbols a, b is there an n such that a^n rewrites to b^n?
 *)
 Definition SR2ab : Srs * Symbol * Symbol -> Prop :=
-  fun '(srs, a, b) => exists n, reachable srs (repeat a n) (repeat b n).
+  fun '(srs, a, b) => exists n, reachable srs (repeat a (1+n)) (repeat b (1+n)).
+  

@@ -1,10 +1,12 @@
-Require Import List Relation_Operators Lia.
+Require Import List Relation_Operators Operators_Properties Lia.
 Import ListNotations.
 
 Require Import Undecidability.StringRewriting.SR01.
 Require Import Undecidability.CounterMachines.CM2.
 
 Require Import ssreflect ssrbool ssrfun.
+
+Set Default Proof Using "Type".
 
 Arguments rt_trans {A R x y z}.
 
@@ -22,6 +24,10 @@ Arguments measure_ind {X}.
 (* duplicates argument *)
 Lemma copy {A : Prop} : A -> A * A.
 Proof. done. Qed.
+
+(* transforms a goal (A -> B) -> C into goals A and B -> C *)
+Lemma unnest : forall (A B C : Type), A -> (B -> C) -> (A -> B) -> C.
+Proof. auto. Qed.
 
 Lemma iter_plus {X: Type} {f: X -> X} {x: X} {n m: nat} : 
   Nat.iter (n + m) f x = Nat.iter n f (Nat.iter m f x).
@@ -158,7 +164,7 @@ Local Notation sr := ((2, @None nat)). (* right marker *)
 Local Notation sm := ((3, @None nat)). (* middle marker *)
 
 Local Notation sz := ((4, @None nat)). (* 0 *)
-Local Notation so := ((5, @None nat)). (* 1 *)
+Local Notation so := ((5, @Some nat 0)). (* 1 *)
 Local Notation st := ((6, @None nat)). (* temporary marker *)
 
 Local Notation sb' p := ((0, @Some nat p)). (* blank *)
@@ -204,11 +210,11 @@ Definition srs : Srs :=
   (* state movement to the left *)
   flat_map (fun p => [
     ((sb, sr' p), (sb' p, sr)); ((sm, sr' p), (sm' p, sr)); 
-    ((sb, sb' p), (sb' p, sb)); ((sm, sb' p), (sm' p, sb));
+    ((sb, sb' p), (sb' p, sb)); ((sm, sb' p), (sm' p, sb)); ((sl, sb' p), (sl' p, sb));
     ((sb, sm' p), (sb' p, sm)); ((sl, sm' p), (sl' p, sm))]) (seq 0 state_bound) ++
   (* finalization *)
   map (fun p => ((sz, sl' p), (so, so))) (seq (length cm) (state_bound - length cm)) ++
-  flat_map (fun n => [(((n, None), so), (so, so)); ((so, (n, None)), (so, so))]) (seq 0 6)
+  [((sz, so), (so, so)); ((so, sb), (so, so)); ((so, sm), (so, so)); ((so, sr), (so, so)); ((so, sz), (so, so))]
   .
 
 Lemma move_sb_right {p n} : p < state_bound -> reachable srs ((sb' p) :: repeat sb n) ((repeat sb n) ++ [sb' p]).
@@ -231,35 +237,6 @@ Proof.
   exists p. constructor; [apply /in_seq; by lia | move=> /=; by tauto].
 Qed.
 
-
-Lemma reachable_repeat_soI {u v: list Symbol} : v = repeat so (length u) -> In so u -> 
-  Forall (fun '(n, op) => n <= 5 /\ op = None) u -> 
-  reachable srs u v.
-Proof.
-  move=> -> {v}. elim /(measure_ind (@length Symbol)) : u.
-  move=> []; first done.
-  move=> x u /= IH [->|].
-  - move: u IH => [* | y u]; first by apply: rt_refl.
-    move=> /= IH /ForallE [_ Hyl]. apply: (rt_trans (y := so :: so :: u)).
-    + apply: rt_step. apply: (stepI (u := [])); [done | done |].
-      rewrite /srs. do 5 apply /In_appr. apply /in_flat_map.
-      move: y Hyl => [n op] /ForallE [[? ->]] _. exists n.
-      constructor; [apply /in_seq; by lia | move=> /=; by tauto].
-    + apply: (reachable_applI (u := [so])). 
-      apply: IH => /=; [by lia | by left |].
-      constructor; first by (constructor; by [|lia]).
-      by move: Hyl => /ForallE [].
-  - move=> /copy [Hu] /IH {}IH /ForallE [Hx /IH] /(_ ltac:(lia)) {}IH.
-    apply: (rt_trans (y := x :: repeat so (length u))); first by apply: (reachable_applI (u := [x])).
-    move: (u) Hu => [|? u']; first done.
-    move=> _ /=. apply: rt_step. apply: (stepI (u := [])); [done | done |].
-    move: x Hx => [n ?] [? ->].
-    rewrite /srs. do 5 apply /In_appr. apply /in_flat_map.
-    exists n.
-    constructor; [apply /in_seq; by lia | move=> /=; by tauto].
-Qed.
-
-
 Section Transport.
 (* number of steps until halting *)
 Context (n_cm: nat).
@@ -267,7 +244,7 @@ Definition c0 := {| state := 0; value1 := 0; value2 := 0 |}.
 Context (H_n_cm: halting cm (Nat.iter n_cm (CM2.step cm) c0)).
 
 Lemma cm_value1_ub n : value1 (Nat.iter n (CM2.step cm) c0) <= n_cm.
-Proof.
+Proof using H_n_cm.
   have [|->] : n <= n_cm \/ n = ((n - n_cm) + n_cm) by lia.
   - move=> ?. have := values_ub cm c0 n.
     rewrite /c0 /=. by lia.
@@ -277,7 +254,7 @@ Proof.
 Qed.
 
 Lemma cm_value2_ub n : value2 (Nat.iter n (CM2.step cm) c0) <= n_cm.
-Proof.
+Proof using H_n_cm.
   have [|->] : n <= n_cm \/ n = ((n - n_cm) + n_cm) by lia.
   - move=> ?. have := values_ub cm c0 n.
     rewrite /c0 /=. by lia.
@@ -330,7 +307,6 @@ Proof.
   - apply: rt_step. apply: (stepI (u := []) (v := [])); [done | done |].
     rewrite /srs. apply /In_appr /In_appr /In_appl /in_flat_map. exists p.
     constructor; [apply /in_seq; by lia | move: Hxy => /= [] [-> ->]; by tauto].
-    
   - move=> n. apply: (rt_trans (y := [(x, None)] ++ [sb' p] ++ (repeat sb n) ++ [(y, None)])).
     + rewrite /= -/([sb] ++ _) ?app_assoc. do 2 apply: reachable_apprI. 
       apply /rt_step /(stepI (u := []) (v := [])); [by reflexivity| by reflexivity | ].
@@ -344,6 +320,27 @@ Proof.
         ** by rewrite (ltac:(lia) : S n = n + 1) -repeat_appP -?app_assoc.
         ** apply /In_appr /In_appr /In_appl /in_flat_map. exists p.
           constructor; [apply /in_seq; by lia | move: Hxy => /= [] [_ ->]; by tauto].
+Qed.
+
+Lemma move_sb_left' {p n x y} : p < state_bound -> ((x, y) = (1, 3) \/ (x, y) = (3, 2)) ->
+  reachable srs ([(x, None)] ++ repeat sb n ++ [(y, Some p)]) ([(x, Some p)] ++ repeat sb n ++ [(y, None)]).
+Proof.
+  move=> ? /= Hxy. case: n.
+  - apply: rt_step. apply: (stepI (u := []) (v := [])); [done | done |].
+    rewrite /srs. apply /In_appr /In_appr /In_appr /In_appl /in_flat_map. exists p.
+    constructor; [apply /in_seq; by lia | move: Hxy => /= [] [-> ->]; by tauto].
+  - move=> n. apply: (rt_trans (y := [(x, None)] ++ (repeat sb n) ++ [sb' p] ++ [(y, None)])).
+    + rewrite (ltac:(lia) : S n = n + 1) -repeat_appP -?app_assoc. do ? apply: reachable_applI. 
+      apply /rt_step /(stepI (u := []) (v := [])); [by reflexivity| by reflexivity | ].
+      apply /In_appr /In_appr /In_appr /In_appl /in_flat_map. exists p.
+      constructor; [apply /in_seq; by lia | move: Hxy => /= [] [_ ->]; by tauto].
+    + rewrite ?app_assoc. apply: reachable_apprI.
+      apply: (rt_trans (y := [(x, None)] ++ [sb' p] ++ (repeat sb n))).
+      * rewrite -?app_assoc. apply: reachable_applI. by apply: move_sb_left.
+      * apply: rt_step. 
+        apply: (stepI (u := [])); [by reflexivity | by reflexivity |].
+        apply /In_appr /In_appr /In_appr /In_appl /in_flat_map. exists p.
+        constructor; [apply /in_seq; by lia | move: Hxy => /= [] [-> _]; by tauto].
 Qed.
 
 Lemma move_right n : let c := (Nat.iter n (CM2.step cm) c0) in 
@@ -365,14 +362,25 @@ Qed.
 Lemma move_left n : let c := (Nat.iter n (CM2.step cm) c0) in 
   reachable srs (enc_Config' c) (enc_Config c). 
 Proof.
-Admitted.
+  move=> c. subst c.
+  move Hc: (Nat.iter n _ c0) => c.
+  case: c Hc => p a b Hc /=.
+  apply: (reachable_applI (u := repeat sz _)).
+  rewrite ?app_assoc. apply: reachable_apprI.
+  have := cm_state_ub n. rewrite Hc /= => ?.
+  apply: (rt_trans (y := [sl] ++ (repeat sb a) ++ [sm' p] ++ (repeat sb b) ++ [sr])).
+  - rewrite -?app_assoc. do 2 apply: reachable_applI.
+    apply: move_sb_left'; by tauto.
+  - rewrite ?app_assoc. do 2 apply: reachable_apprI.
+    apply: move_sb_left'; by tauto.
+Qed.
 
 Arguments Nat.sub : simpl never.
 Arguments repeat : simpl never.
 
 Lemma simulate_cm_step {n} : let c := (Nat.iter n (CM2.step cm) c0) in
   reachable srs (enc_Config c) (enc_Config (CM2.step cm c)).
-Proof.
+Proof using H_n_cm.
   move=> c. subst c.
   have := cm_value2_ub n. have := cm_value1_ub n.
   have := move_right n. have := move_left (1+n). move=> /=.
@@ -406,8 +414,7 @@ Proof.
       apply: (stepI (u := [])); [done | done |].
       rewrite /srs. apply /In_appr /In_appl /in_flat_map.
       eexists. constructor; [by eassumption | by left].
-    + 
-      rewrite -/(repeat sb (S b')) (ltac:(lia) : S b' = b' + 1) (ltac:(lia) : S n_cm - b' = 1 + (S n_cm - (b' + 1))).
+    + rewrite -/(repeat sb (S b')) (ltac:(lia) : S b' = b' + 1) (ltac:(lia) : S n_cm - b' = 1 + (S n_cm - (b' + 1))).
       rewrite -?repeat_appP -?app_assoc.
       do 5 apply: reachable_applI. apply: rt_step. 
       apply: (stepI (u := [])); [done | done |].
@@ -425,72 +432,186 @@ Proof.
       eexists. constructor; [by eassumption | right; by left].
 Qed.
 
+Lemma reachable_repeat_solI n : reachable srs (repeat sz n ++ [so]) (repeat so (n+1)).
+Proof.
+  elim: n; first by apply: rt_refl.
+  move=> n IH. rewrite -repeat_appP. 
+  have ->: S n = n + 1 by lia.
+  apply: (rt_trans (y := repeat sz n ++ [so] ++ [so]));
+    last by (rewrite ?app_assoc; apply: reachable_apprI).
+  rewrite -repeat_appP -?app_assoc. apply: reachable_applI.
+  apply /rt_step /(stepI (u := [])); [done| done |].
+  do 5 apply /In_appr. rewrite /=. by tauto.
+Qed.
+
+Lemma reachable_repeat_sorI {n x} : x = sb \/ x = sz -> 
+  reachable srs ([so] ++ repeat x n) ([so] ++ repeat so n).
+Proof.
+  move=> Hx. elim: n; first by apply: rt_refl.
+  move=> n IH. 
+  apply: (rt_trans (y := ([so] ++ [so] ++ repeat x n))); last by apply: reachable_applI.
+  apply: rt_step. apply: (stepI (u := [])); [done | done |].
+  do 5 apply /In_appr. by move: Hx => /= [->|->]; tauto.
+Qed.
+
+Lemma reachable_repeat_sorI' {s t n x} : x = sb \/ x = sz -> 
+  reachable srs ([so] ++ s) ([so] ++ t) ->
+  reachable srs ([so] ++ repeat x n ++ s) ([so] ++ repeat so n ++ t).
+Proof.
+  move=> /reachable_repeat_sorI H1 H2.
+  apply: (rt_trans (y := ([so] ++ repeat so n ++ s))).
+  - rewrite ?app_assoc. by apply: reachable_apprI.
+  - have ->: [so] = repeat so 1 by done. rewrite ?app_assoc repeat_appP.
+    have ->: 1 + n = n + 1 by lia. rewrite -repeat_appP -?app_assoc.
+    by apply: reachable_applI.
+Qed.
+
 Lemma simulate_cm_halting {n} : let c := (Nat.iter n (CM2.step cm) c0) in
   halting cm c -> reachable srs (enc_Config c) (repeat so d).
-Proof.
+Proof using H_n_cm.
   move=> c /haltingP. subst c.
   have := cm_value1_ub n. have := cm_value2_ub n. have := cm_state_ub n.
   move: (Nat.iter _ _ c0) => [p a b] /= *.
-  apply: (rt_trans (y := (repeat sz (n_cm - a)) ++ [so; so] ++ _)).
+  apply: (rt_trans (y := (repeat sz (n_cm - a)) ++ [so] ++ [so] ++ _)).
   - apply: rt_step. rewrite (ltac:(lia) : S n_cm - a = (n_cm - a) + 1) -repeat_appP -?app_assoc.
     apply: (stepI (u := repeat sz (n_cm - a))); [done | done |].
     rewrite /srs. apply /In_appr /In_appr /In_appr /In_appr /In_appl.
     apply /in_map_iff. exists p. constructor; first done.
     apply /in_seq. by lia.
-  - apply: reachable_repeat_soI.
-    + congr repeat. rewrite ?app_length ?repeat_length /= /d. by lia.
-    + apply /In_appr. by left.
-    + rewrite ?Forall_norm ?Forall_repeatP (ltac:(done) : (None = None) <-> True).
-      by lia.
+  - apply: (rt_trans (y := (repeat so (n_cm - a + 1) ++ [so] ++
+      repeat sb a ++ [sm] ++ repeat sb b ++ [sr] ++ repeat sz (S n_cm - b)))).
+    + rewrite ?app_assoc. do 6 apply: reachable_apprI. by apply: reachable_repeat_solI.
+    + have ->: d = (n_cm - a + 1) + 1 + a + 1 + b + 1 + (S n_cm - b) by (rewrite /d; lia).
+      rewrite -?repeat_appP -?app_assoc. do 2 apply: reachable_applI.
+      apply: reachable_repeat_sorI'; first by left.
+      apply: (rt_trans (y := ([so] ++ [so] ++ repeat sb b ++ [sr] ++ repeat sz (S n_cm - b)))).
+      * apply: rt_step. apply: (stepI (u := [])); [done | done|].
+        do 5 apply /In_appr. rewrite /=. by tauto.
+      * apply: reachable_applI. apply: reachable_repeat_sorI'; first by left.
+        apply: (rt_trans (y := ([so] ++ [so] ++ repeat sz (S n_cm - b)))).
+        ** apply: rt_step. apply: (stepI (u := [])); [done | done|].
+           do 5 apply /In_appr. rewrite /=. by tauto.
+        ** apply: reachable_applI. apply: reachable_repeat_sorI. by right.
 Qed.
 End Transport.
 
 Lemma transport : CM2_HALT cm -> SR2ab (srs, sz, so).
 Proof.
-  move=> [n /copy [Hn] /(simulate_cm_halting n Hn) H]. exists (@d n).
+  move=> [n /copy [Hn] /(simulate_cm_halting n Hn) H]. exists (@d n - 1).
   apply: rt_trans; last by eassumption.
   apply: rt_trans; first by apply: (reachable_enc_c0).
   elim: (n in Nat.iter n); first by apply: rt_refl.
   move=> m IH {H}. apply: rt_trans; [by exact: IH | by apply: simulate_cm_step].
 Qed.
 
-Print Assumptions transport.
-  
+Section InverseTransport.
+Context (N: nat). (* number of 0s / 1s *)
+Context (HN: reachable srs (repeat sz (1+N)) (repeat so (1+N))). (* 0^N ->> 1^N *)
 
-OBSOLETE
+Local Definition rt_rt1n {A R x y} := @clos_rt_rt1n_iff A R x y.
+
 (* s is (0^n1 l _^a m _^b r 0^n2) with a unique state annotation *)
-Definition enc_Config : Config -> list Symbol -> Prop :=
+Definition encodes : Config -> list Symbol -> Prop :=
   fun '{| state := p; value1 := a; value2 := b |} s => 
-  exists n1 n2, map fst s = 
-    map fst ((repeat sz n1) ++ [sl] ++ (repeat sb a) ++ [sm] ++ (repeat sb b) ++ [sr] ++ (repeat sz n2))
-  /\ exists m1 m2, map snd s = (repeat None (n1 + m1)) ++ [Some p] ++ (repeat None (n2 + m2)).
+  exists u v t, s = u ++ t ++ v /\
+    map fst t = map fst ([sl] ++ repeat sb a ++ [sm] ++ repeat sb b ++ [sr]) /\
+    exists n1 n2, map snd t = repeat None n1 ++ [Some p] ++ repeat None n2.
 
-(* position the state at l *)
-Lemma asd {c s} : enc_Config c s -> exists t, reachable srs s t /\ enc_Config c t /\ In (sl' (state c)) t.
+    (*exists n, nth_error (map snd t) n = Some (Some p) /\ 
+      forall m, m <> n -> nth m (map snd t) None = None.*)
 
-(*
-
-(* in_state p v means that v contains exactly one stateful symbol (containing p) *)
-Inductive in_state (p: nat) : list Symbol -> Prop :=
-  | in_state_hd {v n} : Forall (fun '(_, y) => y = None) v -> in_state p (((n, Some p)) :: v)
-  | in_state_tl {v n} : in_state p v -> in_state p (((n, None)) :: v).
-
-Definition enc_Config : Config -> list Symbol -> Prop :=
-  fun '{| state := p; value1 := a; value2 := b |} s => 
-  exists u v w, 
-    (* s is (u l 0^a m 0^b r v) with a unique state annotation *)
-    s = u ++ v ++ w /\ in_state p v /\ 
-    map fst v = map fst ([sl] ++ (repeat sb a) ++ [sm] ++ (repeat sb b) ++ [sr]).
-
-(* cm step is simulated by sr step *)
-Lemma cm_step_to_sr_step {c: Config} {s: list Symbol} : 
-  enc_Config c s -> exists t, SR01.reachable srs s t /\ enc_Config (CM2.step cm c) t.
+Lemma In_srs_stE {a b c d} : In ((a, b), (c, d)) srs ->
+  ((sz, sz), (st, sr)) = ((a, b), (c, d)) \/
+  ((sz, st), (sl' 0, sm)) = ((a, b), (c, d)) \/
+  if a is (_, None) then (if b is (_, None) then False else True) else True.
 Proof.
-  move: c => [p a b] /= [u] [v] [w] [->] [Hpv Hv].
-  case: (nth_error cm p); first last.
-  { exists (u ++ v ++ w). constructor; [apply: rt_refl | by exists u, v, w]. }
-  case.
-  (* inc instruction *)
-  - 
-*)
+  move=> /in_app_iff []; first by (rewrite /=; tauto).
+  move=> H. right. right. move: H.
+  move=> /in_app_iff [|/in_app_iff [|/in_app_iff [|/in_app_iff []]]].
+  - move=> /in_flat_map [[? i]] [_] /=.
+    move: i => [] [|] => [||?|?] /=; 
+    firstorder (match goal with H : _ = _ |- _ => move: H => [] *; by subst end).
+  - move=> /in_flat_map [?] [_] /=.
+    firstorder (match goal with H : _ = _ |- _ => move: H => [] *; by subst end).
+  - move=> /in_flat_map [?] [_] /=.
+    firstorder (match goal with H : _ = _ |- _ => move: H => [] *; by subst end).
+  - move=> /in_map_iff [?] [[]] *. by subst.
+  - firstorder (match goal with H : _ = _ |- _ => move: H => [] *; by subst end).
+Qed.
 
+
+
+(* working but many cases *)
+Lemma init_encodes : exists s, encodes c0 s /\ reachable srs s (repeat so (1+N)).
+Proof using HN.
+  have [s] : exists s, 
+    reachable srs s (repeat so (1+N)) /\ 
+    Forall (fun x => snd x = None) s /\
+    forall n, nth n s sz = st -> nth (1+n) s sz = sr.
+  { eexists. constructor; [|constructor]; [by eassumption | apply /Forall_repeatP; by tauto |].
+    move: (1+N) => m n H. exfalso. elim: n m H; first by case.
+    move=> n IH [|m]; [done | by apply: IH]. }
+  move Ht: (repeat so (1+N)) => t [/rt_rt1n Hst] [].
+  elim: Hst Ht; first by move=> ? <- /ForallE [].
+  move=> {}s {}t > Hst Ht IH /IH {IH}.
+  case: Hst Ht => u v a b c d /In_srs_stE [|[]].
+  - move=> [] <- <- <- <- _ IH.
+    move=> /Forall_appP [Hu] /ForallE [_] /ForallE [_ Ht] Huv.
+    apply: IH.
+    + apply /Forall_appP. constructor; first done.
+      constructor; [done | by constructor].
+    + move=> n. have := Huv n. elim: (u) n; first by move=> [|[|n]].
+      clear. move=> x {}u IH [|n]; last by move/IH.
+      move: (u) => [|? ?]; [by move=> H /H | done].
+  - move=> [] <- <- <- <- /rt_rt1n Ht _ _ /(_ (1 + length u)).
+    do 2 (rewrite app_nth2; first by lia).
+    rewrite (ltac:(lia) : 1 + length u - length u = 1) (ltac:(lia) : 1 + (1 + length u) - length u = 2).
+    move=> /(_ ltac:(done)) Hv. eexists. constructor; last by eassumption.
+    move: (v) Hv => [|? v']; first done.
+    move=> /= ->. exists u, v', [sl' 0; sm; sr].
+    do 2 (constructor; first done). by exists 0, 2.
+  - move=> H _ _ /Forall_appP [_] /ForallE [+] /ForallE [+] _.
+    by move: a b H => [? [?|]] [? [?|]].
+Qed.
+
+(* each srs step is sound *)
+Lemma simulate_srs_step {c s t} : encodes c s -> SR01.step srs s t -> 
+  halting cm c \/ encodes c t \/ encodes (CM2.step cm c) t.
+Proof.
+Admitted.
+
+Lemma halting_cmI : exists n, halting cm (Nat.iter n (CM2.step cm) c0).
+Proof using HN.
+  have [s [H1s H2s]] := init_encodes.
+  move Ht: (repeat so (1+N)) (c0) H2s H1s => t c Hst.
+  have {}Ht : Forall (fun x => fst so = x) (map fst t).
+  { subst t. elim: (N); by constructor. }
+  move: Hst Ht c. move=> /rt_rt1n. elim.
+  - move=> {}s Hs [? ? ?] /= [?] [?] [{}t] [?] [H]. subst s.
+    move: Hs. rewrite ?map_app ?Forall_appP H.
+    by move=> [_] [/ForallE] [].
+  - move=> > /simulate_srs_step H _ IH /IH {}IH c /H {H} [|[]].
+    + move=> ?. by exists 0.
+    + by move=> /IH.
+    + move=> /IH [n Hn]. exists (n + 1). by rewrite iter_plus.
+Qed.
+
+End InverseTransport.
+
+Lemma inverse_transport : SR2ab (srs, sz, so) -> CM2_HALT cm.
+Proof. move=> [n Hn]. apply: halting_cmI. by eassumption. Qed.
+
+End Reduction.
+End Argument.
+
+Require Import Undecidability.Synthetic.Definitions.
+
+Theorem reduction : CM2_HALT ⪯ SR2ab.
+Proof.
+  exists (fun cm => (Argument.srs cm, (4, None), (5, Some 0))).
+  intro cm. constructor.
+  - exact (Argument.transport cm).
+  - exact (Argument.inverse_transport cm).
+Qed.
+
+Print Assumptions reduction.

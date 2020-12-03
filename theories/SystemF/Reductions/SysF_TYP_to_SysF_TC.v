@@ -19,6 +19,8 @@ From Undecidability.SystemF.Util Require Import Facts poly_type_facts pure_term_
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Proof Using "Type".
+
 Module Argument.
 Section SysF_TYP_to_SysF_TC.
 

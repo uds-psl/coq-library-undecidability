@@ -8,8 +8,9 @@ Require Import Undecidability.PCP.Util.PCP_facts.
 Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Shared.ListAutomation.
 
-(* * MPCP to PCP *)
+Set Default Proof Using "Type".
 
+(* * MPCP to PCP *)
 Section MPCP_PCP.
   Local Definition card := card nat.
   Local Definition string := string nat.

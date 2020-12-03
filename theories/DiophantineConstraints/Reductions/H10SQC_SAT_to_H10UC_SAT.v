@@ -19,6 +19,8 @@ Require Import Undecidability.DiophantineConstraints.H10C.
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Proof Using "Type".
+
 Module Argument.
 
 (* bijection from nat * nat to nat *)
@@ -152,14 +154,14 @@ Context (φ' : nat -> nat) (Hφ': forall c, In c ucs -> h10uc_sem φ' c).
 Definition φ (x: nat) := φ' (ζ x 0).
 
 Lemma v_spec : φ' (v 0) = 0 /\ φ' (v 1) = 1.
-Proof.
+Proof using Hφ'.
   move: (Hφ'). rewrite -Forall_forall /ucs Forall_app /v012.
   move=> [/ForallE [+]] /ForallE [+] /ForallE [+] _ _ => /=.
   by lia.
 Qed.
 
 Lemma h10sqc_of_h10ucs_spec {c} : Forall (h10uc_sem φ') (h10sqc_to_h10ucs c) -> h10sqc_sem φ c.
-Proof.
+Proof using Hφ'.
   case: c => /=.
   - move=> x /ForallE []. rewrite /= ?(proj1 v_spec) /φ. by lia.
   - move=> x y z. do 9 (move=> /ForallE /and_comm []).

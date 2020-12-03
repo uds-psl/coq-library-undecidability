@@ -26,6 +26,8 @@ From Undecidability.StackMachines.Util Require Import CSSM_facts.
 Require Import Undecidability.SemiUnification.SemiU. 
 From Undecidability.SemiUnification.Util Require Import Facts Enumerable.
 
+Set Default Proof Using "Type".
+
 Module Argument.
 
 (* inject configuration into nat *)
@@ -66,7 +68,7 @@ Definition nf (X: config) : config := nf_aux (embed X) X.
 
 (* X is equivalent to its normal form *)
 Lemma nf_equiv (X: config) : equiv X (nf X).
-Proof.
+Proof using confluent_M.
   rewrite /nf. move: (embed X) => i. elim: i X.
     move=> X /=. by apply: equiv_refl.
   move=> i IH X /=.
@@ -76,7 +78,7 @@ Proof.
 Qed.
 
 Lemma nf_equiv_eq_ind (X Y: config) (j: nat) : equiv X Y -> embed X < j -> nf_aux j Y = nf_aux (embed X) X.
-Proof.
+Proof using confluent_M.
   elim: j X Y; first by lia.
   move=> i IH X Y HXY HXi /=.
   case: (equiv_dec (unembed i) Y)=> /=.
@@ -91,7 +93,7 @@ Qed.
 
 (* normal forms of equivalent configurations are equal *)
 Lemma nf_equiv_eq (X Y: config) : equiv X Y -> nf X = nf Y.
-Proof.
+Proof using confluent_M.
   have: (embed X = embed Y \/ embed X < embed Y \/ embed Y < embed X) by lia.
   case.
     move /(f_equal unembed). rewrite ? embedP. by move=> ->.
@@ -147,7 +149,7 @@ Qed.
 
 Lemma ζ_equivP {n: nat} {x x': state} {A B A' B': stack} : bounded' n -> equiv (A, B, x) (A', B', x') -> 
   ζ (S n - length B) (A, B, x) = ζ (S n - length B') (A', B', x').
-Proof.
+Proof using confluent_M.
   move /(extend_bounded' confluent_M) => Hn. move Hm: (S n - length B)=> m.
   elim: m A B A' B' Hm.
   - move=> A B A' B' HnB Hxx'.
@@ -182,7 +184,7 @@ Proof. by rewrite /ψ embedP. Qed.
 
 Lemma ψζP {n: nat} {x: state} {A B: stack} {a: bool} : bounded' n -> 
   ζ (S n - length B) (A ++ [a], B, x) = substitute (ψ a (S n)) (ζ (S n - length B) (A, B, x)).
-Proof.
+Proof using confluent_M.
   move=> Hn. move Hm: (S n - length B)=> m.
   elim: m x A B Hm.
   - move=> x A B Hm. rewrite ? ζ_0P /= ψP.

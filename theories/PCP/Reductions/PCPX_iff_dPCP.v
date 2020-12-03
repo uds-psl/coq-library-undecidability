@@ -7,6 +7,8 @@ Require Import Undecidability.PCP.Util.Facts.
 Require Import Undecidability.Shared.ListAutomation.
 Require Import Undecidability.Synthetic.Definitions.
 
+Set Default Proof Using "Type".
+
 Section derivable_iff_PCPX.
 
   Variable X : Type.
@@ -48,5 +50,3 @@ Proof. exists id; intro; now rewrite PCPX_iff_dPCP. Qed.
 
 Lemma reductionRL (X : Type) : @dPCP X ⪯ @PCPX X.
 Proof. exists id; intro; now rewrite PCPX_iff_dPCP. Qed.
-
-

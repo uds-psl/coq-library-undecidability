@@ -19,6 +19,8 @@ From Undecidability.SemiUnification.Util Require Import Facts Enumerable.
 
 Require Import ssreflect ssrfun ssrbool.
 
+Set Default Proof Using "Type".
+
 Module Argument.
 Definition embed_var (x: nat) := atom (to_nat (x, 0)).
   
@@ -75,7 +77,7 @@ Section RU2SemiU_LU2SemiU.
     (* if the given right-uniform semi-unification instance is solvable, 
       then so is the constructed left-uniform semi-unification instance *)
     Lemma transport : LU2SemiU (s', t0', t1').
-    Proof.
+    Proof using φ ψ0 ψ1 Hψ0 Hψ1.
       exists φ', ψ0', ψ1'. constructor.
       - rewrite /s' /t0' /=. congr arr; rewrite ?substitute_φ'P substitute_ψ0'P ?/φ' ?enumP; by congruence.
       - rewrite /s' /t1' /=. congr arr; rewrite ?substitute_φ'P substitute_ψ1'P ?/φ' ?enumP; by congruence.
@@ -96,7 +98,7 @@ Section RU2SemiU_LU2SemiU.
     (* if the constructed left-uniform semi-unification instance is solvable, 
       then so is given right-uniform semi-unification instance *)
     Lemma reflection : RU2SemiU (s0, s1, t).
-    Proof.
+    Proof using φ' ψ0' ψ1' Hψ0' Hψ1'.
       exists (fun x => φ' (to_nat (x, 0))), ψ0', ψ1'. move: Hψ0' Hψ1'.
       rewrite ?(substitute_embed_var (ξ := φ')) /s' /t0' /t1' /=.
       move=> ? ?. constructor; by congruence. 
