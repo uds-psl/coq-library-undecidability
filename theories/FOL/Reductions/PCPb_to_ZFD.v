@@ -14,16 +14,66 @@ Import ListAutomationNotations.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
+Local Definition BSRS := list(card bool).
+Local Notation "x / y" := (x, y).
+
+
+
+(** ** Rudimentary tactics for ND manipulations *)
+
+(* Ltac subsimpl_in' H :=
+  rewrite !subst_term_comp, !subst_term_id in H; try now intros [|[|[|[|[|]]]]].
+
+Ltac subsimpl' :=
+  rewrite !subst_term_comp, !subst_term_id; try now intros [|[|[|[|[|]]]]]. *)
+
+Ltac subsimpl_in H :=
+  rewrite ?up_term, ?subst_term_shift in H.
+
+Ltac subsimpl :=
+  rewrite ?up_term, ?subst_term_shift.
+
+Ltac assert1 H :=
+  match goal with |- (?phi :: ?T) ⊢ _ => assert (H : (phi :: T) ⊢ phi) by auto end.
+
+Ltac assert2 H :=
+  match goal with |- (?phi :: ?psi :: ?T) ⊢ _ => assert (H : ?phi :: ?psi :: T ⊢ psi) by auto end.
+
+Ltac prv_all x :=
+  apply AllI; edestruct nameless_equiv_all as [x ->]; cbn; subsimpl.
+
+Ltac use_exists H x :=
+  apply (ExE _ H); edestruct nameless_equiv_ex as [x ->]; cbn -[comb_rel is_rep]; subsimpl.
+
+
+
+(** ** General ND lemmas *)
+
+Section ZF.
+
+Context { p : peirce }.
+
+Lemma imps T phi psi :
+  T ⊢ phi --> psi <-> (phi :: T) ⊢ psi.
+Proof.
+  split; try apply II.
+  intros H. apply IE with phi; auto. apply (Weak H). auto.
+Qed.
+
+Lemma CE T phi psi :
+  T ⊢ phi ∧ psi -> T ⊢ phi /\ T ⊢ psi.
+Proof.
+  intros H. split.
+  - apply (CE1 H).
+  - apply (CE2 H).
+Qed.
+
 
 
 
 (** ** Simple derivations in ZF *)
 
 Close Scope sem.
-
-Section ZF.
-
-Context { p : peirce }.
 
 Lemma ZF_eset x :
   ZFeq' ⊢ ¬ (x ∈ ∅).
@@ -66,18 +116,6 @@ Lemma ZF_refl x :
 Proof.
   now apply ZF_refl'.
 Qed.
-
-(* Ltac subsimpl_in' H :=
-  rewrite !subst_term_comp, !subst_term_id in H; try now intros [|[|[|[|[|]]]]].
-
-Ltac subsimpl' :=
-  rewrite !subst_term_comp, !subst_term_id; try now intros [|[|[|[|[|]]]]]. *)
-
-Ltac subsimpl_in H :=
-  rewrite ?up_term, ?subst_term_shift in H.
-
-Ltac subsimpl :=
-  rewrite ?up_term, ?subst_term_shift.
 
 Lemma ZF_sym' T x y :
   ZFeq' <<= T -> T ⊢ x ≡ y -> T ⊢ y ≡ x.
@@ -130,9 +168,6 @@ Lemma ZF_pair_el x y z :
 Proof.
   now apply ZF_pair_el'.
 Qed.
-
-Ltac prv_all x :=
-  apply AllI; edestruct nameless_equiv_all as [x ->]; cbn; subsimpl.
 
 Lemma ZF_sub_pair T x y x' y' :
   ZFeq' <<= T -> T ⊢ x ≡ x' -> T ⊢ y ≡ y' -> T ⊢ {x; y} ⊆ {x'; y'}.
@@ -193,16 +228,6 @@ Proof.
   now apply ZF_union_el'.
 Qed.
 
-Ltac assert1 H :=
-  match goal with  |- (?phi :: ?T) ⊢ _ => assert (H : (phi :: T) ⊢ phi) by auto end.
-
-Ltac assert2 H :=
-  match goal with  |- (?phi :: ?psi :: ?T) ⊢ _
-                   => assert (H : ?phi :: ?psi :: T ⊢ psi) by auto end.
-
-Ltac use_exists H x :=
-  apply (ExE _ H); edestruct nameless_equiv_ex as [x ->]; cbn; subsimpl.
-
 Lemma ZF_sub_union T x y :
   ZFeq' <<= T -> T ⊢ x ≡ y -> T ⊢ sub (⋃ x) (⋃ y).
 Proof.
@@ -239,13 +264,6 @@ Lemma ZF_bunion_el x y z :
   ZFeq' ⊢ (z ∈ x ∨ z ∈ y) -> ZFeq' ⊢ z ∈ x ∪ y.
 Proof.
   now apply ZF_bunion_el'.
-Qed.
-
-Lemma imps T phi psi :
-  T ⊢ phi --> psi <-> (phi :: T) ⊢ psi.
-Proof.
-  split; try apply II.
-  intros H. apply IE with phi; auto. apply (Weak H). auto.
 Qed.
 
 Lemma ZF_bunion_inv' x y z :
@@ -430,6 +448,12 @@ Qed.
 
 (** ** Preservation proof *)
 
+Fixpoint enc_derivations B n :=
+  match n with 
+  | O => sing (opair ∅ (enc_stack B))
+  | S n => enc_derivations B n ∪ sing (opair (tnumeral (S n)) (enc_stack (derivations B (S n))))
+  end.
+
 Lemma enc_derivations_base R n :
   ZFeq' ⊢ {{∅; ∅}; {∅; enc_stack R}} ∈ enc_derivations R n.
 Proof.
@@ -455,7 +479,6 @@ Proof.
   - apply ZF_bunion_el. apply DI1. now apply IH.
 Qed.
 
-
 Lemma ZF_derivations_bound T B k n x :
   ZFeq' <<= T -> T ⊢ opair k x ∈ enc_derivations B n -> T ⊢ k ∈ σ (tnumeral n).
 Proof.
@@ -465,55 +488,59 @@ Proof.
     apply ZF_refl'; trivial. eapply ZF_bunion_el'; trivial.
     apply DI2. apply ZF_sing_iff; trivial. apply ZF_refl'; trivial.
   - apply ZF_bunion_inv in H; trivial. apply (DE H).
-    + apply ZF_bunion_el1. auto. apply IHn; try apply prv_T1. auto.
+    + apply ZF_bunion_el1. auto. apply IHn; auto.
     + apply ZF_bunion_el2. auto. apply ZF_sing_iff. auto.
-      eapply opair_inj1. auto. apply ZF_sing_iff; try apply prv_T1. auto.
+      eapply opair_inj1. auto. apply ZF_sing_iff; auto.
 Qed.
 
-Lemma enc_derivations_functional B n :
-  ZFeq' ⊢ opair $2 $1 ∈ enc_derivations B n --> opair $2 $0 ∈ enc_derivations B n --> $ 1 ≡ $ 0.
+Lemma enc_derivations_functional B n x y y' :
+  ZFeq' ⊢ opair x y ∈ enc_derivations B n --> opair x y' ∈ enc_derivations B n --> y ≡ y'.
 Proof.
   induction n; cbn -[derivations].
-  - repeat apply impl. eapply opair_inj2. auto. eapply ZF_trans'. auto.
-    + apply ZF_sing_iff; try apply prv_T2. auto.
-    + apply ZF_sym'. auto. apply ZF_sing_iff; try apply prv_T1. auto.
+  - repeat apply II. eapply opair_inj2. auto. eapply ZF_trans'. auto.
+    + apply ZF_sing_iff; auto.
+    + apply ZF_sym'. auto. apply ZF_sing_iff; auto.
   - apply bunion_use; try apply bunion_use. 1,2,5: auto.
-    + repeat apply imp. now apply (Weak IHn).
-    + apply exf. eapply IE. apply (@ZF_numeral_wf _ (S n)). auto.
-      eapply ZF_derivations_bound. auto. eapply ZF_eq_elem; try apply prv_T2. auto.
-      2: apply ZF_refl'. 2: auto. apply ZF_eq_opair. auto.
-      eapply opair_inj1; try apply prv_T1. auto. apply ZF_refl'. auto.
-    + apply exf. eapply IE. apply (@ZF_numeral_wf _ (S n)). auto.
-      eapply ZF_derivations_bound. auto. eapply ZF_eq_elem; try apply prv_T1. auto.
-      2: apply ZF_refl'. 2: auto. apply ZF_eq_opair. auto.
-      eapply opair_inj1; try apply prv_T2. auto. apply ZF_refl'. auto.
-    + eapply opair_inj2. auto. eapply ZF_trans'; try apply prv_T2. auto.
-      apply ZF_sym'; try apply prv_T1. auto.
+    + repeat rewrite <- imps. now apply (Weak IHn).
+    + apply Exp. eapply IE. apply (@ZF_numeral_wf _ (S n)). auto.
+      eapply ZF_derivations_bound. auto. eapply ZF_eq_elem. auto.
+      2: apply ZF_refl'; auto. 2: auto. apply ZF_eq_opair; auto.
+      eapply opair_inj1; auto. apply ZF_refl'. auto.
+    + apply Exp. eapply IE. apply (@ZF_numeral_wf _ (S n)). auto.
+      eapply ZF_derivations_bound. auto. eapply ZF_eq_elem. auto.
+      2: apply ZF_refl'; auto. 2: auto. apply ZF_eq_opair; auto.
+      eapply opair_inj1; auto. apply ZF_refl'. auto.
+    + eapply opair_inj2. auto. eapply ZF_trans'; auto.
+      apply ZF_sym'; auto.
 Qed.
 
 Lemma prep_string_subst sigma s x :
-  subst_term sigma (prep_string s x) = prep_string s (subst_term sigma x).
+  (prep_string s x)`[sigma] = prep_string s x`[sigma].
 Proof.
-  induction s; cbn; trivial. rewrite IHs.
-  rewrite substt_bounded0; eauto.
-  apply enc_bool_bounded0.
+  induction s; cbn; trivial. rewrite IHs. destruct a; reflexivity.
+Qed.
+
+Lemma enc_stack_subst sigma B :
+  (enc_stack B)`[sigma] = enc_stack B.
+Proof.
+  induction B as [|[s t] B IH]; cbn; trivial.
+  rewrite IH. unfold enc_string. now rewrite !prep_string_subst.
 Qed.
 
 Lemma is_rep_subst s t x y sigma :
-  subst_form sigma (is_rep (comb_rel s t) x y) =
-  is_rep (comb_rel s t) (subst_term sigma x) (subst_term sigma y).
+  (is_rep (comb_rel s t) x y)[sigma] = is_rep (comb_rel s t) x`[sigma] y`[sigma].
 Proof.
-  unfold is_rep. cbn -[comb_rel]. asimpl. repeat f_equal.
+  unfold is_rep. cbn -[comb_rel]. subsimpl. repeat f_equal.
   - unfold comb_rel. cbn. rewrite !prep_string_subst. reflexivity.
   - unfold comb_rel. cbn. rewrite !prep_string_subst. reflexivity.
 Qed.
 
 Lemma combinations_subst B x y sigma :
-  subst_form sigma (combinations B x y) = combinations B (subst_term sigma x) (subst_term sigma y).
+  (combinations B x y)[sigma] = combinations B x`[sigma] y`[sigma].
 Proof.
   induction B as [|[s t] B IH] in sigma, x, y |- *.
   - cbn. reflexivity.
-  - cbn -[is_rep]. rewrite IH, is_rep_subst. cbn -[is_rep]. now asimpl.
+  - cbn -[is_rep]. rewrite IH, is_rep_subst. cbn -[is_rep]. now subsimpl.
 Qed.
 
 Lemma enc_derivations_eq T B n x :
@@ -522,12 +549,12 @@ Proof.
   intros HT H. destruct n; cbn in *.
   - eapply opair_inj2; trivial. eapply ZF_sing_iff; eauto.
   - apply ZF_bunion_inv in H; trivial. apply (DE H).
-    + apply exf. eapply IE. apply (ZF_numeral_wf (S n)). auto.
-      eapply ZF_derivations_bound. auto. apply prv_T1.
-    + eapply opair_inj2. auto. apply ZF_sing_iff. auto. apply prv_T1.
+    + apply Exp. eapply IE. apply (ZF_numeral_wf (S n)). auto.
+      eapply ZF_derivations_bound. auto. auto.
+    + eapply opair_inj2. auto. apply ZF_sing_iff. auto. auto.
 Qed.
 
-Lemma enc_stack_app {T} {HB : bounded_theory T} B C :
+Lemma enc_stack_app T B C :
   ZFeq' <<= T -> T ⊢ (enc_stack B) ∪ (enc_stack C) ≡ enc_stack (B ++ C).
 Proof.
   intros HT. induction B as [|[s t] B IH]; cbn.
@@ -554,76 +581,73 @@ Lemma append_all_el T B s t x y :
   -> T ⊢ opair (prep_string s x) (prep_string t y) ∈ enc_stack (append_all B (s/t)).
 Proof.
   intros HT H. induction B as [|[u v] B IH] in T, HT, H |- *; cbn in *.
-  - apply exf. eapply IE. 2: apply H. now apply ZF_eset'.
+  - apply Exp. eapply IE. 2: apply H. now apply ZF_eset'.
   - eapply (ZF_bunion_el' HT). eapply DE. apply (ZF_bunion_inv HT H).
-    + apply DI1. apply IH; try apply prv_T1. auto.
+    + apply DI1. apply IH; auto.
     + assert1 H'. apply ZF_sing_iff in H'; try now auto.
       apply DI2. apply ZF_sing_iff. auto.
       rewrite !prep_string_app. apply ZF_eq_opair. auto.
-      * apply ZF_eq_prep. auto. eapply opair_inj1; eauto. auto.
-      * apply ZF_eq_prep. auto. eapply opair_inj2; eauto. auto.
+      * apply ZF_eq_prep. auto. eapply opair_inj1; eauto.
+      * apply ZF_eq_prep. auto. eapply opair_inj2; eauto.
 Qed.
 
-Lemma is_rep_eq {T} {HB : bounded_theory T} B s t x y :
+Lemma is_rep_eq T B s t x y :
   ZFeq' <<= T -> T ⊢ x ≡ enc_stack B -> T ⊢ is_rep (comb_rel s t) x y
   -> T ⊢ y ≡ enc_stack (append_all B (s / t)).
 Proof.
   intros HT H1 H2. apply ZF_ext'; trivial.
-  - apply bt_all. intros a. cbn.
-    eapply AllE in H2. cbn -[comb_rel] in H2.
-    eapply CE1 in H2. eapply imps. apply H2.
-    apply impl. assert1 H. use_exists H b. apply prv_clear2. clear H.
-    cbn -[comb_rel]. asimpl. assert1 H. apply CE in H as [H H'].
-    unfold comb_rel at 2 in H'. cbn -[comb_rel] in H'. asimpl in H'.
+  - prv_all a.
+    apply (AllE a) in H2. cbn -[comb_rel] in H2. subsimpl_in H2.
+    eapply CE1 in H2. rewrite imps in *.
+    use_exists H2 z. assert1 H. apply CE in H as [H H'].
+    unfold comb_rel at 2 in H'. cbn -[comb_rel] in H'. subsimpl_in H'.
     rewrite !prep_string_subst in H'. cbn -[comb_rel] in H'. 
     use_exists H' c. clear H'.
-    cbn -[comb_rel]. asimpl. rewrite !prep_string_subst. cbn -[comb_rel].
+    cbn -[comb_rel]. subsimpl. rewrite !prep_string_subst. cbn -[comb_rel].
     assert1 H'. use_exists H' d. clear H'.
-    cbn -[comb_rel]. asimpl. rewrite !prep_string_subst. cbn -[comb_rel]. asimpl.
+    cbn -[comb_rel]. subsimpl. rewrite !prep_string_subst. cbn -[comb_rel]. subsimpl.
     eapply ZF_eq_elem. auto. apply ZF_sym'. auto.
-    eapply CE2. apply prv_T1. apply ZF_refl'. auto.
+    eapply CE2. auto. apply ZF_refl'. auto.
     apply append_all_el. auto.
-    eapply ZF_eq_elem. auto. eapply CE1. apply prv_T1.
+    eapply ZF_eq_elem. auto. eapply CE1. auto.
     eapply (Weak H1). auto. eapply (Weak H). auto.
-  - apply bt_all. intros a. cbn. asimpl.
-    apply (@AllE _ _ _ _ _ a) in H2. cbn -[comb_rel] in H2. asimpl in H2.
-    eapply CE2 in H2. eapply imps. 2: apply H2. clear H2. apply impl.
-    induction B as [|[u v] B IH] in T, x, HT, H1, HB |- *; cbn -[comb_rel] in *.
-    + apply exf. eapply IE; try apply prv_T1. apply ZF_eset'. auto.
-    + apply imp. apply bunion_use; trivial.
-      * specialize (IH T HB (enc_stack B) HT).
+  - prv_all a. apply (AllE a) in H2. cbn -[comb_rel] in H2. subsimpl_in H2.
+    eapply CE2 in H2. apply II. eapply IE; try apply (Weak H2). auto.
+    induction B as [|[u v] B IH] in T, x, HT, H1 |- *; cbn -[comb_rel] in *.
+    + apply Exp. eapply IE. apply ZF_eset'. all: auto.
+    + rewrite <- imps. apply bunion_use; trivial.
+      * specialize (IH T (enc_stack B) HT).
         assert (H : T ⊢ enc_stack B ≡ enc_stack B) by now apply ZF_refl'.
         apply IH in H. use_exists H z. clear H. apply ExI with z.
-        cbn -[comb_rel]. asimpl. assert1 H. apply CE in H as [H H'].
+        cbn -[comb_rel]. subsimpl. assert1 H. apply CE in H as [H H'].
         apply CI; trivial. eapply ZF_eq_elem. auto.
         apply ZF_refl'. auto. apply ZF_sym'. auto.
         apply (Weak H1). auto. apply ZF_bunion_el1; trivial. auto.
       * apply ExI with (opair (enc_string u) (enc_string v)).
-        cbn -[comb_rel]. asimpl. apply CI.
+        cbn -[comb_rel]. subsimpl. apply CI.
         -- eapply ZF_eq_elem. auto. apply ZF_refl'. auto.
            apply ZF_sym'. auto. apply (Weak H1). auto.
-           apply ZF_bunion_el2. auto. eapply Weak. apply ZF_sing_el.
-           auto.
+           apply ZF_bunion_el2. auto. eapply Weak. apply ZF_sing_el. auto.
         -- cbn. apply ExI with (enc_string v).
            cbn. apply ExI with (enc_string u).
-           cbn. asimpl. rewrite !prep_string_subst, !prep_string_app; cbn.
-           apply CI; try apply prv_T1. apply ZF_refl'. auto.
+           cbn. subsimpl. rewrite !prep_string_subst, !prep_string_app; cbn.
+           subsimpl. apply CI; auto. apply ZF_refl'. auto.
 Qed.
 
-Lemma combinations_eq {T} {HB : bounded_theory T} B C x y :
+Lemma combinations_eq T B C x y :
   ZFeq' <<= T -> T ⊢ x ≡ enc_stack C -> T ⊢ combinations B x y -> T ⊢ y ≡ enc_stack (derivation_step B C).
 Proof.
-  induction B as [|[s t] B IH] in y, T, HB |-*; cbn; intros HT H1 H2; trivial.
-  use_exists H2 u. clear H2. cbn -[is_rep]. asimpl. assert1 H. use_exists H v. clear H. apply prv_clear2.
-  cbn -[is_rep]. asimpl. rewrite !combinations_subst, !is_rep_subst. cbn -[is_rep]. asimpl.
-  eapply ZF_trans'. auto. eapply CE1. apply prv_T1.
-  eapply ZF_trans'. auto. 2: apply enc_stack_app; eauto. 2: auto.
-  apply ZF_eq_bunion; eauto. auto.
-  - eapply is_rep_eq; eauto. auto. apply prv_clear1. eauto.
-    eapply CE2. eapply CE2. apply prv_T1.
-  - apply IH; eauto. auto.
-    + now apply prv_clear1.
-    + eapply CE1. eapply CE2. apply prv_T1.
+  induction B as [|[s t] B IH] in y, T |-*; cbn; intros HT H1 H2; trivial.
+  use_exists H2 u. assert1 H. use_exists H v. clear H.
+  rewrite !combinations_subst, !is_rep_subst. cbn -[is_rep]. subsimpl.
+  eapply ZF_trans'. auto. eapply CE1. eapply CE1. auto.
+  eapply ZF_trans'. auto. 2: apply enc_stack_app; auto.
+  apply ZF_eq_bunion; auto.
+  - eapply is_rep_eq; auto. apply (Weak H1); auto.
+    eapply CE2. auto.
+  - apply IH; auto.
+    + apply (Weak H1); auto.
+    + eapply CE2. eapply CE1. auto.
 Qed.
 
 Lemma combinations_step B n (i x y : term) :
@@ -631,68 +655,56 @@ Lemma combinations_step B n (i x y : term) :
      --> combinations B x y --> opair (σ i) y ∈ enc_derivations B n.
 Proof.
   induction n; cbn.
-  - apply impl. apply exf.
-    apply imp. apply ZF_eset.
-  - apply bunion_use; try apply bunion_use.
-    apply tsubs_refl. 1, 4: apply tsubs_extend.
-    + apply impl. apply ZF_bunion_el'. auto.
+  - apply II. apply Exp.
+    apply imps. apply ZF_eset.
+  - apply bunion_use; try apply bunion_use; auto.
+    + apply II. apply ZF_bunion_el'. auto.
       apply DI1. eapply IE. eapply IE. eapply IE.
       * eapply Weak. apply IHn. auto.
-      * apply prv_T3.
-      * apply prv_T2.
-      * apply prv_T1.
-    + apply exf. eapply IE. apply (ZF_numeral_wf (S n)). auto.
-      eapply ZF_eq_elem. auto. eapply opair_inj1. auto. apply prv_T1.
+      * auto.
+      * auto.
+      * auto.
+    + apply Exp. eapply IE. apply (ZF_numeral_wf (S n)). auto.
+      eapply ZF_eq_elem. auto. eapply opair_inj1. auto. auto.
       apply ZF_refl'. auto. cbn. apply ZF_bunion_el'. auto.
-      apply DI1. apply prv_T2.
-    + apply impl. apply ZF_bunion_el'. auto.
+      apply DI1. auto.
+    + apply II. apply ZF_bunion_el'. auto.
       apply DI2. apply ZF_sing_iff. auto.
       apply ZF_eq_opair. auto.
-      * apply ZF_eq_sig; eauto. auto. apply prv_T3.
-      * eapply combinations_eq; eauto; try apply prv_T1. auto.
+      * apply ZF_eq_sig; auto.
+      * eapply combinations_eq; auto.
         apply enc_derivations_eq. auto.
-        eapply ZF_eq_elem; try apply prv_T2; try apply ZF_refl'. 1, 3: auto.
-        eapply ZF_eq_opair; try apply prv_T3; try apply ZF_refl'. all: auto.
-    + apply exf. eapply IE. apply (ZF_numeral_wf n). auto.
+        eapply ZF_eq_elem; auto; try apply ZF_refl'; auto.
+        eapply ZF_eq_opair; auto; try apply ZF_refl'. auto.
+    + apply Exp. eapply IE. apply (ZF_numeral_wf n). auto.
       eapply ZF_eq_elem. auto. apply ZF_refl'. auto.
       eapply ZF_trans'. auto. apply ZF_sym'. auto.
-      eapply opair_inj1. auto. apply prv_T1. apply prv_T2.
+      eapply opair_inj1. auto. auto. auto.
       apply ZF_sig_el. auto.
 Qed.
-
-Theorem BPCP_slv B :
-  BPCP' B -> ZFeq' ⊢ solvable B.
-Proof.
-  intros [s H]. destruct (derivable_derivations H) as [n Hn].
-  apply ExI with (tnumeral n);
-  apply ExI with (enc_derivations B n);
-  apply ExI with (opair (enc_string s) (enc_string s));
-  apply ExI with (enc_string s);
-  apply ExI with (enc_stack (derivations B n)); fold subst_form.
-  cbn; rewrite !substt_bounded0; repeat apply perst_bounded0; eauto.
-  repeat apply CI.
-  - apply ZF_numeral.
-  - repeat apply ZF_all. asimpl. unfold unscoped.shift.
-    apply enc_derivations_functional.
-  - apply enc_derivations_base.
-  - repeat apply ZF_all. rewrite !combinations_subst. cbn. asimpl.
-    rewrite !combinations_subst. cbn. unfold unscoped.shift.
-    apply combinations_step.
-  - apply enc_derivations_step.
-  - now apply enc_stack_spec.
-  - apply ZF_refl.
-Qed.
-
-
-
-
-
-(** ** Main Theorem *)
 
 Theorem dPCP_ZFD B :
   dPCPb B -> ZFeq' ⊢ solvable B.
 Proof.
-Admitted.
+  intros [s H]. destruct (derivable_derivations H) as [n Hn].
+  unfold solvable.
+  apply ExI with (tnumeral n). cbn.
+  apply ExI with (enc_derivations B n). cbn.
+  apply ExI with (opair (enc_string s) (enc_string s)). cbn.
+  apply ExI with (enc_string s). cbn. subsimpl.
+  apply ExI with (enc_stack (derivations B n)). cbn.
+  rewrite !enc_stack_subst, !combinations_subst. cbn. subsimpl.
+  repeat apply CI.
+  - apply ZF_numeral.
+  - prv_all x. prv_all y. prv_all z.
+    apply enc_derivations_functional.
+  - apply enc_derivations_base.
+  - prv_all x. prv_all y. prv_all z. rewrite !combinations_subst.
+    cbn. subsimpl. apply combinations_step.
+  - apply enc_derivations_step.
+  - now apply enc_stack_spec.
+  - apply ZF_refl.
+Qed.
 
 Theorem PCP_ZFD B :
   PCPb B -> ZFeq' ⊢ solvable B.

@@ -55,7 +55,7 @@ Proof.
    intros (V & M & H1 & H2 & H3).
    apply (undecidability_from_reducibility PCPb_undec).
    exists solvable. intros B. split.
-   - intros H % PCP_ZFD. exists ZFeq'. split; eauto using ZFeq.
+   - intros H % (@PCP_ZFD intu). exists ZFeq'. split; eauto using ZFeq.
    - intros H'. specialize (tsoundness H'). clear H'. intros H'.
      apply PCPb_iff_dPCPb. eapply PCP_ZF2; eauto using ZF.
      apply (H' V M (fun _ => ∅)). intros psi [].
