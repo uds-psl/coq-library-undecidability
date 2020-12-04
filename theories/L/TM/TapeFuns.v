@@ -3,7 +3,7 @@ From Undecidability.L.Datatypes Require Import LNat Lists LProd LFinType LVector
 From Undecidability.L Require Import TM.TMEncoding.
 
 
-From Undecidability Require Import TM.Util.TM_facts.
+From Undecidability.TM Require Import Util.TM_facts.
 From Undecidability.Shared.Libs.PSL Require Import FinTypes Vectors.
 
 

@@ -1,4 +1,4 @@
-From Undecidability Require Import ProgrammingTools.
+From Undecidability.TM Require Import ProgrammingTools.
 
 (* * Constructor and Deconstructor Machines for Sum Types and Option Types *)
 
@@ -312,7 +312,7 @@ Ltac smpl_TM_CaseOption :=
 Smpl Add smpl_TM_CaseOption : TM_Correct.
 
 
-From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+From Undecidability.TM.Hoare Require Import HoareLogic HoareRegister HoareTactics.
 
 Section CaseSum.
   Variable (X Y : Type) (sigX sigY : finType) (codX : codable sigX X) (codY : codable sigY Y).

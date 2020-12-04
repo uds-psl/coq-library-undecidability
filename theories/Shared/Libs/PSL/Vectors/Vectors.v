@@ -516,9 +516,7 @@ Proof.
   rewrite vector_rev_to_list,List.rev_involutive. easy.
 Qed.
 
-About eq_refl.
 Require Import Equations.Type.DepElim.
-About eq_refl.
 
 Local Arguments Fin.of_nat_lt _ {_} _.
 

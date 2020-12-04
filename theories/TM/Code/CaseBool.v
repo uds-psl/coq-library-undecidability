@@ -1,6 +1,6 @@
 (* * Constructors and Deconstructors for Bool *)
 
-From Undecidability Require Import ProgrammingTools Code.
+From Undecidability.TM Require Import ProgrammingTools Code.
 
 Section CaseBool.
 
@@ -53,7 +53,7 @@ Ltac smpl_TM_CaseBool :=
 Smpl Add smpl_TM_CaseBool : TM_Correct.
 
 
-From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+From Undecidability.TM.Hoare Require Import HoareLogic HoareRegister HoareTactics.
 
 Definition CaseBool_size (_ : bool) : Vector.t (nat->nat) 1 :=
    [|plus 2|].

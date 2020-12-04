@@ -14,13 +14,13 @@ Instance termT_S : computableTime' S (fun _ _ => (1,tt)).
 Proof.
   extract constructor.
   solverec.
-Defined.
+Qed.
 
 Instance termT_pred : computableTime' pred (fun _ _ => (5,tt)).
 Proof.
   extract.
   solverec.
-Defined.
+Qed.
 
 Definition c__add := 11. 
 Definition c__add1 := 5.
@@ -30,7 +30,7 @@ Proof.
   extract.
   fold add. solverec. 
   all: unfold add_time, c__add1, c__add; solverec. 
-Defined.
+Qed.
 
 Definition c__mult1 := 5.
 Definition c__mult := c__add + c__add1 + 10.
@@ -39,7 +39,7 @@ Instance termT_mult : computableTime' mult (fun x xT => (c__mult1,(fun y yT => (
 Proof.
   extract. solverec. 
   all: unfold mult_time, c__mult1, c__mult, add_time, c__add1, c__add; solverec. 
-Defined.
+Qed.
 
 Definition c__sub1 := 5.
 Definition c__sub := 14. 
@@ -48,7 +48,7 @@ Instance term_sub : computableTime' Nat.sub (fun n _ => (c__sub1,fun m _ => (sub
 Proof.
   extract. solverec.
   all: unfold sub_time, c__sub1, c__sub; solverec. 
-Defined.
+Qed.
 
 Definition c__leb := 14.
 Definition c__leb2 := 5. 
@@ -57,7 +57,7 @@ Instance termT_leb : computableTime' leb (fun x xT => (c__leb2,(fun y yT => (leb
 Proof.
   extract.
   solverec. all: unfold leb_time, c__leb, c__leb2; solverec. 
-Defined.
+Qed.
 
 Definition c__ltb := c__leb2 + 4.
 Definition ltb_time (a b : nat) := leb_time (S a) b + c__ltb. 
@@ -82,7 +82,7 @@ Proof.
   [c]:exact 5.
   all:unfold c;try lia.
 Qed.
-(*Defined.*)
+(*Qed.*)
 
 Definition c__min1 := 5.
 Definition c__min2 := 15. 
@@ -91,7 +91,7 @@ Instance termT_nat_min : computableTime' Nat.min (fun x _ => (c__min1, fun y _ =
 Proof. 
   extract. solverec. 
   all: unfold min_time, c__min1, c__min2; solverec. 
-Defined. 
+Qed. 
 
 Definition c__max1 := 5.
 Definition c__max2 := 15. 
@@ -100,7 +100,7 @@ Instance termT_nat_max : computableTime' Nat.max (fun x _ => (c__max1, fun y _ =
 Proof. 
   extract. solverec. 
   all: unfold max_time, c__max1, c__max2; solverec. 
-Defined. 
+Qed. 
 
 Definition c__pow1 := 5.
 Definition c__pow2 := 10 + c__mult1.
@@ -113,7 +113,7 @@ Instance termT_pow:
 Proof.
   extract. fold Nat.pow. solverec. 
   all: unfold pow_time, c__pow1, c__pow2; solverec. 
-Defined.
+Qed.
 
 
 Definition c__divmod := 20.
@@ -122,7 +122,7 @@ Instance termT_divmod :
   computableTime' divmod (fun (x : nat) _ => (5, fun (y : nat) _ => (5, fun (q : nat) _ => (1, fun (u : nat) _ => (divmod_time x, tt))))). 
 Proof. 
   extract. solverec. all: unfold divmod_time, c__divmod; solverec. 
-Defined. 
+Qed. 
 
 Definition c__modulo := 21 + c__sub1. 
 Definition modulo_time (x :nat) (y : nat) := divmod_time x + c__sub * y + c__modulo.
@@ -132,7 +132,7 @@ Proof.
   extract. solverec. 
   - unfold modulo_time, c__modulo; solverec. 
   - unfold sub_time. rewrite Nat.le_min_l. unfold modulo_time, c__modulo. solverec. 
-Defined. 
+Qed. 
 
 (* now some more encoding-related properties:*)
 
@@ -193,4 +193,4 @@ Qed.
 (*   extract. *)
 (*   eexists (fun x xT => (x*9+7,tt)). *)
 (*   abstract (repeat (cbn;intros;intuition;try destruct _;try ring_simplify)). *)
-(* Defined. *)
+(* Qed. *)

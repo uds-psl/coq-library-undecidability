@@ -1,4 +1,4 @@
-From Undecidability Require Import TM.Util.Prelim TM.Util.TM_facts.
+From Undecidability.TM Require Import Util.Prelim Util.TM_facts.
 
 (* * 0-tape Turing machine that does nothing. *)
 

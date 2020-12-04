@@ -1,6 +1,6 @@
 (* ** Increment *)
 
-From Undecidability Require Import ProgrammingTools.
+From Undecidability.TM Require Import ProgrammingTools.
 From Undecidability Require Import EncodeBinNumbers PosDefinitions PosPointers PosHelperMachines.
 
 (* In the loop, we assume that we are at a certain bit. We stop if we reached the HSB *)

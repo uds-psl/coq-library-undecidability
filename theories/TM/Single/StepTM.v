@@ -1,5 +1,5 @@
 (* From Undecidability Require Import Combinators.Combinators Multi Basic.Mono TMTac. *)
-From Undecidability Require Import ProgrammingTools.
+From Undecidability.TM Require Import ProgrammingTools.
 From Undecidability Require Import ArithPrelim.
 From Undecidability Require Import TM.Compound.Shift.
 From Undecidability Require Import TM.Util.VectorPrelim.

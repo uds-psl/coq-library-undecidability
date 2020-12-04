@@ -2,13 +2,11 @@ From Undecidability.L.Tactics Require Import LTactics GenEncode.
 From Undecidability.L.Datatypes Require Import LNat Lists LProd LFinType LVector.
 From Undecidability.L Require Import Functions.EqBool.
 
-From Undecidability Require Import TM.Util.VectorPrelim.
+From Undecidability.TM.Util Require Import VectorPrelim TM_facts.
 
-
-
-From Undecidability Require Import TM.Util.VectorPrelim.
-From Undecidability Require Import TM.Util.TM_facts.
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
+From Undecidability.TM Require PrettyBounds.SizeBounds.
+
 
 Import L_Notations.
 
@@ -150,7 +148,7 @@ End fix_sig.
 
 Hint Resolve tape_enc_correct : Lrewrite.
 
-From Undecidability Require Import PrettyBounds.SizeBounds.
+Import PrettyBounds.SizeBounds.
 
 Lemma sizeOfTape_by_size {sig} `{registered sig} (t:(tape sig)) :
   sizeOfTape t <= size (enc t).

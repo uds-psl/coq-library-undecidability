@@ -1,6 +1,6 @@
-From Undecidability Require Import ProgrammingTools.
-From Undecidability Require Import EncodeBinNumbers.
-From Undecidability Require Export ArithPrelim. (* [nia] etc. *)
+From Undecidability.TM Require Import ProgrammingTools.
+From Undecidability.TM Require Import EncodeBinNumbers.
+From Undecidability.TM Require Export ArithPrelim. (* [nia] etc. *)
 From Coq Require Export BinPos.
 
 (* Compute 42. (* default number notation is still for [nat] *) *)

@@ -118,13 +118,13 @@ Proof.
   - cbn. specialize (Htot (Vector.nil _)). cbn in Htot. 
     eapply logical; clear o.
     + intros o Hl. pose proof Hl as [y ->] % Htot. eapply eval_Eval in Hl. rewrite Hl.
-      split. 2: Lproc. Lsimpl. rewrite decode_correct. Lsimpl.
+      split. 2: Lproc. Lsimpl. rewrite decode_correct. now Lsimpl.
     + intros Hrev o Heval. 
       match type of Heval with L_facts.eval ?l _ => assert (Hc : converges l) by eauto end.
       eapply app_converges in Hc as [[[_ Hc]%app_converges _] % app_converges _].
       eapply Eval_converges in Hc as [o' [Hc Hl]]. rewrite Hc. 
-      enough (o = o'). subst. econstructor; eauto. Lsimpl. eapply eval_unique.
-      eapply Heval. eapply Hrev. rewrite Hc. split; eauto. Lsimpl.
+      enough (o = o'). subst. now econstructor; eauto. eapply eval_unique.
+      eapply Heval. eapply Hrev. rewrite Hc. split; eauto. reflexivity.
   - cbn -[apply_to tabulate many_vars]. rewrite !apply_to_cons. specialize (IHv (s (enc h))). rewrite <- IHv.
     + unfold apply_encs_to. cbn -[many_vars]. rewrite many_vars_S. cbn. eapply equiv_eval_equiv. etransitivity. eapply apply_to_equiv'. eapply beta_red. Lproc. reflexivity.
       rewrite subst_many_lam. cbn [subst]. replace (n + 0) with n by lia.
@@ -139,7 +139,7 @@ Proof.
       fold (@apply_encs_to (enc (s (enc h))) n). fold (apply_encs_to (ext L.app (enc s) (ext (@enc X _) n)) n).
       rewrite subst_apply_encs_to. cbn. repeat (rewrite subst_closed; [ | now Lproc]). rewrite Nat.eqb_refl.
       rewrite !many_subst_apply_encs_to.
-      * rewrite equiv_fold_left. reflexivity. Lsimpl.
+      * rewrite equiv_fold_left. reflexivity. now Lsimpl.
       * Lproc.
       * clear. induction v; cbn; intros ? Hi. inversion Hi. inv Hi. Lproc. eapply IHv. eapply Eqdep_dec.inj_pair2_eq_dec in H2. subst. eauto. eapply nat_eq_dec. 
       * Lproc.

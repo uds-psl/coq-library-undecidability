@@ -1,6 +1,6 @@
 (* * Constructors and Deconstructors for Finite Types *)
 
-From Undecidability Require Import ProgrammingTools.
+From Undecidability.TM Require Import ProgrammingTools.
 
 Section CaseFin.
 
@@ -54,7 +54,7 @@ Ltac smpl_TM_CaseFin :=
 
 Smpl Add smpl_TM_CaseFin : TM_Correct.
 
-From Undecidability Require Import HoareLogic HoareRegister HoareTactics.
+From Undecidability.TM.Hoare Require Import HoareLogic HoareRegister HoareTactics.
 
 Section CaseFin.
 

@@ -1,4 +1,4 @@
-From Undecidability Require Import TM.Util.TM_facts.
+From Undecidability.TM Require Import Util.TM_facts.
 
 (* * Basic 1-Tape Machines *)
 

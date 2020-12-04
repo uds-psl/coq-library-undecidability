@@ -1,4 +1,4 @@
-From Undecidability Require Export TM.Util.TM_facts.
+From Undecidability Require Import TM.Util.TM_facts.
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.DepPairs EqdepFacts.
 
 (* * Switch Combinator *)

@@ -30,7 +30,7 @@ Instance term_seq : computableTime' seq (fun start _ => (5, fun len _ => (seq_ti
 Proof. 
   extract. solverec. 
   all: unfold seq_time, c__seq; solverec. 
-Defined. 
+Qed. 
 
 (* prodLists *)
 Section fixprodLists. 
@@ -51,6 +51,6 @@ Section fixprodLists.
     extract. solverec. 
     all: unfold prodLists_time, c__prodLists1, c__prodLists2; solverec. 
     rewrite map_length, map_time_const. leq_crossout. 
-  Defined. 
+  Qed. 
 End fixprodLists. 
 
