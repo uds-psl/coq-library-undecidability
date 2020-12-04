@@ -6,7 +6,7 @@ Lemma tl_length (X : Type) (xs : list X) :
   length (tl xs) = pred (length xs).
 Proof. destruct xs; cbn; auto. Qed.
 
-
+Set Default Proof Using "Type".
 Section CaseSum.
 
   Variable X Y : Type.
@@ -178,7 +178,7 @@ Section CaseOption.
       [ now destruct y; intros H; inv H
       | intros ->; now destruct x as [ a | [] | | ]
       ].
-  Defined.
+  Defined. (* because definition *)
 
 
   Definition CaseOption : pTM (sigOption sigX)^+ bool 1 :=

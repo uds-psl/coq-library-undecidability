@@ -4,20 +4,6 @@ From Undecidability.L Require Import Tactics.LTactics Functions.EqBool.
 Import EqBool.
 (* * Extracted Functions *)
 
-(* ** Extracted equality of encoded natural numbers *)
-(*
-Instance term_nat_eqb : computable eqb.
-Proof.
-  internalize auto. 
-Defined.*)
-(*
-Instance term_nat_eq_dec : computable nat_eq_dec.
-Proof.
-  pose (f x y :=to_sumbool (eqb x y)).
-  internalizeWith f. Lsimpl.
-  apply reflect_dec.
-  eapply Nat.eqb_spec.
-Defined.*)
 
 (* ** Extracted equality of encoded terms *)
 

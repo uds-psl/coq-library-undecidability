@@ -9,7 +9,7 @@ It does so by the reflective tactic simplify_L' using the module Reflextion. *)
 
 Lemma eval_helper s t u: s >* u -> eval u t -> eval s t.
   intros R H. now rewrite R.
-Defined.
+Qed.
 
 Ltac addToList a l := AddFvTail a l.
 
@@ -27,12 +27,12 @@ Proof.
    +lia.
    +reflexivity.
   -Lproc.
-Defined.
+Qed.
 
 Lemma eval_refl s : lambda s -> s ⇓ s.
 Proof.
   intros. split. reflexivity. Lproc.
-Defined.
+Qed.
 
 
 (*make all variables to coq-variables in the context *)

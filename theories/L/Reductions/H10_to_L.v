@@ -63,7 +63,7 @@ Proof.
     exists (1 + m1 + m2). cbn. in_app 4. in_collect (p1, p2); eapply cum_ge'; eauto; lia.
   + destruct IHp1 as [m1]. destruct IHp2 as [m2].
     exists (1 + m1 + m2). cbn. in_app 5. in_collect (p1, p2); eapply cum_ge'; eauto; lia.
-Defined.
+Defined. (* because instance *)
 
 Fixpoint conv n (p : dio_single.dio_polynomial (pos n) (pos 0)) : poly.
 Proof.
@@ -74,7 +74,7 @@ Proof.
   - destruct d.
     + exact (poly_add (conv _ p1) (conv _ p2)).
     + exact (poly_mul (conv _ p1) (conv _ p2)).
-Defined.
+Defined. (* because term *)
 
 Fixpoint L_from (n : nat) : (pos n -> nat) -> list nat.
 Proof.
@@ -83,7 +83,7 @@ Proof.
   - refine (_ :: L_from _ _)%list.
     + exact (phi pos.pos_fst).
     + intros. eapply phi. econstructor 2. exact H.
-Defined.
+Defined. (* because term *)
 
 
 Lemma L_nth n phi (p : pos n) : nth (pos2nat p) (L_from phi) 0 = phi p.

@@ -188,7 +188,7 @@ Section Semantics.
   Qed.
 
   Global Instance halt_state_dec : forall s, dec (halt_state s).
-  Proof. intros s. eapply dec_transfer. apply is_halt_state_correct. auto. Defined.
+  Proof. intros s. eapply dec_transfer. apply is_halt_state_correct. auto. Defined. (* because dec *)
 
   Lemma halt_state_steps s s' :
     halt_state s -> steps s s' -> s' = s.

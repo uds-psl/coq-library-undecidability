@@ -221,9 +221,9 @@ Section Encode_sum.
   Arguments sigSum_inl {sigX sigY}. Arguments sigSum_inr {sigX sigY}. Arguments sigSum_X {sigX sigY}. Arguments sigSum_Y {sigX sigY}.
 
   Global Instance Retract_sigSum_X (sigX sigY tau : Type) (f : Retract sigX tau) : Retract sigX (sigSum tau sigY).
-  Proof. build_simple_retract. Defined.
+  Proof. build_simple_retract. Defined. (* because definition *)
   Global Instance Retract_sigSum_Y (sigX sigY tau : Type) (f : Retract sigY tau) : Retract sigY (sigSum sigX tau).
-  Proof. build_simple_retract. Defined.
+  Proof. build_simple_retract. Defined. (* because definition *)
 
 
   Global Instance sigSum_dec (sigX sigY : Type) (decX: eq_dec sigX) (decY: eq_dec sigY) :
@@ -316,9 +316,9 @@ Section Encode_pair.
   Arguments sigPair_X {sigX sigY}. Arguments sigPair_Y {sigX sigY}.
 
   Global Instance Retract_sigPair_X (sigX sigY tau : Type) (f : Retract sigX tau) : Retract sigX (sigPair tau sigY).
-  Proof. build_simple_retract. Defined.
+  Proof. build_simple_retract. Defined. (* because definition *)
   Global Instance Retract_sigPair_Y (sigX sigY tau : Type) (f : Retract sigY tau) : Retract sigY (sigPair sigX tau).
-  Proof. build_simple_retract. Defined.
+  Proof. build_simple_retract. Defined. (* because definition *)
 
 
   Global Instance sigPair_dec (sigX sigY : Type) (decX: eq_dec sigX) (decY: eq_dec sigY) :
@@ -381,7 +381,7 @@ Section Encode_option.
   Arguments sigOption_Some {sigX}. Arguments sigOption_None {sigX}. Arguments sigOption_X {sigX}.
 
   Global Instance Retract_sigOption_X (sig tau : Type) (retr : Retract sig tau) : Retract sig (sigOption tau).
-  Proof. build_simple_retract. Defined.
+  Proof. build_simple_retract. Defined. (* because definition *)
 
   Global Instance sigOption_dec sigX (decX : eq_dec sigX) :
     eq_dec (sigOption sigX) := ltac:(build_eq_dec).
@@ -475,7 +475,7 @@ Section Encode_list.
   Arguments sigList_nil {sigX}. Arguments sigList_cons {sigX}. Arguments sigList_X {sigX}.
 
   Global Instance Retract_sigList_X (sig tau : Type) (retr : Retract sig tau) : Retract sig (sigList tau).
-  Proof. build_simple_retract. Defined.
+  Proof. build_simple_retract. Defined. (* because definition *)
 
   Global Instance sigList_dec sigX (decX : eq_dec sigX) :
     eq_dec (sigList sigX) := ltac:(build_eq_dec).
@@ -642,7 +642,7 @@ Section Encode_nat.
   | sigNat_S.
 
   Global Instance sigNat_eq : eq_dec sigNat.
-  Proof. unfold dec. decide equality. Defined.
+  Proof. unfold dec. decide equality. Defined. (* because definition *)
 
   Global Instance sigNat_fin : finTypeC (EqType sigNat).
   Proof. split with (enum := [sigNat_O; sigNat_S]). intros [ | ]; cbn; reflexivity. Qed.

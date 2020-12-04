@@ -7,6 +7,7 @@ From Undecidability.L Require Import TM.TapeFuns.
 
 From Undecidability.TM Require Import TM_facts.
 
+Set Default Proof Using "Type".
 Local Notation L := TM.Lmove.
 Local Notation R := TM.Rmove.
 Local Notation N := TM.Nmove.
@@ -34,7 +35,8 @@ Section loopM.
 
   Let eqb_state := eqbFinType_inst (X:=state M).
   Existing Instance eqb_state.
-
+  Import Vector.
+  
   Local Definition c__trans :=
        (length ( elem (state M) ) * 4 + (n * (4 * length ( elem sig ) + 10) + 4) + 4) *
        c__eqbComp (finType_CS (state M * VectorDef.t (option sig) n)).
@@ -45,7 +47,7 @@ Section loopM.
     pose (t:= (funTable (trans (m:=M)))).
     apply computableTimeExt with (x:= (fun c => lookup c t (start M,Vector.const (None , N) _ ) )).
     2:{ remember t as lock__t .
-        Import Vector. extract. solverec. subst lock__t .
+         extract. solverec. subst lock__t .
         rewrite lookupTime_leq.
                                         setoid_rewrite size_prod;cbn [fst snd].
          unfold reg_state;rewrite (size_finType_le a).

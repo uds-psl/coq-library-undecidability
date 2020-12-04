@@ -52,11 +52,11 @@ Section Fix_X.
   Proof using X_eqb_spec.
     induction A;[reflexivity|];cbn.
     rewrite IHA. destruct (X_eqb_spec x a); repeat (destruct _; try congruence).
-  Defined.
+  Defined. (* because other extract *)
 
   Global Instance term_pos_nondec:
     computable pos_nondec.
   Proof.
     extract.
-  Defined.
+  Defined. (* because other extract *)
 End Fix_X.

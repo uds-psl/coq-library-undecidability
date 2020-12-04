@@ -8,7 +8,7 @@ From Undecidability.TM.Hoare Require Import Hoare HoareLegacy.
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 
-
+Set Default Proof Using "Type".
 (* * Lookup an entry in an associative list *)
 
 Section LookupAssociativeList.
@@ -83,7 +83,7 @@ Section LookupAssociativeList.
               if Dec (x=x') then [|Void; Contains _ y; Void; Void|] else [|Contains _ xs'; Contains _ x; Void; Void|]
            end)
               (appSize (Lookup_Step_size xs x) ss))).
-  Proof.
+  Proof using cX_injective.
     start_TM.
     unfold Lookup_Step. unfold Lookup_Step_size; cbn.
     eapply If_SpecTReg with (k1 := CaseList_steps xs) (k2 := Lookup_Step_steps_CaseList xs x) (k3 := Lookup_Step_steps_CaseList xs x).
@@ -150,7 +150,7 @@ Section LookupAssociativeList.
             | Some y => [|Void; Contains _ y; Void; Void|]
             | None => [|Void; Contains _ x; Void; Void|]
             end (appSize (Lookup_Loop_size xs x) ss))).
-  Proof.
+  Proof using cX_injective.
   unfold Lookup_Loop.
   eapply While_SpecTReg with
   (PRE := fun '(xs, x, ss) => (_,_)) (INV := fun '(xs, x, ss) y => (_,_)) (POST := fun '(xs, x, ss) y => (_,_)) 
@@ -213,7 +213,7 @@ Section LookupAssociativeList.
            withSpace
            [|Contains _ xs; (match lookup x xs with Some y => Contains _ y | _ =>  Contains _ x end); Void; Void; Void|]
            (appSize (Lookup_size xs x) ss))).
-  Proof.
+  Proof using cX_injective.
     start_TM.
     unfold Lookup. hsteps_cbn; cbn.
     apply Lookup_Loop_SpecT_space.
@@ -223,7 +223,7 @@ Section LookupAssociativeList.
 
   (* Legacy Lemma *)
   Lemma Lookup_Realise : Lookup ⊨ Lookup_Rel.
-  Proof.
+  Proof using cX_injective.
     repeat (eapply RealiseIntroAll;intro). eapply Realise_monotone.
     -eapply TripleT_Realise, (Lookup_SpecT_space x x0 [|x1;x2;x3;x4;x5|]).
     -intros ? [] H **. modpon H.
@@ -243,7 +243,7 @@ Section LookupAssociativeList.
 
   (* legacy Lemma *)
   Lemma Lookup_Terminates : projT1 Lookup ↓ Lookup_T.
-  Proof.
+  Proof using cX_injective.
     repeat (eapply TerminatesInIntroEx;intro). eapply TerminatesIn_monotone.
     -eapply TripleT_TerminatesIn. eapply TripleT_RemoveSpace,Lookup_SpecT_space.
     -intros ? k H **. modpon H.

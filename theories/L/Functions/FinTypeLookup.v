@@ -2,6 +2,8 @@ From Undecidability.L.Tactics Require Import LTactics.
 From Undecidability.L.Datatypes Require Import LFinType LBool LProd Lists.
 From Undecidability.L.Functions Require Import EqBool.
 
+Set Default Proof Using "Type".
+
 Section Lookup.
   Variable X Y : Type.
   Context {eqbX : X -> X -> bool}.
@@ -21,6 +23,7 @@ Section Lookup.
 
   Global Instance term_lookup `{registered Y}:
     computableTime' (lookup) (fun x _ => (5, fun l _ => (1, fun d _ => (lookupTime (size (enc x)) l,tt)))).
+  Proof.
   unfold lookup. unfold eqb.
   extract. unfold lookupTime. solverec.
   Qed.
@@ -113,11 +116,11 @@ Qed.
 
 Section finFun.
   Context (X : finType) Y {reg__X:registered X} {reg__Y:registered Y}.
-  Context {eqbX : X -> X -> bool} `{eqbClass X eqbX} `{@eqbCompT X _ eqbX _}.
+  Context {eqbX : X -> X -> bool} `{eqbClass X eqbX} `{H0 : @eqbCompT X _ eqbX _}.
     
   Lemma finFun_computableTime_const (f:X -> Y) (d:Y):
     {c & computableTime' f (fun _ _ => (c,tt))}.
-  Proof.
+  Proof using H0.
     evar (c:nat). exists c.
     apply computableTimeExt with (x:= (fun c => lookup c (funTable f) d )).
     { cbn. intros ?. now rewrite lookup_funTable. }

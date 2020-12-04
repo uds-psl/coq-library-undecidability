@@ -16,7 +16,7 @@ Inductive sigPos : Type :=
 | sigPos_xH : sigPos.
 
 Global Instance sigPos_eq : eq_dec sigPos.
-Proof. unfold dec. decide equality. Defined.
+Proof. unfold dec. decide equality. Defined. (* because definition *)
 
 Global Instance sigPos_fin : finTypeC (EqType sigPos).
 Proof. split with (enum := [sigPos_xI; sigPos_xO; sigPos_xH]). intros [ | | ]; cbn; reflexivity. Qed.
