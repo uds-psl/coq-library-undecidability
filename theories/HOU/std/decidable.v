@@ -1,5 +1,7 @@
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Class Dec (P: Prop) := dec: {P} + {~P}.
 Arguments dec _ {_}.
 

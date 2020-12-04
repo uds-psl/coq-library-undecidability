@@ -3,6 +3,8 @@ Require Import List.
 From Undecidability.HOU Require Import std.std. 
 Import ListNotations.
 
+Set Default Proof Using "Type".
+
 (* * PCP and MPCP *)
 Notation symbol := bool.
 Notation word   := (list symbol).

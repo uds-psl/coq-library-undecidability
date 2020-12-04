@@ -4,6 +4,7 @@ Import ListNotations.
 From Undecidability.HOU.calculus Require Export semantics typing.
 From Undecidability.HOU Require Import calculus.order.
 
+Set Default Proof Using "Type".
 
 (* * Terms Extension *)
 

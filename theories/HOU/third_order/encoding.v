@@ -4,6 +4,7 @@ Require Import RelationClasses Morphisms List Lia
 From Undecidability.HOU Require Import std.std calculus.calculus third_order.pcp.
 Import ListNotations.
 
+Set Default Proof Using "Type".
 
 (* * Third-Order Encoding *)
 Section Encoding.
@@ -142,7 +143,7 @@ Section Encoding.
   Section Injectivity.
     Lemma encb_eq a b:
       encb a ≡ encb b -> a = b.
-    Proof.
+    Proof using u u_neq_v.
       intros H % equiv_head_equal; cbn in *; eauto.
       injection H; destruct a, b; intros; eauto; exfalso; eapply u_neq_v; eauto.
     Qed.
@@ -151,7 +152,7 @@ Section Encoding.
     Lemma enc_eq w1 w2 s t:
       enc w1 s ≡ enc w2 t -> nostring s -> nostring t ->
       w1 = w2 /\ s ≡ t.
-    Proof.
+    Proof using u_neq_v.
       simplify. intros. induction w1 in w2, H |-*; destruct w2; cbn in *; eauto.
       - simplify in H; intuition. 
       - simplify in H. destruct b; firstorder. 
@@ -173,7 +174,7 @@ Section Encoding.
 
     Lemma end_head_var:
       exists (h: nat) T s', s = AppR (var h) T /\ nth S h = Some s'.
-    Proof.
+    Proof using x v u_neq_v t sigma N H1 EQ.
       eapply normal_nf in N as N'. inv N'. destruct k; cbn in *; eauto; [|Discriminate].
       destruct (s0); cbn in H; intuition; clear H.
       - assert(f < |S| \/ f >= |S|) as [] by lia; eauto.
@@ -192,7 +193,7 @@ Section Encoding.
       S = Enc C -> 
       (repeat (alpha → alpha) (|S|) ++ Gamma ⊢(3) s : A) ->
       exists i e, i < |S| /\ s = var i e.
-    Proof.
+    Proof using x u_neq_v t sigma N H1 EQ.
       intros H2 H4; destruct end_head_var as (h' & T & s' & H5); intuition; subst.   
       destruct T as [| t1 [| t2 T]].
       + cbn in EQ. erewrite nth_error_sapp in EQ; eauto.
@@ -240,7 +241,7 @@ Section Encoding.
     Lemma main_lemma:
       exists I, I ⊆ nats n /\ forall W, |W| = n -> exists t,
         AppR s (Enc W) ≡ AppL (select I (Enc W)) t /\ nostring t.
-    Proof.
+    Proof using u_neq_v Vv Vu Ts Gamma.
       pose (mv := fun x => match x == u, x == v with right _,right _ => x | _,_ => S(u + v + x) end).
       assert (forall x, mv x >= x) as GE.
       { eauto; intros; unfold funcomp; intuition; unfold mv in *.

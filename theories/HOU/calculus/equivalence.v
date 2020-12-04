@@ -2,6 +2,8 @@ Set Implicit Arguments.
 Require Import Morphisms Omega Lia FinFun.
 From Undecidability.HOU Require Export std.std calculus.syntax calculus.semantics calculus.confluence. 
 
+Set Default Proof Using "Type".
+
 (* * Equational Theory *)
 Section Equivalence.
   Context {X: Const}.
@@ -193,7 +195,7 @@ Section Equivalence.
 
     Lemma equiv_huet_forward:
       s ≡ t ->  v1 = v2.
-    Proof.
+    Proof using E1 E2.
       destruct E1 as [H1 N1], E2 as [H2 N2].
       intros H; eapply equiv_unique_normal_forms; eauto.
       now rewrite <-H1, <-H2.  
@@ -201,7 +203,7 @@ Section Equivalence.
 
     Lemma equiv_huet_backward:
       v1 = v2 -> s ≡ t.
-    Proof.
+    Proof using E1 E2.
       intros; subst; destruct E1, E2; eapply equiv_join; eauto. 
     Qed.
   End HuetDefinition.

@@ -7,6 +7,8 @@ Set Implicit Arguments.
 Require Import Morphisms FinFun ConstructiveEpsilon.
 From Undecidability.HOU Require Import std.tactics std.decidable std.misc std.ars.basic std.ars.confluence.
 
+Set Default Proof Using "Type".
+
 Section Evaluator.
 
   Variables (X: Type) (R: X -> X -> Prop) (rho: X -> X). 
@@ -20,7 +22,7 @@ Section Evaluator.
 
   Fact red_fun_fp x :
     Normal R x -> rho x = x.
-  Proof.
+  Proof using red.
     intros H. symmetry.
     eapply Normal_star_stops; eauto.
     apply red.
@@ -28,7 +30,7 @@ Section Evaluator.
 
   Fact red_fun_fp_it x n :
     Normal R x -> it n rho x = x.
-  Proof.
+  Proof using red.
     intros H.
     induction n as [|n IH]; cbn.
     - reflexivity.
@@ -37,7 +39,7 @@ Section Evaluator.
 
   Fact red_fun_normal x y :
     evaluates R x y <-> Normal R y /\ exists n, it n rho x = y.
-  Proof.
+  Proof using red.
     destruct red as [H1 H2]. split.
     - intros [H3 H4]. split. exact H4.
       apply H2. hnf. auto.
@@ -63,7 +65,7 @@ Section Evaluator.
 
   Fact E_it x n :
     Normal R (it n rho x) -> E (S n) x = Some (it n rho x).
-  Proof.
+  Proof using red.
     revert x.
     induction n as [|n IH]; intros x.
     - cbn. destruct (delta x) as [H|H]; tauto.
@@ -77,7 +79,7 @@ Section Evaluator.
 
   Fact E_correct x y :
     evaluates R x y <-> exists n, E n x = Some y.
-  Proof.
+  Proof using red.
     split.
     - intros H. generalize H. intros [n <-] % red.
       exists (S n). apply E_it, H.
@@ -132,7 +134,7 @@ Section EvaluatorTakahashi.
 
   Lemma rho_evaluates:
     forall x y : X, evaluates R x y -> exists n : nat, it n rho x = y.
-  Proof.
+  Proof using H1 H2 S tf.
     intros x y [H3 H4].
     eapply sandwich_equiv with (S := S) in H3; eauto. 
     eapply tak_cofinal in H3; eauto.
@@ -143,7 +145,7 @@ Section EvaluatorTakahashi.
 
 
   Lemma red_fun_rho: red_fun R rho.
-  Proof.
+  Proof using H1 H2 S tf refl.
     split.
     - intros x. eapply H2, tf, refl. 
     - eapply rho_evaluates.
@@ -152,7 +154,7 @@ Section EvaluatorTakahashi.
 
   Lemma evaluates_E s:
     (exists t, evaluates R s t) -> exists n, exists t, E rho D n s = Some t.
-  Proof.
+  Proof using H1 H2 S tf refl.
     intros [t H]; destruct (E_correct red_fun_rho D s t) as [H3 _].
     eapply H3 in H. destruct H as [n]. exists n. now (exists t). 
   Qed.
@@ -168,7 +170,7 @@ Section EvaluatorTakahashi.
 
   Lemma E_evaluates (s: X):
     { n: nat | exists t, E rho D n s = Some t } -> { t | evaluates R s t }.
-  Proof.
+  Proof using H1 H2 S tf refl.
     intros [n H].
     destruct (E rho D n s) as [t|] eqn: H3.
     - exists t. eapply E_correct; eauto using red_fun_rho.
@@ -177,14 +179,14 @@ Section EvaluatorTakahashi.
 
   Lemma E_correct_tak (s t: X) :
     (exists n, E rho D n s = Some t) <-> evaluates R s t.
-  Proof.
+  Proof using H1 H2 S tf refl.
     split; intros; eapply E_correct; eauto; eapply red_fun_rho.
   Qed.
     
 
   Lemma compute_evaluation (s: X):
     (exists t, evaluates R s t) -> { t | evaluates R s t }.
-  Proof.
+  Proof using H1 H2 S tf refl rho D.
     intros.
     eapply E_evaluates.
     eapply constructive_indefinite_ground_description

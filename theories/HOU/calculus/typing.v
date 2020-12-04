@@ -2,6 +2,8 @@ Set Implicit Arguments.
 Require Import List Omega Lia.
 From Undecidability.HOU.calculus Require Export syntax semantics equivalence.
 
+Set Default Proof Using "Type".
+
 (* * Simple Typing *)
 
 Section Typing.

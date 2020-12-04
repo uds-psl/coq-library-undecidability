@@ -574,10 +574,55 @@ Proof using HN.
     by move: a b H => [? [?|]] [? [?|]].
 Qed.
 
+(* possibilities to split two symbols among one app *)
+Lemma eq2_app {u v a b} {s t: list Symbol} : u ++ a :: b :: v = s ++ t ->
+  (exists v1, v = v1 ++ t /\ s = u ++ a :: b :: v1) \/
+  (s = u ++ [a] /\ t = b :: v) \/
+  (exists u2, u = s ++ u2 /\ t = u2 ++ a :: b :: v).
+Proof.
+  elim: u s.
+  - move=> [|y1 [|y2 s]].
+    + move=> /= <-. right. right. by exists [].
+    + move=> [] <- <- /=. right. by left.
+    + move=> [] <- <- ->. left. by exists s.
+  - move=> x1 u IH [|y1 s].
+    + move=> /= <-. right. right. by exists (x1 :: u).
+    + move=> [] <- /IH [|[|]].
+      * move=> [?] [-> ->]. left. by eexists.
+      * move=> [-> ->]. right. by left.
+      * move=> [?] [-> ->]. right. right. by eexists.
+Qed.
+
+(* possibilities to split two symbols among one twp apps *)
+TODO: I want three possibilities with maybe richer s +1 left right
+Lemma eq2_app_app {u a b v u' v'} {s: list Symbol} : length s > 1 ->
+  u ++ a :: b :: v = u' ++ s ++ v' ->
+  (exists u'2, v = u'2 ++ s ++ v') \/ 
+  (exists s2, u' = u ++ [a] /\ s = b :: s2 /\ v = s2 ++ v') \/
+  (exists s1 s2, s = s1 ++ a :: b :: s2 /\ u = u' ++ s1 /\ v = s2 ++ v') \/
+  (exists s1, s = s1 ++ [a] /\ v' = b :: v) \/
+  (exists v'1, u = u' ++ s ++ v'1).
+Proof.
+  move=> Hs /eq2_app [|[|]].
+  - move=> [?] [-> ->]. left. by eexists.
+  - move=> [->]. move: s Hs => [|? s] /=; first by lia.
+    move=> _ [] <- <-. right. left. by eexists.
+  - move=> [?] [->] /esym /eq2_app [|[|]].
+    + move=> [?] [-> ->]. right. right. left. by do 2 eexists.
+    + move=> [-> ->]. do 3 right. left. by eexists.
+    + move=> [?] [-> ->]. do 4 right. by eexists.
+Qed.
+
+
 (* each srs step is sound *)
-Lemma simulate_srs_step {c s t} : encodes c s -> SR01.step srs s t -> 
+Lemma simulate_srs_step {c s t} : SR01.step srs s t -> encodes c s -> 
   halting cm c \/ encodes c t \/ encodes (CM2.step cm c) t.
 Proof.
+  move: c => [p a b] [] u v a' b' c' d' H [u'] [v'] [{}t].
+  case=>  H /=.
+  
+  rewrite /encodes.
+
 Admitted.
 
 Lemma halting_cmI : exists n, halting cm (Nat.iter n (CM2.step cm) c0).

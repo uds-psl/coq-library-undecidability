@@ -4,6 +4,8 @@ From Undecidability.HOU Require Import std.std calculus.calculus unification.uni
 From Undecidability.HOU Require Import third_order.pcp third_order.encoding.
 Import ListNotations.
 
+Set Default Proof Using "Type".
+
 (* * Huet Reduction *)
 Section HuetReduction.
 
@@ -127,7 +129,7 @@ Section HuetReduction.
 
     Lemma end_is_var:
       (forall x, x ∈ S -> isVar x) -> exists i e, i < |S| /\ s = var i e.
-    Proof.
+    Proof using x t sigma N H1 EQ.
       intros H2; edestruct @end_head_var with (X:=X) as (h' & T & s' & H5 & ?); eauto. subst s. 
       destruct T as [| t1 [| t2 T]]. 
       all: cbn in EQ; specialize (H1 h'). 

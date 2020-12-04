@@ -3,6 +3,7 @@ Require Import Morphisms Setoid.
 From Undecidability.HOU Require Import std.std calculus.prelim 
     calculus.semantics calculus.confluence calculus.normalisation.
 
+Set Default Proof Using "Type".
 
 (* * Evaluator *)
 Section Evaluator.

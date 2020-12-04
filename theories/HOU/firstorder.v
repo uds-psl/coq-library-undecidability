@@ -7,6 +7,7 @@ Import ListNotations.
 
 Tactic Notation "simplify" := Undecidability.HOU.std.tactics.simplify.  
 
+Set Default Proof Using "Type".
 
 (* * First-Order Unification *)
 
@@ -630,7 +631,7 @@ Section Unification.
     Lemma unify_typing E L sigma:
       E ↦ sigma -> all_terms (@lambda_free X) E ->
       Gamma ⊢₊₊(1) E : L -> Gamma ⊩(1) sigma : Gamma.
-    Proof.
+    Proof using HO.
       induction 1 in L |-*.
       - intros; now eapply var_typing. 
       - intros LF T. eapply decomp'_typing in T as T'; eauto. 
@@ -731,7 +732,7 @@ Section Unification.
 
     Lemma unifies_free sigma x s:
       ~ x ∈ vars s -> free' sigma -> unifies sigma (var x) s -> free x.
-    Proof.
+    Proof using isFree.
       intros H1 F H2; unfold unifies in *; cbn in *.
       destruct F as [F1 F2]. destruct (isFree x) as [H|H]; eauto.
       eapply F1 in H as H'. rewrite H' in H2.
@@ -745,7 +746,7 @@ Section Unification.
     Lemma unifies_free_all sigma x s:
       ~ x ∈ vars s -> free' sigma -> free x ->
       unifies sigma (var x) s -> (forall y, y ∈ vars s -> free y) .
-    Proof.
+    Proof using isFree.
       intros H1 F H2 H3 y H4; unfold unifies in *; cbn in *.
       destruct F as [F1 F2]. destruct (isFree y) as [H|H]; eauto.
       specialize (F2 _ H2) as H5. rewrite H3 in H5. eapply H5.
@@ -779,7 +780,7 @@ Section Unification.
 
     Lemma unify_complete sigma E:
       free' sigma -> Unifies sigma E -> all_terms (@lambda_free X) E -> exists tau, E ↦ tau.
-    Proof.
+    Proof using isFree.
       intros F; 
         induction E as [E IH] using eqs_size_induction; intros U LF.
       destruct (decomp' E) as [[| [t s] E']|] eqn: DE.
@@ -998,7 +999,6 @@ Section FirstOrderDecidable.
   Qed.
 
 
-
   Lemma firstorder_decidable' (I: orduni 1 X):
     ord' Gamma₀ <= 1 -> ord A₀ <= 2 ->
     normal s₀ -> normal t₀ -> Dec (NOU 1 I).
@@ -1031,7 +1031,8 @@ Section FirstOrderDecidable.
       * specialize decr_typing with (L := rev L) as H9; simplify in H9; eauto. 
       * eapply decr_unifies; eauto.
         specialize (unify_unifiable H' (AppR s T, AppR t T0)); cbn; intuition.
-      * eapply lambda_free_normal, decr_lambda_free; intros; eapply LF.
+      * eapply lambda_free_normal. pose proof (free := fun (k: nat) (x: nat) => x >= k).
+        eapply decr_lambda_free; intros; eapply LF.
     + intros (Delta & sigma & E1 & E2 & E3).  asimpl in E2. 
       eapply Lambda_injective in E2.
       edestruct unify_complete with (sigma := it (|L|) up sigma)

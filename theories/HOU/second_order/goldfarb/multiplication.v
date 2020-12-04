@@ -6,7 +6,7 @@ From Undecidability.HOU Require Import calculus.calculus unification.unification
 Require Import FinFun Coq.Arith.Wf_nat.
 Import ListNotations.
 
-
+Set Default Proof Using "Type".
 
 
 Section Multiplication.
@@ -189,7 +189,7 @@ Section Multiplication.
 
     Lemma subst_enc k e u:
       σ p q • e = enc k u -> exists e', e = enc k e' /\ σ p q  • e' = u.
-    Proof.
+    Proof using τ n.
       induction k in e |-*; cbn.
       - intros; eexists; intuition; eauto.
       - intros. simplify in *.

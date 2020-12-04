@@ -4,6 +4,8 @@ Require Import List Omega Lia.
 From Undecidability.HOU Require Import std.decidable std.lists.basics std.lists.advanced std.tactics.
 Import ListNotations.
 
+Set Default Proof Using "Type".
+
 Notation "( A × B × .. × C )" :=
   (list_prod .. (list_prod A B) .. C) (at level 0, left associativity).
 
@@ -273,7 +275,7 @@ Section enum_enumerable.
   Definition ofNat n := match R_nat_nat n with Some (n, m) => nth (L m) n | None => None end.
 
   Lemma enum_count : enumerable p.
-  Proof.
+  Proof using enum_X L.
     exists ofNat. unfold R_nat_nat. destruct enum_X as [CX HX].
     intros. rewrite HX.
     - split; intros [n].

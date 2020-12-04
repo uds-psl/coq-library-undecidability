@@ -3,6 +3,8 @@ Require Import List Omega Lia Morphisms FinFun Init.Wf.
 From Undecidability.HOU Require Import std.decidable.
 Import ListNotations.
 
+Set Default Proof Using "Type".
+
 Arguments incl {_} _ _.
 Definition seteq {X: Type} (A B: list X) := incl A B /\ incl B A.
 Definition strict_incl {X: Type} (A B: list X) :=
@@ -193,7 +195,7 @@ Section BasicLemmas.
     Qed.
 
     Lemma wf_strict_incl: well_founded (@strict_incl X).
-    Proof.
+    Proof using D.
       eapply well_founded_lt_compat with (f := fun A => length (nodup eq_dec A)). 
       intros A B [H [x [H1 H2]]].
       assert (nodup eq_dec A ⊆ nodup eq_dec B) as H3 by now rewrite !nodup_seteq.
