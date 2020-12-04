@@ -11,6 +11,12 @@ clean:
 html:
 	$(MAKE) -C theories html
 
+vok:
+	$(MAKE) -C theories vok
+	
+vos:
+	$(MAKE) -C theories vos
+	
 .PHONY: all install html clean 
 
 dummy:

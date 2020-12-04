@@ -195,6 +195,7 @@ Section ListEnumerability.
     end.
 
   Lemma enum_unification' : enum Uextended L_Uextended.
+  Proof.
     split; eauto.
     intros [[I Delta] sigma]. unfold Uextended; cbn; split.
     - intros (H3 & H4 & H5). destruct (el_T I) as [x1].

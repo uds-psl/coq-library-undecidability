@@ -17,39 +17,39 @@ Section HuetReduction.
   Let f: exp X := var 3.
   Let g: exp X := var 4.
 
-
   (* ** Reduction Function *)
-  Program Instance PCP_to_U (S: list card) : orduni 3 X :=
-    {
+  Instance PCP_to_U (S: list card) : orduni 3 X.
+  Proof with cbn [ord' ord alpha]; simplify; cbn; eauto.
+    refine {|
       Gamma₀ := [Arr (repeat (alpha → alpha) (length S)) alpha; (alpha → alpha) → alpha];
       s₀ :=  lambda lambda lambda h (AppR f (Enc 1 2 (heads S))) (AppR f (repeat (var (u 1)) (length S)));
       t₀ :=  lambda lambda lambda h (AppR f (Enc 1 2 (tails S))) (var (u 1) (g (var (u 1))));
       A₀ := (alpha → alpha) → (alpha → alpha) → (alpha → alpha → alpha) →  alpha;
       H1₀ := _;
       H2₀ := _;
-    }.
-  Next Obligation with cbn; eauto.
-    do 4 econstructor. econstructor. econstructor; cbn; eauto; cbn; eauto.
-    - eapply AppR_ordertyping with (L := repeat (alpha → alpha)  (length S) ); simplify.
+    |}.
+    {
+      do 4 econstructor. econstructor. econstructor; cbn; eauto; cbn; eauto.
+      - eapply AppR_ordertyping with (L := repeat (alpha → alpha)  (length S) ); simplify.
+        erewrite <-map_length; eapply Enc_typing.
+        all: econstructor; eauto.
+        simplify; cbn; eauto. 
+      - eapply AppR_ordertyping. 
+        + eapply repeated_ordertyping; simplify; [|eauto]. 
+          intros s H'. eapply repeated_in in H'. subst.
+          econstructor; cbn. 2: eauto. eauto.
+        + econstructor; simplify; eauto.
+    }
+    {
+      do 4 econstructor. econstructor. econstructor; eauto...
+      cbn; eauto. 
+      2: do 2 econstructor...
+      2 - 3: econstructor...
+      eapply AppR_ordertyping with (L := repeat (alpha → alpha) (length S)); simplify.
       erewrite <-map_length; eapply Enc_typing.
-      all: econstructor; eauto...
-      simplify; cbn; eauto. 
-    - eapply AppR_ordertyping. 
-      + eapply repeated_ordertyping; simplify; eauto. 
-        intros s H'. eapply repeated_in in H'. subst.
-        econstructor; cbn. 2: eauto. eauto...
-      + econstructor; simplify; eauto... 
-  Qed.
-  Next Obligation with cbn [ord' ord alpha]; simplify; cbn; eauto.
-    do 4 econstructor. econstructor. econstructor; eauto...
-    cbn; eauto. 
-    2: do 2 econstructor...
-    2 - 3: econstructor...
-    eapply AppR_ordertyping with (L := repeat (alpha → alpha) (length S)); simplify; eauto.
-    erewrite <-map_length; eapply Enc_typing.
-    all: econstructor...
-  Qed. 
-
+      all: econstructor...
+    }
+  Defined.
 
   Section ForwardDirection.
 

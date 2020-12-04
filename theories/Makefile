@@ -10,6 +10,12 @@ html: Makefile.coq
 install: Makefile.coq
 	$(MAKE) -f Makefile.coq install
 
+vok: Makefile.coq
+	$(MAKE) -f Makefile.coq vok
+	
+vos: Makefile.coq
+	$(MAKE) -f Makefile.coq vos
+	
 uninstall: Makefile.coq
 	$(MAKE) -f Makefile.coq uninstall
 
@@ -19,6 +25,7 @@ clean: Makefile.coq
 
 Makefile.coq: _CoqProject
 	coq_makefile -f _CoqProject -o Makefile.coq
+
 
 .PHONY: all html clean
 

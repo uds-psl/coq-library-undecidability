@@ -886,20 +886,16 @@ Section Retyping.
         destruct dec2; intuition.
   Qed.
 
-
-  Program Instance retype n (I: orduni n X) : orduni n X :=
-    { Gamma₀ := retype_ctx n (Gamma₀ I);
+  Instance retype n (I: orduni n X) : orduni n X.
+  Proof.
+    refine {|
+      Gamma₀ := retype_ctx n (Gamma₀ I);
       s₀ := eta₀ (s₀ I) H1₀;
       t₀ := eta₀ (t₀ I) H2₀;
-      A₀ := retype_type n (A₀ I) }.
-  Next Obligation.
-    eapply normal_retyping. all: eauto using eta₀_normal, eta₀_typing.
-  Qed.
-  Next Obligation.
-    eapply normal_retyping. all: eauto using eta₀_normal, eta₀_typing.
-  Qed.
-
-
+      A₀ := retype_type n (A₀ I) |}.
+    - abstract (eapply normal_retyping; eauto using eta₀_normal, eta₀_typing).
+    - abstract (eapply normal_retyping; eauto using eta₀_normal, eta₀_typing).
+  Defined.
 
   Lemma retype_iff n (I: orduni n X):
     1 <= n -> OU n X I <-> OU n X (@retype n I).
