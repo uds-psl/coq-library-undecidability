@@ -81,14 +81,14 @@ Section Fix_Sigma.
   Global Instance move_eq_dec : eq_dec move.
   Proof.
     intros. hnf. decide equality.
-  Defined.
+  Defined. (* because definition *)
 
   (* Declare finiteness of [move] *)
   Global Instance move_finC : finTypeC (EqType move).
   Proof.
     apply (FinTypeC (enum := [Lmove; Rmove; Nmove])).
     intros []; now cbv.
-  Defined.
+  Defined. (* because definition *)
 
   (* We outsource the second [match] of [tape_move_right] in the [midtape] case to another named definition. This has the advantage that the [cbn] tactic will not reduce [tape_move_left (midtape ls m rs)] to a long term that contains [match]. It reduces to [tape_move_left' ls m rs] instead. Furthermore, there are rewrite lemmas available for [tape_move_left']. *)
 
@@ -541,7 +541,7 @@ Section MapTape.
     - apply leftof.  apply (g t). apply (List.map g l).
     - apply rightof. apply (g t). apply (List.map g l).
     - apply midtape. apply (List.map g l). apply (g t). apply (List.map g l0).
-  Defined.
+  Defined. (* because definition *)
 
   Definition mapTapes {n : nat} : Vector.t (tape tau) n -> Vector.t (tape sig) n := Vector.map mapTape.
 

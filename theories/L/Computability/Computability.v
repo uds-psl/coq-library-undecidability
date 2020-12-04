@@ -37,22 +37,6 @@ Proof.
     assert (lambda t) by now apply eva_lam in eq. apply eva_equiv in eq. rewrite H in eq. apply unique_normal_forms in eq;[|Lproc..].  congruence.
    +right. intros [y eq']. congruence.
 Qed.
-(*
-Definition fromLFun Y (Ry:registered Y) (u:term) (unenc: term -> Y)
-  {unenc_correct : forall x (y:Y), enc y = x -> y = unenc x}
-  {total : exists y:Y, u == enc y} : Y.
-Proof.
-  intros. eapply proj1_sig. eapply lcomp_comp;eassumption.
-Defined.
-
-Arguments fromLFun {_} {_} _ {_} _ _.
-
-Instance term_fromLFun Y (Ry:registered Y) (u:term) (g: term -> Y)
-  (unenc_correct : forall x (y:Y), enc y = x -> y = g x)
-  (total : exists y:Y, u == enc y) : computable (fromLFun u unenc_correct total).
-Proof.
-  eexists. reflexivity.
-Defined. *)
 
 Definition bool_enc_inv b:=
   match b with

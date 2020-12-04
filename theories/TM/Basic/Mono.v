@@ -17,7 +17,7 @@ Section Mk_Mono.
       apply (q', [| act |]).
     - apply init.
     - apply fin.
-  Defined.
+  Defined. (* because definition *)
 
   Variable (F : finType) (R : Rel (tape sig) (F * tape sig)).
 

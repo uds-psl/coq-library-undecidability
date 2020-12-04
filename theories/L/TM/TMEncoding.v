@@ -73,7 +73,7 @@ Proof.
   -destruct t eqn:eq. all:cbn.
    all:repeat let eq := fresh in destruct _ eqn:eq. all:try congruence.
    all:intros ? [= <-]. all:reflexivity.
-Defined.*)
+Defined. (* because instance *) *)
 
 (* *** Encoding Tapes *)
 Section reg_tapes.
@@ -115,10 +115,10 @@ Section fix_sig.
   Definition mconfigAsPair {B : finType} {n} (c:mconfig sig B n):= let (x,y) := c in (x,y).
 
   Global Instance registered_mconfig (B : finType) `{registered B} n: registered (mconfig sig B n).
-  Proof.
+  Proof using reg_sig.
     eapply (registerAs mconfigAsPair). clear.
     register_inj.
-  Defined.
+  Defined. (* because registerAs *)
 
   Global Instance term_mconfigAsPair (B : finType) `{registered B} n: computableTime' (@mconfigAsPair B n) (fun _ _ => (1,tt)).
   Proof.

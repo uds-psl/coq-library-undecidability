@@ -13,7 +13,7 @@ Inductive sigTape (sig : Type) : Type :=
 | UnmarkedSymbol (s : sig).
 
 Instance sigTape_eq (sig : Type) : eq_dec sig -> eq_dec (sigTape sig).
-Proof. intros. hnf. decide equality; now apply Dec; auto. Defined.
+Proof. intros. hnf. decide equality; now apply Dec; auto. Defined. (* because definition *)
 
 Arguments LeftBlank {sig} marked.
 Arguments RightBlank {sig} marked.
@@ -122,7 +122,7 @@ Proof.
     + split. apply Vector.nil. apply Vector.nil.
     + specialize (split_vector X n' v' k') as (rec1&rec2).
       split. apply Vector.cons. apply x. apply rec1. apply rec2.
-Defined.
+Defined. (* because definition *)
 
 
 Lemma vector_cast_refl (X : Type) (n1 : nat) (H1 : n1 = n1) (v : Vector.t X n1) :

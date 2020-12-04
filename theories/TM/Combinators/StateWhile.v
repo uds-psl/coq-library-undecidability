@@ -115,7 +115,7 @@ Section StateWhile.
     decide (l=l') as [_ | ].
     - eapply (halt _ q).
     - apply true.
-  Defined.
+  Defined. (* because definition *)
 
   
   Lemma lifth_comp l (c : mconfig sig (state (StateWhileTM l)) n) :

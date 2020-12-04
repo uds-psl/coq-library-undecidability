@@ -14,7 +14,7 @@ Proof. reflexivity. Qed.
 
 Smpl Add 2 rewrite leToC_eta in *: nary_prepare.
 
-
+Set Default Proof Using "Type".
 
 Section workaround.
   (*This makes the apply_nary tactic and the rewrites with leToC_eta and "=" work *)

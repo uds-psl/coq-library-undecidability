@@ -26,7 +26,7 @@ End L_Notations.
 Instance term_eq_dec : eq_dec term.
 Proof.
   intros s t; unfold dec; repeat decide equality.
-Defined.
+Defined. (* because instance *)
 
 Definition term_eq_dec_proc s t := if Dec (s = t) then true else false.
 
@@ -107,7 +107,7 @@ Hint Resolve lambda_lam : core.
 Instance lambda_dec s : dec (lambda s).
 Proof.
   destruct s;[right;intros C;inv C;congruence..|left;eexists;eauto].
-Defined.
+Defined. (* because instance *)
 
 
 (* Size of terms *)
@@ -199,12 +199,12 @@ Proof with try ((left; econstructor; try lia; tauto) || (right; inversion 1; try
   - induction k.
     + destruct (IHs 1)...
     + destruct (IHs (S (S k)))...
-Defined.
+Defined. (* because instance *)
 
 Instance closed_dec s : dec (closed s).
 Proof.
   decide (bound 0 s);[left|right];now rewrite closed_dcl.
-Defined.
+Defined. (* because instance *)
 
 (* ** Reduction *)
 
@@ -313,7 +313,7 @@ Proof.
   constructor; hnf.
   - eapply starR.
   - eapply star_trans. 
-Defined.
+Qed.
 
 Lemma step_star s s':
   s ≻ s' -> s >* s'.
@@ -324,7 +324,7 @@ Qed.
 Instance step_star_subrelation : subrelation step (star step).
 Proof.
   cbv. apply step_star.
-Defined.
+Qed.
 
 Lemma star_trans_l s s' t :
   s >* s' -> app s t >* app s' t.
@@ -343,7 +343,7 @@ Instance star_step_app_proper :
 Proof.
   cbv. intros s s' A t t' B.
   etransitivity. apply (star_trans_l _ A). now apply star_trans_r.
-Defined.
+Qed.
 
 Lemma closed_star s t: s >* t -> closed s -> closed t.
 Proof.
@@ -354,7 +354,7 @@ Instance star_closed_proper :
   Proper ((star step) ==> Basics.impl) closed.
 Proof.
   exact closed_star.
-Defined.
+Qed.
 
 (*  Properties of star: *)
 
@@ -364,7 +364,7 @@ Proof.
   intros s t R u ? <-. revert s t R u.
   induction k;cbn in *;intros ? ? R ?. congruence. destruct R as [s' [R1 R2]].
   exists (app s' u). firstorder.
-Defined.
+Qed.
 
 Instance pow_step_congR k:
   Proper (eq ==>(pow step k) ==> (pow step k)) app.
@@ -372,7 +372,7 @@ Proof.
   intros s ? <- t u R. revert s t u R.
   induction k;cbn in *;intros ? ? ? R. congruence. destruct R as [t' [R1 R2]].
   exists (app s t'). firstorder.
-Defined.
+Qed.
 
 (* Equivalence *)
 
@@ -532,7 +532,7 @@ Qed.
 Instance reduce_eval_proper : Proper (Basics.flip (star step) ==> eq ==> Basics.impl) eval.
 Proof.
   repeat intro. subst. unfold Basics.flip in H. destruct H1. split. etransitivity. eassumption. assumption. assumption.
-Defined.
+Qed.
 
 Instance equiv_eval_proper: Proper (equiv ==> eq ==> Basics.impl) eval.
 Proof.
@@ -620,7 +620,7 @@ Lemma evalIn_trans s t u i j :
 Proof.
   intros R1 [R2 lam].
   split; eauto using pow_trans.  
-Defined.
+Qed.
 
 Lemma redLe_trans s t u i j :
   s >(<=i) t -> t >(<=j) u -> s >(<=i+j) u.
@@ -640,7 +640,7 @@ Lemma evalLe_trans s t u i j :
 Proof.
   intros R1 [R2 lam].
   split; eauto using redLe_trans.  
-Defined.
+Qed.
 
 Instance pow0_refl : Reflexive (pow step 0).
 Proof.

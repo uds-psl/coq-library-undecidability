@@ -1,5 +1,6 @@
 From Undecidability.L Require Export Datatypes.LNat Datatypes.LBool Tactics.LTactics Computability.Computability Tactics.Lbeta.
 
+Set Default Proof Using "Type".
 Section MuRecursor.
 
 Variable P : term.
@@ -28,12 +29,12 @@ Qed.
 Hint Resolve mu'_proc : LProc.
 
 Lemma mu'_n_false n: P (ext n)  == ext false -> mu' P (ext n) >* mu' P (ext (S n)).
-Proof.
+Proof using P_proc.
   intros R. apply equiv_lambda in R;[|Lproc]. recStep mu'. unfold K. now Lsimpl. 
 Qed.
 
 Lemma mu'_0_false n: (forall n', n' < n -> P (ext n')  == ext false) -> mu' P (ext 0) >* mu' P (ext n).
-Proof.
+Proof using P_proc.
   intros H. induction n.
   -reflexivity.
   -rewrite IHn. 
@@ -42,7 +43,7 @@ Proof.
 Qed.
 
 Lemma mu'_n_true (n:nat): P (ext n)  == ext true -> mu' P (ext n) == ext n.
-Proof.
+Proof using P_proc.
   intros R. recStep mu'. Lsimpl. rewrite R. unfold K. now Lsimpl.
 Qed.
 
@@ -51,7 +52,7 @@ Lemma mu'_sound v n: proc v -> mu' P (ext (n:nat)) == v ->
                      (forall n', n' < n -> P (ext n') == ext false) ->
                      exists n0, n0 >= n /\ P (ext n0) == ext true /\ v == ext n0
                                 /\ forall n', n' < n0 -> P (ext (n':nat)) == ext false.
-Proof.
+Proof using P_proc dec'_P.
   intros pv. intros R. apply equiv_lambda in R;try Lproc. apply star_pow in R. destruct R as [k R]. revert n R. apply complete_induction with (x:=k);clear k;intros k. intros IH n R H.
   specialize (dec_P n).
   destruct (dec_P n) as [[] eq].
@@ -69,7 +70,7 @@ Qed.
 Lemma mu'_complete n0 : P (ext n0) == ext true
                         -> (forall n', n' < n0 -> P (ext n') == ext false)
                         -> mu' P (ext 0) == ext n0.
-Proof.
+Proof using P_proc.
   intros. rewrite mu'_0_false with (n:=n0);try tauto.
   -recStep mu'. Lsimpl. rewrite H. unfold K. now Lsimpl. 
 Qed.
@@ -86,7 +87,7 @@ Qed.
 Hint Resolve mu_proc : LProc.
 
 Lemma mu_sound v : lambda v -> mu P == v -> exists n, v = ext n /\ P (ext n) == ext true /\ (forall n', n' < n -> P (ext n') == ext false).
-Proof.
+Proof using P_proc dec'_P.
   unfold mu. intros lv R. standardizeHypo 100. apply mu'_sound in R.
   -destruct R as [n ?]. exists n. intuition. apply unique_normal_forms;try Lproc. assumption.
   -split;[|Lproc]. apply equiv_lambda in R;auto. apply closed_star in R;Lproc.
@@ -94,7 +95,7 @@ Proof.
 Qed.
 
 Lemma mu_complete (n:nat) : P (ext n) == ext true -> exists n0:nat, mu P == ext n0. 
-Proof.
+Proof using P_proc dec'_P.
   remember 0 as n0.
   assert (forall n':nat, n'< n-(n-n0) -> P (ext n') == ext false) by (intros;lia).
   assert ((n-n0)+n0=n) by lia. remember (n-n0) as k. clear Heqk Heqn0 H0 n0. induction k.
@@ -109,7 +110,7 @@ Proof.
 Qed.
 
 Lemma mu_spec : converges (mu P) <-> exists n : nat, P (ext n) == ext true.
-Proof.
+Proof using P_proc dec'_P.
   split.
   - intros (? & ? & ?). eapply mu_sound in H as (? & ? & ? & ?); eauto.
   - intros []. eapply mu_complete in H as []. exists (ext x0). split. eauto. eapply proc_ext.

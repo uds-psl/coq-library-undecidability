@@ -619,7 +619,7 @@ Proof.
   cbn.
   pose (t:=lam 0).
   computable using t. solverec. Unshelve.
-Defined.
+Defined. (* because ? *)
 
 
 Ltac computable_casted_result :=
