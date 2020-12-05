@@ -22,7 +22,7 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       uses: avsm/setup-ocaml@v1
       with:
-        ocaml-version: 4.07.1
+        ocaml-version: 4.07.1+flambda
 
     - name: Checkout code
       if: steps.cache.outputs.cache-hit != 'true'
@@ -57,7 +57,7 @@ jobs:
     - name: Install OCaml
       uses: avsm/setup-ocaml@v1
       with:
-        ocaml-version: 4.07.1
+        ocaml-version: 4.07.1+flambda
     - name: Checkout code
       uses: actions/checkout@v2
       with:
@@ -84,7 +84,7 @@ jobs:
     - name: Install OCaml
       uses: avsm/setup-ocaml@v1
       with:
-        ocaml-version: 4.07.1
+        ocaml-version: 4.07.1+flambda
     - name: Checkout code
       uses: actions/checkout@v2
       with:
