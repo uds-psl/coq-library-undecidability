@@ -17,6 +17,8 @@ From Undecidability.H10.ArithLibs
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Section utils.
 
   Fact prime_2_or_odd p : prime p -> p = 2 \/ exists n, 0 < n /\ p = 2*n+1.
@@ -331,7 +333,7 @@ Section lagrange_prelim_odd.
               exists a b, divides p (1+a*a+b*b) 
                        /\ 2*a <= p-1 
                        /\ 2*b <= p-1.
-  Proof.
+  Proof using Hf.
     destruct intersection as (u & G1 & G2).
     rewrite in_map_iff in G1.
     rewrite in_map_iff in G2.
@@ -411,7 +413,7 @@ Section lagrange_for_primes.
     Proof. lia. Qed.
 
     Local Fact lagrange_prime_step' : exists r, 1 <= r < m /\ P r.
-    Proof.
+    Proof using H1 H2 H3 Hp.
       (* we get small representatives for x1 ... x4 
          as y1 ... y4 *)
       generalize (Zp_small_repr Hm x1) (Zp_small_repr Hm x2)
@@ -573,7 +575,7 @@ Section lagrange_for_primes.
   (* Now that P 1 holfs ie p is sum of 4 squares *)
 
   Lemma lagrange_prime : exists a b c d, Z.of_nat p = (a*a+b*b+c*c+d*d)%Z.
-  Proof.
+  Proof using Hp.
     replace p with (1*p) by lia; change (P 1).
     destruct (lagrange_prelim Hp) as (n & a & b & H1 & H2 & H3).
     cut (P n).
@@ -629,5 +631,3 @@ Section lagrange.
 End lagrange.
 
 (* Check lagrange_theorem_Z. *)
-
-

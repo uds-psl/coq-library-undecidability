@@ -27,10 +27,10 @@ Require Import Undecidability.StackMachines.Util.SMN_transform.
 Require Import Lia PeanoNat.
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Proof Using "Type".
+
 Local Definition rt_rt1n := @clos_rt_rt1n_iff Config.
 Local Definition app_norm := (@app_assoc', @app_nil_l, @app_nil_r).
-
-Set Default Proof Using "Type".
 
 Module Argument.
 Section Reduction.

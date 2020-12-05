@@ -6,7 +6,7 @@ Require Import Undecidability.StringRewriting.SR.
 
 Require Undecidability.TM.Reductions.HaltTM_1_to_HaltSBTM Undecidability.TM.Reductions.HaltSBTM_to_HaltSBTMu.
 
-From Undecidability.StringRewriting.Reductions Require  HaltSBTMu_to_SRH SRH_to_SR.
+From Undecidability.StringRewriting.Reductions Require HaltSBTMu_to_SRH SRH_to_SR.
 
 (* Many-one reduction from Turing machine halting to string rewriting *)
 Theorem reduction : HaltTM 1 ⪯ SR.

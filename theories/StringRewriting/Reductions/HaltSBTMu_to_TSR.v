@@ -10,6 +10,8 @@ Require Import Undecidability.StringRewriting.Reductions.HaltSBTMu_to_SRH.
 
 Import ListNotations.
 
+Set Default Proof Using "Type".
+
 Section FixM.
 
   Variable M : SBTM.  
@@ -30,7 +32,7 @@ Section FixM.
 
   Lemma help_exists2 P Q :
     (P /\ exists ls rs, Q ls rs) -> exists ls rs : list bool, P /\ Q ls rs.
-  Proof.
+  Proof using M.
     firstorder.
   Qed.
 
@@ -237,4 +239,4 @@ Proof.
       + eapply rewt_subset. eapply simulation. eassumption. eauto.
       + eapply rewt_subset. eapply sim_Del. eauto.
     - cbn -[Del R Nat.add]. intros H1. now eapply backwards.
-Qed. 
+Qed.

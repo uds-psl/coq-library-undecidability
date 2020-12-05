@@ -37,7 +37,7 @@ Local Arguments Forall_inv_tail {A P a l}.
 (* Facts on types of shape ∀ .. ∀ s1 -> .. sn -> x where x is free *)
 Module SafePolyType.
 (* s1 -> .. sn -> x where n <= x *)
-Fixpoint is_safe_poly_arr (n: nat) (t: poly_type) :=
+Local Fixpoint is_safe_poly_arr (n: nat) (t: poly_type) :=
   match t with
   | poly_var x => n <= x
   | poly_arr _ t => is_safe_poly_arr n t

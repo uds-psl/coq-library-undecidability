@@ -32,4 +32,6 @@ jobs:
       - run: opam install . --deps-only --with-doc --with-test
       - run: opam list --installed
 
+      - run: opam exec -- make -j 2 vos
+      - run: opam exec -- make -j 2 vok
       - run: opam exec -- make -j 2 all TIMED=1

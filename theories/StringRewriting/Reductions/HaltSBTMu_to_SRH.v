@@ -9,6 +9,8 @@ Require Import Undecidability.Synthetic.ReducibilityFacts.
 
 Import ListNotations.
 
+Set Default Proof Using "Type".
+
 Lemma nil_app_tail {X} (x : X) l : ~ [] = l ++ [x]. destruct l; cbn; firstorder congruence. Qed.
 Lemma nil_app_tail' {X} (x : X) l : ~ l ++ [x] = []. destruct l; cbn; firstorder congruence. Qed.
 

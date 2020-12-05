@@ -24,6 +24,8 @@ From Undecidability.H10.Dio
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Section fractran_dio.
 
   Notation "l /F/ x → y" := (fractran_step l x y) (at level 70, no associativity).

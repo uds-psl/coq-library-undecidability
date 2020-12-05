@@ -17,6 +17,37 @@ Section HuetReduction.
   Let f: exp X := var 3.
   Let g: exp X := var 4.
 
+  Lemma HGamma₀s₀A₀ (S: list card) : 
+    [Arr (repeat (alpha → alpha) (length S)) alpha; (alpha → alpha) → alpha] ⊢( 3) 
+    (lambda lambda lambda h (AppR f (Enc 1 2 (heads S))) (AppR f (repeat (var (u 1)) (length S)))) :
+    ((alpha → alpha) → (alpha → alpha) → (alpha → alpha → alpha) →  alpha).
+  Proof.
+    do 4 econstructor. econstructor. econstructor; cbn; eauto; cbn; eauto.
+    - eapply AppR_ordertyping with (L := repeat (alpha → alpha)  (length S) ); simplify.
+      erewrite <-map_length; eapply Enc_typing.
+      all: econstructor; eauto.
+      simplify; cbn; eauto. 
+    - eapply AppR_ordertyping. 
+      + eapply repeated_ordertyping; simplify; [|eauto]. 
+        intros s H'. eapply repeated_in in H'. subst.
+        econstructor; cbn. 2: eauto. eauto.
+      + econstructor; simplify; eauto.
+  Qed.
+
+  Lemma HGamma₀t₀A₀ (S: list card) : 
+    [Arr (repeat (alpha → alpha) (length S)) alpha; (alpha → alpha) → alpha] ⊢( 3) 
+    (lambda lambda lambda h (AppR f (Enc 1 2 (tails S))) (var (u 1) (g (var (u 1))))) :
+    ((alpha → alpha) → (alpha → alpha) → (alpha → alpha → alpha) →  alpha).
+  Proof with cbn [ord' ord alpha]; simplify; cbn; eauto.
+    do 4 econstructor. econstructor. econstructor; eauto...
+    cbn; eauto. 
+    2: do 2 econstructor...
+    2 - 3: econstructor...
+    eapply AppR_ordertyping with (L := repeat (alpha → alpha) (length S)); simplify.
+    erewrite <-map_length; eapply Enc_typing.
+    all: econstructor...
+  Qed.
+
   (* ** Reduction Function *)
   Instance PCP_to_U (S: list card) : orduni 3 X.
   Proof with cbn [ord' ord alpha]; simplify; cbn; eauto.
@@ -25,30 +56,9 @@ Section HuetReduction.
       s₀ :=  lambda lambda lambda h (AppR f (Enc 1 2 (heads S))) (AppR f (repeat (var (u 1)) (length S)));
       t₀ :=  lambda lambda lambda h (AppR f (Enc 1 2 (tails S))) (var (u 1) (g (var (u 1))));
       A₀ := (alpha → alpha) → (alpha → alpha) → (alpha → alpha → alpha) →  alpha;
-      H1₀ := _;
-      H2₀ := _;
+      H1₀ := HGamma₀s₀A₀ S;
+      H2₀ := HGamma₀t₀A₀ S;
     |}.
-    {
-      do 4 econstructor. econstructor. econstructor; cbn; eauto; cbn; eauto.
-      - eapply AppR_ordertyping with (L := repeat (alpha → alpha)  (length S) ); simplify.
-        erewrite <-map_length; eapply Enc_typing.
-        all: econstructor; eauto.
-        simplify; cbn; eauto. 
-      - eapply AppR_ordertyping. 
-        + eapply repeated_ordertyping; simplify; [|eauto]. 
-          intros s H'. eapply repeated_in in H'. subst.
-          econstructor; cbn. 2: eauto. eauto.
-        + econstructor; simplify; eauto.
-    }
-    {
-      do 4 econstructor. econstructor. econstructor; eauto...
-      cbn; eauto. 
-      2: do 2 econstructor...
-      2 - 3: econstructor...
-      eapply AppR_ordertyping with (L := repeat (alpha → alpha) (length S)); simplify.
-      erewrite <-map_length; eapply Enc_typing.
-      all: econstructor...
-    }
   Defined.
 
   Section ForwardDirection.
@@ -234,7 +244,6 @@ Section HuetReduction.
         eapply equiv_head_equal in EQ1; cbn; simplify; cbn; intuition.
         cbn in EQ1; simplify in EQ1; discriminate. 
   Qed. 
-  
 
   Theorem PCP_U3: PCP ⪯ OU 3 X.
   Proof.
@@ -242,11 +251,4 @@ Section HuetReduction.
     rewrite OU_NOU; eauto using MU_PCP.
   Qed.
 
-
 End HuetReduction.
-
-
-
-
-
-

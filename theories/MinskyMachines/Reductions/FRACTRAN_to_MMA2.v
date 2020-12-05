@@ -27,6 +27,8 @@ From Undecidability.MinskyMachines Require Import mma_defs fractran_mma.
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Local Notation "P /MMA/ s ↓" := (sss_terminates (@mma_sss 2) P s) (at level 70, no associativity).
 
 Theorem fractran_reg_mma2 l : 
@@ -58,4 +60,3 @@ Section FRACTRAN_REG_MMA2.
 End FRACTRAN_REG_MMA2.
 
 Check FRACTRAN_REG_MMA2_HALTING.
-

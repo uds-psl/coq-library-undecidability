@@ -17,6 +17,8 @@ From Undecidability.MuRec
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Local Notation "'⟦' f '⟧'" := (@ra_rel _ f) (at level 0).
 
 Section ra_min_extra.
@@ -26,7 +28,7 @@ Section ra_min_extra.
   Hypothesis Hf : forall x, ex (⟦f⟧ (x##v)).
 
   Theorem ra_min_extra : ex (⟦ra_min f⟧ v) <-> exists x, ⟦f⟧ (x##v) 0.
-  Proof.
+  Proof using Hf.
     split.
     + intros (x & H1 & H2); exists x; auto.
     + intros (x & Hx).
@@ -50,7 +52,7 @@ Section ra_min_extra'.
   Hypothesis Hf : forall x, ⟦f⟧ (x##v) 0 \/ ⟦f⟧ (x##v) 1.
 
   Theorem ra_min_ex : ex (⟦ra_min f⟧ v) <-> exists x, ⟦f⟧ (x##v) 0.
-  Proof.
+  Proof using Hf.
     apply ra_min_extra.
     intros x; destruct (Hf x); firstorder.
   Qed.
@@ -133,12 +135,12 @@ Section ra_enum.
   Opaque g.
 
   Definition ra_enum : recalg (S k).
-  Proof. apply ra_min, g. Defined.
+  Proof using a. apply ra_min, g. Defined.
 
   (* A reduction of listability into recursive computability *)
 
   Fact ra_enum_spec x v : ex (⟦ra_enum⟧ (x##v)) <-> exists n, ⟦f⟧ (n##v) (S x).
-  Proof.
+  Proof using Hf.
     unfold ra_enum; simpl; unfold s_min.
     rewrite μ_min_of_total.
     + split.

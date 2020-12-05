@@ -17,6 +17,8 @@ From Undecidability.MinskyMachines
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Tactic Notation "rew" "length" := autorewrite with length_db.
 
 Local Notation "e #> x" := (vec_pos e x).
@@ -212,7 +214,7 @@ Section mm_special_ind.
                                      -> Q (i,v)).
 
   Theorem mm_special_ind s : P // s ->> se -> Q s.
-  Proof.
+  Proof using HQ0 HQ1.
     intros (q & H1); revert s H1.
     induction q as [ | q IHq ]; intros s Hs.
     + apply sss_steps_0_inv in Hs; subst; apply HQ0.
@@ -237,7 +239,7 @@ Section mm_term_ind.
                                      -> Q (i,v)).
 
   Theorem mm_term_ind s : P // s ~~> se -> Q s.
-  Proof.
+  Proof using HQ0 HQ1.
     intros (H1 & H2).
     revert s H1; apply mm_special_ind; auto.
     intros i rho v j w' H1 H3 H4.
@@ -246,7 +248,3 @@ Section mm_term_ind.
   Qed.
 
 End mm_term_ind.
-
-
-
-

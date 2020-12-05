@@ -10,6 +10,8 @@ Require Import Arith Psatz.
 Require Import List.
 Import ListNotations.
 
+Set Default Proof Using "Type".
+
 (* Enumerable X allows injection into nat *)
 Class Enumerable (X: Type) :=
   {

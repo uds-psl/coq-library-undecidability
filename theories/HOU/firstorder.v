@@ -893,8 +893,8 @@ Section Retyping.
       s₀ := eta₀ (s₀ I) H1₀;
       t₀ := eta₀ (t₀ I) H2₀;
       A₀ := retype_type n (A₀ I) |}.
-    - abstract (eapply normal_retyping; eauto using eta₀_normal, eta₀_typing).
-    - abstract (eapply normal_retyping; eauto using eta₀_normal, eta₀_typing).
+    - abstract (eapply normal_retyping; [apply eta₀_normal | apply eta₀_typing]).
+    - abstract (eapply normal_retyping; [apply eta₀_normal | apply eta₀_typing]).
   Defined.
 
   Lemma retype_iff n (I: orduni n X):

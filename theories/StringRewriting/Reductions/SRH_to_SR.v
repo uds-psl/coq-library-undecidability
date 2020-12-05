@@ -9,6 +9,8 @@ Import ListAutomationNotations.
 
 Import RuleNotation.
 
+Set Default Proof Using "Type".
+
 (* * SRH to SR *)
 
 Section SRH_SR.

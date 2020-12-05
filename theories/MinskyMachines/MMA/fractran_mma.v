@@ -20,6 +20,8 @@ From Undecidability.FRACTRAN
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Tactic Notation "rew" "length" := autorewrite with length_db.
 
 Local Notation "e #> x" := (vec_pos e x).
@@ -98,7 +100,7 @@ Section Fractran_with_two_counters.
             k*b = a*(v#>src)
          -> v#>dst = 0
          -> (i,mma_fractran_one) /MM2/ (i,v) -+> (p,v[k/src]).
-    Proof.
+    Proof using Ha Hb.
       intros H1 H2; unfold mma_fractran_one.
       apply sss_progress_trans with (5+a+i,v[0/src][(k*b)/dst]).
       { apply subcode_sss_progress with (P := (i,mma_mult_cst src dst a i)); auto.
@@ -130,7 +132,7 @@ Section Fractran_with_two_counters.
             ~ divides b (a*(v#>src))
          -> v#>dst = 0
          -> (i,mma_fractran_one) /MM2/ (i,v) -+> (length mma_fractran_one+i,v).
-    Proof.
+    Proof using Ha Hb.
       rewrite mma_fractran_one_length.
       intros H1 H2; unfold mma_fractran_one.
       rewrite divides_rem_eq in H1.
@@ -233,7 +235,7 @@ Section Fractran_with_two_counters.
             -> fractran_stop ll x 
             -> w = v[x/src]
             -> (i,fractran_mma) /MM2/ (i,v) ->> (length fractran_mma+i,w).
-    Proof.
+    Proof using Hll.
       intros H1 (u & H2) H3 ?; subst w.
       revert v x H1 H2 H3.
       induction u as [ | u IHu ]; simpl; intros v y H1 H2 H3.
@@ -253,7 +255,7 @@ Section Fractran_with_two_counters.
                v#>dst = 0 
             -> (i,fractran_mma) /MM2/ (i,v) ↓
             -> ll /F/ (v#>src) ↓.
-    Proof.
+    Proof using Hll.
       intros H1 ((j,w) & (u & H2) & H3); simpl fst in H3.
       revert v H1 H2.
       induction on u as IHu with measure u; intros v H1 H2.
@@ -275,7 +277,7 @@ Section Fractran_with_two_counters.
    
     Theorem fractran_mma_reduction x : 
         ll /F/ x ↓ <-> (i,fractran_mma) /MM2/ (i,x##0##vec_nil) ↓.
-    Proof.
+    Proof using Hll.
       split; auto.
       + intros (y & H2 & H3).
         exists (length fractran_mma+i,y##0##vec_nil); split; simpl; auto; try lia.

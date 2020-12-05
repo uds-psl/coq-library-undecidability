@@ -17,6 +17,8 @@ From Undecidability.MinskyMachines.MMA
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Tactic Notation "rew" "length" := autorewrite with length_db.
 
 Local Notation "e #> x" := (vec_pos e x).
@@ -127,7 +129,7 @@ Section Minsky_Machine_alt_utils.
     Fact mma_transfert_progress i v st : 
            st = (3+i,v[0/src][((v#>src)+(v#>dst))/dst])
         -> (i,mma_transfert i) // (i,v) -+> st.
-    Proof.
+    Proof using Hsd.
       intros ?; subst.
       apply sss_progress_trans with (2+i, v[0/src][(1+(v#>src)+(v#>dst))/dst]).
       + apply mma_transfert_spec with (1 := eq_refl) (2 := eq_refl); auto.
@@ -325,7 +327,7 @@ Section Minsky_Machine_alt_utils.
              v#>dst < k 
           -> st = (q,v[0/dst][((v#>dst)+(v#>tmp))/tmp])
           -> (i,mma_decs_copy k i) // (i,v) -+> st.
-    Proof.
+    Proof using Hdt.
       intros H1 ?; subst st.
       apply mma_decs_copy_spec_lt; auto.
     Qed.
@@ -334,7 +336,7 @@ Section Minsky_Machine_alt_utils.
              k <= v#>dst 
           -> st = (p,v[((v#>dst)-k)/dst][(k+(v#>tmp))/tmp])
           -> (i,mma_decs_copy k i) // (i,v) -+> st.
-    Proof.
+    Proof using Hdt.
       intros H1 ?; subst st.
       apply mma_decs_copy_spec_le; auto.
     Qed.
@@ -382,7 +384,7 @@ Section Minsky_Machine_alt_utils.
     Fact mma_mult_cst_progress v st :
              st = (5+k+i,v[0/src][(k*(v#>src)+(v#>dst))/dst])
           -> (i,mma_mult_cst) // (i,v) -+> st.
-    Proof.
+    Proof using Hsd.
       intros ?; subst.
       apply mma_mult_cst_spec with (1 := eq_refl); do 2 f_equal.
       ring.
@@ -465,7 +467,7 @@ Section Minsky_Machine_alt_utils.
             v#>src = a*k
          -> st = (p,v[0/src][((v#>src)+(v#>dst))/dst])
          -> (i,mma_mod_cst) // (i,v) -+> st.
-    Proof.
+    Proof using Hsd Hk.
       intros H1 ?; subst st.
       apply sss_compute_progress_trans with (i,v[0/src][((v#>src)+(v#>dst))/dst]).
       + apply mma_mod_cst_spec_1 with (a := a) (b := 0); try lia.
@@ -478,7 +480,7 @@ Section Minsky_Machine_alt_utils.
          -> 0 < b < k
          -> st = (q,v[0/src][((v#>src)+(v#>dst))/dst])
          -> (i,mma_mod_cst) // (i,v) -+> st.
-    Proof.
+    Proof using Hsd Hk.
       intros H1 H2 ?; subst st.
       apply sss_compute_progress_trans with (i,v[b/src][(a*k+(v#>dst))/dst]).
       + apply mma_mod_cst_spec_1 with (a := a) (b := b); try lia; auto.
@@ -536,7 +538,7 @@ Section Minsky_Machine_alt_utils.
             v#>src = a*k
          -> st = (q,v[0/src][(a+(v#>dst))/dst])
          -> (i, mma_div_cst) // (i,v) -+> st.
-    Proof.
+    Proof using Hsd Hk.
       intros H1 H2; subst st; apply mma_div_cst_spec with (1 := H1); auto.
     Qed.
 

@@ -15,6 +15,8 @@ From Undecidability.MuRec
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Notation "[| f |]" := (@ra_rel _ f) (at level 0).
 
 Section soundness_and_completeness.
@@ -116,4 +118,3 @@ Section soundness_and_completeness.
   Proof. split; auto. Qed.
 
 End soundness_and_completeness.
-

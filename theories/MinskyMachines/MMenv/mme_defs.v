@@ -17,6 +17,8 @@ From Undecidability.MinskyMachines.MMenv Require Import env.
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 (* * Minsky Machines
 
     A Minsky machine has n registers and there are just two instructions
@@ -230,6 +232,3 @@ Tactic Notation "mm" "env" "stop" := exists 0; apply sss_steps_0; auto.
 (* The Halting problem for MM, for linear logic encoding, we restrict
    to a very specific halting problem. Starting from (1,v), does the
    MM halt at state (0,vec_zero) *)
-
-
-

@@ -20,6 +20,8 @@ From Undecidability.H10.Dio
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Local Notation "'⟦' f '⟧'" := (@ra_rel _ f) (at level 0).
 
 Section dio_poly.
@@ -68,7 +70,7 @@ Section dio_poly.
     Variable (p q : dio_polynomial (pos n) (pos m)).
 
     Definition ra_dio_poly_eq : recalg (n+m).
-    Proof.
+    Proof using p q.
       apply ra_comp with (1 := ra_eq).
       refine (_##_##vec_nil); apply ra_dio_poly.
       + exact p.
@@ -97,7 +99,7 @@ Section dio_poly.
     Hint Resolve ra_dio_poly_eq_prim : core.
 
     Definition ra_dio_poly_test : recalg (S m).
-    Proof.
+    Proof using p q.
       apply ra_comp with (1 := ra_dio_poly_eq).
       apply vec_set_pos; intros i.
       destruct (pos_both _ _ i) as [ j | j ].
@@ -157,7 +159,7 @@ Section dio_poly.
   Opaque ra_dio_poly_test.
 
   Definition ra_dio_poly_find : recalg m.
-  Proof. apply ra_min, (ra_dio_poly_test p q). Defined.
+  Proof using p q. apply ra_min, (ra_dio_poly_test p q). Defined.
 
   Lemma ra_dio_poly_find_rel w : (exists e, ⟦ra_dio_poly_find⟧ w e) <-> exists x, ⟦ra_dio_poly_test p q⟧ (x##w) 0.
   Proof.
@@ -321,7 +323,3 @@ Section dio_ra_enum.
   Proof. exists g; split; auto. Qed. 
 
 End dio_ra_enum.
-
- 
-
- 

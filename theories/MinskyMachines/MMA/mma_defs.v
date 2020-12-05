@@ -14,6 +14,8 @@ From Undecidability.Shared.Libs.DLW
 
 From Undecidability.MinskyMachines Require Export MM.
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 Tactic Notation "rew" "length" := autorewrite with length_db.
@@ -203,7 +205,3 @@ Tactic Notation "mma" "sss" "DEC" "S" "with" uconstr(a) uconstr(b) uconstr(c) :=
   end; auto.
     
 Tactic Notation "mma" "sss" "stop" := exists 0; apply sss_steps_0; auto.
-
-
-
-

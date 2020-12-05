@@ -16,6 +16,8 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Local Notation power := (mscal mult 1).
 Local Notation "∑" := (msum plus 0).
 Local Infix "≲" := binary_le (at level 70, no associativity).
@@ -75,7 +77,7 @@ Section power_decomp.
         -> (forall i, i < n -> f i < q)
         -> (forall i, i < n -> a i < p)
         -> ∑ n (fun i => a i * power (f i) p) < power q p.
-  Proof.
+  Proof using Hp.
     revert q; induction n as [ | n IHn ]; intros q Hf1 Hf2 Ha.
     + rewrite msum_0; apply power_ge_1; lia.
     + rewrite msum_plus1; auto.
@@ -99,7 +101,7 @@ Section power_decomp.
            (forall i j, i < j < n -> f i < f j)
         -> (forall i, i < n -> a i < p)
         ->  forall i, i < n -> is_digit (∑ n (fun i => a i * power (f i) p)) p (f i) (a i).
-  Proof.
+  Proof using Hp.
     intros Hf Ha.
     induction n as [ | n IHn ]; intros i Hi.
     + lia.
@@ -129,7 +131,7 @@ Section power_decomp.
          -> ∑ n (fun i => a i * power (f i) p)
           = ∑ n (fun i => b i * power (f i) p)
          -> forall i, i < n -> a i = b i.
-  Proof.
+  Proof using Hp.
     intros Hf Ha Hb E i Hi.
     generalize (power_decomp_is_digit _ _ Hf Ha Hi)
                (power_decomp_is_digit _ _ Hf Hb Hi).
@@ -147,7 +149,7 @@ Section power_decomp_uniq.
         -> ∑ (S n) (fun i => a i * power (f i) p) 
          = ∑ n (fun i => a (S i) * power (f (S i) - f 0 - 1) p) * power (S (f 0)) p
          + a 0 * power (f 0) p.
-  Proof.
+  Proof using Hp.
     intros Hf.
     rewrite msum_S, plus_comm; f_equal.
     rewrite <- sum_0n_scal_r.
@@ -175,7 +177,7 @@ Section power_decomp_uniq.
          -> ∑ n (fun i => a i * power (f i) p)
           = ∑ n (fun i => b i * power (f i) p)
          -> forall i, i < n -> a i = b i.
-  Proof.
+  Proof using Hp.
     revert f a b.
     induction n as [ | n IHn ]; intros f a b Hf Ha Hb.
     + intros; lia.
@@ -208,7 +210,7 @@ Proof. ring. Qed.
 
 Section power_injective.
 
-  Let power_2_inj_1 i j n : j < i -> 2* power n 2 <> power i 2 + power j 2.
+  Local Lemma power_2_inj_1 i j n : j < i -> 2* power n 2 <> power i 2 + power j 2.
   Proof.
     rewrite <- power_S; intros H4 E.
      generalize (@power_ge_1 j 2); intro C.
@@ -237,7 +239,7 @@ Section power_injective.
       apply power_smono_l with (x := 2) in C; lia.
   Qed.
 
-  Let power_plus_lt a b c : a < b < c -> power a 2 + power b 2 < power c 2.
+  Local Lemma power_plus_lt a b c : a < b < c -> power a 2 + power b 2 < power c 2.
   Proof.
     intros [ H1 H2 ].
     apply power_mono_l with (x := 2) in H2; auto.
@@ -245,7 +247,7 @@ Section power_injective.
     rewrite power_S in H2; lia.
   Qed.
 
-  Let power_inj_2 i1 j1 i2 j2 : 
+  Local Lemma power_inj_2 i1 j1 i2 j2 : 
              j1 < i1 
           -> j2 < i2 
           -> power i1 2 + power j1 2 = power i2 2 + power j2 2
@@ -529,7 +531,7 @@ Section sums.
     Theorem sum_sum_regroup : { g | ∑ n (fun i => ∑ i (fun j => power (f i + f j) r))
                                   = ∑ (2*k) (fun i => g i * power i r) 
                                   /\ forall i, g i <= n }.
-    Proof.
+    Proof using Hf1 Hf2.
       revert n f Hf1 Hf2. 
       induction n as [ | p IHp ]; intros f Hf1 Hf2.
       + exists (fun _ => 0); split; auto.
@@ -557,7 +559,7 @@ Section sums.
 
   Section all_ones.
 
-    Let equation_inj x y a b : 1 <= x -> 1+x*a = y -> 1+x*b = y -> a = b.
+    Local Lemma equation_inj x y a b : 1 <= x -> 1+x*a = y -> 1+x*b = y -> a = b.
     Proof.
       intros H1 H2 H3.
       rewrite <- H3 in H2; clear y H3.
@@ -567,7 +569,7 @@ Section sums.
     Variables (r : nat) (Hr : 2 <= r).
 
     Fact all_ones_equation l : 1+(r-1)*∑ l (fun i => power i r) = power l r.
-    Proof.
+    Proof using Hr.
       induction l as [ | l IHl ].
       * rewrite msum_0, Nat.mul_0_r, power_0; auto.
       * rewrite msum_plus1; auto.
@@ -578,7 +580,7 @@ Section sums.
     Qed.
 
     Fact all_ones_dio l w : w = ∑ l (fun i => power i r) <-> 1+(r-1)*w = power l r.
-    Proof.
+    Proof using Hr.
       split.
       + intros; subst; apply all_ones_equation.
       + intros H.
@@ -605,23 +607,23 @@ Section sums.
 
       Variable (n w : nat) (Hw : w = ∑ n (fun i => power i r)).
 
-      Let Hw_0 : w = ∑ n (fun i => 1*power i r).
-      Proof. rewrite Hw; apply msum_ext; intros; ring. Qed.
+      Local Lemma Hw_0 : w = ∑ n (fun i => 1*power i r).
+      Proof using Hw. rewrite Hw; apply msum_ext; intros; ring. Qed.
 
       Fact all_ones_joins : w = msum nat_join 0 n (fun i => 1*power i r).
-      Proof. 
+      Proof using Hl Hlq Hw. 
         rewrite Hw_0.
         apply sum_powers_ortho with (q := 4*q); auto; try lia.
       Qed.
 
-      Let Hw_1 : 2*w = ∑ n (fun i => 2*power i r).
-      Proof. 
+      Local Lemma Hw_1 : 2*w = ∑ n (fun i => 2*power i r).
+      Proof using Hw. 
         rewrite Hw_0, <- sum_0n_scal_l.
         apply msum_ext; intros; ring.
       Qed.
 
       Fact all_ones_2_joins : 2*w = msum nat_join 0 n (fun i => 2*power i r).
-      Proof.
+      Proof using Hl Hlq Hw.
         rewrite Hw_1.
         apply sum_powers_ortho with (q := 4*q); auto; try lia.
       Qed.
@@ -644,7 +646,7 @@ Section sums.
       Let u2 := ∑ m (fun i => ∑ i (fun j => 2*power (f i + f j) r)).
 
       Fact const_u_square : u * u = u1 + u2.
-      Proof.
+      Proof using Hl Hlq Hw Hu Hm.
         unfold u1, u2.
         rewrite Hu, square_sum; f_equal.
         + apply msum_ext; intros; rewrite <- power_plus; f_equal; lia.
@@ -653,22 +655,22 @@ Section sums.
           rewrite power_plus; ring.
       Qed.
 
-      Let Hu1_0 : u1 = ∑ m (fun i => 1*power (2*f i) r).
+      Local Lemma Hu1_0 : u1 = ∑ m (fun i => 1*power (2*f i) r).
       Proof. apply msum_ext; intros; ring. Qed.
 
-      Let Hseq_u a : a <= m -> ∑ a (fun i => 1*power (2*f i) r) = msum nat_join 0 a (fun i => 1*power (2*f i) r).
-      Proof.
+      Local Lemma Hseq_u a : a <= m -> ∑ a (fun i => 1*power (2*f i) r) = msum nat_join 0 a (fun i => 1*power (2*f i) r).
+      Proof using Hw Hf2 Hl Hlq Hm Hu.
         intros Ha.
         apply sum_powers_ortho with (q := 4*q); auto; try lia.
         intros i j Hi Hj ?; apply Hf4; lia.
       Qed.
 
-      Let Hu1 : u1 = msum nat_join 0 m (fun i => 1*power (2*f i) r).
-      Proof. 
+      Local Lemma Hu1 : u1 = msum nat_join 0 m (fun i => 1*power (2*f i) r).
+      Proof using Hw Hf2 Hl Hlq Hm Hu. 
         rewrite Hu1_0; apply Hseq_u; auto.
       Qed.
 
-      Let Hu2_0 : u2 = 2 * ∑ m (fun i => ∑ i (fun j => power (f i + f j) r)).
+      Local Lemma Hu2_0 : u2 = 2 * ∑ m (fun i => ∑ i (fun j => power (f i + f j) r)).
       Proof.
         unfold u2; rewrite <- sum_0n_scal_l; apply msum_ext.
         intros; rewrite <- sum_0n_scal_l; apply msum_ext; auto.
@@ -685,24 +687,24 @@ Section sums.
          supposing n is low compared to r *) 
          
 
-      Let g_full : { g | ∑ m (fun i => ∑ i (fun j => power (f i + f j) r))
+      Local Lemma g_full : { g | ∑ m (fun i => ∑ i (fun j => power (f i + f j) r))
                       = ∑ (2*k) (fun i : nat => g i * power i r) 
                       /\ forall i : nat, g i <= m }.
-      Proof. apply sum_sum_regroup; auto. Qed.
+      Proof using Hf1 Hf2. apply sum_sum_regroup; auto. Qed.
  
       Let g := proj1_sig g_full.
-      Let Hg1 : u2 = ∑ (2*k) (fun i => (2*g i) * power i r).
+      Local Lemma Hg1 : u2 = ∑ (2*k) (fun i => (2*g i) * power i r).
       Proof. 
         rewrite Hu2_0, (proj1 (proj2_sig g_full)), <- sum_0n_scal_l.
         apply msum_ext; unfold g; intros; ring.
       Qed.
 
-      Let Hg2 i : 2*g i <= 2*m.
+      Local Lemma Hg2 i : 2*g i <= 2*m.
       Proof. apply mult_le_compat; auto; apply (proj2_sig g_full). Qed.
 
       Let Hg3 i : 2*g i < r.
-      Proof. apply le_lt_trans with (1 := Hg2 _); auto. Qed.
-
+      Proof using Hm. apply le_lt_trans with (1 := Hg2 _); auto. Qed.
+      
       Let Hu2 : u2 = msum nat_join 0 (2*k) (fun i => (2*g i) * power i r).  
       Proof.
         rewrite Hg1.
@@ -734,8 +736,8 @@ Section sums.
       Let H2w_1 : 2*w = msum nat_join 0 k' (fun i => 2*power i r).
       Proof. rewrite Hw; apply all_ones_2_joins; auto. Qed.
 
-      Let Hu2_w : u2 ⇣ w = 0.
-      Proof.
+      Local Lemma Hu2_w : u2 ⇣ w = 0.
+      Proof using Hf1 Hf2 H2w_1 Hu1_u2.
         rewrite Hu2, Hw_1.
         destruct (le_lt_dec k' (2*k)) as [ Hk | Hk ].
         2: { apply nat_ortho_joins.
@@ -759,7 +761,7 @@ Section sums.
       Qed.
 
       Fact const_u1_prefix : { q | q <= m /\ u*u ⇣ w = ∑ q (fun i => 1*power (2*f i) r) }.
-      Proof.
+      Proof using H2w_1 Hf1 Hf2 Hu1_u2.
         destruct inc_seq_split_lt with (n := m) (f := fun i => 2*f i) (k := k') as (a & H1 & H2 & H3).
         + intros i j Hij; apply Hf2 in Hij; lia.
         + exists a; split; auto.
@@ -805,14 +807,14 @@ Section sums.
       Qed.
 
       Fact const_u1_meet p : p = (u*u) ⇣ w <-> p = u1.
-      Proof.
+      Proof using Hu1_w.
         rewrite Hu1_u2, nat_meet_comm, nat_meet_join_distr_l.
         do 2 rewrite (nat_meet_comm w).
         rewrite Hu1_w, Hu2_w, nat_join_n0; tauto.
       Qed.
 
       Fact const_u1_eq : (u*u) ⇣ w = u1.
-      Proof. apply const_u1_meet; auto. Qed.
+      Proof using Hu1_w. apply const_u1_meet; auto. Qed.
 
       Hypothesis Hf : forall i, i < m -> f i = power (S i) 2.
 
@@ -841,7 +843,7 @@ Section sums.
       Qed. 
 
       Fact const_u2_meet p : p = (u*u) ⇣ (2*w) <-> p = u2.
-      Proof.
+      Proof using Hu1_w Hu2_2w.
         rewrite Hu1_u2, nat_meet_comm, nat_meet_join_distr_l.
         do 2 rewrite (nat_meet_comm (2*w)).
         rewrite Hu1_2w, Hu2_2w, nat_join_0n; tauto.
@@ -946,7 +948,7 @@ Section sums.
                                      /\ u2 = (u*u) ⇣ (2*w)
                                      /\ power 2 r + u1 = u + power (power (S l) 2) r
                                      /\ divides (power 4 r) u1.
-      Proof.
+      Proof using Hu1 Hu Hr'.
         exists w, u2; repeat (split; auto).
       Qed.
 
@@ -978,11 +980,11 @@ Section sums.
       Let Hu1_0 : u1 ≲ ∑ (S (power (S l) 2)) (fun i => 1*power i r).
       Proof. rewrite H20, <- Hw_1; auto. Qed.
 
-      Let mk_full : { m : nat & { k | u1 = ∑ (S m) (fun i => power (k i) r) 
+      Local Lemma mk_full : { m : nat & { k | u1 = ∑ (S m) (fun i => power (k i) r) 
                                 /\ m <= power (S l) 2
                                 /\ (forall i, i < S m -> k i <= power (S l) 2) 
                                 /\ forall i j, i < j < S m -> k i < k j } }.
-      Proof.
+      Proof using Hw Hu1_0 H19 H21 H22.
         assert ({ k : nat &
                  { g : nat -> nat & 
                  { h | u1 = ∑ k (fun i => g i * power (h i) r)
@@ -1140,10 +1142,10 @@ Section sums.
         rewrite Hk_is_power in Hh_1; auto.
         apply power_2_inj in Hh_1; lia.
       Qed.
-        
+
       Fact obtain_u_u1_value :  u  = ∑ l (fun i => power (power (S i) 2) r)
                              /\ u1 = ∑ l (fun i => power (power (S (S i)) 2) r).
-      Proof.
+      Proof using Hu.
         split.
         + rewrite <- Hm_is_l, Hu.
           apply msum_ext.
@@ -1364,7 +1366,7 @@ Section sums.
     Definition Code_plus := ca = cb + cc.
  
     Lemma Code_plus_spec : Code_plus <-> forall i, i < l -> a i = b i + c i.
-    Proof.
+    Proof using Ha Hb Hc.
       symmetry; unfold Code_plus.
       destruct Ha as (H & Ha1 & Ha2).
       destruct Hb as (_ & Hb1 & Hb2).
@@ -1471,7 +1473,7 @@ Section sums.
     Qed.
    
     Fact cipher_mult_eq : (cb*cc)⇣((r-1)*u1) = ∑ l (fun i => (b i*c i)*power (power (S (S i)) 2) r).
-    Proof.
+    Proof using Hb Hc.
       destruct Hb as (H1 & Hb1 & Hb2).
       destruct Hc as (_ & Hc1 & Hc2).
       rewrite eq2, Hbc_3, Hr_2.
@@ -1509,7 +1511,7 @@ Section sums.
                      /\ p = (cb*cc)⇣(r'*v1).
 
     Lemma Code_mult_spec : Code_mult <-> forall i, i < l -> a i = b i * c i. 
-    Proof.
+    Proof using Ha Hb Hc.
       unfold Code_mult; symmetry.
       destruct Ha as (Hlq & Ha1 & Ha2).
       destruct Hb as (_ & Hb1 & Hb2).
@@ -1548,7 +1550,7 @@ Section sums.
 
     Definition CodeNat c := is_cipher_of (fun i => i) c.
 
-    Let IncSeq_dio_priv y : CodeNat y <-> l = 0 /\ 1 < q /\ y = 0 
+    Local Lemma IncSeq_dio_priv y : CodeNat y <-> l = 0 /\ 1 < q /\ y = 0 
                                   \/ 0 < l 
                                   /\ exists z v v1, 
                                         seqs_of_ones v v1 

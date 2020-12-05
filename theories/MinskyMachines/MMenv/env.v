@@ -12,6 +12,8 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Reserved Notation " e '⇢' x " (at level 58).
 Reserved Notation " e [ v / x ] " (at level 57, v at level 0, x at level 0, 
                                    left associativity, format "e [ v / x ]").
