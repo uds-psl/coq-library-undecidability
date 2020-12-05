@@ -1,37 +1,96 @@
-name: Test compilation
+name: CI
 
 on: [push, pull_request]
 
+env:
+  CACHE_KEY: opam-noPslBase-${{github.base_ref}}-${{github.ref}} 
+
 jobs:
-  build:
+  build-deps:
     runs-on: ubuntu-latest
     steps:
+    - name: Try to restore build cache
+      id: cache
+      uses: actions/cache@v2
+      with:
+        path: "~/.opam"
+        key: ${{env.CACHE_KEY}}
+        restore-keys: |
+          opam-noPslBase--refs/heads/${{github.base_ref}}
 
-      - name: Try to restore opam cache
-        id: opam-cache
-        uses: actions/cache@v2
-        with:
-          path: "~/.opam"
-          key: opam-noPslBase-${{github.base_ref}}-${{github.ref}} 
-          restore-keys: |
-            opam-noPslBase--refs/heads/${{github.base_ref}}
+    - name: Install OCaml
+      if: steps.cache.outputs.cache-hit != 'true'
+      uses: avsm/setup-ocaml@v1
+      with:
+        ocaml-version: 4.07.1
 
-      - name: Install OCaml
-        uses: avsm/setup-ocaml@v1
-        with:
-          ocaml-version: 4.07.1
+    - name: Checkout code
+      if: steps.cache.outputs.cache-hit != 'true'
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+    
+    - name: Build dependencies
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: |
+        opam repo add coq-released https://coq.inria.fr/opam/released
+        opam update
+        opam upgrade
+        opam install . --deps-only --with-doc --with-test
+        opam list --installed
+  
 
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 1
+  build-full:
+    needs: build-deps
+    runs-on: ubuntu-latest
+    steps:
+    - name: Restore build cache
+      id: cache
+      uses: actions/cache@v2
+      with:
+        path: "~/.opam"
+        key: ${{env.CACHE_KEY}}
+    - name: Check sucess of cache restoration
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: exit
+    
+    - name: Install OCaml
+      uses: avsm/setup-ocaml@v1
+      with:
+        ocaml-version: 4.07.1
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
 
-      - run: opam repo add coq-released https://coq.inria.fr/opam/released
-      - run: opam update
-      - run: opam upgrade
-      - run: opam install . --deps-only --with-doc --with-test
-      - run: opam list --installed
+    - name: Build full (vo)
+      run: opam exec -- make -j 2 all TIMED=1
 
-      - run: opam exec -- make -j 2 vos
-      - run: opam exec -- make -j 2 vok
-      - run: opam exec -- make -j 2 all TIMED=1
+
+  build-fast:
+    needs: build-deps
+    runs-on: ubuntu-latest
+    steps:
+    - name: Restore build cache
+      id: cache
+      uses: actions/cache@v2
+      with:
+        path: "~/.opam"
+        key: ${{env.CACHE_KEY}}
+    - name: Check sucess of cache restoration
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: exit
+
+    - name: Install OCaml
+      uses: avsm/setup-ocaml@v1
+      with:
+        ocaml-version: 4.07.1
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+
+    - name: Build interfaces (vos)
+      run: opam exec -- make -j 2 vos TIMED=1
+    - name: Check interfaces (vok)
+      run: opam exec -- make -j 2 vok TIMED=1

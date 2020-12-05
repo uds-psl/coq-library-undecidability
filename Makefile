@@ -1,25 +1,10 @@
 all:
 	export TIMED
-	$(MAKE) -C theories all
+	@+$(MAKE) -C theories all
 
-install:
-	$(MAKE) -C theories install
+force Makefile: ;
 
-clean:
-	$(MAKE) -C theories clean
+%: force
+	@+$(MAKE) -C theories $@
 
-html:
-	$(MAKE) -C theories html
-
-vok:
-	$(MAKE) -C theories vok
-	
-vos:
-	$(MAKE) -C theories vos
-	
-.PHONY: all install html clean 
-
-dummy:
-
-%.vo: dummy
-	cd theories && $(MAKE) $@
+.PHONY: all force
