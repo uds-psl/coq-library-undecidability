@@ -190,6 +190,7 @@ Definition Add_N_Rel : pRel sigN^+ unit 3 :=
       tout[@Fin2] ≃ x+y.
 
 Lemma Add_N_Realise : Add_N ⊨ Add_N_Rel.
+Proof.
   eapply Realise_monotone.
   { unfold Add_N. TM_Correct.
     - apply Add_Realise. }

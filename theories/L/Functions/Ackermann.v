@@ -19,6 +19,7 @@ Proof.
 Qed.
 
 Local Lemma Ack_pos n m : 0 < ackermann n m.
+Proof.
   revert m.
   induction n as [n IHn] using lt_wf_ind. intros m.
   induction m as [m IHm] using lt_wf_ind.

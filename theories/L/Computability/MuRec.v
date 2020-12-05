@@ -10,6 +10,7 @@ Hint Resolve P_proc : LProc.
 Hypothesis dec'_P : forall (n:nat), (exists (b:bool), app P (ext n) == ext b ).
 
 Lemma dec_P : forall n:nat, {b:bool | app P (ext n) == ext b}.
+Proof using dec'_P.
   intros. eapply lcomp_comp.
   -apply bool_enc_inv_correct.
   -apply dec'_P.
@@ -23,6 +24,7 @@ End hoas.
 Import L_Notations.
 
 Lemma mu'_proc : proc mu'.
+Proof.
   unfold mu'; Lproc. 
 Qed.
 
@@ -81,6 +83,7 @@ Qed.
 Definition mu :term := lam (mu' #0 (ext 0)).
 
 Lemma mu_proc : proc mu.
+Proof.
   unfold mu. Lproc. 
 Qed.
 

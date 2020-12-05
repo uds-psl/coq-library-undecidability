@@ -20,10 +20,10 @@ Inductive poly : Set :=
 MetaCoq Run (tmGenEncode "enc_poly" poly).
 Hint Resolve enc_poly_correct : Lrewrite.
 
-Instance term_poly_cnst: computable poly_cnst. extract constructor. Qed.
-Instance term_poly_var : computable poly_var.  extract constructor. Qed.
-Instance term_poly_add : computable poly_add.  extract constructor. Qed.
-Instance term_poly_mul : computable poly_mul.  extract constructor. Qed.
+Instance term_poly_cnst: computable poly_cnst. Proof. extract constructor. Qed.
+Instance term_poly_var : computable poly_var. Proof. extract constructor. Qed.
+Instance term_poly_add : computable poly_add. Proof. extract constructor. Qed.
+Instance term_poly_mul : computable poly_mul. Proof. extract constructor. Qed.
 
 Fixpoint eval (p : poly) (L : list nat) :=
   match p with
@@ -32,13 +32,13 @@ Fixpoint eval (p : poly) (L : list nat) :=
   | poly_add p1 p2 => eval p1 L + eval p2 L
   | poly_mul p1 p2 => eval p1 L * eval p2 L
   end.
-Instance term_eval : computable eval. extract. Qed.
+Instance term_eval : computable eval. Proof. extract. Qed.
 
 Definition poly_add' '(x,y) : poly  := poly_add x y.
-Instance term_poly_add' : computable poly_add'. extract. Qed.
+Instance term_poly_add' : computable poly_add'. Proof. extract. Qed.
 
 Definition poly_mul' '(x,y) : poly := poly_mul x y.
-Instance term_poly_mul' : computable poly_mul'. extract. Qed.
+Instance term_poly_mul' : computable poly_mul'. Proof. extract. Qed.
 
 Fixpoint L_poly n : list (poly) :=
   match n with
@@ -49,7 +49,7 @@ Fixpoint L_poly n : list (poly) :=
                                    ++ map poly_mul' (list_prod (L_poly n) (L_poly n))
   end.
   
-Instance term_L_poly : computable L_poly. extract. Qed.
+Instance term_L_poly : computable L_poly. Proof. extract. Qed.
 
 Instance enum_poly :
   list_enumerator__T L_poly poly.

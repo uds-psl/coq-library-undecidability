@@ -8,6 +8,7 @@ From Undecidability.L.Tactics Require Import Lproc Reflection.
 It does so by the reflective tactic simplify_L' using the module Reflextion. *)
 
 Lemma eval_helper s t u: s >* u -> eval u t -> eval s t.
+Proof.
   intros R H. now rewrite R.
 Qed.
 
@@ -140,6 +141,7 @@ Ltac simplify_L' n:=
 
 
 Lemma pow_trans_eq: forall (s t u : term) (i j k: nat), s >(i) t -> t >(j) u -> i+j=k -> s >(k) u.
+Proof.
   intros. subst. eapply pow_trans;eauto. 
 Qed.
 

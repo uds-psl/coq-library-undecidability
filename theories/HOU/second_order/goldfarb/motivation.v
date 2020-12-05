@@ -26,6 +26,7 @@ Section Motivation.
   Qed.
 
   Lemma M_backward_exists m p M: Mrel m p M -> exists l, M = T l.
+  Proof.
     enough (forall a b x, M ++ [x] = (a, b) :: Step M -> M ++ [x] = tab (fun k => (a + k * n, b + k)) (S (length M))) as H.
     - intros H1 % H; apply app_injective_right in H1 as [H1 _]; eauto.
     - induction M as [|[l r]]; [cbn|]; intros; simplify; eauto.
@@ -35,6 +36,7 @@ Section Motivation.
   Qed.
 
   Lemma M_backward_equations m p l : Mrel m p (T l) -> m = l /\ m * n = p.
+  Proof.
     unfold Mrel. rewrite <-M_forward.
     intros H % app_injective; intuition; congruence. 
   Qed.

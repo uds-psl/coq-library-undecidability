@@ -140,6 +140,7 @@ Definition pos_def (X : eqType) (x : X) A n :=  match pos x A with None => n | S
 Definition index {F: finType} (x:F) := getPosition (elem F) x.
 
 Lemma index_nth {F : finType} (x:F) y: nth (index x) (elem F) y = x.
+Proof.
   unfold index, elem, enum.
   destruct F as [[X E] [A all_A]];cbn.
   pose proof (getPosition_correct x A) as H.

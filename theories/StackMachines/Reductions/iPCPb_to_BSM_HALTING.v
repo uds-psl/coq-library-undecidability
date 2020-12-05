@@ -63,6 +63,7 @@ Section iPCPb_to_BSM_HALTING.
   Defined.
 
   Goal forall x, length(pcp_bsm x) >= 80.
+  Proof.
     intros; rewrite pcp_bsm_size; lia.
   Qed.
   

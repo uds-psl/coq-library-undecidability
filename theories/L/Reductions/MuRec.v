@@ -412,10 +412,10 @@ Qed.
 MetaCoq Run (tmGenEncode "enc_reccode" reccode).
 Hint Resolve enc_reccode_correct : Lrewrite.
 
-Instance term_rc_comp: computable rc_comp. extract constructor. Qed.
-Instance term_rc_cons : computable rc_cons.  extract constructor. Qed.
-Instance term_rc_rec : computable rc_rec.  extract constructor. Qed.
-Instance term_rc_min : computable rc_min.  extract constructor. Qed.
+Instance term_rc_comp: computable rc_comp. Proof. extract constructor. Qed.
+Instance term_rc_cons : computable rc_cons. Proof. extract constructor. Qed.
+Instance term_rc_rec : computable rc_rec. Proof. extract constructor. Qed.
+Instance term_rc_min : computable rc_min. Proof. extract constructor. Qed.
 
 Instance term_eval : computable eval.
 Proof.
