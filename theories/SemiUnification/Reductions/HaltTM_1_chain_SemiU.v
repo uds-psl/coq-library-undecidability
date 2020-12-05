@@ -1,4 +1,4 @@
-Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.ReducibilityFacts.
+Require Import Undecidability.Synthetic.Definitions.
 
 Require Import Undecidability.SemiUnification.SemiU. (* SSemiU, SSemiU, RU2SemiU *)
 Require Import Undecidability.StackMachines.SSM. (* CSSM_UB *)
