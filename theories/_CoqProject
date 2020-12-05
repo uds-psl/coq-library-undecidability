@@ -753,5 +753,3 @@ SystemF/Reductions/SysF_TYP_to_SysF_TC.v
 SystemF/Reductions/HaltTM_1_to_SysF_TYP.v
 SystemF/Reductions/HaltTM_1_to_SysF_TC.v
 SystemF/Reductions/HaltTM_1_to_SysF_INH.v
-
-StringRewriting/SR01.v
