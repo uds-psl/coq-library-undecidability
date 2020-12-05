@@ -34,6 +34,7 @@ Qed.
 Definition closedb := boundb 0.
 
 Lemma closedb_spec s : Bool.reflect (closed s) (closedb s).
+Proof.
   unfold closedb.
   destruct (boundb_spec 0 s);constructor; rewrite closed_dcl;auto.
 Qed.

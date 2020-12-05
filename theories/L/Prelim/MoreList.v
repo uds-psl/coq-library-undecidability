@@ -41,6 +41,7 @@ Hint Rewrite sumn_app : list.
 
 Lemma length_concat X (A : list (list X)) :
   length (concat A) = sumn (map (@length _) A).
+Proof.
   induction A;cbn. reflexivity. autorewrite with list in *. lia.
 Qed.
 

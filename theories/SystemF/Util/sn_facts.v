@@ -92,6 +92,7 @@ Section Evaluation.
   Proof. now rewrite eval_ren. Qed.
 
   Definition lift : model.
+  Proof.
     refine (mk_model id (Arr M) (fun F => All M (Var M >> F)) _ _ _).
     abstract firstorder.
     abstract (intros p1 p2 H; eapply All_ext; intros P; eapply H).

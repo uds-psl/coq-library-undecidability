@@ -11,8 +11,8 @@ Import ListNotations.
 
 Set Default Proof Using "Type".
 
-Lemma nil_app_tail {X} (x : X) l : ~ [] = l ++ [x]. destruct l; cbn; firstorder congruence. Qed.
-Lemma nil_app_tail' {X} (x : X) l : ~ l ++ [x] = []. destruct l; cbn; firstorder congruence. Qed.
+Lemma nil_app_tail {X} (x : X) l : ~ [] = l ++ [x]. Proof. destruct l; cbn; firstorder congruence. Qed.
+Lemma nil_app_tail' {X} (x : X) l : ~ l ++ [x] = []. Proof. destruct l; cbn; firstorder congruence. Qed.
 
 Definition SRH' '(Rs, x, A) := exists y : list nat, SR.rewt Rs x y /\ exists a, In a A /\ In a y.
 

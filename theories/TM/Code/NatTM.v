@@ -186,7 +186,7 @@ Proof.
 Qed.
 
 
-Goal forall (x m : nat), x - m + m >= x. intros. lia. Qed.
+Goal forall (x m : nat), x - m + m >= x. Proof. intros. lia. Qed.
 
 Definition Add_space2 (m n : nat) (so : nat) := so + m - n - 2.
 Definition Add_space3 (m : nat) (s3 : nat) := 2 + (s3 - (2 + m) + m).

@@ -61,6 +61,7 @@ Ltac destruct_fin i :=
   end.
 
 Goal True.
+Proof.
   assert (i : Fin.t 4) by repeat constructor.
   enough (i = i) by tauto.
   destruct_fin i.

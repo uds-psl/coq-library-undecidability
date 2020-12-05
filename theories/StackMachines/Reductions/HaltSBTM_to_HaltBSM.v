@@ -513,7 +513,7 @@ Section fixM.
         refine (PROG (Fin.of_nat_lt Hn)).
     Defined. 
     
-    Definition SIM : list (bsm_instr 4). refine (@sim (S (num_states M)) _). abstract lia. Defined.
+    Definition SIM : list (bsm_instr 4). refine (@sim (S (num_states M)) _). Proof using M. abstract lia. Defined.
 
     Lemma sim_length (n : nat) (H : n <= S (num_states M)) : 
        @length (bsm_instr 4) (@sim n H) = c * n.

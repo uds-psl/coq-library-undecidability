@@ -7,6 +7,7 @@ Inductive Tok := varT (n :nat) | appT | lamT | retT.
 Notation Pro := (list Tok) (only parsing).
 
 Instance Tok_eq_dec : eq_dec Tok.
+Proof.
 repeat intro. hnf. repeat decide equality.
 Qed.
 

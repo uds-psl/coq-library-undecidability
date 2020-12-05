@@ -200,6 +200,7 @@ Qed.
 
 Lemma computableTimeExt X (tt : TT X) (x x' : X) fT:
   extEq x x' -> computableTime x fT -> computableTime x' fT.
+Proof.
   intros ? [s ?]. eexists. eauto using computesTimeExt.
 Defined. (* because ? *)
 
@@ -227,7 +228,7 @@ Proof.
    eapply IHtt1_2. all:eassumption.
 Qed.
     
-Definition cnst {X} (x:X):nat. exact 0. Qed.
+Definition cnst {X} (x:X):nat. Proof. exact 0. Qed.
 
 Definition callTime X (fT : X -> unit -> nat * unit) x: nat := fst (fT x tt). 
 Arguments callTime / {_}.

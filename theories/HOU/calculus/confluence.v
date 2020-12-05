@@ -103,6 +103,7 @@ Section Confluence.
 
 
   Lemma confluence_step: confluent (@step X).
+  Proof.
     eapply TMT.
     eapply sandwich_step. eapply sandwich_steps.
     typeclasses eauto.

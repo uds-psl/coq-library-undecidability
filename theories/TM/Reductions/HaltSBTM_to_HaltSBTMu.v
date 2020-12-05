@@ -7,6 +7,7 @@ Section fixM.
   Variable M : SBTM.
 
   Definition M' : SBTM.
+  Proof.
     exists (1 + num_states M).
     intros [q o].
     dependent elimination q.
@@ -39,6 +40,7 @@ Section fixM.
   Qed.
 
   Definition conv_state (q : Fin.t (S (num_states M))) : Fin.t (S (1 + num_states M)).
+  Proof.
   dependent elimination q. exact Fin.F1. exact (Fin.FS (Fin.FS t)).
   Defined. (* because definition *)
 

@@ -52,7 +52,7 @@ Fixpoint append_bits (x : positive) (bits : list bool) : positive :=
 
 (* Compute append_bits 42 [false; true]. (* 42 * 2 * 2 + 1 = 169 *) *)
 
-Goal encode_pos (append_bits 1234567890 [false;true;true]) = encode_pos 1234567890 ++ map bitToSigPos [false;true;true]. reflexivity. Qed.
+Goal encode_pos (append_bits 1234567890 [false;true;true]) = encode_pos 1234567890 ++ map bitToSigPos [false;true;true]. Proof. reflexivity. Qed.
 
 Lemma append_bits_bit (b : bool) (p : positive) (bits : list bool) :
   append_bits p (b :: bits) = append_bits (p~~b) bits.
@@ -143,6 +143,7 @@ Proof.
 Qed.
 
 Lemma pos_to_bits_append_bits' : forall bits1 bits2, pos_to_bits (append_bits (bits_to_pos bits1) bits2) = bits1 ++ bits2.
+Proof.
   intros.
   rewrite pos_to_bits_append_bits. now rewrite bits_to_pos_to_bits.
 Qed.

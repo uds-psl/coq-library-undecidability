@@ -109,6 +109,7 @@ Lemma upToC_pow_r_drop_nary domain c f (F : Rarrow domain nat) :
   0 < c
   -> f <=c Uncurry F
   -> f <=c Fun' (fun x => (App F x) ^ c).
+Proof.
   now prove_nary upToC_pow_r_drop.
 Qed.
 
@@ -116,6 +117,7 @@ Lemma upToC_pow_le_compat_nary domain c c' (f f' : Rarrow domain nat) :
   0 < c -> c <= c'
   -> Uncurry f <=c Uncurry f'
   -> Fun' (fun x => (App f x) ^ c) <=c Fun' (fun x => (App f' x) ^ c').
+Proof.
   now prove_nary upToC_pow_le_compat.
 Qed.    
 
@@ -166,6 +168,7 @@ Smpl Add upToC_le_nary_solve : upToC_solve.
 Goal
   @leUpToC (nat*bool*nat)
   (fun '(xxx,y,z) => xxx+2+3*z) (fun '(x,y,z) => x+z+1).
+Proof.
   smpl_upToC_solve.
 Qed.
 

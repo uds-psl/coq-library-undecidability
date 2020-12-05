@@ -13,6 +13,7 @@ Qed.
 
 Definition c__length := 11.
 Instance termT_length X `{registered X} : computableTime' (@length X) (fun A _ => (c__length * (1 + |A|),tt)).
+Proof.
 extract. solverec. all: unfold c__length; solverec.
 Qed.
 

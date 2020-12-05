@@ -118,10 +118,12 @@ Section PaperExample.
   Qed.
 
   Lemma unsupported2 :  computable 10.
+  Proof.
     extract. (* not true*) Fail reflexivity. 
   Abort.
   (* not a problem inside a function*)
   Goal computable (fun n : nat => 10).
+  Proof.
     extract.
   Qed.
 

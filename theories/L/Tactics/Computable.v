@@ -185,6 +185,7 @@ Qed.
 
 Lemma computableExt X (tt : TT X) (x x' : X):
   extEq x x' -> computable x -> computable x'.
+Proof.
   intros ? (s&?). exists s. eauto using computesExt.
 Defined. (* because ? *)
 
