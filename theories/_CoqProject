@@ -498,6 +498,7 @@ L/Functions/Ackermann.v
 
 L/TM/TMEncoding.v
 L/TM/TMinL.v
+L/TM/TMinL/TMinL_extract.v
 L/TM/TapeFuns.v
 L/Reductions/TM_to_L.v
 L/Reductions/H10_to_L.v
