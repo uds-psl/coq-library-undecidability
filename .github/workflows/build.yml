@@ -3,8 +3,8 @@ name: CI
 on: [push, pull_request]
 
 env:
-  CACHE_KEY: opam-noPslBase-${{github.base_ref}}-${{github.ref}} 
-
+  OCAML_VERSION: 4.07.1+flambda
+  CACHE_KEY: opam-flambda-noPslBase-${{github.base_ref}}-${{github.ref}} 
 jobs:
   build-deps:
     runs-on: ubuntu-latest
@@ -16,13 +16,13 @@ jobs:
         path: "~/.opam"
         key: ${{env.CACHE_KEY}}
         restore-keys: |
-          opam-noPslBase--refs/heads/${{github.base_ref}}
+          opam-flambda-noPslBase--refs/heads/${{github.base_ref}}
 
     - name: Install OCaml
       if: steps.cache.outputs.cache-hit != 'true'
       uses: avsm/setup-ocaml@v1
       with:
-        ocaml-version: 4.07.1
+        ocaml-version: ${{env.OCAML_VERSION}}
 
     - name: Checkout code
       if: steps.cache.outputs.cache-hit != 'true'
@@ -57,7 +57,7 @@ jobs:
     - name: Install OCaml
       uses: avsm/setup-ocaml@v1
       with:
-        ocaml-version: 4.07.1
+        ocaml-version: ${{env.OCAML_VERSION}}
     - name: Checkout code
       uses: actions/checkout@v2
       with:
@@ -84,7 +84,7 @@ jobs:
     - name: Install OCaml
       uses: avsm/setup-ocaml@v1
       with:
-        ocaml-version: 4.07.1
+        ocaml-version: ${{env.OCAML_VERSION}}
     - name: Checkout code
       uses: actions/checkout@v2
       with:
