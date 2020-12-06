@@ -1,10 +1,8 @@
-From Undecidability.L.Tactics Require Import LTactics GenEncode.
-From Undecidability.L.Datatypes Require Import LNat Lists LProd LFinType LVector.
+From Undecidability.L.Datatypes Require Import LNat Lists LVector.
 From Undecidability.L Require Import TM.TMEncoding.
 
-
 From Undecidability.TM Require Import Util.TM_facts.
-From Undecidability.Shared.Libs.PSL Require Import FinTypes Vectors.
+
 
 Set Default Proof Using "Type".
 Section fix_sig.
@@ -54,7 +52,7 @@ Section fix_sig.
     Qed.
 
 
-    Import Datatypes.
+    
     Global Instance term_tapeToList:  computableTime' (@tapeToList sig) (fun t _ => (sizeOfTape t*29 + 53,tt)).  
     Proof.
     extract. recRel_prettify2. all:repeat (simpl_list;cbn -[plus mult]). 
@@ -130,6 +128,3 @@ Proof.
   extract.
   solverec.
 Qed.
-
-
-
