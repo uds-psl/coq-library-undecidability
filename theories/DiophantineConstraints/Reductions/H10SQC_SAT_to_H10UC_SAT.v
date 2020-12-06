@@ -172,6 +172,7 @@ Qed.
 End InverseTransport.
 
 Lemma inverse_transport : H10UC_SAT ucs -> H10SQC_SAT sqcs.
+Proof.
   move=> [φ' Hφ']. exists (φ φ').
   move: (Hφ'). rewrite -?Forall_forall /ucs Forall_app Forall_flat_map_iff.
   move=> [?]. apply: Forall_impl => ?. by apply: h10sqc_of_h10ucs_spec.
