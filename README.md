@@ -112,6 +112,13 @@ opam install . --deps-only
 - `make html` generates clickable coqdoc `.html` in the `website` subdirectory
 - `make clean` removes all build files in `theories` and `.html` files in the `website` directory
 
+#### Compiled interfaces
+
+The library is compatible with Coq's compiled interfaces ([`vos`](https://coq.inria.fr/refman/practical-tools/coq-commands.html#compiled-interfaces-produced-using-vos)) for quick infrastructural access.
+
+- `make vos` builds compiled interfaces for the library
+- `make vok` checks correctness of the library 
+
 ### Troubleshooting
 
 #### Windows
