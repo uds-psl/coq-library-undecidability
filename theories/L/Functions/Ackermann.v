@@ -29,6 +29,7 @@ Proof.
   all:eauto.
 Qed.
 
+Import Ring Arith.  Import Lia.
 Lemma termT_ackermann :
   computableTime' ackermann
                  (fun x _ =>
@@ -37,8 +38,7 @@ Lemma termT_ackermann :
                        (cnst("f",x,y),tt))).
 Proof.
   extract.
-  Import Ring Arith.
-  cbn. fold ackermann. Import Lia.
+  cbn. fold ackermann.
   repeat (cbn ;intros;intuition idtac;try destruct _).
   all:ring_simplify. all:try nia.
   all:repeat change (fix ackermann_Sn (m : nat) : nat :=

@@ -60,6 +60,7 @@ Section Multiplication.
 
   Section G_subst.
   Lemma G_left_subst m p q: (T m) (⟨ enc p A, enc q B⟩ ::: Nil) A B ≡ σ p q • (lin (tab t m) r).
+  Proof.
     rewrite <-T_ren with (delta := add 2).
     unfold T. eapply equiv_join.
     cbn. do 3 (dostep; cbn). unfold beta. rewrite rinstInst_exp, !compComp_exp. reflexivity.
@@ -68,6 +69,7 @@ Section Multiplication.
   Qed.
 
   Lemma G_right_subst m: (T m) Nil (enc n A) (Succ B) ≡ τ • lin (tab t m) r.
+  Proof.
     rewrite <-T_ren with (delta := add 2).
     unfold T. eapply equiv_join.
     cbn. do 3 (dostep; cbn). unfold beta. rewrite rinstInst_exp, !compComp_exp. reflexivity.
