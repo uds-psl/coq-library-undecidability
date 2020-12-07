@@ -33,7 +33,7 @@ Section L_enum_rec.
   Definition test := (fun x n => match f n with Some y => d x y | None => false end).
 
   Instance term_test : computable test.
-  Proof.
+  Proof using c_f c_d.
     extract.
   Qed.
 
@@ -47,7 +47,7 @@ Section L_enum_rec.
     
   Lemma L_enumerable_recognisable :
     L_recognisable' p.
-  Proof.
+  Proof using c_f c_d H_f H_d.
     exists [L_HOAS λ x, !!mu (λ y, !!(ext test) x y)].
     intros. split; intros.
     - eapply H_f in H0 as [n H0].

@@ -15,10 +15,10 @@ Coercion ACom2Com (a : ACom) : Tok :=
 
 
 Instance ACom_eq_dec : eq_dec ACom.
-Proof. intros x y; hnf. decide equality. Defined.
+Proof. intros x y; hnf. decide equality. Defined. (* because instance *)
 
 Instance ACom_finType : finTypeC (EqType ACom).
-Proof. split with (enum := [retAT; lamAT; appAT]). intros [ | | ]; cbn; reflexivity. Defined.
+Proof. split with (enum := [retAT; lamAT; appAT]). intros [ | | ]; cbn; reflexivity. Defined. (* because instance *)
 
 Instance ACom_inhab : inhabitedC ACom := ltac:(repeat constructor).
 

@@ -2,6 +2,7 @@ From Undecidability.L.Datatypes Require Import LOptions LBool LNat Lists.
 From Undecidability.L.Tactics Require Import LTactics ComputableTactics.
 Require Import Nat.
 
+Set Default Proof Using "Type".
 Section demo.
 
 (* for examples of usage see LBool/LNat/Lists/Option/Encoding etc*)
@@ -11,7 +12,7 @@ Definition unit_enc := fun (x:unit) => I.
 Instance register_unit : registered  unit.
 Proof.
   register unit_enc. 
-Defined.
+Defined. (* becuse class ? *)
 
 (* example for higher-order-stuff *)
 
@@ -37,6 +38,7 @@ Section PaperExample.
   Import ComputableTactics.Intern.
 
   Goal computable orb.
+  Proof.
     extractAs s.
     computable_using_noProof s.
     cstep.
@@ -49,6 +51,7 @@ Section PaperExample.
 
   (* Comming up with the conditions for the time bound *)
   Goal forall fT, computableTime' orb fT.
+  Proof.
     intros.
     extractAs s.
     computable_using_noProof s.
@@ -63,16 +66,19 @@ Section PaperExample.
   (* Finding the Time Bound *)
   
   Goal computableTime' orb (fun _ _ => (cnst "c1",fun _ _ => (cnst "c2",tt))).
+  Proof.
     extract. solverec. (* Now the values are clear *)
   Abort.
 
   Goal computableTime' orb (fun _ _ => (1,fun _ _ => (3,tt))).
+  Proof.
     extract. solverec.
   Abort.
   
   Import Datatypes.LNat.
   
   Goal computable Nat.add.
+  Proof.
     unfold Nat.add.
     extractAs s.
     computable_using_noProof s.
@@ -112,15 +118,18 @@ Section PaperExample.
 
     (* this is due to https://github.com/coq/coq/issues/9761 *)
   Lemma workarround : let f := (fix f (z y : nat) {struct y}:= match y with | S (S y) => f z y | _ => S z end) in computable (fun y z => f z y).
+  Proof.
     intros f. assert (computable f) by (unfold f;extract).
     extract.
   Qed.
 
   Lemma unsupported2 :  computable 10.
+  Proof.
     extract. (* not true*) Fail reflexivity. 
   Abort.
   (* not a problem inside a function*)
   Goal computable (fun n : nat => 10).
+  Proof.
     extract.
   Qed.
 
@@ -131,6 +140,7 @@ Section PaperExample.
 
   Lemma map_term A B  (Rx : registered A)  (Ry: registered B):
     computable (@map A B).
+  Proof.
     extractAs s.
     computable_using_noProof s.
     cstep.
@@ -142,6 +152,7 @@ Section PaperExample.
 
    Lemma termT_map A B (Rx : registered A)  (Ry: registered B):
     computableTime' (@map A B) (fun f fT => (cnst "c",fun xs _ => (cnst ("f",xs),tt))).
+  Proof.
     extractAs s.
     computable_using_noProof s.
     cstep.
@@ -153,6 +164,7 @@ Section PaperExample.
 
   Lemma termT_map A B (Rx : registered A)  (Ry: registered B):
     computableTime' (@map A B) (fun f fT => (cnst "c",fun xs _ => (cnst ("f",xs),tt))).
+  Proof.
     extract. solverec.
   Abort.
 

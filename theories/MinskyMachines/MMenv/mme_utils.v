@@ -17,6 +17,8 @@ From Undecidability.MinskyMachines.MMenv
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Tactic Notation "rew" "length" := autorewrite with length_db.
 
 Local Notation "P // s ->> t" := (sss_compute (mm_sss_env eq_nat_dec) P s t).
@@ -75,7 +77,7 @@ Section mm_env_utils.
         -> e⇢zero = 0
         -> exists e', e' ⋈  e⦃src⇠0⦄⦃dst⇠(e⇢src)⦄
                   /\ (i,mm_transfert i) // (i,e) -+> (3+i,e').
-    Proof.
+    Proof using Hsz Hsd Hdz.
       intros H1 H2.
       destruct mm_transfert_spec with (e := e) (x := 0) (i := i) (k := e⇢src)
         as (e' & H3 & H4); auto.
@@ -124,7 +126,7 @@ Section mm_env_utils.
            e⇢zero = 0
         -> exists e', e' ⋈  e⦃dst⇠0⦄
                   /\ (i,mm_erase i) // (i,e) -+> (2+i,e').
-    Proof.
+    Proof using Hdz.
       intros H1.
       destruct mm_erase_spec with (e := e) (i := i) (x := e⇢dst)
         as (e' & H3 & H4); auto.
@@ -202,7 +204,7 @@ Section mm_env_utils.
       -> exists e', (forall j, dst <= j < k+dst -> e'⇢j = 0)
                  /\ (forall j, ~ dst <= j < k+dst -> e'⇢j = e⇢j)
                  /\ (i,mm_multi_erase i) // (i,e) ->> (2*k+i,e').
-    Proof.
+    Proof using Hdz.
       intros H; unfold mm_multi_erase.
       destruct mm_list_erase_compute 
         with (zero := zero) (ll := list_an dst k) (i := i) (e := e)
@@ -266,7 +268,7 @@ Section mm_env_utils.
         -> e⇢zero = 0
         -> exists e', e' ⋈  e⦃src⇠0⦄⦃dst⇠(e⇢src)⦄⦃tmp⇠(e⇢src)⦄
                   /\ (i,mm_dup i) // (i,e) -+> (4+i,e').
-    Proof.
+    Proof using Htz Hsz Hst Hsd Hdz Hdt.
       intros H1 H2 H3.
       destruct mm_dup_spec with (e := e) (x := 0) (y := 0) (i := i) (k := e⇢src)
         as (e' & H4 & H5); auto.
@@ -298,7 +300,7 @@ Section mm_env_utils.
         -> e⇢zero = 0
         -> exists e', e' ⋈  e⦃dst⇠(e⇢src)⦄
                   /\ (i,mm_copy i) // (i,e) -+> (9+i,e').
-    Proof.
+    Proof using Htz Hsz Hst Hsd Hdz Hdt.
       intros H0 H1.
       unfold mm_copy.
       destruct mm_erase_progress with (1 := Hdz) (i := i) (e := e)
@@ -435,7 +437,7 @@ Section mm_env_utils.
             e⇢zero = 0
          -> exists e', e' ⋈  e⦃dst⇠n⦄
                    /\ (i,mm_set n i) // (i,e) -+> (2+n+i,e').
-    Proof.
+    Proof using Hdz.
       intros H; unfold mm_set.
       destruct (@mm_erase_progress _ _ Hdz i _ H) as (e1 & H1 & H2).
       destruct (mm_incs_spec (2+i) e1 n) as (e2 & H3 & H4).

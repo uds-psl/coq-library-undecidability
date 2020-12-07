@@ -109,7 +109,7 @@ Qed.
 Lemma total_decodable_closed_new k (s : L.term) { Y}  `{linTimeDecodable Y} :
   (forall v : Vector.t X k, forall o : L.term, L_facts.eval (apply_to s v)   o -> exists l : Y, o = enc l) ->
   exists s', closed s' /\ forall v : Vector.t X k, forall o, L_facts.eval (apply_to s' v) o <-> L_facts.eval (apply_to s v) o.
-Proof.
+Proof using Hcmp.
   intros Htot.
   assert (closed Eval) as He. { unfold Eval. Lproc. }
   exists (many_lam k (ext (decode Y) (Eval (apply_encs_to (enc s) k)) (lam 0) (ext false))).

@@ -17,7 +17,7 @@ Section Fix_X.
   Proof.
     extract constructor.
     solverec.
-  Defined.
+  Defined. (*because next lemma*)
 
   Lemma oenc_correct_some (s: option X) (v : term) : lambda v -> enc s == ext (@Some X) v -> exists s', s = Some s' /\ v = enc s'.
   Proof.
@@ -56,7 +56,7 @@ Section option_eqb.
     end.
 
   Lemma option_eqb_spec A B : reflect (A = B) (option_eqb A B).
-  Proof.
+  Proof using spec.
     destruct A, B; try now econstructor. cbn.
     destruct (spec x x0); econstructor; congruence.
   Qed.

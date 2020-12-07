@@ -13,6 +13,7 @@ Qed.
 
 Definition c__length := 11.
 Instance termT_length X `{registered X} : computableTime' (@length X) (fun A _ => (c__length * (1 + |A|),tt)).
+Proof.
 extract. solverec. all: unfold c__length; solverec.
 Qed.
 
@@ -52,11 +53,11 @@ Section Fix_X.
   Proof using X_eqb_spec.
     induction A;[reflexivity|];cbn.
     rewrite IHA. destruct (X_eqb_spec x a); repeat (destruct _; try congruence).
-  Defined.
+  Defined. (* because other extract *)
 
   Global Instance term_pos_nondec:
     computable pos_nondec.
   Proof.
     extract.
-  Defined.
+  Defined. (* because other extract *)
 End Fix_X.

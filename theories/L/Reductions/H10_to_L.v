@@ -20,10 +20,10 @@ Inductive poly : Set :=
 MetaCoq Run (tmGenEncode "enc_poly" poly).
 Hint Resolve enc_poly_correct : Lrewrite.
 
-Instance term_poly_cnst: computable poly_cnst. extract constructor. Qed.
-Instance term_poly_var : computable poly_var.  extract constructor. Qed.
-Instance term_poly_add : computable poly_add.  extract constructor. Qed.
-Instance term_poly_mul : computable poly_mul.  extract constructor. Qed.
+Instance term_poly_cnst: computable poly_cnst. Proof. extract constructor. Qed.
+Instance term_poly_var : computable poly_var. Proof. extract constructor. Qed.
+Instance term_poly_add : computable poly_add. Proof. extract constructor. Qed.
+Instance term_poly_mul : computable poly_mul. Proof. extract constructor. Qed.
 
 Fixpoint eval (p : poly) (L : list nat) :=
   match p with
@@ -32,13 +32,13 @@ Fixpoint eval (p : poly) (L : list nat) :=
   | poly_add p1 p2 => eval p1 L + eval p2 L
   | poly_mul p1 p2 => eval p1 L * eval p2 L
   end.
-Instance term_eval : computable eval. extract. Qed.
+Instance term_eval : computable eval. Proof. extract. Qed.
 
 Definition poly_add' '(x,y) : poly  := poly_add x y.
-Instance term_poly_add' : computable poly_add'. extract. Qed.
+Instance term_poly_add' : computable poly_add'. Proof. extract. Qed.
 
 Definition poly_mul' '(x,y) : poly := poly_mul x y.
-Instance term_poly_mul' : computable poly_mul'. extract. Qed.
+Instance term_poly_mul' : computable poly_mul'. Proof. extract. Qed.
 
 Fixpoint L_poly n : list (poly) :=
   match n with
@@ -49,7 +49,7 @@ Fixpoint L_poly n : list (poly) :=
                                    ++ map poly_mul' (list_prod (L_poly n) (L_poly n))
   end.
   
-Instance term_L_poly : computable L_poly. extract. Qed.
+Instance term_L_poly : computable L_poly. Proof. extract. Qed.
 
 Instance enum_poly :
   list_enumerator__T L_poly poly.
@@ -63,7 +63,7 @@ Proof.
     exists (1 + m1 + m2). cbn. in_app 4. in_collect (p1, p2); eapply cum_ge'; eauto; lia.
   + destruct IHp1 as [m1]. destruct IHp2 as [m2].
     exists (1 + m1 + m2). cbn. in_app 5. in_collect (p1, p2); eapply cum_ge'; eauto; lia.
-Defined.
+Defined. (* because instance *)
 
 Fixpoint conv n (p : dio_single.dio_polynomial (pos n) (pos 0)) : poly.
 Proof.
@@ -74,7 +74,7 @@ Proof.
   - destruct d.
     + exact (poly_add (conv _ p1) (conv _ p2)).
     + exact (poly_mul (conv _ p1) (conv _ p2)).
-Defined.
+Defined. (* because term *)
 
 Fixpoint L_from (n : nat) : (pos n -> nat) -> list nat.
 Proof.
@@ -83,7 +83,7 @@ Proof.
   - refine (_ :: L_from _ _)%list.
     + exact (phi pos.pos_fst).
     + intros. eapply phi. econstructor 2. exact H.
-Defined.
+Defined. (* because term *)
 
 
 Lemma L_nth n phi (p : pos n) : nth (pos2nat p) (L_from phi) 0 = phi p.

@@ -15,6 +15,8 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.MinskyMachines.MM
   Require Import mm_defs. 
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 Tactic Notation "rew" "length" := autorewrite with length_db.
@@ -66,7 +68,7 @@ Section Minsky_Machine_utils.
              v#>zero = 0 
           -> st = (2+i,v[0/src])
           -> (i,mm_null i) // (i,v) -+> st.
-    Proof.
+    Proof using Hsz.
       intros; subst.
       apply mm_null_spec with (1 := eq_refl); auto.
     Qed.
@@ -169,7 +171,7 @@ Section Minsky_Machine_utils.
         -> v#>zero = 0
         -> st = (3+i,v[0/src][(v#>src)/dst])
         -> (i,mm_transfert i) // (i,v) -+> st.
-    Proof.
+    Proof using Hdz Hsz Hsd.
       intros H1 H2 ?; subst; apply mm_transfert_spec with (1 := eq_refl) (2 := eq_refl); auto.
       rewrite H1; apply vec_pos_ext; intros p; dest p dst.
     Qed.
@@ -258,7 +260,7 @@ Section Minsky_Machine_utils.
         -> v#>rem = 0  
         -> let (k,b) := div2 (v#>src) 
            in  (i,mm_div2) // (i,v) -+> (6+i,v[0/src][k/quo][(if b then 1 else 0)/rem]).
-    Proof.
+    Proof using Hsr Hsq Hqr.
       intros H2 H3.
       generalize (div2_spec (v#>src)).
       destruct (div2 (v#>src)) as (k,[]); intros H4.
@@ -279,7 +281,7 @@ Section Minsky_Machine_utils.
         -> div2 (v#>src) = (k,true)  
         -> st = (6+i,v[0/src][k/quo][1/rem])
         -> (i,mm_div2) // (i,v) -+> st.
-    Proof.
+    Proof using Hsr Hsq Hqr.
       intros H2 H3 H4 ?; subst.
       generalize (mm_div2_progress _ H2 H3).
       rewrite H4; auto.
@@ -291,7 +293,7 @@ Section Minsky_Machine_utils.
         -> div2 (v#>src) = (k,false)  
         -> st = (6+i,v[0/src][k/quo][0/rem])
         -> (i,mm_div2) // (i,v) -+> st.
-    Proof.
+    Proof using Hsr Hsq Hqr.
       intros H2 H3 H4 ?; subst.
       generalize (mm_div2_progress _ H2 H3).
       rewrite H4; auto.
@@ -343,7 +345,7 @@ Section Minsky_Machine_utils.
       -> v#>zero = 0 
       -> st = (4+i,v[0/src][(2*(v#>src))/dst])
       -> (i,mm_mul2) // (i,v) -+> st.
-    Proof.
+    Proof using Hsz Hsd Hdz.
       intros H1 H2 ?; subst.
       apply mm_mul2_spec with (1 := eq_refl); auto.
       rewrite H1; f_equal; lia.
@@ -385,7 +387,7 @@ Section Minsky_Machine_utils.
       -> v#>zero = 0
       -> v#>src  = stack_enc s
       -> (i,mm_push_Zero) // (i,v) -+> (7+i,v[(stack_enc (Zero::s))/src]).
-    Proof.
+    Proof using Htz Hsz Hst.
       intros H1 H2 H3.
       unfold mm_push_Zero.
       apply sss_progress_trans with (st2 := (3+i,v[0/src][(v#>src)/tmp])).
@@ -412,7 +414,7 @@ Section Minsky_Machine_utils.
       -> v#>zero = 0
       -> v#>src  = stack_enc s
       -> (i,mm_push_One) // (i,v) -+> (8+i,v[(stack_enc (One::s))/src]).
-    Proof.
+    Proof using Htz Hsz Hst.
       intros H1 H2 H3.
       unfold mm_push_One.
       apply sss_progress_trans with (7+i,v[(stack_enc (Zero::s))/src]).
@@ -470,7 +472,7 @@ Section Minsky_Machine_utils.
       -> v#>tmp2 = 0 
       -> v#>src  = stack_enc nil 
       -> (i,mm_pop) // (i,v) -+> (e,v).
-    Proof.
+    Proof using Hs1 Hs2 H12.
       unfold mm_pop.
       intros H1 H2 H4; simpl in H4.
       
@@ -500,7 +502,7 @@ Section Minsky_Machine_utils.
       -> v#>tmp2 = 0 
       -> v#>src  = stack_enc (Zero::s) 
       -> (i,mm_pop) // (i,v) -+> (j,v[(stack_enc s)/src]).
-    Proof.
+    Proof using Hs1 Hs2 H12.
       unfold mm_pop.
       intros H1 H2 H4; unfold stack_enc in H4; fold stack_enc in H4.
       
@@ -531,7 +533,7 @@ Section Minsky_Machine_utils.
       -> v#>tmp2 = 0 
       -> v#>src  = stack_enc (One::s) 
       -> (i,mm_pop) // (i,v) -+> (k,v[(stack_enc s)/src]).
-    Proof.
+    Proof using Hs1 Hs2 H12.
       unfold mm_pop.
       intros H1 H2 H4; unfold stack_enc in H4; fold stack_enc in H4.
       

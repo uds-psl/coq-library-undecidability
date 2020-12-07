@@ -2,6 +2,7 @@ From Undecidability.TM Require Import ProgrammingTools.
 From Undecidability Require Import ArithPrelim.
 Require Import Undecidability.Shared.FinTypeEquiv Undecidability.Shared.FinTypeForallExists.
 
+Set Default Proof Using "Type".
 Section fix_Sigma.
 
   Variable n : nat.
@@ -58,7 +59,7 @@ Proof.
                                                                              end))
                                 end)
                               end)).
-Defined.
+Defined. (* because definition *)
   
 Definition ReadB_rel' d n : Vector.t (tape bool) 1 -> option (Fin.t (d + n)) * Vector.t (tape bool) 1 -> Prop :=   
   fun t '(l, t') =>
@@ -79,7 +80,7 @@ Proof.
     TM_Correct. eapply Switch_Realise. eapply (proj2_sig (ReadB_canonical n)).
     instantiate (1 := fun o => match o with None => _ | Some _ => _ end).
     intros []; TM_Correct. TM_Correct. cbn. TM_Correct. 
-Defined.
+Defined. (* because definition *)
 
 Lemma ReadB_Realise n :
   ReadB n ⊨ fun t '(l, t') => forall t_sig : tape (Fin.t n), t = [| encode_tape t_sig |] -> t' = t /\ l = current t_sig.

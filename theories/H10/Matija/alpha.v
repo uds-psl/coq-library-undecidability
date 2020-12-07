@@ -17,6 +17,8 @@ From Undecidability.Shared.Libs.DLW.Utils
 From Undecidability.H10.ArithLibs 
   Require Import matrix Zp.
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 Section Zp_alpha_2.
@@ -36,7 +38,7 @@ Section Zp_alpha_2.
   Let Hk : k <> 0.    Proof. contradict H3; subst; ring. Qed.
 
   Lemma Zp_alpha_congruence_2 : divides (ak*ak) am <-> divides (k*ak) m.
-  Proof.
+  Proof using l Hl Hk Hak H4 H3 H2 H1.
     rewrite mult_comm in H1.
     destruct H4 as (q & Hq1 & Hq2).
     split; intros H.
@@ -83,7 +85,7 @@ Section Pell.
   Proof. auto. Qed.
 
   Fact alpha_nat_2 n : b_nat = 2 -> alpha_nat n = n.
-  Proof.
+  Proof using Hb_nat.
     intros Hb.
     induction on n as IHn with measure n.
     destruct n as [ | [ | n ] ]; auto.
@@ -91,7 +93,7 @@ Section Pell.
   Qed.
 
   Fact alpha_nat_inc n : alpha_nat n < alpha_nat (S n).
-  Proof.
+  Proof using Hb_nat.
     induction n as [ | n IHn ]; try (simpl; lia).
     rewrite alpha_nat_fix_2.
     replace b_nat with (2+(b_nat-2)) by lia.
@@ -100,18 +102,18 @@ Section Pell.
   Qed.
 
   Corollary alpha_nat_mono i j : i <= j -> alpha_nat i <= alpha_nat j.
-  Proof.
+  Proof using Hb_nat.
     induction 1 as [ | j H1 H2 ]; auto.
     apply le_trans with (1 := H2), lt_le_weak, alpha_nat_inc.
   Qed.
 
   Corollary alpha_nat_smono i j : i < j -> alpha_nat i < alpha_nat j.
-  Proof.
+  Proof using Hb_nat.
     intros; apply lt_le_trans with (1 := alpha_nat_inc _), alpha_nat_mono; auto.
   Qed.
 
   Fact alpha_nat_ge_n n : n <= alpha_nat n.
-  Proof.
+  Proof using Hb_nat.
     induction n as [ | n IHn ].
     + simpl; auto.
     + apply le_n_S in IHn.
@@ -119,13 +121,13 @@ Section Pell.
   Qed.
 
   Fact alpha_nat_gt_0 : forall n, n <> 0 -> alpha_nat n <> 0.
-  Proof.
+  Proof using Hb_nat.
     intros [ | n ] H; try lia.
     generalize (alpha_nat_ge_n (S n)); lia.
   Qed.
 
   Fact alpha_nat_le n : alpha_nat n <= b_nat * alpha_nat (S n).
-  Proof.
+  Proof using Hb_nat.
     apply le_trans with (1*alpha_nat (S n)).
     + apply lt_le_weak, lt_le_trans with (1 := alpha_nat_inc _); lia.
     + apply mult_le_compat; lia.
@@ -134,7 +136,7 @@ Section Pell.
   Notation power := (mscal mult 1).
 
   Fact alpha_nat_power n : 2 < b_nat -> power n (b_nat-1) <= alpha_nat (S n) <= power n b_nat.
-  Proof.
+  Proof using Hb_nat.
     intros Hb.
     induction on n as IHn with measure n.
     destruct n as [ | [ | n ] ].
@@ -177,7 +179,7 @@ Section Pell.
   Fact alpha_fix_1 : α 1%nat = 0.        Proof. auto. Qed.
   Fact alpha_fix_2 : α 2%nat = 1.        Proof. auto. Qed.
   Fact alpha_fix_3 n : α (S (S n)) = b*α (S n) - α n.
-  Proof.
+  Proof using Hb_nat.
     destruct n as [ | n ].
     1: simpl; ring.
     unfold α at 1.
@@ -187,13 +189,13 @@ Section Pell.
   Qed.
  
   Fact alpha_inc n : α n < α (S n).
-  Proof. 
+  Proof using Hb_nat. 
     destruct n; simpl; try lia.
     apply inj_lt, alpha_nat_inc. 
   Qed.
 
   Fact alpha_ge_0 n : 0 <= α (S n).
-  Proof.
+  Proof using Hb_nat.
     induction n as [ | n IHn ].
     + rewrite alpha_fix_1; lia.
     + apply Zlt_le_weak, Z.le_lt_trans with (2 := alpha_inc _); trivial.
@@ -208,7 +210,7 @@ Section Pell.
   Ltac alpha := autorewrite with alpha_db.
 
   Fact alpha_2 : b = 2 -> forall n, α n = Z.of_nat n - 1.
-  Proof.
+  Proof using Hb_nat.
     intros H n.
     induction on n as IHn with measure n.
     destruct n as [ | [ | n ] ]; alpha; auto.
@@ -260,12 +262,12 @@ Section Pell.
   Proof. apply M22_equal; ring. Qed.
 
   Fact A_is_sum k : A k = MZ_scal (-α k) MZ_one ⊞ MZ_scal (α (S k)) B.
-  Proof.
+  Proof using Hb_nat.
     simpl; apply M22_equal; simpl; alpha; ring.
   Qed.
 
   Lemma MZ_expo_A n : MZ_expo n B = A n.
-  Proof.
+  Proof using Hb_nat.
     induction n as [ | n IHn ].
     + rewrite mscal_0.
       unfold B, A; simpl.
@@ -280,13 +282,13 @@ Section Pell.
   Hint Resolve MZ_expo_A : core.
 
   Fact A_plus u v : A (u+v)%nat = A u ⊠ A v.
-  Proof.
+  Proof using Hb_nat.
     rewrite <- MZ_expo_A, mscal_plus; auto.
     f_equal; auto.
   Qed.
 
   Fact A_mult u v : A (u*v)%nat = MZ_expo u (A v).
-  Proof.
+  Proof using Hb_nat.
     rewrite <- MZ_expo_A, mscal_mult; auto.
     f_equal; auto.
   Qed.
@@ -294,7 +296,7 @@ Section Pell.
   Fact A_plus_mult m n k l : 
           (m = n + l * k)%nat 
        -> A m = A n ⊠ MZ_expo l (A k).
-  Proof.
+  Proof using Hb_nat.
     intro; subst; rewrite A_plus, A_mult; auto.
   Qed.
 
@@ -302,7 +304,7 @@ Section Pell.
   Proof. simpl; ring. Qed.
 
   Lemma MZ_det_A n : MZ_det (A n) = 1.
-  Proof. 
+  Proof using Hb_nat. 
     rewrite <- MZ_expo_A.
     rewrite Det22_expo with (Rminus := Z.sub); auto. 
     rewrite MZ_det_B.
@@ -312,7 +314,7 @@ Section Pell.
   Definition Pell x y := x*x -b*x*y+y*y=1.
 
   Theorem alpha_Pell n : Pell (α (S n)) (α n).
-  Proof.
+  Proof using Hb_nat.
     unfold Pell.
     generalize (MZ_det_A n).
     unfold A; simpl; intros H.
@@ -321,19 +323,19 @@ Section Pell.
   Qed.
 
   Fact A_iA n : A n ⊠ iA n = MZ_one.
-  Proof.
+  Proof using Hb_nat.
     generalize (alpha_Pell n); unfold Pell; intros H. 
     apply M22_equal; try ring; simpl; rewrite alpha_fix_3, <- H; ring.
   Qed.
 
   Fact iA_A n : iA n ⊠ A n = MZ_one.
-  Proof.
+  Proof using Hb_nat.
     generalize (alpha_Pell n); unfold Pell; intros H. 
     apply M22_equal; try ring; simpl; rewrite alpha_fix_3, <- H; ring.
   Qed.
 
   Fact A_minus u v : (v <= u)%nat -> A (u-v)%nat = A u ⊠ iA v.
-  Proof.
+  Proof using Hb_nat.
     intros H.
     rewrite <- (MZ_expo_A u).
     replace u with (u-v+v)%nat at 2 by lia.
@@ -355,10 +357,10 @@ Section Pell.
     Qed.
 
     Lemma alpha_nat_coprime n : is_gcd (alpha_nat (S n)) (alpha_nat n) 1.
-    Proof. apply Z_coprime, (A_eq_3_12 (S n)). Qed.
+    Proof using Hb_nat. apply Z_coprime, (A_eq_3_12 (S n)). Qed.
 
     Corollary alpha_nat_odd n : (rem (alpha_nat (S n)) 2 = 1 \/ rem (alpha_nat n) 2 = 1)%nat.
-    Proof.
+    Proof using Hb_nat.
       destruct rem_2_is_0_or_1 with (x := alpha_nat (S n)) as [ H1 | ]; auto.
       destruct rem_2_is_0_or_1 with (x := alpha_nat n) as [ H2 | ]; auto.
       exfalso; generalize (alpha_nat_coprime n); intros (_ & _ & H3).
@@ -368,13 +370,13 @@ Section Pell.
   End alpha_nat_coprime.
   End Pell_inner.
   Theorem find_odd_alpha u : exists n, (u <= alpha_nat (S n) /\ rem (alpha_nat (S n)) 2 = 1)%nat.
-  Proof.
+  Proof using Hb_nat.
     destruct (alpha_nat_odd (S u)) as [ H | H ]; [ exists (S u) | exists u ]; split; auto;
       apply le_trans with (1 := alpha_nat_ge_n _), alpha_nat_mono; lia.
   Qed.
 
   Theorem find_odd_alpha' u : exists n, (u <= alpha_nat n /\ rem (alpha_nat n) 2 = 1)%nat.
-  Proof.
+  Proof using Hb_nat.
     destruct (find_odd_alpha u) as (n & ?); exists (S n); auto.
   Qed.
 
@@ -405,7 +407,7 @@ Section Pell.
                                           * expoZ i (α (S k)) 
                                           * expoZ (l-i) (α k) ) 
                                      (MZ_expo i B)).
-  Proof.
+  Proof using Hb_nat.
     intro; subst m.
     rewrite <- MZ_expo_A, mscal_mult, MZ_expo_A, A_is_sum; auto.
     rewrite binomial_Newton with (zero := MZ_zero); auto.
@@ -434,7 +436,7 @@ Section Pell.
     Variable (l m v : nat) (Hv : Z.of_nat v = α (2+m) - α m).
 
     Fact alpha_SSm_m_neq_0 : v <> 0%nat.
-    Proof. 
+    Proof using Hb_nat Hv. 
       intros H; subst; simpl in Hv.
       generalize (alpha_inc m) (alpha_inc (S m)); lia.
     Qed.
@@ -518,7 +520,7 @@ Section Pell.
     Qed.
 
     Fact alpha_2lm_minus_j :〚α (S (2*l*m-j))〛=〚expoZ (S l) (-1)*α (S j)〛.
-    Proof.
+    Proof using Hl Hj.
       generalize (A_minus Hj'); intros H.
       apply f_equal with (f := morph22 f) in H.
       rewrite MU22_morph with (1 := Z2Zp_morph) in H.
@@ -545,7 +547,7 @@ Section Pell.
 
     Theorem alpha_nat_2lm_minus_j : nat2Zp Hv' (alpha_nat (2*l*m-j)) = nat2Zp Hv' (alpha_nat j)
                                  \/ nat2Zp Hv' (alpha_nat (2*l*m-j)) = Zp_opp Hv' (nat2Zp Hv' (alpha_nat j)).
-    Proof.
+    Proof using Hl Hj.
       generalize (alpha_2lm_minus_j).
       destruct (expoZ_opp1 (S l)) as [ E | E ]; rewrite E; intros H; [ left | right ].
       + repeat rewrite alpha_Z_S in H.
@@ -629,7 +631,7 @@ Section Pell.
     Qed.
 
     Theorem expo_congruence_Z n : nat2Zp Hm q ⊗〚α (S n)〛=〚α n〛⊕ nat2Zp Hm (power n q).
-    Proof.
+    Proof using Hb_nat.
       destruct Z2Zp_morph as [ G1 G2 G3 G4 G5 ].
       generalize (AnVP n); intros H.
       apply  M22_proj12 in H.
@@ -642,7 +644,7 @@ Section Pell.
     Qed.
 
     Theorem expo_congruence n : (0 < n)%nat -> nat2Zp Hm (q * alpha_nat n) = nat2Zp Hm (alpha_nat (n-1) + power n q).
-    Proof.
+    Proof using Hb_nat.
       destruct n as [ | n ]; try lia.
       replace (S n-1)%nat with n by lia.
       rewrite nat2Zp_mult.
@@ -660,7 +662,7 @@ Section Pell.
   Qed.
 
   Theorem Pell_zero_left y : Pell 0 y <-> y = 1 \/ y = -1.
-  Proof.
+  Proof using Hb_nat.
     unfold Pell; split.
     + intros H.
       assert ((y-1)*(y+1) = 0) as H1.
@@ -671,12 +673,12 @@ Section Pell.
   Qed.
 
   Theorem Pell_zero_right x : Pell x 0 <-> x = 1 \/ x = -1.
-  Proof.
+  Proof using Hb_nat.
     rewrite Pell_sym; apply Pell_zero_left.
   Qed.
 
   Theorem Pell_not_diag x : ~ Pell x x.
-  Proof.   
+  Proof using Hb_nat.   
     unfold Pell.
     intros H.
     assert (x*((2-b)*x) = 1) as H1.
@@ -687,7 +689,7 @@ Section Pell.
   Qed.
 
   Theorem Pell_opposite_not x y : y < 0 -> 0 < x -> ~ Pell x y.
-  Proof.
+  Proof using Hb_nat.
     intros H1 H2 H3.
     red in H3.
     assert (0 <= - (b *x*y)) as H4.
@@ -702,7 +704,7 @@ Section Pell.
   Qed.
 
   Theorem Pell_alpha x y : 0 <= y < x -> Pell x y -> { n | x = α (S (S n)) /\ y = α (S n) }.
-  Proof.
+  Proof using Hb_nat.
     induction on x y as IH with measure (Z.to_nat y); intros Hxy HP.
     destruct (Z.eq_dec y 0) as [ Hy | Hy ].
     + exists 0%nat.
@@ -835,7 +837,7 @@ Section divisibility_1.
       Open Scope Z_scope.
 
       Fact A_k_morph22 : morph22 (Z2Zp Hak) (A b k) = (〚alpha_Z b (2+k)〛,Zp_zero Hak,Zp_zero Hak,〚-alpha_Z b k〛).
-      Proof.
+      Proof using Hm.
         destruct k as [ | k' ]; try lia.
         unfold A; apply M22_equal; auto;
         simpl plus; unfold alpha_Z.
@@ -844,7 +846,7 @@ Section divisibility_1.
       Qed.
 
       Lemma alpha_Z_mnlk_eq : 〚 alpha_Z b (1+m) 〛 = 〚 alpha_Z b (1+n) 〛⊗ expo l〚 alpha_Z b (2+k) 〛.
-      Proof.
+      Proof using Hm.
         generalize (A_plus_mult Hb _ _ _ Hm); intros H. 
         apply f_equal with (f := morph22 (Z2Zp Hak)) in H.
         rewrite MU22_morph with (1 := Z2ZP_morph) in H.
@@ -863,7 +865,7 @@ Section divisibility_1.
       Notation "〚 x 〛" := (nat2Zp Hak x).  (* congruence class modulo alpha_nat b k *)
 
       Theorem alpha_nat_mnlk_eq : 〚 alpha_nat b m 〛 = 〚 alpha_nat b n 〛⊗ expo l〚 alpha_nat b (1+k) 〛.
-      Proof.
+      Proof using Hm.
         generalize alpha_Z_mnlk_eq.
         simpl plus.
         unfold alpha_Z.
@@ -878,7 +880,7 @@ Section divisibility_1.
   (* This is property 3.23 *)
 
   Theorem alpha_nat_divides_k_ge_1 m : alpha_nat b k │ alpha_nat b m <-> k │ m.
-  Proof.
+  Proof using Hak.
     split.
     + intros H1.
       destruct (euclid m Hk) as (l & [ | n ] & E1 & E2).
@@ -966,7 +968,7 @@ Section divisibility_2.
       Fact A_m_morph22 : morph22 (Z2Zp Hak2) (A b m) 
                        = MZp_scal (expoZp l〚-1〛⊗ expoZp l〚alpha_Z b k〛) MZp_I
                        ⊞ MZp_scal (expoZp (l-1)〚-1〛⊗ nat2Zp Hak2 l ⊗ 〚alpha_Z b (S k)〛⊗ expoZp (l-1)〚alpha_Z b k〛) (morph22 (Z2Zp Hak2) (B b)).
-      Proof.
+      Proof using Hl Hm.
         generalize (MA_expo_A_binomial Hb _ _ Hm); intros H.
         apply f_equal with (f := morph22 (Z2Zp Hak2)) in H.
 
@@ -1028,7 +1030,7 @@ Section divisibility_2.
                           ⊗ nat2Zp Hak2 l
                           ⊗〚 alpha_Z b (S k) 〛
                           ⊗ expoZp (l-1)〚 alpha_Z b k 〛.
-      Proof.
+      Proof using Hl Hm.
         generalize A_m_morph22; intros H.
         unfold morph22, A, B in H.
         unfold M22scal, PL22, MZp_I in H.
@@ -1043,7 +1045,7 @@ Section divisibility_2.
     Add Ring myring2 : (Zp_is_ring Hak2).
 
     Corollary alpha_square_nat : exists q, Zp_invertible Hak2 q /\ nat2Zp Hak2 (alpha_nat b m) = q ⊗ nat2Zp Hak2 l  ⊗ nat2Zp Hak2 (alpha_nat b k).
-    Proof.
+    Proof using Hl Hm.
       exists (expoZp (l-1) (Z2Zp Hak2 (-1)) ⊗ expoZp (l-1) (Z2Zp Hak2 (alpha_Z b k))); split.
       + apply Zp_mult_invertible; apply Zp_expo_invertible.
         * apply Zp_opp_invertible. 
@@ -1066,7 +1068,7 @@ Section divisibility_2.
   End equation.
 
   Theorem alpha_nat_divides_2_pos m : alpha_nat b k * alpha_nat b k │ alpha_nat b m <-> k*alpha_nat b k │ m.
-  Proof.
+  Proof using Hak.
     destruct m as [ | m ].
     + simpl; split; intros; apply divides_0.
     + destruct (divides_dec (S m) k) as [ (l & Hl) | C ].
@@ -1105,7 +1107,7 @@ Section congruence_1.
   Hint Resolve Zle_0_nat : core.
 
   Theorem alpha_Z_congr n : Z2Zp Hq (alpha_Z b1 n) = Z2Zp Hq (alpha_Z b2 n).
-  Proof.
+  Proof using Hb2 Hb1 Hb.
     induction on n as IHn with measure n.
     destruct n as [ | [ | n ] ]; try reflexivity.
     do 2 (rewrite alpha_fix_3; auto).

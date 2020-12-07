@@ -19,6 +19,7 @@ Section loopSum.
         end + 11.
 
   Global Instance termT_loopSum : computableTime' (@loopSum X Y) (fun n _ => (5,fun f fT => (1,fun x _ => (time_loopSum f fT n x,tt)))).
+  Proof.
   extract.
   solverec.
   Qed.

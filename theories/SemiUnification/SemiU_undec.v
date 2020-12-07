@@ -37,8 +37,6 @@ Proof.
   exact CSSM_UB_to_SSemiU.reduction.
 Qed.
 
-Check SSemiU_undec.
-
 (* Undecidability of Right-uniform Two-inequality Semi-unification *)
 Theorem RU2SemiU_undec : undecidable RU2SemiU.
 Proof.
@@ -46,16 +44,12 @@ Proof.
   exact SSemiU_to_RU2SemiU.reduction.
 Qed.
 
-Check RU2SemiU_undec.
-
 (* Undecidability of Left-uniform Two-inequality Semi-unification *)
 Theorem LU2SemiU_undec : undecidable LU2SemiU.
 Proof.
   apply (undecidability_from_reducibility RU2SemiU_undec).
   exact RU2SemiU_to_LU2SemiU.reduction.
 Qed.
-
-Check LU2SemiU_undec.
 
 (* Undecidability of Semi-unification *)
 Theorem SemiU_undec : undecidable SemiU.

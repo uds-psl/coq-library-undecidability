@@ -26,6 +26,8 @@ Module SU := SemiU.
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Proof Using "Type".
+
 Module Argument.
 Section LU2SemiU_to_SysF_TYP.
 
@@ -244,7 +246,7 @@ Proof. by move=> ->. Qed.
 
 Lemma typing_x_1_W : 
   (forall Gamma, typing (many_poly_abs n_W' (poly_arr t_x_W' t_x_W') :: Gamma) x_1_W (poly_arr t_x_0_W t_x_0_W)).
-Proof.
+Proof using Hφψ0.
   move=> Gamma. rewrite /x_1_W. evar (t: poly_type).
   have := @typing_var (many_poly_abs n_W' (poly_arr t_x_W' t_x_W') :: Gamma) 0 t.
   subst t. move=> /(_ ltac:(reflexivity)) /typing_many_ty_appI => /(_ ts_1_W).
@@ -256,7 +258,7 @@ Qed.
 
 Lemma typing_x_2_W : 
   (forall Gamma, typing (many_poly_abs n_W' (poly_arr t_x_W' t_x_W') :: Gamma) x_2_W (poly_arr t_x_1_W t_x_1_W)).
-Proof.
+Proof using Hφψ1.
   move=> Gamma. rewrite /x_2_W. evar (t: poly_type).
   have := @typing_var (many_poly_abs n_W' (poly_arr t_x_W' t_x_W') :: Gamma) 0 t.
   subst t. move=> /(_ ltac:(reflexivity)) => /typing_many_ty_appI => /(_ ts_2_W).

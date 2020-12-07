@@ -483,26 +483,31 @@ Tactic Notation "extract" "match" := computable_match.
 (* recRel_simplify *)
 Lemma recRel_prettify_drop A B C:
   (A -> B) -> (A -> (C -> B)).
+Proof.
   tauto.
 Qed.
 
 Lemma recRel_prettify_forall X (P Q : X -> Prop) :
   (forall x, Q x -> P x) -> ((forall x, Q x) -> (forall x, P x)).
+Proof.
   firstorder.
 Qed.
 
 Lemma recRel_prettify_conj (P P' Q Q' : Prop) :
   (P-> P') -> (Q -> Q') -> (P /\ Q -> P' /\ Q').
+Proof.
   firstorder.
 Qed.
 
 Lemma recRel_prettify_conj_drop_r (P P' Q' : Prop) :
   Q' -> (P-> P') -> (P -> (P' /\ Q')).
+Proof.
   firstorder.
 Qed.
 
 Lemma recRel_prettify_rel X R (x x' y y' : X):
   x = x' -> y = y' -> (R x' y' -> R x y).
+Proof.
   firstorder congruence.
 Qed.
 
@@ -619,7 +624,7 @@ Proof.
   cbn.
   pose (t:=lam 0).
   computable using t. solverec. Unshelve.
-Defined.
+Defined. (* because ? *)
 
 
 Ltac computable_casted_result :=

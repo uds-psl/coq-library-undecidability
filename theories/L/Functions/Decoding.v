@@ -18,7 +18,7 @@ Arguments decode _ {_} {_} _ : simpl never.
 Instance decode_nat : decodable nat.
 Proof.
   exists nat_unenc. all:eauto using LNat.unenc_correct, LNat.unenc_correct2.
-Defined.
+Defined. (* because instance *)
 
 Import L_Notations.
 
@@ -62,7 +62,7 @@ Proof.
    +cbn. erewrite !IHt. reflexivity.
     1,3:cbn;lia.
     all:eassumption.
-Defined.
+Defined. (* because instance *)
 
 From Undecidability.L Require Import Datatypes.Lists.
 Import L. 
@@ -100,7 +100,7 @@ Proof.
     *reflexivity.
     *cbn;lia.
     *easy.
-Defined.
+Defined. (* because instance *)
 
 
 From Undecidability.L Require Import Datatypes.LProd.
@@ -128,7 +128,7 @@ Proof.
    all:repeat let eq := fresh in destruct _ eqn:eq. all:try congruence.
    all:intros ? [= <-]. cbn.
    setoid_rewrite decode_correct2;[|eassumption..]. easy.
-Defined.
+Defined. (* because instance *)
 
 From Undecidability.L Require Import Datatypes.LSum. 
 Definition sum_decode X Y `{decodable X} `{decodable Y} (s : term) : option (X + Y) := 
@@ -158,7 +158,7 @@ Proof.
    all:repeat let eq := fresh in destruct _ eqn:eq. all:try congruence.
    all:intros ? [= <-]; cbn.
    all: setoid_rewrite decode_correct2;[|eassumption..]; easy.
-Defined. 
+Defined. (* because instance *)
 
 From Undecidability.L Require Import Datatypes.LOptions.
 
@@ -188,7 +188,7 @@ Proof.
    +cbn. change (match H with
                 | @mk_registered _ enc _ _ => enc
                  end x) with (enc x). erewrite decode_correct2. all:easy.
-Defined.
+Defined. (* because instance *)
 
 From Undecidability.L Require Import Datatypes.LBool.
 
@@ -208,7 +208,7 @@ Proof.
   -destruct t eqn:eq. all:cbn.
    all:repeat let eq := fresh in destruct _ eqn:eq. all:try congruence.
    all:intros ? [= <-]. all:easy.
-Defined.
+Defined. (* because instance *)
 
 From Undecidability.L Require Import Datatypes.LUnit. 
 
@@ -225,5 +225,5 @@ Proof.
   - destruct t eqn:Heq; cbn. 
     all:repeat let eq := fresh in destruct _ eqn:eq. all:try congruence.
     intros ? [= <-]. easy.
-Defined. 
+Defined. (* because instance *)
 

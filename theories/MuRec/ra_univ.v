@@ -23,6 +23,8 @@ From Undecidability.DiophantineConstraints
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Local Notation "'⟦' f '⟧'" := (@ra_rel _ f) (at level 0).
 
 Definition h10c_nat (c : h10c) :=
@@ -420,7 +422,7 @@ Section ra_univ.
 
   Theorem ra_univ_spec : ex (⟦ra_univ⟧ (k##vec_nil)) 
                      <-> exists φ, forall c, In c lc -> h10c_sem c φ.
-  Proof.
+  Proof using Hf_tot.
     split.
     + intros (v & Hv).
       simpl in Hv; red in Hv.

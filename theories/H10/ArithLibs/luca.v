@@ -19,6 +19,8 @@ From Undecidability.H10.ArithLibs
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Local Notation power := (mscal mult 1).
 Local Notation expo := (mscal mult 1).
 
@@ -74,7 +76,7 @@ Section fact.
   Proof. apply mprod_factorial_Zp. Qed.
 
   Fact mprod_factorial_mult n : fact (n*p) = expo n p * fact n * Ψ n.
-  Proof.
+  Proof using Hp.
     induction n as [ | n IHn ].
     + rewrite Nat.mul_0_l, msum_0, mscal_0, fact_0; auto.
     + replace (S n*p) with (n*p+p) by ring.
@@ -100,7 +102,7 @@ Section fact.
   Qed.
  
   Lemma mprod_factorial_euclid n r : fact (n*p+r) = expo n p * fact n * φ n r * Ψ n.
-  Proof.
+  Proof using Hp.
     rewrite mprod_factorial, msum_plus; auto.
     rewrite <- mprod_factorial.
     rewrite msum_ext with (f := fun i => n*p+i+1)
@@ -216,7 +218,7 @@ Section fact.
   
     Fact binomial_wo_p : φ K k0 * Ψ K * φ (N-K) (n0-k0) * Ψ (N-K) * binomial n k 
                        = binomial N K * φ N n0 * Ψ N.
-    Proof.
+    Proof using Hkn.
       apply (factorial_cancel (N-K)); repeat rewrite mult_assoc.
       rewrite (mult_comm (fact _) (binomial _ _)).
       apply (factorial_cancel K); repeat rewrite mult_assoc.
@@ -239,7 +241,7 @@ Section fact.
     Hint Resolve Zp_mult_monoid : core.
 
     Fact binomial_Zp_prod :〚binomial n k〛=〚binomial N K〛⊗〚binomial n0 k0〛.
-    Proof.
+    Proof using Hkn Hn0 Hprime.
       generalize binomial_wo_p; intros G.
       apply f_equal with (f := nat2Zp Hp) in G.
       repeat rewrite nat2Zp_mult in G.
@@ -297,7 +299,7 @@ Section fact.
 
     Fact binomial_with_p : fact K * fact (N-(K+1)) * φ K k0 * Ψ K * φ (N-(K+1)) (p-(k0-n0)) * Ψ (N-(K+1)) * binomial n k 
                          = p * fact N * φ N n0 * Ψ N.
-    Proof.
+    Proof using Hkn.
       apply expo_p_cancel with (N-1).
       repeat rewrite mult_assoc.
       rewrite (mult_comm (expo _ _) p).
@@ -314,7 +316,7 @@ Section fact.
 
     Fact binomial_with_p' : φ K k0 * Ψ K * φ (N-(K+1)) (p-(k0-n0)) * Ψ (N-(K+1)) * binomial n k 
                           = p * binomial N K * (N-K) * φ N n0 * Ψ N.
-    Proof.
+    Proof using Hkn.
       apply (factorial_cancel (N-(K+1))); repeat rewrite mult_assoc.
       apply (factorial_cancel K); repeat rewrite mult_assoc.
       rewrite binomial_with_p.
@@ -327,7 +329,7 @@ Section fact.
     Qed.
  
     Fact binomial_Zp_zero :〚binomial n k〛= Zp.
-    Proof.
+    Proof using Hkn Hprime.
       generalize binomial_with_p'; intros G.
       apply f_equal with (f := nat2Zp Hp) in G.
       repeat rewrite nat2Zp_mult in G.
@@ -377,7 +379,7 @@ Section lucas_lemma.
   Qed.
 
   Theorem lucas_lemma : rem (binomial n k) p = rem (binomial N K * binomial n0 k0) p.
-  Proof.
+  Proof using choice.
     destruct choice as [ (H1 & H2) 
                      | [ (H1 & H2)
                        | (H1 & H2) ] ]; clear choice.
@@ -452,7 +454,7 @@ Section lucas_theorem.
       -> Forall (fun i => i < p) m               (* digits must be less than p*)
       -> rem (binomial (base_p l) (base_p m)) p 
        = rem (binomial_p l m) p.
-  Proof.
+  Proof using Hp.
     intros H; revert H m.
     induction 1 as [ | x l H1 H2 IH2 ];
     induction 1 as [ | y m H3 H4 IH4 ].

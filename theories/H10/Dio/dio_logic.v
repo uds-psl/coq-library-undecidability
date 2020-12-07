@@ -19,6 +19,8 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 (* Standard De Bruijn extension and De Bruijn projection *)
 
 (* Fixpoint instead of Definition because of better unfolding properties *)
@@ -687,7 +689,7 @@ Section dio_rel_compose.
              (HR : 𝔻R (fun ν => R (ν 0) ν⭳)).
 
   Lemma dio_rel_compose : 𝔻R (fun ν => R (f ν) ν).
-  Proof.
+  Proof using HR Hf.
     by dio equiv (fun v => exists y, y = f v /\ R y v).
     abstract(intros v; split;
      [ exists (f v); auto
@@ -702,7 +704,7 @@ Section dio_fun_compose.
            (g : nat -> nat)          (Hg : 𝔻F (fun ν => g (ν 0))).
 
   Lemma dio_fun_compose : 𝔻F (fun ν => g (f ν)).
-  Proof.
+  Proof using Hf Hg.
     red; by dio equiv (fun v => exists y, y = f v⭳ /\ v 0 = g y).
     abstract(intros; split;
      [ exists (f ν⭳); auto
@@ -829,5 +831,3 @@ Section dio_rel_finite_conj.
   Defined.
 
 End dio_rel_finite_conj.
-
-(* Check dio_rel_finite_conj. *)

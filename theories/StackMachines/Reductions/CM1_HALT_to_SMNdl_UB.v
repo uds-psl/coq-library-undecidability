@@ -28,6 +28,8 @@ Require Import Undecidability.StackMachines.Reductions.CM1_HALT_to_SMNdl_UB.CM1_
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Proof Using "Type".
+
 Module Argument.
 
 Instance Prefix_Enumerable : Enumerable Prefix.
@@ -113,7 +115,7 @@ Section Reduction.
   Definition MN: SMN := flat_map encode_Instruction MX.
 
   Theorem length_preserving_MN : length_preserving MN.
-  Proof.
+  Proof using length_preserving_MX.
     move=> s t X s' t' Y. rewrite /MN in_flat_map /encode_Instruction.
     move=> [[[[[? ?] ?] [[? ?] ?]] b]] [/length_preserving_MX [H1 H2]].
     case: b; (case; last (case; last done)).
@@ -183,7 +185,7 @@ Section Reduction.
         | true, false => SMX.step MX (r, l, x) (l', r', y)
         | true, true => SMX.step MX (r, l, x) (r', l', y)
         end.
-  Proof.
+  Proof using flip_consistent_MX.
     set x_b_x : State * bool := of_nat X.
     move Hx_b_x: x_b_x => [x b_x]. subst x_b_x. exists x, b_x, (decode_Stack L), (decode_Stack R).
     have := Exists_dec (fun '((_, X), _, b) => X = x) MX.
@@ -234,7 +236,7 @@ Section Reduction.
   Qed.
 
   Lemma deterministic_MN : deterministic MN.
-  Proof.
+  Proof using flip_consistent_MX deterministic_MX.
     move=> [[L R] X]. have [x [b_x [l [r [b_y Hx]]]]]:= inverse_simulation_step L R X.
     move=> [[? ?] ?] [[? ?] ?] /Hx + /Hx.
     move=> [y [ly [ry [{}Hx [-> Hy]]]]] [z [lz [rz [_ [-> Hz]]]]].
@@ -254,7 +256,7 @@ Section Reduction.
     | true, false => SMX.reachable MX (r, l, x) (l', r', y)
     | true, true => SMX.reachable MX (r, l, x) (r', l', y)
     end.
-  Proof.
+  Proof using flip_consistent_MX.
     elim.
     - move=> [[L R] X]. have [{}x [b_x [l [r [b_y Hx]]]]] := inverse_simulation_step L R X.
       move=> [[? ?] ?] /Hx{Hx} => [[{}y]] [l'] [r'] [->] [->] Hxy. 
@@ -280,7 +282,7 @@ Section Reduction.
     Variable bounded_MX : SMX.bounded MX NMX.
 
     Lemma bounded_MN : bounded MN (1 + 4*NMX).
-    Proof.
+    Proof using flip_consistent_MX bounded_MX.
       rewrite /bounded. move=> [[L R] X].
       set x_b_x : State * bool := of_nat X.
       move Hx: x_b_x => [x b_x].
@@ -340,7 +342,7 @@ Section Reduction.
     Definition decode_State : nat -> State * bool := of_nat.
 
     Lemma bounded_MX : SMX.bounded MX (2*NMN).
-    Proof.
+    Proof using bounded_MN.
       rewrite /SMX.bounded. move=> [[l r] x].
       have [T [H1T H2T]]:= bounded_MN (encode_Stack l, encode_Stack r, encode_State (x, false)).
       exists 

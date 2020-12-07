@@ -130,7 +130,7 @@ Section enum_red.
     | S n => L L' n ++ [ x | x ∈ cumul L' n , In (f x) (cumul Lq n) ]
     end.
 
-  Lemma enum_red L' :
+  Local Lemma enum_red L' :
     list_enumerator__T L' X ->
     list_enumerator (L L') p.
   Proof.

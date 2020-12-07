@@ -66,13 +66,13 @@ Proof.
    intros. subst.
    edestruct (ints a _ tt eq_refl) as(v&R'&?).
    exists v. split. eapply redLe_star_subrelation. all:eauto.
-Defined.
+Defined. (* because ? *)
 
 Lemma computableTime_computable X (ty : TT X) (x:X) fT :
   notHigherOrder ty -> computableTime x fT -> computable x.
 Proof.
   intros H I. eexists (extT x). destruct I. eapply computesTime_computes_intern. all:eauto.
-Defined.
+Defined. (* because ? *)
 
 Hint Extern 10 (@computable ?t ?ty ?f) =>
 (solve [let H:= fresh "H" in eassert (H : @computableTime t ty f _) by exact _;
@@ -94,7 +94,7 @@ Qed.
 Instance reg_is_extT ty (R : registered ty) (x : ty): computableTime x tt.
 Proof.
   exists (enc x). split;constructor. 
-Defined.
+Defined. (* because ? *)
 
 Lemma computesTimeTyB (t:Type) (x:t) `{registered t}: computesTime (TyB t) x (extT x) tt.
 Proof.
@@ -108,7 +108,7 @@ Proof.
   destruct H as [p fInts]. cbn in *. 
   destruct (fInts x xInt xT xInts) as (v&E&fxInts). 
   eassumption. 
-Defined.
+Defined. (* because ? *)
 
 Lemma extTApp t1 t2 {tt1:TT t1} {tt2 : TT t2} (f: t1 -> t2) (x:t1) fT xT (Hf : computableTime f fT) (Hx : computableTime x xT) :
   app (extT f) (extT x) >(<= fst (evalTime f x (evalTime x))) extT (f x).
@@ -123,7 +123,7 @@ Lemma extT_is_enc t1 (R:registered t1) (x: t1) xT (Hf : computableTime x xT) :
 Proof.
   unfold extT. 
   destruct Hf. assumption.
-Defined.
+Defined. (* because ? *)
 
 Lemma computesTimeTyArr_helper t1 t2 (tt1 : TT t1) (tt2 : TT t2) f fInt time fT:
   proc fInt
@@ -200,8 +200,9 @@ Qed.
 
 Lemma computableTimeExt X (tt : TT X) (x x' : X) fT:
   extEq x x' -> computableTime x fT -> computableTime x' fT.
+Proof.
   intros ? [s ?]. eexists. eauto using computesTimeExt.
-Defined.
+Defined. (* because ? *)
 
 Fixpoint changeResType_TimeComplexity t1 (tt1 : TT t1) Y {R: registered Y} {struct tt1}:
   forall (fT: timeComplexity t1) , @timeComplexity _ (projT2 (changeResType tt1 (TyB Y))):= (
@@ -227,7 +228,7 @@ Proof.
    eapply IHtt1_2. all:eassumption.
 Qed.
     
-Definition cnst {X} (x:X):nat. exact 0. Qed.
+Definition cnst {X} (x:X):nat. Proof. exact 0. Qed.
 
 Definition callTime X (fT : X -> unit -> nat * unit) x: nat := fst (fT x tt). 
 Arguments callTime / {_}.

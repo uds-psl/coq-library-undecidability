@@ -91,11 +91,11 @@ Inductive boundary : Type :=
 
 (* Declare discreteness of [boundary] *)
 Instance boundary_eq : eq_dec boundary.
-Proof. unfold dec. decide equality. Defined.
+Proof. unfold dec. decide equality. Defined. (* because definition *)
 
 (* Declare finiteness of [boundary] *)
 Instance boundary_fin : finTypeC (EqType boundary).
-Proof. split with (enum := [START; STOP; UNKNOWN]). cbn. intros []; cbn; reflexivity. Defined.
+Proof. split with (enum := [START; STOP; UNKNOWN]). cbn. intros []; cbn; reflexivity. Defined. (* because definition *)
 
 
 (* In this section, we define value-containment (≃). It is defined on tapes over arbitrary [Type]s (even infinite types), not [finType]. *)

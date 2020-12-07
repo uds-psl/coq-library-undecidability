@@ -37,12 +37,12 @@ Section Fix_X.
   Proof.
     extract.
     solverec. 
-  Defined.
+  Defined. (*because other extract*)
 
   Global Instance term_inb_notime: computable inb.
   Proof.
     extract.
-  Defined.
+  Defined. (*because other extract*)
 
 
 

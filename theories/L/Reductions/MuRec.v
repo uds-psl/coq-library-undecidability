@@ -125,6 +125,7 @@ Proof.
   intros (c & H); revert H; apply ra_bs_from_c.
 Qed.
 
+(*
 Inductive reccode :=
 | rc_cst (n : nat)
 | rc_zero
@@ -173,6 +174,9 @@ Fixpoint eval (fuel : nat) (min : nat) (c : reccode) (v : list nat) : option (na
                  end
     end
   end.
+*)
+
+Require Import Undecidability.L.Reductions.MuRec.MuRec_extract.
 
 Definition rec_erase i (erase : forall i, recalg i -> reccode) := (fix rec k (v : vec (recalg i) k) := match v with vec_nil => rc_nil | x ## v => rc_cons (erase _ x) (rec _ v) end).
 
@@ -409,24 +413,13 @@ Proof.
            Grab Existential Variables. exact vec_zero.
 Qed.
 
-MetaCoq Run (tmGenEncode "enc_reccode" reccode).
-Hint Resolve enc_reccode_correct : Lrewrite.
-
-Instance term_rc_comp: computable rc_comp. extract constructor. Qed.
-Instance term_rc_cons : computable rc_cons.  extract constructor. Qed.
-Instance term_rc_rec : computable rc_rec.  extract constructor. Qed.
-Instance term_rc_min : computable rc_min.  extract constructor. Qed.
-
-Instance term_eval : computable eval.
-Proof.
-  extract.
-Qed.
+Require Import Undecidability.L.Reductions.MuRec.MuRec_extract.
 
 Definition evalfun fuel c v := match eval fuel 0 c v with Some (inl x) => Some x | _ => None end.
 
 Definition UMUREC_HALTING c := exists fuel, evalfun fuel c nil <> None.
 
-Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.ReducibilityFacts.
+Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.ReducibilityFacts.
 
 Lemma MUREC_red : MUREC_HALTING ⪯ UMUREC_HALTING.
 Proof.

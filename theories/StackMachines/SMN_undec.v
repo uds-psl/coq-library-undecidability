@@ -23,5 +23,3 @@ Proof.
   apply (undecidability_from_reducibility CM1_HALT_undec).
   exact CM1_HALT_to_SMNdl_UB.reduction.
 Qed.
-
-Check SMNdl_UB_undec.

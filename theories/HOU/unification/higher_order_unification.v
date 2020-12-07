@@ -2,6 +2,8 @@ Require Import List Omega Lia Morphisms.
 From Undecidability.HOU Require Import std.std calculus.calculus.
 Import ListNotations. 
 
+Set Default Proof Using "Type".
+
 (* * Higher-Order Unification *)
 Section UnificationDefinitions.
 

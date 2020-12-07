@@ -87,12 +87,12 @@ Section Fin.
     - decide (n' = 0) as [ H | H]. (* [destruct] makes troubles here *)
       + intros _. apply Fin.F1.
       + intros _. apply Fin.FS. apply (finMax n'). auto.
-  Defined.
+  Defined. (* because definition *)
 
   Definition finMax' (n : nat) : Fin.t (S n).
   Proof.
     apply finMax. apply Nat.neq_succ_0.
-  Defined.
+  Defined. (* because definition *)
 
   Lemma finMax_ext (n : nat) (H1 H2 : n <> 0) : finMax H1 = finMax H2.
   Proof.
@@ -124,7 +124,7 @@ Section Fin.
             | 0 => fun H => False_rec _ _
             | S n' => fun _ => Fin.F1
             end); auto.
-  Defined.
+  Defined. (* because definition *)
 
   Lemma finMin_O (n : nat) (H : S n <> 0) : finMin H = Fin.F1.
   Proof. cbn. reflexivity. Qed.
@@ -161,10 +161,10 @@ Section Fin.
         revert n' i HDec. refine (@Fin.caseS (fun n' i => forall (HDec : n' <> 0), i <> Fin.FS (finMax HDec) -> Fin.t (S n')) _ _).
         * intros. apply Fin.FS. apply finMin. apply HDec.
         * intros. apply Fin.FS. eapply finSucc. eapply finSucc_help'. apply H.
-  Defined.
+  Defined. (* because definition *)
 
   Definition finSucc' (n : nat) (i : Fin.t (S n)) (H : i <> finMax' n) : Fin.t (S n).
-  Proof. unshelve eapply finSucc with (i := i). apply Nat.neq_succ_0. apply H. Defined.
+  Proof. unshelve eapply finSucc with (i := i). apply Nat.neq_succ_0. apply H. Defined. (* because definition *)
 
   (* Compute @finSucc 5 Fin0 _ _. *)
   (* Compute finSucc' (_ : Fin4 <> finMax' 10). *)
@@ -181,7 +181,7 @@ Section Fin.
       + destruct (finSucc_opt _ i) as [ rec | ].
         * apply Some. apply Fin.FS. apply rec.
         * apply None.
-  Defined.
+  Defined. (* because definition *)
 
   (* Compute eq_refl : @finSucc_opt 1 Fin0 = None. *)
   (* Compute eq_refl : @finSucc_opt 2 Fin0 = Some Fin1. *)
@@ -243,7 +243,7 @@ Section Fin.
     destruct n.
     - apply None.
     - apply Some. apply Fin.F1.
-  Defined.
+  Defined. (* because definition *)
 
   Lemma finMin_opt_None (n : nat) :
     finMin_opt n = None -> n = 0.

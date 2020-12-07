@@ -25,6 +25,8 @@ From Undecidability.H10.Dio
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Local Infix "≲" := binary_le (at level 70, no associativity).
 Local Notation power := (mscal mult 1).
 Local Notation "∑" := (msum plus 0).

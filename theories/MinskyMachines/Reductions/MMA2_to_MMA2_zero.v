@@ -16,14 +16,10 @@ From Undecidability.MinskyMachines Require Import mma_defs mma_simul.
 
 Set Implicit Arguments.
 
-Section MMA2_MMA2_zero.
-
-  Theorem MMA2_MMA2_HALTS_ON_ZERO : MMA2_HALTING ⪯ MMA2_HALTS_ON_ZERO.
-  Proof.
-    apply reduces_dependent; exists.
-    intros (P,v).
-    destruct mma2_simulator with 1 P as (Q & HQ).
-    exists (Q,v); apply HQ.
-  Qed. 
-
-End MMA2_MMA2_zero.
+Theorem MMA2_MMA2_HALTS_ON_ZERO : MMA2_HALTING ⪯ MMA2_HALTS_ON_ZERO.
+Proof.
+  apply reduces_dependent; exists.
+  intros (P,v).
+  destruct mma2_simulator with 1 P as (Q & HQ).
+  exists (Q,v); apply HQ.
+Qed. 

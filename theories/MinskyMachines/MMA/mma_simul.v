@@ -17,6 +17,8 @@ From Undecidability.MinskyMachines.MMA
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Tactic Notation "rew" "length" := autorewrite with length_db.
 
 Local Notation "e #> x" := (vec_pos e x).
@@ -83,34 +85,34 @@ Section mma_sim.
 
     Variable (iP : nat) (cP : list (mm_instr (pos n))).
 
-    Let lnk_Q_pair := @gen_compiler_correction _ _ _ _ mma_instr_compile_length_eq _ _ _ _  (@mma_sss_total_ni _)
+    Local Definition lnk_Q_pair := @gen_compiler_correction _ _ _ _ mma_instr_compile_length_eq _ _ _ _  (@mma_sss_total_ni _)
                      (@mma_sss_fun _) _ mma_instr_compile_sound (iP,cP) 1. 
 
-    Let lnk := projT1 lnk_Q_pair.
-    Let Q := proj1_sig (projT2 lnk_Q_pair).
+    Local Definition lnk := projT1 lnk_Q_pair.
+    Local Definition Q := proj1_sig (projT2 lnk_Q_pair).
 
-    Let Hlnk : fst Q = 1 /\ lnk iP = 1 /\ forall i, out_code i (iP,cP) -> lnk i = code_end Q.
+    Local Lemma Hlnk : fst Q = 1 /\ lnk iP = 1 /\ forall i, out_code i (iP,cP) -> lnk i = code_end Q.
     Proof.
       repeat split; apply (proj2_sig (projT2 lnk_Q_pair)).
     Qed.
 
     Infix "⋈" := (@eq (vec nat n)) (at level 70, no associativity).
 
-    Let HQ1 : forall i1 v1 w1 i2 v2, v1 ⋈ w1 /\ (iP,cP) // (i1,v1) ~~> (i2,v2)     
+    Local Lemma HQ1 : forall i1 v1 w1 i2 v2, v1 ⋈ w1 /\ (iP,cP) // (i1,v1) ~~> (i2,v2)     
                     -> exists w2,    v2 ⋈ w2 /\ Q // (lnk i1,w1) ~~> (lnk i2,w2).
     Proof. apply (proj2_sig (projT2 lnk_Q_pair)). Qed.
 
-    Let HQ1' i1 v1 i2 v2 : (iP,cP) // (i1,v1) ~~> (i2,v2) 
+    Local Lemma HQ1' i1 v1 i2 v2 : (iP,cP) // (i1,v1) ~~> (i2,v2) 
                         ->   Q // (lnk i1,v1) ~~> (lnk i2,v2).
     Proof.
       intros H; destruct (@HQ1 i1 v1 v1 i2 v2) as (w2 & <- & ?); auto.
     Qed.
 
-    Let HQ2 : forall i1 v1 w1 j2 w2, v1 ⋈ w1 /\ Q // (lnk i1,w1) ~~> (j2,w2) 
+    Local Lemma HQ2 : forall i1 v1 w1 j2 w2, v1 ⋈ w1 /\ Q // (lnk i1,w1) ~~> (j2,w2) 
                     -> exists i2 v2, v2 ⋈ w2 /\ (iP,cP) // (i1,v1) ~~> (i2,v2) /\ j2 = lnk i2.
     Proof. apply (proj2_sig (projT2 lnk_Q_pair)). Qed.
 
-    Let HQ2' i1 v1 j2 v2 :         Q // (lnk i1,v1) ~~> (j2,v2) 
+    Local Lemma HQ2' i1 v1 j2 v2 :         Q // (lnk i1,v1) ~~> (j2,v2) 
                -> exists i2, (iP,cP) // (i1,v1) ~~> (i2,v2) /\ j2 = lnk i2.
     Proof.
       intros H; destruct (@HQ2 i1 v1 v1 j2 v2) as (i2 & ? & <- & ? & ->); auto.
@@ -121,15 +123,15 @@ Section mma_sim.
  
     (* Q simulates termination of (iP,cP) while ensuring tmp1 and tmp2 stay void when it terminates *)
 
-    Let Q_spec1 : (iP,cP) // (iP,v) ↓ -> exists w', Q // (1,v) ~~> (code_end Q, w').
+    Local Lemma Q_spec1 : (iP,cP) // (iP,v) ↓ -> exists w', Q // (1,v) ~~> (code_end Q, w').
     Proof.
       intros ((i1,v1) & H1).
       exists v1.
-      rewrite <- (proj2 (proj2 Hlnk) i1), <- (proj1 (proj2 Hlnk)); auto.
+      rewrite <- (proj2 (proj2 Hlnk) i1), <- (proj1 (proj2 Hlnk)); auto using HQ1'.
       destruct H1; auto.
     Qed.
 
-    Let Q_spec2 : Q // (1,v) ↓ -> (iP,cP) // (iP,v) ↓.
+    Local Lemma Q_spec2 : Q // (1,v) ↓ -> (iP,cP) // (iP,v) ↓.
     Proof.
       intros ((j,w2) & H1).
       rewrite <- (proj1 (proj2 Hlnk)) in H1.
@@ -145,7 +147,7 @@ Section mma_sim.
     Proof.
       replace (1+length mma_sim) with (code_end Q).
       replace (1,mma_sim) with Q. 
-      + split; auto.
+      + split; (auto using Q_spec1, Q_spec2).
       + rewrite (surjective_pairing Q); f_equal; auto.
         apply (proj1 Hlnk).
       + unfold code_end; f_equal.
@@ -164,12 +166,12 @@ Section mma2_simul.
   Variable (iP : nat) (cP : list (mm_instr (pos 2))).
 
   Let Q := mma_sim iP cP.
-  Let eQ := 1+length Q.
+  Local Definition eQ := 1+length Q.
 
-  Let cN : list (mm_instr (pos 2)) := mma_null pos0 eQ ++ mma_null pos1 (1+eQ) ++ mma_jump 0 pos0.
+  Local Definition cN : list (mm_instr (pos 2)) := mma_null pos0 eQ ++ mma_null pos1 (1+eQ) ++ mma_jump 0 pos0.
 
-  Let L1 := @mma_null_length 2 pos0 eQ.
-  Let L2 := @mma_null_length 2 pos1 (1+eQ).
+  Local Definition L1 := @mma_null_length 2 pos0 eQ.
+  Local Definition L2 := @mma_null_length 2 pos1 (1+eQ).
 
   Let N_spec v : (eQ,cN) // (eQ,v) -+> (0,vec_zero).
   Proof.
@@ -178,11 +180,13 @@ Section mma2_simul.
     1: { apply subcode_sss_progress with (P := (eQ,mma_null pos0 eQ)); auto.
          apply mma_null_progress; auto. }
     apply sss_progress_trans with (2+eQ,(v[0/pos0])[0/pos1]).
-    1: { apply subcode_sss_progress with (P := (1+eQ,mma_null pos1 (1+eQ))); auto.
+    1: { pose proof L1 as L1.
+         apply subcode_sss_progress with (P := (1+eQ,mma_null pos1 (1+eQ))); auto.
          apply mma_null_progress; auto. }
     replace ((v[0/pos0])[0/pos1]) with (@vec_zero 2).
     2: { apply vec_pos_ext; intros p.
          repeat (invert pos p; rew vec). }
+    pose proof L1 as L1. pose proof L2 as L2.
     apply subcode_sss_progress with (P := (2+eQ,mma_jump 0 pos0)); auto. 
     apply mma_jump_progress.
   Qed.

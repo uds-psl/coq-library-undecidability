@@ -4,6 +4,7 @@ From Undecidability Require Import TM.Code.ProgrammingTools LM_heap_def.
 From Undecidability.TM.L Require Import Alphabets.
 From Undecidability Require Import TM.Code.ListTM TM.Code.CasePair TM.Code.CaseSum TM.Code.CaseNat Hoare.Hoare.
 
+Set Default Proof Using "Type".
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 

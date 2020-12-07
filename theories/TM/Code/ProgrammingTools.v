@@ -2,6 +2,8 @@ Require Export Undecidability.TM.Code.CodeTM Undecidability.TM.Code.Copy Undecid
 Require Export Undecidability.TM.Compound.TMTac.
 Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
 Require Import Lia.
+
+Export Set Default Proof Using "Type".
 (* * All tools for programming Turing machines *)
 
 (* All Coq modules in that the user programms Turing machine should [From Undecidability Require Import TM.Code.ProgrammingTools]. The module should additionally require and import the modules containing the constructor and deconstructor machines, e.g. [Require Import TM.Code.CaseNat], etc. *)

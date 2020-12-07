@@ -17,6 +17,8 @@ From Undecidability.StackMachines.BSM
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Tactic Notation "rew" "length" := autorewrite with length_db.
 
 Local Notation "e #> x" := (vec_pos e x).
@@ -95,7 +97,7 @@ Section Binary_Stack_Machines.
               v#>x = l
            -> w = v[nil/x][(rev l++v#>y)/y] 
            -> (i,move_rev_stack) // (i,v) ->> (7+i,w).
-    Proof.
+    Proof using Hxy.
       revert v w; induction l as [ | [] l IHl ]; intros v w Hv Hw; subst w; unfold move_rev_stack.
       * bsm sss POP empty with x (4+i) (7+i).
         bsm sss stop.
@@ -142,7 +144,7 @@ Section Binary_Stack_Machines.
               v#>x = l
            -> w = v[nil/x][(rev l++v#>y)/y][(rev l++v#>z)/z]
            -> (i,copy_rev_stack) // (i,v) ->> (9+i,w).
-    Proof.
+    Proof using Hxy Hyz Hxz.
       revert v w; induction l as [ | [] l IHl ]; intros v w Hv Hw; subst w; unfold copy_rev_stack.
       * bsm sss POP empty with x (5+i) (9+i).
         bsm sss stop.
@@ -188,7 +190,7 @@ Section Binary_Stack_Machines.
            -> v#>z = nil
            -> w = v[(l++v#>y)/y]
            -> (i,copy_stack) // (i,v) ->> (16+i,w).
-    Proof.
+    Proof using Hxy Hyz Hxz.
       intros H1 H2 H3; subst w.
       unfold copy_stack.
       apply sss_compute_trans with (st2 := (7+i,v[nil/x][(rev l)/z])).
@@ -232,12 +234,12 @@ Section Binary_Stack_Machines.
     Fact compare_stacks_length : length compare_stacks = 10.
     Proof. auto. Qed.
 
-    Let cs_spec_rec l : forall m v, v#>x = l 
+    Local Lemma cs_spec_rec l : forall m v, v#>x = l 
                                  -> v#>y = m 
                                  -> exists w, (forall z, z <> x -> z <> y -> v#>z = w#>z)
                                  /\ (l =  m -> (i,compare_stacks) // (i,v) ->> (p,w))
                                  /\ (l <> m -> (i,compare_stacks) // (i,v) ->> (q,w)).
-    Proof.
+    Proof using Hxy.
       induction l as [ | [] l IHl ]; intros [ | [] m ] v Hx Hy; unfold compare_stacks.
 
       (* l = nil, m = nil *)
@@ -361,7 +363,7 @@ Section Binary_Stack_Machines.
             v#>x = v#>y 
          ->   exists w, (i,compare_stacks) // (i,v) ->> (p,w) 
            /\ forall z, z <> x -> z <> y -> v#>z = w#>z.
-    Proof.
+    Proof using Hxy.
       intros E.
       destruct (cs_spec_rec v eq_refl eq_refl) as (w & H1 & H2 & H3).
       exists w; split; auto.
@@ -371,7 +373,7 @@ Section Binary_Stack_Machines.
             v#>x <> v#>y 
          ->   exists w, (i,compare_stacks) // (i,v) ->> (q,w) 
            /\ forall z, z <> x -> z <> y -> v#>z = w#>z.
-    Proof.
+    Proof using Hxy.
       intros E.
       destruct (cs_spec_rec v eq_refl eq_refl) as (w & H1 & H2 & H3).
       exists w; split; auto.
@@ -380,7 +382,7 @@ Section Binary_Stack_Machines.
     Theorem compare_stack_spec v : exists j w, (i,compare_stacks) // (i,v) ->> (j,w) 
                                          /\ forall z, z <> x -> z <> y -> v#>z = w#>z
                                          /\ (v#>x = v#>y /\ j = p \/ v#>x <> v#>y /\ j = q).
-    Proof.
+    Proof using Hxy.
       destruct (list_bool_dec (v#>x) (v#>y)) as [ H | H ].
       + destruct compare_stack_eq_spec with (1 := H) as (w & H1 & H2); exists p, w; auto.
       + destruct compare_stack_neq_spec with (1 := H) as (w & H1 & H2); exists q, w; auto.
@@ -438,7 +440,7 @@ Section Binary_Stack_Machines.
 
     Fact tile_spec i v st : st = (length tile+i,v[(high++v#>x)/x][(low++v#>y)/y]) 
                          -> (i,tile) // (i,v) ->> st.
-    Proof.
+    Proof using Hxy.
       intro; subst.
       unfold tile.
       apply sss_compute_trans with (st2 := (length (half_tile x (rev high))+i,v[(high++v#>x)/x])).
@@ -481,7 +483,7 @@ Section Binary_Stack_Machines.
     Fact transfer_ones_spec_1 b k l v st : v#>x = list_repeat One k ++ Zero :: l 
                                     -> st = (p,v[l/x][(list_repeat b k ++ v#>y)/y])
                                     -> (i,transfer_ones b) // (i,v) ->> st.
-    Proof.
+    Proof using Hxy.
       intros H1 E; subst st.
       revert v H1.
       induction k as [ | k IHk ]; intros v; intros Hx; 
@@ -510,7 +512,7 @@ Section Binary_Stack_Machines.
     Fact transfer_ones_spec_2 b k v st : v#>x = list_repeat One k 
                                     -> st = (q,v[nil/x][(list_repeat b k ++ v#>y)/y])
                                     -> (i,transfer_ones b) // (i,v) ->> st.
-    Proof.
+    Proof using Hxy.
       intros H1 E; subst st.
       revert v H1.
       induction k as [ | k IHk ]; intros v; intros Hx; 
@@ -560,7 +562,7 @@ Section Binary_Stack_Machines.
 
     Fact increment_spec_1 i v k l : v#>x = list_repeat One k ++ Zero :: l
                                -> (i,increment i) // (i,v) ->> (15+i,v[(list_repeat Zero k ++ One :: l)/x]).
-    Proof.
+    Proof using Hxy.
       intros Hx.
       unfold increment.
 
@@ -584,7 +586,7 @@ Section Binary_Stack_Machines.
 
     Fact increment_spec_2 i v k : v#>x = list_repeat One k
                                -> (i,increment i) // (i,v) ->> (15+i,v[(list_repeat Zero (S k))/x]).
-    Proof.
+    Proof using Hxy.
       intros Hx.
       unfold increment.
 
@@ -612,7 +614,7 @@ Section Binary_Stack_Machines.
            list_bool_succ l m 
         -> v#>x = l
         -> (i,increment i) // (i,v) ->> (15+i,v[m/x]).
-    Proof.
+    Proof using Hxy.
       revert l m; intros ? ? [ k l | k ] H.
       apply increment_spec_1; auto.
       apply increment_spec_2; auto.
@@ -677,7 +679,7 @@ Section Binary_Stack_Machines.
         -> mm = ll++(th,tl)::lr
         -> w = (s,v[lc/c][(th++v#>h)/h][(tl++v#>l)/l])
         -> (i,decoder s i mm) // (i,v) ->> w.
-    Proof.
+    Proof using Hhl Hcl Hch.
       revert i mm th tl lr lc v w.
       induction ll as [ | (t1,t2) ll IHll ]; simpl; intros i mm th tl lr lc v w H1 H2 H3; subst w.
 
@@ -715,7 +717,7 @@ Section Binary_Stack_Machines.
            v#>c = list_repeat Zero (length ll) ++ One :: lc
         -> st = (s,v[lc/c][(th++v#>h)/h][(tl++v#>l)/l])
         -> (i,decoder s i (ll++(th,tl)::lr)) // (i,v) ->> st.
-    Proof.
+    Proof using Hhl Hcl Hch.
       intros; subst; apply decoder_spec_rec with ll th tl lr lc; auto.
     Qed.
 
@@ -828,7 +830,7 @@ Section Binary_Stack_Machines.
     Local Fact full_dec_start_spec_1 i lt v :
         v#>c <> nil
      -> (i,full_decoder i lt) // (i,v) ->> (5+i,v).
-    Proof.
+    Proof using Hch.
       intros H1.
       case_eq (v#>c).
       intros; destruct H1; auto.
@@ -854,7 +856,7 @@ Section Binary_Stack_Machines.
      -> Forall (fun x => x < length lt) ln
      -> let (hh,ll) := tile_concat ln lt
      in (i,full_decoder i lt) // (i,v) ->> (i,v[lc/c][(hh++v#>h)/h][(ll++v#>l)/l]).
-    Proof.
+    Proof using Hhl Hcl Hch.
       intros H1 H2; revert H2 v H1.
       induction 1 as [ | k ln Hk Hln IHln ]; intros v H1; simpl.
 
@@ -896,7 +898,7 @@ Section Binary_Stack_Machines.
      -> Forall (fun x => x < length lt) ln
      -> let (hh,ll) := tile_concat ln lt
      in (i,full_decoder i lt) // (i,v) ->> (p,v[nil/c][hh/h][ll/l]).
-    Proof.
+    Proof using Hhl Hcl Hch.
       intros H1 H2 H3 H4.
       rewrite app_nil_end in H1.
       generalize (@full_dec_spec_rec i ln nil lt v H1 H4).
@@ -912,7 +914,7 @@ Section Binary_Stack_Machines.
      -> Exists (fun x => length lt <= x) ln
      -> exists w, (i,full_decoder i lt) // (i,v) ->> (q,w)
                /\ forall z, z <> c -> z <> h -> z <> l -> v#>z = w#>z.
-    Proof.
+    Proof using Hhl Hcl Hch.
       intros H1 H2; revert H2 v H1.
       induction ln as [ | x ln IHln ]; intros Hln v H1.
       inversion Hln.
@@ -956,7 +958,7 @@ Section Binary_Stack_Machines.
         v#>c = list_repeat Zero (S k)
      -> exists w, (i,full_decoder i lt) // (i,v) ->> (q,w)
                /\ forall z, z <> c -> z <> h -> z <> l -> v#>z = w#>z.
-    Proof.
+    Proof using Hch.
       intros H.
       destruct (@decoder_spec_nok_1 i (5+i) lt _ _ H) as (r & Hr).
       exists (v[(list_repeat Zero r)/c]); split.
@@ -981,7 +983,7 @@ Section Binary_Stack_Machines.
       /\ exists k, lc = list_repeat Zero (S k))
      ->  exists w, (i,full_decoder i lt) // (i,v) ->> (q,w)
                /\ forall z, z <> c -> z <> h -> z <> l -> v#>z = w#>z.
-    Proof.
+    Proof using Hhl Hcl Hch.
       intros H1 [ H2 | (H2 & k & H3) ].
       apply full_dec_spec_rec1 with ln lc; auto.
       generalize (@full_dec_spec_rec i ln lc lt v H1 H2).
@@ -1028,7 +1030,7 @@ Section Binary_Stack_Machines.
         -> v#>s = ln 
         -> w = v[mn/s][nil/h][nil/l][nil/a]
         -> (i,increment_erase) // (i,v) ->> (p,w).
-      Proof.
+      Proof using Hsa Hal.
         intros H1 H2 ?; subst w.
         unfold increment_erase.
 
@@ -1079,7 +1081,7 @@ Section Binary_Stack_Machines.
       Proof. auto. Qed.
 
       Fact main_init_spec v : (i,main_init) // (i,v) ->> (13+i,v[(Zero::nil)/s][nil/a][nil/h][nil/l]).
-      Proof.
+      Proof using Hah Hal Hsa Hsl Hsh.
         unfold main_init.
         apply subcode_sss_compute_trans with (2 := empty_stack_spec s _ _); auto.
         apply subcode_sss_compute_trans with (2 := empty_stack_spec a _ _); auto.
@@ -1135,7 +1137,7 @@ Section Binary_Stack_Machines.
           -> (let (hh,ll) := tile_concat ln lt in hh = ll)
           -> exists w, (i,main_loop) // (i,v) ->> (p,w)
                     /\ forall x, x <> a -> x <> h -> x <> l -> v#>x = w#> x.
-      Proof.
+      Proof using Hsa Hhl Hal Hah Hsh.
         intros H0 H1 H2 H3 H4 H5.
         case_eq (tile_concat ln lt).
         intros hh ll E; rewrite E in H5.
@@ -1173,7 +1175,7 @@ Section Binary_Stack_Machines.
              \/  Forall (fun x => x < length lt) ln /\ lc = nil 
                  /\ let (hh,ll) := tile_concat ln lt in hh <> ll)
           -> (i,main_loop) // (i,v) ->> (i,v[(list_bool_next (v#>s))/s]). 
-      Proof.
+      Proof using Hsl Hsh Hsa Hhl Hal Hah.
         intros H0 H1 H2 H3 [ H4 | (H4 & ? & H5) ].
         
         destruct (@full_decoder_ko_spec _ _ _ Hah Hal Hhl (lFD+16+i) (lFD+26+i) (16+i)) 
@@ -1280,44 +1282,44 @@ Section Binary_Stack_Machines.
 
       Hypothesis (Hp : out_code p (i,main_loop)).
 
-      Let HP1 : forall x, pre x -> C1 x -> (i,main_loop) // (i,x) ->> (i,f x) /\ pre (f x).
-      Proof.
+      Local Lemma HP1 : forall x, pre x -> C1 x -> (i,main_loop) // (i,x) ->> (i,f x) /\ pre (f x).
+      Proof using Hsh Hsa Hhl Hal Hah Hsl.
         intros v (H1 & H2 & H3) (ln & lc & H4 & H5).
         split.
         apply main_loop_ko_spec with ln lc; auto.
         red; unfold f; rew vec; auto.
       Qed.
 
-      Let HP2 : forall x, pre x -> C2 x -> exists y, (i,main_loop) // (i,x) ->> (p,y) /\ spec x y.
-      Proof.
+      Local Lemma HP2 : forall x, pre x -> C2 x -> exists y, (i,main_loop) // (i,x) ->> (p,y) /\ spec x y.
+      Proof using Hsh Hsa Hhl Hal Hah.
         intros v (H1 & H2 & H3) (ln & H4 & H5 & H6).
         apply  main_loop_ok_spec with ln; auto.
       Qed.
 
-      Let main_loop_sound_rec v :
+      Local Lemma main_loop_sound_rec v :
                 pre v
              -> (exists n, C2 (iter f v n)) 
              -> exists n w, (i,main_loop) // (i,v) ->> (p,w) /\ spec (iter f v n) w.
-      Proof.
-        apply sss_loop_sound with (C1 := C1); auto.
+      Proof using Hsh Hsa Hhl Hal Hah Hsl.
+        apply sss_loop_sound with (C1 := C1); auto using HP1, HP2.
       Qed.
 
-      Let main_loop_complete_rec v w q : pre v 
+      Local Lemma main_loop_complete_rec v w q : pre v 
                                       -> out_code q (i,main_loop) 
                                       -> (i,main_loop) // (i,v) ->> (q,w) 
                                       -> p = q /\ exists n, C2 (iter f v n) /\ spec (iter f v n) w.
-      Proof.
-        apply sss_loop_complete with (C1 := C1); auto.
+      Proof using Hp Hsh Hsa Hhl Hal Hah Hsl.
+        apply sss_loop_complete with (C1 := C1); auto using HP1, HP2.
         apply bsm_sss_fun.
       Qed.
 
-      Let iter_f_v v k : iter f v k = v[(iter list_bool_next (v#>s) k)/s].
+      Local Lemma iter_f_v v k : iter f v k = v[(iter list_bool_next (v#>s) k)/s].
       Proof.
         revert v.
         unfold f; induction k as [ | k IHk ]; intros v; simpl; [ | rewrite IHk ]; rew vec.
       Qed.
 
-      Let C2_eq v : v#>s = Zero::nil -> (exists n, C2 (iter f v n)) <-> tiles_solvable lt.
+      Local Lemma C2_eq v : v#>s = Zero::nil -> (exists n, C2 (iter f v n)) <-> tiles_solvable lt.
       Proof.
         unfold tiles_solvable.
         intros H1; simpl.
@@ -1347,7 +1349,7 @@ Section Binary_Stack_Machines.
        -> tiles_solvable lt
        -> exists w, (i,main_loop) // (i,v) ->> (p,w) 
                  /\ forall x, x <> s -> x <> a -> x <> h -> x <> l -> v#>x = w#>x.
-      Proof.
+      Proof using Hsh Hsa Hhl Hal Hah Hsl.
         intros H1 H2 H3 H4.
         rewrite <- (C2_eq _ H1); auto.
         intros H5.
@@ -1367,7 +1369,7 @@ Section Binary_Stack_Machines.
        -> p = q 
        /\ (forall x, x <> s -> x <> a -> x <> h -> x <> l -> v#>x = w#>x)
        /\ tiles_solvable lt.
-      Proof.
+      Proof using Hp Hsh Hsa Hhl Hal Hah Hsl.
         intros H1 H2 H3 H4 H5 H6.
         rewrite  <- (C2_eq _ H1); auto.
         destruct main_loop_complete_rec with (2 := H5) (3 := H6)

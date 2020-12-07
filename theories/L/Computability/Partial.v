@@ -24,6 +24,7 @@ Definition S' := rho (.\"S'", "n", "F", "t"; ("F" "n" "t")
                                                ((.\"Sn","x"; "S'" "Sn" "F" "x") (!Succ "n")) "t").
 
 Lemma S'_proc : recProc S'.
+Proof.
   cLproc.
 Qed.
 
@@ -54,6 +55,7 @@ Qed.
 Definition Se F :term := .\"x"; !(S' (enc 0)) !F "x".
 
 Lemma Se_proc : proc (Se F).
+Proof.
   unfold Se;simpl. wLproc.
 Qed.
 

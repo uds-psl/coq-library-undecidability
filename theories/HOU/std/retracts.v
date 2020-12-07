@@ -2,6 +2,7 @@ Set Implicit Arguments.
 
 From Undecidability.HOU Require Import std.misc std.decidable.
 
+Set Default Proof Using "Type".
 
 Class retract (X Y: Type) :=
   { I: X -> Y;
@@ -54,7 +55,7 @@ Section Properties.
   Context {D: Dis Y}. 
 
   Global Instance dis_retract: Dis X.
-  Proof.
+  Proof using r Y D.
     intros x y. destruct (I x == I y) as [H|H].
     - left; eapply (f_equal R) in H; rewrite !retr in H.
       now injection H as ->.

@@ -20,6 +20,8 @@ From Undecidability.H10.ArithLibs
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Section le_pirr.
 
   (* a dependent induction principle for le *)
@@ -114,7 +116,7 @@ Section Zp.
   Proof. intros (x & H1) (y & H2); simpl; intros; subst; f_equal; apply lt_pirr. Qed.
 
   Definition Zp_plus : Z_Zp -> Z_Zp -> Z_Zp.
-  Proof.
+  Proof using Hp.
     intros (x & Hx) (y & Hy).
     exists (rem (x+y) p).
     apply div_rem_spec2; trivial.
@@ -125,12 +127,12 @@ Section Zp.
   Infix "⊕" := Zp_plus (at level 50, left associativity).
   
   Definition Zp_zero : Z_Zp.
-  Proof.
+  Proof using Hp.
     exists 0; lia.
   Defined.
 
   Definition Zp_opp : Z_Zp -> Z_Zp.
-  Proof.
+  Proof using Hp.
     intros (x & Hx). 
     exists (rem (p - x) p). 
     apply div_rem_spec2; trivial.
@@ -139,7 +141,7 @@ Section Zp.
   Notation "∸" := Zp_opp.
 
   Definition Zp_mult : Z_Zp -> Z_Zp -> Z_Zp.
-  Proof.
+  Proof using Hp.
     intros (x & Hx) (y & Hy).
     exists (rem (x*y) p).
     apply div_rem_spec2; trivial.
@@ -148,7 +150,7 @@ Section Zp.
   Infix "⊗" := Zp_mult (at level 40, left associativity).
 
   Definition Zp_one : Z_Zp.
-  Proof.
+  Proof using Hp.
     exists (rem 1 p); apply div_rem_spec2; trivial.
   Defined.
 
@@ -404,7 +406,7 @@ Section Zp.
   Section nat2Zp.
 
     Definition nat2Zp (u : nat) : Z_Zp.
-    Proof.
+    Proof using Hp.
       exists (rem u p); apply div_rem_spec2; trivial.
     Defined.
 
@@ -594,7 +596,7 @@ Section Zp.
     Implicit Types u v w : Z.
 
     Definition Z2Zp u : Z_Zp.
-    Proof.
+    Proof using Hp.
       destruct (Z_pos_or_neg u) as [ H | H ].
       + apply nat2Zp, Z.to_nat; exact u.
       + apply Zp_opp, nat2Zp, Z.to_nat; exact (-u).
@@ -865,7 +867,7 @@ Section Zp.
       Hypothesis Hp' : prime p.
 
       Fact nat2Zp_invertible_prime n : (0 < n < p)%nat -> Zp_invertible 〚n〛.
-      Proof.
+      Proof using Hp'.
         intros Hn.
         apply Zp_invertible_prime; auto.
         intros H.
@@ -887,7 +889,7 @@ Section Zp.
       Qed.
 
       Fact Zp_invertible_factorial n : (n < p)%nat -> Zp_invertible 〚fact n〛.
-      Proof.
+      Proof using Hp'.
         induction n as [ | n IHn ]; intros Hn.
         + rewrite fact_0; apply nat2Zp_invertible_prime; lia.
         + rewrite fact_S, nat2Zp_mult; apply Zp_mult_invertible.
@@ -1071,7 +1073,7 @@ Section Zp.
       Qed.
 
       Fact Zp_lprod_fact n : 〚fact (S n)〛= Zp_lprod (map nat2Zp (list_an 2 n)).
-      Proof.
+      Proof using Hp'.
         induction n as [ | n IHn ].
         + apply Zp_inj; simpl; auto.
         + rewrite fact_S, nat2Zp_mult.
@@ -1085,7 +1087,7 @@ Section Zp.
       Qed.
 
       Theorem Wilson_thm_1 :〚fact (p-1)〛= ∸Op.
-      Proof.
+      Proof using Hp'.
         replace (p-1)%nat with (S (p-2))%nat by lia.
         rewrite Zp_lprod_fact.
         destruct (eq_nat_dec p 2) as [ H1 | H1 ].
@@ -1181,4 +1183,3 @@ Section Z2Zp_morphishm.
   Qed.
 
 End Z2Zp_morphishm.
-

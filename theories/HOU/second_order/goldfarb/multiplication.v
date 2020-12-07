@@ -6,7 +6,7 @@ From Undecidability.HOU Require Import calculus.calculus unification.unification
 Require Import FinFun Coq.Arith.Wf_nat.
 Import ListNotations.
 
-
+Set Default Proof Using "Type".
 
 
 Section Multiplication.
@@ -60,6 +60,7 @@ Section Multiplication.
 
   Section G_subst.
   Lemma G_left_subst m p q: (T m) (⟨ enc p A, enc q B⟩ ::: Nil) A B ≡ σ p q • (lin (tab t m) r).
+  Proof.
     rewrite <-T_ren with (delta := add 2).
     unfold T. eapply equiv_join.
     cbn. do 3 (dostep; cbn). unfold beta. rewrite rinstInst_exp, !compComp_exp. reflexivity.
@@ -68,6 +69,7 @@ Section Multiplication.
   Qed.
 
   Lemma G_right_subst m: (T m) Nil (enc n A) (Succ B) ≡ τ • lin (tab t m) r.
+  Proof.
     rewrite <-T_ren with (delta := add 2).
     unfold T. eapply equiv_join.
     cbn. do 3 (dostep; cbn). unfold beta. rewrite rinstInst_exp, !compComp_exp. reflexivity.
@@ -189,7 +191,7 @@ Section Multiplication.
 
     Lemma subst_enc k e u:
       σ p q • e = enc k u -> exists e', e = enc k e' /\ σ p q  • e' = u.
-    Proof.
+    Proof using τ n.
       induction k in e |-*; cbn.
       - intros; eexists; intuition; eauto.
       - intros. simplify in *.

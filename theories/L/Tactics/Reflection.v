@@ -35,6 +35,7 @@ Definition rPow phi n s t :=
   denoteTerm phi s >(n) denoteTerm phi t.
 
 Lemma rReduceIntro phi l s t : Proc phi -> rClosed phi s -> rClosed phi t -> denoteTerm phi s >(l) denoteTerm phi t -> rPow phi l s t.
+Proof.
   unfold rPow;tauto.
 Qed.
 
@@ -236,6 +237,7 @@ Qed.
 
 
 Lemma expandDenote phi s: Proc phi -> denoteTerm phi s = deClos (denoteComp phi (rCompClos s [])).
+Proof.
   intros pp. rewrite (denoteTerm_correct _ pp). simpl. rewrite rSubstList_correct;auto. simpl. now rewrite substList_nil.
 Qed.
 

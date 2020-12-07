@@ -3,6 +3,8 @@ Require Import List Morphisms FinFun.
 From Undecidability.HOU Require Import std.tactics std.ars.basic std.ars.confluence.
 Import ListNotations.
 
+Set Default Proof Using "Type".
+
 Section ListRelations.
 
   Variable (X : Type) (R: X -> X -> Prop).

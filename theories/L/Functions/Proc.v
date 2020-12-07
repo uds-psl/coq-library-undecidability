@@ -15,7 +15,7 @@ Instance term_boundb : computableTime' boundb (fun _ _ => (5,fun s _ => (size s 
 Proof.
   extract. solverec.
   unfold c__leb2, leb_time, c__leb. nia. 
-Defined.
+Qed.
 
 Lemma boundb_spec k t : Bool.reflect (bound k t) (boundb k t).
 Proof.
@@ -34,6 +34,7 @@ Qed.
 Definition closedb := boundb 0.
 
 Lemma closedb_spec s : Bool.reflect (closed s) (closedb s).
+Proof.
   unfold closedb.
   destruct (boundb_spec 0 s);constructor; rewrite closed_dcl;auto.
 Qed.
@@ -42,7 +43,7 @@ Instance termT_closedb : computableTime' closedb (fun s _ => (size s * 31+15,tt)
 Proof.
   change closedb with (fun x => boundb 0 x).
   extract. solverec.
-Defined.
+Qed.
 
 
 Definition lambdab (t : term) : bool :=
@@ -54,7 +55,7 @@ end.
 Instance term_lambdab : computableTime' lambdab (fun _ _ => (11,tt)).
 Proof.
   extract. solverec.
-Defined.
+Qed.
 
 Lemma lambdab_spec t : Bool.reflect (lambda t) (lambdab t).
 Proof.
