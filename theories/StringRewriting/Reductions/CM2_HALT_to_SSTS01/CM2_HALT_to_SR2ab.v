@@ -93,6 +93,21 @@ Proof.
   - move=> /= [<-]. by left.
   - move=> /IH {}IH /=. right. by have ->: (S (i + k) = i + S k) by lia.
 Qed.
+
+Local Arguments in_combine_l {A B l l' x y}.
+
+Lemma inv_nth_error_Some_in_combine {X: Type} {l: list X} {i x}:
+  In (i, x) (combine (seq 0 (length l)) l) -> nth_error l i = Some x.
+Proof.
+  move Hk: (0) => k. rewrite [in (_, _)](ltac:(lia) : (i = i + k)).
+  elim: l i k {Hk}; first by case.
+  move=> y l IH i k /= [].
+  - move=> [? ->]. by have ->: i = 0 by lia.
+  - move: i => [|i].
+    + move=> /in_combine_l /in_seq. by lia.
+    + have ->: S i + k = i + S k by lia.
+      by move=> /IH.
+Qed.
 End Facts.
 
 Import Facts.
@@ -216,6 +231,59 @@ Definition srs : Srs :=
   map (fun p => ((sz, sl' p), (so, so))) (seq (length cm) (state_bound - length cm)) ++
   [((sz, so), (so, so)); ((so, sb), (so, so)); ((so, sm), (so, so)); ((so, sr), (so, so)); ((so, sz), (so, so))]
   .
+
+Inductive srs_spec (a b c d: Symbol) : Prop :=
+  | srs_i0 : ((sz, sz), (st, sr)) = ((a, b), (c, d)) -> srs_spec a b c d
+  | srs_i1 : ((sz, st), (sl' 0, sm)) = ((a, b), (c, d)) -> srs_spec a b c d
+  | srs_sim0 {p} : ((sr' p, sz), (sb, sr' (S p))) = ((a, b), (c, d)) -> nth_error cm p = Some (inc true) -> srs_spec a b c d
+  | srs_sim1 {p} : ((sz, sl' p), (sl' (S p), sb)) = ((a, b), (c, d)) -> nth_error cm p = Some (inc false) -> srs_spec a b c d
+  | srs_sim2 {p q} : ((sm, sr' p), (sm, sr' (S p))) = ((a, b), (c, d)) -> nth_error cm p = Some (dec true q) -> srs_spec a b c d
+  | srs_sim3 {p q} : ((sb, sr' p), (sr' q, sz))= ((a, b), (c, d)) -> nth_error cm p = Some (dec true q) -> srs_spec a b c d
+  | srs_sim4 {p q} : ((sl' p, sm), (sl' (S p), sm)) = ((a, b), (c, d)) -> nth_error cm p = Some (dec false q) -> srs_spec a b c d
+  | srs_sim5 {p q} : ((sl' p, sb), (sz, sl' q)) = ((a, b), (c, d)) -> nth_error cm p = Some (dec false q) -> srs_spec a b c d
+  | srs_mr0 {p} : ((sl' p, sb), (sl, sb' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
+  | srs_mr1 {p} : ((sl' p, sm), (sl, sm' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
+  | srs_mr2 {p} : ((sb' p, sb), (sb, sb' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
+  | srs_mr3 {p} : ((sb' p, sm), (sb, sm' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
+  | srs_mr4 {p} : ((sb' p, sr), (sb, sr' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
+  | srs_mr5 {p} : ((sm' p, sb), (sm, sb' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
+  | srs_mr6 {p} : ((sm' p, sr), (sm, sr' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
+  | srs_ml0 {p} : ((sb, sr' p), (sb' p, sr)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
+  | srs_ml1 {p} : ((sm, sr' p), (sm' p, sr)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
+  | srs_ml2 {p} : ((sb, sb' p), (sb' p, sb)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
+  | srs_ml3 {p} : ((sm, sb' p), (sm' p, sb)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
+  | srs_ml4 {p} : ((sl, sb' p), (sl' p, sb)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
+  | srs_ml5 {p} : ((sb, sm' p), (sb' p, sm)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
+  | srs_ml6 {p} : ((sl, sm' p), (sl' p, sm)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
+  | srs_fin0 {p} : ((sz, sl' p), (so, so)) = ((a, b), (c, d)) -> length cm <= p < state_bound -> srs_spec a b c d
+  | srs_fin1 : ((sz, so), (so, so)) = ((a, b), (c, d)) -> srs_spec a b c d
+  | srs_fin2 : ((so, sb), (so, so)) = ((a, b), (c, d)) -> srs_spec a b c d
+  | srs_fin3 : ((so, sm), (so, so)) = ((a, b), (c, d)) -> srs_spec a b c d
+  | srs_fin4 : ((so, sr), (so, so)) = ((a, b), (c, d)) -> srs_spec a b c d
+  | srs_fin5 : ((so, sz), (so, so)) = ((a, b), (c, d)) -> srs_spec a b c d.
+
+Ltac destruct_rule_eq := 
+  match goal with H : ((_, _), (_, _)) = ((_, _), (_, _)) |- _ => move: H => [] ? ? ? ?; subst end.
+
+Lemma srs_specI a b c d : In ((a, b), (c, d)) srs -> srs_spec a b c d.
+Proof.
+  rewrite /srs. case /in_app_iff.
+  { firstorder (by eauto using srs_spec with nocore). }
+  case /in_app_iff.
+  { move=> /in_flat_map [[? i]] [/inv_nth_error_Some_in_combine].
+    move: i => [] [] > /=; firstorder (by eauto using srs_spec with nocore). }
+  case /in_app_iff.
+  { move=> /in_flat_map [?] [/in_seq] [_ ?].
+    firstorder (by eauto using srs_spec with nocore). }
+  case /in_app_iff.
+  { move=> /in_flat_map [?] [/in_seq] [_ ?].
+    firstorder (by eauto using srs_spec with nocore). }
+  case /in_app_iff.
+  { move=> /in_map_iff [?] [?] /in_seq H.
+    apply: srs_fin0; first by eassumption.
+    move: H. rewrite /state_bound. by lia. }
+  by firstorder (by eauto using srs_spec with nocore).
+Qed.
 
 Lemma move_sb_right {p n} : p < state_bound -> multi_step srs ((sb' p) :: repeat sb n) ((repeat sb n) ++ [sb' p]).
 Proof.
@@ -597,7 +665,7 @@ Lemma eq2_app_app {u a b v u' v'} {s: list Symbol} : length s > 1 ->
   (exists u'2, v = u'2 ++ s ++ v') \/ 
   (exists s2, u' = u ++ [a] /\ s = b :: s2 /\ v = s2 ++ v') \/
   (exists s1 s2, s = s1 ++ a :: b :: s2 /\ u = u' ++ s1 /\ v = s2 ++ v') \/
-  (exists s1, s = s1 ++ [a] /\ v' = b :: v) \/
+  (exists s1, u = u' ++ s1 /\ s = s1 ++ [a] /\ v' = b :: v) \/
   (exists v'1, u = u' ++ s ++ v'1).
 Proof.
   move=> Hs /eq2_app [|[|]].
@@ -610,11 +678,66 @@ Proof.
     + move=> [?] [-> ->]. do 4 right. by eexists.
 Qed.
 
+Local Arguments app_inj_tail {A x y a b}.
+
+(*
+Lemma extract_state {p q: nat} {n1 n2 s} : 
+  s = repeat None n1 ++ [Some q] ++ repeat None n2 -> In (Some p) s -> p = q.
+Proof.
+  move=> ->. elim: n1; last by move=> n IH /= [].
+  move=> /= [[]|]; first done.
+  elim: n2; [done | by move=> ? IH /= []].
+Qed.
+*)
+
+Lemma extract_state_r {p q: nat} {n1 n2 s} : 
+  s ++ [Some p] = repeat None n1 ++ [Some q] ++ repeat None n2 ->
+  p = q /\ n2 = 0.
+Proof.
+  have [->|->]: n2 = 0 \/ n2 = (n2 - 1) + 1 by lia.
+  - rewrite app_nil_r. by move=> /app_inj_tail [_] [].
+  - rewrite -repeat_appP ?app_assoc. by move=> /app_inj_tail [].
+Qed.
+
 (* each srs step is sound *)
 Lemma simulate_srs_step {c s t} : SR2ab.step srs s t -> encodes c s -> 
   halting cm c \/ encodes c t \/ encodes (CM2.step cm c) t.
 Proof.
   move: c => [p a b] [] u v a' b' c' d' H [u'] [v'] [{}t].
+  move=> [+] [H1t H2t] => /eq2_app_app. apply: unnest.
+  { move: H1t => /(congr1 (@length _)).
+    rewrite ?map_app ?app_length ?map_length /=. move=> ->. by lia. }
+  case; [|case; [|case; [|case]]].
+  - move=> [u'2 ->]. right. left.
+    exists (u ++ c' :: d' :: u'2), v', t.
+    constructor; [by rewrite -?app_assoc | done].
+  - move=> [s2] [?] [? ?]. subst. move: H1t H2t => [].
+    move: H => /srs_specI [] > [] ? ? ? ?; subst; try done; [|].
+    + move=> Hi _ H1s2 [[|n1] [n2]]; last done.
+      move=> [<-] H2s2. right. right.
+      rewrite /= Hi. eexists u, v', (_ :: _ :: s2).
+      constructor; [done | constructor].
+      * by rewrite /= H1s2.
+      * exists 0, (1+n2). by rewrite /= H2s2.
+    + move=> ? _ _ [[|?] [?]]; last done.
+      move=> [<-] *. left.
+      apply /haltingP => /=. by lia.
+  - admit.
+  - move=> [s1] [?] [? ?]. subst.
+    move: (H1t). rewrite ?map_app /map -?/(map _ _) ?app_assoc. move=> /app_inj_tail [_].
+    move: H H1t H2t => /srs_specI [] > [] ? ? ? ?; subst; try done; [].
+    move=> Hi H1s1 [n1] [n2] /copy [H2s1]. 
+    rewrite map_app => /extract_state_r [? ?] _. subst.
+    right. right.
+    rewrite /= Hi. eexists u', v, (s1 ++ [_; _]).
+    rewrite -?app_assoc. constructor; [done | constructor].
+    * move: H1s1. rewrite ?map_app ?app_assoc. move=> /app_inj_tail [-> _].
+      by rewrite (ltac:(lia) : 1 + b = b + 1) -[repeat _ (b + 1)]repeat_appP map_app -?app_assoc.
+    * exists (n1+1), 0. move: H2s1. rewrite ?map_app /=.
+      move=> /app_inj_tail [-> _]. by rewrite -repeat_appP -?app_assoc.
+  - move=> [v'1 ->]. right. left.
+    exists u', (v'1 ++ c' :: d' :: v), t.
+    constructor; [by rewrite -?app_assoc | done].
 Admitted.
 
 Lemma halting_cmI : exists n, halting cm (Nat.iter n (CM2.step cm) c0).
