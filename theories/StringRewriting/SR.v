@@ -45,5 +45,5 @@ Definition TSR : SRS nat * string nat * string nat -> Prop :=
 (* Thue system reachability with a halting symbol TSRH is
   given a string rewriting system R, a string x and a symbol a,
   determine whether x is equivalent in R to somy y that contains a. *)
-  Definition TSRH : SRS nat * string nat * nat -> Prop :=
-    fun '(R, x, a) => exists y, rewt (R ++ map swap R) x y /\ In a y.  
+Definition TSRH : SRS nat * string nat * nat -> Prop :=
+  fun '(R, x, a) => exists y, rewt (R ++ map swap R) x y /\ In a y.  

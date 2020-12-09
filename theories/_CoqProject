@@ -186,6 +186,7 @@ StringRewriting/SR.v
 StringRewriting/SR_undec.v
 StringRewriting/PCSnf.v
 StringRewriting/PCSnf_undec.v
+StringRewriting/SSTS.v
 
 StringRewriting/Util/Definitions.v
 StringRewriting/Reductions/SRH_to_SR.v
@@ -193,6 +194,10 @@ StringRewriting/Reductions/SR_to_PCSnf.v
 StringRewriting/Reductions/HaltSBTMu_to_SRH.v
 StringRewriting/Reductions/HaltSBTMu_to_TSR.v
 StringRewriting/Reductions/HaltTM_1_to_SR.v
+StringRewriting/Reductions/CM2_HALT_to_SSTS01/SR2ab.v
+StringRewriting/Reductions/CM2_HALT_to_SSTS01/CM2_HALT_to_SR2ab.v
+StringRewriting/Reductions/CM2_HALT_to_SSTS01/SR2ab_to_SSTS01.v
+StringRewriting/Reductions/CM2_HALT_to_SSTS01.v
 
 CFG/CFP.v
 CFG/CFP_undec.v
