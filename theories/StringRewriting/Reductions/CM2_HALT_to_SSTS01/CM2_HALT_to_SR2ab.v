@@ -232,6 +232,7 @@ Definition srs : Srs :=
   [((sz, so), (so, so)); ((so, sb), (so, so)); ((so, sm), (so, so)); ((so, sr), (so, so)); ((so, sz), (so, so))]
   .
 
+(* initialization, simulation, finalization *)
 Inductive srs_spec (a b c d: Symbol) : Prop :=
   | srs_i0 : ((sz, sz), (st, sr)) = ((a, b), (c, d)) -> srs_spec a b c d
   | srs_i1 : ((sz, st), (sl' 0, sm)) = ((a, b), (c, d)) -> srs_spec a b c d
@@ -241,20 +242,6 @@ Inductive srs_spec (a b c d: Symbol) : Prop :=
   | srs_sim3 {p q} : ((sb, sr' p), (sr' q, sz))= ((a, b), (c, d)) -> nth_error cm p = Some (dec true q) -> srs_spec a b c d
   | srs_sim4 {p q} : ((sl' p, sm), (sl' (S p), sm)) = ((a, b), (c, d)) -> nth_error cm p = Some (dec false q) -> srs_spec a b c d
   | srs_sim5 {p q} : ((sl' p, sb), (sz, sl' q)) = ((a, b), (c, d)) -> nth_error cm p = Some (dec false q) -> srs_spec a b c d
-  | srs_mr0 {p} : ((sl' p, sb), (sl, sb' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
-  | srs_mr1 {p} : ((sl' p, sm), (sl, sm' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
-  | srs_mr2 {p} : ((sb' p, sb), (sb, sb' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
-  | srs_mr3 {p} : ((sb' p, sm), (sb, sm' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
-  | srs_mr4 {p} : ((sb' p, sr), (sb, sr' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
-  | srs_mr5 {p} : ((sm' p, sb), (sm, sb' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
-  | srs_mr6 {p} : ((sm' p, sr), (sm, sr' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
-  | srs_ml0 {p} : ((sb, sr' p), (sb' p, sr)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
-  | srs_ml1 {p} : ((sm, sr' p), (sm' p, sr)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
-  | srs_ml2 {p} : ((sb, sb' p), (sb' p, sb)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
-  | srs_ml3 {p} : ((sm, sb' p), (sm' p, sb)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
-  | srs_ml4 {p} : ((sl, sb' p), (sl' p, sb)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
-  | srs_ml5 {p} : ((sb, sm' p), (sb' p, sm)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
-  | srs_ml6 {p} : ((sl, sm' p), (sl' p, sm)) = ((a, b), (c, d)) -> p < state_bound -> srs_spec a b c d
   | srs_fin0 {p} : ((sz, sl' p), (so, so)) = ((a, b), (c, d)) -> length cm <= p < state_bound -> srs_spec a b c d
   | srs_fin1 : ((sz, so), (so, so)) = ((a, b), (c, d)) -> srs_spec a b c d
   | srs_fin2 : ((so, sb), (so, so)) = ((a, b), (c, d)) -> srs_spec a b c d
@@ -262,10 +249,27 @@ Inductive srs_spec (a b c d: Symbol) : Prop :=
   | srs_fin4 : ((so, sr), (so, so)) = ((a, b), (c, d)) -> srs_spec a b c d
   | srs_fin5 : ((so, sz), (so, so)) = ((a, b), (c, d)) -> srs_spec a b c d.
 
+(* opaque state movement *)
+Inductive srs_mlr_spec (a b c d: Symbol) : Prop :=
+  | srs_mr0 {p} : ((sl' p, sb), (sl, sb' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_mlr_spec a b c d
+  | srs_mr1 {p} : ((sl' p, sm), (sl, sm' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_mlr_spec a b c d
+  | srs_mr2 {p} : ((sb' p, sb), (sb, sb' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_mlr_spec a b c d
+  | srs_mr3 {p} : ((sb' p, sm), (sb, sm' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_mlr_spec a b c d
+  | srs_mr4 {p} : ((sb' p, sr), (sb, sr' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_mlr_spec a b c d
+  | srs_mr5 {p} : ((sm' p, sb), (sm, sb' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_mlr_spec a b c d
+  | srs_mr6 {p} : ((sm' p, sr), (sm, sr' p)) = ((a, b), (c, d)) -> p < state_bound -> srs_mlr_spec a b c d
+  | srs_ml0 {p} : ((sb, sr' p), (sb' p, sr)) = ((a, b), (c, d)) -> p < state_bound -> srs_mlr_spec a b c d
+  | srs_ml1 {p} : ((sm, sr' p), (sm' p, sr)) = ((a, b), (c, d)) -> p < state_bound -> srs_mlr_spec a b c d
+  | srs_ml2 {p} : ((sb, sb' p), (sb' p, sb)) = ((a, b), (c, d)) -> p < state_bound -> srs_mlr_spec a b c d
+  | srs_ml3 {p} : ((sm, sb' p), (sm' p, sb)) = ((a, b), (c, d)) -> p < state_bound -> srs_mlr_spec a b c d
+  | srs_ml4 {p} : ((sl, sb' p), (sl' p, sb)) = ((a, b), (c, d)) -> p < state_bound -> srs_mlr_spec a b c d
+  | srs_ml5 {p} : ((sb, sm' p), (sb' p, sm)) = ((a, b), (c, d)) -> p < state_bound -> srs_mlr_spec a b c d
+  | srs_ml6 {p} : ((sl, sm' p), (sl' p, sm)) = ((a, b), (c, d)) -> p < state_bound -> srs_mlr_spec a b c d.
+
 Ltac destruct_rule_eq := 
   match goal with H : ((_, _), (_, _)) = ((_, _), (_, _)) |- _ => move: H => [] ? ? ? ?; subst end.
 
-Lemma srs_specI a b c d : In ((a, b), (c, d)) srs -> srs_spec a b c d.
+Lemma srs_specI a b c d : In ((a, b), (c, d)) srs -> srs_spec a b c d \/ srs_mlr_spec a b c d.
 Proof.
   rewrite /srs. case /in_app_iff.
   { firstorder (by eauto using srs_spec with nocore). }
@@ -274,15 +278,23 @@ Proof.
     move: i => [] [] > /=; firstorder (by eauto using srs_spec with nocore). }
   case /in_app_iff.
   { move=> /in_flat_map [?] [/in_seq] [_ ?].
-    firstorder (by eauto using srs_spec with nocore). }
+    firstorder (by eauto using srs_mlr_spec with nocore). }
   case /in_app_iff.
   { move=> /in_flat_map [?] [/in_seq] [_ ?].
-    firstorder (by eauto using srs_spec with nocore). }
+    firstorder (by eauto using srs_mlr_spec with nocore). }
   case /in_app_iff.
-  { move=> /in_map_iff [?] [?] /in_seq H.
+  { move=> /in_map_iff [?] [?] /in_seq H. left.
     apply: srs_fin0; first by eassumption.
     move: H. rewrite /state_bound. by lia. }
   by firstorder (by eauto using srs_spec with nocore).
+Qed.
+
+Lemma srs_mlr_specE {a b c d} : srs_mlr_spec a b c d -> 
+  exists x y p,
+  ((a, b), (c, d)) = (((x, Some p), (y, None)), ((x, None), (y, Some p))) \/
+  ((a, b), (c, d)) = (((x, None), (y, Some p)), ((x, Some p), (y, None))).
+Proof.
+  move=> [] > [] ? ? ? ? _; subst; do 3 eexists; by tauto.
 Qed.
 
 Lemma move_sb_right {p n} : p < state_bound -> multi_step srs ((sb' p) :: repeat sb n) ((repeat sb n) ++ [sb' p]).
@@ -580,13 +592,11 @@ Local Definition rt_rt1n {A R x y} := @clos_rt_rt1n_iff A R x y.
 
 (* s is (0^n1 l _^a m _^b r 0^n2) with a unique state annotation *)
 Definition encodes : Config -> list Symbol -> Prop :=
-  fun '{| state := p; value1 := a; value2 := b |} s => 
-  exists u v t, s = u ++ t ++ v /\
+  fun c s => 
+  exists u v t, let '{| state := p; value1 := a; value2 := b |} := c in
+    s = u ++ t ++ v /\
     map fst t = map fst ([sl] ++ repeat sb a ++ [sm] ++ repeat sb b ++ [sr]) /\
-    exists n1 n2, map snd t = repeat None n1 ++ [Some p] ++ repeat None n2.
-
-    (*exists n, nth_error (map snd t) n = Some (Some p) /\ 
-      forall m, m <> n -> nth m (map snd t) None = None.*)
+    filter (fun x => if x is None then false else true) (map snd t) = [Some p].
 
 Lemma In_srs_stE {a b c d} : In ((a, b), (c, d)) srs ->
   ((sz, sz), (st, sr)) = ((a, b), (c, d)) \/
@@ -634,7 +644,7 @@ Proof using HN.
     move=> /(_ ltac:(done)) Hv. eexists. constructor; last by eassumption.
     move: (v) Hv => [|? v']; first done.
     move=> /= ->. exists u, v', [sl' 0; sm; sr].
-    do 2 (constructor; first done). by exists 0, 2.
+    constructor; [done | by constructor].
   - move=> H _ _ /Forall_appP [_] /ForallE [+] /ForallE [+] _.
     by move: a b H => [? [?|]] [? [?|]].
 Qed.
@@ -699,6 +709,109 @@ Proof.
   - rewrite -repeat_appP ?app_assoc. by move=> /app_inj_tail [].
 Qed.
 
+Inductive srs_step_spec (u v: list Symbol) (a b: Symbol) (n m: nat) : Prop :=
+  | srs_step0 : a.1 = sl.1 -> b.1 = sm.1 -> u = [] -> n = 0 -> srs_step_spec u v a b n m
+  | srs_step1 : a.1 = sl.1 -> b.1 = sb.1 -> u = [] -> n = 1 + (n - 1) -> srs_step_spec u v a b n m
+  | srs_step2 : a.1 = sm.1 -> b.1 = sr.1 -> v = [] -> m = 0 -> srs_step_spec u v a b n m
+  | srs_step3 : a.1 = sb.1 -> b.1 = sr.1 -> v = [] -> m = 1 + (m - 1) -> srs_step_spec u v a b n m.
+(*
+  | srs_step4 : a.1 = sb.1 -> b.1 = sb.1 -> srs_step_spec u v a b n m
+  | srs_step5 : a.1 = sb.1 -> b.1 = sm.1 -> srs_step_spec u v a b n m
+  | srs_step6 : a.1 = sm.1 -> b.1 = sb.1 -> srs_step_spec u v a b n m.
+*)
+Lemma srs_step_specI {u v a b n m} : 
+  map fst (u ++ a :: b :: v) = map fst ([sl] ++ repeat sb n ++ [sm] ++ repeat sb m ++ [sr]) ->
+  srs_step_spec u v a b n m \/ 
+  (a.1 = sb.1 /\ b.1 = sb.1) \/ (a.1 = sb.1 /\ b.1 = sm.1) \/ (a.1 = sm.1 /\ b.1 = sb.1).
+Proof.
+  move: u => [|? u].
+  { move: n => [|n].
+    - move=> [] *. left. by apply: srs_step0.
+    - move=> [] *. left. apply: srs_step1; by [|lia]. }
+  move=> [] _. 
+  elim /rev_ind: v.
+  { rewrite ?map_app /= map_app. have ->: [a.1; b.1] = [a.1] ++ [b.1] by done.
+    rewrite -/((_ :: _) ++ _) ?app_assoc. move=> /app_inj_tail [].
+    have [->|->] : m = 0 \/ m = (m - 1) + 1 by lia.
+    - move=> /app_inj_tail [] *. left. by apply: srs_step2.
+    - rewrite -repeat_appP map_app -/((_ :: _) ++ _) ?app_assoc.
+      move=> /app_inj_tail [] *. left. apply: srs_step3; by [|lia]. }
+  move=> ? v _. rewrite ?map_app /map -?/(map _ _) ?map_app.
+  rewrite -?/((_ :: _) ++ _) -?/((_ :: _ :: _) ++ _) ?app_assoc. 
+  move=> /app_inj_tail [+] _. move=> + /ltac:(right).
+  elim: u n.
+  { move=> [|[|n]].
+    - move: m => [|m [] *]; [done | by tauto ].
+    - move=> [] *. by tauto.
+    - move=> [] *. by tauto. }
+  move=> ? u IH [|n]; last by move=> [_] /IH.
+  move=> [_] {IH}. elim: m u; first by case.
+  move=> m IH [|? u]; last by move=> [_] /IH.
+  move: m {IH} => [|m] []; [done | by tauto].
+Qed.
+(*
+Lemma todo {u v a b n m} : 
+  map fst (u ++ a :: b :: v) = map fst ([sl] ++ repeat sb n ++ [sm] ++ repeat sb m ++ [sr]) ->
+  (u = [])
+*)
+(*
+Inductive srs_step_spec (a b: Symbol) (n m: nat) : Prop :=
+  | srs_step0 : a.1 = sl.1 -> b.1 = sm.1 -> n = 0 -> srs_step_spec a b n m
+  | srs_step1 : a.1 = sl.1 -> b.1 = sb.1 -> n = 1 + (n - 1) -> srs_step_spec a b n m
+  | srs_step2 : a.1 = sm.1 -> b.1 = sr.1 -> m = 0 -> srs_step_spec a b n m
+  | srs_step3 : a.1 = sb.1 -> b.1 = sr.1 -> m = 1 + (m - 1) -> srs_step_spec a b n m
+  | srs_step4 : a.1 = sb.1 -> b.1 = sb.1 -> srs_step_spec a b n m
+  | srs_step5 : a.1 = sb.1 -> b.1 = sm.1 -> srs_step_spec a b n m
+  | srs_step6 : a.1 = sm.1 -> b.1 = sb.1 -> srs_step_spec a b n m.
+
+Lemma srs_step_specI {u v a b n m} : 
+  map fst (u ++ a :: b :: v) = map fst ([sl] ++ repeat sb n ++ [sm] ++ repeat sb m ++ [sr]) ->
+  srs_step_spec a b n m.
+Proof.
+  move: u => [|? u].
+  { move: n => [|n].
+    - move=> [] *. by apply: srs_step0.
+    - move=> [] *. apply: srs_step1; by [|lia]. }
+  move=> [] _. elim: u n.
+  { move => [|[|n]].
+    - move: m => [|m] [] *; [by apply: srs_step2 | by apply: srs_step6].
+    - move=> [] *. by apply: srs_step5.
+    - move=> [] *. by apply: srs_step4. }
+  move=> ? u IH [|n].
+  { admit. }
+  move=> [_] /IH.
+*)
+(*
+Inductive srs_step_spec (a b: Symbol) (n m: nat) : Prop :=
+  | srs_step0 : a.1 = sl.1 -> b.1 = sm.1 -> n = 0 -> srs_step_spec a b n m
+  | srs_step1 : a.1 = sl.1 -> b.1 = sb.1 -> n = 1 + (n - 1) -> srs_step_spec a b n m
+  | srs_step2 : a.1 = sm.1 -> b.1 = sr.1 -> m = 0 -> srs_step_spec a b n m
+  | srs_step3 : a.1 = sm.1 -> b.1 = sb.1 -> m = 1 + (m - 1) -> srs_step_spec a b n m
+  | srs_step4 : a.1 = sb.1 -> b.1 = sm.1 -> srs_step_spec a b n m.
+
+Lemma srs_step_specI {u v a b n m} : 
+  map fst (u ++ a :: b :: v) = map fst ([sl] ++ repeat sb n ++ [sm] ++ repeat sb m ++ [sr]) ->
+  srs_step_spec a b n m.
+Proof.
+  move: u => [|? u].
+  { move: n => [|n].
+    - move=> [] *. by apply: srs_step0.
+    - move=> [] *. apply: srs_step1; by [|lia]. }
+  move=> [] _. elim: u.
+  { move: n => [|[|n]].
+    - move: m => [|m] [].
+      + move=> *. by apply: srs_step2.
+      + move=> *. apply: srs_step3; by [|lia].
+    - move=> [].
+  }
+*)
+
+Lemma ad {u v: list Symbol} {a b n m} : map fst (u ++ a :: b :: v) = map fst ([sl] ++ repeat sb n ++ [sm] ++ repeat sb m ++ [sr]) ->
+(a.1 = sl.1 /\ b.1 = sb.1) \/ (a.1 = sl.1 /\ b.1 = sm.1) \/ (a.1 = sb.1 /\ b.1 = sb.1) \/ (a.1 = sb.1 /\ b.1 = sm.1) \/
+(a.1 = sm.1 /\ b.1 = sb.1) \/ (a.1 = sm.1 /\ b.1 = sr.1) \/ (a.1 = sb.1 /\ b.1 = sr.1).
+Admitted.
+
+
 (* each srs step is sound *)
 Lemma simulate_srs_step {c s t} : SR2ab.step srs s t -> encodes c s -> 
   halting cm c \/ encodes c t \/ encodes (CM2.step cm c) t.
@@ -712,33 +825,68 @@ Proof.
     exists (u ++ c' :: d' :: u'2), v', t.
     constructor; [by rewrite -?app_assoc | done].
   - move=> [s2] [?] [? ?]. subst. move: H1t H2t => [].
-    move: H => /srs_specI [] > [] ? ? ? ?; subst; try done; [|].
-    + move=> Hi _ H1s2 [[|n1] [n2]]; last done.
-      move=> [<-] H2s2. right. right.
+    move: H => /srs_specI [|] [] > [] ? ? ? ?; subst; try done; [|].
+    + move=> Hi _ H1s2 [<- H2s2]. right. right.
       rewrite /= Hi. eexists u, v', (_ :: _ :: s2).
-      constructor; [done | constructor].
-      * by rewrite /= H1s2.
-      * exists 0, (1+n2). by rewrite /= H2s2.
-    + move=> ? _ _ [[|?] [?]]; last done.
-      move=> [<-] *. left.
+      constructor; [done | constructor; by rewrite /= ?H1s2  ?H2s2].
+    + move=> ? _ _ [<-] _ *. left.
       apply /haltingP => /=. by lia.
-  - admit.
+  - move=> [s1] [s2] [?] [? ?]. subst.
+    move: H H1t H2t => /srs_specI [].
+    + move=> + + + /ltac:(right; right). move=> H /copy [/srs_step_specI] [].
+      * move=> H'. move: H' H => [] ? ? ? ? [] > [] ? ? ? ?; subst; try done; [ | | | ].
+        ** rewrite app_nil_r /=. move=> + [H1] [<-] => -> H2.
+           eexists u', v', (_ :: _ :: _). constructor; first done.
+           by rewrite /= H1 H2.
+        ** subst. rewrite app_nil_r /=.
+           move: (a) => [|?]; first done.
+           move=> + [] H1 [<-] H2 => ->.
+           eexists (u' ++ [sz]), v', (_ :: _).
+           rewrite -?app_assoc. constructor; first done.
+           by rewrite /= H1 H2.
+        ** rewrite ?map_app filter_app /=.
+           move=> + + /(app_inj_tail (y := [])) [H2] [<-].
+           move=> -> H1. eexists u', v', (_ ++ [_; _]).
+           rewrite -?app_assoc. constructor; first done.
+           by rewrite ?map_app filter_app /= H1 H2.
+        ** rewrite ?map_app filter_app /=.
+           move=> + + /(app_inj_tail (y := [])) [H2] [<-].
+           move=> -> H1. have ->: b = 1 + (b - 1) by lia.
+           eexists u', (sz :: v'), (_ ++ [_]).
+           rewrite -?app_assoc /=. constructor; first done.
+           rewrite ?map_app filter_app /= H2. constructor; last done.
+           move: H1. rewrite (ltac:(lia) : b = (b - 1) + 1) -repeat_appP.
+           rewrite (ltac:(lia) : b - 1 + 1 - 1 = b - 1) ?map_app.
+           rewrite -?/((_ :: _) ++ _) -?/([_] ++ (map _ _)) ?app_assoc.
+           move: (((([1] ++ map fst (repeat sb a)) ++ [3]) ++ map fst (repeat sb (b - 1)))).
+           move: (map _ _) => ? ?. rewrite -?app_assoc /=.
+           have ->: [0; 2] = [0] ++ [2] by done. rewrite ?app_assoc.
+           by move=> /app_inj_tail [/app_inj_tail] [->].
+      * move: H => + + + /ltac:(exfalso).
+        move=> [] > [] *; subst; by firstorder done.
+    + move=> + + + /ltac:(right; left; exists u', v', (s1 ++ c' :: d' :: s2)).
+      move=> /srs_mlr_specE [x] [y] [q] [] [] ? ? ? ? H1t H2t; 
+        subst; rewrite -?app_assoc.
+      * constructor; first done.
+        constructor; first by rewrite -H1t ?map_app.
+        move: H2t. by rewrite ?map_app ?filter_app /=.
+      * constructor; first done.
+        constructor; first by rewrite -H1t ?map_app.
+        move: H2t. by rewrite ?map_app ?filter_app /=.
   - move=> [s1] [?] [? ?]. subst.
     move: (H1t). rewrite ?map_app /map -?/(map _ _) ?app_assoc. move=> /app_inj_tail [_].
-    move: H H1t H2t => /srs_specI [] > [] ? ? ? ?; subst; try done; [].
-    move=> Hi H1s1 [n1] [n2] /copy [H2s1]. 
-    rewrite map_app => /extract_state_r [? ?] _. subst.
-    right. right.
-    rewrite /= Hi. eexists u', v, (s1 ++ [_; _]).
+    move: H H1t H2t => /srs_specI [|] [] > [] ? ? ? ?; subst; try done; [].
+    move=> Hi H1s1. rewrite map_app filter_app. 
+    move=> /(app_inj_tail (y := [])) [H2s2] [<-] _.
+    right. right. rewrite /= Hi. eexists u', v, (s1 ++ [_; _]).
     rewrite -?app_assoc. constructor; [done | constructor].
     * move: H1s1. rewrite ?map_app ?app_assoc. move=> /app_inj_tail [-> _].
       by rewrite (ltac:(lia) : 1 + b = b + 1) -[repeat _ (b + 1)]repeat_appP map_app -?app_assoc.
-    * exists (n1+1), 0. move: H2s1. rewrite ?map_app /=.
-      move=> /app_inj_tail [-> _]. by rewrite -repeat_appP -?app_assoc.
+    * by rewrite map_app filter_app /= H2s2.
   - move=> [v'1 ->]. right. left.
     exists u', (v'1 ++ c' :: d' :: v), t.
     constructor; [by rewrite -?app_assoc | done].
-Admitted.
+Qed.
 
 Lemma halting_cmI : exists n, halting cm (Nat.iter n (CM2.step cm) c0).
 Proof using HN.
