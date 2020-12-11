@@ -1,4 +1,4 @@
-Require Import List Arith Lia.
+Require Import List PeanoNat Lia.
 Import ListNotations.
 
 Require Import Undecidability.CounterMachines.CM1.

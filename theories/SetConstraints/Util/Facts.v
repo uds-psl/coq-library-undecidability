@@ -10,6 +10,8 @@ Require Import Arith Psatz.
 Require Import List.
 Import ListNotations.
 
+Set Default Proof Using "Type".
+
 Section Facts.
 
   (* induction principle wrt. a decreasing measure f *)

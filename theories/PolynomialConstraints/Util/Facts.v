@@ -10,6 +10,8 @@ Import ListNotations.
 
 From Coq Require Import ssreflect ssrbool ssrfun.
 
+Set Default Proof Using "Type".
+
 (* list facts *)
 Section ForallNorm.
 Variable T : Type.

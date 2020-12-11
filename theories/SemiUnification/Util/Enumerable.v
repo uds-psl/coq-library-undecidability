@@ -10,6 +10,8 @@ Import ListNotations.
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Proof Using "Type".
+
 (* Enumerable X allows injection into nat *)
 Class Enumerable (X: Type) :=
   {

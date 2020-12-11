@@ -1,4 +1,4 @@
-Require Import Arith Lia.
+Require Import PeanoNat Lia.
 
 From Coq Require Import ssreflect ssrbool ssrfun.
 

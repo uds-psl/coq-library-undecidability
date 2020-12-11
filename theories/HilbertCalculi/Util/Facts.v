@@ -5,10 +5,11 @@
     (1) Saarland University, Saarbrücken, Germany
 *)
 
-
 Require Import List Lia.
 Import ListNotations.
 Require Import ssreflect ssrbool ssrfun. 
+
+Set Default Proof Using "Type".
 
 Section Facts.
 

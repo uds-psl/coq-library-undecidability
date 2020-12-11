@@ -3,6 +3,8 @@ Import UnscopedNotations.
 From Undecidability.SystemF.Util Require Import typing_facts term_facts step.
 Require Import Setoid Morphisms.
 
+Set Default Proof Using "Type".
+
 Definition pw_iff {X} p q := (forall x : X, p x <-> q x).
 Notation "p == q" := (pw_iff p q) (at level 70).
 
@@ -92,7 +94,7 @@ Section Evaluation.
   Proof. now rewrite eval_ren. Qed.
 
   Definition lift : model.
-  Proof.
+  Proof using M.
     refine (mk_model id (Arr M) (fun F => All M (Var M >> F)) _ _ _).
     abstract firstorder.
     abstract (intros p1 p2 H; eapply All_ext; intros P; eapply H).

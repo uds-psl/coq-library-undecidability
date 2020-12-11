@@ -8,6 +8,8 @@ Unset Strict Implicit.
 Unset Printing Implicit Defensive.
 Set Maximal Implicit Insertion.
 
+Set Default Proof Using "Type".
+
 Section ForallNorm.
 
 Variable T : Type.

@@ -6,6 +6,8 @@ Require Import Undecidability.PCP.PCP.
 Set Implicit Arguments. 
 Unset Strict Implicit.
 
+Set Default Proof Using "Type".
+
 Notation "x 'el' A" := (In x A) (at level 70).
 Notation "A <<= B" := (incl A B) (at level 70).
 Notation "| A |" := (length A) (at level 65).
@@ -84,7 +86,7 @@ Section neList.
   Hypothesis S : (forall x A, P A -> P (x :: A)).
   
   Lemma list_ind_ne A : A <> [] -> P A.
-  Proof.
+  Proof using S B.
     intros H. destruct A. congruence. clear H.
     revert x. induction A; eauto.
   Qed.

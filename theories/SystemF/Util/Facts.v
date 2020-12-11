@@ -3,6 +3,8 @@ Import ListNotations.
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Proof Using "Type".
+
 (* Generic facts *)
 
 (* duplicates argument *)

@@ -3,6 +3,8 @@ Require Import Undecidability.SystemF.SysF.
 
 Require Import Morphisms.
 
+Set Default Proof Using "Type".
+
 Local Notation "f === g" := (fext_eq f g) (at level 80).
 
 Section pure_term.
