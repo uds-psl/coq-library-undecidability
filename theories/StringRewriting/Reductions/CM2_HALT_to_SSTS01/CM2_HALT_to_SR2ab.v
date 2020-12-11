@@ -4,84 +4,25 @@ Import ListNotations.
 Require Import Undecidability.StringRewriting.Reductions.CM2_HALT_to_SSTS01.SR2ab.
 Require Import Undecidability.CounterMachines.CM2.
 
+Require Import Undecidability.StringRewriting.Util.List_facts.
+Require Import Undecidability.StringRewriting.Reductions.CM2_HALT_to_SSTS01.SR2ab_facts.
+Require Import Undecidability.CounterMachines.Util.CM2_facts.
+
 Require Import ssreflect ssrbool ssrfun.
 
 Set Default Proof Using "Type".
 
-Arguments rt_trans {A R x y z}.
+Local Arguments rt_trans {A R x y z}.
+Local Arguments in_combine_l {A B l l' x y}.
 
 Module Facts.
-(* induction principle wrt. a decreasing measure f *)
-(* example: elim /(measure_ind length) : l. *)
-Lemma measure_ind {X : Type} (f : X -> nat) (P : X -> Prop) : 
-  (forall x, (forall y, f y < f x -> P y) -> P x) -> forall (x : X), P x.
-Proof.
-  apply : well_founded_ind.
-  apply : Wf_nat.well_founded_lt_compat. move => *. by eassumption.
-Qed.
-Arguments measure_ind {X}.
-
 (* duplicates argument *)
 Lemma copy {A : Prop} : A -> A * A.
 Proof. done. Qed.
 
-(* transforms a goal (A -> B) -> C into goals A and B -> C *)
-Lemma unnest : forall (A B C : Type), A -> (B -> C) -> (A -> B) -> C.
-Proof. auto. Qed.
-
 Lemma iter_plus {X: Type} {f: X -> X} {x: X} {n m: nat} : 
   Nat.iter (n + m) f x = Nat.iter n f (Nat.iter m f x).
 Proof. by rewrite /Nat.iter nat_rect_plus. Qed.
-
-Section ForallNorm.
-Context {X : Type} {P : X -> Prop}.
-
-Lemma ForallE {l} : Forall P l -> if l is x :: l then P x /\ Forall P l else True.
-Proof. by case. Qed.
-
-Lemma Forall_nilI : Forall P [].
-Proof. by constructor. Qed.
-
-Lemma Forall_consI {x l} : P x -> Forall P l -> Forall P (x :: l).
-Proof. by constructor. Qed.
-
-Lemma Forall_nilP : Forall P [] <-> True.
-Proof. by constructor. Qed.
-
-Lemma Forall_consP {x l} : Forall P (x :: l) <-> P x /\ Forall P l.
-Proof. by constructor=> [/ForallE | [/Forall_consI H] /H]. Qed.
-
-Lemma Forall_singletonP {x} : Forall P [x] <-> P x.
-Proof. rewrite Forall_consP Forall_nilP. by constructor=> [[? ?] | ?]. Qed.
-
-Lemma Forall_appP {l1 l2}: Forall P (l1 ++ l2) <-> Forall P l1 /\ Forall P l2.
-Proof.
-  elim: l1; first by (constructor; by [|case]).
-  move=> ? ? IH /=. by rewrite ?Forall_consP IH and_assoc.
-Qed.
-
-Lemma Forall_repeatP {x n} : Forall P (repeat x n) <-> (n = 0 \/ P x).
-Proof.
-  elim: n; first by (constructor => *; [by left | by constructor]).
-  move=> n IH /=. rewrite Forall_consP IH.
-  constructor; first by (move=> [? _]; right).
-  case; [done | constructor; [done | by right]].
-Qed. 
-
-Definition Forall_norm := (@Forall_appP, @Forall_singletonP, @Forall_consP, @Forall_nilP).
-End ForallNorm.
-
-Lemma repeat_appP {X: Type} {x: X} {n m: nat} : 
-  repeat x n ++ repeat x m = repeat x (n+m).
-Proof. by elim: n; [| move=> ? /= ->]. Qed.
-
-Lemma In_appl {X : Type} {x: X} {l1 l2: list X} : In x l1 -> In x (l1 ++ l2).
-Proof. move=> ?. apply: in_or_app. by left. Qed.
-
-Lemma In_appr {X : Type} {x: X} {l1 l2: list X} : In x l2 -> In x (l1 ++ l2).
-Proof. move=> ?. apply: in_or_app. by right. Qed.
-
-Arguments nth_error_In {A l n x}.
 
 Lemma nth_error_Some_in_combine {X: Type} {l: list X} {i x}:
   nth_error l i = Some x -> 
@@ -93,8 +34,6 @@ Proof.
   - move=> /= [<-]. by left.
   - move=> /IH {}IH /=. right. by have ->: (S (i + k) = i + S k) by lia.
 Qed.
-
-Local Arguments in_combine_l {A B l l' x y}.
 
 Lemma inv_nth_error_Some_in_combine {X: Type} {l: list X} {i x}:
   In (i, x) (combine (seq 0 (length l)) l) -> nth_error l i = Some x.
@@ -110,65 +49,13 @@ Proof.
 Qed.
 End Facts.
 
-Import Facts.
-
-Module SR_facts.
-Import SR2ab.
-Lemma stepI {srs u v a b c d s t} : 
-  s = (u ++ a :: b :: v) -> t = (u ++ c :: d :: v) -> In ((a, b), (c, d)) srs ->
-  step srs s t.
-Proof. move=> -> ->. by constructor. Qed.
-
-Lemma multi_step_appI {srs u v s t} : multi_step srs s t -> multi_step srs (u ++ s ++ v) (u ++ t ++ v).
-Proof.
-  elim; [| move=> *; by apply: rt_refl | move=> *; apply: rt_trans; by eassumption ].
-  move=> {}s {}t [] u' v' > ?. 
-  apply /rt_step /(stepI (u := u ++ u') (v := v' ++ v)); last by eassumption.
-  all: by rewrite -?app_assoc.
-Qed.
-
-Lemma multi_step_applI {srs u s t} : multi_step srs s t -> multi_step srs (u ++ s) (u ++ t).
-Proof. move=> /multi_step_appI => /(_ u []). by rewrite ?app_nil_r. Qed.
-
-Lemma multi_step_apprI {srs v s t} : multi_step srs s t -> multi_step srs (s ++ v) (t ++ v).
-Proof. by move=> /multi_step_appI => /(_ [] v). Qed.
-End SR_facts.
-
-Module CM_facts.
-Lemma haltingP {cm c} : halting cm c <-> length cm <= state c.
-Proof.
-  move:c => [p a b]. rewrite /halting /=.
-  move Hoi: (nth_error cm p) => oi.
-  case: oi Hoi; last by move=> /nth_error_None.
-  move=> [] x => [|?] Hp /=.
-  - constructor; [by case; lia | by rewrite -nth_error_None Hp].
-  - move: x a b Hp => [] [|?] [|?]; 
-      (constructor; [by case; lia | by rewrite -nth_error_None Hp]).
-Qed.
-
-Lemma halting_eq {cm c n} : halting cm c -> Nat.iter n (step cm) c = c.
-Proof.
-  move=> Hc. elim: n; first done.
-  move=> ? /= ->. by rewrite Hc.
-Qed. 
-
-Lemma values_ub cm c n : 
-  value1 (Nat.iter n (CM2.step cm) c) + value2 (Nat.iter n (CM2.step cm) c) <= n + value1 c + value2 c.
-Proof.
-  move Hk : (n + value1 c + value2 c) => k.
-  have : n + value1 c + value2 c <= k by lia.
-  elim: n k c {Hk}; first done.
-  move=> n IH k [p a b]. have ->: S n = n + 1 by lia.
-  rewrite iter_plus /=. 
-  case: (nth_error cm p).
-  - move=> [] [] => [||?|?]; move: a b => [|?] [|?] /= ?; apply: IH => /=; by lia.
-  - move=> ?. apply: IH => /=. by lia.
-Qed.
-
-End CM_facts.
-
 Module Argument.
-Import Facts SR_facts CM_facts.
+Import Facts.
+Local Arguments List.app : simpl never.
+Local Arguments Nat.sub : simpl never.
+Local Arguments repeat : simpl never.
+Local Arguments app_inj_tail {A x y a b}.
+
 Section Reduction.
 (* given two-counter machine *)
 Context (cm : Cm2).
@@ -213,8 +100,8 @@ Definition enc_Instruction (ni: (nat * Instruction)) : Srs :=
 (* constructed string rewriting system *)
 Definition srs : Srs := 
   (* initialization *)
-  [ ((sz, sz), (st, sr)); (* 00 -> tr *)
-    ((sz, st), (sl' 0, sm)) (* 0t -> l_0 m *) ] ++
+  [((sz, sz), (st, sr)); (* 00 -> tr *)
+   ((sz, st), (sl' 0, sm)) (* 0t -> l_0 m *)] ++
   (* simulation *)
   flat_map enc_Instruction (combine (seq 0 (length cm)) cm) ++
   (* state movement to the right *)
@@ -229,8 +116,8 @@ Definition srs : Srs :=
     ((sb, sm' p), (sb' p, sm)); ((sl, sm' p), (sl' p, sm))]) (seq 0 state_bound) ++
   (* finalization *)
   map (fun p => ((sz, sl' p), (so, so))) (seq (length cm) (state_bound - length cm)) ++
-  [((sz, so), (so, so)); ((so, sb), (so, so)); ((so, sm), (so, so)); ((so, sr), (so, so)); ((so, sz), (so, so))]
-  .
+  [((sz, so), (so, so)); ((so, sb), (so, so)); ((so, sm), (so, so)); 
+   ((so, sr), (so, so)); ((so, sz), (so, so))].
 
 (* initialization, simulation, finalization *)
 Inductive srs_spec (a b c d: Symbol) : Prop :=
@@ -266,9 +153,6 @@ Inductive srs_mlr_spec (a b c d: Symbol) : Prop :=
   | srs_ml5 {p} : ((sb, sm' p), (sb' p, sm)) = ((a, b), (c, d)) -> p < state_bound -> srs_mlr_spec a b c d
   | srs_ml6 {p} : ((sl, sm' p), (sl' p, sm)) = ((a, b), (c, d)) -> p < state_bound -> srs_mlr_spec a b c d.
 
-Ltac destruct_rule_eq := 
-  match goal with H : ((_, _), (_, _)) = ((_, _), (_, _)) |- _ => move: H => [] ? ? ? ?; subst end.
-
 Lemma srs_specI a b c d : In ((a, b), (c, d)) srs -> srs_spec a b c d \/ srs_mlr_spec a b c d.
 Proof.
   rewrite /srs. case /in_app_iff.
@@ -289,22 +173,45 @@ Proof.
   by firstorder (by eauto using srs_spec with nocore).
 Qed.
 
+Lemma In_srsI {a b c d} : srs_spec a b c d \/ srs_mlr_spec a b c d -> In ((a, b), (c, d)) srs.
+Proof.
+  case.
+  - move=> [] > <- *.
+    1-2: apply /In_appl; rewrite /=; by tauto.
+    1-6: apply /In_appr /In_appl /in_flat_map; eexists; 
+      (constructor; [apply: nth_error_Some_in_combine; by eassumption | by move=> /=; tauto ]).
+    1: apply /In_appr /In_appr /In_appr /In_appr /In_appl /in_map_iff; eexists;
+      (constructor; [by reflexivity | apply /in_seq; by lia ]).
+    1-5: do 5 (apply /In_appr); move=> /=; by tauto.
+  - move=> [] p <- *.
+    1-7: apply /In_appr /In_appr /In_appl /in_flat_map; exists p;
+      (constructor; [apply /in_seq; by lia | by move=> /=; tauto ]).
+    1-7: apply /In_appr /In_appr /In_appr /In_appl /in_flat_map; exists p;
+      (constructor; [apply /in_seq; by lia | by move=> /=; tauto ]).
+Qed.
+
 Lemma srs_mlr_specE {a b c d} : srs_mlr_spec a b c d -> 
   exists x y p,
   ((a, b), (c, d)) = (((x, Some p), (y, None)), ((x, None), (y, Some p))) \/
   ((a, b), (c, d)) = (((x, None), (y, Some p)), ((x, Some p), (y, None))).
-Proof.
-  move=> [] > [] ? ? ? ? _; subst; do 3 eexists; by tauto.
-Qed.
+Proof. move=> [] > [] ? ? ? ? _; subst; do 3 eexists; by tauto. Qed.
 
-Lemma move_sb_right {p n} : p < state_bound -> multi_step srs ((sb' p) :: repeat sb n) ((repeat sb n) ++ [sb' p]).
+(* resolve In _ srs goals : by eauto with in_srs_db nocore. *)
+Local Create HintDb in_srs_db.
+
+Local Hint Resolve or_introl or_intror conj In_srsI : in_srs_db.
+Local Hint Immediate erefl : in_srs_db.
+Local Hint Constructors srs_spec srs_mlr_spec : in_srs_db.
+
+Definition stepI_nil := (@step_intro srs []).
+
+Lemma move_sb_right {p n} : p < state_bound -> 
+  multi_step srs ((sb' p) :: repeat sb n) ((repeat sb n) ++ [sb' p]).
 Proof.
   move=> Hp. elim: n; first by apply: rt_refl.
   move=> n IH /=. apply: rt_trans; 
     [apply: rt_step | apply: (multi_step_applI (u := [sb])); exact: IH].
-  apply: (stepI (u := []) (v := repeat sb n)); [by reflexivity | by reflexivity |].
-  rewrite /srs. apply /In_appr /In_appr /In_appl /in_flat_map.
-  exists p. constructor; [apply /in_seq; by lia | move=> /=; by tauto].
+  apply: stepI_nil. by eauto with in_srs_db nocore.
 Qed.
 
 Lemma move_sb_left {p n} : p < state_bound -> multi_step srs ((repeat sb n) ++ [sb' p]) ((sb' p) :: repeat sb n).
@@ -312,9 +219,7 @@ Proof.
   move=> Hp. elim: n; first by apply: rt_refl.
   move=> n IH /=. apply: rt_trans; 
     [apply: (multi_step_applI (u := [sb])); exact: IH | apply: rt_step].
-  apply: (stepI (u := []) (v := repeat sb n)); [by reflexivity | by reflexivity |].
-  rewrite /srs. apply /In_appr /In_appr /In_appr /In_appl /in_flat_map.
-  exists p. constructor; [apply /in_seq; by lia | move=> /=; by tauto].
+  apply: stepI_nil. by eauto with in_srs_db nocore.
 Qed.
 
 Section Transport.
@@ -323,17 +228,8 @@ Context (n_cm: nat).
 Definition c0 := {| state := 0; value1 := 0; value2 := 0 |}.
 Context (H_n_cm: halting cm (Nat.iter n_cm (CM2.step cm) c0)).
 
-Lemma cm_value1_ub n : value1 (Nat.iter n (CM2.step cm) c0) <= n_cm.
-Proof using H_n_cm.
-  have [|->] : n <= n_cm \/ n = ((n - n_cm) + n_cm) by lia.
-  - move=> ?. have := values_ub cm c0 n.
-    rewrite /c0 /=. by lia.
-  - rewrite iter_plus halting_eq; first done.
-    have := values_ub cm c0 n_cm.
-    rewrite /c0 /=. by lia.
-Qed.
-
-Lemma cm_value2_ub n : value2 (Nat.iter n (CM2.step cm) c0) <= n_cm.
+Lemma cm_values_ub n : 
+  value1 (Nat.iter n (CM2.step cm) c0) + value2 (Nat.iter n (CM2.step cm) c0) <= n_cm.
 Proof using H_n_cm.
   have [|->] : n <= n_cm \/ n = ((n - n_cm) + n_cm) by lia.
   - move=> ?. have := values_ub cm c0 n.
@@ -367,71 +263,56 @@ Definition enc_Config' : Config -> list Symbol :=
     (repeat sz (1 + n_cm-a)) ++ [sl] ++ (repeat sb a) ++ [sm] ++ 
     (repeat sb b) ++ [sr' p] ++ (repeat sz (1 + n_cm-b)).
 
-Arguments List.app : simpl never.
-
 Lemma multi_step_enc_c0 : multi_step srs (repeat sz d) (enc_Config c0).
 Proof using.
   apply: (rt_trans (y := (repeat sz (1 + n_cm)) ++ [sz] ++ [st] ++ [sr] ++ (repeat sz (1 + n_cm)))).
   - have ->: d = 1 + n_cm + 1 + 1 + 1 + 1 + n_cm by (rewrite /d; lia).
     rewrite -?repeat_appP -?app_assoc. do ? apply: multi_step_applI.
-    apply /rt_step /(stepI (u := [])); [done | done |].
-    apply /In_appl. rewrite /=. by tauto.
-  - apply /rt_step /(stepI (u := repeat sz (1 + n_cm))); [done | done |].
-    apply /In_appl. rewrite /=. by tauto.
+    apply /rt_step /stepI_nil. by eauto with in_srs_db nocore.
+  - apply /multi_step_applI /rt_step /stepI_nil. by eauto with in_srs_db nocore.
 Qed.
 
 Lemma move_sb_right' {p n x y} : p < state_bound -> ((x, y) = (1, 3) \/ (x, y) = (3, 2)) ->
   multi_step srs ([(x, Some p)] ++ repeat sb n ++ [(y, None)]) ([(x, None)] ++ repeat sb n ++ [(y, Some p)]).
 Proof.
   move=> ? /= Hxy. case: n.
-  - apply: rt_step. apply: (stepI (u := []) (v := [])); [done | done |].
-    rewrite /srs. apply /In_appr /In_appr /In_appl /in_flat_map. exists p.
-    constructor; [apply /in_seq; by lia | move: Hxy => /= [] [-> ->]; by tauto].
+  - apply /rt_step /stepI_nil.
+    move: Hxy => [] [-> ->]; by eauto with in_srs_db nocore.
   - move=> n. apply: (rt_trans (y := [(x, None)] ++ [sb' p] ++ (repeat sb n) ++ [(y, None)])).
-    + rewrite /= -/([sb] ++ _) ?app_assoc. do 2 apply: multi_step_apprI. 
-      apply /rt_step /(stepI (u := []) (v := [])); [by reflexivity| by reflexivity | ].
-      apply /In_appr /In_appr /In_appl /in_flat_map. exists p.
-      constructor; [apply /in_seq; by lia | move: Hxy => /= [] [-> _]; by tauto].
+    + have ->: repeat sb (S n) = [sb] ++ repeat sb n by done.
+      rewrite /= -?app_assoc. apply /rt_step /stepI_nil.
+      move: Hxy => [] [-> _]; by eauto with in_srs_db nocore.
     + rewrite -?app_assoc. apply: multi_step_applI. 
       apply: (rt_trans (y := (repeat sb n) ++ [sb' p] ++ [(y, None)])).
       * rewrite ?app_assoc. apply: multi_step_apprI. by apply: move_sb_right.
-      * apply: rt_step. 
-        apply: (stepI (u := repeat sb n) (v := [])); [by reflexivity | |].
-        ** by rewrite (ltac:(lia) : S n = n + 1) -repeat_appP -?app_assoc.
-        ** apply /In_appr /In_appr /In_appl /in_flat_map. exists p.
-          constructor; [apply /in_seq; by lia | move: Hxy => /= [] [_ ->]; by tauto].
+      * have ->: S n = n + 1 by lia. rewrite -repeat_appP -?app_assoc.
+        apply /multi_step_applI /rt_step /stepI_nil.
+        move: Hxy => [] [_ ->]; by eauto with in_srs_db nocore.
 Qed.
 
 Lemma move_sb_left' {p n x y} : p < state_bound -> ((x, y) = (1, 3) \/ (x, y) = (3, 2)) ->
   multi_step srs ([(x, None)] ++ repeat sb n ++ [(y, Some p)]) ([(x, Some p)] ++ repeat sb n ++ [(y, None)]).
 Proof.
   move=> ? /= Hxy. case: n.
-  - apply: rt_step. apply: (stepI (u := []) (v := [])); [done | done |].
-    rewrite /srs. apply /In_appr /In_appr /In_appr /In_appl /in_flat_map. exists p.
-    constructor; [apply /in_seq; by lia | move: Hxy => /= [] [-> ->]; by tauto].
+  - apply /rt_step /stepI_nil.
+    move: Hxy => [] [-> ->]; by eauto with in_srs_db nocore.
   - move=> n. apply: (rt_trans (y := [(x, None)] ++ (repeat sb n) ++ [sb' p] ++ [(y, None)])).
     + rewrite (ltac:(lia) : S n = n + 1) -repeat_appP -?app_assoc. do ? apply: multi_step_applI. 
-      apply /rt_step /(stepI (u := []) (v := [])); [by reflexivity| by reflexivity | ].
-      apply /In_appr /In_appr /In_appr /In_appl /in_flat_map. exists p.
-      constructor; [apply /in_seq; by lia | move: Hxy => /= [] [_ ->]; by tauto].
+      apply /rt_step /stepI_nil.
+      move: Hxy => [] [_ ->]; by eauto with in_srs_db nocore.
     + rewrite ?app_assoc. apply: multi_step_apprI.
       apply: (rt_trans (y := [(x, None)] ++ [sb' p] ++ (repeat sb n))).
       * rewrite -?app_assoc. apply: multi_step_applI. by apply: move_sb_left.
-      * apply: rt_step. 
-        apply: (stepI (u := [])); [by reflexivity | by reflexivity |].
-        apply /In_appr /In_appr /In_appr /In_appl /in_flat_map. exists p.
-        constructor; [apply /in_seq; by lia | move: Hxy => /= [] [-> _]; by tauto].
+      * apply /rt_step /stepI_nil.
+        move: Hxy => [] [-> _]; by eauto with in_srs_db nocore.
 Qed.
 
 Lemma move_right n : let c := (Nat.iter n (CM2.step cm) c0) in 
   multi_step srs (enc_Config c) (enc_Config' c). 
 Proof.
-  move=> c. subst c.
-  move Hc: (Nat.iter n _ c0) => c.
-  case: c Hc => p a b Hc /=.
-  apply: (multi_step_applI (u := repeat sz _)).
-  rewrite ?app_assoc. apply: multi_step_apprI.
-  have := cm_state_ub n. rewrite Hc /= => ?.
+  move=> c. subst c. have := cm_state_ub n.
+  move: (Nat.iter n _ c0) => [p a b] /= ?.
+  apply: multi_step_applI. rewrite ?app_assoc. apply: multi_step_apprI.
   apply: (rt_trans (y := [sl] ++ (repeat sb a) ++ [sm' p] ++ (repeat sb b) ++ [sr])).
   - rewrite ?app_assoc. do 2 apply: multi_step_apprI.
     apply: move_sb_right'; by tauto.
@@ -442,12 +323,9 @@ Qed.
 Lemma move_left n : let c := (Nat.iter n (CM2.step cm) c0) in 
   multi_step srs (enc_Config' c) (enc_Config c). 
 Proof.
-  move=> c. subst c.
-  move Hc: (Nat.iter n _ c0) => c.
-  case: c Hc => p a b Hc /=.
-  apply: (multi_step_applI (u := repeat sz _)).
-  rewrite ?app_assoc. apply: multi_step_apprI.
-  have := cm_state_ub n. rewrite Hc /= => ?.
+  move=> c. subst c. have := cm_state_ub n.
+  move: (Nat.iter n _ c0) => [p a b] /= ?.
+  apply: multi_step_applI. rewrite ?app_assoc. apply: multi_step_apprI.
   apply: (rt_trans (y := [sl] ++ (repeat sb a) ++ [sm' p] ++ (repeat sb b) ++ [sr])).
   - rewrite -?app_assoc. do 2 apply: multi_step_applI.
     apply: move_sb_left'; by tauto.
@@ -455,61 +333,45 @@ Proof.
     apply: move_sb_left'; by tauto.
 Qed.
 
-Arguments Nat.sub : simpl never.
-Arguments repeat : simpl never.
-
 Lemma simulate_cm_step {n} : let c := (Nat.iter n (CM2.step cm) c0) in
   multi_step srs (enc_Config c) (enc_Config (CM2.step cm c)).
 Proof using H_n_cm.
   move=> c. subst c.
-  have := cm_value2_ub n. have := cm_value1_ub n.
+  have := cm_values_ub n.
   have := move_right n. have := move_left (1+n). move=> /=.
   case: (Nat.iter n _ _) => p a b /=.
   move Hoi: (nth_error cm p) => oi.
   case: oi Hoi; last by (move=> *; apply: rt_refl). case; case.
   (* inc b *)
-  - move=> /nth_error_Some_in_combine Hp /= Hr Hl ? ?.
+  - move=> ? /= Hr Hl ?.
     apply: rt_trans; first by eassumption.
     apply: rt_trans; last by eassumption.
-    rewrite -/(repeat sb (S b)) (ltac:(lia) : S b = b + 1) -repeat_appP -?app_assoc.
-    do 5 apply: multi_step_applI. rewrite ?app_assoc.
-    rewrite (ltac:(lia) : (S n_cm - b) = 1 + ((S n_cm - (b + 1)))) -repeat_appP ?app_assoc.
-    apply: multi_step_apprI.
-    apply /rt_step /(stepI (u := []) (v := [])); [done | done |].
-    apply /In_appr /In_appl /in_flat_map.
-    eexists. constructor; [by eassumption | by left].
+    have [-> ->]: S b = b + 1 /\ S n_cm - b = 1 + (S n_cm - (b + 1)) by lia.
+    rewrite -?repeat_appP -?app_assoc. do 5 apply: multi_step_applI.
+    apply /rt_step /stepI_nil. by eauto with in_srs_db nocore.
   (* inc a *)
-  - move=> /nth_error_Some_in_combine Hp _ _ ? ?. apply: rt_step.
-    apply: (stepI (u := repeat sz (n_cm-a)) (a := sz) (b := sl' p) (c := sl' (S p)) (d := sb)).
-    + by rewrite (ltac:(lia) : S n_cm - a = (n_cm - a) + 1) -repeat_appP /= -app_assoc /=.
-    + done.
-    + rewrite /srs. apply /In_appr /In_appl /in_flat_map.
-      eexists. constructor; [by eassumption | by left].
+  - move=> ? _ _ ? /=.
+    have [-> ->]: S n_cm - a = (n_cm - a) + 1 /\ S a = 1 + a by lia.
+    rewrite -?repeat_appP -?app_assoc. apply: multi_step_applI.
+    apply /rt_step /stepI_nil. by eauto with in_srs_db nocore.
   (* dec b q *)
-  - move=> q /nth_error_Some_in_combine Hp /= Hr Hl _ Hb.
+  - move=> q ? /= Hr Hl Hb.
     apply: rt_trans; first by eassumption.
     apply: rt_trans; last by eassumption.
     case: (b) Hb => [_ | b' Hb'] /=.
-    + do 3 apply: multi_step_applI. apply: rt_step. 
-      apply: (stepI (u := [])); [done | done |].
-      rewrite /srs. apply /In_appr /In_appl /in_flat_map.
-      eexists. constructor; [by eassumption | by left].
-    + rewrite -/(repeat sb (S b')) (ltac:(lia) : S b' = b' + 1) (ltac:(lia) : S n_cm - b' = 1 + (S n_cm - (b' + 1))).
-      rewrite -?repeat_appP -?app_assoc.
-      do 5 apply: multi_step_applI. apply: rt_step. 
-      apply: (stepI (u := [])); [done | done |].
-      rewrite /srs. apply /In_appr /In_appl /in_flat_map.
-      eexists. constructor; [by eassumption | right; by left].
+    + do 3 apply: multi_step_applI.
+      apply /rt_step /stepI_nil. by eauto with in_srs_db nocore.
+    + have [-> ->] : S b' = b' + 1 /\ S n_cm - b' = 1 + (S n_cm - (b' + 1)) by lia.
+      rewrite -?repeat_appP -?app_assoc. do 5 apply: multi_step_applI. 
+      apply /rt_step /stepI_nil. by eauto with in_srs_db nocore.
   (* dec a q*)
-  - move=> q /nth_error_Some_in_combine Hp _ _ Ha _. apply: rt_step.
+  - move=> q ? _ _ Ha.
     case: (a) Ha => [_ | a' Ha'] /=.
-    + apply: (stepI (u := repeat sz (1+n_cm))); [done | done |].
-      rewrite /srs. apply /In_appr /In_appl /in_flat_map.
-      eexists. constructor; [by eassumption | by left].
+    + apply /multi_step_applI /rt_step /stepI_nil.
+      by eauto with in_srs_db nocore.
     + rewrite (ltac:(lia) : (S n_cm - a' = (n_cm - a') + 1)) -repeat_appP -?app_assoc.
-      apply: (stepI (u := repeat sz (n_cm - a'))); [done | done |].
-      rewrite /srs. apply /In_appr /In_appl /in_flat_map.
-      eexists. constructor; [by eassumption | right; by left].
+      apply /multi_step_applI /rt_step /stepI_nil.
+      by eauto with in_srs_db nocore.
 Qed.
 
 Lemma multi_step_repeat_solI n : multi_step srs (repeat sz n ++ [so]) (repeat so (n+1)).
@@ -519,9 +381,9 @@ Proof.
   have ->: S n = n + 1 by lia.
   apply: (rt_trans (y := repeat sz n ++ [so] ++ [so]));
     last by (rewrite ?app_assoc; apply: multi_step_apprI).
-  rewrite -repeat_appP -?app_assoc. apply: multi_step_applI.
-  apply /rt_step /(stepI (u := [])); [done| done |].
-  do 5 apply /In_appr. rewrite /=. by tauto.
+  rewrite -repeat_appP -?app_assoc.
+  apply /multi_step_applI /rt_step /stepI_nil.
+  by eauto with in_srs_db nocore.
 Qed.
 
 Lemma multi_step_repeat_sorI {n x} : x = sb \/ x = sz -> 
@@ -530,8 +392,8 @@ Proof.
   move=> Hx. elim: n; first by apply: rt_refl.
   move=> n IH. 
   apply: (rt_trans (y := ([so] ++ [so] ++ repeat x n))); last by apply: multi_step_applI.
-  apply: rt_step. apply: (stepI (u := [])); [done | done |].
-  do 5 apply /In_appr. by move: Hx => /= [->|->]; tauto.
+  apply /rt_step /stepI_nil.
+  move: Hx => [] ->; by eauto with in_srs_db nocore.
 Qed.
 
 Lemma multi_step_repeat_sorI' {s t n x} : x = sb \/ x = sz -> 
@@ -550,14 +412,12 @@ Lemma simulate_cm_halting {n} : let c := (Nat.iter n (CM2.step cm) c0) in
   halting cm c -> multi_step srs (enc_Config c) (repeat so d).
 Proof using H_n_cm.
   move=> c /haltingP. subst c.
-  have := cm_value1_ub n. have := cm_value2_ub n. have := cm_state_ub n.
+  have := cm_values_ub n. have := cm_state_ub n.
   move: (Nat.iter _ _ c0) => [p a b] /= *.
   apply: (rt_trans (y := (repeat sz (n_cm - a)) ++ [so] ++ [so] ++ _)).
-  - apply: rt_step. rewrite (ltac:(lia) : S n_cm - a = (n_cm - a) + 1) -repeat_appP -?app_assoc.
-    apply: (stepI (u := repeat sz (n_cm - a))); [done | done |].
-    rewrite /srs. apply /In_appr /In_appr /In_appr /In_appr /In_appl.
-    apply /in_map_iff. exists p. constructor; first done.
-    apply /in_seq. by lia.
+  - rewrite (ltac:(lia) : S n_cm - a = (n_cm - a) + 1) -repeat_appP -?app_assoc.
+    apply /multi_step_applI /rt_step /stepI_nil.
+    by eauto with in_srs_db nocore.
   - apply: (rt_trans (y := (repeat so (n_cm - a + 1) ++ [so] ++
       repeat sb a ++ [sm] ++ repeat sb b ++ [sr] ++ repeat sz (S n_cm - b)))).
     + rewrite ?app_assoc. do 6 apply: multi_step_apprI. by apply: multi_step_repeat_solI.
@@ -565,12 +425,10 @@ Proof using H_n_cm.
       rewrite -?repeat_appP -?app_assoc. do 2 apply: multi_step_applI.
       apply: multi_step_repeat_sorI'; first by left.
       apply: (rt_trans (y := ([so] ++ [so] ++ repeat sb b ++ [sr] ++ repeat sz (S n_cm - b)))).
-      * apply: rt_step. apply: (stepI (u := [])); [done | done|].
-        do 5 apply /In_appr. rewrite /=. by tauto.
+      * apply /rt_step /stepI_nil. by eauto with in_srs_db nocore.
       * apply: multi_step_applI. apply: multi_step_repeat_sorI'; first by left.
         apply: (rt_trans (y := ([so] ++ [so] ++ repeat sz (S n_cm - b)))).
-        ** apply: rt_step. apply: (stepI (u := [])); [done | done|].
-           do 5 apply /In_appr. rewrite /=. by tauto.
+        ** apply /rt_step /stepI_nil. by eauto with in_srs_db nocore.
         ** apply: multi_step_applI. apply: multi_step_repeat_sorI. by right.
 Qed.
 End Transport.
@@ -602,20 +460,7 @@ Lemma In_srs_stE {a b c d} : In ((a, b), (c, d)) srs ->
   ((sz, sz), (st, sr)) = ((a, b), (c, d)) \/
   ((sz, st), (sl' 0, sm)) = ((a, b), (c, d)) \/
   if a is (_, None) then (if b is (_, None) then False else True) else True.
-Proof.
-  move=> /in_app_iff []; first by (rewrite /=; tauto).
-  move=> H. right. right. move: H.
-  move=> /in_app_iff [|/in_app_iff [|/in_app_iff [|/in_app_iff []]]].
-  - move=> /in_flat_map [[? i]] [_] /=.
-    move: i => [] [|] => [||?|?] /=; 
-    firstorder (match goal with H : _ = _ |- _ => move: H => [] *; by subst end).
-  - move=> /in_flat_map [?] [_] /=.
-    firstorder (match goal with H : _ = _ |- _ => move: H => [] *; by subst end).
-  - move=> /in_flat_map [?] [_] /=.
-    firstorder (match goal with H : _ = _ |- _ => move: H => [] *; by subst end).
-  - move=> /in_map_iff [?] [[]] *. by subst.
-  - firstorder (match goal with H : _ = _ |- _ => move: H => [] *; by subst end).
-Qed.
+Proof. move=> /srs_specI [] [] > [] ? ? ? ? *; subst; by tauto. Qed.
 
 Lemma init_encodes : exists s, encodes c0 s /\ multi_step srs s (repeat so (1+N)).
 Proof using HN.
@@ -623,7 +468,7 @@ Proof using HN.
     multi_step srs s (repeat so (1+N)) /\ 
     Forall (fun x => snd x = None) s /\
     forall n, nth n s sz = st -> nth (1+n) s sz = sr.
-  { eexists. constructor; [|constructor]; [by eassumption | apply /Forall_repeatP; by tauto |].
+  { eexists. constructor; [|constructor]; [by eassumption | apply /Forall_repeatI; by tauto |].
     move: (1+N) => m n H. exfalso. elim: n m H; first by case.
     move=> n IH [|m]; [done | by apply: IH]. }
   move Ht: (repeat so (1+N)) => t [/rt_rt1n Hst] [].
@@ -631,21 +476,21 @@ Proof using HN.
   move=> {}s {}t > Hst Ht IH /IH {IH}.
   case: Hst Ht => u v a b c d /In_srs_stE [|[]].
   - move=> [] <- <- <- <- _ IH.
-    move=> /Forall_appP [Hu] /ForallE [_] /ForallE [_ Ht] Huv.
+    move=> /Forall_app [Hu] /ForallE [_] /ForallE [_ Ht] Huv.
     apply: IH.
-    + apply /Forall_appP. constructor; first done.
-      constructor; [done | by constructor].
+    + apply /Forall_app. by do ? constructor.
     + move=> n. have := Huv n. elim: (u) n; first by move=> [|[|n]].
       clear. move=> x {}u IH [|n]; last by move/IH.
       move: (u) => [|? ?]; [by move=> H /H | done].
   - move=> [] <- <- <- <- /rt_rt1n Ht _ _ /(_ (1 + length u)).
     do 2 (rewrite app_nth2; first by lia).
-    rewrite (ltac:(lia) : 1 + length u - length u = 1) (ltac:(lia) : 1 + (1 + length u) - length u = 2).
+    rewrite (ltac:(lia) : 1 + length u - length u = 1).
+    rewrite (ltac:(lia) : 1 + (1 + length u) - length u = 2).
     move=> /(_ ltac:(done)) Hv. eexists. constructor; last by eassumption.
     move: (v) Hv => [|? v']; first done.
     move=> /= ->. exists u, v', [sl' 0; sm; sr].
     constructor; [done | by constructor].
-  - move=> H _ _ /Forall_appP [_] /ForallE [+] /ForallE [+] _.
+  - move=> H _ _ /Forall_app [_] /ForallE [+] /ForallE [+] _.
     by move: a b H => [? [?|]] [? [?|]].
 Qed.
 
@@ -657,11 +502,11 @@ Lemma eq2_app {u v a b} {s t: list Symbol} : u ++ a :: b :: v = s ++ t ->
 Proof.
   elim: u s.
   - move=> [|y1 [|y2 s]].
-    + move=> /= <-. right. right. by exists [].
+    + rewrite ?app_nil_l. move=> <-. right. right. by exists [].
     + move=> [] <- <- /=. right. by left.
     + move=> [] <- <- ->. left. by exists s.
   - move=> x1 u IH [|y1 s].
-    + move=> /= <-. right. right. by exists (x1 :: u).
+    + rewrite ?app_nil_l. move=> <-. right. right. by exists (x1 :: u).
     + move=> [] <- /IH [|[|]].
       * move=> [?] [-> ->]. left. by eexists.
       * move=> [-> ->]. right. by left.
@@ -669,13 +514,12 @@ Proof.
 Qed.
 
 (* possibilities to split two symbols among one twp apps *)
-(* TODO? : I want three possibilities with maybe richer s +1 left right *)
 Lemma eq2_app_app {u a b v u' v'} {s: list Symbol} : length s > 1 ->
   u ++ a :: b :: v = u' ++ s ++ v' ->
   (exists u'2, v = u'2 ++ s ++ v') \/ 
   (exists s2, u' = u ++ [a] /\ s = b :: s2 /\ v = s2 ++ v') \/
-  (exists s1 s2, s = s1 ++ a :: b :: s2 /\ u = u' ++ s1 /\ v = s2 ++ v') \/
-  (exists s1, u = u' ++ s1 /\ s = s1 ++ [a] /\ v' = b :: v) \/
+  (exists s1 s2, s = s1 ++ [a] ++ [b] ++ s2 /\ u = u' ++ s1 /\ v = s2 ++ v') \/
+  (exists s1, u = u' ++ s1 /\ s = s1 ++ [a] /\ v' = b ::  v) \/
   (exists v'1, u = u' ++ s ++ v'1).
 Proof.
   move=> Hs /eq2_app [|[|]].
@@ -688,39 +532,15 @@ Proof.
     + move=> [?] [-> ->]. do 4 right. by eexists.
 Qed.
 
-Local Arguments app_inj_tail {A x y a b}.
-
-(*
-Lemma extract_state {p q: nat} {n1 n2 s} : 
-  s = repeat None n1 ++ [Some q] ++ repeat None n2 -> In (Some p) s -> p = q.
-Proof.
-  move=> ->. elim: n1; last by move=> n IH /= [].
-  move=> /= [[]|]; first done.
-  elim: n2; [done | by move=> ? IH /= []].
-Qed.
-*)
-
-Lemma extract_state_r {p q: nat} {n1 n2 s} : 
-  s ++ [Some p] = repeat None n1 ++ [Some q] ++ repeat None n2 ->
-  p = q /\ n2 = 0.
-Proof.
-  have [->|->]: n2 = 0 \/ n2 = (n2 - 1) + 1 by lia.
-  - rewrite app_nil_r. by move=> /app_inj_tail [_] [].
-  - rewrite -repeat_appP ?app_assoc. by move=> /app_inj_tail [].
-Qed.
-
+(* specification of inner Cm2 step *)
 Inductive srs_step_spec (u v: list Symbol) (a b: Symbol) (n m: nat) : Prop :=
   | srs_step0 : a.1 = sl.1 -> b.1 = sm.1 -> u = [] -> n = 0 -> srs_step_spec u v a b n m
   | srs_step1 : a.1 = sl.1 -> b.1 = sb.1 -> u = [] -> n = 1 + (n - 1) -> srs_step_spec u v a b n m
   | srs_step2 : a.1 = sm.1 -> b.1 = sr.1 -> v = [] -> m = 0 -> srs_step_spec u v a b n m
   | srs_step3 : a.1 = sb.1 -> b.1 = sr.1 -> v = [] -> m = 1 + (m - 1) -> srs_step_spec u v a b n m.
-(*
-  | srs_step4 : a.1 = sb.1 -> b.1 = sb.1 -> srs_step_spec u v a b n m
-  | srs_step5 : a.1 = sb.1 -> b.1 = sm.1 -> srs_step_spec u v a b n m
-  | srs_step6 : a.1 = sm.1 -> b.1 = sb.1 -> srs_step_spec u v a b n m.
-*)
+
 Lemma srs_step_specI {u v a b n m} : 
-  map fst (u ++ a :: b :: v) = map fst ([sl] ++ repeat sb n ++ [sm] ++ repeat sb m ++ [sr]) ->
+  map fst (u ++ [a] ++ [b] ++ v) = map fst ([sl] ++ repeat sb n ++ [sm] ++ repeat sb m ++ [sr]) ->
   srs_step_spec u v a b n m \/ 
   (a.1 = sb.1 /\ b.1 = sb.1) \/ (a.1 = sb.1 /\ b.1 = sm.1) \/ (a.1 = sm.1 /\ b.1 = sb.1).
 Proof.
@@ -728,16 +548,15 @@ Proof.
   { move: n => [|n].
     - move=> [] *. left. by apply: srs_step0.
     - move=> [] *. left. apply: srs_step1; by [|lia]. }
-  move=> [] _. 
+  move=> [] _. rewrite -/(_ ++ _).
   elim /rev_ind: v.
-  { rewrite ?map_app /= map_app. have ->: [a.1; b.1] = [a.1] ++ [b.1] by done.
-    rewrite -/((_ :: _) ++ _) ?app_assoc. move=> /app_inj_tail [].
+  { rewrite app_nil_r ?map_app /=.
+    rewrite ?app_assoc. move=> /app_inj_tail [].
     have [->|->] : m = 0 \/ m = (m - 1) + 1 by lia.
-    - move=> /app_inj_tail [] *. left. by apply: srs_step2.
-    - rewrite -repeat_appP map_app -/((_ :: _) ++ _) ?app_assoc.
+    - rewrite app_nil_r. move=> /app_inj_tail [] *. left. by apply: srs_step2.
+    - rewrite -repeat_appP map_app ?app_assoc.
       move=> /app_inj_tail [] *. left. apply: srs_step3; by [|lia]. }
-  move=> ? v _. rewrite ?map_app /map -?/(map _ _) ?map_app.
-  rewrite -?/((_ :: _) ++ _) -?/((_ :: _ :: _) ++ _) ?app_assoc. 
+  move=> ? v _. rewrite ?map_app ?app_assoc. 
   move=> /app_inj_tail [+] _. move=> + /ltac:(right).
   elim: u n.
   { move=> [|[|n]].
@@ -745,81 +564,21 @@ Proof.
     - move=> [] *. by tauto.
     - move=> [] *. by tauto. }
   move=> ? u IH [|n]; last by move=> [_] /IH.
-  move=> [_] {IH}. elim: m u; first by case.
+  move=> [_] {IH}. rewrite -?/(_ ++ _). elim: m u; first by case.
   move=> m IH [|? u]; last by move=> [_] /IH.
   move: m {IH} => [|m] []; [done | by tauto].
 Qed.
-(*
-Lemma todo {u v a b n m} : 
-  map fst (u ++ a :: b :: v) = map fst ([sl] ++ repeat sb n ++ [sm] ++ repeat sb m ++ [sr]) ->
-  (u = [])
-*)
-(*
-Inductive srs_step_spec (a b: Symbol) (n m: nat) : Prop :=
-  | srs_step0 : a.1 = sl.1 -> b.1 = sm.1 -> n = 0 -> srs_step_spec a b n m
-  | srs_step1 : a.1 = sl.1 -> b.1 = sb.1 -> n = 1 + (n - 1) -> srs_step_spec a b n m
-  | srs_step2 : a.1 = sm.1 -> b.1 = sr.1 -> m = 0 -> srs_step_spec a b n m
-  | srs_step3 : a.1 = sb.1 -> b.1 = sr.1 -> m = 1 + (m - 1) -> srs_step_spec a b n m
-  | srs_step4 : a.1 = sb.1 -> b.1 = sb.1 -> srs_step_spec a b n m
-  | srs_step5 : a.1 = sb.1 -> b.1 = sm.1 -> srs_step_spec a b n m
-  | srs_step6 : a.1 = sm.1 -> b.1 = sb.1 -> srs_step_spec a b n m.
-
-Lemma srs_step_specI {u v a b n m} : 
-  map fst (u ++ a :: b :: v) = map fst ([sl] ++ repeat sb n ++ [sm] ++ repeat sb m ++ [sr]) ->
-  srs_step_spec a b n m.
-Proof.
-  move: u => [|? u].
-  { move: n => [|n].
-    - move=> [] *. by apply: srs_step0.
-    - move=> [] *. apply: srs_step1; by [|lia]. }
-  move=> [] _. elim: u n.
-  { move => [|[|n]].
-    - move: m => [|m] [] *; [by apply: srs_step2 | by apply: srs_step6].
-    - move=> [] *. by apply: srs_step5.
-    - move=> [] *. by apply: srs_step4. }
-  move=> ? u IH [|n].
-  { admit. }
-  move=> [_] /IH.
-*)
-(*
-Inductive srs_step_spec (a b: Symbol) (n m: nat) : Prop :=
-  | srs_step0 : a.1 = sl.1 -> b.1 = sm.1 -> n = 0 -> srs_step_spec a b n m
-  | srs_step1 : a.1 = sl.1 -> b.1 = sb.1 -> n = 1 + (n - 1) -> srs_step_spec a b n m
-  | srs_step2 : a.1 = sm.1 -> b.1 = sr.1 -> m = 0 -> srs_step_spec a b n m
-  | srs_step3 : a.1 = sm.1 -> b.1 = sb.1 -> m = 1 + (m - 1) -> srs_step_spec a b n m
-  | srs_step4 : a.1 = sb.1 -> b.1 = sm.1 -> srs_step_spec a b n m.
-
-Lemma srs_step_specI {u v a b n m} : 
-  map fst (u ++ a :: b :: v) = map fst ([sl] ++ repeat sb n ++ [sm] ++ repeat sb m ++ [sr]) ->
-  srs_step_spec a b n m.
-Proof.
-  move: u => [|? u].
-  { move: n => [|n].
-    - move=> [] *. by apply: srs_step0.
-    - move=> [] *. apply: srs_step1; by [|lia]. }
-  move=> [] _. elim: u.
-  { move: n => [|[|n]].
-    - move: m => [|m] [].
-      + move=> *. by apply: srs_step2.
-      + move=> *. apply: srs_step3; by [|lia].
-    - move=> [].
-  }
-*)
-
-Lemma ad {u v: list Symbol} {a b n m} : map fst (u ++ a :: b :: v) = map fst ([sl] ++ repeat sb n ++ [sm] ++ repeat sb m ++ [sr]) ->
-(a.1 = sl.1 /\ b.1 = sb.1) \/ (a.1 = sl.1 /\ b.1 = sm.1) \/ (a.1 = sb.1 /\ b.1 = sb.1) \/ (a.1 = sb.1 /\ b.1 = sm.1) \/
-(a.1 = sm.1 /\ b.1 = sb.1) \/ (a.1 = sm.1 /\ b.1 = sr.1) \/ (a.1 = sb.1 /\ b.1 = sr.1).
-Admitted.
-
 
 (* each srs step is sound *)
 Lemma simulate_srs_step {c s t} : SR2ab.step srs s t -> encodes c s -> 
   halting cm c \/ encodes c t \/ encodes (CM2.step cm c) t.
 Proof.
   move: c => [p a b] [] u v a' b' c' d' H [u'] [v'] [{}t].
-  move=> [+] [H1t H2t] => /eq2_app_app. apply: unnest.
+  rewrite -?/([_] ++ [_] ++ v). move=> [+] [H1t H2t] => /eq2_app_app.
+  have : length t > 1.
   { move: H1t => /(congr1 (@length _)).
     rewrite ?map_app ?app_length ?map_length /=. move=> ->. by lia. }
+  move=> Ht /(_ Ht) {Ht}.
   case; [|case; [|case; [|case]]].
   - move=> [u'2 ->]. right. left.
     exists (u ++ c' :: d' :: u'2), v', t.
@@ -833,36 +592,30 @@ Proof.
       apply /haltingP => /=. by lia.
   - move=> [s1] [s2] [?] [? ?]. subst.
     move: H H1t H2t => /srs_specI [].
-    + move=> + + + /ltac:(right; right). move=> H /copy [/srs_step_specI] [].
+    + move=> H + + /ltac:(right; right). move=> /copy [/srs_step_specI] [].
       * move=> H'. move: H' H => [] ? ? ? ? [] > [] ? ? ? ?; subst; try done; [ | | | ].
         ** rewrite app_nil_r /=. move=> + [H1] [<-] => -> H2.
-           eexists u', v', (_ :: _ :: _). constructor; first done.
-           by rewrite /= H1 H2.
-        ** subst. rewrite app_nil_r /=.
-           move: (a) => [|?]; first done.
+           eexists u', v', (_ :: _ :: _). constructor; [done | by rewrite /= H1 H2].
+        ** rewrite app_nil_r /= ?map_app. move: (a) => [|?]; first done.
            move=> + [] H1 [<-] H2 => ->.
            eexists (u' ++ [sz]), v', (_ :: _).
-           rewrite -?app_assoc. constructor; first done.
-           by rewrite /= H1 H2.
-        ** rewrite ?map_app filter_app /=.
+           rewrite -?app_assoc. constructor; [done | by rewrite /= ?map_app H1 H2].
+        ** rewrite ?map_app filter_app /= app_nil_r.
            move=> + + /(app_inj_tail (y := [])) [H2] [<-].
-           move=> -> H1. eexists u', v', (_ ++ [_; _]).
+           move=> ->. rewrite ?app_assoc app_nil_r.
+           move=> /app_inj_tail [/app_inj_tail] [H1] _ _.
+           eexists u', v', (_ ++ [_; _]).
            rewrite -?app_assoc. constructor; first done.
            by rewrite ?map_app filter_app /= H1 H2.
-        ** rewrite ?map_app filter_app /=.
+        ** rewrite [in repeat sb b](ltac:(lia) : b = (b - 1) + 1) -repeat_appP.
+           rewrite ?map_app ?filter_app ?app_assoc ?app_nil_r /=.
            move=> + + /(app_inj_tail (y := [])) [H2] [<-].
-           move=> -> H1. have ->: b = 1 + (b - 1) by lia.
-           eexists u', (sz :: v'), (_ ++ [_]).
-           rewrite -?app_assoc /=. constructor; first done.
-           rewrite ?map_app filter_app /= H2. constructor; last done.
-           move: H1. rewrite (ltac:(lia) : b = (b - 1) + 1) -repeat_appP.
-           rewrite (ltac:(lia) : b - 1 + 1 - 1 = b - 1) ?map_app.
-           rewrite -?/((_ :: _) ++ _) -?/([_] ++ (map _ _)) ?app_assoc.
-           move: (((([1] ++ map fst (repeat sb a)) ++ [3]) ++ map fst (repeat sb (b - 1)))).
-           move: (map _ _) => ? ?. rewrite -?app_assoc /=.
-           have ->: [0; 2] = [0] ++ [2] by done. rewrite ?app_assoc.
-           by move=> /app_inj_tail [/app_inj_tail] [->].
-      * move: H => + + + /ltac:(exfalso).
+           move=> ->. move=> /app_inj_tail [/app_inj_tail] [H1] _ _.
+           eexists u', ([sz] ++ v'), (_ ++ [_]).
+           rewrite (ltac:(lia) : b = 1 + (b - 1)) -?app_assoc /=. 
+           constructor; first done.
+           by rewrite ?map_app filter_app /= H1 H2 -?app_assoc.
+      * move: H => + + _ /ltac:(exfalso).
         move=> [] > [] *; subst; by firstorder done.
     + move=> + + + /ltac:(right; left; exists u', v', (s1 ++ c' :: d' :: s2)).
       move=> /srs_mlr_specE [x] [y] [q] [] [] ? ? ? ? H1t H2t; 
@@ -874,7 +627,7 @@ Proof.
         constructor; first by rewrite -H1t ?map_app.
         move: H2t. by rewrite ?map_app ?filter_app /=.
   - move=> [s1] [?] [? ?]. subst.
-    move: (H1t). rewrite ?map_app /map -?/(map _ _) ?app_assoc. move=> /app_inj_tail [_].
+    move: (H1t). rewrite ?map_app ?app_assoc. move=> /app_inj_tail [_].
     move: H H1t H2t => /srs_specI [|] [] > [] ? ? ? ?; subst; try done; [].
     move=> Hi H1s1. rewrite map_app filter_app. 
     move=> /(app_inj_tail (y := [])) [H2s2] [<-] _.
@@ -896,7 +649,7 @@ Proof using HN.
   { subst t. elim: (N); by constructor. }
   move: Hst Ht c. move=> /rt_rt1n. elim.
   - move=> {}s Hs [? ? ?] /= [?] [?] [{}t] [?] [H]. subst s.
-    move: Hs. rewrite ?map_app ?Forall_appP H.
+    move: Hs. rewrite ?map_app ?Forall_app H.
     by move=> [_] [/ForallE] [].
   - move=> > /simulate_srs_step H _ IH /IH {}IH c /H {H} [|[]].
     + move=> ?. by exists 0.

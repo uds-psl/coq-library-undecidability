@@ -18,7 +18,7 @@ Require Import Undecidability.MinskyMachines.MM2.
 Require Undecidability.CounterMachines.CM2.
 
 From Undecidability.CounterMachines.Util Require Import 
-  Nat_facts List_facts MM2_facts.
+  Nat_facts List_facts MM2_facts CM2_facts.
 
 Require Import ssreflect ssrbool ssrfun.
 
@@ -165,14 +165,6 @@ Section MM2_CM2.
     - move: (program_index_spec i) => [{}i | {}i op] ->.
       + move=> + _ y [] op [? ?] => /(_ op). by apply.
       + move: op a b => [||j|j] [|a] [|b] _ /= []; by lia.
-  Qed.
- 
-  (* halting is monotone *)
-  Lemma halting_monotone {x} (n m: nat) : n <= m ->
-    CM2.halting M (Nat.iter n (CM2.step M) x) -> CM2.halting M (Nat.iter m (CM2.step M) x).
-  Proof.
-    move=> ? ?. have -> : m = n + (m-n) by lia.
-    rewrite iter_plus. elim: (m-n); [done | by move=> * /=; congruence].
   Qed.
 
   Lemma transport : MM2_HALTING (P, a0, b0) -> CM2.CM2_HALT M.

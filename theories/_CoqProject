@@ -187,14 +187,17 @@ StringRewriting/SR_undec.v
 StringRewriting/PCSnf.v
 StringRewriting/PCSnf_undec.v
 StringRewriting/SSTS.v
+StringRewriting/SSTS_undec.v
 
 StringRewriting/Util/Definitions.v
+StringRewriting/Util/List_facts.v
 StringRewriting/Reductions/SRH_to_SR.v
 StringRewriting/Reductions/SR_to_PCSnf.v
 StringRewriting/Reductions/HaltSBTMu_to_SRH.v
 StringRewriting/Reductions/HaltSBTMu_to_TSR.v
 StringRewriting/Reductions/HaltTM_1_to_SR.v
 StringRewriting/Reductions/CM2_HALT_to_SSTS01/SR2ab.v
+StringRewriting/Reductions/CM2_HALT_to_SSTS01/SR2ab_facts.v
 StringRewriting/Reductions/CM2_HALT_to_SSTS01/CM2_HALT_to_SR2ab.v
 StringRewriting/Reductions/CM2_HALT_to_SSTS01/SR2ab_to_SSTS01.v
 StringRewriting/Reductions/CM2_HALT_to_SSTS01.v
@@ -670,6 +673,7 @@ CounterMachines/CM2_undec.v
 CounterMachines/Util/Nat_facts.v
 CounterMachines/Util/List_facts.v
 CounterMachines/Util/CM1_facts.v
+CounterMachines/Util/CM2_facts.v
 CounterMachines/Util/MM2_facts.v
 CounterMachines/Reductions/MM2_HALTING_to_CM1_HALT.v
 CounterMachines/Reductions/MM2_HALTING_to_CM2_HALT.v

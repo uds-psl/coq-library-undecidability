@@ -1,8 +1,11 @@
-Require Import List Relation_Operators Operators_Properties Lia PeanoNat.
+Require Import List Relation_Operators Operators_Properties Lia.
 Import ListNotations.
 
 Require Import Undecidability.StringRewriting.Reductions.CM2_HALT_to_SSTS01.SR2ab.
 Require Import Undecidability.StringRewriting.SSTS.
+
+Require Undecidability.StringRewriting.Reductions.CM2_HALT_to_SSTS01.SR2ab_facts.
+Require Import Undecidability.StringRewriting.Util.List_facts.
 
 Require Import ssreflect ssrbool ssrfun.
 
@@ -15,46 +18,12 @@ Definition enc_pair '(x, y) : nat := (x + y) * (x + y) + y.
 
 Lemma enc_pair_inj {xy x'y'} : enc_pair xy = enc_pair x'y' -> xy = x'y'.
 Proof.
-  move: xy x'y' => [x y] [x' y'] /=.
-  move=> H. suff: (x = x' /\ y = y') by move=> [-> ->].
-  move: H. have : x + y <> x' + y' \/ x + y = x' + y' by lia.
+  move: xy x'y' => [x y] [x' y'] /=. rewrite pair_equal_spec.
+  have : x + y <> x' + y' \/ x + y = x' + y' by lia.
   case; by nia.
 Qed.
 
 Opaque enc_pair.
-
-Lemma map_firstn {X Y: Type} {f: X -> Y} {n} {l} : map f (firstn n l) = firstn n (map f l).
-Proof.
-  elim: n l; first done.
-  move=> n IH [|? ?]; first done.
-  move=> /=. congr cons. by apply: IH.
-Qed.
-
-Lemma map_skipn {X Y: Type} {f: X -> Y} {n} {l} : map f (skipn n l) = skipn n (map f l).
-Proof.
-  elim: n l; first done.
-  move=> n IH [|? ?]; [done | by apply: IH].
-Qed.
-
-Module SSTS_facts.
-Import SSTS.
-
-Lemma stepI {ssts u v a b c d s t} : 
-s = (u ++ a :: b :: v) -> t = (u ++ c :: d :: v) -> In ((a, b), (c, d)) ssts ->
-step ssts s t.
-Proof. move=> -> ->. by constructor. Qed.
-End SSTS_facts.
-
-Module SR2ab_facts.
-Import SR2ab.
-Lemma stepI {srs u v a b c d s t} : 
-  s = (u ++ a :: b :: v) -> t = (u ++ c :: d :: v) -> In ((a, b), (c, d)) srs ->
-  step srs s t.
-Proof. move=> -> ->. by constructor. Qed.
-
-Lemma sym_eq_dec (x y: Symbol) : {x = y} + {x <> y}.
-Proof. by do 3 (decide equality). Qed.
-End SR2ab_facts.
 
 Module Argument.
 Section Reduction.
@@ -72,21 +41,21 @@ Definition enc (x: Symbol) : nat :=
     | (n, Some m) => enc_pair (n, 1 + m)
     end).
     
-(* constructed simple semi-Thue system *)
+(* construct a simple semi-Thue system *)
 Definition ssts : Ssts := map (fun '((a, b), (c, d)) => ((enc a, enc b), (enc c, enc d))) srs.
 
 Lemma sim_step {s t} : SR2ab.step srs s t -> SSTS.step ssts (map enc s) (map enc t).
 Proof.
   case => > ?. rewrite ?map_app /=.
-  apply: SSTS_facts.stepI; [done | done |].
-  rewrite /ssts in_map_iff. eexists. by constructor; last by eassumption.
+  apply: step_intro. rewrite /ssts in_map_iff.
+  eexists. by constructor; last by eassumption.
 Qed.
 
 Lemma enc_inj {a b} : enc a = enc b -> a = b.
 Proof.
   rewrite /enc. move: (sym_eq_dec a a0) (sym_eq_dec a b0) (sym_eq_dec b a0) (sym_eq_dec b b0).
   move=> [] ? [] ? [] ? [] ? /=; try congruence.
-  move: (a) (b) => [? [?|]] [? [?|]] /= /Nat.succ_inj /Nat.succ_inj /enc_pair_inj []; by congruence.
+  move: (a) (b) => [? [?|]] [? [?|]] /= [] /enc_pair_inj []; by congruence.
 Qed.
 
 Lemma map_enc_inj {s t} : map enc s = map enc t -> s = t.
@@ -155,11 +124,12 @@ Require Import Undecidability.Synthetic.Definitions.
 
 Theorem reduction : SR2ab ⪯ SSTS01.
 Proof.
-  exists (fun '(srs, a0, b0) => if SR2ab_facts.sym_eq_dec b0 a0 then [((0, 0), (1, 1))] else Argument.ssts srs a0 b0).
+  exists (fun '(srs, a0, b0) => 
+    if SR2ab_facts.sym_eq_dec b0 a0 then [((0, 0), (1, 1))] else Argument.ssts srs a0 b0).
   move=> [[srs a0] b0]. constructor.
   - case: (SR2ab_facts.sym_eq_dec b0 a0).
     + move=> *. exists 1. rewrite /=. apply: rt_step.
-      by apply: (SSTS_facts.stepI (u := [])); last by left. 
+      apply: (step_intro _ (u := [])). by left.
     + move=> H /=. by apply: Argument.transport.
   - case: (SR2ab_facts.sym_eq_dec b0 a0).
     + move=> /= -> _. exists 0. by apply: rt_refl.

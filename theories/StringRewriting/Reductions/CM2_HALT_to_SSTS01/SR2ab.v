@@ -12,5 +12,6 @@ Inductive step (srs: Srs) : list Symbol -> list Symbol -> Prop :=
 Definition multi_step (srs: Srs) : list Symbol -> list Symbol -> Prop := 
   clos_refl_trans (list Symbol) (step srs).
 
+(* given a Srs and Symbols a b, is there a length n such that a^(1+n) ->> b^(1+n) *)
 Definition SR2ab : Srs * Symbol * Symbol -> Prop :=
   fun '(srs, a, b) => exists n, multi_step srs (repeat a (1+n)) (repeat b (1+n)).
