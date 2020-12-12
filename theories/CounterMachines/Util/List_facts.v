@@ -45,7 +45,7 @@ Lemma Forall_mapP {X Y : Type} {P : Y -> Prop} {f : X -> Y} {l : list X} :
   Forall P (map f l) <-> Forall (fun x => P (f x)) l.
 Proof.
   elim: l.
-    move=> /=. by constructor.
+  { move=> /=. by constructor. }
   move=> a l IH /=. by rewrite ? Forall_norm IH.
 Qed.
 
@@ -53,8 +53,14 @@ Lemma Forall_concatP {X : Type} {P : X -> Prop} {ls : list (list X)} :
   Forall P (concat ls) <-> Forall (fun l => Forall P l) ls.
 Proof.
   elim: ls.
-    move=> /=. by constructor.
+  { move=> /=. by constructor. }
   move=> l ls IH /=. by rewrite ? Forall_norm IH.
+Qed.
+
+Lemma Forall_flat_map_iff {T U: Type} {P : T -> Prop} {ds : list U} {f : U -> list T} : 
+  Forall P (flat_map f ds) <-> Forall (fun d => Forall P (f d)) ds.
+Proof.
+  by rewrite flat_map_concat_map Forall_concatP Forall_mapP.
 Qed.
 
 (* nth_error facts *)

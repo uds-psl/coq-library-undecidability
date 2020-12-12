@@ -675,8 +675,9 @@ CounterMachines/Util/List_facts.v
 CounterMachines/Util/CM1_facts.v
 CounterMachines/Util/CM2_facts.v
 CounterMachines/Util/MM2_facts.v
-CounterMachines/Reductions/MM2_HALTING_to_CM1_HALT.v
+CounterMachines/Reductions/CM2_HALT_to_CM1_HALT.v
 CounterMachines/Reductions/MM2_HALTING_to_CM2_HALT.v
+CounterMachines/Reductions/MM2_HALTING_to_CM1_HALT.v
 
 StackMachines/SMN.v
 StackMachines/SMN_undec.v
