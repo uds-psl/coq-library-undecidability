@@ -14,7 +14,7 @@
 
 Require Import List Lia.
 Import ListNotations.
-Require Import Psatz.
+
 Require Import ssreflect ssrbool ssrfun. 
 
 Require Import Undecidability.HilbertCalculi.HSC.
@@ -34,17 +34,16 @@ Fixpoint append_word (s: formula) (v: list bool) :=
   match v with
   | [] => s
   | a :: v => 
-    if a then 
-      append_word (arr b2 s) v else 
-      append_word (arr b3 s) v
+    if a then append_word (arr b2 s) v 
+    else append_word (arr b3 s) v
   end.
 
 Definition encode_word (v: list bool) := append_word bullet v.
 Definition encode_pair (s t: formula) := arr b3 (arr s (arr t b3)).
 
-Notation "⟨ s , t ⟩" := (encode_pair s t).
-Notation "⟦ v ⟧" := (encode_word v).
-Notation "s → t" := (arr s t) (at level 50).
+Local Notation "⟨ s , t ⟩" := (encode_pair s t).
+Local Notation "⟦ v ⟧" := (encode_word v).
+Local Notation "s → t" := (arr s t) (at level 50).
 
 (* environment encoding the instance ((v, w), P) of BMPCP *)
 Definition Γ v w P := 
@@ -72,48 +71,42 @@ Qed.
 (* Γ v w P is derivable from a → b → a *)
 Lemma Γ_allowed {v w P} : forall r, In r (Γ v w P) -> hsc [a_b_a] r.
 Proof.
-  rewrite - Forall_forall /Γ ? Forall_norm. constructor; last constructor; last constructor.
-  - rewrite /encode_pair.
-    do 3 (apply: arr_allowed). by apply: b3_allowed.
+  apply /Forall_forall. constructor; [|constructor; [|constructor]].
+  - do 3 (apply: arr_allowed). by apply: b3_allowed.
   - apply: arr_allowed.
     have -> : a_b_a = substitute var a_b_a by done.
     apply: hsc_var. by left.
-  - rewrite /encode_pair.
-    do 4 (apply: arr_allowed). by apply: b3_allowed.
-  - rewrite Forall_forall => ?. rewrite in_map_iff => [[[x y]]] [<- _].
-    rewrite /encode_pair.
+  - do 4 (apply: arr_allowed). by apply: b3_allowed.
+  - apply /Forall_forall => ? /in_map_iff [[x y]] [<- _].
     do 4 (apply: arr_allowed). by apply: b3_allowed.
 Qed.
 
 Lemma encode_word_last {a v} : encode_word (v ++ [a]) = arr (if a then b2 else b3) (encode_word v).
 Proof. 
   rewrite /encode_word. move: (bullet) => r. elim: v r.
-    move=> r /=. by case: a.
-  move=> b A IH r /=. case: b; by rewrite IH.
+  { move=> r. by case: a. }
+  move=> b A IH r. case: b; by apply: IH.
 Qed.
 
 Lemma encode_word_app {v x} : encode_word (v ++ x) = append_word (encode_word v) x.
 Proof.
   elim: x v.
-    move=> v. by rewrite app_nil_r.
+  { move=> v. by rewrite app_nil_r. }
   move=> a x IH v. 
   rewrite -/(app [a] _) ? app_assoc IH encode_word_last.
-  move=> /=. by case: a.
+  by case: a.
 Qed.
 
 (* unifiable words are equal *)
 Lemma unify_words {v w ζ} : substitute ζ (encode_word v) = substitute ζ (encode_word w) -> v = w.
 Proof.
-  move: v w. elim /list_last_ind.
-    elim /list_last_ind.
-      done.
-    move=> b w _. rewrite encode_word_last. case: b => /=.
-      move /(f_equal size) => /=. by lia.
-    move /(f_equal size) => /=. by lia.
-  move=> a v IH. elim /list_last_ind.
-    rewrite encode_word_last. case: a => /=.
-      move /(f_equal size) => /=. by lia.
-    move /(f_equal size) => /=. by lia.
+  move: v w. elim /rev_ind.
+  { elim /rev_ind; first done.
+    move=> b w _. rewrite encode_word_last.
+    move: b => [] /(f_equal size) /=; by lia. }
+  move=> a v IH. elim /rev_ind.
+  { rewrite encode_word_last. 
+    move: a => [] /(f_equal size) /=; by lia. }
   move=> b w _. rewrite ? encode_word_last.
   case: a; case: b; move=> /=; case.
   - by move /IH => ->.
@@ -128,28 +121,23 @@ Lemma substitute_combine {ζ ξ r v x} :
   substitute ζ (append_word r x) = substitute ξ (encode_word (v ++ x)).
 Proof.
   move=> ?. elim: x v r.
-    move=> ? /=. by rewrite app_nil_r.
+  { move=> ?. by rewrite app_nil_r. }
   move=> a x IH v r /=.
   have -> : v ++ a :: x = v ++ [a] ++ x by done.
-  rewrite app_assoc. move=> ?. case: a.
-  - apply: IH. rewrite encode_word_last. move=> /=. by congruence.
-  - apply: IH. rewrite encode_word_last. move=> /=. by congruence.
+  rewrite app_assoc. move=> ?. 
+  case: a; apply: IH; rewrite encode_word_last /=; by congruence.
 Qed.
 
 Lemma tau1_lastP {x y: list bool} {A} : tau1 (A ++ [(x, y)]) = tau1 A ++ x.
 Proof.
-  elim: A.
-    move=> /=. by rewrite app_nil_r.
-  move=> [a b] A /= ->.
-  by rewrite app_assoc.
+  elim: A; first by rewrite /= app_nil_r.
+  move=> [a b] A /= ->. by rewrite app_assoc.
 Qed.
 
 Lemma tau2_lastP {x y: list bool} {A} : tau2 (A ++ [(x, y)]) = tau2 A ++ y.
 Proof.
-  elim: A.
-  move=> /=. by rewrite app_nil_r.
-  move=> [a b] A /= ->.
-  by rewrite app_assoc.
+  elim: A; first by rewrite /= app_nil_r.
+  move=> [a b] A /= ->. by rewrite app_assoc.
 Qed.
 
 (* derivability of an instance of a → b → a *)
@@ -172,20 +160,19 @@ Proof.
   (* case ⟨ a, a ⟩ *)
   {
     move=> ?. subst s. case: k.
-      move=> [_] /=. case=> -> ->.
-      move=> /(f_equal size) /=. by lia.
-    move=> k /=. rewrite ? Forall_norm. move=> [[? _]] _. left.
+    { move=> [_] /=. case=> -> ->.
+      move=> /(f_equal size) /=. by lia. }
+    move=> k /= [/ForallE] [? _] _. left.
     eexists. eexists. by eassumption.
   }
   (* case ⟨ v, w ⟩ → a → b → a *)
   {
     move=> ?. subst s. case: k.
-      move=> [_] /=. case=> <- _.
-      case=> _ /(f_equal size) /=. by lia.
-    move=> k /=. rewrite ? Forall_norm. move=> [[? _]] _. right.
-    exists []. constructor.
-      done.
-    eexists. rewrite /flat_map ? app_nil_r => /=. by eassumption.
+    { move=> [_] /=. case=> <- _.
+      case=> _ /(f_equal size) /=. by lia. }
+    move=> k /= [/ForallE] [? _] _. right.
+    exists []. constructor; first done.
+    eexists. rewrite ? app_nil_r /=. by eassumption.
   }
   (* case ⟨ va, wb ⟩ → ⟨ a, b ⟩ *)
   {
@@ -193,7 +180,7 @@ Proof.
     - move=> [_] /=.
       case=> <- _. case=> _ _ _ /(f_equal size) /=. by lia.
     - move=> [_] /=. case=> <- _. move=> /(f_equal size) /=. by lia.
-    - move=> k /=. rewrite ? Forall_norm. move=> [[_ [? _]] _].
+    - move=> k /= [/ForallE] [_] /ForallE [? _] _.
       left. eexists. eexists. by eassumption. 
   }
 Qed.
@@ -205,19 +192,17 @@ Proof.
   (* case ⟨ a, a ⟩ *)
   {
     move=> ?. subst s. case: k.
-      move=> /= [_]. case=> _ _ _ -> /unify_words HA2 _ _ _.
-      right. right. eexists. by constructor; eassumption.
-    move=> k /=. rewrite ? Forall_norm. move => [[?]] *.
+    { move=> /= [_]. case=> _ _ _ -> /unify_words HA2 _ _ _.
+      right. right. eexists. by constructor; eassumption. }
+    move=> k /= [/ForallE] [? _] *.
     left. eexists. eexists. by eassumption.
   }
   (* case ⟨ v, w ⟩ → a → b → a *)
   {
     move=> ?. subst s. case: k.
-      move=> /= [_]. case=> <- _ /(f_equal size) /=. by lia.
-    move=> k /=. rewrite ? Forall_norm. move=> [[?]] *.
-    right. left. exists [].
-    constructor.
-      done.
+    { move=> /= [_]. case=> <- _ /(f_equal size) /=. by lia. }
+    move=> k /= [/ForallE] [? _] *.
+    right. left. exists []. constructor; first done.
     eexists. move=> /=. rewrite ? app_nil_r. by eassumption. 
   }
   (* case ⟨ va, wb ⟩ → ⟨ a, b ⟩ *)
@@ -226,19 +211,17 @@ Proof.
     (* k = 0 *)
     - move=> [_] /=. case=> -> _ /(f_equal size) /=. by lia.
     (* k = 1 *)
-    - move=> /=. rewrite ? Forall_norm. 
-      move=> [H1]. case=> H2. move: H1. rewrite H2.
+    - move=> /= [/ForallE] [H1 _] [] H2. move: H1. rewrite H2.
       rewrite - ? /(substitute ζ (var _)).
       move=> + _ _ /(substitute_combine H2 (x := x)) Hx.
       move=> + /(substitute_combine H2 (x := y)) Hy _ _ _.
-      rewrite Hx Hy => HD.
-      right. left.
+      rewrite Hx Hy => HD. right. left.
       exists (A ++ [(x, y)]). constructor.
-        move: HA. rewrite /incl - ? Forall_forall ? Forall_norm.
-        move=> ?. by constructor.
+      { apply: incl_app; first done.
+        apply /incl_consP. by constructor. }
       exists ξ => /=. by rewrite tau1_lastP tau2_lastP ? app_assoc.
     (* k = 2 *)
-    - move=> k /=. rewrite ? Forall_norm. move=> [[_ [?]]] *.
+    - move=> k /= [/ForallE] [_ /ForallE] [? _] *.
       left. eexists. eexists. by eassumption.
   }
 Qed.
@@ -254,19 +237,16 @@ Lemma complete_adequacy {v w P n}: adequate v w P n -> MPCPb ((v, w), P).
 Proof.
   apply: (@proj1 _ (solving v w P n -> MPCPb ((v, w), P))).
   elim: n.
-    constructor.
-      by move /adequate0E.
-    by move /solving0E.
+  { constructor; [by move /adequate0E | by move /solving0E]. }
   move=> n [IH1 IH2]. constructor.
-    by case /adequate_step.
+  { by case /adequate_step. }
   by case /solving_step; last case.
 Qed.
 
 (* if a → b → a is derivable, then MPCPb is solvable *)
 Lemma completeness {v w P} : hsc (Γ v w P) a_b_a -> MPCPb ((v, w), P).
 Proof.
-  move /hsc_der => [n ?].
-  apply: complete_adequacy.
+  move /hsc_der => [n ?]. apply: complete_adequacy.
   eexists. eexists. by eassumption.
 Qed.
 
@@ -277,11 +257,9 @@ Proof. by move=> /= ->. Qed.
 Lemma transparent_append_word {ζ s v} : ζ 0 = var 0 -> 
   substitute ζ (append_word s v) = append_word (substitute ζ s) v.
 Proof. 
-  move=> Hζ. elim: v s.
-    done.
-  move=> a v IH s /=. case: a.
-    rewrite /b2 /bullet IH => /=. by rewrite Hζ.
-  rewrite /b3 /bullet IH => /=. by rewrite Hζ.
+  move=> Hζ. elim: v s; first done.
+  move=> a v IH s.
+  case: a; by rewrite /b3 /b2 /bullet IH /= Hζ.
 Qed.
 
 Lemma substitute_arrP {ζ s t} : substitute ζ (arr s t) = arr (substitute ζ s) (substitute ζ t).
@@ -294,12 +272,12 @@ Lemma soundness_ind {v w P x y A} :
   hsc (Γ v w P) (encode_pair (encode_word x) (encode_word y)).
 Proof.
   elim: A x y.
-    move=> x y _ /=. rewrite ? app_nil_r => <-.
+  { move=> x y _ /=. rewrite ? app_nil_r => <-.
     pose ζ i := if i is 1 then encode_word x else var i.
     have -> : encode_pair (encode_word x) (encode_word x) = 
       substitute ζ (encode_pair (var 1) (var 1)) by done.
     apply: hsc_var.
-    rewrite /Γ /In. by left.
+    rewrite /Γ /In. by left. }
   move=> [a b] A IH x y /incl_consP [? ?].
   rewrite /tau1 -/tau1 /tau2 -/tau2 ? app_assoc.
   move /IH => /(_ ltac:(assumption)) ?.
@@ -322,9 +300,8 @@ Proof.
   apply: hsc_arr; last eassumption.
   pose ζ i := var i.
   have Hζ: forall s, s = substitute ζ s.
-    elim.
-      done.
-    by move=> ? {1}-> ? {1}->.
+  { elim; first done.
+    by move=> ? + ? /= => <- <-. }
   rewrite (Hζ (arr _ _)).
   apply: hsc_var. rewrite /Γ. right. by left.
 Qed.

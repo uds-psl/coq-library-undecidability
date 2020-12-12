@@ -89,10 +89,11 @@ Proof.
     move=> [ζ2 [s2 [k2 [-> [? [? ?]]]]]].
     exists (S (S (n1+n2))). apply: (der_var _ (ζ := ζ1) (s := s1) (k := S k1)).
       + done.
-      + rewrite (arguments_S ltac:(eassumption)). rewrite ? Forall_norm. constructor.
+      + rewrite (arguments_S ltac:(eassumption)). apply /Forall_app. constructor.
         * apply: Forall_impl; last eassumption.
           move=> ? /der_mon. apply. by lia.
-        * apply: der_var; last eassumption; first done.
+        * constructor; last done. 
+          apply: der_var; last eassumption; first done.
           apply: Forall_impl; last eassumption.
           move=> ? /der_mon. apply. by lia.
       + apply: target_S. by eassumption.
@@ -110,6 +111,6 @@ Proof.
   { move=> s /= *. by subst t. }
   move=> k IHk. case.
   { move=> ? /= *. by subst t. }
-  move=> s1 s2 /=. rewrite ? Forall_norm. 
-  move=> /hsc_arr + [/IH +]. move=> + H. by move=> /(_ H){H} /IHk.
+  move=> s1 s2 /= /hsc_arr + /ForallE [/IH H]. 
+  by move=> /(_ H){H} /IHk.
 Qed.
