@@ -1,6 +1,6 @@
 Require Import Arith Lia.
 
-From Coq Require Import ssreflect ssrbool ssrfun.
+Require Import ssreflect ssrbool ssrfun.
 
 Definition nat_norm := (Nat.add_0_r, Nat.add_succ_r, Nat.sub_0_r, Nat.mul_1_r, Nat.div_1_r).
 

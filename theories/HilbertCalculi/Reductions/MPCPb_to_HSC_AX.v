@@ -18,11 +18,14 @@ Import ListNotations.
 Require Import ssreflect ssrbool ssrfun. 
 
 Require Import Undecidability.HilbertCalculi.HSC.
-From Undecidability.HilbertCalculi.Util Require Import Facts HSCFacts.
+Require Import Undecidability.HilbertCalculi.Util.HSCFacts.
 
 Require Import Undecidability.PCP.PCP.
 
 Module Argument.
+
+Local Arguments incl_cons_inv {A a l m}.
+Local Arguments incl_cons {A a l m}.
 
 Definition bullet := var 0.
 (* encodes symbol true *)
@@ -218,7 +221,7 @@ Proof.
       rewrite Hx Hy => HD. right. left.
       exists (A ++ [(x, y)]). constructor.
       { apply: incl_app; first done.
-        apply /incl_consP. by constructor. }
+        by apply /incl_cons. }
       exists ξ => /=. by rewrite tau1_lastP tau2_lastP ? app_assoc.
     (* k = 2 *)
     - move=> k /= [/ForallE] [_ /ForallE] [? _] *.
@@ -278,7 +281,7 @@ Proof.
       substitute ζ (encode_pair (var 1) (var 1)) by done.
     apply: hsc_var.
     rewrite /Γ /In. by left. }
-  move=> [a b] A IH x y /incl_consP [? ?].
+  move=> [a b] A IH x y /incl_cons_inv [? ?].
   rewrite /tau1 -/tau1 /tau2 -/tau2 ? app_assoc.
   move /IH => /(_ ltac:(assumption)) ?.
   apply: hsc_arr; last eassumption.

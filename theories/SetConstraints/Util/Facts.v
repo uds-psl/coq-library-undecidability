@@ -12,36 +12,29 @@ Import ListNotations.
 
 Set Default Proof Using "Type".
 
-Section Facts.
+(* misc facts *)
 
-  (* induction principle wrt. a decreasing measure f *)
-  (* example: elim /(measure_ind length) : l. *)
-  Lemma measure_ind {X: Type} (f: X -> nat) (P: X -> Prop) : 
-    (forall x, (forall y, f y < f x -> P y) -> P x) -> forall (x : X), P x.
-  Proof.
-    apply: well_founded_ind.
-    apply: Wf_nat.well_founded_lt_compat. move=> *. by eassumption.
-  Qed.
+(* induction principle wrt. a decreasing measure f *)
+(* example: elim /(measure_ind length) : l. *)
+Lemma measure_ind {X: Type} (f: X -> nat) (P: X -> Prop) : 
+  (forall x, (forall y, f y < f x -> P y) -> P x) -> forall (x : X), P x.
+Proof.
+  apply: well_founded_ind.
+  apply: Wf_nat.well_founded_lt_compat. move=> *. by eassumption.
+Qed.
 
-  (* transforms a goal (A -> B) -> C into goals A and B -> C *)
-  Lemma unnest {A B C: Prop} : A -> (B -> C) -> (A -> B) -> C.
-  Proof. auto. Qed.
+(* transforms a goal (A -> B) -> C into goals A and B -> C *)
+Lemma unnest {A B C: Prop} : A -> (B -> C) -> (A -> B) -> C.
+Proof. auto. Qed.
 
-  (* duplicates argument *)
-  Lemma copy {A: Prop} : A -> A * A.
-  Proof. done. Qed.
+(* duplicates argument *)
+Lemma copy {A: Prop} : A -> A * A.
+Proof. done. Qed.
 
-  Lemma eta_reduction {X Y: Type} (f: X -> Y) : (fun x => f x) = f.
-  Proof. done. Qed.
-End Facts.
-
+Lemma eta_reduction {X Y: Type} (f: X -> Y) : (fun x => f x) = f.
+Proof. done. Qed.
 
 (* list facts *)
-Lemma singleton_length {X : Type} {A : list X} : length A = 1 -> exists a, A = [a].
-Proof.
-  case: A; first done.
-  move=> a A [] /length_zero_iff_nil=> ->. by eexists.
-Qed.
 
 Lemma nil_or_ex_max (A : list nat) : A = [] \/ exists a, In a A /\ Forall (fun b => a >= b) A.
 Proof.
@@ -69,10 +62,6 @@ count_occ D (a :: A) c = count_occ D (locked [a]) c + count_occ D A c.
 Proof.
   rewrite /count_occ /is_left -lock. by case: (D a c).
 Qed.
-
-(* In facts *)
-Lemma in_cons_iff : forall {A : Type} {a b : A} {l : list A}, In b (a :: l) <-> (a = b \/ In b l).
-Proof. by constructor. Qed.
 
 (* Forall facts *)
 Lemma Forall_nil_iff {X: Type} {P: X -> Prop} : Forall P [] <-> True.
@@ -113,22 +102,16 @@ Qed.
 (* seq facts *)
 Lemma seq_last start length : seq start (S length) = (seq start length) ++ [start + length].
 Proof.
-  have -> : S length = length + 1 by lia.
-  by rewrite seq_app.
+  by rewrite (ltac:(lia) : S length = length + 1) seq_app.
 Qed.
 
 (* repeat facts *)
 Lemma repeat_add {X : Type} {x : X} {m n} : repeat x (m + n) = repeat x m ++ repeat x n.
-Proof.
-  elim: m.
-    done.
-  move=> m IH. cbn. by f_equal.
-Qed.
+Proof. elim: m; [done | by move=> ? /= ->]. Qed.
 
 Lemma Forall_repeat {X: Type} {a} {A: list X} : Forall (fun b => a = b) A -> A = repeat a (length A).
 Proof.
-  elim: A.
-    done.
+  elim: A; first done.
   move=> b A IH. rewrite Forall_norm => [[? /IH ->]]. subst b.
   cbn. by rewrite repeat_length.
 Qed.
@@ -136,140 +119,25 @@ Qed.
 (* bijection between nat and nat * nat *)
 Module NatNat.
 
-(* 0 + 1 + ... + n *)
-Definition big_sum (n : nat) : nat := nat_rec _ 0 (fun i m => m + (S i)) n.
-
 (* bijection from nat * nat to nat *)
-Definition nat2_to_nat '(x, y) : nat := (big_sum (x + y)) + y.
-
-Definition next_nat2 '(x, y) : nat * nat := if x is S x then (x, S y) else (S y, 0).
+Definition encode '(x, y) : nat := 
+  y + (nat_rec _ 0 (fun i m => (S i) + m) (y + x)).
 
 (* bijection from nat to nat * nat *)
-Definition nat_to_nat2 (n : nat) : nat * nat := Nat.iter n next_nat2 (0, 0).
+Definition decode (n : nat) : nat * nat := 
+  nat_rec _ (0, 0) (fun _ '(x, y) => if x is S x then (x, S y) else (S y, 0)) n.
 
-Lemma nat_nat2_cancel : cancel nat2_to_nat nat_to_nat2.
+Lemma decode_encode {xy: nat * nat} : decode (encode xy) = xy.
 Proof.
-  move=> a. move Hn: (nat2_to_nat a) => n.
-  elim: n a Hn.
-    case; case=> [|?]; case=> [|?]=> /=; by [|lia].
-  move=> n IH [x y]. case: y => [|y] /=. case: x => [|x] //=.
-  all: rewrite ? (Nat.add_0_r, Nat.add_succ_r); case.
-    rewrite -/(nat2_to_nat (0, x)). by move /IH ->.
-  rewrite -/(nat2_to_nat (S x, y)). by move /IH ->.
-Qed.
-
-Lemma nat2_nat_cancel : cancel nat_to_nat2 nat2_to_nat.
-Proof.
-  elim=> //=.
-  move=> n. move: (nat_to_nat2 n) => [+ ?].
-  case=> /= => [|?]; rewrite ? (Nat.add_0_r, Nat.add_succ_r) => /=; by lia.
+  move Hn: (encode xy) => n. elim: n xy Hn.
+  { by move=> [[|?] [|?]]. }
+  move=> n IH [x [|y [H]]] /=.
+  { move: x => [|x [H]] /=; first done.
+    by rewrite (IH (0, x)) /= -?H ?PeanoNat.Nat.add_0_r. }
+  by rewrite (IH (S x, y)) /= -?H ?PeanoNat.Nat.add_succ_r.
 Qed.
 
-Lemma nat_to_nat2_snd_non_increasing {n} : snd (nat_to_nat2 n) < S n.
-Proof.
-  elim: n=> [|n] //=.
-  move: (nat_to_nat2 n) => [x y]. case: x => [|x] /=; by lia.
-Qed.
-
-(* bijection from nat to list nat *)
-Definition nat_to_list := Fix lt_wf _ (fun (n: nat) =>
-  match n return ((forall y : nat, y < n -> list nat) -> list nat) with
-  | 0 => fun _ => []
-  | S n => fun f => (fst (nat_to_nat2 n)) :: (f (snd (nat_to_nat2 n)) nat_to_nat2_snd_non_increasing)
-  end).
-
-Lemma nat_to_list_S_nP {n} : 
-  nat_to_list (S n) = (fst (nat_to_nat2 n)) :: (nat_to_list (snd (nat_to_nat2 n))).
-Proof.
-  rewrite /nat_to_list Fix_eq=> //. elim=> // *; by f_equal.
-Qed.
-  
-(* bijection from list nat to nat *)
-Fixpoint list_to_nat (A: list nat) : nat :=
-  if A is a :: A then S (nat2_to_nat (a, list_to_nat A)) else 0.
-  
-Lemma nat_list_cancel {A} : nat_to_list (list_to_nat A) = A.
-Proof.
-  elim: A=> // *.
-  rewrite /list_to_nat nat_to_list_S_nP nat_nat2_cancel. by f_equal.
-Qed.
-  
-Lemma list_nat_cancel {n} : list_to_nat (nat_to_list n) = n.
-Proof.
-  elim /lt_wf_ind: n. case=> //.
-  move=> ? IH. rewrite nat_to_list_S_nP /list_to_nat -/list_to_nat IH.
-    by apply: nat_to_nat2_snd_non_increasing.
-  by rewrite - surjective_pairing nat2_nat_cancel.
-Qed.
-
-Lemma nat_to_nat2_non_increasing {n} : fst (nat_to_nat2 n) + snd (nat_to_nat2 n) < S n.
-Proof.
-  elim: n=> [|n] //=.
-  move: (nat_to_nat2 n) => [x y].
-  case: y => [|y]; case: x => [|x] /=; by lia.
-Qed.
-
-Inductive tree : Set :=
-  | leaf : tree
-  | node : nat -> tree -> tree -> tree.
-
-Fixpoint tree_to_nat (t: tree) : nat :=
-  match t with
-  | leaf => 0
-  | node n t u => S (nat2_to_nat (n, nat2_to_nat ((tree_to_nat t), (tree_to_nat u))))
-  end.
-
-Lemma nat_to_tree_fst_lt {n} : (fst (nat_to_nat2 (snd (nat_to_nat2 n)))) < S n.
-Proof. 
-  have ? := @nat_to_nat2_non_increasing n.
-  have ? := @nat_to_nat2_non_increasing (snd (nat_to_nat2 n)).
-  by lia.
-Qed.
-
-Lemma nat_to_tree_snd_lt {n} : (snd (nat_to_nat2 (snd (nat_to_nat2 n)))) < S n.
-Proof. 
-  have ? := @nat_to_nat2_non_increasing n.
-  have ? := @nat_to_nat2_non_increasing (snd (nat_to_nat2 n)).
-  by lia.
-Qed.
-  
-Definition nat_to_tree : nat -> tree.
-Proof.
-  apply: (Fix lt_wf _). case.
-    exact (fun _ => leaf).
-  move=> n f.
-  pose m := snd (nat_to_nat2 n).
-  refine (node (fst (nat_to_nat2 n)) (f (fst (nat_to_nat2 m)) _) (f (snd (nat_to_nat2 m)) _)).
-    exact nat_to_tree_fst_lt.
-  exact nat_to_tree_snd_lt.
-Defined.
-
-Lemma nat_to_tree_S_nP {n} : 
-  nat_to_tree (S n) = 
-    node (fst (nat_to_nat2 n)) 
-      (nat_to_tree (fst (nat_to_nat2 (snd (nat_to_nat2 n)))))
-      (nat_to_tree (snd (nat_to_nat2 (snd (nat_to_nat2 n))))).
-Proof.
-  rewrite /nat_to_tree Fix_eq=> //. elim=> // *. by f_equal.
-Qed.
-    
-Lemma nat_tree_cancel {t} : nat_to_tree (tree_to_nat t) = t.
-Proof.
-  elim: t=> // *.
-  rewrite /tree_to_nat nat_to_tree_S_nP nat_nat2_cancel.
-  rewrite -/tree_to_nat /fst /snd -/(fst _) -/(snd _) nat_nat2_cancel. 
-  by f_equal.
-Qed.
-    
-Lemma tree_nat_cancel {n} : tree_to_nat (nat_to_tree n) = n.
-Proof.
-  elim /lt_wf_ind: n. case=> //.
-  move=> n IH. rewrite nat_to_tree_S_nP /tree_to_nat -/tree_to_nat ? IH.
-    1,2: have ? := @nat_to_nat2_non_increasing n.
-    1,2: have ? := @nat_to_nat2_non_increasing (snd (nat_to_nat2 n)).
-    1,2: by lia.
-  rewrite - surjective_pairing nat2_nat_cancel.
-  by rewrite - surjective_pairing nat2_nat_cancel.
-Qed.
+Lemma encode_non_decreasing (x y: nat) : x + y <= encode (x, y).
+Proof. elim: x=> [| x IH] /=; [| rewrite Nat.add_succ_r /=]; by lia. Qed.
 
 End NatNat.

@@ -32,7 +32,7 @@ Set Default Proof Using "Type".
 
 Module Argument.
 
-Instance Prefix_Enumerable : Enumerable Prefix.
+Local Instance Prefix_Enumerable : Enumerable Prefix.
 Proof.
   apply: (enumarableI
     (fun x => if x is Try then 0 else if x is Yes then 1 else 2)
@@ -40,7 +40,7 @@ Proof.
   by case.
 Qed.
 
-Instance BasicState_Enumerable : Enumerable BasicState.
+Local Instance BasicState_Enumerable : Enumerable BasicState.
 Proof.
   apply: (enumarableI
     (fun x => 
@@ -55,7 +55,7 @@ Proof.
   case; move=> *; by rewrite ?enumP.
 Qed.
 
-Instance State_Enumerable : Enumerable State.
+Local Instance State_Enumerable : Enumerable State.
 Proof.
   apply: (enumarableI
     (fun x => 

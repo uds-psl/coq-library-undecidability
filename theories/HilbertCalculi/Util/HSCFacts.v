@@ -2,7 +2,11 @@ Require Import List Lia.
 Import ListNotations.
 Require Import ssreflect ssrbool ssrfun. 
 
-Require Import Undecidability.HilbertCalculi.HSC Undecidability.HilbertCalculi.Util.Facts.
+Require Import Undecidability.HilbertCalculi.HSC.
+
+Lemma ForallE {T : Type} {P : T -> Prop} {l} : 
+  Forall P l -> if l is x :: l then P x /\ Forall P l else True.
+Proof. by case. Qed.
 
 (* number of nodes in the syntax tree of a formula *)
 Fixpoint size s := 

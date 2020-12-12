@@ -13,24 +13,20 @@
   - Module Reordering: change order, duplicate rules
 *)
 
-Require Import List.
+Require Import List Lia.
 Import ListNotations.
 Require Import Relation_Operators Operators_Properties.
 
 Require Import Undecidability.StackMachines.SMN.
 Require Undecidability.StackMachines.SSM.
 
-From Undecidability.StackMachines.Util Require Import Nat_facts List_facts Enumerable SMN_facts.
+From Undecidability.StackMachines.Util Require Import Nat_facts List_facts SMN_facts.
 
 Require Import Undecidability.StackMachines.Util.SMN_transform.
 
-Require Import Lia PeanoNat.
 Require Import ssreflect ssrbool ssrfun.
 
 Set Default Proof Using "Type".
-
-Local Definition rt_rt1n := @clos_rt_rt1n_iff Config.
-Local Definition app_norm := (@app_assoc', @app_nil_l, @app_nil_r).
 
 Module Argument.
 Section Reduction.

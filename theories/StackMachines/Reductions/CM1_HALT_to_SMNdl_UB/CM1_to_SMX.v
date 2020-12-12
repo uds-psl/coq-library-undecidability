@@ -11,8 +11,6 @@
     Uniform Boundedness of Deterministic, Flip-consistent, Length-preserving Stack Machines with Exchange
 *)
 
-Set Default Proof Using "Type".
-
 Require Import Relation_Operators Operators_Properties Lia PeanoNat List.
 Import ListNotations.
 
@@ -27,6 +25,8 @@ Module SM := SMX.
 From Undecidability.StackMachines.Util Require Import Facts Nat_facts List_facts.
 
 Require Import ssreflect ssrbool ssrfun.
+
+Set Default Proof Using "Type".
 
 Local Arguments in_combine_l {A B l l' x y}.
 Local Arguments in_combine_r {A B l l' x y}.

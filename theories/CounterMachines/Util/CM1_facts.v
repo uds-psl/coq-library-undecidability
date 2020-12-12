@@ -4,7 +4,7 @@ Import ListNotations.
 Require Import Undecidability.CounterMachines.CM1.
 Require Import Undecidability.CounterMachines.Util.Nat_facts.
 
-From Coq Require Import ssreflect ssrbool ssrfun.
+Require Import ssreflect ssrbool ssrfun.
 
 (* halting conditions *)
 Lemma haltingP {M : Cm1} {x: Config}: 

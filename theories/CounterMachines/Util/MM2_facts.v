@@ -3,7 +3,7 @@ Import ListNotations.
 
 Require Import Undecidability.MinskyMachines.MM2.
 
-From Coq Require Import ssreflect ssrbool ssrfun.
+Require Import ssreflect ssrbool ssrfun.
 
 Definition mm2_config : Set := (nat*(nat*nat)).
 

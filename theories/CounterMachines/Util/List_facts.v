@@ -2,7 +2,7 @@ Require Import List.
 Import ListNotations.
 Require Import Arith Lia.
 
-From Coq Require Import ssreflect ssrbool ssrfun.
+Require Import ssreflect ssrbool ssrfun.
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.

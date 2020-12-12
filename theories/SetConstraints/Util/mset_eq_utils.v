@@ -80,9 +80,8 @@ Ltac eq_trivial :=
     
 Lemma eq_cons_iff {a A B} : (a :: A) ≡ (a :: B) <-> A ≡ B.
 Proof.
-  rewrite /mset_eq. constructor.
-  all: move=> H c; move: {H}(H c); rewrite ? count_occ_cons ? in_cons_iff; unlock.
-  all: by rewrite Nat.add_cancel_l.
+  rewrite /mset_eq. constructor=> + c => /(_ c).
+  all: rewrite -/([a] ++ A) -/([a] ++ B) ?count_occ_app; by lia.
 Qed.
 
 Lemma eq_app_iff {A B C} : (A ++ B) ≡ (A ++ C) <-> B ≡ C.

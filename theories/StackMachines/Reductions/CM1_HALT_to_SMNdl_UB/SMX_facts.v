@@ -1,11 +1,12 @@
-Require Import List.
+Require Import List Lia Relation_Operators.
 Import ListNotations.
-Require Import Arith Lia Relations.Relation_Operators.
 
 From Undecidability.StackMachines.Util Require Import Nat_facts List_facts.
 Require Import Undecidability.StackMachines.Reductions.CM1_HALT_to_SMNdl_UB.SMX.
 
-From Coq Require Import ssreflect ssrbool ssrfun.
+Require Import ssreflect ssrbool ssrfun.
+
+Set Default Proof Using "Type".
 
 Section SMX_facts.
 Context {State Symbol : Set}.

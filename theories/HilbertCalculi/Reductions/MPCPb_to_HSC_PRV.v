@@ -18,11 +18,14 @@ Import ListNotations.
 Require Import ssreflect ssrbool ssrfun. 
 
 Require Import Undecidability.HilbertCalculi.HSC.
-From Undecidability.HilbertCalculi.Util Require Import Facts HSCFacts.
+Require Import Undecidability.HilbertCalculi.Util.HSCFacts.
 
 Require Import Undecidability.PCP.PCP.
 
 Module Argument.
+
+Local Arguments incl_cons_inv {A a l m}.
+Local Arguments incl_cons {A a l m}.
 
 Definition bullet := var 0.
 (* encodes symbol true *)
@@ -320,7 +323,7 @@ Lemma ΓPCP_soundness_ind {v w P A} :
 Proof.
   elim /rev_ind : A.
   { move=> _ /=. by rewrite ? app_nil_r. }
-  move=> [x y] A IH /incl_app_inv [/IH] + /incl_consP [? _].
+  move=> [x y] A IH /incl_app_inv [/IH] + /incl_cons_inv [? _].
   rewrite tau1_lastP tau2_lastP ? app_assoc.
   move=> + ?; apply.
   apply: ΓPCP_step; first by eassumption.
@@ -401,7 +404,7 @@ Proof.
     move /(_ (v', w')). move /(_ ltac:(by left)) => ?.
     move: v w Hv Hw => [|? ?] [|? ?].
     { exists ((v', w') :: A). 
-      constructor; [by apply /incl_consP | by assumption]. }
+      constructor; [by apply /incl_cons | by assumption]. }
     all: by rewrite /= H0.
   }
   (* cons case *)
@@ -409,7 +412,7 @@ Proof.
     move=> [H0] [[_ [H12 H3]]] H4.
     move: H12 HQ. case: Q; first done.
     move=> ? Q. rewrite /encode_list -/encode_list ? substitute_pairP. move=> [_ [_ H2]].
-    move=> /incl_consP [_ HQ].
+    move=> /incl_cons_inv [_ HQ].
     move: Hder. rewrite ? transparent_encode_pair => //.
     rewrite H2 H3 H4. move /IH. by apply.
   }

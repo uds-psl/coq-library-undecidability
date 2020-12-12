@@ -5,8 +5,7 @@
     (1) Saarland University, Saarbrücken, Germany
 *)
 
-
-Require Import Arith Lia List.
+Require Import PeanoNat Lia List.
 Import ListNotations.
 
 Require Import Undecidability.SetConstraints.FMsetC.
@@ -52,8 +51,7 @@ Proof.
     by right.
   case.
     move=> A IH. rewrite ? eval_consP ? Forall_norm => /=.
-    case: IH=> IH.
-      left. by apply: lt_n_S.
+    case: IH=> IH; first by lia.
     by right.
   move=> a A IH. left. rewrite ? eval_consP.
   have ? := Nat.pow_lt_mono_l p q (S a) ltac:(done) ltac:(done).

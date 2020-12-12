@@ -26,6 +26,7 @@ Require Undecidability.SetConstraints.Util.mset_eq_utils.
 Require Import ssreflect ssrbool ssrfun.
 
 Module Argument.
+Local Arguments poly_add !p !q.
 
 Local Notation "p ≃ q" := (poly_eq p q) (at level 65).
 Local Notation "A ≡ B" := (mset_eq A B) (at level 65).
@@ -62,7 +63,7 @@ Proof.
   move=> a A + i => /(_ i). case: i.
   - by rewrite /map -/(map _ _) ?poly_add_nthP.
   - move=> i. rewrite /map -/(map _ _) /mset_to_poly -/(mset_to_poly).
-    rewrite ?nth_consP ?poly_add_nthP /=. by lia.
+    rewrite /= ?poly_add_nthP /=. by lia.
 Qed.
 
 Lemma poly_add_0I {p q r} : r ≃ [] -> p ≃ q -> p ≃ poly_add q r.
@@ -76,7 +77,7 @@ Proof.
   rewrite /poly_mult map_0P.
   rewrite [poly_add (repeat _ _) _] poly_add_comm.
   apply: poly_add_0I; first by apply: repeat_0P.
-  under map_ext => a. have -> : 1 * a = a by lia. over.
+  under map_ext => a do have -> : 1 * a = a by lia.
   rewrite -/(poly_eq _ _) map_id. apply: poly_eq_consI; first done.
   apply: poly_add_0I; last done.
   by apply: (repeat_0P (n := 1)).
@@ -115,12 +116,12 @@ Lemma count_occ_poly_to_msetP {a p}: count_occ Nat.eq_dec (poly_to_mset p) a = n
 Proof.
   elim: a p.
   - case; first done.
-    move=> a p /=. rewrite count_occ_app count_occ_repeat count_occ_0_map.
-    by lia.
+    move=> + p /=. elim; first by elim: (poly_to_mset p).
+    by move=> ? /= ->.
   - move=> i IH. case; first done.
     move=> a p /=. rewrite count_occ_app.
-    rewrite -(count_occ_map _ Nat.eq_dec Nat.eq_dec); first by move=> ? ? [].
-    by rewrite count_occ_S_repeat IH.
+    rewrite -(count_occ_map S Nat.eq_dec) ?IH; first by lia.
+    by elim a.
 Qed.
 
 Lemma poly_to_mset_eqI {p q} : p ≃ q -> poly_to_mset p ≡ poly_to_mset q.

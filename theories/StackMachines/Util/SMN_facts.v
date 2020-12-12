@@ -4,7 +4,7 @@ Import ListNotations.
 From Undecidability.StackMachines.Util Require Import Nat_facts List_facts.
 Require Import Undecidability.StackMachines.SMN.
 
-From Coq Require Import ssreflect ssrbool ssrfun.
+Require Import ssreflect ssrbool ssrfun.
 
 Local Definition rt_rt1n := @clos_rt_rt1n_iff Config.
 

@@ -736,7 +736,6 @@ PolynomialConstraints/Reductions/FMsetC_SAT_to_LPolyNC_SAT.v
 HilbertCalculi/HSC.v
 HilbertCalculi/HSC_undec.v
 
-HilbertCalculi/Util/Facts.v
 HilbertCalculi/Util/HSCFacts.v
 HilbertCalculi/Reductions/MPCPb_to_HSC_PRV.v
 HilbertCalculi/Reductions/MPCPb_to_HSC_AX.v
