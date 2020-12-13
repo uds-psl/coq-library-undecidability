@@ -1,6 +1,7 @@
 Set Implicit Arguments.
 Require Import RelationClasses Morphisms List Omega Lia Init.Nat Setoid.
-From Undecidability.HOU Require Import calculus.calculus unification.unification second_order.diophantine_equations.
+From Undecidability.HOU Require Import calculus.calculus second_order.diophantine_equations
+  systemunification nth_order_unification.
 Import ListNotations.
 
 Set Default Proof Using "Type".
@@ -398,7 +399,6 @@ Section Variables.
     intros (a & []) % in_Fs.
     eapply disjoint_F_G; eauto.
   Qed.
-
 
 End Variables.
 Arguments F : simpl never.

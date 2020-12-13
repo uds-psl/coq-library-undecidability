@@ -1,7 +1,9 @@
 Set Implicit Arguments.
 Require Import List Omega Lia.
 Import ListNotations.
-From Undecidability.HOU Require Import std.std unification.unification calculus.calculus second_order.diophantine_equations.
+From Undecidability.HOU Require Import std.std calculus.calculus second_order.diophantine_equations.
+From Undecidability.HOU.unification Require Import 
+  systemunification nth_order_unification.
 
 Set Default Proof Using "Type".
 

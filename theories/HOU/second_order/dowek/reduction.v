@@ -1,8 +1,9 @@
 Set Implicit Arguments.
 Require Import List Omega Lia.
-From Undecidability.HOU Require Import std.std unification.unification calculus.calculus.
+From Undecidability.HOU Require Import std.std calculus.calculus.
 Import ListNotations.
 From Undecidability.HOU.second_order Require Import diophantine_equations dowek.encoding.
+Require Import Undecidability.HOU.unification.nth_order_unification.
 
 Set Default Proof Using "Type".
 
@@ -106,8 +107,6 @@ Section EquationEquivalences.
 
   End Multiplication.
 End  EquationEquivalences.
-
-
 
 (* ** Forward Direction **)
 Section Forward.

@@ -601,8 +601,11 @@ HOU/second_order/goldfarb/multiplication.v
 HOU/second_order/goldfarb/reduction.v
 HOU/second_order/goldfarb/motivation.v
 
+HOU/concon/conservativity_constants.v
 HOU/concon/conservativity.v
+HOU/concon/conservativity_consequences.v
 HOU/concon/constants.v
+HOU/concon/constants_consequences.v
 HOU/concon/enumerability.v
 HOU/concon/concon.v
 

@@ -2,7 +2,7 @@ Set Implicit Arguments.
 
 From Equations Require Import Equations.
 Require Import List Lia Arith Wf Morphisms Program.Program.
-From Undecidability.HOU Require Import std.std unification.unification calculus.calculus concon.concon.
+From Undecidability.HOU Require Import unification.unification concon.conservativity calculus.calculus.
 Import ListNotations.
 
 Tactic Notation "simplify" := Undecidability.HOU.std.tactics.simplify.  
@@ -530,7 +530,7 @@ Section Unification.
     Lemma equi_unifiable_cons x s E:
       (var x, s) :: E ≈ (var x, s) :: (update x s var •₊₊ E).
     Proof.
-      intros ?; simplify; intuition; cbn in *.
+      intros ?; simplify; intuition idtac; cbn in *.
       - intros [u v] ?; mapinj; cbn; destruct x0 as [u' v'].
         injection H2 as <- <-. eapply H1 in H3; cbn in H3.
         unfold unifies in *; cbn in *.

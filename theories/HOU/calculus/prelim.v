@@ -2,7 +2,8 @@
 Set Implicit Arguments.
 Require Import List Omega Lia Morphisms.
 Import ListNotations.
-From Undecidability.HOU Require Export calculus.terms std.std.
+From Undecidability.HOU Require Export std.std.
+From Undecidability.HOU Require Import calculus.terms.
 
 
 
