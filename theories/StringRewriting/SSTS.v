@@ -19,7 +19,7 @@
 
 Require Import List Relation_Operators.
 
-(* A simple semi-Thue system consists of rules "ab -> cd" where a, b, c, d: nat *)
+(* A simple semi-Thue system consists of rules "ab -> cd" where a, b, c, d : nat *)
 Definition Ssts := list ((nat * nat) * (nat * nat)).
 
 (* one-step rewriting relation 
@@ -33,7 +33,7 @@ Definition multi_step (ssts: Ssts) : list nat -> list nat -> Prop :=
   clos_refl_trans (list nat) (step ssts).
 
 (* simple semi-Thue system 01 rewriting, that is
-   for given a simple semi-Thue system, does 0^(1+n) -> 1^(1+n) hold for some n? *)
+   for given a simple semi-Thue system, does 0^(1+n) ->> 1^(1+n) hold for some n? *)
 Definition SSTS01 : Ssts -> Prop :=
   fun ssts => exists n, multi_step ssts (repeat 0 (1+n)) (repeat 1 (1+n)).
   
