@@ -187,7 +187,7 @@ Qed.
 
 
 
-Require Import List Omega Lia.
+Require Import List Arith Lia.
 
 Instance In_dec (X: Type) {D: Dis X}: Dec2 (@In X).
 Proof.

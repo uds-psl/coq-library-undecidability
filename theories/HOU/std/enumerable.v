@@ -1,6 +1,6 @@
 Set Implicit Arguments.
 Unset Strict Implicit.
-Require Import List Omega Lia.
+Require Import List Arith Lia.
 From Undecidability.HOU Require Import std.decidable std.lists.basics std.lists.advanced std.tactics.
 Import ListNotations.
 

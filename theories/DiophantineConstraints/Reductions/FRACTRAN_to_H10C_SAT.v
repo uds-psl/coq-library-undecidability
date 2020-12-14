@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Omega Lia Max.
+Require Import List Arith Lia Max.
 
 Require Import Undecidability.Synthetic.Undecidability.
 
@@ -214,7 +214,3 @@ End DIO_ELEM_H10C_SAT.
 Check DIO_ELEM_H10C_SAT.
 Check FRACTRAN_HALTING_DIO_LOGIC_SAT.
 Check DIO_LOGIC_ELEM_SAT.
- 
-
-
-

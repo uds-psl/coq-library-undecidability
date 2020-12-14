@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import List Omega Lia Morphisms Wf.
+Require Import List Arith Lia Morphisms Wf.
 Import ListNotations.
 
 Definition funcomp {X Y Z} (g : Y -> Z) (f : X -> Y)  :=
@@ -55,7 +55,7 @@ Fixpoint Sum (N: list nat) :=
 Lemma Sum_in x N:
   In x N -> x <= Sum N.
 Proof.
-  induction N; cbn; intuition.
+  induction N; cbn; intuition; lia.
 Qed.
 
 Lemma Sum_app N1 N2:

@@ -713,7 +713,7 @@ Section Unification.
       - rewrite IHs. f_equal. f_equal. clear IHs.  generalize (vars s) as A.
         induction A as [|[] ?]; cbn; eauto.
         + destruct eq_dec; rewrite IHA; intuition.
-        + destruct eq_dec; rewrite IHA. intuition. cbn.
+        + destruct eq_dec; rewrite IHA. intuition. lia. cbn.
           unfold funcomp at 1; now rewrite size_ren. 
       - rewrite IHs1, IHs2; lia.
     Qed.
@@ -982,14 +982,14 @@ Section FirstOrderDecidable.
     1 - 2: rewrite Nat.sub_add;
       eauto; asimpl; rewrite subst_extensional with (tau := var); [now asimpl|].
     1 - 2: intros y ? % H3; unfold free in *; eauto; unfold funcomp; f_equal; lia.
-    1 - 2: rewrite it_up_lt; eauto; symmetry; eapply H2; unfold bound, free; intuition. 
+    1 - 2: rewrite it_up_lt; eauto; symmetry; eapply H2; unfold bound, free; intuition; lia.
   Qed.
 
 
   Lemma it_up_free' k (sigma: fin -> exp X): free' (free k) (it k up sigma).
   Proof.
     unfold free; split; intros x; unfold bound.
-    - intros ?; rewrite it_up_lt; intuition.
+    - intros ?; rewrite it_up_lt; intuition. lia.
     - intros ? y. rewrite it_up_ge; eauto. 
       intros [z [->]] % vars_varof % varof_ren; eauto.
   Qed.

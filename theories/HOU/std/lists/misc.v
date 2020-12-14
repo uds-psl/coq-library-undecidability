@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import List Omega Lia.
+Require Import List Lia.
 Import ListNotations.
 
 Lemma list_decompose k {X} (A: list X):

@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import RelationClasses Morphisms List Omega Lia Init.Nat Setoid.
+Require Import RelationClasses Morphisms List Arith Lia Init.Nat Setoid.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.unification.
 From Undecidability.HOU Require Import third_order.pcp third_order.encoding.
 Import ListNotations.
