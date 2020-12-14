@@ -19,7 +19,6 @@ From Undecidability.SystemF.Reductions Require H10C_SAT_to_SysF_INH LU2SemiU_to_
 
 Require Import Undecidability.DiophantineConstraints.H10C_undec Undecidability.SemiUnification.SemiU_undec.
 
-
 (* Undecidability of System F Inhabitation *)
 Theorem SysF_INH_undec : undecidable SysF_INH.
 Proof.

@@ -1,9 +1,12 @@
-Require Import ssreflect ssrbool ssrfun.
 Require Import List.
 Import ListNotations.
 
 Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.Synthetic.Definitions.
+
+Require Import ssreflect ssrbool ssrfun.
+
+Set Default Goal Selector "!".
 
 (* map a n-ary string to a binary string *)
 Definition bin (x: list nat) : list bool := 
@@ -15,8 +18,8 @@ Proof.
   move=> a x IH [|b y /=]; first done.
   constructor; first by move=> [<- <-].
   case. elim: a b.
-    case; last done.
-    by move=> [/IH ->].
+  { case; last done.
+    by move=> [/IH ->]. }
   move=> a IH2 [|b /=]; first done.
   by move=> [/IH2 [<- <-]].
 Qed.
@@ -50,7 +53,7 @@ Lemma debin {A: list (list bool * list bool)} {P : list (list nat * list nat)} :
   incl A (bin_map P) -> exists B, A = bin_map B /\ incl B P.
 Proof.
   elim: A.
-    move=> *. exists []. by constructor.
+  { move=> *. exists []. by constructor. }
   move=> a A IH /incl_consE [+ +].
   move /(@in_map_iff) => [[x' y'] [<- ?]].
   move /IH => [B [-> HB]]. exists ((x', y') :: B). 
@@ -67,12 +70,12 @@ Proof.
   pose f := fun '((x, y), P) => ((bin x, bin y), bin_map P).
   exists f.
   move=> [[x y] P]. constructor; move=> [A].
-    move=> [HA1 HA2]. exists (bin_map A).
+  {  move=> [HA1 HA2]. exists (bin_map A).
     constructor.
-      move=> a /in_map_iff [?] [<- /HA1] ?.
+    { move=> a /in_map_iff [?] [<- /HA1] ?.
       rewrite -/(map _ ((x, y) :: P)).
-      by apply: in_map.
-    by rewrite tau1_bin_map tau2_bin_map -?bin_appP -eq_binP.
+      by apply: in_map. }
+    by rewrite tau1_bin_map tau2_bin_map -?bin_appP -eq_binP. }
   rewrite /bin_map -/(map _ ((x, y) :: P)) -/(bin_map _).
   move=> [/debin [B [-> ?]]].
   rewrite tau1_bin_map tau2_bin_map -?bin_appP -eq_binP => ?.

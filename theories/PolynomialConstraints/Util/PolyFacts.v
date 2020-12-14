@@ -12,6 +12,8 @@ Require Import Undecidability.PolynomialConstraints.LPolyNC.
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Goal Selector "!".
+
 Local Notation "p ≃ q" := (poly_eq p q) (at level 65).
 
 (* poly facts *)

@@ -11,6 +11,7 @@ Require Import Undecidability.CounterMachines.Util.CM2_facts.
 Require Import ssreflect ssrbool ssrfun.
 
 Set Default Proof Using "Type".
+Set Default Goal Selector "!".
 
 Local Arguments rt_trans {A R x y z}.
 Local Arguments in_combine_l {A B l l' x y}.

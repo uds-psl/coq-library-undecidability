@@ -22,6 +22,7 @@ From Undecidability.StackMachines.Util Require Import Facts List_facts SMN_facts
 Require Import ssreflect ssrbool ssrfun.
 
 Set Default Proof Using "Type".
+Set Default Goal Selector "!".
 
 Local Definition rt_rt1n := @clos_rt_rt1n_iff Config.
 Local Definition rt_rtn1 := @clos_rt_rtn1_iff Config.
@@ -134,11 +135,11 @@ Section Reduction.
     exists z1 z2, reachable_n M' 1 x z1 /\ reachable_n M' 1 z2 y /\ reachable M z1 z2.
   Proof using lp_XY Y_fresh XY_neq.
     move /rt_rt1n. case.
-      exists x, x. constructor; first by apply: rn_refl.
-      constructor; first by apply: rn_refl. by apply: rt_refl.
+    { exists x, x. constructor; first by apply: rn_refl.
+      constructor; first by apply: rn_refl. by apply: rt_refl. }
     move=> ? ? + /rt_rt1n /rt_rtn1 Hz1y. case: Hz1y.
-      move /synchronize_step => [z] [? [? ?]]. exists z, z.
-      constructor; first done. constructor; first done. by apply: rt_refl.
+    { move /synchronize_step => [z] [? [? ?]]. exists z, z.
+      constructor; first done. constructor; first done. by apply: rt_refl. }
     move=> ? ? /synchronize_step => [[z2]] [/reachable_n_to_reachable ? [? ?]].
     move=> /rt_rtn1 ? /synchronize_step => [[z1]] [? [/reachable_n_to_reachable ? ?]]. exists z1, z2.
     constructor; first done. constructor; first done.
@@ -169,14 +170,14 @@ Section Reduction.
     move=> Hx /rt_rt1n Hxy1. case: Hxy1 Hx.
     { move=> *. eexists. constructor; first by eassumption. by apply: rt_refl. }
     move=> {}y1 y1' + + + /rt_rt1n Hxy2. case: Hxy2.
-      move=> ? /rt_rt1n ? ?.
+    - move=> ? /rt_rt1n ? ?.
       eexists. constructor; first by apply: rt_refl.
       apply: rt_trans; last by eassumption. by apply: rt_step.
-    move=> {}y2 y2'. move: x y1 y2 => [[l r] x] [[l1 r1] y1] [[l2 r2] y2].
-    move=> + + + + /= Hx. subst x.
-    move=> /step_fresh_l [] ? ? ? + /step_fresh_l [] ? ? ?. subst.
-    move=> /rt_rt1n H1 /rt_rt1n H2.
-    by apply: confluent_valid_M'; [| by eassumption | by eassumption].
+    - move=> {}y2 y2'. move: x y1 y2 => [[l r] x] [[l1 r1] y1] [[l2 r2] y2].
+      move=> + + + + /= Hx. subst x.
+      move=> /step_fresh_l [] ? ? ? + /step_fresh_l [] ? ? ?. subst.
+      move=> /rt_rt1n H1 /rt_rt1n H2.
+      by apply: confluent_valid_M'; [| by eassumption | by eassumption].
   Qed.
 
   Lemma bounded_M' NM : bounded M NM -> bounded M' (NM * (1 + length M') * (1 + length M') * 4).
@@ -585,8 +586,8 @@ Proof.
   pose M1 := AddFreshLoop.M' M [a] [] [] [a] y z.
   pose M2 := DerivableRule.M' M1 [] r l' (a::r') x z.
   have : In ([], r, x, (a :: l', r', y)) M2.
-    rewrite /M2 /M1 /AddFreshLoop.M' /DerivableRule.M' ?in_app_iff.
-    move: HM. clear. by firstorder done.
+  { rewrite /M2 /M1 /AddFreshLoop.M' /DerivableRule.M' ?in_app_iff.
+    move: HM. clear. by firstorder done. }
   move /in_split_informative => /(_ ltac:(by do 5 (decide equality))) => [[[M21 M22] HM2]].
   pose M3 := Reordering.M' M21 M22 [] r (a::l') r' x y.
   pose M4 := DerivableRule.M' (M21 ++ M22) [] r (a::l') r' x y.
@@ -638,8 +639,8 @@ Proof.
   pose M1 := AddFreshLoop.M' M [] [a] [a] [] x z.
   pose M2 := DerivableRule.M' M1 [a] [] [] [b] z y.
   have : In ([], [a], x, ([], [b], y)) M2.
-    rewrite /M2 /M1 /AddFreshLoop.M' /DerivableRule.M' ?in_app_iff.
-    move: HM. clear. by firstorder done.
+  { rewrite /M2 /M1 /AddFreshLoop.M' /DerivableRule.M' ?in_app_iff.
+    move: HM. clear. by firstorder done. }
   move /in_split_informative => /(_ ltac:(by do 5 (decide equality))) => [[[M21 M22] HM2]].
   pose M3 := Reordering.M' M21 M22 [] [a] [] [b] x y.
   pose M4 := DerivableRule.M' (M21 ++ M22) [] [a] [] [b] x y.
@@ -660,7 +661,7 @@ Proof.
         [done | done | clear; by firstorder done]. }
   exists (M21 ++ M22). constructor; [| constructor; [| constructor]].
   - suff: weight M2 < weight M + (weight_Instruction ([], [a], x, ([], [b], y))).
-      rewrite HM2 weight_split. move: (weight_Instruction _) (weight _). by lia.
+    { rewrite HM2 weight_split. move: (weight_Instruction _) (weight _). by lia. }
     rewrite /weight_Instruction /basic.
     rewrite /M2 /DerivableRule.M' /= /weight_Instruction /=. by lia.
   - apply /DerivableRule.confluence; first by eassumption.
@@ -692,8 +693,8 @@ Proof.
   pose M2 := AddFreshLoop.M' M1 [] [b] [a] [] y z2.
   pose M3 := DerivableRule'.M' M2 r r' z1 z2.
   have : In ([], a :: r, x, ([], b :: r', y)) M3.
-    rewrite /M3 /M2 /M1 /AddFreshLoop.M' /DerivableRule'.M' ?in_app_iff.
-    move: HM. clear. by firstorder done.
+  { rewrite /M3 /M2 /M1 /AddFreshLoop.M' /DerivableRule'.M' ?in_app_iff.
+    move: HM. clear. by firstorder done. }
   move /in_split_informative => /(_ ltac:(by do 5 (decide equality))) => [[[M31 M32] HM3]].
   pose M4 := Reordering.M' M31 M32 [] (a::r) [] (b::r') x y.
   pose M5 := DerivableRule.M' (M31 ++ M32) [] (a::r) [] (b::r') x y.
@@ -701,12 +702,12 @@ Proof.
   have ? : y <> z1 by (move: HM => /fresh_StateP; subst z1; lia). 
   have [? ?] : x <> z2 /\ y <> z2.
   { have /fresh_StateP : In ([], a :: r, x, ([], b :: r', y)) M1.
-      rewrite /M1 /AddFreshLoop.M' ?in_app_iff. by right. cbn in *.
+    { rewrite /M1 /AddFreshLoop.M' ?in_app_iff. by right. }
     by lia. }
   have ? : z1 <> z2.
   { have /fresh_StateP : In ([], [a], x, ([a], [], z1)) M1.
-      rewrite /M1 /AddFreshLoop.M' ?in_app_iff. left. by left.
-    cbn in *; by lia. }
+    { rewrite /M1 /AddFreshLoop.M' ?in_app_iff. left. by left. }
+    by lia. }
   
   (* az1r -> az2r' is derivable *)
   have ? : reachable M2 ([a], r, z1) ([a], r', z2).
@@ -728,22 +729,21 @@ Proof.
   have ? : forall l'' r'' z , step M2 (l'', r'', z1) z -> l'' = [a] ++ skipn 1 l''.
   { move=> l'' r'' z. move HZ1: (l'', r'', z1) => Z1 HZ1z. case: HZ1z HZ1.
     move=> >. rewrite /M2 /AddFreshLoop.M' /M1 /AddFreshLoop.M' ?in_app_iff. case.
-      case; [by congruence | case; [by congruence | done]].
+    { case; [by congruence | case; [by congruence | done]]. }
     case.
-      case; first by congruence.
+    - case; first by congruence.
       case; last done.
       move=> + [] *. move=> [] *. by subst.
-    move /fresh_StateP=> ? [] *. subst z1. by lia. }
+    - move /fresh_StateP=> ? [] *. subst z1. by lia. }
   (* z1 is only entered with a on the left stack *)
   have ? : forall l'' r'' z , step M2 z (l'', r'', z1) -> l'' = [a] ++ skipn 1 l''.
   { move=> l'' r'' z. move HZ1: (l'', r'', z1) => Z1 HZ1z. case: HZ1z HZ1.
     move=> >. rewrite /M2 /AddFreshLoop.M' /M1 /AddFreshLoop.M' ?in_app_iff. case.
-      case; [by congruence | case; [by congruence | done]].
-    case.
-      case.
-        move=> + [] * => [[]] *. by subst.
-      case; [by congruence | done].
-    move /fresh_StateP=> ? [] *. subst z1. by lia. }  
+    { case; [by congruence | case; [by congruence | done]]. }
+    case; [case|].
+    - move=> + [] * => [[]] *. by subst.
+    - case; [by congruence | done].
+    - move /fresh_StateP=> ? [] *. subst z1. by lia. }  
   exists (M31 ++ M32). constructor; [| constructor; [| constructor]].
   - suff: weight M3 < weight M + (weight_Instruction ([], (a::r), x, ([], (b::r'), y))).
     { rewrite HM3 weight_split. move: (weight_Instruction _) (weight _). by lia. }

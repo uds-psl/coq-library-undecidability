@@ -23,6 +23,7 @@ From Undecidability.CounterMachines.Util Require Import
 Require Import ssreflect ssrbool ssrfun.
 
 Set Default Proof Using "Type".
+Set Default Goal Selector "!".
 
 Module Argument.
 Section MM2_CM2.

@@ -22,6 +22,8 @@ Require Import Undecidability.HilbertCalculi.Util.HSCFacts.
 
 Require Import Undecidability.PCP.PCP.
 
+Set Default Goal Selector "!".
+
 Module Argument.
 
 Local Arguments incl_cons_inv {A a l m}.

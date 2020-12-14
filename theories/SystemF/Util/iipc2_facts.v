@@ -10,6 +10,8 @@ Require Import Undecidability.SystemF.SysF Undecidability.SystemF.Autosubst.synt
 From Undecidability.SystemF.Util Require Import Facts poly_type_facts typing_facts.
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Goal Selector "!".
+
 Local Arguments nth_error_In {A l n x}.
 Local Arguments In_nth_error {A l x}.
 

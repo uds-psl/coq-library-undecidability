@@ -27,6 +27,7 @@ From Undecidability.CounterMachines.Util Require CM1_facts CM2_facts.
 Require Import ssreflect ssrbool ssrfun.
 
 Set Default Proof Using "Type".
+Set Default Goal Selector "!".
 
 Module Argument.
 Import CM2 (Cm2).
@@ -179,7 +180,7 @@ Section MM2_CM1.
     rewrite [(_ * 5^_) mod 3]Nat.mul_mod; first by lia.
     rewrite [(_ * 3^_) mod 3]Nat.mul_mod; first by lia.
     move: b => [|b].
-      by case: (pow_2_mod_3 a); case: (pow_5_mod_3 c); move=> -> ->.
+    { by case: (pow_2_mod_3 a); case: (pow_5_mod_3 c); move=> -> ->. }
     have -> : 3 ^ S b = 3 * 3 ^ b by move=> /=; lia.
     rewrite [(3 * _) mod 3]Nat.mul_mod; first by lia.
     by rewrite ?((@Nat.mod_same 3 ltac:(lia)), (@Nat.mod_0_l 3 ltac:(lia)), Nat.mul_0_r).

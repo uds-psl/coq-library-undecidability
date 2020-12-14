@@ -6,6 +6,8 @@ Require Import Undecidability.CounterMachines.Util.Nat_facts.
 
 Require Import ssreflect.
 
+Set Default Goal Selector "!".
+
 Lemma haltingP {cm c} : halting cm c <-> length cm <= state c.
 Proof.
   move:c => [p a b]. rewrite /halting /=.

@@ -22,6 +22,8 @@ Require Import Undecidability.HilbertCalculi.Util.HSCFacts.
 
 Require Import Undecidability.PCP.PCP.
 
+Set Default Goal Selector "!".
+
 Module Argument.
 
 Local Arguments incl_cons_inv {A a l m}.
@@ -338,7 +340,7 @@ Proof.
   rewrite {}H. apply.
   evar (ζ : nat -> formula).
   instantiate (ζ := fun x => match x with | 0 => _ | 1 => _ | _ => _ end).
-  apply: (hscI (ζ := ζ)). by left.
+  apply: (hscI (ζ := ζ)); first by left.
   by rewrite /ζ /PCPf transparent_encode_pair.
 Qed.
 
@@ -380,11 +382,10 @@ Proof.
   { move /(f_equal size) => /=. by lia. }
   rewrite /ΓPCP /In -/ΓPCP. case; last case; last case; last case; last case; last done.
   all: move=> <-.
-  case: k=> [|k] /=.
-  { move=> _. case. do 7 (move=> _). move=> ->.
+  { case: k=> [|k] /=; last by move=> /ForallE [/not_ΓPCP_rrr].
+    move=> _. case. do 7 (move=> _). move=> ->.
     case=> /encode_word'_injective + /encode_list_injective.
     move=> -> ->. do 6 (move=> _). exists []. by constructor. }
-  by move=> /ForallE [/not_ΓPCP_rrr].
   all: case: k=> [|k].
   1,3,5,7: move=> _ /=; case=> <- *; exfalso; apply: Hu; by eassumption.
   all: case: k=> [|k].

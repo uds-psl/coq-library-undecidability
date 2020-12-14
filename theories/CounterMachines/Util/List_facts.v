@@ -9,6 +9,7 @@ Unset Printing Implicit Defensive.
 Set Maximal Implicit Insertion.
 
 Set Default Proof Using "Type".
+Set Default Goal Selector "!".
 
 Section ForallNorm.
 
@@ -21,7 +22,7 @@ Proof. by constructor. Qed.
 Lemma Forall_consP {a A} : Forall P (a :: A) <-> P a /\ Forall P A.
 Proof.
   constructor. 
-    move=> H. by inversion H.
+  { move=> H. by inversion H. }
   move=> [? ?]. by constructor.
 Qed.
 
@@ -31,7 +32,7 @@ Proof. rewrite Forall_consP Forall_nilP. by tauto. Qed.
 Lemma Forall_appP {A B}: Forall P (A ++ B) <-> Forall P A /\ Forall P B.
 Proof.
   elim: A.
-    constructor; by [|case].
+  { constructor; by [|case]. }
   move=> ? ? IH /=. rewrite ? Forall_consP ? IH.
   by tauto.
 Qed.
@@ -77,8 +78,8 @@ Lemma nth_error_seq {m l n: nat} :
   n < l -> nth_error (seq m l) n = Some (m+n).
 Proof.
   elim: n m l.
-    move=> m [|l]; first by lia.
-    move=> /= _. congr Some. by lia.
+  { move=> m [|l]; first by lia.
+    move=> /= _. congr Some. by lia. }
   move=> n IH m [|l /= ?]; first by lia.
   rewrite /nth_error -/(nth_error _ _) IH; [|congr Some]; by lia.
 Qed.

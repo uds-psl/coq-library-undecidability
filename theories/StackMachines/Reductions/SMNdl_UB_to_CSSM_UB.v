@@ -27,6 +27,7 @@ Require Import Undecidability.StackMachines.Util.SMN_transform.
 Require Import ssreflect ssrbool ssrfun.
 
 Set Default Proof Using "Type".
+Set Default Goal Selector "!".
 
 Module Argument.
 Section Reduction.
@@ -96,14 +97,14 @@ Section Reduction.
   Lemma boundedness : (exists NM, bounded M NM) <-> (exists NM', SSM.bounded M' NM').
   Proof using basic_M.
     constructor.
-      move=> [NM bounded_M]. exists NM.
+    - move=> [NM bounded_M]. exists NM.
       move=> X. have [L [HL ?]] := bounded_M X.
       exists L. constructor; last done.
       by move=> ? /inverse_simulation /= /HL ?.
-    move=> [NM' bounded_M']. exists NM'.
-    move=> X. have [L [HL ?]] := bounded_M' X.
-    exists L. constructor; last done.
-    by move=> ? /simulation /= /HL ?.
+    - move=> [NM' bounded_M']. exists NM'.
+      move=> X. have [L [HL ?]] := bounded_M' X.
+      exists L. constructor; last done.
+      by move=> ? /simulation /= /HL ?.
   Qed.
 
 End Reduction.
@@ -117,8 +118,8 @@ Proof.
   move=> [M [/deterministic_confluent H1M H2M]].
   exists (Argument.M' (sval (construct_basic_SMN M H1M H2M))).
   apply: Argument.confluent_M'.
-  exact (fst (snd (svalP (construct_basic_SMN M H1M H2M)))).
-  exact (fst ((svalP (construct_basic_SMN M H1M H2M)))).
+  - exact (fst (snd (svalP (construct_basic_SMN M H1M H2M)))).
+  - exact (fst ((svalP (construct_basic_SMN M H1M H2M)))).
 Defined.
 
 (* many-one reduction from deterministic, length-preserving stack machine uniform boundedness to confluent simple stack machine uniform boundedness *)

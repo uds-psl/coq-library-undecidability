@@ -11,6 +11,7 @@ Require Import List.
 Import ListNotations.
 
 Set Default Proof Using "Type".
+Set Default Goal Selector "!".
 
 (* misc facts *)
 
@@ -52,8 +53,7 @@ Qed.
 Lemma count_occ_app {X : Type} {D : forall x y : X, {x = y} + {x <> y}} {A B c}:
 count_occ D (A ++ B) c = count_occ D A c + count_occ D B c.
 Proof.
-  elim: A B.
-    done.
+  elim: A B; first done.
   move=> a A IH B /=. rewrite IH. by case: (D a c).
 Qed.
 
@@ -71,8 +71,8 @@ Lemma Forall_cons_iff {T: Type} {P: T -> Prop} {a l} :
   Forall P (a :: l) <-> P a /\ Forall P l.
 Proof.
   constructor. 
-    move=> H. by inversion H.
-  move=> [? ?]. by constructor.
+  - move=> H. by inversion H.
+  - move=> [? ?]. by constructor.
 Qed.
 
 Lemma Forall_singleton_iff {X: Type} {P: X -> Prop} {x} : Forall P [x] <-> P x.
@@ -83,9 +83,9 @@ Qed.
 Lemma Forall_app_iff {T: Type} {P: T -> Prop} {A B}: Forall P (A ++ B) <-> Forall P A /\ Forall P B.
 Proof.
   elim: A.
-    constructor; by [|case].
-  move=> ? ? IH /=. rewrite ? Forall_cons_iff ? IH.
-  by tauto.
+  - constructor; by [|case].
+  - move=> ? ? IH /=. rewrite ? Forall_cons_iff ? IH.
+    by tauto.
 Qed.
 
 (* usage: rewrite ? Forall_norm *)
@@ -95,8 +95,8 @@ Lemma Forall_flat_mapP {X Y: Type} {P: Y -> Prop} {f: X -> list Y} {A: list X}:
   Forall P (flat_map f A) <-> Forall (fun a => Forall P (f a)) A.
 Proof.
   elim: A.
-    move=> /=. by constructor.
-  move=> a A IH. by rewrite /flat_map -/(flat_map _ _) ? Forall_norm IH.
+  - move=> /=. by constructor.
+  - move=> a A IH. by rewrite /flat_map -/(flat_map _ _) ? Forall_norm IH.
 Qed.
 
 (* seq facts *)

@@ -5,6 +5,8 @@ Require Import Undecidability.StackMachines.Util.Nat_facts.
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Goal Selector "!".
+
 Lemma seq_last {m n} : seq m (1+n) = seq m n ++ [m + n].
 Proof. have -> : 1+n = n+1 by lia. by rewrite seq_app. Qed.
 
@@ -22,10 +24,10 @@ Lemma nth_error_seq {m l n: nat} :
   n < l -> nth_error (seq m l) n = Some (m+n).
 Proof.
   elim: n m l.
-    move=> m [|l]; first by lia.
+  - move=> m [|l]; first by lia.
     move=> /= _. congr Some. by lia.
-  move=> n IH m [|l /= ?]; first by lia.
-  rewrite /nth_error -/(nth_error _ _) IH; [|congr Some]; by lia.
+  - move=> n IH m [|l /= ?]; first by lia.
+    rewrite /nth_error -/(nth_error _ _) IH; [|congr Some]; by lia.
 Qed.
 
 Lemma repeat_appP {X: Type} {x: X} {n m: nat} : 
@@ -59,16 +61,16 @@ Lemma nth_error_Some_In_combineP {X: Type} {i} {x: X} {L: list X} :
 Proof.
   suff: forall j, nth_error L i = Some x <-> In (j+i, x) (combine (seq j (length L)) L) by move /(_ 0).
   elim: L i.
-    by move=> [|i] j.
+  { by move=> [|i] j. }
   move=> y L IH [|i] j /=.
-    constructor.
-      move=> [->]. left. f_equal. by lia.
-    case; first by move=> [_ ->].
-    move /(@in_combine_l nat X). rewrite in_seq. by lia.
-  rewrite (IH i (S j)). 
-  have ->: S j + i = j + S i by lia. constructor.
-    move=> ?. by right.
-  by case; [move=> []; lia |].
+  - constructor.
+    + move=> [->]. left. f_equal. by lia.
+    + case; first by move=> [_ ->].
+      move /(@in_combine_l nat X). rewrite in_seq. by lia.
+  - rewrite (IH i (S j)). 
+    have ->: S j + i = j + S i by lia. constructor.
+    + move=> ?. by right.
+    + by case; [move=> []; lia |].
 Qed.
 
 Lemma nth_error_combine_SomeP {X: Type} {i} {x: X} {L: list X} : 
@@ -77,10 +79,10 @@ Proof.
   suff: forall j, nth_error L i = Some x <-> nth_error (combine (seq j (length L)) L) i = Some (j+i, x) by move /(_ 0).
   elim: L i; first by case.
   move=> y L IH [|i] j /=.
-    have ->: j + 0 = j by lia.
+  - have ->: j + 0 = j by lia.
     by constructor; move=> [->].
-  have ->: j + S i = S j + i by lia.
-  by apply: IH.
+  - have ->: j + S i = S j + i by lia.
+    by apply: IH.
 Qed.
 
 Lemma nth_error_appP {X: Type} {l1 l2: list X} {i: nat} {x: X} : 
@@ -88,17 +90,17 @@ Lemma nth_error_appP {X: Type} {l1 l2: list X} {i: nat} {x: X} :
     ((i < length l1 /\ nth_error l1 i = Some x) \/ (length l1 <= i /\ nth_error l2 (i - length l1) = Some x)).
 Proof.
   constructor.
-    have [Hi | Hi]: i < length l1 \/ length l1 <= i by lia.
-      by rewrite nth_error_app1; firstorder done.
-    by rewrite nth_error_app2; firstorder done.
-  move=> [[? ?]|[? ?]]; by [rewrite nth_error_app1 | rewrite nth_error_app2].
+  - have [Hi | Hi]: i < length l1 \/ length l1 <= i by lia.
+    + by rewrite nth_error_app1; firstorder done.
+    + by rewrite nth_error_app2; firstorder done.
+  - move=> [[? ?]|[? ?]]; by [rewrite nth_error_app1 | rewrite nth_error_app2].
 Qed.
 
 Lemma NoDup_map {X Y: Type} {f : X -> Y} {l : list X} :
   (forall x1 x2, f x1 = f x2 -> x1 = x2) -> NoDup l -> NoDup (map f l).
 Proof.
   move=> Hf. elim: l.
-    move=> ?. by apply: NoDup_nil.
+  { move=> ?. by apply: NoDup_nil. }
   move=> x l IH /NoDup_cons_iff [Hx /IH Hfl] /=.
   apply /NoDup_cons_iff. constructor; last done.
   rewrite in_map_iff. by move=> [x'] [/Hf ->].
@@ -109,8 +111,8 @@ Lemma legnth_flat_map {X Y: Type} {f: X -> list Y} {l: list X} {n: nat}:
   length (flat_map f l) <= n * length l.
 Proof.
   move=> Hf. elim: l.
-    move=> * /=. by lia.
-  move=> x l IH /=. rewrite app_length. have := Hf x. by lia.
+  - move=> * /=. by lia.
+  - move=> x l IH /=. rewrite app_length. have := Hf x. by lia.
 Qed.
 
 Lemma in_split_informative {X: Type} {x: X} {l: list X} : (forall (x y: X), {x = y} + {x <> y}) ->

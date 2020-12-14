@@ -17,14 +17,16 @@
 Require Import Arith Lia List.
 Import ListNotations.
 
-Require Import ssreflect ssrbool ssrfun.
-
 Require Import Undecidability.SetConstraints.FMsetC.
 From Undecidability.SetConstraints.Util Require Facts mset_eq_utils mset_poly_utils.
 
 Require Undecidability.DiophantineConstraints.H10C.
 Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts.
+
+Require Import ssreflect ssrbool ssrfun.
+
+Set Default Goal Selector "!".
 
 Local Notation "A ≡ B" := (mset_eq A B) (at level 65).
 
@@ -144,12 +146,12 @@ Lemma seq_sat2 {d n} :
   (A n) ++ [(S d) * n] ≡ [0] ++ (map (fun i => (S d) + i) (A n)).
 Proof.
   move=> A. elim: n.
-    apply /eq_eq. cbn. f_equal. by nia.
+  { apply /eq_eq. cbn. f_equal. by nia. }
   move=> n IH.
   rewrite /A seq_last ? map_app -/(A n) /plus -/plus.
   rewrite /(map _ [n]) /(map _ [S d * n]).
   have -> : S (d + S d * n) = S d * S n by lia.
-  under map_ext => i. rewrite -/(plus (S d) i). over.
+  under map_ext => i do rewrite -/(plus (S d) i).
   rewrite -/(mset_eq _ _).
   apply /(eq_lr 
     (A' := S d * S n :: (A n ++ [S d * n])) 
@@ -337,7 +339,7 @@ Proof.
   have -> : map S (X 4) = map [eta Init.Nat.add 1] (X 4) by done.
   move=> [/seq_spec2 [n]].
   have -> : map [eta Init.Nat.mul 1] (seq 0 n) = map id (seq 0 n).
-  { under map_ext => i. have -> : 1*i = i by lia. over. done. }
+  { under map_ext => i do have -> : 1*i = i by lia. done. }
   rewrite map_id => [[Hn _]].
   move=> [/eq_symm /eq_trans] => /(_ ((seq 0 n) ++ X 6)). 
   apply: unnest; first by apply: eq_appI.

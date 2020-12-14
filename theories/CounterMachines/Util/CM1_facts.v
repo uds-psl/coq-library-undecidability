@@ -6,16 +6,18 @@ Require Import Undecidability.CounterMachines.Util.Nat_facts.
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Goal Selector "!".
+
 (* halting conditions *)
 Lemma haltingP {M : Cm1} {x: Config}: 
   halting M x <-> (length M <= state x \/ value x = 0).
 Proof.
   move: x => [p c] /=.
   constructor; first last.
-    case; rewrite /halting /=; last by move=> ->.
-    move: c => [|c]; first done. by move=> /nth_error_None ->.
+  { case; rewrite /halting /=; last by move=> ->.
+    move: c => [|c]; first done. by move=> /nth_error_None ->. }
   have [* | /nth_error_Some] : length M <= p \/ p < length M by lia. 
-    by left.
+  { by left. }
   rewrite /halting /=.
   move: c => [|c]; first by (move=> *; right).
   case: (nth_error M p); last done.
@@ -73,7 +75,7 @@ Lemma step_progress (M : Cm1) (x: Config) :
 Proof.
   move=> ? ?. rewrite /step. have ->: value x = S (value x - 1) by lia.
   move Ho: (nth_error M (state x)) => o. case: o Ho; first last.
-    move /nth_error_None. by lia.
+  { move /nth_error_None. by lia. }
   move=> [j n] _. case H: (S (value x - 1) mod (n + 1)); last by left.
   right => /=. by apply: mod_frac_lt.
 Qed.
@@ -88,24 +90,23 @@ Proof.
   move=> Hx. suff: not (config_weight M (step M x) <= config_weight M x) by lia.
   move: x Hx => [p v].
   rewrite /config_weight /=. case: v => [|v].
-    move=> + /ltac:(exfalso). by apply.
+  { move=> + /ltac:(exfalso). by apply. }
   move Ho: (nth_error M p) => o. case: o Ho; first last.
-    move=> Hp + /ltac:(exfalso). apply. move=> /=. by rewrite Hp.
+  { move=> Hp + /ltac:(exfalso). apply. move=> /=. by rewrite Hp. }
   move=> [j n] Hp ?. case Hr: (S v mod (n + 1)); last by lia.
   have := mod_frac_lt Hr.
   have : p < length M.
-    apply /nth_error_Some. by rewrite Hp.
+  { apply /nth_error_Some. by rewrite Hp. }
   by nia.
 Qed.
 
 Lemma config_weight_run_monotone {M: Cm1} {x: Config} {n: nat} :
   not (halting M (Nat.iter n (step M) x)) -> config_weight M x < config_weight M (Nat.iter (1+n) (step M) x).
 Proof.
-  elim: n.
-    by move /config_weight_step_monotone.
+  elim: n; first by move /config_weight_step_monotone.
   move=> n IH HSn.
   have /IH : not (halting M (Nat.iter n (step M) x)).
-    move=> Hn. apply: HSn. move: Hn. apply: halting_monotone. by lia.
+  { move=> Hn. apply: HSn. move: Hn. apply: halting_monotone. by lia. }
   have := config_weight_step_monotone HSn.
   move=> /=. by lia.
 Qed.
@@ -116,14 +117,14 @@ Theorem acyclicity {M: Cm1} {n: nat} {x: Config} :
   NoDup (map (fun i => Nat.iter i (step M) x) (seq 0 (2+n))).
 Proof.
   elim: n.
-    move=> /= Hx.
+  { move=> /= Hx.
     apply: NoDup_cons; first by case.
-    by apply: NoDup_cons; [ case | apply: NoDup_nil ].
+    by apply: NoDup_cons; [ case | apply: NoDup_nil ]. }
   move=> n IH HSn.
   have /IH : not (halting M (Nat.iter n (step M) x)).
-    move=> Hn. apply: HSn. move: Hn. apply: halting_monotone. by lia.
+  { move=> Hn. apply: HSn. move: Hn. apply: halting_monotone. by lia. }
   have ->: seq 0 (2 + S n) = seq 0 (2 + n) ++ [2 + n].
-    have ->: 2 + S n = (2 + n) + 1 by lia. by rewrite [seq 0 (2 + n + 1)] seq_app.
+  { have ->: 2 + S n = (2 + n) + 1 by lia. by rewrite [seq 0 (2 + n + 1)] seq_app. }
   rewrite map_app.
   set f := (fun i : nat => Nat.iter i (step M) x).
   have : Add (f (2+n)) (map f (seq 0 (2 + n)) ++ []) (map f (seq 0 (2 + n)) ++ map f [2 + n]) by apply: Add_app.
@@ -134,7 +135,7 @@ Proof.
   rewrite iter_plus. set x' := Nat.iter i (step M) x.
   move=> Hx'. 
   suff: config_weight M x' < config_weight M (Nat.iter (1 + (1+n - i)) (step M) x').
-    rewrite -Hx'. by lia.
+  { rewrite -Hx'. by lia. }
   apply: config_weight_run_monotone. subst x'.
   rewrite -iter_plus. by have ->: i + (1 + n - i) = S n by lia.
 Qed. 

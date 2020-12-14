@@ -25,6 +25,8 @@ Require Undecidability.SetConstraints.Util.mset_eq_utils.
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Goal Selector "!".
+
 Module Argument.
 Local Arguments poly_add !p !q.
 

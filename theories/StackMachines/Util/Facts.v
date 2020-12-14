@@ -2,6 +2,8 @@ Require Import Lia.
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Goal Selector "!".
+
 (* induction principle wrt. a decreasing measure f *)
 (* example: elim /(measure_ind length) : l. *)
 Lemma measure_ind {X : Type} (f : X -> nat) (P : X -> Prop) : 

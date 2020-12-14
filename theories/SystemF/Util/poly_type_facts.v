@@ -14,6 +14,8 @@ Require Import Undecidability.SystemF.Util.Facts.
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Goal Selector "!".
+
 (* evaluates propositional predicate P on all free variables *)
 Fixpoint allfv_poly_type (p: nat -> Prop) (t: poly_type) :=
   match t with

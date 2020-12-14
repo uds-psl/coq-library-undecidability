@@ -10,8 +10,6 @@
         Proceedings Third Annual Symposium on Logic in Computer Science. IEEE Computer Society, 1988.
 *)
 
-
-
 Require Import List Lia Relation_Definitions Relation_Operators Operators_Properties.
 Import ListNotations.
 Require Import Undecidability.SystemF.SysF Undecidability.SystemF.Autosubst.syntax Undecidability.SystemF.Autosubst.unscoped.
@@ -19,6 +17,8 @@ Import UnscopedNotations.
 From Undecidability.SystemF.Util Require Import Facts poly_type_facts pure_term_facts term_facts typing_facts iipc2_facts.
 
 Require Import ssreflect ssrbool ssrfun.
+
+Set Default Goal Selector "!".
 
 Arguments funcomp {X Y Z} _ _ / _.
 Arguments fresh_in _ _ /.

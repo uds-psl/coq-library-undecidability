@@ -4,6 +4,8 @@ Require Import ssreflect ssrbool ssrfun.
 
 Require Import Undecidability.HilbertCalculi.HSC.
 
+Set Default Goal Selector "!".
+
 Lemma ForallE {T : Type} {P : T -> Prop} {l} : 
   Forall P l -> if l is x :: l then P x /\ Forall P l else True.
 Proof. by case. Qed.

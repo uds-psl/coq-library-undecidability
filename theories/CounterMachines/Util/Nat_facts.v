@@ -2,6 +2,8 @@ Require Import PeanoNat Lia.
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Goal Selector "!".
+
 (* duplicates argument *)
 Lemma copy {A : Prop} : A -> A * A.
 Proof. done. Qed.
