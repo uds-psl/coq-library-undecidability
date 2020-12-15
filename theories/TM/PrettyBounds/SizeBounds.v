@@ -60,6 +60,12 @@ Proof.
   cbn.  nia.
 Qed.
 
+Lemma size_rev X sigX (cX: codable sigX X) (l:list X) :
+  size (rev l) = size l.
+Proof.
+  rewrite !size_list. now rewrite rev_length,map_rev,<- sumn_rev.
+Qed.
+
 Lemma destruct_vector1 (X : Type) (v : Vector.t X 1) :
   exists x, v = [| x |].
 Proof. destruct_vector. eauto. Qed.

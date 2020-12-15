@@ -333,8 +333,8 @@ Import Hoare.
 
 Ltac hstep_App :=
   lazymatch goal with
-  | [ |- TripleT ?P ?k (App' _) ?Q ] => eapply App'_SpecT
-  | [ |- TripleT ?P ?k (App _) ?Q ] => eapply App_SpecT
+  | [ |- TripleT ?P ?k (App' _) ?Q ] => refine (App'_SpecT _ _ _ _);shelve
+  | [ |- TripleT ?P ?k (App _) ?Q ] =>  refine (App_SpecT _ _ _ _);shelve
   end.
 
 Smpl Add hstep_App : hstep_Spec.

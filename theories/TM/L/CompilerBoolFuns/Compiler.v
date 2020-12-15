@@ -164,7 +164,7 @@ Section mk_init_one.
     cbn. intros _. hstep. { hsteps_cbn. cbn. tspec_ext. } 2:reflexivity.
     cbn. intros _. hstep.
     {
-      hsteps_cbn. cbn. eapply ConsequenceT. eapply (projT2 (@BoollistToEnc.SpecT _ _ _) (rev bs)).
+      hsteps_cbn. cbn. eapply ConsequenceT. eapply BoollistToEnc.SpecT with (bs:=rev bs).
       all:cbn. now tspec_ext. now rewrite rev_involutive. reflexivity.
     } 2:reflexivity.
     cbn. intros _. hsteps_cbn.

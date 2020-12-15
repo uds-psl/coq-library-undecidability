@@ -494,7 +494,7 @@ Section Fix.
         (1 + Private_UnfoldClos.steps H a' 1 s' t' +
          (1 + Translate_steps (rev (compile t')) +
           (1 + WriteValue_steps (size [retT]) +
-           (1 + Rev_Append_steps Encode_Com (rev (compile t')) +
+           (1 + Rev_Append_steps (rev (compile t')) +
             Cons_constant.time lamT))))))
       | _ => 0
     end

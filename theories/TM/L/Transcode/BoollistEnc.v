@@ -47,6 +47,12 @@ Proof.
   2:{ intros [] ?;cbv. all:reflexivity. } setoid_rewrite MoreList.sumn_map_c. instantiate (1:=2). nia.
 Qed.
 
+Lemma boollist_length: ( fun (bs:list bool) => length bs) <=c Code.size.
+Proof.
+  eexists. intros bs. rewrite size_list. erewrite <- (MoreBase.sumn_map_le_pointwise (f1:=fun _ => _)).
+  2:{ intros [] ?;cbv. all:reflexivity. } setoid_rewrite MoreList.sumn_map_c. instantiate (1:=2). nia.
+Qed.
+
 Arguments enc_bool_perElem : simpl never.
 Arguments enc_bool_nil : simpl never.
 Arguments enc_bool_closing : simpl never.

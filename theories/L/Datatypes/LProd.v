@@ -58,6 +58,7 @@ Section Fix_XY.
     intros ? ?. eapply prod_eqb_spec. all:eauto using eqb_spec.
   Qed.
 
+  
   Global Instance eqbComp_Prod `{eqbCompT X (R:=intX)} `{eqbCompT Y (R:=intY)}:
     eqbCompT (X*Y).
   Proof.

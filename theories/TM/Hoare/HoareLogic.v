@@ -219,6 +219,18 @@ Proof. intros. eapply ConsequenceT; eauto. Qed.
 
 (* Many, may boring rules... I hope we won't ever need one of these. *)
 
+Lemma Entails_exists_pre {sig : finType} {n : nat}
+      (X : Type) (P : X -> Assert sig n) (Q : Assert sig n) :
+  (forall (x : X), Entails (P x) Q) ->
+  Entails (fun tin => exists x : X, P x tin) Q.
+Proof. setoid_rewrite Entails_iff. firstorder. Qed.
+
+Lemma Entails_exists_con {sig : finType} {n : nat}
+      (X : Type) (P : Assert sig n) (Q : X -> Assert sig n) :
+  (exists (x : X), Entails P (Q x)) ->
+  Entails P (fun tin => exists x : X, Q x tin).
+Proof. setoid_rewrite Entails_iff. firstorder. Qed.
+
 Lemma Triple_exists_pre {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n)
       (X : Type) (P : X -> Assert sig n) (Q : F -> Assert sig n) :
   (forall (x : X), Triple (P x) pM Q) ->
