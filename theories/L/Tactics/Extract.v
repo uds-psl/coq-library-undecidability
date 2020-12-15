@@ -217,6 +217,9 @@ Definition tmGetMyOption {X} (o : option_instance X) (err : string) : TemplateMo
   | my_None => tmFail err
   end.
 
+Definition naNamed n := {| binder_name := nNamed n; binder_relevance := Relevant |}.
+Definition naAnon := {| binder_name := nAnon; binder_relevance := Relevant |}.
+
 Definition mkFixMatch (f x : ident) (t1 t2 : Ast.term) (cases : nat -> list term -> TemplateMonad term) :=
   hs_num <- tmGetOption (split_head_symbol t1) "no head symbol found";;
   let '(ind, Params) := hs_num in
@@ -228,10 +231,10 @@ Definition mkFixMatch (f x : ident) (t1 t2 : Ast.term) (cases : nat -> list term
                           t <- cases i l' ;; ret (args, t)) L ;; 
   ret (Ast.tFix [BasicAst.mkdef 
                    Ast.term
-                   (nNamed f)
-                   (tProd nAnon t1 t2)
-                   (tLambda (nNamed x) t1 (tCase (ind, params)
-                                                (tLambda nAnon t1 t2)
+                   (naNamed f)
+                   (tProd naAnon t1 t2)
+                   (tLambda (naNamed x) t1 (tCase ((ind, params), Relevant)
+                                                (tLambda naAnon t1 t2)
                                                 (tRel 0)
                                                 body)) 0] 0).
 
@@ -269,7 +272,7 @@ Definition tmEncode (name : string) (A : Type) :=
            (fun i (* ctr index *) ctr_types (* ctr type *) => 
               args <- tmEval cbv (|ctr_types|);; 
               C <- monad_map_i (encode_arguments t args) ctr_types ;; 
-              ret (stack (map (tLambda (nAnon)) ctr_types)
+              ret (stack (map (tLambda (naAnon)) ctr_types)
                                (it mkLam num ((fun s => mkAppList s C) (mkVar (mkNat (num - i - 1))))))
            ) ;;
   u <- tmUnquoteTyped (encodable A) ter;; 

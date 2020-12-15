@@ -2,7 +2,7 @@
 
 Require Import Equations.Equations Equations.Prop.DepElim Arith Undecidability.Shared.Libs.PSL.Numbers List Setoid.
 From Undecidability.Synthetic Require Export DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
-From Undecidability.FOLP Require Export FullSyntax.
+From Undecidability.FOLP Require Export FullSyntax unscoped.
 From Undecidability.Shared Require Import ListAutomation.
 Require Export Lia.
 Import ListAutomationNotations.
@@ -42,7 +42,7 @@ Section FullFOL.
   Context {Sigma : Signature}.
 
   Lemma var_subst phi :
-    phi[var_term] = phi.
+    phi [var_term] = phi.
   Proof.
     now asimpl.
   Qed.
