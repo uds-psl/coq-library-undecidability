@@ -4,6 +4,8 @@ From Undecidability.HOU Require Import std.std.
 From Undecidability.HOU.calculus Require Export prelim.
 From Undecidability.HOU.calculus Require Import semantics.
 
+Set Default Proof Using "Type".
+
 (* * Confluence *)
 Section Confluence.
 
@@ -101,6 +103,7 @@ Section Confluence.
 
 
   Lemma confluence_step: confluent (@step X).
+  Proof.
     eapply TMT.
     eapply sandwich_step. eapply sandwich_steps.
     typeclasses eauto.

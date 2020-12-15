@@ -3,6 +3,7 @@ Require Import List Omega Lia.
 Import ListNotations.
 From Undecidability.HOU Require Export calculus.prelim std.std.
 
+Set Default Proof Using "Type".
 
 (* * Syntax *)
 Definition isVar X (e: exp X) :=

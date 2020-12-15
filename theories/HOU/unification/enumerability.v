@@ -2,6 +2,8 @@ Set Implicit Arguments.
 Require Import List Omega Lia.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.higher_order_unification unification.nth_order_unification.
 
+Set Default Proof Using "Type".
+
 (* * Enumerability *)
 
 (* ** Terms, Types and Contexts *)
@@ -23,7 +25,7 @@ Section ListEnumerability.
     end.
   
   Global Instance enumT_exp: enumT (exp X). 
-  Proof.
+  Proof using enumX.
     exists L_exp.
     - eauto. 
     - induction x as [y|c|s| s IH1 t IH2].
@@ -130,7 +132,7 @@ Section ListEnumerability.
 
   Global Instance enumT_uni :
     enumT (uni X).
-  Proof with eauto using cum_ge'.
+  Proof using enumX with eauto using cum_ge'.
     exists L_uni.
     - eauto.
     - intros [Gamma s t A H1 H2].
@@ -193,6 +195,7 @@ Section ListEnumerability.
     end.
 
   Lemma enum_unification' : enum Uextended L_Uextended.
+  Proof.
     split; eauto.
     intros [[I Delta] sigma]. unfold Uextended; cbn; split.
     - intros (H3 & H4 & H5). destruct (el_T I) as [x1].

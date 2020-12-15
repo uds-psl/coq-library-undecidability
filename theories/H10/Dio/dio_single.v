@@ -19,6 +19,8 @@ From Undecidability.H10.Dio
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Local Notation "∑" := (msum plus 0).
 
 Section convexity.
@@ -442,5 +444,3 @@ Section dio_poly_proj_par.
   Qed.
       
 End dio_poly_proj_par.
-
-

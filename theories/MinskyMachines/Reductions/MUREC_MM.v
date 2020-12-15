@@ -18,6 +18,8 @@ From Undecidability.MinskyMachines
 From Undecidability.MuRec 
   Require Import recalg ra_simul.
 
+Set Default Proof Using "Type".
+
 Local Notation "'⟦' f '⟧'"  := (@ra_rel _ f) (at level 0).
 Local Notation "P /MM/ s ↓" := (sss_terminates (@mm_sss _) P s) (at level 70, no associativity).
 
@@ -42,4 +44,3 @@ End MUREC_MM_HALTING.
 
 (* Check MUREC_MM_HALTING. *)
 (* Print Assumptions MUREC_MM_HALTING. *)
-

@@ -10,6 +10,7 @@ Local Fixpoint subst' (s : term) (k : nat) (u : term) {struct s} : term :=
   end.
 
 Lemma subst'_eq s k u: subst s k u = subst' s k u.
+Proof.
   revert k;induction s;intros;simpl;try congruence.
   (* dec;destruct (n =? k) eqn:eq;try reflexivity. *)
   (* -apply beq_nat_false in eq. tauto. *)
@@ -23,6 +24,7 @@ Qed.
 
 
 Lemma subst'_cls s : closed s -> forall x t, subst' s x t = s.
+Proof.
   intros. rewrite <- subst'_eq. apply H. 
 Qed.
 
@@ -49,10 +51,12 @@ iLtac redSimpl' s x t:=
 Ltac Lbeta_old := cbn [subst' Init.Nat.eqb].
 
 Lemma subst'_int (X:Set) (ty : TT X) (f:X) (H : computable f) : forall x t, subst' (ext f) x t = (ext f).
-  intros. apply subst'_cls. Lproc.
+Proof.
+intros. apply subst'_cls. Lproc.
 Qed.
 (*
 Lemma subst'_enc Y  (H:registered  Y): forall y x t, subst' (enc y) x t = (enc y).
+Proof.
   intros. apply subst'_cls. Lproc.
 Qed.
 *)
@@ -67,22 +71,27 @@ Local Ltac closedRewrite2 := rewrite ?subst'_int;
   end.
 
 Lemma app_eq_proper (s s' t t' :term) : s = s' -> t = t' -> s t = s' t'.
+Proof.
   congruence.
 Qed.
 
 Lemma lam_app_proper (s s' :term) : s = s' -> lam s = lam s'.
+Proof.
   congruence.
 Qed.
 
 Lemma subst'_eq_proper (s s':term) x t : s = s' -> subst' s x t = subst' s' x t.
+Proof.
   congruence.
 Qed.
 
 Lemma clR s s' t : s' = s -> s >* t -> s' >* t.
+Proof.
   congruence.
 Qed.
 
 Lemma clR' s s' t : s' = s -> s == t -> s' == t.
+Proof.
   congruence.
 Qed.
 

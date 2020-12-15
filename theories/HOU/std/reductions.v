@@ -3,6 +3,8 @@ Require Import Omega Lia List.
 From Undecidability.HOU Require Import std.lists.basics std.misc std.enumerable std.decidable.
 Import ListNotations.
 
+Set Default Proof Using "Type".
+
 Section Reductions.
 
   Variable (X Y Z: Type).
@@ -60,7 +62,7 @@ Section enum_red.
 
   Lemma enum_red LX :
     enum p (L LX).
-  Proof.    
+  Proof using qe q Hf.    
     split.
     - intros ?. cbn; eauto. 
     - split.
@@ -105,7 +107,7 @@ Section enum_red2.
 
   Lemma enum_red2:
     enum p Lalt.
-  Proof.
+  Proof using qe q Hg Hf.
     split; eauto.
     split.
     - intros H. eapply Hf in H. eapply qe in H as [m1]. destruct (el_T x) as [m2 ?].

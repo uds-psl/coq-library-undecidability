@@ -20,6 +20,8 @@ From Undecidability.MuRec
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Tactic Notation "rew" "length" := autorewrite with length_db.
 
 Local Notation "i /e/ s '-1>' t" := (mm_sss_env eq_nat_dec i s t)  (at level 70, no associativity).
@@ -292,4 +294,3 @@ Section ra_mm_comp.
   Qed.
 
 End ra_mm_comp.
-

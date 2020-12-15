@@ -11,6 +11,8 @@
     Uniform Boundedness of Deterministic, Flip-consistent, Length-preserving Stack Machines with Exchange
 *)
 
+Set Default Proof Using "Type".
+
 Require Import Relation_Operators Operators_Properties Lia PeanoNat List.
 Import ListNotations.
 
@@ -331,13 +333,13 @@ Section Reduction.
   Local Definition reachable_n := reachable_n M.
 
   Lemma iP_capped {i j n}: In (i, (j, n)) iP -> n < 4.
-  Proof. move /in_combine_r. have /Forall_forall := capped_P. by move=> H /H. Qed.
+  Proof using capped_P. move /in_combine_r. have /Forall_forall := capped_P. by move=> H /H. Qed.
 
   Lemma gotos_igotos {n X Y} : In (n, X, Y) gotos -> exists i, In (i, (n, X, Y)) igotos.
   Proof. move /(In_nth_error gotos) => [i /nth_error_Some_In_combineP ?]. by exists i. Qed.
 
   Lemma igotos_capped {i n X Y} : In (i, (n, X, Y)) igotos -> n < 4.
-  Proof.
+  Proof using capped_P.
     move /in_combine_r. rewrite /gotos ?in_app_iff ?in_map_iff.
     case; first by (move=> [[? [? ?]]] [[]] *; subst; apply: iP_capped; eassumption).
     do 4 (case; first by (move=> [[? [? ?]]] [[]] *; subst; lia)).
@@ -479,7 +481,7 @@ Section Reduction.
 
   Theorem length_preserving_M {s t X s' t' Y b} :
     In ((s, t, X), (s', t', Y), b) M -> length (s ++ t) = length (s' ++ t') /\ 1 <= length (s ++ t).
-  Proof.
+  Proof using capped_P.
     move /(transition _ [] []). rewrite ?app_norm.
     move: b => [|] /stepE [] > + [] *; move=> [] *; subst; rewrite ?app_length ?repeat_length ?/G /=.
     all: try by lia.
@@ -502,7 +504,7 @@ Section Reduction.
     reachable_n (goto_time C N)
       (l, §0^c ++ [§1] ++ r, goto n X Y) 
       ([§1] ++ r, §0^c ++ l, basic_state (if c mod (n+1) is 0 then X else Y)).
-  Proof.
+  Proof using capped_P.
     move=> HN l r i n X Y c Hi HC. 
     suff: reachable_n ((c+1-G)*(N+2)+1) (* actual inductive lemma *)
       (l, §0^c ++ [§1] ++ r, goto n X Y) 
@@ -544,7 +546,7 @@ Section Reduction.
     forall (T: nat) (l r: list Symbol) T' n X Y c Z, In (n, X, Y) gotos -> (c - G) <= C -> T + goto_time C N <= T' ->
     reachable_n T ([§1] ++ r, §0^c ++ l, basic_state (if c mod (n+1) is 0 then X else Y)) Z ->
     reachable_n T' (l, §0^c ++ [§1] ++ r, goto n X Y) Z.
-  Proof.
+  Proof using capped_P.
     move=> HN T l r T' > /gotos_igotos [?] /(goto_1 HN l r) H => /H => + ? ?.
     by apply: (reachable_n_trans' T); first by lia.
   Qed.
@@ -559,7 +561,7 @@ Section Reduction.
     reachable_n ((k+1)*(2*(goto_time C N)+3))
       (§0^m ++ [§1] ++ §0^k ++ l, §0^(k * (1+n)) ++ r, '#+i) 
       (§0^(m + k * (2+n)) ++ [§1] ++ l, r, '#+i).
-  Proof.
+  Proof using capped_P.
     move=> HN l r i j n k m Hijn. elim: k m l r.
       (* case k = 0 *)
     { move=> m l r _. rewrite ?app_norm ?nat_norm. by apply: reach_refl. }
@@ -593,7 +595,7 @@ Section Reduction.
     reachable_n (increase_time C N) 
       ([§1] ++ §0^k ++ [§1] ++ l, §0^((k+1)*(1+n)) ++ r, '#+i) 
       ([§1] ++ l, §0^((k+1)*(1+n) + k) ++ [§1] ++ r, goto 0 ($-i) ($-i)).
-  Proof.
+  Proof using capped_P.
     move=> HN l r i j n k Hijn HC. rewrite /increase_time.
     have := do_increase HN ([§1] ++ l) (§0^(1 + n) ++ r) k 0 Hijn ltac:(lia).
     apply: (reachable_n_trans' (2 * goto_time C N + 3)); first by ((suff: k+1 <= C + G + 1 by nia); lia).
@@ -616,7 +618,7 @@ Section Reduction.
     reachable_n (step_time C N) 
       ([§1] ++ l, §0^(CM.value p) ++ [§1] ++ (§0^(CM.value (CM1.step P p) - CM.value p)) ++ r, '#?(CM.state p))
       ([§1] ++ l, §0^(CM.value (CM1.step P p)) ++ [§1] ++ r, '#?(CM.state (CM1.step P p))).
-  Proof.
+  Proof using capped_P.
     move=> HN l r [i [|c]] /= HpC; first by apply: reach_refl.
     (* case c > 0 *)
     move H: (nth_error P i) HpC => oi. case: oi H; first last.
@@ -662,7 +664,7 @@ Section Reduction.
     reachable_n (n * (step_time C N)) 
       ([§1] ++ l, [§0] ++ [§1] ++ (§0^(CM.value p - 1)) ++ r, '#?0)
       ([§1] ++ l, §0^(CM.value p) ++ [§1] ++ r, '#?(CM.state p)).
-  Proof.
+  Proof using capped_P.
     move=> HN l r n. elim: n l r => [l r _ _ | n] /=; first by apply: reach_refl.
     have := CM_facts.run_value_monotone P cm_start n.
     set p := (Nat.iter n (CM1.step P) cm_start) => Hp IH l r ?.
@@ -676,7 +678,7 @@ Section Reduction.
 
   Lemma search_bound (C n: nat) : C <= CM.value (Nat.iter n (CM1.step P) cm_start) -> 
     {N | bound_reachable_n C N}.
-  Proof.
+  Proof using capped_P.
     elim: C.
     { 
       rewrite /bound_reachable_n. move=> _. exists 1.
@@ -757,7 +759,7 @@ Section Reduction.
 
   (* if stack machine is uniformly bounded, then counter machine halts *)
   Theorem bounded_M_to_terminating_P : CM.halting P (Nat.iter NM (CM.step P) cm_start).
-  Proof.
+  Proof using NM NM_spec capped_P.
     rewrite /CM.halting.
     move HNM: (Nat.iter NM (CM.step P) cm_start) => cm_end.
     have : CM.step P cm_end = cm_end \/ CM.step P cm_end <> cm_end by do 2 (decide equality).
@@ -801,7 +803,7 @@ Section Reduction.
   Definition CP : nat := CM.value cm_end. (* final counter value *)
   
   Lemma bound_reachable_n_CP : {N | bound_reachable_n CP N}.
-  Proof. apply: (search_bound _ NP). rewrite /CP /cm_end. by lia. Qed.
+  Proof using capped_P. apply: (search_bound _ NP). rewrite /CP /cm_end. by lia. Qed.
 
   Definition TP : nat := sval (bound_reachable_n_CP). (* maximal time to reach bound *)
   Definition HTP : bound_reachable_n CP TP := svalP (bound_reachable_n_CP).
@@ -868,7 +870,7 @@ Section Reduction.
 
   Lemma maybe_index_try_run l r z :
     maybe_reachable (NP * step_time CP TP) ([§1] ++ l, [§0] ++ [§1] ++ §0^(CP-1) ++ r, '#?0) z.
-  Proof.
+  Proof using NP_spec.
     right. have := iter_cm_step HTP l r NP. rewrite -/cm_end /= -/CP. move /(_ ltac:(lia)) => ?.
     eexists. constructor; first by eassumption.
     apply: large_index_terminal.
@@ -880,7 +882,7 @@ Section Reduction.
 
   Lemma maybe_goto_1_far {l r m n X Y z T} : (NP * step_time CP TP + 2) <= T -> G + (CP+1) <= m -> 
     maybe_reachable T (l, §0^m ++ r, goto n X Y) z.
-  Proof.
+  Proof using NP_spec.
     move=> ? ?. suff: maybe_reachable (NP * step_time CP TP + 2) (l, §0^(G + (CP+1)) ++ §0^(m-(G + (CP + 1))) ++ r, goto n X Y) z.
     { apply maybe_reachable_mon'; first by lia. rewrite ?app_norm. do 5 f_equal. by lia. }
     have := in_dec _ (n, X, Y) gotos. 
@@ -904,7 +906,7 @@ Section Reduction.
     maybe_reachable maybe_goto_1_time
       (l, §0^m ++ [§1] ++ r, goto n X Y) 
       ([§1] ++ r, §0^m ++ l, basic_state (if m mod (n+1) is 0 then X else Y)).
-  Proof.
+  Proof using NP_spec.
     rewrite /maybe_goto_1_time. have := in_dec _ (n, X, Y) gotos. 
     move=> /(_ ltac:(do 4 decide equality)) [| ?]; first last.
       (* case invalid goto instruction *)
@@ -922,7 +924,7 @@ Section Reduction.
   Lemma maybe_first_goto_1 T l r T' n X Y c Z : T + maybe_goto_1_time <= T' ->
     maybe_reachable T ([§1] ++ r, §0^c ++ l, basic_state (if c mod (n+1) is 0 then X else Y)) Z ->
     maybe_reachable T' (l, §0^c ++ [§1] ++ r, goto n X Y) Z.
-  Proof.
+  Proof using NP_spec.
     move=> ? ?. have := maybe_goto_1 l r n X Y c.
     by (apply: (maybe_reachable_trans' T); first by lia).
   Qed.
@@ -932,7 +934,7 @@ Section Reduction.
 
   Lemma maybe_index_try_stop l m z T : maybe_index_try_stop_time <= T ->
     maybe_reachable T ([§1] ++ l, §0^1 ++ [§1] ++ §0^m, '#?0) z.
-  Proof.
+  Proof using NP_spec.
     move /maybe_reachable_mon'. apply; first by reflexivity. rewrite /maybe_index_try_stop_time.
     have [? | Hm]: CP - 1 <= m \/ m < CP - 1 by lia.
     { 
@@ -989,7 +991,7 @@ Section Reduction.
 
   Lemma maybe_goto_1_futile {T l n X Y m z} :    
     maybe_index_try_stop_time + 2 <= T -> maybe_reachable T (l, §0^m, goto n X Y) z.
-  Proof.
+  Proof using NP_spec.
     move=> ?. suff: maybe_reachable (maybe_index_try_stop_time + 2) (l, §0^m, goto n X Y) z 
       by apply: maybe_reachable_mon'.
     rewrite /maybe_index_try_stop_time.
@@ -1034,7 +1036,7 @@ Section Reduction.
     maybe_reachable maybe_increase_time
       (§0^m ++ [§1] ++ §0^k ++ l, §0^(k * (1+n)) ++ r, '#+i) 
       (§0^(m + k * (2+n)) ++ [§1] ++ l, r, '#+i).
-  Proof.
+  Proof using NP_spec.
     rewrite /maybe_increase_time. move=> Hijn. move: l r k m.
     have H : forall k m l r, maybe_reachable ((k+1)*(2 * maybe_goto_1_time + 3))
       (§0^m ++ [§1] ++ §0^k ++ l, §0^(k * (1+n)) ++ r, '#+i) 
@@ -1078,7 +1080,7 @@ Section Reduction.
     maybe_reachable (maybe_increase_time+1)
       (§0^m ++ [§1] ++ §0^k ++ l, §0^c ++ [§1] ++ r, '#+i) 
       ([§1] ++ r, §0^(m + c + (c / (1+n)) + (c mod (1+n))) ++ [§1] ++ §0^(k - (c / (1+n))) ++ l, '#?j).
-  Proof.
+  Proof using NP_spec.
     have := Nat.div_mod c (1+n) ltac:(lia).
     move: (c / (1+n)) => k'.
     have ->: (1 + n) * k' = k' * (1 + n) by lia.
@@ -1103,7 +1105,7 @@ Section Reduction.
   Lemma maybe_increase_stop r i j n c k m z : In (i, (j, n)) iP -> k < c / (1+n) ->
     maybe_reachable (maybe_increase_time+ maybe_goto_1_time + 1) 
       (§0^m ++ [§1] ++ §0^k, §0^c ++ [§1] ++ r, '#+i) z.
-  Proof.
+  Proof using NP_spec.
     have := Nat.div_mod c (1+n) ltac:(lia).
     move: (c / (1 + n)) => k'. move: (c mod (1 + n)) => k'' -> Hijn ?.
     have := maybe_increase [] (§0^((1 + n) * (k'-k) + k'') ++ [§1] ++ r) k m Hijn.
@@ -1121,7 +1123,7 @@ Section Reduction.
     maybe_reachable (maybe_increase_time + 3*maybe_goto_1_time + 3) 
       (§0^m ++ [§1] ++ §0^k ++ [§1] ++ l, §0^c ++ [§1] ++ r, '#+i) 
       ([§1] ++ r,  §0^(c+m+k+1) ++ [§1] ++ l, '+|).
-  Proof.
+  Proof using NP_spec.
     have := Nat.div_mod c (1+n) ltac:(lia).
     move: (c / (1 + n)) => k'. move: (c mod (1 + n)) => k'' -> Hijn ?.
     have := maybe_increase ([§1] ++ l) (§0^((1 + n) * (k'-k) + k'') ++ [§1] ++ r) k m Hijn.
@@ -1146,7 +1148,7 @@ Section Reduction.
     maybe_reachable maybe_index_try_step_time
       ([§1] ++ l, §0^(CM.value p) ++ [§1] ++ §0^(CM.value (CM1.step P p) - CM.value p) ++ r, '#?(CM.state p))
       ([§1] ++ l, §0^(CM.value (CM1.step P p)) ++ [§1] ++ r, '#?(CM.state (CM1.step P p))).
-  Proof.
+  Proof using NP_spec.
     rewrite /maybe_index_try_step_time. move: p => [i [|c]] /=.
       (* case c = 0 *)
     { by apply: maybe_reachable_refl'. }
@@ -1190,7 +1192,7 @@ Section Reduction.
 
   Lemma maybe_index_try_futile l m i z : 
     maybe_reachable maybe_index_try_futile_time (l, §0^m, '#?i) z.
-  Proof.
+  Proof using NP_spec.
     rewrite /maybe_index_try_futile_time.
     move: l => [|a l].
       (* case l is empty *)
@@ -1214,7 +1216,7 @@ Section Reduction.
   Definition maybe_bounded_try_time := TP + maybe_index_try_stop_time + 1.
 
   Lemma maybe_bounded_try l r : maybe_reachable maybe_bounded_try_time (r, l, '?|) (l, r, '+|).
-  Proof.
+  Proof using NP_spec.
     rewrite /maybe_bounded_try_time.
     move: l => [|a l]. 
       (* case l is empty *)
@@ -1283,7 +1285,7 @@ Section Reduction.
 
   Lemma maybe_index_yes_futile l m i z : 
     maybe_reachable maybe_index_yes_futile_time (l, §0^m, '#+i) z.
-  Proof.
+  Proof using NP_spec.
     rewrite /maybe_index_yes_futile_time.
     have [? | /in_iPI [j [n Hijn]]] : length P <= i \/ i < length P by lia.
       (* case i is not a valid instruction index *)
@@ -1376,7 +1378,7 @@ Section Reduction.
 
   Lemma maybe_bounded_yes_grow l r m : exists '(l', r', n, X, Y), 
     maybe_reachable 1 (l, §0^m ++ r, '+|) (l', §0^(m+1) ++ r', goto n X Y).
-  Proof.
+  Proof using capped_P.
     have := Exists_dec (fun '(i, (n, X, Y)) => l = ([§1] ++ §0^i ++ [§1] ++ §0^(G-2-i)) ++ skipn G l) igotos. case.
       move=> [i] [[n X] Y]. by do 2 (decide equality).
     (* can execute bound op *)
@@ -1403,7 +1405,7 @@ Section Reduction.
 
   Lemma maybe_increase_no_grow l r m i : exists '(l', r', n, X, Y), 
     maybe_reachable maybe_increase_no_grow_time (l, §0^m ++ r, '$-i) (l', §0^(m+1) ++ r', goto n X Y).
-  Proof.
+  Proof using NP_spec.
     pose dummy := ([§0], [§0], 0, +|, +|). rewrite /maybe_increase_no_grow_time.
     have [? | /in_iPI [j [n Hjn]]]: length P <= i \/ i < length P by lia.
       (* case i is not a valid instruction index *)
@@ -1437,7 +1439,7 @@ Section Reduction.
   
   Lemma maybe_index_yes_grow l r m i: exists '(l', r', n, X, Y), 
     maybe_reachable maybe_index_yes_grow_time (l, §0^m ++ r, '#+i) (l', §0^(m+1) ++ r', goto n X Y).
-  Proof.
+  Proof using NP_spec.
     rewrite /maybe_index_yes_grow_time. pose dummy := ([§0], [§0], 0, +|, +|).
     have [[n ->] | ] := list_symbol_shape r.
       (* case r contains only 0s *)
@@ -1570,7 +1572,7 @@ Section Reduction.
 
   Lemma maybe_index_try_grow l r m i : exists '(l', r', n, X, Y), 
     maybe_reachable maybe_index_try_grow_time (l, §0^m ++ r, '#?i) (l', §0^(m+1) ++ r', goto n X Y).
-  Proof.
+  Proof using NP_spec.
     rewrite /maybe_index_try_grow_time. pose dummy := ([§0], [§0], 0, +|, +|).
     have [[n ->]|] := list_symbol_shape r.
     { exists dummy. apply: (maybe_reachable_mon' (n := maybe_index_try_futile_time)); 
@@ -1654,7 +1656,7 @@ Section Reduction.
 
   Lemma maybe_increase_yes_grow l r m i : exists '(l', r', n, X, Y), 
     maybe_reachable maybe_increase_yes_grow_time (l, §0^m ++ r, '$+i) (l', §0^(m+1) ++ r', goto n X Y).
-  Proof.
+  Proof using NP_spec.
     pose dummy := ([§0], [§0], 0, +|, +|). rewrite /maybe_increase_yes_grow_time.
     have [? | /in_iPI [j [n Hijn]]]: length P <= i \/ i < length P by lia.
       (* case i is not a valid instruction index *)
@@ -1718,7 +1720,7 @@ Section Reduction.
 
   Lemma maybe_index_no_grow l r m i : exists '(l', r', n, X, Y), 
     maybe_reachable maybe_index_no_grow_time (l, §0^m ++ r, '#-i) (l', §0^(m+1) ++ r', goto n X Y).
-  Proof.
+  Proof using NP_spec.
     pose dummy := ([§0], [§0], 0, +|, +|). rewrite /maybe_index_no_grow_time.
     have [? | /in_iPI [j [n Hjn]]] : length P <= i \/ i < length P by lia.
       (* case i is not a valid instruction index *)
@@ -1754,7 +1756,7 @@ Section Reduction.
 
   Lemma maybe_bounded_try_grow l r m : exists '(l', r', n, X, Y), 
     maybe_reachable maybe_bounded_try_grow_time (l, §0^m ++ r, '?|) (l', §0^(m+1) ++ r', goto n X Y).
-  Proof.
+  Proof using NP_spec.
     rewrite /maybe_bounded_try_grow_time.
     move: m => [|m]; first last.
     { exists ([], [], 0, +|, +|). by apply: terminal_maybe_reachable => ? /bound_try_step_shape [? ?]. }
@@ -1772,7 +1774,7 @@ Section Reduction.
 
   Lemma maybe_basic_state_grow l r m X : exists '(l', r', n', X', Y'), 
     maybe_reachable maybe_basic_state_grow_time (l, §0^m ++ r, basic_state X) (l', §0^(m+1) ++ r', goto n' X' Y').
-  Proof.
+  Proof using NP_spec.
     rewrite /maybe_basic_state_grow_time.
     case: X.
     - case. 
@@ -1809,7 +1811,7 @@ Section Reduction.
 
   Lemma maybe_goto_1_grow l r m n X Y : exists '(l', r', n', X', Y'), 
     maybe_reachable maybe_goto_1_grow_time (l, §0^m ++ r, goto n X Y) (l', §0^(m+1) ++ r', goto n' X' Y').
-  Proof.
+  Proof using NP_spec.
     rewrite /maybe_goto_1_grow_time.
     case: (list_symbol_shape r).
       (* case r has only 0s *)
@@ -1834,7 +1836,7 @@ Section Reduction.
 
   Lemma maybe_goto_1_grow_iter l r m n X Y : exists '(l', r', n', X', Y'), 
     maybe_reachable (m*maybe_goto_1_grow_time) (l, r, goto n X Y) (l', §0^m ++ r', goto n' X' Y').
-  Proof.
+  Proof using NP_spec.
     elim: m l r n X Y.
     { move=> l r n X Y. exists (l, r, n, X, Y). by apply: maybe_reachable_refl'. }
     move=> m + l r n X Y.
@@ -1851,7 +1853,7 @@ Section Reduction.
 
   Theorem uniform_termination x: exists z, 
     reachable_n uniform_termination_time x z /\ terminal M z.
-  Proof.
+  Proof using NP_spec.
     apply: universal_maybe_reachable_terminal => z. rewrite /uniform_termination_time.
     move: x => [[l r] [X|n X Y]].
     {
@@ -1902,7 +1904,7 @@ Section Reduction.
 
   (* if counter machine halts, then stack machine is uniformly bounded *)
   Theorem terminating_P_to_bounded_M : SM.bounded M (1+uniform_termination_time).
-  Proof.
+  Proof using NP_spec.
     rewrite /SM.bounded. move=> x.
     have [z [Hz]]:= uniform_termination x.
     by move /(reachable_configurations Hz).

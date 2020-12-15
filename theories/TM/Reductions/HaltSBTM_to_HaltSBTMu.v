@@ -7,6 +7,7 @@ Section fixM.
   Variable M : SBTM.
 
   Definition M' : SBTM.
+  Proof.
     exists (1 + num_states M).
     intros [q o].
     dependent elimination q.
@@ -22,7 +23,7 @@ Section fixM.
         * exact (Some (Fin.F1, w, m)).
         * exact (Some (Fin.FS (Fin.FS t0), w, m)).
         * exact (Some (Fin.FS Fin.F1, None, Nmove)).
-  Defined.
+  Defined. (* because definition *)
 
   Lemma spec1 c : trans M' (Fin.FS Fin.F1, c) = None.
   Proof. reflexivity. Qed.
@@ -39,8 +40,9 @@ Section fixM.
   Qed.
 
   Definition conv_state (q : Fin.t (S (num_states M))) : Fin.t (S (1 + num_states M)).
+  Proof.
   dependent elimination q. exact Fin.F1. exact (Fin.FS (Fin.FS t)).
-  Defined.
+  Defined. (* because definition *)
 
   Lemma spec3 q c : trans M (q, c) = None -> trans M' (conv_state q, c) = Some (Fin.FS Fin.F1, None, Nmove).
   Proof.

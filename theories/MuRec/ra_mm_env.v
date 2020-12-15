@@ -20,6 +20,8 @@ From Undecidability.MuRec
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Tactic Notation "rew" "length" := autorewrite with length_db.
 
 Local Notation "P // s ->> t" := (sss_compute (mm_sss_env eq_nat_dec) P s t).
@@ -246,7 +248,7 @@ Section ra_compiler.
      *)
 
     Fact ra_compiler_comp : ra_compiler_stm (ra_comp f g).
-    Proof.
+    Proof using Hf Hg.
       red; simpl; intros i p o m H1 H2 H3.
       destruct ra_compiler_vec with (1 := Hg) (i := i) (p := p) (o := m) (m := m+k)
         as (P & HP1 & HP2); auto.
@@ -355,17 +357,17 @@ Section ra_compiler.
     Notation Q1 := rec_Q1.
 
     Local Fact rec_Q1_length : length Q1 = 11+9*n.
-    Proof. unfold Q1; rew length; lia. Qed.
+    Proof using H1 H2 H3. unfold Q1; rew length; lia. Qed.
 
     Local Fact rec_F_full : ra_compiler_spec f (11+9*n+i) (2+m) o zero.
-    Proof. apply Hf; lia. Qed.
+    Proof using Hf H1 H2 H3. apply Hf; lia. Qed.
 
     Notation F := (proj1_sig rec_F_full).
     Local Definition rec_HF1 x v e H1 H2 := proj1 (proj2_sig rec_F_full v e H1 H2) x.
     Local Definition rec_HF2 v e H1 H2 := proj2 (proj2_sig rec_F_full v e H1 H2).
 
     Local Fact rec_G_full : ra_compiler_spec g (21+length F+9*n+i) m o zero.
-    Proof. apply Hg; lia. Qed.
+    Proof using Hg H1 H2 H3. apply Hg; lia. Qed.
 
     Notation G := (proj1_sig rec_G_full).
     Local Definition rec_HG1 x v e H1 H2 := proj1 (proj2_sig rec_G_full v e H1 H2) x.
@@ -602,7 +604,7 @@ Section ra_compiler.
              /\ e'⇢m = 0 
              /\ (forall j, j <> m -> ~ 2+m <= j <= v0 -> e'⇢j = e⇢j)
              /\ (i,Q1) // (i,e) -+> (length Q1+i,e').
-    Proof.
+    Proof using H1 H2 H3.
       intros G3.
       destruct (@mm_multi_copy_compute tmp zero n (1+p) (2+m))
         with (i := i) (e := e) 
@@ -771,7 +773,7 @@ Section ra_compiler.
     Qed.
 
     Fact ra_compiler_rec : ra_compiler_spec (ra_rec f g) i p o m.
-    Proof.
+    Proof using Hf Hg H1 H2 H3.
       exists Q4; intros v e G2 G3; split.
       + intros x; simpl ra_rel; intros G1.
         destruct rec_Q4_progress with (3 := G1) (e := e)
@@ -826,14 +828,14 @@ Section ra_compiler.
     Notation Q1 := min_Q1.
 
     Local Fact min_Q1_length : length Q1 = 2+9*n.
-    Proof. unfold Q1; rew length; lia. Qed.
+    Proof using H1 H2 H3. unfold Q1; rew length; lia. Qed.
 
     Local Definition min_s1 := length Q1 + i.
 
     Notation s1 := min_s1.
 
     Local Fact min_F_full : ra_compiler_spec f s1 m o zero.
-    Proof. apply Hf; lia. Qed.
+    Proof using Hf H1 H2 H3. apply Hf; lia. Qed.
 
     Notation F := (proj1_sig min_F_full).
     Local Definition min_HF1 x v e H1 H2 H3 := proj1 (proj2_sig min_F_full v e H2 H3) x H1.
@@ -857,7 +859,7 @@ Section ra_compiler.
              /\ e'⇢m = 0 
              /\ (forall j, ~ m <= j <= n+m -> e'⇢j = e⇢j)
              /\ (i,Q1) // (i,e) -+> (length Q1+i,e').
-    Proof.
+    Proof using H1 H2 H3.
       intros G1.
       destruct (@mm_multi_copy_compute tmp zero n p (1+m))
         with (i := i) (e := e) 
@@ -1113,7 +1115,7 @@ Section ra_compiler.
     Qed.
 
     Fact ra_compiler_min : ra_compiler_spec (ra_min f) i p o m.
-    Proof.
+    Proof using Hf H1 H2 H3.
       exists Q4; intros v e G2 G3; split.
       + intros x; simpl ra_rel; intros G1.
         destruct min_Q4_progress with (3 := G1) (e := e)
@@ -1158,4 +1160,3 @@ Section ra_compiler.
   Qed.
 
 End ra_compiler.
-

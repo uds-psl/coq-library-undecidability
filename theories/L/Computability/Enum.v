@@ -78,6 +78,7 @@ Proof with
 Qed.
 
 Lemma T_longenough m : |T m| > m.
+Proof.
   induction m.
   - simpl; lia.
   - simpl. rewrite app_length. simpl. lia.
@@ -258,6 +259,7 @@ Proof.
 Qed.
 
 Lemma c_surj : surjective c.
+Proof.
   eapply right_inv_surjective. unfold right_inverse. eapply c_c_inv.
 Qed.
 (*

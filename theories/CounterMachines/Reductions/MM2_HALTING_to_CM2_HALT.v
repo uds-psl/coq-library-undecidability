@@ -22,6 +22,8 @@ From Undecidability.CounterMachines.Util Require Import
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Proof Using "Type".
+
 Module Argument.
 Section MM2_CM2.
   Variable (P: list mm2_instr). (* MM2 program *)

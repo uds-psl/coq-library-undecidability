@@ -3,6 +3,7 @@ Require Import RelationClasses Morphisms List Omega Lia Init.Nat Setoid.
 From Undecidability.HOU Require Import calculus.calculus unification.unification second_order.diophantine_equations.
 Import ListNotations.
 
+Set Default Proof Using "Type".
 
 (* * Second-Order Realisation *)
 

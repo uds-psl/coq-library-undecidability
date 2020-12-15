@@ -12,6 +12,8 @@ From Undecidability.Shared.Libs.DLW
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Section recursor.
 
   Variables (F : nat -> Prop) 
@@ -28,7 +30,7 @@ Section recursor.
       end.
 
   Fact recursor_fun n x y : recursor n x -> recursor n y -> x = y.
-  Proof.
+  Proof using Ffun Gfun.
     revert x y; induction n as [ | n IHn ]; simpl; auto.
     intros x y (a & H1 & H2) (b & H3 & H4).
     specialize (IHn _ _ H1 H3); subst b.
@@ -36,7 +38,7 @@ Section recursor.
   Qed.
 
   Fixpoint recursor_coq n (Hn : ex (recursor n)) : sig (recursor n).
-  Proof.
+  Proof using Ffun Gfun HF HG.
     destruct n as [ | n ].
     apply HF, Hn.
     refine (match recursor_coq n _ with
@@ -52,4 +54,3 @@ Section recursor.
   Defined.
 
 End recursor.
-

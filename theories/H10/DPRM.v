@@ -22,6 +22,8 @@ From Undecidability.MuRec Require Import recalg ra_utils recomp ra_recomp ra_dio
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Local Notation "P /MM/ s ↓" := (sss_terminates (@mm_sss _) P s) (at level 70, no associativity).
 Local Notation "l '/F/' x ↓" := (fractran_terminates l x) (at level 70, no associativity).
 Local Notation "'⟦' p '⟧'" := (fun φ ν => dp_eval φ ν p).
@@ -130,7 +132,7 @@ Section Various_definitions_of_recursive_enum.
     Qed.
 
     Local Theorem mm_reco_dio_form : dio_rec_form_n.
-    Proof.
+    Proof using HP.
       destruct FRACTRAN as (Q & HQ).
       clear FRACTRAN HP.
       destruct FRACTRAN_HALTING_on_exp_diophantine with n Q as (A & HA); auto.
@@ -286,6 +288,3 @@ Theorem DPRM_1 (P : nat -> Prop) :
 Proof. lsplit 3; auto. Qed. 
 
 Check DPRM_1.
-
-
-

@@ -49,6 +49,7 @@ Require Export Vector.
 
 Definition vec_ext {A B n} {f g : A -> B} :
   (forall x, f x = g x) -> forall xs : Vector.t A n, Vector.map f xs = Vector.map g xs.
+Proof.
   intros H. induction xs. reflexivity.
   cbn. f_equal. apply H. apply IHxs.
 Defined.
@@ -72,6 +73,7 @@ Require Export List.
 
 Definition list_ext {A B} {f g : A -> B} :
   (forall x, f x = g x) -> forall xs,  map f xs = map g xs.
+Proof.
   intros H. induction xs. reflexivity.
   cbn. f_equal. apply H. apply IHxs.
 Defined.

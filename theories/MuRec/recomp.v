@@ -14,6 +14,8 @@ From Undecidability.Shared.Libs.DLW
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Local Notation power := (mscal mult 1).
 
 Section div_mult.
@@ -21,7 +23,7 @@ Section div_mult.
   Variable (p q : nat) (Hp : p <> 0) (Hq : q <> 0).
 
   Fact div_rem_mult n : div n (p*q) = div (div n p) q /\ rem n (p*q) = rem n p + p*rem (div n p) q.
-  Proof.
+  Proof using Hp Hq.
     assert (p*q <> 0) as Hpq.
     { intros E; apply mult_is_O in E; lia. }
     apply div_rem_uniq with (p := p*q); auto.
@@ -39,10 +41,10 @@ Section div_mult.
   Qed.
 
   Corollary div_mult n : div n (p*q) = div (div n p) q.
-  Proof. apply div_rem_mult. Qed.
+  Proof using Hp Hq. apply div_rem_mult. Qed.
 
   Corollary rem_mult n : rem n (p*q) = rem n p + p*rem (div n p) q.
-  Proof. apply div_rem_mult. Qed.
+  Proof using Hp Hq. apply div_rem_mult. Qed.
 
 End div_mult.
 

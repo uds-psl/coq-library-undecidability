@@ -21,6 +21,8 @@ From Undecidability.StackMachines.Util Require Import Facts List_facts SMN_facts
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Proof Using "Type".
+
 Local Definition rt_rt1n := @clos_rt_rt1n_iff Config.
 Local Definition rt_rtn1 := @clos_rt_rtn1_iff Config.
 Local Definition app_norm := (@app_assoc', @app_nil_l, @app_nil_r).
@@ -45,7 +47,7 @@ Section Reduction.
 
   Lemma step_fresh_l {l r x} : step M' (l, r, Y) x -> 
     x = (L ++ skipn (length L') l, R ++ skipn (length R') r, X).
-  Proof.
+  Proof using lp_XY Y_fresh XY_neq.
     move Hy: (l, r, Y) => y Hyx. case: Hyx Hy => > + [] *.
     subst. rewrite /M' in_app_iff. move=> [[|[|]]|].
     - move=> [] *. by congruence.
@@ -56,7 +58,7 @@ Section Reduction.
 
   Lemma step_fresh_r {l r x} : step M' x (l, r, Y) -> 
     x = (L ++ skipn (length L') l, R ++ skipn (length R') r, X).
-  Proof.
+  Proof using lp_XY Y_fresh XY_neq.
     move Hy: (l, r, Y) => y Hyx. case: Hyx Hy => > + [] *.
     subst. rewrite /M' in_app_iff. move=> [[|[|]]|].
     - move=> [] *. subst. by rewrite ?skipn_app ?Nat.sub_diag ?skipn_all.
@@ -67,7 +69,7 @@ Section Reduction.
 
   Lemma simulation {n x y} : reachable_n M' n x y -> 
     valid_state (get_state x) -> valid_state (get_state y) -> reachable_n M n x y.
-  Proof.
+  Proof using lp_XY Y_fresh XY_neq.
     elim: n x y; first by (move=> > /reachable_0E -> *; apply: rn_refl).
     move=> n IH x y /reachable_SnE [|]; first by (move=> -> *; apply: rn_refl).
     move=> [z1]. have : {get_state z1 = Y} + {get_state z1 <> Y} by decide equality. case; first last.
@@ -88,7 +90,9 @@ Section Reduction.
 
   Lemma simulation' {x y} : reachable M' x y -> 
     valid_state (get_state x) -> valid_state (get_state y) -> reachable M x y.
-  Proof. by move /reachable_to_reachable_n => [?] /simulation H /H => {}H /H /reachable_n_to_reachable. Qed.
+  Proof using lp_XY Y_fresh XY_neq. 
+    by move /reachable_to_reachable_n => [?] /simulation H /H => {}H /H /reachable_n_to_reachable. 
+  Qed.
 
   Lemma inverse_simulation {n x y} : reachable_n M n x y -> reachable_n M' n x y.
   Proof. move=> ?. apply: reachable_n_incl; last by eassumption. by apply: incl_appr. Qed.
@@ -98,7 +102,7 @@ Section Reduction.
 
   Lemma continue {x y} : reachable M' x y -> valid_state (get_state x) -> 
     exists z, reachable M' y z /\ valid_state (get_state z).
-  Proof.
+  Proof using lp_XY Y_fresh XY_neq.
     have : {get_state y = Y} + {get_state y <> Y} by decide equality. case; first last.
     { move=> *. eexists. by constructor; first by apply: rt_refl. }
     move=> Hy. move /rt_rtn1 => Hxy. case: Hxy Hy; first by congruence.
@@ -111,7 +115,7 @@ Section Reduction.
 
   Lemma synchronize_step {x y} : step M' x y ->
     exists z, reachable_n M' 1 x z /\ reachable_n M' 1 z y /\ valid_state (get_state z).
-  Proof.
+  Proof using lp_XY Y_fresh XY_neq.
     move=> /copy => [[[]]] >. rewrite /M' in_app_iff -/M'.
     move=> [[|[|]]|].
     - move=> [] <- <- <- <- <- <- ?. eexists.
@@ -128,7 +132,7 @@ Section Reduction.
 
   Lemma synchronize {x y} : reachable M' x y ->
     exists z1 z2, reachable_n M' 1 x z1 /\ reachable_n M' 1 z2 y /\ reachable M z1 z2.
-  Proof.
+  Proof using lp_XY Y_fresh XY_neq.
     move /rt_rt1n. case.
       exists x, x. constructor; first by apply: rn_refl.
       constructor; first by apply: rn_refl. by apply: rt_refl.
@@ -146,7 +150,7 @@ Section Reduction.
   Lemma confluent_valid_M' {x y1 y2} : valid_state (get_state x) -> 
     reachable M' x y1 -> reachable M' x y2 ->
     exists z : Config, reachable M' y1 z /\ reachable M' y2 z.
-  Proof.
+  Proof using confluent_M lp_XY Y_fresh XY_neq.
     move=> Hx Hxy1 Hxy2. move: (Hxy1) => /continue => /(_ Hx). move=> [z1 [Hy1z1 ?]].
     move: (Hxy2) => /continue => /(_ Hx). move=> [z2 [Hy2z2 ?]].
     have Hxz1 : reachable M x z1.
@@ -158,7 +162,7 @@ Section Reduction.
   Qed.
 
   Theorem confluent_M' : confluent M'.
-  Proof.
+  Proof using confluent_M lp_XY Y_fresh XY_neq.
     move=> x y1 y2.
     have : {get_state x = Y} + {get_state x <> Y} by decide equality. case; first last.
     { move=> *. apply: confluent_valid_M'; by eassumption. }
@@ -176,7 +180,7 @@ Section Reduction.
   Qed.
 
   Lemma bounded_M' NM : bounded M NM -> bounded M' (NM * (1 + length M') * (1 + length M') * 4).
-  Proof.
+  Proof using lp_XY Y_fresh XY_neq.
     move=> bounded_M. move=> x.
     have [Lx [HLx H2Lx]] := next_n_configs M' 1 [x].
     have [L2x [HL2x H2L2x]] := concat_reachable Lx bounded_M.
@@ -196,10 +200,12 @@ Section Reduction.
   Qed.
 
   Theorem boundedness : (exists NM, bounded M NM) <-> (exists NM', bounded M' NM').
-  Proof. constructor; move=> [? ?]; eexists; [by apply: bounded_M' | by apply: bounded_M]. Qed.
+  Proof using lp_XY Y_fresh XY_neq. 
+    constructor; move=> [? ?]; eexists; [by apply: bounded_M' | by apply: bounded_M]. 
+  Qed.
 
   Lemma length_preserving_M' : length_preserving M'.
-  Proof.
+  Proof using length_preserving_M lp_XY Y_fresh XY_neq.
     move=> >. rewrite /M' in_app_iff. move=> [[|[|]]|].
     - move=> [] *. by subst.
     - move: lp_XY => [? ?] [] *. subst. constructor; [done | by lia].
@@ -208,14 +214,14 @@ Section Reduction.
   Qed.
 
   Lemma step_fresh_rI l r l' r' y: reachable M (L ++ l, R ++ r, X) (l', r', y) -> reachable M' (L' ++ l, R' ++ r, Y) (l', r', y).
-  Proof.
+  Proof using lp_XY.
     move=> ?. apply: rt_trans; first last.
     - apply: reachable_incl; last by eassumption. move=> ? ?. by firstorder done.
     - apply: rt_step. apply: transition. by firstorder done.
   Qed.
 
   Lemma step_fresh_lI l r l' r' x: reachable M (l, r, x) (L ++ l', R ++ r', X) -> reachable M' (l, r, x) (L' ++ l', R' ++ r', Y) .
-  Proof.
+  Proof using lp_XY.
     move=> ?. apply: rt_trans.
     - apply: reachable_incl; last by eassumption. move=> ? ?. by firstorder done.
     - apply: rt_step. apply: transition. by firstorder done.
@@ -233,7 +239,7 @@ Section Reduction.
   Definition M' : SMN := [((L, R, X), (L', R', Y))] ++ M.
 
   Lemma simulation {x y} : reachable M' x y <-> reachable M x y.
-  Proof.
+  Proof using derivable.
     clear non_nil. constructor; last by (apply: reachable_incl; apply /incl_appr).
     elim.
     - move=> ? ?. case=> >. rewrite /M' in_app_iff. case.
@@ -245,7 +251,7 @@ Section Reduction.
   Qed.
 
   Lemma confluence : confluent M' <-> confluent M.
-  Proof.
+  Proof using derivable.
     constructor.
     - move=> HM' ? ? ? /simulation H1 /simulation H2.
       have [z [? ?]] := HM' _ _ _ H1 H2. exists z.
@@ -256,7 +262,7 @@ Section Reduction.
   Qed.
 
   Theorem boundedness : (exists NM, bounded M NM) <-> (exists NM', bounded M' NM').
-  Proof.
+  Proof using derivable.
     constructor.
     - move=> [NM] HM. exists NM => x. have [Lx [HLx ?]]:= HM x.
       exists Lx. constructor; last done.
@@ -267,7 +273,7 @@ Section Reduction.
   Qed.
 
   Lemma length_preservation : length_preserving M' <-> length_preserving M.
-  Proof.
+  Proof using non_nil derivable.
     constructor; first by (apply: length_preserving_incl; right).
     move=> HM >. rewrite /M' in_app_iff. case; last by move /HM.
     case; last done. move=> [] *. subst.
@@ -302,7 +308,7 @@ Section Reduction.
   Definition M' : SMN := [(([], R, X), ([], R', Y))] ++ M.
 
   Lemma unique_step_M'l' {l' r' y} : step M' y (l', r', X) -> l' = [A] ++ skipn 1 l'.
-  Proof.
+  Proof using unique_step_l' unique_step_l derivable XY_neq.
     move Hx: (l', r', X) => x Hyx. case: Hyx Hx.
     move=> v w >. rewrite /M' in_app_iff.
     case; first by (case; [by congruence | done]).
@@ -311,7 +317,7 @@ Section Reduction.
   Qed.
 
   Lemma simulation {x y z} : step M' x y -> reachable M' y z -> reachable M y z.
-  Proof.
+  Proof using unique_step_l' unique_step_l derivable XY_neq.
     move=> Hxy. move /rt_rtn1. elim; first by apply: rt_refl.
     move=> y' {}z Hy'z. case: Hy'z.
     move=> v w >. rewrite /M' in_app_iff. case; first last.
@@ -332,7 +338,7 @@ Section Reduction.
   Proof. apply: reachable_incl. by right. Qed.
 
   Lemma bounded_M' NM : bounded M NM -> bounded M' (1 + NM * length M').
-  Proof.
+  Proof using unique_step_l' unique_step_l derivable XY_neq non_nil.
     move=> bounded_M x.
     have [ys [Hys H'ys]] := next_configs M' x.
     have [L [HL H'L]] := concat_reachable ys bounded_M.
@@ -352,10 +358,12 @@ Section Reduction.
   Qed.
 
   Theorem boundedness : (exists NM, bounded M NM) <-> (exists NM', bounded M' NM').
-  Proof. constructor; move=> [? ?]; eexists; [by apply: bounded_M' | by apply: bounded_M]. Qed.
+  Proof using unique_step_l' unique_step_l derivable XY_neq non_nil. 
+    constructor; move=> [? ?]; eexists; [by apply: bounded_M' | by apply: bounded_M]. 
+  Qed.
 
   Lemma length_preserving_M' : length_preserving M'.
-  Proof.
+  Proof using unique_step_l' unique_step_l derivable XY_neq non_nil length_preserving_M.
     move=> >. rewrite /M' in_app_iff. case; last by move /length_preserving_M.
     case; last done. move=> [] *. subst. move=> /=. constructor; last done.
     have /length_preservingP := derivable. move /(_ length_preserving_M). 
@@ -364,7 +372,7 @@ Section Reduction.
   Qed.
 
   Lemma confluent_M' : confluent M'.
-  Proof.
+  Proof using unique_step_l' unique_step_l derivable XY_neq confluent_M.
     move=> ? ? ? /rt_rt1n + /rt_rt1n. case.
     { move=> /rt_rt1n ?. eexists. constructor; first by eassumption.
       by apply: rt_refl. }

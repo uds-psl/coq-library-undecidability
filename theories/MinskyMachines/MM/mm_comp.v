@@ -21,6 +21,8 @@ From Undecidability.MinskyMachines.MM
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 (* ** BSM recues to MM *)
 
 Tactic Notation "rew" "length" := autorewrite with length_db.
@@ -54,13 +56,13 @@ Section simulator.
   *)
   
   Let n := 2+m.
-  Let tmp1 : pos n := pos0.
-  Let tmp2 : pos n := pos1.
-  Let reg p: pos n := pos_nxt (pos_nxt p).
+  Local Definition tmp1 : pos n := pos0.
+  Local Definition tmp2 : pos n := pos1.
+  Local Definition reg p: pos n := pos_nxt (pos_nxt p).
    
-  Let Hv12 : tmp1 <> tmp2.             Proof. discriminate. Qed.
-  Let Hvr1 : forall p, reg p <> tmp1.  Proof. discriminate. Qed.
-  Let Hvr2 : forall p, reg p <> tmp2.  Proof. discriminate. Qed.
+  Local Lemma Hv12 : tmp1 <> tmp2.             Proof. discriminate. Qed.
+  Local Lemma Hvr1 : forall p, reg p <> tmp1.  Proof. discriminate. Qed.
+  Local Lemma Hvr2 : forall p, reg p <> tmp2.  Proof. discriminate. Qed.
   
   Let Hreg : forall p q, reg p = reg q -> p = q.
   Proof. intros; do 2 apply pos_nxt_inj; apply H. Qed. 
@@ -111,28 +113,28 @@ Section simulator.
                       ]; simpl; intros w1 H0 H; generalize H; intros (H1 & H2 & H3).
 
     + exists w1; split; auto.
-      apply mm_pop_void_progress; auto.
+      apply mm_pop_void_progress; auto using Hv12, Hvr1, Hvr2.
       rewrite H3, Hv; auto.
 
     + exists (w1[(stack_enc ll)/reg p]); repeat split; auto; rew vec.
-      * apply mm_pop_Zero_progress; auto.
+      * apply mm_pop_Zero_progress; auto using Hv12, Hvr1, Hvr2.
         rewrite H3, Hll; auto.
       * intros q; dest p q.
         assert (reg p <> reg q); rew vec.
     
     + exists (w1[(stack_enc ll)/reg p]); repeat split; auto; rew vec.
-      * apply mm_pop_One_progress; auto.
+      * apply mm_pop_One_progress; auto using Hv12, Hvr1, Hvr2.
         rewrite H3, Hll; auto.
       * intros q; dest p q.
         assert (reg p <> reg q); rew vec.
    
     + exists (w1[(stack_enc (One::v#>p))/reg p]); repeat split; auto; rew vec.
-      rewrite H0; apply mm_push_One_progress; auto.
+      rewrite H0; apply mm_push_One_progress; auto using Hv12, Hvr1, Hvr2.
       intros q; dest p q.
       assert (reg p <> reg q); rew vec.
 
     + exists (w1[(stack_enc (Zero::v#>p))/reg p]); repeat split; auto; rew vec.
-      rewrite H0; apply mm_push_Zero_progress; auto.
+      rewrite H0; apply mm_push_Zero_progress; auto using Hv12, Hvr1, Hvr2.
       intros q; dest p q.
       assert (reg p <> reg q); rew vec.
   Qed.
@@ -143,30 +145,30 @@ Section simulator.
 
     Variable (iP : nat) (cP : list (bsm_instr m)).
 
-    Let lnk_Q_pair := @gen_compiler_correction _ _ _ _ bsm_instr_compile_length_eq _ _ _ _  (@bsm_sss_total' _)
+    Local Definition lnk_Q_pair := @gen_compiler_correction _ _ _ _ bsm_instr_compile_length_eq _ _ _ _  (@bsm_sss_total' _)
                      (@mm_sss_fun _) _ bsm_instr_compile_sound (iP,cP) 1. 
 
-    Let lnk := projT1 lnk_Q_pair.
-    Let Q := proj1_sig (projT2 lnk_Q_pair).
+    Local Definition lnk := projT1 lnk_Q_pair.
+    Local Definition Q := proj1_sig (projT2 lnk_Q_pair).
 
-    Let Hlnk : fst Q = 1 /\ lnk iP = 1 /\ forall i, out_code i (iP,cP) -> lnk i = code_end Q.
+    Local Lemma Hlnk : fst Q = 1 /\ lnk iP = 1 /\ forall i, out_code i (iP,cP) -> lnk i = code_end Q.
     Proof.
       repeat split; apply (proj2_sig (projT2 lnk_Q_pair)).
     Qed.
 
     Infix "⋈" := bsm_state_enc (at level 70, no associativity).
 
-    Let HQ1 : forall i1 v1 w1 i2 v2, v1 ⋈ w1 /\ (iP,cP) /BSM/ (i1,v1) ~~> (i2,v2)     
+    Local Lemma HQ1 : forall i1 v1 w1 i2 v2, v1 ⋈ w1 /\ (iP,cP) /BSM/ (i1,v1) ~~> (i2,v2)     
                     -> exists w2,    v2 ⋈ w2 /\ Q /MM/ (lnk i1,w1) ~~> (lnk i2,w2).
     Proof. apply (proj2_sig (projT2 lnk_Q_pair)). Qed.
 
-    Let HQ2 : forall i1 v1 w1 j2 w2, v1 ⋈ w1 /\ Q /MM/ (lnk i1,w1) ~~> (j2,w2) 
+    Local Lemma HQ2 : forall i1 v1 w1 j2 w2, v1 ⋈ w1 /\ Q /MM/ (lnk i1,w1) ~~> (j2,w2) 
                     -> exists i2 v2, v2 ⋈ w2 /\ (iP,cP) /BSM/ (i1,v1) ~~> (i2,v2) /\ j2 = lnk i2.
     Proof. apply (proj2_sig (projT2 lnk_Q_pair)). Qed.
 
     Variable v : vec (list bool) m. 
 
-    Let w := 0##0##vec_map stack_enc v.
+    Local Definition w := 0##0##vec_map stack_enc v.
 
     Let w_prop : bsm_state_enc v w.
     Proof.
@@ -177,7 +179,7 @@ Section simulator.
 
     (* (iQ,cQ) simulates termination of (iP,cP) while ensuring tmp1 and tmp2 stay void when it terminates *)
 
-    Let Q_spec1 : (iP,cP) /BSM/ (iP,v) ↓ -> exists w', Q /MM/ (1,w) ~~> (code_end Q, w') /\ w'#>tmp1 = 0 /\ w'#>tmp2 = 0.
+    Local Lemma Q_spec1 : (iP,cP) /BSM/ (iP,v) ↓ -> exists w', Q /MM/ (1,w) ~~> (code_end Q, w') /\ w'#>tmp1 = 0 /\ w'#>tmp2 = 0.
     Proof.
       intros ((i1,v1) & H1).
       destruct HQ1 with (1 := conj w_prop H1) as (w' & H2 & H3).
@@ -186,7 +188,7 @@ Section simulator.
       * apply H1.
     Qed.
 
-    Let Q_spec2 : Q /MM/ (1,w) ↓ -> (iP,cP) /BSM/ (iP,v) ↓.
+    Local Lemma Q_spec2 : Q /MM/ (1,w) ↓ -> (iP,cP) /BSM/ (iP,v) ↓.
     Proof.
       intros ((j,w2) & H1).
       rewrite <- (proj1 (proj2 Hlnk)) in H1.
@@ -194,26 +196,26 @@ Section simulator.
       exists (i2,v2); auto.
     Qed.
 
-    Definition bsm_mm_sim := snd Q.
+    Local Definition bsm_mm_sim := snd Q.
 
     Theorem bsm_mm_sim_spec : (iP,cP) /BSM/ (iP,v) ↓ <-> (1,bsm_mm_sim) /MM/ (1,w) ↓.
     Proof.
       rewrite <- (proj1 Hlnk) at 1.
       rewrite <- surjective_pairing.
-      split; auto.
+      split; auto using Q_spec2.
       intros H.
       destruct (Q_spec1 H) as (w' & H1 & _).
       exists (code_end Q, w'); auto.
     Qed.
 
-    Let iE := code_end Q.
+    Local Definition iE := code_end Q.
 
     (* We complete (iQ,cQ) with some code nullifying all variables except tmp1 & tmp2 *)
 
-    Let cN := mm_nullify tmp1 iE (map (fun p => pos_nxt (pos_nxt p)) (pos_list m)).
-    Let cE := cN ++ DEC tmp1 0 :: nil.
+    Local Definition cN := mm_nullify tmp1 iE (map (fun p => pos_nxt (pos_nxt p)) (pos_list m)).
+    Local Definition cE := cN ++ DEC tmp1 0 :: nil.
   
-    Let E_spec w' : w'#>tmp1 = 0 -> w'#>tmp2 = 0 -> (iE,cE) /MM/ (iE,w') -+> (0,vec_zero).
+    Local Lemma E_spec w' : w'#>tmp1 = 0 -> w'#>tmp2 = 0 -> (iE,cE) /MM/ (iE,w') -+> (0,vec_zero).
     Proof.
       intros H1 H2.
       unfold cE.
@@ -242,6 +244,7 @@ Section simulator.
   
     Let cQ_sim : Q <sc (1,bsm_mm).
     Proof.
+      pose proof Hlnk as Hlnk.
       unfold bsm_mm; destruct Q as (iQ,cQ); simpl in Hlnk.
       simpl snd; rewrite (proj1 Hlnk); auto.
     Qed.

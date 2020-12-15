@@ -27,6 +27,8 @@ Require Import Undecidability.StackMachines.Util.SMN_transform.
 Require Import Lia PeanoNat.
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Proof Using "Type".
+
 Local Definition rt_rt1n := @clos_rt_rt1n_iff Config.
 Local Definition app_norm := (@app_assoc', @app_nil_l, @app_nil_r).
 
@@ -46,10 +48,10 @@ Section Reduction.
   Definition M' : SSM.ssm := map encode_Instruction M.
 
   Lemma basic_instructions : forall op, In op M -> basic op.
-  Proof. by apply /Forall_forall. Qed.
+  Proof using basic_M. by apply /Forall_forall. Qed.
 
   Lemma simulation_step {x y} : step M x y -> SSM.step M' x y.
-  Proof.
+  Proof using basic_M.
     case=> v w l r l' r' {}x {}y Hop. move: Hop (Hop) => /basic_instructions.
     move H1op: (l, r, x, (l', r', y)) => op H2op. case: H2op H1op.
     - move=> > [] *. subst. apply: SSM.step_r. rewrite /M' in_map_iff. eexists. by constructor; last by eassumption.
@@ -57,7 +59,7 @@ Section Reduction.
   Qed.
 
   Lemma simulation {x y} : reachable M x y -> SSM.reachable M' x y.
-  Proof.
+  Proof using basic_M.
     elim.
     - move=> ? ? /simulation_step ?. by apply: rt_step.
     - move=> *. by apply: rt_refl.
@@ -65,7 +67,7 @@ Section Reduction.
   Qed.
 
   Lemma inverse_simulation_step {x y} : SSM.step M' x y -> step M x y.
-  Proof.
+  Proof using basic_M.
     case=> >.
     - rewrite /M' in_map_iff. move=> [[[[l r] {}x] [[l' r'] {}y]]] [] + HM.
       move: HM (HM) => /basic_instructions.
@@ -80,7 +82,7 @@ Section Reduction.
   Qed.
 
   Lemma inverse_simulation {x y} : SSM.reachable M' x y -> reachable M x y.
-  Proof.
+  Proof using basic_M.
     elim.
     - move=> ? ? /inverse_simulation_step ?. by apply: rt_step.
     - move=> *. by apply: rt_refl.
@@ -88,7 +90,7 @@ Section Reduction.
   Qed.
 
   Lemma confluent_M' : SSM.confluent M'.
-  Proof.
+  Proof using basic_M confluent_M.
     move=> ? ? ? /inverse_simulation /= H1 /inverse_simulation /= H2.
     have [? []] := confluent_M _ _ _ H1 H2.
     move=> /simulation /= ? /simulation /= ?.
@@ -96,7 +98,7 @@ Section Reduction.
   Qed.
 
   Lemma boundedness : (exists NM, bounded M NM) <-> (exists NM', SSM.bounded M' NM').
-  Proof.
+  Proof using basic_M.
     constructor.
       move=> [NM bounded_M]. exists NM.
       move=> X. have [L [HL ?]] := bounded_M X.

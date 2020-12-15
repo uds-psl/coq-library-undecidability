@@ -18,6 +18,8 @@ From Undecidability.StackMachines
 From Undecidability.MinskyMachines.MM
   Require Import mm_defs mm_utils mm_comp. 
 
+Set Default Proof Using "Type".
+
 Local Notation "P '/BSM/' s ↓" := (sss_terminates (@bsm_sss _) P s) (at level 70, no associativity).
 Local Notation "P '/MM/' s ~~> t" := (sss_output (@mm_sss _) P s t) (at level 70, no associativity).
 
@@ -58,7 +60,3 @@ Section BSM_MM_HALTING.
   Qed.
 
 End BSM_MM_HALTING.
-
-
-
-  

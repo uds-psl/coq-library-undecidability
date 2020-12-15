@@ -58,6 +58,7 @@ Arguments f__UpToC {_} _ {_}.
 
 Lemma UpToC_le X F (f : @UpToC X F) :
   (forall x, f x <= (c__leUpToC (H:=f))*F x).
+Proof.
   destruct f as [? []];cbn. easy.
 Qed.
 

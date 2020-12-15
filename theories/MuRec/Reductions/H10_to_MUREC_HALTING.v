@@ -23,6 +23,8 @@ From Undecidability.H10
 From Undecidability.MuRec 
   Require Import recalg ra_dio_poly.
 
+Set Default Proof Using "Type".
+
 Section H10_MUREC_HALTING.
 
   Let f : H10_PROBLEM -> MUREC_PROBLEM.
@@ -49,4 +51,3 @@ Section H10_MUREC_HALTING.
 End H10_MUREC_HALTING.
 
 Check H10_MUREC_HALTING.
-

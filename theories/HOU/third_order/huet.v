@@ -4,6 +4,8 @@ From Undecidability.HOU Require Import std.std calculus.calculus unification.uni
 From Undecidability.HOU Require Import third_order.pcp third_order.encoding.
 Import ListNotations.
 
+Set Default Proof Using "Type".
+
 (* * Huet Reduction *)
 Section HuetReduction.
 
@@ -15,39 +17,49 @@ Section HuetReduction.
   Let f: exp X := var 3.
   Let g: exp X := var 4.
 
-
-  (* ** Reduction Function *)
-  Program Instance PCP_to_U (S: list card) : orduni 3 X :=
-    {
-      Gamma₀ := [Arr (repeat (alpha → alpha) (length S)) alpha; (alpha → alpha) → alpha];
-      s₀ :=  lambda lambda lambda h (AppR f (Enc 1 2 (heads S))) (AppR f (repeat (var (u 1)) (length S)));
-      t₀ :=  lambda lambda lambda h (AppR f (Enc 1 2 (tails S))) (var (u 1) (g (var (u 1))));
-      A₀ := (alpha → alpha) → (alpha → alpha) → (alpha → alpha → alpha) →  alpha;
-      H1₀ := _;
-      H2₀ := _;
-    }.
-  Next Obligation with cbn; eauto.
+  Lemma HGamma₀s₀A₀ (S: list card) : 
+    [Arr (repeat (alpha → alpha) (length S)) alpha; (alpha → alpha) → alpha] ⊢( 3) 
+    (lambda lambda lambda h (AppR f (Enc 1 2 (heads S))) (AppR f (repeat (var (u 1)) (length S)))) :
+    ((alpha → alpha) → (alpha → alpha) → (alpha → alpha → alpha) →  alpha).
+  Proof.
     do 4 econstructor. econstructor. econstructor; cbn; eauto; cbn; eauto.
     - eapply AppR_ordertyping with (L := repeat (alpha → alpha)  (length S) ); simplify.
       erewrite <-map_length; eapply Enc_typing.
-      all: econstructor; eauto...
+      all: econstructor; eauto.
       simplify; cbn; eauto. 
     - eapply AppR_ordertyping. 
-      + eapply repeated_ordertyping; simplify; eauto. 
+      + eapply repeated_ordertyping; simplify; [|eauto]. 
         intros s H'. eapply repeated_in in H'. subst.
-        econstructor; cbn. 2: eauto. eauto...
-      + econstructor; simplify; eauto... 
+        econstructor; cbn. 2: eauto. eauto.
+      + econstructor; simplify; eauto.
   Qed.
-  Next Obligation with cbn [ord' ord alpha]; simplify; cbn; eauto.
+
+  Lemma HGamma₀t₀A₀ (S: list card) : 
+    [Arr (repeat (alpha → alpha) (length S)) alpha; (alpha → alpha) → alpha] ⊢( 3) 
+    (lambda lambda lambda h (AppR f (Enc 1 2 (tails S))) (var (u 1) (g (var (u 1))))) :
+    ((alpha → alpha) → (alpha → alpha) → (alpha → alpha → alpha) →  alpha).
+  Proof with cbn [ord' ord alpha]; simplify; cbn; eauto.
     do 4 econstructor. econstructor. econstructor; eauto...
     cbn; eauto. 
     2: do 2 econstructor...
     2 - 3: econstructor...
-    eapply AppR_ordertyping with (L := repeat (alpha → alpha) (length S)); simplify; eauto.
+    eapply AppR_ordertyping with (L := repeat (alpha → alpha) (length S)); simplify.
     erewrite <-map_length; eapply Enc_typing.
     all: econstructor...
-  Qed. 
+  Qed.
 
+  (* ** Reduction Function *)
+  Instance PCP_to_U (S: list card) : orduni 3 X.
+  Proof with cbn [ord' ord alpha]; simplify; cbn; eauto.
+    refine {|
+      Gamma₀ := [Arr (repeat (alpha → alpha) (length S)) alpha; (alpha → alpha) → alpha];
+      s₀ :=  lambda lambda lambda h (AppR f (Enc 1 2 (heads S))) (AppR f (repeat (var (u 1)) (length S)));
+      t₀ :=  lambda lambda lambda h (AppR f (Enc 1 2 (tails S))) (var (u 1) (g (var (u 1))));
+      A₀ := (alpha → alpha) → (alpha → alpha) → (alpha → alpha → alpha) →  alpha;
+      H1₀ := HGamma₀s₀A₀ S;
+      H2₀ := HGamma₀t₀A₀ S;
+    |}.
+  Defined.
 
   Section ForwardDirection.
 
@@ -127,7 +139,7 @@ Section HuetReduction.
 
     Lemma end_is_var:
       (forall x, x ∈ S -> isVar x) -> exists i e, i < |S| /\ s = var i e.
-    Proof.
+    Proof using x t sigma N H1 EQ.
       intros H2; edestruct @end_head_var with (X:=X) as (h' & T & s' & H5 & ?); eauto. subst s. 
       destruct T as [| t1 [| t2 T]]. 
       all: cbn in EQ; specialize (H1 h'). 
@@ -232,7 +244,6 @@ Section HuetReduction.
         eapply equiv_head_equal in EQ1; cbn; simplify; cbn; intuition.
         cbn in EQ1; simplify in EQ1; discriminate. 
   Qed. 
-  
 
   Theorem PCP_U3: PCP ⪯ OU 3 X.
   Proof.
@@ -240,11 +251,4 @@ Section HuetReduction.
     rewrite OU_NOU; eauto using MU_PCP.
   Qed.
 
-
 End HuetReduction.
-
-
-
-
-
-

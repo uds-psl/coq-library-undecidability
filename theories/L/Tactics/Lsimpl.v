@@ -101,6 +101,7 @@ Tactic Notation "recStep" constr(P) :=
 
 (*
 Lemma rClosed_closed s: recProc s -> proc s.
+Proof.
   intros [? [? ?]]. subst. split; auto with LProc.
 Qed.
 
@@ -108,18 +109,22 @@ Hint Resolve rClosed_closed : LProc cbv.
  *)
 
 Lemma I_proc : proc I.
+Proof.
   fLproc.
 Qed.
 
 Lemma K_proc : proc K.
+Proof.
   fLproc.
 Qed.
 
 Lemma omega_proc : proc omega.
+Proof.
   fLproc.
 Qed.
 
 Lemma Omega_closed : closed Omega.
+Proof.
   fLproc. 
 Qed.
 

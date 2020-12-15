@@ -14,7 +14,7 @@ Qed.
 Lemma mk_pTM n (sig : finType) (m : TM sig n) : pTM sig unit n.
 Proof.
   unshelve econstructor. exact m. exact (fun _ => tt).
-Defined.  
+Defined. (* because definition *)
 
 Local Notation "[ s | p ∈ A ]" := (map (fun p => s) A) (p pattern).
 

@@ -504,9 +504,11 @@ L/Functions/Ackermann.v
 
 L/TM/TMEncoding.v
 L/TM/TMinL.v
+L/TM/TMinL/TMinL_extract.v
 L/TM/TapeFuns.v
 L/Reductions/TM_to_L.v
 L/Reductions/H10_to_L.v
+L/Reductions/MuRec/MuRec_extract.v
 L/Reductions/MuRec.v
 
 L/Complexity/UpToC.v
@@ -712,8 +714,9 @@ SemiUnification/Reductions/HaltTM_1_to_SemiU.v
 SemiUnification/Reductions/HaltTM_1_chain_SemiU.v
 
 DiophantineConstraints/Util/h10c_utils.v
-DiophantineConstraints/Reductions/H10C_SAT_to_H10UC_SAT.v
 DiophantineConstraints/Reductions/FRACTRAN_to_H10C_SAT.v
+DiophantineConstraints/Reductions/H10C_SAT_to_H10SQC_SAT.v
+DiophantineConstraints/Reductions/H10SQC_SAT_to_H10UC_SAT.v
 
 SetConstraints/Util/Facts.v
 SetConstraints/Util/mset_eq_utils.v

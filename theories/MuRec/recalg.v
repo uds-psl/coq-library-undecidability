@@ -14,6 +14,8 @@ From Undecidability.Shared.Libs.DLW
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Local Reserved Notation " '[|' f '|]' " (at level 0).
 Local Reserved Notation "'⟦' f '⟧'".
 
@@ -193,7 +195,7 @@ Section recursor.
              (Gfun : forall x y n m, G x y n -> G x y m -> n = m).
 
   Fact μ_rec_fun : functional μ_rec. 
-  Proof.
+  Proof using Ffun Gfun.
     intros n; induction n as [ | n IHn ]; simpl; auto.
     intros x y (a & H1 & H2) (b & H3 & H4).
     specialize (IHn _ _ H1 H3); subst b.
@@ -218,7 +220,7 @@ Section minimization.
   Qed.
 
   Fact μ_min_fun n m : μ_min n -> μ_min m -> n = m.
-  Proof.
+  Proof using Rfun.
     intros (H1 & H2) (H3 & H4).
     destruct (lt_eq_lt_dec n m) as [ [ H | ] | H ]; auto; 
       [ apply H4 in H | apply H2 in H ]; destruct H as (u & Hu);
@@ -228,7 +230,7 @@ Section minimization.
   Hypothesis HR : forall x, exists y, R x y.
 
   Fact μ_min_of_total : (exists n, μ_min n) <-> exists x, R x 0.
-  Proof.
+  Proof using Rfun HR.
     split.
     + intros (n & ? & _); exists n; auto.
     + intros H.
@@ -403,7 +405,7 @@ Section relational_semantics.
               (Hf : total [|f|]) (Hg : forall p, total [|vec_pos g p|]).
 
     Fact ra_comp_tot : total [|ra_comp f g|].
-    Proof.
+    Proof using Hf Hg.
       intros v.
       assert (H1 : forall p, exists x, [|vec_pos g p|] v x) by (intro; apply Hg).
       apply vec_reif in H1; destruct H1 as (w & Hw).
@@ -481,4 +483,3 @@ Arguments s_succ v x /.
 Definition MUREC_PROBLEM := recalg 0.
 Definition MUREC_HALTING : MUREC_PROBLEM -> Prop.
 Proof. intros f; exact (ex (ra_rel f vec_nil)). Defined.
-

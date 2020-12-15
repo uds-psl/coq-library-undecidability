@@ -5,7 +5,7 @@ From Undecidability.HOU Require Import std.std calculus.calculus
         unification.nth_order_unification.
 Import ListNotations.
 
-
+Set Default Proof Using "Type".
 
 (* * Conservativity *)
 
@@ -473,7 +473,7 @@ Section Conservativity.
       Delta ⊩ sigma : Gamma -> sigma • s ≡ sigma • t ->
       exists Sigma tau, Delta ++ Sigma ⊩ tau : Gamma /\ tau • s ≡ tau • t /\
       ord' Sigma <= 1 /\ (forall x c, c ∈ consts (tau x) -> c ∈ Consts [s; t]).
-    Proof.
+    Proof using n Leq.
       intros [m H] % ordertypingSubst_complete EQ.
       eapply ordertypingSubst_monotone with (m0 := S m) in H; eauto.
       eapply downcast_constants_ordered in H as (Sigma & tau & ?); [|lia|eauto].
@@ -510,7 +510,7 @@ Section Conservativity.
   Lemma ordertyping_weak_ordertyping Gamma Delta sigma (s t: exp X):
     (forall x A, nth Gamma x = Some A -> x ∈ vars s ++ vars t -> Delta ⊢(n) sigma x : A) ->  sigma • s ≡ sigma • t ->
     (exists Sigma tau, Sigma ⊩(n) tau : Gamma /\ tau • s ≡ tau • t).
-  Proof.
+  Proof using Leq.
     intros T EQ.
     pose (tau x := if x el (vars s ++ vars t)
                 then sigma x
@@ -531,7 +531,7 @@ Section Conservativity.
   Lemma unification_downcast sigma Gamma s t Delta A:
     Delta ⊩ sigma : Gamma -> Gamma ⊢(n) s : A -> Gamma ⊢(n) t : A -> sigma • s ≡ sigma • t ->
     exists Sigma tau, Sigma ⊩(n) tau : Gamma /\ tau • s ≡ tau • t.
-  Proof.
+  Proof using Leq.
     intros T T1 T2 H.
     pose (P x := x ∈ vars s ++ vars t).
     edestruct (downcast_variables) as (Sigma' & tau' & T' & H' & O');
@@ -567,7 +567,7 @@ Section Conservativity.
     (Gamma ⊢₊₊(n) E : L) ->
     (Delta ⊩ sigma : Gamma) -> (sigma •₊ left_side E) ≡₊ (sigma •₊ right_side E) ->
     exists Sigma tau, Sigma ⊩(n) tau : Gamma /\ (tau •₊ left_side E) ≡₊ (tau •₊ right_side E).
-  Proof.
+  Proof using Leq.
     intros T1 T2 H.
     pose (P x := x ∈ Vars' E). pose (s := linearize_terms (left_side E)).
     pose (t := linearize_terms (right_side E)).

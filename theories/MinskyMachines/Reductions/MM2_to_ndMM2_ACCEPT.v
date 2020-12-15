@@ -20,6 +20,8 @@ From Undecidability.Synthetic
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Section MM2_ndMM2.
 
   Notation STOP := (@ndmm2_stop _).

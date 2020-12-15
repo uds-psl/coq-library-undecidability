@@ -20,6 +20,8 @@ From Undecidability.MuRec
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Local Notation "'⟦' f '⟧'" := (@ra_rel _ f) (at level 0).
 
 Opaque ra_cst_n ra_iter_n ra_iter ra_prim_min ra_prim_max.
@@ -108,4 +110,3 @@ Section ra_beta.
 End ra_beta.
 
 Hint Resolve ra_beta_prim_rec ra_beta_val : core.
-

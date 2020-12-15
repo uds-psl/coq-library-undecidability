@@ -20,6 +20,8 @@ Require Import Undecidability.StackMachines.SSM.
 
 From Undecidability.StackMachines.Util Require Import Facts.
 
+Set Default Proof Using "Type".
+
 (* width of a configuration *)
 Definition width : config -> nat := fun '(A, B, _) => length A + length B.
 
@@ -59,7 +61,7 @@ Lemma equiv_sym {X Y: config} : equiv X Y <-> equiv Y X.
 Proof. constructor; move=> [Z [? ?]]; exists Z; by constructor. Qed.
 
 Lemma equiv_trans {X Y Z: config} : equiv X Y -> equiv Y Z -> equiv X Z.
-Proof.
+Proof using confluent_M.
   move=> [Z0 [? HYZ0]] [Z1 [HYZ1 ?]].
   have [Z2 [? ?]] := (confluent_M HYZ0 HYZ1).
   exists Z2. constructor; apply: rt_trans; by eassumption.
@@ -516,7 +518,7 @@ Qed.
 (* if sizes of right stacks of narrow configurations with empty left stack are bounded by m,
   then M is bounded *)
 Lemma bounded_of_bounded' {n: nat}: bounded' n -> exists (m: nat), bounded M m.
-Proof.
+Proof using confluent_M.
   move=> Hn.
   pose W := (repeat false n, repeat false n, 0) : config.
   exists (length (space W)). elim /(measure_ind width).
@@ -552,7 +554,7 @@ Qed.
 
 (* right stack size bound translates to all narrow configurations *)
 Lemma extend_bounded' {n: nat} {X: config} : bounded' n -> narrow X -> length (get_right X) <= n.
-Proof.
+Proof using confluent_M.
   move: X => [[A B] x] Hn. elim /(measure_ind (@length symbol)) : A => A IH.
   case: (stack_eq_dec A []).
     move=> -> [y [A']] [Z [+ ?]]. move /Hn. apply. by eassumption.
@@ -581,14 +583,14 @@ Qed.
 
 (* equivalent characterizations of boundedness *)
 Theorem boundedP : (exists n, bounded M n) <-> (exists m, bounded' m).
-Proof.
+Proof using confluent_M.
   constructor.
     move=> [?]. by apply /bounded_to_bounded'.
   move=> [?]. by apply /bounded_of_bounded'.
 Qed.
 
 Lemma narrow_equiv {X Y: config} : equiv X Y -> narrow X -> narrow Y.
-Proof.
+Proof using confluent_M.
   move=> /equiv_sym HXY [x [A HX]]. exists x, A.
   apply: (equiv_trans); by eassumption.
 Qed.

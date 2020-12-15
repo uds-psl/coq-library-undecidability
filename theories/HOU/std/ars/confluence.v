@@ -7,6 +7,8 @@ Set Implicit Arguments.
 Require Import Morphisms FinFun.
 From Undecidability.HOU Require Import std.tactics std.misc std.ars.basic.
 
+Set Default Proof Using "Type".
+
 Section Confluence.
 
   Variable X: Type.
@@ -138,25 +140,25 @@ Section Takahashi.
 
   Fact tak_diamond :
     diamond R.
-  Proof.
+  Proof using tak rho.
     intros x y z H1 % tak H2 % tak. exists (rho x); auto.
   Qed.
 
   Fact tak_sound x :
     Reflexive R -> x > rho x.
-  Proof.
+  Proof using tak.
     intros H. apply tak, H.
   Qed.
 
   Fact tak_mono x y :
     x > y -> rho x > rho y.
-  Proof.
+  Proof using tak.
     intros H % tak % tak. exact H.
   Qed.
 
   Fact tak_mono_n x y n :
     x > y -> it n rho x > it n rho y.
-  Proof.
+  Proof using tak.
     intros H.
     induction n as [|n IH]; cbn.
     - exact H.
@@ -165,7 +167,7 @@ Section Takahashi.
 
   Fact tak_cofinal x y :
     x >* y -> exists n, y >* it n rho x.
-  Proof.
+  Proof using tak.
     induction 1 as [x |x x' y H _ (n&IH)].
     - exists 0. cbn. constructor.
     - exists (S n). rewrite IH. cbn.
@@ -183,7 +185,7 @@ Section TMT.
 
   Fact sandwich_equiv :
     star R === star S.
-  Proof.
+  Proof using H1 H2.
     split.
     - apply star_mono, H1.
     - intros x y H3. apply star_idem. revert x y H3.
@@ -192,14 +194,14 @@ Section TMT.
 
   Fact sandwich_confluent :
     diamond S -> confluent R.
-  Proof.
+  Proof using H1 H2.
     intros H3 % diamond_confluent.
     revert H3. apply diamond_ext, sandwich_equiv; auto.
   Qed.
 
   Theorem TMT rho :
     Reflexive S -> tak_fun S rho -> confluent R.
-  Proof.
+  Proof using H1 H2.
     intros H3 H4. 
     eapply sandwich_confluent, tak_diamond, H4.
   Qed.

@@ -12,6 +12,7 @@ Arguments plus : simpl never.
 
 (* Disable the warnings regarding [Undo]. This is a demonstration file. *)
 Set Warnings "-undo-batch-mode,-non-interactive".
+Set Default Proof Using "Type".
 
 
 (* *** Copy.v *)

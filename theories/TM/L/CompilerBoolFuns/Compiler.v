@@ -205,7 +205,7 @@ Section mk_init.
       _;;M_init_one s retr_pro retr_bools @ [|auxk (ren[@Fin0]);aux Fin1;aux Fin2;aux Fin3;aux Fin4;aux Fin5|]
     end). all:try exact _.
     2:{apply (M_init' _ (Vector.tl ren)). }
-  Defined.
+  Defined. (* because definition *)
 
 
 
@@ -244,7 +244,7 @@ Section mk_init.
   Program Definition startRen := Vectors.tabulate (n:=k) (fun i => Fin.of_nat_lt (n:=k) (p:=k - 1 -proj1_sig (Fin.to_nat i)) _).
   Next Obligation.
   destruct Fin.to_nat;cbn. nia.
-  Defined.
+  Defined. (* because definition *)
 
   Lemma startRen_spec A (v:Vector.t A _): select startRen v = Vector.rev v.
   Proof.

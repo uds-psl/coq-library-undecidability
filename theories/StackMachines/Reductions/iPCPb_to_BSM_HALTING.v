@@ -21,6 +21,8 @@ From Undecidability.StackMachines.BSM
 From Undecidability.PCP 
   Require Import PCP PCP_facts.
 
+Set Default Proof Using "Type".
+
 Fact tile_concat_itau ln lt : tile_concat ln lt = (itau1 lt (rev ln), itau2 lt (rev ln)).
 Proof.
   induction ln as [ | i ln IH ]; simpl; auto.
@@ -63,6 +65,7 @@ Section iPCPb_to_BSM_HALTING.
   Defined.
 
   Goal forall x, length(pcp_bsm x) >= 80.
+  Proof.
     intros; rewrite pcp_bsm_size; lia.
   Qed.
   

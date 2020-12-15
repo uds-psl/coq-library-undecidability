@@ -82,7 +82,7 @@ Qed.
 Instance reg_is_ext ty (R : registered ty) (x : ty) : computable x.
 Proof.
   exists (enc x). reflexivity.
-Defined.
+Defined. (* because ? *)
 
 
 Lemma computesTyB (t:Type) (x:t) `{registered t}: computes (TyB t) x (ext x).
@@ -97,7 +97,7 @@ Proof.
   edestruct H as (?&?&?).
   eassumption.
   now eapply (@Build_computable _ _ _ x0). 
-Defined.  
+Defined. (* because ? *)
 
 Lemma extApp t1 t2 {tt1:TT t1} {tt2 : TT t2} (f: t1 -> t2) (x:t1) (Hf : computable f) (Hx : computable x) :
   app (ext f) (ext x) >* ext (f x).
@@ -112,7 +112,7 @@ Lemma ext_is_enc t1 (R:registered t1) (x: t1) (Hf : computable x) :
   @ext _ _ x Hf = enc x.
 Proof.
   now destruct Hf. 
-Defined.
+Defined. (* because ? *)
 
 Definition computesExp {t} (ty : TT t) (f:t) (s fExt : term) : Type :=
   eval s fExt * computes ty f fExt.
@@ -185,8 +185,9 @@ Qed.
 
 Lemma computableExt X (tt : TT X) (x x' : X):
   extEq x x' -> computable x -> computable x'.
+Proof.
   intros ? (s&?). exists s. eauto using computesExt.
-Defined.
+Defined. (* because ? *)
 
 (* register a datatype via an (injectve) function to another, e.g. vectors as lists *)
 
@@ -194,7 +195,7 @@ Lemma registerAs X Y `{registered X} (f:Y -> X) : injective f -> registered Y.
 Proof.
   intros Hf. eexists (fun x => enc (f x)). now destruct H.
   intros ? ? ?. now eapply H, Hf in H0.
-Defined.
+Defined. (* because ? *)
 Arguments registerAs {_ _ _} _ _.
 
 (* Support for extracting registerAs-ed functions *)

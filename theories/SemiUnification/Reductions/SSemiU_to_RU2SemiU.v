@@ -19,6 +19,8 @@ From Undecidability.SemiUnification.Util Require Import Facts Enumerable.
 
 Require Import ssreflect ssrfun ssrbool.
 
+Set Default Proof Using "Type".
+
 Module Argument.
   Definition embed_var (x: nat) := atom (to_nat (x, 0)).
 

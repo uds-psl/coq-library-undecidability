@@ -11,6 +11,8 @@ Require Import Arith Lia.
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Section nat_rev_ind.
 
   (* A reverse recursion principle *)
@@ -19,7 +21,7 @@ Section nat_rev_ind.
             (HP : forall n, P (S n) -> P n).
 
   Theorem nat_rev_ind x y : x <= y -> P y -> P x.
-  Proof. induction 1; auto. Qed.
+  Proof using HP. induction 1; auto. Qed.
 
 End nat_rev_ind.
 
@@ -31,7 +33,7 @@ Section nat_rev_ind'.
             (HP : forall n, n < k -> P (S n) -> P n).
 
   Theorem nat_rev_ind' x y : x <= y <= k -> P y -> P x.
-  Proof.
+  Proof using HP.
     intros H1 H2. 
     set (Q n := n <= k /\ P n).
     assert (forall x y, x <= y -> Q y -> Q x) as H.
@@ -92,7 +94,7 @@ Section minimizer_pred.
   Qed.
 
   Definition minimizer_pred : sig minimizer.
-  Proof.
+  Proof using Hmin loop.
     destruct (loop bar_0) as (k & H1 & H2).
     exists k; split; auto.
     intros; apply H2; lia.
@@ -192,5 +194,3 @@ End minimizer_pred.
 (* Print Assumptions minimizer_coq. *)
 
 (* Extraction "minimizer.ml" minimizer_coq. *)
-
-     

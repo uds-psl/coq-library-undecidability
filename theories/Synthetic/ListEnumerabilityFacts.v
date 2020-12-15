@@ -264,6 +264,7 @@ Qed.
 (* Typeclasses  *)
 
 Definition L_T {X : Type} {f : nat -> list X} {H : list_enumerator__T f X} : nat -> list X.
+Proof.
   exact (cumul f).
 Defined.
 Arguments L_T _ {_ _} _, {_ _ _}.

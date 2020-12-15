@@ -7,7 +7,7 @@ From Undecidability Require Import EncodeBinNumbers PosDefinitions PosPointers P
 Global Instance comparison_eq_dec : eq_dec comparison.
 Proof.
   intros. hnf. decide equality.
-Defined.
+Defined. (* because definition *)
 
 (* Declare finiteness of [comparison] *)
 Global Instance comparison_finC : finTypeC (EqType comparison).
@@ -17,8 +17,8 @@ Proof.
 Qed.
 
 Global Instance comparison_inhabited : inhabitedC comparison.
-Proof. repeat constructor. Defined.
-
+Proof. repeat constructor. Qed.
+  
 
 (* Thankfully, [Pos.compare] is already defined tail-recursively. We store the acku [r:comparison] in the state using [StateWhile]. *)
 

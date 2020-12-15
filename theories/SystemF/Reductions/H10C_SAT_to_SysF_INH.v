@@ -27,6 +27,8 @@ Require Import Undecidability.DiophantineConstraints.H10C.
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Proof Using "Type".
+
 Local Arguments nth_error_In {A l n x}.
 Local Arguments In_nth_error {A l x}.
 Local Arguments Forall_inv {A P a l}.
@@ -35,7 +37,7 @@ Local Arguments Forall_inv_tail {A P a l}.
 (* Facts on types of shape ∀ .. ∀ s1 -> .. sn -> x where x is free *)
 Module SafePolyType.
 (* s1 -> .. sn -> x where n <= x *)
-Fixpoint is_safe_poly_arr (n: nat) (t: poly_type) :=
+Local Fixpoint is_safe_poly_arr (n: nat) (t: poly_type) :=
   match t with
   | poly_var x => n <= x
   | poly_arr _ t => is_safe_poly_arr n t
@@ -942,7 +944,7 @@ Lemma introduce_φ (n: nat):
   ϵ <= S n -> 
   iipc2 (Gamma0 ++ GammaUSP n ++ Gammaφ) (poly_var tt) ->
   iipc2 (Gamma0 ++ GammaUSP n) (poly_var tt).
-Proof.
+Proof using Hφ.
   move: (Hφ). have := δP. rewrite /Gammaφ [Gamma0]lock => + /Forall_forall + Hn.
   elim: (h10cs); first by rewrite app_nil_r.
   move=> [x | x y z | x y z] cs IH /Forall_consP [Hδ /IH {}IH] /Forall_consP /= [Hφc /IH {}IH].

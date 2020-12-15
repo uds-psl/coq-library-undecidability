@@ -4,7 +4,7 @@ From Undecidability.HOU Require Import calculus.calculus unification.unification
 From Undecidability.HOU.second_order Require Export diophantine_equations goldfarb.encoding goldfarb.multiplication.
 Import ListNotations.
 
-
+Set Default Proof Using "Type".
 
 
 (* ** Equivalences *)
@@ -23,7 +23,7 @@ Section EquationEquivalences.
     Qed.
 
     Lemma backward_vars x: sigma • fst (varEQ x) ≡ sigma • snd (varEQ x) -> exists n, encodes (sigma (F x)) n.
-    Proof.
+    Proof using N.
       cbn; simplify.
       unfold funcomp; change shift with (add 1); rewrite ren_plus_combine; unfold var_zero; cbn.
       intros H; eapply normal_forms_encodes in H; eauto.
@@ -36,13 +36,13 @@ Section EquationEquivalences.
       Hypothesis (Ex: encodes (sigma (F x)) n).
 
       Lemma forward_consts: n = 1 -> sigma • fst (constEQ x) ≡ sigma • snd (constEQ x).
-      Proof.
+      Proof using Ex.
         cbn; unfold funcomp; change shift with (add 1); rewrite ren_plus_combine; unfold var_zero; cbn.
         rewrite Ex; asimpl; now intros ->.
       Qed.
 
       Lemma backward_consts:  sigma • fst (constEQ x) ≡ sigma • snd (constEQ x) -> n = 1.
-      Proof.
+      Proof using Ex.
         cbn.
         unfold funcomp; change shift with (add 1); rewrite ren_plus_combine; unfold var_zero; cbn.
         rewrite Ex. asimpl. intros ? % equiv_lam_elim % equiv_lam_elim.
@@ -58,7 +58,7 @@ Section EquationEquivalences.
 
 
     Lemma forward_add: m + n = p -> sigma • fst (addEQ x y z) ≡ sigma • snd (addEQ x y z).
-    Proof.
+    Proof using Ex Ey Ez.
       intros <-; cbn.
       unfold funcomp; change shift with (add 1); rewrite !ren_plus_combine; unfold var_zero; cbn.
       erewrite Ex, Ey, Ez; now simplify.
@@ -66,7 +66,7 @@ Section EquationEquivalences.
 
     Lemma backward_add:
       sigma • fst (addEQ x y z) ≡ sigma • snd (addEQ x y z) -> m + n = p.
-    Proof.
+    Proof using Ex Ey Ez.
       cbn.
       unfold funcomp; change shift with (add 1); rewrite !ren_plus_combine; unfold var_zero; cbn.
       rewrite Ex, Ey, Ez; simplify; intros H % equiv_lam_elim % equiv_lam_elim.
@@ -87,7 +87,7 @@ Section EquationEquivalences.
 
     Lemma forward_mul:
         m * n = p -> sigma (G x y z) = T n m -> sigma • fst (mulEQ x y z) ≡ sigma • snd (mulEQ x y z).
-    Proof.
+    Proof using Ex Ey Ez.
       intros H1 H2. unfold mulEQ; cbn. unfold funcomp.
       rewrite H2. change shift with (add 1); rewrite !ren_plus_combine; cbn [plus].
       rewrite Ex, Ey, Ez. subst p. eapply G_forward.
@@ -95,7 +95,7 @@ Section EquationEquivalences.
 
     Lemma backward_mult:
       sigma • fst (mulEQ x y z) ≡ sigma • snd (mulEQ x y z) -> m * n = p /\ sigma (G x y z) = T n m.
-    Proof.
+    Proof using N Ex Ey Ez.
       unfold mulEQ; cbn. unfold funcomp.
       change shift with (add 1); rewrite !ren_plus_combine; cbn [plus].
       rewrite Ex, Ey, Ez. intros H. apply G_iff in H; eauto.
