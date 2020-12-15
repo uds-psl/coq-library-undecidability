@@ -152,10 +152,9 @@ Section LookupAssociativeList.
             end (appSize (Lookup_Loop_size xs x) ss))).
   Proof using cX_injective.
   unfold Lookup_Loop.
-  eapply While_SpecTReg with
+  refine (While_SpecTReg
   (PRE := fun '(xs, x, ss) => (_,_)) (INV := fun '(xs, x, ss) y => (_,_)) (POST := fun '(xs, x, ss) y => (_,_)) 
-  (f__step := fun '(xs,x,ss) => _) (f__loop := fun '(xs,x,ss) => _)
-                          (x := (xs,x,ss)); clear x xs ss; intros ((xs, x), ss).
+  (f__step := fun '(xs,x,ss) => _) (f__loop := fun '(xs,x,ss) => _) _ _ ((xs,x,ss))); clear x xs ss; intros ((xs, x), ss).
   { apply Lookup_Step_SpecT_space. }
   cbn. split. 
   - intros b Hb. set (sizeStep := Lookup_Step_size xs x);set (sizeLoop := Lookup_Loop_size xs x). destruct xs as [ | (x', y) xs'].

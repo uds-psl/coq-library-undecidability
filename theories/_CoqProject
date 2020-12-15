@@ -442,7 +442,7 @@ TM/Hoare/HoareCombinators.v
 TM/Hoare/HoareRegister.v
 TM/Hoare/HoareTactics.v
 TM/Hoare/HoareTacticsView.v
-TM/Hoare/HoareExamples.v
+# TM/Hoare/HoareExamples.v
 TM/Hoare/HoareMult.v
 TM/Hoare/HoareStdLib.v
 TM/Hoare/HoareLegacy.v
@@ -545,8 +545,6 @@ L/Computability/Fixpoints.v
 L/Computability/MuRec.v
 L/Computability/Partial.v
 L/Computability/Por.v
-L/Computability/Rice.v
-L/Computability/Scott.v
 L/Computability/Seval.v
 L/Computability/Synthetic.v
 
