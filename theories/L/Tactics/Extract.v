@@ -5,6 +5,9 @@ Require Import String Ascii.
 
 Open Scope string_scope.
 Import MonadNotation.
+
+Unset Universe Minimization ToSet.
+
 (* ** Extraction *)
 
 (* Global definition of fuel for step-indexed computations *)
