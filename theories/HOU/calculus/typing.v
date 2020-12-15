@@ -1,6 +1,7 @@
 Set Implicit Arguments.
-Require Import List Omega Lia.
-From Undecidability.HOU.calculus Require Export syntax semantics equivalence.
+Require Import List Lia.
+From Undecidability.HOU Require Import std.std.
+From Undecidability.HOU.calculus Require Import prelim terms syntax semantics.
 
 Set Default Proof Using "Type".
 

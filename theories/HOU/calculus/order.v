@@ -1,6 +1,8 @@
 Set Implicit Arguments.
-Require Import List Omega Lia.
-From Undecidability.HOU.calculus Require Export syntax semantics equivalence typing.
+Require Import List Arith Lia.
+From Undecidability.HOU Require Import std.std.
+From Undecidability.HOU.calculus Require Import 
+  prelim terms syntax semantics typing. 
 
 Set Default Proof Using "Type".
 
@@ -69,7 +71,7 @@ Section OrderTyping.
 
     Lemma ord'_in A Gamma: A ∈ Gamma -> ord A <= ord' Gamma.
     Proof.
-      induction Gamma; cbn in *; intuition; subst; eauto.
+      induction Gamma; cbn in *; intuition; subst; eauto; lia.
     Qed.
     
     Lemma ord'_elements n Gamma: (forall A, A ∈ Gamma -> ord A <= n) <-> ord' Gamma <= n.

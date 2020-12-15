@@ -11,6 +11,7 @@ Require Import List.
 Import ListNotations.
 
 Set Default Proof Using "Type".
+Set Default Goal Selector "!".
 
 (* Enumerable X allows injection into nat *)
 Class Enumerable (X: Type) :=
@@ -57,11 +58,11 @@ Definition decode (n : nat) : nat * nat :=
 Lemma decode_encode {xy: nat * nat} : decode (encode xy) = xy.
 Proof.
   move Hn: (encode xy) => n. elim: n xy Hn.
-    by move=> [[|?] [|?]].
+  { by move=> [[|?] [|?]]. }
   move=> n IH [x [|y [H]]] /=.
-    move: x => [|x [H]] /=; first done.
+  - move: x => [|x [H]] /=; first done.
     by rewrite (IH (0, x)) /= -?H ?Nat.add_0_r.
-  by rewrite (IH (S x, y)) /= -?H ?Nat.add_succ_r.
+  - by rewrite (IH (S x, y)) /= -?H ?Nat.add_succ_r.
 Qed.
 
 Lemma encode_non_decreasing (x y: nat) : x + y <= encode (x, y).

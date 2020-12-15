@@ -1,6 +1,8 @@
-Require Import Arith Lia.
+Require Import Lia.
 
-From Coq Require Import ssreflect ssrbool ssrfun.
+Require Import ssreflect ssrbool ssrfun.
+
+Set Default Goal Selector "!".
 
 (* induction principle wrt. a decreasing measure f *)
 (* example: elim /(measure_ind length) : l. *)

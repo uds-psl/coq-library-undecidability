@@ -1,8 +1,9 @@
 (* Considered preliminaries *)
 Set Implicit Arguments.
-Require Import List Omega Lia Morphisms.
+Require Import List Arith Lia Morphisms.
 Import ListNotations.
-From Undecidability.HOU Require Export calculus.terms std.std.
+From Undecidability.HOU Require Export std.std.
+From Undecidability.HOU Require Import calculus.terms.
 
 
 
@@ -81,10 +82,10 @@ Lemma it_up_ren_spec n delta x:
   it n up_ren delta x = if dec2 lt x n then x else n + delta (x - n).
 Proof.
   induction n in x, delta |-*; cbn.
-  - destruct dec2; intuition.
-  - destruct x; cbn; destruct dec2; intuition.
+  - destruct dec2; intuition. lia.
+  - destruct x; cbn; destruct dec2; intuition. lia.
     all: unfold funcomp; erewrite IHn.
-    all: destruct dec2; intuition.
+    all: destruct dec2; intuition; lia.
 Qed.
 
 Lemma it_up_ren_lt n delta x:
@@ -96,7 +97,7 @@ Qed.
 Lemma it_up_ren_ge n delta x:
   x >= n -> it n up_ren delta x = n + delta (x - n).
 Proof.
-  intros; rewrite it_up_ren_spec; destruct dec2; intuition.
+  intros; rewrite it_up_ren_spec; destruct dec2; intuition; lia.
 Qed.
 
 Lemma it_up_spec X n (sigma: fin -> @exp X) x:

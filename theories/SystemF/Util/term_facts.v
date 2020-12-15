@@ -13,6 +13,8 @@ From Undecidability.SystemF.Util Require Import Facts poly_type_facts pure_term_
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Goal Selector "!".
+
 Lemma subst_term_up_term_term_var {σ t}: subst_term σ (up_term_term var) t = subst_term σ var t.
 Proof. apply: ext_term; [done | by case]. Qed.
 

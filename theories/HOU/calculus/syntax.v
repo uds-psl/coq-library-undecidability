@@ -1,7 +1,7 @@
 Set Implicit Arguments.
-Require Import List Omega Lia.
+Require Import List Lia.
 Import ListNotations.
-From Undecidability.HOU Require Export calculus.prelim std.std.
+From Undecidability.HOU Require Import calculus.terms calculus.prelim std.std.
 
 Set Default Proof Using "Type".
 

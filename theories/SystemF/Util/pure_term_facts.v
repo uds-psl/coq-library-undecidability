@@ -13,6 +13,8 @@ Require Import Undecidability.SystemF.Util.Facts Undecidability.SystemF.Util.pol
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Goal Selector "!".
+
 (* evaluates predicate p on all free variables *)
 Fixpoint allfv_pure_term (p: nat -> Prop) (M: pure_term) :=
   match M with

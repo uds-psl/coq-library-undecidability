@@ -1,8 +1,7 @@
 Set Implicit Arguments.
 Require Import Morphisms Setoid.
 From Undecidability.HOU Require Import std.std.
-From Undecidability.HOU.calculus Require Export prelim.
-From Undecidability.HOU.calculus Require Import semantics.
+From Undecidability.HOU.calculus Require Import prelim terms semantics. 
 
 Set Default Proof Using "Type".
 

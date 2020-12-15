@@ -1,6 +1,9 @@
 Set Implicit Arguments.
-Require Import Morphisms Omega Lia FinFun.
-From Undecidability.HOU Require Export std.std calculus.syntax calculus.semantics calculus.confluence. 
+Require Import Morphisms Lia FinFun.
+From Undecidability.HOU Require Import std.std.
+From Undecidability.HOU.calculus Require Import 
+  prelim terms syntax semantics confluence. 
+
 
 Set Default Proof Using "Type".
 

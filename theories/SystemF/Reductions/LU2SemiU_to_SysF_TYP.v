@@ -27,6 +27,7 @@ Module SU := SemiU.
 Require Import ssreflect ssrbool ssrfun.
 
 Set Default Proof Using "Type".
+Set Default Goal Selector "!".
 
 Module Argument.
 Section LU2SemiU_to_SysF_TYP.

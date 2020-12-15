@@ -17,14 +17,16 @@
 Require Import Arith Lia List.
 Import ListNotations.
 
-Require Import ssreflect ssrbool ssrfun.
-
 Require Import Undecidability.SetConstraints.FMsetC.
 From Undecidability.SetConstraints.Util Require Facts mset_eq_utils mset_poly_utils.
 
 Require Undecidability.DiophantineConstraints.H10C.
 Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts.
+
+Require Import ssreflect ssrbool ssrfun.
+
+Set Default Goal Selector "!".
 
 Local Notation "A ≡ B" := (mset_eq A B) (at level 65).
 
@@ -61,9 +63,9 @@ Import Facts mset_eq_utils mset_poly_utils.
 
 Module Argument.
 
-Notation "t ⊍ u" := (mset_term_plus t u) (at level 40).
-Notation "'h' t" := (mset_term_h t) (at level 38).
-Notation "•0" := mset_term_zero.
+Local Notation "t ⊍ u" := (mset_term_plus t u) (at level 40).
+Local Notation "'h' t" := (mset_term_h t) (at level 38).
+Local Notation "•0" := mset_term_zero.
 
 Coercion mset_term_var : nat >-> mset_term.
 
@@ -113,8 +115,10 @@ Proof.
     move=> H /H => [[? ->]]. by exists (length A).
   }
   move=> k. elim /(measure_ind (@length nat)) : A k => A IH k H.
-  move: (H) => /eq_length. rewrite ?app_length map_length /= => ?.
-  have /singleton_length [b Hb] : length B = 1 by lia. subst B.
+  move: (H) => /eq_length. rewrite ?app_length map_length /= => HAB.
+  have [b Hb] : exists b, B = [b].
+  { move: (B) HAB => [|? [|? ?]] /=; [ by lia | by eexists | by lia ]. }
+  subst B.
   move: (H) => /eq_in_iff /(_ ((1 + d) * k)) /iffRL /(_ ltac:(by left)) /in_app_iff [|].
   - move /(@in_split nat) => [A1 [A2 ?]]. subst A.
     have := IH (A1 ++ A2). apply: unnest.
@@ -142,12 +146,12 @@ Lemma seq_sat2 {d n} :
   (A n) ++ [(S d) * n] ≡ [0] ++ (map (fun i => (S d) + i) (A n)).
 Proof.
   move=> A. elim: n.
-    apply /eq_eq. cbn. f_equal. by nia.
+  { apply /eq_eq. cbn. f_equal. by nia. }
   move=> n IH.
   rewrite /A seq_last ? map_app -/(A n) /plus -/plus.
   rewrite /(map _ [n]) /(map _ [S d * n]).
   have -> : S (d + S d * n) = S d * S n by lia.
-  under map_ext => i. rewrite -/(plus (S d) i). over.
+  under map_ext => i do rewrite -/(plus (S d) i).
   rewrite -/(mset_eq _ _).
   apply /(eq_lr 
     (A' := S d * S n :: (A n ++ [S d * n])) 
@@ -190,14 +194,14 @@ Proof.
 Qed.
 
 (* embed nat^3 into nat to provide fresh variables *)
-Definition embed '(x, y, z) := NatNat.nat2_to_nat (NatNat.nat2_to_nat (x, y), z).
-Definition unembed n := let (xy, z) := NatNat.nat_to_nat2 n in
-  (NatNat.nat_to_nat2 xy, z).
+Definition embed '(x, y, z) := NatNat.encode (NatNat.encode (x, y), z).
+Definition unembed n := let (xy, z) := NatNat.decode n in
+  (NatNat.decode xy, z).
 
 Lemma embed_unembed {xyz} : unembed (embed xyz) = xyz.
 Proof. 
   case: xyz. case. move=> >.
-  by rewrite /embed /unembed ? NatNat.nat_nat2_cancel.
+  by rewrite /embed /unembed ? NatNat.decode_encode.
 Qed.
 
 Opaque embed unembed.
@@ -335,7 +339,7 @@ Proof.
   have -> : map S (X 4) = map [eta Init.Nat.add 1] (X 4) by done.
   move=> [/seq_spec2 [n]].
   have -> : map [eta Init.Nat.mul 1] (seq 0 n) = map id (seq 0 n).
-  { under map_ext => i. have -> : 1*i = i by lia. over. done. }
+  { under map_ext => i do have -> : 1*i = i by lia. done. }
   rewrite map_id => [[Hn _]].
   move=> [/eq_symm /eq_trans] => /(_ ((seq 0 n) ++ X 6)). 
   apply: unnest; first by apply: eq_appI.
@@ -479,37 +483,51 @@ Import NatNat.
 
 Module Argument.
 
-Fixpoint term_to_tree (t: mset_term) : tree :=
+Opaque NatNat.encode NatNat.decode.
+Fixpoint term_to_nat (t: mset_term) : nat :=
   match t with
-  | mset_term_zero => node 0 leaf leaf
-  | mset_term_var x => node 1 (node x leaf leaf) leaf
-  | mset_term_plus t u => node 2 (term_to_tree t) (term_to_tree u)
-  | mset_term_h t => node 3 (term_to_tree t) leaf
+  | mset_term_zero => 1 + NatNat.encode (0, 0)
+  | mset_term_var x => 1 + NatNat.encode (0, 1+x)
+  | mset_term_plus t u => 1 + NatNat.encode (1 + term_to_nat t, 1 + term_to_nat u)
+  | mset_term_h t => 1 + NatNat.encode (1 + term_to_nat t, 0)
   end.
 
-Fixpoint tree_to_term (t: tree) : mset_term :=
-  match t with
-  | node 0 leaf leaf => mset_term_zero
-  | node 1 (node x leaf leaf) leaf => mset_term_var x
-  | node 2 t u => mset_term_plus (tree_to_term t) (tree_to_term u)
-  | node 3 t leaf => mset_term_h (tree_to_term t)
-  | _ => mset_term_zero
+Fixpoint nat_to_term' (k: nat) (n: nat) : mset_term :=
+  match k with
+  | 0 => mset_term_zero
+  | S k =>
+    match n with
+    | 0 => mset_term_zero
+    | S n => 
+      match NatNat.decode n with
+      | (0, 0) => mset_term_zero
+      | (0, S x) => mset_term_var x
+      | (S nt, 0) => mset_term_h (nat_to_term' k nt)
+      | (S nt, S nu) => mset_term_plus (nat_to_term' k nt) (nat_to_term' k nu)
+      end
+    end
   end.
 
-Definition term_to_nat (t: mset_term) : nat :=
-  tree_to_nat (term_to_tree t).
-
-Definition nat_to_term (n: nat) : mset_term :=
-  tree_to_term (nat_to_tree n).
+Definition nat_to_term (n: nat) : mset_term := nat_to_term' (1+n) n.
 
 Lemma nat_term_cancel {t} : nat_to_term (term_to_nat t) = t.
 Proof.
-  rewrite /nat_to_term /term_to_nat nat_tree_cancel. elim: t.
-  - done.
-  - done.
-  - by move=> t + u /= => -> ->.
-  - by move=> t /= => ->.
-Qed. 
+  rewrite /nat_to_term.
+  move Hk: (k in nat_to_term' k _) => k.
+  have : term_to_nat t < k by lia.
+  elim: t k {Hk}.
+  - move=> [|k]; [by lia | done].
+  - move=> x [|k]; first by lia.
+    by rewrite /= NatNat.decode_encode.
+  - move=> nt IHt nu IHu [|k]; first by lia.
+    rewrite /= NatNat.decode_encode => ?.
+    have ? := NatNat.encode_non_decreasing (S (term_to_nat nt)) (S (term_to_nat nu)).
+    rewrite IHt; first by lia. by rewrite IHu; first by lia.
+  - move=> nt IH [|k]; first by lia.
+    rewrite /= NatNat.decode_encode => ?.
+    have ? := NatNat.encode_non_decreasing (S (term_to_nat nt)) 0.
+    by rewrite IH; first by lia.
+Qed.
 
 (* decompose mset_term into elementary constraints *)
 Fixpoint term_to_msetcs (t: mset_term) : list msetc :=
@@ -524,8 +542,8 @@ Fixpoint term_to_msetcs (t: mset_term) : list msetc :=
   end.
 
 Definition encode_eq (t u: mset_term) :=
-  [(msetc_sum (tree_to_nat leaf) (tree_to_nat leaf) (tree_to_nat leaf)); 
-  (msetc_sum (term_to_nat t) (tree_to_nat leaf) (term_to_nat u))].
+  [(msetc_sum 0 0 0); 
+  (msetc_sum (term_to_nat t) 0 (term_to_nat u))].
 
 (* encode FMsetC_PROBLEM as LPolyNC_PROBLEM *)
 Definition encode_problem (msetcs : list constraint) : list msetc :=
@@ -561,7 +579,7 @@ Proof.
   move=> HφAB. constructor; last by constructor.
   constructor; first done.
   rewrite /ψ /msetc_sem.
-  rewrite (@term_to_nat_pos A) (@term_to_nat_pos B) /(tree_to_nat leaf).
+  rewrite (@term_to_nat_pos A) (@term_to_nat_pos B).
   by rewrite - ? term_to_nat_pos ? nat_term_cancel.
 Qed.
 

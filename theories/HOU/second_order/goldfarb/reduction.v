@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import RelationClasses Morphisms Wf List Omega Lia Lia Init.Nat Setoid.
+Require Import RelationClasses Morphisms Wf List Lia Init.Nat Setoid.
 From Undecidability.HOU Require Import calculus.calculus unification.unification.
 From Undecidability.HOU.second_order Require Export diophantine_equations goldfarb.encoding goldfarb.multiplication.
 Import ListNotations.
@@ -26,7 +26,7 @@ Section EquationEquivalences.
     Proof using N.
       cbn; simplify.
       unfold funcomp; change shift with (add 1); rewrite ren_plus_combine; unfold var_zero; cbn.
-      intros H; eapply normal_forms_encodes in H; eauto.
+      intros H; eapply normal_forms_encodes in H; (eauto 2).
     Qed.
 
   End Variables.
@@ -46,7 +46,7 @@ Section EquationEquivalences.
         cbn.
         unfold funcomp; change shift with (add 1); rewrite ren_plus_combine; unfold var_zero; cbn.
         rewrite Ex. asimpl. intros ? % equiv_lam_elim % equiv_lam_elim.
-        eapply enc_injective;[| |eauto]; eauto.
+        eapply enc_injective;[| |eauto]; (eauto 2).
       Qed.
 
   End Constants.
@@ -71,7 +71,7 @@ Section EquationEquivalences.
       unfold funcomp; change shift with (add 1); rewrite !ren_plus_combine; unfold var_zero; cbn.
       rewrite Ex, Ey, Ez; simplify; intros H % equiv_lam_elim % equiv_lam_elim.
       rewrite <-enc_app in H.
-      eapply enc_injective;[| |eauto]; eauto.
+      eapply enc_injective;[| |eauto]; (eauto 2).
     Qed.
 
   End Addition.
@@ -98,7 +98,7 @@ Section EquationEquivalences.
     Proof using N Ex Ey Ez.
       unfold mulEQ; cbn. unfold funcomp.
       change shift with (add 1); rewrite !ren_plus_combine; cbn [plus].
-      rewrite Ex, Ey, Ez. intros H. apply G_iff in H; eauto.
+      rewrite Ex, Ey, Ez. intros H. apply G_iff in H; (eauto 2).
     Qed.
 
   End Multiplication.
@@ -119,8 +119,8 @@ Section Forward.
   Lemma tab_typing {X} n (f: nat -> exp X) g k Gamma:
     (forall i, Gamma ⊢(n) f i : g i) -> Gamma ⊢₊(n) tab f k : tab g k.
   Proof.
-    intros; induction k; cbn; eauto.
-    eapply orderlisttyping_app; eauto.
+    intros; induction k; cbn; (eauto 2).
+    eapply orderlisttyping_app; (eauto 2).
   Qed.
 
   Lemma gf_typing Gamma n: Gamma ⊢(2) gf n : alpha → alpha.
@@ -148,15 +148,15 @@ Section Forward.
     unfold enc_sol.
     destruct partition_F_G as [[x ?]|[((x,y),z) ?]].
     - eapply F_injective in e as ->.
-      intros t delta. unfold gf. cbn; rewrite stepBeta; asimpl; eauto.
-    - exfalso; eapply disjoint_F_G; eauto.
+      intros t delta. unfold gf. cbn; rewrite stepBeta; asimpl; (eauto 2).
+    - exfalso; eapply disjoint_F_G; (eauto 2).
   Qed.
 
   Lemma enc_sol_T theta x y z: (enc_sol theta (G x y z)) = T (theta y) (theta x).
   Proof.
     unfold enc_sol.
     destruct partition_F_G as [[x' ?]|[((x',y'),z') ?]].
-    - exfalso; eapply disjoint_F_G; eauto.
+    - exfalso; eapply disjoint_F_G; (eauto 2).
     - now eapply G_injective in y0 as (-> & -> & ->).
   Qed.
 
@@ -178,12 +178,12 @@ Section Forward.
     intros s t; change s with (fst (s,t)) at 2; change t with (snd (s,t)) at 3.
     remember (s,t) as e. clear Heqe s t.
     intros H'; cbn in *. eapply in_Equations in H' as (d & ? & ?).
-      destruct d; cbn in *; intuition; subst.
+      destruct d; cbn in *; intuition idtac; subst.
       all: try eapply forward_add. all: try eapply forward_consts.
       all: try eapply forward_mul.
       all: try eapply forward_vars.
       all: try eapply enc_sol_encodes.
-      all: eapply H in H0; inv H0; eauto.
+      all: eapply H in H0; inv H0; (eauto 2).
       apply enc_sol_T.
     Qed.
 
@@ -204,7 +204,7 @@ Section Backward.
   Proof.
     intros H; unfold decode_subst.
     destruct dec_enc as [[m H1]|H1].
-    - specialize (H a id); asimpl in H. rewrite H in H1. eapply enc_injective in H1 as []; eauto.
+    - specialize (H a id); asimpl in H. rewrite H in H1. eapply enc_injective in H1 as []; (eauto 2).
     - exfalso. eapply H1. exists n. specialize (H a id); asimpl in H. now rewrite H.
   Qed.
 
@@ -212,19 +212,19 @@ Section Backward.
 
   Lemma SU_H10 E: SOU ag 2 (H10_to_SOU E) -> H10 E.
   Proof.
-    rewrite SOU_NSOU; eauto. intros (Delta & sigma & T & EQ & N).
+    rewrite SOU_NSOU; (eauto 2). intros (Delta & sigma & T & EQ & N).
     exists (decode_subst sigma N). intros e H; pose (Q := eqs e).
     assert (forall p, p ∈ Q -> sigma • fst p ≡ sigma • snd p) as EQs; [|clear EQ].
     - intros [s t] G. eapply EQ.
       eapply in_Equations. eauto.
     - destruct e; econstructor; cbn in Q, EQs.
-      all: specialize (EQs (varEQ x)) as EQx; mp EQx; intuition; eapply backward_vars in EQx as [n EQx]; eauto.
-      2 - 3: specialize (EQs (varEQ y)) as EQy; mp EQy; intuition; eapply backward_vars in EQy as [m EQy]; eauto.
-      2 - 3: specialize (EQs (varEQ z)) as EQz; mp EQz; intuition; eapply backward_vars in EQz as [p EQz]; eauto.
+      all: specialize (EQs (varEQ x)) as EQx; mp EQx; intuition idtac; eapply backward_vars in EQx as [n EQx]; (eauto 2).
+      2 - 3: specialize (EQs (varEQ y)) as EQy; mp EQy; intuition idtac; eapply backward_vars in EQy as [m EQy]; (eauto 2).
+      2 - 3: specialize (EQs (varEQ z)) as EQz; mp EQz; intuition idtac; eapply backward_vars in EQz as [p EQz]; (eauto 2).
       all: repeat (erewrite decode_subst_encodes;[|eauto]).
-      + eapply backward_consts; eauto.
-      + eapply backward_add; eauto; eapply EQs; eauto.
-      + eapply backward_mult; eauto; eapply EQs; intuition.
+      + eapply backward_consts; (eauto 4).
+      + eapply backward_add; (eauto 1); eapply EQs; (eauto 5).
+      + eapply backward_mult; (eauto 1); eapply EQs; intuition.
   Qed.
 End Backward.
 
@@ -261,7 +261,7 @@ Qed.
 Lemma foldeqs_lambda_lambda E:
   exists s t, foldeqs E = (lambda lambda s, lambda lambda t).
 Proof.
-  induction E as [|[s t]]; cbn; eauto.
+  induction E as [|[s t]]; cbn; (eauto 2).
   - do 2 eexists; reflexivity.
   - destruct IHE as (s'&t'&IH).
     do 2 (destruct s; try solve [do 2 eexists; reflexivity]).
@@ -278,13 +278,13 @@ Proof.
   - cbn; firstorder.
   - intros H. apply id in H as H'. specialize (H' s t) as ([t1 H1]&[t2 H2]); lauto; subst.
     cbn. specialize (foldeqs_lambda_lambda E) as (u&v&H'); rewrite H' in *.
-    mp IHE; eauto. intros; eapply H; firstorder. cbn in IHE.
+    mp IHE; (eauto 2). intros; eapply H; firstorder. cbn in IHE.
     cbn; unfold left_side, right_side in *.
     split; [intros [H1 H2] % equiv_lstep_cons_inv| intros H1]; do 2 eapply equiv_lam_elim in H1.
-    + destruct IHE as [IHE _]; rewrite H1; mp IHE; eauto;
+    + destruct IHE as [IHE _]; rewrite H1; mp IHE; (eauto 1);
         do 2 eapply equiv_lam_elim in IHE; now rewrite IHE.
     + Injection H1. Injection H0. rewrite H3.
-      destruct IHE as [_ ->]; eauto. now rewrite H2.
+      destruct IHE as [_ ->]; (eauto 2). now rewrite H2.
 Qed.
 
 
@@ -296,9 +296,9 @@ Proof.
   - do 2 (destruct s; try solve [repeat econstructor]).
     do 2 (destruct t; try solve [repeat econstructor]).
     specialize (foldeqs_lambda_lambda E) as (u&v&H'); rewrite H' in *.
-    cbn in HeqL. injection HeqL as -> ->. mp IHeqs_ordertyping; eauto.
+    cbn in HeqL. injection HeqL as -> ->. mp IHeqs_ordertyping; (eauto 2).
     inv H0. inv H4. inv H. inv H4. destruct IHeqs_ordertyping as [T1 T2]. inv T1. inv H4.
-    inv T2. inv H4. repeat econstructor; eauto.
+    inv T2. inv H4. repeat econstructor; (eauto 2).
 Qed.
 
 
@@ -313,17 +313,17 @@ Proof.
     all: eapply H10_to_SOU.
   - intros E. split.
     + intros H % H10_SU. destruct H as (Delta & sigma & H1 & H2).
-      exists Delta. exists sigma. intuition. eapply foldeqs_correct, equiv_pointwise_eqs; eauto.
+      exists Delta. exists sigma. intuition. eapply foldeqs_correct, equiv_pointwise_eqs; (eauto 2).
       cbn. intros s1 s2 (d&H3&H4) % in_flat_map.
       destruct d; cbn in H4; intuition.
       all: change s1 with (fst (s1, s2)); rewrite <-?H, <-?H0.
       all: change s2 with (snd (s1, s2)); rewrite <-?H, <-?H0.
-      all: cbn; eauto.
+      all: cbn; (eauto 2).
     + intros (Delta & sigma & T & EQ). eapply SU_H10. exists Delta, sigma.
-      intuition.  eapply equiv_eqs_pointwise; eauto; eapply foldeqs_correct; eauto.
+      intuition.  eapply equiv_eqs_pointwise; (eauto 1); eapply foldeqs_correct; (eauto 2).
       cbn. intros s1 s2 (d&H3&H4) % in_flat_map.
       destruct d; cbn in H4; intuition.
       all: change s1 with (fst (s1, s2)); rewrite <-?H1, <-?H0.
       all: change s2 with (snd (s1, s2)); rewrite <-?H1, <-?H0.
-      all: cbn; eauto.
+      all: cbn; (eauto 2).
 Qed.
