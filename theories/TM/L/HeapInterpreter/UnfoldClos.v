@@ -18,7 +18,6 @@ Import VectorNotations.
 Import ListNotations.
 Import Coq.Init.Datatypes List.
 
-Notation todo := (utils.todo).
 Open Scope string_scope.
 Require Import String.
 

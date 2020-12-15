@@ -248,10 +248,9 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
     (fun yout => ≃≃([yout = match lookup H a n with Some _ => true | _ => false end]
     , withSpace match lookup H a n with Some g => [| ≃(_) H;Void;Void;≃(retr_clos_lookup) g; Void|] | _ => SpecVTrue end (appSize (Lookup_size H a n) ss))).
   Proof.
-    unfold Lookup.
-    eapply While_SpecTReg with (PRE := fun '(a,n,ss) => (_,_))(INV := fun '(a,n,ss) y => ([y = match nth_error H a with
+    refine (While_SpecTReg (PRE := fun '(a,n,ss) => (_,_))(INV := fun '(a,n,ss) y => ([y = match nth_error H a with
     | Some (Some _) => match n with | 0 => Some true | S _ => None end | _ => Some false end],_)) (POST := fun '(a,n,ss) y => (_,_))
-       (f__step := fun '(a,n,ss) => Lookup_Step_steps H a n ) (f__loop := fun '(a,n,ss) => _ ) (x:= (a,n,ss));clear a n ss;intros [[a n] ss].
+       (f__step := fun '(a,n,ss) => Lookup_Step_steps H a n ) (f__loop := fun '(a,n,ss) => _ ) _ _ ((a,n,ss)));clear a n ss;intros [[a n] ss].
     { eapply ConsequenceT. eapply Lookup_Step_SpecT_space. 2:intros. 1,2:cbn - [appSize SpecVTrue].  1,2:now tspec_ext. reflexivity. }   
     all:cbn - [SpecVTrue appSize Lookup_size]. 
     remember (Lookup_size H a n) as F eqn:HF. remember (Lookup_steps H a n) as F' eqn:HF'. split.
@@ -265,11 +264,10 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
       unfold Lookup_size in HF;fold Lookup_size in HF. rewrite Hnth in HF.
       eexists (b,n,_). repeat apply conj. 
       + subst F. cbn. tspec_ext.
-      + subst F'. cbn. rewrite Hnth. reflexivity.
+      + admit. (* intros. subst F'. cbn. rewrite Hnth. reflexivity. *)
       +intros. subst F. reflexivity.
-  Qed.
-
-
+  Admitted.
+  
   (*legacy *)
   Lemma Lookup_Realise : Lookup ⊨ Lookup_Rel.
   Proof.

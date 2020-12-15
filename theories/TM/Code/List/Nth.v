@@ -130,9 +130,9 @@ Section Nth'.
               | None  => [|Contains _ (skipn (S n) xs); Contains _ (n - (S (length xs))); Void|]
               end
               (appSize (Nth'_Loop_size n xs) ss))).
-  Proof.
-    eapply While_SpecTReg with (PRE := fun '(xs,n,ss) => (_,_)) (INV := fun '(xs,n,ss) y => (_,_)) (POST := fun '(xs,n,ss) y  => _)
-       (f__step := fun '(xs,n,ss) => _) (f__loop := fun '(xs,n,ss) => _) (x := (xs,n,ss));
+    Proof.
+      refine (While_SpecTReg (PRE := fun '(xs,n,ss) => (_,_)) (INV := fun '(xs,n,ss) y => (_,_)) (POST := fun '(xs,n,ss) y  => _)
+       (f__step := fun '(xs,n,ss) => _) (f__loop := fun '(xs,n,ss) => _) _ _((xs,n,ss)));
       clear xs n ss; intros ((xs,n),ss).
     { apply Nth'_Step_SpecT_size. }
     cbn. split.

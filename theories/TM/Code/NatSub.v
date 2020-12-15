@@ -52,12 +52,15 @@ Theorem Subtract_SpecT:
 Proof.
   eexists_UpToC f. intros x y.
   unfold Subtract.
-  eapply While_SpecTReg with (PRE := fun '(x,y) => (_,_))
+  eapply ConsequenceT.
+  refine (While_SpecTReg (PRE := fun '(x,y) => (_,_))
   (INV := fun '(x,y) b => ([b = match y with 0 => Some true | _ => match x with 0 => Some false | _ => None end end]
     ,match y with 0 => [|Contains _ x;Void|] | S y' => [|Contains _ (pred x);match x with 0 => Void | _ => Contains _ y' end|] end)) 
     (POST := fun '(x,y) b => (_,_)) (f__loop := fun '(x,y) => _)
-    (f__step := fun '(x,y) => match y with 0 => _ : nat | S y' => _ end ) (x := (x,y));
-    clear x y; intros (x,y).
+    (f__step := fun '(x,y) => match y with 0 => _ : nat | S y' => _ end ) _ _ ((x,y)));    clear x y; intros (x,y).
+  3:{ cbn. reflexivity. }
+  3:{ cbn. reflexivity. }
+  3:{ cbn. reflexivity. }
   -cbn. hstep.
     +now hsteps_cbn.
     +refine (_ : TripleT _ match y with 0 => _ | S _ => match x with 0 => _ | _ => _ end end _ _).
