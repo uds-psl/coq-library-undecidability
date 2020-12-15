@@ -11,8 +11,6 @@
     Uniform Boundedness of Deterministic, Flip-consistent, Length-preserving Stack Machines with Exchange
 *)
 
-Set Default Proof Using "Type".
-
 Require Import Relation_Operators Operators_Properties Lia PeanoNat List.
 Import ListNotations.
 
@@ -27,6 +25,9 @@ Module SM := SMX.
 From Undecidability.StackMachines.Util Require Import Facts Nat_facts List_facts.
 
 Require Import ssreflect ssrbool ssrfun.
+
+Set Default Proof Using "Type".
+Set Default Goal Selector "!".
 
 Local Arguments in_combine_l {A B l l' x y}.
 Local Arguments in_combine_r {A B l l' x y}.
@@ -509,7 +510,7 @@ Section Reduction.
     suff: reachable_n ((c+1-G)*(N+2)+1) (* actual inductive lemma *)
       (l, §0^c ++ [§1] ++ r, goto n X Y) 
       ([§1] ++ r, §0^c ++ l, basic_state (if c mod (n+1) is 0 then X else Y)).
-      apply: reachable_n_mon'; [ by (rewrite /goto_time; nia) | done ].
+    { apply: reachable_n_mon'; [ by (rewrite /goto_time; nia) | done ]. }
     
     elim /(measure_ind id): c l r HC => c IH l r HcC.
     have [HcG | HcG]: c < G \/ c >= G by lia.
@@ -599,7 +600,7 @@ Section Reduction.
     move=> HN l r i j n k Hijn HC. rewrite /increase_time.
     have := do_increase HN ([§1] ++ l) (§0^(1 + n) ++ r) k 0 Hijn ltac:(lia).
     apply: (reachable_n_trans' (2 * goto_time C N + 3)); first by ((suff: k+1 <= C + G + 1 by nia); lia).
-      rewrite ?app_norm ?nat_norm. do 4 f_equal. by lia.
+    { rewrite ?app_norm ?nat_norm. do 4 f_equal. by lia. }
 
     apply: (first_step (index_yes_spec_n1 (i, (j, n))) (§0^(k * (2 + n)) ++ [§1] ++ [§1] ++ l) r);
       [by lia | by auto with M | by rewrite ?app_norm |].
@@ -971,7 +972,7 @@ Section Reduction.
     { 
       suff: (CM.value (CM1.step P p) - CM.value p) * (1 + pn) = CM.value p by nia.
       suff: CM.value (CM1.step P p) = (CM.value p) * (pn + 2) / (pn + 1).
-        move=> ->. by have := divides_frac_diff Hpn.
+      { move=> ->. by have := divides_frac_diff Hpn. }
       rewrite /CM1.step. have {1}->: CM1.value p = S (CM1.value p - 1) by lia.
       move: HpiP => /nth_error_Some_In_iP ->. by rewrite Hpn.
     }
@@ -979,7 +980,7 @@ Section Reduction.
 
     have := do_increase HTP [] (§0^((1 + pn) + (CM.value p - (k + 1) * (1 + pn))) ++ [§1] ++ l) k 0 HpiP ltac:(lia).
     move /reachable_n_maybe_reachable. apply: (maybe_reachable_trans' (maybe_goto_1_time + goto_time CP TP + 1)); first by nia.
-      rewrite ?app_norm. do 4 f_equal. by lia.
+    { rewrite ?app_norm. do 4 f_equal. by lia. }
 
     apply: (maybe_first_step (index_yes_spec_n1 (CM1.state p, (pj, pn))) (§0^(k * (2 + pn)) ++ [§1]) (§0^(CM.value p - (k + 1) * (1 + pn)) ++ [§1] ++ l));
       [by lia | by auto with M | by rewrite ?app_norm; do 4 f_equal; lia |].
@@ -1066,7 +1067,7 @@ Section Reduction.
     { have := H k m l r. by apply: maybe_reachable_mon'; first by nia. }
     pose k' := G + CP. have := H k' m (§0^(k-k') ++ l) (§0^((k-k') * (1 + n)) ++ r).
     apply: (maybe_reachable_trans' (maybe_goto_1_time + 1)); first by lia.
-      rewrite ?app_norm. (do 4 f_equal); last by lia. do 2 f_equal. by lia.
+    { rewrite ?app_norm. (do 4 f_equal); last by lia. do 2 f_equal. by lia. }
     apply: (maybe_first_step (index_yes_spec_n1 (i, (j, n)))
       (§0^(m + k' * (2 + n)) ++ [§1] ++ §0^(k - k') ++ l) (§0^((k - k' - 1) * (1 + n)) ++ r));
       [ by lia | by auto with M | by rewrite ?app_norm; do 4 f_equal; nia | ].
@@ -1171,7 +1172,7 @@ Section Reduction.
       have := maybe_increase r ([§1] ++ l) (d - S c) 0 Hijn.
 
       apply: (maybe_reachable_trans' (maybe_goto_1_time + 1)); first by lia.
-        rewrite ?app_norm. do 4 f_equal. by lia.
+      { rewrite ?app_norm. do 4 f_equal. by lia. }
 
       apply: (maybe_first_step (index_yes_spec_1 (i, (j, n))));
         [by lia | by auto with M | by rewrite ?app_norm; reflexivity | ].
@@ -1379,8 +1380,9 @@ Section Reduction.
   Lemma maybe_bounded_yes_grow l r m : exists '(l', r', n, X, Y), 
     maybe_reachable 1 (l, §0^m ++ r, '+|) (l', §0^(m+1) ++ r', goto n X Y).
   Proof using capped_P.
-    have := Exists_dec (fun '(i, (n, X, Y)) => l = ([§1] ++ §0^i ++ [§1] ++ §0^(G-2-i)) ++ skipn G l) igotos. case.
-      move=> [i] [[n X] Y]. by do 2 (decide equality).
+    have := Exists_dec (fun '(i, (n, X, Y)) => l = ([§1] ++ §0^i ++ [§1] ++ §0^(G-2-i)) ++ skipn G l) igotos. 
+    case.
+    { move=> [i] [[n X] Y]. by do 2 (decide equality). }
     (* can execute bound op *)
     - rewrite Exists_exists. move=> [[i] [[n X] Y]] [Hi ->].
       exists ((§0^(n + 1) ++ skipn G l), (§0^(G - (n + 2)) ++ r), n, X, Y).
@@ -1494,7 +1496,7 @@ Section Reduction.
     { 
       exists dummy.
       have [? | ?]: S m < n + 1 \/ n + 1 <= S m by lia.
-        apply: terminal_maybe_reachable=> ? /(index_yes_step_shape Hijn) [|/zero_prefix_lt]; [ done | by lia].
+      { apply: terminal_maybe_reachable=> ? /(index_yes_step_shape Hijn) [|/zero_prefix_lt]; [ done | by lia]. }
       apply: (maybe_first_step (index_yes_spec_n1 (i, (j, n))) (§0^k) (§0^(m-n) ++ [§1] ++ r));
         [by lia | by auto with M | by rewrite ?app_norm; do 4 f_equal; lia | ].
       rewrite ?app_norm. apply: maybe_goto_1_futile. by lia.

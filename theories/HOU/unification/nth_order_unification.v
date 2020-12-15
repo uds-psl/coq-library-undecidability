@@ -1,4 +1,4 @@
-Require Import List Omega Lia Morphisms.
+Require Import List Lia Morphisms.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.higher_order_unification unification.systemunification.
 Import ListNotations.
 

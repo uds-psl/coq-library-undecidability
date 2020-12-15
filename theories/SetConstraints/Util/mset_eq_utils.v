@@ -5,11 +5,14 @@
     (1) Saarland University, Saarbrücken, Germany
 *)
 
-Require Import ssreflect ssrbool ssrfun.
 Require Import List PeanoNat Lia.
 Import ListNotations.
 
 Require Import Undecidability.SetConstraints.FMsetC Undecidability.SetConstraints.Util.Facts.
+
+Require Import ssreflect ssrbool ssrfun.
+
+Set Default Goal Selector "!".
 
 Local Notation "A ≡ B" := (mset_eq A B) (at level 65).
 
@@ -38,11 +41,9 @@ Qed.
 
 Lemma eq_nilE {A} : [] ≡ A -> A = [].
 Proof.
-  case: A.
-    done.
-  move=> a A /eq_in_iff /(_ a) /iffRL. apply: unnest.
-    by left.
-  done.
+  case: A; first done.
+  move=> a A /eq_in_iff /(_ a) /iffRL. 
+  apply: unnest; [by left | done].
 Qed.
 
 Lemma eq_trans {A B C} : A ≡ B -> B ≡ C -> A ≡ C.
@@ -80,15 +81,13 @@ Ltac eq_trivial :=
     
 Lemma eq_cons_iff {a A B} : (a :: A) ≡ (a :: B) <-> A ≡ B.
 Proof.
-  rewrite /mset_eq. constructor.
-  all: move=> H c; move: {H}(H c); rewrite ? count_occ_cons ? in_cons_iff; unlock.
-  all: by rewrite Nat.add_cancel_l.
+  rewrite /mset_eq. constructor=> + c => /(_ c).
+  all: rewrite -/([a] ++ A) -/([a] ++ B) ?count_occ_app; by lia.
 Qed.
 
 Lemma eq_app_iff {A B C} : (A ++ B) ≡ (A ++ C) <-> B ≡ C.
 Proof.
-  elim: A.
-    done.
+  elim: A; first done.
   move=> a A IH /=.
   by rewrite eq_cons_iff.
 Qed.
@@ -99,14 +98,14 @@ Proof. move=> ?. rewrite ?count_occ_app. by lia. Qed.
 Lemma eq_length {A B} : A ≡ B -> length A = length B.
   elim /(measure_ind (@length nat)) : A B.
   case.
-    by move=> _ B /eq_nilE ->.
-  move=> a A IH B /copy [/eq_in_iff /(_ a) /iffLR]. apply: unnest.
-    by left.
+  { by move=> _ B /eq_nilE ->. }
+  move=> a A IH B /copy [/eq_in_iff /(_ a) /iffLR]. 
+  apply: unnest; first by left.
   move /(@in_split _ _) => [B1 [B2 ->]].
   under (eq_lr eq_refl (B' := a :: (B1 ++ B2))).
-    by eq_trivial.
-  move /eq_cons_iff. move /IH. apply: unnest.
-    done.
+  { by eq_trivial. }
+  move /eq_cons_iff. move /IH. 
+  apply: unnest; first done.
   rewrite ? app_length => /=. by lia.
 Qed.
 
@@ -145,15 +144,14 @@ Proof.
   move=> /copy [/mset_eq_utils.eq_in_iff /(_ a) /iffLR /(_ ltac:(by left))].
   move /(@in_split _ _) => [B1 [B2 ->]].
   under (mset_eq_utils.eq_lr mset_eq_utils.eq_refl (B' := a :: (B1 ++ B2))).
-    by mset_eq_utils.eq_trivial.
+  { by mset_eq_utils.eq_trivial. }
   move /mset_eq_utils.eq_consP => H.
   exists B1, B2. by constructor.
 Qed.
 
 Lemma eq_app_nil_nilP {A B} : A ≡ A ++ B -> B = [].
 Proof.
-  elim: A.
-    by move /eq_nilE.
+  elim: A; first by move /eq_nilE.
   move=> a A IH /=.
   by move /eq_consP.
 Qed.
@@ -162,12 +160,10 @@ Lemma eq_mapI {A B} : A ≡ B -> map S A ≡ map S B.
 Proof.
   rewrite /mset_eq => + c. move=> /(_ (Nat.pred c)).
   case: c.
-    move=> _. 
+  { move=> _. 
     have H := iffLR (count_occ_not_In _ _ _).
-    rewrite ? {}H; first last.
-      done.
-    1-2: by rewrite in_map_iff=> [[? [? ?]]].
-  move=> c. rewrite - ? (count_occ_map S Nat.eq_dec Nat.eq_dec); first last.
-    done.
+    rewrite ? {}H; last done.
+    all: by rewrite in_map_iff=> [[? [? ?]]]. }
+  move=> c. rewrite - ? (count_occ_map S Nat.eq_dec Nat.eq_dec); last done.
   all: move=> >; by case.
 Qed.

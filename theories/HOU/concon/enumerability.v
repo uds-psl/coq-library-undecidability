@@ -1,6 +1,6 @@
 Set Implicit Arguments.
-Require Import List Omega Lia.
-From Undecidability.HOU Require Import std.std calculus.calculus concon.conservativity unification.unification.
+Require Import List Lia.
+From Undecidability.HOU Require Import calculus.calculus concon.conservativity unification.unification.
 
 Set Default Proof Using "Type".
 

@@ -10,7 +10,6 @@
 (* 
   Problem(s):
     One Counter Machine Halting (CM1_HALT)
-    One Counter Machine with Bounded Instructions Halting (CM1_HALT)
 *)
 
 Require Import List Nat.

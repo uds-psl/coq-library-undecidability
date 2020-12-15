@@ -30,6 +30,7 @@ Target problems are very expressive and thus work well as targets for reduction,
 - Satisfiability of uniform Diophantine constraints of the form `x = 1 + y + z · z` (`H10UC_SAT` in [`DiophantineConstraints/H10C.v`](theories/DiophantineConstraints/H10C.v))
 - Halting problem for one counter machines (`CM1_HALT` in [`CounterMachines/CM1.v`](theories/CounterMachines/CM1.v))
 - Solvability of finite multiset constraint  (`FMsetC_SAT` in [`SetConstraints/FMsetC.v`](theories/SetConstraints/FMsetC.v))
+- Simple semi-Thue system 01 rewriting (`SSTS01` in [`StringRewriting/SSTS.v`](theories/StringRewriting/SSTS.v))
 
 ### Advanced Problems 
 

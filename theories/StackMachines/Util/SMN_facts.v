@@ -4,7 +4,9 @@ Import ListNotations.
 From Undecidability.StackMachines.Util Require Import Nat_facts List_facts.
 Require Import Undecidability.StackMachines.SMN.
 
-From Coq Require Import ssreflect ssrbool ssrfun.
+Require Import ssreflect ssrbool ssrfun.
+
+Set Default Goal Selector "!".
 
 Local Definition rt_rt1n := @clos_rt_rt1n_iff Config.
 
@@ -22,12 +24,12 @@ Proof. move=> HM1M2. case=> > /HM1M2. by apply: transition. Qed.
 Lemma deterministic_confluent {M} : deterministic M -> confluent M.
 Proof.
   move=> HM ? ? + /rt_rt1n Hxy1. elim: Hxy1.
-    move=> *. eexists. by constructor; last by apply: rt_refl.
+  { move=> *. eexists. by constructor; last by apply: rt_refl. }
   move=> ? ? ? Hxy1 /rt_rt1n Hy1z1 IH ? /rt_rt1n Hxy2. case: Hxy2 Hxy1.
-    move=> ?. eexists. constructor; first by apply: rt_refl.
+  - move=> ?. eexists. constructor; first by apply: rt_refl.
     apply: rt_trans; last by eassumption. apply: rt_step. by eassumption.
-  move=> > Hxy2 /rt_rt1n Hy2z2 Hxy1. have ? := HM _ _ _ Hxy1 Hxy2. subst.
-  by apply: IH.
+  - move=> > Hxy2 /rt_rt1n Hy2z2 Hxy1. have ? := HM _ _ _ Hxy1 Hxy2. subst.
+    by apply: IH.
 Qed.
 
 (* reachability in at most n steps *)
@@ -50,12 +52,12 @@ Qed.
 Lemma reachable_n_incl {M1 M2 n X Y} : incl M1 M2 -> reachable_n M1 n X Y -> reachable_n M2 n X Y.
 Proof.
   move=> H. elim: n X Y.
-    move=> > /reachable_0E ->. by apply: rn_refl.
+  { move=> > /reachable_0E ->. by apply: rn_refl. }
   move=> n IH > /reachable_SnE. case.
-    move=> ->. by apply: rn_refl.
-  move=> [?] [? ?]. apply: rn_step.
-    apply: step_incl; by eassumption.
-  by apply: IH.
+  - move=> ->. by apply: rn_refl.
+  - move=> [?] [? ?]. apply: rn_step.
+    + apply: step_incl; by eassumption.
+    + by apply: IH.
 Qed.
 
 Lemma reachable_to_reachable_n {M X Y} : reachable M X Y -> exists n, reachable_n M n X Y.
@@ -88,9 +90,9 @@ Qed.
 Lemma reachable_n_monotone {M X Y m n} : m <= n -> reachable_n M m X Y -> reachable_n M n X Y.
 Proof.
   elim: n m X Y.
-    move=> m > ?. have ->: m = 0 by lia. move /reachable_0E => ->. by apply: rn_refl.
+  { move=> m > ?. have ->: m = 0 by lia. move /reachable_0E => ->. by apply: rn_refl. }
   move=> n IH [|m] > ?.
-    move /reachable_0E => ->. by apply: rn_refl.
+  { move /reachable_0E => ->. by apply: rn_refl. }
   move /reachable_SnE => [-> | [Z [? ?]]]; first by apply: rn_refl.
   apply: rn_step; first by eassumption.
   apply: IH; last by eassumption. by lia.
@@ -103,7 +105,7 @@ Lemma reachable_n_stack_app {M n l r x l' r' y v w} :
   reachable_n M n (l, r, x) (l', r', y) -> reachable_n M n (l ++ v, r ++ w, x) (l' ++ v, r' ++ w, y).
 Proof.
   elim: n l r x l' r' y.
-    move=> > /reachable_0E [] <- <- <-. apply: rn_refl.
+  { move=> > /reachable_0E [] <- <- <-. apply: rn_refl. }
   move=> n IH l r x l' r' y /reachable_SnE [[] <- <- <- | [z] [+]]; first by apply: rn_refl.
   move Hx': (l, r, x) => x' Hx'z. case: Hx'z Hx'.
   move=> > H [] -> -> -> /IH {}IH. apply: rn_step; last by eassumption.
@@ -124,19 +126,19 @@ Lemma length_preservingP {M l r x l' r' y} :
   (l, r, x) = (l', r', y) \/ (length (l ++ r) = length (l' ++ r') /\ 1 <= length (l ++ r)).
 Proof.
   move=> HM /reachable_to_reachable_n [n]. elim: n l r x l' r' y.
-    move=> > /reachable_0E => ?. by left.
+  { move=> > /reachable_0E => ?. by left. }
   move=> n IH l r x l' r' y /reachable_SnE [? | [Z] []]; first by left.
   move HX: (l, r, x) => X HXZ. case: HXZ HX.
   move=> > /HM []. rewrite ?app_length. move=> ? ? [] ? ? ?. subst.
   move /IH. case.
-    move=> [] *. subst. rewrite ?app_length. right. by lia.
-  rewrite ?app_length. move=> [] ? ?. right. by lia.
+  - move=> [] *. subst. rewrite ?app_length. right. by lia.
+  - rewrite ?app_length. move=> [] ? ?. right. by lia.
 Qed.
 
 Lemma next_configs M (X: Config) : exists L, (forall Y, step M X Y -> In Y L) /\ length L <= length M.
 Proof.
   elim: M.
-    exists []. constructor=> > /=; [by case | by lia].
+  { exists []. constructor=> > /=; [by case | by lia]. }
   move: X => [[lx rx] x] [[[l r] y] [[l' r'] z]] M [L [HL ?]].
   have [[] * | Hy] : (firstn (length l) lx, firstn (length r) rx, x) = (l, r, y) \/ 
     (firstn (length l) lx, firstn (length r) rx, x) <> (l, r, y) by do 4 decide equality.
@@ -161,21 +163,21 @@ Proof.
     by move=> X Y ? => /reachable_0E => <-.
   - move=> n IH Xs.
     have [Ys [HYs ?]]: exists L, (forall X Y, In X Xs -> step M X Y -> In Y L) /\ length L <= (1 + length M) * length Xs.
-      (* there is a list of next configurations from Xs *)
+    { (* there is a list of next configurations from Xs *)
       clear. elim: Xs.
-        exists []. constructor; [done | by move=> /=; lia].
+      { exists []. constructor; [done | by move=> /=; lia]. }
       move=> X Xs [L [HL ?]]. have [LX [HLX ?]] := next_configs M X.
       exists (LX ++ L). constructor; first last.
-        rewrite app_length /length -?/(length _). by lia.
-      move=> > /=. rewrite in_app_iff. move=> [<- /HLX ? | * ]; first by left.
-      right. apply: HL; by eassumption.
+      - rewrite app_length /length -?/(length _). by lia.
+      - move=> > /=. rewrite in_app_iff. move=> [<- /HLX ? | * ]; first by left.
+        right. apply: HL; by eassumption. }
     have [L [HL ?]] := IH Ys. exists (Xs ++ L). constructor.
-      move=> X Y HX /reachable_SnE. case.
-        move=> <-. apply /in_app_iff. by left.
-      move=> [Z] [/HYs] /(_ HX) /HL => H /H ?. apply /in_app_iff. by right.
+    { move=> X Y HX /reachable_SnE. case.
+      - move=> <-. apply /in_app_iff. by left.
+      - move=> [Z] [/HYs] /(_ HX) /HL => H /H ?. apply /in_app_iff. by right. }
     rewrite app_length. 
     suff: length L <= (1 + length M) ^ S n * length Xs * (1 + n).
-      have := Nat.pow_nonzero (1 + length M) (S n) ltac:(lia). by nia.
+    { have := Nat.pow_nonzero (1 + length M) (S n) ltac:(lia). by nia. }
     rewrite /Nat.pow -/Nat.pow.
     have ? := Nat.pow_nonzero (1 + length M) n ltac:(lia). 
     suff: (1 + length M) ^ n * length Ys <= (1 + length M) * (1 + length M) ^ n * length Xs by nia.

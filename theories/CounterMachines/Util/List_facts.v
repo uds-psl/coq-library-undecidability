@@ -2,11 +2,14 @@ Require Import List.
 Import ListNotations.
 Require Import Arith Lia.
 
-From Coq Require Import ssreflect ssrbool ssrfun.
+Require Import ssreflect ssrbool ssrfun.
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
 Set Maximal Implicit Insertion.
+
+Set Default Proof Using "Type".
+Set Default Goal Selector "!".
 
 Section ForallNorm.
 
@@ -19,7 +22,7 @@ Proof. by constructor. Qed.
 Lemma Forall_consP {a A} : Forall P (a :: A) <-> P a /\ Forall P A.
 Proof.
   constructor. 
-    move=> H. by inversion H.
+  { move=> H. by inversion H. }
   move=> [? ?]. by constructor.
 Qed.
 
@@ -29,7 +32,7 @@ Proof. rewrite Forall_consP Forall_nilP. by tauto. Qed.
 Lemma Forall_appP {A B}: Forall P (A ++ B) <-> Forall P A /\ Forall P B.
 Proof.
   elim: A.
-    constructor; by [|case].
+  { constructor; by [|case]. }
   move=> ? ? IH /=. rewrite ? Forall_consP ? IH.
   by tauto.
 Qed.
@@ -43,7 +46,7 @@ Lemma Forall_mapP {X Y : Type} {P : Y -> Prop} {f : X -> Y} {l : list X} :
   Forall P (map f l) <-> Forall (fun x => P (f x)) l.
 Proof.
   elim: l.
-    move=> /=. by constructor.
+  { move=> /=. by constructor. }
   move=> a l IH /=. by rewrite ? Forall_norm IH.
 Qed.
 
@@ -51,8 +54,14 @@ Lemma Forall_concatP {X : Type} {P : X -> Prop} {ls : list (list X)} :
   Forall P (concat ls) <-> Forall (fun l => Forall P l) ls.
 Proof.
   elim: ls.
-    move=> /=. by constructor.
+  { move=> /=. by constructor. }
   move=> l ls IH /=. by rewrite ? Forall_norm IH.
+Qed.
+
+Lemma Forall_flat_map_iff {T U: Type} {P : T -> Prop} {ds : list U} {f : U -> list T} : 
+  Forall P (flat_map f ds) <-> Forall (fun d => Forall P (f d)) ds.
+Proof.
+  by rewrite flat_map_concat_map Forall_concatP Forall_mapP.
 Qed.
 
 (* nth_error facts *)
@@ -69,8 +78,8 @@ Lemma nth_error_seq {m l n: nat} :
   n < l -> nth_error (seq m l) n = Some (m+n).
 Proof.
   elim: n m l.
-    move=> m [|l]; first by lia.
-    move=> /= _. congr Some. by lia.
+  { move=> m [|l]; first by lia.
+    move=> /= _. congr Some. by lia. }
   move=> n IH m [|l /= ?]; first by lia.
   rewrite /nth_error -/(nth_error _ _) IH; [|congr Some]; by lia.
 Qed.

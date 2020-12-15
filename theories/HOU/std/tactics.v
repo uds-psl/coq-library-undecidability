@@ -1,4 +1,4 @@
-Require Import Omega Lia List. 
+Require Import Arith Lia List. 
 
 Ltac inv H := inversion H; subst; clear H.
 

@@ -1,4 +1,4 @@
-Require Import List Omega Lia. 
+Require Import List Arith Lia. 
 Import ListNotations.
 From Undecidability.HOU Require Import std.tactics std.lists.basics std.decidable. 
 
@@ -48,7 +48,7 @@ Section Nats.
 
   Lemma nats_lt: forall k i, i ∈ nats k -> i < k.
   Proof.
-    induction k; cbn; intuition.
+    induction k; cbn; intuition. lia.
     eapply in_map_iff in H0. destruct H0; intuition; subst.
     specialize (IHk x H1); lia.
   Qed.

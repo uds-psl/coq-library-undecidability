@@ -23,6 +23,8 @@ From Undecidability.SystemF.Util Require Import Facts poly_type_facts pure_term_
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Goal Selector "!".
+
 (* (\_.M) N *)
 Definition K' M N := pure_app (pure_abs (ren_pure_term S M)) N.
 
@@ -280,8 +282,8 @@ Theorem pure_typable_intro_poly_arr_0_0 M : { N |
     pure_typable (map tidy Gamma) N }.
 Proof.
   exists (M_Wells_J M) => Gamma. constructor.
-  pose tI := poly_arr (poly_var 0) (poly_var 0).
-  - move=> HM. rewrite /M_Wells_J. pose t0 := poly_arr tI tI. exists t0.
+  - pose tI := poly_arr (poly_var 0) (poly_var 0).
+    move=> HM. rewrite /M_Wells_J. pose t0 := poly_arr tI tI. exists t0.
     apply: (pure_typing_pure_app_simpleI (s := poly_abs t0)).
     + apply: pure_typing_pure_abs_simpleI. apply: pure_typing_K'I.
       * apply: (pure_typing_pure_app_simpleI (s := t0)).

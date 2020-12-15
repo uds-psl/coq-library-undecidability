@@ -3,6 +3,9 @@ Import ListNotations.
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Proof Using "Type".
+Set Default Goal Selector "!".
+
 (* Generic facts *)
 
 (* duplicates argument *)
@@ -80,8 +83,8 @@ Lemma Forall_mapP {X Y : Type} {P : Y -> Prop} {f : X -> Y} {l : list X} :
   Forall P (map f l) <-> Forall (fun x => P (f x)) l.
 Proof.
   elim: l.
-    move=> /=. by constructor.
-  move=> a l IH /=. by rewrite ? Forall_norm IH.
+  - move=> /=. by constructor.
+  - move=> a l IH /=. by rewrite ? Forall_norm IH.
 Qed.
 
 Lemma Forall_seqP {P : nat -> Prop} {m n: nat} : 

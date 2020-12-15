@@ -10,7 +10,9 @@ Import ListNotations.
 
 Require Import Undecidability.PolynomialConstraints.LPolyNC.
 
-From Coq Require Import ssreflect ssrbool ssrfun.
+Require Import ssreflect ssrbool ssrfun.
+
+Set Default Goal Selector "!".
 
 Local Notation "p ≃ q" := (poly_eq p q) (at level 65).
 

@@ -29,10 +29,11 @@ Require Import Undecidability.StackMachines.Reductions.CM1_HALT_to_SMNdl_UB.CM1_
 Require Import ssreflect ssrbool ssrfun.
 
 Set Default Proof Using "Type".
+Set Default Goal Selector "!".
 
 Module Argument.
 
-Instance Prefix_Enumerable : Enumerable Prefix.
+Local Instance Prefix_Enumerable : Enumerable Prefix.
 Proof.
   apply: (enumarableI
     (fun x => if x is Try then 0 else if x is Yes then 1 else 2)
@@ -40,7 +41,7 @@ Proof.
   by case.
 Qed.
 
-Instance BasicState_Enumerable : Enumerable BasicState.
+Local Instance BasicState_Enumerable : Enumerable BasicState.
 Proof.
   apply: (enumarableI
     (fun x => 
@@ -55,7 +56,7 @@ Proof.
   case; move=> *; by rewrite ?enumP.
 Qed.
 
-Instance State_Enumerable : Enumerable State.
+Local Instance State_Enumerable : Enumerable State.
 Proof.
   apply: (enumarableI
     (fun x => 
@@ -167,11 +168,11 @@ Section Reduction.
     - move=> [[l r] x]. constructor; left; by apply rt_refl.
     - move=> [[lx rx] x] [[ly ry] y] [[lz rz] z] _ Hxy _ Hyz. constructor.
       + move: Hxy Hyz => [[Hxy|Hxy] _].
-          move=> [[Hyz|Hyz] _]; [left | right]; apply: rt_trans; by eassumption.
-        move=> [_ [Hyz|Hyz]]; [right | left]; apply: rt_trans; by eassumption.
+        * move=> [[Hyz|Hyz] _]; [left | right]; apply: rt_trans; by eassumption.
+        * move=> [_ [Hyz|Hyz]]; [right | left]; apply: rt_trans; by eassumption.
       + move: Hxy Hyz => [_ [Hxy|Hxy]].
-          move=> [_ [Hyz|Hyz]]; [left | right]; apply: rt_trans; by eassumption.
-        move=> [[Hyz|Hyz] _]; [right | left] ; apply: rt_trans; by eassumption.
+        * move=> [_ [Hyz|Hyz]]; [left | right]; apply: rt_trans; by eassumption.
+        * move=> [[Hyz|Hyz] _]; [right | left] ; apply: rt_trans; by eassumption.
   Qed.
 
   Lemma inverse_simulation_step L R X : exists (x: State) (b_x: bool) (l r: list Symbol) (b_y: bool), 
@@ -190,17 +191,17 @@ Section Reduction.
     move Hx_b_x: x_b_x => [x b_x]. subst x_b_x. exists x, b_x, (decode_Stack L), (decode_Stack R).
     have := Exists_dec (fun '((_, X), _, b) => X = x) MX.
     move=> /(_ ltac:(move=> [[[? ?] ?] ?]; do 3 (decide equality))). case; first last.
-    {  move Hx': (L, R, X) => x' HMX. exists false. move=> L' R' Y HXY. exfalso. apply: HMX.
+    { move Hx': (L, R, X) => x' HMX. exists false. move=> L' R' Y HXY. exfalso. apply: HMX.
       apply /Exists_exists. case: HXY Hx'. move=> >. 
       rewrite /MN in_flat_map. move=> [[[[[? ?] ?] [[? ?] ?]] b]] + [] *. subst.
       move=> [H2MX HX]. eexists. constructor; first by eassumption. move=> /=.
       move: b HX {H2MX} => /= [|].
-        case.
-          move=> [] *. subst. move: Hx_b_x. by rewrite enumP => [[]]. 
-        case; last done. move=> [] *. subst. move: Hx_b_x. by rewrite enumP => [[]].
+      { case.
+        - move=> [] *. subst. move: Hx_b_x. by rewrite enumP => [[]]. 
+        - case; last done. move=> [] *. subst. move: Hx_b_x. by rewrite enumP => [[]]. }
       case.
-        move=> [] *. subst. move: Hx_b_x. by rewrite enumP => [[]]. 
-      case; last done. move=> [] *. subst. move: Hx_b_x. by rewrite enumP => [[]]. }
+        - move=> [] *. subst. move: Hx_b_x. by rewrite enumP => [[]]. 
+        - case; last done. move=> [] *. subst. move: Hx_b_x. by rewrite enumP => [[]]. }
     rewrite Exists_exists. move=> [[[[[? ?] x'] [[? ?] ?]] b'] [H2MX ?]]. subst x'.
     exists (if b' then negb b_x else b_x).
     move=> L' R' Y.
@@ -209,30 +210,30 @@ Section Reduction.
     rewrite /MN in_flat_map. move=> [[[[[? ?] ?] [[? ?] ?]] b]].
     move=> + Hx_b_x. rewrite ?encode_decode_Stack -Hx_b_x.
     case: b.
-      move=> [HMX] /=. case.
+    { move=> [HMX] /=. case.
+      - move=> [] *. subst. move: Hx_b_x. rewrite ?enumP. move=> [? ?]. subst.
+        have ? := flip_consistent_MX _ _ _ _ _ _ _ _ _ HMX H2MX. subst b'.
+        rewrite -(@encode_decode_Stack v) -(@encode_decode_Stack w) -?encode_Stack_app. do 3 eexists.
+        constructor; first by reflexivity. constructor; first by reflexivity.
+        move: HMX => /(SMX.transition MX). rewrite ?decode_encode_Stack. by apply.
+      - case; last done.
         move=> [] *. subst. move: Hx_b_x. rewrite ?enumP. move=> [? ?]. subst.
         have ? := flip_consistent_MX _ _ _ _ _ _ _ _ _ HMX H2MX. subst b'.
         rewrite -(@encode_decode_Stack v) -(@encode_decode_Stack w) -?encode_Stack_app. do 3 eexists.
         constructor; first by reflexivity. constructor; first by reflexivity.
-        move: HMX => /(SMX.transition MX). rewrite ?decode_encode_Stack. apply.
-      case; last done.
+        move: HMX => /(SMX.transition MX). rewrite ?decode_encode_Stack. by apply. }
+    move=> [HMX] /=. case.
+    - move=> [] *. subst. move: Hx_b_x. rewrite ?enumP. move=> [? ?]. subst. 
+      have ? := flip_consistent_MX _ _ _ _ _ _ _ _ _ HMX H2MX. subst b'.
+      rewrite -(@encode_decode_Stack v) -(@encode_decode_Stack w) -?encode_Stack_app. do 3 eexists.
+      constructor; first by reflexivity. constructor; first by reflexivity.
+      move: HMX => /(SMX.transition MX). rewrite ?decode_encode_Stack. by apply.
+    - case; last done.
       move=> [] *. subst. move: Hx_b_x. rewrite ?enumP. move=> [? ?]. subst.
       have ? := flip_consistent_MX _ _ _ _ _ _ _ _ _ HMX H2MX. subst b'.
       rewrite -(@encode_decode_Stack v) -(@encode_decode_Stack w) -?encode_Stack_app. do 3 eexists.
       constructor; first by reflexivity. constructor; first by reflexivity.
       move: HMX => /(SMX.transition MX). rewrite ?decode_encode_Stack. apply.
-    move=> [HMX] /=. case.
-      move=> [] *. subst. move: Hx_b_x. rewrite ?enumP. move=> [? ?]. subst. 
-      have ? := flip_consistent_MX _ _ _ _ _ _ _ _ _ HMX H2MX. subst b'.
-      rewrite -(@encode_decode_Stack v) -(@encode_decode_Stack w) -?encode_Stack_app. do 3 eexists.
-      constructor; first by reflexivity. constructor; first by reflexivity.
-      move: HMX => /(SMX.transition MX). rewrite ?decode_encode_Stack. apply.
-    case; last done.
-    move=> [] *. subst. move: Hx_b_x. rewrite ?enumP. move=> [? ?]. subst.
-    have ? := flip_consistent_MX _ _ _ _ _ _ _ _ _ HMX H2MX. subst b'.
-    rewrite -(@encode_decode_Stack v) -(@encode_decode_Stack w) -?encode_Stack_app. do 3 eexists.
-    constructor; first by reflexivity. constructor; first by reflexivity.
-    move: HMX => /(SMX.transition MX). rewrite ?decode_encode_Stack. apply.
   Qed.
 
   Lemma deterministic_MN : deterministic MN.
@@ -297,7 +298,7 @@ Section Reduction.
           (encode_Stack r, encode_Stack l, to_nat (x, b_x))]) T2).
       constructor.
       { move=> [[L' R'] Y] /inverse_simulation. case.
-          move=> <-. by left.
+        { move=> <-. by left. }
         move=> [x'] [y'] [b_x'] [b_y'] [l] [r] [l'] [r'].
         move=> [[]] ? ? ? [[]] ? ? ?. subst.
         have [? ?] : (x, b_x) = (x', b_x') by rewrite -Hx /x_b_x enumP. subst.
@@ -349,7 +350,7 @@ Section Reduction.
         ((map (fun '(L, R, X) => (decode_Stack L, decode_Stack R, fst (decode_State X))) T)
         ++ (map (fun '(L, R, X) => (decode_Stack R, decode_Stack L, fst (decode_State X))) T)).
       constructor; first last.
-        rewrite ?app_length ?map_length. move: (length T) H2T. by lia.
+      { rewrite ?app_length ?map_length. move: (length T) H2T. by lia. }
       move=> [[l' r'] y] /simulation /=. rewrite ?in_app_iff ?in_map_iff.
       move=> [] _ [Hxy|Hxy].
       - left. exists (encode_Stack l', encode_Stack r', to_nat (y, false)).

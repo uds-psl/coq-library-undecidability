@@ -14,6 +14,8 @@ From Undecidability.SystemF.Util Require Import Facts poly_type_facts term_facts
 
 Require Import ssreflect ssrbool ssrfun.
 
+Set Default Goal Selector "!".
+
 Arguments funcomp {X Y Z} _ _ / _.
 
 (* Church-style System F Type Assignment Predicate *)
