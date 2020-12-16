@@ -92,12 +92,12 @@ Then the following commands install the library:
 
 ```
 opam repo add coq-released https://coq.inria.fr/opam/released
-opam install coq-library-undecidability.1.0.0+8.12
+opam install coq-library-undecidability.1.0.0+8.13
 ```
 
 ### Manual installation
 
-You need `Coq 8.12` built on OCAML `>= 4.07.1`, the [Smpl](https://github.com/uds-psl/smpl) package, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
+You need `Coq 8.13` built on OCAML `>= 4.07.1`, the [Smpl](https://github.com/uds-psl/smpl) package, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
 
 ```
 opam switch create coq-library-undecidability 4.07.1+flambda
@@ -129,7 +129,7 @@ To avoid this, you can use a non-local opam switch, i.e. `opam switch create 4.0
 
 #### Coq version
 
-Be careful that this branch only compiles under `Coq 8.12`. If you want to use a different Coq version you have to change to a different branch.
+Be careful that this branch only compiles under `Coq 8.13`. If you want to use a different Coq version you have to change to a different branch.
 Due to compatibility issues, not every branch contains exactly the same problems. 
 We recommend to use the newest branch if possible.
 
