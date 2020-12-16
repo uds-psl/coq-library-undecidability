@@ -34,6 +34,8 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
         opam repo add coq-released https://coq.inria.fr/opam/released
+        opam repo add coq-core-dev https://coq.inria.fr/opam/core-dev
+        opam repo add psl-opam https://github.com/uds-psl/psl-opam-repository.git
         opam update
         opam upgrade
         opam install . --deps-only --with-doc --with-test
