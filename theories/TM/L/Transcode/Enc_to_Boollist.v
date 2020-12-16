@@ -179,9 +179,9 @@ Module EncToBoollist.
       exists_UpToC (fun bs => c1 * length bs + c2). 2:now smpl_upToC_solve.
       intros bs res n.
       unfold M__loop.
-      eapply While_SpecTReg with
+      refine (While_SpecTReg
       (PRE := fun '(bs,res) => (_,_)) (INV := fun '(bs,res) y => (_,_)) (POST := fun '(bs,res) y => (_,_))
-        (f__step := fun '(bs,res) => _) (f__loop := fun '(bs,res) => _) (x := (bs,res));
+        (f__step := fun '(bs,res) => _) (f__loop := fun '(bs,res) => _) _ _ ((bs,res)));
         clear bs res; intros (bs,res); cbn in *. eapply (projT2 SpecT__step).
       cbn. split.
       -intros ? Hbs. destruct bs. 2:easy.
@@ -192,7 +192,7 @@ Module EncToBoollist.
       rewrite UpToC_le. 
       ring_simplify.
       [c1]:exact (1 + c__leUpToC (H:=projT1 SpecT__step)).
-      unfold c1. lia.
+      unfold c1. fold plus. lia.
     Qed.
 
     Import ListTM.
