@@ -63,7 +63,7 @@ Section binomial.
 
   Fixpoint binomial n p :=
     match n, p with
-      | n, 0     => 1
+      | _, 0     => 1
       | 0, S _   => 0
       | S n, S p => binomial n p + binomial n (S p)
     end.
