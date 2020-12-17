@@ -43,7 +43,7 @@ Proof.
   dio by lemma (fun v => seqs_of_ones_dio (l v) (q v) (u v) (u1 v)). 
 Defined.
 
-Hint Resolve dio_rel_seqs_of_ones : dio_rel_db.
+#[export] Hint Resolve dio_rel_seqs_of_ones : dio_rel_db.
 
 (* a is the q-cipher of some l-tuple *)
 
@@ -53,7 +53,7 @@ Proof.
   dio by lemma (fun v => Code_dio (l v) (q v) (a v)).
 Defined.
 
-Hint Resolve dio_rel_Code : dio_rel_db.
+#[export] Hint Resolve dio_rel_Code : dio_rel_db.
 
 (* c is the q-cipher of the l-tuple <x,...,x> *)
 
@@ -63,7 +63,7 @@ Proof.
   dio by lemma (fun v => Const_dio (l v) (q v) (c v) (x v)).
 Defined.
 
-Hint Resolve dio_rel_Const : dio_rel_db.
+#[export] Hint Resolve dio_rel_Const : dio_rel_db.
 
 (* a is the q-cipher of the l-tuple <0,...,l-1> *)
 
@@ -73,7 +73,7 @@ Proof.
   dio by lemma (fun v => CodeNat_dio (l v) (q v) (a v)).
 Defined.
 
-Hint Resolve dio_rel_CodeNat : dio_rel_db.
+#[export] Hint Resolve dio_rel_CodeNat : dio_rel_db.
 
 (* Testing whether a is the q cipher of the sum of the tuples of q-ciphers b and c *)
 
@@ -87,7 +87,7 @@ Theorem dio_rel_Code_mult l q a b c : 𝔻F l -> 𝔻F q -> 𝔻F a -> 𝔻F b -
                                    -> 𝔻R (fun v => Code_mult (l v) (q v) (a v) (b v) (c v)).
 Proof. intros; unfold Code_mult; dio auto. Defined.
 
-Hint Resolve dio_rel_Code_plus dio_rel_Code_mult : dio_rel_db.
+#[export] Hint Resolve dio_rel_Code_plus dio_rel_Code_mult : dio_rel_db.
 
 (* Now we have diophantine representations of q-cipher of the following l-tuple
 

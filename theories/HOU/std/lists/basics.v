@@ -327,8 +327,8 @@ Section BasicLemmas.
    
 End BasicLemmas.
 
-Hint Resolve incl_refl seteq_refl : listdb.
-Hint Resolve incl_seteq seteq_incl_left seteq_incl_right incl_nil
+#[export] Hint Resolve incl_refl seteq_refl : listdb.
+#[export] Hint Resolve incl_seteq seteq_incl_left seteq_incl_right incl_nil
      incl_cons incl_cons_build incl_cons_project_l incl_cons_project_r
      incl_cons_drop incl_filter
      incl_distr_left incl_distr_right incl_app_project_left
@@ -338,10 +338,10 @@ Hint Rewrite <- app_comm_cons : listdb.
 Hint Rewrite app_nil_l app_nil_r : listdb.
 Hint Rewrite rev_seteq rev_involutive rev_length rev_app_distr : listdb.
 Hint Rewrite map_id map_rev map_nil map_cons map_app : listdb.
-Hint Resolve in_map : listdb.
+#[export] Hint Resolve in_map : listdb.
 Hint Rewrite app_length map_length rev_length : listdb.
 
-Hint Extern 4 => 
+#[export] Hint Extern 4 => 
   match goal with
   |[ H: ?x ∈ nil |- _ ] => destruct H
   end : core.

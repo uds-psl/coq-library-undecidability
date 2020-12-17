@@ -144,13 +144,13 @@ Definition Const' (domain : list Type) {range : Type}
            (cst : range) : Rtuple domain -> range :=
   Fun' (App (Const domain cst)).
 
-Hint Unfold Const' : generic.
+#[export] Hint Unfold Const' : generic.
 
 Definition Uncurry {domain : list Type} {range : Type}
            (f : Rarrow domain range) : Rtuple domain -> range :=
   Fun' (App f).
 
-Hint Unfold Uncurry : generic.
+#[export] Hint Unfold Uncurry : generic.
 
 (******************************************************************************)
 (* Rewriting with [generic] *)

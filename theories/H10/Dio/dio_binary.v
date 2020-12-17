@@ -123,7 +123,7 @@ Section dio_fun_binomial.
 
 End dio_fun_binomial.
 
-Hint Resolve dio_fun_binomial : dio_fun_db.
+#[export] Hint Resolve dio_fun_binomial : dio_fun_db.
 
 Local Fact dio_fun_binomial_example : 𝔻F (fun ν => binomial (ν 0) (ν 1)).
 Proof. dio auto. Defined.
@@ -168,11 +168,11 @@ Proof.
   dio by lemma (fun v => binary_le_binomial (x v) (y v)). 
 Defined.
 
-Hint Resolve dio_rel_binary_le : dio_rel_db.
+#[export] Hint Resolve dio_rel_binary_le : dio_rel_db.
 
 Theorem dio_fun_nat_meet a b : 𝔻F a -> 𝔻F b -> 𝔻F (fun ν => a ν ⇣ b ν).
 Proof.
   dio by lemma (fun v => nat_meet_dio (v 0) (a v⭳) (b v⭳)).
 Defined.
 
-Hint Resolve dio_fun_nat_meet : dio_fun_db.
+#[export] Hint Resolve dio_fun_nat_meet : dio_fun_db.

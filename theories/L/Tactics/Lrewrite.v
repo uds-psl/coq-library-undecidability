@@ -53,20 +53,20 @@ Ltac find_Lrewrite_lemma :=
   end.
 
 Create HintDb Lrewrite discriminated.
-Hint Constants Opaque : Lrewrite.
-Hint Variables Opaque : Lrewrite.
+#[export] Hint Constants Opaque : Lrewrite.
+#[export] Hint Variables Opaque : Lrewrite.
 
-Hint Extern 0 (proc _) => solve [Lproc] : Lrewrite.
-Hint Extern 0 (lambda _) => solve [Lproc] : Lrewrite.
-Hint Extern 0 (closed _) => solve [Lproc] : Lrewrite.
+#[export] Hint Extern 0 (proc _) => solve [Lproc] : Lrewrite.
+#[export] Hint Extern 0 (lambda _) => solve [Lproc] : Lrewrite.
+#[export] Hint Extern 0 (closed _) => solve [Lproc] : Lrewrite.
 
 Lemma pow_redLe_subrelation' i s t : pow step i s t -> redLe i s t.
 Proof. apply pow_redLe_subrelation. Qed. (* for performance, without [subrelation] in type*)
 
 
-Hint Extern 0 (_ >(<= _ ) _) => simple eapply pow_redLe_subrelation' : Lrewrite.
-Hint Extern 0 (_ >* _) => simple eapply redLe_star_subrelation : Lrewrite.
-Hint Extern 0 (_ >* _) => simple eapply eval_star_subrelation : Lrewrite.
+#[export] Hint Extern 0 (_ >(<= _ ) _) => simple eapply pow_redLe_subrelation' : Lrewrite.
+#[export] Hint Extern 0 (_ >* _) => simple eapply redLe_star_subrelation : Lrewrite.
+#[export] Hint Extern 0 (_ >* _) => simple eapply eval_star_subrelation : Lrewrite.
 
 (* replace int by intT if possible*)
 

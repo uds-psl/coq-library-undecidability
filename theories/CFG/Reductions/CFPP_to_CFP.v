@@ -20,6 +20,9 @@ Set Default Proof Using "Type".
 Hint Rewrite concat_app map_app map_map : list.
 Hint Rewrite <- map_rev : list.
 
+Local Hint Constructors rew_cfg : core.
+Local Hint Constructors rewt : core.
+
 Lemma nil_app_nil {X} (A : list X) :
   A = [] ++ A ++ [].
 Proof.

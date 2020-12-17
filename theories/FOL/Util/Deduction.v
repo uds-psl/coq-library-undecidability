@@ -61,7 +61,7 @@ Section ND_def.
 End ND_def.
 
 
-Hint Constructors prv : core.
+Local Hint Constructors prv : core.
 
 Arguments prv {_ _ _ _} _ _.
 Notation "A ⊢ phi" := (prv A phi) (at level 30).

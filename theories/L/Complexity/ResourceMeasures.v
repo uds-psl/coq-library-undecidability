@@ -20,7 +20,7 @@ Module Leftmost.
   | step_lmAppR s t  t' : t ≻lm t' -> app (lam s) t ≻lm app (lam s) t'
   | step_lmAppL s s' t  : s ≻lm s' -> app s t ≻lm app s' t
   where "s '≻lm' t" := (step_lm s t).
-  Hint Constructors step_lm : core.
+  #[local] Hint Constructors step_lm : core.
 
   Lemma step_lm_functional :
     functional step_lm.

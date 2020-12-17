@@ -4,7 +4,7 @@ From Undecidability.L Require Export L.
 
 Require Import Lia.
 
-Hint Constructors ARS.star : cbv.
+#[export] Hint Constructors ARS.star : cbv.
 
 (* * The call-by-value lambda calculus L *)
 
@@ -30,7 +30,7 @@ Defined. (* because instance *)
 
 Definition term_eq_dec_proc s t := if Dec (s = t) then true else false.
 
-Hint Resolve term_eq_dec : core.
+#[export] Hint Resolve term_eq_dec : core.
 
 (* Notation using binders *)
 
@@ -102,7 +102,7 @@ Proof.
   exists s; reflexivity.
 Qed.
 
-Hint Resolve lambda_lam : core.
+#[export] Hint Resolve lambda_lam : core.
 
 Instance lambda_dec s : dec (lambda s).
 Proof.
@@ -216,7 +216,7 @@ Inductive step : term -> term -> Prop :=
 | stepAppL s s' t  : s ≻ s' -> app s t ≻ app s' t
 where "s '≻' t" := (step s t).
 
-Hint Constructors step : core.
+#[export] Hint Constructors step : core.
 
 Ltac inv_step :=
   match goal with
@@ -385,7 +385,7 @@ Inductive equiv : term -> term -> Prop :=
   | eqTrans s t u: s == t -> t == u -> s == u
 where "s '==' t" := (equiv s t).
 
-Hint Immediate eqRef : core.
+#[export] Hint Immediate eqRef : core.
 
 
 (* Properties of the equivalence relation *)
@@ -417,7 +417,7 @@ Proof.
   - reflexivity.
   - eapply eqTrans. econstructor; eassumption. eassumption.
 Qed.
-Hint Resolve star_equiv : core.
+#[export] Hint Resolve star_equiv : core.
 
 Instance star_equiv_subrelation : subrelation (star step) equiv.
 Proof.
@@ -513,7 +513,7 @@ Qed.
 
 Definition eval s t := s >* t /\ lambda t.
 Notation "s '⇓' t" := (eval s t) (at level 51).
-Hint Unfold eval : core.
+#[export] Hint Unfold eval : core.
 
 Lemma eval_unique s v1 v2 :
   s ⇓ v1 -> s ⇓ v2 -> v1 = v2.

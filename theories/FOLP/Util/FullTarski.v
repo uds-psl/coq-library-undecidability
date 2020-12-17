@@ -1,6 +1,7 @@
 (* ** Definition of Tarski Semantics *)
 
 From Undecidability.FOLP Require Export FullFOL.
+Require Import Undecidability.Shared.ListAutomation.
 
 (* *** Tarki Models **)
 

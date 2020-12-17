@@ -301,13 +301,13 @@ Notation "Gamma '⊢(' n ')' s ':' A" :=
   (ordertyping n Gamma s A) (at level 80, s at level 99).
 Notation "Delta ⊩( n ) sigma : Gamma" := (ordertypingSubst n Delta sigma Gamma) (at level 80, sigma at level 99).
 
-Hint Constructors ordertyping : core.
+#[export] Hint Constructors ordertyping : core.
 Hint Rewrite ord_arr ord'_app ord'_rev : simplify. 
-Hint Resolve ord'_cons ord'_in  : core.
-Hint Resolve vars_ordertyping_nth ordertyping_monotone ordertyping_step ordertyping_soundness : core.
+#[export] Hint Resolve ord'_cons ord'_in  : core.
+#[export] Hint Resolve vars_ordertyping_nth ordertyping_monotone ordertyping_step ordertyping_soundness : core.
 
-Hint Resolve 
+#[export] Hint Resolve 
      ordertyping_preservation_under_renaming
      ordertyping_preservation_under_substitution : core.
 
-Hint Resolve ord_target ord_target' : core.
+#[export] Hint Resolve ord_target ord_target' : core.

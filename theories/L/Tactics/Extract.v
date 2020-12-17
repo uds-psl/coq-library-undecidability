@@ -168,7 +168,7 @@ Definition tmArgsOfConstructor ind i :=
 Class extracted {A : Type} (a : A) := int_ext : L.term.
 Arguments int_ext {_} _ {_}.
 Typeclasses Transparent extracted. (* This is crucial to use this inside monads  *)
-Hint Extern 0 (extracted _) => progress (cbn [Common.my_projT1]): typeclass_instances. 
+#[export] Hint Extern 0 (extracted _) => progress (cbn [Common.my_projT1]): typeclass_instances. 
 
 Class encodable (A : Type) := enc_f : A -> L.term.  
 

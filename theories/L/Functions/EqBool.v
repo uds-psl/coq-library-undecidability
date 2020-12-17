@@ -5,7 +5,7 @@ From Undecidability.L Require Import L Tactics.LTactics LBool.
 Class eqbClass X (eqb : X -> X -> bool): Type := 
   _eqb_spec : forall (x y:X), reflect (x=y) (eqb x y).
 
-Hint Mode eqbClass + -: typeclass_instances. (* treat argument as input and force evar-freeness*)
+#[export] Hint Mode eqbClass + -: typeclass_instances. (* treat argument as input and force evar-freeness*)
 
 Definition eqb X eqb `{H:eqbClass (X:=X) eqb} := eqb.
 
@@ -42,7 +42,7 @@ Class eqbCompT X {R:registered X} eqb {H:eqbClass (X:=X) eqb} :=
 Arguments eqbCompT _ {_ _ _}.
 Arguments c__eqbComp _ {_ _ _ _}.
 
-Hint Mode eqbCompT + - - -: typeclass_instances.
+#[export] Hint Mode eqbCompT + - - -: typeclass_instances.
 
 Existing Instance comp_eqb.
 

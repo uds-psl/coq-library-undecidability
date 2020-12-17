@@ -5,7 +5,7 @@ Section MuRecursor.
 
 Variable P : term.
 Hypothesis P_proc : proc P.
-Hint Resolve P_proc : LProc.
+Local Hint Resolve P_proc : LProc.
 
 Hypothesis dec'_P : forall (n:nat), (exists (b:bool), app P (ext n) == ext b ).
 
@@ -28,7 +28,7 @@ Proof.
   unfold mu'; Lproc. 
 Qed.
 
-Hint Resolve mu'_proc : LProc.
+Local Hint Resolve mu'_proc : LProc.
 
 Lemma mu'_n_false n: P (ext n)  == ext false -> mu' P (ext n) >* mu' P (ext (S n)).
 Proof using P_proc.
@@ -87,7 +87,7 @@ Proof.
   unfold mu. Lproc. 
 Qed.
 
-Hint Resolve mu_proc : LProc.
+Local Hint Resolve mu_proc : LProc.
 
 Lemma mu_sound v : lambda v -> mu P == v -> exists n, v = ext n /\ P (ext n) == ext true /\ (forall n', n' < n -> P (ext n') == ext false).
 Proof using P_proc dec'_P.
@@ -121,6 +121,6 @@ Qed.
 
 End MuRecursor.
 
-Hint Resolve mu'_proc : LProc.
-Hint Resolve mu_proc : LProc.
+#[export] Hint Resolve mu'_proc : LProc.
+#[export] Hint Resolve mu_proc : LProc.
 

@@ -26,7 +26,7 @@ Section NthOrderUnificationDefinition.
 End NthOrderUnificationDefinition.
 Arguments orduni _ : clear implicits.
 Arguments OU _ : clear implicits.
-Hint Resolve H1₀ H2₀ : core.
+#[export] Hint Resolve H1₀ H2₀ : core.
 
 
 
@@ -166,7 +166,7 @@ Arguments L₀' {_} {_} {_}.
 Notation  "Gamma ⊢₊₊( n ) E : L" := (eqs_ordertyping _ Gamma n E L)(at level 80, E at level 99).
 Notation "Gamma ⊢₂( n ')' e : A" := (eq_ordertyping _ n Gamma e A) (at level 80, e at level 99).
 
-Hint Resolve eqs_ordertyping_soundness : core.
+#[export] Hint Resolve eqs_ordertyping_soundness : core.
 
 
 

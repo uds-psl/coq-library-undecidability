@@ -262,7 +262,7 @@ Notation  "Gamma ⊢₊₊ E : L" := (eqs_typing Gamma E L) (at level 80, E at l
 Notation "Gamma ⊢₂ e : A" := (eq_typing Gamma e A) (at level 80, e at level 99).
 
 Hint Rewrite all_terms_cons_iff all_terms_app Vars'_app Vars'_cons: simplify.
-Hint Resolve all_terms_nil : core.
+#[export] Hint Resolve all_terms_nil : core.
 
 (* ** Normalisation *)
 Definition NSU {X: Const} (I: sysuni X) := exists Delta sigma,

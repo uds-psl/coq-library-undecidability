@@ -8,7 +8,7 @@ Import GenEncode. Import Nat.
 (* ** Encoding of natural numbers *)
 
 MetaCoq Run (tmGenEncode "nat_enc" nat).
-Hint Resolve nat_enc_correct : Lrewrite.
+#[export] Hint Resolve nat_enc_correct : Lrewrite.
 
 Instance termT_S : computableTime' S (fun _ _ => (1,tt)).
 Proof.

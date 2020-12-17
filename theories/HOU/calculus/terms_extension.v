@@ -3,7 +3,7 @@ Require Import List Arith Lia Morphisms FinFun.
 Import ListNotations.
 From Undecidability.HOU Require Import std.std.
 From Undecidability.HOU.calculus Require Import 
-  prelim terms syntax semantics equivalence typing order. 
+  prelim terms syntax semantics equivalence typing order confluence. 
 
 Set Default Proof Using "Type".
 
@@ -816,11 +816,11 @@ End TermsExtension.
 
 
 
-Hint Constructors listtyping : core. 
-Hint Constructors orderlisttyping : core. 
+#[export] Hint Constructors listtyping : core. 
+#[export] Hint Constructors orderlisttyping : core. 
 Hint Rewrite ord'_app ord_Arr ord_repeated : simplify.
 Hint Rewrite ord_Arr : simplify.
-Hint Resolve 
+#[export] Hint Resolve 
      normal_Lambda normal_AppR_left normal_AppR_right : core.
 Hint Rewrite @Lambda_ren @Lambda_subst @AppL_ren @AppL_subst @AppR_ren @AppR_subst : asimpl.
 

@@ -273,7 +273,7 @@ End fo_definability.
 
 Create HintDb fol_def_db.
 
-Hint Resolve fot_def_proj fot_def_map fot_def_comp fol_def_True fol_def_False : fol_def_db.
+#[export] Hint Resolve fot_def_proj fot_def_map fot_def_comp fol_def_True fol_def_False : fol_def_db.
 
 Tactic Notation "fol" "def" := 
    repeat ((  apply fol_def_conj 

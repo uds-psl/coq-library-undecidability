@@ -39,7 +39,7 @@ Ltac solve_sc :=
             assert (l = x + i); [ ring_simplify; subst x; reflexivity | rewrite H; subst x ] 
           end.
 
-Hint Extern 0 => solve_sc : core.    
+Local Hint Extern 0 => solve_sc : core.    
 
 Notation CURR := (Fin1 : Fin.t 4).
 Notation LEFT := (Fin0 : Fin.t 4).

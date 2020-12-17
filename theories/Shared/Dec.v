@@ -1,6 +1,6 @@
 Set Implicit Arguments.
 
-Hint Extern 4 => exact _ : core.
+#[export] Hint Extern 4 => exact _ : core.
 
 Ltac inv H := inversion H; subst; clear H.
 
@@ -33,7 +33,7 @@ Qed.
 (* Qed. *)
 
 (* Hint Resolve Dec_auto Dec_auto_not : core. *)
-Hint Extern 4 =>  (* Improves type class inference *)
+#[export] Hint Extern 4 =>  (* Improves type class inference *)
 match goal with
   | [  |- dec ((fun _ => _) _) ] => cbn
 end : typeclass_instances.
@@ -57,7 +57,7 @@ Proof.
   congruence.
 Qed.
 
-Hint Extern 4 =>
+#[export] Hint Extern 4 =>
 match goal with
   [ H : dec2bool (Dec ?P) = true  |- _ ] => apply Dec_true in  H
 | [ H : dec2bool (Dec ?P) = true |- _ ] => apply Dec_false in H

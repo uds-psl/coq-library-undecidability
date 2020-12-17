@@ -52,7 +52,7 @@ Fixpoint eval (fuel : nat) (min : nat) (c : reccode) (v : list nat) : option (na
 
 
 MetaCoq Run (tmGenEncode "enc_reccode" reccode).
-Hint Resolve enc_reccode_correct : Lrewrite.
+#[export] Hint Resolve enc_reccode_correct : Lrewrite.
 
 Instance term_rc_comp: computable rc_comp. Proof. extract constructor. Qed.
 Instance term_rc_cons : computable rc_cons. Proof. extract constructor. Qed.

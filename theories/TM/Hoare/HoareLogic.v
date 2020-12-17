@@ -44,26 +44,26 @@ Lemma TripleT_Triple {sig : finType} {n : nat} {F : Type} P k (pM : pTM sig F n)
   Triple P pM Q.
 Proof. now intros ?%TripleTE. Qed.
 
-Hint Resolve TripleT_Triple : core.
+#[export] Hint Resolve TripleT_Triple : core.
 
 Lemma Triple_False {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n) Q :
   Triple (fun _ => False) pM Q.
 Proof. hnf. firstorder. Qed.
 
-Hint Resolve Triple_False : core.
+#[export] Hint Resolve Triple_False : core.
 
 Lemma TripleT_False {sig : finType} {n : nat} {F : Type} k (pM : pTM sig F n) Q :
   TripleT (fun _ => False) k pM Q.
 Proof. hnf. firstorder. Qed.
 
-Hint Resolve TripleT_False : core.
+#[export] Hint Resolve TripleT_False : core.
 
 
 Lemma Triple_True {sig : finType} {n : nat} {F : Type} (pM : pTM sig F n) P :
   Triple P pM (fun _ _ => True).
 Proof. hnf. firstorder. Qed.
 
-Hint Resolve Triple_True : core.
+#[export] Hint Resolve Triple_True : core.
 
 
 
@@ -141,7 +141,7 @@ Lemma Entails_iff (sig : Type) (n : nat) (P1 P2 : Assert sig n):
 Entails P1 P2 <-> (forall tin, P1 tin -> P2 tin).
 Proof. split;firstorder eauto using EntailsE,EntailsI. Qed.
 
-Hint Resolve EntailsI : core.
+#[export] Hint Resolve EntailsI : core.
 
 Instance Entails_PO (sig : Type) (n : nat): PreOrder (@Entails sig n).
 Proof. split;hnf. all:setoid_rewrite Entails_iff. all:eauto. Qed.

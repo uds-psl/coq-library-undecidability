@@ -8,7 +8,7 @@ From Undecidability.L.Tactics Require Import LTactics GenEncode.
 
 MetaCoq Run (tmGenEncode "bool_enc" bool).
 (* For each encoding, Lrewrite must contain an lemma that solves goals like "encode b s t >* match ...end". The database Lrewrite also calls Lproc to discharge the other assumptions *)
-Hint Resolve bool_enc_correct : Lrewrite.
+#[export] Hint Resolve bool_enc_correct : Lrewrite.
 
 (* register thefunctional constructors (not neccessary here) *)
 (*
@@ -55,7 +55,7 @@ Definition OmegaLift := lam Omega.
 
 Lemma OmegaLift_proc : proc OmegaLift.
 Proof.  unfold OmegaLift.  Lproc. Qed.
-Hint Resolve OmegaLift_proc : LProc.
+#[export] Hint Resolve OmegaLift_proc : LProc.
 
 Import L_Notations.
 
@@ -63,14 +63,14 @@ Definition trueOrDiverge := lam (var 0 I OmegaLift I).
 
 Lemma trueOrDiverge_proc : proc trueOrDiverge.
 Proof.  unfold trueOrDiverge. Lproc. Qed.
-Hint Resolve trueOrDiverge_proc : LProc.
+#[export] Hint Resolve trueOrDiverge_proc : LProc.
 
 Lemma trueOrDiverge_true : trueOrDiverge (enc true) >(4) I.
 Proof.
   unfold trueOrDiverge. cbv - [pow]. Lsimpl.
 Qed.
 
-Hint Resolve trueOrDiverge_true : Lrewrite.
+#[export] Hint Resolve trueOrDiverge_true : Lrewrite.
 
 
 Lemma trueOrDiverge_eval t b: trueOrDiverge (enc b) ⇓ t -> b = true.

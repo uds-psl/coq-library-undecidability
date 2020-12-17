@@ -5,6 +5,8 @@ From Undecidability.FOL Require Import FOL Util.Kripke Util.Deduction Util.Synta
 
 From Undecidability.PCP Require Import PCP Reductions.PCPb_iff_dPCPb.
 
+Local Hint Constructors BPCP : core.
+
 (* ** Reductions *)
 
 Section kvalidity.
@@ -65,7 +67,7 @@ Qed.
 Corollary kvalid_undec :
   UA -> ~ decidable (@kvalid _ _ falsity_on).
 Proof.
-  intros H. now apply (not_decidable kvalid_red).
+  intros H. now apply (not_decidable kvalid_red). 
 Qed.
 
 Corollary kvalid_unenum :
