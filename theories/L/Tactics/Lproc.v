@@ -7,7 +7,7 @@ From Undecidability.L.Tactics Require Import Reflection ComputableTime mixedTact
 
 (* This module provides tactics fLproc and Lproc that solve goals of the form [lambda s] or [proc s] or [closed s] for L-terms [s]. *)
 
-Hint Resolve rho_lambda rho_cls : LProc.
+#[export] Hint Resolve rho_lambda rho_cls : LProc.
 
 Lemma proc_closed p : proc p -> closed p.
 Proof.

@@ -1,5 +1,5 @@
 From Undecidability.L.Tactics Require Import LTactics.
-From Undecidability.L.Datatypes Require Import LBool.
+From Undecidability.L.Datatypes Require Import LBool LNat LTerm.
 
 From Undecidability.L Require Import Functions.Decoding.
 

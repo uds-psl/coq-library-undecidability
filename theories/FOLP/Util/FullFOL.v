@@ -27,7 +27,7 @@ Derive Signature for vector.
 
 Ltac capply H := eapply H; try eassumption.
 Ltac comp := repeat (progress (cbn in *; autounfold in *; asimpl in *)).
-Hint Unfold idsRen : core.
+#[export] Hint Unfold idsRen : core.
 
 Ltac resolve_existT :=
   match goal with
@@ -419,15 +419,15 @@ Proof.
     exists (b :: B). split. 1: auto. intros ? []; subst; auto.
 Qed.
 
-Hint Constructors vec_in : core.
+Local Hint Constructors vec_in : core.
 
 Infix "⊏" := contains_L (at level 20).
 Infix "⊑" := subset_T (at level 20).
 Infix "∈" := contains (at level 70).
 Infix "⋄" := extend (at level 20).
 
-Hint Resolve contains_nil contains_cons contains_cons2 contains_app : contains_theory.
-Hint Resolve contains_extend1 contains_extend2 contains_extend3 : contains_theory.
+Local Hint Resolve contains_nil contains_cons contains_cons2 contains_app : contains_theory.
+Local Hint Resolve contains_extend1 contains_extend2 contains_extend3 : contains_theory.
 Ltac use_theory A := exists A; split; [eauto 15 with contains_theory|].
 
 (* **** Equality deciders *)

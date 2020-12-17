@@ -89,7 +89,7 @@ Proof.
 Qed.
 
 
-Hint Resolve rho_lambda rho_cls : LProc.
+#[export] Hint Resolve rho_lambda rho_cls : LProc.
 
 Tactic Notation "recStep" constr(P) "at" integer(i):=
   match eval lazy [P] in P with
@@ -105,7 +105,7 @@ Proof.
   intros [? [? ?]]. subst. split; auto with LProc.
 Qed.
 
-Hint Resolve rClosed_closed : LProc cbv.
+#[export] Hint Resolve rClosed_closed : LProc cbv.
  *)
 
 Lemma I_proc : proc I.
@@ -128,10 +128,10 @@ Proof.
   fLproc. 
 Qed.
 
-Hint Resolve I_proc K_proc omega_proc Omega_closed: LProc.
+#[export] Hint Resolve I_proc K_proc omega_proc Omega_closed: LProc.
 
-Hint Extern 0 (I >(_) _)=> unfold I;reflexivity : Lrewrite.
-Hint Extern 0 (K >(_) _)=> unfold K;reflexivity : Lrewrite.
+#[export] Hint Extern 0 (I >(_) _)=> unfold I;reflexivity : Lrewrite.
+#[export] Hint Extern 0 (K >(_) _)=> unfold K;reflexivity : Lrewrite.
 
 
 Lemma Omega_diverge t: ~ eval Omega t.

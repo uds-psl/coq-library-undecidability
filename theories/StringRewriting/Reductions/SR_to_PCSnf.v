@@ -4,6 +4,7 @@ Import ListNotations.
 Require Import Undecidability.StringRewriting.PCSnf.
 Require Import Undecidability.StringRewriting.SR.
 Require Import Undecidability.StringRewriting.Util.Definitions.
+Require Import Undecidability.Shared.ListAutomation.
 
 Set Default Proof Using "Type".
 
@@ -81,7 +82,7 @@ Section fix_R.
             eapply fresh_spec with (l := Σ). 2:reflexivity. unfold Σ at 2. eauto.
           }
           eapply in_split in Hx as (x1_ & x2_ & ->).
-          replace (u ++ x1_ ++ [#] ++ x2_) with ((u ++ x1_) ++ [#] ++ x2_) in H1 by now simpl_list.
+          replace (u ++ x1_ ++ # :: x2_) with ((u ++ x1_) ++ [#] ++ x2_) in H1 by now simpl_list.
           eapply list_prefix_inv in H1 as (<- & ->).
           * econstructor. econstructor. eauto.
             replace (x1 ++ v ++ x1_) with ((x1 ++ v) ++ x1_) by now simpl_list.
@@ -106,7 +107,7 @@ Section fix_R.
               exfalso. destruct H3 as [-> | []]. eapply fresh_spec with (l := Σ); eauto.
             }
             eapply in_split in Hx as (x1_ & x2_ & ->).
-            replace ([a] ++ x1_ ++ [#] ++ x2_) with (([a] ++ x1_) ++ [#] ++ x2_) in H1 by now simpl_list.
+            replace ([a] ++ x1_ ++ # :: x2_) with (([a] ++ x1_) ++ [#] ++ x2_) in H1 by now simpl_list.
             eapply list_prefix_inv in H1 as (<- & ->).
             -- replace (x1 ++ [a] ++ x1_) with ((x1 ++ [a]) ++ x1_) by now simpl_list.
                eapply IHderv.

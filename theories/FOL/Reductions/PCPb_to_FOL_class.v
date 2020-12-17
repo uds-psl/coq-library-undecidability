@@ -5,6 +5,7 @@ From Undecidability.FOL Require Import FOL Reductions.PCPb_to_FOL Util.Syntax Ut
 Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb Undecidability.PCP.PCP.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
 Require Import List.
+Require Import Undecidability.Shared.ListAutomation.
 Import ListNotations.
 
 (* ** Double Negation Translation *)
@@ -22,7 +23,7 @@ Proof.
   - exact P.
 Defined.
 
-Hint Constructors prv : core.
+Local Hint Constructors prv : core.
 
 Fixpoint cast {b} (phi : form b) : form falsity_on :=
   match phi with

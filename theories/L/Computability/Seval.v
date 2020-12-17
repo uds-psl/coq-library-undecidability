@@ -9,7 +9,7 @@ Proof.
   intros [v [R lv]]. exists t.  rewrite v. subst. split. reflexivity. auto.
 Qed.
 
-Hint Resolve eval_converges : core.
+#[export] Hint Resolve eval_converges : core.
 
 (* * Step indexed evaluation *)
 
@@ -29,7 +29,7 @@ Proof with eauto using star_trans, star_trans_l, star_trans_r.
     transitivity ((lam u) (lam v))... now rewrite stepApp.
 Qed.
 
-Hint Resolve seval_eval : core.
+#[export] Hint Resolve seval_eval : core.
 
 (* Equivalence between step index evaluation and evaluation *)
 

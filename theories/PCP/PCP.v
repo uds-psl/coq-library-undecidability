@@ -81,7 +81,6 @@ Definition dPCPb : stack bool -> Prop := @dPCP bool.
 
 Inductive BPCP (P : stack bool) : Prop := 
   | cBPCP : forall u, derivable P u u -> BPCP P.
-Hint Constructors BPCP : core.
 
 (* The modified Post correspondence problem MPCP is 
   given a card x/y and stack P of cards to determine 

@@ -307,10 +307,10 @@ Section ClosureRelations.
 
 End ClosureRelations.
 
-Hint Extern 4 => eapply subrel_unfold; [ typeclasses eauto |] : core. 
+#[export] Hint Extern 4 => eapply subrel_unfold; [ typeclasses eauto |] : core. 
 
 
 
-Hint Constructors star multiple counted : core.
-Hint Resolve star_trans multiple_trans counted_trans star_exp
+#[export] Hint Constructors star multiple counted : core.
+#[export] Hint Resolve star_trans multiple_trans counted_trans star_exp
      multiple_exp counted_exp equiv_join : core.

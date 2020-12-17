@@ -36,7 +36,7 @@ Proof. exists; intros; ring. Qed.
 Fact Zmult_monoid : monoid_theory Zmult 1%Z.
 Proof. exists; intros; ring. Qed.
 
-Hint Resolve Nat_plus_monoid Nat_mult_monoid
+#[export] Hint Resolve Nat_plus_monoid Nat_mult_monoid
              Zplus_monoid Zmult_monoid : core.
 
 Section msum.

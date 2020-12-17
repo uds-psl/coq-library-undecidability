@@ -216,7 +216,7 @@ End Equivalence.
 
 Notation "s ≡ t" := (equiv step s t) (at level 70).  
 
-Hint Resolve equiv_neq_var_app equiv_neq_var_lambda equiv_neq_var_const
+#[export] Hint Resolve equiv_neq_var_app equiv_neq_var_lambda equiv_neq_var_const
      equiv_neq_const_app equiv_neq_const_lam equiv_neq_lambda_app : core.
 
 

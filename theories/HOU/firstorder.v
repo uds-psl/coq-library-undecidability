@@ -165,7 +165,7 @@ Section LambdaFreeness.
 End LambdaFreeness.
 
 (* ** Simplified First-Order Unification *)
-Hint Constructors lambda_free : core. 
+Local Hint Constructors lambda_free : core. 
 Section Unification.
 
   Variable (X: Const).

@@ -60,7 +60,7 @@ Proof. apply le_pirr. Qed.
 Fact Zring : ring_theory 0%Z 1%Z Zplus Zmult Zminus Z.opp eq.
 Proof. exists; intros; ring. Qed.
 
-Hint Resolve Zring Zplus_monoid Zmult_monoid : core.
+#[export] Hint Resolve Zring Zplus_monoid Zmult_monoid : core.
 
 Section Z_coprime.
 

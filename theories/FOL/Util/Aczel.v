@@ -65,7 +65,7 @@ Proof.
     exists a. now apply IH with (t := (g b)).
 Qed.
 
-Hint Resolve Aeq_ref Aeq_sym Aeq_tra : core.
+Local Hint Resolve Aeq_ref Aeq_sym Aeq_tra : core.
 
 Instance aeq_equiv :
   Equivalence Aeq.
@@ -507,7 +507,7 @@ Section QM.
     unfold IN. now rewrite <- Aeq_p1_NS.
   Qed.
 
-  Hint Resolve Ain_IN_p1 Ain_IN_NS Ain_IN_p1_NS Ain_IN_NS_p1 IN_Ain_p1 IN_Ain_NS IN_Ain_p1_NS IN_Ain_NS_p1 : core.
+  Local Hint Resolve Ain_IN_p1 Ain_IN_NS Ain_IN_p1_NS Ain_IN_NS_p1 IN_Ain_p1 IN_Ain_NS IN_Ain_p1_NS IN_Ain_NS_p1 : core.
 
   Lemma ASubq_Subq_p1 X Y :
     ASubq (proj1_sig Y) (proj1_sig X) <-> Subq Y X.

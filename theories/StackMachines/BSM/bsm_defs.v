@@ -271,4 +271,4 @@ Tactic Notation "bsm" "inv" "POP" "any" "with" hyp(H) constr(a) constr(c) constr
 Tactic Notation "bsm" "inv" "PUSH" "with" hyp(H) constr(a) constr(c) :=
      apply bsm_steps_PUSH_inv with (x := a) (b := c) in H; auto.
 
-Hint Immediate bsm_sss_fun : core.
+#[export] Hint Immediate bsm_sss_fun : core.

@@ -126,7 +126,7 @@ Section DecBool.
 
 End DecBool.
 
-Hint Resolve dec_decb : core.
+#[export] Hint Resolve dec_decb : core.
 Arguments decb _ {_}.
 Arguments decb1 {_} _ {_} _.
 Arguments decb2 {_} {_} _ {_} _.

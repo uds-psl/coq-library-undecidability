@@ -63,12 +63,12 @@ Require Import Lia Arith.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
-Hint Extern 4 => 
+#[export] Hint Extern 4 => 
 match goal with
 |[ H: ?x el nil |- _ ] => destruct H
 end : core.
 
-Hint Extern 4 => 
+#[export] Hint Extern 4 => 
 match goal with
 |[ H: False |- _ ] => destruct H
 |[ H: true=false |- _ ] => discriminate H
@@ -80,8 +80,8 @@ Proof. intros x []. Qed.
 
 Hint Rewrite <- app_assoc : list.
 Hint Rewrite rev_app_distr map_app prod_length : list.
-Hint Resolve in_eq in_nil in_cons in_or_app : core.
-Hint Resolve incl_refl incl_tl incl_cons incl_appl incl_appr incl_app incl_nil : core.
+#[export] Hint Resolve in_eq in_nil in_cons in_or_app : core.
+#[export] Hint Resolve incl_refl incl_tl incl_cons incl_appl incl_appr incl_app incl_nil : core.
 
 Lemma app_incl_l X (A B C : list X) :
 A ++ B <<= C -> A <<= C.
@@ -105,10 +105,10 @@ Proof.
 now intros ? ? [-> | [] ].
 Qed.
 
-Hint Resolve app_incl_l app_incl_R cons_incl incl_sing : core.
+#[export] Hint Resolve app_incl_l app_incl_R cons_incl incl_sing : core.
 
-Hint Extern 4 (_ el map _ _) => eapply in_map_iff : core.
-Hint Extern 4 (_ el filter _ _) => eapply filter_In : core.
+#[export] Hint Extern 4 (_ el map _ _) => eapply in_map_iff : core.
+#[export] Hint Extern 4 (_ el filter _ _) => eapply filter_In : core.
 
 Section Inclusion.
   Variable X : Type.
@@ -168,7 +168,7 @@ Qed.
 
 Definition equi X (A B : list X) : Prop := incl A B /\ incl B A.
 Local Notation "A === B" := (equi A B) (at level 70).
-Hint Unfold equi : core.
+#[export] Hint Unfold equi : core.
 
 Instance equi_Equivalence X : 
   Equivalence (@equi X).

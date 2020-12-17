@@ -16,13 +16,11 @@ Definition startsym (G : cfg) := fst G.
 (* single step context-free derivation *)
 Inductive rew_cfg : cfg -> list sig -> list sig -> Prop :=
   | rewR R x a y v : In (a, v) (rules R) -> rew_cfg R (x++[a]++y) (x++v++y).
-Hint Constructors rew_cfg : core.
 
 (* reflexive, transitive closure of single step context-free derivation *)
 Inductive rewt (S: cfg) (x: list sig) : list sig -> Prop :=
   | rewtRefl : rewt S x x
   | rewtRule y z : rewt S x y -> rew_cfg S y z -> rewt S x z.
-Hint Constructors rewt : core.
 
 (* a word is terminal if it contains no non-terminals *)
 Definition terminal G x := ~ exists y, rew_cfg G x y.

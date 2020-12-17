@@ -7,6 +7,7 @@ Require Import Undecidability.StringRewriting.Util.Definitions.
 Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts.
 Require Import Undecidability.StringRewriting.Reductions.HaltSBTMu_to_SRH.
+Require Import Undecidability.Shared.ListAutomation.
 
 Import ListNotations.
 

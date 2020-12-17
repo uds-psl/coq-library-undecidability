@@ -433,11 +433,11 @@ Tactic Notation "dio" "by" "lemma" uconstr(f) :=
 
 (* Start feeding the databases of Diophantine shapes *)
 
-Hint Resolve dio_fun_var 
+#[export] Hint Resolve dio_fun_var 
              dio_fun_cst 
              dio_fun_ren : dio_fun_db.
 
-Hint Resolve dio_rel_eq 
+#[export] Hint Resolve dio_rel_eq 
              dio_rel_cst dio_rel_cst_sym
              dio_rel_add dio_rel_add_sym
              dio_rel_mul dio_rel_mul_sym : dio_rel_im_db.
@@ -463,7 +463,7 @@ Proof.
    | intros (? & ? & -> & -> & ->); auto ]).
 Defined.
 
-Hint Resolve dio_fun_plus dio_fun_mult : dio_fun_db.
+#[export] Hint Resolve dio_fun_plus dio_fun_mult : dio_fun_db.
 
 Local Fact example_eq : 𝔻R (fun ν => ν 0 = ν 0).
 Proof. dio auto. Defined.
@@ -494,7 +494,7 @@ Section True_False.
 
 End True_False.
 
-Hint Resolve dio_rel_True dio_rel_False : dio_rel_db.
+#[export] Hint Resolve dio_rel_True dio_rel_False : dio_rel_db.
 
 Fact dio_rel_le_im x y : 𝔻R (fun ν => ν x <= ν y).
 Proof.
@@ -518,7 +518,7 @@ Proof.
   unfold divides; tauto.
 Defined.
 
-Hint Resolve dio_rel_le_im 
+#[export] Hint Resolve dio_rel_le_im 
              dio_rel_lt_im  
              dio_rel_div_im : dio_rel_im_db.
 
@@ -540,7 +540,7 @@ Proof.
     | intros (? & ? & ? & -> & ->) ]; auto).
 Defined.
 
-Hint Resolve dio_rel_lt 
+#[export] Hint Resolve dio_rel_lt 
              dio_rel_le : dio_rel_db.
 
 Fact dio_rel_neq r t : 𝔻F r -> 𝔻F t -> 𝔻R (fun ν => r ν <> t ν).
@@ -561,7 +561,7 @@ Proof.
     | intros (? & ? & ? & -> & ->) ]; auto).
 Defined.
 
-Hint Resolve dio_rel_neq 
+#[export] Hint Resolve dio_rel_neq 
              dio_rel_div : dio_rel_db.
 
 (* These example are better now *)
@@ -613,7 +613,7 @@ Section dio_fun_rem.
 
 End dio_fun_rem.
   
-Hint Resolve dio_fun_rem : dio_fun_db.
+#[export] Hint Resolve dio_fun_rem : dio_fun_db.
 
 Local Fact dio_fun_rem_example : 𝔻F (fun ν => rem (ν 0) (ν 1)).
 Proof. dio auto. Defined.
@@ -669,7 +669,7 @@ Section dio_rel_not_divides.
 
 End dio_rel_not_divides.
 
-Hint Resolve dio_rel_not_divides : dio_rel_db.
+#[export] Hint Resolve dio_rel_not_divides : dio_rel_db.
 
 Local Fact example_rem_strange : 𝔻R (fun ν => rem (ν 0) (ν 1) = ν 2 * ν 3).
 Proof. dio auto. Defined.

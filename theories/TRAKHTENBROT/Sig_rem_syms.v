@@ -18,6 +18,8 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations fol_ops fo_sig utils fo_terms fo_logic fo_sat.
 
+Require Import Undecidability.Shared.ListAutomation.
+
 Set Implicit Arguments.
 
 (* * Converting functions symbols into relations symbols *) 

@@ -30,7 +30,7 @@ Proof. econstructor; cbn; eauto. Qed.
 Lemma typing_g Gamma: Gamma ⊢(2) g : alpha → alpha → alpha.
 Proof. econstructor; cbn; eauto. Qed.
 
-Hint Resolve typing_a typing_g : core.
+#[export] Hint Resolve typing_a typing_g : core.
 
 (* ** Encoding *)
 Section Linearization.
@@ -242,7 +242,7 @@ Section Encoding.
 
 End Encoding.
 
-Hint Resolve enc_normal : core.
+#[export] Hint Resolve enc_normal : core.
 Hint Rewrite enc_zero enc_succ enc_app enc_succ_out: simplify.
 Hint Rewrite enc_ren enc_subst: asimpl.
 
@@ -406,7 +406,7 @@ Arguments G : simpl never.
 Arguments Fs : simpl never.
 Arguments Gs : simpl never.
 
-Hint Resolve F_not_in_G G_not_in_F : core.
+#[export] Hint Resolve F_not_in_G G_not_in_F : core.
 
 (* ** Diophantine Equations Encoding *)
 Section Equations.

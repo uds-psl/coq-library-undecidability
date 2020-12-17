@@ -20,7 +20,7 @@ From Undecidability.FRACTRAN
   Require Import FRACTRAN fractran_utils prime_seq.
 
 From Undecidability.H10.Dio 
-  Require Import dio_logic dio_bounded dio_rt_closure dio_single.
+  Require Import dio_logic dio_bounded dio_rt_closure dio_single dio_expo.
 
 Set Implicit Arguments.
 
@@ -111,7 +111,7 @@ Section exp_diophantine.
 
 End exp_diophantine.
 
-Hint Resolve fractran_exp_diophantine : dio_fun_db.
+#[export] Hint Resolve fractran_exp_diophantine : dio_fun_db.
 
 Theorem FRACTRAN_HALTING_on_exp_diophantine n l :  
                      𝔻R (fun ν => l /F/ ps 1 * exp 1 (fun2vec 0 n ν) ↓).
