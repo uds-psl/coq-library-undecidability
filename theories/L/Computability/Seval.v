@@ -50,7 +50,7 @@ Proof.
   intros [A B]. induction A.
   - destruct B. subst. eauto using seval. 
   - destruct (IHA B) as [k C]. eauto using seval, eval_step.
-    Grab Existential Variables. exact 0.
+    Unshelve. exact 0.
 Qed.
 
 (*  Evaluation as a function *)
