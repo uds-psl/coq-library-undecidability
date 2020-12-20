@@ -149,7 +149,7 @@ Arguments subst_form _ _ _ _, _ _ {_ _}, {_ _ _ _}.
 
 (* Substitution Notation *)
 
-Notation "$ x" := (var x) (at level 5, format "$ '/' x").
+Notation "$ x" := (var x) (at level 3, format "$ '/' x").
 
 Declare Scope subst_scope.
 Open Scope subst_scope.
@@ -158,7 +158,7 @@ Notation "t `[ sigma ]" := (subst_term sigma t) (at level 7, left associativity,
 Notation "phi [ sigma ]" := (subst_form sigma phi) (at level 7, left associativity, format "phi '/' [ sigma ]") : subst_scope.
 Notation "s .: sigma" := (scons s sigma) (at level 70, right associativity) : subst_scope.
 Notation "f >> g" := (funcomp g f) (at level 50) : subst_scope.
-Notation "s '..'" := (scons s var) (at level 1, format "s ..") : subst_scope.
+Notation "s '..'" := (scons s var) (at level 4, format "s ..") : subst_scope.
 Notation "↑" := (S >> var) : subst_scope.
 
 
