@@ -329,3 +329,111 @@ Section Model.
   Qed.
 
 End Model.
+
+
+Lemma prv_ind_full :
+  forall P : peirce -> list (form falsity_on) -> (form falsity_on) -> Prop,
+       (forall (p : peirce) (A : list form) (phi psi : form),
+        (phi :: A) ⊢ psi -> P p (phi :: A) psi -> P p A (phi --> psi)) ->
+       (forall (p : peirce) (A : list form) (phi psi : form),
+        A ⊢ phi --> psi -> P p A (phi --> psi) -> A ⊢ phi -> P p A phi -> P p A psi) ->
+       (forall (p : peirce) (A : list form) (phi : form),
+        (map (subst_form ↑) A) ⊢ phi -> P p (map (subst_form ↑) A) phi -> P p A (∀ phi)) ->
+       (forall (p : peirce) (A : list form) (t : term) (phi : form),
+        A ⊢ ∀ phi -> P p A (∀ phi) -> P p A phi[t..]) ->
+       (forall (p : peirce) (A : list form) (t : term) (phi : form),
+        A ⊢ phi[t..] -> P p A phi[t..] -> P p A (∃ phi)) ->
+       (forall (p : peirce) (A : list form) (phi psi : form),
+        A ⊢ ∃ phi ->
+        P p A (∃ phi) ->
+        (phi :: [p[↑] | p ∈ A]) ⊢ psi[↑] -> P p (phi :: [p[↑] | p ∈ A]) psi[↑] -> P p A psi) ->
+       (forall (p : peirce) (A : list form) (phi : form), A ⊢ ⊥ -> P p A ⊥ -> P p A phi) ->
+       (forall (p : peirce) (A : list form) (phi : form), phi el A -> P p A phi) ->
+       (forall (p : peirce) (A : list form) (phi psi : form),
+        A ⊢ phi -> P p A phi -> A ⊢ psi -> P p A psi -> P p A (phi ∧ psi)) ->
+       (forall (p : peirce) (A : list form) (phi psi : form),
+        A ⊢ phi ∧ psi -> P p A (phi ∧ psi) -> P p A phi) ->
+       (forall (p : peirce) (A : list form) (phi psi : form),
+        A ⊢ phi ∧ psi -> P p A (phi ∧ psi) -> P p A psi) ->
+       (forall (p : peirce) (A : list form) (phi psi : form),
+        A ⊢ phi -> P p A phi -> P p A (phi ∨ psi)) ->
+       (forall (p : peirce) (A : list form) (phi psi : form),
+        A ⊢ psi -> P p A psi -> P p A (phi ∨ psi)) ->
+       (forall (p : peirce) (A : list form) (phi psi theta : form),
+        A ⊢ phi ∨ psi ->
+        P p A (phi ∨ psi) ->
+        (phi :: A) ⊢ theta ->
+        P p (phi :: A) theta -> (psi :: A) ⊢ theta -> P p (psi :: A) theta -> P p A theta) ->
+       (forall (A : list form) (phi psi : form), P class A (((phi --> psi) --> phi) --> phi)) ->
+       forall (p : peirce) (l : list form) (f14 : form), l ⊢ f14 -> P p l f14.
+Proof.
+  intros. specialize (prv_ind (fun ff => match ff with falsity_on => P | _ => fun _ _ _ => True end)). intros H'.
+  apply H' with (ff := falsity_on); clear H'. all: intros; try destruct ff; trivial. all: intuition eauto 2.
+Qed.
+
+(** ** Deduction *)
+
+Section Deduction.
+
+  Context { p' : peirce }.
+
+  Lemma up_sshift1 phi sigma :
+    phi[sshift 1][up (up sigma)] = phi[up sigma][sshift 1].
+  Proof.
+    rewrite !subst_comp. apply subst_ext. intros [|]; trivial. cbn. unfold funcomp.
+  Admitted.
+
+  Lemma rm_const_tm_subst (sigma : nat -> term') (t : term) :
+    (rm_const_tm t)[up sigma] = rm_const_tm t`[sigma >> embed_t].
+  Proof.
+    induction t; cbn; try destruct F.
+    - unfold funcomp. now destruct (sigma x) as [k|[]].
+    - reflexivity.
+    - cbn. rewrite (vec_inv2 v). cbn.
+  Admitted.
+
+  Lemma rm_const_fm_subst (sigma : nat -> term') (phi : form) :
+    (rm_const_fm phi)[sigma] = rm_const_fm phi[sigma >> embed_t].
+  Proof.
+    induction phi in sigma |- *; cbn; trivial; try destruct P.
+    - admit.
+    - admit.
+    - firstorder congruence.
+    - rewrite IHphi. f_equal. erewrite subst_ext. reflexivity. intros []; cbn; trivial.
+      unfold funcomp. cbn. unfold funcomp. now destruct (sigma n) as [x|[]].
+  Admitted.
+
+  Lemma rm_const_fm_shift (phi : form) :
+    (rm_const_fm phi)[↑] = rm_const_fm phi[↑].
+  Proof.
+    rewrite rm_const_fm_subst. erewrite subst_ext. reflexivity. now intros [].
+  Qed.
+
+  Lemma rm_const_prv {ff : falsity_flag} { p : peirce } A phi :
+    ZF' <<= A -> A ⊢ phi -> (map rm_const_fm A) ⊢ rm_const_fm phi.
+  Proof.
+    intros HA. apply (@prv_ind_full (fun p A phi => @prv _ _ _ p ([rm_const_fm phi | phi ∈ A]) (rm_const_fm phi))); cbn; intros.
+    - now apply II.
+    - now apply (IE H0).
+    - apply AllI. rewrite map_map in *. erewrite map_ext; try apply H0. apply rm_const_fm_shift.
+    - admit.
+    - admit.
+    - apply (ExE _ H0). rewrite map_map in *. rewrite rm_const_fm_shift.
+      erewrite map_ext; try apply H2. apply rm_const_fm_shift.
+    - now apply Exp.
+    - apply Ctx. now apply in_map.
+    - now apply CI.
+    - apply (CE1 H0).
+    - apply (CE2 H0).
+    - apply (DI1 _ H0).
+    - apply (DI2 _ H0).
+    - eapply DE; eauto.
+    - apply Pc.
+  Admitted.
+
+  Fixpoint rm_const_prv {ff : falsity_flag} { p : peirce } A phi :
+    ZF' <<= A -> A ⊢ phi -> (map rm_const_fm A) ⊢ rm_const_fm phi.
+  Proof.
+    intros HA []; cbn in *.
+    - cbn. apply II. change (([rm_const_fm p | p ∈ phi0::A0]) ⊢ rm_const_fm psi).
+      refine (rm_const_prv p (phi0::A0) _ _ _).
