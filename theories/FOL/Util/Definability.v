@@ -144,8 +144,6 @@ Proof.
   depelim v. reflexivity.
 Qed.
 
-Hint Rewrite map_hd map_tl : vecs.
-
 Lemma in_hd X n (v : vec X (S n)) :
   Vector.In (Vector.hd v) v.
 Proof.
@@ -240,17 +238,36 @@ Section Model.
     erewrite sat_comp, sat_ext. reflexivity. now intros [].
   Qed.
 
+  Lemma inductive_sat (rho : nat -> V) x :
+    (x .: rho) ⊨ is_inductive $0 -> M_inductive x.
+  Proof.
+    cbn. setoid_rewrite VIEQ. split.
+    - destruct H as [[y Hy] _]. enough (∅ = y) as -> by apply Hy.
+      apply M_ext; trivial; intros z Hz; exfalso; intuition. now apply M_eset in Hz.
+    - intros y [z Hz] % H. enough (σ y = z) as -> by apply Hz. apply M_ext; trivial.
+      + intros a Ha % sigma_el; trivial. now apply Hz.
+      + intros a Ha % Hz. now apply sigma_el.
+  Qed.
+
+  Lemma inductive_sat_om (rho : nat -> V) :
+    (ω .: rho) ⊨ is_inductive $0.
+  Proof.
+    cbn. setoid_rewrite VIEQ. split.
+    - exists ∅. split; try apply M_eset; trivial. now apply M_om1.
+    - intros d Hd. exists (σ d). split; try now apply M_om1. intros d'. now apply sigma_el.
+  Qed.
+
   Lemma rm_const_tm_sat (rho : nat -> V) (t : term) x :
     (x .: rho) ⊨ embed (rm_const_tm t) <-> x = eval rho t.
   Proof.
     induction t in x |- *; try destruct F; cbn; split; try intros ->;
-    autorewrite with vecs in *; try rewrite (vec_inv1 v); try rewrite (vec_inv2 v); cbn.
+    try rewrite (vec_inv1 v); try rewrite (vec_inv2 v); cbn.
     - now rewrite VIEQ.
     - now rewrite VIEQ.
-    - cbn in v. rewrite (vec_nil_eq (Vector.map (eval rho) v)).
+    - rewrite (vec_nil_eq (Vector.map (eval rho) v)).
       intros H. apply M_ext; trivial; intros y Hy; exfalso; intuition.
       now apply M_eset in Hy. 
-    - cbn in v. rewrite (vec_nil_eq (Vector.map (eval rho) v)).
+    - rewrite (vec_nil_eq (Vector.map (eval rho) v)).
       intros d. now apply M_eset.
     - intros (y & Hy & z & Hz & H).
       rewrite embed_sshift, sat_sshift1, IH in Hy; try apply in_hd. subst.
@@ -279,56 +296,28 @@ Section Model.
     - exists (eval rho (Vector.hd v)).
       rewrite embed_sshift, sat_sshift1, IH; try apply in_hd. split; trivial.
       intros d. now apply M_power.
-    - cbn in v. rewrite (vec_nil_eq (Vector.map (eval rho) v)). setoid_rewrite VIEQ.
-      intros [H1 H2]. apply M_ext; trivial.
-      + apply H2. split. exists ∅. split; try apply M_eset; trivial. now apply M_om1.
-        intros d Hd. exists (σ d). split; try now apply M_om1. intros d'. now apply sigma_el.
-      + apply M_om2; trivial. split.
-        * destruct H1 as [[d Hd] _]. enough (∅ = d) as -> by apply Hd.
-          apply M_ext; trivial; intros y Hy; exfalso; intuition. now apply M_eset in Hy.
-        * intros d [d' Hd] % H1. enough (σ d = d') as -> by apply Hd. apply M_ext; trivial.
-          -- intros a Ha % sigma_el; trivial. now apply Hd.
-          -- intros a Ha % Hd. now apply sigma_el.
-    - cbn in v. rewrite (vec_nil_eq (Vector.map (eval rho) v)). setoid_rewrite VIEQ. split.
-      + split. exists ∅. split; try apply M_eset; trivial. now apply M_om1.
-        intros d Hd. exists (σ d). split; try now apply M_om1. intros d'. now apply sigma_el.
-      + intros d Hd. apply M_om2; trivial. split.
-        * destruct Hd as [[y Hy] _]. enough (∅ = y) as -> by apply Hy.
-          apply M_ext; trivial; intros z Hz; exfalso; intuition. now apply M_eset in Hz.
-        * intros y [z Hz] % Hd. enough (σ y = z) as -> by apply Hz. apply M_ext; trivial.
-          -- intros a Ha % sigma_el; trivial. now apply Hz.
-          -- intros a Ha % Hz. now apply sigma_el.
+    - rewrite (vec_nil_eq (Vector.map (eval rho) v)). intros [H1 H2]. apply M_ext; trivial.
+      + apply H2. apply (inductive_sat_om rho).
+      + apply M_om2; trivial. apply inductive_sat with rho. apply H1.
+    - rewrite (vec_nil_eq (Vector.map (eval rho) v)). split.
+      + apply (inductive_sat_om rho).
+      + intros d Hd. apply M_om2; trivial. apply inductive_sat with rho. apply Hd.
   Qed.
 
   Lemma rm_const_sat (rho : nat -> V) (phi : form) :
     rho ⊨ phi <-> rho ⊨ embed (rm_const_fm phi).
   Proof.
-    induction phi in rho |- *; try destruct P; try destruct b0; try destruct q; cbn.
-    1,4-6: intuition.
-    - split.
-      + intros H. exists (eval rho (Vector.hd t)). autorewrite with vecs in *. split.
-        * now apply rm_const_tm_sat.
-        * exists (eval rho (Vector.hd (Vector.tl t))). split.
-          -- rewrite embed_subst. apply sat_comp. rewrite sat_ext.
-             apply rm_const_tm_sat. reflexivity. intros []; cbn; reflexivity.
-          -- rewrite vec_inv2 in H. now autorewrite with vecs in H.
-      + intros (x & Hx & y & Hy & H). rewrite vec_inv2. autorewrite with vecs in *.
-        apply rm_const_tm_sat in Hx as <-.
-        erewrite embed_subst, sat_comp, sat_ext in Hy.
-        eapply (rm_const_tm_sat ) with (x:=y) in Hy as <-; trivial. now intros [].
-    
-    - split.
-      + intros H. exists (eval rho (Vector.hd t)). autorewrite with vecs in *. split.
-        * now apply rm_const_tm_sat.
-        * exists (eval rho (Vector.hd (Vector.tl t))). split.
-          -- rewrite embed_subst. apply sat_comp. rewrite sat_ext.
-             apply rm_const_tm_sat. reflexivity. intros []; cbn; reflexivity.
-          -- rewrite vec_inv2 in H. now autorewrite with vecs in H.
-      + intros (x & Hx & y & Hy & H). rewrite vec_inv2. autorewrite with vecs in *.
-        apply rm_const_tm_sat in Hx as <-.
-        erewrite embed_subst, sat_comp, sat_ext in Hy.
-        eapply (rm_const_tm_sat ) with (x:=y) in Hy as <-; trivial. now intros [].
-    
+    induction phi in rho |- *; try destruct P; try destruct b0; try destruct q; cbn. 1,4-6: intuition.
+    - rewrite (vec_inv2 t). cbn. split.
+      + intros H. exists (eval rho (Vector.hd t)). rewrite rm_const_tm_sat. split; trivial.
+        exists (eval rho (Vector.hd (Vector.tl t))). now rewrite embed_sshift, sat_sshift1, rm_const_tm_sat.
+      + intros (x & Hx & y & Hy & H). apply rm_const_tm_sat in Hx as <-.
+        rewrite embed_sshift, sat_sshift1, rm_const_tm_sat in Hy. now subst.
+    - rewrite (vec_inv2 t). cbn. split.
+      + intros H. exists (eval rho (Vector.hd t)). rewrite rm_const_tm_sat. split; trivial.
+        exists (eval rho (Vector.hd (Vector.tl t))). now rewrite embed_sshift, sat_sshift1, rm_const_tm_sat.
+      + intros (x & Hx & y & Hy & H). apply rm_const_tm_sat in Hx as <-.
+        rewrite embed_sshift, sat_sshift1, rm_const_tm_sat in Hy. now subst.
     - split; intros; intuition.
     - firstorder eauto.
   Qed.
