@@ -92,10 +92,10 @@ Notation "x ≡ y" := (@i_atom _ _ _ _ equal (Vector.cons x (Vector.cons y Vecto
 Notation "x ⊆ y" := (forall z, z ∈ x -> z ∈ y) (at level 34) : sem.
 
 Notation "∅" := (@i_func ZF_func_sig ZF_pred_sig _ _ eset Vector.nil) : sem.
-Notation "'ω'" := (@i_func _ _ _ _ om Vector.nil) : sem.
-Notation "{ x ; y }" := (@i_func _ _ _ _ pair (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : sem.
-Notation "⋃ x" := (@i_func _ _ _ _ union (Vector.cons x Vector.nil)) (at level 32) : sem.
-Notation "'PP' x" := (@i_func _ _ _ _ power (Vector.cons x Vector.nil)) (at level 31) : sem.
+Notation "'ω'" := (@i_func ZF_func_sig _ _ _ om Vector.nil) : sem.
+Notation "{ x ; y }" := (@i_func ZF_func_sig _ _ _ pair (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : sem.
+Notation "⋃ x" := (@i_func ZF_func_sig _ _ _ union (Vector.cons x Vector.nil)) (at level 32) : sem.
+Notation "'PP' x" := (@i_func ZF_func_sig _ _ _ power (Vector.cons x Vector.nil)) (at level 31) : sem.
 
 Notation "x ∪ y" := (⋃ {x; y}) (at level 32) : sem.
 Notation "'σ' x" := (x ∪ {x; x}) (at level 32) : sem.
