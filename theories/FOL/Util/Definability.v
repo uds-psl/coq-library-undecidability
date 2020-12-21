@@ -331,6 +331,8 @@ Section Model.
 End Model.
 
 
+
+
 Lemma prv_ind_full :
   forall P : peirce -> list (form falsity_on) -> (form falsity_on) -> Prop,
        (forall (p : peirce) (A : list form) (phi psi : form),
@@ -377,11 +379,20 @@ Section Deduction.
 
   Context { p' : peirce }.
 
-  Lemma up_sshift1 phi sigma :
+  Lemma up_sshift1 (phi : form') sigma :
     phi[sshift 1][up (up sigma)] = phi[up sigma][sshift 1].
   Proof.
-    rewrite !subst_comp. apply subst_ext. intros [|]; trivial. cbn. unfold funcomp.
-  Admitted.
+    rewrite !subst_comp. apply subst_ext. intros []; trivial.
+    cbn. unfold funcomp. now destruct (sigma n) as [|[]].
+  Qed.
+
+  Lemma up_sshift2 (phi : form') sigma :
+    phi[sshift 2][up (up (up sigma))] = phi[up sigma][sshift 2].
+  Proof.
+    rewrite !subst_comp. apply subst_ext. intros [|[]]; trivial.
+    cbn. unfold funcomp. now destruct (sigma 0) as [|[]].
+    cbn. unfold funcomp. now destruct sigma as [|[]].
+  Qed.
 
   Lemma rm_const_tm_subst (sigma : nat -> term') (t : term) :
     (rm_const_tm t)[up sigma] = rm_const_tm t`[sigma >> embed_t].
@@ -389,19 +400,22 @@ Section Deduction.
     induction t; cbn; try destruct F.
     - unfold funcomp. now destruct (sigma x) as [k|[]].
     - reflexivity.
-    - cbn. rewrite (vec_inv2 v). cbn.
-  Admitted.
+    - cbn. rewrite (vec_inv2 v). cbn. rewrite up_sshift2, up_sshift1, !IH; trivial. apply in_hd_tl. apply in_hd.
+    - cbn. rewrite (vec_inv1 v). cbn. rewrite up_sshift1, IH; trivial. apply in_hd.
+    - cbn. rewrite (vec_inv1 v). cbn. rewrite up_sshift1, IH; trivial. apply in_hd.
+    - reflexivity.
+  Qed.
 
   Lemma rm_const_fm_subst (sigma : nat -> term') (phi : form) :
     (rm_const_fm phi)[sigma] = rm_const_fm phi[sigma >> embed_t].
   Proof.
     induction phi in sigma |- *; cbn; trivial; try destruct P.
-    - admit.
-    - admit.
+    - rewrite (vec_inv2 t). cbn. now rewrite up_sshift1, !rm_const_tm_subst.
+    - rewrite (vec_inv2 t). cbn. now rewrite up_sshift1, !rm_const_tm_subst.
     - firstorder congruence.
-    - rewrite IHphi. f_equal. erewrite subst_ext. reflexivity. intros []; cbn; trivial.
+    - rewrite IHphi. f_equal. erewrite subst_ext. reflexivity. intros []; trivial.
       unfold funcomp. cbn. unfold funcomp. now destruct (sigma n) as [x|[]].
-  Admitted.
+  Qed.
 
   Lemma rm_const_fm_shift (phi : form) :
     (rm_const_fm phi)[↑] = rm_const_fm phi[↑].
@@ -409,31 +423,63 @@ Section Deduction.
     rewrite rm_const_fm_subst. erewrite subst_ext. reflexivity. now intros [].
   Qed.
 
-  Lemma rm_const_prv {ff : falsity_flag} { p : peirce } A phi :
-    ZF' <<= A -> A ⊢ phi -> (map rm_const_fm A) ⊢ rm_const_fm phi.
+  Lemma rm_const_tm_prv { p : peirce } A t :
+    ZF' <<= A -> (map rm_const_fm A) ⊢ ∃ rm_const_tm t.
   Proof.
-    intros HA. apply (@prv_ind_full (fun p A phi => @prv _ _ _ p ([rm_const_fm phi | phi ∈ A]) (rm_const_fm phi))); cbn; intros.
-    - now apply II.
-    - now apply (IE H0).
-    - apply AllI. rewrite map_map in *. erewrite map_ext; try apply H0. apply rm_const_fm_shift.
-    - admit.
-    - admit.
-    - apply (ExE _ H0). rewrite map_map in *. rewrite rm_const_fm_shift.
-      erewrite map_ext; try apply H2. apply rm_const_fm_shift.
-    - now apply Exp.
-    - apply Ctx. now apply in_map.
-    - now apply CI.
-    - apply (CE1 H0).
-    - apply (CE2 H0).
-    - apply (DI1 _ H0).
-    - apply (DI2 _ H0).
-    - eapply DE; eauto.
-    - apply Pc.
   Admitted.
 
-  Fixpoint rm_const_prv {ff : falsity_flag} { p : peirce } A phi :
-    ZF' <<= A -> A ⊢ phi -> (map rm_const_fm A) ⊢ rm_const_fm phi.
+  Lemma ZF_subst sigma :
+    map (subst_form sigma) ZF' = ZF'.
   Proof.
-    intros HA []; cbn in *.
-    - cbn. apply II. change (([rm_const_fm p | p ∈ phi0::A0]) ⊢ rm_const_fm psi).
-      refine (rm_const_prv p (phi0::A0) _ _ _).
+    reflexivity.
+  Qed.
+
+  Lemma ZF_sub A sigma :
+    ZF' <<= A -> ZF' <<= map (subst_form sigma) A.
+  Proof.
+    rewrite <- ZF_subst at 2. apply incl_map.
+  Qed.
+
+  Lemma ex_equiv { p : peirce } (phi psi : form') A :
+    (forall B t, A <<= B -> B ⊢ phi[t..] <-> B ⊢ psi[t..]) -> (A ⊢ ∃ phi) <-> (A ⊢ ∃ psi).
+  Proof.
+    intros H1. split; intros H2.
+    - apply (ExE _ H2). edestruct (nameless_equiv_ex A) as [x ->]. apply ExI with x. apply H1; auto.
+    - apply (ExE _ H2). edestruct (nameless_equiv_ex A) as [x ->]. apply ExI with x. apply H1; auto.
+  Qed.
+
+  Lemma rm_const_tm_fm { p : peirce } A phi t x :
+    A ⊢ (rm_const_tm t)[x..] -> A ⊢ (rm_const_fm phi)[x..] <-> A ⊢ rm_const_fm phi[t..].
+  Proof.
+    induction phi; cbn; intros Hx; try destruct P.
+    - tauto.
+    - cbn. apply ex_equiv. cbn.
+  Admitted.
+
+  Lemma rm_const_prv { p : peirce } A phi :
+    A ⊢ phi -> ZF' <<= A -> (map rm_const_fm A) ⊢ rm_const_fm phi.
+  Proof.
+    apply (@prv_ind_full (fun p A phi => ZF' <<= A -> @prv _ _ _ p ([rm_const_fm phi | phi ∈ A]) (rm_const_fm phi))); cbn; intros.
+    - apply II. eauto.
+    - eapply IE; eauto.
+    - apply AllI. rewrite map_map in *. erewrite map_ext; try now apply H0, ZF_sub. apply rm_const_fm_shift.
+    - pose proof (rm_const_tm_prv t H1). apply (ExE _ H2).
+      edestruct (nameless_equiv_ex ([rm_const_fm p | p ∈ A0])) as [x ->].
+      specialize (H0 H1). apply (AllE x) in H0. apply rm_const_tm_fm with (x0:=x); auto. apply (Weak H0). auto.
+    - pose proof (rm_const_tm_prv t H1). apply (ExE _ H2).
+      edestruct (nameless_equiv_ex ([rm_const_fm p | p ∈ A0])) as [x ->].
+      specialize (H0 H1). apply (ExI x). apply rm_const_tm_fm with (t0:=t); auto. apply (Weak H0). auto.
+    - apply (ExE _ (H0 H3)). rewrite map_map in *. rewrite rm_const_fm_shift.
+      erewrite map_ext; try now apply H2, incl_tl, ZF_sub. apply rm_const_fm_shift.
+    - apply Exp. eauto.
+    - apply Ctx. now apply in_map.
+    - apply CI; eauto.
+    - eapply CE1; eauto.
+    - eapply CE2; eauto.
+    - eapply DI1; eauto.
+    - eapply DI2; eauto.
+    - eapply DE; eauto.
+    - apply Pc.
+  Qed.
+
+End Deduction.
