@@ -74,6 +74,44 @@ Section ND_def.
   Proof.
   Admitted.
 
+  Hint Constructors prv : core.
+
+  Lemma imps T phi psi :
+    T ⊢ phi --> psi <-> (phi :: T) ⊢ psi.
+  Proof.
+    split; try apply II.
+    intros H. apply IE with phi; auto. apply (Weak H). auto.
+  Qed.
+
+  Lemma CE T phi psi :
+    T ⊢ phi ∧ psi -> T ⊢ phi /\ T ⊢ psi.
+  Proof.
+    intros H. split.
+    - apply (CE1 H).
+    - apply (CE2 H).
+  Qed.
+
+  Lemma Cut_ctx A B phi :
+    A ⊢ phi -> (forall psi, psi el A -> B ⊢ psi) -> B ⊢ phi.
+  Proof.
+    induction 1 in B |- *; intros HB.
+    - apply II, IHprv. admit.
+    - eauto.
+    - apply AllI, IHprv. admit.
+    - eauto.
+    - eauto.
+    - admit.
+    - eauto.
+    - eauto.
+    - eauto.
+    - eauto.
+    - eauto.
+    - eauto.
+    - eauto.
+    - admit.
+    - eauto.
+  Admitted.
+
   Definition tprv (T : form -> Prop) phi :=
     exists A, (forall psi, psi el A -> T psi) /\ A ⊢ phi.
     

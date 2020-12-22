@@ -48,7 +48,7 @@ Arguments Vector.nil {_}, _.
 Arguments Vector.cons {_} _ {_} _, _ _ _ _.
 
 Notation "x ∈ y" := (atom _ ZF_pred_sig elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 35).
-Notation "x ≡ y" := (atom _ ZF_pred_sig equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35).
+Notation "x ≡ y" := (atom (Σ_preds := ZF_pred_sig) equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35).
 
 Notation "∅" := (func ZF_func_sig eset Vector.nil).
 Notation "'ω'" := (func ZF_func_sig om Vector.nil).

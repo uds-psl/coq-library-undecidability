@@ -47,31 +47,11 @@ Ltac use_exists H x :=
 
 
 
-(** ** General ND lemmas *)
+(** ** Simple derivations in ZF *)
 
 Section ZF.
 
 Context { p : peirce }.
-
-Lemma imps T phi psi :
-  T ⊢ phi --> psi <-> (phi :: T) ⊢ psi.
-Proof.
-  split; try apply II.
-  intros H. apply IE with phi; auto. apply (Weak H). auto.
-Qed.
-
-Lemma CE T phi psi :
-  T ⊢ phi ∧ psi -> T ⊢ phi /\ T ⊢ psi.
-Proof.
-  intros H. split.
-  - apply (CE1 H).
-  - apply (CE2 H).
-Qed.
-
-
-
-
-(** ** Simple derivations in ZF *)
 
 Close Scope sem.
 
@@ -422,7 +402,7 @@ Proof.
   intros HT. induction n; cbn.
   - apply II, Exp. eapply IE. apply ZF_eset'. all: auto.
   - apply bunion_use; trivial.
-    + rewrite !imps in *. apply ZF_bunion_el1; auto.
+    + rewrite !imps. rewrite !imps in IHn. apply ZF_bunion_el1; auto.
     + apply II. apply ZF_bunion_el'. auto.
       apply DI1. eapply ZF_eq_elem; auto.
       apply ZF_refl'. auto.

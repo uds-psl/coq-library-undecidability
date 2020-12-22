@@ -4,6 +4,7 @@ From Undecidability Require Import FOL.Util.FullTarski FOL.Util.Syntax FOL.Util.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 Local Set Implicit Arguments.
+Local Unset Strict Implicit.
 
 Local Notation vec := Vector.t.
 Arguments Vector.nil {_}, _.
@@ -54,6 +55,9 @@ Fixpoint embed {ff'} (phi : form sig_empty ZF_pred_sig _ ff') : form ff' :=
   | quant q phi => quant q (embed phi)
   | ⊥ => ⊥
   end.
+
+Notation "x ∈' y" := (atom sig_empty ZF_pred_sig elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 35).
+Notation "x ≡' y" := (atom sig_empty ZF_pred_sig equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35).
 
 
 
@@ -332,52 +336,110 @@ End Model.
 
 
 
+(** ** Useful induction principles *)
 
 Lemma prv_ind_full :
   forall P : peirce -> list (form falsity_on) -> (form falsity_on) -> Prop,
-       (forall (p : peirce) (A : list form) (phi psi : form),
+    (forall (p : peirce) (A : list form) (phi psi : form),
         (phi :: A) ⊢ psi -> P p (phi :: A) psi -> P p A (phi --> psi)) ->
-       (forall (p : peirce) (A : list form) (phi psi : form),
+    (forall (p : peirce) (A : list form) (phi psi : form),
         A ⊢ phi --> psi -> P p A (phi --> psi) -> A ⊢ phi -> P p A phi -> P p A psi) ->
-       (forall (p : peirce) (A : list form) (phi : form),
+    (forall (p : peirce) (A : list form) (phi : form),
         (map (subst_form ↑) A) ⊢ phi -> P p (map (subst_form ↑) A) phi -> P p A (∀ phi)) ->
-       (forall (p : peirce) (A : list form) (t : term) (phi : form),
+    (forall (p : peirce) (A : list form) (t : term) (phi : form),
         A ⊢ ∀ phi -> P p A (∀ phi) -> P p A phi[t..]) ->
-       (forall (p : peirce) (A : list form) (t : term) (phi : form),
+    (forall (p : peirce) (A : list form) (t : term) (phi : form),
         A ⊢ phi[t..] -> P p A phi[t..] -> P p A (∃ phi)) ->
-       (forall (p : peirce) (A : list form) (phi psi : form),
+    (forall (p : peirce) (A : list form) (phi psi : form),
         A ⊢ ∃ phi ->
-        P p A (∃ phi) ->
-        (phi :: [p[↑] | p ∈ A]) ⊢ psi[↑] -> P p (phi :: [p[↑] | p ∈ A]) psi[↑] -> P p A psi) ->
-       (forall (p : peirce) (A : list form) (phi : form), A ⊢ ⊥ -> P p A ⊥ -> P p A phi) ->
-       (forall (p : peirce) (A : list form) (phi : form), phi el A -> P p A phi) ->
-       (forall (p : peirce) (A : list form) (phi psi : form),
+              P p A (∃ phi) ->
+              (phi :: [p[↑] | p ∈ A]) ⊢ psi[↑] -> P p (phi :: [p[↑] | p ∈ A]) psi[↑] -> P p A psi) ->
+    (forall (p : peirce) (A : list form) (phi : form), A ⊢ ⊥ -> P p A ⊥ -> P p A phi) ->
+    (forall (p : peirce) (A : list form) (phi : form), phi el A -> P p A phi) ->
+    (forall (p : peirce) (A : list form) (phi psi : form),
         A ⊢ phi -> P p A phi -> A ⊢ psi -> P p A psi -> P p A (phi ∧ psi)) ->
-       (forall (p : peirce) (A : list form) (phi psi : form),
+    (forall (p : peirce) (A : list form) (phi psi : form),
         A ⊢ phi ∧ psi -> P p A (phi ∧ psi) -> P p A phi) ->
-       (forall (p : peirce) (A : list form) (phi psi : form),
+    (forall (p : peirce) (A : list form) (phi psi : form),
         A ⊢ phi ∧ psi -> P p A (phi ∧ psi) -> P p A psi) ->
-       (forall (p : peirce) (A : list form) (phi psi : form),
+    (forall (p : peirce) (A : list form) (phi psi : form),
         A ⊢ phi -> P p A phi -> P p A (phi ∨ psi)) ->
-       (forall (p : peirce) (A : list form) (phi psi : form),
+    (forall (p : peirce) (A : list form) (phi psi : form),
         A ⊢ psi -> P p A psi -> P p A (phi ∨ psi)) ->
-       (forall (p : peirce) (A : list form) (phi psi theta : form),
+    (forall (p : peirce) (A : list form) (phi psi theta : form),
         A ⊢ phi ∨ psi ->
         P p A (phi ∨ psi) ->
         (phi :: A) ⊢ theta ->
         P p (phi :: A) theta -> (psi :: A) ⊢ theta -> P p (psi :: A) theta -> P p A theta) ->
-       (forall (A : list form) (phi psi : form), P class A (((phi --> psi) --> phi) --> phi)) ->
-       forall (p : peirce) (l : list form) (f14 : form), l ⊢ f14 -> P p l f14.
+    (forall (A : list form) (phi psi : form), P class A (((phi --> psi) --> phi) --> phi)) ->
+    forall (p : peirce) (l : list form) (f14 : form), l ⊢ f14 -> P p l f14.
 Proof.
   intros. specialize (prv_ind (fun ff => match ff with falsity_on => P | _ => fun _ _ _ => True end)). intros H'.
   apply H' with (ff := falsity_on); clear H'. all: intros; try destruct ff; trivial. all: intuition eauto 2.
 Qed.
 
+Lemma form_ind_subst :
+  forall P : form -> Prop,
+    P ⊥ ->
+    (forall (P0 : ZF_pred_sig) (t : vec term (ar_preds P0)), P (atom P0 t)) ->
+    (forall (b0 : binop) (f1 : form), P f1 -> forall f2 : form, P f2 -> P (bin b0 f1 f2)) ->
+    (forall (q : quantop) (f2 : form), (forall sigma, P f2[sigma]) -> P (quant q f2)) ->
+    forall (f4 : form), P f4.
+Proof.
+Admitted.
+
+
+
+(** ** Minimal axiomatisation *)
+
+Definition ax_ext' :=
+  ∀ ∀ sub' $1 $0 --> sub' $0 $1 --> $1 ≡' $0.
+
+Definition ax_eset' :=
+  ∃ is_eset $0.
+
+Definition ax_pair' :=
+  ∀ ∀ ∃ is_pair $2 $1 $0.
+
+Definition ax_union' :=
+  ∀ ∃ is_union $1 $0.
+
+Definition ax_power' :=
+  ∀ ∃ is_power $1 $0.
+
+Definition ax_om' :=
+  ∃ is_om $0.
+
+Definition ax_refl' :=
+  ∀ $0 ≡' $0.
+
+Definition ax_sym' :=
+  ∀ ∀ $1 ≡' $0 --> $0 ≡' $1.
+
+Definition ax_trans' :=
+  ∀ ∀ ∀ $2 ≡' $1 --> $1 ≡' $0 --> $2 ≡' $0.
+
+Definition ax_eq_elem' :=
+  ∀ ∀ ∀ ∀ $3 ≡' $1 --> $2 ≡' $0 --> $3 ∈' $2 --> $1 ∈' $0.
+
+Definition minZF' :=
+  ax_ext' :: ax_eset' :: ax_pair' :: ax_union' :: ax_power' :: ax_om' :: nil.
+
+Definition minZFeq' :=
+  ax_refl' :: ax_sym' :: ax_trans' :: ax_eq_elem' :: minZF'.
+
+Lemma prv_to_min { p : peirce } phi :
+  phi el minZFeq' -> (map rm_const_fm ZFeq') ⊢ phi.
+Proof.
+Admitted.
+
+
+
 (** ** Deduction *)
 
-Section Deduction.
+From Undecidability Require Import FOL.Reductions.PCPb_to_ZFD.
 
-  Context { p' : peirce }.
+Section Deduction.
 
   Lemma up_sshift1 (phi : form') sigma :
     phi[sshift 1][up (up sigma)] = phi[up sigma][sshift 1].
@@ -423,21 +485,57 @@ Section Deduction.
     rewrite rm_const_fm_subst. erewrite subst_ext. reflexivity. now intros [].
   Qed.
 
-  Lemma rm_const_tm_prv { p : peirce } A t :
-    ZF' <<= A -> (map rm_const_fm A) ⊢ ∃ rm_const_tm t.
+  Lemma rm_const_tm_prv { p : peirce } t :
+    minZFeq' ⊢ ∃ rm_const_tm t.
   Proof.
   Admitted.
 
+  Lemma rm_const_tm_prv' { p : peirce } A t :
+    ZFeq' <<= A -> (map rm_const_fm A) ⊢ ∃ rm_const_tm t.
+  Proof.
+    intros H. apply (Cut_ctx (rm_const_tm_prv t)).
+    intros psi HP % prv_to_min. apply (Weak HP). now apply incl_map.
+  Qed.
+
   Lemma ZF_subst sigma :
-    map (subst_form sigma) ZF' = ZF'.
+    map (subst_form sigma) ZFeq' = ZFeq'.
   Proof.
     reflexivity.
   Qed.
 
   Lemma ZF_sub A sigma :
-    ZF' <<= A -> ZF' <<= map (subst_form sigma) A.
+    ZFeq' <<= A -> ZFeq' <<= map (subst_form sigma) A.
   Proof.
     rewrite <- ZF_subst at 2. apply incl_map.
+  Qed.
+
+  Lemma and_equiv { p : peirce } (phi psi phi' psi' : form') A :
+    (A ⊢ phi <-> A ⊢ phi') -> (A ⊢ psi <-> A ⊢ psi') -> (A ⊢ phi ∧ psi) <-> (A ⊢ phi' ∧ psi').
+  Proof.
+    intros H1 H2. split; intros H % CE; apply CI; intuition.
+  Qed.
+
+  Lemma or_equiv { p : peirce } (phi psi phi' psi' : form') A :
+    (forall B, A <<= B -> B ⊢ phi <-> B ⊢ phi') -> (forall B, A <<= B -> B ⊢ psi <-> B ⊢ psi') -> (A ⊢ phi ∨ psi) <-> (A ⊢ phi' ∨ psi').
+  Proof.
+    intros H1 H2. split; intros H; apply (DE H).
+    1,3: apply DI1; apply H1; auto.
+    1,2: apply DI2; apply H2; auto.
+  Qed.
+
+  Lemma impl_equiv { p : peirce } (phi psi phi' psi' : form') A :
+    (forall B, A <<= B -> B ⊢ phi <-> B ⊢ phi') -> (forall B, A <<= B -> B ⊢ psi <-> B ⊢ psi') -> (A ⊢ phi --> psi) <-> (A ⊢ phi' --> psi').
+  Proof.
+    intros H1 H2. split; intros H; apply II.
+    - apply H2; auto. eapply IE. apply (Weak H). auto. apply H1; auto.
+    - apply H2; auto. eapply IE. apply (Weak H). auto. apply H1; auto.
+  Qed.
+
+  Lemma all_equiv { p : peirce } (phi psi : form') A :
+    (forall t, A ⊢ phi[t..] <-> A ⊢ psi[t..]) -> (A ⊢ ∀ phi) <-> (A ⊢ ∀ psi).
+  Proof.
+    intros H1. split; intros H2; apply AllI.
+    all: edestruct (nameless_equiv_all A) as [x ->]; apply H1; auto.
   Qed.
 
   Lemma ex_equiv { p : peirce } (phi psi : form') A :
@@ -448,27 +546,74 @@ Section Deduction.
     - apply (ExE _ H2). edestruct (nameless_equiv_ex A) as [x ->]. apply ExI with x. apply H1; auto.
   Qed.
 
-  Lemma rm_const_tm_fm { p : peirce } A phi t x :
-    A ⊢ (rm_const_tm t)[x..] -> A ⊢ (rm_const_fm phi)[x..] <-> A ⊢ rm_const_fm phi[t..].
+  Lemma rm_const_tm_equiv { p : peirce } A t (x a : term') :
+    A ⊢ (rm_const_tm t)[x..] -> A ⊢ a ≡' x <-> A ⊢ (rm_const_tm t)[a..].
   Proof.
-    induction phi; cbn; intros Hx; try destruct P.
-    - tauto.
-    - cbn. apply ex_equiv. cbn.
   Admitted.
 
-  Lemma rm_const_prv { p : peirce } A phi :
-    A ⊢ phi -> ZF' <<= A -> (map rm_const_fm A) ⊢ rm_const_fm phi.
+  Lemma rm_const_tm_swap { p : peirce } A t s x a :
+    A ⊢ (rm_const_tm t)[x..] ->
+    A ⊢ (rm_const_tm s)[a.:x..] <-> A ⊢ (rm_const_tm s`[t..])[a..].
   Proof.
-    apply (@prv_ind_full (fun p A phi => ZF' <<= A -> @prv _ _ _ p ([rm_const_fm phi | phi ∈ A]) (rm_const_fm phi))); cbn; intros.
+    induction s; cbn; try destruct F.
+    - destruct x0; cbn; try tauto.
+  Admitted.
+
+  Lemma rm_const_fm_swap { p : peirce } A phi t x :
+    A ⊢ (rm_const_tm t)[x..] -> A ⊢ (rm_const_fm phi)[x..] <-> A ⊢ rm_const_fm phi[t..].
+  Proof.
+    revert A. induction phi using form_ind_subst; cbn; intros A Hx.
+    all: try destruct P0; try destruct b0; try destruct q; try tauto.
+    - rewrite (vec_inv2 t0). cbn. apply ex_equiv. cbn. intros B a HB. apply and_equiv.
+      + rewrite subst_comp. erewrite subst_ext.
+        * eapply rm_const_tm_swap. now apply (Weak Hx).
+        * intros [|[|]]; trivial. now destruct x as [|[]].
+      + apply ex_equiv. cbn. intros C a' HC. apply and_equiv; try tauto.
+        rewrite !subst_comp. erewrite subst_ext. setoid_rewrite subst_ext at 2.
+        * eapply rm_const_tm_swap. apply (Weak Hx). firstorder.
+        * intros [|[]]; reflexivity.
+        * intros [|[]]; trivial. now destruct x as [|[]].
+    - rewrite (vec_inv2 t0). cbn. apply ex_equiv. cbn. intros B a HB. apply and_equiv.
+      + rewrite subst_comp. erewrite subst_ext.
+        * eapply rm_const_tm_swap. now apply (Weak Hx).
+        * intros [|[|]]; trivial. now destruct x as [|[]].
+      + apply ex_equiv. cbn. intros C a' HC. apply and_equiv; try tauto.
+        rewrite !subst_comp. erewrite subst_ext. setoid_rewrite subst_ext at 2.
+        * eapply rm_const_tm_swap. apply (Weak Hx). firstorder.
+        * intros [|[]]; reflexivity.
+        * intros [|[]]; trivial. now destruct x as [|[]].
+    - apply and_equiv; intuition.
+    - apply or_equiv; intros B HB.
+      + apply IHphi1. now apply (Weak Hx).
+      + apply IHphi2. now apply (Weak Hx).
+    - apply impl_equiv; intros B HB.
+      + apply IHphi1. now apply (Weak Hx).
+      + apply IHphi2. now apply (Weak Hx).
+    - apply all_equiv. intros [n|[]]. destruct x as [m|[]].
+      assert (A ⊢ (rm_const_fm phi[$(S n)..])[$m..] <-> A ⊢ (rm_const_fm phi[$(S n)..][t..])) by now apply H, (Weak Hx).
+      erewrite subst_comp, subst_ext, <- subst_comp, (rm_const_fm_subst ($(S n)..)). setoid_rewrite subst_ext at 2.
+      rewrite H0. erewrite rm_const_fm_subst, !subst_comp, subst_ext. reflexivity.
+      all: intros [|[]]; cbn; try reflexivity. rewrite subst_term_comp, subst_term_id; reflexivity.
+    - apply ex_equiv. intros B s HB. destruct s as [n|[]], x as [m|[]].
+      assert (B ⊢ (rm_const_fm phi[$(S n)..])[$m..] <-> B ⊢ (rm_const_fm phi[$(S n)..][t..])) by now apply H, (Weak Hx).
+      erewrite subst_comp, subst_ext, <- subst_comp, (rm_const_fm_subst ($(S n)..)). setoid_rewrite subst_ext at 2.
+      rewrite H0. erewrite rm_const_fm_subst, !subst_comp, subst_ext. reflexivity.
+      all: intros [|[]]; cbn; try reflexivity. rewrite subst_term_comp, subst_term_id; reflexivity.
+  Qed. 
+
+  Lemma rm_const_prv { p : peirce } A phi :
+    A ⊢ phi -> ZFeq' <<= A -> (map rm_const_fm A) ⊢ rm_const_fm phi.
+  Proof.
+    apply (@prv_ind_full (fun p A phi => ZFeq' <<= A -> @prv _ _ _ p ([rm_const_fm phi | phi ∈ A]) (rm_const_fm phi))); cbn; intros.
     - apply II. eauto.
     - eapply IE; eauto.
     - apply AllI. rewrite map_map in *. erewrite map_ext; try now apply H0, ZF_sub. apply rm_const_fm_shift.
-    - pose proof (rm_const_tm_prv t H1). apply (ExE _ H2).
+    - pose proof (rm_const_tm_prv' t H1). apply (ExE _ H2).
       edestruct (nameless_equiv_ex ([rm_const_fm p | p ∈ A0])) as [x ->].
-      specialize (H0 H1). apply (AllE x) in H0. apply rm_const_tm_fm with (x0:=x); auto. apply (Weak H0). auto.
-    - pose proof (rm_const_tm_prv t H1). apply (ExE _ H2).
+      specialize (H0 H1). apply (AllE x) in H0. apply rm_const_fm_swap with (x0:=x); auto. apply (Weak H0). auto.
+    - pose proof (rm_const_tm_prv' t H1). apply (ExE _ H2).
       edestruct (nameless_equiv_ex ([rm_const_fm p | p ∈ A0])) as [x ->].
-      specialize (H0 H1). apply (ExI x). apply rm_const_tm_fm with (t0:=t); auto. apply (Weak H0). auto.
+      specialize (H0 H1). apply (ExI x). apply rm_const_fm_swap with (t0:=t); auto. apply (Weak H0). auto.
     - apply (ExE _ (H0 H3)). rewrite map_map in *. rewrite rm_const_fm_shift.
       erewrite map_ext; try now apply H2, incl_tl, ZF_sub. apply rm_const_fm_shift.
     - apply Exp. eauto.
