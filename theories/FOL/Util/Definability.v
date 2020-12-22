@@ -380,7 +380,7 @@ Proof.
   apply H' with (ff := falsity_on); clear H'. all: intros; try destruct ff; trivial. all: intuition eauto 2.
 Qed.
 
-Lemma form_ind_subst :
+Lemma form_ind_subst { sig : funcs_signature } :
   forall P : form -> Prop,
     P ⊥ ->
     (forall (P0 : ZF_pred_sig) (t : vec term (ar_preds P0)), P (atom P0 t)) ->
@@ -445,28 +445,68 @@ Ltac prv_all' x :=
 Ltac use_exists' H x :=
   apply (ExE _ H); edestruct (@nameless_equiv_ex sig_empty) as [x ->]; cbn; subsimpl.
 
-Lemma minZF_refl { p : peirce } t :
+Lemma minZF_refl' { p : peirce } t :
   minZFeq' ⊢ t ≡' t.
 Proof.
   change (minZFeq' ⊢ ($0 ≡' $0)[t..]).
   apply AllE. apply Ctx. firstorder.
 Qed.
 
-Lemma minZF_refl' { p : peirce } A  t :
+Lemma minZF_refl { p : peirce } A t :
   minZFeq' <<= A -> A ⊢ t ≡' t.
 Proof.
-  apply Weak, minZF_refl.
+  apply Weak, minZF_refl'.
+Qed.
+
+Lemma minZF_sym { p : peirce } A x y :
+  minZFeq' <<= A -> A ⊢ x ≡' y -> A ⊢ y ≡' x.
+Proof.
+  intros HA H. assert (HS : A ⊢ ax_sym'). apply Ctx. firstorder.
+  apply (AllE x) in HS. cbn in HS. apply (AllE y) in HS. cbn in HS.
+  subsimpl_in HS. now apply (IE HS).
+Qed.
+
+Lemma minZF_trans { p : peirce } A x y z :
+  minZFeq' <<= A -> A ⊢ x ≡' y -> A ⊢ y ≡' z -> A ⊢ x ≡' z.
+Proof.
+  intros HA H1 H2. assert (HS : A ⊢ ax_trans'). apply Ctx. firstorder.
+  apply (AllE x) in HS. cbn in HS. apply (AllE y) in HS. cbn in HS. apply (AllE z) in HS. cbn in HS.
+  subsimpl_in HS. eapply IE. now apply (IE HS). assumption.
+Qed.
+
+Lemma minZF_elem' { p : peirce } x y u v :
+  minZFeq' ⊢ x ≡' u --> y ≡' v --> x ∈' y --> u ∈' v.
+Proof.
+  assert (minZFeq' ⊢ ax_eq_elem'). apply Ctx. firstorder.
+  apply (AllE x) in H. cbn in H. apply (AllE y) in H. cbn in H.
+  apply (AllE u) in H. cbn in H. apply (AllE v) in H. cbn in H.
+  subsimpl_in H. apply H.
+Qed.
+
+Lemma minZF_elem { p : peirce } A x y u v :
+  minZFeq' <<= A -> A ⊢ x ≡' u -> A ⊢ y ≡' v -> A ⊢ x ∈' y -> A ⊢ u ∈' v.
+Proof.
+  intros HA H1 H2 H3. eapply IE. eapply IE. eapply IE.
+  eapply Weak. eapply minZF_elem'. auto. all: eauto.
+Qed.
+
+Lemma minZF_ext { p : peirce } A x y :
+  minZFeq' <<= A -> A ⊢ sub' x y -> A ⊢ sub' y x -> A ⊢ x ≡' y.
+Proof.
+  intros HA H1 H2. assert (HS : A ⊢ ax_ext'). apply Ctx. firstorder.
+  apply (AllE x) in HS. cbn in HS. apply (AllE y) in HS. cbn in HS.
+  subsimpl_in HS. eapply IE. now apply (IE HS). assumption.
 Qed.
 
 Lemma prv_to_min' { p : peirce } phi :
   phi el ZFeq' -> minZFeq' ⊢ rm_const_fm phi.
 Proof.
   intros [<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[]]]]]]]]]]]]; cbn.
-  - prv_all' x. apply (ExI x). cbn. subsimpl. apply CI; try apply minZF_refl.
-    apply (ExI x). cbn. subsimpl. apply CI; apply minZF_refl.
+  - prv_all' x. apply (ExI x). cbn. subsimpl. apply CI; try apply minZF_refl'.
+    apply (ExI x). cbn. subsimpl. apply CI; apply minZF_refl'.
   - prv_all' x. prv_all' y. apply II. assert1 H. use_exists' H a. assert1 H'. apply CE2 in H'. use_exists' H' b.
-    apply (ExI y). cbn. subsimpl. apply CI; try apply minZF_refl'; auto.
-    apply (ExI x). cbn. subsimpl. apply CI; try apply minZF_refl'; auto. admit.
+    apply (ExI y). cbn. subsimpl. apply CI; try apply minZF_refl; auto.
+    apply (ExI x). cbn. subsimpl. apply CI; try apply minZF_refl; auto. admit.
   - admit.
   - admit.
   - admit.
@@ -540,7 +580,7 @@ Section Deduction.
     minZFeq' ⊢ ∃ rm_const_tm t.
   Proof.
     induction t; try destruct F; cbn.
-    - apply (ExI $x). cbn. apply minZF_refl.
+    - apply (ExI $x). cbn. apply minZF_refl'.
     - apply Ctx. firstorder.
     - rewrite (vec_inv2 v). cbn.
       assert (H1 : minZFeq' ⊢ ∃ rm_const_tm (Vector.hd v)) by apply IH, in_hd.
@@ -606,73 +646,116 @@ Section Deduction.
     - apply (ExE _ H2). edestruct (nameless_equiv_ex A) as [x ->]. apply ExI with x. apply H1; auto.
   Qed.
 
-  Lemma rm_const_tm_equiv { p : peirce } A t (x a : term') :
-    A ⊢ (rm_const_tm t)[x..] -> A ⊢ a ≡' x <-> A ⊢ (rm_const_tm t)[a..].
+  Lemma minZF_Leibniz_tm { p : peirce } A (t : term') x y :
+    minZFeq' <<= A -> A ⊢ x ≡' y -> A ⊢ t`[x..] ≡' t`[y..].
+  Proof.
+    intros HA H. destruct t as [[]|[]]; cbn; trivial. now apply minZF_refl.
+  Qed.
+
+  Lemma minZF_Leibniz { p : peirce } A (phi : form') x y :
+    minZFeq' <<= A -> A ⊢ x ≡' y -> A ⊢ phi[x..] <-> A ⊢ phi[y..].
+  Proof.
+    revert A. induction phi using form_ind_subst; cbn; intros A HA HXY; try tauto.
+    - destruct P0; rewrite (vec_inv2 t); cbn; split.
+      + apply minZF_elem; trivial; now apply minZF_Leibniz_tm.
+      + apply minZF_sym in HXY; trivial. apply minZF_elem; trivial; now apply minZF_Leibniz_tm.
+      + intros H. eapply minZF_trans; trivial. apply minZF_Leibniz_tm; trivial. eapply minZF_sym; eauto.
+        eapply minZF_trans; trivial. apply H. now apply minZF_Leibniz_tm.
+      + intros H. eapply minZF_trans; trivial. apply minZF_Leibniz_tm; eauto.
+        eapply minZF_trans; trivial. apply H. apply minZF_Leibniz_tm; trivial. now apply minZF_sym.
+    - destruct b0.
+      + apply and_equiv; intuition.
+      + apply or_equiv; intros B HB.
+        * apply IHphi1. now rewrite HA. now apply (Weak HXY).
+        * apply IHphi2. now rewrite HA. now apply (Weak HXY).
+      + apply impl_equiv; intros B HB.
+        * apply IHphi1. now rewrite HA. now apply (Weak HXY).
+        * apply IHphi2. now rewrite HA. now apply (Weak HXY).
+    - destruct x as [n|[]], y as [m|[]]. destruct q.
+      + apply all_equiv. intros [k|[]]. specialize (H ($(S k)..) A HA HXY).
+        erewrite !subst_comp, subst_ext, <- subst_comp. rewrite H.
+        erewrite !subst_comp, subst_ext. reflexivity. all: now intros [|[]]; cbn.
+      + apply ex_equiv. intros B [k|[]] HB. cbn. specialize (H ($(S k)..) B).
+        erewrite !subst_comp, subst_ext, <- subst_comp. rewrite H. 2: now rewrite HA. 2: now apply (Weak HXY).
+        erewrite !subst_comp, subst_ext. reflexivity. all: now intros [|[]]; cbn.
+  Qed.
+
+  Lemma rm_const_tm_sub { p : peirce } A t (x y : term') :
+    minZFeq' <<= A -> A ⊢ (rm_const_tm t)[x..] -> A ⊢ (rm_const_tm t)[y..] -> A ⊢ sub' x y.
   Proof.
   Admitted.
 
-  Lemma rm_const_tm_swap { p : peirce } A t s x a :
-    A ⊢ (rm_const_tm t)[x..] ->
-    A ⊢ (rm_const_tm s)[a.:x..] <-> A ⊢ (rm_const_tm s`[t..])[a..].
+  Lemma rm_const_tm_equiv { p : peirce } A t (x y : term') :
+    minZFeq' <<= A -> A ⊢ (rm_const_tm t)[x..] -> A ⊢ y ≡' x <-> A ⊢ (rm_const_tm t)[y..].
   Proof.
-    induction s in A, a, x |- *; cbn; try destruct F; cbn; intros Hx; try tauto.
+    intros HA Hx. split; intros H.
+    - eapply minZF_Leibniz; eauto.
+    - apply minZF_ext; trivial; eapply rm_const_tm_sub; eauto.
+  Qed.
+
+  Lemma rm_const_tm_swap { p : peirce } A t s x a :
+    minZFeq' <<= A -> A ⊢ (rm_const_tm t)[x..] -> A ⊢ (rm_const_tm s)[a.:x..] <-> A ⊢ (rm_const_tm s`[t..])[a..].
+  Proof.
+    induction s in A, a, x |- *; cbn; try destruct F; cbn; intros HA Hx; try tauto.
     - destruct x0; cbn; try tauto. now apply rm_const_tm_equiv.
     - rewrite (vec_inv2 v). cbn. apply ex_equiv. intros B y HB. cbn. apply and_equiv.
       + erewrite !subst_comp, subst_ext. setoid_rewrite subst_ext at 2.
-        apply IH; try apply in_hd. now apply (Weak Hx).
+        apply IH; try apply in_hd. now rewrite HA. now apply (Weak Hx).
         all: intros [|[]]; cbn; try reflexivity. apply subst_term_shift.
       + apply ex_equiv. intros C z HC. cbn. apply and_equiv; try tauto.
         erewrite !subst_comp, subst_ext. setoid_rewrite subst_ext at 2.
-        apply IH; try apply in_hd_tl. apply (Weak Hx); firstorder.
+        apply IH; try apply in_hd_tl. now rewrite HA, HB. apply (Weak Hx). now rewrite HB.
         all: intros [|[]]; cbn; try reflexivity.
         rewrite !subst_term_comp. now apply subst_term_id.
     - rewrite (vec_inv1 v). cbn. apply ex_equiv. intros B y HB. cbn. apply and_equiv; try tauto.
       erewrite !subst_comp, subst_ext. setoid_rewrite subst_ext at 2.
-      apply IH; try apply in_hd. now apply (Weak Hx).
+      apply IH; try apply in_hd. now rewrite HA. now apply (Weak Hx).
       all: intros [|[]]; cbn; try reflexivity. apply subst_term_shift.
     - rewrite (vec_inv1 v). cbn. apply ex_equiv. intros B y HB. cbn. apply and_equiv; try tauto.
       erewrite !subst_comp, subst_ext. setoid_rewrite subst_ext at 2.
-      apply IH; try apply in_hd. now apply (Weak Hx).
+      apply IH; try apply in_hd. now rewrite HA. now apply (Weak Hx).
       all: intros [|[]]; cbn; try reflexivity. apply subst_term_shift.
   Qed.
 
+  Hint Resolve incl_tran.
+
   Lemma rm_const_fm_swap { p : peirce } A phi t x :
-    A ⊢ (rm_const_tm t)[x..] -> A ⊢ (rm_const_fm phi)[x..] <-> A ⊢ rm_const_fm phi[t..].
+    minZFeq' <<= A -> A ⊢ (rm_const_tm t)[x..] -> A ⊢ (rm_const_fm phi)[x..] <-> A ⊢ rm_const_fm phi[t..].
   Proof.
-    revert A. induction phi using form_ind_subst; cbn; intros A Hx.
+    revert A. induction phi using form_ind_subst; cbn; intros A HA Hx.
     all: try destruct P0; try destruct b0; try destruct q; try tauto.
     - rewrite (vec_inv2 t0). cbn. apply ex_equiv. cbn. intros B a HB. apply and_equiv.
       + rewrite subst_comp. erewrite subst_ext.
-        * eapply rm_const_tm_swap. now apply (Weak Hx).
+        * eapply rm_const_tm_swap. now rewrite HA. now apply (Weak Hx).
         * intros [|[|]]; trivial. now destruct x as [|[]].
       + apply ex_equiv. cbn. intros C a' HC. apply and_equiv; try tauto.
         rewrite !subst_comp. erewrite subst_ext. setoid_rewrite subst_ext at 2.
-        * eapply rm_const_tm_swap. apply (Weak Hx). firstorder.
+        * eapply rm_const_tm_swap. now rewrite HA, HB. apply (Weak Hx). now rewrite HB.
         * intros [|[]]; reflexivity.
         * intros [|[]]; trivial. now destruct x as [|[]].
     - rewrite (vec_inv2 t0). cbn. apply ex_equiv. cbn. intros B a HB. apply and_equiv.
       + rewrite subst_comp. erewrite subst_ext.
-        * eapply rm_const_tm_swap. now apply (Weak Hx).
+        * eapply rm_const_tm_swap. now rewrite HA. now apply (Weak Hx).
         * intros [|[|]]; trivial. now destruct x as [|[]].
       + apply ex_equiv. cbn. intros C a' HC. apply and_equiv; try tauto.
         rewrite !subst_comp. erewrite subst_ext. setoid_rewrite subst_ext at 2.
-        * eapply rm_const_tm_swap. apply (Weak Hx). firstorder.
+        * eapply rm_const_tm_swap. now rewrite HA, HB. apply (Weak Hx). now rewrite HB.
         * intros [|[]]; reflexivity.
         * intros [|[]]; trivial. now destruct x as [|[]].
     - apply and_equiv; intuition.
     - apply or_equiv; intros B HB.
-      + apply IHphi1. now apply (Weak Hx).
-      + apply IHphi2. now apply (Weak Hx).
+      + apply IHphi1. now rewrite HA. now apply (Weak Hx).
+      + apply IHphi2. now rewrite HA. now apply (Weak Hx).
     - apply impl_equiv; intros B HB.
-      + apply IHphi1. now apply (Weak Hx).
-      + apply IHphi2. now apply (Weak Hx).
+      + apply IHphi1. now rewrite HA. now apply (Weak Hx).
+      + apply IHphi2. now rewrite HA. now apply (Weak Hx).
     - apply all_equiv. intros [n|[]]. destruct x as [m|[]].
       assert (A ⊢ (rm_const_fm phi[$(S n)..])[$m..] <-> A ⊢ (rm_const_fm phi[$(S n)..][t..])) by now apply H, (Weak Hx).
       erewrite subst_comp, subst_ext, <- subst_comp, (rm_const_fm_subst ($(S n)..)). setoid_rewrite subst_ext at 2.
       rewrite H0. erewrite rm_const_fm_subst, !subst_comp, subst_ext. reflexivity.
       all: intros [|[]]; cbn; try reflexivity. rewrite subst_term_comp, subst_term_id; reflexivity.
     - apply ex_equiv. intros B s HB. destruct s as [n|[]], x as [m|[]].
-      assert (B ⊢ (rm_const_fm phi[$(S n)..])[$m..] <-> B ⊢ (rm_const_fm phi[$(S n)..][t..])) by now apply H, (Weak Hx).
+      assert (B ⊢ (rm_const_fm phi[$(S n)..])[$m..] <-> B ⊢ (rm_const_fm phi[$(S n)..][t..])) by (eapply H, Weak; eauto).
       erewrite subst_comp, subst_ext, <- subst_comp, (rm_const_fm_subst ($(S n)..)). setoid_rewrite subst_ext at 2.
       rewrite H0. erewrite rm_const_fm_subst, !subst_comp, subst_ext. reflexivity.
       all: intros [|[]]; cbn; try reflexivity. rewrite subst_term_comp, subst_term_id; reflexivity.
