@@ -24,7 +24,10 @@ Ltac assert1 H :=
   match goal with |- (?phi :: ?T) ⊢ _ => assert (H : (phi :: T) ⊢ phi) by auto end.
 
 Ltac assert2 H :=
-  match goal with |- (?phi :: ?psi :: ?T) ⊢ _ => assert (H : ?phi :: ?psi :: T ⊢ psi) by auto end.
+  match goal with |- (?phi :: ?psi :: ?T) ⊢ _ => assert (H : (phi :: psi :: T) ⊢ psi) by auto end.
+
+Ltac assert3 H :=
+  match goal with |- (?phi :: ?psi :: ?theta :: ?T) ⊢ _ => assert (H : (phi :: psi :: theta :: T) ⊢ theta) by auto end.
 
 Ltac prv_all x :=
   apply AllI; edestruct nameless_equiv_all as [x ->]; cbn; subsimpl.
@@ -683,7 +686,35 @@ Section Deduction.
   Lemma rm_const_tm_sub { p : peirce } A t (x y : term') :
     minZFeq' <<= A -> A ⊢ (rm_const_tm t)[x..] -> A ⊢ (rm_const_tm t)[y..] -> A ⊢ sub' x y.
   Proof.
-  Admitted.
+    intros HA. induction t in A, HA, x, y |- *; try destruct F; cbn -[is_inductive sub'].
+    - intros H1 H2. prv_all' z. apply II. eapply minZF_elem; auto; try apply minZF_refl; auto.
+      eapply minZF_trans; auto. apply (Weak H1); auto. apply minZF_sym; auto. apply (Weak H2). auto.
+    - intros H _. prv_all' z. apply II. apply Exp. apply (AllE z) in H. cbn in H. subsimpl_in H.
+      eapply IE; try apply (Weak H); auto.
+    - admit.
+    - rewrite (vec_inv1 v). cbn. rewrite !up_sshift0 in *. intros H1 H2. 
+      prv_all' a. apply II. eapply Weak in H1. use_exists' H1 b. 2: auto.
+      eapply Weak in H2. use_exists' H2 c. 2: auto. clear H1 H2.
+      assert1 H. apply CE in H as [H1 H2]. apply (AllE a) in H2. cbn in H2. subsimpl_in H2.
+      eapply IE. eapply CE2, H2. clear H2.
+      assert2 H. apply CE in H as [H2 H3]. apply (AllE a) in H3. cbn in H3. subsimpl_in H3.
+      apply CE1 in H3. assert3 H4. apply (IE H3) in H4. use_exists' H4 d. clear H3 H4.
+      apply (ExI d). cbn. subsimpl. apply CI. 2: eapply CE2; auto.
+      specialize (IH _ (in_hd v) _ _ _ H2 H1). apply (AllE d) in IH. cbn in IH. subsimpl_in IH.
+      eapply Weak in IH. apply (IE IH). 2: auto. eapply CE1; auto.
+    - rewrite (vec_inv1 v). cbn. rewrite !up_sshift0. intros H1 H2.
+      prv_all' a. apply II. eapply Weak in H1. use_exists' H1 b. 2: auto.
+      eapply Weak in H2. use_exists' H2 c. 2: auto. clear H1 H2.
+      assert1 H. apply CE in H as [H1 H2]. apply (AllE a) in H2. cbn in H2. subsimpl_in H2.
+      eapply IE. eapply CE2, H2. clear H2.
+      assert2 H. apply CE in H as [H2 H3]. apply (AllE a) in H3. cbn in H3. subsimpl_in H3.
+      apply CE1 in H3. assert3 H4. apply (IE H3) in H4. clear H3.
+      prv_all' d. apply II. specialize (IH _ (in_hd v) _ _ _ H2 H1). apply (AllE d) in IH. cbn in IH. subsimpl_in IH.
+      eapply Weak in IH. apply (IE IH). 2: auto. apply (AllE d) in H4. cbn in H4. subsimpl_in H4.
+      eapply Weak in H4. apply (IE H4). all: auto.
+    - intros [H1 H2] % CE [H3 H4] % CE. apply (AllE y) in H2.
+      cbn -[is_inductive] in H2. subsimpl_in H2. apply (IE H2). apply H3.
+  Admitted. adsf
 
   Lemma rm_const_tm_equiv { p : peirce } A t (x y : term') :
     minZFeq' <<= A -> A ⊢ (rm_const_tm t)[x..] -> A ⊢ y ≡' x <-> A ⊢ (rm_const_tm t)[y..].

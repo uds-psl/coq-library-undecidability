@@ -37,7 +37,7 @@ Ltac assert1 H :=
   match goal with |- (?phi :: ?T) ⊢ _ => assert (H : (phi :: T) ⊢ phi) by auto end.
 
 Ltac assert2 H :=
-  match goal with |- (?phi :: ?psi :: ?T) ⊢ _ => assert (H : ?phi :: ?psi :: T ⊢ psi) by auto end.
+  match goal with |- (?phi :: ?psi :: ?T) ⊢ _ => assert (H : (phi :: psi :: T) ⊢ psi) by auto end.
 
 Ltac prv_all x :=
   apply AllI; edestruct nameless_equiv_all as [x ->]; cbn; subsimpl.
