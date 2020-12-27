@@ -91,26 +91,19 @@ Section ND_def.
     - apply (CE2 H).
   Qed.
 
-  Lemma Cut_ctx A B phi :
-    A ⊢ phi -> (forall psi, psi el A -> B ⊢ psi) -> B ⊢ phi.
+  Lemma switch_conj_imp alpha beta phi A :
+    A ⊢ alpha ∧ beta --> phi <-> A ⊢ alpha --> beta --> phi.
   Proof.
-    induction 1 in B |- *; intros HB.
-    - apply II, IHprv. admit.
-    - eauto.
-    - apply AllI, IHprv. admit.
-    - eauto.
-    - eauto.
-    - admit.
-    - eauto.
-    - eauto.
-    - eauto.
-    - eauto.
-    - eauto.
-    - eauto.
-    - eauto.
-    - admit.
-    - eauto.
-  Admitted.
+    split; intros H.
+    - apply II, II. eapply IE.
+      apply (@Weak A). apply H. firstorder.
+      apply CI; apply Ctx; firstorder.
+    - apply II. eapply IE. eapply IE.
+      eapply Weak. apply H.
+      firstorder.
+      eapply CE1, Ctx; firstorder.
+      eapply CE2, Ctx; firstorder.
+  Qed.
 
   Definition tprv (T : form -> Prop) phi :=
     exists A, (forall psi, psi el A -> T psi) /\ A ⊢ phi.
