@@ -692,11 +692,17 @@ Proof.
   cbn.
 Admitted.
 
+Arguments is_om : simpl never.
+
 Lemma prv_to_min_om1 { p : peirce } :
   minZFeq' ⊢ rm_const_fm ax_om1.
 Proof.
-  unfold ax_om1.
-  cbn -[is_om].
+  assert (HO : minZFeq' ⊢ ax_om') by (apply Ctx; firstorder).
+  use_exists' HO o. clear HO. apply CI.
+  - assert (HE : minZFeq' ⊢ ax_eset') by (apply Ctx; firstorder).
+    eapply Weak in HE. use_exists' HE e. clear HE. 2: auto.
+    apply (ExI e). cbn. apply CI; auto. apply (ExI o). cbn. subsimpl. rewrite eq_sshift1.
+    apply CI; auto.
 Admitted.
 
 Lemma inductive_subst t sigma :
