@@ -29,6 +29,9 @@ Ltac assert2 H :=
 Ltac assert3 H :=
   match goal with |- (?phi :: ?psi :: ?theta :: ?T) ⊢ _ => assert (H : (phi :: psi :: theta :: T) ⊢ theta) by auto end.
 
+Ltac assert4 H :=
+  match goal with |- (?f :: ?phi :: ?psi :: ?theta :: ?T) ⊢ _ => assert (H : (f :: phi :: psi :: theta :: T) ⊢ theta) by auto end.
+
 Ltac prv_all x :=
   apply AllI; edestruct nameless_equiv_all as [x ->]; cbn; subsimpl.
 
@@ -692,19 +695,6 @@ Proof.
   cbn.
 Admitted.
 
-Arguments is_om : simpl never.
-
-Lemma prv_to_min_om1 { p : peirce } :
-  minZFeq' ⊢ rm_const_fm ax_om1.
-Proof.
-  assert (HO : minZFeq' ⊢ ax_om') by (apply Ctx; firstorder).
-  use_exists' HO o. clear HO. apply CI.
-  - assert (HE : minZFeq' ⊢ ax_eset') by (apply Ctx; firstorder).
-    eapply Weak in HE. use_exists' HE e. clear HE. 2: auto.
-    apply (ExI e). cbn. apply CI; auto. apply (ExI o). cbn. subsimpl. rewrite eq_sshift1.
-    apply CI; auto.
-Admitted.
-
 Lemma inductive_subst t sigma :
   (inductive t)[sigma] = inductive t`[sigma].
 Proof.
@@ -717,8 +707,71 @@ Proof.
   cbn. subsimpl. reflexivity.
 Qed.
 
-Arguments inductive : simpl never.
+Lemma is_om_subst t sigma :
+  (is_om t)[sigma] = is_om t`[sigma].
+Proof.
+  cbn. subsimpl. reflexivity.
+Qed.
+
+Arguments is_om : simpl never.
 Arguments is_inductive : simpl never.
+
+Lemma is_eset_unique { p : peirce } A x y :
+  minZFeq' <<= A -> A ⊢ is_eset x -> A ⊢ is_eset x -> A ⊢ x ≡' y.
+Proof.
+Admitted.
+
+Lemma prv_to_min_om1 { p : peirce } :
+  minZFeq' ⊢ rm_const_fm ax_om1.
+Proof.
+  apply CI.
+  - assert (HO : minZFeq' ⊢ ax_om') by (apply Ctx; firstorder).
+    use_exists' HO o. clear HO.
+    assert (HE : minZFeq' ⊢ ax_eset') by (apply Ctx; firstorder).
+    eapply Weak in HE. use_exists' HE e. clear HE. 2: auto.
+    apply (ExI e). cbn. apply CI; auto. apply (ExI o). cbn. subsimpl. rewrite eq_sshift1.
+    apply CI; auto. assert2 H. unfold is_om in H at 2. cbn in H. apply CE1 in H.
+    rewrite is_inductive_subst in H. cbn in H. apply CE1 in H. use_exists' H e'. clear H.
+    assert1 H. apply CE in H as [H1 H2]. eapply minZF_elem; auto; try eassumption.
+    2: apply minZF_refl; auto. apply is_eset_unique; auto.
+  - prv_all' x. apply use_ex_eq; auto. cbn. rewrite up_sshift1, eq_sshift1, !is_om_subst. cbn.
+    apply II. assert1 H. use_exists' H o. clear H. assert1 H. apply CE in H as [H1 H2].
+    unfold is_om in H1 at 3. cbn in H1. apply CE1 in H1. unfold is_inductive in H1. cbn in H1. apply CE2 in H1.
+    apply (AllE x) in H1. cbn in H1. subsimpl_in H1. apply (IE H1) in H2. use_exists' H2 y. clear H1 H2.
+    apply (ExI y). cbn. subsimpl. apply CI.
+    + assert (HP : minZFeq' ⊢ ax_pair') by (apply Ctx; firstorder).
+      apply (AllE x) in HP. cbn in HP. subsimpl_in HP. apply (AllE x) in HP. cbn in HP. subsimpl_in HP.
+      eapply Weak in HP. use_exists' HP s. 2: auto. clear HP.
+      assert (HP : minZFeq' ⊢ ax_pair') by (apply Ctx; firstorder).
+      apply (AllE x) in HP. cbn in HP. subsimpl_in HP. apply (AllE s) in HP. cbn in HP. subsimpl_in HP.
+      eapply Weak in HP. use_exists' HP t. 2: auto. clear HP.
+      apply (ExI t). cbn. subsimpl. apply CI.
+      * apply prv_ex_eq; auto 7. cbn. subsimpl. apply (ExI s). cbn. subsimpl. apply CI; auto.
+        apply prv_ex_eq; auto 7. cbn. subsimpl. apply prv_ex_eq; auto 7. cbn. subsimpl. auto.
+      * prv_all' z. assert3 H. apply CE1, (AllE z) in H. cbn in H. subsimpl_in H.
+        apply CE in H as [H1 H2]. apply CI; rewrite imps in *.
+        -- clear H2. apply (DE H1); clear H1.
+           ++ apply (ExI x). cbn. subsimpl. apply CI; auto. assert3 H. apply (AllE x) in H. cbn in H. subsimpl_in H.
+              apply CE2 in H. apply (IE H). apply DI1. apply minZF_refl. auto 8.
+           ++ apply (ExI s). cbn. subsimpl. apply CI.
+              ** assert3 H. apply (AllE s) in H. cbn in H. subsimpl_in H.
+                 apply CE2 in H. apply (IE H). apply DI2. apply minZF_refl. auto 8.
+              ** assert4 H. apply (AllE z) in H. cbn in H. subsimpl_in H.
+                 apply CE2 in H. apply (IE H). apply DI1. auto.
+        -- rewrite <- imps in H2. eapply Weak in H2. apply (IE H2). 2: auto. clear H1 H2.
+           assert1 H. use_exists' H a. clear H. assert1 H. apply CE in H as [H1 H2].
+           assert3 H. apply (AllE a) in H. cbn in H. subsimpl_in H.
+           apply CE1 in H. apply (IE H) in H1. clear H. apply (DE H1).
+           ** apply DI1. eapply minZF_elem; auto 9. 2: apply (Weak H2); auto. apply minZF_refl. auto 9.
+           ** apply DI2. apply DE'. apply IE with (z ∈' s). eapply CE1 with (z ≡' x ∨ z ≡' x --> z ∈' s). 
+              replace (z ∈' s <--> z ≡' x ∨ z ≡' x) with (($0 ∈' s`[↑] <--> $0 ≡' x`[↑] ∨ $0 ≡' x`[↑])[z..]).
+              2: cbn; now subsimpl. apply AllE. auto 7. eapply minZF_elem; auto 9.
+              2: apply (Weak H2); auto. apply minZF_refl. auto 9.
+    + apply (ExI o). cbn. subsimpl. rewrite !is_om_subst. cbn. apply CI; [eapply CE1 | eapply CE2]; auto.
+Qed.
+
+Arguments inductive : simpl never.
+Arguments is_om : simpl nomatch.
 
 Lemma prv_to_min_om2 { p : peirce } :
   minZFeq' ⊢ rm_const_fm ax_om2.
@@ -824,9 +877,9 @@ Proof.
         rewrite imps in H.
         apply prv_ex_eq in H; auto. cbn in H. subsimpl_in H. apply prv_ex_eq in H; auto. cbn in H. subsimpl_in H.
         apply (Weak H). firstorder.
-  - admit.
-  - admit.
-Admitted.
+  - apply prv_to_min_om1.
+  - apply prv_to_min_om2.
+Qed.
 
 
 
@@ -860,13 +913,6 @@ Section Deduction.
       eapply Weak in H. use_exists' H y. 2: auto. apply (ExI y). cbn. apply (ExI x). cbn. subsimpl.
       rewrite eq_sshift1. apply CI; auto.  
     - apply Ctx. firstorder.
-  Qed.
-
-  Lemma rm_const_tm_prv' { p : peirce } A t :
-    ZFeq' <<= A -> (map rm_const_fm A) ⊢ ∃ rm_const_tm t.
-  Proof.
-    intros H. apply (Cut_ctx (rm_const_tm_prv t)).
-    intros psi HP % prv_to_min. apply (Weak HP). now apply incl_map.
   Qed.
 
   Lemma eq_sshift2 (phi : form') t :
@@ -1041,7 +1087,7 @@ Section Deduction.
     - apply Exp. eauto.
     - apply in_app_iff in H as [H|H].
       + apply Ctx. apply in_app_iff. left. now apply in_map.
-      + eapply Weak. now apply prv_to_min'. auto.
+      + eapply Weak. now apply prv_to_min. auto.
     - apply CI; eauto.
     - eapply CE1; eauto.
     - eapply CE2; eauto.
@@ -1060,3 +1106,5 @@ Section Deduction.
   Qed.
 
 End Deduction.
+
+Print Assumptions rm_const_prv.
