@@ -217,8 +217,6 @@ FOL/Util/FullTarski.v
 FOL/Util/FullDeduction.v
 FOL/Util/Aczel.v
 FOL/Util/ZF_model.v
-FOL/Util/Ltac2StringIdent.v
-FOL/Util/ProofMode.v
 
 FOL/Reductions/PCPb_to_FOL.v
 FOL/Reductions/PCPb_to_FOL_intu.v

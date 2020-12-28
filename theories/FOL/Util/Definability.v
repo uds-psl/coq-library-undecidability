@@ -638,10 +638,53 @@ Proof.
   intros H. apply impl_equiv; try tauto. intros B HB. apply prv_ex_eq. now rewrite H.
 Qed.
 
-Lemma prv_to_min_inductive { p : peirce } A n :
-  minZFeq' <<= A -> A ⊢ is_inductive $n <-> A ⊢ rm_const_fm (inductive $n).
+Lemma DE' { p : peirce } A (phi : form') :
+  A ⊢ phi ∨ phi -> A ⊢ phi.
 Proof.
-Admitted.
+  intros H. apply (DE H); auto.
+Qed.
+
+Lemma prv_to_min_inductive { p : peirce } A n :
+  minZFeq' <<= A -> A ⊢ rm_const_fm (inductive $n) -> A ⊢ is_inductive $n.
+Proof.
+  cbn. intros HA HI. apply CI.
+  - apply CE1 in HI. use_exists' HI x. clear HI.
+    apply (ExI x). cbn. assert1 H. apply CE in H as [H1 H2]. apply CI; trivial.
+    change (∃ $0 ≡' ↑ n ∧ x`[↑] ∈' $0) with (∃ $0 ≡' $n`[↑] ∧ x`[↑] ∈' $0) in H2.
+    apply prv_ex_eq in H2; auto. cbn in H2. now subsimpl_in H2.
+  - apply CE2 in HI. prv_all' x. apply (AllE x) in HI. cbn in HI. apply use_ex_eq in HI; auto. cbn in HI.
+    change (∃ $0 ≡' ↑ n ∧ x`[↑] ∈' $0) with (∃ $0 ≡' $n`[↑] ∧ x`[↑] ∈' $0) in HI. apply use_ex_eq in HI; auto.
+    cbn in HI. subsimpl_in HI. rewrite imps in *. use_exists' HI y. clear HI.
+    assert1 H. apply (ExI y). cbn. subsimpl. apply CI.
+    + apply CE1 in H. use_exists' H a. clear H. assert1 H. apply CE in H as [H1 H2].
+      apply prv_ex_eq in H1; auto. cbn in H1. subsimpl_in H1. prv_all' b.
+      apply (AllE b) in H2. cbn in H2. subsimpl_in H2. eapply iff_equiv; try apply H2; try tauto.
+      intros B HB. clear H2. eapply Weak in H1; try apply HB. split; intros H2.
+      * use_exists' H1 z. clear H1. assert1 H. apply CE in H as [H H'].
+        apply prv_ex_eq in H; try rewrite <- HB; auto. cbn in H. subsimpl_in H.
+        apply prv_ex_eq in H; try rewrite <- HB; auto. cbn in H. subsimpl_in H.
+        eapply Weak in H2. apply (DE H2). 3: auto.
+        -- apply (ExI x). cbn. subsimpl. apply CI; auto. apply (AllE x) in H'. cbn in H'. subsimpl_in H'.
+           apply CE2 in H'. eapply IE. apply (Weak H'); auto. apply DI1. apply minZF_refl. rewrite HA. firstorder.
+        -- apply (ExI z). cbn. subsimpl. apply CI.
+           ++ apply (AllE z) in H'. cbn in H'. subsimpl_in H'. apply CE2 in H'. eapply IE.
+              apply (Weak H'); auto. apply DI2. apply minZF_refl. rewrite HA. firstorder.
+           ++ apply (AllE b) in H. cbn in H. subsimpl_in H. apply CE2 in H. eapply IE.
+              apply (Weak H); auto. apply DI2. auto.
+      * use_exists' H1 z. clear H1. assert1 H. apply CE in H as [H H'].
+        apply prv_ex_eq in H; try rewrite <- HB; auto. cbn in H. subsimpl_in H.
+        apply prv_ex_eq in H; try rewrite <- HB; auto. cbn in H. subsimpl_in H.
+        eapply Weak in H2. use_exists' H2 c. 2: auto. clear H2. assert1 H1. apply CE in H1 as [H1 H2].
+        apply (AllE c) in H'. cbn in H'. subsimpl_in H'. apply CE1 in H'. eapply Weak in H'.
+        apply (IE H') in H1. 2: auto. clear H'. apply (DE H1).
+        -- apply DI1. eapply minZF_elem. rewrite <- HB, HA. firstorder. 3: apply (Weak H2); auto.
+           2: auto. apply minZF_refl. rewrite <- HB, HA. firstorder.
+        -- apply DI2. apply (AllE b) in H. cbn in H. subsimpl_in H. apply CE1 in H. eapply DE'.
+           eapply IE. apply (Weak H). auto. eapply minZF_elem. rewrite <- HB, HA. firstorder.
+           3: apply (Weak H2); auto. 2: auto. apply minZF_refl. rewrite <- HB, HA. firstorder.
+    + apply CE2 in H. change (∃ $0 ≡' ↑ n ∧ y`[↑] ∈' $0) with (∃ $0 ≡' $n`[↑] ∧ y`[↑] ∈' $0) in H.
+      apply prv_ex_eq in H; auto. cbn in H. now subsimpl_in H.
+Qed.
 
 Lemma rm_const_inductive_subst t :
   rm_const_fm (inductive t) = rm_const_fm (inductive $0).
@@ -668,19 +711,22 @@ Proof.
   cbn. subsimpl. reflexivity.
 Qed.
 
+Arguments inductive : simpl never.
+Arguments is_inductive : simpl never.
+
 Lemma prv_to_min_om2 { p : peirce } :
   minZFeq' ⊢ rm_const_fm ax_om2.
 Proof.
-  cbn -[inductive is_inductive is_om]. apply AllI. edestruct (@nameless_equiv_all sig_empty) as [[n|[]] ->].
-  cbn -[inductive is_inductive]. rewrite rm_const_fm_subst, inductive_subst, !is_inductive_subst.
-  cbn -[inductive is_inductive]. apply II. apply AllI. edestruct (@nameless_equiv_all sig_empty) as [m ->].
-  cbn -[inductive is_inductive]. rewrite !is_inductive_subst. cbn -[inductive is_inductive].
-  apply use_ex_eq; auto. cbn -[inductive is_inductive]. rewrite !is_inductive_subst. cbn -[inductive is_inductive].
-  apply II. apply prv_ex_eq; auto. cbn -[inductive is_inductive].
+  cbn. prv_all' x. destruct x as [n|[]]. cbn. rewrite rm_const_fm_subst, inductive_subst, !is_inductive_subst.
+  cbn. apply II. prv_all' m. cbn. rewrite !is_inductive_subst. cbn. apply use_ex_eq; auto. cbn.
+  rewrite !is_inductive_subst. cbn. apply II. apply prv_ex_eq; auto. cbn.
   change (∃ $0 ≡' ↑ n ∧ m`[↑] ∈' $0) with (∃ $0 ≡' $n`[↑] ∧ m`[↑] ∈' $0).
-  apply prv_ex_eq; auto. cbn -[inductive is_inductive]. subsimpl.
-  assert1 H.
-Admitted
+  apply prv_ex_eq; auto. cbn. subsimpl. assert1 H. use_exists' H k. clear H.
+  cbn. rewrite !is_inductive_subst. cbn. subsimpl. assert1 H. apply CE in H as [H1 % CE2 H2].
+  apply (AllE $n) in H1. cbn in H1. subsimpl_in H1. rewrite is_inductive_subst in H1. cbn in H1.
+  assert3 H3. apply prv_to_min_inductive in H3; auto. apply (IE H1) in H3.
+  apply (AllE m) in H3. cbn in H3. subsimpl_in H3. now apply (IE H3).
+Qed.
 
 Lemma prv_to_min { p : peirce } phi :
   phi el ZFeq' -> minZFeq' ⊢ rm_const_fm phi.
