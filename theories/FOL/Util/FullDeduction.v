@@ -64,6 +64,26 @@ Section ND_def.
     induction H; intros B HB; try unshelve (solve [econstructor; intuition]); try now econstructor.
   Qed.
 
+  Hint Constructors prv : core.
+
+  Theorem subst_Weak A phi xi :
+    A ⊢ phi -> [phi[xi] | phi ∈ A] ⊢ phi[xi].
+  Proof.
+    induction 1 in xi |-*; comp.
+    1-2,7-15: eauto using in_map.
+    - apply AllI. setoid_rewrite map_map in IHprv. erewrite map_map, map_ext.
+      apply IHprv. intros ?. cbn. now rewrite up_form.
+    - specialize (IHprv xi). apply AllE with (t0 := t`[xi]) in IHprv. rewrite subst_comp in *.
+      erewrite subst_ext; try apply IHprv. intros [|]; cbn; trivial.
+      unfold funcomp. now setoid_rewrite subst_term_shift.
+    - specialize (IHprv xi). eapply ExI with (t0 := t`[xi]). rewrite subst_comp in *.
+      erewrite subst_ext; try apply IHprv. intros [|]; cbn; trivial.
+      unfold funcomp. now setoid_rewrite subst_term_shift.
+    - eapply ExE in IHprv1. eassumption. rewrite map_map.
+      specialize (IHprv2 (up xi)). setoid_rewrite up_form in IHprv2.
+      erewrite map_map, map_ext in IHprv2; try apply IHprv2. apply up_form.
+  Qed.
+
   Lemma nameless_equiv_all A phi :
     { t : term | map (subst_form ↑) A ⊢ phi <-> A ⊢ phi[t..] }.
   Proof.
