@@ -1,6 +1,6 @@
 (** * Conservativity *)
 
-From Undecidability Require Import FOL.Util.FullTarski FOL.Util.Syntax FOL.Util.FullDeduction FOL.ZF.
+From Undecidability.FOL Require Import Util.FullTarski Util.Syntax Util.FullDeduction ZF minZF.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 Local Set Implicit Arguments.
@@ -12,7 +12,7 @@ Arguments Vector.cons {_} _ {_} _, _ _ _ _.
 
 
 
-(** Tactics, to be moved *)
+(** ** Tactics, to be moved *)
 
 Ltac subsimpl_in H :=
   rewrite ?up_term, ?subst_term_shift in H.
@@ -40,110 +40,7 @@ Ltac use_exists H x :=
 
 
 
-(** Minimal signature *)
-
-Instance sig_empty : funcs_signature :=
-    {| syms := False;  ar_syms := False_rect nat |}.
-
-Existing Instance ZF_func_sig.
-
-Notation term' := (term sig_empty).
-Notation form' := (form sig_empty _ _ falsity_on).
-
-Definition embed_t (t : term') : term :=
-  match t with
-  | $x => $x
-  | func f ts => False_rect term f
-  end.
-
-Fixpoint embed {ff'} (phi : form sig_empty ZF_pred_sig _ ff') : form ff' :=
-  match phi with 
-  | atom P ts => atom P (Vector.map embed_t ts)
-  | bin b phi psi => bin b (embed phi) (embed psi)
-  | quant q phi => quant q (embed phi)
-  | ⊥ => ⊥
-  end.
-
-Notation "x ∈' y" := (atom sig_empty ZF_pred_sig elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 35).
-Notation "x ≡' y" := (atom sig_empty ZF_pred_sig equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35).
-
-
-
-(* definability of set operations *)
-
-Fixpoint shift `{funcs_signature} `{preds_signature} n (t : term) :=
-  match n with 
-  | O => t
-  | S n => subst_term ↑ (shift n t)
-  end.
-
-Definition is_eset (t : term') :=
-  ∀ ¬ ($0 ∈ t`[↑]).
-
-Definition is_pair (x y t : term') :=
-  ∀ $0 ∈ t`[↑] <--> $0 ≡ x`[↑] ∨ $0 ≡ y`[↑].
-
-Definition is_union (x t : term') :=
-  ∀ $0 ∈ t`[↑] <--> ∃ $0 ∈ shift 2 x ∧ $1 ∈ $0.
-
-Definition sub' (x y : term') :=
-  ∀ $0 ∈ x`[↑] --> $0 ∈ y`[↑].
-
-Definition is_power (x t : term') :=
-  ∀ $0 ∈ t`[↑] <--> sub' $0 x`[↑].
-
-Definition is_sigma (x t : term') :=
-  ∀ $0 ∈ t`[↑] <--> $0 ∈ x`[↑] ∨ $0 ≡ x`[↑].
-
-Definition is_inductive (t : term') :=
-  (∃ is_eset $0 ∧ $0 ∈ t`[↑]) ∧ ∀ $0 ∈ t`[↑] --> (∃ is_sigma $1 $0 ∧ $0 ∈ shift 2 t).
-
-Definition is_om (t : term') :=
-  is_inductive t ∧ ∀ is_inductive $0 --> sub' t`[↑] $0.
-
-
-
-(** ** Minimal axiomatisation *)
-
-Definition ax_ext' :=
-  ∀ ∀ sub' $1 $0 --> sub' $0 $1 --> $1 ≡' $0.
-
-Definition ax_eset' :=
-  ∃ is_eset $0.
-
-Definition ax_pair' :=
-  ∀ ∀ ∃ is_pair $2 $1 $0.
-
-Definition ax_union' :=
-  ∀ ∃ is_union $1 $0.
-
-Definition ax_power' :=
-  ∀ ∃ is_power $1 $0.
-
-Definition ax_om' :=
-  ∃ is_om $0.
-
-Definition ax_refl' :=
-  ∀ $0 ≡' $0.
-
-Definition ax_sym' :=
-  ∀ ∀ $1 ≡' $0 --> $0 ≡' $1.
-
-Definition ax_trans' :=
-  ∀ ∀ ∀ $2 ≡' $1 --> $1 ≡' $0 --> $2 ≡' $0.
-
-Definition ax_eq_elem' :=
-  ∀ ∀ ∀ ∀ $3 ≡' $1 --> $2 ≡' $0 --> $3 ∈' $2 --> $1 ∈' $0.
-
-Definition minZF' :=
-  ax_ext' :: ax_eset' :: ax_pair' :: ax_union' :: ax_power' :: ax_om' :: nil.
-
-Definition minZFeq' :=
-  ax_refl' :: ax_sym' :: ax_trans' :: ax_eq_elem' :: minZF'.
-
-
-
-(** Translation function *)
+(** ** Translation function *)
 
 Definition sshift {Σ_funcs : funcs_signature} k : nat -> term :=
   fun n => match n with 0 => $0 | S n => $(1 + k + n) end.
@@ -174,9 +71,10 @@ Fixpoint rm_const_fm {ff : falsity_flag} (phi : form) : form' :=
 
 
 
-(** ** Vector lemmas *)
+(** ** Vector inversion lemmas *)
 
 Require Import Equations.Equations.
+Derive Signature for vec.
 
 Lemma vec_nil_eq X (v : vec X 0) :
   v = Vector.nil.
@@ -380,7 +278,7 @@ Section Model.
     rewrite <- min_embed. apply rm_const_sat.
   Qed.
 
-  Lemma min_axioms (rho : nat -> V) :
+  Lemma min_axioms' (rho : nat -> V) :
     rho ⊫ minZF'.
   Proof.
     intros A [<-|[<-|[<-|[<-|[<-|[<-|[]]]]]]]; cbn.
@@ -399,6 +297,22 @@ Section Model.
           apply (@M_ZF rho ax_eset) in Hy; trivial. unfold ZF'. auto 8.
         * intros d (s & S1 & S2) % H2. enough (σ d = s) as -> by assumption.
           apply M_ext; trivial. all: intros y; rewrite sigma_el; trivial. all: rewrite <- !VIEQ; apply S1.
+  Qed.
+
+  Lemma min_axioms :
+    (forall rho phi, ZF phi -> rho ⊨ phi) -> forall rho phi, minZF phi -> rho ⊨ phi.
+  Proof.
+    intros H rho phi [].
+    - now apply min_axioms'.
+    - cbn. specialize (H rho (ax_sep (embed phi0))). cbn in H.
+      setoid_rewrite (subst_ext _ _ (($0 .: (fun m : nat => S (S (S m))) >> var) >> embed_t)) in H; try now intros [].
+      rewrite <- embed_subst in H. setoid_rewrite min_embed in H. apply H. auto using ZF.
+    - cbn. specialize (H rho (ax_rep (embed phi0))). cbn in H.
+      setoid_rewrite (subst_ext _ _ (($2 .: $1 .: Nat.add 3 >> var) >> embed_t)) in H at 1; try now intros [|[]].
+      setoid_rewrite (subst_ext _ _ (($2 .: $0 .: Nat.add 3 >> var) >> embed_t)) in H at 2; try now intros [|[]].
+      setoid_rewrite (subst_ext _ _ (($0 .: $1 .: Nat.add 4 >> var) >> embed_t)) in H at 3; try now intros [|[]].
+      setoid_rewrite (subst_ext _ _ (($0 .: $1 .: Nat.add 4 >> var) >> embed_t)) in H at 4; try now intros [|[]].
+      rewrite <- !embed_subst in H. setoid_rewrite min_embed in H. apply H. auto using ZF.
   Qed.
 
 End Model.
@@ -977,8 +891,6 @@ Qed.
 
 (** ** Deduction *)
 
-From Undecidability Require Import FOL.Reductions.PCPb_to_ZFD.
-
 Section Deduction.
 
   Lemma rm_const_tm_prv { p : peirce } t :
@@ -1191,52 +1103,3 @@ Section Deduction.
   Qed.
 
 End Deduction.
-
-Print Assumptions rm_const_prv.
-
-
-
-(** ** Reduction Theorems *)
-
-From Undecidability.PCP Require Import PCP Util.PCP_facts Reductions.PCPb_iff_dPCPb.
-
-Lemma PCP_minZF_prv' { p : peirce } B :
-  PCPb B -> minZFeq' ⊢ rm_const_fm (solvable B).
-Proof.
-  intros H. apply (@rm_const_prv p nil), PCP_ZFD, H.
-Qed.
-
-Lemma extensional_eq' V (M : @interp sig_empty _ V) rho :
-  extensional M -> rho ⊫ minZF' -> rho ⊫ minZFeq'.
-Proof.
-  intros H1 H2 phi [<-|[<-|[<-|[<-|H]]]]; try now apply H2.
-  all: cbn; intros; rewrite !H1 in *; congruence.
-Qed.
-
-Theorem PCP_minZF_prv B :
-  (exists V (M : interp V), extensional M /\ standard M /\ forall rho, rho ⊫ ZF')
-  -> PCPb B <-> minZFeq' ⊢I rm_const_fm (solvable B).
-Proof.
-  intros (V & M & H1 & H2 & H3). split; intros H.
-  - now apply PCP_minZF_prv'.
-  - apply soundness in H. specialize (H V (@min_model V M) (fun _ => ∅)).
-    rewrite <- min_correct in H; trivial. rewrite PCPb_iff_dPCPb.
-    eapply PCP_ZF2 in H2 as [s Hs]; trivial; try apply H. now exists s.
-    apply extensional_eq', min_axioms; auto.
-Qed.
-
-Print Assumptions PCP_minZF_prv.
-
-Theorem PCP_minZF_sem B :
-  (exists V (M : interp V), extensional M /\ standard M /\ forall rho, rho ⊫ ZF')
-  -> PCPb B <-> (forall V (M : @interp sig_empty _ V) (rho : nat -> V), extensional M -> rho ⊫ minZF' -> rho ⊨ rm_const_fm (solvable B)).
-Proof.
-  intros (V & M & H1 & H2 & H3). split; intros H.
-  - intros V' M' rho' HM1 HM2. apply (@PCP_minZF_prv' intu), soundness in H. now apply H, extensional_eq'.
-  - specialize (H V (@min_model V M) (fun _ => ∅)).
-    rewrite <- min_correct in H; trivial. rewrite PCPb_iff_dPCPb.
-    eapply PCP_ZF2 in H2 as [s Hs]; trivial; try apply H. now exists s. apply H1.
-    apply min_axioms; auto.
-Qed.
-
-Print Assumptions PCP_minZF_sem.

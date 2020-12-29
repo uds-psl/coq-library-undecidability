@@ -209,6 +209,8 @@ FOL/FOL.v
 FOL/FOL_undec.v
 FOL/ZF.v
 FOL/ZF_undec.v
+FOL/minZF.v
+FOL/minZF_undec.v
 FOL/Util/Syntax.v
 FOL/Util/Tarski.v
 FOL/Util/Deduction.v
@@ -223,6 +225,7 @@ FOL/Reductions/PCPb_to_FOL_intu.v
 FOL/Reductions/PCPb_to_FOL_class.v
 FOL/Reductions/PCPb_to_ZF.v
 FOL/Reductions/PCPb_to_ZFD.v
+FOL/Reductions/PCPb_to_minZF.v
 
 MinskyMachines/MMA.v            
 
