@@ -1,42 +1,14 @@
 (** * Conservativity *)
 
-From Undecidability.FOL Require Import Util.FullTarski Util.Syntax Util.FullDeduction ZF minZF.
+From Undecidability.FOL Require Import Util.FullTarski Util.Syntax Util.FullDeduction ZF Reductions.PCPb_to_ZF minZF.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
+Require Import Equations.Equations.
+
 Local Notation vec := Vector.t.
-Arguments Vector.nil {_}, _.
-Arguments Vector.cons {_} _ {_} _, _ _ _ _.
-
-
-
-(** ** Tactics, to be moved *)
-
-Ltac subsimpl_in H :=
-  rewrite ?up_term, ?subst_term_shift in H.
-
-Ltac subsimpl :=
-  rewrite ?up_term, ?subst_term_shift.
-
-Ltac assert1 H :=
-  match goal with |- (?phi :: ?T) ⊢ _ => assert (H : (phi :: T) ⊢ phi) by auto end.
-
-Ltac assert2 H :=
-  match goal with |- (?phi :: ?psi :: ?T) ⊢ _ => assert (H : (phi :: psi :: T) ⊢ psi) by auto end.
-
-Ltac assert3 H :=
-  match goal with |- (?phi :: ?psi :: ?theta :: ?T) ⊢ _ => assert (H : (phi :: psi :: theta :: T) ⊢ theta) by auto end.
-
-Ltac assert4 H :=
-  match goal with |- (?f :: ?phi :: ?psi :: ?theta :: ?T) ⊢ _ => assert (H : (f :: phi :: psi :: theta :: T) ⊢ theta) by auto end.
-
-Ltac prv_all x :=
-  apply AllI; edestruct nameless_equiv_all as [x ->]; cbn; subsimpl.
-
-Ltac use_exists H x :=
-  apply (ExE _ H); edestruct nameless_equiv_ex as [x ->]; cbn; subsimpl.
 
 
 
@@ -47,7 +19,7 @@ Definition sshift {Σ_funcs : funcs_signature} k : nat -> term :=
 
 Fixpoint rm_const_tm (t : term) : form' :=
   match t with
-  | var n => $0 ≡ var (S n)
+  | var n => $0 ≡' var (S n)
   | func eset _ => is_eset $0
   | func pair v => let v' := Vector.map rm_const_tm v in
                   ∃ (Vector.hd v')[sshift 1]
@@ -64,16 +36,15 @@ Fixpoint rm_const_fm {ff : falsity_flag} (phi : form) : form' :=
   | bin bop phi psi => bin sig_empty _ bop (rm_const_fm phi) (rm_const_fm psi)
   | quant qop phi => quant qop (rm_const_fm phi)
   | atom elem v => let v' := Vector.map rm_const_tm v in
-                  ∃ (Vector.hd v') ∧ ∃ (Vector.hd (Vector.tl v'))[sshift 1] ∧ $1 ∈ $0
+                  ∃ (Vector.hd v') ∧ ∃ (Vector.hd (Vector.tl v'))[sshift 1] ∧ $1 ∈'$0
   | atom equal v => let v' := Vector.map rm_const_tm v in
-                  ∃ (Vector.hd v') ∧ ∃ (Vector.hd (Vector.tl v'))[sshift 1] ∧ $1 ≡ $0
+                  ∃ (Vector.hd v') ∧ ∃ (Vector.hd (Vector.tl v'))[sshift 1] ∧ $1 ≡' $0
   end.
 
 
 
 (** ** Vector inversion lemmas *)
 
-Require Import Equations.Equations.
 Derive Signature for vec.
 
 Lemma vec_nil_eq X (v : vec X 0) :
@@ -121,8 +92,6 @@ Qed.
 
 
 (** ** Semantics *)
-
-From Undecidability Require Import FOL.Reductions.PCPb_to_ZF.
 
 Section Model.
 
@@ -316,60 +285,6 @@ Section Model.
   Qed.
 
 End Model.
-
-
-
-(** ** Useful induction principles *)
-
-Lemma prv_ind_full :
-  forall P : peirce -> list (form falsity_on) -> (form falsity_on) -> Prop,
-    (forall (p : peirce) (A : list form) (phi psi : form),
-        (phi :: A) ⊢ psi -> P p (phi :: A) psi -> P p A (phi --> psi)) ->
-    (forall (p : peirce) (A : list form) (phi psi : form),
-        A ⊢ phi --> psi -> P p A (phi --> psi) -> A ⊢ phi -> P p A phi -> P p A psi) ->
-    (forall (p : peirce) (A : list form) (phi : form),
-        (map (subst_form ↑) A) ⊢ phi -> P p (map (subst_form ↑) A) phi -> P p A (∀ phi)) ->
-    (forall (p : peirce) (A : list form) (t : term) (phi : form),
-        A ⊢ ∀ phi -> P p A (∀ phi) -> P p A phi[t..]) ->
-    (forall (p : peirce) (A : list form) (t : term) (phi : form),
-        A ⊢ phi[t..] -> P p A phi[t..] -> P p A (∃ phi)) ->
-    (forall (p : peirce) (A : list form) (phi psi : form),
-        A ⊢ ∃ phi ->
-              P p A (∃ phi) ->
-              (phi :: [p[↑] | p ∈ A]) ⊢ psi[↑] -> P p (phi :: [p[↑] | p ∈ A]) psi[↑] -> P p A psi) ->
-    (forall (p : peirce) (A : list form) (phi : form), A ⊢ ⊥ -> P p A ⊥ -> P p A phi) ->
-    (forall (p : peirce) (A : list form) (phi : form), phi el A -> P p A phi) ->
-    (forall (p : peirce) (A : list form) (phi psi : form),
-        A ⊢ phi -> P p A phi -> A ⊢ psi -> P p A psi -> P p A (phi ∧ psi)) ->
-    (forall (p : peirce) (A : list form) (phi psi : form),
-        A ⊢ phi ∧ psi -> P p A (phi ∧ psi) -> P p A phi) ->
-    (forall (p : peirce) (A : list form) (phi psi : form),
-        A ⊢ phi ∧ psi -> P p A (phi ∧ psi) -> P p A psi) ->
-    (forall (p : peirce) (A : list form) (phi psi : form),
-        A ⊢ phi -> P p A phi -> P p A (phi ∨ psi)) ->
-    (forall (p : peirce) (A : list form) (phi psi : form),
-        A ⊢ psi -> P p A psi -> P p A (phi ∨ psi)) ->
-    (forall (p : peirce) (A : list form) (phi psi theta : form),
-        A ⊢ phi ∨ psi ->
-        P p A (phi ∨ psi) ->
-        (phi :: A) ⊢ theta ->
-        P p (phi :: A) theta -> (psi :: A) ⊢ theta -> P p (psi :: A) theta -> P p A theta) ->
-    (forall (A : list form) (phi psi : form), P class A (((phi --> psi) --> phi) --> phi)) ->
-    forall (p : peirce) (l : list form) (f14 : form), l ⊢ f14 -> P p l f14.
-Proof.
-  intros. specialize (prv_ind (fun ff => match ff with falsity_on => P | _ => fun _ _ _ => True end)). intros H'.
-  apply H' with (ff := falsity_on); clear H'. all: intros; try destruct ff; trivial. all: intuition eauto 2.
-Qed.
-
-Lemma form_ind_subst { sig : funcs_signature } :
-  forall P : form -> Prop,
-    P ⊥ ->
-    (forall (P0 : ZF_pred_sig) (t : vec term (ar_preds P0)), P (atom P0 t)) ->
-    (forall (b0 : binop) (f1 : form), P f1 -> forall f2 : form, P f2 -> P (bin b0 f1 f2)) ->
-    (forall (q : quantop) (f2 : form), (forall sigma, P f2[sigma]) -> P (quant q f2)) ->
-    forall (f4 : form), P f4.
-Proof.
-Admitted.
 
 
 
@@ -590,12 +505,6 @@ Proof.
   intros H. apply impl_equiv; try tauto. intros B HB. apply prv_ex_eq. now rewrite H.
 Qed.
 
-Lemma DE' { p : peirce } A (phi : form') :
-  A ⊢ phi ∨ phi -> A ⊢ phi.
-Proof.
-  intros H. apply (DE H); auto.
-Qed.
-
 Lemma prv_to_min_refl { p : peirce } :
   minZFeq' ⊢ rm_const_fm ax_refl.
 Proof.
@@ -787,8 +696,8 @@ Proof.
   cbn. subsimpl. reflexivity.
 Qed.
 
-Arguments is_om : simpl never.
-Arguments is_inductive : simpl never.
+Local Arguments is_om : simpl never.
+Local Arguments is_inductive : simpl never.
 
 Lemma is_eset_sub { p : peirce } A x y :
   minZFeq' <<= A -> A ⊢ is_eset x -> A ⊢ sub' x y.
@@ -853,8 +762,8 @@ Proof.
     + apply (ExI o). cbn. subsimpl. rewrite !is_om_subst. cbn. apply CI; [eapply CE1 | eapply CE2]; auto.
 Qed.
 
-Arguments inductive : simpl never.
-Arguments is_om : simpl nomatch.
+Local Arguments inductive : simpl never.
+Local Arguments is_om : simpl nomatch.
 
 Lemma prv_to_min_om2 { p : peirce } :
   minZFeq' ⊢ rm_const_fm ax_om2.

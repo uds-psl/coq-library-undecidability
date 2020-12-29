@@ -8,6 +8,8 @@ Import ListAutomationNotations.
 Require Import Coq.Vectors.Vector.
 Local Notation vec := t.
 
+Require Import Equations.Equations.
+
 
 (* Some preliminary definitions for substitions  *)
 Definition scons {X: Type} (x : X) (xi : nat -> X) :=
@@ -121,6 +123,49 @@ Section fix_signature.
     - apply f1.
     - intros. apply f2. intros t. induction 1; inversion X; subst; eauto.
       apply Eqdep_dec.inj_pair2_eq_dec in H3; subst; eauto. decide equality.
+  Qed.
+
+  (* Substitution induction principle for formulas *)
+
+  Fixpoint size {ff : falsity_flag} (phi : form) :=
+    match phi with
+    | atom _ _ => 0
+    | falsity => 0
+    | bin b phi psi => S (size phi + size psi)
+    | quant q phi => S (size phi)
+    end.
+
+  Lemma size_ind {X : Type} (f : X -> nat) (P : X -> Prop) :
+    (forall x, (forall y, f y < f x -> P y) -> P x) -> forall x, P x.
+  Proof.
+    intros H x. apply H.
+    induction (f x).
+    - intros y. lia.
+    - intros y. intros [] % Lt.le_lt_or_eq.
+      + apply IHn; lia.
+      + apply H. injection H0. now intros ->.
+  Qed.
+
+  Lemma subst_size {ff : falsity_flag} rho phi :
+    size (subst_form rho phi) = size phi.
+  Proof.
+    revert rho; induction phi; intros rho; cbn; congruence.
+  Qed.
+
+  Derive Signature for form.
+
+  Lemma form_ind_subst :
+    forall P : form -> Prop,
+      P falsity ->
+      (forall P0 (t : vec term (ar_preds P0)), P (atom P0 t)) ->
+      (forall (b0 : binop) (f1 : form), P f1 -> forall f2 : form, P f2 -> P (bin b0 f1 f2)) ->
+      (forall (q : quantop) (f2 : form), (forall sigma, P (subst_form sigma f2)) -> P (quant q f2)) ->
+      forall (f4 : form), P f4.
+  Proof.
+    intros P H1 H2 H3 H4 phi. induction phi using (@size_ind _ size). depelim phi; trivial.
+    - injection H. intros -> % Eqdep_dec.inj_pair2_eq_dec; trivial. decide equality.
+    - apply H3; apply H; cbn; lia.
+    - apply H4. intros sigma. apply H. cbn. rewrite subst_size. lia.
   Qed.
 
 End fix_signature.
