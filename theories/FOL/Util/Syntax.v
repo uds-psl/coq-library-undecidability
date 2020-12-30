@@ -332,6 +332,110 @@ End Subst.
 
 
 
+(** ** Bounded formulas *)
+
+Section Bounded.
+
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+  Context {ops : operators}.
+
+  Inductive bounded_t n : term -> Prop :=
+  | bounded_var x : n > x -> bounded_t n $x
+  | bouded_func f v : (forall t, Vector.In t v -> bounded_t n t) -> bounded_t n (func f v).
+
+  Inductive bounded : forall {ff}, nat -> form ff -> Prop :=
+  | bounded_atom ff n P v : (forall t, Vector.In t v -> bounded_t n t) -> @bounded ff n (atom P v)
+  | bounded_bin binop ff n phi psi : @bounded ff n phi -> @bounded ff n psi -> @bounded ff n (bin binop phi psi)
+  | bounded_quant quantop ff n phi : @bounded ff (S n) phi -> @bounded ff n (quant quantop phi)
+  | bounded_falsity n : @bounded falsity_on n falsity.
+
+  Arguments bounded {_} _ _.
+
+  Definition bounded_L {ff : falsity_flag} n A :=
+    forall phi, phi el A -> bounded n phi.
+
+  Lemma bounded_subst_t n t sigma tau :
+    (forall k, n > k -> sigma k = tau k) -> bounded_t n t -> t`[sigma] = t`[tau].
+  Proof.
+    intros H. induction 1; cbn; auto.
+    f_equal. now apply Vector.map_ext_in.
+  Qed.
+
+  Lemma bounded_subst {ff : falsity_flag} {n phi sigma tau} :
+    bounded n phi -> (forall k, n > k -> sigma k = tau k) -> phi[sigma] = phi[tau].
+  Proof.
+    induction 1 in sigma, tau |- *; cbn; intros HN; trivial.
+    - f_equal. apply Vector.map_ext_in. intros t Ht.
+      eapply bounded_subst_t; try apply HN. now apply H.
+    - now rewrite (IHbounded1 sigma tau), (IHbounded2 sigma tau).
+    - f_equal. apply IHbounded. intros [|k] Hk; cbn; trivial.
+      unfold funcomp. rewrite HN; trivial. lia.
+  Qed.
+
+  Lemma bounded_up_t {n t k} :
+    bounded_t n t -> k >= n -> bounded_t k t.
+  Proof.
+    induction 1; intros Hk; constructor; try lia. firstorder.
+  Qed.
+
+  Lemma bounded_up {ff : falsity_flag} {n phi k} :
+    bounded n phi -> k >= n -> bounded k phi.
+  Proof.
+    induction 1 in k |- *; intros Hk; constructor; eauto.
+    - intros t Ht. eapply bounded_up_t; eauto.
+    - apply IHbounded. lia.
+  Qed.
+
+  Derive Signature for In.
+
+  Lemma find_bounded_step n (v : vec term n) :
+    (forall t : term, vec_in t v -> {n : nat | bounded_t n t}) -> { n | forall t, In t v -> bounded_t n t }.
+  Proof.
+    induction v; cbn; intros HV.
+    - exists 0. intros t. inversion 1.
+    - destruct IHv as [k Hk], (HV h) as [l Hl]; try left.
+      + intros t Ht. apply HV. now right.
+      + exists (k + l). intros t H. depelim H; cbn in *.
+        * injection H. intros _ <-. apply (bounded_up_t Hl). lia.
+        * injection H0. intros -> % Eqdep_dec.inj_pair2_eq_dec _; try decide equality.
+          apply (bounded_up_t (Hk t H)). lia.
+  Qed.
+
+  Lemma find_bounded_t t :
+    { n | bounded_t n t }.
+  Proof.
+    induction t using term_rect.
+    - exists (S x). constructor. lia.
+    - apply find_bounded_step in X as [n H]. exists n. now constructor.
+  Qed.
+
+  Lemma find_bounded {ff : falsity_flag} phi :
+    { n | bounded n phi }.
+  Proof.
+    induction phi.
+    - exists 0. constructor.
+    - destruct (find_bounded_step _ t) as [n Hn].
+      + eauto using find_bounded_t.
+      + exists n. now constructor.
+    - destruct IHphi1 as [n Hn], IHphi2 as [k Hk]. exists (n + k).
+      constructor; eapply bounded_up; try eassumption; lia.
+    - destruct IHphi as [n Hn]. exists n. constructor. apply (bounded_up Hn). lia.
+  Qed.
+
+  Lemma find_bounded_L {ff : falsity_flag} A :
+    { n | bounded_L n A }.
+  Proof.
+    induction A; cbn.
+    - exists 0. intros phi. inversion 1.
+    - destruct IHA as [k Hk], (find_bounded a) as [l Hl].
+      exists (k + l). intros t [<-|H]; eapply bounded_up; try eassumption; try (now apply Hk); lia.
+  Qed.
+
+End Bounded.
+
+
+
 (* ** Discreteness *)
 
 From Equations Require Import Equations.

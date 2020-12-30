@@ -4,7 +4,7 @@ From Undecidability Require Import FOL.Util.FullTarski FOL.Util.Syntax.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 Local Set Implicit Arguments.
-
+Require Import Lia.
 
 
 
@@ -84,17 +84,65 @@ Section ND_def.
       erewrite map_map, map_ext in IHprv2; try apply IHprv2. apply up_form.
   Qed.
 
+  Definition cycle_shift n x :=
+    if Dec (n = x) then $0 else $(S x).
+
+  Lemma cycle_shift_shift n phi :
+    bounded n phi -> phi[cycle_shift n] = phi[↑].
+  Proof.
+    intros H. apply (bounded_subst H). intros k. unfold cycle_shift. decide _; trivial; lia.
+  Qed.
+
+  Lemma cycle_shift_subject n phi :
+    bounded (S n) phi -> phi[$n..][cycle_shift n] = phi.
+  Proof.
+    intros H. erewrite subst_comp, (bounded_subst H), subst_id; trivial.
+    intros []; cbn; unfold cycle_shift; decide _; trivial; lia.
+  Qed.
+
+  Lemma nameless_equiv_all' A phi n :
+    bounded_L n A -> bounded (S n) phi -> [p[↑] | p ∈ A] ⊢ phi <-> A ⊢ phi[$n..].
+  Proof.
+    intros H1 H2. split; intros H.
+    - apply (subst_Weak ($n..)) in H. rewrite map_map in *.
+      erewrite map_ext, map_id in H; try apply H. intros. apply subst_shift.
+    - apply (subst_Weak (cycle_shift n)) in H. rewrite (map_ext_in _ (subst_form ↑)) in H.
+      + now rewrite cycle_shift_subject in H.
+      + intros psi HP. now apply cycle_shift_shift, H1.
+  Qed.
+
+  Lemma nameless_equiv_ex' A phi psi n :
+    bounded_L n A -> bounded n phi -> bounded (S n) psi -> psi::[p0[↑] | p0 ∈ A] ⊢ phi[↑] <-> psi[$n..]::A ⊢ phi.
+  Proof.
+    intros HL Hphi Hpsi. split.
+    - intros H % (subst_Weak ($n..)). cbn in *.
+      rewrite map_map, (map_ext _ id), map_id in H.
+      + now rewrite subst_shift in H.
+      + intros. apply subst_shift.
+    - intros H % (subst_Weak (cycle_shift n)). cbn in *.
+      rewrite (map_ext_in _ (subst_form ↑)) in H.
+      + now rewrite cycle_shift_subject, cycle_shift_shift in H.
+      + intros theta HT. now apply cycle_shift_shift, HL.
+  Qed.
+
   Lemma nameless_equiv_all A phi :
     { t : term | map (subst_form ↑) A ⊢ phi <-> A ⊢ phi[t..] }.
   Proof.
-  Admitted.
+    destruct (find_bounded_L (phi::A)) as [n H].
+    exists $n. apply nameless_equiv_all'.
+    - intros ? ?. apply H. auto.
+    - eapply bounded_up; try apply H; auto.
+  Qed.
 
   Lemma nameless_equiv_ex A phi psi :
     { t : term | phi :: map (subst_form ↑) A ⊢ psi[↑] <-> phi[t..]::A ⊢ psi }.
   Proof.
-  Admitted.
-
-  Hint Constructors prv : core.
+    destruct (find_bounded_L (phi::psi::A)) as [n H].
+    exists $n. apply nameless_equiv_ex'.
+    - intros ? ?. apply H. auto.
+    - apply H. auto.
+    - eapply bounded_up; try apply H; auto.
+  Qed.
 
   Lemma imps T phi psi :
     T ⊢ phi --> psi <-> (phi :: T) ⊢ psi.
