@@ -104,5 +104,3 @@ Proof.
   intros (V & M & H1 & H2 & H3) % normaliser_model. apply undecidable_deduction_minZF'.
   exists V, M. split; trivial. split; trivial. eauto using ZF.
 Qed.
-
-Print Assumptions undecidable_deduction_minZF.
