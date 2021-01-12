@@ -1,8 +1,8 @@
-(** * Reduction to deductive ZF entailment *)
+(* * Reduction to deductive ZF entailment *)
 
 Require Import Undecidability.FOL.Util.Syntax.
 Require Import Undecidability.FOL.Util.FullTarski.
-Require Import Undecidability.FOL.Util.FullDeduction.
+Require Import Undecidability.FOL.Util.FullDeduction_facts.
 Require Import Undecidability.FOL.ZF.
 Require Import Undecidability.FOL.Reductions.PCPb_to_ZF.
 
@@ -19,7 +19,7 @@ Local Notation "x / y" := (x, y).
 
 
 
-(** ** Simple derivations in ZF *)
+(* ** Simple derivations in ZF *)
 
 Section ZF.
 
@@ -398,7 +398,7 @@ Qed.
 
 
 
-(** ** Preservation proof *)
+(* ** Preservation proof *)
 
 Fixpoint enc_derivations B n :=
   match n with 

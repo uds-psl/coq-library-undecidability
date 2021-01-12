@@ -1,4 +1,4 @@
-(** * Consistency of ZF-Axiomatisation *)
+(* * Consistency of ZF-Axiomatisation *)
 
 Require Import Setoid Morphisms.
 
@@ -7,7 +7,7 @@ Local Unset Strict Implicit.
 
 
 
-(** ** Well-Founded Trees *)
+(* ** Well-Founded Trees *)
 
 Inductive Acz : Type :=
   Asup : forall A : Type, (A -> Acz) -> Acz.
@@ -126,7 +126,7 @@ Qed.
 
 
 
-(** ** Set Operations *)
+(* ** Set Operations *)
 
 Definition AEmpty :=
   Asup False (fun a => match a with end).
@@ -383,7 +383,7 @@ Qed.
 
 
 
-(** ** Quotient Model *)
+(* ** Quotient Model *)
 
 Class extensional_normaliser :=
   {
@@ -551,7 +551,7 @@ Section QM.
 
 
 
-  (** ** Extensional Axioms *)
+  (* ** Extensional Axioms *)
 
   (* Lifted set operations *)
 

@@ -1,4 +1,4 @@
-(** * Definition of semantic and deductive ZF-Entailment *)
+(* * Definition of semantic and deductive ZF-Entailment *)
 
 Require Import Undecidability.FOL.Util.Syntax.
 Require Import Undecidability.FOL.Util.FullTarski.
@@ -7,7 +7,7 @@ Require Import List.
 
 
  
-(** ** Signature *)
+(* ** Signature for ZF axiomatisation, containing function symbols for set operations *)
 
 Existing Instance falsity_on.
 
@@ -42,7 +42,7 @@ Instance ZF_pred_sig : preds_signature :=
 
 
 
-(** ** Axioms *)
+(* ** Axioms *)
 
 Arguments Vector.nil {_}, _.
 Arguments Vector.cons {_} _ {_} _, _ _ _ _.
@@ -97,8 +97,12 @@ Definition fun_rel phi :=
 Definition ax_rep phi :=
   fun_rel phi --> ∀ ∃ ∀ $0 ∈ $1 <--> ∃ $0 ∈ $3 ∧ phi[$0 .: $1 .: Nat.add 4 >> var].
 
+(* List of core axioms without schemes for separation and replacement *)
+
 Definition ZF' :=
   ax_ext :: ax_eset :: ax_pair :: ax_union :: ax_power :: ax_om1 :: ax_om2 :: nil.
+
+(* Theory of full ZF including the separation and replacement schemes *)
 
 Inductive ZF : form -> Prop :=
 | ZF_base phi : In phi ZF' -> ZF phi
@@ -117,8 +121,12 @@ Definition ax_trans :=
 Definition ax_eq_elem :=
   ∀ ∀ ∀ ∀ $3 ≡ $1 --> $2 ≡ $0 --> $3 ∈ $2 --> $1 ∈ $0.
 
+(* List of core axioms plus equality axioms *)
+
 Definition ZFeq' :=
   ax_refl :: ax_sym :: ax_trans :: ax_eq_elem :: ZF'.
+
+(* Theory of full ZF plus equality axioms *)
 
 Inductive ZFeq : form -> Prop :=
 | ZFeq_base phi : In phi ZFeq' -> ZFeq phi
@@ -127,7 +135,7 @@ Inductive ZFeq : form -> Prop :=
 
 
 
-(** ** Problems *)
+(* ** Problems *)
 
 Notation extensional M :=
   (forall x y, @i_atom _ _ _ M equal (Vector.cons x (Vector.cons y Vector.nil)) <-> x = y).

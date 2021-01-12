@@ -1,4 +1,4 @@
-(** * Definition of semantic and deductive ZF-Entailment in minimal signature *)
+(* * Definition of semantic and deductive ZF-Entailment in minimal signature *)
 
 Require Import Undecidability.FOL.Util.Syntax.
 Require Import Undecidability.FOL.Util.FullTarski.
@@ -8,7 +8,7 @@ Require Import List.
 
 
  
-(** ** Minimal signature *)
+(* ** Minimal signature only containing membership and equality, no function symbols *)
 
 Instance sig_empty : funcs_signature :=
     {| syms := False;  ar_syms := False_rect nat |}.
@@ -18,26 +18,12 @@ Existing Instance ZF_func_sig.
 Notation term' := (term sig_empty).
 Notation form' := (form sig_empty _ _ falsity_on).
 
-Definition embed_t (t : term') : term :=
-  match t with
-  | $x => $x
-  | func f ts => False_rect term f
-  end.
-
-Fixpoint embed {ff'} (phi : form sig_empty ZF_pred_sig _ ff') : form ff' :=
-  match phi with 
-  | atom P ts => atom P (Vector.map embed_t ts)
-  | bin b phi psi => bin b (embed phi) (embed psi)
-  | quant q phi => quant q (embed phi)
-  | ⊥ => ⊥
-  end.
-
 Notation "x ∈' y" := (atom sig_empty ZF_pred_sig elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 35).
 Notation "x ≡' y" := (atom sig_empty ZF_pred_sig equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35).
 
 
 
-(** ** Characterisations of set operations *)
+(* ** Characterisations of set operations *)
 
 Fixpoint shift `{funcs_signature} `{preds_signature} n (t : term) :=
   match n with 
@@ -71,7 +57,7 @@ Definition is_om (t : term') :=
 
 
 
-(** ** Symbol-free axiomatisation *)
+(* ** Symbol-free axiomatisation *)
 
 Definition ax_ext' :=
   ∀ ∀ sub' $1 $0 --> sub' $0 $1 --> $1 ≡' $0.
@@ -103,8 +89,12 @@ Definition ax_trans' :=
 Definition ax_eq_elem' :=
   ∀ ∀ ∀ ∀ $3 ≡' $1 --> $2 ≡' $0 --> $3 ∈' $2 --> $1 ∈' $0.
 
+(* List of core axioms without schemes for separation and replacement *)
+
 Definition minZF' :=
   ax_ext' :: ax_eset' :: ax_pair' :: ax_union' :: ax_power' :: ax_om' :: nil.
+
+(* List of core axioms plus equality axioms *)
 
 Definition minZFeq' :=
   ax_refl' :: ax_sym' :: ax_trans' :: ax_eq_elem' :: minZF'.
@@ -118,10 +108,14 @@ Definition fun_rel' phi :=
 Definition ax_rep' phi :=
   fun_rel' phi --> ∀ ∃ ∀ $0 ∈' $1 <--> ∃ $0 ∈' $3 ∧ phi[$0 .: $1 .: Nat.add 4 >> var].
 
+(* Theory of full ZF including the separation and replacement schemes *)
+
 Inductive minZF : form' -> Prop :=
 | minZF_base phi : In phi minZF' -> minZF phi
 | minZF_sep phi : minZF (ax_sep' phi)
 | minZF_rep phi : minZF (ax_rep' phi).
+
+(* Theory of full ZF plus equality axioms *)
 
 Inductive minZFeq : form' -> Prop :=
 | minZFeq_base phi : In phi minZFeq' -> minZFeq phi
@@ -130,7 +124,7 @@ Inductive minZFeq : form' -> Prop :=
 
 
 
-(** ** Problems *)
+(* ** Problems *)
 
 (* Semantic entailment restricted to extensional models and core axioms (without sep and rep). *)
 

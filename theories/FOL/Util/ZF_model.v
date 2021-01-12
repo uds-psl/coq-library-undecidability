@@ -1,6 +1,6 @@
-(** * Instantiation of first-order axiomatisation *)
+(* * Instantiation of first-order axiomatisation *)
 
-From Undecidability.FOL Require Import ZF Util.Aczel Util.Syntax Util.FullTarski Reductions.PCPb_to_ZF.
+From Undecidability.FOL Require Import ZF Util.Aczel Util.Syntax Util.FullTarski_facts Reductions.PCPb_to_ZF.
 
 Section ZFM.
 
@@ -79,4 +79,14 @@ Section ZFM.
   Qed.
 
 End ZFM.
+
+Lemma normaliser_model :
+  inhabited extensional_normaliser -> exists V (M : interp V), extensional M /\ standard M /\ forall rho psi, ZF psi -> rho ⊨ psi.
+Proof.
+  intros [H]. exists SET, SET_interp. split; try apply SET_ext.
+  split; try apply SET_standard. intros rho psi [].
+  - now apply SET_ZF'.
+  - apply SET_sep.
+  - apply SET_rep.
+Qed.
   

@@ -1,7 +1,7 @@
 (* * FOL Reductions *)
 
 From Undecidability.PCP Require Import PCP Util.PCP_facts.
-From Undecidability.FOL Require Import Util.Deduction Util.Tarski Util.Syntax FOL.
+From Undecidability.FOL Require Import Util.Deduction Util.Tarski Util.Syntax_facts FOL.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
 Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
 

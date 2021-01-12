@@ -1,6 +1,7 @@
-(** * Conservativity *)
+(* * Conservativity *)
 
-From Undecidability.FOL Require Import Util.FullTarski Util.Syntax Util.FullDeduction ZF Reductions.PCPb_to_ZF minZF.
+From Undecidability.FOL Require Import Util.FullTarski_facts Util.Syntax_facts Util.FullDeduction_facts.
+From Undecidability.FOL Require Import ZF Reductions.PCPb_to_ZF minZF.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 Local Set Implicit Arguments.
@@ -12,7 +13,25 @@ Local Notation vec := Vector.t.
 
 
 
-(** ** Translation function *)
+(* ** Trivial embedding into rich signature *)
+
+Definition embed_t (t : term') : term :=
+  match t with
+  | $x => $x
+  | func f ts => False_rect term f
+  end.
+
+Fixpoint embed {ff'} (phi : form sig_empty ZF_pred_sig _ ff') : form ff' :=
+  match phi with 
+  | atom P ts => atom P (Vector.map embed_t ts)
+  | bin b phi psi => bin b (embed phi) (embed psi)
+  | quant q phi => quant q (embed phi)
+  | ⊥ => ⊥
+  end.
+
+
+
+(* ** Translation function *)
 
 Definition sshift {Σ_funcs : funcs_signature} k : nat -> term :=
   fun n => match n with 0 => $0 | S n => $(1 + k + n) end.
@@ -43,7 +62,7 @@ Fixpoint rm_const_fm {ff : falsity_flag} (phi : form) : form' :=
 
 
 
-(** ** Vector inversion lemmas *)
+(* ** Vector inversion lemmas *)
 
 Derive Signature for vec.
 
@@ -91,7 +110,7 @@ Qed.
 
 
 
-(** ** Semantics *)
+(* ** Semantics *)
 
 Section Model.
 
@@ -286,9 +305,23 @@ Section Model.
 
 End Model.
 
+Lemma extensional_eq_min' V (M : @interp sig_empty _ V) rho :
+  extensional M -> rho ⊫ minZF' -> rho ⊫ minZFeq'.
+Proof.
+  intros H1 H2 phi [<-|[<-|[<-|[<-|H]]]]; try now apply H2.
+  all: cbn; intros; rewrite !H1 in *; congruence.
+Qed.
+
+Lemma extensional_eq_min V (M : @interp sig_empty _ V) rho :
+  extensional M -> (forall phi, minZF phi -> rho ⊨ phi) -> (forall phi, minZFeq phi -> rho ⊨ phi).
+Proof.
+  intros H1 H2 phi []; try now apply H2; auto using minZF.
+  apply extensional_eq_min'; auto using minZF.
+Qed.
 
 
-(** ** Substitution lemmas *)
+
+(* ** Substitution lemmas *)
 
 Lemma up_sshift1 (phi : form') sigma :
   phi[sshift 1][up (up sigma)] = phi[up sigma][sshift 1].
@@ -348,7 +381,7 @@ Qed.
 
 
 
-(** ** Deductions in minimal axiomatisation *)
+(* ** Deductions in minimal axiomatisation *)
 
 Ltac prv_all' x :=
   apply AllI; edestruct (@nameless_equiv_all sig_empty) as [x ->]; cbn; subsimpl.
@@ -489,7 +522,7 @@ Qed.
 
 
 
-(** ** Verification of translated axioms *)
+(* ** Verification of translated axioms *)
 
 Lemma prv_ex_eq { p : peirce } A x phi :
   minZFeq' <<= A -> A ⊢ phi[x..] <-> A ⊢ ∃ $0 ≡' x`[↑] ∧ phi.
@@ -784,7 +817,7 @@ Qed.
 
 
 
-(** ** Deduction *)
+(* ** Deduction *)
 
 Section Deduction.
 
