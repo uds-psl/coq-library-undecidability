@@ -133,7 +133,7 @@ Section KSoundness.
     all: repeat (clean_ksoundness + discriminate). all: (eauto || comp; eauto).
     - intros v Hr Hpi. eapply IHHprv. intros ? []; subst; eauto using ksat_mon.
     - eapply IHHprv1. 3: eapply IHHprv2. all: eauto. apply M.
-    - intros d. apply IHHprv. intros psi [psi' [<- Hp]] % in_map_iff. cbns. rewrite ksat_comp. apply HA, Hp.
+    - intros d. apply IHHprv. intros psi [psi' [<- Hp]] % in_map_iff. cbn. rewrite ksat_comp. apply HA, Hp.
     - rewrite ksat_comp. eapply ksat_ext. 2: eapply (IHHprv u rho HA (eval rho t)). 
       unfold funcomp. now intros [].
     - now apply IHHprv in HA.

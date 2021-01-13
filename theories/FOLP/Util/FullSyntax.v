@@ -205,13 +205,3 @@ Tactic Notation "asimpl" "in" hyp(J) := revert J; asimpl; intros J.
 Tactic Notation "auto_case" := auto_case (asimpl; cbn; eauto).
 
 Tactic Notation "asimpl" "in" "*" := auto_unfold in *; repeat first [progress rewrite ?instId_term in *| progress rewrite ?term in *| progress rewrite ?compComp_term in *| progress rewrite ?compComp'_term in *| progress rewrite ?instId_form in *| progress rewrite ?form in *| progress rewrite ?compComp_form in *| progress rewrite ?compComp'_form in *| progress rewrite ?varL_term in *| progress (unfold up_ren, up_term_term)| progress (cbn [subst_term subst_form] in *)| fsimpl in *].
-
-
-
-
-
-  
-
-                                                                     
-
-                                                                     
