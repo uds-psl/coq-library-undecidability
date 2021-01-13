@@ -47,22 +47,25 @@ Instance ZF_pred_sig : preds_signature :=
 Arguments Vector.nil {_}, _.
 Arguments Vector.cons {_} _ {_} _, _ _ _ _.
 
-Notation "x ∈ y" := (atom _ ZF_pred_sig elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 35).
-Notation "x ≡ y" := (atom (Σ_preds := ZF_pred_sig) equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35).
+Declare Scope syn.
+Open Scope syn.
 
-Notation "∅" := (func ZF_func_sig eset Vector.nil).
-Notation "'ω'" := (func ZF_func_sig om Vector.nil).
-Notation "{ x ; y }" := (func ZF_func_sig pair (Vector.cons x (Vector.cons y Vector.nil))) (at level 31).
-Notation "⋃ x" := (func ZF_func_sig union (Vector.cons x Vector.nil)) (at level 32).
-Notation "'PP' x" := (func ZF_func_sig power (Vector.cons x Vector.nil)) (at level 31).
+Notation "x ∈ y" := (atom _ ZF_pred_sig elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : syn.
+Notation "x ≡ y" := (atom (Σ_preds := ZF_pred_sig) equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : syn.
 
-Notation "x ∪ y" := (⋃ {x; y}) (at level 32).
-Notation  "'σ' x" := (x ∪ {x; x}) (at level 32).
+Notation "∅" := (func ZF_func_sig eset Vector.nil) : syn.
+Notation "'ω'" := (func ZF_func_sig om Vector.nil) : syn.
+Notation "{ x ; y }" := (func ZF_func_sig pair (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : syn.
+Notation "⋃ x" := (func ZF_func_sig union (Vector.cons x Vector.nil)) (at level 32) : syn.
+Notation "'PP' x" := (func ZF_func_sig power (Vector.cons x Vector.nil)) (at level 31) : syn.
+
+Notation "x ∪ y" := (⋃ {x; y}) (at level 32) : syn.
+Notation  "'σ' x" := (x ∪ {x; x}) (at level 32) : syn.
 
 Definition sub x y :=
   ∀ $0 ∈ x`[↑] --> $0 ∈ y`[↑].
 
-Notation "x ⊆ y" := (sub x y) (at level 34).
+Notation "x ⊆ y" := (sub x y) (at level 34) : syn.
 
 Definition ax_ext :=
   ∀ ∀ $1 ⊆ $0 --> $0 ⊆ $1 --> $1 ≡ $0.

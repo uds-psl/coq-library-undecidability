@@ -18,8 +18,8 @@ Existing Instance ZF_func_sig.
 Notation term' := (term sig_empty).
 Notation form' := (form sig_empty _ _ falsity_on).
 
-Notation "x ∈' y" := (atom sig_empty ZF_pred_sig elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 35).
-Notation "x ≡' y" := (atom sig_empty ZF_pred_sig equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35).
+Notation "x ∈' y" := (atom sig_empty ZF_pred_sig elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : syn.
+Notation "x ≡' y" := (atom sig_empty ZF_pred_sig equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : syn.
 
 
 

@@ -110,11 +110,10 @@ Arguments subst_form _ _ _ _, _ _ {_ _}, {_ _ _ _}.
 
 (* Substitution Notation *)
 
-Notation "$ x" := (var x) (at level 3, format "$ '/' x").
-
 Declare Scope subst_scope.
 Open Scope subst_scope.
 
+Notation "$ x" := (var x) (at level 3, format "$ '/' x") : subst_scope.
 Notation "t `[ sigma ]" := (subst_term sigma t) (at level 7, left associativity, format "t '/' `[ sigma ]") : subst_scope.
 Notation "phi [ sigma ]" := (subst_form sigma phi) (at level 7, left associativity, format "phi '/' [ sigma ]") : subst_scope.
 Notation "s .: sigma" := (scons s sigma) (at level 70, right associativity) : subst_scope.
