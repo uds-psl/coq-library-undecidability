@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 env:
   OCAML_VERSION: 4.07.1+flambda
-  CACHE_KEY: opam-flambda-8.13+beta-${{github.base_ref}}-${{github.ref}} 
+  CACHE_KEY: opam-flambda-8.13-${{github.base_ref}}-${{github.ref}} 
 jobs:
   build-deps:
     runs-on: ubuntu-latest
