@@ -1,7 +1,7 @@
-(** * Reduction to semantic ZF entailment *)
+(* * Reduction to semantic ZF entailment *)
 
 Require Import Undecidability.FOL.Util.Syntax.
-Require Import Undecidability.FOL.Util.FullTarski.
+Require Import Undecidability.FOL.Util.FullTarski_facts.
 Require Import Undecidability.FOL.ZF.
 Require Import Lia.
 
@@ -15,7 +15,7 @@ Local Unset Strict Implicit.
 
 
 
-(** ** Reduction function *)
+(* ** Reduction function *)
 
 Local Definition BSRS := list(card bool).
 Local Notation "x / y" := (x, y).
@@ -82,7 +82,7 @@ Definition solvable (B : BSRS) :=
 
 
 
-(** ** ZF-Models *)
+(* ** ZF-Models *)
 
 Declare Scope sem.
 Open Scope sem.
@@ -92,17 +92,17 @@ Notation "x ≡ y" := (@i_atom _ _ _ _ equal (Vector.cons x (Vector.cons y Vecto
 Notation "x ⊆ y" := (forall z, z ∈ x -> z ∈ y) (at level 34) : sem.
 
 Notation "∅" := (@i_func ZF_func_sig ZF_pred_sig _ _ eset Vector.nil) : sem.
-Notation "'ω'" := (@i_func _ _ _ _ om Vector.nil) : sem.
-Notation "{ x ; y }" := (@i_func _ _ _ _ pair (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : sem.
-Notation "⋃ x" := (@i_func _ _ _ _ union (Vector.cons x Vector.nil)) (at level 32) : sem.
-Notation "'PP' x" := (@i_func _ _ _ _ power (Vector.cons x Vector.nil)) (at level 31) : sem.
+Notation "'ω'" := (@i_func ZF_func_sig _ _ _ om Vector.nil) : sem.
+Notation "{ x ; y }" := (@i_func ZF_func_sig _ _ _ pair (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : sem.
+Notation "⋃ x" := (@i_func ZF_func_sig _ _ _ union (Vector.cons x Vector.nil)) (at level 32) : sem.
+Notation "'PP' x" := (@i_func ZF_func_sig _ _ _ power (Vector.cons x Vector.nil)) (at level 31) : sem.
 
 Notation "x ∪ y" := (⋃ {x; y}) (at level 32) : sem.
 Notation "'σ' x" := (x ∪ {x; x}) (at level 32) : sem.
 
 
 
-(** ** Internal axioms *)
+(* ** Internal axioms *)
 
 Section ZF.
 
@@ -208,7 +208,7 @@ Section ZF.
 
 
 
-  (** ** Basic ZF *)
+  (* ** Basic ZF *)
 
   Definition M_sing x :=
     {x; x}.
@@ -353,7 +353,7 @@ Section ZF.
 
   
   
-  (** ** Numerals *)
+  (* ** Numerals *)
 
   Fixpoint numeral n :=
     match n with 
@@ -405,7 +405,7 @@ Section ZF.
 
 
 
-  (** ** Encodings *)
+  (* ** Encodings *)
 
   (* Encodings of booleans, strings, cards, and stacks *)
 
@@ -527,7 +527,7 @@ Section ZF.
 
 
 
-  (** ** Preservation direction *)
+  (* ** Preservation direction *)
 
   (*
      We encode the k-step solutions of a PCP instance B as a set-theoretic function M_enc_derivations.
@@ -689,7 +689,7 @@ Section ZF.
 
 
 
-  (** ** Reflection direction *)
+  (* ** Reflection direction *)
 
   (*
     Conversely, we show how to reconstruct a solution of a PCP instance B from a model
@@ -811,7 +811,7 @@ End ZF.
 
 
 
-(** ** Reduction Theorem *)
+(* ** Reduction Theorem *)
 
 Arguments standard {_} _.
 
@@ -837,4 +837,11 @@ Proof.
     specialize (H M H1 (fun _ => @i_func _ _ _ _ eset Vector.nil) H2 H4).
     apply PCP_ZF2 in H as [s Hs]; trivial; try now exists s.
     intros sigma phi HP. apply H4. now constructor.
+Qed.
+
+Lemma extensional_eq V (M : interp V) rho :
+  extensional M -> rho ⊫ ZF' -> rho ⊫ ZFeq'.
+Proof.
+  intros H1 H2 phi [<-|[<-|[<-|[<-|H]]]]; try now apply H2.
+  all: cbn; intros; rewrite !H1 in *; congruence.
 Qed.
