@@ -646,7 +646,6 @@ Proof.
   unfold solvable.
   apply ExI with (tnumeral n). cbn.
   apply ExI with (enc_derivations B n). cbn.
-  apply ExI with (opair (enc_string s) (enc_string s)). cbn.
   apply ExI with (enc_string s). cbn. subsimpl.
   apply ExI with (enc_stack (derivations B n)). cbn.
   rewrite !enc_stack_subst, !combinations_subst. cbn. subsimpl.
@@ -659,7 +658,6 @@ Proof.
     cbn. subsimpl. apply combinations_step.
   - apply enc_derivations_step.
   - now apply enc_stack_spec.
-  - apply ZF_refl.
 Qed.
 
 Theorem PCP_ZFD B :

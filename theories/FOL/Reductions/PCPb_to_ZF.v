@@ -35,11 +35,11 @@ Definition opair a b :=
 Definition pairing f A :=
   ∀ $0 ∈ shift 1 f --> ∃ ∃ $1 ∈ shift 3 A ∧ $2 ≡ opair $1 $0.
 
-Definition function f A :=
+Definition function' f A :=
   pairing f A ∧ ∀ ∃ $0 ∈ shift 2 A ∧ opair $0 $1 ∈ shift 2 f
                     ∧ ∀ opair $1 $0 ∈ shift 2f --> $2 ≡ $0.
 
-Definition function' f :=
+Definition function f :=
   ∀ ∀ ∀ opair $2 $1 ∈ shift 3 f --> opair $2 $0 ∈ shift 3 f --> $1 ≡ $0.
 
 Definition enc_bool (x : bool) :=
@@ -78,7 +78,7 @@ Definition solutions (B : BSRS) f n :=
                --> combinations B $1 $0 --> opair (σ $2) $0 ∈ shift 3 f.
 
 Definition solvable (B : BSRS) :=
-  ∃ ∃ ∃ ∃ ∃ $4 ∈ ω ∧ function' $3 ∧ solutions B $3 $4 ∧ opair $4 $0 ∈ $3 ∧ $2 ∈ $0 ∧ $2 ≡ opair $1 $1.
+  ∃ ∃ ∃ ∃ $3 ∈ ω ∧ function $2 ∧ solutions B $2 $3 ∧ opair $3 $0 ∈ $2 ∧ opair $1 $1 ∈ $0.
 
 
 
@@ -669,8 +669,7 @@ Section ZF.
     derivable B s s -> forall rho, rho ⊨ solvable B.
   Proof.
     intros H rho. destruct (derivable_derivations H) as [n Hn]. unfold solvable.
-    exists (numeral n), (M_enc_derivations B n), (M_opair (M_enc_string s) (M_enc_string s)).
-    exists (M_enc_string s), (M_enc_stack (derivations B n)). repeat split.
+    exists (numeral n), (M_enc_derivations B n), (M_enc_string s), (M_enc_stack (derivations B n)). repeat split.
     - apply numeral_omega.
     - unfold function'. intros k x y H1 H2. apply VIEQ. apply (enc_derivations_fun H1 H2).
     - specialize (enc_derivations_base B n). intros HB.
@@ -682,9 +681,8 @@ Section ZF.
       specialize (enc_derivations_step B H1).
       replace (M_enc_stack (derivations B (S l))) with x'; trivial.
       apply (enc_stack_combinations H3); trivial.
-    - apply derivations_enc_derivations.
+    - cbn. apply derivations_enc_derivations.
     - now apply enc_stack_el.
-    - cbn. apply VIEQ. reflexivity.
   Qed.
 
 
@@ -792,19 +790,18 @@ Section ZF.
   Theorem PCP_ZF2 B rho :
     standard -> rho ⊨ solvable B -> exists s, derivable B s s.
   Proof.
-    intros VIN (n & f & p & s & X & [[[[[H1 H2] H3] H4] H5] H6]).
+    intros VIN (n & f & s & X & [[[[H1 H2] H3] H4] H5]).
     assert (H1' : n ∈ ω) by apply H1. clear H1.
-    assert (H6' : p = M_opair s s) by apply VIEQ, H6. clear H6.
     assert (H4' : M_opair n X ∈ f) by apply H4. clear H4.
-    assert (H5' : p ∈ X) by apply H5. clear H5.
+    assert (H5' : M_opair s s ∈ X) by apply H5. clear H5.
     assert (H2' : M_function f).
     { intros x y y' H H'. apply VIEQ. eapply H2. apply H. apply H'. } clear H2.
     assert (H3' : M_opair ∅ (M_enc_stack B) ∈ f).
     { erewrite <- eval_enc_stack. apply H3. } destruct H3 as [_ H3].
     assert (H3'' : forall k x y, k ∈ n -> M_opair k x ∈ f -> M_combinations B x y -> M_opair (σ k) y ∈ f).
     { intros k x y Hn Hk Hy. apply (H3 k x y); auto. fold sat. eapply M_combinations_spec; eauto. } clear H3.
-    destruct (VIN _ H1') as [l ->]. destruct (@M_solutions_el B f l l X p) as (u&v&->&H2); trivial. now split.
-    exists u. apply opair_inj in H6' as [<- H]. apply enc_string_inj in H as ->. apply H2.
+    destruct (VIN _ H1') as [l ->]. destruct (@M_solutions_el B f l l X (M_opair s s)) as (u&v&H1&H2); trivial.
+    now split. exists u. apply opair_inj in H1 as [H ->]. apply enc_string_inj in H as ->. apply H2.
   Qed.
   
 End ZF.
