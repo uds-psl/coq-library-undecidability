@@ -650,6 +650,18 @@ Section ZF.
       + eapply IH; eauto. unfold shift. now erewrite !eval_comp, eval_ext, R1.
   Qed.
 
+  Lemma enc_derivations_solutions B n rho a b :
+    (a .: b .: M_enc_derivations B n .: numeral n .: rho) ⊨ solutions B $2 $3.
+  Proof.
+    cbn. split.
+    - rewrite eval_enc_stack. apply enc_derivations_base.
+    - intros k x x' H1 H2 H3.
+      destruct (enc_derivations_el H2) as [l[-> ->]].
+      specialize (enc_derivations_step B H1).
+      replace (M_enc_stack (derivations B (S l))) with x'; trivial.
+      apply (enc_stack_combinations H3); trivial.
+  Qed.
+
   Lemma derivations_enc_derivations B n :
     M_opair (numeral n) (M_enc_stack (derivations B n)) ∈ M_enc_derivations B n.
   Proof.
@@ -663,21 +675,6 @@ Section ZF.
      s / t el derivations B n -> M_enc_card s t ∈ M_enc_stack (derivations B n).
   Proof.
     apply enc_stack_el.
-  Qed.
-
-  Lemma enc_derivations_solutions B n rho a b :
-    (a .: b .: M_enc_derivations B n .: numeral n .: rho) ⊨ solutions B $2 $3.
-  Proof.
-    cbn. split.
-    - specialize (enc_derivations_base B n). intros HB.
-      erewrite <- eval_enc_stack in HB. apply HB.
-    - intros k x x' H1' H2' H3.
-      assert (H1 : k ∈ numeral n) by apply H1'. clear H1'.
-      assert (H2 : M_opair k x ∈ M_enc_derivations B n) by apply H2'. clear H2'.
-      destruct (enc_derivations_el H2) as [l[-> ->]].
-      specialize (enc_derivations_step B H1).
-      replace (M_enc_stack (derivations B (S l))) with x'; trivial.
-      apply (enc_stack_combinations H3); trivial.
   Qed.
 
   Theorem PCP_ZF1 B s :
