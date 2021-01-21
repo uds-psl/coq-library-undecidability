@@ -83,22 +83,22 @@ Section Non_deterministic_Minsky_Machines.
 
     | in_ndmm2a_stop  : forall p,         STOP p ∊ Σ      ->  Σ //   0 ⊕   0 ⊦ p
 
-    | in_ndmm2a_inc_1 : forall a b p q,   INC α p q ∊ Σ   ->  Σ // 1+a ⊕   b ⊦ q
+    | in_ndmm2a_inc_a : forall a b p q,   INC α p q ∊ Σ   ->  Σ // 1+a ⊕   b ⊦ q
                                                           ->  Σ //   a ⊕   b ⊦ p
 
-    | in_ndmm2a_inc_0 : forall a b p q,   INC β p q ∊ Σ   ->  Σ //   a ⊕ 1+b ⊦ q
+    | in_ndmm2a_inc_b : forall a b p q,   INC β p q ∊ Σ   ->  Σ //   a ⊕ 1+b ⊦ q
                                                           ->  Σ //   a ⊕   b ⊦ p
 
-    | in_ndmm2a_dec_1 : forall a b p q,   DEC α p q ∊ Σ   ->  Σ //   a ⊕   b ⊦ q
+    | in_ndmm2a_dec_a : forall a b p q,   DEC α p q ∊ Σ   ->  Σ //   a ⊕   b ⊦ q
                                                           ->  Σ // 1+a ⊕   b ⊦ p
 
-    | in_ndmm2a_dec_0 : forall a b p q,   DEC β p q ∊ Σ   ->  Σ //   a ⊕   b ⊦ q
+    | in_ndmm2a_dec_b : forall a b p q,   DEC β p q ∊ Σ   ->  Σ //   a ⊕   b ⊦ q
                                                           ->  Σ //   a ⊕ 1+b ⊦ p
 
-    | in_ndmm2a_zero_1 : forall b p q,    ZERO α p q ∊ Σ  ->  Σ //   0 ⊕   b ⊦ q
+    | in_ndmm2a_zero_a : forall b p q,    ZERO α p q ∊ Σ  ->  Σ //   0 ⊕   b ⊦ q
                                                           ->  Σ //   0 ⊕   b ⊦ p
 
-    | in_ndmm2a_zero_0 : forall a p q,    ZERO β p q ∊ Σ  ->  Σ //   a ⊕   0 ⊦ q
+    | in_ndmm2a_zero_b : forall a p q,    ZERO β p q ∊ Σ  ->  Σ //   a ⊕   0 ⊦ q
                                                           ->  Σ //   a ⊕   0 ⊦ p
 
   where "Σ // a ⊕ b ⊦ u" := (ndmm2_accept Σ a b u).

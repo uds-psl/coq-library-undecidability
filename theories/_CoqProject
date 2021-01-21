@@ -240,6 +240,7 @@ MinskyMachines/Reductions/MM_to_MMA2.v
 MinskyMachines/Reductions/MUREC_MM.v
 MinskyMachines/Reductions/BSM_HALTING_to_MM2_HALTING.v
 MinskyMachines/Reductions/MM2_to_ndMM2_ACCEPT.v
+MinskyMachines/Reductions/MMA2_to_ndMM2_ACCEPT.v
 
 MinskyMachines/MM/mm_defs.v         
 MinskyMachines/MM/mm_utils.v        
