@@ -665,13 +665,10 @@ Section ZF.
     apply enc_stack_el.
   Qed.
 
-  Theorem PCP_ZF1 B s :
-    derivable B s s -> forall rho, rho ⊨ solvable B.
+  Lemma enc_derivations_solutions B n rho a b :
+    (a .: b .: M_enc_derivations B n .: numeral n .: rho) ⊨ solutions B $2 $3.
   Proof.
-    intros H rho. destruct (derivable_derivations H) as [n Hn]. unfold solvable.
-    exists (numeral n), (M_enc_derivations B n), (M_enc_string s), (M_enc_stack (derivations B n)). repeat split.
-    - apply numeral_omega.
-    - unfold function'. intros k x y H1 H2. apply VIEQ. apply (enc_derivations_fun H1 H2).
+    cbn. split.
     - specialize (enc_derivations_base B n). intros HB.
       erewrite <- eval_enc_stack in HB. apply HB.
     - intros k x x' H1' H2' H3.
@@ -681,6 +678,17 @@ Section ZF.
       specialize (enc_derivations_step B H1).
       replace (M_enc_stack (derivations B (S l))) with x'; trivial.
       apply (enc_stack_combinations H3); trivial.
+  Qed.
+
+  Theorem PCP_ZF1 B s :
+    derivable B s s -> forall rho, rho ⊨ solvable B.
+  Proof.
+    intros H rho. destruct (derivable_derivations H) as [n Hn]. unfold solvable.
+    exists (numeral n), (M_enc_derivations B n), (M_enc_string s), (M_enc_stack (derivations B n)).
+    split; [split; [split; [split |] |] |].
+    - apply numeral_omega.
+    - unfold function'. intros k x y H1 H2. apply VIEQ. apply (enc_derivations_fun H1 H2).
+    - apply enc_derivations_solutions.
     - cbn. apply derivations_enc_derivations.
     - now apply enc_stack_el.
   Qed.
