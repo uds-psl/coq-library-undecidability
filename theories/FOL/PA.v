@@ -46,12 +46,12 @@ Arguments Vector.cons {_} _ {_} _, _ _ _ _.
 Declare Scope syn.
 Open Scope syn.
 
-Definition zero := func Zero (Vector.nil term).
-Notation "'σ' x" := (@func PA_funcs_signature Succ ([x])) (at level 37).
-Notation "x '⊕' y" := (@func PA_funcs_signature Plus ([x ; y]) ) (at level 39).
-Notation "x '⊗' y" := (@func PA_funcs_signature Mult ([x ; y]) ) (at level 38).
-Notation "x '==' y" := (@atom PA_funcs_signature PA_preds_signature _ _ Eq ([x ; y])) (at level 40).
-Notation "x '⧀' y"  := (∃ (x[↑] ⊕ σ $0) == y) (at level 42).
+Notation "'zero'" := (func Zero (Vector.nil term)) (at level 1) : syn.
+Notation "'σ' x" := (@func PA_funcs_signature Succ ([x])) (at level 37) : syn.
+Notation "x '⊕' y" := (@func PA_funcs_signature Plus ([x ; y]) ) (at level 39) : syn.
+Notation "x '⊗' y" := (@func PA_funcs_signature Mult ([x ; y]) ) (at level 38) : syn.
+Notation "x '==' y" := (@atom PA_funcs_signature PA_preds_signature _ _ Eq ([x ; y])) (at level 40) : syn.
+Notation "x '⧀' y"  := (∃ (x[↑] ⊕ σ $0) == y) (at level 42) : syn.
 
 
 (* ** Defines numerals i.e. a corresponding term for every natural number *)
@@ -77,10 +77,11 @@ Definition ax_induction (phi : form) :=
   phi[zero..] --> (∀ phi --> phi[σ $0 .: S >> var]) --> ∀ phi.
 
 
-                                              
+
+(* Fragment only containing the defining equations for addition and multiplication. *)
 Definition FA := ax_zero_succ :: ax_add_rec :: ax_mult_zero :: ax_mult_rec :: nil.
 
-
+(* Full axiomatisation of the theory of PA *)
 Inductive PA : form -> Prop :=
   PA_FA phi : In phi FA -> PA phi
 | PA_discr : PA ax_zero_succ
@@ -89,7 +90,7 @@ Inductive PA : form -> Prop :=
 
 
 
-(* Equality axioms *)
+(* Equality axioms for PA *)
 
 Definition ax_refl :=  ∀   $0 == $0.
 Definition ax_sym :=   ∀∀  $1 == $0 --> $0 == $1.
@@ -118,7 +119,7 @@ Inductive PAeq : form -> Prop :=
 Notation extensional M :=
   (forall x y, @i_atom _ _ _ M Eq ([x ; y]) <-> x = y).
 
-(* Semantic entailment restricted to extensional models and FA with equality axioms. *)
+(* Semantic entailment restricted to extensional models and FA. *)
 
 Definition entailment_FA phi :=
   forall D (M : interp D) (rho : nat -> D), extensional M -> (forall sigma psi, In psi FA -> sigma ⊨ psi) -> rho ⊨ phi.
@@ -128,7 +129,7 @@ Definition entailment_FA phi :=
 Definition entailment_PA phi :=
   forall D (M : interp D) (rho : nat -> D), extensional M -> (forall sigma psi, PA psi -> sigma ⊨ psi) -> rho ⊨ phi.
 
-(* Deductive entailment restricted to intuitionistic rules and core axioms (without sep and rep). *)
+(* Deductive entailment restricted to intuitionistic rules and FA. *)
 
 Definition deduction_FA phi :=
   FAeq ⊢I phi.
