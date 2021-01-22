@@ -780,17 +780,18 @@ Section ZF.
   Definition M_function f :=
     forall x y y', M_opair x y ∈ f -> M_opair x y' ∈ f -> y = y'.
 
-  Lemma M_solutions_el B f n k X p :
-    M_function f -> M_solutions B f (numeral n) -> M_opair (numeral k) X ∈ f
-    -> k <= n -> p ∈ X -> exists u v, p = M_enc_card u v /\ derivable B u v.
-  Proof.
-    intros Hf Hn HX Hk Hp. apply (solutions_derivations Hn) in Hk.
-    rewrite (Hf _ _ _ HX Hk) in Hp. apply enc_stack_el' in Hp as (s&t&H&->).
-    exists s, t. split; trivial. eapply derivations_derivable; eauto.
-  Qed.
-
   Definition standard :=
     forall x, x ∈ ω -> exists n, x = numeral n.
+
+  Lemma M_solutions_el B f k X p :
+    standard -> k ∈ ω -> M_function f -> M_solutions B f k -> M_opair k X ∈ f
+    -> p ∈ X -> exists u v, p = M_enc_card u v /\ derivable B u v.
+  Proof.
+    intros HS HO Hf Hk HX Hp. destruct (HS k HO) as [n ->].
+    pose proof (H := solutions_derivations Hk (le_n n)).
+    rewrite (Hf _ _ _ HX H) in Hp. apply enc_stack_el' in Hp as (s&t&H'&->).
+    exists s, t. split; trivial. eapply derivations_derivable; eauto.
+  Qed.
 
   Theorem PCP_ZF2 B rho :
     standard -> rho ⊨ solvable B -> exists s, derivable B s s.
@@ -805,7 +806,7 @@ Section ZF.
     { erewrite <- eval_enc_stack. apply H3. } destruct H3 as [_ H3].
     assert (H3'' : forall k x y, k ∈ n -> M_opair k x ∈ f -> M_combinations B x y -> M_opair (σ k) y ∈ f).
     { intros k x y Hn Hk Hy. apply (H3 k x y); auto. fold sat. eapply M_combinations_spec; eauto. } clear H3.
-    destruct (VIN _ H1') as [l ->]. destruct (@M_solutions_el B f l l X (M_opair s s)) as (u&v&H1&H2); trivial.
+    destruct (@M_solutions_el B f n X (M_opair s s)) as (u&v&H1&H2); trivial.
     now split. exists u. apply opair_inj in H1 as [H ->]. apply enc_string_inj in H as ->. apply H2.
   Qed.
   
