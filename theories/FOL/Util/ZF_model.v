@@ -1,6 +1,8 @@
-(* * Instantiation of first-order axiomatisation *)
+(** Instantiations of first-order axiomatisations *)
+From Undecidability.FOL Require Import minZF_eq ZF Reductions.PCPb_to_ZF.
+From Undecidability.FOL Require Import Aczel Aczel_CE Aczel_TD Syntax FullTarski_facts.
 
-From Undecidability.FOL Require Import ZF Util.Aczel Util.Syntax Util.FullTarski_facts Reductions.PCPb_to_ZF.
+(** Model of ZF *)
 
 Section ZFM.
 
@@ -80,13 +82,102 @@ Section ZFM.
 
 End ZFM.
 
-Lemma normaliser_model :
-  inhabited extensional_normaliser -> exists V (M : interp V), extensional M /\ standard M /\ forall rho psi, ZF psi -> rho ⊨ psi.
+Definition TD :=
+  exists delta : (Acz -> Prop) -> Acz, forall P, (exists s : Acz, forall t : Acz, P t <-> Aeq t s) -> P (delta P).
+
+Lemma TD_CE_normaliser :
+  CE -> TD -> inhabited extensional_normaliser.
 Proof.
-  intros [H]. exists SET, SET_interp. split; try apply SET_ext.
+  intros ce [delta H]. split. unshelve econstructor.
+  - exact delta.
+  - exact H.
+  - intros P P' HP. now rewrite (ce _ _ HP).
+  - intros s H1 H2. apply Aczel_CE.PI, ce.
+Qed.
+
+Lemma normaliser_model :
+  CE -> TD -> exists V (M : interp V), extensional M /\ standard M /\ forall rho psi, ZF psi -> rho ⊨ psi.
+Proof.
+  intros H1 H2. assert (inhabited extensional_normaliser) as [H] by now apply TD_CE_normaliser.
+  exists SET, SET_interp. split; try apply SET_ext.
   split; try apply SET_standard. intros rho psi [].
   - now apply SET_ZF'.
   - apply SET_sep.
   - apply SET_rep.
 Qed.
+
   
+
+(** Model of Z *)
+
+Section ZM.
+
+  Hypothesis ce : CE.
+  
+  Instance SET_interp' : interp SET'.
+  Proof.
+    split; intros [].
+    - intros _. exact empty.
+    - intros v. exact (upair ce (Vector.hd v) (Vector.hd (Vector.tl v))).
+    - intros v. exact (union ce (Vector.hd v)).
+    - intros v. exact (power ce (Vector.hd v)).
+    - intros _. exact om.
+    - intros v. exact (ele (Vector.hd v) (Vector.hd (Vector.tl v))).
+    - intros v. exact (Vector.hd v = Vector.hd (Vector.tl v)).
+  Defined.
+
+  Lemma SET_ext' :
+    extensional SET_interp'.
+  Proof.
+    intros x y. reflexivity.
+  Qed.
+
+  Lemma Anumeral_numeral' n :
+    classof (Anumeral n) = numeral n.
+  Proof.
+    induction n.
+    - reflexivity.
+    - cbn [Anumeral]. rewrite <- (succ_eq ce).
+      rewrite IHn. reflexivity.
+  Qed.
+
+  Lemma SET_standard' :
+    standard SET_interp'.
+  Proof.
+    intros x. cbn. destruct (classof_ex ce x) as [s ->].
+    intros [n Hn] % classof_ele. exists n.
+    rewrite <- Anumeral_numeral'. now apply classof_eq.
+  Qed.
+
+  Lemma SET'_ZF' rho :
+    rho ⊫ ZF'.
+  Proof.
+    intros phi [<-|[<-|[<-|[<-|[<-|[<-|[<-|[]]]]]]]]; cbn.
+    - intros X Y H1 H2. now apply Aczel_CE.set_ext.
+    - now apply Aczel_CE.emptyE.
+    - intros X Y Z. split; apply Aczel_CE.upairAx.
+    - intros X Y. split; apply Aczel_CE.unionAx.
+    - intros X Y. split; apply Aczel_CE.powerAx.
+    - apply om_Ax1.
+    - apply om_Ax2.
+  Qed.
+
+  Lemma SET_sep' phi rho :
+    rho ⊨ ax_sep phi.
+  Proof.
+    intros x. cbn.
+    exists (sep ce (fun y => (y .: rho) ⊨ phi) x).
+    intros y. rewrite Aczel_CE.sepAx.
+    split; intros [H1 H2]; split; trivial.
+    - setoid_rewrite sat_comp. eapply sat_ext; try apply H2. now intros [].
+    - setoid_rewrite sat_comp in H2. eapply sat_ext; try apply H2. now intros [].
+  Qed.
+
+End ZM.
+
+Lemma extensionality_model :
+  CE -> exists V (M : interp V), extensional M /\ standard M /\ forall rho, rho ⊫ ZF'.
+Proof.
+  intros ce. exists SET', (SET_interp' ce). split; try apply SET_ext'.
+  split; try apply SET_standard'. apply SET'_ZF'.
+Qed.

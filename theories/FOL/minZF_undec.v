@@ -2,7 +2,7 @@ Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Und
 Require Import Undecidability.FOL.ZF.
 Require Import Undecidability.FOL.ZF_undec.
 Require Import Undecidability.FOL.minZF.
-From Undecidability.FOL.Util Require Import FullTarski FullDeduction_facts Aczel ZF_model.
+From Undecidability.FOL.Util Require Import FullTarski FullDeduction_facts Aczel_CE Aczel_TD ZF_model.
 From Undecidability.FOL.Reductions Require Import PCPb_to_ZF PCPb_to_ZFD PCPb_to_minZF.
 
 From Undecidability.PCP Require Import PCP PCP_undec Util.PCP_facts Reductions.PCPb_iff_dPCPb.
@@ -46,16 +46,15 @@ Proof.
 Qed.
 
 Corollary undecidable_model_entailment_minZF :
-  inhabited extensional_normaliser -> undecidable entailment_minZF.
+  CE -> TD -> undecidable entailment_minZF.
 Proof.
-  intros H. now apply undecidable_entailment_minZF, normaliser_model.
+  intros H1 H2. now apply undecidable_entailment_minZF, normaliser_model.
 Qed.
 
 Corollary undecidable_model_entailment_minZF' :
-  inhabited extensional_normaliser -> undecidable entailment_minZF'.
+  CE -> undecidable entailment_minZF'.
 Proof.
-  intros (V & M & H1 & H2 & H3) % normaliser_model. apply undecidable_entailment_minZF'.
-  exists V, M. split; trivial. split; trivial. eauto using ZF.
+  intros H. now apply undecidable_entailment_minZF', extensionality_model.
 Qed.
 
 Theorem PCPb_deduction_minZF :
@@ -95,14 +94,13 @@ Proof.
 Qed.
 
 Corollary undecidable_model_deduction_minZF :
-  inhabited extensional_normaliser -> undecidable deduction_minZF.
+  CE -> TD -> undecidable deduction_minZF.
 Proof.
-  intros H. now apply undecidable_deduction_minZF, normaliser_model.
+  intros H1 H2. now apply undecidable_deduction_minZF, normaliser_model.
 Qed.
 
 Corollary undecidable_deduction_entailment_minZF' :
-  inhabited extensional_normaliser -> undecidable deduction_minZF'.
+  CE -> undecidable deduction_minZF'.
 Proof.
-  intros (V & M & H1 & H2 & H3) % normaliser_model. apply undecidable_deduction_minZF'.
-  exists V, M. split; trivial. split; trivial. eauto using ZF.
+  intros H. now apply undecidable_deduction_minZF', extensionality_model.
 Qed.

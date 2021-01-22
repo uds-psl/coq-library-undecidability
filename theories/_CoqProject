@@ -219,6 +219,8 @@ FOL/ZF.v
 FOL/ZF_undec.v
 FOL/minZF.v
 FOL/minZF_undec.v
+FOL/binZF.v
+FOL/binZF_undec.v
 FOL/PA.v
 FOL/Util/Syntax.v
 FOL/Util/Syntax_facts.v
@@ -230,6 +232,8 @@ FOL/Util/FullTarski_facts.v
 FOL/Util/FullDeduction.v
 FOL/Util/FullDeduction_facts.v
 FOL/Util/Aczel.v
+FOL/Util/Aczel_CE.v
+FOL/Util/Aczel_TD.v
 FOL/Util/ZF_model.v
 
 FOL/Reductions/PCPb_to_FOL.v
@@ -238,6 +242,7 @@ FOL/Reductions/PCPb_to_FOL_class.v
 FOL/Reductions/PCPb_to_ZF.v
 FOL/Reductions/PCPb_to_ZFD.v
 FOL/Reductions/PCPb_to_minZF.v
+FOL/Reductions/PCPb_to_binZF.v
 
 MinskyMachines/MMA.v            
 

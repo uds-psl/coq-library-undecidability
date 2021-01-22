@@ -141,7 +141,7 @@ Inductive ZFeq : form -> Prop :=
 (* ** Problems *)
 
 Notation extensional M :=
-  (forall x y, @i_atom _ _ _ M equal (Vector.cons x (Vector.cons y Vector.nil)) <-> x = y).
+  (forall x y, @i_atom _ ZF_pred_sig _ M equal (Vector.cons x (Vector.cons y Vector.nil)) <-> x = y).
 
 (* Semantic entailment restricted to extensional models and core axioms (without sep and rep). *)
 
