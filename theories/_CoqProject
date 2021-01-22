@@ -356,6 +356,9 @@ H10/H10Z.v
 H10/H10_undec.v
 H10/H10Z_undec.v
 
+H10/H10p.v
+H10/H10p_undec.v
+
 TM/Util/Prelim.v
 TM/Util/Relations.v
 TM/Util/ArithPrelim.v
