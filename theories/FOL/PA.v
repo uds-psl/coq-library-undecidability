@@ -46,7 +46,7 @@ Arguments Vector.cons {_} _ {_} _, _ _ _ _.
 Declare Scope syn.
 Open Scope syn.
 
-Notation "'zero'" := (func Zero (Vector.nil term)) (at level 1) : syn.
+Notation "'zero'" := (@func PA_funcs_signature Zero ([])) (at level 1) : syn.
 Notation "'σ' x" := (@func PA_funcs_signature Succ ([x])) (at level 37) : syn.
 Notation "x '⊕' y" := (@func PA_funcs_signature Plus ([x ; y]) ) (at level 39) : syn.
 Notation "x '⊗' y" := (@func PA_funcs_signature Mult ([x ; y]) ) (at level 38) : syn.
