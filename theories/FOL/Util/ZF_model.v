@@ -1,5 +1,5 @@
 (** Instantiations of first-order axiomatisations *)
-From Undecidability.FOL Require Import minZF_eq ZF Reductions.PCPb_to_ZF.
+From Undecidability.FOL Require Import binZF ZF Reductions.PCPb_to_ZF.
 From Undecidability.FOL Require Import Aczel Aczel_CE Aczel_TD Syntax FullTarski_facts.
 
 (** Model of ZF *)
