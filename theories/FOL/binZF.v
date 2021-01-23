@@ -74,6 +74,9 @@ Definition is_om (t : term') :=
 Definition ax_ext' :=
   ∀ ∀ sub' $1 $0 --> sub' $0 $1 --> $1 ≡' $0.
 
+Definition ax_eq_elem' :=
+  ∀ ∀ ∀ ∀ $3 ≡' $1 --> $2 ≡' $0 --> $3 ∈' $2 --> $1 ∈' $0.
+
 Definition ax_eset' :=
   ∃ is_eset $0.
 
@@ -90,7 +93,7 @@ Definition ax_om' :=
   ∃ is_om $0.
 
 Definition binZF :=
-  ax_ext' :: ax_eset' :: ax_pair' :: ax_union' :: ax_power' :: ax_om' :: nil.
+  ax_ext' :: ax_eq_elem' :: ax_eset' :: ax_pair' :: ax_union' :: ax_power' :: ax_om' :: nil.
 
 
 

@@ -288,8 +288,9 @@ Section Model.
   Lemma min_axioms' (rho : nat -> V) :
     rho ⊫ binZF.
   Proof.
-    intros A [<-|[<-|[<-|[<-|[<-|[<-|[]]]]]]]; cbn.
+    intros A [<-|[<-|[<-|[<-|[<-|[<-|[<-|[]]]]]]]]; cbn.
     - intros x y H1 H2. apply eq_equiv. now apply M_ext.
+    - intros x y u v <- % eq_equiv <- % eq_equiv. tauto.
     - exists ∅. apply (@M_ZF rho ax_eset). firstorder.
     - intros x y. exists ({x; y}). setoid_rewrite eq_equiv. setoid_rewrite <- VIEQ. apply (@M_ZF rho ax_pair). firstorder.
     - intros x. exists (⋃ x). apply (@M_ZF rho ax_union). firstorder.
@@ -424,7 +425,11 @@ Qed.
 Lemma minZF_elem' { p : peirce } x y u v :
   binZF ⊢ x ≡' u --> y ≡' v --> x ∈' y --> u ∈' v.
 Proof.
-Admitted.
+  assert (binZF ⊢ ax_eq_elem'). apply Ctx. firstorder.
+  apply (AllE x) in H. cbn in H. apply (AllE y) in H. cbn in H.
+  apply (AllE u) in H. cbn in H. apply (AllE v) in H. cbn in H.
+  rewrite !eq_subst in H. cbn in H. subsimpl_in H. apply H.
+Qed.
 
 Lemma minZF_elem { p : peirce } A x y u v :
   binZF <<= A -> A ⊢ x ≡' u -> A ⊢ y ≡' v -> A ⊢ x ∈' y -> A ⊢ u ∈' v.
