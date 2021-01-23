@@ -16,4 +16,5 @@ Fixpoint dp_eval_pfree φ p :=
   end.
 
 Definition H10p_PROBLEM := (dio_polynomial_pfree * dio_polynomial_pfree)%type.
-Definition H10p_SAT (e : H10p_PROBLEM) := exists φ, dp_eval_pfree φ (fst e) = dp_eval_pfree φ (snd e).
+Definition H10p_sem e φ := dp_eval_pfree φ (fst e) = dp_eval_pfree φ (snd e). 
+Definition H10p_SAT (e : H10p_PROBLEM) := exists φ, H10p_sem e φ.

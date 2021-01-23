@@ -111,178 +111,195 @@ Section ND.
       admit.
   Admitted.
 
+End ND.
+  
 
 
-  Definition ax_EQ := ((forall_times 1 ($0 == $0))::
-                      (forall_times 2 ($0 == $1 --> $1 == $0))::
-                      (forall_times 3 ($0 == $1 --> $1 == $2 --> $0 == $2))::
-                      (forall_times 2 ($0 == $1 --> σ $0 == σ $1))::
-                      (forall_times 4 ($0 == $1 --> $2 == $3 --> $0 ⊕ $2 == $1 ⊕ $3))::                    (forall_times 4 ($0 == $1 --> $2 == $3 --> $0 ⊗ $2 == $1 ⊗ $3))::List.nil)%list.
+Definition ax_EQ := ((forall_times 1 ($0 == $0))::
+                                                (forall_times 2 ($0 == $1 --> $1 == $0))::
+                                                (forall_times 3 ($0 == $1 --> $1 == $2 --> $0 == $2))::
+                                                (forall_times 2 ($0 == $1 --> σ $0 == σ $1))::
+                                                (forall_times 4 ($0 == $1 --> $2 == $3 --> $0 ⊕ $2 == $1 ⊕ $3))::                    (forall_times 4 ($0 == $1 --> $2 == $3 --> $0 ⊗ $2 == $1 ⊗ $3))::List.nil)%list.
 
 
-  Definition ax_FA := (ax_add_zero::ax_add_rec::ax_mult_zero::ax_mult_rec::List.nil)%list.
-  Definition FA := (ax_FA ++ ax_EQ)%list.
+Definition ax_FA := (ax_add_zero::ax_add_rec::ax_mult_zero::ax_mult_rec::List.nil)%list.
+Definition FA := (ax_FA ++ ax_EQ)%list.
+
+
+
+
+Section FA_models.
+
+  Variable D : Type.
+  Variable I : interp D.
+  
+  Hypothesis ext_model : extensional I.
+  Hypothesis FA_model : forall ax rho, List.In ax FA_facts.FA -> rho ⊨ ax.
 
   
 
-  Section FA.
 
-    
-    Fixpoint join {X n} (v : t X n) (rho : nat -> X) :=
+End FA_models.
+
+
+  
+
+Section FA_prv.
+
+  Variable p : peirce.
+  
+  Fixpoint join {X n} (v : t X n) (rho : nat -> X) :=
     match v with
     | Vector.nil _ => rho
     | Vector.cons _ x n w  => join w (x.:rho)
     end.
 
-    Local Notation "v '∗' rho" := (join v rho) (at level 20).
-
-    
-    Variable Gamma : list form.
-    Variable G : incl FA Gamma.
-
-
-    Arguments Weak {_ _ _ _}, _.
-
-    Lemma reflexivity t : Gamma ⊢ (t == t).
-    Proof.
-      apply (Weak FA).
-
-      pose (sigma := [t] ∗ var ).
-      change (FA ⊢ _) with (FA ⊢ ($0 == $0)[sigma]).
-      
-      eapply subst_forall_prv.
-      apply Ctx. all : firstorder.
-    Admitted.
-
-    
-    Lemma symmetry x y : Gamma ⊢ (x == y) -> Gamma ⊢ (y == x).
-    Proof.
-      apply IE. apply (Weak FA).
-
-      pose (sigma := [y ; x] ∗ var ).
-      change (FA ⊢ _) with (FA ⊢ ($0 == $1 --> $1 == $0)[sigma]).
-      
-      eapply subst_forall_prv.
-      apply Ctx. all : firstorder.
-    Admitted.
-
-    
-    
-    Lemma transitivity x y z :
-      Gamma ⊢ (x == y) -> Gamma ⊢ (y == z) -> Gamma ⊢ (x == z).
-    Proof.
-      intros H. apply IE. revert H; apply IE.
-      apply (Weak FA).
-
-      pose (sigma := [z ; y ; x] ∗ var).
-      change (FA ⊢ _) with (FA ⊢ ($0 == $1 --> $1 == $2 --> $0 == $2)[sigma]).
-      
-      eapply subst_forall_prv.
-      apply Ctx. all : try firstorder.
-    Admitted.
-    
-
-    Lemma eq_succ x y : Gamma ⊢ (x == y) -> Gamma ⊢ (σ x == σ y).
-    Proof.
-      apply IE. apply (Weak FA).
-
-      pose (sigma := [y ; x] ∗ var ).
-      change (FA ⊢ _) with (FA ⊢ ($0 == $1 --> σ $0 == σ $1)[sigma]).
-
-      eapply subst_forall_prv.
-      apply Ctx. all : firstorder.
-    Admitted.
-
-    
-    Lemma eq_add {x1 y1 x2 y2} :
-      Gamma ⊢ (x1 == x2) -> Gamma ⊢ (y1 == y2) -> Gamma ⊢ (x1 ⊕ y1 == x2 ⊕ y2).
-    Proof.
-      intros H; apply IE. revert H; apply IE.
-      apply (Weak FA).
-
-      pose (sigma := [y2 ; y1 ; x2 ; x1] ∗ var).
-      change (FA ⊢ _) with (FA ⊢ ($0 == $1 --> $2 == $3 --> $0 ⊕ $2 == $1 ⊕ $3)[sigma]). 
-
-      eapply subst_forall_prv.
-      apply Ctx. all: firstorder.
-    Admitted.
-
-
-    Lemma eq_mult {x1 y1 x2 y2} :
-      Gamma ⊢ (x1 == x2) -> Gamma ⊢ (y1 == y2) -> Gamma ⊢ (x1 ⊗ y1 == x2 ⊗ y2).
-    Proof.
-      intros H; apply IE. revert H; apply IE.
-      apply (Weak FA).
-      
-      pose (sigma := [y2 ; y1 ; x2 ; x1] ∗ var).
-      change (FA ⊢ _) with (FA ⊢ ($0 == $1 --> $2 == $3 --> $0 ⊗ $2 == $1 ⊗ $3)[sigma]).
-      
-      eapply subst_forall_prv.
-      apply Ctx. all: firstorder.
-    Admitted.
-
-    
-    Lemma Add_rec x y : Gamma ⊢ ( (σ x) ⊕ y == σ (x ⊕ y) ).
-    Proof.
-      apply Weak with FA.
-
-      pose (sigma := [y ; x] ∗ var).
-      change (FA ⊢ _) with (FA ⊢ (σ $0 ⊕ $1 == σ ($0 ⊕ $1))[sigma]).
-
-      eapply subst_forall_prv.
-      apply Ctx. all : firstorder. 
-    Admitted.
-    
-        
-    Lemma num_add_homomorphism  x y : Gamma ⊢ ( num x ⊕ num y == num (x + y) ).
-    Proof.
-      induction x; cbn.
-      - apply (@AllE _ _ _ _ _ _ (zero ⊕ $0 == $0) ).
-        unfold FA. apply Ctx. firstorder.
-      - eapply transitivity.
-        apply Add_rec.
-        now apply eq_succ.
-    Qed.
-    
-
-    Lemma Mult_rec x y : Gamma ⊢ ( (σ x) ⊗ y == y ⊕ (x ⊗ y) ).
-    Proof.
-      apply Weak with FA.
-
-      pose (sigma := [x ; y] ∗ var).
-      change (FA ⊢ _) with (FA ⊢ ((σ $1) ⊗ $0 == $0 ⊕ ($1 ⊗ $0))[sigma]).
-
-      eapply (@subst_forall_prv _ 2).
-      apply Ctx. all : firstorder. 
-    Admitted.
-
-    
-    Lemma num_mult_homomorphism (x y : nat) : Gamma ⊢ ( num x ⊗ num y == num (x * y) ).
-    Proof.
-      induction x; cbn.
-      - apply (@AllE _ _ _ _ _ _ (zero ⊗ $0 == zero)).
-        apply Ctx; firstorder.
-      - eapply transitivity.
-        apply Mult_rec.
-        eapply transitivity.
-        2: apply num_add_homomorphism.
-        apply eq_add. apply reflexivity. apply IHx.
-    Qed.
-    
-    
-    Lemma add_nat_to_deduction x y z : x + y = z -> Gamma ⊢ (num x ⊕ num y == num z).
-    Proof.
-      intros <-. apply num_add_homomorphism.
-    Abort.
-
-
-    Lemma mult_nat_to_deduction x y z : x*y = z -> Gamma ⊢ (num x ⊗ num y == num z).
-    Proof.
-      intros <-. apply num_mult_homomorphism.
-    Abort.
-    
-
-  End FA.  
+  Local Notation "v '∗' rho" := (join v rho) (at level 20).
 
   
-End ND.
+  Variable Gamma : list form.
+  Variable G : incl FA Gamma.
+
+
+  Arguments Weak {_ _ _ _}, _.
+
+  Lemma reflexivity t : Gamma ⊢ (t == t).
+  Proof.
+    apply (Weak FA).
+
+    pose (sigma := [t] ∗ var ).
+    change (FA ⊢ _) with (FA ⊢ ($0 == $0)[sigma]).
+    
+    eapply subst_forall_prv.
+    apply Ctx. all : firstorder.
+  Admitted.
+
+  
+  Lemma symmetry x y : Gamma ⊢ (x == y) -> Gamma ⊢ (y == x).
+  Proof.
+    apply IE. apply (Weak FA).
+
+    pose (sigma := [y ; x] ∗ var ).
+    change (FA ⊢ _) with (FA ⊢ ($0 == $1 --> $1 == $0)[sigma]).
+    
+    eapply subst_forall_prv.
+    apply Ctx. all : firstorder.
+  Admitted.
+
+  
+  
+  Lemma transitivity x y z :
+    Gamma ⊢ (x == y) -> Gamma ⊢ (y == z) -> Gamma ⊢ (x == z).
+  Proof.
+    intros H. apply IE. revert H; apply IE.
+    apply (Weak FA).
+
+    pose (sigma := [z ; y ; x] ∗ var).
+    change (FA ⊢ _) with (FA ⊢ ($0 == $1 --> $1 == $2 --> $0 == $2)[sigma]).
+    
+    eapply subst_forall_prv.
+    apply Ctx. all : try firstorder.
+  Admitted.
+  
+
+  Lemma eq_succ x y : Gamma ⊢ (x == y) -> Gamma ⊢ (σ x == σ y).
+  Proof.
+    apply IE. apply (Weak FA).
+
+    pose (sigma := [y ; x] ∗ var ).
+    change (FA ⊢ _) with (FA ⊢ ($0 == $1 --> σ $0 == σ $1)[sigma]).
+
+    eapply subst_forall_prv.
+    apply Ctx. all : firstorder.
+  Admitted.
+
+  
+  Lemma eq_add {x1 y1 x2 y2} :
+    Gamma ⊢ (x1 == x2) -> Gamma ⊢ (y1 == y2) -> Gamma ⊢ (x1 ⊕ y1 == x2 ⊕ y2).
+  Proof.
+    intros H; apply IE. revert H; apply IE.
+    apply (Weak FA).
+
+    pose (sigma := [y2 ; y1 ; x2 ; x1] ∗ var).
+    change (FA ⊢ _) with (FA ⊢ ($0 == $1 --> $2 == $3 --> $0 ⊕ $2 == $1 ⊕ $3)[sigma]). 
+
+    eapply subst_forall_prv.
+    apply Ctx. all: firstorder.
+  Admitted.
+
+
+  Lemma eq_mult {x1 y1 x2 y2} :
+    Gamma ⊢ (x1 == x2) -> Gamma ⊢ (y1 == y2) -> Gamma ⊢ (x1 ⊗ y1 == x2 ⊗ y2).
+  Proof.
+    intros H; apply IE. revert H; apply IE.
+    apply (Weak FA).
+    
+    pose (sigma := [y2 ; y1 ; x2 ; x1] ∗ var).
+    change (FA ⊢ _) with (FA ⊢ ($0 == $1 --> $2 == $3 --> $0 ⊗ $2 == $1 ⊗ $3)[sigma]).
+    
+    eapply subst_forall_prv.
+    apply Ctx. all: firstorder.
+  Admitted.
+
+  
+  Lemma Add_rec x y : Gamma ⊢ ( (σ x) ⊕ y == σ (x ⊕ y) ).
+  Proof.
+    apply Weak with FA.
+
+    pose (sigma := [y ; x] ∗ var).
+    change (FA ⊢ _) with (FA ⊢ (σ $0 ⊕ $1 == σ ($0 ⊕ $1))[sigma]).
+
+    eapply subst_forall_prv.
+    apply Ctx. all : firstorder. 
+  Admitted.
+  
+  
+  Lemma num_add_homomorphism  x y : Gamma ⊢ ( num x ⊕ num y == num (x + y) ).
+  Proof.
+    induction x; cbn.
+    - apply (@AllE _ _ _ _ _ _ (zero ⊕ $0 == $0) ).
+      unfold FA. apply Ctx. firstorder.
+    - eapply transitivity.
+      apply Add_rec.
+      now apply eq_succ.
+  Qed.
+  
+
+  Lemma Mult_rec x y : Gamma ⊢ ( (σ x) ⊗ y == y ⊕ (x ⊗ y) ).
+  Proof.
+    apply Weak with FA.
+
+    pose (sigma := [x ; y] ∗ var).
+    change (FA ⊢ _) with (FA ⊢ ((σ $1) ⊗ $0 == $0 ⊕ ($1 ⊗ $0))[sigma]).
+
+    eapply (@subst_forall_prv _ _ 2).
+    apply Ctx. all : firstorder. 
+  Admitted.
+
+  
+  Lemma num_mult_homomorphism (x y : nat) : Gamma ⊢ ( num x ⊗ num y == num (x * y) ).
+  Proof.
+    induction x; cbn.
+    - apply (@AllE _ _ _ _ _ _ (zero ⊗ $0 == zero)).
+      apply Ctx; firstorder.
+    - eapply transitivity.
+      apply Mult_rec.
+      eapply transitivity.
+      2: apply num_add_homomorphism.
+      apply eq_add. apply reflexivity. apply IHx.
+  Qed.
+  
+  
+  Lemma add_nat_to_deduction x y z : x + y = z -> Gamma ⊢ (num x ⊕ num y == num z).
+  Proof.
+    intros <-. apply num_add_homomorphism.
+  Abort.
+
+
+  Lemma mult_nat_to_deduction x y z : x*y = z -> Gamma ⊢ (num x ⊗ num y == num z).
+  Proof.
+    intros <-. apply num_mult_homomorphism.
+  Abort.
+  
+
+End FA_prv.  

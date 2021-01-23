@@ -43,15 +43,15 @@ Instance PA_preds_signature : preds_signature :=
 Arguments Vector.cons {_} _ {_} _, _ _ _ _.
 
 
-Declare Scope syn.
-Open Scope syn.
+Declare Scope PA_Notation.
+Open Scope PA_Notation.
 
-Notation "'zero'" := (@func PA_funcs_signature Zero ([])) (at level 1) : syn.
-Notation "'σ' x" := (@func PA_funcs_signature Succ ([x])) (at level 37) : syn.
-Notation "x '⊕' y" := (@func PA_funcs_signature Plus ([x ; y]) ) (at level 39) : syn.
-Notation "x '⊗' y" := (@func PA_funcs_signature Mult ([x ; y]) ) (at level 38) : syn.
-Notation "x '==' y" := (@atom PA_funcs_signature PA_preds_signature _ _ Eq ([x ; y])) (at level 40) : syn.
-Notation "x '⧀' y"  := (∃ (x[↑] ⊕ σ $0) == y) (at level 42) : syn.
+Notation "'zero'" := (@func PA_funcs_signature Zero ([])) (at level 1) : PA_Notation.
+Notation "'σ' x" := (@func PA_funcs_signature Succ ([x])) (at level 37) : PA_Notation.
+Notation "x '⊕' y" := (@func PA_funcs_signature Plus ([x ; y]) ) (at level 39) : PA_Notation.
+Notation "x '⊗' y" := (@func PA_funcs_signature Mult ([x ; y]) ) (at level 38) : PA_Notation.
+Notation "x '==' y" := (@atom PA_funcs_signature PA_preds_signature _ _ Eq ([x ; y])) (at level 40) : PA_Notation.
+Notation "x '⧀' y"  := (∃ (x[↑] ⊕ σ $0) == y) (at level 42) : PA_Notation.
 
 
 (* ** Defines numerals i.e. a corresponding term for every natural number *)
@@ -60,6 +60,25 @@ Fixpoint num n :=  match n with
                    | S x => σ (num x)
                    end.
 
+
+Section models.
+
+  Variable D : Type.
+  Variable I : interp D.
+
+  Notation "x 'i=' y" := (i_atom (P:=Eq) ([x ; y])) (at level 30).
+  Notation "'iO'" := (i_func (f:=Zero) (Vector.nil D)) (at level 2) : PA_Notation.
+  Notation "'iσ' d" := (i_func (f:=Succ) (Vector.cons d (Vector.nil D))) (at level 37) : PA_Notation.
+  Notation "x 'i⊕' y" := (i_func (f:=Plus) ([x ; y])) (at level 39) : PA_Notation.
+  Notation "x 'i⊗' y" := (i_func (f:=Mult) ([x ; y])) (at level 38) : PA_Notation.
+  Fixpoint iμ k := match k with
+                     | O => iO
+                     | S n => iσ (iμ n)
+                     end.
+  
+End models.
+
+Arguments iμ {_ _} _.
 
 
 
