@@ -44,7 +44,7 @@ Fixpoint rm_const_tm (t : term) : form' :=
                   ∃ (Vector.hd v')[sshift 1]
                   ∧ ∃ (Vector.hd (Vector.tl v'))[sshift 2]
                   ∧ is_pair $1 $0 $2
-  | func union v => ∃ (Vector.hd (Vector.map rm_const_tm v))[sshift 1] ∧ is_union $0 $1
+                    | func union v => ∃ (Vector.hd (Vector.map rm_const_tm v))[sshift 1] ∧ is_union $0 $1
   | func power v => ∃ (Vector.hd (Vector.map rm_const_tm v))[sshift 1] ∧ is_power $0 $1
   | func omega v => is_om $0
   end.
@@ -164,13 +164,13 @@ Section Model.
     rewrite embed_subst. apply subst_ext. now intros [].
   Qed.
 
-  Lemma sat_sshift1 (rho : nat -> V) x y (phi : form) :
+  Lemma sat_sshift1 (rho : nat -> V) x y (phi : form') :
     (y .: x .: rho) ⊨ phi[sshift 1] <-> (y .: rho) ⊨ phi.
   Proof.
     erewrite sat_comp, sat_ext. reflexivity. now intros [].
   Qed.
 
-  Lemma sat_sshift2 (rho : nat -> V) x y z (phi : form) :
+  Lemma sat_sshift2 (rho : nat -> V) x y z (phi : form') :
     (z .: y .: x .: rho) ⊨ phi[sshift 2] <-> (z .: rho) ⊨ phi.
   Proof.
     erewrite sat_comp, sat_ext. reflexivity. now intros [].
@@ -196,7 +196,7 @@ Section Model.
   Qed.
 
   Lemma rm_const_tm_sat (rho : nat -> V) (t : term) x :
-    (x .: rho) ⊨ embed (rm_const_tm t) <-> x = eval rho t.
+    (x .: rho) ⊨ rm_const_tm t <-> x = eval rho t.
   Proof.
     induction t in x |- *; try destruct F; cbn; split; try intros ->;
     try rewrite (vec_inv1 v); try rewrite (vec_inv2 v); cbn.
@@ -208,31 +208,31 @@ Section Model.
     - rewrite (vec_nil_eq (Vector.map (eval rho) v)).
       intros d. now apply M_eset.
     - intros (y & Hy & z & Hz & H).
-      rewrite embed_sshift, sat_sshift1, IH in Hy; try apply in_hd. subst.
-      rewrite embed_sshift, sat_sshift2, IH in Hz; try apply in_hd_tl. subst.
+      rewrite sat_sshift1, IH in Hy; try apply in_hd. subst.
+      rewrite sat_sshift2, IH in Hz; try apply in_hd_tl. subst.
       apply M_ext; trivial.
       + intros a Ha % H. rewrite !VIEQ in Ha. now apply M_pair.
       + intros a Ha % M_pair; trivial. apply H. now rewrite !VIEQ.
     - exists (eval rho (Vector.hd v)).
-      rewrite embed_sshift, sat_sshift1, IH; try apply in_hd. split; trivial.
+      rewrite sat_sshift1, IH; try apply in_hd. split; trivial.
       exists (eval rho (Vector.hd (Vector.tl v))).
-      rewrite embed_sshift, sat_sshift2, IH; try apply in_hd_tl. split; trivial.
+      rewrite sat_sshift2, IH; try apply in_hd_tl. split; trivial.
       intros d. rewrite !VIEQ. now apply M_pair.
     - intros (y & Hy & H).
-      rewrite embed_sshift, sat_sshift1, IH in Hy; try apply in_hd. subst.
+      rewrite sat_sshift1, IH in Hy; try apply in_hd. subst.
       apply M_ext; trivial.
       + intros y Hy % H. now apply M_union.
       + intros y Hy % M_union; trivial. now apply H.
     - exists (eval rho (Vector.hd v)).
-      rewrite embed_sshift, sat_sshift1, IH; try apply in_hd. split; trivial.
+      rewrite sat_sshift1, IH; try apply in_hd. split; trivial.
       intros d. now apply M_union.
     - intros (y & Hy & H).
-      rewrite embed_sshift, sat_sshift1, IH in Hy; try apply in_hd. subst.
+      rewrite sat_sshift1, IH in Hy; try apply in_hd. subst.
       apply M_ext; trivial.
       + intros y Hy. now apply M_power, H.
       + intros y Hy. now apply H, M_power.
     - exists (eval rho (Vector.hd v)).
-      rewrite embed_sshift, sat_sshift1, IH; try apply in_hd. split; trivial.
+      rewrite sat_sshift1, IH; try apply in_hd. split; trivial.
       intros d. now apply M_power.
     - rewrite (vec_nil_eq (Vector.map (eval rho) v)). intros [H1 H2]. apply M_ext; trivial.
       + apply H2. apply (inductive_sat_om rho).
@@ -243,19 +243,19 @@ Section Model.
   Qed.
 
   Lemma rm_const_sat (rho : nat -> V) (phi : form) :
-    rho ⊨ phi <-> rho ⊨ embed (rm_const_fm phi).
+    rho ⊨ phi <-> rho ⊨ rm_const_fm phi.
   Proof.
     induction phi in rho |- *; try destruct P; try destruct b0; try destruct q; cbn. 1,4-6: intuition.
     - rewrite (vec_inv2 t). cbn. split.
       + intros H. exists (eval rho (Vector.hd t)). rewrite rm_const_tm_sat. split; trivial.
-        exists (eval rho (Vector.hd (Vector.tl t))). now rewrite embed_sshift, sat_sshift1, rm_const_tm_sat.
+        exists (eval rho (Vector.hd (Vector.tl t))). now rewrite sat_sshift1, rm_const_tm_sat.
       + intros (x & Hx & y & Hy & H). apply rm_const_tm_sat in Hx as <-.
-        rewrite embed_sshift, sat_sshift1, rm_const_tm_sat in Hy. now subst.
+        rewrite sat_sshift1, rm_const_tm_sat in Hy. now subst.
     - rewrite (vec_inv2 t). cbn. split.
       + intros H. exists (eval rho (Vector.hd t)). rewrite rm_const_tm_sat. split; trivial.
-        exists (eval rho (Vector.hd (Vector.tl t))). now rewrite embed_sshift, sat_sshift1, rm_const_tm_sat.
+        exists (eval rho (Vector.hd (Vector.tl t))). now rewrite sat_sshift1, rm_const_tm_sat.
       + intros (x & Hx & y & Hy & H). apply rm_const_tm_sat in Hx as <-.
-        rewrite embed_sshift, sat_sshift1, rm_const_tm_sat in Hy. now subst.
+        rewrite sat_sshift1, rm_const_tm_sat in Hy. now subst.
     - split; intros; intuition.
     - firstorder eauto.
   Qed.
@@ -263,7 +263,7 @@ Section Model.
   Theorem min_correct (rho : nat -> V) (phi : form) :
     sat I rho phi <-> sat min_model rho (rm_const_fm phi).
   Proof.
-    rewrite <- min_embed. apply rm_const_sat.
+    apply rm_const_sat.
   Qed.
 
   Lemma min_axioms' (rho : nat -> V) :
