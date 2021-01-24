@@ -1,4 +1,4 @@
-From Undecidability.FOL.Util Require Import Syntax Syntax_facts FullTarski FullDeduction_facts FullDeduction.
+From Undecidability.FOL.Util Require Import Syntax Syntax_facts FullTarski FullTarski_facts FullDeduction_facts FullDeduction.
 Require Import Undecidability.FOL.PA.
 Require Import Lia List Vector.
 Import Vector.VectorNotations.
@@ -112,7 +112,51 @@ Section ND.
   Admitted.
 
 End ND.
+
+
+Section SEM.
+
+
+  Context {D : Type}.
+  Context {I : interp D}.
+
+  Lemma bound_ext N phi rho sigma :
+    bounded N phi -> (forall n, n < N -> rho n = sigma n) -> (rho ⊨ phi <-> sigma ⊨ phi).
+  Proof.
+  Admitted.
   
+
+  Corollary sat_closed rho sigma phi :
+    bounded 0 phi -> rho ⊨ phi <-> sigma ⊨ phi.
+  Proof.
+    intros H. eapply bound_ext. apply H. lia.
+  Qed.
+
+  
+  Lemma subst_exist_sat rho phi N :
+    rho ⊨ phi -> bounded N phi -> forall rho, rho ⊨ (exist_times N phi).  
+  Proof.
+    induction N in phi, rho |-*; intros.
+    - cbn. eapply sat_closed; eassumption.
+    - cbn -[sat]. rewrite iter_switch. apply (IHN (S >> rho)).
+      exists (rho 0). eapply sat_ext. 2: apply H.
+      now intros [].
+  Admitted.
+  
+
+  Fact subst_exist_sat2 N : forall rho phi, rho ⊨ (exist_times N phi) -> (exists sigma, sigma ⊨ phi).
+  Proof.
+    induction N.
+    - eauto.
+    - intros rho phi [? H]. now apply IHN in H.
+  Qed.
+  
+
+End SEM.
+
+
+
+
 
 
 Definition ax_EQ := ((forall_times 1 ($0 == $0))::

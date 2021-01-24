@@ -66,7 +66,7 @@ Section models.
   Variable D : Type.
   Variable I : interp D.
 
-  Notation "x 'i=' y" := (i_atom (P:=Eq) ([x ; y])) (at level 30).
+  Notation "x 'i=' y" := (i_atom (P:=Eq) ([x ; y])) (at level 30) : PA_Notation.
   Notation "'iO'" := (i_func (f:=Zero) (Vector.nil D)) (at level 2) : PA_Notation.
   Notation "'iσ' d" := (i_func (f:=Succ) (Vector.cons d (Vector.nil D))) (at level 37) : PA_Notation.
   Notation "x 'i⊕' y" := (i_func (f:=Plus) ([x ; y])) (at level 39) : PA_Notation.
