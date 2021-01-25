@@ -140,6 +140,9 @@ Notation extensional M :=
 
 (* Semantic entailment restricted to extensional models and FA. *)
 
+Definition ext_entailment_PA phi :=
+  forall D (I : interp D) rho, extensional I -> (forall psi rho, PA psi -> rho ⊨ psi) -> rho ⊨ phi.
+
 (* Semantic entailment restricted to FA *)
 
 Definition entailment_FA phi := valid_ctx FAeq phi.
