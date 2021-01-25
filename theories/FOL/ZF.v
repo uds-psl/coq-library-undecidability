@@ -47,9 +47,6 @@ Instance ZF_pred_sig : preds_signature :=
 Arguments Vector.nil {_}, _.
 Arguments Vector.cons {_} _ {_} _, _ _ _ _.
 
-Declare Scope syn.
-Open Scope syn.
-
 Notation "x ∈ y" := (atom _ ZF_pred_sig elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : syn.
 Notation "x ≡ y" := (atom (Σ_preds := ZF_pred_sig) equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : syn.
 
@@ -63,42 +60,42 @@ Notation "x ∪ y" := (⋃ {x; y}) (at level 32) : syn.
 Notation  "'σ' x" := (x ∪ {x; x}) (at level 32) : syn.
 
 Definition sub x y :=
-  ∀ $0 ∈ x`[↑] --> $0 ∈ y`[↑].
+  ∀ $0 ∈ x`[↑] ~> $0 ∈ y`[↑].
 
 Notation "x ⊆ y" := (sub x y) (at level 34) : syn.
 
 Definition ax_ext :=
-  ∀ ∀ $1 ⊆ $0 --> $0 ⊆ $1 --> $1 ≡ $0.
+  ∀ ∀ $1 ⊆ $0 ~> $0 ⊆ $1 ~> $1 ≡ $0.
 
 Definition ax_eset :=
   ∀ ¬ ($0 ∈ ∅).
 
 Definition ax_pair :=
-  ∀ ∀ ∀ $0 ∈ {$1; $2} <--> $0 ≡ $1 ∨ $0 ≡ $2.
+  ∀ ∀ ∀ $0 ∈ {$1; $2} <~> $0 ≡ $1 ∨ $0 ≡ $2.
 
 Definition ax_union :=
-  ∀ ∀ $0 ∈ ⋃ $1 <--> ∃ $0 ∈ $2 ∧ $1 ∈ $0.
+  ∀ ∀ $0 ∈ ⋃ $1 <~> ∃ $0 ∈ $2 ∧ $1 ∈ $0.
 
 Definition ax_power :=
-  ∀ ∀ $0 ∈ PP $1 <--> $0 ⊆ $1.
+  ∀ ∀ $0 ∈ PP $1 <~> $0 ⊆ $1.
 
 Definition inductive x :=
-  ∅ ∈ x ∧ ∀ $0 ∈ x`[↑] --> σ $0 ∈ x`[↑].
+  ∅ ∈ x ∧ ∀ $0 ∈ x`[↑] ~> σ $0 ∈ x`[↑].
 
 Definition ax_om1 :=
   inductive ω.
 
 Definition ax_om2 :=
-  ∀ inductive $0 --> ω ⊆ $0.
+  ∀ inductive $0 ~> ω ⊆ $0.
 
 Definition ax_sep phi :=
-  ∀ ∃ ∀ $0 ∈ $1 <--> $0 ∈ $2 ∧ phi[$0.: Nat.add 3 >> var].
+  ∀ ∃ ∀ $0 ∈ $1 <~> $0 ∈ $2 ∧ phi[$0.: Nat.add 3 >> var].
 
 Definition fun_rel phi :=
-  ∀ ∀ ∀ phi[$2 .: $1 .: Nat.add 3 >> var] --> phi[$2 .: $0 .: Nat.add 3 >> var] --> $1 ≡ $0.
+  ∀ ∀ ∀ phi[$2 .: $1 .: Nat.add 3 >> var] ~> phi[$2 .: $0 .: Nat.add 3 >> var] ~> $1 ≡ $0.
 
 Definition ax_rep phi :=
-  fun_rel phi --> ∀ ∃ ∀ $0 ∈ $1 <--> ∃ $0 ∈ $3 ∧ phi[$0 .: $1 .: Nat.add 4 >> var].
+  fun_rel phi ~> ∀ ∃ ∀ $0 ∈ $1 <~> ∃ $0 ∈ $3 ∧ phi[$0 .: $1 .: Nat.add 4 >> var].
 
 (* List of core axioms without schemes for separation and replacement *)
 
@@ -116,13 +113,13 @@ Definition ax_refl :=
   ∀ $0 ≡ $0.
 
 Definition ax_sym :=
-  ∀ ∀ $1 ≡ $0 --> $0 ≡ $1.
+  ∀ ∀ $1 ≡ $0 ~> $0 ≡ $1.
 
 Definition ax_trans :=
-  ∀ ∀ ∀ $2 ≡ $1 --> $1 ≡ $0 --> $2 ≡ $0.
+  ∀ ∀ ∀ $2 ≡ $1 ~> $1 ≡ $0 ~> $2 ≡ $0.
 
 Definition ax_eq_elem :=
-  ∀ ∀ ∀ ∀ $3 ≡ $1 --> $2 ≡ $0 --> $3 ∈ $2 --> $1 ∈ $0.
+  ∀ ∀ ∀ ∀ $3 ≡ $1 ~> $2 ≡ $0 ~> $3 ∈ $2 ~> $1 ∈ $0.
 
 (* List of core axioms plus equality axioms *)
 

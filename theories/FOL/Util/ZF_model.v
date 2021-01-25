@@ -181,3 +181,66 @@ Proof.
   intros ce. exists SET', (SET_interp' ce). split; try apply SET_ext'.
   split; try apply SET_standard'. apply SET'_ZF'.
 Qed.
+
+
+
+(** Intensional model of Z *)
+
+Section IM.
+  
+  Instance Acz_interp : interp Acz.
+  Proof.
+    split; intros [].
+    - intros _. exact AEmpty.
+    - intros v. exact (Aupair (Vector.hd v) (Vector.hd (Vector.tl v))).
+    - intros v. exact (Aunion (Vector.hd v)).
+    - intros v. exact (Apower (Vector.hd v)).
+    - intros _. exact Aom.
+    - intros v. exact (Ain (Vector.hd v) (Vector.hd (Vector.tl v))).
+    - intros v. exact (Aeq (Vector.hd v) (Vector.hd (Vector.tl v))).
+  Defined.
+
+  Lemma Acz_standard :
+    standard Acz_interp.
+  Proof.
+    intros s [n Hn]. cbn in Hn. exists n. apply Hn.
+  Qed.
+
+  Lemma Acz_ZFeq' rho :
+    rho ⊫ ZFeq'.
+  Proof.
+    intros phi [<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[]]]]]]]]]]]]; cbn.
+    - apply Aeq_ref.
+    - apply Aeq_sym.
+    - apply Aeq_tra.
+    - intros s t s' t' -> ->. tauto.
+    - apply Aeq_ext.
+    - apply AEmptyAx.
+    - intros X Y Z. apply AupairAx.
+    - intros X Y. apply AunionAx.
+    - intros X Y. apply ApowerAx.
+    - apply AomAx1.
+    - apply AomAx2.
+  Qed.
+
+  (*
+  Lemma Acz_sep phi rho :
+    rho ⊨ ax_sep phi.
+  Proof.
+    intros x. cbn.
+    exists (Asep (fun y => (y .: rho) ⊨ phi) x).
+    intros y. rewrite AsepAx.
+    split; intros [H1 H2]; split; trivial.
+    - setoid_rewrite sat_comp. eapply sat_ext; try apply H2. now intros [].
+    - setoid_rewrite sat_comp in H2. eapply sat_ext; try apply H2. now intros [].
+    - intros s t. admit.
+  Admitted.
+  *)
+
+End IM.
+
+Lemma eintensional_model :
+  exists V (M : interp V), standard M /\ forall rho, rho ⊫ ZFeq'.
+Proof.
+  exists Acz, Acz_interp. split; try apply Acz_standard. apply Acz_ZFeq'.
+Qed.

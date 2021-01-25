@@ -24,14 +24,17 @@ Inductive full_logic_quant : Type :=
 Instance full_operators : operators :=
 {| binop := full_logic_sym ; quantop := full_logic_quant |}.
 
-Notation "∀ Phi" := (@quant _ _ full_operators _ All Phi) (at level 50).
-Notation "∃ Phi" := (@quant _ _ full_operators _ Ex Phi) (at level 50).
-Notation "A ∧ B" := (@bin _ _ full_operators _ Conj A B) (at level 41).
-Notation "A ∨ B" := (@bin _ _ full_operators _ Disj A B) (at level 42).
-Notation "A '-->' B" := (@bin _ _ full_operators _ Impl A B) (at level 43, right associativity).
-Notation "⊥" := (falsity).
-Notation "¬ A" := (A --> ⊥) (at level 42).
-Notation "A '<-->' B" := ((A --> B) ∧ (B --> A)) (at level 43).
+Declare Scope syn.
+Open Scope syn.
+
+Notation "∀ Phi" := (@quant _ _ full_operators _ All Phi) (at level 50) : syn.
+Notation "∃ Phi" := (@quant _ _ full_operators _ Ex Phi) (at level 50) : syn.
+Notation "A ∧ B" := (@bin _ _ full_operators _ Conj A B) (at level 41) : syn.
+Notation "A ∨ B" := (@bin _ _ full_operators _ Disj A B) (at level 42) : syn.
+Notation "A '~>' B" := (@bin _ _ full_operators _ Impl A B) (at level 43, right associativity) : syn.
+Notation "⊥" := (falsity) : syn.
+Notation "¬ A" := (A ~> ⊥) (at level 42) : syn.
+Notation "A '<~>' B" := ((A ~> B) ∧ (B ~> A)) (at level 43) : syn.
 
 
 
