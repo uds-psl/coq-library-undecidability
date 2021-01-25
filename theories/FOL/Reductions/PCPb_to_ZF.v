@@ -781,13 +781,13 @@ Section ZF.
     forall x y y', M_opair x y ∈ f -> M_opair x y' ∈ f -> y = y'.
 
   Definition standard :=
-    forall x, x ∈ ω -> exists n, x = numeral n.
+    forall x, x ∈ ω -> exists n, x ≡ numeral n.
 
   Lemma M_solutions_el B f k X p :
     standard -> k ∈ ω -> M_function f -> M_solutions B f k -> M_opair k X ∈ f
     -> p ∈ X -> exists u v, p = M_enc_card u v /\ derivable B u v.
   Proof.
-    intros HS HO Hf Hk HX Hp. destruct (HS k HO) as [n ->].
+    intros HS HO Hf Hk HX Hp. destruct (HS k HO) as [n -> % VIEQ].
     pose proof (H := solutions_derivations Hk (le_n n)).
     rewrite (Hf _ _ _ HX H) in Hp. apply enc_stack_el' in Hp as (s&t&H'&->).
     exists s, t. split; trivial. eapply derivations_derivable; eauto.
