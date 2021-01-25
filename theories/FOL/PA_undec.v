@@ -7,19 +7,18 @@ From Undecidability.FOL.Reductions Require Import H10p_to_FA.
 
 (* ** Reduction for the axiomatisation PA assuming extensionality of models. *)
 
+
 Theorem H10_ext_entailment_PA :
-  (exists D (I : interp D), extensional I /\ forall psi rho, PA psi -> rho ⊨ psi) -> H10p_SAT ⪯ ext_entailment_PA.
+  H10p_SAT ⪯ ext_entailment_PA.
 Proof.
-  intros (D & I & Hext & H).
   exists embed. intros E. apply H10p_to_FA_ext_sat.
 Qed.
 
 
 Theorem undecidable_ext_entailment_PA :
-  (exists D (I : interp D), extensional I /\ forall psi rho, PA psi -> rho ⊨ psi) -> undecidable ext_entailment_PA.
+  undecidable ext_entailment_PA.
 Proof.
-  intros H.
-  refine (undecidability_from_reducibility _ (H10_ext_entailment_PA H)).
+  refine (undecidability_from_reducibility _ H10_ext_entailment_PA).
   apply H10p_undec.
 Qed.
 
