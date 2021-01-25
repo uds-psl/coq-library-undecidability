@@ -98,7 +98,7 @@ Definition ax_induction (phi : form) :=
 
 
 (* Fragment only containing the defining equations for addition and multiplication. *)
-Definition FA := ax_zero_succ :: ax_add_rec :: ax_mult_zero :: ax_mult_rec :: nil.
+Definition FA := ax_add_zero :: ax_add_rec :: ax_mult_zero :: ax_mult_rec :: nil.
 
 (* Full axiomatisation of the theory of PA *)
 Inductive PA : form -> Prop :=
@@ -140,20 +140,19 @@ Notation extensional M :=
 
 (* Semantic entailment restricted to extensional models and FA. *)
 
-Definition entailment_FA phi :=
-  forall D (M : interp D) (rho : nat -> D), extensional M -> (forall sigma psi, In psi FA -> sigma ⊨ psi) -> rho ⊨ phi.
+(* Semantic entailment restricted to FA *)
 
-(* Semantic entailment restricted to extensional models. *)
+Definition entailment_FA phi := valid_ctx FAeq phi.
+
+(* Semantic entailment for PA *)
 
 Definition entailment_PA phi :=
-  forall D (M : interp D) (rho : nat -> D), extensional M -> (forall sigma psi, PA psi -> sigma ⊨ psi) -> rho ⊨ phi.
+  forall D (I : interp D) rho, (forall psi, PAeq psi -> rho ⊨ psi) -> rho ⊨ phi.
 
 (* Deductive entailment restricted to intuitionistic rules and FA. *)
 
-Definition deduction_FA phi :=
-  FAeq ⊢I phi.
+Definition deduction_FA phi := FAeq ⊢I phi.
 
 (* Deductive entailment restricted to intuitionistic rules. *)
 
-Definition deduction_PA phi :=
-  PAeq ⊢TI phi.
+Definition deduction_PA phi := PAeq ⊢TI phi.

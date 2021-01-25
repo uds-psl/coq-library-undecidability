@@ -5,6 +5,18 @@ Import Vector.VectorNotations.
 
 
 
+  Lemma bounded_S_exists N phi : bounded (S N) phi <-> bounded N (∃ phi).
+  Proof.
+    split; intros H.
+    - now constructor.
+    - 
+  Admitted.
+
+  Lemma bounded_S_forall N phi : bounded (S N) phi <-> bounded N (∀ phi).
+  Proof.
+  Admitted.
+
+
 
 Section ND.
 
@@ -17,7 +29,6 @@ Section ND.
     - reflexivity.
     - intros rho. cbn. now rewrite IHn.
   Qed.
-
 
 
   Fixpoint iter {X: Type} f n (x : X) :=
@@ -82,9 +93,8 @@ Section ND.
     intros [].
     - reflexivity.
     - apply subst_term_shift.
-  Qed.
+  Qed.  
   
-
   
   Lemma subst_exist_prv {sigma N Gamma} phi :
     Gamma ⊢ phi[sigma] -> bounded N phi -> Gamma ⊢ exist_times N phi. 
@@ -94,9 +104,8 @@ Section ND.
     - rewrite iter_switch. eapply (IHN (S >> sigma)).
       cbn. eapply (ExI (sigma 0)).
       now rewrite up_decompose.
-      admit.
-  Admitted.
-
+      now apply bounded_S_exists.
+  Qed.
    
   Lemma subst_forall_prv phi {N Gamma} :
     Gamma ⊢ (iter (fun psi => ∀ psi) N phi) -> bounded N phi -> forall sigma, Gamma ⊢ phi[sigma].
@@ -108,8 +117,8 @@ Section ND.
       rewrite <-up_decompose.
       apply AllE. apply IHN.
       now rewrite <-iter_switch.
-      admit.
-  Admitted.
+      now apply bounded_S_forall.
+  Qed.
 
 End ND.
 
@@ -120,10 +129,30 @@ Section SEM.
   Context {D : Type}.
   Context {I : interp D}.
 
+  
+  Lemma bounded_eval_t n t sigma tau :
+    (forall k, n > k -> sigma k = tau k) -> bounded_t n t -> eval sigma t = eval tau t.
+  Proof.
+    intros H. induction 1; cbn; auto.
+    f_equal. now apply Vector.map_ext_in.
+  Qed.
+    
   Lemma bound_ext N phi rho sigma :
     bounded N phi -> (forall n, n < N -> rho n = sigma n) -> (rho ⊨ phi <-> sigma ⊨ phi).
   Proof.
-  Admitted.
+    induction 1 in sigma, rho |- *; cbn; intros HN; try tauto.
+    - enough (map (eval rho) v = map (eval sigma) v) as E. now setoid_rewrite E.
+      apply Vector.map_ext_in. intros t Ht.
+      eapply bounded_eval_t; try apply HN. now apply H.
+    - destruct binop; now rewrite (IHbounded1 rho sigma), (IHbounded2 rho sigma).
+    - destruct quantop.
+      + split; intros Hd d; eapply IHbounded.
+        all : try apply (Hd d); intros [] Hk; cbn; auto.
+        symmetry. all: apply HN; lia.
+      + split; intros [d Hd]; exists d; eapply IHbounded.
+        all : try apply Hd; intros [] Hk; cbn; auto.
+        symmetry. all: apply HN; lia.
+  Qed.
   
 
   Corollary sat_closed rho sigma phi :
@@ -141,7 +170,8 @@ Section SEM.
     - cbn -[sat]. rewrite iter_switch. apply (IHN (S >> rho)).
       exists (rho 0). eapply sat_ext. 2: apply H.
       now intros [].
-  Admitted.
+      now apply bounded_S_exists.
+  Qed.
   
 
   Fact subst_exist_sat2 N : forall rho phi, rho ⊨ (exist_times N phi) -> (exists sigma, sigma ⊨ phi).
@@ -157,34 +187,55 @@ End SEM.
 
 
 
-
-
-Definition ax_EQ := ((forall_times 1 ($0 == $0))::
-                                                (forall_times 2 ($0 == $1 --> $1 == $0))::
-                                                (forall_times 3 ($0 == $1 --> $1 == $2 --> $0 == $2))::
-                                                (forall_times 2 ($0 == $1 --> σ $0 == σ $1))::
-                                                (forall_times 4 ($0 == $1 --> $2 == $3 --> $0 ⊕ $2 == $1 ⊕ $3))::                    (forall_times 4 ($0 == $1 --> $2 == $3 --> $0 ⊗ $2 == $1 ⊗ $3))::List.nil)%list.
-
-
-Definition ax_FA := (ax_add_zero::ax_add_rec::ax_mult_zero::ax_mult_rec::List.nil)%list.
-Definition FA := (ax_FA ++ ax_EQ)%list.
-
-
-
-
 Section FA_models.
 
   Variable D : Type.
   Variable I : interp D.
   
   Hypothesis ext_model : extensional I.
-  Hypothesis FA_model : forall ax rho, List.In ax FA_facts.FA -> rho ⊨ ax.
+  Hypothesis FA_model : forall ax rho, List.In ax FA -> rho ⊨ ax.
 
-  
 
+  Fact eval_num sigma n : eval sigma (num n) = iμ n.
+  Proof.
+    induction n.
+    - reflexivity.
+    - cbn. now rewrite IHn.
+  Qed.  
 
 End FA_models.
 
+
+
+Section StdModel.
+
+  Definition interp_nat : interp nat.
+  Proof.
+    split.
+    - destruct f; intros v.
+      + exact 0.
+      + exact (S (Vector.hd v) ).
+      + exact (Vector.hd v + Vector.hd (Vector.tl v) ).
+      + exact (Vector.hd v * Vector.hd (Vector.tl v) ).
+    - destruct P. intros v.
+      exact (Vector.hd v = Vector.hd (Vector.tl v) ).
+  Defined.
+
+
+  Lemma nat_is_FA_model : forall rho phi,  List.In phi FAeq -> sat interp_nat rho phi.
+  Proof.
+    intros rho phi. intros [<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[]]]]]]]]]]]; cbn; try congruence.
+  Qed.
+
+
+  Fact nat_eval_num (sigma : env nat) n : @eval _ _ _ interp_nat sigma (num n) = n.
+  Proof.
+    induction n.
+    - reflexivity.
+    - cbn. now rewrite IHn.
+  Qed.
+
+End StdModel.
 
   
 
@@ -202,31 +253,31 @@ Section FA_prv.
 
   
   Variable Gamma : list form.
-  Variable G : incl FA Gamma.
+  Variable G : incl FAeq Gamma.
 
 
   Arguments Weak {_ _ _ _}, _.
 
   Lemma reflexivity t : Gamma ⊢ (t == t).
   Proof.
-    apply (Weak FA).
+    apply (Weak FAeq).
 
     pose (sigma := [t] ∗ var ).
-    change (FA ⊢ _) with (FA ⊢ ($0 == $0)[sigma]).
+    change (FAeq ⊢ _) with (FAeq ⊢ ($0 == $0)[sigma]).
     
-    eapply subst_forall_prv.
+    eapply (@subst_forall_prv _ _ 1).
     apply Ctx. all : firstorder.
   Admitted.
 
   
   Lemma symmetry x y : Gamma ⊢ (x == y) -> Gamma ⊢ (y == x).
   Proof.
-    apply IE. apply (Weak FA).
+    apply IE. apply (Weak FAeq).
 
-    pose (sigma := [y ; x] ∗ var ).
-    change (FA ⊢ _) with (FA ⊢ ($0 == $1 --> $1 == $0)[sigma]).
+    pose (sigma := [x ; y] ∗ var ).
+    change (FAeq ⊢ _) with (FAeq ⊢ ($1 == $0 --> $0 == $1)[sigma]).
     
-    eapply subst_forall_prv.
+    apply (@subst_forall_prv _ _ 2).
     apply Ctx. all : firstorder.
   Admitted.
 
@@ -236,24 +287,24 @@ Section FA_prv.
     Gamma ⊢ (x == y) -> Gamma ⊢ (y == z) -> Gamma ⊢ (x == z).
   Proof.
     intros H. apply IE. revert H; apply IE.
-    apply (Weak FA).
+    apply Weak with FAeq.
 
-    pose (sigma := [z ; y ; x] ∗ var).
-    change (FA ⊢ _) with (FA ⊢ ($0 == $1 --> $1 == $2 --> $0 == $2)[sigma]).
+    pose (sigma := [x ; y ; z] ∗ var).
+    change (FAeq ⊢ _) with (FAeq ⊢ ($2 == $1 --> $1 == $0 --> $2 == $0)[sigma]).
     
-    eapply subst_forall_prv.
+    apply (@subst_forall_prv _ _ 3).
     apply Ctx. all : try firstorder.
   Admitted.
   
 
   Lemma eq_succ x y : Gamma ⊢ (x == y) -> Gamma ⊢ (σ x == σ y).
   Proof.
-    apply IE. apply (Weak FA).
+    apply IE. apply Weak with FAeq.
 
     pose (sigma := [y ; x] ∗ var ).
-    change (FA ⊢ _) with (FA ⊢ ($0 == $1 --> σ $0 == σ $1)[sigma]).
+    change (FAeq ⊢ _) with (FAeq ⊢ ($0 == $1 --> σ $0 == σ $1)[sigma]).
 
-    eapply subst_forall_prv.
+    apply (@subst_forall_prv _ _ 2).
     apply Ctx. all : firstorder.
   Admitted.
 
@@ -262,12 +313,12 @@ Section FA_prv.
     Gamma ⊢ (x1 == x2) -> Gamma ⊢ (y1 == y2) -> Gamma ⊢ (x1 ⊕ y1 == x2 ⊕ y2).
   Proof.
     intros H; apply IE. revert H; apply IE.
-    apply (Weak FA).
+    apply Weak with FAeq.
 
     pose (sigma := [y2 ; y1 ; x2 ; x1] ∗ var).
-    change (FA ⊢ _) with (FA ⊢ ($0 == $1 --> $2 == $3 --> $0 ⊕ $2 == $1 ⊕ $3)[sigma]). 
+    change (FAeq ⊢ _) with (FAeq ⊢ ($0 == $1 --> $2 == $3 --> $0 ⊕ $2 == $1 ⊕ $3)[sigma]). 
 
-    eapply subst_forall_prv.
+    apply (@subst_forall_prv _ _ 4).
     apply Ctx. all: firstorder.
   Admitted.
 
@@ -276,24 +327,24 @@ Section FA_prv.
     Gamma ⊢ (x1 == x2) -> Gamma ⊢ (y1 == y2) -> Gamma ⊢ (x1 ⊗ y1 == x2 ⊗ y2).
   Proof.
     intros H; apply IE. revert H; apply IE.
-    apply (Weak FA).
+    apply Weak with FAeq.
     
     pose (sigma := [y2 ; y1 ; x2 ; x1] ∗ var).
-    change (FA ⊢ _) with (FA ⊢ ($0 == $1 --> $2 == $3 --> $0 ⊗ $2 == $1 ⊗ $3)[sigma]).
+    change (FAeq ⊢ _) with (FAeq ⊢ ($0 == $1 --> $2 == $3 --> $0 ⊗ $2 == $1 ⊗ $3)[sigma]).
     
-    eapply subst_forall_prv.
+    apply (@subst_forall_prv _ _ 4).
     apply Ctx. all: firstorder.
   Admitted.
 
   
   Lemma Add_rec x y : Gamma ⊢ ( (σ x) ⊕ y == σ (x ⊕ y) ).
   Proof.
-    apply Weak with FA.
+    apply Weak with FAeq.
 
     pose (sigma := [y ; x] ∗ var).
-    change (FA ⊢ _) with (FA ⊢ (σ $0 ⊕ $1 == σ ($0 ⊕ $1))[sigma]).
+    change (FAeq ⊢ _) with (FAeq ⊢ (σ $0 ⊕ $1 == σ ($0 ⊕ $1))[sigma]).
 
-    eapply subst_forall_prv.
+    apply (@subst_forall_prv _ _ 2).
     apply Ctx. all : firstorder. 
   Admitted.
   
@@ -302,7 +353,9 @@ Section FA_prv.
   Proof.
     induction x; cbn.
     - apply (@AllE _ _ _ _ _ _ (zero ⊕ $0 == $0) ).
-      unfold FA. apply Ctx. firstorder.
+      apply Weak with FAeq.
+      apply Ctx;firstorder.
+      assumption.
     - eapply transitivity.
       apply Add_rec.
       now apply eq_succ.
@@ -311,13 +364,13 @@ Section FA_prv.
 
   Lemma Mult_rec x y : Gamma ⊢ ( (σ x) ⊗ y == y ⊕ (x ⊗ y) ).
   Proof.
-    apply Weak with FA.
+    apply Weak with FAeq.
 
     pose (sigma := [x ; y] ∗ var).
-    change (FA ⊢ _) with (FA ⊢ ((σ $1) ⊗ $0 == $0 ⊕ ($1 ⊗ $0))[sigma]).
+    change (FAeq ⊢ _) with (FAeq ⊢ ((σ $1) ⊗ $0 == $0 ⊕ ($1 ⊗ $0))[sigma]).
 
     eapply (@subst_forall_prv _ _ 2).
-    apply Ctx. all : firstorder. 
+    apply Ctx. all : firstorder.
   Admitted.
 
   
@@ -325,25 +378,14 @@ Section FA_prv.
   Proof.
     induction x; cbn.
     - apply (@AllE _ _ _ _ _ _ (zero ⊗ $0 == zero)).
-      apply Ctx; firstorder.
+      apply Weak with FAeq. apply Ctx; firstorder.
+      assumption.
     - eapply transitivity.
       apply Mult_rec.
       eapply transitivity.
       2: apply num_add_homomorphism.
       apply eq_add. apply reflexivity. apply IHx.
   Qed.
-  
-  
-  Lemma add_nat_to_deduction x y z : x + y = z -> Gamma ⊢ (num x ⊕ num y == num z).
-  Proof.
-    intros <-. apply num_add_homomorphism.
-  Abort.
-
-
-  Lemma mult_nat_to_deduction x y z : x*y = z -> Gamma ⊢ (num x ⊗ num y == num z).
-  Proof.
-    intros <-. apply num_mult_homomorphism.
-  Abort.
-  
 
 End FA_prv.  
+
