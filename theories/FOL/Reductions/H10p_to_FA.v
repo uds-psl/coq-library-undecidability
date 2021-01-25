@@ -129,8 +129,8 @@ Proof.
 Qed.
 
 
-Theorem Reduction_sat :
-  forall E, H10p_SAT E <-> valid_ctx FAeq (embed E).
+Theorem H10p_to_FA_sat E :
+  H10p_SAT E <-> valid_ctx FAeq (embed E).
 Proof.
   split.
   - intros [sigma HE].
@@ -152,7 +152,43 @@ Admitted.
 
 
 
-Theorem Reduction_prv : forall E, H10p_SAT E <-> FAeq ⊢I embed E.
+Lemma nat_is_PA_model : forall rho ax, PA ax -> sat interp_nat rho ax.
+Proof.
+    intros rho psi [].
+    repeat (destruct H as [<- | H]; auto).
+    all: cbn; try congruence.
+    intros H0 IH. intros d. induction d.
+    rewrite <-sat_single in H0. apply H0.
+    apply IH in IHd.
+Admitted.
+
+
+
+Theorem H10p_to_PA_sat E :
+  H10p_SAT E <-> forall D (I : interp D) rho, (forall psi, PA psi -> rho ⊨ psi) -> rho ⊨ (embed E).
+Proof.
+  split.
+  - intros [sigma HE].
+    intros D I rho H.
+    eapply subst_exist_sat.
+    apply problem_to_model.
+    + intros ρ' ax Hax. eapply sat_closed.
+      2: apply H. admit.
+      (* repeat (destruct Hax as [<- | Hax]; auto). *)
+      admit.
+    + apply HE.
+    + rewrite <-exists_close_form; apply embed_is_closed.
+  - intros H.
+    specialize (H nat interp_nat id (nat_is_PA_model id)).
+    unfold embed in *. apply subst_exist_sat2 in H.
+    destruct H as [sigma Hs]. exists sigma.
+    now apply nat_sat.
+Admitted.
+
+
+
+
+Theorem H10p_to_FA_prv : forall E, H10p_SAT E <-> FAeq ⊢I embed E.
 Proof.
   intros E. split.
   - intros [sigma HE].
@@ -160,7 +196,7 @@ Proof.
     apply problem_to_prv,  HE.
     rewrite <-exists_close_form; apply embed_is_closed.
   - intros H%soundness.
-    now apply Reduction_sat.
+    now apply H10p_to_FA_sat.
 Qed.
 
 
