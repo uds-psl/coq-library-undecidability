@@ -35,32 +35,32 @@ Definition is_eset (t : term') :=
   ∀ ¬ ($0 ∈ t`[↑]).
 
 Definition is_pair (x y t : term') :=
-  ∀ $0 ∈ t`[↑] <--> $0 ≡ x`[↑] ∨ $0 ≡ y`[↑].
+  ∀ $0 ∈ t`[↑] <~> $0 ≡ x`[↑] ∨ $0 ≡ y`[↑].
 
 Definition is_union (x t : term') :=
-  ∀ $0 ∈ t`[↑] <--> ∃ $0 ∈ shift 2 x ∧ $1 ∈ $0.
+  ∀ $0 ∈ t`[↑] <~> ∃ $0 ∈ shift 2 x ∧ $1 ∈ $0.
 
 Definition sub' (x y : term') :=
-  ∀ $0 ∈ x`[↑] --> $0 ∈ y`[↑].
+  ∀ $0 ∈ x`[↑] ~> $0 ∈ y`[↑].
 
 Definition is_power (x t : term') :=
-  ∀ $0 ∈ t`[↑] <--> sub' $0 x`[↑].
+  ∀ $0 ∈ t`[↑] <~> sub' $0 x`[↑].
 
 Definition is_sigma (x t : term') :=
-  ∀ $0 ∈ t`[↑] <--> $0 ∈ x`[↑] ∨ $0 ≡ x`[↑].
+  ∀ $0 ∈ t`[↑] <~> $0 ∈ x`[↑] ∨ $0 ≡ x`[↑].
 
 Definition is_inductive (t : term') :=
-  (∃ is_eset $0 ∧ $0 ∈ t`[↑]) ∧ ∀ $0 ∈ t`[↑] --> (∃ is_sigma $1 $0 ∧ $0 ∈ shift 2 t).
+  (∃ is_eset $0 ∧ $0 ∈ t`[↑]) ∧ ∀ $0 ∈ t`[↑] ~> (∃ is_sigma $1 $0 ∧ $0 ∈ shift 2 t).
 
 Definition is_om (t : term') :=
-  is_inductive t ∧ ∀ is_inductive $0 --> sub' t`[↑] $0.
+  is_inductive t ∧ ∀ is_inductive $0 ~> sub' t`[↑] $0.
 
 
 
 (* ** Symbol-free axiomatisation *)
 
 Definition ax_ext' :=
-  ∀ ∀ sub' $1 $0 --> sub' $0 $1 --> $1 ≡' $0.
+  ∀ ∀ sub' $1 $0 ~> sub' $0 $1 ~> $1 ≡' $0.
 
 Definition ax_eset' :=
   ∃ is_eset $0.
@@ -81,13 +81,13 @@ Definition ax_refl' :=
   ∀ $0 ≡' $0.
 
 Definition ax_sym' :=
-  ∀ ∀ $1 ≡' $0 --> $0 ≡' $1.
+  ∀ ∀ $1 ≡' $0 ~> $0 ≡' $1.
 
 Definition ax_trans' :=
-  ∀ ∀ ∀ $2 ≡' $1 --> $1 ≡' $0 --> $2 ≡' $0.
+  ∀ ∀ ∀ $2 ≡' $1 ~> $1 ≡' $0 ~> $2 ≡' $0.
 
 Definition ax_eq_elem' :=
-  ∀ ∀ ∀ ∀ $3 ≡' $1 --> $2 ≡' $0 --> $3 ∈' $2 --> $1 ∈' $0.
+  ∀ ∀ ∀ ∀ $3 ≡' $1 ~> $2 ≡' $0 ~> $3 ∈' $2 ~> $1 ∈' $0.
 
 (* List of core axioms without schemes for separation and replacement *)
 
@@ -100,13 +100,13 @@ Definition minZFeq' :=
   ax_refl' :: ax_sym' :: ax_trans' :: ax_eq_elem' :: minZF'.
 
 Definition ax_sep' phi :=
-  ∀ ∃ ∀ $0 ∈' $1 <--> $0 ∈' $2 ∧ phi[$0.: Nat.add 3 >> var].
+  ∀ ∃ ∀ $0 ∈' $1 <~> $0 ∈' $2 ∧ phi[$0.: Nat.add 3 >> var].
 
 Definition fun_rel' phi :=
-  ∀ ∀ ∀ phi[$2 .: $1 .: Nat.add 3 >> var] --> phi[$2 .: $0 .: Nat.add 3 >> var] --> $1 ≡' $0.
+  ∀ ∀ ∀ phi[$2 .: $1 .: Nat.add 3 >> var] ~> phi[$2 .: $0 .: Nat.add 3 >> var] ~> $1 ≡' $0.
 
 Definition ax_rep' phi :=
-  fun_rel' phi --> ∀ ∃ ∀ $0 ∈' $1 <--> ∃ $0 ∈' $3 ∧ phi[$0 .: $1 .: Nat.add 4 >> var].
+  fun_rel' phi ~> ∀ ∃ ∀ $0 ∈' $1 <~> ∃ $0 ∈' $3 ∧ phi[$0 .: $1 .: Nat.add 4 >> var].
 
 (* Theory of full ZF including the separation and replacement schemes *)
 

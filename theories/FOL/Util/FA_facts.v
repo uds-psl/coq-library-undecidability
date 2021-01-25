@@ -160,10 +160,10 @@ End SEM.
 
 
 Definition ax_EQ := ((forall_times 1 ($0 == $0))::
-                                                (forall_times 2 ($0 == $1 --> $1 == $0))::
-                                                (forall_times 3 ($0 == $1 --> $1 == $2 --> $0 == $2))::
-                                                (forall_times 2 ($0 == $1 --> σ $0 == σ $1))::
-                                                (forall_times 4 ($0 == $1 --> $2 == $3 --> $0 ⊕ $2 == $1 ⊕ $3))::                    (forall_times 4 ($0 == $1 --> $2 == $3 --> $0 ⊗ $2 == $1 ⊗ $3))::List.nil)%list.
+                                                (forall_times 2 ($0 == $1 ~> $1 == $0))::
+                                                (forall_times 3 ($0 == $1 ~> $1 == $2 ~> $0 == $2))::
+                                                (forall_times 2 ($0 == $1 ~> σ $0 == σ $1))::
+                                                (forall_times 4 ($0 == $1 ~> $2 == $3 ~> $0 ⊕ $2 == $1 ⊕ $3))::                    (forall_times 4 ($0 == $1 ~> $2 == $3 ~> $0 ⊗ $2 == $1 ⊗ $3))::List.nil)%list.
 
 
 Definition ax_FA := (ax_add_zero::ax_add_rec::ax_mult_zero::ax_mult_rec::List.nil)%list.
@@ -224,7 +224,7 @@ Section FA_prv.
     apply IE. apply (Weak FA).
 
     pose (sigma := [y ; x] ∗ var ).
-    change (FA ⊢ _) with (FA ⊢ ($0 == $1 --> $1 == $0)[sigma]).
+    change (FA ⊢ _) with (FA ⊢ ($0 == $1 ~> $1 == $0)[sigma]).
     
     eapply subst_forall_prv.
     apply Ctx. all : firstorder.
@@ -239,7 +239,7 @@ Section FA_prv.
     apply (Weak FA).
 
     pose (sigma := [z ; y ; x] ∗ var).
-    change (FA ⊢ _) with (FA ⊢ ($0 == $1 --> $1 == $2 --> $0 == $2)[sigma]).
+    change (FA ⊢ _) with (FA ⊢ ($0 == $1 ~> $1 == $2 ~> $0 == $2)[sigma]).
     
     eapply subst_forall_prv.
     apply Ctx. all : try firstorder.
@@ -251,7 +251,7 @@ Section FA_prv.
     apply IE. apply (Weak FA).
 
     pose (sigma := [y ; x] ∗ var ).
-    change (FA ⊢ _) with (FA ⊢ ($0 == $1 --> σ $0 == σ $1)[sigma]).
+    change (FA ⊢ _) with (FA ⊢ ($0 == $1 ~> σ $0 == σ $1)[sigma]).
 
     eapply subst_forall_prv.
     apply Ctx. all : firstorder.
@@ -265,7 +265,7 @@ Section FA_prv.
     apply (Weak FA).
 
     pose (sigma := [y2 ; y1 ; x2 ; x1] ∗ var).
-    change (FA ⊢ _) with (FA ⊢ ($0 == $1 --> $2 == $3 --> $0 ⊕ $2 == $1 ⊕ $3)[sigma]). 
+    change (FA ⊢ _) with (FA ⊢ ($0 == $1 ~> $2 == $3 ~> $0 ⊕ $2 == $1 ⊕ $3)[sigma]). 
 
     eapply subst_forall_prv.
     apply Ctx. all: firstorder.
@@ -279,7 +279,7 @@ Section FA_prv.
     apply (Weak FA).
     
     pose (sigma := [y2 ; y1 ; x2 ; x1] ∗ var).
-    change (FA ⊢ _) with (FA ⊢ ($0 == $1 --> $2 == $3 --> $0 ⊗ $2 == $1 ⊗ $3)[sigma]).
+    change (FA ⊢ _) with (FA ⊢ ($0 == $1 ~> $2 == $3 ~> $0 ⊗ $2 == $1 ⊗ $3)[sigma]).
     
     eapply subst_forall_prv.
     apply Ctx. all: firstorder.
