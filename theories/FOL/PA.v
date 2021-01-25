@@ -147,7 +147,7 @@ Definition entailment_FA phi := valid_ctx FAeq phi.
 (* Semantic entailment for PA *)
 
 Definition entailment_PA phi :=
-  forall D (I : interp D) rho, (forall psi, PAeq psi -> rho ⊨ psi) -> rho ⊨ phi.
+  forall D (I : interp D) rho, (forall psi rho, PAeq psi -> rho ⊨ psi) -> rho ⊨ phi.
 
 (* Deductive entailment restricted to intuitionistic rules and FA. *)
 

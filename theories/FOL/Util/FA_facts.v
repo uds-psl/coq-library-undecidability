@@ -283,7 +283,8 @@ Section FA_prv.
     
     apply (@subst_forall_prv _ _ 2).
     apply Ctx. all : firstorder.
-  Admitted.
+    repeat solve_bounds.
+  Qed.
 
   
   
@@ -298,7 +299,8 @@ Section FA_prv.
     
     apply (@subst_forall_prv _ _ 3).
     apply Ctx. all : try firstorder.
-  Admitted.
+    repeat solve_bounds.
+  Qed.
   
 
   Lemma eq_succ x y : Gamma ⊢ (x == y) -> Gamma ⊢ (σ x == σ y).
@@ -310,7 +312,8 @@ Section FA_prv.
 
     apply (@subst_forall_prv _ _ 2).
     apply Ctx. all : firstorder.
-  Admitted.
+    repeat solve_bounds.
+  Qed.
 
   
   Lemma eq_add {x1 y1 x2 y2} :
@@ -324,7 +327,8 @@ Section FA_prv.
 
     apply (@subst_forall_prv _ _ 4).
     apply Ctx. all: firstorder.
-  Admitted.
+    repeat solve_bounds.
+  Qed.
 
 
   Lemma eq_mult {x1 y1 x2 y2} :
@@ -338,7 +342,8 @@ Section FA_prv.
     
     apply (@subst_forall_prv _ _ 4).
     apply Ctx. all: firstorder.
-  Admitted.
+    repeat solve_bounds.
+  Qed.
 
   
   Lemma Add_rec x y : Gamma ⊢ ( (σ x) ⊕ y == σ (x ⊕ y) ).
@@ -349,8 +354,9 @@ Section FA_prv.
     change (FAeq ⊢ _) with (FAeq ⊢ (σ $0 ⊕ $1 == σ ($0 ⊕ $1))[sigma]).
 
     apply (@subst_forall_prv _ _ 2).
-    apply Ctx. all : firstorder. 
-  Admitted.
+    apply Ctx. all : firstorder.
+    repeat solve_bounds.
+  Qed.
   
   
   Lemma num_add_homomorphism  x y : Gamma ⊢ ( num x ⊕ num y == num (x + y) ).
@@ -375,7 +381,8 @@ Section FA_prv.
 
     eapply (@subst_forall_prv _ _ 2).
     apply Ctx. all : firstorder.
-  Admitted.
+    repeat solve_bounds.
+  Qed.
 
   
   Lemma num_mult_homomorphism (x y : nat) : Gamma ⊢ ( num x ⊗ num y == num (x * y) ).

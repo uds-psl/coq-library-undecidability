@@ -128,6 +128,15 @@ Proof.
     assumption.
 Qed.
 
+
+Lemma nat_sat' E :
+  (exists sigma, sat interp_nat sigma (embed_problem E)) <-> H10p_SAT E.
+Proof.
+  split; intros [sigma ]; exists sigma; now apply nat_sat.
+Qed.
+
+
+
 Theorem H10p_to_FA_sat E :
   H10p_SAT E <-> valid_ctx FAeq (embed E).
 Proof.
@@ -144,51 +153,49 @@ Proof.
   - intros H.
     specialize (H nat interp_nat id (nat_is_FA_model id)).
     unfold embed in *. apply subst_exist_sat2 in H.
-    destruct H as [sigma Hs]. exists sigma.
-    now apply nat_sat.
-Admitted.
+    now apply nat_sat'.
+Qed.
 
 
 
-Lemma nat_is_PA_model : forall rho ax, PA ax -> sat interp_nat rho ax.
+Lemma nat_is_PA_model : forall ax rho, PAeq ax -> sat interp_nat rho ax.
 Proof.
     intros rho psi [].
     repeat (destruct H as [<- | H]; auto).
     all: cbn; try congruence.
     intros H0 IH. intros d. induction d.
     rewrite <-sat_single in H0. apply H0.
-    apply IH in IHd.
-Admitted.
+    apply IH in IHd. rewrite sat_comp in IHd.
+    revert IHd. apply sat_ext. intros []; reflexivity.
+Qed.
 
 
 
 Theorem H10p_to_PA_sat E :
-  H10p_SAT E <-> forall D (I : interp D) rho, (forall psi, PA psi -> rho ⊨ psi) -> rho ⊨ (embed E).
+  H10p_SAT E <-> forall D (I : interp D) rho, (forall psi rho, PAeq psi -> rho ⊨ psi) -> rho ⊨ (embed E).
 Proof.
   split.
   - intros [sigma HE].
     intros D I rho H.
     eapply subst_exist_sat.
     apply problem_to_model.
-    + intros ρ' ax Hax. eapply sat_closed.
-      2: apply H. admit.
-      (* repeat (destruct Hax as [<- | Hax]; auto). *)
-      admit.
+    + intros ρ' ax Hax. apply (sat_closed rho).
+      repeat (destruct Hax as [<- | Hax]; cbn; repeat solve_bounds; auto).
+      apply H. now constructor.
     + apply HE.
     + rewrite <-exists_close_form; apply embed_is_closed.
   - intros H.
-    specialize (H nat interp_nat id (nat_is_PA_model id)).
+    specialize (H nat interp_nat id nat_is_PA_model).
     unfold embed in *. apply subst_exist_sat2 in H.
-    destruct H as [sigma Hs]. exists sigma.
-    now apply nat_sat.
-Admitted.
+    now apply nat_sat'.
+Qed.
 
 
 
-
-Theorem H10p_to_FA_prv : forall E, H10p_SAT E <-> FAeq ⊢I embed E.
+Theorem H10p_to_FA_prv E :
+  H10p_SAT E <-> FAeq ⊢I embed E.
 Proof.
-  intros E. split.
+  split.
   - intros [sigma HE].
     eapply subst_exist_prv.
     apply problem_to_prv,  HE.
@@ -199,3 +206,16 @@ Qed.
 
 
 
+Theorem H10p_to_PA_prv E :
+  H10p_SAT E <-> PAeq ⊢TI embed E.
+Proof.
+  split.
+  - intros [sigma HE].
+    exists FAeq. split. intros. now constructor.
+    apply H10p_to_FA_prv.
+    now exists sigma.
+  - intros H. apply nat_sat'.
+    eapply subst_exist_sat2.
+    apply (tsoundness H interp_nat id).
+    intros. now apply nat_is_PA_model.
+Qed.

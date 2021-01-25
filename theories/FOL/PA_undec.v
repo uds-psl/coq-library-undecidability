@@ -8,26 +8,26 @@ From Undecidability.FOL.Reductions Require Import H10p_to_FA.
 
 Theorem H10_entailment_FA : H10p_SAT ⪯ entailment_FA.
 Proof.
-  exists embed. intros E. apply H10p_to_FA_sat.
+  exists embed; intros E. apply H10p_to_FA_sat.
 Qed.
 
 
 Corollary H10_entailment_PA : H10p_SAT ⪯ entailment_PA.
 Proof.
-  exists embed. intros E; split.
-  - intros H D I rho HPA. 
-Admitted.
+  exists embed; intros E. apply H10p_to_PA_sat.
+Qed.
 
 
 Theorem H10_deduction_FA : H10p_SAT ⪯ deduction_FA.
 Proof.
-  exists embed. intros E. apply H10p_to_FA_prv.
+  exists embed; intros E. apply H10p_to_FA_prv.
 Qed.
 
 
 Corollary H10_deduction_PA : H10p_SAT ⪯ deduction_PA.
 Proof.
-Admitted.
+  exists embed; intros E. apply H10p_to_PA_prv.
+Qed.
 
 
 
