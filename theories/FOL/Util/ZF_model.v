@@ -239,7 +239,7 @@ Section IM.
 
 End IM.
 
-Lemma eintensional_model :
+Lemma intensional_model :
   exists V (M : interp V), standard M /\ forall rho, rho ⊫ ZFeq'.
 Proof.
   exists Acz, Acz_interp. split; try apply Acz_standard. apply Acz_ZFeq'.

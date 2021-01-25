@@ -140,6 +140,11 @@ Inductive ZFeq : form -> Prop :=
 Notation extensional M :=
   (forall x y, @i_atom _ ZF_pred_sig _ M equal (Vector.cons x (Vector.cons y Vector.nil)) <-> x = y).
 
+(* Semantic entailment restricted to core axioms (without sep and rep) with equality axioms. *)
+
+Definition entailment_ZFeq' phi :=
+  forall D (M : interp D) (rho : nat -> D), (forall sigma psi, In psi ZFeq' -> sigma ⊨ psi) -> rho ⊨ phi.
+
 (* Semantic entailment restricted to extensional models and core axioms (without sep and rep). *)
 
 Definition entailment_ZF' phi :=
