@@ -65,7 +65,6 @@ Proof.
 Qed.
 
 
-
 Lemma problem_to_prv :
   forall E sigma, H10p_sem E sigma -> FAeq ⊢I (embed_problem E)[sigma >> num].
 Proof.
@@ -79,16 +78,49 @@ Qed.
 
 
 
-Section FA_Model.
+
+Section FA_ext_Model.
 
   Context {D : Type}.
   Context {I : interp D}.
 
   Hypothesis ext_model : extensional I.
+  Hypothesis FA_model : forall ax rho, In ax FA -> rho ⊨ ax.
+
+  Notation "'iO'" := (i_func (f:=Zero) (Vector.nil D)) (at level 2) : PA_Notation.
+  
+  Fact eval_poly sigma p : eval (sigma >> iμ) (embed_poly p) = iμ (dp_eval_pfree sigma p).
+    Proof.
+      induction p; cbn.
+      - now rewrite eval_num.
+      - reflexivity.
+      - destruct d; cbn.
+        + now rewrite IHp1, IHp2, add_hom.
+        + now rewrite IHp1, IHp2, mult_hom.
+    Qed.
+
+    Lemma problem_to_ext_model : forall E sigma, H10p_sem E sigma -> (sigma >> iμ) ⊨ embed_problem E.
+    Proof.
+      intros [a b] sigma Hs. cbn -[sat].
+      unfold H10p_sem in *. cbn -[FA] in *.
+      apply ext_model. rewrite !eval_poly. congruence.
+    Qed.      
+    
+End FA_ext_Model.
+
+
+
+Section FA_Model.
+
+  (* Model of FA with equality. *)
+  
+  Context {D : Type}.
+  Context {I : interp D}.
+
   Hypothesis FA_model : forall rho ax, In ax FAeq -> rho ⊨ ax.
 
-  Notation "'iO'" := (i_func (f:=Zero) (Vector.nil D)) (at level 2) : PA_Notation.  
-
+  Notation "'iO'" := (i_func (f:=Zero) (Vector.nil D)) (at level 2) : PA_Notation.
+  
   Lemma problem_to_model E sigma : H10p_sem E sigma -> (sigma >> iμ) ⊨ embed_problem E.
   Proof.
     intros HE%problem_to_prv%soundness.
@@ -99,8 +131,37 @@ Section FA_Model.
     intros. instantiate (1 := (fun _ => iO)).
     now apply FA_model.
   Qed.
-   
+
+  
 End FA_Model.
+
+
+
+Fact nat_is_PAeq_model : forall ax rho, PAeq ax -> sat interp_nat rho ax.
+Proof.
+    intros rho psi [].
+    repeat (destruct H as [<- | H]; auto).
+    all: cbn; try congruence.
+    intros H0 IH. intros d. induction d.
+    rewrite <-sat_single in H0. apply H0.
+    apply IH in IHd. rewrite sat_comp in IHd.
+    revert IHd. apply sat_ext. intros []; reflexivity.
+Qed.
+
+
+Fact nat_is_PA_model : forall ax rho, PA ax -> sat interp_nat rho ax.
+Proof.
+    intros rho psi [].
+    repeat (destruct H as [<- | H]; auto).
+    all: cbn; try congruence.
+    intros H0 IH. intros d. induction d.
+    rewrite <-sat_single in H0. apply H0.
+    apply IH in IHd. rewrite sat_comp in IHd.
+    revert IHd. apply sat_ext. intros []; reflexivity.
+Qed.
+
+
+
 
 
 Fact nat_eval_poly (sigma : env nat) p :
@@ -113,6 +174,7 @@ Proof.
     + now rewrite IHp1, IHp2.
     + now rewrite IHp1, IHp2.
 Qed.
+
 
 Lemma nat_sat :
   forall E rho, sat interp_nat rho (embed_problem E) <-> H10p_sem E rho.
@@ -127,6 +189,42 @@ Proof.
     apply nat_is_FA_model.
     assumption.
 Qed.
+
+
+Lemma nat_sat' E :
+  (exists sigma, sat interp_nat sigma (embed_problem E)) <-> H10p_SAT E.
+Proof.
+  split; intros [sigma ]; exists sigma; now apply nat_sat.
+Qed.
+
+
+Fact nat_extensional : extensional interp_nat.
+Proof.
+  now intros x y. 
+Qed.
+
+
+Theorem H10p_to_FA_ext_sat E :
+  H10p_SAT E <-> ext_entailment_PA (embed E).
+Proof.
+  split.
+  - intros [sigma HE].
+    intros D I rho Hext H.
+    eapply subst_exist_sat.
+    apply problem_to_ext_model.
+    + apply Hext.
+    + intros. apply H. now constructor.
+    + apply HE.
+    + rewrite <-exists_close_form; apply embed_is_closed. 
+  - intros H.
+    specialize (H nat interp_nat id nat_extensional).
+    unfold embed in *. apply subst_exist_sat2 in H.
+    now apply nat_sat'.
+    apply nat_is_PA_model.
+Qed.
+
+
+
 
 Theorem H10p_to_FA_sat E :
   H10p_SAT E <-> valid_ctx FAeq (embed E).
@@ -144,51 +242,36 @@ Proof.
   - intros H.
     specialize (H nat interp_nat id (nat_is_FA_model id)).
     unfold embed in *. apply subst_exist_sat2 in H.
-    destruct H as [sigma Hs]. exists sigma.
-    now apply nat_sat.
-Admitted.
-
-
-
-Lemma nat_is_PA_model : forall rho ax, PA ax -> sat interp_nat rho ax.
-Proof.
-    intros rho psi [].
-    repeat (destruct H as [<- | H]; auto).
-    all: cbn; try congruence.
-    intros H0 IH. intros d. induction d.
-    rewrite <-sat_single in H0. apply H0.
-    apply IH in IHd.
-Admitted.
+    now apply nat_sat'.
+Qed.
 
 
 
 Theorem H10p_to_PA_sat E :
-  H10p_SAT E <-> forall D (I : interp D) rho, (forall psi, PA psi -> rho ⊨ psi) -> rho ⊨ (embed E).
+  H10p_SAT E <-> forall D (I : interp D) rho, (forall psi rho, PAeq psi -> rho ⊨ psi) -> rho ⊨ (embed E).
 Proof.
   split.
   - intros [sigma HE].
     intros D I rho H.
     eapply subst_exist_sat.
     apply problem_to_model.
-    + intros ρ' ax Hax. eapply sat_closed.
-      2: apply H. admit.
-      (* repeat (destruct Hax as [<- | Hax]; auto). *)
-      admit.
+    + intros ρ' ax Hax. apply (sat_closed rho).
+      repeat (destruct Hax as [<- | Hax]; cbn; repeat solve_bounds; auto).
+      apply H. now constructor.
     + apply HE.
     + rewrite <-exists_close_form; apply embed_is_closed.
   - intros H.
-    specialize (H nat interp_nat id (nat_is_PA_model id)).
+    specialize (H nat interp_nat id nat_is_PAeq_model).
     unfold embed in *. apply subst_exist_sat2 in H.
-    destruct H as [sigma Hs]. exists sigma.
-    now apply nat_sat.
-Admitted.
+    now apply nat_sat'.
+Qed.
 
 
 
-
-Theorem H10p_to_FA_prv : forall E, H10p_SAT E <-> FAeq ⊢I embed E.
+Theorem H10p_to_FA_prv E :
+  H10p_SAT E <-> FAeq ⊢I embed E.
 Proof.
-  intros E. split.
+  split.
   - intros [sigma HE].
     eapply subst_exist_prv.
     apply problem_to_prv,  HE.
@@ -199,3 +282,16 @@ Qed.
 
 
 
+Theorem H10p_to_PA_prv E :
+  H10p_SAT E <-> PAeq ⊢TI embed E.
+Proof.
+  split.
+  - intros [sigma HE].
+    exists FAeq. split. intros. now constructor.
+    apply H10p_to_FA_prv.
+    now exists sigma.
+  - intros H. apply nat_sat'.
+    eapply subst_exist_sat2.
+    apply (tsoundness H interp_nat id).
+    intros. now apply nat_is_PAeq_model.
+Qed.
