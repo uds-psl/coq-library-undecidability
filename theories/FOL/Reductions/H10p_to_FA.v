@@ -1,7 +1,7 @@
 From Undecidability.FOL.Util Require Import Syntax Syntax_facts FullTarski FullTarski_facts FullDeduction_facts FullDeduction FA_facts.
 Require Import Undecidability.FOL.PA.
 From Undecidability.H10 Require Import H10p.
-Require Import List.
+Require Import List Lia.
 
 
 Fixpoint embed_poly p : term :=
@@ -128,7 +128,6 @@ Proof.
     assumption.
 Qed.
 
-
 Theorem H10p_to_FA_sat E :
   H10p_SAT E <-> valid_ctx FAeq (embed E).
 Proof.
@@ -139,8 +138,7 @@ Proof.
     apply problem_to_model.
     + intros ρ' ax Hax. eapply sat_closed.
       2: now apply H.
-      (* repeat (destruct Hax as [<- | Hax]; auto). *)
-      admit.
+      repeat (destruct Hax as [<- | Hax]; cbn; repeat solve_bounds; auto).
     + apply HE.
     + rewrite <-exists_close_form; apply embed_is_closed.
   - intros H.

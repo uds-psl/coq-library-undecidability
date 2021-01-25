@@ -9,12 +9,17 @@ Import Vector.VectorNotations.
   Proof.
     split; intros H.
     - now constructor.
-    - 
-  Admitted.
+    - inversion H. apply inj_pair2_eq_dec' in H4 as ->; trivial.
+      unfold Dec.dec. decide equality.
+  Qed.
 
   Lemma bounded_S_forall N phi : bounded (S N) phi <-> bounded N (∀ phi).
   Proof.
-  Admitted.
+    split; intros H.
+    - now constructor.
+    - inversion H. apply inj_pair2_eq_dec' in H4 as ->; trivial.
+      unfold Dec.dec. decide equality.
+  Qed.
 
 
 
@@ -220,10 +225,9 @@ Section StdModel.
       exact (Vector.hd v = Vector.hd (Vector.tl v) ).
   Defined.
 
-
   Lemma nat_is_FA_model : forall rho phi,  List.In phi FAeq -> sat interp_nat rho phi.
   Proof.
-    intros rho phi. intros [<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[]]]]]]]]]]]; cbn; try congruence.
+    intros rho phi. intros H. repeat destruct H as [<-|H]; try destruct H; cbn; try congruence.
   Qed.
 
 
@@ -265,8 +269,9 @@ Section FA_prv.
     change (FAeq ⊢ _) with (FAeq ⊢ ($0 == $0)[sigma]).
     
     eapply (@subst_forall_prv _ _ 1).
-    apply Ctx. all : firstorder.
-  Admitted.
+    apply Ctx. all : firstorder. constructor.
+    repeat solve_bounds.
+  Qed.
 
   
   Lemma symmetry x y : Gamma ⊢ (x == y) -> Gamma ⊢ (y == x).
