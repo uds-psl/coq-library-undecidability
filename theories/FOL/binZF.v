@@ -1,6 +1,7 @@
 (* * Definition of semantic and deductive ZF-Entailment in binary signature *)
 
 Require Import Undecidability.FOL.Util.Syntax.
+Require Import Undecidability.FOL.Util.sig_bin.
 Require Import Undecidability.FOL.Util.FullTarski.
 Require Import Undecidability.FOL.Util.FullDeduction.
 Require Import List.
@@ -10,12 +11,6 @@ Require Import List.
 (* ** Minimal binary signature only containing membership, no function symbols or equality *)
 
 Existing Instance falsity_on.
-
-Instance sig_empty : funcs_signature :=
-  {| syms := False;  ar_syms := False_rect nat |}.
-
-Instance sig_binary : preds_signature :=
-  {| preds := unit;  ar_preds := fun _ => 2 |}.
 
 Notation term' := (term sig_empty).
 Notation form' := (form sig_empty sig_binary _ falsity_on).
@@ -102,7 +97,7 @@ Definition binZF :=
 (* Semantic entailment restricted to extensional models and core axioms (without sep and rep). *)
 
 Definition entailment_binZF phi :=
-  forall D (M : @interp sig_empty _ D) (rho : nat -> D), (forall sigma psi, In psi binZF -> sigma ⊨ psi) -> rho ⊨ phi.
+  forall D (M : @interp sig_empty _ D) (rho : nat -> D), (forall psi, In psi binZF -> rho ⊨ psi) -> rho ⊨ phi.
 
 (* Deductive entailment restricted to intuitionistic rules and core axioms (without sep and rep). *)
 
