@@ -312,23 +312,23 @@ Section Model.
   Lemma rm_const_sat (rho : nat -> V) (phi : form) :
     rho ⊨ phi <-> rho ⊨ embed (rm_const_fm phi).
   Proof.
-    (*induction phi in rho |- *; try destruct P; try destruct b0; try destruct q; cbn. 1,4-6: intuition.
+    induction phi in rho |- *; try destruct P; try destruct b0; try destruct q; cbn. 1,4-6: intuition.
     - rewrite (vec_inv2 t). cbn. split.
-      + intros H. exists (eval rho (Vector.hd t)). rewrite rm_const_tm_sat. split; trivial.
+      + intros H. exists (eval rho (Vector.hd t)). rewrite rm_const_tm_sat. split; try reflexivity.
         exists (eval rho (Vector.hd (Vector.tl t))). now rewrite embed_sshift, sat_sshift1, rm_const_tm_sat.
-      + intros (x & Hx & y & Hy & H). apply rm_const_tm_sat in Hx as <-.
-        rewrite embed_sshift, sat_sshift1, rm_const_tm_sat in Hy. now subst.
+      + intros (x & Hx & y & Hy & H). apply rm_const_tm_sat in Hx.
+        change (set_elem (eval rho (Vector.hd t)) (eval rho (Vector.hd (Vector.tl t)))).
+        rewrite embed_sshift, sat_sshift1, rm_const_tm_sat in Hy. now rewrite <- Hx, <- Hy.
     - rewrite (vec_inv2 t). cbn. split.
-      + intros H. exists (eval rho (Vector.hd t)). rewrite rm_const_tm_sat. split; trivial.
+      + intros H. exists (eval rho (Vector.hd t)). rewrite rm_const_tm_sat. split; try reflexivity.
         exists (eval rho (Vector.hd (Vector.tl t))). rewrite embed_sshift, sat_sshift1, rm_const_tm_sat.
-        rewrite VIEQ in H. now rewrite eq_equiv.
-      + intros (x & Hx & y & Hy & H). apply rm_const_tm_sat in Hx as <-.
-        rewrite embed_sshift, sat_sshift1, rm_const_tm_sat in Hy.
-        rewrite eq_equiv in H. rewrite VIEQ. now subst.
+        rewrite eq_equiv. split; trivial. reflexivity.
+      + intros (x & Hx & y & Hy & H). apply rm_const_tm_sat in Hx.
+        change (set_equiv (eval rho (Vector.hd t)) (eval rho (Vector.hd (Vector.tl t)))).
+        rewrite embed_sshift, sat_sshift1, rm_const_tm_sat in Hy. rewrite <- Hx, <- Hy. now apply eq_equiv.
     - split; intros; intuition.
     - firstorder eauto.
-  Qed.*)
-  Admitted.
+  Qed.
 
   Theorem min_correct (rho : nat -> V) (phi : form) :
     sat I rho phi <-> sat min_model rho (rm_const_fm phi).
@@ -339,27 +339,27 @@ Section Model.
   Lemma min_axioms' (rho : nat -> V) :
     rho ⊫ binZF.
   Proof.
-    (*
     intros A [<-|[<-|[<-|[<-|[<-|[<-|[<-|[]]]]]]]]; cbn.
     - intros x y H1 H2. apply eq_equiv. now apply M_ext.
-    - intros x y u v <- % eq_equiv <- % eq_equiv. tauto.
+    - intros x y u v H1 % eq_equiv H2 % eq_equiv. now apply set_equiv_elem'.
     - exists ∅. apply (@M_ZF rho ax_eset). firstorder.
-    - intros x y. exists ({x; y}). setoid_rewrite eq_equiv. setoid_rewrite <- VIEQ. apply (@M_ZF rho ax_pair). firstorder.
+    - intros x y. exists ({x; y}). setoid_rewrite eq_equiv. apply (@M_ZF rho ax_pair). firstorder.
     - intros x. exists (⋃ x). apply (@M_ZF rho ax_union). firstorder.
     - intros x. exists (PP x). apply (@M_ZF rho ax_power). firstorder.
     - exists ω. split. split.
       + exists ∅. split. apply (@M_ZF rho ax_eset). firstorder. apply (@M_ZF rho ax_om1). firstorder.
       + intros x Hx. exists (σ x). split. 2: apply (@M_ZF rho ax_om1); firstorder.
         intros y. rewrite !eq_equiv. now apply sigma_el.
-      + intros x [H1 H2]. apply (@M_ZF rho ax_om2); cbn. auto 8. split.
-        * destruct H1 as (e & E1 & E2). enough (∅ = e) as -> by assumption.
+      + intros x [H1 H2]. apply (@M_ZF rho ax_om2); cbn. auto 12. split.
+        * destruct H1 as (e & E1 & E2). change (set_elem ∅ x).
+          enough (set_equiv ∅ e) as -> by assumption.
           apply M_ext; trivial. all: intros y Hy; exfalso; try now apply E1 in Hy.
-          apply (@M_ZF rho ax_eset) in Hy; trivial. unfold ZF'. auto 8.
-        * intros d (s & S1 & S2) % H2. enough (σ d = s) as -> by assumption.
+          apply (@M_ZF rho ax_eset) in Hy; trivial. unfold ZFeq', ZF'. auto 8.
+        * intros d (s & S1 & S2) % H2. change (set_elem (σ d) x).
+          enough (set_equiv (σ d) s) as -> by assumption.
           apply M_ext; trivial. all: intros y; rewrite sigma_el; trivial.
           all: setoid_rewrite eq_equiv in S1; apply S1.
-  Qed.*)
-  Admitted.
+  Qed.
 
 End Model.
 
