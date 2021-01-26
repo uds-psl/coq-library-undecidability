@@ -11,8 +11,7 @@ Theorem PCPb_entailment_binZF :
   PCPb ⪯ entailment_binZF.
 Proof.
   exists (fun B => rm_const_fm (solvable B)). intros B. split; intros H.
-  - intros V' M' rho' HM. apply (@PCP_ZFD intu), (@rm_const_prv intu nil), soundness in H.
-    apply H; trivial. apply HM.
+  - intros V' M' rho' HM. apply (@PCP_ZFD intu), (@rm_const_prv intu nil), soundness in H. apply H; trivial.
   - apply PCP_ZFeq'; try apply intensional_model.
     intros V M rho HM. apply min_correct; trivial.
     apply H. now apply min_axioms'.

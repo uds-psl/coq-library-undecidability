@@ -20,14 +20,6 @@ Section ND_def.
   Context {ff : falsity_flag}.
   Context {p : peirce}.
 
-  Lemma impl_prv A B phi :
-    (rev B ++ A) ⊢ phi -> A ⊢ (B ==> phi).
-  Proof.
-    revert A; induction B; intros A; cbn; simpl_list; intros.
-    - firstorder.
-    - eapply II. now eapply IHB.
-  Qed.
-
   Theorem Weak A B phi :
     A ⊢ phi -> A <<= B -> B ⊢ phi.
   Proof.
@@ -148,6 +140,16 @@ Section ND_def.
       firstorder.
       eapply CE1, Ctx; firstorder.
       eapply CE2, Ctx; firstorder.
+  Qed.
+
+  Lemma impl_prv A B phi :
+    (rev B ++ A) ⊢ phi <-> A ⊢ (B ==> phi).
+  Proof.
+    revert A; induction B; intros A; cbn; simpl_list; intros.
+    - firstorder.
+    - split; intros.
+      + eapply II. now eapply IHB.
+      + now apply imps, IHB in H.
   Qed.
     
 End ND_def.

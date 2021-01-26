@@ -420,7 +420,13 @@ Section ZF.
   Qed.
 
   Definition M_solutions B f n :=
-    M_opair ∅ (M_enc_stack B) ∈ f /\ forall k x y, k ∈ n -> M_opair k x ∈ f -> M_combinations B x y -> M_opair (σ k) y ∈' f.
+    M_opair ∅ (M_enc_stack B) ∈' f /\ forall k x y, k ∈' n -> M_opair k x ∈' f -> M_combinations B x y -> M_opair (σ k) y ∈' f.
+
+  Instance equiv_solutions :
+    Proper (eq ==> eq ==> set_equiv ==> iff) M_solutions.
+  Proof.
+    intros B B' <- f f' <- x x' Hx. unfold M_solutions. setoid_rewrite Hx. tauto.
+  Qed.
 
   Lemma comb_rel_rep C s t :
     M_is_rep (M_comb_rel s t) (M_enc_stack C) (M_enc_stack (append_all C (s, t))).
@@ -460,12 +466,6 @@ Section ZF.
 
   Definition M_function f :=
     forall x y y', M_opair x y ∈ f -> M_opair x y' ∈ f -> y ≡' y'.
-
-  Instance equiv_solutions :
-    Proper (eq ==> eq ==> set_equiv ==> iff) M_solutions.
-  Proof.
-    
-  Admitted.
 
   Lemma M_solutions_el B f k X p :
     standard M -> k ∈ ω -> M_function f -> M_solutions B f k -> M_opair k X ∈' f

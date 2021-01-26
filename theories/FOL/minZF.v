@@ -126,6 +126,11 @@ Inductive minZFeq : form' -> Prop :=
 
 (* ** Problems *)
 
+(* Semantic entailment restricted to core axioms (without sep and rep) with equality axioms. *)
+
+Definition entailment_minZFeq' phi :=
+  forall D (M : interp D) (rho : nat -> D), (forall sigma psi, In psi minZFeq' -> sigma ⊨ psi) -> rho ⊨ phi.
+
 (* Semantic entailment restricted to extensional models and core axioms (without sep and rep). *)
 
 Definition entailment_minZF' phi :=
