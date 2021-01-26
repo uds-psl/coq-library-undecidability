@@ -292,7 +292,7 @@ Section Model.
       intros d. rewrite H. now apply M_union.
     - intros (y & Hy & H). rewrite embed_sshift, sat_sshift1, IH in Hy; try apply in_hd.
       change (set_equiv x (power (eval rho (Vector.hd v)))). rewrite <- Hy. apply M_ext; trivial.
-      + intros z Hz. now apply M_power, H.
+      + intros z Hz. apply M_power; trivial. unfold set_sub. now apply H.
       + intros z Hz. now apply H, M_power.
     - exists (eval rho (Vector.hd v)).
       rewrite embed_sshift, sat_sshift1, IH; try apply in_hd. split; try reflexivity.
