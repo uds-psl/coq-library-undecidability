@@ -247,6 +247,7 @@ FOL/Reductions/PCPb_to_FOL_class.v
 FOL/Reductions/PCPb_to_ZF.v
 FOL/Reductions/PCPb_to_ZFD.v
 FOL/Reductions/PCPb_to_minZF.v
+FOL/Reductions/PCPb_to_minZFeq.v
 FOL/Reductions/PCPb_to_binZF.v
 FOL/Reductions/PCPb_to_ZFeq.v
 FOL/Reductions/H10p_to_FA.v
