@@ -36,7 +36,11 @@ Section ZF.
     x ∈ y.
 
   Notation "x ∈' y" := (set_elem x y) (at level 35).
-  Notation "x ⊆' y" := (forall z, z ∈' x -> z ∈' y) (at level 35).
+
+  Definition set_sub x y :=
+    forall z, z ∈' x -> z ∈' y.
+
+  Notation "x ⊆' y" := (set_sub x y) (at level 35).
 
   Instance set_equiv_equiv :
     Equivalence set_equiv.
@@ -53,6 +57,13 @@ Section ZF.
     intros x x' Hx y y' Hy. split.
     - apply (@M_ZF (fun _ => ∅) ax_eq_elem); cbn; tauto.
     - symmetry in Hx, Hy. apply (@M_ZF (fun _ => ∅) ax_eq_elem); cbn; tauto.
+  Qed.
+
+  Instance set_equiv_sub :
+    Proper (set_equiv ==> set_equiv ==> iff) set_sub.
+  Proof.
+    intros x x' Hx y y' Hy. unfold set_sub.
+    setoid_rewrite Hx. setoid_rewrite Hy. tauto.
   Qed.
 
   Lemma set_equiv_refl' x :
@@ -93,15 +104,19 @@ Section ZF.
     apply (@M_ZF (fun _ => ∅) ax_union). cbn; tauto.
   Qed.
 
-  (*
   Lemma M_power x y :
     x ∈ PP y <-> x ⊆ y.
   Proof.
     apply (@M_ZF (fun _ => ∅) ax_power). cbn; tauto.
   Qed.
 
-  Definition M_inductive x :=
-    ∅ ∈ x /\ forall y, y ∈ x -> σ y ∈ x.
+  Definition power x :=
+    PP x.
+
+  Instance equiv_power :
+    Proper (set_equiv ==> set_equiv) power.
+  Proof.
+  Admitted.
 
   Lemma M_om1 :
     M_inductive ω.
@@ -115,6 +130,7 @@ Section ZF.
     apply (@M_ZF (fun _ => ∅) ax_om2). cbn; tauto.
   Qed.
 
+  (*
   Definition agrees_fun phi (P : V -> Prop) :=
     forall x rho, P x <-> (x.:rho) ⊨ phi.
 
@@ -232,7 +248,7 @@ Section ZF.
     rewrite He in H. apply M_pair in H as [H|H]; apply (sing_pair H).
   Qed.
 
-  Instance set_equiv_pair :
+  Instance set_equiv_opair :
     Proper (set_equiv ==> set_equiv ==> set_equiv) M_opair.
   Proof.
   Admitted.
