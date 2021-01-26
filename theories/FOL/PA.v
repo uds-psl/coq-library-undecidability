@@ -54,32 +54,6 @@ Notation "x '==' y" := (@atom PA_funcs_signature PA_preds_signature _ _ Eq ([x ;
 Notation "x '⧀' y"  := (∃ (x[↑] ⊕ σ $0) == y) (at level 42) : PA_Notation.
 
 
-(* ** Defines numerals i.e. a corresponding term for every natural number *)
-Fixpoint num n :=  match n with
-                     O => zero
-                   | S x => σ (num x)
-                   end.
-
-
-Section models.
-
-  Variable D : Type.
-  Variable I : interp D.
-
-  Notation "x 'i=' y" := (i_atom (P:=Eq) ([x ; y])) (at level 30) : PA_Notation.
-  Notation "'iO'" := (i_func (f:=Zero) (Vector.nil D)) (at level 2) : PA_Notation.
-  Notation "'iσ' d" := (i_func (f:=Succ) (Vector.cons d (Vector.nil D))) (at level 37) : PA_Notation.
-  Notation "x 'i⊕' y" := (i_func (f:=Plus) ([x ; y])) (at level 39) : PA_Notation.
-  Notation "x 'i⊗' y" := (i_func (f:=Mult) ([x ; y])) (at level 38) : PA_Notation.
-  Fixpoint iμ k := match k with
-                     | O => iO
-                     | S n => iσ (iμ n)
-                     end.
-  
-End models.
-
-Arguments iμ {_ _} _.
-
 
 
 (* ** Axioms of PA *)
@@ -109,7 +83,7 @@ Inductive PA : form -> Prop :=
 
 
 
-(* Equality axioms for PA *)
+(* Equality axioms for the PA signature *)
 
 Definition ax_refl :=  ∀   $0 == $0.
 Definition ax_sym :=   ∀∀  $1 == $0 ~> $0 == $1.
@@ -123,15 +97,14 @@ Definition ax_mult_congr := ∀∀∀∀ $0 == $1 ~> $2 == $3 ~> $0 ⊗ $2 == $1
 Definition EQ :=
   ax_refl :: ax_sym :: ax_trans :: ax_succ_congr :: ax_add_congr :: ax_mult_congr :: nil.
 
-Definition FAeq := EQ ++ FA.
+Definition FAeq :=
+  EQ ++ FA.
 
 Inductive PAeq : form -> Prop :=
   PAeq_FA phi : In phi FAeq -> PAeq phi
 | PAeq_discr : PAeq ax_zero_succ
 | PAeq_inj : PAeq ax_succ_inj
 | PAeq_induction phi : PAeq (ax_induction phi).
-
-
 
 (* ** Problems *)
 
@@ -145,7 +118,8 @@ Definition ext_entailment_PA phi :=
 
 (* Semantic entailment restricted to FA *)
 
-Definition entailment_FA phi := valid_ctx FAeq phi.
+Definition entailment_FA phi :=
+  valid_ctx FAeq phi.
 
 (* Semantic entailment for PA *)
 
@@ -154,8 +128,10 @@ Definition entailment_PA phi :=
 
 (* Deductive entailment restricted to intuitionistic rules and FA. *)
 
-Definition deduction_FA phi := FAeq ⊢I phi.
+Definition deduction_FA phi :=
+  FAeq ⊢I phi.
 
 (* Deductive entailment restricted to intuitionistic rules. *)
 
-Definition deduction_PA phi := PAeq ⊢TI phi.
+Definition deduction_PA phi :=
+  PAeq ⊢TI phi.
