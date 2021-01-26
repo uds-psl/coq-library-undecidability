@@ -38,7 +38,6 @@ Section ND.
   Proof. induction n; cbn; now try rewrite IHn. Qed.
     
   
-
   Lemma subst_up_var k x sigma : x < k -> (var x)`[iter up k sigma] = var x.
   Proof.
     induction k in x, sigma |-*.
@@ -63,7 +62,6 @@ Section ND.
       apply Vector.map_ext_in. auto.
   Qed.
   
-
 
   Lemma subst_bounded k phi sigma : bounded k phi -> phi[iter up k sigma] = phi.
   Proof.
@@ -103,7 +101,8 @@ Section ND.
       now rewrite up_decompose.
       now apply bounded_S_exists.
   Qed.
-   
+
+  
   Lemma subst_forall_prv phi {N Gamma} :
     Gamma ⊢ (iter (fun psi => ∀ psi) N phi) -> bounded N phi -> forall sigma, Gamma ⊢ phi[sigma].
   Proof.
@@ -133,7 +132,8 @@ Section SEM.
     intros H. induction 1; cbn; auto.
     f_equal. now apply Vector.map_ext_in.
   Qed.
-    
+
+  
   Lemma bound_ext N phi rho sigma :
     bounded N phi -> (forall n, n < N -> rho n = sigma n) -> (rho ⊨ phi <-> sigma ⊨ phi).
   Proof.
@@ -186,6 +186,10 @@ End SEM.
 Section FA_prv.
 
   Variable p : peirce.
+
+  Variable Gamma : list form.
+  Variable G : incl FAeq Gamma.
+  
   
   Fixpoint join {X n} (v : t X n) (rho : nat -> X) :=
     match v with
@@ -194,14 +198,10 @@ Section FA_prv.
     end.
 
   Local Notation "v '∗' rho" := (join v rho) (at level 20).
-  
-  
-  Variable Gamma : list form.
-  Variable G : incl FAeq Gamma.
-
-  
+    
   Arguments Weak {_ _ _ _}, _.
 
+  
   Lemma reflexivity t : Gamma ⊢ (t == t).
   Proof.
     apply (Weak FAeq).
@@ -227,8 +227,7 @@ Section FA_prv.
     repeat solve_bounds.
   Qed.
 
-  
-  
+    
   Lemma transitivity x y z :
     Gamma ⊢ (x == y) -> Gamma ⊢ (y == z) -> Gamma ⊢ (x == z).
   Proof.
@@ -300,7 +299,7 @@ Section FA_prv.
   Qed.
 
 
-  (* ** Defines numerals i.e. a corresponding term for every natural number *)
+  (* Defines numerals i.e. a corresponding term for every natural number *)
   Fixpoint num n :=  match n with
                        O => zero
                      | S x => σ (num x)
@@ -348,7 +347,6 @@ Section FA_prv.
 End FA_prv.  
 
 
-
 Notation "x 'i=' y" := (i_atom (P:=Eq) [x ; y]) (at level 30) : PA_Notation.
 Notation "'iO'" := (i_func (f:=Zero) []) (at level 2) : PA_Notation.
 Notation "'iσ' d" := (i_func (f:=Succ) [d]) (at level 37) : PA_Notation.
@@ -379,7 +377,7 @@ Section FA_models.
   Qed.  
 
 
-  Lemma add_zero' : forall d : D, iO i⊕ d = d.
+  Lemma add_zero : forall d : D, iO i⊕ d = d.
   Proof.
     intros d.
     assert (List.In ax_add_zero FA) as H by firstorder.
@@ -387,7 +385,7 @@ Section FA_models.
     cbn in FA_model. now apply ext_model.
   Qed.
 
-  Lemma add_rec' : forall n d : D, iσ n i⊕ d = iσ (n i⊕ d).
+  Lemma add_rec : forall n d : D, iσ n i⊕ d = iσ (n i⊕ d).
   Proof.
     intros n d.
     assert (List.In ax_add_rec FA) as H by firstorder.
@@ -395,7 +393,7 @@ Section FA_models.
     cbn in FA_model. now apply ext_model. 
   Qed.
 
-  Lemma mult_zero' : forall d : D, iO i⊗ d = iO.
+  Lemma mult_zero : forall d : D, iO i⊗ d = iO.
   Proof.
     intros d.
     assert (List.In ax_mult_zero FA) as H by firstorder.
@@ -403,7 +401,7 @@ Section FA_models.
     cbn in FA_model. now apply ext_model.
   Qed.
 
-  Lemma mult_rec' : forall n d : D, iσ d i⊗ n = n i⊕ d i⊗ n.
+  Lemma mult_rec : forall n d : D, iσ d i⊗ n = n i⊕ d i⊗ n.
   Proof.
     intros n d.
     assert (List.In ax_mult_rec FA) as H by firstorder.
@@ -415,9 +413,9 @@ Section FA_models.
   Corollary add_hom x y : iμ (x + y) = iμ x i⊕ iμ y.
   Proof.
     induction x.
-    - now rewrite add_zero'.
+    - now rewrite add_zero.
     - change (iσ iμ (x + y) = iσ iμ x i⊕ iμ y).
-      now rewrite add_rec', IHx. 
+      now rewrite add_rec, IHx. 
   Qed.
 
   Corollary add_nat_to_model : forall x y z, x + y = z -> (iμ x i⊕ iμ y = iμ z).
@@ -428,9 +426,9 @@ Section FA_models.
   Corollary mult_hom x y : iμ (x * y) = iμ x i⊗ iμ y.
   Proof.
     induction x.
-    - now rewrite mult_zero'.
+    - now rewrite mult_zero.
     - change (iμ (y + x * y) = (iσ iμ x) i⊗ iμ y ).
-      now rewrite add_hom, IHx, mult_rec'.
+      now rewrite add_hom, IHx, mult_rec.
   Qed.
 
 

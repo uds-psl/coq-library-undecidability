@@ -1,3 +1,4 @@
+Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
 From Undecidability.FOL.Util Require Import Syntax Syntax_facts FullTarski FullTarski_facts FullDeduction_facts FullDeduction FA_facts.
 Require Import Undecidability.FOL.PA.
 From Undecidability.H10 Require Import H10p.
@@ -263,4 +264,39 @@ Proof.
     eapply subst_exist_sat2.
     apply (tsoundness H interp_nat id).
     intros. now apply nat_is_PAeq_model.
+Qed.
+
+
+(* ** Reduction for the axiomatisation PA assuming extensionality of models. *)
+
+Theorem H10_to_ext_entailment_PA :
+  H10p_SAT ⪯ ext_entailment_PA.
+Proof.
+  exists embed. intros E. apply H10p_to_FA_ext_sat.
+Qed.
+
+(* ** Reductions for the axiomatisations PAeq and FAeq, which include the axioms for equatlity. *)
+
+Theorem H10_to_entailment_FA :
+  H10p_SAT ⪯ entailment_FA.
+Proof.
+  exists embed; intros E. apply H10p_to_FA_sat.
+Qed.
+
+Corollary H10_to_entailment_PA :
+  H10p_SAT ⪯ entailment_PA.
+Proof.
+  exists embed; intros E. apply H10p_to_PA_sat.
+Qed.
+
+Theorem H10_to_deduction_FA :
+  H10p_SAT ⪯ deduction_FA.
+Proof.
+  exists embed; intros E. apply H10p_to_FA_prv.
+Qed.
+
+Corollary H10_to_deduction_PA :
+  H10p_SAT ⪯ deduction_PA.
+Proof.
+  exists embed; intros E. apply H10p_to_PA_prv.
 Qed.
