@@ -5,35 +5,27 @@ Import Vector.VectorNotations.
 
 
 
-  Lemma bounded_S_exists N phi : bounded (S N) phi <-> bounded N (∃ phi).
-  Proof.
-    split; intros H.
-    - now constructor.
-    - inversion H. apply inj_pair2_eq_dec' in H4 as ->; trivial.
-      unfold Dec.dec. decide equality.
-  Qed.
+Lemma bounded_S_exists N phi : bounded (S N) phi <-> bounded N (∃ phi).
+Proof.
+  split; intros H.
+  - now constructor.
+  - inversion H. apply inj_pair2_eq_dec' in H4 as ->; trivial.
+    unfold Dec.dec. decide equality.
+Qed.
 
-  Lemma bounded_S_forall N phi : bounded (S N) phi <-> bounded N (∀ phi).
-  Proof.
-    split; intros H.
-    - now constructor.
-    - inversion H. apply inj_pair2_eq_dec' in H4 as ->; trivial.
-      unfold Dec.dec. decide equality.
-  Qed.
+Lemma bounded_S_forall N phi : bounded (S N) phi <-> bounded N (∀ phi).
+Proof.
+  split; intros H.
+  - now constructor.
+  - inversion H. apply inj_pair2_eq_dec' in H4 as ->; trivial.
+    unfold Dec.dec. decide equality.
+Qed.
 
 
 
 Section ND.
 
   Variable p : peirce.
-
-
-  Lemma numeral_subst_invariance : forall n rho, subst_term rho (num n) = num n.
-  Proof.
-    induction n.
-    - reflexivity.
-    - intros rho. cbn. now rewrite IHn.
-  Qed.
 
 
   Fixpoint iter {X: Type} f n (x : X) :=
@@ -191,126 +183,6 @@ End SEM.
 
 
 
-Section FA_models.
-
-  Variable D : Type.
-  Variable I : interp D.
-  
-  Hypothesis ext_model : extensional I.
-  Hypothesis FA_model : forall ax rho, List.In ax FA -> rho ⊨ ax.
-
-
-  Notation "x 'i=' y" := (i_atom (P:=Eq) ([x ; y])) (at level 30) : PA_Notation.
-  Notation "'iO'" := (i_func (f:=Zero) (Vector.nil D)) (at level 2) : PA_Notation.
-  Notation "'iσ' d" := (i_func (f:=Succ) (Vector.cons d (Vector.nil D))) (at level 37) : PA_Notation.
-  Notation "x 'i⊕' y" := (i_func (f:=Plus) ([x ; y])) (at level 39) : PA_Notation.
-  Notation "x 'i⊗' y" := (i_func (f:=Mult) ([x ; y])) (at level 38) : PA_Notation.
-
-  Fact eval_num sigma n : eval sigma (num n) = iμ n.
-  Proof.
-    induction n.
-    - reflexivity.
-    - cbn. now rewrite IHn.
-  Qed.  
-
-
-  Lemma add_zero' : forall d : D, iO i⊕ d = d.
-  Proof.
-    intros d.
-    assert (List.In ax_add_zero FA) as H by firstorder.
-    specialize (FA_model ax_add_zero (d.:(fun _ => iO)) H).
-    cbn in FA_model. now apply ext_model.
-  Qed.
-
-  Lemma add_rec' : forall n d : D, iσ n i⊕ d = iσ (n i⊕ d).
-  Proof.
-    intros n d.
-    assert (List.In ax_add_rec FA) as H by firstorder.
-    specialize (FA_model ax_add_rec (d.:(fun _ => iO))  H).
-    cbn in FA_model. now apply ext_model. 
-  Qed.
-
-  Lemma mult_zero' : forall d : D, iO i⊗ d = iO.
-  Proof.
-    intros d.
-    assert (List.In ax_mult_zero FA) as H by firstorder.
-    specialize (FA_model ax_mult_zero (d.:(fun _ => iO)) H).
-    cbn in FA_model. now apply ext_model.
-  Qed.
-
-  Lemma mult_rec' : forall n d : D, iσ d i⊗ n = n i⊕ d i⊗ n.
-  Proof.
-    intros n d.
-    assert (List.In ax_mult_rec FA) as H by firstorder.
-    specialize (FA_model ax_mult_rec (d.:(fun _ => iO)) H).
-    cbn in FA_model. now apply ext_model.
-  Qed.
-
-
-  Corollary add_hom x y : iμ (x + y) = iμ x i⊕ iμ y.
-  Proof.
-    induction x.
-    - now rewrite add_zero'.
-    - change (iσ iμ (x + y) = iσ iμ x i⊕ iμ y).
-      now rewrite add_rec', IHx. 
-  Qed.
-
-  Corollary add_nat_to_model : forall x y z, x + y = z -> (iμ x i⊕ iμ y = iμ z).
-  Proof.
-    intros x y z H. now rewrite <- add_hom, H.
-  Qed.
-
-  Corollary mult_hom x y : iμ (x * y) = iμ x i⊗ iμ y.
-  Proof.
-    induction x.
-    - now rewrite mult_zero'.
-    - change (iμ (y + x * y) = (iσ iμ x) i⊗ iμ y ).
-      now rewrite add_hom, IHx, mult_rec'.
-  Qed.
-
-
-  Corollary mult_nat_to_model : forall z x y, x * y = z -> (iμ x i⊗ iμ y = iμ z).
-  Proof.
-    intros x y z H. now rewrite <- mult_hom, H.
-  Qed.
-
-
-  
-End FA_models.
-
-
-
-Section StdModel.
-
-  Definition interp_nat : interp nat.
-  Proof.
-    split.
-    - destruct f; intros v.
-      + exact 0.
-      + exact (S (Vector.hd v) ).
-      + exact (Vector.hd v + Vector.hd (Vector.tl v) ).
-      + exact (Vector.hd v * Vector.hd (Vector.tl v) ).
-    - destruct P. intros v.
-      exact (Vector.hd v = Vector.hd (Vector.tl v) ).
-  Defined.
-
-  Lemma nat_is_FA_model : forall rho phi,  List.In phi FAeq -> sat interp_nat rho phi.
-  Proof.
-    intros rho phi. intros H. repeat destruct H as [<-|H]; try destruct H; cbn; try congruence.
-  Qed.
-
-
-  Fact nat_eval_num (sigma : env nat) n : @eval _ _ _ interp_nat sigma (num n) = n.
-  Proof.
-    induction n.
-    - reflexivity.
-    - cbn. now rewrite IHn.
-  Qed.
-
-End StdModel.
-
-  
-
 Section FA_prv.
 
   Variable p : peirce.
@@ -322,12 +194,12 @@ Section FA_prv.
     end.
 
   Local Notation "v '∗' rho" := (join v rho) (at level 20).
-
+  
   
   Variable Gamma : list form.
   Variable G : incl FAeq Gamma.
 
-
+  
   Arguments Weak {_ _ _ _}, _.
 
   Lemma reflexivity t : Gamma ⊢ (t == t).
@@ -426,7 +298,13 @@ Section FA_prv.
     apply Ctx. all : firstorder.
     repeat solve_bounds.
   Qed.
-  
+
+
+  (* ** Defines numerals i.e. a corresponding term for every natural number *)
+  Fixpoint num n :=  match n with
+                       O => zero
+                     | S x => σ (num x)
+                     end.
   
   Lemma num_add_homomorphism  x y : Gamma ⊢ ( num x ⊕ num y == num (x + y) ).
   Proof.
@@ -468,4 +346,174 @@ Section FA_prv.
   Qed.
 
 End FA_prv.  
+
+
+
+Notation "x 'i=' y" := (i_atom (P:=Eq) [x ; y]) (at level 30) : PA_Notation.
+Notation "'iO'" := (i_func (f:=Zero) []) (at level 2) : PA_Notation.
+Notation "'iσ' d" := (i_func (f:=Succ) [d]) (at level 37) : PA_Notation.
+Notation "x 'i⊕' y" := (i_func (f:=Plus) [x ; y]) (at level 39) : PA_Notation.
+Notation "x 'i⊗' y" := (i_func (f:=Mult) [x ; y]) (at level 38) : PA_Notation.
+
+                                                                        
+Section FA_models.
+
+  Variable D : Type.
+  Variable I : interp D.
+
+  Hypothesis ext_model : extensional I.
+  Hypothesis FA_model : forall ax rho, List.In ax FA -> rho ⊨ ax.
+
+
+  Fixpoint iμ k := match k with
+                   | O => iO
+                   | S n => iσ (iμ n)
+                   end.
+  
+  
+  Fact eval_num sigma n : eval sigma (num n) = iμ n.
+  Proof.
+    induction n.
+    - reflexivity.
+    - cbn. now rewrite IHn.
+  Qed.  
+
+
+  Lemma add_zero' : forall d : D, iO i⊕ d = d.
+  Proof.
+    intros d.
+    assert (List.In ax_add_zero FA) as H by firstorder.
+    specialize (FA_model ax_add_zero (d.:(fun _ => iO)) H).
+    cbn in FA_model. now apply ext_model.
+  Qed.
+
+  Lemma add_rec' : forall n d : D, iσ n i⊕ d = iσ (n i⊕ d).
+  Proof.
+    intros n d.
+    assert (List.In ax_add_rec FA) as H by firstorder.
+    specialize (FA_model ax_add_rec (d.:(fun _ => iO))  H).
+    cbn in FA_model. now apply ext_model. 
+  Qed.
+
+  Lemma mult_zero' : forall d : D, iO i⊗ d = iO.
+  Proof.
+    intros d.
+    assert (List.In ax_mult_zero FA) as H by firstorder.
+    specialize (FA_model ax_mult_zero (d.:(fun _ => iO)) H).
+    cbn in FA_model. now apply ext_model.
+  Qed.
+
+  Lemma mult_rec' : forall n d : D, iσ d i⊗ n = n i⊕ d i⊗ n.
+  Proof.
+    intros n d.
+    assert (List.In ax_mult_rec FA) as H by firstorder.
+    specialize (FA_model ax_mult_rec (d.:(fun _ => iO)) H).
+    cbn in FA_model. now apply ext_model.
+  Qed.
+
+
+  Corollary add_hom x y : iμ (x + y) = iμ x i⊕ iμ y.
+  Proof.
+    induction x.
+    - now rewrite add_zero'.
+    - change (iσ iμ (x + y) = iσ iμ x i⊕ iμ y).
+      now rewrite add_rec', IHx. 
+  Qed.
+
+  Corollary add_nat_to_model : forall x y z, x + y = z -> (iμ x i⊕ iμ y = iμ z).
+  Proof.
+    intros x y z H. now rewrite <- add_hom, H.
+  Qed.
+
+  Corollary mult_hom x y : iμ (x * y) = iμ x i⊗ iμ y.
+  Proof.
+    induction x.
+    - now rewrite mult_zero'.
+    - change (iμ (y + x * y) = (iσ iμ x) i⊗ iμ y ).
+      now rewrite add_hom, IHx, mult_rec'.
+  Qed.
+
+
+  Corollary mult_nat_to_model : forall z x y, x * y = z -> (iμ x i⊗ iμ y = iμ z).
+  Proof.
+    intros x y z H. now rewrite <- mult_hom, H.
+  Qed.
+
+
+  
+End FA_models.
+
+Arguments iμ {_ _} _.
+
+
+
+Section StdModel.
+
+  Definition interp_nat : interp nat.
+  Proof.
+    split.
+    - destruct f; intros v.
+      + exact 0.
+      + exact (S (Vector.hd v) ).
+      + exact (Vector.hd v + Vector.hd (Vector.tl v) ).
+      + exact (Vector.hd v * Vector.hd (Vector.tl v) ).
+    - destruct P. intros v.
+      exact (Vector.hd v = Vector.hd (Vector.tl v) ).
+  Defined.
+
+  
+  Fact nat_extensional : extensional interp_nat.
+  Proof.
+    now intros x y. 
+  Qed.
+
+  
+  Lemma nat_is_FA_model : forall rho phi,  List.In phi FAeq -> sat interp_nat rho phi.
+  Proof.
+    intros rho phi. intros H.
+    repeat (destruct H as [<- | H]; auto).
+    all: cbn; try congruence.
+  Qed.
+
+  
+  Fact nat_eval_num (sigma : env nat) n : @eval _ _ _ interp_nat sigma (num n) = n.
+  Proof.
+    induction n.
+    - reflexivity.
+    - cbn. now rewrite IHn.
+  Qed.
+
+
+  Fact nat_induction phi : forall rho, sat interp_nat rho (ax_induction phi).
+  Proof.
+    intros rho H0 IH d. induction d; cbn in *.
+    rewrite <-sat_single in H0. apply H0.
+    apply IH in IHd. rewrite sat_comp in IHd.
+    revert IHd. apply sat_ext. intros []; reflexivity.
+  Qed.
+    
+
+  Fact nat_is_PAeq_model : forall ax rho, PAeq ax -> sat interp_nat rho ax.
+  Proof.
+    intros rho psi [].
+    now apply nat_is_FA_model.
+    all: cbn; try congruence.
+    apply nat_induction.
+ Qed.
+
+
+  Fact nat_is_PA_model : forall ax rho, PA ax -> sat interp_nat rho ax.
+  Proof.
+    intros rho psi [].
+    repeat (destruct H as [<- | H]; auto).
+    all: cbn; try congruence.
+    apply nat_induction.
+  Qed.
+
+
+  
+End StdModel.
+
+  
+
 

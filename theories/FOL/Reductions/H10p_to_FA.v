@@ -46,6 +46,14 @@ Proof.
 Qed.
 
 
+
+Fact numeral_subst_invariance n rho : subst_term rho (num n) = num n.
+Proof.
+  induction n.
+  - reflexivity.
+  - cbn. now rewrite IHn.
+Qed.
+
 Lemma prv_poly sigma q Gamma :
   incl FAeq Gamma -> Gamma ⊢I ( (embed_poly q)`[sigma >> num] == num (dp_eval_pfree sigma q) ).
 Proof.
@@ -63,7 +71,6 @@ Proof.
       apply (eq_mult _ _ H IHq1 IHq2).
       now apply num_mult_homomorphism.
 Qed.
-
 
 Lemma problem_to_prv :
   forall E sigma, H10p_sem E sigma -> FAeq ⊢I (embed_problem E)[sigma >> num].
@@ -137,33 +144,6 @@ End FA_Model.
 
 
 
-Fact nat_is_PAeq_model : forall ax rho, PAeq ax -> sat interp_nat rho ax.
-Proof.
-    intros rho psi [].
-    repeat (destruct H as [<- | H]; auto).
-    all: cbn; try congruence.
-    intros H0 IH. intros d. induction d.
-    rewrite <-sat_single in H0. apply H0.
-    apply IH in IHd. rewrite sat_comp in IHd.
-    revert IHd. apply sat_ext. intros []; reflexivity.
-Qed.
-
-
-Fact nat_is_PA_model : forall ax rho, PA ax -> sat interp_nat rho ax.
-Proof.
-    intros rho psi [].
-    repeat (destruct H as [<- | H]; auto).
-    all: cbn; try congruence.
-    intros H0 IH. intros d. induction d.
-    rewrite <-sat_single in H0. apply H0.
-    apply IH in IHd. rewrite sat_comp in IHd.
-    revert IHd. apply sat_ext. intros []; reflexivity.
-Qed.
-
-
-
-
-
 Fact nat_eval_poly (sigma : env nat) p :
   @eval _ _ _ interp_nat sigma (embed_poly p) = dp_eval_pfree sigma p.
 Proof.
@@ -198,12 +178,6 @@ Proof.
 Qed.
 
 
-Fact nat_extensional : extensional interp_nat.
-Proof.
-  now intros x y. 
-Qed.
-
-
 Theorem H10p_to_FA_ext_sat E :
   H10p_SAT E <-> ext_entailment_PA (embed E).
 Proof.
@@ -222,8 +196,6 @@ Proof.
     now apply nat_sat'.
     apply nat_is_PA_model.
 Qed.
-
-
 
 
 Theorem H10p_to_FA_sat E :
@@ -246,7 +218,6 @@ Proof.
 Qed.
 
 
-
 Theorem H10p_to_PA_sat E :
   H10p_SAT E <-> forall D (I : interp D) rho, (forall psi rho, PAeq psi -> rho ⊨ psi) -> rho ⊨ (embed E).
 Proof.
@@ -267,7 +238,6 @@ Proof.
 Qed.
 
 
-
 Theorem H10p_to_FA_prv E :
   H10p_SAT E <-> FAeq ⊢I embed E.
 Proof.
@@ -279,7 +249,6 @@ Proof.
   - intros H%soundness.
     now apply H10p_to_FA_sat.
 Qed.
-
 
 
 Theorem H10p_to_PA_prv E :
