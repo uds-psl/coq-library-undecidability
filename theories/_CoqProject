@@ -371,6 +371,7 @@ H10/H10Z_undec.v
 
 H10/H10p.v
 H10/H10p_undec.v
+H10/Reductions/H10_to_H10p.v
 
 TM/Util/Prelim.v
 TM/Util/Relations.v

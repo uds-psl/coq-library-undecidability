@@ -173,14 +173,14 @@ Qed.
 
 
 Lemma nat_sat' E :
-  (exists sigma, sat interp_nat sigma (embed_problem E)) <-> H10p_SAT E.
+  (exists sigma, sat interp_nat sigma (embed_problem E)) <-> H10p E.
 Proof.
   split; intros [sigma ]; exists sigma; now apply nat_sat.
 Qed.
 
 
 Theorem H10p_to_FA_ext_sat E :
-  H10p_SAT E <-> ext_entailment_PA (embed E).
+  H10p E <-> ext_entailment_PA (embed E).
 Proof.
   split.
   - intros [sigma HE].
@@ -200,7 +200,7 @@ Qed.
 
 
 Theorem H10p_to_FA_sat E :
-  H10p_SAT E <-> valid_ctx FAeq (embed E).
+  H10p E <-> valid_ctx FAeq (embed E).
 Proof.
   split.
   - intros [sigma HE].
@@ -220,7 +220,7 @@ Qed.
 
 
 Theorem H10p_to_PA_sat E :
-  H10p_SAT E <-> forall D (I : interp D) rho, (forall psi rho, PAeq psi -> rho ⊨ psi) -> rho ⊨ (embed E).
+  H10p E <-> forall D (I : interp D) rho, (forall psi rho, PAeq psi -> rho ⊨ psi) -> rho ⊨ (embed E).
 Proof.
   split.
   - intros [sigma HE].
@@ -240,7 +240,7 @@ Qed.
 
 
 Theorem H10p_to_FA_prv E :
-  H10p_SAT E <-> FAeq ⊢I embed E.
+  H10p E <-> FAeq ⊢I embed E.
 Proof.
   split.
   - intros [sigma HE].
@@ -253,7 +253,7 @@ Qed.
 
 
 Theorem H10p_to_PA_prv E :
-  H10p_SAT E <-> PAeq ⊢TI embed E.
+  H10p E <-> PAeq ⊢TI embed E.
 Proof.
   split.
   - intros [sigma HE].
@@ -270,7 +270,7 @@ Qed.
 (* ** Reduction for the axiomatisation PA assuming extensionality of models. *)
 
 Theorem H10_to_ext_entailment_PA :
-  H10p_SAT ⪯ ext_entailment_PA.
+  H10p ⪯ ext_entailment_PA.
 Proof.
   exists embed. intros E. apply H10p_to_FA_ext_sat.
 Qed.
@@ -278,25 +278,25 @@ Qed.
 (* ** Reductions for the axiomatisations PAeq and FAeq, which include the axioms for equatlity. *)
 
 Theorem H10_to_entailment_FA :
-  H10p_SAT ⪯ entailment_FA.
+  H10p ⪯ entailment_FA.
 Proof.
   exists embed; intros E. apply H10p_to_FA_sat.
 Qed.
 
 Corollary H10_to_entailment_PA :
-  H10p_SAT ⪯ entailment_PA.
+  H10p ⪯ entailment_PA.
 Proof.
   exists embed; intros E. apply H10p_to_PA_sat.
 Qed.
 
 Theorem H10_to_deduction_FA :
-  H10p_SAT ⪯ deduction_FA.
+  H10p ⪯ deduction_FA.
 Proof.
   exists embed; intros E. apply H10p_to_FA_prv.
 Qed.
 
 Corollary H10_to_deduction_PA :
-  H10p_SAT ⪯ deduction_PA.
+  H10p ⪯ deduction_PA.
 Proof.
   exists embed; intros E. apply H10p_to_PA_prv.
 Qed.
