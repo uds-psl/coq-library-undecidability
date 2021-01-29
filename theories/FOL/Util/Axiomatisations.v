@@ -1,5 +1,34 @@
-Require Export Undecidability.Synthetic.Definitions.
 From Undecidability.FOL.Util Require Import Syntax Syntax_facts FullDeduction FullDeduction_facts FullTarski.
+From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
+From Undecidability.Shared Require Import Dec.
+From Equations Require Import Equations.
+Require Import ConstructiveEpsilon.
+Require Import List.
+
+Section Post.
+  
+  Definition mu (p : nat -> Prop) :
+    (forall x, dec (p x)) -> ex p -> sig p.
+  Proof.
+    apply constructive_indefinite_ground_description_nat_Acc.
+  Qed.
+
+  Definition ldecidable {X} (p : X -> Prop) :=
+    forall x, p x \/ ~ p x.
+
+  Lemma weakPost X (p : X -> Prop) :
+    discrete X -> ldecidable p -> enumerable p -> enumerable (fun x => ~ p x) -> decidable p.
+  Proof.
+    intros [E] % discrete_iff Hl [f Hf] [g Hg].
+    eapply decidable_iff. econstructor. intros x.
+    assert (exists n, f n = Some x \/ g n = Some x) by (destruct (Hl x); firstorder).
+    destruct (mu (fun n => f n = Some x \/ g n = Some x)) as [n HN]; trivial.
+    - intros n. exact _.
+    - decide (f n = Some x); decide (g n = Some x); firstorder.
+  Qed.
+
+End Post.
+
 
 Notation "T ⊢TC phi" := (@tprv _ _ _ class T phi) (at level 55).
 
@@ -36,11 +65,13 @@ Section FixSignature.
   Definition Tvalid (T : form -> Prop) phi :=
     forall D (I : interp D) rho, (forall psi, T psi -> rho ⊨ psi) -> rho ⊨ phi.
 
-  Definition consistent A := ~ A ⊢TI falsity.
-  Definition complete A := forall phi, A ⊢TI phi \/ ~ A ⊢TI phi.
+  Definition complete A := forall phi, A ⊢TC phi \/ A ⊢TC ¬ phi.
 
   
   Section Axiomatisations.
+
+    Hypothesis eq_dec_Funcs : eq_dec syms.
+    Hypothesis eq_dec_Preds : eq_dec preds.
 
     Variable A : form -> Prop.
 
@@ -55,17 +86,59 @@ Section FixSignature.
       exists f : X -> form, reduction_both f.
 
 
-    Fact Fact7 : reduction2 -> (exists x, ~ P x) -> consistent A.
+    Fact Fact7 : reduction2 -> (exists x, ~ P x) -> ~ A ⊢TI ⊥.
     Proof.
       intros [f (H1 & H2)] [x Hx] [Gamma []].
-      apply Hx, H2. split. 2: apply class_from_intu.
-      all: exists Gamma; auto.
+      apply Hx, H2. split. 2: apply class_from_intu. all: exists Gamma; auto. 
     Qed.
 
-    
-    Fact Fact9 : consistent A -> complete A -> decidable (fun phi => A ⊢TI phi).
-    Proof.
+    Lemma TC_enum :
+      enumerable (fun phi : form => A ⊢TC phi).
     Admitted.
+
+    Definition stripneg `{falsity_flag} (phi : form) : option form :=
+      match phi with 
+      | bin Impl phi ⊥ => Some phi
+      | _ => None
+      end.
+
+    Instance eq_dec_ff :
+      eq_dec falsity_flag.
+    Proof.
+      intros ff ff'. unfold dec. decide equality.
+    Qed.
+
+    Lemma stripneg_spec `{falsity_flag} {phi psi} :
+      stripneg phi = Some psi -> phi = ¬ psi.
+    Proof.
+      depelim phi; cbn; try destruct b0; try discriminate.
+      - inversion H0. apply inj_pair2_eq_dec' in H2 as ->; eauto. cbn. discriminate.
+      - depelim phi2; cbn; try destruct b0; try discriminate.
+        inversion H0. apply inj_pair2_eq_dec' in H2 as ->; eauto. congruence.
+    Qed.
+    
+    Fact Fact9 : (~ A ⊢TC ⊥) -> complete A -> decidable (fun phi => A ⊢TC phi).
+    Proof.
+      intros H1 H2.
+      assert (H : forall phi, ~ A ⊢TC phi <-> A ⊢TC ¬ phi).
+      - intros phi. split; intros H.
+        + destruct (H2 phi) as [H3|H3]; tauto.
+        + intros [B[HB1 HB2]]. destruct H as [C[HC1 HC2]].
+          apply H1. exists (B ++ C). split.
+          * intros psi. rewrite in_app_iff. intuition.
+          * eapply IE; eapply Weak; eauto.
+      - apply weakPost.
+        + apply discrete_iff. constructor. apply dec_form; trivial.
+          all: intros ? ?; unfold dec; decide equality.
+        + intros phi. rewrite H. apply H2.
+        + apply TC_enum.
+        + destruct TC_enum as [f Hf].
+          exists (fun n => match f n with Some phi => stripneg phi | _ => None end).
+          intros phi. rewrite H. rewrite (Hf (¬ phi)).
+          split; intros [n Hn]; exists n.
+          * now rewrite Hn.
+          * destruct (f n) as [psi|]; try discriminate. now rewrite (stripneg_spec Hn).
+    Qed.
 
 
     
