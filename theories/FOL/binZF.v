@@ -4,6 +4,7 @@ Require Import Undecidability.FOL.Util.Syntax.
 Require Import Undecidability.FOL.Util.sig_bin.
 Require Import Undecidability.FOL.Util.FullTarski.
 Require Import Undecidability.FOL.Util.FullDeduction.
+Import Vector.VectorNotations.
 Require Import List.
 
 
@@ -21,7 +22,7 @@ Arguments Vector.cons {_} _ {_} _, _ _ _ _.
 Declare Scope syn'.
 Open Scope syn'.
 
-Notation "x ∈' y" := (atom sig_empty sig_binary tt (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : syn'.
+Notation "x ∈' y" := (atom sig_empty sig_binary tt ([x; y])) (at level 35) : syn'.
 
 Definition eq' (x y : term') :=
   ∀ x`[↑] ∈' $0 <~> y`[↑] ∈' $0.

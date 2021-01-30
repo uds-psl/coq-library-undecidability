@@ -40,8 +40,6 @@ Instance PA_preds_signature : preds_signature :=
 
 
 
-Arguments Vector.cons {_} _ {_} _, _ _ _ _.
-
 
 Declare Scope PA_Notation.
 Open Scope PA_Notation.

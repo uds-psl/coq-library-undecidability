@@ -1,6 +1,7 @@
 (* * Natural Deduction *)
 
-From Undecidability Require Import FOL.Util.FullTarski FOL.Util.Syntax.
+From Undecidability Require Import FOL.Util.Syntax.
+Import FullSyntax.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 Local Set Implicit Arguments.

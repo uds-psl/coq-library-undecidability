@@ -18,7 +18,6 @@ Local Unset Strict Implicit.
 (* ** Reduction function *)
 
 Local Definition BSRS := list(card bool).
-Local Notation "x / y" := (x, y).
 
 Fixpoint shift n x :=
   match n with 
@@ -86,6 +85,9 @@ Definition solvable (B : BSRS) :=
 
 Declare Scope sem.
 Open Scope sem.
+
+Arguments Vector.nil {_}, _.
+Arguments Vector.cons {_} _ {_} _, _ _ _ _.
 
 Notation "x ∈ y" := (@i_atom _ _ _ _ elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : sem.
 Notation "x ≡ y" := (@i_atom _ _ _ _ equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : sem.
@@ -500,7 +502,7 @@ Section ZF.
   Qed.
 
   Lemma enc_stack_el' x A :
-    x ∈ M_enc_stack A -> exists s t, s / t el A /\ x = M_enc_card s t.
+    x ∈ M_enc_stack A -> exists s t, (s, t) el A /\ x = M_enc_card s t.
   Proof.
     induction A as [|[s t] A IH]; cbn.
     - now intros H % M_eset.
@@ -510,7 +512,7 @@ Section ZF.
   Qed.
 
   Lemma enc_stack_el B s t :
-    s / t el B -> M_enc_card s t ∈ M_enc_stack B.
+    (s, t) el B -> M_enc_card s t ∈ M_enc_stack B.
   Proof.
     induction B as [|[u b] B IH]; cbn; auto.
     intros [H|H]; apply binunion_el.
@@ -548,7 +550,7 @@ Section ZF.
     end.
 
   Lemma derivable_derivations B s t :
-    derivable B s t -> exists n, s/t el derivations B n.
+    derivable B s t -> exists n, (s, t) el derivations B n.
   Proof.
     induction 1.
     - exists 0. apply H.
@@ -628,13 +630,13 @@ Section ZF.
       assert (x = x2 ∪ x1) as ->. { rewrite <- R2. cbn in H1. rewrite !eval_comp in H1. apply VIEQ, H1. } clear H1.
       cbn. fold (derivation_step B C). rewrite M_enc_stack_app.
       enough (x1 = M_enc_stack (derivation_step B C)) as E1.
-      + enough (x2 = M_enc_stack (append_all C (s / t))) as E2 by now rewrite E1, E2.
+      + enough (x2 = M_enc_stack (append_all C (s, t))) as E2 by now rewrite E1, E2.
         apply M_ext; intros u Hu.
         * apply H3 in Hu as [v [Hv[a [b Ha]]]].
           cbn in Hv. erewrite !eval_comp, eval_ext, R1 in Hv; trivial.
           apply enc_stack_el' in Hv as (s'&t'&H&H').
           enough (u = M_enc_card (s++s') (t++t')) as ->.
-          { apply enc_stack_el. apply in_map_iff. now exists (s'/t'). }
+          { apply enc_stack_el. apply in_map_iff. now exists (s', t'). }
           cbn in Ha. rewrite !VIEQ in Ha. destruct Ha as [D1 D2].
           rewrite D1 in H'. unfold M_enc_card in H'. apply opair_inj in H' as [-> ->].
           rewrite D2; unfold M_enc_card, M_opair; repeat f_equal.
@@ -672,7 +674,7 @@ Section ZF.
   Qed.
 
   Lemma derivations_el B n s t :
-     s / t el derivations B n -> M_enc_card s t ∈ M_enc_stack (derivations B n).
+    (s, t) el derivations B n -> M_enc_card s t ∈ M_enc_stack (derivations B n).
   Proof.
     apply enc_stack_el.
   Qed.
@@ -732,7 +734,7 @@ Section ZF.
     M_opair ∅ (M_enc_stack B) ∈ f /\ forall k x y, k ∈ n -> M_opair k x ∈ f -> M_combinations B x y -> M_opair (σ k) y ∈ f.
 
   Lemma comb_rel_rep C s t :
-    M_is_rep (M_comb_rel s t) (M_enc_stack C) (M_enc_stack (append_all C (s / t))).
+    M_is_rep (M_comb_rel s t) (M_enc_stack C) (M_enc_stack (append_all C (s, t))).
   Proof.
     intros y. split.
     - intros (u&v&H&->) % enc_stack_el'.
@@ -743,14 +745,14 @@ Section ZF.
       now rewrite !M_prep_enc.
     - intros (u&H&a&b&->&->). apply enc_stack_el' in H as [u[v[H1 H2]]].
       apply opair_inj in H2 as [-> ->]. rewrite !M_prep_enc. apply enc_stack_el.
-      apply in_map_iff. now exists (u/v).
+      apply in_map_iff. now exists (u, v).
   Qed.
 
   Lemma M_combinations_step B C :
     M_combinations B (M_enc_stack C) (M_enc_stack (derivation_step B C)).
   Proof.
     induction B as [|[s t] B IH]; cbn; trivial.
-    exists (M_enc_stack (derivation_step B C)), (M_enc_stack (append_all C (s / t))).
+    exists (M_enc_stack (derivation_step B C)), (M_enc_stack (append_all C (s, t))).
     rewrite M_enc_stack_app. split; trivial. split; trivial.
     apply comb_rel_rep.
   Qed.
@@ -767,7 +769,7 @@ Section ZF.
   Qed.
 
   Lemma derivations_derivable B n s t :
-    s / t el derivations B n -> derivable B s t.
+    (s, t) el derivations B n -> derivable B s t.
   Proof.
     induction n in s,t|-*; cbn.
     - now constructor.

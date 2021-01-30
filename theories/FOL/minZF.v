@@ -4,6 +4,7 @@ Require Import Undecidability.FOL.Util.Syntax.
 Require Import Undecidability.FOL.Util.FullTarski.
 Require Import Undecidability.FOL.Util.FullDeduction.
 Require Import Undecidability.FOL.ZF.
+Import Vector.VectorNotations.
 Require Import List.
 
 
@@ -18,8 +19,8 @@ Existing Instance ZF_func_sig.
 Notation term' := (term sig_empty).
 Notation form' := (form sig_empty _ _ falsity_on).
 
-Notation "x ∈' y" := (atom sig_empty ZF_pred_sig elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : syn.
-Notation "x ≡' y" := (atom sig_empty ZF_pred_sig equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : syn.
+Notation "x ∈' y" := (atom sig_empty ZF_pred_sig elem ([x; y])) (at level 35) : syn.
+Notation "x ≡' y" := (atom sig_empty ZF_pred_sig equal ([x; y])) (at level 35) : syn.
 
 
 
