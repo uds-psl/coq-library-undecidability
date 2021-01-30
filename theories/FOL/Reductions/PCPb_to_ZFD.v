@@ -52,7 +52,7 @@ Proof.
   induction n; cbn.
   - eapply CE1. apply Ctx. firstorder.
   - eapply IE; try apply IHn.
-    change (ZFeq' ⊢ ($0 ∈ ω --> σ ($0) ∈ ω)[(tnumeral n)..]).
+    change (ZFeq' ⊢ ($0 ∈ ω ~> σ ($0) ∈ ω)[(tnumeral n)..]).
     apply AllE. eapply CE2. apply Ctx. firstorder.
 Qed.
 
@@ -219,7 +219,7 @@ Proof.
 Qed.
 
 Lemma ZF_bunion_inv' x y z :
-   ZFeq' ⊢ z ∈ x ∪ y --> z ∈ x ∨ z ∈ y.
+   ZFeq' ⊢ z ∈ x ∪ y ~> z ∈ x ∨ z ∈ y.
 Proof.
   assert (TU : ZFeq' ⊢ ax_union) by (apply Ctx; firstorder). unfold ax_union in TU.
   eapply (AllE ({x; y})), (AllE z), CE1 in TU; cbn in TU; subsimpl_in TU.
@@ -358,7 +358,7 @@ Proof.
 Qed.
 
 Lemma bunion_use T x y z phi :
-  ZFeq' <<= T -> (x ∈ y :: T) ⊢ phi -> (x ≡ z :: T) ⊢ phi -> T ⊢ x ∈ y ∪ sing z --> phi.
+  ZFeq' <<= T -> (x ∈ y :: T) ⊢ phi -> (x ≡ z :: T) ⊢ phi -> T ⊢ x ∈ y ∪ sing z ~> phi.
 Proof.
   intros HT H1 H2. apply II. eapply DE.
   - eapply ZF_bunion_inv; auto.
@@ -369,7 +369,7 @@ Proof.
 Qed.
 
 Lemma ZF_numeral_trans T n x y :
-  ZFeq' <<= T -> T ⊢ x ∈ tnumeral n --> y ∈ x --> y ∈ tnumeral n.
+  ZFeq' <<= T -> T ⊢ x ∈ tnumeral n ~> y ∈ x ~> y ∈ tnumeral n.
 Proof.
   intros HT. induction n; cbn.
   - apply II, Exp. eapply IE. apply ZF_eset'. all: auto.
@@ -446,7 +446,7 @@ Proof.
 Qed.
 
 Lemma enc_derivations_functional B n x y y' :
-  ZFeq' ⊢ opair x y ∈ enc_derivations B n --> opair x y' ∈ enc_derivations B n --> y ≡ y'.
+  ZFeq' ⊢ opair x y ∈ enc_derivations B n ~> opair x y' ∈ enc_derivations B n ~> y ≡ y'.
 Proof.
   induction n; cbn -[derivations].
   - repeat apply II. eapply opair_inj2. auto. eapply ZF_trans'. auto.
@@ -607,8 +607,8 @@ Proof.
 Qed.
 
 Lemma combinations_step B n (i x y : term) :
-  ZFeq' ⊢ i ∈ tnumeral n --> opair i x ∈ enc_derivations B n
-     --> combinations B x y --> opair (σ i) y ∈ enc_derivations B n.
+  ZFeq' ⊢ i ∈ tnumeral n ~> opair i x ∈ enc_derivations B n
+     ~> combinations B x y ~> opair (σ i) y ∈ enc_derivations B n.
 Proof.
   induction n; cbn.
   - apply II. apply Exp.
@@ -646,7 +646,6 @@ Proof.
   unfold solvable.
   apply ExI with (tnumeral n). cbn.
   apply ExI with (enc_derivations B n). cbn.
-  apply ExI with (opair (enc_string s) (enc_string s)). cbn.
   apply ExI with (enc_string s). cbn. subsimpl.
   apply ExI with (enc_stack (derivations B n)). cbn.
   rewrite !enc_stack_subst, !combinations_subst. cbn. subsimpl.
@@ -659,7 +658,6 @@ Proof.
     cbn. subsimpl. apply combinations_step.
   - apply enc_derivations_step.
   - now apply enc_stack_spec.
-  - apply ZF_refl.
 Qed.
 
 Theorem PCP_ZFD B :
