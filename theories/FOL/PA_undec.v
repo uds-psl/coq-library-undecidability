@@ -23,6 +23,7 @@ Theorem undecidable_deduction_PA :
 Proof.
   refine (undecidability_from_reducibility _ H10_to_deduction_PA).
   apply H10p_undec.
+
 Qed.
 
 

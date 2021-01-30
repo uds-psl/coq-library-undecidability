@@ -72,6 +72,11 @@ Definition ax_induction (phi : form) :=
 (* Fragment only containing the defining equations for addition and multiplication. *)
 Definition FA := ax_add_zero :: ax_add_rec :: ax_mult_zero :: ax_mult_rec :: nil.
 
+(* Robinson Arithmetic *)
+Definition ax_cases := ∀ $0 == zero ∨ ∃ $1 == σ $0.
+Definition Q := FA ++ (ax_zero_succ::ax_succ_inj::ax_cases::nil).
+
+
 (* Full axiomatisation of the theory of PA *)
 Inductive PA : form -> Prop :=
   PA_FA phi : In phi FA -> PA phi
@@ -98,6 +103,9 @@ Definition EQ :=
 Definition FAeq :=
   EQ ++ FA.
 
+Definition Qeq :=
+  EQ ++ Q.
+
 Inductive PAeq : form -> Prop :=
   PAeq_FA phi : In phi FAeq -> PAeq phi
 | PAeq_discr : PAeq ax_zero_succ
@@ -109,25 +117,41 @@ Inductive PAeq : form -> Prop :=
 Notation extensional M :=
   (forall x y, @i_atom _ _ _ M Eq ([x ; y]) <-> x = y).
 
-(* Semantic entailment restricted to extensional models and FA. *)
-
-Definition ext_entailment_PA phi :=
-  forall D (I : interp D) rho, extensional I -> (forall psi rho, PA psi -> rho ⊨ psi) -> rho ⊨ phi.
 
 (* Semantic entailment restricted to FA *)
 
 Definition entailment_FA phi :=
   valid_ctx FAeq phi.
 
-(* Semantic entailment for PA *)
-
-Definition entailment_PA phi :=
-  forall D (I : interp D) rho, (forall psi rho, PAeq psi -> rho ⊨ psi) -> rho ⊨ phi.
 
 (* Deductive entailment restricted to intuitionistic rules and FA. *)
 
 Definition deduction_FA phi :=
   FAeq ⊢I phi.
+
+
+(* Semantic entailment restricted to Q *)
+
+Definition entailment_Q phi :=
+  valid_ctx Qeq phi.
+
+(* Deductive entailment restricted to intuitionistic rules and FA. *)
+
+Definition deduction_Q phi :=
+  Qeq ⊢I phi.
+
+
+(* Semantic entailment for PA *)
+
+Definition entailment_PA phi :=
+  forall D (I : interp D) rho, (forall psi rho, PAeq psi -> rho ⊨ psi) -> rho ⊨ phi.
+
+
+(* Semantic entailment restricted to extensional models of PA *)
+
+Definition ext_entailment_PA phi :=
+  forall D (I : interp D) rho, extensional I -> (forall psi rho, PA psi -> rho ⊨ psi) -> rho ⊨ phi.
+
 
 (* Deductive entailment restricted to intuitionistic rules. *)
 

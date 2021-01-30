@@ -473,6 +473,17 @@ Section StdModel.
     all: cbn; try congruence.
   Qed.
 
+  Lemma nat_is_Q_model : forall rho phi,  List.In phi Qeq -> sat interp_nat rho phi.
+  Proof.
+    intros rho phi. intros H.
+    repeat (destruct H as [<- | H]; auto).
+    all: cbn; try congruence.
+    induction d. now left.
+    right. destruct IHd.
+    exists 0. congruence.
+    exists d. reflexivity.
+  Qed.
+
   
   Fact nat_eval_num (sigma : env nat) n : @eval _ _ _ interp_nat sigma (num n) = n.
   Proof.

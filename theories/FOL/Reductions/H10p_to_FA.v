@@ -219,6 +219,27 @@ Proof.
 Qed.
 
 
+Theorem H10p_to_Q_sat E :
+  H10p E <-> valid_ctx Qeq (embed E).
+Proof.
+  split.
+  - intros [sigma HE].
+    intros D I rho H.
+    eapply subst_exist_sat.
+    apply problem_to_model.
+    + intros ρ' ax Hax. eapply sat_closed.
+      2: apply H.
+      repeat (destruct Hax as [<- | Hax]; cbn; repeat solve_bounds; auto).
+      firstorder.
+    + apply HE.
+    + rewrite <-exists_close_form; apply embed_is_closed.
+  - intros H.
+    specialize (H nat interp_nat id (nat_is_Q_model id)).
+    unfold embed in *. apply subst_exist_sat2 in H.
+    now apply nat_sat'.
+Qed.
+
+
 Theorem H10p_to_PA_sat E :
   H10p E <-> forall D (I : interp D) rho, (forall psi rho, PAeq psi -> rho ⊨ psi) -> rho ⊨ (embed E).
 Proof.
@@ -252,6 +273,19 @@ Proof.
 Qed.
 
 
+Theorem H10p_to_Q_prv E :
+  H10p E <-> Qeq ⊢I embed E.
+Proof.
+  split.
+  - intros.
+    apply Weak with FAeq.
+    now apply H10p_to_FA_prv.
+    firstorder.
+  - intros H%soundness.
+    now apply H10p_to_Q_sat.
+Qed.
+
+
 Theorem H10p_to_PA_prv E :
   H10p E <-> PAeq ⊢TI embed E.
 Proof.
@@ -275,12 +309,18 @@ Proof.
   exists embed. intros E. apply H10p_to_FA_ext_sat.
 Qed.
 
-(* ** Reductions for the axiomatisations PAeq and FAeq, which include the axioms for equatlity. *)
+(* ** Reductions for the axiomatisations FAeq, Qeq and PAeq, which include the axioms for equatlity. *)
 
 Theorem H10_to_entailment_FA :
   H10p ⪯ entailment_FA.
 Proof.
   exists embed; intros E. apply H10p_to_FA_sat.
+Qed.
+
+Corollary H10_to_entailment_Q :
+  H10p ⪯ entailment_Q.
+Proof.
+  exists embed; intros E. apply H10p_to_Q_sat.
 Qed.
 
 Corollary H10_to_entailment_PA :
@@ -293,6 +333,12 @@ Theorem H10_to_deduction_FA :
   H10p ⪯ deduction_FA.
 Proof.
   exists embed; intros E. apply H10p_to_FA_prv.
+Qed.
+
+Theorem H10_to_deduction_Q :
+  H10p ⪯ deduction_Q.
+Proof.
+  exists embed; intros E. apply H10p_to_Q_prv.
 Qed.
 
 Corollary H10_to_deduction_PA :
