@@ -1,5 +1,6 @@
 From Undecidability.FOL.Util Require Import Syntax Syntax_facts FullDeduction FullDeduction_facts FullTarski.
-From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
+From Undecidability.Synthetic Require Import DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
+From Undecidability.Synthetic Require Import ListEnumerabilityFacts MoreEnumerabilityFacts.
 From Undecidability.Shared Require Import Dec.
 From Equations Require Import Equations.
 Require Import ConstructiveEpsilon.
@@ -70,21 +71,21 @@ Section FixSignature.
   
   Section Axiomatisations.
 
-    Hypothesis eq_dec_Funcs : eq_dec syms.
-    Hypothesis eq_dec_Preds : eq_dec preds.
+    Context {enum_funcs : enumerable__T Σ_funcs} {eqdec_funcs : eq_dec syms}.
+    Context {enum_preds : enumerable__T Σ_preds} {eqdec_preds : eq_dec preds}.
 
     Variable A : form -> Prop.
+    Hypothesis enum_A : enumerable A.
 
     Context {X : Type}.
     Variable P : X -> Prop.
-
     
     Definition reduction_both f :=
       (forall x, P x <-> Tvalid A (f x) )
       /\ (forall x, P x <-> A ⊢TI (f x) /\ A ⊢TC (f x)).
+
     Definition reduction2 :=
       exists f : X -> form, reduction_both f.
-
 
     Fact Fact7 : reduction2 -> (exists x, ~ P x) -> ~ A ⊢TI ⊥.
     Proof.
@@ -94,7 +95,14 @@ Section FixSignature.
 
     Lemma TC_enum :
       enumerable (fun phi : form => A ⊢TC phi).
-    Admitted.
+    Proof.
+      apply enumerable_enum.
+      apply enumerable_enum in enum_A as [L HL].
+      apply enum_enumT in enum_funcs as [L1 HL1].
+      apply enum_enumT in enum_preds as [L2 HL2].
+      exists (@L_tded _ _ L1 HL1 L2 HL2 _ _ class falsity_on (cumul L)).
+      now apply enum_tprv.
+    Qed.
 
     Definition stripneg `{falsity_flag} (phi : form) : option form :=
       match phi with 
@@ -108,13 +116,13 @@ Section FixSignature.
       intros ff ff'. unfold dec. decide equality.
     Qed.
 
-    Lemma stripneg_spec `{falsity_flag} {phi psi} :
+    Lemma stripneg_spec {ff :falsity_flag} {phi psi} :
       stripneg phi = Some psi -> phi = ¬ psi.
     Proof.
       depelim phi; cbn; try destruct b0; try discriminate.
-      - inversion H0. apply inj_pair2_eq_dec' in H2 as ->; eauto. cbn. discriminate.
+      - inversion H. apply inj_pair2_eq_dec' in H1 as ->; eauto. cbn. discriminate.
       - depelim phi2; cbn; try destruct b0; try discriminate.
-        inversion H0. apply inj_pair2_eq_dec' in H2 as ->; eauto. congruence.
+        inversion H. apply inj_pair2_eq_dec' in H1 as ->; eauto. congruence.
     Qed.
     
     Fact Fact9 : (~ A ⊢TC ⊥) -> complete A -> decidable (fun phi => A ⊢TC phi).

@@ -240,6 +240,7 @@ FOL/Util/Aczel_TD.v
 FOL/Util/ZF_model.v
 FOL/Util/FA_facts.v
 FOL/Util/sig_bin.v
+FOL/Util/Axiomatisations.v
 
 FOL/Reductions/PCPb_to_FOL.v
 FOL/Reductions/PCPb_to_FOL_intu.v
