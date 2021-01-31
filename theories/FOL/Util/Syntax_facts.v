@@ -328,15 +328,68 @@ Section Bounded.
       exists (k + l). intros t [<-|H]; eapply bounded_up; try eassumption; try (now apply Hk); lia.
   Qed.
 
-End Bounded.
+  Ltac invert_bounds :=
+    inversion 1; subst;
+    repeat match goal with
+             H : existT _ _ _ = existT _ _ _ |- _ => apply Eqdep_dec.inj_pair2_eq_dec in H; try decide equality
+           end; subst.
 
-Lemma vec_cons_inv X n (v : Vector.t X n) x y :
-  In y (Vector.cons X x n v) -> (y = x) \/ (In y v).
-Proof.
-  inversion 1; subst.
-  - now left.
-  - apply EqDec.inj_right_pair in H3 as ->. now right.
-Qed.
+  Lemma vec_cons_inv X n (v : Vector.t X n) x y :
+    In y (Vector.cons X x n v) -> (y = x) \/ (In y v).
+  Proof.
+    inversion 1; subst.
+    - now left.
+    - apply EqDec.inj_right_pair in H3 as ->. now right.
+  Qed.
+
+  Lemma vec_all_dec X n (v : vec X n) (P : X -> Prop) :
+    (forall x, vec_in x v -> dec (P x)) -> dec (forall x, In x v -> P x).
+  Proof.
+    induction v; intros H.
+    - left. intros x. inversion 1.
+    - destruct (H h) as [H1|H1], IHv as [H2|H2]; try now left.
+      + intros x Hx. apply H. now right.
+      + intros x Hx. apply H. now right.
+      + left. intros x [<-| Hx] % vec_cons_inv; intuition.
+      + right. contradict H2. intros x Hx. apply H2. now right.
+      + intros x Hx. apply H. now right.
+      + right. contradict H1. apply H1. now left.
+      + right. contradict H1. apply H1. now left.
+  Qed.
+
+  Context {sig_funcs_dec : EqDec Σ_funcs}.
+  Context {sig_preds_dec : EqDec Σ_preds}.
+
+  Lemma bounded_t_dec n t :
+    dec (bounded_t n t).
+  Proof.
+    induction t.
+    - destruct (Compare_dec.gt_dec n x) as [H|H].
+      + left. now constructor.
+      + right. inversion 1; subst. tauto.
+    - apply vec_all_dec in X as [H|H].
+      + left. now constructor.
+      + right. inversion 1; subst. apply EqDec.inj_right_pair in H3 as ->. tauto.
+  Qed.
+
+  Lemma bounded_dec {ff : falsity_flag} phi :
+      forall n, dec (bounded n phi).
+    Proof.
+      induction phi; intros n.
+      - left. constructor.
+      - destruct (vec_all_dec _ _ t (bounded_t n)) as [H|H].
+        + intros t' _. apply bounded_t_dec.
+        + left. now constructor.
+        + right. inversion 1. apply EqDec.inj_right_pair in H5 as ->. tauto.
+      - destruct (IHphi1 n) as [H|H], (IHphi2 n) as [H'|H'].
+        2-4: right; invert_bounds; tauto.
+        left. now constructor.
+      - destruct (IHphi (S n)) as [H|H].
+        + left. now constructor.
+        + right. invert_bounds. tauto.
+    Qed.
+
+End Bounded.
 
 Ltac solve_bounds :=
   repeat constructor; try lia; try inversion X; intros;
@@ -553,11 +606,16 @@ Section Enumerability.
       in_app 4. apply in_concat. eexists. split. apply in_map... in_collect phi...
   Qed.
 
-  Lemma enumT_form {ff : falsity_flag} :
-    enumerable__T form.
-  Proof.
-    apply enum_enumT. exists L_form. apply enum_form.
-  Defined.
-
 End Enumerability.
+
+Definition enumT_form {ff : falsity_flag} {Σ_funcs : funcs_signature} {Σ_preds : preds_signature} {ops : operators} :
+  enumerable__T Σ_funcs -> enumerable__T Σ_preds -> enumerable__T binop -> enumerable__T quantop -> enumerable__T form.
+Proof.
+  intros. apply enum_enumT.
+  apply enum_enumT in H as [L1 HL1].
+  apply enum_enumT in H0 as [L2 HL2].
+  apply enum_enumT in H1 as [L3 HL3].
+  apply enum_enumT in H2 as [L4 HL4].
+  exists (L_form _ HL1 _ HL2 _ HL3 _ HL4). apply enum_form.
+Qed.
  

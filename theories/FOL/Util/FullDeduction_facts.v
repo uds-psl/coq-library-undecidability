@@ -252,6 +252,56 @@ Section Soundness.
     intros (A & H1 & H2) D I rho HI. apply (soundness H2).
     intros psi HP. apply HI, H1, HP.
   Qed.
+ 
+  Hypothesis LEM : forall P, P \/ ~ P.
+
+  Lemma Peirce (P Q : Prop) :
+    ((P -> Q) -> P) -> P.
+  Proof.
+    destruct (LEM (((P -> Q) -> P) -> P)); tauto.
+  Qed.
+
+  Lemma soundness_class {ff : falsity_flag} A phi :
+    A ⊢C phi -> valid_ctx A phi.
+  Proof.
+    remember class as p.
+    induction 1; intros D I rho HA; comp.
+    - intros Hphi. apply IHprv; trivial. intros ? []; subst. assumption. now apply HA.
+    - now apply IHprv1, IHprv2.
+    - intros d. apply IHprv; trivial. intros psi [psi'[<- H' % HA]] % in_map_iff.
+      eapply sat_comp. now comp.
+    - eapply sat_comp, sat_ext. 2: apply (IHprv Heqp D I rho HA (eval rho t)). now intros [].
+    - exists (eval rho t). cbn. specialize (IHprv Heqp D I rho HA).
+      apply sat_comp in IHprv. eapply sat_ext; try apply IHprv. now intros [].
+    - edestruct IHprv1 as [d HD]; eauto.
+      assert (H' : forall psi, phi = psi \/ psi el map (subst_form ↑) A -> (d.:rho) ⊨ psi).
+      + intros P [<-|[psi'[<- H' % HA]] % in_map_iff]; trivial. apply sat_comp. apply H'.
+      + specialize (IHprv2 Heqp D I (d.:rho) H'). apply sat_comp in IHprv2. apply IHprv2.
+    - apply (IHprv Heqp) in HA. firstorder.
+    - firstorder.
+    - clear LEM. firstorder.
+    - firstorder. now apply H0.
+    - firstorder. now apply H0.
+    - clear LEM. firstorder.
+    - clear LEM. firstorder.
+    - edestruct IHprv1; eauto.
+      + apply IHprv2; trivial. intros xi [<-|HX]; auto.
+      + apply IHprv3; trivial. intros xi [<-|HX]; auto.
+    - apply Peirce.
+  Qed.
+
+  Lemma soundness_class' {ff : falsity_flag} phi :
+    [] ⊢C phi -> valid phi.
+  Proof.
+    intros H % soundness_class. clear LEM. firstorder.
+  Qed.
+
+  Corollary tsoundness_class {ff : falsity_flag} T phi :
+    T ⊢TC phi -> forall D (I : interp D) rho, (forall psi, T psi -> rho ⊨ psi) -> rho ⊨ phi.
+  Proof.
+    intros (A & H1 & H2) D I rho HI. apply (soundness_class H2).
+    intros psi HP. apply HI, H1, HP.
+  Qed.
 
 End Soundness.
 
@@ -325,6 +375,18 @@ Section Enumerability.
     list_enumerator__T list_quantop quantop.
   Proof.
     intros []; exists 0; cbn; tauto.
+  Qed.
+
+  Lemma enumT_binop :
+    enumerable__T binop.
+  Proof.
+    apply enum_enumT. exists list_binop. apply enum_binop.
+  Qed.
+
+  Lemma enumT_quantop :
+    enumerable__T quantop.
+  Proof.
+    apply enum_enumT. exists list_quantop. apply enum_quantop.
   Qed.
 
   Instance enum_term' :
