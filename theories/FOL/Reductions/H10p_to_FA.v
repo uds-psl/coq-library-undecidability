@@ -55,8 +55,8 @@ Proof.
   - cbn. now rewrite IHn.
 Qed.
 
-Lemma prv_poly sigma q Gamma :
-  incl FAeq Gamma -> Gamma ⊢I ( (embed_poly q)`[sigma >> num] == num (dp_eval_pfree sigma q) ).
+Lemma prv_poly {p : peirce} sigma q Gamma :
+  incl FAeq Gamma -> Gamma ⊢ ( (embed_poly q)`[sigma >> num] == num (dp_eval_pfree sigma q) ).
 Proof.
   intros H.
   induction q; cbn.
@@ -73,8 +73,8 @@ Proof.
       now apply num_mult_homomorphism.
 Qed.
 
-Lemma problem_to_prv :
-  forall E sigma, H10p_sem E sigma -> FAeq ⊢I (embed_problem E)[sigma >> num].
+Lemma problem_to_prv {p : peirce} :
+  forall E sigma, H10p_sem E sigma -> FAeq ⊢ (embed_problem E)[sigma >> num].
 Proof.
   intros [a b] sigma HE. cbn -[FAeq].
   eapply transitivity; firstorder.
@@ -82,6 +82,15 @@ Proof.
   apply symmetry; firstorder.
   unfold H10p_sem in *. cbn in HE. rewrite HE.
   apply prv_poly; firstorder.
+Qed.
+
+Theorem H10p_to_FA_prv' {p : peirce} E :
+  H10p E -> FAeq ⊢ embed E.
+Proof.
+  intros [sigma HE].
+  eapply subst_exist_prv.
+  apply problem_to_prv, HE.
+  rewrite <-exists_close_form; apply embed_is_closed.
 Qed.
 
 
@@ -131,7 +140,7 @@ Section FA_Model.
   
   Lemma problem_to_model E sigma : H10p_sem E sigma -> (sigma >> iμ) ⊨ embed_problem E.
   Proof.
-    intros HE%problem_to_prv%soundness.
+    eintros HE%problem_to_prv%soundness.
     specialize (HE D I).
     setoid_rewrite sat_comp in HE.
     eapply sat_ext. 2: apply HE.
@@ -140,9 +149,51 @@ Section FA_Model.
     now apply FA_model.
   Qed.
 
+  Definition standard :=
+    extensional I /\ exists f : D -> nat, (forall d, iμ (f d) = d) /\ (forall n, f (iμ n) = n).
+
+  Fact standard_embed_poly rho p f :
+    extensional I -> (forall d, iμ (f d) = d) -> eval rho (embed_poly p) = iμ (dp_eval_pfree (rho >> f) p).
+  Proof.
+    intros HI Hf. induction p; try destruct d; cbn.
+    - apply eval_num.
+    - unfold funcomp. now rewrite Hf.
+    - rewrite IHp1, IHp2. rewrite add_hom; trivial. firstorder.
+    - rewrite IHp1, IHp2. rewrite mult_hom; trivial. firstorder.
+  Qed.
+  
+  Lemma standard_embed_problem' E rho f :
+    extensional I -> (forall d, iμ (f d) = d) -> (forall n, f (iμ n) = n) -> rho ⊨ embed_problem E -> H10p_sem E (rho >> f).
+  Proof.
+    intros HI Hf1 Hf2 H. destruct E as [p q]. apply HI in H.
+    unfold H10p_sem. cbn. rewrite <- Hf2 at 1. setoid_rewrite <- Hf2 at 3.
+    f_equal. now rewrite <- !standard_embed_poly.
+  Qed.
+
+  Lemma standard_embed_problem E :
+    standard -> (exists rho, rho ⊨ embed_problem E) -> H10p E.
+  Proof.
+    intros (HI & f & Hf1 & Hf2) [rho Hr]. exists (rho >> f). now apply standard_embed_problem'.
+  Qed.
+
+  Lemma standard_embed E rho :
+    standard -> rho ⊨ (embed E) -> H10p E.
+  Proof.
+    intros HS H. apply standard_embed_problem; trivial. eapply subst_exist_sat2, H.
+  Qed.
   
 End FA_Model.
 
+Arguments standard _ _ : clear implicits.
+
+Lemma nat_standard :
+  standard nat interp_nat.
+Proof.
+  split; try reflexivity. exists (fun n => n).
+  setoid_rewrite <- (eval_num _ _ (fun n => n)).
+  setoid_rewrite nat_eval_num.
+  split; reflexivity.
+Qed.
 
 
 Fact nat_eval_poly (sigma : env nat) p :

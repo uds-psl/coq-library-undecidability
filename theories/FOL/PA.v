@@ -45,7 +45,7 @@ Declare Scope PA_Notation.
 Open Scope PA_Notation.
 
 Notation "'zero'" := (@func PA_funcs_signature Zero ([])) (at level 1) : PA_Notation.
-Notation "'σ' x" := (@func PA_funcs_signature Succ ([x])) (at level 37) : PA_Notation.
+Notation "'σ' x" := (@func PA_funcs_signature Succ ([x])) (at level 32) : PA_Notation.
 Notation "x '⊕' y" := (@func PA_funcs_signature Plus ([x ; y]) ) (at level 39) : PA_Notation.
 Notation "x '⊗' y" := (@func PA_funcs_signature Mult ([x ; y]) ) (at level 38) : PA_Notation.
 Notation "x '==' y" := (@atom PA_funcs_signature PA_preds_signature _ _ Eq ([x ; y])) (at level 40) : PA_Notation.

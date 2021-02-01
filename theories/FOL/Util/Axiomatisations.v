@@ -1,10 +1,12 @@
-From Undecidability.FOL.Util Require Import Syntax Syntax_facts FullDeduction FullDeduction_facts FullTarski.
+From Undecidability.FOL.Util Require Import Syntax_facts FullDeduction FullDeduction_facts FullTarski FullTarski_facts.
+From Undecidability.Synthetic Require Import Definitions Undecidability.
 From Undecidability.Synthetic Require Import DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
 From Undecidability.Synthetic Require Import ListEnumerabilityFacts MoreEnumerabilityFacts.
 From Undecidability.Shared Require Import Dec.
 From Equations Require Import Equations.
 Require Import ConstructiveEpsilon.
 Require Import List.
+Import ListNotations.
 
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
@@ -15,6 +17,7 @@ Local Unset Strict Implicit.
 
 Existing Instance falsity_on.
 
+Notation "S <<= S'" := (forall phi, S phi -> S' phi) (at level 10).
 Notation "I ⊨= phi" := (forall rho, sat I rho phi) (at level 20).
 Notation "T ⊨T phi" := (forall D (I : interp D), (forall psi, T psi -> I ⊨= psi) -> I ⊨= phi) (at level 55).
 
@@ -213,9 +216,8 @@ Section FixSignature.
     Variable X : Type.
     Variable P : X -> Prop.
     Variable f : X -> form.
-
-    Notation "S <<= S'" := (forall phi, S phi -> S' phi) (at level 10).
     
+    Variable standard_dom : Type.
     Variable standard : forall {D : Type}, interp D -> Prop.
 
     Hypothesis hyp1 : forall x, P x -> T ⊨T (f x).
@@ -229,9 +231,9 @@ Section FixSignature.
     Qed.
 
     Theorem reduction_theorem (S : form -> Prop) :
-      T <<= S -> (exists D I, @standard D I /\ forall phi, S phi -> I ⊨= phi) -> P ⪯T S.
+      T <<= S -> (exists D I, @standard D I /\ forall phi, S phi -> I ⊨= phi) -> treduction f P S.
     Proof.
-      intros HS (D & I & [std MT]). exists f. repeat split; intros H.
+      intros HS (D & I & [std MT]). repeat split; intros H.
       - intros D' I' H'. apply hyp1; auto.
       - apply (hyp2 std); auto.
       - apply WeakT with T; trivial. now apply hyp3.
@@ -245,13 +247,133 @@ Section FixSignature.
     Definition LEM := forall P, P \/ ~ P.
     
     Theorem reduction_theorem_class (S : form -> Prop) :
-      LEM -> T <<= S -> (exists D I, @standard D I /\ forall phi, S phi -> I ⊨= phi) -> P ⪯ tprv_class S.
+      LEM -> T <<= S -> (exists D I, @standard D I /\ forall phi, S phi -> I ⊨= phi) -> reduction f P (tprv_class S).
     Proof.
-      intros lem HS (D & I & [std MT]). exists f. split; intros H.
+      intros lem HS (D & I & [std MT]). split; intros H.
       - apply WeakT with T; trivial. now apply hyp3.
       - apply (hyp2 std); auto. intros rho. apply (tsoundness_class lem H); auto.
     Qed.
     
   End Reduction.
 
+
+
+  (* Fact 11 : *)
+
+  Definition list_theory (A : list form) :=
+    fun phi => In phi A.
+
 End FixSignature.
+
+
+
+(* Main results *)
+
+(* Theorem 26 : all extensions of Q' satisfied by the standard model are incompletene, using LEM *)
+
+From Undecidability.FOL Require Import PA PA_undec Reductions.H10p_to_FA FA_facts.
+From Undecidability.H10 Require Import H10p H10p_undec.
+
+Existing Instance PA_funcs_signature.
+Existing Instance PA_preds_signature.
+
+Instance eqdec_PA_syms :
+  eq_dec syms.
+Proof.
+  intros x y. unfold dec. decide equality.
+Qed.
+
+Instance eqdec_PA_preds :
+  eq_dec preds.
+Proof.
+  intros x y. unfold dec. decide equality.
+Qed.
+
+Definition enum_PA_syms :
+  enumerable__T syms.
+Proof.
+  apply enum_enumT. exists (fun _ => [Zero; Succ; Plus; Mult]).
+  intros []; exists 0; auto.
+Qed.
+
+Definition enum_PA_preds :
+  enumerable__T preds.
+Proof.
+  apply enum_enumT. exists (fun _ => [Eq]).
+  intros []; exists 0; auto.
+Qed.
+
+Print standard.
+
+Theorem incompleteness_PA (T : form -> Prop) :
+  LEM -> list_theory FAeq <<= T -> enumerable T -> complete T -> (forall phi, T phi -> interp_nat ⊨= phi) -> decidable (TM.HaltTM 1).
+Proof.
+  intros lem HFA HE HC HT. apply H10p_undec.
+  apply (@complete_decidable' _ _ enum_PA_syms _ enum_PA_preds _ T HE) with embed.
+  - intros H. apply (@tsoundness_class _ _ lem _ T ⊥ H nat interp_nat (fun n => 0)). firstorder.
+  - apply HC.
+  - eapply (@reduction_theorem_class _ _ (list_theory FAeq) H10p_PROBLEM H10p embed standard); trivial.
+    + intros D I x H1 H2 Hx. apply standard_embed with (fun n => iO); auto.
+    + intros p x H. exists FAeq. split; auto. now apply H10p_to_FA_prv'.
+    + exists nat, interp_nat. split; auto. apply nat_standard.
+  - apply embed_is_closed.
+Qed.
+
+
+
+(* Theorem 36 : all extensions of Z' satisfied by a standard model are incompletene, using LEM *)
+
+From Undecidability.FOL Require Import ZF ZF_undec Reductions.PCPb_to_ZF Reductions.PCPb_to_ZFD.
+From Undecidability.PCP Require Import PCP PCP_undec.
+
+Existing Instance ZF_func_sig.
+Existing Instance ZF_pred_sig.
+
+Instance eqdec_ZF_syms :
+  eq_dec syms.
+Proof.
+  intros x y. unfold dec. decide equality.
+Qed.
+
+Instance eqdec_ZF_preds :
+  eq_dec preds.
+Proof.
+  intros x y. unfold dec. decide equality.
+Qed.
+
+Definition enum_ZF_syms :
+  enumerable__T syms.
+Proof.
+  apply enum_enumT. exists (fun _ => [eset; pair; power; union; om]).
+  intros []; exists 0; auto.
+Qed.
+
+Definition enum_ZF_preds :
+  enumerable__T preds.
+Proof.
+  apply enum_enumT. exists (fun _ => [elem; equal]).
+  intros []; exists 0; auto.
+Qed.
+
+Print standard.
+
+From Undecidability.FOL Require Import Reductions.PCPb_to_ZFeq.
+
+Theorem incompleteness_ZF (T : form -> Prop) :
+  LEM -> list_theory ZFeq' <<= T -> enumerable T -> complete T
+  -> (exists D (I : interp D), standard I /\ forall phi, T phi -> I ⊨= phi) -> decidable (TM.HaltTM 1).
+Proof.
+  intros lem HFA HE HC (Ds & Is & HI1 & HI2). apply PCPb_undec.
+  apply (@complete_decidable' _ _ enum_ZF_syms _ enum_ZF_preds _ T HE) with solvable.
+  - intros H. apply (@tsoundness_class _ _ lem _ T ⊥ H Ds Is (fun n => ∅)). firstorder.
+  - apply HC.
+  - eapply (@reduction_theorem_class _ _ (list_theory ZFeq') _ PCPb solvable (@standard)); trivial.
+    + intros D I x H1 H2 Hx. eapply (@PCP_ZFeq D I) with (fun n => ∅); auto.
+    + intros p x H. exists ZFeq'. split; auto. now apply PCP_ZFD.
+    + now exists Ds, Is.
+  - apply solvabe_bound.
+Qed.
+
+
+
+

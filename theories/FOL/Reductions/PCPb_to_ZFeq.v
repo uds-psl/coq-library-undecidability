@@ -495,6 +495,12 @@ Section ZF.
     now split. exists u. apply opair_inj in H1 as [H H1]. rewrite H1 in H.
     apply enc_string_inj in H as ->. apply H2.
   Qed.
+
+  Theorem PCP_ZFeq B rho :
+    standard M -> rho ⊨ solvable B -> PCPb B.
+  Proof.
+    intros H1 H2. apply PCPb_iff_dPCPb. eapply PCP_ZF2; eauto.
+  Qed.
   
 End ZF.
 

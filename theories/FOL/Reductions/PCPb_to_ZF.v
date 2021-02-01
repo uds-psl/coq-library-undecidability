@@ -1,6 +1,7 @@
 (* * Reduction to semantic ZF entailment *)
 
 Require Import Undecidability.FOL.Util.Syntax.
+Require Import Undecidability.FOL.Util.Syntax_facts.
 Require Import Undecidability.FOL.Util.FullTarski_facts.
 Require Import Undecidability.FOL.ZF.
 Require Import Lia.
@@ -78,6 +79,50 @@ Definition solutions (B : BSRS) f n :=
 
 Definition solvable (B : BSRS) :=
   ∃ ∃ ∃ ∃ $3 ∈ ω ∧ function $2 ∧ solutions B $2 $3 ∧ opair $3 $0 ∈ $2 ∧ opair $1 $1 ∈ $0.
+
+Lemma bool_bound b n :
+  bounded_t n (enc_bool b).
+Proof.
+  destruct b; repeat solve_bounds.
+Qed.
+
+Lemma prep_string_bound s t n :
+  bounded_t n t -> bounded_t n (prep_string s t).
+Proof.
+  intros Ht. induction s; cbn; trivial.
+  repeat solve_bounds; trivial.
+  all: apply bool_bound.
+Qed.
+
+Lemma string_bound s n :
+  bounded_t n (enc_string s).
+Proof.
+  apply prep_string_bound. solve_bounds.
+Qed.
+
+Lemma stack_bound B n :
+  bounded_t n (enc_stack B).
+Proof.
+  induction B as [|[s t] B IH]; cbn; repeat solve_bounds; trivial.
+  all: apply string_bound.
+Qed.
+
+Lemma combinations_bound B n k l :
+  n > 5 + l + k -> bounded n (combinations B $k $l).
+Proof.
+  revert n k l. induction B as [|[s t] B IH]; cbn; repeat solve_bounds; trivial.
+  apply IH. admit.
+  all: apply prep_string_bound.
+Admitted.
+
+Lemma solvabe_bound B :
+  bounded 0 (solvable B).
+Proof.
+  repeat solve_bounds.
+  - apply stack_bound.
+  - apply combinations_bound. lia.
+Qed.
+  
 
 
 
