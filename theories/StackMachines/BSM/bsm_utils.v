@@ -706,7 +706,6 @@ Section Binary_Stack_Machines.
       bsm sss POP 0 with c (S (S (S (length (tile h l t1 t2) + i)))) q (list_repeat Zero (length ll) ++ One :: lc).
       apply subcode_sss_compute with (P := (3+length (tile h l t1 t2)+i, 
                                             decoder s (S (S (S (length (tile h l t1 t2)+i)))) (ll++(th,tl)::lr))); auto.
-      subcode_tac; solve list eq.
       apply IHll with th tl lr lc; auto.
       rew vec.
       f_equal.
@@ -752,7 +751,6 @@ Section Binary_Stack_Machines.
       exists r.
       bsm sss POP 0 with c (3 + length (tile h l t1 t2) + i) q (list_repeat Zero k).
       revert Hr; rew vec; apply subcode_sss_compute; auto.
-      subcode_tac; solve list eq.
     Qed.
 
     (* There might be a trailing 1 but the list of 0s is too long *)
@@ -785,7 +783,6 @@ Section Binary_Stack_Machines.
       exists r.
       bsm sss POP 0 with c (3 + length (tile h l t1 t2) + i) q (list_repeat Zero k++lc).
       revert Hr; rew vec; apply subcode_sss_compute; auto.
-      subcode_tac; solve list eq.
     Qed.
     
     (* A full decoder of a list of boolean into a list a valid tile indices,
@@ -877,7 +874,6 @@ Section Binary_Stack_Machines.
       unfold full_decoder.
       apply subcode_sss_compute_trans with (P := (5+i,decoder i (5 + i) lt)) 
            (st2 := (i,v[(list_nat_bool ln++lc)/c][(th++v#>h)/h][(tl++v#>l)/l])); auto.
-      subcode_tac; solve list eq.
       subst lt; apply decoder_spec_ok with (list_nat_bool ln++lc); auto.
       rewrite H3; revert H1; solve list eq.
 
@@ -931,7 +927,6 @@ Section Binary_Stack_Machines.
       exists (v [(list_repeat Zero r++One::list_nat_bool ln++lc)/c]); split.
       apply sss_compute_trans with (1 := H2); auto.
       unfold full_decoder; revert Hr; apply subcode_sss_compute; auto.
-      subcode_tac; solve list eq.
       intros; rew vec.
 
       apply Exists_cons in Hln.
@@ -970,7 +965,6 @@ Section Binary_Stack_Machines.
       revert Hr.
       unfold full_decoder.
       apply subcode_sss_compute; auto.
-      subcode_tac; solve list eq.
     Qed.
     
     (* Correctness lemma for the full decoder when

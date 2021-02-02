@@ -43,12 +43,14 @@ Section Minsky_Machine_alt_utils.
 
     Variable (j : nat) (x : pos n).
 
-    Definition mma_jump := INC x :: DEC x j :: nil.
+    Definition mma_jump := INCₐ x :: DECₐ x j :: nil.
 
-    Fact mma_jump_length : length mma_jump = 2.
+    Notation JUMPₐ := mma_jump.
+
+    Fact mma_jump_length : length JUMPₐ = 2.
     Proof. auto. Qed.
     
-    Fact mma_jump_progress i v : (i,mma_jump) // (i,v) -+> (j,v).
+    Fact mma_jump_progress i v : (i,JUMPₐ) // (i,v) -+> (j,v).
     Proof.
       unfold mma_jump.
       mma sss INC with x.
@@ -58,20 +60,22 @@ Section Minsky_Machine_alt_utils.
 
   End mma_jump.
 
+  Notation JUMPₐ := mma_jump.
+
   Section mma_null.
 
     (* Empty one register/counter *)
 
-    Variable (dst : pos n).
+    Variable (dst : pos n) (i : nat).
 
-    Definition mma_null i := DEC dst i :: nil.
+    Definition mma_null := DECₐ dst i :: nil.
 
-    Fact mma_null_length i : length (mma_null i) = 1.
+    Fact mma_null_length : length mma_null = 1.
     Proof. auto. Qed.
     
-    Let mma_null_spec i k v w : v#>dst = k 
+    Let mma_null_spec k v w :   v#>dst = k 
                              -> w = v[0/dst]
-                             -> (i,mma_null i) // (i,v) -+> (1+i,w).
+                             -> (i,mma_null) // (i,v) -+> (1+i,w).
     Proof.
       unfold mma_null.
       revert v w.
@@ -84,9 +88,9 @@ Section Minsky_Machine_alt_utils.
         apply IHk; rew vec.
     Qed.
 
-    Fact mma_null_progress i v st : 
+    Fact mma_null_progress v st : 
              st = (1+i,v[0/dst])
-          -> (i,mma_null i) // (i,v) -+> st.
+          -> (i,mma_null) // (i,v) -+> st.
     Proof.
       intros; subst.
       apply mma_null_spec with (1 := eq_refl); auto.
@@ -94,23 +98,25 @@ Section Minsky_Machine_alt_utils.
 
   End mma_null.
 
+  Notation NULLₐ := mma_null.
+
   Hint Rewrite mma_null_length : length_db.
 
   Section mma_transfert.
 
     (* Added the content of src to dst while emptying src *)
 
-    Variables (src dst : pos n) (Hsd : src <> dst).
+    Variables (src dst : pos n) (Hsd : src <> dst) (i : nat).
 
-    Definition mma_transfert i := INC dst :: DEC src i :: DEC dst (3+i) :: nil.
+    Definition mma_transfert := INCₐ dst :: DECₐ src i :: DECₐ dst (3+i) :: nil.
 
-    Fact mma_transfert_length i : length (mma_transfert i) = 3.
+    Fact mma_transfert_length : length mma_transfert = 3.
     Proof. reflexivity. Qed.
 
-    Let mma_transfert_spec i v w k x :  v#>src = k
+    Let mma_transfert_spec v w k x :    v#>src = k
                                      -> v#>dst = x
                                      -> w = v[0/src][(1+k+x)/dst]
-                                     -> (i,mma_transfert i) // (i,v) -+> (2+i,w).
+                                     -> (i,mma_transfert) // (i,v) -+> (2+i,w).
     Proof.
       unfold mma_transfert.
       revert v w x.
@@ -126,9 +132,9 @@ Section Minsky_Machine_alt_utils.
         dest p dst; try lia; dest p src.
     Qed.
 
-    Fact mma_transfert_progress i v st : 
+    Fact mma_transfert_progress v st : 
            st = (3+i,v[0/src][((v#>src)+(v#>dst))/dst])
-        -> (i,mma_transfert i) // (i,v) -+> st.
+        -> (i,mma_transfert) // (i,v) -+> st.
     Proof using Hsd.
       intros ?; subst.
       apply sss_progress_trans with (2+i, v[0/src][(1+(v#>src)+(v#>dst))/dst]).
@@ -139,6 +145,8 @@ Section Minsky_Machine_alt_utils.
     Qed.
 
   End mma_transfert.
+
+  Notation TRANSFERTₐ := mma_transfert.
 
   Hint Rewrite mma_transfert_length : length_db.
 
@@ -151,7 +159,7 @@ Section Minsky_Machine_alt_utils.
     Fixpoint mma_incs k := 
       match k with 
         | 0   => nil
-        | S k => INC dst :: mma_incs k
+        | S k => INCₐ dst :: mma_incs k
       end.
 
     Fact mma_incs_length k : length (mma_incs k) = k.
@@ -166,12 +174,13 @@ Section Minsky_Machine_alt_utils.
         apply vec_pos_ext; intros p; dest p dst.
       + simpl; mma sss INC with dst.
         apply subcode_sss_compute with (P := (1+i,mma_incs k)); auto.
-        { subcode_tac; rewrite <- app_nil_end; auto. }
         apply IHk; f_equal; try lia.
         apply vec_pos_ext; intros p; dest p dst.
     Qed.
 
   End mma_incs.
+
+  Notation INCSₐ := mma_incs.
 
   Section mma_decs.
 
@@ -188,8 +197,8 @@ Section Minsky_Machine_alt_utils.
 
     Fixpoint mma_decs k i := 
       match k with 
-        | 0   => INC dst :: DEC dst p :: nil
-        | S k => DEC dst (3+i) :: INC dst :: DEC dst q :: mma_decs k (3+i)
+        | 0   => INCₐ dst :: DECₐ dst p :: nil
+        | S k => DECₐ dst (3+i) :: INCₐ dst :: DECₐ dst q :: mma_decs k (3+i)
       end.
 
     Fact mma_decs_length k i : length (mma_decs k i) = 2+3*k.
@@ -216,7 +225,6 @@ Section Minsky_Machine_alt_utils.
         * intros d Hd.
           mma sss DEC S with dst (3+i) d.
           apply subcode_sss_compute with (P := (3+i,mma_decs k (3+i))); auto.
-          { subcode_tac; rewrite <- app_nil_end; auto. }
           apply sss_progress_compute, IHk; rew vec; try lia.
     Qed.
 
@@ -234,7 +242,6 @@ Section Minsky_Machine_alt_utils.
       + unfold mma_decs; fold mma_decs.
         mma sss DEC S with dst (3+i) ((v#>dst) - 1); try lia.
         apply subcode_sss_compute with (P := (3+i,mma_decs k (3+i))); auto.
-        { subcode_tac; rewrite <- app_nil_end; auto. }
         apply sss_progress_compute, IHk; rew vec; try lia.
         apply vec_pos_ext; intros x; dest x dst; lia.
     Qed.
@@ -259,6 +266,8 @@ Section Minsky_Machine_alt_utils.
 
   End mma_decs.
 
+  Notation DECSₐ := mma_decs.
+
   Section mma_decs_copy.
 
     (* Same as mma_decs except that the quantity
@@ -268,8 +277,8 @@ Section Minsky_Machine_alt_utils.
 
     Fixpoint mma_decs_copy k i := 
       match k with 
-        | 0   => INC dst :: DEC dst p :: nil
-        | S k => DEC dst (3+i) :: INC dst :: DEC dst q :: INC tmp :: mma_decs_copy k (4+i)
+        | 0   => INCₐ dst :: DECₐ dst p :: nil
+        | S k => DECₐ dst (3+i) :: INCₐ dst :: DECₐ dst q :: INCₐ tmp :: mma_decs_copy k (4+i)
       end.
 
     Fact mma_decs_copy_length k i : length (mma_decs_copy k i) = 2+4*k.
@@ -297,7 +306,6 @@ Section Minsky_Machine_alt_utils.
           mma sss DEC S with dst (3+i) d.
           mma sss INC with tmp.
           apply subcode_sss_compute with (P := (4+i,mma_decs_copy k (4+i))); auto.
-          { subcode_tac; rewrite <- app_nil_end; auto. }
           apply sss_progress_compute; rewrite plus_assoc.
           apply IHk; rew vec; try lia.
           apply vec_pos_ext; intros x; dest x tmp; try lia; dest x dst.
@@ -318,7 +326,6 @@ Section Minsky_Machine_alt_utils.
         mma sss DEC S with dst (3+i) ((v#>dst) - 1); try lia.
         mma sss INC with tmp.
         apply subcode_sss_compute with (P := (4+i,mma_decs_copy k (4+i))); auto.
-        { subcode_tac; rewrite <- app_nil_end; auto. }
         apply sss_progress_compute, IHk; rew vec; try lia.
         apply vec_pos_ext; intros x; dest x tmp; try lia; dest x dst; lia.
     Qed.
@@ -343,6 +350,8 @@ Section Minsky_Machine_alt_utils.
 
   End mma_decs_copy.
 
+  Notation DECS_COPYₐ := mma_decs_copy.
+
   Hint Rewrite mma_incs_length mma_decs_copy_length : length_db.
  
   Section mma_mult_cst.
@@ -352,8 +361,8 @@ Section Minsky_Machine_alt_utils.
     Variable (src dst : pos n) (Hsd : src <> dst) (k i : nat).
 
     Definition mma_mult_cst :=
-           DEC src (3+i) :: INC src :: DEC src (5+k+i) 
-        :: mma_incs dst (S k) ++ DEC dst i :: nil. 
+           DECₐ src (3+i) :: INCₐ src :: DECₐ src (5+k+i) 
+        :: INCSₐ dst (S k) ++ DECₐ dst i :: nil. 
 
     Fact mma_mult_cst_length : length mma_mult_cst = 5+k.
     Proof. unfold mma_mult_cst; rew length; lia. Qed.
@@ -392,6 +401,8 @@ Section Minsky_Machine_alt_utils.
 
   End mma_mult_cst.
 
+  Notation MULT_CSTₐ := mma_mult_cst.
+
   Hint Rewrite mma_mult_cst_length : length_db.
   
   Section mma_mod_cst.
@@ -401,11 +412,11 @@ Section Minsky_Machine_alt_utils.
     Variable (src dst : pos n) (Hsd : src <> dst) (p q k i : nat).
 
     Definition mma_mod_cst :=
-            DEC src (3+i)
-         :: INC dst
-         :: DEC dst p
-         :: INC src
-         :: mma_decs_copy src dst i q k (4+i).
+            DECₐ src (3+i)
+         :: INCₐ dst
+         :: DECₐ dst p
+         :: INCₐ src
+         :: DECS_COPYₐ src dst i q k (4+i).
 
     Fact mma_mod_cst_length : length mma_mod_cst = 6+4*k.
     Proof. unfold mma_mod_cst; rew length; lia. Qed.
@@ -439,7 +450,6 @@ Section Minsky_Machine_alt_utils.
         mma sss INC with src.
         apply sss_compute_trans with (i, v[(a*k+b)/src][(k+(v#>dst))/dst]).
         * apply subcode_sss_compute with (P := (4+i,mma_decs_copy src dst i q k (4+i))); auto.
-          { subcode_tac; rewrite <- app_nil_end; auto. }
           apply sss_progress_compute, mma_decs_copy_le_progress; auto; rew vec.
           { simpl; generalize (a*k); intro; lia. }
           do 3 f_equal; simpl mult; generalize (a*k); intro; lia.
@@ -459,7 +469,6 @@ Section Minsky_Machine_alt_utils.
       mma sss DEC S with src (3+i) x.
       mma sss INC with src.
       apply subcode_sss_compute with (P := (4+i,mma_decs_copy src dst i q k (4+i))); auto.
-      { subcode_tac; rewrite <- app_nil_end; auto. }
        apply sss_progress_compute, mma_decs_copy_lt_progress; auto; rew vec; lia.
     Qed.
  
@@ -490,6 +499,8 @@ Section Minsky_Machine_alt_utils.
   
   End mma_mod_cst.
 
+  Notation MOD_CSTₐ := mma_mod_cst.
+
   Hint Rewrite mma_decs_length mma_mod_cst_length : length_db.
 
   Section mma_div_cst.
@@ -502,7 +513,7 @@ Section Minsky_Machine_alt_utils.
     Let q := (5+3*k+i).
 
     Definition mma_div_cst := 
-         mma_decs src p q k i ++ INC dst :: INC src :: DEC src i :: nil.
+         DECSₐ src p q k i ++ INCₐ dst :: INCₐ src :: DECₐ src i :: nil.
 
     Fact mma_div_cst_length : length mma_div_cst = 5+3*k.
     Proof. unfold mma_div_cst; rew length; lia. Qed.
@@ -544,6 +555,36 @@ Section Minsky_Machine_alt_utils.
 
   End mma_div_cst.
 
+  Notation DIV_CSTₐ := mma_div_cst.
+
   Hint Rewrite mma_div_cst_length : length_db.
+
+  Section mma_loop.
+
+    Variables (src : pos n) (i : nat).
+
+    Definition mma_loop := INC src :: DEC src i :: nil.
+
+    Fact mma_loop_loop v : (i,mma_loop) // (i,v) -+> (i,v).
+    Proof.
+      unfold mma_loop.
+      mma sss INC with src.
+      mma sss DEC S with src i (v#>src); rew vec.
+      mma sss stop.
+    Qed.
+
+    Theorem mma_loop_spec v : ~ (i,mma_loop) // (i,v) ↓.
+    Proof.
+      intros (w & (k & Hk) & H2); revert w Hk H2.
+      induction on k as IHk with measure k; intros w Hk Hw.
+      destruct subcode_sss_progress_inv with (4 := mma_loop_loop v) (5 := Hk)
+        as (q & H1 & H2); auto.
+      { apply mma_sss_fun. }
+      apply IHk with (1 := H1) (2 := H2); auto.
+    Qed.
+  
+  End mma_loop.
+
+  Notation LOOPₐ := mma_loop.
 
 End Minsky_Machine_alt_utils.

@@ -24,20 +24,20 @@ Set Default Proof Using "Type".
 
 Section MMA2_ndMM2.
 
-  Notation nSTOP := (@ndmm2_stop _).
-  Notation nINC  := (@ndmm2_inc _).
-  Notation nDEC  := (@ndmm2_dec _).
-  Notation nZERO := (@ndmm2_zero _).
+  Notation STOPₙ := (@ndmm2_stop _).
+  Notation INCₙ  := (@ndmm2_inc _).
+  Notation DECₙ  := (@ndmm2_dec _).
+  Notation ZEROₙ := (@ndmm2_zero _).
 
   Notation α := true. 
   Notation β := false.
 
   Definition mma2_instr_enc i (ρ : mm_instr (pos 2)) :=
     match ρ with
-      | INC pos0   => nINC α i (1+i) :: nil
-      | INC _      => nINC β i (1+i) :: nil
-      | DEC pos0 j => nDEC α i j :: nZERO α  i (1+i) :: nil
-      | DEC _    j => nDEC β i j :: nZERO β i (1+i) :: nil
+      | INCₐ pos0   => INCₙ α i (1+i) :: nil
+      | INCₐ _      => INCₙ β i (1+i) :: nil
+      | DECₐ pos0 j => DECₙ α i j :: ZEROₙ α  i (1+i) :: nil
+      | DECₐ _    j => DECₙ β i j :: ZEROₙ β i (1+i) :: nil
     end.
 
   Fixpoint mma2_linstr_enc i l :=
@@ -121,7 +121,7 @@ Section MMA2_ndMM2.
 
   Variable P : list (mm_instr (pos 2)).
 
-  Definition mma2_prog_enc := nSTOP 0 :: mma2_linstr_enc 1 P.
+  Definition mma2_prog_enc := STOPₙ 0 :: mma2_linstr_enc 1 P.
   Notation Σ := mma2_prog_enc.
 
   Local Lemma mma2_prog_enc_compute s1 s2 : 

@@ -17,7 +17,7 @@ Section Non_deterministic_Minsky_Machines.
 
   Variables loc : Set.
 
-  (* four instructions: STOP, INC, DEC and ZERO (test) 
+  (* four instructions: STOPₙ, INCₙ, DECₙ and ZEROₙ (test) 
 
      only two nat valued registers, indexed with bool
      ie true/α of which the values are denoted "a" below
@@ -28,11 +28,11 @@ Section Non_deterministic_Minsky_Machines.
      can stop the computation by itself. This model is
      inherently no-deterministic.
 
-     STOP p:     accepts location p when α = β = 0
-     INC x p q:  at location p, x += 1 and jumps to location q
-     DEC x p q:  at location p, x -= 1 (if possible) and jumps to location q
-                 if x is already 0 then this instruction cannot compute
-     ZERO x p q: at location p, jumps to location q when x = 0 
+     STOPₙ p:     accepts location p when α = β = 0
+     INCₙ x p q:  at location p, x += 1 and jumps to location q
+     DECₙ x p q:  at location p, x -= 1 (if possible) and jumps to location q
+                  if x is already 0 then this instruction cannot compute
+     ZEROₙ x p q: at location p, jumps to location q when x = 0 
 
      *)
 
@@ -45,10 +45,10 @@ Section Non_deterministic_Minsky_Machines.
   Notation α := true. 
   Notation β := false.
 
-  Notation STOP := ndmm2_stop.
-  Notation INC  := ndmm2_inc.
-  Notation DEC  := ndmm2_dec.
-  Notation ZERO := ndmm2_zero.
+  Notation STOPₙ := ndmm2_stop.
+  Notation INCₙ  := ndmm2_inc.
+  Notation DECₙ  := ndmm2_dec.
+  Notation ZEROₙ := ndmm2_zero.
 
   Infix "∊" := In (at level 70).
 
@@ -57,7 +57,7 @@ Section Non_deterministic_Minsky_Machines.
 
      Notice that eg 
 
-          [ STOP 0 ; INC α 0 4 ; DEC β 0 2 ]
+          [ STOPₙ 0 ; INCₙ α 0 4 ; DECₙ β 0 2 ]
 
      can both accept location 0 (if α = β = 0)
      or increment α and jump to location 4
@@ -81,25 +81,25 @@ Section Non_deterministic_Minsky_Machines.
 
   Inductive ndmm2_accept (Σ : list ndmm2_instr) : nat -> nat -> loc -> Prop :=
 
-    | in_ndmm2a_stop  : forall p,         STOP p ∊ Σ      ->  Σ //   0 ⊕   0 ⊦ p
+    | in_ndmm2a_stop  : forall p,         STOPₙ p ∊ Σ      ->  Σ //   0 ⊕   0 ⊦ p
 
-    | in_ndmm2a_inc_a : forall a b p q,   INC α p q ∊ Σ   ->  Σ // 1+a ⊕   b ⊦ q
-                                                          ->  Σ //   a ⊕   b ⊦ p
+    | in_ndmm2a_inc_a : forall a b p q,   INCₙ α p q ∊ Σ   ->  Σ // 1+a ⊕   b ⊦ q
+                                                           ->  Σ //   a ⊕   b ⊦ p
 
-    | in_ndmm2a_inc_b : forall a b p q,   INC β p q ∊ Σ   ->  Σ //   a ⊕ 1+b ⊦ q
-                                                          ->  Σ //   a ⊕   b ⊦ p
+    | in_ndmm2a_inc_b : forall a b p q,   INCₙ β p q ∊ Σ   ->  Σ //   a ⊕ 1+b ⊦ q
+                                                           ->  Σ //   a ⊕   b ⊦ p
 
-    | in_ndmm2a_dec_a : forall a b p q,   DEC α p q ∊ Σ   ->  Σ //   a ⊕   b ⊦ q
-                                                          ->  Σ // 1+a ⊕   b ⊦ p
+    | in_ndmm2a_dec_a : forall a b p q,   DECₙ α p q ∊ Σ   ->  Σ //   a ⊕   b ⊦ q
+                                                           ->  Σ // 1+a ⊕   b ⊦ p
 
-    | in_ndmm2a_dec_b : forall a b p q,   DEC β p q ∊ Σ   ->  Σ //   a ⊕   b ⊦ q
-                                                          ->  Σ //   a ⊕ 1+b ⊦ p
+    | in_ndmm2a_dec_b : forall a b p q,   DECₙ β p q ∊ Σ   ->  Σ //   a ⊕   b ⊦ q
+                                                           ->  Σ //   a ⊕ 1+b ⊦ p
 
-    | in_ndmm2a_zero_a : forall b p q,    ZERO α p q ∊ Σ  ->  Σ //   0 ⊕   b ⊦ q
-                                                          ->  Σ //   0 ⊕   b ⊦ p
+    | in_ndmm2a_zero_a : forall b p q,    ZEROₙ α p q ∊ Σ  ->  Σ //   0 ⊕   b ⊦ q
+                                                           ->  Σ //   0 ⊕   b ⊦ p
 
-    | in_ndmm2a_zero_b : forall a p q,    ZERO β p q ∊ Σ  ->  Σ //   a ⊕   0 ⊦ q
-                                                          ->  Σ //   a ⊕   0 ⊦ p
+    | in_ndmm2a_zero_b : forall a p q,    ZEROₙ β p q ∊ Σ  ->  Σ //   a ⊕   0 ⊦ q
+                                                           ->  Σ //   a ⊕   0 ⊦ p
 
   where "Σ // a ⊕ b ⊦ u" := (ndmm2_accept Σ a b u).
 
