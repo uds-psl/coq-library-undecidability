@@ -23,7 +23,7 @@ Section Model.
 
   Hypothesis M_ZF : forall rho, rho ⊫ ZFeq'.
 
-  Instance min_model : interp sig_empty _ V.
+  Instance min_model : interp sig_func_empty _ V.
   Proof.
     split.
     - intros [].

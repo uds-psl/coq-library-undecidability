@@ -29,7 +29,7 @@ Definition embed_t (t : term') : term :=
   | func f ts => False_rect term f
   end.
 
-Fixpoint embed {ff'} (phi : form sig_empty sig_binary _ ff') : form ff' :=
+Fixpoint embed {ff'} (phi : form sig_func_empty sig_pred_binary _ ff') : form ff' :=
   match phi with 
   | atom P ts => atom elem (Vector.map embed_t ts)
   | bin b phi psi => bin b (embed phi) (embed psi)
@@ -60,7 +60,7 @@ Fixpoint rm_const_tm (t : term) : form' :=
 Fixpoint rm_const_fm {ff : falsity_flag} (phi : form) : form' :=
   match phi with
   | ⊥ => ⊥
-  | bin bop phi psi => bin sig_empty _ bop (rm_const_fm phi) (rm_const_fm psi)
+  | bin bop phi psi => bin sig_func_empty _ bop (rm_const_fm phi) (rm_const_fm psi)
   | quant qop phi => quant qop (rm_const_fm phi)
   | atom elem v => let v' := Vector.map rm_const_tm v in
                   ∃ (Vector.hd v') ∧ ∃ (Vector.hd (Vector.tl v'))[sshift 1] ∧ $1 ∈'$0
@@ -133,7 +133,7 @@ Section Model.
 
   Hypothesis M_ZF : forall rho, rho ⊫ ZFeq'.
 
-  Instance min_model : interp sig_empty sig_binary V.
+  Instance min_model : interp sig_func_empty sig_pred_binary V.
   Proof.
     split.
     - intros [].
@@ -439,10 +439,10 @@ Qed.
 Arguments eq' : simpl never.
 
 Ltac prv_all' x :=
-  apply AllI; edestruct (@nameless_equiv_all sig_empty) as [x ->]; cbn; rewrite ?eq_subst; cbn; subsimpl.
+  apply AllI; edestruct (@nameless_equiv_all sig_func_empty) as [x ->]; cbn; rewrite ?eq_subst; cbn; subsimpl.
 
 Ltac use_exists' H x :=
-  apply (ExE _ H); edestruct (@nameless_equiv_ex sig_empty) as [x ->]; cbn; rewrite ?eq_subst; cbn; subsimpl.
+  apply (ExE _ H); edestruct (@nameless_equiv_ex sig_func_empty) as [x ->]; cbn; rewrite ?eq_subst; cbn; subsimpl.
 
 Lemma minZF_refl' { p : peirce } t :
   binZF ⊢ t ≡' t.

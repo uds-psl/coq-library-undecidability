@@ -21,7 +21,7 @@ Definition embed_t (t : term') : term :=
   | func f ts => False_rect term f
   end.
 
-Fixpoint embed {ff'} (phi : form sig_empty ZF_pred_sig _ ff') : form ff' :=
+Fixpoint embed {ff'} (phi : form sig_func_empty ZF_pred_sig _ ff') : form ff' :=
   match phi with 
   | atom P ts => atom P (Vector.map embed_t ts)
   | bin b phi psi => bin b (embed phi) (embed psi)
@@ -52,7 +52,7 @@ Fixpoint rm_const_tm (t : term) : form' :=
 Fixpoint rm_const_fm {ff : falsity_flag} (phi : form) : form' :=
   match phi with
   | ⊥ => ⊥
-  | bin bop phi psi => bin sig_empty _ bop (rm_const_fm phi) (rm_const_fm psi)
+  | bin bop phi psi => bin sig_func_empty _ bop (rm_const_fm phi) (rm_const_fm psi)
   | quant qop phi => quant qop (rm_const_fm phi)
   | atom elem v => let v' := Vector.map rm_const_tm v in
                   ∃ (Vector.hd v') ∧ ∃ (Vector.hd (Vector.tl v'))[sshift 1] ∧ $1 ∈'$0
@@ -124,7 +124,7 @@ Section Model.
   Hypothesis M_ZF : forall rho, rho ⊫ ZF'.
   Hypothesis VIEQ : extensional I.
 
-  Instance min_model : interp sig_empty _ V.
+  Instance min_model : interp sig_func_empty _ V.
   Proof.
     split.
     - intros [].
@@ -316,21 +316,21 @@ Section Model.
 
 End Model.
 
-Lemma extensional_eq_min' V (M : @interp sig_empty _ V) rho :
+Lemma extensional_eq_min' V (M : @interp sig_func_empty _ V) rho :
   extensional M -> rho ⊫ minZF' -> rho ⊫ minZFeq'.
 Proof.
   intros H1 H2 phi [<-|[<-|[<-|[<-|H]]]]; try now apply H2.
   all: cbn; intros; rewrite !H1 in *; congruence.
 Qed.
 
-Lemma extensional_eq_min_Z V (M : @interp sig_empty _ V) rho :
+Lemma extensional_eq_min_Z V (M : @interp sig_func_empty _ V) rho :
   extensional M -> (forall phi, minZ phi -> rho ⊨ phi) -> (forall phi, minZeq phi -> rho ⊨ phi).
 Proof.
   intros H1 H2 phi []; try now apply H2; auto using minZ.
   apply extensional_eq_min'; auto using minZ.
 Qed.
 
-Lemma extensional_eq_min V (M : @interp sig_empty _ V) rho :
+Lemma extensional_eq_min V (M : @interp sig_func_empty _ V) rho :
   extensional M -> (forall phi, minZF phi -> rho ⊨ phi) -> (forall phi, minZFeq phi -> rho ⊨ phi).
 Proof.
   intros H1 H2 phi []; try now apply H2; auto using minZF.
@@ -402,10 +402,10 @@ Qed.
 (* ** Deductions in minimal axiomatisation *)
 
 Ltac prv_all' x :=
-  apply AllI; edestruct (@nameless_equiv_all sig_empty) as [x ->]; cbn; subsimpl.
+  apply AllI; edestruct (@nameless_equiv_all sig_func_empty) as [x ->]; cbn; subsimpl.
 
 Ltac use_exists' H x :=
-  apply (ExE _ H); edestruct (@nameless_equiv_ex sig_empty) as [x ->]; cbn; subsimpl.
+  apply (ExE _ H); edestruct (@nameless_equiv_ex sig_func_empty) as [x ->]; cbn; subsimpl.
 
 Lemma minZF_refl' { p : peirce } t :
   minZFeq' ⊢ t ≡' t.

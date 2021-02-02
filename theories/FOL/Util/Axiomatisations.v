@@ -528,6 +528,9 @@ Qed.
 
 From Undecidability.FOL Require Import minZF PCPb_to_minZF minZF_undec.
 
+Existing Instance sig_func_empty.
+Existing Instance ZF_pred_sig.
+
 (* See the file minZF_undec.v for a list of all reductions, we just record the axiom-free version here *)
 
 Definition minZ' := list_theory minZFeq'.
@@ -549,8 +552,8 @@ Qed.
 
 From Undecidability.FOL Require Import binZF PCPb_to_binZF binZF_undec binFOL binFOL_undec sig_bin.
 
-Existing Instance sig_empty.
-Existing Instance sig_binary.
+Existing Instance sig_func_empty.
+Existing Instance sig_pred_binary.
 
 Lemma undec_valid :
   undecidable (@valid _ _ falsity_on).

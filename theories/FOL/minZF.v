@@ -11,16 +11,16 @@ Require Import List.
  
 (* ** Minimal signature only containing membership and equality, no function symbols *)
 
-Instance sig_empty : funcs_signature :=
+Instance sig_func_empty : funcs_signature :=
     {| syms := False;  ar_syms := False_rect nat |}.
 
 Existing Instance ZF_func_sig.
 
-Notation term' := (term sig_empty).
-Notation form' := (form sig_empty _ _ falsity_on).
+Notation term' := (term sig_func_empty).
+Notation form' := (form sig_func_empty _ _ falsity_on).
 
-Notation "x ∈' y" := (atom sig_empty ZF_pred_sig elem ([x; y])) (at level 35) : syn.
-Notation "x ≡' y" := (atom sig_empty ZF_pred_sig equal ([x; y])) (at level 35) : syn.
+Notation "x ∈' y" := (atom sig_func_empty ZF_pred_sig elem ([x; y])) (at level 35) : syn.
+Notation "x ≡' y" := (atom sig_func_empty ZF_pred_sig equal ([x; y])) (at level 35) : syn.
 
 
 
@@ -147,17 +147,17 @@ Definition entailment_minZFeq' phi :=
 (* Semantic entailment restricted to extensional models and core axioms (without sep and rep). *)
 
 Definition entailment_minZF' phi :=
-  forall D (M : @interp sig_empty _ D) (rho : nat -> D), extensional M -> (forall sigma psi, In psi minZF' -> sigma ⊨ psi) -> rho ⊨ phi.
+  forall D (M : @interp sig_func_empty _ D) (rho : nat -> D), extensional M -> (forall sigma psi, In psi minZF' -> sigma ⊨ psi) -> rho ⊨ phi.
 
 (* Semantic entailment for Z restricted to extensional models. *)
 
 Definition entailment_minZ phi :=
-  forall D (M : @interp sig_empty _ D) (rho : nat -> D), extensional M -> (forall sigma psi, minZ psi -> sigma ⊨ psi) -> rho ⊨ phi.
+  forall D (M : @interp sig_func_empty _ D) (rho : nat -> D), extensional M -> (forall sigma psi, minZ psi -> sigma ⊨ psi) -> rho ⊨ phi.
 
 (* Semantic entailment for ZF restricted to extensional models. *)
 
 Definition entailment_minZF phi :=
-  forall D (M : @interp sig_empty _ D) (rho : nat -> D), extensional M -> (forall sigma psi, minZF psi -> sigma ⊨ psi) -> rho ⊨ phi.
+  forall D (M : @interp sig_func_empty _ D) (rho : nat -> D), extensional M -> (forall sigma psi, minZF psi -> sigma ⊨ psi) -> rho ⊨ phi.
 
 (* Deductive entailment restricted to intuitionistic rules and core axioms (without sep and rep). *)
 
