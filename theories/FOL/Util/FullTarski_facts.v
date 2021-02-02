@@ -1,7 +1,7 @@
 (* * Tarski Semantics *)
 
-Require Import Undecidability.FOL.Util.Syntax Undecidability.FOL.Util.Syntax_facts.
-Export FragmentSyntax.
+Require Import Undecidability.FOL.Util.Syntax_facts.
+Require Export Undecidability.FOL.Util.FullTarski.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 Require Import Vector.
@@ -10,6 +10,8 @@ Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
 Local Notation vec := Vector.t.
+
+
 
 Section fixb.
 
@@ -37,38 +39,6 @@ Section Tarski.
   Context {Σ_preds : preds_signature}.
 
   (* Semantic notions *)
-
-  Section Semantics.
-
-    Variable domain : Type.
-
-    Class interp := B_I
-      {
-        i_func : forall f : syms, vec domain (ar_syms f) -> domain ;
-        i_atom : forall P : preds, vec domain (ar_preds P) -> Prop ;
-      }.
-
-    Definition env := nat -> domain.
-
-    Context {I : interp}.
-
-    Fixpoint eval (rho : env) (t : term) : domain :=
-      match t with
-      | var s => rho s
-      | func f v => i_func (Vector.map (eval rho) v)
-      end.
-
-    Fixpoint sat {ff : falsity_flag} (rho : env) (phi : form) : Prop :=
-      match phi with
-      | atom P v => i_atom (Vector.map (eval rho) v)
-      | falsity => False
-      | bin Impl phi psi => sat rho phi -> sat rho psi
-      | quant All phi => forall d : domain, sat (d .: rho) phi
-      end.
-
-  End Semantics.
-
-  Notation "rho ⊨ phi" := (sat rho phi) (at level 20).
   
   Section Substs.
     
@@ -100,6 +70,7 @@ Section Tarski.
       - specialize (IHphi1 rho xi). specialize (IHphi2 rho xi). destruct b0; intuition.
       - destruct q.
         + split; intros H' d; eapply IHphi; try apply (H' d). 1,2: intros []; cbn; intuition.
+        + split; intros [d H']; exists d; eapply IHphi; try apply H'. 1,2: intros []; cbn; intuition.
     Qed.
 
     Lemma sat_ext' {ff : falsity_flag} rho xi phi :
@@ -118,6 +89,8 @@ Section Tarski.
       - specialize (IHphi1 rho xi). specialize (IHphi2 rho xi). destruct b0; intuition.
       - destruct q.
         + setoid_rewrite IHphi. split; intros H d; eapply sat_ext. 2, 4: apply (H d).
+          all: intros []; cbn; trivial; now setoid_rewrite eval_comp.
+        + setoid_rewrite IHphi. split; intros [d H]; exists d; eapply sat_ext. 2, 4: apply H.
           all: intros []; cbn; trivial; now setoid_rewrite eval_comp.
     Qed.
 
@@ -149,25 +122,6 @@ Section Tarski.
 
 End Tarski.
 
-Arguments sat {_ _ _ _ _} _ _, {_ _ _} _ {_} _ _.
-Arguments interp {_ _} _, _ _ _.
-
-Notation "p ⊨ phi" := (sat _ p phi) (at level 20).
-Notation "p ⊫ A" := (forall psi, psi el A -> sat _ p psi) (at level 20).
-
-Section Defs.
-
-  Context {Σ_funcs : funcs_signature}.
-  Context {Σ_preds : preds_signature}.
-  Context {ff : falsity_flag}.
-
-  Definition valid_ctx A phi := forall D (I : interp D) rho, (forall psi, psi el A -> rho ⊨ psi) -> rho ⊨ phi.
-  Definition valid phi := forall D (I : interp D) rho, rho ⊨ phi.
-  Definition valid_L A := forall D (I : interp D) rho, rho ⊫ A.
-  Definition satis phi := exists D (I : interp D) rho, rho ⊨ phi.
-  Definition fullsatis A := exists D (I : interp D) rho, rho ⊫ A.
-
-End Defs.
 
 
 (* Trivial Model *)
@@ -186,7 +140,7 @@ Section TM.
     revert rho. remember falsity_off as ff. induction phi; cbn; trivial.
     - discriminate.
     - destruct b0; auto.
-    - destruct q; firstorder.
+    - destruct q; firstorder. exact tt.
   Qed.
 
 End TM.
