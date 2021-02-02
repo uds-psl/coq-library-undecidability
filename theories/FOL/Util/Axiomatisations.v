@@ -383,7 +383,7 @@ Qed.
 (* The claim follows with complete_reduction and reduction_theorem_class *)
 
 Theorem incompleteness_PA (T : form -> Prop) :
-  LEM -> list_theory FAeq <<= T -> enumerable T -> complete T -> interp_nat ⊨=T T -> decidable (TM.HaltTM 1).
+  LEM -> Q' <<= T -> enumerable T -> complete T -> interp_nat ⊨=T T -> decidable (TM.HaltTM 1).
 Proof.
   intros lem HFA HE HC HT. apply H10p_undec.
   apply (@complete_reduction _ _ enum_PA_syms _ enum_PA_preds _ T HE) with embed.
@@ -527,7 +527,7 @@ Qed.
 (* The claim follows with complete_reduction and reduction_theorem_class *)
 
 Theorem incompleteness_ZF (T : form -> Prop) :
-  LEM -> list_theory ZFeq' <<= T -> enumerable T -> complete T -> (exists D I, @standard D I /\ I ⊨=T T) -> decidable (TM.HaltTM 1).
+  LEM -> Z' <<= T -> enumerable T -> complete T -> (exists D I, @standard D I /\ I ⊨=T T) -> decidable (TM.HaltTM 1).
 Proof.
   intros lem HFA HE HC (Ds & Is & HI1 & HI2). apply PCPb_undec.
   apply (@complete_reduction _ _ enum_ZF_syms _ enum_ZF_preds _ T HE) with solvable.
