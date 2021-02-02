@@ -40,7 +40,8 @@ Local Tactic Notation "pair" "split" hyp(v) "as" ident(x) ident(y) :=
 Local Tactic Notation "intro" "pair" "as" ident(x) ident (y) :=
   let v := fresh in intro v; pair split v as x y.
 
-Local Notation ø := vec_zero.
+Local Notation "⦳" := vec_zero.
+Local Notation ø := vec_nil.
 
 Local Infix "≤" := (@IMSELL_le _) (at level 70).
 Local Notation "u ≰ v" := (~ u ≤ v) (at level 70).
@@ -71,31 +72,31 @@ Section ndmm2_imsell.
   Definition bool2form (x : bool) := if x then ![a]£0 else ![b]£1.
   Definition bool2bang_op (x : bool) := if x then b else a.
 
-  Notation STOP := ndmm2_stop.
-  Notation INC  := ndmm2_inc.
-  Notation DEC  := ndmm2_dec.
-  Notation ZERO := ndmm2_zero.
+  Notation STOPₙ := (@ndmm2_stop _).
+  Notation INCₙ  := (@ndmm2_inc _).
+  Notation DECₙ  := (@ndmm2_dec _).
+  Notation ZEROₙ := (@ndmm2_zero _).
 
   Definition ndmm2_imsell_form c :=
     match c with
-      | STOP p     => (£(2+p) ⊸ £(2+p)) ⊸ £(2+p) 
-      | INC  x p q => (bool2form x ⊸ £(2+q)) ⊸ £(2+p)
-      | DEC  x p q => bool2form x ⊸ £(2+q) ⊸ £(2+p)
-      | ZERO x p q => (![bool2bang_op x]£(2+q)) ⊸ £(2+p)
+      | STOPₙ p     => (£(2+p) ⊸ £(2+p)) ⊸ £(2+p) 
+      | INCₙ  x p q => (bool2form x ⊸ £(2+q)) ⊸ £(2+p)
+      | DECₙ  x p q => bool2form x ⊸ £(2+q) ⊸ £(2+p)
+      | ZEROₙ x p q => (![bool2bang_op x]£(2+q)) ⊸ £(2+p)
     end.
 
-  Notation "⟬ c ⟭" := (ndmm2_imsell_form c) (at level 65, format "⟬ c ⟭").
+  Notation "⟬ c ⟭" := (ndmm2_imsell_form c) (at level 1, format "⟬ c ⟭").
 
   Definition ndmm2_imsell_ctx Σ x y := map (fun c => ![∞]⟬c⟭) Σ
                                     ++ repeat (![a]£0) x 
                                     ++ repeat (![b]£1) y.
 
+  Notation "⟬ Σ , x , y ⟭" := (ndmm2_imsell_ctx Σ x y) (at level 1, format "⟬ Σ , x , y ⟭").
+
   Fact ndmm2_imsell_eq1 Σ : map (fun c => ![∞]⟬c⟭) Σ = ‼(map (fun c => (∞,⟬c⟭)) Σ).
   Proof. unfold imsell_lban; rewrite map_map; auto. Qed.
 
-  Fact ndmm2_imsell_eq2 Σ x y : 
-          ndmm2_imsell_ctx Σ x y
-        = ‼(map (fun c => (∞,⟬c⟭)) Σ ++ repeat (a,£0) x ++ repeat (b,£1) y).
+  Fact ndmm2_imsell_eq2 Σ x y : ⟬Σ,x,y⟭ = ‼(map (fun c => (∞,⟬c⟭)) Σ ++ repeat (a,£0) x ++ repeat (b,£1) y).
   Proof.
     unfold ndmm2_imsell_ctx.
     rewrite ndmm2_imsell_eq1.
@@ -108,8 +109,8 @@ Section ndmm2_imsell.
 
   Theorem ndmm2_imsell_weak c Σ x y p :
             In c Σ
-        ->  ndmm2_imsell_ctx Σ x y ⊢ £p 
-       <-> (![∞]⟬c⟭)::ndmm2_imsell_ctx Σ x y ++ nil ⊢ £p.
+        ->  ⟬Σ,x,y⟭  ⊢ £p 
+       <-> ![∞]⟬c⟭ :: ⟬Σ,x,y⟭  ++ nil ⊢ £p.
   Proof.
     intros H; rewrite <- app_nil_end.
     unfold ndmm2_imsell_ctx.
@@ -118,14 +119,15 @@ Section ndmm2_imsell.
     apply in_map_iff; eauto.
   Qed.
 
-  Notation "Σ // a ⊕ b ⊦ p" := (ndmm2_accept Σ a b p) (at level 70, no associativity).
+  Notation "Σ //ₙ a ⊕ b ⊦ p" := (ndmm2_accept Σ a b p) (at level 70, no associativity).
 
-  Theorem ndmm2_imsell_sound Σ x y p : Σ // x ⊕ y ⊦ p -> ndmm2_imsell_ctx Σ x y ⊢ £(2+p) .
+  Theorem ndmm2_imsell_sound Σ x y p : Σ //ₙ x ⊕ y ⊦ p -> ⟬Σ,x,y⟭  ⊢ £(2+p).
   Proof.
     induction 1 as [ p H1 
                    | x y p q H1 H2 IH2 | x y p q H1 H2 IH2 
                    | x y p q H1 H2 IH2 | x y p q H1 H2 IH2
                    | y p q H1 H2 IH2 | x p q H1 H2 IH2 ].
+
     + apply ndmm2_imsell_weak with (1 := H1); simpl.
       apply in_imsell_bang_l, in_imsell_limp_l.
       * apply in_imsell_limp_r.
@@ -162,7 +164,7 @@ Section ndmm2_imsell.
 
     + apply ndmm2_imsell_weak with (1 := H1); simpl.
       apply in_imsell_bang_l.
-      apply in_imsell_perm with (Γ := (![a]£0) ⊸ £(2+q) ⊸ £(2+p) :: (![a]£0 :: nil) ++ ndmm2_imsell_ctx Σ x y).
+      apply in_imsell_perm with (Γ := (![a]£0) ⊸ £(2+q) ⊸ £(2+p) :: (![a]£0 :: nil) ++ ⟬Σ,x,y⟭).
       * apply perm_skip; rewrite <- app_nil_end.
         simpl; apply perm_trans with (1 := Permutation_cons_append _ _).
         unfold ndmm2_imsell_ctx; simpl; rewrite !app_ass.
@@ -171,13 +173,13 @@ Section ndmm2_imsell.
         now rewrite !app_ass.
       * apply in_imsell_limp_l.
         - apply in_imsell_ax.
-        - rewrite app_nil_end with (l := ndmm2_imsell_ctx Σ x y).
+        - rewrite app_nil_end with (l := ⟬Σ,x,y⟭).
           apply in_imsell_limp_l; auto.
           apply in_imsell_ax.
 
     + apply ndmm2_imsell_weak with (1 := H1); simpl.
       apply in_imsell_bang_l.
-      apply in_imsell_perm with (Γ := (![b]£1) ⊸ £(2+q) ⊸ £(2+p) :: (![b]£1 :: nil) ++ ndmm2_imsell_ctx Σ x y).
+      apply in_imsell_perm with (Γ := (![b]£1) ⊸ £(2+q) ⊸ £(2+p) :: (![b]£1 :: nil) ++ ⟬Σ,x,y⟭).
       * apply perm_skip; rewrite <- app_nil_end.
         simpl; apply perm_trans with (1 := Permutation_cons_append _ _).
         unfold ndmm2_imsell_ctx; simpl; rewrite !app_ass.
@@ -185,7 +187,7 @@ Section ndmm2_imsell.
         apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _); auto.
       * apply in_imsell_limp_l.
         - apply in_imsell_ax.
-        - rewrite app_nil_end with (l := ndmm2_imsell_ctx Σ x y).
+        - rewrite app_nil_end with (l := ⟬Σ,x,y⟭).
           apply in_imsell_limp_l; auto.
           apply in_imsell_ax.
 
@@ -224,16 +226,16 @@ Section ndmm2_imsell.
     in match p with
       | 0 => x = 1 /\ y = 0
       | 1 => x = 0 /\ y = 1
-      | S (S i) => Σ // x ⊕ y ⊦ i
+      | S (S i) => Σ //ₙ x ⊕ y ⊦ i
     end.
 
-  Local Fact sem_0 x y : sem 0 (x##y##vec_nil) <-> x = 1 /\ y = 0.
+  Local Fact sem_0 x y : sem 0 (x##y##ø) <-> x = 1 /\ y = 0.
   Proof. simpl; tauto. Qed.
  
-  Local Fact sem_1 x y : sem 1 (x##y##vec_nil) <-> x = 0 /\ y = 1.
+  Local Fact sem_1 x y : sem 1 (x##y##ø) <-> x = 0 /\ y = 1.
   Proof. simpl; tauto. Qed.
 
-  Local Fact sem_2 p x y : sem (2+p) (x##y##vec_nil) <-> Σ // x ⊕ y ⊦ p.
+  Local Fact sem_2 p x y : sem (2+p) (x##y##ø) <-> Σ //ₙ x ⊕ y ⊦ p.
   Proof. simpl; tauto. Qed.
 
   Let K u (w : vec nat 2) := 
@@ -258,7 +260,7 @@ Section ndmm2_imsell.
     + apply H3, bang_U_clos with (2 := Huv); auto.
   Qed.
 
-  Local Fact HK2 : forall u, K u ø.
+  Local Fact HK2 : forall u, K u ⦳.
   Proof. intros; split; auto. Qed.
 
   Local Fact HK3 u : K u ⊛ K u ⊆ K u.
@@ -275,7 +277,7 @@ Section ndmm2_imsell.
     + destruct H6; subst; auto.
   Qed.
 
-  Local Fact HK4 u : U u -> forall x, K u x -> x = ø.
+  Local Fact HK4 u : U u -> forall x, K u x -> x = ⦳.
   Proof.
     intros Hu; intro pair as x y; unfold K; simpl.
     intros (_ & _ & H); destruct H; subst; auto.
@@ -295,18 +297,18 @@ Section ndmm2_imsell.
     + intros ->; msplit 2; auto; tauto.
   Qed.
 
-  Local Fact HKi : forall x, K ∞ x -> x = ø.
+  Local Fact HKi : forall x, K ∞ x -> x = ⦳.
   Proof.
     intro pair as x y; unfold K; simpl.
     intros (H1 & H2 & ?); rewrite H1, H2; auto.
   Qed.
 
-  Local Lemma sem_Σ c : c ∊ Σ -> ⟦ndmm2_imsell_form c⟧ ø.
+  Local Lemma sem_Σ c : c ∊ Σ -> ⟦⟬ c⟭⟧ ⦳.
   Proof.
     intros H.
     destruct c as [ p | [] p q | [] p q | [] p q ]; simpl; 
       apply imsell_tps_imp_zero; intro pair as x y; simpl; intros H1.
-    + specialize (H1 ø); rewrite vec_zero_plus in H1.
+    + specialize (H1 ⦳); rewrite vec_zero_plus in H1.
       apply H1; constructor; auto.
     + constructor 2 with (1 := H).
       apply (H1 (1##0##vec_nil)).
@@ -330,16 +332,14 @@ Section ndmm2_imsell.
 
   Hint Resolve HK1 HK2 HK3 HK4 HKa HKb HKi sem_Σ : core.
 
-  Local Fact sem_Σ_zero : ⟪map (fun c => ![∞](ndmm2_imsell_form c)) Σ⟫ ø.
+  Local Fact sem_Σ_zero : ⟪map (fun c => ![∞]⟬ c⟭) Σ⟫ ⦳.
   Proof.
     apply imsell_tps_list_zero.
     intros A; rewrite in_map_iff.
     intros (c & <- & Hc); simpl; auto. 
   Qed.
 
-  Theorem ndmm2_imsell_complete p x y : 
-           ndmm2_imsell_ctx Σ x y ⊢ £ (2+p)
-        -> Σ // x ⊕ y ⊦ p.
+  Theorem ndmm2_imsell_complete p x y : ⟬Σ,x,y⟭  ⊢ £ (2+p) -> Σ //ₙ x ⊕ y ⊦ p.
   Proof.
     intros Hxy; apply imsell_tps_sound with (s := sem) (K := K) in Hxy; eauto.
     specialize (Hxy (x##y##vec_nil)).
@@ -347,25 +347,25 @@ Section ndmm2_imsell.
     apply Hxy; clear Hxy.
     unfold ndmm2_imsell_ctx.
     apply imsell_tps_app.
-    exists ø, (x##y##vec_nil).
+    exists ⦳, (x##y##ø).
     rewrite vec_zero_plus; msplit 2; auto.
     + apply sem_Σ_zero; auto.
     + apply imsell_tps_app.
-      exists (x##0##vec_nil), (0##y##vec_nil); msplit 2; auto.
+      exists (x##0##ø), (0##y##ø); msplit 2; auto.
       * rewrite pair_plus; f_equal; lia.
       * generalize x; clear x y; intros n. 
         induction n as [ | n IHn ]; simpl; auto.
-        exists (1##0##vec_nil), (n##0##vec_nil); simpl; msplit 2; auto.
+        exists (1##0##ø), (n##0##ø); simpl; msplit 2; auto.
         rewrite HKa; auto.
       * generalize y; clear x y; intros n. 
         induction n as [ | n IHn ]; simpl; auto.
-        exists (0##1##vec_nil), (0##n##vec_nil); simpl; msplit 2; auto.
+        exists (0##1##ø), (0##n##ø); simpl; msplit 2; auto.
         rewrite HKb; auto.
   Qed.
 
   Hint Resolve ndmm2_imsell_sound ndmm2_imsell_complete : core.
 
-  Theorem ndmm2_imsell_correct p x y : Σ // x ⊕ y ⊦ p <-> ndmm2_imsell_ctx Σ x y ⊢ £ (2+p).
+  Theorem ndmm2_imsell_correct p x y : Σ //ₙ x ⊕ y ⊦ p <-> ⟬Σ,x,y⟭  ⊢ £ (2+p).
   Proof. split; auto. Qed.
 
 End ndmm2_imsell.

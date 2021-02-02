@@ -68,9 +68,9 @@ Section Non_deterministic_Minsky_Machines.
      in ndMM2/ndmm2_utils.v
   *)
 
-  Reserved Notation "Σ // a ⊕ b ⊦ u" (at level 70, no associativity).
+  Reserved Notation "Σ //ₙ a ⊕ b ⊦ u" (at level 70, no associativity).
 
-  (* Σ // a ⊕ b ⊦ u denotes 
+  (* Σ //ₙ a ⊕ b ⊦ u denotes 
 
          "Σ accepts the initial location u with values α:=a and β:=b"
 
@@ -81,34 +81,34 @@ Section Non_deterministic_Minsky_Machines.
 
   Inductive ndmm2_accept (Σ : list ndmm2_instr) : nat -> nat -> loc -> Prop :=
 
-    | in_ndmm2a_stop  : forall p,         STOPₙ p ∊ Σ      ->  Σ //   0 ⊕   0 ⊦ p
+    | in_ndmm2a_stop  : forall p,         STOPₙ p ∊ Σ      ->  Σ //ₙ   0 ⊕   0 ⊦ p
 
-    | in_ndmm2a_inc_a : forall a b p q,   INCₙ α p q ∊ Σ   ->  Σ // 1+a ⊕   b ⊦ q
-                                                           ->  Σ //   a ⊕   b ⊦ p
+    | in_ndmm2a_inc_a : forall a b p q,   INCₙ α p q ∊ Σ   ->  Σ //ₙ 1+a ⊕   b ⊦ q
+                                                           ->  Σ //ₙ   a ⊕   b ⊦ p
 
-    | in_ndmm2a_inc_b : forall a b p q,   INCₙ β p q ∊ Σ   ->  Σ //   a ⊕ 1+b ⊦ q
-                                                           ->  Σ //   a ⊕   b ⊦ p
+    | in_ndmm2a_inc_b : forall a b p q,   INCₙ β p q ∊ Σ   ->  Σ //ₙ   a ⊕ 1+b ⊦ q
+                                                           ->  Σ //ₙ   a ⊕   b ⊦ p
 
-    | in_ndmm2a_dec_a : forall a b p q,   DECₙ α p q ∊ Σ   ->  Σ //   a ⊕   b ⊦ q
-                                                           ->  Σ // 1+a ⊕   b ⊦ p
+    | in_ndmm2a_dec_a : forall a b p q,   DECₙ α p q ∊ Σ   ->  Σ //ₙ   a ⊕   b ⊦ q
+                                                           ->  Σ //ₙ 1+a ⊕   b ⊦ p
 
-    | in_ndmm2a_dec_b : forall a b p q,   DECₙ β p q ∊ Σ   ->  Σ //   a ⊕   b ⊦ q
-                                                           ->  Σ //   a ⊕ 1+b ⊦ p
+    | in_ndmm2a_dec_b : forall a b p q,   DECₙ β p q ∊ Σ   ->  Σ //ₙ   a ⊕   b ⊦ q
+                                                           ->  Σ //ₙ   a ⊕ 1+b ⊦ p
 
-    | in_ndmm2a_zero_a : forall b p q,    ZEROₙ α p q ∊ Σ  ->  Σ //   0 ⊕   b ⊦ q
-                                                           ->  Σ //   0 ⊕   b ⊦ p
+    | in_ndmm2a_zero_a : forall b p q,    ZEROₙ α p q ∊ Σ  ->  Σ //ₙ   0 ⊕   b ⊦ q
+                                                           ->  Σ //ₙ   0 ⊕   b ⊦ p
 
-    | in_ndmm2a_zero_b : forall a p q,    ZEROₙ β p q ∊ Σ  ->  Σ //   a ⊕   0 ⊦ q
-                                                           ->  Σ //   a ⊕   0 ⊦ p
+    | in_ndmm2a_zero_b : forall a p q,    ZEROₙ β p q ∊ Σ  ->  Σ //ₙ   a ⊕   0 ⊦ q
+                                                           ->  Σ //ₙ   a ⊕   0 ⊦ p
 
-  where "Σ // a ⊕ b ⊦ u" := (ndmm2_accept Σ a b u).
+  where "Σ //ₙ a ⊕ b ⊦ u" := (ndmm2_accept Σ a b u).
 
   (* A problem is a program, a start location and initial values for α/β *)
 
   Definition ndMM2_problem := { Σ : list ndmm2_instr & loc * (nat * nat) }%type.
 
   Definition ndMM2_ACCEPT (i : ndMM2_problem) : Prop := 
-    match i with existT _ Σ (u,(a,b)) => Σ // a ⊕ b ⊦ u end.
+    match i with existT _ Σ (u,(a,b)) => Σ //ₙ a ⊕ b ⊦ u end.
 
 End Non_deterministic_Minsky_Machines.
 

@@ -93,7 +93,8 @@ Section IMSELL.
 
     Hypothesis HK_antitone : forall u v, u ≤ v -> K v ⊆ K u.
 
-    Notation ø := vec_zero.
+    Notation "⦳" := vec_zero.
+    Notation ø := vec_nil.
 
     Definition imsell_tps_mult (X Y : _ -> Prop) (x : vec _ n) := exists a b, x = vec_plus a b /\ X a /\ Y b.
     Definition imsell_tps_imp (X Y : _ -> Prop) (v : vec _ n) := forall x, X x -> Y (vec_plus x v).
@@ -101,16 +102,16 @@ Section IMSELL.
     Infix "⊛" := imsell_tps_mult (at level 65, right associativity).
     Infix "-⊛" := imsell_tps_imp (at level 65, right associativity).
 
-    Fact imsell_tps_imp_zero X Y : (X -⊛ Y) ø <-> X ⊆ Y.
+    Fact imsell_tps_imp_zero X Y : (X -⊛ Y) ⦳ <-> X ⊆ Y.
     Proof.
       split.
       + intros ? ? ?; rewrite <- vec_zero_plus, vec_plus_comm; auto.
       + intros ? ?; rewrite vec_plus_comm, vec_zero_plus; auto.
     Qed.
 
-    Hypothesis HK_unit0 : forall u, K u ø.
+    Hypothesis HK_unit0 : forall u, K u ⦳.
     Hypothesis HK_plus  : forall u, K u ⊛ K u ⊆ K u.
-    Hypothesis HK_unit1 : forall u, U u -> forall x, K u x -> x = ø.
+    Hypothesis HK_unit1 : forall u, U u -> forall x, K u x -> x = ⦳.
 
     Fact imsell_tps_mult_mono (X1 X2 Y1 Y2 : _ -> Prop) : 
               X1 ⊆ X2 -> Y1 ⊆ Y2 -> X1⊛Y1 ⊆ X2⊛Y2.
@@ -127,10 +128,10 @@ Section IMSELL.
       end
     where "⟦ A ⟧" := (imsell_tps A).
 
-    Fact imsell_tps_bang_zero u A : ⟦![u]A⟧ ø <-> ⟦A⟧ ø.
+    Fact imsell_tps_bang_zero u A : ⟦![u]A⟧ ⦳ <-> ⟦A⟧ ⦳.
     Proof. simpl; split; auto; tauto. Qed.
 
-    Fact imsell_tps_bang_U u A : U u -> (forall v, ⟦![u]A⟧ v <-> v = ø) <-> ⟦A⟧ ø.
+    Fact imsell_tps_bang_U u A : U u -> (forall v, ⟦![u]A⟧ v <-> v = ⦳) <-> ⟦A⟧ ⦳.
     Proof.
       intros Hu; split.
       + intros H; rewrite <- imsell_tps_bang_zero, H; auto.
@@ -143,7 +144,7 @@ Section IMSELL.
 
     Fixpoint imsell_tps_list Γ :=
       match Γ with
-        | nil  => eq ø
+        | nil  => eq ⦳
         | A::Γ => ⟦A⟧⊛⟪Γ⟫
       end
     where "⟪ Γ ⟫" := (imsell_tps_list Γ).
@@ -169,10 +170,10 @@ Section IMSELL.
           exists g, d; auto.
     Qed.
 
-    Fact imsell_tps_list_zero Γ : (forall A, A ∊ Γ -> ⟦A⟧ ø) -> ⟪Γ⟫ ø.
+    Fact imsell_tps_list_zero Γ : (forall A, A ∊ Γ -> ⟦A⟧ ⦳) -> ⟪Γ⟫ ⦳.
     Proof.
       induction Γ as [ | A Γ IH ]; simpl; auto; intros H.
-      exists ø, ø; msplit 2; auto; now rewrite vec_zero_plus.
+      exists ⦳, ⦳; msplit 2; auto; now rewrite vec_zero_plus.
     Qed.
 
     Fact imsell_tps_lbang u Γ : u ≼ Γ -> ⟪‼Γ⟫ ⊆ K u.
@@ -217,7 +218,7 @@ Section IMSELL.
       apply imsell_tps_perm, Permutation_sym; auto.
     Qed.
 
-    Fact imsell_sequent_tps_eq Γ A : [< Γ |- A >] ø <-> ⟪Γ⟫ ⊆ ⟦A⟧.
+    Fact imsell_sequent_tps_eq Γ A : [< Γ |- A >] ⦳ <-> ⟪Γ⟫ ⊆ ⟦A⟧.
     Proof.
       split.
       * intros H x Hx.
@@ -227,7 +228,7 @@ Section IMSELL.
         rewrite vec_plus_comm, vec_zero_plus; auto.
     Qed.
 
-    Theorem imsell_tps_sound Γ A : Γ ⊢ A -> [< Γ |- A >] ø.
+    Theorem imsell_tps_sound Γ A : Γ ⊢ A -> [< Γ |- A >] ⦳.
     Proof.
       induction 1 as [ A 
                      | Γ Δ A H1 H2 IH2
