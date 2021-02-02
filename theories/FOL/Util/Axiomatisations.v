@@ -22,7 +22,7 @@ Existing Instance falsity_on.
 Notation "S <<= S'" := (forall phi, S phi -> S' phi) (at level 10).
 Notation "I ⊨= phi" := (forall rho, sat I rho phi) (at level 20).
 Notation "I ⊨=T T" := (forall psi, T psi -> I ⊨= psi) (at level 20).
-Notation "T ⊨T phi" := (forall D (I : interp D), I ⊨=T T -> I ⊨= phi) (at level 55).
+Notation "T ⊨T phi" := (forall D (I : interp D) rho, (forall psi, T psi -> rho ⊨ psi) -> rho ⊨ phi) (at level 55).
 
 Section FixSignature.
 
@@ -233,7 +233,7 @@ Section FixSignature.
       T <<= S -> (exists D (I : interp D), standard I /\ I ⊨=T S) -> treduction f P S.
     Proof.
       intros HS (D & I & [std MT]). repeat split; intros H.
-      - intros D' I' H'. apply hyp1; auto.
+      - intros D' I' rho H'. apply hyp1; auto.
       - apply (hyp2 std); auto.
       - apply WeakT with T; trivial. now apply hyp3.
       - apply (hyp2 std); auto. intros rho. apply (tsoundness H); auto.
@@ -257,10 +257,25 @@ Section FixSignature.
 
 
 
-  (* Fact 11 : *)
+  (* Fact 11 : reductions from finite axiomatisations to the Entscheidungsproblem *)
 
   Definition list_theory (A : list form) :=
     fun phi => In phi A.
+
+  Lemma red_finite_valid A :
+    tvalid (list_theory A) ⪯ valid.
+  Proof.
+    exists (impl A). intros phi. unfold valid. setoid_rewrite impl_sat. firstorder.
+  Qed.
+
+  Lemma red_finite_prv {p : peirce} A :
+    tprv (list_theory A) ⪯ (prv nil).
+  Proof.
+    exists (impl A). intros phi. setoid_rewrite <- impl_prv. rewrite app_nil_r. split; intros H.
+    - destruct H as [B[H1 H2]]. apply (Weak (B:=A)) in H2; auto.
+      apply (Weak H2). unfold incl. apply in_rev.
+    - exists A. split; trivial. apply (Weak H). unfold incl. apply in_rev.
+  Qed.
 
 End FixSignature.
 
@@ -526,7 +541,7 @@ Qed.
 
 (* Theorem 44 : we obtain the same reductions for set theory only formulated with equality and membership *)
 
-From Undecidability.FOL Require Import minZF PCPb_to_minZF minZF_undec.
+From Undecidability.FOL Require Import minZF PCPb_to_minZF PCPb_to_minZFeq.
 
 Existing Instance sig_func_empty.
 Existing Instance ZF_pred_sig.
@@ -538,48 +553,77 @@ Definition minZ' := list_theory minZFeq'.
 Lemma undec_minZ' :
   PCPb ⪯T minZ'.
 Proof.
-  exists minsolvable. split.
-  - intros B. rewrite (PCPb_entailment_minZFeq' B).
-    split; intros H D M; eauto.
-  - intros B. rewrite (PCPb_deduction_minZF' B). split; intros H.
-    + exists minZFeq'. split; auto.
-    + destruct H as [A[H1 H2]]. apply (Weak H2). auto.
+  exists minsolvable. split; intros B; split; intros H.
+  - apply (@PCP_ZFD intu), (@rm_const_prv intu nil), soundness in H. auto.
+  - apply PCP_ZFeq'; try apply intensional_model.
+    intros V M rho HM. apply min_correct; trivial.
+    apply H. now apply min_axioms'.
+  - exists minZFeq'. split; auto. now apply (@PCP_ZFD intu), (@rm_const_prv intu nil) in H.
+  - destruct H as (A & H1 & H2). eapply (Weak (B:=minZFeq')) in H2; auto.
+    apply PCP_ZFeq'; try apply intensional_model. apply soundness in H2.
+    intros V M rho HM. apply min_correct; trivial.
+    apply H2. now apply min_axioms'.
 Qed.
 
 
 
 (* Theorem 45 : FOL with a single binary relation symbol is undecidable *)
 
-From Undecidability.FOL Require Import binZF PCPb_to_binZF binZF_undec binFOL binFOL_undec sig_bin.
+From Undecidability.FOL Require Import sig_bin binZF PCPb_to_binZF binZF_undec.
 
 Existing Instance sig_func_empty.
 Existing Instance sig_pred_binary.
 
-Lemma undec_valid :
-  undecidable (@valid _ _ falsity_on).
+(* We first show that set theory formulated only using membership is undecidable *)
+
+Definition binZ' := list_theory binZF.
+
+Lemma undec_binZ' :
+  treduction binsolvable PCPb binZ'.
 Proof.
-  apply binFOL_valid_undec.
+  split; intros B.
+  - rewrite (PCPb_entailment_binZF B). split; intros H D M rho; eauto.
+  - rewrite (PCPb_deduction_binZF B). split; intros H.
+    + exists binZF. split; auto.
+    + destruct H as [A[H1 H2]]. apply (Weak H2). auto.
+Qed.
+
+(* We then derive the undecidability of binary FOL with Fact 11 *)
+
+Lemma undec_valid :
+  undecidable valid.
+Proof.
+  apply (undecidability_from_reducibility PCPb_undec). eapply reduces_transitive.
+  + exists binsolvable. apply (proj1 undec_binZ').
+  + apply red_finite_valid.
 Qed.
 
 Lemma undec_prv_intu :
-  undecidable (@prv _ _ falsity_on FullDeduction.intu nil).
+  undecidable (prv (p:=intu) nil).
 Proof.
-  apply binFOL_prv_intu_undec.
+  apply (undecidability_from_reducibility PCPb_undec). eapply reduces_transitive.
+  + exists binsolvable. apply (proj2 undec_binZ').
+  + apply red_finite_prv.
+Qed.
+
+(* For undecidability of classical deduction we need LEM again *)
+
+Lemma undec_class_binZ' :
+  LEM -> reduction binsolvable PCPb (tprv_class binZ').
+Proof.
+  intros lem. split; intros H.
+  - apply (@PCP_ZFD FullDeduction.class), (@rm_const_prv FullDeduction.class nil) in H. exists binZF. split; trivial.
+  - destruct H as [A[H1 H2]]. apply PCP_ZFeq'; try apply intensional_model.
+    apply (Weak (B:=binZF)) in H2; auto. apply soundness_class in H2; trivial.
+    intros V M rho HM. apply min_correct; trivial. apply H2. now apply min_axioms'.
 Qed.
 
 Lemma undec_prv_class :
-  LEM -> undecidable (@prv _ _ falsity_on FullDeduction.class nil).
+  LEM -> undecidable (prv (p:=FullDeduction.class) nil).
 Proof.
-  intros lem. apply (undecidability_from_reducibility PCPb_undec).
-  exists (fun B => impl binZF (binsolvable B)). intros phi.
-  setoid_rewrite <- impl_prv. rewrite List.app_nil_r. split; intros H.
-  - apply (@PCP_ZFD FullDeduction.class), (@rm_const_prv FullDeduction.class nil) in H.
-    apply (Weak H). auto. cbn. unfold List.incl. apply List.in_rev.
-  - apply PCP_ZFeq'; try apply intensional_model. apply (Weak (B:=binZF)) in H.
-    + apply soundness_class in H; trivial.
-      intros V M rho HM. apply min_correct; trivial.
-      apply H. now apply min_axioms'.
-    + unfold List.incl. apply List.in_rev.
+  intros lem. apply (undecidability_from_reducibility PCPb_undec). eapply reduces_transitive.
+  + exists binsolvable. now apply undec_class_binZ'.
+  + apply red_finite_prv.
 Qed.
   
 
