@@ -284,7 +284,6 @@ Section ra_compiler.
           replace (length P+(length Q+2*k)+i) 
             with  (2*k+(length P+length Q+i)) by lia.
           revert G8; apply subcode_sss_compute; auto.
-          subcode_tac; rewrite <- app_nil_end; auto. 
     + intros H4.
       assert ((i,P) // (i,e) ↓) as H5.
       { revert H4; apply subcode_sss_terminates; auto. }
@@ -757,7 +756,6 @@ Section ra_compiler.
         + rewrite Q1_length.
           replace s2 with (length F+(11+9*n+i)).
           revert F2; apply subcode_sss_compute; auto.
-          subcode_tac; rewrite <- app_nil_end; auto.
           unfold s2; lia.
         + unfold out_code, code_end, fst, snd.
           rew length; rewrite Q1_length; unfold s2; lia. }
