@@ -42,8 +42,6 @@ Section FixSignature.
   Definition treduction X (f : X -> form) (P : X -> Prop) T :=
     reduction f P (tvalid T) /\ reduction f P (tprv_intu T).
 
-  Notation "P ⪯T T" := (exists f, treduction f P T) (at level 55).
-
 
 
   (* Fact 7 : if a non-trivial problem reduces to T, then T is consistent *)
@@ -222,7 +220,7 @@ Section FixSignature.
     Variable standard : forall D, interp D -> Prop.
 
     Hypothesis hyp1 : forall x, P x -> T ⊨T (f x).
-    Hypothesis hyp2 : forall D (I : interp D) x, standard I -> I ⊨=T T -> I ⊨= f x -> P x.
+    Hypothesis hyp2 : forall D (I : interp D) x, standard I -> I ⊨=T T -> I ⊨= (f x) -> P x.
     Hypothesis hyp3 : forall {p : peirce} x, P x -> T ⊢T (f x).
 
     Lemma WeakT {p : peirce} (S S' : form -> Prop) phi :
@@ -270,15 +268,76 @@ End FixSignature.
 
 (* Main results *)
 
-(* Theorem 26 : all extensions of Q' satisfied by the standard model are incompletene, using LEM *)
+(* Theorem 25 : H10 reduces to Q', Q, and PA *)
 
-From Undecidability.FOL Require Import PA PA_undec Reductions.H10p_to_FA FA_facts.
+From Undecidability.FOL Require Import PA Reductions.H10p_to_FA FA_facts.
 From Undecidability.H10 Require Import H10p H10p_undec.
-
-(* We first show the PA signature discrete and enumerable *)
 
 Existing Instance PA_funcs_signature.
 Existing Instance PA_preds_signature.
+
+(* We first show the three hypotheses regarding Q' *)
+
+Definition Q' := list_theory FAeq.
+
+Lemma PA_undec1 E :
+  H10p E -> Q' ⊨T embed E.
+Proof.
+  intros HE D M HM rho. apply H10p_to_FA_sat; auto.
+Qed.
+
+(* A model is standard if it is isomorphic to nat *)
+
+Print standard.
+
+Lemma PA_undec2 D (M : interp D) E :
+  standard D M -> M ⊨=T Q' -> M ⊨= embed E -> H10p E.
+Proof.
+  intros H1 H2 H3. apply standard_embed with (fun n => iO); auto.
+Qed.
+
+Lemma PA_undec3 (p : peirce) E :
+  H10p E -> Q' ⊢T embed E.
+Proof.
+  intros H. exists FAeq. split; auto. now apply H10p_to_FA_prv'.
+Qed.
+
+(* Then the reductions to Q', Q, and PA all follow by reduction_theorem *)
+
+Notation "P ⪯T T" := (exists f, treduction f P T) (at level 55).
+
+Theorem undec_Q' :
+  H10p ⪯T Q'.
+Proof.
+  exists embed. apply (reduction_theorem PA_undec1 PA_undec2 PA_undec3).
+  - auto.
+  - exists nat, interp_nat. split; try apply nat_standard.
+    eauto using nat_is_FA_model.
+Qed.
+
+Theorem undec_Q :
+  H10p ⪯T list_theory Qeq.
+Proof.
+  exists embed. apply (reduction_theorem PA_undec1 PA_undec2 PA_undec3).
+  - firstorder.
+  - exists nat, interp_nat. split; try apply nat_standard.
+    eauto using nat_is_Q_model.
+Qed.
+
+Theorem undec_PA :
+  H10p ⪯T PAeq.
+Proof.
+  exists embed. apply (reduction_theorem PA_undec1 PA_undec2 PA_undec3).
+  - eauto using PAeq.
+  - exists nat, interp_nat. split; try apply nat_standard.
+    eauto using nat_is_PAeq_model.
+Qed.
+
+
+
+(* Theorem 26 : all extensions of Q' satisfied by the standard model are incompletene, using LEM *)
+
+(* We first need to show the PA signature discrete and enumerable *)
 
 Instance eqdec_PA_syms :
   eq_dec syms.
@@ -306,38 +365,123 @@ Proof.
   intros []; exists 0; auto.
 Qed.
 
-(* A model is standard if it is isomorphic to nat *)
-
-Print standard.
-
 (* The claim follows with complete_reduction and reduction_theorem_class *)
 
 Theorem incompleteness_PA (T : form -> Prop) :
-  LEM -> list_theory FAeq <<= T -> enumerable T -> complete T -> (forall phi, T phi -> interp_nat ⊨= phi) -> decidable (TM.HaltTM 1).
+  LEM -> list_theory FAeq <<= T -> enumerable T -> complete T -> interp_nat ⊨=T T -> decidable (TM.HaltTM 1).
 Proof.
   intros lem HFA HE HC HT. apply H10p_undec.
   apply (@complete_reduction _ _ enum_PA_syms _ enum_PA_preds _ T HE) with embed.
   - intros H. apply (@tsoundness_class _ _ lem _ T ⊥ H nat interp_nat (fun n => 0)). firstorder.
   - apply HC.
-  - eapply (@reduction_theorem_class _ _ (list_theory FAeq) H10p_PROBLEM H10p embed standard); trivial.
-    + intros D I x H1 H2 Hx. apply standard_embed with (fun n => iO); auto.
-    + intros p x H. exists FAeq. split; auto. now apply H10p_to_FA_prv'.
-    + exists nat, interp_nat. split; auto. apply nat_standard.
+  - eapply (reduction_theorem_class PA_undec2 PA_undec3); trivial.
+    exists nat, interp_nat. split; auto. apply nat_standard.
   - apply embed_is_closed.
+Qed.
+
+
+
+(* Theorem 34 : PCP reduces to Z', Z, and ZF, assuming standard models *)
+
+From Undecidability.FOL.Reductions Require Import PCPb_to_ZFeq PCPb_to_ZF PCPb_to_ZFD.
+From Undecidability.FOL Require Import Util.Aczel_CE Util.ZF_model ZF.
+From Undecidability.PCP Require Import PCP PCP_undec.
+
+(* We first show the three hypotheses regarding Z' *)
+
+Existing Instance ZF_func_sig.
+Existing Instance ZF_pred_sig.
+
+Definition Z' := list_theory ZFeq'.
+
+Lemma ZF_undec1 B :
+  PCPb B -> Z' ⊨T solvable B.
+Proof.
+  intros HE D M HM rho. apply (PCP_ZFD (p:=intu)) in HE.
+  apply (soundness HE). auto.
+Qed.
+
+(* A model is standard if all k ∈ om correspond to some n : nat *)
+
+Print standard.
+
+Lemma ZF_undec2 D (M : interp D) B :
+  standard M -> M ⊨=T Z' -> M ⊨= solvable B -> PCPb B.
+Proof.
+  intros H1 H2 H3. apply PCP_ZFeq with (fun _ => ∅); auto.
+Qed.
+
+Lemma ZF_undec3 (p : peirce) B :
+  PCPb B -> Z' ⊢T solvable B.
+Proof.
+  intros H. exists ZFeq'. split; auto. now apply PCP_ZFD.
+Qed.
+
+(* Then the reductions so Z', Z, and ZF all follow by reduction_theorem *)
+
+Lemma undec_Z' :
+  (exists D I, @standard D I /\ I ⊨=T Z') -> treduction solvable PCPb Z'.
+Proof.
+  apply (reduction_theorem ZF_undec1 ZF_undec2 ZF_undec3); trivial.
+Qed.
+
+Lemma undec_Z :
+  (exists D I, @standard D I /\ I ⊨=T Zeq) -> treduction solvable PCPb Zeq.
+Proof.
+  apply (reduction_theorem ZF_undec1 ZF_undec2 ZF_undec3); trivial.
+  eauto using Zeq.
+Qed.
+
+Lemma undec_ZF :
+  (exists D I, @standard D I /\ I ⊨=T ZFeq) -> treduction solvable PCPb ZFeq.
+Proof.
+  apply (reduction_theorem ZF_undec1 ZF_undec2 ZF_undec3); trivial.
+  eauto using ZFeq.
+Qed.
+
+
+
+(* Corollary 35 : the standard models required by the previous theorem can be constructed with CE and TED *)
+
+Lemma CE_undec_Z' :
+  CE -> treduction solvable PCPb Z'.
+Proof.
+  intros H. apply undec_Z'.
+  destruct (extensionality_model_eq H) as (D & M & H1 & H2 & H3).
+  exists D, M. split; trivial. eauto using Zeq.
+Qed.
+
+Lemma CE_undec_Z :
+  CE -> treduction solvable PCPb Zeq.
+Proof.
+  intros H. apply undec_Z.
+  destruct (extensionality_model_eq H) as (D & M & H1 & H2 & H3).
+  exists D, M. split; trivial. auto.
+Qed.
+
+Lemma TD_undec_ZF :
+  CE -> TD -> treduction solvable PCPb ZFeq.
+Proof.
+  intros HC HD. apply undec_ZF.
+  destruct (normaliser_model_eq HC HD) as (D & M & H1 & H2 & H3).
+  exists D, M. split; trivial. auto.
+Qed.
+
+(* Refinement : allowing intensional models disposes of CE *)
+
+Lemma refined_undec_Z' :
+  treduction solvable PCPb Z'.
+Proof.
+  apply undec_Z'.
+  destruct intensional_model as (D & M & H1 & H2).
+  exists D, M. split; trivial. auto.
 Qed.
 
 
 
 (* Theorem 36 : all extensions of Z' satisfied by a standard model are incompletene, using LEM *)
 
-From Undecidability.FOL.Reductions Require Import PCPb_to_ZFeq PCPb_to_ZF PCPb_to_ZFD.
-From Undecidability.FOL Require Import ZF ZF_undec.
-From Undecidability.PCP Require Import PCP PCP_undec.
-
-(* We first show the ZF signature discrete and enumerable *)
-
-Existing Instance ZF_func_sig.
-Existing Instance ZF_pred_sig.
+(* We first need to show the ZF signature discrete and enumerable *)
 
 Instance eqdec_ZF_syms :
   eq_dec syms.
@@ -365,24 +509,16 @@ Proof.
   intros []; exists 0; auto.
 Qed.
 
-(* A model is standard if all k ∈ om correspond to some n : nat *)
-
-Print standard.
-
 (* The claim follows with complete_reduction and reduction_theorem_class *)
 
 Theorem incompleteness_ZF (T : form -> Prop) :
-  LEM -> list_theory ZFeq' <<= T -> enumerable T -> complete T
-  -> (exists D (I : interp D), standard I /\ forall phi, T phi -> I ⊨= phi) -> decidable (TM.HaltTM 1).
+  LEM -> list_theory ZFeq' <<= T -> enumerable T -> complete T -> (exists D I, @standard D I /\ I ⊨=T T) -> decidable (TM.HaltTM 1).
 Proof.
   intros lem HFA HE HC (Ds & Is & HI1 & HI2). apply PCPb_undec.
   apply (@complete_reduction _ _ enum_ZF_syms _ enum_ZF_preds _ T HE) with solvable.
   - intros H. apply (@tsoundness_class _ _ lem _ T ⊥ H Ds Is (fun n => ∅)). firstorder.
   - apply HC.
-  - eapply (@reduction_theorem_class _ _ (list_theory ZFeq') _ PCPb solvable (@standard)); trivial.
-    + intros D I x H1 H2 Hx. eapply (@PCP_ZFeq D I) with (fun n => ∅); auto.
-    + intros p x H. exists ZFeq'. split; auto. now apply PCP_ZFD.
-    + now exists Ds, Is.
+  - eapply (reduction_theorem_class ZF_undec2 ZF_undec3); trivial. now exists Ds, Is.
   - apply solvabe_bound.
 Qed.
 
