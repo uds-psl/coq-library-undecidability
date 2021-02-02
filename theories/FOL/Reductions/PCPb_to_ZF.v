@@ -107,20 +107,19 @@ Proof.
   all: apply string_bound.
 Qed.
 
-Lemma combinations_bound B n k l :
-  n > 5 + l + k -> bounded n (combinations B $k $l).
+Lemma combinations_bound (B : BSRS) n k l :
+  n > 2 + l -> n > 4 + k -> bounded n (combinations B $k $l).
 Proof.
   revert n k l. induction B as [|[s t] B IH]; cbn; repeat solve_bounds; trivial.
-  apply IH. admit.
-  all: apply prep_string_bound.
-Admitted.
+  apply IH; lia. all: apply prep_string_bound; solve_bounds.
+Qed.
 
 Lemma solvabe_bound B :
   bounded 0 (solvable B).
 Proof.
   repeat solve_bounds.
   - apply stack_bound.
-  - apply combinations_bound. lia.
+  - apply combinations_bound; lia.
 Qed.
   
 
