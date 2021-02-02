@@ -524,4 +524,32 @@ Qed.
 
 
 
+(* Theorem 44 : we obtain the same reductions for axioms formulated over the signature with eq and elem *)
+
+From Undecidability.FOL Require Import minZF PCPb_to_minZF minZF_undec.
+
+Definition minZ' := list_theory minZFeq'.
+
+(* See the file minZF_undec.v for a list of all reductions, we just record the axiom-free version here *)
+
+Lemma CE_undec_minZ' :
+  treduction minsolvable PCPb minZ'.
+Proof.
+  split.
+  - intros B. rewrite (PCPb_entailment_minZFeq' B).
+    split; intros H D M; eauto.
+  - intros B. rewrite (PCPb_deduction_minZF' B). split; intros H.
+    + exists minZFeq'. split; auto.
+    + destruct H as [A[H1 H2]]. apply (Weak H2). auto.
+Qed.
+
+
+
+(* Theorem 45 : FOL with a single binary relation symbol is undecidable *)
+
+From Undecidability.FOL Require Import binZF PCPb_to_binZF binZF_undec binFOL binFOL_undec.
+
+
+
+
 
