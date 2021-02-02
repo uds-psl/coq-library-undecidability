@@ -524,18 +524,18 @@ Qed.
 
 
 
-(* Theorem 44 : we obtain the same reductions for axioms formulated over the signature with eq and elem *)
+(* Theorem 44 : we obtain the same reductions for set theory only formulated with equality and membership *)
 
 From Undecidability.FOL Require Import minZF PCPb_to_minZF minZF_undec.
 
-Definition minZ' := list_theory minZFeq'.
-
 (* See the file minZF_undec.v for a list of all reductions, we just record the axiom-free version here *)
 
-Lemma CE_undec_minZ' :
-  treduction minsolvable PCPb minZ'.
+Definition minZ' := list_theory minZFeq'.
+
+Lemma undec_minZ' :
+  PCPb ⪯T minZ'.
 Proof.
-  split.
+  exists minsolvable. split.
   - intros B. rewrite (PCPb_entailment_minZFeq' B).
     split; intros H D M; eauto.
   - intros B. rewrite (PCPb_deduction_minZF' B). split; intros H.
@@ -547,9 +547,38 @@ Qed.
 
 (* Theorem 45 : FOL with a single binary relation symbol is undecidable *)
 
-From Undecidability.FOL Require Import binZF PCPb_to_binZF binZF_undec binFOL binFOL_undec.
+From Undecidability.FOL Require Import binZF PCPb_to_binZF binZF_undec binFOL binFOL_undec sig_bin.
 
+Existing Instance sig_empty.
+Existing Instance sig_binary.
 
+Lemma undec_valid :
+  undecidable (@valid _ _ falsity_on).
+Proof.
+  apply binFOL_valid_undec.
+Qed.
+
+Lemma undec_prv_intu :
+  undecidable (@prv _ _ falsity_on FullDeduction.intu nil).
+Proof.
+  apply binFOL_prv_intu_undec.
+Qed.
+
+Lemma undec_prv_class :
+  LEM -> undecidable (@prv _ _ falsity_on FullDeduction.class nil).
+Proof.
+  intros lem. apply (undecidability_from_reducibility PCPb_undec).
+  exists (fun B => impl binZF (binsolvable B)). intros phi.
+  setoid_rewrite <- impl_prv. rewrite List.app_nil_r. split; intros H.
+  - apply (@PCP_ZFD FullDeduction.class), (@rm_const_prv FullDeduction.class nil) in H.
+    apply (Weak H). auto. cbn. unfold List.incl. apply List.in_rev.
+  - apply PCP_ZFeq'; try apply intensional_model. apply (Weak (B:=binZF)) in H.
+    + apply soundness_class in H; trivial.
+      intros V M rho HM. apply min_correct; trivial.
+      apply H. now apply min_axioms'.
+    + unfold List.incl. apply List.in_rev.
+Qed.
+  
 
 
 

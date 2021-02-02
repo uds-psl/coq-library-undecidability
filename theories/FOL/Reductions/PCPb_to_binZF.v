@@ -68,6 +68,9 @@ Fixpoint rm_const_fm {ff : falsity_flag} (phi : form) : form' :=
                   ∃ (Vector.hd v') ∧ ∃ (Vector.hd (Vector.tl v'))[sshift 1] ∧ $1 ≡' $0
   end.
 
+Definition binsolvable S :=
+  rm_const_fm (solvable S).
+
 
 
 (* ** Vector inversion lemmas *)
