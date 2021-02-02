@@ -13,14 +13,16 @@ Local Unset Strict Implicit.
 
 
 
+(* Section 3 : Undecidable First-Order Axiomatisations *)
+
 (* Decision problems on axiomatisations *)
 
 Existing Instance falsity_on.
 
 Notation "S <<= S'" := (forall phi, S phi -> S' phi) (at level 10).
 Notation "I ⊨= phi" := (forall rho, sat I rho phi) (at level 20).
-Notation "T ⊨T phi" := (forall D (I : interp D), (forall psi, T psi -> I ⊨= psi) -> I ⊨= phi) (at level 55).
-
+Notation "I ⊨=T T" := (forall psi, T psi -> I ⊨= psi) (at level 20).
+Notation "T ⊨T phi" := (forall D (I : interp D), I ⊨=T T -> I ⊨= phi) (at level 55).
 
 Section FixSignature.
 
@@ -35,7 +37,7 @@ Section FixSignature.
 
 
 
-  (* Reductions to axiomatisations *)
+  (* Definition 5 : reductions to axiomatisations combine Tarski semantics and intuitionistic ND *)
 
   Definition treduction X (f : X -> form) (P : X -> Prop) T :=
     reduction f P (tvalid T) /\ reduction f P (tprv_intu T).
@@ -87,19 +89,19 @@ Section FixSignature.
 
 
 
-    (* For any axiomatisation, the (classical) deductive consequences are enumerable *)
+    (* For any (enumerable) axiomatisation, the deductive consequences are enumerable *)
 
     Variable T : form -> Prop.
     Hypothesis enum_T : enumerable T.
 
-    Lemma tprv_class_enum :
-      enumerable (tprv_class T).
+    Lemma tprv_enumerable {p : peirce} :
+      enumerable (fun phi => tprv T phi).
     Proof.
       apply enumerable_enum.
       apply enumerable_enum in enum_T as [L HL].
       apply enum_enumT in enum_funcs as [L1 HL1].
       apply enum_enumT in enum_preds as [L2 HL2].
-      exists (@L_tded _ _ L1 HL1 L2 HL2 _ _ class falsity_on (cumul L)).
+      exists (@L_tded _ _ L1 HL1 L2 HL2 _ _ p falsity_on (cumul L)).
       now apply enum_tprv.
     Qed.
 
@@ -178,12 +180,12 @@ Section FixSignature.
         + apply enumerable_conj; try apply form_discrete.
           * apply dec_count_enum; try apply form_enumerable.
             apply decidable_iff. constructor. intros phi. apply bounded_dec.
-          * apply tprv_class_enum.
+          * apply tprv_enumerable.
         + apply enumerable_equiv with (fun phi => ~ bounded 0 phi \/ T ⊢TC ¬ phi).
           { intros phi. destruct (bounded_dec phi 0); intuition. }
           apply enumerable_disj; try apply dec_count_enum'; try apply form_enumerable.
           { apply decidable_iff. constructor. intros phi. apply bounded_dec. }
-          destruct tprv_class_enum as [f Hf].
+          destruct (tprv_enumerable (p:=class)) as [f Hf].
           exists (fun n => match f n with Some phi => stripneg phi | _ => None end).
           intros phi. rewrite (Hf (¬ phi)). split; intros [n Hn]; exists n; try now rewrite Hn.
           destruct (f n) as [psi|]; try discriminate. now rewrite (stripneg_spec Hn).
@@ -193,7 +195,7 @@ Section FixSignature.
 
     (* Consequence : problems reducing to complete theories are decidable *)
 
-    Fact complete_decidable' X (P : X -> Prop) (f : X -> form) :
+    Fact complete_reduction X (P : X -> Prop) (f : X -> form) :
       (~ T ⊢TC ⊥) -> complete -> reduction f P (tprv_class T) -> (forall x, bounded 0 (f x)) -> decidable P.
     Proof.
       intros H1 H2 H3 H4. apply complete_decidable in H1; trivial.
@@ -216,12 +218,11 @@ Section FixSignature.
     Variable X : Type.
     Variable P : X -> Prop.
     Variable f : X -> form.
-    
-    Variable standard_dom : Type.
-    Variable standard : forall {D : Type}, interp D -> Prop.
+
+    Variable standard : forall D, interp D -> Prop.
 
     Hypothesis hyp1 : forall x, P x -> T ⊨T (f x).
-    Hypothesis hyp2 : forall D (I : interp D) x, standard I -> (forall phi, T phi -> I ⊨= phi) -> I ⊨= f x -> P x.
+    Hypothesis hyp2 : forall D (I : interp D) x, standard I -> I ⊨=T T -> I ⊨= f x -> P x.
     Hypothesis hyp3 : forall {p : peirce} x, P x -> T ⊢T (f x).
 
     Lemma WeakT {p : peirce} (S S' : form -> Prop) phi :
@@ -231,7 +232,7 @@ Section FixSignature.
     Qed.
 
     Theorem reduction_theorem (S : form -> Prop) :
-      T <<= S -> (exists D I, @standard D I /\ forall phi, S phi -> I ⊨= phi) -> treduction f P S.
+      T <<= S -> (exists D (I : interp D), standard I /\ I ⊨=T S) -> treduction f P S.
     Proof.
       intros HS (D & I & [std MT]). repeat split; intros H.
       - intros D' I' H'. apply hyp1; auto.
@@ -247,7 +248,7 @@ Section FixSignature.
     Definition LEM := forall P, P \/ ~ P.
     
     Theorem reduction_theorem_class (S : form -> Prop) :
-      LEM -> T <<= S -> (exists D I, @standard D I /\ forall phi, S phi -> I ⊨= phi) -> reduction f P (tprv_class S).
+      LEM -> T <<= S -> (exists D I, @standard D I /\ I ⊨=T S) -> reduction f P (tprv_class S).
     Proof.
       intros lem HS (D & I & [std MT]). split; intros H.
       - apply WeakT with T; trivial. now apply hyp3.
@@ -273,6 +274,8 @@ End FixSignature.
 
 From Undecidability.FOL Require Import PA PA_undec Reductions.H10p_to_FA FA_facts.
 From Undecidability.H10 Require Import H10p H10p_undec.
+
+(* We first show the PA signature discrete and enumerable *)
 
 Existing Instance PA_funcs_signature.
 Existing Instance PA_preds_signature.
@@ -303,13 +306,17 @@ Proof.
   intros []; exists 0; auto.
 Qed.
 
+(* A model is standard if it is isomorphic to nat *)
+
 Print standard.
+
+(* The claim follows with complete_reduction and reduction_theorem_class *)
 
 Theorem incompleteness_PA (T : form -> Prop) :
   LEM -> list_theory FAeq <<= T -> enumerable T -> complete T -> (forall phi, T phi -> interp_nat ⊨= phi) -> decidable (TM.HaltTM 1).
 Proof.
   intros lem HFA HE HC HT. apply H10p_undec.
-  apply (@complete_decidable' _ _ enum_PA_syms _ enum_PA_preds _ T HE) with embed.
+  apply (@complete_reduction _ _ enum_PA_syms _ enum_PA_preds _ T HE) with embed.
   - intros H. apply (@tsoundness_class _ _ lem _ T ⊥ H nat interp_nat (fun n => 0)). firstorder.
   - apply HC.
   - eapply (@reduction_theorem_class _ _ (list_theory FAeq) H10p_PROBLEM H10p embed standard); trivial.
@@ -323,8 +330,11 @@ Qed.
 
 (* Theorem 36 : all extensions of Z' satisfied by a standard model are incompletene, using LEM *)
 
-From Undecidability.FOL Require Import ZF ZF_undec Reductions.PCPb_to_ZF Reductions.PCPb_to_ZFD.
+From Undecidability.FOL.Reductions Require Import PCPb_to_ZFeq PCPb_to_ZF PCPb_to_ZFD.
+From Undecidability.FOL Require Import ZF ZF_undec.
 From Undecidability.PCP Require Import PCP PCP_undec.
+
+(* We first show the ZF signature discrete and enumerable *)
 
 Existing Instance ZF_func_sig.
 Existing Instance ZF_pred_sig.
@@ -355,16 +365,18 @@ Proof.
   intros []; exists 0; auto.
 Qed.
 
+(* A model is standard if all k ∈ om correspond to some n : nat *)
+
 Print standard.
 
-From Undecidability.FOL Require Import Reductions.PCPb_to_ZFeq.
+(* The claim follows with complete_reduction and reduction_theorem_class *)
 
 Theorem incompleteness_ZF (T : form -> Prop) :
   LEM -> list_theory ZFeq' <<= T -> enumerable T -> complete T
   -> (exists D (I : interp D), standard I /\ forall phi, T phi -> I ⊨= phi) -> decidable (TM.HaltTM 1).
 Proof.
   intros lem HFA HE HC (Ds & Is & HI1 & HI2). apply PCPb_undec.
-  apply (@complete_decidable' _ _ enum_ZF_syms _ enum_ZF_preds _ T HE) with solvable.
+  apply (@complete_reduction _ _ enum_ZF_syms _ enum_ZF_preds _ T HE) with solvable.
   - intros H. apply (@tsoundness_class _ _ lem _ T ⊥ H Ds Is (fun n => ∅)). firstorder.
   - apply HC.
   - eapply (@reduction_theorem_class _ _ (list_theory ZFeq') _ PCPb solvable (@standard)); trivial.

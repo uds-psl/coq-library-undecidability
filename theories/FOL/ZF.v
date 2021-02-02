@@ -100,6 +100,12 @@ Definition ax_rep phi :=
 Definition ZF' :=
   ax_ext :: ax_eset :: ax_pair :: ax_union :: ax_power :: ax_om1 :: ax_om2 :: nil.
 
+(* Theory of Z including the separation scheme *)
+
+Inductive Z : form -> Prop :=
+| Z_base phi : In phi ZF' -> Z phi
+| Z_sep phi : Z (ax_sep phi).
+
 (* Theory of full ZF including the separation and replacement schemes *)
 
 Inductive ZF : form -> Prop :=
@@ -123,6 +129,12 @@ Definition ax_eq_elem :=
 
 Definition ZFeq' :=
   ax_refl :: ax_sym :: ax_trans :: ax_eq_elem :: ZF'.
+
+(* Theory of Z plus equality axioms *)
+
+Inductive Zeq : form -> Prop :=
+| Zeq_base phi : In phi ZFeq' -> Zeq phi
+| Zeq_sep phi : Zeq (ax_sep phi).
 
 (* Theory of full ZF plus equality axioms *)
 
@@ -148,7 +160,12 @@ Definition entailment_ZFeq' phi :=
 Definition entailment_ZF' phi :=
   forall D (M : interp D) (rho : nat -> D), extensional M -> (forall sigma psi, In psi ZF' -> sigma ⊨ psi) -> rho ⊨ phi.
 
-(* Semantic entailment restricted to extensional models. *)
+(* Semantic entailment for Z restricted to extensional models. *)
+
+Definition entailment_Z phi :=
+  forall D (M : interp D) (rho : nat -> D), extensional M -> (forall sigma psi, Z psi -> sigma ⊨ psi) -> rho ⊨ phi.
+
+(* Semantic entailment for ZF restricted to extensional models. *)
 
 Definition entailment_ZF phi :=
   forall D (M : interp D) (rho : nat -> D), extensional M -> (forall sigma psi, ZF psi -> sigma ⊨ psi) -> rho ⊨ phi.
@@ -158,7 +175,12 @@ Definition entailment_ZF phi :=
 Definition deduction_ZF' phi :=
   ZFeq' ⊢I phi.
 
-(* Deductive entailment restricted to intuitionistic rules. *)
+(* Deductive entailment for Z restricted to intuitionistic rules. *)
+
+Definition deduction_Z phi :=
+  Zeq ⊢TI phi.
+
+(* Deductive entailment for ZF restricted to intuitionistic rules. *)
 
 Definition deduction_ZF phi :=
   ZFeq ⊢TI phi.

@@ -875,6 +875,19 @@ Proof.
     apply PCP_ZF2 in H as [s Hs]; trivial. now exists s.
 Qed.
 
+Theorem PCP_Z B :
+  (exists V (M : interp V), extensional M /\ standard M /\ forall rho psi, Z psi -> rho ⊨ psi)
+  -> PCPb B <-> entailment_Z (solvable B).
+Proof.
+  intros HZF. rewrite PCPb_iff_dPCPb. split; intros H.
+  - clear HZF. destruct H as [s H]. intros M HM rho H1 H2.
+    eapply PCP_ZF1; eauto. intros sigma phi HP. apply H2. now constructor.
+  - destruct HZF as (M & H1 & H2 & H3 & H4).
+    specialize (H M H1 (fun _ => @i_func _ _ _ _ eset Vector.nil) H2 H4).
+    apply PCP_ZF2 in H as [s Hs]; trivial; try now exists s.
+    intros sigma phi HP. apply H4. now constructor.
+Qed.
+
 Theorem PCP_ZF B :
   (exists V (M : interp V), extensional M /\ standard M /\ forall rho psi, ZF psi -> rho ⊨ psi)
   -> PCPb B <-> entailment_ZF (solvable B).

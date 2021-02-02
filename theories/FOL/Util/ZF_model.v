@@ -176,15 +176,17 @@ Section ZM.
 End ZM.
 
 Lemma extensionality_model :
-  CE -> exists V (M : interp V), extensional M /\ standard M /\ forall rho, rho ⊫ ZF'.
+  CE -> exists V (M : interp V), extensional M /\ standard M /\ forall rho phi, Z phi -> rho ⊨ phi.
 Proof.
   intros ce. exists SET', (SET_interp' ce). split; try apply SET_ext'.
-  split; try apply SET_standard'. apply SET'_ZF'.
+  split; try apply SET_standard'. intros rho phi [].
+  - now apply SET'_ZF'.
+  - apply SET_sep'.
 Qed.
 
 
 
-(** Intensional model of Z *)
+(** Intensional model of Z' *)
 
 Section IM.
   

@@ -10,13 +10,14 @@ From Undecidability.PCP Require Import PCP PCP_undec Util.PCP_facts Reductions.P
 (* Semantic entailment in full minZF restricted to extensional models *)
 
 Theorem PCPb_entailment_minZF :
-  (exists V (M : interp V), extensional M /\ standard M /\ forall rho psi, ZF psi -> rho ⊨ psi) -> PCPb ⪯ entailment_minZF.
+  (exists V (M : interp V), extensional M /\ standard M /\ forall rho psi, ZF psi -> rho ⊨ psi)
+  -> reduction minsolvable PCPb entailment_minZF.
 Proof.
   intros (V & M & H1 & H2 & H3).
-  exists (fun B => rm_const_fm (solvable B)). intros B. split; intros H.
+  intros B. split; intros H.
   - intros V' M' rho' HM1 HM2. apply (@PCP_ZFD intu), (@rm_const_prv intu nil), soundness in H.
     apply H, extensional_eq_min'; trivial. eauto using minZF.
-  - specialize (H V (@min_model V M) (fun _ => ∅)).
+  - specialize (H V (@min_model V M) (fun _ => ∅)). unfold minsolvable in H.
     rewrite <- min_correct in H; trivial; eauto using ZF. rewrite PCPb_iff_dPCPb.
     eapply PCP_ZF2 in H2 as [s Hs]; trivial; try apply H; eauto using ZF. now exists s.
     apply min_axioms; eauto using ZF.
@@ -25,13 +26,40 @@ Qed.
 Theorem undecidable_entailment_minZF :
   (exists V (M : interp V), extensional M /\ standard M /\ forall rho psi, ZF psi -> rho ⊨ psi) -> undecidable entailment_minZF.
 Proof.
-   intros H. now apply (undecidability_from_reducibility PCPb_undec), PCPb_entailment_minZF.
+   intros H. apply (undecidability_from_reducibility PCPb_undec). exists minsolvable. now apply PCPb_entailment_minZF.
 Qed.
 
 Corollary undecidable_model_entailment_minZF :
   CE -> TD -> undecidable entailment_minZF.
 Proof.
   intros H1 H2. now apply undecidable_entailment_minZF, normaliser_model.
+Qed.
+
+(* Semantic entailment in minZ restricted to extensional models *)
+
+Theorem PCPb_entailment_minZ :
+  (exists V (M : interp V), extensional M /\ standard M /\ forall rho psi, Z psi -> rho ⊨ psi) -> reduction minsolvable PCPb entailment_minZ.
+Proof.
+  intros (V & M & H1 & H2 & H3).
+  intros B. split; intros H.
+  - intros V' M' rho' HM1 HM2. apply (@PCP_ZFD intu), (@rm_const_prv intu nil), soundness in H.
+    apply H, extensional_eq_min'; trivial. eauto using minZ.
+  - specialize (H V (@min_model V M) (fun _ => ∅)). unfold minsolvable in H.
+    rewrite <- min_correct in H; trivial; eauto using Z. rewrite PCPb_iff_dPCPb.
+    eapply PCP_ZF2 in H2 as [s Hs]; trivial; try apply H; eauto using Z. now exists s.
+    apply min_axioms_Z; eauto using Z.
+Qed.
+
+Theorem undecidable_entailment_minZ :
+  (exists V (M : interp V), extensional M /\ standard M /\ forall rho psi, Z psi -> rho ⊨ psi) -> undecidable entailment_minZ.
+Proof.
+   intros H. apply (undecidability_from_reducibility PCPb_undec). exists minsolvable. now apply PCPb_entailment_minZ.
+Qed.
+
+Corollary undecidable_model_entailment_minZ :
+  CE -> undecidable entailment_minZ.
+Proof.
+  intros H. now apply undecidable_entailment_minZ, extensionality_model.
 Qed.
 
 (* Semantic entailment in minZF' restricted to extensional models *)
@@ -58,10 +86,12 @@ Qed.
 Corollary undecidable_model_entailment_minZF' :
   CE -> undecidable entailment_minZF'.
 Proof.
-  intros H. now apply undecidable_entailment_minZF', extensionality_model.
+  intros H. apply undecidable_entailment_minZF'.
+  destruct extensionality_model as (V & M & H1 & H2 & H3); trivial.
+  exists V, M. eauto using Z.
 Qed.
 
-(* Semantic entailment in minZFeq' allowing for intensional models *)
+(* Semantic entailment in minZFeq' allowing intensional models *)
 
 Theorem PCPb_entailment_minZFeq' :
   PCPb ⪯ entailment_minZFeq'.
@@ -104,6 +134,32 @@ Corollary undecidable_model_deduction_minZF :
   CE -> TD -> undecidable deduction_minZF.
 Proof.
   intros H1 H2. now apply undecidable_deduction_minZF, normaliser_model.
+Qed.
+
+(* Intuitionistic deduction in minZeq *)
+
+Theorem PCPb_deduction_minZ :
+  (exists V (M : interp V), extensional M /\ standard M /\ forall rho psi, Z psi -> rho ⊨ psi) -> PCPb ⪯ deduction_minZ.
+Proof.
+  intros (V & M & H1 & H2 & H3).
+  exists (fun B => rm_const_fm (solvable B)). intros B. split; intros H.
+  - exists minZFeq'. split; auto using minZeq. now apply (@PCP_ZFD intu), (@rm_const_prv intu nil) in H.
+  - eapply tsoundness with (I := @min_model V M) (rho := fun _ => ∅) in H.
+    rewrite <- min_correct in H; trivial; auto using Z. rewrite PCPb_iff_dPCPb.
+    eapply PCP_ZF2 in H2 as [s Hs]; trivial; try apply H; auto using Z. now exists s.
+    apply extensional_eq_min_Z; auto. apply min_axioms_Z; auto using Z.
+Qed.
+
+Theorem undecidable_deduction_minZ :
+  (exists V (M : interp V), extensional M /\ standard M /\ forall rho psi, Z psi -> rho ⊨ psi) -> undecidable deduction_minZ.
+Proof.
+  intros H. now apply (undecidability_from_reducibility PCPb_undec), PCPb_deduction_minZ.
+Qed.
+
+Corollary undecidable_model_deduction_minZ :
+  CE -> undecidable deduction_minZ.
+Proof.
+  intros H. now apply undecidable_deduction_minZ, extensionality_model.
 Qed.
 
 (* Intuitionistic deduction in minZFeq' *)
