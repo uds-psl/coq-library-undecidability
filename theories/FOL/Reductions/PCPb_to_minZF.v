@@ -316,6 +316,13 @@ Section Model.
 
 End Model.
 
+Lemma ZF_to_minZF phi :
+  entailment_minZF' (rm_const_fm phi) -> entailment_ZF' phi.
+Proof.
+  intros H D M rho H1 H2. apply min_correct; trivial.
+  apply H; trivial. now apply min_axioms'.
+Qed.
+
 Lemma extensional_eq_min' V (M : @interp sig_func_empty _ V) rho :
   extensional M -> rho ⊫ minZF' -> rho ⊫ minZFeq'.
 Proof.
