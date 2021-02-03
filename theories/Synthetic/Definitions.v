@@ -1,3 +1,6 @@
+(** * Synthetic Computability *)
+(** ** Decidability, enumerability, reductions *)
+
 (* a decision problem on a domain X is mechanized by a predicate P : X -> Prop *)
   
 (* (complement P) is the complement decision problem of P *)

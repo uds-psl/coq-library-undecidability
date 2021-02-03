@@ -1,4 +1,4 @@
-(** * Halting problem for multi-tape and single-tape Turing machines HaltMTM and HaltTM 1  *)
+(*** * Halting problem for multi-tape and single-tape Turing machines HaltMTM and HaltTM 1  *)
 
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
 Require Import Vector List.

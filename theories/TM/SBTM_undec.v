@@ -4,7 +4,7 @@ Require Import Undecidability.TM.TM_undec.
 Require Undecidability.TM.Reductions.HaltTM_1_to_HaltSBTM.
 Require Undecidability.TM.Reductions.HaltSBTM_to_HaltSBTMu.
 
-(** ** HaltSBTM is undecidable  *)
+(*** ** HaltSBTM is undecidable  *)
 
 Lemma HaltSBTM_undec :
   undecidable SBTM.HaltSBTM.

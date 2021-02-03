@@ -7,7 +7,7 @@
     (2) Saarland University, Saarbrücken, Germany
 *)
 
-(** * Satisfiability of elementary, square, and uniform Diophantine constraints H10C_SAT, H10SQC_SAT, and H10UC_SAT *)
+(*** * Satisfiability of elementary, square, and uniform Diophantine constraints H10C_SAT, H10SQC_SAT, and H10UC_SAT *)
 
 (* 
   Problems(s):

@@ -1,4 +1,4 @@
-(* * Natural Deduction *)
+(** ** Natural Deduction *)
 
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.

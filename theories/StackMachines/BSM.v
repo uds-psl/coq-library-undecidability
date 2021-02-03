@@ -16,7 +16,7 @@ From Undecidability.Shared.Libs.DLW
 
 Set Implicit Arguments.
 
-(** * Halting problem for binary stack machines BSM_HALTING  *)
+(*** * Halting problem for binary stack machines BSM_HALTING  *)
 
 (* * Binary Stack Machines
    Binary stack machines have n stacks and there are just two instructions

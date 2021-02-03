@@ -9,7 +9,7 @@
 
 (* Certified Undecidability of Intuitionistic Linear Logic via Binary Stack Machines and Minsky Machines. Yannick Forster and Dominique Larchey-Wendling. CPP '19. http://uds-psl.github.io/ill-undecidability/ *)
 
-(** * Halting problem for two counter Minsky machines MM2_HALTING  *)
+(*** * Halting problem for two counter Minsky machines MM2_HALTING  *)
 
 Require Import List Arith Relations.
 

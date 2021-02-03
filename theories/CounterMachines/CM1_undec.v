@@ -5,7 +5,7 @@
     (1) Saarland University, Saarbrücken, Germany
 *)
 
-(** ** CM1_HALT is undecidable *)
+(*** ** CM1_HALT is undecidable *)
 
 (* 
   Undecidability Results(s):

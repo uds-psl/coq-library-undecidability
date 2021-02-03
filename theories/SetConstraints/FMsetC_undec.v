@@ -5,7 +5,7 @@
     (1) Saarland University, Saarbrücken, Germany
 *)
 
-(** ** FMsetC_SAT is undecidable *)
+(*** ** FMsetC_SAT is undecidable *)
 
 (* 
   Undecidability Result(s):

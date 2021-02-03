@@ -1,8 +1,8 @@
-(** Instantiations of first-order axiomatisations *)
+(** ** Construction of standard models *)
 From Undecidability.FOL Require Import binZF ZF Reductions.PCPb_to_ZF.
 From Undecidability.FOL Require Import Aczel Aczel_CE Aczel_TD Syntax FullTarski_facts.
 
-(** Model of ZF *)
+(** *** Extensional model of ZF using CE and TD *)
 
 Section ZFM.
 
@@ -119,7 +119,7 @@ Qed.
 
   
 
-(** Model of Z *)
+(** *** Extensional model of Z using CE *)
 
 Section ZM.
 
@@ -207,7 +207,7 @@ Qed.
 
 
 
-(** Intensional model of Z' *)
+(** *** Intensional model of Z' without assumptions *)
 
 Section IM.
   

@@ -1,4 +1,5 @@
-(* * Definition of semantic and deductive ZF-Entailment *)
+(** * ZF set theory with Skolem function symbols *)
+(** ** Axiomatisations *)
 
 Require Import Undecidability.FOL.Util.Syntax.
 Require Import Undecidability.FOL.Util.FullTarski.

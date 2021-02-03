@@ -14,7 +14,7 @@ From Undecidability.Shared.Libs.DLW
 
 Set Implicit Arguments.
 
-(** * Halting problem for Minsky machines MM_HALTING  *)
+(*** * Halting problem for Minsky machines MM_HALTING  *)
 
 (* * Minsky Machines (MM)
 

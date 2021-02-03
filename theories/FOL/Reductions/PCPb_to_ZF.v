@@ -1,4 +1,4 @@
-(* * Reduction to semantic ZF entailment *)
+(** ** Reduction from PCP to semantic entailment *)
 
 Require Import Undecidability.FOL.Util.Syntax.
 Require Import Undecidability.FOL.Util.Syntax_facts.

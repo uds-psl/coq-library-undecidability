@@ -1,3 +1,6 @@
+(** * Peano Arithmetic *)
+(** ** Axiomatisations *)
+
 Require Import Undecidability.FOL.Util.Syntax.
 Require Import Undecidability.FOL.Util.FullTarski.
 Require Import Undecidability.FOL.Util.FullDeduction.

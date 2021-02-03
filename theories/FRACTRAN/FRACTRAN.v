@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-(** * Halting problem for FRACTRAN programs FRACTRAN_HALTING *)
+(*** * Halting problem for FRACTRAN programs FRACTRAN_HALTING *)
 
 Require Import List Arith.
 

@@ -1,4 +1,5 @@
-(* * First-Order Logic *)
+(** * First-Order Logic *)
+(** ** Syntax *)
 
 
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.

@@ -1,3 +1,5 @@
+(** ** Undecidability *)
+
 Require Export Undecidability.Synthetic.Definitions Undecidability.Synthetic.ReducibilityFacts.
 Require Import Undecidability.TM.TM.
 

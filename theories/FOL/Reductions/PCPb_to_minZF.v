@@ -1,4 +1,4 @@
-(* * Conservativity *)
+(** ** Translation from ZF over Skolem signature *)
 
 From Undecidability.FOL Require Import Util.FullTarski_facts Util.Syntax_facts Util.FullDeduction_facts.
 From Undecidability.FOL Require Import ZF Reductions.PCPb_to_ZF minZF.

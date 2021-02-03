@@ -3,7 +3,7 @@ Require Import Undecidability.TM.TM.
 
 Require Import Undecidability.TM.Reductions.mTM_to_TM.
 
-(** ** HaltMTM and HaltTM 1 are undecidable *)
+(*** ** HaltMTM and HaltTM 1 are undecidable *)
 
 Lemma HaltTM_1_undec :
   undecidable (HaltTM 1).

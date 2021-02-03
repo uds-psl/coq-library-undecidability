@@ -1,4 +1,4 @@
-(** * Post Correspondence problem PCP *)
+(*** * Post Correspondence problem PCP *)
 
 (* Definitions of variants of the Post correspondence problem. *)
 
