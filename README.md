@@ -110,8 +110,9 @@ opam install . --deps-only
 
 ### Building the undecidability library
 
-- `make all` builds the library
-- `make TM/TM.vo` compiles only the file `theories/TM/TM.v` and its dependencies
+- navigate to the `theories` directory
+- `make all` builds the whole library
+- `make FOL/Util/Axiomatisations.vo` compiles the summary file and all necessary files to assess the ITP submission
 - `make html` generates clickable coqdoc `.html` in the `website` subdirectory
 - `make clean` removes all build files in `theories` and `.html` files in the `website` directory
 
