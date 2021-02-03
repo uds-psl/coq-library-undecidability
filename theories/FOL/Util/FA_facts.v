@@ -362,7 +362,7 @@ Section FA_models.
   Hypothesis ext_model : extensional I.
   Hypothesis FA_model : forall ax rho, List.In ax FA -> rho ⊨ ax.
 
-
+  (** # <a id="imu" /> #*)
   Fixpoint iμ k := match k with
                    | O => iO
                    | S n => iσ (iμ n)

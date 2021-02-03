@@ -123,7 +123,16 @@ Section FA_ext_Model.
       intros [a b] sigma Hs. cbn -[sat].
       unfold H10p_sem in *. cbn -[FA] in *.
       apply ext_model. rewrite !eval_poly. congruence.
-    Qed.      
+    Qed.
+
+    Theorem H10p_to_FA_ext_model' E rho : H10p E -> rho ⊨ embed E.
+    Proof.
+      intros [sigma HE].
+      eapply subst_exist_sat.
+      apply problem_to_ext_model.
+      - apply HE.
+      - rewrite <-exists_close_form; apply embed_is_closed. 
+    Qed.
     
 End FA_ext_Model.
 
@@ -209,6 +218,15 @@ Proof.
     + now rewrite IHp1, IHp2.
 Qed.
 
+Lemma nat_H10 E :
+  (forall rho, sat interp_nat rho (embed E)) -> H10p E.
+Proof.
+  destruct E as [a b]. unfold embed in *.
+  intros H. specialize (H (fun _ => 0)).
+  apply subst_exist_sat2 in H as [sigma H].
+  exists sigma. unfold H10p.H10p_sem. cbn.
+  rewrite <- !nat_eval_poly. apply H.
+Qed.
 
 Lemma nat_sat :
   forall E rho, sat interp_nat rho (embed_problem E) <-> H10p_sem E rho.
