@@ -78,25 +78,6 @@ Target problems are very expressive and thus work well as targets for reduction,
 
 ## Installation Instructions
 
-If you can use `opam 2` on your system, you can follow the instructions here.
-If you cannot use `opam 2`, you can use the `noopam` branch of this repository, which has no dependencies, but less available problems.
-
-### Install from opam
-
-We recommend creating a fresh opam switch:
-
-```
-opam switch create coq-library-undecidability 4.07.1+flambda
-eval $(opam env)
-```
-
-Then the following commands install the library:
-
-```
-opam repo add coq-released https://coq.inria.fr/opam/released
-opam install coq-library-undecidability.1.0.0+8.12
-```
-
 ### Manual installation
 
 You need `Coq 8.12` built on OCAML `>= 4.07.1`, the [Smpl](https://github.com/uds-psl/smpl) package, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
