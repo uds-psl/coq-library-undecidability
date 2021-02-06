@@ -18,6 +18,8 @@ FRACTRAN/FRACTRAN_undec.v
 
 DiophantineConstraints/H10C.v
 DiophantineConstraints/H10C_undec.v
+DiophantineConstraints/H10UPC.v
+DiophantineConstraints/H10UPC_undec.v
 
 CounterMachines/CM1.v
 CounterMachines/Reductions/HaltTM_1_to_CM1_HALT.v
@@ -770,6 +772,7 @@ DiophantineConstraints/Util/h10c_utils.v
 DiophantineConstraints/Reductions/FRACTRAN_to_H10C_SAT.v
 DiophantineConstraints/Reductions/H10C_SAT_to_H10SQC_SAT.v
 DiophantineConstraints/Reductions/H10SQC_SAT_to_H10UC_SAT.v
+DiophantineConstraints/Reductions/H10UC_SAT_to_H10UPC_SAT.v
 
 SetConstraints/Util/Facts.v
 SetConstraints/Util/mset_eq_utils.v
