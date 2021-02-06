@@ -188,7 +188,7 @@ Section mma2_simul.
          repeat (invert pos p; rew vec). }
     pose proof L1 as L1. pose proof L2 as L2.
     apply subcode_sss_progress with (P := (2+eQ,mma_jump 0 pos0)); auto. 
-    apply mma_jump_progress.
+    apply mma_jump_progress; auto.
   Qed.
 
   Definition mma2_simul := Q ++ cN.
