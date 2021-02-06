@@ -89,7 +89,7 @@ Section Fractran_with_two_counters.
     Fact mma_fractran_one_length : length mma_fractran_one = 29+4*p+7*q.
     Proof. unfold mma_fractran_one; rew length; lia. Qed.
 
-    Hypothesis (Hp : p <> 0) (Hq : q <> 0).
+    Hypothesis (Hq : q <> 0).
 
     (* If the state in src is compatible with p/q then
        src becomes src*p/q and jump at j *)
@@ -98,7 +98,7 @@ Section Fractran_with_two_counters.
             k*q = p*(v#>src)
          -> v#>dst = 0
          -> (i0,mma_fractran_one) //ₐ (i0,v) -+> (j,v[k/src]).
-    Proof using Hp Hq.
+    Proof using Hq.
       intros H1 H2; unfold mma_fractran_one.
       apply sss_progress_trans with (i1,v[0/src][(k*q)/dst]).
       { apply subcode_sss_progress with (P := (i,mma_mult_cst src dst p i)); auto.
@@ -131,7 +131,7 @@ Section Fractran_with_two_counters.
             ~ divides q (p*(v#>src))
          -> v#>dst = 0
          -> (i0,mma_fractran_one) //ₐ (i0,v) -+> (length mma_fractran_one+i0,v).
-    Proof using Hp Hq.
+    Proof using Hq.
       rewrite mma_fractran_one_length.
       intros H1 H2; unfold mma_fractran_one.
       rewrite divides_rem_eq in H1.
@@ -164,8 +164,6 @@ Section Fractran_with_two_counters.
 
   Hint Rewrite mma_fractran_one_length : length_db.
 
-  Notation fractran_super_regular := (Forall (fun c => fst c <> 0 /\ snd c <> 0)).
-
   Section mma_fractran_step.
 
     (* One step of Fractran computation *)
@@ -182,13 +180,14 @@ Section Fractran_with_two_counters.
     Notation FRAC_STEPₐ := mma_fractran_step.
 
     Fact mma_fractran_step_success_progress Q i x y : 
-            fractran_super_regular Q
+            fractran_regular Q
          -> Q /F/ x ≻ y
          -> (i,mma_fractran_step Q i) //ₐ (i,x##0##ø) -+> (j,y##0##ø).
     Proof.
+      unfold fractran_regular.
       intros H1 H2; revert H2 i H1.
       induction 1 as [ p q ll x y H1 | p q ll x y H1 H2 IH2 ];
-        intros i H3; rewrite Forall_cons_inv in H3; destruct H3 as ((H3 & H4) & H5); simpl in H3, H4;
+        intros i H3; rewrite Forall_cons_inv in H3; destruct H3 as (H3 & H4); simpl in H3, H4;
         unfold mma_fractran_step; fold mma_fractran_step.
       + apply subcode_sss_progress with (P := (i,mma_fractran_one p q j i)); auto.
         apply mma_fractran_one_ok_progress with (v := _##_##ø); auto.
@@ -202,12 +201,13 @@ Section Fractran_with_two_counters.
     Qed.
 
     Fact mma_fractran_step_failure_compute Q i x : 
-            fractran_super_regular Q
+            fractran_regular Q
          -> Q /F/ x ⊁ *
          -> (i,mma_fractran_step Q i) //ₐ (i,x##0##ø) ->> (length (mma_fractran_step Q i)+i,x##0##ø).
     Proof.
+      unfold fractran_regular.
       intros H1 H2; revert H1 i H2.
-      induction 1 as [ | (p,q) ll (Hp & Hq) Hll IH ]; intros i H4.
+      induction 1 as [ | (p,q) ll Hq Hll IH ]; intros i H4.
       + mma sss stop.
       + apply fractan_stop_cons_inv in H4; destruct H4 as (H4 & H5).
         unfold mma_fractran_step; fold mma_fractran_step.
@@ -224,7 +224,7 @@ Section Fractran_with_two_counters.
 
   Section fractran_mma.
 
-    Variables (Q : list (nat*nat)) (HQ : fractran_super_regular Q).
+    Variables (Q : list (nat*nat)) (HQ : fractran_regular Q).
 
     Definition fractran_mma := mma_fractran_step 1 Q 1.
 
@@ -281,7 +281,7 @@ Section Fractran_with_two_counters.
 
   Section fractran_mma0.
 
-    Variables (Q : list (nat*nat)) (HQ : fractran_super_regular Q).
+    Variables (Q : list (nat*nat)) (HQ : fractran_regular Q).
 
     Let P := fractran_mma Q.
 
@@ -334,40 +334,11 @@ Section Fractran_with_two_counters.
 
 End Fractran_with_two_counters.
 
-Section fractran_mma_reg_reductions.
+Theorem fractran_reg_mma0_reductions Q : 
+             fractran_regular Q 
+          -> (forall x, Q /F/ x ↓ <-> (1,fractran_mma0 Q) //ₐ (1,x##0##ø) ↓)
+          /\ (forall x, Q /F/ x ↓ <-> (1,fractran_mma0 Q) //ₐ (1,x##0##ø) ~~> (0,(0##0##ø))).
+Proof.
+  do 2 (split; intros); repeat (apply fractran_mma0_reduction; auto).
+Qed.
 
-  Variables (Q : list (nat*nat)).
-
-  Let reduction : { P | fractran_regular Q 
-                     -> forall x, ( Q /F/ x ↓ -> (1,P) //ₐ (1,x##0##ø) ~~> (0,0##0##ø) )
-                               /\ ( (1,P) //ₐ (1,x##0##ø) ~~> (0,0##0##ø) -> (1,P) //ₐ (1,x##0##ø) ↓ )
-                               /\ ( (1,P) //ₐ (1,x##0##ø) ↓ -> Q /F/ x ↓ ) }.
-  Proof.
-    destruct (Forall_Exists_dec (fun c : nat * nat => fst c <> 0)) with (l := Q) as [ H | H ].
-    + intros (x,?); simpl; destruct (eq_nat_dec x 0); subst; auto. 
-    + exists (fractran_mma0 Q); intros HQ x.
-      apply fractran_mma0_reduction; red in HQ.
-      revert H HQ; repeat rewrite Forall_forall; firstorder.
-    + rewrite Exists_exists in H.
-      exists (mma_loop pos0 1); intros Hll.
-      destruct H as ((x,y) & H1 & H2); simpl in H2.
-      replace x with 0 in H1 by lia; clear H2.
-      intros n; msplit 2.
-      * intros H; exfalso.
-        revert H; apply FRACTRAN_HALTING_zero_num.
-        apply Exists_exists; exists (0,y); auto.
-      * now exists (0,0##0##ø).
-      * intros H; exfalso; revert H; apply mma_loop_spec.
-  Qed.
-
-  Definition fractran_reg_mma := proj1_sig reduction.
-
-  Theorem fractran_reg_mma_reductions : 
-                       fractran_regular Q 
-          -> (forall x, Q /F/ x ↓ <-> (1,fractran_reg_mma) //ₐ (1,x##0##ø) ↓)
-          /\ (forall x, Q /F/ x ↓ <-> (1,fractran_reg_mma) //ₐ (1,x##0##ø) ~~> (0,(0##0##ø))).
-  Proof. 
-     do 2 (split; intros); repeat (apply (proj2_sig reduction); auto). 
-  Qed.
-
-End fractran_mma_reg_reductions.

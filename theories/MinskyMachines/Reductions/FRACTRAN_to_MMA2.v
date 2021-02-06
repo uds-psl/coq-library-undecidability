@@ -36,19 +36,19 @@ Section FRACTRAN_REG_MMA2_and_ON_ZERO.
   Let f : FRACTRAN_REG_PROBLEM -> MMA2_PROBLEM.
   Proof.
     intros (Q & x & _).
-    exact (fractran_reg_mma Q,x##0##vec_nil).
+    exact (fractran_mma0 Q,x##0##vec_nil).
   Defined.
 
   Theorem FRACTRAN_REG_MMA2_HALTING : FRACTRAN_REG_HALTING ⪯ MMA2_HALTING.
   Proof.
     exists f; intros (? & ? & ?); simpl.
-    now apply fractran_reg_mma_reductions.
+    now apply fractran_reg_mma0_reductions.
   Qed.
 
   Theorem FRACTRAN_REG_MMA2_HALTS_ON_ZERO : FRACTRAN_REG_HALTING ⪯ MMA2_HALTS_ON_ZERO.
   Proof.
     exists f; intros (? & ? & ?); simpl.
-    now apply fractran_reg_mma_reductions.
+    now apply fractran_reg_mma0_reductions.
   Qed.
 
 End FRACTRAN_REG_MMA2_and_ON_ZERO.
