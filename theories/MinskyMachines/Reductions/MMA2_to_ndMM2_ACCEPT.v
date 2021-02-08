@@ -40,12 +40,15 @@ Section MMA2_ndMM2.
 
   Notation ø := vec_nil.
 
+  Definition pos2_to_bool (p : pos 2) :=
+    match p with pos0 => α | _ => β end.
+
+  Notation "⌈ p ⌉" := (pos2_to_bool p) (at level 1, format "⌈ p ⌉").
+
   Definition mma2_instr_enc i (ρ : mm_instr (pos 2)) :=
     match ρ with
-      | INCₐ pos0   => INCₙ α i (1+i) :: nil
-      | INCₐ _      => INCₙ β i (1+i) :: nil
-      | DECₐ pos0 j => DECₙ α i j :: ZEROₙ α  i (1+i) :: nil
-      | DECₐ _    j => DECₙ β i j :: ZEROₙ β i (1+i) :: nil
+      | INCₐ x   => INCₙ ⌈x⌉ i (1+i) :: nil
+      | DECₐ x j => DECₙ ⌈x⌉ i j :: ZEROₙ ⌈x⌉ i (1+i) :: nil
     end.
 
   Notation "'⟨' i , ρ '⟩₁'" := (mma2_instr_enc i  ρ) (format "⟨ i , ρ ⟩₁").
@@ -100,7 +103,7 @@ Section MMA2_ndMM2.
     state rebuild s1 i a b.
     state rebuild s2 j a' b'.
     generalize s1 s2; clear s1 s2 i a b j a' b'.
-    induction 1 as [ i x v | i x k v Hv | i x k v u Hv ]; try revert Hv;
+    destruct 1 as [ i x v | i x k v Hv | i x k v u Hv ]; try revert Hv;
       vec2 v into a b; repeat invert pos x; simpl.
     + constructor 2 with (1+i); auto.
     + constructor 3 with (1+i); auto.
@@ -130,12 +133,12 @@ Section MMA2_ndMM2.
   Variable P : list (mm_instr (pos 2)).
 
   Definition mma2_prog_enc := STOPₙ 0 :: ⟪1,P⟫ₗ.
-  Notation Σ := mma2_prog_enc.
+  Notation ΣP := mma2_prog_enc.
 
-  Local Lemma mma2_prog_enc_sound i a b j a' b'  : 
+  Local Lemma mma2_compute_linstr_sound i a b j a' b'  : 
           (1,P) //ₐ (i,a##b##ø) ->> (j,a'##b'##ø)
-       -> Σ //ₙ a' ⊕ b' ⊦ j 
-       -> Σ //ₙ a  ⊕ b  ⊦ i.
+       -> ΣP //ₙ a' ⊕ b' ⊦ j 
+       -> ΣP //ₙ a  ⊕ b  ⊦ i.
   Proof.
     intros (n & Hn); revert Hn.
     state rebuild s1 i a b.
@@ -147,13 +150,17 @@ Section MMA2_ndMM2.
     apply mma2_step_linstr_sound with (1 := H1), incl_tl, incl_refl.
   Qed. 
  
-  Local Lemma mma2_prog_enc_stop : Σ //ₙ 0 ⊕ 0 ⊦ 0.
+  Local Lemma mma2_prog_enc_stop : ΣP //ₙ 0 ⊕ 0 ⊦ 0.
   Proof. constructor 1; simpl; auto. Qed.
 
   Hint Resolve mma2_prog_enc_stop : core.
 
-  Local Lemma mma2_prog_enc_complete a b p : 
-             Σ //ₙ a ⊕ b ⊦ p -> (1,P) //ₐ (p,a##b##ø) ->> (0,0##0##ø).
+  Local Lemma mma2_prog_enc_sound i a b  : 
+          (1,P) //ₐ (i,a##b##ø) ->> (0,0##0##ø) -> ΣP //ₙ a  ⊕ b  ⊦ i.
+  Proof. intros H; apply mma2_compute_linstr_sound in H; auto. Qed.
+
+  Local Lemma mma2_prog_enc_complete a b i : 
+             ΣP //ₙ a ⊕ b ⊦ i -> (1,P) //ₐ (i,a##b##ø) ->> (0,0##0##ø).
   Proof.
     induction 1 as [ u H 
                    | a b u v H H1 IH1
@@ -240,11 +247,10 @@ Section MMA2_ndMM2.
   Qed.
 
   Theorem MMA2_ndMM2_equiv a b : (1,P) //ₐ (1,a##b##ø) ~~> (0,0##0##ø) 
-                             <-> Σ //ₙ a ⊕ b ⊦ 1.
+                             <-> ΣP //ₙ a ⊕ b ⊦ 1.
   Proof.
     split.
-    + intros (H1 & _). 
-      now apply mma2_prog_enc_sound with (1 := H1).
+    + intros []; apply mma2_prog_enc_sound; auto.
     + split.
       * now apply mma2_prog_enc_complete.
       * simpl; lia.
