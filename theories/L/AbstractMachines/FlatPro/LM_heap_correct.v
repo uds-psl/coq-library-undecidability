@@ -316,7 +316,6 @@ Proof.
    +rewrite Ext1,Ext2,Ext2',Ext3. reflexivity.
 Qed. 
 
-Definition init s :state := ([(0,compile s)],[],[]).
 
 Lemma completenessTimeInformative s t k:
   timeBS k s t -> closed s ->

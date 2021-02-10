@@ -77,6 +77,8 @@ Section Semantics.
       step ((a, (varT n :: P)) :: T, V, H) (tailRecursion (a, P) T, g :: V, H)
   .
 
+  Definition init s :state := ([(0,compile s)],[],[]).
+
   (* ** Auxilliary Definitions *)
 
   Definition halt_state (s : state) : Prop :=

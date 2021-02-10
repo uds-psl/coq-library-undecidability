@@ -1,3 +1,4 @@
+From Undecidability.L Require Import Util.Subterm.
 From Undecidability.L.Datatypes Require Import LProd LNat LTerm.
 
 Fixpoint largestVar (s:term) : nat :=
@@ -7,6 +8,17 @@ Fixpoint largestVar (s:term) : nat :=
   | lam s => largestVar s
   end.
 
+Lemma subterm_largestVar s s' :
+subterm s s' -> largestVar s <= largestVar s'.
+Proof.
+  induction 1;cbn;Lia.nia.
+Qed.
+
+Lemma largestVar_size s :
+  largestVar s <= size s.
+Proof.
+  induction s;cbn;Lia.lia.
+Qed.
 
 Lemma largestVar_prod X Y `{Rx : encodable X} {Ry : encodable Y} (w:X*Y):
   largestVar (enc w) = max (largestVar (enc (fst w))) (largestVar (enc (snd w))).
@@ -29,8 +41,3 @@ Proof.
   all:try Lia.lia.
 Qed.
 
-Lemma largestVar_size s :
-  largestVar s <= size s.
-Proof.
-  induction s;cbn;Lia.lia.
-Qed.

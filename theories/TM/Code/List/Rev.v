@@ -227,35 +227,32 @@ Ltac hstep_Rev :=
 
 Smpl Add hstep_Rev : hstep_Spec.
 
-From Undecidability.L.Complexity Require Import UpToC.
 
-Arguments Rev_Append_steps {sigX X cX} : simpl never.
-Arguments Rev_Append_size {sigX X cX} : simpl never.
 Arguments Rev_steps {sigX X cX} : simpl never.
 Arguments Rev_size {sigX X cX} : simpl never.
+
+From Undecidability.L.Complexity Require Import UpToC.
 
 Section Rev_nice.
   Variable (sigX X : Type) (cX : codable sigX X).
 
   Lemma Rev_Append_steps_nice :
-    Rev_Append_steps <=c size (X:=list X).
+    Rev_Append_steps (cX:=cX) <=c size (X:=list X).
   Proof.
-    eexists ?[c]. intros xs. unfold Rev_Append_steps.
-    rewrite Encode_list_hasSize.
-    unfold Rev_Step_steps. induction xs.
-    -unfold CaseList_steps. cbn. enough (1 + CaseList_steps_nil + ResetEmpty1_steps <= ?c) by nia. shelve.
-    -rewrite IHxs. unfold CaseList_steps,CaseList_steps_cons ,Constr_cons_steps ,Reset_steps .
-      cbn. ring_simplify. enough (76 <= ?c) by nia. shelve.
-    Unshelve. 3:reflexivity. cbv. nia.
-  Qed. 
+    eexists (82). intros xs. unfold Rev_steps.
+    induction xs;repeat (cbn in *;unfold Constr_nil_steps,CaseList_steps_nil ,Constr_cons_steps,Reset_steps 
+                        ,CaseList_steps,ResetEmpty1_steps,CaseList_steps_cons in * ).
+    all:rewrite Encode_list_hasSize in *;cbn.
+    nia.
+    ring_simplify. ring_simplify in IHxs. setoid_rewrite <- IHxs.  nia.
+  Qed.
 
   Lemma Rev_steps_nice :
-    Rev_steps <=c size (X:=list X).
+    Rev_steps (cX:=cX) <=c size (X:=list X).
   Proof.
-    eexists ?[c]. intros xs. unfold Rev_steps.
-    rewrite (correct__leUpToC Rev_Append_steps_nice).
-    [c]: exact (1 + Constr_nil_steps + c__leUpToC (H:=Rev_Append_steps_nice)).
-    enough (1<= size xs) by nia. now rewrite Encode_list_hasSize_ge1, Encode_list_hasSize.
-  Qed. 
+    unfold Rev_steps;cbn. smpl_upToC. 3:now apply Rev_Append_steps_nice.
+    all:eapply upToC_le;intros [].
+    all:rewrite Encode_list_hasSize;cbn;nia.
+  Qed.
 
 End Rev_nice.
