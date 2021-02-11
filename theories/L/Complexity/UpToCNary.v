@@ -79,6 +79,15 @@ Proof.
   prove_nary upToC_mul_c_r.
 Qed.
 
+Lemma upToC_mul_descend_nary (domain : list Set) (f g : Rarrow domain nat) f' g':
+  Uncurry f <=c f'
+  -> Uncurry g <=c g'
+  -> Fun' (fun x => App f x * App g x)
+    <=c Fun' (fun x => f' x * g' x).
+Proof.
+  prove_nary upToC_mul_descend. 
+Qed.
+
 Lemma upToC_c_nary (domain : list Set) c F:
   (fun _ => 1) <=c F ->  
   Const' domain c <=c F.
@@ -140,12 +149,17 @@ Ltac leUpToC_domain G :=
 
 
 
-
+Ltac upToC_elimConstFactor := etransitivity;[
+  repeat first [nary simple apply upToC_mul_c_l_nary
+               |nary simple apply upToC_mul_c_r_nary
+               |nary simple apply upToC_mul_descend_nary
+               |apply CRelationClasses.reflexivity ]|cbn beta iota].
 
 
 Smpl Add 6 first [nary simple apply upToC_add_nary | nary simple apply upToC_mul_c_l_nary | nary simple apply upToC_mul_c_r_nary
                   | nary simple apply upToC_max_nary| nary simple apply upToC_min_nary
-                  | progress (nary simple apply upToC_c_nary) | _applyIfNotConst_nat (nary simple apply upToC_S_nary)] : upToC.
+                  | progress (nary simple apply upToC_c_nary) | _applyIfNotConst_nat (nary simple apply upToC_S_nary)
+                  | progress upToC_elimConstFactor] : upToC.
 
 
 Ltac destruct_pair_rec p :=

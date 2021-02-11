@@ -106,6 +106,16 @@ Proof.
   intros (c'&H). exists (c'*c). intros. rewrite H. nia. 
 Qed.
 
+Lemma upToC_mul_descend X (g g' f f' : X -> _):
+  g <=c  g'
+  -> f <=c  f'
+  -> (fun x => g x * f x) <=c (fun x => g' x * f' x).
+Proof.
+  intros [c Hc] [c' Hc']. exists (c*c'). intro.  rewrite Hc,Hc'. nia.
+Qed.
+
+
+
 Lemma upToC_c X c (F : X -> nat):
   (fun _ => 1) <=c F ->  
   (fun _ => c ) <=c F.
