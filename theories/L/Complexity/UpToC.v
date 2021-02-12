@@ -8,6 +8,9 @@ From Coq Require Import CRelationClasses CMorphisms.
 Import CMorphisms.ProperNotations. 
 From Undecidability.Shared.Libs.PSL Require FinTypes.
 
+Local Set Universe Polymorphism. 
+
+
 Record leUpToC {X} (f g : X -> nat) : Type :=
   { c__leUpToC : nat;
     correct__leUpToC : forall x, f x <= c__leUpToC * g x

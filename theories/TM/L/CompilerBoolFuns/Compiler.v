@@ -1,5 +1,5 @@
 From Undecidability.Shared.Libs.PSL Require Import FinTypes Vectors.
-From Undecidability.L Require Import L_facts LM_heap_def.
+From Undecidability.L Require Import L_facts LM_heap_def UpToCNary.
 
 
 From Coq Require Import List.
@@ -17,18 +17,22 @@ Section APP_right.
     App _.
   
   Lemma APP_right_Spec :
-    { f & forall s1 s2 : term,
+    { f : UpToC (fun '(s1,s2)=>size (compile s1) + size (compile s2)) & forall s1 s2 : term,
     TripleT ≃≃([],[|Contains _ (compile s1);Contains _ (compile s2)|])
-    (f s1 s2) APP_right (fun _ => ≃≃([],[|Contains _ (compile (L.app s1 s2));Void|])) }.
+    (f (s1,s2)) APP_right (fun _ => ≃≃([],[|Contains _ (compile (L.app s1 s2));Void|])) }.
   Proof.
-    evar (f : term -> term -> nat).
-    eexists f. [f]:intros s1 s2.
+    eexists_UpToC f. [f]:refine (fun '(s1,s2) => _).
     intros s1 s2.
     unfold APP_right.
     hsteps_cbn.
     -rewrite app_assoc.  reflexivity.
     -reflexivity.
-    -unfold f. reflexivity.
+    - rewrite !(correct__leUpToC (App_steps_nice _) (_,_)).
+      rewrite Encode_list_hasSize with (xs:=(compile s1 ++ compile s2)%list).
+      rewrite Encode_list_hasSize_app, <- !Encode_list_hasSize. reflexivity.
+    -assert (H': (fun x => 1) <=c (fun '(s1,s2)=>size (compile s1) + size (compile s2))).
+     { eapply upToC_le. intros []. setoid_rewrite Encode_list_hasSize. setoid_rewrite <- Encode_list_hasSize_ge1. nia. }
+    unfold f. unfold sigPro. cbn - ["-" "+"]. smpl_upToC. cbn. all:try smpl_upToC_solve.
   Qed.
  
 
@@ -152,12 +156,13 @@ Section mk_init_one.
 
     
   Lemma M_init_one_Spec :
-    { f & forall (bs:list bool) (ter : L.term),
+    { f : UpToC (fun '(s1,s2)=>1) & forall (bs:list bool) (ter : L.term),
     TripleT ≃≃([],[|Custom (eq (encBoolsTM s b bs));Contains _ (compile ter);Void;Void;Void;Void|])
-    (f bs ter) M_init_one (fun _ => ≃≃([],[|Custom (eq (encBoolsTM s b bs));Contains _ (compile (L.app ter (encBoolsL bs)));Void;Void;Void;Void|])) }.
+    (f (bs,ter)) M_init_one (fun _ => ≃≃([],[|Custom (eq (encBoolsTM s b bs));Contains _ (compile (L.app ter (encBoolsL bs)));Void;Void;Void;Void|])) }.
   Proof using H_disj.
-    evar (f : list bool -> term -> nat).
-    eexists f. [f]:intros bs ter.
+    eexists_UpToC f. 
+    { 
+    [f]:refine (fun '(bs,ter) => _).
     intros bs ter.
     unfold M_init_one.
     hstep. { hsteps_cbn. cbn. eapply (projT2 (encBoolsTM2boollist.SpecT _ H_disj)). }
@@ -169,8 +174,21 @@ Section mk_init_one.
     } 2:reflexivity.
     cbn. intros _. hsteps_cbn.
      now eapply (projT2 (APP_right_Spec)). 1,2:now cbn;tspec_ext.
-     subst f. cbn beta. reflexivity.
-  Qed.
+     subst f. cbn beta. cbn beta iota.  reflexivity.
+    }
+    etransitivity.
+    {
+       unfold f. eapply upToC_le. intros [bs ter].
+       rewrite (correct__leUpToC (Rev_steps_nice _)).
+       rewrite (correct__leUpToC (BoollistEnc.boollist_size)).
+       do 3 rewrite (correct__leUpToC (correct__UpToC _)).
+       rewrite rev_length.
+
+       (*
+       rewrite LMBoundsLoop.size_le_sizeP.
+        } 
+    unfold f. smpl_upToC. *)
+  Admitted.
 
 End  mk_init_one.
 

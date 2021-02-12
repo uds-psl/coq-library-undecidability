@@ -126,11 +126,11 @@ Smpl Create generic.
 Smpl Add 2 _rewrite_anywhere Fun'_simpl : generic.
 
 
-Lemma App_Const_simpl :
-  forall domain range c x,
+Lemma App_Const_simpl (domain :list Type) (range:Type):
+  forall  c x,
   @App domain range (Const domain c) x = c.
 Proof.
-  intro. induction domain; intros; autorewrite with App.
+  induction domain in range|-*; intros; autorewrite with App.
   - reflexivity.
   - destruct domain; autorewrite with App.
     + reflexivity.
@@ -177,12 +177,12 @@ Record Domain_of_goal := Mk_domain_of_goal {
 Arguments Mk_domain_of_goal [Domain_of_goal_domain_ty].
 
 Ltac mk_domain_getter tac :=
-  match goal with
+  lazymatch goal with
   | H : Domain_goal_hint ?G |- Domain_of_goal => tac G
   end.
 
 Ltac get_domain :=
-  match goal with |- ?G =>
+  lazymatch goal with |- ?G =>
     let packed_dom := constr:(ltac:(
                          pose proof (Mk_domain_goal_hint G);
                          typeclasses eauto with domain_of_goal
@@ -212,10 +212,10 @@ Tactic Notation "nary" "simple" "apply" uconstr(L) := _nary_apply ltac:(fun t =>
 (******************************************************************************)
 (* Utilities *)
 
-Ltac list_of_tuple ty :=
+Ltac list_of_tuple universe ty :=
   lazymatch ty with
   | prod ?A ?B =>
-    let l := list_of_tuple A in
-    constr:(cons (B:Set) l)
-  | _ => constr:(cons (ty:Set) nil)
+    let l := list_of_tuple universe A in
+    constr:(cons (B:universe) l)
+  | _ => constr:(cons (ty:universe) nil)
   end.

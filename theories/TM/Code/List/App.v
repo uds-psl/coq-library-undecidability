@@ -293,7 +293,7 @@ Section Append.
   Arguments App_size : simpl never.
 
 
-  Definition App_steps (Q Q': list X) := 1 + App'_steps Q + MoveValue_steps (Q ++ Q') Q.
+  Definition App_steps {sigX X} {cX:codable sigX X} (Q Q': list X) := 1 + App'_steps Q + MoveValue_steps (Q ++ Q') Q.
 
   Definition App_T : tRel (sigList sigX) ^+ 2 :=
     fun tin k => exists (Q Q' : list X), tin[@Fin0] ≃ Q /\ tin[@Fin1] ≃ Q' /\ App_steps Q Q' <= k.
@@ -345,10 +345,10 @@ Arguments App'_size {sigX X cX} : simpl never.
 Arguments App_steps {sigX X cX} : simpl never.
 Arguments App_size {sigX X cX} : simpl never.
 
-From Undecidability.L.Complexity Require Import UpToC.
+From Undecidability.L.Complexity Require Import UpToCNary.
 
 Section App_nice.
-  Variable (sigX X : Type) (cX : codable sigX X).
+  Variable (sigX X: Type) (cX : codable sigX X).
 
   Lemma App'_steps_nice :
     App'_steps <=c size (X:=list X).
@@ -356,6 +356,18 @@ Section App_nice.
     eexists (29+12). intros xs. unfold App'_steps.
     rewrite Encode_list_hasSize. 
     specialize (Encode_list_hasSize_ge1 _ xs). nia.
+  Qed.
+
+  Lemma App_steps_nice :
+    (fun '(x,y) => App_steps (X:=X) x y) <=c (fun '(x,y) => size x + size y).
+  Proof.
+    unfold App_steps.  etransitivity. 
+    - eapply upToC_le with (F:=(fun '(x,y) => _)). intros [x y]. rewrite (correct__leUpToC App'_steps_nice x).
+      unfold MoveValue_steps. rewrite Encode_list_hasSize with (xs:=x++y).
+       rewrite Encode_list_hasSize_app, <- !Encode_list_hasSize. reflexivity.
+    - assert (Hs : (fun _ => 1) <=c (fun '(x, y) => size (X:=list X) x + size (X:=list X) y)).
+      { eapply upToC_le. intros []. rewrite Encode_list_hasSize,  <- Encode_list_hasSize_ge1. nia. }
+      smpl_upToC_solve.
   Qed.
 
 End App_nice.
