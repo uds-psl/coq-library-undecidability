@@ -68,9 +68,18 @@ Section ndmm2_imsell.
 
   Notation "£ A" := (@imsell_var _ _ A) (at level 1).
   Notation "‼ l" := (@imsell_lban nat sig l).
+  Notation "‼∞" := (map (fun A => ![∞]A)).
 
-  Definition bool2form (x : bool) := if x then ![a]£0 else ![b]£1.
-  Definition bool2bang_op (x : bool) := if x then b else a.
+  Local Definition formA : imsell_form nat sig := ![a](£0).
+  Local Definition formB : imsell_form nat sig := ![b](£1).
+  Local Definition var2pc p : imsell_form nat sig := £ (2+p).
+
+  Notation α := formA.
+  Notation β := formB.
+  Notation "⌊ p ⌋" := (var2pc p) (format "⌊ p ⌋"). 
+
+  Local Definition bool2form (x : bool) := if x then α else β.
+  Local Definition bool2bang_op (x : bool) := if x then b else a.
 
   Notation STOPₙ := (@ndmm2_stop _).
   Notation INCₙ  := (@ndmm2_inc _).
@@ -79,17 +88,17 @@ Section ndmm2_imsell.
 
   Definition ndmm2_imsell_form c :=
     match c with
-      | STOPₙ p     => (£(2+p) ⊸ £(2+p)) ⊸ £(2+p) 
-      | INCₙ  x p q => (bool2form x ⊸ £(2+q)) ⊸ £(2+p)
-      | DECₙ  x p q => bool2form x ⊸ £(2+q) ⊸ £(2+p)
-      | ZEROₙ x p q => (![bool2bang_op x]£(2+q)) ⊸ £(2+p)
+      | STOPₙ p     => (⌊p⌋ ⊸ ⌊p⌋) ⊸ ⌊p⌋ 
+      | INCₙ  x p q => (bool2form x ⊸ ⌊q⌋) ⊸ ⌊p⌋
+      | DECₙ  x p q => bool2form x ⊸ ⌊q⌋ ⊸ ⌊p⌋
+      | ZEROₙ x p q => (![bool2bang_op x]⌊q⌋) ⊸ ⌊p⌋
     end.
 
   Notation "⟬ c ⟭" := (ndmm2_imsell_form c) (at level 1, format "⟬ c ⟭").
 
-  Definition ndmm2_imsell_ctx Σ x y := map (fun c => ![∞]⟬c⟭) Σ
-                                    ++ repeat (![a]£0) x 
-                                    ++ repeat (![b]£1) y.
+  Definition ndmm2_imsell_ctx Σ x y := ‼∞ (map (fun c => ⟬c⟭) Σ)
+                                    ++ repeat α x 
+                                    ++ repeat β y.
 
   Notation "⟬ Σ , x , y ⟭" := (ndmm2_imsell_ctx Σ x y) (at level 1, format "⟬ Σ , x , y ⟭").
 
@@ -99,29 +108,49 @@ Section ndmm2_imsell.
   Fact ndmm2_imsell_eq2 Σ x y : ⟬Σ,x,y⟭ = ‼(map (fun c => (∞,⟬c⟭)) Σ ++ repeat (a,£0) x ++ repeat (b,£1) y).
   Proof.
     unfold ndmm2_imsell_ctx.
-    rewrite ndmm2_imsell_eq1.
+    rewrite map_map, ndmm2_imsell_eq1.
     unfold imsell_lban; rewrite !map_app, !map_map; f_equal.
     induction x; simpl; f_equal; auto.
     induction y; simpl; f_equal; auto.
   Qed.
 
+  Fact ndmm2_imsell_perm1 Σ x y : ⟬Σ,1+x,y⟭ ~p α::⟬Σ,x,y⟭ .
+  Proof.
+    unfold ndmm2_imsell_ctx.
+    apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _).
+    rewrite !app_ass; apply Permutation_app; auto.
+    simpl; apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _).
+    now rewrite app_ass.
+  Qed.
+
+  Fact ndmm2_imsell_perm2 Σ x y : ⟬Σ,x,1+y⟭ ~p β::⟬Σ,x,y⟭ .
+  Proof.
+    unfold ndmm2_imsell_ctx.
+    apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _).
+    rewrite !app_ass; repeat apply Permutation_app; auto.
+    simpl; apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _); auto.
+  Qed.
+
   Notation "Γ ⊢ A" := (S_imsell bang_le U Γ A) (at level 70).
 
-  Theorem ndmm2_imsell_weak c Σ x y p :
-            In c Σ
-        ->  ⟬Σ,x,y⟭  ⊢ £p 
-       <-> ![∞]⟬c⟭ :: ⟬Σ,x,y⟭  ++ nil ⊢ £p.
+  Theorem ndmm2_imsell_weak c Σ x y A :
+            c ∊ Σ
+        ->  ⟬Σ,x,y⟭  ⊢ A 
+       <-> ![∞]⟬c⟭ :: ⟬Σ,x,y⟭  ++ nil ⊢ A.
   Proof.
     intros H; rewrite <- app_nil_end.
-    unfold ndmm2_imsell_ctx.
-    rewrite !ndmm2_imsell_eq1.
-    apply S_imsell_weak_cntr with (u := ∞) (A := ⟬c⟭); auto.
+    apply S_imsell_extract; auto.
+    apply in_app_iff; left.
+    apply in_map_iff.
+    exists ⟬c⟭ ; split; auto.
     apply in_map_iff; eauto.
   Qed.
 
   Notation "Σ //ₙ a ⊕ b ⊦ p" := (ndmm2_accept Σ a b p) (at level 70, no associativity).
 
-  Theorem ndmm2_imsell_sound Σ x y p : Σ //ₙ x ⊕ y ⊦ p -> ⟬Σ,x,y⟭  ⊢ £(2+p).
+  Hint Resolve ndmm2_imsell_perm1 ndmm2_imsell_perm2 in_imsell_ax : core.
+
+  Theorem ndmm2_imsell_sound Σ x y p : Σ //ₙ x ⊕ y ⊦ p -> ⟬Σ,x,y⟭  ⊢ ⌊p⌋.
   Proof.
     induction 1 as [ p H1 
                    | x y p q H1 H2 IH2 | x y p q H1 H2 IH2 
@@ -129,93 +158,57 @@ Section ndmm2_imsell.
                    | y p q H1 H2 IH2 | x p q H1 H2 IH2 ].
 
     + apply ndmm2_imsell_weak with (1 := H1); simpl.
-      apply in_imsell_bang_l, in_imsell_limp_l.
-      * apply in_imsell_limp_r.
-        apply in_imsell_perm with (1 := Permutation_sym (Permutation_cons_append _ _)).
-        unfold ndmm2_imsell_ctx.
-        rewrite ndmm2_imsell_eq1; simpl; rewrite <- app_nil_end.
-        apply S_imsell_weak.
-        - apply Forall_forall; intros x Hx.
-          apply in_map_iff in Hx; revert Hx.
-          intros (? & <- & ?); auto.
-        - apply in_imsell_ax.
-      * apply in_imsell_ax.
+      apply in_imsell_bang_l, in_imsell_limp_l; auto.
+      apply in_imsell_limp_r.
+      apply in_imsell_perm with (1 := Permutation_sym (Permutation_cons_append _ _)).
+      unfold ndmm2_imsell_ctx; simpl; rewrite <- app_nil_end.
+      apply S_imsell_gen_weak; auto.
 
     + apply ndmm2_imsell_weak with (1 := H1); simpl.
-      apply in_imsell_bang_l, in_imsell_limp_l.
-      * apply in_imsell_limp_r.
-        revert IH2; apply in_imsell_perm.
-        unfold ndmm2_imsell_ctx.
-        apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _).
-        rewrite !app_ass; apply Permutation_app; auto.
-        simpl; apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _).
-        now rewrite app_ass.
-      * apply in_imsell_ax.
+      apply in_imsell_bang_l, in_imsell_limp_l; auto.
+      apply in_imsell_limp_r.
+      revert IH2; apply in_imsell_perm; auto.
 
     + apply ndmm2_imsell_weak with (1 := H1); simpl.
-      apply in_imsell_bang_l, in_imsell_limp_l.
-      * apply in_imsell_limp_r.
-        revert IH2; apply in_imsell_perm.
-        unfold ndmm2_imsell_ctx.
-        apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _).
-        rewrite !app_ass; repeat apply Permutation_app; auto.
-        simpl; apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _); auto.
-      * apply in_imsell_ax.
+      apply in_imsell_bang_l, in_imsell_limp_l; auto.
+      apply in_imsell_limp_r.
+      revert IH2; apply in_imsell_perm; auto.
 
     + apply ndmm2_imsell_weak with (1 := H1); simpl.
       apply in_imsell_bang_l.
-      apply in_imsell_perm with (Γ := (![a]£0) ⊸ £(2+q) ⊸ £(2+p) :: (![a]£0 :: nil) ++ ⟬Σ,x,y⟭).
-      * apply perm_skip; rewrite <- app_nil_end.
-        simpl; apply perm_trans with (1 := Permutation_cons_append _ _).
-        unfold ndmm2_imsell_ctx; simpl; rewrite !app_ass.
-        apply Permutation_app; auto.
-        apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _).
-        now rewrite !app_ass.
-      * apply in_imsell_limp_l.
-        - apply in_imsell_ax.
-        - rewrite app_nil_end with (l := ⟬Σ,x,y⟭).
-          apply in_imsell_limp_l; auto.
-          apply in_imsell_ax.
+      apply in_imsell_perm with (Γ := α⊸⌊q⌋⊸⌊p⌋ :: (α::nil) ++ ⟬Σ,x,y⟭).
+      * apply Permutation_sym, perm_skip; rewrite <- app_nil_end; simpl; auto.
+      * apply in_imsell_limp_l; auto.
+        rewrite app_nil_end with (l := ⟬_,_,_⟭).
+        apply in_imsell_limp_l; auto.
 
     + apply ndmm2_imsell_weak with (1 := H1); simpl.
       apply in_imsell_bang_l.
-      apply in_imsell_perm with (Γ := (![b]£1) ⊸ £(2+q) ⊸ £(2+p) :: (![b]£1 :: nil) ++ ⟬Σ,x,y⟭).
-      * apply perm_skip; rewrite <- app_nil_end.
-        simpl; apply perm_trans with (1 := Permutation_cons_append _ _).
-        unfold ndmm2_imsell_ctx; simpl; rewrite !app_ass.
-        repeat apply Permutation_app; auto.
-        apply Permutation_sym, perm_trans with (1 := Permutation_cons_append _ _); auto.
-      * apply in_imsell_limp_l.
-        - apply in_imsell_ax.
-        - rewrite app_nil_end with (l := ⟬Σ,x,y⟭).
-          apply in_imsell_limp_l; auto.
-          apply in_imsell_ax.
+      apply in_imsell_perm with (Γ := β⊸⌊q⌋⊸⌊p⌋ :: (β::nil) ++ ⟬Σ,x,y⟭).
+      * apply Permutation_sym, perm_skip; rewrite <- app_nil_end; simpl; auto.
+      * apply in_imsell_limp_l; auto.
+        rewrite app_nil_end with (l := ⟬_,_,_⟭).
+        apply in_imsell_limp_l; auto.
 
     + apply ndmm2_imsell_weak with (1 := H1); simpl.
-      apply in_imsell_bang_l, in_imsell_limp_l.
-      * rewrite ndmm2_imsell_eq2.
-        apply in_imsell_bang_r.
-        - intros (v,A) HvA. 
-          apply in_app_iff in HvA as [ HvA | HvA ].
-          ++ apply in_map_iff in HvA as (c & H & Hc); simpl; auto.
-             inversion H; subst; auto.
-          ++ apply in_app_iff in HvA as [ [] | HvA ].
-             apply repeat_spec in HvA; inversion HvA; subst; simpl; auto.
-        - now rewrite ndmm2_imsell_eq2 in IH2.
-      * apply in_imsell_ax.
+      apply in_imsell_bang_l, in_imsell_limp_l; auto.
+      rewrite ndmm2_imsell_eq2 in IH2 |- *.
+      apply in_imsell_bang_r; auto.
+      intros (v,A); simpl.
+      rewrite in_app_iff, in_map_iff.
+      intros [ (? & HvA & ?) | HvA ].
+      * now inversion HvA; subst.
+      * now apply repeat_spec in HvA; inversion HvA.
 
     + apply ndmm2_imsell_weak with (1 := H1); simpl.
-      apply in_imsell_bang_l, in_imsell_limp_l.
-      * rewrite ndmm2_imsell_eq2.
-        apply in_imsell_bang_r.
-        - intros (v,A) HvA. 
-          apply in_app_iff in HvA as [ HvA | HvA ].
-          ++ apply in_map_iff in HvA as (c & H & Hc); simpl; auto.
-             inversion H; subst; auto.
-          ++ apply in_app_iff in HvA as [ HvA | [] ].
-             apply repeat_spec in HvA; inversion HvA; subst; simpl; auto.
-        - now rewrite ndmm2_imsell_eq2 in IH2.
-      * apply in_imsell_ax.
+      apply in_imsell_bang_l, in_imsell_limp_l; auto.
+      rewrite ndmm2_imsell_eq2 in IH2 |- *.
+      apply in_imsell_bang_r; auto.
+      intros (v,A); simpl. 
+      rewrite <- app_nil_end, in_app_iff, in_map_iff.
+      intros [ (? & HvA & ?) | HvA ].
+      * now inversion HvA; subst.
+      * now apply repeat_spec in HvA; inversion HvA.
   Qed.
 
   Variable Σ : list (ndmm2_instr nat).
@@ -339,7 +332,7 @@ Section ndmm2_imsell.
     intros (c & <- & Hc); simpl; auto. 
   Qed.
 
-  Theorem ndmm2_imsell_complete p x y : ⟬Σ,x,y⟭  ⊢ £ (2+p) -> Σ //ₙ x ⊕ y ⊦ p.
+  Theorem ndmm2_imsell_complete p x y : ⟬Σ,x,y⟭  ⊢ ⌊p⌋ -> Σ //ₙ x ⊕ y ⊦ p.
   Proof.
     intros Hxy; apply imsell_tps_sound with (s := sem) (K := K) in Hxy; eauto.
     specialize (Hxy (x##y##vec_nil)).
@@ -349,7 +342,7 @@ Section ndmm2_imsell.
     apply imsell_tps_app.
     exists ⦳, (x##y##ø).
     rewrite vec_zero_plus; msplit 2; auto.
-    + apply sem_Σ_zero; auto.
+    + rewrite map_map; apply sem_Σ_zero; auto.
     + apply imsell_tps_app.
       exists (x##0##ø), (0##y##ø); msplit 2; auto.
       * rewrite pair_plus; f_equal; lia.
@@ -365,7 +358,7 @@ Section ndmm2_imsell.
 
   Hint Resolve ndmm2_imsell_sound ndmm2_imsell_complete : core.
 
-  Theorem ndmm2_imsell_correct p x y : Σ //ₙ x ⊕ y ⊦ p <-> ⟬Σ,x,y⟭  ⊢ £ (2+p).
+  Theorem ndmm2_imsell_correct p x y : Σ //ₙ x ⊕ y ⊦ p <-> ⟬Σ,x,y⟭  ⊢ ⌊p⌋.
   Proof. split; auto. Qed.
 
 End ndmm2_imsell.

@@ -41,13 +41,24 @@ Section IMSELL.
   Notation U := bang_U. 
 
   Notation "u ≼ l" := (forall '(v,A), (v,A) ∊ l -> u ≤ v) (at level 70).
-  Notation "Γ ⊢ A" := (S_imsell bang_le bang_U Γ A) (at level 70).
+  Notation "Γ ⊢ A" := (@S_imsell nat _ bang_le bang_U Γ A) (at level 70).
 
   Fact S_imsell_weak Γ Δ B : Forall (fun '(u,_) => U u) Γ -> Δ ⊢ B -> ‼Γ++Δ ⊢ B.
   Proof. 
     intros H1 H2; revert H1. 
     induction 1 as [ | (u,A) Γ H1 IH1 ]; simpl; auto.
     apply in_imsell_weak; auto. 
+  Qed.
+
+  Fact S_imsell_gen_weak u Γ Δ B : U u -> Δ ⊢ B -> map (fun A => ![u]A) Γ++Δ ⊢ B.
+  Proof.
+    intros H1 H2.
+    replace (map (fun A => ![u]A) Γ) with (‼ (map (fun A => (u,A)) Γ)).
+    + apply S_imsell_weak; auto.
+      apply Forall_forall.
+      intros ?; rewrite in_map_iff.
+      intros (? & <- & ?); auto.
+    + unfold imsell_lban; rewrite map_map; auto.
   Qed.
 
   Fact S_imsell_cntr Γ Δ B : Forall (fun '(u,_) => U u) Γ -> ‼Γ++‼Γ++Δ ⊢ B -> ‼Γ++Δ ⊢ B.
@@ -67,22 +78,29 @@ Section IMSELL.
       apply Permutation_cons_app; auto.
   Qed.
 
-  Theorem S_imsell_weak_cntr Σ Γ u A B : (u,A) ∊ Σ -> U u -> ‼Σ++Γ ⊢ B <-> ![u]A::‼Σ++Γ ⊢ B.
+  Theorem S_imsell_extract Γ u A B : ![u]A ∊ Γ -> U u -> Γ ⊢ B <-> ![u]A::Γ ⊢ B.
   Proof.
-    intros H H1; apply In_perm in H as (Σ' & H).
-    split.
+    intros H1 H2; split.
     + apply in_imsell_weak; auto.
-    + intros H2.
-      apply in_imsell_perm with (‼((u,A) :: Σ') ++ Γ).
-      * apply Permutation_app; auto.
-        apply imsell_lban_perm; auto.
-      * simpl; apply in_imsell_cntr; auto.
-        revert H2; apply in_imsell_perm.
-        simpl; apply Permutation_cons; auto.
-        change (![u]A::‼Σ'++Γ) with (‼((u,A)::Σ')++Γ).
-        apply Permutation_app; auto.
-        apply imsell_lban_perm, Permutation_sym; auto.
+    + intros H3.
+      apply In_perm in H1 as (Δ & H1).
+      apply in_imsell_perm with (1 := H1).
+      apply in_imsell_cntr; auto.
+      apply in_imsell_perm with (2 := H3).
+      apply perm_skip, Permutation_sym; auto.
   Qed.
+
+(*
+ 
+  Theorem S_imsell_weak_cntr' Σ Γ u A B : (u,A) ∊ Σ -> U u -> ‼Σ++Γ ⊢ B <-> ![u]A::‼Σ++Γ ⊢ B.
+  Proof.
+    intros H1 H2; apply S_imsell_extract; auto.
+    apply in_app_iff; left.
+    apply in_map_iff.
+    exists (u,A); auto.
+  Qed.
+
+*)
 
   Section Trivial_Phase_semantics.
 
@@ -248,8 +266,7 @@ Section IMSELL.
       + intros x (y & z & H3 & H4 & H5); simpl.
         apply IH2.
         apply imsell_tps_app in H5 as (g & d & H5 & H6 & H7).
-        simpl in H4.
-        apply IH1, H4 in H6.
+        simpl in H4; apply IH1, H4 in H6.
         exists (vec_plus y g), d; repeat split; auto.
         * subst; apply vec_plus_assoc.
         * eq goal H6; f_equal; rew vec.
@@ -266,7 +283,7 @@ Section IMSELL.
       + intros x Hx; split.
         * apply IH2; auto.
         * rew vec.
-          revert Hx. apply imsell_tps_lbang; auto.
+          revert Hx; apply imsell_tps_lbang; auto.
 
       + intros x (y & z & -> & H3 & H4); rew vec.
         apply proj2, HK_unit1 in H3; auto; subst.
