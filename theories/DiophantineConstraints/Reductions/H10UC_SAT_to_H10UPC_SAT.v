@@ -12,7 +12,8 @@ Import ListNotations.
 Require Import Undecidability.DiophantineConstraints.H10C.
 Require Import Undecidability.DiophantineConstraints.H10UPC.
 
-Require Import ssreflect ssrbool ssrfun.
+Set Default Proof Using "Type".
+Set Default Goal Selector "!".
 
   (* Uniform Diophantine pairs constraints (h10upc, the target) are of shape:  
       (x, y) # (1 + x + y, y * y)
@@ -30,90 +31,56 @@ Require Import ssreflect ssrbool ssrfun.
   (c,y) # (b,a)
   (c,x) # (z,t2)
 
+  We use the following renaming scheme:
+  <x,0> = x
+  <x,1> = (x²+x)/2 = a, t2
+  <x,2> = x²+x+1 = b
+  <x,3> = x² = c
+  <x,4> = (k²+k)/2 where k=(x²+x)/2 = t1
+
   *)
 
-(* Shamelessly taken from H10C-SAT_to_H10SQC_SAT.v *)
 Module Argument.
 
-(* bijection from nat * nat to nat *)
-Definition encode '(x, y) : nat := 
-  y + (nat_rec _ 0 (fun i m => (S i) + m) (y + x)).
-
-(* bijection from nat to nat * nat *)
-Definition decode (n : nat) : nat * nat := 
-  nat_rec _ (0, 0) (fun _ '(x, y) => if x is S x then (x, S y) else (S y, 0)) n.
-
-Lemma decode_encode {xy: nat * nat} : decode (encode xy) = xy.
+Definition c2_full (x:nat) : {y:nat | x * S x = y+y}.
 Proof.
-  move Hn: (encode xy) => n. elim: n xy Hn.
-  { by move=> [[|?] [|?]]. }
-  move=> n IH [x [|y [H]]] /=.
-  { move: x => [|x [H]] /=; first done.
-    by rewrite (IH (0, x)) /= -?H ?PeanoNat.Nat.add_0_r. }
-  by rewrite (IH (S x, y)) /= -?H ?PeanoNat.Nat.add_succ_r.
+  induction x as [|x [y' IH]].
+  - exists 0. lia.
+  - exists (y'+x+1). nia.
+Defined.
+
+Definition c2 (x:nat) := match (c2_full x) with exist _ y _ => y end.
+
+Definition c2_descr (x:nat) : x * S x = c2 x + c2 x.
+Proof.
+unfold c2. now destruct (c2_full x).
+Qed. 
+
+(* We generate 5 new variables for each variable. The following type encodes the choices *)
+Inductive fin5 := v0 | v1 | v2 | v3 | v4.
+Definition fin2nat y := match y with v0=>0|v1=>1|v2=>2|v3=>3|v4=>4 end.
+Definition encode5 '(x,y) := x*5+fin2nat y.
+Fixpoint decode5 k := match k with 0=>(0,v0) | 1=> (0,v1) | 2=>(0,v2) | 3=>(0,v3) | 4 => (0,v4) | S(S(S(S(S kk)))) => let '(x,y) := decode5 kk in (S x,y) end.
+
+Lemma decode_encode x y : decode5 (encode5 (x,y)) = (x,y).
+Proof.
+  induction x as [|x IH].
+  - now destruct y.
+  - cbn. destruct (decode5 (x*5+fin2nat y)) as [x' y'] eqn:Heq. change (x*5+fin2nat y) with (encode5 (x,y)) in Heq. congruence.
 Qed.
 
-Opaque decode encode.
-
-(* A simple (!) equality decider for natural numbers *)
-Definition nat_eq (x y:nat) : {x=y} + {x <> y}. Proof. decide equality. Defined. 
-
-(* A simple (!) division algorithm *)
-Fixpoint divmod (x y:nat) : nat*nat := match x with 0 => (0,0)
-   | S n => match divmod n y with (a,b) => if nat_eq (S b) y then (S a,0) else (a, S b) end end.
-
-(* Along with its specification *)
-Lemma divmod_spec (x y q r: nat) : y <> 0 -> divmod x y = (q,r) <-> x = q*y+r /\ r < y.
-Proof.
-intros H. induction x as [|x IH] in q,r|-*; split.
-  - cbn. intros Heq. enough (q=0 /\ r=0) by nia. split; congruence.
-  - cbn. intros Heq. f_equal; nia.
-  - unfold divmod. fold divmod. destruct (divmod x y) as [q' r'].
-    specialize (IH q' r'). destruct IH as [IHl IHr]. specialize (IHl ltac:(easy)).
-    destruct (nat_eq (S r') y) as [Heq|Hneq]; cbn.
-    + intros Hp. enough (r=0 /\ S q' = q) by nia; split; congruence.
-    + intros Hp. enough (r=S r' /\ q = q') by nia; split; congruence.
-  - intros [Heq Hry]. unfold divmod. fold divmod. destruct (divmod x y) as [q' r'] eqn:Hxy.
-    specialize (IH q' r'). destruct IH as [IHl IHr]. destruct (IHl ltac:(easy)) as [xq' r'y].
-    destruct (nat_eq (S r') y) as [Hl|Hr]; cbn.
-    + enough (S q' = q). f_equal. easy. nia. nia.
-    + enough (q=q'). f_equal; nia. nia.
-Qed.
-
-(* In a constraint of form (x,y)#(z,w), it holds that w=c2(z). This uniquely defines c2. It is total and computable: *)
-Definition c2 k : nat := (divmod (k * S k) 2).1.
-
-Lemma c2_descr x : x * S x = c2 x + c2 x.
-Proof.
-unfold c2. enough ((divmod (x*S x) 2).2=0) as Hr0. 
- - destruct (divmod (x*S x) 2) as [q r] eqn:Hdiv. cbn. destruct (divmod_spec (x*S x) 2 q r ltac:(easy)) as [Hdivl _].
-   specialize (Hdivl ltac:(easy)). cbn in Hr0. nia.
- - induction x as [|x IH].
-   + easy.
-   + rewrite PeanoNat.Nat.mul_comm. 
-     change (S (S x) * S x) with (S x + (S x + x * (S x))). 
-     rewrite PeanoNat.Nat.add_assoc.
-     destruct (divmod (x*S x) 2) as [q r] eqn:Hqr.
-     destruct (divmod (S x + S x + x*S x) 2) as [q' r'] eqn:Hqr'.
-     cbn. cbn in IH.
-     apply divmod_spec in Hqr. 2:easy. apply divmod_spec in Hqr'. 2:easy.
-     rewrite IH in Hqr. destruct Hqr as [Hqr _]. rewrite <- (plus_n_O) in Hqr.
-     destruct Hqr' as [Hq' Hr']. rewrite Hqr in Hq'. nia.
-Qed.
-
-Opaque divmod c2.
+Opaque decode5 encode5.
 
 Section Reduction.
-Definition rename x := encode (x,0).
-Definition newvar x y t := encode (x,S (encode (y,t))).
+Definition rename x := encode5 (x,v0).
+Definition newvar x t := encode5 (x,t).
 
 Definition h10uc_to_h10upc_single : h10uc -> list h10upc := (fun '(x,y,z) => 
-  let '(a,b,c,t1,t2) := (newvar x y 0,newvar x y 1,newvar x y 2,newvar x y 3,newvar x y 4) in
+  let '(a,b,c,t1,t2) := (newvar y v1,newvar y v2,newvar y v3,newvar y v4,newvar x v1) in
   let '(x,y,z) := (rename x,rename y,rename z) in
   [((a,a),(b,t1)); ((c,y),(b,a)); ((c,x),(z,t2))]).
 
-Definition h10uc_to_h10upc : list h10uc -> list h10upc := 
-flat_map h10uc_to_h10upc_single.
+Definition h10uc_to_h10upc : list h10uc -> list h10upc := flat_map h10uc_to_h10upc_single.
 
 End Reduction.
 
@@ -122,38 +89,37 @@ Context (cs: list h10uc). (* The instance of h10uc (which we are reducing from) 
 Context (φ: nat -> nat). (* The solution to cs *)
 Context (Hφ : forall c, In c cs -> h10uc_sem φ c). (* Proof that it actually is a solution *)
 
-Definition φ' (xn:nat) : nat := match decode xn with
-  (x,0) => φ x
-| (x,S n) => match decode n with 
-    (y,0) => c2 (φ y)
-  | (y,1) => (φ y) * (φ y) + (φ y) + 1
-  | (y,2) => (φ y) * (φ y)
-  | (y,3) => c2 (c2 (φ y))
-  | (y,4) => c2 (φ x)
-  | (y,_) => 0 end end.
+Definition φ' (xn:nat) : nat := match decode5 xn with
+    (x,v0) => φ x
+  | (x,v1) => c2 (φ x)
+  | (x,v2) => φ x * φ x + φ x + 1
+  | (x,v3) => φ x * φ x
+  | (x,v4) => c2 (c2 (φ x)) end.
 
 Lemma transport_single c : h10uc_sem φ c -> forall cc, In cc (h10uc_to_h10upc_single c) -> h10upc_sem φ' cc.
-intros H cc. destruct c as [[x y] z]. intros [c'|[c'|[c'|fal]]]; try contradiction; 
-subst; unfold rename, newvar, φ'; cbn; try rewrite ! decode_encode; split.
-* rewrite <- c2_descr. lia. 
-* apply c2_descr.
-* lia.
-* apply c2_descr. 
-* cbn in H. nia. 
-* apply c2_descr.
+Proof.
+  intros H cc. destruct c as [[x y] z]. intros [c'|[c'|[c'|[]]]];
+  subst. all:unfold rename, newvar, φ'; cbn. all: rewrite ! decode_encode. all: split.
+  - rewrite <- c2_descr. lia. 
+  - apply c2_descr.
+  - lia.
+  - apply c2_descr. 
+  - cbn in H. nia. 
+  - apply c2_descr.
 Qed.
 
 Lemma transport : forall c, In c (h10uc_to_h10upc cs) -> h10upc_sem φ' c.
-intros c H%(in_flat_map_Exists h10uc_to_h10upc_single c cs).
-induction cs as [|cc cs' IHcs].
-* inversion H.
-* inversion H; subst.
-  + apply (transport_single cc).
-    - apply Hφ. now left.
-    - easy.
-  + apply IHcs.
-    - intros c' Hc'. apply Hφ. now right.
-    - apply H1.
+Proof using Hφ.
+  intros c H%(in_flat_map_Exists h10uc_to_h10upc_single c cs).
+  induction cs as [|cc cs' IHcs].
+  - inversion H.
+  - inversion H; subst.
+    + apply (transport_single cc).
+      * apply Hφ. now left.
+      * easy.
+    + apply IHcs.
+      * intros c' Hc'. apply Hφ. now right.
+      * apply H1.
 Qed.
 
 End Transport.
@@ -166,18 +132,21 @@ Context (Hφ' : forall c, In c (h10uc_to_h10upc cs) -> h10upc_sem φ' c). (* Pro
 Definition φ (n:nat) : nat := φ' (rename n). (* Lookup variables in result env *)
 
 Lemma inverse_transport_single c : (forall cc, In cc (h10uc_to_h10upc_single c) -> h10upc_sem φ' cc) -> h10uc_sem φ c.
-intros H. destruct c as [[x y] z]. cbn.
-cbn in H.
-assert (h10upc_sem φ' (newvar x y 0, newvar x y 0, (newvar x y 1, newvar x y 3))) as [HC1l _] by (apply H; intuition).
-assert (h10upc_sem φ' (newvar x y 2, rename y, (newvar x y 1, newvar x y 0))) as [HC2l HC2r] by (apply H; intuition).
-assert (h10upc_sem φ' (newvar x y 2, rename x, (rename z, newvar x y 4))) as [HC3l _] by (apply H; intuition).
-unfold φ. nia.
+Proof.
+  intros H. destruct c as [[x y] z]. cbn.
+  cbn in H.
+  assert (h10upc_sem φ' (newvar y v1, newvar y v1, (newvar y v2, newvar y v4))) as [HC1l _] by (apply H; tauto).
+  assert (h10upc_sem φ' (newvar y v3, rename y, (newvar y v2, newvar y v1))) as [HC2l HC2r] by (apply H; tauto).
+  assert (h10upc_sem φ' (newvar y v3, rename x, (rename z, newvar x v1))) as [HC3l _] by (apply H; tauto).
+  unfold φ. nia.
 Qed.
 
 Lemma inverse_transport : forall c, In c cs -> h10uc_sem φ c.
-intros c H.
-apply inverse_transport_single. intros cc Hcc. apply Hφ'. unfold h10uc_to_h10upc. apply in_flat_map. exists c. now split.
+Proof using Hφ'.
+  intros c H.
+  apply inverse_transport_single. intros cc Hcc. apply Hφ'. unfold h10uc_to_h10upc. apply in_flat_map. exists c. now split.
 Qed.
+
 End InverseTransport.
 End Argument.
 Require Import Undecidability.Synthetic.Definitions.
