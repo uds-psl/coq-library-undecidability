@@ -99,9 +99,15 @@ Section MMA_problems.
   Notation "P // s ~~> t" := (sss_output (@mma_sss _) P s t).
   Notation "P // s ↓" := (sss_terminates (@mma_sss _) P s). 
 
-  Definition MMA2_PROBLEM := (list (mm_instr (pos 2)) * vec nat 2)%type.
+  Definition MMA_PROBLEM n := (list (mm_instr (pos n)) * vec nat n)%type.
 
-  Definition MMA2_HALTS_ON_ZERO (P : MMA2_PROBLEM) := (1,fst P) // (1,snd P) ~~> (0,vec_zero).
-  Definition MMA2_HALTING (P : MMA2_PROBLEM) := (1,fst P) // (1,snd P) ↓.
+  Definition MMA_HALTS_ON_ZERO {n} (P : MMA_PROBLEM n) := (1,fst P) // (1,snd P) ~~> (0,vec_zero).
+  Definition MMA_HALTING {n} (P : MMA_PROBLEM n) := (1,fst P) // (1,snd P) ↓.
+
+  Definition MMA2_PROBLEM := MMA_PROBLEM 2.
+
+  Definition MMA2_HALTS_ON_ZERO := @MMA_HALTS_ON_ZERO 2.
+  Definition MMA2_HALTING := @MMA_HALTING 2.
 
 End MMA_problems.
+
