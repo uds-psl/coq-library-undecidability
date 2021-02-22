@@ -231,12 +231,12 @@ Section ndmm2_imsell.
   Local Fact sem_2 p x y : sem (2+p) (x##y##ø) <-> Σ //ₙ x ⊕ y ⊦ p.
   Proof. simpl; tauto. Qed.
 
-  Let K u (w : vec nat 2) := 
+  Let K m (w : vec nat 2) := 
     let x := vec_head w in
     let y := vec_head (vec_tail w) 
-    in (a ≤ u -> y = 0)
-    /\ (b ≤ u -> x = 0)
-    /\ (U u -> x = 0 /\ y = 0).
+    in (a ≤ m -> y = 0)
+    /\ (b ≤ m -> x = 0)
+    /\ (U m -> x = 0 /\ y = 0).
 
   Infix "⊛" := imsell_tps_mult (at level 65, right associativity).
   Infix "-⊛" := imsell_tps_imp (at level 65, right associativity).
@@ -244,19 +244,19 @@ Section ndmm2_imsell.
   Notation "⟦ A ⟧" := (imsell_tps sem K A).
   Notation "⟪ Γ ⟫" := (imsell_tps_list sem K Γ).
 
-  Local Fact HK1 u v : u ≤ v -> K v ⊆ K u.
+  Local Fact HK1 p q : p ≤ q -> K q ⊆ K p.
   Proof.
-    intros Huv; intro pair as x y.
+    intros Hpq; intro pair as x y.
     unfold K; simpl; intros (H1 & H2 & H3); msplit 2; intros H.
-    + apply H1, bang_le_trans with (2 := Huv); auto.
-    + apply H2, bang_le_trans with (2 := Huv); auto.
-    + apply H3, bang_U_clos with (2 := Huv); auto.
+    + apply H1, bang_le_trans with (2 := Hpq); auto.
+    + apply H2, bang_le_trans with (2 := Hpq); auto.
+    + apply H3, bang_U_clos with (2 := Hpq); auto.
   Qed.
 
-  Local Fact HK2 : forall u, K u ⦳.
+  Local Fact HK2 : forall m, K m ⦳.
   Proof. intros; split; auto. Qed.
 
-  Local Fact HK3 u : K u ⊛ K u ⊆ K u.
+  Local Fact HK3 m : K m ⊛ K m ⊆ K m.
   Proof.
     intro pair as x y.
     intros (p & q & H); revert p q H.

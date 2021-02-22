@@ -209,15 +209,15 @@ Section Fractran_with_two_counters.
       intros H1 H2; revert H1 i H2.
       induction 1 as [ | (p,q) ll Hq Hll IH ]; intros i H4.
       + mma sss stop.
-      + apply fractan_stop_cons_inv in H4; destruct H4 as (H4 & H5).
+      + apply fractan_stop_cons_inv in H4 as (H4 & H5).
         unfold mma_fractran_step; fold mma_fractran_step.
         set (P := mma_fractran_one p q j i); rew length.
         apply sss_compute_trans with (length P+i,x##0##ø).
-        { apply subcode_sss_compute with (P := (i,P)); auto.
-          apply sss_progress_compute, mma_fractran_one_nok_progress; auto. }
-        { apply subcode_sss_compute with (P := (length P+i,mma_fractran_step ll (length P + i))); auto.
+        * apply subcode_sss_compute with (P := (i,P)); auto.
+          apply sss_progress_compute, mma_fractran_one_nok_progress; auto.
+        * apply subcode_sss_compute with (P := (length P+i,mma_fractran_step ll (length P + i))); auto.
           replace (length P+length (mma_fractran_step ll (length P + i))+i)
-          with    (length (mma_fractran_step ll (length P + i)) + (length P+i)) by lia; auto. }
+          with    (length (mma_fractran_step ll (length P + i)) + (length P+i)) by lia; auto.
     Qed.
 
   End mma_fractran_step.
@@ -250,8 +250,7 @@ Section Fractran_with_two_counters.
             -> Q /F/ x ↓.
     Proof using HQ.
       intros ((j,w) & (k & H2) & H3); simpl fst in H3.
-      revert x H2.
-      induction on k as IHu with measure k; intros x H2.
+      revert x H2; induction on k as IHu with measure k; intros x H2.
       destruct (fractran_step_dec Q x) as [ (y & Hy) | H4 ].
       2: { exists x; split; auto; exists 0; simpl; auto. }
       generalize Hy; intros H4.
