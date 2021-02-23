@@ -210,6 +210,7 @@ Proof.
     + intros ρ' ax Hax. eapply sat_closed.
       2: now apply H.
       repeat (destruct Hax as [<- | Hax]; cbn; repeat solve_bounds; auto).
+      inversion Hax.
     + apply HE.
     + rewrite <-exists_close_form; apply embed_is_closed.
   - intros H.
@@ -229,6 +230,7 @@ Proof.
     apply problem_to_model.
     + intros ρ' ax Hax. apply (sat_closed rho).
       repeat (destruct Hax as [<- | Hax]; cbn; repeat solve_bounds; auto).
+      1:inversion Hax.
       apply H. now constructor.
     + apply HE.
     + rewrite <-exists_close_form; apply embed_is_closed.

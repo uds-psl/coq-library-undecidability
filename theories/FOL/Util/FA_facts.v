@@ -470,7 +470,7 @@ Section StdModel.
   Proof.
     intros rho phi. intros H.
     repeat (destruct H as [<- | H]; auto).
-    all: cbn; try congruence.
+    all: cbn; try congruence. inversion H.
   Qed.
 
   
@@ -504,7 +504,7 @@ Section StdModel.
   Proof.
     intros rho psi [].
     repeat (destruct H as [<- | H]; auto).
-    all: cbn; try congruence.
+    all: cbn; try congruence. inversion H.
     apply nat_induction.
   Qed.
 

@@ -65,7 +65,7 @@ Proof.
     exists a. now apply IH with (t := (g b)).
 Qed.
 
-Local Hint Resolve Aeq_ref Aeq_sym Aeq_tra : core.
+#[export] Hint Resolve Aeq_ref Aeq_sym Aeq_tra : core.
 
 Instance aeq_equiv :
   Equivalence Aeq.
