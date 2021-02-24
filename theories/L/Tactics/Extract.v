@@ -1,5 +1,5 @@
 From Undecidability.L Require Import Util.L_facts Prelim.StringBase.
-From MetaCoq Require Import Template.All Checker.Checker.
+From MetaCoq Require Import Template.All Template.Checker.
 Require Import Undecidability.Shared.Libs.PSL.Base. 
 Require Import String Ascii.
 
@@ -506,6 +506,8 @@ Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad 
   | tInd a _ =>  tmPrint a;;tmFail "tInd is not supported (probably there is a type not in prenex-normal form)" 
   | tProj _ _ =>   tmFail "tProj is not supported"
   | tCoFix _ _ =>  tmFail "tCoFix is not supported"
+  | tInt _ =>  tmFail "tInt is not supported"
+  | tFloat _ =>  tmFail "tFloat is not supported"
   end end.
 
 Fixpoint head_of_const (t : term) :=
