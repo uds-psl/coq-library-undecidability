@@ -12,7 +12,7 @@ Require Import Morphisms.
 
 Local Notation vec := Vector.t.
 
-
+Local Hint Constructors prv : core.
 
 (* Making sure that the rich ZF signature is prioritised *)
 
