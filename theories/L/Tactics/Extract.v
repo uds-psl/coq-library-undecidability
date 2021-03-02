@@ -1,10 +1,13 @@
 From Undecidability.L Require Import Util.L_facts Prelim.StringBase.
-From MetaCoq Require Import Template.All Checker.Checker.
+From MetaCoq Require Import Template.All Template.Checker.
 Require Import Undecidability.Shared.Libs.PSL.Base. 
 Require Import String Ascii.
 
 Open Scope string_scope.
 Import MonadNotation.
+
+Unset Universe Minimization ToSet.
+
 (* ** Extraction *)
 
 (* Global definition of fuel for step-indexed computations *)
@@ -165,7 +168,7 @@ Definition tmArgsOfConstructor ind i :=
 Class extracted {A : Type} (a : A) := int_ext : L.term.
 Arguments int_ext {_} _ {_}.
 Typeclasses Transparent extracted. (* This is crucial to use this inside monads  *)
-Hint Extern 0 (extracted _) => progress (cbn [Common.my_projT1]): typeclass_instances. 
+#[export] Hint Extern 0 (extracted _) => progress (cbn [Common.my_projT1]): typeclass_instances. 
 
 Class encodable (A : Type) := enc_f : A -> L.term.  
 
@@ -217,6 +220,9 @@ Definition tmGetMyOption {X} (o : option_instance X) (err : string) : TemplateMo
   | my_None => tmFail err
   end.
 
+Definition naNamed n := {| binder_name := nNamed n; binder_relevance := Relevant |}.
+Definition naAnon := {| binder_name := nAnon; binder_relevance := Relevant |}.
+
 Definition mkFixMatch (f x : ident) (t1 t2 : Ast.term) (cases : nat -> list term -> TemplateMonad term) :=
   hs_num <- tmGetOption (split_head_symbol t1) "no head symbol found";;
   let '(ind, Params) := hs_num in
@@ -228,10 +234,10 @@ Definition mkFixMatch (f x : ident) (t1 t2 : Ast.term) (cases : nat -> list term
                           t <- cases i l' ;; ret (args, t)) L ;; 
   ret (Ast.tFix [BasicAst.mkdef 
                    Ast.term
-                   (nNamed f)
-                   (tProd nAnon t1 t2)
-                   (tLambda (nNamed x) t1 (tCase (ind, params)
-                                                (tLambda nAnon t1 t2)
+                   (naNamed f)
+                   (tProd naAnon t1 t2)
+                   (tLambda (naNamed x) t1 (tCase ((ind, params), Relevant)
+                                                (tLambda naAnon t1 t2)
                                                 (tRel 0)
                                                 body)) 0] 0).
 
@@ -269,7 +275,7 @@ Definition tmEncode (name : string) (A : Type) :=
            (fun i (* ctr index *) ctr_types (* ctr type *) => 
               args <- tmEval cbv (|ctr_types|);; 
               C <- monad_map_i (encode_arguments t args) ctr_types ;; 
-              ret (stack (map (tLambda (nAnon)) ctr_types)
+              ret (stack (map (tLambda (naAnon)) ctr_types)
                                (it mkLam num ((fun s => mkAppList s C) (mkVar (mkNat (num - i - 1))))))
            ) ;;
   u <- tmUnquoteTyped (encodable A) ter;; 
@@ -506,6 +512,8 @@ Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad 
   | tInd a _ =>  tmPrint a;;tmFail "tInd is not supported (probably there is a type not in prenex-normal form)" 
   | tProj _ _ =>   tmFail "tProj is not supported"
   | tCoFix _ _ =>  tmFail "tCoFix is not supported"
+  | tInt _ =>  tmFail "tInt is not supported"
+  | tFloat _ =>  tmFail "tFloat is not supported"
   end end.
 
 Fixpoint head_of_const (t : term) :=

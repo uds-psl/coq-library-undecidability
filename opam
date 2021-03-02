@@ -22,12 +22,11 @@ install: [
   [make "install"]
 ]
 depends: [
-  "coq" {>= "8.12" & < "8.13~"}
+  "coq" {>= "8.12.1" & < "8.13~"}
   "coq-equations" {= "1.2.3+8.12"}
   "ocaml"
   "coq-smpl" {>= "8.12"}
-  "coq-metacoq-template" {="1.0~beta1+8.12" }
-  "coq-metacoq-checker" {="1.0~beta1+8.12" }
+  "coq-metacoq-template" {="1.0~beta2+8.12" }
 ]
 
 synopsis: "A Coq Library of Undecidability Proofs"

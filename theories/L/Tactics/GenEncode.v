@@ -31,7 +31,7 @@ Definition mkMatch (t1 t2 d : Ast.term) (cases : nat -> list term -> Core.Templa
                           l <- tmArgsOfConstructor ind i ;;
                           l' <- monad_map_i (insert_params FUEL Params) (skipn params l) ;;
                           t <- cases i l' ;; ret (args, t)) L ;; 
-  ret (tCase (ind, params) (tLambda nAnon t1 t2) d
+  ret (tCase ((ind, params), Relevant) (tLambda naAnon t1 t2) d
              body).
 
 Definition L_facts_mp := MPfile ["L_facts"; "Util"; "L"; "Undecidability"].
@@ -46,7 +46,7 @@ Definition tmMatchCorrect (A : Type) : Core.TemplateMonad Prop :=
            (fun i (* ctr index *) ctr_types (* ctr type *) => 
               args <- tmEval cbv (|ctr_types|);; 
               C <- monad_map_i (encode_arguments t args) ctr_types ;; 
-              ret (stack (map (tLambda (nAnon)) ctr_types)
+              ret (stack (map (tLambda (naAnon)) ctr_types)
                                (((fun s => mkAppList s C) (tRel (args + 2 * (num - i) - 1)))))
            ) ;;
    E' <- Core.tmInferInstance None (registered A);;
@@ -55,7 +55,7 @@ Definition tmMatchCorrect (A : Type) : Core.TemplateMonad Prop :=
    l <- tmQuote t';;
    encn <- ret (tApp l [tRel (2*num) ]) ;;
    lhs <- ret (mkLApp encn ((fix f n := match n with 0 => [] | S n => tRel (2 * n + 1) :: f n end ) num)) ;;
-   ter <- ret (tProd nAnon t (it (fun s : term => tProd nAnon tTerm (tProd nAnon (tApp (tConst (L_facts_mp, "proc") []) [tRel 0]) s)) num ((tApp (tConst (L_facts_mp, "redLe") []) [mkNat num; lhs; mtch]))));;
+   ter <- ret (tProd naAnon t (it (fun s : term => tProd naAnon tTerm (tProd naAnon (tApp (tConst (L_facts_mp, "proc") []) [tRel 0]) s)) num ((tApp (tConst (L_facts_mp, "redLe") []) [mkNat num; lhs; mtch]))));;
    ter <- tmEval cbv ter ;;
    tmUnquoteTyped Prop ter.
 
@@ -94,4 +94,3 @@ Global Obligation Tactic := try fold (injective (enc_f)); match goal with
                            | [ |- injective ?f ] => register_inj
                            | [ |- context [_ >(<= _) _] ] => extract match
                            end || Tactics.program_simpl.
-

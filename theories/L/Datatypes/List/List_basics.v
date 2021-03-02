@@ -133,11 +133,11 @@ Section concat.
     eapply computableTimeExt with (x := fun l => rev (rev_concat [] l)).
     -intros l;hnf. rewrite rev_concat_rev. easy.
     -extract. solverec. unfold time. reflexivity.
-    -unfold time. setoid_rewrite rev_concat_length. setoid_rewrite length_concat. smpl_upToC_solve.
+    -unfold time.
+     smpl_upToC; try smpl_upToC_solve.
+     setoid_rewrite rev_concat_length. setoid_rewrite length_concat. smpl_upToC_solve.
   Qed.
 
   Global Instance term_concat : computableTime' (@concat X) _ := projT2 _term_concat.
-
-
 
 End concat.
