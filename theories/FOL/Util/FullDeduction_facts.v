@@ -155,7 +155,7 @@ Section ND_def.
 End ND_def.
 
 
-Hint Constructors prv : core.
+Local Hint Constructors prv : core.
 
 
 

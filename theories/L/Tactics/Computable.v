@@ -158,7 +158,7 @@ Qed.
 Fixpoint extEq t {tt:TT t} : t -> t -> Prop:=
   match tt with
     TyB _ _ => eq
-  | @TyArr t1 t2 tt1 tt2 => fun f f' => forall (x : t1), extEq (f x) (f' x)
+  | @TyArr t1 t2 _ _ => fun f f' => forall (x : t1), extEq (f x) (f' x)
   end.
 
 

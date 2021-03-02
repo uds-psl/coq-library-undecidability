@@ -17,7 +17,7 @@ Local Unset Strict Implicit.
 Local Definition BSRS := list(card bool).
 Local Notation "x / y" := (x, y).
 
-
+Local Hint Constructors prv : core.
 
 (* ** Simple derivations in ZF *)
 

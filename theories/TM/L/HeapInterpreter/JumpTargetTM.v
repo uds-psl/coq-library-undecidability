@@ -364,7 +364,7 @@ Fixpoint jumpTarget_k (k:nat) (P:Pro) : nat :=
                  | S k' => jumpTarget_k k' P'
                  end
   | lamT :: P' => jumpTarget_k (S k) P'
-  | t :: P'    => jumpTarget_k k P' (* either [varT n] or [appT] *)
+  | _ :: P'    => jumpTarget_k k P' (* either [varT n] or [appT] *)
   | []         => k
   end.
 

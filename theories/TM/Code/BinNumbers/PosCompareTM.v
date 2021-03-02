@@ -69,7 +69,7 @@ Definition Compare_Step (r : comparison) : pTM sigPos^+ (comparison+comparison) 
             | Some true,  Some false => Return (SetBitAndMoveLeft true  @[|Fin0|];; SetBitAndMoveLeft false @[|Fin1|]) (inl Gt)
             | Some false, Some  true => Return (SetBitAndMoveLeft false @[|Fin0|];; SetBitAndMoveLeft  true @[|Fin1|]) (inl Lt)
             | Some false, Some false => Return (SetBitAndMoveLeft false @[|Fin0|];; SetBitAndMoveLeft false @[|Fin1|]) (inl r)
-            | Some b,     None       => Return (GoToHSB @[|Fin0|]) (inr Gt)
+            | Some _,     None       => Return (GoToHSB @[|Fin0|]) (inr Gt)
             | None  ,     Some b     => Return (GoToHSB @[|Fin1|]) (inr Lt)
             | None  ,     None       => Return Nop (inr r)
             end).
