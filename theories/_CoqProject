@@ -259,6 +259,7 @@ FOL/Reductions/PCPb_to_minZFeq.v
 FOL/Reductions/PCPb_to_binZF.v
 FOL/Reductions/PCPb_to_ZFeq.v
 FOL/Reductions/H10p_to_FA.v
+FOL/Reductions/H10UPC_to_FOL.v
 
 FOL/Reductions/FSATd_to_FSATdc.v
 FOL/Reductions/TRAKHTENBROT_to_FSAT.v
