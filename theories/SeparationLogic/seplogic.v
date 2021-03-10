@@ -39,13 +39,14 @@ Fixpoint sp_sat (s : stack) (h : heap) (P : sp_form) :=
 (** Satisfiability problem **)
 
 Definition SPSAT (P : sp_form) :=
-  exists s h, sp_sat s h P.
+  exists s h, functional h /\ sp_sat s h P.
 
 (** Example **)
 
 Goal SPSAT (sand (pointer (Some 0) (Some 10) (Some 1)) (pointer (Some 1) (Some 11) (Some 0))).
 Proof.
-  exists Some, [(0, (Some 10, Some 1)); (1, (Some 11, Some 0))]. cbn.
-  exists [(0, (Some 10, Some 1))], [(1, (Some 11, Some 0))]. cbn.
-  split. firstorder. intuition eauto.
+  exists Some, [(0, (Some 10, Some 1)); (1, (Some 11, Some 0))]. cbn. split.
+  - intros l p p'. cbn. intuition congruence.
+  - exists [(0, (Some 10, Some 1))], [(1, (Some 11, Some 0))]. cbn.
+    split. firstorder. intuition eauto.
 Qed.

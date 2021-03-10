@@ -30,5 +30,5 @@ Require Import Undecidability.Synthetic.Definitions.
 Theorem reduction :
   MSPSAT ⪯ SPSAT.
 Proof.
-  exists embed. intros P. split; intros (s & h & H); exists s, h; now apply embed_sat.
+  exists embed. intros P. split; intros (s & h & H1 & H2); exists s, h; split; trivial; now apply embed_sat.
 Qed.
