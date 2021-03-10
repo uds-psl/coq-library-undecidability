@@ -16,7 +16,7 @@ Proof.
   induction P in s, h |- *; cbn.
   - split.
     + intros (l & H1 & H2). apply in_split in H2 as (h1 & h2 & ->).
-      exists [(l, (sp_eval s s1, sp_eval s s1))], (h1 ++ h2). split.
+      exists [(l, (sp_eval s s1, sp_eval s s2))], (h1 ++ h2). split.
       * unfold equiv, incl. repeat setoid_rewrite in_app_iff. cbn. firstorder.
       * split; trivial. exists l. split; trivial.
     + intros (h1 & h2 & H1 & [l[H2 ->]] & _). exists l. split; trivial. apply H1, in_app_iff. now left.
