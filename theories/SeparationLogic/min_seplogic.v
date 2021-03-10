@@ -27,7 +27,7 @@ Definition update_stack (s : stack) x v :=
 
 Fixpoint msp_sat (s : stack) (h : heap) (P : msp_form) :=
   match P with
-  | mpointer E E1 E2 => exists l, sp_eval s E = Some l /\ (l, (sp_eval s E1, sp_eval s E1)) el h
+  | mpointer E E1 E2 => exists l, sp_eval s E = Some l /\ (l, (sp_eval s E1, sp_eval s E2)) el h
   | mbot => False
   | mimp P1 P2 => msp_sat s h P1 -> msp_sat s h P2
   | mall x P => forall v, msp_sat (update_stack s x v) h P

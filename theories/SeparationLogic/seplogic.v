@@ -26,7 +26,7 @@ Definition equiv (h h' : heap) :=
 
 Fixpoint sp_sat (s : stack) (h : heap) (P : sp_form) :=
   match P with
-  | pointer E E1 E2 => exists l, sp_eval s E = Some l /\ h = [(l, (sp_eval s E1, sp_eval s E1))]
+  | pointer E E1 E2 => exists l, sp_eval s E = Some l /\ h = [(l, (sp_eval s E1, sp_eval s E2))]
   | equality E1 E2 => sp_eval s E1 = sp_eval s E2
   | bot => False
   | imp P1 P2 => sp_sat s h P1 -> sp_sat s h P2
@@ -40,3 +40,12 @@ Fixpoint sp_sat (s : stack) (h : heap) (P : sp_form) :=
 
 Definition SPSAT (P : sp_form) :=
   exists s h, sp_sat s h P.
+
+(** Example **)
+
+Goal SPSAT (sand (pointer (Some 0) (Some 10) (Some 1)) (pointer (Some 1) (Some 11) (Some 0))).
+Proof.
+  exists Some, [(0, (Some 10, Some 1)); (1, (Some 11, Some 0))]. cbn.
+  exists [(0, (Some 10, Some 1))], [(1, (Some 11, Some 0))]. cbn.
+  split. firstorder. intuition eauto.
+Qed.
