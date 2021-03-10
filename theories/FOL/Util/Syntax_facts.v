@@ -330,6 +330,22 @@ Section Bounded.
 
 End Bounded.
 
+Lemma vec_cons_inv X n (v : Vector.t X n) x y :
+  In y (Vector.cons X x n v) -> (y = x) \/ (In y v).
+Proof.
+  inversion 1; subst.
+  - now left.
+  - apply EqDec.inj_right_pair in H3 as ->. now right.
+Qed.
+
+Ltac solve_bounds :=
+  repeat constructor; try lia; try inversion X; intros;
+  match goal with
+  | H : Vector.In ?x (@Vector.cons _ ?y _ ?v) |- _ => repeat apply vec_cons_inv in H as [->|H]; try inversion H
+  | H : Vector.In ?x (@Vector.nil _) |- _ => try inversion H
+  | _ => idtac
+  end.
+
 
 
 (* ** Discreteness *)

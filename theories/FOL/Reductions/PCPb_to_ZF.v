@@ -18,7 +18,6 @@ Local Unset Strict Implicit.
 (* ** Reduction function *)
 
 Local Definition BSRS := list(card bool).
-Local Notation "x / y" := (x, y).
 
 Fixpoint shift n x :=
   match n with 
@@ -33,14 +32,14 @@ Definition opair a b :=
   {{a; a}; {a; b}}.
 
 Definition pairing f A :=
-  ∀ $0 ∈ shift 1 f --> ∃ ∃ $1 ∈ shift 3 A ∧ $2 ≡ opair $1 $0.
+  ∀ $0 ∈ shift 1 f ~> ∃ ∃ $1 ∈ shift 3 A ∧ $2 ≡ opair $1 $0.
 
-Definition function f A :=
+Definition function' f A :=
   pairing f A ∧ ∀ ∃ $0 ∈ shift 2 A ∧ opair $0 $1 ∈ shift 2 f
-                    ∧ ∀ opair $1 $0 ∈ shift 2f --> $2 ≡ $0.
+                    ∧ ∀ opair $1 $0 ∈ shift 2f ~> $2 ≡ $0.
 
-Definition function' f :=
-  ∀ ∀ ∀ opair $2 $1 ∈ shift 3 f --> opair $2 $0 ∈ shift 3 f --> $1 ≡ $0.
+Definition function f :=
+  ∀ ∀ ∀ opair $2 $1 ∈ shift 3 f ~> opair $2 $0 ∈ shift 3 f ~> $1 ≡ $0.
 
 Definition enc_bool (x : bool) :=
   if x then {∅; ∅} else ∅.
@@ -61,7 +60,7 @@ Fixpoint enc_stack (B : BSRS) :=
   end.
 
 Definition is_rep phi a b :=
-  ∀ $0 ∈ shift 1 b <--> ∃ $0 ∈ shift 2 a ∧ phi.
+  ∀ $0 ∈ shift 1 b <~> ∃ $0 ∈ shift 2 a ∧ phi.
 
 Definition comb_rel s t :=
   ∃ ∃ $2 ≡ opair $0 $1 ∧ $3 ≡ opair (prep_string s $0) (prep_string t $1).
@@ -74,11 +73,11 @@ Fixpoint combinations (B : BSRS) a b :=
   end.
 
 Definition solutions (B : BSRS) f n :=
-  opair ∅ (enc_stack B) ∈ f ∧ ∀ ∀ ∀ $2 ∈ shift 3 n --> opair $2 $1 ∈ shift 3 f
-               --> combinations B $1 $0 --> opair (σ $2) $0 ∈ shift 3 f.
+  opair ∅ (enc_stack B) ∈ f ∧ ∀ ∀ ∀ $2 ∈ shift 3 n ~> opair $2 $1 ∈ shift 3 f
+               ~> combinations B $1 $0 ~> opair (σ $2) $0 ∈ shift 3 f.
 
 Definition solvable (B : BSRS) :=
-  ∃ ∃ ∃ ∃ ∃ $4 ∈ ω ∧ function' $3 ∧ solutions B $3 $4 ∧ opair $4 $0 ∈ $3 ∧ $2 ∈ $0 ∧ $2 ≡ opair $1 $1.
+  ∃ ∃ ∃ ∃ $3 ∈ ω ∧ function $2 ∧ solutions B $2 $3 ∧ opair $3 $0 ∈ $2 ∧ opair $1 $1 ∈ $0.
 
 
 
@@ -86,6 +85,9 @@ Definition solvable (B : BSRS) :=
 
 Declare Scope sem.
 Open Scope sem.
+
+Arguments Vector.nil {_}, _.
+Arguments Vector.cons {_} _ {_} _, _ _ _ _.
 
 Notation "x ∈ y" := (@i_atom _ _ _ _ elem (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : sem.
 Notation "x ≡ y" := (@i_atom _ _ _ _ equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : sem.
@@ -500,7 +502,7 @@ Section ZF.
   Qed.
 
   Lemma enc_stack_el' x A :
-    x ∈ M_enc_stack A -> exists s t, s / t el A /\ x = M_enc_card s t.
+    x ∈ M_enc_stack A -> exists s t, (s, t) el A /\ x = M_enc_card s t.
   Proof.
     induction A as [|[s t] A IH]; cbn.
     - now intros H % M_eset.
@@ -510,7 +512,7 @@ Section ZF.
   Qed.
 
   Lemma enc_stack_el B s t :
-    s / t el B -> M_enc_card s t ∈ M_enc_stack B.
+    (s, t) el B -> M_enc_card s t ∈ M_enc_stack B.
   Proof.
     induction B as [|[u b] B IH]; cbn; auto.
     intros [H|H]; apply binunion_el.
@@ -548,7 +550,7 @@ Section ZF.
     end.
 
   Lemma derivable_derivations B s t :
-    derivable B s t -> exists n, s/t el derivations B n.
+    derivable B s t -> exists n, (s, t) el derivations B n.
   Proof.
     induction 1.
     - exists 0. apply H.
@@ -628,13 +630,13 @@ Section ZF.
       assert (x = x2 ∪ x1) as ->. { rewrite <- R2. cbn in H1. rewrite !eval_comp in H1. apply VIEQ, H1. } clear H1.
       cbn. fold (derivation_step B C). rewrite M_enc_stack_app.
       enough (x1 = M_enc_stack (derivation_step B C)) as E1.
-      + enough (x2 = M_enc_stack (append_all C (s / t))) as E2 by now rewrite E1, E2.
+      + enough (x2 = M_enc_stack (append_all C (s, t))) as E2 by now rewrite E1, E2.
         apply M_ext; intros u Hu.
         * apply H3 in Hu as [v [Hv[a [b Ha]]]].
           cbn in Hv. erewrite !eval_comp, eval_ext, R1 in Hv; trivial.
           apply enc_stack_el' in Hv as (s'&t'&H&H').
           enough (u = M_enc_card (s++s') (t++t')) as ->.
-          { apply enc_stack_el. apply in_map_iff. now exists (s'/t'). }
+          { apply enc_stack_el. apply in_map_iff. now exists (s', t'). }
           cbn in Ha. rewrite !VIEQ in Ha. destruct Ha as [D1 D2].
           rewrite D1 in H'. unfold M_enc_card in H'. apply opair_inj in H' as [-> ->].
           rewrite D2; unfold M_enc_card, M_opair; repeat f_equal.
@@ -650,6 +652,18 @@ Section ZF.
       + eapply IH; eauto. unfold shift. now erewrite !eval_comp, eval_ext, R1.
   Qed.
 
+  Lemma enc_derivations_solutions B n rho a b :
+    (a .: b .: M_enc_derivations B n .: numeral n .: rho) ⊨ solutions B $2 $3.
+  Proof.
+    cbn. split.
+    - rewrite eval_enc_stack. apply enc_derivations_base.
+    - intros k x x' H1 H2 H3.
+      destruct (enc_derivations_el H2) as [l[-> ->]].
+      specialize (enc_derivations_step B H1).
+      replace (M_enc_stack (derivations B (S l))) with x'; trivial.
+      apply (enc_stack_combinations H3); trivial.
+  Qed.
+
   Lemma derivations_enc_derivations B n :
     M_opair (numeral n) (M_enc_stack (derivations B n)) ∈ M_enc_derivations B n.
   Proof.
@@ -660,7 +674,7 @@ Section ZF.
   Qed.
 
   Lemma derivations_el B n s t :
-     s / t el derivations B n -> M_enc_card s t ∈ M_enc_stack (derivations B n).
+    (s, t) el derivations B n -> M_enc_card s t ∈ M_enc_stack (derivations B n).
   Proof.
     apply enc_stack_el.
   Qed.
@@ -669,22 +683,13 @@ Section ZF.
     derivable B s s -> forall rho, rho ⊨ solvable B.
   Proof.
     intros H rho. destruct (derivable_derivations H) as [n Hn]. unfold solvable.
-    exists (numeral n), (M_enc_derivations B n), (M_opair (M_enc_string s) (M_enc_string s)).
-    exists (M_enc_string s), (M_enc_stack (derivations B n)). repeat split.
+    exists (numeral n), (M_enc_derivations B n), (M_enc_string s), (M_enc_stack (derivations B n)).
+    split; [split; [split; [split |] |] |].
     - apply numeral_omega.
     - unfold function'. intros k x y H1 H2. apply VIEQ. apply (enc_derivations_fun H1 H2).
-    - specialize (enc_derivations_base B n). intros HB.
-      erewrite <- eval_enc_stack in HB. apply HB.
-    - intros k x x' H1' H2' H3.
-      assert (H1 : k ∈ numeral n) by apply H1'. clear H1'.
-      assert (H2 : M_opair k x ∈ M_enc_derivations B n) by apply H2'. clear H2'.
-      destruct (enc_derivations_el H2) as [l[-> ->]].
-      specialize (enc_derivations_step B H1).
-      replace (M_enc_stack (derivations B (S l))) with x'; trivial.
-      apply (enc_stack_combinations H3); trivial.
-    - apply derivations_enc_derivations.
+    - apply enc_derivations_solutions.
+    - cbn. apply derivations_enc_derivations.
     - now apply enc_stack_el.
-    - cbn. apply VIEQ. reflexivity.
   Qed.
 
 
@@ -729,7 +734,7 @@ Section ZF.
     M_opair ∅ (M_enc_stack B) ∈ f /\ forall k x y, k ∈ n -> M_opair k x ∈ f -> M_combinations B x y -> M_opair (σ k) y ∈ f.
 
   Lemma comb_rel_rep C s t :
-    M_is_rep (M_comb_rel s t) (M_enc_stack C) (M_enc_stack (append_all C (s / t))).
+    M_is_rep (M_comb_rel s t) (M_enc_stack C) (M_enc_stack (append_all C (s, t))).
   Proof.
     intros y. split.
     - intros (u&v&H&->) % enc_stack_el'.
@@ -740,14 +745,14 @@ Section ZF.
       now rewrite !M_prep_enc.
     - intros (u&H&a&b&->&->). apply enc_stack_el' in H as [u[v[H1 H2]]].
       apply opair_inj in H2 as [-> ->]. rewrite !M_prep_enc. apply enc_stack_el.
-      apply in_map_iff. now exists (u/v).
+      apply in_map_iff. now exists (u, v).
   Qed.
 
   Lemma M_combinations_step B C :
     M_combinations B (M_enc_stack C) (M_enc_stack (derivation_step B C)).
   Proof.
     induction B as [|[s t] B IH]; cbn; trivial.
-    exists (M_enc_stack (derivation_step B C)), (M_enc_stack (append_all C (s / t))).
+    exists (M_enc_stack (derivation_step B C)), (M_enc_stack (append_all C (s, t))).
     rewrite M_enc_stack_app. split; trivial. split; trivial.
     apply comb_rel_rep.
   Qed.
@@ -764,7 +769,7 @@ Section ZF.
   Qed.
 
   Lemma derivations_derivable B n s t :
-    s / t el derivations B n -> derivable B s t.
+    (s, t) el derivations B n -> derivable B s t.
   Proof.
     induction n in s,t|-*; cbn.
     - now constructor.
@@ -777,34 +782,34 @@ Section ZF.
   Definition M_function f :=
     forall x y y', M_opair x y ∈ f -> M_opair x y' ∈ f -> y = y'.
 
-  Lemma M_solutions_el B f n k X p :
-    M_function f -> M_solutions B f (numeral n) -> M_opair (numeral k) X ∈ f
-    -> k <= n -> p ∈ X -> exists u v, p = M_enc_card u v /\ derivable B u v.
+  Definition standard :=
+    forall x, x ∈ ω -> exists n, x ≡ numeral n.
+
+  Lemma M_solutions_el B f k X p :
+    standard -> k ∈ ω -> M_function f -> M_solutions B f k -> M_opair k X ∈ f
+    -> p ∈ X -> exists u v, p = M_enc_card u v /\ derivable B u v.
   Proof.
-    intros Hf Hn HX Hk Hp. apply (solutions_derivations Hn) in Hk.
-    rewrite (Hf _ _ _ HX Hk) in Hp. apply enc_stack_el' in Hp as (s&t&H&->).
+    intros HS HO Hf Hk HX Hp. destruct (HS k HO) as [n -> % VIEQ].
+    pose proof (H := solutions_derivations Hk (le_n n)).
+    rewrite (Hf _ _ _ HX H) in Hp. apply enc_stack_el' in Hp as (s&t&H'&->).
     exists s, t. split; trivial. eapply derivations_derivable; eauto.
   Qed.
-
-  Definition standard :=
-    forall x, x ∈ ω -> exists n, x = numeral n.
 
   Theorem PCP_ZF2 B rho :
     standard -> rho ⊨ solvable B -> exists s, derivable B s s.
   Proof.
-    intros VIN (n & f & p & s & X & [[[[[H1 H2] H3] H4] H5] H6]).
+    intros VIN (n & f & s & X & [[[[H1 H2] H3] H4] H5]).
     assert (H1' : n ∈ ω) by apply H1. clear H1.
-    assert (H6' : p = M_opair s s) by apply VIEQ, H6. clear H6.
     assert (H4' : M_opair n X ∈ f) by apply H4. clear H4.
-    assert (H5' : p ∈ X) by apply H5. clear H5.
+    assert (H5' : M_opair s s ∈ X) by apply H5. clear H5.
     assert (H2' : M_function f).
     { intros x y y' H H'. apply VIEQ. eapply H2. apply H. apply H'. } clear H2.
     assert (H3' : M_opair ∅ (M_enc_stack B) ∈ f).
     { erewrite <- eval_enc_stack. apply H3. } destruct H3 as [_ H3].
     assert (H3'' : forall k x y, k ∈ n -> M_opair k x ∈ f -> M_combinations B x y -> M_opair (σ k) y ∈ f).
     { intros k x y Hn Hk Hy. apply (H3 k x y); auto. fold sat. eapply M_combinations_spec; eauto. } clear H3.
-    destruct (VIN _ H1') as [l ->]. destruct (@M_solutions_el B f l l X p) as (u&v&->&H2); trivial. now split.
-    exists u. apply opair_inj in H6' as [<- H]. apply enc_string_inj in H as ->. apply H2.
+    destruct (@M_solutions_el B f n X (M_opair s s)) as (u&v&H1&H2); trivial.
+    now split. exists u. apply opair_inj in H1 as [H ->]. apply enc_string_inj in H as ->. apply H2.
   Qed.
   
 End ZF.

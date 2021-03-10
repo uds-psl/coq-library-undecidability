@@ -207,7 +207,7 @@ Defined. (* because ? *)
 Fixpoint changeResType_TimeComplexity t1 (tt1 : TT t1) Y {R: registered Y} {struct tt1}:
   forall (fT: timeComplexity t1) , @timeComplexity _ (projT2 (changeResType tt1 (TyB Y))):= (
   match tt1 with
-    @TyB t1 tt1 => fun fT => fT
+    @TyB t1 _ => fun fT => fT
   | TyArr _ _ tt11 tt12 => fun fT x xT => (fst (fT x xT),changeResType_TimeComplexity (snd (fT x xT)))
   end).
 

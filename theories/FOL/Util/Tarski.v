@@ -1,6 +1,7 @@
 (* * Tarski Semantics *)
 
-Require Import Undecidability.FOL.Util.Syntax_facts.
+Require Import Undecidability.FOL.Util.Syntax Undecidability.FOL.Util.Syntax_facts.
+Export FragmentSyntax.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 Require Import Vector.
@@ -9,21 +10,6 @@ Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
 Local Notation vec := Vector.t.
-
-(** Fragment Syntax ***)
-
-Inductive frag_logic_binop : Type :=
-| Impl : frag_logic_binop.
-
-Inductive frag_logic_quant : Type :=
-| All : frag_logic_quant.
-
-Instance frag_operators : operators :=
-{| binop := frag_logic_binop ; quantop := frag_logic_quant |}.
-
-Notation "∀ Phi" := (@quant _ _ frag_operators _ All Phi) (at level 50).
-Notation "phi '-->' psi" := (@bin _ _ frag_operators _ Impl phi psi) (at level 43, right associativity).
-Notation "¬ phi" := (phi --> falsity) (at level 42).
 
 Section fixb.
 

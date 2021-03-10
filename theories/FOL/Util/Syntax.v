@@ -66,7 +66,6 @@ Section fix_signature.
   Class operators := {binop : Type ; quantop : Type}.
   Context {ops : operators}.
 
-  (* Formulas have falsity as fixed constant -- we could parametrise against this in principle *)
   Inductive form : falsity_flag -> Type :=
   | falsity : form falsity_on
   | atom {b} : forall (P : preds), vec term (ar_preds P) -> form b
@@ -120,3 +119,62 @@ Notation "s .: sigma" := (scons s sigma) (at level 70, right associativity) : su
 Notation "f >> g" := (funcomp g f) (at level 50) : subst_scope.
 Notation "s '..'" := (scons s var) (at level 4, format "s ..") : subst_scope.
 Notation "↑" := (S >> var) : subst_scope.
+
+
+
+(* Full syntax *)
+
+Declare Scope syn.
+Open Scope syn.
+
+Module FullSyntax.
+
+  Inductive full_logic_sym : Type :=
+  | Conj : full_logic_sym
+  | Disj : full_logic_sym
+  | Impl : full_logic_sym.
+
+  Inductive full_logic_quant : Type :=
+  | All : full_logic_quant
+  | Ex : full_logic_quant.
+
+  Definition full_operators : operators :=
+    {| binop := full_logic_sym ; quantop := full_logic_quant |}.
+
+  #[export] Hint Immediate full_operators : typeclass_instances.
+
+  Notation "∀ Phi" := (@quant _ _ full_operators _ All Phi) (at level 50) : syn.
+  Notation "∃ Phi" := (@quant _ _ full_operators _ Ex Phi) (at level 50) : syn.
+  Notation "A ∧ B" := (@bin _ _ full_operators _ Conj A B) (at level 41) : syn.
+  Notation "A ∨ B" := (@bin _ _ full_operators _ Disj A B) (at level 42) : syn.
+  Notation "A '~>' B" := (@bin _ _ full_operators _ Impl A B) (at level 43, right associativity) : syn.
+  Notation "⊥" := (falsity) : syn.
+  Notation "¬ A" := (A ~> ⊥) (at level 42) : syn.
+  Notation "A '<~>' B" := ((A ~> B) ∧ (B ~> A)) (at level 43) : syn.
+
+End FullSyntax.
+
+Import FullSyntax.
+
+
+
+(* Fragment syntax *)
+
+Module FragmentSyntax.
+
+  Inductive frag_logic_binop : Type :=
+  | Impl : frag_logic_binop.
+
+  Inductive frag_logic_quant : Type :=
+  | All : frag_logic_quant.
+
+  Definition frag_operators : operators :=
+    {| binop := frag_logic_binop ; quantop := frag_logic_quant |}.
+
+  #[export] Hint Immediate frag_operators : typeclass_instances.
+
+  Notation "∀ Phi" := (@quant _ _ frag_operators _ All Phi) (at level 50).
+  Notation "phi '-->' psi" := (@bin _ _ frag_operators _ Impl phi psi) (at level 43, right associativity).
+  Notation "¬ phi" := (phi --> falsity) (at level 42).
+
+End FragmentSyntax.
