@@ -252,6 +252,9 @@ FOL/Reductions/PCPb_to_binZF.v
 FOL/Reductions/PCPb_to_ZFeq.v
 FOL/Reductions/H10p_to_FA.v
 
+SeparationLogic/min_seplogic.v
+SeparationLogic/seplogic.v
+
 MinskyMachines/MMA.v            
 
 MinskyMachines/ndMM2.v          
