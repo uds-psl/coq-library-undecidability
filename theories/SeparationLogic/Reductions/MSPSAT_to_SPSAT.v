@@ -7,7 +7,7 @@ Fixpoint embed (P : msp_form) : sp_form :=
   | mpointer E E1 E2 => sand (pointer E E1 E2) (imp bot bot)
   | mbot => bot
   | mimp P1 P2 => imp (embed P1) (embed P2)
-  | mall x P => all x (embed P)
+  | mall P => all (embed P)
   end.
 
 Lemma embed_sat s h P :
