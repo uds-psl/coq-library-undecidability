@@ -7,7 +7,10 @@ Fixpoint embed (P : msp_form) : sp_form :=
   | mpointer E E1 E2 => sand (pointer E E1 E2) (imp bot bot)
   | mbot => bot
   | mimp P1 P2 => imp (embed P1) (embed P2)
+  | mand P1 P2 => and (embed P1) (embed P2)
+  | mor P1 P2 => or (embed P1) (embed P2)
   | mall P => all (embed P)
+  | mex P => ex (embed P)
   end.
 
 Lemma embed_sat s h P :
@@ -22,6 +25,9 @@ Proof.
     + intros (h1 & h2 & H1 & [l[H2 ->]] & _). exists l. split; trivial. apply H1, in_app_iff. now left.
   - tauto.
   - rewrite IHP1, IHP2. tauto.
+  - rewrite IHP1, IHP2. tauto.
+  - rewrite IHP1, IHP2. tauto.
+  - setoid_rewrite IHP. tauto.
   - setoid_rewrite IHP. tauto.
 Qed.
 
