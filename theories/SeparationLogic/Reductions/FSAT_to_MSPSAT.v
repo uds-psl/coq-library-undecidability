@@ -10,6 +10,7 @@ From Undecidability.Shared Require Import Dec.
 From Equations Require Import Equations.
 
 
+
 (** encoding function **)
 
 Fixpoint encode {ff : falsity_flag} (phi : form) : msp_form :=
@@ -31,7 +32,7 @@ Definition encode' (phi : form) : msp_form :=
 
 
 
-(** backward direction **)
+(** backwards direction **)
 
 Lemma pointers_disc :
   eq_dec (nat * (val * val)).
@@ -77,46 +78,51 @@ Fixpoint FV {ff : falsity_flag} (phi : form) : list nat :=
   | quant q phi => map pred (filter (fun n : nat => if n then false else true) (FV phi))
   end.
 
-Lemma to_list_iff X n (v : Vector.t X n) x :
-  x el Vector.to_list v <-> Vector.In x v.
+Lemma to_list_in X n (v : Vector.t X n) x :
+  Vector.In x v -> x el Vector.to_list v.
 Proof.
-  induction v; cbn; split.
-Admitted.
+  induction v; cbn.
+  - inversion 1.
+  - inversion 1; subst; try now left.
+    apply Eqdep_dec.inj_pair2_eq_dec in H3 as <-; try decide equality.
+    right. apply IHv, H2.
+Qed.
 
 Section Backwards.
 
-  Definition defined (h : heap) l :=
-    if Dec ((l, (None, None)) el h) then True else False.
+  Definition squash P {d : dec P} :=
+    if Dec P then True else False.
 
-  Lemma defined_iff h l :
-    defined h l <-> (l, (None, None)) el h.
+  Lemma squash_iff P (d : dec P) :
+    squash P <-> P.
   Proof.
-    unfold defined. split; destruct Dec; tauto.
-  Defined.
+    unfold squash. destruct Dec; tauto.
+  Qed.
+
+  Lemma squash_pure P (d : dec P) (H H' : squash P) :
+    H = H'.
+  Proof.
+    remember (squash P) as S. unfold squash in HeqS.
+    destruct Dec in HeqS; subst; try tauto. now destruct H, H'.
+  Qed.
 
   Definition dom (h : heap) : Type :=
-    { l | defined h l }.
+    { l | squash ((l, (None, None)) el h) }.
 
   Definition loc2dom {h : heap} {l} :
     (l, (None, None)) el h -> dom h.
   Proof.
-    intros H. exists l. now apply defined_iff.
+    intros H. exists l. abstract (now apply squash_iff).
   Defined.
 
-  Lemma loc2dom_eq h l (H H' : (l, (None, None)) el h) :
-    loc2dom H = loc2dom H'.
-  Proof.
-    unfold loc2dom. cbn. f_equal. destruct Dec; trivial. contradiction.
-  Qed.
-
-  Definition env (s : stack) (h : heap) (d : dom h) :
+  Definition env (s : stack) (h : heap) (d0 : dom h) :
     nat -> dom h.
   Proof.
     intros n. destruct (s n) as [l |].
     - decide ((l, (None, None)) el h).
       + exact (loc2dom i).
-      + exact d.
-    - exact d.
+      + exact d0.
+    - exact d0.
   Defined.
 
   Instance model h :
@@ -127,20 +133,13 @@ Section Backwards.
     - intros [] v. exact (exists l, (l, (Some (proj1_sig (Vector.hd v)), Some (proj1_sig (Vector.hd (Vector.tl v))))) el h).
   Defined.
 
-  Lemma update_stack_cons s h l d (H : (l, (None, None)) el h) x :
-    env (update_stack s (Some l)) h d x = (loc2dom H .: env s h d) x.
-  Proof.
-    destruct x as [|x]; try reflexivity.
-    cbn. destruct Dec; try tauto. apply loc2dom_eq.
-  Qed.
-
-  Lemma update_stack_cons' s h d0 d x :
+  Lemma update_stack_cons s h d0 d x :
     (d .: env s h d0) x = env (update_stack s (Some (proj1_sig d))) h d0 x.
   Proof.
-    destruct d, x as [|x]; try reflexivity. cbn. destruct Dec.
-    - unfold loc2dom. f_equal. admit.
-    - contradict n. now apply defined_iff.
-  Admitted.
+    destruct x as [|x]; try reflexivity. cbn. destruct Dec.
+    - destruct d. unfold loc2dom. f_equal. apply squash_pure.
+    - contradict n. eapply squash_iff, proj2_sig.
+  Qed.
 
   Lemma reduction_backwards (s : stack) (h : heap) (d0 : dom h) phi :
     (forall x, x el FV phi -> exists l, s x = Some l /\ (l, (None, None)) el h) -> env s h d0 ⊨ phi <-> msp_sat s h (encode phi).
@@ -151,9 +150,9 @@ Section Backwards.
       destruct (Vector.hd (Vector.tl t)) as [y|[]] eqn : Hy. cbn. split.
       + intros [l Hl].
         destruct (HV x) as (l1 & H1 & H2).
-        { apply in_map_iff. exists (Vector.hd t). split; try now rewrite Hx. apply to_list_iff, in_hd. }
+        { apply in_map_iff. exists (Vector.hd t). split; try now rewrite Hx. apply to_list_in, in_hd. }
         destruct (HV y) as (l2 & H3 & H4).
-        { apply in_map_iff. exists (Vector.hd (Vector.tl t)). split; try now rewrite Hy. apply to_list_iff, in_hd_tl. }
+        { apply in_map_iff. exists (Vector.hd (Vector.tl t)). split; try now rewrite Hy. apply to_list_in, in_hd_tl. }
         unfold env in Hl. rewrite H1, H3 in Hl. do 2 destruct Dec; try tauto. cbn in Hl. repeat split.
         * exists (Some l), l. split; trivial. now rewrite H1, H3.
         * now exists l1.
@@ -166,17 +165,16 @@ Section Backwards.
   - split; intros H.
     + intros [l|] [l'[H1 H2]]; try discriminate. injection H1. intros <-. apply IHphi.
       * intros [|x] Hx; try now exists l. apply HV. apply in_map_iff. exists (S x). split; trivial. now apply in_filter_iff.
-      * eapply sat_ext; try apply (H (loc2dom H2)). apply update_stack_cons.
-    + intros [l Hl]. eapply sat_ext, IHphi, H.
-      * apply update_stack_cons'.
-      * cbn. assert (Hl' : (l, (None, None)) el h) by now apply defined_iff.
-        intros [|x] Hx; try now exists l. apply HV. apply in_map_iff. exists (S x). split; trivial. now apply in_filter_iff.
-      * cbn. exists l. split; trivial. now apply defined_iff.
+      * eapply sat_ext; try apply (H (loc2dom H2)). intros x. now rewrite update_stack_cons.
+    + intros [l Hl]. assert (Hl' : (l, (None, None)) el h) by now eapply squash_iff. eapply sat_ext, IHphi, H; cbn.
+      * apply update_stack_cons.
+      * intros [|x] Hx; try now exists l. apply HV. apply in_map_iff. exists (S x). split; trivial. now apply in_filter_iff.
+      * exists l. split; trivial.
   - split; intros H.
-    + destruct H as [[l Hl] H]. assert (Hl' : (l, (None, None)) el h) by now apply defined_iff.
+    + destruct H as [[l Hl] H]. assert (Hl' : (l, (None, None)) el h) by now eapply squash_iff.
       exists (Some l). split; try now exists l. apply IHphi.
       * intros [|x] Hx; try now exists l. apply HV. apply in_map_iff. exists (S x). split; trivial. now apply in_filter_iff.
-      * eapply sat_ext; try apply H. intros x. now rewrite update_stack_cons'.
+      * eapply sat_ext; try apply H. intros x. now rewrite update_stack_cons.
     + destruct H as [[l|][[l'[H1 H2]] H]]; try discriminate. injection H1. intros <-.
       exists (loc2dom H2). eapply sat_ext, IHphi, H.
       * intros x. now erewrite update_stack_cons.
@@ -184,6 +182,10 @@ Section Backwards.
   Qed.
 
 End Backwards. 
+
+
+
+(** forwards direction **)
 
 
 
