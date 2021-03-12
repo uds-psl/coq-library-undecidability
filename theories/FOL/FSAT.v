@@ -25,4 +25,4 @@ Definition listable X :=
   exists L, forall x : X, In x L.
 
 Definition FSAT (phi : form) :=
-  exists D (I : interp D) rho, listable D -> discrete D -> decidable (fun v => i_atom (P:=tt) v) -> rho ⊨ phi.
+  exists D (I : interp D) rho, listable D /\ discrete D /\ decidable (fun v => i_atom (P:=tt) v) /\ rho ⊨ phi.

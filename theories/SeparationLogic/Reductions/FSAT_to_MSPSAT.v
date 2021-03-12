@@ -29,7 +29,7 @@ Fixpoint encode {ff : falsity_flag} (phi : form) : msp_form :=
   end.
 
 Definition encode' (phi : form) : msp_form :=
-  mimp (mex (mpointer (Some 0) None None)) (encode phi).
+  mand (mex (mpointer (Some 0) None None)) (encode phi).
 
 
 
@@ -319,6 +319,13 @@ Section Forwards.
   Proof.
   Admitted.
 
+  Lemma guarded (d : D) :
+    exists (v : val) (l : nat), v = Some l /\ (l, (None, None)) el interp2heap.
+  Proof.
+    exists (Some (enc_point d)), (enc_point d). split; trivial.
+    apply in_app_iff. left. apply in_map_iff. exists d; auto.
+  Qed.
+
 End Forwards.
 
 
@@ -326,12 +333,52 @@ End Forwards.
 (** reduction theorem **)
 
 Require Import Undecidability.Synthetic.Definitions.
+Import Vector.VectorNotations.
+
+Lemma vec_inv1 {X} (v : Vector.t X 1) :
+  v = [Vector.hd v].
+Proof.
+  repeat depelim v. cbn. reflexivity.
+Qed.
+
+Lemma vec_inv2 {X} (v : Vector.t X 2) :
+  v = [Vector.hd v; Vector.hd (Vector.tl v)].
+Proof.
+  repeat depelim v. cbn. reflexivity.
+Qed.
+
+Lemma discrete_nodup X (L : list X) :
+  eq_dec X -> { L' | NoDup L' /\ L <<= L' }.
+Proof.
+  intros d. induction L.
+  - exists nil. split; auto. apply NoDup_nil.
+  - destruct IHL as (L' & H1 & H2). decide (a el L') as [H|H].
+    + exists L'. split; trivial. intros b. cbn. firstorder congruence.
+    + exists (cons a L'). split; try now apply NoDup_cons. auto.
+Qed.
 
 Theorem reduction' phi :
   FV phi = nil -> FSAT phi <-> MSPSAT (encode' phi).
 Proof.
+  intros HV. split.
+  - intros (D & M & rho & [L HL] & [H2] % discrete_iff & [f H3] & H4).
+    pose (f' (p : D * D) := let (d, e) := p in f ([d; e])).
+    destruct (discrete_nodup D L H2) as [L'[HL1 HL2]].
+    assert (HL2' : forall x, x el L') by auto.
+    assert (H3' : forall v, i_atom (P:=tt) v <-> f' (Vector.hd v, Vector.hd (Vector.tl v)) = true).
+    { intros v. unfold decider, reflects in H3. now rewrite (H3 v), (vec_inv2 v) at 1. }
+    exists (env2stack D L' H2 rho), (interp2heap D L' H2 f'). split.
+    + now eapply interp2heap_fun.
+    + cbn. split; try now eapply reduction_forwards. apply guarded; trivial. exact (rho 0).
+  - intros (s & h & _ & H). cbn in H. destruct H as [H' H]. destruct H' as (v & l & -> & Hl).
+    exists (dom h), (model h), (env s h (loc2dom Hl)). repeat split.
+    + apply dom_listable.
+    + apply dom_discrete.
+    + apply model_dec.
+    + apply reduction_backwards; trivial. rewrite HV. intros x [].
+Qed.
 
-Admitted.
+Print Assumptions reduction'.
 
 Theorem reduction :
   FSAT ⪯ MSPSAT.
