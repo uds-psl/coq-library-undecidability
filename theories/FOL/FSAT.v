@@ -1,6 +1,5 @@
 From Undecidability.FOL.Util Require Import Syntax FullTarski sig_bin.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
-Import Vector.VectorNotations.
 Require Import List.
  
 (* ** Syntax as defined in Util/Syntax.v 
@@ -26,4 +25,4 @@ Definition listable X :=
   exists L, forall x : X, In x L.
 
 Definition FSAT (phi : form) :=
-  exists D (I : interp D) rho, listable D -> discrete D -> decidable (X := D*D) (fun '(x, y) => i_atom (P:=tt) ([x; y])) -> rho ⊨ phi.
+  exists D (I : interp D) rho, listable D -> discrete D -> decidable (fun v => i_atom (P:=tt) v) -> rho ⊨ phi.

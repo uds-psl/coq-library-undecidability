@@ -176,6 +176,23 @@ Section Backwards.
       * intros [|x] Hx; try now exists l. apply HV. apply in_map_iff. exists (S x). split; trivial. now apply in_filter_iff.
   Qed.
 
+  (* requirements *)
+
+  Lemma dom_listable h :
+    listable (dom h).
+  Proof.
+  Admitted.
+
+  Lemma dom_discrete h :
+    discrete (dom h).
+  Proof.
+  Admitted.
+
+  Lemma model_dec (h : heap) :
+    decidable (fun v => i_atom (interp:=model h) (P:=tt) v).
+  Proof.
+  Admitted.
+
 End Backwards. 
 
 
@@ -224,15 +241,38 @@ Section Forwards.
   Definition env2stack (rho : nat -> D) : stack :=
     fun n => Some (enc_point (rho n)).
 
+  Lemma pos_inj L d e :
+    d el L -> e el L -> pos L d = pos L e -> d = e.
+  Proof.
+    induction L; cbn; try tauto. intros [->|Hd] [->|He].
+    all: repeat destruct Dec; try tauto; try congruence.
+    intros [=]. auto.
+  Qed.
+
   Lemma enc_point_inj d e :
     enc_point d = enc_point e -> d = e.
   Proof.
-  Admitted.
+    apply pos_inj; apply LD_ex.
+  Qed.
+
+  Lemma sp_eval_ext s s' E :
+    (forall n, s n = s' n) -> sp_eval s E = sp_eval s' E.
+  Proof.
+    intros HS. destruct E as [x|]; cbn; auto.
+  Qed.
 
   Lemma msp_sat_ext s s' h P :
     (forall n, s n = s' n) -> msp_sat s h P <-> msp_sat s' h P.
   Proof.
-  Admitted.
+    induction P in s, s' |- *; intros HS; cbn.
+    - now setoid_rewrite (sp_eval_ext _ _ _ HS).
+    - tauto.
+    - now rewrite (IHP1 s s'), (IHP2 s s').
+    - now rewrite (IHP1 s s'), (IHP2 s s').
+    - now rewrite (IHP1 s s'), (IHP2 s s').
+    - split; intros H v. all: eapply IHP; try apply (H v). all: intros []; cbn; auto.
+    - split; intros [v H]; exists v. all: eapply IHP; try apply H. all: intros []; cbn; auto.
+  Qed.
 
   Lemma reduction_forwards rho phi :
     rho ⊨ phi <-> msp_sat (env2stack rho) interp2heap (encode phi).
@@ -272,6 +312,13 @@ Section Forwards.
         exists d. apply IHphi. eapply msp_sat_ext; try apply H. now intros [].
   Qed.
 
+  (* requirements *)
+
+  Lemma interp2heap_fun :
+    functional interp2heap.
+  Proof.
+  Admitted.
+
 End Forwards.
 
 
@@ -279,6 +326,12 @@ End Forwards.
 (** reduction theorem **)
 
 Require Import Undecidability.Synthetic.Definitions.
+
+Theorem reduction' phi :
+  FV phi = nil -> FSAT phi <-> MSPSAT (encode' phi).
+Proof.
+
+Admitted.
 
 Theorem reduction :
   FSAT ⪯ MSPSAT.
