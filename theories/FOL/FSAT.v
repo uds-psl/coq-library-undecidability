@@ -23,7 +23,7 @@ Require Import List.
 Existing Instance falsity_on.
 
 Definition listable X :=
-  exists L, forall x : X, List.In x L.
+  exists L, forall x : X, In x L.
 
 Definition FSAT (phi : form) :=
   exists D (I : interp D) rho, listable D -> discrete D -> decidable (X := D*D) (fun '(x, y) => i_atom (P:=tt) ([x; y])) -> rho ⊨ phi.

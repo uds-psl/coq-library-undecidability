@@ -7,6 +7,7 @@ From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 
 From Undecidability.Shared Require Import Dec.
+Require Import Undecidability.Synthetic.DecidabilityFacts.
 From Equations Require Import Equations.
 
 
@@ -33,12 +34,6 @@ Definition encode' (phi : form) : msp_form :=
 
 
 (** backwards direction **)
-
-Lemma pointers_disc :
-  eq_dec (nat * (val * val)).
-Proof.
-  exact _.
-Qed.
 
 Lemma map_hd X Y n (f : X -> Y) (v : Vector.t X (S n)) :
   Vector.hd (Vector.map f v) = f (Vector.hd v).
@@ -75,7 +70,7 @@ Fixpoint FV {ff : falsity_flag} (phi : form) : list nat :=
   | falsity => nil
   | atom _ v => map FV_term (Vector.to_list v)
   | bin b phi psi => (FV phi) ++ (FV psi)
-  | quant q phi => map pred (filter (fun n : nat => if n then false else true) (FV phi))
+  | quant q phi => [pred p | p ∈ filter (fun n : nat => if n then false else true) (FV phi)]
   end.
 
 Lemma to_list_in X n (v : Vector.t X n) x :
@@ -186,6 +181,98 @@ End Backwards.
 
 
 (** forwards direction **)
+
+Section Forwards.
+
+  Variable D : Type.
+  Variable I : interp D.
+
+  Variable LD : list D.
+  Hypothesis LD_ex : forall d, d el LD.
+  Hypothesis LD_nodup : NoDup LD.
+
+  Hypothesis D_disc : forall d e : D, dec (d = e).
+
+  Variable f : D * D -> bool.
+  Hypothesis f_dec : forall v, i_atom (P:=tt) v <-> f (Vector.hd v, (Vector.hd (Vector.tl v))) = true.
+
+  Fixpoint pos L (d : D) : nat :=
+    match L with
+    | nil => 0
+    | e::L => if Dec (d = e) then 0 else S (pos L d) 
+    end.
+
+  Definition enc_point (d : D) : nat :=
+    pos LD d.
+
+  Fixpoint sum n : nat :=
+    match n with
+    | 0 => 0
+    | S n' => S n' + sum n'
+    end.
+
+  Definition enc_npair x y : nat :=
+    y + sum (y + x).
+
+  Definition enc_pair d e : nat :=
+    enc_npair (enc_point d) (enc_point e) + length LD.
+
+  Definition interp2heap : heap :=
+    [(enc_point d, (None, None)) | d ∈ LD]
+      ++ [(enc_pair d e, (Some (enc_point d), Some (enc_point e))) | (d, e) ∈ filter f (LD × LD)].
+
+  Definition env2stack (rho : nat -> D) : stack :=
+    fun n => Some (enc_point (rho n)).
+
+  Lemma enc_point_inj d e :
+    enc_point d = enc_point e -> d = e.
+  Proof.
+  Admitted.
+
+  Lemma msp_sat_ext s s' h P :
+    (forall n, s n = s' n) -> msp_sat s h P <-> msp_sat s' h P.
+  Proof.
+  Admitted.
+
+  Lemma reduction_forwards rho phi :
+    rho ⊨ phi <-> msp_sat (env2stack rho) interp2heap (encode phi).
+  Proof.
+    induction phi in rho |- *; try destruct P; try destruct b0; try destruct q; cbn.
+    - tauto.
+    - rewrite f_dec, map_tl, !map_hd.
+      destruct (Vector.hd t) as [x|[]] eqn : Hx. destruct (Vector.hd (Vector.tl t)) as [y|[]] eqn : Hy.
+      cbn. split.
+      + pose (d := rho x). pose (e := rho y). intros H. repeat split.
+        * exists (Some (enc_pair d e)), (enc_pair d e). split; trivial.
+          apply in_app_iff. right. apply in_map_iff. exists (d, e). split; try reflexivity.
+          apply in_filter_iff. split; trivial. apply in_prod_iff. split; apply LD_ex.
+        * exists (enc_point d). split; trivial. apply in_app_iff. left. apply in_map_iff. exists d; auto.
+        * exists (enc_point e). split; trivial. apply in_app_iff. left. apply in_map_iff. exists e; auto.
+      + intros [[v[l[-> Hl]]] _].
+        apply in_app_iff in Hl as [Hl|Hl].
+        * apply in_map_iff in Hl as [d [H1 H2]]. discriminate.
+        * apply in_map_iff in Hl as [[d e] [H1 H2]]. apply in_filter_iff in H2 as [_ H2].
+          unfold env2stack in H1. injection H1. now intros -> % enc_point_inj -> % enc_point_inj _.
+    - now rewrite IHphi1, IHphi2.
+    - now rewrite IHphi1, IHphi2.
+    - now rewrite IHphi1, IHphi2.
+    - split; intros H.
+      + intros [l|] [l'[H1 H2]]; try discriminate. injection H1. intros <-. clear H1.
+        apply in_app_iff in H2 as [[d[[=] _]] % in_map_iff |[[][]] % in_map_iff]; try discriminate; subst.
+        eapply msp_sat_ext; try apply IHphi, (H d). now intros [].
+      + intros d. apply IHphi. eapply msp_sat_ext; try apply (H (Some (enc_point d))).
+        * now intros [].
+        * exists (enc_point d). split; trivial. apply in_app_iff. left. apply in_map_iff. exists d; auto.
+    - split.
+      + intros [d H]. exists (Some (enc_point d)). split.
+        * exists (enc_point d). split; trivial. apply in_app_iff. left. apply in_map_iff. exists d; auto.
+        * eapply msp_sat_ext; try apply IHphi, H. now intros [].
+      + intros [v[[l [-> Hl]] H]].
+        apply in_app_iff in Hl as [[d[[=] _]] % in_map_iff |[[][]] % in_map_iff]; try discriminate; subst.
+        exists d. apply IHphi. eapply msp_sat_ext; try apply H. now intros [].
+  Qed.
+
+End Forwards.
 
 
 
