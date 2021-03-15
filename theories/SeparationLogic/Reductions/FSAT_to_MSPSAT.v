@@ -289,7 +289,7 @@ Section Forwards.
     y + sum (y + x).
 
   Definition enc_pair d e : nat :=
-    enc_npair (enc_point d) (enc_point e) + length LD.
+    enc_npair (enc_point d) (enc_point e) + S (length LD).
 
   Definition interp2heap : heap :=
     [(enc_point d, (None, None)) | d ∈ LD]
@@ -371,10 +371,78 @@ Section Forwards.
 
   (* requirements *)
 
+  Lemma pos_bound L x :
+    pos L x < S (length L).
+  Proof.
+    induction L; cbn.
+    - lia.
+    - decide (x = a); lia.
+  Qed.
+
+  Lemma enc_point_pair d d1 d2 :
+    enc_point d <> enc_pair d1 d2.
+  Proof.
+    unfold enc_pair. assert (H : enc_point d < S (length LD)) by apply pos_bound. lia.
+  Qed.
+
+  Definition next xy : nat * nat :=
+    match xy with
+    | (0,y) => (S y, 0)
+    | (S x, y) => (x, S y)
+    end.
+
+  Fixpoint decode n : nat * nat :=
+    match n with
+    | 0 => (0,0)
+    | S n' => next (decode n')
+    end.
+
+  Fact decode_encode x y :
+    decode (enc_npair x y) = (x, y).
+  Proof.
+    revert x y.
+    enough (forall n x y, enc_npair x y = n -> decode n = (x, y)) by eauto.
+    induction n as [|n IH]; intros x y; cbn.
+    - destruct x, y; cbn.
+      1:reflexivity. all:intros [=].
+    - destruct y; cbn.
+      + destruct x; cbn.
+        * intros [=].
+        * intros [= <-].
+          rewrite (IH 0 x). reflexivity.
+          unfold enc_npair. replace (x + 0) with x by lia. reflexivity.
+      + intros [= <-].
+        rewrite (IH (S x) y). reflexivity.
+        unfold enc_npair. replace (y + S x) with (S y + x) by lia. reflexivity.
+  Qed.
+
+  Lemma enc_npair_inj n n' k k' :
+    enc_npair n n' = enc_npair k k' -> (n, n') = (k, k').
+  Proof.
+    intros H. rewrite <- (decode_encode n n'), <- (decode_encode k k'). congruence.
+  Qed.
+
+  Lemma enc_pair_inj d d' e e' :
+    enc_pair d d' = enc_pair e e' -> d = e /\ d' = e'.
+  Proof.
+    intros H. assert (((enc_point d), (enc_point d')) = ((enc_point e), (enc_point e'))) as [=].
+    - apply enc_npair_inj. unfold enc_pair in H. lia.
+    - split; now apply enc_point_inj.
+  Qed.
+
   Lemma interp2heap_fun :
     functional interp2heap.
   Proof.
-  Admitted.
+    intros l p p' [H|H] % in_app_iff [H'|H'] % in_app_iff.
+    all: apply in_map_iff in H as [d [H1 H2]].
+    all: apply in_map_iff in H' as [d' [H3 H4]].
+    - congruence.
+    - destruct d' as [d1 d2]. exfalso. apply (enc_point_pair d d1 d2). congruence.
+    - destruct d as [d1 d2]. exfalso. apply (enc_point_pair d' d1 d2). congruence.
+    - destruct d, d', p, p'. injection H1. injection H3. intros. subst. repeat f_equal.
+      + eapply (enc_pair_inj d d0 d1 d2). congruence.
+      + eapply (enc_pair_inj d d0 d1 d2). congruence.
+  Qed.
 
   Lemma guarded (d : D) :
     exists (v : val) (l : nat), v = Some l /\ (l, (None, None)) el interp2heap.
