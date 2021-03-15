@@ -128,11 +128,18 @@ Section Backwards.
     - intros [] v. exact (exists l, (l, (Some (proj1_sig (Vector.hd v)), Some (proj1_sig (Vector.hd (Vector.tl v))))) el h).
   Defined.
 
+  Lemma dom_eq h (x y : dom h) :
+    proj1_sig x = proj1_sig y -> x = y.
+  Proof.
+    destruct x as [x Hx], y as [y Hy]; cbn.
+    intros ->. f_equal. apply squash_pure.
+  Qed.
+
   Lemma update_stack_cons s h d0 d x :
     (d .: env s h d0) x = env (update_stack s (Some (proj1_sig d))) h d0 x.
   Proof.
     destruct x as [|x]; try reflexivity. cbn. destruct Dec.
-    - destruct d. unfold loc2dom. f_equal. apply squash_pure.
+    - destruct d. now apply dom_eq.
     - contradict n. eapply squash_iff, proj2_sig.
   Qed.
 
@@ -178,20 +185,70 @@ Section Backwards.
 
   (* requirements *)
 
+  Definition dom_cons {h} {a} :
+    dom h -> dom (a::h).
+  Proof.
+    intros [x Hx]. exists x. apply squash_iff. right. now eapply squash_iff.
+  Defined.
+
+  Definition dom_list_cons {h} {a} (L : list (dom h)) :=
+    map (@dom_cons h a) L. 
+
+  Program Fixpoint dom_list h : list (dom h) :=
+    match h with
+    | nil => nil
+    | (l, (None, None))::h => (exist _ l _) :: (dom_list_cons (dom_list h))
+    | a::h => (dom_list_cons (dom_list h))
+    end.
+  Next Obligation.
+    apply squash_iff. now left.
+  Qed.
+
   Lemma dom_listable h :
     listable (dom h).
   Proof.
-  Admitted.
+    exists (dom_list h). intros x.
+    induction h as [|[l[[l1|][l2|]]]]; cbn.
+    - destruct x as [x Hx]. apply squash_iff in Hx. apply Hx.
+    - destruct x as [x Hx]. pose proof (proj1 (squash_iff _ _) Hx) as [H|H]; try discriminate.
+      apply in_map_iff. exists (loc2dom H). split; try apply IHh. now apply dom_eq.
+    - destruct x as [x Hx]. pose proof (proj1 (squash_iff _ _) Hx) as [H|H]; try discriminate.
+      apply in_map_iff. exists (loc2dom H). split; try apply IHh. now apply dom_eq.
+    - destruct x as [x Hx]. pose proof (proj1 (squash_iff _ _) Hx) as [H|H]; try discriminate.
+      apply in_map_iff. exists (loc2dom H). split; try apply IHh. now apply dom_eq.
+    - destruct x as [x Hx]. pose proof (proj1 (squash_iff _ _) Hx) as [H|H].
+      + left. apply dom_eq. cbn. congruence.
+      + right. apply in_map_iff. exists (loc2dom H). split; try apply IHh. now apply dom_eq.
+  Qed.
 
   Lemma dom_discrete h :
     discrete (dom h).
   Proof.
-  Admitted.
+    apply discrete_iff. constructor. intros [x Hx] [y Hy]. decide (x = y) as [H|H].
+    - left. now apply dom_eq.
+    - right. now intros [=].
+  Qed.
+
+  Lemma pairlist_dec X Y (L : list (X * Y)) y :
+    eq_dec X -> eq_dec Y -> dec (exists x, (x, y) el L).
+  Proof.
+    intros DX DY. induction L as [|[a b]].
+    - right. firstorder.
+    - destruct IHL as [H|H].
+      + left. destruct H as [x Hx]. exists x. now right.
+      + decide (y = b) as [->|Hy].
+        * left. exists a. now left.
+        * right. intros [x[Hx|Hx]].
+          -- apply Hy. congruence.
+          -- apply H. now exists x.
+  Qed.
 
   Lemma model_dec (h : heap) :
     decidable (fun v => i_atom (interp:=model h) (P:=tt) v).
   Proof.
-  Admitted.
+    apply decidable_iff. constructor. intros v. cbn.
+    apply pairlist_dec; eauto.
+  Qed.
 
 End Backwards. 
 
