@@ -35,6 +35,8 @@ Definition encode' (phi : form) : msp_form :=
 
 (** backwards direction **)
 
+Derive Signature for Vector.t.
+
 Lemma map_hd X Y n (f : X -> Y) (v : Vector.t X (S n)) :
   Vector.hd (Vector.map f v) = f (Vector.hd v).
 Proof.
@@ -81,6 +83,14 @@ Proof.
   - inversion 1; subst; try now left.
     apply Eqdep_dec.inj_pair2_eq_dec in H3 as <-; try decide equality.
     right. apply IHv, H2.
+Qed.
+
+Lemma to_list_in' X n (v : Vector.t X n) x :
+  x el Vector.to_list v -> Vector.In x v.
+Proof.
+  induction v; cbn.
+  - inversion 1.
+  - inversion 1; subst; try now left. right. apply IHv, H0.
 Qed.
 
 Section Backwards.
@@ -198,7 +208,7 @@ Section Backwards.
     match h with
     | nil => nil
     | (l, (None, None))::h => (exist _ l _) :: (dom_list_cons (dom_list h))
-    | a::h => (dom_list_cons (dom_list h))
+    | _::h => (dom_list_cons (dom_list h))
     end.
   Next Obligation.
     apply squash_iff. now left.
@@ -483,7 +493,7 @@ Proof.
 Qed.
 
 Theorem reduction' phi :
-  FV phi = nil -> FSAT phi <-> MSPSAT (encode' phi).
+  FV phi <<= nil -> FSATd phi <-> MSPSAT (encode' phi).
 Proof.
   intros HV. split.
   - intros (D & M & rho & [L HL] & [H2] % discrete_iff & [f H3] & H4).
@@ -500,13 +510,32 @@ Proof.
     + apply dom_listable.
     + apply dom_discrete.
     + apply model_dec.
-    + apply reduction_backwards; trivial. rewrite HV. intros x [].
+    + apply reduction_backwards; trivial. setoid_rewrite HV. intros x [].
 Qed.
 
-Print Assumptions reduction'.
+Lemma bounded_FV_term t n :
+  bounded_t n t -> FV_term t < n.
+Proof.
+  induction 1; try destruct f; cbn. assumption.
+Qed.
+
+Lemma bounded_FV phi n :
+  bounded n phi -> FV phi <<= seq 0 n.
+Proof.
+  induction 1; cbn.
+  - intros x [t [<- Ht]] % in_map_iff.
+    apply to_list_in', H, bounded_FV_term in Ht.
+    apply in_seq. lia.
+  - auto.
+  - intros x [t [<- Ht]] % in_map_iff. apply in_filter_iff in Ht as [H1 H2].
+    destruct t; try discriminate. apply IHbounded, in_seq in H1.
+    cbn. apply in_seq. lia.
+  - auto.
+Qed.
 
 Theorem reduction :
-  FSAT ⪯ MSPSAT.
+  FSATdc ⪯ MSPSAT.
 Proof.
-  exists encode'.
-Admitted.
+  exists (fun phi => encode' (proj1_sig phi)). intros [phi H]; unfold FSATdc; cbn.
+  apply reduction'. change nil with (seq 0 0). now apply bounded_FV.
+Qed.

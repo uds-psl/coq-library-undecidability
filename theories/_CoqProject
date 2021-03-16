@@ -254,9 +254,12 @@ FOL/Reductions/PCPb_to_binZF.v
 FOL/Reductions/PCPb_to_ZFeq.v
 FOL/Reductions/H10p_to_FA.v
 
+FOL/Reductions/FSATd_to_FSATdc.v
+
 SeparationLogic/min_seplogic.v
 SeparationLogic/seplogic.v
 SeparationLogic/Reductions/MSPSAT_to_SPSAT.v
+SeparationLogic/Reductions/FSATdc_to_MSPSAT.v
 
 MinskyMachines/MMA.v            
 
