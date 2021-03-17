@@ -1,5 +1,5 @@
-From Undecidability.TRAKHTENBROT Require Import fo_sat fo_sig fo_terms fo_logic fol_ops notations.
-From Undecidability.FOL.Util Require Import Syntax_facts FullTarski_facts sig_bin.
+From Undecidability.TRAKHTENBROT Require Import fo_sat fo_sig fo_terms fo_logic fol_ops.
+From Undecidability.FOL.Util Require Import Syntax FullTarski_facts sig_bin.
 From Undecidability.FOL Require Import FSAT.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
 Require Import Vector Lia.
@@ -98,16 +98,31 @@ End Backward.
 
 (** reduction theorems **)
 
-Lemma reduciton :
+Lemma reduction :
   @fo_form_fin_dec_SAT (Σrel 2) ⪯ FSAT.
 Proof.
   exists translate. intros phi. split.
-  - intros (D & M & [L HL] & H2 & rho & H). exists D, (M1 D M), rho. repeat split.
+  - intros (D & M & [L HL] & HD & rho & H). exists D, (M1 D M), rho. repeat split.
     + exists L. apply HL.
-    + apply decidable_iff. constructor. apply H2.
+    + apply decidable_iff. constructor. apply HD.
     + now apply fwd_sat.
-  - intros (D & M & rho & [L HL] & [H2] % decidable_iff & H). exists D, (M2 D M), (exist _ L HL). eexists.
-    + intros []. apply H2.
+  - intros (D & M & rho & [L HL] & [HD] % decidable_iff & H). exists D, (M2 D M), (exist _ L HL). eexists.
+    + intros []. apply HD.
+    + exists rho. now apply bwd_sat.
+Qed.
+
+Lemma reduction_disc :
+  @fo_form_fin_discr_dec_SAT (Σrel 2) ⪯ FSATd.
+Proof.
+  exists translate. intros phi. split.
+  - intros (D & HE & M & [L HL] & HD & rho & H). exists D, (M1 D M), rho. repeat split.
+    + exists L. apply HL.
+    + apply discrete_iff. constructor. apply HE.
+    + apply decidable_iff. constructor. apply HD.
+    + now apply fwd_sat.
+  - intros (D & M & rho & [L HL] & [HE] % discrete_iff & [HD] % decidable_iff & H).
+    exists D, HE, (M2 D M), (exist _ L HL). eexists.
+    + intros []. apply HD.
     + exists rho. now apply bwd_sat.
 Qed.
 

@@ -226,6 +226,7 @@ FOL/binFOL_undec.v
 FOL/PA.v
 FOL/PA_undec.v
 FOL/FSAT.v
+FOL/FSAT_undec.v
 
 FOL/Util/Syntax.v
 FOL/Util/Syntax_facts.v
@@ -255,11 +256,14 @@ FOL/Reductions/PCPb_to_ZFeq.v
 FOL/Reductions/H10p_to_FA.v
 
 FOL/Reductions/FSATd_to_FSATdc.v
+FOL/Reductions/TRAKHTENBROT_to_FSAT.v
 
 SeparationLogic/min_seplogic.v
 SeparationLogic/seplogic.v
 SeparationLogic/Reductions/MSPSAT_to_SPSAT.v
 SeparationLogic/Reductions/FSATdc_to_MSPSAT.v
+SeparationLogic/min_seplogic_undec.v
+SeparationLogic/seplogic_undec.v
 
 MinskyMachines/MMA.v            
 
