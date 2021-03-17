@@ -42,14 +42,14 @@ Notation "x '≋' y" := (prod (x->y) (y->x))
    (at level 95, no associativity,
     format "x  '≋'  y") : type_scope.
 
-Notation "'∀'' x .. y , p" := (forall x , .. (forall y , p) ..)
+Notation "'∀' x .. y , p" := (forall x , .. (forall y , p) ..)
   (at level 200, x binder, y binder, right associativity,
-   format "'[' '∀''  x  ..  y ,  '/ ' p ']'", only printing)
+   format "'[' '∀'  x  ..  y ,  '/ ' p ']'", only printing)
   : type_scope.
 
-Notation "'∃'' x .. y , p" := (ex (fun x => .. (ex (fun y => p)) ..))
+Notation "'∃' x .. y , p" := (ex (fun x => .. (ex (fun y => p)) ..))
   (at level 200, x binder, y binder, right associativity,
-   format "'[' '∃''  x  ..  y ,  '/ ' p ']'", only printing)
+   format "'[' '∃'  x  ..  y ,  '/ ' p ']'", only printing)
   : type_scope.
 
 Notation "'∑' x .. y , p" := (sigT (fun x => .. (sigT (fun y => p)) ..))
