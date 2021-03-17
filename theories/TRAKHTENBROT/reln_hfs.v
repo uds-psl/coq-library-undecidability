@@ -34,7 +34,7 @@ Section bt_model_n.
       ternary relation is R : pos n -> pos n -> pos n -> Prop
       
       1) We find a transitive hfs l such that pos n bijects with the elements
-         of l (transitive means ∀x, x∈l -> x⊆l). Hence
+         of l (transitive means ∀'x, x∈l -> x⊆l). Hence
 
                             pos n <-> { x | x ∈ l } 
 
@@ -358,8 +358,8 @@ Section bt_model_n.
     of (ordered) triples it contains. 
     Finally, membership equivalence (≈) is the same as identity (=) in Y.
 
-    Membership equivalence : x ≈ y := ∀z, z∈x <-> z∈y
-    Membership extensional : x ≈ y -> ∀z, x∈z -> y∈z
+    Membership equivalence : x ≈ y := ∀'z, z∈x <-> z∈y
+    Membership extensional : x ≈ y -> ∀'z, x∈z -> y∈z
 
     Triples are build the usual way (in set theory)
       - z ∈ {x,y} := z ≈ x \/ z ≈ y
@@ -371,7 +371,7 @@ Section bt_model_n.
     with. And first order models can never be empty because one has to be able
     to interpret variables. Maybe a discussion on the case of empty models
     could be necessary, the logic been reduced to True/False in that case.
-    Any ∀ formula is True, any ∃ is False and no atomic formula can ever
+    Any ∀' formula is True, any ∃' is False and no atomic formula can ever
     be evaluated (because it contains terms that cannot be interpreted). 
     Only closed formula have a meaning in the empty model 
   *)

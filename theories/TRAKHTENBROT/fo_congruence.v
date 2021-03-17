@@ -319,9 +319,9 @@ Section fol_congruence.
     Qed.
 
     Local Definition fol_equivalence := 
-            (∀ £0 ≡ £0)
-          ⟑ (∀∀∀ £2 ≡ £1 ⤑ £1 ≡ £0 ⤑ £2 ≡ £0)
-          ⟑ (∀∀ £1 ≡ £0 ⤑ £0 ≡ £1).
+            (∀' £0 ≡ £0)
+          ⟑ (∀'∀'∀' £2 ≡ £1 ⤑ £1 ≡ £0 ⤑ £2 ≡ £0)
+          ⟑ (∀'∀' £1 ≡ £0 ⤑ £0 ≡ £1).
 
     Local Fact fol_equivalence_syms : fol_syms fol_equivalence = nil.
     Proof.

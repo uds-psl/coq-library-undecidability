@@ -263,7 +263,7 @@ Section Sig_remove_symbols.
 
   Local Definition fol_rel_fun (s : syms Σ) : 𝔽' := 
        let n := ar_syms _ s
-       in ∀∀ fol_mquant fol_fa n (   
+       in ∀'∀' fol_mquant fol_fa n (   
               @fol_atom Σ' (inr (inl s)) (£(S n)##vec_set_pos (fun p => £(pos2nat p))) 
                      ⤑ @fol_atom Σ' (inr (inl s)) (£n##vec_set_pos (fun p => £(pos2nat p)))
                      ⤑ @fol_atom Σ' e (£(S n)##£n##ø) ).
@@ -305,7 +305,7 @@ Section Sig_remove_symbols.
  
   Local Definition fol_rel_tot (s : syms Σ) : 𝔽' := 
         let n := ar_syms _ s
-        in fol_mquant fol_fa n (∃ @fol_atom Σ' (inr (inl s)) (£0##vec_set_pos (fun p => £(1+pos2nat p)))). 
+        in fol_mquant fol_fa n (∃' @fol_atom Σ' (inr (inl s)) (£0##vec_set_pos (fun p => £(1+pos2nat p)))). 
 
   Local Fact fol_rel_tot_spec s φ : 
              fol_sem M φ (fol_rel_tot s) 
