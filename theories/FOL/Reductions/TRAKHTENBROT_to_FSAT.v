@@ -4,6 +4,9 @@ From Undecidability.FOL Require Import FSAT.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
 Require Import Vector Lia.
 
+Set Default Goal Selector "!".
+Set Default Proof Using "Type".
+
 (* Reduction from the TRAKHTENBROT development to the FSAT problems in FOL *)
 
 (** syntax translation **)
@@ -37,7 +40,7 @@ Section Forward.
 
   Instance M1 :
     interp D.
-  Proof.
+  Proof using M.
     split.
     - intros [].
     - intros [] v. exact (fom_rels M tt v).
@@ -71,7 +74,7 @@ Section Backward.
 
   Definition M2 :
     fo_model (Σrel 2) D.
-  Proof.
+  Proof using M.
     split.
     - intros [].
     - intros [] v. exact (i_atom (P:=tt) v).

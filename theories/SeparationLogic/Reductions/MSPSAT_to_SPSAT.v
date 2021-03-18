@@ -2,6 +2,8 @@ From Undecidability.SeparationLogic Require Import min_seplogic seplogic.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 
+Set Default Goal Selector "!".
+
 Fixpoint embed (P : msp_form) : sp_form :=
   match P with
   | mpointer E E1 E2 => sand (pointer E E1 E2) (imp bot bot)

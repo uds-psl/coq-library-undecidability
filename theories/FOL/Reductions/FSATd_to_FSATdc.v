@@ -3,6 +3,8 @@ From Undecidability.FOL.Util Require Import Syntax_facts FullTarski_facts sig_bi
 Require Import Undecidability.Synthetic.Definitions.
 Require Import Vector Lia.
 
+Set Default Goal Selector "!".
+
 Definition exclosure phi : form :=
   let (N, _) := find_bounded phi in exist_times N phi.
 

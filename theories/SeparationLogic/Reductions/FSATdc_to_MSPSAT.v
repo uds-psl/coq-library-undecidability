@@ -10,6 +10,9 @@ From Undecidability.Shared Require Import Dec.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
 From Equations Require Import Equations.
 
+Set Default Goal Selector "!".
+Set Default Proof Using "Type".
+
 
 
 (** encoding function following Cacagno, Yang, O'Hearn (2001) **)
@@ -318,7 +321,7 @@ Section Forwards.
 
   Lemma enc_point_inj d e :
     enc_point d = enc_point e -> d = e.
-  Proof.
+  Proof using LD_ex.
     apply pos_inj; apply LD_ex.
   Qed.
 
@@ -343,7 +346,7 @@ Section Forwards.
 
   Lemma reduction_forwards rho phi :
     rho ⊨ phi <-> msp_sat (env2stack rho) interp2heap (encode phi).
-  Proof.
+  Proof using LD_ex f_dec.
     induction phi in rho |- *; try destruct P; try destruct b0; try destruct q; cbn.
     - tauto.
     - rewrite f_dec, map_tl, !map_hd.
@@ -419,10 +422,10 @@ Section Forwards.
       + destruct x; cbn.
         * intros [=].
         * intros [= <-].
-          rewrite (IH 0 x). reflexivity.
+          rewrite (IH 0 x). 1: reflexivity.
           unfold enc_npair. replace (x + 0) with x by lia. reflexivity.
       + intros [= <-].
-        rewrite (IH (S x) y). reflexivity.
+        rewrite (IH (S x) y). 1: reflexivity.
         unfold enc_npair. replace (y + S x) with (S y + x) by lia. reflexivity.
   Qed.
 
@@ -434,7 +437,7 @@ Section Forwards.
 
   Lemma enc_pair_inj d d' e e' :
     enc_pair d d' = enc_pair e e' -> d = e /\ d' = e'.
-  Proof.
+  Proof using LD_ex.
     intros H. assert (((enc_point d), (enc_point d')) = ((enc_point e), (enc_point e'))) as [=].
     - apply enc_npair_inj. unfold enc_pair in H. lia.
     - split; now apply enc_point_inj.
@@ -442,7 +445,7 @@ Section Forwards.
 
   Lemma interp2heap_fun :
     functional interp2heap.
-  Proof.
+  Proof using LD_ex.
     intros l p p' [H|H] % in_app_iff [H'|H'] % in_app_iff.
     all: apply in_map_iff in H as [d [H1 H2]].
     all: apply in_map_iff in H' as [d' [H3 H4]].
@@ -456,7 +459,7 @@ Section Forwards.
 
   Lemma guarded (d : D) :
     exists (v : val) (l : nat), v = Some l /\ (l, (None, None)) el interp2heap.
-  Proof.
+  Proof using LD_ex.
     exists (Some (enc_point d)), (enc_point d). split; trivial.
     apply in_app_iff. left. apply in_map_iff. exists d; auto.
   Qed.
