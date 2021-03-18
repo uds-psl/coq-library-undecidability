@@ -6,7 +6,7 @@ The Coq Library of Undecidability Proofs contains mechanised reductions to estab
 The undecidability proofs are based on a synthetic approach to undecidability, where a problem `P` is considered [undecidable](theories/Synthetic/Undecidability.v#L4) if its [decidability](theories/Synthetic/Definitions.v#L6) in Coq would imply the decidability of the [halting problem of single-tape Turing machines](theories/TM/TM.v#L148) in Coq.
 As in the traditional literature, undecidability of a problem `P` in the library is often established by constructing a [many-one reduction](theories/Synthetic/Definitions.v#L27) from an undecidable problem to `P`.
 
-For more information on the structure of the library, the synthetic approach, and included problems see [Publications](#publications) below, our [Wiki](wiki), look at the [slides](https://www.ps.uni-saarland.de/~forster/downloads/slides_coqpl20.pdf) or the [recording](https://www.youtube.com/watch?v=mo_C6664n3E) of the talk on the Coq Library of Undecidability proofs at [CoqPL '20](https://popl20.sigplan.org/details/CoqPL-2020-papers/5/A-Coq-Library-of-Undecidable-Problems).
+For more information on the structure of the library, the synthetic approach, and included problems see [Publications](#publications) below, our [Wiki](https://github.com/uds-psl/coq-library-undecidability/wiki), look at the [slides](https://www.ps.uni-saarland.de/~forster/downloads/slides_coqpl20.pdf) or the [recording](https://www.youtube.com/watch?v=mo_C6664n3E) of the talk on the Coq Library of Undecidability proofs at [CoqPL '20](https://popl20.sigplan.org/details/CoqPL-2020-papers/5/A-Coq-Library-of-Undecidable-Problems).
 
 The library is a collaborative effort, growing constantly and we invite everybody to contribute undecidability proofs!
 
@@ -57,6 +57,7 @@ Target problems are very expressive and thus work well as targets for reduction,
 - Entailment in Intuitionistic Multiplicative Sub-Exponential Linear Logic (`IMSELL_cf_PROVABILITY3` in [`ILL/IMSELL.v`](theories/ILL/IMSELL.v))
 - Provability in Hilbert-style calculi (`HSC_PRV` in [`HilbertCalculi/HSC.v`](theories/HilbertCalculi/HSC.v))
 - Recognizing axiomatizations of Hilbert-style calculi (`HSC_AX` in [`HilbertCalculi/HSC.v`](theories/HilbertCalculi/HSC.v))
+- Separation Logic ([SeparationLogic/seplogic.v](theories/SeparationLogic/seplogic.v) and [SeparationLogic/min_seplogic.v](theories/SeparationLogic/min_seplogic.v))
 
 #### Other Problems
 
@@ -74,7 +75,7 @@ Target problems are very expressive and thus work well as targets for reduction,
 ### Target Problems
 
 - Halting problem for the call-by-value lambda-calculus (`HaltL` in [`L/L.v`](theories/L/L.v))
-- Provability or satisfiability in First-Order Logic (all problems in [`FOL/FOL.v`](theories/FOL/FOL.v))
+- Validity, provability or satisfiability in First-Order Logic (all problems in [`FOL/FOL.v`](theories/FOL/FOL.v))
 
 ## Installation Instructions
 
