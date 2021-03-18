@@ -4,6 +4,8 @@ From Undecidability.FOL Require Import FSAT.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
 Require Import Vector Lia.
 
+(* Reduction from the TRAKHTENBROT development to the FSAT problems in FOL *)
+
 (** syntax translation **)
 
 Definition term' := @fo_term Empty_set (fun f => match f with end).

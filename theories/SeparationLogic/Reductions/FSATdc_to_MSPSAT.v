@@ -12,7 +12,7 @@ From Equations Require Import Equations.
 
 
 
-(** encoding function **)
+(** encoding function following Cacagno, Yang, O'Hearn (2001) **)
 
 Fixpoint encode {ff : falsity_flag} (phi : form) : msp_form :=
   match phi with
@@ -414,7 +414,7 @@ Section Forwards.
     enough (forall n x y, enc_npair x y = n -> decode n = (x, y)) by eauto.
     induction n as [|n IH]; intros x y; cbn.
     - destruct x, y; cbn.
-      1:reflexivity. all:intros [=].
+      1: reflexivity. all: intros [=].
     - destruct y; cbn.
       + destruct x; cbn.
         * intros [=].

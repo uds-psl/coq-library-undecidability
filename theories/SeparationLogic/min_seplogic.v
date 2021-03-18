@@ -8,7 +8,7 @@ Import ListAutomationNotations.
 Definition sp_term := option nat.
 
 Inductive msp_form :=
-| mpointer : sp_term -> sp_term -> sp_term -> msp_form
+| mpointer : sp_term -> sp_term -> sp_term -> msp_form (* weak binary pointer *)
 | mbot : msp_form
 | mimp : msp_form -> msp_form -> msp_form
 | mand : msp_form -> msp_form -> msp_form

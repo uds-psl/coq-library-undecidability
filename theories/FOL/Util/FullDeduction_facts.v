@@ -151,6 +151,30 @@ Section ND_def.
       + eapply II. now eapply IHB.
       + now apply imps, IHB in H.
   Qed.
+
+  Lemma subst_exist_prv {sigma N Gamma} phi :
+    Gamma ⊢ phi[sigma] -> bounded N phi -> Gamma ⊢ exist_times N phi. 
+  Proof.
+    induction N in phi, sigma |-*; intros; cbn.
+    - erewrite <-(subst_bounded 0); eassumption.
+    - rewrite iter_switch. eapply (IHN (S >> sigma)).
+      cbn. eapply (ExI (sigma 0)).
+      now rewrite up_decompose.
+      now apply bounded_S_exists.
+  Qed.
+  
+  Lemma subst_forall_prv phi {N Gamma} :
+    Gamma ⊢ (forall_times N phi) -> bounded N phi -> forall sigma, Gamma ⊢ phi[sigma].
+  Proof.
+    induction N in phi |-*; intros ?? sigma; cbn in *.
+    - change sigma with (iter up 0 sigma).
+      now rewrite (subst_bounded 0).
+    - specialize (IHN (∀ phi) ).
+      rewrite <-up_decompose.
+      apply AllE. apply IHN. unfold forall_times.
+      now rewrite <-iter_switch.
+      now apply bounded_S_forall.
+  Qed.
     
 End ND_def.
 

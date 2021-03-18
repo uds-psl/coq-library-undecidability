@@ -223,6 +223,15 @@ Section Subst.
   Proof.
     rewrite !subst_comp. apply subst_ext. reflexivity.
   Qed.
+
+  Lemma up_decompose {ff : falsity_flag} sigma phi :
+    phi[up (S >> sigma)][(sigma 0)..] = phi[sigma].
+  Proof.
+    rewrite subst_comp. apply subst_ext.
+    intros [].
+    - reflexivity.
+    - apply subst_term_shift.
+  Qed.  
   
 End Subst.
 
@@ -326,6 +335,58 @@ Section Bounded.
     - exists 0. intros phi. inversion 1.
     - destruct IHA as [k Hk], (find_bounded a) as [l Hl].
       exists (k + l). intros t [<-|H]; eapply bounded_up; try eassumption; try (now apply Hk); lia.
+  Qed.
+
+  Fixpoint iter {X: Type} f n (x : X) :=
+    match n with
+      0 => x
+    | S m => f (iter f m x)
+    end.
+
+  Fact iter_switch {X} f n x :
+    f (@iter X f n x) = iter f n (f x).
+  Proof.
+    induction n; cbn; now try rewrite IHn.
+  Qed.
+  
+  Lemma subst_up_var k x sigma :
+    x < k -> (var x)`[iter up k sigma] = var x.
+  Proof.
+    induction k in x, sigma |-*.
+    - now intros ?%PeanoNat.Nat.nlt_0_r.
+    - intros H.
+      destruct (Compare_dec.lt_eq_lt_dec x k) as [[| <-]|].
+      + cbn [iter]. rewrite iter_switch. now apply IHk.
+      + destruct x. reflexivity.
+        change (iter _ _ _) with (up (iter up (S x) sigma)).
+        change (var (S x)) with ((var x)`[↑]).
+        rewrite up_term, IHk. reflexivity. constructor.
+      + lia.
+  Qed.
+  
+  Lemma subst_bounded_term t sigma k :
+    bounded_t k t -> t`[iter up k sigma] = t.
+  Proof.
+    induction 1.
+    - now apply subst_up_var.
+    - cbn. f_equal.
+      rewrite <-(Vector.map_id _ _ v) at 2.
+      apply Vector.map_ext_in. auto.
+  Qed.
+
+  Lemma subst_bounded {ff : falsity_flag} k phi sigma :
+    bounded k phi -> phi[iter up k sigma] = phi.
+  Proof.
+    induction 1 in sigma |-*; cbn.
+    - f_equal.
+      rewrite <-(Vector.map_id _ _ v) at 2.
+      apply Vector.map_ext_in.
+      intros t Ht. apply subst_bounded_term. auto.
+    - now rewrite IHbounded1, IHbounded2.
+    - f_equal.
+      change (up _) with (iter up (S n) sigma).
+      apply IHbounded.
+    - reflexivity.
   Qed.
 
 End Bounded.

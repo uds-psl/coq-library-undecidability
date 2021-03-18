@@ -7,17 +7,17 @@ Import ListAutomationNotations.
 (** Syntax **)
 
 Inductive sp_form :=
-| pointer : sp_term -> sp_term -> sp_term -> sp_form
+| emp : sp_form                                    (* heap emptiness *)
+| sand : sp_form -> sp_form -> sp_form               (* separating conjunction *)  
+| simp : sp_form -> sp_form -> sp_form               (* separating implication *)
+| pointer : sp_term -> sp_term -> sp_term -> sp_form  (* strict binary pointer *)
 | equality : sp_term -> sp_term -> sp_form
 | bot : sp_form
 | imp : sp_form -> sp_form -> sp_form
 | and : sp_form -> sp_form -> sp_form
 | or : sp_form -> sp_form -> sp_form
 | all : sp_form -> sp_form
-| ex : sp_form -> sp_form
-| emp : sp_form
-| sand : sp_form -> sp_form -> sp_form
-| simp : sp_form -> sp_form -> sp_form.
+| ex : sp_form -> sp_form.
 
 (** Semantics **)
 
@@ -46,13 +46,3 @@ Fixpoint sp_sat (s : stack) (h : heap) (P : sp_form) :=
 
 Definition SPSAT (P : sp_form) :=
   exists s h, functional h /\ sp_sat s h P.
-
-(** Example **)
-
-Goal SPSAT (sand (pointer (Some 0) (Some 10) (Some 1)) (pointer (Some 1) (Some 11) (Some 0))).
-Proof.
-  exists Some, [(0, (Some 10, Some 1)); (1, (Some 11, Some 0))]. cbn. split.
-  - intros l p p'. cbn. intuition congruence.
-  - exists [(0, (Some 10, Some 1))], [(1, (Some 11, Some 0))]. cbn.
-    split. firstorder. intuition eauto.
-Qed.
