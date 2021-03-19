@@ -1,4 +1,4 @@
-From Undecidability Require Import SeparationLogic.min_seplogic.
+From Undecidability Require Import SeparationLogic.MSL.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 
@@ -44,5 +44,5 @@ Fixpoint sp_sat (s : stack) (h : heap) (P : sp_form) :=
 
 (** Satisfiability problem **)
 
-Definition SPSAT (P : sp_form) :=
+Definition SLSAT (P : sp_form) :=
   exists s h, functional h /\ sp_sat s h P.

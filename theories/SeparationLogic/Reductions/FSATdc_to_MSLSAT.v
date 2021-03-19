@@ -1,7 +1,7 @@
 From Undecidability.FOL Require Import FSAT.
 From Undecidability.FOL.Util Require Import Syntax_facts FullTarski_facts sig_bin.
 Export Undecidability.FOL.Util.Syntax.FullSyntax.
-From Undecidability.SeparationLogic Require Import min_seplogic.
+From Undecidability.SeparationLogic Require Import MSL.
 
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
@@ -496,7 +496,7 @@ Proof.
 Qed.
 
 Theorem reduction' phi :
-  FV phi <<= nil -> FSATd phi <-> MSPSAT (encode' phi).
+  FV phi <<= nil -> FSATd phi <-> MSLSAT (encode' phi).
 Proof.
   intros HV. split.
   - intros (D & M & rho & [L HL] & [H2] % discrete_iff & [f H3] & H4).
@@ -537,7 +537,7 @@ Proof.
 Qed.
 
 Theorem reduction :
-  FSATdc ⪯ MSPSAT.
+  FSATdc ⪯ MSLSAT.
 Proof.
   exists (fun phi => encode' (proj1_sig phi)). intros [phi H]; unfold FSATdc; cbn.
   apply reduction'. change nil with (seq 0 0). now apply bounded_FV.

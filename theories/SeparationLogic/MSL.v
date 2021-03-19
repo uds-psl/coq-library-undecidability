@@ -44,5 +44,5 @@ Fixpoint msp_sat (s : stack) (h : heap) (P : msp_form) :=
 Definition functional (h : heap) :=
   forall l p p', (l, p) el h -> (l, p') el h -> p = p'.
 
-Definition MSPSAT (P : msp_form) :=
+Definition MSLSAT (P : msp_form) :=
   exists s h, functional h /\ msp_sat s h P. 

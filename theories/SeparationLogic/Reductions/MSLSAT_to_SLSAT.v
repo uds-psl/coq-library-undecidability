@@ -1,4 +1,4 @@
-From Undecidability.SeparationLogic Require Import min_seplogic seplogic.
+From Undecidability.SeparationLogic Require Import MSL SL.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 
@@ -36,7 +36,7 @@ Qed.
 Require Import Undecidability.Synthetic.Definitions.
 
 Theorem reduction :
-  MSPSAT ⪯ SPSAT.
+  MSLSAT ⪯ SLSAT.
 Proof.
   exists embed. intros P. split; intros (s & h & H1 & H2); exists s, h; split; trivial; now apply embed_sat.
 Qed.

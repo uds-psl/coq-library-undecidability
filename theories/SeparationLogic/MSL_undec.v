@@ -1,9 +1,9 @@
 From Undecidability.Synthetic Require Import Undecidability.
-From Undecidability.SeparationLogic Require Import min_seplogic Reductions.FSATdc_to_MSPSAT.
+From Undecidability.SeparationLogic Require Import MSL Reductions.FSATdc_to_MSLSAT.
 From Undecidability.FOL Require Import FSAT_undec.
 
-Definition MSPSAT_undec :
-  undecidable MSPSAT.
+Definition MSLSAT_undec :
+  undecidable MSLSAT.
 Proof.
   apply (undecidability_from_reducibility FSATdc_undec). apply reduction.
 Qed.

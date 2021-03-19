@@ -258,12 +258,12 @@ FOL/Reductions/H10p_to_FA.v
 FOL/Reductions/FSATd_to_FSATdc.v
 FOL/Reductions/TRAKHTENBROT_to_FSAT.v
 
-SeparationLogic/min_seplogic.v
-SeparationLogic/seplogic.v
-SeparationLogic/Reductions/MSPSAT_to_SPSAT.v
-SeparationLogic/Reductions/FSATdc_to_MSPSAT.v
-SeparationLogic/min_seplogic_undec.v
-SeparationLogic/seplogic_undec.v
+SeparationLogic/MSL.v
+SeparationLogic/SL.v
+SeparationLogic/Reductions/MSLSAT_to_SLSAT.v
+SeparationLogic/Reductions/FSATdc_to_MSLSAT.v
+SeparationLogic/MSL_undec.v
+SeparationLogic/SL_undec.v
 
 MinskyMachines/MMA.v            
 

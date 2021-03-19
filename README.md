@@ -48,7 +48,7 @@ Target problems are very expressive and thus work well as targets for reduction,
 - Provability in Minimal, Intuitionistic, and Classical First-Order Logic (`FOL*_prv_intu`, `FOL_prv_intu`, `FOL_prv_class` in [`FOL/FOL.v`](theories/FOL/FOL.v)), including a formulation for the minimal binary signature ([`FOL/binFOL.v`](theories/FOL/binFOL.v))
 - Validity in Minimal and Intuitionistic First-Order Logic (`FOL*_valid`, `FOL_valid_intu` in [`FOL/FOL.v`](theories/FOL/FOL.v))
 - Satisfiability in Minimal and Intuitionistic First-Order Logic (`FOL*_satis`, `FOL_satis_intu` in [`FOL/FOL.v`](theories/FOL/FOL.v))
-- Finite satisfiability in First-Order Logic, known as "Trakhtenbrot's theorem" (`FSAT` in [`TRAKHTENBROT/red_utils.v`](theories/TRAKHTENBROT/red_utils.v))
+- Finite satisfiability in First-Order Logic, known as "Trakhtenbrot's theorem" (`FSAT` in [`FOL/FSAT.v`](theories/FOL/FSAT.v) based on [`TRAKHTENBROT/red_utils.v`](theories/TRAKHTENBROT/red_utils.v))
 - Semantic and deductive entailment in first-order ZF set-theory with ([`FOL/ZF.v`](theories/FOL/ZF.v)) and without ([`FOL/minZF.v`](theories/FOL/minZF.v) and [`FOL/binZF.v`](theories/FOL/binZF.v)) function symbols for set operations
 - Semantic and deductive entailment in Peano arithmetic ([`FOL/PA.v`](theories/FOL/PA.v))
 - Entailment in Elementary Intuitionistic Linear Logic (`EILL_PROVABILITY` in [`ILL/EILL.v`](theories/ILL/EILL.v))
@@ -57,7 +57,7 @@ Target problems are very expressive and thus work well as targets for reduction,
 - Entailment in Intuitionistic Multiplicative Sub-Exponential Linear Logic (`IMSELL_cf_PROVABILITY3` in [`ILL/IMSELL.v`](theories/ILL/IMSELL.v))
 - Provability in Hilbert-style calculi (`HSC_PRV` in [`HilbertCalculi/HSC.v`](theories/HilbertCalculi/HSC.v))
 - Recognizing axiomatizations of Hilbert-style calculi (`HSC_AX` in [`HilbertCalculi/HSC.v`](theories/HilbertCalculi/HSC.v))
-- Separation Logic ([SeparationLogic/seplogic.v](theories/SeparationLogic/seplogic.v) and [SeparationLogic/min_seplogic.v](theories/SeparationLogic/min_seplogic.v))
+- Satisfiability in Separation Logic (`SLSAT` in [SeparationLogic/SL.v](theories/SeparationLogic/SL.v) and `MSLSAT` in [SeparationLogic/MSL.v](theories/SeparationLogic/MSL.v))
 
 #### Other Problems
 
@@ -75,7 +75,7 @@ Target problems are very expressive and thus work well as targets for reduction,
 ### Target Problems
 
 - Halting problem for the call-by-value lambda-calculus (`HaltL` in [`L/L.v`](theories/L/L.v))
-- Validity, provability or satisfiability in First-Order Logic (all problems in [`FOL/FOL.v`](theories/FOL/FOL.v))
+- Validity, provability, and satisfiability in First-Order Logic (all problems in [`FOL/FOL.v`](theories/FOL/FOL.v))
 
 ## Installation Instructions
 
