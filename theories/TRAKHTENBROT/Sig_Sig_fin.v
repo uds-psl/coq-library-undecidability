@@ -18,6 +18,8 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations utils decidable fol_ops fo_sig fo_terms fo_logic fo_sat.
 
+Import fol_notations.
+
 Set Implicit Arguments.
 
 (* * Mapping a formula into a finitary signature *)

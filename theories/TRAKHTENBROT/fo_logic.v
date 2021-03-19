@@ -41,15 +41,21 @@ Inductive fol_form (Σ : fo_signature) : Type :=
   | fol_bin   : fol_bop -> fol_form Σ -> fol_form Σ -> fol_form Σ 
   | fol_quant : fol_qop -> fol_form Σ -> fol_form Σ.
 
-Infix "⤑" := (fol_bin fol_imp) (at level 62, right associativity).
-Infix "⟑" := (fol_bin fol_conj) (at level 60, right associativity).
-Infix "⟇" := (fol_bin fol_disj) (at level 61, right associativity).
-Notation "∀' f" := (fol_quant fol_fa f) (at level 64, right associativity).
-Notation "∃' f" := (fol_quant fol_ex f) (at level 64, right associativity).
-Notation "x ↔ y" := ((x⤑y)⟑(y⤑x)) (at level 63, no associativity).
+Module fol_notations.
 
-Notation "£" := (in_var : nat -> fol_term _).
-Notation "⊥" := (fol_false _).
+  Infix "⤑" := (fol_bin fol_imp) (at level 62, right associativity).
+  Infix "⟑" := (fol_bin fol_conj) (at level 60, right associativity).
+  Infix "⟇" := (fol_bin fol_disj) (at level 61, right associativity).
+  Notation "∀ f" := (fol_quant fol_fa f) (at level 64, right associativity).
+  Notation "∃ f" := (fol_quant fol_ex f) (at level 64, right associativity).
+  Notation "x ↔ y" := ((x⤑y)⟑(y⤑x)) (at level 63, no associativity).
+
+  Notation "£" := (in_var : nat -> fol_term _).
+  Notation "⊥" := (fol_false _).
+
+End fol_notations.
+
+Import fol_notations.
 
 Section fol_subst.
 
@@ -229,12 +235,12 @@ Section fol_subst.
   Fact fol_subst_bigop c l A σ : (fol_bigop c A l)⦃σ⦄ = fol_bigop c (A⦃σ⦄) (map (fol_subst σ) l).
   Proof. induction l; simpl; f_equal; auto. Qed.
 
-  (* ∀' ... ∀' A  and  ∃' ... ∃' A *)
+  (* ∀ ... ∀ A  and  ∃ ... ∃ A *)
 
   Fixpoint fol_mquant q n (A : 𝔽) := 
     match n with 
       | 0   => A
-      | S n => fol_quant q (fol_mquant q n A)
+      | S n => (fol_quant q) (fol_mquant q n A)
     end.
 
   Fact fol_mquant_plus q a b A : fol_mquant q (a+b) A = fol_mquant q a (fol_mquant q b A).
@@ -246,7 +252,7 @@ Section fol_subst.
     apply fol_mquant_plus.
   Qed.
 
-  (* (Free) variables in ∀' ... ∀' A  and  ∃' ... ∃' A *)
+  (* (Free) variables in ∀ ... ∀ A  and  ∃ ... ∃ A *)
 
   Fact fol_vars_mquant q n (A : 𝔽) :
         fol_vars (fol_mquant q n A)
@@ -495,7 +501,7 @@ Section fol_semantics.
     replace (k+S n) with (S (k+n)) by lia; simpl; auto.
   Qed.
 
-  (* The semantics of ∀' ... ∀' A *)
+  (* The semantics of ∀ ... ∀ A *)
 
   Fact fol_sem_mforall n A φ : ⟪fol_mquant fol_fa n A⟫ φ 
                            <-> forall v : vec X n, ⟪A⟫ (env_vlift φ v).
@@ -509,7 +515,7 @@ Section fol_semantics.
       * intros H v; intros x; apply (H (x##v)).
   Qed.
 
-  (* The semantics of ∃' ... ∃' A *)
+  (* The semantics of ∃ ... ∃ A *)
 
   Fact fol_sem_mexists n A φ : ⟪fol_mquant fol_ex n A⟫ φ 
                            <-> exists v : vec X n, ⟪A⟫ (env_vlift φ v).

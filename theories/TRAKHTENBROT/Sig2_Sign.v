@@ -18,6 +18,8 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations fol_ops fo_sig fo_terms fo_logic fo_sat.
 
+Import fol_notations.
+
 Set Implicit Arguments.
 
 (* * From binary singleton to n-ary singleton with n >= 2 *)

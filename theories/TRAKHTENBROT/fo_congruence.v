@@ -18,6 +18,8 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations utils fol_ops fo_sig fo_terms fo_logic.
 
+Import fol_notations.
+
 Require Import Undecidability.Shared.ListAutomation.
 
 Set Implicit Arguments.
@@ -319,9 +321,9 @@ Section fol_congruence.
     Qed.
 
     Local Definition fol_equivalence := 
-            (∀' £0 ≡ £0)
-          ⟑ (∀'∀'∀' £2 ≡ £1 ⤑ £1 ≡ £0 ⤑ £2 ≡ £0)
-          ⟑ (∀'∀' £1 ≡ £0 ⤑ £0 ≡ £1).
+            (∀ £0 ≡ £0)
+          ⟑ (∀∀∀ £2 ≡ £1 ⤑ £1 ≡ £0 ⤑ £2 ≡ £0)
+          ⟑ (∀∀ £1 ≡ £0 ⤑ £0 ≡ £1).
 
     Local Fact fol_equivalence_syms : fol_syms fol_equivalence = nil.
     Proof.

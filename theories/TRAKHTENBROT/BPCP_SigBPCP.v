@@ -28,6 +28,8 @@ From Undecidability.Shared.Libs.DLW.Wf
 From Undecidability.TRAKHTENBROT
   Require Import notations utils bpcp fol_ops fo_sig fo_terms fo_logic fo_sat.
 
+Import fol_notations.
+
 Set Implicit Arguments.
 
 (* * Reduction from BPCP to specialized FSAT *)
@@ -66,16 +68,16 @@ Section BPCP_FIN_DEC_EQ_SAT.
 
   Notation lb2term := (fun l => l⤜e).
 
-  Local Definition phi_P      := ∀'∀' £1 ⧓ £0 ⤑ £1 ≢ ∗ ⟑ £0 ≢ ∗.
+  Local Definition phi_P      := ∀∀ £1 ⧓ £0 ⤑ £1 ≢ ∗ ⟑ £0 ≢ ∗.
 
-  Local Definition lt_irrefl  := ∀' ¬ £0 ≺ £0.
-  Local Definition lt_trans   := ∀'∀'∀' £2 ≺ £1 ⤑ £1 ≺ £0 ⤑ £2 ≺ £0.
+  Local Definition lt_irrefl  := ∀ ¬ £0 ≺ £0.
+  Local Definition lt_trans   := ∀∀∀ £2 ≺ £1 ⤑ £1 ≺ £0 ⤑ £2 ≺ £0.
 
   Local Definition phi_lt     := lt_irrefl ⟑ lt_trans.
 
-  Local Definition eq_neq b   := ∀' b⤚£0 ≢ e.
-  Local Definition eq_inj b   := ∀'∀' b⤚£1 ≢ ∗ ⤑ b⤚£1 ≡ b⤚ £0⤑ £1 ≡ £0.
-  Local Definition eq_real    := ∀'∀' true⤚£1 ≡ false⤚£0 ⤑ true⤚£1 ≡ ∗ ⟑ false⤚£0 ≡ ∗.
+  Local Definition eq_neq b   := ∀ b⤚£0 ≢ e.
+  Local Definition eq_inj b   := ∀∀ b⤚£1 ≢ ∗ ⤑ b⤚£1 ≡ b⤚ £0⤑ £1 ≡ £0.
+  Local Definition eq_real    := ∀∀ true⤚£1 ≡ false⤚£0 ⤑ true⤚£1 ≡ ∗ ⟑ false⤚£0 ≡ ∗.
   Local Definition eq_undef b := b⤚∗ ≡ ∗.
 
   Local Definition phi_eq := 
@@ -92,14 +94,14 @@ Section BPCP_FIN_DEC_EQ_SAT.
   Local Definition lt_simul '(s,t) := 
             £1 ≡ s⤜e 
           ⟑ £0 ≡ t⤜e
-       ⟇ ∃'∃' £1 ⧓ £0 
+       ⟇ ∃∃ £1 ⧓ £0 
           ⟑ £3 ≡ s⤜£1 
           ⟑ £2 ≡ t⤜£0 
           ⟑ lt_pair (£1) (£0) (£3) (£2).
 
-  Local Definition phi_simul := ∀'∀' £1 ⧓ £0 ⤑ fol_ldisj (map lt_simul lc).
+  Local Definition phi_simul := ∀∀ £1 ⧓ £0 ⤑ fol_ldisj (map lt_simul lc).
 
-  Definition Σbpcp_encode := phi_P ⟑ phi_lt ⟑ phi_eq ⟑ phi_simul ⟑ ∃' £0 ⧓ £0.
+  Definition Σbpcp_encode := phi_P ⟑ phi_lt ⟑ phi_eq ⟑ phi_simul ⟑ ∃ £0 ⧓ £0.
 
   Section soundness.
 
@@ -332,7 +334,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
                   -- exists y; auto.
     Qed.
 
-    Let sem_phi_solvable : ⟪ ∃' £0 ⧓ £0 ⟫ φ0.
+    Let sem_phi_solvable : ⟪ ∃ £0 ⧓ £0 ⟫ φ0.
     Proof. exists (Some (exist _ l (lt_n_Sn _))); simpl; auto. Qed.
 
     Theorem Sig_bpcp_encode_sound : @fo_form_fin_dec_eq_SAT Σbpcp Σbpcp_eq eq_refl Σbpcp_encode.
