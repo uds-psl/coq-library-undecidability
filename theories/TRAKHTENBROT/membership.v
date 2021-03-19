@@ -18,6 +18,8 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations fol_ops fo_sig fo_terms fo_logic.
 
+Import fol_notations.
+
 Set Implicit Arguments.
 
 (* * The first order theory of membership *)
@@ -376,21 +378,21 @@ Section FOL_encoding.
   Definition Σ2_mem x y := @fol_atom Σ2 tt (£x##£y##ø).
   Infix "∈" := Σ2_mem.
 
-  Definition Σ2_non_empty l := ∃' 0 ∈ (1+l). 
-  Definition Σ2_incl x y := ∀' 0 ∈ (S x) ⤑ 0 ∈ (S y).
-  Definition Σ2_equiv x y := ∀' 0 ∈ (S x) ↔ 0 ∈ (S y).
+  Definition Σ2_non_empty l := ∃ 0 ∈ (1+l). 
+  Definition Σ2_incl x y := ∀ 0 ∈ (S x) ⤑ 0 ∈ (S y).
+  Definition Σ2_equiv x y := ∀ 0 ∈ (S x) ↔ 0 ∈ (S y).
 
   Infix "⊆" := Σ2_incl.
   Infix "≈" := Σ2_equiv.
 
-  Definition Σ2_transitive t := ∀'∀' 1 ∈ 0 ⤑ 0 ∈ (2+t) ⤑ 1 ∈ (2+t).
+  Definition Σ2_transitive t := ∀∀ 1 ∈ 0 ⤑ 0 ∈ (2+t) ⤑ 1 ∈ (2+t).
 
-  Definition Σ2_extensional := ∀'∀'∀' 2 ≈ 1 ⤑ 2 ∈ 0 ⤑ 1 ∈ 0.
+  Definition Σ2_extensional := ∀∀∀ 2 ≈ 1 ⤑ 2 ∈ 0 ⤑ 1 ∈ 0.
 
-  Definition Σ2_is_pair p x y := ∀' 0 ∈ (S p) ↔ 0 ≈ S x ⟇ 0 ≈ S y.
+  Definition Σ2_is_pair p x y := ∀ 0 ∈ (S p) ↔ 0 ≈ S x ⟇ 0 ≈ S y.
 
   Definition Σ2_is_opair p x y := 
-         ∃'∃'   Σ2_is_pair 1    (2+x) (2+x)
+         ∃∃   Σ2_is_pair 1    (2+x) (2+x)
             ⟑ Σ2_is_pair 0    (2+x) (2+y)
             ⟑ Σ2_is_pair (2+p) 1     0.
 
@@ -398,23 +400,23 @@ Section FOL_encoding.
   Proof. cbv; tauto. Qed.
 
   Definition Σ2_is_otriple p x y z := 
-          ∃'   Σ2_is_opair 0     (S x) (S y)
+          ∃   Σ2_is_opair 0     (S x) (S y)
             ⟑ Σ2_is_opair (S p)  0    (S z).
 
   Definition Σ2_is_otriple_in r x y z := 
-          ∃'   Σ2_is_otriple 0 (S x) (S y) (S z) 
+          ∃   Σ2_is_otriple 0 (S x) (S y) (S z) 
             ⟑ 0 ∈ (S r).
 
   Definition Σ2_has_otriples l :=
-        ∀'∀'∀'   2 ∈ (3+l) 
+        ∀∀∀   2 ∈ (3+l) 
                       ⤑ 1 ∈ (3+l) 
                       ⤑ 0 ∈ (3+l) 
-                      ⤑ ∃' Σ2_is_otriple 0 3 2 1.
+                      ⤑ ∃ Σ2_is_otriple 0 3 2 1.
 
   Fixpoint Σ2_is_tuple t n : vec nat n -> fol_form Σ2 :=
     match n with 
-      | 0       => fun _ => ∀' 0 ∈ (S t) ⤑ ⊥
-      | S n     => fun v => ∃' Σ2_is_opair (S t) (S (vec_head v)) 0 
+      | 0       => fun _ => ∀ 0 ∈ (S t) ⤑ ⊥
+      | S n     => fun v => ∃ Σ2_is_opair (S t) (S (vec_head v)) 0 
                             ⟑ Σ2_is_tuple 0 (vec_map S (vec_tail v))
     end.
 
@@ -438,7 +440,7 @@ Section FOL_encoding.
           destruct H2 as [ -> | [] ]; tauto.
   Qed. 
 
-  Definition Σ2_is_tuple_in r n v := ∃' @Σ2_is_tuple 0 n (vec_map S v) ⟑ 0 ∈ (S r).
+  Definition Σ2_is_tuple_in r n v := ∃ @Σ2_is_tuple 0 n (vec_map S v) ⟑ 0 ∈ (S r).
 
   Fact Σ2_is_tuple_in_vars r n v : incl (fol_vars (@Σ2_is_tuple_in r n v)) (r::vec_list v).
   Proof.
@@ -458,17 +460,17 @@ Section FOL_encoding.
 
   Definition Σ2_has_tuples l n :=
        fol_mquant fol_fa n ( (fol_vec_fa (vec_set_pos (fun p : pos n => pos2nat p ∈ (l+n))))
-                                         ⤑ ∃' Σ2_is_tuple 0 (vec_set_pos (fun p : pos n => S (pos2nat p)))).
+                                         ⤑ ∃ Σ2_is_tuple 0 (vec_set_pos (fun p : pos n => S (pos2nat p)))).
 
   Definition Σ2_is_tot n l s :=
        fol_mquant fol_fa n ( (fol_vec_fa (vec_set_pos (fun p : pos n => pos2nat p ∈ (l+n))))
-                                         ⤑ ∃'∃'∃' 2 ∈ ((3+l)+n) ⟑ 1 ∈ ((3+s)+n) ⟑ Σ2_is_opair 1 2 0 ⟑ @Σ2_is_tuple 0 n (vec_set_pos (fun p : pos n => 3+pos2nat p)) ).
+                                         ⤑ ∃∃∃ 2 ∈ ((3+l)+n) ⟑ 1 ∈ ((3+s)+n) ⟑ Σ2_is_opair 1 2 0 ⟑ @Σ2_is_tuple 0 n (vec_set_pos (fun p : pos n => 3+pos2nat p)) ).
 
 (*  Definition Σ2_is_tot l s :=
-    ∀' 0 ∈ (1+l) ⤑ ∃'∃' 0 ∈ (3+l) ⟑ 1 ∈ (3+s) ⟑ Σ2_is_opair 1 0 2. *)
+    ∀ 0 ∈ (1+l) ⤑ ∃∃ 0 ∈ (3+l) ⟑ 1 ∈ (3+s) ⟑ Σ2_is_opair 1 0 2. *)
 
   Definition Σ2_is_fun l s :=
-    ∀'∀'∀'∀'∀' 2 ∈ (5+l) ⤑ 1 ∈ (5+l) ⤑
+    ∀∀∀∀∀ 2 ∈ (5+l) ⤑ 1 ∈ (5+l) ⤑
           4 ∈ (5+s) ⤑ 3 ∈ (5+s) ⤑
           Σ2_is_opair 4 2 0 ⤑
           Σ2_is_opair 3 1 0 ⤑

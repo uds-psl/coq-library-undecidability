@@ -19,6 +19,8 @@ From Undecidability.TRAKHTENBROT
   Require Import notations utils decidable enumerable
                  fol_ops fo_sig fo_terms fo_logic.
 
+Import fol_notations.
+
 Set Implicit Arguments.
 
 (* * Enumerability of the type of FO formulas *)

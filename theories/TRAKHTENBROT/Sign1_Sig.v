@@ -18,6 +18,8 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations utils fol_ops fo_sig fo_terms fo_logic fo_sat Sig2_SigSSn1.
 
+Import fol_notations.
+
 Set Implicit Arguments.
 
 (* * Expanding from Σ=({f^n};{P^1}) to any signature *)
