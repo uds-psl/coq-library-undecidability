@@ -12,9 +12,9 @@ Require Import List Arith Nat Lia Relations Bool.
 From Undecidability.Shared.Libs.DLW.Utils 
   Require Import utils_tac utils_list fin_base.
 
-Infix "∈" := In (at level 70, no associativity).
-Infix "⊆" := incl (at level 70, no associativity).
-Notation "P ≅ Q" := ((P -> Q) * (Q -> P))%type (at level 70, no associativity).
+Local Infix "∈" := In (at level 70, no associativity).
+Local Infix "⊆" := incl (at level 70, no associativity).
+Local Notation "P ≅ Q" := ((P -> Q) * (Q -> P))%type (at level 70, no associativity).
 
 Set Implicit Arguments.
 
