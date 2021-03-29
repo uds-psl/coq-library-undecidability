@@ -22,6 +22,8 @@ From Undecidability.TRAKHTENBROT
   Require Import notations decidable fol_ops fo_sig fo_terms fo_logic fo_sat
                  membership hfs reln_hfs.
 
+Import fol_notations.
+
 Set Implicit Arguments.
 
 (* * From Σ=(ø;{R^n}) to Σ=(ø;{R^2}) *)

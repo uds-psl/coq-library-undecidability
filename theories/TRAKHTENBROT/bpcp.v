@@ -181,5 +181,15 @@ Proof. apply pcp_hand_dec, bool_dec. Qed.
 Definition BPCP_input := list (list bool * list bool).
 Definition BPCP_problem (R : BPCP_input) := exists l, R ⊳ l∕l.
 
+From Undecidability.Synthetic Require Import Undecidability.
+From Undecidability.PCP Require Import PCP_undec.
+
+Theorem BPCP_problem_undec :
+  undecidable BPCP_problem.
+Proof.
+  apply (undecidability_from_reducibility dPCPb_undec).
+  exists (fun R => R). intros R. tauto.
+Qed.
+
 
 

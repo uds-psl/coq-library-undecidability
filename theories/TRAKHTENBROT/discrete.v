@@ -18,6 +18,8 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations decidable gfp fol_ops fo_sig fo_terms fo_logic fo_definable fo_sat.
 
+Import fol_notations.
+
 Set Implicit Arguments.
 
 Local Notation " e '#>' x " := (vec_pos e x).

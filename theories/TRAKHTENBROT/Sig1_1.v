@@ -18,6 +18,8 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations utils fol_ops fo_sig fo_terms fo_logic fo_sat Sig_no_syms.
 
+Import fol_notations.
+
 Set Implicit Arguments.
 
 (* * Removal of function symbols from full monadic signatures *)

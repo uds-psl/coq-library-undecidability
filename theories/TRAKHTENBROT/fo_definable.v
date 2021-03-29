@@ -18,6 +18,8 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations utils fol_ops fo_sig fo_terms fo_logic.
 
+Import fol_notations.
+
 Set Implicit Arguments.
 
 (* * First order definability and closure properties *)
