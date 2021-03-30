@@ -31,21 +31,21 @@ Section wf_strict_order_list.
   Fact chain_trans n x y : chain R n x y -> n = 0 /\ x = y \/ R x y.
   Proof. induction 1 as [ | ? ? ? ? ? ? [ [] | ] ]; subst; eauto. Qed.
 
-  Corollary chain_irrefl n x : n = 0 \/ ~ chain R n x x.
+  Corollary chain_irrefl n x :~ chain R (S n) x x.
   Proof.
-    destruct n as [ | n ]; auto; right; intros H.
-    destruct (chain_trans H) as [ (? & _) | H1 ]; try easy.
-    revert H1; apply Rirrefl.
+    intros H.
+    apply chain_trans in H as [ (? & _) | H ]; try easy.
+    revert H; apply Rirrefl.
   Qed.
+
+  (* Assume a list over approximating the domain of R *)
 
   Variable (m : list X) (Hm : forall x y, R x y -> x ∊ m).
 
-  Fact chain_list_incl l x y : chain_list R l x y -> l = nil \/ l ⊆ m.
-  Proof.
-    induction 1 as [ x | x l y z H1 H2 IH2 ]; simpl; auto; right.
-    apply incl_cons; eauto.
-    destruct IH2; auto; subst; intros _ [].
-  Qed.
+  Hint Resolve incl_nil_l incl_cons : core.
+
+  Fact chain_list_incl l x y : chain_list R l x y -> l ⊆ m.
+  Proof. induction 1; simpl; eauto. Qed.
 
   (* Any chain of length above length m contains a duplicated
       value (by the PHP) hence a non nil sub-chain with identical 
@@ -65,22 +65,18 @@ Section wf_strict_order_list.
       apply chain_list_app_inv in H1 as (p & H4 & H1).
       apply chain_list_cons_inv in H1 as (<- & _ & _ & _).
       apply chain_list_chain in H4.
-      destruct (chain_irrefl (S (length u)) z)
-        as [ | [] ]; try easy.
+      destruct (@chain_irrefl (length u) z).
       constructor 2 with k; auto.
-    + apply chain_list_incl in H1 as [ -> | H1 ].
-      * simpl in *; lia.
-      * apply finite_php_dup with (2 := H1); lia.
+    + apply chain_list_incl in H1.
+      apply finite_php_dup with (2 := H1); lia.
   Qed.
 
   (* Since chains have bounded length, we get WF *)
 
+  Hint Resolve chain_bounded : core.
+
   Theorem wf_strict_order_list : well_founded R.
-  Proof.
-    apply wf_chains.
-    intros x; exists (length m). 
-    intros ? ?; apply chain_bounded.
-  Qed.
+  Proof. apply wf_chains; eauto. Qed.
 
 End wf_strict_order_list.
 
