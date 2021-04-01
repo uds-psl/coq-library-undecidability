@@ -24,23 +24,23 @@ Set Implicit Arguments.
 
 Section bt_model_n.
 
-  (* This discussion briefly describes how we encode finite and discrete 
-      model X with a computable n-ary relation R into an hereditary finite 
-      set (hfs) with to elements l and r, l representing the points in X
+  (*  This discussion briefly describes how we encode finite and discrete 
+      model X with a decidable nt-ary relation R into an hereditary finite 
+      set (hfs) with two elements l and r, l representing the points in X
       and r representing the n-tuples in R.
 
       Because X is finite and discrete, one can compute a bijection X <~> pos n
       where n is the cardinal of X. Hence we assume that X = pos n and the
-      ternary relation is R : pos n -> pos n -> pos n -> Prop
+      nt-art relation is R : vec (pos n) nt -> Prop
       
-      1) We find a transitive hfs l such that pos n bijects with the elements
+      1) We find a transitive hfs l such that (pos n) bijects with the elements
          of l (transitive means ∀x, x∈l -> x⊆l). Hence
 
                             pos n <-> { x | x ∈ l } 
 
          For this, we use the encoding of natural numbers into sets, 
          ie 0 := ø and 1+i := {i} U i and choose l to be the encoding 
-         of n (the cardinal of X=pos n above).
+         of n (the cardinal of X = pos n above).
 
          Notice that since l is transitive then so is P(l) (powerset)
          and hence P^i(l) for any i.
@@ -48,12 +48,12 @@ Section bt_model_n.
       2) forall x,y ∈ l, both {x} and {x,y} belong to P(l) 
          hence (x,y) = {{x},{x,y}} ∈ P(P(l))=P^2(l)
         
-      3) P^1(l) = P(l) contains the empty set
+      3) l contains the empty set (cardinal > 0)
   
-      4) Hence P^(2n+1)(l) contains all n-tuples build from the elements of l
-         by induction on n
+      4) Hence P^2nt(l) contains all nt-tuples build 
+         from the elements of l by induction on n
 
-      5) So we can encode R as hfs r ∈ p := P^(2n+2)(l) = P(P^(2n+1)(l)) and
+      5) So we can encode R as hfs r ∈ p := P^(2nt+1)(l) = P(P^2nt(l)) and
          p serves as our model, ie 
 
                       Y := { x : hfs | x ∈b p } 
@@ -69,20 +69,21 @@ Section bt_model_n.
 
       *)
 
-  (* We have computed the transitive closure, spec'ed and proved finite *)  
-
   Variable (X : Type) (Xfin : finite_t X) (Xdiscr : discrete X) (x0 : X) (nt : nat).
 
+  Notation "∅" := hfs_empty.
   Infix "∈" := hfs_mem.
   Notation "x ⊆ y" := (forall u, u ∈ x -> u ∈ y).
   Notation "⟬ x , y ⟭" := (hfs_opair x y).
 
-  Let X_surj_hfs : { l : hfs & { f : hfs -> X & 
+  (* First we compute a bijection with the cardinal of X *)
+
+  Let X_surj_hfs : { d : hfs & { f : hfs -> X & 
                     { g : X -> hfs |
-                      hfs_transitive l
-                   /\ hfs_empty ∈ l
-                   /\ (forall p, g p ∈ l)
-                   /\ (forall x, x ∈ l -> exists p, x = g p)
+                      hfs_transitive d
+                   /\ ∅ ∈ d
+                   /\ (forall p, g p ∈ d)
+                   /\ (forall x, x ∈ d -> exists p, x = g p)
                    /\ (forall p, f (g p) = p) } } }.
   Proof.
     destruct (finite_t_discrete_bij_t_pos Xfin)
@@ -101,38 +102,35 @@ Section bt_model_n.
 
   (* First a surjective map from some transitive set l to X *)
 
-  Let l := projT1 X_surj_hfs.
+  Let d := projT1 X_surj_hfs.
   Let s := projT1 (projT2 X_surj_hfs).
   Let i := proj1_sig (projT2 (projT2 (X_surj_hfs))).
 
-  Let Hl : hfs_transitive l.
-  Proof. apply (proj2_sig (projT2 (projT2 (X_surj_hfs)))). Qed.
-  Let Hempty : hfs_empty ∈ l.
-  Proof. apply (proj2_sig (projT2 (projT2 (X_surj_hfs)))). Qed.
-  Let Hs : forall x, s (i x) = x. 
-  Proof. apply (proj2_sig (projT2 (projT2 (X_surj_hfs)))). Qed.
-  Let Hi : forall x, i x ∈ l. 
-  Proof. apply (proj2_sig (projT2 (projT2 (X_surj_hfs)))). Qed.
-  Let Hi' : forall s, s ∈ l -> exists x, s = i x.
+  Let Hd : hfs_transitive d.       Proof. apply (proj2_sig (projT2 (projT2 (X_surj_hfs)))). Qed.
+  Let Hempty : ∅ ∈ d.              Proof. apply (proj2_sig (projT2 (projT2 (X_surj_hfs)))). Qed.
+  Let Hs : forall x, s (i x) = x.  Proof. apply (proj2_sig (projT2 (projT2 (X_surj_hfs)))). Qed.
+  Let Hi : forall x, i x ∈ d.      Proof. apply (proj2_sig (projT2 (projT2 (X_surj_hfs)))). Qed.
+
+  Let Hi' : forall s, s ∈ d -> exists x, s = i x.
   Proof. apply (proj2_sig (projT2 (projT2 (X_surj_hfs)))). Qed.
 
-  (* Now we build P^5 l that contains all the set of triples of l *)
+  (* Now we build P^(1+2nt) d that contains all the sets of nt-tuples of d *)
 
-  Let p := iter hfs_pow l (1+(2*nt)).
+  Let p := iter hfs_pow d (1+(2*nt)).
 
   Let Hp1 : hfs_transitive p.
   Proof. apply hfs_iter_pow_trans; auto. Qed.
 
-  Let Hp2 : l ∈ p.
+  Let Hp2 : d ∈ p.
   Proof.
     apply hfs_iter_pow_le with (n := 1); simpl; auto; try lia.
     apply hfs_pow_spec; auto.
   Qed.
 
-  Let Hp5 n v : (forall p, vec_pos v p ∈ l) -> @hfs_tuple n v ∈ iter hfs_pow l (2*n).
+  Let Hp5 n v : (forall p, vec_pos v p ∈ d) -> @hfs_tuple n v ∈ iter hfs_pow d (2*n).
   Proof. apply hfs_tuple_pow; auto. Qed.
 
-  Let Hp6 n v : n <= nt -> (forall p, vec_pos v p ∈ l) -> @hfs_tuple n v ∈ p.
+  Let Hp6 n v : n <= nt -> (forall p, vec_pos v p ∈ d) -> @hfs_tuple n v ∈ p.
   Proof. 
     intros L H; apply Hp5 in H.
     revert H; apply hfs_iter_pow_le; try lia; auto.
@@ -143,18 +141,18 @@ Section bt_model_n.
 
   Hint Resolve finite_t_prod hfs_mem_fin_t : core.
 
-  (* We encode R as a subset of tuples of elements of l in p *)
+  (* We encode R as a subset of tuples of elements of d in p *)
 
   Let encode_R : { r | r ∈ p 
-                      /\ (forall v, @hfs_tuple nt v ∈ r -> forall q, vec_pos v q ∈ l)
+                      /\ (forall v, @hfs_tuple nt v ∈ r -> forall q, vec_pos v q ∈ d)
                       /\ forall v, R v <-> hfs_tuple (vec_map i v) ∈ r }.
   Proof.
-    set (P v := R (vec_map s v) /\ forall q, vec_pos v q ∈ l).
+    set (P v := R (vec_map s v) /\ forall q, vec_pos v q ∈ d).
     set (f := @hfs_tuple nt). 
     destruct hfs_comprehension with (P := P) (f := f) as (r & Hr).
     + apply fin_t_dec.
       * intros; apply HR.
-      * apply fin_t_vec with (P := fun t => t ∈ l).
+      * apply fin_t_vec with (P := fun t => t ∈ d).
         apply hfs_mem_fin_t.
     + exists r; msplit 2.
       * unfold p; rewrite plus_comm, iter_plus with (b := 1).
@@ -186,7 +184,7 @@ Section bt_model_n.
   Let Hr1 : r ∈ p.
   Proof. apply (proj2_sig encode_R). Qed.
 
-  Let Hr2 v : @hfs_tuple nt v ∈ r -> forall q, vec_pos v q ∈ l.
+  Let Hr2 v : @hfs_tuple nt v ∈ r -> forall q, vec_pos v q ∈ d.
   Proof. apply (proj2_sig encode_R). Qed.
 
   Let Hr3 v : R v <-> hfs_tuple (vec_map i v) ∈ r.
@@ -202,9 +200,17 @@ Section bt_model_n.
     destruct (hfs_mem_dec x p); split; try tauto; discriminate.
   Qed.
 
+  Let p_bool_spec1 x : x ∈ p -> p_bool x = true.
+  Proof. apply p_bool_spec. Qed.
+
+  Let p_bool_spec2 x : p_bool x = true -> x ∈ p.
+  Proof. apply p_bool_spec. Qed.
+
   Let Y := sig (fun x => p_bool x = true).
 
-  Let eqY : forall x y : Y, proj1_sig x = proj1_sig y -> x = y.
+  Notation π1 := (@proj1_sig _ _).
+
+  Let eqY : forall x y : Y, π1 x = π1 y -> x = y.
   Proof. 
     intros (x & Hx) (y & Hy); simpl.
     intros; subst; f_equal; apply UIP_dec, bool_dec.
@@ -226,41 +232,45 @@ Section bt_model_n.
     + right; contradict D; inversion D; auto.
   Qed.
 
-  Let mem (x y : Y) := proj1_sig x ∈ proj1_sig y.
+  Let mem (x y : Y) := π1 x ∈ π1 y.
 
   Let mem_dec : forall x y, { mem x y } + { ~ mem x y }.
   Proof.
     intros (a & ?) (b & ?); unfold mem; simpl; apply hfs_mem_dec.
   Qed.
 
-  Let yl : Y.    Proof. exists l; apply p_bool_spec, Hp2. Defined.
-  Let yr : Y.    Proof. exists r; apply p_bool_spec, Hr1. Defined.
+  Let mem_equiv_Y u v : u ∈ p -> v ∈ p
+                     -> (forall y : Y, π1 y ∈ u <-> π1 y ∈ v)
+                    <-> (forall x : hfs, x ∈ u <-> x ∈ v).
+  Proof.
+    intros Hu Hv; split; intros H.
+    2: intro; apply H; auto.
+    intros x; split; intros Hx.
+    + generalize (Hp1 Hx Hu); rewrite p_bool_spec; intros G;
+      apply (@H (exist _ _ G)); auto.
+    + generalize (Hp1 Hx Hv); rewrite p_bool_spec; intros G;
+      apply (@H (exist _ _ G)); auto.
+  Qed.
+
+  Let yd : Y.    Proof. exists d; abstract (apply p_bool_spec, Hp2). Defined.
+  Let yr : Y.    Proof. exists r; abstract (apply p_bool_spec, Hr1). Defined.
 
   (* Membership equivalence is identity in the model *)
 
-  Let is_equiv : forall x y, mb_equiv mem x y <-> proj1_sig x = proj1_sig y.
+  Let is_equiv : forall x y, mb_equiv mem x y <-> π1 x = π1 y.
   Proof.
     intros (x & Hx) (y & Hy); simpl.
     unfold mb_equiv, mem; simpl; split.
-    2: intros []; tauto.
-    intros H.
-    apply hfs_mem_ext.
-    intros z; split; intros Hz.
-    * apply p_bool_spec in Hx.
-      generalize (Hp1 Hz Hx).
-      rewrite p_bool_spec; intros H'.
-      apply (H (exist _ z H')); auto.
-    * apply p_bool_spec in Hy.
-      generalize (Hp1 Hz Hy).
-      rewrite p_bool_spec; intros H'.
-      apply (H (exist _ z H')); auto.
+    2: { intros []; tauto. }
+    rewrite mem_equiv_Y; auto; apply hfs_mem_ext.
   Qed.
 
   Let is_pair : forall x y k, mb_is_pair mem k x y 
-                          <-> proj1_sig k = hfs_pair (proj1_sig x) (proj1_sig y).
+                          <-> π1 k = hfs_pair (π1 x) (π1 y).
   Proof.
     intros (x & Hx) (y & Hy) (k & Hk); simpl.
-    unfold mb_is_pair; simpl; rewrite hfs_mem_ext.
+    unfold mb_is_pair; simpl. 
+    rewrite hfs_mem_ext.
     generalize Hx Hy Hk; revert Hx Hy Hk.
     do 3 rewrite <- p_bool_spec at 1.
     intros Hx' Hy' Hk' Hx Hy Hk.
@@ -276,7 +286,7 @@ Section bt_model_n.
   Qed.
  
   Let is_opair : forall x y k, mb_is_opair mem k x y 
-                           <-> proj1_sig k = ⟬proj1_sig x,proj1_sig y⟭.
+                           <-> π1 k = ⟬π1 x,π1 y⟭.
   Proof.
     intros (x & Hx) (y & Hy) (k & Hk); simpl.
     unfold mb_is_opair; split.
@@ -296,7 +306,7 @@ Section bt_model_n.
   Qed.
 
   Let is_tuple n : forall v t, @mb_is_tuple _ mem t n v 
-                           <-> proj1_sig t = hfs_tuple (vec_map (@proj1_sig _ _) v).
+                           <-> π1 t = hfs_tuple (vec_map π1 v).
   Proof.
     induction n as [ | n IHn ]; intros v (t & Ht).
     + vec nil v; clear v; simpl; split.
@@ -316,16 +326,16 @@ Section bt_model_n.
         rewrite <- H2.
         apply is_opair with (k := exist _ t Ht); auto.
       * intros ->.
-        assert (H1 : p_bool (hfs_tuple (vec_map (@proj1_sig _ _) v)) = true).
+        assert (H1 : p_bool (hfs_tuple (vec_map π1 v)) = true).
         { apply p_bool_spec.
           apply p_bool_spec in Ht.
           apply hfs_trans_opair_inv, proj2, hfs_trans_pair_inv in Ht; tauto. }
-        exists (exist _ (hfs_tuple (vec_map (@proj1_sig _ _) v)) H1); split.
+        exists (exist _ (hfs_tuple (vec_map π1 v)) H1); split.
         - rewrite is_opair; simpl; auto.
         - rewrite IHn; simpl; auto.
   Qed.
 
-  Let has_tuples : mb_has_tuples mem yl nt.
+  Let has_tuples : mb_has_tuples mem yd nt.
   Proof.
     intros v Hv.
     set (t := hfs_tuple (vec_map (proj1_sig (P:=fun x : hfs => p_bool x = true)) v)).
@@ -339,14 +349,13 @@ Section bt_model_n.
   Proof.
     intros x.
     exists (i x).
-    apply p_bool_spec.
-    generalize (Hi x) Hp2; apply Hp1.
+    abstract (apply p_bool_spec; generalize (Hi x) Hp2; apply Hp1).
   Defined.
 
-  Let Hi'' x : mem (i' x) yl.
-  Proof. unfold i', yl, mem; simpl; auto. Qed.
+  Let Hi'' x : mem (i' x) yd.
+  Proof. unfold i', yd, mem; simpl; auto. Qed.
 
-  Let s' (y : Y) : X := s (proj1_sig y).
+  Let s' (y : Y) : X := s (π1 y).
 
   (*
     For finite and discrete type X, non empty (as witnessed by a given element)
@@ -354,17 +363,17 @@ Section bt_model_n.
     and discrete, equipped with a Boolean binary membership predicate ∈ which is 
     extensional. Y is a finite (set like) model which contains two sets yl and 
     yr and there is a bijection between X and (the elements of) yl. All ordered 
-    triples build from elements of yl exist in Y, and yr encodes R in the set 
-    of (ordered) triples it contains. 
+    nt-tuples build from elements of yl exist in Y, and yr encodes R in the set 
+    of (ordered) nt-tuples it contains. 
     Finally, membership equivalence (≈) is the same as identity (=) in Y.
 
     Membership equivalence : x ≈ y := ∀z, z∈x <-> z∈y
     Membership extensional : x ≈ y -> ∀z, x∈z -> y∈z
 
-    Triples are build the usual way (in set theory)
+    Tuples are build the usual way (in set theory)
       - z ∈ {x,y} := z ≈ x \/ z ≈ y
       - ordered pairs: (x,y) is {{x},{x,y}}
-      - ordered triples: (x,y,z) is ((x,y),z)
+      - ordered triples: (x,y,z) is ((x,y),z), etc
 
     Non-emptyness is not really necessary but then bijection between X=ø and yl
     has to be implemented with dependent functions, more cumbersome to work
@@ -378,36 +387,19 @@ Section bt_model_n.
   
   Theorem reln_hfs : { Y : Type &
                      { _ : finite_t Y & 
-                     { _ : discrete Y &
                      { mem : Y -> Y -> Prop &
                      { _ : forall u v, { mem u v } + { ~ mem u v } & 
-                     { yl : Y &
+                     { yd : Y &
                      { yr : Y & 
                      { i : X -> Y & 
                      { s : Y -> X &
-                             mb_member_ext mem
-                          /\ mb_has_tuples mem yl nt
-                          /\ (forall x, mem (i x) yl)
-                          /\ (forall y, mem y yl -> exists x, y = i x)
-                          /\ (forall x, s (i x) = x)
+                             (forall x, mem (i x) yd)
+                          /\ (forall y, mem y yd -> exists x, y = i x)
                           /\ (forall v, R v <-> mb_is_tuple_in mem yr (vec_map i v))
-                          /\ (forall x y, mb_equiv mem x y <-> x = y)
-                      }}}}}}}}}.
+                      }}}}}}}}.
   Proof.
-    exists Y, HY, discrY, mem, mem_dec, yl, yr, i', s'.
-    msplit 6; auto.
-    + intros (u & Hu) (v & Hv) (w & Hw); unfold mem; simpl.
-      unfold mb_equiv; simpl; intros H.
-      cut (u = v); [ intros []; auto | ].
-      apply hfs_mem_ext.
-      apply p_bool_spec in Hu.
-      apply p_bool_spec in Hv.
-      clear w Hw.
-      intros x; split; intros Hx.
-      * generalize (Hp1 Hx Hu); rewrite p_bool_spec; intros H'.
-        apply (H (exist _ x H')); auto.
-      * generalize (Hp1 Hx Hv); rewrite p_bool_spec; intros H'.
-        apply (H (exist _ x H')); auto.
+    exists Y, HY, mem, mem_dec, yd, yr, i', s'.
+    msplit 2; auto.
     + intros y Hy; unfold i'.
       destruct (Hi' Hy) as (x & Hx).
       exists x; apply eqY; simpl; auto.
@@ -424,8 +416,6 @@ Section bt_model_n.
         simpl in H1, H2.
         rewrite vec_map_map in H1; subst t.
         apply H2. 
-    + intros x y; rewrite is_equiv; split; auto.
-      intros; subst; auto.
   Qed.
 
 End bt_model_n.

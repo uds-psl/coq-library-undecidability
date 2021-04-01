@@ -365,7 +365,7 @@ Section hfs.
   (* For the non-empty finite type pos (S n), there is a computably
       surjective map from a transitive set l onto pos (S n) 
 
-      The case of the empty model is rules out in our case
+      The case of the empty model is ruled out in our case
       because we always need to be able to interpret some variable
       in unscoped De Bruijn syntax
     *)
@@ -479,8 +479,7 @@ Section hfs.
   Proof.
     unfold hfs_opair.
     intros H.
-    apply hfs_pair_inj in H.
-    destruct H as [ (H1 & H2) | (H1 & H2) ];
+    apply hfs_pair_inj in H as [ (H1 & H2) | (H1 & H2) ];
       apply hfs_pair_inj in H1; apply hfs_pair_inj in H2; 
       revert H1 H2;
       do 2 intros [ [] | [] ]; subst; auto.

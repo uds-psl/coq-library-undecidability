@@ -23,8 +23,10 @@ Set Implicit Arguments.
 Local Notation " e '#>' x " := (vec_pos e x).
 Local Notation " e [ v / x ] " := (vec_change e x v).
 
+(* ∈ and ⊆ are already used for object level syntax at too low level 59 *)
+
 Local Infix "∊" := In (at level 70, no associativity).
-Local Infix "⊑" := incl (at level 70, no associativity).
+Local Infix "⊑" := incl (at level 70, no associativity). 
 
 Local Notation "M , r ⊨ A" := (fol_sem M r A) (at level 70, format "M , r  ⊨  A").
 
@@ -121,13 +123,13 @@ Section discrete_quotient.
 
   Local Definition fom_op1 R x y := 
           forall s, s ∊ ls 
-       -> forall (v : vec _ (ar_syms Σ s)) p, 
-                 R (fom_syms M s (v[x/p])) (fom_syms M s (v[y/p])).
+       -> forall (v : vec _ (ar_syms Σ s)) i, 
+                 R (fom_syms M s (v[x/i])) (fom_syms M s (v[y/i])).
 
   Local Definition fom_op2 x y := 
           forall s, s ∊ lr 
-       -> forall (v : vec _ (ar_rels Σ s)) p, 
-                 fom_rels M s (v[x/p]) <-> fom_rels M s (v[y/p]).
+       -> forall (v : vec _ (ar_rels Σ s)) i, 
+                 fom_rels M s (v[x/i]) <-> fom_rels M s (v[y/i]).
 
   Local Definition fom_op R x y := fom_op1 R x y /\ fom_op2 x y.
   
@@ -277,17 +279,22 @@ Section discrete_quotient.
 
     *)
 
-  Reserved Notation "x ≡ y" (at level 70, no associativity).
+  (* We build the greatest bisimulation which is an equivalence 
+      and a (pre-)fixpoint for the above operator *) 
 
   Definition fom_eq := gfp fom_op.
 
-  Infix "≡" := fom_eq.
+  Infix "≡" := fom_eq (at level 70, no associativity).
 
   Hint Resolve fom_op_mono fom_op_id fom_op_sym fom_op_trans 
                fom_op_continuous fom_op_dec : core.
 
   Local Fact fom_eq_equiv : equiv _ fom_eq.
   Proof. apply gfp_equiv; eauto. Qed.
+
+  Local Fact fom_eq_refl x : x ≡ x.                         Proof. apply (proj1 fom_eq_equiv). Qed.
+  Local Fact fom_eq_sym x y : x ≡ y -> y ≡ x.               Proof. apply fom_eq_equiv. Qed.
+  Local Fact fom_eq_trans x y z : x ≡ y -> y ≡ z -> x ≡ z.  Proof. apply fom_eq_equiv. Qed.
 
   Local Fact fom_eq_fix x y : fom_op fom_eq x y <-> x ≡ y.
   Proof. apply gfp_fix; eauto. Qed.
@@ -296,13 +303,6 @@ Section discrete_quotient.
            (forall x y, R x y -> fom_op R x y)
         -> (forall x y, R x y -> x ≡ y).
   Proof. apply gfp_greatest; eauto. Qed.
-
-  (* We build the greatest bisimulation which is an equivalence 
-      and a fixpoint for the above operator *) 
-
-  Local Fact fom_eq_refl x : x ≡ x.                         Proof. apply (proj1 fom_eq_equiv). Qed.
-  Local Fact fom_eq_sym x y : x ≡ y -> y ≡ x.               Proof. apply fom_eq_equiv. Qed.
-  Local Fact fom_eq_trans x y z : x ≡ y -> y ≡ z -> x ≡ z.  Proof. apply fom_eq_equiv. Qed.
 
   (* It is a congruence wrt to the model *)
 
@@ -344,7 +344,7 @@ Section discrete_quotient.
     Hint Resolve fom_eq_syms_full fom_eq_rels_full : core.
 
     Let f : fo_simulation ls lr M M.
-    Proof. exists fom_eq; auto; intros a; exists a; auto. Defined.
+    Proof. exists fom_eq; abstract eauto. Defined.
 
     Let fom_eq_fol_charac1 φ : 
             fol_syms φ ⊑ ls
@@ -374,7 +374,7 @@ Section discrete_quotient.
     Let fom_eq_fo_bisimilar x y : x ≡ y -> x ≐ y.
     Proof.
       intros ? ? ? ? ?; apply fom_eq_fol_charac1; auto.
-      intros [] _; simpl; auto.
+      intros [] _; auto.
     Qed.
 
     Let fo_bisimilar_fom_eq x y : x ≐ y -> x ≡ y.
@@ -421,12 +421,10 @@ Section discrete_quotient.
         - unfold B; simpl; intros ? [ <- | [] ]; auto.
     Qed.
 
+    Hint Resolve fom_eq_fo_bisimilar fo_bisimilar_fom_eq : core.
+
     Theorem fom_eq_fol_characterization x y : x ≡ y <-> x ≐ y.
-    Proof.
-      split.
-      + apply fom_eq_fo_bisimilar.
-      + apply fo_bisimilar_fom_eq.
-    Qed.
+    Proof. split; auto. Qed.
 
   End fol_characterization.
 
@@ -442,15 +440,16 @@ Section discrete_quotient.
             fo_congruence_upto (fun x y => x ≐ y)
          * (forall x y, decidable (x ≐ y)).
   Proof.
-    split; [ split; [ split | ] | ].
-    + split; red; [ intros ? | intros ? ? ? | intros ? ?]; rewrite <- !fom_eq_fol_characterization; auto.
-      apply fom_eq_trans.
+    lsplit 3.
+    + split; red; [ intros ? | intros ? ? ? | intros ? ?]; 
+        rewrite <- !fom_eq_fol_characterization; eauto.
     + intros ? ? ? ? ?; apply fom_eq_fol_characterization, fom_eq_syms_full; auto.
       intro; apply fom_eq_fol_characterization; auto.
     + intros ? ? ? ? ?; apply fom_eq_rels_full; auto.
       intro; apply fom_eq_fol_characterization; auto.
     + intros x y.
-      destruct (fom_eq_dec x y); [ left | right ]; rewrite <- fom_eq_fol_characterization; auto.
+      destruct (fom_eq_dec x y); [ left | right ]; 
+        rewrite <- fom_eq_fol_characterization; auto.
   Qed.
 
   Section build_the_discrete_model.
@@ -500,7 +499,7 @@ Section discrete_quotient.
     Qed.
 
     Let f : fo_projection ls lr M Md.
-    Proof. exists cls repr; auto. Defined.
+    Proof. exists cls repr; abstract auto. Defined.
 
     Let H3 φ ρ :   fol_syms φ ⊑ ls 
                 -> fol_rels φ ⊑ lr
@@ -532,8 +531,8 @@ Section discrete_quotient.
           (forall p q, fo_bisimilar Md p q <-> p = q) } } } }.
     Proof.
       exists n, Md.
-      exists; eauto. 
-      intros x y; simpl; apply dec.
+      exists; eauto.
+      red; simpl; auto.
     Qed.
 
   End build_the_discrete_model.
@@ -648,11 +647,11 @@ Section counter_model_to_class_FO_definability.
   Let f : @fo_projection Σ [] [tt] _ M _ M.
   Proof.
     exists negb negb; simpl.
-    + intros []; auto.
-    + intros [].
-    + intros [] v _; simpl.
-      vec split v with x; vec split v with y; vec nil v; simpl.
-      revert x y; now intros [] [].
+    + abstract now intros [].
+    + abstract intros [].
+    + abstract (intros [] v _;
+      vec split v with x; vec split v with y; vec nil v; simpl;
+      revert x y; now intros [] []).
   Defined.
 
   Let homeomorphism φ ρ : M,ρ ⊨ φ <-> M,negb∘ρ ⊨ φ.
@@ -665,39 +664,27 @@ Section counter_model_to_class_FO_definability.
 
   Hint Resolve finite_t_bool : core.
 
-  (* α/true and β/false are not bisimilar *)
-
-  Let true_is_not_false : ~ α ≐ β.
-  Proof.
-    intros H.
-    specialize (H (@fol_atom Σ tt (£0##£1##ø)) (incl_refl _) (incl_refl _)
-                  (fun n => match n with 0 => true | _ => false end)).
-    revert H; unfold M; simpl; rew fot; simpl.
-    intros [H _]; cbv; auto.
-    specialize (H eq_refl); discriminate.
-  Qed.
-
   Let bisim_is_identity x y : x ≐ y <-> x = y.
   Proof.
     split.
-    2: intros ->; apply fo_bisimilar_refl.
-    revert x y; intros [] [] H; auto.
-    + destruct true_is_not_false; auto.
-    + apply fo_bisimilar_sym, true_is_not_false in H as [].
-  Qed. 
+    + intros H.
+      now apply (H (@fol_atom Σ tt (£0##£1##ø)))
+        with (ρ := fun n => match n with 0 => y | _ => x end).
+    + intros ->; apply fo_bisimilar_refl.
+  Qed.
+
+ (* α/true and β/false are not bisimilar *) 
+
+  Let true_is_not_false : ~ α ≐ β.
+  Proof. now rewrite bisim_is_identity. Qed.
 
   (* No formula using only variable 0 can distinguish α from β *)
 
   Let no_distinct φ ρ x y : fol_vars φ ⊑ [0] -> M,x·ρ ⊨ φ <-> M,y·ρ ⊨ φ.
   Proof.
-    set (δ := negb∘ρ).
-    revert x y; intros [] [] H; try tauto.
-    + rewrite homeomorphism with (ρ := β·ρ) at 1.
-      apply fol_sem_ext.
-      intros n Hn; apply H in Hn as [ [] | [] ]; auto.
-    + rewrite homeomorphism with (ρ := α·ρ) at 1.
-      apply fol_sem_ext.
-      intros n Hn; apply H in Hn as [ [] | [] ]; auto.
+    revert x y; intros [] [] H; try tauto; [ | symmetry ];
+      rewrite homeomorphism with (ρ := β·ρ) at 1;
+      apply fol_sem_ext; intros n Hn; now apply H in Hn as [ [] | [] ].
   Qed.
 
   (** There is a (discrete, finite, decidable) model M over Σ2 with 
@@ -706,14 +693,14 @@ Section counter_model_to_class_FO_definability.
        2) no FO formula with one free variable can distinguish the elements
           of M, in particular distinguish α from β;
        3) there is a FO ξ(.,.) with 2 free variables that distinguishes
-          a from b, i.e. ξ(α,α) and not ξ(β,α) (hence particular, α <> β).
+          α from β, i.e. ξ(α,α) and not ξ(β,α) (hence particular, α <> β).
    *)
 
   Theorem FO_does_not_characterize_classes :
      exists (M : fo_model Σ bool) (_ : fo_model_dec M) (a b : bool), 
               (forall x y, fo_bisimilar (Σ := Σ) nil [tt] M x y <-> x = y)
            /\ (forall x y φ ρ, fol_vars φ ⊑ [0] -> M,x·ρ ⊨ φ <-> M,y·ρ ⊨ φ)
-           /\ exists φ, fol_vars φ ⊑ [0;1] /\ forall ρ, M,a·a·ρ ⊨ φ /\ ~ M,b·a·ρ ⊨ φ.
+           /\ exists ξ, fol_vars ξ ⊑ [0;1] /\ forall ρ, M,a·a·ρ ⊨ ξ /\ ~ M,b·a·ρ ⊨ ξ.
   Proof. 
     exists M, M_dec, true, false; msplit 2; auto. 
     exists (fo_bisimilar_formula (Σ := Σ) nil [tt] finite_t_bool M_dec); split.
