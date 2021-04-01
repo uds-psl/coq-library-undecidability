@@ -45,46 +45,14 @@ Section membership.
 
   Definition mb_transitive t := forall x y, x ∈ y -> y ∈ t -> x ∈ t.
 
-  (* Hypothesis on the model *)
-
-  Variable (Rdec : forall x y, { x ∈ y } + { x ∉ y }) (Xfin : finite_t X).
-
-  Let lX : list X := proj1_sig Xfin.
-  Let HX : forall x, In x lX := proj2_sig Xfin.
-
   Fact mb_incl_refl x : x ⊆ x.
   Proof. red; auto. Qed.
 
   Fact mb_incl_trans x y z : x ⊆ y -> y ⊆ z -> x ⊆ z.
   Proof. unfold mb_incl; auto. Qed.
 
-  Fact mb_incl_choose x y : { z | z ∈ x /\ z ∉ y } + { x ⊆ y }.
-  Proof.
-    set (P z := z ∈ x /\ z ∉ y).
-    set (Q z := z ∈ x -> z ∈ y).
-    destruct list_dec with (P := P) (Q := Q) (l := lX)
-      as [ (z & _ & H2 & H3) | H ]; unfold P, Q in *; clear P Q.
-    + intros z; destruct (Rdec z x); destruct (Rdec z y); tauto.
-    + left; exists z; auto.
-    + right; intros z; apply H; auto.
-  Qed.  
-
-  Fact mb_incl_dec x y : { x ⊆ y } + { ~ x ⊆ y }.
-  Proof.
-    destruct (mb_incl_choose x y) as [ (?&?&?) |]; auto.
-  Qed.
-
   Fact mb_equiv_eq x y : x ≈ y <-> x ⊆ y /\ y ⊆ x.
   Proof. firstorder. Qed.
-  
-  Fact mb_equiv_dec x y : { x ≈ y } + { x ≉ y }.
-  Proof.
-    destruct (mb_incl_dec x y); [ destruct (mb_incl_dec y x) | ].
-    1: left; apply mb_equiv_eq; auto. 
-    all: right; rewrite mb_equiv_eq; tauto.
-  Qed.
-
-  Hint Resolve mb_equiv_dec : core.
 
   Fact mb_equiv_refl_True x : x ≈ x <-> True.    Proof. unfold mb_equiv; tauto. Qed.
   Fact mb_equiv_refl x : x ≈ x.                  Proof. unfold mb_equiv; tauto. Qed.
@@ -103,7 +71,7 @@ Section membership.
 
   Hint Resolve mb_equiv_refl mb_equiv_sym : core.
 
-  (* A first FOL axiom: sets are characterized by their elements *)
+  (* The only FOL axiom: sets are characterized by their elements *)
 
   Definition mb_member_ext := forall x y z, x ≈ y -> x ∈ z -> y ∈ z.
 
@@ -162,16 +130,6 @@ Section membership.
   Fact mb_is_pair_inj' p x y : p ≋ ⦃x,x⦄ -> p ≋ ⦃y,y⦄ -> x ≈ y.
   Proof. intros H1 H2; generalize (mb_is_pair_inj H1 H2); tauto. Qed.
 
-  Fact mb_is_pair_dec p x y : { p ≋ ⦃x,y⦄ } + { ~ p ≋ ⦃x,y⦄ }.
-  Proof. 
-    unfold mb_is_pair.
-    apply (fol_quant_sem_dec fol_fa); auto; intros u.
-    apply fol_equiv_dec; auto.
-    apply (fol_bin_sem_dec fol_disj); auto.
-  Qed.
-
-  Hint Resolve mb_is_pair_dec : core.
-
   (* Ordered pairs (x,y) := {{x},{x,y}}, Kuratowski encoding *)
 
   Definition mb_is_opair p x y := exists a b, mb_is_pair a x x /\ mb_is_pair b x y /\ mb_is_pair p a b.
@@ -182,8 +140,7 @@ Section membership.
      (mb_equiv) ==> (mb_equiv) ==> (mb_equiv) ==> (iff) as mb_is_opair_congruence.
   Proof.
     intros p q H1 x x' H2 y y' H3.
-    apply exists_equiv; intros a.
-    apply exists_equiv; intros b.
+    do 2 (apply exists_equiv; intros ?).
     rewrite H1, H2, H3; tauto.
   Qed.
 
@@ -208,17 +165,8 @@ Section membership.
       generalize (mb_is_pair_inj H2 G1) (mb_is_pair_inj H1 G2).
       intros [ (E3 & E4) | (E3 & E4) ] [ (E5 & E6) | (E5 & E6) ];
         rewrite E4, <- E5; auto.
-  Qed.
-
-  Fact mb_is_opair_dec p x y : { p ≋ ⦅x,y⦆  } + { ~ p ≋ ⦅x,y⦆  }.
-  Proof.
-    unfold mb_is_opair.
-    do 2 (apply (fol_quant_sem_dec fol_ex); auto; intro).
-    repeat (apply (fol_bin_sem_dec fol_conj); auto).
-  Qed.
-
-  Hint Resolve mb_is_opair_dec : core.
-
+  Qed.  
+ 
   (* n-tuples *)
 
   Fixpoint mb_is_tuple t n (v : vec X n) :=
@@ -263,17 +211,6 @@ Section membership.
       intros j; invert pos j; auto.
   Qed.
 
-  Fact mb_is_tuple_dec t n (v : vec _ n) : { t ≋ ⦉v⦊  } + { ~ t ≋ ⦉v⦊  }.
-  Proof.
-    revert t; induction v as [ | x n v IHv ]; intros t.
-    + apply (fol_quant_sem_dec fol_fa); auto; intro.
-      apply (fol_bin_sem_dec fol_imp); auto.
-    + simpl; apply (fol_quant_sem_dec fol_ex); auto; intro.
-      apply (fol_bin_sem_dec fol_conj); auto.
-  Qed.
-
-  Hint Resolve mb_is_tuple_dec : core.
-
   (* mb_has_* from elements in l *)
 
   Definition mb_has_pairs (l : X) :=
@@ -293,12 +230,6 @@ Section membership.
     rewrite  E; auto.
   Qed.
 
-  Fact mb_is_tuple_in_dec r n (v : vec _ n) : { r ∋ ⦉v⦊  } + { ~ r ∋ ⦉v⦊  }.
-  Proof.
-    apply (fol_quant_sem_dec fol_ex); auto; intro.
-    apply (fol_bin_sem_dec fol_conj); auto.
-  Qed.
-
   (* mb total and functional *)
 
   Definition mb_is_tot n (l s : X) :=
@@ -311,6 +242,77 @@ Section membership.
                     -> p ≋ ⦅x,y⦆ 
                     -> q ≋ ⦅x',y⦆
                     -> x ≈ x'.
+
+  (* Meta-level properties on the model *)
+
+  Variable (Rdec : forall x y, { x ∈ y } + { x ∉ y }) 
+           (Xfin : finite_t X).
+
+  Local Definition lX : list X := proj1_sig Xfin.
+  Local Definition HX : forall x, In x lX := proj2_sig Xfin.
+
+  Hint Resolve HX : core.
+
+  Fact mb_incl_choose x y : { z | z ∈ x /\ z ∉ y } + { x ⊆ y }.
+  Proof.
+    set (P z := z ∈ x /\ z ∉ y).
+    set (Q z := z ∈ x -> z ∈ y).
+    destruct list_dec with (P := P) (Q := Q) (l := lX)
+      as [ (z & _ & H2 & H3) | H ]; unfold P, Q in *; clear P Q.
+    + intros z; destruct (Rdec z x); destruct (Rdec z y); tauto.
+    + left; exists z; auto.
+    + right; intros z; apply H; auto.
+  Qed.  
+
+  Fact mb_incl_dec x y : { x ⊆ y } + { ~ x ⊆ y }.
+  Proof.
+    destruct (mb_incl_choose x y) as [ (?&?&?) |]; auto.
+  Qed.
+
+  Fact mb_equiv_dec x y : { x ≈ y } + { x ≉ y }.
+  Proof.
+    destruct (mb_incl_dec x y); [ destruct (mb_incl_dec y x) | ].
+    1: left; apply mb_equiv_eq; auto. 
+    all: right; rewrite mb_equiv_eq; tauto.
+  Qed.
+
+  Hint Resolve mb_equiv_dec : core.
+
+  Fact mb_is_pair_dec p x y : { p ≋ ⦃x,y⦄ } + { ~ p ≋ ⦃x,y⦄ }.
+  Proof. 
+    unfold mb_is_pair.
+    apply (fol_quant_sem_dec fol_fa); auto; intros u.
+    apply fol_equiv_dec; auto.
+    apply (fol_bin_sem_dec fol_disj); auto.
+  Qed.
+
+  Hint Resolve mb_is_pair_dec : core.
+
+  Fact mb_is_opair_dec p x y : { p ≋ ⦅x,y⦆  } + { ~ p ≋ ⦅x,y⦆  }.
+  Proof.
+    unfold mb_is_opair.
+    do 2 (apply (fol_quant_sem_dec fol_ex); auto; intro).
+    repeat (apply (fol_bin_sem_dec fol_conj); auto).
+  Qed.
+
+  Hint Resolve mb_is_opair_dec : core.
+
+  Fact mb_is_tuple_dec t n (v : vec _ n) : { t ≋ ⦉v⦊  } + { ~ t ≋ ⦉v⦊  }.
+  Proof.
+    revert t; induction v as [ | x n v IHv ]; intros t.
+    + apply (fol_quant_sem_dec fol_fa); auto; intro.
+      apply (fol_bin_sem_dec fol_imp); auto.
+    + simpl; apply (fol_quant_sem_dec fol_ex); auto; intro.
+      apply (fol_bin_sem_dec fol_conj); auto.
+  Qed.
+
+  Hint Resolve mb_is_tuple_dec : core.
+
+  Fact mb_is_tuple_in_dec r n (v : vec _ n) : { r ∋ ⦉v⦊  } + { ~ r ∋ ⦉v⦊  }.
+  Proof.
+    apply (fol_quant_sem_dec fol_ex); auto; intro.
+    apply (fol_bin_sem_dec fol_conj); auto.
+  Qed.
 
 End membership.
 
