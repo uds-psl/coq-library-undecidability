@@ -151,7 +151,7 @@ Section Sign_Sig2_encoding.
   (* Notice that Σn_Σ2 A has two more free variables than A,
      that could be quantified existentially over if needed *)
 
-  (* The FO set-theoretic axioms we need to add are somewhat minimal:
+  (* The FO membership axioms we need to add are somewhat minimal:
          - d should be non empty 
          - and free variables of A (lifted twice) should be interpreted in d
    *)
@@ -182,6 +182,8 @@ Section SAT2_SATn.
     Let mem_dec : forall x y, { mem x y } + { ~ mem x y }.
     Proof. intros x y; apply (@M2dec tt). Qed.
 
+    (* A Boolean version of membership *)
+
     Let P x := (if mem_dec x (ψ 0) then true else false) = true.
 
     Let HP0 x : P x <-> mem x (ψ 0).
@@ -198,20 +200,20 @@ Section SAT2_SATn.
         intro; apply bool_dec.
     Qed.
 
+    Notation π1 := (@proj1_sig _ _).
+
     Let Mn : fo_model (Σrel n) (sig P).
     Proof.
       exists.
       + intros [].
       + intros [] v.
-        simpl in v.
-        apply (@mb_is_tuple_in _ mem (ψ 1) n).
-        apply (vec_map (@proj1_sig _ _) v).
+        exact (mb_is_tuple_in mem (ψ 1) (vec_map π1 v)).
     Defined.
 
     Let Mn_dec : fo_model_dec Mn.
     Proof. intros [] v; apply mb_is_tuple_in_dec; auto. Qed.
 
-    Let R (x : sig P) (y : X) := proj1_sig x = y.
+    Let R (x : sig P) (y : X) := π1 x = y.
 
     Local Lemma SAT2_to_SATn : exists Y, fo_form_fin_dec_SAT_in A Y.
     Proof.
@@ -220,16 +222,16 @@ Section SAT2_SATn.
       rewrite Σ2_non_empty_spec in H2.
       rewrite Σ2_list_in_spec in H3.
       revert H3 H4; set (B := A⦃fun v : nat => in_var (2 + v)⦄); intros H3 H4.
-      assert (H5 : forall n, n ∊ fol_vars B -> P (ψ n)).
-      { intros; apply HP0, H3; auto. }
+      assert (H5 : forall n, n ∊ fol_vars B -> P (ψ n))
+        by (intros; apply HP0, H3; auto).
       destruct H2 as (x0 & H0).
       generalize H0; intros H2.
       apply HP0 in H0.
       set (phi := fun n : nat => 
-        match in_dec eq_nat_dec n (fol_vars B) with 
-          | left H  => (exist _ (ψ n) (H5 _ H) : sig P)
-          | right _ => (exist _ x0 H0 : sig P)
-        end).
+        match in_dec eq_nat_dec n (fol_vars B) with
+          | left H  => exist _ (ψ n) (H5 _ H)
+          | right _ => exist _ x0 H0
+        end : sig P).
       exists Mn, HP1, Mn_dec, (fun n => phi (2+n)).
       unfold B in *; clear B.
       rewrite <- Σn_Σ2_correct with (Mn := Mn) (φ := phi) (R := R) in H4.
@@ -265,7 +267,7 @@ Section SATn_SAT2.
   Variable n : nat.
 
   (* This is the hard implication. From a model of A, 
-      build a model of Σn_Σ2_enc A in hereditary finite sets *)
+      build a model of Σn_Σ2_enc A based on hereditary finite sets *)
 
   Section The_HFS_model.
 
@@ -277,11 +279,11 @@ Section SATn_SAT2.
               (φ : nat -> X)
               (HA : fol_sem Mn φ A).
 
-    Let R := fom_rels Mn tt.
+    Notation P := (fom_rels Mn tt).
 
     Local Lemma SATn_to_SAT2 : exists Y, fo_form_fin_dec_SAT_in (@Σn_Σ2_enc n A) Y.
     Proof.
-      destruct reln_hfs with (R := fom_rels Mn tt)
+      destruct reln_hfs with (R := P)
         as (Y & H1 & mem & H3 & d & r & i & s & H6 & H7 & H9); auto.
       exists Y, (bin_rel_Σ2 mem), H1, (bin_rel_Σ2_dec _ H3), d·r·(fun n => i (φ n)).
       unfold Σn_Σ2_enc; msplit 2; auto.
@@ -310,7 +312,7 @@ Section SATn_SAT2.
   Theorem SATn_SAT2 A : fo_form_fin_discr_dec_SAT A
                      -> fo_form_fin_dec_SAT (@Σn_Σ2_enc n A).
   Proof.
-    intros (X & H1 & Mn & H2 & H4 & psy & H5).
+    intros (X & ? & Mn & ? & ? & psy & ?).
     apply SATn_to_SAT2 with X Mn psy; auto.
   Qed.
 

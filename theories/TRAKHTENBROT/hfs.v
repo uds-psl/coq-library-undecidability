@@ -440,6 +440,13 @@ Section hfs.
     rewrite hfs_empty_spec; tauto.
   Qed.
 
+  Fact hfs_pair_spec' p r s : p = hfs_pair r s <-> (forall x, x ∈ p <-> x = r \/ x = s).
+  Proof.
+    rewrite hfs_mem_ext.
+    apply (fol_quant_sem_ext fol_fa); intro.
+    rewrite hfs_pair_spec; tauto.
+  Qed.
+
   Opaque hfs_pair.
 
   Fact hfs_pair_pow r s t : r ∈ t -> s ∈ t -> hfs_pair r s ∈ hfs_pow t.
@@ -490,6 +497,14 @@ Section hfs.
     split.
     + apply hfs_opair_inj.
     + intros [ [] [] ]; auto.
+  Qed.
+
+  Fact hfs_opair_spec' p x y : p = ⟬x,y⟭ <-> exists a b, a = hfs_pair x x 
+                                                     /\ b = hfs_pair x y
+                                                     /\ p = hfs_pair a b.
+  Proof.
+    unfold hfs_opair; split; eauto.
+    intros (? & ? & -> & -> & ->); auto.
   Qed.
 
   Fixpoint hfs_tuple n (v : vec hfs n) :=
