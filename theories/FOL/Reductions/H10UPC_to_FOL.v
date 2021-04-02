@@ -2,6 +2,7 @@
 
 From Undecidability.DiophantineConstraints Require Import H10UPC H10UPC_undec.
 From Undecidability.FOL Require Import Util.Syntax Util.Deduction Util.Tarski Util.Syntax_facts.
+From Undecidability.Shared Require Import Dec.
 From Coq Require Import Arith Lia List.
 
 
@@ -117,28 +118,28 @@ Section validity.
   (** $k is a number *)
   Definition N k := Pr $k $k.
   (** $k is a pair *)
-  Definition P' k (_:nat):= (N k) --> sFalse.
+  Definition P' k := (N k) --> sFalse.
   (** If $k is a pair ($l,$r), where $l, $r are numbers, then t. *)
-  Definition P k l r t c := P' k t --> N l --> N r --> Pr $l $k --> Pr $k $r --> c.
+  Definition P k l r c := P' k --> N l --> N r --> Pr $l $k --> Pr $k $r --> c.
   (** if the pairs $pl = ($a,$b), $pr = ($c,$d) are in relation, then t *)
-  Definition rel pl pr a b c d tt t := P pl a b tt (P pr c d tt (Pr $pl $pr --> t)).
+  Definition rel pl pr a b c d t := P pl a b (P pr c d (Pr $pl $pr --> t)).
   (** There exist (Friedman translated) pairs relating ($a,$b) to ($c,$d) *)
-  Definition erel a b c d t := Not (∀ ∀ P 0 (2+a) (2+b) (2+t) 
-                                        (P 1 (2+c) (2+d) (2+t) 
+  Definition erel a b c d t := Not (∀ ∀ P 0 (2+a) (2+b) 
+                                        (P 1 (2+c) (2+d)  
                                          (Pr $0 $1 --> wFalse (2+t)))) t.
   (** Axiom 1 - zero is a number *)
   Definition F_zero := N 0.
   (** Axiom 2 - we can build (left) successors: for each pair (a,0) we have a pair (S a, 0) *)
-  Definition F_succ_left := ∀ N 0 --> Not (∀ ∀ ∀ P 2 3 4 5
-                                                 (P 0 1 4 5
+  Definition F_succ_left := ∀ N 0 --> Not (∀ ∀ ∀ P 2 3 4
+                                                 (P 0 1 4
                                                   (Pr $2 $0 --> wFalse 5))) 2.
   (** Axiom 3 - we can build right successors: (x,y)#(a,b) -> (x,S y)#(S a,S (b+y)) *)
   Definition F_succ_right := ∀ ∀ ∀ ∀ ∀ ∀ ∀ ∀         (*8 pairs *)
                              ∀ ∀ ∀ ∀ ∀ ∀ ∀           (* 0 x 1 y 2 a 3 b 4 c 5 y' 6 a' 15 zero-const*)
-                             rel 7 8 0 1 2 3 16      (* (x,y) # (a,b) *)
-                            (rel 9 10 3 1 4 3 16     (* (b,y) # (c,b) *)
-                            (rel 11 12 1 15 5 15 16  (* (y,0) # (y',0) *)
-                            (rel 13 14 2 15 6 15 16  (* (a,0) # (a'0) *)
+                             rel 7 8 0 1 2 3      (* (x,y) # (a,b) *)
+                            (rel 9 10 3 1 4 3     (* (b,y) # (c,b) *)
+                            (rel 11 12 1 15 5 15  (* (y,0) # (y',0) *)
+                            (rel 13 14 2 15 6 15  (* (a,0) # (a'0) *)
                             (erel 0 5 6 4 16))))     (* (x,y') # (a',c) *).
   (** Generate n all quantifiers around i *)
   Fixpoint emplace_forall (n:nat) (i:form) :=
@@ -177,7 +178,7 @@ Section validity.
       vF_succ_right : (zero .: cr2 .: cr1 .: rho) ⊨ F_succ_right;
     }.
     Context (valid_in : model).
-    Instance II : interp D. exact I. Defined.
+    Instance model_II : interp D. exact I. Defined.
     Notation i_Pr i i' :=
       (@i_atom _ _ _ I sPr (Vector.cons _ i _ (Vector.cons _ i' _ (Vector.nil _)))).
     
@@ -196,7 +197,7 @@ Section validity.
     - apply (H (fun _ => zero)). split. 1: easy. intros m HH. exfalso. lia.
     - apply IH. intros f [IH0 IHfs].
       apply (@vF_succ_left valid_in (f n)); fold sat.
-      + change (isNum (f n)). destruct n as [|n].
+      + destruct n as [|n].
         * rewrite IH0. apply vF_zero.
         * destruct (IHfs n) as [pl [pr [HH _]]]. 1:lia. easy.
       + cbn. intros pl sn pr Ppl Nfn Nz Pfnl Plz Ppr Nsn Nz' Psnr Prz Pplpr.
@@ -348,7 +349,8 @@ Section validity.
 
     Inductive dom : Type := Num : nat -> dom | Pair : nat  -> nat -> dom.
     Definition dom_rel (a : dom) (b:dom) : Prop := match (a,b) with
-    | (Num n1, Num n2) => if Nat.eqb n1 0 then if Nat.eqb n2 (S 0) then H10UPC_SAT h10 else n1 = n2 else n1 = n2
+    | (Num  0, Num  1) => H10UPC_SAT h10
+    | (Num n1, Num n2) => n1 = n2
     | (Num n1, Pair x2 y2) => n1 = x2
     | (Pair x1 y1, Num n2) => n2 = y1
     | (Pair x1 y1, Pair x2 y2) => h10upc_sem_direct ((x1, y1), (x2, y2))
@@ -407,31 +409,27 @@ Section validity.
     Qed.
 
     Lemma IB_N_i rho i n : rho i = Num n -> (rho) ⊨ N i.
-    Proof. cbn. intros ->. destruct (Nat.eqb n 0) eqn:H0.
-    - destruct (Nat.eqb n 1) eqn:H1.
-      + exfalso. pose (beq_nat_true n 0 H0) as HH0. pose (beq_nat_true n 1 H1) as HH1. congruence.
-      + easy.
-    - easy.
+    Proof. cbn. intros ->. now destruct n as [|n'] eqn:Heq.
     Qed.
     Opaque N.
 
-    Lemma IB_P'_e rho i n t : rho i = n -> rho ⊨ P' i t -> {a:nat & {b:nat & n = Pair a b}}.
+    Lemma IB_P'_e rho i n : rho i = n -> rho ⊨ P' i -> {a:nat & {b:nat & n = Pair a b}}.
     Proof.
     intros Hrho H. destruct n as [m|a b].
     * exfalso. unfold P' in H. rewrite IB_sNot in H. eapply H, IB_N_i, Hrho.
     * now exists a, b.
     Qed.
 
-    Lemma IB_P'_i rho i a b t : rho i = (Pair a b) -> rho ⊨ P' i t.
+    Lemma IB_P'_i rho i a b : rho i = (Pair a b) -> rho ⊨ P' i.
     Proof.
     unfold P'. rewrite IB_sNot. intros Hrho H. destruct (@IB_N_e rho i (Pair a b)). 
     1-2:easy. congruence.
     Qed.
     Opaque P'.
 
-    Lemma IB_P_e rho p l r ip il ir c t :
+    Lemma IB_P_e rho p l r ip il ir c :
         rho ip = p -> rho il = l -> rho ir = r
-     -> rho ⊨ P ip il ir t c -> {a:nat & {b:nat & p = Pair a b /\ l = Num a /\ r = Num b}} 
+     -> rho ⊨ P ip il ir c -> {a:nat & {b:nat & p = Pair a b /\ l = Num a /\ r = Num b}} 
      -> rho ⊨ c.
     Proof.
     intros Hp Hl Hr H [a [b [Hp' [Hl' Hr']]]]. cbn in H. 
@@ -439,18 +437,18 @@ Section validity.
     - eapply IB_P'_i. now rewrite Hp, Hp'.
     - eapply IB_N_i. now rewrite Hl, Hl'.
     - eapply IB_N_i. now rewrite Hr, Hr'.
-    - easy.
+    - now destruct a.
     - easy.
     Qed.
 
-    Lemma IB_P_i rho ip il ir c t : (forall a b, rho ip = (Pair a b) 
+    Lemma IB_P_i rho ip il ir c : (forall a b, rho ip = (Pair a b) 
                                  -> rho il = (Num a) -> rho ir = (Num b) -> rho ⊨ c)
-                                 -> rho ⊨ P ip il ir t c.
+                                 -> rho ⊨ P ip il ir c.
     Proof.
     intros Hplrc. intros [pa [pb Hp]]%(IB_P'_e (n:=rho ip))
                          [la Ha]%(IB_N_e (n:=rho il))
                          [rb Hb]%(IB_N_e (n:=rho ir)) Hpl Hpr. 2-4: easy.
-    cbn in Hpl, Hpr. rewrite Hp,<-Ha,<-Hb  in *. apply (@Hplrc la rb); congruence.
+    cbn in Hpl, Hpr. rewrite Hp,<-Ha,<-Hb  in *. apply (@Hplrc la rb); destruct la; congruence.
     Qed.
     Opaque P.
 
@@ -466,7 +464,7 @@ Section validity.
       apply Hc; split; lia.
     Qed.
 
-    Lemma IB_rel_e rho ipl ipr ia ib ic id t tt : rho ⊨ rel ipl ipr ia ib ic id tt t 
+    Lemma IB_rel_e rho ipl ipr ia ib ic id t : rho ⊨ rel ipl ipr ia ib ic id t 
                 -> {a&{b&{c&{d|rho ipl=Pair a b
                             /\ rho ipr = Pair c d
                             /\ rho ia=Num a
@@ -483,7 +481,7 @@ Section validity.
     apply H. cbn. rewrite Hpl, Hpr. easy.
     Qed.
 
-    Lemma IB_rel_i rho ipl ipr ia ib ic id t tt :
+    Lemma IB_rel_i rho ipl ipr ia ib ic id t :
                 ({a&{b&{c&{d|rho ipl=Pair a b
                             /\ rho ipr = Pair c d
                             /\ rho ia=Num a
@@ -491,7 +489,7 @@ Section validity.
                             /\ rho ic=Num c
                             /\ rho id=Num d
                             /\ h10upc_sem_direct ((a,b),(c,d))}}}} -> rho ⊨ t)
-             -> rho ⊨ rel ipl ipr ia ib ic id tt t.
+             -> rho ⊨ rel ipl ipr ia ib ic id t.
     Proof.
     intros H.
     apply IB_P_i. intros a b Hpl Ha Hb.
@@ -557,7 +555,9 @@ Section validity.
         intros x. now rewrite Nat.sub_0_r.
       - intros d.
         specialize (IH (d.:rho)). apply IH. intros f.
-        eapply (sat_ext IB (xi:=fun k => if k <? S n then (fun kk => if kk =? n then d else f kk) k else (rho) (k - S n))).
+        eapply (sat_ext IB (xi:=fun k => if k <? S n
+                                         then (fun kk => if kk =? n then d
+                                         else f kk) k else (rho) (k - S n))).
         2: eapply H.
         intros x.
         destruct (Nat.eq_dec x n) as [Hxn|Hnxn].
@@ -603,7 +603,6 @@ Section validity.
       pose ((S (highest_var_list h10))) as h10vars. 
       unfold translate_constraints. fold h10vars. intros H.
       cbn in H. rewrite Hrho1, Hrho2 in H.
-      rewrite !Nat.eqb_refl in H. 
       apply H. 
       apply IB_emplace_forall. intros f.
       pose (fun n => match (f n) with (Num k) => k | _ => 0 end) as phi.
@@ -622,7 +621,8 @@ Section validity.
 
     Lemma IB_fulfills rho : rho ⊨ F -> H10UPC_SAT h10.
     Proof.
-      intros H. unfold F in H. pose (Num 0 .: Num 0 .: Num 1 .: rho) as nrho. assert (rho_canon nrho) as nrho_canon.
+      intros H. unfold F in H. pose (Num 0 .: Num 0 .: Num 1 .: rho) as nrho.
+      assert (rho_canon nrho) as nrho_canon.
       1: split; easy.
       apply (@IB_aux_transport nrho), H. 
       - easy.
@@ -638,7 +638,517 @@ Section validity.
   Proof.
     intros H. apply (@IB_fulfills (fun b => Num 0)). apply H.
   Qed.
+
 End validity.
+
+Section provability.
+  Context {ff : falsity_flag}. 
+  Context {h10 : list h10upc}.
+  Section ProvabilityTransport.
+    (** The solution to cs *)
+    Context (φ: nat -> nat). 
+    (** Proof that it actually is a solution *)
+    Context (Hφ : forall c, In c h10 -> h10upc_sem φ c). 
+
+    Instance lt_dec (n m : nat) : dec (n < m). Proof. 
+    destruct (n <? m) eqn:H.
+    - rewrite Nat.ltb_lt in H. now left.
+    - rewrite Nat.ltb_ge in H. right. lia.
+    Defined.
+    Instance le_dec (n m : nat) : dec (n <= m). Proof. 
+    destruct (n <=? m) eqn:H.
+    - rewrite Nat.leb_le in H. now left.
+    - rewrite Nat.leb_gt in H. right. lia.
+    Defined.
+
+    Ltac var_eq := cbn; f_equal; lia.
+
+    Lemma emplace_forall_subst (n:nat) (i:form) sigma : (emplace_forall n i)[sigma] = 
+          emplace_forall n (i[fun k => if Dec (k<n) then $k else (sigma(k-n))`[fun l =>$(n+l)]]).
+    Proof.
+    induction n as [|n IH] in sigma|-*.
+    - cbn. apply subst_ext. intros n. rewrite subst_term_id; [f_equal;lia | now intros].
+    - cbn. f_equal. rewrite IH. erewrite (subst_ext). 1:exact eq_refl.
+      intros k. cbv beta. destruct (Nat.eq_dec k n) as [Heq|Hneq]; repeat destruct Dec.
+      1-2,4,6,7: exfalso; lia.
+      + rewrite Heq, Nat.sub_diag. var_eq.
+      + easy.
+      + enough (k-n = S (k-S n)) as ->. 2:lia. unfold up, funcomp, scons.
+        rewrite subst_term_comp. erewrite subst_term_ext. 1:easy.
+        intros kk. var_eq.
+    Qed.
+
+    Lemma emplace_forall_elim (n:nat) (i:form) (pos:nat->nat) : 
+        ((emplace_forall n (i))::nil) ⊢I (i[fun k => if Dec (k < n) then $(pos k) else $(k-n)]).
+    Proof.
+    pose (fun n k => if Dec (k < n) then $(pos k) else $(k-n)) as fun0. fold (fun0 n).
+    induction n as [|n IH] in i|-*.
+    - cbn. apply Ctx. left. rewrite subst_id. 1:easy. intros n; unfold fun0; destruct Dec; [exfalso;lia| var_eq].
+    - pose (fun k => if Dec (k = n) then $(pos k+n) else if Dec (k < n) then $(k) else $(k-1)) as fun1.
+      specialize (IH (i[fun1])).
+      enough (i[fun1][fun0 n] = i[fun0 (S n)]) as <-.
+      + apply II in IH. eapply IE. 1:eapply Weak. 1:exact IH. 1:easy.
+        cbn. enough ((emplace_forall n i[fun1]) = (emplace_forall n i)[$(pos n)..]) as ->.
+        * apply AllE, Ctx. now left.
+        * rewrite emplace_forall_subst. erewrite (subst_ext). 1:easy.
+          intros nn. unfold fun1. repeat destruct Dec.
+          1:exfalso;lia.
+          -- subst nn. rewrite Nat.sub_diag. cbn. var_eq.
+          -- easy.
+          -- destruct nn. 1:exfalso;lia.
+             enough (S nn - n = S (nn - n)) as ->; [var_eq|lia].
+      + rewrite subst_comp. erewrite subst_ext. 1:easy. intros nn. unfold fun0,fun1,funcomp.
+        repeat (destruct Dec;cbn). 1-2,4,6-11: (exfalso; lia). all:var_eq.
+    Qed.
+
+    Definition findNum (r n:nat) := match n with 0 => r | S n => r - 2 - 3*n end.
+    Definition findPairLow (r n:nat) := findNum r n +1.
+    Definition findPairHigh (r n:nat) := findNum r n -1.
+    Fixpoint represents_env (r n:nat) := 
+      match n with 0 => N(findNum r n) :: nil
+          | S n => N(findNum r (S n)) :: P' (findPairLow r (S n)) :: P' (findPairHigh r (S n)) :: 
+                   Pr $(findPairLow r (S n)) $(findNum r 0) :: Pr $(findNum r n) $(findPairLow r (S n)) ::
+                   Pr $(findPairHigh r (S n)) $(findNum r 0) :: Pr $(findNum r (S n)) $(findPairHigh r (S n)) ::
+                   Pr $(findPairLow r (S n)) $(findPairHigh r (S n)) :: represents_env r n end.
+    Ltac doAllE s t := match goal with [ |- ?A ⊢I ?P] => assert (P = t[s..]) as ->; [idtac|eapply AllE] end.
+
+    Lemma map_subst_comp f g A : map (subst_form f) (map (subst_form g) A) = map (subst_form (fun k => (g k)`[f])) A.
+    Proof.
+    rewrite map_map. apply map_ext. intros a. now rewrite subst_comp.
+    Qed.
+
+    Lemma findNum_raise (a b c:nat) : b >= 3*c -> a + findNum b c = findNum (a + b) c.
+    Proof.
+    unfold findNum. induction a as [|a IH]; destruct c; lia.
+    Qed.
+    
+    Lemma represents_env_raise (a b c : nat) : b >= 3 * c -> map (subst_form (fun k => $(a+k))) (represents_env b c) = represents_env (a+b) c.
+    Proof.
+    intros H. induction c as [|c IH].
+    - cbn. unfold N. easy.
+    - cbn [represents_env map]. rewrite IH. 2:lia.
+      let rec f n := match n with 0 => f_equal| S ?n' => f_equal;[idtac|f n'] end in f 7.
+      + rewrite <- findNum_raise. 2:lia. cbn. unfold N. do 3 f_equal.
+      + cbn. unfold P',sFalse,up,funcomp,N. do 4 f_equal. 1:lia. var_eq. 
+      + cbn. unfold P',sFalse,up,funcomp,N. do 4 f_equal. 1:lia. var_eq. 
+      + rewrite (Nat.add_comm a b). cbn. do 3 f_equal. 1:lia. var_eq.
+      + cbn. do 3 f_equal. 1: rewrite findNum_raise; [easy|lia]. var_eq.
+      + cbn. do 3 f_equal. lia.
+      + cbn. do 3 f_equal. 1:lia. var_eq.
+      + cbn. do 3 f_equal. 1:lia. var_eq.
+    Qed.
+
+    Lemma in_incl_map (X Y :Type) (f:X->Y) a l1 l2 : In a (map f l1) -> incl l1 l2 -> In a (map f l2).
+    Proof.
+    intros [x [Hfx Hx]]%in_map_iff l1l2. apply in_map_iff. exists x. auto.
+    Qed.
+
+    Lemma prove_chain (n:nat) HH :(n>0)-> incl (F_succ_right :: F_succ_left :: F_zero :: nil) HH ->
+    (represents_env (3*n) n ++ map (subst_form (fun p => $(p+(3*n)))) HH) ⊢I wFalse (1+(3*n))
+    -> HH ⊢I wFalse (1).
+    Proof.
+    intros Hn HHH H. induction n as [|n IH].
+    - exfalso. lia. 
+    - destruct n as [|n].
+      + clear IH. apply (IE (phi:=(∀ (∀ (∀ P 2 (3+findNum (0) 0) (3+findNum (0) 0) (P 0 1 (3+findNum (0) 0) (Pr $2 $0 --> wFalse (4)))))))).
+        * eapply (IE (phi:=N (findNum (0) 0))).
+          2: apply Ctx,HHH; do 2 right; now left.
+          doAllE ($(findNum 0 0)) (N 0 --> (∀ (∀ (∀ P 2 3 (4+findNum (0) 0) (P 0 1 (4+findNum 0 0) (Pr $2 $0 --> wFalse 5))))) --> wFalse (2)).
+          1: easy.
+          apply Ctx,HHH. right. now left.
+        * do 3 apply AllI.
+          rewrite ! map_map.
+          erewrite (@map_ext _ _ _ (subst_form (fun p : nat => $(p + (3 * 1))))). 
+          2: { intros f. erewrite ! subst_comp. apply subst_ext. intros n. unfold up,scons,funcomp; var_eq. }
+          do 11 apply II.
+          eapply Weak. 1:exact H. apply incl_app.
+          2: do 11 apply incl_tl; reflexivity.
+          cbn -[map]. 
+          intros f [Hf|[Hf|[Hf|[Hf|[Hf|[Hf|[Hf|[Hf|[Hf|[]]]]]]]]]]; rewrite <- Hf.
+          -- do 4 right. now left.
+          -- do 10 right. now left.
+          -- do 5 right. now left.
+          -- do 6 right. now left.
+          -- do 7 right. now left.
+          -- do 1 right. now left.
+          -- do 2 right. now left.
+          -- do 0 right. now left.
+          -- do 3 right. now left.
+      + apply IH; [lia|clear IH].
+        eapply (IE (phi:=(∀ (∀ (∀ P 2 (3+findNum (3*S n) (S n)) (3+findNum (3*S n) 0)  
+                                 (P 0 1 (3+findNum (3*S n) 0) (Pr $2 $0 --> wFalse (4+3*S n)))))))). 
+        * unfold F_succ_left. unfold Not. eapply (IE (phi:=N (findNum (3 * S n) (S n)))).
+          2: apply Ctx; now left.
+          doAllE ($(findNum (3 * S n) (S n))) (N 0 --> 
+                      (∀ (∀ (∀ P 2 3 (4+(findNum (3 * S n) 0))
+                              (P 0 1 (4+(findNum (3 * S n) 0)) (Pr $2 $0 --> wFalse (5+3*S n))))))
+                  --> wFalse (2+3*S n)).
+          -- easy.
+          -- apply Ctx. apply in_or_app. right. eapply in_incl_map. 2:exact HHH. right. left. unfold findNum. easy.
+        * do 3 apply AllI.
+          rewrite ! map_map.
+          erewrite (@map_ext _ _ _ (subst_form (fun p : nat => $(p + (3))))). 
+          2: { intros f. erewrite ! subst_comp. apply subst_ext. intros nn. unfold up,scons,funcomp; var_eq. }
+          do 11 apply II.
+          assert (1+3*S(S n) = (4+3*S n)) as <- by lia.
+          eapply Weak. 1:exact H. apply incl_app.
+          1:  pose (S n) as n'; fold n';
+              cbn -[map Nat.add Nat.sub Nat.mul n'];
+              intros f [Hf|[Hf|[Hf|[Hf|[Hf|[Hf|[Hf|[Hf|Hin]]]]]]]].
+          1-9: try rewrite <- Hf.
+          -- do 4 right. left. var_eq.
+          -- do 10 right. left. var_eq.
+          -- do 5 right. left. var_eq.
+          -- do 6 right. left. assert (3+3*n' = 3*S n') as -> by lia. repeat f_equal. cbn;lia.
+          -- do 7 right. left. do 3 f_equal. 2:var_eq. erewrite findNum_raise. 2:unfold n';lia. f_equal. lia.
+          -- do 1 right. left. do 3 f_equal. 2:var_eq. cbn;lia.
+          -- do 2 right. left. do 3 f_equal. 1:lia. var_eq.
+          -- do 0 right. left. do 3 f_equal; cbn. 2:var_eq. lia.
+          -- do 11 right. rewrite map_app. apply in_or_app. left.
+             erewrite map_ext. 1:erewrite (represents_env_raise 3). 2:lia. 1: now assert (3* S n' = 3+3*n') as <- by lia.
+             intros a. apply subst_ext. intros k; var_eq.
+          -- do 11 apply incl_tl. rewrite map_app; apply incl_appr. rewrite map_subst_comp.
+             assert (forall (X:Type) (a b : list X), a = b -> incl a b) as H1 by (intros X aa bb ->;reflexivity).
+             apply H1, map_ext. intros a. apply subst_ext. intros n0. cbn. var_eq.
+    Qed. 
+
+    Ltac partial_map := apply incl_tl, incl_map; auto.
+    Definition intros_defs (a b c e f g:nat) : list form:= Pr $e $g :: Pr $f $e :: N g :: N f :: P' e :: Pr $a $c :: Pr $b $a :: N c :: N b :: P' a :: nil.
+    Definition intros_P (A:list form) (a b c e f g : nat) (i:form) :
+    (intros_defs a b c e f g ++ map (subst_form (fun k => $(2+k))) A)  ⊢I i -> (A ⊢I ∀ ∀ P a b c (P e f g i)).
+    Proof.
+    intros H.
+    apply AllI,AllI. rewrite map_map. erewrite (@map_ext _ _ _ (subst_form (fun p => $(2+p)))).
+    2: intros aa; rewrite subst_comp; easy.
+    do 10 apply II. exact H.
+    Qed.
+    
+    Lemma represents_env_lower (r a b:nat) : a <= b -> 3*b <= r -> incl (represents_env r a) (represents_env r b).
+    Proof.
+    intros Ha Hb. assert (b=a+(b-a)) as H by lia. rewrite H in *. clear Ha. generalize dependent (b-a).
+    intros ab Ha _. induction ab as [|ab IH].
+    - rewrite Nat.add_0_r; reflexivity.
+    - rewrite Nat.add_succ_r. cbn. do 8 apply incl_tl. apply IH; nia.
+    Qed.
+
+    Lemma represents_env_N (r h a : nat) : a <= h -> 3*h <= r -> In (N(findNum r a)) (represents_env r h).
+    Proof.
+    intros Ha Hr. apply (@represents_env_lower r a h). 1-2:lia. destruct a; now left. 
+    Qed.
+
+    Lemma represents_env_rel (r h a : nat) : a > 0 -> a <= h -> 3*h <= r -> In (Pr $(findPairLow r a) $(findPairHigh r a)) (represents_env r h).
+    Proof.
+    intros Ha0 Ha Hr. destruct a. 1:exfalso;lia.
+    apply (@represents_env_lower r (S a) h). 1-2:lia. do 7 right; now left.
+    Qed.
+
+    Lemma represents_env_PLow (r h a : nat) A f : S a <= h -> 3*h <= r -> incl (represents_env r h) A -> A ⊢I P (findPairLow r (S a)) (findNum r a) (findNum r 0) f -> A ⊢I f.
+    Proof.
+    intros Ha Hr HA Hpr. 
+    unfold P in Hpr.
+    eapply IE. 1:eapply IE. 1:eapply IE. 1:eapply IE. 1:eapply IE.
+    1: apply Hpr.
+    all: apply Ctx, HA, (@represents_env_lower r (S a) h); [lia|lia|idtac].
+    2,3: apply represents_env_N; lia.
+    all: cbn [represents_env].
+    - right. now left.
+    - do 4 right. now left.
+    - do 3 right. now left.
+    Qed.
+
+    Lemma represents_env_PHigh (r h a : nat) A f : S a <= h -> 3*h <= r -> incl (represents_env r h) A -> A ⊢I P (findPairHigh r (S a)) (findNum r (S a)) (findNum r 0) f -> A ⊢I f.
+    Proof.
+    intros Ha Hr HA Hpr. 
+    unfold P in Hpr.
+    eapply IE. 1:eapply IE. 1:eapply IE. 1:eapply IE. 1:eapply IE.
+    1: apply Hpr.
+    all: apply Ctx, HA, (@represents_env_lower r (S a) h); [lia|lia|idtac].
+    2,3: apply represents_env_N; lia.
+    all: cbn [represents_env].
+    - do 2 right. now left.
+    - do 6 right. now left.
+    - do 5 right. now left.
+    Qed.
+
+    Lemma represents_env_E_rel (r h a : nat) A f : S a <= h -> 3*h <= r -> incl (represents_env r h) A -> A ⊢I rel (findPairLow r (S a)) (findPairHigh r (S a)) (findNum r a) (findNum r 0) (findNum r (S a)) (findNum r 0)f -> A ⊢I f.
+    Proof.
+    intros Ha Hr HA Hpr.
+    eapply IE.
+    2: eapply Ctx, HA, (@represents_env_rel _ _ (S a)); lia.
+    unfold rel in Hpr.
+    apply (@represents_env_PHigh r h a). 1-2:lia. 1:easy.
+    apply (@represents_env_PLow r h a). 1-2:lia. 1:easy.
+    exact Hpr.
+    Qed.
+
+
+    Definition erel_i (a b c d t : nat) := (∀ ∀ P 0 (2+a) (2+b) 
+                                            (P 1 (2+c) (2+d)
+                                             (Pr $0 $1 --> wFalse (2+t)))).
+    Definition erel_II (a b c d t : nat) A : (erel_i a b c d t :: A) ⊢I wFalse t -> A ⊢I erel a b c d t.
+    Proof. intros H. apply II. exact H. Qed.
+
+    Definition erel_findNum (a b c d r:nat) := erel_i (findNum r a) (findNum r b) (findNum r c) (findNum r d) (1+r).
+    Definition erel_findNum_II (a b c d r : nat) A : (erel_findNum a b c d r :: A) ⊢I wFalse (1+r) -> A ⊢I erel (findNum r a) (findNum r b) (findNum r c) (findNum r d) (1+r).
+    Proof. intros H. apply erel_II. exact H. Qed.
+    Definition erel_findNum_H (a b c d r rr : nat) :list form := 
+         Pr $r $(S r)
+      :: Pr $(S r) $(findNum (2+r+rr) d)
+      :: Pr $(findNum (2+r+rr) c) $(S r)
+      :: N (findNum (2+r+rr) d)
+      :: N (findNum (2+r+rr) c)
+      :: P' (S r)
+      :: Pr $r $(findNum (2+r+rr) b)
+      :: Pr $(findNum (2+r+rr) a) $r
+      :: N (findNum (2+r+rr) b)
+      :: N (findNum (2+r+rr) a)
+      :: P' r :: nil.
+    Lemma erel_findNum_ExI (a b c d r : nat) A :
+    r >= 3*a -> r >= 3*b -> r >= 3*c -> r >= 3*d -> 
+    (erel_findNum_H a b c d 0 r ++ map (subst_form (fun p => $(2+p))) A)⊢I wFalse (2+(1+r)) -> A ⊢I erel_findNum a b c d r .
+    Proof.
+    intros Ha Hb Hc Hd Hpr. do 2 apply AllI. do 11 apply II. eapply Weak. 1: apply Hpr.
+    apply incl_app.
+    - unfold erel_findNum_H. rewrite ! findNum_raise. 2-5: lia. change (2+0+r) with (2+r). repeat apply ListAutomation.incl_shift. easy.
+    - do 11 apply incl_tl. rewrite map_subst_comp. erewrite (map_ext). 1:reflexivity.
+      intros a0. apply subst_ext. intros n. cbv. fold Nat.add. var_eq.
+    Qed.
+
+    Lemma erel_findNum_raise (a b c d r p : nat) : 
+    r >= 3*a -> r >= 3*b -> r >= 3*c -> r >= 3*d ->
+    (erel_findNum a b c d r)[fun k : nat => $(p + k)] = erel_findNum a b c d (p+r).
+    Proof.
+    intros Ha Hb Hc Hd. unfold erel_findNum,erel_i,P. cbn [subst_form Vector.map].
+    rewrite <- ! findNum_raise. 2-5:lia. cbn. rewrite ! (Nat.add_succ_r p). easy.
+    Qed.
+
+    Lemma erel_findNum_H_raise (a b c d r rr p : nat) : 
+    2+r+rr >= 3*a -> 2+r+rr >= 3*b -> 2+r+rr >= 3*c -> 2+r+rr >= 3*d ->
+    map (subst_form (fun k=>$(p+k))) (erel_findNum_H a b c d r rr) = erel_findNum_H a b c d (p+r) rr.
+    Proof.
+    intros Ha Hb Hc Hd. cbn -[Nat.add]. unfold erel_findNum_H.
+    let rec f n := match n with 0 => f_equal| S ?n' => f_equal;[idtac|f n'] end in f 9.
+    - do 3 f_equal. var_eq.
+    - do 3 f_equal. 1:lia. rewrite findNum_raise. 2:lia. do 2 f_equal. lia.
+    - do 3 f_equal. 2:var_eq. rewrite findNum_raise. 2:lia. var_eq.
+    - unfold N. rewrite findNum_raise. 2:lia. 1:do 4 f_equal. 1:lia. var_eq.
+    - unfold N. rewrite findNum_raise. 2:lia. 1:do 4 f_equal. 1:lia. var_eq.
+    - unfold P', sFalse, N. do 4 f_equal. 1:lia. var_eq.
+    - rewrite findNum_raise. 2:lia. do 5 f_equal. lia.
+    - rewrite findNum_raise. 2:lia. do 4 f_equal. lia.
+    - unfold N. rewrite findNum_raise. 2:lia. 1:do 4 f_equal. 1:lia. var_eq.
+    - unfold N. rewrite findNum_raise. 2:lia. 1:do 4 f_equal. 1:lia. var_eq.
+    Qed.
+
+    Lemma erel_findNum_H_E (a b c d r rr : nat) A f : 
+    2+r+rr >= 3*a -> 2+r+rr >= 3*b -> 2+r+rr >= 3*c -> 2+r+rr >= 3*d
+    -> incl (erel_findNum_H a b c d r rr) A 
+    -> A ⊢I rel r (S r) (findNum (2+r+rr) a) (findNum (2+r+rr) b) (findNum (2+r+rr) c) (findNum (2+r+rr) d) f
+    -> A ⊢I f.
+    Proof.
+    intros Ha Hb Hc Hd HA Hpr.
+    let rec rep n := match n with 0 => now left | S ?nn => right; rep nn end in
+    let rec f n k := match n with 0 => apply Hpr | S ?nn => eapply IE; [f nn (S k)|apply Ctx, HA; rep k] end in f 11 0.
+    Qed.
+
+    Lemma rel_subst (p q a b c d:nat) f s ss : (forall n,s n = $(ss n)) -> (rel p q a b c d f)[s] = rel (ss p) (ss q) (ss a) (ss b) (ss c) (ss d) f[s].
+    Proof.
+    intros H.
+    unfold rel,P,N,P'. cbn. rewrite ! H. easy.
+    Qed.
+    
+    Lemma erel_i_subst (a b c d t:nat) s ss : (forall n,s n = $(ss n)) -> (ss (S t)) = S(ss t) -> (erel_i a b c d t --> wFalse t)[s] = erel_i (ss a) (ss b) (ss c) (ss d) (ss t) --> wFalse (ss t).
+    Proof.
+    intros H Hs. cbn. unfold erel_i,P,N,P',funcomp. rewrite ! H. do 20 f_equal. all: cbn; rewrite Hs; easy.
+    Qed.
+
+    Fixpoint subst_list (l:list nat) (n:nat) := match l with nil => n | lx::lr => match n with 0 => lx | S n => subst_list lr n end end.
+
+    Lemma emplace_forall_comp (n m : nat) (f:form) : emplace_forall n (emplace_forall m f) = emplace_forall (n+m) f.
+    Proof. induction n as [|n IH].
+    - easy.
+    - cbn. now rewrite IH.
+    Qed.
+
+    Lemma specialize_list (H f:form) (l:list nat) (n:nat) : 
+       length l = n
+    -> (H[subst_list l >> var]:: nil) ⊢I f
+    -> (emplace_forall n H::nil) ⊢I f.
+    Proof.
+    induction l as [|lx lr IH] in n,H|-*.
+    - intros <-. cbn. now erewrite subst_id.
+    - intros <- Hpr. cbn. specialize (IH (∀ H) (length lr) eq_refl).
+      cbn in IH. change (∀ H) with (emplace_forall 1 H) in IH.
+      rewrite emplace_forall_comp,Nat.add_comm in IH. cbn in IH.
+      eapply IH, IE.
+      + apply Weak with nil. 2:easy. apply II, Hpr.
+      + assert (H[up (subst_list lr >> var)][$lx..] = H[subst_list (lx :: lr) >> var]) as <-.
+        * rewrite subst_comp. apply subst_ext. now intros [|n].
+        * apply AllE, Ctx. now left.
+    Qed.
+      
+    Lemma prove_single (a b c d r hv: nat): 
+       b <= hv -> a <= hv -> c <= hv -> d <= hv -> 3*hv <= r
+    -> h10upc_sem_direct ((a,b),(c,d))
+    -> (represents_env r hv ++ map (subst_form (fun p => $(r+p))) (F_succ_right :: F_succ_left :: F_zero :: nil)) ⊢I Not (erel_findNum a b c d r) (1+r) .
+    Proof.
+    intros Hb. induction b as [|b IH] in r,a,c,d,Hb|-*; intros Ha Hc Hd Hr Habcd.
+    - cbn in Habcd. assert (c = S a /\ d = 0) as [Hc' Hd']. 1:lia.
+      rewrite Hc', Hd'. unfold erel, Not. apply II. rewrite Hc' in Hc.
+      Check represents_env_E_rel.
+      apply (@represents_env_E_rel r hv a). 1-2:lia.
+      1: now apply incl_tl,incl_appl.
+      eapply Weak with (erel_findNum a 0 (S a) 0 r::nil). 2:auto.
+      unfold erel_findNum, erel_i. change (∀∀ ?e) with (emplace_forall 2 e).
+      eapply specialize_list with (findPairLow r (S a)::findPairHigh r (S a)::nil).
+      1:easy. apply Ctx. now left.
+    - destruct (@h10upc_inv a b c d Habcd) as [c' [d' [Habcd' [Hc' Hd']]]].
+      rewrite <- Hc', <- Hd' in *. 
+      assert (h10upc_sem_direct ((d',b),(d'+b+1,d'))) as Hdb.
+      1: split; [now lia|apply Habcd'].
+      apply erel_findNum_II. eapply IE.
+      1: eapply Weak; [apply (@IH a c' d' r); now try lia | now apply incl_tl].
+      apply erel_findNum_ExI. 1-4: lia. 
+      eapply IE.
+      1: eapply Weak; [apply (@IH d' (d'+b+1) d' (2+r)); now try lia|idtac]. 
+      1: { apply incl_appr. cbn [map]. apply incl_tl. rewrite map_app, represents_env_raise. 2:lia.
+           now apply incl_app_app. }
+      apply erel_findNum_ExI. 1-4: lia. 
+      rewrite ! map_app.
+      rewrite erel_findNum_H_raise. 2-5:lia. rewrite map_subst_comp.
+      change ((fun k : nat => $(2 + k)`[fun p : nat => $(2 + p)])) with ((fun k : nat => $(4 + k))).
+      cbn [map]. rewrite map_app. erewrite represents_env_raise. 2:lia.
+      cbn [map]. rewrite ! subst_comp. unfold funcomp,subst_term.
+      rewrite erel_findNum_raise. 2-5:lia. change (2+0) with 2.
+      change (2+(1+(2+r))) with (4+(1+r)). rewrite (Nat.add_comm 1 r).
+      apply (IE (phi:=erel_findNum a (S b) (S c') (d' + b + 1) (4 + r))).
+      2: apply Ctx, in_or_app; right; apply in_or_app; right; now left.
+      apply (@represents_env_E_rel (4+r) hv c'). 1-2:lia.
+      1: now apply incl_appr, incl_appr, incl_tl, incl_appl.
+      apply (@represents_env_E_rel (4+r) hv b). 1-2:lia.
+      1: now apply incl_appr, incl_appr, incl_tl, incl_appl.
+      apply (@erel_findNum_H_E d' b (d' + b + 1) d' 0 (2 + r)).
+      1-4: lia.
+      1: now apply incl_appl.
+      apply (@erel_findNum_H_E a b c' d' 2 r).
+      1-4: lia.
+      1: now apply incl_appr, incl_appl.
+      apply Weak with (F_succ_right[fun x : nat => $(4 + (r + x))]::nil).
+      2: apply incl_appr, incl_appr, incl_tl, incl_appr; intros k [->|[]]; now left.
+      unfold F_succ_right.
+      change (erel 0 5 6 4 16) with (Not (erel_i 0 5 6 4 16) 16).
+      unfold Not.
+      change (∀∀∀∀∀∀∀∀∀∀∀∀∀∀∀ ?a) with (emplace_forall 15 a).
+      erewrite emplace_forall_subst.
+      erewrite ! (@rel_subst _ _ _ _ _ _ _ _ (fun k => if Dec (k < 15) then k else 15 +(4 + (r + (k - 15))))).
+      1: erewrite ! (@erel_i_subst _ _ _ _ _ _ (fun k => if Dec (k < 15) then k else 15 +(4 + (r + (k - 15))))).
+      2,4-7: intros n; destruct Dec; cbn; var_eq.
+      2: cbn; lia.
+      cbn -[subst_form findNum Nat.add emplace_forall].
+      pose (
+        (findNum (4+r) a)
+      ::(findNum (4+r) b)
+      ::(findNum (4+r) c')
+      ::(findNum (4+r) d')
+      ::(findNum (4+r) (d'+b+1))
+      ::(findNum (4+r) (S b))
+      ::(findNum (4+r) (S c'))
+      ::2::3::0::1
+      ::(findPairLow (4+r) (S b))::(findPairHigh (4+r) (S b))
+      ::(findPairLow (4+r) (S c'))::(findPairHigh (4+r) (S c'))::nil) as mylist.
+      eapply specialize_list with mylist.
+      1:easy.
+      erewrite ! (@rel_subst _ _ _ _ _ _ _ _ (subst_list mylist)).
+      1: erewrite ! (@erel_i_subst _ _ _ _ _ _ (subst_list mylist)).
+      2,4-7: intros n; easy.
+      2: cbn; lia.
+      cbn [subst_list mylist].
+      change (15+?e) with (S(S(S(S(S(S(S(S(S(S(S(S(S(S(S e))))))))))))))).
+      apply Ctx. left. do 3 f_equal. 1-2: cbn;lia.
+      f_equal. 1-2: cbn;lia.
+      unfold erel_findNum.
+      do 2 f_equal. lia.
+    Qed.
+
+    Lemma transport_prove : nil ⊢I F (h10:=h10).
+    Proof using Hφ φ.
+    unfold F. do 3 apply AllI. cbn. do 4 apply II. 
+    pose ((S (highest_var_list h10))) as h10vars. fold h10vars.
+    pose (highest_num φ h10vars) as h10max.
+    pose proof (@highest_num_descr φ h10vars) as Hvars.
+    fold h10max in Hvars.
+    eapply (@prove_chain (S h10max)).
+    1:lia. 1:now apply incl_tl.
+    cbn [map]. rewrite emplace_forall_subst. cbn [subst_term].
+    epose proof (@emplace_forall_elim h10vars _ (fun k => findNum (3*S h10max) (φ k))) as Hpr.
+    eapply IE. 2: eapply Weak. 2:exact Hpr. 2:auto.
+    eapply Weak. 2: apply incl_app; [apply incl_appl;reflexivity|apply incl_appr,incl_tl;reflexivity].
+    apply II. clear Hpr.
+    assert (h10vars >= S( highest_var_list h10)) as Hless.
+    1: lia.
+    induction h10 as [|h h10' IHh] in Hvars,Hφ,Hless|-*.
+    - apply Ctx. left. unfold translate_rec, wFalse, subst_form,Vector.map. do 3 f_equal.
+      all: cbn [subst_term]; repeat destruct Dec. 1,3:exfalso;lia.
+      all: cbn [subst_term]; repeat destruct Dec. 1,3:exfalso;lia. all:f_equal; lia.
+    - cbn -[Nat.mul h10vars represents_env subst_form].
+      apply II in IHh.
+      2: intros c Hc; apply Hφ; now right.
+      2: exact Hvars.
+      2: cbn in Hless; lia.
+      eapply IE. 1: eapply Weak. 1: exact IHh.
+      1: now apply incl_tl. 
+      eapply IE. 1: apply Ctx; left; now cbn [subst_form].
+      unfold translate_single. destruct h as [[a b][c d]].
+      change ((erel a b c d (S h10vars))) with (Not (erel_i a b c d (S h10vars)) (S h10vars)).
+      unfold Not. erewrite (@erel_i_subst _ _ _ _ _ _ (fun k : nat => if Dec (k < h10vars) then k else (h10vars + (k - h10vars + 3 * S h10max)))).
+      3: repeat destruct Dec; try (exfalso;lia); lia.
+      2: intros n; now destruct Dec.
+      destruct (highest_var_descr ((a,b),(c,d))) as [Hlessa [Hlessb [Hlessc Hlessd]]]. cbn in Hless.
+      do 4 (destruct Dec as [htr|hff]; [clear htr|exfalso;lia]).
+      do 1 (destruct Dec; [exfalso;lia|idtac]).
+      unfold Not. erewrite (@erel_i_subst _ _ _ _ _ _ (fun k : nat => if Dec (k < h10vars) then (findNum (3 * S h10max) (φ k)) else (k - h10vars))).
+      3: repeat destruct Dec; try (exfalso;lia); lia.
+      2: intros n'; now destruct Dec.
+      do 4 (destruct Dec as [htr|hff]; [clear htr|exfalso;lia]).
+      do 1 (destruct Dec as [htr|hff]; [exfalso;lia|clear hff]).
+      assert (h10vars + (S h10vars - h10vars + 3 * S h10max) - h10vars = S (3*S h10max)) as -> by lia.
+      eapply Weak.
+      1: eapply (prove_single (hv:=S h10max)).
+      + specialize (Hvars b ltac:(lia)). lia.
+      + specialize (Hvars a ltac:(lia)). lia.
+      + specialize (Hvars c ltac:(lia)). lia.
+      + specialize (Hvars d ltac:(lia)). lia.
+      + lia.
+      + apply (@Hφ ((a,b),(c,d))). now left.
+      + apply incl_tl, incl_app. 1:now apply incl_appl.
+        apply incl_appr. erewrite map_ext with (g:=(subst_form (fun p : nat => $(p+3 * S h10max)))).
+        1:easy. intros f. apply subst_ext. intros n'. var_eq.
+  Qed.
+  End ProvabilityTransport.
+
+
+  Lemma transport_proof : H10UPC_SAT h10 -> nil ⊢I F (h10:=h10).
+  Proof.
+  intros [φ Hφ]. eapply transport_prove. exact Hφ.
+  Qed.
+
+
+  Lemma transport' : H10UPC_SAT h10 -> valid (F (h10:=h10)).
+  Proof.
+    intros Hh10.
+    intros D I rho.
+    eapply soundness.
+    - now apply transport_proof.
+    - easy.
+  Qed.
+
+
+  Lemma transport_proof_inv : nil ⊢I F (h10:=h10) -> H10UPC_SAT h10.
+  Proof.
+  intros H%soundness. apply inverseTransport. intros D I rho.
+  apply H. easy.
+  Qed.
+End provability.
 
 
 
