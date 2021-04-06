@@ -105,8 +105,8 @@ Section remove_interpreted_symbol.
             -> fo_form_fin_dec_eq_SAT e H_ae A.
     Proof.
       intros (X & M & H1 & H2 & phi & H5 & H3).
-      apply fol_sem_congruence in H5.
-      destruct H5 as ((H4 & H5) & (H6 & H8 & H7)).
+      apply fol_sem_congruence in H5
+        as ((H4 & H5) & (H6 & H8 & H7)).
       set (R x y := fom_rels M e (cast (x ## y ## ø) (eq_sym H_ae))).
       destruct H1 as (lX & HlX).
       destruct decidable_EQUIV_fin_quotient with (l := lX) (R := R)

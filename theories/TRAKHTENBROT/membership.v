@@ -95,9 +95,13 @@ Section membership.
     + rewrite H1, H2; auto.
   Qed.
 
+  Reserved Notation "p ≋ ⦃ a , b ⦄" (at level 70, format "p  ≋  ⦃ a , b ⦄").
+  Reserved Notation "p ≋ ⦅ a , b ⦆" (at level 70, format "p  ≋  ⦅ a , b ⦆").
+  Reserved Notation "t ≋ ⦉ v ⦊" (at level 70, format "t  ≋  ⦉ v ⦊").
+
   Definition mb_is_pair p x y := forall a, a ∈ p <-> a ≈ x \/ a ≈ y.
 
-  Notation "p ≋ ⦃ a , b ⦄" := (mb_is_pair p a b) (at level 70, format "p  ≋  ⦃ a , b ⦄").
+  Notation "p ≋ ⦃ a , b ⦄" := (mb_is_pair p a b).
 
   Fact mb_is_pair_comm p x y : p ≋ ⦃x,y⦄ -> p ≋ ⦃y,x⦄.
   Proof. unfold mb_is_pair; apply forall_equiv; intro; tauto. Qed.
@@ -132,9 +136,9 @@ Section membership.
 
   (* Ordered pairs (x,y) := {{x},{x,y}}, Kuratowski encoding *)
 
-  Definition mb_is_opair p x y := exists a b, mb_is_pair a x x /\ mb_is_pair b x y /\ mb_is_pair p a b.
+  Definition mb_is_opair p x y := exists a b, a ≋ ⦃x,x⦄ /\ b ≋ ⦃x,y⦄ /\ p ≋ ⦃a,b⦄.
 
-  Notation "p ≋ ⦅ a , b ⦆" := (mb_is_opair p a b) (at level 70, format "p  ≋  ⦅ a , b ⦆").
+  Notation "p ≋ ⦅ a , b ⦆" := (mb_is_opair p a b).
 
   Add Parametric Morphism: (mb_is_opair) with signature 
      (mb_equiv) ==> (mb_equiv) ==> (mb_equiv) ==> (iff) as mb_is_opair_congruence.
@@ -172,10 +176,9 @@ Section membership.
   Fixpoint mb_is_tuple t n (v : vec X n) :=
     match v with 
       | vec_nil => forall z, z ∉ t
-      | x##v    => exists t', mb_is_opair t x t' /\ mb_is_tuple t' v
-    end.
-
-  Notation "t ≋ ⦉ v ⦊" := (mb_is_tuple t v) (at level 70, format "t  ≋  ⦉ v ⦊").
+      | x##v    => exists t', t ≋ ⦅x,t'⦆ /\ t' ≋ ⦉v⦊
+    end
+  where "t ≋ ⦉ v ⦊" := (mb_is_tuple t v).
 
   Fact mb_is_tuple_congr p q n (v : vec X n) : p ≈ q -> p ≋ ⦉v⦊ -> q ≋ ⦉v⦊ .
   Proof.
