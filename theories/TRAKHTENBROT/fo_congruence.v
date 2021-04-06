@@ -93,7 +93,7 @@ Section fol_congruence.
     Proof.
       unfold fol_vec_equiv.
       rewrite fol_sem_vec_fa.
-      apply forall_equiv; intros p; rew vec.
+      fol equiv; intros p; rew vec.
       rewrite fol_sem_e; simpl; tauto.
     Qed.
 
@@ -148,14 +148,14 @@ Section fol_congruence.
       Proof.
         unfold congr_syms.
         rewrite fol_sem_mforall.
-        apply forall_equiv; intros v.
+        fol equiv; intros v.
         rewrite fol_sem_mforall.
-        apply forall_equiv; intros w.
+        fol equiv; intros w.
         rewrite fol_sem_bin_fix.
-        apply (fol_bin_sem_ext fol_imp).
+        fol equiv imp.
         + unfold A; rewrite fol_vec_equiv_sem.
-          apply forall_equiv; intros p; rew vec; simpl.
-          apply fol_equiv_ext; repeat f_equal.
+          fol equiv; intros p; rew vec; simpl.
+          fol equiv; repeat f_equal.
           * rewrite env_vlift_fix1, env_vlift_fix0; auto.
           * rewrite env_vlift_fix0; auto.
         + unfold B.
@@ -230,17 +230,17 @@ Section fol_congruence.
       Proof.
         unfold congr_rels.
         rewrite fol_sem_mforall.
-        apply forall_equiv; intros v.
+        fol equiv; intros v.
         rewrite fol_sem_mforall.
-        apply forall_equiv; intros w.
+        fol equiv; intros w.
         simpl fol_sem at 1.
-        apply (fol_bin_sem_ext fol_imp).
+        fol equiv.
         + unfold A; rewrite fol_vec_equiv_sem.
-          apply forall_equiv; intros p; rew vec; simpl.
-          apply fol_equiv_ext; repeat f_equal.
+          fol equiv; intros p; rew vec; simpl.
+          fol equiv; repeat f_equal.
           * rewrite env_vlift_fix1, env_vlift_fix0; auto.
           * rewrite env_vlift_fix0; auto.
-        + apply fol_equiv_sem_ext; apply fol_equiv_ext; f_equal;
+        + fol equiv iff; fol equiv; f_equal;
             apply vec_pos_ext; intros p; rew vec; rew fot.
           * rewrite env_vlift_fix1, env_vlift_fix0; auto.
           * rewrite env_vlift_fix0; auto.
@@ -299,7 +299,7 @@ Section fol_congruence.
       unfold fol_congruent.
       rewrite fol_sem_bin_fix.
       do 2 rewrite fol_sem_lconj.
-      apply (fol_bin_sem_ext fol_conj).
+      fol equiv conj.
       + split.
         * intros H s Hs.
           apply (congr_syms_spec _ φ), H, in_map_iff.
@@ -336,7 +336,7 @@ Section fol_congruence.
     Proof.
       unfold fol_equivalence.
       repeat (rewrite fol_sem_bin_fix).
-      repeat apply fol_bin_sem_ext.
+      repeat fol equiv conj.
       + rewrite fol_sem_quant_fix; apply forall_equiv; intro.
         rewrite fol_sem_e; simpl; tauto.
       + do 3 (rewrite fol_sem_quant_fix; apply forall_equiv; intro).
@@ -378,7 +378,7 @@ Section fol_congruence.
          <-> Σ_congruence_wrt ls lr M (fun x y => x ≈ y)
           /\ equiv _ (fun x y => x ≈ y).
     Proof.
-      apply fol_bin_sem_ext.
+      fol equiv conj.
       + apply fol_congruent_spec.
       + apply fol_equiv_spec.
     Qed.

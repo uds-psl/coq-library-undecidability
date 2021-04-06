@@ -330,7 +330,7 @@ Section fol_semantics.
   Proof.
     intros H; revert A φ ψ H.
     induction A as [ | p v | b A IHA B IHB | q A IHA ]; simpl; intros phi psy H; try tauto.
-    + apply fol_equiv_ext; f_equal.
+    + fol equiv rel.
       apply vec_map_ext; intros w Hw. 
       apply fo_term_sem_ext; auto.
       intros n Hn; apply H, in_flat_map; exists w; split; auto.
@@ -376,7 +376,7 @@ Section fol_semantics.
   Theorem fol_sem_subst φ σ A : ⟪ A⦃σ⦄ ⟫ φ <-> ⟪A⟫ (fun n => ⟦σ n⟧ φ).
   Proof.
     revert φ σ; induction A as [ | p v | b A IHA B IHB | q A IHA ]; simpl; intros phi f; try tauto.
-    + apply fol_equiv_ext; f_equal.
+    + fol equiv rel.
       rewrite vec_map_map; apply vec_map_ext.
       intros; rewrite fo_term_sem_subst; auto.
     + apply fol_bin_sem_ext; auto.

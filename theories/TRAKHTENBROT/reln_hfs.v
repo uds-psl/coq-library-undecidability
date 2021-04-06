@@ -329,15 +329,6 @@ Section bt_model_n.
 
   Hint Resolve mem_ext_Y : core.
 
-  Tactic Notation "fol" "equiv" :=
-    match goal with
-      | |- (forall _, _) <-> (forall _, _) => apply (fol_quant_sem_ext fol_fa)
-      | |- (exists _, _) <-> (exists _, _) => apply (fol_quant_sem_ext fol_ex)
-      | |- ( _ <-> _) <-> (_ <-> _) => apply fol_equiv_sem_ext
-      | |- ( _ \/ _) <-> (_ \/ _) => apply (fol_bin_sem_ext fol_disj)
-      | |- ( _ /\ _) <-> (_ /\ _) => apply (fol_bin_sem_ext fol_conj)
-    end.
-
   Local Fact is_pair : forall x y k, mb_is_pair mem k x y 
                                  <-> π1 k = hfs_pair (π1 x) (π1 y).
   Proof.

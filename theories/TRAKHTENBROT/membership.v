@@ -104,13 +104,13 @@ Section membership.
   Notation "p ≋ ⦃ a , b ⦄" := (mb_is_pair p a b).
 
   Fact mb_is_pair_comm p x y : p ≋ ⦃x,y⦄ -> p ≋ ⦃y,x⦄.
-  Proof. unfold mb_is_pair; apply forall_equiv; intro; tauto. Qed.
+  Proof. unfold mb_is_pair; fol equiv fa; intro; tauto. Qed.
 
   Add Parametric Morphism: (mb_is_pair) with signature 
      (mb_equiv) ==> (mb_equiv) ==> (mb_equiv) ==> (iff) as mb_is_pair_congruence.
   Proof.
     intros p q H1 x x' H2 y y' H3.
-    apply forall_equiv; intros a.
+    fol equiv fa; intro.
     rewrite H1, H2, H3; tauto.
   Qed.
 
@@ -144,7 +144,7 @@ Section membership.
      (mb_equiv) ==> (mb_equiv) ==> (mb_equiv) ==> (iff) as mb_is_opair_congruence.
   Proof.
     intros p q H1 x x' H2 y y' H3.
-    do 2 (apply exists_equiv; intros ?).
+    do 2 (fol equiv ex; intro).
     rewrite H1, H2, H3; tauto.
   Qed.
 
@@ -454,17 +454,16 @@ Section FOL_encoding.
         simpl Σ2_is_tuple.
         simpl mb_is_tuple.
         rewrite fol_sem_quant_fix.
-        apply (fol_quant_sem_ext fol_ex); intros y.
+        fol equiv ex; intros y.
         rewrite fol_sem_bin_fix.
-        apply fol_bin_sem_ext.
+        fol equiv conj.
         * reflexivity.
         * rewrite IHn, vec_map_map; reflexivity. 
     Qed.
 
     Fact Σ2_is_tuple_in_spec r n v ψ : ⟪@Σ2_is_tuple_in r n v⟫ ψ <-> mb_is_tuple_in mem (ψ r) (vec_map ψ v).
     Proof.
-      simpl; apply (fol_quant_sem_ext fol_ex); intros y.
-      apply (fol_bin_sem_ext fol_conj).
+      simpl; fol equiv ex; intro; fol equiv conj.
       + rewrite Σ2_is_tuple_spec, vec_map_map; simpl; reflexivity.
       + reflexivity.
     Qed.
@@ -473,19 +472,17 @@ Section FOL_encoding.
     Proof.
       unfold Σ2_has_tuples.
       rewrite fol_sem_mforall.
-      apply (fol_quant_sem_ext fol_fa); intros v.
+      fol equiv fa; intros v.
       rewrite fol_sem_bin_fix.
-      apply (fol_bin_sem_ext fol_imp).
+      fol equiv imp.
       + rewrite fol_sem_vec_fa.
-        apply (fol_quant_sem_ext fol_fa); intros p.
-        rew vec.
-        simpl.
-        rewrite env_vlift_fix0, env_vlift_fix1.
-        reflexivity.
+        fol equiv; intros p.
+        rew vec; simpl.
+        now rewrite env_vlift_fix0, env_vlift_fix1.
       + rewrite fol_sem_quant_fix.
-        apply (fol_quant_sem_ext fol_ex); intros x.
+        fol equiv ex; intros x.
         rewrite Σ2_is_tuple_spec; simpl.
-        apply fol_equiv_ext; f_equal.
+        fol equiv rel.
         apply vec_pos_ext; intros p.
         rew vec; simpl.
         rewrite env_vlift_fix0; auto.
@@ -498,23 +495,23 @@ Section FOL_encoding.
     Proof. 
       unfold Σ2_is_tot, mb_is_tot.
       rewrite fol_sem_mforall.
-      apply forall_equiv; intros v.
+      fol equiv; intros v.
       rewrite fol_sem_bin_fix.
-      apply (fol_bin_sem_ext fol_imp).
+      fol equiv imp.
       + rewrite fol_sem_vec_fa.
-        apply forall_equiv; intros p.
-        rew vec. 
-        simpl; rewrite env_vlift_fix0, env_vlift_fix1; tauto.
-      + rewrite fol_sem_quant_fix; apply exists_equiv; intros x.
-        rewrite fol_sem_quant_fix; apply exists_equiv; intros p.
-        rewrite fol_sem_quant_fix; apply exists_equiv; intros t.
+        fol equiv; intros p.
+        rew vec; simpl. 
+        rewrite env_vlift_fix0, env_vlift_fix1; tauto.
+      + rewrite fol_sem_quant_fix; fol equiv ex; intros x.
+        rewrite fol_sem_quant_fix; fol equiv ex; intros p.
+        rewrite fol_sem_quant_fix; fol equiv ex; intros t.
         do 3 (rewrite fol_sem_bin_fix).
-        repeat apply (fol_bin_sem_ext fol_conj).
+        repeat fol equiv conj.
         * simpl; rewrite env_vlift_fix1; tauto.
         * simpl; rewrite env_vlift_fix1; tauto.
         * rewrite Σ2_is_opair_spec; simpl; tauto.
         * rewrite Σ2_is_tuple_spec; simpl.
-          apply fol_equiv_ext; f_equal.
+          fol equiv.
           apply vec_pos_ext; intros q; rew vec.
           simpl; rewrite env_vlift_fix0; auto.
     Qed.

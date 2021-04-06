@@ -57,7 +57,7 @@ Section Σ_Σ0.
     Proof.
       revert φ ψ; induction A as [ | r v | b A HA B HB | [] A HA ]; intros φ ψ.
       + simpl; tauto.
-      + simpl; apply fol_equiv_ext; f_equal.
+      + simpl; fol equiv.
         revert v; rewrite (HΣ r); unfold eq_rect_r; simpl.
         intros v; vec nil v; auto.
       + apply fol_bin_sem_ext; auto.

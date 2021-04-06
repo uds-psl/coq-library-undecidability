@@ -158,7 +158,7 @@ Section hfs.
   Proof.
     unfold hfs_cons.
     rewrite btm_repr_cls; btm simpl.
-    apply (fol_bin_sem_ext fol_disj).
+    fol equiv.
     + rewrite <- bt_cls_hfs_repr_iff, bt_cls_hfs_repr; tauto.
     + tauto.
   Qed.
@@ -184,7 +184,7 @@ Section hfs.
           right; exists y; auto. }
     destruct H as (s & Hs).
     exists s; intro a; rewrite Hs.
-    apply exists_equiv; intro; rewrite Hl; tauto.
+    fol equiv; intro; rewrite Hl; tauto.
   Qed.
 
   (* This is the decidable comprehension *)  
@@ -443,7 +443,7 @@ Section hfs.
   Fact hfs_pair_spec' p r s : p = hfs_pair r s <-> (forall x, x ∈ p <-> x = r \/ x = s).
   Proof.
     rewrite hfs_mem_ext.
-    apply (fol_quant_sem_ext fol_fa); intro.
+    fol equiv; intro.
     rewrite hfs_pair_spec; tauto.
   Qed.
 

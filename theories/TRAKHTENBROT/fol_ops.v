@@ -73,6 +73,25 @@ Qed.
 Notation forall_equiv := (@fol_quant_sem_ext _ fol_fa).
 Notation exists_equiv := (@fol_quant_sem_ext _ fol_ex).
 
+Tactic Notation "fol" "equiv" "fa" := apply forall_equiv.
+Tactic Notation "fol" "equiv" "ex" := apply exists_equiv.
+Tactic Notation "fol" "equiv" "iff" := apply fol_equiv_sem_ext.
+Tactic Notation "fol" "equiv" "conj" := apply (fol_bin_sem_ext fol_conj).
+Tactic Notation "fol" "equiv" "disj" := apply (fol_bin_sem_ext fol_disj).
+Tactic Notation "fol" "equiv" "imp" := apply (fol_bin_sem_ext fol_imp).
+Tactic Notation "fol" "equiv" "rel" := apply fol_equiv_ext; f_equal.
+
+Tactic Notation "fol" "equiv" :=
+  match goal with
+    | |- (forall _, _) <-> (forall _, _) => fol equiv fa
+    | |- (exists _, _) <-> (exists _, _) => fol equiv ex
+    | |- ( _ <-> _) <-> (_ <-> _) => fol equiv iff
+    | |- ( _ \/ _) <-> (_ \/ _) => fol equiv disj
+    | |- ( _ /\ _) <-> (_ /\ _) => fol equiv conj
+    | |- ( _ -> _) <-> (_ -> _) => fol equiv imp
+    | |- ?r _ _ <-> ?r _ _ => fol equiv rel
+  end.
+
 Fact forall_list_sem_dec X (P : X -> Prop) (l : list X) :  
        (forall x, { P x } + { ~ P x }) 
     -> { forall x, In x l -> P x } + { ~ forall x, In x l -> P x }.

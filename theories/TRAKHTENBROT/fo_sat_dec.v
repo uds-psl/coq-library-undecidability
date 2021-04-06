@@ -88,7 +88,7 @@ Section FSAT_ext.
     + intros s v _; simpl; do 2 f_equal.
       apply vec_pos_ext; intro; rew vec.
     + intros r v _; simpl.
-      apply fol_equiv_ext; f_equal.
+      fol equiv rel.
       apply vec_pos_ext; intro; rew vec.
   Defined.
   
