@@ -20,6 +20,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+Local Notation ø := vec_nil.
+
 (* * First order theory of congruences *)
 
 Section congruence.

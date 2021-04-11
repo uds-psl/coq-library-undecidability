@@ -20,6 +20,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+Local Notation ø := vec_nil.
+
 (* * Definition of first order satisfiability *)
 
 Section satisfiability.

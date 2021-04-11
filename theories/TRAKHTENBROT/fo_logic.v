@@ -22,7 +22,10 @@ Set Implicit Arguments.
 
 (* * The syntax and semantics of FO logic *)
 
-Notation ø := vec_nil.
+Local Notation ø := vec_nil.
+
+Local Infix "∊" := In (at level 70, no associativity).
+Local Infix "⊑" := incl (at level 70, no associativity). 
 
 Opaque fo_term_subst fo_term_map fo_term_sem.
 
@@ -84,7 +87,7 @@ Section fol_subst.
 
   Definition fol_vars_max A := lmax (fol_vars A).
 
-  Fact fol_vars_max_spec A n : In n (fol_vars A) -> n <= fol_vars_max A.
+  Fact fol_vars_max_spec A n : n ∊ fol_vars A -> n <= fol_vars_max A.
   Proof. apply lmax_prop. Qed.
 
   Fixpoint fol_syms (A : 𝔽) :=
@@ -125,7 +128,7 @@ Section fol_subst.
   where "A ⦃ σ ⦄" := (fol_subst σ A).
 
   Fact fol_subst_ext σ ρ A : 
-         (forall n, In n (fol_vars A) -> σ n = ρ n) 
+         (forall n, n ∊ fol_vars A -> σ n = ρ n) 
        -> A⦃σ⦄ = A⦃ρ⦄.
   Proof.
     intros Hfg; revert A σ ρ Hfg. 
@@ -167,7 +170,7 @@ Section fol_subst.
   Proof. rewrite fol_vars_subst, <- flat_map_single; auto. Qed.
 
   Fact fol_syms_subst P σ (A : 𝔽) : 
-        (forall n, In n (fol_vars A) -> Forall P (fo_term_syms (σ n)))  
+        (forall n, n ∊ fol_vars A -> Forall P (fo_term_syms (σ n)))  
      -> Forall P (fol_syms A) -> Forall P (fol_syms (A⦃σ⦄)).
   Proof.
     revert σ.
@@ -326,7 +329,7 @@ Section fol_semantics.
 
   (* Semantics depends only on occuring variables *)
 
-  Fact fol_sem_ext φ ψ A : (forall n, In n (fol_vars A) -> φ n = ψ n) -> ⟪A⟫ φ <-> ⟪A⟫ ψ.
+  Fact fol_sem_ext φ ψ A : (forall n, n ∊ fol_vars A -> φ n = ψ n) -> ⟪A⟫ φ <-> ⟪A⟫ ψ.
   Proof.
     intros H; revert A φ ψ H.
     induction A as [ | p v | b A IHA B IHB | q A IHA ]; simpl; intros phi psy H; try tauto.
@@ -390,7 +393,7 @@ Section fol_semantics.
 
   Definition fol_lift t n : 𝕋 := match n with 0 => t | S n => £n end.
 
-  Corollary fol_sem_lift φ t A : ⟪ A⦃fol_lift t⦄ ⟫ φ <-> ⟪A⟫ (⟦t⟧ φ)·φ.
+  Corollary fol_sem_lift φ t A : ⟪A⦃fol_lift t⦄⟫ φ <-> ⟪A⟫ (⟦t⟧ φ)·φ.
   Proof.
     rewrite fol_sem_subst.
     apply fol_sem_ext; intros [ | n ] _; simpl; rew fot; auto.
@@ -398,7 +401,7 @@ Section fol_semantics.
 
   (* Bigops, ie finitary conjunction and disjunction *)
 
-  Fact fol_sem_lconj lf φ : ⟪fol_lconj lf⟫ φ <-> forall f, In f lf -> ⟪ f ⟫ φ.
+  Fact fol_sem_lconj lf φ : ⟪fol_lconj lf⟫ φ <-> forall f, f ∊ lf -> ⟪f⟫ φ.
   Proof.
     induction lf as [ | f lf IHlf ]; simpl.
     + split; tauto.
@@ -409,16 +412,14 @@ Section fol_semantics.
   Qed.
 
   Fact fol_sem_lconj_app l m φ : 
-            ⟪ fol_lconj (l++m) ⟫ φ 
-        <-> ⟪ fol_lconj l ⟫ φ 
-         /\ ⟪ fol_lconj m ⟫ φ.
+         ⟪fol_lconj (l++m)⟫ φ <-> ⟪fol_lconj l⟫ φ /\ ⟪fol_lconj m⟫ φ.
   Proof.
-    do 3 rewrite fol_sem_lconj; split.
+    rewrite !fol_sem_lconj; split.
     + intros H; split; intros; apply H, in_app_iff; firstorder.
     + intros (H1 & H2) f; rewrite in_app_iff; firstorder.
   Qed.
 
-  Fact fol_sem_ldisj lf φ : ⟪fol_ldisj lf⟫ φ <-> exists f, In f lf /\ ⟪ f ⟫ φ.
+  Fact fol_sem_ldisj lf φ : ⟪fol_ldisj lf⟫ φ <-> exists f, f ∊ lf /\ ⟪f⟫ φ.
   Proof.
     induction lf as [ | f lf IHlf ]; simpl.
     + split; try tauto; intros ( ? & [] & _).
@@ -432,11 +433,9 @@ Section fol_semantics.
   Qed.
 
   Fact fol_sem_ldisj_app l m φ : 
-            ⟪ fol_ldisj (l++m) ⟫ φ 
-        <-> ⟪ fol_ldisj l ⟫ φ 
-         \/ ⟪ fol_ldisj m ⟫ φ.
+         ⟪fol_ldisj (l++m)⟫ φ <-> ⟪fol_ldisj l⟫ φ \/ ⟪fol_ldisj m⟫ φ.
   Proof.
-    do 3 rewrite fol_sem_ldisj; split.
+    rewrite !fol_sem_ldisj; split.
     + intros (f & H1 & H2); revert H1; rewrite in_app_iff; firstorder.
     + intros [ (? & ? & ?) | (? & ? & ?) ]; firstorder auto with *.
   Qed.
@@ -461,7 +460,7 @@ Section fol_semantics.
     rewrite app_nil_end; auto. 
   Qed.
  
-  Fact fol_sem_vec_fa n A φ : ⟪ @fol_vec_fa n A ⟫ φ <-> forall p, ⟪ vec_pos A p ⟫ φ.
+  Fact fol_sem_vec_fa n A φ : ⟪@fol_vec_fa n A⟫ φ <-> forall p, ⟪vec_pos A p⟫ φ.
   Proof.
     unfold fol_vec_fa; rewrite fol_sem_lconj; split.
     + intros H p; apply H, in_vec_list, in_vec_pos.
@@ -562,12 +561,12 @@ Section fo_model_simulation.
 
   Record fo_simulation := Mk_fo_simulation {
     fos_simul :> X -> Y -> Prop;
-    fos_syms  : forall s v w, In s ls 
+    fos_syms  : forall s v w, s ∊ ls 
                           -> (forall p, fos_simul (vec_pos v p) (vec_pos w p))
                           -> fos_simul (fom_syms M s v) (fom_syms N s w);
-    fos_rels  : forall s v w, In s lr 
+    fos_rels  : forall r v w, r ∊ lr 
                           -> (forall p, fos_simul (vec_pos v p) (vec_pos w p))
-                          -> fom_rels M s v <-> fom_rels N s w;
+                          -> fom_rels M r v <-> fom_rels N r w;
     fos_total : forall x, exists y, fos_simul x y;
     fos_surj  : forall y, exists x, fos_simul x y;
   }.
@@ -576,8 +575,8 @@ Section fo_model_simulation.
     fop_surj :> X -> Y; 
     fop_inj  : Y -> X;
     fop_eq   : forall x, fop_surj (fop_inj x) = x;
-    fop_syms : forall s v, In s ls -> fop_surj (fom_syms M s v) = fom_syms N s (vec_map fop_surj v);
-    fop_rels : forall s v, In s lr -> fom_rels M s v <-> fom_rels N s (vec_map fop_surj v);
+    fop_syms : forall s v, s ∊ ls -> fop_surj (fom_syms M s v) = fom_syms N s (vec_map fop_surj v);
+    fop_rels : forall r v, r ∊ lr -> fom_rels M r v <-> fom_rels N r (vec_map fop_surj v);
   }.
 
   Fact fo_proj_simul : fo_projection -> fo_simulation.
@@ -606,8 +605,8 @@ Section fo_model_simulation.
   (* The simulation lifts from variables to terms *)
 
   Let fo_term_simulation t φ ψ :
-           (forall n : nat, In n (fo_term_vars t) -> φ n ⋈ ψ n) 
-        -> incl (fo_term_syms t) ls
+           (forall n, n ∊ fo_term_vars t -> φ n ⋈ ψ n) 
+        -> fo_term_syms t ⊑ ls
         -> ⟦t⟧ φ ⋈ ⟦t⟧' ψ.
   Proof.
     revert φ ψ.
@@ -632,9 +631,9 @@ Section fo_model_simulation.
   (* We assume the simulation to be total and surjective *)
 
   Theorem fo_model_simulation A φ ψ :
-           incl (fol_syms A) ls
-        -> incl (fol_rels A) lr
-        -> (forall n : nat, In n (fol_vars A) -> φ n ⋈ ψ n) 
+           fol_syms A ⊑ ls
+        -> fol_rels A ⊑ lr
+        -> (forall n, n ∊ fol_vars A -> φ n ⋈ ψ n) 
         -> ⟪A⟫ φ <-> ⟪A⟫' ψ.
   Proof.
     revert φ ψ.
@@ -667,9 +666,9 @@ Section fo_model_simulation.
 End fo_model_simulation.
 
 Theorem fo_model_projection Σ ls lr X M Y N (p : @fo_projection Σ ls lr X M Y N) A φ ψ : 
-           (forall n, In n (fol_vars A) -> p (φ n) = ψ n)
-        -> incl (fol_syms A) ls 
-        -> incl (fol_rels A) lr
+           (forall n, n ∊ fol_vars A -> p (φ n) = ψ n)
+        -> fol_syms A ⊑ ls 
+        -> fol_rels A ⊑ lr
         -> fol_sem M φ A <-> fol_sem N ψ A.
 Proof.
   intros H1 H2 H3.
@@ -686,16 +685,16 @@ Section fo_model_projection.
            (X : Type) (M : fo_model Σ X) (φ : nat -> X) 
            (Y : Type) (N : fo_model Σ Y) (ψ : nat -> Y)
            (i : X -> Y) (j : Y -> X) (E : forall x, i (j x) = x)
-           (Hs : forall s v, In s ls -> i (fom_syms M s v) = fom_syms N s (vec_map i v))
-           (Hr : forall s v, In s lr -> fom_rels M s v <-> fom_rels N s (vec_map i v)).
+           (Hs : forall s v, s ∊ ls -> i (fom_syms M s v) = fom_syms N s (vec_map i v))
+           (Hr : forall r v, r ∊ lr -> fom_rels M r v <-> fom_rels N r (vec_map i v)).
   
   Let p : fo_projection ls lr M N.
   Proof. exists i j; auto. Defined.
 
   Theorem fo_model_projection' A : 
-           (forall n, In n (fol_vars A) -> i (φ n) = ψ n)
-        -> incl (fol_syms A) ls 
-        -> incl (fol_rels A) lr
+           (forall n, n ∊ fol_vars A -> i (φ n) = ψ n)
+        -> fol_syms A ⊑ ls 
+        -> fol_rels A ⊑ lr
         -> fol_sem M φ A <-> fol_sem N ψ A.
   Proof. apply fo_model_projection with (p := p). Qed.
 
@@ -707,7 +706,7 @@ Section fo_model_nosyms.
            (X : Type) (M M' : fo_model Σ X) (φ : nat -> X)
            (A : fol_form Σ)
            (HA : fol_syms A = nil)
-           (H : forall r v, In r (fol_rels A) -> fom_rels M r v <-> fom_rels M' r v).
+           (H : forall r v, r ∊ fol_rels A -> fom_rels M r v <-> fom_rels M' r v).
 
   Theorem fo_model_nosyms : fol_sem M φ A <-> fol_sem M' φ A.
   Proof.

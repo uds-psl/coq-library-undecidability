@@ -21,6 +21,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+Local Notation ø := vec_nil.
+
 (* * FSATEQ reduces to FSAT *)
 
 (* 1/ A is satisfiable in a fin/dec/interpreted model iff 

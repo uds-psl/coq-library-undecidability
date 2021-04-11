@@ -657,6 +657,7 @@ TRAKHTENBROT/utils.v
 TRAKHTENBROT/decidable.v
 TRAKHTENBROT/enumerable.v
 TRAKHTENBROT/fol_ops.v
+TRAKHTENBROT/discernable.v
 
 TRAKHTENBROT/gfp.v
 TRAKHTENBROT/btree.v

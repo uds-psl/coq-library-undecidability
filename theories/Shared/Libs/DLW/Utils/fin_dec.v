@@ -10,9 +10,19 @@
 Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW.Utils
-  Require Import fin_base.
+  Require Import utils_decidable fin_base.
 
 Set Implicit Arguments.
+
+Theorem finite_t_find_dec X (P : X -> Prop) 
+           (Pdec : forall x, { P x } + { ~ P x }) 
+           (HQ : finite_t X) :
+           { x | P x } + { forall x, ~ P x }.
+Proof.
+  destruct HQ as (l & Hl). 
+  destruct list_choose_dep with (P := P) (Q := fun x => ~ P x) (l := l)
+    as [ (? & ? & ?) | ]; eauto.
+Qed.
 
 Theorem exists_dec_fin_t X (P Q : X -> Prop) 
            (Pdec : forall x, { P x } + { ~ P x }) 

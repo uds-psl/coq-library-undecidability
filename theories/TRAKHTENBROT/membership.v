@@ -20,6 +20,7 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+Local Notation ø := vec_nil.
 Local Infix "∊" := In (at level 70, no associativity).
 Local Infix "⊑" := incl (at level 70, no associativity). 
 

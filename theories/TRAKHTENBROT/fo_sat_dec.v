@@ -23,6 +23,8 @@ Set Implicit Arguments.
 (* * Decidability results for FSAT *)
 
 Local Notation ø := vec_nil.
+Local Infix "∊" := In (at level 70, no associativity).
+Local Infix "⊑" := incl (at level 70, no associativity). 
 
 Section FSAT_ext.
 
@@ -181,12 +183,17 @@ Section enum_models.
   Let model := { M : fo_model Σ X & 
                { _ : nat -> X & fo_model_dec M } }.
 
+  (* Equivalence of FO models over type X up-to the symbols in ls lr 
+     and the variables in ln,
+     ie same extensional interpretation of function symbols and 
+     equivalent interpretation of relations symbols *)
+
   Local Definition FO_model_equiv : model -> model -> Prop.
   Proof.
     intros ((s1,r1) & rho1 & H1 ) ((s2,r2) & rho2 & H2).
-    exact (  (forall s, In s ls -> forall v, s1 s v = s2 s v) 
-          /\ (forall r, In r lr -> forall v, @r1 r v <-> r2 r v) 
-          /\ (forall n, In n ln -> rho1 n = rho2 n) ).
+    exact (  (forall s, s ∊ ls -> forall v, s1 s v = s2 s v) 
+          /\ (forall r, r ∊ lr -> forall v, @r1 r v <-> r2 r v) 
+          /\ (forall n, n ∊ ln -> rho1 n = rho2 n) ).
   Defined.
 
   Let combine : (funs * rels * (nat -> X)) -> model.
@@ -194,6 +201,8 @@ Section enum_models.
     intros ((f,(g & Hg)),rho).
     exists {| fom_syms := f; fom_rels := g |}, rho; auto.
   Defined.
+
+  (* There are finitely many models upto equivalence *)
 
   Local Theorem finite_t_model_upto : finite_t_upto _ FO_model_equiv.
   Proof.
@@ -222,9 +231,9 @@ Section enum_models.
   
   Theorem FO_model_equiv_spec (M1 M2 : model) A : 
              FO_model_equiv M1 M2 
-          -> incl (fol_vars A) ln
-          -> incl (fol_syms A) ls
-          -> incl (fol_rels A) lr
+          -> fol_vars A ⊑ ln
+          -> fol_syms A ⊑ ls
+          -> fol_rels A ⊑ lr
           -> FO_sem M1 A <-> FO_sem M2 A.
   Proof.
     intros H1 H2 H3 H4.

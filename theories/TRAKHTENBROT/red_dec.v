@@ -7,10 +7,11 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Lia Max.
+Require Import List Arith Lia Max Bool.
 
-Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.ReducibilityFacts.
-Require Import Undecidability.Synthetic.InformativeDefinitions Undecidability.Synthetic.InformativeReducibilityFacts.
+From Undecidability.Synthetic
+  Require Import Definitions ReducibilityFacts
+                 InformativeDefinitions InformativeReducibilityFacts.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
@@ -72,10 +73,9 @@ Section FSAT_MONADIC_DEC.
       as (n & m & i & j & B & HB).
     + simpl; intros s; destruct (H1 s).
     + apply H2.
-    + assert (n = 0) as Hn.
+    + assert (n = 0) as ->.
       { destruct n; auto.
         destruct (H1 (i pos0)). }
-      subst n.
       simpl in *.
       destruct FSAT_ΣP1_dec with (V := pos 0) (A := B)
         as [ H | H ].
@@ -111,8 +111,7 @@ Section FSAT_Σ11_DEC.
     destruct FSAT_MONADIC_11_FSAT_MONADIC_1 with (n := n) (1 := HP1)
       as (f & Hf).
     specialize (Hf A).
-    destruct FSAT_MONADIC_DEC with (A := f A) as [ H | H ]; simpl; auto.
-    + intros [].
+    destruct FSAT_MONADIC_DEC with (A := f A) as [ H | H ]; simpl; auto; try easy.
     + left; revert H; apply Hf.
     + right; contradict H; revert H; apply Hf.
   Qed.
