@@ -1,10 +1,11 @@
 (* * Natural Deduction *)
 
-From Undecidability Require Import FOL.Util.Tarski FOL.Util.Syntax.
+From Undecidability Require Import FOL.Util.Tarski FOL.Util.Syntax FOL.Util.Syntax_facts.
 Import FragmentSyntax.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 Local Set Implicit Arguments.
+Require Import Lia.
 
 
 Ltac comp := repeat (progress (cbn in *; autounfold in *)).
@@ -52,6 +53,55 @@ Section ND_def.
   Proof.
     intros H. revert B.
     induction H; intros B HB; try unshelve (solve [econstructor; intuition]); try now econstructor.
+  Qed.
+
+  Hint Constructors prv : core.
+
+  Theorem subst_Weak A phi xi :
+    A ⊢ phi -> [phi[xi] | phi ∈ A] ⊢ phi[xi].
+  Proof.
+    induction 1 in xi |-*; comp.
+    1-7:eauto using in_map.
+    - apply AllI. setoid_rewrite map_map in IHprv. erewrite map_map, map_ext.
+      apply IHprv. intros ?. cbn. now rewrite up_form.
+    - specialize (IHprv xi). apply AllE with (t := t`[xi]) in IHprv. rewrite subst_comp in *.
+      erewrite subst_ext; try apply IHprv. intros [|]; cbn; trivial.
+      unfold funcomp. now setoid_rewrite subst_term_shift.
+  Qed.
+
+  Definition cycle_shift n x :=
+    if Dec (n = x) then $0 else $(S x).
+  Lemma cycle_shift_shift n phi :
+    bounded n phi -> phi[cycle_shift n] = phi[↑].
+  Proof.
+    intros H. apply (bounded_subst H). intros k. unfold cycle_shift. destruct (Dec _); trivial; lia.
+  Qed.
+
+  Lemma cycle_shift_subject n phi :
+    bounded (S n) phi -> phi[$n..][cycle_shift n] = phi.
+  Proof.
+    intros H. erewrite subst_comp, (bounded_subst H), subst_id; trivial.
+    intros []; cbn; unfold cycle_shift; destruct (Dec _); trivial; lia.
+  Qed.
+
+  Lemma nameless_equiv_all' A phi n :
+    bounded_L n A -> bounded (S n) phi -> [p[↑] | p ∈ A] ⊢ phi <-> A ⊢ phi[$n..].
+  Proof.
+    intros H1 H2. split; intros H.
+    - apply (subst_Weak ($n..)) in H. rewrite map_map in *.
+      erewrite map_ext, map_id in H; try apply H. intros. apply subst_shift.
+    - apply (subst_Weak (cycle_shift n)) in H. rewrite (map_ext_in _ (subst_form ↑)) in H.
+      + now rewrite cycle_shift_subject in H.
+      + intros psi HP. now apply cycle_shift_shift, H1.
+  Qed.
+
+  Lemma nameless_equiv_all A phi :
+    { t : nat | map (subst_form ↑) A ⊢ phi <-> A ⊢ phi[$t..] }.
+  Proof.
+    destruct (find_bounded_L (phi::A)) as [n H].
+    exists n. apply nameless_equiv_all'.
+    - intros ? ?. apply H. auto.
+    - eapply bounded_up; try apply H; auto.
   Qed.
     
 End ND_def.
