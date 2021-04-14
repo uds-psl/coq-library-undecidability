@@ -10,7 +10,7 @@
 Require Import List Arith Lia Permutation.
 
 From Undecidability.Shared.Libs.DLW.Utils
-  Require Import utils_list.
+  Require Import utils_list utils_decidable fin_base.
 
 From Undecidability.Shared.Libs.DLW.Vec 
   Require Import pos vec.
@@ -37,13 +37,15 @@ Section fp_quotient.
     fpq_Some : forall x y, R x y <-> fpq_class x = fpq_class y /\ fpq_class x <> None;
   }.
 
-  Let per R := (forall x y, R x y -> R y x) /\ (forall x y z, R x y -> R y z -> R x z).
-  Let dec R := forall x y, { R x y } + { ~ R x y }.
+  Local Definition per R := 
+     (forall x y, R x y -> R y x) /\ (forall x y z, R x y -> R y z -> R x z).
+  Local Definition dec R := 
+      forall x y, { R x y } + { ~ R x y }.
 
   Let Some_inj K (x y : K) : Some x = Some y -> x = y.
   Proof. inversion 1; auto. Qed. 
   
-  Theorem decibable_PER_fp_quotient l R : 
+  Theorem decidable_PER_fp_quotient l R : 
             (forall x, R x x <-> exists y, In y l /\ R x y) 
           -> per R -> dec R -> fp_quotient R.
   Proof.
@@ -63,7 +65,7 @@ Section fp_quotient.
         - intros (_ & []); auto.
     + destruct list_discrim with (P := R x) (Q := fun y => ~ R x y) (l := l)
         as (lx & m & G1 & G2 & G3).
-      { intro; apply H3. }
+      1: { intro; apply H3. }
       rewrite Forall_forall in G2, G3.
       set (T u v := ~ R x u /\ R u v).
       destruct (IHl m) with (R := T) as [ n cl rp Q1 Q2 Q3 ].
@@ -178,7 +180,7 @@ Section fp_quotient.
           -> fin_quotient R.
   Proof.
     intros H1 H2 H3 H4 H5.
-    destruct (@decibable_PER_fp_quotient l R) 
+    destruct (@decidable_PER_fp_quotient l R) 
       as [ n cl rp Q1 Q2 Q3 ]; simpl; auto.
     + intros x; split; auto; intros _; exists x; auto.
     + split; auto.
@@ -204,3 +206,67 @@ Section fp_quotient.
   Qed.
 
 End fp_quotient.
+
+Section restriction_by_list.
+
+  Variable (X : Type) (R : X -> X -> Prop) (Rper : per R) (Rdec : dec R) 
+           (l : list X) (Hl : forall x, In x l -> R x x).
+
+  Let T x y := R x y /\ exists z, In z l /\ R x z.
+
+  Let HT1 x : T x x <-> exists z, In z l /\ T x z.
+  Proof.
+    split.
+    + intros (H1 & z & H2 & H3).
+      exists z; split; auto; split; eauto.
+    + intros (z & H1 & H2 & y & H3 & H4); split; eauto.
+      apply (proj2 Rper) with z; auto.
+      apply (proj1 Rper); auto.
+  Qed.
+  
+  Let HT2 : per T.
+  Proof.
+    split.
+    + intros x y (H1 & z & H2 & H3); split.
+      * apply (proj1 Rper); auto.
+      * exists z; split; auto.
+        apply (proj2 Rper) with x; auto.
+        apply (proj1 Rper); auto.
+    + intros x y z (H1 & a & H2 & H3) (H4 & b & H5 & H6); split; eauto.
+      apply (proj2 Rper) with y; auto.
+  Qed.
+
+  Let HT3 : dec T.
+  Proof.
+    intros x y.
+    destruct (Rdec x y) as [ H1 | H1 ].
+    2: { right; contradict H1; destruct H1; auto. }
+    destruct list_choose_dep with (l := l) (P := R x) (Q := fun z => ~ R x z)
+      as [ (z & H) | H ].
+    + intros; apply Rdec.
+    + left; split; eauto.
+    + right; intros (_ & z & H2 & H3).
+      revert H2 H3; apply H.
+  Qed.
+
+  Theorem DEC_PER_list_proj_finite_discrete :
+       { D & { _ : dec (@eq D) & { _ : finite_t D & { f : X -> D 
+             | forall x y, In x l -> In y l -> R x y <-> f x = f y } } } }.
+  Proof.
+    destruct decidable_PER_fp_quotient with (R := T) (l := l)
+      as [ n cls repr G1 G2 G3 ]; auto.
+    exists (option (pos n)).
+    exists. { red; decide equality; apply pos_eq_dec. }
+    exists. { apply finite_t_option, finite_t_pos. }
+    exists cls.
+    intros x y Hx Hy; split.
+    + intros H; apply G3; split; auto; exists y; auto.
+    + intros H.
+      apply G3; split; auto.
+      red; rewrite <- G2.
+      intros C; apply C.
+      assert (R x x) as H1 by now apply Hl.
+      split; eauto.
+  Qed.
+
+End restriction_by_list. 
