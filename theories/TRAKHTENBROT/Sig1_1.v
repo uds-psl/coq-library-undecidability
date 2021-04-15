@@ -501,8 +501,6 @@ Section Σfull_mon_rem.
 
 End Σfull_mon_rem.
 
-Check Σfull_mon_red'_correct.
-
 Section Σ11_reduction.
 
   (* We can lower the hypotheses now by computing m from A *)
