@@ -134,3 +134,110 @@ Section Σ_Σ0.
   Qed.
 
 End Σ_Σ0.
+
+Section Σ0_Σ.
+
+  Variable (Σ  : fo_signature)
+           (HΣ : forall r, ar_rels Σ r = 0).
+
+  Fixpoint Σ0_Σ (A : fol_form (Σ0 Σ)) :=
+    match A with
+      |  ⊥            => ⊥
+      | fol_atom r _  => @fol_atom Σ r (cast vec_nil (eq_sym (HΣ r)))
+      | fol_bin b A B => fol_bin b (Σ0_Σ A) (Σ0_Σ B)
+      | fol_quant q A => fol_quant q (Σ0_Σ A)
+     end.
+
+  Section soundness.
+
+    Variable (X : Type) (M : fo_model (Σ0 Σ) X).
+  
+    Let M' : fo_model Σ unit.
+    Proof.
+      split.
+      + intros; exact tt.
+      + intros r _; apply (fom_rels M r vec_nil).
+    Defined.
+
+    Local Fact Σ0_Σ_sound A φ ψ : fol_sem M' ψ (Σ0_Σ A) <-> fol_sem M φ A.
+    Proof.
+      revert φ ψ; induction A as [ | r v | b A HA B HB | [] A HA ]; intros φ ψ.
+      + simpl; tauto.
+      + simpl in *; vec nil v; simpl; tauto.
+      + apply fol_bin_sem_ext; auto.
+      + simpl; split.
+        * intros (? & H); exists (φ 0); revert H; apply HA.
+        * intros (? & H); exists (ψ 0); revert H; apply HA.
+      + simpl; split.
+        * intros H x; generalize (H (ψ 0)); apply HA.
+        * intros H x; generalize (H (φ 0)); apply HA.
+    Qed.
+
+    Hypothesis (Mdec : fo_model_dec M)
+               (φ : nat -> X)
+               (A : fol_form (Σ0 Σ))
+               (HA : fol_sem M φ A).
+
+    Local Lemma Σ0_Σ_soundness : fo_form_fin_dec_SAT (Σ0_Σ A).
+    Proof.
+      exists unit, M', finite_t_unit.
+      exists. { intros r v; simpl; apply Mdec. }
+      exists (fun _ => tt).
+      revert HA; apply Σ0_Σ_sound.
+    Qed.
+
+  End soundness.
+
+  Section completeness.
+
+    Variable (X : Type) (M : fo_model Σ X).
+
+    Let M' : fo_model (Σ0 Σ) unit.
+    Proof.
+      split.
+      + intros [].
+      + intros r _; apply (fom_rels M r).
+        rewrite HΣ; exact vec_nil.
+    Defined.
+
+    Local Fact Σ0_Σ_complete A φ ψ : fol_sem M ψ (Σ0_Σ A) <-> fol_sem M' φ A.
+    Proof.
+      revert φ ψ; induction A as [ | r v | b A HA B HB | [] A HA ]; intros φ ψ.
+      + simpl; tauto.
+      + simpl; fol equiv.
+        revert v; rewrite (HΣ r); unfold eq_rect_r; simpl; auto.
+      + apply fol_bin_sem_ext; auto.
+      + simpl; split.
+        * intros (? & H); exists tt; revert H; apply HA.
+        * intros (? & H); exists (ψ 0); revert H; apply HA.
+      + simpl; split.
+        * intros H x; generalize (H (ψ 0)); apply HA.
+        * intros H x; generalize (H tt); apply HA.
+    Qed.
+
+    Hypothesis (Mdec : fo_model_dec M)
+               (phi : nat -> X)
+               (A : fol_form (Σ0 Σ))
+               (HA : fol_sem M phi (Σ0_Σ A)).
+
+    Local Lemma Σ0_Σ_completeness : fo_form_fin_dec_SAT A.
+    Proof.
+      exists unit, M', finite_t_unit.
+      exists. { intros r v; simpl; apply Mdec. }
+      exists (fun _ => tt).
+      revert HA; apply Σ0_Σ_complete.
+    Qed.
+
+  End completeness.
+
+  Theorem Σ0_Σ_correct A : fo_form_fin_dec_SAT A <-> fo_form_fin_dec_SAT (Σ0_Σ A).
+  Proof.
+    split.
+    + intros (X & M & _ & G2 & phi & G3).
+      apply Σ0_Σ_soundness with X M phi; auto.
+    + intros (X & M & _ & G2 & phi & G3).
+      apply Σ0_Σ_completeness with X M phi; auto.
+  Qed.
+
+End Σ0_Σ.
+

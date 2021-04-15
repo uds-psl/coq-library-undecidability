@@ -56,14 +56,21 @@ End Sig_MONADIC_Sig_11.
 
 Section Sig_MONADIC_PROP.
 
+  (* FSAT Σ(X,Y) and FSAT Σ(ø,Y) are inter-reducible
+     is the arities on rels/Y are all 0, ie Propositional case 
+
+     Σ0 maps Σ into a signature with no function symbols and
+     the same relation symbols, all of arity 0
+   *)  
+
   Variable (Σ : fo_signature) 
            (HΣ : forall r, ar_rels Σ r = 0).
 
   Theorem FSAT_PROP_FSAT_x0 : FSAT Σ ⪯ᵢ FSAT (Σ0 Σ).
-  Proof.
-    exists (@Σ_Σ0 Σ).
-    exact (Σ_Σ0_correct HΣ).
-  Qed.
+  Proof. exists (@Σ_Σ0 Σ); exact (Σ_Σ0_correct HΣ). Qed.
+
+  Theorem FSAT_x0_FSAT_PROP : FSAT (Σ0 Σ) ⪯ᵢ FSAT Σ.
+  Proof. exists (Σ0_Σ HΣ); exact (Σ0_Σ_correct HΣ). Qed.
 
 End Sig_MONADIC_PROP.
 

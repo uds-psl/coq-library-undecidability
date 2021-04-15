@@ -132,19 +132,17 @@ Section discernable.
 
 End discernable.
 
-Section FSAT_equiv_discernable.
+Section FSAT_equiv_discernable_rels.
 
-  Variables (X Y : Type).
+  Variable Σ : fo_signature.
 
-  Notation Σ := (Σ11 X Y).
-
-  Local Definition test K := @fol_atom Σ K (£0##ø).
+  Local Definition test K := @fol_atom Σ K (vec_set_pos (fun _ => £0)).
 
   Variables (P Q : rels Σ).
 
   Section model.
 
-    Variable (f : Y -> bool) (HP : f P = true) (HQ : f Q = false).
+    Variable (f : rels Σ -> bool) (HP : f P = true) (HQ : f Q = false).
 
     Let M : fo_model Σ bool.
     Proof.
@@ -153,7 +151,7 @@ Section FSAT_equiv_discernable.
       + intros r _; exact (f r = true).
     Defined.
 
-    Local Fact discernable_FSAT : FSAT Σ (test P ⟑ (test Q ⤑ ⊥)).
+    Local Fact discernable_rels_FSAT : FSAT Σ (test P ⟑ (test Q ⤑ ⊥)).
     Proof.
       exists bool, M; msplit 2.
       + apply finite_t_bool.
@@ -164,39 +162,115 @@ Section FSAT_equiv_discernable.
 
   End model.
 
-  Theorem FSAT_equiv_discernable : FSAT Σ (test P ⟑ (test Q ⤑ ⊥))
-                    <-> discernable P Q.
+  Theorem FSAT_equiv_discernable_rels : 
+            FSAT Σ (test P ⟑ (test Q ⤑ ⊥))
+        <-> discernable P Q.
   Proof.
     rewrite discernable_equiv1.
     split.
     + intros (D & M & H1 & H2 & rho & H3 & H4).
-      exists (fun K => if @H2 K (rho 0##ø) then true else false).
-      simpl in H3, H4.
-      destruct (H2 P (rho 0##ø)); destruct (H2 Q (rho 0##ø)); tauto.
+      exists (fun K => if @H2 K (vec_set_pos (fun _ => rho 0)) then true else false).
+      simpl in H3, H4 |- *.
+      rewrite vec_map_set_pos in H3, H4.
+      do 2 match goal with 
+        |- context[if ?c then _ else _] => destruct c 
+      end; auto; tauto.
     + intros (f & H1 & H2).
-      apply discernable_FSAT with f; auto.
+      apply discernable_rels_FSAT with f; auto.
   Qed.
 
-End FSAT_equiv_discernable.
+End FSAT_equiv_discernable_rels.
 
-Section FSAT_DEC_implies_discriminable.
+Section FSAT_equiv_discernable_syms.
+  
+  Variables (Σ : fo_signature) (P : rels Σ) (HP : ar_rels Σ P = 1).
 
-  Variables (X Y : Type).
+  Let termt (p : syms Σ) : fo_term (ar_syms Σ) := in_fot p (vec_set_pos (fun _ => in_var 0)).
 
-  Notation Σ := (Σ11 X Y).
+  Local Definition testt (p : syms Σ) : fol_form Σ := fol_atom P (cast (termt p##ø) (eq_sym HP)).
+
+  Variables (p q : syms Σ).
+
+  Section model.
+
+    Variable (f : syms Σ -> bool) (Hp : f p = true) (Hq : f q = false).
+
+    Let M : fo_model Σ bool.
+    Proof.
+      split.
+      + intros s _; exact (f s). 
+      + intros r; simpl; intros v. 
+        exact (match v with vec_nil => True | h##_ => h = true end).
+    Defined.
+
+    Local Fact discernable_syms_FSAT : FSAT Σ (testt p ⟑ (testt q ⤑ ⊥)).
+    Proof.
+      exists bool, M; msplit 2.
+      + apply finite_t_bool.
+      + intros r v; simpl.
+        destruct v; try tauto.
+        apply bool_dec.
+      + exists (fun _ => true); simpl.
+        rewrite HP; simpl.
+        now rewrite Hp, Hq.
+    Qed.
+
+  End model.
+
+  Theorem FSAT_equiv_discernable_syms : 
+            FSAT Σ (testt p ⟑ (testt q ⤑ ⊥))
+        <-> discernable p q.
+  Proof.
+    rewrite discernable_equiv1.
+    split.
+    + intros (D & M & H1 & H2 & rho & H3 & H4).
+      simpl in H3, H4 |- *.
+      exists (fun k => if H2 P (vec_map (fo_term_sem M rho)
+          (cast (termt k ## ø) (eq_sym HP))) then true else false).
+      do 2 match goal with 
+        |- context[if ?c then _ else _] => destruct c 
+      end; auto; tauto.
+    + intros (f & H1 & H2).
+      apply discernable_syms_FSAT with f; auto.
+  Qed.
+
+End FSAT_equiv_discernable_syms.
+
+Section FSAT_DEC_implies_discernable_rels.
+
+  (* For any signature, FSAT decidability implies 
+     decidable discernability of rels *)
+
+  Variable Σ : fo_signature.
 
   Hypothesis HXY : forall A, decidable (FSAT Σ A).
 
-  Theorem FSAT_DEC_FIN_implies_discriminable (l : list Y) : discriminable_list l.
+  Theorem FSAT_dec_FIN_implies_discernable_rels_dec (P Q : rels Σ) : decidable (discernable P Q).
   Proof.
-    apply discernable_discriminable_list; auto.
-    intros P Q.
     destruct (HXY (test _ P ⟑ (test _ Q ⤑ ⊥))) as [ H | H ].
-    + left; revert H; apply FSAT_equiv_discernable.
-    + right; contradict H; revert H; apply FSAT_equiv_discernable.
+    + left; revert H; apply FSAT_equiv_discernable_rels.
+    + right; contradict H; revert H; apply FSAT_equiv_discernable_rels.
   Qed.
 
-End FSAT_DEC_implies_discriminable.
+End FSAT_DEC_implies_discernable_rels.
+
+Section FSAT_DEC_implies_discernable_syms.
+
+  (* For any signature with a unary relation, 
+     FSAT decidability implies decidable discernability of syms *)
+
+  Variables (Σ : fo_signature) (P : rels Σ) (HP : ar_rels Σ P = 1).
+
+  Hypothesis HXY : forall A, decidable (FSAT Σ A).
+
+  Theorem FSAT_dec_FIN_implies_discernable_syms_dec (f g : syms Σ) : decidable (discernable f g).
+  Proof.
+    destruct (HXY (testt _ _ HP f ⟑ (testt _ _ HP g ⤑ ⊥))) as [ H | H ].
+    + left; revert H; apply FSAT_equiv_discernable_syms.
+    + right; contradict H; revert H; apply FSAT_equiv_discernable_syms.
+  Qed.
+
+End FSAT_DEC_implies_discernable_syms.
 
 Section discrete_projection.
 
@@ -484,7 +558,7 @@ Section FSAT_PROP_ONLY_discernable.
 
 End FSAT_PROP_ONLY_discernable.
 
-Theorem FULL_MONADIC_disernable (Σ : fo_signature) :
+Theorem FULL_MONADIC_discernable (Σ : fo_signature) :
           { _ : forall u v : syms Σ, decidable (discernable u v) &
           { _ : forall u v : rels Σ, decidable (discernable u v)
               | (forall s, ar_syms Σ s <= 1)
@@ -498,29 +572,40 @@ Proof.
   + apply FSAT_PROP_ONLY_discernable; auto.
 Qed.
 
-(* For a monadic signature Σ of uniform arity 1
-   over type X of funs and Y of rels
+(* For a monadic signature Σ (arity 0 or 1) with at least one unary relation,
 
-   FSAT is decidable iff both X and Y have decidable discernability 
-
-   one needs at least one rel to discern funs ?
+   FSAT is decidable iff both syms and rels have decidable discernability 
 *)
 
-Theorem Σ11_discernable_dec_FSAT_equiv X Y :
-            ( (forall u v : X, decidable (discernable u v))
-            * (forall u v : Y, decidable (discernable u v)) )
-          ≋ ((forall A, decidable (FSAT (Σ11 X Y) A))).
+Theorem FULL_MONADIC_discernable_dec_FSAT_dec_equiv Σ r : 
+            ar_rels Σ r = 1 
+         -> (forall s, ar_syms Σ s <= 1)
+         -> (forall r, ar_rels Σ r <= 1)
+         -> ( (forall u v : syms Σ, decidable (discernable u v))
+            * (forall u v : rels Σ, decidable (discernable u v)) )
+          ≋ forall A, decidable (FSAT Σ A).
 Proof.
+  intros Hr H1 H2.
   split.
-  + intros (? & ?); apply Σ11_discernable_dec_FSAT; auto.
-  + intros H1; split.
-    * admit.
-    * intros P Q.
-      generalize (H1 (test _ P ⟑ (test _ Q ⤑ ⊥))).
-      intros [ H2 | H2 ]; [ left | right ]; 
-        now rewrite FSAT_equiv_discernable in H2.
-Admitted.
+  + intros (? & ?); apply FSAT_FULL_MONADIC_discernable; auto.
+  + intros H3; split.
+    * apply FSAT_dec_FIN_implies_discernable_syms_dec with r; auto.
+    * apply FSAT_dec_FIN_implies_discernable_rels_dec; auto.
+Qed.
 
-Check Σ11_discernable_dec_FSAT_equiv.
+(* For a signature with only constant relations (arity 0),
+   FSAT is decidable iff relations have decidable discernability *) 
 
+Theorem MONADIC_PROP_discernable_dec_FSAT_dec_equiv (Σ : fo_signature) :
+            (forall r, @ar_rels Σ r = 0)
+        ->  (forall u v : rels Σ, decidable (discernable u v))
+          ≋  forall A, decidable (FSAT Σ A).
+Proof.
+  intros H; split.
+  + intros; apply FULL_MONADIC_discernable; eauto.
+  + intros H1.
+    assert (forall A, decidable (FSAT (Σ0 Σ) A)) as H2.
+    { revert H1; apply ireduction_decidable, FSAT_x0_FSAT_PROP; auto. }
+    exact (FSAT_dec_FIN_implies_discernable_rels_dec H2).
+Qed. 
 
