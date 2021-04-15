@@ -25,7 +25,7 @@ From Undecidability.TRAKHTENBROT
                  fo_sat fo_sat_dec
 
                  red_utils 
-                 Sig1 Sig1_1 red_dec.
+                 Sig1 Sig1_1 Sig0 red_dec.
 
 Set Implicit Arguments.
 
@@ -432,6 +432,55 @@ Proof.
   + left; tauto.
   + right; tauto.
 Qed. 
+
+Section FSAT_FULL_MONADIC_discernable.
+
+  Variable (Σ : fo_signature) 
+           (H1 : forall u v : syms Σ, decidable (discernable u v))
+           (H2 : forall u v : rels Σ, decidable (discernable u v))
+           (H3 : forall s, ar_syms Σ s <= 1)
+           (H4 : forall r, ar_rels Σ r <= 1).
+
+  Theorem FSAT_FULL_MONADIC_discernable A : decidable (FSAT Σ A).
+  Proof.
+    destruct (FSAT_FULL_MONADIC_FSAT_11 _ H3 H4) as (f & Hf).
+    destruct (Σ11_discernable_dec_FSAT H1 H2 (f A)) as [ H | H ].
+    + left; apply Hf; auto.
+    + right; contradict H; apply Hf; auto.
+  Qed.
+
+End FSAT_FULL_MONADIC_discernable.
+
+Section FSAT_PROP_ONLY_discernable.
+
+  Variable (Σ : fo_signature)
+           (H1 : forall u v : rels Σ, decidable (discernable u v))
+           (H2 : forall r, ar_rels Σ r = 0).
+
+  Theorem FSAT_PROP_ONLY_discernable A : decidable (FSAT Σ A).
+  Proof.
+    assert (H: decidable (FSAT _ (Σ_Σ0 A))).
+    { apply FSAT_FULL_MONADIC_discernable; simpl; auto; intros []. }
+    destruct H as [ H | H ].
+    + left; apply Σ_Σ0_correct; auto.
+    + right; contradict H; revert H; apply Σ_Σ0_correct; auto.
+  Qed.
+
+End FSAT_PROP_ONLY_discernable.
+
+Theorem FULL_MONADIC_disernable (Σ : fo_signature) :
+          { _ : forall u v : syms Σ, decidable (discernable u v) &
+          { _ : forall u v : rels Σ, decidable (discernable u v)
+              | (forall s, ar_syms Σ s <= 1)
+             /\ (forall r, ar_rels Σ r <= 1) } }
+        + { _ : forall u v : rels Σ, decidable (discernable u v)
+              | forall r, ar_rels Σ r = 0 }
+       -> forall A, decidable (FSAT Σ A).
+Proof.
+  intros [ (H1 & H2 & H3 & H4) | (H1 & H2) ].
+  + apply FSAT_FULL_MONADIC_discernable; auto.
+  + apply FSAT_PROP_ONLY_discernable; auto.
+Qed.
 
 (* For a monadic signature Σ of uniform arity 1
    over type X of funs and Y of rels

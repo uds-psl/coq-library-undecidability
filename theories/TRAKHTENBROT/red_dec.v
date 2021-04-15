@@ -67,7 +67,7 @@ Section FSAT_MONADIC_DEC.
            (H2 : discrete P)
            (A : fol_form (Σ11 F P)).
 
-  Theorem FSAT_MONADIC_DEC : decidable (fo_form_fin_dec_SAT A).
+  Theorem FSAT_MONADIC_DEC : decidable (FSAT _ A).
   Proof.
     destruct Sig_discrete_to_pos with (A := A)
       as (n & m & i & j & B & HB).
@@ -106,7 +106,7 @@ Section FSAT_Σ11_DEC.
            (HP2 : discrete P)
            (A : fol_form (Σ11 (pos n) P)).
 
-  Theorem FSAT_Σ11_DEC : decidable (fo_form_fin_dec_SAT A).
+  Theorem FSAT_Σ11_DEC : decidable (FSAT _ A).
   Proof.
     destruct FSAT_MONADIC_11_FSAT_MONADIC_1 with (n := n) (1 := HP1)
       as (f & Hf).
@@ -125,7 +125,7 @@ Section FSAT_FULL_Σ11_DEC.
 
   Hint Resolve finite_t_pos : core.
 
-  Theorem FSAT_FULL_Σ11_DEC : decidable (fo_form_fin_dec_SAT A).
+  Theorem FSAT_FULL_Σ11_DEC : decidable (FSAT _ A).
   Proof.
     destruct Sig_discrete_to_pos with (A := A)
       as (n & m & i & j & B & HB); auto.
@@ -177,10 +177,8 @@ Section FSAT_PROP_ONLY_DEC.
 
   Theorem FSAT_PROP_ONLY_DEC : decidable (FSAT _ A).
   Proof.
-    assert (H: decidable (fo_form_fin_dec_SAT_in (Σ_Σ0 A) unit)).
-    { apply FSAT_in_dec; simpl; auto.
-      + intros [].
-      + apply finite_t_unit. }
+    assert (H: decidable (FSAT _ (Σ_Σ0 A))).
+    { apply FSAT_FULL_MONADIC_DEC; auto; intros []. }
     destruct H as [ H | H ].
     + left; revert H; apply Σ_Σ0_correct; auto.
     + right; contradict H; revert H; apply Σ_Σ0_correct; auto.

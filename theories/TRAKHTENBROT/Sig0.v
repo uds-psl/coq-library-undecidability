@@ -74,9 +74,9 @@ Section Σ_Σ0.
                (A : fol_form Σ)
                (HA : fol_sem M phi A).
 
-    Local Lemma Σ_Σ0_soundness : fo_form_fin_dec_SAT_in (Σ_Σ0 A) unit.
+    Local Lemma Σ_Σ0_soundness : fo_form_fin_dec_SAT (Σ_Σ0 A).
     Proof.
-      exists M', finite_t_unit.
+      exists unit, M', finite_t_unit.
       exists. { intros r v; simpl; apply Mdec. }
       exists (fun _ => tt).
       revert HA; apply Σ_Σ0_sound.
@@ -86,7 +86,7 @@ Section Σ_Σ0.
 
   Section completeness.
 
-    Variable (M' : fo_model Σ0 unit).
+    Variable (X : Type) (M' : fo_model Σ0 X).
   
     Let M : fo_model Σ unit.
     Proof.
@@ -102,21 +102,21 @@ Section Σ_Σ0.
       + simpl; tauto.
       + apply fol_bin_sem_ext; auto.
       + simpl; split.
-        * intros (x & Hx); exists tt; revert Hx; apply HA.
+        * intros (x & Hx); exists (ψ 0); revert Hx; apply HA.
         * intros (x & Hx); exists (φ 0); revert Hx; apply HA.
       + simpl; split.
         * intros H x; generalize (H (φ 0)); apply HA.
-        * intros H x; generalize (H tt); apply HA.
+        * intros H x; generalize (H (ψ 0)); apply HA.
     Qed.
 
     Hypothesis (M'dec : fo_model_dec M')
-               (psi : nat -> unit)
+               (psi : nat -> X)
                (A : fol_form Σ)
                (HA : fol_sem M' psi (Σ_Σ0 A)).
 
-    Local Lemma Σ_Σ0_completeness : fo_form_fin_dec_SAT_in A unit.
+    Local Lemma Σ_Σ0_completeness : fo_form_fin_dec_SAT A.
     Proof.
-      exists M, finite_t_unit.
+      exists unit, M, finite_t_unit.
       exists. { intros r v; simpl; apply M'dec. }
       exists (fun _ => tt).
       revert HA; apply Σ_Σ0_complete.
@@ -124,13 +124,13 @@ Section Σ_Σ0.
 
   End completeness.
 
-  Theorem Σ_Σ0_correct A : fo_form_fin_dec_SAT A <-> fo_form_fin_dec_SAT_in (Σ_Σ0 A) unit.
+  Theorem Σ_Σ0_correct A : fo_form_fin_dec_SAT A <-> fo_form_fin_dec_SAT (Σ_Σ0 A).
   Proof.
     split.
     + intros (X & M & _ & G2 & phi & G3).
       apply Σ_Σ0_soundness with X M phi; auto.
-    + intros (M & _ & G2 & phi & G3).
-      exists unit; apply Σ_Σ0_completeness with M phi; auto.
+    + intros (X & M & _ & G2 & phi & G3).
+      apply Σ_Σ0_completeness with X M phi; auto.
   Qed.
 
 End Σ_Σ0.
