@@ -29,13 +29,15 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+Local Infix "∊" := In (at level 70, no associativity).
+Local Infix "⊑" := incl (at level 70, no associativity). 
+Local Notation ø := vec_nil.
+
 Section discernable.
 
   Variable (X : Type).
 
   Definition discernable x y := exists f : X -> bool, f x <> f y.
-
-  Definition undiscernable x y := forall f : X -> bool, f x = f y.
 
   Fact discernable_equiv1 x y : discernable x y <-> exists f, f x = true /\ f y = false.
   Proof.
@@ -51,8 +53,19 @@ Section discernable.
       now rewrite E1, E2.
   Qed.
 
+  Definition undiscernable x y := forall f : X -> bool, f x = f y.
+
   Fact discernable_undiscernable x y : discernable x y -> undiscernable x y -> False.
   Proof. intros (f & Hf) H; apply Hf, H. Qed.
+
+  Fact undiscernable_spec x y : undiscernable x y <-> ~ discernable x y.
+  Proof.
+    split.
+    + intros H1 H2; revert H2 H1; apply discernable_undiscernable.
+    + intros H f.
+      destruct (bool_dec (f x) (f y)); auto.
+      destruct H; exists f; auto.
+  Qed.
 
   Fact undiscernable_refl x : undiscernable x x.
   Proof. red; auto. Qed.
@@ -84,26 +97,16 @@ Section discernable.
 
   Let H3 x y : decidable (undiscernable x y).
   Proof.
-    destruct (H2 x y) as [ H | H ].
-    + right; red; apply discernable_undiscernable; auto.
-    + left; intros f.
-      destruct (bool_dec (f x) (f y)) as [ | C ]; auto.
-      destruct H; exists f; auto.
+    destruct (H2 x y); [ right | left ]; rewrite undiscernable_spec; tauto.
   Qed.
 
-  (* undiscernable is equivalent to a equality after mapping on some finite datatype *)
-
-  Definition pdiscriminable l := 
+  Definition discriminable_list l := 
     { D & { _ : discrete D & { _ : finite_t D & { f : X -> D 
              | forall x y, In x l -> In y l -> undiscernable x y <-> f x = f y } } } }.
 
-  Definition discriminable := 
-    { D & { _ : discrete D & { _ : finite_t D & { f : X -> D 
-             | forall x y, undiscernable x y <-> f x = f y } } } }.
-
   Hint Resolve undiscernable_refl undiscernable_sym undiscernable_trans : core.
 
-  Theorem fsubset_discernable_discriminable l : pdiscriminable l. 
+  Theorem discernable_discriminable_list l : discriminable_list l. 
   Proof.
     apply DEC_PER_list_proj_finite_discrete with (l := l) (R := undiscernable).
     + split; eauto.
@@ -111,12 +114,18 @@ Section discernable.
     + intros; auto.
   Qed.
 
+  Definition discriminable_type := 
+    { D & { _ : discrete D & { _ : finite_t D & { f : X -> D 
+             | forall x y, undiscernable x y <-> f x = f y } } } }.
+
   Hypothesis (H1 : finite_t X).
 
-  Theorem finite_t_discernable_discriminable : discriminable. 
+  (* undiscernable is equivalent to a equality after mapping on some finite datatype *)
+
+  Theorem finite_discernable_discriminable_type : discriminable_type. 
   Proof.
     destruct H1 as (l & Hl).
-    destruct fsubset_discernable_discriminable with l
+    destruct discernable_discriminable_list with l
       as (D & D1 & D2 & f & Hf).
     exists D, D1, D2, f; intros; eauto.
   Qed.
@@ -128,7 +137,6 @@ Section FSAT_equiv_discernable.
   Variables (X Y : Type).
 
   Notation Σ := (Σ11 X Y).
-  Notation ø := vec_nil.
 
   Local Definition test K := @fol_atom Σ K (£0##ø).
 
@@ -179,9 +187,9 @@ Section FSAT_DEC_implies_discriminable.
 
   Hypothesis HXY : forall A, decidable (FSAT Σ A).
 
-  Theorem FSAT_DEC_FIN_implies_discriminable (l : list Y) : pdiscriminable l.
+  Theorem FSAT_DEC_FIN_implies_discriminable (l : list Y) : discriminable_list l.
   Proof.
-    apply fsubset_discernable_discriminable; auto.
+    apply discernable_discriminable_list; auto.
     intros P Q.
     destruct (HXY (test _ P ⟑ (test _ Q ⤑ ⊥))) as [ H | H ].
     + left; revert H; apply FSAT_equiv_discernable.
@@ -194,7 +202,7 @@ Section discrete_projection.
 
   Variable (X Y : Type) (HY : discrete Y) (f : X -> Y) (l : list X).
 
-  Fact find_discrete_projection y : { x | In x l /\ f x = y } + (forall x, In x l -> f x <> y).
+  Fact find_discrete_projection y : { x | x ∊ l /\ f x = y } + (forall x, x ∊ l -> f x <> y).
   Proof.
     destruct list_choose_dep 
       with (P := fun x => f x = y) (Q := fun x => f x <> y) (l := l)
@@ -204,13 +212,11 @@ Section discrete_projection.
 
 End discrete_projection.
 
-Local Notation ø := vec_nil.
-
 Section discriminable_implies_FSAT_DEC.
 
   Variable (X Y : Type) 
-           (lX : list X) (HlX : pdiscriminable lX)
-           (lY : list Y) (HlY : pdiscriminable lY).
+           (lX : list X) (HlX : discriminable_list lX)
+           (lY : list Y) (HlY : discriminable_list lY).
 
   Let DX := projT1 HlX.
 
@@ -218,7 +224,7 @@ Section discriminable_implies_FSAT_DEC.
   Let DX_fin : finite_t DX.     Proof. apply (projT2 (projT2 HlX)). Qed.
 
   Let f : X -> DX := proj1_sig (projT2 (projT2 (projT2 HlX))).
-  Let Hf u v : In u lX -> In v lX -> undiscernable u v <-> f u = f v.
+  Let Hf u v : u ∊ lX -> v ∊ lX -> undiscernable u v <-> f u = f v.
   Proof. apply (proj2_sig (projT2 (projT2 (projT2 HlX)))). Qed.
 
   Let DY := projT1 HlY.
@@ -227,13 +233,13 @@ Section discriminable_implies_FSAT_DEC.
   Let DY_fin : finite_t DY.     Proof. apply (projT2 (projT2 HlY)). Qed.
 
   Let g : Y -> DY := proj1_sig (projT2 (projT2 (projT2 HlY))).
-  Let Hg u v : In u lY -> In v lY -> undiscernable u v <-> g u = g v.
+  Let Hg u v : u ∊ lY -> v ∊ lY -> undiscernable u v <-> g u = g v.
   Proof. apply (proj2_sig (projT2 (projT2 (projT2 HlY)))). Qed.
 
-  Let fromX d : { x | In x lX /\ f x = d } + (forall x, In x lX -> f x <> d).
+  Let fromX d : { x | x ∊ lX /\ f x = d } + (forall x, x ∊ lX -> f x <> d).
   Proof. now apply find_discrete_projection. Qed.
 
-  Let fromY d : { y | In y lY /\ g y = d } + (forall y, In y lY -> g y <> d).
+  Let fromY d : { y | y ∊ lY /\ g y = d } + (forall y, y ∊ lY -> g y <> d).
   Proof. now apply find_discrete_projection. Qed.
 
   Fixpoint fot_discriminable_discrete (t : fo_term (fun _ : X => 1)) : fo_term (fun _ : DX => 1) :=
@@ -278,7 +284,7 @@ Section discriminable_implies_FSAT_DEC.
     Qed.
 
     Let term_equal (t : fo_term (fun _ : X => 1)) φ : 
-             incl (fo_term_syms t) lX
+             fo_term_syms t ⊑ lX
           -> fo_term_sem M' φ (fot_discriminable_discrete t)
            = fo_term_sem M φ t.
     Proof.
@@ -296,8 +302,8 @@ Section discriminable_implies_FSAT_DEC.
     Qed.
 
     Let form_equiv (A : fol_form (Σ11 X Y)) φ :
-          incl (fol_syms A) lX
-       -> incl (fol_rels A) lY
+          fol_syms A ⊑ lX
+       -> fol_rels A ⊑ lY
        -> fol_sem M' φ (Σdiscriminable_discrete A) <-> fol_sem M φ A.
     Proof.
       induction A as [ | r v | b A HA B HB | q A HA ] in φ |- *; simpl; intros G1 G2; try tauto. 
@@ -322,8 +328,8 @@ Section discriminable_implies_FSAT_DEC.
     Hypothesis Kfin : finite_t K.
     Variables (φ : nat -> K) 
               (A : fol_form (Σ11 X Y))
-              (HA1 : incl (fol_syms A) lX) 
-              (HA2 : incl (fol_rels A) lY)
+              (HA1 : fol_syms A ⊑ lX) 
+              (HA2 : fol_rels A ⊑ lY)
               (HA : fol_sem M φ A).
 
     Local Fact Σdiscriminable_discrete_sound : FSAT _ (Σdiscriminable_discrete A).
@@ -382,11 +388,21 @@ Section discriminable_implies_FSAT_DEC.
   End complete.
 
   Theorem Σdiscriminable_discrete_correct (A : fol_form (Σ11 X Y)) :
-          incl (fol_syms A) lX
-       -> incl (fol_rels A) lY
-       -> FSAT _ A <-> FSAT _ (Σdiscriminable_discrete A).
+          fol_syms A ⊑ lX
+       -> fol_rels A ⊑ lY
+       -> { DX : _ & 
+          { DY : _ & 
+          { _ : discrete DX &
+          { _ : discrete DY & 
+          { _ : finite_t DX &
+          { _ : finite_t DY &
+          { B : fol_form (Σ11 DX DY) | FSAT _ A <-> FSAT _ B } } } } } } }. 
   Proof.
-    intros HX HY; split.
+    intros HX HY.
+    exists DX, DY.
+    do 4 (exists; [ auto | ]).
+    exists (Σdiscriminable_discrete A).
+    split.
     + rewrite fo_form_fin_dec_SAT_discr_equiv.
       intros (K & H0 & M & H1 & H2 & phi & H3).
       apply Σdiscriminable_discrete_sound with K M phi; auto.
@@ -403,21 +419,20 @@ Theorem Σdiscernable_dec_to_discrete X Y :
            { DX : _ 
          & { DY : _ 
          & { _ : discrete DX
-         & { _ : discrete DY 
+         & { _ : discrete DY
          & { _ : finite_t DX
-         & { _ : finite_t DY 
+         & { _ : finite_t DY
          & { B | FSAT (Σ11 X Y) A <-> FSAT (Σ11 DX DY)  B } } } } } } }.
 Proof.
   intros HX HY A.
-  generalize (fsubset_discernable_discriminable HX (fol_syms A))
-             (fsubset_discernable_discriminable HY (fol_rels A)); intros HlX HlY.
-  generalize (Σdiscriminable_discrete_correct HlX HlY A); revert HlX HlY.
-  intros (DX & HX1 & HX2 & f & HX3) (DY & HY1 & HY2 & g & HY3) H4.
-  simpl in H4.
+  generalize (discernable_discriminable_list HX (fol_syms A))
+             (discernable_discriminable_list HY (fol_rels A)); intros HlX HlY.
+  destruct (Σdiscriminable_discrete_correct HlX HlY A)
+    as (DX & DY & ? & ? & ? & ? & B & HB).
+  1,2: apply incl_refl.
   exists DX, DY.
   do 4 (exists; [ auto | ]).
-  match type of H4 with _ -> _ -> _ <-> FSAT _ ?b => exists b end.
-  apply H4; apply incl_refl.
+  exists B; auto.
 Qed.
 
 Theorem Σ11_discernable_dec_FSAT X Y : 
@@ -459,11 +474,12 @@ Section FSAT_PROP_ONLY_discernable.
 
   Theorem FSAT_PROP_ONLY_discernable A : decidable (FSAT Σ A).
   Proof.
-    assert (H: decidable (FSAT _ (Σ_Σ0 A))).
-    { apply FSAT_FULL_MONADIC_discernable; simpl; auto; intros []. }
-    destruct H as [ H | H ].
-    + left; apply Σ_Σ0_correct; auto.
-    + right; contradict H; revert H; apply Σ_Σ0_correct; auto.
+    destruct (FSAT_PROP_FSAT_x0 _ H2) as (f & Hf).
+    destruct FSAT_FULL_MONADIC_discernable with (A := f A)
+      as [ H | H ]; auto.
+    + intros [].
+    + left; revert H; apply Hf; auto.
+    + right; contradict H; revert H; apply Hf; auto.
   Qed.
 
 End FSAT_PROP_ONLY_discernable.

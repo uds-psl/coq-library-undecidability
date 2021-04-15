@@ -62,8 +62,8 @@ Section Σ_Σ0.
         intros v; vec nil v; auto.
       + apply fol_bin_sem_ext; auto.
       + simpl; split.
-        * intros (x & Hx); exists tt; revert Hx; apply HA.
-        * intros (x & Hx); exists (φ 0); revert Hx; apply HA.
+        * intros (? & H); exists tt; revert H; apply HA.
+        * intros (? & H); exists (φ 0); revert H; apply HA.
       + simpl; split.
         * intros H x; generalize (H (φ 0)); apply HA.
         * intros H x; generalize (H tt); apply HA.
@@ -102,8 +102,8 @@ Section Σ_Σ0.
       + simpl; tauto.
       + apply fol_bin_sem_ext; auto.
       + simpl; split.
-        * intros (x & Hx); exists (ψ 0); revert Hx; apply HA.
-        * intros (x & Hx); exists (φ 0); revert Hx; apply HA.
+        * intros (? & H); exists (ψ 0); revert H; apply HA.
+        * intros (? & H); exists (φ 0); revert H; apply HA.
       + simpl; split.
         * intros H x; generalize (H (φ 0)); apply HA.
         * intros H x; generalize (H (ψ 0)); apply HA.

@@ -54,6 +54,19 @@ Section Sig_MONADIC_Sig_11.
 
 End Sig_MONADIC_Sig_11.
 
+Section Sig_MONADIC_PROP.
+
+  Variable (Σ : fo_signature) 
+           (HΣ : forall r, ar_rels Σ r = 0).
+
+  Theorem FSAT_PROP_FSAT_x0 : FSAT Σ ⪯ᵢ FSAT (Σ0 Σ).
+  Proof.
+    exists (@Σ_Σ0 Σ).
+    exact (Σ_Σ0_correct HΣ).
+  Qed.
+
+End Sig_MONADIC_PROP.
+
 (* Check FSAT_FULL_MONADIC_FSAT_11.
 Print Assumptions FSAT_FULL_MONADIC_FSAT_11. *)
 
@@ -138,11 +151,9 @@ End FSAT_FULL_Σ11_DEC.
 
 Section FSAT_FULL_MONADIC_DEC.
 
-  (* I do not think we can be more general than that. In
-     particular, decidability of FSAT implies discreteness
-     I think. For instance, let r1 and r2 be two rels
-     then ~ (r1(£0,..,£k) <-> r2(£0,..,£k)) is satisfiable
-     iff r1 <> r2 ?? TO CHECK *)
+  (* We can be (a bit) more general here, see discernable.v 
+     However, decidable discernability is required 
+     for showing FSAT is decidable *)
 
   Variable (Σ : fo_signature)
            (H1 : discrete (syms Σ)) 
@@ -177,11 +188,12 @@ Section FSAT_PROP_ONLY_DEC.
 
   Theorem FSAT_PROP_ONLY_DEC : decidable (FSAT _ A).
   Proof.
-    assert (H: decidable (FSAT _ (Σ_Σ0 A))).
-    { apply FSAT_FULL_MONADIC_DEC; auto; intros []. }
-    destruct H as [ H | H ].
-    + left; revert H; apply Σ_Σ0_correct; auto.
-    + right; contradict H; revert H; apply Σ_Σ0_correct; auto.
+    destruct (FSAT_PROP_FSAT_x0 _ H2) as (f & Hf).
+    destruct FSAT_FULL_MONADIC_DEC with (A := f A)
+      as [ H | H ]; auto.
+    + intros [].
+    + left; revert H; apply Hf; auto.
+    + right; contradict H; revert H; apply Hf; auto.
   Qed.
 
 End FSAT_PROP_ONLY_DEC.
