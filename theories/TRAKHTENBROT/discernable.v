@@ -85,6 +85,9 @@ Section discernable.
     destruct (d (f x) (f y)) as [ | ]; auto.
   Qed.
 
+  Fact discrete_undiscernable_implies_equal x y : discrete X -> undiscernable x y -> x = y.
+  Proof. intro; now apply undiscernable_discrete with (f := fun x => x). Qed.
+
   Fact undiscernable_Prop_dec x y : undiscernable x y -> forall P, (forall x, decidable (P x)) -> P x <-> P y.
   Proof.
     intros H P HP.
@@ -245,7 +248,7 @@ Section FSAT_DEC_implies_discernable_rels.
 
   Hypothesis HXY : forall A, decidable (FSAT Σ A).
 
-  Theorem FSAT_dec_FIN_implies_discernable_rels_dec (P Q : rels Σ) : decidable (discernable P Q).
+  Theorem FSAT_dec_implies_discernable_rels_dec (P Q : rels Σ) : decidable (discernable P Q).
   Proof.
     destruct (HXY (test _ P ⟑ (test _ Q ⤑ ⊥))) as [ H | H ].
     + left; revert H; apply FSAT_equiv_discernable_rels.
@@ -263,7 +266,7 @@ Section FSAT_DEC_implies_discernable_syms.
 
   Hypothesis HXY : forall A, decidable (FSAT Σ A).
 
-  Theorem FSAT_dec_FIN_implies_discernable_syms_dec (f g : syms Σ) : decidable (discernable f g).
+  Theorem FSAT_dec_implies_discernable_syms_dec (f g : syms Σ) : decidable (discernable f g).
   Proof.
     destruct (HXY (testt _ _ HP f ⟑ (testt _ _ HP g ⤑ ⊥))) as [ H | H ].
     + left; revert H; apply FSAT_equiv_discernable_syms.
@@ -589,8 +592,8 @@ Proof.
   split.
   + intros (? & ?); apply FSAT_FULL_MONADIC_discernable; auto.
   + intros H3; split.
-    * apply FSAT_dec_FIN_implies_discernable_syms_dec with r; auto.
-    * apply FSAT_dec_FIN_implies_discernable_rels_dec; auto.
+    * apply FSAT_dec_implies_discernable_syms_dec with r; auto.
+    * apply FSAT_dec_implies_discernable_rels_dec; auto.
 Qed.
 
 (* For a signature with only constant relations (arity 0),
@@ -606,6 +609,6 @@ Proof.
   + intros H1.
     assert (forall A, decidable (FSAT (Σ0 Σ) A)) as H2.
     { revert H1; apply ireduction_decidable, FSAT_x0_FSAT_PROP; auto. }
-    exact (FSAT_dec_FIN_implies_discernable_rels_dec H2).
+    exact (FSAT_dec_implies_discernable_rels_dec H2).
 Qed. 
 
