@@ -71,3 +71,11 @@ Section satisfiability.
 
 End satisfiability.
 
+Definition FSAT := @fo_form_fin_dec_SAT.
+Definition FSATEQ := @fo_form_fin_dec_eq_SAT.
+Definition FSAT' := @fo_form_fin_discr_dec_SAT.
+
+Arguments FSAT : clear implicits.
+Arguments FSAT' : clear implicits.
+
+
