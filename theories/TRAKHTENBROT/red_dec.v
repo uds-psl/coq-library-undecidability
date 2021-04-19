@@ -38,6 +38,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+Local Infix "≢" := discernable (at level 70, no associativity).
+
 (* * Collection of high-level synthetic decidability results *)
 
 Section Sig_MONADIC_Sig_11.
@@ -224,8 +226,6 @@ Proof.
   + apply FSAT_FULL_MONADIC_DEC; auto.
   + apply FSAT_PROP_ONLY_DEC; auto.
 Qed.
-
-Local Infix "≢" := discernable (at level 70, no associativity).
 
 Theorem Σ11_discernable_dec_FSAT X Y : 
           (forall u v : X, decidable (u ≢ v))
