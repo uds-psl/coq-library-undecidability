@@ -810,3 +810,8 @@ SystemF/Reductions/SysF_TYP_to_SysF_TC.v
 SystemF/Reductions/HaltTM_1_to_SysF_TYP.v
 SystemF/Reductions/HaltTM_1_to_SysF_TC.v
 SystemF/Reductions/HaltTM_1_to_SysF_INH.v
+
+FOL/Proofmode/Ltac2StringIdent.v
+FOL/Proofmode/Hoas.v
+FOL/Proofmode/Theories.v
+FOL/Proofmode/ProofMode.v
