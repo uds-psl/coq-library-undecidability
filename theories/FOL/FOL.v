@@ -21,12 +21,12 @@ From Undecidability.FOL.Util Require Import Syntax Deduction Tarski Kripke.
 
 Inductive syms_func := s_f : bool -> syms_func | s_e.
 
-Instance sig_func : funcs_signature :=
+Instance sig_func : funcs_signature | 10 :=
   {| syms := syms_func; ar_syms := fun f => if f then 1 else 0 |}.
 
 Inductive syms_pred := sPr | sQ.
 
-Instance sig_pred : preds_signature :=
+Instance sig_pred : preds_signature | 10 :=
   {| preds := syms_pred; ar_preds := fun P => if P then 2 else 0 |}.
 
 (* ** List of decision problems concerning validity, satisfiability and provability *)
