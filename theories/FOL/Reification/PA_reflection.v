@@ -165,7 +165,7 @@ Section ReificationExample.
   Definition proj1 {X:Type} {Y:X->Type} (H:{x:X&Y x}) : X := match H with existT x y => x end.
 
   Lemma foo (a : D) : representableP 1 (fun (b:D) => forall (c:D), exists (d:D), a i⊕ b i⊗ c = iσ d \/ (True /\ False) <-> False).
-  Proof. represent. Show Proof. Defined.
+  Proof. represent. Defined.
 
   Compute (proj1 (foo izero)).
 

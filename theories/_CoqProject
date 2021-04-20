@@ -224,7 +224,6 @@ FOL/binZF_undec.v
 FOL/binFOL.v
 FOL/binFOL_undec.v
 FOL/PA.v
-FOL/PA_reflection.v
 FOL/PA_undec.v
 FOL/FSAT.v
 FOL/FSAT_undec.v
@@ -246,6 +245,7 @@ FOL/Util/FA_facts.v
 FOL/Util/sig_bin.v
 
 FOL/Reification/GeneralReflection.v
+FOL/Reification/PA_reflection.v
 
 FOL/Reductions/PCPb_to_FOL.v
 FOL/Reductions/PCPb_to_FOL_intu.v
