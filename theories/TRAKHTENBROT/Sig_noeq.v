@@ -21,6 +21,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+Local Infix "∊" := In (at level 70, no associativity).
+Local Infix "⊑" := incl (at level 70, no associativity). 
 Local Notation ø := vec_nil.
 
 (* * FSATEQ reduces to FSAT *)
@@ -54,7 +56,7 @@ Local Notation ø := vec_nil.
 Section remove_interpreted_symbol.
 
   Variables (Σ : fo_signature) (ls : list (syms Σ)) (lr : list (rels Σ))
-            (e : rels Σ) (H_ae : ar_rels _ e = 2) (He : In e lr). 
+            (e : rels Σ) (H_ae : ar_rels _ e = 2) (He : e ∊ lr). 
 
   Notation 𝕋 := (fol_term Σ).
   Notation 𝔽 := (fol_form Σ).
@@ -99,8 +101,8 @@ Section remove_interpreted_symbol.
     Hint Resolve finite_t_pos : core.
 
     Variable (A : 𝔽) 
-             (HA1 : incl (fol_syms A) ls) 
-             (HA2 : incl (fol_rels A) lr).
+             (HA1 : fol_syms A ⊑ ls) 
+             (HA2 : fol_rels A ⊑ lr).
 
     Theorem Σ_noeq_complete : 
                fo_form_fin_dec_SAT (Σ_noeq A)

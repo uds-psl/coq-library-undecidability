@@ -172,7 +172,7 @@ Section Σfull_mon_rem.
      those equations are finitely many
    *)
 
-  Fixpoint Σfull_mon_rec (A : fol_form Σ) : fol_form Σ' :=
+  Local Fixpoint encode (A : fol_form Σ) : fol_form Σ' :=
     match A with
       | ⊥              => ⊥
       | fol_atom r v   => 
@@ -180,9 +180,11 @@ Section Σfull_mon_rem.
         let w := fot_word t in
         let x := fot_var  t 
         in  Q (rev w) r (£x##ø)
-      | fol_bin b A B => fol_bin b (Σfull_mon_rec A) (Σfull_mon_rec B)
-      | fol_quant q A => fol_quant q (Σfull_mon_rec A)
+      | fol_bin b A B => fol_bin b (encode A) (encode B)
+      | fol_quant q A => fol_quant q (encode A)
     end.
+
+  Notation Σfull_mon_rec := encode.
 
   (* The reduction function does not map to a signature void of
      functions to simplify the above expression. However, the
@@ -507,9 +509,11 @@ Section Σ11_reduction.
 
   Variable (n : nat) (Y : Type) (HY : finite_t Y) (A : fol_form (Σ11 (pos n) Y)) (K : Type).
 
-  Let m := lmax (map (@length _) (Σ11_words A)).
+  Local Definition max_depth := lmax (map (@length _) (Σ11_words A)).
 
-  Let Hm w : w ∊ Σ11_words A -> length w < S m.
+  Notation m := max_depth.
+
+  Let Hmd w : w ∊ Σ11_words A -> length w < S m.
   Proof.
     intros Hw; apply le_n_S, lmax_prop, in_map_iff.
     exists w; auto.

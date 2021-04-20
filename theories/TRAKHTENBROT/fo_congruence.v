@@ -20,6 +20,8 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+Local Infix "∊" := In (at level 70, no associativity).
+Local Infix "⊑" := incl (at level 70, no associativity). 
 Local Notation ø := vec_nil.
 
 (* * First order theory of congruences *)
@@ -33,9 +35,9 @@ Section congruence.
   Infix "≈" := R.
 
   Definition Σ_congruence_wrt :=
-          (forall s, In s ls -> forall v w, (forall p, vec_pos v p ≈ vec_pos w p) 
+          (forall s, s ∊ ls -> forall v w, (forall p, vec_pos v p ≈ vec_pos w p) 
                                           -> fom_syms M s v ≈ fom_syms M s w)
-       /\ (forall r, In r lr -> forall v w, (forall p, vec_pos v p ≈ vec_pos w p) 
+       /\ (forall r, r ∊ lr -> forall v w, (forall p, vec_pos v p ≈ vec_pos w p) 
                                           -> fom_rels M r v <-> fom_rels M r w).
 
 End congruence.
@@ -44,7 +46,7 @@ Section fol_congruence.
 
   Variables (Σ : fo_signature) (e : rels Σ) (H_ae : ar_rels _ e = 2)
             (ls : list (syms Σ)) (lr : list (rels Σ))
-            (He : In e lr). 
+            (He : e ∊ lr). 
 
   Notation 𝕋 := (fol_term Σ).
   Notation 𝔽 := (fol_form Σ).
@@ -68,7 +70,7 @@ Section fol_congruence.
 
     Local Definition fol_vec_equiv n := fol_vec_fa (vec_set_pos (fun p : pos n => £(pos2nat p+n) ≡ £(pos2nat p))).
 
-    Local Fact fol_vec_equiv_syms n : incl (fol_syms (fol_vec_equiv n)) nil.
+    Local Fact fol_vec_equiv_syms n : fol_syms (fol_vec_equiv n) ⊑ nil.
     Proof. 
       unfold fol_vec_equiv.
       rewrite fol_syms_vec_fa.
@@ -79,7 +81,7 @@ Section fol_congruence.
       rew vec; rewrite fol_syms_e; simpl; tauto.
     Qed.
 
-    Local Fact fol_vec_equiv_rels n : incl (fol_rels (fol_vec_equiv n)) (e::nil).
+    Local Fact fol_vec_equiv_rels n : fol_rels (fol_vec_equiv n) ⊑ e::nil.
     Proof. 
       unfold fol_vec_equiv.
       rewrite fol_rels_vec_fa.
@@ -110,10 +112,10 @@ Section fol_congruence.
       Let g : 𝕋 := in_fot s (vec_set_pos (fun p => £(pos2nat p+n))).
       Let B := g ≡ f.
 
-      Let HrA : incl (fol_syms A) nil.       Proof. apply fol_vec_equiv_syms. Qed.
-      Let HsA : incl (fol_rels A) (e::nil).  Proof. apply fol_vec_equiv_rels. Qed.
+      Let HrA : fol_syms A ⊑ nil.     Proof. apply fol_vec_equiv_syms. Qed.
+      Let HsA : fol_rels A ⊑ e::nil.  Proof. apply fol_vec_equiv_rels. Qed.
 
-      Let HrB : incl (fol_syms B) (s::nil).
+      Let HrB : fol_syms B ⊑ s::nil.
       Proof.
         unfold B; simpl.
         rewrite H_ae; unfold eq_rect_r.
@@ -123,12 +125,12 @@ Section fol_congruence.
           apply vec_list_inv in H; destruct H as (p & ->); rew vec.
       Qed.
 
-      Let HsB : incl (fol_rels B) (e::nil).
+      Let HsB : fol_rels B ⊑ e::nil.
       Proof. simpl; cbv; tauto. Qed.
 
       Local Definition congr_syms : 𝔽 := fol_mquant fol_fa n (fol_mquant fol_fa n (A ⤑  B)).
 
-      Local Fact congr_syms_syms : incl (fol_syms congr_syms) (s::nil).
+      Local Fact congr_syms_syms : fol_syms congr_syms ⊑ s::nil.
       Proof.
         unfold congr_syms.
         do 2 rewrite fol_syms_mquant.
@@ -136,7 +138,7 @@ Section fol_congruence.
         apply incl_app; auto.
       Qed.
 
-      Local Fact congr_syms_rels : incl (fol_rels congr_syms) (e::nil).
+      Local Fact congr_syms_rels : fol_rels congr_syms ⊑ e::nil.
       Proof.
         unfold congr_syms.
         do 2 rewrite fol_rels_mquant.
@@ -180,10 +182,10 @@ Section fol_congruence.
       Let B := @fol_atom Σ r (vec_set_pos (fun p => £(pos2nat p))).
       Let C := @fol_atom Σ r (vec_set_pos (fun p => £(pos2nat p+n))).
 
-      Let HsA : incl (fol_syms A) nil.       Proof. apply fol_vec_equiv_syms. Qed.
-      Let HrA : incl (fol_rels A) (e::nil).  Proof. apply fol_vec_equiv_rels. Qed.
+      Let HsA : fol_syms A ⊑ nil.     Proof. apply fol_vec_equiv_syms. Qed.
+      Let HrA : fol_rels A ⊑ e::nil.  Proof. apply fol_vec_equiv_rels. Qed.
 
-      Let HsB : incl (fol_syms B) nil.
+      Let HsB : fol_syms B ⊑ nil.
       Proof.
         unfold B; simpl.
         intros x; rewrite in_flat_map.
@@ -191,10 +193,10 @@ Section fol_congruence.
         apply vec_list_inv in H; destruct H as (p & ->); rew vec.
       Qed.
 
-      Let HrB : incl (fol_rels B) (r::nil).
+      Let HrB : fol_rels B ⊑ r::nil.
       Proof. simpl; cbv; tauto. Qed.
 
-      Let HsC : incl (fol_syms C) nil.
+      Let HsC : fol_syms C ⊑ nil.
       Proof. 
         unfold C; simpl.
         intros x; rewrite in_flat_map.
@@ -203,12 +205,12 @@ Section fol_congruence.
         destruct Ht as (p & ->); rew vec; simpl; tauto.
       Qed.
 
-      Let HrC : incl (fol_rels C) (e::r::nil).
+      Let HrC : fol_rels C ⊑ e::r::nil.
       Proof. simpl; cbv; tauto. Qed.
 
       Local Definition congr_rels : 𝔽 := fol_mquant fol_fa n (fol_mquant fol_fa n (A ⤑  (C ↔ B))).
 
-      Local Fact congr_rels_syms : incl (fol_syms congr_rels) nil.
+      Local Fact congr_rels_syms : fol_syms congr_rels ⊑ nil.
       Proof.
         unfold congr_rels.
         do 2 rewrite fol_syms_mquant.
@@ -216,7 +218,7 @@ Section fol_congruence.
         repeat (apply incl_app; auto).
       Qed.
 
-      Local Fact congr_rels_rels : incl (fol_rels congr_rels) (e::r::nil).
+      Local Fact congr_rels_rels : fol_rels congr_rels ⊑ e::r::nil.
       Proof.
         unfold congr_rels.
         do 2 rewrite fol_rels_mquant.
@@ -254,7 +256,7 @@ Section fol_congruence.
         fol_lconj (map congr_syms ls) 
       ⟑ fol_lconj (map congr_rels lr).
 
-    Local Fact fol_congruent_syms : incl (fol_syms fol_congruent) ls.
+    Local Fact fol_congruent_syms : fol_syms fol_congruent ⊑ ls.
     Proof.
       unfold fol_congruent.
       rewrite fol_syms_bin.
@@ -272,7 +274,7 @@ Section fol_congruence.
         intros [].
     Qed.
 
-    Local Fact fol_congruent_rels : incl (fol_rels fol_congruent) lr.
+    Local Fact fol_congruent_rels : fol_rels fol_congruent ⊑ lr.
     Proof.
       unfold fol_congruent.
       rewrite fol_rels_bin.
@@ -330,7 +332,7 @@ Section fol_congruence.
       repeat rewrite fol_syms_e; auto.
     Qed.
 
-    Local Fact fol_equivalence_rels : incl (fol_rels fol_equivalence) (e::nil).
+    Local Fact fol_equivalence_rels : fol_rels fol_equivalence ⊑ e::nil.
     Proof. simpl; cbv; tauto. Qed.
   
     Fact fol_equiv_spec φ : 
@@ -357,14 +359,14 @@ Section fol_congruence.
           fol_congruent 
         ⟑ fol_equivalence.
 
-    Fact fol_congruence_syms : incl (fol_syms fol_congruence) ls.
+    Fact fol_congruence_syms : fol_syms fol_congruence ⊑ ls.
     Proof.
       unfold fol_congruence.
       rewrite fol_syms_bin, fol_equivalence_syms, <- app_nil_end.
       apply fol_congruent_syms.
     Qed.
 
-    Fact fol_congruence_rels : incl (fol_rels fol_congruence) lr.
+    Fact fol_congruence_rels : fol_rels fol_congruence ⊑ lr.
     Proof.
       unfold fol_congruence.
       rewrite fol_rels_bin.

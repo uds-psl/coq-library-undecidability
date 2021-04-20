@@ -80,7 +80,7 @@ Section bt_model_n.
 
   Section the_model.
 
-    Let X_surj_hfs : { d : hfs & 
+    Local Definition X_surj_hfs : { d : hfs & 
                      { f : hfs -> X & 
                      { g : X -> hfs |
                         hfs_transitive d
