@@ -52,8 +52,7 @@ Notation "x '⊗' y" := (@func _ Mult ([x ; y]) ) (at level 38) : PA_Notation.
 Notation "x '==' y" := (@atom _ _ _ _ Eq ([x ; y])) (at level 40) : PA_Notation.
 Notation "x '⧀' y"  := (∃ (x[↑] ⊕ σ $0) == y) (at level 42) : PA_Notation.
 
-
-
+Fixpoint num n := match n with 0 => zero | S n => σ (num n) end.
 
 (* ** Axioms of PA *)
 
@@ -113,6 +112,15 @@ Section ReificationExample.
   Context (D':Type).
   Context {I : interp D'}.
   Context {D_ext : extensional I}.
+
+  Notation "'izero'" := (@i_func _ _ D' I Zero ([])) (at level 1) : PA_Notation.
+  Notation "'iσ' x" := (@i_func _ _ D' I Succ ([x])) (at level 37) : PA_Notation.
+  Notation "x 'i⊕' y" := (@i_func _ _ D' I Plus ([x ; y]) ) (at level 39) : PA_Notation.
+  Notation "x 'i⊗' y" := (@i_func _ _ D' I Mult ([x ; y]) ) (at level 38) : PA_Notation.
+
+  Fixpoint inum n := match n with 0 => izero | S n => iσ (inum n) end.
+
+
   Open Scope string_scope.
   Instance PA_reflector : tarski_reflector := buildDefaultTarski 
                         (i_func (f:=Zero) (Vector.nil D')) 
@@ -120,15 +128,15 @@ Section ReificationExample.
 
   Section ReflectionExtension.
     Import MetaCoq.Template.Ast MetaCoq.Template.TemplateMonad.Core.
-    (*Definition mergeMu (rho:nat -> D) (n:nat) : representsF (iμ n) (num n) rho.
+    Definition mergeNum (rho:nat -> D) (n:nat) : representsF (inum n) (num n) rho.
     Proof. unfold representsF. induction n.
     * easy.
     * cbn. do 2 f_equal. cbn in IHn. now rewrite IHn.
     Defined.
-    MetaCoq Quote Definition qMu := iμ.
-    MetaCoq Quote Definition qMergeMu := mergeMu.
-    MetaCoq Quote Definition qMergeTermMu := @num.
-    Print qMergeTermMu. *)
+    MetaCoq Quote Definition qNum := inum.
+    MetaCoq Quote Definition qMergeNum := mergeNum.
+    MetaCoq Quote Definition qMergeTermNum := @num.
+
     Definition mergeEqProp (rho:nat -> D) (d1 d2 : D) (t1 t2 : Syntax.term) : representsF d1 t1 rho -> representsF d2 t2 rho -> @representsP _ _ 0 (t1==t2) rho (d1 = d2).
     Proof. intros pt1 pt2. cbn. unfold representsF in pt1, pt2. cbn in pt1, pt2. rewrite pt1, pt2. now rewrite D_ext.
     Defined.
@@ -145,28 +153,26 @@ Section ReificationExample.
                                                ret (List.app xr yr) else fail "Eq applied to wrong type" | _ => fail "Eq constructor applied to != 2 terms" end.
     Definition reifyBLC (s:string) : baseConnectiveReifier := match s with "eq" => reifyCoqEq | _ => fun _ _ _ _ _ _ _ _ => fail ("Unknown connective " ++ s) end.
     Definition varsBLC (s:string) : baseConnectiveVars := match s with "eq" => varsCoqEq | _ => fun _ _ _ _ _ => fail ("Unknown connective " ++ s) end.
-(*    Definition findVarsTerm : termFinderVars := fun fuel t fUVT => match t with (tApp qMu (k::nil)) => ret nil | _ => fail "Fail" end.
-    Definition reifyTerm : termFinderReifier := fun tct fuel t envTerm env fTR => match t with tApp qMu ([k]) => ret (tApp qMergeTermMu (k::nil), tApp qMergeMu (envTerm::k::nil)) | _ => fail "Fail" end. *)
+    Definition findVarsTerm : termFinderVars := fun fuel t fUVT => match t with (tApp qMu (k::nil)) => ret nil | _ => fail "Fail" end.
+    Definition reifyTerm : termFinderReifier := fun tct qff fuel t envTerm env fTR => match t with tApp qMu (k::nil) => ret (tApp qMergeTermNum (k::nil), tApp qMergeNum (envTerm::k::nil)) | _ => fail "Fail" end.
   End ReflectionExtension.
   Instance PA_reflector_ext : tarski_reflector_extensions PA_reflector := {| (*Cannot define instance in section because they are dropped afterwards *)
     baseLogicConnHelper := Some (reifyBLC);
     baseLogicVarHelper := Some (varsBLC);
-    termReifierVarHelper := None; (*Some (findVarsTerm);*)
-    termReifierReifyHelper := None; (*Some (reifyTerm);*)
+    termReifierVarHelper := Some (findVarsTerm);
+    termReifierReifyHelper := Some (reifyTerm);
     formReifierVarHelper := None;
     formReifierReifyHelper := None
   |}.
 
-  Notation "'izero'" := (@i_func PA_funcs_signature _ D' I Zero ([])) (at level 1) : PA_Notation.
-  Notation "'iσ' x" := (@i_func PA_funcs_signature _ D' I Succ ([x])) (at level 37) : PA_Notation.
-  Notation "x 'i⊕' y" := (@i_func PA_funcs_signature _ D' I Plus ([x ; y]) ) (at level 39) : PA_Notation.
-  Notation "x 'i⊗' y" := (@i_func PA_funcs_signature _ D' I Mult ([x ; y]) ) (at level 38) : PA_Notation.
-
   Definition proj1 {X:Type} {Y:X->Type} (H:{x:X&Y x}) : X := match H with existT x y => x end.
 
-  Lemma foo (a : D) : representableP 1 (fun (b:D) => forall (c:D), exists (d:D), a i⊕ b i⊗ c = iσ d \/ (True /\ False) <-> False).
+  Lemma foo (a : D) (n:nat) : representableP 1 (fun (b:D) => forall (c:D), exists (d:D), a i⊕ b i⊗ c = iσ d \/ (True /\ False) <-> (inum n = inum n)).
   Proof. represent. Defined.
 
-  Compute (proj1 (foo izero)).
+  Lemma bar : representableP 0 (~(True <-> False)).
+  Proof. represent. Defined.
+
+  Compute (fun d n => proj1 (foo d n)).
 
 End ReificationExample.
