@@ -60,7 +60,7 @@ Fixpoint enc_stack (B : BSRS) :=
   end.
 
 Definition is_rep phi a b :=
-  ∀ $0 ∈ shift 1 b <~> ∃ $0 ∈ shift 2 a ∧ phi.
+  ∀ $0 ∈ shift 1 b ↔ ∃ $0 ∈ shift 2 a ∧ phi.
 
 Definition comb_rel s t :=
   ∃ ∃ $2 ≡ opair $0 $1 ∧ $3 ≡ opair (prep_string s $0) (prep_string t $1).

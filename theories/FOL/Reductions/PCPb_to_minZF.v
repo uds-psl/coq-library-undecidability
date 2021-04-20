@@ -514,7 +514,7 @@ Proof.
 Qed.
 
 Lemma iff_equiv { p : peirce } (phi psi phi' psi' : form') A :
-  (forall B, A <<= B -> B ⊢ phi <-> B ⊢ phi') -> (forall B, A <<= B -> B ⊢ psi <-> B ⊢ psi') -> (A ⊢ phi <~> psi) <-> (A ⊢ phi' <~> psi').
+  (forall B, A <<= B -> B ⊢ phi <-> B ⊢ phi') -> (forall B, A <<= B -> B ⊢ psi <-> B ⊢ psi') -> (A ⊢ phi ↔ psi) <-> (A ⊢ phi' ↔ psi').
 Proof.
   intros H1 H2. split; intros [H3 H4] % CE; apply CI; eapply impl_equiv.
   3,9: apply H3. 5,10: apply H4. all: firstorder.
@@ -775,7 +775,7 @@ Proof.
            apply CE1 in H. apply (IE H) in H1. clear H. apply (DE H1).
            ** apply DI1. eapply minZF_elem; auto 9. 2: apply (Weak H2); auto. apply minZF_refl. auto 9.
            ** apply DI2. apply DE'. apply IE with (z ∈' s). eapply CE1 with (z ≡' x ∨ z ≡' x ~> z ∈' s). 
-              replace (z ∈' s <~> z ≡' x ∨ z ≡' x) with (($0 ∈' s`[↑] <~> $0 ≡' x`[↑] ∨ $0 ≡' x`[↑])[z..]).
+              replace (z ∈' s ↔ z ≡' x ∨ z ≡' x) with (($0 ∈' s`[↑] ↔ $0 ≡' x`[↑] ∨ $0 ≡' x`[↑])[z..]).
               2: cbn; now subsimpl. apply AllE. auto 7. eapply minZF_elem; auto 9.
               2: apply (Weak H2); auto. apply minZF_refl. auto 9.
     + apply (ExI o). cbn. subsimpl. rewrite !is_om_subst. cbn. apply CI; [eapply CE1 | eapply CE2]; auto.
@@ -864,7 +864,7 @@ Section Deduction.
       (* making the goal a bit more readable, could be automated *)
       pose (B := ((rm_const_tm (Vector.hd v))[b..]
            ∧ (∃ (rm_const_tm (Vector.hd (Vector.tl v)))[sshift 2][up (up x..)][up b..]
-                ∧ (∀ $0 ∈' x`[↑]`[↑] <~> $0 ≡' b`[↑]`[↑] ∨ $0 ≡' ↑ 0)) :: a ∈' x :: A)).
+                ∧ (∀ $0 ∈' x`[↑]`[↑] ↔ $0 ≡' b`[↑]`[↑] ∨ $0 ≡' ↑ 0)) :: a ∈' x :: A)).
       fold B in H1, H2, H3, H4, H5, H6. fold B. rewrite !eq_sshift2, !eq_sshift1 in *.
 
       assert (HB : minZFeq' <<= B). { rewrite HA. unfold B. auto. }

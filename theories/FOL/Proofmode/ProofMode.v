@@ -1045,13 +1045,13 @@ Section Fapply.
   Variable p : peirce.
 
   Lemma fapply_equiv_l A phi psi :
-    A ⊢ (phi <~> psi) -> A ⊢ phi -> A ⊢ psi.
+    A ⊢ (phi ↔ psi) -> A ⊢ phi -> A ⊢ psi.
   Proof.
     intros. apply (IE _ phi). eapply CE1. apply H. apply H0.
   Qed.
 
   Lemma fapply_equiv_r A phi psi :
-    A ⊢ (phi <~> psi) -> A ⊢ psi -> A ⊢ phi.
+    A ⊢ (phi ↔ psi) -> A ⊢ psi -> A ⊢ phi.
   Proof.
     intros. apply (IE _ psi). eapply CE2. apply H. apply H0.
   Qed.
@@ -1060,13 +1060,13 @@ Section Fapply.
   Context {eq_dec_Preds : eq_dec preds}.
 
   Lemma fapply_equiv_l_T A phi psi :
-    A ⊩ (phi <~> psi) -> A ⊩ phi -> A ⊩ psi.
+    A ⊩ (phi ↔ psi) -> A ⊩ phi -> A ⊩ psi.
   Proof.
     intros. apply (IE _ phi). eapply CE1. apply H. apply H0.
   Qed.
 
   Lemma fapply_equiv_r_T A phi psi :
-    A ⊩ (phi <~> psi) -> A ⊩ psi -> A ⊩ phi.
+    A ⊩ (phi ↔ psi) -> A ⊩ psi -> A ⊩ phi.
   Proof.
     intros. apply (IE _ psi). eapply CE2. apply H. apply H0.
   Qed.
@@ -1078,8 +1078,8 @@ End Fapply.
  * without leading quantifiers. It solves the goal `X ⊢ g` by 
  * adding subgoals for each premise `p1, p2, ..., pn`.
  *
- * Also supports formulas of Type `H : X ⊢ ... ~> (pn <~> g)` or 
- * `H : X ⊢ ... ~> (g <~> pn)`.
+ * Also supports formulas of Type `H : X ⊢ ... ~> (pn ↔ g)` or 
+ * `H : X ⊢ ... ~> (g ↔ pn)`.
  *
  * If ∀-quantifiers occur inbetween, they are instantiated with evars. *)
 Ltac fapply_without_quant H :=
@@ -1104,7 +1104,7 @@ Ltac fapply_without_quant H :=
   (* Handle application of equivalence. It would be nice to use match
    * to check which side matches, but it doesn't work because of evars.
    * Therefore simply try both options. *)
-  | _ <~> _ =>
+  | _ ↔ _ =>
     match goal with
     | [ |- _ ⊢ _] => tryif apply (fapply_equiv_l _ _ _ _ H) then idtac else apply (fapply_equiv_r _ _ _ _ H)
     | [ |- _ ⊩ _] => tryif apply (fapply_equiv_l_T _ _ _ _ H) then idtac else apply (fapply_equiv_r_T _ _ _ _ H)
@@ -1226,8 +1226,8 @@ Tactic Notation "fapply" "(" constr(T) ")" := make_compatible ltac:(fapply' T co
  * It changes the assumption `pn` in the context into `q` and adds
  * additional goals for each premise `p1, p2, ..., pn`.
  *
- * Also supports formulas of Type `H_imp : X ⊢ ... ~> (pn <~> q)` or 
- * `H_imp : X ⊢ ... ~> (q <~> pn)`.
+ * Also supports formulas of Type `H_imp : X ⊢ ... ~> (pn ↔ q)` or 
+ * `H_imp : X ⊢ ... ~> (q ↔ pn)`.
  *
  * If ∀-quantifiers occur inbetween, they are instantiated with evars. *)
 Ltac fapply_in_without_quant_in T_hyp H_imp H_hyp :=
@@ -1251,7 +1251,7 @@ Ltac fapply_in_without_quant_in T_hyp H_imp H_hyp :=
   (* Handle application of equivalence. It would be nice to use match
    * to check which side matches, but it doesn't work because of evars.
    * Therefore simply try both options. *)
-  | ?s <~> ?t =>
+  | ?s ↔ ?t =>
     let H_hyp' := fresh "H_hyp'" in
     (tryif assert_compat t as H_hyp' by (feapply H_imp; apply H_hyp) then idtac
     else assert_compat s as H_hyp' by (feapply H_imp; apply H_hyp));
@@ -1686,7 +1686,7 @@ Section FrewriteEquiv.
   Context {p : peirce}.
 
   Lemma frewrite_equiv_bin_l A op phi psi theta :
-    A ⊢ (phi <~> psi) -> A ⊢ (bin op phi theta <~> bin op psi theta).
+    A ⊢ (phi ↔ psi) -> A ⊢ (bin op phi theta ↔ bin op psi theta).
   Proof.
     intros E. fstart. destruct op; fsplit.
     - fintros "[P T]". fsplit. fapply E. ctx. ctx.
@@ -1698,7 +1698,7 @@ Section FrewriteEquiv.
   Qed.
 
   Lemma frewrite_equiv_bin_r A op phi psi theta :
-    A ⊢ (phi <~> psi) -> A ⊢ (bin op theta phi <~> bin op theta psi).
+    A ⊢ (phi ↔ psi) -> A ⊢ (bin op theta phi ↔ bin op theta psi).
   Proof.
     intros E. fstart. destruct op; fsplit.
     - fintros "[P T]". fsplit. ctx. fapply E. ctx.
@@ -1710,7 +1710,7 @@ Section FrewriteEquiv.
   Qed.
 
   Lemma frewrite_equiv_bin_lr A op phi psi theta chi :
-    A ⊢ (phi <~> psi) -> A ⊢ (theta <~> chi) -> A ⊢ (bin op phi theta <~> bin op psi chi).
+    A ⊢ (phi ↔ psi) -> A ⊢ (theta ↔ chi) -> A ⊢ (bin op phi theta ↔ bin op psi chi).
   Proof.
     intros E1 E2. fstart. destruct op; fsplit.
     - fintros "[P T]". fsplit. fapply E1. ctx. fapply E2. ctx.
@@ -1722,7 +1722,7 @@ Section FrewriteEquiv.
   Qed.
 
   Lemma frewrite_equiv_quant A op phi psi :
-    A ⊢ (phi <~> psi) -> A ⊢ (quant op phi[↑] <~> quant op psi[↑]).
+    A ⊢ (phi ↔ psi) -> A ⊢ (quant op phi[↑] ↔ quant op psi[↑]).
   Proof.
     intros E. fstart. destruct op; fsplit.
     - fintros "H" x. fapply E. fapply ("H" $0). (* Give dummy argument to avoid uninstantiated evar *)
@@ -1732,7 +1732,7 @@ Section FrewriteEquiv.
   Qed.
 
   Lemma frewrite_equiv_switch A phi psi :
-    A ⊢ (phi <~> psi) -> A ⊢ (psi <~> phi).
+    A ⊢ (phi ↔ psi) -> A ⊢ (psi ↔ phi).
   Proof.
     intros E. fdestruct E. fsplit; ctx.
   Qed.
@@ -1741,19 +1741,19 @@ Section FrewriteEquiv.
   Context {eq_dec_Preds : EqDec preds}.
 
   Lemma frewrite_equiv_bin_l_T T op phi psi theta :
-    T ⊩ (phi <~> psi) -> T ⊩ (bin op phi theta <~> bin op psi theta).
+    T ⊩ (phi ↔ psi) -> T ⊩ (bin op phi theta ↔ bin op psi theta).
   Proof.
     intros [A [ ]]. exists A. split. easy. now apply frewrite_equiv_bin_l.
   Qed.
 
   Lemma frewrite_equiv_bin_r_T T op phi psi theta :
-    T ⊩ (phi <~> psi) -> T ⊩ (bin op theta phi <~> bin op theta psi).
+    T ⊩ (phi ↔ psi) -> T ⊩ (bin op theta phi ↔ bin op theta psi).
   Proof.
     intros [A [ ]]. exists A. split. easy. now apply frewrite_equiv_bin_r.
   Qed.
 
   Lemma frewrite_equiv_bin_lr_T T op phi psi theta chi :
-    T ⊩ (phi <~> psi) -> T ⊩ (theta <~> chi) -> T ⊩ (bin op phi theta <~> bin op psi chi).
+    T ⊩ (phi ↔ psi) -> T ⊩ (theta ↔ chi) -> T ⊩ (bin op phi theta ↔ bin op psi chi).
   Proof.
     intros [A [ ]] [B [ ]]. exists (List.app A B). split.
     now apply contains_app. apply frewrite_equiv_bin_lr.
@@ -1762,13 +1762,13 @@ Section FrewriteEquiv.
   Qed.
 
   Lemma frewrite_equiv_quant_T T op phi psi :
-    T ⊩ (phi <~> psi) -> T ⊩ (quant op phi[↑] <~> quant op psi[↑]).
+    T ⊩ (phi ↔ psi) -> T ⊩ (quant op phi[↑] ↔ quant op psi[↑]).
   Proof.
     intros [A [ ]]. exists A. split. easy. now apply frewrite_equiv_quant.
   Qed.
 
   Lemma frewrite_equiv_switch_T T phi psi :
-    T ⊩ (phi <~> psi) -> T ⊩ (psi <~> phi).
+    T ⊩ (phi ↔ psi) -> T ⊩ (psi ↔ phi).
   Proof.
     intros [A [ ]]. exists A. split. easy. now apply frewrite_equiv_switch.
   Qed.
@@ -1777,12 +1777,12 @@ End FrewriteEquiv.
 
 Ltac contains phi f := match phi with f => idtac | context P [ f ] => idtac end.
 
-(* Solves a goal `A <~> B` if `A` equals `B` up to replacing `phi`
- * with `psi`. `H` needs to be proof of `C ⊢ phi <~> psi`. *)
+(* Solves a goal `A ↔ B` if `A` equals `B` up to replacing `phi`
+ * with `psi`. `H` needs to be proof of `C ⊢ phi ↔ psi`. *)
 Ltac frewrite_equiv_solve H phi psi :=
   match get_form_goal with
-  | phi <~> psi => apply H
-  | bin ?op ?l ?r <~> _ => (
+  | phi ↔ psi => apply H
+  | bin ?op ?l ?r ↔ _ => (
       tryif contains l phi
       then (tryif contains r phi
         then apply_compat frewrite_equiv_bin_lr frewrite_equiv_bin_lr_T
@@ -1790,7 +1790,7 @@ Ltac frewrite_equiv_solve H phi psi :=
       else apply_compat frewrite_equiv_bin_r frewrite_equiv_bin_r_T
     );
     frewrite_equiv_solve H phi psi
-  | quant _ _ _ <~> _ => 
+  | quant _ _ _ ↔ _ => 
     apply_compat frewrite_equiv_quant frewrite_equiv_quant_T;
     frewrite_equiv_solve H phi psi
   end.
@@ -1879,7 +1879,7 @@ Ltac frewrite' T A back := fun contxt =>
 
   match get_form_hyp H with 
   (* Rewrite with equivalence *)
-  | ?_phi <~> ?_psi => 
+  | ?_phi ↔ ?_psi => 
     let phi := match back with true => _psi | false => _phi end in
     let psi := match back with true => _phi | false => _psi end in
     match back with true => apply_compat frewrite_equiv_switch frewrite_equiv_switch_T in H | _ => idtac end;
@@ -1887,7 +1887,7 @@ Ltac frewrite' T A back := fun contxt =>
     let G := get_form_goal in
     let G' := frewrite_replace_all G phi psi in
     let E := fresh "E" in
-    assert_compat (G <~> G') as E;
+    assert_compat (G ↔ G') as E;
     [ frewrite_equiv_solve H phi psi |];
     feapply E;
     clear E

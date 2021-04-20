@@ -36,19 +36,19 @@ Definition is_eset (t : term') :=
   ∀ ¬ ($0 ∈ t`[↑]).
 
 Definition is_pair (x y t : term') :=
-  ∀ $0 ∈ t`[↑] <~> $0 ≡ x`[↑] ∨ $0 ≡ y`[↑].
+  ∀ $0 ∈ t`[↑] ↔ $0 ≡ x`[↑] ∨ $0 ≡ y`[↑].
 
 Definition is_union (x t : term') :=
-  ∀ $0 ∈ t`[↑] <~> ∃ $0 ∈ shift 2 x ∧ $1 ∈ $0.
+  ∀ $0 ∈ t`[↑] ↔ ∃ $0 ∈ shift 2 x ∧ $1 ∈ $0.
 
 Definition sub' (x y : term') :=
   ∀ $0 ∈ x`[↑] ~> $0 ∈ y`[↑].
 
 Definition is_power (x t : term') :=
-  ∀ $0 ∈ t`[↑] <~> sub' $0 x`[↑].
+  ∀ $0 ∈ t`[↑] ↔ sub' $0 x`[↑].
 
 Definition is_sigma (x t : term') :=
-  ∀ $0 ∈ t`[↑] <~> $0 ∈ x`[↑] ∨ $0 ≡ x`[↑].
+  ∀ $0 ∈ t`[↑] ↔ $0 ∈ x`[↑] ∨ $0 ≡ x`[↑].
 
 Definition is_inductive (t : term') :=
   (∃ is_eset $0 ∧ $0 ∈ t`[↑]) ∧ ∀ $0 ∈ t`[↑] ~> (∃ is_sigma $1 $0 ∧ $0 ∈ shift 2 t).
@@ -101,13 +101,13 @@ Definition minZFeq' :=
   ax_refl' :: ax_sym' :: ax_trans' :: ax_eq_elem' :: minZF'.
 
 Definition ax_sep' phi :=
-  ∀ ∃ ∀ $0 ∈' $1 <~> $0 ∈' $2 ∧ phi[$0.: Nat.add 3 >> var].
+  ∀ ∃ ∀ $0 ∈' $1 ↔ $0 ∈' $2 ∧ phi[$0.: Nat.add 3 >> var].
 
 Definition fun_rel' phi :=
   ∀ ∀ ∀ phi[$2 .: $1 .: Nat.add 3 >> var] ~> phi[$2 .: $0 .: Nat.add 3 >> var] ~> $1 ≡' $0.
 
 Definition ax_rep' phi :=
-  fun_rel' phi ~> ∀ ∃ ∀ $0 ∈' $1 <~> ∃ $0 ∈' $3 ∧ phi[$0 .: $1 .: Nat.add 4 >> var].
+  fun_rel' phi ~> ∀ ∃ ∀ $0 ∈' $1 ↔ ∃ $0 ∈' $3 ∧ phi[$0 .: $1 .: Nat.add 4 >> var].
 
 (* Theory of full ZF including the separation and replacement schemes *)
 

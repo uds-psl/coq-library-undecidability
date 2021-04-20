@@ -69,13 +69,13 @@ Definition ax_eset :=
   ∀ ¬ ($0 ∈ ∅).
 
 Definition ax_pair :=
-  ∀ ∀ ∀ $0 ∈ {$1; $2} <~> $0 ≡ $1 ∨ $0 ≡ $2.
+  ∀ ∀ ∀ $0 ∈ {$1; $2} ↔ $0 ≡ $1 ∨ $0 ≡ $2.
 
 Definition ax_union :=
-  ∀ ∀ $0 ∈ ⋃ $1 <~> ∃ $0 ∈ $2 ∧ $1 ∈ $0.
+  ∀ ∀ $0 ∈ ⋃ $1 ↔ ∃ $0 ∈ $2 ∧ $1 ∈ $0.
 
 Definition ax_power :=
-  ∀ ∀ $0 ∈ PP $1 <~> $0 ⊆ $1.
+  ∀ ∀ $0 ∈ PP $1 ↔ $0 ⊆ $1.
 
 Definition inductive x :=
   ∅ ∈ x ∧ ∀ $0 ∈ x`[↑] ~> σ $0 ∈ x`[↑].
@@ -87,13 +87,13 @@ Definition ax_om2 :=
   ∀ inductive $0 ~> ω ⊆ $0.
 
 Definition ax_sep phi :=
-  ∀ ∃ ∀ $0 ∈ $1 <~> $0 ∈ $2 ∧ phi[$0.: Nat.add 3 >> var].
+  ∀ ∃ ∀ $0 ∈ $1 ↔ $0 ∈ $2 ∧ phi[$0.: Nat.add 3 >> var].
 
 Definition fun_rel phi :=
   ∀ ∀ ∀ phi[$2 .: $1 .: Nat.add 3 >> var] ~> phi[$2 .: $0 .: Nat.add 3 >> var] ~> $1 ≡ $0.
 
 Definition ax_rep phi :=
-  fun_rel phi ~> ∀ ∃ ∀ $0 ∈ $1 <~> ∃ $0 ∈ $3 ∧ phi[$0 .: $1 .: Nat.add 4 >> var].
+  fun_rel phi ~> ∀ ∃ ∀ $0 ∈ $1 ↔ ∃ $0 ∈ $3 ∧ phi[$0 .: $1 .: Nat.add 4 >> var].
 
 (* List of core axioms without schemes for separation and replacement *)
 

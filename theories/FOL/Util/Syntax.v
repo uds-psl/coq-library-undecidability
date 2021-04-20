@@ -150,7 +150,7 @@ Module FullSyntax.
   Notation "A '~>' B" := (@bin _ _ full_operators _ Impl A B) (at level 43, right associativity) : syn.
   Notation "⊥" := (falsity) : syn.
   Notation "¬ A" := (A ~> ⊥) (at level 42) : syn.
-  Notation "A '<~~>' B" := ((A ~> B) ∧ (B ~> A)) (at level 43) : syn.
+  Notation "A '↔' B" := ((A ~> B) ∧ (B ~> A)) (at level 43) : syn.
 
 End FullSyntax.
 

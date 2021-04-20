@@ -356,7 +356,7 @@ Section TarskiMerging.
   Definition mForall {ff : falsity_flag} := (@quant fs ps full_operators ff All).
   MetaCoq Quote Definition qMergeFormForall := @mForall.
 
-  Definition mergeIff {ff : falsity_flag} (rho:nat -> D) (P Q : naryProp 0) (fP fQ : form ff) : representsP fP rho P -> representsP fQ rho Q -> @representsP _ ff 0 (fP<~~>fQ) rho (P <-> Q).
+  Definition mergeIff {ff : falsity_flag} (rho:nat -> D) (P Q : naryProp 0) (fP fQ : form ff) : representsP fP rho P -> representsP fQ rho Q -> @representsP _ ff 0 (fP↔fQ) rho (P <-> Q).
   Proof. intros H1 H2. cbn. cbn in H1,H2. rewrite H2, H1. reflexivity. Defined.
   Definition mIff := (fun {ff : falsity_flag} (fP fQ : form ff) => mAnd (mImpl fP fQ) (mImpl fQ fP)).
   MetaCoq Quote Definition qMergeFormIff := @mIff.
