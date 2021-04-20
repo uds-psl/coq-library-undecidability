@@ -165,14 +165,26 @@ Section ReificationExample.
     formReifierReifyHelper := None
   |}.
 
+  MetaCoq Quote Definition tct := PA_reflector.
   Definition proj1 {X:Type} {Y:X->Type} (H:{x:X&Y x}) : X := match H with existT x y => x end.
 
-  Lemma foo (a : D) (n:nat) : representableP 1 (fun (b:D) => forall (c:D), exists (d:D), a i⊕ b i⊗ c = iσ d \/ (True /\ False) <-> (inum n = inum n)).
-  Proof. represent. Defined.
+  Lemma foo (a : D) (n:nat) : representableP 1 (fun (b:D) => forall (c:D), exists (d:D), a i⊕ b i⊗ c = iσ d /\ (True \/ ~False) <-> (inum n = inum n)).
+  Proof. represent.
+  Defined.
+
+  Eval cbn in (fun d n => proj1 (foo d n)).
 
   Lemma bar : representableP 0 (~(True <-> False)).
   Proof. represent. Defined.
 
-  Compute (fun d n => proj1 (foo d n)).
+  Lemma large : representableP 0 
+    (True /\ True /\ True \/ False /\ True /\ True /\ True \/ False /\ ~False \/ True <-> True
+    /\ True /\ True /\ True \/ False /\ True /\ True /\ True \/ False /\ ~False \/ True <-> True
+    \/ True /\ True /\ True \/ False /\ True /\ True /\ True \/ False /\ ~False \/ True <-> True
+    /\ True /\ True /\ True \/ False /\ True /\ True /\ True \/ False /\ ~False \/ True <-> True
+    /\ True /\ True /\ True \/ False /\ True /\ True /\ True \/ False /\ ~False \/ True <-> True
+    \/ True /\ True /\ True \/ False /\ True /\ True /\ True \/ False /\ ~False \/ True <-> True).
+  Proof. Time representNP. Restart. Time represent. Defined. 
+
 
 End ReificationExample.
