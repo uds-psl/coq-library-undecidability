@@ -279,8 +279,18 @@ Ltac create_context A := let x := create_context' A in match x with (?c, _) => c
 
 
 (** Variable names utilities: *)
-Definition named_quant {fsig psig ops ff} op (x : string) phi := @quant fsig psig ops ff op phi.
-Definition named_var {fsig} n (x : string) := @var fsig n.
+
+(* We save identifiers with the binder of a trivial function *)
+Inductive ident_name := Ident : (unit -> unit) -> ident_name.
+
+Require Import Undecidability.FOL.Proofmode.Ltac2StringIdent.
+Ltac to_ident_name id :=
+  eval cbv in (ltac:(clear; apply Ident; intros id; assumption) : ident_name).
+
+Notation "x" := (Ident (fun x => x)) (at level 1, only printing).
+
+Definition named_quant {fsig psig ops ff} op (x : ident_name) phi := @quant fsig psig ops ff op phi.
+Definition named_var {fsig} n (x : ident_name) := @var fsig n.
 Arguments named_var {_ _} _.
 
 (* Fails if `n` is not constant (e.g. a variable). Else returns 0. *)
@@ -294,8 +304,8 @@ Ltac annotate_term f t :=
   match t with
     | context C[ var ?n ] => 
         let _ := assert_is_constant_nat n in
-        let name := eval cbn in (f n) in
-        let t' := context C[ @named_var _ n name ] in
+        let ident_name := eval cbn in (f n) in
+        let t' := context C[ @named_var _ n ident_name ] in
         annotate_term f t'
     | _ => t 
   end.
@@ -324,22 +334,41 @@ Ltac annotate_form' f idx phi :=
       constr:(bin op psi1' psi2')
   | quant ?op ?psi =>
       let name := eval cbn in ("x" ++ nat_to_string idx) in
-      let f' := constr:(fun n => match n with 0 => name | S n' => f n' end) in
-      let psi' := annotate_form' f' (S idx) psi in
-      constr:(named_quant op name psi')
-  | _ => phi
+      let id := string_to_ident name in
+      (* Check if identifier is already used *)
+      match phi with
+      | _ => 
+          let _ := eval cbv in ltac:(assert (id := 0); clear id; exact 0) in
+          let ident_name := to_ident_name id in
+          let f' := constr:(fun n => match n with 0 => ident_name | S n' => f n' end) in
+          let psi' := annotate_form' f' (S idx) psi in
+          constr:(named_quant op ident_name psi')
+      | _ => annotate_form' f (S idx) phi
+      end
+  (* If we don't have a concrete logic operator, it could be a
+   * function call like `is_union $0 $1`. Also annotate those
+   * arguments *)
+  | _ => 
+      match phi with
+      | context C[ var ?n ] => 
+          let _ := assert_is_constant_nat n in
+          let ident_name := eval cbn in (f n) in
+          let phi' := context C[ @named_var _ n ident_name ] in
+          annotate_form' f idx phi'
+      | _ => phi
+      end
   end.
 
 Ltac add_binder_names :=
   match goal with 
   | [ |- @pm _ _ _ ?p ?C ?phi ] =>
-    let f := constr:(fun (n : nat) => "ERROR") in
+    let f := constr:(fun (n : nat) => Ident (fun _unknown => _unknown)) in
     let annotate_form := annotate_form' f 0 in
     let phi' := annotate_form phi in
     let C' := map_ltac C annotate_form in
     change (@pm _ _ _ p C' phi')
   | [ |- @tpm _ _ _ ?p ?C ?phi ] =>
-    let f := constr:(fun (n : nat) => "ERROR") in
+    let f := constr:(fun (n : nat) => Ident (fun _unknown => _unknown)) in
     let annotate_form := annotate_form' f 0 in
     let phi' := annotate_form phi in
     let C' := map_ltac C annotate_form in
@@ -369,7 +398,7 @@ Notation "∀ x .. y , phi" := (named_quant All x ( .. (named_quant All y phi) .
 Notation "∃ x .. y , phi" := (named_quant Ex x ( .. (named_quant Ex y phi) .. )) (at level 50, only printing,
   format "'[' '∃'  '/  ' x  ..  y ,  '/  ' phi ']'").
 
-Notation "x" := (named_var x) (at level 1, only printing).
+Notation "x" := (named_var (Ident (fun x => x))) (at level 1, only printing).
 
 Notation "C '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━' phi" :=
   (pm C phi)
