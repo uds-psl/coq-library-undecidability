@@ -278,6 +278,14 @@ Ltac create_context A := let x := create_context' A in match x with (?c, _) => c
 
 
 
+(** List inclusion Automation *)
+
+Ltac solve_list_incl :=
+  try (repeat (try apply incl_refl; apply incl_tl)); firstorder.
+
+
+
+
 (** Variable names utilities: *)
 
 (* We save identifiers with the binder of a trivial function *)
@@ -461,6 +469,29 @@ Ltac make_compatible tac :=
       try update_binder_names (* [try] because some tactics add normal Coq goals *)
   end.
 
+(* Version of `make_compatible` that should be used internally.
+ * This avoids doing the purely aesthetic computations. *)
+Ltac make_compatible_light tac :=
+  match goal with
+  | [ |- prv ?A _ ] => tac A
+  | [ |- tprv ?T _ ] => tac T
+  | [ |- @pm _ _ _ ?p ?C _ ] => 
+      fstop; 
+      tac C;
+      match goal with 
+      | [ |- pm _ _ ?G ] => change (@pm _ _ _ p C G) 
+      | [ |- prv _ ?G ] => change (@pm _ _ _ p C G)
+      | _ => idtac 
+      end
+  | [ |- @tpm _ _ ?p ?C _ ] => 
+      fstop;
+      tac C;
+      match goal with 
+      | [ |- tprv _ ?G ] => change (@tpm _ _ p C G)
+      | _ => idtac 
+      end
+  end.
+
 
 (* [assert] and [enough] that are compatible with all proof modes.
  * This way we can avoid matching on the goal each time. *)
@@ -542,6 +573,11 @@ Tactic Notation "get_form" hyp(H) := get_form_hyp H.
 
 
 (** Simplification: *)
+
+Hint Rewrite -> @up_term : subst.
+Hint Rewrite -> @subst_term_shift : subst.
+Hint Rewrite -> @up_form : subst.
+Hint Rewrite -> @subst_shift : subst.
 
 (* Spimplify terms that occur during specialization *)
 Ltac simpl_subst_hyp H :=
@@ -834,6 +870,13 @@ Ltac fintro_ident x :=
     simpl_subst;
     match goal with [ |- prv _ ?t'] => change (@pm _ _ _ p C t') end;
     update_binder_names
+  | [ |- @pm _ _ _ ?p ?C (quant All ?t) ] =>
+    apply AllI;
+    edestruct nameless_equiv_all as [x H];
+    apply H; clear H;
+    simpl_subst;
+    match goal with [ |- prv _ ?t'] => change (@pm _ _ _ p C t') end;
+    update_binder_names
   | [ |- _ ⊩ ∀ ?t ] =>
     let E := fresh "E" in
     apply AllI;
@@ -844,6 +887,16 @@ Ltac fintro_ident x :=
     repeat (try rewrite subst_zero_term; [| apply E]);
     clear E
   | [ |- @tpm _ _ _ ?p ?C (named_quant All _ ?t) ] =>
+    let E := fresh "E" in
+    apply AllI;
+    assert (exists x, $0 = x) as [x E] by (now exists ($0));
+    rewrite (subst_zero t x E);
+    simpl_context_mapT;
+    simpl_subst;
+    repeat (try rewrite subst_zero_term; [| apply E]);
+    clear E;
+    update_binder_names
+  | [ |- @tpm _ _ _ ?p ?C (quant All ?t) ] =>
     let E := fresh "E" in
     apply AllI;
     assert (exists x, $0 = x) as [x E] by (now exists ($0));
@@ -867,17 +920,17 @@ Ltac fintro_ident x :=
 Ltac fintro_pat' pat :=
   match pat with
   | patAnd ?p1 ?p2 => (* Existential *)
-      make_compatible ltac:(fun C =>
+      make_compatible_light ltac:(fun C =>
         apply II; eapply ExE; [ apply Ctx; now left |
           let x := varname_from_pat p1 in
           let H := fresh "H" in
           edestruct nameless_equiv_ex as [x H];
           apply H; clear H; cbn; simpl_subst; apply -> imps;
-          apply (Weak C); [| firstorder] ]
+          apply (Weak C); [| now apply incl_tl] ]
       ); 
       fintro_pat' p2
   | patAnd ?p1 ?p2 => (* Conjunction *)
-      make_compatible ltac:(fun _ => 
+      make_compatible_light ltac:(fun _ => 
         match goal with 
         | [ |- prv _ _ ] => apply intro_and_destruct
         | [ |- tprv _ _ ] => apply intro_and_destruct_T
@@ -885,7 +938,7 @@ Ltac fintro_pat' pat :=
       ); 
       fintro_pat' p1; fintro_pat' p2  
   | patOr ?p1 ?p2 =>
-      make_compatible ltac:(fun _ => 
+      make_compatible_light ltac:(fun _ => 
         match goal with 
         | [ |- prv _ _ ] => apply intro_or_destruct
         | [ |- tprv _ _ ] => apply intro_or_destruct_T
@@ -900,7 +953,9 @@ Ltac fintro_pat' pat :=
       | [ |- ?A ⊩ (?s ~> ?t) ] => apply II
       (* Special care for intro in proof mode *)
       | [ |- @pm _ _ _ ?p ?C (named_quant All _ ?t) ] => let x := varname_from_pat pat in fintro_ident x
+      | [ |- @pm _ _ _ ?p ?C (quant All ?t) ] => let x := varname_from_pat pat in fintro_ident x
       | [ |- @tpm _ _ _ ?p ?C (named_quant All _ ?t) ] => let x := varname_from_pat pat in fintro_ident x
+      | [ |- @tpm _ _ _ ?p ?C (quant All ?t) ] => let x := varname_from_pat pat in fintro_ident x
       | [ |- @pm _ _ _ ?p ?C (?s ~> ?t) ] => apply II; let name := hypname_from_pattern C id in change (@pm _ _ _ p (ccons name s C) t)
       | [ |- @tpm _ _ _ ?p ?C (?s ~> ?t) ] => apply II; let name := hypname_from_pattern C id in change (@tpm _ _ _ p (tcons name s C) t)
       | _ =>
@@ -960,7 +1015,7 @@ Ltac is_hyp H := match type of H with ?t => match type of t with Prop => idtac e
 
 (* Check wether T is a hypothesis, a context index, a context formula
  * or a context name and put it into hypothesis H. *)
- Ltac turn_into_hypothesis T H contxt := 
+Ltac turn_into_hypothesis T H contxt := 
   tryif is_hyp T
   then assert (H := T)  (* Hypothesis *)
   else match goal with 
@@ -984,6 +1039,41 @@ Ltac is_hyp H := match type of H with ?t => match type of t with Prop => idtac e
       end
   end.
 
+
+Section ContextUtil.
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+  Context {ff : falsity_flag}.
+  Variable p : peirce.
+
+  Fixpoint replace C n (phi : form) :=
+    match n, C with
+      | 0, _::C => phi :: C
+      | S n, x::C => x :: replace C n phi
+      | _, _ => C
+    end.
+
+  Lemma replace_incl C n phi :
+    incl (replace C n phi) (phi::C).
+  Proof.
+    revert C. induction n; destruct C; cbn; firstorder.
+  Qed.
+End ContextUtil.
+
+(* Returns a new context with the names from `C_named` and the
+ * content from `C_raw`. Is used to bring back the names after
+ * some computation has been performed. *)
+Ltac fix_context_names C_named C_raw :=
+  match C_named with
+  | cnil => constr:(cnil)
+  | tnil => constr:(tnil)
+  | tblackbox _ => match C_raw with tblackbox ?C => C_raw | _ => constr:(tblackbox C_raw) end
+  | cblackbox _ => match C_raw with cblackbox ?C => C_raw | _ => constr:(cblackbox C_raw) end
+  | ccons ?s _ ?A => match C_raw with ?x::?B => let B' := fix_context_names A B in constr:(ccons s x B') end
+  | tcons ?s _ ?A => match C_raw with extend ?x ?B => let B' := fix_context_names A B in constr:(tcons s x B') end
+  | _ => C_raw
+  end.
+
 (* Replace the context entry T_old with formula `phi` in 
  * `H_new : X ⊢ phi` *)
 Ltac replace_context T_old H_new :=
@@ -993,14 +1083,20 @@ Ltac replace_context T_old H_new :=
   let X := fresh in
   (enough_compat (phi ~> psi) as X by eapply (IE _ _ _ X); apply H_new);
   let C' := match type of T_old with
-    | nat => replace_ltac C T_old phi
-    | form => map_ltac C ltac:(fun f => match f with T_old => phi | ?psi => psi end)
+    | nat => constr:(replace C T_old phi) (* TODO: This no longer works for theories. We no longer use `replace_ltac C T_old phi` for inclusion performance *)
+    (* | form => map_ltac C ltac:(fun f => match f with T_old => phi | ?psi => psi end) *)
     | string => match lookup C T_old with
       | @None => let msg := eval cbn in ("Unknown identifier: " ++ T_old) in fail 4 msg
-      | @Some _ ?n => replace_ltac C n phi
+      | @Some _ ?n => constr:(replace C n phi) (* TODO: Doesn't work for theories (replace_ltac C n phi) *)
       end
   end in
-  fintro; apply (Weak C'); [| firstorder].
+  fintro; apply (Weak C'); [ | apply replace_incl]; 
+  let C' := eval cbn [replace ccons tcons cnil tnil] in C' in
+  match goal with
+  | [ |- @pm _ _ _ ?p _ _ ] => let C' := fix_context_names C C' in change (@pm _ _ _ p C' psi)
+  | [ |- @tpm _ _ _ ?p _ _ ] => let C' := fix_context_names C C' in change (@tpm _ _ _ p C' psi)
+  | _ => idtac
+  end.
 
 
 
@@ -1036,13 +1132,18 @@ Ltac fspecialize_list H A :=
 
 (* Specialize in context *)
 Ltac fspecialize_context T A :=
-  let H := fresh "H" in
-  make_compatible ltac:(fun C => turn_into_hypothesis T H C);
-  fspecialize_list H A;
-  replace_context T H;
-  try update_binder_names;
-  try simpl_subst;
-  clear H.
+  (* Do nothing of A is empty *)
+  match A with
+  | [] => idtac
+  | _ =>  
+      let H := fresh "H" in
+      make_compatible_light ltac:(fun C => turn_into_hypothesis T H C);
+      fspecialize_list H A;
+      replace_context T H;
+      try update_binder_names;
+      try simpl_subst;
+      clear H
+  end.
 
 Ltac fspecialize' T A := tryif is_hyp T then fspecialize_list T A else fspecialize_context T A.
 
@@ -1177,7 +1278,7 @@ Ltac feapply' T A := fun contxt =>
     instantiate_evars H;
     simpl_subst H;
     let C := get_context_goal in 
-    eapply (Weak _ C) in H; [| firstorder];
+    eapply (Weak _ C) in H; [| solve_list_incl];
     fapply_without_quant H;
     (* [fapply_without_quant] creates the subgoals in the wrong order.
      * Reverse them to to get the right order: *)
@@ -1198,7 +1299,7 @@ Ltac fapply' T A contxt :=
     instantiate_evars H; 
     simpl_subst H;
     let C := get_context_goal in
-    eapply (Weak _ C) in H; [| firstorder];
+    eapply (Weak _ C) in H; [| solve_list_incl];
     fapply_without_quant H;
     (* [fapply_without_quant] creates the subgoals in the wrong order.
      * Reverse them to to get the right order: *)
@@ -1224,6 +1325,8 @@ Tactic Notation "fapply" constr(T) := make_compatible ltac:(fapply' T constr:([]
 Tactic Notation "fapply" "(" constr(T) constr(x1) ")" := make_compatible ltac:(fapply' T constr:([x1])).
 Tactic Notation "fapply" "(" constr(T) constr(x1) constr(x2) ")" := make_compatible ltac:(fapply' T constr:([x1;x2])).
 Tactic Notation "fapply" "(" constr(T) constr(x1) constr(x2) constr(x3) ")" := make_compatible ltac:(fapply' T constr:([x1;x2;x3])).
+
+Tactic Notation "feapply_light" constr(T) := make_compatible_light ltac:(feapply' T constr:([] : list form)).
 
 (* If the term to apply is the result of a function call
  * (like `PA_induction (...)`), this needs to be differentiated
@@ -1263,7 +1366,7 @@ Ltac fapply_in_without_quant_in T_hyp H_imp H_hyp :=
   match get_form_hyp H_imp with
   | ?s ~> ?t =>
     let H_hyp' := fresh "H_hyp'" in
-    tryif assert_compat t as H_hyp' by (feapply H_imp; apply H_hyp)
+    tryif assert_compat t as H_hyp' by (feapply_light H_imp; apply H_hyp)
     then (replace_context T_hyp H_hyp'; clear H_hyp')
     else ( 
       (* Try to assert `s` as a goal for the user to prove and
@@ -1282,8 +1385,8 @@ Ltac fapply_in_without_quant_in T_hyp H_imp H_hyp :=
    * Therefore simply try both options. *)
   | ?s ↔ ?t =>
     let H_hyp' := fresh "H_hyp'" in
-    (tryif assert_compat t as H_hyp' by (feapply H_imp; apply H_hyp) then idtac
-    else assert_compat s as H_hyp' by (feapply H_imp; apply H_hyp));
+    (tryif assert_compat t as H_hyp' by (feapply_light H_imp; apply H_hyp) then idtac
+    else assert_compat s as H_hyp' by (feapply_light H_imp; apply H_hyp));
     replace_context T_hyp H_hyp'; clear H_hyp'
   
   (* Quantifiers are instantiated with evars *)
@@ -1316,7 +1419,7 @@ Ltac feapply_in T_imp A T_hyp :=
     fspecialize_list H_imp A;
     instantiate_evars H_imp;
     simpl_subst H_imp;
-    eapply (Weak _ C) in H_imp; [| firstorder];
+    eapply (Weak _ C) in H_imp; [| solve_list_incl];
     fapply_in_without_quant_in T_hyp H_imp H_hyp;
     (* [fapply_in_without_quant_in] creates the subgoals in the wrong order.
      * Reverse them to to get the right order: *)
@@ -1418,30 +1521,38 @@ Tactic Notation "fassert" constr(phi) "as" constr(H) "by" tactic(tac) := (make_c
 (* [fdestruct] is implemented by moving the formula from the
  * in front of the goal and calling [fintro] with the intro pattern. *)
 
-Ltac move_from_context_to_goal T := 
-  let C := get_context_goal in
-  let n := match type of T with
-    | nat => T
-    | string => match lookup C T with
-      | @None => let msg := eval cbn in ("Unknown identifier: " ++ T) in fail 4 msg
-      | @Some _ ?n => n
-      end
-  end in
-  let phi := nth C n in
-  let C' := remove C n in
-  apply (Weak (phi::C')); [| firstorder];
-  match goal with 
-  | [ |- prv _ _ ] => apply -> imps
-  | [ |- tprv _ _ ] => apply -> switch_imp_T
-  | [ |- pm _ ?psi ] => apply -> imps; change (pm C' (phi ~> psi))
-  | [ |- tpm _ ?psi ] => apply -> switch_imp_T; change (tpm C' (phi ~> psi))
-  end.
-
 Section Fdestruct.
   Context {Σ_funcs : funcs_signature}.
   Context {Σ_preds : preds_signature}.
   Context {ff : falsity_flag}.
   Context {p : peirce}.
+
+  Fixpoint remove_n (C : list form) n :=
+    match n, C with
+    | 0, x::C => C
+    | S n, x::C => x::remove_n C n
+    | _, _ => C
+    end.
+
+  Definition move_to_front C n :=
+    match nth_error C n with
+      | Some x => x :: remove_n C n
+      | None => C
+    end.
+
+  Lemma remove_n_incl C n :
+    incl (remove_n C n) C.
+  Proof.
+    revert C. induction n; destruct C; firstorder.
+  Qed.
+
+  Lemma move_to_front_incl C n :
+    incl (move_to_front C n) C.
+  Proof.
+    unfold move_to_front. destruct nth_error eqn:H. 2: easy. intros x [->|]. 
+    - eapply nth_error_In, H.
+    - eapply remove_n_incl, H0.
+  Qed.
 
   Lemma fdestruct_discharge_premises T a b c :
     T ⊢ a -> T ⊢ b ~> c -> T ⊢ (a ~> b) ~> c.
@@ -1458,6 +1569,37 @@ Section Fdestruct.
     intros H1 H2. fintros. fapply H2. fapply 0. eapply Weak. apply H1. firstorder.
   Qed.
 End Fdestruct.
+
+(* [frevert "H"] reverts a hypothesis from the context *)
+Ltac frevert T := 
+  let C := get_context_goal in
+  let n := match type of T with
+    | nat => T
+    | string => match lookup C T with
+      | @None => let msg := eval cbn in ("Unknown identifier: " ++ T) in fail 4 msg
+      | @Some _ ?n => n
+      end
+  end in
+  let phi := nth C n in
+  let C' := constr:(move_to_front C n) in (* TODO: Doesn't work for theories *)
+  apply (Weak C'); [| apply move_to_front_incl];
+  cbn [move_to_front remove_n nth_error ccons tcons cnil tnil];
+  match goal with
+  | [ |- prv ?C' ?psi ] => apply -> imps
+  | [ |- tprv ?C' ?psi ] => apply -> switch_imp_T
+  | [ |- pm ?C' ?psi ] =>
+      apply -> imps;
+      let C' := get_context_goal in
+      let C'_named := remove C n in
+      let C' := fix_context_names C'_named C' in
+      change (pm C' (phi ~> psi))
+  | [ |- tpm ?C' ?psi ] =>
+      apply -> switch_imp_T;
+      let C' := get_context_goal in
+      let C'_named := remove C n in
+      let C' := fix_context_names C'_named C' in
+      change (tpm C' (phi ~> psi))
+  end.
 
 Ltac fdestruct_discharge_premises :=
   try (
@@ -1486,7 +1628,7 @@ Ltac fdestruct' T A pat :=
   )
   else (
     try fspecialize_context T A;
-    move_from_context_to_goal T;
+    frevert T;
     (* If the formula to destruct has premises, add them as goals *)
     fdestruct_discharge_premises;
     (* Compute pattern. Only try because of the additional goals *)
@@ -1967,9 +2109,18 @@ Ltac frewrite' T A back := fun contxt =>
     | [ |- _ ⊢ _ ] => eapply (leibniz _ _ ?[t''])
     | [ |- _ ⊩ _ ] => fail "Rewrite not supported under theories" (* eapply (leibniz_T _ _ ?[t'']) *)
     end;
-    [ instantiate (t'' := t'); firstorder |
+    [ instantiate (t'' := t'); 
+      (* We now need to show tha the Axioms are included in the context.
+       * We first try, if they are at the end of the list. *)
+      try (repeat (try apply incl_refl; apply incl_tl));
+      (* If this doesn't work we need to fall back to [firstorder] *)
+      firstorder
+    |
       match back with
-      | false => let H_sym := fresh in assert (H_sym := eq_sym); feapply H_sym; clear H_sym; fapply H
+      | false => 
+          apply sym; 
+          [ try (repeat (try apply incl_refl; apply incl_tl)); firstorder
+          | fapply H ]
       | true => apply H
       end
     | ];
