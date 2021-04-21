@@ -265,5 +265,5 @@ Proof.
       * fapply (neq_le k r y). ctx. ctx.
 Qed.
 
-
+End FullLogic.
 
