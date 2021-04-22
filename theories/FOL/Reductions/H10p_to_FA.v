@@ -28,17 +28,6 @@ Definition problem_bound (E : H10p_PROBLEM) :=
 Definition embed E := exist_times (problem_bound E) (embed_problem E).
 
 
-Lemma exists_close_form N phi : bounded 0 (exist_times N phi) <-> bounded N phi.
-Proof.
-  induction N in phi |- *.
-  - reflexivity.
-  - cbn. rewrite iter_switch.
-    change (iter _ _ _) with (exist_times N (∃ phi)).
-    setoid_rewrite IHN. symmetry.
-    now apply bounded_S_exists.
-Qed.
-
-
 Lemma embed_is_closed E : bounded 0 (embed E).
 Proof.
   unfold embed. rewrite exists_close_form.
@@ -210,6 +199,7 @@ Proof.
     + intros ρ' ax Hax. eapply sat_closed.
       2: now apply H.
       repeat (destruct Hax as [<- | Hax]; cbn; repeat solve_bounds; auto).
+      inversion Hax.
     + apply HE.
     + rewrite <-exists_close_form; apply embed_is_closed.
   - intros H.
@@ -227,8 +217,9 @@ Proof.
     intros D I rho H.
     eapply subst_exist_sat.
     apply problem_to_model.
-    + intros ρ' ax Hax. apply (sat_closed rho).
+    + intros ρ' ax Hax. apply sat_closed with rho.
       repeat (destruct Hax as [<- | Hax]; cbn; repeat solve_bounds; auto).
+      1:inversion Hax.
       apply H. now constructor.
     + apply HE.
     + rewrite <-exists_close_form; apply embed_is_closed.

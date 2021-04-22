@@ -202,7 +202,7 @@ Proof.
   - destruct a as (u', v'). destruct H; try inv H; eauto.
 Qed.
 
-Hint Resolve sym_word_l sym_word_R : core.
+#[export] Hint Resolve sym_word_l sym_word_R : core.
 
 Lemma sym_mono A P :
   A <<= P -> sym A <<= sym P.

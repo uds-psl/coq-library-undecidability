@@ -368,7 +368,7 @@ Proof.
         with (ρ := fun n => match n with 0 => 0 | S n => S (S n) end).
 Defined.
 
-Hint Resolve dio_rel_fall_lt : dio_rel_db.
+#[export] Hint Resolve dio_rel_fall_lt : dio_rel_db.
 
 (* Two variants *)
 
@@ -388,5 +388,5 @@ Proof.
   abstract (intros v; split; intros H x Hx; apply H; lia).
 Defined.
 
-Hint Resolve dio_rel_fall_lt_bound 
+#[export] Hint Resolve dio_rel_fall_lt_bound 
              dio_rel_fall_le : dio_rel_db.

@@ -1,12 +1,12 @@
 # Coq Library of Undecidability Proofs
 
-[![Build](https://github.com/uds-psl/coq-library-undecidability/workflows/Test%20compilation/badge.svg?branch=coq-8.12)](https://github.com/uds-psl/coq-library-undecidability/actions)
+[![CI](https://github.com/uds-psl/coq-library-undecidability/workflows/CI/badge.svg?branch=coq-8.13)](https://github.com/uds-psl/coq-library-undecidability/actions)
 
 The Coq Library of Undecidability Proofs contains mechanised reductions to establish undecidability results in Coq.
 The undecidability proofs are based on a synthetic approach to undecidability, where a problem `P` is considered [undecidable](theories/Synthetic/Undecidability.v#L4) if its [decidability](theories/Synthetic/Definitions.v#L6) in Coq would imply the decidability of the [halting problem of single-tape Turing machines](theories/TM/TM.v#L148) in Coq.
 As in the traditional literature, undecidability of a problem `P` in the library is often established by constructing a [many-one reduction](theories/Synthetic/Definitions.v#L27) from an undecidable problem to `P`.
 
-For more information on the structure of the library, the synthetic approach, and included problems see [Publications](#publications) below, our [Wiki](wiki), look at the [slides](https://www.ps.uni-saarland.de/~forster/downloads/slides_coqpl20.pdf) or the [recording](https://www.youtube.com/watch?v=mo_C6664n3E) of the talk on the Coq Library of Undecidability proofs at [CoqPL '20](https://popl20.sigplan.org/details/CoqPL-2020-papers/5/A-Coq-Library-of-Undecidable-Problems).
+For more information on the structure of the library, the synthetic approach, and included problems see [Publications](#publications) below, our [Wiki](https://github.com/uds-psl/coq-library-undecidability/wiki), look at the [slides](https://www.ps.uni-saarland.de/~forster/downloads/slides_coqpl20.pdf) or the [recording](https://www.youtube.com/watch?v=mo_C6664n3E) of the talk on the Coq Library of Undecidability proofs at [CoqPL '20](https://popl20.sigplan.org/details/CoqPL-2020-papers/5/A-Coq-Library-of-Undecidable-Problems).
 
 The library is a collaborative effort, growing constantly and we invite everybody to contribute undecidability proofs!
 
@@ -48,7 +48,7 @@ Target problems are very expressive and thus work well as targets for reduction,
 - Provability in Minimal, Intuitionistic, and Classical First-Order Logic (`FOL*_prv_intu`, `FOL_prv_intu`, `FOL_prv_class` in [`FOL/FOL.v`](theories/FOL/FOL.v)), including a formulation for the minimal binary signature ([`FOL/binFOL.v`](theories/FOL/binFOL.v))
 - Validity in Minimal and Intuitionistic First-Order Logic (`FOL*_valid`, `FOL_valid_intu` in [`FOL/FOL.v`](theories/FOL/FOL.v))
 - Satisfiability in Minimal and Intuitionistic First-Order Logic (`FOL*_satis`, `FOL_satis_intu` in [`FOL/FOL.v`](theories/FOL/FOL.v))
-- Finite satisfiability in First-Order Logic, known as "Trakhtenbrot's theorem" (`FSAT` in [`TRAKHTENBROT/red_utils.v`](theories/TRAKHTENBROT/red_utils.v))
+- Finite satisfiability in First-Order Logic, known as "Trakhtenbrot's theorem" (`FSAT` in [`FOL/FSAT.v`](theories/FOL/FSAT.v) based on [`TRAKHTENBROT/red_utils.v`](theories/TRAKHTENBROT/red_utils.v))
 - Semantic and deductive entailment in first-order ZF set-theory with ([`FOL/ZF.v`](theories/FOL/ZF.v)) and without ([`FOL/minZF.v`](theories/FOL/minZF.v) and [`FOL/binZF.v`](theories/FOL/binZF.v)) function symbols for set operations
 - Semantic and deductive entailment in Peano arithmetic ([`FOL/PA.v`](theories/FOL/PA.v))
 - Entailment in Elementary Intuitionistic Linear Logic (`EILL_PROVABILITY` in [`ILL/EILL.v`](theories/ILL/EILL.v))
@@ -57,6 +57,7 @@ Target problems are very expressive and thus work well as targets for reduction,
 - Entailment in Intuitionistic Multiplicative Sub-Exponential Linear Logic (`IMSELL_cf_PROVABILITY3` in [`ILL/IMSELL.v`](theories/ILL/IMSELL.v))
 - Provability in Hilbert-style calculi (`HSC_PRV` in [`HilbertCalculi/HSC.v`](theories/HilbertCalculi/HSC.v))
 - Recognizing axiomatizations of Hilbert-style calculi (`HSC_AX` in [`HilbertCalculi/HSC.v`](theories/HilbertCalculi/HSC.v))
+- Satisfiability in Separation Logic (`SLSAT` in [SeparationLogic/SL.v](theories/SeparationLogic/SL.v) and `MSLSAT` in [SeparationLogic/MSL.v](theories/SeparationLogic/MSL.v))
 
 #### Other Problems
 
@@ -74,7 +75,7 @@ Target problems are very expressive and thus work well as targets for reduction,
 ### Target Problems
 
 - Halting problem for the call-by-value lambda-calculus (`HaltL` in [`L/L.v`](theories/L/L.v))
-- Provability or satisfiability in First-Order Logic (all problems in [`FOL/FOL.v`](theories/FOL/FOL.v))
+- Validity, provability, and satisfiability in First-Order Logic (all problems in [`FOL/FOL.v`](theories/FOL/FOL.v))
 
 ## Installation Instructions
 
@@ -94,12 +95,12 @@ Then the following commands install the library:
 
 ```
 opam repo add coq-released https://coq.inria.fr/opam/released
-opam install coq-library-undecidability.1.0.0+8.12
+opam install coq-library-undecidability.1.0.0+8.13
 ```
 
 ### Manual installation
 
-You need `Coq 8.12` built on OCAML `>= 4.07.1`, the [Smpl](https://github.com/uds-psl/smpl) package, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
+You need `Coq 8.13` built on OCAML `>= 4.07.1`, the [Smpl](https://github.com/uds-psl/smpl) package, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
 
 ```
 opam switch create coq-library-undecidability 4.07.1+flambda
@@ -131,7 +132,7 @@ To avoid this, you can use a non-local opam switch, i.e. `opam switch create 4.0
 
 #### Coq version
 
-Be careful that this branch only compiles under `Coq 8.12`. If you want to use a different Coq version you have to change to a different branch.
+Be careful that this branch only compiles under `Coq 8.13`. If you want to use a different Coq version you have to change to a different branch.
 Due to compatibility issues, not every branch contains exactly the same problems. 
 We recommend to use the newest branch if possible.
 

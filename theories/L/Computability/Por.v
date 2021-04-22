@@ -11,7 +11,7 @@ Proof.
   unfold Por; Lproc.
 Qed.
 
-Hint Resolve Por_proc : LProc.
+#[export] Hint Resolve Por_proc : LProc.
 
 Import L_Notations.
 

@@ -18,4 +18,4 @@ Section Fix_X.
   Qed.
 End Fix_X.
 
-Hint Resolve list_enc_correct : Lrewrite.
+#[export] Hint Resolve list_enc_correct : Lrewrite.

@@ -158,7 +158,7 @@ Proof. eauto using Nat.max_lub_l. Qed.
 Lemma max_le_right n m: m <= max n m.
 Proof. eauto using Nat.max_lub_r. Qed.
 
-Hint Resolve max_le_left max_le_right : core.
+#[export] Hint Resolve max_le_left max_le_right : core.
 
 
 
@@ -188,7 +188,7 @@ Qed.
 Lemma dom_lt_iff X x (A: list X): x ∈ dom A <-> x < length A.
 Proof. split; eauto using nats_lt, lt_nats. Qed.
 
-Hint Resolve <-dom_lt_iff : core.
+#[export] Hint Resolve <-dom_lt_iff : core.
 
 Ltac domin H :=
   match type of H with
@@ -198,10 +198,10 @@ Ltac domin H :=
 
 
 
-Hint Resolve nth_error_In : core. 
-Hint Resolve le_plus_r le_plus_l : core. 
-Hint Resolve Max.max_lub : core. 
-Hint Resolve Nat.le_succ_diag_r le_Sn_le : core. 
+#[export] Hint Resolve nth_error_In : core. 
+#[export] Hint Resolve le_plus_r le_plus_l : core. 
+#[export] Hint Resolve Max.max_lub : core. 
+#[export] Hint Resolve Nat.le_succ_diag_r le_Sn_le : core. 
 
 Hint Rewrite Nat.max_lub_iff Max.max_0_r Max.max_0_l: simplify.
 Hint Rewrite Nat.mul_0_r Nat.mul_succ_r Nat.mul_0_l Nat.mul_succ_l: simplify.

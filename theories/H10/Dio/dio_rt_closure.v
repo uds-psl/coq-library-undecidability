@@ -42,7 +42,7 @@ Section df_seq.
 
 End df_seq.
 
-Hint Resolve dio_rel_is_seq : dio_rel_db.
+#[export] Hint Resolve dio_rel_is_seq : dio_rel_db.
 
 Fact dio_rel_power_subst a b (R : nat -> (nat -> nat) -> Prop) : 
                 𝔻F a -> 𝔻F b
@@ -79,4 +79,4 @@ Section df_rel_iter_rt.
 
 End df_rel_iter_rt.
 
-Hint Resolve dio_rel_rel_iter dio_rel_rt : dio_rel_db.
+#[export] Hint Resolve dio_rel_rel_iter dio_rel_rt : dio_rel_db.

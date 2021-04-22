@@ -68,7 +68,7 @@ Proof. unfold discrete, decidable; apply pos_eq_dec. Qed.
 Fact discrete_vec X n : discrete X -> discrete (vec X n).
 Proof. unfold discrete, decidable; intros; apply vec_eq_dec; auto. Qed.
 
-Hint Resolve discrete_unit discrete_sum discrete_prod 
+#[export] Hint Resolve discrete_unit discrete_sum discrete_prod 
              discrete_list discrete_pos discrete_vec : core.
 
 Section decidable_fun_pos_bool.

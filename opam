@@ -1,5 +1,5 @@
 opam-version: "2.0"
-version: "dev+8.12"
+version: "dev+8.13"
 maintainer: "forster@ps.uni-saarland.de"
 homepage: "https://github.com/uds-psl/coq-library-undecidability/"
 dev-repo: "git+https://github.com/uds-psl/coq-library-undecidability/"
@@ -22,14 +22,14 @@ install: [
   [make "install"]
 ]
 depends: [
-  "coq" {>= "8.12.1" & < "8.13~"}
-  "coq-equations" {= "1.2.3+8.12"}
+  "coq" {= "8.13.1"}
+  "coq-equations" {= "1.2.3+8.13"}
   "ocaml"
-  "coq-smpl" {>= "8.12"}
-  "coq-metacoq-template" {="1.0~beta2+8.12" }
+  "coq-smpl" {>= "8.13"}
+  "coq-metacoq-template" {= "1.0~beta2+8.13"}
 ]
 
 synopsis: "A Coq Library of Undecidability Proofs"
 url {
-  git: "https://github.com/uds-psl/coq-library-undecidability.git#coq-8.12"
+  git: "https://github.com/uds-psl/coq-library-undecidability.git#coq-8.13"
 }

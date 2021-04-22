@@ -19,6 +19,8 @@ From Undecidability.TRAKHTENBROT
   Require Import notations utils decidable
                  fol_ops fo_sig fo_terms fo_logic fo_sat.
 
+Import fol_notations.
+
 Set Implicit Arguments.
 
 (* * Removal of function symbols from propositional signatures *)

@@ -23,10 +23,10 @@ Definition tconj (u v : term) : term := Eval cbn in convert (λ x, !!(ext andb) 
 
 Definition tdisj (u v : term) : term := Eval cbn in convert (λ x, !!(ext orb) (!!u x) (!!v x)). 
 
-Hint Unfold tcompl tconj tdisj : Lrewrite.
-Hint Opaque tcompl tconj tdisj : Lrewrite.
-Hint Unfold tcompl tconj tdisj : LProc.
-Hint Opaque tcompl tconj tdisj : LProc.
+#[global] Hint Unfold tcompl tconj tdisj : Lrewrite.
+#[global] Hint Opaque tcompl tconj tdisj : Lrewrite.
+#[global] Hint Unfold tcompl tconj tdisj : LProc.
+#[global] Hint Opaque tcompl tconj tdisj : LProc.
 
 (* * L-decidable predicates are closed under complement, conj and disj *)
 

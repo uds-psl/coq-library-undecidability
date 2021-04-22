@@ -19,6 +19,8 @@ From Undecidability.TRAKHTENBROT
   Require Import notations utils fol_ops fo_sig fo_terms 
                  fo_logic fo_congruence fo_sat.
 
+Import fol_notations.
+
 Set Implicit Arguments.
 
 Local Infix "∊" := In (at level 70, no associativity).

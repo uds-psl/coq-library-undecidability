@@ -40,7 +40,7 @@ Section Fix_X.
     *)
 End Fix_X.
 
-Hint Resolve option_enc_correct : Lrewrite.
+#[export] Hint Resolve option_enc_correct : Lrewrite.
 
 Section option_eqb.
 

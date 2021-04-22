@@ -69,7 +69,7 @@ Ltac inv_collect :=
      end; intuition; subst).
 
 
-Hint Extern 4 => 
+#[export] Hint Extern 4 => 
 match goal with
 |[ H: False |- _ ] => destruct H
 |[ H: true=false |- _ ] => discriminate H
@@ -93,7 +93,7 @@ Qed.
 
 Definition cumulative {X} (L: nat -> list X) :=
   forall n, exists A, L (S n) = L n ++ A.
-Hint Extern 0 (cumulative _) => intros ?; cbn; eauto : core.
+#[export] Hint Extern 0 (cumulative _) => intros ?; cbn; eauto : core.
 
 Lemma cum_ge {X} (L: nat -> list X) n m :
   cumulative L -> m >= n -> exists A, L m = L n ++ A.
@@ -151,7 +151,7 @@ Class enumT X :=
   }.
 
 Arguments L_T {_ _} _, _ {_} _.
-Hint Immediate cum_T : core.
+#[export] Hint Immediate cum_T : core.
 
 Instance enum_bool : enumT bool.
 Proof.

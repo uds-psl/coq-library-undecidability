@@ -13,7 +13,7 @@ Section SujectTape.
 
 End SujectTape.
 
-Hint Unfold surjectTape : tape.
+#[export] Hint Unfold surjectTape : tape.
 
 
 Section lift_sigma_tau.

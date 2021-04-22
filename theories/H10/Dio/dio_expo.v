@@ -47,7 +47,7 @@ Proof.
   dio by lemma (fun v => alpha_diophantine (a v) (b v) (c v)).
 Defined.
 
-Hint Resolve dio_rel_alpha : dio_rel_db.
+#[export] Hint Resolve dio_rel_alpha : dio_rel_db.
 
 Local Fact dio_rel_alpha_example : 𝔻R (fun ν => 3 < ν 1 /\ ν 0 = alpha_nat (ν 1) (ν 2)).
 Proof. dio auto. Defined.
@@ -66,7 +66,7 @@ Proof.
   dio by lemma (fun v => expo_diophantine (v 0) (q v⭳) (r v⭳)).
 Defined.
 
-Hint Resolve dio_fun_expo : dio_fun_db.
+#[export] Hint Resolve dio_fun_expo : dio_fun_db.
 
 Local Fact dio_fun_expo_example : 𝔻F (fun ν => expo (ν 0) (ν 1)).
 Proof. dio auto. Defined.
@@ -105,7 +105,7 @@ Proof.
   dio by lemma (fun ν => is_digit_eq (c ν) (q ν) (i ν) (y ν)).
 Defined.
 
-Hint Resolve dio_rel_is_digit : dio_rel_db.
+#[export] Hint Resolve dio_rel_is_digit : dio_rel_db.
 
 Local Fact dio_rel_is_digit_example : 𝔻R (fun ν => is_digit (ν 0) (ν 1) (ν 2) (ν 3)).
 Proof. dio auto. Defined.

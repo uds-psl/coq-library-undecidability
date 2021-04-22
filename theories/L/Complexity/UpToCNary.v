@@ -138,7 +138,7 @@ Ltac leUpToC_domain G :=
     exact (Mk_domain_of_goal L)
   end.
 
-Hint Extern 0 Domain_of_goal => (mk_domain_getter leUpToC_domain) : domain_of_goal.
+#[export] Hint Extern 0 Domain_of_goal => (mk_domain_getter leUpToC_domain) : domain_of_goal.
 
 
 

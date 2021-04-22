@@ -77,7 +77,7 @@ Section InhabitingTypes.
 End InhabitingTypes.
 
 
-Hint Resolve inhab_app inhab_typing inhab_typing' ord_target' : core.
+#[export] Hint Resolve inhab_app inhab_typing inhab_typing' ord_target' : core.
 
 
 (* ** Conservativity *)
