@@ -331,7 +331,7 @@ Ltac annotate_term f t :=
 
 Ltac annotate_form' f idx phi :=
   match phi with
-  | falsity => falsity
+  | falsity => constr:(falsity)
   | atom ?P ?v =>
       let map_fun := annotate_term f in
       let v' := map_ltac v map_fun in
@@ -702,7 +702,9 @@ Section IntroPattern.
   Inductive intro_pattern :=
     | patId : string -> intro_pattern
     | patAnd : intro_pattern -> intro_pattern -> intro_pattern
-    | patOr : intro_pattern -> intro_pattern -> intro_pattern.
+    | patOr : intro_pattern -> intro_pattern -> intro_pattern
+    | patRewrite : intro_pattern
+    | patRewriteBack : intro_pattern.
 
   Fixpoint read_name s := match s with
   | String "]" s' => ("", String "]" s')
@@ -728,11 +730,13 @@ Section IntroPattern.
                                       end
         | _ => (None, "")
         end
-      | String ("]") s' => (Some (patId "?"), String "]" s')
-      | String " " s' => (Some (patId "?"), String " " s')
-      | String "|" s' => (Some (patId "?"), String "|" s')
-      | EmptyString => (None, EmptyString)
-      | s => let (a, s') := read_name s in (Some (patId a), s')
+    | String ("]") s' => (Some (patId "?"), String "]" s')
+    | String " " s' => (Some (patId "?"), String " " s')
+    | String "|" s' => (Some (patId "?"), String "|" s')
+    | String "-" (String ">" s') => (Some patRewrite, s')
+    | String "<" (String "-" s') => (Some patRewriteBack, s')
+    | EmptyString => (None, EmptyString)
+    | s => let (a, s') := read_name s in (Some (patId a), s')
     end
   end.
   Definition parse_intro_pattern s := fst (parse_intro_pattern' s 100).
@@ -916,6 +920,8 @@ Ltac fintro_ident x :=
     custom_fold
   end.
 
+(* Dummy rewrite tactic for [->] pattern. Override with real tactic later. *)
+Ltac frewrite' T A back := fun contxt => idtac.
 
 Ltac fintro_pat' pat :=
   match pat with
@@ -967,6 +973,8 @@ Ltac fintro_pat' pat :=
         fintro_pat' pat;
         custom_fold
       end
+  | patRewrite => fintro_pat' constr:(patId "?"); make_compatible ltac:(frewrite' 0 ([] : list form) false)
+  | patRewriteBack => fintro_pat' constr:(patId "?"); make_compatible ltac:(frewrite' 0 ([] : list form) true)
   end.
 
 Ltac fintro_pat intro_pat := 
@@ -1641,7 +1649,8 @@ Ltac fdestruct' T A pat :=
       | @None => let msg := eval cbn in ("Invalid pattern: " ++ pat) in fail 3 msg
       end
     end in
-    fintro_pat' pattern)
+    fintro_pat' pattern;
+    try update_binder_names)
   ).
 
 Tactic Notation "fdestruct" constr(T) := fdestruct' T constr:([] : list form) "".
@@ -2030,7 +2039,7 @@ Ltac remove_shifts G t :=
 (* Like [do n tac] but works with Galina numbers. *)
 Ltac repeat_n n tac := match n with 0 => idtac | S ?n' => tac; repeat_n n' tac end.
 
-Ltac frewrite' T A back := fun contxt =>
+Ltac frewrite' T A back ::= fun contxt =>
   let H := fresh "H" in
   turn_into_hypothesis T H contxt;
   fspecialize_list H A; 
