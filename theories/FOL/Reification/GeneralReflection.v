@@ -202,10 +202,14 @@ Section AbstractReflectionDefinitions.
     formReifierVarHelper : option propFinderVars;
     formReifierReifyHelper : option propFinderReifier
   }.
-  (** Used if no instance of the above extension class can be found *)
+  (** Used if no instance of the above extension class can be found. Low priority *)
   Definition defaultExtensions tr : tarski_reflector_extensions tr := Build_tarski_reflector_extensions tr None None None None None None.
   (** Useful builder to build the main tarski_reflector class *)
   Definition buildDefaultTarski {fs:funcs_signature} {ps:preds_signature} {D:Type} {I:@interp fs ps D} (point:D) (isD:Ast.term -> bool) := Build_tarski_reflector fs ps D I (fun n:nat => point) isD.
+
+  Fixpoint anyVariableOf (l:list ident) (t:Ast.term) := match l with nil => false | lx::lr =>
+        if @Checker.eq_term config.default_checker_flags init_graph t (tVar lx) then true else anyVariableOf lr t end.
+
   Context {tr : tarski_reflector}.
   Context {ff : falsity_flag}.
   (** These types are used to define representability. A n-ary formula is representable if there is a syntactic formula and an environment that you can plug the relevant values into that is equivalent *)
@@ -283,27 +287,29 @@ Section TarskiMerging.
         These are and, or, falsity, implication and both quantifiers *)
   Context {tr : tarski_reflector}.
   Context {te : tarski_reflector_extensions tr}.
-
-  (** For each connective, we have a "merger" that takes subproof that a term is represented by its reification, and proof that the larger term also represents its subterm.
-      For falsity, there are not subterms, so we just prove that fal represents False, which is trivial *)
-  Definition mergeFalse (rho:nat -> D) : @representsP tr falsity_on 0 falsity rho False.
-  Proof. easy. Defined.
-  (** We then define a quoted version of the above proof which is later used to build subterms *)
-  MetaCoq Quote Definition qMergeFalse := @mergeFalse. 
-  (** We finally define a quoted form merger which will then later be applied to the subforms. It should yield the reflected representation *)
-  MetaCoq Quote Definition qMergeFormFalse := (fun tr => @falsity (@fs tr) (@ps tr) full_operators).
   (* Hack to get these to use the proper type class instance *)
   Notation term := (@Syntax.term (@fs tr)).
   Notation form ff := (@Syntax.form (@fs tr) (@ps tr) full_operators ff).
   Notation syms := (@Syntax.syms (@fs tr)).
   Notation preds := (@Syntax.preds (@ps tr)).
+
+  (** For each connective, we have a "merger" that takes subproof that a term is represented by its reification, and proof that the larger term also represents its subterm.
+      For falsity, there are not subterms, so we just prove that fal represents False, which is trivial *)
+  Definition mFalse : form falsity_on := falsity.
+  Definition mergeFalse (rho:nat -> D) : @representsP tr falsity_on 0 falsity rho False.
+  Proof. easy. Defined.
+  (** We then define a quoted version of the above proof which is later used to build subterms *)
+  MetaCoq Quote Definition qMergeFalse := @mergeFalse. 
+  (** We finally define a quoted form merger which will then later be applied to the subforms. It should yield the reflected representation *)
+  MetaCoq Quote Definition qMergeFormFalse := @mFalse.
   (** The same development for And. Note that this time we have subproofs. Our function arguments follow this pattern:
       - tr_quoted - quoted tarski_reflector (not visible in the arguments, but it's a context variable. Note that since the functions don't acually use te, it does not become part of the arguments outside the section
       - environment
       - coq subterms that are to be reified
       - reified subterms
       - proof that the reified subterms are actually the reifications *)
-  Definition mergeAnd {ff : falsity_flag} (rho:nat -> D) (P Q : naryProp 0) (fP fQ : form ff) : representsP fP rho P -> representsP fQ rho Q -> @representsP tr ff 0 (fP∧fQ) rho (P /\ Q).
+  Definition mAnd {ff : falsity_flag} (fP fQ:form ff) : form ff := fP∧fQ.
+  Definition mergeAnd {ff : falsity_flag} (rho:nat -> D) (P Q : naryProp 0) (fP fQ : form ff) : representsP fP rho P -> representsP fQ rho Q -> @representsP tr ff 0 (mAnd fP fQ) rho (P /\ Q).
   Proof.
   intros [pPl pPr] [pQl pQr]. split.
   * intros [pP pQ]. split. now apply pPl. now apply pQl.
@@ -311,30 +317,33 @@ Section TarskiMerging.
   Defined.
   MetaCoq Quote Definition qMergeAnd := @mergeAnd.
   (** This is the form merger for and. It is unfolded syntactic sugar, once one adds the arguments x and y, this will read x ∧ y. *)
-  MetaCoq Quote Definition qMergeFormAnd := (fun tr {ff : falsity_flag} => @bin (@fs tr) (@ps tr) full_operators ff Conj).
+  MetaCoq Quote Definition qMergeFormAnd := @mAnd.
 
   (** The same development for or*)
-  Definition mergeOr {ff : falsity_flag} (rho:nat -> D) (P Q : naryProp 0) (fP fQ : form ff) : representsP fP rho P -> representsP fQ rho Q -> @representsP tr ff 0 (fP∨fQ) rho (P \/ Q).
+  Definition mOr {ff : falsity_flag} (fP fQ:form ff) : form ff := fP∨fQ.
+  Definition mergeOr {ff : falsity_flag} (rho:nat -> D) (P Q : naryProp 0) (fP fQ : form ff) : representsP fP rho P -> representsP fQ rho Q -> @representsP tr ff 0 (mOr fP fQ) rho (P \/ Q).
   Proof.
   intros [pPl pPr] [pQl pQr]. split.
   * intros [pP|pQ]. left; now apply pPl. right; now apply pQl.
   * intros [pP|pQ]. left; now apply pPr. right; now apply pQr.
   Defined.
   MetaCoq Quote Definition qMergeOr := @mergeOr.
-  MetaCoq Quote Definition qMergeFormOr := (fun tr {ff : falsity_flag} => @bin (@fs tr) (@ps tr) full_operators ff Disj).
+  MetaCoq Quote Definition qMergeFormOr := @mOr.
 
   (** The same development for existential quantifiaction. Note that the P argument is a 1-ary predicate.*)
-  Definition mergeExists {ff : falsity_flag} (rho:nat -> D) (P:naryProp 1) (fP:form ff) : representsP fP rho P -> @representsP tr ff 0 (∃ fP) rho (exists q:D, P q).
+  Definition mExists {ff : falsity_flag} (fP:form ff) : form ff := ∃ fP.
+  Definition mergeExists {ff : falsity_flag} (rho:nat -> D) (P:naryProp 1) (fP:form ff) : representsP fP rho P -> @representsP tr ff 0 (mExists fP) rho (exists q:D, P q).
   Proof.
   intros pR. split.
   * intros [q Pq]. exists q. destruct (pR q) as [pRl pRr]. now apply pRl.
   * intros [q Pq]. exists q. destruct (pR q) as [pRl pRr]. now apply pRr.
   Defined.
   MetaCoq Quote Definition qMergeExists := @mergeExists.
-  MetaCoq Quote Definition qMergeFormExists := (fun tr {ff : falsity_flag} => @quant (@fs tr) (@ps tr) full_operators ff Ex).
+  MetaCoq Quote Definition qMergeFormExists := @mExists.
 
   (** The same development for implication. Note that implication is handled in the main reification logic since P -> Q is just syntactic sugar for (forall _:P, Q)*)
-  Definition mergeImpl {ff : falsity_flag} (rho:nat -> D) (P Q : naryProp 0) (fP fQ : form ff) : representsP fP rho P -> representsP fQ rho Q -> @representsP tr ff 0 (fP ~> fQ) rho (P -> Q).
+  Definition mImpl {ff : falsity_flag} (fP fQ : form ff) : form ff := fP ~> fQ.
+  Definition mergeImpl {ff : falsity_flag} (rho:nat -> D) (P Q : naryProp 0) (fP fQ : form ff) : representsP fP rho P -> representsP fQ rho Q -> @representsP tr ff 0 (mImpl fP fQ) rho (P -> Q).
   Proof.
   intros HP HQ.
   destruct HP as [pPl pPr]. destruct HQ as [pQl pQr]. split.
@@ -342,36 +351,36 @@ Section TarskiMerging.
   * cbn. intros pPQ pP. apply pQr, pPQ, pPl, pP.
   Defined.
   MetaCoq Quote Definition qMergeImpl := @mergeImpl.
-  MetaCoq Quote Definition qMergeFormImpl := (fun tr {ff : falsity_flag} => @bin (@fs tr) (@ps tr) full_operators ff Impl).
+  MetaCoq Quote Definition qMergeFormImpl := @mImpl.
 
   (** The same development for forall. Since forall-quantification in Coq is a part of the proper syntax (product types), this will again be handled by the main reification*)
-  Definition mergeForall {ff : falsity_flag} (rho:nat -> D) (Q:naryProp 1) (phi:form ff) : representsP phi rho Q -> @representsP tr ff 0 (∀ phi) rho (forall x:D, Q x).
+  Definition mForall {ff : falsity_flag} (fP:form ff) : form ff := ∀ fP.
+  Definition mergeForall {ff : falsity_flag} (rho:nat -> D) (Q:naryProp 1) (phi:form ff) : representsP phi rho Q -> @representsP tr ff 0 (mForall phi) rho (forall x:D, Q x).
   Proof. intros H. cbn. split;
    intros HH d; specialize (HH d); specialize (H d); cbn in H; apply H, HH.
   Defined.
   MetaCoq Quote Definition qMergeForall := @mergeForall.
-  MetaCoq Quote Definition qMergeFormForall := (fun tr {ff : falsity_flag} => @quant (@fs tr) (@ps tr) full_operators ff All).
+  MetaCoq Quote Definition qMergeFormForall := @mForall.
 
-  Definition mergeIff {ff : falsity_flag} (rho:nat -> D) (P Q : naryProp 0) (fP fQ : form ff) : representsP fP rho P -> representsP fQ rho Q -> @representsP _ ff 0 (fP↔fQ) rho (P <-> Q).
+  Definition mIff {ff : falsity_flag} (fP fQ : form ff) : form ff := fP ↔ fQ.
+  Definition mergeIff {ff : falsity_flag} (rho:nat -> D) (P Q : naryProp 0) (fP fQ : form ff) : representsP fP rho P -> representsP fQ rho Q -> @representsP _ ff 0 (mIff fP fQ) rho (P <-> Q).
   Proof. intros H1 H2. cbn. cbn in H1,H2. rewrite H2, H1. reflexivity. Defined.
-  MetaCoq Quote Definition qMergeFormIff := (fun tr {ff : falsity_flag} (fP fQ : @Syntax.form (@fs tr) (@ps tr) full_operators ff)
-                                               =>  @bin (@fs tr) (@ps tr) full_operators ff Conj 
-                                                      (@bin (@fs tr) (@ps tr) full_operators ff Impl fP fQ) 
-                                                      (@bin (@fs tr) (@ps tr) full_operators ff Impl fQ fP)).
+  MetaCoq Quote Definition qMergeFormIff := @mIff.
   MetaCoq Quote Definition qMergeIff := @mergeIff. 
 
-  
   (** The same development for not X. *)
-  Definition mergeNot (rho:nat -> D) (P:naryProp 0) (fP : form falsity_on) : @representsP _ falsity_on 0 fP rho P -> @representsP _ falsity_on 0 (fP~>falsity) rho (~P).
+  Definition mNot (fP : form falsity_on) : form falsity_on := fP~>falsity.
+  Definition mergeNot (rho:nat -> D) (P:naryProp 0) (fP : form falsity_on) : @representsP _ falsity_on 0 fP rho P -> @representsP _ falsity_on 0 (mNot fP) rho (~P).
   Proof. cbn. tauto. Defined.
-  MetaCoq Quote Definition qMergeFormNot := (fun tr fP => @bin (@fs tr) (@ps tr) full_operators falsity_on Impl fP falsity).
+  MetaCoq Quote Definition qMergeFormNot := @mNot.
   MetaCoq Quote Definition qMergeNot := @mergeNot.
 
 
   (** The same development for truth. Note that truth has no canonical representative in the tarski semantics. It is equivalent to (falsity -> falsity), but not computationally equal. So using True in noProof mode would fail.*)
-  Definition mergeTrue (rho:nat -> D) : @representsP _ falsity_on 0 (falsity~>falsity) rho (True).
+  Definition mTrue : form falsity_on := falsity ~> falsity.
+  Definition mergeTrue (rho:nat -> D) : @representsP _ falsity_on 0 (mTrue) rho (True).
   Proof. cbn. tauto. Defined.
-  MetaCoq Quote Definition qMergeFormTrue := (fun tr => @bin (@fs tr) (@ps tr) full_operators falsity_on Impl falsity falsity).
+  MetaCoq Quote Definition qMergeFormTrue := @mTrue.
   MetaCoq Quote Definition qMergeTrue := @mergeTrue.
 
   (** Notation for matching constructs like Coq.Init.Logic.and prop1 prop2 -> (x:="and", l:=[term1, term2]) *)
