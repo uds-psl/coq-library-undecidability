@@ -72,7 +72,7 @@ Section discernable.
     set (g z := if d (f x) (f z) then true else false).
     specialize (H g); unfold g in H.
     destruct (d (f x) (f x)) as [ _ | [] ]; auto.
-    destruct (d (f x) (f y)) as [ | ]; auto.
+    destruct (d (f x) (f y)) as [ | ]; easy.
   Qed.
 
   Fact discrete_undiscernable_implies_equal x y : discrete X -> x ≡ y -> x = y.

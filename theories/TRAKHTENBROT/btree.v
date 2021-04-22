@@ -575,7 +575,7 @@ Proof. red; auto. Qed.
 Fact bti_trans x y z : x ⊆ y -> y ⊆ z -> x ⊆ z.
 Proof. intros H1 H2 k Hx; apply H2, H1; auto. Qed.
 
-Hint Resolve bti_trans : core.
+#[export] Hint Resolve bti_trans : core.
 
 Fact bti_comp s t : t ⊆ s⪧t.
 Proof. intro; rewrite btm_inv; auto. Qed.
@@ -612,7 +612,7 @@ Proof.
   generalize (H2 _ Hz); apply btm_congr_r; auto.
 Qed.
 
-[export] Hint Resolve bti_0 bti_refl bti_comp bti_mono_r btm_dec btm_congr_l : core.
+#[export] Hint Resolve bti_0 bti_refl bti_comp bti_mono_r btm_dec btm_congr_l : core.
 
 Lemma bti_dec s t : { s ⊆ t } + { ~ s ⊆ t }.
 Proof.

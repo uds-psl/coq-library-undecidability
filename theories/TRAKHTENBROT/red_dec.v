@@ -200,7 +200,7 @@ Section FSAT_PROP_ONLY_DEC.
 
   Theorem FSAT_PROP_ONLY_DEC A : decidable (FSAT Σ A).
   Proof.
-    destruct (FSAT_PROP_FSAT_x0 _ H2) as (f & Hf).
+    destruct (FSAT_PROP_FSAT_x0 H2) as (f & Hf).
     destruct FSAT_FULL_MONADIC_DEC with (A := f A)
       as [ H | H ]; auto.
     + intros [].
@@ -250,7 +250,7 @@ Section FSAT_FULL_MONADIC_discernable.
 
   Theorem FSAT_FULL_MONADIC_discernable A : decidable (FSAT Σ A).
   Proof.
-    destruct (FSAT_FULL_MONADIC_FSAT_11 _ H3 H4) as (f & Hf).
+    destruct (FSAT_FULL_MONADIC_FSAT_11 H3 H4) as (f & Hf).
     destruct (Σ11_discernable_dec_FSAT H1 H2 (f A)) as [ H | H ].
     + left; apply Hf; auto.
     + right; contradict H; apply Hf; auto.
@@ -266,7 +266,7 @@ Section FSAT_PROP_ONLY_discernable.
 
   Theorem FSAT_PROP_ONLY_discernable A : decidable (FSAT Σ A).
   Proof.
-    destruct (FSAT_PROP_FSAT_x0 _ H2) as (f & Hf).
+    destruct (FSAT_PROP_FSAT_x0 H2) as (f & Hf).
     destruct FSAT_FULL_MONADIC_discernable with (A := f A)
       as [ H | H ]; auto.
     + intros [].

@@ -7,7 +7,7 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Lia Max Bool.
+Require Import List Bool.
 
 From Undecidability.Synthetic
   Require Import Definitions ReducibilityFacts
@@ -26,8 +26,10 @@ From Undecidability.TRAKHTENBROT
 
 Set Implicit Arguments.
 
+Import fol_notations.
+
 Local Infix "∊" := In (at level 70, no associativity).
-Local Infix "⊑" := incl (at level 70, no associativity). 
+Local Infix "⊑" := incl (at level 70, no associativity).
 Local Notation ø := vec_nil.
 
 Local Infix "≢" := discernable (at level 70, no associativity).
@@ -144,7 +146,7 @@ Section FSAT_DEC_implies_discernable_rels.
 
   Theorem FSAT_dec_implies_discernable_rels_dec (P Q : rels Σ) : decidable (discernable P Q).
   Proof.
-    destruct (HXY (test _ P ⟑ (test _ Q ⤑ ⊥))) as [ H | H ].
+    destruct (HXY (test P ⟑ (test Q ⤑ ⊥))) as [ H | H ].
     + left; revert H; apply FSAT_equiv_discernable_rels.
     + right; contradict H; revert H; apply FSAT_equiv_discernable_rels.
   Qed.
@@ -162,7 +164,7 @@ Section FSAT_DEC_implies_discernable_syms.
 
   Theorem FSAT_dec_implies_discernable_syms_dec (f g : syms Σ) : decidable (discernable f g).
   Proof.
-    destruct (HXY (testt _ _ HP f ⟑ (testt _ _ HP g ⤑ ⊥))) as [ H | H ].
+    destruct (HXY (testt HP f ⟑ (testt HP g ⤑ ⊥))) as [ H | H ].
     + left; revert H; apply FSAT_equiv_discernable_syms.
     + right; contradict H; revert H; apply FSAT_equiv_discernable_syms.
   Qed.
@@ -254,6 +256,8 @@ Section discriminable_implies_FSAT_DEC.
       + tauto.
     Qed.
 
+    Hint Resolve in_eq incl_tl incl_appl incl_appr incl_refl : core.
+
     Let term_equal (t : fo_term (fun _ : X => 1)) φ : 
              fo_term_syms t ⊑ lX
           -> fo_term_sem M' φ (fot_discriminable_discrete t)
@@ -290,9 +294,9 @@ Section discriminable_implies_FSAT_DEC.
         clear Hy2.
         revert G1; vec split v with a; vec nil v; simpl; rewrite <- app_nil_end; intros G1.
         f_equal; apply term_equal; auto.
-      + apply fol_bin_sem_ext; auto.
-        * eapply HA, incl_tran; eauto.
-        * eapply HB, incl_tran; eauto.
+      + apply incl_app_inv in G1 as [].
+        apply incl_app_inv in G2 as [].
+        apply fol_bin_sem_ext; auto.
       + destruct q; fol equiv; auto.
     Qed.
 
@@ -398,7 +402,7 @@ Proof.
   intros HX HY A.
   generalize (discernable_discriminable_list HX (fol_syms A))
              (discernable_discriminable_list HY (fol_rels A)); intros HlX HlY.
-  destruct (Σdiscriminable_discrete_correct HlX HlY A)
+  destruct (@Σdiscriminable_discrete_correct _ _ _ HlX _ HlY A)
     as (DX & DY & ? & ? & ? & ? & B & HB).
   1,2: apply incl_refl.
   exists DX, DY.
