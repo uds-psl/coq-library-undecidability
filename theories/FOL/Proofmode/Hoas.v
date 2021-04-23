@@ -35,19 +35,19 @@ Fixpoint conv `{funcs_signature, preds_signature, operators} i (phi : bform) : f
 Declare Scope hoas_scope.
 Delimit Scope hoas_scope with hoas.
 
-Notation "'Free' x .. y , p" := (bFree Ex (fun x => .. (bFree Ex (fun y => p)) ..))
+Notation "'Free' x .. y , p" := (bFree Ex (fun x => .. (bFree Ex (fun y => p)) ..)%hoas)
 (at level 50, x binder, left associativity,
   format "'[' 'Free'  '/  ' x  ..  y ,  '/  ' p ']'") : hoas_scope.
-Notation "'∀'' x .. y , p" := (bQuant All (fun x => .. (bQuant All (fun y => p)) ..))
+Notation "'∀'' x .. y , p" := (bQuant All (fun x => .. (bQuant All (fun y => p)) ..)%hoas)
 (at level 50, x binder,  left associativity,
   format "'[' '∀''  '/  ' x  ..  y ,  '/  ' p ']'") : hoas_scope.
-Notation "'∃'' x .. y , p" := (bQuant Ex (fun x => .. (bQuant Ex (fun y => p)) ..))
+Notation "'∃'' x .. y , p" := (bQuant Ex (fun x => .. (bQuant Ex (fun y => p)) ..)%hoas)
 (at level 50, x binder, left associativity,
   format "'[' '∃''  '/  ' x  ..  y ,  '/  ' p ']'") : hoas_scope.
 Notation "⊥" := (bFal) : hoas_scope.
-Notation "A ∧ B" := (bBin Conj A B) (at level 41) : hoas_scope.
-Notation "A ∨ B" := (bBin Disj A B) (at level 42) : hoas_scope.
-Notation "A '~>' B" := (bBin Impl A B) (at level 43, right associativity) : hoas_scope.
+Notation "A ∧ B" := (bBin Conj A%hoas B%hoas) (at level 41) : hoas_scope.
+Notation "A ∨ B" := (bBin Disj A%hoas B%hoas) (at level 42) : hoas_scope.
+Notation "A '~>' B" := (bBin Impl A%hoas B%hoas) (at level 43, right associativity) : hoas_scope.
 
 Definition convert `{funcs_signature, preds_signature, operators} f := (@conv _ _ _ 0 f).
 Arguments convert {_ _ _} f%hoas.

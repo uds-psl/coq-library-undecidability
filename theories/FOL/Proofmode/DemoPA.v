@@ -196,7 +196,7 @@ Infix "≤" := leq (at level 45).
  * rule. This can be improved by writing better automation tactics
  * (or hint databases) for list inclusion in the future. *)
 Lemma add_zero_r :
-  FAI ⊢ <<(∀' x, x ⊕ zero == x)%hoas.
+  FAI ⊢ << ∀' x, x ⊕ zero == x.
 Proof.
   fstart. fapply ((ax_induction ($0 ⊕ zero == $0))).
   - frewrite (ax_add_zero zero). fapply ax_refl.
@@ -204,7 +204,7 @@ Proof.
 Qed. 
 
 Lemma add_succ_r :
-  FAI ⊢ <<(∀' x y, x ⊕ σ y == σ (x ⊕ y))%hoas.
+  FAI ⊢ << ∀' x y, x ⊕ σ y == σ (x ⊕ y).
 Proof.
   fstart. fapply ((ax_induction (∀ $1 ⊕ σ $0 == σ ($1 ⊕ $0)))).
   - fintros "y". frewrite (ax_add_zero (σ y)). frewrite (ax_add_zero y). fapply ax_refl.
@@ -213,7 +213,7 @@ Proof.
 Qed.
 
 Lemma add_comm :
-  FAI ⊢ <<(∀' x y, x ⊕ y == y ⊕ x)%hoas.
+  FAI ⊢ << ∀' x y, x ⊕ y == y ⊕ x.
 Proof.
   fstart. fapply ((ax_induction (∀ $1 ⊕ $0 == $0 ⊕ $1))).
   - fintros. frewrite (ax_add_zero x). frewrite (add_zero_r x). fapply ax_refl.
@@ -222,7 +222,7 @@ Proof.
 Qed.
 
 Lemma term_eq_dec :
-  FAI ⊢ <<(∀' x y, (x == y) ∨ (x == y ~> ⊥))%hoas.
+  FAI ⊢ << ∀' x y, (x == y) ∨ (x == y ~> ⊥).
 Proof.
   fstart. fapply ((ax_induction (∀ $1 == $0 ∨ ($1 == $0 ~> ⊥)))).
   - fapply ((ax_induction (zero == $0 ∨ (zero == $0 ~> ⊥)))).
@@ -236,7 +236,7 @@ Proof.
 Qed.
 
 Lemma neq_le :
-  FAI ⊢ <<(∀' k r y, (r == y ~> ⊥) ~> (r ⊕ k == y) ~> ∃' k', σ r ⊕ k' == y)%hoas.
+  FAI ⊢ << ∀' k r y, (r == y ~> ⊥) ~> (r ⊕ k == y) ~> ∃' k', σ r ⊕ k' == y.
 Proof.
   fstart. fapply ((ax_induction (∀ (∀ ($1 == $0 ~> ⊥) ~> $1 ⊕ $2 == $0 ~> (∃ σ $2 ⊕ $0 == $1))))).
   - fintros "r" "y" "H1" "H2". fexfalso. fapply "H1". frewrite <- (ax_add_zero r).
@@ -247,7 +247,7 @@ Proof.
 Qed.
 
 Lemma division_theorem :
-  FAI ⊢ <<(∀' x y, ∃' q r, (x == r ⊕ q ⊗ σ y) ∧ (r ≤ y))%hoas.
+  FAI ⊢ << ∀' x y, ∃' q r, (x == r ⊕ q ⊗ σ y) ∧ (r ≤ y).
 Proof.
   fstart. fapply ((ax_induction (∀ (∃ (∃ $3 == $0 ⊕ $1 ⊗ σ $2 ∧ (∃ $1 ⊕ $0 == $3)))))).
   - fintros "y". fexists zero. fexists zero. fsplit.
