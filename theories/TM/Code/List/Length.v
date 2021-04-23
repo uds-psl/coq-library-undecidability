@@ -239,7 +239,7 @@ Section Lenght.
       hnf. cbn. do 2 eexists. repeat split; eauto.
       now intros _ _ _.
     }
-    Grab Existential Variables. 2:eassumption. exact _.
+    Unshelve. 3:eassumption. exact _.
   Qed.
 
 End Lenght.

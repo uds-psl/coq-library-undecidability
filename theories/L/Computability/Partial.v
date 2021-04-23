@@ -15,7 +15,7 @@ Variable out_enc : Y -> term.
 Hypothesis in_enc_proc : forall x, proc (in_enc x).
 Hypothesis out_enc_proc : forall x, proc (out_enc x).
 
-Hint Resolve in_enc_proc out_enc_proc: LProc.
+#[export] Hint Resolve in_enc_proc out_enc_proc: LProc.
 
 Hypothesis total_F : forall t n, (exists v, F (enc n) (in_enc t) == oenc out_enc (Some v)) \/ F (enc n) (in_enc t) == (none out_enc).
 
@@ -28,9 +28,9 @@ Proof.
   cLproc.
 Qed.
 
-Hint Resolve S'_proc : LProc.
+#[export] Hint Resolve S'_proc : LProc.
 
-Hint Unfold S' : cbv.
+#[export] Hint Unfold S' : cbv.
 (*
 Lemma S'_rec n t : S' (enc n) F (tenc t) ==  (F (enc n) (tenc t)) K (lam ( S' (Succ (enc n)) F (tenc t))) I.
 Proof.
@@ -59,7 +59,7 @@ Proof.
   unfold Se;simpl. wLproc.
 Qed.
 
-Hint Resolve Se_proc : LProc.
+#[export] Hint Resolve Se_proc : LProc.
 
 Lemma S'_0_n n t : Se F (in_enc t) == S' (enc n) F (in_enc t).
 Proof.
@@ -131,7 +131,7 @@ Qed.
 End PartialFunctions.
 
 
-Hint Resolve S'_proc : LProc.
+#[export] Hint Resolve S'_proc : LProc.
 
-Hint Resolve Se_proc : LProc.
+#[export] Hint Resolve Se_proc : LProc.
 *)

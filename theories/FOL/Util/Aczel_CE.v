@@ -73,7 +73,7 @@ Lemma classof_ex X :
   exists s, X = classof s.
 Proof.
   destruct X as [P[s ->]]; simpl. exists s.
-  apply (@class_eq _ _ s s); simpl; auto.
+  apply (@class_eq _ _ s s); simpl; auto; reflexivity.
 Qed.
 
 Lemma classof_class s :
@@ -87,7 +87,7 @@ Lemma classof_eq s t :
 Proof.
   split; intros H.
   - specialize (classof_class s).
-    intros XX. rewrite H in XX. auto.
+    intros XX. rewrite H in XX. symmetry. exact XX.
   - apply (class_eq H); simpl; trivial.
 Qed.
 

@@ -287,7 +287,7 @@ Ltac tspec_ext :=
   end.
 
 (* (* Maybe not a good idea *)
-Hint Extern 10 => tspec_ext.
+#[export] Hint Extern 10 => tspec_ext.
 *)
 
 Ltac underBinders t :=

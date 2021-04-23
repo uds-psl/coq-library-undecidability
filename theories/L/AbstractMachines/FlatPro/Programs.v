@@ -13,7 +13,7 @@ Definition sizeT t :=
   end.  
 
 Definition sizeP (P:Pro) := sumn (map sizeT P) + 1.
-Hint Unfold sizeP : core.
+#[export] Hint Unfold sizeP : core.
 
 
 Lemma size_geq_1 s: 1<= size s.

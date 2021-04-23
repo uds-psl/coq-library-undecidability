@@ -112,4 +112,4 @@ Section Confluence.
 End Confluence.
 
 Notation "s ≫ t" := (par s t) (at level 60).
-Hint Resolve confluence_step tak_fun_rho : core.
+#[export] Hint Resolve confluence_step tak_fun_rho : core.

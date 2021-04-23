@@ -1,4 +1,8 @@
-From Undecidability.TM Require Import ProgrammingTools.
+Require Export Undecidability.TM.Code.CodeTM Undecidability.TM.Code.ChangeAlphabet.
+Require Export Undecidability.TM.Compound.TMTac.
+Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
+(* the above imports sidestep the import of ProgrammingTools below to avoid the dependency on Hoare *)
+(*From Undecidability.TM Require Import ProgrammingTools.*)
 
 From Undecidability.TM.PrettyBounds Require Export SizeBounds.
 

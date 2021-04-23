@@ -173,7 +173,7 @@ Section uiter.
 
 End uiter.
 
-Hint Resolve uiter_proc : LProc.
+#[export] Hint Resolve uiter_proc : LProc.
 Arguments uiter _ _ _ _ _ _ _ : clear implicits.
 Arguments uiter {X Y H H0} f {fT H1}.
 

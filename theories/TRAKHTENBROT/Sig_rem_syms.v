@@ -18,6 +18,10 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations fol_ops fo_sig utils fo_terms fo_logic fo_sat.
 
+Import fol_notations.
+
+Require Import Undecidability.Shared.ListAutomation.
+
 Set Implicit Arguments.
 
 (* * Converting functions symbols into relations symbols *) 
@@ -261,8 +265,8 @@ Section Sig_remove_symbols.
 
   Local Definition fol_rel_fun (s : syms Σ) : 𝔽' := 
        let n := ar_syms _ s
-       in ∀∀ fol_mquant fol_fa n (   
-              @fol_atom Σ' (inr (inl s)) (£(S n)##vec_set_pos (fun p => £(pos2nat p))) 
+       in ∀∀  fol_mquant fol_fa n (   
+             @fol_atom Σ' (inr (inl s)) (£(S n)##vec_set_pos (fun p => £(pos2nat p))) 
                      ⤑ @fol_atom Σ' (inr (inl s)) (£n##vec_set_pos (fun p => £(pos2nat p)))
                      ⤑ @fol_atom Σ' e (£(S n)##£n##ø) ).
 

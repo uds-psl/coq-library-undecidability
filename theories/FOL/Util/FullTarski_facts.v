@@ -4,7 +4,7 @@ Require Import Undecidability.FOL.Util.Syntax_facts.
 Require Export Undecidability.FOL.Util.FullTarski.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
-Require Import Vector.
+Require Import Vector Lia.
 
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
@@ -116,6 +116,87 @@ Section Tarski.
       sat rho (A ==> phi) -> ((forall psi, psi el A -> sat rho psi) -> sat rho phi).
     Proof.
       eapply impl_sat.
+    Qed.
+
+    Lemma bounded_eval_t n t sigma tau :
+      (forall k, n > k -> sigma k = tau k) -> bounded_t n t -> eval sigma t = eval tau t.
+    Proof.
+      intros H. induction 1; cbn; auto.
+      f_equal. now apply Vector.map_ext_in.
+    Qed.
+    
+    Lemma bound_ext {ff : falsity_flag} N phi rho sigma :
+      bounded N phi -> (forall n, n < N -> rho n = sigma n) -> (rho ⊨ phi <-> sigma ⊨ phi).
+    Proof.
+      induction 1 in sigma, rho |- *; cbn; intros HN; try tauto.
+      - enough (map (eval rho) v = map (eval sigma) v) as E. now setoid_rewrite E.
+        apply Vector.map_ext_in. intros t Ht.
+        eapply bounded_eval_t; try apply HN. now apply H.
+      - destruct binop; now rewrite (IHbounded1 rho sigma), (IHbounded2 rho sigma).
+      - destruct quantop.
+        + split; intros Hd d; eapply IHbounded.
+          all : try apply (Hd d); intros [] Hk; cbn; auto.
+          symmetry. all: apply HN; lia.
+        + split; intros [d Hd]; exists d; eapply IHbounded.
+          all : try apply Hd; intros [] Hk; cbn; auto.
+          symmetry. all: apply HN; lia.
+    Qed. 
+
+    Corollary sat_closed {ff : falsity_flag} rho sigma phi :
+      bounded 0 phi -> rho ⊨ phi <-> sigma ⊨ phi.
+    Proof.
+      intros H. eapply bound_ext. apply H. lia.
+    Qed.
+
+    Lemma bounded_S_exists {ff : falsity_flag} N phi :
+      bounded (S N) phi <-> bounded N (∃ phi).
+    Proof.
+      split; intros H.
+      - now constructor.
+      - inversion H. apply inj_pair2_eq_dec' in H4 as ->; trivial.
+        unfold Dec.dec. decide equality.
+    Qed.
+
+    Lemma bounded_S_forall {ff : falsity_flag} N phi :
+      bounded (S N) phi <-> bounded N (∀ phi).
+    Proof.
+      split; intros H.
+      - now constructor.
+      - inversion H. apply inj_pair2_eq_dec' in H4 as ->; trivial.
+        unfold Dec.dec. decide equality.
+    Qed.
+
+    Definition exist_times {ff : falsity_flag} n (phi : form) := iter (fun psi => ∃ psi) n phi.
+    Definition forall_times {ff : falsity_flag} n (phi : form) := iter (fun psi => ∀ psi) n phi.
+    
+    Lemma subst_exist_sat {ff : falsity_flag} rho phi N :
+      rho ⊨ phi -> bounded N phi -> forall rho, rho ⊨ (exist_times N phi).  
+    Proof.
+      induction N in phi, rho |-*; intros.
+      - cbn. eapply sat_closed; eassumption.
+      - cbn -[sat]. rewrite iter_switch. apply (IHN (S >> rho)).
+        exists (rho 0). eapply sat_ext. 2: apply H.
+        now intros [].
+        now apply bounded_S_exists.
+    Qed.
+
+    Fact subst_exist_sat2 {ff : falsity_flag} N :
+      forall rho phi, rho ⊨ (exist_times N phi) -> (exists sigma, sigma ⊨ phi).
+    Proof.
+      induction N.
+      - eauto.
+      - intros rho phi [? H]. now apply IHN in H.
+    Qed.
+
+    Lemma exists_close_form {ff : falsity_flag} N phi :
+      bounded 0 (exist_times N phi) <-> bounded N phi.
+    Proof.
+      induction N in phi |- *.
+      - reflexivity.
+      - cbn. rewrite iter_switch.
+        change (iter _ _ _) with (exist_times N (∃ phi)).
+        setoid_rewrite IHN. symmetry.
+        now apply bounded_S_exists.
     Qed.
     
   End Substs.

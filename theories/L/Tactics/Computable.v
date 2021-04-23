@@ -13,7 +13,7 @@ Class registered (X : Type) := mk_registered
     inj_enc : injective enc (* encoding is injective *)
   }.
 
-Hint Mode registered + : typeclass_instances. (* treat argument as input and force evar-freeness*)
+#[export] Hint Mode registered + : typeclass_instances. (* treat argument as input and force evar-freeness*)
 
 Arguments enc : simpl never.  (* Never unfold with cbn/simpl *)
 
@@ -33,7 +33,7 @@ Existing Instance TyArr.
 Arguments TyB _ {_}.
 Arguments TyArr {_} {_} _ _.
 
-Hint Mode TT + : typeclass_instances. (* treat argument as input and force evar-freeness*)
+#[export] Hint Mode TT + : typeclass_instances. (* treat argument as input and force evar-freeness*)
 
 Notation "! X" := (TyB X) (at level 69).
 Notation "X ~> Y" := (TyArr X Y) (right associativity, at level 70).
@@ -68,8 +68,8 @@ Global Arguments computable {X} {ty} x.
 Global Arguments extCorrect {X} ty x {computable} : simpl never.
 Global Arguments ext {X} {ty} x {computable} : simpl never.
 
-Hint Mode computable + - +: typeclass_instances. (* treat argument as input and force evar-freeness*)
-Hint Extern 4 (@extracted ?t ?f) => let ty := constr:(_ : TT t) in notypeclasses refine (ext (ty:=ty) f) : typeclass_instances.
+#[export] Hint Mode computable + - +: typeclass_instances. (* treat argument as input and force evar-freeness*)
+#[export] Hint Extern 4 (@extracted ?t ?f) => let ty := constr:(_ : TT t) in notypeclasses refine (ext (ty:=ty) f) : typeclass_instances.
 
 Typeclasses Opaque ext.
 
@@ -158,7 +158,7 @@ Qed.
 Fixpoint extEq t {tt:TT t} : t -> t -> Prop:=
   match tt with
     TyB _ _ => eq
-  | @TyArr t1 t2 tt1 tt2 => fun f f' => forall (x : t1), extEq (f x) (f' x)
+  | @TyArr t1 t2 _ _ => fun f f' => forall (x : t1), extEq (f x) (f' x)
   end.
 
 

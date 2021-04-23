@@ -18,7 +18,7 @@ Inductive poly : Set :=
   | poly_mul : poly -> poly -> poly.
 
 MetaCoq Run (tmGenEncode "enc_poly" poly).
-Hint Resolve enc_poly_correct : Lrewrite.
+#[export] Hint Resolve enc_poly_correct : Lrewrite.
 
 Instance term_poly_cnst: computable poly_cnst. Proof. extract constructor. Qed.
 Instance term_poly_var : computable poly_var. Proof. extract constructor. Qed.

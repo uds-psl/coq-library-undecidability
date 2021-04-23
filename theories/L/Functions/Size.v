@@ -1,5 +1,6 @@
 From Undecidability.L Require Import Tactics.LTactics Functions.Encoding Prelim.LoopSum Functions.LoopSum Functions.UnboundIteration.
 Require Import Nat.
+From Undecidability.L.Datatypes Require Import LTerm LProd.
 From Undecidability.L.Datatypes Require Import Lists.
 
 (* ** Extracted size of terms *)

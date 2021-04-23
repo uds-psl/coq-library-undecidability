@@ -79,7 +79,7 @@ Ltac isVoid_mono :=
   | [ H : isVoid ?t |- isVoid ?t ] =>
     apply H
   end.
-Hint Extern 10 => isVoid_mono : core.
+#[export] Hint Extern 10 => isVoid_mono : core.
 
 
 
@@ -298,7 +298,7 @@ Ltac contains_ext :=
     apply tape_contains_rev_ext with (1 := H); simpl_comp; try reflexivity
   end.
 
-Hint Extern 10 => contains_ext : core.
+#[export] Hint Extern 10 => contains_ext : core.
 
 
 (* Because every machine is defined on an alphabet [Σ^+], the notation adds the discreteness and finiteness constructors, to cast [Σ^+ : finType]. *)

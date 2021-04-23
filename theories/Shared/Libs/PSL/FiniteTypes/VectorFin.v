@@ -38,7 +38,7 @@ Proof.
   - eapply tolist_In. apply Fin_initVect_full.
 Defined.
 
-Hint Extern 4 (finTypeC (EqType (Fin.t _))) => eapply Fin_finTypeC : typeclass_instances.
+#[export] Hint Extern 4 (finTypeC (EqType (Fin.t _))) => eapply Fin_finTypeC : typeclass_instances.
 
 Lemma Fin_cardinality n : Cardinality (finType_CS (Fin.t n)) = n.
 Proof.
@@ -66,7 +66,7 @@ Proof.
       eapply elem_spec.
 Defined.
       
-Hint Extern 4 (finTypeC (EqType (Vector.t _ _))) => eapply Vector_finTypeC : typeclass_instances.
+#[export] Hint Extern 4 (finTypeC (EqType (Vector.t _ _))) => eapply Vector_finTypeC : typeclass_instances.
 
 
 Lemma ProdCount (T1 T2: eqType) (A: list T1) (B: list T2) (a:T1) (b:T2)  :

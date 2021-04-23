@@ -18,6 +18,8 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations fol_ops fo_sig fo_terms fo_logic.
 
+Import fol_notations.
+
 Set Implicit Arguments.
 
 (* * The first order theory of membership *)

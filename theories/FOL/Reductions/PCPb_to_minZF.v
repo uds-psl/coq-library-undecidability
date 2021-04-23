@@ -11,7 +11,7 @@ Require Import Equations.Equations.
 
 Local Notation vec := Vector.t.
 
-
+Local Hint Constructors prv : core.
 
 (* ** Trivial embedding into rich signature *)
 

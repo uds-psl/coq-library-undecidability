@@ -75,6 +75,7 @@ Class Subst4 (X1 X2 X3 X4: Type) (Y Z: Type) :=
 Class Subst5 (X1 X2 X3 X4 X5 : Type) (Y Z: Type) :=
   subst5 : X1 -> X2 -> X3 -> X4 -> X5  -> Y  -> Z.
 
+#[global]
 Notation "s [ sigma ]" := (subst1 sigma s) (at level 7, left associativity, format "s '/' [ sigma ]") : subst_scope.
 
 Notation "s [ sigma ; tau ]" := (subst2 sigma tau s) (at level 7, left associativity, format "s '/' [ sigma ; '/'  tau ]") : subst_scope.

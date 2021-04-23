@@ -89,7 +89,7 @@ Inductive bt_equiv : bt -> bt -> Prop :=
                                    ->   s⪧t ≈ s'⪧t'
 where "s ≈ t" := (bt_equiv s t).
 
-Hint Constructors bt_equiv : core.
+#[export] Hint Constructors bt_equiv : core.
 
 Local Notation "s ≉ t" := (~ s ≈ t).
 Notation bte_refl := in_bte_refl.
@@ -568,7 +568,7 @@ Qed.
 Fact bti_refl x : x ⊆ x.
 Proof. red; auto. Qed.
 
-Hint Resolve bti_refl : core.
+#[export] Hint Resolve bti_refl : core.
 
 Fact bti_trans x y z : x ⊆ y -> y ⊆ z -> x ⊆ z.
 Proof. intros H1 H2 k Hx; apply H2, H1; auto. Qed.
@@ -608,7 +608,7 @@ Proof.
   generalize (H2 _ Hz); apply btm_congr_r; auto.
 Qed.
 
-Hint Resolve bti_0 bti_refl bti_comp bti_mono_r : core.
+#[export] Hint Resolve bti_0 bti_refl bti_comp bti_mono_r : core.
 
 Lemma bti_dec s t : { s ⊆ t } + { ~ s ⊆ t }.
 Proof.
@@ -720,7 +720,7 @@ Proof. intro; rewrite bt_cup_spec; auto. Qed.
 Fact bt_cup_right s t : t ⊆ s ∪ t.
 Proof. intro; rewrite bt_cup_spec; auto. Qed.
 
-Hint Resolve bt_cup_left bt_cup_right : core.
+#[export] Hint Resolve bt_cup_left bt_cup_right : core.
 
 Add Parametric Morphism: (bt_cup) with signature 
        (bt_equiv) ==> (bt_equiv) ==> (bt_equiv) as bt_cup_congr.
@@ -744,7 +744,7 @@ Proof.
   intros [ H | H ]; [ left | right ]; revert H; auto.
 Qed.
 
-Hint Resolve bt_cup_mono : core.
+#[export] Hint Resolve bt_cup_mono : core.
 
 (* We compute the transitive closure *)
 
@@ -771,7 +771,7 @@ Proof.
   rewrite bt_cup_spec; tauto.
 Qed.
 
-Hint Resolve bt_tc_incr : core.
+#[export] Hint Resolve bt_tc_incr : core.
 
 (* ↓t is transitive *)
 
@@ -786,7 +786,7 @@ Proof.
   + right; right; revert H2; apply Ht; auto.
 Qed.
 
-Hint Resolve bt_tc_trans : core.
+#[export] Hint Resolve bt_tc_trans : core.
 
 (* ↓s is the least transitive containing s *)
 
@@ -817,7 +817,7 @@ Qed.
 Fact bt_tc_idem t : (↓↓t) ⊆ ↓t.
 Proof. apply bt_tc_incl_transitive; auto. Qed.
 
-Hint Resolve bt_tc_mono bt_tc_idem : core.
+#[export] Hint Resolve bt_tc_mono bt_tc_idem : core.
 
 (* It is nice to set union *)
    

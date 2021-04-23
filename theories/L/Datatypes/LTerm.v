@@ -4,7 +4,7 @@ From Undecidability.L.Tactics Require Import LTactics GenEncode.
 
 (* ** Encoding for L-terms *)
 MetaCoq Run (tmGenEncode "term_enc" term).
-Hint Resolve term_enc_correct : Lrewrite.
+#[export] Hint Resolve term_enc_correct : Lrewrite.
   
 (* register the non-constant constructors *)
 Instance term_var : computableTime' var (fun n _ => (1, tt)).

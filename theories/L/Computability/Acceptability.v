@@ -18,7 +18,7 @@ Qed.
 (* * L-acceptable predicates are closed under conjunction and disjunction *)
 
 Definition acc_conj (p q : term) := lam ((lam (q #1)) (p #0) ).
-Hint Unfold acc_conj : cbv.
+#[export] Hint Unfold acc_conj : cbv.
 
 Lemma acc_conj_correct p q s : closed p -> closed q -> (pi (acc_conj p q) s <-> pi p s /\ pi q s).
 Proof.
