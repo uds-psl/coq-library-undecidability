@@ -703,11 +703,11 @@ Proof.
   have [? ?] : x <> z2 /\ y <> z2.
   { have /fresh_StateP : In ([], a :: r, x, ([], b :: r', y)) M1.
     { rewrite /M1 /AddFreshLoop.M' ?in_app_iff. by right. }
-    by lia. }
+    unfold z2; lia. }
   have ? : z1 <> z2.
   { have /fresh_StateP : In ([], [a], x, ([a], [], z1)) M1.
     { rewrite /M1 /AddFreshLoop.M' ?in_app_iff. left. by left. }
-    by lia. }
+    unfold z2; lia. }
   
   (* az1r -> az2r' is derivable *)
   have ? : reachable M2 ([a], r, z1) ([a], r', z2).

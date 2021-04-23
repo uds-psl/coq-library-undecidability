@@ -26,11 +26,13 @@ Section IMSELL.
   Variables (var bang : Type)
             (bang_le : bang -> bang -> Prop)   (* a pre-order on modalities *)
             (bang_U : bang -> Prop)            (* universal modalities have structural rules *)
-            . 
+            .
+
+  Notation Λ := bang.
 
   Inductive imsell_form : Type :=
     | imsell_var  : var -> imsell_form
-    | imsell_ban  : bang -> imsell_form -> imsell_form
+    | imsell_ban  : Λ -> imsell_form -> imsell_form
     | imsell_imp  : imsell_form -> imsell_form -> imsell_form.
 
   Infix "⊸" := imsell_imp.

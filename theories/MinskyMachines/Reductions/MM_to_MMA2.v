@@ -54,4 +54,5 @@ Proof.
   exists (fractran_mma l), (fun v => ps 1 * exp 1 v ## 0 ## vec_nil).
   intros v; rewrite H2.
   apply fractran_mma_reduction; trivial.
+  revert H1; apply Forall_impl; tauto.
 Qed.

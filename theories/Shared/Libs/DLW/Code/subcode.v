@@ -207,14 +207,14 @@ Ltac subcode_tac :=
             => (match i with ?j::nil => match type of H with context[j] => apply subcode_trans with (2 := H) end end ||
                 match type of H with context[i] => apply subcode_trans with (2 := H) end)
        end;
-       match goal with
+       try match goal with
          | |- subcode (_,?i) (_,?c) => focus_goal i c 
        end;
        match goal with 
-         | |- subcode (_,?i::nil) (_,?l++?i::?r) => exists l, r 
-         | |- subcode _ (_,?l++_++?r)            => exists l, r 
-         | |- subcode (_,?i) (_,?l++?i)          => exists l, nil 
-       end;
+         | |- subcode (_,?i)      (_,?l++?i)      => exists l, nil 
+         | |- subcode (_,?i::nil) (_,?l++?i::?r)  => exists l, r 
+         | |- subcode (_,?i)      (_,?l++?i++?r)  => exists l, r 
+       end; try rewrite <- !app_nil_end;
        split; auto; rew length; try lia.
 
 (* Add it to auto so that fam sss * will try it to solve the subcode goal it generates *)
