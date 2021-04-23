@@ -94,6 +94,8 @@ Section MMA2_ndMM2.
     change b with (vec_pos (snd s) pos1);
     change i with (fst s).
 
+  Hint Resolve in_eq in_cons : core.
+
   Local Fact mma2_instr_enc_sound Σ ρ i a b j a' b' : 
           ρ //ₐ (i,a##b##ø) -1> (j,a'##b'##ø) 
        -> ⟨i,ρ⟩₁ ⊆ Σ 
