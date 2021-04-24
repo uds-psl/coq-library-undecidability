@@ -562,6 +562,10 @@ Section EnvConstructor.
         findUnboundVariablesForm tct fuel P n
        else ffail
   | _ => ffail  end end.
+
+  Fixpoint isIn (l:list Ast.term) (x:Ast.term) := match l with nil=>false | lx::lr => if Checker.eq_term init_graph lx x then true else isIn lr x end.
+  Fixpoint dedup (l:list Ast.term) := match l with nil => nil | lx::lr => if isIn lr lx then dedup lr else lx::dedup lr end.
+
  (** Builds the actual env out of a list of free variables *)
  Fixpoint createEnvTerms (tct:Ast.term) (l:list Ast.term) (base:Ast.term) : prod (Ast.term) (Ast.term -> FailureMonad nat) := match l with 
        nil => (base,unboundEnv)
@@ -720,7 +724,7 @@ match goal with [ |- @representableP ?i ?ff ?n ?G ] => (*(pose (fst y) as envBas
                          monad_utils.bind (tmInferInstance None (tarski_reflector_extensions i)) (fun treO => let tre := match treO with my_Some kk => kk | my_None => defaultExtensions i end in
                          monad_utils.bind (tmQuote (@emptyEnv i)) (fun baseEnv => 
                          monad_utils.bind (f2t ((@findUnboundVariablesForm i tre tct FUEL g n))) (fun lst => 
-                         let '(envToDR,envToNat) := (createEnvTerms tct lst baseEnv) in
+                         let '(envToDR,envToNat) := (createEnvTerms tct (dedup lst) baseEnv) in
                          monad_utils.bind (tmUnquoteTyped (nat -> @D i) envToDR) (fun envToD => 
                          monad_utils.ret (pair envToD envToNat))))))))) cont)
 end.

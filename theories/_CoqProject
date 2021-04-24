@@ -246,6 +246,7 @@ FOL/Util/sig_bin.v
 
 FOL/Reification/GeneralReflection.v
 FOL/Reification/PA_reflection.v
+FOL/Reification/PA_reflection_extension.v
 
 FOL/Reductions/PCPb_to_FOL.v
 FOL/Reductions/PCPb_to_FOL_intu.v
