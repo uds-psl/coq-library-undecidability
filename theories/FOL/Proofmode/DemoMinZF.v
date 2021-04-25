@@ -29,7 +29,6 @@ Next Obligation. exact equal. Defined.
 Next Obligation. exact minZFeq'. Defined.
 Next Obligation. fintros. fapply ax_refl'. Qed.
 Next Obligation. fintros. fapply ax_sym'. ctx. Qed.
-Next Obligation. easy. Qed.
 Next Obligation.
   unfold MinZF_Leibniz_obligation_1 in *. rename v1 into t; rename v2 into t0.
   destruct P.

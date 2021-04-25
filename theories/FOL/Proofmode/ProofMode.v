@@ -1,3 +1,4 @@
+Require Import Undecidability.FOL.Proofmode.Ltac2StringIdent.
 From Equations Require Import Equations DepElim.
 From Undecidability.Shared Require Import Dec ListAutomation.
 From Undecidability.FOL Require Import Util.Syntax Util.Syntax_facts Util.FullDeduction Util.FullDeduction_facts Util.FullTarski.
@@ -291,7 +292,6 @@ Ltac solve_list_incl :=
 (* We save identifiers with the binder of a trivial function *)
 Inductive ident_name := Ident : (unit -> unit) -> ident_name.
 
-Require Import Undecidability.FOL.Proofmode.Ltac2StringIdent.
 Ltac to_ident_name id :=
   eval cbv in (ltac:(clear; apply Ident; intros id; assumption) : ident_name).
 
@@ -1047,7 +1047,6 @@ Ltac turn_into_hypothesis T H contxt :=
       end
   end.
 
-
 Section ContextUtil.
   Context {Σ_funcs : funcs_signature}.
   Context {Σ_preds : preds_signature}.
@@ -1761,8 +1760,8 @@ Definition cast {X} {x y: X} {p: X -> Type}
 
 Fixpoint VecForall2 {X Y n} (p : X -> Y -> Prop) (v1 : Vector.t X n) (v2 : Vector.t Y n) :=
   match v1 in Vector.t _ n return Vector.t Y n -> Prop with
-  | Vector.nil _ => fun _ => True
-  | Vector.cons _ x _ v1 => fun v2 => p x (Vector.hd v2) /\ VecForall2 p v1 (Vector.tl v2)
+  | @Vector.nil _ => fun _ => True
+  | @Vector.cons _ x _ v1 => fun v2 => p x (Vector.hd v2) /\ VecForall2 p v1 (Vector.tl v2)
   end v2.
 
 Class Leibniz (Σ_funcs : funcs_signature) (Σ_preds : preds_signature) (ff : falsity_flag) :=
