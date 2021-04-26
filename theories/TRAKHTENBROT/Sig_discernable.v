@@ -45,13 +45,13 @@ Section FSAT_equiv_discernable_rels.
 
   Section model.
 
-    Variable (f : rels Σ -> bool) (HP : f P = true) (HQ : f Q = false).
+    Variable (δ : rels Σ -> bool) (HP : δ P = true) (HQ : δ Q = false).
 
     Let M : fo_model Σ bool.
     Proof.
       split.
       + intros; exact true. 
-      + intros r _; exact (f r = true).
+      + intros r _; exact (δ r = true).
     Defined.
 
     Local Fact discernable_rels_FSAT : FSAT Σ (test P ⟑ (test Q ⤑ ⊥)).
@@ -90,21 +90,21 @@ Section FSAT_equiv_discernable_syms.
 
   Local Definition testt (p : syms Σ) : fol_form Σ := fol_atom P (cast (termt p##ø) (eq_sym HP)).
 
-  Variables (p q : syms Σ).
+  Variables (f g : syms Σ).
 
   Section model.
 
-    Variable (f : syms Σ -> bool) (Hp : f p = true) (Hq : f q = false).
+    Variable (δ : syms Σ -> bool) (Hp : δ f = true) (Hq : δ g = false).
 
     Let M : fo_model Σ bool.
     Proof.
       split.
-      + intros s _; exact (f s). 
+      + intros s _; exact (δ s). 
       + intros r; simpl; intros v. 
         exact (match v with vec_nil => True | h##_ => h = true end).
     Defined.
 
-    Local Fact discernable_syms_FSAT : FSAT Σ (testt p ⟑ (testt q ⤑ ⊥)).
+    Local Fact discernable_syms_FSAT : FSAT Σ (testt f ⟑ (testt g ⤑ ⊥)).
     Proof.
       exists bool, M; msplit 2.
       + apply finite_t_bool.
@@ -118,7 +118,7 @@ Section FSAT_equiv_discernable_syms.
 
   End model.
 
-  Theorem FSAT_equiv_discernable_syms : FSAT Σ (testt p ⟑ (testt q ⤑ ⊥)) <-> p ≢ q.
+  Theorem FSAT_equiv_discernable_syms : FSAT Σ (testt f ⟑ (testt g ⤑ ⊥)) <-> f ≢ g.
   Proof.
     rewrite discernable_equiv1.
     split.
@@ -129,8 +129,8 @@ Section FSAT_equiv_discernable_syms.
       do 2 match goal with 
         |- context[if ?c then _ else _] => destruct c 
       end; auto; tauto.
-    + intros (f & H1 & H2).
-      apply discernable_syms_FSAT with f; auto.
+    + intros (δ & H1 & H2).
+      apply discernable_syms_FSAT with δ; auto.
   Qed.
 
 End FSAT_equiv_discernable_syms.
@@ -196,8 +196,8 @@ Section discriminable_implies_FSAT_DEC.
   Let DX_discr : discrete DX.   Proof. apply (projT2 HlX). Qed.
   Let DX_fin : finite_t DX.     Proof. apply (projT2 (projT2 HlX)). Qed.
 
-  Let f : X -> DX := proj1_sig (projT2 (projT2 (projT2 HlX))).
-  Let Hf u v : u ∊ lX -> v ∊ lX -> u ≡ v <-> f u = f v.
+  Let δ : X -> DX := proj1_sig (projT2 (projT2 (projT2 HlX))).
+  Let Hδ u v : u ∊ lX -> v ∊ lX -> u ≡ v <-> δ u = δ v.
   Proof. apply (proj2_sig (projT2 (projT2 (projT2 HlX)))). Qed.
 
   Let DY := projT1 HlY.
@@ -205,26 +205,26 @@ Section discriminable_implies_FSAT_DEC.
   Let DY_discr : discrete DY.   Proof. apply (projT2 HlY). Qed.
   Let DY_fin : finite_t DY.     Proof. apply (projT2 (projT2 HlY)). Qed.
 
-  Let g : Y -> DY := proj1_sig (projT2 (projT2 (projT2 HlY))).
-  Let Hg u v : u ∊ lY -> v ∊ lY -> u ≡ v <-> g u = g v.
+  Let ρ : Y -> DY := proj1_sig (projT2 (projT2 (projT2 HlY))).
+  Let Hρ u v : u ∊ lY -> v ∊ lY -> u ≡ v <-> ρ u = ρ v.
   Proof. apply (proj2_sig (projT2 (projT2 (projT2 HlY)))). Qed.
 
-  Let fromX d : { x | x ∊ lX /\ f x = d } + (forall x, x ∊ lX -> f x <> d).
+  Let fromX d : { x | x ∊ lX /\ δ x = d } + (forall x, x ∊ lX -> δ x <> d).
   Proof. now apply find_discrete_projection. Qed.
 
-  Let fromY d : { y | y ∊ lY /\ g y = d } + (forall y, y ∊ lY -> g y <> d).
+  Let fromY d : { y | y ∊ lY /\ ρ y = d } + (forall y, y ∊ lY -> ρ y <> d).
   Proof. now apply find_discrete_projection. Qed.
 
   Fixpoint fot_discriminable_discrete (t : fo_term (fun _ : X => 1)) : fo_term (fun _ : DX => 1) :=
     match t with
       | in_var n => in_var n
-      | in_fot s v => in_fot (f s) ((fot_discriminable_discrete (vec_pos v pos0))##ø)
+      | in_fot s v => in_fot (δ s) ((fot_discriminable_discrete (vec_pos v pos0))##ø)
     end.
 
   Fixpoint Σdiscriminable_discrete (A : fol_form (Σ11 X Y)) : fol_form (Σ11 DX DY) :=
     match A with
       | ⊥              => ⊥
-      | fol_atom r v   => @fol_atom (Σ11 DX DY) (g r) (vec_map fot_discriminable_discrete v)
+      | fol_atom r v   => @fol_atom (Σ11 DX DY) (ρ r) (vec_map fot_discriminable_discrete v)
       | fol_bin b A B => fol_bin b (Σdiscriminable_discrete A) (Σdiscriminable_discrete B)
       | fol_quant q A => fol_quant q (Σdiscriminable_discrete A)
     end.
@@ -264,16 +264,16 @@ Section discriminable_implies_FSAT_DEC.
            = fo_term_sem M φ t.
     Proof.
       induction t as [ n | s v IH ]; simpl; intros Ht; auto.
-      destruct (fromX (f s)) as [ (x & Hx1 & Hx2) | C ].
+      destruct (fromX (δ s)) as [ (x & Hx1 & Hx2) | C ].
       2: destruct (C s); auto.
       revert IH Ht; vec split v with a; vec nil v; intros IH Ht.
       simpl in Ht |- *.
       rewrite <- app_nil_end in Ht.
       specialize (IH pos0); simpl in IH.
-      assert (undiscernable x s) as Hxs by (apply Hf; auto).
+      assert (undiscernable x s) as Hxs by (apply Hδ; auto).
       rewrite IH.
       2: apply incl_tran with (2 := Ht); intro; simpl; tauto.
-      apply undiscernable_discrete with (f := fun u => fom_syms M u (fo_term_sem M φ a ## ø)); auto.
+      apply undiscernable_discrete with (δ := fun u => fom_syms M u (fo_term_sem M φ a ## ø)); auto.
     Qed.
 
     Let form_equiv (A : fol_form (Σ11 X Y)) φ :
@@ -282,9 +282,9 @@ Section discriminable_implies_FSAT_DEC.
        -> fol_sem M' φ (Σdiscriminable_discrete A) <-> fol_sem M φ A.
     Proof.
       induction A as [ | r v | b A HA B HB | q A HA ] in φ |- *; simpl; intros G1 G2; try tauto. 
-      + destruct (fromY (g r)) as [ (y & Hy1 & Hy2) | C ].
+      + destruct (fromY (ρ r)) as [ (y & Hy1 & Hy2) | C ].
         2: destruct (C r); auto.
-        apply Hg in Hy2; auto.
+        apply Hρ in Hy2; auto.
         apply undiscernable_Prop_dec 
           with (P := fun z => fom_rels M z (vec_map (fo_term_sem M φ) v)) in Hy2.
         2: intro; apply HM.
@@ -324,8 +324,8 @@ Section discriminable_implies_FSAT_DEC.
     Let M' : fo_model (Σ11 X Y) K.
     Proof.
       split.
-      + exact (fun s => fom_syms M (f s)).
-      + exact (fun r => fom_rels M (g r)).
+      + exact (fun s => fom_syms M (δ s)).
+      + exact (fun r => fom_rels M (ρ r)).
     Defined.
 
     Let M'_dec : fo_model_dec M'.

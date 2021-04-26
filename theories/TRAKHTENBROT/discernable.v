@@ -23,11 +23,11 @@ Section discernable.
 
   Variable (X : Type).
 
-  Definition discernable x y := exists f : X -> bool, f x <> f y.
+  Definition discernable x y := exists δ : X -> bool, δ x <> δ y.
 
   Infix "≢" := discernable (at level 70, no associativity).
 
-  Fact discernable_equiv1 x y : x ≢ y <-> exists f, f x = true /\ f y = false.
+  Fact discernable_equiv1 x y : x ≢ y <-> exists δ, δ x = true /\ δ y = false.
   Proof.
     split.
     + intros (f & Hf).
@@ -41,7 +41,7 @@ Section discernable.
       now rewrite E1, E2.
   Qed.
 
-  Definition undiscernable x y := forall f : X -> bool, f x = f y.
+  Definition undiscernable x y := forall δ : X -> bool, δ x = δ y.
 
   Infix "≡" := undiscernable (at level 70, no associativity).
 
@@ -66,17 +66,17 @@ Section discernable.
   Fact undiscernable_trans x y z : x ≡ y -> y ≡ z -> x ≡ z.
   Proof. unfold undiscernable; eauto. Qed.
 
-  Fact undiscernable_discrete D (f : X -> D) x y : discrete D -> x ≡ y -> f x = f y.
+  Fact undiscernable_discrete D (δ : X -> D) x y : discrete D -> x ≡ y -> δ x = δ y.
   Proof.
     intros d H.
-    set (g z := if d (f x) (f z) then true else false).
+    set (g z := if d (δ x) (δ z) then true else false).
     specialize (H g); unfold g in H.
-    destruct (d (f x) (f x)) as [ _ | [] ]; auto.
-    destruct (d (f x) (f y)) as [ | ]; easy.
+    destruct (d (δ x) (δ x)) as [ _ | [] ]; auto.
+    destruct (d (δ x) (δ y)) as [ | ]; easy.
   Qed.
 
   Fact discrete_undiscernable_implies_equal x y : discrete X -> x ≡ y -> x = y.
-  Proof. intro; now apply undiscernable_discrete with (f := fun x => x). Qed.
+  Proof. intro; now apply undiscernable_discrete with (δ := fun x => x). Qed.
 
   Fact undiscernable_Prop_dec x y : x ≡ y -> forall P, (forall x, decidable (P x)) -> P x <-> P y.
   Proof.
@@ -98,8 +98,8 @@ Section discernable.
   (* There is a simultaneously discerning function for a list l *)
 
   Definition discriminable_list l := 
-    { D & { _ : discrete D & { _ : finite_t D & { f : X -> D 
-             | forall x y, x ∊ l -> y ∊ l -> x ≡ y <-> f x = f y } } } }.
+    { D & { _ : discrete D & { _ : finite_t D & { δ : X -> D 
+             | forall x y, x ∊ l -> y ∊ l -> x ≡ y <-> δ x = δ y } } } }.
 
   Hint Resolve undiscernable_refl undiscernable_sym undiscernable_trans : core.
 
@@ -114,8 +114,8 @@ Section discernable.
   (* There is a simultaneously discerning function for a type *)
 
   Definition discriminable_type := 
-    { D & { _ : discrete D & { _ : finite_t D & { f : X -> D 
-             | forall x y, x ≡ y <-> f x = f y } } } }.
+    { D & { _ : discrete D & { _ : finite_t D & { δ : X -> D 
+             | forall x y, x ≡ y <-> δ x = δ y } } } }.
 
   Hypothesis (H1 : finite_t X).
 
