@@ -77,7 +77,7 @@ Section ReificationExample.
 
   Lemma add_zero_r a : a i⊕ iO i= a.
   Proof.
-  apply (PA_induction (fun a => a i⊕ iO i= a)).
+  elim a using PA_induction.
   - represent.
   - apply add_zero_l.
   - intros d IH. 
@@ -88,7 +88,7 @@ Section ReificationExample.
 
   Lemma add_succ_r a b : a i⊕ (iS b) i= iS (a i⊕ b).
   Proof.
-  apply (PA_induction (fun a => a i⊕ iS b i= iS (a i⊕ b))).
+  elim a using PA_induction.
   - represent.
   - eapply ieq_trans. 1:apply (add_zero_l (iS b)). apply ieq_congr_succ, ieq_sym, add_zero_l.
   - intros d IH.
@@ -99,7 +99,7 @@ Section ReificationExample.
 
   Lemma add_comm a b : a i⊕ b i= b i⊕ a.
   Proof.
-  apply (PA_induction (fun a => a i⊕ b i= b i⊕ a)).
+  elim a using PA_induction.
   - represent.
   - eapply ieq_trans.
     + apply (add_zero_l b).
@@ -112,8 +112,8 @@ Section ReificationExample.
   Qed.
 
   Lemma add_assoc a b c : a i⊕ (b i⊕ c) i= (a i⊕ b) i⊕ c.
-  Proof.
-  apply (PA_induction (fun a => a i⊕ (b i⊕ c) i= (a i⊕ b) i⊕ c)).
+  Proof. 
+  elim a using PA_induction.
   - represent.
   - eapply ieq_trans.
     + apply add_zero_l.
@@ -134,7 +134,7 @@ Section ReificationExample.
 
   Lemma mul_zero_r a : a i⊗ iO i= iO.
   Proof.
-  apply (PA_induction (fun a => a i⊗ iO i= iO)).
+  elim a using PA_induction.
   - represent.
   - apply mul_zero_l.
   - intros d IH. eapply ieq_trans. 2: eapply ieq_trans.
@@ -145,7 +145,7 @@ Section ReificationExample.
 
   Lemma mul_succ_r a b : a i⊗ iS b i= a i⊕ a i⊗ b.
   Proof.
-  apply (PA_induction (fun a => a i⊗ iS b i= a i⊕ a i⊗ b)).
+  elim a using PA_induction.
   - represent. 
   - eapply ieq_trans. 2: eapply ieq_trans.
     + apply mul_zero_l.
@@ -165,7 +165,7 @@ Section ReificationExample.
 
   Lemma mul_comm a b : a i⊗ b i= b i⊗ a.
   Proof.
-  apply (PA_induction (fun a => a i⊗ b i= b i⊗ a)).
+  elim a using PA_induction.
   - represent.
   - eapply ieq_trans.
     + apply (mul_zero_l b).
@@ -177,12 +177,10 @@ Section ReificationExample.
     + apply ieq_sym, mul_succ_r.
   Qed.
 
-
-
   Definition proj1 {X:Type} {Y:X->Type} (H:{x:X&Y x}) : X := match H with existT x y => x end.
 
   Lemma example (a b : D) : representableP 0 (a i⊕ b i= b i⊕ a).
-  Proof. Time represent. Defined. (* Not opaque, so we can pull out the representative witness later *)
+  Proof. Time represent. Show Proof. Defined. (* Not opaque, so we can pull out the representative witness later *)
 
   Eval cbn in (proj1 (example iO iO)).
 

@@ -121,7 +121,7 @@ Section ReificationExample.
 
   Lemma add_zero_r a : a i⊕ iO = a.
   Proof.
-  apply (PA_induction (fun (a:D') => a i⊕ iO = a)).
+  elim a using PA_induction.
   - represent.
   - apply add_zero_l.
   - intros d IH. 
@@ -130,7 +130,7 @@ Section ReificationExample.
 
   Lemma add_succ_r a b : a i⊕ (iS b) = iS (a i⊕ b).
   Proof.
-  apply (PA_induction (fun (a:D') => a i⊕ iS b = iS (a i⊕ b))).
+  elim a using PA_induction.
   - represent.
   - now rewrite ! add_zero_l.
   - intros d IH. now rewrite ! add_succ_l, IH.
@@ -138,7 +138,7 @@ Section ReificationExample.
 
   Lemma add_comm a b : a i⊕ b = b i⊕ a.
   Proof.
-  apply (PA_induction (fun (a:D') => a i⊕ b = b i⊕ a)).
+  elim a using PA_induction.
   - represent.
   - now rewrite add_zero_l, add_zero_r.
   - intros a' IH. now rewrite add_succ_l, add_succ_r.
@@ -146,7 +146,7 @@ Section ReificationExample.
 
   Lemma add_assoc a b c : a i⊕ (b i⊕ c) = (a i⊕ b) i⊕ c.
   Proof.
-  apply (PA_induction (fun (a:D') => a i⊕ (b i⊕ c) = (a i⊕ b) i⊕ c)).
+  elim a using PA_induction.
   - represent.
   - now rewrite ! add_zero_l. 
   - intros a' IH.
@@ -167,7 +167,7 @@ Section ReificationExample.
 
   Lemma mul_zero_r a : a i⊗ iO = iO.
   Proof.
-  apply (PA_induction (fun (a:D') => a i⊗ iO = iO)).
+  elim a using PA_induction.
   - represent.
   - apply mul_zero_l.
   - intros d IH. now rewrite mul_succ_l, add_zero_l, IH.
@@ -175,7 +175,7 @@ Section ReificationExample.
 
   Lemma mul_succ_r a b : a i⊗ iS b = a i⊕ a i⊗ b.
   Proof.
-  apply (PA_induction (fun (a:D') => a i⊗ iS b = a i⊕ a i⊗ b)).
+  elim a using PA_induction.
   - represent. 
   - now rewrite ! mul_zero_l, add_zero_l.
   - intros d IH.
@@ -185,7 +185,8 @@ Section ReificationExample.
   Qed.
 
   Lemma mul_comm a b : a i⊗ b = b i⊗ a.
-  apply (PA_induction (fun (a:D') => a i⊗ b = b i⊗ a)).
+  Proof.
+  elim a using PA_induction.
   - represent.
   - now rewrite mul_zero_l, mul_zero_r.
   - intros a' IH. now rewrite mul_succ_l, mul_succ_r.
