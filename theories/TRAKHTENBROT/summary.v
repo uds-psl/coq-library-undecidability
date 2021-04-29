@@ -374,11 +374,15 @@ Print SLSAT.
 
 (* Lemma 54 *)
 
-About FSATdc_to_MSLSAT.reduction_forwards.  (* Print Assumptions FSATdc_to_MSLSAT.reduction_forwards. *)
+Print FullTarski.sat. (* This is Tarski's satisfaction predicate *)
+Check env2stack.
+About FSATdc_to_MSLSAT.reduction_forwards. (* Print Assumptions FSATdc_to_MSLSAT.reduction_forwards. *)
 
 (* Lemma 55 *)
 
-About FSATdc_to_MSLSAT.reduction_backwards. (* Print Assumptions *)
+Print FullTarski.sat. (* This is Tarski's satisfaction predicate *)
+Check env.
+About FSATdc_to_MSLSAT.reduction_backwards. (* Print Assumptions FSATdc_to_MSLSAT.reduction_backwards. *)
 
 (* Theorem 56 *)
 
