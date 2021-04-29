@@ -343,13 +343,13 @@ About FULL_MONADIC_discernable. (* Print Assumptions FULL_MONADIC_discernable. *
 
 About FULL_TRAKHTENBROT. (* Print Assumptions FULL_TRAKHTENBROT. *)
 
+(* Application to Separation Logic *)
+
 From Undecidability.FOL
   Require Import FSAT FSAT_undec.
 
 From Undecidability.SeparationLogic 
   Require Import SL MSL SL_undec Reductions.FSATdc_to_MSLSAT.
-
-
 
 (* Syntax of full separation logic *)
 
@@ -390,8 +390,6 @@ About MSLSAT_to_SLSAT.reduction.       (* Print Assumptions MSLSAT_to_SLSAT.redu
 (* Corollary 57 *)
 
 About SLSAT_undec.                     (* Print Assumptions SLSAT_undec.  *)
-
-
 
 
 
