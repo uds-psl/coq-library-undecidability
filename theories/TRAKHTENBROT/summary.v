@@ -13,7 +13,8 @@ From Undecidability.Synthetic
   Require Import Definitions 
                  ReducibilityFacts
                  InformativeDefinitions 
-                 InformativeReducibilityFacts.
+                 InformativeReducibilityFacts
+                 Undecidability.
 
 From Undecidability.PCP
   Require Import PCP PCP_undec.
@@ -341,6 +342,55 @@ About FULL_MONADIC_discernable. (* Print Assumptions FULL_MONADIC_discernable. *
 (* Theorem 51 *)
 
 About FULL_TRAKHTENBROT. (* Print Assumptions FULL_TRAKHTENBROT. *)
+
+From Undecidability.FOL
+  Require Import FSAT FSAT_undec.
+
+From Undecidability.SeparationLogic 
+  Require Import SL MSL SL_undec Reductions.FSATdc_to_MSLSAT.
+
+
+
+(* Syntax of full separation logic *)
+
+Print sp_term.
+Print sp_form.
+
+(* Syntax of fragment *)
+ 
+Print msp_form.
+
+(* Definitions 53 *)
+
+(* Satisfaction relation for (M)SL *)
+
+Print msp_sat.
+Print sp_sat.
+
+(* Satisfiability for (M)SL *)
+
+Print MSLSAT.
+Print SLSAT.
+
+(* Lemma 54 *)
+
+About FSATdc_to_MSLSAT.reduction_forwards.  (* Print Assumptions FSATdc_to_MSLSAT.reduction_forwards. *)
+
+(* Lemma 55 *)
+
+About FSATdc_to_MSLSAT.reduction_backwards. (* Print Assumptions *)
+
+(* Theorem 56 *)
+
+About TRAKHTENBROT_to_FSAT.reduction.  (* Print Assumptions TRAKHTENBROT_to_FSAT.reduction. *)
+About FSATd_to_FSATdc.reduction.       (* Print Assumptions FSATd_to_FSATdc.reduction. *)
+About FSATdc_to_MSLSAT.reduction.      (* Print Assumptions FSATdc_to_MSLSAT.reduction. *)
+About MSLSAT_to_SLSAT.reduction.       (* Print Assumptions MSLSAT_to_SLSAT.reduction. *)
+
+(* Corollary 57 *)
+
+About SLSAT_undec.                     (* Print Assumptions SLSAT_undec.  *)
+
 
 
 
