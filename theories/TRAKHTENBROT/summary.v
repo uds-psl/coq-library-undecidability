@@ -342,7 +342,17 @@ About FULL_MONADIC_discernable. (* Print Assumptions FULL_MONADIC_discernable. *
 
 About FULL_TRAKHTENBROT. (* Print Assumptions FULL_TRAKHTENBROT. *)
 
+(* Theorem 56 *)
 
+From Undecidability.SeparationLogic Require Import SL MSL SL_undec Reductions.FSATdc_to_MSLSAT.
+
+Print sp_form. (* Syntax of full separation logic *)
+Print msp_form. (* Syntax of fragment *)
+Print sp_sat. (* Satisfiability relation *)
+Print SLSAT. (* Corresponding decision problem *)
+
+About reduction. (* Reduction from FSAT' to separation logic *)
+About SLSAT_undec. (* Undecidability of SLSAT *)
 
 
 
