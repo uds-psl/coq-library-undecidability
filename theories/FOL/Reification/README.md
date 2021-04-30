@@ -34,10 +34,10 @@ A more detailed documentation can be found [here](https://github.com/dominik-kir
 ### Demos
 All files starting with `Demo` are demo files, which demonstrate the reification tactic.
 #### [`DemoPA.v`](https://github.com/dominik-kirst/coq-library-undecidability/blob/coqws/theories/FOL/Reification/DemoPA.v)
-This file proves some facts about Peano arithmetic, including the commutativiy of `+` and `*`. Specifically, we prove that these hold in all models of PA. For this, we use our reification tactic to make induction easier.
+This file proves some facts in PA semantically, i.e. we prove that these hold in all models of PA. These facts include the commutativiy of `+` and `*`. For this, we use our reification tactic to ease use of the induction axiom scheme.
 
 #### [`DemoPAExtensional.v`](https://github.com/dominik-kirst/coq-library-undecidability/blob/coqws/theories/FOL/Reification/DemoPAExtensional.v)
-This file proves the same facts as `DemoPA.v`. However, here we assume a model where equality is extensional. This makes the actual proofs shorter, since we can use rewriting, however, we have to use the extension point mechanism to teach the reification engine how to handle equality.
+This file proves the same facts as `DemoPA.v`. However, here we assume a model where equality is extensional. This makes the actual proofs shorter, since we can use rewriting. However, we have to use the extension point mechanism to teach the reification engine how to handle equality.
 
 
 ### [`GeneralReflection.v`](https://github.com/dominik-kirst/coq-library-undecidability/blob/coqws/theories/FOL/Reification/GeneralReflection.v)
