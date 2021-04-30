@@ -19,7 +19,6 @@ Fixpoint num n :=
   | S x => σ (num x)
   end.
 
-(* TODO: Original FAeq is unfolded with [cbn] *)
 Definition FAeq := ax_refl :: ax_sym :: ax_trans :: ax_succ_congr :: ax_add_congr :: ax_mult_congr :: ax_zero_succ :: FA.
 
 
@@ -32,9 +31,9 @@ Proof. intros x y; decide equality. Qed.
 Instance eqdec_preds : EqDec PA_preds_signature.
 Proof. intros x y. destruct x, y. now left. Qed.
 
-(* Ltac custom_fold ::= fold zero in *. *)
-(* Ltac custom_unfold ::= unfold zero in *. *)
-(* Ltac custom_simpl ::= try rewrite !numeral_subst_invariance. *)
+Ltac custom_fold ::= fold ax_induction in *.
+Ltac custom_unfold ::= unfold ax_induction in *.
+(* Ltac custom_simpl ::= ... *)
 
 
 (** Proof mode and tactics demo *)
@@ -120,7 +119,7 @@ Qed.
 
 
 
-(* Rewrite under quantifiers: *)
+(* Rewrite under quantifiers *)
 
 Goal forall t t', FAeq ⊢ (t == t') -> FAeq ⊢ ∀ $0 ⊕ σ t`[↑] == t' ⊕ σ $0.
 Proof.
@@ -158,10 +157,7 @@ Qed.
 
 
 
-(** Division Theorem with Hoas *)
-
-Ltac custom_fold ::= fold ax_induction in *.
-Ltac custom_unfold ::= unfold ax_induction in *.
+(** Euclidean Division Theorem with HOAS input language *)
 
 Require Import Undecidability.FOL.Proofmode.Hoas.
 
@@ -188,11 +184,6 @@ Definition FAI :=
   FAeq.
 
 
-
-(* Rewriting in the proofs below is very slow. The reason is
- * that [firstorder] is used to show `PAI <<= PA` for the Leibniz
- * rule. This can be improved by writing better automation tactics
- * (or hint databases) for list inclusion in the future. *)
 Lemma add_zero_r :
   FAI ⊢ << ∀' x, x ⊕ zero == x.
 Proof.
@@ -219,7 +210,7 @@ Proof.
     frewrite (ax_add_rec y x). fapply ax_refl.
 Qed.
 
-Lemma term_eq_dec :
+Lemma pa_eq_dec :
   FAI ⊢ << ∀' x y, (x == y) ∨ ¬ (x == y).
 Proof.
   fstart. fapply ((ax_induction (<< Free x, ∀' y, (x == y) ∨ ¬ (x == y)))).
@@ -244,15 +235,17 @@ Proof.
     frewrite (ax_add_rec r k). frewrite (add_comm k r). fapply ax_refl.
 Qed.
 
+
 Lemma division_theorem :
   FAI ⊢ << ∀' x y, ∃' q r, (x == r ⊕ q ⊗ σ y) ∧ (r ≤ y).
+  (* Without HOAS: ∀ (∀ (∃ (∃ ($3 == $0 ⊕ $1 ⊗ σ $2) ∧ (∃ $1 ⊕ $0 == $3)))) *)
 Proof.
   fstart. fapply ((ax_induction (<< Free x, ∀' y, ∃' q r, (x == r ⊕ q ⊗ σ y) ∧ (r ≤ y)))).
   - fintros "y". fexists zero. fexists zero. fsplit.
     + frewrite (ax_mult_zero (σ y)). frewrite (ax_add_zero zero). fapply ax_refl.
     + fexists y. fapply ax_add_zero.
   - fintros "x" "IH" "y". fdestruct ("IH" y) as "[q [r [IH1 [k IH2]]]]".
-    fassert (r == y ∨ (r == y ~> ⊥)) as "[H|H]" by fapply term_eq_dec.
+    fassert (r == y ∨ (r == y ~> ⊥)) as "[H|H]" by fapply pa_eq_dec.
     + fexists (σ q). fexists zero. fsplit.
       * frewrite (ax_add_zero (σ q ⊗ σ y)). frewrite (ax_mult_rec q (σ y)).
         frewrite (ax_add_rec (q ⊗ σ y) y). fapply ax_succ_congr.
@@ -260,7 +253,7 @@ Proof.
       * fexists y. fapply ax_add_zero.
     + fexists q. fexists (σ r). fsplit.
       * frewrite (ax_add_rec (q ⊗ σ y) r). fapply ax_succ_congr. ctx.
-      * fapply (neq_le k r y). ctx. ctx.
+      * fapply (neq_le k r y); ctx.
 Qed.
 
 End FullLogic.
