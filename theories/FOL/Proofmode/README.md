@@ -12,11 +12,10 @@ eval $(opam env)
 opam repo add coq-released https://coq.inria.fr/opam/released
 opam install . --deps-only
 ```
-Once you are done with this, you can build the demos and their dependencies using:
+Once you are done with this, you can build the proof mode using:
 ```
 cd theories
-make FOL/Reification/DemoPA.vo
-make FOL/Reification/DemoPAExtensional.vo
+make FOL/Proofmode/Proofmode.vo
 ```
 
 ## Usage
