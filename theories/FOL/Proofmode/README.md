@@ -1,4 +1,4 @@
-# Reification
+# Proof Mode
 
 This folder contains the first-order logic proof mode of our submission to the [2021 Coq Workshop](https://coq-workshop.gitlab.io/2021/), as well as the associated demo files.
 
