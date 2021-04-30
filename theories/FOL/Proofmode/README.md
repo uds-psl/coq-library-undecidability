@@ -15,7 +15,7 @@ opam install . --deps-only
 Once you are done with this, you can build the proof mode using:
 ```
 cd theories
-make FOL/Proofmode/Proofmode.vo
+make FOL/Proofmode/ProofMode.vo
 ```
 
 ## Usage
