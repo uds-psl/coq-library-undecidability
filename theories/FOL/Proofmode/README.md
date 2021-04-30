@@ -4,18 +4,20 @@ This folder contains the first-order logic proof mode of our submission to the [
 
 ## Building
 
-For build instructions, see [the README for the whole libary](https://github.com/dominik-kirst/coq-library-undecidability/tree/coqws#manual-installation). Note that you must **not** follow the instructions for installing from OPAM, since the version published on OPAM does not include our additions. You have to build this library yourself.
+For build instructions, see [the README for the whole libary](https://github.com/dominik-kirst/coq-library-undecidability/tree/coqws#manual-installation). Note that you must **not** follow the instructions for installing from OPAM, since the version published on OPAM does not include our additions. In short, you need to follow the "manual installation" section, which boils down to:
 
-In short, to build the proof mode, run the following in this repo's root folder:
 ```
-opam switch create coq-library-undecidability-workshop21 4.07.1+flambda
+opam switch create fol-toolbox 4.07.1+flambda
 eval $(opam env)
 opam repo add coq-released https://coq.inria.fr/opam/released
 opam install . --deps-only
-make FOL/Proofmode/ProofMode.vo
 ```
-
-Note that lines 1-4 only have to be run once.
+Once you are done with this, you can build the demos and their dependencies using:
+```
+cd theories
+make FOL/Reification/DemoPA.vo
+make FOL/Reification/DemoPAExtensional.vo
+```
 
 ## Usage
 
