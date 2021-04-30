@@ -170,25 +170,23 @@ Notation "x '⊕' y" := (bFunc Plus (Vector.cons bterm x 1 (Vector.cons bterm y 
 Notation "x '⊗' y" := (bFunc Mult (Vector.cons bterm x 1 (Vector.cons bterm y 0 (Vector.nil bterm))) ) (at level 38) : hoas_scope. 
 Notation "x '==' y" := (bAtom Eq (Vector.cons bterm x 1 (Vector.cons bterm y 0 (Vector.nil bterm))) ) (at level 40) : hoas_scope.
 
+Definition leq a b := (∃' k, a ⊕ k == b)%hoas.
+Infix "≤" := leq (at level 45).
 
 (* FA enriched with the neccessary induction rules to prove the division theorem *)
-Definition FAI := 
-  ax_induction (∀ (∃ (∃ $3 == $0 ⊕ $1 ⊗ σ $2 ∧ (∃ $1 ⊕ $0 == $3)))) :: 
-  ax_induction (∀ $1 == $0 ∨ ($1 == $0 ~> ⊥)) :: 
-  ax_induction (zero == $0 ∨ (zero == $0 ~> ⊥)) ::
-  ∀ ax_induction (σ $1 == $0 ∨ (σ $1 == $0 ~> ⊥)) ::
-  ax_induction (∀ (∃ (∃ $3 == $0 ⊕ $1 ⊗ σ $2 ∧ (∃ $1 ⊕ $0 == $3)))) ::
-  ax_induction (∀ (∀ ($1 == $0 ~> ⊥) ~> $1 ⊕ $2 == $0 ~> (∃ σ $2 ⊕ $0 == $1))) ::
-  ax_induction (∀ $1 ⊕ σ $0 == σ ($1 ⊕ $0)) ::
-  ax_induction (∀ $1 ⊕ $0 == $0 ⊕ $1) ::
-  ax_induction ($0 ⊕ zero == $0) ::
+Definition FAI :=
+  ax_induction (<< Free x, ∀' y, (x == y) ∨ ¬ (x == y)) ::
+  ax_induction (<< Free x, zero == x ∨ ¬ (zero == x)) ::
+  (<< ∀' x, ax_induction (<< Free x y, (σ x == y) ∨ ¬ (σ x == y))) ::
+  ax_induction (<< Free x, ∀' y, ∃' q r, (x == r ⊕ q ⊗ σ y) ∧ (r ≤ y)) ::
+  ax_induction (<< Free k, ∀' r y, ¬ (r == y) ~> (r ⊕ k == y) ~> (∃' k', σ r ⊕ k' == y)) ::
+  ax_induction (<< Free x, ∀' y, x ⊕ σ y == σ (x ⊕ y)) ::
+  ax_induction (<< Free x, ∀' y, x ⊕ y == y ⊕ x) ::
+  ax_induction (<< Free x, x ⊕ zero == x) ::
   ax_zero_succ ::
   ax_succ_inj ::
   FAeq.
 
-
-Definition leq a b := (∃' k, a ⊕ k == b)%hoas.
-Infix "≤" := leq (at level 45).
 
 
 (* Rewriting in the proofs below is very slow. The reason is
@@ -198,7 +196,7 @@ Infix "≤" := leq (at level 45).
 Lemma add_zero_r :
   FAI ⊢ << ∀' x, x ⊕ zero == x.
 Proof.
-  fstart. fapply ((ax_induction ($0 ⊕ zero == $0))).
+  fstart. fapply ((ax_induction (<< Free x, x ⊕ zero == x))).
   - frewrite (ax_add_zero zero). fapply ax_refl.
   - fintros "x" "IH". frewrite (ax_add_rec zero x). frewrite "IH". fapply ax_refl.
 Qed. 
@@ -206,7 +204,7 @@ Qed.
 Lemma add_succ_r :
   FAI ⊢ << ∀' x y, x ⊕ σ y == σ (x ⊕ y).
 Proof.
-  fstart. fapply ((ax_induction (∀ $1 ⊕ σ $0 == σ ($1 ⊕ $0)))).
+  fstart. fapply ((ax_induction (<< Free x, ∀' y, x ⊕ σ y == σ (x ⊕ y)))).
   - fintros "y". frewrite (ax_add_zero (σ y)). frewrite (ax_add_zero y). fapply ax_refl.
   - fintros "x" "IH" "y". frewrite (ax_add_rec (σ y) x). frewrite ("IH" y). 
     frewrite (ax_add_rec y x). fapply ax_refl.
@@ -215,20 +213,20 @@ Qed.
 Lemma add_comm :
   FAI ⊢ << ∀' x y, x ⊕ y == y ⊕ x.
 Proof.
-  fstart. fapply ((ax_induction (∀ $1 ⊕ $0 == $0 ⊕ $1))).
+  fstart. fapply ((ax_induction (<< Free x, ∀' y, x ⊕ y == y ⊕ x))).
   - fintros. frewrite (ax_add_zero x). frewrite (add_zero_r x). fapply ax_refl.
   - fintros "x" "IH" "y". frewrite (add_succ_r y x). frewrite <- ("IH" y).
     frewrite (ax_add_rec y x). fapply ax_refl.
 Qed.
 
 Lemma term_eq_dec :
-  FAI ⊢ << ∀' x y, (x == y) ∨ (x == y ~> ⊥).
+  FAI ⊢ << ∀' x y, (x == y) ∨ ¬ (x == y).
 Proof.
-  fstart. fapply ((ax_induction (∀ $1 == $0 ∨ ($1 == $0 ~> ⊥)))).
-  - fapply ((ax_induction (zero == $0 ∨ (zero == $0 ~> ⊥)))).
+  fstart. fapply ((ax_induction (<< Free x, ∀' y, (x == y) ∨ ¬ (x == y)))).
+  - fapply ((ax_induction (<< Free x, zero == x ∨ (zero == x ~> ⊥)))).
     + fleft. fapply ax_refl.
     + fintros "x" "IH". fright. fapply ax_zero_succ. 
-  - fintros "x" "IH". fapply ((∀ ax_induction (σ $1 == $0 ∨ (σ $1 == $0 ~> ⊥)))).
+  - fintros "x" "IH". fapply ((<< ∀' x, ax_induction (<< Free x y, (σ x == y) ∨ ¬ (σ x == y)))).
     + fright. fintros "H". feapply ax_zero_succ. feapply ax_sym. fapply "H".
     + fintros "y" "IHy". fspecialize ("IH" y). fdestruct "IH" as "[IH|IH]".
       * fleft. frewrite "IH". fapply ax_refl.
@@ -236,9 +234,9 @@ Proof.
 Qed.
 
 Lemma neq_le :
-  FAI ⊢ << ∀' k r y, (r == y ~> ⊥) ~> (r ⊕ k == y) ~> ∃' k', σ r ⊕ k' == y.
+  FAI ⊢ << ∀' k r y, ¬ (r == y) ~> (r ⊕ k == y) ~> ∃' k', σ r ⊕ k' == y.
 Proof.
-  fstart. fapply ((ax_induction (∀ (∀ ($1 == $0 ~> ⊥) ~> $1 ⊕ $2 == $0 ~> (∃ σ $2 ⊕ $0 == $1))))).
+  fstart. fapply ((ax_induction (<< Free k, ∀' r y, ¬ (r == y) ~> (r ⊕ k == y) ~> (∃' k', σ r ⊕ k' == y)))).
   - fintros "r" "y" "H1" "H2". fexfalso. fapply "H1". frewrite <- (ax_add_zero r).
     frewrite (add_comm zero r). ctx.
   - fintros "k" "IH" "r" "y". fintros "H1" "H2". fexists k.
@@ -249,7 +247,7 @@ Qed.
 Lemma division_theorem :
   FAI ⊢ << ∀' x y, ∃' q r, (x == r ⊕ q ⊗ σ y) ∧ (r ≤ y).
 Proof.
-  fstart. fapply ((ax_induction (∀ (∃ (∃ $3 == $0 ⊕ $1 ⊗ σ $2 ∧ (∃ $1 ⊕ $0 == $3)))))).
+  fstart. fapply ((ax_induction (<< Free x, ∀' y, ∃' q r, (x == r ⊕ q ⊗ σ y) ∧ (r ≤ y)))).
   - fintros "y". fexists zero. fexists zero. fsplit.
     + frewrite (ax_mult_zero (σ y)). frewrite (ax_add_zero zero). fapply ax_refl.
     + fexists y. fapply ax_add_zero.

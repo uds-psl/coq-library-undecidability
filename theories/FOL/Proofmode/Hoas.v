@@ -5,16 +5,17 @@ Local Notation vec := Vector.t.
 
 
 Inductive bterm `{funcs_signature} :=
-| bVar : nat -> bterm
-| bFunc : forall (f : syms), vec bterm (ar_syms f) -> bterm
-| bEmbedT : term -> bterm.
+  | bVar : nat -> bterm
+  | bFunc : forall (f : syms), vec bterm (ar_syms f) -> bterm
+  | bEmbedT : term -> bterm.
 
-Inductive bform `{funcs_signature, preds_signature, operators} :=
+Inductive bform `{funcs_signature, preds_signature, operators, falsity_flag} :=
   | bFal : bform
   | bAtom : forall (P : preds), vec bterm (ar_preds P) -> bform
   | bBin : binop -> bform  -> bform  -> bform
   | bQuant : quantop -> (bterm -> bform)  -> bform
-  | bFree : (bterm -> bform)  -> bform.
+  | bFree : (bterm -> bform)  -> bform
+  | bEmbedForm : form -> bform.
 
 Fixpoint conv_term `{funcs_signature} i (b : bterm) : term :=
   match b with
@@ -30,12 +31,13 @@ Fixpoint conv `{funcs_signature, preds_signature, operators} i (phi : bform) : f
   | bBin op t1 t2 => bin op (conv i t1) (conv i t2)
   | bQuant op f => quant op (conv (S i) (f (bVar (S i))))
   | bFree f => conv (S i) (f (bVar (S i)))
+  | bEmbedForm phi => phi
   end.
 
 Declare Scope hoas_scope.
 Delimit Scope hoas_scope with hoas.
 
-Notation "'Free' x .. y , p" := (bFree Ex (fun x => .. (bFree Ex (fun y => p)) ..)%hoas)
+Notation "'Free' x .. y , p" := (bFree (fun x => .. (bFree (fun y => p)) ..)%hoas)
 (at level 50, x binder, left associativity,
   format "'[' 'Free'  '/  ' x  ..  y ,  '/  ' p ']'") : hoas_scope.
 Notation "'∀'' x .. y , p" := (bQuant All (fun x => .. (bQuant All (fun y => p)) ..)%hoas)
@@ -48,6 +50,8 @@ Notation "⊥" := (bFal) : hoas_scope.
 Notation "A ∧ B" := (bBin Conj A%hoas B%hoas) (at level 41) : hoas_scope.
 Notation "A ∨ B" := (bBin Disj A%hoas B%hoas) (at level 42) : hoas_scope.
 Notation "A '~>' B" := (bBin Impl A%hoas B%hoas) (at level 43, right associativity) : hoas_scope.
+Notation "¬ A" := ((A ~> ⊥)%hoas) (at level 42) : syn.
+Notation "A '↔' B" := ((A ~> B)%hoas ∧ (B ~> A)%hoas) (at level 43) : syn.
 
 Definition convert `{funcs_signature, preds_signature, operators} f := (@conv _ _ _ 0 f).
 Arguments convert {_ _ _} f%hoas.
@@ -60,7 +64,7 @@ Definition vec_term := Vector.t term.
 Definition vec_bterm := Vector.t bterm.
 Definition vec_bEmbedT' : forall n, vec_term n -> vec_bterm n := @Vector.map term bterm bEmbedT.
 Coercion vec_bEmbedT := vec_bEmbedT'.
-
+Coercion bEmbedForm : form >-> bform.
 
 (* 
 Section Test.
