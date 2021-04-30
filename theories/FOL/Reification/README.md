@@ -17,7 +17,7 @@ make FOL/Reification/DemoPA.vo
 make FOL/Reification/DemoPAExtensional.vo
 ```
 
-Note that line 1-4 only have to be run once.
+Note that lines 1-4 only have to be run once.
 
 ## Usage
 
