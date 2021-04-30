@@ -29,14 +29,16 @@ Before you can use the tactic, you must define an instance of `tarski_reflector`
 
 A more detailed documentation can be found [here](https://github.com/dominik-kirst/coq-library-undecidability/blob/coqws/theories/FOL/Reification/ReificationDocumentation.pdf). This document explains the internal operations of the reification engine, all tactics, and the extension point mechanism. It also contains hints and common mistakes one should avoid.
 
-## Demos
-All files starting with `Demo` are demo files, which demonstrate the reification tactic.
-### [`DemoPA.v`](https://github.com/dominik-kirst/coq-library-undecidability/blob/coqws/theories/FOL/Reification/DemoPA.v)
-This file proves some facts about Peano Arithmetic, including the commutativiy of `+` and `*`. Specifically, we prove that these hold in all models of PA. For this, we use our reification tactic to make induction easier.
+## File overview
 
-### [`DemoPAExtensional.v`](https://github.com/dominik-kirst/coq-library-undecidability/blob/coqws/theories/FOL/Reification/DemoPAExtensional.v)
+### Demos
+All files starting with `Demo` are demo files, which demonstrate the reification tactic.
+#### [`DemoPA.v`](https://github.com/dominik-kirst/coq-library-undecidability/blob/coqws/theories/FOL/Reification/DemoPA.v)
+This file proves some facts about Peano arithmetic, including the commutativiy of `+` and `*`. Specifically, we prove that these hold in all models of PA. For this, we use our reification tactic to make induction easier.
+
+#### [`DemoPAExtensional.v`](https://github.com/dominik-kirst/coq-library-undecidability/blob/coqws/theories/FOL/Reification/DemoPAExtensional.v)
 This file proves the same facts as `DemoPA.v`. However, here we assume a model where equality is extensional. This makes the actual proofs shorter, since we can use rewriting, however, we have to use the extension point mechanism to teach the reification engine how to handle equality.
 
 
-#### [`GeneralReflection.v`](https://github.com/dominik-kirst/coq-library-undecidability/blob/coqws/theories/FOL/Reification/GeneralReflection.v)
+### [`GeneralReflection.v`](https://github.com/dominik-kirst/coq-library-undecidability/blob/coqws/theories/FOL/Reification/GeneralReflection.v)
 This file contains the entire reification engine, all tactic definitions, and most of the utils. Its inner workings are documented in [the documentation mentioned above](https://github.com/dominik-kirst/coq-library-undecidability/blob/coqws/theories/FOL/Reification/ReificationDocumentation.pdf).
