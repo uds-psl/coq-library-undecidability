@@ -6,8 +6,19 @@ This folder contains the Reification tactics for our submission to the [2021 Coq
 
 For build instructions, see [the README for the whole libary](https://github.com/dominik-kirst/coq-library-undecidability/tree/coqws#manual-installation). Note that you must **not** follow the instructions for installing from OPAM, since the version published on OPAM does not include our additions. You have to build this library yourself.
 
+In short, to build all demos (as well as their dependencies), run the following
+```
+opam switch create coq-library-undecidability-workshop21 4.07.1+flambda
+eval $(opam env)
+opam repo add coq-released https://coq.inria.fr/opam/released
+opam install . --deps-only
+make FOL/Reification/DemoPA.vo
+make FOL/Reification/DemoPAExtensional.vo
+```
 
 ## Usage
+
+You have to include `GeneralReflection.v` (e.g. using `Require Import Undecidability.FOL.Reification.GeneralReflection.`).
 
 The main tactic you will want to use is `represent`. It can be invoked on goals like `representableP n P`.
 
@@ -22,3 +33,7 @@ This file proves some facts about Peano Arithmetic, including the commutativiy o
 
 ### `DemoPAExtensional.v`
 This file proves the same facts as `DemoPA.v`. However, here we assume a model where equality is extensional. This makes the actual proofs shorter, since we can use rewriting, however, we have to use the extension point mechanism to teach the reification engine how to handle equality.
+
+
+## `GeneralReflection.v`
+This file contains the entire reification engine, all tactic definitions, and most of the utils.
