@@ -1,4 +1,4 @@
-Require Import Undecidability.FOL.Proofmode.Ltac2StringIdent.
+Require Import Undecidability.FOL.Proofmode.StringToIdent.
 From Equations Require Import Equations DepElim.
 From Undecidability.Shared Require Import Dec ListAutomation.
 From Undecidability.FOL Require Import Util.Syntax Util.Syntax_facts Util.FullDeduction Util.FullDeduction_facts Util.FullTarski.
@@ -843,15 +843,12 @@ Ltac hypname_from_pattern C id :=
 (* For variable names that are introduced with ∀ this gets infinitely
  * more difficult.
  * Ltac doesn't have an easy way to convert a Coq string into an identifier.
- * I found this snippet using Ltac2 that is used in the Iris proof
- * mode, but doesn't seem that stable. 
- * See https://github.com/coq/coq/issues/7412 
+ * Johannes developed a MetaCoq Plugin that handles this.
  *
- * Nonetheless I am going to use it, but split up the intro tactic into
- * ident and hyp intro. I use tactic notation at the end to also support
- * intro with a 'real' Coq ident instead of a string. This should keep
- * working if this hack breaks down. *)
-Require Import Undecidability.FOL.Proofmode.Ltac2StringIdent.
+ * Nonetheless I split up the intro tactic into ident and hyp intro. 
+ * I use tactic notation at the end to also support intro with a 'real' 
+ * Coq ident instead of a string. *)
+Require Import Undecidability.FOL.Proofmode.StringToIdent.
 Ltac varname_from_pat pat :=
   match pat with 
   | patId "?" => fresh "x"
