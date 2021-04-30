@@ -56,9 +56,8 @@ Section ReificationExample.
   generalize x. apply PA_induction.
   - represent.
   - left. apply ieq_refl.
-  - intros d [IH|IH]; right.
-    + exists iO. apply ieq_congr_succ. exact IH.
-    + exists d. apply ieq_refl.
+  - intros d IH. right.
+    exists d. apply ieq_refl.
   Qed.
 
   Lemma add_succ_l : forall a b, (iS a) i⊕ b i= iS (a i⊕ b).

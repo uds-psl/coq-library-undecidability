@@ -98,9 +98,8 @@ Section ReificationExample.
   generalize x. apply PA_induction.
   - represent.
   - now left.
-  - intros d [IH|IH]; right.
-    + exists iO. now rewrite IH.
-    + now exists d.
+  - intros d IH. right.
+    now exists d.
   Qed.
 
   Lemma add_succ_l a b : (iS a) i⊕ b = iS (a i⊕ b).
