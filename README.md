@@ -1,7 +1,7 @@
 # Synthetic Undecidability of MSELL via FRACTRAN
 
 This repository is a tailored/frozen version of the [Coq Library of Undecidability Proofs](https://github.com/uds-psl/coq-library-undecidability)
-(git branch `coq-8.13`) designed to provide a faster path towards code review of the FSCD'21 paper 
+(from git branch `coq-8.13` arround May 1st, 2021) designed to provide a faster path towards code review of the FSCD'21 paper 
 [_Synthetic Undecidability of MSELL via FRACTRAN mechanised in Coq_](https://www.loria.fr/~larchey/papers/fscd21.pdf)
 by Dominique Larchey-Wendling.
 
