@@ -122,27 +122,13 @@ Section fractran_utils.
 
   Fact fractran_step_dec l x : { y | l /F/ x → y } + { fractran_stop l x }.
   Proof.
-    revert x; induction l as [ | (a,b) l IH ]; intros x.
+    induction l as [ | (a,b) l IH ].
     + right; rewrite fractan_stop_nil_inv; auto.
-    + destruct x as [ | x ].
-      { left; exists 0; constructor 1; ring. }
-      destruct a as [ | a ].
-      { left; exists 0; constructor 1; ring. }
-      destruct b as [ | b ].
-      * assert (~ divides 0 (S a*S x)) as C.
-        { intros C; apply divides_0_inv, mult_is_O in C; lia. }
-        destruct (IH (S x)) as [ (y & Hy) | Hx ].
-        - left; exists y; constructor 2; auto.
-        - right; rewrite fractan_stop_cons_inv; split; auto.
-      * generalize (div_rem_spec1 (S a*S x) (S b)).
-        case_eq (rem (S a * S x) (S b)).
-        - intros H1 H2; left; exists (div (S a*S x) (S b)); constructor 1; rewrite H2 at 2; ring.
-        - intros d Hd _.
-          assert (~ divides (S b) (S a*S x)) as C.
-          { rewrite divides_rem_eq, Hd; discriminate. }
-          destruct (IH (S x)) as [ (y & Hy) | Hx ].
-          ++ left; exists y; constructor 2; auto.
-          ++ right; rewrite fractan_stop_cons_inv; split; auto.
+    + destruct (divides_dec (a*x) b) as [ (y & Hy) | ].
+      * left; exists y; constructor 1; rewrite Hy; ring.
+      * destruct IH as [ (y & ?) | ].
+        - left; exists y; now constructor 2.
+        - right; apply fractan_stop_cons_inv; auto.
   Qed.
 
   (* Now we treat the cases where (_,0) occurs in l *)

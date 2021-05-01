@@ -21,6 +21,7 @@ Reserved Notation "P '//' r '-+>' s" (at level 70, no associativity).
 Reserved Notation "P '//' r '->>' s" (at level 70, no associativity).
 Reserved Notation "P '//' r '-]]' s" (at level 70, no associativity).
 Reserved Notation "P '//' r '~~>' s" (at level 70, no associativity).
+Reserved Notation "P '//' r '~[' n ']~>' s" (at level 70, no associativity, format "P  //  r  ~[ n ]~>  s").
 Reserved Notation "P '//' r ↓" (at level 70, no associativity).
 
 (* Intented meaning of notations
@@ -32,7 +33,8 @@ Reserved Notation "P '//' r ↓" (at level 70, no associativity).
   P // r ->> s :      execution of some instructions in P changes state r into state s          (compute)
   P // r -]] s :      maximal execution in P  (not really used, ~~> prefered below)
   P // r ~~> s :      execution of some instructions in P until s is outside of P 
-                           (stronger than -]] below is semantics is not total)                  (output)
+                           (stronger than -]] below if semantics is not total)                  (output)
+  P // r ~[n]~> s :   execution of n instructions in P and then s is outside of P
   P // r ↓ :          termination on a state outside of P                                       
                            NOT identical to termination for non-total semantics                 (terminates)
 
@@ -176,7 +178,7 @@ Section Small_Step_Semantics.
                                               ->   P // st2  -[n]->    st3
                                               ->   P // st1  -[S n]->  st3
   where "P // r -[ n ]-> s" := (sss_steps P n r s).
-  
+
   (* More usable constructors *)
   
   Fact sss_steps_0 P st1 st2 : st1 = st2 -> P // st1 -[0]-> st2.
@@ -395,6 +397,7 @@ Section Small_Step_Semantics.
   Definition sss_output P st st' := P // st ->> st' /\ out_code (fst st') P.
 
   Notation "P // x ~~> y" := (sss_output P x y).
+  Notation "P // r ~[ n ]~> s" := (P // r -[n]-> s /\ out_code (fst s) P).
 
   Definition sss_terminates P st := exists st', P // st ~~> st'.
 
@@ -778,7 +781,25 @@ Section Small_Step_Semantics.
   Proof.
     intros H1 (k & H2); revert H2; apply sss_steps_stop; auto.
   Qed.
-  
+
+  Fact sss_steps_stop_fun P a b st1 st2 st3 :
+             out_code (fst st2) P
+          -> out_code (fst st3) P 
+          -> P // st1 -[a]-> st2
+          -> P // st1 -[b]-> st3 
+          -> a = b /\ st2 = st3.
+  Proof.
+    intros H1 H2 H3 H4.
+    assert (a = b) as Hab.
+    { destruct subcode_sss_subcode_inv with (3 := H3) (4 := H4)
+        as (u & Hu & _); auto.
+      destruct subcode_sss_subcode_inv with (3 := H4) (4 := H3)
+        as (v & Hv & _); auto.
+      lia. }
+    split; auto; subst b.
+    revert H3 H4; apply sss_steps_fun.
+  Qed.
+
   Fact sss_compute_fun P st1 st2 st3 :
              out_code (fst st2) P
           -> out_code (fst st3) P 
@@ -786,15 +807,17 @@ Section Small_Step_Semantics.
           -> P // st1 ->> st3 
           -> st2 = st3.
   Proof.
-    intros H1 H2 H3 H4.
-    destruct (in_out_code_dec (fst st1) P) as [ H5 | H5 ].
-    destruct H4 as (k & H4).
-    apply subcode_sss_subcode_compute_inv with (5 := H3) in H4; auto.
-    destruct H4 as (q & _ & H4).
-    apply sss_steps_stop in H4; auto.
-    apply sss_compute_stop in H3; auto.
-    apply sss_compute_stop in H4; auto.
-    subst; auto.
+    intros ? ? (a & H1) (b & H2).
+    revert H1 H2; apply sss_steps_stop_fun; auto.
+  Qed.
+
+  Fact sss_steps_output_fun P a b st1 st2 st3 :
+             P // st1 ~[a]~> st2
+          -> P // st1 ~[b]~> st3 
+          -> a = b /\ st2 = st3.
+  Proof.
+    intros (H1 & H2) (H3 & H4).
+    revert H1 H3; apply sss_steps_stop_fun; auto.
   Qed.
 
   Fact sss_output_fun P st st1 st2 : P // st ~~> st1 -> P // st ~~> st2 -> st1 = st2.
@@ -809,6 +832,14 @@ Section Small_Step_Semantics.
     + destruct H1 as (st2 & H1 & H3 & H4).
       exists st2; split; auto.
     + revert H2; apply subcode_out_code; auto.
+  Qed.
+
+  Fact sss_progress_non_termination P st : P // st -+> st -> ~ P // st ↓.
+  Proof.
+    intros (a & H1 & H2) (st' & (b & H3) & H4).
+    assert (P // st -[a+b]-> st') as H5.
+    { apply sss_steps_trans with (1 := H2); auto. }
+    destruct sss_steps_stop_fun with (3 := H3) (4 := H5); auto; lia.
   Qed.
 
   Section sss_loop.

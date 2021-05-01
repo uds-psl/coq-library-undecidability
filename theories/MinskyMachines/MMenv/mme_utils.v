@@ -181,7 +181,6 @@ Section mm_env_utils.
             simpl; revert H5; apply subcode_sss_progress; auto.
           - replace (2*length (dst::ll)+i) with (2*length ll+(2+i)) by (rew length; lia).
             revert H8; simpl; apply subcode_sss_compute; auto.
-            subcode_tac; rewrite <- app_nil_end; auto.
     Qed.
 
   End mm_list_erase.
@@ -448,7 +447,6 @@ Section mm_env_utils.
         * revert H2; apply subcode_sss_progress; auto.
         * replace (2+n+i) with (n+(2+i)) by lia.
           revert H4; apply subcode_sss_compute; auto.
-          subcode_tac; rewrite <- app_nil_end; auto.
     Qed.
 
   End mm_set.
