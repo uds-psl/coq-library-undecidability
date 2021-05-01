@@ -21,9 +21,9 @@ We advise you to create a temporary directory to work in it. Then, use the follo
 from that directory
 
 ```
-wget -c https://github.com/DmxLarchey/coq-library-undecidability/archive/fscd21.zip
-unzip fscd21.zip 
-cd coq-library-undecidability-fscd21
+wget -c https://github.com/uds-psl/coq-library-undecidability/archive/FSCD-2021.zip
+unzip FSCD-2021.zip 
+cd coq-library-undecidability-FSCD-2021
 ```
 
 ### Coq 8.12 requirements
@@ -33,7 +33,7 @@ You need [Coq](https://coq.inria.fr/) `8.13` built on [OCaml](https://ocaml.org/
 Notice that installing Coq, Equations and MetaCoq from scratch takes some time, possibly more than ten minutes of compilation. **Do not do it over Networked File Systems, it
 is horribly slow**.
 
-We recommand that you now work in the `coq-library-undecidability-fscd21` directory created in the 
+We recommand that you now work in the `coq-library-undecidability-FSCD-2021` directory created in the 
 previous section.
 
 If you are using Opam 2 you can use the following commands to install the dependencies on a new switch:
@@ -46,7 +46,7 @@ opam install . --deps-only --jobs=4
 ```
 
 Notice that the command `opam install . --deps-only --jobs=4` above has to be run from the
-project directory `coq-library-undecidability-fscd21` because there belongs the
+project directory `coq-library-undecidability-FSCD-2021` because there belongs the
 file named `opam` that contains the list of required dependencies.
 
 If you want to use CoqIDE to review the code, you can install it with e.g.
