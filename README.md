@@ -15,7 +15,7 @@ machines to IMSELL is much smaller and should require less than 3 minutes to com
 We recommend that you use [Opam 2](https://opam.ocaml.org/) on your system to follow the instructions below.
 The given script commands correspond to the BASH shell scripting language (`/bin/bash`).
 
-### [Upload the project](https://github.com/coq-library-undecidability/archive/FSCD-2021.zip)
+### [Upload the project](https://github.com/uds-psl/coq-library-undecidability/archive/FSCD-2021.zip)
 
 We advise you to create a temporary directory to work in it. Then, use the following commands
 from that directory
