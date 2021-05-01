@@ -42,6 +42,8 @@ If you are using Opam 2 you can use the following commands to install the depend
 opam switch create coq-library-undecidability 4.07.1+flambda --jobs=4
 eval $(opam env)
 opam repo add coq-released https://coq.inria.fr/opam/released
+
+cd coq-library-undecidability-FSCD-2021 (* if not already in this dir *)
 opam install . --deps-only --jobs=4
 ```
 
