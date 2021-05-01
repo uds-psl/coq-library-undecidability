@@ -28,7 +28,7 @@ cd coq-library-undecidability-FSCD-2021
 
 ### Coq 8.13 requirements (mandatory)
 
-You need [Coq](https://coq.inria.fr/) `8.13` built on [OCaml](https://ocaml.org/) `>= 4.07.1`, the [Smpl](https://github.com/uds-psl/smpl) package, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. In addition, to review to Coq code, you might want to install CoqIDE `8.13`.
+You _need [Coq](https://coq.inria.fr/) `8.13`_ built on [OCaml](https://ocaml.org/) `>= 4.07.1`, the [Smpl](https://github.com/uds-psl/smpl) package, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. In addition, to review to Coq code, you might want to install CoqIDE `8.13`.
 
 Notice that installing Coq, Equations and MetaCoq from scratch takes some time, possibly more than ten minutes of compilation. **Do not do it over Networked File Systems, it
 is horribly slow**.
