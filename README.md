@@ -1,7 +1,7 @@
 # Synthetic Undecidability of MSELL via FRACTRAN
 
-This repository is a tailored version of the [Coq Library of Undecidability Proofs](https://github.com/uds-psl/coq-library-undecidability)
-(git branch `coq-8.12`) designed to provide a faster path towards code review of the FSCD'21 submission 
+This repository is a tailored/frozen version of the [Coq Library of Undecidability Proofs](https://github.com/uds-psl/coq-library-undecidability)
+(git branch `coq-8.13`) designed to provide a faster path towards code review of the FSCD'21 paper 
 [_Synthetic Undecidability of MSELL via FRACTRAN mechanised in Coq_](https://www.loria.fr/~larchey/papers/fscd21.pdf)
 by Dominique Larchey-Wendling.
 
@@ -28,7 +28,7 @@ cd coq-library-undecidability-fscd21
 
 ### Coq 8.12 requirements
 
-You need [Coq](https://coq.inria.fr/) `8.12` built on [OCaml](https://ocaml.org/) `>= 4.07.1`, the [Smpl](https://github.com/uds-psl/smpl) package, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. In addition, to review to Coq code, you might want to install CoqIDE `8.12`.
+You need [Coq](https://coq.inria.fr/) `8.13` built on [OCaml](https://ocaml.org/) `>= 4.07.1`, the [Smpl](https://github.com/uds-psl/smpl) package, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. In addition, to review to Coq code, you might want to install CoqIDE `8.13`.
 
 Notice that installing Coq, Equations and MetaCoq from scratch takes some time, possibly more than ten minutes of compilation. **Do not do it over Networked File Systems, it
 is horribly slow**.
@@ -75,7 +75,7 @@ On a recent computer, this compilation phase should take less than 3 minutes.
 
 **After compilation**, you can review the Coq code with your favorite IDE. 
 Below are direct links to code relevant to the IMSELL undecidability result.
-These links can also be found in the [`PDF` file of the submission](https://www.loria.fr/~larchey/papers/fscd21.pdf):
+These links can also be found in the [`PDF` file of the paper](https://www.loria.fr/~larchey/papers/fscd21.pdf):
 
 - `FRACTRAN`: [`FRACTRAN.v`](theories/FRACTRAN/FRACTRAN.v), 
 [`fractran_utils.v`](theories/FRACTRAN/FRACTRAN/fractran_utils.v), 
