@@ -1,7 +1,3 @@
-# Specific Instructions regarding the "Trakthenbrot's Theorem in Coq" Paper
-
-The code accompanying this paper is part of the Coq Library of Undecidability Proofs and depends on some library files. Therefore it is necessary to clone and checkout this branch and install the whole library following the [__Manual installation__](#manual-installation) instructions below. However, to _save some time_, the final build with `make all` can be replaced by `make TRAKHTENBROT/summary.vo` from inside the `theories` folder to only compile the files relevant for the paper. This command should take about 5min instead of >30min for the full build.
-
 # Coq Library of Undecidability Proofs
 
 [![CI](https://github.com/uds-psl/coq-library-undecidability/workflows/CI/badge.svg?branch=coq-8.13)](https://github.com/uds-psl/coq-library-undecidability/actions)

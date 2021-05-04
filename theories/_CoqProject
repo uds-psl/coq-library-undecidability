@@ -715,7 +715,6 @@ TRAKHTENBROT/red_utils.v
 TRAKHTENBROT/red_dec.v
 TRAKHTENBROT/red_enum.v
 TRAKHTENBROT/red_undec.v
-TRAKHTENBROT/summary.v
 
 CounterMachines/CM2.v
 CounterMachines/CM2_undec.v
