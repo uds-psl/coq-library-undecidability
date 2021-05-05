@@ -23,6 +23,10 @@ Import fol_notations.
 
 Set Implicit Arguments.
 
+Local Infix "∊" := In (at level 70, no associativity).
+Local Infix "⊑" := incl (at level 70, no associativity). 
+Local Notation ø := vec_nil.
+
 (* * FSATEQ reduces to FSAT *)
 
 (* 1/ A is satisfiable in a fin/dec/interpreted model iff 
@@ -54,7 +58,7 @@ Set Implicit Arguments.
 Section remove_interpreted_symbol.
 
   Variables (Σ : fo_signature) (ls : list (syms Σ)) (lr : list (rels Σ))
-            (e : rels Σ) (H_ae : ar_rels _ e = 2) (He : In e lr). 
+            (e : rels Σ) (H_ae : ar_rels _ e = 2) (He : e ∊ lr). 
 
   Notation 𝕋 := (fol_term Σ).
   Notation 𝔽 := (fol_form Σ).
@@ -99,16 +103,16 @@ Section remove_interpreted_symbol.
     Hint Resolve finite_t_pos : core.
 
     Variable (A : 𝔽) 
-             (HA1 : incl (fol_syms A) ls) 
-             (HA2 : incl (fol_rels A) lr).
+             (HA1 : fol_syms A ⊑ ls) 
+             (HA2 : fol_rels A ⊑ lr).
 
     Theorem Σ_noeq_complete : 
                fo_form_fin_dec_SAT (Σ_noeq A)
             -> fo_form_fin_dec_eq_SAT e H_ae A.
     Proof.
       intros (X & M & H1 & H2 & phi & H5 & H3).
-      apply fol_sem_congruence in H5.
-      destruct H5 as ((H4 & H5) & (H6 & H8 & H7)).
+      apply fol_sem_congruence in H5
+        as ((H4 & H5) & (H6 & H8 & H7)).
       set (R x y := fom_rels M e (cast (x ## y ## ø) (eq_sym H_ae))).
       destruct H1 as (lX & HlX).
       destruct decidable_EQUIV_fin_quotient with (l := lX) (R := R)
