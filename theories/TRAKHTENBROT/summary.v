@@ -78,9 +78,9 @@ About "⪯ᵢ". Print "⪯ᵢ".
 
 (* Fact 3 *)
 
-About reduction_decidable.
-About reduction_rec_enum_t.
-About reduction_opt_enum_t.
+About ireduction_decidable.
+About ireduction_rec_enum_t.
+About ireduction_opt_enum_t.
 
 (* Definition 4 *)
 
