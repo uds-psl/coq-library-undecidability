@@ -5,6 +5,8 @@ From Undecidability.FOL Require Import Util.Syntax Util.Deduction Util.Tarski Ut
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
 From Coq Require Import Arith Lia List.
+From Equations Require Import Equations.
+Set Equations With UIP.
 
 
 (* ** Validity *)
@@ -365,8 +367,8 @@ Section validity.
     Definition dom_rel (a : dom) (b:dom) : Prop := match (a,b) with
     | (Num  0, Num  1) => H10UPC_SAT h10
     | (Num n1, Num n2) => n1 = n2
-    | (Num n1, Pair x2 y2) => n1 = x2
-    | (Pair x1 y1, Num n2) => n2 = y1
+    | (Num n1, Pair x2 _) => n1 = x2
+    | (Pair _ y1, Num n2) => n2 = y1
     | (Pair x1 y1, Pair x2 y2) => h10upc_sem_direct ((x1, y1), (x2, y2))
     end.
 
@@ -671,7 +673,14 @@ Section provability.
     apply Compare_dec.le_dec.
     Defined. 
 
+
     Ltac var_eq := cbn; f_equal; lia.
+    Ltac var_cbn := repeat (unfold up,scons,funcomp; cbn).
+    Ltac doAllE s t := match goal with [ |- ?A ⊢I ?P] => assert (P = t[s..]) as ->; [idtac|eapply AllE] end.
+    Ltac doAllI n := apply AllI; let H := fresh "H" in 
+       match goal with [ |- map (subst_form ↑) ?A ⊢I ?phi ] => edestruct (@nameless_equiv_all _ _ _ intu A phi) as [n H]; rewrite H; clear H end.
+
+
 
     Lemma emplace_forall_subst (n:nat) (i:form) sigma : (emplace_forall n i)[sigma] = 
           emplace_forall n (i[it up n sigma]).
@@ -680,9 +689,6 @@ Section provability.
     - easy.
     - cbn. f_equal. now rewrite IH, <- it_shift.
     Qed.
-
-    Ltac var_comp := (unfold up,scons,funcomp).
-    Ltac var_cbn := repeat (unfold up,scons,funcomp; cbn).
 
     Fixpoint specialize_n (n:nat) (f:nat->nat) (k:nat) := 
           match n with 0 => $k 
@@ -702,236 +708,180 @@ Section provability.
         * var_cbn. rewrite subst_term_comp. var_cbn. now rewrite subst_term_id.
     Qed.
 
-    Definition findNum (r n:nat) := match n with 0 => r | S n => r - 2 - 3*n end.
-    Definition findPairLow (r n:nat) := findNum r n + 1.
-    Definition findPairHigh (r n:nat) := findNum r n - 1.
-    Fixpoint chain_at (r n:nat) := 
-      match n with 0 => N(findNum r n) :: nil
-          | S n => N(findNum r (S n)) :: P' (findPairLow r (S n)) :: P' (findPairHigh r (S n)) :: 
-                   Pr $(findPairLow r (S n)) $(findNum r 0) :: Pr $(findNum r n) $(findPairLow r (S n)) ::
-                   Pr $(findPairHigh r (S n)) $(findNum r 0) :: Pr $(findNum r (S n)) $(findPairHigh r (S n)) ::
-                   Pr $(findPairLow r (S n)) $(findPairHigh r (S n)) :: chain_at r n end.
-    Ltac doAllE s t := match goal with [ |- ?A ⊢I ?P] => assert (P = t[s..]) as ->; [idtac|eapply AllE] end.
-
-    Definition iter_up := it (subst_form ↑).
-
-    Lemma iter_up_merge_r k A : map (iter_up k) (map (subst_form ↑) A) = map (iter_up (S k)) A.
+    Lemma specialize_n_resolve n f2 a : specialize_n n f2 a
+                                        = if Dec (a < n) then $(f2 a) else $(a-n).
     Proof.
-    rewrite map_map. apply map_ext. intros a. unfold iter_up. now rewrite it_shift.
-    Qed.
-
-    Lemma iter_up_merge_l k A : map (subst_form ↑) (map (iter_up k) A) = map (iter_up (S k)) A.
-    Proof.
-    now rewrite map_map.
-    Qed.
-
-    Lemma iter_up_merge_plus k1 k2 A : map (iter_up k1) (map (iter_up k2) A) = map (iter_up (k1+k2)) A.
-    Proof.
-    rewrite map_map. apply map_ext. intros a. unfold iter_up. now rewrite it_add.
-    Qed.
-
-    Lemma iter_up_merge_z A : map (iter_up 0) A = A.
-    Proof.
-    now rewrite map_id.
-    Qed.
-
-    Lemma iter_up_resolve_l f k : iter_up k f = f[fun n => $(k+n)].
-    Proof.
-    induction k as [|k IH].
-    - cbn. symmetry. apply subst_id. easy.
-    - cbn. rewrite IH, subst_comp. apply subst_ext. easy.
-    Qed.
-
-    Lemma iter_up_resolve_r f k : iter_up k f = f[fun n => $(n+k)].
-    Proof.
-    rewrite iter_up_resolve_l. apply subst_ext. intros n. now rewrite Nat.add_comm.
-    Qed.
-
-    Lemma findNum_raise (a b c:nat) : b >= 3*c -> a + findNum b c = findNum (a + b) c.
-    Proof.
-    unfold findNum. induction a as [|a IH]; destruct c; lia.
-    Qed.
-
-    Lemma chain_at_raise (a b c : nat) : b >= 3 * c -> map (iter_up a) (chain_at b c) = chain_at (a+b) c.
-    Proof.
-    intros H. induction a as [|a IH].
-    - now rewrite map_id.
-    - rewrite <- iter_up_merge_l, IH. induction c as [|c IHc] in H|-*.
+    induction n as [|n IH] in f2,a|-*.
+    - cbn. var_eq.
+    - cbn. destruct a as [|a].
       + easy.
-      + cbn [chain_at map]. rewrite IHc. 2:lia.
-        let rec f n := match n with 0 => f_equal| S ?n' => f_equal;[idtac|f n'] end in f 7.
-        4,6-8: cbn; do 3 f_equal; unfold up,funcomp; var_eq.
-        * change (S a+b) with (1+(a+b)). rewrite <- (findNum_raise 1); [easy|lia].
-        * cbn. unfold P',sFalse,up,funcomp,N. do 4 f_equal. 1:lia. var_eq.
-        * cbn. unfold P',sFalse,up,funcomp,N. do 4 f_equal. 1:lia. var_eq.
-        * cbn. do 3 f_equal; unfold up,funcomp. 2:var_eq.
-          change (S (a+b)) with (1+(a+b)). rewrite (findNum_raise 1); [easy|lia].
+      + cbn.
+        unfold funcomp in IH. cbn in IH.
+        rewrite IH. do 2 destruct (Dec _). 2,3: exfalso;lia. all:var_eq.
     Qed.
 
-    Lemma in_incl_map (X Y :Type) (f:X->Y) a l1 l2 : In a (map f l1) -> incl l1 l2 -> In a (map f l2).
-    Proof.
-    intros [x [Hfx Hx]]%in_map_iff l1l2. apply in_map_iff. exists x. auto.
-    Qed.
+    Inductive chain : nat -> Type := chainZ : chain 0
+                                   | chainS : forall (h:nat) (n pl pr:nat), chain h -> chain (S h).
+    Definition height h (c:chain h) := h.
+    Derive Signature for chain.
+    Lemma chain_derivation_Z_unique (c:chain 0) : c = chainZ.
+    Proof. now depelim c. Qed.
+    Lemma chain_derivation_S_unique (h:nat) (c:chain (S h)) : {'(n,pl,ph,cc) & c = chainS n pl ph cc}.
+    Proof. depelim c. now exists (n,pl,pr,c). Qed.
 
-    Ltac partial_map := apply incl_tl, incl_map; auto.
-    Ltac iter_up_find0 := match goal with [ |- context[map (subst_form ↑) ?k] ] => rewrite <- (iter_up_merge_z k) | _ => idtac end.
-    Ltac fold_iter_up := iter_up_find0; rewrite ! iter_up_merge_l, ! iter_up_merge_r.
-    Definition intros_defs (a b c e f g:nat) : list form:= Pr $e $g :: Pr $f $e :: N g :: N f :: P' e :: Pr $a $c :: Pr $b $a :: N c :: N b :: P' a :: nil.
-    Definition intros_P (A:list form) (a b c e f g : nat) (i:form) :
-    (intros_defs a b c e f g ++ map (iter_up 2) A)  ⊢I i -> (A ⊢I ∀ ∀ P a b c (P e f g i)).
-    Proof.
-    intros H.
-    apply AllI,AllI. fold_iter_up. 
-    do 10 apply II. exact H.
-    Qed.
-
-    Lemma construct_chain_at (n:nat) HH : (n>0)
-    -> incl (F_succ_right :: F_succ_left :: F_zero :: nil) HH
-    -> (chain_at (3*n) n ++  map (iter_up (3*n)) HH) ⊢I wFalse (1+(3*n))
-    -> HH ⊢I wFalse (1).
-    Proof.
-    intros Hn HHH H. induction n as [|n IH].
-    - exfalso. lia. 
-    - destruct n as [|n].
-      + clear IH. apply (IE (phi:=(∀ (∀ (∀ P 2 (3+findNum (0) 0) (3+findNum (0) 0) (P 0 1 (3+findNum (0) 0) (Pr $2 $0 --> wFalse (4)))))))).
-        * eapply (IE (phi:=N (findNum (0) 0))).
-          2: apply Ctx,HHH; do 2 right; now left.
-          doAllE ($(findNum 0 0)) (N 0 --> (∀ (∀ (∀ P 2 3 (4+findNum (0) 0) (P 0 1 (4+findNum 0 0) (Pr $2 $0 --> wFalse 5))))) --> wFalse (2)).
-          1: easy.
-          apply Ctx,HHH. right. now left.
-        * apply AllI, intros_P.
-          fold_iter_up. apply II.
-          eapply Weak. 1:exact H. apply incl_app.
-          2: do 11 apply incl_tl; reflexivity.
-          cbn -[map]. 
-          intros f [Hf|[Hf|[Hf|[Hf|[Hf|[Hf|[Hf|[Hf|[Hf|[]]]]]]]]]]; rewrite <- Hf;
-          let rec find n 
-              := match n with 0 => now left
-                            | S ?nn => (now left) + (right; find nn) end
-          in find 11.
-      + apply IH; [lia|clear IH].
-        eapply (IE (phi:=(∀ (∀ (∀ P 2 (3+findNum (3*S n) (S n)) (3+findNum (3*S n) 0)  
-                                 (P 0 1 (3+findNum (3*S n) 0) (Pr $2 $0 --> wFalse (4+3*S n)))))))). 
-        * unfold F_succ_left. unfold Not. eapply IE.
-          2: apply Ctx; now left.
-          doAllE ($(findNum (3 * S n) (S n))) (N 0 --> 
-                      (∀ (∀ (∀ P 2 3 (4+(findNum (3 * S n) 0))
-                              (P 0 1 (4+(findNum (3 * S n) 0)) (Pr $2 $0 --> wFalse (5+3*S n))))))
-                  --> wFalse (2+3*S n)).
-          -- easy.
-          -- apply Ctx. apply in_or_app. right. eapply in_incl_map. 2:exact HHH. right. left.
-             rewrite iter_up_resolve_r. easy.
-        * apply AllI, intros_P.
-          fold_iter_up. apply II.
-          assert (1+3*S(S n) = (4+3*S n)) as <- by lia.
-          eapply Weak. 1:exact H. apply incl_app.
-          1:  pose (S n) as n'; fold n';
-              cbn -[map Nat.add Nat.sub Nat.mul n' iter_up];
-              intros f [Hf|[Hf|[Hf|[Hf|[Hf|[Hf|[Hf|[Hf|Hin]]]]]]]].
-          1-8: rewrite <- Hf.
-          -- do 4 right. left. var_eq.
-          -- do 10 right. left. var_eq.
-          -- do 5 right. left. var_eq.
-          -- do 6 right. left. assert (3+3*n' = 3*S n') as -> by lia. repeat f_equal. cbn;lia.
-          -- do 7 right. left. do 3 f_equal. 2:var_eq. erewrite findNum_raise. 2:unfold n';lia. f_equal. lia.
-          -- do 1 right. left. do 3 f_equal. 2:var_eq. cbn;lia.
-          -- do 2 right. left. do 3 f_equal. 1:lia. var_eq.
-          -- do 0 right. left. do 3 f_equal; cbn. 2:var_eq. lia.
-          -- do 11 right. rewrite map_app. apply in_or_app. left.
-             1:erewrite (chain_at_raise 3). 2:lia. 1: now assert (3* S n' = 3+3*n') as <- by lia.
-          -- do 11 apply incl_tl. rewrite map_app. apply incl_appr.
-             rewrite iter_up_merge_plus. now assert (3 * S (S n) = (3+(3*S n))) as -> by lia.
-    Qed. 
+    Fixpoint chainData (h:nat) (c:chain h) (a:nat) := match c with
+        chainZ => (0,0,0)
+      | chainS n pl pr cc => if Dec (h=a) then (n,pl,pr) else chainData cc a end.
     
-    Lemma chain_lower (r a b:nat) : a <= b -> 3*b <= r -> incl (chain_at r a) (chain_at r b).
+    Lemma chainData_0 (h:nat) (c:chain h) : chainData c 0 = (0,0,0).
+    Proof. now induction c as [|h n pl ph cc IH]. Qed.
+
+    Definition findNum h (c:chain h) a := let '(n,pl,ph) := chainData c a in n.
+    Definition findPairLow h (c:chain h) a := let '(n,pl,ph) := chainData c a in pl.
+    Definition findPairHigh h (c:chain h) a := let '(n,pl,ph) := chainData c a in ph.
+    Fixpoint chain_exists h (c:chain h) := match c with
+      chainZ => N 0 :: nil
+    | chainS n pl ph cc => N n :: P' pl :: P' ph :: 
+                   Pr $pl $0 :: Pr $(findNum cc (height cc)) $pl ::
+                   Pr $ph $0 :: Pr $n $ph ::
+                   Pr $pl $ph :: chain_exists cc end.
+
+    Definition intros_defs (a b c e f g:nat) := Pr $e $g :: Pr $f $e :: N g :: N f :: P' e :: Pr $a $c :: Pr $b $a :: N c :: N b :: P' a :: nil.
+
+    Definition intros_P (A:list form) (a b c e f g : nat) (i:form) :
+    (intros_defs a b c e f g ++ A)  ⊢I i -> (A ⊢I P a b c (P e f g i)).
+    Proof. intros H. do 10 apply II. exact H. Qed.
+
+    Lemma chain_proves_N (h:nat) (c:chain h) (i:nat) : i <= h -> In (N (findNum c i)) (chain_exists c).
     Proof.
-    intros Ha Hb. assert (b=a+(b-a)) as H by lia. rewrite H in *. clear Ha. generalize dependent (b-a).
-    intros ab Ha _. induction ab as [|ab IH].
-    - rewrite Nat.add_0_r; reflexivity.
-    - rewrite Nat.add_succ_r. cbn. do 8 apply incl_tl. apply IH; nia.
+    intros H. induction c as [|h n pl pr cc IH].
+    - now left.
+    - destruct (Dec (S h = i)) eqn:Heq.
+      + left. unfold findNum. unfold chainData. now rewrite Heq.
+      + do 8 right. unfold findNum, chainData. rewrite Heq. apply IH. lia.
     Qed.
 
-    Lemma chain_N (r h a : nat) : a <= h -> 3*h <= r -> In (N(findNum r a)) (chain_at r h).
+    Lemma chain_proves_rel (h:nat) (c:chain h) (i:nat) : i <= h -> In (Pr $(findPairLow c i) $(findPairHigh c i)) (chain_exists c).
     Proof.
-    intros Ha Hr. apply (@chain_lower r a h). 1-2:lia. destruct a; now left. 
+    intros H. induction c as [|h n pl pr cc IH].
+    - now left.
+    - destruct (Dec ((S h) = i)) eqn:Heq.
+      + do 7 right. left. unfold findPairLow,findPairHigh,chainData. now rewrite Heq.
+      + do 8 right. unfold findPairLow, findPairHigh, chainData. rewrite Heq. apply IH. lia.
     Qed.
 
-    Lemma chain_rel (r h a : nat) : a > 0 -> a <= h -> 3*h <= r -> In (Pr $(findPairLow r a) $(findPairHigh r a)) (chain_at r h).
+    Lemma chain_lower (l:nat)  (h:nat) (c:chain h): l > 0 -> l <= h -> {cc : chain l & forall k, k <= l -> chainData c k = chainData cc k}.
     Proof.
-    intros Ha0 Ha Hr. destruct a. 1:exfalso;lia.
-    apply (@chain_lower r (S a) h). 1-2:lia. do 7 right; now left.
+    intros Hl Hh. revert c. assert (h=(h-l)+l) as -> by lia. generalize (h-l).
+    intros dh c. induction dh as [|dh IH].
+    - now exists c.
+    - destruct (chain_derivation_S_unique c) as [[[[n pl] ph] cc] ->]. fold Nat.add in cc.
+      destruct (IH cc) as [cc' Hcc']. exists cc'.
+      intros k Hk. cbn [chainData].
+      destruct (Dec (S dh + l = k)) as [Hf|_].
+      + lia.
+      + apply Hcc'. lia.
     Qed.
 
-    Lemma chain_PLow (r h a : nat) A f : S a <= h -> 3*h <= r -> incl (chain_at r h) A -> A ⊢I P (findPairLow r (S a)) (findNum r a) (findNum r 0) f -> A ⊢I f.
+    Lemma chain_data_unique (h:nat) (c1 c2 : chain h) : (forall k, k <= h -> chainData c1 k = chainData c2 k) -> c1 = c2.
     Proof.
-    intros Ha Hr HA Hpr. 
-    unfold P in Hpr.
+    intros Heq. induction c1 as [|h n pl pr cc].
+    - now depelim c2.
+    - destruct (chain_derivation_S_unique c2) as [[[[n' pl'] ph'] cc'] ->].
+      pose proof (Heq (S h) ltac:(lia)) as Heqh. cbn [chainData] in Heqh. destruct (Dec (S h = S h)) as [_|Hf]; [idtac|lia].
+      rewrite (IHcc cc').
+      + congruence.
+      + intros k Hk. specialize (Heq k ltac:(lia)). cbn [chainData] in Heq.
+        destruct (Dec (S h = k)) as [Ht|Hf]; [lia|easy].
+    Qed.
+
+    Lemma chain_exists_lower (l h :nat) (cl:chain l) (ch:chain h) : l<=h -> (forall k, k <= l -> chainData cl k = chainData ch k) 
+                                                                         -> incl (chain_exists cl) (chain_exists ch).
+    Proof.
+    intros Hlh. revert ch. assert (h=(h-l)+l) as -> by lia. generalize (h-l) as dh.
+    intros dh ch Heq. induction dh.
+    - now rewrite (@chain_data_unique l cl ch).
+    - destruct (chain_derivation_S_unique ch) as [[[[n pl] ph] ch'] Hch]; fold Nat.add in *.
+      rewrite Hch. cbn; do 8 apply incl_tl. apply (IHdh ch').
+      intros k Hk. rewrite Hch in Heq. specialize (Heq k Hk). cbn [chainData] in Heq.
+      destruct (Dec (S dh + l =k)) as [Ht|Hf]; [lia|easy].
+    Qed.
+
+    Lemma chain_proves_P_Low (h:nat) (c:chain h) (i:nat) A f : h > 0 -> i < h -> incl (chain_exists c) A 
+                                                            -> A ⊢I P (findPairLow c (S i)) (findNum c i) 0 f -> A ⊢I f.
+    Proof.
+    intros Hh Hi HA Hpf.
+    unfold P in Hpf.
+    destruct (@chain_lower (S i) _ c) as [cc Hcc]. 1-2:lia.
+    pose proof (@chain_exists_lower (S i) h cc c ltac:(lia)) as Hlower.
     eapply IE. 1:eapply IE. 1:eapply IE. 1:eapply IE. 1:eapply IE.
-    1: apply Hpr.
-    all: apply Ctx, HA, (@chain_lower r (S a) h); [lia|lia|idtac].
-    2,3: apply chain_N; lia.
-    all: cbn [chain_at].
-    - right. now left.
-    - do 4 right. now left.
-    - do 3 right. now left.
+    1: unfold findPairLow, findNum in Hpf; apply Hpf.
+    all: apply Ctx, HA.
+    3: {pose proof (@chain_proves_N h c 0) as H0. unfold findNum in H0. rewrite chainData_0 in H0. apply H0. lia. }
+    all: rewrite Hcc; [apply Hlower; [intros k Hk;symmetry;now apply Hcc|idtac]|lia].
+    2: apply chain_proves_N; lia.
+    all: depelim cc; cbn [chain_exists chainData]. 
+    - do 1 right. left. destruct (Dec _); [easy|lia].
+    - do 4 right. left. rewrite Hcc. 2:lia. unfold chainData. do 2 destruct (Dec _); easy + lia.
+    - do 3 right. left. destruct (Dec _). 1:easy. lia.
     Qed.
 
-    Lemma chain_PHigh (r h a : nat) A f : S a <= h -> 3*h <= r -> incl (chain_at r h) A -> A ⊢I P (findPairHigh r (S a)) (findNum r (S a)) (findNum r 0) f -> A ⊢I f.
+    Lemma chain_proves_P_High (h:nat) (c:chain h) (i:nat) A f : h > 0 -> i < h -> incl (chain_exists c) A
+                                                             -> A ⊢I P (findPairHigh c (S i)) (findNum c (S i)) 0 f -> A ⊢I f.
     Proof.
-    intros Ha Hr HA Hpr. 
-    unfold P in Hpr.
+    intros Hh Hi HA Hpf.
+    unfold P in Hpf.
+    destruct (@chain_lower (S i) _ c) as [cc Hcc]. 1-2:lia.
+    pose proof (@chain_exists_lower (S i) h cc c ltac:(lia)) as Hlower.
     eapply IE. 1:eapply IE. 1:eapply IE. 1:eapply IE. 1:eapply IE.
-    1: apply Hpr.
-    all: apply Ctx, HA, (@chain_lower r (S a) h); [lia|lia|idtac].
-    2,3: apply chain_N; lia.
-    all: cbn [chain_at].
-    - do 2 right. now left.
-    - do 6 right. now left.
-    - do 5 right. now left.
+    1: unfold findPairHigh, findNum in Hpf; apply Hpf.
+    all: apply Ctx, HA.
+    3: {pose proof (@chain_proves_N h c 0) as H0. unfold findNum in H0. rewrite chainData_0 in H0. apply H0. lia. }
+    all: rewrite Hcc; [apply Hlower; [intros k Hk;symmetry;now apply Hcc|idtac]|lia].
+    2: apply chain_proves_N; lia.
+    all: depelim cc; cbn [chain_exists chainData]. 
+    - do 2 right. left. destruct (Dec _); [easy|lia].
+    - do 6 right. left. destruct (Dec _); [easy|lia].
+    - do 5 right. left. destruct (Dec _); [easy|lia].
     Qed.
 
-    Lemma chain_E_rel (r h a : nat) A f : S a <= h -> 3*h <= r -> incl (chain_at r h) A -> A ⊢I rel (findPairLow r (S a)) (findPairHigh r (S a)) (findNum r a) (findNum r 0) (findNum r (S a)) (findNum r 0) f -> A ⊢I f.
+    Lemma chain_proves_E_rel (h a : nat) (c:chain h) A f : S a <= h -> incl (chain_exists c) A -> A ⊢I rel (findPairLow c (S a)) (findPairHigh c (S a)) (findNum c a) 0 (findNum c (S a)) 0 f -> A ⊢I f.
     Proof.
-    intros Ha Hr HA Hpr.
+    intros Ha HA Hpr.
     eapply IE.
-    2: eapply Ctx, HA, (@chain_rel _ _ (S a)); lia.
+    2: eapply Ctx, HA, (@chain_proves_rel _ _ (S a)); lia.
     unfold rel in Hpr.
-    apply (@chain_PHigh r h a). 1-2:lia. 1:easy.
-    apply (@chain_PLow r h a). 1-2:lia. 1:easy.
+    apply (@chain_proves_P_High h c a). 1-2:lia. 1:easy.
+    apply (@chain_proves_P_Low h c a). 1-2:lia. 1:easy.
     exact Hpr.
     Qed.
 
 
     Definition erel_i (a b c d t : nat) := (∀ ∀ P 0 (2+a) (2+b) 
-                                            (P 1 (2+c) (2+d)
-                                             (Pr $0 $1 --> wFalse (2+t)))).
-    Lemma erel_II (a b c d t : nat) A : (erel_i a b c d t :: A) ⊢I wFalse t -> A ⊢I erel a b c d t.
+                                               (P 1 (2+c) (2+d)
+                                                 (Pr $0 $1 --> wFalse (2+t)))).
+    
+    Definition erel_findNum (a b c d h:nat) (cc:chain h):= erel_i (findNum cc a) (findNum cc b) (findNum cc c) (findNum cc d) (1).
+    Lemma erel_findNum_II (a b c d h: nat) (cc:chain h) A : (erel_findNum a b c d cc :: A) ⊢I wFalse 1 -> A ⊢I erel (findNum cc a) (findNum cc b) (findNum cc c) (findNum cc d) 1.
     Proof. intros H. apply II. exact H. Qed.
-
-    Definition erel_findNum (a b c d r:nat) := erel_i (findNum r a) (findNum r b) (findNum r c) (findNum r d) (1+r).
-    Lemma erel_findNum_II (a b c d r : nat) A : (erel_findNum a b c d r :: A) ⊢I wFalse (1+r) -> A ⊢I erel (findNum r a) (findNum r b) (findNum r c) (findNum r d) (1+r).
-    Proof. intros H. apply erel_II. exact H. Qed.
-    Definition erel_findNum_H (a b c d pl pr rr : nat) :list form := 
+    Definition erel_findNum_H (a b c d pl pr h : nat) (cc:chain h):list form := 
          Pr $pl $pr
-      :: Pr $pr $(findNum (rr) d)
-      :: Pr $(findNum (rr) c) $pr
-      :: N (findNum (rr) d)
-      :: N (findNum (rr) c)
+      :: Pr $pr $(findNum cc d)
+      :: Pr $(findNum cc c) $pr
+      :: N (findNum cc d)
+      :: N (findNum cc c)
       :: P' pr
-      :: Pr $pl $(findNum (rr) b)
-      :: Pr $(findNum (rr) a) $pl
-      :: N (findNum (rr) b)
-      :: N (findNum (rr) a)
+      :: Pr $pl $(findNum cc b)
+      :: Pr $(findNum cc a) $pl
+      :: N (findNum cc b)
+      :: N (findNum cc a)
       :: P' pl :: nil.
 
-    Ltac doAllI n := apply AllI; let H := fresh "H" in 
-       match goal with [ |- map (subst_form ↑) ?A ⊢I ?phi ] => edestruct (@nameless_equiv_all _ _ _ intu A phi) as [n H]; rewrite H; clear H end.
 
-    Lemma erel_findNum_ExI (a b c d r : nat) A :
-    r >= 3*a -> r >= 3*b -> r >= 3*c -> r >= 3*d -> 
-    (forall pl pr, (erel_findNum_H a b c d pl pr r ++ A) ⊢I wFalse (S r)) -> A ⊢I erel_findNum a b c d r .
+    Lemma erel_findNum_ExI (a b c d h : nat) (cc:chain h) A :
+    (forall pl pr, (erel_findNum_H a b c d pl pr cc ++ A) ⊢I wFalse 1) -> A ⊢I erel_findNum a b c d cc .
     Proof.
-    intros Ha Hb Hc Hd Hpr. unfold erel_findNum, erel_i.
+    intros Hpr. unfold erel_findNum, erel_i.
     doAllI pr. cbn [subst_form]. doAllI pl.
     cbn.
     do 11 apply II. eapply Weak. 1: apply (Hpr pl pr).
@@ -940,39 +890,16 @@ Section provability.
     - now do 11 apply incl_tl.
     Qed.
 
-    Lemma erel_findNum_raise (a b c d r p : nat) : 
-    r >= 3*a -> r >= 3*b -> r >= 3*c -> r >= 3*d ->
-    iter_up p (erel_findNum a b c d r) = erel_findNum a b c d (p+r).
-    Proof.
-    intros Ha Hb Hc Hd. unfold erel_findNum,erel_i,P. rewrite iter_up_resolve_l. cbn [subst_form Vector.map].
-    rewrite <- ! findNum_raise. 2-5:lia. cbn. rewrite ! (Nat.add_succ_r p). easy.
-    Qed.
-
-    Lemma erel_findNum_H_raise (a b c d pl pr rr p : nat) : 
-    rr >= 3*a -> rr >= 3*b -> rr >= 3*c -> rr >= 3*d ->
-    map (iter_up p) (erel_findNum_H a b c d pl pr rr) = erel_findNum_H a b c d (p+pl) (p+pr) (p+rr).
-    Proof.
-    intros Ha Hb Hc Hd. cbn. rewrite ! iter_up_resolve_l. cbn -[Nat.add]. unfold erel_findNum_H.
-    rewrite ! findNum_raise. 2-5:lia. easy.
-    Qed.
-
-    Lemma erel_findNum_H_E (a b c d pl pr rr : nat) A f : 
-    rr >= 3*a -> rr >= 3*b -> rr >= 3*c -> rr >= 3*d
-    -> incl (erel_findNum_H a b c d pl pr rr) A 
-    -> A ⊢I rel pl pr (findNum (rr) a) (findNum (rr) b) (findNum (rr) c) (findNum (rr) d) f
+    Lemma erel_findNum_H_E (a b c d pl pr h : nat) (cc:chain h) A f : 
+       incl (erel_findNum_H a b c d pl pr cc) A 
+    -> A ⊢I rel pl pr (findNum cc a) (findNum cc b) (findNum cc c) (findNum cc d) f
     -> A ⊢I f.
     Proof.
-    intros Ha Hb Hc Hd HA Hpr.
+    intros HA Hpr.
     let rec rep n := match n with 0 => now left | S ?nn => right; rep nn end in
     let rec f n k := match n with 0 => apply Hpr | S ?nn => eapply IE; [f nn (S k)|apply Ctx, HA; rep k] end in f 11 0.
     Qed.
 
-    Lemma rel_subst (p q a b c d:nat) f s ss : (forall n,s n = $(ss n)) -> (rel p q a b c d f)[s] = rel (ss p) (ss q) (ss a) (ss b) (ss c) (ss d) f[s].
-    Proof.
-    intros H.
-    unfold rel,P,N,P'. cbn. rewrite ! H. easy.
-    Qed.
-    
     Lemma erel_i_subst (a b c d t:nat) s ss : (forall n,s n = $(ss n)) -> (ss (S t)) = S(ss t) -> (erel_i a b c d t --> wFalse t)[s] = erel_i (ss a) (ss b) (ss c) (ss d) (ss t) --> wFalse (ss t).
     Proof.
     intros H Hs. cbn. unfold erel_i,P,N,P',funcomp. rewrite ! H. do 20 f_equal. all: cbn; rewrite Hs; easy.
@@ -1001,105 +928,107 @@ Section provability.
         * rewrite subst_comp. apply subst_ext. now intros [|n].
         * apply AllE, Ctx. now left.
     Qed.
-      
-    Lemma prove_single (a b c d r hv: nat): 
-       b <= hv -> a <= hv -> c <= hv -> d <= hv -> 3*hv <= r
-    -> h10upc_sem_direct ((a,b),(c,d))
-    -> (chain_at r hv ++ map (iter_up r) (F_succ_right :: F_succ_left :: F_zero :: nil)) ⊢I Not (erel_findNum a b c d r) (1+r) .
+
+    Lemma construct_chain_at (h:nat) HH : (h>0)
+    -> incl (F_succ_right :: F_succ_left :: F_zero :: nil) HH
+    -> (forall c:chain h, (chain_exists c ++  HH) ⊢I wFalse 1)
+    -> HH ⊢I wFalse 1.
     Proof.
-    intros Hb. induction b as [|b IH] in r,a,c,d,Hb|-*; intros Ha Hc Hd Hr Habcd.
+    intros Hn HHH H. induction h as [|h IH].
+    - exfalso. lia. 
+    - destruct h as [|h].
+      + clear IH. apply (IE (phi:=(∀ (∀ (∀ P 2 3 3 (P 0 1 3 (Pr $2 $0 --> wFalse (4)))))))).
+        * eapply IE.
+          2: apply Ctx,HHH; do 2 right; now left.
+          doAllE ($0) (N 0 --> (∀ (∀ (∀ P 2 3 4 (P 0 1 4 (Pr $2 $0 --> wFalse 5))))) --> wFalse (2)).
+          1: easy.
+          apply Ctx,HHH. right. now left.
+        * doAllI pl. doAllI n1. doAllI pr. apply intros_P. cbn -[intros_defs].
+          apply II.
+          eapply Weak. 1:apply (H (chainS n1 pl pr chainZ)). apply incl_app.
+          2: do 11 apply incl_tl; reflexivity.
+          cbn -[map]. 
+          intros f [Hf|[Hf|[Hf|[Hf|[Hf|[Hf|[Hf|[Hf|[Hf|[]]]]]]]]]]; rewrite <- Hf;
+          let rec find n 
+              := match n with 0 => now left
+                            | S ?nn => (now left) + (right; find nn) end
+          in find 11.
+      + apply IH; [lia|clear IH]. intros c.
+        eapply (IE (phi:=(∀ (∀ (∀ P 2 (3+findNum c (S h)) 3 
+                                 (P 0 1 3 (Pr $2 $0 --> wFalse 4))))))). 
+        * unfold F_succ_left. unfold Not. eapply IE.
+          2: apply Ctx, in_or_app; left; eapply chain_proves_N; easy.
+          doAllE ($(findNum c (S h))) (N 0 -->  (∀ (∀ (∀ P 2 3 4
+                                              (P 0 1 4 (Pr $2 $0 --> wFalse 5))))) --> wFalse 2).
+          -- easy.
+          -- apply Ctx. apply in_or_app. right. apply HHH. right. now left.
+        * doAllI pl. doAllI nh. doAllI pr. apply intros_P. cbn -[intros_defs].
+          apply II.
+          eapply Weak. 1:apply (H (chainS nh pl pr c)). apply incl_app.
+          2: do 11 apply incl_tl; now apply incl_appr.
+          cbn -[map]. 
+          intros f [Hf|[Hf|[Hf|[Hf|[Hf|[Hf|[Hf|[Hf|H1]]]]]]]].
+          9: do 11 right; apply in_or_app; now left.
+          all: rewrite <- Hf;
+          let rec find n 
+              := match n with 0 => now left
+                            | S ?nn => (now left) + (right; find nn) end
+          in find 11.
+    Qed.
+      
+    Lemma prove_single (a b c d h: nat) (cc:chain h): 
+       b <= h -> a <= h -> c <= h -> d <= h
+    -> h10upc_sem_direct ((a,b),(c,d))
+    -> (chain_exists cc ++ (F_succ_right :: F_succ_left :: F_zero :: nil)) ⊢I Not (erel_findNum a b c d cc) 1.
+    Proof. 
+    intros Hb. induction b as [|b IH] in h,cc,a,c,d,Hb|-*; intros Ha Hc Hd Habcd.
     - cbn in Habcd. assert (c = S a /\ d = 0) as [Hc' Hd']. 1:lia.
       rewrite Hc', Hd'. apply II. rewrite Hc' in Hc.
-      apply (@chain_E_rel r hv a). 1-2:lia.
+      apply (@chain_proves_E_rel h a cc). 1:lia.
       1: now apply incl_tl,incl_appl.
-      eapply Weak with (erel_findNum a 0 (S a) 0 r::nil). 2:auto.
+      eapply Weak with (erel_findNum a 0 (S a) 0 cc::nil). 2:intros k [->|[]]; now left.
       unfold erel_findNum, erel_i. change (∀∀ ?e) with (emplace_forall 2 e).
-      eapply specialize_list with (findPairLow r (S a)::findPairHigh r (S a)::nil).
-      1:easy. apply Ctx. now left.
+      eapply specialize_list with (findPairLow cc (S a)::findPairHigh cc (S a)::nil).
+      1:easy. unfold findNum. rewrite ! chainData_0. apply Ctx. now left.
     - destruct (@h10upc_inv a b c d Habcd) as [c' [d' [Habcd' [Hc' Hd']]]].
       rewrite <- Hc', <- Hd' in *. 
       assert (h10upc_sem_direct ((d',b),(d'+b+1,d'))) as Hdb.
       1: split; [now lia|apply Habcd'].
       apply erel_findNum_II. eapply IE.
-      1: eapply Weak; [apply (@IH a c' d' r); easy + lia | now apply incl_tl].
-      apply erel_findNum_ExI. 1-4: lia. intros pab pc'd'. 
+      1: eapply Weak; [apply (@IH a c' d' h); easy + lia | now apply incl_tl].
+      apply erel_findNum_ExI. intros pab pc'd'. 
       eapply IE.
-      1: eapply Weak; [apply (@IH d' (d'+b+1) d' r); lia + easy|idtac]. 
+      1: eapply Weak; [apply (@IH d' (d'+b+1) d' h); lia + easy|idtac]. 
       1: now apply incl_appr; apply incl_tl.
-      apply erel_findNum_ExI. 1-4: lia. intros pd'b psd'.
-      apply (IE (phi:=erel_findNum a (S b) (S c') (d' + b + 1) r)).
+      apply erel_findNum_ExI. intros pd'b psd'.
+      apply (IE (phi:=erel_findNum a (S b) (S c') (d' + b + 1) cc)).
       2: apply Ctx, in_or_app; right; apply in_or_app; right; now left.
-      apply (@chain_E_rel r hv c'). 1-2:lia.
+      apply (@chain_proves_E_rel h c' cc). 1:lia.
       1: now apply incl_appr, incl_appr, incl_tl, incl_appl.
-      apply (@chain_E_rel r hv b). 1-2:lia.
+      apply (@chain_proves_E_rel h b cc). 1:lia.
       1: now apply incl_appr, incl_appr, incl_tl, incl_appl.
-      apply (@erel_findNum_H_E d' b (d' + b + 1) d' pd'b psd' r).
-      1-4: lia.
+      apply (@erel_findNum_H_E d' b (d' + b + 1) d' pd'b psd' h cc).
       1: now apply incl_appl.
-      apply (@erel_findNum_H_E a b c' d' pab pc'd' r).
-      1-4: lia.
+      apply (@erel_findNum_H_E a b c' d' pab pc'd' h cc).
       1: now apply incl_appr, incl_appl.
-      apply Weak with (iter_up r F_succ_right::nil).
-      2: cbn [map]; apply incl_appr, incl_appr, incl_tl, incl_appr; intros k [->|[]]; now left.
+      apply Weak with (F_succ_right::nil).
+      2: apply incl_appr, incl_appr, incl_tl, incl_appr; intros k [->|[]]; now left.
       unfold F_succ_right. rewrite erel_ereli.
       change (∀∀∀∀∀∀∀∀∀∀∀∀∀∀∀ ?a) with (emplace_forall 15 a).
-      erewrite iter_up_resolve_l, emplace_forall_subst.
-      erewrite ! (@rel_subst _ _ _ _ _ _ _ _ (fun k => if Dec (k < 15) then k else 15 +((r + (k - 15))))).
-      1: erewrite ! (@erel_i_subst _ _ _ _ _ _ (fun k => if Dec (k < 15) then k else 15 +((r + (k - 15))))).
-      2,4-7: intros n; destruct (Dec _); let rec f k := match k with 0 => cbn;unfold funcomp; var_eq | S ?kk => destruct n as [|n]; [cbn;(easy+exfalso;lia)|f kk] end
-           in f 15.
-      2: cbn; lia.
-      cbn -[subst_form findNum Nat.add emplace_forall].
       pose (
-        (findNum r a)
-      ::(findNum r b)
-      ::(findNum r c')
-      ::(findNum r d')
-      ::(findNum r (d'+b+1))
-      ::(findNum r (S b))
-      ::(findNum r (S c'))
+        (findNum cc a)
+      ::(findNum cc b)
+      ::(findNum cc c')
+      ::(findNum cc d')
+      ::(findNum cc (d'+b+1))
+      ::(findNum cc (S b))
+      ::(findNum cc (S c'))
       ::pab::pc'd'::pd'b::psd'
-      ::(findPairLow r (S b))::(findPairHigh r (S b))
-      ::(findPairLow r (S c'))::(findPairHigh r (S c'))::nil) as mylist.
+      ::(findPairLow cc (S b))::(findPairHigh cc (S b))
+      ::(findPairLow cc (S c'))::(findPairHigh cc (S c'))::nil) as mylist.
       eapply specialize_list with mylist.
       1:easy.
-      erewrite ! (@rel_subst _ _ _ _ _ _ _ _ (subst_list mylist)).
-      1: erewrite ! (@erel_i_subst _ _ _ _ _ _ (subst_list mylist)).
-      2,4-7: intros n; easy.
-      2: cbn; lia.
-      cbn [subst_list mylist].
-      change (15+?e) with (S(S(S(S(S(S(S(S(S(S(S(S(S(S(S e))))))))))))))).
-      apply Ctx. left. do 3 f_equal. 1-2: cbn;lia.
-      f_equal. 1-2: cbn;lia.
-      unfold erel_findNum.
-      do 2 f_equal; lia.
-    Qed.
-
-    Lemma it_up_resolve_hi a f b : it up a f (b+a) = it (subst_term ↑) a (f b).
-    Proof.
-    induction a as [|a IH].
-    - var_eq.
-    - rewrite Nat.add_succ_r. cbn. unfold funcomp. rewrite IH. easy.
-    Qed.
-
-    Lemma it_up_specialize_n n f b : (it (subst_term ↑) n $b)`[specialize_n n f] = $b.
-    Proof.
-    induction n as [|n IH] in f|-*.
-    - easy.
-    - erewrite <- IH at 2. cbn. rewrite subst_term_comp. apply subst_term_ext.
-      cbn. easy.
-    Qed.
-
-    Lemma it_up_specialize_n_resolve n f1 f2 a : (it up n f1 >> subst_term (specialize_n n f2)) a
-                                                = if Dec (a < n) then $(f2 a) else f1 (a-n).
-    Proof.
-    induction n as [|n IH] in f2,a|-*.
-    - cbn. rewrite Nat.sub_0_r. now apply subst_term_id.
-    - cbn. unfold up. fold up. destruct a as [|a].
-      + easy.
-      + cbn. unfold funcomp. rewrite subst_term_comp. unfold funcomp. cbn.
-        unfold funcomp in IH. change (fun x => ?e x) with e.
-        rewrite IH. do 2 destruct (Dec _). 2,3: exfalso;lia. all:var_eq.
+      apply Ctx. now left.
     Qed.
 
 
@@ -1111,10 +1040,9 @@ Section provability.
     pose proof (@highest_num_descr φ h10vars) as Hvars.
     fold h10max in Hvars.
     eapply (@construct_chain_at (S h10max)).
-    1:lia. 1:now apply incl_tl.
-    cbn [map]. rewrite iter_up_resolve_l, emplace_forall_subst. 
-    epose proof (@emplace_forall_elim h10vars _ (fun k => findNum (3*S h10max) (φ k))) as Hpr.
-    eapply IE. 2:eapply Hpr. 2:auto.
+    1:lia. 1:now apply incl_tl. intros cc.
+    epose proof (@emplace_forall_elim h10vars _ (fun k => findNum cc (φ k))) as Hpr.
+    eapply IE. 2:eapply Hpr. 2: apply Ctx, in_or_app; right; now left.
     eapply Weak. 2: apply incl_app; [apply incl_appl;reflexivity|apply incl_appr,incl_tl;reflexivity].
     apply II. clear Hpr.
     assert (h10vars >= S( highest_var_list h10)) as Hless.
@@ -1122,10 +1050,10 @@ Section provability.
     induction h10 as [|h h10' IHh] in Hvars,Hφ,Hless|-*.
     - apply Ctx. left. unfold translate_rec, wFalse, subst_form,Vector.map. do 3 f_equal.
       1: change(S h10vars) with (1+h10vars).
-      all: cbn [subst_term]; rewrite it_up_resolve_hi,it_up_specialize_n; var_eq. 
-    - cbn -[Nat.mul h10vars chain_at subst_form].
+      all: cbn [subst_term]; rewrite specialize_n_resolve; destruct Dec; lia + f_equal;lia.
+    - cbn -[Nat.mul h10vars chain_exists subst_form].
       apply II in IHh.
-      2: intros c Hc; apply Hφ; now right.
+      2: intros c' Hc; apply Hφ; now right.
       2: exact Hvars.
       2: cbn in Hless; lia.
       eapply IE. 1: eapply Weak. 1: exact IHh.
@@ -1134,21 +1062,19 @@ Section provability.
       eapply Weak. 2: apply incl_tl; reflexivity.
       unfold translate_single. destruct h as [[a b][c d]].
       rewrite erel_ereli. clear IHh.
-      rewrite subst_comp. 
-      unfold Not. erewrite (@erel_i_subst _ _ _ _ _ _ (fun k : nat => if Dec (k < h10vars) then findNum (3 * S h10max) (φ k) else ((k - h10vars) + 3 * S h10max))).
+      unfold Not. erewrite (@erel_i_subst _ _ _ _ _ _ (fun k : nat => if Dec (k < h10vars) then findNum cc (φ k) else ((k - h10vars)))).
       3: repeat destruct Dec; (exfalso;lia) + lia. 
-      2: intros n; rewrite it_up_specialize_n_resolve; destruct (Dec _); (exfalso;lia)+var_eq.
+      2: intros n; rewrite specialize_n_resolve; destruct (Dec _); (exfalso;lia)+var_eq.
       destruct (highest_var_descr ((a,b),(c,d))) as [Hlessa [Hlessb [Hlessc Hlessd]]]. cbn in Hless.
       do 4 (destruct Dec as [htr|hff]; [clear htr|exfalso;lia]).
       do 1 (destruct Dec; [exfalso;lia|idtac]). 
       assert (forall a,S a - a=1) as -> by (intros;lia).
       eapply Weak.
-      1: eapply (prove_single (hv:=S h10max)).
+      1: eapply (prove_single).
       + specialize (Hvars b ltac:(lia)). lia.
       + specialize (Hvars a ltac:(lia)). lia.
       + specialize (Hvars c ltac:(lia)). lia.
       + specialize (Hvars d ltac:(lia)). lia.
-      + lia.
       + apply (@Hφ ((a,b),(c,d))). now left.
       + easy.
   Qed.
@@ -1196,6 +1122,52 @@ Section kripke_validity.
   intros D I rho. apply kripke_tarski. apply H.
   Qed.
 End kripke_validity.
+
+Section satisfiability.
+  Context {h10 : list h10upc}.
+
+  Lemma satisTransport : (~ H10UPC_SAT h10) -> satis ((F (ff:=falsity_on) (h10:=h10)) --> falsity).
+  Proof.
+  intros H.
+  exists dom.
+  exists (IB (h10:=h10)).
+  exists (fun _ => Num 0).
+  intros HF. apply H. eapply IB_fulfills. easy.
+  Qed.
+
+  Lemma satisInverseTransport : satis ((F (ff:=falsity_on) (h10:=h10)) --> falsity) -> (~ H10UPC_SAT h10).
+  Proof.
+  intros [D [I [rho HF]]] H.
+  apply HF, (transport (ff:=falsity_on) H).
+  Qed.
+End satisfiability.
+
+Section ksatisfiability.
+  Context {h10 : list h10upc}.
+
+  Lemma ksatisTransport : (~ H10UPC_SAT h10) -> ksatis ((F (ff:=falsity_on) (h10:=h10)) --> falsity).
+  Proof.
+  intros H.
+  exists dom.
+  pose (kripke_tarski (ff:=falsity_on) (IB (h10:=h10))) as Hk.
+  exists (interp_kripke (IB (h10:=h10))).
+  exists tt.
+  exists (fun _ => Num 0).
+  rewrite <- Hk.
+  intros HF. apply H. eapply IB_fulfills. easy.
+  Qed.
+
+  Lemma ksatisInverseTransport : ksatis ((F (ff:=falsity_on) (h10:=h10)) --> falsity) -> (~ H10UPC_SAT h10).
+  Proof.
+  intros [D [M [u [rho HF]]]] H.
+  specialize (HF u). apply HF.
+  - apply reach_refl.
+  - apply (kripkeTransport (ff:=falsity_on) H).
+  Qed.
+End ksatisfiability.
+
+
+
 
 
 
