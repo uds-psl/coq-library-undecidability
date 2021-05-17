@@ -346,9 +346,14 @@ End iter_h10c.
 Local Hint Resolve ra_iter_h10c_prim_rec : core.
 Opaque ra_iter_h10c.
 
-Section ra_univ.
+Section ra_h10c_eval.
 
-  Let f : recalg 2.
+  (* Given a list of H10C constraints encoded using nat_h10lc
+     and a valuation phi : var (* nat *) -> nat encoded using
+     Gödel beta, test if the constraints are simultaneously
+     sastisfied or not *) 
+
+  Definition ra_h10c_eval : recalg 2.
   Proof.
     ra root ra_iter_h10c.
     + ra root ra_decomp_l.
@@ -358,16 +363,23 @@ Section ra_univ.
     + ra arg pos0.
   Defined.
 
-  Let Hf_pr : prim_rec f.
+  Fact ra_h10c_eval_pr : prim_rec ra_h10c_eval.
   Proof. ra prim rec. Qed.
+
+  Let h10c_eval := proj1_sig (prim_rec_reif _ ra_h10c_eval_pr).
+
+  Let h10c_eval_spec : forall v, ⟦ra_h10c_eval⟧ v (h10c_eval v).
+  Proof. apply (proj2_sig (prim_rec_reif _ ra_h10c_eval_pr)). Qed.
 
   Variables (lc : list h10c) (k : nat)
             (Hlc : lc = nat_h10lc k).
 
-  Let Hf_val_0 v : 
+  Hint Resolve ra_h10c_eval_pr : core.
+
+  Fact ra_h10c_eval_yes v : 
         (forall c, In c lc -> h10c_sem c (beta v))
-     -> ⟦f⟧ (v##k##vec_nil) 0.
-  Proof.
+     -> ⟦ra_h10c_eval⟧ (v##k##vec_nil) 0.
+  Proof using Hlc.
     intros H2.
     exists (decomp_l k##decomp_r k##v##vec_nil); split.
     + apply ra_iter_h10c_val_0.
@@ -385,10 +397,10 @@ Section ra_univ.
         pos split; simpl; auto.
   Qed.
  
-  Let Hf_val_1 v : 
+  Fact ra_h10c_eval_no v : 
         (exists c, In c lc /\ ~ h10c_sem c (beta v))
-     -> ⟦f⟧ (v##k##vec_nil) 1.
-  Proof.
+     -> ⟦ra_h10c_eval⟧ (v##k##vec_nil) 1.
+  Proof using Hlc.
     intros H2.
     exists (decomp_l k##decomp_r k##v##vec_nil); split.
     + apply ra_iter_h10c_val_1.
@@ -407,40 +419,83 @@ Section ra_univ.
         pos split; simpl; auto.
   Qed.
 
-  Let Hf_tot v : ⟦f⟧ (v##k##vec_nil) 0 \/ ⟦f⟧ (v##k##vec_nil) 1.
-  Proof.
+  Fact ra_h10c_eval_total v : ⟦ra_h10c_eval⟧ (v##k##vec_nil) 0 \/ ⟦ra_h10c_eval⟧ (v##k##vec_nil) 1.
+  Proof using Hlc.
     destruct (h10lc_sem_dec lc (beta v))
       as [ (c & H) | H ].
-    + right; apply Hf_val_1; exists c; auto.
-    + left; apply Hf_val_0; auto.
+    + right; apply ra_h10c_eval_no; exists c; auto.
+    + left; apply ra_h10c_eval_yes; auto.
   Qed.
 
-  Definition ra_univ : recalg 1.
-  Proof. apply ra_min, f. Defined.
+  Hint Resolve ra_h10c_eval_yes : core.
 
-  Opaque f.
+  Fact ra_h10c_eval_spec n : ⟦ra_h10c_eval⟧ (n##k##vec_nil) 0 <-> forall c, In c lc -> h10c_sem c (beta n).
+  Proof using Hlc.
+    split; auto; intros H.
+    destruct (h10lc_sem_dec lc (beta n))
+      as [ (c & H2 & H3) | ]; auto.
+    assert (exists c, In c lc /\ ~ h10c_sem c (beta n)) as H4 by eauto.
+    apply ra_h10c_eval_no in H4.
+    now generalize (ra_rel_fun _ _ _ _ H H4).
+  Qed.
 
-  Theorem ra_univ_spec : ex (⟦ra_univ⟧ (k##vec_nil)) 
-                     <-> exists φ, forall c, In c lc -> h10c_sem c φ.
-  Proof using Hf_tot.
+End ra_h10c_eval.
+
+Opaque ra_h10c_eval.
+
+Section ra_min_univ.
+
+  Variables (f : recalg 2) (Hf : prim_rec f).
+
+  Definition ra_min_univ : recalg 1.
+  Proof using f. apply ra_min, f. Defined.
+
+  Theorem ra_min_univ_spec k : 
+             ex (⟦ra_min_univ⟧ (k##vec_nil)) 
+         <-> exists n, ⟦f⟧ (n##k##vec_nil) 0.
+  Proof using Hf.
     split.
     + intros (v & Hv).
       simpl in Hv; red in Hv.
       destruct Hv as (H1 & H2).
-      destruct (h10lc_sem_dec lc (beta v))
-        as [ (c & H) | H ].
-      * assert (⟦ f ⟧ (v ## k ## vec_nil) 1) as C.
-        { apply Hf_val_1; exists c; auto. }
-        generalize (ra_rel_fun _ _ _ _ H1 C); discriminate.
-      * exists (beta v); auto.
-    + intros (phi & Hphi).
-      destruct (beta_fun_inv (h10lc_bound lc) phi)
-        as (v & Hv).
-      generalize (h10lc_bound_prop _ _ Hv); clear Hv; intros Hv.
-      apply ra_min_ex; auto.
-      exists v; simpl.
-      apply Hf_val_0.
-      intros c Hc; apply Hv; auto.
+      exists v; auto.
+    + intros (n & Hn).
+      apply ra_min_extra; eauto.
+      intros; apply prim_rec_tot; auto.
   Qed.
 
-End ra_univ.
+End ra_min_univ.
+
+Section ra_prime_seq_univ.
+
+  Variables (f : recalg 2) (Hf : prim_rec f) (n : nat).
+
+  Definition ra_prime_seq_univ : recalg 1.
+  Proof using f n.
+    ra root f.
+    + ra arg pos0.
+    + ra root (ra_cst n).
+  Defined.
+
+  Fact ra_prime_seq_univ_pr : prim_rec ra_prime_seq_univ.
+  Proof using Hf. ra prim rec. Qed.
+
+  Theorem ra_prime_seq_univ_spec : (exists k, ⟦ra_prime_seq_univ⟧ (k##vec_nil) 0)
+                               <->  exists k, ⟦f⟧ (k##n##vec_nil) 0.
+  Proof.
+    split; intros (k & Hk); exists k.
+    + destruct Hk as (v & H1 & H2).
+      generalize (H2 pos0) (H2 pos1); clear H2; rew vec.
+      revert H1.
+      vec split v with a; vec split v with b; vec nil v.
+      simpl; intros H1 <- (w & H3 & H4).
+      simpl in H3; subst; auto.
+    + exists (k##n##vec_nil); split; auto.
+      intros p; invert pos p; auto.
+      invert pos p; simpl; auto.
+      * exists vec_nil; split; simpl; auto.
+        intros p; invert pos p. 
+      * invert pos p.
+  Qed.
+
+End ra_prime_seq_univ.

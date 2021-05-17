@@ -461,14 +461,45 @@ Section relational_semantics.
       + split; try tauto; discriminate.
     Qed.
 
-    Hint Resolve ra_cst_tot ra_zero_tot ra_succ_tot ra_proj_tot ra_rec_tot : core.
+    (* Hint Resolve ra_cst_tot ra_zero_tot ra_succ_tot ra_proj_tot ra_rec_tot : core. *)
 
-    Fact prim_rec_tot k f : @prim_rec k f -> total [|f|].
+    (* Primitive recursive are Coq computable in nat^n -> nat 
+       This is an easy proof.
+
+       Total recursive are also Coq computable but that is not that easy
+     *)
+
+    Theorem prim_rec_reif k f : @prim_rec k f -> { g : vec nat k -> nat | forall v, [|f|] v (g v) }.
     Proof.
-      induction f as [ x | | | n p | n i f g Hf Hg | n f g Hf Hg | n f Hf ]; intros H; simpl in H; auto.
-      + apply ra_comp_tot; try tauto; intros; apply Hg, H.
-      + apply ra_rec_tot; tauto.
-      + tauto.
+      induction f as [ x | | | n p | n i f g Hf Hg | n f g Hf Hg | n f Hf ]; intros H; simpl in H.
+      + exists (fun _ => x); intros; cbv; auto.
+      + exists (fun _ => 0); intros; cbv; auto.
+      + exists (fun v => S (vec_head v)); intro; reflexivity.
+      + exists (fun v => vec_pos v p); intro; reflexivity.
+      + destruct H as [H1 H2].
+        destruct (Hf H1) as (f1 & Hf1).
+        specialize (fun p => Hg p (H2 p)).
+        apply vec_reif_t in Hg as (g1 & Hg1).
+        exists (fun v => f1 (vec_set_pos (fun p => vec_pos g1 p v))).
+        intros v; simpl; red.
+        exists (vec_set_pos (fun p => vec_pos g1 p v)); split; auto.
+        intro; rew vec.
+      + destruct H as [H1 H2].
+        destruct (Hf H1) as (f1 & Hf1).
+        destruct (Hg H2) as (g1 & Hg1).
+        set (r := fix r i v := match i with 0 => f1 v | S i => g1 (i##r i v##v) end).
+        exists (fun v => r (vec_head v) (vec_tail v)).
+        intros v; vec split v with i; simpl; red; simpl.
+        induction i as [ | i IHi ]; simpl; auto.
+        exists (r i v); auto.
+      + exfalso; tauto.
+    Qed.
+
+    Corollary prim_rec_tot k f : @prim_rec k f -> total [|f|].
+    Proof.
+      intros H.
+      destruct prim_rec_reif with (1 := H) as (g & Hg).
+      intro; eexists; eauto.
     Qed.
 
   End prim_rec.
