@@ -195,6 +195,16 @@ Proof.
   + apply MUREC_MM_HALTING.
 Qed.
 
+Check Hilberts_Tenth_entire_chain.
+(* We check no axioms are hidden in the proof, this takes quite some time *)
+Print Assumptions Hilberts_Tenth_entire_chain.
+
+Theorem Hilberts_Tenth_from_PCP : dPCPb ⪯ H10.
+Proof.
+  do 6 (eapply reduces_transitive; [ apply Hilberts_Tenth_entire_chain | ]).
+  apply reduces_reflexive.
+Qed.
+
 (* The solvability of a single diophantine equation 
    with 0 parameters. A direct definition for the
    case of relative integers *)
@@ -205,5 +215,8 @@ Print H10Z.dp_eval.
 Print H10Z.
 
 Check H10_H10Z.
+(* We check no axioms are hidden in the proof, this takes quite some time *)
+Print Assumptions H10_H10Z.
+
 
  
