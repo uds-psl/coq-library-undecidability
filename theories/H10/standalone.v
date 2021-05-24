@@ -122,7 +122,8 @@ Fixpoint poly_eval (φ : U -> nat) p :=
   end
 where "⟦ p ⟧ φ" := (poly_eval φ p).
 
-Definition H10nat (I : poly*poly) := let (p,q) := I in exists φ, ⟦p⟧ φ = ⟦q⟧ φ.
+(* A polynomial equation e : p = q is a pair (p,q) of poly *)
+Definition H10nat (e : poly*poly) := let (p,q) := e in exists φ, ⟦p⟧ φ = ⟦q⟧ φ.
 
 Section H10_H10nat.
 
