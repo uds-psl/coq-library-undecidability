@@ -20,17 +20,37 @@
    Both BPCP and H10nat are straightforward to implement, 
    as explained below. The library versions dBPCb and H10 may 
    be more elaborate because they need to cover more use cases 
-   than just this result.
+   than just this result. Of course the proof of the reduction 
+   itself is not trivial at all and in here we only provide
+   the reductions easy BPCPd ⪯ₘ dPCPb and H10 ⪯ₘ H10nat
+   as translation layers, and otherwise use the reduction
+   chain dPCPb ⪯ₘ .... ⪯ₘ H10 from summary.v for the 
+   hard part.
 
    We also give a standalone definition of many-one reductions
-   and show that it matches the library definition.
+   and show that it matches exactly the library definition.
 
    Notice that we do not have such "straightforward" definitions
    for Turing machines or Minsky machines or µ-recursive functions.
 
    We think the two problems BPCP and H10nat are critical/central
    enough to show that we do not hide anything under the carpet
-   of deeply nested definitions.
+   of deeply nested definitions. The command "Print Assumptions"
+   checks that no axioms or missing proofs or proof holes are 
+   involved.
+
+   The purist might notice that we still assume some
+   definitions from the Bool, Arith and List modules
+   of the Standard Library of Coq, which we take for 
+   granted instead of reproducing them here:
+
+   Bool: bool
+   Arith: "nat", "plus/+" and "mult/*"
+   List: "list", "In/∈" and "app/++" 
+
+   If you are unfamiliar with those, then BPCP and H10nat 
+   might not be so straightforward after all...
+
 *)
 
 Require Import Arith List Lia.
