@@ -20,7 +20,7 @@ followed by either:
    * `BPCP`: the _Post correspondence problem_ for Boolean strings;
    * `H10nat`: solvability of single polynomial equation over natural numbers.
 
-Both of these commands should take considerably less time than the >30min necessary for the full build of the library.
+Any of the above two `make` commands should take considerably less time than the >30min necessary for the full build of the library.
 
 Notice that the files [`H10/summary.v`](theories/H10/summary.v) and [`H10/standalone.v`](theories/H10/standalone.v)
 are specific to this release and are not included in the `coq-8.13` branch of the Coq Library of Undecidability Proofs.
