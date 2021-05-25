@@ -12,8 +12,10 @@ However, to _save some time_, the final build with `make all` can be replaced by
 
 followed by either:
 
-- `make H10/summary.vo` to only compile the files relevant for the paper;
-- `make H10/standalone.vo` which subsumes `summary.vo` but moreover contains a _standalone statement_ 
+- `make H10/summary.vo` to only compile the files relevant for the paper. The `summary.v` file gives
+   a high-level view of all the many-one reductions described in the paper together with pointers
+   to the relevant definitions;
+- `make H10/standalone.vo` which imports `summary.vo` but moreover contains a _standalone statement_ 
    (preceded with all the relevant definitions) for the many-one reduction from `BPCP` to `H10nat`:
    * `BPCP`: the _Post correspondence problem_ for Boolean strings;
    * `H10nat`: solvability of single polynomial equation over natural numbers.
