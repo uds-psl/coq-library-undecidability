@@ -1,6 +1,23 @@
-# Specific Instructions regarding the "Trakthenbrot's Theorem in Coq" Paper
+# Specific Instructions regarding the "Hilbert Tenth problem in Coq" Paper
 
-The code accompanying this paper is part of the Coq Library of Undecidability Proofs and depends on some library files. Therefore it is necessary to clone and checkout this branch and install the whole library following the [__Manual installation__](#manual-installation) instructions below. However, to _save some time_, the final build with `make all` can be replaced by `make TRAKHTENBROT/summary.vo` from inside the `theories` folder to only compile the files relevant for the paper. This command should take about 5min instead of >30min for the full build.
+The code accompanying this paper is part of the [Coq Library of Undecidability Proofs](https://github.com/uds-psl/coq-library-undecidability)
+in the branch [`coq-8.13`](https://github.com/uds-psl/coq-library-undecidability/tree/coq-8.13), library which depends on some external library files
+([Equations](https://mattam82.github.io/Coq-Equations/) and [MetaCoq](https://metacoq.github.io/metacoq/)). Therefore it is necessary to 
+clone and checkout this release and install the whole library following the [__Manual installation__](#manual-installation) instructions 
+below. 
+
+However, to _save some time_, the final build with `make all` can be replaced `cd theories` followed by either:
+
+- `make H10/summary.vo` to only compile the files relevant for the paper;
+- `make H10/standalone.vo` which subsumes `summary.vo` but contains a _standalone statement_ 
+   (ie preceded with all the relevant definitions) for the many-one reduction:
+   * from `BPCP`: the _Post correspondence problem_ for Boolean strings;
+   * to `H10nat`: solvability of single polynomial equation over natural numbers.
+
+Both of these command should take much less time than the >30min necessary for the full build.
+
+Notice that the files [`H10/summary.v`](theories/H10/summary.v) and [`H10/standalone.v`](theories/H10/standalone.v)
+are specific to this release and are not included in the `coq-8.13` branch of the Coq Library of Undecidability Proofs.
 
 # Coq Library of Undecidability Proofs
 
