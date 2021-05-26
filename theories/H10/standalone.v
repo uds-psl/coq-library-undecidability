@@ -22,7 +22,7 @@
    be more elaborate because they need to cover more use cases 
    than just this result. Of course the proof of the reduction 
    itself is not trivial at all and in here we only provide
-   the reductions easy BPCPd ⪯ₘ dPCPb and H10 ⪯ₘ H10nat
+   the easy reductions BPCPd ⪯ₘ dPCPb and H10 ⪯ₘ H10nat
    as translation layers, and otherwise use the reduction
    chain dPCPb ⪯ₘ .... ⪯ₘ H10 from summary.v for the 
    hard part.
@@ -130,7 +130,7 @@ Section H10_H10nat.
   (* The reduction from 
        - H10 as defined in the library, unknowns ranging over pos n
          and parameters over the empty type pos 0
-       - H10nat as defined above, unknows ranging over U/nat 
+       - H10nat as defined above, unknowns ranging over U/nat 
          and without parameters *)
 
   Section dp2p.
@@ -152,7 +152,7 @@ Section H10_H10nat.
 
     Hypothesis Hφψ : valuations_match. 
 
-    Fact dp2p_spec p ν : dp_eval φ ν p = ⟦dp2p p⟧ ψ.
+    Local Fact dp2p_spec p ν : dp_eval φ ν p = ⟦dp2p p⟧ ψ.
     Proof.
       induction p as [ | | a | [] ]; simpl; auto.
       invert pos a.
