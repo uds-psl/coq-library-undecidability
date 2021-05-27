@@ -259,7 +259,7 @@ Section ra_h10c.
 
 End ra_h10c.
 
-Hint Resolve ra_h10c_prim_rec ra_h10c_val : core.
+Local Hint Resolve ra_h10c_prim_rec ra_h10c_val : core.
 Opaque ra_h10c.
 
 Section iter_h10c.
@@ -343,7 +343,7 @@ Section iter_h10c.
 
 End iter_h10c.
 
-Hint Resolve ra_iter_h10c_prim_rec : core.
+Local Hint Resolve ra_iter_h10c_prim_rec : core.
 Opaque ra_iter_h10c.
 
 Section ra_univ.

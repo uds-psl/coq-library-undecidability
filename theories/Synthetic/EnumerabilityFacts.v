@@ -114,7 +114,7 @@ Lemma enumerator_enumerable {X} {f} :
 Proof.
   intros H. exists f. eapply H.
 Qed.
-Hint Resolve enumerator_enumerable : core.
+#[export] Hint Resolve enumerator_enumerable : core.
 
 Existing Instance enumerator__T_prod.
 Existing Instance enumerator__T_option.

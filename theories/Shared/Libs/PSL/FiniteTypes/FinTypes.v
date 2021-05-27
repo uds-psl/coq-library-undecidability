@@ -23,7 +23,7 @@ Existing Instance class | 0.
 
 
 (* This is a hack to work-around a problem with a class of hacks *)
-Hint Extern 5 (finTypeC (EqType ?x)) => unfold x : typeclass_instances.
+#[export] Hint Extern 5 (finTypeC (EqType ?x)) => unfold x : typeclass_instances.
 
 Canonical Structure finType_CS (X : Type) {p : eq_dec X} {class : finTypeC (EqType X)} : finType := FinType (EqType X).
 
@@ -31,22 +31,22 @@ Canonical Structure finType_CS (X : Type) {p : eq_dec X} {class : finTypeC (EqTy
 Arguments finType_CS (X) {_ _}.
 
 Definition elem (F: finType) := @enum (type F) (class F).
-Hint Unfold elem : core.
-Hint Unfold class : core.
+#[export] Hint Unfold elem : core.
+#[export] Hint Unfold class : core.
 
 Lemma elem_spec (X: finType) (x:X) : x el (elem X).
 Proof.
   apply countIn.  pose proof (enum_ok x) as H. unfold elem. lia. 
 Qed.
 
-Hint Resolve elem_spec : core.
-Hint Resolve enum_ok : core.
+#[export] Hint Resolve elem_spec : core.
+#[export] Hint Resolve enum_ok : core.
 
 Lemma allSub (X: finType) (A:list X) : A <<= elem X.
 Proof.
   intros x _. apply elem_spec.
 Qed.
-Hint Resolve allSub : core.
+#[export] Hint Resolve allSub : core.
 
 (* A properties that hold on every element of (elem X) hold for every element of the finType X *)
 Theorem Equivalence_property_all (X: finType) (p: X -> Prop) :

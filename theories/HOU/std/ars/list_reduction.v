@@ -175,13 +175,13 @@ End ListRelations.
 
 
 
-Hint Constructors lstep : core.
+#[export] Hint Constructors lstep : core.
 
-Hint Resolve
+#[export] Hint Resolve
      lstep_normal_nil
      lstep_normal_cons_l
      lstep_normal_cons_r
      lstep_normal_cons : core.
 
-Hint Resolve confluence_lstep : core.
-Hint Resolve normal_lstep_in normal_in_lstep : core.
+#[export] Hint Resolve confluence_lstep : core.
+#[export] Hint Resolve normal_lstep_in normal_in_lstep : core.

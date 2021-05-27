@@ -115,8 +115,7 @@ Section FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
   Variable (Σ : fo_signature) (HΣ : finite_t (syms Σ) + discrete (syms  Σ)).
 
   Theorem FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT :
-          @fo_form_fin_discr_dec_SAT Σ
-              ⪯ᵢ @fo_form_fin_dec_eq_SAT (Σnosyms Σ) (inl tt) eq_refl.
+          FSAT' Σ ⪯ᵢ @FSATEQ (Σnosyms Σ) (inl tt) eq_refl.
   Proof.
     destruct HΣ as [ (l & Hl) | H ].
     - exists (fun A => Σsyms_Σnosyms l A).
@@ -228,7 +227,7 @@ Proof.
 Qed.
 
 Theorem FIN_DISCR_DEC_nSAT_FIN_DEC_2SAT n : 
-       @fo_form_fin_discr_dec_SAT (Σrel n) ⪯ᵢ @fo_form_fin_dec_SAT (Σrel 2).
+       FSAT' (Σrel n) ⪯ᵢ FSAT (Σrel 2).
 Proof.
   exists (@Σn_Σ2_enc n); intros A; split.
   + apply SATn_SAT2.

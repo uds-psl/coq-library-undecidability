@@ -57,7 +57,7 @@ Ltac atom :=
   | [ |- isAtom _] => cbn in *; intuition
   end.    
 
-Hint Extern 4 => syn : core. 
+#[export] Hint Extern 4 => syn : core. 
 
 
 
@@ -126,7 +126,7 @@ Section ApplicativeHead.
 
 End ApplicativeHead.
 
-Hint Resolve atom_var var_head atom_head : core.
+#[export] Hint Resolve atom_var var_head atom_head : core.
 
 
 (* ** Type Functions *)
@@ -284,7 +284,7 @@ Section FreeVariables.
 End FreeVariables.
 
 
-Hint Constructors varof : core.
-Hint Resolve varof_vars vars_varof : core.
+#[export] Hint Constructors varof : core.
+#[export] Hint Resolve varof_vars vars_varof : core.
         
 

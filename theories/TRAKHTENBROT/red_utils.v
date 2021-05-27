@@ -7,15 +7,18 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Bool Lia Eqdep_dec.
+Require Import List.
 
-Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.ReducibilityFacts.
-Require Import Undecidability.Synthetic.InformativeDefinitions Undecidability.Synthetic.InformativeReducibilityFacts.
+From Undecidability.Synthetic
+  Require Import Definitions 
+                 ReducibilityFacts 
+                 InformativeDefinitions 
+                 InformativeReducibilityFacts.
 
 From Undecidability.PCP Require Import PCP.
 
 From Undecidability.Shared.Libs.DLW.Utils
-  Require Import utils_tac utils_list utils_nat finite.
+  Require Import utils_tac utils_list finite.
 
 From Undecidability.Shared.Libs.DLW.Vec 
   Require Import pos vec.
@@ -59,12 +62,7 @@ Qed.
 
     The reduction is the identity here !! *)
 
-Definition FSAT := @fo_form_fin_dec_SAT.
-
-Arguments FSAT : clear implicits.
-
-Theorem fo_form_fin_dec_SAT_discr_equiv Σ A : 
-    @fo_form_fin_dec_SAT Σ A <-> @fo_form_fin_discr_dec_SAT Σ A.
+Theorem fo_form_fin_dec_SAT_discr_equiv Σ A : FSAT Σ A <-> FSAT' Σ A.
 Proof.
   split.
   + apply fo_form_fin_dec_SAT_fin_discr_dec.
@@ -74,7 +72,7 @@ Qed.
 (* Check fo_form_fin_dec_SAT_discr_equiv.
 Print Assumptions fo_form_fin_dec_SAT_discr_equiv. *)
 
-Corollary FIN_DEC_SAT_FIN_DISCR_DEC_SAT Σ : FSAT Σ ⪯ᵢ @fo_form_fin_discr_dec_SAT Σ.
+Corollary FIN_DEC_SAT_FIN_DISCR_DEC_SAT Σ : FSAT Σ ⪯ᵢ FSAT' Σ.
 Proof. exists (fun A => A); red; apply fo_form_fin_dec_SAT_discr_equiv. Qed.
 
 (* Check FIN_DEC_SAT_FIN_DISCR_DEC_SAT.
@@ -92,7 +90,7 @@ Section FIN_DEC_EQ_SAT_FIN_DEC_SAT.
 
   Variable (Σ : fo_signature) (e : rels Σ) (He : ar_rels _ e = 2).
 
-  Theorem FIN_DEC_EQ_SAT_FIN_DEC_SAT : fo_form_fin_dec_eq_SAT e He ⪯ᵢ  FSAT Σ.
+  Theorem FIN_DEC_EQ_SAT_FIN_DEC_SAT : FSATEQ e He ⪯ᵢ FSAT Σ.
   Proof.
     exists (fun A => Σ_noeq (fol_syms A) (e::fol_rels A) _ He  A).
     intros A; split.

@@ -169,7 +169,7 @@ Proof.
   - intuition;now apply H1.
   - exists (lam Omega). split. Lproc. intros [_ A]. eapply lamOmega; eauto. 
   - exists (lam I). repeat split;try Lproc. intros t; eexists; split; [|eexists;reflexivity]. now Lsimpl.
-Grab Existential Variables. repeat econstructor. 
+Unshelve. repeat econstructor. 
 Qed.
 
 Goal ~ lacc (fun s => proc s /\ exists t, ~ pi s t).

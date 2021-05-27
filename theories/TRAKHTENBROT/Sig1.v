@@ -37,6 +37,8 @@ Section Σ1_model.
   Defined.
 
   Variable (X : Type) (M : fo_model ΣP1 X) (HX : finite_t X) (Mdec : fo_model_dec M).
+
+  (* We simulate X with a model over bool^n -> bool *)
  
   Let f p (x : X) := if Mdec (r := p) (x##ø) then true else false.
 
@@ -62,7 +64,7 @@ Section Σ1_model.
   Let Kf x : K (vec_set_pos (fun p => f p x)) = true.
   Proof. 
     apply HK; exists x; intros; rew vec. 
-  Qed. 
+  Qed.
 
   Let M' : fo_model ΣP1 (sig (fun v => K v = true)).
   Proof.
@@ -72,7 +74,7 @@ Section Σ1_model.
       exact (vec_pos (proj1_sig (vec_head v)) p = true).
   Defined.
 
-  Let R : @fo_simulation ΣP1 (nil) (pos_list n) _ M _ M'.
+  Let R : @fo_simulation ΣP1 nil (pos_list n) _ M _ M'.
   Proof.
     exists (fun x v => forall p, f p x = vec_pos (proj1_sig v) p).
     + intros s; destruct (HV s).
@@ -122,11 +124,11 @@ End Σ1_model.
     a model over base type X which is a decidable subtype of bool^n
     where n bound the number of unary predicates *)
 
-Theorem ΣP1_model_bounded n V (A : fol_form (ΣP1 V n)) :
+Theorem Monadic_model_bounded n V (A : fol_form (ΣP1 V n)) :
            (V -> False)
         -> fo_form_fin_dec_SAT A
-        -> exists (Q : vec bool n -> bool),
-                  fo_form_fin_dec_SAT_in A (sig (fun v => Q v = true)).
+        -> exists (b : vec bool n -> bool),
+                  fo_form_fin_dec_SAT_in A (sig (fun v => b v = true)).
 Proof.
   intros HV (X & M & H1 & H2 & phi & H3).
   destruct bounded_model with (1 := HV) (4 := H3)
@@ -161,7 +163,7 @@ Proof.
     destruct H as (P & HP).
     exists { v | P v = true }; auto.
   + right; intros (X & HX).
-    apply H, ΣP1_model_bounded; auto; exists X; auto.
+    apply H, Monadic_model_bounded; auto; exists X; auto.
 Qed.
 
     

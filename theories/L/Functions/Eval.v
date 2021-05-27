@@ -1,4 +1,4 @@
-From Undecidability.L Require Export Functions.Subst Computability.Seval Computability.MuRec Datatypes.LOptions.
+From Undecidability.L Require Export Functions.Subst Computability.Seval Computability.MuRec Datatypes.LOptions Datatypes.LTerm.
 
 (* ** Extracted step-indexed L-interpreter *)
 

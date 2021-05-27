@@ -38,8 +38,8 @@ Global Arguments extTCorrect {X} ty x {_ computableTime} : simpl never.
 Definition evalTime X ty x evalTime (computableTime : @computableTime X ty x evalTime):=evalTime.
 Global Arguments evalTime {X} {ty} x {evalTime computableTime}.
 
-Hint Extern 3 (@extracted ?t ?f) => let ty := constr:(_ : TT t) in notypeclasses refine (extT (ty:=ty) f) : typeclass_instances.
-Hint Mode computableTime + - + -: typeclass_instances. (* treat argument as input and force evar-freeness*)
+#[export] Hint Extern 3 (@extracted ?t ?f) => let ty := constr:(_ : TT t) in notypeclasses refine (extT (ty:=ty) f) : typeclass_instances.
+#[export] Hint Mode computableTime + - + -: typeclass_instances. (* treat argument as input and force evar-freeness*)
 
 (* A Notation to allow inference of the TT parameter for function types. Coq checks that functions only appear at positions where functions are allowed before it inferes holes, so t complains that f "is a product while it is expected to be '@timeComplexity (forall _ : _, _) ?ty'". *)
 Notation "'computableTime'' f" := (@computableTime _ ltac:(let t:=type of f in refine (_ : TT t);exact _) f) (at level 0,only parsing).
@@ -74,7 +74,7 @@ Proof.
   intros H I. eexists (extT x). destruct I. eapply computesTime_computes_intern. all:eauto.
 Defined. (* because ? *)
 
-Hint Extern 10 (@computable ?t ?ty ?f) =>
+#[export] Hint Extern 10 (@computable ?t ?ty ?f) =>
 (solve [let H:= fresh "H" in eassert (H : @computableTime t ty f _) by exact _;
                         ( (exact (computableTime_computable (ty:=ty) Logic.I H))|| idtac "Can not derive computable instance from computableTime for higher-order-function" f)]): typeclass_instances.
 
@@ -207,7 +207,7 @@ Defined. (* because ? *)
 Fixpoint changeResType_TimeComplexity t1 (tt1 : TT t1) Y {R: registered Y} {struct tt1}:
   forall (fT: timeComplexity t1) , @timeComplexity _ (projT2 (changeResType tt1 (TyB Y))):= (
   match tt1 with
-    @TyB t1 tt1 => fun fT => fT
+    @TyB t1 _ => fun fT => fT
   | TyArr _ _ tt11 tt12 => fun fT x xT => (fst (fT x xT),changeResType_TimeComplexity (snd (fT x xT)))
   end).
 

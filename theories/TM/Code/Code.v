@@ -13,17 +13,17 @@ Class codable (sig: Type) (X: Type) := {
 Arguments encode {sig} {X} {_}.
 
 (* either the type or the alphabet must be know at head: *)
-Hint Mode codable - ! : typeclass_instances.
-Hint Mode codable ! - : typeclass_instances.
+#[export] Hint Mode codable - ! : typeclass_instances.
+#[export] Hint Mode codable ! - : typeclass_instances.
 
 (* right side must be fully known, left side at head *)
-Hint Mode Retract ! + : typeclass_instances.
+#[export] Hint Mode Retract ! + : typeclass_instances.
 
 (* (* Both sides must be known at head. *)
-Hint Mode Retract ! - : typeclass_instances.
-Hint Mode Retract - ! : typeclass_instances. *)
+#[export] Hint Mode Retract ! - : typeclass_instances.
+#[export] Hint Mode Retract - ! : typeclass_instances. *)
 
-Hint Extern 4 (codable (FinType(EqType ?sigX)) ?X) => cbn : typeclass_instances.
+#[export] Hint Extern 4 (codable (FinType(EqType ?sigX)) ?X) => cbn : typeclass_instances.
 
 (* We often use the above coercion to write [cX x] instead of [encode x], because [encode x] can be ambigious, see [Encode_map] *)
 Coercion encode : codable >-> Funclass.
@@ -278,7 +278,7 @@ Section Encode_sum.
 End Encode_sum.
 
 Arguments sigSum_inl {sigX sigY}. Arguments sigSum_inr {sigX sigY}. Arguments sigSum_X {sigX sigY}. Arguments sigSum_Y {sigX sigY}.
-Hint Extern 4 (finTypeC (EqType (sigSum _ _))) => eapply sigSum_fin : typeclass_instances.
+#[export] Hint Extern 4 (finTypeC (EqType (sigSum _ _))) => eapply sigSum_fin : typeclass_instances.
 (* Check FinType (EqType (sigSum bool bool)). *)
 
 
@@ -359,7 +359,7 @@ End Encode_pair.
 
 Arguments sigPair_X {sigX sigY}. Arguments sigPair_Y {sigX sigY}.
 
-Hint Extern 4 (finTypeC (EqType (sigPair _ _))) => eapply sigPair_fin : typeclass_instances.
+#[export] Hint Extern 4 (finTypeC (EqType (sigPair _ _))) => eapply sigPair_fin : typeclass_instances.
 (* Check FinType (EqType (sigPair bool bool)). *)
 
 
@@ -428,7 +428,7 @@ End Encode_option.
 Arguments sigOption_Some {sigX}. Arguments sigOption_None {sigX}. Arguments sigOption_X {sigX}.
 
 
-Hint Extern 4 (finTypeC (EqType (sigOption _))) => eapply sigOption_fin : typeclass_instances.
+#[export] Hint Extern 4 (finTypeC (EqType (sigOption _))) => eapply sigOption_fin : typeclass_instances.
 (* Check FinType (EqType (sigOption bool)). *)
 
 
@@ -625,7 +625,7 @@ End Encode_list.
 
 Arguments sigList_nil {sigX}. Arguments sigList_cons {sigX}. Arguments sigList_X {sigX}.
 
-Hint Extern 4 (finTypeC (EqType (sigList _))) => eapply sigList_fin : typeclass_instances.
+#[export] Hint Extern 4 (finTypeC (EqType (sigList _))) => eapply sigList_fin : typeclass_instances.
 (* Check FinType(EqType (sigList bool)). *)
 
 

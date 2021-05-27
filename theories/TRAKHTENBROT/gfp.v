@@ -200,7 +200,7 @@ Section gfp.
 
   Variable HF6 : finite_t M.     (* Finiteness of the domain *)
 
-  (* When M is finite, there is a list [T1;...;Tk] of relations of
+  (** When M is finite, there is a list [T1;...;Tk] of relations of
       type M -> M -> Prop which contains every weakly decidable relations 
       upto equivalence. 
 

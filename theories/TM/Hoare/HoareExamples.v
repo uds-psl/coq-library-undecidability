@@ -509,10 +509,10 @@ Lemma Add_Loop_Spec (a b : nat) :
          Add_Loop
          (fun _ => ≃≃([], [|Contains _ (a+b); Contains _ 0|])).
 Proof.
-  eapply While_SpecReg with
+  refine (While_SpecReg
       (P := fun '(a,b) => (_,_))
       (Q := fun '(a,b) y => (_,_)) (* to be instantiated by the first proof obligation *) 
-      (R := fun '(a,b) y => (_,_)) (x := (a,b)).
+      (R := fun '(a,b) y => (_,_)) _ _ ((a,b))).
   - intros (x,y). eapply Add_Step_Spec. (* Instantiate correctness of [AddStep] *)
   - intros (x,y);cbn. split.
    +intros []. destruct y; intros [=]. 

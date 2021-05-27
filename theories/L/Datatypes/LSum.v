@@ -28,7 +28,7 @@ Section Fix_XY.
   
 End Fix_XY.
 
-Hint Resolve sum_enc_correct : Lrewrite.
+#[export] Hint Resolve sum_enc_correct : Lrewrite.
 
 Lemma size_sum X Y `{registered X} `{registered Y} (l: X + Y):
   size (enc l) = match l with inl x => size (enc x) + 5 | inr x => size (enc x) + 4 end.

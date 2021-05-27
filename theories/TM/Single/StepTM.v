@@ -1,5 +1,9 @@
 (* From Undecidability Require Import Combinators.Combinators Multi Basic.Mono TMTac. *)
-From Undecidability.TM Require Import ProgrammingTools.
+Require Export Undecidability.TM.Code.CodeTM Undecidability.TM.Code.ChangeAlphabet.
+Require Export Undecidability.TM.Compound.TMTac Undecidability.TM.Compound.MoveToSymbol.
+Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
+(* the above imports sidestep the import of ProgrammingTools below to avoid the dependency on Hoare *)
+(*From Undecidability.TM Require Import ProgrammingTools.*)
 From Undecidability Require Import ArithPrelim.
 From Undecidability Require Import TM.Compound.Shift.
 From Undecidability Require Import TM.Util.VectorPrelim.

@@ -1,4 +1,8 @@
-From Undecidability.TM Require Import ProgrammingTools.
+Require Export Undecidability.TM.Code.CodeTM Undecidability.TM.Code.ChangeAlphabet.
+Require Export Undecidability.TM.Compound.TMTac.
+Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
+(* the above imports sidestep the import of ProgrammingTools below to avoid the dependency on Hoare *)
+(*From Undecidability.TM Require Import ProgrammingTools.*)
 From Undecidability Require Import ArithPrelim.
 Require Import Undecidability.Shared.FinTypeEquiv Undecidability.Shared.FinTypeForallExists.
 
@@ -241,7 +245,7 @@ Proof.
   induction l in x, t |- *.
   - reflexivity.
   - cbn [length plus]. rewrite Nat_iter_S'.
-    rewrite WriteString_Fun_eq. rewrite IHl. clear. 
+    rewrite WriteString_Fun_eq. setoid_rewrite IHl. clear. 
     destruct t; cbn.
     + now rewrite skipn_nil.
     + reflexivity.

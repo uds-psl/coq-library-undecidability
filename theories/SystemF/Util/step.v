@@ -21,7 +21,7 @@ Inductive step : term -> term -> Prop :=
 Inductive sn x : Prop :=
 | SNI : (forall y, step x y -> sn y) -> sn x.
 
-Hint Constructors step normal_form head_form : core.
+Local Hint Constructors step normal_form head_form : core.
 
 Require Import Coq.Relations.Relation_Operators.
 

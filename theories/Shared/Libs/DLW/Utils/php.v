@@ -131,6 +131,13 @@ Section pigeon_list.
   Proof. inversion 1; subst; auto. Qed.
 
   Definition list_has_dup_cons_inv := list_hd_cons_inv.
+
+  Fact list_has_dup_cons_iff x l : list_has_dup (x::l) <-> In x l \/ list_has_dup l.
+  Proof.
+    split.
+    + apply list_hd_cons_inv.
+    + intros []; [ constructor 1 | constructor 2 ]; auto.
+  Qed.
   
   Fact list_has_dup_app_left l m : list_has_dup m -> list_has_dup (l++m).
   Proof. induction l; simpl; auto; constructor 2; auto. Qed.
@@ -158,6 +165,9 @@ Section pigeon_list.
         - apply in_list_hd0; right; auto.
         - do 2 apply in_list_hd1; auto.
   Qed.
+
+  Fact list_has_dup_swap x y l : list_has_dup (x::y::l) -> list_has_dup (y::x::l).
+  Proof. apply perm_list_has_dup; constructor. Qed.
 
   Fact list_has_dup_app_inv l m : list_has_dup (l++m) -> list_has_dup l 
                                                       \/ list_has_dup m 

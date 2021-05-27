@@ -410,7 +410,7 @@ Proof.
               eapply vec_pos_gt.
               rewrite pos2nat_nat2pos. lia.
         -- assert (S c0 - (n0 - min) = c0 - (n0 - S min)) by lia. rewrite H1. eassumption.
-           Grab Existential Variables. exact vec_zero.
+           Unshelve. exact vec_zero.
 Qed.
 
 Require Import Undecidability.L.Reductions.MuRec.MuRec_extract.

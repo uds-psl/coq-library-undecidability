@@ -158,7 +158,7 @@ Arguments Custom {sig}.
 Arguments Void {sig}.
 Arguments Void_size {sig}.
 Arguments dummy_sizes : simpl never.
-Hint Resolve tspec_single_Contains_size_Contains : core.
+#[export] Hint Resolve tspec_single_Contains_size_Contains : core.
 
 
 Declare Scope spec_scope.
@@ -250,7 +250,7 @@ Lemma tspec_not_SpecFalse_withSpace {sig : Type} {n : nat} (t : tapes (boundary+
 Proof. cbn. tauto. Qed.
 
 
-Hint Immediate Triple_SpecFalse TripleT_SpecFalse : core.
+#[export] Hint Immediate Triple_SpecFalse TripleT_SpecFalse : core.
 *)
 
 
@@ -267,7 +267,7 @@ Lemma tspec_SpecTrue_withSpace {sig : finType} {n : nat} (t : tapes sig^+ n) (ss
   t ≃≃ withSpace SpecTrue ss.
 Proof. cbn. intros i. unfold tspec_single, SpecTrue. now rewrite nth_map2', Vector.const_nth. Qed.
 
-Hint Immediate tspec_SpecTrue tspec_SpecTrue_withSpace : core.
+#[export] Hint Immediate tspec_SpecTrue tspec_SpecTrue_withSpace : core.
 
 
 Lemma Triple_SpecTrue {sig : finType} {n : nat} {F : Type} (pM : pTM sig^+ F n) P :
@@ -276,7 +276,7 @@ Proof. eapply Consequence_post. apply Triple_True. auto. Qed.
 
 
 
-Hint Extern 4 =>
+#[export] Hint Extern 4 =>
      lazymatch goal with
      | [H : _ ≃≃ SpecFalse |- _] => exfalso; now eapply tspec_not_SpecFalse in H
      | [H : _ ≃≃ withSpace SpecFalse _ |- _] => exfalso; now eapply tspec_not_SpecFalse_withSpace in H

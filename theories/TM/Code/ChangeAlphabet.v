@@ -249,7 +249,7 @@ Section MapCode.
 
 End MapCode.
 
-Hint Unfold surjectTape surjectTapes injectTape : tape.
+#[export] Hint Unfold surjectTape surjectTapes injectTape : tape.
 
 (* This makes sure that we can apply the above lemmas ([contains_translate_sig], [contains_translate_tau1], [contains_translate_tau2]), even after [cbn] *)
 Arguments Retract_plus : simpl never.

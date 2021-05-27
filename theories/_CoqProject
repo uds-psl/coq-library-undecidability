@@ -225,6 +225,9 @@ FOL/binFOL.v
 FOL/binFOL_undec.v
 FOL/PA.v
 FOL/PA_undec.v
+FOL/FSAT.v
+FOL/FSAT_undec.v
+
 FOL/Util/Syntax.v
 FOL/Util/Syntax_facts.v
 FOL/Util/Tarski.v
@@ -251,6 +254,16 @@ FOL/Reductions/PCPb_to_minZFeq.v
 FOL/Reductions/PCPb_to_binZF.v
 FOL/Reductions/PCPb_to_ZFeq.v
 FOL/Reductions/H10p_to_FA.v
+
+FOL/Reductions/FSATd_to_FSATdc.v
+FOL/Reductions/TRAKHTENBROT_to_FSAT.v
+
+SeparationLogic/MSL.v
+SeparationLogic/SL.v
+SeparationLogic/Reductions/MSLSAT_to_SLSAT.v
+SeparationLogic/Reductions/FSATdc_to_MSLSAT.v
+SeparationLogic/MSL_undec.v
+SeparationLogic/SL_undec.v
 
 MinskyMachines/MMA.v            
 
@@ -469,7 +482,7 @@ TM/Hoare/HoareCombinators.v
 TM/Hoare/HoareRegister.v
 TM/Hoare/HoareTactics.v
 TM/Hoare/HoareTacticsView.v
-TM/Hoare/HoareExamples.v
+# TM/Hoare/HoareExamples.v
 TM/Hoare/HoareMult.v
 TM/Hoare/HoareStdLib.v
 TM/Hoare/HoareLegacy.v
@@ -572,8 +585,6 @@ L/Computability/Fixpoints.v
 L/Computability/MuRec.v
 L/Computability/Partial.v
 L/Computability/Por.v
-L/Computability/Rice.v
-L/Computability/Scott.v
 L/Computability/Seval.v
 L/Computability/Synthetic.v
 
@@ -658,6 +669,7 @@ TRAKHTENBROT/utils.v
 TRAKHTENBROT/decidable.v
 TRAKHTENBROT/enumerable.v
 TRAKHTENBROT/fol_ops.v
+TRAKHTENBROT/discernable.v
 
 TRAKHTENBROT/gfp.v
 TRAKHTENBROT/btree.v
@@ -692,6 +704,7 @@ TRAKHTENBROT/Sig_one_rel.v
 TRAKHTENBROT/Sig_Sig_fin.v
 TRAKHTENBROT/Sig_rem_props.v
 TRAKHTENBROT/Sig_rem_constants.v
+TRAKHTENBROT/Sig_discernable.v
 
 TRAKHTENBROT/Sig0.v
 TRAKHTENBROT/Sig1.v

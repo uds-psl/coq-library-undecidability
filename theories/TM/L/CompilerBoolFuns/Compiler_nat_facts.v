@@ -123,7 +123,7 @@ Proof.
   extract.
 Qed.
 
-Remove Hints term_forallb : typeclass_instances.
+#[export] Remove Hints term_forallb : typeclass_instances.
 
 Instance term_validate : computable validate.
 Proof.

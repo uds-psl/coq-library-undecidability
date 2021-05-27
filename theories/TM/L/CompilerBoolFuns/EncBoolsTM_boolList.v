@@ -160,7 +160,7 @@ Section Fix.
     exists_UpToC (fun bs => c1 * length bs + c2). 2:now smpl_upToC_solve.
     intros bs res tin.
     unfold M__loop.
-    eapply While_SpecTReg with
+    refine (While_SpecTReg
       (PRE := fun '(bs,res,tin) => (_,_))
       (INV := fun '(bs,res,tin) y =>
       ([match y with None => bs <> nil | _ => bs = nil end;
@@ -168,7 +168,7 @@ Section Fix.
       tape_local_l tin = (map (fun (x:bool) => if x then s else b) bs++[b])],
       match bs with nil => [|Custom (eq tin) ; Contains _ res|]
                | b'::bs => [|Custom (eq (tape_move_left tin));Contains _ (b'::res)|] end)) (POST := fun '(bs,res,tin) y => (_,_))
-    (f__step := fun '(bs,res,tin) => _) (f__loop := fun '(bs,res,tin) => _) (x := (bs,res,tin));
+    (f__step := fun '(bs,res,tin) => _) (f__loop := fun '(bs,res,tin) => _) _ _ ((bs,res,tin)));
     clear bs res tin; intros [[bs res] tin]; cbn in *.
     { unfold M__step. hintros [Hres Hbs]. hsteps_cbn;cbn. 2:reflexivity.
       cbn. intros y.
@@ -199,7 +199,7 @@ Section Fix.
       cbn. intros ? ->. destruct bs. 2:reflexivity. nia.
     }
     split. 
-    - intros [Hres Hbs] _;cbn. split. 2:{ cbn. [c2]:exact 14. subst c2. nia. }
+    - intros [Hres Hbs] _;cbn. split. 2:{ cbn. [c2]:exact 14. subst c2. fold plus. nia. }
       destruct bs as [ | ];cbn. 2:easy.
       apply midtape_tape_local_l_cons in Hbs. rewrite Hres in Hbs.
       rewrite Hbs. reflexivity.    
@@ -212,7 +212,7 @@ Section Fix.
       erewrite tape_right_move_left. 2:subst;reflexivity.
       erewrite tape_local_l_move_left. 2:subst;reflexivity.
       rewrite Hres. tspec_ext. easy. 
-     + subst c2;cbn;ring_simplify. [c1]:exact 15. unfold c1;nia.
+     + subst c2;cbn;ring_simplify. [c1]:exact 15. unfold c1;fold plus;nia.
      + cbn. rewrite <- !app_assoc. reflexivity.
   Qed.   
   

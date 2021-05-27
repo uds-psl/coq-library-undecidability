@@ -115,10 +115,10 @@ Notation "Delta ⊩ sigma : Gamma" := (typingSubst Delta sigma Gamma) (at level 
 
 
 
-Hint Constructors typing : core.
-Hint Resolve typing_variables : core.
+#[export] Hint Constructors typing : core.
+#[export] Hint Resolve typing_variables : core.
 
-Hint Resolve
+#[export] Hint Resolve
      preservation_under_renaming
      preservation_under_substitution : core.
      

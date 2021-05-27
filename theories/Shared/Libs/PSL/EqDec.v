@@ -38,8 +38,8 @@ Proof.
   destruct d as [A|A]; cbn; intuition congruence.
 Qed.
 
-Hint Resolve Dec_auto Dec_auto_not : core.
-Hint Extern 4 =>  (* Improves type class inference *)
+#[export] Hint Resolve Dec_auto Dec_auto_not : core.
+#[export] Hint Extern 4 =>  (* Improves type class inference *)
 match goal with
   | [  |- dec ((fun _ => _) _) ] => cbn
 end : typeclass_instances.
@@ -68,7 +68,7 @@ Proof. intros H. decide P; cbn; tauto. Qed.
 Lemma Dec_false' (P : Prop) (d : dec P) : (~ P) -> Decb P = false.
 Proof. intros H. decide P; cbn; tauto. Qed.
 
-Hint Extern 4 =>
+#[export] Hint Extern 4 =>
 match goal with
   [ H : dec2bool (Dec ?P) = true  |- _ ] => apply Dec_true in  H
 | [ H : dec2bool (Dec ?P) = false |- _ ] => apply Dec_false in H

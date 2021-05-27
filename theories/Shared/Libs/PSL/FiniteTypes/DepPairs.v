@@ -27,7 +27,7 @@ Proof.
    apply countIn. setoid_rewrite enum_ok. lia. 
 Qed.
 
-Hint Extern 4 (finTypeC (EqType ({_ : _ & _}))) => eapply finType_depPair : typeclass_instances.
+#[export] Hint Extern 4 (finTypeC (EqType ({_ : _ & _}))) => eapply finType_depPair : typeclass_instances.
 
 (* (* * Dependent pairs *) *)
 

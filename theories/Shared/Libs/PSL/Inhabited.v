@@ -59,7 +59,7 @@ Proof. intros iab iac. constructor. intros a. constructor. now apply iab. now ap
 
 
 (* Derive inhabitedC instances, if an instance of this type is a hypothesis *)
-Hint Extern 10 => match goal with
+#[export] Hint Extern 10 => match goal with
                 | [ H : ?X |- inhabitedC ?X ] => now econstructor
                 end : typeclass_instances.
 (*

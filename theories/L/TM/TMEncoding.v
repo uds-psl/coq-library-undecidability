@@ -14,7 +14,7 @@ Import L_Notations.
 
 Import GenEncode.
 MetaCoq Run (tmGenEncode "move_enc" move).
-Hint Resolve move_enc_correct : Lrewrite.
+#[export] Hint Resolve move_enc_correct : Lrewrite.
 
 Import TM.
 Local Notation L := TM.Lmove.
@@ -146,7 +146,7 @@ Section fix_sig.
   Qed.
 End fix_sig.
 
-Hint Resolve tape_enc_correct : Lrewrite.
+#[export] Hint Resolve tape_enc_correct : Lrewrite.
 
 Import PrettyBounds.SizeBounds.
 

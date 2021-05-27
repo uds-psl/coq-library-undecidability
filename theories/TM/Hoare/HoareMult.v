@@ -67,8 +67,8 @@ Lemma Add_Loop_SpecT_size (a b : nat) (ss : Vector.t nat 2) :
                 (appSize (Add_Loop_size a b) ss))).
 Proof.
   (* We have to add the space vector to the abstract state *)
-  eapply While_SpecTReg with (PRE := fun '(a,b,ss) => (_,_)) (INV := fun '(a,b,ss) y => (_,_)) 
-    (POST := fun '(a,b,ss) y => (_,_)) (f__loop := fun '(a,b,ss) => _) (f__step := fun '(a,b,ss) => _) (x := (a,b,ss));
+  refine (While_SpecTReg (PRE := fun '(a,b,ss) => (_,_)) (INV := fun '(a,b,ss) y => (_,_)) 
+    (POST := fun '(a,b,ss) y => (_,_)) (f__loop := fun '(a,b,ss) => _) (f__step := fun '(a,b,ss) => _) _ _ ((a,b,ss)));
     clear a b ss; intros ((x,y),ss).
     - apply Add_Step_SpecT_space.
     - cbn. split.
@@ -189,8 +189,8 @@ Lemma Mult_Loop_SpecT_size m' n c ss :
                     [|Contains _ 0; Contains _ n; Contains _ (m' * n + c); Void; Void|]
                     (appSize (Mult_Loop_size m' n c) ss))).
 Proof.
-  eapply While_SpecTReg with (PRE := fun '(m',n,c,ss) => (_,_)) (INV := fun '(m',n,c,ss) y => (_,_)) (POST := fun '(m',n,c,ss) y => (_,_))
-   (f__loop := fun '(m,n,c,ss) => _) (f__step := fun '(m,n,c,ss) => _) (x := (m',n,c,ss));
+  refine (While_SpecTReg (PRE := fun '(m',n,c,ss) => (_,_)) (INV := fun '(m',n,c,ss) y => (_,_)) (POST := fun '(m',n,c,ss) y => (_,_))
+   (f__loop := fun '(m,n,c,ss) => _) (f__step := fun '(m,n,c,ss) => _) _ _ ((m',n,c,ss)));
     clear m' n c ss; intros (((m',n),c),ss).
   - apply Mult_Step_SpecT_size.
   - cbn. split.

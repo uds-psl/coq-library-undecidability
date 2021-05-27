@@ -102,4 +102,4 @@ Section Fix_XY.
   
 End Fix_XY.
 
-Hint Resolve prod_enc_correct : Lrewrite.
+#[export] Hint Resolve prod_enc_correct : Lrewrite.

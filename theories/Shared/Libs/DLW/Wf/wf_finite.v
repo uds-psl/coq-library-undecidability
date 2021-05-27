@@ -17,6 +17,9 @@ From Undecidability.Shared.Libs.DLW.Wf
 
 Set Implicit Arguments.
 
+Local Infix "∊" := In (at level 70, no associativity).
+Local Infix "⊆" := incl (at level 70, no associativity).
+
 Section wf_strict_order_list.
 
   Variable (X : Type) (R : X -> X -> Prop).
@@ -26,28 +29,23 @@ Section wf_strict_order_list.
   Implicit Type l : list X.
 
   Fact chain_trans n x y : chain R n x y -> n = 0 /\ x = y \/ R x y.
+  Proof. induction 1 as [ | ? ? ? ? ? ? [ [] | ] ]; subst; eauto. Qed.
+
+  Corollary chain_irrefl n x :~ chain R (S n) x x.
   Proof.
-    induction 1 as [ x | n x y z H1 H2 IH2 ]; auto.
-    destruct IH2 as [ [] | ]; subst; right; auto.
-    apply Rtrans with (1 := H1); auto.
+    intros H.
+    apply chain_trans in H as [ (? & _) | H ]; try easy.
+    revert H; apply Rirrefl.
   Qed.
 
-  Corollary chain_irrefl n x : n = 0 \/ ~ chain R n x x.
-  Proof.
-    destruct n as [ | n ]; auto; right; intros H.
-    destruct (chain_trans H) as [ (? & _) | H1 ]; try discriminate.
-    revert H1; apply Rirrefl.
-  Qed.
+  (* Assume a list over approximating the domain of R *)
 
-  Variable (m : list X) (Hm : forall x y, R x y -> In x m).
+  Variable (m : list X) (Hm : forall x y, R x y -> x ∊ m).
 
-  Fact chain_list_incl l x y : chain_list R l x y -> l = nil \/ incl l m.
-  Proof.
-    induction 1 as [ x | x l y z H1 H2 IH2 ]; simpl; auto; right.
-    apply incl_cons.
-    + apply Hm with (1 := H1); auto.
-    + destruct IH2; auto; subst l; intros _ [].
-  Qed.
+  Hint Resolve incl_nil_l incl_cons : core.
+
+  Fact chain_list_incl l x y : chain_list R l x y -> l ⊆ m.
+  Proof. induction 1; simpl; eauto. Qed.
 
   (* Any chain of length above length m contains a duplicated
       value (by the PHP) hence a non nil sub-chain with identical 
@@ -61,40 +59,30 @@ Section wf_strict_order_list.
       as (ll & H1 & H2).
     cut (list_has_dup ll).
     + intros H3.
-      apply list_has_dup_equiv in H3.
-      destruct H3 as (z & l & u & r & ->).
-      apply chain_list_app_inv in H1.
-      destruct H1 as (a & _ & H1).
-      apply chain_list_cons_inv in H1.
-      destruct H1 as (<- & k & H3 & H1).
-      apply chain_list_app_inv in H1.
-      destruct H1 as (p & H4 & H1).
-      apply chain_list_cons_inv in H1.
-      destruct H1 as (<- & _ & _ & _).
+      apply list_has_dup_equiv in H3 as (z & l & u & r & ->).
+      apply chain_list_app_inv in H1 as (a & _ & H1).
+      apply chain_list_cons_inv in H1 as (<- & k & H3 & H1).
+      apply chain_list_app_inv in H1 as (p & H4 & H1).
+      apply chain_list_cons_inv in H1 as (<- & _ & _ & _).
       apply chain_list_chain in H4.
-      destruct (chain_irrefl (S (length u)) z)
-        as [ | [] ]; try discriminate.
+      destruct (@chain_irrefl (length u) z).
       constructor 2 with k; auto.
     + apply chain_list_incl in H1.
-      destruct H1 as [ -> | H1 ].
-      * subst; simpl in C; lia.
-      * apply finite_php_dup with (2 := H1); lia.
+      apply finite_php_dup with (2 := H1); lia.
   Qed.
 
   (* Since chains have bounded length, we get WF *)
 
+  Hint Resolve chain_bounded : core.
+
   Theorem wf_strict_order_list : well_founded R.
-  Proof.
-    apply wf_chains.
-    intros x; exists (length m). 
-    intros ? ?; apply chain_bounded.
-  Qed.
+  Proof. apply wf_chains; eauto. Qed.
 
 End wf_strict_order_list.
 
 Section wf_strict_order_finite.
 
-  Variable (X : Type) (HX : exists l, forall x : X, In x l) 
+  Variable (X : Type) (HX : exists l, forall x : X, x ∊ l) 
            (R : X -> X -> Prop)
            (Rirrefl : forall x, ~ R x x)
            (Rtrans : forall x y z, R x y -> R y z -> R x z).
