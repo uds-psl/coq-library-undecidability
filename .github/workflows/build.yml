@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 env:
   OCAML_VERSION: 4.07.1+flambda
-  CACHE_KEY: opam-flambda-8.13-newmetacoq-${{github.base_ref}}-${{github.ref}} 
+  CACHE_KEY: opam-flambda-noPslBase-${{github.base_ref}}-${{github.ref}} 
 jobs:
   build-deps:
     runs-on: ubuntu-latest
@@ -16,7 +16,7 @@ jobs:
         path: "~/.opam"
         key: ${{env.CACHE_KEY}}
         restore-keys: |
-          opam-flambda-8.13-newmetacoq--refs/heads/${{github.base_ref}}
+          opam-flambda-noPslBase--refs/heads/${{github.base_ref}}
 
     - name: Install OCaml
       if: steps.cache.outputs.cache-hit != 'true'
@@ -34,7 +34,6 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
         opam repo add coq-released https://coq.inria.fr/opam/released
-        opam repo add coq-core-dev https://coq.inria.fr/opam/core-dev
         opam update
         opam upgrade
         opam install . --deps-only --with-doc --with-test
