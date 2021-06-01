@@ -93,7 +93,7 @@ Section ReificationExample.
     + now intros [|n].
   Qed.
   
-  Lemma disciminate (x:D) : x = iO \/ exists y, x = iS y.
+  Lemma discriminate (x:D) : x = iO \/ exists y, x = iS y.
   Proof.
   generalize x. apply PA_induction.
   - represent.
