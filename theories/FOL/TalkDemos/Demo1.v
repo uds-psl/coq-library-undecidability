@@ -33,14 +33,6 @@ Definition add_comm_hoas : form :=
 Print add_comm_hoas.
 
 
-(* Formulating the axioms of PA: induction scheme *)
-
-Print ax_induction.
-
-Definition ax_induction_hoas (phi : form) :=
-  << ∀' x, phi[x..].
-
-
 
 
 
