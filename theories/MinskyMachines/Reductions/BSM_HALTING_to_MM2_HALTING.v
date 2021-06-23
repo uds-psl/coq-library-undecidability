@@ -7,7 +7,7 @@ Require Undecidability.FRACTRAN.Reductions.MM_FRACTRAN.
 Require Undecidability.MinskyMachines.Reductions.FRACTRAN_to_MMA2.
 Require Undecidability.MinskyMachines.Reductions.MMA2_to_MM2.
 
-Theorem reduction : BSM_HALTING ⪯ MM2_HALTING.
+Theorem reduction : Halt_BSM ⪯ MM2_HALTING.
 Proof.
   apply (reduces_transitive BSM_MM.BSM_MM_HALTING).
   apply (reduces_transitive MM_FRACTRAN.MM_FRACTRAN_REG_HALTING).

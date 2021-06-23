@@ -15,7 +15,7 @@ From Undecidability.Shared.Libs.DLW.Utils
 From Undecidability.Shared.Libs.DLW.Vec 
   Require Import pos vec.
 
-From Undecidability.MuRec 
+From Undecidability.MuRec.Util 
   Require Import recomp.
 
 Set Implicit Arguments.

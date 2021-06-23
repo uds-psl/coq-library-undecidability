@@ -12,7 +12,7 @@ Require Import List.
 From Undecidability.Shared.Libs.DLW.Vec 
   Require Import vec.
 
-From Undecidability.MuRec 
+From Undecidability.MuRec.Util 
   Require Import recalg ra_univ ra_univ_andrej.
 
 Set Implicit Arguments.

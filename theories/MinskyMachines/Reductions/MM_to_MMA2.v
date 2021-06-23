@@ -23,12 +23,12 @@ Require Import Undecidability.Synthetic.Undecidability.
 From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec.
 From Undecidability.Shared.Libs.DLW.Code Require Import sss.
 
-From Undecidability.MinskyMachines Require Import MM FRACTRAN_to_MMA2.
+From Undecidability.MinskyMachines Require Import MM MM_sss MMA FRACTRAN_to_MMA2.
 From Undecidability.FRACTRAN Require Import FRACTRAN MM_FRACTRAN.
 
 Set Implicit Arguments.
 
-Corollary MM_MMA2_HALTING : MM_HALTING ⪯ MMA2_HALTING.
+Corollary MM_MMA2_HALTING : Halt_MM ⪯ MMA2_HALTING.
 Proof.
   eapply reduces_transitive. exact MM_FRACTRAN_REG_HALTING.
   exact FRACTRAN_REG_MMA2_HALTING.

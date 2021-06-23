@@ -33,9 +33,10 @@ Section BSM_MM_HALTS_ON_ZERO.
     exact (0##0##vec_map stack_enc v).
   Defined.
 
-  Theorem BSM_MM_HALTS_ON_ZERO : BSM_HALTING ⪯ MM_HALTS_ON_ZERO.
+  Theorem BSM_MM_HALTS_ON_ZERO : Halt_BSM ⪯ MM_HALTS_ON_ZERO.
   Proof.
-    exists f.
+    exists f. red.
+    setoid_rewrite Halt_BSM_iff.
     intros (n & i & P & v); simpl.
     destruct (bsm_mm_compiler_2 i P) as (Q & H); simpl; auto.
   Qed.
@@ -52,9 +53,11 @@ Section BSM_MM_HALTING.
     exact (0##0##vec_map stack_enc v).
   Defined.
 
-  Theorem BSM_MM_HALTING : BSM_HALTING ⪯ MM_HALTING.
+  Theorem BSM_MM_HALTING : Halt_BSM ⪯ Halt_MM.
   Proof.
-    exists f.
+    exists f. red.
+    setoid_rewrite Halt_BSM_iff.
+    setoid_rewrite Halt_MM_iff.
     intros (n & i & P & v); simpl.
     destruct (bsm_mm_compiler_1 i P) as (Q & H); simpl; auto.
   Qed.

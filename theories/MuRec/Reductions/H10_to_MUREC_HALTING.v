@@ -20,7 +20,7 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.H10 
   Require Import Dio.dio_single H10.
 
-From Undecidability.MuRec 
+From Undecidability.MuRec.Util 
   Require Import recalg ra_dio_poly.
 
 Set Default Proof Using "Type".

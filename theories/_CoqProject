@@ -31,14 +31,18 @@ L/L_undec.v
 
 TM/TM.v
 TM/TM_undec.v
+TM/Util/TM_computable.v
 
 TM/SBTM.v
 TM/SBTM_undec.v
 
 StackMachines/BSM.v
+StackMachines/Util/BSM_computable.v
 StackMachines/BSM_undec.v
 
 MinskyMachines/MM.v
+MinskyMachines/Util/MM_sss.v
+MinskyMachines/Util/MM_computable.v
 MinskyMachines/MM_undec.v       
 
 # Non coqdoc files
@@ -322,29 +326,30 @@ ILL/Ll/ill_cll_restr.v
 ILL/Ll/schellinx.v
 ILL/Ll/imsell.v
 
-MuRec/recalg.v
-MuRec/ra_utils.v
-MuRec/beta.v
-MuRec/recomp.v
-MuRec/prim_min.v
-MuRec/ra_recomp.v
-MuRec/ra_godel_beta.v
-MuRec/ra_enum.v
-MuRec/ra_univ.v
-MuRec/ra_univ_andrej.v
+MuRec/MuRec.v
 
-MuRec/ra_dio_poly.v
-MuRec/ra_mm_env.v
-MuRec/ra_mm.v
-MuRec/ra_simul.v
-MuRec/ra_bs.v
-MuRec/minimizer.v
-MuRec/recursor.v
-MuRec/ra_sem_eq.v
-MuRec/ra_ca.v
+MuRec/Util/recalg.v
+MuRec/Util/ra_utils.v
+MuRec/Util/beta.v
+MuRec/Util/recomp.v
+MuRec/Util/prim_min.v
+MuRec/Util/ra_recomp.v
+MuRec/Util/ra_godel_beta.v
+MuRec/Util/ra_enum.v
+MuRec/Util/ra_univ.v
+MuRec/Util/ra_univ_andrej.v
 
-MuRec/RA_UNIV_HALT.v
-MuRec/RA_UNIV_HALT_undec.v
+MuRec/Util/ra_dio_poly.v
+MuRec/Util/ra_mm_env.v
+MuRec/Util/ra_mm.v
+MuRec/Util/ra_simul.v
+MuRec/Util/minimizer.v
+MuRec/Util/recursor.v
+MuRec/Util/ra_sem_eq.v
+MuRec/Util/ra_ca.v
+
+MuRec/Util/RA_UNIV_HALT.v
+MuRec/Util/RA_UNIV_HALT_undec.v
 
 MuRec/Reductions/H10_to_MUREC_HALTING.v
 MuRec/Reductions/H10C_SAT_to_RA_UNIV_HALT.v
@@ -733,6 +738,7 @@ StackMachines/SMN_undec.v
 StackMachines/SSM.v
 StackMachines/SSM_undec.v
 
+StackMachines/Util/BSM_sss.v
 StackMachines/BSM/bsm_defs.v
 StackMachines/BSM/bsm_utils.v
 StackMachines/BSM/bsm_pcp.v

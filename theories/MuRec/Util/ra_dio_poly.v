@@ -12,7 +12,7 @@ Require Import List Arith.
 From Undecidability.Shared.Libs.DLW 
   Require Import utils_tac utils_nat pos vec.
 
-From Undecidability.MuRec 
+From Undecidability.MuRec.Util 
   Require Import recalg ra_utils recomp ra_recomp.
 
 From Undecidability.H10.Dio 

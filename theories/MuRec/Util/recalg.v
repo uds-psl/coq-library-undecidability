@@ -12,6 +12,8 @@ Require Import Arith Lia List Bool Eqdep_dec .
 From Undecidability.Shared.Libs.DLW 
   Require Import utils_tac utils_nat utils_list finite pos vec.
 
+Require Export Undecidability.MuRec.MuRec.
+
 Set Implicit Arguments.
 
 Set Default Proof Using "Type".
@@ -23,15 +25,15 @@ Section Recursive_algorithms.
 
   Unset Elimination Schemes.
 
-  Inductive recalg : nat -> Type :=
-    | ra_cst  : nat -> recalg 0
-    | ra_zero : recalg 1
-    | ra_succ : recalg 1
-    | ra_proj : forall k, pos k -> recalg k
-    | ra_comp : forall k i, recalg k -> vec (recalg i) k -> recalg i
-    | ra_rec  : forall k, recalg k -> recalg (S (S k)) -> recalg (S k)
-    | ra_min  : forall k, recalg (S k) -> recalg k
-    .
+  (* Inductive recalg : nat -> Type := *)
+  (*   | ra_cst  : nat -> recalg 0 *)
+  (*   | ra_zero : recalg 1 *)
+  (*   | ra_succ : recalg 1 *)
+  (*   | ra_proj : forall k, pos k -> recalg k *)
+  (*   | ra_comp : forall k i, recalg k -> vec (recalg i) k -> recalg i *)
+  (*   | ra_rec  : forall k, recalg k -> recalg (S (S k)) -> recalg (S k) *)
+  (*   | ra_min  : forall k, recalg (S k) -> recalg k *)
+  (*   . *)
 
   Set Elimination Schemes.
 

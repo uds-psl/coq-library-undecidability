@@ -15,7 +15,7 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.MinskyMachines
   Require Import MM.
 
-From Undecidability.MuRec 
+From Undecidability.MuRec.Util 
   Require Import recalg ra_simul.
 
 Set Default Proof Using "Type".

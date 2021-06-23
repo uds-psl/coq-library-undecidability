@@ -12,7 +12,7 @@
 Require Import Undecidability.Synthetic.Undecidability.
 
 From Undecidability.StackMachines Require Import BSM BSM_undec.
-From Undecidability.MinskyMachines Require Import MM Reductions.BSM_MM.
+From Undecidability.MinskyMachines Require Import MM MM_sss Reductions.BSM_MM.
 
 Lemma MM_HALTS_ON_ZERO_undec : undecidable MM_HALTS_ON_ZERO.
 Proof.
@@ -20,9 +20,8 @@ Proof.
   apply BSM_MM_HALTS_ON_ZERO.
 Qed.
 
-Lemma MM_HALTING_undec : undecidable MM_HALTING.
+Lemma MM_HALTING_undec : undecidable Halt_MM.
 Proof.
   apply (undecidability_from_reducibility BSM_undec).
   apply BSM_MM_HALTING.
 Qed.
-

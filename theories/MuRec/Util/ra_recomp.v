@@ -14,7 +14,7 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 From Undecidability.Shared.Libs.DLW.Vec Require Import pos vec.
 
-From Undecidability.MuRec Require Import recalg recomp prim_min ra_utils.
+From Undecidability.MuRec.Util Require Import recalg recomp prim_min ra_utils.
 
 Set Implicit Arguments.
 

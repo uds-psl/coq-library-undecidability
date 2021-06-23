@@ -30,6 +30,7 @@ Definition fractran_stop l x := forall z, ~ l /F/ x → z.
 
 Definition fractran_steps l := rel_iter (fractran_step l).
 Definition fractran_compute l x y := exists n, fractran_steps l n x y.
+Definition eval := fractran_compute.
 Definition fractran_terminates l x := exists y, fractran_compute l x y /\ fractran_stop l y.
 
 Notation "l '/F/' x ↓ " := (fractran_terminates l x) (at level 70, no associativity).

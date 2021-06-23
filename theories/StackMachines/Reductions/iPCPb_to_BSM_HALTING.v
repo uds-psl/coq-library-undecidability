@@ -69,11 +69,12 @@ Section iPCPb_to_BSM_HALTING.
     intros; rewrite pcp_bsm_size; lia.
   Qed.
   
-  Theorem iPCPb_to_BSM_HALTING : iPCPb ⪯ BSM_HALTING.
+  Theorem iPCPb_to_BSM_HALTING : iPCPb ⪯ Halt_BSM.
   Proof.
     exists f.
     intros lt.
     rewrite <- tiles_solvable_iBPCP.
+    rewrite Halt_BSM_iff.
     unfold BSM_HALTING; split.
     * intros H.
       apply pcp_bsm_sound with (v := vec_set_pos (fun _ => nil)) in H.

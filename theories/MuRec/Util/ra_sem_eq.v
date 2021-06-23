@@ -10,8 +10,8 @@
 From Undecidability.Shared.Libs.DLW 
   Require Import utils finite pos vec.
 
-From Undecidability.MuRec 
-  Require Import recalg ra_bs recursor minimizer ra_ca.
+From Undecidability.MuRec.Util 
+  Require Import recalg recursor minimizer ra_ca.
 
 Set Implicit Arguments.
 

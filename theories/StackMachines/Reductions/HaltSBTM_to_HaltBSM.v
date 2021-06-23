@@ -563,7 +563,7 @@ Section fixM.
     Qed.
 
     Theorem SIM_computes q t q' t' :
-       eval M q t q' t' -> (0,SIM) // (c * !q, enc_tape t) ->> (END, enc_tape t').
+       SBTM.eval M q t q' t' -> (0,SIM) // (c * !q, enc_tape t) ->> (END, enc_tape t').
     Proof.
       induction 1.
       - eapply subcode_sss_compute_trans with (P := (76 * !q, PROG q)). eapply PROG_sc.
@@ -577,7 +577,7 @@ Section fixM.
 
     Theorem SIM_term q t i out :
        i >= length SIM ->
-       (0,SIM) // (c * !q, enc_tape t) ->> (i, out) -> exists q' t', i = END /\ out = enc_tape t' /\ eval M q t q' t'.
+       (0,SIM) // (c * !q, enc_tape t) ->> (i, out) -> exists q' t', i = END /\ out = enc_tape t' /\ SBTM.eval M q t q' t'.
     Proof.
       intros Hout [k H]. revert q t H.
       induction k as [k IH] using lt_wf_ind; intros q t H.
@@ -613,9 +613,9 @@ End fixM.
 Require Import Undecidability.Synthetic.Definitions.
 
 Theorem SBTM_to_BSM :
-  HaltSBTM ⪯ BSM_HALTING.
+  HaltSBTM ⪯ Halt_BSM.
 Proof.
   unshelve eexists.
   - intros [M t]. exists 4. exists 0. exists (SIM M). exact (enc_tape t).
-  - intros [M t]. eapply SIM_correct.
+  - intros [M t]. setoid_rewrite Halt_BSM_iff. eapply SIM_correct.
 Qed.
