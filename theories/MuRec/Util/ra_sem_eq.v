@@ -23,7 +23,7 @@ Section soundness_and_completeness.
 
   (* By induction on the ra_ca predicate *)
 
-  Lemma ra_ca_inc_bs k (f : recalg k) v x : (exists n, [f;v] -[n>> x) -> [f;v] ~~> x.
+  Lemma ra_ca_inc_bs k (f : recalg k) v x : (exists n, [f;v] -[n>> x) -> [f;v] ▹ x.
   Proof.
     intros (n & H); revert H.
     induction 1 as [ n v | v | v
@@ -39,7 +39,7 @@ Section soundness_and_completeness.
 
   (* By induction on the ra_bs predicate *)
 
-  Lemma ra_bs_inc_rel k (f : recalg k) v x : [f;v] ~~> x -> [|f|] v x.
+  Lemma ra_bs_inc_rel k (f : recalg k) v x : [f;v] ▹ x -> [|f|] v x.
   Proof.
     induction 1 as [ n v | v | v
                    | k v p 
@@ -111,7 +111,7 @@ Section soundness_and_completeness.
 
   Hint Resolve ra_ca_inc_bs ra_bs_inc_rel ra_rel_inc_ca : core.
   
-  Theorem ra_bs_correct k (f : recalg k) v x : [|f|] v x <-> [f;v] ~~> x.
+  Theorem ra_bs_correct k (f : recalg k) v x : [|f|] v x <-> [f;v] ▹ x.
   Proof. split; auto. Qed.
 
   Theorem ra_ca_correct k (f : recalg k) v x : [|f|] v x <-> exists n, [f;v] -[n>> x.

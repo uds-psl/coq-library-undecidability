@@ -14,7 +14,8 @@ Require Import List Arith Lia.
 From Undecidability.Shared.Libs.DLW 
   Require Import utils_tac utils_list utils_nat gcd rel_iter pos vec.
 
-Require Import Undecidability.FRACTRAN.FRACTRAN.
+From Undecidability.FRACTRAN
+  Require Export FRACTRAN FRACTRAN_sss.
 
 Set Implicit Arguments.
 
@@ -22,15 +23,15 @@ Section fractran_utils.
 
   Implicit Type l : list (nat*nat).
 
-  Fact fractran_step_nil_inv x y : nil /F/ x → y <-> False.
+  Fact fractran_step_nil_inv x y : nil /F/ x ≻ y <-> False.
   Proof. split; inversion 1. Qed.
 
   Fact fractran_step_cons_inv p q l x y : 
-     (p,q)::l /F/ x → y <-> q*y = p*x \/ ~ divides q (p*x) /\ l /F/ x → y.
+     (p,q)::l /F/ x ≻ y <-> q*y = p*x \/ ~ divides q (p*x) /\ l /F/ x ≻ y.
   Proof.
     split.
     + inversion 1; auto.
-    + intros [ H | (H1 & H2) ]; [ constructor 1 | constructor 2 ]; auto. 
+    + intros [ H | (H1 & H2) ]; [ constructor 1 | constructor 2 ]; auto.
   Qed.
 
   Fact mul_pos_inj_l q x y : q <> 0 -> q*x = q*y -> x = y.
@@ -41,7 +42,7 @@ Section fractran_utils.
   Qed.
 
   Lemma fractran_step_inv P x y : 
-            P /F/ x → y 
+            P /F/ x ≻ y 
          -> exists l p q r, P = l++(p,q)::r 
                          /\ (forall u v, In (u,v) l -> ~ divides v (u*x))
                          /\ q*y=p*x.
@@ -57,8 +58,8 @@ Section fractran_utils.
 
   Lemma fractran_step_fun l x y1 y2 : 
            fractran_regular l 
-        -> l /F/ x → y1 
-        -> l /F/ x → y2 -> y1 = y2.
+        -> l /F/ x ≻ y1 
+        -> l /F/ x ≻ y2 -> y1 = y2.
   Proof.
     intros H1 H2 ; revert H2 H1 y2.
     induction 1 as [ p q l x y1 H1 | p q l x y1 H1 H2 IH2 ]; 
@@ -80,7 +81,7 @@ Section fractran_utils.
   
   Lemma fractran_step_bound l : 
           fractran_regular l 
-       -> { k | forall x y, l /F/ x → y -> y <= k*x }.
+       -> { k | forall x y, l /F/ x ≻ y -> y <= k*x }.
   Proof.
     unfold fractran_regular.
     induction l as [ | (p,q) l IHl ].
@@ -120,7 +121,7 @@ Section fractran_utils.
         - apply (H2 _ H4).
   Qed.
 
-  Fact fractran_step_dec l x : { y | l /F/ x → y } + { fractran_stop l x }.
+  Fact fractran_step_dec l x : { y | l /F/ x ≻ y } + { fractran_stop l x }.
   Proof.
     induction l as [ | (a,b) l IH ].
     + right; rewrite fractan_stop_nil_inv; auto.
@@ -146,7 +147,7 @@ Section fractran_utils.
 
     Fact fractran_zero_num_step l : 
             Exists (fun c => fst c = 0) l 
-         -> forall x, exists y, l /F/ x → y. 
+         -> forall x, exists y, l /F/ x ≻ y. 
     Proof.
       induction 1 as [ (p,q) l Hl | (p,q) l Hl IHl ]; simpl in Hl.
       + intros x; exists 0; subst; constructor; lia.
@@ -166,7 +167,7 @@ Section fractran_utils.
       apply H3 with (1 := Hz).
     Qed.
 
-    Fact fractran_step_head_not_zero p q l y : q <> 0 -> (p,q)::l /F/ 0 → y -> y = 0.
+    Fact fractran_step_head_not_zero p q l y : q <> 0 -> (p,q)::l /F/ 0 ≻ y -> y = 0.
     Proof.
       intros H2 H3.
       apply fractran_step_cons_inv in H3.
@@ -192,7 +193,7 @@ Section fractran_utils.
       subst y; apply (H2 0); constructor 1; ring.
     Qed.
 
-    Fact fractran_step_no_zero_den l x y : fractran_regular l -> l /F/ x → y -> x = 0 -> y = 0.
+    Fact fractran_step_no_zero_den l x y : fractran_regular l -> l /F/ x ≻ y -> x = 0 -> y = 0.
     Proof.
       unfold fractran_regular.
       intros H1 H2; revert H2 H1.
@@ -201,7 +202,7 @@ Section fractran_utils.
       + destruct H1; exists 0; ring.
     Qed.
 
-    Fact fractran_step_no_zero_num l : Forall (fun c => fst c <> 0) l -> forall x y, l /F/ x → y -> y = 0 -> x = 0.
+    Fact fractran_step_no_zero_num l : Forall (fun c => fst c <> 0) l -> forall x y, l /F/ x ≻ y -> y = 0 -> x = 0.
     Proof.
       intros H1 x y H2; revert H2 H1.
       induction 1 as [ p q l x y H1 | p q l x y H1 H2 IH2 ]; intros H3; rewrite Forall_cons_inv in H3; simpl in H3; destruct H3 as (H3 & H4); auto.
@@ -224,7 +225,7 @@ Section fractran_utils.
       revert H1 H2; apply fractran_step_no_zero_num; auto.
     Qed.
 
-    Fact fractran_zero_num l x : Exists (fun c => fst c = 0) l -> exists y, l /F/ x → y.
+    Fact fractran_zero_num l x : Exists (fun c => fst c = 0) l -> exists y, l /F/ x ≻ y.
     Proof.
       induction 1 as [ (p,q) l | (p,q) l Hl IHl ]; simpl in *.
       + exists 0; constructor 1; subst; ring.
@@ -242,8 +243,8 @@ Section fractran_utils.
 
     Lemma fractran_step_zero l : 
              Forall (fun c => fst c <> 0) l 
-          -> forall x y, x <> 0 -> l /F/ x → y
-                     <-> remove_zero_den l /F/ x → y.
+          -> forall x y, x <> 0 -> l /F/ x ≻ y
+                     <-> remove_zero_den l /F/ x ≻ y.
     Proof.
       induction 1 as [ | (p,q) l H1 H2 IH2 ]; intros x y Hxy; simpl in *.
       * split; simpl; inversion 1.

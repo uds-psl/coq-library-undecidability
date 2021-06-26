@@ -16,7 +16,7 @@ Require Import Undecidability.Synthetic.Undecidability.
 
 From Undecidability.PCP              Require Import PCP PCP_undec.
 From Undecidability.StackMachines    Require Import BSM.
-From Undecidability.MinskyMachines   Require Import MM.
+From Undecidability.MinskyMachines   Require Import MM MM_sss.
 
 From Undecidability.ILL 
   Require Import EILL ILL iBPCP_MM MM_EILL EILL_ILL.
@@ -28,9 +28,18 @@ Import ReductionChainNotations UndecidabilityNotations.
 (* The reduction chain from the CPP 2019, Y. Forster & D. Larchey-Wendling *)
 
 Theorem PCP_chain_ILL : 
-  ⎩ PCP ⪯ₘ PCPb ⪯ₘ iPCPb ⪯ₘ BSM_HALTING ⪯ₘ MM_HALTS_ON_ZERO ⪯ₘ EILL_PROVABILITY ⪯ₘ ILL_PROVABILITY ⎭.
+  PCP ⪯ PCPb /\
+  PCPb ⪯ iPCPb /\
+  iPCPb ⪯ Halt_BSM /\
+  Halt_BSM ⪯ MM_HALTS_ON_ZERO /\
+  MM_HALTS_ON_ZERO ⪯ EILL_PROVABILITY /\
+  EILL_PROVABILITY ⪯ ILL_PROVABILITY.
 Proof.
-  msplit 5; ( apply PCP_chain_iPCPb || apply iBPCP_chain_MM || idtac).
+  msplit 5.
+  + apply PCP_to_PCPb.reduction.
+  + apply PCPb_iff_iPCPb.reductionLR.
+  + apply iBPCP_chain_MM.
+  + apply iBPCP_chain_MM.
   + apply MM_HALTS_ON_ZERO_EILL_PROVABILITY.
   + apply EILL_ILL_PROVABILITY.
 Qed.

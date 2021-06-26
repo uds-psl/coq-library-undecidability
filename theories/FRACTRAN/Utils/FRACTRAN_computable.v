@@ -12,5 +12,5 @@ Fixpoint enc {k} p i (v : Vector.t nat k) : nat :=
 Definition FRACTRAN_computable {k} (p : nat -> nat) (R : Vector.t nat k -> nat -> Prop) := 
   exists P : list (nat * nat), 
     forall v : Vector.t nat k,
-      (forall m, R v m <-> FRACTRAN.eval P (enc p 1 v) (p 0))
-    /\ (forall n, FRACTRAN.eval P (enc p 1 v) n -> exists m, n = (p 0) ^ m).
+      (forall m, R v m <-> fractran_eval P (enc p 1 v) (p 0))
+    /\ (forall n, fractran_eval P (enc p 1 v) n -> exists m, n = (p 0) ^ m).

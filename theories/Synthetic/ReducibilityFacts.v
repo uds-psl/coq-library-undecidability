@@ -39,6 +39,8 @@ End Properties.
 
 Module ReductionChainNotations.
 
+(* YF: Broken on Coq 8.13.2 
+
 (* DLW: Thx to M. Wuttke for the tip, see coq-club ML *)
 
 Ltac redchain2Prop_rec xs :=
@@ -57,6 +59,8 @@ Declare Scope reduction_chain.
 Delimit Scope reduction_chain with redchain_scope.
 Notation "x '⪯ₘ' y" := (pair x y) (at level 80, right associativity, only parsing) : reduction_chain.
 Notation "'⎩' xs '⎭'" := (ltac:(redchain2Prop (xs % redchain_scope))) (only parsing).
+
+*)
 
 (*
 Definition Undec_Problem := { X : Type & X -> Prop }.

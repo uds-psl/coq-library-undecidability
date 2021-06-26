@@ -48,28 +48,19 @@ Proof.
     rewrite !dp_inst_par_eval; auto.
 Qed.
 
-Check FRACTRAN_undec.
-
-(* DLW: Below is a prefered identical statement with a nice notation
-    tactic proposed by M. Wuttke
-
-Theorem Hilberts_Tenth : HaltTM 1 ⪯ PCPb
-                      /\ PCPb ⪯ MM_HALTING
-                      /\ MM_HALTING ⪯ FRACTRAN_HALTING
-                      /\ FRACTRAN_HALTING ⪯ DIO_LOGIC_SAT
-                      /\ DIO_LOGIC_SAT ⪯ DIO_ELEM_SAT
-                      /\ DIO_ELEM_SAT ⪯ DIO_SINGLE_SAT
-                      /\ DIO_SINGLE_SAT ⪯ H10.
-*)
-
 (* 
   reduction chain as described in
     Dominique Larchey-Wendling, Yannick Forster:
     Hilbert's Tenth Problem in Coq. FSCD 2019: 27:1-27:20 
 *)
 
-Theorem Hilberts_Tenth : 
-  ⎩ HaltTM 1 ⪯ₘ PCPb ⪯ₘ MM_HALTING ⪯ₘ FRACTRAN_HALTING ⪯ₘ DIO_LOGIC_SAT ⪯ₘ DIO_ELEM_SAT ⪯ₘ DIO_SINGLE_SAT ⪯ₘ H10 ⎭.
+Theorem Hilberts_Tenth : HaltTM 1 ⪯ PCPb
+                      /\ PCPb ⪯ Halt_MM
+                      /\ Halt_MM ⪯ Halt_FRACTRAN
+                      /\ Halt_FRACTRAN ⪯ DIO_LOGIC_SAT
+                      /\ DIO_LOGIC_SAT ⪯ DIO_ELEM_SAT
+                      /\ DIO_ELEM_SAT ⪯ DIO_SINGLE_SAT
+                      /\ DIO_SINGLE_SAT ⪯ H10.
 Proof.
   msplit 6.
   + apply HaltTM_1_to_PCPb.

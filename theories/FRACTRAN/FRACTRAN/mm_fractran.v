@@ -20,7 +20,7 @@ From Undecidability.Shared.Libs.DLW
                  pos vec subcode sss.
 
 From Undecidability.MinskyMachines.MM Require Import mm_defs mm_no_self.
-From Undecidability.FRACTRAN Require Import FRACTRAN fractran_utils prime_seq.
+From Undecidability.FRACTRAN Require Import FRACTRAN fractran_utils prime_seq FRACTRAN_sss.
 
 Set Implicit Arguments.
 

@@ -22,7 +22,7 @@ Require Import Undecidability.Synthetic.Undecidability.
 
 From Undecidability.Shared.Libs.DLW Require Import pos vec sss.
 
-From Undecidability.FRACTRAN Require Import FRACTRAN.
+From Undecidability.FRACTRAN Require Import FRACTRAN FRACTRAN_sss.
 From Undecidability.MinskyMachines Require Import mma_defs fractran_mma.
 
 Set Implicit Arguments.

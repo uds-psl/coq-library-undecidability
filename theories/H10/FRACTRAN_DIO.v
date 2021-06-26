@@ -17,7 +17,7 @@ From Undecidability.Shared.Libs.DLW
    Require Import utils_tac pos vec.
 
 From Undecidability.FRACTRAN 
-  Require Import FRACTRAN MM_FRACTRAN.
+  Require Import FRACTRAN MM_FRACTRAN FRACTRAN_sss.
 
 From Undecidability.H10.Fractran Require Import fractran_dio.
 From Undecidability.H10.Dio      Require Import dio_elem dio_single dio_logic.
@@ -34,14 +34,16 @@ Definition DIO_LOGIC_PROBLEM :=
 Definition DIO_LOGIC_SAT (p : DIO_LOGIC_PROBLEM) :=
   let (f,ν) := p in df_pred f ν. 
 
-Theorem FRACTRAN_HALTING_DIO_LOGIC_SAT : FRACTRAN_HALTING ⪯ DIO_LOGIC_SAT.
+Theorem FRACTRAN_HALTING_DIO_LOGIC_SAT : Halt_FRACTRAN ⪯ DIO_LOGIC_SAT.
 Proof.
   apply reduces_dependent; exists.
   intros (l & x).
   destruct FRACTRAN_HALTING_on_diophantine 
     with (ll := l) (x := fun _ : nat -> nat => x) as (f & Hf); simpl.
   + dio_rel_auto.
-  + exists (f, fun _ => x); unfold DIO_LOGIC_SAT; rewrite Hf; tauto.
+  + exists (f, fun _ => x).
+    setoid_rewrite eval_iff.
+   unfold DIO_LOGIC_SAT; rewrite Hf; tauto.
 Qed.
 
 (* An elementary diophantine problem is a list of elementary diophantine

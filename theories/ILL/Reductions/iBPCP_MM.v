@@ -23,11 +23,13 @@ From Undecidability.StackMachines
   Require Import BSM iPCPb_to_BSM_HALTING.
 
 From Undecidability.MinskyMachines
-  Require Import MM BSM_MM.
+  Require Import MM BSM_MM MM_sss.
 
 Import ReductionChainNotations UndecidabilityNotations.
 
-Lemma iBPCP_chain_MM : ⎩iPCPb ⪯ₘ BSM_HALTING ⪯ₘ MM_HALTS_ON_ZERO⎭.
+Lemma iBPCP_chain_MM : 
+  iPCPb ⪯ Halt_BSM /\
+  Halt_BSM ⪯ MM_HALTS_ON_ZERO.
 Proof.
   msplit 1.
   + apply iPCPb_to_BSM_HALTING.

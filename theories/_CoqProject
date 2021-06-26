@@ -14,6 +14,8 @@ MinskyMachines/MM2_undec.v
 
 FRACTRAN/FRACTRAN.v
 FRACTRAN/Reductions/HaltTM_1_to_FRACTRAN_HALTING.v
+FRACTRAN/Utils/FRACTRAN_sss.v
+FRACTRAN/Utils/FRACTRAN_computable.v
 FRACTRAN/FRACTRAN_undec.v
 
 DiophantineConstraints/H10C.v
@@ -338,6 +340,7 @@ MuRec/Util/ra_godel_beta.v
 MuRec/Util/ra_enum.v
 MuRec/Util/ra_univ.v
 MuRec/Util/ra_univ_andrej.v
+MuRec/Util/MuRec_computable.v
 
 MuRec/Util/ra_dio_poly.v
 MuRec/Util/ra_mm_env.v
@@ -387,6 +390,8 @@ H10/H10.v
 H10/H10Z.v
 H10/H10_undec.v
 H10/H10Z_undec.v
+
+H10/Utils/Diophantine.v
 
 H10/H10p.v
 H10/H10p_undec.v

@@ -35,9 +35,16 @@ From Undecidability.PCP.Reductions
 Import ReductionChainNotations UndecidabilityNotations.
 
 Lemma HaltTM_1_chain_iPCPb : 
-  ⎩ HaltTM 1 ⪯ₘ HaltSBTM ⪯ₘ HaltSBTMu ⪯ₘ SRH ⪯ₘ SR ⪯ₘ MPCP ⪯ₘ PCP ⪯ₘ PCPb ⪯ₘ iPCPb ⎭.
+  HaltTM 1 ⪯ HaltSBTM /\
+  HaltSBTM ⪯ HaltSBTMu /\ 
+  HaltSBTMu ⪯ SRH /\
+  SRH ⪯ SR /\
+  SR ⪯ MPCP /\
+  MPCP ⪯ PCP /\
+  PCP ⪯ PCPb /\
+  PCPb ⪯ iPCPb.
 Proof.
-  msplit 7.
+  repeat eapply conj.
   + apply HaltTM_1_to_HaltSBTM.reduction.
   + apply HaltSBTM_to_HaltSBTMu.reduction.
   + apply HaltSBTMu_to_SRH.reduction.
@@ -48,10 +55,17 @@ Proof.
   + apply PCPb_iff_iPCPb.reductionLR.
 Qed.
 
-Lemma HaltTM_1_to_PCP : HaltTM 1 ⪯ PCP.      Proof. reduce with chain HaltTM_1_chain_iPCPb. Qed.
-Lemma HaltTM_1_to_PCPb : HaltTM 1 ⪯ PCPb.    Proof. reduce with chain HaltTM_1_chain_iPCPb. Qed.
-Lemma HaltTM_1_to_iPCPb : HaltTM 1 ⪯ iPCPb.  Proof. reduce with chain HaltTM_1_chain_iPCPb. Qed.
+Lemma HaltTM_1_to_PCP : HaltTM 1 ⪯ PCP.      
+Proof.
+  repeat (eapply reduces_transitive; [eapply HaltTM_1_chain_iPCPb | try eapply reduces_reflexive]).
+Qed.
 
-Lemma PCP_chain_iPCPb : ⎩PCP ⪯ₘ PCPb ⪯ₘ iPCPb⎭.  Proof. split; apply HaltTM_1_chain_iPCPb. Qed.
-Lemma PCP_chain_PCPb : ⎩PCP ⪯ₘ PCPb⎭.            Proof. apply PCP_chain_iPCPb. Qed.
-Lemma PCPb_chain_iPCPb : ⎩PCPb ⪯ₘiPCPb⎭.         Proof. apply PCP_chain_iPCPb. Qed.
+Lemma HaltTM_1_to_PCPb : HaltTM 1 ⪯ PCPb.
+Proof.
+  repeat (eapply reduces_transitive; [eapply HaltTM_1_chain_iPCPb | try eapply reduces_reflexive]).
+Qed.  
+
+Lemma HaltTM_1_to_iPCPb : HaltTM 1 ⪯ iPCPb.
+Proof.
+  repeat (eapply reduces_transitive; [eapply HaltTM_1_chain_iPCPb | try eapply reduces_reflexive]).
+Qed.
