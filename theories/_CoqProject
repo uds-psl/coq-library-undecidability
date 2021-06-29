@@ -568,6 +568,7 @@ L/Reductions/TM_to_L.v
 L/Reductions/H10_to_L.v
 L/Reductions/MuRec/MuRec_extract.v
 L/Reductions/MuRec.v
+L/Reductions/PCPb_to_L.v
 
 L/Complexity/UpToC.v
 L/Complexity/UpToCNary.v

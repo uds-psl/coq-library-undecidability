@@ -18,6 +18,11 @@ Section forallb.
     all: unfold forallb_time, c__forallb; solverec. 
   Qed. 
 
+  Global Instance term_forallb_notime : computable (@forallb X) . 
+  Proof.
+    extract.
+  Defined.
+
   Lemma forallb_time_eq f (l:list X):
     forallb_time f l = sumn (map f l) + length l * c__forallb + c__forallb.
   Proof.
