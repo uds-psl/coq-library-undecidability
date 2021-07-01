@@ -14,7 +14,11 @@ clean: Makefile.coq
 Makefile.coq: _CoqProject
 	coq_makefile -f _CoqProject -o Makefile.coq
 
-force _CoqProject Makefile: ;
+_CoqProject:
+	yes | cp _CoqProject.in _CoqProject
+	git ls-files "*.v" >> _CoqProject
+
+force _CoqProject.in Makefile: ;
 
 %: Makefile.coq force
 	@+$(MAKE) -f Makefile.coq $@
