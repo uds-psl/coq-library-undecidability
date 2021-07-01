@@ -97,19 +97,29 @@ Proof using P_proc dec'_P.
   -intros. lia.
 Qed.
 
-Lemma mu_complete (n:nat) : P (ext n) == ext true -> exists n0:nat, mu P == ext n0. 
+Lemma mu_complete' (n:nat) : P (ext n) == ext true -> exists n0:nat, mu P == ext n0 /\ P (ext n0) == ext true.
 Proof using P_proc dec'_P.
   remember 0 as n0.
   assert (forall n':nat, n'< n-(n-n0) -> P (ext n') == ext false) by (intros;lia).
   assert ((n-n0)+n0=n) by lia. remember (n-n0) as k. clear Heqk Heqn0 H0 n0. induction k.
-  -simpl in *. subst. intros. eexists. unfold mu. Lsimpl. apply mu'_complete;eauto. intros. apply H. lia. 
-  -intros. destruct (dec_P (n-S k)) as [y P'].
-   destruct y.
-   +eexists. unfold mu. Lsimpl. apply mu'_complete. exact P'. exact H.
-   +apply IHk. intros. decide (n' = n - (S k)).
-     *subst. exact P'.
-     *apply H. lia.
-     *assumption.
+  - simpl in *. subst. intros.
+    eexists. unfold mu. split.
+    + Lsimpl. apply mu'_complete;eauto. intros. apply H. lia.
+    + eauto. 
+  - intros. destruct (dec_P (n-S k)) as [y P'].
+    destruct y.
+    + eexists. unfold mu. split.
+      * Lsimpl. apply mu'_complete. exact P'. exact H.
+      * eauto.
+    + apply IHk. intros. decide (n' = n - (S k)).
+      * subst. exact P'.
+      * apply H. lia.
+      * assumption.
+Qed.
+
+Lemma mu_complete (n:nat) : P (ext n) == ext true -> exists n0:nat, mu P == ext n0. 
+Proof using P_proc dec'_P.
+  intros [? []] % mu_complete'; eauto.
 Qed.
 
 Lemma mu_spec : converges (mu P) <-> exists n : nat, P (ext n) == ext true.
