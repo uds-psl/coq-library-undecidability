@@ -260,10 +260,11 @@ Existing Instance I | 0.
   Proof.
   cbn. intros a b.
   elim a using PA_induction.
-  - unfold representableP. unfold representsP.
+  - represent.
+    (* unfold representableP. unfold representsP.
     exists (<< Free b a, a ⊕ b == b ⊕ a). (* Order is important ! *)
     exists (fun v => if Nat.eqb v 0 then b else iO).
-    intros d. cbn. reflexivity.
+    intros d. cbn. reflexivity. *)
   - now rewrite add_zero_l_ext, add_zero_r_ext.
   - intros a' IH. cbn.
     now rewrite add_succ_l_ext, IH, <- add_succ_r_ext.
