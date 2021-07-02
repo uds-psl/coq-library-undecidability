@@ -74,6 +74,28 @@ Section fractran_utils.
     + apply Forall_cons_inv, proj2 in H0; auto.
   Qed.
 
+  Lemma fractran_compute_fun l x y1 y2 : 
+           fractran_regular l 
+        -> fractran_stop l y1 
+        -> fractran_stop l y2
+        -> fractran_compute l x y1 
+        -> fractran_compute l x y2 -> y1 = y2.
+  Proof.
+    intros H1 H3 H4 H2 ; revert H2 H1 y2 H3 H4.
+    intros [n Hn]. revert x Hn.
+    induction n as [ | n IH]; intros x Hn Hreg y2 Hs1 Hs2 [m H2].
+    - cbn in Hn. subst. red in Hs1. red in Hs2. red in H2.
+      destruct m; inversion H2; [ now eauto | ].
+      firstorder.
+    - cbn in Hn. destruct Hn as [inm [Hstep Hn]].
+      eapply IH; eauto.
+      destruct m.
+      + cbn in H2. subst. firstorder.
+      + cbn in H2. destruct H2 as [inm' [H3 H4]].
+        eapply fractran_step_fun in Hstep; eauto; subst.
+        eexists; eauto.
+  Qed.
+
   (* Regular FRACTRAN programs deefine a linearly bounded step relation 
      The bound computed in the following proofs is very lazy. 
      Indeed we choose p1+...+pn whereas ideally,
