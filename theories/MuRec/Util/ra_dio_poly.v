@@ -170,6 +170,40 @@ Section dio_poly.
       exists e; auto.
   Qed.
 
+  Lemma ra_dio_poly_find_rel_strong1 w e : ⟦ra_dio_poly_find⟧ w e -> ⟦ra_dio_poly_test p q⟧ (e ##w) 0.
+  Proof.
+    simpl; unfold s_min.
+    intros [H1 H2]. eauto.
+  Qed.
+
+  (* Admitted.
+  Proof.
+    simpl; unfold s_min.
+    rewrite μ_min_eq.
+    - intros [[H1 _] % ra_dio_poly_test_rel (ν & H2)].
+      exists (project n e). split. rewrite project_inject.
+      specialize (H1 eq_refl).
+      cbn [vec_head vec_tail] in *.
+      eexists.
+      edestruct (ra_dio_poly_test_val) as [x [Hx1 [_ <-]]].
+      + split. 2: eauto.
+      + erewrite dp_eval_ext.
+        * rewrite H1. eapply dp_eval_ext.
+          -- intros. now rewrite project_inject.
+          -- intros. now rewrite project_inject.
+        * intros. cbn. now rewrite project_inject.
+        * intros. cbn. now rewrite project_inject.
+    - intros (v & Hv). split.
+      edestruct (ra_dio_poly_test_val) as [x [Hx1 [_ <-]]].
+      + eauto.
+      + erewrite dp_eval_ext.
+        * rewrite H1. eapply dp_eval_ext.
+          -- intros. now rewrite project_inject.
+          -- intros. now rewrite project_inject.
+        * intros. cbn. now rewrite project_inject.
+        * intros. cbn. now rewrite project_inject.
+  Qed. *)
+
   (* ra_dio_poly_find terminates on w iff some solution of p(w,x1,...,xn) = q(w,x1,...,xn) exists 
 
       so termination of ra_dio_poly_find terminates on w simulates the existence of a solution
@@ -195,6 +229,33 @@ Section dio_poly.
       eq goal Hv; f_equal; apply dp_eval_ext; intro; try rewrite vec_pos_app_left; auto;
         rewrite vec_pos_app_right; auto.
   Qed.
+
+  Theorem ra_dio_poly_find_spec_strong1 e w :  ⟦ra_dio_poly_find⟧ w e ->
+                                      dp_eval (vec_pos (project n e)) (vec_pos w) p 
+                                    = dp_eval (vec_pos (project n e)) (vec_pos w) q.
+  Proof.
+    intros Hx % ra_dio_poly_find_rel_strong1. rename e into x.
+    destruct (ra_dio_poly_test_val x w) as (e & H1 & H2).
+    assert (e = 0). eapply (ra_rel_fun _ _ _ _ H1 Hx); rewrite H2.
+    eapply H2 in H.
+    eq goal H; f_equal; apply dp_eval_ext; intro; try rewrite vec_pos_app_left; auto;
+        rewrite vec_pos_app_right; auto.
+  Qed.
+
+  Theorem ra_dio_poly_find_spec_strong2 v w :
+                                      dp_eval (vec_pos v) (vec_pos w) p 
+                                    = dp_eval (vec_pos v) (vec_pos w) q
+                                    ->  exists e, ⟦ra_dio_poly_find⟧ w e.
+  Proof.
+    intros.
+    eapply ra_dio_poly_find_spec. eauto.
+  Qed.
+
+  (* Theorem ra_dio_poly_find_spec_strong e w : ⟦ra_dio_poly_find⟧ w e <->
+                                      dp_eval (vec_pos (project n e)) (vec_pos w) p 
+                                    = dp_eval (vec_pos (project n e)) (vec_pos w) q.
+  Proof.
+  Admitted. *)
 
 End dio_poly.
 

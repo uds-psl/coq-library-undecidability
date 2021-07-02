@@ -11,10 +11,10 @@ clean: Makefile.coq
 	@+$(MAKE) -f Makefile.coq clean
 	rm -f Makefile.coq Makefile.coq.conf
 
-Makefile.coq: _CoqProject
+Makefile.coq: _CoqProject 
 	coq_makefile -f _CoqProject -o Makefile.coq
 
-_CoqProject:
+_CoqProject: force
 	yes | cp _CoqProject.in _CoqProject
 	git ls-files "*.v" >> _CoqProject
 

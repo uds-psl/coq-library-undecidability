@@ -585,7 +585,6 @@ Proof.
       rewrite !enc_vector_eq. Lsimpl. subst t. reflexivity. subst t.
       rewrite vec_list_eq. rewrite H0 in Hn. eapply enc_extinj in Hn.
       unfold evalfun in Hn. now destruct eval as [[] | ]; inv Hn.
-    + exact 0.
     + intros. rewrite enc_vector_eq in *.
       match type of H0 with ?s == ?b => evar (t : term); assert (s == t) end. Lsimpl. all: subst t. reflexivity. rewrite H2 in H0. clear H2.
       eapply enc_extinj in H0. Lsimpl.
