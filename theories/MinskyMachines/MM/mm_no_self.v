@@ -291,7 +291,7 @@ Section remove_self_loops.
     { inversion H2; lia. }
   Qed.
 
-  Let P_imp_Q s s0 : in_code (fst s) (1,P) -> (1,P) // s ~~> s0 -> (1,Q) // (fst s, 0##snd s) ↓.
+  Let P_imp_Q_strong s s0 : in_code (fst s) (1,P) -> (1,P) // s ~~> s0 -> (1,Q) // (fst s, 0##snd s) ~~> (0, 0 ## snd s0).
   Proof.
     intros H1 H; revert H1.
     pattern s; revert s H; apply mm_term_ind.
@@ -300,15 +300,23 @@ Section remove_self_loops.
       * apply mm_sss_INC_inv in H2.
         destruct H2 as (G1 & G2).
         destruct (eq_nat_dec i lP) as [ Hi | Hi ].
-        - exists (0,0##w); split; try (simpl; lia).
+        - assert (Eq : snd s0 = w). {
+            destruct H3 as [[k H3] _]; eauto.
+            eapply sss_steps_stall in H3 as [_ <-]. reflexivity.
+            cbn. lia.
+          }
+          unfold snd in Eq. rewrite Eq.
+          split; try (simpl; lia).
           apply sc_Q_1 in H1; simpl f in H1.
           mm sss INC with (pos_nxt x).
           subst i; clear H1; mm sss DEC 0 with pos0 0.
           mm sss stop; f_equal; simpl; subst; auto. 
         - spec in H5. { subst j; simpl in H4 |- *; lia. }
           apply sc_Q_1 in H1; simpl f in H1.
-          apply subcode_sss_terminates_instr with (2 := H1) (3 := H5).
-          subst; constructor.
+          split. 2:eapply H5.
+          eapply subcode_sss_compute_instr with (2 := H1).
+          2: eapply H5.
+          subst. constructor.
       * generalize H1; intros H6.
         apply sc_Q_1 in H6; unfold f in H6.
         case_eq (v#>x).
@@ -321,28 +329,55 @@ Section remove_self_loops.
               apply subcode_sss_compute_instr with (1 := H2) (3 := H3); auto.
            -- destruct (le_lt_dec (1+lP) p) as [ Hp1 | Hp1 ];
                 [ | destruct (eq_nat_dec p 0) as [ Hp2 | Hp2 ] ].
-              ** exists (0,0##v); split; try (simpl; lia).
+              ** split; try (simpl; lia).
                  mm sss DEC 0 with (pos_nxt x) 0.
-                 mm sss stop.
-              ** subst p; exists (0,0##v); split; try (simpl; lia).
+                 mm sss stop. repeat f_equal.
+                 inversion H2; subst; clear H2.
+                 --- destruct H3 as [[k H3] _]; eauto.
+                     eapply sss_steps_stall in H3 as [_ <-]. reflexivity.
+                     cbn. lia.
+                 --- lia.
+              ** subst p.
+                 split; try (simpl; lia).
                  mm sss DEC 0 with (pos_nxt x) 0.
-                 mm sss stop.
+                 mm sss stop. repeat f_equal. 
+                 inversion H2; subst; clear H2.
+                 --- destruct H3 as [[k H3] _]; eauto.
+                     eapply sss_steps_stall in H3 as [_ <-]. reflexivity.
+                     cbn. lia.
+                 --- lia.
               ** apply mm_sss_DEC0_inv with (1 := Hx) in H2.
                  destruct H2; subst j w.
                  spec in H5. { simpl; lia. }
-                 apply subcode_sss_terminates_instr with (2 := H6) (3 := H5).
-                 constructor; simpl; auto.
+                 split. 2:eapply H5.
+                 eapply subcode_sss_compute_instr with (2 := H6).
+                 2: eapply H5.
+                 constructor; simpl; eauto.
         ++ intros u Hx.
            apply mm_sss_DEC1_inv with (1 := Hx) in H2.
            destruct H2 as [ ? H2 ]; subst j.
            destruct (eq_nat_dec i lP) as [ Hi | Hi ].
-           -- exists (0,0##w); split; simpl; auto.
+           -- assert (Eq : snd s0 = w). { 
+                destruct H3 as [[k H3] _]; eauto.
+                eapply sss_steps_stall in H3 as [_ <-]. reflexivity.
+                cbn. lia.
+              }
+              unfold snd in Eq. rewrite Eq.
+              split; simpl; auto.
               apply subcode_sss_compute_instr with (2 := H6) (st2 := (1+i,0##w)); auto.
               ** replace (0##w) with ((0##v)[u/pos_nxt x]); subst; auto; constructor; auto.
               ** subst i; mm sss DEC 0 with pos0 0; mm sss stop.
            -- spec in H5. { simpl in H4 |- *; lia. }
-              apply subcode_sss_terminates_instr with (2 := H6) (3 := H5); auto.
+              split. 2: eapply H5.
+              eapply subcode_sss_compute_instr with (2 := H6); auto.
+              2: eapply H5.
               replace (0##w) with ((0##v)[u/pos_nxt x]); subst; auto; constructor; auto.
+  Qed.
+
+  Let P_imp_Q s s0 : in_code (fst s) (1,P) -> (1,P) // s ~~> s0 -> (1,Q) // (fst s, 0##snd s) ↓.
+  Proof.
+    intros H1 H. eapply P_imp_Q_strong in H; eauto.
+    eexists. eauto.
   Qed.
 
   Let Q_imp_P s s0 : in_code (fst s) (1,P) -> (snd s)#>pos0 = 0 -> (1,Q) // s ~~> s0 -> (1,P) // (fst s, vec_tail (snd s)) ↓.
@@ -413,6 +448,41 @@ Section remove_self_loops.
     + exists Q; split; auto; split; auto; intros v; split.
       * intros (s0 & H); revert H; apply P_imp_Q; simpl; lia.
       * intros (s0 & H); revert H; apply Q_imp_P; simpl; lia.
+  Qed.
+
+  Theorem mm_remove_self_loops_strong : { Q |  mm_no_self_loops (1,Q)
+                                     /\ (forall i x j, (i,DEC x j::nil) <sc (1,Q) -> j < 1+length Q)
+                                     /\ forall v w, (exists j, (1,P) // (1,v) ~~> (j, w)) <-> (exists j, (1,Q) // (1,0##v) ~~> (j, 0 ## w)) }.
+  Proof.
+    destruct (eq_nat_dec lP 0) as [ HlP | HlP ].
+    + exists nil.
+      split; [ | split ].
+      - intros i rho ([ | ] & ? & ? & ?); discriminate.
+      - intros i x j ([ | ] & ? & ? & ?); discriminate.
+      - destruct P; try discriminate.
+        split.
+        * exists 1. split; simpl; try lia; mm sss stop.
+          destruct H as [j [[i Hj] ?]].
+          eapply sss_steps_stall in Hj as [_ [=]]. 2:cbn; lia. now subst.
+        * exists 1. split; simpl; try lia; mm sss stop.
+          destruct H as [j [[i Hj] ?]].
+          eapply sss_steps_stall in Hj as [_ ? % (f_equal snd) % (f_equal (@vec_tail _ _))]. cbn in H1. congruence.
+          cbn; lia.
+    + exists Q; split; auto; split; auto; intros v; split.
+      * intros [j H]. exists 0.
+        eapply (@P_imp_Q_strong (1,v) (j,w)); simpl; try lia; eauto.
+      * intros [j H].
+        destruct (@Q_imp_P (1, 0 ## v) (j, 0 ## w)) as [[j' w'] H2]; eauto.
+        -- simpl; lia.
+        -- exists j'. cbn in H2. enough (w' = w) as <- by eauto.
+           eapply P_imp_Q_strong in H2.
+           2: simpl; lia. cbn in H2.
+           destruct H2 as [H2 ?]. destruct H as [H ?].
+           eapply sss_compute_fun in H; eauto.
+           eapply (f_equal snd) in H.
+           cbn in H.
+           eapply (f_equal (@vec_tail _ _)) in H.
+           exact H. eapply mm_sss_fun.
   Qed.
 
 End remove_self_loops.

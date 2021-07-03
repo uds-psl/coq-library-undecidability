@@ -24,13 +24,6 @@ Proof.
   - eapply (Fin.caseS' i); cbn; eauto.
 Qed.
 
-Lemma vec_app_spec {X} {n m} (v : Vector.t X n) (w : Vector.t X m) :
-  vec_app v w = Vector.append v w.
-Proof.
-  induction v; cbn; f_equal.
-  -
-Admitted.
-
 Fixpoint dio_move {k k'} (P : dio_polynomial (pos k) (pos (S k'))) : dio_polynomial (pos (S k)) (pos k') :=
   match P with
   | dp_nat n => dp_nat n

@@ -60,7 +60,16 @@ Section fractran_dio.
     + dio by lemma (fun v => fractan_stop_cons_inv p q l (x v)).
   Defined.
 
+  Definition fractran_eval_old P n m := fractran_compute P n m /\ fractran_stop P m.
+
   Hint Resolve dio_rel_fractran_rt dio_rel_fractran_stop : dio_rel_db.
+
+  Lemma dio_rel_fractran_eval l x y : 
+      𝔻F x -> 𝔻F y -> 𝔻R (fun ν => fractran_eval_old l (x ν) (y ν)).
+  Proof.
+    intros Hx Hy.  unfold fractran_eval_old.
+    dio auto.
+  Defined.
 
   (* We start with the case of regular Fractran programs that do not
      contain (_,0) "fractions" *)
@@ -109,15 +118,36 @@ Section exp_diophantine.
   Fact fractran_exp_diophantine n : 𝔻F (fun ν => ps 1 * exp 1 (fun2vec 0 n ν)).
   Proof. dio auto. Defined.
 
+  Fact fractran_exp_diophantine' n : 𝔻F (fun ν => ps 1 * exp 1 (fun2vec 1 (S n) ν)).
+  Proof. dio auto. Defined.
+
+  Fact fractran_exp_diophantine'' i : 𝔻F (fun ν => qs i ^ ν 1).
+  Admitted.
+  
 End exp_diophantine.
 
-#[export] Hint Resolve fractran_exp_diophantine : dio_fun_db.
+#[export] Hint Resolve fractran_exp_diophantine fractran_exp_diophantine' fractran_exp_diophantine'' : dio_fun_db.
 
 Theorem FRACTRAN_HALTING_on_exp_diophantine n l :  
                      𝔻R (fun ν => l /F/ ps 1 * exp 1 (fun2vec 0 n ν) ↓).
 Proof.
   apply dio_rel_compose with (R := fun x v => l /F/ x ↓); [ dio auto | ].
   apply FRACTRAN_HALTING_on_diophantine; dio auto.
+Qed.
+
+Theorem fractran_eval_old_diophantine n l :  
+                     𝔻R (fun ν => fractran_eval_old l (ps 1 * exp 1 (fun2vec 1 (S n) ν)) (qs 0 ^ (ν 0))).
+Proof.
+  apply dio_rel_compose with (R := fun x v => fractran_eval_old l x _); [ dio auto | ].
+  apply dio_rel_compose with (R := fun x v => fractran_eval_old l _ x); [ dio auto | ].
+  apply dio_rel_fractran_eval; dio auto.
+Qed.
+
+Theorem fractran_eval_diophantine n l :  
+                     𝔻R (fun ν => fractran_eval l (ps 1 * exp 1 (fun2vec 1 (S n) ν)) (qs 0 ^ (ν 0))).
+Proof.
+  edestruct fractran_eval_old_diophantine as [? H].
+  eexists. setoid_rewrite FRACTRAN_sss.eval_iff. exact H.
 Qed.
 
 Theorem FRACTRAN_HALTING_dio_single E l x : { e : dio_single nat E | l /F/ x ↓ <-> dio_single_pred e (fun _ => 0) }.
