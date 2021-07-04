@@ -109,6 +109,14 @@ Section exp_diophantine.
       abstract (intros v; simpl fun2vec; rewrite exp_cons, power_expo; auto).
   Defined.
 
+  Let exp_dio_lift n i j : 𝔻F (fun v => exp i (fun2vec j n v⭳)).
+  Proof.
+    revert j i; induction n as [ | n IHn ]; intros j i.
+    + simpl; dio auto.
+    + by dio equiv (fun v => power (v (S j)) (qs i) * exp (S i) (fun2vec (S j) n v⭳)).
+      abstract (intros v; simpl fun2vec; rewrite exp_cons, power_expo; auto).
+  Qed.
+
   (* for a fixed n, the relation 
   
          ν 0 = ps 1 * (qs 1)^(ν 1) * ... * (qs n)^(ν n) 
@@ -116,13 +124,16 @@ Section exp_diophantine.
      has a diophantine representation *)
 
   Fact fractran_exp_diophantine n : 𝔻F (fun ν => ps 1 * exp 1 (fun2vec 0 n ν)).
-  Proof. dio auto. Defined.
+  Proof. dio auto. Show Proof. Defined.
 
-  Fact fractran_exp_diophantine' n : 𝔻F (fun ν => ps 1 * exp 1 (fun2vec 1 (S n) ν)).
-  Proof. dio auto. Defined.
+  Fact fractran_exp_diophantine' n : 𝔻F (fun ν => ps 1 * exp 2 (fun2vec 1 n ν⭳)).
+  Proof. eapply dio_fun_mult. dio auto. eapply exp_dio_lift. Qed.
 
-  Fact fractran_exp_diophantine'' i : 𝔻F (fun ν => qs i ^ ν 1).
-  Admitted.
+  Fact fractran_exp_diophantine'' : 𝔻F (fun ν => ν 1 * qs 1 ^ ν 2).
+  Proof. 
+    by dio equiv (fun ν => ν 1 * power  (ν 2) (qs 1)).
+    intros. now rewrite power_expo.
+  Qed.
   
 End exp_diophantine.
 
@@ -136,18 +147,24 @@ Proof.
 Qed.
 
 Theorem fractran_eval_old_diophantine n l :  
-                     𝔻R (fun ν => fractran_eval_old l (ps 1 * exp 1 (fun2vec 1 (S n) ν)) (qs 0 ^ (ν 0))).
+                     𝔻R (fun ν => fractran_eval_old l (ps 1 * exp 2 (fun2vec 1 n ν⭳)) (ν 0 * qs 1 ^ (ν 1))).
 Proof.
-  apply dio_rel_compose with (R := fun x v => fractran_eval_old l x _); [ dio auto | ].
+  apply dio_rel_compose with (R := fun x v => fractran_eval_old l x _); [ dio auto | ]. 
   apply dio_rel_compose with (R := fun x v => fractran_eval_old l _ x); [ dio auto | ].
   apply dio_rel_fractran_eval; dio auto.
-Qed.
+Qed. 
 
 Theorem fractran_eval_diophantine n l :  
-                     𝔻R (fun ν => fractran_eval l (ps 1 * exp 1 (fun2vec 1 (S n) ν)) (qs 0 ^ (ν 0))).
+                     𝔻R (fun ν => fractran_eval l (ps 1 * exp 2 (fun2vec 1 n ν⭳)) (ν 0 * qs 1 ^ (ν 1))).
 Proof.
   edestruct fractran_eval_old_diophantine as [? H].
   eexists. setoid_rewrite FRACTRAN_sss.eval_iff. exact H.
+Qed. 
+
+Theorem fractran_computable_diophantine n l :  
+                     𝔻R (fun ν => exists j, fractran_eval l (ps 1 * exp 2 (fun2vec 1 n ν)) (j * qs 1 ^ (ν 0)) /\ ~ divides (qs 1) j).
+Proof.
+  dio auto. eapply fractran_eval_diophantine.
 Qed.
 
 Theorem FRACTRAN_HALTING_dio_single E l x : { e : dio_single nat E | l /F/ x ↓ <-> dio_single_pred e (fun _ => 0) }.
