@@ -14,7 +14,7 @@ Proof.
 Qed.
 
 Theorem FRACTRAN_computable_to_Diophantine {k} (R : Vector.t nat k -> nat -> Prop) :
-  FRACTRAN_computable qs R -> Diophantine' R.
+  FRACTRAN_computable R -> Diophantine' R.
 Proof.
   intros (P & regP & HP).
   enough (dio_rec_single_n (fun v : vec _ (S k) => R (vec_tail v) (vec_head v))) as (n & P1 & P2 & H).

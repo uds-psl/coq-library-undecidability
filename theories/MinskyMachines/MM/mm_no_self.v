@@ -452,6 +452,28 @@ Section remove_self_loops.
 
   Theorem mm_remove_self_loops_strong : { Q |  mm_no_self_loops (1,Q)
                                      /\ (forall i x j, (i,DEC x j::nil) <sc (1,Q) -> j < 1+length Q)
+                                     /\ (forall v w, (exists j, (1,P) // (1,v) ~~> (j, w)) -> (exists j, (1,Q) // (1,0##v) ~~> (j, 0 ## w))) 
+                                     /\ (forall v,  (1,Q) // (1,0##v) ↓ -> (1,P) // (1,v) ↓)}.
+  Proof.
+    destruct (eq_nat_dec lP 0) as [ HlP | HlP ].
+    + exists nil.
+      split; [ | split ].
+      - intros i rho ([ | ] & ? & ? & ?); discriminate.
+      - intros i x j ([ | ] & ? & ? & ?); discriminate.
+      - destruct P; try discriminate.
+        split.
+        * exists 1. split; simpl; try lia; mm sss stop.
+          destruct H as [j [[i Hj] ?]].
+          eapply sss_steps_stall in Hj as [_ [=]]. 2:cbn; lia. now subst.
+        * intros v [(j, w) H]. exists (1,v);split; simpl; try lia; mm sss stop.
+    + exists Q. split; auto; split; auto; split.
+      * intros v w [j H]. exists 0.
+        eapply (@P_imp_Q_strong (1,v) (j,w)); simpl; try lia; eauto.
+      * intros v (s0 & H); revert H; apply Q_imp_P; simpl; lia.
+  Qed.
+
+  Theorem mm_remove_self_loops_strong' : { Q |  mm_no_self_loops (1,Q)
+                                     /\ (forall i x j, (i,DEC x j::nil) <sc (1,Q) -> j < 1+length Q)
                                      /\ forall v w, (exists j, (1,P) // (1,v) ~~> (j, w)) <-> (exists j, (1,Q) // (1,0##v) ~~> (j, 0 ## w)) }.
   Proof.
     destruct (eq_nat_dec lP 0) as [ HlP | HlP ].

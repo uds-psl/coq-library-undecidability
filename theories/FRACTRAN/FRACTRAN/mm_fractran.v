@@ -413,8 +413,20 @@ Proof.
      simpl exp; rewrite Nat.add_0_r; tauto.
 Qed.
 
-
 Theorem mm_fractran_n_strong n (P : list (mm_instr (pos n))) : 
+        { l |  Forall (fun c => snd c <> 0) l
+            /\ (forall v w, (exists j, (1,P) /MM/ (1,v) ▹ (j,w)) -> (exists j, l /F/ ps 1 * exp 1 v ▹ encode_state (j,0 ## w)))
+            /\ (forall v, (l /F/ ps 1 * exp 1 v ↓) -> (1,P) /MM/ (1,v) ↓) }.
+Proof.
+  destruct mm_remove_self_loops_strong with (P := P) as (Q & H1 & H2 & H3 & H4).
+  exists (encode_mm_instr 1 Q); split. 
+  + eapply Forall_impl. 2: apply encode_mm_instr_regular. firstorder.
+  + split.
+    - intros v w [j H % mm_fractran_simulation_forward] % H3; eauto. cbn in H. rewrite Nat.add_0_r in H. eauto.
+    - intros v H. eapply H4. eapply mm_fractran_simulation; [ auto | ]. cbn. now rewrite Nat.add_0_r.
+Qed.
+(* 
+Theorem mm_fractran_n_strong' n (P : list (mm_instr (pos n))) : 
         { l |  Forall (fun c => snd c <> 0) l
             /\ forall v w, (exists j, (1,P) /MM/ (1,v) ▹ (j,w)) <-> (exists j, l /F/ ps 1 * exp 1 v ▹ encode_state (j,0 ## w)) }.
 Proof.
@@ -423,10 +435,10 @@ Proof.
   + eapply Forall_impl. 2: apply encode_mm_instr_regular. firstorder.
   + intros v w.
     split.
-    - intros [j H % mm_fractran_simulation_strong] % H2; eauto. cbn in H. rewrite Nat.add_0_r in H. eauto.
-    - intros [j H]. eapply H2. eexists. eapply mm_fractran_simulation_strong. eauto.
+    - intros [j H % mm_fractran_simulation_strong'] % H2; eauto. cbn in H. rewrite Nat.add_0_r in H. eauto.
+    - intros [j H]. eapply H2. eexists. eapply mm_fractran_simulation_strong'. eauto.
       cbn. rewrite Nat.add_0_r. eauto.
-Qed.
+Qed. *)
 
 Theorem mm_fractran_n n (P : list (mm_instr (pos n))) : 
         { l |  Forall (fun c => snd c <> 0) l
