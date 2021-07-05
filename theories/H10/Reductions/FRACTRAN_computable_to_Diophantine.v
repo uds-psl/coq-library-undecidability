@@ -30,8 +30,6 @@ Proof.
       eapply fun2vec_ext. intros. f_equal. lia.
 Qed.
 
-From Equations Require Import Equations.
-
 Lemma nat2pos_ext n m (l1 l2 : n < m) : pos.nat2pos l1 = pos.nat2pos l2.
 Proof.
   induction m in n, l1, l2 |- *; cbn.
@@ -65,12 +63,7 @@ Proof.
     intros m v. cbn [vec_tail vec_head]. 
     specialize (HP v) as HP1.  
     rewrite HP1, HA, fun2vec_plus, (fun2vec_ext _ (vec2fun v 0)), fun2vec_vec2fun. 1: reflexivity.
-    clear. unfold vec2fun. intros x.
-    do 2 destruct Compare_dec.le_lt_dec; try lia.
-    enough (pos.nat2pos l = Fin.FS (pos.nat2pos l0)) as -> by reflexivity. clear.
-    cbn in l. induction k in x, l, l0 |- *.
-    + cbn. lia.
-    + cbn. destruct x.
-      * reflexivity.
-      * f_equal. f_equal. eapply nat2pos_ext.
+    intros x. unfold vec2fun. do 2 destruct Compare_dec.le_lt_dec. 1,2,3: lia.
+    enough (pos.nat2pos l = Fin.FS (pos.nat2pos l0)) as -> by reflexivity.
+    destruct k, x; cbn; try lia; do 2 f_equal; eapply nat2pos_ext.
 Qed.

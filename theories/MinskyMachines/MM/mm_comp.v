@@ -188,6 +188,23 @@ Section simulator.
       * apply H1.
     Qed.
 
+    Local Lemma Q_spec1_strong i1 v1 : (iP,cP) /BSM/ (iP,v) ~~> (i1, v1) -> Q /MM/ (1,w) ~~> (code_end Q, 0##0##vec_map stack_enc v1).
+    Proof.
+      intros H1.
+      destruct HQ1 with (1 := conj w_prop H1) as (w' & H2 & H3).
+      rewrite <- (proj2 (proj2 Hlnk) i1), <- (proj1 (proj2 Hlnk)).
+      * eenough (w' = 0 ## 0 ## _) as <- by eassumption.
+        destruct H2 as (H2 & H4 & H5).
+        eapply vec_pos_ext. unfold n. intros p. eapply (Fin.caseS' p); [ eapply H2 | ].
+        clear p. intros p. eapply (Fin.caseS' p); [ eapply H4 | ].
+        clear p. intros p. unfold reg in H5. rewrite H5. cbn.
+        clear. induction v1; cbn.
+        - destruct pos_O_inv.
+        - eapply (Fin.caseS' p); try reflexivity.
+          eapply IHv1.
+      * apply H1.
+    Qed.    
+
     Local Lemma Q_spec2 : Q /MM/ (1,w) ↓ -> (iP,cP) /BSM/ (iP,v) ↓.
     Proof.
       intros ((j,w2) & H1).
@@ -206,6 +223,13 @@ Section simulator.
       intros H.
       destruct (Q_spec1 H) as (w' & H1 & _).
       exists (code_end Q, w'); auto.
+    Qed.
+
+    Theorem bsm_mm_sim_spec_strong i1 v1 : (iP,cP) /BSM/ (iP,v) ~~> (i1, v1) -> (1,bsm_mm_sim) /MM/ (1,w) ~~> (code_end Q, 0##0##vec_map stack_enc v1).
+    Proof.
+      rewrite <- (proj1 Hlnk) at 1.
+      rewrite <- surjective_pairing.
+      apply Q_spec1_strong.
     Qed.
 
     Local Definition iE := code_end Q.
