@@ -230,29 +230,31 @@ Section fixM.
 
     Notation δ := (trans M).
 
+    Variable j : nat.
+
     Notation "! p" := (proj1_sig (Fin.to_nat p)) (at level 1).
 
     Notation c := 76.
 
     Local Notation "'if!' x 'is' p 'then' a 'else' b" := (match x with p => a | _ => b end) (at level 0, p pattern).
 
-    Notation END := ((2 + num_states M) * c).
+    Notation END := (j + (2 + num_states M) * c).
 
     Definition PROG (i : Fin.t (S (num_states M))) :=
-      let off := c * !i in
+      let off := j + c * !i in
       [
          (*      off *)  POP CURR (26 + off) (51 + off) ;
          (*  1 + off *)  PUSH CURR (if! δ (i, Some true) is Some (_, Some false, _) then false else true)
       ] ++
          (*  2 + off *)  match δ (i, Some true) with Some (_, _, Rmove) => MOVE_R (2 + off) | Some (_, _, Lmove) => MOVE_L (2 + off) | _ => repeat (JMP (25 + off)) 23 end ++
-      [  (* 25 + off *)  JMP (match δ (i, Some true) with None => END | Some (q', _, _) => (c * ! q') end) ;
+      [  (* 25 + off *)  JMP (match δ (i, Some true) with None => END | Some (q', _, _) => (j + c * ! q') end) ;
          (* 26 + off *)  PUSH CURR (if! δ (i, Some false) is Some (_, Some true, _) then true else false) ]
          ++
          (* 27 + off *)  match δ (i, Some false) with Some (_, _, Rmove) => MOVE_R (27 + off) | Some (_, _, Lmove) => MOVE_L (27 + off) | _ => repeat (JMP (50 + off)) 23 end ++
-      [  (* 50 + off *)  JMP (match δ (i, Some false) with None => END | Some (q', _, _) => (c * ! q') end) ;
+      [  (* 50 + off *)  JMP (match δ (i, Some false) with None => END | Some (q', _, _) => (j + c * ! q') end) ;
          (* 51 + off *)  match δ (i, None) with None => JMP END | Some (_, Some w, _) => PUSH CURR w | Some _ => JMP (52 + off) end ] ++
          (* 52 + off *)  match δ (i, None) with Some (_, _, Rmove) => MOVE_R (52 + off) | Some (_, _, Lmove) => MOVE_L (52 + off) | _ => repeat (JMP (75 + off)) 23 end ++
-      [  (* 75 + off *)  JMP (match δ (i, None) with None => END | Some (q', _, _) => (c * ! q') end )
+      [  (* 75 + off *)  JMP (match δ (i, None) with None => END | Some (q', _, _) => (j + c * ! q') end )
       ]
       .
  
@@ -264,13 +266,13 @@ Section fixM.
            all:reflexivity.
     Qed. 
  
-    Lemma subcode1 i : let off := c * !i in (26 + off, [PUSH CURR (if! δ (i, Some false) is Some (_, Some true, _) then true else false) ]
+    Lemma subcode1 i : let off := j  + c * !i in (26 + off, [PUSH CURR (if! δ (i, Some false) is Some (_, Some true, _) then true else false) ]
     ++
     (* 27 + off *)  match δ (i, Some false) with Some (_, _, Rmove) => MOVE_R (27 + off) | Some (_, _, Lmove) => MOVE_L (27 + off) | _ => repeat (JMP (50 + off)) 23 end ++
- [  (* 50 + off *)  JMP (match δ (i, Some false) with None => END | Some (q', _, _) => (c * ! q') end) ;
+ [  (* 50 + off *)  JMP (match δ (i, Some false) with None => END | Some (q', _, _) => (j + c * ! q') end) ;
     (* 51 + off *)  match δ (i, None) with None => JMP END | Some (_, Some w, _) => PUSH CURR w | Some _ => JMP (52 + off) end ] ++
     (* 52 + off *)  match δ (i, None) with Some (_, _, Rmove) => MOVE_R (52 + off) | Some (_, _, Lmove) => MOVE_L (52 + off) | _ => repeat (JMP (75 + off)) 23 end ++
- [  (* 75 + off *)  JMP (match δ (i, None) with None => END | Some (q', _, _) => (c * ! q') end )
+ [  (* 75 + off *)  JMP (match δ (i, None) with None => END | Some (q', _, _) => (j + c * ! q') end )
  ]) <sc (off, PROG i).
     Proof.
       intros ?. 
@@ -282,15 +284,15 @@ Section fixM.
       (*  1 + off *)  PUSH CURR (if! δ (i, Some true) is Some (_, Some false, _) then false else true)
    ] ++
       (*  2 + off *)  match δ (i, Some true) with Some (_, _, Rmove) => MOVE_R (2 + off) | Some (_, _, Lmove) => MOVE_L (2 + off) | _ => repeat (JMP (25 + off)) 23 end ++
-   [  (* 25 + off *)  JMP (match δ (i, Some true) with None => END | Some (q', _, _) => (c * ! q') end)]); subst off. rewrite H. 
+   [  (* 25 + off *)  JMP (match δ (i, Some true) with None => END | Some (q', _, _) => (j + c * ! q') end)]); subst off. rewrite H. 
       unfold PROG. now rewrite <- !app_assoc. 
       unfold PROG. destruct (δ (i, Some One)) as [ [ [] [] ] | ]; reflexivity.
     Qed.
 
-    Lemma subcode2 i : let off := c * !i in (51 + off, [
+    Lemma subcode2 i : let off := j + c * !i in (51 + off, [
     (* 51 + off *)  match δ (i, None) with None => JMP END | Some (_, Some w, _) => PUSH CURR w | Some _ => JMP (52 + off) end ] ++
     (* 52 + off *)  match δ (i, None) with Some (_, _, Rmove) => MOVE_R (52 + off) | Some (_, _, Lmove) => MOVE_L (52 + off) | _ => repeat (JMP (75 + off)) 23 end ++
- [  (* 75 + off *)  JMP (match δ (i, None) with None => END | Some (q', _, _) => (c * ! q') end )
+ [  (* 75 + off *)  JMP (match δ (i, None) with None => END | Some (q', _, _) => (j + c * ! q') end )
  ]) <sc (off, PROG i).
     Proof.
       intros ?. 
@@ -302,11 +304,11 @@ Section fixM.
       (*  1 + off *)  PUSH CURR (if! δ (i, Some true) is Some (_, Some false, _) then false else true)
    ] ++
       (*  2 + off *)  match δ (i, Some true) with Some (_, _, Rmove) => MOVE_R (2 + off) | Some (_, _, Lmove) => MOVE_L (2 + off) | _ => repeat (JMP (25 + off)) 23 end ++
-   [  (* 25 + off *)  JMP (match δ (i, Some true) with None => END | Some (q', _, _) => (c * ! q') end) ;
+   [  (* 25 + off *)  JMP (match δ (i, Some true) with None => END | Some (q', _, _) => (j + c * ! q') end) ;
       (* 26 + off *)  PUSH CURR (if! δ (i, Some false) is Some (_, Some true, _) then true else false) ]
       ++
       (* 27 + off *)  match δ (i, Some false) with Some (_, _, Rmove) => MOVE_R (27 + off) | Some (_, _, Lmove) => MOVE_L (27 + off) | _ => repeat (JMP (50 + off)) 23 end ++
-   [  (* 50 + off *)  JMP (match δ (i, Some false) with None => END | Some (q', _, _) => (c * ! q') end)]); subst off. rewrite H.  
+   [  (* 50 + off *)  JMP (match δ (i, Some false) with None => END | Some (q', _, _) => (j + c * ! q') end)]); subst off. rewrite H.  
       unfold PROG. now rewrite <- !app_assoc.
       unfold PROG. destruct (δ (i, Some One)) as [ [ [] [] ] | ]; destruct (δ (i, Some false)) as [ [ [] [] ] | ]; reflexivity.
     Qed.
@@ -330,12 +332,12 @@ Section fixM.
     Qed.
 
     Fact PROG_spec (i : Fin.t (S (num_states M))) t :
-      (c * !i, PROG i) // (c * !i, enc_tape t) -+> match δ (i, curr t) 
+      (j + c * !i, PROG i) // (j + c * !i, enc_tape t) -+> match δ (i, curr t) 
                                                    with None => (END, enc_tape t) |
-                                                        Some (q', w, m) => (c * !q' , enc_tape (mv m (wr w t)))
+                                                        Some (q', w, m) => (j + c * !q' , enc_tape (mv m (wr w t)))
                                                    end.
     Proof.
-      set (off := c * !i).
+      set (off := j + c * !i).
       destruct t as [[ls [ [] | ]] rs] eqn:Eq_tape.
       - cbn [curr].
         eapply sss_progress_compute_trans. exists 1. split. lia. econstructor. 2:econstructor.
@@ -352,30 +354,30 @@ Section fixM.
             -- eapply subcode_sss_compute_trans with (P := (2+off, MOVE_L (2 + off))). eauto.
                cbn - [plus mult].
                eapply (MOVE_L_spec (2 + off) (ls, Some Zero, rs)).
-               bsm sss POP empty with ZERO (c * ! q') (c * ! q').
+               bsm sss POP empty with ZERO (j + c * ! q') (j + c * ! q').
                bsm sss stop. rewrite H0. reflexivity.
             -- eapply subcode_sss_compute_trans with (P := (2+off, MOVE_R (2 + off))). eauto.
                cbn - [plus mult].
                eapply (MOVE_R_spec (2 + off) (ls, Some Zero, rs)).
-               bsm sss POP empty with ZERO (c * ! q') (c * ! q').
+               bsm sss POP empty with ZERO (j + c * ! q') (j + c * ! q').
                bsm sss stop. rewrite H0. reflexivity.
             -- bsm sss POP empty with ZERO (25 + off) (25 + off).
-               bsm sss POP empty with ZERO (c * !q') (c * !q').
+               bsm sss POP empty with ZERO (j + c * !q') (j + c * !q').
                bsm sss stop. subst; reflexivity.
           * rewrite H. bsm sss PUSH with CURR true.
             destruct m eqn:Eq_mv.
             -- eapply subcode_sss_compute_trans with (P := (2+off, MOVE_L (2 + off))). eauto.
                cbn - [plus mult].
                eapply (MOVE_L_spec (2 + off) (ls, Some One, rs)).
-               bsm sss POP empty with ZERO (c * ! q') (c * ! q').
+               bsm sss POP empty with ZERO (j + c * ! q') (j + c * ! q').
                bsm sss stop. destruct w as [ [] | ]; try reflexivity. congruence.
             -- eapply subcode_sss_compute_trans with (P := (2+off, MOVE_R (2 + off))). eauto.
                cbn - [plus mult].
                eapply (MOVE_R_spec (2 + off) (ls, Some One, rs)).
-               bsm sss POP empty with ZERO (c * ! q') (c * ! q').
+               bsm sss POP empty with ZERO (j + c * ! q') (j + c * ! q').
                bsm sss stop. destruct w as [ [] | ]; try reflexivity. congruence.
             -- bsm sss POP empty with ZERO (25 + off) (25 + off).
-               bsm sss POP empty with ZERO (c * !q') (c * !q').
+               bsm sss POP empty with ZERO (j + c * !q') (j + c * !q').
                bsm sss stop. destruct w as [ [] | ]; try reflexivity. congruence.
         + bsm sss PUSH with CURR true.
           bsm sss POP empty with ZERO (25 + off) (25 + off).
@@ -391,42 +393,42 @@ Section fixM.
         eapply subcode_sss_compute_trans; try eapply subcode1. 2:{ bsm sss stop. }
         destruct (δ (i, Some false)) as [ [[q' w] m] | ] eqn:Eq_nxt.
         + edestruct (@case_Some_true w) as [ [] | []].
-          * rewrite H. change (76 * !i)  with off.
+          * rewrite H. change (j + 76 * !i)  with off.
             bsm sss PUSH with CURR true.
             destruct m eqn:Eq_mv.
             -- eapply subcode_sss_compute_trans with (P := (27+off, MOVE_L (27 + off))). eauto.
                eapply (MOVE_L_spec (27 + off) (ls, Some One, rs)).
                replace (23 + (27 + off)) with (24 + (26 + off)) by lia.
-               bsm sss POP empty with ZERO (c * ! q') (c * ! q').
+               bsm sss POP empty with ZERO (j + c * ! q') (j + c * ! q').
                bsm sss stop. rewrite H0. reflexivity.
             -- eapply subcode_sss_compute_trans with (P := (27 +off, MOVE_R (27 + off))). eauto.
                eapply (MOVE_R_spec (27 + off) (ls, Some One, rs)).
                replace (23 + (27 + off)) with (24 + (26 + off)) by lia.
-               bsm sss POP empty with ZERO (c * ! q') (c * ! q').
+               bsm sss POP empty with ZERO (j + c * ! q') (j + c * ! q').
                bsm sss stop. rewrite H0. reflexivity.
             -- bsm sss POP empty with ZERO (50 + off) (50 + off).
                replace (50 + off) with (24 + (26 + off)) by lia.
-               bsm sss POP empty with ZERO (c * !q') (c * !q').
+               bsm sss POP empty with ZERO (j + c * !q') (j + c * !q').
                bsm sss stop. subst; reflexivity.
-          * rewrite H. change (76 * !i)  with off.
+          * rewrite H. change (j + 76 * !i)  with off.
             bsm sss PUSH with CURR false.
             destruct m eqn:Eq_mv.
             -- eapply subcode_sss_compute_trans with (P := (27+off, MOVE_L (27 + off))). replace (27 + off) with (1 + (26 + off)) at 1 by lia. eauto.
                eapply (MOVE_L_spec (27 + off) (ls, Some false, rs)).
                replace (23 + (27 + off)) with (24 + (26 + off)) by lia.
-               bsm sss POP empty with ZERO (c * ! q') (c * ! q').
+               bsm sss POP empty with ZERO (j + c * ! q') (j + c * ! q').
                bsm sss stop. destruct w as [ [] | ]; try reflexivity. congruence.
             -- eapply subcode_sss_compute_trans with (P := (27 +off, MOVE_R (27 + off))). 
                replace (27 + off) with (1 + (26 + off)) at 1 by lia. eauto.
                eapply (MOVE_R_spec (27 + off) (ls, Some false, rs)).
                replace (23 + (27 + off)) with (24 + (26 + off)) by lia.
-               bsm sss POP empty with ZERO (c * ! q') (c * ! q').
+               bsm sss POP empty with ZERO (j + c * ! q') (j + c * ! q').
                bsm sss stop. destruct w as [ [] | ]; try reflexivity. congruence.
             -- bsm sss POP empty with ZERO (50 + off) (50 + off).
                replace (50 + off) with (24 + (26 + off)) by lia.
-               bsm sss POP empty with ZERO (c * !q') (c * !q').
+               bsm sss POP empty with ZERO (j + c * !q') (j + c * !q').
                bsm sss stop. destruct w as [ [] | ]; try reflexivity. congruence.
-        + change (76 * !i) with off. 
+        + change (j + 76 * !i) with off. 
           bsm sss PUSH with CURR false.
           bsm sss POP empty with ZERO (50 + off) (50 + off).
           replace (50 + off) with (24 + (26 + off)) by lia.
@@ -442,70 +444,71 @@ Section fixM.
         eapply subcode_sss_compute_trans; try eapply subcode2. 2:{ bsm sss stop. }
         destruct (δ (i, None)) as [ [[q' w] m] | ] eqn:Eq_nxt.
         + edestruct (@case_None w) as [ [] | []].
-          * rewrite H. change (76 * !i)  with off.
+          * rewrite H. change (j + 76 * !i)  with off.
             bsm sss POP empty with ZERO (52 + off) (52 + off).
             destruct m eqn:Eq_mv.
             -- eapply subcode_sss_compute_trans with (P := (52+off, MOVE_L (52 + off))). eauto.
                eapply (MOVE_L_spec (52 + off) (ls, None, rs)).
                replace (23 + (52 + off)) with (24 + (51 + off)) by lia.
-               bsm sss POP empty with ZERO (c * ! q') (c * ! q').
+               bsm sss POP empty with ZERO (j + c * ! q') (j + c * ! q').
                bsm sss stop. rewrite H0. reflexivity.
             -- eapply subcode_sss_compute_trans with (P := (52 +off, MOVE_R (52 + off))). eauto.
                eapply (MOVE_R_spec (52 + off) (ls, None, rs)).
                replace (23 + (52 + off)) with (24 + (51 + off)) by lia.
-               bsm sss POP empty with ZERO (c * ! q') (c * ! q').
+               bsm sss POP empty with ZERO (j + c * ! q') (j + c * ! q').
                bsm sss stop. rewrite H0. reflexivity.
             -- replace (52 + off) with (1 + (51 + off)) by lia.
                bsm sss POP empty with ZERO (75 + off) (75 + off).
                replace (75 + off) with (24 + (51 + off)) by lia.
-               bsm sss POP empty with ZERO (c * !q') (c * !q').
+               bsm sss POP empty with ZERO (j + c * !q') (j + c * !q').
                bsm sss stop. subst; reflexivity.
           * destruct w eqn:Eq_w.
-            -- change (76 * !i)  with off.
+            -- change (j + 76 * !i)  with off.
                bsm sss PUSH with CURR b.
                destruct m eqn:Eq_mv.
                ++ eapply subcode_sss_compute_trans with (P := (52+off, MOVE_L (52 + off))). replace (52 + off) with (1 + (51 + off)) at 1 by lia. eauto.
                   eapply (MOVE_L_spec (52 + off) (ls, Some b, rs)).
                   replace (23 + (52 + off)) with (24 + (51 + off)) by lia.
-                  bsm sss POP empty with ZERO (c * ! q') (c * ! q').
+                  bsm sss POP empty with ZERO (j + c * ! q') (j + c * ! q').
                   bsm sss stop.
                ++ eapply subcode_sss_compute_trans with (P := (52 +off, MOVE_R (52 + off))). 
                   replace (52 + off) with (1 + (51 + off)) at 1 by lia. eauto.
                   eapply (MOVE_R_spec (52 + off) (ls, Some b, rs)).
                   replace (23 + (52 + off)) with (24 + (51 + off)) by lia.
-                  bsm sss POP empty with ZERO (c * ! q') (c * ! q').
+                  bsm sss POP empty with ZERO (j + c * !q') (j + c * ! q').
                   bsm sss stop.
                ++ bsm sss POP empty with ZERO (75 + off) (75 + off).
                   replace (75 + off) with (24 + (51 + off)) by lia.
-                  bsm sss POP empty with ZERO (c * !q') (c * !q').
+                  bsm sss POP empty with ZERO (j + c * !q') (j + c * !q').
                   bsm sss stop.
-            -- change (76 * !i)  with off.
+            -- change (j + 76 * !i)  with off.
                bsm sss POP empty with ZERO (52 + off) (52 + off).
                destruct m eqn:Eq_mv.
                ++ eapply subcode_sss_compute_trans with (P := (52+off, MOVE_L (52 + off))). replace (52 + off) with (1 + (51 + off)) at 1 by lia. eauto.
                   eapply (MOVE_L_spec (52 + off) (ls, None, rs)).
                   replace (23 + (52 + off)) with (24 + (51 + off)
                                                  ) by lia.
-                  bsm sss POP empty with ZERO (c * ! q') (c * ! q').
+                  bsm sss POP empty with ZERO (j + c * !q') (j + c * ! q').
                   bsm sss stop.
                ++ eapply subcode_sss_compute_trans with (P := (52 +off, MOVE_R (52 + off))). 
                   replace (52 + off) with (1 + (51 + off)) at 1 by lia. eauto.
                   eapply (MOVE_R_spec (52 + off) (ls, None, rs)).
                   replace (23 + (52 + off)) with (24 + (51 + off)) by lia.
-                  bsm sss POP empty with ZERO (c * ! q') (c * ! q').
+                  bsm sss POP empty with ZERO (j + c * !q') (j + c * ! q').
                   bsm sss stop.
                ++ replace (52 + off) with (1 + (51 + off)) by lia.
                   bsm sss POP empty with ZERO (75 + off) (75 + off).
                   replace (75 + off) with (24 + (51 + off)) by lia.
-                  bsm sss POP empty with ZERO (c * !q') (c * !q').
+                  bsm sss POP empty with ZERO (j + c * !q') (j  + c * !q').
                   bsm sss stop.
-        + change (76 * !i) with off. 
+        + change (j + 76 * !i) with off. 
           bsm sss POP empty with ZERO END END.
           bsm sss stop.
     Qed.
 
+
     Fixpoint sim (n : nat) (H : n <= S (num_states M)) : list (bsm_instr 4).
-    Proof.
+    Proof using j.
       destruct n.
       - exact [].
       - refine (sim n _ ++ _). abstract lia.
@@ -513,7 +516,7 @@ Section fixM.
         refine (PROG (Fin.of_nat_lt Hn)).
     Defined. 
     
-    Definition SIM : list (bsm_instr 4). refine (@sim (S (num_states M)) _). Proof using M. abstract lia. Defined.
+    Definition SIM : list (bsm_instr 4). refine (@sim (S (num_states M)) _). Proof using M j. abstract lia. Defined.
 
     Lemma sim_length (n : nat) (H : n <= S (num_states M)) : 
        @length (bsm_instr 4) (@sim n H) = c * n.
@@ -522,7 +525,6 @@ Section fixM.
       - unfold sim. cbn. lia.
       - unfold sim. fold sim. rewrite app_length. rewrite PROG_length. rewrite IHn. lia.
     Qed.
-
 
     Lemma SIM_length : length SIM = c * (S (num_states M)).
     Proof.
@@ -537,7 +539,7 @@ Section fixM.
 
     Arguments Fin.of_nat_lt _ {_} _.
 
-    Lemma PROG_sim_sc q n (H : n <= S (num_states M)) : ! q < n -> (76 * ! q, PROG q) <sc (0, sim n H).
+    Lemma PROG_sim_sc q n (H : n <= S (num_states M)) : ! q < n -> (j + 76 * ! q, PROG q) <sc (j, sim n H).
     Proof.
       revert q.
       induction n as [n IH] using lt_wf_ind; intros q. 
@@ -557,27 +559,27 @@ Section fixM.
             cbn - [mult] in *. destruct (Fin.to_nat q). cbn - [mult] in *. inversion H0. reflexivity.
     Qed.
 
-    Lemma PROG_sc q : (76 * ! q, PROG q) <sc (0, SIM).
+    Lemma PROG_sc q : (j + 76 * ! q, PROG q) <sc (j, SIM).
     Proof.
       eapply PROG_sim_sc. destruct (Fin.to_nat q). cbn. lia.
     Qed.
 
     Theorem SIM_computes q t q' t' :
-       SBTM.eval M q t q' t' -> (0,SIM) // (c * !q, enc_tape t) ->> (END, enc_tape t').
+       SBTM.eval M q t q' t' -> (j,SIM) // (j + c * !q, enc_tape t) ->> (END, enc_tape t').
     Proof.
       induction 1.
-      - eapply subcode_sss_compute_trans with (P := (76 * !q, PROG q)). eapply PROG_sc.
+      - eapply subcode_sss_compute_trans with (P := (j + 76 * !q, PROG q)). eapply PROG_sc.
         eapply sss_progress_compute. eapply PROG_spec.
         rewrite H.
         bsm sss stop.
-      - eapply subcode_sss_compute_trans with (P := (76 * !q, PROG q)). eapply PROG_sc.
+      - eapply subcode_sss_compute_trans with (P := (j + 76 * !q, PROG q)). eapply PROG_sc.
         eapply sss_progress_compute. eapply PROG_spec.
         rewrite H. eapply IHeval.
     Qed.
 
     Theorem SIM_term q t i out :
-       i >= length SIM ->
-       (0,SIM) // (c * !q, enc_tape t) ->> (i, out) -> exists q' t', i = END /\ out = enc_tape t' /\ SBTM.eval M q t q' t'.
+       i < j \/ i >= j + length SIM ->
+       (j,SIM) // (j + c * !q, enc_tape t) ->> (i, out) -> exists q' t', i = END /\ out = enc_tape t' /\ SBTM.eval M q t q' t'.
     Proof.
       intros Hout [k H]. revert q t H.
       induction k as [k IH] using lt_wf_ind; intros q t H.
@@ -591,21 +593,28 @@ Section fixM.
           * destruct H'. lia.   
         + eapply sss_steps_stop in HH as [= <- <-].
           exists q, t. repeat split. econstructor. eauto.
-          unfold out_code. right. unfold fst, code_end, snd, fst, plus. rewrite SIM_length. lia.
-      - unfold out_code. right. unfold fst, code_end, snd, fst. rewrite PROG_length.
-        transitivity (length SIM). rewrite SIM_length. destruct (Fin.to_nat q). cbn. lia. lia.
+          unfold out_code. right. unfold fst, code_end, snd, fst, plus. rewrite SIM_length. fold plus. lia.
+      - unfold out_code.
+        destruct Hout.
+        + left. cbn. lia.
+        + right. unfold fst, code_end, snd, fst. rewrite PROG_length.
+          transitivity (j + length SIM). rewrite SIM_length. destruct (Fin.to_nat q). cbn - [plus mult]. lia. lia.
     Qed.
 
     Theorem SIM_correct t :
-      HaltSBTM (M, t) <-> BSM_HALTING (existT _ 4 (existT _ 0 (existT _ SIM (enc_tape t)))).
+      HaltSBTM (M, t) <-> BSM_HALTING (existT _ 4 (existT _ j (existT _ SIM (enc_tape t)))).
     Proof.
       split.
-      - intros (q' & t' & H). eapply SIM_computes in H. 
-        unfold BSM_HALTING. eexists. split. rewrite mult_comm in H. eapply H.
+      - intros (q' & t' & H). eapply SIM_computes in H.
+        unfold BSM_HALTING. eexists. split. rewrite mult_comm in H.
+        match type of H with _ // (?K, _) ->> _ => replace K with j in H end. 2: cbn; lia.
+        eapply H.
         unfold out_code. right. unfold fst, code_end, snd, fst. rewrite SIM_length. lia.
-      - intros ([i out] & H1 & H2). eapply (@SIM_term pos0) in H1 as (q' & t' & -> & -> & H).
-        exists q', t'. eassumption. destruct H2. cbn in H. lia.
-        unfold code_end, fst, snd in H. lia.
+      - intros ([i out] & H1 & H2). pose proof (HS := @SIM_term pos0).
+        cbn [Fin.to_nat proj1_sig] in HS. rewrite NPeano.Nat.mul_0_r, NPeano.Nat.add_0_r in HS.
+        eapply HS in H1 as (q' & t' & -> & -> & H).
+        exists q', t'. eassumption. 
+        unfold out_code, code_start, code_end, fst, snd in H2. lia.
     Qed.
 
 End fixM.
@@ -616,6 +625,6 @@ Theorem SBTM_to_BSM :
   HaltSBTM ⪯ Halt_BSM.
 Proof.
   unshelve eexists.
-  - intros [M t]. exists 4. exists 0. exists (SIM M). exact (enc_tape t).
+  - intros [M t]. exists 4. exists 0. exists (SIM M 0). exact (enc_tape t).
   - intros [M t]. setoid_rewrite Halt_BSM_iff. eapply SIM_correct.
 Qed.

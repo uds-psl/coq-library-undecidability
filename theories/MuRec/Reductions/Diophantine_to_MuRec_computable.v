@@ -61,6 +61,7 @@ Proof.
       eapply (Vector.caseS' vi). clear vi. intros im.
       refine (Vector.case0 _ _).
       intros Hproj Hfind. specialize (Hfind Fin.F1).
+      
       cbn -[ra_dio_poly_find] in Hfind.
       eapply ra_dio_poly_find_spec_strong1 in Hfind.
       eapply ra_project_rel in Hproj. clear H. subst.
