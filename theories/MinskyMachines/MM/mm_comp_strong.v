@@ -55,22 +55,27 @@ Section simulator.
       This is expressed in the below bsm_state_enc invariant
   *)
   
-  Let n := m + 2.
+  Let n := m + 3.
   Variable tmp1 : pos n. 
   Variable tmp2 : pos n.
+  Variable tmp3 : pos n.
   Variable reg : pos m -> pos n.
    
   Hypothesis Hv12 : tmp1 <> tmp2.
   Hypothesis Hvr1 : forall p, reg p <> tmp1. 
   Hypothesis Hvr2 : forall p, reg p <> tmp2.
+  Hypothesis Hv13 : tmp1 <> tmp3.
+  Hypothesis Hv23 : tmp2 <> tmp3.
+  Hypothesis Hvr3 : forall p, reg p <> tmp3.
   
   Hypothesis Hreg : forall p q, reg p = reg q -> p = q.
 
-  Variable cases : forall p : pos n, {p = tmp1} + {p = tmp2} + {q | p = reg q}.
+  Variable cases : forall p : pos n, {p = tmp1} + {p = tmp2} + {p = tmp3} + {q | p = reg q}.
 
   Definition bsm_state_enc (v : vec (list bool) m) w := 
             w#>tmp1 = 0
          /\ w#>tmp2 = 0
+         /\ w#>tmp3 = 0
          /\ forall p, w#>(reg p) = stack_enc (v#>p).
 
   (* i is the position in the source code *)
@@ -100,7 +105,7 @@ Section simulator.
   (* This main soundness lemma per simulated instruction *)
 
   Lemma bsm_instr_compile_sound : instruction_compiler_sound bsm_instr_compile (@bsm_sss _) (@mm_sss _) bsm_state_enc.
-  Proof using Hvr1 Hvr2 Hv12 Hreg.
+  Proof using Hvr1 Hvr2 Hvr3 Hv12 Hv13 Hv23 Hreg.
     intros lnk I i1 v1 i2 v2 w1 H; revert H w1.
     change v1 with (snd (i1,v1)) at 2.
     change i1 with (fst (i1,v1)) at 2 3 4 6 7 8.
@@ -111,7 +116,7 @@ Section simulator.
                       | i p j k v ll Hll 
                       | i p j k v ll Hll
                       | i p [] v
-                      ]; simpl; intros w1 H0 H; generalize H; intros (H1 & H2 & H3).
+                      ]; simpl; intros w1 H0 H; generalize H; intros (H1 & H2 & Htmp3 & H3).
 
     + exists w1; split; auto.
       apply mm_pop_void_progress; auto using Hv12, Hvr1, Hvr2.
@@ -121,7 +126,8 @@ Section simulator.
       * apply mm_pop_Zero_progress; auto using Hv12, Hvr1, Hvr2.
         rewrite H3, Hll; auto.
       * rewrite vec_change_neq. 2: congruence. eauto. 
-      * rewrite vec_change_neq. 2: congruence. eauto. 
+      * rewrite vec_change_neq. 2: congruence. eauto.
+      * rewrite vec_change_neq. 2: congruence. eauto.
       * intros q; dest p q.
         assert (reg p <> reg q); rew vec.
     
@@ -130,11 +136,13 @@ Section simulator.
         rewrite H3, Hll; auto.
       * rewrite vec_change_neq. 2: congruence. eauto. 
       * rewrite vec_change_neq. 2: congruence. eauto. 
+      * rewrite vec_change_neq. 2: congruence. eauto. 
       * intros q; dest p q.
         assert (reg p <> reg q); rew vec.
    
     + exists (w1[(stack_enc (One::v#>p))/reg p]); repeat split; auto; rew vec.
       2:{ rewrite vec_change_neq. 2: congruence. eauto. } 
+      2:{ rewrite vec_change_neq. 2: congruence. eauto. }
       2:{ rewrite vec_change_neq. 2: congruence. eauto. }
       rewrite H0; apply mm_push_One_progress; auto using Hv12, Hvr1, Hvr2.
       intros q; dest p q.
@@ -142,6 +150,7 @@ Section simulator.
 
     + exists (w1[(stack_enc (Zero::v#>p))/reg p]); repeat split; auto; rew vec.
       rewrite H0; apply mm_push_Zero_progress; auto using Hv12, Hvr1, Hvr2.
+      * rewrite vec_change_neq. 2: congruence. eauto. 
       * rewrite vec_change_neq. 2: congruence. eauto. 
       * rewrite vec_change_neq. 2: congruence. eauto. 
       * intros q; dest p q.
@@ -192,6 +201,7 @@ Section simulator.
       red; unfold vec_enc; repeat split; rew vec.
       - destruct (cases tmp1) as [[ | ] | [q Hq]]; try firstorder congruence.
       - destruct (cases tmp2) as [[ | ] | [q Hq]]; try firstorder congruence.
+      - destruct (cases tmp3) as [[ | ] | [q Hq]]; try firstorder congruence.
       - intros p. rewrite vec_pos_set.  destruct (cases (reg p)) as [[ | ] | [q Hq]]; try now firstorder congruence.
     Qed.
 
@@ -217,9 +227,9 @@ Section simulator.
       destruct HQ1 with (1 := conj w_prop H1) as (w' & H2 & H3).
       rewrite <- (proj2 (proj2 Hlnk) i1), <- (proj1 (proj2 Hlnk)).
       * eenough (w' = vec_enc v1) as <- by eassumption.
-        destruct H2 as (H2 & H4 & H5).
+        destruct H2 as (H2 & H4 & H5 & H6).
         eapply vec_pos_ext. intros p. unfold vec_enc. rewrite vec_pos_set.
-        destruct (cases p) as [[E | E ] | [q E]]; subst; rew vec.
+        destruct (cases p) as [[[E | E] | E ] | [q E]]; subst; rew vec.
       * apply H1.
     Qed.    
 
@@ -255,14 +265,15 @@ Section simulator.
 
 End simulator.
 
-Theorem bsm_mm_compiler_strong n i (P : list (bsm_instr n)) (tmp1 tmp2 : pos (n + 2)) (reg : pos n -> pos (n + 2)) iQ :
+Theorem bsm_mm_compiler_strong n i (P : list (bsm_instr n)) (tmp1 tmp2 tmp3 : pos (n + 3)) (reg : pos n -> pos (n + 3)) iQ :
   tmp1 <> tmp2 -> (forall p, tmp1 <> reg p) -> (forall p, tmp2 <> reg p) -> (forall p q, reg p = reg q -> p = q) ->
-  forall cases : (forall p : pos _, {p = tmp1} + {p = tmp2} + {q | p = reg q}),
-  { Q : list (mm_instr (pos (n+2))) | (forall v, (i,P) /BSM/ (i,v) ↓ <-> (iQ,Q) /MM/ (iQ,(@vec_enc _ tmp1 tmp2 reg cases v)) ↓) /\
-                                      forall v j w, (i,P) /BSM/ (i,v) ~~> (j,w) -> (iQ,Q) /MM/ (iQ, @vec_enc _ tmp1 tmp2 reg cases v) ~~> (iQ + length Q, @vec_enc _ tmp1 tmp2 reg cases w) }.
+  tmp1 <> tmp3 -> tmp2 <> tmp3 -> (forall p, tmp3 <> reg p) ->
+  forall cases : (forall p : pos _, {p = tmp1} + {p = tmp2} + {p = tmp3} + {q | p = reg q}),
+  { Q : list (mm_instr (pos (n+3))) | (forall v, (i,P) /BSM/ (i,v) ↓ <-> (iQ,Q) /MM/ (iQ,(@vec_enc _ tmp1 tmp2 tmp3 reg cases v)) ↓) /\
+                                      forall v j w, (i,P) /BSM/ (i,v) ~~> (j,w) -> (iQ,Q) /MM/ (iQ, @vec_enc _ tmp1 tmp2 tmp3 reg cases v) ~~> (iQ + length Q, @vec_enc _ tmp1 tmp2 tmp3 reg cases w) }.
 Proof. 
   intros.    
-  unshelve eexists (@bsm_mm_sim _ tmp1 tmp2 reg _ _ _ _ i P _); eauto.
+  unshelve eexists (@bsm_mm_sim _ tmp1 tmp2 tmp3 reg _ _ _ _ _ _ _ i P _); eauto.
   split.
   - apply bsm_mm_sim_spec.
   - intros. match goal with [ |- context[ iQ + length ?Q ]] => change (iQ + length Q) with (code_end (iQ, Q)) end.
