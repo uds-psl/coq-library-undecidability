@@ -776,7 +776,7 @@ Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts Undecidability.TM.Util.TM_facts.
 From Equations Require Import Equations.
 
-Theorem reduction :
+Theorem reduction_tobin :
   HaltTM 1 ⪯ fun '(M,t) => @HaltsTM (finType_CS bool) 1 M t.
 Proof.
   unshelve eexists.

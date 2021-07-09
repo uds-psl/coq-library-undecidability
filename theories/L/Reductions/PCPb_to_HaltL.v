@@ -239,7 +239,7 @@ Qed.
 
 From Undecidability.L Require Import Synthetic.
 
-Theorem reduction :
+Theorem reduction_PCPb_HaltL :
   PCPb ⪯ HaltL.
 Proof.
   eapply L_recognisable_HaltL.
