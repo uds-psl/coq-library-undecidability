@@ -178,7 +178,7 @@ Section validity.
       The 3 variables are the zero constant and two arbitrary values which define the atomic predicate for 
       Friedman translation. *)
   Definition F := ∀ ∀ ∀ F_zero --> F_succ_left --> F_succ_right --> translate_constraints h10.
-
+Locate finite.
   Section Transport.
     (** The solution to cs *)
     Context (φ: nat -> nat). 
