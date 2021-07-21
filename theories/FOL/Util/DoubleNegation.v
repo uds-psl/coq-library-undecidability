@@ -81,6 +81,17 @@ Section translation.
   destruct II; split; easy.
   Defined.
 
+  Definition full_tarski_tarski_interp (II:FullTarski.interp D) : interp D.
+  Proof.
+  destruct II; split; easy.
+  Defined.
+
+  Definition full_interp_inverse_1 II : tarski_full_tarski_interp (full_tarski_tarski_interp II) = II.
+  Proof. now destruct II. Qed.
+
+  Definition full_interp_inverse_2 II : full_tarski_tarski_interp (tarski_full_tarski_interp II) = II.
+  Proof. now destruct II. Qed.
+
   Notation "rho ⊨ phi" := (@sat _ _ D I falsity_on rho phi).
   Notation "rho 'f⊨' phi" := (@FullTarski.sat _ _ D (tarski_full_tarski_interp I) _ rho phi) (at level 20).
 
