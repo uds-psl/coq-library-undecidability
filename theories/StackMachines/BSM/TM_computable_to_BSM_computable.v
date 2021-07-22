@@ -475,52 +475,117 @@ Proof.
   rewrite !app_length, pop_many_length, push_exactly_length. lia.
 Qed.
 
-Fixpoint PREP2' (Σ : finType) (s b : Σ) k (k' : nat) (H : k' <= k) (i : nat) : list (bsm_instr ((1 + k) + 4)).
+Definition BSM_cast {n} (P : list (bsm_instr n)) {m} (E : n = m) : list (bsm_instr m).
+subst m. exact P. Defined.
+
+Lemma BSM_cast_length {n} (P : list (bsm_instr n)) {m} (E : n = m) :
+  length (BSM_cast P E) = length P.
+Proof.
+  destruct E. cbn. reflexivity.
+Qed.
+
+Lemma BSM_cast_spec {n m} i (P : list (bsm_instr n)) (E : n = m) j v k w :
+   sss.sss_compute (@bsm_sss _) (i, P) (j, v) (k, w) <-> sss.sss_compute (@bsm_sss _) (i, BSM_cast P E) (j, Vector.cast v E) (k, Vector.cast w E).
+Proof.
+  destruct E. cbn. now rewrite !cast_eq_refl.
+Qed.
+
+Fixpoint PREP2' (Σ : finType) (s b : Σ) k'' (k' : nat)  (i : nat) : list (bsm_instr ((1 + (k' + k'') + 4))).
 Proof.
   destruct k'.
   - exact List.nil.
-  - refine (List.app (PREP2' Σ s b k k' _ i) _). abstract lia.
-    assert (Hn : k' < k) by abstract lia.
-    refine (proj1_sig (@PREP2_spec' k Σ (Fin.of_nat_lt Hn) (14 * k' + i) s b (k' + 4))).
+  - refine (List.app _ (BSM_cast (PREP2' Σ s b (S k'') k' (i + PREP2''_length s b)) _)). 2:abstract lia.
+    assert (k' < S k' + k'') as Hn by abstract lia.
+    refine (proj1_sig (@PREP2_spec' (S k' + k'') Σ (Fin.of_nat_lt Hn) i s b (k'' + 4))).
 Defined.
 
-Lemma PREP2'_length (Σ : finType) (s b : Σ) k (k' : nat) (H : k' <= k) (i : nat) :
-  | @PREP2' Σ s b k k' H i | = k' * PREP2''_length s b.
+Lemma PREP2'_length (Σ : finType) (s b : Σ) k (k' : nat) (i : nat) :
+  | @PREP2' Σ s b k k' i | = k' * PREP2''_length s b.
 Proof.
-  induction k' in k, H, i |- *.
+  induction k' in k, i |- *.
   - cbn. reflexivity.
-  - cbn - [mult]. destruct PREP2_spec' as (? & ? & ?). cbn. rewrite app_length. cbn in e. rewrite e. cbn in IHk'. rewrite IHk'. lia.
+  - cbn - [mult]. destruct PREP2_spec' as (? & ? & ?). cbn. rewrite app_length. cbn in e. rewrite e. cbn in IHk'.
+    rewrite BSM_cast_length. rewrite IHk'. lia.
 Qed.
 
 Notation "v1 +++ v2" := (Vector.append v1 v2) (at level 60).
 
-Lemma PREP2_spec_strong k (Σ : finType) (x : pos k) i s b k' k'' v (v' : Vector.t nat k') (t : Vector.t (tape Σ) 4) : 
-  forall H,
-    (i, @PREP2' Σ s b (k'' + k') k'' H  i) //
-        (i,                                   ([] ::: Vector.map (fun n => repeat true n) v +++ Vector.const [] k') +++  (@encode_bsm Σ _ (Vector.map (encNatTM s b) v' +++ t))) ->>
-        (i + length(@PREP2' Σ s b (k'' + k') k'' H  i), ([] ::: Vector.const [] (k'' + k')                                    +++  (@encode_bsm Σ _ (Vector.map (encNatTM s b) (v +++ v') +++ t)))).
-Proof.
-  intros H. induction k'' in k', H, v, v', i |- *.
-  - cbn. bsm sss stop. f_equal. lia. f_equal. revert v. eapply (Vector.case0). cbn. reflexivity.
-  - cbn - [mult]. 
-    edestruct (vector_inv_back v) as [(y, vl) Hv]. cbn - [mult].
-    eapply subcode_sss_compute_trans with (P := (i, _)). { eexists [], _. cbn - [mult]. split. reflexivity. cbn; now rewrite NPeano.Nat.add_0_r. } 
-    { cbn - [mult] in IHk''. specialize (IHk'' i (S k') vl (y ::: v')).
-      generalize (@PREP2'_subproof (S (k'' + k')) k'' H).
-      replace (S (k'' + k')) with (k'' + S k').
-      unshelve epose proof (IHk'' _). astract lia.
-      
-      match goal with [ |- sss_compute _ _ (_, ?st) _ ] => evar (ev : vec (list bool) (S (S (k'' + k' + 4)))); enough (st = ev) as ->; subst ev end. eapply IHk''.
-      
-    specialize IHk'' with (v := vl) (v' := y ::: v').
-  
+Lemma vec_list_encode_bsm Σ n1 n2 v1 v2 :
+vec_list v1 = vec_list v2 ->
+ vec_list (@encode_bsm Σ n1 v1) = vec_list (@encode_bsm Σ n2 v2).
+Admitted.
 
-Lemma PREP_spec m k n Σ s b :
+Lemma PREP2_spec_strong k (Σ : finType) (x : pos k) i s b k' k'' v (v' : Vector.t nat k'') (t : Vector.t (tape Σ) 4) : 
+    (i, @PREP2' Σ s b k'' k'  i) //
+        (i,                                            ([] ::: Vector.map (fun n => repeat true n) v +++ Vector.const [] k'') +++  (@encode_bsm Σ _ (Vector.map (encNatTM s b) v' +++ t))) ->>
+        (i + length(@PREP2' Σ s b k'' k' i), ([] ::: Vector.const [] (k' + k'')  +++  (@encode_bsm Σ _ (Vector.map (encNatTM s b) (v +++ v') +++ t)))).
+Proof.
+  induction k' in k'', v, v', i |- *.
+  - cbn. bsm sss stop. f_equal. lia. f_equal. revert v. eapply (Vector.case0). cbn. reflexivity.
+  - unshelve edestruct (vector_inv_back v) as [(y, vl) Hv]. abstract lia. cbn - [minus mult].
+    assert (k' < S k') as Hlt by lia.
+    match goal with [ |- context[proj1_sig ?y]] => destruct y as [PREPIT [HlP HPREP]]; cbn [proj1_sig] end.
+    eapply subcode_sss_compute_trans with (P := (i, _)). { cbn - [minus mult]. eexists [], _. cbn - [mult minus]. split. reflexivity. cbn; now rewrite NPeano.Nat.add_0_r. }
+    cbn - [minus mult]. cbn - [minus mult] in HPREP.  replace (S (k' + k'') - S k' + 4) with (k'' + 4) in HPREP by lia. eapply HPREP with (m := v@[Fin.of_nat_lt Hlt]).
+    Arguments Fin.of_nat_lt _ {_ _}. { rewrite <- !vec_pos_spec, <- !vec_map_spec, <- !vec_app_spec. eapply nth_error_vec_list. 
+    rewrite @vec_list_vec_app with (n := S k') (m := k''), vec_list_vec_map.
+    rewrite nth_error_app1. 2: rewrite map_length, vec_list_length; lia.
+    eapply map_nth_error.
+    erewrite nth_error_vec_list. 
+    all:eapply nth_error_nth'; rewrite vec_list_length ;lia. 
+    }
+    pose proof (@vec_list_vec_map nat (list bool)) as Heq. specialize (Heq) with (n := (S (k' + k''))).
+    match goal with [ |- sss_compute _ _ (_, ?st) _ ] => evar (ev : vec (list bool) (S (S (k' + k'' + 4)))); enough (st = ev) as ->; subst ev end.
+    match goal with [ |- sss_compute _ _ _ (_, ?st) ] => evar (ev : vec (list bool) (S (S (k' + k'' + 4)))); enough (st = ev) as ->; subst ev end.
+    match goal with [ |- sss_compute _ _ _ (?st, _) ] => evar (ev : nat); enough (st = ev) as ->; subst ev end.
+    cbn - [minus mult] in HlP. rewrite <- HlP.
+    eapply subcode_sss_compute with (P := (i + |PREPIT|, _)). { exists PREPIT, []. split. 2:reflexivity. now simpl_list. }
+    specialize IHk' with (v := vl) (v' := y ::: v') (k'' := S k''). apply BSM_cast_spec.
+    eapply IHk'.
+    + rewrite !app_length, BSM_cast_length, !PREP2'_length.
+      setoid_rewrite PREP2'_length. lia.
+    + cbn. cbn. f_equal. eapply vec_list_inj.
+      rewrite <- !vec_map_spec, <- !vec_app_spec. cbn [vec_list]. rewrite !vec_list_cast, !vec_list_vec_app, !vec_list_const.
+      rewrite app_comm_cons. f_equal.
+      now replace  (k' + S k'') with (S (k' + k'')) by lia. f_equal. subst v.
+      rewrite !vec_app_spec. setoid_rewrite vec_map_spec.
+      rewrite !Vector_map_app.
+      pose proof (@Vector_map_app) as Vm. specialize Vm with (k1 := S k') (k2 := k''). cbn in Vm. rewrite Vm. clear Vm.
+      eapply vec_list_inj, vec_list_encode_bsm.
+      rewrite <- !vec_map_spec, <- !vec_app_spec.
+      rewrite !vec_list_vec_app.
+      setoid_rewrite <- vec_map_spec. rewrite !vec_list_vec_map. cbn[vec_list map].
+      pose proof (@vec_list_vec_app (tape Σ) (S (k' + k'')) 4). cbn [plus] in H. rewrite H. clear H.
+      pose proof (@vec_list_vec_app (tape Σ) (S k') k''). cbn [plus] in H. rewrite H. clear H.
+      rewrite !vec_list_vec_map. cbn[vec_list map]. simpl_list.
+      rewrite !vec_list_cast. cbn. simpl_list. rewrite vec_list_vec_app. cbn. simpl_list. reflexivity.
+    + eapply vec_list_inj. rewrite <- !vec_map_spec, <- !vec_app_spec. cbn [vec_list].
+       rewrite !vec_list_cast. 
+       pose proof (@vec_list_vec_app (list bool) (S (k' + k'')) 4). cbn [plus] in H. rewrite !H. clear H.
+       pose proof (@vec_list_vec_app (list bool) (S (k' + S k'')) 4). cbn [plus] in H. rewrite !H. clear H.
+       cbn [vec_list app]. f_equal. rewrite !vec_list_vec_app.
+       cbn [Vector.map]. rewrite vec_app_cons. f_equal. 2:{ f_equal. f_equal. f_equal.
+       subst v. f_equal. rewrite <- vec_pos_spec. eapply nth_error_vec_list.
+       rewrite vec_list_cast, <- vec_app_spec, vec_list_vec_app, nth_error_app2; rewrite !vec_list_length, ?minus_diag; try lia.
+       reflexivity. }
+       rewrite vec_list_vec_change.
+       pose proof (@vec_list_vec_app (list bool) (S k') k''). cbn [plus] in H. rewrite !H. clear H.
+       setoid_rewrite <- vec_map_spec.
+       rewrite !vec_list_vec_map, !vec_list_const.
+       rewrite update_app_left. 2: rewrite Fin.to_nat_of_nat; cbn; rewrite map_length, vec_list_length; lia.
+       subst v. rewrite vec_list_cast. rewrite <- vec_app_spec. rewrite vec_list_vec_app. cbn [vec_list]. rewrite Fin.to_nat_of_nat. cbn.
+       rewrite map_app, update_app_right.  2: rewrite map_length, vec_list_length; lia.
+       rewrite map_length, vec_list_length, minus_diag. cbn. now simpl_list.
+    Unshelve. exact 0.
+Qed.
+
+Lemma PREP_spec k n Σ s b :
   { PREP | forall v : Vector.t nat k,
-    BSM.eval ((1 + k) + (m + 4)) (0, PREP) (0, Vector.append ([] ::: Vector.map (fun n0 : nat => repeat true n0) v) (Vector.const [] (m + 4))) 
-                                           (length PREP, Vector.append (Vector.const [] (1 + k)) (Vector.append (Vector.const [] m) (@encode_bsm Σ _ (Vector.append (niltape ::: Vector.map (encNatTM s b) v)
+    BSM.eval ((1 + k) + 4) (0, PREP) (0, Vector.append ([] ::: Vector.map (fun n0 : nat => repeat true n0) v) (Vector.const [] 4)) 
+                                           (length PREP, Vector.append (Vector.const [] (1 + k)) ((@encode_bsm Σ _ (Vector.append (niltape ::: Vector.map (encNatTM s b) v)
                                            (Vector.const niltape n)))))
   }.
+Proof.
 Admitted.
 
 Lemma POSTP_spec m' k n (Σ : finType) s b i :
