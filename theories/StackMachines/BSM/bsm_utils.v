@@ -33,6 +33,110 @@ Section Binary_Stack_Machines.
 
   Ltac dest x y := destruct (pos_eq_dec x y) as [ | ]; [ subst x | ]; rew vec.
 
+  Section pop_many.
+
+    Variable (x : pos n).
+
+    Fixpoint pop_many (k : nat) (i : nat) : list (bsm_instr n) :=
+      match k with
+      | 0 => nil
+      | S k => POP x (i + 1) (S (k + i)) :: pop_many k (S i)
+      end.
+
+    Lemma pop_many_length k i : length (pop_many k i) = k.
+    Proof.
+      induction k in i |- *; cbn; congruence.
+    Qed.
+
+    Lemma pop_many_spec (k : nat) (i : nat) v :
+      (i, pop_many k i) // (i, v) ->> (k + i,v[(skipn k (v#>x))/x]).
+    Proof.
+      induction k in v, i |- *; cbn.
+      - bsm sss stop. f_equal. now rewrite vec_change_same.
+      - destruct (v #> x) as [ |  [] l] eqn:E.
+        + bsm sss POP empty with x (i + 1) (S (k + i)). bsm sss stop. rewrite <- E. f_equal. now rewrite vec_change_same.
+        + bsm sss POP 1 with x (i + 1) (S (k + i)) l.
+          eapply subcode_sss_compute_trans. 2: eapply IHk. 1:{ cbn. eexists (_ :: nil), nil. split. 2: cbn. 2: lia. cbn. rewrite app_nil_r. reflexivity. }
+          bsm sss stop. f_equal. lia. rewrite vec_change_idem. now rewrite vec_change_eq.
+        + bsm sss POP 0 with x (i + 1) (S (k + i)) l.
+          eapply subcode_sss_compute_trans. 2: eapply IHk. 1:{ cbn. eexists (_ :: nil), nil. split. 2: cbn. 2: lia. cbn. rewrite app_nil_r. repeat f_equal. lia. }
+          bsm sss stop. f_equal. lia. rewrite vec_change_idem. now rewrite vec_change_eq.
+    Qed.
+
+  End pop_many.
+
+  Section pop_exactly.
+
+    Variable (x : pos n) (empty : pos n) (cdiff : nat).
+
+    Hypothesis neq : x <> empty.
+
+    Fixpoint pop_exactly (l : list bool) (i : nat) : list (bsm_instr n) :=
+      match l with
+      | nil => nil
+      | true  :: l => POP x cdiff   cdiff :: POP empty (i + 2) (i + 2) :: pop_exactly l (2 + i)
+      | false :: l => POP x (i + 2) cdiff :: POP empty cdiff cdiff     :: pop_exactly l (2 + i)
+      end.
+
+    Lemma pop_exactly_length l i : length (pop_exactly l i) = 2 * (length l).
+    Proof.
+      induction l as [ | [] ] in i |- *; cbn; try rewrite IHl; lia.
+    Qed.
+
+    Lemma pop_exactly_spec1 (i : nat) l l' v :
+      v #> x = l ++ l' ->
+      v #> empty = nil ->
+      (i, pop_exactly l i) // (i, v) ->> (2 * length l + i,v[l'/x]).
+    Proof using neq.
+      induction l as [ | [] l IH] in v, i, l' |- * ; cbn; intros H Hempty.
+      - bsm sss stop. f_equal. rewrite <- H. now rewrite vec_change_same.
+      - bsm sss POP 1 with x cdiff cdiff (l ++ l').
+        bsm sss POP empty with empty (i + 2) (i + 2). rewrite vec_change_neq; eauto.
+        eapply subcode_sss_compute_trans. 2: eapply IH. 1:{ cbn. eexists (_ :: _ :: nil), nil. split. 2: cbn. 2: lia. cbn. rewrite app_nil_r. repeat f_equal. lia. }
+        rewrite vec_change_eq. reflexivity. reflexivity. rewrite vec_change_neq; eauto.
+        bsm sss stop. f_equal. lia. now rewrite vec_change_idem.
+      - bsm sss POP 0 with x (i + 2) cdiff (l ++ l').
+        eapply subcode_sss_compute_trans. 2: eapply IH. 1:{ cbn. eexists (_ :: _ :: nil), nil. split. 2: cbn. 2: lia. cbn. rewrite app_nil_r. repeat f_equal. lia. }
+        rewrite vec_change_eq. reflexivity. reflexivity. rewrite vec_change_neq; eauto.
+        bsm sss stop. f_equal. lia. now rewrite vec_change_idem.
+    Qed.
+
+    Lemma pop_exactly_spec2 (i : nat) l v :
+      (~ exists l', v #> x = l ++ l') ->
+      v #> empty = nil ->
+      exists v',
+      (i, pop_exactly l i) // (i, v) ->> (cdiff, v').
+    Proof using neq.
+       induction l as [ | [] l IH] in v, i |- * ; cbn; intros H Hempty.
+      - destruct H. eexists. reflexivity.
+      - destruct (v #> x) as [ | [] l'] eqn:E.
+        + eexists. 
+          bsm sss POP empty with x cdiff cdiff. bsm sss stop.
+        + edestruct IH as [v' Hv'].
+          3: { exists v'.
+               bsm sss POP 1 with x cdiff cdiff l'.
+               bsm sss POP empty with empty (i + 2) (i + 2). rewrite vec_change_neq; eauto.
+               eapply subcode_sss_compute_trans. 2: eapply Hv'. 1:{ cbn. eexists (_ :: _ :: nil), nil. split. 2: cbn. 2: lia. cbn. rewrite app_nil_r. repeat f_equal. lia. }
+               bsm sss stop. }
+          2: rewrite vec_change_neq; eauto. rewrite vec_change_eq.
+          intros (l'' & Eq). eapply H. eexists. f_equal. eassumption. reflexivity.
+        + eexists.
+          bsm sss POP 0 with x cdiff cdiff l'. bsm sss stop.
+      - destruct (v #> x) as [ | [] l'] eqn:E.
+          + eexists. 
+            bsm sss POP empty with x (i + 2) cdiff. bsm sss stop.
+          + eexists. bsm sss POP 1 with x (i + 2) cdiff l'.
+            bsm sss POP empty with empty cdiff cdiff. now rewrite vec_change_neq. bsm sss stop.
+          + edestruct IH as [v' Hv'].
+            3: { exists v'.
+                 bsm sss POP 0 with x (i + 2) cdiff l'.
+                 eapply subcode_sss_compute_trans. 2: eapply Hv'. 1:{ cbn. eexists (_ :: _ :: nil), nil. split. 2: cbn. 2: lia. cbn. rewrite app_nil_r. repeat f_equal. lia. }
+                 bsm sss stop. }
+            2: rewrite vec_change_neq; eauto. rewrite vec_change_eq.
+            intros (l'' & Eq). eapply H. eexists. f_equal. eassumption. reflexivity.
+    Qed.
+  End pop_exactly.
+
   Section empty_stack.
 
     Variable (x : pos n) (i : nat).
@@ -424,6 +528,26 @@ Section Binary_Stack_Machines.
     Qed.
 
   End half_tile.
+
+  Section push_exactly.
+
+    Variable (x : pos n).
+    
+    (* Code that pushes the reverse of a half tile on a stack *)
+
+    Definition push_exactly (l : list bool) := half_tile x (rev l).
+
+    Fact push_exactly_length l : length (push_exactly l) = length l.
+    Proof. unfold push_exactly. now rewrite half_tile_length, rev_length. Qed.
+
+    Fact push_exactly_spec i l v : (i, push_exactly l) // (i,v) ->> (length (push_exactly l)+i,v[(l++v#>x)/x]).
+    Proof.
+      unfold push_exactly.
+      rewrite <- (rev_involutive l) at 3.
+      eapply half_tile_spec.
+    Qed.
+
+  End push_exactly.  
 
   Hint Rewrite empty_stack_length compare_stacks_length half_tile_length : length_db.
 

@@ -6,6 +6,8 @@ From Undecidability.StackMachines Require Import HaltSBTM_to_HaltBSM.
 From Undecidability.Shared.Libs.DLW Require Import vec pos sss subcode.
 From Undecidability Require Import bsm_utils bsm_defs.
 
+Notation "v @[ t ]" := (Vector.nth v t) (at level 50).
+
 Definition complete_encode (Σ : finType) n (t : Vector.t (tape Σ) n) :=
   (conv_tape [| encode_tape' (Vector.nth (mTM_to_TM.enc_tape [] t) Fin0) |]).
 
@@ -37,6 +39,170 @@ Admitted.
 
 Definition encode_bsm (Σ : finType) n (t : Vector.t (tape Σ) n) :=
   enc_tape (complete_encode t).
+Arguments encode_bsm {_ _} _, _ {_} _.
+
+Lemma encode_bsm_nil (Σ : finType) n   :
+  { '( str1, str2, n') | str1 = nil /\ forall (t : Vector.t (tape Σ) n),
+      encode_bsm Σ (niltape ::: t) = 
+     [| str1 ++ (encode_bsm Σ t)@[Fin0]; (encode_bsm Σ t)@[Fin1]; str2 ++ (skipn n' ((encode_bsm Σ t)@[Fin2])); (encode_bsm Σ t)@[Fin3] |]}.
+Proof.
+  eexists (_, _, _). split. shelve. cbn. intros t.
+  unfold encode_bsm at 1.
+  unfold enc_tape at 1. repeat f_equal.
+  - unfold complete_encode. unfold conv_tape.
+    etransitivity.
+    destruct destruct_vector_cons as (? & ? & E). inv E. cbn.
+    destruct_tapes. cbn. reflexivity.
+    symmetry. etransitivity.
+    destruct destruct_vector_cons as (? & ? & E). inv E. cbn.
+    destruct_tapes. cbn. reflexivity. instantiate (1 := []). reflexivity.
+  - unfold complete_encode, conv_tape.
+    etransitivity.
+    destruct destruct_vector_cons as (? & ? & E). inv E. cbn.
+    destruct_tapes. cbn. reflexivity.
+    destruct destruct_vector_cons as (? & ? & E). inv E. cbn. reflexivity.
+  - unfold complete_encode, conv_tape.
+    etransitivity.
+    destruct destruct_vector_cons as (? & ? & E). inv E. cbn - [skipn].
+    destruct_tapes. cbn - [skipn]. reflexivity.
+    symmetry. etransitivity.
+    destruct destruct_vector_cons as (? & ? & E). inv E. cbn - [skipn].
+    destruct_tapes. cbn - [skipn]. reflexivity.
+    rewrite skipn_app. 2: now rewrite length_encode_sym.
+  
+    instantiate (1 := encode_sym _ ++ true :: false :: encode_sym _ ++ true :: false :: encode_sym _). cbn.
+    rewrite <- app_assoc. cbn. now rewrite <- app_assoc.
+    Unshelve. reflexivity.
+Qed.
+
+Definition strpush_common (Σ : finType) (s b : Σ) :=
+encode_sym
+  (projT1
+     (projT2
+        (FinTypeEquiv.finite_n
+           (finType_CS (boundary + sigList (EncodeTapes.sigTape Σ)))))
+     (inl START)) ++
+true
+:: false
+   :: encode_sym
+        (projT1
+           (projT2
+              (FinTypeEquiv.finite_n
+                 (finType_CS (boundary + sigList (EncodeTapes.sigTape Σ)))))
+           (inr sigList_cons)) ++
+      true
+      :: false
+         :: encode_sym
+              (projT1
+                 (projT2
+                    (FinTypeEquiv.finite_n
+                       (finType_CS
+                          (boundary + sigList (EncodeTapes.sigTape Σ)))))
+                 (inr (sigList_X (EncodeTapes.LeftBlank false)))) ++
+            true
+            :: false
+               :: encode_sym
+                    (projT1
+                       (projT2
+                          (FinTypeEquiv.finite_n
+                             (finType_CS
+                                (boundary + sigList (EncodeTapes.sigTape Σ)))))
+                       (inr (sigList_X (EncodeTapes.MarkedSymbol b)))) ++
+                  true
+                  :: false :: nil.
+
+Definition strpush_zero (Σ : finType) (s b : Σ) :=
+  strpush_common s b ++
+                      encode_sym
+                          (projT1
+                             (projT2
+                                (FinTypeEquiv.finite_n
+                                   (finType_CS
+                                      (boundary +
+                                       sigList (EncodeTapes.sigTape Σ)))))
+                             (inr (sigList_X (EncodeTapes.RightBlank false)))).
+
+Lemma encode_bsm_zero (Σ : finType) n  s b :
+  { '( str1, n') | str1 = nil /\ forall (t : Vector.t (tape Σ) n),
+      encode_bsm Σ (encNatTM s b 0 ::: t) = 
+     [| str1 ++ (encode_bsm Σ t)@[Fin0]; (encode_bsm Σ t)@[Fin1]; strpush_zero s b ++ (skipn n' ((encode_bsm Σ t)@[Fin2])); (encode_bsm Σ t)@[Fin3] |]}.
+Proof.
+  eexists (_, _). split. shelve. cbn. intros t.
+  unfold encode_bsm at 1.
+  unfold enc_tape at 1. repeat f_equal.
+  - unfold complete_encode. unfold conv_tape.
+    etransitivity.
+    destruct destruct_vector_cons as (? & ? & E). inv E. cbn.
+    destruct_tapes. cbn. reflexivity.
+    symmetry. etransitivity.
+    destruct destruct_vector_cons as (? & ? & E). inv E. cbn.
+    destruct_tapes. cbn. reflexivity. instantiate (1 := []). reflexivity.
+  - unfold complete_encode, conv_tape.
+    etransitivity.
+    destruct destruct_vector_cons as (? & ? & E). inv E. cbn.
+    destruct_tapes. cbn. reflexivity.
+    destruct destruct_vector_cons as (? & ? & E). inv E. cbn. reflexivity.
+  - unfold complete_encode, conv_tape.
+    etransitivity.
+    destruct destruct_vector_cons as (? & ? & E). inv E. cbn - [skipn].
+    destruct_tapes. cbn - [skipn]. reflexivity.
+    symmetry. etransitivity.
+    destruct destruct_vector_cons as (? & ? & E). inv E. cbn - [skipn].
+    destruct_tapes. cbn - [skipn]. reflexivity.
+    rewrite skipn_app. 2: now rewrite length_encode_sym. unfold strpush_zero, strpush_common.
+    rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc. reflexivity.
+    Unshelve. reflexivity.
+Qed.
+
+Definition strpush_succ (Σ : finType) (s b : Σ) :=
+strpush_common s b ++
+                     encode_sym
+                          (projT1
+                             (projT2
+                                (FinTypeEquiv.finite_n
+                                   (finType_CS
+                                      (boundary +
+                                       sigList (EncodeTapes.sigTape Σ)))))
+                             (inr (sigList_X (EncodeTapes.UnmarkedSymbol s)))).
+
+Lemma encode_bsm_succ (Σ : finType) n m s b :
+  { '( str1, n') | str1 = nil /\ forall (t : Vector.t (tape Σ) n),
+      encode_bsm Σ (encNatTM s b (S m) ::: t) = 
+     [| str1 ++ (encode_bsm Σ (encNatTM s b m ::: t))@[Fin0]; (encode_bsm Σ (encNatTM s b m ::: t))@[Fin1]; strpush_succ s b ++ (skipn n' ((encode_bsm Σ (encNatTM s b m ::: t))@[Fin2])); (encode_bsm Σ (encNatTM s b m ::: t))@[Fin3] |]}.
+Proof.
+  eexists (_, _). split. shelve. cbn. intros t.
+  unfold encode_bsm at 1.
+  unfold enc_tape at 1. repeat f_equal.
+  - unfold complete_encode. unfold conv_tape.
+    etransitivity.
+    destruct destruct_vector_cons as (? & ? & E). inv E. cbn.
+    destruct_tapes. cbn. reflexivity.
+    symmetry. etransitivity.
+    destruct destruct_vector_cons as (? & ? & E). inv E. cbn.
+    destruct_tapes. cbn. reflexivity. instantiate (1 := []). reflexivity.
+  - unfold complete_encode, conv_tape.
+    etransitivity.
+    destruct destruct_vector_cons as (? & ? & E). inv E. cbn.
+    destruct_tapes. cbn. reflexivity.
+    destruct destruct_vector_cons as (? & ? & E). inv E. cbn. reflexivity.
+  - unfold complete_encode, conv_tape.
+    etransitivity.
+    destruct destruct_vector_cons as (? & ? & E). inv E. cbn - [skipn].
+    destruct_tapes. cbn - [skipn]. reflexivity.
+    symmetry. etransitivity.
+    destruct destruct_vector_cons as (? & ? & E). inv E. cbn - [skipn].
+    destruct_tapes. cbn - [skipn]. reflexivity.
+    match goal with [|- context [ skipn _ (?x1 ++ true :: false :: ?x2 ++ true :: false :: ?x3 ++ true :: false :: ?x4 ++ ?x5) ]] =>
+      replace (x1 ++ true :: false :: x2 ++ true :: false :: x3 ++ true :: false :: x4 ++ x5) with
+              ((x1 ++ true :: false :: x2 ++ true :: false :: x3 ++ true :: false :: x4) ++ x5)
+    end.    
+    rewrite skipn_app. 2: reflexivity.
+    2:{ rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. reflexivity. }
+
+    unfold strpush_succ, strpush_common.
+    rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. rewrite <- app_assoc. cbn. reflexivity.
+    Unshelve. reflexivity.
+Qed.
 
 Lemma BSM_complete_simulation' n Σ (M : TM Σ n) m m' i :
 { P |
@@ -82,6 +248,9 @@ Lemma POSTP_spec m' k n (Σ : finType) s b i :
     BSM.eval ((1 + k) + (m' + 4)) (i, POSTP) (i, Vector.append ([] ## v) (Vector.append (Vector.const [] m') (encode_bsm (encNatTM s b m ## t))))
                                             (i + length POSTP, Vector.append (repeat true m ## v) (Vector.append (Vector.const [] m') (Vector.const [] _) ))
   }.
+(* take off strpush_common *)
+(* pop unmarked symbol s, if yes increase and repeat *)
+(* if no finish *)
 Admitted.
 
 Theorem TM_computable_to_BSM_computable {k} (R : Vector.t nat k -> nat -> Prop) :
