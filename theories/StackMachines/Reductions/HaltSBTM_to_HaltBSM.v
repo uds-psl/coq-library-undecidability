@@ -238,7 +238,7 @@ Section fixM.
 
     Local Notation "'if!' x 'is' p 'then' a 'else' b" := (match x with p => a | _ => b end) (at level 0, p pattern).
 
-    Notation END := (j + (2 + num_states M) * c).
+    Notation END := (j + (1 + num_states M) * c).
 
     Definition PROG (i : Fin.t (S (num_states M))) :=
       let off := j + c * !i in

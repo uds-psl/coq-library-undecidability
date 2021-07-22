@@ -264,9 +264,9 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
       unfold Lookup_size in HF;fold Lookup_size in HF. rewrite Hnth in HF.
       eexists (b,n,_). repeat apply conj. 
       + subst F. cbn. tspec_ext.
-      + admit. (* intros. subst F'. cbn. rewrite Hnth. reflexivity. *)
+      + intros. subst F'. fold Lookup_steps. cbn. reflexivity.
       +intros. subst F. reflexivity.
-  Admitted.
+  Qed.
   
   (*legacy *)
   Lemma Lookup_Realise : Lookup ⊨ Lookup_Rel.

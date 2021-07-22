@@ -118,6 +118,18 @@ Require Undecidability.TM.TM Undecidability.TM.SBTM.
 Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts.
 Require Undecidability.TM.Reductions.Arbitrary_to_Binary.
+Require Fin.
+
+Lemma SBTM_simulation (M : TM.TM (finType_CS bool) 1) :
+  {M' : SBTM.SBTM |
+        (forall q t t', TM.eval M (TM.start M) t q t' -> exists q', SBTM.eval M' Fin.F1 (conv_tape t) q' (conv_tape t')) /\
+        (forall t, (exists q' t', SBTM.eval M' Fin.F1 (conv_tape t) q' t') -> (exists q' t', TM.eval M (TM.start M) t q' t'))}.
+Proof.
+  exists (SBTM.Build_SBTM (num_states M) (@trans M)). split.
+  - intros q t t' H % red_correct1. eexists. econstructor. cbn. reflexivity. eapply H.
+  - intros t (q' & t' & H).  inversion H; subst; clear H. cbn in H0. inv H0. cbn in *. inv H0.
+    eapply red_correct2 in H1 as (? & ? & -> & -> & H). eexists. eexists. eauto.
+Qed.
 
 Theorem reduction :
   TM.HaltTM 1 ⪯ SBTM.HaltSBTM.
