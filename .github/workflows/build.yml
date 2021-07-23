@@ -68,30 +68,30 @@ jobs:
       run: opam exec -- make -j 2 all TIMED=1
 
 
-  build-fast:
-    needs: build-deps
-    runs-on: ubuntu-latest
-    steps:
-    - name: Restore build cache
-      id: cache
-      uses: actions/cache@v2
-      with:
-        path: "~/.opam"
-        key: ${{env.CACHE_KEY}}
-    - name: Check sucess of cache restoration
-      if: steps.cache.outputs.cache-hit != 'true'
-      run: exit
+  # build-fast:
+  #   needs: build-deps
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Restore build cache
+  #     id: cache
+  #     uses: actions/cache@v2
+  #     with:
+  #       path: "~/.opam"
+  #       key: ${{env.CACHE_KEY}}
+  #   - name: Check sucess of cache restoration
+  #     if: steps.cache.outputs.cache-hit != 'true'
+  #     run: exit
 
-    - name: Install OCaml
-      uses: avsm/setup-ocaml@v1
-      with:
-        ocaml-version: ${{env.OCAML_VERSION}}
-    - name: Checkout code
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
+  #   - name: Install OCaml
+  #     uses: avsm/setup-ocaml@v1
+  #     with:
+  #       ocaml-version: ${{env.OCAML_VERSION}}
+  #   - name: Checkout code
+  #     uses: actions/checkout@v2
+  #     with:
+  #       fetch-depth: 1
 
-    - name: Build interfaces (vos)
-      run: opam exec -- make -j 2 vos TIMED=1
-    - name: Check interfaces (vok)
-      run: opam exec -- make -j 2 vok TIMED=1
+  #   - name: Build interfaces (vos)
+  #     run: opam exec -- make -j 2 vos TIMED=1
+  #   - name: Check interfaces (vok)
+  #     run: opam exec -- make -j 2 vok TIMED=1
