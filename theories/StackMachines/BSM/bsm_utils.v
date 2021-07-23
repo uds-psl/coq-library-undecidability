@@ -104,34 +104,36 @@ Section Binary_Stack_Machines.
     Lemma pop_exactly_spec2 (i : nat) l v :
       (~ exists l', v #> x = l ++ l') ->
       v #> empty = nil ->
-      exists v',
-      (i, pop_exactly l i) // (i, v) ->> (cdiff, v').
+      exists x',
+      (i, pop_exactly l i) // (i, v) ->> (cdiff, v[x'/x]).
     Proof using neq.
        induction l as [ | [] l IH] in v, i |- * ; cbn; intros H Hempty.
       - destruct H. eexists. reflexivity.
       - destruct (v #> x) as [ | [] l'] eqn:E.
         + eexists. 
-          bsm sss POP empty with x cdiff cdiff. bsm sss stop.
+          bsm sss POP empty with x cdiff cdiff. bsm sss stop. f_equal.
+          now rewrite vec_change_same.
         + edestruct IH as [v' Hv'].
           3: { exists v'.
                bsm sss POP 1 with x cdiff cdiff l'.
                bsm sss POP empty with empty (i + 2) (i + 2). rewrite vec_change_neq; eauto.
                eapply subcode_sss_compute_trans. 2: eapply Hv'. 1:{ cbn. eexists (_ :: _ :: nil), nil. split. 2: cbn. 2: lia. cbn. rewrite app_nil_r. repeat f_equal. lia. }
-               bsm sss stop. }
+               bsm sss stop. now rewrite vec_change_idem.               
+               }
           2: rewrite vec_change_neq; eauto. rewrite vec_change_eq.
           intros (l'' & Eq). eapply H. eexists. f_equal. eassumption. reflexivity.
         + eexists.
           bsm sss POP 0 with x cdiff cdiff l'. bsm sss stop.
       - destruct (v #> x) as [ | [] l'] eqn:E.
           + eexists. 
-            bsm sss POP empty with x (i + 2) cdiff. bsm sss stop.
+            bsm sss POP empty with x (i + 2) cdiff. bsm sss stop. now rewrite vec_change_same.
           + eexists. bsm sss POP 1 with x (i + 2) cdiff l'.
             bsm sss POP empty with empty cdiff cdiff. now rewrite vec_change_neq. bsm sss stop.
           + edestruct IH as [v' Hv'].
             3: { exists v'.
                  bsm sss POP 0 with x (i + 2) cdiff l'.
                  eapply subcode_sss_compute_trans. 2: eapply Hv'. 1:{ cbn. eexists (_ :: _ :: nil), nil. split. 2: cbn. 2: lia. cbn. rewrite app_nil_r. repeat f_equal. lia. }
-                 bsm sss stop. }
+                 bsm sss stop. now rewrite vec_change_idem. }
             2: rewrite vec_change_neq; eauto. rewrite vec_change_eq.
             intros (l'' & Eq). eapply H. eexists. f_equal. eassumption. reflexivity.
     Qed.

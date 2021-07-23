@@ -5,6 +5,7 @@ Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
 (*From Undecidability.TM Require Import ProgrammingTools.*)
 From Undecidability Require Import ArithPrelim.
 Require Import Undecidability.Shared.FinTypeEquiv Undecidability.Shared.FinTypeForallExists.
+From Undecidability Require Import utils_list.
 
 Set Default Proof Using "Type".
 Section fix_Sigma.
@@ -15,6 +16,24 @@ Section fix_Sigma.
     let i := proj1_sig (Fin.to_nat s) in
     repeat false i ++ repeat true (n - i).
 
+  Lemma encode_sym_inj s1 s2 : encode_sym s1 = encode_sym s2 -> s1 = s2.
+  Proof.
+    unfold encode_sym. intros H.
+    eapply Fin.to_nat_inj. revert H.
+    generalize (proj1_sig (Fin.to_nat s1)), (proj1_sig (Fin.to_nat s2)).
+    intros n1 n2 H.
+    assert (n1 < n2 \/ n1 = n2 \/ n1 > n2) as [ |  [ | ]] by lia.
+    - eapply Nat.le_exists_sub in H0 as (?  & -> & ?).
+      replace (x + S n1) with (n1 + S x) in H by lia. rewrite repeat_app in H. revert H. simpl_list. intros H.
+      eapply list_app_inj in H as [_ H]. 2: reflexivity.
+      cbn in H. destruct (n - n1); inv H.
+    - eauto.
+    - eapply Nat.le_exists_sub in H0 as (?  & -> & ?).
+      replace (x + S n2) with (n2 + S x) in H by lia. rewrite repeat_app in H. revert H. simpl_list. intros H.
+      eapply list_app_inj in H as [_ H]. 2: reflexivity.
+      cbn in H. destruct (n - n2); inv H.
+  Qed.
+  
   Lemma length_encode_sym (s : Fin.t n) :
     length (encode_sym s) = n.
   Proof.
