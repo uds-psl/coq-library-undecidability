@@ -86,8 +86,12 @@ Qed.
 
 Lemma vec_app_inj {X} (n m : nat) v1 v2 v2' :
   @vec_app X n m v1 v2 = vec_app v1 v2' -> v2 = v2'.
-  Proof.
-  Admitted.
+Proof.
+  induction v1.
+  - now rewrite !vec_app_nil.
+  - rewrite !vec_app_cons. intros. eapply IHv1. 
+    now eapply (f_equal (@vec_tail _ _)) in H.
+Qed.
 
 Lemma BSM_addstacks_step n m (P : bsm_instr n) j v o v' v'' : 
    (bsm_sss P (j, v) (o, v') <-> bsm_sss (@bsm_addstracks' n m P) (j, vec_app v'' v) (o, vec_app v'' v')).
