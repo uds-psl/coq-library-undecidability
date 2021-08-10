@@ -257,6 +257,7 @@ FOL/binFOL.v
 FOL/binFOL_undec.v
 
 FOL/Util/Axiomatisations.v
+FOL/Util/ZF_conservativity.v
 
 MinskyMachines/MMA.v            
 
