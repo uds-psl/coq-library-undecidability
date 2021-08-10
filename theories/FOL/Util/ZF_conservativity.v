@@ -58,12 +58,58 @@ Proof.
       eapply Weak; try eapply CE2, H. auto.
 Qed.
 
-Theorem conservativity_deductive { p : peirce } phi :
+Lemma loop_deductive' { p : peirce } phi A :
+  minZFeq' <<= A -> A ⊢ rm_const_fm (embed phi) -> A ⊢ phi.
+Proof.
+  intros H1 H2. eapply IE; try apply H2. eapply CE2.
+  eapply Weak; try apply H1. apply loop_deductive.
+Qed.
+
+Theorem conservativity_deductive_Z' { p : peirce } phi :
   ZFeq' ⊢ embed phi -> minZFeq' ⊢ phi.
 Proof.
-  intros H. apply (@rm_const_prv _ nil) in H. cbn in H.
-  eapply IE; try apply H. eapply CE2, loop_deductive.
+  intros H. apply (@rm_const_prv _ nil) in H. cbn in H. now apply loop_deductive'.
 Qed.
+
+Lemma Z_decomp { p : peirce } phi :
+  Zeq ⊢T phi -> exists A, (map ax_sep A ++ ZFeq') ⊢ phi.
+Proof.
+  intros [A [H1 H2]]. induction A in phi, H1, H2 |- *.
+  - exists nil. cbn. eapply Weak; eauto.
+  - rewrite <- imps in H2. apply IHA in H2 as [B H]; auto.
+    rewrite imps in H. destruct (H1 a); auto.
+    + exists B. eapply Weak; try apply H. auto.
+    + exists (phi0 :: B). cbn. apply H.
+Qed.
+
+Lemma minZF_sep { p : peirce } A phi :
+  minZFeq' <<= A -> A ⊢ ax_sep' (rm_const_fm phi) ~> rm_const_fm (ax_sep phi).
+Proof.
+  intros HA. apply II. assert1 H. cbn in *.
+  eapply all_equiv. 2: apply Ctx; now left. intros [x|[]]. cbn.
+  apply ex_equiv. intros B [y|[]] HB. cbn.
+  apply all_equiv. intros [z|[]]. cbn.
+  apply and_equiv; apply impl_equiv; intros C HC.
+  2,3: apply and_equiv.
+  3,5: rewrite !rm_const_fm_subst. 3,4: cbn; subsimpl; rewrite !subst_comp.
+  3,4: erewrite subst_ext; try reflexivity. 3,4: now intros [|n].
+Admitted.
+
+Theorem conservativity_deductive_Z { p : peirce } phi :
+  Zeq ⊢T embed phi -> minZeq ⊢T phi.
+Proof.
+  intros [A HA] % Z_decomp. apply rm_const_prv in HA.
+  rewrite map_map in HA. apply loop_deductive' in HA; auto.
+  exists ([ax_sep' (rm_const_fm psi) | psi ∈ A] ++ minZFeq'). split.
+  - intros psi [H|H] % in_app_iff; try now constructor.
+    apply in_map_iff in H as [psi'[<- H]]. constructor 2.
+  - apply (prv_cut HA). intros psi [[psi' [<- H]] % in_map_iff|H] % in_app_iff; auto.
+    eapply IE; try apply minZF_sep; auto. apply Ctx, in_app_iff. left. refine (in_map _ _ _ H).
+Qed.
+
+
+
+
 
 
 (* ** Semantic conservativity *)

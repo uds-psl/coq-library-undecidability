@@ -152,6 +152,14 @@ Section ND_def.
       + eapply II. now eapply IHB.
       + now apply imps, IHB in H.
   Qed.
+
+  Lemma prv_cut A B phi :
+    A ⊢ phi -> (forall psi, psi el A -> B ⊢ psi) -> B ⊢ phi.
+  Proof.
+    induction A in phi |- *; intros H1 H2.
+    - eapply Weak; eauto.
+    - rewrite <- imps in H1. apply IHA in H1; auto. apply IE with a; trivial. now apply H2.
+  Qed.
     
 End ND_def.
 
