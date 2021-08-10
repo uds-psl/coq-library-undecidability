@@ -10,6 +10,28 @@ Local Unset Strict Implicit.
 
 (* ** Deductive conservativity *)
 
+Lemma elem_iff { p : peirce } A x y :
+  minZFeq' <<= A -> A ⊢ ∃ $0 ≡' $(S x) ∧ (∃ $0 ≡' $(S (S y)) ∧ $1 ∈' $0) <-> A ⊢ $x ∈' $y.
+Proof.
+  intros HA. split; intros H.
+  - use_exists' H x'. clear H. assert1 H. apply CE in H as [_ H].
+    use_exists' H y'. eapply minZF_elem; auto. 1,2: eapply CE1; eauto. eapply CE2; auto.
+  - apply ExI with $x. cbn. apply CI; try apply minZF_refl; auto.
+    apply ExI with $y. cbn. apply CI; try apply minZF_refl; auto.
+Qed.
+
+Lemma equal_iff { p : peirce } A x y :
+  minZFeq' <<= A -> A ⊢ ∃ $0 ≡' $(S x) ∧ (∃ $0 ≡' $(S (S y)) ∧ $1 ≡' $0) <-> A ⊢ $x ≡' $y.
+Proof.
+  intros HA. split; intros H.
+  - use_exists' H x'. clear H. assert1 H. apply CE in H as [_ H].
+    use_exists' H y'. eapply minZF_trans; auto. 2: eapply CE1; auto.
+      apply minZF_sym; auto. eapply minZF_trans; auto. 2: eapply CE1; auto.
+      apply minZF_sym; auto. eapply CE2; auto.
+  - apply ExI with $x. cbn. apply CI; try apply minZF_refl; auto.
+    apply ExI with $y. cbn. apply CI; try apply minZF_refl; auto.
+Qed.
+
 Lemma loop_deductive { p : peirce } phi :
   minZFeq' ⊢ phi <~> rm_const_fm (embed phi).
 Proof.
@@ -18,16 +40,10 @@ Proof.
   - rewrite (vec_inv2 t). cbn.
     destruct Vector.hd as [x|[]], (Vector.hd (Vector.tl t)) as [y|[]]. cbn.
     destruct P0; cbn in *; apply CI; apply II.
-    + apply ExI with $x. cbn. apply CI; try apply minZF_refl; auto.
-      apply ExI with $y. cbn. apply CI; try apply minZF_refl; auto.
-    + assert1 H. use_exists' H a. clear H. assert1 H. apply CE in H as [_ H].
-      use_exists' H b. eapply minZF_elem; auto. 1,2: eapply CE1; eauto. eapply CE2; auto.
-    + apply ExI with $x. cbn. apply CI; try apply minZF_refl; auto.
-      apply ExI with $y. cbn. apply CI; try apply minZF_refl; auto.
-    + assert1 H. use_exists' H a. clear H. assert1 H. apply CE in H as [_ H].
-      use_exists' H b. eapply minZF_trans; auto. 2: eapply CE1; auto.
-      apply minZF_sym; auto. eapply minZF_trans; auto. 2: eapply CE1; auto.
-      apply minZF_sym; auto. eapply CE2; auto.
+    + apply elem_iff; auto.
+    + apply elem_iff; auto.
+    + apply equal_iff; auto.
+    + apply equal_iff; auto.
   - destruct b0; cbn in *; apply CI; apply II.
     + apply CE1 in IHphi1. apply CE1 in IHphi2. apply CI; eapply IE.
       1,3: eapply Weak; eauto. eapply CE1; auto. eapply CE2; auto.
@@ -89,11 +105,11 @@ Proof.
   eapply all_equiv. 2: apply Ctx; now left. intros [x|[]]. cbn.
   apply ex_equiv. intros B [y|[]] HB. cbn.
   apply all_equiv. intros [z|[]]. cbn.
-  apply and_equiv; apply impl_equiv; intros C HC.
-  2,3: apply and_equiv.
-  3,5: rewrite !rm_const_fm_subst. 3,4: cbn; subsimpl; rewrite !subst_comp.
-  3,4: erewrite subst_ext; try reflexivity. 3,4: now intros [|n].
-Admitted.
+  apply iff_equiv; intros C HC.
+  2: apply and_equiv. 1,2: apply elem_iff; intros psi; auto.
+  rewrite !rm_const_fm_subst. cbn; subsimpl; rewrite !subst_comp.
+  erewrite subst_ext; try reflexivity. now intros [|n].
+Qed.
 
 Theorem conservativity_deductive_Z { p : peirce } phi :
   Zeq ⊢T embed phi -> minZeq ⊢T phi.
@@ -106,6 +122,62 @@ Proof.
   - apply (prv_cut HA). intros psi [[psi' [<- H]] % in_map_iff|H] % in_app_iff; auto.
     eapply IE; try apply minZF_sep; auto. apply Ctx, in_app_iff. left. refine (in_map _ _ _ H).
 Qed.
+
+Lemma ZF_decomp { p : peirce } phi :
+  ZFeq ⊢T phi -> exists A B, ((map ax_sep A ++ map ax_rep B) ++ ZFeq') ⊢ phi.
+Proof.
+  intros [C [H1 H2]]. induction C in phi, H1, H2 |- *.
+  - exists nil, nil. cbn. eapply Weak; eauto.
+  - rewrite <- imps in H2. apply IHC in H2 as [A[B HAB]]; auto.
+    rewrite imps in HAB. destruct (H1 a); auto.
+    + exists A, B. eapply Weak; try apply HAB. auto.
+    + exists (phi0 :: A), B. cbn. apply HAB.
+    + exists A, (phi0 :: B). cbn. eapply Weak; try apply HAB.
+      intros psi [->|[[H|H] % in_app_iff|H] % in_app_iff]; auto.
+      apply in_app_iff. left. apply in_app_iff. right. now right.
+Qed.
+
+Lemma minZF_rep { p : peirce } A phi :
+  minZFeq' <<= A -> A ⊢ ax_rep' (rm_const_fm phi) ~> rm_const_fm (ax_rep phi).
+Proof.
+  intros HA. apply II. assert1 H. cbn in *. eapply impl_equiv. 3: apply Ctx; now left.
+  - intros B HB. apply all_equiv. intros [x|[]]. cbn. apply all_equiv. intros [y|[]]. cbn.
+    apply all_equiv. intros [z|[]]. cbn. apply impl_equiv; intros C HC.
+    + rewrite !rm_const_fm_subst, !subst_comp.
+      erewrite subst_ext; try reflexivity. now intros [|[|n]].
+    + apply impl_equiv; intros D HD. 2: eapply equal_iff; intros psi HP; apply HD; auto.
+      rewrite !rm_const_fm_subst, !subst_comp.
+      erewrite subst_ext; try reflexivity. now intros [|[|n]].
+  - intros B HB. apply all_equiv. intros [x|[]]. cbn.
+    apply ex_equiv. intros C [y|[]] HC. cbn.
+    apply all_equiv. intros [z|[]]. cbn.
+    apply iff_equiv; intros D HD. 1: apply elem_iff; intros psi HP; apply HD; auto.
+    apply ex_equiv. intros E [u|[]] HE. cbn.
+    apply and_equiv. 1: apply elem_iff; intros psi HP; apply HE, HD; auto.
+    rewrite !rm_const_fm_subst. cbn; subsimpl; rewrite !subst_comp.
+    erewrite subst_ext; try reflexivity. now intros [|[|n]].
+Qed.
+
+Theorem conservativity_deductive_ZF { p : peirce } phi :
+  ZFeq ⊢T embed phi -> minZFeq ⊢T phi.
+Proof.
+  intros [A [B HAB]] % ZF_decomp. apply rm_const_prv, loop_deductive' in HAB; auto.
+  exists ([ax_sep' (rm_const_fm psi) | psi ∈ A] ++ [ax_rep' (rm_const_fm psi) | psi ∈ B] ++ minZFeq'). split.
+  - intros psi [|[H|H] % in_app_iff] % in_app_iff; try now constructor.
+    all: apply in_map_iff in H as [psi'[<- H]]. constructor 2. constructor 3.
+  - apply (prv_cut HAB). intros psi [[psi' [<- H]] % in_map_iff|H] % in_app_iff.
+    + apply in_app_iff in H as [[phi' [<- H]] % in_map_iff|[phi' [<- H]] % in_map_iff].
+      * eapply IE; try apply minZF_sep; auto. apply Ctx, in_app_iff. left. refine (in_map _ _ _ H).
+      * eapply IE; try apply minZF_rep; auto. apply Ctx, in_app_iff. right.
+        apply in_app_iff. left. refine (in_map _ _ _ H).
+    + auto. apply Ctx. auto.
+Qed.
+
+
+
+
+
+
 
 
 
