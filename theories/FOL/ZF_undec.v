@@ -1,5 +1,5 @@
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
-From Undecidability.FOL.Util Require Import FullTarski FullDeduction_facts Aczel_CE Aczel_TD ZF_model.
+From Undecidability.FOL.Util Require Import FullTarski FullDeduction_facts Aczel_CE Aczel_TD ZF_model HF_model.
 From Undecidability.FOL.Reductions Require Import PCPb_to_HF PCPb_to_ZFeq PCPb_to_ZF PCPb_to_ZFD.
 Require Import Undecidability.FOL.ZF.
 
@@ -103,8 +103,8 @@ Qed.
 Corollary undecidable_model_entailment_HF :
   undecidable entailment_HF.
 Proof.
-  intros H. apply undecidable_entailment_HF; trivial.
-Abort.
+  intros H. apply undecidable_entailment_HF; trivial. apply HF_model.
+Qed.
 
 (* Intuitionistic deduction in full ZFeq *)
 

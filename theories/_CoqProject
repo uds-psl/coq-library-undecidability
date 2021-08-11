@@ -243,6 +243,7 @@ FOL/Util/Aczel.v
 FOL/Util/Aczel_CE.v
 FOL/Util/Aczel_TD.v
 FOL/Util/ZF_model.v
+FOL/Util/HF_model.v
 FOL/ZF_undec.v
 
 FOL/minZF.v

@@ -401,6 +401,19 @@ Section ZF.
     intros y [k ->] % numeral_numeral. apply numeral_trans.
   Qed.
 
+  Lemma numeral_trans_sub x n :
+    (forall x y, (x ∈ y) + (~ x ∈ y)) -> x ⊆ numeral n -> trans x -> sig (fun n => x = numeral n).
+  Proof.
+    intros d. induction n; cbn.
+    - intros H _. exists 0. cbn. apply M_ext; trivial. intros y [] % M_eset.
+    - intros Hn Hx. destruct (d (numeral n) x) as [H|H].
+      + exists (S n). cbn. apply M_ext; trivial.
+        intros y [Hy| ->] % sigma_el; trivial.
+        now apply (Hx (numeral n)).
+      + apply IHn; trivial. intros y Hy.
+        specialize (Hn y Hy). apply sigma_el in Hn as [Hn| ->]; tauto.
+  Qed.
+
 
 
   (* ** Encodings *)
