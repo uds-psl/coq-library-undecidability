@@ -96,6 +96,11 @@ Definition fun_rel phi :=
 Definition ax_rep phi :=
   fun_rel phi ~> ∀ ∃ ∀ $0 ∈ $1 <~> ∃ $0 ∈ $3 ∧ phi[$0 .: $1 .: Nat.add 4 >> var].
 
+(* Hereditarily finite set theory *)
+
+Definition HF :=
+  ax_ext :: ax_eset :: ax_pair :: ax_union :: ax_power :: nil.
+
 (* List of core axioms without schemes for separation and replacement *)
 
 Definition ZF' :=
@@ -155,6 +160,11 @@ Notation extensional M :=
 
 Definition entailment_ZFeq' phi :=
   forall D (M : interp D) (rho : nat -> D), (forall sigma psi, In psi ZFeq' -> sigma ⊨ psi) -> rho ⊨ phi.
+
+(* Semantic entailment restricted to extensional models and hereditarily finite sets. *)
+
+Definition entailment_HF phi :=
+  forall D (M : interp D) (rho : nat -> D), extensional M -> (forall sigma psi, In psi HF -> sigma ⊨ psi) -> rho ⊨ phi.
 
 (* Semantic entailment restricted to extensional models and core axioms (without sep and rep). *)
 
