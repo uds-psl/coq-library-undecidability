@@ -31,6 +31,36 @@ Proof.
   intros z Hz. apply H2. now apply (H1 y).
 Qed.
 
+Definition listing x :=
+  proj1_sig (hfs_mem_fin_t x).
+
+Definition max {X} (L : list X) :
+  forall (f : forall x, x el L -> nat), sig (fun n => forall x (H : x el L), f x H < n).
+Proof.
+Admitted.
+
+Lemma numeral_trans_sub x n :
+  x ⊆ numeral n -> trans x -> sig (fun n => x = numeral n).
+Proof.
+  induction n; cbn.
+  - intros H _. exists 0. admit.
+  - intros H Hx.
+
+Lemma hfs_model_standard' x :
+  htrans x -> sig (fun n => x = numeral n).
+Proof.
+  induction x using hfs_rect.
+  intros Hx. destruct (hfs_mem_fin_t x) as [L HL].
+  unshelve edestruct (@max _ L) as [N HN].
+  - intros y Hy % HL. destruct (H y) as [n Hn]; auto. eapply htrans_htrans; eauto.
+  - 
+Admitted.
+
+Lemma hfs_rec (P : hfs -> Type) :
+  (forall x, (forall y, y el listing x -> P y) -> P x) -> forall x, P x.
+Proof.
+Admitted.
+
 Lemma hfs_model_standard' L x :
   htrans x -> (forall y, hfs_mem y x <-> y el L) -> NoDup L -> x = numeral (length L).
 Proof.
