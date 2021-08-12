@@ -46,11 +46,6 @@ Fixpoint tnumeral n :=
   | S n => σ (tnumeral n)
 end.
 
-Lemma HF_numeral n :
-  HFeq ⊢ htransitive (tnumeral n).
-Proof.
-Qed.
-
 Lemma HF_refl' T x :
   HFeq <<= T -> T ⊢ x ≡ x.
 Proof.
@@ -389,7 +384,31 @@ Proof.
       auto. apply HF_sig_el. auto.
 Qed.
 
+Lemma HF_sig_iff T x y :
+  HFeq <<= T -> T ⊢ y ∈ σ x -> T ⊢ y ∈ x ∨ y ≡ x.
+Proof.
+  intros HT H % HF_bunion_inv; auto.
+  eapply DE; try apply H; auto.
+  apply DI2. eapply DE; try apply HF_pair_el'; auto.
+Qed.
 
+Lemma HF_numeral T n :
+  HFeq <<= T -> T ⊢ htransitive (tnumeral n).
+Proof.
+  intros HT. induction n; apply CI; prv_all x; apply II.
+  - apply Exp. apply imps. apply HF_eset'. auto.
+  - apply Exp. apply imps. apply HF_eset'. auto.
+  - prv_all y. apply -> imps. try apply (@HF_numeral_trans T (S n)); auto.
+  - eapply DE; try apply HF_sig_iff; auto.
+    + apply CE2 in IHn. apply (AllE x) in IHn. apply imps.
+      cbn in IHn. subsimpl_in IHn. eapply Weak; eauto.
+    + prv_all y. apply II. prv_all z. apply II. eapply HF_eq_elem.
+      * auto. 
+      * apply HF_refl'. auto.
+      * apply HF_sym'; auto.
+      * apply imps. eapply IE; try apply HF_numeral_trans; auto.
+        eapply HF_eq_elem; auto. apply HF_refl'. auto.
+Qed.
 
 
 
@@ -645,8 +664,8 @@ Proof.
   apply ExI with (enc_stack (derivations B n)). cbn.
   rewrite !enc_stack_subst, !combinations_subst. cbn. subsimpl.
   repeat apply CI.
-  - specialize (HF_numeral n). apply CE1.
-  - specialize (HF_numeral n). apply CE2.
+  - specialize (@HF_numeral HFeq n (fun phi H => H)). apply CE1.
+  - specialize (@HF_numeral HFeq n (fun phi H => H)). apply CE2.
   - prv_all x. prv_all y. prv_all z.
     apply enc_derivations_functional.
   - apply enc_derivations_base.
