@@ -7,6 +7,41 @@ From Undecidability.Shared.Libs.DLW.Utils Require Import finite.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 
+Definition hfs_listing x :=
+   proj1_sig (hfs_mem_fin_t x).
+
+Lemma hfs_listing_spec x y :
+  y el hfs_listing x <-> hfs_mem y x.
+Proof.
+  unfold hfs_listing. now destruct hfs_mem_fin_t.
+Qed.
+
+Definition list2hfs L :=
+  fold_right hfs_cons hfs_empty L.
+
+Lemma list2hfs_spec L x :
+  hfs_mem x (list2hfs L) <-> x el L.
+Proof.
+  induction L; cbn.
+  - apply hfs_empty_spec.
+  - split.
+    + intros [<-|H] % hfs_cons_spec; auto. right. now apply IHL.
+    + intros [<-|H]; apply hfs_cons_spec; auto. right. now apply IHL.
+Qed.
+
+Definition hfs_union x :=
+  list2hfs (concat (map hfs_listing (hfs_listing x))).
+
+Lemma hfs_union_spec x y :
+  hfs_mem y (hfs_union x) <-> exists z, hfs_mem z x /\ hfs_mem y z.
+Proof.
+  unfold hfs_union. rewrite list2hfs_spec, in_concat. split.
+  - intros [L [[z [<- H1]] % in_map_iff H2]].
+    exists z. split; now apply hfs_listing_spec.
+  - intros [z [H1 % hfs_listing_spec H2 % hfs_listing_spec]].
+    exists (hfs_listing z). split; trivial. now apply in_map.
+Qed.
+
 Instance hfs_interp :
   interp hfs.
 Proof.
@@ -14,7 +49,7 @@ Proof.
   - intros [].
     + intros _. exact hfs_empty.
     + intros v. exact (hfs_pair (Vector.hd v) (Vector.hd (Vector.tl v))).
-    + intros v. exact hfs_empty.
+    + intros v. exact (hfs_union (Vector.hd v)).
     + intros v. exact (hfs_pow (Vector.hd v)).
     + intros _. exact hfs_empty.
   - intros [].
@@ -31,9 +66,9 @@ Proof.
   - intros x y H1 H2. apply hfs_mem_ext. intuition.
   - intros x. apply hfs_empty_spec.
   - intros x y z. apply hfs_pair_spec.
-  - admit.
+  - intros x y. apply hfs_union_spec.
   - intros x y. apply hfs_pow_spec.
-Admitted.
+Qed.
 
 Lemma htrans_htrans x y :
   htrans x -> y ∈ x -> htrans y.
