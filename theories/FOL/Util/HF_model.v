@@ -7,7 +7,7 @@ From Undecidability.Shared.Libs.DLW.Utils Require Import finite.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 
-Instance hfs_model :
+Instance hfs_interp :
   interp hfs.
 Proof.
   split.
@@ -24,65 +24,9 @@ Defined.
 
 Open Scope sem.
 
-Lemma htrans_htrans x y :
-  htrans x -> y ∈ x -> htrans y.
+Lemma hfs_model :
+  forall rho, rho ⊫ HF.
 Proof.
-  intros [H1 H2] H. split; try now apply H2.
-  intros z Hz. apply H2. now apply (H1 y).
-Qed.
-
-Definition listing x :=
-  proj1_sig (hfs_mem_fin_t x).
-
-Definition max {X} (L : list X) :
-  forall (f : forall x, x el L -> nat), sig (fun n => forall x (H : x el L), f x H < n).
-Proof.
-Admitted.
-
-Lemma numeral_trans_sub x n :
-  x ⊆ numeral n -> trans x -> sig (fun n => x = numeral n).
-Proof.
-  induction n; cbn.
-  - intros H _. exists 0. admit.
-  - intros H Hx.
-
-Lemma hfs_model_standard' x :
-  htrans x -> sig (fun n => x = numeral n).
-Proof.
-  induction x using hfs_rect.
-  intros Hx. destruct (hfs_mem_fin_t x) as [L HL].
-  unshelve edestruct (@max _ L) as [N HN].
-  - intros y Hy % HL. destruct (H y) as [n Hn]; auto. eapply htrans_htrans; eauto.
-  - 
-Admitted.
-
-Lemma hfs_rec (P : hfs -> Type) :
-  (forall x, (forall y, y el listing x -> P y) -> P x) -> forall x, P x.
-Proof.
-Admitted.
-
-Lemma hfs_model_standard' L x :
-  htrans x -> (forall y, hfs_mem y x <-> y el L) -> NoDup L -> x = numeral (length L).
-Proof.
-  revert x. induction L using (size_ind (@length hfs)).
-  intros x H1 H2 H3. destruct L.
-  - cbn. admit.
-  - 
-
-Lemma hfs_model_standard :
-  standard hfs_model.
-Proof.
-  intros x Hx. destruct (hfs_mem_fin_t x) as [L HL].
-  induction L in x, Hx, HL |- * ; cbn in *.
-  - exists 0. admit.
-  - 
-Admitted.
-
-Lemma HF_model :
-  exists V (M : interp V), extensional M /\ standard M /\ forall rho, rho ⊫ HF.
-Proof.
-  exists hfs, hfs_model. split; try reflexivity.
-  split; try apply hfs_model_standard.
   intros rho phi [<-|[<-|[<-|[<-|[<-|[]]]]]]; cbn.
   - intros x y H1 H2. apply hfs_mem_ext. intuition.
   - intros x. apply hfs_empty_spec.
@@ -90,3 +34,50 @@ Proof.
   - admit.
   - intros x y. apply hfs_pow_spec.
 Admitted.
+
+Lemma htrans_htrans x y :
+  htrans x -> y ∈ x -> htrans y.
+Proof.
+  intros [H1 H2] H. split; try now apply H2.
+  intros z Hz. apply H2. now apply (H1 y).
+Qed.
+
+Definition max {X} (L : list X) :
+  forall (f : forall x, x el L -> nat), sig (fun n => forall x (H : x el L), f x H < n).
+Proof.
+  intros f. induction L; cbn.
+  - exists 42. intros x [].
+  - unshelve edestruct IHL as [n Hn].
+    + intros x Hx. apply (f x). now right.
+    + pose (na := f a (or_introl eq_refl)). exists ((S na) + n). intros x [->|H].
+      * unfold na. apply NPeano.Nat.lt_lt_add_r. constructor.
+      * specialize (Hn x H). cbn in Hn. now apply NPeano.Nat.lt_lt_add_l.
+Qed.
+
+Lemma hfs_model_standard x :
+  htrans x -> sig (fun n => x = numeral n).
+Proof.
+  induction x using hfs_rect.
+  intros Hx. destruct (hfs_mem_fin_t x) as [L HL].
+  unshelve edestruct (@max _ L) as [N HN].
+  - intros y Hy % HL. destruct (H y) as [n Hn]; auto. eapply htrans_htrans; eauto.
+  - apply numeral_trans_sub with N.
+    + apply hfs_model.
+    + reflexivity.
+    + intros a b. destruct (hfs_mem_dec a b); auto.
+    + intros y Hy. destruct (H y Hy (htrans_htrans Hx Hy)) as [n Hn].
+      rewrite Hn. apply numeral_lt; try apply hfs_model; try reflexivity.
+      assert (HLy : y el L) by now apply HL. specialize (HN y HLy).
+      cbn in HN. destruct H as [n' ->] in HN.
+      erewrite numeral_inj at 1; try apply HN; try apply hfs_model; try reflexivity.
+      now rewrite Hn.
+    + apply (proj1 Hx).
+Qed.
+
+Lemma HF_model :
+  exists V (M : interp V), extensional M /\ standard M /\ forall rho, rho ⊫ HF.
+Proof.
+  exists hfs, hfs_interp. split; try reflexivity.
+  split; try apply hfs_model.
+  intros x Hx. destruct (hfs_model_standard Hx) as [n Hn]. now exists n.
+Qed.
