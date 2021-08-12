@@ -1,9 +1,15 @@
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
-From Undecidability.FOL.Util Require Import FullTarski FullDeduction_facts Aczel_CE Aczel_TD ZF_model HF_model.
-From Undecidability.FOL.Reductions Require Import PCPb_to_HF PCPb_to_ZFeq PCPb_to_ZF PCPb_to_ZFD.
+
+From Undecidability.FOL.Util
+     Require Import FullTarski FullDeduction_facts Aczel_CE Aczel_TD ZF_model HF_model.
+
+From Undecidability.FOL.Reductions
+     Require Import PCPb_to_HF PCPb_to_HFD PCPb_to_ZFeq PCPb_to_ZF PCPb_to_ZFD.
+
 Require Import Undecidability.FOL.ZF.
 
-From Undecidability.PCP Require Import PCP PCP_undec Util.PCP_facts Reductions.PCPb_iff_dPCPb.
+From Undecidability.PCP
+     Require Import PCP PCP_undec Util.PCP_facts Reductions.PCPb_iff_dPCPb.
 
 (* Semantic entailment in full ZF restricted to extensional models *)
 
@@ -175,6 +181,23 @@ Corollary undecidable_deduction_entailment_ZF' :
   undecidable deduction_ZF'.
 Proof.
   apply (undecidability_from_reducibility PCPb_undec), PCPb_deduction_ZF'.
+Qed.
+
+(* Intuitionistic deduction in HFeq *)
+
+Theorem PCPb_deduction_HF :
+  PCPb ⪯ deduction_HF.
+Proof.
+  exists PCPb_to_HF.solvable. intros B. split; try apply PCP_HFD.
+  intros H % soundness. apply PCP_HF; try apply HF_model.
+  intros D M rho H1 H2. apply H. intros phi [<-|[<-|[<-|[<-|H']]]].
+  1-4: cbn; setoid_rewrite H1; congruence. now apply H2.
+Qed.
+
+Corollary undecidable_deduction_entailment_HF :
+  undecidable deduction_HF.
+Proof.
+  apply (undecidability_from_reducibility PCPb_undec), PCPb_deduction_HF.
 Qed.
 
 

@@ -131,6 +131,11 @@ Definition ax_trans :=
 Definition ax_eq_elem :=
   ∀ ∀ ∀ ∀ $3 ≡ $1 ~> $2 ≡ $0 ~> $3 ∈ $2 ~> $1 ∈ $0.
 
+(* List of HF axioms plus equality axioms *)
+
+Definition HFeq :=
+  ax_refl :: ax_sym :: ax_trans :: ax_eq_elem :: HF.
+
 (* List of core axioms plus equality axioms *)
 
 Definition ZFeq' :=
@@ -180,6 +185,11 @@ Definition entailment_Z phi :=
 
 Definition entailment_ZF phi :=
   forall D (M : interp D) (rho : nat -> D), extensional M -> (forall sigma psi, ZF psi -> sigma ⊨ psi) -> rho ⊨ phi.
+
+(* Deductive entailment restricted to hereditarily finite sets. *)
+
+Definition deduction_HF phi :=
+  HFeq ⊢I phi.
 
 (* Deductive entailment restricted to intuitionistic rules and core axioms (without sep and rep). *)
 

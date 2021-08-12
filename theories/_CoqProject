@@ -239,6 +239,7 @@ FOL/Reductions/PCPb_to_ZF.v
 FOL/Reductions/PCPb_to_ZFD.v
 FOL/Reductions/PCPb_to_ZFeq.v
 FOL/Reductions/PCPb_to_HF.v
+FOL/Reductions/PCPb_to_HFD.v
 FOL/Util/Aczel.v
 FOL/Util/Aczel_CE.v
 FOL/Util/Aczel_TD.v
