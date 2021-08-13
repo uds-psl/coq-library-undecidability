@@ -222,6 +222,7 @@ FOL/Util/FullTarski.v
 FOL/Util/FullTarski_facts.v
 FOL/Util/FullDeduction.v
 FOL/Util/FullDeduction_facts.v
+FOL/Util/Friedman.v
 
 FOL/FOL.v
 FOL/FOL_undec.v
