@@ -216,7 +216,9 @@ Proof.
   - apply (ExI ∅). cbn. subsimpl. apply CI; try apply (Weak ZF_eset); auto.
     eapply CE1. apply Ctx. left. reflexivity.
   - prv_all x. apply II. apply (ExI (σ x)). cbn. subsimpl. apply CI.
-    + admit.
+    + prv_all y. apply CI. 1: apply bunion_use; auto. eapply II, DE; try now apply Ctx.
+      * apply ZF_bunion_el1; auto.
+      * apply ZF_bunion_el2; auto. apply ZF_pair_el'; auto.
     + eapply IE; try now apply Ctx. assert2 H.
       apply CE2, (AllE x) in H. cbn in H. now subsimpl_in H.
   - assert1 H. apply CE1 in H. use_exists H x. clear H. eapply ZF_eq_elem; auto.
@@ -225,8 +227,16 @@ Proof.
       cbn in H. subsimpl_in H. apply (IE H). auto.
     + prv_all y. apply II. apply Exp. eapply IE; try now apply Ctx. apply ZF_eset'. auto.
   - prv_all x. assert1 H. apply CE2 in H. apply (AllE x) in H. cbn in H. subsimpl_in H.
-    rewrite imps in *. use_exists H y. clear H. eapply ZF_eq_elem. admit.
-Admitted.
+    rewrite imps in *. use_exists H y. clear H. eapply ZF_eq_elem with y t; auto.
+    + assert1 H. apply CE1 in H. apply ZF_ext'; auto.
+      * prv_all a. apply (AllE a) in H. cbn in H. subsimpl_in H. apply CE1 in H.
+        rewrite imps in *. apply (DE H). apply ZF_bunion_el1; auto 6.
+        apply ZF_bunion_el2; auto 6. apply ZF_pair_el'; auto 6.
+      * prv_all a. apply (AllE a) in H. cbn in H. subsimpl_in H. apply CE2 in H. apply II.
+        eapply IE; try apply (Weak H); auto. rewrite <- imps. apply bunion_use; auto.
+    + apply ZF_refl'. auto.
+    + eapply CE2. auto.
+Qed.
 
 Lemma embed_ZF' { p : peirce } phi :
   phi el minZFeq' -> ZFeq' ⊢ embed phi.
