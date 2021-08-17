@@ -71,21 +71,17 @@ Section Signature.
   Lemma double_dn {ff} Gamma F phi :
     Gamma ⊢I @dn ff F (dn F phi) ~> dn F phi.
   Proof.
-    apply II, II. eapply IE with (phi0:= _ ~> _).
-    { apply Ctx; firstorder. }
-    apply II. apply IE with (phi0:= phi ~> F).
-    all: apply Ctx; firstorder.
+    apply II, II. eapply IE with (phi0:= _ ~> _). { apply Ctx; firstorder. }
+    apply II. apply IE with (phi0:= phi ~> F). all: apply Ctx; auto.
   Qed.
 
   Lemma rm_dn {ff} Gamma F alpha beta :
     (alpha :: Gamma) ⊢I beta -> (@dn ff F alpha :: Gamma) ⊢I dn F beta.
   Proof.
     intros H.
-    apply II. eapply IE with (phi:= _ ~> _).
-    { apply Ctx; firstorder. }
-    apply II. eapply IE with (phi:= beta).
-    {apply Ctx; firstorder. }
-    eapply Weak; [eassumption|firstorder].
+    apply II. eapply IE with (phi:= _ ~> _). { apply Ctx; firstorder. }
+    apply II. eapply IE with (phi:= beta). {apply Ctx; auto. }
+    eapply Weak; [eassumption|auto].
   Qed.
 
  
@@ -106,13 +102,10 @@ Section Signature.
     apply II. constructor. apply II.
     cbn; fold Q.
     change ((∀ phi[up ↑])) with ((∀ phi)[↑]).
-    eapply IE with (phi0:= _ ~> _).
-    { apply Ctx; firstorder. }
-    apply II.
-    eapply IE with (phi0:= phi).
-    { apply Ctx; firstorder. }
+    eapply IE with (phi0:= _ ~> _). { apply Ctx; auto. }
+    apply II. eapply IE with (phi0:= phi). { apply Ctx; auto. }
     cbn. rewrite <-form_up_var0_invar.
-    apply AllE, Ctx; firstorder.
+    apply AllE, Ctx; auto.
   Qed.
 
   
@@ -121,12 +114,10 @@ Section Signature.
   Proof.
     refine (size_ind size _ _). intros phi sRec.
     destruct phi; intros Gamma.
-    - apply II. eapply IE; cbn.
-      { apply Ctx; auto. }
+    - apply II. eapply IE; cbn. { apply Ctx; auto. }
       apply II, Ctx; auto.
     - destruct P.
-      + apply II. eapply IE; cbn.
-        {apply Ctx; auto. }
+      + apply II. eapply IE; cbn. {apply Ctx; auto. }
         apply II, Ctx; auto.
       + apply double_dn.
     - destruct b0; cbn.
@@ -137,17 +128,15 @@ Section Signature.
           apply rm_dn. eapply CE2, Ctx; auto.
       + apply double_dn.
       + apply II, II. eapply IE. apply sRec; cbn. 1: lia.
-        apply II. eapply IE with (phi:= _ ~> _).
-        { apply Ctx; auto. }
-        apply II. eapply IE with (phi:= Fr phi2).
-        { apply Ctx; auto. }
+        apply II. eapply IE with (phi:= _ ~> _). { apply Ctx; auto. }
+        apply II. eapply IE with (phi:= Fr phi2). { apply Ctx; auto. }
         eapply IE with (phi:= Fr phi1); apply Ctx; auto.
     - destruct q.      
       + cbn. apply II. apply IE with (phi0:= ∀ Fr (dn Q phi)).
         { apply II. constructor. cbn; fold Q.
           eapply IE. apply sRec; auto.
           rewrite <-form_up_var0_invar.
-          apply AllE, Ctx. firstorder. }
+          apply AllE, Ctx; auto. }
         constructor.
         cbn; fold Q. rewrite <- form_up_var0_invar.
         apply AllE. cbn; fold Q.
@@ -160,29 +149,26 @@ Section Signature.
     revert Gamma. induction phi; cbn; intros Gamma; apply II.
     - apply Ctx; firstorder.
     - destruct  P.
-      + apply Ctx; firstorder.
-      + apply II, Ctx; firstorder.
+      + apply Ctx; auto.
+      + apply II, Ctx; auto.
     - destruct b0.
       + apply CI; now apply imps.
-      + apply II, Ctx; firstorder.
+      + apply II, Ctx; auto.
       + apply II. eapply IE. apply IHphi2.
-        apply Ctx; firstorder.
+        apply Ctx; auto.
     - destruct q.
       + constructor. apply imps, IHphi.
-      + apply II, Ctx; firstorder.
+      + apply II, Ctx; auto.
   Qed.          
   
   Lemma Peirce_Fr {ff} Gamma phi psi : Gamma ⊢I @Friedman ff (((phi ~> psi) ~> phi) ~> phi).
   Proof.
     eapply IE. apply DNE_Fr. cbn.
-    apply II. eapply IE.
-    { apply Ctx; firstorder. }
-    apply II. eapply IE.
-    { apply Ctx; firstorder. }
+    apply II. eapply IE. { apply Ctx; auto. }
+    apply II. eapply IE. { apply Ctx; auto. }
     apply II. eapply IE; [apply Expl_Fr|].
-    eapply IE.
-    { apply Ctx; firstorder. }
-    apply II. apply Ctx; firstorder.
+    eapply IE. { apply Ctx; auto. }
+    apply II. apply Ctx; auto.
   Qed.
     
   
@@ -198,19 +184,15 @@ Section Signature.
     - apply II.
       eapply IE.
       + apply Ctx. firstorder.
-      + apply Weak with (A0 := map Friedman A); [|firstorder].
+      + apply Weak with (A0 := map Friedman A); [|auto].
         apply ExI with (t0:=t). now rewrite subst_Fr.
     - eapply IE. apply DNE_Fr. unfold dn in *; cbn.
       apply II. eapply IE.
-      { eapply Weak; [apply IHprv1|firstorder]. }
-      apply II. eapply IE.
-      { apply Ctx; firstorder. }
+      { eapply Weak; [apply IHprv1|auto]. }
+      apply II. eapply IE. { apply Ctx; auto. }
       rewrite <-subst_Fr, <-subst_List_Fr in IHprv2.
-      eapply ExE.
-      { apply Ctx; firstorder. }
-      cbn. eapply Weak.
-      + apply IHprv2.
-      + firstorder.
+      eapply ExE. { apply Ctx; auto. }
+      cbn. eapply Weak; [apply IHprv2|auto].
     - specialize (DNE_Fr phi (map Friedman A)) as H'.
       eapply IE; [eassumption|].
       cbn; apply II. eapply Weak; eauto.
@@ -219,21 +201,19 @@ Section Signature.
     - eapply CE1; eauto.
     - eapply CE2; eauto.
     - apply II. eapply IE.
-      + apply Ctx. firstorder.
+      + apply Ctx. auto.
       + apply DI1. eapply Weak; eauto.
     - apply II. eapply IE.
-      + apply Ctx. firstorder.
+      + apply Ctx; auto.
       + apply DI2. eapply Weak; eauto.
     - eapply IE. apply DNE_Fr.
       apply II. eapply IE.
-      { eapply Weak; [apply IHprv1|firstorder]. }
-      apply II. eapply IE.
-      { apply Ctx; firstorder. }
-      apply imps in IHprv2.
-      apply imps in IHprv3.
+      { eapply Weak; [apply IHprv1|auto]. }
+      apply II. eapply IE. { apply Ctx; auto. }
+      apply imps in IHprv2. apply imps in IHprv3.
       eapply DE.
       1 : apply Ctx; firstorder.
-      1,2 : apply imps; eapply Weak; [eassumption|firstorder].
+      1,2 : apply imps; eapply Weak; [eassumption|auto].
     - apply Peirce_Fr.
   Qed.
 
