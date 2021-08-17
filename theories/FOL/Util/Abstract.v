@@ -144,3 +144,104 @@ Section Abstract.
   End Reduction.
 
 End Abstract.
+
+From Undecidability.FOL.Util Require Import Syntax_facts FullDeduction FullDeduction_facts FullTarski FullTarski_facts Axiomatisations.
+
+Lemma reduction_equiv X Y (P P' : X -> Prop) (Q Q' : Y -> Prop) f :
+  (forall x, P x <-> P' x) -> (forall y, Q y <-> Q' y) -> reduction f P Q -> reduction f P' Q'.
+Proof.
+  firstorder.
+Qed.
+
+Section Instantiation.
+
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+
+  Fact abs_reduction_theorem (T : form -> Prop) X (P : X -> Prop) f (standard : forall D : Type, interp D -> Prop) :
+    (forall x : X, P x -> T ⊨T f x) ->
+    (forall (D : Type) (I : interp D) rho (x : X), standard D I -> T <<= (sat rho) -> rho ⊨ f x -> P x) ->
+    (forall (p : peirce) (x : X), P x -> T ⊢T f x) ->
+    forall S : form -> Prop, T <<= S -> (exists D (I : interp D) (d : D), standard D I /\ I ⊨=T S) -> treduction f P S.
+  Proof.
+    intros H1 H2 H3 S HS HM. split.
+    - eapply reduction_equiv. 1: reflexivity.
+      2: unshelve eapply (@reduction_valid form (tprv S) {D & {I : interp D & {rho | S <<= (sat rho)}}}).
+      3: intros [D[I[rho Hr]]] phi; exact (rho ⊨ phi).
+      + unfold Abstract.valid. intros phi. split.
+        * intros H D I rho Hp. specialize (H (existT _ D (existT _ I (exist _ rho Hp)))). apply H.
+        * intros H [D[I[rho Hr]]]. apply H, Hr.
+      + exact intu.
+      + intros [D[I[rho Hr]]]. exact (standard D I).
+      + intros phi Hp. unfold Abstract.valid. intros [D[I[rho Hr]]]. apply (tsoundness Hp), Hr.
+      + destruct HM as [D[I[d H]]]. unshelve eexists.
+        * exists D, I, (fun _ => d). intros phi Hp. now apply H.
+        * cbn. apply H.
+      + intros phi Hp. now eapply WeakT; try apply H3.
+      + cbn. intros [D[I[rho Hr]]] x HI. eapply H2; auto.
+    - unshelve eapply (@reduction_provable form (tprv S) {D & {I : interp D & {rho | S <<= (sat rho)}}}).
+      + intros [D[I[rho Hr]]] phi; exact (rho ⊨ phi).
+      + intros [D[I[rho Hr]]]. exact (standard D I).
+      + intros phi Hp. unfold Abstract.valid. intros [D[I[rho Hr]]]. apply (tsoundness Hp), Hr.
+      + destruct HM as [D[I[d H]]]. unshelve eexists.
+        * exists D, I, (fun _ => d). intros phi Hp. now apply H.
+        * cbn. apply H.
+      + intros phi Hp. now eapply WeakT; try apply H3.
+      + cbn. intros [D[I[rho Hr]]] x HI. eapply H2; auto.
+  Qed.
+
+  Context {enum_funcs : enumerable__T Σ_funcs} {eqdec_funcs : eq_dec syms}.
+  Context {enum_preds : enumerable__T Σ_preds} {eqdec_preds : eq_dec preds}.
+
+  Instance eqdec_on :
+    EqDecPoint falsity_flag falsity_on.
+  Proof.
+  Admitted.
+
+  Instance EqDec_syms : EqDec syms.
+  Proof.
+    intros x y. apply eqdec_funcs.
+  Qed.
+
+  Instance EqDec_preds : EqDec preds.
+  Proof.
+    intros x y. apply eqdec_preds.
+  Qed.
+
+  Fact abstr_complete_decidable (T : form -> Prop) :
+    enumerable T -> ~ T ⊢TC ⊥ -> complete T -> decidable (fun phi : form => bounded 0 phi /\ T ⊢TC phi).
+  Proof.
+    intros H1 H2 H3. apply dec_red with {phi | bounded 0 phi} (fun phi => T⊢TC (proj1_sig phi)).
+    { exists (fun phi => match bounded_dec phi 0 with left H => exist _ phi H | _ => exist _ ⊥ (bounded_falsity 0) end). intros phi. destruct bounded_dec; cbn; tauto. }
+    unshelve eapply completeness_decidable.
+    - intros [phi Hp]. exists (¬ phi). repeat constructor. apply Hp.
+    - admit.
+    - apply enumerable_red with form (fun phi => bounded 0 phi /\ T ⊢TC phi).
+      { exists (fun phi => proj1_sig phi). intros [phi Hp]. cbn. tauto. }
+      { admit. }
+      { admit. }
+      apply enumerable_conj; try apply form_discrete.
+      + apply dec_count_enum; try unshelve eapply form_enumerable; eauto.
+        apply decidable_iff. constructor. intros phi. unshelve eapply bounded_dec; eauto.
+      + unshelve eapply tprv_enumerable; eauto.
+    - intros [phi H]. cbn. depelim phi; admit. (*
+      + apply EqDec.inj_right_sigma_point in H as ->. right. intros phi. congruence.
+      + right. intros phi. congruence.
+      + destruct b0. 1,2: right; intros phi; congruence.
+        destruct dec_form with falsity_on phi2 ⊥ as [->|H]; eauto.
+        1,2: intros x y; unfold dec; decide equality.
+        right. intros phi. intros [=]. resolve_existT. now apply H.
+      + right. intros psi. congruence.*)
+    - cbn. intros [phi H] [psi H']. cbn. intros [=]. resolve_existT. admit.
+    - cbn. intros [phi Hp] [[A [HA1 HA2]] [B [HB1 HB2]]]. cbn in *. 
+      apply H2. exists (A ++ B). split.
+      + intros psi [H|H] % in_app_iff; intuition.
+      + apply IE with phi. apply (Weak HB2). auto. apply (Weak HA2). auto.
+    - intros [phi Hp]; cbn. now apply H3.
+  Admitted.
+
+End Instantiation.
+      
+
+
+  
