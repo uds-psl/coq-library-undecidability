@@ -196,7 +196,8 @@ Section Instantiation.
   Instance eqdec_on :
     EqDecPoint falsity_flag falsity_on.
   Proof.
-  Admitted.
+    intros ff. decide equality.
+  Qed.
 
   Instance EqDec_syms : EqDec syms.
   Proof.
@@ -208,37 +209,100 @@ Section Instantiation.
     intros x y. apply eqdec_preds.
   Qed.
 
+  Definition closed phi :=
+    (if bounded_dec phi 0 then true else false) = true.
+
+  Lemma closed_mere phi (H H' : closed phi) :
+    H = H'.
+  Proof.
+    apply EqDec.peq_proofs_unicity.
+  Qed.
+
+  Lemma bounded_closed phi :
+    bounded 0 phi <-> closed phi.
+  Proof.
+    unfold closed. destruct bounded_dec; intuition congruence.
+  Qed.
+
+  Lemma closed_dec phi :
+    dec (closed phi).
+  Proof.
+    eapply dec_transfer; try apply bounded_closed. apply bounded_dec.
+  Qed.
+
+  Lemma bot_closed :
+    closed ⊥.
+  Proof.
+    apply bounded_closed. constructor.
+  Qed.
+
+  Lemma closed_discrete :
+    discrete {phi | closed phi}.
+  Proof.
+    apply decidable_iff. constructor. intros [[phi H1] [psi H2]].
+    destruct dec_form with falsity_on phi psi as [->|H]; eauto.
+    1,2: intros x y; unfold dec; decide equality.
+    - left. f_equal. apply closed_mere.
+    - right. intros [=]. tauto.
+  Qed.
+
+  Lemma closed_enum :
+    enumerable__T form -> enumerable__T {phi | closed phi}.
+  Proof.
+    intros [f Hf]. unshelve eexists.
+    - intros n. destruct (f n) as [phi|].
+      + destruct (closed_dec phi) as [H|_].
+        * apply Some. now exists phi.
+        * exact None.
+      + exact None.
+    - intros [phi Hp]. destruct (Hf phi) as [n Hn].
+      exists n. cbn. rewrite Hn. destruct closed_dec as [H|H]; try tauto.
+      repeat f_equal. apply closed_mere.
+  Qed.
+
+  Lemma neg_dec phi :
+    { psi | phi = ¬ psi } + (forall psi, phi <> ¬ psi).
+  Proof.
+    depelim phi.
+    - apply EqDec.inj_right_sigma_point in H as ->. right. intros phi. congruence.
+    - right. intros phi. congruence.
+    - destruct b0. 1,2: right; intros phi; congruence.
+      destruct dec_form with falsity_on phi2 ⊥ as [->|H]; eauto.
+      1,2: intros x y; unfold dec; decide equality.
+      right. intros phi. intros [=]. resolve_existT. now apply H.
+    - right. intros psi. congruence.
+  Qed.
+
   Fact abstr_complete_decidable (T : form -> Prop) :
     enumerable T -> ~ T ⊢TC ⊥ -> complete T -> decidable (fun phi : form => bounded 0 phi /\ T ⊢TC phi).
   Proof.
-    intros H1 H2 H3. apply dec_red with {phi | bounded 0 phi} (fun phi => T⊢TC (proj1_sig phi)).
-    { exists (fun phi => match bounded_dec phi 0 with left H => exist _ phi H | _ => exist _ ⊥ (bounded_falsity 0) end). intros phi. destruct bounded_dec; cbn; tauto. }
+    intros H1 H2 H3. apply dec_red with {phi | closed phi} (fun phi => T⊢TC (proj1_sig phi)).
+    { exists (fun phi => match closed_dec phi with left H => exist _ phi H | _ => exist _ ⊥ bot_closed end).
+      intros phi. rewrite bounded_closed. destruct closed_dec; cbn; tauto. }
     unshelve eapply completeness_decidable.
-    - intros [phi Hp]. exists (¬ phi). repeat constructor. apply Hp.
-    - admit.
-    - apply enumerable_red with form (fun phi => bounded 0 phi /\ T ⊢TC phi).
+    - intros [phi Hp % bounded_closed]. exists (¬ phi). apply bounded_closed. repeat constructor. apply Hp.
+    - apply closed_discrete.
+    - apply enumerable_red with form (fun phi => closed phi /\ T ⊢TC phi).
       { exists (fun phi => proj1_sig phi). intros [phi Hp]. cbn. tauto. }
-      { admit. }
-      { admit. }
+      { apply closed_enum. unshelve eapply form_enumerable; eauto. }
+      { apply form_discrete. }
       apply enumerable_conj; try apply form_discrete.
       + apply dec_count_enum; try unshelve eapply form_enumerable; eauto.
-        apply decidable_iff. constructor. intros phi. unshelve eapply bounded_dec; eauto.
+        apply decidable_iff. constructor. intros phi. unshelve eapply closed_dec; eauto.
       + unshelve eapply tprv_enumerable; eauto.
-    - intros [phi H]. cbn. depelim phi; admit. (*
-      + apply EqDec.inj_right_sigma_point in H as ->. right. intros phi. congruence.
-      + right. intros phi. congruence.
-      + destruct b0. 1,2: right; intros phi; congruence.
-        destruct dec_form with falsity_on phi2 ⊥ as [->|H]; eauto.
-        1,2: intros x y; unfold dec; decide equality.
-        right. intros phi. intros [=]. resolve_existT. now apply H.
-      + right. intros psi. congruence.*)
-    - cbn. intros [phi H] [psi H']. cbn. intros [=]. resolve_existT. admit.
+    - intros [phi H]. cbn. destruct (neg_dec phi) as [[psi Hp]|Hp].
+      + left. unshelve eexists.
+        * exists psi. rewrite Hp in H. rewrite <- bounded_closed in *.
+          inversion H. now repeat resolve_existT.
+        * cbn. subst. f_equal. apply closed_mere.
+      + right. intros [psi Hp']. intros [=]. now apply Hp in H4.
+    - cbn. intros [phi H] [psi H']. cbn. intros [=]. resolve_existT. f_equal. apply closed_mere.
     - cbn. intros [phi Hp] [[A [HA1 HA2]] [B [HB1 HB2]]]. cbn in *. 
       apply H2. exists (A ++ B). split.
       + intros psi [H|H] % in_app_iff; intuition.
       + apply IE with phi. apply (Weak HB2). auto. apply (Weak HA2). auto.
-    - intros [phi Hp]; cbn. now apply H3.
-  Admitted.
+    - intros [phi Hp]; cbn. apply bounded_closed in Hp. now apply H3.
+  Qed.
 
 End Instantiation.
       
