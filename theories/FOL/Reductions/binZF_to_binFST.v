@@ -16,12 +16,18 @@ Definition ZF_to_FST phi :=
 Lemma bZF_elem { p : peirce } T x x' y y' :
   binZF <<= T -> T ⊢ x ≡' x' -> T ⊢ y ≡' y' -> T ⊢ x ∈' y -> T ⊢ x' ∈' y'.
 Proof.
-Admitted.
+  intros H1 H2 H3 H4. eapply IE; try apply H4.
+  eapply IE; try apply H3. eapply IE; try apply H2.
+  assert (H : T ⊢ ax_eq_elem') by (apply Ctx; firstorder).
+  apply (AllE x), (AllE y), (AllE x'), (AllE y') in H; cbn in H.
+  unfold eq' in H. cbn in H. subsimpl_in H. apply H.
+Qed.
 
 Lemma bZF_refl { p : peirce } T x :
   binZF <<= T -> T ⊢ x ≡' x.
 Proof.
-Admitted.
+  intros H. prv_all' y. apply CI; apply II; auto.
+Qed.
 
 Ltac assert5 H :=
   match goal with |- (?g :: ?f :: ?phi :: ?psi :: ?theta :: ?T) ⊢ _
