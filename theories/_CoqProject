@@ -260,7 +260,11 @@ FOL/binZF_undec.v
 FOL/binFOL.v
 FOL/binFOL_undec.v
 
+FOL/FST.v
+FOL/binFST.v
+
 FOL/Util/Axiomatisations.v
+FOL/Util/Abstract.v
 FOL/Util/ZF_conservativity.v
 
 MinskyMachines/MMA.v            
