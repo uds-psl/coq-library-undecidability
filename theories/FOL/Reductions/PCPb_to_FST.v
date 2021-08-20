@@ -30,7 +30,7 @@ Definition sing a :=
   a ::: ∅.
 
 Definition upair a b :=
-  a ::: b ::: ∅.
+  a ::: (b ::: ∅).
 
 Notation "{ a ; b }" := (upair a b) (at level 31) : syn.
 Notation  "'σ' x" := (x ::: x) (at level 32) : syn.
@@ -392,7 +392,7 @@ Section FST.
   Fixpoint M_enc_stack (B : BSRS) :=
     match B with
     | nil => ∅
-    | (s,t)::B => M_sing (M_enc_card s t) ::: M_enc_stack B
+    | (s,t)::B => M_enc_card s t ::: M_enc_stack B
     end.
 
   (* Injectivity of encodings *)
@@ -449,38 +449,27 @@ Section FST.
   Lemma eval_enc_stack rho B :
     eval rho (enc_stack B) = M_enc_stack B.
   Proof.
-    induction B; cbn; trivial. destruct a. unfold M_enc_card.
+    induction B; cbn; trivial. destruct a. cbn. unfold M_enc_card.
     now rewrite <- IHB, <- !eval_enc_string with (rho:=rho), <- eval_opair.
   Qed.
 
   (* Auxiliary lemmas for stack encodings *)
-
-  Lemma M_enc_stack_app A B :
-    M_enc_stack (A ++ B) = M_enc_stack A ∪ M_enc_stack B.
-  Proof.
-    induction A as [|[s t] A IH]; cbn.
-    - apply binunion_eset.
-    - rewrite IH. rewrite !binunion_assoc.
-      now rewrite (binunion_com (M_enc_stack B) (M_sing (M_enc_card s t))).
-  Qed.
 
   Lemma enc_stack_el' x A :
     x ∈ M_enc_stack A -> exists s t, (s, t) el A /\ x = M_enc_card s t.
   Proof.
     induction A as [|[s t] A IH]; cbn.
     - now intros H % M_eset.
-    - intros [H|H] % binunion_el.
+    - intros [->|H] % M_adj.
+      + exists s, t. intuition.
       + destruct (IH H) as (u&v&H'&->). exists u, v. intuition.
-      + apply sing_el in H as ->. exists s, t. intuition.
   Qed.
 
   Lemma enc_stack_el B s t :
     (s, t) el B -> M_enc_card s t ∈ M_enc_stack B.
   Proof.
     induction B as [|[u b] B IH]; cbn; auto.
-    intros [H|H]; apply binunion_el.
-    - right. apply sing_el. congruence.
-    - left. apply IH, H.
+    intros [[=]|H]; subst; apply M_adj; auto.
   Qed.
 
   Lemma M_prep_enc s s' :
@@ -525,8 +514,7 @@ Section FST.
   Fixpoint M_enc_derivations B n :=
     match n with 
     | O => M_sing (M_opair ∅ (M_enc_stack B))
-    | S n => M_enc_derivations B n ∪
-            M_sing (M_opair (numeral (S n)) (M_enc_stack (derivations B (S n))))
+    | S n => M_opair (numeral (S n)) (M_enc_stack (derivations B (S n))) ::: M_enc_derivations B n
     end.
 
   Lemma enc_derivations_base B n :
@@ -534,7 +522,7 @@ Section FST.
   Proof.
     induction n; cbn.
     - now apply sing_el.
-    - apply binunion_el. now left.
+    - apply M_adj. now right.
   Qed.
 
   Lemma enc_derivations_bound B n k x :
@@ -543,10 +531,10 @@ Section FST.
     induction n; cbn.
     - intros H % sing_el. apply opair_inj in H as [-> _].
       apply sigma_el. now right.
-    - intros [H|H] % binunion_el.
+    - intros [H|H] % M_adj.
+      + apply opair_inj in H as [-> _]. apply sigma_eq.
       + apply sigma_el. left. apply IHn, H.
-      + apply sing_el in H. apply opair_inj in H as [-> _]. apply sigma_eq.
-  Qed. 
+  Qed.
 
   Lemma enc_derivations_fun B n :
     forall k x y, M_opair k x ∈ M_enc_derivations B n -> M_opair k y ∈ M_enc_derivations B n -> x = y.
@@ -554,13 +542,13 @@ Section FST.
     induction n; cbn -[derivations]; intros k x y.
     - intros H1 % sing_el H2 % sing_el.
       rewrite <- H2 in H1. now apply opair_inj in H1.
-    - intros [H1|H1 % sing_el] % binunion_el [H2|H2 % sing_el] % binunion_el.
-      + now apply (IHn k x y).
+    - intros [H1|H1] % M_adj [H2|H2] % M_adj.
+      + rewrite <- H2 in H1. now apply opair_inj in H1.
+      + exfalso. apply enc_derivations_bound in H2.
+        destruct (opair_inj H1) as [-> _]. now apply (@numeral_wf (S n)). 
       + exfalso. apply enc_derivations_bound in H1.
         destruct (opair_inj H2) as [-> _]. now apply (@numeral_wf (S n)).
-      + exfalso. apply enc_derivations_bound in H2.
-        destruct (opair_inj H1) as [-> _]. now apply (@numeral_wf (S n)).
-      + rewrite <- H2 in H1. now apply opair_inj in H1.
+      + now apply (IHn k x y).
   Qed.
 
   Lemma enc_derivations_el B n k x :
@@ -568,9 +556,9 @@ Section FST.
   Proof.
     induction n; cbn.
     - intros H % sing_el. exists 0. apply (opair_inj H).
-    - intros [H|H] % binunion_el.
+    - intros [H|H] % M_adj.
+      + exists (S n). apply (opair_inj H).
       + apply IHn, H.
-      + apply sing_el in H. exists (S n). apply (opair_inj H).
   Qed. 
 
   Lemma enc_derivations_step B n l :
@@ -579,10 +567,13 @@ Section FST.
   Proof.
     induction n; cbn -[derivations].
     - now intros H % M_eset.
-    - intros [H|H % sing_el] % binunion_el; apply binunion_el.
-      + left. apply IHn, H.
-      + right. apply numeral_inj in H as ->. now apply sing_el.
+    - intros [H|H] % M_adj; apply M_adj.
+      + left. now apply numeral_inj in H as ->.
+      + right. apply IHn, H.
   Qed.
+
+  Definition M_is_bunion a b c :=
+    a ⊆ c /\ b ⊆ c /\ forall d, d ∈ c -> d ∈ a \/ d ∈ b.
 
   Lemma enc_stack_combinations B rho C x X Y :
     rho ⊨ combinations B X Y -> eval rho X = M_enc_stack C -> eval rho Y = x -> x = M_enc_stack (derivation_step B C).
@@ -590,7 +581,11 @@ Section FST.
     induction B as [|[s t] B IH] in rho,C,x,X,Y |-*.
     - cbn. rewrite VIEQ. now intros -> _ <-.
     - intros [x1[x2[[H1 H2]H3]]] R1 R2; fold sat in *.
-      assert (x = x2 ∪ x1) as ->. { rewrite <- R2. cbn in H1. rewrite !eval_comp in H1. apply VIEQ, H1. } clear H1.
+      assert (M_is_bunion x2 x1 x). 
+      { rewrite <- R2. cbn in H1. destruct H1 as [[H1 H1'] H1'']. repeat split; intros y.
+        - specialize (H1 y). rewrite !eval_comp in H1. apply H1.
+        - specialize (H1' y). rewrite !eval_comp in H1'. apply H1'.
+        - specialize (H1'' y). rewrite !eval_comp in H1''. apply H1''. } clear H1.
       cbn. fold (derivation_step B C). rewrite M_enc_stack_app.
       enough (x1 = M_enc_stack (derivation_step B C)) as E1.
       + enough (x2 = M_enc_stack (append_all C (s, t))) as E2 by now rewrite E1, E2.
