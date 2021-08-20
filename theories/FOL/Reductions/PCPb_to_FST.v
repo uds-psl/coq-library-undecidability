@@ -575,6 +575,23 @@ Section FST.
   Definition M_is_bunion a b c :=
     a ⊆ c /\ b ⊆ c /\ forall d, d ∈ c -> d ∈ a \/ d ∈ b.
 
+  Lemma M_enc_stack_app A B :
+    M_is_bunion (M_enc_stack A) (M_enc_stack B) (M_enc_stack (A ++ B)).
+  Proof.
+    induction A as [|[s t] A IH]; cbn.
+    - repeat split; auto. intros x [] % M_eset.
+    - repeat split.
+      + intros x [->|H] % M_adj; apply M_adj; auto. right. now apply IH in H.
+      + intros x H. apply M_adj. right. now apply IH in H.
+      + intros x [->|H] % M_adj; rewrite M_adj; auto. apply IH in H. tauto.
+  Qed.
+
+  Lemma M_bunion_unique a b c c' :
+    M_is_bunion a b c -> M_is_bunion a b c' -> c = c'.
+  Proof.
+    intros H1 H2. apply M_ext; firstorder.
+  Qed.
+
   Lemma enc_stack_combinations B rho C x X Y :
     rho ⊨ combinations B X Y -> eval rho X = M_enc_stack C -> eval rho Y = x -> x = M_enc_stack (derivation_step B C).
   Proof.
@@ -586,27 +603,28 @@ Section FST.
         - specialize (H1 y). rewrite !eval_comp in H1. apply H1.
         - specialize (H1' y). rewrite !eval_comp in H1'. apply H1'.
         - specialize (H1'' y). rewrite !eval_comp in H1''. apply H1''. } clear H1.
-      cbn. fold (derivation_step B C). rewrite M_enc_stack_app.
+      cbn. fold (derivation_step B C). 
       enough (x1 = M_enc_stack (derivation_step B C)) as E1.
-      + enough (x2 = M_enc_stack (append_all C (s, t))) as E2 by now rewrite E1, E2.
+      + enough (x2 = M_enc_stack (append_all C (s, t))) as E2.
+        { eapply M_bunion_unique; try apply H. rewrite E1, E2. apply M_enc_stack_app. }
         apply M_ext; intros u Hu.
         * apply H3 in Hu as [v [Hv[a [b Ha]]]].
           cbn in Hv. erewrite !eval_comp, eval_ext, R1 in Hv; trivial.
-          apply enc_stack_el' in Hv as (s'&t'&H&H').
+          apply enc_stack_el' in Hv as (s'&t'&Hst&Hv).
           enough (u = M_enc_card (s++s') (t++t')) as ->.
           { apply enc_stack_el. apply in_map_iff. now exists (s', t'). }
           cbn in Ha. rewrite !VIEQ in Ha. destruct Ha as [D1 D2].
-          rewrite D1 in H'. unfold M_enc_card in H'. apply opair_inj in H' as [-> ->].
+          rewrite D1 in Hv. unfold M_enc_card in Hv. apply opair_inj in Hv as [-> ->].
           rewrite D2; unfold M_enc_card, M_opair; repeat f_equal.
           all: rewrite eval_prep_string; cbn. all: apply M_prep_enc.
-        * apply enc_stack_el' in Hu as (s'&t'&H&->).
-          unfold append_all in H. eapply in_map_iff in H as [[a b][H H']].
+        * apply enc_stack_el' in Hu as (s'&t'&Hst&->).
+          unfold append_all in H. eapply in_map_iff in Hst as [[a b][Ha Hb]].
           cbn in H. apply H3. exists (M_enc_card a b). split.
           { cbn. erewrite !eval_comp, eval_ext, R1; trivial. now apply enc_stack_el. }
           exists (M_enc_string b), (M_enc_string a). split.
           -- cbn. apply VIEQ. reflexivity.
           -- cbn. apply VIEQ. rewrite !eval_prep_string. cbn.
-             rewrite !M_prep_enc. injection H. intros -> ->. reflexivity.
+             rewrite !M_prep_enc. injection Ha. intros -> ->. reflexivity.
       + eapply IH; eauto. unfold shift. now erewrite !eval_comp, eval_ext, R1.
   Qed.
 
@@ -627,8 +645,7 @@ Section FST.
   Proof.
     induction n; cbn -[derivations].
     - now apply sing_el.
-    - apply binunion_el. right.
-      now apply sing_el.
+    - apply M_adj. now left.
   Qed.
 
   Lemma derivations_el B n s t :
@@ -667,7 +684,8 @@ Section FST.
   Fixpoint M_combinations B x y :=
     match B with
     | nil => y = ∅
-    | (s,t)::B => exists y1 y2, y = y2 ∪ y1 /\ M_combinations B x y1 /\ M_is_rep (M_comb_rel s t) x y2
+    | (s,t)::B => exists y1 y2, M_is_bunion y2 y1 y /\ M_combinations B x y1
+                          /\ M_is_rep (M_comb_rel s t) x y2
     end.
 
   Lemma M_combinations_spec B rho x y a b :
@@ -675,9 +693,9 @@ Section FST.
   Proof.
     induction B in y,a,b,rho|-*; cbn.
     - rewrite VIEQ. now intros -> _ ->.
-    - destruct a0 as [s t]. intros (y1&y2&H1&H2&H3) Ha Hb. exists y1, y2. repeat split.
-      + cbn. apply VIEQ. erewrite !eval_comp. unfold funcomp. cbn.
-        change (eval (fun x => rho x) b) with (eval rho b). now rewrite Hb.
+    - destruct a0 as [s t]. intros (y1&y2&H1&H2&H3) Ha Hb. exists y1, y2. split. split. 3: split.
+      + cbn. repeat split; intros d; rewrite !eval_comp; unfold funcomp; cbn.
+        all: change (eval (fun x => rho x) b) with (eval rho b); rewrite Hb; apply H1.
       + eapply (IHB _ y1); trivial. erewrite !eval_comp. unfold funcomp. cbn.
         change (eval (fun x => rho x) a) with (eval rho a). now rewrite Ha.
       + intros (u & Hu & c & d' & H) % H3. exists u. split.
@@ -711,7 +729,7 @@ Section FST.
   Proof.
     induction B as [|[s t] B IH]; cbn; trivial.
     exists (M_enc_stack (derivation_step B C)), (M_enc_stack (append_all C (s, t))).
-    rewrite M_enc_stack_app. split; trivial. split; trivial.
+    split; try apply M_enc_stack_app. split; trivial.
     apply comb_rel_rep.
   Qed.
 
@@ -770,7 +788,7 @@ Section FST.
     now split. exists u. apply opair_inj in H1 as [H ->]. apply enc_string_inj in H as ->. apply H2.
   Qed.
   
-End ZF.
+End FST.
 
 
 
@@ -778,9 +796,9 @@ End ZF.
 
 Arguments standard {_} _.
 
-Theorem PCP_HF B :
-  (exists V (M : interp V), extensional M /\ standard M /\ forall rho, rho ⊫ HF)
-  -> PCPb B <-> entailment_HF (solvable B).
+Theorem PCP_FST B :
+  (exists V (M : interp V), extensional M /\ standard M /\ forall rho, rho ⊫ FST)
+  -> PCPb B <-> entailment_FST (solvable B).
 Proof.
   intros HZF. rewrite PCPb_iff_dPCPb. split; intros H.
   - clear HZF. destruct H as [s H]. intros M HM rho H1 H2. eapply PCP_ZF1; eauto.
