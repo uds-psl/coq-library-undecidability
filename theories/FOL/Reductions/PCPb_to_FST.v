@@ -123,7 +123,7 @@ Proof.
 Qed.
 
 Lemma combinations_bound (B : BSRS) n k l :
-  n > 2 + l -> n > 4 + k -> bounded n (combinations B $k $l).
+  n > 3 + l -> n > 4 + k -> bounded n (combinations B $k $l).
 Proof.
   revert n k l. induction B as [|[s t] B IH]; cbn; repeat solve_bounds; trivial.
   apply IH; lia. all: apply prep_string_bound; solve_bounds.
@@ -152,48 +152,46 @@ Notation "x ∈ y" := (@i_atom _ _ _ _ elem (Vector.cons x (Vector.cons y Vector
 Notation "x ≡ y" := (@i_atom _ _ _ _ equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : sem.
 Notation "x ⊆ y" := (forall z, z ∈ x -> z ∈ y) (at level 34) : sem.
 
-Notation "∅" := (@i_func ZF_func_sig ZF_pred_sig _ _ eset Vector.nil) : sem.
-Notation "{ x ; y }" := (@i_func ZF_func_sig _ _ _ pair (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : sem.
-Notation "⋃ x" := (@i_func ZF_func_sig _ _ _ union (Vector.cons x Vector.nil)) (at level 32) : sem.
-Notation "'PP' x" := (@i_func ZF_func_sig _ _ _ power (Vector.cons x Vector.nil)) (at level 31) : sem.
+Notation "∅" := (@i_func FST_func_sig FST_pred_sig _ _ eset Vector.nil) : sem.
+Notation "x ::: y " := (@i_func FST_func_sig _ _ _ adj (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : sem.
 
-Notation "x ∪ y" := (⋃ {x; y}) (at level 32) : sem.
-Notation "'σ' x" := (x ∪ {x; x}) (at level 32) : sem.
+Notation "{ x ; y }" := (x ::: (y ::: ∅)) (at level 31) : sem.
+Notation "'σ' x" := (x ::: x) (at level 32) : sem.
 
 
 
 (* ** Internal axioms *)
 
-Section ZF.
+Section FST.
 
   Context { V : Type }.
   Context { M : interp V }.
 
-  Hypothesis M_ZF : forall rho, rho ⊫ HF.
+  Hypothesis M_FST : forall rho, rho ⊫ FST.
   Hypothesis VIEQ : extensional M.
   
   Lemma M_ext x y :
     x ⊆ y -> y ⊆ x -> x = y.
   Proof.
-    rewrite <- VIEQ. apply (@M_ZF (fun _ => ∅) ax_ext). cbn; tauto.
+    rewrite <- VIEQ. apply (@M_FST (fun _ => ∅) ax_ext). cbn; tauto.
   Qed.
 
   Lemma M_eset x :
     ~ x ∈ ∅.
   Proof.
-    refine (@M_ZF (fun _ => ∅) ax_eset _ x). cbn; tauto.
+    refine (@M_FST (fun _ => ∅) ax_eset _ x). cbn; tauto.
+  Qed.
+
+  Lemma M_adj x y z :
+    x ∈ y ::: z <-> x = y \/ x ∈ z.
+  Proof.
+    rewrite <- VIEQ. apply (@M_FST (fun _ => ∅) ax_adj). cbn; tauto.
   Qed.
 
   Lemma M_pair x y z :
     x ∈ {y; z} <-> x = y \/ x = z.
   Proof.
-    rewrite <- !VIEQ. apply (@M_ZF (fun _ => ∅) ax_pair). cbn; tauto.
-  Qed.
-
-  Lemma M_union x y :
-    x ∈ ⋃ y <-> exists z, z ∈ y /\ x ∈ z.
-  Proof.
-    apply (@M_ZF (fun _ => ∅) ax_union). cbn; tauto.
+    rewrite M_adj. rewrite M_adj. intuition. now apply M_eset in H.
   Qed.
 
   Definition M_is_rep R x y :=
@@ -207,17 +205,6 @@ Section ZF.
     {x; x}.
 
   Definition M_opair x y := ({{x; x}; {x; y}}).
-
-  Lemma binunion_el x y z :
-    x ∈ y ∪ z <-> x ∈ y \/ x ∈ z.
-  Proof.
-    split.
-    - intros [u [H1 H2]] % M_union.
-      apply M_pair in H1 as [->| ->]; auto.
-    - intros [H|H].
-      + apply M_union. exists y. rewrite M_pair. auto.
-      + apply M_union. exists z. rewrite M_pair. auto.
-  Qed.
 
   Lemma sing_el x y :
     x ∈ M_sing y <-> x = y.
@@ -281,11 +268,7 @@ Section ZF.
   Lemma sigma_el x y :
     x ∈ σ y <-> x ∈ y \/ x = y.
   Proof.
-    split.
-    - intros [H|H] % binunion_el; auto.
-      apply sing_el in H. now right.
-    - intros [H| ->]; apply binunion_el; auto.
-      right. now apply sing_el.
+    rewrite M_adj. tauto.
   Qed.
 
   Lemma sigma_eq x :
@@ -300,48 +283,10 @@ Section ZF.
     intros y H. apply sigma_el. now left.
   Qed.
 
-  Lemma binunion_eset x :
-    x = ∅ ∪ x.
-  Proof.
-    apply M_ext.
-    - intros y H. apply binunion_el. now right.
-    - intros y [H|H] % binunion_el.
-      + now apply M_eset in H.
-      + assumption.
-  Qed.
-
   Lemma pair_com x y :
     {x; y} = {y; x}.
   Proof.
     apply M_ext; intros z [->| ->] % M_pair; apply M_pair; auto.
-  Qed.
-
-  Lemma binunion_com x y :
-    x ∪ y = y ∪ x.
-  Proof.
-    now rewrite pair_com.
-  Qed.
-
-  Lemma binunionl a x y :
-    a ∈ x -> a ∈ x ∪ y.
-  Proof.
-    intros H. apply binunion_el. now left.
-  Qed.
-
-  Lemma binunionr a x y :
-    a ∈ y -> a ∈ x ∪ y.
-  Proof.
-    intros H. apply binunion_el. now right.
-  Qed.
-
-  Hint Resolve binunionl binunionr : core.
-
-  Lemma binunion_assoc x y z :
-    (x ∪ y) ∪ z = x ∪ (y ∪ z).
-  Proof.
-    apply M_ext; intros a [H|H] % binunion_el; eauto.
-    - apply binunion_el in H as [H|H]; eauto.
-    - apply binunion_el in H as [H|H]; eauto.
   Qed.
 
   
@@ -447,7 +392,7 @@ Section ZF.
   Fixpoint M_enc_stack (B : BSRS) :=
     match B with
     | nil => ∅
-    | (s,t)::B => M_enc_stack B ∪ M_sing (M_enc_card s t)
+    | (s,t)::B => M_sing (M_enc_card s t) ::: M_enc_stack B
     end.
 
   (* Injectivity of encodings *)
@@ -479,7 +424,7 @@ Section ZF.
   Lemma eval_opair rho x y :
     eval rho (opair x y) = M_opair (eval rho x) (eval rho y).
   Proof.
-    reflexivity.
+    cbn. reflexivity.
   Qed.
 
   Lemma eval_enc_bool rho b :
