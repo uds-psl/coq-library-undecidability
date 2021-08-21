@@ -95,11 +95,26 @@ Proof.
   subsimpl_in H. apply H.
 Qed.
 
+Lemma FST_adj T x y z :
+  FSTeq <<= T -> T ⊢ x ∈ y ::: z <-> T ⊢ x ≡ y ∨ x ∈ z.
+Proof.
+  intros HT.
+  assert (HA : T ⊢ ax_adj) by (apply Ctx; firstorder).
+  apply (AllE z), (AllE y), (AllE x) in HA; cbn in HA. subsimpl_in HA.
+  split; intros H; eapply IE; try apply H.
+  - now apply CE1 in HA.
+  - now apply CE2 in HA.
+Qed.
+
 Lemma FST_pair_el' T x y z :
   FSTeq <<= T -> T ⊢ (z ≡ x ∨ z ≡ y) <-> T ⊢ z ∈ {x; y}.
 Proof.
-  intros HT; split; intros H; eapply IE; try apply H.
-Admitted.
+  intros HT. setoid_rewrite FST_adj; auto.
+  split; intros H; apply (DE H); auto.
+  - apply DI2. apply FST_adj; auto.
+  - assert1 H'. apply DI2. apply FST_adj in H'; auto.
+    apply (DE H'); auto. apply Exp. eapply IE; try eapply (FST_eset'); auto.
+Qed.
 
 Lemma FST_pair_el x y z :
   FSTeq ⊢ (z ≡ x ∨ z ≡ y) -> FSTeq ⊢ z ∈ {x; y}.
@@ -111,10 +126,13 @@ Lemma FST_sub_pair T x y x' y' :
   FSTeq <<= T -> T ⊢ x ≡ x' -> T ⊢ y ≡ y' -> T ⊢ {x; y} ⊆ {x'; y'}.
 Proof.
   intros HT H1 H2. prv_all z.
-  apply II. apply FST_pair_el'; auto. eapply DE.
-  2: apply DI1, Ctx; left; reflexivity.
-  2: apply DI2, Ctx; left; reflexivity.
-Admitted.
+  apply II. apply FST_pair_el'; auto.
+  assert1 H. apply FST_adj in H; auto. apply (DE H).
+  - apply DI1. apply (FST_trans') with x; auto. apply (Weak H1). auto.
+  - apply DI2. clear H. assert1 H. apply FST_adj in H; auto. apply (DE H).
+    + apply (FST_trans') with y; auto. apply (Weak H2). auto.
+    + apply Exp. eapply IE; try eapply (FST_eset'); auto.
+Qed.
 
 Lemma FST_eq_pair T x y x' y' :
   FSTeq <<= T -> T ⊢ x ≡ x' -> T ⊢ y ≡ y' -> T ⊢ {x; y} ≡ {x'; y'}.
@@ -152,12 +170,23 @@ Qed.
 Lemma FST_sig_el T x :
    FSTeq <<= T -> T ⊢ x ∈ σ x.
 Proof.
-Admitted.
+  intros HT. apply FST_adj; auto. apply DI1. now apply FST_refl'.
+Qed.
 
 Lemma FST_eq_sig T x y :
   FSTeq <<= T -> T ⊢ x ≡ y -> T ⊢ σ x ≡ σ y.
 Proof.
-Admitted.
+  intros HT Hxy. apply FST_ext'; auto.
+  - prv_all z. apply II. apply FST_adj; auto.
+    assert1 H. apply FST_adj in H; auto. apply (DE H).
+    + apply DI1. apply FST_trans' with x; auto. apply (Weak Hxy); auto.
+    + apply DI2. eapply FST_eq_elem; auto; try apply FST_refl'; auto. apply (Weak Hxy); auto.
+  - prv_all z. apply II. apply FST_adj; auto.
+    assert1 H. apply FST_adj in H; auto. apply (DE H).
+    + apply DI1. apply FST_trans' with y; auto. apply FST_sym'; auto. apply (Weak Hxy); auto.
+    + apply DI2. eapply FST_eq_elem; auto; try apply FST_refl'; auto.
+      apply FST_sym'; auto. apply (Weak Hxy); auto.
+Qed.
 
 Lemma sing_pair1 T x y z :
   FSTeq <<= T -> T ⊢ sing x ≡ {y; z} -> T ⊢ x ≡ y.
@@ -221,21 +250,28 @@ Lemma FST_numeral_trans T n x y :
 Proof.
   intros HT. induction n; cbn.
   - apply II, Exp. eapply IE. apply FST_eset'. all: auto.
-  - admit.
-Admitted.
+  - repeat apply II. apply FST_adj; auto. assert2 H. apply FST_adj in H; auto. apply (DE H).
+    + apply DI2. eapply FST_eq_elem; auto. apply FST_refl'; auto.
+    + apply DI2. eapply IE. eapply IE. apply (Weak IHn); auto. auto. auto.
+Qed.
 
 Lemma FST_numeral_wf T n :
   FSTeq <<= T -> T ⊢ ¬ (tnumeral n ∈ tnumeral n).
 Proof.
   intros HT. induction n; cbn.
   - now apply FST_eset'.
-  - admit.
-Admitted.
+  - apply II. assert1 H. apply FST_adj in H; auto. apply (DE H).
+    + eapply IE. apply (Weak IHn); auto. eapply FST_eq_elem; auto.
+    + eapply IE. apply (Weak IHn); auto. eapply IE. eapply IE.
+      eapply FST_numeral_trans; auto. auto.
+      apply FST_adj; auto. apply DI1. apply FST_refl'. auto.
+Qed.
 
 Lemma FST_sig_iff T x y :
   FSTeq <<= T -> T ⊢ y ∈ σ x -> T ⊢ y ∈ x ∨ y ≡ x.
 Proof.
-Admitted.
+  intros HT. rewrite FST_adj; auto. intros H. apply (DE H); auto.
+Qed.
 
 Lemma FST_numeral T n :
   FSTeq <<= T -> T ⊢ htransitive (tnumeral n).
@@ -270,30 +306,25 @@ Lemma enc_derivations_base R n :
 Proof.
   induction n; cbn.
   - apply FST_sing_el.
-  - admit.
-Admitted.
+  - apply FST_adj; auto.
+Qed.
 
 Lemma enc_derivations_step B n :
   FSTeq ⊢ opair (tnumeral n) (enc_stack (derivations B n)) ∈ enc_derivations B n.
 Proof.
   destruct n; cbn.
   - apply FST_sing_el.
-  - admit.
-Admitted.
+  - apply FST_adj; auto. apply DI1. apply FST_refl'. auto.
+Qed.
 
 Lemma enc_stack_spec R s t :
   s/t el R -> FSTeq ⊢ opair (enc_string s) (enc_string t) ∈ enc_stack R.
 Proof.
   induction R as [|[u v] R IH]; cbn; auto.
   intros [[=]| H]; subst.
-  - admit.
-  - admit.
-Admitted.
-
-Lemma FST_adj T x y z :
-  FSTeq <<= T -> T ⊢ x ∈ y ::: z <-> T ⊢ x ≡ y ∨ x ∈ z.
-Proof.
-Admitted.
+  - apply FST_adj; auto. apply DI1. apply FST_refl'. auto.
+  - apply FST_adj; auto.
+Qed.
 
 Lemma FST_derivations_bound T B k n x :
   FSTeq <<= T -> T ⊢ opair k x ∈ enc_derivations B n -> T ⊢ k ∈ σ (tnumeral n).
@@ -315,19 +346,20 @@ Proof.
   - repeat apply II. eapply opair_inj2. auto. eapply FST_trans'. auto.
     + apply FST_sing_iff; auto.
     + apply FST_sym'. auto. apply FST_sing_iff; auto.
-  - (* apply bunion_use; try apply bunion_use. 1,2,5: auto.
-    + repeat rewrite <- imps. now apply (Weak IHn).
-    + apply Exp. eapply IE. apply (@FST_numeral_wf _ (S n)). auto.
-      eapply FST_derivations_bound. auto. eapply FST_eq_elem. auto.
-      2: apply FST_refl'; auto. 2: auto. apply FST_eq_opair; auto.
-      eapply opair_inj1; auto. apply FST_refl'. auto.
-    + apply Exp. eapply IE. apply (@FST_numeral_wf _ (S n)). auto.
-      eapply FST_derivations_bound. auto. eapply FST_eq_elem. auto.
-      2: apply FST_refl'; auto. 2: auto. apply FST_eq_opair; auto.
-      eapply opair_inj1; auto. apply FST_refl'. auto.
+  - apply II. assert1 H1. apply FST_adj in H1; auto. apply (DE H1).
+    all: apply II; assert1 H2; apply FST_adj in H2; auto; apply (DE H2).
     + eapply opair_inj2. auto. eapply FST_trans'; auto.
-      apply FST_sym'; auto. *)
-Admitted.
+      apply FST_sym'; auto.
+    + apply Exp. eapply IE. apply (@FST_numeral_wf _ (S n)). auto.
+      eapply FST_derivations_bound. auto. eapply FST_eq_elem. auto.
+      2: apply FST_refl'; auto. 2: auto. apply FST_eq_opair; auto.
+      eapply opair_inj1; auto. apply FST_refl'. auto.
+    + apply Exp. eapply IE. apply (@FST_numeral_wf _ (S n)). auto.
+      eapply FST_derivations_bound. auto. eapply FST_eq_elem. auto.
+      2: apply FST_refl'; auto. 2: auto. apply FST_eq_opair; auto.
+      eapply opair_inj1; auto. apply FST_refl'. auto.
+    + repeat rewrite imps in IHn. apply (Weak IHn). auto 8.
+Qed.
 
 Lemma prep_string_subst sigma s x :
   (prep_string s x)`[sigma] = prep_string s x`[sigma].
@@ -368,11 +400,6 @@ Proof.
     + apply Exp. eapply IE. apply (FST_numeral_wf (S n)). auto.
       eapply FST_derivations_bound. auto. auto.
 Qed.
-
-Lemma enc_stack_app T B C :
-  FSTeq <<= T -> T ⊢ is_bunion (enc_stack B) (enc_stack C) (enc_stack (B ++ C)).
-Proof.
-Admitted.
 
 Lemma prep_string_app s t x :
   prep_string (s ++ t) x = prep_string s (prep_string t x).
@@ -452,19 +479,75 @@ Local Arguments is_rep : simpl never.
 Lemma FST_enc_stack_app T A B :
   FSTeq <<= T -> T ⊢ is_bunion (enc_stack A) (enc_stack B) (enc_stack (A ++ B)).
 Proof.
-Admitted.
+  intros HT. induction A as [|[s t] A IH]; cbn.
+  - apply CI. apply CI.
+    + prv_all x. apply II, Exp. apply imps. apply FST_eset'. auto.
+    + prv_all x. apply II, Ctx. auto.
+    + prv_all x. apply II, DI2, Ctx. auto.
+  - apply CI. apply CI.
+    + prv_all x. apply II. assert1 H. apply FST_adj in H; auto.
+      apply FST_adj; auto. apply (DE H); clear H.
+      * apply DI1. auto.
+      * apply DI2. repeat apply CE1 in IH. apply (AllE x) in IH. cbn in IH.
+        subsimpl_in IH. eapply IE. apply (Weak IH). auto. auto.
+    + prv_all x. apply II. apply FST_adj; auto. apply DI2.
+      apply CE1, CE2 in IH. apply (AllE x) in IH. cbn in IH.
+      subsimpl_in IH. eapply IE. apply (Weak IH). auto. auto.
+    + prv_all x. apply II. assert1 H. apply FST_adj in H; auto. apply (DE H); clear H.
+      * apply DI1. apply FST_adj; auto.
+      * apply CE2 in IH. apply (AllE x) in IH. cbn in IH. subsimpl_in IH.
+        eapply DE. eapply IE. apply (Weak IH); auto. auto. 2: auto.
+        apply DI1. apply FST_adj; auto.
+Qed.
+
+Lemma FST_bunion_sub T a b c c' :
+  FSTeq <<= T -> T ⊢ is_bunion a b c -> T ⊢ is_bunion a b c' -> T ⊢ c ⊆ c'.
+Proof.
+  intros HT H1 H2. prv_all x. apply II.
+  apply CE2 in H1. apply (AllE x) in H1. cbn in H1. subsimpl_in H1.
+  rewrite imps in H1. apply (DE H1).
+  - apply CE1, CE1 in H2. apply (AllE x) in H2. cbn in H2. subsimpl_in H2.
+    eapply IE. apply (Weak H2); auto. auto.
+  - apply CE1, CE2 in H2. apply (AllE x) in H2. cbn in H2. subsimpl_in H2.
+    eapply IE. apply (Weak H2); auto. auto.
+Qed.
 
 Lemma FST_bunion_unique T a b c c' :
   FSTeq <<= T -> T ⊢ is_bunion a b c -> T ⊢ is_bunion a b c' -> T ⊢ c ≡ c'.
 Proof.
-Admitted.
+  intros HT H1 H2. apply FST_ext'; trivial.
+  - apply (FST_bunion_sub HT H1 H2).
+  - apply (FST_bunion_sub HT H2 H1).
+Qed.
+
+Lemma FST_bunion_eq T a a' b b' c :
+  FSTeq <<= T -> T ⊢ a ≡ a' -> T ⊢ b ≡ b' -> T ⊢ is_bunion a b c -> T ⊢ is_bunion a' b' c.
+Proof.
+  intros HT HA HB HC. apply CI. apply CI.
+  - prv_all x. apply II. apply CE1, CE1 in HC. apply (AllE x) in HC. cbn in HC. subsimpl_in HC.
+    eapply IE. apply (Weak HC); auto. eapply FST_eq_elem; auto. apply FST_refl'; auto.
+    apply FST_sym'; auto. apply (Weak HA). auto.
+  - prv_all x. apply II. apply CE1, CE2 in HC. apply (AllE x) in HC. cbn in HC. subsimpl_in HC.
+    eapply IE. apply (Weak HC); auto. eapply FST_eq_elem; auto. apply FST_refl'; auto.
+    apply FST_sym'; auto. apply (Weak HB). auto.
+  - prv_all x. apply II. apply CE2 in HC. apply (AllE x) in HC. cbn in HC. subsimpl_in HC.
+    rewrite imps in HC. apply (DE HC).
+    + apply DI1. eapply FST_eq_elem; auto. apply FST_refl'; auto.  apply (Weak HA). auto.
+    + apply DI2. eapply FST_eq_elem; auto. apply FST_refl'; auto.  apply (Weak HB). auto.
+Qed.
 
 Lemma combinations_eq T B C x y :
   FSTeq <<= T -> T ⊢ x ≡ enc_stack C -> T ⊢ combinations B x y -> T ⊢ y ≡ enc_stack (derivation_step B C).
 Proof.
   induction B as [|[s t] B IH] in y, T |-*; cbn -[is_bunion]; intros HT H1 H2; trivial.
   use_exists H2 u. assert1 H. use_exists H v. clear H.
-Admitted.
+  rewrite !combinations_subst, !is_rep_subst. cbn. subsimpl.
+  eapply FST_bunion_unique; auto; try apply FST_enc_stack_app; auto.
+  eapply FST_bunion_eq; auto.
+  - eapply is_rep_eq; auto. apply (Weak H1); auto. eapply CE2. auto.
+  - apply IH; auto. apply (Weak H1); auto. eapply CE2. eapply CE1. auto.
+  - assert1 H. apply CE1, CE1 in H. apply H.
+Qed.
 
 Lemma combinations_step B n (i x y : term) :
   FSTeq ⊢ i ∈ tnumeral n ~> opair i x ∈ enc_derivations B n
