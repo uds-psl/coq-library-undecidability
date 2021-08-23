@@ -688,7 +688,7 @@ Section ZF.
     apply enc_stack_el.
   Qed.
 
-  Theorem PCP_ZF1 B s :
+  Theorem PCP_HF1 B s :
     derivable B s s -> forall rho, rho ⊨ solvable B.
   Proof.
     intros H rho. destruct (derivable_derivations H) as [n Hn]. unfold solvable.
@@ -804,7 +804,7 @@ Section ZF.
     exists s, t. split; trivial. eapply derivations_derivable; eauto.
   Qed.
 
-  Theorem PCP_ZF2 B rho :
+  Theorem PCP_HF2 B rho :
     standard -> rho ⊨ solvable B -> exists s, derivable B s s.
   Proof.
     intros VIN (n & f & s & X & [[[[H1 H2] H3] H4] H5]).
@@ -834,8 +834,8 @@ Theorem PCP_HF B :
   -> PCPb B <-> entailment_HF (solvable B).
 Proof.
   intros HZF. rewrite PCPb_iff_dPCPb. split; intros H.
-  - clear HZF. destruct H as [s H]. intros M HM rho H1 H2. eapply PCP_ZF1; eauto.
+  - clear HZF. destruct H as [s H]. intros M HM rho H1 H2. eapply PCP_HF1; eauto.
   - destruct HZF as (M & H1 & H2 & H3 & H4).
     specialize (H M H1 (fun _ => @i_func _ _ _ _ eset Vector.nil) H2 H4).
-    apply PCP_ZF2 in H as [s Hs]; trivial. now exists s.
+    apply PCP_HF2 in H as [s Hs]; trivial. now exists s.
 Qed.

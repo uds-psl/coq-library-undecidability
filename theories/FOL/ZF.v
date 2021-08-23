@@ -101,6 +101,12 @@ Definition ax_rep phi :=
 Definition HF :=
   ax_ext :: ax_eset :: ax_pair :: ax_union :: ax_power :: nil.
 
+Definition ax_no_inductive :=
+  ∀ ¬ inductive $0.
+
+Definition HFN :=
+  ax_no_inductive :: HF.
+
 (* List of core axioms without schemes for separation and replacement *)
 
 Definition ZF' :=
@@ -135,6 +141,9 @@ Definition ax_eq_elem :=
 
 Definition HFeq :=
   ax_refl :: ax_sym :: ax_trans :: ax_eq_elem :: HF.
+
+Definition HFNeq :=
+  ax_refl :: ax_sym :: ax_trans :: ax_eq_elem :: HFN.
 
 (* List of core axioms plus equality axioms *)
 
@@ -171,6 +180,9 @@ Definition entailment_ZFeq' phi :=
 Definition entailment_HF phi :=
   forall D (M : interp D) (rho : nat -> D), extensional M -> (forall sigma psi, In psi HF -> sigma ⊨ psi) -> rho ⊨ phi.
 
+Definition entailment_HFN phi :=
+  forall D (M : interp D) (rho : nat -> D), extensional M -> (forall sigma psi, In psi HFN -> sigma ⊨ psi) -> rho ⊨ phi.
+
 (* Semantic entailment restricted to extensional models and core axioms (without sep and rep). *)
 
 Definition entailment_ZF' phi :=
@@ -190,6 +202,9 @@ Definition entailment_ZF phi :=
 
 Definition deduction_HF phi :=
   HFeq ⊢I phi.
+
+Definition deduction_HFN phi :=
+  HFNeq ⊢I phi.
 
 (* Deductive entailment restricted to intuitionistic rules and core axioms (without sep and rep). *)
 

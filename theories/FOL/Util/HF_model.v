@@ -116,3 +116,19 @@ Proof.
   split; try apply hfs_model.
   intros x Hx. destruct (hfs_model_standard Hx) as [n Hn]. now exists n.
 Qed.
+
+Lemma HFN_model' :
+  forall x, ~ (hfs_mem hfs_empty x /\ forall y, hfs_mem y x -> hfs_mem (hfs_cons y y) x).
+Proof.
+Admitted.
+
+Lemma HFN_model :
+  exists V (M : interp V), extensional M /\ standard M /\ forall rho, rho ⊫ HFN.
+Proof.
+  exists hfs, hfs_interp. split; try reflexivity. split.
+  - intros x Hx. destruct (hfs_model_standard Hx) as [n Hn]. now exists n.
+  - intros rho phi [<-|H]; try now apply hfs_model.
+    cbn. intros x H. apply (@HFN_model' x). split; try apply H.
+    intros y Hy % H. enough (hfs_cons y y = hfs_union (hfs_pair y (hfs_pair y y))) as -> by trivial.
+    admit.
+Admitted.
