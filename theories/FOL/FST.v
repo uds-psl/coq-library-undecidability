@@ -4,6 +4,7 @@
 Require Import Undecidability.FOL.Util.Syntax.
 Require Import Undecidability.FOL.Util.FullTarski.
 Require Import Undecidability.FOL.Util.FullDeduction.
+Require Import Undecidability.FOL.ZF.
 Import Vector.VectorNotations.
 Require Import List.
 
@@ -23,25 +24,15 @@ Definition FST_fun_ar (f : FST_Funcs) : nat :=
   | adj => 2
   end.
 
-Inductive FST_Preds : Type :=
-| elem : FST_Preds
-| equal : FST_Preds.
-
-Definition FST_pred_ar (P : FST_Preds) : nat :=
-  match P with _ => 2 end.
-
 Instance FST_func_sig : funcs_signature :=
   {| syms := FST_Funcs; ar_syms := FST_fun_ar; |}.
-
-Instance FST_pred_sig : preds_signature :=
-  {| preds := FST_Preds; ar_preds := FST_pred_ar; |}.
 
 
 
 (* ** Axioms *)
 
-Notation "x ∈ y" := (atom _ FST_pred_sig elem ([x; y])) (at level 35) : syn.
-Notation "x ≡ y" := (atom (Σ_preds := FST_pred_sig) equal ([x; y])) (at level 35) : syn.
+Notation "x ∈ y" := (atom _ ZF_pred_sig elem ([x; y])) (at level 35) : syn.
+Notation "x ≡ y" := (atom (Σ_preds := ZF_pred_sig) equal ([x; y])) (at level 35) : syn.
 
 Notation "∅" := (func FST_func_sig eset ([])) : syn.
 Notation "x ::: y" := (func FST_func_sig adj ([x; y])) (at level 31) : syn.
@@ -87,10 +78,13 @@ Definition FSTeq :=
 (* ** Problems *)
 
 Notation extensional M :=
-  (forall x y, @i_atom _ FST_pred_sig _ M equal ([x; y]) <-> x = y).
+  (forall x y, @i_atom _ ZF_pred_sig _ M equal ([x; y]) <-> x = y).
 
 Definition entailment_FST phi :=
   forall D (M : interp D) (rho : nat -> D), extensional M -> (forall sigma psi, In psi FST -> sigma ⊨ psi) -> rho ⊨ phi.
+
+Definition entailment_FSTeq phi :=
+  forall D (M : interp D) (rho : nat -> D), (forall sigma psi, In psi FSTeq -> sigma ⊨ psi) -> rho ⊨ phi.
 
 Definition deduction_FST phi :=
   FSTeq ⊢I phi.

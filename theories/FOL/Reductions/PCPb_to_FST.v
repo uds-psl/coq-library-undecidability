@@ -3,7 +3,7 @@
 Require Import Undecidability.FOL.Util.Syntax.
 Require Import Undecidability.FOL.Util.Syntax_facts.
 Require Import Undecidability.FOL.Util.FullTarski_facts.
-Require Import Undecidability.FOL.FST.
+Require Import Undecidability.FOL.ZF Undecidability.FOL.FST.
 Require Import Lia.
 
 From Undecidability.PCP Require Import PCP Util.PCP_facts Reductions.PCPb_iff_dPCPb.
@@ -152,7 +152,7 @@ Notation "x ∈ y" := (@i_atom _ _ _ _ elem (Vector.cons x (Vector.cons y Vector
 Notation "x ≡ y" := (@i_atom _ _ _ _ equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : sem.
 Notation "x ⊆ y" := (forall z, z ∈ x -> z ∈ y) (at level 34) : sem.
 
-Notation "∅" := (@i_func FST_func_sig FST_pred_sig _ _ eset Vector.nil) : sem.
+Notation "∅" := (@i_func FST_func_sig ZF_pred_sig _ _ eset Vector.nil) : sem.
 Notation "x ::: y " := (@i_func FST_func_sig _ _ _ adj (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : sem.
 
 Notation "{ x ; y }" := (x ::: (y ::: ∅)) (at level 31) : sem.
