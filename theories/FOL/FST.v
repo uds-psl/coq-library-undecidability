@@ -56,6 +56,15 @@ Definition ax_adj :=
 Definition FST :=
   ax_ext :: ax_eset :: ax_adj :: nil.
 
+Definition ax_ind phi :=
+  phi[∅..]
+   ~> (∀ ∀ phi[$0 .: (fun n => $(2+n))] ~> phi[$1 .: (fun n => $(2+n))] ~> phi[$0 ::: $1 .: (fun n => $(2+n))])
+   ~> ∀ phi.
+
+Inductive FSTI : form -> Prop :=
+| FST_base phi : In phi FST -> FSTI phi
+| FST_ind phi : FSTI (ax_ind phi).
+
 (* Finite set theory with equalilty axioms *)
 
 Definition ax_refl :=
@@ -73,6 +82,10 @@ Definition ax_eq_elem :=
 Definition FSTeq :=
   ax_refl :: ax_sym :: ax_trans :: ax_eq_elem :: FST.
 
+Inductive FSTIeq : form -> Prop :=
+| FSTeq_base phi : In phi FSTeq -> FSTIeq phi
+| FSTeq_ind phi : FSTIeq (ax_ind phi).
+
 
 
 (* ** Problems *)
@@ -86,7 +99,13 @@ Definition entailment_FST phi :=
 Definition entailment_FSTeq phi :=
   forall D (M : interp D) (rho : nat -> D), (forall sigma psi, In psi FSTeq -> sigma ⊨ psi) -> rho ⊨ phi.
 
+Definition entailment_FSTI phi :=
+  forall D (M : interp D) (rho : nat -> D), extensional M -> (forall sigma psi, FSTI psi -> sigma ⊨ psi) -> rho ⊨ phi.
+
 Definition deduction_FST phi :=
   FSTeq ⊢I phi.
+
+Definition deduction_FSTI phi :=
+  FSTIeq ⊢TI phi.
 
 

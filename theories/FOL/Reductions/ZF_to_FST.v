@@ -70,8 +70,11 @@ Proof.
     rewrite embed_subst'. apply subst_ext. reflexivity.
 Qed.
 
+Definition solvable' B :=
+  embed' (impl (rev minZFeq') (rm_const_fm (solvable B))).
+
 Theorem PCP_FSTD { p : peirce } B :
-  PCPb B -> FSTeq ⊢ embed' (impl (rev minZFeq') (rm_const_fm (solvable B))).
+  PCPb B -> FSTeq ⊢ solvable' B.
 Proof.
   intros H. apply Weak with nil; auto.
   change nil with (map embed' nil). apply prv_embed.
@@ -153,8 +156,8 @@ Section Model.
 
 End Model.
 
-Theorem PCP_FST { p : peirce } B :
-  entailment_FSTeq (embed' (impl (rev minZFeq') (rm_const_fm (solvable B)))) -> PCPb B.
+Theorem PCP_FST B :
+  entailment_FSTeq (solvable' B) -> PCPb B.
 Proof.
   intros H. specialize (H Acz FST_interp). unshelve eapply PCP_ZFeq.
   - exact Acz.

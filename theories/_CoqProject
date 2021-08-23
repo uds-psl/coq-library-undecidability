@@ -263,8 +263,12 @@ FOL/binFOL_undec.v
 
 FOL/FST.v
 FOL/binFST.v
+FOL/Util/FST_model.v
 FOL/Reductions/binZF_to_binFST.v
+FOL/Reductions/ZF_to_FST.v
 FOL/Reductions/PCPb_to_FST.v
+FOL/Reductions/PCPb_to_FSTD.v
+FOL/FST_undec.v
 FOL/binFST_undec.v
 
 FOL/Util/Axiomatisations.v

@@ -1,4 +1,4 @@
-(** ** Construction of HF model *)
+(** ** Construction of FST model *)
 From Undecidability.FOL Require Import FST Reductions.PCPb_to_FST.
 From Undecidability.FOL Require Import Syntax Syntax_facts FullTarski_facts.
 From Undecidability.TRAKHTENBROT Require Import hfs.
@@ -76,3 +76,28 @@ Proof.
   split; try apply hfs_model.
   intros x Hx. destruct (hfs_model_standard Hx) as [n Hn]. now exists n.
 Qed.
+
+Lemma hfs_ind P :
+  P hfs_empty -> (forall x y, P x -> P y -> P (hfs_cons x y)) -> forall x, P x.
+Proof.
+Admitted.
+
+Lemma hfs_ax_ind phi rho :
+  rho ⊨ ax_ind phi.
+Proof.
+  cbn. intros H1 H2. apply hfs_ind.
+  - apply sat_comp in H1. eapply sat_ext; try apply H1. now intros [].
+  - setoid_rewrite sat_comp in H2. intros x y Hx Hy. eapply sat_ext; try apply (H2 y x).
+    + now intros [].
+    + eapply sat_ext; try apply Hx. now intros [].
+    + eapply sat_ext; try apply Hy. now intros [].
+Qed.
+
+Lemma FSTI_model :
+  exists V (M : interp V), extensional M /\ standard M /\ forall rho psi, FSTI psi -> rho ⊨ psi.
+Proof.
+  exists hfs, hfs_interp. split; try reflexivity. split.
+  - intros x Hx. destruct (hfs_model_standard Hx) as [n Hn]. now exists n.
+  - intros rho psi []; try now apply hfs_model. apply hfs_ax_ind.
+Qed.
+
