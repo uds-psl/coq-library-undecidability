@@ -7,6 +7,8 @@ From Undecidability.Shared.Libs.DLW.Utils Require Import finite.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 
+Require Import Lia.
+
 Definition hfs_listing x :=
    proj1_sig (hfs_mem_fin_t x).
 
@@ -117,10 +119,100 @@ Proof.
   intros x Hx. destruct (hfs_model_standard Hx) as [n Hn]. now exists n.
 Qed.
 
-Lemma HFN_model' :
-  forall x, ~ (hfs_mem hfs_empty x /\ forall y, hfs_mem y x -> hfs_mem (hfs_cons y y) x).
+Definition hfs_inductive x :=
+  hfs_mem hfs_empty x /\ forall y, hfs_mem y x -> hfs_mem (hfs_cons y y) x.
+
+Fixpoint hfs_numeral n :=
+  match n with
+  | O => hfs_empty
+  | S n => hfs_cons (hfs_numeral n) (hfs_numeral n)
+  end.
+
+Fixpoint list_n n :=
+  match n with
+  | O => [0]
+  | S n => S n :: list_n n
+  end.
+
+Definition list_numerals n :=
+  map hfs_numeral (list_n n).
+
+Lemma numeral_inductive x n :
+  hfs_inductive x -> hfs_mem (hfs_numeral n) x.
 Proof.
-Admitted.
+  intros H. induction n; cbn; apply H. apply IHn.
+Qed.
+
+Lemma list_numerals_inductive x n :
+  hfs_inductive x -> forall y, y el list_numerals n -> hfs_mem y x.
+Proof.
+  intros H y [k[<- Hk]] % in_map_iff. now apply numeral_inductive.
+Qed.
+
+Lemma list_numerals_length n :
+  length (list_numerals n) = S n.
+Proof.
+  induction n; cbn; trivial.
+  rewrite <- IHn. reflexivity.
+Qed.
+
+Lemma list_n_bound n k :
+  k > n -> ~ k el list_n n.
+Proof.
+  induction n in k |- *; intros Hk.
+  - intros [H|[]]. lia.
+  - intros [<-|H]; try lia. apply IHn in H; trivial. lia.
+Qed.
+
+Lemma list_n_nodup n :
+  NoDup (list_n n).
+Proof.
+  induction n; cbn; constructor.
+  - intros [].
+  - constructor.
+  - apply list_n_bound. lia.
+  - apply IHn.
+Qed.
+
+Lemma hfs_numeral_lt n n' :
+  n < n' -> hfs_mem (hfs_numeral n) (hfs_numeral n').
+Proof.
+  induction n'; try lia. intros Hn. cbn. apply hfs_cons_spec.
+  assert (n = n' \/ n < n') as [->|H] by lia; auto.
+Qed.
+
+Lemma hfs_no_loop x :
+  ~ hfs_mem x x.
+Proof.
+ induction (hfs_mem_wf x) as [x _ IH].
+ intros H. now apply (IH x).
+Qed.
+
+Lemma hfs_numeral_inj n n' :
+  hfs_numeral n = hfs_numeral n' -> n = n'.
+Proof.
+  intros Hn. assert (n < n' \/ n = n' \/ n' < n) as [H|[H|H]] by lia; trivial.
+  - apply hfs_numeral_lt in H. rewrite Hn in H. now apply hfs_no_loop in H.
+  - apply hfs_numeral_lt in H. rewrite Hn in H. now apply hfs_no_loop in H.
+Qed.
+
+Lemma list_numerals_nodup n :
+  NoDup (list_numerals n).
+Proof.
+  apply FinFun.Injective_map_NoDup.
+  - intros k k'. apply hfs_numeral_inj.
+  - apply list_n_nodup.
+Qed.
+
+Lemma HFN_model' :
+  forall x, ~ (hfs_inductive x).
+Proof.
+  intros X HX. destruct (hfs_mem_fin_t X) as [L HL].
+  enough (S (length L) <= length L) by lia.
+  rewrite <- list_numerals_length. apply NoDup_incl_length.
+  - apply list_numerals_nodup.
+  - intros x Hx. eapply HL, list_numerals_inductive, Hx. apply HX.
+Qed.
 
 Lemma HFN_model :
   exists V (M : interp V), extensional M /\ standard M /\ forall rho, rho ⊫ HFN.
@@ -130,5 +222,11 @@ Proof.
   - intros rho phi [<-|H]; try now apply hfs_model.
     cbn. intros x H. apply (@HFN_model' x). split; try apply H.
     intros y Hy % H. enough (hfs_cons y y = hfs_union (hfs_pair y (hfs_pair y y))) as -> by trivial.
-    admit.
-Admitted.
+    apply hfs_mem_ext. setoid_rewrite hfs_cons_spec. setoid_rewrite hfs_union_spec.
+    intros z; split; intros Hz.
+    + destruct Hz as [->|Hz].
+      * exists (hfs_pair y y). rewrite !hfs_pair_spec. tauto.
+      * exists y. rewrite hfs_pair_spec. tauto.
+    + destruct Hz as [u[[->| ->] % hfs_pair_spec Hu]]; auto.
+      left. apply hfs_pair_spec in Hu. tauto.
+Qed.
