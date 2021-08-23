@@ -1,5 +1,6 @@
 Require Import List Lia.
 From Undecidability.FOL.Util Require Import Syntax Syntax_facts FullTarski FullTarski_facts FullDeduction_facts FullDeduction.
+From Undecidability.FOL.Reductions Require Import H10p_to_FA. 
 Import Vector.VectorNotations.
 
 
@@ -23,44 +24,49 @@ Section Signature.
     end.
 
   Existing Instance Σ_funcs.
-  Instance preds_signature : preds_signature :=
+  Instance extended_preds : preds_signature :=
     {| preds := new_preds ; ar_preds := new_preds_ar |}.
 
 
   (* New propositional variable and "double negation" with respect to it *)
-  Definition Q {ff} := (@atom Σ_funcs preds_signature _ ff Q_ ([])).
-  Definition dn {ff} F phi : @form Σ_funcs preds_signature _ ff :=
+  Definition Q := (@atom Σ_funcs extended_preds _ falsity_off Q_ ([])).
+  Definition dn {ff} F phi : @form Σ_funcs extended_preds _ ff :=
     (phi ~> F) ~> F.
 
-  Fixpoint Friedman {ff} (phi : @form Σ_funcs preds_signature _ ff) : form falsity_off :=
+  Fixpoint cast {ff} (phi : @form Σ_funcs Σ_preds _ ff) : @form Σ_funcs extended_preds _ falsity_off :=
     match phi with
     | falsity => Q
-    | atom P v => match P with Q_ => Q | _ => dn Q (atom P v) end
-    | bin Impl phi psi => (Friedman phi) ~> (Friedman psi)
-    | bin Conj phi psi => (Friedman phi) ∧ (Friedman psi)
-    | bin Disj phi psi => dn Q ((Friedman phi) ∨ (Friedman psi))
-    | quant All phi => ∀ (Friedman phi)
-    | quant Ex phi => dn Q (∃ (Friedman phi))
+    | atom P v => (@atom _ _ _ falsity_off (old_preds P) v)
+    | bin b phi psi => bin b (cast phi) (cast psi)
+    | quant q phi => quant q (cast phi)
     end.
-
-                      
-  Notation "'Fr' f" := (Friedman f) (at level 30).
   
-  Definition List_Fr {ff} Gamma := map (@Friedman ff) Gamma.
+  Fixpoint Fr {ff} (phi : @form Σ_funcs Σ_preds _ ff) : @form Σ_funcs extended_preds _ falsity_off :=
+    match phi with
+    | falsity => Q
+    | atom P v => dn Q (@atom _ _ _ falsity_off (old_preds P) v)
+    | bin Impl phi psi => (Fr phi) ~> (Fr psi)
+    | bin Conj phi psi => (Fr phi) ∧ (Fr psi)
+    | bin Disj phi psi => dn Q ((Fr phi) ∨ (Fr psi))
+    | quant All phi => ∀ (Fr phi)
+    | quant Ex phi => dn Q (∃ (Fr phi))
+    end.
   
-  Fact subst_Fr {ff} (phi : @form Σ_funcs preds_signature _ ff) sigma:
+  Definition Fr_ {ff} Gamma := map (@Fr ff) Gamma.
+  
+  Fact subst_Fr {ff} (phi : @form Σ_funcs Σ_preds _ ff) sigma:
     subst_form sigma (Fr phi) = Fr (subst_form sigma phi).
   Proof.
     revert sigma.
     induction phi; cbn.
     - reflexivity.
-    - destruct P; reflexivity.
+    - now unfold dn. 
     - destruct b0; cbn; unfold dn, Q; congruence.
     - destruct q; cbn; intros sigma; unfold dn, Q; congruence.
   Qed.
 
-  Fact subst_List_Fr {ff} L sigma :
-    map (subst_form sigma) (map (@Friedman ff) L) = map Friedman (map (subst_form sigma) L).
+  Fact subst_Fr_ {ff} L sigma :
+    map (subst_form sigma) (map (@Fr ff) L) = map Fr (map (subst_form sigma) L).
   Proof.
     induction L.
     - reflexivity.
@@ -68,23 +74,22 @@ Section Signature.
   Qed.
       
 
-  Lemma double_dn {ff} Gamma F phi :
-    Gamma ⊢I @dn ff F (dn F phi) ~> dn F phi.
+  Lemma double_dn Gamma F phi :
+    Gamma ⊢M dn F (dn F phi) ~> dn F phi.
   Proof.
     apply II, II. eapply IE with (phi0:= _ ~> _). { apply Ctx; firstorder. }
     apply II. apply IE with (phi0:= phi ~> F). all: apply Ctx; auto.
   Qed.
 
-  Lemma rm_dn {ff} Gamma F alpha beta :
-    (alpha :: Gamma) ⊢I beta -> (@dn ff F alpha :: Gamma) ⊢I dn F beta.
+  Lemma rm_dn Gamma F alpha beta :
+    (alpha :: Gamma) ⊢M beta -> (dn F alpha :: Gamma) ⊢I dn F beta.
   Proof.
     intros H.
     apply II. eapply IE with (phi:= _ ~> _). { apply Ctx; firstorder. }
     apply II. eapply IE with (phi:= beta). {apply Ctx; auto. }
     eapply Weak; [eassumption|auto].
   Qed.
-
- 
+      
   Lemma form_up_var0_invar {ff} (phi : @form _ _ _ ff) :
     phi[up ↑][$0..] = phi.
   Proof.
@@ -95,31 +100,46 @@ Section Signature.
     rewrite subst_term_comp.
     apply subst_term_id. now intros [].
   Qed.                             
-    
-  Lemma dn_forall {ff} Gamma phi :
-    Gamma ⊢I @dn ff Q (∀ phi) ~> ∀ dn Q phi.
+  
+  Lemma dn_forall {F} Gamma phi :
+    F[↑] = F -> Gamma ⊢M dn F (∀ phi) ~> ∀ dn F phi.
   Proof.
-    apply II. constructor. apply II.
-    cbn; fold Q.
+    intros HF.
+    apply II. constructor. apply II. cbn.
     change ((∀ phi[up ↑])) with ((∀ phi)[↑]).
+    rewrite !HF.
     eapply IE with (phi0:= _ ~> _). { apply Ctx; auto. }
     apply II. eapply IE with (phi0:= phi). { apply Ctx; auto. }
     cbn. rewrite <-form_up_var0_invar.
     apply AllE, Ctx; auto.
   Qed.
 
+  Fixpoint exist_times' {ff} N (phi : form ff) :=
+    match N with
+      0 => phi
+    | S n => ∃ exist_times' n phi
+    end.
+  
+  Lemma exist_dn phi Gamma:
+    Gamma ⊢M ((∃ (dn Q phi)) ~> dn Q (∃ phi)). 
+  Proof.
+    apply II, II. eapply ExE. {apply Ctx; auto. }
+    cbn; fold Q. apply IE with (phi0:= phi ~> Q).
+    {apply Ctx; auto. }
+    apply II. eapply IE with (phi0:= ∃ _).
+    {apply Ctx; auto. }
+    eapply ExI. rewrite form_up_var0_invar.
+    apply Ctx; auto.
+  Qed.
   
   Lemma DNE_Fr {ff} :
-    forall phi Gamma, Gamma ⊢I Fr (dn Q phi) ~> @Friedman ff phi. 
+    forall phi Gamma, Gamma ⊢M dn Q (Fr phi) ~> @Fr ff phi. 
   Proof.
     refine (size_ind size _ _). intros phi sRec.
-    destruct phi; intros Gamma.
+    destruct phi; intros Gamma; unfold dn.
     - apply II. eapply IE; cbn. { apply Ctx; auto. }
       apply II, Ctx; auto.
-    - destruct P.
-      + apply II. eapply IE; cbn. {apply Ctx; auto. }
-        apply II, Ctx; auto.
-      + apply double_dn.
+    - apply double_dn.
     - destruct b0; cbn.
       + apply II, CI.
         * eapply IE. apply sRec; cbn. 1: lia.
@@ -132,7 +152,7 @@ Section Signature.
         apply II. eapply IE with (phi:= Fr phi2). { apply Ctx; auto. }
         eapply IE with (phi:= Fr phi1); apply Ctx; auto.
     - destruct q.      
-      + cbn. apply II. apply IE with (phi0:= ∀ Fr (dn Q phi)).
+      + cbn. apply II. apply IE with (phi0:= ∀ dn Q (Fr phi)).
         { apply II. constructor. cbn; fold Q.
           eapply IE. apply sRec; auto.
           rewrite <-form_up_var0_invar.
@@ -140,60 +160,43 @@ Section Signature.
         constructor.
         cbn; fold Q. rewrite <- form_up_var0_invar.
         apply AllE. cbn; fold Q.
-        apply imps, dn_forall.
+        now apply imps, dn_forall.
       + apply double_dn.
   Qed.
-    
-  Lemma Expl_Fr {ff} Gamma phi : Gamma ⊢I Q ~> @Friedman ff phi.
-  Proof.
-    revert Gamma. induction phi; cbn; intros Gamma; apply II.
-    - apply Ctx; firstorder.
-    - destruct  P.
-      + apply Ctx; auto.
-      + apply II, Ctx; auto.
-    - destruct b0.
-      + apply CI; now apply imps.
-      + apply II, Ctx; auto.
-      + apply II. eapply IE. apply IHphi2.
-        apply Ctx; auto.
-    - destruct q.
-      + constructor. apply imps, IHphi.
-      + apply II, Ctx; auto.
-  Qed.          
   
-  Lemma Peirce_Fr {ff} Gamma phi psi : Gamma ⊢I @Friedman ff (((phi ~> psi) ~> phi) ~> phi).
+  Lemma Peirce_Fr {ff} Gamma phi psi : Gamma ⊢M @Fr ff (((phi ~> psi) ~> phi) ~> phi).
   Proof.
     eapply IE. apply DNE_Fr. cbn.
     apply II. eapply IE. { apply Ctx; auto. }
     apply II. eapply IE. { apply Ctx; auto. }
-    apply II. eapply IE; [apply Expl_Fr|].
-    eapply IE. { apply Ctx; auto. }
-    apply II. apply Ctx; auto.
+    apply II. eapply IE. apply DNE_Fr. cbn; fold Q.
+    apply II. eapply IE with (phi0:= _ ~> _). {apply Ctx; auto. }
+    apply II, Ctx; auto.
   Qed.
     
   
-  Lemma Friedman_cl_to_intu {ff} Gamma phi :
-    Gamma ⊢C phi -> (@List_Fr ff Gamma) ⊢I Fr phi.
+  Lemma Fr_cl_to_min {ff} Gamma phi  :
+    Gamma ⊢C phi -> (@Fr_ ff Gamma) ⊢M Fr phi.
   Proof.
-    intros H. induction H; unfold List_Fr in *; cbn in *.
+    intros H. induction H; unfold Fr_ in *; cbn in *.
     - now constructor.
     - econstructor; eassumption.
-    - constructor. now rewrite subst_List_Fr.
+    - constructor. now rewrite subst_Fr_.
     - eapply AllE with (t0:=t) in IHprv.
       now rewrite subst_Fr in IHprv. 
     - apply II.
       eapply IE.
       + apply Ctx. firstorder.
-      + apply Weak with (A0 := map Friedman A); [|auto].
+      + apply Weak with (A0 := map Fr A); [|auto].
         apply ExI with (t0:=t). now rewrite subst_Fr.
     - eapply IE. apply DNE_Fr. unfold dn in *; cbn.
       apply II. eapply IE.
       { eapply Weak; [apply IHprv1|auto]. }
       apply II. eapply IE. { apply Ctx; auto. }
-      rewrite <-subst_Fr, <-subst_List_Fr in IHprv2.
+      rewrite <-subst_Fr, <-subst_Fr_ in IHprv2.
       eapply ExE. { apply Ctx; auto. }
       cbn. eapply Weak; [apply IHprv2|auto].
-    - specialize (DNE_Fr phi (map Friedman A)) as H'.
+    - specialize (DNE_Fr phi (map Fr A)) as H'.
       eapply IE; [eassumption|].
       cbn; apply II. eapply Weak; eauto.
     - now apply Ctx, in_map.
@@ -216,5 +219,68 @@ Section Signature.
       1,2 : apply imps; eapply Weak; [eassumption|auto].
     - apply Peirce_Fr.
   Qed.
-
+  
 End Signature.
+
+
+
+Section FA.
+
+  From Undecidability.FOL.Util Require Import FA_facts.
+  From Undecidability.FOL.Reductions Require Import H10p_to_FA.
+  From Undecidability.H10 Require Import H10p.
+  Require Import Undecidability.FOL.PA.
+
+  Existing Instance PA_preds_signature.
+  Existing Instance PA_funcs_signature.
+  Existing Instance falsity_on.
+
+  
+  (* For every H10 problem we define an interpretation, where the new symbol Q is interpretated as the satisfaction of the H10 porblem in the standard model and everything else is interpreted as in the standard model. *)
+  Definition interp_nat_H10p (E : H10p_PROBLEM) (rho : env nat) :
+    @interp PA_funcs_signature extended_preds nat.
+  Proof.
+    split.
+    - exact (@i_func _ _ _ interp_nat).
+    - destruct P eqn:?.
+      + intros _. exact (sat interp_nat rho (embed E)).
+      + destruct P0. intros v. exact (@i_atom _ _ _ interp_nat Eq v).
+  Defined.      
+
+
+  Lemma Fr_exists_eq N s t (I : @interp PA_funcs_signature extended_preds nat) :
+    forall rho, sat I rho (Fr (exist_times N (s == t))) <-> rho ⊨ (dn Friedman.Q (cast (exist_times N (s == t)))).
+  Proof.
+    induction N; cbn; intros ?.
+    - tauto.
+    - setoid_rewrite IHN. firstorder.
+  Qed.
+  
+  Lemma extended_sat_eq N s t E rho sigma:
+    sat (interp_nat_H10p E sigma) rho (cast (exist_times N (s == t))) -> sat interp_nat rho (exist_times N (s == t)).
+  Proof.
+    revert rho sigma. induction N.
+    - tauto.
+    - cbn. intros rho sigma [d Hd]. exists d.
+      eapply IHN. unfold exist_times. apply Hd.
+  Qed.
+  
+
+  Theorem Name (E : H10p_PROBLEM) :
+    FAeq ⊢C embed E -> FAeq ⊢I embed E.
+  Proof.
+    intros H % Fr_cl_to_min % soundness.
+    apply H10p_to_FA_prv, nat_H10. intros rho.
+    specialize (H nat (interp_nat_H10p E rho)).
+    refine (let H' := H rho _ in _).
+    unfold embed, embed_problem in H'; destruct E as [a b].
+    apply Fr_exists_eq in H'.
+    simpl in H'. apply H'.
+    apply extended_sat_eq.
+    Unshelve.
+    clear H. cbn -[Fr]. intros ? H.
+    repeat (destruct H as [<-|H]); cbn; intuition.
+  Qed.
+  
+
+End FA.
