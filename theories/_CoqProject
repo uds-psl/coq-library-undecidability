@@ -265,6 +265,7 @@ FOL/FST.v
 FOL/binFST.v
 FOL/Reductions/binZF_to_binFST.v
 FOL/Reductions/PCPb_to_FST.v
+FOL/binFST_undec.v
 
 FOL/Util/Axiomatisations.v
 FOL/Util/Abstract.v
