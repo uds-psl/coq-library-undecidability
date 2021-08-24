@@ -77,10 +77,37 @@ Proof.
   intros x Hx. destruct (hfs_model_standard Hx) as [n Hn]. now exists n.
 Qed.
 
+Definition list2hfs L :=
+  fold_right hfs_cons hfs_empty L.
+
+Lemma list2hfs_spec L x :
+  hfs_mem x (list2hfs L) <-> x el L.
+Proof.
+  induction L; cbn.
+  - apply hfs_empty_spec.
+  - split.
+    + intros [<-|H] % hfs_cons_spec; auto. right. now apply IHL.
+    + intros [<-|H]; apply hfs_cons_spec; auto. right. now apply IHL.
+Qed.
+
 Lemma hfs_ind P :
   P hfs_empty -> (forall x y, P x -> P y -> P (hfs_cons x y)) -> forall x, P x.
 Proof.
-Admitted.
+  intros H1 H2 x. induction (hfs_mem_wf x) as [x _ IH].
+  destruct (hfs_mem_fin_t x) as [L HL].
+  induction L in x, IH, HL |- *.
+  - assert (x = hfs_empty) as ->; try apply H1.
+    apply hfs_mem_ext. intros y. rewrite HL.
+    rewrite hfs_empty_spec. cbn. tauto.
+  - assert (x = hfs_cons a (list2hfs L)) as ->; try apply H2.
+    + apply hfs_mem_ext. intros y.
+      change (hfs_cons a (list2hfs L)) with (list2hfs (a :: L)).
+      rewrite list2hfs_spec. apply HL.
+    + apply IH. apply hfs_cons_spec. now left.
+    + apply IHL.
+      * intros x Hx. apply IH. apply hfs_cons_spec. now right.
+      * apply list2hfs_spec.
+Qed.
 
 Lemma hfs_ax_ind phi rho :
   rho ⊨ ax_ind phi.
