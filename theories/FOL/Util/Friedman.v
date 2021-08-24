@@ -1,3 +1,4 @@
+
 Require Import List Lia.
 From Undecidability.FOL.Util Require Import Syntax Syntax_facts FullTarski FullTarski_facts FullDeduction_facts FullDeduction.
 From Undecidability.FOL.Reductions Require Import H10p_to_FA. 
@@ -27,6 +28,17 @@ Section Signature.
   Instance extended_preds : preds_signature :=
     {| preds := new_preds ; ar_preds := new_preds_ar |}.
 
+
+  Definition extend_interp {D} :
+    @interp Σ_funcs Σ_preds D -> Prop -> interp D.
+  Proof.
+    intros I Q. split.
+    - exact (@i_func _ _ _ I).
+    - intros P. destruct P as [|P0] eqn:?.
+      + intros _. exact Q.
+      + exact (@i_atom _ _ _ I P0).
+  Defined.
+  
 
   (* New propositional variable and "double negation" with respect to it *)
   Definition Q := (@atom Σ_funcs extended_preds _ falsity_off Q_ ([])).
@@ -60,7 +72,7 @@ Section Signature.
     revert sigma.
     induction phi; cbn.
     - reflexivity.
-    - now unfold dn. 
+    - now unfold dn.
     - destruct b0; cbn; unfold dn, Q; congruence.
     - destruct q; cbn; intros sigma; unfold dn, Q; congruence.
   Qed.
@@ -151,7 +163,7 @@ Section Signature.
         apply II. eapply IE with (phi:= _ ~> _). { apply Ctx; auto. }
         apply II. eapply IE with (phi:= Fr phi2). { apply Ctx; auto. }
         eapply IE with (phi:= Fr phi1); apply Ctx; auto.
-    - destruct q.      
+    - destruct q.
       + cbn. apply II. apply IE with (phi0:= ∀ dn Q (Fr phi)).
         { apply II. constructor. cbn; fold Q.
           eapply IE. apply sRec; auto.
@@ -175,10 +187,10 @@ Section Signature.
   Qed.
     
   
-  Lemma Fr_cl_to_min {ff} Gamma phi  :
+  Theorem Fr_cl_to_min {ff} Gamma phi  :
     Gamma ⊢C phi -> (@Fr_ ff Gamma) ⊢M Fr phi.
   Proof.
-    intros H. induction H; unfold Fr_ in *; cbn in *.
+    induction 1; unfold Fr_ in *; cbn in *.
     - now constructor.
     - econstructor; eassumption.
     - constructor. now rewrite subst_Fr_.
@@ -219,35 +231,40 @@ Section Signature.
       1,2 : apply imps; eapply Weak; [eassumption|auto].
     - apply Peirce_Fr.
   Qed.
+
+  
+  Notation "I ⊨= phi" := (forall rho, sat I rho phi) (at level 20).
+  Notation "I ⊨=T T" := (forall psi, T psi -> I ⊨= psi) (at level 20).
+  Notation "I ⊫= Gamma" := (forall rho psi, In psi Gamma -> sat I rho psi) (at level 20).
+  
+  Lemma Name {ff} phi D (I : @interp Σ_funcs Σ_preds D) (T : @form Σ_funcs Σ_preds _ ff -> Prop) (P : Prop) :
+    I ⊨=T T -> T phi -> (extend_interp I P) ⊨= (Fr phi). 
+  Proof.
+  Admitted.
+
+  Lemma Name_List {ff} Gamma D (I : @interp Σ_funcs Σ_preds D) (T : @form Σ_funcs Σ_preds _ ff -> Prop) (P : Prop) :
+    I ⊨=T T -> (forall psi, In psi Gamma -> T psi) -> (extend_interp I P) ⊫= (Fr_ Gamma). 
+  Proof.
+  Admitted.
+  
+  
   
 End Signature.
 
 
 
-Section FA.
 
-  From Undecidability.FOL.Util Require Import FA_facts.
-  From Undecidability.FOL.Reductions Require Import H10p_to_FA.
-  From Undecidability.H10 Require Import H10p.
-  Require Import Undecidability.FOL.PA.
+From Undecidability.FOL.Util Require Import FA_facts Axiomatisations.
+From Undecidability.Synthetic Require Import Definitions EnumerabilityFacts.
+From Undecidability.FOL.Reductions Require Import H10p_to_FA.
+From Undecidability.H10 Require Import H10p H10p_undec.
+Require Import Undecidability.FOL.PA.
+
+Section Incompleteness.
 
   Existing Instance PA_preds_signature.
   Existing Instance PA_funcs_signature.
-  Existing Instance falsity_on.
-
   
-  (* For every H10 problem we define an interpretation, where the new symbol Q is interpretated as the satisfaction of the H10 porblem in the standard model and everything else is interpreted as in the standard model. *)
-  Definition interp_nat_H10p (E : H10p_PROBLEM) (rho : env nat) :
-    @interp PA_funcs_signature extended_preds nat.
-  Proof.
-    split.
-    - exact (@i_func _ _ _ interp_nat).
-    - destruct P eqn:?.
-      + intros _. exact (sat interp_nat rho (embed E)).
-      + destruct P0. intros v. exact (@i_atom _ _ _ interp_nat Eq v).
-  Defined.      
-
-
   Lemma Fr_exists_eq N s t (I : @interp PA_funcs_signature extended_preds nat) :
     forall rho, sat I rho (Fr (exist_times N (s == t))) <-> rho ⊨ (dn Friedman.Q (cast (exist_times N (s == t)))).
   Proof.
@@ -256,31 +273,83 @@ Section FA.
     - setoid_rewrite IHN. firstorder.
   Qed.
   
-  Lemma extended_sat_eq N s t E rho sigma:
-    sat (interp_nat_H10p E sigma) rho (cast (exist_times N (s == t))) -> sat interp_nat rho (exist_times N (s == t)).
+  Lemma extended_sat_eq N s t rho P :
+    sat (extend_interp interp_nat P) rho (cast (exist_times N (s == t))) -> sat interp_nat rho (exist_times N (s == t)).
   Proof.
-    revert rho sigma. induction N.
+    revert rho. induction N.
     - tauto.
-    - cbn. intros rho sigma [d Hd]. exists d.
+    - cbn. intros rho [d Hd]. exists d.
       eapply IHN. unfold exist_times. apply Hd.
   Qed.
   
-
-  Theorem Name (E : H10p_PROBLEM) :
-    FAeq ⊢C embed E -> FAeq ⊢I embed E.
+  Lemma sat_Fr_context {P} Gamma rho :
+    (forall psi : form, In psi Gamma -> PAeq psi) -> (forall psi, In psi (Fr_ Gamma) -> sat (extend_interp interp_nat P) rho psi).
   Proof.
-    intros H % Fr_cl_to_min % soundness.
-    apply H10p_to_FA_prv, nat_H10. intros rho.
-    specialize (H nat (interp_nat_H10p E rho)).
-    refine (let H' := H rho _ in _).
+    induction Gamma as [| alpha Gamma IH]; cbn.
+    - tauto.
+    - intros H beta [<-| [phi [<- ]] % in_map_iff ].
+      + specialize (H alpha (or_introl eq_refl)). destruct H.
+        * repeat (destruct H as [<-|H]); cbn; intuition.
+        * cbn; intuition.
+        * cbn; intuition.
+        * cbn -[sat]. rewrite <-!subst_Fr. clear IH.
+          intros H0 IH d. induction d; cbn in *.
+          rewrite <-sat_single in H0. apply H0.
+          apply IH in IHd. rewrite sat_comp in IHd.
+          revert IHd. apply sat_ext. intros []; reflexivity.
+      + apply IH; [firstorder|].
+        now apply in_map.
+  Qed.
+  
+  Theorem class_to_H10p Gamma (E : H10p_PROBLEM) :
+    (forall psi : form, In psi Gamma -> PAeq psi) -> Gamma ⊢C embed E -> H10p E.
+  Proof.
+    intros Hg H % Fr_cl_to_min % soundness.
+    apply nat_H10. intros rho.
+    refine (let H' := H nat (extend_interp interp_nat _) rho _ in _).
     unfold embed, embed_problem in H'; destruct E as [a b].
     apply Fr_exists_eq in H'.
     simpl in H'. apply H'.
     apply extended_sat_eq.
-    Unshelve.
-    clear H. cbn -[Fr]. intros ? H.
-    repeat (destruct H as [<-|H]); cbn; intuition.
+    Unshelve. now apply sat_Fr_context.
+  Qed.
+
+  Corollary T_class_to_H10p (T : form -> Prop) (E : H10p_PROBLEM) :
+    T <<= PAeq -> T ⊢TC embed E -> H10p E.
+  Proof.
+    intros ? [Gamma []]. eapply class_to_H10p; intuition.
   Qed.
   
+  Lemma PA_consistent : ~ PAeq ⊢TC ⊥.
+  Proof.
+    intros [Gamma [H2 H % Fr_cl_to_min % soundness]].
+    specialize (H nat (extend_interp interp_nat False) (fun _ => 0)).
+    now apply H, sat_Fr_context.
+  Qed.
+  
+  Lemma std_T_consistent (S : form -> Prop) :
+    PAeq <<= S -> interp_nat ⊨=T S -> ~ S ⊢TC ⊥.
+  Proof.
+    intros HT Std [Gamma [H2 H % Fr_cl_to_min % soundness]].
+    specialize (H nat (extend_interp interp_nat False) (fun _ => 0)).
+    apply H. eapply Name_List; eauto.
+  Qed.
 
-End FA.
+  Theorem incompleteness_PA' (T : form -> Prop) :
+    PAeq <<= T -> enumerable T -> complete T -> interp_nat ⊨=T T -> decidable (TM.HaltTM 1).
+  Proof.
+    intros HPA HE HC HT. apply H10p_undec.
+    apply (@complete_reduction _ _ enum_PA_syms _ enum_PA_preds _ T HE) with embed.
+    - now apply std_T_consistent.
+    - apply HC.
+    - intros E; split.
+      + intros H % (@H10p_to_FA_prv' class). exists FAeq; split; [intros|auto].
+        apply HPA. now constructor.
+      + intros [Gamma [H2 H % Fr_cl_to_min % soundness]].
+        apply nat_H10. intros rho.
+        specialize (H _ (extend_interp interp_nat (sat interp_nat rho (embed E)))).
+        admit.
+    - apply embed_is_closed.
+  Admitted.
+  
+End Incompleteness.
