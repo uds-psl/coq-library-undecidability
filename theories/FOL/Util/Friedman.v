@@ -1,7 +1,5 @@
-
 Require Import List Lia.
 From Undecidability.FOL.Util Require Import Syntax Syntax_facts FullTarski FullTarski_facts FullDeduction_facts FullDeduction.
-From Undecidability.FOL.Reductions Require Import H10p_to_FA. 
 Import Vector.VectorNotations.
 
 Notation "I ⊨= phi" := (forall rho, sat I rho phi) (at level 20).
@@ -251,95 +249,118 @@ Section Arithmetic.
 
   Existing Instance PA_preds_signature.
   Existing Instance PA_funcs_signature.
-  
-  Lemma Fr_exists_eq N s t (I : @interp PA_funcs_signature extended_preds nat) :
-    forall rho, sat I rho (Fr (exist_times N (s == t))) <-> rho ⊨ (dn Friedman.Q (cast (exist_times N (s == t)))).
-  Proof.
-    induction N; cbn; intros ?.
-    - tauto.
-    - setoid_rewrite IHN. firstorder.
-  Qed.
 
-  Corollary Fr_embed E (I : @interp PA_funcs_signature extended_preds nat) :
-    forall rho, sat I rho (Fr (embed E)) <-> rho ⊨ (dn Friedman.Q (cast (embed E))).
-  Proof.
-    unfold embed, embed_problem; destruct E as [a b].
-    apply Fr_exists_eq.
-  Qed.
+  Section Model.
 
-  Definition ext_nat := extend_interp interp_nat.
-  
-  Lemma extended_sat_eq N s t rho P :
-    sat (ext_nat P) rho (cast (exist_times N (s == t))) -> sat interp_nat rho (exist_times N (s == t)).
-  Proof.
-    revert rho. induction N.
-    - tauto.
-    - cbn. intros rho [d Hd]. exists d.
-      eapply IHN. unfold exist_times. apply Hd.
-  Qed.
-
-  Corollary extended_sat_embed E rho P :
-    sat (ext_nat P) rho (cast (embed E)) -> sat interp_nat rho (embed E).
-  Proof.
-    unfold embed, embed_problem; destruct E as [a b].
-    apply extended_sat_eq.
-  Qed.
+    Variable D : Type.
+    Variable I : @interp PA_funcs_signature _ D.
+    Variable ext_I : @interp PA_funcs_signature extended_preds D.
     
-  Lemma sat_Fr_context {P} Gamma rho :
-    (forall psi : form, In psi Gamma -> PAeq psi) -> (forall psi, In psi (Fr_ Gamma) -> sat (ext_nat P) rho psi).
-  Proof.
-    induction Gamma as [| alpha Gamma IH]; cbn.
-    - tauto.
-    - intros H beta [<-| [phi [<- ]] % in_map_iff ].
-      + specialize (H alpha (or_introl eq_refl)). destruct H.
-        * repeat (destruct H as [<-|H]); cbn; intuition.
-        * cbn; intuition.
-        * cbn; intuition.
-        * cbn -[sat]. rewrite <-!subst_Fr. clear IH.
-          intros H0 IH d. induction d; cbn in *.
-          rewrite <-sat_single in H0. apply H0.
-          apply IH in IHd. rewrite sat_comp in IHd.
-          revert IHd. apply sat_ext. intros []; reflexivity.
-      + apply IH; [firstorder|].
-        now apply in_map.
-  Qed.
+    Lemma Fr_exists_eq N s t :
+      forall rho, sat ext_I rho (Fr (exist_times N (s == t))) <-> rho ⊨ (dn Friedman.Q (cast (exist_times N (s == t)))).
+    Proof.
+      induction N; cbn; intros ?.
+      - tauto.
+      - setoid_rewrite IHN. firstorder.
+    Qed.
+
+    Corollary Fr_embed E :
+      forall rho, sat ext_I rho (Fr (embed E)) <-> rho ⊨ (dn Friedman.Q (cast (embed E))).
+    Proof.
+      unfold embed, embed_problem; destruct E as [a b].
+      apply Fr_exists_eq.
+    Qed.
+
+    Definition ext_nat := extend_interp interp_nat.
+    
+    Lemma extended_sat_eq N s t P rho :
+      sat (extend_interp I P) rho (cast (exist_times N (s == t))) -> sat rho (exist_times N (s == t)).
+    Proof.
+      revert rho. induction N.
+      - tauto.
+      - cbn. intros rho [d Hd]. exists d.
+        eapply IHN. unfold exist_times. apply Hd.
+    Qed.
+
+    Corollary extended_sat_embed E P rho :
+      sat (extend_interp I P) rho (cast (embed E)) -> sat I rho (embed E).
+    Proof.
+      unfold embed, embed_problem; destruct E as [a b].
+      apply extended_sat_eq.
+    Qed.
+
+    Lemma sat_Fr_formula {P} phi rho :
+      I ⊨=T Q' -> Q' phi -> sat (extend_interp I P) rho (Fr phi).
+    Proof.
+      intros axioms H.
+      specialize (axioms phi). revert axioms.
+      repeat (destruct H as [<-|H]).
+      all: cbn -[FAeq]; refine (fun A => let F := A _ rho in _); intuition.
+      destruct H.
+      Unshelve. all: cbn; try tauto.
+    Qed.
+
+    Lemma sat_Fr_context {P} Gamma rho :
+      I ⊨=T Q' -> (forall psi : form, In psi Gamma -> Q' psi) -> (forall psi, In psi (Fr_ Gamma) -> sat (extend_interp I P) rho psi).
+    Proof.
+      intros axioms.
+      induction Gamma as [| alpha Gamma IH]; cbn -[FAeq].
+      - tauto.
+      - intros H beta [<-| [phi [<- ]] % in_map_iff ].
+        + specialize (H alpha (or_introl eq_refl)).
+          now apply sat_Fr_formula.          
+        + apply IH; [|now apply in_map].
+          intros psi Hp. apply H; tauto.
+    Qed.
+    
+  End Model.
   
-  Theorem class_to_H10p Gamma (E : H10p_PROBLEM) :
-    (forall psi : form, In psi Gamma -> PAeq psi) -> Gamma ⊢C embed E -> H10p E.
+  
+  Theorem sat_embed Gamma (E : H10p_PROBLEM) D (I : interp D) :
+    I ⊨=T Q' -> (forall psi : form, In psi Gamma -> Q' psi) -> Gamma ⊢C embed E -> I ⊨= embed E.
   Proof.
-    intros Hg H % Fr_cl_to_min % soundness.
-    apply nat_H10. intros rho.
-    refine (let H' := H nat (ext_nat _) rho _ in _).
+    intros HI Hg H % Fr_cl_to_min % soundness rho.
+    refine (let H' := H D (extend_interp I _) rho _ in _).
     apply Fr_embed in H'.
     simpl in H'. apply H'.
-    apply extended_sat_embed.
-    Unshelve. now apply sat_Fr_context.
+    apply extended_sat_embed. exact I.
+    Unshelve.
+    apply sat_Fr_context; auto.
   Qed.
-
-  Corollary T_class_to_H10p (T : form -> Prop) (E : H10p_PROBLEM) :
-    T <<= PAeq -> T ⊢TC embed E -> H10p E.
+    
+  Theorem class_Q_to_H10p Gamma (E : H10p_PROBLEM) :
+    (forall psi : form, In psi Gamma -> Q' psi) -> Gamma ⊢C embed E -> H10p E.
   Proof.
-    intros ? [Gamma []]. eapply class_to_H10p; intuition.
+    intros Hg H. apply nat_H10.
+    eapply sat_embed; eauto.
+    clear H; intros alpha H rho.
+    repeat (destruct H as [<-|H]; cbn; intuition).
+    destruct H.
   Qed.
 
-  (*  We can now show the undecidability of PA with classical deduction *)
-  Lemma H10p_to_class_PA :
+  Corollary T_class_Q_to_H10p (T : form -> Prop) (E : H10p_PROBLEM) :
+    T <<= Q' -> T ⊢TC embed E -> H10p E.
+  Proof.
+    intros ? [Gamma []]. eapply class_Q_to_H10p; intuition.
+  Qed.
+
+  Lemma H10p_to_class_Q :
     reduction embed H10p (tprv_class Q').
   Proof.
     intros E; split.
     + intros H. exists FAeq. split; [intuition|].
       now apply H10p_to_FA_prv'.
-    + intros H. eapply T_class_to_H10p; [|apply H].
-      intros ??. now constructor.
+    + intros H. eapply T_class_Q_to_H10p.
+      2 : apply H. auto.
    Qed.
 
   Lemma undec_class_Q :
     undecidable (tprv_class Q').
   Proof.
     refine (undecidability_from_reducibility _ _).
-    2 : exists embed; apply H10p_to_class_PA.
+    2 : exists embed; apply H10p_to_class_Q.
     apply H10p_undec.
-  Qed.  
+  Qed.
   
   
   Definition Fr_pres T :=
@@ -356,16 +377,17 @@ Section Arithmetic.
       reduction embed H10p (tprv_class T).
     Proof.
       intros E; split.
-      + intros H % (@H10p_to_FA_prv' class).
+      - intros H % (@H10p_to_FA_prv' class).
         exists FAeq; split; [intros ?|auto].
         apply Incl.
-      + intros [Gamma [H2 H % Fr_cl_to_min % soundness]].
+      - intros [Gamma [H2 H % Fr_cl_to_min % soundness]].
         apply nat_H10. intros rho.
         specialize (H _ (ext_nat (sat interp_nat rho (embed E))) rho).
         apply Fr_embed in H.
-        simpl in H. apply H.
-        apply extended_sat_embed. clear H0 H.
-        eapply Pres; eauto.
+        + simpl in H. apply H.
+          apply extended_sat_embed.
+        + exact interp_nat.
+        + eapply Pres; eauto.
     Qed.  
 
     Lemma undec_class_T :
