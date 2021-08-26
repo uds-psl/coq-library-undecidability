@@ -53,6 +53,11 @@ Section Signature.
     | quant q phi => quant q (cast phi)
     end.
 
+  Lemma sat_cast {ff : falsity_flag} D (I : interp Σ_funcs Σ_preds D) rho phi P :
+    rho ⊨ phi <-> sat (@extend_interp D I P) rho (cast phi).
+  Proof.
+  Admitted.
+
   (* Firedman translation *)
   Fixpoint Fr {ff} (phi : @form Σ_funcs Σ_preds _ ff) : @form Σ_funcs extended_preds _ falsity_off :=
     match phi with
@@ -419,3 +424,53 @@ Section Arithmetic.
   End Theory.
   
 End Arithmetic.
+
+
+
+(* Failed attempt to verify Friedman translation for ZF *)
+
+From Undecidability.FOL Require Import ZF Reductions.PCPb_to_ZF Reductions.PCPb_to_ZF.
+From Undecidability.FOL.Util Require Import FullDeduction.
+
+Lemma Fr_combinations D (I : @interp ZF_func_sig (@extended_preds ZF_pred_sig) D) x y z :
+  forall rho, rho ⊨ (Fr (combinations x y z)) <-> rho ⊨ (dn Friedman.Q (cast (combinations x y z))).
+Proof.
+Admitted.
+
+Lemma M_combinations_equiv D (I : @interp ZF_func_sig ZF_pred_sig D) rho B a b :
+  extensional I -> M_combinations B (eval rho $a) (eval rho $b) <-> rho ⊨ combinations B $a $b.
+Proof.
+  intros HI. induction B as [|[s t] B IH]; cbn.
+  - rewrite HI. reflexivity.
+  - admit.
+Admitted.
+
+Lemma Fr_solvable D (I : @interp ZF_func_sig (@extended_preds ZF_pred_sig) D) B :
+  forall rho, rho ⊨ (Fr (solvable B)) <-> rho ⊨ (dn Friedman.Q (cast (solvable B))).
+Proof.
+  intros rho. cbn. setoid_rewrite (Fr_combinations). cbn. intuition.
+Admitted.
+
+Theorem ZF_Friedman' B :
+  ZFeq' ⊢C (solvable B) -> entailment_ZFeq' (solvable B).
+Proof.
+  intros H % Fr_cl_to_min % soundness. intros D I rho HI.
+  specialize (H D (extend_interp I (rho ⊨ solvable B)) rho).
+  rewrite Fr_solvable in H. cbn in H. apply H.
+  - admit.
+  - clear H. cbn. setoid_rewrite <- (sat_cast D I). tauto.
+Admitted.
+
+Theorem ZF_Friedman B :
+  ZFeq' ⊢C (solvable B) -> entailment_ZFeq' (solvable B).
+Proof.
+  intros H % Fr_cl_to_min % soundness. intros D I rho HI.
+  specialize (H D (extend_interp I (rho ⊨ solvable B)) rho). cbn in H.
+  apply H.
+  - admit.
+  - clear H. cbn. setoid_rewrite (Fr_combinations). cbn.
+    setoid_rewrite <- (sat_cast D I). cbn.
+
+    (*setoid_rewrite (@eval_enc_stack D I).
+    setoid_rewrite <- (M_combinations_equiv I).*)
+Abort.
