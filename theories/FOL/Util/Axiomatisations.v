@@ -278,6 +278,29 @@ Section FixSignature.
       apply (Weak H2). unfold incl. apply in_rev.
     - exists A. split; trivial. apply (Weak H). unfold incl. apply in_rev.
   Qed.
+  
+  Lemma red_sub_prv {p : peirce} A T : 
+    (tprv T) <<= (prv A) -> prv A ⪯ tprv T.
+  Proof.
+    intros Ded.
+    exists (fun phi => A ==> phi). intros phi; split; intros H.
+    - exists nil. split; [auto|]. setoid_rewrite <- impl_prv.
+      rewrite app_nil_r.
+      apply (Weak H). unfold incl. apply in_rev.
+    - apply Ded in H.
+      setoid_rewrite <- impl_prv in H.
+      apply (Weak H). cut (incl (rev A) A).
+      + intuition.
+      + intros ??. now apply in_rev.
+  Qed.
+    
+  Lemma sub_undecidable {p : peirce} A T :
+    (tprv T) <<= (prv A) -> undecidable (prv A) -> undecidable (tprv T).
+  Proof.
+    intros Ded HA. 
+    apply (undecidability_from_reducibility HA).
+    now apply red_sub_prv.
+  Qed.
 
 End FixSignature.
 
