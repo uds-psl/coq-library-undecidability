@@ -302,6 +302,15 @@ Section FixSignature.
     now apply red_sub_prv.
   Qed.
 
+ Lemma sub_undecidable' {p : peirce} A B :
+    incl B A -> undecidable (prv A) -> undecidable (tprv (list_theory B)).
+  Proof.
+    intros Incl HA. 
+    refine (sub_undecidable _ HA).
+    intros phi [Gamma [H1 H2]].
+    apply Weak with Gamma; [auto|firstorder].
+  Qed.
+
 End FixSignature.
 
 
