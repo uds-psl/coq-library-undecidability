@@ -54,8 +54,13 @@ Section Signature.
     end.
 
   Lemma sat_cast {ff : falsity_flag} D (I : interp Σ_funcs Σ_preds D) rho phi P :
-    rho ⊨ phi <-> sat (@extend_interp D I P) rho (cast phi).
+    rho ⊨ phi -> sat (@extend_interp D I P) rho (cast phi).
   Proof.
+    induction phi; cbn.
+    - tauto.
+    - tauto.
+    - destruct b0; try tauto.
+      
   Admitted.
 
   (* Firedman translation *)
@@ -278,7 +283,7 @@ Section Arithmetic.
 
     Definition ext_nat := extend_interp interp_nat.
     
-    Lemma extended_sat_eq N s t P rho :
+    Lemma cast_extists_eq N s t P rho :
       sat (extend_interp I P) rho (cast (exist_times N (s == t))) -> sat rho (exist_times N (s == t)).
     Proof.
       revert rho. induction N.
@@ -287,11 +292,11 @@ Section Arithmetic.
         eapply IHN. unfold exist_times. apply Hd.
     Qed.
 
-    Corollary extended_sat_embed E P rho :
+    Corollary cast_embed E P rho :
       sat (extend_interp I P) rho (cast (embed E)) -> sat I rho (embed E).
     Proof.
       unfold embed, embed_problem; destruct E as [a b].
-      apply extended_sat_eq.
+      apply cast_extists_eq.
     Qed.
 
     Lemma sat_Fr_formula {P} phi rho :
@@ -328,7 +333,7 @@ Section Arithmetic.
     refine (let H' := H D (extend_interp I _) rho _ in _).
     apply Fr_embed in H'.
     simpl in H'. apply H'.
-    apply extended_sat_embed. exact I.
+    apply cast_embed. exact I.
     Unshelve.
     apply sat_Fr_context; auto.
   Qed.
@@ -378,6 +383,18 @@ Section Arithmetic.
     Variable Std : interp_nat ⊨=T T.
     Variable Pres : Fr_pres T.
     
+    Lemma extract_from_class E :
+      T ⊢TC embed E -> interp_nat ⊨= embed E.
+    Proof.
+      intros [Gamma [H2 H % Fr_cl_to_min % soundness]] rho.
+      refine (let H' := H nat (extend_interp interp_nat _) rho _ in _).
+      apply Fr_embed in H'.
+      simpl in H'. apply H'.
+      apply cast_embed. exact interp_nat.
+      Unshelve.
+      now apply Pres.
+    Qed.
+        
     Lemma reduction_theorem :
       reduction embed H10p (tprv_class T).
     Proof.
@@ -385,15 +402,9 @@ Section Arithmetic.
       - intros H % (@H10p_to_FA_prv' class).
         exists FAeq; split; [intros ?|auto].
         apply Incl.
-      - intros [Gamma [H2 H % Fr_cl_to_min % soundness]].
-        apply nat_H10. intros rho.
-        specialize (H _ (ext_nat (sat interp_nat rho (embed E))) rho).
-        apply Fr_embed in H.
-        + simpl in H. apply H.
-          apply extended_sat_embed.
-        + exact interp_nat.
-        + eapply Pres; eauto.
-    Qed.  
+      - intros H. apply nat_H10.
+        now apply extract_from_class.
+    Qed.
 
     Lemma undec_class_T :
       undecidable (tprv_class T).
@@ -432,45 +443,97 @@ End Arithmetic.
 From Undecidability.FOL Require Import ZF Reductions.PCPb_to_ZF Reductions.PCPb_to_ZF.
 From Undecidability.FOL.Util Require Import FullDeduction.
 
-Lemma Fr_combinations D (I : @interp ZF_func_sig (@extended_preds ZF_pred_sig) D) x y z :
-  forall rho, rho ⊨ (Fr (combinations x y z)) <-> rho ⊨ (dn Friedman.Q (cast (combinations x y z))).
+
+
+Lemma cast_combinations D (I : @interp ZF_func_sig ZF_pred_sig D) B X Y P :
+  forall rho, sat I rho (combinations B X Y) -> sat (extend_interp I P) rho (cast (combinations B X Y)).
 Proof.
+  induction B as [|[s t] B IH] in X,Y |-*.
+  - cbn. tauto.
+  - intros rho.  intros [d1 [d2 H]]; cbn [combinations cast sat] in *.
+    all: exists d1, d2; intuition.
+Qed.
+
+Lemma cast_solvable D (I : @interp ZF_func_sig ZF_pred_sig D) B P :
+  forall rho, sat (extend_interp I P) rho (cast (solvable B)) -> sat I rho (solvable B).
+Proof.
+  intros rho.  cbn. intros [d1 [d2 [d3 [d4 ]]]].
+  exists d1, d2, d3, d4. repeat split; intuition.
+  eapply H5; eauto. now apply cast_combinations.
+Qed.
+
+
+(* Lemma M_combinations_equiv D (I : @interp ZF_func_sig ZF_pred_sig D) rho B a b : *)
+(*   extensional I -> M_combinations B (eval rho $a) (eval rho $b) <-> rho ⊨ combinations B $a $b. *)
+(* Proof. *)
+(*   intros HI. induction B as [|[s t] B IH]; cbn. *)
+(*   - rewrite HI. reflexivity. *)
+(*   - admit. *)
+(* Admitted. *)
+
+Definition exist_times'' n (phi : @form ZF_func_sig ZF_pred_sig _ _) := iter (fun psi => ∃ psi) n phi.
+
+Lemma Fr_exists_times'' N phi D (I : @interp ZF_func_sig (@extended_preds ZF_pred_sig) D) :
+  forall rho, sat I rho (Fr (exist_times'' N phi)) -> sat I rho (dn Friedman.Q ((exist_times' N (Fr phi)))).
+Proof.
+  induction N; cbn; intros ?.
+  - tauto.
+  - intros nH1 nH2. apply nH1; intros H1. apply nH2.
 Admitted.
 
-Lemma M_combinations_equiv D (I : @interp ZF_func_sig ZF_pred_sig D) rho B a b :
-  extensional I -> M_combinations B (eval rho $a) (eval rho $b) <-> rho ⊨ combinations B $a $b.
+Lemma Fr_combinations D (I : @interp ZF_func_sig (@extended_preds ZF_pred_sig) D) x y z :
+  forall rho, rho ⊨ (Fr (combinations x y z)) -> rho ⊨ (dn Friedman.Q (cast (combinations x y z))).
 Proof.
-  intros HI. induction B as [|[s t] B IH]; cbn.
-  - rewrite HI. reflexivity.
-  - admit.
+  
 Admitted.
+
 
 Lemma Fr_solvable D (I : @interp ZF_func_sig (@extended_preds ZF_pred_sig) D) B :
-  forall rho, rho ⊨ (Fr (solvable B)) <-> rho ⊨ (dn Friedman.Q (cast (solvable B))).
+  forall rho, rho ⊨ (Fr (solvable B)) -> rho ⊨ (dn Friedman.Q (cast (solvable B))).
 Proof.
-  intros rho. cbn. setoid_rewrite (Fr_combinations). cbn. intuition.
+  intros rho. unfold solvable. cbn [Fr].
 Admitted.
+
+
+Lemma sat_Fr_formula_ZF {P} phi D rho (I : @interp ZF_func_sig ZF_pred_sig D) :
+  I ⊫= ZFeq' -> In phi ZFeq' -> sat (extend_interp I P) rho (Fr phi).
+Proof.
+  intros axioms H.
+  specialize (axioms rho phi). revert axioms.
+  repeat (destruct H as [<-|H]).
+  all: cbn -[ZFeq']; refine (fun A => let F := A _ in _).
+  12 : destruct H.
+  1 - 4 : intuition.
+  2 : {intros d. specialize (F d); intuition. }
+  5 : intuition.
+
+  1 - 5 : admit.
+
+  Unshelve.
+  all: cbn; auto 12.
+Admitted.
+
+
+Lemma sat_Fr_context_ZF {P} Gamma D rho (I : @interp ZF_func_sig ZF_pred_sig D) :
+  I ⊫= ZFeq' -> (forall psi : form, In psi Gamma -> In psi ZFeq') -> (forall psi, In psi (Fr_ Gamma) -> sat (extend_interp I P) rho psi).
+Proof.
+  intros axioms.
+  induction Gamma as [| alpha Gamma IH]; cbn -[ZFeq'].
+  - tauto.
+  - intros H beta [<-| [phi [<- ]] % in_map_iff ].
+    + specialize (H alpha (or_introl eq_refl)).
+      now apply sat_Fr_formula_ZF.          
+    + apply IH; [|now apply in_map].
+      intros psi Hp. apply H; tauto.
+Qed.
 
 Theorem ZF_Friedman' B :
   ZFeq' ⊢C (solvable B) -> entailment_ZFeq' (solvable B).
 Proof.
   intros H % Fr_cl_to_min % soundness. intros D I rho HI.
-  specialize (H D (extend_interp I (rho ⊨ solvable B)) rho).
-  rewrite Fr_solvable in H. cbn in H. apply H.
-  - admit.
-  - clear H. cbn. setoid_rewrite <- (sat_cast D I). tauto.
-Admitted.
-
-Theorem ZF_Friedman B :
-  ZFeq' ⊢C (solvable B) -> entailment_ZFeq' (solvable B).
-Proof.
-  intros H % Fr_cl_to_min % soundness. intros D I rho HI.
-  specialize (H D (extend_interp I (rho ⊨ solvable B)) rho). cbn in H.
-  apply H.
-  - admit.
-  - clear H. cbn. setoid_rewrite (Fr_combinations). cbn.
-    setoid_rewrite <- (sat_cast D I). cbn.
-
-    (*setoid_rewrite (@eval_enc_stack D I).
-    setoid_rewrite <- (M_combinations_equiv I).*)
-Abort.
+  refine (let H' := H D (extend_interp I _) rho _ in _).
+  apply Fr_solvable in H'. cbn -[ZFeq' solvable] in *. apply H'.
+  apply cast_solvable.
+  Unshelve.
+  now apply sat_Fr_context_ZF.
+Qed.
