@@ -278,37 +278,81 @@ Section FixSignature.
       apply (Weak H2). unfold incl. apply in_rev.
     - exists A. split; trivial. apply (Weak H). unfold incl. apply in_rev.
   Qed.
+
+
+  (** *** Fact 12 : indirect reductions between axiomatisations *)
   
-  Lemma red_sub_prv {p : peirce} A T : 
-    (tprv T) <<= (prv A) -> prv A ⪯ tprv T.
+  Lemma red_prv_prv {p : peirce} A T : 
+    T <<= (prv A) -> prv A ⪯ tprv T.
   Proof.
     intros Ded.
     exists (fun phi => A ==> phi). intros phi; split; intros H.
     - exists nil. split; [auto|]. setoid_rewrite <- impl_prv.
       rewrite app_nil_r.
       apply (Weak H). unfold incl. apply in_rev.
-    - apply Ded in H.
-      setoid_rewrite <- impl_prv in H.
-      apply (Weak H). cut (incl (rev A) A).
-      + intuition.
-      + intros ??. now apply in_rev.
-  Qed.
-    
-  Lemma sub_undecidable {p : peirce} A T :
-    (tprv T) <<= (prv A) -> undecidable (prv A) -> undecidable (tprv T).
-  Proof.
-    intros Ded HA. 
-    apply (undecidability_from_reducibility HA).
-    now apply red_sub_prv.
+    - destruct H as [B [H1 H2 % impl_prv]].
+      apply (prv_cut H2). intros psi [H|H] % in_app_iff.
+      + apply Ctx. now apply in_rev.
+      + now apply Ded, H1.
   Qed.
 
- Lemma sub_undecidable' {p : peirce} A B :
-    incl B A -> undecidable (prv A) -> undecidable (tprv (list_theory B)).
+  Lemma red_prv_valid A T : 
+    T <<= (prv (p:=intu) A) -> tvalid (list_theory A) ⪯ tvalid T.
   Proof.
-    intros Incl HA. 
-    refine (sub_undecidable _ HA).
-    intros phi [Gamma [H1 H2]].
-    apply Weak with Gamma; [auto|firstorder].
+    intros Ded.
+    exists (fun phi => A ==> phi). intros phi; split; intros H D I rho HI.
+    - apply impl_sat. apply H.
+    - specialize (H D I rho). setoid_rewrite impl_sat in H. apply H.
+      + intros psi HP. apply Ded in HP. apply soundness in HP. apply HP. apply HI.
+      + apply HI.
+  Qed.
+    
+  Lemma red_sub_prv {p : peirce} A T :
+    T <<= (list_theory A) -> prv A ⪯ tprv T.
+  Proof.
+    intros Sub. apply red_prv_prv.
+    intros phi H. now apply Ctx, Sub.
+  Qed.
+
+  Lemma red_sub_valid {p : peirce} A T :
+    T <<= (list_theory A) -> tvalid (list_theory A) ⪯ tvalid T.
+  Proof.
+    intros Sub. apply red_prv_valid.
+    intros phi H. now apply Ctx, Sub.
+  Qed.
+
+  Lemma red_union_prv' {p : peirce} A T :
+    reduction (fun phi => A ==> phi) (tprv (fun phi => T phi \/ In phi A)) (tprv T).
+  Proof.
+    intros phi; split; intros [C [H1 H2]].
+    - assert (exists C1 C2, incl C1 A /\ list_theory C2 <<= T /\ incl C (C1 ++ C2)).
+      + clear H2. induction C.
+        * exists nil, nil. cbn. repeat split; auto.
+        * destruct IHC as (C1 & C2 & H2 & H3 & H4).
+          -- intros psi HP. apply H1. now right.
+          -- destruct (H1 a) as [H|H]; try now left.
+             ++ exists C1, (a::C2). repeat split; trivial. firstorder congruence.
+                intros psi [->|HP]; auto. apply H4 in HP as [HP|HP] % in_app_iff; auto.
+             ++ exists (a::C1), C2. repeat split; firstorder congruence.
+      + destruct H as (C1 & C2 & H3 & H4 & H5).
+        exists C2. split; try apply H4. apply impl_prv. apply (Weak H2).
+        intros psi [H|H] % H5 % in_app_iff; auto. apply in_app_iff. left. apply -> in_rev. now apply H3.
+    - exists (rev A ++ C). split; try now apply impl_prv.
+      intros psi [H|H] % in_app_iff; auto. right. now apply in_rev.
+  Qed.
+
+  Lemma red_union_prv {p : peirce} A T :
+    tprv (fun phi => T phi \/ In phi A) ⪯ tprv T.
+  Proof.
+    exists (fun phi => A ==> phi). apply red_union_prv'.
+  Qed.
+
+  Lemma red_union_valid A T :
+    tvalid (fun phi => T phi \/ In phi A) ⪯ tvalid T.
+  Proof.
+    exists (fun phi => A ==> phi). intros phi; split; intros H D I rho HI.
+    - apply impl_sat. intros HA. apply H. firstorder.
+    - specialize (H D I rho). setoid_rewrite impl_sat in H. apply H; firstorder.
   Qed.
 
 End FixSignature.
@@ -317,7 +361,7 @@ End FixSignature.
 
 (** ** Main results *)
 
-(** *** Theorem 25 : H10 reduces to Q', Q, and PA *)
+(** *** Theorem 26 : H10 reduces to Q', Q, and PA *)
 
 From Undecidability.FOL Require Import PA Reductions.H10p_to_FA FA_facts.
 From Undecidability.H10 Require Import H10p H10p_undec.
@@ -384,7 +428,7 @@ Qed.
 
 
 
-(** *** Theorem 26 : all extensions of Q' satisfied by the standard model are incompletene, using LEM *)
+(** *** Theorem 27 : all extensions of Q' satisfied by the standard model are incompletene, using LEM *)
 
 (* We first need to show the PA signature discrete and enumerable *)
 
@@ -430,7 +474,32 @@ Qed.
 
 
 
-(** *** Theorem 34 : PCP reduces to Z', Z, and ZF, assuming standard models *)
+(** *** Fact 28 : all axiomatisations satisfied by the standard model are undecidable *)
+
+Fact undec_standard_prv (T : form -> Prop) :
+  interp_nat ⊨=T T -> H10p ⪯ @tprv _ _ _ intu T.
+Proof.
+  intros HT. eapply reduces_transitive; try apply (red_union_prv FAeq).
+  exists embed. apply (reduction_theorem PA_undec1 PA_undec2 PA_undec3).
+  - auto.
+  - exists nat, interp_nat. split; try apply nat_standard.
+    intros Phi [H|H]; try now apply HT.
+    eauto using nat_is_FA_model.
+Qed.
+
+Fact undec_standard_valid (T : form -> Prop) :
+  interp_nat ⊨=T T -> H10p ⪯ tvalid T.
+Proof.
+  intros HT. eapply reduces_transitive; try apply (red_union_valid FAeq).
+  exists embed. apply (reduction_theorem PA_undec1 PA_undec2 PA_undec3).
+  - auto.
+  - exists nat, interp_nat. split; try apply nat_standard.
+    intros Phi [H|H]; try now apply HT.
+    eauto using nat_is_FA_model.
+Qed.
+
+
+(** *** Theorem 43 : PCP reduces to Z', Z, and ZF, assuming standard models *)
 
 From Undecidability.FOL.Reductions Require Import PCPb_to_ZFeq PCPb_to_ZF PCPb_to_ZFD.
 From Undecidability.FOL Require Import Util.Aczel_CE Util.ZF_model ZF.
@@ -490,7 +559,7 @@ Qed.
 
 
 
-(** *** Corollary 35 : the standard models required by the previous theorem can be constructed with CE and TD *)
+(** *** Corollary 44 : the standard models required by the previous theorem can be constructed with CE and TD *)
 
 Lemma CE_undec_Z' :
   CE -> treduction solvable PCPb Z'.
@@ -528,7 +597,7 @@ Qed.
 
 
 
-(** *** Theorem 36 : all extensions of Z' satisfied by a standard model are incompletene, using LEM *)
+(** *** Theorem 45 : all extensions of Z' satisfied by a standard model are incompletene, using LEM *)
 
 (* We first need to show the ZF signature discrete and enumerable *)
 
@@ -573,7 +642,7 @@ Qed.
 
 
 
-(** *** Theorem 44 : we obtain the same reductions for set theory only formulated with equality and membership *)
+(** *** Theorem 53 : we obtain the same reductions for set theory only formulated with equality and membership *)
 
 From Undecidability.FOL Require Import minZF PCPb_to_minZF PCPb_to_minZFeq.
 
@@ -601,7 +670,7 @@ Qed.
 
 
 
-(** *** Theorem 45 : FOL with a single binary relation symbol is undecidable *)
+(** *** Theorem 58 : FOL with a single binary relation symbol is undecidable *)
 
 From Undecidability.FOL Require Import sig_bin binZF PCPb_to_binZF binZF_undec.
 
