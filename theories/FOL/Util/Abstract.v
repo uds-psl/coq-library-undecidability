@@ -14,9 +14,7 @@ Local Unset Strict Implicit.
 
 
 
-(** ** Post's Theorem *)
-
-(* should be moved *)
+(* Post's Theorem *)
 
 Definition mu (p : nat -> Prop) :
   (forall x, dec (p x)) -> ex p -> sig p.
@@ -48,6 +46,8 @@ Qed.
 
 
 Section Abstract.
+
+  (** ** Abstract Incompleteness *)
 
   Variable sentences : Type.
   Hypothesis sentences_discrete : discrete sentences.
@@ -97,6 +97,8 @@ Section Abstract.
       + apply refutable_enum.
   Qed.
 
+  (** ** Abstract Undecidability *)
+
   Variable models : Type.
   Variable sat : models -> sentences -> Prop.
 
@@ -144,6 +146,10 @@ Section Abstract.
   End Reduction.
 
 End Abstract.
+
+
+
+(** ** Instantiation to first-order logic *)
 
 From Undecidability.FOL.Util Require Import Syntax_facts FullDeduction FullDeduction_facts FullTarski FullTarski_facts Axiomatisations.
 

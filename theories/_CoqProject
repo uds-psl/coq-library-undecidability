@@ -222,7 +222,6 @@ FOL/Util/FullTarski.v
 FOL/Util/FullTarski_facts.v
 FOL/Util/FullDeduction.v
 FOL/Util/FullDeduction_facts.v
-FOL/Util/Friedman.v
 
 FOL/FOL.v
 FOL/FOL_undec.v
@@ -234,6 +233,7 @@ FOL/PA.v
 FOL/Util/FA_facts.v
 FOL/Reductions/H10p_to_FA.v
 FOL/PA_undec.v
+FOL/Util/Friedman.v
 
 FOL/ZF.v
 FOL/Reductions/PCPb_to_ZF.v
@@ -253,6 +253,7 @@ FOL/minZF.v
 FOL/Reductions/PCPb_to_minZF.v
 FOL/Reductions/PCPb_to_minZFeq.v
 FOL/minZF_undec.v
+FOL/Util/ZF_conservativity.v
 
 FOL/Util/sig_bin.v
 FOL/binZF.v
@@ -273,7 +274,6 @@ FOL/binFST_undec.v
 
 FOL/Util/Axiomatisations.v
 FOL/Util/Abstract.v
-FOL/Util/ZF_conservativity.v
 
 MinskyMachines/MMA.v            
 

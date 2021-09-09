@@ -1,4 +1,4 @@
-(** ** Reduction from ZF' to HF *)
+(** ** Reduction from ZF' to finite ZF *)
 
 From Undecidability.FOL.Util Require Import Syntax Syntax_facts FullTarski_facts FullDeduction FullDeduction_facts.
 From Undecidability.FOL Require Import ZF.
