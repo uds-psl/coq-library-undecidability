@@ -19,6 +19,7 @@ FRACTRAN/FRACTRAN_undec.v
 DiophantineConstraints/H10C.v
 DiophantineConstraints/H10C_undec.v
 DiophantineConstraints/H10UPC.v
+DiophantineConstraints/Utils/H10UPC_facts.v
 DiophantineConstraints/H10UPC_undec.v
 
 CounterMachines/CM1.v

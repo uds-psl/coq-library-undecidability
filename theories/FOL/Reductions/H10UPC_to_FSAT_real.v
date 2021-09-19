@@ -342,14 +342,6 @@ Section Fsat.
       Context {vSucc  : rho' ⊨ aSucc 1}.
       Context {vDescr : rho' ⊨ aDescr 1}.
       Context {vDescr2: rho' ⊨ aDescr2 1}.
-      
-      Definition chain (m:D) (mN:nat) (f:D->option nat) := 
-         (forall d, d <<= m <-> f d <> None)
-      /\ (forall n, (exists d, d <<= m /\ f d = Some n) -> n <= mN)
-      /\ (f m = Some mN)
-      /\ (f z = Some 0)
-      /\ (forall dl dh l h, f dl = Some l -> f dh = Some h -> S l = h <-> isucc dl dh z)
-      /\ (forall d1 d2, f d1 <> None -> f d1 = f d2 <-> d1 == d2).
 
       Definition vpTrans a b c : a << b -> b << c -> a << c.
       Proof using vTrans rho'.
@@ -446,6 +438,14 @@ Section Fsat.
       - easy.
       - exfalso;easy.
       Qed.
+      
+      Definition chain (m:D) (mN:nat) (f:D->option nat) := 
+          (forall d, d <<= m <-> f d <> None)
+      /\  (forall n, (exists d, d <<= m /\ f d = Some n) -> n <= mN)
+      /\ (f m = Some mN)
+      /\ (f z = Some 0)
+      /\ (forall dl dh l h, f dl = Some l -> f dh = Some h -> S l = h <-> isucc dl dh z)
+      /\ (forall d1 d2, f d1 <> None -> f d1 = f d2 <-> d1 == d2).
 
       Lemma mkchain (d:D) : iN d -> exists n f, chain d n f.
       Proof using vTrans vSucc vPred rho rho' m fini decP Hrho.
@@ -453,7 +453,7 @@ Section Fsat.
       intros H. destruct (eqDec dd z) as [H0|HS].
       - exists 0, (fun k => if eqDec k dd then Some 0 else None).
         recsplit 5.
-        + intros d. split. 
+        + intros d. split.
           * intros dl. destruct (eqDec d dd) as [Ht|Hf]. 1:easy.
             intros _. eapply aZeroS with d. split. 1: now rewrite <- H0. intros HH; apply Hf. transitivity z. 1:easy. now symmetry.
           * destruct (eqDec d dd) as [Hl|Hr]. 2: easy. intros _. apply leq_eq. all: easy.
@@ -465,54 +465,54 @@ Section Fsat.
           all: destruct (vpSucc H3) as [[H321 H322] H33]; exfalso; apply H322; transitivity dd; [easy|now symmetry].
         + intros d1 d2. intros H1. split; intros H2; destruct (eqDec d1 dd), (eqDec d2 dd) as [Ht|Hf]. 2-5,7-8:easy.
           -- intros. transitivity dd; [easy|now symmetry].
-          -- exfalso. apply Hf. transitivity d1; [now symmetry|easy].
+          -- exfalso. apply Hf. transitivity d1; [now symmetry|easy]. 
       - destruct (@vpPred dd) as [p Hp]. 1-2:firstorder'. destruct (vpSucc Hp) as [Hless Hclose].
         destruct (IH p) as [n [f Hnf]]. 1-2: firstorder'. 
         exists (S n). exists (fun v => if eqDec v dd then Some (S n) else f v). 
-        destruct Hnf as [H1 [H2 [H3 [H4 [H5 H6]]]]].
+        destruct Hnf as [xH1 [xH2 [xH3 [xH4 [xH5 xH6]]]]]. 
         recsplit 5.
         + intros d. split.
           * intros Hdd. destruct (eqDec d dd) as [Heq|Neq].
             -- easy.
-            -- apply H1, Hclose. now split.
+            -- apply xH1, Hclose. now split.
           * destruct (eqDec d dd) as [Heq|Neq].
             -- intros; now apply leq_eq.
             -- intros HN. eapply leq_trans with p. 
-              ++ rewrite <- H1 in HN. easy.
+              ++ rewrite <- xH1 in HN. easy.
               ++ apply Hless.
         + intros n0. 
           intros [d [Hddd HSome]]. destruct (eqDec d dd). 1: assert (S n = n0) by congruence;lia.
-          enough (n0 <= n) by lia. apply (H2 n0). exists d. split. 2:easy. apply Hclose. easy.
+          enough (n0 <= n) by lia. apply (xH2 n0). exists d. split. 2:easy. apply Hclose. easy.
         + rewrite (eqDec_eq). 1:easy. firstorder'.
-        + destruct (eqDec z dd) as [H0|Hn0]. 2: apply H4. exfalso. apply HS. now symmetry.
+        + destruct (eqDec z dd) as [H0|Hn0]. 2: apply xH4. exfalso. apply HS. now symmetry.
         + intros dl dh l h HH1 HH2; split; intros HH3; destruct (eqDec dl dd) as [Hl1|Hh1], (eqDec dh dd) as [Hl2|Hh2].
           * exfalso. assert (S l = l) by congruence. lia.
-          * assert (h = S (S n)) as Hc by congruence. enough (h <= n) by lia. apply H2. exists dh. split. 2:easy. apply H1. intros Hh; congruence.
+          * assert (h = S (S n)) as Hc by congruence. enough (h <= n) by lia. apply xH2. exists dh. split. 2:easy. apply xH1. intros Hh; congruence.
           * assert (l = n) as Hc by congruence. rewrite Hl2. enough (dl == p) as -> by easy.
-            apply H6; congruence.
-          * apply H5 with l h; easy.
+            apply xH6; congruence.
+          * apply xH5 with l h; easy.
           * destruct (vpSucc HH3) as [[H321 H322] H33]; exfalso; apply H322. now rewrite <- Hl2 in Hl1.
           * exfalso. apply less_irref with dd. eapply vpTrans with dh.
             -- rewrite <- Hl1. now destruct (vpSucc HH3).
-            -- eapply leq_less with p. 2:easy. rewrite H1. congruence.
+            -- eapply leq_less with p. 2:easy. rewrite xH1. congruence.
           * rewrite Hl2 in HH3.
             assert (dl == p) as Hdlp. 
             -- apply antiSym.
                ++ apply Hclose. destruct (vpSucc HH3) as [H32 H33]. apply H32.
                ++ destruct (vpSucc HH3) as [[H321 H322] H33]. apply H33. easy.
             -- assert (f p = f dl) as Heq.
-               ++  apply H6. 1:congruence. now symmetry.
+               ++ apply xH6. 1:congruence. now symmetry.
                ++ assert (n = l) by congruence. subst n. congruence.
-          * erewrite H5. 1:exact HH3. all:easy.
+          * erewrite xH5. 1:exact HH3. all:easy.
         + intros d1 d2. intros HSome. split; intros Heq; destruct (eqDec d1 dd) as [Htt|Hff], (eqDec d2 dd) as [Ht|Hf].
           -- now rewrite Htt,Ht.
-          -- exfalso. enough (S n <= n) by lia. apply H2. exists d2. split. 2:easy. apply H1. congruence.
-          -- exfalso. enough (S n <= n) by lia. apply H2. exists d1. split. 2:easy. apply H1. congruence.
-          -- now apply H6.
+          -- exfalso. enough (S n <= n) by lia. apply xH2. exists d2. split. 2:easy. apply xH1. congruence.
+          -- exfalso. enough (S n <= n) by lia. apply xH2. exists d1. split. 2:easy. apply xH1. congruence.
+          -- now apply xH6.
           -- easy.
           -- exfalso. apply Hf. rewrite <- Htt. now symmetry.
           -- exfalso. apply Hff. now rewrite Heq.
-          -- apply H6; easy.
+          -- apply xH6; easy.
       Qed.
 
 
@@ -521,7 +521,7 @@ Section Fsat.
                    -> exists a' b' c' d', h10upc_sem_direct ((a',b'),(c',d')) /\ 
                          f a = Some a' /\ f b = Some b' /\ f c = Some c' /\ f d = Some d'.
       Proof using vTrans vSucc vDescr2 vDescr rho' rho fini decP Hrho.
-      intros Hf. pose Hf as HHf. destruct HHf as [Hf1 [Hf2 [Hf3 [Hf4 [Hf5 Hf6]]]]].
+      intros Hf. pose Hf as HHf. destruct HHf as [Hf1 [_ [_ [xHf4 [Hf5 xHf6]]]]].
       induction b as [b IH] in a,c,d|-* using (well_founded_ind less_wf); intros Hb Habcd Ha Hc Hd.
       destruct (eqDec b z) as [Hbz|Hnbz].
       - destruct (f a) as [na|] eqn:Heqfa. 2: exfalso; apply (Hf1 a); easy.
@@ -530,13 +530,13 @@ Section Fsat.
           rewrite ! to_N, to_rel, ! to_deq, Hrho in vDescr2. cbn in vDescr2.
           apply vDescr2. 1-4:firstorder'. all:easy.
         + easy.
-        + rewrite <- Hf4. apply Hf6. 1: now apply Hf1. easy.
+        + rewrite <- xHf4. apply xHf6. 1: now apply Hf1. easy.
         + assert (isucc a c z) as Hsucc.
           * unfold isucc. rewrite <- Hbz at 1. now rewrite <- Hdd0.
           * destruct (f c) as [Sna|] eqn:Hfc.
             -- f_equal. symmetry. erewrite (Hf5 a c); easy.
             -- exfalso. contradict Hfc. rewrite <- Hf1. easy.
-        + symmetry. rewrite <- Hf4, Hf6. 2:congruence. now symmetry.
+        + symmetry. rewrite <- xHf4, xHf6. 2:congruence. now symmetry.
       - specialize (@vDescr a b c d). fold sat in vDescr. cbn in vDescr.
         setoid_rewrite Hrho in vDescr. cbn in vDescr.
         setoid_rewrite to_N in vDescr. cbn in vDescr.
@@ -564,6 +564,12 @@ Section Fsat.
           f_equal. symmetry. erewrite Hf5. 1: exact Hc'. all:easy.
         + assert (f d = Some nd) as -> by easy.
           f_equal. cbn in *; nia.
+      Qed.
+
+      Lemma baz k k1 k2 : isucc k1 k z -> isucc k2 k z -> k1 == k2.
+      Proof using vTrans vSucc decP Hrho fini.
+      intros H1 H2. destruct (vpSucc H1) as [HH1 HH2], (vpSucc H2) as [HH3 HH4].
+      specialize (HH2 k2). specialize (HH4 k1). apply antiSym; firstorder'.
       Qed.
 
       Definition chain_env (f:D -> option nat) : D -> nat := fun k => match f k with Some l => l | None => 0 end.
@@ -937,12 +943,37 @@ Section result.
     + exists l. exact Hlst.
     + exact H.
   Qed.
-
+Unset Mangle Names.
+Print FSAT.
   Lemma FSAT_undec : undecidable FSAT.
   Proof.
   apply (undecidability_from_reducibility H10UPC_SAT_undec).
   exists @F. exact is_reduction.
   Qed.
+
+Definition FVAL := fun phi : form =>
+forall (D : Type) (I : interp D) (rho : env D), listable D -> decidable (fun v : t D (ar_preds sPr) => i_atom v) -> rho ⊨ phi.
+
+  Lemma is_reduction2 : reduction (fun k => @F k ~> falsity) (fun l => ~ (H10UPC_SAT l)) FVAL.
+  Proof.
+  intros Hl. split.
+  - intros Hc D I rho lst tdec H. apply Hc.
+    destruct lst as [l Hlst].  destruct tdec as [f Hf].
+    apply (@F_correct Hl D I rho).
+    + intros a b. cbn. destruct (f (Vector.cons D a 1 (Vector.cons D b 0 (Vector.nil D)))) as [|] eqn:Hdec.
+      * left. now apply Hf.
+      * right. intros Hc1. apply Hf in Hc1. congruence.
+    + exists l. exact Hlst.
+    + exact H.
+  - intros Hc [rho H]. pose (@m Hl rho) as m. specialize (Hc (model m)). specialize (Hc (model_interp m)). specialize (Hc (fun _ => Num (fN le0))). apply Hc.
+    + destruct (model_fin m) as [ls Hls]. now exists ls.
+    + exists decider_of_annoying_type. unfold m. intros v. unfold decider_of_annoying_type. cbn. destruct (proj_vec2 ) as [l r]. destruct (rel_decider l r) as [Ht|Hf] eqn:Heq.
+      * unfold reflects. tauto.
+      * unfold reflects. split. 1:intros k;exfalso;apply Hf;easy. intros Hc1. congruence.
+    + apply (@valid Hl rho H).
+  Qed.
+
+
 
   Definition FSAT_frag (phi : (@form _ _ FragmentSyntax.frag_operators falsity_on)) :=
   exists D (I : Tarski.interp D) rho, listable D /\ decidable (fun v => Tarski.i_atom (P:=sPr) v) /\ @Tarski.sat _ _ D I falsity_on rho phi.
