@@ -1,19 +1,19 @@
 (* * FOL Reductions *)
 
 From Undecidability.DiophantineConstraints Require Import H10UPC H10UPC_undec.
-From Undecidability.FOL Require Import Util.Syntax Util.Deduction Util.Tarski Util.Syntax_facts.
+From Undecidability.DiophantineConstraints.Util Require Import H10UPC_facts.
+From Undecidability.FOL Require Import Util.Syntax Util.Kripke Util.Deduction Util.Tarski Util.Syntax_facts.
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
 From Coq Require Import Arith Lia List.
 From Equations Require Import Equations.
-From Undecidability.Shared.Libs.DLW.Wf Require Import wf_finite.
 Set Equations With UIP.
 
 
 (* ** Validity *)
 
 (**
-Idea: The special star (#) has the following properties:
+Idea: The relation (#) has the following properties:
 n ~ p: n is left component of p
 p ~ n: p is right component of p
 p ~ p: the special relationship of H10UPC
@@ -23,8 +23,9 @@ n ~ m: n = m. Special case n=0, m=1:
 *)
 
 
-(*Set Default Proof Using "Type".*)
+Set Default Proof Using "Type".
 Set Default Goal Selector "!".
+(** Our signature: no function, single binary relation *)
 Inductive syms_func : Type := .
 
 Instance sig_func : funcs_signature :=
@@ -37,7 +38,7 @@ Instance sig_pred : preds_signature :=
 
 Notation Pr t t' := (@atom _ sig_pred _ _ sPr (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
 
-
+(** Some utils for iteration *)
 Section Utils.
 
   Lemma it_shift (X:Type) (f:X->X) v n : it f (S n) v = it f n (f v).
@@ -47,19 +48,15 @@ Section Utils.
   - cbn. f_equal. apply IH.
   Qed.
 
-  Lemma it_add (X:Type) (f:X->X) v n m : it f n (it f m v) = it f (n+m) v.
-  Proof.
-  induction n as [|n IH].
-  - easy.
-  - cbn. f_equal. apply IH.
-  Qed.
 End Utils.
-
+(** The validity reduction.
+    We assume a generic falsity flag and a list h10 for which we build a formula.
+ *)
 Section validity.
 
   Context {ff : falsity_flag}. 
   Context {h10 : list h10upc}.
-  (* All are placed in a context where $0 is the 0 constant and $1, $2 are arbitrary but fixed *)
+  (** All are placed in a context where $0 is the 0 constant and $1, $2 are arbitrary but fixed *)
   (** We do a Friedman translation, where this represents falsity *)
   Definition wFalse t:= Pr $t $(S t).
   (** We use a stronger version of falsity, which is <-> False in our standart model, to ease writing eliminators *)
@@ -112,10 +109,11 @@ Section validity.
       The 3 variables are the zero constant and two arbitrary values which define the atomic predicate for 
       Friedman translation. *)
   Definition F := ∀ ∀ ∀ F_zero --> F_succ_left --> F_succ_right --> translate_constraints h10.
-
+  (** We now define our standard model. *)
   Section InverseTransport.
-
+    (** An element of the standard model is either a number or a pair. *)
     Inductive dom : Type := Num : nat -> dom | Pair : nat  -> nat -> dom.
+    (** The interpretation of our single binary relation *)
     Definition dom_rel (a : dom) (b:dom) : Prop := match (a,b) with
     | (Num  0, Num  1) => H10UPC_SAT h10
     | (Num n1, Num n2) => n1 = n2
@@ -130,6 +128,7 @@ Section validity.
       exact (dom_rel (Vector.hd v) (Vector.hd (Vector.tl v))).
     Defined.
 
+    (** Now we need rewrite helpers which transform our syntactic sugar into useful statements in the model *)
     Lemma IB_sFalse rho : rho ⊨ (∀ ∀ Pr $0 $1) <-> False.
     Proof.
     split.
@@ -220,6 +219,8 @@ Section validity.
     Qed.
     Opaque P.
 
+    (** We show our model fulfills axiom 1 *)
+
     Lemma IB_F_succ_left rho : rho_canon rho -> rho ⊨ F_succ_left.
     Proof.
       intros H0. unfold F_succ_left. intros n [m Hnm]%(IB_N_e (n:=n)). 2:easy. 
@@ -231,6 +232,8 @@ Section validity.
       cbn in Hc. rewrite IB_wFalse in Hc. unfold scons in Hc.
       apply Hc; split; lia.
     Qed.
+
+    (** We show we can extract constraints from our model *)
 
     Lemma IB_rel_e rho ipl ipr ia ib ic id t : rho ⊨ rel ipl ipr ia ib ic id t 
                 -> {a&{b&{c&{d|rho ipl=Pair a b
@@ -265,6 +268,8 @@ Section validity.
     intros Habcd. apply H. exists a,b,c,d. cbn in Habcd. rewrite Hpl, Hpr in Habcd. now repeat split.
     Qed.
 
+    (** We show our model fulfills axiom 2 *)
+
     Lemma IB_F_succ_right rho : rho_canon rho -> rho ⊨ F_succ_right.
     Proof.
       intros H0. unfold F_succ_right. intros p1 p2 p3 p4 p5 p6 p7 p8 a' y' c b a y x.
@@ -288,6 +293,9 @@ Section validity.
         1:firstorder;congruence. lia.
     Qed.
 
+    (** We show we can encode constraints into our model *)
+
+    (** rho_descr_phi describes that rho is defined by the solution to h10 *)
     Definition rho_descr_phi rho (φ:nat->nat) n :=
          forall k, k < n -> match rho k with Num n => n = (φ k) | _ => True end.
     Lemma IB_single_constr rho φ (n:nat) (h:h10upc) : rho_descr_phi rho φ n 
@@ -311,6 +319,7 @@ Section validity.
       assert (nd = φ d) as ->. 1: pose (@Hrhophi d) as Hp; rewrite Hd in Hp; apply Hp; lia.
       apply Habcd.
     Qed. 
+    (** Helper for working with nested quantifiers *)
 
     Lemma IB_emplace_forall rho n i : 
         (forall f, (fun k => if k <? n then f (k) else rho (k-n)) ⊨ i)
@@ -341,6 +350,7 @@ Section validity.
             assert (x-n=S(x-S n)) as ->. 1:lia. easy.
     Qed.
     Opaque emplace_forall. 
+    (** Final utility lemma: translate the entire list of constraints *)
 
     Lemma IB_translate_rec rho phi f e hv : rho_descr_phi rho phi hv 
                             -> (rho ⊨ f <-> dom_rel (rho (1+hv)) (rho (2+hv)))
@@ -360,6 +370,7 @@ Section validity.
         * easy.
         * intros Hsem. rewrite <- Hsat. apply H. intros c [il|ir]. 2:now apply HH. congruence.
     Qed.
+    (** We can now extract the constraints from our translate_constraints function*)
 
     Lemma IB_aux_transport rho : rho 0 = Num 0
                               -> rho 1 = Num 0
@@ -387,6 +398,7 @@ Section validity.
         rewrite Hrho1, Hrho2. cbn. exists phi. easy.
     Qed.
 
+    (** To conclude, we can wrap the axioms around it.*)
     Lemma IB_fulfills rho : rho ⊨ F -> H10UPC_SAT h10.
     Proof.
       intros H. unfold F in H. pose (Num 0 .: Num 0 .: Num 1 .: rho) as nrho.
@@ -402,6 +414,7 @@ Section validity.
     Qed.
   End InverseTransport.
 
+  (** If F is valid, h10 has a solution: *)
   Lemma inverseTransport : valid F -> H10UPC_SAT h10.
   Proof.
     intros H. apply (@IB_fulfills (fun b => Num 0)). apply H.
@@ -409,7 +422,9 @@ Section validity.
 
 End validity.
 
+(** Next is provability. Here we prove that if h10, our H10UPC_SAT instace, has a solution, F is provable.*)
 Section provability.
+  (** Again, assume a falsity flag and a problem instance. *)
   Context {ff : falsity_flag}. 
   Context {h10 : list h10upc}.
   Section ProvabilityTransport.
@@ -425,6 +440,7 @@ Section provability.
     apply Compare_dec.le_dec.
     Defined. 
 
+    (** Some useful tactics for manipulating proof contexts. *)
 
     Ltac var_eq := cbn; f_equal; lia.
     Ltac var_cbn := repeat (unfold up,scons,funcomp; cbn).
@@ -434,6 +450,7 @@ Section provability.
 
 
 
+    (** Helper for working with nested forall quantifiers. *)
     Lemma emplace_forall_subst (n:nat) (i:form) sigma : (emplace_forall n i)[sigma] = 
           emplace_forall n (i[it up n sigma]).
     Proof.
@@ -472,11 +489,14 @@ Section provability.
         rewrite IH. do 2 destruct (Dec _). 2,3: exfalso;lia. all:var_eq.
     Qed.
 
+    (** We define the notion of a chain.
+        A chain contains the de Brujin indices at which chain entries are present. *)
     Inductive chain : nat -> Type := chainZ : chain 0
                                    | chainS : forall (h:nat) (n pl pr:nat), chain h -> chain (S h).
     Definition height h (c:chain h) := h.
 
     Derive Signature for chain.
+    (** We need to show some "uniqueness" lemmas for our chain, so we need an inversion lemma *)
     Lemma chain_inversion n (c:chain n) : (match n return chain n -> Type 
                                                    with 0 => fun cc => cc = chainZ | 
                                                         S nn => fun cc' => {'(n,pl,ph,cc) & cc' = chainS n pl ph cc} 
@@ -484,6 +504,7 @@ Section provability.
     Proof.
     destruct c as [|m n pl pr c]. 1:easy. exists (n,pl,pr,c). easy.
     Qed.
+    (** More functions on chains: chainData gets the data for some index, find* is an easier accessor *)
     Fixpoint chainData (h:nat) (c:chain h) (a:nat) := match c with
         chainZ => (0,0,0)
       | chainS n pl pr cc => if Dec (h=a) then (n,pl,pr) else chainData cc a end.
@@ -507,6 +528,7 @@ Section provability.
     (intros_defs a b c e f g ++ A)  ⊢I i -> (A ⊢I P a b c (P e f g i)).
     Proof. intros H. do 10 apply II. exact H. Qed.
 
+    (** Properties about our chain: numbers are N, pl and pr are in relation *)
     Lemma chain_proves_N (h:nat) (c:chain h) (i:nat) : i <= h -> In (N (findNum c i)) (chain_exists c).
     Proof.
     intros H. induction c as [|h n pl pr cc IH].
@@ -525,6 +547,7 @@ Section provability.
       + do 8 right. unfold findPairLow, findPairHigh, chainData. rewrite Heq. apply IH. lia.
     Qed.
 
+    (** Chains up to h can be lowered to chains up to l for l <= h *)
     Lemma chain_lower (l:nat)  (h:nat) (c:chain h): l > 0 -> l <= h -> {cc : chain l & forall k, k <= l -> chainData c k = chainData cc k}.
     Proof.
     intros Hl Hh. revert c. assert (h=(h-l)+l) as -> by lia. generalize (h-l).
@@ -538,6 +561,7 @@ Section provability.
       + apply Hcc'. lia.
     Qed.
 
+    (** Chains are extensional, defined only by their data *)
     Lemma chain_data_unique (h:nat) (c1 c2 : chain h) : (forall k, k <= h -> chainData c1 k = chainData c2 k) -> c1 = c2.
     Proof.
     intros Heq. induction c1 as [|h n pl pr cc IHcc].
@@ -551,6 +575,7 @@ Section provability.
         destruct (Dec (S h = k)) as [Ht|Hf]; [lia|easy].
     Qed.
 
+    (** Lowering a chain preserves the hypotheses *)
     Lemma chain_exists_lower (l h :nat) (cl:chain l) (ch:chain h) : l<=h -> (forall k, k <= l -> chainData cl k = chainData ch k) 
                                                                          -> incl (chain_exists cl) (chain_exists ch).
     Proof.
@@ -563,6 +588,7 @@ Section provability.
       destruct (Dec (S dh + l =k)) as [Ht|Hf]; [lia|easy].
     Qed.
 
+    (** Chain hypotheses prove all needed lemmata *)
     Lemma chain_proves_P_Low (h:nat) (c:chain h) (i:nat) A f : h > 0 -> i < h -> incl (chain_exists c) A 
                                                             -> A ⊢I P (findPairLow c (S i)) (findNum c i) 0 f -> A ⊢I f.
     Proof.
@@ -613,6 +639,7 @@ Section provability.
     Qed.
 
 
+    (** Helper definition erel_i, along with utility lemmata. *)
     Definition erel_i (a b c d t : nat) := (∀ ∀ P 0 (2+a) (2+b) 
                                                (P 1 (2+c) (2+d)
                                                  (Pr $0 $1 --> wFalse (2+t)))).
@@ -685,6 +712,7 @@ Section provability.
         * apply AllE, Ctx. now left.
     Qed.
 
+    (** We can create a chain up to an arbitrary index *)
     Lemma construct_chain_at (h:nat) HH : (h>0)
     -> incl (F_succ_right :: F_succ_left :: F_zero :: nil) HH
     -> (forall c:chain h, (chain_exists c ++  HH) ⊢I wFalse 1)
@@ -732,6 +760,7 @@ Section provability.
           in find 11.
     Qed.
       
+    (** Our chain can prove a single constraint *)
     Lemma prove_single (a b c d h: nat) (cc:chain h): 
        b <= h -> a <= h -> c <= h -> d <= h
     -> h10upc_sem_direct ((a,b),(c,d))
@@ -788,6 +817,7 @@ Section provability.
     Qed.
 
 
+    (** This allows us to conclude *)
     Lemma transport_prove : nil ⊢I F (h10:=h10).
     Proof using Hφ φ.
     unfold F. do 3 apply AllI. cbn. do 4 apply II. 
@@ -837,12 +867,14 @@ Section provability.
   End ProvabilityTransport.
 
 
+  (** Final reduction transport *)
   Lemma proofTransport : H10UPC_SAT h10 -> nil ⊢I F (h10:=h10).
   Proof.
   intros [φ Hφ]. eapply transport_prove. exact Hφ.
   Qed.
 
 
+  (** Reduction transport for validity, now just a special case of the above *)
   Lemma transport' : H10UPC_SAT h10 -> valid (F (h10:=h10)).
   Proof.
     intros Hh10.
@@ -853,6 +885,7 @@ Section provability.
   Qed.
 
 
+  (** Inverse transport, uses standard model from before *)
   Lemma inverseProofTransport : nil ⊢I F (h10:=h10) -> H10UPC_SAT h10.
   Proof.
   intros H%soundness. apply inverseTransport. intros D I rho.
@@ -860,6 +893,7 @@ Section provability.
   Qed.
 End provability.
 
+(** We also have Kripke validity *)
 Section kripke_validity.
   Context {ff : falsity_flag}. 
   Context {h10 : list h10upc}.
@@ -879,6 +913,7 @@ Section kripke_validity.
   Qed.
 End kripke_validity.
 
+(** We have satisfiability, if we re-introduce negations *)
 Section satisfiability.
   Context {h10 : list h10upc}.
 
@@ -894,10 +929,11 @@ Section satisfiability.
   Lemma satisInverseTransport : satis ((F (ff:=falsity_on) (h10:=h10)) --> falsity) -> (~ H10UPC_SAT h10).
   Proof.
   intros [D [I [rho HF]]] H.
-  apply HF, (transport (ff:=falsity_on) H).
+  apply HF, (transport' (ff:=falsity_on) H).
   Qed.
 End satisfiability.
 
+(** Similarly, we have Kripke satisfiability *)
 Section ksatisfiability.
   Context {h10 : list h10upc}.
 
@@ -921,5 +957,67 @@ Section ksatisfiability.
   - apply (kripkeTransport (ff:=falsity_on) H).
   Qed.
 End ksatisfiability.
+
+Require Import Undecidability.Synthetic.Definitions.
+
+(** Final collection of undecidability results *)
+Section undecResults.
+
+  Definition minimalSignature (f:funcs_signature) (p:preds_signature) : Prop := 
+    match f,p with
+     {|syms := F; ar_syms := aF|},{|preds := P; ar_preds := aP|}
+       => (F -> False) /\ exists pp : P, aP pp = 2
+    end.
+
+  Lemma sig_is_minimal : minimalSignature sig_func sig_pred.
+  Proof.
+  split.
+  * intros [].
+  * now exists sPr.
+  Qed.
+
+  Definition reductionToMinimal (f:falsity_flag) {X:Type} (H:X -> Prop) (P:@form sig_func sig_pred frag_operators f -> Prop) := 
+   H ⪯ P.
+
+  Theorem validReduction : reductionToMinimal (f:=falsity_off) H10UPC_SAT valid.
+  Proof.
+  exists (fun l => @F falsity_off l). split.
+  * apply transport'.
+  * apply inverseTransport.
+  Qed.
+
+  Theorem satisReduction : reductionToMinimal (f:=falsity_on) (fun l => ~ H10UPC_SAT l) satis.
+  Proof.
+  exists (fun l => @F falsity_on l --> falsity). split.
+  * apply satisTransport.
+  * apply satisInverseTransport.
+  Qed.
+
+  Definition provable (k:form) := nil ⊢M k.
+
+  Theorem proveReduction : reductionToMinimal (f:=falsity_off) H10UPC_SAT provable.
+  Proof.
+  exists (fun l => @F falsity_off l). split.
+  * apply proofTransport.
+  * apply inverseProofTransport.
+  Qed.
+
+  Theorem kripkeValidReduction : reductionToMinimal (f:=falsity_off) H10UPC_SAT kvalid.
+  Proof.
+  exists (fun l => @F falsity_off l). split.
+  * apply kripkeTransport.
+  * apply kripkeInverseTransport.
+  Qed.
+
+  Theorem kripkeSatisReduction : reductionToMinimal (f:=falsity_on) (fun l => ~ H10UPC_SAT l) ksatis.
+  Proof.
+  exists (fun l => @F falsity_on l --> falsity). split.
+  * apply ksatisTransport.
+  * apply ksatisInverseTransport.
+  Qed.
+
+
+End undecResults.
+
 
 

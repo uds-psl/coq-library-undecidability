@@ -4,6 +4,9 @@
 COQDOCFLAGS = "--charset utf-8 -s --with-header ../website/resources/header.html --with-footer ../website/resources/footer.html --index indexpage"
 
 # coqdoc files
+FOL/Reductions/H10UPC_to_FOL.v
+FOL/Reductions/H10UPC_to_FSAT.v
+FOL/Util/DoubleNegation.v
 
 PCP/PCP.v
 PCP/Reductions/HaltTM_1_to_PCP.v
@@ -19,7 +22,7 @@ FRACTRAN/FRACTRAN_undec.v
 DiophantineConstraints/H10C.v
 DiophantineConstraints/H10C_undec.v
 DiophantineConstraints/H10UPC.v
-DiophantineConstraints/Utils/H10UPC_facts.v
+DiophantineConstraints/Util/H10UPC_facts.v
 DiophantineConstraints/H10UPC_undec.v
 
 CounterMachines/CM1.v
@@ -252,7 +255,6 @@ FOL/Util/ZF_model.v
 FOL/Util/FA_facts.v
 FOL/Util/sig_bin.v
 FOL/Util/Hoas.v
-FOL/Util/DoubleNegation.v
 
 FOL/Reductions/PCPb_to_FOL.v
 FOL/Reductions/PCPb_to_FOL_intu.v
@@ -264,9 +266,7 @@ FOL/Reductions/PCPb_to_minZFeq.v
 FOL/Reductions/PCPb_to_binZF.v
 FOL/Reductions/PCPb_to_ZFeq.v
 FOL/Reductions/H10p_to_FA.v
-FOL/Reductions/H10UPC_to_FOL.v
-FOL/Reductions/H10UPC_to_FSAT.v
-FOL/Reductions/H10UPC_to_FSAT_real.v
+FOL/Reductions/H10UPC_to_FOL_minimal.v
 
 FOL/Reductions/FSATd_to_FSATdc.v
 FOL/Reductions/TRAKHTENBROT_to_FSAT.v

@@ -15,7 +15,7 @@ Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 Set Mangle Names.
 Inductive syms_func : Type := .
-
+(** Double negation translation. Valid for e.g. FSAT *)
 Section translation. 
   Import Syntax.FragmentSyntax.
   Existing Instance FragmentSyntax.frag_operators.
@@ -26,6 +26,7 @@ Section translation.
   Notation "phi '-->' psi" := (@bin _ _ frag_operators falsity_on Impl phi psi) (at level 43, right associativity).
   
 
+  (** We try to be clever and translate using as few unnecessary negations as possible *)
   Fixpoint translate_form {f:falsity_flag} (phi : (@form _ _ full_operators f)) {struct phi} : 
     (@form _ _ FragmentSyntax.frag_operators falsity_on) := 
   match phi with 
@@ -76,6 +77,7 @@ Section translation.
   Context {D:Type}.
   Context {I : interp D}.
 
+  (** Define interpretations for full and frag syntax, which are equivalent. *)
   Definition tarski_full_tarski_interp (II:interp D) : FullTarski.interp D.
   Proof.
   destruct II; split; easy.
@@ -95,6 +97,7 @@ Section translation.
   Notation "rho ⊨ phi" := (@sat _ _ D I falsity_on rho phi).
   Notation "rho 'f⊨' phi" := (@FullTarski.sat _ _ D (tarski_full_tarski_interp I) _ rho phi) (at level 20).
 
+  (** Terms are evaluated to equal results *)
   Lemma eval_same env trm : eval env trm = @FullTarski.eval _ _ D (tarski_full_tarski_interp I) env trm.
   Proof.
   induction trm as [n|k v IH].
@@ -117,6 +120,7 @@ Section translation.
 
   Ltac recsplit n := let rec f n := match n with 0 => idtac | S ?nn => split; [idtac|f nn] end in f n.
 
+  (** Show correctness by induction. *)
   Lemma correct (f:falsity_flag) rho (phi : (@form _ _ full_operators f)) : 
      (rho ⊨ translate_form phi <-> rho f⊨ phi)
   /\ (rho ⊨ translate_negated phi <-> ~ (rho f⊨ phi))
