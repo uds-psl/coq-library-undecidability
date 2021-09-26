@@ -32,6 +32,12 @@ Definition listable X :=
 Definition FSAT (phi : form) :=
   exists D (I : interp D) rho, listable D /\ decidable (fun v => i_atom (P:=tt) v) /\ rho ⊨ phi.
 
+(* Validity in a finite and decidable model *)
+
+Definition FVAL (phi : form) :=
+  forall D (I : interp D) rho, listable D /\ decidable (fun v => i_atom (P:=tt) v) -> rho ⊨ phi.
+
+
 (* Satisfiability in a discrete, finite, and decidable model *)
 
 Definition FSATd (phi : form) :=

@@ -13,7 +13,7 @@ Set Equations With UIP.
 
 (** Utils for H10UPC *)
 
-(** This section contains useful functions and lemmas for proofs later on *)
+(** This section contains useful functions and lemmas for proofs later on. *)
 Section Utils.
 
   (** In the relation h10upc_sem_direct ((a,b),(c,d)), d is a function of b. *)
@@ -91,7 +91,9 @@ Section Utils.
 
 End Utils.
 
-(** This section contains an alternative characterization of h10upc_sem_direct and some meta-theory *)
+(** This section contains an alternative characterization of h10upc_sem_direct and some meta-theory.
+    h10upc_sem_direct is the equational characterization of the H10UPC relation.
+    h10upc_ind is presented as an alternative, inductive characterization of that relation. *)
 Section InductiveCharacterization.
 
   (** Characterizing equations for h10upc_sem_direct *)

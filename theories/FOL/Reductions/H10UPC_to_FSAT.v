@@ -1,7 +1,7 @@
 (* * FOL Reductions *)
 Require Import Vector.
 From Undecidability.DiophantineConstraints Require Import H10UPC Util.H10UPC_facts H10UPC_undec.
-From Undecidability.FOL Require Import Util.Syntax Util.FullDeduction Util.FullTarski Util.Syntax Util.Syntax_facts Util.FullTarski_facts.
+From Undecidability.FOL Require Import Util.Syntax Util.FullDeduction Util.FullTarski Util.Syntax Util.Syntax_facts Util.FullTarski_facts Util.sig_bin.
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
 From Coq Require Import Arith Lia List.
@@ -16,16 +16,12 @@ Require Export Setoid.
 Require Export Relation_Definitions.
 Set Equations With UIP.
 
-(* ** Validity *)
-
 (**
 Idea: The single relation (#) has the following properties:
 n ~ p: n is left component of p
 p ~ n: p is right component of p
 p ~ p: the special relationship of H10UPC
-n ~ m: n <= m. Special case n=0, m=1: 
-          The instance h10 of H10UPC is a yes-instance.
-          This is to facilitate Friedman translation
+n ~ m: n <= m. 
 *)
 
 
@@ -35,16 +31,12 @@ Set Mangle Names.
 
 (** Define our signature. No function, single binary relation *)
 
-Inductive syms_func : Type := .
 
-Instance sig_func : funcs_signature :=
-  {| syms := syms_func; ar_syms := fun f => match f with end|}.
+Existing Instance sig_empty.
+Existing Instance sig_binary.
 
-Inductive syms_pred := sPr.
 
-Instance sig_pred : preds_signature :=
-  {| preds := syms_pred; ar_preds := fun P => 2 |}.
-Notation "t ## t'" := (@atom _ sig_pred _ _ sPr (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))) (at level 30).
+Notation "t ## t'" := (@atom _ sig_binary _ _ tt (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))) (at level 30).
 Definition Pr t t' := t ## t'.
 Derive Signature for t.
 (** Some utils we will need *)
@@ -139,7 +131,7 @@ Section Fsat.
     Context (decP : forall a b, dec ((a .: b.: rho) ⊨ Pr $0 $1)).
     Context (fini : finite D).
     
-    Notation iPr t t' := (@i_atom sig_func sig_pred D _ sPr (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
+    Notation iPr t t' := (@i_atom sig_empty sig_binary D _ tt (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
     Notation "a # b" := (iPr a b) (at level 50).
     (** First, we re-state our syntactic sugar and prove conversion helpers *)
     Definition iN a := a # a.
@@ -872,7 +864,7 @@ Section Fsat.
   - cbn. destruct la,ra,lb,rb. apply and_dec; unfold dec; decide equality.
   Qed.
 
-  Lemma decider_of_annoying_type : t (model m) (ar_preds sPr) -> bool.
+  Lemma decider_of_annoying_type : t (model m) (ar_preds tt) -> bool.
   Proof.
   intros [x y]%proj_vec2.
   destruct (rel_decider x y ) as [Hl|Hr].
@@ -889,13 +881,8 @@ End Fsat.
 (** Collect the undecidability results *)
 Section result.
 
-  Definition FSAT (phi : form) :=
-  exists D (I : interp D) rho, listable D /\ decidable (fun v => i_atom (P:=sPr) v) /\ rho ⊨ phi.
-
-  
-
   (** F is a reduction function *)
-  Lemma is_reduction : reduction (@F) H10UPC_SAT FSAT.
+  Lemma fsat_reduction : reduction (@F) H10UPC_SAT FSAT.
   Proof.
   intros Hl. split.
   - intros [rho H]. pose (@m Hl rho) as m. exists (model m). exists (model_interp m). exists (fun _ => Num (fN le0)). split. 2:split.
@@ -912,23 +899,12 @@ Section result.
     + exists l. exact Hlst.
     + exact H.
   Qed.
-Unset Mangle Names.
 
   (** FSAT on the small signature is undecidable *)
-  Lemma FSAT_undec : undecidable FSAT.
-  Proof.
-  apply (undecidability_from_reducibility H10UPC_SAT_undec).
-  exists @F. exact is_reduction.
-  Qed.
-
-  Definition FVAL := fun phi : form =>
-  forall (D : Type) (I : interp D) (rho : env D), listable D -> decidable (fun v : t D (ar_preds sPr) => i_atom v) -> rho ⊨ phi.
-
-  (** FSAT on the small signature is undecidable *)
-  Lemma is_reduction2 : reduction (fun k => @F k ~> falsity) (fun l => ~ (H10UPC_SAT l)) FVAL.
+  Lemma fval_reduction : reduction (fun k => @F k ~> falsity) (fun l => ~ (H10UPC_SAT l)) FVAL.
   Proof.
   intros Hl. split.
-  - intros Hc D I rho lst tdec H. apply Hc.
+  - intros Hc D I rho [lst tdec] H. apply Hc.
     destruct lst as [l Hlst].  destruct tdec as [f Hf].
     apply (@F_correct Hl D I rho).
     + intros a b. cbn. destruct (f (Vector.cons D a 1 (Vector.cons D b 0 (Vector.nil D)))) as [|] eqn:Hdec.
@@ -937,18 +913,21 @@ Unset Mangle Names.
     + exists l. exact Hlst.
     + exact H.
   - intros Hc [rho H]. pose (@m Hl rho) as m. specialize (Hc (model m)). specialize (Hc (model_interp m)). specialize (Hc (fun _ => Num (fN le0))). apply Hc.
-    + destruct (model_fin m) as [ls Hls]. now exists ls.
-    + exists decider_of_annoying_type. unfold m. intros v. unfold decider_of_annoying_type. cbn. destruct (proj_vec2 ) as [l r]. destruct (rel_decider l r) as [Ht|Hf] eqn:Heq.
+    + destruct (model_fin m) as [ls Hls]. split. 1: now exists ls.
+      exists decider_of_annoying_type. unfold m. intros v. unfold decider_of_annoying_type. cbn. destruct (proj_vec2 ) as [l r]. destruct (rel_decider l r) as [Ht|Hf] eqn:Heq.
       * unfold reflects. tauto.
       * unfold reflects. split. 1:intros k;exfalso;apply Hf;easy. intros Hc1. congruence.
     + apply (@valid Hl rho H).
   Qed.
 
-
-
   (** Reduction into fragment syntax. Step 1: define FSAT for fragment syntax *)
   Definition FSAT_frag (phi : (@form _ _ FragmentSyntax.frag_operators falsity_on)) :=
-  exists D (I : Tarski.interp D) rho, listable D /\ decidable (fun v => Tarski.i_atom (P:=sPr) v) /\ @Tarski.sat _ _ D I falsity_on rho phi.
+  exists D (I : Tarski.interp D) rho, listable D /\ decidable (fun v => Tarski.i_atom (P:=tt) v) /\ @Tarski.sat _ _ D I falsity_on rho phi.
+
+  (** Also define FVAL for fragment syntax *)
+  Definition FVAL_frag (phi : (@form _ _ FragmentSyntax.frag_operators falsity_on)) :=
+  forall D (I : Tarski.interp D) rho, listable D /\ decidable (fun v => Tarski.i_atom (P:=tt) v) -> @Tarski.sat _ _ D I falsity_on rho phi.
+
 
   (** Show satisfaction decidable for fixed model *)
   Lemma general_decider D (I:interp D) (ff:falsity_flag) (e : env D) f : finite D -> (forall (ff:falsity_flag) p v ee, dec (ee ⊨ atom p v)) -> dec (e ⊨ f).
@@ -965,9 +944,8 @@ Unset Mangle Names.
   Qed.
 
 
-
   (** Reduce from FSAT to FSAT_frag using double negation translation. *)
-  Definition frag_reduction : reduction (translate_form) FSAT FSAT_frag.
+  Definition frag_reduction_fsat : reduction (translate_form) FSAT FSAT_frag.
   Proof.
   intros f. split.
   - intros [D [I [rho [Hl [Hd Hsat]]]]]. exists D. exists (full_tarski_tarski_interp I). exists rho. split. 2:split.
@@ -991,16 +969,35 @@ Unset Mangle Names.
         ++ left. unfold decider,reflects in Hf. rewrite <- Hf in Heq. rewrite <- eval_same_atom. exact Heq.
         ++ right. unfold decider,reflects in Hf. rewrite <- eval_same_atom, Hf. cbn in Heq. congruence.
   Qed.
-        
 
 
-  (** FSAT is undecidable over minimal fragment and signature. *)
-  Lemma FSAT_frag_undec : undecidable FSAT_frag.
+  (** Reduce from FVAL to FVAL_frag using double negation translation. *)
+  Definition frag_reduction_fval : reduction (translate_form) FVAL FVAL_frag.
   Proof.
-  apply (undecidability_from_reducibility FSAT_undec).
-  eexists. apply frag_reduction.
+  intros f. split.
+  - intros Hval D I rho [Hl Hd]. specialize (@Hval D (tarski_full_tarski_interp I) rho).
+    destruct Hl as [ll Hll]. destruct Hd as [df Hf]. 
+    edestruct (@DoubleNegation.correct _ _ D I) as [HH [HH2 [HH3 HH4]]].
+    + intros ff fm e. apply general_decider.
+      * now exists ll.
+      * intros ff' [] t ee. cbn. destruct (df (Vector.map (@eval _ _ _ (tarski_full_tarski_interp I) ee) t)) eqn:Heq.
+        ++ left. unfold decider,reflects in Hf. rewrite <- Hf in Heq. rewrite <- eval_same_atom. exact Heq.
+        ++ right. unfold decider,reflects in Hf. rewrite <- eval_same_atom, Hf. cbn in Heq. congruence.
+    + rewrite HH. apply Hval. split. 1: now exists ll.
+      setoid_rewrite <- eval_same_atom. now exists df.
+  - intros Hval D I rho [Hl Hd]. specialize (@Hval D (full_tarski_tarski_interp I) rho).
+    destruct Hl as [ll Hll]. destruct Hd as [df Hf]. 
+    enough (forall (ff:falsity_flag) f e, dec (@sat _ _ _ (tarski_full_tarski_interp (full_tarski_tarski_interp I)) ff e f)) as HH.
+    + edestruct (@DoubleNegation.correct _ _ D (full_tarski_tarski_interp I) HH _ rho f) as [HH2 _].
+      rewrite  (full_interp_inverse_1 I) in HH2. rewrite <- HH2. apply Hval. split.
+      * now exists ll.
+      * exists df. setoid_rewrite eval_same_atom. intros k. rewrite (full_interp_inverse_1 I). apply Hf.
+    + intros ff fm e. apply general_decider.
+      * now exists ll.
+      * intros ff' [] t ee. cbn. destruct (df (Vector.map (eval ee) t)) eqn:Heq.
+        ++ left. unfold decider,reflects in Hf. rewrite (full_interp_inverse_1 I), Hf. easy.
+        ++ right. unfold decider,reflects in Hf. rewrite (full_interp_inverse_1 I), Hf. cbn in Heq. congruence.
   Qed.
-
 
 End result.
 

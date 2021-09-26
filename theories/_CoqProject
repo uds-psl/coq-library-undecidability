@@ -7,6 +7,7 @@ COQDOCFLAGS = "--charset utf-8 -s --with-header ../website/resources/header.html
 FOL/Reductions/H10UPC_to_FOL.v
 FOL/Reductions/H10UPC_to_FSAT.v
 FOL/Util/DoubleNegation.v
+FOL/minFOL_undec.v
 
 PCP/PCP.v
 PCP/Reductions/HaltTM_1_to_PCP.v

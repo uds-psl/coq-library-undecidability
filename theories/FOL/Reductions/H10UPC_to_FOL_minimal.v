@@ -2,7 +2,7 @@
 
 From Undecidability.DiophantineConstraints Require Import H10UPC H10UPC_undec.
 From Undecidability.DiophantineConstraints.Util Require Import H10UPC_facts.
-From Undecidability.FOL Require Import Util.Syntax Util.Kripke Util.Deduction Util.Tarski Util.Syntax_facts.
+From Undecidability.FOL Require Import Util.Syntax Util.Kripke Util.Deduction Util.Tarski Util.Syntax_facts Util.sig_bin.
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
 From Coq Require Import Arith Lia List.
@@ -13,30 +13,21 @@ Set Equations With UIP.
 (* ** Validity *)
 
 (**
-Idea: The relation (#) has the following properties:
-n ~ p: n is left component of p
-p ~ n: p is right component of p
-p ~ p: the special relationship of H10UPC
-n ~ m: n = m. Special case n=0, m=1: 
-          The instance h10 of H10UPC is a yes-instance.
-          This is to facilitate Friedman translation
+Idea: The relation (#) has the following properties:<ul>
+<li>n ~ p: n is left component of p</li>
+<li>p ~ n: p is right component of p</li>
+<li>p ~ p: the special relationship of H10UPC</li>
+<li>n ~ m: n = m. Special case n=0, m=1: <br />
+          The instance h10 of H10UPC is a yes-instance. <br />
+          This is to facilitate Friedman translation</li>
 *)
 
 
 Set Default Proof Using "Type".
 Set Default Goal Selector "!".
-(** Our signature: no function, single binary relation *)
-Inductive syms_func : Type := .
 
-Instance sig_func : funcs_signature :=
-  {| syms := syms_func; ar_syms := fun f => match f with end|}.
 
-Inductive syms_pred := sPr.
-
-Instance sig_pred : preds_signature :=
-  {| preds := syms_pred; ar_preds := fun P => 2 |}.
-
-Notation Pr t t' := (@atom _ sig_pred _ _ sPr (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
+Notation Pr t t' := (@atom _ sig_binary _ _ tt (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
 
 (** Some utils for iteration *)
 Section Utils.
@@ -56,22 +47,22 @@ Section validity.
 
   Context {ff : falsity_flag}. 
   Context {h10 : list h10upc}.
-  (** All are placed in a context where $0 is the 0 constant and $1, $2 are arbitrary but fixed *)
-  (** We do a Friedman translation, where this represents falsity *)
+  (** All are placed in a context where #&dollar;#0 is the 0 constant and #&dollar;#1, #&dollar;#2 are arbitrary but fixed. *)
+  (** We do a Friedman translation, where this represents falsity. *)
   Definition wFalse t:= Pr $t $(S t).
-  (** We use a stronger version of falsity, which is <-> False in our standart model, to ease writing eliminators *)
+  (** We use a stronger version of falsity, which is <-> False in our standart model, to ease writing eliminators. *)
   Definition sFalse := ∀ ∀ Pr $0 $1.
   (** Friedman not *)
   Definition Not k t := k --> wFalse t.
-  (** $k is a number *)
+  (** #&dollar;#k is a number *)
   Definition N k := Pr $k $k.
-  (** $k is a pair *)
+  (** #&dollar;#k is a pair *)
   Definition P' k := (N k) --> sFalse.
-  (** If $k is a pair ($l,$r), where $l, $r are numbers, then t. *)
+  (** If #&dollar;#k is a pair ($l,$r), where $l, $r are numbers, then t. *)
   Definition P k l r c := P' k --> N l --> N r --> Pr $l $k --> Pr $k $r --> c.
-  (** if the pairs $pl = ($a,$b), $pr = ($c,$d) are in relation, then t *)
+  (** if the pairs #&dollar;#pl = (#&dollar;#a,#&dollar;#b), #&dollar;#pr = (#&dollar;#c,#&dollar;#d) are in relation, then t *)
   Definition rel pl pr a b c d t := P pl a b (P pr c d (Pr $pl $pr --> t)).
-  (** There exist (Friedman translated) pairs relating ($a,$b) to ($c,$d) *)
+  (** There exist (Friedman translated) pairs relating (#&dollar;#a,#&dollar;#b) to (#&dollar;#c,#&dollar;#d) *)
   Definition erel a b c d t := Not (∀ ∀ P 0 (2+a) (2+b) 
                                         (P 1 (2+c) (2+d)  
                                          (Pr $0 $1 --> wFalse (2+t)))) t.
@@ -913,6 +904,24 @@ Section kripke_validity.
   Qed.
 End kripke_validity.
 
+(** We also have classical provability, assuming LEM *)
+Section classical_provability.
+  Context {ff : falsity_flag}. 
+  Context {h10 : list h10upc}.
+  Context (LEM : forall P:Prop, P \/ ~P).
+
+  Lemma classicalProvabilityTransport : H10UPC_SAT h10 -> nil ⊢C F (h10:=h10).
+  Proof using LEM.
+  intros [φ Hφ]. apply intuitionistic_is_classical. eapply transport_prove. exact Hφ.
+  Qed.
+
+  Lemma classicalProvabilityInverseTransport : nil ⊢C F (h10:=h10) -> H10UPC_SAT h10.
+  Proof using LEM.
+  intros H%(classical_soundness LEM). apply inverseTransport. intros D I rho.
+  apply H. easy.
+  Qed.
+End classical_provability.
+
 (** We have satisfiability, if we re-introduce negations *)
 Section satisfiability.
   Context {h10 : list h10upc}.
@@ -958,9 +967,9 @@ Section ksatisfiability.
   Qed.
 End ksatisfiability.
 
-Require Import Undecidability.Synthetic.Definitions.
+Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
 
-(** Final collection of undecidability results *)
+(** Final collection of undecidability reductions *)
 Section undecResults.
 
   Definition minimalSignature (f:funcs_signature) (p:preds_signature) : Prop := 
@@ -969,14 +978,14 @@ Section undecResults.
        => (F -> False) /\ exists pp : P, aP pp = 2
     end.
 
-  Lemma sig_is_minimal : minimalSignature sig_func sig_pred.
+  Lemma sig_is_minimal : minimalSignature sig_empty sig_binary.
   Proof.
   split.
   * intros [].
-  * now exists sPr.
+  * now exists tt.
   Qed.
 
-  Definition reductionToMinimal (f:falsity_flag) {X:Type} (H:X -> Prop) (P:@form sig_func sig_pred frag_operators f -> Prop) := 
+  Definition reductionToMinimal (f:falsity_flag) {X:Type} (H:X -> Prop) (P:@form sig_empty sig_binary frag_operators f -> Prop) := 
    H ⪯ P.
 
   Theorem validReduction : reductionToMinimal (f:=falsity_off) H10UPC_SAT valid.
@@ -993,13 +1002,19 @@ Section undecResults.
   * apply satisInverseTransport.
   Qed.
 
-  Definition provable (k:form) := nil ⊢M k.
-
-  Theorem proveReduction : reductionToMinimal (f:=falsity_off) H10UPC_SAT provable.
+  Theorem proveReduction : reductionToMinimal (f:=falsity_off) H10UPC_SAT (fun k => nil ⊢M k).
   Proof.
   exists (fun l => @F falsity_off l). split.
   * apply proofTransport.
   * apply inverseProofTransport.
+  Qed.
+
+  Theorem classicalProveReduction (LEM : forall P:Prop, P \/ ~P) :
+    reductionToMinimal (f:=falsity_off) H10UPC_SAT (fun k => nil ⊢C k).
+  Proof.
+  exists (fun l => @F falsity_off l). split.
+  * apply classicalProvabilityTransport, LEM.
+  * apply classicalProvabilityInverseTransport, LEM.
   Qed.
 
   Theorem kripkeValidReduction : reductionToMinimal (f:=falsity_off) H10UPC_SAT kvalid.
@@ -1016,8 +1031,8 @@ Section undecResults.
   * apply ksatisInverseTransport.
   Qed.
 
-
 End undecResults.
+
 
 
 
