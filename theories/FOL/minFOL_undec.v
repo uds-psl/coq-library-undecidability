@@ -5,7 +5,7 @@ From Undecidability.FOL.Reductions Require H10UPC_to_FOL_minimal H10UPC_to_FSAT.
 From Undecidability.Synthetic Require Import Definitions Undecidability.
 
 Definition minimalForm (ff:falsity_flag) := @form sig_empty sig_binary FragmentSyntax.frag_operators ff.
-Definition compl {X:Type} (P:X->Prop) (x:X) := ~ P x.
+
 
 Section general.
   Import H10UPC_to_FOL_minimal Tarski Deduction Kripke.
@@ -37,12 +37,12 @@ Section general.
     apply classicalProveReduction, LEM.
   Qed.
 
-  Lemma minSatisfiabilityReduc : (compl H10UPC_SAT) ⪯  (fun k : minimalForm falsity_on => satis k).
+  Lemma minSatisfiabilityReduc : (complement H10UPC_SAT) ⪯  (fun k : minimalForm falsity_on => satis k).
   Proof.
     apply satisReduction.
   Qed.
 
-  Lemma minKripkeSatisfiabilityReduc : (compl H10UPC_SAT) ⪯  (fun k : minimalForm falsity_on => ksatis k).
+  Lemma minKripkeSatisfiabilityReduc : (complement H10UPC_SAT) ⪯  (fun k : minimalForm falsity_on => ksatis k).
   Proof.
     apply kripkeSatisReduction.
   Qed.
@@ -54,11 +54,15 @@ Section finite.
   Import H10UPC_to_FSAT.
   (** Reduction into fragment syntax. Step 1: define FSAT for fragment syntax *)
   Definition FSAT_frag (phi : minimalForm falsity_on) :=
-  exists D (I : Tarski.interp D) rho, FSAT.listable D /\ decidable (fun v => Tarski.i_atom (P:=tt) v) /\ @Tarski.sat _ _ D I falsity_on rho phi.
+  exists D (I : Tarski.interp D) rho, FSAT.listable D /\ decidable (fun v => Tarski.i_atom (P:=tt) v) /\ @Tarski.sat _ _ D I _ rho phi.
 
   (** Also define FVAL for fragment syntax *)
   Definition FVAL_frag (phi : minimalForm falsity_on) :=
-  forall D (I : Tarski.interp D) rho, FSAT.listable D /\ decidable (fun v => Tarski.i_atom (P:=tt) v) -> @Tarski.sat _ _ D I falsity_on rho phi.
+  forall D (I : Tarski.interp D) rho, FSAT.listable D /\ decidable (fun v => Tarski.i_atom (P:=tt) v) -> @Tarski.sat _ _ D I _ rho phi.
+
+  (** Also define FVAL for negation-free fragment *)
+  Definition FVAL_frag_no_negation (phi : minimalForm falsity_off) :=
+  forall D (I : Tarski.interp D) rho, FSAT.listable D /\ decidable (fun v => Tarski.i_atom (P:=tt) v) -> @Tarski.sat _ _ D I _ rho phi.
 
   Lemma minFiniteSatisfiabilityUndec : undecidable FSAT_frag.
   Proof.
@@ -68,11 +72,16 @@ Section finite.
     * eexists. apply frag_reduction_fsat.
   Qed.
 
-  Lemma minFiniteValidityReduction : (compl H10UPC_SAT) ⪯ FVAL_frag.
+  Lemma minFiniteValidityReduction : (Definitions.complement H10UPC_SAT) ⪯ FVAL_frag.
   Proof.
     eapply reduces_transitive.
     * eexists. apply fval_reduction.
     * eexists. apply frag_reduction_fval.
   Qed.
+
+  (** This is a conjecture *)
+  Lemma minFiniteValidityConjecture : (Definitions.complement H10UPC_SAT) ⪯ FVAL_frag_no_negation.
+  Abort.
+
 End finite.
 

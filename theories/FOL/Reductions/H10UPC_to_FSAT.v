@@ -16,13 +16,15 @@ Require Export Setoid.
 Require Export Relation_Definitions.
 Set Equations With UIP.
 
+
 (**
-Idea: The single relation (#) has the following properties:
-n ~ p: n is left component of p
-p ~ n: p is right component of p
-p ~ p: the special relationship of H10UPC
-n ~ m: n <= m. 
+Idea: The relation (#&#35;#) has the following properties:#<ul>#
+#<li>#n ~ p: n is left component of p#</li>#
+#<li>#p ~ n: p is right component of p#</li>#
+#<li>#p ~ p: the special relationship of H10UPC#</li>#
+#<li>#n ~ m: n <= m. #</li>#
 *)
+
 
 
 Set Default Proof Using "Type".
@@ -76,21 +78,21 @@ Section Fsat.
   Open Scope syn.
   (** We again assume h10, an instance of H10UPC_SAT. We now define syntactic sugar: *)
   Context {h10 : list h10upc}.
-  (** $k is a number *)
+  (** #&dollar;#k is a number *)
   Definition N a := $a ## $a. 
-  (** $a is less-equal than $b. Note that N is just a special case *)
+  (** #&dollar;#a is less-equal than #&dollar;#b. Note that N is just a special case *)
   Definition leq a b := N a ∧ N b ∧ $a ## $b.
-  (** $k is not a number *)
+  (** #&dollar;#k is not a number *)
   Definition P' a := ¬ N a.
-  (** $p is the pair ($a,$b) *)
+  (** #&dollar;#p is the pair (#&dollar;#a,#&dollar;#b) *)
   Definition P p a b := P' p ∧ N a ∧ N b ∧ $a ## $p ∧ $p ## $b.
-  (** $a and $b are first-order indistinguishable *)
+  (** #&dollar;#a and #&dollar;#b are first-order indistinguishable *)
   Definition deq a b := ∀ ($0 ## $(S a) <~> $0 ## $(S b)) ∧ ( $(S a) ## $0 <~> $(S b) ## $0). 
   (** $a is less than $b *)
   Definition less a b := leq a b ∧ ¬ (deq a b). 
-  (** ($a,$b)#($c,$d), that is, the pairs are related *)
+  (** (#&dollar;#a,#&dollar;#b)#&#35;#(#&dollar;#c,#&dollar;#d), that is, the pairs are related *)
   Definition rel a b c d := ∃∃ P 1 (2+a) (2+b) ∧ P 0 (2+c) (2+d) ∧ $1 ## $0.
-  (** ($l,z)#($r,z) -- i.e. l+1 = r*)
+  (** (#&dollar;#l,z)#&#35;#(#&dollar;#r,z) -- i.e. l+1 = r*)
   Definition succ l r z := rel l z r z.
 
   (** Axiom 1: less is transitive *)
@@ -105,7 +107,7 @@ Section Fsat.
                            ~> (¬(deq (4+z) 2))
                            ~> rel 3 2 1 0
                        ~> ∃∃∃ succ 2 5 (7+z) ∧ succ 1 4 (7+z) ∧ rel 0 2 3 0 ∧ rel 6 2 1 0 ∧ less 0 3.
-  (** Axiom 5: Axiom describing # relation on pairs (tieback) *)
+  (** Axiom 5: Axiom describing #&#35;# relation on pairs (tieback) *)
   Definition aDescr2 z := ∀∀∀∀ N 3 ~> N 2 ~> N 1 ~> N 0 ~> rel 3 2 1 0 ~> deq 2 (4+z) ~> deq 0 (4+z).
   (** This defines our reduction function *)
   Definition emplace_exists (n:nat) (f:form) := it (fun k => ∃ k) n f.
@@ -530,7 +532,7 @@ Section Fsat.
       rewrite to_rel in Hrel.
       destruct (chain_proves ch Hb Hrel) as [na [nb [nc [nd [Hsem [Hna [Hnb [Hnc Hnd]]]]]]]].
       1-3: easy.
-      unfold h10upc_sem, chain_env. rewrite !Hna,!Hnb,!Hnc,!Hnd. cbn in Hsem. nia.
+      unfold h10upc_sem, chain_env. rewrite !Hna,!Hnb,!Hnc,!Hnd. cbn in Hsem. cbn. nia.
       Qed.
 
       (** And a list of constraints *)

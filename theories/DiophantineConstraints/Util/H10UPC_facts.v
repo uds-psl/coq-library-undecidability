@@ -31,13 +31,6 @@ Section Utils.
   unfold c2. now destruct (c2_full x).
   Qed. 
 
-  (** Direct semantics of h10upc_sem *)
-  Definition h10upc_sem_direct (c : h10upc) :=
-    match c with 
-      | ((x, y), (z1, z2)) => 
-          1 + x + y = z1 /\ y * (1 + y) = z2 + z2
-    end.
-
   (** Inversion lemma for h10upc_sem_direct (basically axiom 2) *)
   Lemma h10upc_inv (a b c d : nat) : h10upc_sem_direct ((a,S b),(c,d)) -> 
            {c':nat & {d':nat & h10upc_sem_direct ((a,b),(c',d')) 

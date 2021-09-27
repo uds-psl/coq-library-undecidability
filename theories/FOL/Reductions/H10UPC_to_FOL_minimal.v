@@ -13,13 +13,13 @@ Set Equations With UIP.
 (* ** Validity *)
 
 (**
-Idea: The relation (#) has the following properties:<ul>
-<li>n ~ p: n is left component of p</li>
-<li>p ~ n: p is right component of p</li>
-<li>p ~ p: the special relationship of H10UPC</li>
-<li>n ~ m: n = m. Special case n=0, m=1: <br />
-          The instance h10 of H10UPC is a yes-instance. <br />
-          This is to facilitate Friedman translation</li>
+Idea: The relation (#&#35;#) has the following properties:#<ul>#
+#<li>#n ~ p: n is left component of p#</li>#
+#<li>#p ~ n: p is right component of p#</li>#
+#<li>#p ~ p: the special relationship of H10UPC#</li>#
+#<li>#n ~ m: n = m. Special case n=0, m=1: #<br />#
+          The instance h10 of H10UPC is a yes-instance. #<br />#
+          This is to facilitate Friedman translation#</li>#
 *)
 
 
@@ -72,7 +72,7 @@ Section validity.
   Definition F_succ_left := ∀ N 0 --> Not (∀ ∀ ∀ P 2 3 4
                                                  (P 0 1 4
                                                   (Pr $2 $0 --> wFalse 5))) 2.
-  (** Axiom 3 - we can build right successors: (x,y)#(a,b) -> (x,S y)#(S a,S (b+y)) *)
+  (** Axiom 3 - we can build right successors: (x,y)#&#35;#(a,b) -> (x,S y)#&#35;#(S a,S (b+y)) *)
   Definition F_succ_right := ∀ ∀ ∀ ∀ ∀ ∀ ∀ ∀         (*8 pairs *)
                              ∀ ∀ ∀ ∀ ∀ ∀ ∀           (* 0 x 1 y 2 a 3 b 4 c 5 y' 6 a' 15 zero-const*)
                              rel 7 8 0 1 2 3      (* (x,y) # (a,b) *)

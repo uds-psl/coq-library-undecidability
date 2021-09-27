@@ -12,10 +12,17 @@ Require Import List.
 *)
 Definition h10upc := ((nat * nat) * (nat * nat))%type.
 
+(** Direct semantics of h10upc_sem *)
+Definition h10upc_sem_direct (c : h10upc) :=
+  match c with 
+    | ((x, y), (z1, z2)) => 
+        1 + x + y = z1 /\ y * (1 + y) = z2 + z2
+  end.
+
 Definition h10upc_sem φ (c : h10upc) :=
   match c with 
     | ((x, y), (z1, z2)) => 
-        1 + φ x + φ y = φ z1 /\ φ y * (1 + φ y) = φ z2 + φ z2
+        h10upc_sem_direct ((φ x, φ y), (φ z1, φ z2))
   end.
 
 (*
