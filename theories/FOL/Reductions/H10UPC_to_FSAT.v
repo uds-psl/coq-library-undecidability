@@ -107,7 +107,7 @@ Section Fsat.
                            ~> (¬(deq (4+z) 2))
                            ~> rel 3 2 1 0
                        ~> ∃∃∃ succ 2 5 (7+z) ∧ succ 1 4 (7+z) ∧ rel 0 2 3 0 ∧ rel 6 2 1 0 ∧ less 0 3.
-  (** Axiom 5: Axiom describing #&#35;# relation on pairs (tieback) *)
+  (** Axiom 5: Axiom describing # relation on pairs (tieback) *)
   Definition aDescr2 z := ∀∀∀∀ N 3 ~> N 2 ~> N 1 ~> N 0 ~> rel 3 2 1 0 ~> deq 2 (4+z) ~> deq 0 (4+z).
   (** This defines our reduction function *)
   Definition emplace_exists (n:nat) (f:form) := it (fun k => ∃ k) n f.
