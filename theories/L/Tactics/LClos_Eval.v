@@ -1,5 +1,5 @@
 From Undecidability.L.Tactics Require Export LClos.
-Require Import FunInd. 
+Require Import FunInd.
 Open Scope LClos.
 
 (* *** Closure calculus interpreter *)
@@ -66,7 +66,7 @@ Qed.
 Functional Scheme CompSeval_ind := Induction for CompSeval Sort Prop.
 
 Lemma CompSeval_sound' n s l : let (k,t) := CompSeval n (l,s) in k >= l /\ s >[(k-l)] t.
-Proof with (repeat inv_validComp;repeat (constructor || intuition|| subst ; eauto using star || rewrite Nat.sub_diag||cbn in *)).
+Proof with (repeat inv_validComp;repeat (constructor || intuition|| lia || subst ; eauto using star || rewrite Nat.sub_diag||cbn in *)).
   pose (p:= (l,s)).
   change (let (k, t) := CompSeval n p in k >= fst p /\ (snd p) >[(k-(fst p))] t).
   generalize p. clear l s p. intros p. 

@@ -1,4 +1,4 @@
-Require Export Undecidability.Shared.Libs.PSL.Base Lia.
+Require Export Undecidability.Shared.Libs.PSL.Base Lia Arith PArith.
 From Undecidability.L Require Export MoreList.
 
 (* * Preliminaries *)

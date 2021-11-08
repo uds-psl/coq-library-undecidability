@@ -1,9 +1,10 @@
 (* ** Operations & Properties of FOL* *)
 
-
 Require Import Undecidability.Shared.ListAutomation.
 Import ListAutomationNotations.
-From Equations Require Import Equations.Equations.Prop.DepElim Arith Undecidability.Shared.Libs.PSL.Numbers List Setoid.
+From Equations Require Import Equations.
+Require Import Equations.Prop.DepElim.
+Require Import Arith Undecidability.Shared.Libs.PSL.Numbers List Setoid.
 From Undecidability.Synthetic Require Export DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 From Undecidability.FOLP Require Export Syntax unscoped.
 Require Export Lia.
@@ -431,7 +432,7 @@ Lemma vecs_from_correct X (A : list X) (n : nat) (v : vector X n) :
 Proof.
   induction n; cbn.
   - split.
-    + intros. left. now dependent destruction v.
+    + intros. left. now eapply Vector.case0.
     + intros [<- | []] x H. inv H.
   - split.
     + intros. dependent destruction v. in_collect (pair h v); destruct (IHn v). all: eauto using vec_in.

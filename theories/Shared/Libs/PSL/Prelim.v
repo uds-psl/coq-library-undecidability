@@ -5,7 +5,7 @@
    - Acknowlegments: Sigurd Schneider, Dominik Kirst, Yannick Forster, Fabian Kunze, Maximilian Wuttke
  *)
 
-Require Export Bool Omega Lia List Setoid Morphisms.
+Require Export Bool Lia List Setoid Morphisms Arith.
 From Undecidability.Shared.Libs.PSL Require Export Tactics.
 
 Global Set Implicit Arguments. 

@@ -36,7 +36,7 @@ Proof.
 Qed.
 
 Instance nat_le_dec (x y : nat) : dec (x <= y) := 
-  le_dec x y.
+  Compare_dec.le_dec x y.
 
 Lemma size_recursion (X : Type) (sigma : X -> nat) (p : X -> Type) :
   (forall x, (forall y, sigma y < sigma x -> p y) -> p x) -> 

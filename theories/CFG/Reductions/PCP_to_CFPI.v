@@ -128,8 +128,8 @@ Proof.
     rewrite sigma_gamma1, sigma_gamma2 in H.
     eapply list_prefix_inv in H as [H1 <- % gamma_inj].
     + exists A1. firstorder. destruct A1; cbn in *; firstorder congruence.
-    + intros ?. eapply sym_mono in Hi1. eapply Hi1 in H0 as ? % fresh_spec. now apply H2.
-    + intros ?. eapply sym_mono in Hi2. eapply Hi2 in H0 as ? % fresh_spec. now apply H2.        
-    + intros ? % tau1_sym. eapply sym_mono in Hi1. eapply Hi1 in H1 as ? % fresh_spec. now apply H0.
-    + intros ? % tau2_sym. eapply sym_mono in Hi2. eapply Hi2 in H1 as ? % fresh_spec. now apply H0.
+    + intros ?. eapply sym_mono in Hi1. eapply Hi1 in H0 as ? % fresh_spec. now apply H0.
+    + intros ?. eapply sym_mono in Hi2. eapply Hi2 in H0 as ? % fresh_spec. now apply H0.
+    + intros ? % tau1_sym. eapply sym_mono in Hi1. eapply Hi1 in H0 as ? % fresh_spec. now apply H0.
+    + intros ? % tau2_sym. eapply sym_mono in Hi2. eapply Hi2 in H0 as ? % fresh_spec. now apply H0.
 Qed.

@@ -4,7 +4,7 @@ Require Import Undecidability.Shared.Libs.PSL.Base.
 Require Import String Ascii.
 
 Open Scope string_scope.
-Import MonadNotation.
+Import MCMonadNotation.
 
 Unset Universe Minimization ToSet.
 
@@ -144,10 +144,10 @@ Definition split_head_symbol A : option (inductive * list term) :=
   end.
 
 (* Get the list of consturcors for an inductive type (name, quoted term, number of arguments) *)
-Definition list_constructors (ind : inductive) : TemplateMonad (list (ident * term * nat)) :=
+Definition list_constructors (ind : inductive) : TemplateMonad (list (ident * term * context)) :=
   A <- tmQuoteInductive (inductive_mind ind) ;;
     match ind_bodies A with
-    | [ B ] => ret (ind_ctors B)
+    | [ B ] => tmReturn (map (fun cstr => (cstr.(cstr_name), cstr.(cstr_type), cstr.(cstr_args))) (ind_ctors B))
     | _ => tmFail "error: no mutual inductives supported"
     end.
 
@@ -223,7 +223,13 @@ Definition tmGetMyOption {X} (o : option_instance X) (err : string) : TemplateMo
 Definition naNamed n := {| binder_name := nNamed n; binder_relevance := Relevant |}.
 Definition naAnon := {| binder_name := nAnon; binder_relevance := Relevant |}.
 
-Definition mkFixMatch (f x : ident) (t1 t2 : Ast.term) (cases : nat -> list term -> TemplateMonad term) :=
+Fixpoint context_to_bcontext (ctx : context) : list aname :=
+  match ctx with
+  | [] => []
+  | mkdecl a b c :: L => a :: context_to_bcontext L
+  end.
+
+Definition mkFixMatch (f x : ident) (t1 t2 : Ast.term) (pred : Ast.predicate term) (cases : nat -> list term -> TemplateMonad term) :=
   hs_num <- tmGetOption (split_head_symbol t1) "no head symbol found";;
   let '(ind, Params) := hs_num in
   let params := List.length Params in
@@ -231,13 +237,13 @@ Definition mkFixMatch (f x : ident) (t1 t2 : Ast.term) (cases : nat -> list term
     body <- monad_map_i (fun i '(n, s, args) =>
                           l <- tmArgsOfConstructor ind i ;;
                           l' <- monad_map_i (insert_params FUEL Params) (skipn params l) ;;
-                          t <- cases i l' ;; ret (args, t)) L ;; 
+                          t <- cases i l' ;; ret (mk_branch (context_to_bcontext args) t)) L ;; 
   ret (Ast.tFix [BasicAst.mkdef 
                    Ast.term
                    (naNamed f)
                    (tProd naAnon t1 t2)
-                   (tLambda (naNamed x) t1 (tCase ((ind, params), Relevant)
-                                                (tLambda naAnon t1 t2)
+                   (tLambda (naNamed x) t1 (tCase (mk_case_info ind params Relevant)
+                                                pred
                                                 (tRel 0)
                                                 body)) 0] 0).
 
@@ -264,14 +270,24 @@ Definition tmInstanceRed name red {X} (x:X) :=
   end;;
   tmReturn def'.
 
+Definition tmQuoteInductiveDecl (na : kername) : TemplateMonad (mutual_inductive_body * one_inductive_body) :=
+  mdecl <- tmQuoteInductive na ;;
+  match ind_bodies mdecl with
+    [ idecl ] => tmReturn (mdecl, idecl)
+  | _ => tmFail "Mutual inductive types are not supported"
+  end.
+
 Definition tmEncode (name : string) (A : Type) :=
   t <- (tmEval hnf A >>= tmQuote) ;; 
   hs_num <- tmGetOption (split_head_symbol t) "no inductive";;
   let '(ind, Params) := hs_num in
-  num <- tmNumConstructors (inductive_mind ind) ;;
+  decl <- tmQuoteInductiveDecl (inductive_mind ind) ;;
+  let '(mdecl,idecl) := decl in
+  num <- tmEval cbv (| ind_ctors idecl |) ;;
+  let params := firstn mdecl.(ind_npars) Params in
   f <- tmFreshName "encode" ;;
   x <- tmFreshName "x" ;; 
-  ter <- mkFixMatch f x t (* argument type *) tTerm (* return type *)
+  ter <- mkFixMatch f x t (* argument type *) tTerm (* return type *) (mk_predicate Instance.empty params (context_to_bcontext (ind_predicate_context ind mdecl idecl)) tTerm)
            (fun i (* ctr index *) ctr_types (* ctr type *) => 
               args <- tmEval cbv (|ctr_types|);; 
               C <- monad_map_i (encode_arguments t args) ctr_types ;; 
@@ -492,7 +508,7 @@ Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad 
         end
     in
     t <- extract env s fuel ;;
-      M <- monad_fold_left (fun t1 '(n,s2) => t2 <- extractCaseEtaExpand env s2 n;; ret (L.app t1 t2)) cases t ;;
+      M <- monad_fold_left (fun t1 br => t2 <- extractCaseEtaExpand env (br.(bbody)) (List.length br.(bcontext));; ret (L.app t1 t2)) cases t ;;
       ret (L.app M I)
   | Ast.tLetIn _ s1 _ s2 =>
     t1 <- extract env s1 fuel ;;

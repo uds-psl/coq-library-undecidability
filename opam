@@ -23,14 +23,15 @@ install: [
   [make "install"]
 ]
 depends: [
-  "coq" {= "8.13.1"}
+  "coq" {= "8.14.0"}
   "coq-equations" {= "1.2.3+8.13"}
   "ocaml"
-  "coq-smpl" {>= "8.13"}
-  "coq-metacoq-template" {= "1.0~beta2+8.13"}
+  "coq-smpl" {>= "8.14"}
+  "coq-metacoq-template" {= "dev+8.14"}
 ]
 
 synopsis: "A Coq Library of Undecidability Proofs"
 url {
   git: "https://github.com/uds-psl/coq-library-undecidability.git#coq-8.13"
 }
+

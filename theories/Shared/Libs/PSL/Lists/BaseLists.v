@@ -260,7 +260,7 @@ Section Inclusion.
   Lemma incl_rcons x A B :
     A <<= x::B -> ~ x el A -> A <<= B.
 
-  Proof. intros C D y E. destruct (C y E) as [F|F]; congruence. Qed.
+  Proof. intros C D y E. destruct (C y E) as [F|F]. 1: congruence. assumption. Qed.
 
   Lemma incl_lrcons x A B :
     x::A <<= x::B -> ~ x el A -> A <<= B.

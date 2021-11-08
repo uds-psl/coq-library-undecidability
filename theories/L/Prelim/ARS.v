@@ -1,7 +1,7 @@
 (* ** Abstract Reduction Systems *)
 (* from Semantics Lecture at Programming Systems Lab, https://www.ps.uni-saarland.de/courses/sem-ws13/ *)
 
-Require Export Undecidability.Shared.Libs.PSL.Base Lia.
+Require Export Undecidability.Shared.Libs.PSL.Base Lia Arith.
 
 Module ARSNotations.
   Notation "p '<=1' q" := (forall x, p x -> q x) (at level 70).
@@ -425,7 +425,7 @@ Proof.
   intros H1 H2 H3 H4.
   specialize (parametrized_confluence H1 H3 H4) as (n0&n'&?&?&?&R'&?&?).
   destruct n0.
-  -inv R'. exists n'. intuition.
+  -inv R'. exists n'. intuition lia.
   -exfalso. destruct R' as (?&?&?). eapply H2. eauto.
 Qed.
 

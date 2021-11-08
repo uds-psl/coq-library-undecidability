@@ -50,7 +50,7 @@ Section MPCP_PCP.
     c = d \/ c = e \/ (exists x y, (x,y) el (x0/y0 :: R) /\ c = (#_L x, #_R y)  /\ ( (x,y) <> (nil, nil))).
   Proof.
     cbn -[filter]. intros. firstorder. eapply in_map_iff in H as ((x,y) & <- & (? & ? % orb_prop) % filter_In).
-    rewrite !is_cons_true_iff in H1.
+    rewrite !is_cons_true_iff in H0.
     right. right. exists x, y. firstorder; destruct x, y; cbn; firstorder congruence.
   Qed.
 

@@ -1,5 +1,5 @@
 From smpl Require Import Smpl.
-Require Import Omega Lia.
+Require Import Lia.
 Require Export Psatz Arith.
 Require Export RelationClasses Morphisms.
 

@@ -1,4 +1,5 @@
 Require Import Undecidability.Shared.Libs.PSL.Base Lia.
+Require Import Arith.
 (* Nats smaller than n *)
 
 Fixpoint natsLess n : list nat :=
@@ -12,8 +13,8 @@ Lemma natsLess_in_iff n m:
 Proof.
   induction m in n|-*;cbn. lia.
   split.
-  -intuition. destruct n;intuition. apply IHm in H0. lia.
-  -intros. decide (m=n). intuition. right. apply IHm. lia.
+  -intuition. destruct n; intuition lia. apply IHm in H0. lia.
+  -intros. decide (m=n). intuition lia. right. apply IHm. lia.
 Qed.
 
 
