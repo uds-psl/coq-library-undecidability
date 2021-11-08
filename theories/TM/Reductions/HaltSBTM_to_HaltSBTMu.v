@@ -1,6 +1,6 @@
 Require Import Undecidability.TM.SBTM.
 Require Import Undecidability.Synthetic.Definitions.
-Require Import Equations.Equations.
+From Equations Require Import Equations.
 
 Section fixM.
 

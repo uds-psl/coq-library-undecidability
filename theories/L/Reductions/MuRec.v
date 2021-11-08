@@ -1,4 +1,4 @@
-Require Import Equations.Equations.
+From Equations Require Import Equations.
 Require Equations.Prop.EqDec. (*TODO: Remove Import *)
 
 From Undecidability.H10 Require Import H10 dio_single dio_logic.

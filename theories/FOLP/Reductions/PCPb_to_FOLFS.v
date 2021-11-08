@@ -1,6 +1,6 @@
 (* * Trakhtenbrot's Theorem *)
 
-Require Import Equations.Equations.
+From Equations Require Import Equations.
 Require Import Lia Arith.
 
 Require Import Undecidability.PCP.PCP.

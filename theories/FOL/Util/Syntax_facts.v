@@ -10,7 +10,7 @@ Local Notation vec := t.
 
 From Undecidability Require Export FOL.Util.Syntax.
 
-Require Import Equations.Equations.
+From Equations Require Import Equations.
 
 Section fix_signature.
 

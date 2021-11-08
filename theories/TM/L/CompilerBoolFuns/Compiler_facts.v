@@ -7,7 +7,7 @@ Import ListNotations VectorNotations.
 
 From Undecidability.TM.L.CompilerBoolFuns Require Import Compiler_spec.
 
-Require Import Equations.Equations.
+From Equations Require Import Equations.
 
 
 Lemma encBoolsTM_inj {Σ} (sym_s sym_b : Σ) n1 n2 :

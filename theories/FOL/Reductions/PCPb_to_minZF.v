@@ -7,7 +7,7 @@ Import ListAutomationNotations.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
-Require Import Equations.Equations.
+From Equations Require Import Equations.
 
 Local Notation vec := Vector.t.
 
