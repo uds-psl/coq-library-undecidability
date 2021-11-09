@@ -3,7 +3,7 @@
 From Undecidability Require Import TM.Util.Prelim Code.
 From Undecidability Require Import ArithPrelim.
 From Undecidability.Shared.Libs.PSL Require Export Bijection.
-Require Export BinNums. 
+Require Export BinNums BinPosDef. 
 
 
 (* We use Coq's standard types [positive] and [N] *)

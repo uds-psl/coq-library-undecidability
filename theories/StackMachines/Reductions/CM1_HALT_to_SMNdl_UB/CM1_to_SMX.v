@@ -698,9 +698,10 @@ Section Reduction.
         [by lia | by auto with M | done | by apply: reach_refl ].
     - apply: (first_step bound_try_spec_00 (§0^m ++ [§1] ++ r) l);
         [by lia | by auto with M | by rewrite ?app_norm | ].
-      have [n' [?]] := transition_le_gt 
-        (fun n => CM.value (Nat.iter n (CM1.step P) cm_start)) (S m) 0 n ltac:(lia) ltac:(rewrite /cm_start /=; lia) ltac:(lia).
-      
+      have ? : S m < CM.value (Nat.iter n (CM1.step P) cm_start) by lia.
+      (* TODO have/lia regression; last ltac:(done) should be ltac:(lia) *)
+      have [n' [?]] := transition_le_gt
+        (fun n => CM.value (Nat.iter n (CM1.step P) cm_start)) (S m) 0 n ltac:(lia) ltac:(rewrite /cm_start /=; lia) ltac:(done).
       have := CM_facts.run_value_monotone P cm_start n'.
       set p' := (Nat.iter n' (CM1.step P) cm_start).
       have -> : Nat.iter (1 + n') (CM1.step P) cm_start = CM1.step P p' by done.
