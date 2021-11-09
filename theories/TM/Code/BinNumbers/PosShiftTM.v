@@ -38,7 +38,7 @@ Proof.
       + hnf. eexists. cbn. simpl_tape. f_equal.
         setoid_rewrite Encode_positive_app_xIO; cbn.
         simpl_list; cbn. rewrite Hstr'. cbn. f_equal. rewrite !map_rev. simpl_list. cbn. rewrite map_id. auto.
-      + intros x (?&<-&?%in_rev)%in_map_iff. replace str' with (tl (encode_pos p)) in H0 by now rewrite Hstr'.
+      + intros x (?&<-&H0%in_rev)%in_map_iff. replace str' with (tl (encode_pos p)) in H0 by now rewrite Hstr'.
       now pose proof Encode_positive_tl_bits H0 as [-> | ->].
     - destruct H as (ls&->). cbn.
       pose proof Encode_positive_startsWith_xH p as (str'&Hstr'). cbn in *. rewrite Hstr'. cbn. simpl_list. cbn.
@@ -46,7 +46,7 @@ Proof.
       + hnf. eexists. cbn. simpl_tape. f_equal.
         setoid_rewrite Encode_positive_app_xIO; cbn.
         simpl_list; cbn. rewrite Hstr'. cbn. f_equal. rewrite !map_rev. simpl_list. cbn. rewrite map_id. auto.
-      + intros x (?&<-&?%in_rev)%in_map_iff. replace str' with (tl (encode_pos p)) in H0 by now rewrite Hstr'.
+      + intros x (?&<-&H0%in_rev)%in_map_iff. replace str' with (tl (encode_pos p)) in H0 by now rewrite Hstr'.
       now pose proof Encode_positive_tl_bits H0 as [-> | ->].
     - destruct H as (ls&->). cbn.
       do 2 (rewrite Shift_L_fun_equation; cbn).

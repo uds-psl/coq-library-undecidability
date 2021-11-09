@@ -73,7 +73,7 @@ Section Constants.
       induction 1; cbn; intuition.
       subst. unfold beta.
       intros x ? % consts_subst_in; simplify; intuition.
-      destruct H as [[|y] ?]; cbn in *; intuition.
+      destruct H0 as [[|y] ?]; cbn in *; intuition.
     Qed.
 
     Lemma consts_subset_steps s t:

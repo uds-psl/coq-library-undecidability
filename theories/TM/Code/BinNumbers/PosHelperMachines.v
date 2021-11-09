@@ -153,9 +153,9 @@ Proof.
         setoid_rewrite Hstr'. cbn. simpl_list. cbn.
         f_equal. f_equal. f_equal. now rewrite map_map.
       + destruct b; auto.
-      + intros ? (?&<-&? % in_rev) % in_map_iff.
-        replace str' with (tl (encode_pos p)) in H0 by now setoid_rewrite Hstr'.
-        now apply Encode_positive_tl_bits in H0 as [-> | ->].
+      + intros ? (?&<-& H % in_rev) % in_map_iff.
+        replace str' with (tl (encode_pos p)) in H by now setoid_rewrite Hstr'.
+        now apply Encode_positive_tl_bits in H as [-> | ->].
     - intros p. intros (ls&->). rewrite MoveToSymbol_L_Fun_equation. cbn. hnf. eauto.
   }
 Qed.

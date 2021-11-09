@@ -5,7 +5,7 @@ From Undecidability Require Import BinNumbers.EncodeBinNumbers.
 From Undecidability Require Import Code.CaseSum. (* [CaseOption] *)
 
 From Undecidability Require Import ArithPrelim.
-From Coq Require Import BinNums.
+From Coq Require Import BinNat.
 
 Local Open Scope N_scope.
 
