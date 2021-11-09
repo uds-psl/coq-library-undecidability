@@ -98,7 +98,7 @@ Qed.
 Lemma completeness {l} : FMsetC_SAT l -> LPolyNC_SAT (map encode_msetc l).
 Proof.
   move=> [φ]. rewrite -Forall_forall => Hφ.
-  exists (fun x => mset_to_poly (φ x)). rewrite -Forall_forall Forall_mapP.
+  exists (fun x => mset_to_poly (φ x)). rewrite -Forall_forall Forall_map.
   apply: Forall_impl; last by eassumption. case.
   - by move=> x /= /mset_eq_utils.eq_symm /mset_eq_utils.eq_singletonE ->.
   - move=> x y z /= /mset_to_poly_eqI. move /poly_eq_trans. apply.
@@ -137,7 +137,7 @@ Proof. done. Qed.
 
 Lemma soundness {l} : LPolyNC_SAT (map encode_msetc l) -> FMsetC_SAT l.
 Proof.
-  move=> [ψ]. rewrite -Forall_forall Forall_mapP => Hψ.
+  move=> [ψ]. rewrite -Forall_forall Forall_map => Hψ.
   exists (fun x => poly_to_mset (ψ x)). rewrite -Forall_forall.
   apply: Forall_impl; last by eassumption. case.
   - by move=> x /= /poly_to_mset_eqI.

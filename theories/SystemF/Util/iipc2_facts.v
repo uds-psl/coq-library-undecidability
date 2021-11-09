@@ -49,7 +49,7 @@ Proof.
   - move=> > IH Gamma Gamma' > /typingE [?] [->] /IH. 
     move=> /(_ (map (ren_poly_type S) Gamma')) + HG. apply: unnest.
     {
-      rewrite Forall_mapP. apply: Forall_impl HG.
+      rewrite Forall_map. apply: Forall_impl HG.
       move=> ? [Q]. eexists. apply: typing_ren_poly_type. by eassumption.
     }
     move=> [? ?]. eexists. apply: typing_ty_abs. by eassumption.
@@ -111,7 +111,7 @@ Proof.
   have -> : map (ren_poly_type ξ) Gamma = (map (ren_poly_type S) Gamma).
   {
     elim: Gamma HG; first done.
-    move=> s Gamma H /Forall_consP [Hx /H{H} /= ->].
+    move=> s Gamma H /Forall_cons_iff [Hx /H{H} /= ->].
     congr cons. apply: ext_ren_poly_type_allfv_poly_type.
     apply: allfv_poly_type_impl Hx => ? ?. rewrite /ξ. by case: (PeanoNat.Nat.eq_dec _ _).
   }
@@ -130,5 +130,5 @@ Proof.
   rewrite subst_poly_type_many_poly_arr /subst_poly_type -rev_length fold_right_length_ts -/subst_poly_type.
   move=> /iipc2I. move: (map _ ss) => {}ss. move: (poly_var y) => t.
   elim: ss t; first done.
-  by move=> s ss IH t /= [?] /typing_app H /Forall_consP [[?] /H{H} /iipc2I /IH].
+  by move=> s ss IH t /= [?] /typing_app H /Forall_cons_iff [[?] /H{H} /iipc2I /IH].
 Qed.

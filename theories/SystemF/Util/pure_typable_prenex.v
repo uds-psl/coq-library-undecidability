@@ -625,7 +625,7 @@ Proof.
   move=> Hx HM. apply: pure_typing_many_poly_absI.
   elim: n s HM; first by (move=> >; rewrite map_ren_poly_type_id).
   move=> n IH s.
-  rewrite (ltac:(lia) : S n = n + 1) -repeat_appP many_pure_app_app /= => HM. 
+  rewrite (ltac:(lia) : S n = n + 1) repeat_app many_pure_app_app /= => HM. 
   apply: (pure_typing_pure_app_simpleI (s := poly_var 0)).
   - have ->: map (ren_poly_type (Nat.add (n + 1))) Gamma =
       map (ren_poly_type S) (map (ren_poly_type (Nat.add n)) Gamma).
@@ -644,7 +644,7 @@ Lemma aux_pure_typable_gys {Gamma x M n s} :
 Proof.
   move=> Hx HM. exists (ren_poly_type (fun x => x - n) s). elim: n s HM.
   { move=> > /=. rewrite ren_poly_type_id'; by [|lia]. }
-  move=> n IH s. rewrite (ltac:(lia) : S n = n + 1) -repeat_appP many_pure_app_app /=.
+  move=> n IH s. rewrite (ltac:(lia) : S n = n + 1) repeat_app many_pure_app_app /=.
   rewrite -iter_plus /= => /IH /pure_typing_to_typing [?] [->] /=.
   move=> /(typing_ty_app (t := poly_var 0)) /= /(typing_app (Q := var x)).
   apply: unnest; first by apply: typing_var.
@@ -714,7 +714,7 @@ Proof.
     exists 0. do 3 eexists. constructor; [by reflexivity | by eassumption].
   - move=> [n s] nss IH /= Gamma ξ s' t.
     rewrite fold_right_app /= => /IH {}IH.
-    rewrite app_length -repeat_appP many_pure_app_app /=.
+    rewrite app_length repeat_app many_pure_app_app /=.
     move=> /pure_typingE [n1] [?] [?] [?] [+] [_] [H1C ?]. subst.
     rewrite ?map_map. under map_ext => ? do rewrite poly_type_norm.
     move=> /IH [n1s'] [n2s'] [nt'] [t'] []. case: nt'; last done. move=> /= ?. subst.
@@ -733,7 +733,7 @@ Lemma pure_typable_many_pure_app_repeat_poly_var {Gamma x y ny nss t} :
 Proof.
   move=> + Hy. elim /rev_ind: nss t; first done.
   move=> [n s] nss IH t. rewrite fold_right_app /= => Hx.
-  rewrite app_length -repeat_appP many_pure_app_app /=.
+  rewrite app_length repeat_app many_pure_app_app /=.
   move=> /pure_typableE [?] [?] [].
   move=> /copy [/pure_typableI /IH] /(_ _ Hx) Hnss.
   move=> /(pure_typing_fold_right_many_pure_app Hx) [?] [?] [[|?]] [?] []; last done.
@@ -742,7 +742,7 @@ Proof.
   move=> /pure_typingE [?] [?] [?] [+] [+]. rewrite nth_error_map Hy => [[?]]. subst.
   rewrite poly_type_norm. move=> /containsE <-.
   move=> /esym /many_poly_abs_poly_var_eq_subst_poly_typeE [?] [?] [?] [? ->].
-  apply /Forall_appP. constructor; first done.
+  apply /Forall_app. constructor; first done.
   constructor; last done. clear.
   by do 2 eexists.
 Qed.
@@ -849,12 +849,12 @@ Proof.
       Forall (fun 's => exists n x, s = many_poly_abs n (poly_var (n + x))) ss.
     {
       rewrite /Gamma'. elim /rev_ind: (nss) Hnss; first by move=> ?; exists []; eexists.
-      clear=> [[n s]] nss IH /Forall_appP [/IH] {}IH /Forall_singletonP [n0] [x0] ->.
+      clear=> [[n s]] nss IH /Forall_app [/IH] {}IH /Forall_singletonP [n0] [x0] ->.
       
       rewrite fold_left_app app_length.
       move: IH => [ss] [Gamma''] [<-] /= [->] Hss.
       eexists (_ :: map (ren_poly_type (Nat.add n)) ss), (map (ren_poly_type (Nat.add n)) Gamma'').
-      rewrite /= map_length map_app /= Forall_consP Forall_mapP.
+      rewrite /= map_length map_app /= Forall_cons_iff Forall_map.
       constructor; first by lia.
       constructor; first done.
       constructor; first by do 2 eexists.
@@ -866,7 +866,7 @@ Proof.
     have [ns [H1ns H2ns]] : exists ns, length ss = length ns /\ map tidy ss = map poly_var ns.
     {
       elim: (ss) H2ss; first by move=> _; exists [].
-      clear=> s ss IH /Forall_consP [] [?] [n] -> /IH [ns] /= [-> ->].
+      clear=> s ss IH /Forall_cons_iff [] [?] [n] -> /IH [ns] /= [-> ->].
       exists (n :: ns). constructor; first done.
       rewrite tidy_many_poly_abs_le /=; first by lia.
       congr cons. congr poly_var. by lia.

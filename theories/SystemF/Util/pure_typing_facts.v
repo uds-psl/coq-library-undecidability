@@ -740,7 +740,7 @@ Lemma pure_typable_tidy_iff {Gamma1 Gamma2 M} :
   pure_typable (Gamma1 ++ map tidy Gamma2) M <-> pure_typable (Gamma1 ++ Gamma2) M.
 Proof.
   elim: Gamma2 Gamma1; first done.
-  move=> ? Gamma2 IH Gamma1 /Forall_consP [] [n] [s] [->] [Hs Hns] /IH {}IH.
+  move=> ? Gamma2 IH Gamma1 /Forall_cons_iff [] [n] [s] [->] [Hs Hns] /IH {}IH.
   constructor => /=.
   - move=> [?] /pure_typing_weaken_closed => /(_ (many_poly_abs n s)).
     apply: unnest.

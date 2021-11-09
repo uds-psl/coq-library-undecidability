@@ -15,10 +15,6 @@ Proof.
   move=> ? IH ?. constructor; [done | by apply: IH].
 Qed.
 
-Lemma repeat_appP {X: Type} {x: X} {n m: nat} : 
-  repeat x n ++ repeat x m = repeat x (n+m).
-Proof. by elim: n; [| move=> ? /= ->]. Qed.
-
 Lemma In_appl {X : Type} {x: X} {l1 l2: list X} : In x l1 -> In x (l1 ++ l2).
 Proof. move=> ?. apply: in_or_app. by left. Qed.
 
