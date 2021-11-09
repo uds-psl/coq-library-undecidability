@@ -87,7 +87,7 @@ Proof.
 Qed.
 Scheme rewt_ind' := Induction for rewt Sort Prop.
 
-Instance PreOrder_rewt R : PreOrder (rewt R).
+#[export] Instance PreOrder_rewt R : PreOrder (rewt R).
 Proof.
   split.
   - econstructor.
@@ -102,7 +102,7 @@ Proof.
   now simpl_list.
 Qed.
 
-Instance Proper_rewt R : Proper (rewt R ==> rewt R ==> rewt R) (@app symbol).
+#[export] Instance Proper_rewt R : Proper (rewt R ==> rewt R ==> rewt R) (@app symbol).
 Proof.
   hnf. intros. hnf. intros. induction H.  
   - now eapply rewt_app_L.

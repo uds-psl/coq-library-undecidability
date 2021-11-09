@@ -36,10 +36,10 @@ Proof.
   move=> y. by rewrite enumP cancel.
 Qed.
 
-Instance nat_Enumerable : Enumerable nat.
+#[export] Instance nat_Enumerable : Enumerable nat.
 Proof. by exists id id. Qed.
 
-Instance bool_Enumerable : Enumerable bool.
+#[export] Instance bool_Enumerable : Enumerable bool.
 Proof.
   exists (fun b => if b then 1 else 0) (fun n => if n is 0 then false else true).
   by case.
@@ -70,13 +70,13 @@ Proof. elim: x=> [| x IH] /=; [| rewrite Nat.add_succ_r /=]; by lia. Qed.
 
 End nat2_Enumerable.
 
-Instance nat2_Enumerable : Enumerable (nat * nat).
+#[export] Instance nat2_Enumerable : Enumerable (nat * nat).
 Proof.
   exists nat2_Enumerable.encode nat2_Enumerable.decode.
   move=> ?. by apply: nat2_Enumerable.decode_encode.
 Qed.
 
-Instance prod_Enumerable {X Y: Type} {enumX: Enumerable X} {enumY: Enumerable Y} : Enumerable (X * Y).
+#[export] Instance prod_Enumerable {X Y: Type} {enumX: Enumerable X} {enumY: Enumerable Y} : Enumerable (X * Y).
 Proof.
   exists 
     (fun '(x, y) => to_nat (to_nat x, to_nat y))
@@ -84,7 +84,7 @@ Proof.
   move=> [x y]. by rewrite ?enumP.
 Qed.
 
-Instance sum_Enumerable {X Y: Type} {enumX: Enumerable X} {enumY: Enumerable Y} : Enumerable (X + Y).
+#[export] Instance sum_Enumerable {X Y: Type} {enumX: Enumerable X} {enumY: Enumerable Y} : Enumerable (X + Y).
 Proof.
   exists 
     (fun t => match t with | inl x => to_nat (0, to_nat x) | inr y => to_nat (1, to_nat y) end)
@@ -117,7 +117,7 @@ Qed.
 End list_Enumerable_Section.
 End list_Enumerable.
 
-Instance list_Enumerable {X: Type} {enumX: Enumerable X} : Enumerable (list X).
+#[export] Instance list_Enumerable {X: Type} {enumX: Enumerable X} : Enumerable (list X).
 Proof.
   exists (list_Enumerable.encode X enumX) (fun n => list_Enumerable.decode X enumX n n).
   move=> ?. by apply: list_Enumerable.decode_encode.

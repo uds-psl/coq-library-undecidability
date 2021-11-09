@@ -641,22 +641,22 @@ Proof. exact ((fun n => renRen_term xipoly_type xiterm zetapoly_type zetaterm n)
 End term.
 
 
-Instance proper1 : Proper (fext_eq ==> fext_eq) ren_poly_type.
+#[export] Instance proper1 : Proper (fext_eq ==> fext_eq) ren_poly_type.
 Proof.
   repeat intros ?. eapply extRen_poly_type. firstorder.
 Qed.
 
-Instance proper2 : Proper (fext_eq ==> fext_eq ==> fext_eq) ren_term.
+#[export] Instance proper2 : Proper (fext_eq ==> fext_eq ==> fext_eq) ren_term.
 Proof.
   repeat intros ?. eapply extRen_term; firstorder.
 Qed.
 
-Instance proper3 : Proper (fext_eq ==> fext_eq) subst_poly_type.
+#[export] Instance proper3 : Proper (fext_eq ==> fext_eq) subst_poly_type.
 Proof.
   repeat intros ?. eapply ext_poly_type. firstorder.
 Qed.
 
-Instance proper4 : Proper (fext_eq ==> fext_eq ==> fext_eq) subst_term.
+#[export] Instance proper4 : Proper (fext_eq ==> fext_eq ==> fext_eq) subst_term.
 Proof.
   repeat intros ?. eapply ext_term; firstorder.
 Qed.

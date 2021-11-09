@@ -72,12 +72,12 @@ Proof.
   case: Hs't' Hs' => u' v' a' b' c' d' H Hs.
   move: H. rewrite /ssts in_map_iff. move=> [[[a b]]] [c d] [[]] ? ? ? ?. subst.
   move=> H. exists (firstn (length u') s ++ c :: d :: skipn (length u' + 2) s). constructor.
-  - rewrite map_app /= map_firstn map_skipn Hs.
+  - rewrite map_app /= -firstn_map -skipn_map Hs.
     rewrite firstn_app (ltac:(lia) : length u' - length u' = 0) firstn_all.
     rewrite skipn_app (ltac:(lia) : length u' + 2 - length u' = 2) skipn_all2 /=; first by lia.
     by rewrite app_nil_r.
   - move: H => /SR2ab_facts.stepI. apply; last done.
-    apply: map_enc_inj. rewrite Hs map_app /= map_firstn map_skipn Hs.
+    apply: map_enc_inj. rewrite Hs map_app /= -firstn_map -skipn_map Hs.
     rewrite firstn_app (ltac:(lia) : length u' - length u' = 0) firstn_all.
     rewrite skipn_app (ltac:(lia) : length u' + 2 - length u' = 2) skipn_all2 /=; first by lia.
     by rewrite app_nil_r.

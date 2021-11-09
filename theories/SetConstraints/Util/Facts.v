@@ -50,13 +50,6 @@ Proof.
 Qed.
 
 (* count_occ facts *)
-Lemma count_occ_app {X : Type} {D : forall x y : X, {x = y} + {x <> y}} {A B c}:
-count_occ D (A ++ B) c = count_occ D A c + count_occ D B c.
-Proof.
-  elim: A B; first done.
-  move=> a A IH B /=. rewrite IH. by case: (D a c).
-Qed.
-
 Lemma count_occ_cons {X : Type} {D : forall x y : X, {x = y} + {x <> y}} {A a c}:
 count_occ D (a :: A) c = count_occ D (locked [a]) c + count_occ D A c.
 Proof.
@@ -64,40 +57,13 @@ Proof.
 Qed.
 
 (* Forall facts *)
-Lemma Forall_nil_iff {X: Type} {P: X -> Prop} : Forall P [] <-> True.
-Proof. by constructor. Qed.
-
-Lemma Forall_cons_iff {T: Type} {P: T -> Prop} {a l} :
-  Forall P (a :: l) <-> P a /\ Forall P l.
-Proof.
-  constructor. 
-  - move=> H. by inversion H.
-  - move=> [? ?]. by constructor.
-Qed.
-
 Lemma Forall_singleton_iff {X: Type} {P: X -> Prop} {x} : Forall P [x] <-> P x.
 Proof.
   rewrite Forall_cons_iff. by constructor; [case |].
 Qed.
 
-Lemma Forall_app_iff {T: Type} {P: T -> Prop} {A B}: Forall P (A ++ B) <-> Forall P A /\ Forall P B.
-Proof.
-  elim: A.
-  - constructor; by [|case].
-  - move=> ? ? IH /=. rewrite ? Forall_cons_iff ? IH.
-    by tauto.
-Qed.
-
 (* usage: rewrite ? Forall_norm *)
-Definition Forall_norm := (@Forall_app_iff, @Forall_singleton_iff, @Forall_cons_iff, @Forall_nil_iff).
-
-Lemma Forall_flat_mapP {X Y: Type} {P: Y -> Prop} {f: X -> list Y} {A: list X}: 
-  Forall P (flat_map f A) <-> Forall (fun a => Forall P (f a)) A.
-Proof.
-  elim: A.
-  - move=> /=. by constructor.
-  - move=> a A IH. by rewrite /flat_map -/(flat_map _ _) ? Forall_norm IH.
-Qed.
+Definition Forall_norm := (@Forall_app, @Forall_singleton_iff, @Forall_cons_iff, @Forall_nil_iff).
 
 (* seq facts *)
 Lemma seq_last start length : seq start (S length) = (seq start length) ++ [start + length].
@@ -106,9 +72,6 @@ Proof.
 Qed.
 
 (* repeat facts *)
-Lemma repeat_add {X : Type} {x : X} {m n} : repeat x (m + n) = repeat x m ++ repeat x n.
-Proof. elim: m; [done | by move=> ? /= ->]. Qed.
-
 Lemma Forall_repeat {X: Type} {a} {A: list X} : Forall (fun b => a = b) A -> A = repeat a (length A).
 Proof.
   elim: A; first done.

@@ -92,7 +92,7 @@ Lemma nat_sat {m n} :
   (map (fun i => m + i) (tower m n)) ++ (repeat 0 (4^n)) ≡ [m*n] ++ (tower m n) ++ (tower m n) ++ (tower m n) ++ (tower m n).
 Proof.
   elim: n; first by (have -> : m * 0 = 0 by lia).
-  move=> n IH /=. rewrite ?map_app ?repeat_add /= app_nil_r.
+  move=> n IH /=. rewrite ?map_app ?repeat_app /= app_nil_r.
   pose L := (map (fun i => m + i) (tower m n)) ++ (repeat 0 (4^n)).
   pose R := [m*n] ++ (tower m n) ++ (tower m n) ++ (tower m n) ++ (tower m n).
   have -> : m + m * n = m * (S n) by nia.
@@ -381,7 +381,7 @@ Proof.
   elim: n; first done.
   move=> n IH.
   rewrite /pyramid ? seq_last /plus ? (flat_map_concat_map, map_app, concat_app, app_length).
-  rewrite -?flat_map_concat_map -/pyramid -/(pyramid _) ?repeat_add seq_length /= ?app_nil_r.
+  rewrite -?flat_map_concat_map -/pyramid -/(pyramid _) ?repeat_app seq_length /= ?app_nil_r.
   apply /(eq_lr 
     (A' := (pyramid n ++ flat_map pyramid (seq 0 n)) ++ (seq 0 n ++ pyramid n))
     (B' := (repeat 0 (length (pyramid n)) ++ map S (flat_map pyramid (seq 0 n))) ++ (repeat 0 n ++ map S (pyramid n))));
@@ -394,7 +394,7 @@ Lemma encode_nat_sat {φ x} :
   mset_sat (construct_valuation φ) (encode_nat x).
 Proof.
   rewrite /encode_nat /mset_sat ?Forall_norm /mset_sem  /construct_valuation ?embed_unembed.
-  rewrite -?repeat_add.
+  rewrite -?repeat_app.
   constructor.
   { apply: eq_eq. f_equal. have := pyramid_length (φ x). by lia. }
   constructor.
@@ -419,7 +419,7 @@ Lemma encode_constraint_spec {φ x y z} :
   mset_sat φ (encode_constraint x y z) -> 
   1 + length (φ (embed (x, 0, 1))) + length(φ (embed (y, 0, 1))) * length(φ (embed (y, 0, 1))) = length(φ (embed (z, 0, 1))).
 Proof.
-  rewrite /encode_constraint /mset_sat ?Forall_app_iff -?/(mset_sat _ _).
+  rewrite /encode_constraint /mset_sat ?Forall_app -?/(mset_sat _ _).
   move=> [Hx [Hy [Hz]]].
   move=> [/(encode_nat_spec Hx) ? [/(encode_nat_spec Hy) ? [/(encode_nat_spec Hz) ?]]].
   rewrite /mset_sat Forall_norm /mset_sem.
@@ -431,12 +431,13 @@ Lemma encode_constraint_sat {φ x y z} :
   1 + (φ x) + (φ y) * (φ y) = (φ z) -> mset_sat (construct_valuation φ) (encode_constraint x y z).
 Proof.
   move=> Hxyz.
-  rewrite /encode_constraint /mset_sat ? Forall_app_iff Forall_singleton_iff -?/(mset_sat _ _).
+  rewrite /encode_constraint /mset_sat ?Forall_app -?/(mset_sat _ _).
   do 3 (constructor; first by apply: encode_bound_sat).
   do 3 (constructor; first by apply: encode_nat_sat).
+  apply /Forall_singleton_iff.
   rewrite /mset_sem /construct_valuation ? embed_unembed.
   have ->: [0] = repeat 0 1 by done.
-  rewrite -?repeat_add. apply: eq_eq. f_equal. move: Hxyz=> <-. clear. 
+  rewrite -?repeat_app. apply: eq_eq. f_equal. move: Hxyz=> <-. clear. 
   elim: (φ y); clear; first by (move=> /=; lia).
   move=> φy IH. 
   rewrite /pyramid seq_last /(plus 0 _) flat_map_concat_map map_app concat_app.
@@ -460,14 +461,14 @@ Proof.
     elim: h10ucs Hφ; first by constructor.
     move=> [[x y] z] h10cs IH.
     move /Forall_forall. rewrite Forall_cons_iff. move=> [Hxyz /Forall_forall /IH].
-    move=> {}IH. apply /Forall_app_iff. constructor; last done.
+    move=> {}IH. apply /Forall_app. constructor; last done.
     by apply: Argument.encode_constraint_sat.
   - move=> [φ] Hφ.
     pose ψ := (fun x => length (φ (Argument.embed (x, 0, 1)))).
     exists ψ. rewrite -Forall_forall.
     elim: h10ucs Hφ; first done.
     move=> [[x y] z] h10ucs IH. 
-    rewrite /flat_map -/(flat_map _) /mset_sat Forall_app_iff /(Argument.encode_h10uc _).
+    rewrite /flat_map -/(flat_map _) /mset_sat Forall_app /(Argument.encode_h10uc _).
     move=> [/Argument.encode_constraint_spec Hxyz /IH ?].
     by constructor.
 Qed.
@@ -573,7 +574,7 @@ Proof.
       by rewrite ? term_to_nat_pos.
   }
   exists ψ.
-  rewrite - Forall_forall /encode_problem Forall_flat_mapP.
+  rewrite - Forall_forall /encode_problem Forall_flat_map.
   apply: Forall_impl; last eassumption. 
   move=> [A B]. rewrite ? Forall_norm.
   move=> HφAB. constructor; last by constructor.
@@ -585,7 +586,7 @@ Qed.
 
 Lemma soundness {l} : FMsetC_SAT (encode_problem l) -> FMsetTC_SAT l.
 Proof.
-  move=> [ψ]. rewrite -Forall_forall Forall_flat_mapP => Hψ.
+  move=> [ψ]. rewrite -Forall_forall Forall_flat_map => Hψ.
   pose φ x := ψ (term_to_nat (mset_term_var x)).
   exists φ.
   apply: Forall_impl; last by eassumption.

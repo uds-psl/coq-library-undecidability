@@ -19,10 +19,3 @@ Lemma map_0P {X: Type} {A: list X} : (map (fun=> 0) A) = repeat 0 (length A).
 Proof. 
   elim: A; [done | by move=> > /= ->].
 Qed.
-
-Lemma count_occ_app {X : Type} {D : forall x y : X, {x = y} + {x <> y}} {A B c} :
-  count_occ D (A ++ B) c = count_occ D A c + count_occ D B c.
-Proof.
-  elim: A B; first done.
-  move=> a A IH B /=. rewrite IH. by case: (D a c).
-Qed.
