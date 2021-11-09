@@ -362,7 +362,7 @@ Section Σfull_mon_rem.
       exists.
       { intros r'; simpl in r'; intros v; apply M'dec. }
       exists φ; simpl.
-      destruct HA as [ H1 H2 ].
+      simpl in HA. destruct HA as [ H1 H2 ].
       revert H1; apply Σfull_mon_rec_complete.
       + intros s w r x Hw.
         simpl in H2; specialize (H2 x).

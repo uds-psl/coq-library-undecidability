@@ -220,7 +220,8 @@ Section SAT2_SATn.
     Local Lemma SAT2_to_SATn : exists Y, fo_form_fin_dec_SAT_in A Y.
     Proof.
       exists (sig P).
-      destruct HA as ( H2 & H3 & H4).
+      simpl in HA. destruct HA as (H2 & H3 & H4).
+      change (fol_sem M2 ψ (Σ2_non_empty 0)) in H2.
       rewrite Σ2_non_empty_spec in H2.
       rewrite Σ2_list_in_spec in H3.
       revert H3 H4; set (B := A⦃fun v : nat => in_var (2 + v)⦄); intros H3 H4.
