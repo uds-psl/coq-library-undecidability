@@ -72,7 +72,8 @@ Section Constants.
     Proof.
       induction 1; cbn; intuition.
       subst. unfold beta.
-      intros x ? % consts_subst_in; simplify; intuition.
+      intros x ? % consts_subst_in; simplify.
+      destruct H; [tauto|].
       destruct H as [[|y] ?]; cbn in *; intuition.
     Qed.
 

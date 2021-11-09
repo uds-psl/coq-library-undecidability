@@ -83,8 +83,8 @@ Section SimplifiedReduction.
     specialize (H (tails C)) as H2; mp H2; simplify; eauto.
     destruct H1 as [t' [-> H1]], H2 as [t'' [-> H2]].
     rewrite <-!select_map, !enc_concat, <-!enc_app.
-    intros ? % equiv_lam_elim % equiv_lam_elim.
-    eapply enc_eq in H3. 1 - 2: intuition. lia.
+    intros EQ % equiv_lam_elim % equiv_lam_elim.
+    eapply enc_eq in EQ. 1 - 2: intuition. lia.
     all: intros s; try eapply H1; try eapply H2.
   Qed.
 
