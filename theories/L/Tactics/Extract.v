@@ -234,7 +234,7 @@ Definition mkFixMatch (f x : ident) (t1 t2 : Ast.term) (pred : Ast.predicate ter
   let '(ind, Params) := hs_num in
   let params := List.length Params in
   L <- list_constructors ind >>= tmEval hnf ;; 
-    body <- monad_map_i (fun i '(n, s, args) =>
+  body <- monad_map_i (fun i '(n, s, args) =>
                           l <- tmArgsOfConstructor ind i ;;
                           l' <- monad_map_i (insert_params FUEL Params) (skipn params l) ;;
                           t <- cases i l' ;; ret (mk_branch (context_to_bcontext args) t)) L ;; 
@@ -291,7 +291,7 @@ Definition tmEncode (name : string) (A : Type) :=
            (fun i (* ctr index *) ctr_types (* ctr type *) => 
               args <- tmEval cbv (|ctr_types|);; 
               C <- monad_map_i (encode_arguments t args) ctr_types ;; 
-              ret (stack (map (tLambda (naAnon)) ctr_types)
+              ret ( (* stack (map (tLambda (naAnon)) ctr_types) *)
                                (it mkLam num ((fun s => mkAppList s C) (mkVar (mkNat (num - i - 1))))))
            ) ;;
   u <- tmUnquoteTyped (encodable A) ter;; 
@@ -374,6 +374,8 @@ Definition tmExtractConstr (def : ident) {A : Type} (a : A) :=
 (* End Fix_X. *)
 
 (* *** Extracting terms from Coq to L *)
+
+Definition lift env := (fun n => match n with 0 => 0 | S n => S (env n) end).
 
 Notation "↑ env" := (fun n => match n with 0 => 0 | S n => S (env n) end) (at level 10).
 (*
@@ -496,19 +498,8 @@ Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad 
     i <- tmTryInfer nm (Some cbn) (extracted a') ;;
       ret (@int_ext _ _ i)
   | Ast.tCase _ _ s cases =>
-    let fix extractCaseEtaExpand (env : nat -> nat) (s:Ast.term) (k:nat) {struct k}: TemplateMonad L.term :=
-        match k,s with
-          0,_ =>
-          t <- extract (fun i => S (env i)) s fuel;;
-            ret (lam t)
-        | S k,tLambda _ _ s =>
-          t <- extractCaseEtaExpand (↑ env) s k ;;
-            ret (lam t)
-        | S _, _ => tmFail "Match case does not contain the expected abstractions for bound argument."
-        end
-    in
     t <- extract env s fuel ;;
-      M <- monad_fold_left (fun t1 br => t2 <- extractCaseEtaExpand env (br.(bbody)) (List.length br.(bcontext));; ret (L.app t1 t2)) cases t ;;
+      M <- monad_fold_left (fun t1 br => len <- tmEval cbv (List.length br.(bcontext)) ;; t2 <- extract (fun i => S (it lift (len) env i)) br.(bbody) fuel ;; t2' <- tmEval cbn (it lam len (lam t2)) ;; ret (L.app t1 t2')) cases t ;;
       ret (L.app M I)
   | Ast.tLetIn _ s1 _ s2 =>
     t1 <- extract env s1 fuel ;;

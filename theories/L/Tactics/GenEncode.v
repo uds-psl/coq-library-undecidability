@@ -3,7 +3,7 @@ From MetaCoq Require Import Template.All TemplateMonad.Core Template.Ast.
 Require Import String List.
 Export String.StringSyntax.
 
-Import MonadNotation.
+Import MCMonadNotation.
 Local Open Scope string_scope.
 
 (* *** Generation of encoding functions *)
@@ -22,17 +22,19 @@ Definition encode_arguments (B : term) (a i : nat) A_j :=
       l <- tmQuote t;;
       ret (tApp l [tRel (a - i - 1) ]).
 
-Definition mkMatch (t1 t2 d : Ast.term) (cases : nat -> list term -> Core.TemplateMonad term) :=
+Definition mkMatch (t1 t2 d : Ast.term) (pred : Ast.predicate term)  (cases : nat -> list term -> Core.TemplateMonad term) :=
   hs_num <- tmGetOption (split_head_symbol t1) "no head symbol found";;
   let '(ind, Params) := hs_num in
   let params := List.length Params in
   L <- list_constructors ind >>= tmEval hnf ;; 
-    body <- monad_map_i (fun i '(n, s, args) =>
-                          l <- tmArgsOfConstructor ind i ;;
-                          l' <- monad_map_i (insert_params FUEL Params) (skipn params l) ;;
-                          t <- cases i l' ;; ret (args, t)) L ;; 
-  ret (tCase ((ind, params), Relevant) (tLambda naAnon t1 t2) d
-             body).
+  body <- monad_map_i (fun i '(n, s, args) =>
+  l <- tmArgsOfConstructor ind i ;;
+  l' <- monad_map_i (insert_params FUEL Params) (skipn params l) ;;
+  t <- cases i l' ;; ret (mk_branch (context_to_bcontext args) t)) L ;; 
+ret (tCase (mk_case_info ind params Relevant)
+                        pred
+                        d
+                        body).
 
 Definition L_facts_mp := MPfile ["L_facts"; "Util"; "L"; "Undecidability"].
 
@@ -40,13 +42,17 @@ Definition tmMatchCorrect (A : Type) : Core.TemplateMonad Prop :=
   t <- (tmEval hnf A >>= tmQuote) ;; 
   hs_num <- tmGetOption (split_head_symbol t) "no inductive";;
   let '(ind, Params) := hs_num in
-  num <- tmNumConstructors (inductive_mind ind) ;;
+  decl <- tmQuoteInductiveDecl (inductive_mind ind) ;;
+  let '(mdecl,idecl) := decl in
+  let params := firstn mdecl.(ind_npars) Params in
+  num <- tmEval cbv (| ind_ctors idecl |) ;;
   x <- Core.tmFreshName "x" ;; 
   mtch <- mkMatch t (* argument type *) tTerm (* return type *) (tRel (2 * num))
+           (mk_predicate Instance.empty params (context_to_bcontext (ind_predicate_context ind mdecl idecl)) tTerm)
            (fun i (* ctr index *) ctr_types (* ctr type *) => 
               args <- tmEval cbv (|ctr_types|);; 
               C <- monad_map_i (encode_arguments t args) ctr_types ;; 
-              ret (stack (map (tLambda (naAnon)) ctr_types)
+              ret ( (* stack (map (tLambda (naAnon)) ctr_types) *)
                                (((fun s => mkAppList s C) (tRel (args + 2 * (num - i) - 1)))))
            ) ;;
    E' <- Core.tmInferInstance None (registered A);;
