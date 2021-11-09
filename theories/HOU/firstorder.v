@@ -426,20 +426,20 @@ Section Unification.
     
     Global Obligation Tactic := idtac.
     
-    Equations? unif (E: list (exp X * exp X)) : { sigma | E ↦ sigma } + ({ sigma | E ↦ sigma } -> False) by wf E subvars :=
-      unif E with remember (decomp' E) => {
-        unif E (Some nil ; H) := inl (var ; _) ;
-        unif E (Some ((var x, s) :: E') ; H)
-          with (x el vars s, isFree x, dec_all isFree (vars s)) => {
-          unif E (Some ((var x, s) :: E') ; H) (right H1, left H2, left H3)
-            with (unif (update x s var •₊₊ E')) => {
-            unif E (Some ((var x, s) :: E') ; H) (right H1, left H2, left H3) (inl (sigma;_))
-            := inl (update x (sigma • s) sigma ; _);
-            unif _ _ _ _ := inr _
+   (*  Equations? unif (E: list (exp X * exp X)) : { sigma | E ↦ sigma } + ({ sigma | E ↦ sigma } -> False) by wf E subvars :=
+      unif E1 with remember (decomp' E1) => {
+        unif E2 (Some nil ; H) := inl (var ; _) ;
+        unif E3 (Some ((var x1, s1) :: E') ; H)
+          with (x1 el vars s1, isFree x1, dec_all isFree (vars s1)) => {
+          unif E4 (Some ((var x2, s2) :: E'') ; H') (right H1, left H2, left H3)
+            with (unif (update x2 s2 var •₊₊ E'')) => {
+            unif E5 (Some ((var x3, s3) :: E') ; H'') (right H1', left H2', left H3') (inl (sigma1;HH))
+            := inl (update x3 (sigma1 • s3) sigma1 ; _);
+            unif a b c d := inr _
           };
-          unif E _ _ := inr _
+          unif E5 a1 b1 := inr _
         };
-        unif E _ => inr _
+        unif E6 a2 => inr _
       }.
     Proof.
       all: try now intros [σ H]; inv H; intuition congruence.
@@ -454,7 +454,7 @@ Section Unification.
         rewrite unknown0 in H0. inv H0; eauto.
       - intros [σ H]; inv H. congruence.
         rewrite unknown0 in H0. inv H0; eauto.
-    Qed.
+    Qed. *)
     
   End Computability.
 
@@ -913,7 +913,7 @@ Section Retyping.
 
 End Retyping.
 
-
+(* 
 (* ** Full First-Order Unification  *)
 Section FirstOrderDecidable.
 
@@ -1060,3 +1060,4 @@ Section FirstOrderDecidable.
   Qed.
   
 End FirstOrderDecidable.
+ *)
