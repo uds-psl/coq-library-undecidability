@@ -48,15 +48,6 @@ Lemma ForallE {X : Type} {P : X -> Prop} {l} :
   Forall P l -> if l is x :: l then P x /\ Forall P l else True.
 Proof. by case. Qed.
 
-Lemma Forall_flat_map_iff {T U: Type} {P : T -> Prop} {ds : list U} {f : U -> list T} : 
-  Forall P (flat_map f ds) <-> Forall (fun d => Forall P (f d)) ds.
-Proof.
-  elim: ds; first by (constructor=> /=).
-  move=> a l IH /=. rewrite Forall_app. constructor.
-  - move=> [? ?]. constructor; [done | by apply /IH].
-  - by move=> /ForallE [? /IH ?].
-Qed.
-
 Section Reduction.
 (* given instance of Diophantine constraint solvability *)
 Context (cs: list h10c).
@@ -125,7 +116,7 @@ End Transport.
 Lemma transport : H10C_SAT cs -> H10SQC_SAT sqcs.
 Proof.
   move=> [φ Hφ]. exists (φ' φ).
-  move: Hφ. rewrite -?Forall_forall /sqcs Forall_flat_map_iff.
+  move: Hφ. rewrite -?Forall_forall /sqcs Forall_flat_map.
   apply: Forall_impl => ?. by move /h10c_to_h10sqcs_spec.
 Qed.
 
@@ -150,7 +141,7 @@ End InverseTransport.
 Lemma inverse_transport : H10SQC_SAT sqcs -> H10C_SAT cs.
 Proof.
   move=> [φ' Hφ']. exists (φ φ').
-  move: Hφ'. rewrite -?Forall_forall /sqcs Forall_flat_map_iff.
+  move: Hφ'. rewrite -?Forall_forall /sqcs Forall_flat_map.
   apply: Forall_impl => ?. by move=> /h10c_of_h10sqcs_spec.
 Qed.
 

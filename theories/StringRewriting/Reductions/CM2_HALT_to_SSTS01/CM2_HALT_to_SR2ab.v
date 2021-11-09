@@ -268,7 +268,7 @@ Lemma multi_step_enc_c0 : multi_step srs (repeat sz d) (enc_Config c0).
 Proof using.
   apply: (rt_trans (y := (repeat sz (1 + n_cm)) ++ [sz] ++ [st] ++ [sr] ++ (repeat sz (1 + n_cm)))).
   - have ->: d = 1 + n_cm + 1 + 1 + 1 + 1 + n_cm by (rewrite /d; lia).
-    rewrite -?repeat_appP -?app_assoc. do ? apply: multi_step_applI.
+    rewrite ?repeat_app -?app_assoc. do ? apply: multi_step_applI.
     apply /rt_step /stepI_nil. by eauto with in_srs_db nocore.
   - apply /multi_step_applI /rt_step /stepI_nil. by eauto with in_srs_db nocore.
 Qed.
@@ -286,7 +286,7 @@ Proof.
     + rewrite -?app_assoc. apply: multi_step_applI. 
       apply: (rt_trans (y := (repeat sb n) ++ [sb' p] ++ [(y, None)])).
       * rewrite ?app_assoc. apply: multi_step_apprI. by apply: move_sb_right.
-      * have ->: S n = n + 1 by lia. rewrite -repeat_appP -?app_assoc.
+      * have ->: S n = n + 1 by lia. rewrite repeat_app -?app_assoc.
         apply /multi_step_applI /rt_step /stepI_nil.
         move: Hxy => [] [_ ->]; by eauto with in_srs_db nocore.
 Qed.
@@ -298,7 +298,7 @@ Proof.
   - apply /rt_step /stepI_nil.
     move: Hxy => [] [-> ->]; by eauto with in_srs_db nocore.
   - move=> n. apply: (rt_trans (y := [(x, None)] ++ (repeat sb n) ++ [sb' p] ++ [(y, None)])).
-    + rewrite (ltac:(lia) : S n = n + 1) -repeat_appP -?app_assoc. do ? apply: multi_step_applI. 
+    + rewrite (ltac:(lia) : S n = n + 1) repeat_app -?app_assoc. do ? apply: multi_step_applI. 
       apply /rt_step /stepI_nil.
       move: Hxy => [] [_ ->]; by eauto with in_srs_db nocore.
     + rewrite ?app_assoc. apply: multi_step_apprI.
@@ -348,12 +348,12 @@ Proof using H_n_cm.
     apply: rt_trans; first by eassumption.
     apply: rt_trans; last by eassumption.
     have [-> ->]: S b = b + 1 /\ S n_cm - b = 1 + (S n_cm - (b + 1)) by lia.
-    rewrite -?repeat_appP -?app_assoc. do 5 apply: multi_step_applI.
+    rewrite ?repeat_app -?app_assoc. do 5 apply: multi_step_applI.
     apply /rt_step /stepI_nil. by eauto with in_srs_db nocore.
   (* inc a *)
   - move=> ? _ _ ? /=.
     have [-> ->]: S n_cm - a = (n_cm - a) + 1 /\ S a = 1 + a by lia.
-    rewrite -?repeat_appP -?app_assoc. apply: multi_step_applI.
+    rewrite ?repeat_app -?app_assoc. apply: multi_step_applI.
     apply /rt_step /stepI_nil. by eauto with in_srs_db nocore.
   (* dec b q *)
   - move=> q ? /= Hr Hl Hb.
@@ -363,14 +363,14 @@ Proof using H_n_cm.
     + do 3 apply: multi_step_applI.
       apply /rt_step /stepI_nil. by eauto with in_srs_db nocore.
     + have [-> ->] : S b' = b' + 1 /\ S n_cm - b' = 1 + (S n_cm - (b' + 1)) by lia.
-      rewrite -?repeat_appP -?app_assoc. do 5 apply: multi_step_applI. 
+      rewrite ?repeat_app -?app_assoc. do 5 apply: multi_step_applI. 
       apply /rt_step /stepI_nil. by eauto with in_srs_db nocore.
   (* dec a q*)
   - move=> q ? _ _ Ha.
     case: (a) Ha => [_ | a' Ha'] /=.
     + apply /multi_step_applI /rt_step /stepI_nil.
       by eauto with in_srs_db nocore.
-    + rewrite (ltac:(lia) : (S n_cm - a' = (n_cm - a') + 1)) -repeat_appP -?app_assoc.
+    + rewrite (ltac:(lia) : (S n_cm - a' = (n_cm - a') + 1)) repeat_app -?app_assoc.
       apply /multi_step_applI /rt_step /stepI_nil.
       by eauto with in_srs_db nocore.
 Qed.
@@ -378,11 +378,11 @@ Qed.
 Lemma multi_step_repeat_solI n : multi_step srs (repeat sz n ++ [so]) (repeat so (n+1)).
 Proof.
   elim: n; first by apply: rt_refl.
-  move=> n IH. rewrite -repeat_appP. 
+  move=> n IH. rewrite repeat_app. 
   have ->: S n = n + 1 by lia.
   apply: (rt_trans (y := repeat sz n ++ [so] ++ [so]));
     last by (rewrite ?app_assoc; apply: multi_step_apprI).
-  rewrite -repeat_appP -?app_assoc.
+  rewrite repeat_app -?app_assoc.
   apply /multi_step_applI /rt_step /stepI_nil.
   by eauto with in_srs_db nocore.
 Qed.
@@ -404,8 +404,8 @@ Proof.
   move=> /multi_step_repeat_sorI H1 H2.
   apply: (rt_trans (y := ([so] ++ repeat so n ++ s))).
   - rewrite ?app_assoc. by apply: multi_step_apprI.
-  - have ->: [so] = repeat so 1 by done. rewrite ?app_assoc repeat_appP.
-    have ->: 1 + n = n + 1 by lia. rewrite -repeat_appP -?app_assoc.
+  - have ->: [so] = repeat so 1 by done. rewrite ?app_assoc -repeat_app.
+    have ->: 1 + n = n + 1 by lia. rewrite repeat_app -?app_assoc.
     by apply: multi_step_applI.
 Qed.
 
@@ -416,14 +416,14 @@ Proof using H_n_cm.
   have := cm_values_ub n. have := cm_state_ub n.
   move: (Nat.iter _ _ c0) => [p a b] /= *.
   apply: (rt_trans (y := (repeat sz (n_cm - a)) ++ [so] ++ [so] ++ _)).
-  - rewrite (ltac:(lia) : S n_cm - a = (n_cm - a) + 1) -repeat_appP -?app_assoc.
+  - rewrite (ltac:(lia) : S n_cm - a = (n_cm - a) + 1) repeat_app -?app_assoc.
     apply /multi_step_applI /rt_step /stepI_nil.
     by eauto with in_srs_db nocore.
   - apply: (rt_trans (y := (repeat so (n_cm - a + 1) ++ [so] ++
       repeat sb a ++ [sm] ++ repeat sb b ++ [sr] ++ repeat sz (S n_cm - b)))).
     + rewrite ?app_assoc. do 6 apply: multi_step_apprI. by apply: multi_step_repeat_solI.
     + have ->: d = (n_cm - a + 1) + 1 + a + 1 + b + 1 + (S n_cm - b) by (rewrite /d; lia).
-      rewrite -?repeat_appP -?app_assoc. do 2 apply: multi_step_applI.
+      rewrite ?repeat_app -?app_assoc. do 2 apply: multi_step_applI.
       apply: multi_step_repeat_sorI'; first by left.
       apply: (rt_trans (y := ([so] ++ [so] ++ repeat sb b ++ [sr] ++ repeat sz (S n_cm - b)))).
       * apply /rt_step /stepI_nil. by eauto with in_srs_db nocore.
@@ -555,7 +555,7 @@ Proof.
     rewrite ?app_assoc. move=> /app_inj_tail [].
     have [->|->] : m = 0 \/ m = (m - 1) + 1 by lia.
     - rewrite app_nil_r. move=> /app_inj_tail [] *. left. by apply: srs_step2.
-    - rewrite -repeat_appP map_app ?app_assoc.
+    - rewrite repeat_app map_app ?app_assoc.
       move=> /app_inj_tail [] *. left. apply: srs_step3; by [|lia]. }
   move=> ? v _. rewrite ?map_app ?app_assoc. 
   move=> /app_inj_tail [+] _. move=> + /ltac:(right).
@@ -608,7 +608,7 @@ Proof.
            eexists u', v', (_ ++ [_; _]).
            rewrite -?app_assoc. constructor; first done.
            by rewrite ?map_app filter_app /= H1 H2.
-        ** rewrite [in repeat sb b](ltac:(lia) : b = (b - 1) + 1) -repeat_appP.
+        ** rewrite [in repeat sb b](ltac:(lia) : b = (b - 1) + 1) repeat_app.
            rewrite ?map_app ?filter_app ?app_assoc ?app_nil_r /=.
            move=> + + /(app_inj_tail (y := [])) [H2] [<-].
            move=> ->. move=> /app_inj_tail [/app_inj_tail] [H1] _ _.
@@ -635,7 +635,7 @@ Proof.
     right. right. rewrite /= Hi. eexists u', v, (s1 ++ [_; _]).
     rewrite -?app_assoc. constructor; [done | constructor].
     * move: H1s1. rewrite ?map_app ?app_assoc. move=> /app_inj_tail [-> _].
-      by rewrite (ltac:(lia) : 1 + b = b + 1) -[repeat _ (b + 1)]repeat_appP map_app -?app_assoc.
+      by rewrite (ltac:(lia) : 1 + b = b + 1) [repeat _ (b + 1)]repeat_app map_app -?app_assoc.
     * by rewrite map_app filter_app /= H2s2.
   - move=> [v'1 ->]. right. left.
     exists u', (v'1 ++ c' :: d' :: v), t.

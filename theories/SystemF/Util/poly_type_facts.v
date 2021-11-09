@@ -217,7 +217,7 @@ Lemma allfv_poly_type_many_poly_arrI {P ss x} : Forall (allfv_poly_type P) ss ->
   allfv_poly_type P (many_poly_arr ss (poly_var x)).
 Proof.
   elim: ss; first done.
-  move=> > IH /Forall_consP [? /IH {}IH] /IH ?. by constructor.
+  move=> > IH /Forall_cons_iff [? /IH {}IH] /IH ?. by constructor.
 Qed.
 
 Lemma ext_subst_poly_type_allfv_poly_type {t σ σ'} : allfv_poly_type (fun x => σ x = σ' x) t -> 

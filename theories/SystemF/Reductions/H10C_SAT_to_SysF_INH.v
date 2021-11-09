@@ -326,13 +326,13 @@ Proof.
 Qed.
 
 Lemma is_safe_environment_Ut {ts} : Forall (is_safe_poly_type 0) (map Ut ts).
-Proof. apply /Forall_mapP /Forall_forall => ? _ /=. by lia. Qed.
+Proof. apply /Forall_map /Forall_forall => ? _ /=. by lia. Qed.
 
 Lemma is_safe_environment_St {tSs} : Forall (is_safe_poly_type 0) (map St tSs).
-Proof. apply /Forall_mapP /Forall_forall => [[[? ?] ?]] _ /=. by lia. Qed.
+Proof. apply /Forall_map /Forall_forall => [[[? ?] ?]] _ /=. by lia. Qed.
 
 Lemma is_safe_environment_Pt {tPs} : Forall (is_safe_poly_type 0) (map Pt tPs).
-Proof. apply /Forall_mapP /Forall_forall => [[[? ?] ?]] _ /=. by lia. Qed.
+Proof. apply /Forall_map /Forall_forall => [[[? ?] ?]] _ /=. by lia. Qed.
 
 (* Lemma 21 in [1] *)
 Lemma iipc2_to_dE {x y: nat} : dt < x -> dt < y ->
@@ -471,7 +471,7 @@ Proof.
   move=> [tx]. rewrite in_map_iff. move=> [Hx] [x] [?] Hxxs. subst tx. exists x.
   move: Hx Hss => /(congr1 parameters_poly_arr). rewrite parameters_poly_arr_safe_poly_type /=.
   case: ts'; last done. move=> /= <-. rewrite ?app_comm_cons.
-  move=> /Forall_consP [+ /Forall_consP [+ _]]. rewrite ?subst_poly_type_poly_var. 
+  move=> /Forall_cons_iff [+ /Forall_cons_iff [+ _]]. rewrite ?subst_poly_type_poly_var. 
   unlock. move=> /generalize_GammaU H1 /generalize_GammaU H2. constructor.
   - (* derive GammaC ⊢ P1 : †x -> †t *)
     move: H1 => /iipc2_poly_arrE /iipc2_is_safe_environment. clear. apply: unnest.
@@ -569,7 +569,7 @@ Proof.
   rewrite parameters_poly_arr_safe_poly_type /=.
   move=> Hss'. case: ts' Hss' Hss; last done.
   rewrite /length => <-. rewrite map_subst_poly_type_poly_var ?app_comm_cons.
-  move=> /Forall_consP [/generalize_GammaS H1] /Forall_consP [/generalize_GammaS H2] /Forall_consP [/generalize_GammaS H3] _.
+  move=> /Forall_cons_iff [/generalize_GammaS H1] /Forall_cons_iff [/generalize_GammaS H2] /Forall_cons_iff [/generalize_GammaS H3] _.
   move: HtSs => /Forall_forall => H /H{H} /= [n1'] [n2'] [n3'] [Hn1'] [Hn2'] [Hn3'] + Hn1 Hn2 Hn3.
   have := encodes_nat_transport' H1 Hn1 Hn2 Hn3 Hn1'.
   have := encodes_nat_transport' H2 Hn1 Hn2 Hn3 Hn2'.
@@ -594,7 +594,7 @@ Proof.
   move=> Hss'. case: ts' Hss' Hss; last done.
   rewrite /length => <-. under [map (subst_poly_type _) _]map_ext => ? do (rewrite subst_poly_type_poly_var).
   rewrite map_id ?app_comm_cons.
-  move=> /Forall_consP [/generalize_GammaP H1] /Forall_consP [/generalize_GammaP H2] /Forall_consP [/generalize_GammaP H3] _.
+  move=> /Forall_cons_iff [/generalize_GammaP H1] /Forall_cons_iff [/generalize_GammaP H2] /Forall_cons_iff [/generalize_GammaP H3] _.
   move: HtSs => /Forall_forall => H /H{H} /= [n1'] [n2'] [n3'] [Hn1'] [Hn2'] [Hn3'] + Hn1 Hn2 Hn3.
   have := encodes_nat_transport' H1 Hn1 Hn2 Hn3 Hn1'.
   have := encodes_nat_transport' H2 Hn1 Hn2 Hn3 Hn2'.
@@ -671,14 +671,14 @@ Proof using h10cs.
       move=> /normal_form_many_app [_ HQs] IH _.
 
       rewrite [Ut']lock [St']lock /= -[locked Ut']lock -[locked St']lock ?subst_poly_type_Ut' ?subst_poly_type_St' /= -lock.
-      move=> /copy [/Forall2_typing_Forall_iipc2 /Forall_consP [_]].
-      move=> /Forall_consP [/iipc2_Ut_unique [n5 ?]]. move=> /Forall_consP [/iipc2_Ut_unique [n4 ?]].
-      move=> /Forall_consP [/iipc2_Ut_unique [n3 ?]]. move=> /Forall_consP [/iipc2_Ut_unique [n2 ?]].
-      move=> /Forall_consP [/iipc2_Ut_unique [n1 ?]].
+      move=> /copy [/Forall2_typing_Forall_iipc2 /Forall_cons_iff [_]].
+      move=> /Forall_cons_iff [/iipc2_Ut_unique [n5 ?]]. move=> /Forall_cons_iff [/iipc2_Ut_unique [n4 ?]].
+      move=> /Forall_cons_iff [/iipc2_Ut_unique [n3 ?]]. move=> /Forall_cons_iff [/iipc2_Ut_unique [n2 ?]].
+      move=> /Forall_cons_iff [/iipc2_Ut_unique [n1 ?]].
       have ? := encodes_natI 1.
-      move=> /Forall_consP [/iipc2_St_soundness {}H]. have ?: n5 + n4 = n3 by apply: H; eassumption.
-      move=> /Forall_consP [/iipc2_St_soundness {}H]. have ?: n4 + 1 = n2 by apply: H; eassumption.
-      move=> /Forall_consP [/iipc2_St_soundness {}H]. have ?: n3 + 1 = n1 by apply: H; eassumption.
+      move=> /Forall_cons_iff [/iipc2_St_soundness {}H]. have ?: n5 + n4 = n3 by apply: H; eassumption.
+      move=> /Forall_cons_iff [/iipc2_St_soundness {}H]. have ?: n4 + 1 = n2 by apply: H; eassumption.
+      move=> /Forall_cons_iff [/iipc2_St_soundness {}H]. have ?: n3 + 1 = n1 by apply: H; eassumption.
       move=> _ {H} /copy [/Forall2_length_eq]. move: Qs HQs IH.
       move=> [|Q9]; first done. move=> Qs /Forall_inv HQ9 IH _ /Forall2_consE [+ _].
 
@@ -701,14 +701,14 @@ Proof using h10cs.
       rewrite [Ut']lock [St']lock [Pt']lock /= 
         -[locked Ut']lock -[locked St']lock -[locked Pt']lock 
         ?subst_poly_type_Ut' ?subst_poly_type_St' ?subst_poly_type_Pt' /= -lock.
-      move=> /copy [/Forall2_typing_Forall_iipc2 /Forall_consP [_]].
-      move=> /Forall_consP [/iipc2_Ut_unique [n5 ?]]. move=> /Forall_consP [/iipc2_Ut_unique [n4 ?]].
-      move=> /Forall_consP [/iipc2_Ut_unique [n3 ?]]. move=> /Forall_consP [/iipc2_Ut_unique [n2 ?]].
-      move=> /Forall_consP [/iipc2_Ut_unique [n1 ?]].
+      move=> /copy [/Forall2_typing_Forall_iipc2 /Forall_cons_iff [_]].
+      move=> /Forall_cons_iff [/iipc2_Ut_unique [n5 ?]]. move=> /Forall_cons_iff [/iipc2_Ut_unique [n4 ?]].
+      move=> /Forall_cons_iff [/iipc2_Ut_unique [n3 ?]]. move=> /Forall_cons_iff [/iipc2_Ut_unique [n2 ?]].
+      move=> /Forall_cons_iff [/iipc2_Ut_unique [n1 ?]].
       have ? := encodes_natI 1.
-      move=> /Forall_consP [/iipc2_Pt_soundness {}H]. have ?: n5 * n4 = n3 by apply: H; eassumption.
-      move=> /Forall_consP [/iipc2_St_soundness {}H]. have ?: n4 + 1 = n2 by apply: H; eassumption.
-      move=> /Forall_consP [/iipc2_St_soundness {}H]. have ?: n3 + n5 = n1 by apply: H; eassumption.
+      move=> /Forall_cons_iff [/iipc2_Pt_soundness {}H]. have ?: n5 * n4 = n3 by apply: H; eassumption.
+      move=> /Forall_cons_iff [/iipc2_St_soundness {}H]. have ?: n4 + 1 = n2 by apply: H; eassumption.
+      move=> /Forall_cons_iff [/iipc2_St_soundness {}H]. have ?: n3 + n5 = n1 by apply: H; eassumption.
       move=> _ {H} /copy [/Forall2_length_eq]. move: Qs HQs IH.
       move=> [|Q9]; first done. move=> Qs /Forall_inv HQ9 IH _ /Forall2_consE [+ _].
 
@@ -728,10 +728,10 @@ Proof using h10cs.
       rewrite map_app ?[map (subst_poly_type _) (map _ _)]map_map.
       under [map _ (seq _ _)]map_ext => x do rewrite Hts -rev_length subst_poly_type_Ut'.
       under [map _ h10cs]map_ext => c do (rewrite subst_poly_type_h10c_poly_type; first done).
-      set σ := (fold_right _ _ (rev ts)). move=> /Forall_appP [Hδ Hh10cs].
+      set σ := (fold_right _ _ (rev ts)). move=> /Forall_app [Hδ Hh10cs].
       have /list_choice [φ Hφ] : Forall (fun i => exists n, encodes_nat (σ i) n) (seq 0 δ).
-      { move: Hδ => /Forall_mapP. apply: Forall_impl => ?. by apply: iipc2_Ut_unique. }
-      exists φ => c. move: Hh10cs δP Hφ => /Forall_mapP /Forall_forall H1 /Forall_forall H2 /Forall_forall Hφ. 
+      { move: Hδ => /Forall_map. apply: Forall_impl => ?. by apply: iipc2_Ut_unique. }
+      exists φ => c. move: Hh10cs δP Hφ => /Forall_map /Forall_forall H1 /Forall_forall H2 /Forall_forall Hφ. 
       move=> /copy [/H1{H1} + /H2{H2}]. case: c.
       + move=> x /iipc2_St_soundness + ? /=. move=> /(_ (φ x) 0 1). have -> : φ x + 0 = φ x by lia. 
         apply; [done | | by apply: encodes_natI | by apply: encodes_natI].
@@ -840,13 +840,13 @@ Proof.
       constructor; last done.
       rewrite /t_cs /tt. apply /fresh_in_many_poly_absI /fresh_in_many_poly_arrI; last by lia.
       apply /Forall_appI.
-      + apply /Forall_mapP /Forall_seqP => x ?. rewrite /fresh_in /= /dt /b1t /b2t /ut. by lia.
-      + have := δP. move=> H. apply /Forall_mapP. apply: Forall_impl H.
+      + apply /Forall_map /Forall_seqP => x ?. rewrite /fresh_in /= /dt /b1t /b2t /ut. by lia.
+      + have := δP. move=> H. apply /Forall_map. apply: Forall_impl H.
         case=> > /=; rewrite /fresh_in /= /dt /b1t /b2t /b3t /ut /st /pt /zt /zt'; by lia.
     }
     rewrite /GammaUSP -lock.
     apply /Forall_appI; [| apply /Forall_appI; [apply /Forall_appI |]]; 
-      apply /Forall_mapP /Forall_seqP; firstorder (by [|move=> /=; lia]).
+      apply /Forall_map /Forall_seqP; firstorder (by [|move=> /=; lia]).
   - set σ := (σ in subst_poly_type σ _).
     have Hσ: forall x, σ x = 
       (scons (poly_var 0) (scons (poly_var (S (S n) + zt)) (funcomp poly_var S))) x by move=> [|[|x]].
@@ -948,11 +948,11 @@ Lemma introduce_φ (n: nat):
 Proof using Hφ.
   move: (Hφ). have := δP. rewrite /Gammaφ [Gamma0]lock => + /Forall_forall + Hn.
   elim: (h10cs); first by rewrite app_nil_r.
-  move=> [x | x y z | x y z] cs IH /Forall_consP [Hδ /IH {}IH] /Forall_consP /= [Hφc /IH {}IH].
+  move=> [x | x y z | x y z] cs IH /Forall_cons_iff [Hδ /IH {}IH] /Forall_cons_iff /= [Hφc /IH {}IH].
   - rewrite Hφc. by move=> /introduce_Sts => /(_ ltac:(lia)) /IH.
   - rewrite -Hφc. move=> /introduce_Sts H. apply /IH /H.
     have := ϵP z. by lia.
-  - rewrite -Hφc. move=> /introduce_Pts H. 
+  - rewrite -Hφc. move=> /introduce_Pts H.
     apply /IH /H; [have := ϵP x | have := ϵP y | have := ϵP z]; by lia.
 Qed.
 
@@ -962,13 +962,13 @@ Proof.
   apply: (iipc2_poly_varI 3 (ts := rev (map (fun x => poly_num (φ x)) (seq 0 δ))));
     first by rewrite rev_length map_length seq_length.
   rewrite map_app rev_involutive. apply /Forall_appI.
-  - apply /Forall_mapP /Forall_mapP /Forall_seqP => x Hx.
+  - apply /Forall_map /Forall_map /Forall_seqP => x Hx.
     set ts := (map _ _). have ->: δ = length ts by rewrite /ts map_length seq_length.
     rewrite subst_poly_type_Ut' /subst_poly_type /ts fold_right_map_seq; first by lia.
     apply /iipc2_var_InI /in_app_r /in_app_l /in_Ut_GammaUSP. have := ϵP x. by lia.
-  - apply /Forall_mapP /Forall_mapP. rewrite /Gammaφ.
+  - apply /Forall_map /Forall_map. rewrite /Gammaφ.
     clear. have := δP. elim: (h10cs); first done.
-    move=> c cs IH. move=> /Forall_consP [Hc /IH {}IH]. constructor.
+    move=> c cs IH. move=> /Forall_cons_iff [Hc /IH {}IH]. constructor.
     + set ts := (map _ (seq _ _)). have Hδ: δ = length ts by rewrite /ts map_length seq_length.
       move: c Hc {IH} => []; rewrite /h10c_poly_type.
       * move=> x ?. have ->: δ + 1 + zt = δ + (1 + zt) by lia. 

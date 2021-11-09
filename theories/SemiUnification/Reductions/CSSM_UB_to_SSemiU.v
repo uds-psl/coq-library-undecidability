@@ -281,11 +281,11 @@ Lemma interpretP {M: ssm} {X Y: config} {φ ψ0 ψ1: valuation} :
 Proof.
   move=> HM. elim; [| done | by move=> > ? ->].
   move=> {}X {}Y [|] x y a b A B.
-  - move: HM. rewrite /SM_to_SUcs Forall_mapP Forall_forall => HM. 
+  - move: HM. rewrite /SM_to_SUcs Forall_map Forall_forall => HM. 
     move /HM. rewrite /models /interpret.
     case: (φ (embed ([], [], y))); first done.
     move: a b => [|] [|] ? ? -> /=; by rewrite ascend_arr.
-  - move: HM. rewrite /SM_to_SUcs Forall_mapP Forall_forall => HM. 
+  - move: HM. rewrite /SM_to_SUcs Forall_map Forall_forall => HM. 
     move /HM. rewrite /models /interpret.
     case: (φ (embed ([], [], x))); first done.
     move: a b => [|] [|] ? ? -> /=; by rewrite ascend_arr.

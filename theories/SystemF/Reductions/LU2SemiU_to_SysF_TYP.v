@@ -86,9 +86,9 @@ Proof. move=> [t] /pure_typing_iff_type_assignment ?. by exists Gamma, t. Qed.
 Lemma prenex_Gamma_W :
   Forall (fun t => exists n s, t = many_poly_abs n s /\ is_simple s /\ allfv_poly_type (gt n) s) Gamma_W.
 Proof.
-  apply /Forall_consP. constructor.
+  apply /Forall_cons_iff. constructor.
   { exists 2, t_0_W. constructor; [done | constructor; [done | by move=> /=; lia ]]. }
-  apply /Forall_consP. constructor; last done.
+  apply /Forall_cons_iff. constructor; last done.
   do 2 eexists. constructor; first by reflexivity.
   by constructor; [apply: is_simple_t_1_W | apply: closed_t_1_W ].
 Qed.

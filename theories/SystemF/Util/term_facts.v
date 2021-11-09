@@ -201,7 +201,7 @@ Proof.
   move H1P': (app _ _) => P' H2P'. case: H2P' H1P'; [|done|done].
   move=> ? []; [done| |done]. move=> ? ? /normal_form_head_form + + [? ?]. subst.
   move=> /IH [? ?] ?. constructor; first done.
-  apply /Forall_appP. constructor; first done.
+  apply /Forall_app. constructor; first done.
   by constructor.
 Qed.
 

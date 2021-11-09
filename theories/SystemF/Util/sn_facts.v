@@ -2,13 +2,14 @@ Require Import Undecidability.SystemF.SysF Undecidability.SystemF.Autosubst.synt
 Import UnscopedNotations.
 From Undecidability.SystemF.Util Require Import typing_facts term_facts step.
 Require Import Setoid Morphisms.
+Require List.
 
 Set Default Proof Using "Type".
 
 Definition pw_iff {X} p q := (forall x : X, p x <-> q x).
 Notation "p == q" := (pw_iff p q) (at level 70).
 
-Instance Equiv_pw_iff {X} : Equivalence (@pw_iff X).
+#[local] Instance Equiv_pw_iff {X} : Equivalence (@pw_iff X).
 Proof.
   firstorder.
 Qed.
@@ -41,7 +42,7 @@ Inductive R (p : tpred) P : Prop :=
        (forall Q, step P Q -> R p Q) ->
        R p P.
 
-Instance R_ext :
+#[local] Instance R_ext :
   Proper (pw_iff ==> eq ==> iff) R.
 Proof.
   intros p1 p2 Heq P ? ->. split; induction 1 as [P H H1 H2].
@@ -58,7 +59,7 @@ Record model := mk_model
     Arr_ext : Proper (pw_iff ==> pw_iff ==> pw_iff) Arr ;
     All_ext : Proper (pointwise_relation _ pw_iff ==> pw_iff) All
   }.
-Existing Instances Var_ext Arr_ext All_ext.
+#[local] Existing Instances Var_ext Arr_ext All_ext.
 
 Section Evaluation.
   Variable (M : model).
@@ -70,7 +71,7 @@ Section Evaluation.
     | poly_abs s => All M (fun d => eval (d .: ρ) s)
     end.
 
-  Instance eval_ext :
+  #[local] Instance eval_ext :
     Proper (pointwise_relation _ pw_iff ==> eq ==> pw_iff) eval.
   Proof.
     intros ρ1 ρ2 Heq s ? <-. induction s in ρ1, ρ2, Heq |- *; cbn.
@@ -336,7 +337,7 @@ Proof.
     + specialize (IHtyping (up_poly_type_poly_type σ) (τ >> ren_term shift id) ((fun _ => False) .: ρ)).
       eapply R_sn. refine (IHtyping _).
       intros n.
-      rewrite Facts.nth_error_map.
+      rewrite List.nth_error_map.
       destruct List.nth_error eqn:Eq.
       * cbn. asimpl. eapply E_weaken.
         specialize (HC n). cbn in HC. rewrite Eq in HC.
@@ -349,7 +350,7 @@ Proof.
       2:{ eapply E_weaken.
           erewrite <- rinst_inst_term; try reflexivity.
           eapply R_ren. eapply HC. }
-      * f_equal. rewrite Facts.nth_error_map.
+      * f_equal. rewrite List.nth_error_map.
         now destruct List.nth_error eqn:Eq.
 Qed.
 

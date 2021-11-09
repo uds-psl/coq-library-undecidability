@@ -10,33 +10,13 @@ Set Default Goal Selector "!".
 Lemma seq_last {m n} : seq m (1+n) = seq m n ++ [m + n].
 Proof. have -> : 1+n = n+1 by lia. by rewrite seq_app. Qed.
 
-(* nth_error facts *)
-
-Lemma nth_error_map {X Y: Type} {f: X -> Y} {l: list X} {n: nat} :
-  nth_error (map f l) n = omap f (nth_error l n).
-Proof.
-  elim: n l; first by case.
-  move=> n IH. case; first done.
-  move=> x l /=. by rewrite /nth_error -?/(nth_error _ _).
-Qed.
-
-Lemma nth_error_seq {m l n: nat} :
-  n < l -> nth_error (seq m l) n = Some (m+n).
-Proof.
-  elim: n m l.
-  - move=> m [|l]; first by lia.
-    move=> /= _. congr Some. by lia.
-  - move=> n IH m [|l /= ?]; first by lia.
-    rewrite /nth_error -/(nth_error _ _) IH; [|congr Some]; by lia.
-Qed.
-
-Lemma repeat_appP {X: Type} {x: X} {n m: nat} : 
-  repeat x n ++ repeat x m = repeat x (n+m).
-Proof. by elim: n; [| move=> ? /= ->]. Qed.
+Lemma repeat_app' {X: Type} {x: X} {n m: nat} :
+  repeat x n ++ repeat x m = repeat x (n + m).
+Proof. by apply /esym /repeat_app. Qed.
 
 Lemma repeat_app_appP {X: Type} {x: X} {xs: list X} {n m: nat} : 
   repeat x n ++ (repeat x m ++ xs) = repeat x (n+m) ++ xs.
-Proof. by rewrite -repeat_appP app_assoc. Qed.
+Proof. by rewrite repeat_app app_assoc. Qed.
 
 Lemma repeat_singP {X: Type} {x: X} : 
   [x] = repeat x 1.

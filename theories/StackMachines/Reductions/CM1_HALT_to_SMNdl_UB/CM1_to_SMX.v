@@ -87,7 +87,7 @@ Definition nat_norm := (Nat.add_0_r, Nat.add_0_l, Nat.sub_0_r, Nat.sub_diag, Nat
 
 (* rewrite rules to simplify list app expressions *)
 Definition app_norm := 
-  (app_nil_l, app_nil_r, @app_assoc', @repeat_appP, @repeat_app_appP, @repeat_singP _ §0, @cons_repeat_app _ §0).
+  (app_nil_l, app_nil_r, @app_assoc', @repeat_app', @repeat_app_appP, @repeat_singP _ §0, @cons_repeat_app _ §0).
 
 Lemma list_symbol_shape (l: list Symbol) : (exists n, l = §0^n) \/ (exists n l', l = §0^n ++ [§1] ++ l').
 Proof.

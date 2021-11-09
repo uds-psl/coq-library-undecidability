@@ -68,7 +68,7 @@ Section MM2_CM1.
   (* M has denominators of at most 4 *)
   Lemma M_capped : Forall (fun '(_, n) => n < 4) M.
   Proof.
-    apply /Forall_flat_map_iff /Forall_forall.
+    apply /Forall_flat_map /Forall_forall.
     move=> [[]] [] > _ /=; by (do ? constructor).
   Qed.
 

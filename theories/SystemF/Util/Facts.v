@@ -38,35 +38,15 @@ Section ForallNorm.
 Variable T : Type.
 Variable P : T -> Prop.
 
-Lemma Forall_nilP : Forall P [] <-> True.
-Proof. by constructor. Qed.
-
-Lemma Forall_consP {a A} : Forall P (a :: A) <-> P a /\ Forall P A.
-Proof. constructor=> [H | [? ?]]; [by inversion H | by constructor]. Qed.
-
 Lemma Forall_singletonP {a} : Forall P [a] <-> P a.
-Proof. rewrite Forall_consP Forall_nilP. by constructor=> [[? ?] | ?]. Qed.
-
-Lemma Forall_appP {A B}: Forall P (A ++ B) <-> Forall P A /\ Forall P B.
-Proof.
-  elim: A; first by (constructor; by [|case]).
-  move=> ? ? IH /=. by rewrite ?Forall_consP IH and_assoc.
-Qed.
+Proof. rewrite Forall_cons_iff Forall_nil_iff. by constructor=> [[? ?] | ?]. Qed.
 
 (* use: rewrite ?Forall_norm *)
-Definition Forall_norm := (@Forall_appP, @Forall_singletonP, @Forall_consP, @Forall_nilP).
+Definition Forall_norm := (@Forall_app, @Forall_singletonP, @Forall_cons_iff, @Forall_nil_iff).
 
 Lemma Forall_appI {A B}: Forall P A -> Forall P B -> Forall P (A ++ B).
-Proof. move=> ? ?. apply /Forall_appP. by constructor. Qed.
+Proof. move=> ? ?. apply /Forall_app. by constructor. Qed.
 End ForallNorm.
-
-Lemma nth_error_map {X Y: Type} {f: X -> Y} {l: list X} {n: nat} :
-  nth_error (map f l) n = omap f (nth_error l n).
-Proof.
-  elim: n l; first by case.
-  move=> n IH. case; first done.
-  move=> x l /=. by rewrite /nth_error -?/(nth_error _ _).
-Qed.
 
 Lemma incl_nth_error {X: Type} {Gamma Gamma': list X} : 
   incl Gamma Gamma' -> exists ξ, forall x, nth_error Gamma x = nth_error Gamma' (ξ x).
@@ -77,14 +57,6 @@ Proof.
   - move=> x Gamma IH Gamma'. rewrite /incl -Forall_forall Forall_norm Forall_forall.
     move=> [/(@In_nth_error _ _ _) [nx] Hnx /IH] [ξ Hξ].
     exists (fun y => if y is S y then ξ y else nx). by case.
-Qed.
-
-Lemma Forall_mapP {X Y : Type} {P : Y -> Prop} {f : X -> Y} {l : list X} : 
-  Forall P (map f l) <-> Forall (fun x => P (f x)) l.
-Proof.
-  elim: l.
-  - move=> /=. by constructor.
-  - move=> a l IH /=. by rewrite ? Forall_norm IH.
 Qed.
 
 Lemma Forall_seqP {P : nat -> Prop} {m n: nat} : 
@@ -122,10 +94,6 @@ Proof.
       case: (PeanoNat.Nat.eq_dec _ _); [by move=> /= -> | by move=> *; apply: H].
     + constructor; last done. by case: (PeanoNat.Nat.eq_dec _ _).
 Qed.
-
-Lemma repeat_appP {X: Type} {x: X} {n m: nat} : 
-  repeat x n ++ repeat x m = repeat x (n+m).
-Proof. by elim: n; [| move=> ? /= ->]. Qed.
 
 Lemma map_id' {X: Type} {f: X -> X} {l: list X} : (forall x, f x = x) -> map f l = l.
 Proof. move=> ?. rewrite -[RHS]map_id. by apply: map_ext => ?. Qed.
