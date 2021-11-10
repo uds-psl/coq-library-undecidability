@@ -698,10 +698,10 @@ Section Reduction.
         [by lia | by auto with M | done | by apply: reach_refl ].
     - apply: (first_step bound_try_spec_00 (§0^m ++ [§1] ++ r) l);
         [by lia | by auto with M | by rewrite ?app_norm | ].
-      have ? : S m < CM.value (Nat.iter n (CM1.step P) cm_start) by lia.
-      (* TODO have/lia regression; last ltac:(done) should be ltac:(lia) *)
-      have [n' [?]] := transition_le_gt
-        (fun n => CM.value (Nat.iter n (CM1.step P) cm_start)) (S m) 0 n ltac:(lia) ltac:(rewrite /cm_start /=; lia) ltac:(done).
+
+      have := transition_le_gt (fun n => CM.value (Nat.iter n (CM1.step P) cm_start)) (S m) 0 n.
+      move=> /(_ ltac:(lia) ltac:(rewrite /cm_start /=; lia) ltac:(lia)) [n' [?]].
+
       have := CM_facts.run_value_monotone P cm_start n'.
       set p' := (Nat.iter n' (CM1.step P) cm_start).
       have -> : Nat.iter (1 + n') (CM1.step P) cm_start = CM1.step P p' by done.
@@ -1325,7 +1325,7 @@ Section Reduction.
       have := maybe_increase [] (§0^(m - k2 * (1+n))) k2 k1 Hijn.
       apply: (maybe_reachable_trans' (maybe_goto_1_time + 1)); first by lia.
       { rewrite ?app_norm. do 5 f_equal.
-        have ? := div_mul_le m (1+n) ltac:(lia). by nia. }
+        have ? := div_mul_le m (1+n). by nia. }
       move: (m - k2 * (1 + n)). move: (k1 + k2 * (2 + n)) => k1' m'.
       have [? | ?]: m' <= n \/ n < m' by lia.
         (* case m' is too small *)
@@ -1356,7 +1356,7 @@ Section Reduction.
     (* case k2 is small *)
     have := maybe_increase ([§1] ++ l) (§0^(m - k2 * (1+n))) k2 k1 Hijn.
     apply: (maybe_reachable_trans' (2*maybe_goto_1_time + maybe_index_try_stop_time + 5)); first by lia.
-    { rewrite ?app_norm. do 5 f_equal. have ? := div_mul_le m (1+n) ltac:(lia). by nia. }
+    { rewrite ?app_norm. do 5 f_equal. have ? := div_mul_le m (1+n). by nia. }
     move: (m - k2 * (1 + n)). move: (k1 + k2 * (2 + n)) => k1' m'.
     have [? | ?]: m' <= n \/ n < m' by lia.
       (* case m' is too small *)

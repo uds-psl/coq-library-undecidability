@@ -21,9 +21,9 @@ Proof.
   rewrite /halting /=.
   move: c => [|c]; first by (move=> *; right).
   case: (nth_error M p); last done.
-  move=> [q n] _. move Hr: (S c mod (n + 1)) => r. 
-  move: r Hr => [? [_ ?] | r _ [?]]; last by lia.
-  exfalso. apply: mod_frac_neq; by eassumption.
+  move=> [q n] _. move Hr: (S c mod (n + 1)) => r.
+  move: r Hr => [/mod_frac_lt |r _ [?]]; last by lia.
+  move: (S c) => ? ? []. lia.
 Qed.
 
 (* halting is monotone *)
