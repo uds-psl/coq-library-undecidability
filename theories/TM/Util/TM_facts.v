@@ -219,11 +219,11 @@ Tactic Notation "simpl_vector" "in" "*" :=
   simpl_vector.
 
 
-Hint Rewrite tapeToList_move : tape.
-Hint Rewrite tapeToList_move_R : tape.
-Hint Rewrite tapeToList_move_L : tape.
-Hint Rewrite tape_move_right_left using eauto : tape.
-Hint Rewrite tape_move_left_right using eauto : tape.
+Global Hint Rewrite tapeToList_move : tape.
+Global Hint Rewrite tapeToList_move_R : tape.
+Global Hint Rewrite tapeToList_move_L : tape.
+Global Hint Rewrite tape_move_right_left using eauto : tape.
+Global Hint Rewrite tape_move_left_right using eauto : tape.
 
 Arguments current_chars : simpl never.
 #[export] Hint Unfold current_chars : tape.
@@ -238,10 +238,10 @@ Lemma nth_map2' (A B C : Type) (f : A -> B -> C) (n : nat) (v1 : Vector.t A n) (
   (VectorDef.map2 f v1 v2)[@k] = f v1[@k] v2[@k].
 Proof. erewrite VectorSpec.nth_map2; eauto. Qed.
 
-Hint Rewrite @nth_map' : vector.
-Hint Rewrite @nth_map2' : vector.
-Hint Rewrite @nth_tabulate : vector.
-Hint Rewrite VectorSpec.const_nth : vector.
+Global Hint Rewrite @nth_map' : vector.
+Global Hint Rewrite @nth_map2' : vector.
+Global Hint Rewrite @nth_tabulate : vector.
+Global Hint Rewrite VectorSpec.const_nth : vector.
 
 
 
@@ -386,14 +386,14 @@ End MirrorTape.
 Arguments mirror_tapes : simpl never.
 #[export] Hint Unfold mirror_tapes : tape.
 
-Hint Rewrite mirror_tape_left : tape.
-Hint Rewrite mirror_tape_right : tape.
-Hint Rewrite mirror_tape_current : tape.
-Hint Rewrite mirror_tape_involution : tape.
-Hint Rewrite mirror_tape_move_left : tape.
-Hint Rewrite mirror_tape_move_right : tape.
-Hint Rewrite mirror_tapes_involution : tape.
-Hint Rewrite mirror_tapes_nth : tape.
+Global Hint Rewrite mirror_tape_left : tape.
+Global Hint Rewrite mirror_tape_right : tape.
+Global Hint Rewrite mirror_tape_current : tape.
+Global Hint Rewrite mirror_tape_involution : tape.
+Global Hint Rewrite mirror_tape_move_left : tape.
+Global Hint Rewrite mirror_tape_move_right : tape.
+Global Hint Rewrite mirror_tapes_involution : tape.
+Global Hint Rewrite mirror_tapes_nth : tape.
 
 
 
@@ -517,14 +517,14 @@ Section Tape_Local.
 
 End Tape_Local.
 
-Hint Rewrite tape_local_mirror  : tape.
-Hint Rewrite tape_local_mirror' : tape.
-Hint Rewrite tape_local_current_cons using auto : tape.
-Hint Rewrite tape_local_l_current_cons using auto : tape.
-Hint Rewrite tape_local_right        using auto : tape.
-Hint Rewrite tape_local_l_left        using auto : tape.
-Hint Rewrite tape_left_move_right    using auto : tape.
-Hint Rewrite tape_right_move_left    using auto : tape.
+Global Hint Rewrite tape_local_mirror  : tape.
+Global Hint Rewrite tape_local_mirror' : tape.
+Global Hint Rewrite tape_local_current_cons using auto : tape.
+Global Hint Rewrite tape_local_l_current_cons using auto : tape.
+Global Hint Rewrite tape_local_right        using auto : tape.
+Global Hint Rewrite tape_local_l_left        using auto : tape.
+Global Hint Rewrite tape_left_move_right    using auto : tape.
+Global Hint Rewrite tape_right_move_left    using auto : tape.
 
 
 (* ** Mapping tapes *)
@@ -604,11 +604,11 @@ End MapTape.
 
 (* Rewriting Hints *)
 
-Hint Rewrite mapTape_current    : tape.
-Hint Rewrite mapTape_left       : tape.
-Hint Rewrite mapTape_right      : tape.
-Hint Rewrite mapTape_move_left  : tape.
-Hint Rewrite mapTape_move_right : tape.
+Global Hint Rewrite mapTape_current    : tape.
+Global Hint Rewrite mapTape_left       : tape.
+Global Hint Rewrite mapTape_right      : tape.
+Global Hint Rewrite mapTape_move_left  : tape.
+Global Hint Rewrite mapTape_move_right : tape.
 (* Hint Rewrite mapTapes_nth       : tape. *)
 #[export] Hint Unfold mapTapes : tape.
 
@@ -624,14 +624,14 @@ Proof. intros H. destruct t; cbn; auto; simpl_tape; rewrite H; f_equal; eapply m
 Lemma mapTape_id (sig : Type) (t : tape sig) :
   mapTape (fun x => x) t = t.
 Proof. destruct t; cbn; auto; f_equal; apply map_id. Qed.
-Hint Rewrite mapTape_mapTape : tape.
-Hint Rewrite mapTape_id : tape.
+Global Hint Rewrite mapTape_mapTape : tape.
+Global Hint Rewrite mapTape_id : tape.
 
 
 Lemma mapTape_local (sig tau : Type) (f : sig -> tau) t :
   tape_local (mapTape f t) = List.map f (tape_local t).
 Proof. destruct t; cbn; reflexivity. Qed.
-Hint Rewrite mapTape_local : tape.
+Global Hint Rewrite mapTape_local : tape.
 
 
 
@@ -712,21 +712,21 @@ Section MatchTapes.
 
 End MatchTapes.
 
-Hint Rewrite tape_left_move_left' : tape.
-Hint Rewrite tape_left_move_left : tape.
-Hint Rewrite tape_left_move_right' : tape.
-Hint Rewrite tape_right_move_left' : tape.
-Hint Rewrite tape_local_l_move_left' : tape.
-Hint Rewrite mirror_tape_move_left' : tape.
+Global Hint Rewrite tape_left_move_left' : tape.
+Global Hint Rewrite tape_left_move_left : tape.
+Global Hint Rewrite tape_left_move_right' : tape.
+Global Hint Rewrite tape_right_move_left' : tape.
+Global Hint Rewrite tape_local_l_move_left' : tape.
+Global Hint Rewrite mirror_tape_move_left' : tape.
 
-Hint Rewrite tape_right_move_right' : tape.
-Hint Rewrite tape_right_move_right : tape.
-Hint Rewrite tape_right_move_left' : tape.
-Hint Rewrite tape_right_move_right' : tape.
-Hint Rewrite tape_local_move_right' : tape.
-Hint Rewrite mirror_tape_move_right' : tape.
+Global Hint Rewrite tape_right_move_right' : tape.
+Global Hint Rewrite tape_right_move_right : tape.
+Global Hint Rewrite tape_right_move_left' : tape.
+Global Hint Rewrite tape_right_move_right' : tape.
+Global Hint Rewrite tape_local_move_right' : tape.
+Global Hint Rewrite mirror_tape_move_right' : tape.
 
-Hint Rewrite tape_move_niltape tape_write_left tape_write_right tape_write_current_Some tape_write_current_None tape_write_current : tape.
+Global Hint Rewrite tape_move_niltape tape_write_left tape_write_right tape_write_current_Some tape_write_current_None tape_write_current : tape.
 
 
 
@@ -932,8 +932,10 @@ Notation "M '↓' t" := (TerminatesIn M t) (no associativity, at level 60, forma
 
 (* [inhabitedC] instances for state and labels *)
 
+#[global]
 Instance inhabited_move : inhabitedC move := ltac:(repeat constructor).
 
+#[global]
 Instance inhabited_TM_Q (n : nat) (sig : finType) (M : TM sig n) : inhabitedC (state M).
 Proof. constructor. apply start. Qed.
 

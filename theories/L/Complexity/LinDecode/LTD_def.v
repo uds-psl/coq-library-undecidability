@@ -14,4 +14,4 @@ Arguments linTimeDecodable _ {_ _}.
 Arguments c__linDec : clear implicits.
 Arguments c__linDec _ {_ _ _}.
 
-Existing Instance comp_enc_lin.
+Global Existing Instance comp_enc_lin.

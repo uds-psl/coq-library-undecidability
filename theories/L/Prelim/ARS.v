@@ -349,6 +349,7 @@ Section FixX.
   
 End FixX.
 
+#[global]
 Existing Instance star_PO.
 
 (* A notion of a reduction sequence which keeps track of the largest occuring state *)
@@ -400,6 +401,7 @@ Proof.
   apply terminal_noRed in R1. apply terminal_noRed in R2. 2-3:eassumption. congruence.
 Qed.
 
+#[global]
 Instance ecl_Equivalence {X} (R:X->X->Prop) : Equivalence (ecl R).
 Proof.
   split.
@@ -408,11 +410,13 @@ Proof.
   -apply ecl_trans.
 Qed.
 
+#[global]
 Instance star_ecl_subrel {X} (R:X->X->Prop) : subrelation (star R) (ecl R).
 Proof.
   intro. eapply star_ecl.
 Qed.
 
+#[global]
 Instance pow_ecl_subrel {X} (R:X->X->Prop) n : subrelation (pow R n) (ecl R).
 Proof.
   intros ? ? H%pow_star. now rewrite H.

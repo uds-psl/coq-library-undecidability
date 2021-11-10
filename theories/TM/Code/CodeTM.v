@@ -90,10 +90,12 @@ Inductive boundary : Type :=
 | UNKNOWN : boundary.
 
 (* Declare discreteness of [boundary] *)
+#[global]
 Instance boundary_eq : eq_dec boundary.
 Proof. unfold dec. decide equality. Defined. (* because definition *)
 
 (* Declare finiteness of [boundary] *)
+#[global]
 Instance boundary_fin : finTypeC (EqType boundary).
 Proof. split with (enum := [START; STOP; UNKNOWN]). cbn. intros []; cbn; reflexivity. Defined. (* because definition *)
 

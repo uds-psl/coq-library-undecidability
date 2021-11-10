@@ -322,8 +322,6 @@ Section BasicLemmas.
   Proof.
     intros f g -> A B [H2 H3]; split; apply filter_incl_proper; firstorder. 
   Qed.
-  
-
    
 End BasicLemmas.
 
@@ -333,13 +331,13 @@ End BasicLemmas.
      incl_cons_drop incl_filter
      incl_distr_left incl_distr_right incl_app_project_left
      incl_app_project_right incl_app_build : listdb.
-Hint Rewrite -> in_app_iff : listdb.
-Hint Rewrite <- app_comm_cons : listdb.
-Hint Rewrite app_nil_l app_nil_r : listdb.
-Hint Rewrite rev_seteq rev_involutive rev_length rev_app_distr : listdb.
-Hint Rewrite map_id map_rev map_nil map_cons map_app : listdb.
+     #[export]Hint Rewrite -> in_app_iff : listdb.
+#[export]Hint Rewrite <- app_comm_cons : listdb.
+#[export]Hint Rewrite app_nil_l app_nil_r : listdb.
+#[export]Hint Rewrite rev_seteq rev_involutive rev_length rev_app_distr : listdb.
+#[export]Hint Rewrite map_id map_rev map_nil map_cons map_app : listdb.
 #[export] Hint Resolve in_map : listdb.
-Hint Rewrite app_length map_length rev_length : listdb.
+#[export]Hint Rewrite app_length map_length rev_length : listdb.
 
 #[export] Hint Extern 4 => 
   match goal with

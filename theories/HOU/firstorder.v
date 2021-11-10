@@ -913,7 +913,7 @@ Section Retyping.
 
 End Retyping.
 
-(* 
+(*
 (* ** Full First-Order Unification  *)
 Section FirstOrderDecidable.
 

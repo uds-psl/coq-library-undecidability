@@ -41,7 +41,7 @@ Section lift_sigma_tau.
 End lift_sigma_tau.
 
 Arguments surjectTapes {n sig tau} (g) def !t.
-Hint Rewrite surjectTapes_nth : tape.
+Global Hint Rewrite surjectTapes_nth : tape.
 
 
 Arguments lift_sigma_tau_Rel {n sig tau} (g def) {F} (R) x y /.

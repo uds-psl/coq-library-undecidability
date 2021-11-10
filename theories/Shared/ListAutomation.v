@@ -16,6 +16,7 @@ Module ListAutomationNotations.
 End ListAutomationNotations.
 Import ListAutomationNotations.
 
+#[global]
 Instance list_in_dec X (x : X) (A : list X) :
   eq_dec X -> dec (x el A).
 Proof.
@@ -78,8 +79,8 @@ Lemma incl_nil X (A : list X) :
   nil <<= A.
 Proof. intros x []. Qed.
 
-Hint Rewrite <- app_assoc : list.
-Hint Rewrite rev_app_distr map_app prod_length : list.
+Global Hint Rewrite <- app_assoc : list.
+Global Hint Rewrite rev_app_distr map_app prod_length : list.
 #[export] Hint Resolve in_eq in_nil in_cons in_or_app : core.
 #[export] Hint Resolve incl_refl incl_tl incl_cons incl_appl incl_appr incl_app incl_nil : core.
 
@@ -160,6 +161,7 @@ End Inclusion.
 
 Require Import Setoid Morphisms.
 
+#[global]
 Instance incl_preorder X : 
   PreOrder (@incl X).
 Proof.
@@ -170,48 +172,56 @@ Definition equi X (A B : list X) : Prop := incl A B /\ incl B A.
 Local Notation "A === B" := (equi A B) (at level 70).
 #[export] Hint Unfold equi : core.
 
+#[global]
 Instance equi_Equivalence X : 
   Equivalence (@equi X).
 Proof. 
   constructor; hnf; firstorder. 
 Qed.
 
+#[global]
 Instance incl_equi_proper X : 
   Proper (@equi X ==> @equi X ==> iff) (@incl X).
 Proof. 
   hnf. intros A B D. hnf. firstorder. 
 Qed.
 
+#[global]
 Instance cons_incl_proper X x : 
   Proper (@incl X ==> @incl X) (@cons X x).
 Proof.
   hnf. apply incl_shift.
 Qed.
 
+#[global]
 Instance cons_equi_proper X x : 
   Proper (@equi X ==> @equi X) (@cons X x).
 Proof. 
   hnf. firstorder.
 Qed.
 
+#[global]
 Instance in_incl_proper X x : 
   Proper (@incl X ==> Basics.impl) (@In X x).
 Proof.
   intros A B D. hnf. auto.
 Qed.
 
+#[global]
 Instance in_equi_proper X x : 
   Proper (@equi X ==> iff) (@In X x).
 Proof. 
   intros A B D. firstorder. 
 Qed.
 
+#[global]
 Instance app_incl_proper X : 
   Proper (@incl X ==> @incl X ==> @incl X) (@app X).
 Proof. 
   intros A B D A' B' E. auto.
 Qed.
 
+#[global]
 Instance app_equi_proper X : 
   Proper (@equi X ==> @equi X ==> @equi X) (@app X).
 Proof. 

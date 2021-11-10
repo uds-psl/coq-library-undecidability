@@ -11,6 +11,7 @@ match t with
 end.
 
 
+#[global]
 Instance term_boundb : computableTime' boundb (fun _ _ => (5,fun s _ => (size s * 31+9,tt))).
 Proof.
   extract. solverec.
@@ -39,6 +40,7 @@ Proof.
   destruct (boundb_spec 0 s);constructor; rewrite closed_dcl;auto.
 Qed.
 
+#[global]
 Instance termT_closedb : computableTime' closedb (fun s _ => (size s * 31+15,tt)).
 Proof.
   change closedb with (fun x => boundb 0 x).
@@ -52,6 +54,7 @@ match t with
 | _ => false
 end.
 
+#[global]
 Instance term_lambdab : computableTime' lambdab (fun _ _ => (11,tt)).
 Proof.
   extract. solverec.

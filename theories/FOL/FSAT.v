@@ -19,6 +19,7 @@ Require Import List.
 
 (* ** List of decision problems concerning finite satisfiability *)
 
+#[global]
 Existing Instance falsity_on.
 
 (* Definition of finiteness *)

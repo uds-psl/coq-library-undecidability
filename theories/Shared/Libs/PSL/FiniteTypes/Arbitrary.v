@@ -1,6 +1,7 @@
 From Undecidability.Shared.Libs.PSL Require Import Base Bijection FiniteTypes.FinTypes.
 Require Import Coq.Vectors.Fin.
 
+#[global]
 Instance Fin_eq_dec n : eq_dec (Fin.t n).
 Proof.
   intros; hnf.
@@ -66,6 +67,7 @@ Proof.
   - congruence.
 Qed.
 
+#[global]
 Instance subType_eq_dec X (_:eq_dec X) (p: X -> Prop) (_: forall x, dec (p x)): eq_dec (subtype p).
 Proof.
   intros y z. destruct y as [x p1], z as  [x' p2]. decide (x=x').
@@ -137,6 +139,7 @@ Proof.
     destruct x as [x p]. cbn. apply InCount. now impurify p.
 Qed.
 
+#[global]
 Instance fromListC (X: eqType) (A: list X) : Subtype (fun x => x el A).
 Proof.
 econstructor. intros [x p]. apply enum_ok_fromList.

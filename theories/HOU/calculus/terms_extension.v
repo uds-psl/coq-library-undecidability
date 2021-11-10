@@ -818,17 +818,17 @@ End TermsExtension.
 
 #[export] Hint Constructors listtyping : core. 
 #[export] Hint Constructors orderlisttyping : core. 
-Hint Rewrite ord'_app ord_Arr ord_repeated : simplify.
-Hint Rewrite ord_Arr : simplify.
+Global Hint Rewrite ord'_app ord_Arr ord_repeated : simplify.
+Global Hint Rewrite ord_Arr : simplify.
 #[export] Hint Resolve 
      normal_Lambda normal_AppR_left normal_AppR_right : core.
-Hint Rewrite @Lambda_ren @Lambda_subst @AppL_ren @AppL_subst @AppR_ren @AppR_subst : asimpl.
+Global Hint Rewrite @Lambda_ren @Lambda_subst @AppL_ren @AppL_subst @AppR_ren @AppR_subst : asimpl.
 
-Hint Rewrite @AppR_head : simplify.
+Global Hint Rewrite @AppR_head : simplify.
   
 
-Hint Rewrite target_Arr target_ord: simplify.
-Hint Rewrite arity_Arr : simplify.
+Global Hint Rewrite target_Arr target_ord: simplify.
+Global Hint Rewrite arity_Arr : simplify.
 
 Notation "S >₊ T" := (lstep step S T) (at level 60).
 Notation "S >₊* T" := (star (lstep step) S T) (at level 60).

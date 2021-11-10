@@ -7,12 +7,14 @@ Require Import Undecidability.Shared.Libs.PSL.Base Nat List Datatypes.
 Set Default Proof Using "Type".
 Import Nat.
 (* ** Enumeratibility of L-terms *)
+#[global]
 Instance term_appCross : computableTime' appCross (fun A _ => (5,fun B _ => (length A * length B * 29 + length A * 46 +  4,tt))).
 Proof.
   extract. solverec. fold appCross;rewrite map_time_const,map_length. 
   unfold c__map, c__app. Lia.nia.
 Qed.
 
+#[global]
 Instance term_exh_size : computable exh_size.
 Proof.
   extract.
@@ -49,12 +51,14 @@ Proof.
 Qed.
 
 
+#[global]
 Instance term_T : computable T.
 Proof.
   eapply computableExt with (x:= T_nondec).  2:exact _.
   repeat intro. symmetry. apply T_nondec_correct.
 Qed.
 
+#[global]
 Instance term_g_inv : computable g_inv.
 Proof. unfold g_inv.
        extract.
@@ -79,6 +83,7 @@ Proof.
 Qed.
 
 
+#[global]
 Instance term_g : computable g.
 Proof.
   eapply computableExt with (x:= g_nondec).  2:exact _.
@@ -116,17 +121,20 @@ Proof.
 Qed.
 
 
+#[global]
 Instance term_C : computable C.
 Proof.
   eapply computableExt with (x:= C_nondec).  2:exact _.
   repeat intro. symmetry. apply C_nondec_correct.
 Qed.
 
+#[global]
 Instance term_eSize : computable eSize.
 Proof.
   extract.
 Qed.
 
+#[global]
 Instance term_c : computable c.
 Proof.
   extract. 

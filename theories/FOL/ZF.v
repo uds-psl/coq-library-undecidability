@@ -10,6 +10,7 @@ Require Import List.
  
 (* ** Signature for ZF axiomatisation, containing function symbols for set operations *)
 
+#[global]
 Existing Instance falsity_on.
 
 Inductive ZF_Funcs : Type :=
@@ -35,9 +36,11 @@ Inductive ZF_Preds : Type :=
 Definition ZF_pred_ar (P : ZF_Preds) : nat :=
   match P with _ => 2 end.
 
+#[global]
 Instance ZF_func_sig : funcs_signature :=
   {| syms := ZF_Funcs; ar_syms := ZF_fun_ar; |}.
 
+#[global]
 Instance ZF_pred_sig : preds_signature :=
   {| preds := ZF_Preds; ar_preds := ZF_pred_ar; |}.
 

@@ -35,6 +35,7 @@ Proof.
   apply G.
 Qed.
 
+#[global]
 Instance nat_le_dec (x y : nat) : dec (x <= y) := 
   Compare_dec.le_dec x y.
 

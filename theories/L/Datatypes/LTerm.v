@@ -7,16 +7,19 @@ MetaCoq Run (tmGenEncode "term_enc" term).
 #[export] Hint Resolve term_enc_correct : Lrewrite.
   
 (* register the non-constant constructors *)
+#[global]
 Instance term_var : computableTime' var (fun n _ => (1, tt)).
 Proof.
   extract constructor. solverec.
 Qed.
 
+#[global]
 Instance term_app : computableTime' L.app (fun s1 _ => (1, (fun s2 _ => (1, tt)))).
 Proof.
   extract constructor. solverec.
 Qed.
 
+#[global]
 Instance term_lam : computableTime' lam (fun s _ => (1, tt)).
 Proof.
   extract constructor. solverec.

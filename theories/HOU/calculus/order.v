@@ -302,7 +302,7 @@ Notation "Gamma '⊢(' n ')' s ':' A" :=
 Notation "Delta ⊩( n ) sigma : Gamma" := (ordertypingSubst n Delta sigma Gamma) (at level 80, sigma at level 99).
 
 #[export] Hint Constructors ordertyping : core.
-Hint Rewrite ord_arr ord'_app ord'_rev : simplify. 
+Global Hint Rewrite ord_arr ord'_app ord'_rev : simplify. 
 #[export] Hint Resolve ord'_cons ord'_in  : core.
 #[export] Hint Resolve vars_ordertyping_nth ordertyping_monotone ordertyping_step ordertyping_soundness : core.
 

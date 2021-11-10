@@ -24,12 +24,13 @@ Proof with try (constructor;congruence).
   -destruct (IHx y1)...
 Qed.
 
+#[global]
 Instance eqbTerm : eqbClass term_eqb.
 Proof.
   exact term_eqb_spec. 
 Qed.
 
-
+Global
 Instance eqbComp_nat : eqbCompT term.
 Proof.
   evar (c:nat). exists c. unfold term_eqb.

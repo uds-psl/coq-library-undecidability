@@ -19,6 +19,7 @@ Proof.
   now repeat rewrite enum_ok.
 Qed.
 
+#[global]
 Instance finTypeC_Prod (F1 F2: finType) : finTypeC (EqType (F1 * F2)).
 Proof.
   econstructor.  apply prod_enum_ok.
@@ -54,6 +55,7 @@ Proof.
   + apply NoneElement.
 Qed.
 
+#[global]
 Instance  finTypeC_Option(F: finType): finTypeC (EqType (option F)).
 Proof.
   eapply FinTypeC.  apply option_enum_ok.
@@ -80,6 +82,7 @@ Proof.
 Qed.
 
 (* Instance declaration for sum types for  the type class *)
+#[global]
 Instance finTypeC_sum (X Y: finType) : finTypeC (EqType ( X + Y)).
 Proof.
   eapply FinTypeC. apply sum_enum_ok.

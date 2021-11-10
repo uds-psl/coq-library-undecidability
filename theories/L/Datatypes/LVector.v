@@ -5,6 +5,7 @@ Require Import Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 
 (* *** Encoding vectors *)
 
+#[global]
 Instance register_vector X `{registered X} n : registered (Vector.t X n).
 Proof.
   apply (registerAs VectorDef.to_list).
@@ -22,12 +23,14 @@ Proof.
   reflexivity.
 Qed.
 
+#[global]
 Instance term_to_list X `{registered X} n : computableTime' (Vector.to_list (A:=X) (n:=n)) (fun _ _ => (1,tt)).
 Proof.
   apply cast_computableTime.
 Qed.
 
 Import Vector.
+#[global]
 Instance term_vector_map X Y `{registered X} `{registered Y} n (f:X->Y) fT:
   computableTime' f fT ->
   computableTime' (VectorDef.map f (n:=n))
@@ -70,6 +73,8 @@ Fixpoint time_map2 {X Y Z} `{registered X} `{registered Y} `{registered Z} (gT :
   | x::l1,y::l2 => callTime2 gT x y + 18 + time_map2 gT l1 l2
   | _,_ => 9
   end.
+
+Global
 Instance term_map2 n A B C `{registered A} `{registered B} `{registered C} (g:A -> B -> C) gT:
   computableTime' g gT-> computableTime' (Vector.map2 g (n:=n)) (fun l1 _ => (1,fun l2 _ => (time_map2 (X:=A) (Y:=B) (Z:=C) gT (Vector.to_list l1) (Vector.to_list l2) +8,tt))).
 Proof.
@@ -106,6 +111,7 @@ Proof.
    rewrite H',IHl1. cbn [length]. ring_simplify. intuition.
 Qed.
 
+#[global]
 Instance term_vector_eqb X `{registered X} (n' m:nat) (eqb:X->X->bool) eqbT:
   computableTime' eqb eqbT
   -> computableTime'

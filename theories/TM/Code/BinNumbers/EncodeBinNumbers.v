@@ -94,6 +94,7 @@ Definition N_to_optionPos : BinNums.N -> option positive :=
         | Npos p => Some p
         end.
 
+#[global]
 Instance Encode_N : codable sigN BinNums.N :=
   {|
     encode n := encode (N_to_optionPos n);

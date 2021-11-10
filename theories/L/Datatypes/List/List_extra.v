@@ -17,6 +17,7 @@ Proof.
   induction n in t|-*;destruct t;now cbn.
 Qed.
 Definition lengthEq_time k := k * 15 + 9.
+#[global]
 Instance term_lengthEq A `{registered A} : computableTime' (lengthEq (A:=A)) (fun l _ => (5, fun n _ => (lengthEq_time (min (length l) n),tt))).
 Proof.
   extract. unfold lengthEq_time. solverec.
@@ -26,6 +27,7 @@ Qed.
 (* seq *)
 Definition c__seq := 20.
 Definition seq_time (len : nat) := (len + 1) * c__seq.
+#[global]
 Instance term_seq : computableTime' seq (fun start _ => (5, fun len _ => (seq_time len, tt))). 
 Proof. 
   extract. solverec. 

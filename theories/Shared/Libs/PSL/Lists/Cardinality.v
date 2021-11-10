@@ -132,6 +132,7 @@ Section Cardinality.
 
 End Cardinality.
 
+Global
 Instance card_equi_proper (X: eqType) : 
   Proper (@equi X ==> eq) (@card X).
 Proof. 

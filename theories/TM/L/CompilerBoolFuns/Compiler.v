@@ -45,7 +45,7 @@ Lemma tabulate_nth [X : Type] [n : nat] (v : Vector.t X n): tabulate (fun i => v
 Proof. depind v;cbn. all:congruence. Qed.
 
 
-Hint Rewrite  Nat.eqb_refl tabulate_nth nth_tabulate: cleanupParamTM.
+Global Hint Rewrite  Nat.eqb_refl tabulate_nth nth_tabulate: cleanupParamTM.
   
 Ltac cleanupParamTM :=
   try fold Nat.add;rewrite ?Nat.eqb_refl, ?tabulate_nth, ?nth_tabulate;cbn.

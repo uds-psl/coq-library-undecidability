@@ -197,7 +197,7 @@ Arguments in_fot { _ _ }.
 Create HintDb fo_term_db.
 Tactic Notation "rew" "fot" := autorewrite with fo_term_db.
 
-Hint Rewrite fo_term_vars_fix_0   fo_term_vars_fix_1 
+Global Hint Rewrite fo_term_vars_fix_0   fo_term_vars_fix_1 
              fo_term_syms_fix_0   fo_term_syms_fix_1 
              fo_term_subst_fix_0  fo_term_subst_fix_1 
              fo_term_subst_comp 
@@ -322,7 +322,7 @@ Arguments fo_term_syms {_ _}.
 
 Opaque fo_term_map.
 
-Hint Rewrite fo_term_map_fix_0 fo_term_map_fix_1 
+Global Hint Rewrite fo_term_map_fix_0 fo_term_map_fix_1 
            : fo_term_db.
 
 Definition fo_term_subst_lift Σ (σ : nat -> fol_term Σ) n :=
@@ -387,4 +387,4 @@ End semantics.
 
 Opaque fo_term_sem.
 
-Hint Rewrite fo_term_sem_fix_0 fo_term_sem_fix_1 fo_term_sem_subst : fo_term_db.
+Global Hint Rewrite fo_term_sem_fix_0 fo_term_sem_fix_1 fo_term_sem_subst : fo_term_db.

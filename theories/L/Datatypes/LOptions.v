@@ -101,6 +101,7 @@ End int.
 
 Definition isSome {T} (u : option T) := match u with Some _ => true | _ => false end.
 
+#[global]
 Instance term_isSome {T} `{registered T} : computable (@isSome T).
 Proof.
   extract.

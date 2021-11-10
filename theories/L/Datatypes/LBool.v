@@ -24,18 +24,21 @@ Proof.
   solverec.
 Qed.*)
 
+#[global]
 Instance term_negb : computableTime' negb (fun _ _ => (4,tt)).
 Proof.
   extract.
   solverec.
 Qed.
 
+#[global]
 Instance term_andb : computableTime' andb (fun _ _ => (1,fun _ _ => (4,tt))).
 Proof.
   extract.
   solverec.
 Qed.
 
+#[global]
 Instance term_orb : computableTime' orb (fun _ _ => (1,fun _ _ => (4,tt))).
 Proof.
   extract.

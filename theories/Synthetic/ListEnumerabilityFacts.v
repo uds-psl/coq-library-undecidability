@@ -279,14 +279,17 @@ Proof.
   now eapply cumul_spec__T.
 Defined.
 
+#[global]
 Existing Instance enumerator__T_list.
 
+#[global]
 Instance enumerator__T_to_list {X} {f} :
   list_enumerator__T f X -> enumerator__T (fun n => let (n, m) := unembed n in nth_error (f n) m) X | 100.
 Proof.
   intros H x. eapply list_enumerator_to_enumerator in H. exact H.
 Qed.
 
+#[global]
 Instance enumerator__T_of_list {X} {f} :
   enumerator__T f X -> list_enumerator__T (fun n => match f n with Some x => [x] | None => [] end) X | 100.
 Proof.
@@ -294,6 +297,7 @@ Proof.
 Qed.
 
 Existing Class inf_list_enumerable__T.
+#[global]
 Instance inf_to_enumerator {X} :
   forall H : inf_list_enumerable__T X, list_enumerator__T (proj1_sig H) X | 100.
 Proof.

@@ -5,6 +5,7 @@ From Undecidability.L Require Import Functions.Decoding.
 
 From Undecidability.L Require Export LinDecode.LTD_def.
 
+#[global]
 Instance linDec_nat : linTimeDecodable nat.
 Proof.
   evar (c:nat). exists c.

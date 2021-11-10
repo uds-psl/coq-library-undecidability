@@ -153,6 +153,7 @@ Class enumT X :=
 Arguments L_T {_ _} _, _ {_} _.
 #[export] Hint Immediate cum_T : core.
 
+#[global]
 Instance enum_bool : enumT bool.
 Proof.
   exists (fun n => [true; false]).
@@ -167,6 +168,7 @@ Proof.
   intros []. now exists 0. now exists 1.
 Qed.
 
+#[global]
 Instance enumT_nat : enumT nat.
 Proof.
   exists (fix f n := match n with 0 => [0] | S n => f n ++ [S n] end).

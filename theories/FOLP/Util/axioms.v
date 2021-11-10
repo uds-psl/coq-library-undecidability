@@ -147,4 +147,4 @@ Definition cod_comp {X} {A B C} {f : A -> B} {g : B -> C} {h} :
   (forall x, (funcomp g f) x =  h x) -> forall (p: X -> _), cod_map g (cod_map f p) = cod_map h p.
 Proof. intros H p. unfold cod_map. fext. intros x. now rewrite <- H. Defined.
 
-Hint Rewrite in_map_iff : FunctorInstances.
+Global Hint Rewrite in_map_iff : FunctorInstances.

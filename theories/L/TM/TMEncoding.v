@@ -35,6 +35,7 @@ Proof.
 Qed.
 
 
+#[global]
 Instance eqb_move:
   eqbClass move_eqb.
 Proof.
@@ -42,6 +43,7 @@ Proof.
 Qed.
 
 
+#[global]
 Instance eqbComp_bool : eqbCompT move.
 Proof.
   evar (c:nat). exists c. unfold move_eqb.

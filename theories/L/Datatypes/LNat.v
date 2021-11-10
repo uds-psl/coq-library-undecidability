@@ -10,12 +10,14 @@ Import GenEncode. Import Nat.
 MetaCoq Run (tmGenEncode "nat_enc" nat).
 #[export] Hint Resolve nat_enc_correct : Lrewrite.
 
+#[global]
 Instance termT_S : computableTime' S (fun _ _ => (1,tt)).
 Proof.
   extract constructor.
   solverec.
 Qed.
 
+#[global]
 Instance termT_pred : computableTime' pred (fun _ _ => (5,tt)).
 Proof.
   extract.
@@ -25,6 +27,7 @@ Qed.
 Definition c__add := 11. 
 Definition c__add1 := 5.
 Definition add_time x := (x + 1) * c__add.
+#[global]
 Instance termT_plus' : computableTime' add (fun x xT => (c__add1,(fun y yT => (add_time x,tt)))).
 Proof.
   extract.
@@ -35,6 +38,7 @@ Qed.
 Definition c__mult1 := 5.
 Definition c__mult := c__add + c__add1 + 10.
 Definition mult_time x y := x * y * c__mult + c__mult * (x+ 1) .
+#[global]
 Instance termT_mult : computableTime' mult (fun x xT => (c__mult1,(fun y yT => (mult_time x y,tt)))).
 Proof.
   extract. solverec. 
@@ -44,6 +48,7 @@ Qed.
 Definition c__sub1 := 5.
 Definition c__sub := 14. 
 Definition sub_time x y := (min x y + 1) * c__sub.
+#[global]
 Instance term_sub : computableTime' Nat.sub (fun n _ => (c__sub1,fun m _ => (sub_time n m ,tt)) ).
 Proof.
   extract. solverec.
@@ -53,6 +58,7 @@ Qed.
 Definition c__leb := 14.
 Definition c__leb2 := 5. 
 Definition leb_time (x y : nat) := c__leb * (1 + min x y).
+#[global]
 Instance termT_leb : computableTime' leb (fun x xT => (c__leb2,(fun y yT => (leb_time x y,tt)))).
 Proof.
   extract.
@@ -61,6 +67,7 @@ Qed.
 
 Definition c__ltb := c__leb2 + 4.
 Definition ltb_time (a b : nat) := leb_time (S a) b + c__ltb. 
+#[global]
 Instance term_ltb : computableTime' Nat.ltb (fun a _ => (1, fun b _ => (ltb_time a b, tt))). 
 Proof. 
   extract. recRel_prettify2. 
@@ -68,11 +75,13 @@ Proof.
   - unfold ltb_time, c__ltb. solverec. 
 Qed.
 
+#[global]
 Instance eqbNat_inst : eqbClass Nat.eqb.
 Proof.
   exact Nat.eqb_spec. 
 Qed.
 
+#[global]
 Instance eqbComp_nat : eqbCompT nat.
 Proof.
   evar (c:nat). exists c. unfold Nat.eqb.
@@ -87,6 +96,7 @@ Qed.
 Definition c__min1 := 5.
 Definition c__min2 := 15. 
 Definition min_time x y := (min x y + 1) * c__min2. 
+#[global]
 Instance termT_nat_min : computableTime' Nat.min (fun x _ => (c__min1, fun y _ => (min_time x y, tt))).
 Proof. 
   extract. solverec. 
@@ -96,6 +106,7 @@ Qed.
 Definition c__max1 := 5.
 Definition c__max2 := 15. 
 Definition max_time x y := (min x y + 1) * c__max2. 
+#[global]
 Instance termT_nat_max : computableTime' Nat.max (fun x _ => (c__max1, fun y _ => (max_time x y, tt))).
 Proof. 
   extract. solverec. 
@@ -108,6 +119,7 @@ Fixpoint pow_time x n := match n with
   | 0 => c__pow2 
   | S n => pow_time x n + mult_time x (x ^n) + c__pow2
 end.
+#[global]
 Instance termT_pow:
   computableTime' Init.Nat.pow   (fun (x : nat) _ => (c__pow1,fun (n : nat) _ => (pow_time x n, tt))).
 Proof.
@@ -118,6 +130,7 @@ Qed.
 
 Definition c__divmod := 20.
 Definition divmod_time (x: nat) := c__divmod * (1+x).
+#[global]
 Instance termT_divmod : 
   computableTime' divmod (fun (x : nat) _ => (5, fun (y : nat) _ => (5, fun (q : nat) _ => (1, fun (u : nat) _ => (divmod_time x, tt))))). 
 Proof. 
@@ -126,6 +139,7 @@ Qed.
 
 Definition c__modulo := 21 + c__sub1. 
 Definition modulo_time (x :nat) (y : nat) := divmod_time x + c__sub * y + c__modulo.
+#[global]
 Instance termT_modulo : 
   computableTime' Init.Nat.modulo (fun x _ => (1, fun y _ => (modulo_time x y, tt))). 
 Proof. 

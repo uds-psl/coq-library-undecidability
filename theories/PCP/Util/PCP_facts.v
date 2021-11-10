@@ -61,7 +61,7 @@ Proof.
   intros. repeat decide equality.
 Defined.
 
-Hint Rewrite (@tau1_app nat) (@tau2_app nat) (@tau1_cards nat) (@tau2_cards nat) : list.
+Global Hint Rewrite (@tau1_app nat) (@tau2_app nat) (@tau1_cards nat) (@tau2_cards nat) : list.
 
 Implicit Types a b : nat.
 Implicit Types x y z : string nat.

@@ -91,6 +91,7 @@ Proof.
   unfold extT. destruct H as [? H]. now eapply computesTimeProc in H.
 Qed.
 
+#[global]
 Instance reg_is_extT ty (R : registered ty) (x : ty): computableTime x tt.
 Proof.
   exists (enc x). split;constructor. 
@@ -101,6 +102,7 @@ Proof.
   unfold extT. now destruct H.
 Qed.
 
+#[global]
 Instance extTApp' t1 t2 {tt1:TT t1} {tt2 : TT t2} (f: t1 -> t2) (x:t1) fT xT (Hf : computableTime f fT) (Hx : computableTime x xT) : computableTime (f x) (snd (fT x xT)).
 Proof. 
   destruct Hf as [fInt H], Hx as [xInt xInts].

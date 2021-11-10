@@ -38,6 +38,7 @@ Create HintDb encode_comp.
 Ltac simpl_comp := autorewrite with encode_comp.
 
 
+#[global]
 Instance Encode_unit : codable Empty_set unit :=
   {|
     encode x := nil
@@ -51,6 +52,7 @@ Lemma Encode_unit_injective : injective Encode_unit.
 Proof. now intros [] [] _. Qed.
 
 
+#[global]
 Instance Encode_bool : codable bool bool:=
   {|
     encode x := [x]
@@ -63,6 +65,7 @@ Proof. cbn. reflexivity. Qed.
 Lemma Encode_bool_injective : injective Encode_bool.
 Proof. intros [ | ] [ | ] H; cbn in *; congruence. Qed.
 
+#[global]
 Instance Encode_Fin n : codable (Fin.t n) (Fin.t n):=
   {|
     encode i := [i]
@@ -148,8 +151,7 @@ Section Encode_map_comp.
 End Encode_map_comp.
 
 
-Hint Rewrite Encode_map_id Encode_map_comp : encode_comp.
-
+Global Hint Rewrite Encode_map_id Encode_map_comp : encode_comp.
 
 
 (* Builds simple retract functions like [sigSum -> option sigX] in the form

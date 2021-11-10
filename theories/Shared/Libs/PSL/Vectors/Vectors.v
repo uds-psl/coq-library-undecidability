@@ -294,6 +294,7 @@ Proof.
 Qed.
  *)
 
+#[global]
 Instance Vector_eq_dec n A: eq_dec A -> eq_dec (Vector.t A n).
 Proof.
   intros H x y. eapply VectorEq.eq_dec with (A_beq := fun x y => proj1_sig (Sumbool.bool_of_sumbool (H x y))).
@@ -301,6 +302,7 @@ Proof.
   cbn.  destruct x1;intuition.
 Defined.
 
+#[global]
 Instance Fin_eq_dec n : eq_dec (Fin.t n).
 Proof.
   intros; hnf.

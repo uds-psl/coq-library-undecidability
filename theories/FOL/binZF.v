@@ -11,6 +11,7 @@ Require Import List.
  
 (* ** Minimal binary signature only containing membership, no function symbols or equality *)
 
+#[global]
 Existing Instance falsity_on.
 
 Notation term' := (term sig_empty).

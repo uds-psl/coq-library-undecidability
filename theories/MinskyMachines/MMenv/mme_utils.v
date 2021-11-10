@@ -453,7 +453,7 @@ Section mm_env_utils.
 
 End mm_env_utils.
 
-Hint Rewrite mm_set_length mm_transfert_length mm_erase_length
+Global Hint Rewrite mm_set_length mm_transfert_length mm_erase_length
              mm_list_erase_length mm_multi_erase_length
              mm_dup_length mm_copy_length mm_multi_copy_length
              mm_set_length : length_db.

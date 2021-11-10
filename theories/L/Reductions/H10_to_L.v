@@ -20,9 +20,13 @@ Inductive poly : Set :=
 MetaCoq Run (tmGenEncode "enc_poly" poly).
 #[export] Hint Resolve enc_poly_correct : Lrewrite.
 
+#[global]
 Instance term_poly_cnst: computable poly_cnst. Proof. extract constructor. Qed.
+#[global]
 Instance term_poly_var : computable poly_var. Proof. extract constructor. Qed.
+#[global]
 Instance term_poly_add : computable poly_add. Proof. extract constructor. Qed.
+#[global]
 Instance term_poly_mul : computable poly_mul. Proof. extract constructor. Qed.
 
 Fixpoint eval (p : poly) (L : list nat) :=
@@ -32,12 +36,15 @@ Fixpoint eval (p : poly) (L : list nat) :=
   | poly_add p1 p2 => eval p1 L + eval p2 L
   | poly_mul p1 p2 => eval p1 L * eval p2 L
   end.
+#[global]
 Instance term_eval : computable eval. Proof. extract. Qed.
 
 Definition poly_add' '(x,y) : poly  := poly_add x y.
+#[global]
 Instance term_poly_add' : computable poly_add'. Proof. extract. Qed.
 
 Definition poly_mul' '(x,y) : poly := poly_mul x y.
+#[global]
 Instance term_poly_mul' : computable poly_mul'. Proof. extract. Qed.
 
 Fixpoint L_poly n : list (poly) :=
@@ -49,8 +56,10 @@ Fixpoint L_poly n : list (poly) :=
                                    ++ map poly_mul' (list_prod (L_poly n) (L_poly n))
   end.
   
+#[global]
 Instance term_L_poly : computable L_poly. Proof. extract. Qed.
 
+#[global]
 Instance enum_poly :
   list_enumerator__T L_poly poly.
 Proof.
@@ -139,6 +148,7 @@ Qed.
 
 Definition test_eq := (fun '(p1,p2,L) => Nat.eqb (eval p1 L) (eval p2 L)).
 
+#[global]
 Instance term_test_eq : computable test_eq.
 Proof.
   extract.
@@ -146,6 +156,7 @@ Qed.
 
 Definition cons' : nat * list nat -> list nat := fun '(n, L) => n :: L.
 
+#[global]
 Instance term_cons' : computable cons'.
 Proof.
   extract.
@@ -153,11 +164,13 @@ Qed.
 
 Definition T_list_nat := @L_list nat opt_to_list.
 
+#[global]
 Instance computable_cumul {X} `{registered X} : computable (@cumul X).
 Proof.
   extract.
 Qed.
 
+#[global]
 Instance term_T_list : computable T_list_nat.
 Proof.
   unfold T_list_nat, L_list.
@@ -216,6 +229,7 @@ Proof.
   - destruct (IHp1_1 p2_1), (IHp1_2 p2_2); cbn; econstructor; congruence.
 Qed.
 
+#[global]
 Instance term_poly_beq : computable poly_eqb.
 Proof.
   extract.

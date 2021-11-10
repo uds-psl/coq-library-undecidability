@@ -191,7 +191,7 @@ End Terms.
 
 (* CUSTOM CHANGES *)
 Definition beta {X} (s: exp) (t: exp) := @subst_exp X (t .: var_exp) s.
-Hint Rewrite @instId_exp @rinstInst_exp @compComp_exp @compComp'_exp @varL_exp : asimpl.
+Global Hint Rewrite @instId_exp @rinstInst_exp @compComp_exp @compComp'_exp @varL_exp : asimpl.
 #[export] Hint Unfold beta upRen_exp_exp up_exp_exp : asimpl. 
 
 Ltac asimpl := autounfold with asimpl; autorewrite with asimpl using (cbn [subst_exp ren_exp]; fsimpl).

@@ -38,7 +38,7 @@ Proof.
   induction A;cbn;lia.
 Qed.
 
-Hint Rewrite sumn_app : list. 
+Global Hint Rewrite sumn_app : list. 
 
 Lemma length_concat X (A : list (list X)) :
   length (concat A) = sumn (map (@length _) A).

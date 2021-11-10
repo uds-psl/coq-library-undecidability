@@ -6,6 +6,7 @@ Require Import Lia.
 Inductive Tok := varT (n :nat) | appT | lamT | retT.
 Notation Pro := (list Tok) (only parsing).
 
+#[global]
 Instance Tok_eq_dec : eq_dec Tok.
 Proof.
 repeat intro. hnf. repeat decide equality.

@@ -1,6 +1,6 @@
 # Coq Library of Undecidability Proofs
 
-[![CI](https://github.com/uds-psl/coq-library-undecidability/workflows/CI/badge.svg?branch=coq-8.13)](https://github.com/uds-psl/coq-library-undecidability/actions)
+[![CI](https://github.com/uds-psl/coq-library-undecidability/workflows/CI/badge.svg?branch=coq-8.14)](https://github.com/uds-psl/coq-library-undecidability/actions)
 
 The Coq Library of Undecidability Proofs contains mechanised reductions to establish undecidability results in Coq.
 The undecidability proofs are based on a synthetic approach to undecidability, where a problem `P` is considered [undecidable](theories/Synthetic/Undecidability.v#L4) if its [decidability](theories/Synthetic/Definitions.v#L6) in Coq would imply the decidability of the [halting problem of single-tape Turing machines](theories/TM/TM.v#L148) in Coq.
@@ -81,9 +81,10 @@ Target problems are very expressive and thus work well as targets for reduction,
 ## Installation Instructions
 
 If you can use `opam 2` on your system, you can follow the instructions here.
-If you cannot use `opam 2`, you can use the `noopam` branch of this repository, which has no dependencies, but less available problems.
 
-### Install from opam
+### Install from released opam package
+
+*This installation method only works if the `opam` package is already released. Make sure you have done `opam update` and check the output of `opam info coq-library-undecidability` to see whether a package is available. If no package is available, use one of the two methods below.*
 
 We recommend creating a fresh opam switch:
 
@@ -96,17 +97,41 @@ Then the following commands install the library:
 
 ```
 opam repo add coq-released https://coq.inria.fr/opam/released
-opam install coq-library-undecidability.1.0.0+8.13
+opam pin add -n -y -k git coq-metacoq-template.dev+8.14 "https://github.com/MetaCoq/metacoq.git#3d83286"
+opam pin add -n -y -k git coq-smpl.8.14 "https://github.com/uds-psl/smpl.git#d9b4d79"
+opam install coq-library-undecidability.1.0.1+8.14
+```
+
+### Install from git via opam
+
+You can use `opam` to install the current state of this branch as follows.
+
+We recommend creating a fresh opam switch:
+
+```
+opam switch create coq-library-undecidability 4.07.1+flambda
+eval $(opam env)
+```
+
+Then the following commands install the library:
+
+```
+opam repo add coq-released https://coq.inria.fr/opam/released
+opam pin add -n -y -k git coq-metacoq-template.dev+8.14 "https://github.com/MetaCoq/metacoq.git#3d83286"
+opam pin add -n -y -k git coq-smpl.8.14 "https://github.com/uds-psl/smpl.git#d9b4d79"
+opam pin add coq-library-undecidability.dev+8.14 "https://github.com/uds-psl/coq-library-undecidability.git#coq-8.14"
 ```
 
 ### Manual installation
 
-You need `Coq 8.13` built on OCAML `>= 4.07.1`, the [Smpl](https://github.com/uds-psl/smpl) package, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
+You need `Coq 8.14` built on OCAML `>= 4.07.1`, the [Smpl](https://github.com/uds-psl/smpl) package, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
 
 ```
 opam switch create coq-library-undecidability 4.07.1+flambda
 eval $(opam env)
 opam repo add coq-released https://coq.inria.fr/opam/released
+opam pin add -n -y -k git coq-metacoq-template.dev+8.14 "https://github.com/MetaCoq/metacoq.git#3d83286"
+opam pin add -n -y -k git coq-smpl.8.14 "https://github.com/uds-psl/smpl.git#d9b4d79"
 opam install . --deps-only
 ```
 
@@ -133,7 +158,7 @@ To avoid this, you can use a non-local opam switch, i.e. `opam switch create 4.0
 
 #### Coq version
 
-Be careful that this branch only compiles under `Coq 8.13`. If you want to use a different Coq version you have to change to a different branch.
+Be careful that this branch only compiles under `Coq 8.14`. If you want to use a different Coq version you have to change to a different branch.
 Due to compatibility issues, not every branch contains exactly the same problems. 
 We recommend to use the newest branch if possible.
 

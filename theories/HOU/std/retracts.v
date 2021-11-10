@@ -11,12 +11,14 @@ Class retract (X Y: Type) :=
   }.
 
 
+#[global]
 Instance retract_refl X: retract X X.
 Proof.
   exists (@id X) Some. reflexivity.
 Qed.
 
 
+#[global]
 Instance retract_trans X Y Z:
   retract X Y -> retract Y Z -> retract X Z.
 Proof.
@@ -27,6 +29,7 @@ Qed.
 
 
 
+#[global]
 Instance retract_False X: retract False X.
 Proof.
   exists (fun f: False => match f with end) (fun _ => None). intros [].

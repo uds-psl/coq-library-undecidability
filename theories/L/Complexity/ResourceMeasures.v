@@ -41,6 +41,7 @@ Module Leftmost.
 
   (* *** Small-Step_Lm Time Measure *)
 
+#[global]
   Instance pow_step_lm_congL k:
     Proper ((pow step_lm k) ==> eq ==> (pow step_lm k)) app.
   Proof.
@@ -49,6 +50,7 @@ Module Leftmost.
     exists (app s' u). firstorder.
   Qed.
 
+#[global]
   Instance pow_step_lm_congR k:
     Proper (eq ==>(pow step_lm k) ==> (pow step_lm k)) (fun s t => app (lam s) t).
   Proof.
@@ -57,6 +59,7 @@ Module Leftmost.
     exists (app (lam s) t'). firstorder.
   Qed.
 
+#[global]
   Instance step_lm_step: subrelation step_lm step.
   Proof.
     induction 1;eauto using step.

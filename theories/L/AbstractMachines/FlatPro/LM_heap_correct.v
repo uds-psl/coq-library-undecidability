@@ -206,6 +206,7 @@ Proof.
 Qed.
 
 
+#[global]
 Instance extended_PO :
   PreOrder extended.
 Proof.
@@ -236,6 +237,7 @@ Proof.
 Qed.
 
 
+#[global]
 Instance unfold_extend_Proper : Proper (extended ==> eq ==> eq ==> eq ==> eq ==>Basics.impl) unfolds.
 Proof.
   repeat intro. subst. eapply unfolds_extend.  all:eassumption.
@@ -250,6 +252,7 @@ Proof.
 Qed.
 
 
+#[global]
 Instance reprC_extend_Proper : Proper (extended ==> eq ==> eq ==>Basics.impl) reprC.
 Proof.
   repeat intro. subst. eapply reprC_extend.  all:eassumption.

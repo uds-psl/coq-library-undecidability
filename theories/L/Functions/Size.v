@@ -56,6 +56,7 @@ Proof.
   rewrite sizeTR'_correct. cbn. easy.
 Qed.
 
+#[global]
 Instance termT_sizeTR' : computableTime' sizeTR'
                                            (fun x _ => (let '(stack,res) := x in
                                                     match stack with
@@ -71,6 +72,7 @@ Proof.
   induction s;cbn [size sizeTR'_fuel];try Lia.lia.
 Qed.
 
+Global
 Instance termT_size : computableTime' size (fun s _ => (108 * size s + 50,tt)).
 Proof.
   eexists.

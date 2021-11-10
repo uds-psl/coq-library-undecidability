@@ -3,6 +3,7 @@
 From Undecidability.Shared.Libs.PSL Require Import Base FinTypes.
 From Coq Require Import EqdepFacts List.
 
+#[global]
 Instance eqType_depPair (F : eqType) (a : F -> eqType) : eq_dec {f : F & a f}.
 Proof.
   intros [x fx] [y fy]. eapply dec_transfer. now rewrite eq_sigT_iff_eq_dep.
@@ -13,6 +14,7 @@ Proof.
   +right. intros eq. now inv eq.
 Qed.
 
+#[global]
 Instance finType_depPair (F : finType) (a : F -> finType) : finTypeC (EqType( {f : F & a f} )).
 Proof. 
   exists (undup (concat (map (fun f => map (fun x => existT a _ x) (elem (a f))) (elem F)))).

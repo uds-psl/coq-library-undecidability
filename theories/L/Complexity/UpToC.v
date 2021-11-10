@@ -17,6 +17,7 @@ Arguments c__leUpToC {_ _ _ H} : rename.
 
 Notation "f <=c g" := (@leUpToC _ f g) (at level 70, g at next level).
 
+#[global]
 Instance leUpToC_preorder X: PreOrder (@leUpToC X).
 Proof.
   split.
@@ -24,21 +25,25 @@ Proof.
   -hnf. intros ? ? ? [c Hc] [c' Hc']. exists (c*c'). intros. rewrite Hc,Hc'. nia.
 Qed.
 
+#[global]
 Instance leUpToC_proper_eq X: Proper (Morphisms.pointwise_relation X eq ==> Morphisms.pointwise_relation X eq ==> arrow) (@leUpToC X).
 Proof.
   intros ? ? H ? ? H0 H1. cbv - [iff] in *. destruct H1. eexists. intro. rewrite <-H, <- H0. easy.
 Qed.
 
+#[global]
 Instance leUpToC_proper_eq_flip X: Proper (Morphisms.pointwise_relation X eq ==> Morphisms.pointwise_relation X eq ==> flip arrow) (@leUpToC X).
 Proof.
   intros ? ? H ? ? H0 H1. cbv - [iff] in *. destruct H1. eexists. intro. rewrite H, H0. easy.
 Qed.
 
+#[global]
 Instance le_leUpToC_subrelation X: subrelation (pointwise_relation X le) leUpToC.
 Proof.
   intros ? ? H. exists 1. intros. hnf in H. setoid_rewrite H. nia.
 Qed.
 
+#[global]
 Instance eq_leUpToC_subrelation X: subrelation (pointwise_relation X eq) leUpToC.
 Proof.
   intros ? ? H. exists 1. hnf in H. setoid_rewrite H. intros;nia.

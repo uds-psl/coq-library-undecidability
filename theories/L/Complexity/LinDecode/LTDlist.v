@@ -5,7 +5,7 @@ From Undecidability.L Require Import Functions.Decoding.
 
 From Undecidability.L Require Export LinDecode.LTD_def.
 
-Instance linDec_list X `{_:linTimeDecodable X}: linTimeDecodable (list X).
+Global Instance linDec_list X `{_:linTimeDecodable X}: linTimeDecodable (list X).
 Proof.
   evar (c:nat). exists c.
   unfold decode,decode_list,list_decode;cbn.

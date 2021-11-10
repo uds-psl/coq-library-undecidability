@@ -21,11 +21,13 @@ From Undecidability.FOL.Util Require Import Syntax Deduction Tarski Kripke.
 
 Inductive syms_func := s_f : bool -> syms_func | s_e.
 
+#[global]
 Instance sig_func : funcs_signature :=
   {| syms := syms_func; ar_syms := fun f => if f then 1 else 0 |}.
 
 Inductive syms_pred := sPr | sQ.
 
+#[global]
 Instance sig_pred : preds_signature :=
   {| preds := syms_pred; ar_preds := fun P => if P then 2 else 0 |}.
 

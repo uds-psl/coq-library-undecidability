@@ -45,7 +45,7 @@ Ltac mapinj :=
 
 Ltac dostep := econstructor 2; [ eauto |].
 
-Hint Rewrite
+Global Hint Rewrite
      Nat.sub_0_l Nat.sub_0_r Nat.sub_diag
      Nat.add_sub minus_plus Nat.sub_succ
      Nat.add_0_l Nat.add_0_r : simplify. 

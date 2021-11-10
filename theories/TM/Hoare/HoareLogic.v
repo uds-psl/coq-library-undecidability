@@ -143,6 +143,7 @@ Proof. split;firstorder eauto using EntailsE,EntailsI. Qed.
 
 #[export] Hint Resolve EntailsI : core.
 
+#[global]
 Instance Entails_PO (sig : Type) (n : nat): PreOrder (@Entails sig n).
 Proof. split;hnf. all:setoid_rewrite Entails_iff. all:eauto. Qed.
 
@@ -164,6 +165,7 @@ Qed.
 Lemma asPointwise A X (R: A -> A -> Prop) f g: (forall (x:X), R (f x) (g x)) -> pointwise_relation X R f g.
 Proof. now cbv. Qed. 
 
+#[global]
 Instance Triple_Entails_Proper sig n F: Proper (Entails --> eq ==> pointwise_relation F Entails ==> Basics.impl) (@Triple sig n F).
 Proof. repeat intro. subst. eapply Consequence;eauto. Qed.
 
@@ -194,6 +196,7 @@ Proof.
     + unfold Triple_TRel. intros tin k (H&H'). split. 2: lia. setoid_rewrite Entails_iff in H2. eauto. 
 Qed.
 
+#[global]
 Instance TripleT_Entails_Proper sig n F: Proper (Entails --> le ==> eq ==> pointwise_relation F Entails ==> Basics.impl) (@TripleT sig n F).
 Proof. repeat intro. subst. eapply ConsequenceT;eauto. Qed.
 

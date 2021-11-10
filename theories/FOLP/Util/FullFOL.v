@@ -441,6 +441,7 @@ Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence)
   destruct (Hv h (vec_inB h v) h0)... destruct (IHv (fun x H => Hv x (vec_inS h0 H)) v')...
 Qed.
 
+#[global]
 Instance dec_vec X {HX : eq_dec X} n : eq_dec (vector X n).
 Proof.
   intros v. refine (dec_vec_in _).

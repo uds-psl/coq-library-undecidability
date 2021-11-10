@@ -106,8 +106,8 @@ Section Linearization.
 
 
 End Linearization.
-Hint Rewrite lin_ren lin_subst : asimpl.
-Hint Rewrite lin_nil lin_cons lin_app : simplify.
+Global Hint Rewrite lin_ren lin_subst : asimpl.
+Global Hint Rewrite lin_nil lin_cons lin_app : simplify.
 
 
 Section Encoding.
@@ -243,8 +243,8 @@ Section Encoding.
 End Encoding.
 
 #[export] Hint Resolve enc_normal : core.
-Hint Rewrite enc_zero enc_succ enc_app enc_succ_out: simplify.
-Hint Rewrite enc_ren enc_subst: asimpl.
+Global Hint Rewrite enc_zero enc_succ enc_app enc_succ_out: simplify.
+Global Hint Rewrite enc_ren enc_subst: asimpl.
 
 
 Arguments enc : simpl never.
@@ -594,7 +594,7 @@ End Typing.
 
 
 (* ** Reduction Function *)
-Program Instance H10_to_SOU (E: list deq): ordsysuni ag 2 :=
+Global Program Instance H10_to_SOU (E: list deq): ordsysuni ag 2 :=
   {
     Gamma₀' := Gamma__deq E;
     E₀' := Eqs E;

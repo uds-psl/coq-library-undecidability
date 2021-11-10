@@ -435,6 +435,7 @@ Proof with subst; try (now left + (right; intros[=])).
   - right. intros H. inversion H. resolve_existT. tauto.
 Qed.
 
+#[global]
 Instance dec_vec X {HX : eq_dec X} n : eq_dec (vec X n).
 Proof.
   intros v. refine (dec_vec_in _ _ _ _).

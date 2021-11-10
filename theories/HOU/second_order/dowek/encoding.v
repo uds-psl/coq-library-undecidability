@@ -195,7 +195,7 @@ Section ChurchEncoding.
 
 
 End ChurchEncoding.
-Hint Rewrite @add_ren @add_subst @mul_ren @mul_subst
+Global Hint Rewrite @add_ren @add_subst @mul_ren @mul_subst
        @enc_ren @enc_subst : asimpl.
 
 
@@ -355,12 +355,13 @@ Section Encoding.
   End Typing.
 
 End Encoding.
-Hint Rewrite @enc_ren @enc_subst : asimpl.
+Global Hint Rewrite @enc_ren @enc_subst : asimpl.
 
 Notation Eqs E := (flat_map eqs E). 
 
 
 (* ** Reduction Function *)
+#[global]
 Program Instance H10_to_DWK X (E: list deq): ordsysuni X 3 :=
   {
     Gamma₀' := Gamma__dwk E;

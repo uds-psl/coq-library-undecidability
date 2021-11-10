@@ -29,6 +29,7 @@ Proof. unfold Fin_initVect. apply nth_tabulate. Qed.
 
 Import VecToListCoercion.
 
+#[global]
 Instance Fin_finTypeC n : finTypeC (EqType (Fin.t n)).
 Proof.
   constructor 1 with (enum := Fin_initVect n).
@@ -52,6 +53,7 @@ Fixpoint Vector_pow {X: Type} (A: list X) n {struct n} : list (Vector.t X n) :=
   | S n => concat (map (fun a => map (fun v => a:::v) (Vector_pow A n) ) A)
   end.
 
+#[global]
 Instance Vector_finTypeC (A:finType) n: finTypeC (EqType (Vector.t A n)).
 Proof.
   exists (undup ((Vector_pow (elem A) n))). cbn in *.
@@ -86,6 +88,7 @@ Proof.
   now repeat rewrite enum_ok.
 Qed.
 
+Global
 Instance finTypeC_Prod (F1 F2: finType) : finTypeC (EqType (F1 * F2)).
 Proof.
   econstructor.  apply prod_enum_ok.

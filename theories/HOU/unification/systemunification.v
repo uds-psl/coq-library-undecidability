@@ -261,7 +261,7 @@ Notation "sigma •₊₊ E" := (map (subst_eq sigma) E) (at level 69, right ass
 Notation  "Gamma ⊢₊₊ E : L" := (eqs_typing Gamma E L) (at level 80, E at level 99).
 Notation "Gamma ⊢₂ e : A" := (eq_typing Gamma e A) (at level 80, e at level 99).
 
-Hint Rewrite all_terms_cons_iff all_terms_app Vars'_app Vars'_cons: simplify.
+Global Hint Rewrite all_terms_cons_iff all_terms_app Vars'_app Vars'_cons: simplify.
 #[export] Hint Resolve all_terms_nil : core.
 
 (* ** Normalisation *)

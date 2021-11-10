@@ -82,6 +82,7 @@ Qed.
 
 (* Proper lemmas *)
 
+#[global]
 Instance Proper_decides {X} :
   Proper (pointwise_relation X (@eq bool) ==> pointwise_relation X iff ==> iff ) (@decider X).
 Proof.
@@ -92,6 +93,7 @@ Proof.
   - now rewrite H2, H, H1.
 Qed.
 
+#[global]
 Instance Proper_decidable {X} :
   Proper (pointwise_relation X iff ==> iff) (@decidable X).
 Proof.

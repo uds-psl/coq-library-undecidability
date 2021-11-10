@@ -19,6 +19,7 @@ Structure finType : Type :=
     }.
 
 Arguments FinType type {class}.
+#[global]
 Existing Instance class | 0.
 
 
@@ -63,6 +64,7 @@ Proof.
   - intros [x [E P]]. eauto.
 Qed.
 
+#[global]
 Instance finType_forall_dec (X: finType) (p: X -> Prop): (forall x, dec (p x)) -> dec (forall x, p x).
 Proof.
   intros D. eapply dec_transfer.
@@ -70,6 +72,7 @@ Proof.
   - auto.
 Qed.
 
+#[global]
 Instance finType_exists_dec (X:finType) (p: X -> Prop) : (forall x, dec (p x)) -> dec (exists x, p x).
 Proof.
   intros D. eapply dec_transfer.

@@ -177,6 +177,7 @@ Tactic Notation "fsimpl" "in" "*" :=
 (* Notation "s , sigma" := (scons s sigma) (at level 60, format "s ,  sigma", right associativity) : subst_scope. *)
 
 Notation "s '..'" := (scons s ids) (at level 1, format "s ..") : subst_scope.
+#[global]
 Instance idsRen : Var nat nat := id.
 
 Notation "↑" := (shift).

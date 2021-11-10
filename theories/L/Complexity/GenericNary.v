@@ -32,8 +32,8 @@ Lemma Const_eqn_2 : forall A d ds (c : A),
   Const (d :: ds) c = Const ds (fun _ => c).
 Proof. intros. reflexivity. Qed.
 
-Hint Rewrite Const_eqn_1 : Const.
-Hint Rewrite Const_eqn_2 : Const.
+Global Hint Rewrite Const_eqn_1 : Const.
+Global Hint Rewrite Const_eqn_2 : Const.
 Opaque Const.
 
 Fixpoint Fun' {domain : list Type} {range : Type} {struct domain}
@@ -67,9 +67,9 @@ Lemma Fun'_eqn_3 : forall d d' ds range body,
   (fun '(t', x) => @Fun' (d' :: ds) range (fun p' => body (p', x)) t').
 Proof. intros. reflexivity. Qed.
 
-Hint Rewrite Fun'_eqn_1 : Fun'.
-Hint Rewrite Fun'_eqn_2 : Fun'.
-Hint Rewrite Fun'_eqn_3 : Fun'.
+Global Hint Rewrite Fun'_eqn_1 : Fun'.
+Global Hint Rewrite Fun'_eqn_2 : Fun'.
+Global Hint Rewrite Fun'_eqn_3 : Fun'.
 Opaque Fun'.
 
 Fixpoint App {domain : list Type} {range : Type} {struct domain}
@@ -100,9 +100,9 @@ Lemma App_eqn_3 : forall d d' ds range f x,
   @App (d :: d' :: ds) range f x = @App (d' :: ds) (d -> range) f (fst x) (snd x).
 Proof. intros. reflexivity. Qed.
 
-Hint Rewrite App_eqn_1 : App.
-Hint Rewrite App_eqn_2 : App.
-Hint Rewrite App_eqn_3 : App.
+Global Hint Rewrite App_eqn_1 : App.
+Global Hint Rewrite App_eqn_2 : App.
+Global Hint Rewrite App_eqn_3 : App.
 Opaque App.
 Set Printing Universes.
 Lemma Fun'_simpl : forall (domain : list Type) range body t,

@@ -14,6 +14,7 @@ Implicit Type b : falsity_flag.
 
 Definition cprv := @prv _ _ falsity_on class.
 
+#[global]
 Instance iUnit (P : Prop) : interp unit.
 Proof.
   split; intros [] v.

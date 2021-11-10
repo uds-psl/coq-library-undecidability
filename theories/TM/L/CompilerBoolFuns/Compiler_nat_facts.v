@@ -113,11 +113,13 @@ Proof.
   extract.
 Qed.
 
+#[global]
 Instance term_idbool : computable idbool.
 Proof.
   extract.
 Qed.
 
+#[global]
 Instance term_alltrue : computable alltrue.
 Proof.
   extract.
@@ -125,6 +127,7 @@ Qed.
 
 #[export] Remove Hints term_forallb : typeclass_instances.
 
+#[global]
 Instance term_validate : computable validate.
 Proof.
   change (computable (fun l => forallb'' (forallb' alltrue) l)).

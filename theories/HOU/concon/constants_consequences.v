@@ -20,6 +20,7 @@ Definition gonly : Const :=
                     
   |}.
 
+#[global]
 Program Instance RE_ag_gonly : retract gonly ag :=
   {|
     I := fun _ => None;
@@ -56,6 +57,7 @@ Definition cfree : Const :=
     ctype := fun f => match f with end
   |}.
 
+#[global]
 Program Instance RE_cfree X : retract cfree X :=
   {|
     I := fun f => match f with end;

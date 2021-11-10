@@ -27,8 +27,8 @@ Inductive TT : Type -> Type :=
   : TT (t1 -> t2).
 
 Existing Class TT.
-Existing Instance TyB.
-Existing Instance TyArr.
+Global Existing Instance TyB.
+Global Existing Instance TyArr.
   
 Arguments TyB _ {_}.
 Arguments TyArr {_} {_} _ _.
@@ -79,6 +79,7 @@ Proof.
 Qed.
 
 
+#[global]
 Instance reg_is_ext ty (R : registered ty) (x : ty) : computable x.
 Proof.
   exists (enc x). reflexivity.
@@ -90,6 +91,7 @@ Proof.
   unfold ext. now destruct R.
 Qed.
 
+#[global]
 Instance extApp' t1 t2 {tt1:TT t1} {tt2 : TT t2} (f: t1 -> t2) (x:t1) (Hf : computable f) (Hx : computable x) : computable (f x).
 Proof.
   destruct Hf, Hx.
@@ -162,6 +164,7 @@ Fixpoint extEq t {tt:TT t} : t -> t -> Prop:=
   end.
 
 
+#[global]
 Instance extEq_refl t (tt:TT t): Reflexive (extEq (tt:=tt)).
 Proof.
   unfold Reflexive.

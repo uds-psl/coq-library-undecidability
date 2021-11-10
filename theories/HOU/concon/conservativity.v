@@ -7,7 +7,7 @@ Import ListNotations.
 
 Set Default Proof Using "Type".
 
-Hint Rewrite @consts_Lam @consts_AppL @consts_AppR : simplify.
+Global Hint Rewrite @consts_Lam @consts_AppL @consts_AppR : simplify.
 
 (* ** Inhabiting Types *)
 Section InhabitingTypes.

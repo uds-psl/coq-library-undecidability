@@ -11,9 +11,11 @@ Require Import List.
  
 (* ** Minimal signature only containing membership and equality, no function symbols *)
 
+#[global]
 Instance sig_empty : funcs_signature :=
     {| syms := False;  ar_syms := False_rect nat |}.
 
+#[global]
 Existing Instance ZF_func_sig.
 
 Notation term' := (term sig_empty).

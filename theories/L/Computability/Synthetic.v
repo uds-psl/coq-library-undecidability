@@ -74,6 +74,7 @@ End L_enum_rec.
 
 Definition opt_to_list n := match nat_enum n with Some x => [x] | None => [] end.
 
+#[global]
 Instance term_opt_to_list : computable opt_to_list.
 Proof.
   extract.
@@ -81,6 +82,7 @@ Qed.
   
 Definition L_nat := cumul (opt_to_list).
 
+#[global]
 Instance term_L_nat : computable L_nat.
 Proof.
   unfold L_nat. unfold cumul.
@@ -108,6 +110,7 @@ Definition F' := (fix F (n : nat) : nat := match n with
                                                            | S n0 => S n0 + F n0
                                                            end).
 
+#[global]
 Instance term_F' : computable F'.
 Proof.
   extract.
@@ -121,17 +124,20 @@ Definition F'' := (fix F (n0 : nat) : nat * nat := match n0 with
                                                                end
                                              end).
 
+#[global]
 Instance term_F'' : computable F''.
 Proof.
   extract.
 Qed.
 
+#[global]
 Instance term_embed_nat : computable embed.
 Proof.
   change (computable (fun '(x, y) => y + F' (y + x))).
   extract.
 Qed.
 
+#[global]
 Instance term_unembed_nat : computable unembed.
 Proof.
   unfold unembed.
@@ -201,6 +207,7 @@ Qed.
 
 Definition F1 {X} (T : nat -> list X) :=  (fun n => let (n, m) := unembed n in nth_error (T n) m).
 
+#[global]
 Instance term_F1 {X} {H : registered X} :  @computable ((nat -> list X) -> nat -> option X) ((! nat ~> ! list X) ~> ! nat ~> ! option X) (@F1 X).
 Proof.
   extract.  

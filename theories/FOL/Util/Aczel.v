@@ -67,6 +67,7 @@ Qed.
 
 #[export] Hint Resolve Aeq_ref Aeq_sym Aeq_tra : core.
 
+#[global]
 Instance aeq_equiv :
   Equivalence Aeq.
 Proof.
@@ -107,6 +108,7 @@ Proof.
   rewrite <- H4. now rewrite <- H1.
 Qed.
 
+#[global]
 Instance Ain_proper :
   Proper (Aeq ==> Aeq ==> iff) Ain.
 Proof.
@@ -116,6 +118,7 @@ Proof.
     now apply (Ain_mor H1 H2).
 Qed.
 
+#[global]
 Instance ASubq_proper :
   Proper (Aeq ==> Aeq ==> iff) ASubq.
 Proof.
@@ -205,6 +208,7 @@ Proof.
   rewrite <- H1, <- H2. now apply AupairAx in H.
 Qed.
 
+#[global]
 Instance Aupair_proper :
   Proper (Aeq ==> Aeq ==> Aeq) Aupair.
 Proof.
@@ -236,6 +240,7 @@ Proof.
   rewrite H1 in H2. apply AunionAx. now exists t.
 Qed.
 
+#[global]
 Instance Aunion_proper :
   Proper (Aeq ==> Aeq) Aunion.
 Proof.
@@ -269,6 +274,7 @@ Proof.
   rewrite <- H1. now apply ApowerAx.
 Qed.
 
+#[global]
 Instance Apower_proper :
   Proper (Aeq ==> Aeq) Apower.
 Proof.
@@ -358,6 +364,7 @@ Qed.
 
 (* Infinity *)
 
+#[global]
 Instance Asucc_proper :
   Proper (Aeq ==> Aeq) Asucc.
 Proof.

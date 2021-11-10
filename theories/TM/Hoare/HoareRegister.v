@@ -181,9 +181,11 @@ Fixpoint implList (Ps : list Prop) (Q : Prop) :=
   end.
 Arguments implList !_ _.
 
+#[global]
 Instance fold_right_impl' : Proper (Forall2 Basics.impl --> Basics.impl ==> Basics.impl) (implList).
 Proof. intros xs;induction xs;cbn;intros ? H';inv H';cbn. easy. firstorder. Qed.
 
+#[global]
 Instance fold_right_iff : Proper (Forall2 iff ==> iff ==> iff) (implList).
 Proof. intros xs;induction xs;cbn;intros ? H';inv H';cbn. easy. firstorder. Qed.
 
@@ -200,6 +202,7 @@ Proof. now rewrite implList_iff. Qed.
 Lemma implListI (P:Prop) (Ps : list Prop): (List.fold_right and True Ps -> P) -> implList Ps P.
 Proof. now rewrite implList_iff. Qed.
 
+#[global]
 Instance Forall2_refl X (R: X -> _): Reflexive R -> Reflexive (Forall2 R).
 Proof. intros ? xs;induction xs;eauto. Qed. 
 
@@ -344,9 +347,11 @@ Proof.
 Qed.
 
 
+#[global]
 Instance fold_right_and : Proper (iff ==> Forall2 iff ==> iff) (fold_right and).
 Proof. intros ? ? ? xs;induction xs;cbn;intros ? H';inv H';cbn. easy. firstorder. Qed.
 
+#[global]
 Instance fold_right_and' : Proper (Basics.impl ==> Forall2 iff ==> Basics.impl) (fold_right and).
 Proof. intros ? ? ? xs;induction xs;cbn;intros ? H';inv H';cbn. easy. firstorder. Qed.
 
@@ -560,6 +565,7 @@ Proof. now rewrite <- tspec_Downlift_withSpace. Qed.
 
 
 (* TODO: Why is this needed? If needed: Move into base *)
+#[global]
 Instance dec_ex_fin (n : nat) (P : Fin.t n -> Prop) (decP: forall (i : Fin.t n), dec (P i)) : dec (exists (i : Fin.t n), P i).
 Proof.
   induction n.

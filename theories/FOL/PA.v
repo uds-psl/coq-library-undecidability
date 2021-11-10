@@ -6,6 +6,7 @@ Require Import List.
 
 (* ** Signature for PA axiomatisation, containing function symbols for set operations *)
 
+#[global]
 Existing Instance falsity_on.
 
 
@@ -32,9 +33,11 @@ match P with
 end.
 
 
+#[global]
 Instance PA_funcs_signature : funcs_signature :=
 {| syms := PA_funcs ; ar_syms := PA_funcs_ar |}.
 
+#[global]
 Instance PA_preds_signature : preds_signature :=
 {| preds := PA_preds ; ar_preds := PA_preds_ar |}.
 

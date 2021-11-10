@@ -6,8 +6,7 @@ Lemma tl_length (X : Type) (xs : list X) :
   length (tl xs) = pred (length xs).
 Proof. destruct xs; auto. Qed.
 
-Hint Rewrite tl_length : list.
-
+Global Hint Rewrite tl_length : list.
 
 Section CaseNat.
 

@@ -60,7 +60,7 @@ Section length.
 
 End length.
 
-Hint Rewrite length_nil length_cons app_length map_length rev_length : length_db.
+Global Hint Rewrite length_nil length_cons app_length map_length rev_length : length_db.
 
 Section list_an.
 
@@ -121,7 +121,7 @@ Section list_an.
 
 End list_an.
 
-Hint Rewrite list_an_length : length_db.
+Global Hint Rewrite list_an_length : length_db.
 
 Definition list_fun_inv X (l : list X) (x : X) : { f : nat -> X | l = map f (list_an 0 (length l)) }.
 Proof.

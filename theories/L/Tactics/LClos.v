@@ -191,6 +191,7 @@ Proof.
 Qed.
 
 
+#[global]
 Instance CPow'_App_properR n:
   Proper (eq ==> (CPow n) ==> (CPow n)) CompApp.
 Proof.

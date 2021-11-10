@@ -16,9 +16,10 @@ Local Hint Constructors prv : core.
 
 (* Making sure that the rich ZF signature is prioritised *)
 
+#[global]
 Existing Instance ZF_func_sig.
+#[global]
 Existing Instance ZF_pred_sig.
-
 
 
 (* ** Trivial embedding into rich signature *)

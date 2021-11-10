@@ -115,6 +115,7 @@ Inductive finsat_sig' : what -> nat -> Type :=
 | less : finsat_sig' pred 2
 | equiv : finsat_sig' pred 2.
 
+#[global]
 Instance finsat_sig : Signature := make_sig finsat_sig'.
 
 Definition i_f domain {I : interp domain} : bool -> domain -> domain :=

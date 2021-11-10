@@ -116,7 +116,10 @@ Proof.
 Qed.
 #[export] Hint Resolve enumerator_enumerable : core.
 
-Existing Instance enumerator__T_prod.
+Global Existing Instance enumerator__T_prod.
+#[global]
 Existing Instance enumerator__T_option.
+#[global]
 Existing Instance enumerator__T_bool.
+#[global]
 Existing Instance enumerator__T_nat.

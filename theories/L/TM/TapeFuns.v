@@ -121,6 +121,7 @@ Fixpoint loopTime {X} `{registered X} f (fT: timeComplexity (X -> X)) (p: X -> b
      fst (fT a tt) + 13 + loopTime f fT p pT (f a) k
   end.
 
+Global
 Instance term_loop A `{registered A} :
   computableTime' (@loop A)
                  (fun f fT => (1,fun p pT => (1,fun a _ => (5,fun k _ =>(loopTime f fT p pT a k,tt))))).

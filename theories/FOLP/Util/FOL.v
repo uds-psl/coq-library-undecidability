@@ -457,6 +457,7 @@ Fixpoint L_vec X (L : nat -> list X) n m : list (vector X n) :=
   | S m => L_vec L n m ++ vecs_from (cumul L m) n
   end.
 
+#[global]
 Instance enumT_vec X L_T {HX : list_enumerator__T L_T X} n : list_enumerator__T (L_vec L_T n) (vector X n).
 Proof with try (eapply cum_ge'; eauto; lia).
   intros v. enough (exists m, forall x, vec_in x v -> x el cumul L_T m) as [m Hm].
@@ -535,6 +536,7 @@ Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence)
   destruct (Hv h (vec_inB h v) h0)... destruct (IHv (fun x H => Hv x (vec_inS h0 H)) v')...
 Qed.
 
+#[global]
 Instance dec_vec X {HX : eq_dec X} n : eq_dec (vector X n).
 Proof.
   intros v. refine (dec_vec_in _).

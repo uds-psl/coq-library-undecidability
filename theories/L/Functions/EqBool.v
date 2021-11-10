@@ -17,6 +17,7 @@ Proof.
   intros. eapply _eqb_spec.
 Qed.
 
+#[global]
 Instance eqbBool_inst : eqbClass Bool.eqb.
 Proof.
   intros ? ?. eapply iff_reflect. rewrite eqb_true_iff. reflexivity.
@@ -44,8 +45,10 @@ Arguments c__eqbComp _ {_ _ _ _}.
 
 #[export] Hint Mode eqbCompT + - - -: typeclass_instances.
 
+#[global]
 Existing Instance comp_eqb.
 
+#[global]
 Instance eqbComp_bool : eqbCompT bool.
 Proof.
   evar (c:nat). exists c. unfold Bool.eqb.

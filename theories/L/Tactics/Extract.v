@@ -247,6 +247,7 @@ Definition mkFixMatch (f x : ident) (t1 t2 : Ast.term) (pred : Ast.predicate ter
                                                 (tRel 0)
                                                 body)) 0] 0).
 
+#[global]
 Existing Instance config.default_checker_flags.
 
 Definition encode_arguments (B : term) (a i : nat) A_j :=

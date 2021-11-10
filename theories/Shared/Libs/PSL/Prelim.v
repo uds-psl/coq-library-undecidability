@@ -12,7 +12,6 @@ Global Set Implicit Arguments.
 Global Unset Strict Implicit.
 Global Unset Printing Records.
 Global Unset Printing Implicit Defensive.
-Global Set Regular Subst Tactic.
 
 #[export] Hint Extern 4 => exact _ : core.  (* makes auto use type class inference *)
 

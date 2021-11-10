@@ -15,6 +15,7 @@ Arguments decode _ {_} {_} _ : simpl never.
 
 
 
+#[global]
 Instance decode_nat : decodable nat.
 Proof.
   exists nat_unenc. all:eauto using LNat.unenc_correct, LNat.unenc_correct2.
@@ -41,6 +42,7 @@ Fixpoint term_decode (s : term) :=
   | _ => None
   end.
 
+Global
 Instance decode_term : decodable term.
 Proof.
   exists term_decode.
@@ -81,6 +83,7 @@ Definition list_decode X `{decodable X} :=
 Arguments list_decode : clear implicits.
 Arguments list_decode _ {_ _} _.
 
+Global
 Instance decode_list X `{registered X} {Hdec:decodable X}: decodable (list X).
 Proof.
   exists (list_decode X).
@@ -118,6 +121,7 @@ Definition prod_decode X Y `{decodable X} `{decodable Y} (s : term) : option (X*
 Arguments prod_decode : clear implicits.
 Arguments prod_decode _ _ {_ _ _ _}.
 
+#[global]
 Instance decode_prod X Y `{decodable X} `{decodable Y}: decodable (X*Y).
 Proof.
   exists (prod_decode X Y).
@@ -149,6 +153,7 @@ Definition sum_decode X Y `{decodable X} `{decodable Y} (s : term) : option (X +
 Arguments sum_decode : clear implicits.
 Arguments sum_decode _ _ {_ _ _ _}.
 
+#[global]
 Instance decode_sum X Y `{decodable X} `{decodable Y} : decodable (X + Y). 
 Proof. 
   exists (sum_decode X Y). 
@@ -176,6 +181,7 @@ Definition option_decode X `{decodable X} (s : term) : option (option X) :=
 Arguments option_decode : clear implicits.
 Arguments option_decode _ {_ _} _.
 
+#[global]
 Instance decode_option X `{registered X} {Hdec:decodable X}: decodable (option X).
 Proof.
   exists (option_decode X).
@@ -200,6 +206,7 @@ Definition bool_decode (s : term) : option bool:=
   | _ => None
   end.
 
+#[global]
 Instance decode_bool: decodable (bool).
 Proof.
   exists (bool_decode).
@@ -218,6 +225,7 @@ Definition unit_decode (s : term) : option unit :=
   | _ => None
   end. 
 
+#[global]
 Instance decode_unit : decodable unit. 
 Proof. 
   exists unit_decode. 

@@ -16,6 +16,7 @@ Inductive sigTape (sig : Type) : Type :=
 | MarkedSymbol (s : sig)
 | UnmarkedSymbol (s : sig).
 
+#[global]
 Instance sigTape_eq (sig : Type) : eq_dec sig -> eq_dec (sigTape sig).
 Proof. intros. hnf. decide equality; now apply Dec; auto. Defined. (* because definition *)
 
@@ -25,6 +26,7 @@ Arguments NilBlank {sig}.
 Arguments MarkedSymbol {sig}.
 Arguments UnmarkedSymbol {sig}.
 
+#[global]
 Instance sigTape_fin (sig : finType) : finTypeC (EqType (sigTape sig)).
 Proof.
   split with (enum := LeftBlank true :: LeftBlank false :: RightBlank true :: RightBlank false :: NilBlank ::
@@ -77,6 +79,7 @@ Definition encode_tape (sig : Type) (t : tape sig) : list (sigTape sig) :=
   | rightof l ls => LeftBlank false :: map UnmarkedSymbol (rev ls) ++ [UnmarkedSymbol l; RightBlank true]
   end.
 
+#[global]
 Instance Encode_tape (sig : Type) : codable (sigTape sig) (tape sig) :=
   {|
     encode := @encode_tape sig;
@@ -108,6 +111,7 @@ Definition encode_tapes (sig : Type) (n : nat) (t : tapes sig n) :=
 Arguments encode_tapes {sig n}.
 
 
+#[global]
 Instance Encode_tapes (sig : Type) (n : nat) : codable (sigList (sigTape sig)) (tapes sig n) :=
   {|
     encode := @encode_tapes sig n;

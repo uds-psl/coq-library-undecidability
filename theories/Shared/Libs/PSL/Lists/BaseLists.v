@@ -17,8 +17,8 @@ end : core.
 
 (* Register additional simplification rules with autorewrite / simpl_list *)
 (* Print Rewrite HintDb list. *)
-Hint Rewrite <- app_assoc : list.
-Hint Rewrite rev_app_distr map_app prod_length : list.
+Global Hint Rewrite <- app_assoc : list.
+Global Hint Rewrite rev_app_distr map_app prod_length : list.
 
 Lemma list_cycle  (X : Type) (A : list X) x :
   x::A <> A.
@@ -30,6 +30,7 @@ Qed.
 
 (* *** Decisions for lists *)
 
+#[global]
 Instance list_in_dec X (x : X) (A : list X) :  
   eq_dec X -> dec (x el A).
 Proof.
@@ -48,6 +49,7 @@ Qed.
 
 Arguments cfind {X} A p {p_dec}.
 
+#[global]
 Instance list_forall_dec X A (p : X -> Prop) :
   (forall x, dec (p x)) -> dec (forall x, x el A -> p x).
 Proof.
@@ -57,6 +59,7 @@ Proof.
   - left. intros x E. apply find_none with (x := x) in Eq. apply dec_DN; auto. auto.
 Qed.
 
+#[global]
 Instance list_exists_dec X A (p : X -> Prop) :
   (forall x, dec (p x)) -> dec (exists x, x el A /\ p x).
 Proof.
@@ -284,54 +287,63 @@ Definition inclp (X : Type) (A : list X) (p : X -> Prop) : Prop :=
 
 (* *** Setoid rewriting with list inclusion and list equivalence *)
 
+#[global]
 Instance incl_preorder X : 
   PreOrder (@incl X).
 Proof. 
   constructor; hnf; unfold incl; auto. 
 Qed.
 
+#[global]
 Instance equi_Equivalence X : 
   Equivalence (@equi X).
 Proof. 
   constructor; hnf; firstorder. 
 Qed.
 
+#[global]
 Instance incl_equi_proper X : 
   Proper (@equi X ==> @equi X ==> iff) (@incl X).
 Proof. 
   hnf. intros A B D. hnf. firstorder. 
 Qed.
 
+#[global]
 Instance cons_incl_proper X x : 
   Proper (@incl X ==> @incl X) (@cons X x).
 Proof.
   hnf. apply incl_shift.
 Qed.
 
+#[global]
 Instance cons_equi_proper X x : 
   Proper (@equi X ==> @equi X) (@cons X x).
 Proof. 
   hnf. firstorder.
 Qed.
 
+#[global]
 Instance in_incl_proper X x : 
   Proper (@incl X ==> Basics.impl) (@In X x).
 Proof.
   intros A B D. hnf. auto.
 Qed.
 
+#[global]
 Instance in_equi_proper X x : 
   Proper (@equi X ==> iff) (@In X x).
 Proof. 
   intros A B D. firstorder. 
 Qed.
 
+#[global]
 Instance app_incl_proper X : 
   Proper (@incl X ==> @incl X ==> @incl X) (@app X).
 Proof. 
   intros A B D A' B' E. auto.
 Qed.
 
+#[global]
 Instance app_equi_proper X : 
   Proper (@equi X ==> @equi X ==> @equi X) (@app X).
 Proof. 
@@ -547,6 +559,7 @@ Proof.
   - now apply map_eq_cons' in H as (l1&l2&->&->%HInj&->%IH).
 Qed.
 
+#[global]
 Instance map_ext_proper A B: Proper (@ pointwise_relation A B (@eq B) ==> (@eq (list A)) ==> (@eq (list B))) (@map A B).
 Proof.
   intros f f' Hf a ? <-. induction a;cbn;congruence.

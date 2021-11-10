@@ -23,6 +23,7 @@ Module L_Notations.
   Export L_Notations_app.
 End L_Notations.
 
+#[global]
 Instance term_eq_dec : eq_dec term.
 Proof.
   intros s t; unfold dec; repeat decide equality.
@@ -104,6 +105,7 @@ Qed.
 
 #[export] Hint Resolve lambda_lam : core.
 
+#[global]
 Instance lambda_dec s : dec (lambda s).
 Proof.
   destruct s;[right;intros C;inv C;congruence..|left;eexists;eauto].
@@ -191,6 +193,7 @@ Proof.
   intros H H' k u. simpl. now rewrite H, H'.
 Qed.
 
+#[global]
 Instance bound_dec k s : dec (bound k s).
 Proof with try ((left; econstructor; try lia; tauto) || (right; inversion 1; try lia; tauto)).
   revert k; induction s; intros k.
@@ -201,6 +204,7 @@ Proof with try ((left; econstructor; try lia; tauto) || (right; inversion 1; try
     + destruct (IHs (S (S k)))...
 Defined. (* because instance *)
 
+#[global]
 Instance closed_dec s : dec (closed s).
 Proof.
   decide (bound 0 s);[left|right];now rewrite closed_dcl.
@@ -308,6 +312,7 @@ Qed.
 
 Notation "s '>*' t" := (star step s t) (at level 50).
 
+#[global]
 Instance star_PreOrder : PreOrder (star step).
 Proof.
   constructor; hnf.
@@ -321,6 +326,7 @@ Proof.
   eauto using star. 
 Qed.
 
+#[global]
 Instance step_star_subrelation : subrelation step (star step).
 Proof.
   cbv. apply step_star.
@@ -338,6 +344,7 @@ Proof.
   induction 1; eauto using star, step.
 Qed.
 
+#[global]
 Instance star_step_app_proper :
   Proper ((star step) ==> (star step) ==> (star step)) app.
 Proof.
@@ -350,6 +357,7 @@ Proof.
   intros R. induction R;eauto using closed_step. 
 Qed.
 
+#[global]
 Instance star_closed_proper :
   Proper ((star step) ==> Basics.impl) closed.
 Proof.
@@ -358,6 +366,7 @@ Qed.
 
 (*  Properties of star: *)
 
+#[global]
 Instance pow_step_congL k:
   Proper ((pow step k) ==> eq ==> (pow step k)) app.
 Proof.
@@ -366,6 +375,7 @@ Proof.
   exists (app s' u). firstorder.
 Qed.
 
+#[global]
 Instance pow_step_congR k:
   Proper (eq ==>(pow step k) ==> (pow step k)) app.
 Proof.
@@ -390,6 +400,7 @@ where "s '==' t" := (equiv s t).
 
 (* Properties of the equivalence relation *)
 
+#[global]
 Instance equiv_Equivalence : Equivalence equiv.
 Proof.
   constructor; hnf.
@@ -419,11 +430,13 @@ Proof.
 Qed.
 #[export] Hint Resolve star_equiv : core.
 
+#[global]
 Instance star_equiv_subrelation : subrelation (star step) equiv.
 Proof.
   cbv. apply star_equiv.
 Qed.
 
+#[global]
 Instance step_equiv_subrelation : subrelation step equiv.
 Proof.
   cbv. intros ? ? H. apply star_equiv, step_star. assumption.
@@ -447,6 +460,7 @@ Proof with eauto using equiv, step.
   - induction H'...   
 Qed.
 
+#[global]
 Instance equiv_app_proper :
   Proper (equiv ==> equiv ==> equiv) app.
 Proof.
@@ -466,6 +480,7 @@ Proof.
   - eassumption.
 Qed.
 
+#[global]
 Instance converges_proper :
   Proper (equiv ==> iff) converges.
 Proof.
@@ -503,6 +518,7 @@ Proof.
   intros. subst. apply pow_add. now exists t.
 Qed.
 
+#[global]
 Instance pow_star_subrelation i: subrelation (pow step i) (star step).
 Proof.
   intros ? ? ?.
@@ -524,16 +540,19 @@ Proof.
   now rewrite <-R1,R2.
 Qed.
 
+#[global]
 Instance eval_star_subrelation : subrelation eval (star step).
 Proof.
   now intros ? ? [].
 Qed.
 
+#[global]
 Instance reduce_eval_proper : Proper (Basics.flip (star step) ==> eq ==> Basics.impl) eval.
 Proof.
   repeat intro. subst. unfold Basics.flip in H. destruct H1. split. etransitivity. eassumption. assumption. assumption.
 Qed.
 
+#[global]
 Instance equiv_eval_proper: Proper (equiv ==> eq ==> Basics.impl) eval.
 Proof.
   repeat intro;subst. destruct H1. split;try auto. apply equiv_lambda. auto. now rewrite <- H0, H.
@@ -549,6 +568,7 @@ Notation "s '>(<=' l ')' t" := (redLe l s t) (at level 50, format "s  '>(<=' l '
 Definition evalLe l s t := s >(<=l) t /\ lambda t.
 Notation "s '⇓(<=' l ')' t" := (evalLe l s t) (at level 50, format "s  '⇓(<=' l ')'  t").
 
+#[global]
 Instance evalLe_eval_subrelation i: subrelation (evalLe i) eval.
 Proof.
   intros ? ? [[? []] ?]. split. eapply pow_star_subrelation. all:eauto. 
@@ -566,31 +586,37 @@ Proof.
   unfold evalLe,redLe,evalIn. firstorder.
 Qed.
 
+#[global]
 Instance evalIn_evalLe_subrelation i: subrelation (evalIn i) (evalLe i).
 Proof.
   intros s t (R & lt). split;[now exists i|trivial]. 
 Qed.
 
+#[global]
 Instance pow_redLe_subrelation i: subrelation (pow step i) (redLe i).
 Proof.
   intros s t R. now exists i. 
 Qed.
 
+#[global]
 Instance evalLe_redLe_subrelation i: subrelation (evalLe i) (redLe i).
 Proof.
   now intros ? ? [].
 Qed.
 
+#[global]
 Instance evalIn_eval_subrelation i: subrelation (evalIn i) eval.
 Proof.
   intros ? ? [?  ?]. split. eapply pow_star_subrelation. all:eauto. 
 Qed.
 
+#[global]
 Instance redLe_star_subrelation i: subrelation (redLe i) (star step).
 Proof.
   intros ? ? (j & leq & R). now rewrite R. 
 Qed.
 
+#[global]
 Instance le_redLe_proper: Proper (le ==> eq ==> eq ==> Basics.impl) redLe.
 Proof.
   intros ? ? ? ? ? -> ? ? -> (i&lt&R).
@@ -603,6 +629,7 @@ Proof.
   intros ? <-. easy.
 Qed.
 
+#[global]
 Instance le_evalLe_proper: Proper (le ==> eq ==> eq ==> Basics.impl) evalLe.
 Proof.
   intros ? ? H' ? ? -> ? ? -> [H p].
@@ -642,11 +669,13 @@ Proof.
   split; eauto using redLe_trans.  
 Qed.
 
+#[global]
 Instance pow0_refl : Reflexive (pow step 0).
 Proof.
   intro. reflexivity.
 Qed.
 
+#[global]
 Instance redLe_refl : Reflexive (redLe 0).
 Proof.
   intro. eexists; split;reflexivity.  

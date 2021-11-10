@@ -33,6 +33,7 @@ Definition funcomp {X Y Z} (g : Y -> Z) (f : X -> Y)  :=
 
 Local Arguments funcomp {X Y Z}.
 
+#[global]
 Instance funcomp_Proper {X Y Z} :
   Proper (fext_eq ==> fext_eq ==> fext_eq) (@funcomp X Y Z).
 Proof.

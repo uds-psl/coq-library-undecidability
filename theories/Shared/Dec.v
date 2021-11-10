@@ -91,30 +91,35 @@ Proof.
   unfold dec. tauto.
 Qed.
 
+#[global]
 Instance True_dec :
   dec True.
 Proof. 
   unfold dec; tauto. 
 Qed.
 
+#[global]
 Instance False_dec :
   dec False.
 Proof. 
   unfold dec; tauto. 
 Qed.
 
+#[global]
 Instance impl_dec (X Y : Prop) :  
   dec X -> dec Y -> dec (X -> Y).
 Proof. 
   unfold dec; tauto. 
 Qed.
 
+#[global]
 Instance and_dec (X Y : Prop) :  
   dec X -> dec Y -> dec (X /\ Y).
 Proof. 
   unfold dec; tauto. 
 Qed.
 
+#[global]
 Instance or_dec (X Y : Prop) : 
   dec X -> dec Y -> dec (X \/ Y).
 Proof. 
@@ -124,12 +129,14 @@ Qed.
 (* Coq standard modules make "not" and "iff" opaque for type class inference, 
    can be seen with Print HintDb typeclass_instances. *)
 
+#[global]
 Instance not_dec (X : Prop) : 
   dec X -> dec (~ X).
 Proof. 
   unfold not. auto.
 Qed.
 
+#[global]
 Instance iff_dec (X Y : Prop) : 
   dec X -> dec Y -> dec (X <-> Y).
 Proof. 
@@ -148,62 +155,73 @@ Arguments EqType X {_} : rename.
 
 Canonical Structure eqType_CS X (A: eq_dec X) := EqType X.
 
+#[global]
 Existing Instance eqType_dec.
 
+#[global]
 Instance unit_eq_dec :
   eq_dec unit.
 Proof.
   unfold dec. decide equality. 
 Qed.
 
+#[global]
 Instance bool_eq_dec : 
   eq_dec bool.
 Proof.
   unfold dec. decide equality. 
 Defined.
 
+#[global]
 Instance nat_eq_dec : 
   eq_dec nat.
 Proof.
   unfold dec. decide equality.
 Defined.
 
+#[global]
 Instance prod_eq_dec X Y :  
   eq_dec X -> eq_dec Y -> eq_dec (X * Y).
 Proof.
   unfold dec. decide equality. 
 Defined.
 
+#[global]
 Instance list_eq_dec X :  
   eq_dec X -> eq_dec (list X).
 Proof.
   unfold dec. decide equality. 
 Defined.
 
+#[global]
 Instance sum_eq_dec X Y :  
   eq_dec X -> eq_dec Y -> eq_dec (X + Y).
 Proof.
   unfold dec. decide equality. 
 Defined.
 
+#[global]
 Instance option_eq_dec X :
   eq_dec X -> eq_dec (option X).
 Proof.
   unfold dec. decide equality.
 Defined.
 
+#[global]
 Instance Empty_set_eq_dec:
   eq_dec Empty_set.
 Proof.
   unfold dec. decide equality.
 Qed.
 
+#[global]
 Instance True_eq_dec:
   eq_dec True.
 Proof.
   intros x y. destruct x,y. now left.
 Qed.
 
+#[global]
 Instance False_eq_dec:
   eq_dec False.
 Proof.

@@ -2,6 +2,7 @@ From Undecidability.L Require Export Functions.Subst Computability.Seval Computa
 
 (* ** Extracted step-indexed L-interpreter *)
 
+#[global]
 Instance term_eva : computable eva.
 Proof. 
   extract.
@@ -11,6 +12,7 @@ Qed.
 
 Definition doesHaltIn := fun u n => match eva n u with None => false | _ => true end.
 
+#[global]
 Instance term_doesHaltIn : computable doesHaltIn.
 Proof.
   extract.
