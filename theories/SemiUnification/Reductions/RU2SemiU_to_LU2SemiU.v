@@ -15,7 +15,7 @@
 Require Import List.
 
 Require Import Undecidability.SemiUnification.SemiU.
-From Undecidability.SemiUnification.Util Require Import Facts Enumerable.
+From Undecidability.SemiUnification.Util Require Import Enumerable.
 
 Require Import ssreflect ssrfun ssrbool.
 

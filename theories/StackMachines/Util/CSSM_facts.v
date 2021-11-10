@@ -283,7 +283,7 @@ Lemma reachable_n_bounded {X Y: config} {n: nat} {L: list config} :
   (forall Z, reachable_n n X Z -> In Z L) -> reachable_n n X Y -> 
   reachable_n (length L) X Y.
 Proof.
-  elim /(measure_ind id): n L X Y. case.
+  elim /(measure_rect id): n L X Y. case.
   { move=> /= *. apply: reachable_n_monotone; last by eassumption. by lia. }
   move=> n IH L X Y HL. case: (reachable_n_dec n X Y) => HXY.
   { move=> _. apply: (IH n ltac:(lia)); last by eassumption.
@@ -519,7 +519,7 @@ Lemma bounded_of_bounded' {n: nat}: bounded' n -> exists (m: nat), bounded M m.
 Proof using confluent_M.
   move=> Hn.
   pose W := (repeat false n, repeat false n, 0) : config.
-  exists (length (space W)). elim /(measure_ind width).
+  exists (length (space W)). elim /(measure_rect width).
   move=> X IH. case: (reachable_suffixes X); last case.
   - move=> [?] [?] [?] [?] [+ /copy] => /confluent_M H [/H{H}] [Y]. 
     move=> [/Hn] H /H{H} ? /reachable_width HwX. move=> /= in HwX.
@@ -553,7 +553,7 @@ Qed.
 (* right stack size bound translates to all narrow configurations *)
 Lemma extend_bounded' {n: nat} {X: config} : bounded' n -> narrow X -> length (get_right X) <= n.
 Proof using confluent_M.
-  move: X => [[A B] x] Hn. elim /(measure_ind (@length symbol)) : A => A IH.
+  move: X => [[A B] x] Hn. elim /(measure_rect (@length symbol)) : A => A IH.
   case: (stack_eq_dec A []).
   { move=> -> [y [A']] [Z [+ ?]]. move /Hn. apply. by eassumption. }
   move /exists_last => [A' [a HA]]. subst A. rename A' into A.

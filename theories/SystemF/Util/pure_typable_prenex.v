@@ -849,7 +849,7 @@ Proof.
       Forall (fun 's => exists n x, s = many_poly_abs n (poly_var (n + x))) ss.
     {
       rewrite /Gamma'. elim /rev_ind: (nss) Hnss; first by move=> ?; exists []; eexists.
-      clear=> [[n s]] nss IH /Forall_app [/IH] {}IH /Forall_singletonP [n0] [x0] ->.
+      clear=> [[n s]] nss IH /Forall_app [/IH] {}IH /Forall_cons_iff [[n0] [x0] ->] _.
       
       rewrite fold_left_app app_length.
       move: IH => [ss] [Gamma''] [<-] /= [->] Hss.

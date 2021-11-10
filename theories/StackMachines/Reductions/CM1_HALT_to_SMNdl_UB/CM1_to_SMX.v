@@ -512,7 +512,7 @@ Section Reduction.
       ([§1] ++ r, §0^c ++ l, basic_state (if c mod (n+1) is 0 then X else Y)).
     { apply: reachable_n_mon'; [ by (rewrite /goto_time; nia) | done ]. }
     
-    elim /(measure_ind id): c l r HC => c IH l r HcC.
+    elim /(measure_rect id): c l r HC => c IH l r HcC.
     have [HcG | HcG]: c < G \/ c >= G by lia.
       (* case c < G *)
     { apply: (first_step (goto_spec_1 c (i, (n, X, Y))) l r);

@@ -608,7 +608,7 @@ Lemma construct_h10cs_solution {xs tSs tPs P}:
   typing (Gamma0 ++ (map Ut (map (fun x => poly_var (x + zt)) xs)) ++ (map St tSs) ++ (map Pt tPs)) P (poly_var tt) -> H10C_SAT h10cs.
 Proof using h10cs.
 
-  elim /(measure_ind term_size): P xs tSs tPs => P IH xs tSs tPs + HtSs HtPs.
+  elim /(measure_rect term_size): P xs tSs tPs => P IH xs tSs tPs + HtSs HtPs.
   move=> /copy [HP] /typing_is_safe_environment H /H{H}. apply: unnest.
   {
     apply: Forall_appI; first by apply: is_safe_environment_Gamma0.

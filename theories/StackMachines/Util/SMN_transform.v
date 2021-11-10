@@ -117,7 +117,7 @@ Section Reduction.
   Lemma synchronize_step {x y} : step M' x y ->
     exists z, reachable_n M' 1 x z /\ reachable_n M' 1 z y /\ valid_state (get_state z).
   Proof using lp_XY Y_fresh XY_neq.
-    move=> /copy => [[[]]] >. rewrite /M' in_app_iff -/M'.
+    move=> /[dup] [[]] >. rewrite /M' in_app_iff -/M'.
     move=> [[|[|]]|].
     - move=> [] <- <- <- <- <- <- ?. eexists.
       constructor; first by apply: rn_refl.

@@ -15,6 +15,7 @@
 *)
 
 Require Import Arith Lia List.
+Require Cantor.
 Import ListNotations.
 
 Require Import Undecidability.SetConstraints.FMsetC.
@@ -114,7 +115,7 @@ Proof.
     have ->: [0] = [(1+d) * 0] by (f_equal; lia).
     move=> H /H => [[? ->]]. by exists (length A).
   }
-  move=> k. elim /(measure_ind (@length nat)) : A k => A IH k H.
+  move=> k. elim /(measure_rect (@length nat)) : A k => A IH k H.
   move: (H) => /eq_length. rewrite ?app_length map_length /= => HAB.
   have [b Hb] : exists b, B = [b].
   { move: (B) HAB => [|? [|? ?]] /=; [ by lia | by eexists | by lia ]. }
@@ -194,14 +195,14 @@ Proof.
 Qed.
 
 (* embed nat^3 into nat to provide fresh variables *)
-Definition embed '(x, y, z) := NatNat.encode (NatNat.encode (x, y), z).
-Definition unembed n := let (xy, z) := NatNat.decode n in
-  (NatNat.decode xy, z).
+Definition embed '(x, y, z) := Cantor.to_nat (Cantor.to_nat (x, y), z).
+Definition unembed n := let (xy, z) := Cantor.of_nat n in
+  (Cantor.of_nat xy, z).
 
 Lemma embed_unembed {xyz} : unembed (embed xyz) = xyz.
 Proof. 
   case: xyz. case. move=> >.
-  by rewrite /embed /unembed ? NatNat.decode_encode.
+  by rewrite /embed /unembed ?Cantor.cancel_of_to.
 Qed.
 
 Opaque embed unembed.
@@ -434,7 +435,7 @@ Proof.
   rewrite /encode_constraint /mset_sat ?Forall_app -?/(mset_sat _ _).
   do 3 (constructor; first by apply: encode_bound_sat).
   do 3 (constructor; first by apply: encode_nat_sat).
-  apply /Forall_singleton_iff.
+  constructor; last done.
   rewrite /mset_sem /construct_valuation ? embed_unembed.
   have ->: [0] = repeat 0 1 by done.
   rewrite -?repeat_app. apply: eq_eq. f_equal. move: Hxyz=> <-. clear. 
@@ -480,17 +481,16 @@ Module FMsetTC_FMsetC.
 
 Import Facts mset_eq_utils mset_poly_utils.
 Import H10UC_FMsetTC.
-Import NatNat.
 
 Module Argument.
 
-Opaque NatNat.encode NatNat.decode.
+Opaque Cantor.to_nat Cantor.of_nat.
 Fixpoint term_to_nat (t: mset_term) : nat :=
   match t with
-  | mset_term_zero => 1 + NatNat.encode (0, 0)
-  | mset_term_var x => 1 + NatNat.encode (0, 1+x)
-  | mset_term_plus t u => 1 + NatNat.encode (1 + term_to_nat t, 1 + term_to_nat u)
-  | mset_term_h t => 1 + NatNat.encode (1 + term_to_nat t, 0)
+  | mset_term_zero => 1 + Cantor.to_nat (0, 0)
+  | mset_term_var x => 1 + Cantor.to_nat (0, 1+x)
+  | mset_term_plus t u => 1 + Cantor.to_nat (1 + term_to_nat t, 1 + term_to_nat u)
+  | mset_term_h t => 1 + Cantor.to_nat (1 + term_to_nat t, 0)
   end.
 
 Fixpoint nat_to_term' (k: nat) (n: nat) : mset_term :=
@@ -500,7 +500,7 @@ Fixpoint nat_to_term' (k: nat) (n: nat) : mset_term :=
     match n with
     | 0 => mset_term_zero
     | S n => 
-      match NatNat.decode n with
+      match Cantor.of_nat n with
       | (0, 0) => mset_term_zero
       | (0, S x) => mset_term_var x
       | (S nt, 0) => mset_term_h (nat_to_term' k nt)
@@ -519,14 +519,14 @@ Proof.
   elim: t k {Hk}.
   - move=> [|k]; [by lia | done].
   - move=> x [|k]; first by lia.
-    by rewrite /= NatNat.decode_encode.
+    by rewrite /= Cantor.cancel_of_to.
   - move=> nt IHt nu IHu [|k]; first by lia.
-    rewrite /= NatNat.decode_encode => ?.
-    have ? := NatNat.encode_non_decreasing (S (term_to_nat nt)) (S (term_to_nat nu)).
+    rewrite /= Cantor.cancel_of_to => ?.
+    have ? := Cantor.to_nat_non_decreasing (S (term_to_nat nt)) (S (term_to_nat nu)).
     rewrite IHt; first by lia. by rewrite IHu; first by lia.
   - move=> nt IH [|k]; first by lia.
-    rewrite /= NatNat.decode_encode => ?.
-    have ? := NatNat.encode_non_decreasing (S (term_to_nat nt)) 0.
+    rewrite /= Cantor.cancel_of_to => ?.
+    have ? := Cantor.to_nat_non_decreasing (S (term_to_nat nt)) 0.
     by rewrite IH; first by lia.
 Qed.
 

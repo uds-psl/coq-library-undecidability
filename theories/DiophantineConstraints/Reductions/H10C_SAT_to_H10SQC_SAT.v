@@ -13,6 +13,7 @@
 *)
 
 Require Import List Lia.
+Require Cantor.
 Import ListNotations.
 
 Require Import Undecidability.DiophantineConstraints.H10C.
@@ -24,29 +25,9 @@ Set Default Goal Selector "!".
 
 Module Argument.
 
-(* bijection from nat * nat to nat *)
-Definition encode '(x, y) : nat := 
-  y + (nat_rec _ 0 (fun i m => (S i) + m) (y + x)).
-
-(* bijection from nat to nat * nat *)
-Definition decode (n : nat) : nat * nat := 
-  nat_rec _ (0, 0) (fun _ '(x, y) => if x is S x then (x, S y) else (S y, 0)) n.
-
-Lemma decode_encode {xy: nat * nat} : decode (encode xy) = xy.
-Proof.
-  move Hn: (encode xy) => n. elim: n xy Hn.
-  { by move=> [[|?] [|?]]. }
-  move=> n IH [x [|y [H]]] /=.
-  { move: x => [|x [H]] /=; first done.
-    by rewrite (IH (0, x)) /= -?H ?PeanoNat.Nat.add_0_r. }
-  by rewrite (IH (S x, y)) /= -?H ?PeanoNat.Nat.add_succ_r.
-Qed.
-
-Opaque encode decode.
-
-Lemma ForallE {X : Type} {P : X -> Prop} {l} : 
-  Forall P l -> if l is x :: l then P x /\ Forall P l else True.
-Proof. by case. Qed.
+Notation encode := Cantor.to_nat.
+Notation decode := Cantor.of_nat.
+Opaque Cantor.to_nat Cantor.of_nat.
 
 Section Reduction.
 (* given instance of Diophantine constraint solvability *)
@@ -104,11 +85,11 @@ Lemma h10c_to_h10sqcs_spec {c} : h10c_sem c φ -> Forall (h10sqc_sem φ') (h10c_
 Proof.
   case: c => /=.
   - move=> x ?. constructor; last done.
-    by rewrite /= /ζ /φ' decode_encode.
+    by rewrite /= /ζ /φ' Cantor.cancel_of_to.
   - move=> x y z ?. constructor; last done.
-    by rewrite /= /ζ /φ' ?decode_encode.
+    by rewrite /= /ζ /φ' ?Cantor.cancel_of_to.
   - move=> x y z ?. (do ? constructor);
-      rewrite /= /ζ /φ' ?decode_encode /= ?decode_encode; by nia.
+      rewrite /= /ζ /φ' ?Cantor.cancel_of_to /= ?Cantor.cancel_of_to; by nia.
 Qed.
 
 End Transport.
@@ -130,9 +111,9 @@ Definition φ (x: nat) := φ' (ζ x).
 Lemma h10c_of_h10sqcs_spec {c} : Forall (h10sqc_sem φ') (h10c_to_h10sqcs c) -> h10c_sem c φ.
 Proof.
   case: c => /=.
-  - by move=> x /ForallE [].
-  - by move=> x y z /ForallE [].
-  - move=> x y z. do 7 (move=> /ForallE /and_comm []).
+  - by move=> x /Forall_cons_iff [].
+  - by move=> x y z /Forall_cons_iff [].
+  - move=> x y z. do 7 (move=> /Forall_cons_iff /and_comm []).
     rewrite /= /φ. by nia.
 Qed.
 

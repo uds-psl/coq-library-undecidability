@@ -5,12 +5,10 @@
     (1) Saarland University, Saarbrücken, Germany
 *)
 
-Require Import Arith Lia List.
-Import ListNotations.
-
+Require Import Lia.
+Require Cantor.
 Require Import ssreflect ssrbool ssrfun.
 
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
 (* Enumerable X allows injection into nat *)
@@ -21,21 +19,6 @@ Class Enumerable (X: Type) :=
     enumP {x: X} : of_nat (to_nat x) = x
   }.
 
-(* to_nat is injective *)
-Lemma to_nat_inj {X: Type} {enumX: Enumerable X} {x y: X}: 
-  to_nat x = to_nat y <-> x = y.
-Proof.
-  constructor; last by move->.
-  move /(f_equal of_nat). by rewrite ?enumP.
-Qed.
-
-Lemma enumarableI {X Y: Type} {enum: Enumerable X} (to_X: Y -> X) (of_X: X -> Y) : 
-  (forall (y: Y), of_X (to_X y) = y) -> Enumerable Y.
-Proof.
-  move=> cancel. exists (fun y => to_nat (to_X y)) (fun x => of_X (of_nat x)).
-  move=> y. by rewrite enumP cancel.
-Qed.
-
 #[export] Instance nat_Enumerable : Enumerable nat.
 Proof. by exists id id. Qed.
 
@@ -45,35 +28,10 @@ Proof.
   by case.
 Qed.
 
-Module nat2_Enumerable.
-
-(* bijection from nat * nat to nat *)
-Definition encode '(x, y) : nat := 
-  y + (nat_rec _ 0 (fun i m => (S i) + m) (y + x)).
-
-(* bijection from nat to nat * nat *)
-Definition decode (n : nat) : nat * nat := 
-  nat_rec _ (0, 0) (fun _ '(x, y) => if x is S x then (x, S y) else (S y, 0)) n.
-
-Lemma decode_encode {xy: nat * nat} : decode (encode xy) = xy.
-Proof.
-  move Hn: (encode xy) => n. elim: n xy Hn.
-  { by move=> [[|?] [|?]]. }
-  move=> n IH [x [|y [H]]] /=.
-  - move: x => [|x [H]] /=; first done.
-    by rewrite (IH (0, x)) /= -?H ?Nat.add_0_r.
-  - by rewrite (IH (S x, y)) /= -?H ?Nat.add_succ_r.
-Qed.
-
-Lemma encode_non_decreasing (x y: nat) : x + y <= encode (x, y).
-Proof. elim: x=> [| x IH] /=; [| rewrite Nat.add_succ_r /=]; by lia. Qed.
-
-End nat2_Enumerable.
-
 #[export] Instance nat2_Enumerable : Enumerable (nat * nat).
 Proof.
-  exists nat2_Enumerable.encode nat2_Enumerable.decode.
-  move=> ?. by apply: nat2_Enumerable.decode_encode.
+  exists Cantor.to_nat Cantor.of_nat.
+  exact: Cantor.cancel_of_to.
 Qed.
 
 #[export] Instance prod_Enumerable {X Y: Type} {enumX: Enumerable X} {enumY: Enumerable Y} : Enumerable (X * Y).
@@ -93,32 +51,29 @@ Proof.
 Qed.
 
 Module list_Enumerable.
-Section list_Enumerable_Section.
-Variables (X: Type) (enumX: Enumerable X).
+Opaque Cantor.of_nat Cantor.to_nat.
 
-Fixpoint encode (L: list X) : nat :=
-  if L is x :: L then 1+nat2_Enumerable.encode (1 + to_nat x, encode L) else 1+nat2_Enumerable.encode (0, 0).
+Fixpoint encode {X: Type} {enumX: Enumerable X} (L: list X) : nat :=
+  if L is cons x L then S (Cantor.to_nat (to_nat x, encode L)) else 0.
 
-Fixpoint decode (i: nat) (n: nat) : list X :=
-  if i is S i then match nat2_Enumerable.decode (n-1) with | (0, _) => [] | (S n1, n2) => (of_nat n1) :: decode i n2 end else [].
+Fixpoint decode {X: Type} {enumX: Enumerable X} (i: nat) (n: nat) : list X :=
+  if i is S i then (if n is S n then
+    (let '(x, m) := Cantor.of_nat n in cons (of_nat x) (decode i m)) else nil) else nil.
 
-Opaque nat2_Enumerable.encode nat2_Enumerable.decode.
-
-Lemma decode_encode {L: list X} : decode (encode L) (encode L) = L.
+Lemma decode_encode {X: Type} {enumX: Enumerable X} {L: list X} :
+  decode (encode L) (encode L) = L.
 Proof.
-  suff: forall i, encode L <= i -> decode i (encode L) = L by (apply; lia).
-  move=> i. elim: i L; first by (move=> [|? L] /=; lia).
-  move=> i IH [|x L] /= ?; first done.
-  rewrite Nat.sub_0_r nat2_Enumerable.decode_encode enumP IH; last done.
-  have := nat2_Enumerable.encode_non_decreasing (S (@to_nat X enumX x)) (encode L).
-  by lia.
+  suff: forall i, @encode X enumX L <= i -> @decode X enumX i (@encode X enumX L) = L by (apply; lia).
+  move=> i. elim: i L.
+  - move=> [|? ?] /= ?; [done|lia].
+  - move=> i IH [|x L]; first done.
+    move=> /= H. rewrite Cantor.cancel_of_to enumP. congr cons. apply: IH.
+    have := Cantor.to_nat_non_decreasing (@to_nat X enumX x) (@encode X enumX L). lia.
 Qed.
-
-End list_Enumerable_Section.
 End list_Enumerable.
 
 #[export] Instance list_Enumerable {X: Type} {enumX: Enumerable X} : Enumerable (list X).
 Proof.
-  exists (list_Enumerable.encode X enumX) (fun n => list_Enumerable.decode X enumX n n).
+  exists (@list_Enumerable.encode X enumX) (fun n => @list_Enumerable.decode X enumX n n).
   move=> ?. by apply: list_Enumerable.decode_encode.
 Qed.

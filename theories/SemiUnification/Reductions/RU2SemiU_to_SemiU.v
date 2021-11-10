@@ -16,7 +16,6 @@ Require Import List.
 Import ListNotations.
 
 Require Import Undecidability.SemiUnification.SemiU.
-From Undecidability.SemiUnification.Util Require Import Facts.
 
 Require Import ssreflect ssrfun ssrbool.
 
@@ -28,8 +27,9 @@ Proof.
   exists (fun '(s0, s1, t) => [(s0, t); (s1, t)]).
   move=> [[s0 s1] t]. constructor.
   - move=> [φ] [ψ0] [ψ1] [Hψ0 Hψ1]. exists φ.
-    rewrite -Forall_forall ?Forall_norm. 
-    constructor; [by exists ψ0 | by exists ψ1].
-  - move=> [φ]. rewrite -Forall_forall ?Forall_norm.
-    move=> [[ψ0 Hψ0] [ψ1 Hψ1]]. by exists φ, ψ0, ψ1.
+    apply /Forall_forall.
+    by constructor; [by exists ψ0 | constructor; [by exists ψ1|]].
+  - move=> [φ].
+    move=> /Forall_forall /Forall_cons_iff [[ψ0 Hψ0]] /Forall_cons_iff [[ψ1 Hψ1]] _.
+    by exists φ, ψ0, ψ1.
 Qed.

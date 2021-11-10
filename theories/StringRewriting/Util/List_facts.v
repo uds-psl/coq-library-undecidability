@@ -4,10 +4,6 @@ Require Import ssreflect.
 
 Set Default Goal Selector "!".
 
-Lemma ForallE {X : Type} {P : X -> Prop} {l} : 
-  Forall P l -> if l is x :: l then P x /\ Forall P l else True.
-Proof. by case. Qed.
-
 Lemma Forall_repeatI {X : Type} {P : X -> Prop} {x n} : 
   P x -> Forall P (repeat x n).
 Proof.

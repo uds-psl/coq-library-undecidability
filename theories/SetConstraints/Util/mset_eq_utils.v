@@ -96,7 +96,7 @@ Lemma eq_app_comm {A B} : A ++ B ≡ B ++ A.
 Proof. move=> ?. rewrite ?count_occ_app. by lia. Qed.
 
 Lemma eq_length {A B} : A ≡ B -> length A = length B.
-  elim /(measure_ind (@length nat)) : A B.
+  elim /(measure_rect (@length nat)) : A B.
   case.
   { by move=> _ B /eq_nilE ->. }
   move=> a A IH B /copy [/eq_in_iff /(_ a) /iffLR]. 

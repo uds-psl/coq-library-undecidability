@@ -76,7 +76,7 @@ Qed.
 Lemma eval_eq {p A B} : A ≡ B -> eval p A = eval p B.
 Proof.
   elim: A B; first by move=> B /eq_nilE ->.
-  move => a A IH B /copy [/eq_in_iff /(_ a) /iffLR]. 
+  move => a A IH B /[dup] [/eq_in_iff /(_ a) /iffLR]. 
   apply: unnest; first by left.
   move /(@in_split _ _) => [B1 [B2 ->]].
   under (eq_lr eq_refl (B' := a :: (B1 ++ B2))).

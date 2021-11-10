@@ -6,10 +6,6 @@ Require Import Undecidability.HilbertCalculi.HSC.
 
 Set Default Goal Selector "!".
 
-Lemma ForallE {T : Type} {P : T -> Prop} {l} : 
-  Forall P l -> if l is x :: l then P x /\ Forall P l else True.
-Proof. by case. Qed.
-
 (* number of nodes in the syntax tree of a formula *)
 Fixpoint size s := 
   match s with
@@ -117,6 +113,6 @@ Proof.
   { move=> s /= *. by subst t. }
   move=> k IHk. case.
   { move=> ? /= *. by subst t. }
-  move=> s1 s2 /= /hsc_arr + /ForallE [/IH H]. 
+  move=> s1 s2 /= /hsc_arr + /Forall_cons_iff [/IH H]. 
   by move=> /(_ H){H} /IHk.
 Qed.

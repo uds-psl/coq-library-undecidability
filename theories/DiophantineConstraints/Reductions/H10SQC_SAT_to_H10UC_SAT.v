@@ -13,6 +13,7 @@
 *)
 
 Require Import List Lia.
+Require Cantor.
 Import ListNotations.
 
 Require Import Undecidability.DiophantineConstraints.H10C.
@@ -24,29 +25,9 @@ Set Default Goal Selector "!".
 
 Module Argument.
 
-(* bijection from nat * nat to nat *)
-Definition encode '(x, y) : nat := 
-  y + (nat_rec _ 0 (fun i m => (S i) + m) (y + x)).
-
-(* bijection from nat to nat * nat *)
-Definition decode (n : nat) : nat * nat := 
-  nat_rec _ (0, 0) (fun _ '(x, y) => if x is S x then (x, S y) else (S y, 0)) n.
-
-Lemma decode_encode {xy: nat * nat} : decode (encode xy) = xy.
-Proof.
-  move Hn: (encode xy) => n. elim: n xy Hn.
-  { by move=> [[|?] [|?]]. }
-  move=> n IH [x [|y [H]]] /=.
-  { move: x => [|x [H]] /=; first done.
-    by rewrite (IH (0, x)) /= -?H ?PeanoNat.Nat.add_0_r. }
-  by rewrite (IH (S x, y)) /= -?H ?PeanoNat.Nat.add_succ_r.
-Qed.
-
-Opaque encode decode.
-
-Lemma ForallE {X : Type} {P : X -> Prop} {l} : 
-  Forall P l -> if l is x :: l then P x /\ Forall P l else True.
-Proof. by case. Qed.
+Notation encode := Cantor.to_nat.
+Notation decode := Cantor.of_nat.
+Opaque Cantor.to_nat Cantor.of_nat.
 
 Section Reduction.
 (* given instance of square Diophantine constraint solvability *)
@@ -120,11 +101,11 @@ Lemma h10sqc_to_h10ucs_spec {c} : h10sqc_sem φ c -> Forall (h10uc_sem φ') (h10
 Proof.
   case: c => /=.
   - move=> x ?. constructor; last done.
-    rewrite /= /ζ /φ' /v ?decode_encode /=. by lia.
+    rewrite /= /ζ /φ' /v ?Cantor.cancel_of_to /=. by lia.
   - move=> x y z ?. (do ? constructor);
-      rewrite /= /ζ /φ' /θ ?decode_encode /=; by nia.
+      rewrite /= /ζ /φ' /θ ?Cantor.cancel_of_to /=; by nia.
   - move=> x y ?. (do ? constructor);
-      rewrite /= /ζ /φ' ?decode_encode /=; by nia.
+      rewrite /= /ζ /φ' ?Cantor.cancel_of_to /=; by nia.
 Qed.
 
 End Transport.
@@ -148,17 +129,17 @@ Definition φ (x: nat) := φ' (ζ x 0).
 Lemma v_spec : φ' (v 0) = 0 /\ φ' (v 1) = 1.
 Proof using Hφ'.
   move: (Hφ'). rewrite -Forall_forall /ucs Forall_app /v012.
-  move=> [/ForallE [+]] /ForallE [+] /ForallE [+] _ _ => /=.
+  move=> [/Forall_cons_iff [+]] /Forall_cons_iff [+] /Forall_cons_iff [+] _ _ => /=.
   by lia.
 Qed.
 
 Lemma h10sqc_of_h10ucs_spec {c} : Forall (h10uc_sem φ') (h10sqc_to_h10ucs c) -> h10sqc_sem φ c.
 Proof using Hφ'.
   case: c => /=.
-  - move=> x /ForallE []. rewrite /= ?(proj1 v_spec) /φ. by lia.
-  - move=> x y z. do 9 (move=> /ForallE /and_comm []).
+  - move=> x /Forall_cons_iff []. rewrite /= ?(proj1 v_spec) /φ. by lia.
+  - move=> x y z. do 9 (move=> /Forall_cons_iff /and_comm []).
     rewrite /= ?(proj1 v_spec) ?(proj2 v_spec) /φ. by lia. 
-  - move=> x y /ForallE [+] /ForallE [+ _]. rewrite /= ?(proj1 v_spec) /φ. by lia.
+  - move=> x y /Forall_cons_iff [+] /Forall_cons_iff [+ _]. rewrite /= ?(proj1 v_spec) /φ. by lia.
 Qed.
 
 End InverseTransport.

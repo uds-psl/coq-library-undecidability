@@ -18,7 +18,7 @@ Require Import Undecidability.MinskyMachines.MM2.
 Require Undecidability.CounterMachines.CM2.
 
 From Undecidability.CounterMachines.Util Require Import 
-  Nat_facts List_facts MM2_facts CM2_facts.
+  Nat_facts MM2_facts CM2_facts.
 
 Require Import ssreflect ssrbool ssrfun.
 

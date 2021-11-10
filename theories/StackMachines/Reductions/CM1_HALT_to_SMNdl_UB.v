@@ -35,39 +35,35 @@ Module Argument.
 
 Local Instance Prefix_Enumerable : Enumerable Prefix.
 Proof.
-  apply: (enumarableI
+  exists
     (fun x => if x is Try then 0 else if x is Yes then 1 else 2)
-    (fun x => if x is 0 then Try else if x is 1 then Yes else No)).
+    (fun x => if x is 0 then Try else if x is 1 then Yes else No).
   by case.
 Qed.
 
 Local Instance BasicState_Enumerable : Enumerable BasicState.
 Proof.
-  apply: (enumarableI
-    (fun x => 
-      match x with
-      | is_bounded b => (0, to_nat b) | index p n => (1, to_nat (p, n)) | increase p n => (2, to_nat (p, n))
+  apply: (enumerableI
+    (fun x => match x with
+      | is_bounded b => inl b | index p n => inr (inl (p, n)) | increase p n => inr (inr (p, n))
       end)
-    (fun x => 
-      match x with
-      | (0, n) => is_bounded (of_nat n) | (1, n) => let '(p, n) := of_nat n in index p n
-      | (2, n) => let '(p, n) := of_nat n in increase p n | _ => is_bounded false
+    (fun x => match x with
+      | inl b => is_bounded b | inr (inl (p, n)) => index p n | inr (inr (p, n)) => increase p n
       end)).
-  case; move=> *; by rewrite ?enumP.
+   by case.
 Qed.
 
 Local Instance State_Enumerable : Enumerable State.
 Proof.
-  apply: (enumarableI
-    (fun x => 
-      match x with
-      | basic_state X => (0, to_nat X) | goto n X Y => (1, to_nat (n, X, Y))
+  apply: (enumerableI
+    (fun x => match x with
+      | basic_state X => inl X | goto n X Y => inr (n, X, Y)
       end)
     (fun x => 
       match x with
-      | (0, n) => basic_state (of_nat n) | (1, n) => let '(n, X, Y) := of_nat n in goto n X Y | _ => basic_state (is_bounded false)
+      | inl X => basic_state X | inr (n, X, Y) => goto n X Y
       end)).
-  case; move=> *; by rewrite ?enumP.
+  by case.
 Qed.
 
 Section Reduction.

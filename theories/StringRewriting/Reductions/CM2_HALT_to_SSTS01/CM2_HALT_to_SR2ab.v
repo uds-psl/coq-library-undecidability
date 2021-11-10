@@ -17,9 +17,6 @@ Local Arguments rt_trans {A R x y z}.
 Local Arguments in_combine_l {A B l l' x y}.
 
 Module Facts.
-(* duplicates argument *)
-Lemma copy {A : Prop} : A -> A * A.
-Proof. done. Qed.
 
 Lemma iter_plus {X: Type} {f: X -> X} {x: X} {n m: nat} : 
   Nat.iter (n + m) f x = Nat.iter n f (Nat.iter m f x).
@@ -436,7 +433,7 @@ End Transport.
 
 Lemma transport : CM2_HALT cm -> SR2ab (srs, sz, so).
 Proof.
-  move=> [n /copy [Hn] /(simulate_cm_halting n Hn) H]. exists (@d n - 1).
+  move=> [n /[dup] [Hn] /(simulate_cm_halting n Hn) H]. exists (@d n - 1).
   apply: rt_trans; last by eassumption.
   apply: rt_trans; first by apply: (multi_step_enc_c0).
   elim: (n in Nat.iter n); first by apply: rt_refl.
@@ -473,11 +470,11 @@ Proof using HN.
     move: (1+N) => m n H. exfalso. elim: n m H; first by case.
     move=> n IH [|m]; [done | by apply: IH]. }
   move Ht: (repeat so (1+N)) => t [/rt_rt1n Hst] [].
-  elim: Hst Ht; first by move=> ? <- /ForallE [].
+  elim: Hst Ht; first by move=> ? <- /Forall_cons_iff [].
   move=> {}s {}t > Hst Ht IH /IH {IH}.
   case: Hst Ht => u v a b c d /In_srs_stE [|[]].
   - move=> [] <- <- <- <- _ IH.
-    move=> /Forall_app [Hu] /ForallE [_] /ForallE [_ Ht] Huv.
+    move=> /Forall_app [Hu] /Forall_cons_iff [_] /Forall_cons_iff [_ Ht] Huv.
     apply: IH.
     + apply /Forall_app. by do ? constructor.
     + move=> n. have := Huv n. elim: (u) n; first by move=> [|[|n]].
@@ -491,7 +488,7 @@ Proof using HN.
     move: (v) Hv => [|? v']; first done.
     move=> /= ->. exists u, v', [sl' 0; sm; sr].
     constructor; [done | by constructor].
-  - move=> H _ _ /Forall_app [_] /ForallE [+] /ForallE [+] _.
+  - move=> H _ _ /Forall_app [_] /Forall_cons_iff [+] /Forall_cons_iff [+] _.
     by move: a b H => [? [?|]] [? [?|]].
 Qed.
 
@@ -593,7 +590,7 @@ Proof.
       apply /haltingP => /=. by lia.
   - move=> [s1] [s2] [?] [? ?]. subst.
     move: H H1t H2t => /srs_specI [].
-    + move=> H + + /ltac:(right; right). move=> /copy [/srs_step_specI] [].
+    + move=> H + + /ltac:(right; right). move=> /[dup] [/srs_step_specI] [].
       * move=> H'. move: H' H => [] ? ? ? ? [] > [] ? ? ? ?; subst; try done; [ | | | ].
         ** rewrite app_nil_r /=. move=> + [H1] [<-] => -> H2.
            eexists u', v', (_ :: _ :: _). constructor; [done | by rewrite /= H1 H2].
@@ -651,7 +648,7 @@ Proof using HN.
   move: Hst Ht c. move=> /rt_rt1n. elim.
   - move=> {}s Hs [? ? ?] /= [?] [?] [{}t] [?] [H]. subst s.
     move: Hs. rewrite ?map_app ?Forall_app H.
-    by move=> [_] [/ForallE] [].
+    by move=> [_] [/Forall_cons_iff] [].
   - move=> > /simulate_srs_step H _ IH /IH {}IH c /H {H} [|[]].
     + move=> ?. by exists 0.
     + by move=> /IH.

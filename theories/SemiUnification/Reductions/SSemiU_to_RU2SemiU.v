@@ -15,7 +15,7 @@
 Require Import List.
 
 Require Import Undecidability.SemiUnification.SemiU.
-From Undecidability.SemiUnification.Util Require Import Facts Enumerable.
+From Undecidability.SemiUnification.Util Require Import Enumerable.
 
 Require Import ssreflect ssrfun ssrbool.
 
@@ -74,7 +74,7 @@ Module Argument.
       substitute (φ φ') (τ p) by (move=> H; rewrite (H false) (H true)).
     move=> i. elim: p Hp.
     - by move: i => [|] _ /=; rewrite /φ ?enumP /= /ψ ?enumP /=.
-    - move=> [[a x] [y b]] p IH /=. rewrite Forall_norm /=.
+    - move=> [[a x] [y b]] p IH /Forall_cons_iff /=.
       move => [+ /IH <-]. move Hφ'y: (φ' y) => φ'y. case: φ'y Hφ'y; first done.
       move=> s t Hφ'y Hst {IH}. move: i a b Hst Hφ'y => [|] [|] [|] -> Hφ'y;
         by rewrite /= /φ ?enumP /= /ψ ?enumP /= Hφ'y ?substitute_ψP.
@@ -87,9 +87,9 @@ Module Argument.
     move=> [φ] [ψ0] [ψ1] [Hψ0 Hψ1]. 
     exists (fun x => φ (to_nat (x, 0))), ψ0, ψ1. rewrite -Forall_forall.
     elim: p Hψ0 Hψ1; first done.
-    move=> [[a x] [y b]] p IH /= [Hψ0 ?] [Hψ1 ?]. rewrite Forall_norm /=.
+    move=> [[a x] [y b]] p IH /= [Hψ0 ?] [Hψ1 ?].
     constructor; [| by apply: IH].
-    by move: a Hψ0 Hψ1 => [_ <-| <- _]; move: b => [|].
+    by move: a Hψ0 Hψ1 => /= [_ <-| <- _]; move: b => [|].
   Qed.
 End Argument.
 

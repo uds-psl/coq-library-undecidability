@@ -22,31 +22,17 @@ Proof. elim: n; [done | by move=> n /= ->]. Qed.
 Fact iter_last {X: Type} {f: X -> X} {n x} : Nat.iter n f (f x) = Nat.iter (1+n) f x.
 Proof. elim: n x; [done | by move=> n /= + x => ->]. Qed.
 
-(* induction principle wrt. a decreasing measure f *)
-(* example: elim /(measure_ind length) : l. *)
-Lemma measure_ind {X : Type} (f : X -> nat) (P : X -> Prop) : 
+(* induction/recursion principle wrt. a decreasing measure f *)
+(* example: elim /(measure_rect length) : l. *)
+Lemma measure_rect {X : Type} (f : X -> nat) (P : X -> Type) : 
   (forall x, (forall y, f y < f x -> P y) -> P x) -> forall (x : X), P x.
 Proof.
-  apply : well_founded_ind.
-  apply : Wf_nat.well_founded_lt_compat. move => *. by eassumption.
+  exact: (well_founded_induction_type (Wf_nat.well_founded_lt_compat X f _ (fun _ _ => id)) P).
 Qed.
-Arguments measure_ind {X}.
 
 (* List facts *)
-
-Section ForallNorm.
-Variable T : Type.
-Variable P : T -> Prop.
-
-Lemma Forall_singletonP {a} : Forall P [a] <-> P a.
-Proof. rewrite Forall_cons_iff Forall_nil_iff. by constructor=> [[? ?] | ?]. Qed.
-
-(* use: rewrite ?Forall_norm *)
-Definition Forall_norm := (@Forall_app, @Forall_singletonP, @Forall_cons_iff, @Forall_nil_iff).
-
-Lemma Forall_appI {A B}: Forall P A -> Forall P B -> Forall P (A ++ B).
+Lemma Forall_appI {X: Type} {P : X -> Prop} {A B}: Forall P A -> Forall P B -> Forall P (A ++ B).
 Proof. move=> ? ?. apply /Forall_app. by constructor. Qed.
-End ForallNorm.
 
 Lemma incl_nth_error {X: Type} {Gamma Gamma': list X} : 
   incl Gamma Gamma' -> exists ξ, forall x, nth_error Gamma x = nth_error Gamma' (ξ x).
@@ -54,8 +40,8 @@ Proof.
   elim: Gamma Gamma'.
   - move=> Gamma' _. exists (fun x => length Gamma').
     move=> [|x] /=; apply /esym; by apply /nth_error_None.
-  - move=> x Gamma IH Gamma'. rewrite /incl -Forall_forall Forall_norm Forall_forall.
-    move=> [/(@In_nth_error _ _ _) [nx] Hnx /IH] [ξ Hξ].
+  - move=> x Gamma IH Gamma'. move=> /Forall_forall /Forall_cons_iff.
+    move=> [/(@In_nth_error _ _ _) [nx] Hnx /Forall_forall /IH] [ξ Hξ].
     exists (fun y => if y is S y then ξ y else nx). by case.
 Qed.
 
@@ -85,14 +71,12 @@ Proof. move=> ?. apply /in_app_iff. by right. Qed.
 Lemma list_choice {P : nat -> nat -> Prop} {l: list nat} : Forall (fun i : nat => exists n : nat, P i n) l ->
   exists φ, Forall (fun i : nat => P i (φ i)) l.
 Proof.
-  elim /rev_ind: l.
-  - move=> ?. exists id. by constructor.
-  - move=> k l IH. rewrite Forall_app. move=> [/IH [φ Hφ]] /(@Forall_inv _ _ _) [n Hn]. 
-    exists (fun i => if PeanoNat.Nat.eq_dec i k then n else φ i).
-    rewrite Forall_app. constructor.
-    + move: Hφ. rewrite ?Forall_forall => H i. 
-      case: (PeanoNat.Nat.eq_dec _ _); [by move=> /= -> | by move=> *; apply: H].
-    + constructor; last done. by case: (PeanoNat.Nat.eq_dec _ _).
+  elim: l; first by exists id.
+  move=> k l IH /Forall_cons_iff [[n Hkn]] /IH [φ Hφ].
+  exists (fun i => if PeanoNat.Nat.eq_dec i k then n else φ i).
+  constructor; first by case: (PeanoNat.Nat.eq_dec k k).
+  apply: Forall_impl Hφ => i Hi.
+  case: (PeanoNat.Nat.eq_dec i k); [by move=> /= ->|done].
 Qed.
 
 Lemma map_id' {X: Type} {f: X -> X} {l: list X} : (forall x, f x = x) -> map f l = l.

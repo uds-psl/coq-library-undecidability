@@ -15,13 +15,12 @@ Set Default Goal Selector "!".
 
 (* misc facts *)
 
-(* induction principle wrt. a decreasing measure f *)
-(* example: elim /(measure_ind length) : l. *)
-Lemma measure_ind {X: Type} (f: X -> nat) (P: X -> Prop) : 
+(* induction/recursion principle wrt. a decreasing measure f *)
+(* example: elim /(measure_rect length) : l. *)
+Lemma measure_rect {X : Type} (f : X -> nat) (P : X -> Type) : 
   (forall x, (forall y, f y < f x -> P y) -> P x) -> forall (x : X), P x.
 Proof.
-  apply: well_founded_ind.
-  apply: Wf_nat.well_founded_lt_compat. move=> *. by eassumption.
+  exact: (well_founded_induction_type (Wf_nat.well_founded_lt_compat X f _ (fun _ _ => id)) P).
 Qed.
 
 (* transforms a goal (A -> B) -> C into goals A and B -> C *)
@@ -78,29 +77,3 @@ Proof.
   move=> b A IH. rewrite Forall_norm => [[? /IH ->]]. subst b.
   cbn. by rewrite repeat_length.
 Qed.
-
-(* bijection between nat and nat * nat *)
-Module NatNat.
-
-(* bijection from nat * nat to nat *)
-Definition encode '(x, y) : nat := 
-  y + (nat_rec _ 0 (fun i m => (S i) + m) (y + x)).
-
-(* bijection from nat to nat * nat *)
-Definition decode (n : nat) : nat * nat := 
-  nat_rec _ (0, 0) (fun _ '(x, y) => if x is S x then (x, S y) else (S y, 0)) n.
-
-Lemma decode_encode {xy: nat * nat} : decode (encode xy) = xy.
-Proof.
-  move Hn: (encode xy) => n. elim: n xy Hn.
-  { by move=> [[|?] [|?]]. }
-  move=> n IH [x [|y [H]]] /=.
-  { move: x => [|x [H]] /=; first done.
-    by rewrite (IH (0, x)) /= -?H ?PeanoNat.Nat.add_0_r. }
-  by rewrite (IH (S x, y)) /= -?H ?PeanoNat.Nat.add_succ_r.
-Qed.
-
-Lemma encode_non_decreasing (x y: nat) : x + y <= encode (x, y).
-Proof. elim: x=> [| x IH] /=; [| rewrite Nat.add_succ_r /=]; by lia. Qed.
-
-End NatNat.

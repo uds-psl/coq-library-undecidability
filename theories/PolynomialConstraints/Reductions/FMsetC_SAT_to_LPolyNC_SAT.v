@@ -20,7 +20,7 @@ Require Import Undecidability.PolynomialConstraints.LPolyNC.
 
 Require Import Undecidability.Synthetic.Definitions.
 
-From Undecidability.PolynomialConstraints.Util Require Import Facts PolyFacts.
+From Undecidability.PolynomialConstraints.Util Require Import PolyFacts.
 Require Undecidability.SetConstraints.Util.mset_eq_utils.
 
 Require Import ssreflect ssrbool ssrfun.
@@ -76,7 +76,9 @@ Qed.
 
 Lemma poly_shiftI {p} : (0 :: p) ≃ poly_mult [0; 1] p.
 Proof.
-  rewrite /poly_mult map_0P.
+  rewrite /poly_mult.
+  have ->: map (fun x => 0 * x) p = repeat 0 (length p).
+  { elim: p; [done | by move=> > /= ->]. }
   rewrite [poly_add (repeat _ _) _] poly_add_comm.
   apply: poly_add_0I; first by apply: repeat_0P.
   under map_ext => a do have -> : 1 * a = a by lia.

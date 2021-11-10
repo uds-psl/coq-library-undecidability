@@ -720,7 +720,6 @@ CounterMachines/CM2.v
 CounterMachines/CM2_undec.v
 
 CounterMachines/Util/Nat_facts.v
-CounterMachines/Util/List_facts.v
 CounterMachines/Util/CM1_facts.v
 CounterMachines/Util/CM2_facts.v
 CounterMachines/Util/MM2_facts.v
@@ -757,7 +756,6 @@ StackMachines/Reductions/iPCPb_to_BSM_HALTING.v
 SemiUnification/SemiU.v
 SemiUnification/SemiU_undec.v
 
-SemiUnification/Util/Facts.v
 SemiUnification/Util/Enumerable.v
 SemiUnification/Reductions/CSSM_UB_to_SSemiU.v
 SemiUnification/Reductions/SSemiU_to_RU2SemiU.v
@@ -779,7 +777,6 @@ SetConstraints/Reductions/H10UC_SAT_to_FMsetC_SAT.v
 PolynomialConstraints/LPolyNC.v
 PolynomialConstraints/LPolyNC_undec.v
 
-PolynomialConstraints/Util/Facts.v
 PolynomialConstraints/Util/PolyFacts.v
 PolynomialConstraints/Reductions/FMsetC_SAT_to_LPolyNC_SAT.v
 

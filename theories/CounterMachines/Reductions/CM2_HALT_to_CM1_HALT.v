@@ -20,7 +20,7 @@ Require Undecidability.CounterMachines.CM1.
 Import CM2 (CM2_HALT). Import CM1 (CM1_HALT).
 
 From Undecidability.CounterMachines.Util Require Import 
-  Nat_facts List_facts.
+  Nat_facts.
 
 From Undecidability.CounterMachines.Util Require CM1_facts CM2_facts.
 
@@ -292,17 +292,17 @@ Section MM2_CM1.
     CM1.halting M (Nat.iter n (CM1.step M) x') ->
     exists m, CM2.halting P (Nat.iter m (CM2.step P) x).
   Proof.
-    elim /(measure_ind id) : n x x' => n IH x.
+    elim /(measure_rect id) : n x x' => n IH x.
     have : CM2.halting P x \/ not (CM2.halting P x) by (rewrite CM2_facts.haltingP; lia).
     case; first by (move=> *; exists 0).
-    move=> Hx x' /copy [H1xx'] /P_to_M_step [m Hm].
+    move=> Hx x' /[dup] [H1xx'] /P_to_M_step [m Hm].
     have ? : m > 0.
     {
       suff: not (m = 0) by lia. move=> ?. subst m.
       apply: Hx. rewrite /CM2.halting.
       move: x' x (CM2.step P x) H1xx' Hm.
       move=> [? ?] [? ? ?] [? ? ?] /= [->] [? ->] [+] [?].
-      by move=> /fs_inj -> /copy [/κ_inj1 ->] /κ_inj2 ->.
+      by move=> /fs_inj -> /[dup] [/κ_inj1 ->] /κ_inj2 ->.
     }
     have [?|Hn] : n <= m \/ m < n by lia.
     - move: Hm => /P_iff_M_halting HPM.

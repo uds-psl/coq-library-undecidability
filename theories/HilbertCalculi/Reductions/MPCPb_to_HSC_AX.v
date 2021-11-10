@@ -167,7 +167,7 @@ Proof.
     move=> ?. subst s. case: k.
     { move=> [_] /=. case=> -> ->.
       move=> /(f_equal size) /=. by lia. }
-    move=> k /= [/ForallE] [? _] _. left.
+    move=> k /= [/Forall_cons_iff] [? _] _. left.
     eexists. eexists. by eassumption.
   }
   (* case ⟨ v, w ⟩ → a → b → a *)
@@ -175,7 +175,7 @@ Proof.
     move=> ?. subst s. case: k.
     { move=> [_] /=. case=> <- _.
       case=> _ /(f_equal size) /=. by lia. }
-    move=> k /= [/ForallE] [? _] _. right.
+    move=> k /= [/Forall_cons_iff] [? _] _. right.
     exists []. constructor; first done.
     eexists. rewrite ? app_nil_r /=. by eassumption.
   }
@@ -185,7 +185,7 @@ Proof.
     - move=> [_] /=.
       case=> <- _. case=> _ _ _ /(f_equal size) /=. by lia.
     - move=> [_] /=. case=> <- _. move=> /(f_equal size) /=. by lia.
-    - move=> k /= [/ForallE] [_] /ForallE [? _] _.
+    - move=> k /= [/Forall_cons_iff] [_] /Forall_cons_iff [? _] _.
       left. eexists. eexists. by eassumption. 
   }
 Qed.
@@ -199,14 +199,14 @@ Proof.
     move=> ?. subst s. case: k.
     { move=> /= [_]. case=> _ _ _ -> /unify_words HA2 _ _ _.
       right. right. eexists. by constructor; eassumption. }
-    move=> k /= [/ForallE] [? _] *.
+    move=> k /= [/Forall_cons_iff] [? _] *.
     left. eexists. eexists. by eassumption.
   }
   (* case ⟨ v, w ⟩ → a → b → a *)
   {
     move=> ?. subst s. case: k.
     { move=> /= [_]. case=> <- _ /(f_equal size) /=. by lia. }
-    move=> k /= [/ForallE] [? _] *.
+    move=> k /= [/Forall_cons_iff] [? _] *.
     right. left. exists []. constructor; first done.
     eexists. move=> /=. rewrite ? app_nil_r. by eassumption. 
   }
@@ -216,7 +216,7 @@ Proof.
     (* k = 0 *)
     - move=> [_] /=. case=> -> _ /(f_equal size) /=. by lia.
     (* k = 1 *)
-    - move=> /= [/ForallE] [H1 _] [] H2. move: H1. rewrite H2.
+    - move=> /= [/Forall_cons_iff] [H1 _] [] H2. move: H1. rewrite H2.
       rewrite - ? /(substitute ζ (var _)).
       move=> + _ _ /(substitute_combine H2 (x := x)) Hx.
       move=> + /(substitute_combine H2 (x := y)) Hy _ _ _.
@@ -226,7 +226,7 @@ Proof.
         by apply /incl_cons. }
       exists ξ => /=. by rewrite tau1_lastP tau2_lastP ? app_assoc.
     (* k = 2 *)
-    - move=> k /= [/ForallE] [_ /ForallE] [? _] *.
+    - move=> k /= [/Forall_cons_iff] [_ /Forall_cons_iff] [? _] *.
       left. eexists. eexists. by eassumption.
   }
 Qed.

@@ -22,7 +22,7 @@ From Undecidability.StackMachines.Util Require Import CSSM_facts.
 
 (* simple semi-unification *)
 Require Import Undecidability.SemiUnification.SemiU. 
-From Undecidability.SemiUnification.Util Require Import Facts Enumerable.
+From Undecidability.SemiUnification.Util Require Import Enumerable.
 
 Require Import ssreflect ssrfun ssrbool.
 
@@ -84,7 +84,7 @@ Proof using confluent_M.
   move=> i IH X Y HXY HXi /=.
   case: (equiv_dec (unembed i) Y)=> /=.
   { move=> /equiv_sym HYi.
-    have [/copy [/(f_equal unembed) + ->] | ?]: (embed X = i \/ embed X < i) by lia.
+    have [/[dup] [/(f_equal unembed) + ->] | ?]: (embed X = i \/ embed X < i) by lia.
     - rewrite embedP. by move=> ->.
     - apply: IH; [ apply: equiv_trans; by eassumption | done]. }
   move=> HiY. have [/(f_equal unembed) | ?]: (embed X = i \/ embed X < i) by lia.
@@ -210,6 +210,9 @@ Proof using confluent_M.
 Qed.
 
 End SM.
+
+Lemma itebP {X: Type} {P: bool -> X} {b: bool} : (if b then P true else P false) = P b.
+Proof. by case: b. Qed.
 
 (* if M is uniformly bounded, 
   then the constructed simple semi-unification instance has a solution *)

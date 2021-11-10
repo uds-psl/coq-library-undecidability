@@ -198,14 +198,14 @@ Proof.
   rewrite /ΓPCP /In -/ΓPCP. case; last case; last case; last case; last case; last done.
   all: move=> <-.
   {
-    case: k => [|k] /=; last by move=> /ForallE [/IH].
+    case: k => [|k] /=; last by move=> /Forall_cons_iff [/IH].
     move=> _ [<- _] /(f_equal size) => /=. by lia.
   }
   all: case: k => [|k] /=.
   1,3,5,7: by (move=> _; case=> _ <-; move /(f_equal size) => /=; by lia).
   all: case: k => [|k] /=.
   1,3,5,7: by (move=> _; case=> <- _; move /(f_equal size) => /=; by lia).
-  all: by move=> /ForallE [_] /ForallE [/IH].
+  all: by move=> /Forall_cons_iff [_] /Forall_cons_iff [/IH].
 Qed.
 
 Definition encode_bool b := if b then b2 else b3.
@@ -382,16 +382,16 @@ Proof.
   { move /(f_equal size) => /=. by lia. }
   rewrite /ΓPCP /In -/ΓPCP. case; last case; last case; last case; last case; last done.
   all: move=> <-.
-  { case: k=> [|k] /=; last by move=> /ForallE [/not_ΓPCP_rrr].
+  { case: k=> [|k] /=; last by move=> /Forall_cons_iff [/not_ΓPCP_rrr].
     move=> _. case. do 7 (move=> _). move=> ->.
     case=> /encode_word'_injective + /encode_list_injective.
     move=> -> ->. do 6 (move=> _). exists []. by constructor. }
   all: case: k=> [|k].
   1,3,5,7: move=> _ /=; case=> <- *; exfalso; apply: Hu; by eassumption.
   all: case: k=> [|k].
-  2,4,6,8: by move=> /= /ForallE [_] /ForallE [/not_ΓPCP_rrr].
+  2,4,6,8: by move=> /= /Forall_cons_iff [_] /Forall_cons_iff [/not_ΓPCP_rrr].
   all: rewrite substitute_arrP /arguments /target.
-  all: move=> /ForallE [Hder _]; rewrite ? substitute_pairP.
+  all: move=> /Forall_cons_iff [Hder _]; rewrite ? substitute_pairP.
   (* step case *)
   {
     move=> [H0] [[_ [H123 H4]]] [_] [[_ [H5 Hv]]] [_ [H6 Hw]].

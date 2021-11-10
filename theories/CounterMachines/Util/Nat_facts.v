@@ -4,21 +4,13 @@ Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
-(* duplicates argument *)
-Lemma copy {A : Prop} : A -> A * A.
-Proof. done. Qed.
-
-(* induction principle wrt. a decreasing measure f *)
-(* example: elim /(measure_ind length) : l. *)
-Lemma measure_ind {X : Type} (f : X -> nat) (P : X -> Prop) : 
+(* induction/recursion principle wrt. a decreasing measure f *)
+(* example: elim /(measure_rect length) : l. *)
+Lemma measure_rect {X : Type} (f : X -> nat) (P : X -> Type) : 
   (forall x, (forall y, f y < f x -> P y) -> P x) -> forall (x : X), P x.
 Proof.
-  apply : well_founded_ind.
-  apply : Wf_nat.well_founded_lt_compat. move => *. by eassumption.
+  exact: (well_founded_induction_type (Wf_nat.well_founded_lt_compat X f _ (fun _ _ => id)) P).
 Qed.
-Arguments measure_ind {X}.
-
-Definition nat_norm := (Nat.add_0_r, Nat.add_succ_r, Nat.sub_0_r, Nat.mul_1_r, Nat.div_1_r).
 
 Lemma iter_plus {X: Type} {f: X -> X} {x: X} {n m: nat} : 
   Nat.iter (n + m) f x = Nat.iter m f (Nat.iter n f x).
