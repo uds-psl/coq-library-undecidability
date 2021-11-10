@@ -3,9 +3,12 @@ Import ListNotations.
 
 Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.Facts.
+Import PCPListNotation.
 Require Import Undecidability.PCP.Util.PCP_facts.
 
 Require Import Undecidability.Synthetic.Definitions.
+
+Set Default Goal Selector "!".
 
 (* ** BPCP reduces to iBPCP *)
 

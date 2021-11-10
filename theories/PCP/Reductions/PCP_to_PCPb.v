@@ -3,8 +3,11 @@ Import ListNotations.
 
 Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.Facts.
+Import PCPListNotation.
 
 Require Import Undecidability.Synthetic.Definitions.
+
+Set Default Goal Selector "!".
 
 (* ** PCP reduces to BPCP *)
 
@@ -89,24 +92,24 @@ Lemma tau1_g A B : A <<= f B -> tau1 (g A) = g_s (tau1 A).
 Proof.
   induction A as [ | (x,y)]; cbn.
   - reflexivity.
-  - unfold g in IHA. intros. rewrite !IHA. 
-    assert ( (x, y) el map f_c B) as ((x',y') & ? & ?) % in_map_iff by firstorder; inv H0.
-    rewrite g_s'_app. destruct x'.
-    + cbn. reflexivity.
-    + rewrite f_g_s'_inv. cbn. reflexivity.
-    + firstorder.
+  - unfold g in IHA. intros. rewrite !IHA.
+    { assert ( (x, y) el map f_c B) as ((x',y') & ? & ?) % in_map_iff by firstorder; inv H0.
+      rewrite g_s'_app. destruct x'.
+      + cbn. reflexivity.
+      + rewrite f_g_s'_inv. cbn. reflexivity. }
+    firstorder.
 Qed.
 
 Lemma tau2_g A B : A <<= f B -> tau2 (g A) = g_s (tau2 A).
 Proof.
   induction A as [ | (x,y)]; cbn.
   - reflexivity.
-  - unfold g in IHA. intros. rewrite !IHA. 
-    assert ( (x, y) el map f_c B) as ((x',y') & ? & ?) % in_map_iff by firstorder; inv H0.
-    rewrite g_s'_app. destruct y'.
-    + cbn. reflexivity.
-    + rewrite f_g_s'_inv. cbn. reflexivity.
-    + firstorder.
+  - unfold g in IHA. intros. rewrite !IHA.
+    { assert ( (x, y) el map f_c B) as ((x',y') & ? & ?) % in_map_iff by firstorder; inv H0.
+      rewrite g_s'_app. destruct y'.
+      + cbn. reflexivity.
+      + rewrite f_g_s'_inv. cbn. reflexivity. }
+    firstorder.
 Qed.
 
 Lemma f_subset B A : A <<= B -> f A <<= f B.
@@ -127,7 +130,7 @@ Proof.
   * firstorder.
   * assert (a el f B) by firstorder.
     unfold f in H0. eapply in_map_iff in H0 as ((x,y) & ? & ?). inv H0.
-    intros ? [|]; subst. cbn. now rewrite !f_g_s'_inv. firstorder.
+    intros ? [|]; subst. { cbn. now rewrite !f_g_s'_inv. } firstorder.
 Qed.
 
 Theorem reduction : PCP ⪯ PCPb.

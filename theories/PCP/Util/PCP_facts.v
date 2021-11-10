@@ -3,6 +3,7 @@ Import ListNotations.
 
 Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.Facts.
+Import PCPListNotation.
 
 Set Implicit Arguments. 
 Unset Strict Implicit.

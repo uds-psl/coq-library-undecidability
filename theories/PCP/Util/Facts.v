@@ -8,9 +8,13 @@ Unset Strict Implicit.
 
 Set Default Proof Using "Type".
 
+Module PCPListNotation.
 Notation "x 'el' A" := (In x A) (at level 70).
 Notation "A <<= B" := (incl A B) (at level 70).
 Notation "| A |" := (length A) (at level 65).
+End PCPListNotation.
+
+Import PCPListNotation.
 
 Ltac inv H := inversion H; subst; try clear H.
 

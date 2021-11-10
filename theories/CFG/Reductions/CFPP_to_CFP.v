@@ -1,20 +1,20 @@
-Require Import List.
+Require Import Setoid Morphisms List Arith Lia.
 Import ListNotations.
 
 Require Import Undecidability.CFG.CFP.
 Require Import Undecidability.CFG.CFG.
 Require Import Undecidability.CFG.Util.Facts.
 
-Require Import Undecidability.PCP.PCP.
-Require Import Undecidability.PCP.Util.Facts.
+(* bad design : this file has nothing to do with PCP *)
 Require Import Undecidability.PCP.Util.PCP_facts.
 
-Require Import Undecidability.Shared.ListAutomation.
 Require Import Undecidability.Synthetic.Definitions.
 
-Require Import Setoid Morphisms Arith Lia.
-
+Set Default Goal Selector "!".
 Set Default Proof Using "Type".
+
+Local Notation "x 'el' A" := (In x A) (at level 70).
+Local Notation "A <<= B" := (incl A B) (at level 70).
 
 (* * PCP to CFPP *)
 Local Hint Rewrite concat_app map_app map_map : list.
@@ -92,15 +92,18 @@ Section CFGs.
     - induction H2.
       + reflexivity.
       + rewrite IHrewt. inv H. eapply rewtRule.
-        replace (x1 ++ x ++ [a] ++ y0) with ( (x1 ++ x) ++ [a] ++ y0) by now autorewrite with list.
-        eauto. replace (x1 ++ x ++ v ++ y0) with ( (x1 ++ x) ++ v ++ y0) by now autorewrite with list. eauto.
+        * replace (x1 ++ x ++ [a] ++ y0) with ( (x1 ++ x) ++ [a] ++ y0) by now autorewrite with list.
+          eauto.
+        * replace (x1 ++ x ++ v ++ y0) with ( (x1 ++ x) ++ v ++ y0) by now autorewrite with list. eauto.
     - rewrite IHrewt. inv H. autorewrite with list. eauto.
   Qed.
 
   Global Instance subrel R :
     subrelation (rew_cfg R) (rewt R).
   Proof.
-    intros x y H. econstructor. reflexivity. eassumption.
+    intros x y H. econstructor.
+    - reflexivity.
+    - eassumption.
   Qed.
     
   Lemma terminal_iff G x :
@@ -122,7 +125,8 @@ Section CFGs.
     - eauto.
     - destruct H1. destruct R. cbn in *.
       pose (app_incl_l IHrewt).
-      eapply incl_app. eapply app_incl_l. eassumption.
+      eapply incl_app.
+      { eapply app_incl_l. eassumption. }
       eapply incl_app.
       + unfold sym_G. intros ? ?.
         right. eapply in_flat_map. exists (a, v). eauto.
@@ -145,7 +149,7 @@ Section Post_CFG.
     terminal G y <-> ~ S el y.
   Proof.
     unfold terminal.
-    enough ((exists y0, rew_cfg G y y0) <-> S el y). firstorder. split.
+    enough ((exists y0, rew_cfg G y y0) <-> S el y). { firstorder. } split.
     - intros [y0 ?]. inv H. cbn in H0.
       destruct H0 as [ | [ [[] []] % in_map_iff | [[] []] % in_map_iff ] % in_app_iff]; inv H; eauto.
     - intros (u' & v' & ?) % List.in_split.
@@ -161,25 +165,25 @@ Section Post_CFG.
       + eauto.
       + unfold Sigma. simpl_list. rewrite <- !countSplit in *. cbn in *.
         rewrite Nat.eqb_refl in *.
-        enough (count l S = 0) as ->. enough (count l0 S = 0) as ->. lia.
-        * eapply notInZero. intros D.
-          edestruct (fresh_spec) with (l := Sigma); try reflexivity.
-          eapply sym_word_R in H1. unfold Sigma. eauto. 
-        * eapply notInZero. intros D.
-          edestruct (fresh_spec) with (l := Sigma); try reflexivity.
-          eapply sym_word_l in H1. unfold Sigma. eauto. 
+        enough (count l S = 0) as ->. { enough (count l0 S = 0) as ->. { lia. }
+        eapply notInZero. intros D.
+        edestruct (fresh_spec) with (l := Sigma); try reflexivity.
+        eapply sym_word_R in H1. unfold Sigma. eauto. }
+        eapply notInZero. intros D.
+        edestruct (fresh_spec) with (l := Sigma); try reflexivity.
+        eapply sym_word_l in H1. unfold Sigma. eauto. 
       + unfold Sigma. simpl_list. rewrite <- !countSplit in *. cbn in *.
         rewrite Nat.eqb_refl in *.
-        assert (S =? a = false) as ->. eapply Nat.eqb_neq. intros D.
+        assert (S =? a = false) as ->. { eapply Nat.eqb_neq. intros D.
         edestruct fresh_spec with (l := Sigma); try reflexivity.
-        unfold S in *. rewrite D. unfold Sigma; eauto.
-        enough (count l S = 0) as ->. enough (count l0 S = 0) as ->. lia.
-        * eapply notInZero. intros D.
-          edestruct (fresh_spec) with (l := Sigma); try reflexivity.
-          eapply sym_word_R in H1. unfold Sigma. eauto. 
-        * eapply notInZero. intros D.
-          edestruct (fresh_spec) with (l := Sigma); try reflexivity.
-          eapply sym_word_l in H1. unfold Sigma. eauto. 
+        unfold S in *. rewrite D. unfold Sigma; eauto. }
+        enough (count l S = 0) as ->. { enough (count l0 S = 0) as ->. { lia. }
+        eapply notInZero. intros D.
+        edestruct (fresh_spec) with (l := Sigma); try reflexivity.
+        eapply sym_word_R in H1. unfold Sigma. eauto. } 
+        eapply notInZero. intros D.
+        edestruct (fresh_spec) with (l := Sigma); try reflexivity.
+        eapply sym_word_l in H1. unfold Sigma. eauto.
   Qed.
   
   Lemma Post_CFG_1' A :
@@ -189,10 +193,10 @@ Section Post_CFG.
     - cbn. eauto.
     - intros.  assert (A <<= R) by eauto. eapply IHA in H0.
       destruct a0 as [u v]. destruct H0.
-      + subst. right. erewrite rewrite_sing with (x := u ++ [a] ++ v). reflexivity.
+      + subst. right. erewrite rewrite_sing with (x := u ++ [a] ++ v). { reflexivity. }
         right. eapply in_app_iff. right. eapply in_map_iff. exists (u,v); eauto.
       + right. erewrite rewrite_sing with (x := u ++ [S] ++ v). 
-        now rewrite H0. right. eapply in_app_iff. left. eapply in_map_iff. exists (u,v); eauto.
+        { now rewrite H0. } right. eapply in_app_iff. left. eapply in_map_iff. exists (u,v); eauto.
   Qed.
 
   Lemma Post_CFG_2 x :
@@ -208,34 +212,34 @@ Section Post_CFG.
         exists (A ++ [(u', v')]), S. repeat split.
         * eauto.
         * simpl_list. cbn.
-          enough (~ S el x). enough (~ S el y0).
+          enough (~ S el x). { enough (~ S el y0). {
           eapply sigma_snoc with (s := S); eauto.
-          -- assert (IH2 := IHA).
-          eapply sigma_inv in IHA; eauto. subst. eauto.
+          assert (IH2 := IHA).
+          eapply sigma_inv in IHA; eauto. { subst. eauto. }
           intros D. 
           edestruct fresh_spec with (l := sym R ++ [a]); try reflexivity.
-          eapply in_app_iff. left. eapply sym_mono. eauto. eauto.
-          -- eapply rewt_count in H. rewrite <- !countSplit in H. cbn in H.
-             rewrite Nat.eqb_refl in H. eapply notInZero. lia.
-          -- eapply rewt_count in H. rewrite <- !countSplit in H. cbn in H.
-             rewrite Nat.eqb_refl in H. eapply notInZero. lia.
+          eapply in_app_iff. left. eapply sym_mono. { eauto. } eauto. }
+          eapply rewt_count in H. rewrite <- !countSplit in H. cbn in H.
+          rewrite Nat.eqb_refl in H. eapply notInZero. lia. }
+          eapply rewt_count in H. rewrite <- !countSplit in H. cbn in H.
+          rewrite Nat.eqb_refl in H. eapply notInZero. lia.
         * eauto.
       + destruct x0 as [u' v']. inv H3.
         destruct IHrewt as (A & m & HA & IHA & Hm).
         exists (A ++ [(u', v')]), a. repeat split.
         * eauto.
         * simpl_list. cbn.
-          enough (~ S el x). enough (~ S el y0).
+          enough (~ S el x). { enough (~ S el y0). {
           eapply sigma_snoc with (s := S); eauto.
           -- assert (IH2 := IHA).
-          eapply sigma_inv in IHA; eauto. subst. eauto.
+          eapply sigma_inv in IHA; eauto. { subst. eauto. }
           intros D. 
           edestruct fresh_spec with (l := sym R ++ [a]); try reflexivity.
-          eapply in_app_iff. left. eapply sym_mono. eauto. eauto.
-          -- eapply rewt_count in H. rewrite <- !countSplit in H. cbn in H.
-             rewrite Nat.eqb_refl in H. eapply notInZero. lia.
-          -- eapply rewt_count in H. rewrite <- !countSplit in H. cbn in H.
-             rewrite Nat.eqb_refl in H. eapply notInZero. lia.
+          eapply in_app_iff. left. eapply sym_mono. { eauto. } eauto. }
+          eapply rewt_count in H. rewrite <- !countSplit in H. cbn in H.
+          rewrite Nat.eqb_refl in H. eapply notInZero. lia. }
+          eapply rewt_count in H. rewrite <- !countSplit in H. cbn in H.
+          rewrite Nat.eqb_refl in H. eapply notInZero. lia.
         * destruct A; cbn; firstorder congruence.
   Qed.
 
@@ -267,8 +271,9 @@ Proof.
   exists (fun '(R, a) => (G R a)). intros [R a].
   intuition; cbn in *.
   - destruct H as (A & HR & HA & H).
-    exists (sigma a A). split. eapply reduction_full; eauto.
-    eauto.
+    exists (sigma a A). split.
+    + eapply reduction_full; eauto.
+    + eauto.
   - destruct H as (x & Hx & H).
     eapply reduction_full in Hx as (A & HR & HA & H1).
     exists A. subst; eauto.

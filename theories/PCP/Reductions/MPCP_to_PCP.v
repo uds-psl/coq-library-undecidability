@@ -3,11 +3,13 @@ Import ListNotations.
 
 Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.Facts.
+Import PCPListNotation.
 Require Import Undecidability.PCP.Util.PCP_facts.
 
 Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Shared.ListAutomation.
 
+Set Default Goal Selector "!".
 Set Default Proof Using "Type".
 
 (* * MPCP to PCP *)
@@ -173,23 +175,25 @@ Section MPCP_PCP.
       + exfalso. setoid_rewrite app_comm_cons in H2 at 2.
         eapply list_prefix_inv in H2 as [[] % hash_L_diff E2].
         * now eapply doll_hash_L.
-        * rewrite <- hash_swap. rewrite in_app_iff. intros [ | [ | []]]. eapply doll_hash_L; eauto.
+        * rewrite <- hash_swap. rewrite in_app_iff. intros [ | [ | []]]. { eapply doll_hash_L; eauto. }
           now eapply fresh_spec in H3 as []. 
       + exists []. assert ((#_L x ++ [#]) ++ $ :: tau1 B = (# :: #_R y) ++ $ :: tau2 B) by now simpl_list.
         eapply list_prefix_inv in H3.
-        rewrite hash_swap in H3. inv H3.
-        inv H4. eapply hash_R_inv in H6 as ->. firstorder.
-        * rewrite in_app_iff. intros [ | [ | []]]. eapply doll_hash_L in H4; eauto.
+        { rewrite hash_swap in H3. inv H3.
+          inv H4. eapply hash_R_inv in H6 as ->. firstorder. }
+        * rewrite in_app_iff. intros [ | [ | []]]. { eapply doll_hash_L in H4; eauto. }
           now eapply fresh_spec in H4 as []. 
-        * rewrite <- hash_swap. rewrite in_app_iff. intros [ | [ | []]]. eapply doll_hash_L; eauto.
+        * rewrite <- hash_swap. rewrite in_app_iff. intros [ | [ | []]]. { eapply doll_hash_L; eauto. }
           now eapply fresh_spec in H4 as []. 
       + assert ((#_L x ++ #_L x') ++ tau1 B = # :: (#_R y ++ #_R y') ++ tau2 B) by now simpl_list.
         rewrite <- hash_L_app, <- hash_R_app in H5. eapply IHB in H5 as (A & ? & ?).
         * exists (x' / y' :: A). intuition; try inv H7; intuition;
           cbn; now autorewrite with list in *. 
         * eauto.
-        * eapply incl_app. eauto. intros ? ?. destruct H3. inv H3. eauto. eapply R_Sigma, sym_word_l; eauto.
-        * eapply incl_app. eauto. intros ? ?. destruct H3. inv H3. eauto. eapply R_Sigma, sym_word_R; eauto.
+        * eapply incl_app. { eauto. }
+          intros ? ?. destruct H3. { inv H3. eauto. } eapply R_Sigma, sym_word_l; eauto.
+        * eapply incl_app. { eauto. }
+          intros ? ?. destruct H3. { inv H3. eauto. } eapply R_Sigma, sym_word_R; eauto.
   Qed.
 
   Lemma MPCP_PCP_cor :
@@ -197,10 +201,10 @@ Section MPCP_PCP.
   Proof.
     split.
     - intros (A & Hi & (B & HiB & H) % MPCP_PCP).
-      exists (d :: B). 
-      + firstorder try congruence. 
-        * cbn. f_equal. now rewrite H.
-      +  eassumption.
+      + exists (d :: B).
+        firstorder try congruence. 
+        cbn. f_equal. now rewrite H.
+      + eassumption.
     - intros ([|d' B] & Hi & He & H); firstorder.
       pose proof H as -> % match_start; eauto.
       cbn -[fresh] in H. inv H.

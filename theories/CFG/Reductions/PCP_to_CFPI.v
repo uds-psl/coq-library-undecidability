@@ -1,4 +1,4 @@
-Require Import List.
+Require Import List Lia.
 Import ListNotations.
 
 Require Import Undecidability.CFG.CFP.
@@ -6,13 +6,11 @@ Require Import Undecidability.CFG.Util.Facts.
 
 Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.Facts.
+Import PCPListNotation.
 Require Import Undecidability.PCP.Util.PCP_facts.
-
-Require Import Undecidability.Shared.ListAutomation.
 Require Import Undecidability.Synthetic.Definitions.
 
-Require Import Setoid Morphisms Arith Lia.
-
+Set Default Goal Selector "!".
 Set Default Proof Using "Type".
 
 (* * PCP to CFPI *)
@@ -86,25 +84,29 @@ Section PCP_CFPI.
   Proof.
     intros H.
     revert A2. induction A1 as [ | (x,y) ]; cbn; intros.
-    - destruct A2; inv H1. reflexivity.
+    - destruct A2; inv H1; [reflexivity|].
       destruct c, (gamma A2), l; cbn in *; inv H3.
     - destruct A2 as [ | (x',y')]; cbn in H1.
       + destruct (gamma A1), x; inv H1.
       + eapply (f_equal (@rev _)) in H1. repeat (autorewrite with list in H1; cbn in H1). inv H1.
         eapply list_prefix_inv in H3 as [].
-        rewrite rev_eq in H1. subst. assert (x = x').
+        { rewrite rev_eq in H1. subst. assert (x = x').
         * destruct A1 as [ | (x1, y1)], A2 as [ | (x2, y2)]; repeat (cbn in *; autorewrite with list in H2).
           -- rewrite rev_eq in H2. congruence.
-          -- exfalso. enough (~ # el rev x). eapply H1. rewrite H2.
-             cbn. simpl_list. cbn. eauto. intros ? % In_rev; eauto.
-          -- exfalso. enough (~ # el rev x'). eapply H1. rewrite <- H2.
-             cbn. simpl_list. cbn. eauto. intros ? % In_rev; eauto.
-          -- eapply list_prefix_inv in H2 as []. rewrite rev_eq in H1. congruence.
-             intros ? % In_rev; eauto. intros ? % In_rev; eauto.
+          -- exfalso. enough (~ # el rev x). { eapply H1. rewrite H2.
+             cbn. simpl_list. cbn. eauto. }
+             intros ? % In_rev; eauto.
+          -- exfalso. enough (~ # el rev x'). { eapply H1. rewrite <- H2.
+             cbn. simpl_list. cbn. eauto. }
+             intros ? % In_rev; eauto.
+          -- eapply list_prefix_inv in H2 as [].
+             --- rewrite rev_eq in H1. congruence.
+             --- intros ? % In_rev; eauto.
+             --- intros ? % In_rev; eauto.
         * subst. f_equal. eapply app_inv_head in H2. rewrite rev_eq in H2.
           eapply IHA1 in H2; eauto.
-          intros ?. eapply H. cbn. eauto.
-          intros ?. eapply H0. cbn. eauto.
+          -- intros ?. eapply H. cbn. eauto.
+          -- intros ?. eapply H0. cbn. eauto. }
         * intros ? % In_rev. eapply H. cbn. eauto.
         * intros ? % In_rev. eapply H0. cbn. eauto.
   Qed.  
@@ -117,10 +119,10 @@ Proof.
   exists (fun P => (gamma1 P P, gamma2 P P, fresh (sym P))). intros P.
   split.
   - intros (A & Hi & He & H). exists (gamma1 P A), (gamma2 P A). repeat split.
-    + clear He H. induction A as [ | [] ]. firstorder. intros ? [ <- | ].
-      unfold gamma1. eapply in_map_iff. exists (l, l0). firstorder. firstorder.
-    + clear He H. induction A as [ | [] ]. firstorder. intros ? [ <- | ].
-      unfold gamma2. eapply in_map_iff. exists (l, l0). firstorder. firstorder.
+    + clear He H. induction A as [ | [] ]. { firstorder. } intros ? [ <- | ].
+      { unfold gamma1. eapply in_map_iff. exists (l, l0). firstorder. } firstorder.
+    + clear He H. induction A as [ | [] ]. { firstorder. } intros ? [ <- | ].
+      { unfold gamma2. eapply in_map_iff. exists (l, l0). firstorder. } firstorder.
     + destruct A; cbn in *; congruence.
     + destruct A; cbn in *; congruence.
     + now rewrite sigma_gamma1, sigma_gamma2, H.

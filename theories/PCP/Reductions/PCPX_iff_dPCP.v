@@ -3,10 +3,12 @@ Import ListNotations.
 
 Require Import Undecidability.PCP.PCP.
 Require Import Undecidability.PCP.Util.Facts.
+Import PCPListNotation.
 
 Require Import Undecidability.Shared.ListAutomation.
 Require Import Undecidability.Synthetic.Definitions.
 
+Set Default Goal Selector "!".
 Set Default Proof Using "Type".
 
 Section derivable_iff_PCPX.
