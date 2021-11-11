@@ -423,10 +423,35 @@ Section Unification.
       exists x. reflexivity.
     Qed.      
 
-    
-    Global Obligation Tactic := idtac.
-    
-   (*  Equations? unif (E: list (exp X * exp X)) : { sigma | E ↦ sigma } + ({ sigma | E ↦ sigma } -> False) by wf E subvars :=
+    Lemma unif (E: list (exp X * exp X)) : { sigma | E ↦ sigma } + ({ sigma | E ↦ sigma } -> False).
+    Proof using isFree.
+      pattern E. revert E. apply (well_founded_induction_type wf_subvars).
+      intros E unif. destruct (decomp' E) as [[|[[x| | |] s] E']|] eqn:H.
+      1: left; exists var; now econstructor.
+      2-5: right; intros [σ H']; inv H'; congruence.
+      destruct (x el vars s) as [?|?].
+      { right; intros [σ H']; inv H'; congruence. }
+      destruct (isFree x) as [?|?].
+      2: { right; intros [σ H']; inv H'; congruence. }
+      destruct (dec_all isFree (vars s)) as [?|?].
+      2: { right. intros [σ H']; inv H'; [congruence|].
+           rewrite H in H0. inv H0; eauto. }
+      (* case ~ x ∈ vars s, free x, forall x : fin, x ∈ vars s -> free x *)
+      destruct (unif [subst_eq (update x s var) p | p ∈ E']) as [[sigma IH]|IH].
+      { unfold subvars, MR. eapply Vars_decomp' in H.
+        split.
+        + rewrite singlepoint_subst_Vars'. cbn in H. lauto.
+        + exists x. split. cbn in H; lauto. intros ? % singlepoint_subst_Vars'_variable.
+          intuition. }
+      - left. exists (update x (sigma • s) sigma).
+        econstructor; eauto. 
+      - right; intros [σ H']; inv H'; [congruence|].
+        rewrite H in H0. inv H0. eauto.
+    Qed.
+
+   (* Bug in Equations?
+      Global Obligation Tactic := idtac.
+      Equations? unif (E: list (exp X * exp X)) : { sigma | E ↦ sigma } + ({ sigma | E ↦ sigma } -> False) by wf E subvars :=
       unif E1 with remember (decomp' E1) => {
         unif E2 (Some nil ; H) := inl (var ; _) ;
         unif E3 (Some ((var x1, s1) :: E') ; H)
@@ -913,7 +938,7 @@ Section Retyping.
 
 End Retyping.
 
-(*
+
 (* ** Full First-Order Unification  *)
 Section FirstOrderDecidable.
 
@@ -1060,4 +1085,4 @@ Section FirstOrderDecidable.
   Qed.
   
 End FirstOrderDecidable.
- *)
+ 
