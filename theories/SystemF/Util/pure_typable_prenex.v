@@ -208,7 +208,6 @@ Definition M_Wells_J N := pure_app
   (pure_abs (K' (pure_app (pure_var 0) (pure_var 0)) (pure_app (pure_var 0) Mω)))
   (M_Wells N).
 
-(* TODO maybe deprecate ? *)
 Lemma leftmost_poly_var_contains_poly_arr {s x s' t'} : 
   leftmost_poly_var s = Some x ->
   contains s (poly_arr s' t') ->

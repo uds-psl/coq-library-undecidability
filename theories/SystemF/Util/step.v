@@ -95,7 +95,6 @@ Proof.
     econstructor. now_asimpl.
 Qed.
 
-(* Require Import Equations.Prop.DepElim. *)
 Require Import Coq.Program.Equality.
 
 Ltac inv H := inversion H; subst; clear H.

@@ -243,10 +243,3 @@ Lemma fresh_spec (a : symbol) (l : string) : a el l -> fresh l <> a.
 Proof.
   intros H % fresh_spec'. intros <-. lia.
 Qed.
-
-
-(*
-TODO move
-Definition CFP '(R, a) := exists A : SRS, A <<= R /\ A <> [] /\ sigma a A = rev (sigma a A).
-Definition CFI '(R1, R2, a) := exists A1 A2, A1 <<= R1 /\ A2 <<= R2 /\ A1 <> [] /\ A2 <> [] /\ sigma a A1 = sigma a A2.
-*)
