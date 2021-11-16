@@ -136,7 +136,7 @@ coqide TRAKHTENBROT/summary.v
 ```
 
 Notice that it is __essential to compile__ this file __before reviewing__, with `make TRAKHTENBROT/summary.vo` as explained above, 
-because this will compile all the library file on which the review `TRAKHTENBROT/summary.v` file depends.
+because this will compile all the library file on which the review `summary.v` file depends.
 
 ### Troubleshooting
 
