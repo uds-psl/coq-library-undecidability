@@ -297,7 +297,9 @@ About FSAT_x0_FSAT_PROP. (* Print Assumptions FSAT_x0_FSAT_PROP. *)
 
 (* Theorem 42 *)
 
-About FULL_MONADIC.  (* Print Assumptions FULL_MONADIC. *)
+About FULL_MONADIC.
+Print Assumptions FULL_MONADIC.
+(* expected output: Closed under the global context *)
 
 (* Definition 43 *)
 
@@ -337,11 +339,16 @@ About FSAT_opt_enum_t. (* Print Assumptions FSAT_opt_enum_t. *)
 
 (* Theorem 50 *)
 
-About FULL_MONADIC_discernable. (* Print Assumptions FULL_MONADIC_discernable. *)
+About FULL_MONADIC_discernable. 
+Print Assumptions FULL_MONADIC_discernable.
+(* expected output: Closed under the global context *)
 
 (* Theorem 51 *)
 
-About FULL_TRAKHTENBROT. (* Print Assumptions FULL_TRAKHTENBROT. *)
+About FULL_TRAKHTENBROT. 
+Print Assumptions FULL_TRAKHTENBROT. 
+(* expected output: Closed under the global context *)
+
 
 (* Application to Separation Logic *)
 

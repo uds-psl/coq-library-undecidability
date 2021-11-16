@@ -138,6 +138,18 @@ coqide TRAKHTENBROT/summary.v
 Notice that it is __essential to compile__ this file __before reviewing__, with `make TRAKHTENBROT/summary.vo` as explained above, 
 because this will compile all the library file on which the review `summary.v` file depends.
 
+The file `summary.v` contains commented out `Print Assumptions` commands that
+can be uncommented to check for that no axioms where used. 
+Printing assumptions takes a big toll on the compilation time, 
+which is why they are always commented out in the main Coq Undecidability
+library: it already takes 30 minutes to fully compile.
+
+Notice that you can also just check for axiom-freeness on the
+main results at the end of this file. This entails that intermediate
+result are also free of axioms, i.e. the results `FULL_MONADIC`,
+`FULL_MONADIC_discernable` and `FULL_TRAKHTENBROT`. For convenience,
+these three are currently uncommented in the file
+
 ### Troubleshooting
 
 #### Windows
