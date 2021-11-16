@@ -1,4 +1,4 @@
-# Specific Instructions regarding the "Trakthenbrot's Theorem in Coq" Paper
+# Specific Instructions regarding the "Trakhtenbrot's Theorem in Coq" Paper
 
 The code accompanying this paper is part of the Coq Library of Undecidability Proofs and depends on some library files. Therefore it is necessary to clone and checkout this branch and install the whole library following the [__Manual installation__](#manual-installation) instructions below. However, to _save some time_, the final build with `make all` can be replaced by `make TRAKHTENBROT/summary.vo` from inside the `theories` folder to only compile the files relevant for the paper. This command should take about 5min instead of >30min for the full build.
 
@@ -84,28 +84,23 @@ Target problems are very expressive and thus work well as targets for reduction,
 
 ## Installation Instructions
 
-If you can use `opam 2` on your system, you can follow the instructions here.
-If you cannot use `opam 2`, you can use the `noopam` branch of this repository, which has no dependencies, but less available problems.
+You need [`opam 2`](https://opam.ocaml.org) on your system to be able to follow the instructions here.
+You can follow the [instructions to install and compile](https://github.com/uds-psl/coq-library-undecidability/) the whole 
+Coq library of Undecidability Proofs but we recommend the shorter manual installation instructions below:
 
-### Install from opam
-
-We recommend creating a fresh opam switch:
-
-```
-opam switch create coq-library-undecidability 4.07.1+flambda
-eval $(opam env)
-```
-
-Then the following commands install the library:
-
-```
-opam repo add coq-released https://coq.inria.fr/opam/released
-opam install coq-library-undecidability.1.0.0+8.13
-```
 
 ### Manual installation
 
-You need `Coq 8.13` built on OCAML `>= 4.07.1`, the [Smpl](https://github.com/uds-psl/smpl) package, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
+First, download the source code of the release as either [`TRAK-LMCS-v1.1.zip`](https://github.com/uds-psl/coq-library-undecidability/archive/refs/tags/TRAK-LMCS-v1.1.zip) or [`TRAK-LMCS-v1.1.tar.gz`](https://github.com/uds-psl/coq-library-undecidability/archive/refs/tags/TRAK-LMCS-v1.1.tar.gz). Unpack the
+archive file and then `cd` to the upacked new directory.
+
+```
+wget -c https://github.com/uds-psl/coq-library-undecidability/archive/refs/tags/TRAK-LMCS-v1.1.zip
+unzip TRAK-LMCS-v1.1.zip
+cd coq-library-undecidability-TRAK-LMCS-v1.1
+```
+
+You need `Coq 8.13` built on OCAML `>= 4.07.1`, the [Smpl](https://github.com/uds-psl/smpl) package, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. With `opam 2`, you can use the following commands to install the dependencies on a new switch:
 
 ```
 opam switch create coq-library-undecidability 4.07.1+flambda
@@ -116,7 +111,10 @@ opam install . --deps-only
 
 ### Building the undecidability library
 
-- `make all` builds the library
+#### Relevant `make` commands
+
+- `make TRAKHTENBROT/summary.vo` builds the review file `theories/TRAKHTENBROT/summary.v` for the Trakhtenbrot development (expect 2 minutes)
+- `make all` builds the whole library (expect 30 minutes)
 - `make TM/TM.vo` compiles only the file `theories/TM/TM.v` and its dependencies
 - `make html` generates clickable coqdoc `.html` in the `website` subdirectory
 - `make clean` removes all build files in `theories` and `.html` files in the `website` directory
@@ -127,6 +125,18 @@ The library is compatible with Coq's compiled interfaces ([`vos`](https://coq.in
 
 - `make vos` builds compiled interfaces for the library
 - `make vok` checks correctness of the library 
+
+### Reviewing the Coq code
+
+We recommand starting the code review by opening the file `theories/TRAKHTENBROT/summary.v`, for instance if CoqIDE is installed:
+
+```
+cd theories
+coqide TRAKHTENBROT/summary.v
+```
+
+Notice that it is __essential to compile__ this file __before reviewing__, with `make TRAKHTENBROT/summary.vo` as explained above, 
+because this will compile all the library file on which the review `TRAKHTENBROT/summary.v` file depends.
 
 ### Troubleshooting
 
@@ -149,7 +159,7 @@ A Coq Library of Undecidable Problems. Yannick Forster, Dominique Larchey-Wendli
 
 ### Papers and abstracts on problems and proofs included in the library
 
-- Trakhtenbrot's Theorem in Coq - A Constructive Approach to Finite Model Theory. Dominik Kirst and Dominique Larchey-Wendling. IJCAR 2020. Subdirectory `TRAKTHENBROT`. https://www.ps.uni-saarland.de/extras/fol-trakh/
+- Trakhtenbrot's Theorem in Coq - A Constructive Approach to Finite Model Theory. Dominik Kirst and Dominique Larchey-Wendling. IJCAR 2020. Subdirectory `TRAKHTENBROT`. https://www.ps.uni-saarland.de/extras/fol-trakh/
 - Undecidability of Semi-Unification on a Napkin. Andrej Dudenhefner. FSCD 2020. Subdirectory `SemiUnification`. https://www.ps.uni-saarland.de/Publications/documents/Dudenhefner_2020_Semi-unification.pdf
 - Undecidability of Higher-Order Unification Formalised in Coq. Simon Spies and Yannick Forster. Technical report. Subdirectory `HOU`. https://www.ps.uni-saarland.de/Publications/details/SpiesForster:2019:UndecidabilityHOU.html
 - Verified Programming of Turing Machines in Coq. Yannick Forster, Fabian Kunze, Maximilian Wuttke. Technical report. Subdirectory `TM`. https://github.com/uds-psl/tm-verification-framework/
