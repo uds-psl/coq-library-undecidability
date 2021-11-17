@@ -82,7 +82,7 @@ Target problems are very expressive and thus work well as targets for reduction,
 
 If you can use `opam 2` on your system, you can follow the instructions here.
 
-### Install from released opam package
+### Install from released package via opam
 
 *This installation method only works if the `opam` package is already released. Make sure you have done `opam update` and check the output of `opam info coq-library-undecidability` to see whether a package is available. If no package is available, use one of the two methods below.*
 
@@ -97,8 +97,6 @@ Then the following commands install the library:
 
 ```
 opam repo add coq-released https://coq.inria.fr/opam/released
-opam pin add -n -y -k git coq-metacoq-template.dev+8.14 "https://github.com/MetaCoq/metacoq.git#3d83286"
-opam pin add -n -y -k git coq-smpl.8.14 "https://github.com/uds-psl/smpl.git#d9b4d79"
 opam install coq-library-undecidability.1.0.1+8.14
 ```
 
@@ -135,7 +133,7 @@ opam pin add -n -y -k git coq-smpl.8.14 "https://github.com/uds-psl/smpl.git#d9b
 opam install . --deps-only
 ```
 
-### Building the undecidability library
+#### Building the undecidability library
 
 - `make all` builds the library
 - `make TM/TM.vo` compiles only the file `theories/TM/TM.v` and its dependencies
