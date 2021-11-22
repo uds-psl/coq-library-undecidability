@@ -132,6 +132,7 @@ The library is compatible with Coq's compiled interfaces ([`vos`](https://coq.in
 We recommend starting the code review by opening the file `theories/TRAKHTENBROT/summary.v`, for instance if CoqIDE is installed:
 
 ```
+opam install coqide.8.13.1     ## if not installed already
 cd theories
 coqide TRAKHTENBROT/summary.v
 ```
