@@ -1,6 +1,6 @@
 # Specific Instructions regarding the "Trakhtenbrot's Theorem in Coq" Paper
 
-The code accompanying this paper is part of the Coq Library of Undecidability Proofs and depends on some library files. Therefore it is necessary to clone and checkout this branch and install the whole library following the [__Manual installation__](#manual-installation) instructions below. However, to _save some time_, the final build with `make all` can be replaced by `make TRAKHTENBROT/summary.vo` from inside the `theories` folder to only compile the files relevant for the paper. This command should take about 5min instead of >30min for the full build.
+The code accompanying this paper is part of the Coq Library of Undecidability Proofs and depends on some library files. Therefore it is necessary to clone and checkout this branch and install the whole library following the [__Manual installation__](#manual-installation) instructions below. However, to _save some time_, the final build with `make all` can be replaced by `make TRAKHTENBROT/summary.vo` from inside the `theories` folder to only compile the files relevant for the paper. This command should take less than 5min instead of >30min for the full build.
 
 # Coq Library of Undecidability Proofs
 
@@ -114,7 +114,7 @@ opam install . --deps-only
 
 #### Relevant `make` commands
 
-- `make TRAKHTENBROT/summary.vo` builds the review file `theories/TRAKHTENBROT/summary.v` for the Trakhtenbrot development (expect 2 minutes)
+- `make TRAKHTENBROT/summary.vo` builds the review file `theories/TRAKHTENBROT/summary.v` for the Trakhtenbrot development (expect 2-4 minutes)
 - `make all` builds the whole library (expect 30 minutes)
 - `make TM/TM.vo` compiles only the file `theories/TM/TM.v` and its dependencies
 - `make html` generates clickable coqdoc `.html` in the `website` subdirectory
@@ -129,28 +129,29 @@ The library is compatible with Coq's compiled interfaces ([`vos`](https://coq.in
 
 ### Reviewing the Coq code
 
-We recommend starting the code review by opening the file `theories/TRAKHTENBROT/summary.v`, for instance if CoqIDE is installed:
+We recommend starting the code review by opening the file `theories/TRAKHTENBROT/summary.v`
+using your favorite IDE, e.g. CoqIDE:
 
 ```
-opam install coqide.8.13.1     ## if not installed already
+opam install coqide.8.13.1     ## if needed
 cd theories
 coqide TRAKHTENBROT/summary.v
 ```
 
-Notice that it is __essential to compile__ this file __before reviewing__, with `make TRAKHTENBROT/summary.vo` as explained above, 
+Notice that it is __essential to compile__ this file __before reviewing__, using `make TRAKHTENBROT/summary.vo` as explained above, 
 because this will compile all the library files on which the review `summary.v` file depends.
 
 The file `summary.v` contains commented out `Print Assumptions` commands that
 can be uncommented to check for that no axioms where used. 
 Printing assumptions takes a big toll on the compilation time, 
-which is why they are always commented out in the main Coq Undecidability
-library: it already takes 30 minutes to fully compile.
+which is why these commands are systematically commented out in the 
+main Coq Undecidability library: it already takes 30 minutes to fully compile.
 
 Notice that you can also just check for axiom-freeness on the
 main results at the end of this file. This entails that intermediate
 result are also free of axioms, i.e. the results `FULL_MONADIC`,
 `FULL_MONADIC_discernable` and `FULL_TRAKHTENBROT`. For convenience,
-these three are currently uncommented in the file.
+these three are currently uncommented in the file of this tailored version.
 
 ### Troubleshooting
 
