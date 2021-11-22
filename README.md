@@ -86,13 +86,14 @@ Target problems are very expressive and thus work well as targets for reduction,
 
 You need [`opam 2`](https://opam.ocaml.org) on your system to be able to follow the instructions here.
 You can follow the [instructions to install and compile](https://github.com/uds-psl/coq-library-undecidability/) the whole 
-Coq library of Undecidability Proofs but we recommend the shorter manual installation instructions below:
-
+Coq library of Undecidability Proofs but we recommend the shorter manual installation instructions below, especially
+since this tailored version compiles the [__summary file__](theories/TRAKHTENBROT/summary.v) while the standard 
+installation avoids compiling it. Also the standard build takes much longer to compile.
 
 ### Manual installation
 
 First, download the source code of the release as either [`TRAK-LMCS-v1.1.zip`](https://github.com/uds-psl/coq-library-undecidability/archive/refs/tags/TRAK-LMCS-v1.1.zip) or [`TRAK-LMCS-v1.1.tar.gz`](https://github.com/uds-psl/coq-library-undecidability/archive/refs/tags/TRAK-LMCS-v1.1.tar.gz). Unpack the
-archive file and then `cd` to the upacked new directory.
+archive file and then `cd` to the unpacked new directory.
 
 ```
 wget -c https://github.com/uds-psl/coq-library-undecidability/archive/refs/tags/TRAK-LMCS-v1.1.zip
@@ -128,7 +129,7 @@ The library is compatible with Coq's compiled interfaces ([`vos`](https://coq.in
 
 ### Reviewing the Coq code
 
-We recommand starting the code review by opening the file `theories/TRAKHTENBROT/summary.v`, for instance if CoqIDE is installed:
+We recommend starting the code review by opening the file `theories/TRAKHTENBROT/summary.v`, for instance if CoqIDE is installed:
 
 ```
 cd theories
@@ -136,7 +137,7 @@ coqide TRAKHTENBROT/summary.v
 ```
 
 Notice that it is __essential to compile__ this file __before reviewing__, with `make TRAKHTENBROT/summary.vo` as explained above, 
-because this will compile all the library file on which the review `summary.v` file depends.
+because this will compile all the library files on which the review `summary.v` file depends.
 
 The file `summary.v` contains commented out `Print Assumptions` commands that
 can be uncommented to check for that no axioms where used. 
@@ -148,7 +149,7 @@ Notice that you can also just check for axiom-freeness on the
 main results at the end of this file. This entails that intermediate
 result are also free of axioms, i.e. the results `FULL_MONADIC`,
 `FULL_MONADIC_discernable` and `FULL_TRAKHTENBROT`. For convenience,
-these three are currently uncommented in the file
+these three are currently uncommented in the file.
 
 ### Troubleshooting
 
