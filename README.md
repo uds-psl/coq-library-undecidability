@@ -114,7 +114,7 @@ opam install . --deps-only
 
 #### Relevant `make` commands
 
-- `make TRAKHTENBROT/summary.vo` builds the review file `theories/TRAKHTENBROT/summary.v` for the Trakhtenbrot development (expect 2-4 minutes)
+- `make TRAKHTENBROT/summary.vo` compiles the [`summary.v`](theories/TRAKHTENBROT/summary.v) for the Trakhtenbrot development, together with all its dependencies (expect 2-4 minutes)
 - `make all` builds the whole library (expect 30 minutes)
 - `make TM/TM.vo` compiles only the file `theories/TM/TM.v` and its dependencies
 - `make html` generates clickable coqdoc `.html` in the `website` subdirectory
@@ -127,9 +127,9 @@ The library is compatible with Coq's compiled interfaces ([`vos`](https://coq.in
 - `make vos` builds compiled interfaces for the library
 - `make vok` checks correctness of the library 
 
-### Reviewing the Coq code
+### Browsing and manually executing the Coq code
 
-We recommend starting the code review by opening the file `theories/TRAKHTENBROT/summary.v`
+We recommend starting the reading code by opening the file `theories/TRAKHTENBROT/summary.v`
 using your favorite IDE, e.g. CoqIDE:
 
 ```
@@ -139,13 +139,13 @@ coqide TRAKHTENBROT/summary.v
 ```
 
 Notice that it is __essential to compile__ this file __before reviewing__, using `make TRAKHTENBROT/summary.vo` as explained above, 
-because this will compile all the library files on which the review `summary.v` file depends.
+because this will compile all the library files on which the [`summary.v`](theories/TRAKHTENBROT/summary.v) file depends.
 
-The file `summary.v` contains commented out `Print Assumptions` commands that
+The file [`summary.v`](theories/TRAKHTENBROT/summary.v) contains commented out `Print Assumptions` commands that
 can be uncommented to check for that no axioms where used. 
 Printing assumptions takes a big toll on the compilation time, 
 which is why these commands are systematically commented out in the 
-main Coq Undecidability library: it already takes 30 minutes to fully compile.
+main Coq library of undecidability proofs: it already takes at least 30 minutes to fully compile.
 
 Notice that you can also just check for axiom-freeness on the
 main results at the end of this file. This entails that intermediate
