@@ -7,11 +7,17 @@
 *)
 
 Require Import Arith Lia List.
-From Undecidability.DiophantineConstraints Require Import H10UPC.
-From Equations Require Import Equations.
-Set Equations With UIP.
+From Undecidability.DiophantineConstraints Require Import H10C.
 
 (** Utils for H10UPC *)
+
+
+(** Direct semantics of h10upc_sem *)
+Definition h10upc_sem_direct (c : h10upc) :=
+  match c with 
+    | ((x, y), (z1, z2)) => 
+        1 + x + y = z1 /\ y * (1 + y) = z2 + z2
+  end.
 
 (** This section contains useful functions and lemmas for proofs later on. *)
 Section Utils.
@@ -110,7 +116,6 @@ Section InductiveCharacterization.
                                  -> h10upc_ind ((b',0),(b,0))
                                  -> h10upc_ind ((c',0),(c,0))
                                  -> h10upc_ind ((a,b),(c,d)).
-  Derive Signature for h10upc_ind.
 
   (** Prove that h10upc_ind and h10upc_sem_direct are equivalent. *)
   (** First step: Show that there is no k < 0, since h10upc_ind is inductive. *)
@@ -132,9 +137,9 @@ Section InductiveCharacterization.
   Lemma base_equiv a c d : h10upc_sem_direct ((a,0),(c,d)) <-> h10upc_ind ((a,0),(c,d)).
   Proof. split.
   * intros [H1 H2]. assert (d=0) as -> by lia. assert (c = S a) as -> by lia. apply base.
-  * intros H. depelim H.
+  * intros H. inversion H as [a' H1|a' b' c' d' b'' c'' d'' H1 H2 H3 H4 H5].
     - cbn. lia.
-    - exfalso. now eapply h10upc_ind_not_less_0 with b'.
+    - exfalso. now eapply h10upc_ind_not_less_0 with b''.
   Qed.
 
   (** Last step: show equivalence for the "step" case. *)

@@ -1,6 +1,6 @@
 (* * FOL Reductions *)
 
-From Undecidability.DiophantineConstraints Require Import H10UPC H10UPC_undec.
+From Undecidability.DiophantineConstraints Require Import H10C H10C_undec.
 From Undecidability.DiophantineConstraints.Util Require Import H10UPC_facts.
 From Undecidability.FOL Require Import Util.Syntax Util.Kripke Util.Deduction Util.Tarski Util.Syntax_facts Util.sig_bin.
 From Undecidability.Shared Require Import Dec.

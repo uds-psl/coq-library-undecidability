@@ -1,6 +1,6 @@
 (* * FOL Reductions *)
 
-From Undecidability.DiophantineConstraints Require Import H10UPC H10UPC_undec.
+From Undecidability.DiophantineConstraints Require Import H10C H10C_undec.
 From Undecidability.FOL Require Import Util.Syntax Util.Deduction Util.Tarski Util.Syntax_facts.
 From Coq Require Import Arith Lia List.
 

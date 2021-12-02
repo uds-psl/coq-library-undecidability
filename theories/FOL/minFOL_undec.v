@@ -1,6 +1,6 @@
 From Undecidability.FOL.Util Require Import Syntax sig_bin.
 From Undecidability.FOL.Util Require  Tarski Deduction Kripke.
-From Undecidability.DiophantineConstraints Require Import H10UPC H10UPC_undec.
+From Undecidability.DiophantineConstraints Require Import H10C H10C_undec.
 From Undecidability.FOL.Reductions Require H10UPC_to_FOL_minimal H10UPC_to_FSAT.
 From Undecidability.Synthetic Require Import Definitions Undecidability.
 

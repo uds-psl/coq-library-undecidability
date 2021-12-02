@@ -1,7 +1,8 @@
 (* 
   Autor(s):
     Dominique Larchey-Wendling (1)
-    Andrej Dudenhefner (2) 
+    Andrej Dudenhefner (2)
+    Johannes Hostert (2)
   Affiliation(s):
     (1) LORIA -- CNRS
     (2) Saarland University, Saarbrücken, Germany
@@ -14,6 +15,7 @@
     Diophantine Constraint Solvability (H10C_SAT)
     Square Diophantine Constraint Solvability (H10SQC_SAT)
     Uniform Diophantine Constraint Solvability (H10UC_SAT)
+    Uniform Diophantine Pair Constraint Solvability (H10UPC_SAT)
 *)
 
 Require Import List.
@@ -77,3 +79,23 @@ Definition h10uc_sem φ (c : h10uc) :=
     given a list of uniform Diophantine constraints, is there a valuation that satisfies each constraint?
 *)
 Definition H10UC_SAT (cs: list h10uc) := exists (φ: nat -> nat), forall c, In c cs -> h10uc_sem φ c.
+
+
+(* Uniform Diophantine pairs constraints (h10upc) are of shape:  
+    (x, y) # (1 + x + y, y * (1 + y) / 2)
+*)
+Definition h10upc := ((nat * nat) * (nat * nat))%type.
+
+Definition h10upc_sem φ (c : h10upc) :=
+  match c with 
+    | ((x, y), (z1, z2)) => 
+        1 + φ x + φ y = φ z1 /\ φ y * (1 + φ y) = φ z2 + φ z2
+  end.
+
+(*
+  Uniform Diophantine Pair Constraint Solvability:
+    given a list of uniform Diophantine pair constraints, 
+    is there a valuation that satisfies each constraint?
+*)
+Definition H10UPC_SAT (cs: list h10upc) := 
+  exists (φ: nat -> nat), forall c, In c cs -> h10upc_sem φ c.

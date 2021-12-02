@@ -1,5 +1,4 @@
 Require Import Vector.
-From Undecidability.DiophantineConstraints Require Import H10UPC H10UPC_undec.
 From Undecidability.FOL Require Import Util.Syntax Util.FullDeduction Util.FullTarski Util.Tarski Util.Syntax Util.Syntax_facts. 
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
