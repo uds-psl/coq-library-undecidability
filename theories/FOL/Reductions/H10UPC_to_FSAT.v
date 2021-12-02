@@ -34,8 +34,8 @@ Set Mangle Names.
 (** Define our signature. No function, single binary relation *)
 
 
-Existing Instance sig_empty.
-Existing Instance sig_binary.
+#[local] Existing Instance sig_empty.
+#[local] Existing Instance sig_binary.
 
 
 Notation "t ## t'" := (@atom _ sig_binary _ _ tt (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))) (at level 30).

@@ -23,12 +23,12 @@ Set Default Goal Selector "!".
 
 Inductive syms_func : Type := .
 
-Instance sig_func : funcs_signature :=
+#[local] Instance sig_func : funcs_signature :=
   {| syms := syms_func; ar_syms := fun f => match f with end|}.
 
 Inductive syms_pred := sPr.
 
-Instance sig_pred : preds_signature :=
+#[local] Instance sig_pred : preds_signature :=
   {| preds := syms_pred; ar_preds := fun P => 2 |}.
 
 Notation Pr t t' := (@atom _ sig_pred _ _ sPr (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).

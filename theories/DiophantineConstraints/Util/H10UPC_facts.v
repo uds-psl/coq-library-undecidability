@@ -116,7 +116,15 @@ Section InductiveCharacterization.
   (** First step: Show that there is no k < 0, since h10upc_ind is inductive. *)
   Lemma h10upc_ind_not_less_0 : forall k, h10upc_ind ((k,0),(0,0)) -> False.
   Proof.
-  refine (fix H n k {struct k} : False := _ ). depelim k. apply (H b' k3).
+  enough (forall a b c d, h10upc_ind ((a,b),(c,d)) -> b = 0 -> c = 0 -> d = 0 -> False) as H.
+  1: intros k H1; apply (H k 0 0 0 H1); easy.
+  intros a b c d H.
+  unshelve eapply (h10upc_ind_ind
+                   (fun '((a,b),(c,d)) => b = 0 -> c = 0 -> d = 0 -> False)
+                   _ _ ((a,b),(c,d)) H); clear a b c d H.
+  - intros a Hb Hc Hd. lia.
+  - intros a b c d b' c' d' Hab'c'd' Eab'c'd' Hd'b'dd' Ed'b'dd' Hb'zbz Eb'zbz Hc'0c0 Ec'0c0 Hb Hc Hd; cbn in *; subst.
+    apply Ec'0c0; easy.
   Qed.
 
 
