@@ -129,7 +129,7 @@ The library is compatible with Coq's compiled interfaces ([`vos`](https://coq.in
 
 ### Browsing and manually executing the Coq code
 
-We recommend starting the reading code by opening the file `theories/TRAKHTENBROT/summary.v`
+We recommend starting stepping through the code by opening the file `theories/TRAKHTENBROT/summary.v`
 using your favorite IDE, e.g. CoqIDE:
 
 ```
