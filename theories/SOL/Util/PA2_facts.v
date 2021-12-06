@@ -440,7 +440,7 @@ Section PA2ValidSatTranslation.
   Qed.
 
   Lemma PA2_model_valid_iff_model_valid (phi : @form PA2_funcs_signature PA2_preds_signature _) :
-    (forall M rho, (M, rho) ⊨ PA2 -> (M, rho) ⊨ phi) <-> (forall M' rho, (M', rho) ⊨ (∀f(0) ∀f(1) ∀f(2) ∀f(2) ∀p(2) (embed_form 0 0 0 0 (PA2_form --> phi)))).
+    (forall M rho, (M, rho) ⊨ PA2 -> (M, rho) ⊨ phi) <-> (forall M' rho, (M', rho) ⊨ (∀f(0) ∀f(1) ∀f(2) ∀f(2) ∀p(2) (embed_form 0 0 0 0 (PA2_form ~> phi)))).
   Proof.
     split.
     - intros H M' rho fO fS fM fA pE.
@@ -483,7 +483,7 @@ Section PA2ValidSatTranslation.
       + split. 2: split. now intros n. now intros [|[|[]]] [|[|[]]]. now intros [] [|[|[]]].
   Qed.
 
-  Definition embed_PA2 phi := ∀f(0) ∀f(1) ∀f(2) ∀f(2) ∀p(2) (@embed_form Σf' Σp' 0 0 0 0 (PA2_form --> phi)).
+  Definition embed_PA2 phi := ∀f(0) ∀f(1) ∀f(2) ∀f(2) ∀p(2) (@embed_form Σf' Σp' 0 0 0 0 (PA2_form ~> phi)).
 
   Lemma PA2_sat_iff_empty_theory_sat (phi : @form PA2_funcs_signature PA2_preds_signature _) :
     PA2 ⊨ phi <-> (fun _ => False) ⊨ embed_PA2 phi.

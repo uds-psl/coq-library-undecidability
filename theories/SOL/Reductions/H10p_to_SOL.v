@@ -231,7 +231,7 @@ Proof.
 Qed.
 
 Theorem H10p_to_validity Σf Σp e :
-  H10p e <-> forall (M : @Model Σf Σp) rho, (M, rho) ⊨ (∀f(0) ∀f(1) ∀f(2) ∀f(2) ∀p(2) (embed_form 0 0 0 0 (PA2_form --> encode_problem e))).
+  H10p e <-> forall (M : @Model Σf Σp) rho, (M, rho) ⊨ (∀f(0) ∀f(1) ∀f(2) ∀f(2) ∀p(2) (embed_form 0 0 0 0 (PA2_form ~> encode_problem e))).
 Proof.
   split.
   - intros H M rho. apply PA2_model_valid_iff_model_valid. apply PA2_valid_alternative. 
@@ -243,7 +243,7 @@ Qed.
 Theorem H10p_to_SOL_valid :
   H10p ⪯ SOL_valid.
 Proof.
-  exists (fun e => ∀f(0) ∀f(1) ∀f(2) ∀f(2) ∀p(2) (embed_form 0 0 0 0 (PA2_form --> encode_problem e))).
+  exists (fun e => ∀f(0) ∀f(1) ∀f(2) ∀f(2) ∀p(2) (embed_form 0 0 0 0 (PA2_form ~> encode_problem e))).
   intros e. apply H10p_to_validity.
 Qed.
 

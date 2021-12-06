@@ -177,7 +177,7 @@ Proof.
 Qed. 
 
 
-Fixpoint tabulate {X} n (f : nat -> X) : vec X n :=
+(*Fixpoint tabulate {X} n (f : nat -> X) : vec X n :=
   match n with
   | 0 => Vector.nil X
   | S n => Vector.cons _ (f n) _ (tabulate n f)
@@ -237,4 +237,4 @@ Proof.
   revert m. induction n; intros m; cbn -[minus].
   - lia.
   - intros H. destruct m; cbn. f_equal; lia. apply IHn. lia.
-Qed.
+Qed.*)

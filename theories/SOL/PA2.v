@@ -38,15 +38,15 @@ Notation "x '==' y" := (atom (pred Eq) ([x ; y])) (at level 40).
 (* ** Axioms of PA2 *)
 
 Definition ax_eq_refl :=   ∀i $0 == $0.
-Definition ax_eq_symm :=   ∀i ∀i $1 == $0 --> $0 == $1.
-Definition ax_eq_trans :=  ∀i ∀i ∀i $2 == $1 --> $1 == $0 --> $2 == $0.
-Definition ax_zero_succ := ∀i zero == σ $0 --> fal.
-Definition ax_succ_inj :=  ∀i ∀i σ $1 == σ $0 --> $1 == $0.
+Definition ax_eq_symm :=   ∀i ∀i $1 == $0 ~> $0 == $1.
+Definition ax_eq_trans :=  ∀i ∀i ∀i $2 == $1 ~> $1 == $0 ~> $2 == $0.
+Definition ax_zero_succ := ∀i zero == σ $0 ~> fal.
+Definition ax_succ_inj :=  ∀i ∀i σ $1 == σ $0 ~> $1 == $0.
 Definition ax_add_zero :=  ∀i zero ⊕ $0 == $0.
 Definition ax_add_rec :=   ∀i ∀i (σ $0) ⊕ $1 == σ ($0 ⊕ $1).
 Definition ax_mul_zero :=  ∀i zero ⊗ $0 == zero.
 Definition ax_mul_rec :=   ∀i ∀i σ $1 ⊗ $0 == $0 ⊕ $1 ⊗ $0.
-Definition ax_ind := ∀p(1) p$0 ([zero]) --> (∀i p$0 ([$0]) --> p$0 ([σ $0])) --> ∀i p$0 ([$0]).
+Definition ax_ind := ∀p(1) p$0 ([zero]) ~> (∀i p$0 ([$0]) ~> p$0 ([σ $0])) ~> ∀i p$0 ([$0]).
 
 Import List ListNotations.
 Definition PA2_L := [ ax_eq_refl ; ax_eq_symm ; ax_zero_succ ; ax_succ_inj ; ax_add_zero ; ax_add_rec ; ax_mul_zero ; ax_mul_rec ; ax_ind ].
