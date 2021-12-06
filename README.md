@@ -197,11 +197,11 @@ We have [guidelines for the directory structure of projects](https://github.com/
 - Edith Heiter
 - Marc Hermes
 - Dominik Kirst 
+- Mark Koch
 - Fabian Kunze
 - Gert Smolka
 - Simon Spies
 - Dominik Wehr
 - Maximilian Wuttke
-- Mark Koch
 
 Parts of the Coq Library of Undecidability Proofs reuse generic code initially developed as a library for the lecture ["Introduction to Computational Logics"](https://courses.ps.uni-saarland.de/icl_16/) at [Saarland University](https://www.uni-saarland.de/nc/en/home.html), which was written by a subset of the above contributors, Sigurd Schneider, and Jan Christian Menz.
