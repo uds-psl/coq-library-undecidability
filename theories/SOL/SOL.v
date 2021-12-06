@@ -180,26 +180,6 @@ Record Model `{funcs_signature, preds_signature} := {
 Coercion M_interp : Model >-> interp.
 #[global] Instance M_I `{funcs_signature, preds_signature} M : interp (M_domain M) := M_interp M.
 
-(** Type class for ⊨ notations *)
-Class Ent X Y `{funcs_signature, preds_signature} := ent : X -> Y -> Prop.
-Notation "X ⊨ phi" := (ent X phi) (at level 20).
-Class Ent' X `{funcs_signature, preds_signature} := ent' : forall M : Model, env (M_domain M) -> X -> Prop.
-Notation "( M , rho ) ⊨ phi" := (ent' M rho phi) (at level 0).
-
-#[global] Instance ent_env `{funcs_signature, preds_signature} domain I : Ent (env domain) form := 
-  @sat _ _ domain I.
-#[global] Instance ent'_form `{funcs_signature, preds_signature} : Ent' form :=
-  fun M rho phi => @sat _ _ (M_domain M) (M_interp M) rho phi.
-#[global] Instance ent_model `{funcs_signature, preds_signature} : Ent Model form := 
-  fun M phi => forall rho, @sat _ _ (M_domain M) (M_interp M) rho phi.
-#[global] Instance ent_model_theory `{funcs_signature, preds_signature} : Ent Model (form -> Prop) := 
-  fun M T => forall phi, T phi -> M ⊨ phi.
-#[global] Instance ent_theory `{funcs_signature, preds_signature} : Ent (form -> Prop) form := 
-  fun T phi => forall (M : Model) rho, (forall psi, T psi -> (M, rho) ⊨ psi) -> (M, rho) ⊨ phi.
-#[global] Instance ent'_theory `{funcs_signature, preds_signature} : Ent' (form -> Prop) :=
-  fun M rho T => forall phi, T phi -> (M, rho) ⊨ phi.
-#[global] Instance ent'_form' `{funcs_signature, preds_signature} : Ent' form :=
-  fun M rho phi => @sat _ _ (M_domain M) (M_interp M) rho phi.
 
 (* ** Instantiate empty signature *)
 #[global] Instance empty_funcs_sig : funcs_signature := {| syms := False; ar_syms := fun f => match f with end |}.
@@ -209,7 +189,7 @@ Notation "( M , rho ) ⊨ phi" := (ent' M rho phi) (at level 0).
 (* ** List of decision problems *)
 
 (* Validity of formulas *)
-Definition SOL_valid (phi : form) := forall M rho, (M, rho) ⊨ phi.
+Definition SOL_valid (phi : form) := forall M rho, @sat _ _ (M_domain M) (M_interp M) rho phi.
 
 (* Satisfiability of formulas *)
-Definition SOL_satis (phi : form) := exists M rho, (M, rho) ⊨ phi.
+Definition SOL_satis (phi : form) := exists M rho, @sat _ _ (M_domain M) (M_interp M) rho phi.

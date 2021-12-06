@@ -56,7 +56,9 @@ Definition PA2 phi := In phi PA2_L.
 (* ** List of decision problems *)
 
 (* Validity of formulas in PA2 *)
-Definition PA2_valid (phi : form) := forall M rho, (M, rho) ⊨ PA2 -> (M, rho) ⊨ phi.
+Definition PA2_valid (phi : form) := 
+  forall M rho, (forall psi, PA2 psi -> @sat _ _ (M_domain M) (M_interp M) rho psi) -> @sat _ _ (M_domain M) (M_interp M) rho phi.
 
 (* Satisfiability of formulas in PA2 *)
-Definition PA2_satis (phi : form) := exists M rho, (M, rho) ⊨ PA2 /\ (M, rho) ⊨ phi.
+Definition PA2_satis (phi : form) := 
+  exists M rho, (forall psi, PA2 psi -> @sat _ _ (M_domain M) (M_interp M) rho psi) /\ @sat _ _ (M_domain M) (M_interp M) rho phi.
