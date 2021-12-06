@@ -1,5 +1,5 @@
 Require Import Undecidability.SOL.SOL.
-From Undecidability.SOL.Util Require Import Util VectorUtil Subst Syntax.
+From Undecidability.SOL.Util Require Import VectorUtil Subst Syntax.
 Require Import Arith Lia Vector.
 
 From Equations Require Import Equations.
@@ -344,13 +344,13 @@ Section Subst.
       + setoid_rewrite IHphi; split; intros H f; eapply sat_ext.
         2, 4: apply (H f). 
         all: intros []; repeat split; try easy; cbn; destruct Nat.eq_dec as [->|]; cbn.
-        1, 5: destruct Nat.eq_dec; try easy; rewrite uip' with (e := e); try easy; lia.
+        1, 5: destruct Nat.eq_dec; try easy; rewrite Eqdep_dec.UIP_dec with (p1 := e) (p2 := eq_refl); try easy; decide equality.
         1-3: now rewrite eval_function_subst_cons_shift_f with (g := f).
         all: now rewrite <- eval_function_subst_cons_shift_f with (g := f).
       + setoid_rewrite IHphi; split; intros [f H]; exists f; eapply sat_ext.
         2, 4: apply H.
         all: intros []; repeat split; try easy; cbn; destruct Nat.eq_dec as [->|]; cbn.
-        1, 5: destruct Nat.eq_dec; try easy; rewrite uip' with (e := e); try easy; lia.
+        1, 5: destruct Nat.eq_dec; try easy; rewrite Eqdep_dec.UIP_dec with (p1 := e) (p2 := eq_refl); try easy; decide equality.
         1-3: now rewrite eval_function_subst_cons_shift_f with (g := f).
         all: now rewrite <- eval_function_subst_cons_shift_f with (g := f).
     - destruct q.
@@ -384,13 +384,13 @@ Section Subst.
       + setoid_rewrite IHphi; split; intros H P; eapply sat_ext.
         2, 4: apply (H P). 
         all: intros []; split; try easy; split; try easy; cbn; destruct Nat.eq_dec as [->|]; cbn.
-        1, 5: destruct Nat.eq_dec; try easy; rewrite uip' with (e := e); try easy; lia.
+        1, 5: destruct Nat.eq_dec; try easy; rewrite Eqdep_dec.UIP_dec with (p1 := e) (p2 := eq_refl); try easy; decide equality.
         1-3: now rewrite eval_predicate_subst_cons_shift_p with (Q := P).
         all: now rewrite <- eval_predicate_subst_cons_shift_p with (Q := P).
       + setoid_rewrite IHphi; split; intros [P H]; exists P; eapply sat_ext.
         2, 4: apply H. 
         all: intros []; split; try easy; split; try easy; cbn; destruct Nat.eq_dec as [->|]; cbn.
-        1, 5: destruct Nat.eq_dec; try easy; rewrite uip' with (e := e); try easy; lia.
+        1, 5: destruct Nat.eq_dec; try easy; rewrite Eqdep_dec.UIP_dec with (p1 := e) (p2 := eq_refl); try easy; decide equality.
         1-3: now rewrite eval_predicate_subst_cons_shift_p with (Q := P).
         all: now rewrite <- eval_predicate_subst_cons_shift_p with (Q := P).
   Qed.

@@ -1,12 +1,11 @@
 Require Import Undecidability.SOL.SOL.
 Require Import Undecidability.SOL.Util.VectorUtil.
-Require Import Undecidability.SOL.Util.Util.
 Require Import Undecidability.Shared.Dec.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 From Equations Require Import Equations.
 From Equations.Prop Require Import DepElim.
 Require Import EqdepFacts.
-
+Require Import Eqdep_dec.
 
 #[global]
 Instance eqdec_full_logic_sym : eq_dec full_logic_sym.
@@ -488,7 +487,7 @@ Section EqDec.
     eq_dep _ _ ar f1 ar f2 <-> f1 = f2.
   Proof.
     rewrite <- eq_sigT_iff_eq_dep. split.
-    - intros H%inj_pairT2. exact H. lia.
+    - intros H%Eqdep_dec.inj_pair2_eq_dec. exact H. decide equality.
     - now intros ->.
   Qed.
 
@@ -496,7 +495,7 @@ Section EqDec.
     eq_dep _ _ ar P1 ar P2 <-> P1 = P2.
   Proof.
     rewrite <- eq_sigT_iff_eq_dep. split.
-    - intros H%inj_pairT2. exact H. lia.
+    - intros H%inj_pair2_eq_dec. exact H. decide equality.
     - now intros ->.
   Qed.
 
@@ -507,13 +506,13 @@ Section EqDec.
     - destruct (PeanoNat.Nat.eq_dec ar ar0) as [->|].
       destruct (PeanoNat.Nat.eq_dec n n0) as [->|].
       left; now apply function_eq_dep.
-      right. intros H%eq_sigT_iff_eq_dep%inj_pairT2; try congruence. lia.
+      right. intros H%eq_sigT_iff_eq_dep%inj_pair2_eq_dec; try congruence. decide equality.
       right; intros H%eq_sigT_iff_eq_dep; congruence.
     - destruct (PeanoNat.Nat.eq_dec ar (ar_syms f)) as [->|].
-      right. intros H%eq_sigT_iff_eq_dep%inj_pairT2; try congruence. lia.
+      right. intros H%eq_sigT_iff_eq_dep%inj_pair2_eq_dec; try congruence. decide equality.
       right. intros H%eq_sigT_iff_eq_dep. inversion H.
     - destruct (PeanoNat.Nat.eq_dec ar (ar_syms f)) as [->|].
-      right. intros H%eq_sigT_iff_eq_dep%inj_pairT2; try congruence. lia.
+      right. intros H%eq_sigT_iff_eq_dep%inj_pair2_eq_dec; try congruence. decide equality.
       right. intros H%eq_sigT_iff_eq_dep. inversion H.
     - destruct (syms_eq_dec f f0) as [->|].
       left; now apply function_eq_dep.
@@ -527,13 +526,13 @@ Section EqDec.
     - destruct (PeanoNat.Nat.eq_dec ar ar0) as [->|].
       destruct (PeanoNat.Nat.eq_dec n n0) as [->|].
       left; now apply predicate_eq_dep.
-      right. intros H%eq_sigT_iff_eq_dep%inj_pairT2; try congruence. lia.
+      right. intros H%eq_sigT_iff_eq_dep%inj_pair2_eq_dec; try congruence. decide equality.
       right; intros H%eq_sigT_iff_eq_dep; congruence.
     - destruct (PeanoNat.Nat.eq_dec ar (ar_preds P)) as [->|].
-      right. intros H%eq_sigT_iff_eq_dep%inj_pairT2; try congruence. lia.
+      right. intros H%eq_sigT_iff_eq_dep%inj_pair2_eq_dec; try congruence. decide equality.
       right. intros H%eq_sigT_iff_eq_dep. inversion H.
     - destruct (PeanoNat.Nat.eq_dec ar (ar_preds P)) as [->|].
-      right. intros H%eq_sigT_iff_eq_dep%inj_pairT2; try congruence. lia.
+      right. intros H%eq_sigT_iff_eq_dep%inj_pair2_eq_dec; try congruence. decide equality.
       right. intros H%eq_sigT_iff_eq_dep. inversion H.
     - destruct (preds_eq_dec P P0) as [->|].
       left; now apply predicate_eq_dep.
@@ -573,9 +572,9 @@ Section EqDec.
           enough (Vector.tl (Vector.cons term h0 n0 v) = Vector.tl (Vector.cons term h0 n0 t)) by easy.
           now rewrite H. }
         now left. right. intros H. apply n. inversion H.
-        apply inj_pairT2 in H1. exact H1. lia.
+        apply inj_pair2_eq_dec in H1. exact H1. decide equality.
       + right. intros H. apply n. inversion H.
-        apply inj_pairT2 in H1. exact H1. lia.
+        apply inj_pair2_eq_dec in H1. exact H1. decide equality.
   Qed.
 
   #[global]
@@ -593,8 +592,8 @@ Section EqDec.
           enough (Vector.tl (Vector.cons term h0 n0 v) = Vector.tl (Vector.cons term h0 n0 t)) by easy.
           now rewrite H. }
         now left. right. intros H. apply n. inversion H.
-        apply inj_pairT2 in H1. exact H1. lia.
-      + right. intros H. apply n. inversion H. apply inj_pairT2 in H1. exact H1. lia.
+        apply inj_pair2_eq_dec in H1. exact H1. decide equality.
+      + right. intros H. apply n. inversion H. apply inj_pair2_eq_dec in H1. exact H1. decide equality.
     - destruct (binop_eq_dec b b0) as [->|]. 2: right; congruence.
       destruct (IHx1 f) as [->|]. 2: right; congruence.
       destruct (IHx2 f0) as [->|]. now left. right; congruence.

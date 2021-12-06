@@ -3,7 +3,6 @@
 (** This file defines operations on vectors and proves corresponding facts. *)
 
 Require Import Undecidability.Shared.Dec.
-Require Import Undecidability.SOL.Util.Util.
 Require Import Vector Lia.
 Definition vec := t.
 
@@ -173,7 +172,7 @@ Proof.
   induction v; cbn.
   - split. easy. intros H. inversion H.
   - split. intros [->|]; constructor. now apply IHv. intros H.
-    inversion H. now left. right. apply inj_pairT2 in H3 as ->. now apply IHv.
+    inversion H. now left. right. apply Eqdep_dec.inj_pair2_eq_dec in H3 as ->. now apply IHv.
     decide equality.
 Qed. 
 

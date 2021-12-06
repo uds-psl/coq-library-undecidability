@@ -2,7 +2,7 @@ Require Import PeanoNat Lia Vector List.
 From Undecidability.SOL Require Import SOL PA2.
 From Equations Require Import Equations.
 From Equations.Prop Require Import DepElim.
-From Undecidability.SOL.Util Require Import Util VectorUtil Syntax Subst Tarski PA2_facts PA2_categoricity.
+From Undecidability.SOL.Util Require Import VectorUtil Syntax Subst Tarski PA2_facts PA2_categoricity.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts Undecidability.
 From Undecidability.H10 Require Import H10p.
 Require Import Undecidability.Shared.Dec.

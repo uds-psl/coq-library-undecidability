@@ -813,7 +813,6 @@ SystemF/Reductions/HaltTM_1_to_SysF_INH.v
 
 SOL/SOL.v
 SOL/PA2.v
-SOL/Util/Util.v
 SOL/Util/VectorUtil.v
 SOL/Util/Syntax.v
 SOL/Util/Subst.v
