@@ -85,7 +85,7 @@ Notation "∀p ( ar ) Phi" := (@quant_pred _ _ full_operators All ar Phi) (at le
 Notation "∃p ( ar ) Phi" := (@quant_pred _ _ full_operators Ex ar Phi) (at level 50).
 
 
-(** ** Type class for 'cons' operation o environments *)
+(* ** Type class for 'cons' operation o environments *)
 
 Class Scons X := scons : X.
 Notation "x .: sigma" := (scons x sigma) (at level 70, right associativity).

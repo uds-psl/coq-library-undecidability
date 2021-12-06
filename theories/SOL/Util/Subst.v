@@ -1,4 +1,4 @@
-(** ** Substitutions *)
+(* ** Substitutions *)
 
 Require Import Arith Lia.
 From Undecidability.SOL.Util Require Import VectorUtil Syntax.
@@ -10,7 +10,7 @@ Require Import Undecidability.SOL.SOL.
 
 
 
-(** Identity and shift substitutions *)
+(* Identity and shift substitutions *)
 
 Class IdSubst X := ids : nat -> X.
 Class Shift X := shift : X.
@@ -29,7 +29,7 @@ Class Shift X := shift : X.
   fun ar n ar' => if Nat.eq_dec ar ar' then @var_pred _ (S n) ar' else @var_pred _ n ar'.
 
 
-(** Application of substitutions *)
+(* Application of substitutions *)
 
 Class Subst_i `{funcs_signature} X := subst_i : (nat -> term) -> X -> X.
 Class Subst_f `{funcs_signature} X := subst_f : (nat -> (forall ar, function ar)) -> X -> X.
@@ -118,7 +118,7 @@ Section SubstLemmas.
   Context {ops : operators}.
 
 
-  (** Extensionality *)
+  (* Extensionality *)
 
   Lemma subst_term_ext_i sigma tau (t : term) :
     (forall n, sigma n = tau n) -> t[sigma]i = t[tau]i.
@@ -184,7 +184,7 @@ Section SubstLemmas.
   Qed.
 
 
-  (** Identity substitutions *)
+  (* Identity substitutions *)
 
   Let forall_map_eq X n (v : vec X n) p :
     Forall (fun x => p x = x) v -> Vector.map p v = v.
@@ -236,7 +236,7 @@ Section SubstLemmas.
   Qed.
 
 
-  (** Composition *)
+  (* Composition *)
 
   Lemma subst_term_comp_i sigma tau (t : term) :
     t[sigma]i[tau]i = t[sigma >> subst_term_i tau]i.
@@ -332,7 +332,7 @@ Section SubstLemmas.
   Qed.
 
 
-  (** Switching substitutions *)
+  (* Switching substitutions *)
 
   Lemma subst_term_switch_i_f (t : SOL.term) tau sigma :
     t[sigma]i[tau]f = t[tau]f[sigma >> subst_f tau]i.
@@ -371,7 +371,7 @@ Section SubstLemmas.
   Qed.
 
 
-  (** Bounded substitutions *)
+  (* Bounded substitutions *)
 
   Lemma subst_term_ext_bounded_i n t sigma tau :
     bounded_indi_term n t -> (forall x, x < n -> sigma x = tau x) -> t[sigma]i = t[tau]i.
@@ -481,7 +481,7 @@ Section SubstLemmas.
   Qed.
 
 
-  (** Other facts *)
+  (* Other facts *)
 
   Lemma subst_term_shift_i (t : term) x :
     t[↑]i[x..]i = t.

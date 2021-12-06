@@ -1,4 +1,4 @@
-(** * Categoricity of PA2 *)
+(* * Categoricity of PA2 *)
 
 Require Import PeanoNat Lia Vector.
 From Undecidability.SOL Require Import SOL PA2.
@@ -16,7 +16,7 @@ Section Categoricity.
   Hypothesis M1_correct : M1 ⊨ PA2.
   Hypothesis M2_correct : M2 ⊨ PA2.
 
-  (** Abbreviations *)
+  (* Abbreviations *)
   Notation D1 := (M_domain M1).
   Notation D2 := (M_domain M2).
   Notation I1 := (M_interp M1).
@@ -36,7 +36,7 @@ Section Categoricity.
   Notation "x '=2=' y" := (@i_P _ _ D2 I2 Eq ([x ; y])) (at level 40).
 
 
-  (** Definition of isomorphism *)
+  (* Definition of isomorphism *)
   Inductive F : D1 -> D2 -> Prop :=
     | F_O : F O1 O2
     | F_S : forall x y, F x y -> F (S1 x) (S2 y).
@@ -184,7 +184,7 @@ Section Categoricity.
 
 
 
-  (** F describes an isomorphism between D1 and D2. *)
+  (* F describes an isomorphism between D1 and D2. *)
 
   Class Iso T1 T2 := { iso : T1 -> T2 -> Prop }.
   Notation "rho ≈ sigma" := (iso rho sigma) (at level 30).
@@ -250,7 +250,7 @@ Section Categoricity.
 
 
 
-  (** We can translate predicates along this isomorphism *)
+  (* We can translate predicates along this isomorphism *)
 
   Lemma P1_to_P2 ar (P1 : vec D1 ar -> Prop) :
     { P2 | P1 ≈ P2 }.
@@ -280,7 +280,7 @@ Section Categoricity.
   Qed.
 
 
-  (** Vectors and functions can not be computationally translated 
+  (* Vectors and functions can not be computationally translated 
       because of the elim restriction. But we can prove existential
       versions. *)
 
@@ -303,7 +303,7 @@ Section Categoricity.
   Qed.
 
 
-  (** The isomorphism also respects evaluation of terms under
+  (* The isomorphism also respects evaluation of terms under
       isomorphic environments *)
 
   Lemma F_term rho1 rho2 t :
@@ -321,7 +321,7 @@ Section Categoricity.
   Qed.
 
 
-  (** A similar result holds for satisfiablility of formulas, but
+  (* A similar result holds for satisfiablility of formulas, but
       as we are not able to computationally translate functions along 
       the isomorphism, we must restrict to formulas without function
       quantificaion.
@@ -394,7 +394,7 @@ End Categoricity.
 
 
 
-(** Consequence of categoricity we will use for undecidability:
+(* Consequence of categoricity we will use for undecidability:
     If a closed formula holds in one model, it holds in all models. *)
 
 Theorem PA2_models_agree phi M rho:

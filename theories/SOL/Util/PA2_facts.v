@@ -1,4 +1,4 @@
-(** * Second-Order Peano Arithmetic *)
+(* * Second-Order Peano Arithmetic *)
 
 Require Import PeanoNat Lia Vector.
 From Undecidability.SOL Require Import SOL PA2.
@@ -18,7 +18,7 @@ Derive Signature for predicate.
 
 
 
-(** ** Discreteness and Enumerability *)
+(* ** Discreteness and Enumerability *)
 
 #[global]
 Instance PA2_funcs_signature_eq_dec :
@@ -80,7 +80,7 @@ Proof.
   destruct (Nat.eq_dec ar 1) as [->|]. left; firstorder. right; firstorder.
 Qed.
 
-(** Since PA2 is closed, we can characterize validity without requiring to
+(* Since PA2 is closed, we can characterize validity without requiring to
     satisfy phi in the same environment as PA2 *)
 Lemma PA2_valid_alternative phi :
   PA2 ⊨ phi <-> forall M, M ⊨ PA2 -> M ⊨ phi.
@@ -95,7 +95,7 @@ Proof.
 Qed.
 
 
-(** ** Helper Lemmas for working with models of PA2 *)
+(* ** Helper Lemmas for working with models of PA2 *)
 
 Section Model.
 
@@ -127,7 +127,7 @@ Section Model.
     iσ x i== iσ y -> x i== y.
   Proof. apply (M_correct ax_succ_inj ltac:(firstorder) (empty_PA2_env _)). Qed.
 
-  (** Simplify induction axiom by removing the vector *)
+  (* Simplify induction axiom by removing the vector *)
   Lemma induction (P : M_domain M -> Prop) :
     P izero -> (forall x, P x -> P (iσ x)) -> forall x, P x.
   Proof.
@@ -183,7 +183,7 @@ Section Model.
   Proof. apply eq_sem, (M_correct ax_mul_rec ltac:(firstorder) (empty_PA2_env _)). Qed.
 
 
-  (** Convert from nat to this model *)
+  (* Convert from nat to this model *)
 
   Fixpoint to_domain n : M_domain M := match n with
     | 0 => izero
@@ -220,7 +220,7 @@ End Model.
 
 
 
-(** ** Standard Model *)
+(* ** Standard Model *)
 
 Section StandardModel.
 
@@ -255,9 +255,9 @@ End StandardModel.
 
 
 
-(** ** Signature Embedding *)
+(* ** Signature Embedding *)
 
-(** We can embed the PA2 signature into the formula and translate to
+(* We can embed the PA2 signature into the formula and translate to
     an arbitrary signature. *)
 
 Section EmbedSignature.
@@ -419,7 +419,7 @@ End EmbedSignature.
 
 
 
-(** Now we can translate satisfiability and validity for arbitrary models
+(* Now we can translate satisfiability and validity for arbitrary models
     over arbitrary signatures to PA2 models. *)
 
 Section PA2ValidSatTranslation.

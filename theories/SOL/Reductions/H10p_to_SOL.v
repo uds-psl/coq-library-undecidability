@@ -54,7 +54,7 @@ end.
 
 
 
-(** Encoding is closed *)
+(* Encoding is closed *)
 
 Lemma exists_n_switch n phi :
   ∃i exists_n n phi = exists_n n (∃i phi).
@@ -85,7 +85,7 @@ Proof.
 Qed.
 
 
-(** Encoding is first-order *)
+(* Encoding is first-order *)
 
 Lemma polynomial_first_order p :
   first_order_term (encode_polynomial p).
@@ -110,7 +110,7 @@ Proof.
 Qed.
 
 
-(** Encoding is satisfiable iff the diophantine equation has
+(* Encoding is satisfiable iff the diophantine equation has
     a solution. *)
 
 Lemma eval_encoding alpha rho p :
@@ -168,7 +168,7 @@ End Model.
 
 
 
-(** ** Reductions *)
+(* ** Reductions *)
 
 Lemma H10p_to_PA2_standard_model_sat e :
   H10p e <-> Standard_Model ⊨ encode_problem e.

@@ -1,6 +1,6 @@
-(** ** Vectors *)
+(* ** Vectors *)
 
-(** This file defines operations on vectors and proves corresponding facts. *)
+(* This file defines operations on vectors and proves corresponding facts. *)
 
 Require Import Undecidability.Shared.Dec.
 Require Import Vector Lia.

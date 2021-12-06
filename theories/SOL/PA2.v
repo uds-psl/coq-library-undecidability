@@ -1,11 +1,11 @@
-(** * Second-Order Peano Arithmetic *)
+(* * Second-Order Peano Arithmetic *)
 
 Require Import Undecidability.SOL.SOL.
 Require Import Vector.
 Import VectorNotations.
 
 
-(** ** Signature of PA2 *)
+(* ** Signature of PA2 *)
 
 Inductive PA2_funcs : Type := Zero | Succ | Plus | Mult.
 Definition PA2_funcs_ar (f : PA2_funcs ) :=
@@ -35,7 +35,7 @@ Notation "x '==' y" := (atom (pred Eq) ([x ; y])) (at level 40).
 
 
 
-(** ** Axioms of PA2 *)
+(* ** Axioms of PA2 *)
 
 Definition ax_eq_refl :=   ∀i $0 == $0.
 Definition ax_eq_symm :=   ∀i ∀i $1 == $0 --> $0 == $1.

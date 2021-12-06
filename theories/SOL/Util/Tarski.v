@@ -20,7 +20,7 @@ Arguments get_pred {_} _ _.
 
 Notation "⟨ a , b , c ⟩" := (new_env a b c).
 
-(** Type class for ⊨ notations *)
+(* Type class for ⊨ notations *)
 Class Ent X Y `{funcs_signature, preds_signature} := ent : X -> Y -> Prop.
 Notation "X ⊨ phi" := (ent X phi) (at level 20).
 Class Ent' X `{funcs_signature, preds_signature} := ent' : forall M : Model, env (M_domain M) -> X -> Prop.

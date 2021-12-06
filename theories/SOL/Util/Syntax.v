@@ -209,7 +209,7 @@ Section FunctionFreeFragment.
 End FunctionFreeFragment.
 
 
-(** *** Bounds *)
+(* *** Bounds *)
 
 Section Bounded.
 
@@ -470,7 +470,7 @@ End Bounded.
 
 
 
-(** *** Discreteness *)
+(* *** Discreteness *)
 
 Section EqDec.
 
@@ -611,7 +611,7 @@ End EqDec.
 
 
 
-(** *** Enumerability *)
+(* *** Enumerability *)
 
 
 Require Import List.
