@@ -8,11 +8,13 @@ From Equations.Prop Require Import DepElim.
 Require Import EqdepFacts.
 
 
+#[global]
 Instance eqdec_full_logic_sym : eq_dec full_logic_sym.
 Proof.
   intros x y. unfold dec. decide equality.
 Qed.
 
+#[global]
 Instance eqdec_full_logic_quant : eq_dec full_logic_quant.
 Proof.
   intros x y. unfold dec. decide equality.
@@ -20,6 +22,7 @@ Qed.
 
 Definition L_binop (n : nat) := List.cons Conj (List.cons Impl (List.cons Disj List.nil)).
 
+#[global]
 Instance enum_binop :
   list_enumerator__T L_binop binop.
 Proof.
@@ -28,6 +31,7 @@ Qed.
 
 Definition L_quantop (n : nat) := List.cons All (List.cons Ex List.nil).
 
+#[global]
 Instance enum_quantop :
   list_enumerator__T L_quantop quantop.
 Proof.
@@ -536,6 +540,7 @@ Section EqDec.
       right. now intros [=]%eq_sigT_iff_eq_dep.
   Qed.
 
+  #[global]
   Instance function_eq_dec ar :
     eq_dec (function ar).
   Proof.
@@ -544,6 +549,7 @@ Section EqDec.
     - right. now intros H%function_eq_dep.
   Qed.
 
+  #[global]
   Instance predicate_eq_dec ar :
     eq_dec (predicate ar).
   Proof.
@@ -552,7 +558,8 @@ Section EqDec.
     - right. now intros H%predicate_eq_dep.
   Qed.
 
-  Global Instance term_eq_dec :
+  #[global]
+  Instance term_eq_dec :
     eq_dec term.
   Proof.
     fix IH 1. intros [] []; try (right; congruence).
@@ -571,7 +578,8 @@ Section EqDec.
         apply inj_pairT2 in H1. exact H1. lia.
   Qed.
 
-  Global Instance form_eq_dec :
+  #[global]
+  Instance form_eq_dec :
     eq_dec form.
   Proof.
     induction x; intros []; try (right; congruence).
