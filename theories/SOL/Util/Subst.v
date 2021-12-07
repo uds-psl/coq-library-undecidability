@@ -36,9 +36,9 @@ Class Subst_i `{funcs_signature} X := subst_i : (nat -> term) -> X -> X.
 Class Subst_f `{funcs_signature} X := subst_f : (nat -> (forall ar, function ar)) -> X -> X.
 Class Subst_p `{preds_signature} X := subst_p : (nat -> (forall ar, predicate ar)) -> X -> X.
 
-Notation "X [ σ ]i" := (subst_i σ X) (at level 7, left associativity, format "X '/' [ σ ]i").
-Notation "X [ σ ]f" := (subst_f σ X) (at level 7, left associativity, format "X '/' [ σ ]f").
-Notation "X [ σ ]p" := (subst_p σ X) (at level 7, left associativity, format "X '/' [ σ ]p").
+Local Notation "X [ σ ]i" := (subst_i σ X) (at level 7, left associativity, format "X '/' [ σ ]i").
+Local Notation "X [ σ ]f" := (subst_f σ X) (at level 7, left associativity, format "X '/' [ σ ]f").
+Local Notation "X [ σ ]p" := (subst_p σ X) (at level 7, left associativity, format "X '/' [ σ ]p").
 
 
 #[global] Instance subst_function `{funcs_signature} {ar} : Subst_f (function ar) := fun σf f => match f with
@@ -104,7 +104,9 @@ Module SubstNotations.
   Notation "f >>> g" := (fun x y => g (f x y)) (at level 50) : subst_scope.
   Notation "x '..'" := (scons x ids) (at level 1, format "x ..") : subst_scope.
 
-  (* Open Scope subst_scope. *)
+  Notation "X [ σ ]i" := (subst_i σ X) (at level 7, left associativity, format "X '/' [ σ ]i").
+  Notation "X [ σ ]f" := (subst_f σ X) (at level 7, left associativity, format "X '/' [ σ ]f").
+  Notation "X [ σ ]p" := (subst_p σ X) (at level 7, left associativity, format "X '/' [ σ ]p").
 
 End SubstNotations.
 

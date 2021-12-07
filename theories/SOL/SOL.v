@@ -13,19 +13,6 @@ Class operators := {binop : Type ; quantop : Type}.
 Coercion syms : funcs_signature >-> Sortclass.
 Coercion preds : preds_signature >-> Sortclass.
 
-Inductive full_logic_sym : Type :=
-| Conj : full_logic_sym
-| Disj : full_logic_sym
-| Impl : full_logic_sym.
-
-Inductive full_logic_quant : Type :=
-| All : full_logic_quant
-| Ex : full_logic_quant.
-
-#[global]
-Instance full_operators : operators :=
-  {| binop := full_logic_sym ; quantop := full_logic_quant |}.
-
 Section Syntax.
 
   Context {Σ_funcs : funcs_signature}.
@@ -65,30 +52,11 @@ Arguments func {_ _}.
 Arguments var_pred {_} _ {_}, {_} _ _.
 Arguments atom {_ _ _ _}.
 
-Notation "$ x" := (var_indi x) (at level 5, format "$ '/' x").
-Notation "i$ x" := (var_indi x) (at level 5, format "i$ '/' x").
-Notation "f$ x" := (func (var_func x)) (at level 5, format "f$ '/' x").
-Notation "p$ x" := (atom (var_pred x)) (at level 5, format "p$ '/' x").
 
-Notation "⊥" := fal.
-Notation "A ∧ B" := (@bin _ _ full_operators Conj A B) (at level 41).
-Notation "A ∨ B" := (@bin _ _ full_operators Disj A B) (at level 42).
-Notation "A '~>' B" := (@bin _ _ full_operators Impl A B) (at level 43, right associativity).
-Notation "A '<~>' B" := ((A ~> B) ∧ (B ~> A)) (at level 43).
-Notation "¬ A" := (A ~> ⊥) (at level 40).
-
-Notation "∀i Phi" := (@quant_indi _ _ full_operators All Phi) (at level 50).
-Notation "∃i Phi" := (@quant_indi _ _ full_operators Ex Phi) (at level 50).
-Notation "∀f ( ar ) Phi" := (@quant_func _ _ full_operators All ar Phi) (at level 50).
-Notation "∃f ( ar ) Phi" := (@quant_func _ _ full_operators Ex ar Phi) (at level 50).
-Notation "∀p ( ar ) Phi" := (@quant_pred _ _ full_operators All ar Phi) (at level 50).
-Notation "∃p ( ar ) Phi" := (@quant_pred _ _ full_operators Ex ar Phi) (at level 50).
-
-
-(* ** Type class for 'cons' operation o environments *)
+(* ** Type class for 'cons' operation on environments *)
 
 Class Scons X := scons : X.
-Notation "x .: sigma" := (scons x sigma) (at level 70, right associativity).
+Local Notation "x .: sigma" := (scons x sigma) (at level 70, right associativity).
 
 #[global]
 Instance scons_normal X : Scons (X -> (nat -> X) -> nat -> X) :=
@@ -106,6 +74,47 @@ Instance scons_ar ar p : Scons (p ar -> (nat -> forall ar, p ar) -> nat -> foral
                             end
           | S n => fun ar' => if Nat.eq_dec ar ar' then fi n ar' else fi (S n) ar'
   end.
+
+
+(* ** Instantiate logical symbols to full SOL *)
+
+Inductive full_logic_sym : Type :=
+| Conj : full_logic_sym
+| Disj : full_logic_sym
+| Impl : full_logic_sym.
+
+Inductive full_logic_quant : Type :=
+| All : full_logic_quant
+| Ex : full_logic_quant.
+
+#[global]
+Instance full_operators : operators :=
+  {| binop := full_logic_sym ; quantop := full_logic_quant |}.
+
+Module SOLNotations.
+
+  Notation "x .: sigma" := (scons x sigma) (at level 70, right associativity).
+
+  Notation "$ x" := (var_indi x) (at level 5, format "$ '/' x").
+  Notation "i$ x" := (var_indi x) (at level 5, format "i$ '/' x").
+  Notation "f$ x" := (func (var_func x)) (at level 5, format "f$ '/' x").
+  Notation "p$ x" := (atom (var_pred x)) (at level 5, format "p$ '/' x").
+
+  Notation "⊥" := fal.
+  Notation "A ∧ B" := (@bin _ _ full_operators Conj A B) (at level 41).
+  Notation "A ∨ B" := (@bin _ _ full_operators Disj A B) (at level 42).
+  Notation "A '~>' B" := (@bin _ _ full_operators Impl A B) (at level 43, right associativity).
+  Notation "A '<~>' B" := ((A ~> B) ∧ (B ~> A)) (at level 43).
+  Notation "¬ A" := (A ~> ⊥) (at level 40).
+
+  Notation "∀i Phi" := (@quant_indi _ _ full_operators All Phi) (at level 50).
+  Notation "∃i Phi" := (@quant_indi _ _ full_operators Ex Phi) (at level 50).
+  Notation "∀f ( ar ) Phi" := (@quant_func _ _ full_operators All ar Phi) (at level 50).
+  Notation "∃f ( ar ) Phi" := (@quant_func _ _ full_operators Ex ar Phi) (at level 50).
+  Notation "∀p ( ar ) Phi" := (@quant_pred _ _ full_operators All ar Phi) (at level 50).
+  Notation "∃p ( ar ) Phi" := (@quant_pred _ _ full_operators Ex ar Phi) (at level 50).
+
+End SOLNotations.
 
 
 

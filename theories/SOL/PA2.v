@@ -2,7 +2,7 @@
 
 Require Import Undecidability.SOL.SOL.
 Require Import Vector.
-Import VectorNotations.
+Import VectorNotations SOLNotations.
 
 
 (* ** Signature of PA2 *)
@@ -28,11 +28,23 @@ Instance PA2_preds_signature : preds_signature :=
 {| preds := PA2_preds ; ar_preds := PA2_preds_ar |}.
 
 Definition zero := func (sym Zero) ([]).
-Notation "'σ' x" := (func (sym Succ) ([x])) (at level 37).
-Notation "x '⊕' y" := (func (sym Plus) ([x ; y])) (at level 39).
-Notation "x '⊗' y" := (func (sym Mult) ([x ; y])) (at level 38).
-Notation "x '==' y" := (atom (pred Eq) ([x ; y])) (at level 40).
 
+Module PA2Notations.
+
+  Notation "'σ' x" := (func (sym Succ) ([x])) (at level 37).
+  Notation "x '⊕' y" := (func (sym Plus) ([x ; y])) (at level 39).
+  Notation "x '⊗' y" := (func (sym Mult) ([x ; y])) (at level 38).
+  Notation "x '==' y" := (atom (pred Eq) ([x ; y])) (at level 40).
+
+  Notation "'izero'" := (@i_f _ _ (M_domain _) (M_interp _) Zero ([])).
+  Notation "'iσ' x" := (@i_f _ _ (M_domain _) (M_interp _) Succ ([x])) (at level 37).
+  Notation "x 'i⊕' y" := (@i_f _ _ (M_domain _) (M_interp _) Plus ([x ; y])) (at level 39).
+  Notation "x 'i⊗' y" := (@i_f _ _ (M_domain _) (M_interp _) Mult ([x ; y])) (at level 38).
+  Notation "x 'i==' y" := (@i_P _ _ (M_domain _) (M_interp _) Eq ([x ; y])) (at level 40).
+
+End PA2Notations.
+
+Import PA2Notations.
 
 
 (* ** Axioms of PA2 *)

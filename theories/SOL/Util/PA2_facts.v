@@ -9,8 +9,7 @@ From Undecidability.SOL.Util Require Import Syntax Subst Tarski.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 Require Import Undecidability.Shared.Dec.
 
-Import VectorNotations.
-Import SubstNotations.
+Import VectorNotations SubstNotations SOLNotations PA2Notations.
 Arguments Vector.cons {_} _ {_} _, _ _ _ _.
 
 Derive Signature for Vector.t.
@@ -496,11 +495,3 @@ Section PA2ValidSatTranslation.
   Qed.
 
 End PA2ValidSatTranslation.
-
-
-
-Notation "'izero'" := (@i_f _ _ (M_domain _) (M_interp _) Zero ([])).
-Notation "'iσ' x" := (@i_f _ _ (M_domain _) (M_interp _) Succ ([x])) (at level 37).
-Notation "x 'i⊕' y" := (@i_f _ _ (M_domain _) (M_interp _) Plus ([x ; y])) (at level 39).
-Notation "x 'i⊗' y" := (@i_f _ _ (M_domain _) (M_interp _) Mult ([x ; y])) (at level 38).
-Notation "x 'i==' y" := (@i_P _ _ (M_domain _) (M_interp _) Eq ([x ; y])) (at level 40).

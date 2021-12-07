@@ -8,7 +8,7 @@ From Undecidability.Synthetic Require Import Definitions DecidabilityFacts Enume
 From Undecidability.H10 Require Import H10p.
 Require Import Undecidability.Shared.Dec.
 
-Import ListNotations.
+Import ListNotations SOLNotations PA2Notations.
 
 
 
