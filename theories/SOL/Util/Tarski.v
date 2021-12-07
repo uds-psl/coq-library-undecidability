@@ -1,5 +1,6 @@
+From Undecidability.Shared.Libs.PSL Require Import Vectors VectorForall.
 Require Import Undecidability.SOL.SOL.
-From Undecidability.SOL.Util Require Import VectorUtil Subst Syntax.
+From Undecidability.SOL.Util Require Import Subst Syntax.
 Require Import Arith Lia Vector.
 
 From Equations Require Import Equations.
@@ -7,7 +8,7 @@ From Equations.Prop Require Import DepElim.
 Derive Signature for Vector.t.
 
 Import SubstNotations.
-
+Unset Implicit Arguments.
 
 Arguments eval_function {_ _ _ _ _}.
 Arguments eval_predicate {_ _ _ _ _}.
@@ -170,11 +171,11 @@ Section BoundedSat.
   Proof.
     intros H1 H2. induction t; cbn.
     - apply H1. cbn. lia.
-    - rewrite H2. f_equal. apply VectorUtil.map_ext_in. intros t H. eapply Forall_in in IH.
+    - rewrite H2. f_equal. apply map_ext_in. intros t H. eapply Forall_in in IH.
       apply IH. intros x H3. apply H1. cbn. intros H4. apply H3. eapply Forall_in in H4. 
       apply H4. trivial. intros x ar' H3. apply H2. cbn. intros [H4 H5]. apply H3. eapply Forall_in in H5.
       apply H5. easy. easy. cbn. lia.
-    - f_equal. apply VectorUtil.map_ext_in. intros t H. eapply Forall_in in IH.
+    - f_equal. apply map_ext_in. intros t H. eapply Forall_in in IH.
       apply IH. intros x H3. apply H1. cbn. intros H4. apply H3. eapply Forall_in in H4. 
       apply H4. trivial. intros x ar' H3. apply H2. cbn. intros H4. apply H3. eapply Forall_in in H4.
       apply H4. easy. easy.
@@ -188,7 +189,7 @@ Section BoundedSat.
   Proof.
     revert rho sigma. induction phi; cbn; intros rho sigma H1 H2 H3.
     - reflexivity.
-    - erewrite VectorUtil.map_ext_in with (g := eval sigma); revgoals.
+    - erewrite map_ext_in with (g := eval sigma); revgoals.
       intros t H. apply sat_ext_bounded_term. intros x H4. apply H1. intros H5. apply H4.
       eapply Forall_in in H5. apply H5. easy. intros x ar' H4. apply H2. intros H5. apply H4.
       eapply Forall_in in H5. apply H5. easy. destruct p; cbn.

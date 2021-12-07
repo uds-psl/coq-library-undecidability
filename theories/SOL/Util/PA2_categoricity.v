@@ -3,9 +3,12 @@
 Require Import PeanoNat Lia Vector.
 From Undecidability.SOL Require Import SOL PA2.
 From Equations.Prop Require Import DepElim.
-From Undecidability.SOL.Util Require Import VectorUtil Syntax Subst Tarski PA2_facts.
+From Undecidability.Shared.Libs.PSL Require Import Vectors VectorForall.
+From Undecidability.SOL.Util Require Import Syntax Subst Tarski PA2_facts.
 
 Import VectorNotations SubstNotations.
+
+Unset Implicit Arguments.
 
 
 Section Categoricity.

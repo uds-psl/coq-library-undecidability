@@ -1,11 +1,12 @@
 Require Import Undecidability.SOL.SOL.
-Require Import Undecidability.SOL.Util.VectorUtil.
 Require Import Undecidability.Shared.Dec.
+From Undecidability.Shared.Libs.PSL Require Import Vectors VectorForall.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 From Equations Require Import Equations.
 From Equations.Prop Require Import DepElim.
-Require Import EqdepFacts.
-Require Import Eqdep_dec.
+Require Import EqdepFacts Eqdep_dec.
+
+Unset Implicit Arguments.
 
 #[global]
 Instance eqdec_full_logic_sym : eq_dec full_logic_sym.
@@ -683,7 +684,7 @@ Section Enumerability.
   Qed.
 
   Lemma vecs_from_correct X (A : list X) (n : nat) (v : vec X n) :
-    VectorUtil.Forall (fun x => x el A) v <-> v el vecs_from A n.
+    VectorForall.Forall (fun x => x el A) v <-> v el vecs_from A n.
   Proof.
     induction n; cbn.
     - split.
@@ -697,7 +698,7 @@ Section Enumerability.
   Qed.
 
   Lemma vec_forall_cml X (L : nat -> list X) n (v : vec X n) :
-    cumulative L -> (VectorUtil.Forall (fun x => exists m, x el L m) v) -> exists m, v el vecs_from (L m) n.
+    cumulative L -> (VectorForall.Forall (fun x => exists m, x el L m) v) -> exists m, v el vecs_from (L m) n.
   Proof.
     intros HL Hv. induction v; cbn.
     - exists 0. now left.
@@ -737,7 +738,7 @@ Section Enumerability.
   Proof with eapply cum_ge'; eauto; lia.
     intros phi. induction phi.
     - exists 0. now left.
-    - destruct (vec_forall_cml term L_term _ v) as [m H]; eauto.
+    - destruct (@vec_forall_cml term L_term _ v) as [m H]; eauto.
       + clear p. induction v. easy. split. apply enum_term. apply IHv.
       + destruct p; cbn.
         * exists (S (m + n + ar)); cbn. in_app 2. eapply in_concat_iff.
@@ -782,7 +783,7 @@ Section Enumerability'.
     apply enum_enumT in enumerable_preds as [Lp HLp].
     apply enum_enumT in enumerable_binop as [Lb HLb].
     apply enum_enumT in enumerable_quantop as [Lq HLq].
-    exists (L_form Lf HLf Lp HLp Lb HLb Lq HLq). apply enum_form.
+    eexists. apply enum_form.
   Qed.
 
   Lemma enumerable_decidable X (p : X -> Prop) :

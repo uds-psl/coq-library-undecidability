@@ -1,7 +1,8 @@
 (* ** Substitutions *)
 
-Require Import Arith Lia.
-From Undecidability.SOL.Util Require Import VectorUtil Syntax.
+Require Import Arith Lia Vector.
+From Undecidability.Shared.Libs.PSL Require Import Vectors VectorForall.
+From Undecidability.SOL.Util Require Import Syntax.
 Require Import Undecidability.SOL.SOL.
 
 #[global] Instance scons_indi `{funcs_signature} : Scons _ := scons_normal term.
@@ -242,16 +243,16 @@ Section SubstLemmas.
     t[sigma]i[tau]i = t[sigma >> subst_term_i tau]i.
   Proof.
     induction t; cbn. reflexivity. f_equal. rewrite Vector.map_map.
-    apply map_ext, Forall2_identical, IH.
-    f_equal. rewrite Vector.map_map. apply map_ext, Forall2_identical, IH.
+    apply map_ext_forall2, Forall2_identical, IH.
+    f_equal. rewrite Vector.map_map. apply map_ext_forall, IH.
   Qed.
 
   Lemma subst_term_comp_f sigma tau (t : SOL.term) :
     t[sigma]f[tau]f = t[sigma >>> subst_function tau]f.
   Proof.
     induction t; cbn. reflexivity. f_equal. rewrite Vector.map_map.
-    apply map_ext, Forall2_identical, IH.
-    f_equal. rewrite Vector.map_map. apply map_ext, Forall2_identical, IH.
+    apply map_ext_forall, IH.
+    f_equal. rewrite Vector.map_map. apply map_ext_forall, IH.
   Qed.
 
   Lemma up_funcomp_i sigma tau :
@@ -288,8 +289,8 @@ Section SubstLemmas.
   Proof.
     induction t; cbn.
     + reflexivity.
-    + f_equal. rewrite !Vector.map_map. apply map_ext, Forall2_identical, IH.
-    + f_equal. rewrite !Vector.map_map. apply map_ext, Forall2_identical, IH.
+    + f_equal. rewrite !Vector.map_map. apply map_ext_forall, IH.
+    + f_equal. rewrite !Vector.map_map. apply map_ext_forall, IH.
   Qed.
 
   Lemma subst_comp_i sigma tau (phi : form) :
@@ -297,7 +298,7 @@ Section SubstLemmas.
   Proof.
     revert sigma tau. induction phi; intros sigma tau; cbn.
     - reflexivity.
-    - f_equal. rewrite Vector.map_map. apply map_ext, Forall2_identical, Forall_in.
+    - f_equal. rewrite Vector.map_map. apply map_ext_forall, Forall_in.
       intros t _. apply subst_term_comp_i.
     - now rewrite IHphi1, IHphi2.
     - f_equal. rewrite IHphi. apply subst_ext_i, up_funcomp_i.
@@ -311,7 +312,7 @@ Section SubstLemmas.
   Proof.
     revert sigma tau. induction phi; intros sigma tau; cbn.
     - reflexivity.
-    - f_equal. rewrite Vector.map_map. apply map_ext, Forall2_identical, Forall_in.
+    - f_equal. rewrite Vector.map_map. apply map_ext_forall, Forall_in.
       intros t _. apply subst_term_comp_f.
     - f_equal. now rewrite IHphi1. now rewrite IHphi2.
     - f_equal. now rewrite IHphi.
@@ -582,7 +583,7 @@ Section SubstLemmas.
     funcfree phi -> funcfree(phi[sigma]f).
   Proof.
     induction phi in sigma |-*; cbn; firstorder. apply Forall_in. 
-    intros t [? [<- ?]]%In_map_iff. apply funcfreeTerm_subst_f.
+    intros t [? [<- ?]]%vect_in_map_iff. apply funcfreeTerm_subst_f.
     eapply Forall_in in H. apply H. easy.
   Qed.
 

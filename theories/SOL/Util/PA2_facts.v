@@ -4,7 +4,8 @@ Require Import PeanoNat Lia Vector.
 From Undecidability.SOL Require Import SOL PA2.
 From Equations Require Import Equations.
 From Equations.Prop Require Import DepElim.
-From Undecidability.SOL.Util Require Import VectorUtil Syntax Subst Tarski.
+From Undecidability.Shared.Libs.PSL Require Import Vectors VectorForall.
+From Undecidability.SOL.Util Require Import Syntax Subst Tarski.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 Require Import Undecidability.Shared.Dec.
 
@@ -16,6 +17,7 @@ Derive Signature for Vector.t.
 Derive Signature for function.
 Derive Signature for predicate.
 
+Unset Implicit Arguments.
 
 
 (* ** Discreteness and Enumerability *)
