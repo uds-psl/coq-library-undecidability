@@ -5,9 +5,11 @@ From Undecidability.Shared.Libs.PSL Require Import Vectors VectorForall.
 From Undecidability.SOL.Util Require Import Syntax.
 Require Import Undecidability.SOL.SOL.
 
-#[global] Instance scons_indi `{funcs_signature} : Scons _ := scons_normal term.
-#[global] Instance scons_func `{funcs_signature} ar : Scons _ := scons_ar ar function.
-#[global] Instance scons_pred `{preds_signature} ar : Scons _ := scons_ar ar predicate.
+
+(* We can reuse the Econs type class to extend the `.:` notation to substitutions. *)
+#[global] Instance econs_subst_indi `{funcs_signature} : Econs _ _ := econs_indi term.
+#[global] Instance econs_subst_func `{funcs_signature} ar : Econs _ _ := econs_ar ar function.
+#[global] Instance econs_subst_pred `{preds_signature} ar : Econs _ _ := econs_ar ar predicate.
 
 
 
@@ -61,9 +63,9 @@ end.
   | P => P
 end.
 
-Definition up_i `{funcs_signature} (σi : nat -> term) := scons (var_indi 0) (fun x => (σi x)[shift]i).
-Definition up_f `{funcs_signature} (σf : nat -> forall ar, function ar) ar := scons (@var_func _ 0 ar) (fun x ar' => (σf x ar')[shift ar]f).
-Definition up_p `{preds_signature} (σp : nat -> forall ar, predicate ar) ar := scons (@var_pred _ 0 ar) (fun x ar' => (σp x ar')[shift ar]p).
+Definition up_i `{funcs_signature} (σi : nat -> term) := econs (var_indi 0) (fun x => (σi x)[shift]i).
+Definition up_f `{funcs_signature} (σf : nat -> forall ar, function ar) ar := econs (@var_func _ 0 ar) (fun x ar' => (σf x ar')[shift ar]f).
+Definition up_p `{preds_signature} (σp : nat -> forall ar, predicate ar) ar := econs (@var_pred _ 0 ar) (fun x ar' => (σp x ar')[shift ar]p).
 
 #[global] Instance subst_form_i `{funcs_signature, preds_signature, operators} : Subst_i form := fix subst_form_i σi phi := match phi with
   | fal => fal
@@ -98,11 +100,11 @@ Open Scope subst_scope.
 
 Module SubstNotations.
 
-  Notation "x .: sigma" := (scons x sigma) (at level 70, right associativity) : subst_scope.
+  Notation "x .: sigma" := (econs x sigma) (at level 70, right associativity) : subst_scope.
   Notation "↑" := (shift) : subst_scope.
   Notation "f >> g" := (fun x => g (f x)) (at level 50) : subst_scope.
   Notation "f >>> g" := (fun x y => g (f x y)) (at level 50) : subst_scope.
-  Notation "x '..'" := (scons x ids) (at level 1, format "x ..") : subst_scope.
+  Notation "x '..'" := (econs x ids) (at level 1, format "x ..") : subst_scope.
 
   Notation "X [ σ ]i" := (subst_i σ X) (at level 7, left associativity, format "X '/' [ σ ]i").
   Notation "X [ σ ]f" := (subst_f σ X) (at level 7, left associativity, format "X '/' [ σ ]f").
@@ -268,7 +270,7 @@ Section SubstLemmas.
     forall n ar', (up_f sigma ar >>> subst_function (up_f tau ar)) n ar' = up_f (sigma >>> subst_function tau) ar n ar'.
   Proof.
     intros [] ar'; cbn; destruct PeanoNat.Nat.eq_dec as [->|]; unfold up_f; cbn.
-      all: try unfold scons, scons_func, scons_ar, shift, shift_f;
+      all: try unfold econs, econs_subst_func, econs_ar, shift, shift_f;
       try destruct PeanoNat.Nat.eq_dec as [->|]; try easy; destruct sigma; try easy; cbn.
       + destruct PeanoNat.Nat.eq_dec; try easy; cbn. destruct n0; cbn; now destruct PeanoNat.Nat.eq_dec.
       + repeat (destruct PeanoNat.Nat.eq_dec; try easy; cbn).
@@ -279,7 +281,7 @@ Section SubstLemmas.
     forall n ar', (up_p sigma ar >>> subst_predicate (up_p tau ar)) n ar' = up_p (sigma >>> subst_predicate tau) ar n ar'.
   Proof.
     intros [] ar'; cbn; destruct PeanoNat.Nat.eq_dec as [->|]; unfold up_f; cbn.
-      all: try unfold scons, scons_func, scons_ar, shift, shift_p;
+      all: try unfold econs, econs_subst_func, econs_ar, shift, shift_p;
       try destruct PeanoNat.Nat.eq_dec as [->|]; try easy; destruct sigma; try easy; cbn.
       + destruct PeanoNat.Nat.eq_dec; try easy; cbn. destruct n0; cbn; now destruct PeanoNat.Nat.eq_dec.
       + repeat (destruct PeanoNat.Nat.eq_dec; try easy; cbn).
@@ -475,11 +477,11 @@ Section SubstLemmas.
     - firstorder.
     - firstorder.
     - destruct H.
-      + left. split. easy. apply IHphi. 2: easy. intros []; unfold up_p, scons, shift, shift_p; cbn;
+      + left. split. easy. apply IHphi. 2: easy. intros []; unfold up_p, econs, shift, shift_p; cbn;
         destruct PeanoNat.Nat.eq_dec as [->|]; try lia; cbn. reflexivity. specialize (Hsigma n0).
         destruct sigma; cbn. destruct PeanoNat.Nat.eq_dec; try easy. congruence. congruence.
       + right. split. easy. apply IHphi. 2: easy. intros x. specialize (Hsigma x).
-        destruct x; unfold up_p, scons, shift, shift_p; cbn; destruct PeanoNat.Nat.eq_dec as [->|]; try lia; 
+        destruct x; unfold up_p, econs, shift, shift_p; cbn; destruct PeanoNat.Nat.eq_dec as [->|]; try lia; 
         destruct sigma; cbn; try destruct PeanoNat.Nat.eq_dec; congruence.
   Qed.
 

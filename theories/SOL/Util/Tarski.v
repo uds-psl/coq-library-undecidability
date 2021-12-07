@@ -259,7 +259,7 @@ Section Subst.
     eval_function rho f = eval_function ⟨ get_indi rho, g .: get_func rho, get_pred rho ⟩ (f[↑ ar']f).
   Proof.
     destruct f.
-    - unfold scons, scons_env_func, scons_ar, shift, shift_f; cbn.
+    - unfold econs, econs_func, econs_ar, shift, shift_f; cbn.
       destruct Nat.eq_dec as [->|]; cbn. now destruct Nat.eq_dec.
       destruct n. destruct Nat.eq_dec; try easy. now destruct Nat.eq_dec.
     - reflexivity.
@@ -269,7 +269,7 @@ Section Subst.
     eval_predicate rho P = eval_predicate ⟨ get_indi rho, get_func rho, Q .: get_pred rho ⟩ (P[↑ ar']p).
   Proof.
     destruct P.
-    - unfold scons, scons_env_pred, scons_ar, shift, shift_p; cbn.
+    - unfold econs, econs_pred, econs_ar, shift, shift_p; cbn.
       destruct Nat.eq_dec as [->|]; cbn. now destruct Nat.eq_dec.
       destruct n. destruct Nat.eq_dec; try easy. now destruct Nat.eq_dec.
     - reflexivity.

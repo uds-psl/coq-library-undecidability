@@ -355,7 +355,7 @@ Section EmbedSignature.
       | ar => env_contains_PA2 ⟨get_indi rho, f .: get_func rho, get_pred rho⟩ ⟨get_indi rho', f .: get_func rho', get_pred rho'⟩ xO xS xA xEq
     end.
   Proof.
-    intros E. unfold scons, scons_env_func, scons_ar. destruct ar as [|[|[]]];
+    intros E. unfold econs, econs_func, econs_ar. destruct ar as [|[|[]]];
     split; try apply E; split; try apply E; destruct E as [_ [E2 _]];
     intros [|[|[]]] [|[|[]]]; solve_env E2; reflexivity.
   Qed.
@@ -367,7 +367,7 @@ Section EmbedSignature.
       | _ => env_contains_PA2 ⟨get_indi rho, get_func rho, P .: get_pred rho⟩ ⟨get_indi rho', get_func rho', P .: get_pred rho'⟩ xO xS xA xEq
     end.
   Proof.
-    intros E. unfold scons, scons_env_func, scons_ar. destruct ar as [|[|[]]];
+    intros E. unfold econs, econs_func, econs_ar. destruct ar as [|[|[]]];
     split; try apply E; split; try apply E; destruct E as [_ [_ E3]];
     intros [|[|[]]] [|[|[]]]; solve_env E3; reflexivity.
   Qed.
