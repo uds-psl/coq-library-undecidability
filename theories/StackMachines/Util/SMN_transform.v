@@ -568,11 +568,11 @@ Proof.
     apply /DerivableRule.length_preservation;
       [by eassumption | rewrite app_length /=; lia | ].
     apply: AddFreshLoop.length_preserving_M'; [done | done | by apply: fresh_StateP' | by move=> /=; lia ].
-  - rewrite (DerivableRule.boundedness (M21 ++ M22)); last by eassumption.
+  - rewrite (DerivableRule.boundedness (M21 ++ M22)); first by eassumption.
     rewrite -(Reordering.boundedness M21 M22).
     rewrite /Reordering.M -HM2.
-    rewrite -(DerivableRule.boundedness); last by eassumption.
-    rewrite -(AddFreshLoop.boundedness); [done | done | by apply: fresh_StateP' | by move=> /=; lia ].
+    rewrite -(DerivableRule.boundedness); first by eassumption.
+    rewrite -(AddFreshLoop.boundedness); [done | by apply: fresh_StateP' | by move=> /=; lia | done ].
 Qed.
 
 Lemma minimize_weight_rhs {M: SMN} {a r l' r' x y} : 
@@ -622,11 +622,11 @@ Proof.
     apply /Reordering.length_preservation. rewrite /Reordering.M -HM2.
     apply /DerivableRule.length_preservation; [by eassumption | move: HM => /lp_M; by lia | ].
     apply: AddFreshLoop.length_preserving_M'; [done | done | by apply: fresh_StateP' | by move=> /=; lia ].
-  - rewrite (DerivableRule.boundedness (M21 ++ M22)); last by eassumption.
+  - rewrite (DerivableRule.boundedness (M21 ++ M22)); first by eassumption.
     rewrite -(Reordering.boundedness M21 M22).
     rewrite /Reordering.M -HM2.
-    rewrite -(DerivableRule.boundedness); last by eassumption.
-    rewrite -(AddFreshLoop.boundedness); [done | done | by apply: fresh_StateP' | by move=> /=; lia ].
+    rewrite -(DerivableRule.boundedness); first by eassumption.
+    rewrite -(AddFreshLoop.boundedness); [done | by apply: fresh_StateP' | by move=> /=; lia | done ].
 Qed.
 
 Lemma minimize_weight_short {M: SMN} {a b x y} : 
@@ -672,11 +672,11 @@ Proof.
     apply /Reordering.length_preservation. rewrite /Reordering.M -HM2.
     apply /DerivableRule.length_preservation; [by eassumption | move=> /=; by lia | ].
     apply: AddFreshLoop.length_preserving_M'; [done | done | by apply: fresh_StateP' | by move=> /=; lia ].
-  - rewrite (DerivableRule.boundedness (M21 ++ M22)); last by eassumption.
+  - rewrite (DerivableRule.boundedness (M21 ++ M22)); first by eassumption.
     rewrite -(Reordering.boundedness M21 M22).
     rewrite /Reordering.M -HM2.
-    rewrite -(DerivableRule.boundedness); last by eassumption.
-    rewrite -(AddFreshLoop.boundedness); [done | done | by apply: fresh_StateP' | by move=> /=; lia ].
+    rewrite -(DerivableRule.boundedness); first by eassumption.
+    rewrite -(AddFreshLoop.boundedness); [done | by apply: fresh_StateP' | by move=> /=; lia | done].
 Qed.
 
 Lemma minimize_weight_length {M: SMN} {a r b r' x y} : 
@@ -763,12 +763,12 @@ Proof.
     apply /DerivableRule'.length_preserving_M'; [| by eassumption | done | done | done | done ].
     apply: AddFreshLoop.length_preserving_M'; [ | done | by apply: fresh_StateP' | by move=> /=; lia ].
     apply: AddFreshLoop.length_preserving_M'; [ done | done | by apply: fresh_StateP' | by move=> /=; lia ].
-  - rewrite (DerivableRule.boundedness (M31 ++ M32)); last by eassumption.
+  - rewrite (DerivableRule.boundedness (M31 ++ M32)); first by eassumption.
     rewrite -(Reordering.boundedness M31 M32).
     rewrite /Reordering.M -HM3.
-    rewrite -(DerivableRule'.boundedness); [ | by eassumption | done | done | done | done ].
-    rewrite -(AddFreshLoop.boundedness); [ | done | by apply: fresh_StateP' | by move=> /=; lia ].
-    rewrite -(AddFreshLoop.boundedness); [ done | done | by apply: fresh_StateP' | by move=> /=; lia ].
+    rewrite -(DerivableRule'.boundedness); [ by eassumption | done | done | done | done | ].
+    rewrite -(AddFreshLoop.boundedness); [ done | by apply: fresh_StateP' | by move=> /=; lia | ].
+    rewrite -(AddFreshLoop.boundedness); [ done | by apply: fresh_StateP' | by move=> /=; lia | done ].
 Qed.
 
 Lemma overweight_Instruction {M} : weight M <> 0 -> { op | In op M /\ weight_Instruction op <> 0 }.
