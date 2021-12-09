@@ -59,6 +59,8 @@ Target problems are very expressive and thus work well as targets for reduction,
 - Provability in Hilbert-style calculi (`HSC_PRV` in [`HilbertCalculi/HSC.v`](theories/HilbertCalculi/HSC.v))
 - Recognizing axiomatizations of Hilbert-style calculi (`HSC_AX` in [`HilbertCalculi/HSC.v`](theories/HilbertCalculi/HSC.v))
 - Satisfiability in Separation Logic (`SLSAT` in [SeparationLogic/SL.v](theories/SeparationLogic/SL.v) and `MSLSAT` in [SeparationLogic/MSL.v](theories/SeparationLogic/MSL.v))
+- Validity and satisfiability in Second-Order Peano Arithmetic ([`SOL/PA2.v`](theories/SOL/PA2.v))
+- Validity and satisfiability in Second-Order Logic in the empty signature ([`SOL/SOL.v`](theories/SOL/SOL.v))
 
 #### Other Problems
 
@@ -168,6 +170,7 @@ A Coq Library of Undecidable Problems. Yannick Forster, Dominique Larchey-Wendli
 
 ### Papers and abstracts on problems and proofs included in the library
 
+- Undecidability, Incompleteness, and Completeness of Second-Order Logic in Coq. Mark Koch and Dominik Kirst. CPP 2022. Subdirectory `SOL`. https://www.ps.uni-saarland.de/extras/cpp22-sol/
 - Trakhtenbrot's Theorem in Coq - A Constructive Approach to Finite Model Theory. Dominik Kirst and Dominique Larchey-Wendling. IJCAR 2020. Subdirectory `TRAKTHENBROT`. https://www.ps.uni-saarland.de/extras/fol-trakh/
 - Undecidability of Semi-Unification on a Napkin. Andrej Dudenhefner. FSCD 2020. Subdirectory `SemiUnification`. https://www.ps.uni-saarland.de/Publications/documents/Dudenhefner_2020_Semi-unification.pdf
 - Undecidability of Higher-Order Unification Formalised in Coq. Simon Spies and Yannick Forster. Technical report. Subdirectory `HOU`. https://www.ps.uni-saarland.de/Publications/details/SpiesForster:2019:UndecidabilityHOU.html
@@ -194,6 +197,7 @@ We have [guidelines for the directory structure of projects](https://github.com/
 - Edith Heiter
 - Marc Hermes
 - Dominik Kirst 
+- Mark Koch
 - Fabian Kunze
 - Gert Smolka
 - Simon Spies

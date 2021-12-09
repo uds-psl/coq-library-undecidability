@@ -135,6 +135,7 @@ Shared/Libs/PSL/Vectors/Fin.v
 Shared/Libs/PSL/Vectors/Vectors.v
 Shared/Libs/PSL/Vectors/FinNotation.v
 Shared/Libs/PSL/Vectors/VectorDupfree.v
+Shared/Libs/PSL/Vectors/VectorForall.v
 
 Shared/Libs/PSL/FiniteTypes.v
 Shared/Libs/PSL/FiniteTypes/BasicDefinitions.v
@@ -810,3 +811,14 @@ SystemF/Reductions/SysF_TYP_to_SysF_TC.v
 SystemF/Reductions/HaltTM_1_to_SysF_TYP.v
 SystemF/Reductions/HaltTM_1_to_SysF_TC.v
 SystemF/Reductions/HaltTM_1_to_SysF_INH.v
+
+SOL/SOL.v
+SOL/PA2.v
+SOL/Util/Syntax.v
+SOL/Util/Subst.v
+SOL/Util/Tarski.v
+SOL/Util/PA2_facts.v
+SOL/Util/PA2_categoricity.v
+SOL/Reductions/H10p_to_SOL.v
+SOL/SOL_undec.v
+SOL/PA2_undec.v
