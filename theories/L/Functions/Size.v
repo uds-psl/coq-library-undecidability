@@ -5,10 +5,10 @@ From Undecidability.L.Datatypes Require Import Lists.
 
 (* ** Extracted size of terms *)
 
-Instance term_size' : computable size'.
-Proof.
-  extract.
-Abort. (*possible, but the run time of this implementation is not good enough. *)
+(* Instance term_size' : computable size'. *)
+(* Proof. *)
+(*   extract. *)
+(* Abort. (*possible, but the run time of this implementation is not good enough. *) *)
 
 Lemma size'_surj : surjective size'.
 Proof.
@@ -79,8 +79,7 @@ Proof.
   eapply computesTime_timeLeq.
   
   2:{ unshelve (eapply uiter_total_instanceTime with (1 := sizeTR_correct) (preprocessT:=(fun _ _ => (5,tt)))).
-      4:{ extract. solverec. }
-      2:{ apply termT_sizeTR'. }
+      extract. solverec. 
   }
   split. 2:exact Logic.I.
   cbn [fst].

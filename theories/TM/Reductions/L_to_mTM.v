@@ -5,7 +5,7 @@ Require Import Undecidability.TM.L.HeapInterpreter.M_LHeapInterpreter.
 
 (* * L to TM *)
 
--Definition HaltLclosed (s : {s : term | closed s}) := exists t, eval (proj1_sig s) t. (* Halting problem for call-by-value lambda-calculus *)
+Definition HaltLclosed (s : {s : term | closed s}) := exists t, eval (proj1_sig s) t. (* Halting problem for call-by-value lambda-calculus *)
 
 Definition eva_LM_lin sigma := exists tau, evaluates step sigma tau.
 

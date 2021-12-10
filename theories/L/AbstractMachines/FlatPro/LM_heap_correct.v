@@ -213,7 +213,7 @@ Proof.
   unfold extended;split;repeat intro. all:eauto.
 Qed.
 
-Typeclasses Opaque extended.
+#[export] Typeclasses Opaque extended.
 
 Lemma lookup_extend H H' a x g:
   extended H H' -> lookup H a x = Some g -> lookup H' a x = Some g.
