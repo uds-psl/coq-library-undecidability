@@ -303,7 +303,7 @@ Section remove_self_loops.
         - exists (0,0##w); split; try (simpl; lia).
           apply sc_Q_1 in H1; simpl f in H1.
           mm sss INC with (pos_nxt x).
-          subst i; clear H1; mm sss DEC 0 with pos0 0.
+          subst i; clear H1; mm sss DEC zero with pos0 0.
           mm sss stop; f_equal; simpl; subst; auto. 
         - spec in H5. { subst j; simpl in H4 |- *; lia. }
           apply sc_Q_1 in H1; simpl f in H1.
@@ -322,10 +322,10 @@ Section remove_self_loops.
            -- destruct (le_lt_dec (1+lP) p) as [ Hp1 | Hp1 ];
                 [ | destruct (eq_nat_dec p 0) as [ Hp2 | Hp2 ] ].
               ** exists (0,0##v); split; try (simpl; lia).
-                 mm sss DEC 0 with (pos_nxt x) 0.
+                 mm sss DEC zero with (pos_nxt x) 0.
                  mm sss stop.
               ** subst p; exists (0,0##v); split; try (simpl; lia).
-                 mm sss DEC 0 with (pos_nxt x) 0.
+                 mm sss DEC zero with (pos_nxt x) 0.
                  mm sss stop.
               ** apply mm_sss_DEC0_inv with (1 := Hx) in H2.
                  destruct H2; subst j w.
@@ -339,7 +339,7 @@ Section remove_self_loops.
            -- exists (0,0##w); split; simpl; auto.
               apply subcode_sss_compute_instr with (2 := H6) (st2 := (1+i,0##w)); auto.
               ** replace (0##w) with ((0##v)[u/pos_nxt x]); subst; auto; constructor; auto.
-              ** subst i; mm sss DEC 0 with pos0 0; mm sss stop.
+              ** subst i; mm sss DEC zero with pos0 0; mm sss stop.
            -- spec in H5. { simpl in H4 |- *; lia. }
               apply subcode_sss_terminates_instr with (2 := H6) (3 := H5); auto.
               replace (0##w) with ((0##v)[u/pos_nxt x]); subst; auto; constructor; auto.
@@ -376,9 +376,9 @@ Section remove_self_loops.
           ** destruct (le_lt_dec (1+lP) p) as [ Hp | Hp ];
                [ | destruct (eq_nat_dec p 0) as [ Hp2 | Hp2 ] ].
              ++ exists (p,v); split; try (simpl; lia).
-                mm sss DEC 0 with x p; mm sss stop.
+                mm sss DEC zero with x p; mm sss stop.
              ++ exists (p,v); split; try (simpl; lia).
-                mm sss DEC 0 with x p; mm sss stop.
+                mm sss DEC zero with x p; mm sss stop.
              ++ spec in H4. simpl in H5 |- *; lia.
                 spec in H4; auto.
                 apply subcode_sss_terminates_instr with (2 := G1) (3 := H4); auto; constructor.

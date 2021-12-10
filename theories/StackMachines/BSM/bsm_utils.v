@@ -57,16 +57,16 @@ Section Binary_Stack_Machines.
       bsm sss stop; f_equal.
       apply vec_pos_ext; intros p; dest x p.
 
-      bsm sss POP 1 with x i (3+i) l.
+      bsm sss POP one with x i (3+i) l.
       bsm sss PUSH with x Zero.
-      bsm sss POP 0 with x i i l; rew vec.
+      bsm sss POP zero with x i i l; rew vec.
       clear Hv.
       specialize (IHl (v[l/x])).
       spec in IHl.     
       rew vec.
       revert IHl; rew vec.
 
-      bsm sss POP 0 with x i (3+i) l.
+      bsm sss POP zero with x i (3+i) l.
       clear Hv.
       specialize (IHl (v[l/x])).
       spec in IHl.     
@@ -103,18 +103,18 @@ Section Binary_Stack_Machines.
         bsm sss stop.
         f_equal.
         apply vec_pos_ext; intros z; dest z y; dest z x.
-      * bsm sss POP 1 with x (4+i) (7+i) l.
+      * bsm sss POP one with x (4+i) (7+i) l.
         bsm sss PUSH with y One.
         bsm sss PUSH with y' Zero.
-        bsm sss POP 0 with y' i i (One::v#>y); unfold y'; rew vec.
+        bsm sss POP zero with y' i i (One::v#>y); unfold y'; rew vec.
         apply IHl; rew vec.
         apply vec_pos_ext; intros z.
         dest z y; simpl; solve list eq.
         dest z x.
-      * bsm sss POP 0 with x (4+i) (7+i) l.
+      * bsm sss POP zero with x (4+i) (7+i) l.
         bsm sss PUSH with y Zero.
         bsm sss PUSH with x Zero.
-        bsm sss POP 0 with x i i l; rew vec.
+        bsm sss POP zero with x i i l; rew vec.
         apply IHl; rew vec.
         apply vec_pos_ext; intros z.
         dest z y; simpl; solve list eq.
@@ -150,20 +150,20 @@ Section Binary_Stack_Machines.
         bsm sss stop.
         f_equal.
         apply vec_pos_ext; intros k; dest k z; dest k y; dest k x.
-      * bsm sss POP 1 with x (5+i) (9+i) l.
+      * bsm sss POP one with x (5+i) (9+i) l.
         bsm sss PUSH with y One.
         bsm sss PUSH with z One.
         bsm sss PUSH with y' Zero.
-        bsm sss POP 0 with y' i i (One::v#>y); unfold y'; rew vec.
+        bsm sss POP zero with y' i i (One::v#>y); unfold y'; rew vec.
         apply IHl; rew vec.
         apply vec_pos_ext; intros k.
         dest k z; simpl; solve list eq.
         dest k y; dest k x.
-      * bsm sss POP 0 with x (5+i) (9+i) l.
+      * bsm sss POP zero with x (5+i) (9+i) l.
         bsm sss PUSH with y Zero.
         bsm sss PUSH with z Zero.
         bsm sss PUSH with x Zero.
-        bsm sss POP 0 with x i i l; rew vec.
+        bsm sss POP zero with x i i l; rew vec.
         apply IHl; rew vec.
         apply vec_pos_ext; intros k.
         dest k z; simpl; solve list eq.
@@ -256,9 +256,9 @@ Section Binary_Stack_Machines.
       intros; rew vec.
       split; [ discriminate | intros _ ].
       bsm sss POP empty with x (4+i) (7+i).
-      bsm sss POP 1 with y q p m.
+      bsm sss POP one with y q p m.
       bsm sss PUSH with x' Zero.
-      bsm sss POP 0 with x' q q nil.
+      bsm sss POP zero with x' q q nil.
       rew vec; f_equal; auto.
       bsm sss stop; f_equal.
       unfold x'; rew vec.
@@ -270,7 +270,7 @@ Section Binary_Stack_Machines.
       intros; rew vec.
       split; [ discriminate | intros _ ].
       bsm sss POP empty with x (4+i) (7+i).
-      bsm sss POP 0 with y q p m.
+      bsm sss POP zero with y q p m.
       bsm sss stop.
 
       (* l = One::_, m = nil *)
@@ -278,7 +278,7 @@ Section Binary_Stack_Machines.
       exists (v[l/x]); split.
       intros; rew vec.
       split; [ discriminate | intros _ ].
-      bsm sss POP 1 with x (4+i) (7+i) l.
+      bsm sss POP one with x (4+i) (7+i) l.
       bsm sss POP empty with y q q; rew vec.
       bsm sss stop.
 
@@ -291,20 +291,20 @@ Section Binary_Stack_Machines.
 
       intros E1; inversion E1 as [ E ]; clear E1.
       specialize (H2 E).
-      bsm sss POP 1 with x (4+i) (7+i) l.
-      bsm sss POP 1 with y q q m; rew vec.
+      bsm sss POP one with x (4+i) (7+i) l.
+      bsm sss POP one with y q q m; rew vec.
       bsm sss PUSH with x Zero.
-      bsm sss POP 0 with x i i l; rew vec.
+      bsm sss POP zero with x i i l; rew vec.
       eq goal H2; do 2 f_equal.
       apply vec_pos_ext; intros z; dest z x.
 
       intros E1.
       spec in H3.
       contradict E1; subst; auto.
-      bsm sss POP 1 with x (4+i) (7+i) l.
-      bsm sss POP 1 with y q q m; rew vec.
+      bsm sss POP one with x (4+i) (7+i) l.
+      bsm sss POP one with y q q m; rew vec.
       bsm sss PUSH with x Zero.
-      bsm sss POP 0 with x i i l; rew vec.
+      bsm sss POP zero with x i i l; rew vec.
       eq goal H3; do 2 f_equal.
       apply vec_pos_ext; intros z; dest z x.
 
@@ -314,8 +314,8 @@ Section Binary_Stack_Machines.
       split.
       intros; rew vec.
       split; [ discriminate | intros _ ].
-      bsm sss POP 1 with x (4+i) (7+i) l.
-      bsm sss POP 0 with y q q m; rew vec.
+      bsm sss POP one with x (4+i) (7+i) l.
+      bsm sss POP zero with y q q m; rew vec.
       bsm sss stop.
 
       (* l = Zero::l', m = nil *)
@@ -324,7 +324,7 @@ Section Binary_Stack_Machines.
       split.
       intros; rew vec.
       split; [ discriminate | intros _ ].
-      bsm sss POP 0 with x (4+i) (7+i) l.
+      bsm sss POP zero with x (4+i) (7+i) l.
       bsm sss POP empty with y i q; rew vec.
       bsm sss stop.
 
@@ -334,10 +334,10 @@ Section Binary_Stack_Machines.
       split.
       intros; rew vec.
       split; [ discriminate | intros _ ].
-      bsm sss POP 0 with x (4+i) (7+i) l.
-      bsm sss POP 1 with y i q m; rew vec.
+      bsm sss POP zero with x (4+i) (7+i) l.
+      bsm sss POP one with y i q m; rew vec.
       bsm sss PUSH with y Zero.
-      bsm sss POP 0 with y q i m; rew vec.
+      bsm sss POP zero with y q i m; rew vec.
       bsm sss stop.
 
       (* l = Zero::l', m = Zero::m' *)
@@ -349,14 +349,14 @@ Section Binary_Stack_Machines.
 
       intros E1; inversion E1 as [ E ]; clear E1.
       specialize (H2 E).
-      bsm sss POP 0 with x (4+i) (7+i) l.
-      bsm sss POP 0 with y i q m; rew vec.
+      bsm sss POP zero with x (4+i) (7+i) l.
+      bsm sss POP zero with y i q m; rew vec.
 
       intros E1.
       spec in H3.
       contradict E1; subst; auto.
-      bsm sss POP 0 with x (4+i) (7+i) l.
-      bsm sss POP 0 with y i q m; rew vec.
+      bsm sss POP zero with x (4+i) (7+i) l.
+      bsm sss POP zero with y i q m; rew vec.
     Qed.
 
     Fact compare_stack_eq_spec v : 
@@ -489,14 +489,14 @@ Section Binary_Stack_Machines.
       induction k as [ | k IHk ]; intros v; intros Hx; 
         simpl list_repeat; simpl app; unfold transfer_ones; simpl in Hx.
 
-      bsm sss POP 0 with x p q l.
+      bsm sss POP zero with x p q l.
       bsm sss stop; f_equal.
       apply vec_pos_ext; intros z; dest z y.
 
-      bsm sss POP 1 with x p q (list_repeat One k ++ Zero :: l).
+      bsm sss POP one with x p q (list_repeat One k ++ Zero :: l).
       bsm sss PUSH with y b.
       bsm sss PUSH with y Zero.
-      bsm sss POP 0 with y i i (b::v#>y); rew vec.
+      bsm sss POP zero with y i i (b::v#>y); rew vec.
       specialize (IHk (v [(list_repeat One k ++ Zero :: l) / x] [(b :: v #> y) / y])).
       spec in IHk.
       rew vec.
@@ -522,10 +522,10 @@ Section Binary_Stack_Machines.
       bsm sss stop; f_equal.
       apply vec_pos_ext; intros z; dest z y; dest z x.
 
-      bsm sss POP 1 with x p q (list_repeat One k).
+      bsm sss POP one with x p q (list_repeat One k).
       bsm sss PUSH with y b.
       bsm sss PUSH with y Zero.
-      bsm sss POP 0 with y i i (b::v#>y); rew vec.
+      bsm sss POP zero with y i i (b::v#>y); rew vec.
       specialize (IHk (v [(list_repeat One k) / x] [(b :: v #> y) / y])).
       spec in IHk.
       rew vec.
@@ -686,7 +686,7 @@ Section Binary_Stack_Machines.
       (* The list ll is empty *)
 
       subst mm; simpl decoder.
-      bsm sss POP 1 with c (S (S (S (length (tile h l th tl) + i)))) q lc.
+      bsm sss POP one with c (S (S (S (length (tile h l th tl) + i)))) q lc.
 
       apply subcode_sss_compute_trans with (P := (1+i,tile h l th tl))
                                            (st2 := (1+length (tile h l th tl)+i,v[lc/c][(th++v#>h)/h][(tl++v#>l)/l])); auto.
@@ -696,14 +696,14 @@ Section Binary_Stack_Machines.
       apply vec_pos_ext; intros z; dest z l.
    
       bsm sss PUSH with c Zero.
-      bsm sss POP 0 with c s s lc; rew vec.
+      bsm sss POP zero with c s s lc; rew vec.
       bsm sss stop; f_equal.
       apply vec_pos_ext; intros z; dest z c.
 
       (* The list ll is not empty *)
 
       subst mm; simpl.
-      bsm sss POP 0 with c (S (S (S (length (tile h l t1 t2) + i)))) q (list_repeat Zero (length ll) ++ One :: lc).
+      bsm sss POP zero with c (S (S (S (length (tile h l t1 t2) + i)))) q (list_repeat Zero (length ll) ++ One :: lc).
       apply subcode_sss_compute with (P := (3+length (tile h l t1 t2)+i, 
                                             decoder s (S (S (S (length (tile h l t1 t2)+i)))) (ll++(th,tl)::lr))); auto.
       apply IHll with th tl lr lc; auto.
@@ -732,7 +732,7 @@ Section Binary_Stack_Machines.
       simpl; unfold decoder_error.
       exists k.
       bsm sss PUSH with c Zero.
-      bsm sss POP 0 with c q q (v#>c); rew vec.
+      bsm sss POP zero with c q q (v#>c); rew vec.
       bsm sss stop.
       f_equal.
       apply vec_pos_ext; intros z; dest z c.
@@ -749,7 +749,7 @@ Section Binary_Stack_Machines.
       destruct (IHll (3 + length (tile h l t1 t2) + i) (v[(list_repeat Zero k)/c]) k)
         as (r & Hr); rew vec.
       exists r.
-      bsm sss POP 0 with c (3 + length (tile h l t1 t2) + i) q (list_repeat Zero k).
+      bsm sss POP zero with c (3 + length (tile h l t1 t2) + i) q (list_repeat Zero k).
       revert Hr; rew vec; apply subcode_sss_compute; auto.
     Qed.
 
@@ -766,7 +766,7 @@ Section Binary_Stack_Machines.
       simpl; unfold decoder_error.
       exists k.
       bsm sss PUSH with c Zero.
-      bsm sss POP 0 with c q q (v#>c); rew vec.
+      bsm sss POP zero with c q q (v#>c); rew vec.
       bsm sss stop.
       f_equal.
       apply vec_pos_ext; intros z; dest z c.
@@ -781,7 +781,7 @@ Section Binary_Stack_Machines.
         as (r & Hr); rew vec.
       lia.
       exists r.
-      bsm sss POP 0 with c (3 + length (tile h l t1 t2) + i) q (list_repeat Zero k++lc).
+      bsm sss POP zero with c (3 + length (tile h l t1 t2) + i) q (list_repeat Zero k++lc).
       revert Hr; rew vec; apply subcode_sss_compute; auto.
     Qed.
     
@@ -835,14 +835,14 @@ Section Binary_Stack_Machines.
       unfold full_decoder.
       intros [] lc Hlc.
 
-      bsm sss POP 1 with c (4+i) p lc.
+      bsm sss POP one with c (4+i) p lc.
       bsm sss PUSH with c One.
       bsm sss PUSH with h Zero.
-      bsm sss POP 0 with h (5+i) q (v#>h); rew vec.
+      bsm sss POP zero with h (5+i) q (v#>h); rew vec.
       bsm sss stop; f_equal.
       apply vec_pos_ext; intros z; dest z h; dest z c.
 
-      bsm sss POP 0 with c (4+i) p lc.
+      bsm sss POP zero with c (4+i) p lc.
       bsm sss PUSH with c Zero.
       bsm sss stop; f_equal.
       apply vec_pos_ext; intros z; dest z c.
@@ -1045,7 +1045,7 @@ Section Binary_Stack_Machines.
         apply empty_stack_spec.
 
         bsm sss PUSH with l Zero.
-        bsm sss POP 0 with l p p nil; rew vec.
+        bsm sss POP zero with l p p nil; rew vec.
         bsm sss stop.
         f_equal.
         apply vec_pos_ext; intros x; dest x l.

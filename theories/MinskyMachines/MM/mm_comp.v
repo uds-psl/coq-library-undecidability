@@ -235,7 +235,7 @@ Section simulator.
           destruct Hp; apply in_map_iff; exists p; split; auto.
           apply pos_list_prop.
       + apply subcode_sss_progress with (P := (length cN+iE,DEC tmp1 0::nil)); auto.
-        mm sss DEC 0 with tmp1 0.
+        mm sss DEC zero with tmp1 0.
         apply subcode_refl.
         mm sss stop.
     Qed.

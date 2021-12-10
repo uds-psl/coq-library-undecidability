@@ -187,7 +187,7 @@ Tactic Notation "mm" "sss" "INC" "with" uconstr(a) :=
     | |- _ // _ ->> _ => apply mm_compute_INC with (x := a)
   end; auto.
 
-Tactic Notation "mm" "sss" "DEC" "0" "with" uconstr(a) uconstr(b) := 
+Tactic Notation "mm" "sss" "DEC" "zero" "with" uconstr(a) uconstr(b) := 
   match goal with
     | |- _ // _ -+> _ => apply mm_progress_DEC_0 with (x := a) (k := b)
     | |- _ // _ ->> _ => apply mm_compute_DEC_0 with (x := a) (k := b)

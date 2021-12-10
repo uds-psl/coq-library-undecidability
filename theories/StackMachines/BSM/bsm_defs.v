@@ -242,10 +242,10 @@ End Binary_Stack_Machine.
 Tactic Notation "bsm" "sss" "POP" "empty" "with" uconstr(a) constr(b) constr(c) := 
      apply bsm_compute_POP_E with (x := a) (p := b) (q := c); auto.
 
-Tactic Notation "bsm" "sss" "POP" "0" "with" uconstr(a) constr(b) constr(c) uconstr(d) := 
+Tactic Notation "bsm" "sss" "POP" "zero" "with" uconstr(a) constr(b) constr(c) uconstr(d) := 
      apply bsm_compute_POP_0 with (x := a) (p := b) (q := c) (ll := d); auto.
 
-Tactic Notation "bsm" "sss" "POP" "1" "with" uconstr(a) constr(b) constr(c) uconstr(d) := 
+Tactic Notation "bsm" "sss" "POP" "one" "with" uconstr(a) constr(b) constr(c) uconstr(d) := 
      apply bsm_compute_POP_1 with (x := a) (p := b) (q := c) (ll := d); auto.
 
 Tactic Notation "bsm" "sss" "POP" "any" "with" uconstr(a) constr(c) constr(d) constr(e) constr(f) := 
@@ -259,10 +259,10 @@ Tactic Notation "bsm" "sss" "stop" := exists 0; apply sss_steps_0; auto.
 Tactic Notation "bsm" "inv" "POP" "empty" "with" hyp(H) constr(a) constr(b) constr(c) constr(d) :=
      apply bsm_steps_POP_E_inv with (x := a) (p := b) (q := c) (ll := d) in H; auto.
 
-Tactic Notation "bsm" "inv" "POP" "0" "with" hyp(H) constr(a) constr(b) constr(c) constr(d) :=
+Tactic Notation "bsm" "inv" "POP" "zero" "with" hyp(H) constr(a) constr(b) constr(c) constr(d) :=
      apply bsm_steps_POP_0_inv with (x := a) (p := b) (q := c) (ll := d) in H; auto.
 
-Tactic Notation "bsm" "inv" "POP" "1" "with" hyp(H) constr(a) constr(b) constr(c) constr(d) :=
+Tactic Notation "bsm" "inv" "POP" "one" "with" hyp(H) constr(a) constr(b) constr(c) constr(d) :=
      apply bsm_steps_POP_1_inv with (x := a) (p := b) (q := c) (ll := d) in H; auto.
 
 Tactic Notation "bsm" "inv" "POP" "any" "with" hyp(H) constr(a) constr(c) constr(d) constr(e) constr(f) :=

@@ -72,7 +72,7 @@ Section mma_sim.
       mma sss INC with x.
       mma sss stop; now f_equal.
     + exists w1; split; auto.
-      mma sss DEC 0 with x (lnk k).
+      mma sss DEC zero with x (lnk k).
       mma sss stop; now f_equal.
     + exists (w1[u/x]); split; auto.
       mma sss DEC S with x (lnk k) u.

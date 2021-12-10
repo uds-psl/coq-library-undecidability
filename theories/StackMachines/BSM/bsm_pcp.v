@@ -94,7 +94,7 @@ Section Simulator.
        as (w & Hw1 & Hw2); rew vec.
     apply subcode_sss_compute_trans with (2 := Hw1); auto.
     apply subcode_sss_compute_trans with (2 := main_init_spec Hsa Hsh Hsl Hah Hal (14+lML) _); auto.
-    bsm sss POP 0 with s 0 0 nil; rew vec.
+    bsm sss POP zero with s 0 0 nil; rew vec.
     bsm sss stop; f_equal.
     apply vec_pos_ext; intros x.
     dest x a; dest x l; dest x h; dest x s.
@@ -132,7 +132,7 @@ Section Simulator.
     destruct H3 as (k5 & ? & H7); subst.
     unfold simulator in H7.
 
-    bsm inv POP 0 with H7 s 0 0 (@nil bool); rew vec.
+    bsm inv POP zero with H7 s 0 0 (@nil bool); rew vec.
     + destruct H7 as (k6 & H7 & H8).
       apply sss_steps_stall in H8.
       2: simpl; lia.
