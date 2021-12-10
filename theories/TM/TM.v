@@ -1,6 +1,6 @@
 (** * Halting problem for multi-tape and single-tape Turing machines HaltMTM and HaltTM 1  *)
 
-Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
+Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.
 Require Import Vector List.
 
 Unset Implicit Arguments.

@@ -3,6 +3,7 @@
  *)
 
 From Undecidability.Shared.Libs.PSL Require Export Base.
+From Undecidability.Shared.Libs.PSL Require Import FinTypesDef.
 
 (* * Definition of useful tactics *)
 
@@ -35,12 +36,6 @@ Qed.
 
 Definition toOptionList {X: Type} (A: list X) :=
   None :: map (@Some _) A .
-
-(* This function counts the number of occurences of an element in a given list and returns the result *)
-Fixpoint count (X: Type) `{eq_dec X}  (A: list  X) (x:  X) {struct A} : nat :=
-  match A with
-  | nil => O
-  | cons y A' =>  if Dec (x=y) then S(count A' x) else count A' x end.
 
 Definition toSumList1 {X: Type}  (Y: Type) (A: list X): list (X + Y) :=
   map inl A.

@@ -15,7 +15,7 @@ Local Arguments Encode_nat : simpl never.
 Section bla.
   Import FinTypes.
   (* Most likely: we need to make Z__case return domains... *)
-  (*Polymorphic Lemma leUpToC_finCases_nary domain (Y:FinTypes.finType) Z__case (cases : forall (y:Y), Z__case y -> Rtuple domain) (f : Rarrow domain nat) (F : Rtuple domain -> nat) :
+  (*Polymorphic Lemma leUpToC_finCases_nary domain (Y:FinTypesDef.finType) Z__case (cases : forall (y:Y), Z__case y -> Rtuple domain) (f : Rarrow domain nat) (F : Rtuple domain -> nat) :
     (forall x, exists y (z : Z__case y), cases y z = x)
     -> (forall y, (fun z => App f (cases y z)) <=c (fun z => F (cases y z)))
     -> Uncurry f <=c F.

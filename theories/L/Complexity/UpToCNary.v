@@ -187,7 +187,7 @@ Qed.
 
 Section bla.
   Import FinTypes.
-  Lemma leUpToC_finCases_nary domain (Y:FinTypes.finType) Z__case (cases : forall (y:Y), Z__case y -> Rtuple domain) (f : Rarrow domain nat) (F : Rtuple domain -> nat) :
+  Lemma leUpToC_finCases_nary domain (Y:FinTypesDef.finType) Z__case (cases : forall (y:Y), Z__case y -> Rtuple domain) (f : Rarrow domain nat) (F : Rtuple domain -> nat) :
     (forall x, exists y (z : Z__case y), cases y z = x)
     -> (forall y, (fun z => App f (cases y z)) <=c (fun z => F (cases y z)))
     -> Fun' (fun x => App f x) <=c F.

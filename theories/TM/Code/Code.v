@@ -193,7 +193,7 @@ Ltac build_eq_dec :=
 
 Lemma countMap_injective (X Y : eqType) (x : X) (A : list X) (f : X -> Y) :
   (forall x y, f x = f y -> x = y) ->
-  BasicDefinitions.count (map f A) (f x) = BasicDefinitions.count A x.
+  FinTypesDef.count (map f A) (f x) = FinTypesDef.count A x.
 Proof.
   intros HInj. revert x. induction A as [ | a A IH]; intros; cbn in *; auto.
   decide (f x = f a) as [ -> % HInj | He].
@@ -204,7 +204,7 @@ Qed.
 
 Lemma countMap_zero (X Y : eqType) (A : list X) (y : Y) (f : X -> Y) :
   (forall x, f x <> y) ->
-  BasicDefinitions.count (map f A) y = 0.
+  FinTypesDef.count (map f A) y = 0.
 Proof.
   revert y. induction A as [ | a A IH]; intros; cbn in *; auto.
   decide (y = f a) as [-> | ?]; auto. now contradiction (H a).

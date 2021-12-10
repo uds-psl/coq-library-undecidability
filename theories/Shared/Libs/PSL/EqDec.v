@@ -1,16 +1,7 @@
 From Undecidability.Shared.Libs.PSL Require Import Prelim.
+From Undecidability.Shared.Libs.PSL Require Export EqDecDef.
 
 (* * Decidable predicates *)
-
-
-Definition dec (X: Prop) : Type := {X} + {~ X}.
-
-Coercion dec2bool P (d: dec P) := if d then true else false.
-
-Existing Class dec.
-
-Definition Dec (X: Prop) (d: dec X) : dec X := d.
-Arguments Dec X {d}.
 
 Lemma Dec_reflect (X: Prop) (d: dec X) :
   Dec X <-> X.
@@ -164,24 +155,6 @@ Proof.
 Defined.
 
 (* ** Discrete types *)
-
-Notation "'eq_dec' X" := (forall x y : X, dec (x=y)) (at level 70).
-
-Structure eqType :=
-  EqType {
-      eqType_X :> Type;
-      eqType_dec : eq_dec eqType_X
-    }.
-
-Arguments EqType X {_} : rename.
-
-Canonical Structure eqType_CS X (A: eq_dec X) := EqType X.
-
-#[global]
-Existing Instance eqType_dec.
-
-(* Print the base type of [eqType] in the Canonical Structure. *)
-Arguments eqType_CS (X) {_}.
 
 #[global]
 Instance unit_eq_dec :
