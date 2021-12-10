@@ -22,7 +22,10 @@ Proof.
   intros n H'.
   destruct (Nat.le_gt_cases (mu' d H) n) as [Hl | Hl]; eauto. 
   exfalso.
-  eapply linear_search_smallest with (start := 0). 2: exact H'. split. lia. eauto.
+  enough (mu' d H <= n) by lia.
+  eapply rel_ls_lower_bound with (start := 0); eauto with arith.
+  unfold mu, constructive_indefinite_ground_description_nat.
+  now destruct linear_search_from_0_conform.
 Qed.
 
 (* ** Definition of infinite and generating types *)

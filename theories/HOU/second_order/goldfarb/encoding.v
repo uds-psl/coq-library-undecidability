@@ -295,7 +295,7 @@ Proof.
         Injection H1; subst.
         Injection H2; subst.
         reflexivity.
-  - eapply normal_ren with (delta0 := delta) in H.
+  - eapply normal_ren with (delta := delta) in H.
     eapply head_atom in H; eauto. cbn in EQ.
     Injection EQ. Injection H0.
     unshelve eapply ren_equiv_proper in H2;

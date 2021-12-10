@@ -307,11 +307,11 @@ Section BPCP_FIN_DEC_EQ_SAT.
           rewrite fot_sem_lb_app_e with (H := H6).
           simpl; msplit 3; simpl; auto.
           - rew fot.
-            rewrite fot_sem_lb_app_Some with (lt0 := p) (Ht := H5) (H := Hx).
+            rewrite fot_sem_lb_app_Some with (lt := p) (Ht := H5) (H := Hx).
             ++ simpl; auto.
             ++ rew fot; simpl; auto.
           - rew fot.
-            rewrite fot_sem_lb_app_Some with (lt0 := q) (Ht := H6) (H := Hy).
+            rewrite fot_sem_lb_app_Some with (lt := q) (Ht := H6) (H := Hy).
             ++ simpl; auto.
             ++ rew fot; simpl; auto.
           - destruct H as [ (G1 & G2) | [ (G1 & G2) | (G1 & G2) ] ].

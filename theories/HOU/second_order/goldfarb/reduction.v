@@ -1,5 +1,5 @@
 Set Implicit Arguments.
-Require Import RelationClasses Morphisms Wf List Lia Init.Nat Setoid.
+Require Import RelationClasses Morphisms Init.Wf List Lia Init.Nat Setoid.
 From Undecidability.HOU Require Import calculus.calculus unification.unification.
 From Undecidability.HOU.second_order Require Export diophantine_equations goldfarb.encoding goldfarb.multiplication.
 Import ListNotations.

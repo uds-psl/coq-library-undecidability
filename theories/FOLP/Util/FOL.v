@@ -754,7 +754,7 @@ Section SigExt.
       f_equal. erewrite! vec_comp. 2,3: reflexivity. apply vec_ext. intros t. unfold axioms.funcomp.
       replace (n + S i) with (n + i + 1) by lia. replace (n + i) with (n + i + 0) at 2 by lia.
       change nil with (map (@sig_drop_term' f f_ar P P_ar (n + i + 1)) nil) at 2.
-      apply sig_drop_subst_term' with (v := nil) (m := 0) (i := 1) (n := n + i) (t0 := t).
+      apply sig_drop_subst_term' with (v := nil) (m := 0) (i := 1) (n := n + i) (t := t).
   Qed.
 
   Definition ext_c' f f_ar P P_ar (n : nat) : term := @Func (sig_ext (B_S f f_ar P P_ar)) (inr n) Vector.nil.

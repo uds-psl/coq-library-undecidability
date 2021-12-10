@@ -84,8 +84,8 @@ Section Normalisation.
     pose (theta x := if nth (Gammaᵤ I) x then tau x else var x).
     exists Delta. exists theta. intuition.
     + intros ???; unfold theta; rewrite H; eapply H7; eauto.
-    + rewrite subst_pointwise_equiv with (sigma0 := theta) (tau0 := sigma).
-      rewrite subst_pointwise_equiv with (sigma0 := theta) (tau0 := sigma); eauto.
+    + rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma).
+      rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma); eauto.
       all: intros ? H; eapply typing_variables in H; eauto; domin H.
       all: unfold theta; now rewrite H, H5.
     + unfold theta; destruct nth eqn: ?; [|eauto].

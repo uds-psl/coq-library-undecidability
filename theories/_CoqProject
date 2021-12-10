@@ -26,8 +26,8 @@ CounterMachines/CM1_undec.v
 SetConstraints/FMsetC.v
 SetConstraints/FMsetC_undec.v
 
-L/L.v
-L/L_undec.v
+# L/L.v
+# L/L_undec.v
 
 TM/TM.v
 TM/TM_undec.v
@@ -148,27 +148,27 @@ Shared/Libs/PSL/FiniteTypes/DepPairs.v
 Shared/Libs/PSL/FiniteTypes/Arbitrary.v
 Shared/Libs/PSL/FiniteTypes/VectorFin.v
 
-TM/L/Alphabets.v
-TM/L/CaseCom.v
-TM/L/HeapInterpreter/LookupTM.v
-TM/L/HeapInterpreter/StepTM.v
-TM/L/HeapInterpreter/M_LHeapInterpreter.v
-TM/L/HeapInterpreter/UnfoldClos.v
-TM/L/HeapInterpreter/JumpTargetTM.v
-TM/L/Transcode/Boollist_to_Enc.v
-TM/L/Transcode/Enc_to_Boollist.v
-TM/L/Transcode/BoollistEnc.v
-TM/L/Eval.v
+# TM/L/Alphabets.v
+# TM/L/CaseCom.v
+# TM/L/HeapInterpreter/LookupTM.v
+# TM/L/HeapInterpreter/StepTM.v
+# TM/L/HeapInterpreter/M_LHeapInterpreter.v
+# TM/L/HeapInterpreter/UnfoldClos.v
+# TM/L/HeapInterpreter/JumpTargetTM.v
+# TM/L/Transcode/Boollist_to_Enc.v
+# TM/L/Transcode/Enc_to_Boollist.v
+# TM/L/Transcode/BoollistEnc.v
+# TM/L/Eval.v
 
 
-TM/L/CompilerBoolFuns/Compiler_spec.v
-TM/L/CompilerBoolFuns/LComp_to_TMComp.v
-TM/L/CompilerBoolFuns/Compiler_facts.v
-TM/L/CompilerBoolFuns/Compiler_nat_facts.v
-TM/L/CompilerBoolFuns/EncBoolsTM_boolList.v
-TM/L/CompilerBoolFuns/Compiler.v
-TM/L/CompilerBoolFuns/NaryApp.v
-TM/L/CompilerBoolFuns/ClosedLAdmissible.v
+# TM/L/CompilerBoolFuns/Compiler_spec.v
+# TM/L/CompilerBoolFuns/LComp_to_TMComp.v
+# TM/L/CompilerBoolFuns/Compiler_facts.v
+# TM/L/CompilerBoolFuns/Compiler_nat_facts.v
+# TM/L/CompilerBoolFuns/EncBoolsTM_boolList.v
+# TM/L/CompilerBoolFuns/Compiler.v
+# TM/L/CompilerBoolFuns/NaryApp.v
+# TM/L/CompilerBoolFuns/ClosedLAdmissible.v
 
 PCP/Util/Facts.v
 PCP/Util/PCP_facts.v
@@ -458,8 +458,8 @@ TM/Code/BinNumbers/NTM.v
 
 TM/Single/EncodeTapes.v
 TM/Single/StepTM.v
-TM/Reductions/L_to_mTM.v
-
+# TM/Reductions/L_to_mTM.v
+  
 TM/Reductions/Arbitrary_to_Binary.v
 
 TM/Reductions/HaltTM_1_to_HaltSBTM.v
@@ -488,106 +488,106 @@ TM/Hoare/HoareMult.v
 TM/Hoare/HoareStdLib.v
 TM/Hoare/HoareLegacy.v
 
-L/Prelim/MoreBase.v
-L/Prelim/ARS.v
-L/Prelim/StringBase.v
-L/Prelim/MoreList.v
-L/Prelim/LoopSum.v
+# L/Prelim/MoreBase.v
+# L/Prelim/ARS.v
+# L/Prelim/StringBase.v
+# L/Prelim/MoreList.v
+# L/Prelim/LoopSum.v
 
-L/Util/L_facts.v
+# L/Util/L_facts.v
 
-L/Tactics/Computable.v
-L/Tactics/ComputableTime.v
+# L/Tactics/Computable.v
+# L/Tactics/ComputableTime.v
 
-L/Tactics/LTactics.v
+# L/Tactics/LTactics.v
 
-L/Tactics/Extract.v
-L/Tactics/GenEncode.v
+# L/Tactics/Extract.v
+# L/Tactics/GenEncode.v
 
-L/Tactics/Lbeta_nonrefl.v
-L/Tactics/Lproc.v
-L/Tactics/Lbeta.v
-L/Tactics/Reflection.v
-L/Tactics/LClos.v
-L/Tactics/LClos_Eval.v
-L/Tactics/Lrewrite.v
-L/Tactics/Lsimpl.v
+# L/Tactics/Lbeta_nonrefl.v
+# L/Tactics/Lproc.v
+# L/Tactics/Lbeta.v
+# L/Tactics/Reflection.v
+# L/Tactics/LClos.v
+# L/Tactics/LClos_Eval.v
+# L/Tactics/Lrewrite.v
+# L/Tactics/Lsimpl.v
 
-L/Tactics/ComputableTactics.v
-L/Tactics/ComputableDemo.v
+# L/Tactics/ComputableTactics.v
+# L/Tactics/ComputableDemo.v
 
-L/Tactics/mixedTactics.v
+# L/Tactics/mixedTactics.v
 
-L/Datatypes/LUnit.v
-L/Datatypes/LBool.v
-L/Datatypes/List/List_basics.v
-L/Datatypes/List/List_enc.v
-L/Datatypes/List/List_eqb.v
-L/Datatypes/List/List_extra.v
-L/Datatypes/List/List_fold.v
-L/Datatypes/List/List_in.v
-L/Datatypes/List/List_nat.v
-L/Datatypes/Lists.v
-L/Datatypes/LNat.v
-L/Datatypes/LOptions.v
-L/Datatypes/LProd.v
-L/Datatypes/LSum.v
-L/Datatypes/LTerm.v
-L/Datatypes/LFinType.v
-L/Datatypes/LVector.v
-
-
-L/Functions/EqBool.v
-L/Functions/Equality.v
-L/Functions/Encoding.v
-L/Functions/Decoding.v
-L/Functions/Proc.v
-L/Functions/Size.v
-L/Functions/Subst.v
-L/Functions/Eval.v
-L/Functions/LoopSum.v
-L/Functions/UnboundIteration.v
-L/Functions/FinTypeLookup.v
-L/Functions/EnumInt.v
-L/Functions/Ackermann.v
-
-L/TM/TMEncoding.v
-L/TM/TMinL.v
-L/TM/TMinL/TMinL_extract.v
-L/TM/TapeFuns.v
-L/Reductions/TM_to_L.v
-L/Reductions/H10_to_L.v
-L/Reductions/MuRec/MuRec_extract.v
-L/Reductions/MuRec.v
-
-L/Complexity/UpToC.v
-L/Complexity/UpToCNary.v
-L/Complexity/GenericNary.v
-L/Complexity/ResourceMeasures.v
-L/Complexity/LinDecode/LTD_def.v
-L/Complexity/LinDecode/LTDnat.v
-L/Complexity/LinDecode/LTDlist.v
-L/Complexity/LinDecode/LTDbool.v
+# L/Datatypes/LUnit.v
+# L/Datatypes/LBool.v
+# L/Datatypes/List/List_basics.v
+# L/Datatypes/List/List_enc.v
+# L/Datatypes/List/List_eqb.v
+# L/Datatypes/List/List_extra.v
+# L/Datatypes/List/List_fold.v
+# L/Datatypes/List/List_in.v
+# L/Datatypes/List/List_nat.v
+# L/Datatypes/Lists.v
+# L/Datatypes/LNat.v
+# L/Datatypes/LOptions.v
+# L/Datatypes/LProd.v
+# L/Datatypes/LSum.v
+# L/Datatypes/LTerm.v
+# L/Datatypes/LFinType.v
+# L/Datatypes/LVector.v
 
 
-L/AbstractMachines/LargestVar.v
-L/AbstractMachines/FlatPro/Programs.v
-L/AbstractMachines/FlatPro/ProgramsDef.v
-L/AbstractMachines/FlatPro/LM_heap_def.v
-L/AbstractMachines/FlatPro/LM_heap_correct.v
-L/AbstractMachines/FlatPro/UnfoldClos.v
+# L/Functions/EqBool.v
+# L/Functions/Equality.v
+# L/Functions/Encoding.v
+# L/Functions/Decoding.v
+# L/Functions/Proc.v
+# L/Functions/Size.v
+# L/Functions/Subst.v
+# L/Functions/Eval.v
+# L/Functions/LoopSum.v
+# L/Functions/UnboundIteration.v
+# L/Functions/FinTypeLookup.v
+# L/Functions/EnumInt.v
+# L/Functions/Ackermann.v
+
+# L/TM/TMEncoding.v
+# L/TM/TMinL.v
+# L/TM/TMinL/TMinL_extract.v
+# L/TM/TapeFuns.v
+# L/Reductions/TM_to_L.v
+# L/Reductions/H10_to_L.v
+# L/Reductions/MuRec/MuRec_extract.v
+# L/Reductions/MuRec.v
+
+# L/Complexity/UpToC.v
+# L/Complexity/UpToCNary.v
+# L/Complexity/GenericNary.v
+# L/Complexity/ResourceMeasures.v
+# L/Complexity/LinDecode/LTD_def.v
+# L/Complexity/LinDecode/LTDnat.v
+# L/Complexity/LinDecode/LTDlist.v
+# L/Complexity/LinDecode/LTDbool.v
 
 
-L/Computability/Acceptability.v
-L/Computability/Computability.v
-L/Computability/Decidability.v
-L/Computability/Enum.v
-L/Computability/Fixpoints.v
-L/Computability/MuRec.v
-L/Computability/Partial.v
-L/Computability/Por.v
-L/Computability/Seval.v
-L/Computability/Synthetic.v
+# L/AbstractMachines/LargestVar.v
+# L/AbstractMachines/FlatPro/Programs.v
+# L/AbstractMachines/FlatPro/ProgramsDef.v
+# L/AbstractMachines/FlatPro/LM_heap_def.v
+# L/AbstractMachines/FlatPro/LM_heap_correct.v
+# L/AbstractMachines/FlatPro/UnfoldClos.v
+
+
+# L/Computability/Acceptability.v
+# L/Computability/Computability.v
+# L/Computability/Decidability.v
+# L/Computability/Enum.v
+# L/Computability/Fixpoints.v
+# L/Computability/MuRec.v
+# L/Computability/Partial.v
+# L/Computability/Por.v
+# L/Computability/Seval.v
+# L/Computability/Synthetic.v
 
 
 

@@ -223,7 +223,7 @@ Section RemoveConstants.
             rewrite <-firstn_all; cbn; now simplify.
           * eauto.  
         + econstructor; simplify; intuition.  
-          eapply vars_ordertyping_nth with (n0 := n) (Gamma0 := Gamma)
+          eapply vars_ordertyping_nth with (n := n) (Gamma := Gamma)
             in H1; eauto. 
           unfold enc_ctx;
             erewrite nth_error_app2, map_nth_error; simplify; now eauto.

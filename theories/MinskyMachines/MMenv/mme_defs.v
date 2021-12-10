@@ -215,7 +215,7 @@ Tactic Notation "mm" "env" "INC" "with" uconstr(a) :=
     | |- _ // _ ->> _ => apply mm_env_compute_INC with (x := a)
   end; auto.
 
-Tactic Notation "mm" "env" "DEC" "0" "with" uconstr(a) uconstr(b) := 
+Tactic Notation "mm" "env" "DEC" "zero" "with" uconstr(a) uconstr(b) := 
   match goal with
     | |- _ // _ -+> _ => apply mm_env_progress_DEC_0 with (x := a) (k := b)
     | |- _ // _ ->> _ => apply mm_env_compute_DEC_0 with (x := a) (k := b)

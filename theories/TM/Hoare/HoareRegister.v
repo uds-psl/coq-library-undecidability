@@ -340,7 +340,7 @@ Proof.
    eapply TerminatesIn_monotone with (T' := fun tin k' => tspec (P',P) tin /\ k <= k').
     + unfold Triple_TRel, TerminatesIn in *. intros tin k' (HP&Hk).
       specialize (HTrip (dummy_sizes tin P)) as (_&HT).
-      specialize HT with (tin0 := tin) (k0 := k). spec_assert HT as (conf&HLoop).
+      specialize HT with (tin := tin) (k := k). spec_assert HT as (conf&HLoop).
       { split. now apply tspec_tspec_withSpace. reflexivity. }
       exists conf. eapply loop_monotone; eauto.
     + unfold Triple_TRel. intros tin k' (HP&Hk). eauto.

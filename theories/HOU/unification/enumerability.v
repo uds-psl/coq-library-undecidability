@@ -243,7 +243,7 @@ Proof.
     exists Delta; exists sigma; intuition.
     pose (tau x := if nth Gamma x then sigma x else var x). exists Delta; exists tau; intuition.
     unfold tau; intros ?? H'; rewrite H'; eauto.
-    repeat rewrite subst_extensional with (sigma0 := tau) (tau0 := sigma); eauto.
+    repeat rewrite subst_extensional with (sigma := tau) (tau := sigma); eauto.
     1 - 2: intros ? H'; assert (x ∈ dom Gamma) as H1 by eauto using typing_variables; unfold tau; now domin H1.
     unfold tau. now eapply nth_error_None in H1 as ->.
   - eapply projection with (p := fun x: uni X * ctx => exists sigma, let (I, Delta) := x in Uextended (I, Delta, sigma)).

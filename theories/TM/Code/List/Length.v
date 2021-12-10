@@ -239,7 +239,7 @@ Section Lenght.
       hnf. cbn. do 2 eexists. repeat split; eauto.
       now intros _ _ _.
     }
-    Unshelve. 3:eassumption. exact _.
+    Unshelve. 3:eassumption. 2: exact _.
   Qed.
 
 End Lenght.
