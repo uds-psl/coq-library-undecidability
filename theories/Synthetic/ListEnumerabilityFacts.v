@@ -1,5 +1,5 @@
 From Undecidability.Synthetic Require Import DecidabilityFacts SemiDecidabilityFacts EnumerabilityFacts.
-From Undecidability Require Import Shared.embed_nat.
+Require Cantor.
 Require Import List.
 Import ListNotations.
 
@@ -73,24 +73,24 @@ Section enumerator_list_enumerator.
   Variables (T : nat -> list X).
 
   Let e (n : nat) : option X :=
-    let (n, m) := unembed n in
+    let (n, m) := Cantor.of_nat n in
     nth_error (T n) m.
 
   Lemma list_enumerator_to_enumerator : forall x, (exists n, e n = Some x) <-> (exists n, In x (T n)).
   Proof.
     split; intros [k H].
     - unfold e in *.
-      destruct (unembed k) as (n, m).
+      destruct (Cantor.of_nat k) as (n, m).
       exists n. eapply (nth_error_In _ _ H).
     - unfold e in *.
       eapply In_nth_error in H as [m].
-      exists (embed (k, m)). now rewrite embedP, H.
+      exists (Cantor.to_nat (k, m)). now rewrite Cantor.cancel_of_to, H.
   Qed.
 
 End enumerator_list_enumerator.
 
 Lemma list_enumerator_enumerator {X} {p : X -> Prop} {T} :
-  list_enumerator T p -> enumerator (fun n => let (n, m) := unembed n in
+  list_enumerator T p -> enumerator (fun n => let (n, m) := Cantor.of_nat n in
     nth_error (T n) m) p.
 Proof.
   unfold list_enumerator.
@@ -284,7 +284,7 @@ Existing Instance enumerator__T_list.
 
 #[global]
 Instance enumerator__T_to_list {X} {f} :
-  list_enumerator__T f X -> enumerator__T (fun n => let (n, m) := unembed n in nth_error (f n) m) X | 100.
+  list_enumerator__T f X -> enumerator__T (fun n => let (n, m) := Cantor.of_nat n in nth_error (f n) m) X | 100.
 Proof.
   intros H x. eapply list_enumerator_to_enumerator in H. exact H.
 Qed.

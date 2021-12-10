@@ -1,5 +1,5 @@
 From Undecidability.Synthetic Require Import DecidabilityFacts SemiDecidabilityFacts.
-From Undecidability.Shared Require Import embed_nat.
+Require Cantor.
 
 Local Notation "'if!' x 'is' p 'then' a 'else' b" := (match x with p => a | _ => b end) (at level 0, p pattern).
 
@@ -26,12 +26,12 @@ Lemma semi_decidable_enumerable {X} {p : X -> Prop} :
 Proof.
   unfold semi_decidable, semi_decider.
   intros [e He] [f Hf].
-  exists (fun p => let (n, m) := unembed p in
+  exists (fun p => let (n, m) := Cantor.of_nat p in
            if! e n is Some x then if f x m then Some x else None else None).
   intros x. rewrite Hf. split.
   - intros [n Hn]. destruct (He x) as [m Hm].
-    exists (embed (m,n)). now rewrite embedP, Hm, Hn.
-  - intros [mn Hmn]. destruct (unembed mn) as (m, n).
+    exists (Cantor.to_nat (m,n)). now rewrite Cantor.cancel_of_to, Hm, Hn.
+  - intros [mn Hmn]. destruct (Cantor.of_nat mn) as (m, n).
     destruct (e m) as [x'|]; try congruence.
     destruct (f x' n) eqn:E; inversion Hmn. subst.
     exists n. exact E.
@@ -84,7 +84,7 @@ Proof.
 Qed.
 
 Definition prod_enum {X Y} (f1 : nat -> option X) (f2 : nat -> option Y) n : option (X * Y) :=
-  let (n, m) := unembed n in
+  let (n, m) := Cantor.of_nat n in
   if! (f1 n, f2 m) is (Some x, Some y) then Some (x, y) else None.
 Lemma enumerator__T_prod {X Y} f1 f2 :
   enumerator__T f1 X -> enumerator__T f2 Y ->
@@ -92,8 +92,8 @@ Lemma enumerator__T_prod {X Y} f1 f2 :
 Proof.
   intros H1 H2 (x, y).
   destruct (H1 x) as [n1 Hn1], (H2 y) as [n2 Hn2].
-  exists (embed (n1, n2)). unfold prod_enum.
-  now rewrite embedP, Hn1, Hn2.
+  exists (Cantor.to_nat (n1, n2)). unfold prod_enum.
+  now rewrite Cantor.cancel_of_to, Hn1, Hn2.
 Qed.
 
 Definition option_enum {X} (f : nat -> option X) n :=
