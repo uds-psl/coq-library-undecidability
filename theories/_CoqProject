@@ -116,6 +116,7 @@ Shared/Libs/PSL/Base.v
 Shared/Libs/PSL/Tactics/Tactics.v
 Shared/Libs/PSL/Tactics/AutoIndTac.v
 Shared/Libs/PSL/Prelim.v
+Shared/Libs/PSL/EqDecDef.v
 Shared/Libs/PSL/EqDec.v
 Shared/Libs/PSL/Numbers.v
 Shared/Libs/PSL/Bijection.v
@@ -139,6 +140,7 @@ Shared/Libs/PSL/Vectors/VectorForall.v
 
 Shared/Libs/PSL/FiniteTypes.v
 Shared/Libs/PSL/FiniteTypes/BasicDefinitions.v
+Shared/Libs/PSL/FiniteTypes/FinTypesDef.v
 Shared/Libs/PSL/FiniteTypes/FinTypes.v
 Shared/Libs/PSL/FiniteTypes/BasicFinTypes.v
 Shared/Libs/PSL/FiniteTypes/CompoundFinTypes.v
