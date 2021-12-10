@@ -36,10 +36,10 @@ Section ND_def.
     1-2,7-15: eauto using in_map.
     - apply AllI. setoid_rewrite map_map in IHprv. erewrite map_map, map_ext.
       apply IHprv. intros ?. cbn. now rewrite up_form.
-    - specialize (IHprv xi). apply AllE with (t0 := t`[xi]) in IHprv. rewrite subst_comp in *.
+    - specialize (IHprv xi). apply AllE with (t := t`[xi]) in IHprv. rewrite subst_comp in *.
       erewrite subst_ext; try apply IHprv. intros [|]; cbn; trivial.
       unfold funcomp. now setoid_rewrite subst_term_shift.
-    - specialize (IHprv xi). eapply ExI with (t0 := t`[xi]). rewrite subst_comp in *.
+    - specialize (IHprv xi). eapply ExI with (t := t`[xi]). rewrite subst_comp in *.
       erewrite subst_ext; try apply IHprv. intros [|]; cbn; trivial.
       unfold funcomp. now setoid_rewrite subst_term_shift.
     - eapply ExE in IHprv1. eassumption. rewrite map_map.

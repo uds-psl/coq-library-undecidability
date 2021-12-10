@@ -106,7 +106,7 @@ Section NthOrderSystemUnification.
     ord' L < n -> ord A <= n ->
     Gamma ⊢₊(n) S : L -> Gamma ⊢(n) linearize_terms S : (Arr (rev L) A) → A.
   Proof.
-    intros H; econstructor; eapply AppR_ordertyping with (L0 := L).
+    intros H; econstructor; eapply AppR_ordertyping with (L := L).
     eapply orderlisttyping_preservation_under_renaming; eauto.
     intros x ?; cbn; eauto.
     econstructor; eauto; simplify; cbn; intuition.
@@ -223,8 +223,8 @@ Section Normalisation.
     pose (theta x := if nth (Gammaᵤ I) x then tau x else var x).
     exists Delta. exists theta. intuition.
     + intros ???; unfold theta; rewrite H; eapply H7; eauto.
-    + rewrite subst_pointwise_equiv with (sigma0 := theta) (tau0 := sigma).
-      rewrite subst_pointwise_equiv with (sigma0 := theta) (tau0 := sigma); eauto.
+    + rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma).
+      rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma); eauto.
       all: intros ? H; eapply typing_variables in H; eauto; domin H.
       all: unfold theta; now rewrite H, H5.
     + unfold theta; destruct nth eqn: ?; [|eauto].
@@ -240,8 +240,8 @@ Section Normalisation.
     pose (theta x := if nth (Gamma₀ I) x then tau x else var x).
     exists Delta. exists theta. intuition.
     + intros ???; unfold theta; rewrite H; eapply H7; eauto.
-    + rewrite subst_pointwise_equiv with (sigma0 := theta) (tau0 := sigma).
-      rewrite subst_pointwise_equiv with (sigma0 := theta) (tau0 := sigma); eauto.
+    + rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma).
+      rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma); eauto.
       all: intros ? H; eapply typing_variables in H; eauto; domin H.
       all: unfold theta; now rewrite H, H5.
     + unfold theta; destruct nth eqn: ?; [|eauto]; domin Heqo; eauto.
@@ -256,8 +256,8 @@ Section Normalisation.
     exists Delta. exists theta. intuition.
     + intros ???; unfold theta; rewrite H; eapply H7; eauto.
     + intros; eauto.
-      rewrite subst_pointwise_equiv with (sigma0 := theta) (tau0 := sigma).
-      rewrite subst_pointwise_equiv with (sigma0 := theta) (tau0 := sigma); eauto.
+      rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma).
+      rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma); eauto.
       all: intros ? ?; enough (x ∈ dom Gamma₀') as D;
         [domin D; unfold theta; rewrite D; eauto|].
       all: eapply Vars_listtyping.

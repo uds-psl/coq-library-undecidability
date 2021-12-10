@@ -158,7 +158,7 @@ Section Conservativity.
       ord' Sigma <= 1 /\ (forall x c, c ∈ consts (tau x) -> c ∈ Consts [s; t]).
     Proof using n Leq.
       intros [m H] % ordertypingSubst_complete EQ.
-      eapply ordertypingSubst_monotone with (m0 := S m) in H; eauto.
+      eapply ordertypingSubst_monotone with (m := S m) in H; eauto.
       eapply downcast_constants_ordered in H as (Sigma & tau & ?); [|lia|eauto].
       exists Sigma; exists tau; intuition. eapply ordertypingSubst_soundness; eauto.
     Qed.
@@ -205,7 +205,7 @@ Section Conservativity.
     - intros x B H'. unfold tau. rewrite H'; destruct dec_in.
       eapply weakening_ordertyping_app, T; eauto.
       eapply ordertyping_monotone; eauto.
-    - rewrite !(subst_extensional) with (sigma0 := tau) (tau0 := sigma); eauto.
+    - rewrite !(subst_extensional) with (sigma := tau) (tau := sigma); eauto.
       all: intros; unfold tau; destruct dec_in; eauto; simplify in *.
       all: exfalso; eauto.
   Qed.

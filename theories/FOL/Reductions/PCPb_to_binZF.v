@@ -1069,7 +1069,7 @@ Section Deduction.
     - apply AllI. erewrite map_app, ZF_subst', rm_const_shift_subst. apply H0. now rewrite map_app, ZF_subst.
     - pose proof (rm_const_tm_prv t). eapply Weak in H1. apply (ExE _ H1). 2: auto.
       edestruct (nameless_equiv_ex ([rm_const_fm p | p ∈ A0] ++ binZF)) as [x ->]. specialize (H0 A0 eq_refl).
-      apply (AllE x) in H0. apply rm_const_fm_swap with (x0:=x); auto. apply (Weak H0). auto.
+      apply (AllE x) in H0. apply rm_const_fm_swap with (x:=x); auto. apply (Weak H0). auto.
     - pose proof (rm_const_tm_prv t). eapply Weak in H1. apply (ExE _ H1). 2: auto.
       edestruct (nameless_equiv_ex ([rm_const_fm p | p ∈ A0] ++ binZF)) as [x ->]. specialize (H0 A0 eq_refl).
       apply (ExI x). apply <- rm_const_fm_swap; auto. apply (Weak H0). auto.

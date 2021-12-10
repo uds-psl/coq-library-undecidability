@@ -187,7 +187,7 @@ Section SystemUnification.
   Lemma linearize_terms_typing Gamma S L A:
     Gamma ⊢₊ S : L -> Gamma ⊢ linearize_terms S : (Arr (rev L) A) → A.
   Proof.
-    intros H; econstructor; eapply AppR_typing with (L0 := L).
+    intros H; econstructor; eapply AppR_typing with (L := L).
     eapply listtyping_preservation_under_renaming; eauto.
     intros x ?; cbn; eauto.
     econstructor; eauto; simplify; cbn; intuition.
@@ -276,8 +276,8 @@ Proof.
   pose (theta x := if nth (@Gammaᵤ' _ I) x then tau x else var x).
   exists Delta. exists theta. intuition.
   + intros ???; unfold theta; rewrite H; eapply H7; eauto.
-  + rewrite subst_pointwise_equiv with (sigma0 := theta) (tau0 := sigma).
-    rewrite subst_pointwise_equiv with (sigma0 := theta) (tau0 := sigma); eauto.
+  + rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma).
+    rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma); eauto.
     all: intros ? ?; enough (x ∈ dom Gammaᵤ') as D;
       [domin D; unfold theta; rewrite D|]; eauto.
     all: eapply Vars_listtyping.

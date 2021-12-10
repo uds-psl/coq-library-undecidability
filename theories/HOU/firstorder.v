@@ -1,7 +1,7 @@
 Set Implicit Arguments.
 
 From Equations Require Import Equations.
-Require Import List Lia Arith Wf Morphisms Program.Program.
+Require Import List Lia Arith Init.Wf Morphisms Program.Program.
 From Undecidability.HOU Require Import unification.unification concon.conservativity calculus.calculus.
 Import ListNotations.
 
@@ -895,7 +895,7 @@ Section Retyping.
     assert (ord' L' <= n).
     - destruct s; destruct i; inv H2; simplify in H4. intuition.
       rewrite H4 in H5; simplify in H5; intuition.
-    - eapply AppR_ordertyping with (L0 := retype_ctx n L').
+    - eapply AppR_ordertyping with (L := retype_ctx n L').
       + clear H2.
         induction H0; eauto.
         econstructor. all: cbn in H3; simplify in H3. 2:intuition.
@@ -972,13 +972,13 @@ Section FirstOrderDecidable.
     sigma • s ≡ sigma • t -> sigma • s = sigma • t.
   Proof.
     intros. rewrite !subst_extensional
-              with (sigma0 := sigma)
+              with (sigma := sigma)
                    (tau := fun x => if x el (vars s ++ vars t) then sigma x else var x).
     2 - 3: intros; edestruct dec_in as [D|D]; simplify in D; intuition.
     eapply equiv_unique_normal_forms. intuition.
     1: rewrite !subst_extensional
       with (tau := sigma)
-           (sigma0 := fun x => if x el (vars s ++ vars t) then sigma x else var x); eauto. 
+           (sigma := fun x => if x el (vars s ++ vars t) then sigma x else var x); eauto. 
     1 - 2: intros; edestruct dec_in as [D|D]; simplify in D; intuition.
     all: eapply normal_subst; eauto 2; intros x; destruct dec_in; eauto 2.
     all: simplify in i; destruct i as [V|V]; eapply vars_ordertyping in V as V'; eauto 2.
@@ -991,7 +991,7 @@ Section FirstOrderDecidable.
     free' (free (length L)) sigma -> L ++ Gamma ⊩(n) sigma : L ++ Gamma -> Gamma ⊩(n) decr (length L) sigma : Gamma.
   Proof.
     intros ? ? x A ?; unfold decr. destruct H as [F1 F2].
-    eapply ordertyping_weak_preservation_under_renaming with (Gamma0 := L ++ Gamma).
+    eapply ordertyping_weak_preservation_under_renaming with (Gamma := L ++ Gamma).
     - eapply H0. rewrite nth_error_app2; simplify; eauto. 
     - intros y B H ?. eapply F2 in H2; unfold free in *; eauto. 
       rewrite nth_error_app2 in H; simplify in *; eauto.

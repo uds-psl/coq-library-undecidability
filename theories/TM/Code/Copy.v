@@ -375,8 +375,8 @@ End Move.
 
 Arguments Reset_size {X sigX cX} : simpl never.
 Arguments Reset_steps {X sigX cX} : simpl never.
-Typeclasses Opaque Reset_size.
-Typeclasses Opaque Reset_steps.
+#[export] Typeclasses Opaque Reset_size.
+#[export] Typeclasses Opaque Reset_steps.
 
 
 (* Copy a value from to an internal (right) tape *)
@@ -447,8 +447,8 @@ End CopyValue.
 
 Arguments CopyValue_size {X sig cX} : simpl never.
 Arguments CopyValue_steps {X sig cX} : simpl never.
-Typeclasses Opaque CopyValue_size.
-Typeclasses Opaque CopyValue_steps.
+#[export] Typeclasses Opaque CopyValue_size.
+#[export] Typeclasses Opaque CopyValue_steps.
 
 
 (* Copy and overwrite a value *)
@@ -524,8 +524,8 @@ End MoveValue.
 Arguments MoveValue_size_x {X sigX cX} : simpl never.
 Arguments MoveValue_size_y {X Y sigX sigY cX cY} : simpl never.
 Arguments MoveValue_steps {X Y sigX sigY cX cY} : simpl never.
-Typeclasses Opaque MoveValue_size_x MoveValue_size_y.
-Typeclasses Opaque MoveValue_steps.
+#[export] Typeclasses Opaque MoveValue_size_x MoveValue_size_y.
+#[export] Typeclasses Opaque MoveValue_steps.
 
 
 Section Translate.

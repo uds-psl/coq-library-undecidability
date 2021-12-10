@@ -70,7 +70,7 @@ Section SimplifiedReduction.
     destruct P as [c C].
     intros (Delta & sigma & T1 & EQ).
     specialize (T1 0 (Arr (repeat (alpha → alpha) (length C)) alpha)); mp T1; eauto.
-    eapply ordertyping_preservation_under_renaming with (delta := add 2) (Delta0 := alpha :: alpha :: Delta) in T1.
+    eapply ordertyping_preservation_under_renaming with (delta := add 2) (Delta := alpha :: alpha :: Delta) in T1.
     2: intros ??; cbn; eauto. 
     eapply main_lemma with (u := 0) (v := 1) in T1 as (I & S & H); eauto.
     2, 3: intros (?&?&?) % vars_ren; discriminate. 

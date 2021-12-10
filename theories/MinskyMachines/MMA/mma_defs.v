@@ -192,7 +192,7 @@ Tactic Notation "mma" "sss" "INC" "with" uconstr(a) :=
     | |- _ // _ ->> _ => apply mma_sss_compute_INC with (x := a)
   end; auto.
 
-Tactic Notation "mma" "sss" "DEC" "0" "with" uconstr(a) uconstr(b) := 
+Tactic Notation "mma" "sss" "DEC" "zero" "with" uconstr(a) uconstr(b) := 
   match goal with
     | |- _ // _ -+> _ => apply mma_sss_progress_DEC_0 with (x := a) (k := b)
     | |- _ // _ ->> _ => apply mma_sss_compute_DEC_0 with (x := a) (k := b)
