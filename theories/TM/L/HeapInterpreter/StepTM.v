@@ -574,8 +574,8 @@ Section StepMachine.
       TMSimp. rename H into HIf.
       destruct HIf; TMSimp.
       { (* Then of first [CaseList], i.e. [V = g :: V'] *) rename H into HCaseList, H0 into HIf'.
-        specialize (HInt Fin0) as ?. specialize (HInt Fin1) as ?. specialize (HInt Fin2) as ?.
-        specialize (HInt Fin3) as ?. specialize (HInt Fin4) as ?. specialize (HInt Fin5) as ?. clear HInt. cbn in *.
+        pose proof (HInt Fin0) as ?. pose proof (HInt Fin1) as ?. pose proof (HInt Fin2) as ?.
+        pose proof (HInt Fin3) as ?. pose proof (HInt Fin4) as ?. pose proof (HInt Fin5) as ?. clear HInt. cbn in *.
         modpon HCaseList.
         destruct V as [ | g V']; auto; modpon HCaseList.
         destruct HIf'; TMSimp. (* This takes VERY long *)
@@ -643,12 +643,12 @@ Section StepMachine.
       cbn; repeat split; try lia.
       { exists V. repeat split; simpl_surject; eauto. apply HInt. }
       intros tmid_ bml1 (HCaseList&HCaseListInj); TMSimp. 
-      specialize (HInt Fin0) as ?.
-      specialize (HInt Fin1) as ?.
-      specialize (HInt Fin2) as ?.
-      specialize (HInt Fin3) as ?.
-      specialize (HInt Fin4) as ?.
-      specialize (HInt Fin5) as ?. 
+      pose proof (HInt Fin0) as ?.
+      pose proof (HInt Fin1) as ?.
+      pose proof (HInt Fin2) as ?.
+      pose proof (HInt Fin3) as ?.
+      pose proof (HInt Fin4) as ?.
+      pose proof (HInt Fin5) as ?. 
 
       modpon HCaseList.
       destruct bml1, V as [ | g V']; auto; modpon HCaseList.

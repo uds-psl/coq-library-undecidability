@@ -159,7 +159,7 @@ Section Fix.
   Local Arguments "*"%nat : simpl never.
 
   Local Arguments UpToC.f__UpToC {_ _} _ _.
-
+  Open Scope nat_scope.
   
   (* This function is copied from the end of the proof of SpecT__step' and not written by hand*)
   Definition steps_step H (stack : list (HAdd * list Tok * nat)) :=

@@ -29,7 +29,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 1
-    
+
     - name: Build dependencies
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
@@ -37,9 +37,9 @@ jobs:
         opam repo add coq-core-dev https://coq.inria.fr/opam/core-dev
         opam update
         opam upgrade
-#        opam pin add -n -y -k git coq-metacoq-template.dev+8.14 "https://github.com/MetaCoq/metacoq.git#3d83286"
+        opam pin add -n -y -k git coq-metacoq-template.dev+8.15 "https://github.com/yforster/template-coq.git#dad61c22c3"
         opam pin add -n -y -k git coq-smpl.8.15 "https://github.com/uds-psl/smpl.git#54a001b79"
-        opam pin add -n -y -k git coq-equations.dev+8.15 "github.com/mattam82/Coq-Equations.git#722cccfe0"
+        opam pin add -n -y -k git coq-equations.dev+8.15 "https://github.com/yforster/Coq-Equations.git#b70c4acf8"
         opam install . --deps-only --with-doc --with-test 
         opam list --installed
   
