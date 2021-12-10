@@ -390,7 +390,7 @@ Section ra_compiler.
     Proof.
       intros G1.
       unfold Q2.
-      mm env DEC 0 with v0 (23+length F+length G+9*n+i).
+      mm env DEC zero with v0 (23+length F+length G+9*n+i).
       mm env stop; f_equal; rew length.
       unfold s2; lia.
     Qed.
@@ -453,7 +453,7 @@ Section ra_compiler.
         { unfold s2, Q2; revert G8; apply subcode_sss_compute; auto. }
         mm env INC with m.
         { unfold s2; subcode_tac. }
-        mm env DEC 0 with zero s2.
+        mm env DEC zero with zero s2.
         { unfold s2; subcode_tac. }
         { rewrite get_set_env_neq; try lia.
           rewrite G7, get_set_env_neq; try lia.
@@ -896,7 +896,7 @@ Section ra_compiler.
       apply sss_compute_progress_trans with (length F+s1,e1).
       * unfold Q2; revert G5; apply subcode_sss_compute; auto.
       * rewrite min_Q2_length; unfold Q2.
-        mm env DEC 0 with o (3+length F+s1).
+        mm env DEC zero with o (3+length F+s1).
         1: rewrite G4; rew env.
         mm env stop.
     Qed.
@@ -924,7 +924,7 @@ Section ra_compiler.
       mm env DEC S with o (3 + length F + s1) x.
       { rewrite G4; rew env. }
       mm env INC with m.
-      mm env DEC 0 with zero s1.
+      mm env DEC zero with zero s1.
       { do 2 (rewrite get_set_env_neq; try lia).
         rewrite G4, get_set_env_neq, G1; lia. }
       mm env stop; f_equal.

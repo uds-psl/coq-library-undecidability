@@ -92,12 +92,12 @@ Section fixi.
     Proof.
       unfold MOVE_L.
       destruct t as [[ [ | l ls] [ [] | ] ] rs].
-      - bsm sss POP 1 with CURR (8 + i) (5 + i) [].
+      - bsm sss POP one with CURR (8 + i) (5 + i) [].
         bsm sss POP empty with LEFT (14 + i) (12 + i).
         bsm sss PUSH with RIGHT true.
         bsm sss POP empty with ZERO END END.
         bsm sss stop.
-      - bsm sss POP 0 with CURR (8 + i) (5 + i) [].
+      - bsm sss POP zero with CURR (8 + i) (5 + i) [].
         bsm sss POP empty with LEFT (21 + i) (19 + i). 
         bsm sss PUSH with RIGHT false.
         bsm sss POP empty with ZERO END END.
@@ -105,36 +105,36 @@ Section fixi.
       - bsm sss POP empty with CURR (8 + i) (5 + i).
         bsm sss POP empty with LEFT (17 + i) END.
         bsm sss stop.
-      - bsm sss POP 1 with CURR (8 + i) (5 + i) [].
+      - bsm sss POP one with CURR (8 + i) (5 + i) [].
         destruct l.
-        + bsm sss POP 1 with LEFT (14 + i) (12 + i) ls.
+        + bsm sss POP one with LEFT (14 + i) (12 + i) ls.
           bsm sss PUSH with CURR true.
           bsm sss PUSH with RIGHT true.
           bsm sss POP empty with ZERO END END.
           bsm sss stop.
-        + bsm sss POP 0 with LEFT (14 + i) (12 + i) ls.
+        + bsm sss POP zero with LEFT (14 + i) (12 + i) ls.
           bsm sss PUSH with CURR false.
           bsm sss PUSH with RIGHT true.
           bsm sss POP empty with ZERO END END.
           bsm sss stop.
-      - bsm sss POP 0 with CURR (8 + i) (5 + i) [].
+      - bsm sss POP zero with CURR (8 + i) (5 + i) [].
         destruct l.
-        + bsm sss POP 1 with LEFT (21 + i) (19 + i) ls.
+        + bsm sss POP one with LEFT (21 + i) (19 + i) ls.
           bsm sss PUSH with CURR true.
           bsm sss PUSH with RIGHT false.
           bsm sss POP empty with ZERO END END.
           bsm sss stop.
-        + bsm sss POP 0 with LEFT (21 + i) (19 + i) ls.
+        + bsm sss POP zero with LEFT (21 + i) (19 + i) ls.
           bsm sss PUSH with CURR false.
           bsm sss PUSH with RIGHT false.
           bsm sss stop. 
       - bsm sss POP empty with CURR (8 + i) (5 + i).
         destruct l.
-        + bsm sss POP 1 with LEFT (17 + i) END ls.
+        + bsm sss POP one with LEFT (17 + i) END ls.
           bsm sss PUSH with CURR true.
           bsm sss POP empty with ZERO END END.
           bsm sss stop.
-        + bsm sss POP 0 with LEFT (17 + i) END ls.
+        + bsm sss POP zero with LEFT (17 + i) END ls.
           bsm sss PUSH with CURR false.
           bsm sss POP empty with ZERO END END.
           bsm sss stop. 
@@ -174,12 +174,12 @@ Section fixi.
     Proof.
       unfold MOVE_R.
       destruct t as [[ls c] rs]; destruct rs as [ | r rs], c as [ [] | ].
-      - bsm sss POP 1 with CURR (8 + i) (5 + i) [].
+      - bsm sss POP one with CURR (8 + i) (5 + i) [].
         bsm sss POP empty with RIGHT (14 + i) (12 + i).
         bsm sss PUSH with LEFT true.
         bsm sss POP empty with ZERO END END.
         bsm sss stop.
-      - bsm sss POP 0 with CURR (8 + i) (5 + i) [].
+      - bsm sss POP zero with CURR (8 + i) (5 + i) [].
         bsm sss POP empty with RIGHT (21 + i) (19 + i). 
         bsm sss PUSH with LEFT false.
         bsm sss POP empty with ZERO END END.
@@ -187,36 +187,36 @@ Section fixi.
       - bsm sss POP empty with CURR (8 + i) (5 + i).
         bsm sss POP empty with RIGHT (17 + i) END.
         bsm sss stop.
-      - bsm sss POP 1 with CURR (8 + i) (5 + i) [].
+      - bsm sss POP one with CURR (8 + i) (5 + i) [].
         destruct r.
-        + bsm sss POP 1 with RIGHT (14 + i) (12 + i) rs.
+        + bsm sss POP one with RIGHT (14 + i) (12 + i) rs.
           bsm sss PUSH with CURR true.
           bsm sss PUSH with LEFT true.
           bsm sss POP empty with ZERO END END.
           bsm sss stop.
-        + bsm sss POP 0 with RIGHT (14 + i) (12 + i) rs.
+        + bsm sss POP zero with RIGHT (14 + i) (12 + i) rs.
           bsm sss PUSH with CURR false.
           bsm sss PUSH with LEFT true.
           bsm sss POP empty with ZERO END END.
           bsm sss stop.
-      - bsm sss POP 0 with CURR (8 + i) (5 + i) [].
+      - bsm sss POP zero with CURR (8 + i) (5 + i) [].
         destruct r.
-        + bsm sss POP 1 with RIGHT (21 + i) (19 + i) rs.
+        + bsm sss POP one with RIGHT (21 + i) (19 + i) rs.
           bsm sss PUSH with CURR true.
           bsm sss PUSH with LEFT false.
           bsm sss POP empty with ZERO END END.
           bsm sss stop.
-        + bsm sss POP 0 with RIGHT (21 + i) (19 + i) rs.
+        + bsm sss POP zero with RIGHT (21 + i) (19 + i) rs.
           bsm sss PUSH with CURR false.
           bsm sss PUSH with LEFT false.
           bsm sss stop. 
       - bsm sss POP empty with CURR (8 + i) (5 + i).
         destruct r.
-        + bsm sss POP 1 with RIGHT (17 + i) END rs.
+        + bsm sss POP one with RIGHT (17 + i) END rs.
           bsm sss PUSH with CURR true.
           bsm sss POP empty with ZERO END END.
           bsm sss stop.
-        + bsm sss POP 0 with RIGHT (17 + i) END rs.
+        + bsm sss POP zero with RIGHT (17 + i) END rs.
           bsm sss PUSH with CURR false.
           bsm sss POP empty with ZERO END END.
           bsm sss stop. 
@@ -343,7 +343,7 @@ Section fixM.
         eapply in_sss_step with (l := []). cbn; lia.
         econstructor 3. reflexivity.
         unfold PROG.
-        (* bsm sss POP 1 with CURR (26 + off) (51 + off) []. bsm sss stop.  *)
+        (* bsm sss POP one with CURR (26 + off) (51 + off) []. bsm sss stop.  *)
         destruct (δ (i, Some true)) as [ [[q' w] m] | ] eqn:Eq_nxt.
         + edestruct (@case_Some_false w) as [ [H H0] | [H H0]].
           * rewrite H.
@@ -387,7 +387,7 @@ Section fixM.
         eapply in_sss_step with (l := []). cbn; lia.
         econstructor 2. reflexivity.
         unfold PROG.
-(*         bsm sss POP 0 with CURR (26 + off) (51 + off) []. *) 
+(*         bsm sss POP zero with CURR (26 + off) (51 + off) []. *) 
         eapply subcode_sss_compute_trans; try eapply subcode1. 2:{ bsm sss stop. }
         destruct (δ (i, Some false)) as [ [[q' w] m] | ] eqn:Eq_nxt.
         + edestruct (@case_Some_true w) as [ [] | []].

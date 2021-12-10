@@ -57,7 +57,7 @@ Section mm_env_utils.
       induction k as [ | k IHk ]; intros e x H1 H2 H3.
       + exists e; split.
         * intros j; dest j src; dest j dst.
-        * mm env DEC 0 with src (3+i).
+        * mm env DEC zero with src (3+i).
           mm env stop; f_equal; auto.
       + destruct IHk with (e := e⦃src⇠k⦄⦃dst⇠1+x⦄) (x := 1+x)
           as (e' & H4 & H5); rew env.
@@ -67,7 +67,7 @@ Section mm_env_utils.
           dest j src.
         * mm env DEC S with src (3+i) k.
           mm env INC with dst.
-          mm env DEC 0 with zero i; rew env.
+          mm env DEC zero with zero i; rew env.
           rewrite H2.
           apply sss_progress_compute; auto.
     Qed.
@@ -111,14 +111,14 @@ Section mm_env_utils.
       induction x as [ | x IHx ]; intros e H1 H2.
       + exists e; split.
         * intros j; dest j dst.
-        * mm env DEC 0 with dst (2+i).
+        * mm env DEC zero with dst (2+i).
           mm env stop; f_equal; auto.
       + destruct IHx with (e := e⦃dst⇠x⦄)
           as (e' & H4 & H5); rew env.
         exists e'; split.
         * intros j; rewrite H4; dest j dst.
         * mm env DEC S with dst (2+i) x.
-          mm env DEC 0 with zero i; rew env.
+          mm env DEC zero with zero i; rew env.
           apply sss_progress_compute; auto.
     Qed.
 
@@ -244,7 +244,7 @@ Section mm_env_utils.
       induction k as [ | k IHk ]; intros e x y H1 H2 H3 H4.
       + exists e; split.
         * intros j; dest j src; dest j dst; dest j tmp.
-        * mm env DEC 0 with src (4+i).
+        * mm env DEC zero with src (4+i).
           mm env stop; f_equal; auto.
       + destruct IHk with (e := e⦃src⇠k⦄⦃dst⇠1+x⦄⦃tmp⇠1+y⦄) (x := 1+x) (y := 1+y)
           as (e' & H5 & H6); rew env.
@@ -256,7 +256,7 @@ Section mm_env_utils.
         * mm env DEC S with src (4+i) k.
           mm env INC with dst.
           mm env INC with tmp.
-          mm env DEC 0 with zero i; rew env.
+          mm env DEC zero with zero i; rew env.
           rewrite H2, H3.
           apply sss_progress_compute; auto.
     Qed.

@@ -54,12 +54,12 @@ Section Minsky_Machine_utils.
       revert v w.
       induction k as [ | k IHk ]; intros v w H1 H2 H3; subst w.
       
-      mm sss DEC 0 with src (2+i).
+      mm sss DEC zero with src (2+i).
       mm sss stop; f_equal.
       apply vec_pos_ext; intros z; dest z src.
 
       mm sss DEC S with src (2+i) k.
-      mm sss DEC 0 with zero i; rew vec.
+      mm sss DEC zero with zero i; rew vec.
       apply sss_progress_compute.
       apply IHk; rew vec.
     Qed.
@@ -151,14 +151,14 @@ Section Minsky_Machine_utils.
       revert v w x.
       induction k as [ | k IHk ]; intros v w x H1 H2 H3 H4; subst w.
 
-      mm sss DEC 0 with src (3+i).
+      mm sss DEC zero with src (3+i).
       mm sss stop; f_equal; auto.
       apply vec_pos_ext; intros p.
       dest p dst; dest p src.
 
       mm sss DEC S with src (3+i) k.
       mm sss INC with dst.
-      mm sss DEC 0 with zero i; rew vec.
+      mm sss DEC zero with zero i; rew vec.
       replace (S k + x) with (k + S x) by lia.
       apply sss_progress_compute.
       apply IHk with (S x); rew vec.
@@ -206,7 +206,7 @@ Section Minsky_Machine_utils.
       induction k as [ | k IHk ]; intros v w H1 H4 H3.
 
       simpl in H1.
-      mm sss DEC 0 with src (6+i).
+      mm sss DEC zero with src (6+i).
       mm sss stop; f_equal; subst.
       apply vec_pos_ext; intros p.
       dest p quo; dest p src.
@@ -217,7 +217,7 @@ Section Minsky_Machine_utils.
       mm sss DEC S with src (i+6) (2*k); rew vec.
       mm sss DEC S with rem (4+i) (v#>rem); rew vec.
       mm sss INC with quo; rew vec.
-      mm sss DEC 0 with rem i; rew vec.
+      mm sss DEC zero with rem i; rew vec.
       apply sss_progress_compute.
       apply IHk; auto; rew vec.
       subst; apply vec_pos_ext; intros p.
@@ -235,7 +235,7 @@ Section Minsky_Machine_utils.
       simpl in H1.
       mm sss DEC S with src (6+i) 0.
       mm sss INC with rem.
-      mm sss DEC 0 with src (i+6); rew vec.
+      mm sss DEC zero with src (i+6); rew vec.
       mm sss stop; f_equal; try lia.
       subst; simpl.
       apply vec_pos_ext; intros p.
@@ -247,7 +247,7 @@ Section Minsky_Machine_utils.
       mm sss DEC S with src (i+6) (1+2*k); rew vec.
       mm sss DEC S with rem (4+i) (v#>rem); rew vec.
       mm sss INC with quo; rew vec.
-      mm sss DEC 0 with rem i; rew vec.
+      mm sss DEC zero with rem i; rew vec.
       apply sss_progress_compute.
       apply IHk; auto; rew vec.
       subst; apply vec_pos_ext; intros p.
@@ -322,7 +322,7 @@ Section Minsky_Machine_utils.
       unfold mm_mul2.
       revert v w; induction k as [ | k IHk ]; intros v w H1 H2 H3.
 
-      mm sss DEC 0 with src (4+i).
+      mm sss DEC zero with src (4+i).
       mm sss stop; f_equal; subst.
       apply vec_pos_ext; intros p.
       dest p dst; dest p src.
@@ -330,7 +330,7 @@ Section Minsky_Machine_utils.
       mm sss DEC S with src (4+i) k.
       mm sss INC with dst.
       mm sss INC with dst'.
-      mm sss DEC 0 with zero i; rew vec.
+      mm sss DEC zero with zero i; rew vec.
       unfold dst'; rew vec.
       apply sss_progress_compute.
       apply IHk; unfold dst'; rew vec.
@@ -488,10 +488,10 @@ Section Minsky_Machine_utils.
       apply vec_pos_ext; intros p.
       dest p tmp2; dest p src; dest p tmp1.
 
-      mm sss DEC 0 with src (13+i); rew vec.
+      mm sss DEC zero with src (13+i); rew vec.
       mm sss DEC S with tmp2 k 0; rew vec.
       mm sss INC with src'; unfold src'; rew vec.
-      mm sss DEC 0 with tmp2 e; rew vec.
+      mm sss DEC zero with tmp2 e; rew vec.
       mm sss stop; f_equal.
       apply vec_pos_ext; intros p.
       dest p tmp2; dest p src; dest p tmp1.
@@ -522,7 +522,7 @@ Section Minsky_Machine_utils.
       destruct (stack_enc_S s) as (q & Hq).
       mm sss DEC S with src (13+i) q; rew vec.
       mm sss INC with src; rew vec.
-      mm sss DEC 0 with tmp2 j; rew vec.
+      mm sss DEC zero with tmp2 j; rew vec.
       mm sss stop; f_equal.
       apply vec_pos_ext; intros p.
       dest p src; dest p tmp2; dest p tmp1.
@@ -554,7 +554,7 @@ Section Minsky_Machine_utils.
       mm sss DEC S with src (13+i) q; rew vec.
       mm sss INC with src; rew vec.
       mm sss DEC S with tmp2 j 0; rew vec.
-      mm sss DEC 0 with tmp1 k; rew vec.
+      mm sss DEC zero with tmp1 k; rew vec.
       mm sss stop; f_equal.
       apply vec_pos_ext; intros p.
       dest p src; dest p tmp2; dest p tmp1.

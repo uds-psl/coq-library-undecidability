@@ -232,7 +232,7 @@ Section MMA2_ndMM2.
       inversion H2; subst.
       apply sss_compute_trans with (2 := IH1).
       rewrite H3.
-      mma sss DEC 0 with pos0 j.
+      mma sss DEC zero with pos0 j.
       mma sss stop.
     + destruct H as [ H | H ]; try discriminate.
       apply mma2_linstr_enc_In in H
@@ -244,7 +244,7 @@ Section MMA2_ndMM2.
       inversion H2; subst.
       apply sss_compute_trans with (2 := IH1).
       rewrite H3.
-      mma sss DEC 0 with pos1 j.
+      mma sss DEC zero with pos1 j.
       mma sss stop.
   Qed.
 

@@ -83,7 +83,7 @@ Section Minsky_Machine_alt_utils.
       unfold mma_null.
       revert v w.
       induction k as [ | k IHk ]; intros v w H1 H2; subst w.
-      + mma sss DEC 0 with x i.
+      + mma sss DEC zero with x i.
         mma sss stop; f_equal.
         apply vec_pos_ext; intros z; dest z x.
       + mma sss DEC S with x i k.
@@ -154,7 +154,7 @@ Section Minsky_Machine_alt_utils.
     Proof.
       intros -> H.
       unfold mma_isempty, mma_jump; simpl app.
-      mma sss DEC 0 with x (3+i); rew vec.
+      mma sss DEC zero with x (3+i); rew vec.
       mma sss INC with x.
       mma sss DEC S with x p (0); rew vec.
       mma sss stop; f_equal.
@@ -200,7 +200,7 @@ Section Minsky_Machine_alt_utils.
       revert v w x.
       induction k as [ | k IHk ]; intros v w x H1 H2 H3; subst w.
       + mma sss INC with dst.
-        mma sss DEC 0 with src i; rew vec.
+        mma sss DEC zero with src i; rew vec.
         mma sss stop; f_equal; auto.
         apply vec_pos_ext; intros z; dest z dst; dest z src.
       + mma sss INC with dst.
@@ -248,7 +248,7 @@ Section Minsky_Machine_alt_utils.
     Proof.
       unfold mma_mult_cst.
       revert v st; induction x as [ | x IHx ]; intros v st Hv ?; subst.
-      + mma sss DEC 0 with src (3+i).
+      + mma sss DEC zero with src (3+i).
         apply sss_progress_compute.
         apply subcode_sss_progress with (P := (1+i,JUMPₐ (5+k+i) src)); auto. 
         apply mma_jump_progress.
@@ -318,7 +318,7 @@ Section Minsky_Machine_alt_utils.
       + unfold mma_decs; fold mma_decs.
         case_eq (v#>dst).
         * intros H2.
-          mma sss DEC 0 with dst (3+i).
+          mma sss DEC zero with dst (3+i).
           mma sss INC with dst.
           mma sss DEC S with dst q (v#>dst); rew vec.
           mma sss stop; f_equal.
@@ -398,7 +398,7 @@ Section Minsky_Machine_alt_utils.
       + unfold mma_decs_copy; fold mma_decs_copy.
         case_eq (v#>dst).
         * intros H2.
-          mma sss DEC 0 with dst (3+i).
+          mma sss DEC zero with dst (3+i).
           mma sss INC with dst.
           mma sss DEC S with dst q (v#>dst); rew vec.
           mma sss stop; f_equal.

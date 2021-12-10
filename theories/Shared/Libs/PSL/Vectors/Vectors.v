@@ -9,9 +9,9 @@ From Undecidability.Shared.Libs.PSL Require Export Vectors.Fin.
 
 
 (* Vector.nth should not reduce with simpl, except the index is given with a constructor *)
-Arguments Vector.nth {A} {m} (v') !p.
-Arguments Vector.map {A B} f {n} !v /.
-Arguments Vector.map2 {A B C} g {n} !v1 !v2 /.
+(* Arguments Vector.nth {A} {m} (v') !p. *)
+(* Arguments Vector.map {A B} f {n} !v /. *)
+(* Arguments Vector.map2 {A B C} g {n} !v1 !v2 /. *)
 
 Tactic Notation "dependent" "destruct" constr(V) :=
   match type of V with

@@ -161,8 +161,9 @@ Ltac chg_hyp_3 H x :=
 Tactic Notation "focus" constr(X) := chg_goal X.
 Tactic Notation "focus" constr(X) "in" hyp(H) := chg_hyp H X. 
 
-Tactic Notation "focus" constr(X) "at" "2" := chg_goal_2 X.
-Tactic Notation "focus" constr(X) "in" hyp(H) "at" "2" := chg_hyp_2 H X. 
+Check 2.
 
-Tactic Notation "focus" constr(X) "at" "3" := chg_goal_3 X.
-Tactic Notation "focus" constr(X) "in" hyp(H) "at" "3" := chg_hyp_3 H X. 
+Tactic Notation "focus" constr(X) "in" hyp(H) "at" "two" := chg_hyp_2 H X. 
+
+Tactic Notation "focus" constr(X) "at" "three" := chg_goal_3 X.
+Tactic Notation "focus" constr(X) "in" hyp(H) "at" "three" := chg_hyp_3 H X. 
