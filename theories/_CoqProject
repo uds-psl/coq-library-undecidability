@@ -26,7 +26,7 @@ CounterMachines/CM1_undec.v
 SetConstraints/FMsetC.v
 SetConstraints/FMsetC_undec.v
 
-# L/L.v
+L/L.v
 # L/L_undec.v
 
 TM/TM.v
@@ -490,13 +490,13 @@ TM/Hoare/HoareMult.v
 TM/Hoare/HoareStdLib.v
 TM/Hoare/HoareLegacy.v
 
-# L/Prelim/MoreBase.v
-# L/Prelim/ARS.v
-# L/Prelim/StringBase.v
-# L/Prelim/MoreList.v
-# L/Prelim/LoopSum.v
+L/Prelim/MoreBase.v
+L/Prelim/ARS.v
+L/Prelim/StringBase.v
+L/Prelim/MoreList.v
+L/Prelim/LoopSum.v
 
-# L/Util/L_facts.v
+L/Util/L_facts.v
 
 # L/Tactics/Computable.v
 # L/Tactics/ComputableTime.v
@@ -562,10 +562,10 @@ TM/Hoare/HoareLegacy.v
 # L/Reductions/MuRec/MuRec_extract.v
 # L/Reductions/MuRec.v
 
-# L/Complexity/UpToC.v
-# L/Complexity/UpToCNary.v
-# L/Complexity/GenericNary.v
-# L/Complexity/ResourceMeasures.v
+L/Complexity/UpToC.v
+L/Complexity/UpToCNary.v
+L/Complexity/GenericNary.v
+L/Complexity/ResourceMeasures.v
 # L/Complexity/LinDecode/LTD_def.v
 # L/Complexity/LinDecode/LTDnat.v
 # L/Complexity/LinDecode/LTDlist.v
@@ -588,7 +588,7 @@ TM/Hoare/HoareLegacy.v
 # L/Computability/MuRec.v
 # L/Computability/Partial.v
 # L/Computability/Por.v
-# L/Computability/Seval.v
+L/Computability/Seval.v
 # L/Computability/Synthetic.v
 
 

@@ -208,9 +208,9 @@ Theorem BPCP_satis R :
 Proof.
   rewrite PCPb_iff_dPCPb. split.
   - intros H. exists (list bool), (IB R), (fun _ => nil).
-    intros H'. cbn. apply H, (IB_F H').
+    intros H'. cbn. apply H, (IB_F _ _ H').
   - rewrite <- PCPb_iff_dPCPb. intros H1 H2 % (BPCP_valid R (ff:=falsity_on)).
-    apply (valid_satis H2), H1.
+    apply (valid_satis _ H2), H1.
 Qed.
 
 (* ** Reduction theorems *)

@@ -140,7 +140,7 @@ Qed.
 Lemma trans_trans b (phi : form b) A :
   A ⊢I ((dnQ (trans phi)) --> trans phi).
 Proof.
-  specialize (trans_trans' phi A var var).
+  specialize (trans_trans' _ phi A var var).
   rewrite subst_var. intros H. apply (Weak H).
   clear H. induction A; cbn; trivial. setoid_rewrite subst_var. auto.
 Qed.
