@@ -65,7 +65,7 @@ Section validity.
   (** There exist (Friedman translated) pairs relating (#&dollar;#a,#&dollar;#b) to (#&dollar;#c,#&dollar;#d) *)
   Definition erel a b c d t := Not (∀ ∀ P 0 (2+a) (2+b) 
                                         (P 1 (2+c) (2+d)  
-                                         (Pr $0 $1 --> wFalse (2+t)))) t.
+                                         (Pr $0 $1 --> wFalse (2+t)))) t. 
   (** Axiom 1 - zero is a number *)
   Definition F_zero := N 0.
   (** Axiom 2 - we can build (left) successors: for each pair (a,0) we have a pair (S a, 0) *)
@@ -78,7 +78,7 @@ Section validity.
                              rel 7 8 0 1 2 3      (* (x,y) # (a,b) *)
                             (rel 9 10 3 1 4 3     (* (b,y) # (c,b) *)
                             (rel 11 12 1 15 5 15  (* (y,0) # (y',0) *)
-                            (rel 13 14 2 15 6 15  (* (a,0) # (a'0) *)
+                            (rel 13 14 2 15 6 15  (* (a,0) # (a',0) *)
                             (erel 0 5 6 4 16))))     (* (x,y') # (a',c) *).
   (** Generate n all quantifiers around i *)
   Definition emplace_forall (n:nat) (i:form) := it (fun k => ∀ k) n i.

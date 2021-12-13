@@ -5,6 +5,7 @@ COQDOCFLAGS = "--charset utf-8 -s --with-header ../website/resources/header.html
 
 # coqdoc files
 FOL/Reductions/H10UPC_to_FOL.v
+FOL/Reductions/H10UPC_to_FOL_full_fragment.v
 FOL/Reductions/H10UPC_to_FSAT.v
 FOL/Util/DoubleNegation.v
 FOL/minFOL_undec.v

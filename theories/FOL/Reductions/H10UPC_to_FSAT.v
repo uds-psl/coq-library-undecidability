@@ -146,11 +146,11 @@ Section Fsat.
     Definition isucc l r z := irel l z r z.
 
     Lemma to_N e i : e ⊨ N i = iN (e i). Proof. easy. Qed.
-    Lemma to_leq e a b : e ⊨ leq a b <-> ileq (e a) (e b). Proof. clear fini. cbn. unfold ileq,iN. firstorder. Qed.
-    Lemma to_P' e i : e ⊨ P' i <-> iP' (e i). Proof. clear fini. firstorder. Qed.
-    Lemma to_P e p a b : e ⊨ P p a b <-> iP (e p) (e a) (e b). Proof. clear fini. firstorder. Qed.
-    Lemma to_deq e a b : e ⊨ deq a b <-> ideq (e a) (e b). Proof. clear fini. firstorder. Qed.
-    Lemma to_less e a b : e ⊨ less a b <-> iless (e a) (e b). Proof. clear fini. firstorder. Qed.
+    Lemma to_leq e a b : e ⊨ leq a b <-> ileq (e a) (e b). Proof. clear fini. cbn. unfold ileq,iN. tauto. Qed.
+    Lemma to_P' e i : e ⊨ P' i <-> iP' (e i). Proof. clear fini. reflexivity. Qed.
+    Lemma to_P e p a b : e ⊨ P p a b <-> iP (e p) (e a) (e b). Proof. clear fini. cbv. tauto. Qed.
+    Lemma to_deq e a b : e ⊨ deq a b <-> ideq (e a) (e b). Proof. clear fini. cbv;tauto. Qed.
+    Lemma to_less e a b : e ⊨ less a b <-> iless (e a) (e b). Proof. clear fini. cbv;tauto. Qed.
     Lemma to_rel e a b c d : e ⊨ rel a b c d <-> irel (e a) (e b) (e c) (e d). Proof. clear fini. 
     split.
     - intros [p [q [[Hp Hq] Hpq]]]. exists p,q. firstorder.
@@ -202,11 +202,11 @@ Section Fsat.
     Defined.
    
     Lemma dEqRefl (d:D) : d == d.
-    Proof. cbn. clear fini. firstorder. Qed.
+    Proof. cbn. clear fini. cbv;tauto. Qed.
     Lemma dEqSymm (d1 d2:D) : d1 == d2 -> d2 == d1.
     Proof. cbn. clear fini. firstorder. Qed.
     Lemma dEqTrans (d1 d2 d3:D) : d1 == d2 -> d2 == d3 -> d1 == d3.
-    Proof. cbn. clear fini. intros H1 H2 d; split; split; specialize (H1 d); specialize (H2 d); firstorder. Qed.
+    Proof. cbn. clear fini. intros H1 H2 d; split; split; specialize (H1 d); specialize (H2 d); tauto. Qed.
     
     Add Parametric Relation : D ideq
       reflexivity proved by dEqRefl
@@ -270,7 +270,7 @@ Section Fsat.
 
     Lemma leq_eq a b : iN b -> a == b -> a <<= b.
     Proof.
-    intros H ->. split. 1:easy. split. 1:easy. easy.
+    intros H ->. now repeat split.
     Qed.
 
     Opaque N leq P' P deq less rel succ.
@@ -368,7 +368,8 @@ Section Fsat.
       induction k as [k IH] using (well_founded_ind less_wf).
       intros Nk. destruct (eqDec z k) as [Heq|Hneq].
       - now apply leq_eq.
-      - destruct (@vpPred k) as [k' [Hk'1 Hk'2]%vpSucc]. 1-2:firstorder'. eapply leq_less with k'. 2:easy.
+      - destruct (@vpPred k) as [k' [Hk'1 Hk'2]%vpSucc]. 1:easy. 1: { intros Hc; contradict Hneq. now symmetry. }
+        eapply leq_less with k'. 2:easy.
         apply IH. 2:firstorder'. easy.
       Qed.
 
@@ -386,7 +387,7 @@ Section Fsat.
       - easy.
       - exfalso;easy.
       Qed.
-      
+
       (** Definition of a chain, which maps elements of the finite model to numbers *)
       Definition chain (m:D) (mN:nat) (f:D->option nat) := 
           (forall d, d <<= m <-> f d <> None)
@@ -456,8 +457,8 @@ Section Fsat.
           * erewrite xH5. 1:exact HH3. all:easy.
         + intros d1 d2. intros HSome. split; intros Heq; destruct (eqDec d1 dd) as [Htt|Hff], (eqDec d2 dd) as [Ht|Hf].
           -- now rewrite Htt,Ht.
-          -- exfalso. enough (S n <= n) by lia. apply xH2. exists d2. split. 2:easy. apply xH1. congruence.
-          -- exfalso. enough (S n <= n) by lia. apply xH2. exists d1. split. 2:easy. apply xH1. congruence.
+          -- exfalso. enough (S n <= n) by lia. apply xH2. exists d2. split. 2:easy. apply xH1. now rewrite <- Heq.
+          -- exfalso. enough (S n <= n) by lia. apply xH2. exists d1. split. 2:easy. apply xH1. now rewrite Heq.
           -- now apply xH6.
           -- easy.
           -- exfalso. apply Hf. rewrite <- Htt. now symmetry.

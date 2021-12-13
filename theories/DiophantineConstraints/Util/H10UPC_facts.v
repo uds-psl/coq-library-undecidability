@@ -11,14 +11,6 @@ From Undecidability.DiophantineConstraints Require Import H10C.
 
 (** Utils for H10UPC *)
 
-
-(** Direct semantics of h10upc_sem *)
-Definition h10upc_sem_direct (c : h10upc) :=
-  match c with 
-    | ((x, y), (z1, z2)) => 
-        1 + x + y = z1 /\ y * (1 + y) = z2 + z2
-  end.
-
 (** This section contains useful functions and lemmas for proofs later on. *)
 Section Utils.
 
@@ -109,24 +101,24 @@ Section InductiveCharacterization.
   Definition satw P := ax1 P /\ ax2w P.
 
   (** Inductive definition of h10upc_sem_direct *)
-  Inductive h10upc_ind : (nat*nat)*(nat*nat) -> Prop :=
-    base : forall a, h10upc_ind ((a,0),(S a,0))
-  | step : forall a b c d b' c' d', h10upc_ind ((a,b'),(c',d'))
-                                 -> h10upc_ind ((d',b'),(d,d'))
-                                 -> h10upc_ind ((b',0),(b,0))
-                                 -> h10upc_ind ((c',0),(c,0))
-                                 -> h10upc_ind ((a,b),(c,d)).
+  Inductive h10upc_ind : nat -> nat -> nat -> nat -> Prop :=
+    base : forall a, h10upc_ind a 0 (S a) 0
+  | step : forall a b c d b' c' d', h10upc_ind a b' c' d'
+                                 -> h10upc_ind d' b' d d'
+                                 -> h10upc_ind b' 0 b 0
+                                 -> h10upc_ind c' 0 c 0
+                                 -> h10upc_ind a b c d.
 
   (** Prove that h10upc_ind and h10upc_sem_direct are equivalent. *)
   (** First step: Show that there is no k < 0, since h10upc_ind is inductive. *)
-  Lemma h10upc_ind_not_less_0 : forall k, h10upc_ind ((k,0),(0,0)) -> False.
+  Lemma h10upc_ind_not_less_0 : forall k, h10upc_ind k 0 0 0 -> False.
   Proof.
-  enough (forall a b c d, h10upc_ind ((a,b),(c,d)) -> b = 0 -> c = 0 -> d = 0 -> False) as H.
+  enough (forall a b c d, h10upc_ind a b c d -> b = 0 -> c = 0 -> d = 0 -> False) as H.
   1: intros k H1; apply (H k 0 0 0 H1); easy.
   intros a b c d H.
   unshelve eapply (h10upc_ind_ind
-                   (fun '((a,b),(c,d)) => b = 0 -> c = 0 -> d = 0 -> False)
-                   _ _ ((a,b),(c,d)) H); clear a b c d H.
+                   (fun a b c d => b = 0 -> c = 0 -> d = 0 -> False)
+                   _ _ a b c d H); clear a b c d H.
   - intros a Hb Hc Hd. lia.
   - intros a b c d b' c' d' Hab'c'd' Eab'c'd' Hd'b'dd' Ed'b'dd' Hb'zbz Eb'zbz Hc'0c0 Ec'0c0 Hb Hc Hd; cbn in *; subst.
     apply Ec'0c0; easy.
@@ -134,7 +126,7 @@ Section InductiveCharacterization.
 
 
   (** Next step: show equivalence for the base case. *)
-  Lemma base_equiv a c d : h10upc_sem_direct ((a,0),(c,d)) <-> h10upc_ind ((a,0),(c,d)).
+  Lemma base_equiv a c d : h10upc_sem_direct ((a,0),(c,d)) <-> h10upc_ind a 0 c d.
   Proof. split.
   * intros [H1 H2]. assert (d=0) as -> by lia. assert (c = S a) as -> by lia. apply base.
   * intros H. inversion H as [a' H1|a' b' c' d' b'' c'' d'' H1 H2 H3 H4 H5].
@@ -143,15 +135,15 @@ Section InductiveCharacterization.
   Qed.
 
   (** Last step: show equivalence for the "step" case. *)
-  Lemma h10_equiv a b c d  : h10upc_sem_direct ((a,b),(c,d)) <-> h10upc_ind ((a,b),(c,d)).
+  Lemma h10_equiv a b c d  : h10upc_sem_direct ((a,b),(c,d)) <-> h10upc_ind a b c d.
   Proof. induction b as [|b IH] in a,c,d|-*.
   - apply base_equiv.
   - symmetry. split.
     * intros H. inversion H; subst.
-      rewrite <- base_equiv in H6, H7. cbn in H6,H7.
+      rewrite <- base_equiv in H2, H3. cbn in H2,H3.
       assert (b' = b) as -> by lia.
       assert (S c' = c) as <- by lia.
-      rewrite <- IH in H4,H5. cbn in H4,H5. cbn. lia.
+      rewrite <- IH in H0,H1. cbn in H0,H1. cbn. lia.
     * intros [H1 H2]. eapply step with b (c-1) (d-b-1).
       + rewrite <- IH. cbn; lia.
       + rewrite <- IH. cbn; lia.
@@ -212,8 +204,10 @@ Section InductiveCharacterization.
   - unfold ax3 in *. intros a c d. rewrite <- H. apply H3.
   Qed.
 
+  Definition h10upc_ind' '((a,b),(c,d)) := h10upc_ind a b c d.
+
   (** It follows that h10upc_ind also fulfills the axioms. *)
-  Lemma indRelSat : sat h10upc_ind.
+  Lemma indRelSat : sat h10upc_ind'.
   Proof.
   eapply satCongr with h10upc_sem_direct.
   - intros a b c d. apply h10_equiv.

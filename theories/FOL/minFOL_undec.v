@@ -2,10 +2,21 @@ From Undecidability.FOL.Util Require Import Syntax sig_bin.
 From Undecidability.FOL.Util Require  Tarski Deduction Kripke.
 From Undecidability.DiophantineConstraints Require Import H10C H10C_undec.
 From Undecidability.FOL.Reductions Require H10UPC_to_FOL_minimal H10UPC_to_FSAT.
+From Undecidability.FOL.Reductions Require H10UPC_to_FOL_full_fragment.
 From Undecidability.Synthetic Require Import Definitions Undecidability.
 
 Definition minimalForm (ff:falsity_flag) := @form sig_empty sig_binary FragmentSyntax.frag_operators ff.
 
+
+Section full_fragment.
+  Import H10UPC_to_FOL_full_fragment FullTarski.
+
+  Lemma minSignatureValiditiyUndec : @undecidable (@form sig_empty sig_binary FullSyntax.full_operators falsity_on) valid.
+  Proof.
+    apply (undecidability_from_reducibility H10UPC_SAT_undec).
+    exact fullFragValidReduction.
+  Qed.
+End full_fragment.
 
 Section general.
   Import H10UPC_to_FOL_minimal Tarski Deduction Kripke.
