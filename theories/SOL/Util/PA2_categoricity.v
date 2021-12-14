@@ -366,9 +366,9 @@ Section Categoricity.
     revert phi rho1 rho2. induction phi; intros rho1 rho2 H F; cbn.
     - easy.
     - destruct p; cbn.
-      + apply H. induction v; cbn. easy. split. apply F_term_funcfree. apply H. 
-        apply F. apply IHv, F. 
-      + destruct P; repeat depelim v; cbn in *. now apply F_eq; apply F_term_funcfree.
+      + apply H. induction t; cbn. easy. split. apply F_term_funcfree. apply H. 
+        apply F. apply IHt, F. 
+      + destruct P; repeat depelim t; cbn in *. now apply F_eq; apply F_term_funcfree.
     - destruct F as [F1 F2]. 
       specialize (IHphi1 rho1 rho2 H F1); specialize (IHphi2 rho1 rho2 H F2).
       destruct b; tauto.

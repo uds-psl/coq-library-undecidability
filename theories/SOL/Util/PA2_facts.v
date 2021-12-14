@@ -391,7 +391,7 @@ Section EmbedSignature.
   Proof.
     revert rho rho' xO xS xA xEq. induction phi; intros rho rho' xO xS xA xEq E; cbn.
     - reflexivity.
-    - assert (map (@eval Σf Σp D I rho) v = map (fun t => @eval Σf' Σp' D I' rho' (embed_term xO xS xA t)) v) as Hv'.
+    - rename t into v. assert (map (@eval Σf Σp D I rho) v = map (fun t => @eval Σf' Σp' D I' rho' (embed_term xO xS xA t)) v) as Hv'.
       { clear p. induction v. reflexivity. cbn; f_equal. 
         apply (embed_term_correct _ _ _ _ _ _ _ E). apply IHv. }
       destruct E as [_ [_ E3]]. destruct p; cbn.

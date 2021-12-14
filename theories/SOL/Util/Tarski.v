@@ -130,9 +130,9 @@ Section SatExt.
     revert rho1 rho2. induction phi; cbn; intros rho1 rho2 H.
     - easy.
     - destruct p. 
-      + enough (map (eval rho1) v = map (eval rho2) v) as <- by apply H.
+      + rename t into v. enough (map (eval rho1) v = map (eval rho2) v) as <- by apply H.
         apply map_ext. induction v; firstorder. apply eval_ext; apply H.
-      + enough (map (eval rho1) v = map (eval rho2) v) as <- by easy.
+      + rename t into v. enough (map (eval rho1) v = map (eval rho2) v) as <- by easy.
         apply map_ext. induction v; firstorder. apply eval_ext; apply H.
     - specialize (IHphi1 rho1 rho2); specialize (IHphi2 rho1 rho2).
       destruct b; cbn; firstorder.
@@ -190,7 +190,7 @@ Section BoundedSat.
     revert rho sigma. induction phi; cbn; intros rho sigma H1 H2 H3.
     - reflexivity.
     - erewrite map_ext_in with (g := eval sigma); revgoals.
-      intros t H. apply sat_ext_bounded_term. intros x H4. apply H1. intros H5. apply H4.
+      intros ? H. apply sat_ext_bounded_term. intros x H4. apply H1. intros H5. apply H4.
       eapply Forall_in in H5. apply H5. easy. intros x ar' H4. apply H2. intros H5. apply H4.
       eapply Forall_in in H5. apply H5. easy. destruct p; cbn.
       + rewrite H3. reflexivity. cbn. lia.
@@ -303,7 +303,7 @@ Section Subst.
     induction phi in rho, σ |- *; cbn.
     - reflexivity.
     - destruct p; cbn; erewrite map_map, map_ext; try reflexivity;
-      induction v; firstorder using eval_comp_i.
+      induction t; firstorder using eval_comp_i.
     - specialize (IHphi1 rho σ); specialize (IHphi2 rho σ).
       destruct b; cbn; firstorder.
     - destruct q.
@@ -333,7 +333,7 @@ Section Subst.
     induction phi in rho, σ |- *; cbn.
     - reflexivity.
     - destruct p; cbn; erewrite map_map, map_ext; try reflexivity;
-      induction v; firstorder using eval_comp_f.
+      induction t; firstorder using eval_comp_f.
     - specialize (IHphi1 rho σ); specialize (IHphi2 rho σ).
       destruct b; cbn; firstorder.
     - destruct q.
@@ -366,7 +366,7 @@ Section Subst.
   Proof.
     induction phi in rho, σ |- *; cbn.
     - reflexivity.
-    - destruct p; cbn;
+    - destruct p; cbn; rename t into v;
       enough (map (eval rho) v = map (eval ⟨get_indi rho, get_func rho, σ >>> eval_predicate rho⟩) v) as -> by reflexivity;
       apply map_ext_forall; induction v; firstorder; now apply eval_ext.
     - specialize (IHphi1 rho σ); specialize (IHphi2 rho σ).

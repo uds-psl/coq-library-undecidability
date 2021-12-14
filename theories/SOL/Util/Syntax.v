@@ -283,7 +283,7 @@ Section Bounded.
     m >= n -> bounded_indi n phi -> bounded_indi m phi.
   Proof.
     revert m n. induction phi; intros m n' H1 H2; cbn in *. easy.
-    eapply Forall_ext. 2: apply H2. intros t; now apply bounded_indi_term_up.
+    eapply Forall_ext. 2: apply H2. intros v; now apply bounded_indi_term_up.
     firstorder. eapply IHphi. 2: apply H2. lia. all: firstorder.
   Qed.
 
@@ -291,7 +291,7 @@ Section Bounded.
     m >= n -> bounded_func ar n phi -> bounded_func ar m phi.
   Proof.
     revert m n. induction phi; intros m n' H1 H2; cbn in *. easy.
-    eapply Forall_ext. 2: apply H2. intros t; now apply bounded_func_term_up.
+    eapply Forall_ext. 2: apply H2. intros v; now apply bounded_func_term_up.
     1,2,4: firstorder. destruct H2 as [H2|H2].
     - left. split. easy. eapply IHphi. 2: apply H2. lia.
     - right. split. easy. eapply IHphi. 2: apply H2. lia.
@@ -450,7 +450,7 @@ Section Bounded.
     funcfree phi -> forall x ar, bounded_func x ar phi.
   Proof.
     intros F. induction phi; intros x ar'; cbn. 1,3-6: firstorder.
-    apply Forall_in. intros t H. apply funcfree_bounded_func_term.
+    apply Forall_in. intros v H. apply funcfree_bounded_func_term.
     eapply Forall_in in F. apply F. easy.
   Qed.
 
@@ -586,7 +586,7 @@ Section EqDec.
     - now left.
     - destruct (PeanoNat.Nat.eq_dec ar ar0) as [->|]. 2: right; congruence.
       destruct (predicate_eq_dec ar0 p p0) as [->|].
-      + assert ({v = v0} + {v <> v0}) as [->|]. {
+      + rename t into v. rename t0 into v0. assert ({v = v0} + {v <> v0}) as [->|]. {
           clear p0. induction v; dependent elimination v0. now left.
           destruct (term_eq_dec h h0) as [->|]. 2: right; congruence.
           destruct (IHv t) as [->|]. now left. right. intros H. apply n.
@@ -738,7 +738,7 @@ Section Enumerability.
   Proof with eapply cum_ge'; eauto; lia.
     intros phi. induction phi.
     - exists 0. now left.
-    - destruct (@vec_forall_cml term L_term _ v) as [m H]; eauto.
+    - rename t into v. destruct (@vec_forall_cml term L_term _ v) as [m H]; eauto.
       + clear p. induction v. easy. split. apply enum_term. apply IHv.
       + destruct p; cbn.
         * exists (S (m + n + ar)); cbn. in_app 2. eapply in_concat_iff.
