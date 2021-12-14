@@ -1,5 +1,6 @@
 From Undecidability.Synthetic Require Import DecidabilityFacts SemiDecidabilityFacts.
 Require Cantor.
+Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.
 
 Local Notation "'if!' x 'is' p 'then' a 'else' b" := (match x with p => a | _ => b end) (at level 0, p pattern).
 
@@ -106,6 +107,48 @@ Proof.
   - exists 0. reflexivity.
 Qed.
 
+Definition sigT2_enum {X: Type} {P : X -> Type} {Q : X -> Type}
+  (f : nat -> option X) (fP : forall x, nat -> option (P x)) (fQ : forall x, nat -> option (Q x)) (n : nat) : 
+    option {x : X & P x & Q x} :=
+  let (nx, m) := Cantor.of_nat n in
+  let (nP, nQ) := Cantor.of_nat m in
+  match f nx with
+  | Some x =>
+    match fP x nP, fQ x nQ with
+    | Some y, Some z => Some (existT2 P Q x y z)
+    | _, _ => None
+    end
+  | None => None
+  end.
+Lemma enumerator__T_sigT2 {X: Type} {P : X -> Type} {Q : X -> Type} f fP fQ :
+  enumerator__T f X -> (forall x, enumerator__T (fP x) (P x)) -> (forall x, enumerator__T (fQ x) (Q x)) ->
+  enumerator__T (sigT2_enum f fP fQ) {x : X & P x & Q x}.
+Proof.
+  intros Hf HfP HfQ [x HPx HQx].
+  destruct (Hf x) as [nx Hnx].
+  destruct (HfP x (HPx)) as [nP HnP].
+  destruct (HfQ x (HQx)) as [nQ HnQ].
+  exists (Cantor.to_nat (nx, Cantor.to_nat (nP, nQ))).
+  unfold sigT2_enum.
+  now rewrite !Cantor.cancel_of_to, Hnx, HnP, HnQ.
+Qed.
+
+Require Import List.
+
+Definition finType_enum {X: finType} (n : nat) : option X :=
+  nth_error (@enum _ (class X)) n.
+Lemma enumerator__T_finType {X: finType} :
+  enumerator__T finType_enum X.
+Proof.
+  intros x.
+  assert (H := (@enum_ok _ (class X)) x).
+  unfold finType_enum. induction enum as [|y L IH].
+  - easy.
+  - cbn in H. destruct (Dec (x = y)) as [->|H'].
+    + now exists 0.
+    + destruct (IH H) as [n Hn]. now exists (S n).
+Qed.
+
 Existing Class enumerator__T'.
 (* Existing Class enumerable__T. *)
 
@@ -123,3 +166,7 @@ Existing Instance enumerator__T_option.
 Existing Instance enumerator__T_bool.
 #[global]
 Existing Instance enumerator__T_nat.
+#[global]
+Existing Instance enumerator__T_sigT2.
+#[global]
+Existing Instance enumerator__T_finType.
