@@ -33,6 +33,8 @@ From Undecidability.H10.Dio
 
 Import ReductionChainNotations UndecidabilityNotations.
 
+Require Import Undecidability.TM.TM_undec.
+
 Set Implicit Arguments.
 
 Theorem DIO_SINGLE_SAT_H10 : DIO_SINGLE_SAT ⪯ H10.
@@ -85,7 +87,7 @@ Check Hilberts_Tenth.
 
 Theorem H10_undec : undecidable H10.
 Proof.
-  apply (undecidability_from_reducibility undecidability_HaltTM).
+  apply (undecidability_from_reducibility HaltTM_1_undec).
   reduce with chain Hilberts_Tenth.
 Qed.
 
