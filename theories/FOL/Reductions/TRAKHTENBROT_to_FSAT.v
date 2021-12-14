@@ -1,3 +1,5 @@
+From Undecidability.TRAKHTENBROT Require bpcp. (* keep this Require to avoid universe problems *)
+
 From Undecidability.TRAKHTENBROT Require Import fo_sat fo_sig fo_terms fo_logic fol_ops.
 From Undecidability.FOL.Util Require Import Syntax FullTarski_facts sig_bin.
 From Undecidability.FOL Require Import FSAT.
@@ -22,7 +24,7 @@ Definition translate_term (t : term') : term :=
 
 Fixpoint translate (phi : form') : form :=
   match phi with
-  | fol_false _ => ⊥
+  | @fol_false _  => ⊥
   | fol_atom tt v => atom tt (map translate_term v)
   | fol_bin fol_conj phi psi => translate phi ∧ translate psi
   | fol_bin fol_disj phi psi => translate phi ∨ translate psi
@@ -56,7 +58,9 @@ Section Forward.
     fol_sem M rho phi <-> rho ⊨ translate phi.
   Proof.
     induction phi in rho |- *; try destruct p; try destruct f; cbn; try now intuition.
-    - unfold sat. rewrite map_map. erewrite map_ext; try reflexivity. apply fwd_eval.
+    - unfold sat. rewrite map_map. erewrite map_ext. 
+      1:{ match goal with [ |- ?P <-> ?Q ] => enough (P = Q) as ->  end. 1: reflexivity. reflexivity. } 
+      symmetry. eapply fwd_eval.
     - split; intros [d H]; exists d; apply IHphi.
       + eapply fol_sem_ext; try apply H. now intros [].
       + eapply sat_ext; try apply H. now intros [].
@@ -90,7 +94,9 @@ Section Backward.
     fol_sem M2 rho phi <-> rho ⊨ translate phi.
   Proof.
     induction phi in rho |- *; try destruct p; try destruct f; cbn; try now intuition.
-    - unfold sat. rewrite map_map. erewrite map_ext; try reflexivity. apply bwd_eval.
+    - unfold sat. rewrite map_map. erewrite map_ext.
+      1:{ match goal with [ |- ?P <-> ?Q ] => enough (P = Q) as ->  end. 1: reflexivity. reflexivity. }
+      symmetry. eapply bwd_eval.
     - split; intros [d H]; exists d; apply IHphi.
       + eapply fol_sem_ext; try apply H. now intros [].
       + eapply sat_ext; try apply H. now intros [].
@@ -107,11 +113,11 @@ Lemma reduction :
   @fo_form_fin_dec_SAT (Σrel 2) ⪯ FSAT.
 Proof.
   exists translate. intros phi. split.
-  - intros (D & M & [L HL] & HD & rho & H). exists D, (M1 D M), rho. repeat split.
+  - intros (D & M & [L HL] & HD & rho & H). exists D, (@M1 D M), rho. repeat split.
     + exists L. apply HL.
     + apply decidable_iff. constructor. apply HD.
     + now apply fwd_sat.
-  - intros (D & M & rho & [L HL] & [HD] % decidable_iff & H). exists D, (M2 D M), (exist _ L HL). eexists.
+  - intros (D & M & rho & [L HL] & [HD] % decidable_iff & H). exists D, (@M2 D M), (exist _ L HL). eexists.
     + intros []. apply HD.
     + exists rho. now apply bwd_sat.
 Qed.
@@ -120,13 +126,13 @@ Lemma reduction_disc :
   @fo_form_fin_discr_dec_SAT (Σrel 2) ⪯ FSATd.
 Proof.
   exists translate. intros phi. split.
-  - intros (D & HE & M & [L HL] & HD & rho & H). exists D, (M1 D M), rho. repeat split.
+  - intros (D & HE & M & [L HL] & HD & rho & H). exists D, (@M1 D M), rho. repeat split.
     + exists L. apply HL.
     + apply discrete_iff. constructor. apply HE.
     + apply decidable_iff. constructor. apply HD.
     + now apply fwd_sat.
   - intros (D & M & rho & [L HL] & [HE] % discrete_iff & [HD] % decidable_iff & H).
-    exists D, HE, (M2 D M), (exist _ L HL). eexists.
+    exists D, HE, (@M2 D M), (exist _ L HL). eexists.
     + intros []. apply HD.
     + exists rho. now apply bwd_sat.
 Qed.
