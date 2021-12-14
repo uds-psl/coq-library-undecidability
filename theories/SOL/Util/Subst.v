@@ -157,7 +157,7 @@ Section SubstLemmas.
   Proof.
     revert sigma tau. induction phi; intros sigma tau H; cbn.
     - reflexivity.
-    - f_equal. apply map_ext_forall, Forall_in. intros t _. now apply subst_term_ext_i.
+    - f_equal. apply map_ext_forall, Forall_in. intros ? _. now apply subst_term_ext_i.
     - erewrite IHphi1, IHphi2. reflexivity. easy. easy.
     - erewrite IHphi. reflexivity. intros []; cbn. reflexivity. now rewrite H.
     - erewrite IHphi. reflexivity. intros n'. now rewrite H.
@@ -169,7 +169,7 @@ Section SubstLemmas.
   Proof.
     revert sigma tau. induction phi; intros sigma tau H; cbn.
     - reflexivity.
-    - f_equal. apply map_ext_forall, Forall_in. intros t _. now apply subst_term_ext_f.
+    - f_equal. apply map_ext_forall, Forall_in. intros ? _. now apply subst_term_ext_f.
     - erewrite IHphi1, IHphi2. reflexivity. easy. easy.
     - erewrite IHphi. reflexivity. easy.
     - erewrite IHphi. reflexivity. intros [] ar; cbn; destruct PeanoNat.Nat.eq_dec as [->|]; try easy; now rewrite H.
@@ -215,7 +215,7 @@ Section SubstLemmas.
     phi[ids]i = phi.
   Proof.
     induction phi; cbn; f_equal; try congruence.
-    - apply forall_map_eq, Forall_in. intros t _. apply subst_term_id_i.
+    - apply forall_map_eq, Forall_in. intros ? _. apply subst_term_id_i.
     - rewrite <- IHphi at 2. apply subst_ext_i. now intros [].
     - rewrite <- IHphi at 2. apply subst_ext_i. now intros [].
   Qed.
@@ -224,7 +224,7 @@ Section SubstLemmas.
     phi[ids]f = phi.
   Proof.
     induction phi; cbn; f_equal; try congruence.
-    - apply forall_map_eq, Forall_in. intros t _. apply subst_term_id_f.
+    - apply forall_map_eq, Forall_in. intros ? _. apply subst_term_id_f.
     - rewrite <- IHphi at 2. apply subst_ext_f.
       intros [] ar; cbn; destruct PeanoNat.Nat.eq_dec as [->|]; cbn. reflexivity. 
       all: unfold shift, shift_f; now destruct PeanoNat.Nat.eq_dec.
@@ -303,7 +303,7 @@ Section SubstLemmas.
     revert sigma tau. induction phi; intros sigma tau; cbn.
     - reflexivity.
     - f_equal. rewrite Vector.map_map. apply map_ext_forall, Forall_in.
-      intros t _. apply subst_term_comp_i.
+      intros ? _. apply subst_term_comp_i.
     - now rewrite IHphi1, IHphi2.
     - f_equal. rewrite IHphi. apply subst_ext_i, up_funcomp_i.
     - f_equal. rewrite IHphi. apply subst_ext_i. intros n'; cbn. 
@@ -317,7 +317,7 @@ Section SubstLemmas.
     revert sigma tau. induction phi; intros sigma tau; cbn.
     - reflexivity.
     - f_equal. rewrite Vector.map_map. apply map_ext_forall, Forall_in.
-      intros t _. apply subst_term_comp_f.
+      intros ? _. apply subst_term_comp_f.
     - f_equal. now rewrite IHphi1. now rewrite IHphi2.
     - f_equal. now rewrite IHphi.
     - f_equal. rewrite IHphi. apply subst_ext_f, up_funcomp_f.
@@ -402,7 +402,7 @@ Section SubstLemmas.
   Proof.
     induction phi in n, sigma, tau |-*; cbn; intros B H.
     - reflexivity.
-    - f_equal. apply map_ext_in. intros t H1. eapply subst_term_ext_bounded_i.
+    - f_equal. apply map_ext_in. intros ? H1. eapply subst_term_ext_bounded_i.
       eapply Forall_in in B. apply B. easy. apply H.
     - now erewrite (IHphi1 n), (IHphi2 n).
     - erewrite (IHphi (S n)); try easy. intros [] H1; cbn. reflexivity.
@@ -416,7 +416,7 @@ Section SubstLemmas.
   Proof.
     induction phi in n, sigma, tau |-*; cbn; intros B H.
     - reflexivity.
-    - f_equal. apply map_ext_in. intros t H1. eapply subst_term_ext_bounded_f.
+    - f_equal. apply map_ext_in. intros ? H1. eapply subst_term_ext_bounded_f.
       eapply Forall_in in B. apply B. easy. apply H.
     - now erewrite (IHphi1 n), (IHphi2 n).
     - now erewrite (IHphi n).
@@ -579,7 +579,7 @@ Section SubstLemmas.
   Proof.
     revert sigma. induction phi; intros sigma H F; cbn. 1,3-6: firstorder.
     - apply IHphi; trivial. intros []; cbn. easy. now apply funcfreeTerm_subst_i.
-    - apply Forall_map, Forall_in. intros t H1. apply funcfreeTerm_subst_i. easy.
+    - apply Forall_map, Forall_in. intros v H1. apply funcfreeTerm_subst_i. easy.
       eapply Forall_in in F. apply F. easy.
   Qed.
 
@@ -587,7 +587,7 @@ Section SubstLemmas.
     funcfree phi -> funcfree(phi[sigma]f).
   Proof.
     induction phi in sigma |-*; cbn; firstorder. apply Forall_in. 
-    intros t [? [<- ?]]%vect_in_map_iff. apply funcfreeTerm_subst_f.
+    intros v [? [<- ?]]%vect_in_map_iff. apply funcfreeTerm_subst_f.
     eapply Forall_in in H. apply H. easy.
   Qed.
 

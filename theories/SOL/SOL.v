@@ -1,7 +1,7 @@
 (* * Second-Order Logic *)
 
 Require Import Vector Arith.
-Definition vec := Vector.t.
+Notation vec := Vector.t.
 
 
 (* ** Syntax *)
@@ -26,7 +26,7 @@ Section Syntax.
 
   Inductive term : Type :=
     | var_indi : nat -> term
-    | func : forall {ar}, function ar -> vec term ar -> term.
+    | func {ar} (_ : function ar) (v : vec term ar) : term.
 
   Set Elimination Schemes.
 
