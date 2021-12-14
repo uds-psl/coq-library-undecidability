@@ -1,25 +1,12 @@
-Require Export Undecidability.Synthetic.Definitions Undecidability.Synthetic.ReducibilityFacts.
-From Undecidability.Synthetic Require Import
-  DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
-Require Import Undecidability.L.L.
-Require Import Undecidability.L.Util.term_enum.
+Require Export Undecidability.Synthetic.Definitions.
+(* questionable Import *)
+Require Export Undecidability.Synthetic.ReducibilityFacts.
 
+Require Import Undecidability.L.L.
+
+(* P is undecidable if decidability of P implies co-enumerability of L halting *)
 Definition undecidable {X} (p : X -> Prop) :=
   decidable p -> enumerable (complement HaltL).
-
-Lemma undecidability_HaltL :
-  undecidable (HaltL).
-Proof.
-  intros H%dec_compl.
-  now eapply (dec_count_enum H), enumerator_enumerable, enumerator__T_term.
-Qed.
-
-(*
-Require Export Undecidability.Synthetic.Definitions Undecidability.Synthetic.ReducibilityFacts.
-Require Import Undecidability.TM.TM.
-From Undecidability.Synthetic Require Import DecidabilityFacts EnumerabilityFacts.
-Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypesDef.
-*)
 
 Lemma undecidability_from_reducibility {X} {p : X -> Prop} {Y} {q : Y -> Prop} :
   undecidable p -> p ⪯ q -> undecidable q.

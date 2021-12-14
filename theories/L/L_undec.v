@@ -1,13 +1,14 @@
-Require Import Undecidability.L.L Undecidability.TM.TM.
-Require Import Undecidability.L.Reductions.TM_to_L.
-Require Import Undecidability.TM.TM_undec.
+Require Import Undecidability.L.L.
 Require Import Undecidability.Synthetic.Undecidability.
+From Undecidability.Synthetic Require Import
+  DecidabilityFacts EnumerabilityFacts.
+Require Import Undecidability.L.Util.term_enum.
 
 (** ** HaltL is undecidable *)
 
 Lemma HaltL_undec :
-  undecidable HaltL. 
+  undecidable (HaltL).
 Proof.
-  apply (undecidability_from_reducibility HaltMTM_undec).
-  eapply HaltMTM_to_HaltL.
+  intros H%dec_compl.
+  now eapply (dec_count_enum H), enumerator_enumerable, enumerator__T_term.
 Qed.
