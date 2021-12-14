@@ -6,7 +6,7 @@
 
 The Coq Library of Undecidability Proofs contains mechanised reductions to establish undecidability results in Coq.
 The undecidability proofs are based on a synthetic approach to undecidability. 
-A problem `P` is considered [undecidable](theories/Synthetic/Undecidability.v#L4) if its [decidability](theories/Synthetic/Definitions.v#L15) in Coq implies the [enumerability](theories/Synthetic/Definitions.v#L24) of the complement of halting problem for the call-by-value lambda-calculus (`HaltL` in [`L/L.v`](theories/L/L.v)).
+A problem `P` is considered [undecidable](theories/Synthetic/Undecidability.v#L8) if its [decidability](theories/Synthetic/Definitions.v#L15) in Coq implies the [enumerability](theories/Synthetic/Definitions.v#L24) of the complement of halting problem for the call-by-value lambda-calculus (`HaltL` in [`L/L.v`](theories/L/L.v)).
 
 As in the traditional literature, undecidability of a problem `P` in the library is often established by constructing a [many-one reduction](theories/Synthetic/Definitions.v#L27) from an undecidable problem to `P`.
 
