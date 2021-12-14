@@ -71,7 +71,7 @@ Global Arguments ext {X} {ty} x {computable} : simpl never.
 #[export] Hint Mode computable + - +: typeclass_instances. (* treat argument as input and force evar-freeness*)
 #[export] Hint Extern 4 (@extracted ?t ?f) => let ty := constr:(_ : TT t) in notypeclasses refine (ext (ty:=ty) f) : typeclass_instances.
 
-Typeclasses Opaque ext.
+#[export] Typeclasses Opaque ext.
 
 Lemma proc_ext X (ty : TT X) (x : X) ( H : computable x) : proc (ext x).
 Proof.
