@@ -13,6 +13,7 @@ From Undecidability.Shared.Libs.DLW
   Require Import utils_tac.
 
 Require Import Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.ReducibilityFacts.
 
 From Undecidability.PCP              Require Import PCP PCP_undec.
 From Undecidability.StackMachines    Require Import BSM.

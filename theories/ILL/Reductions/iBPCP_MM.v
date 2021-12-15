@@ -12,6 +12,7 @@ Require Import List.
 Import ListNotations.
 
 Require Import Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.ReducibilityFacts.
 
 From Undecidability.Shared.Libs.DLW
   Require Import utils.

@@ -10,6 +10,7 @@
 Require Import List.
 
 Require Import Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.ReducibilityFacts.
 
 From Undecidability.ILL
   Require Import ILL CLL ill ill_cll ill_cll_restr.

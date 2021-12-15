@@ -1,4 +1,5 @@
 Require Import Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.ReducibilityFacts.
 Require Import Undecidability.TM.TM.
 
 Require Import Undecidability.TM.Reductions.mTM_to_TM.

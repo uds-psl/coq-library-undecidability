@@ -8,6 +8,7 @@
 (** ** HaltTM 1 reduces to CM1_HALT  *)
 
 Require Import Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.ReducibilityFacts.
 
 Require Import Undecidability.TM.TM.
 
