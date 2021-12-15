@@ -24,7 +24,7 @@ Idea: The relation (#&#35;#) has the following properties:#<ul>#
 
 Set Default Proof Using "Type".
 Set Default Goal Selector "!".
-Set Mangle Names.
+
 (** Some utils for iteration *)
 Section Utils.
 
@@ -376,6 +376,8 @@ Section validity.
     - intros [d1 [d0 H]]. exists d1,d0. rewrite <- !iPr_spec, <- !iP_spec. 1:apply H. all:easy.
     - intros [d1 [d0 H]]. exists d1,d0. rewrite <- !iPr_spec, <- !iP_spec in H. 1:apply H. all:easy.
     Qed.
+    Lemma ierel_spec' rho' a b c d : rho' ⊨ erel a b c d <-> ierel (rho' a) (rho' b) (rho' c) (rho' d).
+    Proof. now apply ierel_spec. Qed.
 
     Section withAxioms.
       Context (rho:env D).
@@ -391,8 +393,6 @@ Section validity.
         chain_succ : forall m, m < n -> ierel (f m) (f 0) (f (S m)) (f 0)
       }.
 
-      Definition echain n := inhabited (chain n).
-
       Lemma chain_N n (c:chain n) m : m <= n -> iN (c m).
       Proof using HA1.
       intros Hm. destruct m.
@@ -400,7 +400,7 @@ Section validity.
       - destruct (chain_succ c Hm) as [d1 [d0 [[_ H] _]]]. unfold iP in H. apply H.
       Qed.
 
-      Lemma chain_build n : echain n.
+      Lemma chain_build n : inhabited (chain n).
       Proof using HA1 HA2.
       induction n as [|n [c]].
       - apply inhabits. split with (fun _ => rho 0).
@@ -431,7 +431,8 @@ Section validity.
       induction 1 as [a|a b c d b' c' d' H1 IH1 H2 IH2 H3 IH3 H4 IH4]; intros Ha Hb Hc Hd.
       - apply chain_succ. easy.
       - cbn -[erel] in HA3. specialize (@HA3 (f c) (f b) (f d) (f d') (f c') (f b') (f a)).
-        rewrite ! ierel_spec in HA3. 2-21:cbn;easy.
+        rewrite !ierel_spec' in HA3. cbn in HA3.
+        rewrite !chain_zero in *.
         assert (0 < n) as H0n by lia.
         assert (b' < n) as Hbn by (inversion H3; [lia | h10ind_not_lt_0]).
         assert (c' < n) as Hcn by (inversion H4; [lia | h10ind_not_lt_0]).
@@ -439,8 +440,8 @@ Section validity.
         apply HA3.
         + now apply IH1.
         + now apply IH2.
-        + rewrite !chain_zero in IH3. now apply IH3.
-        + rewrite !chain_zero in IH4. now apply IH4.
+        + now apply IH3.
+        + now apply IH4.
       Qed.
 
       Definition rho_descr_chain rho phi n (c:chain n) hv :=
@@ -500,7 +501,7 @@ Section validity.
       - intros m Hm. destruct (m <? hv) eqn:Heq.
         + easy.
         + apply Nat.ltb_ge in Heq. lia.
-     Qed.
+      Qed.
     End withAxioms.
     (** To conclude, we can wrap the axioms around it.*)
     Lemma F_correct rho : H10UPC_SAT h10 -> rho ⊨ F.
@@ -528,5 +529,6 @@ exists @F. split.
 - apply transport.
 - apply inverseTransport.
 Qed.
+
 
 

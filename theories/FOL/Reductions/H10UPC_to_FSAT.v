@@ -4,17 +4,17 @@ From Undecidability.DiophantineConstraints Require Import H10C Util.H10UPC_facts
 From Undecidability.FOL Require Import Util.Syntax Util.FullDeduction Util.FullTarski Util.Syntax Util.Syntax_facts Util.FullTarski_facts Util.sig_bin.
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
-From Coq Require Import Arith Lia List.
-From Equations Require Import Equations.
 From Undecidability.Shared.Libs.DLW.Wf Require Import wf_finite.
+From Coq Require Import Arith Lia List.
+(* From Equations Require Import Equations. *)
 From Undecidability.FOL Require Import FSAT DoubleNegation.
 From Undecidability.Synthetic Require Import Definitions.
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
 Require Import Datatypes.
-Require Export Relation_Definitions.
-Require Export Setoid.
-Require Export Relation_Definitions.
-Set Equations With UIP.
+Require Import Relation_Definitions.
+Require Import Setoid.
+Require Import Relation_Definitions.
+(* Set Equations With UIP. *)
 
 
 (**
@@ -60,7 +60,8 @@ Section Utils.
     destruct n as [|[|n]]. 1,3:easy.
     refine (match xr with Vector.nil _ => _ | Vector.cons _ y' n yr => _ end). 1:easy.
     destruct n as [|n]. 2:easy. cbn. intros H. f_equal. 2:f_equal. 1-2:congruence.
-    now depelim yr.
+    refine (match yr with Vector.nil _ => _ end).
+    easy.
   - intros ->. easy.
   Qed.
 
