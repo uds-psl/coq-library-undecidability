@@ -10,6 +10,7 @@
 Require Import List Arith Relations Lia.
 
 Require Import Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.ReducibilityFacts.
 
 From Undecidability.Shared.Libs.DLW Require Import utils pos vec sss subcode.
 From Undecidability.MinskyMachines Require Import mma_defs mma_simul.

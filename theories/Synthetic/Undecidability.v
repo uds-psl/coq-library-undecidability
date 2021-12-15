@@ -1,7 +1,6 @@
 Require Export Undecidability.Synthetic.Definitions.
-(* questionable Import *)
-Require Export Undecidability.Synthetic.ReducibilityFacts.
-
+Require Import Undecidability.Synthetic.ReducibilityFacts.
+Require Import Undecidability.Synthetic.DecidabilityFacts.
 Require Import Undecidability.L.L.
 
 (* P is undecidable if decidability of P implies co-enumerability of L halting *)
@@ -13,6 +12,12 @@ Lemma undecidability_from_reducibility {X} {p : X -> Prop} {Y} {q : Y -> Prop} :
 Proof.
   unfold undecidable, decidable, decider, reduces, reduction, reflects.
   intros H [f Hf] [d Hd]. eapply H. exists (fun x => d (f x)). intros x. rewrite Hf. eapply Hd.
+Qed.
+
+Lemma undecidability_from_complement {X} {p : X -> Prop} :
+  undecidable (complement p) -> undecidable p.
+Proof.
+  intros H Hp. now apply H, dec_compl.
 Qed.
 
 Module UndecidabilityNotations.

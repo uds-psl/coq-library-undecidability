@@ -19,6 +19,7 @@
     The reduction goes via regular FRACTRAN termination *)
 
 Require Import Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.ReducibilityFacts.
 
 From Undecidability.Shared.Libs.DLW Require Import Utils.utils Vec.pos Vec.vec.
 From Undecidability.Shared.Libs.DLW.Code Require Import sss.

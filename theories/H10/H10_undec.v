@@ -13,6 +13,7 @@ From Undecidability.Shared.Libs.DLW
   Require Import utils_tac.
 
 From Undecidability.Synthetic Require Import Undecidability.
+Require Import Undecidability.Synthetic.ReducibilityFacts.
 
 Require Import Undecidability.TM.TM.
 

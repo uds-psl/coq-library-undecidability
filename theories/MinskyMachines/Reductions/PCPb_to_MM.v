@@ -8,6 +8,7 @@
 (**************************************************************)
 
 Require Import Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.ReducibilityFacts.
 
 From Undecidability.PCP              Require Import PCP PCPb_iff_iPCPb.
 From Undecidability.StackMachines    Require Import BSM iPCPb_to_BSM_HALTING.
