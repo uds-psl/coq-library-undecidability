@@ -22,11 +22,10 @@ Definition enumerator__T' X f := forall x : X, exists n : nat, f n = Some x.
 Notation enumerator__T f X := (enumerator__T' X f).
 Definition enumerable__T X := exists f : nat -> option X, enumerator__T f X.
 
-Lemma semi_decidable_enumerable {X} {p : X -> Prop} :
-  enumerable__T X -> semi_decidable p -> enumerable p.
+Lemma semi_decider_enumerator {X} {p : X -> Prop} {e f} :
+  enumerator__T e X -> semi_decider f p -> {g | enumerator g p}.
 Proof.
-  unfold semi_decidable, semi_decider.
-  intros [e He] [f Hf].
+  unfold semi_decider. intros He Hf.
   exists (fun p => let (n, m) := Cantor.of_nat p in
            if! e n is Some x then if f x m then Some x else None else None).
   intros x. rewrite Hf. split.
@@ -36,6 +35,14 @@ Proof.
     destruct (e m) as [x'|]; try congruence.
     destruct (f x' n) eqn:E; inversion Hmn. subst.
     exists n. exact E.
+Qed.
+
+Lemma semi_decidable_enumerable {X} {p : X -> Prop} :
+  enumerable__T X -> semi_decidable p -> enumerable p.
+Proof.
+  intros [e He] [f Hf].
+  destruct (semi_decider_enumerator He Hf) as [g Hg].
+  now exists g.
 Qed.
 
 Theorem dec_count_enum {X} {p : X -> Prop} :

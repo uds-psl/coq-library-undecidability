@@ -2,7 +2,7 @@ Require Import Undecidability.L.L.
 Require Import Undecidability.Synthetic.Undecidability.
 From Undecidability.Synthetic Require Import
   DecidabilityFacts EnumerabilityFacts.
-Require Import Undecidability.L.Util.term_enum.
+Require Import Undecidability.L.Enumerators.term_enum.
 
 (** ** HaltL is undecidable *)
 

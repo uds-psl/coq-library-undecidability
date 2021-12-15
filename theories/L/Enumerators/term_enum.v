@@ -16,11 +16,11 @@ Fixpoint term_enum_rec (k n: nat) : term :=
 
 Opaque Cantor.to_nat Cantor.of_nat.
 
-Definition term_enum (n : nat) := Some (term_enum_rec (S n) n).
+Definition term_enumerator__T (n : nat) := Some (term_enum_rec (S n) n).
 Lemma enumerator__T_term :
-  enumerator__T term_enum term.
+  enumerator__T term_enumerator__T term.
 Proof.
-  intros t. unfold term_enum.
+  intros t. unfold term_enumerator__T.
   enough (exists n, forall m, n <= m -> term_enum_rec (S m) n = t) as [n Hn].
   { exists n. f_equal. now apply Hn. }
   induction t as [n|s [n1 IHs] t [n2 IHt]|s [n IH]].
