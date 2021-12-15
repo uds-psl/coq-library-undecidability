@@ -490,7 +490,7 @@ TM/Hoare/HoareMult.v
 TM/Hoare/HoareStdLib.v
 TM/Hoare/HoareLegacy.v
 
-L/Util/term_enum.v
+L/Enumerators/term_enum.v
 
 L/Prelim/MoreBase.v
 L/Prelim/ARS.v
@@ -589,6 +589,9 @@ L/Computability/Partial.v
 L/Computability/Por.v
 L/Computability/Seval.v
 L/Computability/Synthetic.v
+
+L/Enumerators/HaltL_enum.v
+L/L_enum.v
 
 HOU/std/tactics.v
 HOU/std/misc.v
