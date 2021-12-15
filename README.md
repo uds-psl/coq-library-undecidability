@@ -7,8 +7,9 @@
 The Coq Library of Undecidability Proofs contains mechanised reductions to establish undecidability results in Coq.
 The undecidability proofs are based on a synthetic approach to undecidability. 
 A problem `P` is considered [undecidable](theories/Synthetic/Undecidability.v#L8) if its [decidability](theories/Synthetic/Definitions.v#L15) in Coq implies the [enumerability](theories/Synthetic/Definitions.v#L24) of the complement of halting problem for the call-by-value lambda-calculus (`HaltL` in [`L/L.v`](theories/L/L.v)).
+Since the halting problem for the call-by-value lambda-calculus is enumerable (`HaltL_enum` in [`L/L_enum.v`](theories/L/L_enum.v)), enumerability of its complement would classically imply its decidability.
 
-As in the traditional literature, undecidability of a problem `P` in the library is often established by constructing a [many-one reduction](theories/Synthetic/Definitions.v#L27) from an undecidable problem to `P`.
+As in the traditional literature, undecidability of a problem `P` in the library is often established by constructing a [many-one reduction](theories/Synthetic/Definitions.v#L40) from an undecidable problem to `P`.
 
 For more information on the structure of the library, the synthetic approach, and included problems see [Publications](#publications) below, our [Wiki](https://github.com/uds-psl/coq-library-undecidability/wiki), look at the [slides](https://www.ps.uni-saarland.de/~forster/downloads/slides_coqpl20.pdf) or the [recording](https://www.youtube.com/watch?v=mo_C6664n3E) of the talk on the Coq Library of Undecidability proofs at [CoqPL '20](https://popl20.sigplan.org/details/CoqPL-2020-papers/5/A-Coq-Library-of-Undecidable-Problems).
 
