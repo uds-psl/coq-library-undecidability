@@ -3,7 +3,25 @@ Require Import Undecidability.Synthetic.ReducibilityFacts.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
 Require Import Undecidability.L.L.
 
-(* P is undecidable if decidability of P implies co-enumerability of L halting *)
+(*
+  p is undecidable if decidability of p implies co-enumerability of L halting.
+  Since L halting is enumerable, its co-enumerability would imply its decidability.
+  Instead of L halting, any other enumerable, many-one equivalent problem to L halting suffices. 
+  For example (cf. [2]):
+    Post correspondence problem (cf. [1, Lemma 2.26]),
+    binary stack machine halting,
+    two-counter machine halting,
+    Diophantine constraint solvability, ...
+
+  References:
+  [1] Yannick Forster, Dominik Kirst, and Gert Smolka.
+      "On synthetic undecidability in Coq, with an application to the Entscheidungsproblem."
+      Proceedings of the 8th ACM SIGPLAN International Conference on Certified Programs and Proofs. 2019.
+  [2] Yannick Forster.
+      "Computability in Constructive Type Theory."
+      PhD Thesis. Faculty of Mathematics and Computer Science of Saarland University. 2021.
+      https://www.ps.uni-saarland.de/~forster/thesis.php
+*)
 Definition undecidable {X} (p : X -> Prop) :=
   decidable p -> enumerable (complement HaltL).
 
