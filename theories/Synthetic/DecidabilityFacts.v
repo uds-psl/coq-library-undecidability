@@ -66,6 +66,14 @@ Proof.
   intros x. eapply reflects_not, H.
 Qed.
 
+Lemma dec_compl' X p :
+  decidable (fun x : X => ~ ~ p x) -> decidable (fun x : X => ~ p x).
+Proof.
+  intros [f H]. exists (fun x => negb (f x)).
+  intros x. specialize (H x). apply reflects_not in H.
+  unfold reflects in *. tauto.
+Qed.
+
 Lemma dec_conj X p q :
   decidable p -> decidable q -> decidable (fun x : X => p x /\ q x).
 Proof.

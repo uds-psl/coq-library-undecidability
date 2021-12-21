@@ -20,6 +20,12 @@ Proof.
   intros H Hp. now apply H, dec_compl.
 Qed.
 
+Lemma undecidability_to_complement {X} {p : X -> Prop} :
+  undecidable (complement p) -> undecidable (complement (complement p)).
+Proof.
+  intros H Hp. now apply H, dec_compl'.
+Qed.
+
 Module UndecidabilityNotations.
 
 Tactic Notation "undec" "from" constr(H) :=
