@@ -6,8 +6,6 @@ From Undecidability.FOL Require Import Util.Syntax Util.Kripke Util.Deduction Ut
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
 From Coq Require Import Arith Lia List.
-From Equations Require Import Equations.
-Set Equations With UIP.
 
 
 (* ** Validity *)
@@ -497,8 +495,8 @@ Section provability.
     Qed.
     (** More functions on chains: chainData gets the data for some index, find* is an easier accessor *)
     Fixpoint chainData (h:nat) (c:chain h) (a:nat) := match c with
-        chainZ => (0,0,0)
-      | chainS n pl pr cc => if Dec (h=a) then (n,pl,pr) else chainData cc a end.
+        @chainZ => (0,0,0)
+      | @chainS _ n pl pr cc => if Dec (h=a) then (n,pl,pr) else chainData cc a end.
     
     Lemma chainData_0 (h:nat) (c:chain h) : chainData c 0 = (0,0,0).
     Proof. now induction c as [|h n pl ph cc IH]. Qed.
@@ -507,8 +505,8 @@ Section provability.
     Definition findPairLow h (c:chain h) a := let '(n,pl,ph) := chainData c a in pl.
     Definition findPairHigh h (c:chain h) a := let '(n,pl,ph) := chainData c a in ph.
     Fixpoint chain_exists h (c:chain h) := match c with
-      chainZ => N 0 :: nil
-    | chainS n pl ph cc => N n :: P' pl :: P' ph :: 
+      @chainZ => N 0 :: nil
+    | @chainS _ n pl ph cc => N n :: P' pl :: P' ph :: 
                    Pr $pl $0 :: Pr $(findNum cc (height cc)) $pl ::
                    Pr $ph $0 :: Pr $n $ph ::
                    Pr $pl $ph :: chain_exists cc end.
@@ -556,7 +554,7 @@ Section provability.
     Lemma chain_data_unique (h:nat) (c1 c2 : chain h) : (forall k, k <= h -> chainData c1 k = chainData c2 k) -> c1 = c2.
     Proof.
     intros Heq. induction c1 as [|h n pl pr cc IHcc].
-    - now depelim c2.
+    - refine (match c2 with chainZ => _ end). easy.
     - destruct (chain_inversion c2) as [[[[n' pl'] ph'] cc'] ->].
       pose proof (Heq (S h) ltac:(lia)) as Heqh. cbn [chainData] in Heqh.
       destruct (Dec (S h = S h)) as [_|Hf]; [idtac|lia].
@@ -612,7 +610,7 @@ Section provability.
     3: {pose proof (@chain_proves_N h c 0) as H0. unfold findNum in H0. rewrite chainData_0 in H0. apply H0. lia. }
     all: rewrite Hcc; [apply Hlower; [intros k Hk;symmetry;now apply Hcc|idtac]|lia].
     2: apply chain_proves_N; lia.
-    all: depelim cc; cbn [chain_exists chainData]. 
+    all: destruct (chain_inversion cc) as [[[[n pl] ph] ch'] Hch]; subst cc; cbn [chain_exists chainData]. 
     - do 2 right. left. destruct (Dec _); [easy|lia].
     - do 6 right. left. destruct (Dec _); [easy|lia].
     - do 5 right. left. destruct (Dec _); [easy|lia].

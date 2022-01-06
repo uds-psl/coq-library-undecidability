@@ -46,9 +46,9 @@ Section Utils.
   (** Dealing with vectors of length 2 *)
   Definition proj_vec2 D : t D 2 -> D*D.
   Proof.
-    intros k. refine (match k with Vector.nil _ => _ | Vector.cons _ x n xr => _ end). 1:easy.
+    intros k. refine (match k with @Vector.nil _ => _ | @Vector.cons _ x n xr => _ end). 1:easy.
     destruct n as [|[|n]]. 1,3:easy.
-    refine (match xr with Vector.nil _ => _ | Vector.cons _ y n yr => _ end). 1:easy.
+    refine (match xr with @Vector.nil _ => _ | @Vector.cons _ y n yr => _ end). 1:easy.
     destruct n as [|n]. 2:easy.
     exact (x,y).
   Defined. 
@@ -56,11 +56,11 @@ Section Utils.
   Lemma proj_vec2_correct D x y v : proj_vec2 v = (x,y) <-> v = Vector.cons D x 1 (Vector.cons D y 0 (Vector.nil D)).
   Proof.
   split.
-  - refine (match v with Vector.nil _ => _ | Vector.cons _ x' n xr => _ end). 1:easy.
+  - refine (match v with @Vector.nil _ => _ | @Vector.cons _ x' n xr => _ end). 1:easy.
     destruct n as [|[|n]]. 1,3:easy.
-    refine (match xr with Vector.nil _ => _ | Vector.cons _ y' n yr => _ end). 1:easy.
+    refine (match xr with @Vector.nil _ => _ | @Vector.cons _ y' n yr => _ end). 1:easy.
     destruct n as [|n]. 2:easy. cbn. intros H. f_equal. 2:f_equal. 1-2:congruence.
-    refine (match yr with Vector.nil _ => _ end).
+    refine (match yr with @Vector.nil _ => _ end).
     easy.
   - intros ->. easy.
   Qed.

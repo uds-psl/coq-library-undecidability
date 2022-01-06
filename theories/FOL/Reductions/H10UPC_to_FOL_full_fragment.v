@@ -519,8 +519,46 @@ Section validity.
   Proof.
     intros H M I rho. now apply F_correct. 
   Qed.
-End validity.
 
+
+  (** sat things *)
+  Lemma sat1 : (complement satis (¬ F)) -> complement (complement H10UPC_SAT) h10.
+  Proof.
+    intros Hc1 Hc2. apply Hc1. exists dom, IB, (fun b => Num 0). intros H.
+    apply Hc2. eapply IB_fulfills. exact H.
+  Qed.
+  Lemma sat2 : complement (complement H10UPC_SAT) h10 -> (complement satis (¬ F)).
+  Proof.
+    intros Hc1 [D [I [rho H]]]. apply Hc1. intros Hh10.
+    apply H. fold sat. eapply F_correct. exact Hh10.
+  Qed.
+
+  (** sat things 2 *)
+  Lemma sat3 : (complement (complement satis) (¬ F)) -> complement H10UPC_SAT h10.
+  Proof.
+    intros Hc1 Hc2. apply Hc1.
+    intros [D [I [rho H]]]. apply H. fold sat.
+    apply F_correct. easy.
+  Qed.
+  Lemma sat4 : complement H10UPC_SAT h10 -> (complement (complement satis) (¬ F)).
+  Proof.
+    intros Hc1 Hc2. apply Hc2. exists dom, IB, (fun b => Num 0). intros H.
+    apply Hc1. eapply IB_fulfills. exact H.
+  Qed.
+
+  (** sat things 3 *)
+  Lemma sat5 : satis (¬ F) -> complement H10UPC_SAT h10.
+  Proof.
+    intros [D [I [rho H]]] Hc. apply H. fold sat.
+    apply F_correct. easy.
+  Qed.
+  Lemma sat6 : complement H10UPC_SAT h10 -> satis (¬ F).
+  Proof.
+    intros Hc1. exists dom, IB, (fun b => Num 0). intros H.
+    apply Hc1. eapply IB_fulfills. exact H.
+  Qed.
+
+End validity.
 
 
 Lemma fullFragValidReduction : H10UPC_SAT ⪯ (valid (ff := falsity_on)).
@@ -529,6 +567,34 @@ exists @F. split.
 - apply transport.
 - apply inverseTransport.
 Qed.
+
+(*
+Lemma someSatisReduction : complement (complement H10UPC_SAT) 
+                                             ⪯ (complement (satis (ff := falsity_on))).
+Proof.
+exists (fun k => ¬ (@F k)). split.
+- intros H. eapply sat2. easy.
+- intros H. eapply sat1. easy.
+Qed.
+
+Lemma otherSatisReduction : complement H10UPC_SAT 
+                                             ⪯ complement (complement (satis (ff := falsity_on))).
+Proof.
+exists (fun k => ¬ (@F k)). split.
+- intros H. eapply sat4. easy.
+- intros H. eapply sat3. easy.
+Qed. *)
+
+Lemma fullFragSatisReduction : complement H10UPC_SAT ⪯ (satis (ff := falsity_on)).
+Proof.
+exists (fun k => ¬ (@F k)). split.
+- intros H. eapply sat6. easy.
+- intros H. eapply sat5. easy.
+Qed.
+(*
+Check someSatisReduction.
+Check otherSatisReduction. *)
+Check fullFragSatisReduction.
 
 
 

@@ -1,108 +1,46 @@
 (* * FOL Reductions *)
 
 From Undecidability.DiophantineConstraints Require Import H10C H10C_undec.
-From Undecidability.FOL Require Import Util.Syntax Util.Deduction Util.Tarski Util.Syntax_facts.
+From Undecidability.DiophantineConstraints.Util Require Import H10UPC_facts.
+From Undecidability.FOL Require Import Util.Syntax Util.Kripke Util.Deduction Util.Tarski Util.Syntax_facts Util.sig_bin.
+From Undecidability.Shared Require Import Dec.
+From Undecidability.Shared.Libs.PSL Require Import Numbers.
 From Coq Require Import Arith Lia List.
 
 
 (* ** Validity *)
 
 (**
-Idea: The special star (#) has the following properties:
-n ~ p: n is left component of p
-p ~ n: p is right component of p
-p ~ p: the special relationship of H10UPC
-n ~ m: n = m. Special case n=0, m=1: 
-          The instance h10 of H10UPC is a yes-instance.
-          This is to facilitate Friedman translation
+Idea: The relation (#&#35;#) has the following properties:#<ul>#
+#<li>#n ~ p: n is left component of p#</li>#
+#<li>#p ~ n: p is right component of p#</li>#
+#<li>#p ~ p: the special relationship of H10UPC#</li>#
+#<li>#n ~ m: n = m. Special case n=0, m=1: #<br />#
+          The instance h10 of H10UPC is a yes-instance. #<br />#
+          This is to facilitate Friedman translation#</li>#
 *)
 
 
 Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
-Inductive syms_func : Type := .
 
-#[local] Instance sig_func : funcs_signature :=
-  {| syms := syms_func; ar_syms := fun f => match f with end|}.
+Notation Pr t t' := (@atom _ sig_binary _ _ tt (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
 
-Inductive syms_pred := sPr.
-
-#[local] Instance sig_pred : preds_signature :=
-  {| preds := syms_pred; ar_preds := fun P => 2 |}.
-
-Notation Pr t t' := (@atom _ sig_pred _ _ sPr (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))).
-
-
+(** Some utils for iteration *)
 Section Utils.
 
-  Definition c2_full (x:nat) : {y:nat | x * S x = y+y}.
-  Proof. 
-    induction x as [|x [y' IH]].
-    - exists 0. lia.
-    - exists (y'+x+1). nia.
-  Defined.
-
-  Definition c2 (x:nat) := match (c2_full x) with exist _ y _ => y end.
-
-  Definition c2_descr (x:nat) : x * S x = c2 x + c2 x.
-  Proof.
-  unfold c2. now destruct (c2_full x).
-  Qed. 
-
-  Definition h10upc_sem_direct (c : h10upc) :=
-    match c with 
-      | ((x, y), (z1, z2)) => 
-          1 + x + y = z1 /\ y * (1 + y) = z2 + z2
-    end.
-
-  Lemma h10upc_inv (a b c d : nat) : h10upc_sem_direct ((a,S b),(c,d)) -> 
-           {c':nat & {d':nat & h10upc_sem_direct ((a,b),(c',d')) 
-                               /\ S c' = c /\ d' + b + 1 = d}}.
-  Proof.
-  intros [Hl Hr].
-  exists (a + S b). exists (c2 b).
-  repeat split.
-  - lia.
-  - apply c2_descr.
-  - lia.
-  - enough (2*(c2 b + b + 1) = d+d) by nia. rewrite <- Hr.
-    cbn. rewrite Nat.mul_comm. cbn. symmetry.
-    pose (c2_descr b) as Hb. nia.
-  Qed.
-
-  Lemma h10_rel_irref (p:nat*nat) : ~ (h10upc_sem_direct (p,p)).
-  Proof.
-  intros H. destruct p as [a b]. cbn in H. lia.
-  Qed.
-
-  Definition highest_var (x:h10upc) := match x with ((a,b),(c,d)) => Nat.max a (Nat.max b (Nat.max c d)) end.
-  Lemma highest_var_descr (x:h10upc) : let hv := highest_var x in match x with ((a,b),(c,d)) => a <= hv /\ b <= hv /\ c <= hv /\ d <= hv end.
-  Proof.
-  destruct x as [[a b] [c d]]. cbn. repeat split; lia.
-  Qed.
-
-  Fixpoint highest_var_list (x:list h10upc) := match x with nil => 0 | x::xr => Nat.max (highest_var x) (highest_var_list xr) end.
-  Lemma highest_var_list_descr (x:list h10upc) (h:h10upc) : In h x ->  highest_var h <= highest_var_list x.
-  Proof.
-  induction x as [|hh x IH].
-  - intros [].
-  - intros [hhh|hx].
-    + cbn. rewrite hhh. lia.
-    + cbn. specialize (IH hx). lia.
-  Qed.
-
-  Fixpoint highest_num (env: nat -> nat) (n:nat) : nat := match n with 0 => env 0 | S n => Nat.max (env (S n)) (highest_num env n) end.
-  Lemma highest_num_descr (env:nat -> nat) (n:nat) (m:nat) : m <= n -> env m <= highest_num env n.
+  Lemma it_shift (X:Type) (f:X->X) v n : it f (S n) v = it f n (f v).
   Proof.
   induction n as [|n IH].
-  - intros Hm. assert (m=0) as Hm0. 1:lia. cbn. rewrite Hm0. lia.
-  - intros HmSn. cbn. destruct (Nat.eq_dec (S n) m) as [Heq|Hneq].
-    + rewrite <- Heq. lia.
-    + assert (m <= n) as Hmn. 1:lia. specialize (IH Hmn). lia.
-    Qed.
-End Utils.
+  - easy.
+  - cbn. f_equal. apply IH.
+  Qed.
 
+End Utils.
+(** The validity reduction.
+    We assume a generic falsity flag and a list h10 for which we build a formula.
+ *)
 Section validity.
 
   Context {ff : falsity_flag}. 
@@ -179,7 +117,7 @@ Section validity.
     Context (valid_in : model).
     Instance II : interp D. exact I. Defined.
     Notation i_Pr i i' :=
-      (@i_atom _ _ _ I sPr (Vector.cons _ i _ (Vector.cons _ i' _ (Vector.nil _)))).
+      (@i_atom _ _ _ I tt (Vector.cons _ i _ (Vector.cons _ i' _ (Vector.nil _)))).
     
     Definition isNum (d:D) := i_Pr d d.
     Definition D_wFalse := i_Pr cr2 cr1.

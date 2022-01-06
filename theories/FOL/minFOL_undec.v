@@ -3,7 +3,7 @@ From Undecidability.FOL.Util Require  Tarski Deduction Kripke.
 From Undecidability.DiophantineConstraints Require Import H10C H10C_undec.
 From Undecidability.FOL.Reductions Require H10UPC_to_FOL_minimal H10UPC_to_FSAT.
 From Undecidability.FOL.Reductions Require H10UPC_to_FOL_full_fragment.
-From Undecidability.Synthetic Require Import Definitions Undecidability.
+From Undecidability.Synthetic Require Import Definitions Undecidability ReducibilityFacts.
 
 Definition minimalForm (ff:falsity_flag) := @form sig_empty sig_binary FragmentSyntax.frag_operators ff.
 
@@ -47,19 +47,19 @@ Section general.
     apply (undecidability_from_reducibility H10UPC_SAT_undec).
     apply classicalProveReduction, LEM.
   Qed.
-(*
-  Lemma minSatisfiabilityUndec : mundecidable (fun k : minimalForm falsity_on => satis k).
+
+  Lemma minSatisfiabilityUndec : undecidable (fun k : minimalForm falsity_on => satis k).
   Proof.
-    apply (mundecidability_from_reducibility H10UPC_SAT_compl_undec).
+    apply (undecidability_from_reducibility H10UPC_SAT_compl_undec).
     apply satisReduction.
   Qed.
 
-  Lemma minKripkeSatisfiabilityUndec : mundecidable (fun k : minimalForm falsity_on => ksatis k).
+  Lemma minKripkeSatisfiabilityUndec : undecidable (fun k : minimalForm falsity_on => ksatis k).
   Proof.
-    apply (mundecidability_from_reducibility H10UPC_SAT_compl_undec).
+    apply (undecidability_from_reducibility H10UPC_SAT_compl_undec).
     apply kripkeSatisReduction.
   Qed.
-  *)
+
 End general.
 
 
@@ -87,7 +87,7 @@ Section finite.
 
   Lemma minFiniteValidityUndec : undecidable FVAL_frag.
   Proof.
-    apply (undecidability_from_reducibility (H10UPC_SAT_compl_undec).
+    apply (undecidability_from_reducibility H10UPC_SAT_compl_undec).
     eapply reduces_transitive.
     * eexists. apply fval_reduction.
     * eexists. apply frag_reduction_fval.
@@ -98,4 +98,12 @@ Section finite.
   Abort.
 
 End finite.
+
+Print Assumptions minFiniteValidityUndec.
+Print Assumptions minFiniteSatisfiabilityUndec.
+Print Assumptions minProvabilityUndec.
+Print Assumptions minSatisfiabilityUndec.
+Print Assumptions minValidityUndec.
+Print Assumptions minKripkeSatisfiabilityUndec.
+Print Assumptions minKripkeValidityUndec.
 
