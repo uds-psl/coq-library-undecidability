@@ -199,7 +199,7 @@ Qed.
 Lemma valid_satis phi :
   valid phi -> ~ satis (¬ phi).
 Proof.
-  intros H1 (D & I & rho & H2). 
+  intros H1 (D & I & rho & H2).
   apply H2, (H1 D I rho).
 Qed.
 

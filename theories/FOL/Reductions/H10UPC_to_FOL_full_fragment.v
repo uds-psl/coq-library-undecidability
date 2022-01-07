@@ -1,6 +1,6 @@
 (* * FOL Reductions *)
 
-From Undecidability.DiophantineConstraints Require Import H10C H10C_undec.
+From Undecidability.DiophantineConstraints Require Import H10C.
 From Undecidability.DiophantineConstraints.Util Require Import H10UPC_facts.
 From Undecidability.FOL Require Import Util.Syntax Util.FullTarski Util.FullTarski_facts Util.Syntax_facts Util.sig_bin.
 From Undecidability.Shared Require Import Dec.
@@ -568,22 +568,6 @@ exists @F. split.
 - apply inverseTransport.
 Qed.
 
-(*
-Lemma someSatisReduction : complement (complement H10UPC_SAT) 
-                                             ⪯ (complement (satis (ff := falsity_on))).
-Proof.
-exists (fun k => ¬ (@F k)). split.
-- intros H. eapply sat2. easy.
-- intros H. eapply sat1. easy.
-Qed.
-
-Lemma otherSatisReduction : complement H10UPC_SAT 
-                                             ⪯ complement (complement (satis (ff := falsity_on))).
-Proof.
-exists (fun k => ¬ (@F k)). split.
-- intros H. eapply sat4. easy.
-- intros H. eapply sat3. easy.
-Qed. *)
 
 Lemma fullFragSatisReduction : complement H10UPC_SAT ⪯ (satis (ff := falsity_on)).
 Proof.
@@ -591,10 +575,6 @@ exists (fun k => ¬ (@F k)). split.
 - intros H. eapply sat6. easy.
 - intros H. eapply sat5. easy.
 Qed.
-(*
-Check someSatisReduction.
-Check otherSatisReduction. *)
-Check fullFragSatisReduction.
 
 
 

@@ -1,6 +1,6 @@
 (* * FOL Reductions *)
 
-From Undecidability.DiophantineConstraints Require Import H10C H10C_undec.
+From Undecidability.DiophantineConstraints Require Import H10C.
 From Undecidability.DiophantineConstraints.Util Require Import H10UPC_facts.
 From Undecidability.FOL Require Import Util.Syntax Util.Kripke Util.Deduction Util.Tarski Util.Syntax_facts Util.sig_bin.
 From Undecidability.Shared Require Import Dec.
@@ -863,8 +863,8 @@ Section provability.
   Qed.
 
 
-  (** Reduction transport for validity, now just a special case of the above *)
-  Lemma transport' : H10UPC_SAT h10 -> valid (F (h10:=h10)).
+  (** Reduction transport for validity, just a special case of the above *)
+  Lemma transport : H10UPC_SAT h10 -> valid (F (h10:=h10)).
   Proof.
     intros Hh10.
     intros D I rho.
@@ -936,7 +936,7 @@ Section satisfiability.
   Lemma satisInverseTransport : satis ((F (ff:=falsity_on) (h10:=h10)) --> falsity) -> (~ H10UPC_SAT h10).
   Proof.
   intros [D [I [rho HF]]] H.
-  apply HF, (transport' (ff:=falsity_on) H).
+  apply HF, (transport (ff:=falsity_on) H).
   Qed.
 End satisfiability.
 
@@ -989,7 +989,7 @@ Section undecResults.
   Theorem validReduction : reductionToMinimal (f:=falsity_off) H10UPC_SAT valid.
   Proof.
   exists (fun l => @F falsity_off l). split.
-  * apply transport'.
+  * apply transport.
   * apply inverseTransport.
   Qed.
 

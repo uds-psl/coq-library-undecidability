@@ -98,12 +98,13 @@ Section finite.
   Abort.
 
 End finite.
-
+(*
 Print Assumptions minFiniteValidityUndec.
 Print Assumptions minFiniteSatisfiabilityUndec.
 Print Assumptions minProvabilityUndec.
 Print Assumptions minSatisfiabilityUndec.
 Print Assumptions minValidityUndec.
 Print Assumptions minKripkeSatisfiabilityUndec.
-Print Assumptions minKripkeValidityUndec.
+Print Assumptions minKripkeValidityUndec. *)
 
+(* Closed under the global context *)
