@@ -1,6 +1,6 @@
-(* 
+(*
   Autor(s):
-    Andrej Dudenhefner (1) 
+    Andrej Dudenhefner (1)
   Affiliation(s):
     (1) Saarland University, Saarbrücken, Germany
 *)
@@ -20,7 +20,7 @@ Require Undecidability.CounterMachines.CM1.
 Import CM2 (CM2_HALT). Import CM1 (CM1_HALT).
 
 From Undecidability.CounterMachines.Util Require Import 
-  Nat_facts.
+  Facts Nat_facts.
 
 From Undecidability.CounterMachines.Util Require CM1_facts CM2_facts.
 
@@ -83,8 +83,7 @@ Section MM2_CM1.
   Local Arguments encodes_config !x !y /.
 
   Lemma encodes_config_init : encodes_config
-    {| CM2.state := 0; CM2.value1 := 0; CM2.value2 := 0 |}
-    {| CM1.state := 0; CM1.value := 1 |}.
+    (0, (0, 0)) {| CM1.state := 0; CM1.value := 1 |}.
   Proof. constructor; [done | by exists 0]. Qed.
 
   Lemma length_encode_instruction {cm2i: CM2.Instruction} {i: nat} :
@@ -222,15 +221,16 @@ Section MM2_CM1.
   Proof. rewrite /fs. by lia. Qed.
 
   (* M simulates each step of P *)
-  Lemma P_to_M_step {x: CM2.Config} {x': CM1.Config} : 
-    encodes_config x x' -> 
-    exists n, encodes_config (CM2.step P x) (Nat.iter n (CM1.step M) x').
+  Lemma P_to_M_step {x y: CM2.Config} {x': CM1.Config} : 
+    encodes_config x x' ->
+    CM2.step P x = Some y ->
+    exists n, encodes_config y (Nat.iter n (CM1.step M) x').
   Proof.
-    move: x x' => [i a b] [p c] /= [->] [k ->].
+    move: x x' => [i [a b]] [p c] /= [->] [k ->].
+    rewrite /CM2.step /=.
     move Hoi: (nth_error P i) => oi.
-    move: oi Hoi => [cm2i|] /=; first last.
-    { move=> Hi. exists 0. constructor; [done | by eexists ]. }
-    move: cm2i => [] [] > Hi.
+    move: oi Hoi => [cm2i|] /=; last done.
+    move: cm2i => [] [] > Hi [<-].
     (* case inc b *)
     - exists 2 => /=.
       rewrite (seek_M 0) Hi ?κ_norm /=.
@@ -268,49 +268,51 @@ Section MM2_CM1.
   Qed.
 
   (* M simulates P *)
-  Lemma P_to_M {n} {x: CM2.Config} {x': CM1.Config} : 
-    encodes_config x x' -> 
-    exists m, encodes_config (Nat.iter n (CM2.step P) x) (Nat.iter m (CM1.step M) x').
+  Lemma P_to_M {n} {x y: CM2.Config} {x': CM1.Config} : 
+    encodes_config x x' ->
+    CM2.steps P n x = Some y ->
+    exists m, encodes_config y (Nat.iter m (CM1.step M) x').
   Proof.
-    elim: n x x'; first by exists 0.
-    move=> n IH x x' /P_to_M_step [m1] /IH [m2].
-    rewrite (ltac:(lia) : S n = 1 + n) iter_plus /=.
+    elim: n x x'.
+    { move=> ??? [<-]. by exists 0. }
+    move=> n IH x x' /P_to_M_step H. rewrite /= obind_oiter.
+    case Hz: (CM2.step P x) => [z|]; last by rewrite oiter_None.
+    move: Hz => /H [m1] /IH {}H /H{H} [m2] H.
     exists (m1 + m2). by rewrite iter_plus.
   Qed.
 
   (* if P stops, then M stops *)
   Lemma P_iff_M_halting (x: CM2.Config) (x': CM1.Config) :
-    encodes_config x x' -> (CM2.halting P x <-> CM1.halting M x').
+    encodes_config x x' -> (CM2.step P x = None <-> CM1.halting M x').
   Proof.
-    rewrite CM1_facts.haltingP CM2_facts.haltingP.
-    move: x x' => [i a b] [? ?] /= [->] [k] ->.
+    rewrite CM1_facts.haltingP CM2_facts.step_None'.
+    move: x x' => [i [a b]] [? ?] /= [->] [k] ->.
     rewrite /fs length_M κ_pos'. by lia.
   Qed.
 
   Lemma M_terminating_to_P_terminates (x: CM2.Config) (x': CM1.Config) {n: nat}: 
     encodes_config x x' ->
     CM1.halting M (Nat.iter n (CM1.step M) x') ->
-    exists m, CM2.halting P (Nat.iter m (CM2.step P) x).
+    exists m, CM2.steps P m x = None.
   Proof.
     elim /(measure_rect id) : n x x' => n IH x.
-    have : CM2.halting P x \/ not (CM2.halting P x) by (rewrite CM2_facts.haltingP; lia).
-    case; first by (move=> *; exists 0).
-    move=> Hx x' /[dup] [H1xx'] /P_to_M_step [m Hm].
+    case Hxy: (CM2.step P x) => [y|]; first last.
+    { move=> *. by exists 1. }
+    move: (Hxy) => + x' /[dup] [H1xx'] /P_to_M_step H => /H{H} [m Hm].
     have ? : m > 0.
     {
       suff: not (m = 0) by lia. move=> ?. subst m.
-      apply: Hx. rewrite /CM2.halting.
-      move: x' x (CM2.step P x) H1xx' Hm.
-      move=> [? ?] [? ? ?] [? ? ?] /= [->] [? ->] [+] [?].
-      by move=> /fs_inj -> /[dup] [/κ_inj1 ->] /κ_inj2 ->.
+      move: x' x y H1xx' Hm Hxy.
+      move=>  [? ?] [? [? ?]] [? [? ?]] /= [->] [? ->] [+] [?].
+      by move=> /fs_inj -> /[dup] [/κ_inj1 ->] /κ_inj2 -> /CM2_facts.step_neq.
     }
     have [?|Hn] : n <= m \/ m < n by lia.
     - move: Hm => /P_iff_M_halting HPM.
       move=> /(CM1_facts.halting_monotone (m := m)) => /(_ ltac:(done)).
-      move=> /HPM ?. by exists 1.
+      move=> /HPM ?. exists 2. by rewrite /= Hxy.
     - have ->: n = m + (n - m) by lia. rewrite iter_plus.
       move: Hm => /IH {}IH /IH => /(_ ltac:(lia)) [m' ?].
-      exists (1+m'). by rewrite iter_plus.
+      exists (1+m'). by rewrite /= obind_oiter Hxy.
   Qed.
 
 End MM2_CM1.
@@ -324,10 +326,14 @@ Theorem reduction : CM2_HALT ⪯ CM1_HALT.
 Proof.
   exists (fun P => exist _ (Argument.M P) (Argument.M_capped P)).
   move=> P. constructor.
-  - move=> [n]. have := Argument.encodes_config_init.
-    move=> /(Argument.P_to_M P (n := n)) [m].
-    move=> /Argument.P_iff_M_halting H /H {}?.
-    by exists m.
+  - move=> [n]. elim: n; first done.
+    move=> n IH /=.
+    case Hx: (CM2.steps P n (0, (0, 0))) => [x|].
+    + move: Hx. have := Argument.encodes_config_init.
+      move=> /(Argument.P_to_M P (n := n)) H /H{H} [m].
+      move=> /Argument.P_iff_M_halting Hm /Hm ?.
+      by exists m.
+    + by move: Hx => /IH.
   - move=> [n]. have := Argument.encodes_config_init.
     by move=> /Argument.M_terminating_to_P_terminates H /H.
 Qed.

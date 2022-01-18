@@ -39,7 +39,8 @@ StackMachines/BSM.v
 StackMachines/BSM_undec.v
 
 MinskyMachines/MM.v
-MinskyMachines/MM_undec.v       
+MinskyMachines/MM_dec.v
+MinskyMachines/MM_undec.v
 
 # Non coqdoc files
 
@@ -285,6 +286,9 @@ MinskyMachines/Reductions/MUREC_MM.v
 MinskyMachines/Reductions/BSM_HALTING_to_MM2_HALTING.v
 MinskyMachines/Reductions/MM2_to_ndMM2_ACCEPT.v
 MinskyMachines/Reductions/MMA2_to_ndMM2_ACCEPT.v
+
+MinskyMachines/Deciders/MPM2_HALT_dec.v
+MinskyMachines/Deciders/MM_2_HALTING_dec.v
 
 MinskyMachines/MM/mm_defs.v         
 MinskyMachines/MM/mm_utils.v        
@@ -719,8 +723,8 @@ TRAKHTENBROT/red_enum.v
 TRAKHTENBROT/red_undec.v
 
 CounterMachines/CM2.v
-CounterMachines/CM2_undec.v
 
+CounterMachines/Util/Facts.v
 CounterMachines/Util/Nat_facts.v
 CounterMachines/Util/CM1_facts.v
 CounterMachines/Util/CM2_facts.v
@@ -728,6 +732,13 @@ CounterMachines/Util/MM2_facts.v
 CounterMachines/Reductions/CM2_HALT_to_CM1_HALT.v
 CounterMachines/Reductions/MM2_HALTING_to_CM2_HALT.v
 CounterMachines/Reductions/MM2_HALTING_to_CM1_HALT.v
+CounterMachines/Deciders/CM2_REV_dec.v
+CounterMachines/Deciders/CM2_REV_HALT_dec.v
+CounterMachines/Deciders/CM2_UBOUNDED_dec.v
+CounterMachines/Deciders/CM2_UMORTAL_dec.v
+
+CounterMachines/CM2_dec.v
+CounterMachines/CM2_undec.v
 
 StackMachines/SMN.v
 StackMachines/SMN_undec.v
