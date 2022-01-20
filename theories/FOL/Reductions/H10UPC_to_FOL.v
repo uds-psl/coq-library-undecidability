@@ -6,6 +6,7 @@ From Undecidability.FOL Require Import Util.Syntax Util.Kripke Util.Deduction Ut
 From Undecidability.FOL.Reductions Require Import H10UPC_to_FOL_minimal.
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
+From Undecidability.Synthetic Require Import Definitions.
 From Coq Require Import Arith Lia List.
 
 
@@ -274,7 +275,7 @@ Section validity.
 End validity.
 
 
-Theorem directValidReduction : reductionToMinimal (f:=falsity_off) H10UPC_SAT valid.
+Theorem directValidReduction : reduces (H10UPC_SAT) (@valid sig_empty sig_binary falsity_off).
 Proof.
 exists (fun l => @F falsity_off l). split.
 * apply transport_direct.

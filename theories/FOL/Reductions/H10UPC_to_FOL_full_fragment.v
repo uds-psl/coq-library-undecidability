@@ -437,11 +437,7 @@ Section validity.
         assert (b' < n) as Hbn by (inversion H3; [lia | h10ind_not_lt_0]).
         assert (c' < n) as Hcn by (inversion H4; [lia | h10ind_not_lt_0]).
         assert (d' < n) as Hdn by (rewrite <- h10_equiv in H2; cbn in H2; lia).
-        apply HA3.
-        + now apply IH1.
-        + now apply IH2.
-        + now apply IH3.
-        + now apply IH4.
+        apply HA3; eauto.
       Qed.
 
       Definition rho_descr_chain rho phi n (c:chain n) hv :=

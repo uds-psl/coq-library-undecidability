@@ -983,24 +983,21 @@ Section undecResults.
   * now exists tt.
   Qed.
 
-  Definition reductionToMinimal (f:falsity_flag) {X:Type} (H:X -> Prop) (P:@form sig_empty sig_binary frag_operators f -> Prop) := 
-   H ⪯ P.
-
-  Theorem validReduction : reductionToMinimal (f:=falsity_off) H10UPC_SAT valid.
+  Theorem validReduction : H10UPC_SAT ⪯ @valid sig_empty sig_binary falsity_off.
   Proof.
   exists (fun l => @F falsity_off l). split.
   * apply transport.
   * apply inverseTransport.
   Qed.
 
-  Theorem satisReduction : reductionToMinimal (f:=falsity_on) (fun l => ~ H10UPC_SAT l) satis.
+  Theorem satisReduction : complement H10UPC_SAT ⪯ @satis sig_empty sig_binary falsity_on.
   Proof.
   exists (fun l => @F falsity_on l --> falsity). split.
   * apply satisTransport.
   * apply satisInverseTransport.
   Qed.
 
-  Theorem proveReduction : reductionToMinimal (f:=falsity_off) H10UPC_SAT (fun k => nil ⊢M k).
+  Theorem proveReduction : H10UPC_SAT ⪯ (fun (k:@form sig_empty sig_binary frag_operators falsity_off) => nil ⊢M k).
   Proof.
   exists (fun l => @F falsity_off l). split.
   * apply proofTransport.
@@ -1008,21 +1005,21 @@ Section undecResults.
   Qed.
 
   Theorem classicalProveReduction (LEM : forall P:Prop, P \/ ~P) :
-    reductionToMinimal (f:=falsity_off) H10UPC_SAT (fun k => nil ⊢C k).
+    H10UPC_SAT ⪯ (fun (k:@form sig_empty sig_binary frag_operators falsity_off) => nil ⊢C k).
   Proof.
   exists (fun l => @F falsity_off l). split.
   * apply classicalProvabilityTransport, LEM.
   * apply classicalProvabilityInverseTransport, LEM.
   Qed.
 
-  Theorem kripkeValidReduction : reductionToMinimal (f:=falsity_off) H10UPC_SAT kvalid.
+  Theorem kripkeValidReduction : H10UPC_SAT ⪯ @kvalid sig_empty sig_binary falsity_off.
   Proof.
   exists (fun l => @F falsity_off l). split.
   * apply kripkeTransport.
   * apply kripkeInverseTransport.
   Qed.
 
-  Theorem kripkeSatisReduction : reductionToMinimal (f:=falsity_on) (fun l => ~ H10UPC_SAT l) ksatis.
+  Theorem kripkeSatisReduction : complement H10UPC_SAT ⪯ @ksatis sig_empty sig_binary falsity_on.
   Proof.
   exists (fun l => @F falsity_on l --> falsity). split.
   * apply ksatisTransport.
