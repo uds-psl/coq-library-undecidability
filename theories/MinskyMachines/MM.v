@@ -92,6 +92,11 @@ Section MM_problems.
   Definition MM_HALTING (P : MM_PROBLEM) :=
     match P with existT _ n (existT _ P v) => (1, P) // (1, v) ↓ end.
 
+  Definition MM_2_PROBLEM := { P : list (mm_instr (pos 2)) & vec nat 2 }.
+
+  Definition MM_2_HALTING (P : MM_2_PROBLEM) :=
+    match P with existT _ P v => (1, P) // (1, v) ↓ end.
+
 End MM_problems.
 
 Section MMA_problems.

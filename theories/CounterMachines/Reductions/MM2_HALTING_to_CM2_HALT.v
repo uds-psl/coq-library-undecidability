@@ -18,7 +18,7 @@ Require Import Undecidability.MinskyMachines.MM2.
 Require Undecidability.CounterMachines.CM2.
 
 From Undecidability.CounterMachines.Util Require Import 
-  Nat_facts MM2_facts CM2_facts.
+  Facts Nat_facts MM2_facts CM2_facts.
 
 Require Import ssreflect ssrbool ssrfun.
 
@@ -33,7 +33,7 @@ Section MM2_CM2.
   Definition mm2_config : Set := (nat*(nat*nat)).
 
   (* instruction index map *)
-  Definition fs (i: nat) : CM2.State :=
+  Definition fs (i: nat) : nat :=
     if i is S i then i + a0 + b0 else (length P) + a0 + b0.
 
   (* encode instruction mmi at position i using index map fs for current cm2 state p *)
@@ -51,7 +51,10 @@ Section MM2_CM2.
 
   (* encode mm2 config as cm2 config *)
   Definition encode_config (x: mm2_config) : CM2.Config :=
-    let: (i, (a, b)) := x in {| CM2.state := fs i; CM2.value1 := a; CM2.value2 := b |}.
+    let: (i, (a, b)) := x in (fs i, (a, b)).
+
+  Lemma fs_pos i : 0 < i -> fs i = ((i - 1) + a0 + b0).
+  Proof. case: i => [|?] /=; lia. Qed.
 
   Lemma seek_M {i M'} : nth_error (repeat (CM2.inc false) a0 ++ repeat (CM2.inc true) b0 ++ M') (i + a0 + b0) = nth_error M' i.
   Proof.
@@ -60,30 +63,32 @@ Section MM2_CM2.
     congr @nth_error. rewrite ?repeat_length. by lia.
   Qed.
 
-  Lemma init_M_a0 (n: nat) : n <= a0 -> Nat.iter n (CM2.step M) {| CM2.state := 0; CM2.value1 := 0; CM2.value2 := 0 |} = 
-    {| CM2.state := n; CM2.value1 := n; CM2.value2 := 0 |}.
+  Lemma init_M_a0 (n: nat) : n <= a0 -> CM2.steps M n (0, (0, 0)) = 
+    Some (n, (n, 0)).
   Proof.
     elim: n; first done.
     move=> n + /= ? => ->; first by lia.
-    rewrite /= /M nth_error_app1 ?repeat_length; first by lia.
-    rewrite (nth_error_nth' _  (CM2.inc false)) ?repeat_length ?nth_repeat; [by lia | done].
+    rewrite /M /CM2.step /= nth_error_app1 ?repeat_length; first by lia.
+    rewrite (nth_error_nth' _  (CM2.inc false)) ?repeat_length ?nth_repeat /=; [by lia | done].
   Qed.
 
-  Lemma init_M_b0 (n: nat) : n <= b0 -> Nat.iter n (CM2.step M) {| CM2.state := a0; CM2.value1 := a0; CM2.value2 := 0 |} = 
-    {| CM2.state := n + a0; CM2.value1 := a0; CM2.value2 := n |}.
+  Lemma init_M_b0 (n: nat) : n <= b0 -> CM2.steps M n (a0, (a0, 0)) = 
+    Some (n + a0, (a0, n)).
   Proof.
     elim: n; first done.
     move=> n + /= ? => ->; first by lia.
-    rewrite /= /M nth_error_app2 ?repeat_length; first by lia.
+    rewrite /M /CM2.step /= nth_error_app2 ?repeat_length; first by lia.
     rewrite nth_error_app1 ?repeat_length; first by lia.
     rewrite (nth_error_nth' _  (CM2.inc true)) ?repeat_length ?nth_repeat; [by lia | done].
   Qed.
 
   (* after a0 + b0 steps the counters of M are initialized to a0, b0 *)
-  Lemma init_M : Nat.iter (a0 + b0) (CM2.step M) {| CM2.state := 0; CM2.value1 := 0; CM2.value2 := 0 |} = 
-    {| CM2.state := a0 + b0; CM2.value1 := a0; CM2.value2 := b0 |}.
+  Lemma init_M : CM2.steps M (a0 + b0) (0, (0, 0)) = 
+    Some (a0 + b0, (a0, b0)).
   Proof.
-    rewrite iter_plus ?init_M_a0 ?init_M_b0; f_equal; by lia.
+    have /steps_plus -> := init_M_a0 a0 ltac:(lia).
+    have ->: a0 + b0 = b0 + a0 by lia.
+    apply: init_M_b0. lia.
   Qed.
 
   Lemma length_M : length M = a0 + b0 + length P.
@@ -116,71 +121,102 @@ Section MM2_CM2.
 
   (* M simulates each step of P *)
   Lemma P_to_M_step {x y: mm2_config}  : 
-    mm2_step P x y -> CM2.step M (encode_config x) = encode_config y.
+    mm2_step P x y -> CM2.step M (encode_config x) = Some (encode_config y).
   Proof.
     case. move: x => [i [a b]] op.
     move: (program_index_spec i) => [? ? H [/H] | ]; first done.
+    rewrite /CM2.step.
     move=> {}i op' /= -> Hop' [/(mm2_instr_at_unique Hop') <- H]. by inversion H.
   Qed.
 
   (* M simulates P *)
   Lemma P_to_M (x y: mm2_config) : 
     clos_refl_trans _ (mm2_step P) x y -> 
-    exists n, Nat.iter n (CM2.step M) (encode_config x) = encode_config y.
+    exists n, CM2.steps M n (encode_config x) = Some (encode_config y).
   Proof.
     move /clos_rt_rtn1_iff. elim; first by (exists 0).
     move=> {}y z /P_to_M_step Hyz _ [n Hnxy].
-    exists (1+n) => /=. by congruence.
+    exists (1+n) => /=. by rewrite Hnxy.
   Qed.
 
-  Lemma M_to_P_step (x: mm2_config) : 
-    CM2.halting M (encode_config x) \/ exists y, CM2.step M (encode_config x) = encode_config y /\ mm2_step P x y.
+  Lemma M_to_P_step (x: mm2_config) (y: CM2.Config) :
+    CM2.step M (encode_config x) = Some y ->
+    exists z, y = encode_config z /\ mm2_step P x z.
   Proof.
-    move: x => [i [a b]]. rewrite /CM2.halting /=.
-    move: (program_index_spec i) => [{}i | {}i op] -> HiP; [by left | right].
-    have [y Hy] := @mm2_progress op (1 + i, (a, b)).
-    exists y. constructor; [by inversion Hy | by exists op].
+    move: x y => [i [a b]] [i' [a' b']]. rewrite /CM2.step.
+    move: (program_index_spec i) => [{}i | {}i op] -> HiP /=; first done.
+    move=> H.
+    suff: exists z : mm2_config,
+      (i', (a', b')) = encode_config z /\ mm2_atom op (S i, (a, b)) z.
+    { move=> [z [? ?]]. exists z. split; first done. by exists op. }
+    move: HiP => /mm2_instr_at_bounds ?.
+    move: op H => [||j|j] /=.
+    - move=> [???]. exists (S (S i), (S a, b)). split.
+      + rewrite /=. congr (_, (_, _)); lia.
+      + by apply: in_mm2s_inc_a.
+    - move=> [???]. exists (S (S i), (a, S b)). split.
+      + rewrite /=. congr (_, (_, _)); lia.
+      + by apply: in_mm2s_inc_b.
+    - move: a => [|a] [???].
+      + exists (S (S i), (0, b)). split.
+        * rewrite /=. congr (_, (_, _)); lia.
+        * by apply: in_mm2s_dec_a0.
+      + exists (j, (a, b)). split.
+        * rewrite /=. congr (_, (_, _)); lia.
+        * by apply: in_mm2s_dec_aS.
+    - move: b => [|b] [???].
+      + exists (S (S i), (a, 0)). split.
+        * rewrite /=. congr (_, (_, _)); lia.
+        * by apply: in_mm2s_dec_b0.
+      + exists (j, (a, b)). split.
+        * rewrite /=. congr (_, (_, _)); lia.
+        * by apply: in_mm2s_dec_bS.
   Qed.
-  
-  (* P simulates M *)
-  Lemma M_to_P (n: nat) (x: mm2_config) :
-    exists y, Nat.iter n (CM2.step M) (encode_config x) = encode_config y /\ clos_refl_trans _ (mm2_step P) x y.
+
+  Lemma M_to_P (n: nat) (x: mm2_config) (y: CM2.Config) :
+    CM2.steps M n (encode_config x) = Some y ->
+    exists z, y = encode_config z /\ clos_refl_trans _ (mm2_step P) x z.
   Proof.
-    elim: n x; first by (move=> x; exists x; constructor; [done | by apply: rt_refl]).
-    move=> n + x. move: (M_to_P_step x) => [Hx _| [y [HMxy HPxy]]].
-    - exists x. constructor; last by apply: rt_refl.
-      elim: n; [done | by move=> n /= ->].
-    - move=> /(_ y) => [[z [? ?]]]. exists z. constructor.
-      + have ->: S n = 1 + n by lia. by rewrite iter_plus /= HMxy.
-      + apply: rt_trans; [apply: rt_step | eassumption]; done.
+    elim: n x y.
+    { move=> x y [] <-. exists x. split; [done|by apply: rt_refl]. }
+    move=> n IH x y /=. rewrite obind_oiter.
+    case Hx': (CM2.step M (encode_config x)) =>[x'|]; last by rewrite oiter_None.
+    move: Hx' => /M_to_P_step [y'] [->] Hxy'.
+    move=> /IH [z] [?] ?. exists z. split; first done.
+    apply: rt_trans; [apply rt_step|]; by eassumption.
   Qed.
 
    (* P stops iff M halts *)
   Lemma P_stop_iff_M_halting (x: mm2_config) :
-    mm2_stop P x <-> CM2.halting M (encode_config x).
+    mm2_stop P x <-> CM2.step M (encode_config x) = None.
   Proof.
-    move: x => [i [a b]]. rewrite /CM2.halting /=. constructor.
+    move: x => [i [a b]]. rewrite /CM2.step /=. constructor.
     - move: (program_index_spec i) => [{}i | {}i op] ->; first done.
       have [y Hy] := @mm2_progress op (1 + i, (a, b)).
       move=> ? /(_ y) + /ltac:(exfalso). apply. by exists op.
     - move: (program_index_spec i) => [{}i | {}i op] ->.
       + move=> + _ y [] op [? ?] => /(_ op). by apply.
-      + move: op a b => [||j|j] [|a] [|b] _ /= []; by lia.
+      + by move: op a b => [||j|j] [|a] [|b] _.
   Qed.
 
   Lemma transport : MM2_HALTING (P, a0, b0) -> CM2.CM2_HALT M.
   Proof.
-    move=> [z] [/P_to_M] [n +] /P_stop_iff_M_halting => <- ?.
-    exists ((a0 + b0) + n). by rewrite iter_plus init_M.
+    move=> [z] [/P_to_M] [n /= Hn] /P_stop_iff_M_halting Hz.
+    exists ((a0 + b0) + (n + 1)).
+    by rewrite (steps_plus init_M) (steps_plus Hn).
   Qed.
 
   Lemma reflection: CM2.CM2_HALT M -> MM2_HALTING (P, a0, b0).
   Proof.
-    move=> [n] /(halting_monotone n ((a0 + b0) + n)) => /(_ ltac:(lia)).
-    rewrite iter_plus init_M -/(encode_config (1, (a0, b0))).
-    have [y [-> ?]] := M_to_P n (1, (a0, b0)).
-    move=> ?. exists y. constructor; first done.
-    by apply /P_stop_iff_M_halting.
+    move=> [n] /(steps_k_monotone ((a0 + b0) + n)) => /(_ ltac:(lia)).
+    rewrite (steps_plus init_M) -/(encode_config (1, (a0, b0))).
+    elim: n; first done.
+    move=> n /=.
+    case Hy: (CM2.steps M n (a0 + b0, (a0, b0))) => [y|]; first last.
+    { move=> IH _. by apply: IH. }
+    move: Hy. rewrite -/(encode_config (1, (a0, b0))).
+    move=> /M_to_P [z] [->] Hz _ /P_stop_iff_M_halting ?.
+    by exists z.
   Qed.
 
 End MM2_CM2.

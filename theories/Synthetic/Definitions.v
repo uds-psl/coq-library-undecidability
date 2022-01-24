@@ -2,9 +2,9 @@
   
 (* (complement P) is the complement decision problem of P *)
 Definition complement {X} (P : X -> Prop) := fun x : X => ~ P x.
-(* (reflects b P) means that 
-   provability of the proposition P coincides with b being true *)
-Definition reflects (b : bool) (P : Prop) := P <-> b = true.
+(* (reflects b p) means that 
+   provability of the proposition p coincides with b being true *)
+Definition reflects (b : bool) (p : Prop) := p <-> b = true.
 
 (* (decider f P) means that
    the function f from the domain X of the predicate P to Booleans pointwise reflects P *)
