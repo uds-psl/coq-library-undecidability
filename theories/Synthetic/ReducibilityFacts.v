@@ -35,6 +35,13 @@ Section Properties.
       intros x. exact (proj2_sig (f x)).
   Qed.
 
+  Fact reduces_complement : P ⪯ Q -> complement P ⪯ complement Q.
+  Proof.
+    intros [f Hf].
+    exists f. intros x. specialize (Hf x). split.
+    all: intros H Hc; apply H, Hf, Hc.
+  Qed.
+
 End Properties.
 
 Module ReductionChainNotations.
