@@ -3,6 +3,8 @@ Require Import List.
 From Undecidability Require Import TMTac.
 From Coq Require Import List.
 
+Set Default Proof Using "Type".
+
 (* Useful for running time stuff *)
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.

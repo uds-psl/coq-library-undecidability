@@ -10,6 +10,9 @@ From Undecidability.Synthetic Require Import Definitions DecidabilityFacts Enume
 Require Import Undecidability.Shared.Dec.
 
 Import VectorNotations SubstNotations SOLNotations PA2Notations.
+
+Set Default Proof Using "Type".
+
 Arguments Vector.cons {_} _ {_} _, _ _ _ _.
 
 Derive Signature for Vector.t.
@@ -114,24 +117,24 @@ Section Model.
 
   Lemma eq_reflexive x :
     x i== x.
-  Proof. revert x. apply (M_correct ax_eq_refl ltac:(firstorder) (empty_PA2_env _)). Qed.
+  Proof using M_correct. revert x. apply (M_correct ax_eq_refl ltac:(firstorder) (empty_PA2_env _)). Qed.
 
   Lemma eq_symm x y :
     x i== y -> y i== x.
-  Proof. apply (M_correct ax_eq_symm ltac:(firstorder) (empty_PA2_env _)). Qed.
+  Proof using M_correct. apply (M_correct ax_eq_symm ltac:(firstorder) (empty_PA2_env _)). Qed.
 
   Lemma zero_succ' x :
     izero i== iσ x -> False.
-  Proof. apply (M_correct ax_zero_succ ltac:(firstorder) (empty_PA2_env _)). Qed.
+  Proof using M_correct. apply (M_correct ax_zero_succ ltac:(firstorder) (empty_PA2_env _)). Qed.
 
   Lemma succ_inj' x y :
     iσ x i== iσ y -> x i== y.
-  Proof. apply (M_correct ax_succ_inj ltac:(firstorder) (empty_PA2_env _)). Qed.
+  Proof using M_correct. apply (M_correct ax_succ_inj ltac:(firstorder) (empty_PA2_env _)). Qed.
 
   (* Simplify induction axiom by removing the vector *)
   Lemma induction (P : M_domain M -> Prop) :
     P izero -> (forall x, P x -> P (iσ x)) -> forall x, P x.
-  Proof.
+  Proof using M_correct.
     pose (P' := fun v : vec _ 1 => P (Vector.hd v)).
     change (P' ([izero]) -> (forall x, P' ([x]) -> P' ([iσ x])) -> forall x, P' ([x])).
     apply (M_correct ax_ind ltac:(firstorder) (empty_PA2_env _)).
@@ -139,7 +142,7 @@ Section Model.
 
   Lemma case_analysis x :
     x = izero \/ exists x', x = iσ x'.
-  Proof.
+  Proof using M_correct.
     revert x. apply induction.
     - now left.
     - intros x _. right. now exists x.
@@ -147,7 +150,7 @@ Section Model.
 
   Lemma eq_sem x y :
     x i== y <-> x = y.
-  Proof.
+  Proof using M_correct.
     split.
     - revert x y. apply (induction (fun x => forall y, x i== y -> x = y)).
       + intros y H. destruct (case_analysis y) as [->|[y' ->]].
@@ -161,27 +164,27 @@ Section Model.
 
   Lemma zero_succ x :
     izero = iσ x -> False.
-  Proof. intros H%eq_sem. now apply (zero_succ' x). Qed.
+  Proof using M_correct. intros H%eq_sem. now apply (zero_succ' x). Qed.
 
   Lemma succ_inj x y :
     iσ x = iσ y -> x = y.
-  Proof. intros H%eq_sem. now apply eq_sem, (succ_inj' x y). Qed.
+  Proof using M_correct. intros H%eq_sem. now apply eq_sem, (succ_inj' x y). Qed.
 
   Lemma add_zero x :
     izero i⊕ x = x.
-  Proof. apply eq_sem, (M_correct ax_add_zero ltac:(firstorder) (empty_PA2_env _)). Qed.
+  Proof using M_correct. apply eq_sem, (M_correct ax_add_zero ltac:(firstorder) (empty_PA2_env _)). Qed.
 
   Lemma add_rec x y :
     iσ x i⊕ y = iσ (x i⊕ y).
-  Proof. apply eq_sem, (M_correct ax_add_rec ltac:(firstorder) (empty_PA2_env _)). Qed.
+  Proof using M_correct. apply eq_sem, (M_correct ax_add_rec ltac:(firstorder) (empty_PA2_env _)). Qed.
 
   Lemma mul_zero x :
     izero i⊗ x = izero.
-  Proof. apply eq_sem, (M_correct ax_mul_zero ltac:(firstorder) (empty_PA2_env _)). Qed.
+  Proof using M_correct. apply eq_sem, (M_correct ax_mul_zero ltac:(firstorder) (empty_PA2_env _)). Qed.
 
   Lemma mul_rec x y :
     iσ x i⊗ y = y i⊕ (x i⊗ y).
-  Proof. apply eq_sem, (M_correct ax_mul_rec ltac:(firstorder) (empty_PA2_env _)). Qed.
+  Proof using M_correct. apply eq_sem, (M_correct ax_mul_rec ltac:(firstorder) (empty_PA2_env _)). Qed.
 
 
   (* Convert from nat to this model *)
@@ -193,7 +196,7 @@ Section Model.
 
   Lemma to_domain_add x y :
     to_domain (x + y) = to_domain x i⊕ to_domain y.
-  Proof.
+  Proof using M_correct.
     revert y. induction x; intros; cbn.
     - symmetry. apply add_zero.
     - rewrite add_rec. now repeat f_equal.
@@ -201,7 +204,7 @@ Section Model.
 
   Lemma to_domain_mul x y :
     to_domain (x * y) = to_domain x i⊗ to_domain y.
-  Proof.
+  Proof using M_correct.
     revert y. induction x; intros; cbn.
     - symmetry. apply mul_zero.
     - rewrite mul_rec. rewrite to_domain_add. now repeat f_equal.
@@ -209,7 +212,7 @@ Section Model.
 
   Lemma to_domain_injective x x' :
     to_domain x = to_domain x' -> x = x'.
-  Proof.
+  Proof using M_correct.
     revert x'. induction x; destruct x'.
     - reflexivity.
     - now intros H%zero_succ.

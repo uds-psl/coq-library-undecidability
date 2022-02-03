@@ -24,6 +24,8 @@ From Undecidability.TRAKHTENBROT
                  fol_ops fo_sig fo_terms fo_logic fo_sat 
                  Sig1_1 red_utils.
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 Import fol_notations.
@@ -55,7 +57,7 @@ Section FSAT_equiv_discernable_rels.
     Defined.
 
     Local Fact discernable_rels_FSAT : FSAT Σ (test P ⟑ (test Q ⤑ ⊥)).
-    Proof.
+    Proof using δ M HQ HP.
       exists bool, M; msplit 2.
       + apply finite_t_bool.
       + intros r v; simpl; apply bool_dec.
@@ -105,7 +107,7 @@ Section FSAT_equiv_discernable_syms.
     Defined.
 
     Local Fact discernable_syms_FSAT : FSAT Σ (testt f ⟑ (testt g ⤑ ⊥)).
-    Proof.
+    Proof using δ M Hq Hp.
       exists bool, M; msplit 2.
       + apply finite_t_bool.
       + intros r v; simpl.
@@ -145,7 +147,7 @@ Section FSAT_DEC_implies_discernable_rels.
   Hypothesis HXY : forall A, decidable (FSAT Σ A).
 
   Theorem FSAT_dec_implies_discernable_rels_dec (P Q : rels Σ) : decidable (discernable P Q).
-  Proof.
+  Proof using HXY.
     destruct (HXY (test P ⟑ (test Q ⤑ ⊥))) as [ H | H ].
     + left; revert H; apply FSAT_equiv_discernable_rels.
     + right; contradict H; revert H; apply FSAT_equiv_discernable_rels.
@@ -163,7 +165,7 @@ Section FSAT_DEC_implies_discernable_syms.
   Hypothesis HXY : forall A, decidable (FSAT Σ A).
 
   Theorem FSAT_dec_implies_discernable_syms_dec (f g : syms Σ) : decidable (discernable f g).
-  Proof.
+  Proof using HXY HP.
     destruct (HXY (testt HP f ⟑ (testt HP g ⤑ ⊥))) as [ H | H ].
     + left; revert H; apply FSAT_equiv_discernable_syms.
     + right; contradict H; revert H; apply FSAT_equiv_discernable_syms.
@@ -176,7 +178,7 @@ Section discrete_projection.
   Variable (X Y : Type) (HY : discrete Y) (f : X -> Y) (l : list X).
 
   Fact find_discrete_projection y : { x | x ∊ l /\ f x = y } + (forall x, x ∊ l -> f x <> y).
-  Proof.
+  Proof using HY.
     destruct list_choose_dep 
       with (P := fun x => f x = y) (Q := fun x => f x <> y) (l := l)
     as [ (? & ? & ?) | ]; eauto.
@@ -308,7 +310,7 @@ Section discriminable_implies_FSAT_DEC.
               (HA : fol_sem M φ A).
 
     Local Fact Σdiscriminable_discrete_sound : FSAT _ (Σdiscriminable_discrete A).
-    Proof.
+    Proof using φ Kfin Kdiscr HM HA2 HA1 HA.
       exists K, M', Kfin, M'_dec, φ.
       now apply form_equiv.
     Qed.
@@ -355,7 +357,7 @@ Section discriminable_implies_FSAT_DEC.
     Variables (φ : nat -> K) (A : fol_form (Σ11 X Y)) (HA : fol_sem M φ (Σdiscriminable_discrete A)).
 
     Local Fact Σdiscriminable_discrete_complete : FSAT _ A.
-    Proof.
+    Proof using lY lX M'_dec Kfin HlY HlX HM HA DY DX.
       exists K, M', Kfin, M'_dec, φ.
       now apply form_equiv.
     Qed.
@@ -372,7 +374,7 @@ Section discriminable_implies_FSAT_DEC.
           { _ : finite_t DX &
           { _ : finite_t DY &
           { B : fol_form (Σ11 DX DY) | FSAT _ A <-> FSAT _ B } } } } } } }. 
-  Proof.
+  Proof using HlY HlX DY_fin DY_discr DY DX_fin DX_discr DX.
     intros HX HY.
     exists DX, DY.
     do 4 (exists; [ auto | ]).

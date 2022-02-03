@@ -10,6 +10,8 @@ Local Unset Strict Implicit.
 From Equations Require Import Equations.
 Require Import Morphisms.
 
+Set Default Proof Using "Type".
+
 Local Notation vec := Vector.t.
 
 
@@ -24,7 +26,7 @@ Section Model.
   Hypothesis M_ZF : forall rho, rho ⊫ ZFeq'.
 
   Instance min_model : interp sig_empty _ V.
-  Proof.
+  Proof using I.
     split.
     - intros [].
     - now apply i_atom.
@@ -80,7 +82,7 @@ Section Model.
 
   Lemma inductive_sat (rho : nat -> V) x :
     (x .: rho) ⊨ is_inductive $0 -> M_inductive x.
-  Proof.
+  Proof using M_ZF.
     cbn. split.
     - destruct H as [[y Hy] _]. enough (H : ∅ ≡ y).
       { eapply set_equiv_elem; eauto. now apply set_equiv_equiv. apply Hy. }
@@ -94,7 +96,7 @@ Section Model.
 
   Lemma inductive_sat_om (rho : nat -> V) :
     (ω .: rho) ⊨ is_inductive $0.
-  Proof.
+  Proof using M_ZF.
     cbn. split.
     - exists ∅. split; try apply M_eset; trivial. now apply M_om1.
     - intros d Hd. exists (σ d). split; try now apply M_om1. intros d'. now apply sigma_el.
@@ -102,37 +104,37 @@ Section Model.
 
   Instance set_equiv_equiv' :
     Equivalence set_equiv.
-  Proof.
+  Proof using M_ZF.
     now apply set_equiv_equiv.
   Qed.
 
   Instance set_equiv_elem' :
     Proper (set_equiv ==> set_equiv ==> iff) set_elem.
-  Proof.
+  Proof using M_ZF.
     now apply set_equiv_elem.
   Qed.
 
   Instance set_equiv_sub' :
     Proper (set_equiv ==> set_equiv ==> iff) set_sub.
-  Proof.
+  Proof using M_ZF.
     now apply set_equiv_sub.
   Qed.
 
   Instance equiv_union' :
     Proper (set_equiv ==> set_equiv) union.
-  Proof.
+  Proof using M_ZF.
     now apply equiv_union.
   Qed.
 
   Instance equiv_power' :
     Proper (set_equiv ==> set_equiv) power.
-  Proof.
+  Proof using M_ZF.
     now apply equiv_power.
   Qed.
 
   Lemma rm_const_tm_sat (rho : nat -> V) (t : term) x :
     (x .: rho) ⊨ embed (rm_const_tm t) <-> set_equiv x (eval rho t).
-  Proof.
+  Proof using M_ZF.
     induction t in x |- *; try destruct F; cbn; split;
     try rewrite (vec_inv1 v); try rewrite (vec_inv2 v); cbn.
     - tauto.
@@ -187,7 +189,7 @@ Section Model.
 
   Lemma rm_const_sat (rho : nat -> V) (phi : form) :
     rho ⊨ phi <-> rho ⊨ embed (rm_const_fm phi).
-  Proof.
+  Proof using M_ZF.
     induction phi in rho |- *; try destruct P; try destruct b0; try destruct q; cbn. 1,4-6: intuition.
     - rewrite (vec_inv2 t). cbn. split.
       + intros H. exists (eval rho (Vector.hd t)). rewrite rm_const_tm_sat. split; try reflexivity.
@@ -208,13 +210,13 @@ Section Model.
 
   Theorem min_correct (rho : nat -> V) (phi : form) :
     sat I rho phi <-> sat min_model rho (rm_const_fm phi).
-  Proof.
+  Proof using M_ZF.
     rewrite <- min_embed. apply rm_const_sat.
   Qed.
 
   Lemma min_axioms' (rho : nat -> V) :
     rho ⊫ minZFeq'.
-  Proof.
+  Proof using M_ZF.
     intros A [<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[]]]]]]]]]]]; cbn.
     - now apply set_equiv_equiv.
     - now apply set_equiv_equiv.

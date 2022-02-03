@@ -18,6 +18,8 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations decidable fol_ops membership hfs.
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 (* * Construction of the Hereditary Finite Sets model *)
@@ -89,7 +91,7 @@ Section bt_model_n.
                      /\ (forall x, x ∈ d -> exists p, x = g p)
                      /\ (forall p, f (g p) = p) 
                      }}}.
-    Proof.
+    Proof using x0 Xfin Xdiscr.
       destruct (finite_t_discrete_bij_t_pos Xfin)
         as ([ | n ] & Hn); auto.
       1: { exfalso; destruct Hn as (f & g & H1 & H2).
@@ -455,7 +457,7 @@ Section bt_model_n.
                           /\ (forall y, mem y yd -> exists x, y = i x)
                           /\ (forall v, R v <-> mb_is_tuple_in mem yr (vec_map i v))
                       }}}}}}}}.
-  Proof.
+  Proof using x0 Xfin Xdiscr HR.
     exists Y, HY, mem, mem_dec, yd, yr, i', s'.
     msplit 2; auto.
     + intros y Hy; unfold i'.

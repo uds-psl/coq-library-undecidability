@@ -3,6 +3,8 @@ Require Cantor.
 Require Import List.
 Import ListNotations.
 
+Set Default Proof Using "Type".
+
 Definition cumulative {X} (L: nat -> list X) :=
   forall n, exists A, L (S n) = L n ++ A.
 #[export] Hint Extern 0 (cumulative _) => intros ?; cbn; eauto : core.

@@ -17,6 +17,8 @@ Require Import Undecidability.DiophantineConstraints.H10C.
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 Section dc_list_h10c.
 
   (* Reduction from (l,ν) an instance of a DIO_ELEM_PROBLEM 
@@ -86,7 +88,7 @@ Section dc_list_h10c.
     Local Lemma dc_h10c_equiv c : 
                 (forall n, In n (0::dee_const (snd c)) -> Ψ (even n) = n)
              -> dc_eval φ ν c <-> h10c_sem (dc_h10c c) Ψ.
-    Proof.
+    Proof using Hpsy_odd Hpsy_0.
       destruct c as (x,[ n | y | p | [] y z ]); unfold dc_eval; simpl; intros H.
       + do 2 (rewrite H; auto); rewrite Hpsy_odd; lia.
       + rewrite H; auto; do 2 rewrite Hpsy_odd; lia.

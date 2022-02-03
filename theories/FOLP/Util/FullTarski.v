@@ -3,6 +3,8 @@
 From Undecidability.FOLP Require Export FullFOL.
 Require Import Undecidability.Shared.ListAutomation.
 
+Set Default Proof Using "Type".
+
 (* *** Tarki Models **)
 
 Section Tarski.
@@ -158,5 +160,3 @@ Notation "rho ⊨ phi" := (sat rho phi) (at level 20).
 
 Arguments valid_T {_} _ _ _.
 Notation "T '⊫<' C '>' phi" := (valid_T C T phi) (at level 50).
-
-

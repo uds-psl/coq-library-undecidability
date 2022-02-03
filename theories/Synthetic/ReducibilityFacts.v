@@ -5,6 +5,8 @@ Import ListNotations ListAutomationNotations.
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 (* ** Pre-order properties *)
 
 Section Properties.
@@ -140,7 +142,7 @@ Section enum_red.
   Local Lemma enum_red L' :
     list_enumerator__T L' X ->
     list_enumerator (L L') p.
-  Proof.
+  Proof using qe Hf.
     intros HL'.
     split.
     + intros H.

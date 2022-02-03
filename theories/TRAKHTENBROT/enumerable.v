@@ -23,6 +23,8 @@ From Undecidability.TRAKHTENBROT
 
 (* * Enumerability and closure properties *)
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 (* We develop a basic theory of enumeration, ie empty types or
@@ -115,7 +117,7 @@ Section enumerable_definitions.
     Variable (m : X -> nat) (Hm : forall n, fin_t (fun x => m x < n)).
 
     Theorem list_enum_by_measure_fin_t : list_enum_t.
-    Proof.
+    Proof using Hm.
       exists (fun n => proj1_sig (Hm n)).
       intros x; exists (S (m x)).
       apply (proj2_sig (Hm _)); auto.
@@ -129,7 +131,7 @@ Section enumerable_definitions.
              (Hm : forall n, opt_enum_t (fun x => m x <= n)).
 
     Theorem type_enum_t_by_measure : type_enum_t.
-    Proof.
+    Proof using Hm.
       apply constructive_choice in Hm; destruct Hm as (f & Hf); clear Hm.
       exists (fun j => let (a,n) := surj j in f a n).
       intros x.
@@ -151,7 +153,7 @@ Section enumerable.
   (* On a discrete type, opt_enum implies rec_enum *)
 
   Fact opt_enum_rec_enum_discrete P : opt_enum P -> rec_enum P.
-  Proof.
+  Proof using Xdiscr.
     intros (f & Hf).
     exists (fun n x => match f n with Some y => 
               if Xdiscr x y then true else false | None => false end); intros x; 
@@ -168,7 +170,7 @@ Section enumerable.
   Qed.
 
   Fact opt_enum_rec_enum_discrete_t P : opt_enum_t P -> rec_enum_t P.
-  Proof.
+  Proof using Xdiscr.
     intros (f & Hf).
     exists (fun n x => match f n with Some y => 
               if Xdiscr x y then true else false | None => false end); intros x; 
@@ -187,7 +189,7 @@ Section enumerable.
   (* On a enumerable type, rec_enum implies opt_enum *)
 
   Fact rec_enum_opt_enum_type_enum P : rec_enum P -> opt_enum P.
-  Proof.
+  Proof using Xenum.
     destruct Xenum as (s & Hs).
     intros (Q & HQ).
     set (f n := 
@@ -210,7 +212,7 @@ Section enumerable.
   Qed.
 
   Fact rec_enum_opt_enum_type_enum_t P : rec_enum_t P -> opt_enum_t P.
-  Proof.
+  Proof using Xenum_t.
     destruct Xenum_t as (s & Hs).
     intros (Q & HQ).
     set (f n := 
@@ -229,7 +231,7 @@ Section enumerable.
       destruct (s a) as [ y | ]; try discriminate.
       revert Hn; case_eq (Q b y).
       * inversion 2; exists b; auto.
-      * discriminate. 
+      * discriminate.
   Qed.
 
   Hint Resolve opt_enum_rec_enum_discrete rec_enum_opt_enum_type_enum
@@ -238,10 +240,10 @@ Section enumerable.
   (* On a datatype, opt_enum and rec_enum are equivalent *)
 
   Theorem opt_rec_enum_equiv P : opt_enum P <-> rec_enum P.
-  Proof. split; auto. Qed.
+  Proof using Xenum Xdiscr. split; auto. Qed.
 
   Theorem opt_rec_enum_equiv_t P : opt_enum_t P ≋ rec_enum_t P.
-  Proof. split; auto. Qed.
+  Proof using Xenum_t Xdiscr. split; auto. Qed.
 
 End enumerable.
 
@@ -261,7 +263,7 @@ Section enumerable_reduction.
              (Yd : discrete Y).
 
   Fact ireduction_opt_enum_t : p ⪯ᵢ q -> opt_enum_t q -> opt_enum_t p.
-  Proof.
+  Proof using Yd Xe.
     intros H1 H2.
     apply rec_enum_opt_enum_type_enum_t; auto.
     apply ireduction_rec_enum_t; auto.
@@ -472,7 +474,7 @@ Section rec_enum_co_rec_enum.
            (x : X) (Hx : P x \/ ~ P x).
 
   Theorem bi_rec_enum_t_dec : { P x } + { ~ P x }.
-  Proof.
+  Proof using Hx H2 H1.
     destruct H1 as (f & Hf).
     destruct H2 as (g & Hg).
     set (h n := f n x = true \/ g n x = true).
@@ -535,6 +537,3 @@ End Post_Markov.
 Check Markov_Post.
 Check Post_Markov.
 *)    
-    
-  
-  

@@ -11,6 +11,7 @@ From Undecidability Require Import TM.Util.VectorPrelim.
 From Undecidability Require Import EncodeTapes TM.Util.VectorPrelim.
 Require Import FunInd.
 
+Set Default Proof Using "Type".
 
 Local Set Printing Coercions.
 

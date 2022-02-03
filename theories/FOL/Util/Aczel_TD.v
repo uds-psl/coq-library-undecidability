@@ -6,7 +6,7 @@ Require Import Setoid Morphisms.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
-
+Set Default Proof Using "Type".
 
 
 (* ** Quotient Model *)

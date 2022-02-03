@@ -11,6 +11,8 @@ From Undecidability.PCP Require Import PCP Util.PCP_facts Reductions.PCPb_iff_dP
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 
+Set Default Proof Using "Type".
+
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 

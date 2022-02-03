@@ -21,6 +21,8 @@ From Undecidability.Shared.Libs.DLW.Wf
 From Undecidability.TRAKHTENBROT
   Require Import notations fol_ops membership btree.
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 (* * The Type Hereditary finite sets *)
@@ -539,22 +541,22 @@ Section hfs.
   Variable (t : hfs) (Hp : hfs_transitive t).
 
   Fact hfs_trans_pair_inv x y : hfs_pair x y ∈ t -> x ∈ t /\ y ∈ t.
-  Proof.
+  Proof using Hp.
     intros H; split; apply Hp with (2 := H); apply hfs_pair_spec; auto.
   Qed.
 
   Fact hfs_trans_opair_inv x y : ⟬x,y⟭ ∈ t -> hfs_pair x x ∈ t /\ hfs_pair x y ∈ t.
-  Proof. apply hfs_trans_pair_inv. Qed.
+  Proof using Hp. apply hfs_trans_pair_inv. Qed.
 
   Fact hfs_trans_otriple_inv x y z : ⟬⟬x,y⟭,z⟭  ∈ t -> ⟬x,y⟭  ∈ t /\ z ∈ t.
-  Proof.
+  Proof using Hp.
     intros H.
     apply hfs_trans_opair_inv, proj2, hfs_trans_pair_inv in H.
     auto.
   Qed.
 
   Fact hfs_trans_tuple_inv n v : @hfs_tuple n v ∈ t -> forall p, vec_pos v p ∈ t.
-  Proof.
+  Proof using Hp.
     induction v as [ | n x v IHv ]; simpl hfs_tuple; intros H p; invert pos p;
       apply hfs_trans_opair_inv, proj2, hfs_trans_pair_inv in H;
       destruct H; auto.

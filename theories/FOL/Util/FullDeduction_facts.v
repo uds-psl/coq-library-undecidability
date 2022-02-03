@@ -8,7 +8,7 @@ Local Set Implicit Arguments.
 Require Import Lia.
 
 
-
+Set Default Proof Using "Type".
 
 Ltac comp := repeat (progress (cbn in *; autounfold in *)).
 
@@ -305,5 +305,3 @@ Ltac prv_all x :=
 
 Ltac use_exists H x :=
   apply (ExE _ H); edestruct nameless_equiv_ex as [x ->]; cbn; subsimpl.
-
-

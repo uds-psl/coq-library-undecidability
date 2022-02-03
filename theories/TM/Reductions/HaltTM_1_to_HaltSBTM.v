@@ -6,6 +6,8 @@ Require Undecidability.TM.Util.TM_facts.
 Import VectorNotations2.
 Local Open Scope vector.
 
+Set Default Proof Using "Type".
+
 Notation vector_hd v := (projT1 (destruct_vector_cons v)).  
 
 Section red.

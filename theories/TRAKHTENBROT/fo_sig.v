@@ -15,6 +15,8 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations.
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 (* * First order signatures and models *)
@@ -101,7 +103,7 @@ Section bin_rel_Σ2.
   Variable (X : Type) (R : X -> X -> Prop).
 
   Definition bin_rel_Σ2 : fo_model (Σrel 2) X.
-  Proof.
+  Proof using R.
     exists; intros [].
     exact (rel2_on_vec R).
   Defined.
@@ -109,7 +111,6 @@ Section bin_rel_Σ2.
   Hypothesis HR : forall x y, { R x y } + { ~ R x y }.
 
   Fact bin_rel_Σ2_dec : fo_model_dec bin_rel_Σ2.
-  Proof. intros [] v; apply HR. Qed.
+  Proof using HR. intros [] v; apply HR. Qed.
 
 End bin_rel_Σ2.
-

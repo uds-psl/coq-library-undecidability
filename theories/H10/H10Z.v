@@ -23,6 +23,8 @@ From Undecidability.H10.Dio
 From Undecidability.H10.ArithLibs 
   Require Import Zp lagrange.
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 Section diophantine_polynomial.

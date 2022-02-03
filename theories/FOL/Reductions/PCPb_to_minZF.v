@@ -9,6 +9,8 @@ Local Unset Strict Implicit.
 
 From Equations Require Import Equations.
 
+Set Default Proof Using "Type".
+
 Local Notation vec := Vector.t.
 
 Local Hint Constructors prv : core.
@@ -122,7 +124,7 @@ Section Model.
   Hypothesis VIEQ : extensional I.
 
   Instance min_model : interp sig_empty _ V.
-  Proof.
+  Proof using I.
     split.
     - intros [].
     - now apply i_atom.
@@ -178,7 +180,7 @@ Section Model.
 
   Lemma inductive_sat (rho : nat -> V) x :
     (x .: rho) ⊨ is_inductive $0 -> M_inductive x.
-  Proof.
+  Proof using VIEQ M_ZF.
     cbn. setoid_rewrite VIEQ. split.
     - destruct H as [[y Hy] _]. enough (∅ = y) as -> by apply Hy.
       apply M_ext; trivial; intros z Hz; exfalso; intuition. now apply M_eset in Hz.
@@ -189,7 +191,7 @@ Section Model.
 
   Lemma inductive_sat_om (rho : nat -> V) :
     (ω .: rho) ⊨ is_inductive $0.
-  Proof.
+  Proof using VIEQ M_ZF.
     cbn. setoid_rewrite VIEQ. split.
     - exists ∅. split; try apply M_eset; trivial. now apply M_om1.
     - intros d Hd. exists (σ d). split; try now apply M_om1. intros d'. now apply sigma_el.
@@ -197,7 +199,7 @@ Section Model.
 
   Lemma rm_const_tm_sat (rho : nat -> V) (t : term) x :
     (x .: rho) ⊨ rm_const_tm t <-> x = eval rho t.
-  Proof.
+  Proof using VIEQ M_ZF.
     induction t in x |- *; try destruct F; cbn; split; try intros ->;
     try rewrite (vec_inv1 v); try rewrite (vec_inv2 v); cbn.
     - now rewrite VIEQ.
@@ -244,7 +246,7 @@ Section Model.
 
   Lemma rm_const_sat (rho : nat -> V) (phi : form) :
     rho ⊨ phi <-> rho ⊨ rm_const_fm phi.
-  Proof.
+  Proof using VIEQ M_ZF.
     induction phi in rho |- *; try destruct P; try destruct b0; try destruct q; cbn. 1,4-6: intuition.
     - rewrite (vec_inv2 t). cbn. split.
       + intros H. exists (eval rho (Vector.hd t)). rewrite rm_const_tm_sat. split; trivial.
@@ -262,13 +264,13 @@ Section Model.
 
   Theorem min_correct (rho : nat -> V) (phi : form) :
     sat I rho phi <-> sat min_model rho (rm_const_fm phi).
-  Proof.
+  Proof using VIEQ M_ZF.
     apply rm_const_sat.
   Qed.
 
   Lemma min_axioms' (rho : nat -> V) :
     rho ⊫ minZF'.
-  Proof.
+  Proof using VIEQ M_ZF.
     intros A [<-|[<-|[<-|[<-|[<-|[<-|[]]]]]]]; cbn.
     - apply (@M_ZF rho ax_ext). firstorder.
     - exists ∅. apply (@M_ZF rho ax_eset). firstorder.
@@ -289,7 +291,7 @@ Section Model.
 
   Lemma min_axioms :
     (forall rho phi, ZF phi -> rho ⊨ phi) -> forall rho phi, minZF phi -> rho ⊨ phi.
-  Proof.
+  Proof using VIEQ M_ZF.
     intros H rho phi [].
     - now apply min_axioms'.
     - cbn. specialize (H rho (ax_sep (embed phi0))). cbn in H.

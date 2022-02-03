@@ -2,12 +2,14 @@ Require Import Undecidability.TM.SBTM.
 Require Import Undecidability.Synthetic.Definitions.
 From Equations Require Import Equations.
 
+Set Default Proof Using "Type".
+
 Section fixM.
 
   Variable M : SBTM.
 
   Definition M' : SBTM.
-  Proof.
+  Proof using M.
     exists (1 + num_states M).
     intros [q o].
     dependent elimination q.

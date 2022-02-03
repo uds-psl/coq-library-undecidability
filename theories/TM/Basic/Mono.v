@@ -1,5 +1,7 @@
 From Undecidability.TM Require Import Util.TM_facts.
 
+Set Default Proof Using "Type".
+
 (* * Basic 1-Tape Machines *)
 
 
@@ -10,7 +12,7 @@ Section Mk_Mono.
   Variable (init : state) (fin : state -> bool).
 
   Definition Mk_Mono_TM : TM sig 1.
-  Proof.
+  Proof using mono_trans init fin.
     split with (state := state).
     - intros (q&tape).
       pose proof (mono_trans q (tape[@Fin0])) as (q', act).
