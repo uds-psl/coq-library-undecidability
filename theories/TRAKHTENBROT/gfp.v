@@ -15,6 +15,8 @@ From Undecidability.Shared.Libs.DLW.Utils
 From Undecidability.TRAKHTENBROT
   Require Import notations.
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 (* * Kleene's greatest fixpoint of lia-continous operators *)
@@ -113,7 +115,7 @@ Section gfp.
   Qed.
 
   Fact gfp_equiv : equiv _ gfp.
-  Proof.
+  Proof using i_trans i_sym i_refl gfp_trans gfp_sym gfp_refl HF3 HF2 HF1.
     msplit 2.
     + intro; apply gfp_refl; auto.
     + intros ? y ? ? ?; apply gfp_trans; exists y; auto.
@@ -121,7 +123,7 @@ Section gfp.
   Qed.
 
   Fact gfp_greatest R : R ⊆ F R -> R ⊆ gfp.
-  Proof.
+  Proof using HF0.
     intros HR x y H n; revert x y H.
     induction n as [ | n IHn ].
     + now auto.
@@ -152,7 +154,7 @@ Section gfp.
   Qed.
 
   Fact gfp_fix x y : F gfp x y <-> gfp x y.
-  Proof. split; auto. Qed.
+  Proof using i_decr i_S gfp_fix1 gfp_fix0 HF4 HF0. split; auto. Qed.
 
   (* This is for decidability *)
 
@@ -213,7 +215,7 @@ Section gfp.
       Then one can deduce i n ~ gfp *)
 
   Theorem gfp_finite_t : { n | forall x y, gfp x y <-> i n x y }.
-  Proof.
+  Proof using i_dup i_decr i_dec i_S gfp_reached HF6 HF5 HF0.
     destruct finite_t_weak_dec_rels with (1 := HF6)
       as (mR & HmR).
     exists (S (length mR)).
@@ -242,10 +244,10 @@ Section gfp.
       gfp is one of the i n (for some computable n) and thus decidable *)
 
   Theorem gfp_decidable : dec gfp.
-  Proof.
+  Proof using i_dup i_decr i_dec i_S gfp_reached gfp_fix1 HF6 HF5 HF0.
     destruct gfp_finite_t as (n & Hn).
     intros x y; destruct (i_dec n x y); [ left | right ]; 
       rewrite Hn; tauto.
   Qed.
-  
+
 End gfp.

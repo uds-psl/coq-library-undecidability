@@ -6,6 +6,8 @@ From Equations Require Import Equations.
 From Equations.Prop Require Import DepElim.
 Require Import EqdepFacts Eqdep_dec.
 
+Set Default Proof Using "Type".
+
 Unset Implicit Arguments.
 
 #[global]
@@ -266,7 +268,7 @@ Section Bounded.
 
   Lemma bounded_indi_term_up n m t :
     m >= n -> bounded_indi_term n t -> bounded_indi_term m t.
-  Proof.
+  Proof using Σ_pred ops.
     intros H1. induction t; intros H2; cbn in *.
     lia. induction v; firstorder. induction v; firstorder.
   Qed.
@@ -328,7 +330,7 @@ Section Bounded.
 
   Lemma find_bounded_indi_step n (v : vec term n) :
     (ForallT (fun t => { n | bounded_indi_term n t }) v) -> { n | Forall (bounded_indi_term n) v }.
-  Proof.
+  Proof using Σ_pred ops.
     intros [v' H]%ForallT_translate. induction v; dependent elimination v'; cbn in *.
     - now exists 0.
     - destruct (IHv t) as [h1 H1]. apply H. exists (max h0 h1). split. 
@@ -348,7 +350,7 @@ Section Bounded.
 
   Lemma find_bounded_indi_term t :
     { n | bounded_indi_term n t }.
-  Proof.
+  Proof using Σ_pred ops.
     induction t using term_rect'; cbn.
     - exists (S n). lia.
     - apply find_bounded_indi_step, IH.
@@ -502,7 +504,7 @@ Section EqDec.
 
   Lemma dec_function_dep ar1 ar2 (f1 : function ar1) (f2 : function ar2) :
     dec (eq_dep _ _ ar1 f1 ar2 f2).
-  Proof.
+  Proof using syms_eq_dec.
     destruct f1, f2.
     - destruct (PeanoNat.Nat.eq_dec ar ar0) as [->|].
       destruct (PeanoNat.Nat.eq_dec n n0) as [->|].
@@ -522,7 +524,7 @@ Section EqDec.
 
   Lemma dec_predicate_dep ar1 ar2 (P1 : predicate ar1) (P2 : predicate ar2) :
     dec (eq_dep _ _ ar1 P1 ar2 P2).
-  Proof.
+  Proof using preds_eq_dec.
     destruct P1, P2.
     - destruct (PeanoNat.Nat.eq_dec ar ar0) as [->|].
       destruct (PeanoNat.Nat.eq_dec n n0) as [->|].
@@ -543,7 +545,7 @@ Section EqDec.
   #[global]
   Instance function_eq_dec ar :
     eq_dec (function ar).
-  Proof.
+  Proof using syms_eq_dec.
     intros f1 f2. destruct (dec_function_dep _ _ f1 f2).
     - left. now apply function_eq_dep.
     - right. now intros H%function_eq_dep.
@@ -552,7 +554,7 @@ Section EqDec.
   #[global]
   Instance predicate_eq_dec ar :
     eq_dec (predicate ar).
-  Proof.
+  Proof using preds_eq_dec.
     intros P1 P2. destruct (dec_predicate_dep _ _ P1 P2).
     - left. now apply predicate_eq_dep.
     - right. now intros H%predicate_eq_dep.
@@ -561,7 +563,7 @@ Section EqDec.
   #[global]
   Instance term_eq_dec :
     eq_dec term.
-  Proof.
+  Proof using syms_eq_dec.
     fix IH 1. intros [] []; try (right; congruence).
     - destruct (PeanoNat.Nat.eq_dec n n0) as [->|]. now left. right; congruence.
     - destruct (PeanoNat.Nat.eq_dec ar ar0) as [->|]. 2: right; congruence.
@@ -581,7 +583,7 @@ Section EqDec.
   #[global]
   Instance form_eq_dec :
     eq_dec form.
-  Proof.
+  Proof using syms_eq_dec quantop_eq_dec preds_eq_dec binop_eq_dec.
     induction x; intros []; try (right; congruence).
     - now left.
     - destruct (PeanoNat.Nat.eq_dec ar ar0) as [->|]. 2: right; congruence.
@@ -777,7 +779,7 @@ Section Enumerability'.
 
   Lemma form_enumerable :
     enumerable__T form.
-  Proof.
+  Proof using enumerable_quantop enumerable_preds enumerable_funcs enumerable_binop.
     apply enum_enumT.
     apply enum_enumT in enumerable_funcs as [Lf HLf].
     apply enum_enumT in enumerable_preds as [Lp HLp].
@@ -805,13 +807,13 @@ Section Enumerability'.
 
   Lemma form_enumerable_firstorder :
     enumerable (fun phi => first_order phi).
-  Proof.
+  Proof using enumerable_quantop enumerable_preds enumerable_funcs enumerable_binop.
     apply enumerable_decidable. apply form_enumerable. apply decidable_if, first_order_dec.
   Qed.
 
   Lemma form_enumerable_funcfree :
     enumerable (fun phi => funcfree phi).
-  Proof.
+  Proof using enumerable_quantop enumerable_preds enumerable_funcs enumerable_binop.
     apply enumerable_decidable. apply form_enumerable. apply decidable_if, funcfree_dec.
   Qed.
 

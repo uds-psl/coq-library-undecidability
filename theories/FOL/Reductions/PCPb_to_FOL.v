@@ -5,6 +5,8 @@ From Undecidability.FOL Require Import Util.Deduction Util.Tarski Util.Syntax_fa
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
 Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
 
+Set Default Proof Using "Type".
+
 (* ** Validity *)
 
 Local Definition BSRS := list(card bool).
@@ -65,7 +67,7 @@ Section validity.
   Qed.
   
   Global Instance IB : interp (string bool).
-  Proof.
+  Proof using R.
     split; intros [] v.
     - exact (b :: Vector.hd v).
     - exact nil.
@@ -308,7 +310,7 @@ Module NonStan. Section Nonstan.
   Context {ff : falsity_flag}.
 
   Instance IB : interp (option (string bool)).
-  Proof.
+  Proof using R.
     split; intros [] v.
     - exact (match Vector.hd v with Some u => Some (b :: u) | None => None end).
     - exact (Some nil).

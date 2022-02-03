@@ -18,6 +18,8 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations utils decidable fol_ops fo_sig.
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 (* * First order terms, syntax and semantics *)
@@ -93,13 +95,13 @@ Section first_order_terms.
     Variable eq_syms_dec : discrete syms.
 
     Fact in_fot_inv s v w : @in_fot s v = @in_fot s w -> v = w.
-    Proof.
+    Proof using eq_syms_dec.
       intros H; destruct in_fot_inv_dep with (1 := H) as (E & H1).
       rewrite (UIP_dec eq_syms_dec E eq_refl) in H1; auto.
     Qed.
 
     Theorem eq_fo_term_dec : discrete fo_term.
-    Proof.
+    Proof using eq_syms_dec.
       intros t; induction t as [ i | s v IHv ]; intros [ j | s' w ].
       + destruct (eq_nat_dec i j) as [ -> | H ]; [ left | right ]; auto.
         contradict H; inversion H; auto.

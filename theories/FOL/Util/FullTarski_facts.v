@@ -9,6 +9,8 @@ Require Import Vector Lia.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
+Set Default Proof Using "Type".
+
 Local Notation vec := Vector.t.
 
 
@@ -225,7 +227,3 @@ Section TM.
   Qed.
 
 End TM.
-
-
-
-

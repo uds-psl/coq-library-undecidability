@@ -7,6 +7,8 @@ From Undecidability Require Import TM.Lifting.LiftTapes.
 From Coq Require Import FunInd.
 From Coq Require Import Recdef.
 
+Set Default Proof Using "Type".
+
 (* * Copy Symbols from t0 to t1 *)
 
 (* This two-tape Turing machine copies the symbols from tape 0 to tape 1, until it reads a symbol x on tape 0 such that f(x)=true. This machine is similar to MoveToSymbol, with the only difference, that it copies the read symbols to another tape (without translating it). *)

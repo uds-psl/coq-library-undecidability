@@ -20,6 +20,8 @@ From Undecidability.TRAKHTENBROT
 
 Import fol_notations.
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 (* * First order definability and closure properties *)
@@ -376,6 +378,3 @@ Section extra.
   Qed.
 
 End extra.
-
-
-

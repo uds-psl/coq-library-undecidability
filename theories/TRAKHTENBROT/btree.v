@@ -32,6 +32,8 @@ From Undecidability.Shared.Libs.DLW.Wf
 From Undecidability.TRAKHTENBROT
   Require Import notations fol_ops.
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 (* * Binary trees as concrete Hereditary Finite Sets *)
@@ -61,7 +63,7 @@ Section bt_rect'.
             (HP1 : forall x t, P t -> P (x⪧t)).
   
   Theorem bt_rect' t : P t.
-  Proof. induction t; auto. Qed.
+  Proof using HP1 HP0. induction t; auto. Qed.
 
 End bt_rect'.
 
@@ -479,7 +481,7 @@ Section more_decidability.
 
     Theorem btm_ex_dec t : (forall x, x ∈ t -> { P x } + { ~ P x })
                         -> { s | s ∈ t /\ P s } + { forall s, s ∈ t -> ~ P s }.
-    Proof.
+    Proof using HP.
       intros H.
       destruct (btm_finite_t t) as (l & Hl).
       destruct list_choose_dep with (P := P) (Q := fun x => ~ P x) (l := l)
@@ -1202,4 +1204,3 @@ Section pos2bt.
   Proof. intro H; apply pos2nat_inj, nat2bt_inj, H. Qed.
 
 End pos2bt. 
-

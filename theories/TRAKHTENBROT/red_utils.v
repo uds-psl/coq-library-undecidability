@@ -31,6 +31,8 @@ From Undecidability.TRAKHTENBROT
                  Sig_noeq                  (* UTILITY: from interpreted to uninterpreted *)
                  .
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 (* * Common Tools for reductions *)

@@ -20,6 +20,8 @@ From Undecidability.TRAKHTENBROT
                  fol_ops fo_sig fo_terms fo_logic fo_enum decidable
                  fo_sat fo_sat_dec red_utils.
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 (* * Collection of high-level enumerability results *)
@@ -43,7 +45,7 @@ Section FSAT_enumerable.
   Proof. apply FSAT_in_dec; auto; apply finite_t_pos. Qed.
 
   Theorem FSAT_rec_enum_t : rec_enum_t (FSAT Σ).
-  Proof.
+  Proof using H2 H1.
     exists (fun n A => if dec n A then true else false).
     intros A.
     rewrite FSAT_FSAT_in_pos.
@@ -55,7 +57,7 @@ Section FSAT_enumerable.
   Hypothesis (H4 : type_enum_t (rels Σ)).
 
   Theorem FSAT_opt_enum_t : opt_enum_t (FSAT Σ).
-  Proof.
+  Proof using H4 H3 H2 H1.
     generalize FSAT_rec_enum_t.
     apply rec_enum_opt_enum_type_enum_t.
     apply type_enum_t_fol_form; auto.

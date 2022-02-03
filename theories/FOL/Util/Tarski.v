@@ -9,6 +9,8 @@ Require Import Vector.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
+Set Default Proof Using "Type".
+
 Local Notation vec := Vector.t.
 
 Section fixb.
@@ -190,7 +192,3 @@ Section TM.
   Qed.
 
 End TM.
-
-
-
-

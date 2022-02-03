@@ -20,6 +20,8 @@ From Undecidability.TRAKHTENBROT
 
 Require Import Undecidability.Shared.ListAutomation.
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 (* * The syntax and semantics of FO logic *)
@@ -371,7 +373,7 @@ Section fol_semantics.
     Variable (rels_dec : fo_model_dec M).
 
     Theorem fol_sem_dec A φ : { ⟪A⟫ φ } + { ~ ⟪A⟫ φ }.
-    Proof.
+    Proof using rels_dec M_fin.
       revert φ.
       induction A as [ | p v | b A IHA B IHB | q A IHA ]; intros phi.
       + simpl; tauto.
@@ -704,7 +706,7 @@ Section fo_model_projection.
         -> fol_syms A ⊑ ls 
         -> fol_rels A ⊑ lr
         -> fol_sem M φ A <-> fol_sem N ψ A.
-  Proof. apply fo_model_projection with (p := p). Qed.
+  Proof using Hs Hr E. apply fo_model_projection with (p := p). Qed.
 
 End fo_model_projection.
 
@@ -717,7 +719,7 @@ Section fo_model_nosyms.
            (H : forall r v, r ∊ fol_rels A -> fom_rels M r v <-> fom_rels M' r v).
 
   Theorem fo_model_nosyms : fol_sem M φ A <-> fol_sem M' φ A.
-  Proof.
+  Proof using HA H.
     apply fo_model_projection' with (ls := nil) (lr := fol_rels A) (i := fun x => x) (j := fun x => x); auto.
     + intros; rewrite H; auto.
       apply fol_equiv_ext; f_equal.
@@ -726,4 +728,3 @@ Section fo_model_nosyms.
   Qed.
 
 End fo_model_nosyms.
-

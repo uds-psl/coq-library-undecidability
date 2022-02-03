@@ -32,6 +32,8 @@ Import fol_notations.
 
 Set Implicit Arguments.
 
+Set Default Proof Using "Type".
+
 (* * Reduction from BPCP to specialized FSAT *)
 
 Local Notation ø := vec_nil.
@@ -119,7 +121,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
     Hint Resolve Σbpcp_model_finite : core.
 
     Definition Σbpcp_model : fo_model Σbpcp X.
-    Proof.
+    Proof using lc.
       exists.
       + intros []; simpl.
         * intros v.
@@ -338,7 +340,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
     Proof. exists (Some (exist _ l (lt_n_Sn _))); simpl; auto. Qed.
 
     Theorem Sig_bpcp_encode_sound : @fo_form_fin_dec_eq_SAT Σbpcp Σbpcp_eq eq_refl Σbpcp_encode.
-    Proof.
+    Proof using Hl.
       exists X, Σbpcp_model, Σbpcp_model_finite, Σbpcp_model_dec,
              Σbpcp_model_interpreted, φ0; split; auto.
       unfold Σbpcp_encode; repeat (split; auto).
@@ -556,7 +558,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
     Qed.  
 
     Local Theorem completeness : exists s, lc ⊳ s∕s.
-    Proof.
+    Proof using HP HM.
       destruct P_refl as (x & Hx).
       destruct (P_implies_pcp_hand (x,x)) with (1 := Hx)
         as (s & t & H1 & H2 & H3).

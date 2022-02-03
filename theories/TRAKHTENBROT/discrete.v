@@ -20,6 +20,8 @@ From Undecidability.TRAKHTENBROT
 
 Import fol_notations.
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 Local Notation " e '#>' x " := (vec_pos e x).
@@ -208,7 +210,7 @@ Section discrete_quotient.
     Local Fact fom_op_dec R : 
             (forall x y, { R x y } + { ~ R x y })
          -> (forall x y, { fom_op R x y } + { ~ fom_op R x y }).
-    Proof. intros; apply (fol_bin_sem_dec fol_conj); auto. Qed.
+    Proof using fin dec. intros; apply (fol_bin_sem_dec fol_conj); auto. Qed.
 
   End fom_op_dec.
 
@@ -332,7 +334,7 @@ Section discrete_quotient.
       We do have a decidable equivalence here *) 
 
   Local Fact fom_eq_dec x y : { x ≡ y } + { ~ x ≡ y }.
-  Proof. apply gfp_decidable; eauto. Qed.
+  Proof using fin dec. apply gfp_decidable; eauto. Qed.
 
   Section fol_characterization.
 
@@ -441,7 +443,7 @@ Section discrete_quotient.
   Theorem fo_bisimilar_dec_congr : 
             fo_congruence_upto (fun x y => x ≐ y)
          * (forall x y, decidable (x ≐ y)).
-  Proof.
+  Proof using fin dec.
     lsplit 3.
     + split; red; [ intros ? | intros ? ? ? | intros ? ?]; 
         rewrite <- !fom_eq_fol_characterization; eauto.
@@ -531,7 +533,7 @@ Section discrete_quotient.
         { _ : fo_model_dec Md & 
         { _ : fo_projection ls lr M Md & 
           (forall p q, fo_bisimilar Md p q <-> p = q) } } } }.
-    Proof.
+    Proof using E1.
       exists n, Md.
       exists; eauto.
       red; simpl; auto.
@@ -546,10 +548,10 @@ Section discrete_quotient.
     (* Because the fixpoint is reached after finitely many iterations, it is FO definable *)
 
     Local Fact fom_eq_finite : { n | forall x y, x ≡ y <-> iter fom_op (fun _ _ => True) n x y }.
-    Proof. apply gfp_finite_t; eauto. Qed.
+    Proof using fin dec. apply gfp_finite_t; eauto. Qed.
 
     Theorem fo_bisimilar_fol_def : fol_definable ls lr M (fun φ => φ 0 ≐ φ 1).
-    Proof.
+    Proof using fin dec.
       destruct fom_eq_finite as (n & Hn).
       apply fol_def_equiv with (R := fun φ => iter fom_op (fun _ _ : X => True) n (φ 0) (φ 1)).
       + intro; rewrite <- fom_eq_fol_characterization, <- Hn; tauto.
@@ -711,4 +713,3 @@ Section counter_model_to_class_FO_definability.
   Qed.
 
 End counter_model_to_class_FO_definability.
-

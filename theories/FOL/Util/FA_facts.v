@@ -3,7 +3,7 @@ Require Import Undecidability.FOL.PA.
 Require Import Lia List Vector.
 Import Vector.VectorNotations.
 
-
+Set Default Proof Using "Type".
 
 Section FA_prv.
 
@@ -23,9 +23,9 @@ Section FA_prv.
     
   Arguments Weak {_ _ _ _}, _.
 
-  
+
   Lemma reflexivity t : Gamma ⊢ (t == t).
-  Proof.
+  Proof using G.
     apply (Weak FAeq).
 
     pose (sigma := [t] ∗ var ).
@@ -36,9 +36,9 @@ Section FA_prv.
     repeat solve_bounds.
   Qed.
 
-  
+
   Lemma symmetry x y : Gamma ⊢ (x == y) -> Gamma ⊢ (y == x).
-  Proof.
+  Proof using G.
     apply IE. apply (Weak FAeq).
 
     pose (sigma := [x ; y] ∗ var ).
@@ -49,10 +49,10 @@ Section FA_prv.
     repeat solve_bounds.
   Qed.
 
-    
+
   Lemma transitivity x y z :
     Gamma ⊢ (x == y) -> Gamma ⊢ (y == z) -> Gamma ⊢ (x == z).
-  Proof.
+  Proof using G.
     intros H. apply IE. revert H; apply IE.
     apply Weak with FAeq.
 
@@ -63,10 +63,10 @@ Section FA_prv.
     apply Ctx. all : try firstorder.
     repeat solve_bounds.
   Qed.
-  
+
 
   Lemma eq_succ x y : Gamma ⊢ (x == y) -> Gamma ⊢ (σ x == σ y).
-  Proof.
+  Proof using G.
     apply IE. apply Weak with FAeq.
 
     pose (sigma := [y ; x] ∗ var ).
@@ -77,10 +77,10 @@ Section FA_prv.
     repeat solve_bounds.
   Qed.
 
-  
+
   Lemma eq_add {x1 y1 x2 y2} :
     Gamma ⊢ (x1 == x2) -> Gamma ⊢ (y1 == y2) -> Gamma ⊢ (x1 ⊕ y1 == x2 ⊕ y2).
-  Proof.
+  Proof using G.
     intros H; apply IE. revert H; apply IE.
     apply Weak with FAeq.
 
@@ -95,7 +95,7 @@ Section FA_prv.
 
   Lemma eq_mult {x1 y1 x2 y2} :
     Gamma ⊢ (x1 == x2) -> Gamma ⊢ (y1 == y2) -> Gamma ⊢ (x1 ⊗ y1 == x2 ⊗ y2).
-  Proof.
+  Proof using G.
     intros H; apply IE. revert H; apply IE.
     apply Weak with FAeq.
     
@@ -107,9 +107,9 @@ Section FA_prv.
     repeat solve_bounds.
   Qed.
 
-  
+
   Lemma Add_rec x y : Gamma ⊢ ( (σ x) ⊕ y == σ (x ⊕ y) ).
-  Proof.
+  Proof using G.
     apply Weak with FAeq.
 
     pose (sigma := [y ; x] ∗ var).
@@ -128,7 +128,7 @@ Section FA_prv.
                      end.
   
   Lemma num_add_homomorphism  x y : Gamma ⊢ ( num x ⊕ num y == num (x + y) ).
-  Proof.
+  Proof using G.
     induction x; cbn.
     - apply (@AllE _ _ _ _ _ _ (zero ⊕ $0 == $0) ).
       apply Weak with FAeq.
@@ -138,10 +138,10 @@ Section FA_prv.
       apply Add_rec.
       now apply eq_succ.
   Qed.
-  
+
 
   Lemma Mult_rec x y : Gamma ⊢ ( (σ x) ⊗ y == y ⊕ (x ⊗ y) ).
-  Proof.
+  Proof using G.
     apply Weak with FAeq.
 
     pose (sigma := [x ; y] ∗ var).
@@ -152,9 +152,9 @@ Section FA_prv.
     repeat solve_bounds.
   Qed.
 
-  
+
   Lemma num_mult_homomorphism (x y : nat) : Gamma ⊢ ( num x ⊗ num y == num (x * y) ).
-  Proof.
+  Proof using G.
     induction x; cbn.
     - apply (@AllE _ _ _ _ _ _ (zero ⊗ $0 == zero)).
       apply Weak with FAeq. apply Ctx; firstorder.
@@ -200,7 +200,7 @@ Section FA_models.
 
 
   Lemma add_zero : forall d : D, iO i⊕ d = d.
-  Proof.
+  Proof using ext_model FA_model.
     intros d.
     assert (List.In ax_add_zero FA) as H by firstorder.
     specialize (FA_model ax_add_zero (d.:(fun _ => iO)) H).
@@ -208,7 +208,7 @@ Section FA_models.
   Qed.
 
   Lemma add_rec : forall n d : D, iσ n i⊕ d = iσ (n i⊕ d).
-  Proof.
+  Proof using ext_model FA_model.
     intros n d.
     assert (List.In ax_add_rec FA) as H by firstorder.
     specialize (FA_model ax_add_rec (d.:(fun _ => iO))  H).
@@ -216,7 +216,7 @@ Section FA_models.
   Qed.
 
   Lemma mult_zero : forall d : D, iO i⊗ d = iO.
-  Proof.
+  Proof using ext_model FA_model.
     intros d.
     assert (List.In ax_mult_zero FA) as H by firstorder.
     specialize (FA_model ax_mult_zero (d.:(fun _ => iO)) H).
@@ -224,7 +224,7 @@ Section FA_models.
   Qed.
 
   Lemma mult_rec : forall n d : D, iσ d i⊗ n = n i⊕ d i⊗ n.
-  Proof.
+  Proof using ext_model FA_model.
     intros n d.
     assert (List.In ax_mult_rec FA) as H by firstorder.
     specialize (FA_model ax_mult_rec (d.:(fun _ => iO)) H).
@@ -233,7 +233,7 @@ Section FA_models.
 
 
   Corollary add_hom x y : iμ (x + y) = iμ x i⊕ iμ y.
-  Proof.
+  Proof using ext_model FA_model.
     induction x.
     - now rewrite add_zero.
     - change (iσ iμ (x + y) = iσ iμ x i⊕ iμ y).
@@ -241,12 +241,12 @@ Section FA_models.
   Qed.
 
   Corollary add_nat_to_model : forall x y z, x + y = z -> (iμ x i⊕ iμ y = iμ z).
-  Proof.
+  Proof using ext_model FA_model.
     intros x y z H. now rewrite <- add_hom, H.
   Qed.
 
   Corollary mult_hom x y : iμ (x * y) = iμ x i⊗ iμ y.
-  Proof.
+  Proof using ext_model FA_model.
     induction x.
     - now rewrite mult_zero.
     - change (iμ (y + x * y) = (iσ iμ x) i⊗ iμ y ).
@@ -255,12 +255,12 @@ Section FA_models.
 
 
   Corollary mult_nat_to_model : forall z x y, x * y = z -> (iμ x i⊗ iμ y = iμ z).
-  Proof.
+  Proof using ext_model FA_model.
     intros x y z H. now rewrite <- mult_hom, H.
   Qed.
 
 
-  
+
 End FA_models.
 
 Arguments iμ {_ _} _.
@@ -281,13 +281,13 @@ Section StdModel.
       exact (Vector.hd v = Vector.hd (Vector.tl v) ).
   Defined.
 
-  
+
   Fact nat_extensional : extensional interp_nat.
   Proof.
     now intros x y. 
   Qed.
 
-  
+
   Lemma nat_is_FA_model : forall rho phi,  List.In phi FAeq -> sat interp_nat rho phi.
   Proof.
     intros rho phi. intros H.
@@ -295,7 +295,7 @@ Section StdModel.
     all: cbn; try congruence. inversion H.
   Qed.
 
-  
+
   Fact nat_eval_num (sigma : env nat) n : @eval _ _ _ interp_nat sigma (num n) = n.
   Proof.
     induction n.
@@ -331,9 +331,4 @@ Section StdModel.
   Qed.
 
 
-  
 End StdModel.
-
-  
-
-

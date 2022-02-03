@@ -18,6 +18,8 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations utils fol_ops fo_sig fo_terms fo_logic fo_sat decidable.
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 (* * Decidability results for FSAT *)
@@ -98,7 +100,7 @@ Section FSAT_ext.
 
   Local Theorem fo_form_fin_dec_SAT_in_ext :
           @fo_form_fin_dec_SAT_in Σ A (sig (fun x => Q x)).
-  Proof.
+  Proof using HA HP HPQ sigQ_fin Mfin Mdec M'_dec Hfg HQ.
     exists M', sigQ_fin, M'_dec, (fun n => f (phi n)).
     revert HA.
     apply fo_model_projection with (p := p).
@@ -189,7 +191,7 @@ Section enum_models.
      equivalent interpretation of relations symbols *)
 
   Local Definition FO_model_equiv : model -> model -> Prop.
-  Proof.
+  Proof using ls lr ln.
     intros ((s1,r1) & rho1 & H1 ) ((s2,r2) & rho2 & H2).
     exact (  (forall s, s ∊ ls -> forall v, s1 s v = s2 s v) 
           /\ (forall r, r ∊ lr -> forall v, @r1 r v <-> r2 r v) 
@@ -205,7 +207,7 @@ Section enum_models.
   (* There are finitely many models upto equivalence *)
 
   Local Theorem finite_t_model_upto : finite_t_upto _ FO_model_equiv.
-  Proof.
+  Proof using finite_t_rels finite_t_funs HΣ2 HΣ1 HX2 HX1.
     destruct finite_t_funs as (lf & H1).
     destruct finite_t_rels as (lg & H2).
     destruct finite_t_valuations with X ln
@@ -253,7 +255,7 @@ Section enum_models.
   Qed.
 
   Theorem FSAT_FO_sem_eq A : @fo_form_fin_dec_SAT_in Σ A X <-> exists M, FO_sem M A.
-  Proof.
+  Proof using HX1.
     split.
     + intros (M & H1 & H2 & rho & H3).
       exists (existT _ M (existT _ rho H2)); simpl; auto.
@@ -277,7 +279,7 @@ Section FSAT_in_dec.
             (A : fol_form Σ).
 
   Theorem FSAT_in_dec : decidable (@fo_form_fin_dec_SAT_in Σ A X).
-  Proof.
+  Proof using HΣ2 HΣ1 HX2 HX1.
     destruct HX1 as ([ | x l ] & Hl).
     + right; intros (M & _ & _ & rho & _).
       apply (Hl (rho 0)).

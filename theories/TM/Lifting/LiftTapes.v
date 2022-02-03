@@ -1,5 +1,7 @@
 From Undecidability Require Import TM.Util.Prelim TM.Util.Relations TM.Util.TM_facts.
 
+Set Default Proof Using "Type".
+
 (* * Tapes-Lift *)
 
 
@@ -194,7 +196,7 @@ Section loop_map.
   Lemma loop_map k a1 a2 :
     loop f h a1 k = Some a2 ->
     g a2 = g a1.
-  Proof.
+  Proof using step_map_comp.
     revert a1 a2. induction k as [ | k' IH]; intros; cbn in *.
     - destruct (h a1); now inv H.
     - destruct (h a1).
@@ -241,14 +243,14 @@ Section LiftNM.
 
   Lemma doAct_select (t : tapes sig n) act :
     doAct_multi (select I t) act = select I (doAct_multi t (fill_default I (None, Nmove) act)).
-  Proof.
+  Proof using I_dupfree.
     unfold doAct_multi, select. apply Vector.eq_nth_iff; intros i ? <-. simpl_tape.
     unfold fill_default. f_equal. symmetry. now apply fill_correct_nth.
   Qed.
 
   Lemma LiftTapes_comp_step (c1 : mconfig sig (state (projT1 pM)) n) :
     step (M := projT1 pM) (selectConf c1) = selectConf (step (M := LiftTapes_TM) c1).
-  Proof.
+  Proof using I_dupfree.
     unfold selectConf. unfold step; cbn.
     destruct c1 as [q t] eqn:E1.
     unfold step in *. cbn -[current_chars doAct_multi] in *.
@@ -260,7 +262,7 @@ Section LiftNM.
   Lemma LiftTapes_lift (c1 c2 : mconfig sig (state LiftTapes_TM) n) (k : nat) :
     loopM (M := LiftTapes_TM) c1 k = Some c2 ->
     loopM (M := projT1 pM) (selectConf c1) k = Some (selectConf c2).
-  Proof.
+  Proof using I_dupfree.
     intros HLoop.
     eapply loop_lift with (f := step (M := LiftTapes_TM)) (h := haltConf (M := LiftTapes_TM)).
     - cbn. auto.
@@ -293,7 +295,7 @@ Section LiftNM.
   Lemma LiftTapes_Realise (R : Rel (tapes sig m) (F * tapes sig m)) :
     pM ⊨ R ->
     LiftTapes ⊨ LiftTapes_Rel I R.
-  Proof.
+  Proof using I_dupfree.
     intros H. split.
     - apply (H (select I t) k (selectConf outc)).
       now apply (@LiftTapes_lift (initc LiftTapes_TM t) outc k).
@@ -307,7 +309,7 @@ Section LiftNM.
     exists c2' : mconfig sig (state (LiftTapes_TM)) n,
       loopM (M := LiftTapes_TM) c1 k = Some c2' /\
       c2 = selectConf c2'.
-  Proof.
+  Proof using I_dupfree.
     intros HLoop. unfold loopM in *. cbn in *.
     apply loop_unlift with (lift:=selectConf) (f:=step (M:=LiftTapes_TM)) (h:=haltConf (M:=LiftTapes_TM)) in HLoop as (c'&HLoop&->).
     - exists c'. split; auto.
@@ -318,7 +320,7 @@ Section LiftNM.
   Lemma LiftTapes_Terminates T :
     projT1 pM ↓ T ->
     projT1 LiftTapes ↓ LiftTapes_T I T.
-  Proof.
+  Proof using I_dupfree.
     intros H initTapes k Term. hnf in *.
     specialize (H (select I initTapes) k Term) as (outc&H).
     pose proof (@LiftTapes_unlift k (initc LiftTapes_TM initTapes) outc H) as (X&X'&->). eauto.
@@ -327,7 +329,7 @@ Section LiftNM.
   Lemma LiftTapes_RealiseIn R k :
     pM ⊨c(k) R ->
     LiftTapes ⊨c(k) LiftTapes_Rel I R.
-  Proof.
+  Proof using I_dupfree.
     intros (H1&H2) % Realise_total. apply Realise_total. split.
     - now apply LiftTapes_Realise.
     - eapply TerminatesIn_monotone.

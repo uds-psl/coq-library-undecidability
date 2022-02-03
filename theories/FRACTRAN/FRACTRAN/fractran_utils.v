@@ -16,6 +16,8 @@ From Undecidability.Shared.Libs.DLW
 
 Require Import Undecidability.FRACTRAN.FRACTRAN.
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 Section fractran_utils.

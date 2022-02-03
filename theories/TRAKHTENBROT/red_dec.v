@@ -36,6 +36,8 @@ From Undecidability.TRAKHTENBROT
                  Sig1_1
                  Sig_discernable.
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 Local Infix "≢" := discernable (at level 70, no associativity).
@@ -49,7 +51,7 @@ Section Sig_MONADIC_Sig_11.
            (HΣ2 : forall r, ar_rels Σ r <= 1).
 
   Theorem FSAT_FULL_MONADIC_FSAT_11 : FSAT Σ ⪯ᵢ FSAT (Σ11 (syms Σ) (rels Σ)).
-  Proof.
+  Proof using HΣ2 HΣ1.
     apply ireduces_transitive with (Q := FSAT (Σno_props Σ)).
     + exists (Σrem_props HΣ2 0); intros A.
       apply exists_equiv; intro; apply Σrem_props_correct.
@@ -74,10 +76,10 @@ Section Sig_MONADIC_PROP.
            (HΣ : forall r, ar_rels Σ r = 0).
 
   Theorem FSAT_PROP_FSAT_x0 : FSAT Σ ⪯ᵢ FSAT (Σ0 Σ).
-  Proof. exists (@Σ_Σ0 Σ); exact (Σ_Σ0_correct HΣ). Qed.
+  Proof using HΣ. exists (@Σ_Σ0 Σ); exact (Σ_Σ0_correct HΣ). Qed.
 
   Theorem FSAT_x0_FSAT_PROP : FSAT (Σ0 Σ) ⪯ᵢ FSAT Σ.
-  Proof. exists (Σ0_Σ HΣ); exact (Σ0_Σ_correct HΣ). Qed.
+  Proof using HΣ. exists (Σ0_Σ HΣ); exact (Σ0_Σ_correct HΣ). Qed.
 
 End Sig_MONADIC_PROP.
 
@@ -95,7 +97,7 @@ Section FSAT_MONADIC_DEC.
            (A : fol_form (Σ11 F P)).
 
   Theorem FSAT_MONADIC_DEC : decidable (FSAT _ A).
-  Proof.
+  Proof using H2 H1.
     destruct Sig_discrete_to_pos with (A := A)
       as (n & m & i & j & B & HB).
     + simpl; intros s; destruct (H1 s).
@@ -119,7 +121,7 @@ Section FSAT_MONADIC_11_FSAT_MONADIC_1.
 
   Theorem FSAT_MONADIC_11_FSAT_MONADIC_1 : 
             FSAT (Σ11 (pos n) Y) ⪯ᵢ FSAT (Σ11 Empty_set (list (pos n)*Y + Y)).
-  Proof.
+  Proof using HY.
     apply ireduces_dependent, Σ11_Σ1_reduction; auto.
   Qed.
 
@@ -134,7 +136,7 @@ Section FSAT_Σ11_DEC.
            (A : fol_form (Σ11 (pos n) P)).
 
   Theorem FSAT_Σ11_DEC : decidable (FSAT _ A).
-  Proof.
+  Proof using HP2 HP1.
     destruct FSAT_MONADIC_11_FSAT_MONADIC_1 with (n := n) (1 := HP1)
       as (f & Hf).
     specialize (Hf A).
@@ -153,7 +155,7 @@ Section FSAT_FULL_Σ11_DEC.
   Hint Resolve finite_t_pos : core.
 
   Theorem FSAT_FULL_Σ11_DEC : decidable (FSAT _ A).
-  Proof.
+  Proof using HP HF.
     destruct Sig_discrete_to_pos with (A := A)
       as (n & m & i & j & B & HB); auto.
     destruct FSAT_Σ11_DEC with (A := B) as [ H | H ]; auto.
@@ -176,7 +178,7 @@ Section FSAT_FULL_MONADIC_DEC.
            (H4 : forall r, ar_rels Σ r <= 1).
 
   Theorem FSAT_FULL_MONADIC_DEC A : decidable (FSAT Σ A).
-  Proof.
+  Proof using H4 H3 H2 H1.
     destruct FSAT_FULL_MONADIC_FSAT_11 with Σ as (f & Hf); auto.
     destruct FSAT_FULL_Σ11_DEC with (A := f A) as [ H | H ]; auto.
     + left; apply Hf, H.
@@ -199,7 +201,7 @@ Section FSAT_PROP_ONLY_DEC.
            (H2 : forall r, ar_rels Σ r = 0).
 
   Theorem FSAT_PROP_ONLY_DEC A : decidable (FSAT Σ A).
-  Proof.
+  Proof using H2 H1.
     destruct (FSAT_PROP_FSAT_x0 H2) as (f & Hf).
     destruct FSAT_FULL_MONADIC_DEC with (A := f A)
       as [ H | H ]; auto.
@@ -249,7 +251,7 @@ Section FSAT_FULL_MONADIC_discernable.
            (H4 : forall r, ar_rels Σ r <= 1).
 
   Theorem FSAT_FULL_MONADIC_discernable A : decidable (FSAT Σ A).
-  Proof.
+  Proof using H4 H3 H2 H1.
     destruct (FSAT_FULL_MONADIC_FSAT_11 H3 H4) as (f & Hf).
     destruct (Σ11_discernable_dec_FSAT H1 H2 (f A)) as [ H | H ].
     + left; apply Hf; auto.
@@ -265,7 +267,7 @@ Section FSAT_PROP_ONLY_discernable.
            (H2 : forall r, ar_rels Σ r = 0).
 
   Theorem FSAT_PROP_ONLY_discernable A : decidable (FSAT Σ A).
-  Proof.
+  Proof using H2 H1.
     destruct (FSAT_PROP_FSAT_x0 H2) as (f & Hf).
     destruct FSAT_FULL_MONADIC_discernable with (A := f A)
       as [ H | H ]; auto.
@@ -326,5 +328,3 @@ Proof.
     { revert H1; apply ireduction_decidable, FSAT_x0_FSAT_PROP; auto. }
     exact (FSAT_dec_implies_discernable_rels_dec H2).
 Qed. 
-
-

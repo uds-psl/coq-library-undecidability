@@ -9,6 +9,8 @@ From Undecidability.Synthetic Require Export DecidabilityFacts EnumerabilityFact
 From Undecidability.FOLP Require Export Syntax unscoped.
 Require Export Lia.
 
+Set Default Proof Using "Type".
+
 (* **** Notation *)
 
 Notation "phi --> psi" := (Impl phi psi) (right associativity, at level 55).
@@ -549,14 +551,16 @@ Section EqDec.
   Hypothesis eq_dec_Preds : eq_dec Preds.
 
   Global Instance dec_term : eq_dec term.
-  Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence)).
+  Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence))
+    using eq_dec_Funcs.
     intros t. induction t using strong_term_ind; intros []...
     - decide (x = n)...
     - decide (F = f)... destruct (dec_vec_in X t)...
   Qed.
 
   Global Instance dec_form : eq_dec form.
-  Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence)).
+  Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence))
+    using eq_dec_Preds eq_dec_Funcs.
     intros phi. induction phi; intros []...
     - decide (P = P0)... decide (t = t0)...
     - decide (phi1 = f)... decide (phi2 = f0)...

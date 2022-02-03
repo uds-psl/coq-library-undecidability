@@ -12,6 +12,8 @@ From Undecidability Require Export FOL.Util.Syntax.
 
 From Equations Require Import Equations.
 
+Set Default Proof Using "Type".
+
 Section fix_signature.
 
   Context {Σ_funcs : funcs_signature}.
@@ -280,7 +282,7 @@ Section Bounded.
 
   Lemma bounded_up_t {n t k} :
     bounded_t n t -> k >= n -> bounded_t k t.
-  Proof.
+  Proof using Σ_preds ops.
     induction 1; intros Hk; constructor; try lia. firstorder.
   Qed.
 
@@ -296,7 +298,7 @@ Section Bounded.
 
   Lemma find_bounded_step n (v : vec term n) :
     (forall t : term, vec_in t v -> {n : nat | bounded_t n t}) -> { n | forall t, In t v -> bounded_t n t }.
-  Proof.
+  Proof using Σ_preds ops.
     induction v; cbn; intros HV.
     - exists 0. intros t. inversion 1.
     - destruct IHv as [k Hk], (HV h) as [l Hl]; try left.
@@ -309,7 +311,7 @@ Section Bounded.
 
   Lemma find_bounded_t t :
     { n | bounded_t n t }.
-  Proof.
+  Proof using Σ_preds ops.
     induction t using term_rect.
     - exists (S x). constructor. lia.
     - apply find_bounded_step in X as [n H]. exists n. now constructor.
@@ -453,7 +455,8 @@ Section EqDec.
   Hypothesis eq_dec_quantop : eq_dec quantop.
 
   Global Instance dec_term : eq_dec term.
-  Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence)).
+  Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence))
+    using eq_dec_Funcs.
     intros t. induction t as [ | ]; intros [|? v']...
     - decide (x = n)... 
     - decide (F = f)... destruct (dec_vec_in _ _ _ X v')...
@@ -473,7 +476,8 @@ Section EqDec.
   Qed.
 
   Lemma dec_form_dep {b1 b2} phi1 phi2 : dec (eq_dep falsity_flag (@form _ _ _) b1 phi1 b2 phi2).
-  Proof with subst; try (now left + (right; intros ? % eq_sigT_iff_eq_dep; resolve_existT; congruence)).
+  Proof with subst; try (now left + (right; intros ? % eq_sigT_iff_eq_dep; resolve_existT; congruence))
+    using eq_dec_Funcs eq_dec_Preds eq_dec_quantop eq_dec_binop.
     unfold dec. revert phi2; induction phi1; intros; try destruct phi2.
     all: try now right; inversion 1. now left.
     - decide (b = b0)... decide (P = P0)... decide (t = t0)... right.
@@ -489,7 +493,7 @@ Section EqDec.
   Qed.
 
   Global Instance dec_form {ff : falsity_flag} : eq_dec form.
-  Proof.
+  Proof using eq_dec_Funcs eq_dec_Preds eq_dec_quantop eq_dec_binop.
     intros phi psi. destruct (dec_form_dep phi psi); rewrite eq_dep_falsity in *; firstorder.
   Qed.
 
@@ -582,7 +586,7 @@ Section Enumerability.
 
   Lemma enumT_term :
     enumerable__T term.
-  Proof.
+  Proof using enum_Funcs'.
     apply enum_enumT. exists L_term. apply enum_term.
   Qed.
 
@@ -617,9 +621,8 @@ Section Enumerability.
 
   Lemma enumT_form {ff : falsity_flag} :
     enumerable__T form.
-  Proof.
+  Proof using enum_Funcs' enum_Preds' enum_binop' enum_quantop'.
     apply enum_enumT. exists L_form. apply enum_form.
   Defined.
 
 End Enumerability.
- 

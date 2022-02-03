@@ -8,6 +8,8 @@ Require Import List.
 Require Import Undecidability.Shared.ListAutomation.
 Import ListNotations.
 
+Set Default Proof Using "Type".
+
 (* ** Double Negation Translation *)
 
 Implicit Type b : falsity_flag.

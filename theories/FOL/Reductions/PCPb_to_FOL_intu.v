@@ -5,6 +5,8 @@ From Undecidability.FOL Require Import FOL Util.Kripke Util.Deduction Util.Synta
 
 From Undecidability.PCP Require Import PCP Reductions.PCPb_iff_dPCPb.
 
+Set Default Proof Using "Type".
+
 Local Hint Constructors BPCP : core.
 
 (* ** Reductions *)

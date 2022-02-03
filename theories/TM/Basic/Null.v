@@ -1,5 +1,7 @@
 From Undecidability.TM Require Import Util.Prelim Util.TM_facts.
 
+Set Default Proof Using "Type".
+
 (* * 0-tape Turing machine that does nothing. *)
 
 Section Mono_Nop.

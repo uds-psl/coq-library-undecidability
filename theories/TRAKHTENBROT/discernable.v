@@ -15,6 +15,8 @@ From Undecidability.Shared.Libs.DLW.Utils
 From Undecidability.TRAKHTENBROT
   Require Import notations utils decidable.
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 Local Infix "∊" := In (at level 70, no associativity).
@@ -89,7 +91,7 @@ Section discernable.
   Hypothesis (H2 : forall x y, decidable (x ≢ y)).
 
   Fact discernable_dec_undiscernable_dec x y : decidable (x ≡ y).
-  Proof.
+  Proof using H2.
     destruct (H2 x y); [ right | left ]; rewrite undiscernable_spec; tauto.
   Qed.
 
@@ -104,7 +106,7 @@ Section discernable.
   Hint Resolve undiscernable_refl undiscernable_sym undiscernable_trans : core.
 
   Theorem discernable_discriminable_list l : discriminable_list l. 
-  Proof.
+  Proof using H2.
     apply DEC_PER_list_proj_finite_discrete with (l := l) (R := undiscernable).
     + split; eauto.
     + red; apply discernable_dec_undiscernable_dec.
@@ -122,7 +124,7 @@ Section discernable.
   (* undiscernable is equivalent to a equality after mapping on some finite datatype *)
 
   Theorem finite_discernable_discriminable_type : discriminable_type. 
-  Proof.
+  Proof using H1 H2.
     destruct H1 as (l & Hl).
     destruct discernable_discriminable_list with l
       as (D & D1 & D2 & f & Hf).
@@ -130,4 +132,3 @@ Section discernable.
   Qed.
 
 End discernable.
-

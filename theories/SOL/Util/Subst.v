@@ -5,6 +5,7 @@ From Undecidability.Shared.Libs.PSL Require Import Vectors VectorForall.
 From Undecidability.SOL.Util Require Import Syntax.
 Require Import Undecidability.SOL.SOL.
 
+Set Default Proof Using "Type".
 
 (* We can reuse the Econs type class to extend the `.:` notation to substitutions. *)
 #[global] Instance econs_subst_indi `{funcs_signature} : Econs _ _ := econs_indi term.

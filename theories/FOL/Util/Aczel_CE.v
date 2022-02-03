@@ -4,6 +4,7 @@ From Undecidability.FOL Require Import Util.Aczel.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
+Set Default Proof Using "Type".
 
 (* Quotient construction assuming class extensionality (CE) *)
 
@@ -19,7 +20,7 @@ Hypothesis ce : CE.
 
 Lemma PE (P P' : Prop) :
   (P <-> P') -> P = P'.
-Proof.
+Proof using ce.
   intros H.
   change ((fun _ : Acz => P) AEmpty = P').
   now rewrite (@ce (fun _ => P) (fun _ => P')).
@@ -27,7 +28,7 @@ Qed.
 
 Lemma PI (P : Prop) (H H' : P) :
   H = H'.
-Proof.
+Proof using ce.
   assert (P = True) as ->. apply PE; tauto.
   destruct H, H'. reflexivity.
 Qed.
@@ -61,7 +62,7 @@ Definition classof (s : Acz) : SET' :=
 
 Lemma class_eq X X' s s' :
   Aeq s s' -> class X s -> class X' s' -> X = X'.
-Proof.
+Proof using ce.
   destruct X as [P HP], X' as [P' HP']; simpl.
   intros H1 H2 XX. assert (H : P = P').
   - destruct HP as [t ->], HP' as [t' ->].
@@ -71,7 +72,7 @@ Qed.
 
 Lemma classof_ex X :
   exists s, X = classof s.
-Proof.
+Proof using ce.
   destruct X as [P[s ->]]; simpl. exists s.
   apply (@class_eq _ _ s s); simpl; auto; reflexivity.
 Qed.
@@ -84,7 +85,7 @@ Qed.
 
 Lemma classof_eq s t :
   classof s = classof t <-> Aeq s t.
-Proof.
+Proof using ce.
   split; intros H.
   - specialize (classof_class s).
     intros XX. rewrite H in XX. symmetry. exact XX.
@@ -101,7 +102,7 @@ Qed.
 
 Lemma classof_sub s t :
   sub (classof s) (classof t) <-> ASubq s t.
-Proof.
+Proof using ce.
   split; intros H1.
   - intros u H2. now apply classof_ele, H1, classof_ele.
   - intros Z H2. destruct (classof_ex Z) as [u ->].
@@ -122,7 +123,7 @@ Definition upair' X Y u :=
 
 Lemma upair_eqclass X Y :
   eqclass (upair' X Y).
-Proof.
+Proof using ce.
   destruct (classof_ex X) as [s ->].
   destruct (classof_ex Y) as [t ->].
   exists (Aupair s t). apply ce. intros z. split; intros H.
@@ -139,7 +140,7 @@ Definition union' X t :=
 
 Lemma union_eqclass X :
   eqclass (union' X).
-Proof.
+Proof using ce.
   destruct (classof_ex X) as [s ->].
   exists (Aunion s). apply ce. intros z. split; intros H.
   - destruct H as [s'[H1 H2]]; simpl in H1.
@@ -155,7 +156,7 @@ Definition power' X t :=
 
 Lemma power_eqclass X :
   eqclass (power' X).
-Proof.
+Proof using ce.
   destruct (classof_ex X) as [s ->].
   exists (Apower s). apply ce. intros t. split; intros H.
   - destruct H as [s'[H1 H2]]; simpl in H1.
@@ -171,7 +172,7 @@ Definition empred (P : SET' -> Prop) :=
 
 Fact empred_Aeq P :
   cres Aeq (empred P).
-Proof.
+Proof using ce.
   intros s s' H % classof_eq. unfold empred. now rewrite H.
 Qed.
 
@@ -180,7 +181,7 @@ Definition sep' P X t :=
 
 Lemma sep_eqclass P X :
   eqclass (sep' P X).
-Proof.
+Proof using ce.
   destruct (classof_ex X) as [s ->].
   exists (Asep (empred P) s). apply ce. intros t. split; intros H.
   - destruct H as [s'[H1 H2]]; simpl in H1.
@@ -200,7 +201,7 @@ Definition sep P X :=
 
 Lemma set_ext X Y : 
   sub X Y /\ sub Y X <-> X = Y.
-Proof.
+Proof using ce.
   destruct (classof_ex X) as [s ->].
   destruct (classof_ex Y) as [t ->].
   repeat rewrite classof_sub. rewrite classof_eq.
@@ -213,7 +214,7 @@ Qed.
 
 Lemma emptyE X :
   ~ ele X empty.
-Proof.
+Proof using ce.
   destruct (classof_ex X) as [s ->].
   unfold empty. rewrite classof_ele.
   apply AEmptyAx.

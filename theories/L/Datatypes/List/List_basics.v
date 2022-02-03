@@ -49,17 +49,19 @@ Defined. (*because other extract*)
   
 #[global]
 Instance termT_rev_append X `{registered X}: computableTime' (@rev_append X) (fun l _ => (5,fun res _ => (length l*13+4,tt))).
-extract.
-recRel_prettify.
-solverec.
+Proof.
+  extract.
+  recRel_prettify.
+  solverec.
 Qed.
 
 Definition c__rev := 13. 
 #[global]
 Instance termT_rev X `{registered X}: computableTime' (@rev X) (fun l _ => ((length l + 1) *c__rev,tt)).
-eapply computableTimeExt with (x:= fun l => rev_append l []).
-{intro. rewrite rev_alt. reflexivity. }
-extract. solverec. unfold c__rev; solverec. 
+Proof.
+  eapply computableTimeExt with (x:= fun l => rev_append l []).
+  {intro. rewrite rev_alt. reflexivity. }
+  extract. solverec. unfold c__rev; solverec. 
 Qed.
 
 Section Fix_X.

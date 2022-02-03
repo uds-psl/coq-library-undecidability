@@ -20,6 +20,8 @@ From Undecidability.TRAKHTENBROT
 
 Import fol_notations.
 
+Set Default Proof Using "Type".
+
 Set Implicit Arguments.
 
 Local Notation ø := vec_nil.
@@ -81,18 +83,18 @@ Section membership.
   Variable (mb_axiom_ext : mb_member_ext).
 
   Fact mb_equiv_mem x y : x ≈ y -> forall z, x ∈ z <-> y ∈ z.
-  Proof. split; apply mb_axiom_ext; auto. Qed.
+  Proof using mb_axiom_ext. split; apply mb_axiom_ext; auto. Qed.
   
    Add Parametric Morphism: (mem) with signature 
      (mb_equiv) ==> (mb_equiv) ==> (iff) as mb_mem_congruence.
-  Proof.
+  Proof using mb_axiom_ext.
     intros x y H1 a b H2; red in H1, H2; split;
      rewrite <- H2; apply mb_axiom_ext; auto.
   Qed.
 
   Add Parametric Morphism: (fun x y => x ⊆ y) with signature 
      (mb_equiv) ==> (mb_equiv) ==> (iff) as mb_incl_congruence.
-  Proof.
+  Proof using mb_axiom_ext.
     intros x y H1 a b H2; split; intros H z.
     + rewrite <- H1, <- H2; auto.
     + rewrite H1, H2; auto.
@@ -111,7 +113,7 @@ Section membership.
 
   Add Parametric Morphism: (mb_is_pair) with signature 
      (mb_equiv) ==> (mb_equiv) ==> (mb_equiv) ==> (iff) as mb_is_pair_congruence.
-  Proof.
+  Proof using mb_axiom_ext.
     intros p q H1 x x' H2 y y' H3.
     fol equiv fa; intro.
     rewrite H1, H2, H3; tauto.
@@ -145,14 +147,14 @@ Section membership.
 
   Add Parametric Morphism: (mb_is_opair) with signature 
      (mb_equiv) ==> (mb_equiv) ==> (mb_equiv) ==> (iff) as mb_is_opair_congruence.
-  Proof.
+  Proof using mb_axiom_ext.
     intros p q H1 x x' H2 y y' H3.
     do 2 (fol equiv ex; intro).
     rewrite H1, H2, H3; tauto.
   Qed.
 
   Fact mb_is_opair_fun p q x y : p ≋ ⦅x,y⦆ -> q ≋ ⦅x,y⦆  -> p ≈ q.
-  Proof.
+  Proof using mb_axiom_ext.
     intros (a & b & H1 & H2 & H3) (u & v & G1 & G2 & G3).
     generalize (mb_is_pair_fun H1 G1) (mb_is_pair_fun H2 G2); intros E1 E2.
     rewrite E1, E2 in H3.
@@ -160,7 +162,7 @@ Section membership.
   Qed.
 
   Fact mb_is_opair_inj p x y x' y' : p ≋ ⦅x,y⦆  -> p ≋ ⦅x',y'⦆ -> x ≈ x' /\ y ≈ y'.
-  Proof.
+  Proof using mb_axiom_ext.
     intros (a & b & H1 & H2 & H3) (u & v & G1 & G2 & G3).
     generalize (mb_is_pair_inj H3 G3); intros [ (E1 & E2) | (E1 & E2) ].
     + rewrite E1 in H1; rewrite E2 in H2.
@@ -184,7 +186,7 @@ Section membership.
   where "t ≋ ⦉ v ⦊" := (mb_is_tuple t v).
 
   Fact mb_is_tuple_congr p q n (v : vec X n) : p ≈ q -> p ≋ ⦉v⦊ -> q ≋ ⦉v⦊ .
-  Proof.
+  Proof using mb_axiom_ext.
     revert p q; induction v as [ | n x v IHv ]; intros p q.
     + simpl; intros E H x; rewrite <- E; auto.
     + intros E (t & H1 & H2); exists t; split; auto.
@@ -192,7 +194,7 @@ Section membership.
   Qed.
 
   Fact mb_is_tuple_fun p q n (v : vec _ n) : p ≋ ⦉v⦊  -> q ≋ ⦉v⦊  -> p ≈ q.
-  Proof.
+  Proof using mb_axiom_ext.
     revert p q; induction v as [ | n x v IHv ]; intros p q.
     + simpl; intros H1 H2.
       apply mb_equiv_eq; split.
@@ -206,7 +208,7 @@ Section membership.
 
   Fact mb_is_tuple_inj t n (v w : vec _ n) p : 
          t ≋ ⦉v⦊  -> t ≋ ⦉w⦊  -> vec_pos v p ≈ vec_pos w p.
-  Proof.
+  Proof using mb_axiom_ext.
     intros H1 H2; revert t w H1 H2 p; induction v as [ | n x v IHv ]; intros t w.
     + intros _ _ p; invert pos p.
     + vec split w with y.
@@ -231,7 +233,7 @@ Section membership.
   Notation "t ∋ ⦉ v ⦊" := (mb_is_tuple_in t v) (at level 70, format "t  ∋  ⦉ v ⦊").
 
   Fact mb_is_tuple_in_congr x y n (v : vec _ n) : y ≈ x -> x ∋ ⦉v⦊ -> y ∋ ⦉v⦊ .
-  Proof.
+  Proof using mb_axiom_ext.
     intros E (t & H1 & H2); exists t; split; auto.
     rewrite  E; auto.
   Qed.
@@ -260,7 +262,7 @@ Section membership.
   Hint Resolve HX : core.
 
   Fact mb_incl_choose x y : { z | z ∈ x /\ z ∉ y } + { x ⊆ y }.
-  Proof.
+  Proof using Xfin Rdec.
     set (P z := z ∈ x /\ z ∉ y).
     set (Q z := z ∈ x -> z ∈ y).
     destruct list_dec with (P := P) (Q := Q) (l := lX)
@@ -271,12 +273,12 @@ Section membership.
   Qed.  
 
   Fact mb_incl_dec x y : { x ⊆ y } + { ~ x ⊆ y }.
-  Proof.
+  Proof using Xfin Rdec.
     destruct (mb_incl_choose x y) as [ (?&?&?) |]; auto.
   Qed.
 
   Fact mb_equiv_dec x y : { x ≈ y } + { x ≉ y }.
-  Proof.
+  Proof using Xfin Rdec.
     destruct (mb_incl_dec x y); [ destruct (mb_incl_dec y x) | ].
     1: left; apply mb_equiv_eq; auto. 
     all: right; rewrite mb_equiv_eq; tauto.
@@ -285,7 +287,7 @@ Section membership.
   Hint Resolve mb_equiv_dec : core.
 
   Fact mb_is_pair_dec p x y : { p ≋ ⦃x,y⦄ } + { ~ p ≋ ⦃x,y⦄ }.
-  Proof. 
+  Proof using Xfin Rdec.
     unfold mb_is_pair.
     apply (fol_quant_sem_dec fol_fa); auto; intros u.
     apply fol_equiv_dec; auto.
@@ -295,7 +297,7 @@ Section membership.
   Hint Resolve mb_is_pair_dec : core.
 
   Fact mb_is_opair_dec p x y : { p ≋ ⦅x,y⦆  } + { ~ p ≋ ⦅x,y⦆  }.
-  Proof.
+  Proof using Xfin Rdec.
     unfold mb_is_opair.
     do 2 (apply (fol_quant_sem_dec fol_ex); auto; intro).
     repeat (apply (fol_bin_sem_dec fol_conj); auto).
@@ -304,7 +306,7 @@ Section membership.
   Hint Resolve mb_is_opair_dec : core.
 
   Fact mb_is_tuple_dec t n (v : vec _ n) : { t ≋ ⦉v⦊  } + { ~ t ≋ ⦉v⦊  }.
-  Proof.
+  Proof using Xfin Rdec.
     revert t; induction v as [ | x n v IHv ]; intros t.
     + apply (fol_quant_sem_dec fol_fa); auto; intro.
       apply (fol_bin_sem_dec fol_imp); auto.
@@ -315,7 +317,7 @@ Section membership.
   Hint Resolve mb_is_tuple_dec : core.
 
   Fact mb_is_tuple_in_dec r n (v : vec _ n) : { r ∋ ⦉v⦊  } + { ~ r ∋ ⦉v⦊  }.
-  Proof.
+  Proof using Xfin Rdec.
     apply (fol_quant_sem_dec fol_ex); auto; intro.
     apply (fol_bin_sem_dec fol_conj); auto.
   Qed.
