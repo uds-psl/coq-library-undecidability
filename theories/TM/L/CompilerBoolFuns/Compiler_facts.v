@@ -7,9 +7,6 @@ Import ListNotations VectorNotations.
 
 From Undecidability.TM.L.CompilerBoolFuns Require Import Compiler_spec.
 
-From Equations Require Import Equations.
-
-
 Lemma encBoolsTM_inj {Σ} (sym_s sym_b : Σ) n1 n2 :
   sym_s <> sym_b -> encBoolsTM sym_s sym_b n1 = encBoolsTM sym_s sym_b n2 -> n1 = n2.
 Proof.
@@ -83,7 +80,7 @@ Lemma TM_bool_computable_hoare_out_spec {k n Σ} (s b:_ + Σ) bs t':
 Proof.
   intros ([]&Hm2)%tspecE. specialize (Hm2 (Fin0)).
   unfold TM_bool_computable_hoare_out in Hm2.
-  cbn in Hm2. setoid_rewrite Hm2. now dependent elimination t'.
+  cbn in Hm2. setoid_rewrite Hm2. now apply (Vector.caseS' t').
 Qed.
 
 Definition TM_bool_computable_hoare {k} (R : Vector.t (list bool) k -> (list bool) -> Prop) := 
@@ -224,6 +221,6 @@ closed
   (Vector.fold_left (n:=n)
      (fun (s0 : term) (l_i : list bool) => L.app s0 (encBoolsL l_i)) s v).
 Proof.
-  revert s. depind v. all:cbn. easy.
+  revert s. induction v. all:cbn. easy.
   intros. eapply IHv. change (encBoolsL h) with (enc h). Lproc.
 Qed. 

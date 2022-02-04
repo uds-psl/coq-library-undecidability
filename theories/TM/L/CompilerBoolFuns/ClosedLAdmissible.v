@@ -1,4 +1,3 @@
-From Equations Require Import Equations.
 From Undecidability.Shared.Libs.PSL Require Import Vectors.
 
 From Coq Require Import Vector List.
@@ -114,7 +113,7 @@ Proof using Hcmp.
   assert (closed Eval) as He. { unfold Eval. Lproc. }
   exists (many_lam k (ext (decode Y) (Eval (apply_encs_to (enc s) k)) (lam 0) (ext false))).
   split. { intros n u. rewrite subst_many_lam. cbn -[Eval]. repeat (rewrite subst_closed; [| now Lproc]). rewrite subst_apply_encs_to. 2:lia. now repeat (rewrite subst_closed; [| now Lproc]). }
-  intros v. revert s Htot. depind v; intros s Htot o.
+  intros v. revert s Htot. induction v; intros s Htot o.
   - cbn. specialize (Htot (Vector.nil _)). cbn in Htot. 
     eapply logical; clear o.
     + intros o Hl. pose proof Hl as [y ->] % Htot. eapply eval_Eval in Hl. rewrite Hl.

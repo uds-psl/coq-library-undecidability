@@ -6,7 +6,7 @@ From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
 From Undecidability.Shared.Libs.DLW.Wf Require Import wf_finite.
 From Coq Require Import Arith Lia List.
-(* From Equations Require Import Equations. *)
+
 From Undecidability.FOL Require Import FSAT DoubleNegation.
 From Undecidability.Synthetic Require Import Definitions.
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
@@ -14,7 +14,7 @@ Require Import Datatypes.
 Require Import Relation_Definitions.
 Require Import Setoid.
 Require Import Relation_Definitions.
-(* Set Equations With UIP. *)
+
 
 
 (**
@@ -40,7 +40,7 @@ Set Mangle Names.
 
 Notation "t ## t'" := (@atom _ sig_binary _ _ tt (Vector.cons _ t _ (Vector.cons _ t' _ (Vector.nil _)))) (at level 30).
 Definition Pr t t' := t ## t'.
-Derive Signature for t.
+
 (** Some utils we will need *)
 Section Utils.
   (** Dealing with vectors of length 2 *)
@@ -329,7 +329,7 @@ Section Fsat.
       Proof using fini vTrans. 
       destruct fini as [l Hl]. apply wf_strict_order_list with l.
       - apply less_irref.
-      - intros a b c Hab Hbc. eapply vpTrans. 1-2:intuition.
+      - intros a b c Hab Hbc. eapply vpTrans. all: eassumption.
       - intros x y H. now apply Hl.
       Qed.
 
@@ -1004,5 +1004,3 @@ Section result.
   Qed.
 
 End result.
-
-

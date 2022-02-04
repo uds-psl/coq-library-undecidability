@@ -65,8 +65,6 @@ Proof.
   intros [u ->] ->. repeat econstructor.
 Qed.
 
-From Equations Require Import Equations.
-
 Lemma many_beta k (v : Vector.t term k) s : 
   (forall x, Vector.In x v -> proc x) ->
   many_app (many_lam k s) v == many_subst s 0 v.
@@ -90,8 +88,8 @@ Lemma many_subst_many_app (s : term) {k} n (ts v : Vector.t term k) :
   many_subst (many_app s ts) n v = many_app (many_subst s n v) (Vector.map (fun t => many_subst t n v) ts).
 Proof.
   induction v in n, s, ts |- *.
-  - cbn. dependent elimination ts. reflexivity.
-  - cbn. dependent elimination ts. cbn.  
+  - cbn. revert ts. apply case0. reflexivity.
+  - cbn. apply (caseS' ts). cbn. intros.  
     rewrite subst_many_app, IHv. cbn. rewrite many_subst_app. 
     now rewrite Vector.map_map.
 Qed.

@@ -17,8 +17,6 @@ Import ListNotations ResourceMeasures.
 
 From Undecidability.TM.L Require Import UnfoldClos.
 
-Require Import Equations.Prop.DepElim.
-
 Import CasePair Code.CaseList.
 
 Set Default Proof Using "Type".

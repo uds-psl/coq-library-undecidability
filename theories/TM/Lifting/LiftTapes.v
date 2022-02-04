@@ -456,15 +456,14 @@ match v with
 end.
 
 
-Require Import Equations.Prop.DepElim.
 Lemma not_index_reflect n m (v : Vector.t _ m) (i : Fin.t n):
   not_index v i <-> not_indexb (Vector.to_list v) i = true.
 Proof.
-  unfold Vector.to_list. depind v;cbn. easy. 
+  unfold Vector.to_list. induction v;cbn. easy. 
   specialize (Fin.eqb_eq _ h i) as H'.
   destruct Fin.eqb. { destruct H' as [->]. 2:easy. split. 2:easy. destruct 1. constructor. }
-  rewrite <- IHv. cbv;intuition. apply H1. now constructor. apply H1.  
-  inversion H2;subst. now specialize (H0 eq_refl). apply Eqdep_dec.inj_pair2_eq_dec in H6;subst. easy.
+  rewrite <- IHv. cbv;intuition. apply H3. now constructor. apply H3.  
+  inversion H4;subst. now specialize (H2 eq_refl). apply Eqdep_dec.inj_pair2_eq_dec in H8;subst. easy.
   decide equality. 
 Qed.
 

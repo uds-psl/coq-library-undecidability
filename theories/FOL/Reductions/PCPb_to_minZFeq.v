@@ -7,7 +7,6 @@ Import ListAutomationNotations.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
-From Equations Require Import Equations.
 Require Import Morphisms.
 
 Set Default Proof Using "Type".
@@ -86,7 +85,9 @@ Section Model.
     cbn. split.
     - destruct H as [[y Hy] _]. enough (H : ∅ ≡ y).
       { eapply set_equiv_elem; eauto. now apply set_equiv_equiv. apply Hy. }
-      apply M_ext; trivial; intros z Hz; exfalso; intuition. now apply M_eset in Hz.
+      apply M_ext; trivial; intros z Hz; exfalso.
+      + now apply M_eset in Hz.
+      + firstorder easy.
     - intros y [z Hz] % H. enough (Hx : σ y ≡ z).
       { eapply set_equiv_elem; eauto. now apply set_equiv_equiv. apply Hz. }
       apply M_ext; trivial.
@@ -140,8 +141,9 @@ Section Model.
     - tauto.
     - tauto.
     - rewrite (vec_nil_eq (Vector.map (eval rho) v)).
-      intros H. apply M_ext; trivial; intros y Hy; exfalso; intuition.
-      now apply M_eset in Hy. 
+      intros H. apply M_ext; trivial; intros y Hy; exfalso.
+      + firstorder easy.
+      + now apply M_eset in Hy. 
     - rewrite (vec_nil_eq (Vector.map (eval rho) v)).
       change (set_equiv x ∅ -> forall d : V, set_elem d x -> False).
       intros H d. rewrite H. now apply M_eset.
@@ -190,7 +192,9 @@ Section Model.
   Lemma rm_const_sat (rho : nat -> V) (phi : form) :
     rho ⊨ phi <-> rho ⊨ embed (rm_const_fm phi).
   Proof using M_ZF.
-    induction phi in rho |- *; try destruct P; try destruct b0; try destruct q; cbn. 1,4-6: intuition.
+    induction phi in rho |- *; try destruct P; try destruct b0; try destruct q; cbn.
+    1: firstorder easy.
+    3-5: specialize (IHphi1 rho); specialize (IHphi2 rho); intuition easy.
     - rewrite (vec_inv2 t). cbn. split.
       + intros H. exists (eval rho (Vector.hd t)). rewrite rm_const_tm_sat. split; try reflexivity.
         exists (eval rho (Vector.hd (Vector.tl t))). now rewrite embed_sshift, sat_sshift1, rm_const_tm_sat.
@@ -204,7 +208,7 @@ Section Model.
       + intros (x & Hx & y & Hy & H). apply rm_const_tm_sat in Hx.
         change (set_equiv (eval rho (Vector.hd t)) (eval rho (Vector.hd (Vector.tl t)))).
         rewrite embed_sshift, sat_sshift1, rm_const_tm_sat in Hy. now rewrite <- Hx, <- Hy.
-    - split; intros; intuition.
+    - split; intros; apply IHphi, H.
     - firstorder eauto.
   Qed.
 

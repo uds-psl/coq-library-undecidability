@@ -9,9 +9,6 @@ From Undecidability.TM Require Import TM_facts ProgrammingTools WriteValue CaseL
 From Undecidability.TM.L Require Import Alphabets Eval.
 From Undecidability.TM.L.CompilerBoolFuns Require Import Compiler_spec Compiler_facts ClosedLAdmissible.
 
-Require Import Equations.Prop.DepElim.
-
-
 Set Default Proof Using "Type".
 
 Section APP_right.
@@ -42,7 +39,7 @@ End APP_right.
 
 
 Lemma tabulate_nth [X : Type] [n : nat] (v : Vector.t X n): tabulate (fun i => v[@i]) = v.
-Proof. depind v;cbn. all:congruence. Qed.
+Proof. induction v;cbn. all:congruence. Qed.
 
 
 Global Hint Rewrite  Nat.eqb_refl tabulate_nth nth_tabulate: cleanupParamTM.
@@ -104,7 +101,7 @@ Section MK_isVoid.
     (m'*2) (MK_isVoid_multi m')
     (fun _ => ≃≃([],Vector.const Void m')).
   Proof using All.
-    depind m';cbn. now hsteps_cbn.
+    induction m';cbn. now hsteps_cbn.
     hstep. {hsteps_cbn;cbn. apply MK_isVoid_Spec. }
     cbn;intros _. rewrite Nat.eqb_refl,tabulate_nth;cbn. 
     eapply ConsequenceT.
@@ -218,7 +215,7 @@ Section mk_init.
         Contains retr_pro (compile (Vector.fold_right (fun l_i s => L.app s (encBoolsL l_i)) (select ren v) sim))
          ;Void;Void;Void;Void|]++Vector.const (Custom (eq niltape)) m) ++ Vector.map (fun bs => Custom (eq (encBoolsTM s b bs))) v))}.
   Proof using All.
-    depind ren. all:cbn [compile Vector.fold_left M_init' Vector.tl Vector.caseS].
+    induction ren. all:cbn [compile Vector.fold_left M_init' Vector.tl Vector.caseS].
     {
       eexists. cbn.
       hstep. hsteps_cbn;cbn. exact (MK_isVoid_multi_SpecT 5). cbn;cleanupParamTM. 2:reflexivity.
@@ -230,7 +227,7 @@ Section mk_init.
     }
     {
       eexists. cbn. hstep.
-      3:reflexivity. now apply (projT2 (IHren v)). clear IHren.
+      3:reflexivity. now apply (projT2 (IHren)). clear IHren.
       cbn. intros _. hstep. { cbn. rewrite Vector_nth_R,nth_map'. cbn. eapply (projT2 (M_init_one_Spec H_disj _ _)). }
       cbn;fold Nat.add;rewrite Nat.eqb_refl;cbn. intros _.
       apply EntailsI. intros t H. eapply tspec_ext. eassumption. easy.
