@@ -199,8 +199,6 @@ Proof.
     + eapply IHv.
 Qed.
 
-(* Require Import Equations.Prop.DepElim. *)
-
 Lemma eval_inv n min i k (v : vec (recalg i) k) a l :
   eval n min (rec_erase erase v) a = Some (inr l) ->
   exists x, vec_list x = l /\

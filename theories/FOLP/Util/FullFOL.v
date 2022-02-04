@@ -1,7 +1,6 @@
 (* ** Operations & Properties of FOL *)
 
-From Equations Require Import Equations.
-Require Import Equations.Prop.DepElim.
+From Coq Require Eqdep.
 Require Import Arith Undecidability.Shared.Libs.PSL.Numbers List Setoid.
 From Undecidability.Synthetic Require Export DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 From Undecidability.FOLP Require Export FullSyntax unscoped.
@@ -25,7 +24,6 @@ Notation vector := Vector.t.
 Import Vector.
 Arguments nil {A}.
 Arguments cons {A} _ {n}.
-Derive Signature for vector.
 
 (* **** Tactics *)
 
@@ -396,7 +394,7 @@ Section FullFOL.
     Lemma contains_extend3 A T phi :
       A ⊏ T -> A ⊏ (T ⋄ phi).
     Proof.
-      intros ? ? ?. left. intuition.
+      intros ? ? ?. left. firstorder.
     Qed.
   End ContainsAutomation.
 End FullFOL.
@@ -439,8 +437,11 @@ Ltac use_theory A := exists A; split; [eauto 15 with contains_theory|].
 Lemma dec_vec_in X n (v : vector X n) :
   (forall x, vec_in x v -> forall y, dec (x = y)) -> forall v', dec (v = v').
 Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence)).
-  intros Hv. induction v; intros v'; dependent destruction v'...
-  destruct (Hv h (vec_inB h v) h0)... destruct (IHv (fun x H => Hv x (vec_inS h0 H)) v')...
+  intros Hv. induction v; intros v'.
+  - pattern v'. apply Vector.case0...
+  - apply (Vector.caseS' v'). clear v'. intros ? v'.
+    destruct (Hv h (vec_inB h v) h0)...
+    destruct (IHv (fun x H => Hv x (vec_inS h0 H)) v')...
 Qed.
 
 #[global]

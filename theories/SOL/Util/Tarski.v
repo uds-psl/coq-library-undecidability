@@ -3,10 +3,6 @@ Require Import Undecidability.SOL.SOL.
 From Undecidability.SOL.Util Require Import Subst Syntax.
 Require Import Arith Lia Vector.
 
-From Equations Require Import Equations.
-From Equations.Prop Require Import DepElim.
-Derive Signature for Vector.t.
-
 Import SubstNotations.
 Unset Implicit Arguments.
 

@@ -2,8 +2,6 @@ Require Import Undecidability.SOL.SOL.
 Require Import Undecidability.Shared.Dec.
 From Undecidability.Shared.Libs.PSL Require Import Vectors VectorForall.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
-From Equations Require Import Equations.
-From Equations.Prop Require Import DepElim.
 Require Import EqdepFacts Eqdep_dec.
 
 Set Default Proof Using "Type".
@@ -331,20 +329,22 @@ Section Bounded.
   Lemma find_bounded_indi_step n (v : vec term n) :
     (ForallT (fun t => { n | bounded_indi_term n t }) v) -> { n | Forall (bounded_indi_term n) v }.
   Proof using Σ_pred ops.
-    intros [v' H]%ForallT_translate. induction v; dependent elimination v'; cbn in *.
+    intros [v' H]%ForallT_translate. induction v; cbn in *.
     - now exists 0.
-    - destruct (IHv t) as [h1 H1]. apply H. exists (max h0 h1). split. 
-      eapply bounded_indi_term_up. 2: apply H. lia. apply Forall_in. intros t' H2.
+    - revert H. apply (Vector.caseS' v'). intros.
+      destruct (IHv t) as [h1 H1]. apply H. exists (max h0 h1). split. 
+      eapply bounded_indi_term_up. 2: apply H. cbn. lia. apply Forall_in. intros t' H2.
       eapply Forall_in in H2. eapply bounded_indi_term_up. 2: apply H2. 2: apply H1. lia.
   Qed.
 
   Lemma find_bounded_func_step n ar (v : vec term n) :
     (ForallT (fun t => { n | bounded_func_term ar n t }) v) -> { n | Forall (bounded_func_term ar n) v }.
   Proof.
-    intros [v' H]%ForallT_translate. induction v; dependent elimination v'; cbn in *.
+    intros [v' H]%ForallT_translate. induction v; cbn in *.
     - now exists 0.
-    - destruct (IHv t) as [h1 H1]. apply H. exists (max h0 h1). split. 
-      eapply bounded_func_term_up. 2: apply H. lia. apply Forall_in. intros t' H2.
+    - revert H. apply (Vector.caseS' v'). intros.
+      destruct (IHv t) as [h1 H1]. apply H. exists (max h0 h1). split. 
+      eapply bounded_func_term_up. 2: apply H. cbn. lia. apply Forall_in. intros t' H2.
       eapply Forall_in in H2. eapply bounded_func_term_up. 2: apply H2. 2: apply H1. lia.
   Qed.
 
@@ -569,11 +569,13 @@ Section EqDec.
     - destruct (PeanoNat.Nat.eq_dec ar ar0) as [->|]. 2: right; congruence.
       destruct (function_eq_dec ar0 f f0) as [->|].
       + assert ({v = v0} + {v <> v0}) as [->|]. {
-          clear f0. induction v; dependent elimination v0. now left.
-          destruct (IH h h0) as [->|]. 2: right; congruence.
-          destruct (IHv t) as [->|]. now left. right. intros H. apply n.
-          enough (Vector.tl (Vector.cons term h0 n0 v) = Vector.tl (Vector.cons term h0 n0 t)) by easy.
-          now rewrite H. }
+          clear f0. induction v.
+          * left. pattern v0. now apply Vector.case0.
+          * apply (Vector.caseS' v0). intros.
+            destruct (IH h h0) as [->|]. 2: right; congruence.
+            destruct (IHv t) as [->|]. now left. right. intros H. apply n0.
+            enough (Vector.tl (Vector.cons term h0 n v) = Vector.tl (Vector.cons term h0 n t)) by easy.
+            now rewrite H. }
         now left. right. intros H. apply n. inversion H.
         apply inj_pair2_eq_dec in H1. exact H1. decide equality.
       + right. intros H. apply n. inversion H.
@@ -589,11 +591,13 @@ Section EqDec.
     - destruct (PeanoNat.Nat.eq_dec ar ar0) as [->|]. 2: right; congruence.
       destruct (predicate_eq_dec ar0 p p0) as [->|].
       + rename t into v. rename t0 into v0. assert ({v = v0} + {v <> v0}) as [->|]. {
-          clear p0. induction v; dependent elimination v0. now left.
-          destruct (term_eq_dec h h0) as [->|]. 2: right; congruence.
-          destruct (IHv t) as [->|]. now left. right. intros H. apply n.
-          enough (Vector.tl (Vector.cons term h0 n0 v) = Vector.tl (Vector.cons term h0 n0 t)) by easy.
-          now rewrite H. }
+          clear p0. induction v.
+          * left. pattern v0. now apply Vector.case0.
+          * apply (Vector.caseS' v0). intros.
+            destruct (term_eq_dec h h0) as [->|]. 2: right; congruence.
+            destruct (IHv t) as [->|]. now left. right. intros H. apply n0.
+            enough (Vector.tl (Vector.cons term h0 n v) = Vector.tl (Vector.cons term h0 n t)) by easy.
+            now rewrite H. }
         now left. right. intros H. apply n. inversion H.
         apply inj_pair2_eq_dec in H1. exact H1. decide equality.
       + right. intros H. apply n. inversion H. apply inj_pair2_eq_dec in H1. exact H1. decide equality.
@@ -690,10 +694,10 @@ Section Enumerability.
   Proof.
     induction n; cbn.
     - split.
-      + intros. left. now dependent elimination v.
+      + intros. left. pattern v. now apply Vector.case0.
       + now intros [<-|[]].
     - split.
-      + intros. dependent elimination v. in_collect (h, t); destruct (IHn t).
+      + intros. revert H. apply (Vector.caseS' v). intros. in_collect (h, t); destruct (IHn t).
         apply H. apply H0. apply H.
       + intros Hv. apply in_map_iff in Hv as ([h v'] & <- & (? & ? & [= <- <-] & ? & ?) % list_prod_in).
         split. easy. destruct (IHn v'). now apply H2.

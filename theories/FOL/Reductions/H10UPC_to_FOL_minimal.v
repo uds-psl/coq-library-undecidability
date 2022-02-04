@@ -484,7 +484,6 @@ Section provability.
                                    | chainS : forall (h:nat) (n pl pr:nat), chain h -> chain (S h).
     Definition height h (c:chain h) := h.
 
-    Derive Signature for chain.
     (** We need to show some "uniqueness" lemmas for our chain, so we need an inversion lemma *)
     Lemma chain_inversion n (c:chain n) : (match n return chain n -> Type 
                                                    with 0 => fun cc => cc = chainZ | 
@@ -1027,7 +1026,3 @@ Section undecResults.
   Qed.
 
 End undecResults.
-
-
-
-

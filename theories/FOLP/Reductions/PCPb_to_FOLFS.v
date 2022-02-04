@@ -1,6 +1,4 @@
 (* * Trakhtenbrot's Theorem *)
-
-From Equations Require Import Equations.
 Require Import Lia Arith.
 
 Require Import Undecidability.PCP.PCP.
@@ -12,25 +10,16 @@ Set Default Proof Using "Type".
 
 (* ** Bounded boolean strings *)
 
-Derive Signature for le.
-
 Lemma le_irrel' n :
   forall H : n <= n, H = le_n n.
 Proof.
-  induction n; depelim H.
-  - reflexivity.
-  - assert (H = eq_refl) as -> by apply Eqdep_dec.UIP_refl_nat.
-    cbn in H1. assumption.
-  - exfalso. lia.
+  intros H. now apply le_unique.
 Qed.
 
 Lemma le_irrel k l :
   forall H1 H2 : k <= l, H1 = H2.
 Proof.
-  induction l; depelim H1.
-  - intros H2. now rewrite le_irrel'.
-  - intros H2. now rewrite le_irrel'.
-  - depelim H2; try apply le_irrel'. f_equal. apply IHl.
+  intros. now apply le_unique.
 Qed.
 
 Local Notation "| s |" := (length s) (at level 100).
@@ -43,7 +32,7 @@ Lemma string_nil (s : string bool) :
 Proof.
   destruct s; cbn.
   - split; trivial; lia.
-  - split; try congruence. intros H. depelim H.
+  - split; try congruence. intros H. lia.
 Qed.
 
 Definition bnil n :
@@ -244,7 +233,8 @@ Section FIB.
     destruct x as [ [x HX]|], y as [ [y HY]|]; split; cbn; auto.
     { intros H. exists x, y. repeat setoid_rewrite obstring_ienc. now repeat split. }
     all: intros (s&t&H1&H2&H3&H4&H5). all: try unshelve setoid_rewrite obstring_ienc in H2; try unshelve setoid_rewrite obstring_ienc in H3; auto.
-    all: try discriminate. depelim H2. depelim H3. assumption.
+    all: try discriminate.
+    revert H2 H3. now intros [= ->] [= ->].
   Qed.
 
   Definition obembed n (s : obstring n) : obstring (S n) :=
@@ -347,7 +337,7 @@ Section FIB.
     Proof.
       destruct x as [ [s HS] |], y as [ [t HT]|]; cbn.
       all: repeat destruct le_dec; cbn. all: try congruence.
-      intros _ H. depelim H. split; trivial. f_equal. now apply bstring_eq.
+      intros _ [= -> ->]. split; trivial. f_equal. now apply bstring_eq.
     Qed.
 
     Lemma None_dec X (x : option X) :

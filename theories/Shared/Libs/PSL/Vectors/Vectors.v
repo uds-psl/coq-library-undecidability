@@ -518,8 +518,6 @@ Proof.
   rewrite vector_rev_to_list,List.rev_involutive. easy.
 Qed.
 
-Require Import Equations.Type.DepElim.
-
 Local Arguments Fin.of_nat_lt _ {_} _.
 
 Lemma vector_nth_rev_append_tail_r' X n n' (v : Vector.t X n) (v' : Vector.t X n') i (i':=proj1_sig (Fin.to_nat i))
@@ -527,8 +525,9 @@ Lemma vector_nth_rev_append_tail_r' X n n' (v : Vector.t X n) (v' : Vector.t X n
   (Vector.rev_append_tail v v') [@ i] = v'[@ Fin.of_nat_lt j H'].
 Proof.
   revert dependent n'. revert j.
-  depind v;cbn;intros.
+  induction v; cbn; intros.
   {f_equal. subst j. erewrite Fin.of_nat_ext, Fin.of_nat_to_nat_inv. easy. }
+  cbn. intros.
   erewrite IHv with (v':=h::v') (j:=S j). 2:nia. cbn.
   f_equal. eapply Fin.of_nat_ext.
   Unshelve. nia.
@@ -538,8 +537,8 @@ Lemma vector_nth_rev_append_tail_r X n n' (v : Vector.t X n) (v' : Vector.t X n'
   (H : n <= i') H':
   (Vector.rev_append_tail v v') [@ i] = v'[@ Fin.of_nat_lt (i' - n) H'].
 Proof.
-  revert dependent n'. 
-  depind v;cbn;intros.
+  revert dependent n'.
+  induction v;cbn;intros.
   {f_equal. revert H'. rewrite Nat.sub_0_r. intro. erewrite Fin.of_nat_ext, Fin.of_nat_to_nat_inv. easy. }
   unshelve erewrite IHv with (v':=h::v'). 3:nia. 1:abstract (clear - H'; nia).
   generalize (vector_nth_rev_append_tail_r_subproof n n' i H').
@@ -553,7 +552,7 @@ Lemma vector_nth_rev_append_tail_l X n n' (v : Vector.t X n) (v' : Vector.t X n'
   (Vector.rev_append_tail v v') [@ i] = v[@ Fin.of_nat_lt (n-1-i') H'].
 Proof.
   revert dependent n'.
-  depind v;cbn;intros. nia.
+  induction v;cbn;intros. nia.
   revert H'. destruct (n - 0 - proj1_sig (Fin.to_nat i)) eqn:H';cbn.
   - unshelve erewrite vector_nth_rev_append_tail_r. 3:nia. 1:abstract nia.
     generalize (vector_nth_rev_append_tail_l_subproof n n' i H H').
@@ -580,9 +579,9 @@ Lemma Vector_nth_L {X k1 k2} (v1 : Vector.t X k1) (v2 : Vector.t X k2) i :
   (v1 ++ v2)[@ Fin.L k2 i] = v1[@i].
 Proof.
   revert k2 v2 i.
-  dependent induction v1; intros.
-  - dependent destruct i.
-  - dependent destruct i.
+  induction v1; intros.
+  - pattern i. apply Fin.case0.
+  - apply (Fin.caseS' i).
     + reflexivity.
     + cbn. eapply IHv1.
 Qed.
@@ -591,7 +590,7 @@ Lemma Vector_nth_R {X k1 k2} (v1 : Vector.t X k1) (v2 : Vector.t X k2) i :
   (v1 ++ v2)[@ Fin.R k1 i] = v2[@i].
 Proof.
   revert k2 v2 i.
-  dependent induction v1; intros.
+  induction v1; intros.
   - reflexivity.
   - cbn. eapply IHv1.
-  Qed.
+Qed.
