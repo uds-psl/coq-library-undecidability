@@ -102,6 +102,7 @@ Then the following commands install the library:
 
 ```
 opam repo add coq-released https://coq.inria.fr/opam/released
+opam update
 opam install coq-library-undecidability.1.0.1+8.15
 ```
 
@@ -120,6 +121,7 @@ Then the following commands install the library:
 
 ```
 opam repo add coq-released https://coq.inria.fr/opam/released
+opam update
 opam pin add -n -y -k git coq-metacoq-template.dev+8.15 "https://github.com/MetaCoq/metacoq.git#9493bb6"
 opam pin add coq-library-undecidability.dev+8.15 "https://github.com/uds-psl/coq-library-undecidability.git#coq-8.15"
 ```
@@ -132,6 +134,7 @@ You need `Coq 8.15` built on OCAML `>= 4.07.1`, the [Smpl](https://github.com/ud
 opam switch create coq-library-undecidability 4.07.1+flambda
 eval $(opam env)
 opam repo add coq-released https://coq.inria.fr/opam/released
+opam update
 opam pin add -n -y -k git coq-metacoq-template.dev+8.15 "https://github.com/MetaCoq/metacoq.git#9493bb6"
 opam install . --deps-only
 ```
