@@ -136,7 +136,6 @@ opam switch create coq-library-undecidability 4.07.1+flambda
 eval $(opam env)
 opam repo add coq-released https://coq.inria.fr/opam/released
 opam pin add -n -y -k git coq-metacoq-template.dev+8.15 "https://github.com/MetaCoq/metacoq.git#9493bb6"
-opam pin add -n -y -k git coq-smpl.8.15 "https://github.com/uds-psl/smpl.git#d9b4d79"
 opam install . --deps-only
 ```
 
