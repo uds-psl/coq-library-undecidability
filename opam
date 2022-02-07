@@ -23,7 +23,7 @@ install: [
   [make "install"]
 ]
 depends: [
-  "coq" {= "8.15+rc1"}
+  "coq" {= "8.15"}
   "coq-equations" {= "dev+8.15"}
   "ocaml"
   "coq-smpl" {>= "8.15"}

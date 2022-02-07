@@ -85,7 +85,7 @@ Section PCP_CFPI.
     intros H.
     revert A2. induction A1 as [ | (x,y) ]; cbn; intros.
     - destruct A2; inv H1; [reflexivity|].
-      destruct c, (gamma A2), l; cbn in *; inv H3.
+      destruct c, (gamma A2), s; cbn in *; inv H3.
     - destruct A2 as [ | (x',y')]; cbn in H1.
       + destruct (gamma A1), x; inv H1.
       + eapply (f_equal (@rev _)) in H1. repeat (autorewrite with list in H1; cbn in H1). inv H1.
@@ -120,9 +120,9 @@ Proof.
   split.
   - intros (A & Hi & He & H). exists (gamma1 P A), (gamma2 P A). repeat split.
     + clear He H. induction A as [ | [] ]. { firstorder. } intros ? [ <- | ].
-      { unfold gamma1. eapply in_map_iff. exists (l, l0). firstorder. } firstorder.
+      { unfold gamma1. eapply in_map_iff. eexists (_, _). firstorder. } firstorder.
     + clear He H. induction A as [ | [] ]. { firstorder. } intros ? [ <- | ].
-      { unfold gamma2. eapply in_map_iff. exists (l, l0). firstorder. } firstorder.
+      { unfold gamma2. eapply in_map_iff. eexists (_, _). firstorder. } firstorder.
     + destruct A; cbn in *; congruence.
     + destruct A; cbn in *; congruence.
     + now rewrite sigma_gamma1, sigma_gamma2, H.

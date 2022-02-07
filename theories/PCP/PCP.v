@@ -10,7 +10,7 @@ Import ListNotations.
 Definition string X := list X.
 
 (* A card a is a pair of the upper string x and the lower string y. *)
-Definition card X : Type := list X * list X.
+Definition card X : Type := string X * string X.
 
 (* A stack is a list of cards. *)
 Definition stack X := list (card X).
