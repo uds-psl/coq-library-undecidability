@@ -176,6 +176,8 @@ A Coq Library of Undecidable Problems. Yannick Forster, Dominique Larchey-Wendli
 ### Papers and abstracts on problems and proofs included in the library
 
 - Undecidability, Incompleteness, and Completeness of Second-Order Logic in Coq. Mark Koch and Dominik Kirst. CPP 2022. Subdirectory `SOL`. https://www.ps.uni-saarland.de/extras/cpp22-sol/
+- Synthetic Undecidability of MSELL via FRACTRAN. Dominique Larchey-Wendling. FSCD 2021. File [`ILL/IMSELL.v`](theories/ILL/IMSELL.v). Also documents 
+ the undecidability proof for 2-counters Minsky machines [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v) via FRACTRAN. https://github.com/uds-psl/coq-library-undecidability/releases/tag/FSCD-2021/ 
 - Trakhtenbrot's Theorem in Coq - A Constructive Approach to Finite Model Theory. Dominik Kirst and Dominique Larchey-Wendling. IJCAR 2020. Subdirectory `TRAKTHENBROT`. https://www.ps.uni-saarland.de/extras/fol-trakh/
 - Undecidability of Semi-Unification on a Napkin. Andrej Dudenhefner. FSCD 2020. Subdirectory `SemiUnification`. https://www.ps.uni-saarland.de/Publications/documents/Dudenhefner_2020_Semi-unification.pdf
 - Undecidability of Higher-Order Unification Formalised in Coq. Simon Spies and Yannick Forster. Technical report. Subdirectory `HOU`. https://www.ps.uni-saarland.de/Publications/details/SpiesForster:2019:UndecidabilityHOU.html
