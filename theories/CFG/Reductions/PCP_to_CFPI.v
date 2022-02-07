@@ -84,8 +84,8 @@ Section PCP_CFPI.
   Proof.
     intros H.
     revert A2. induction A1 as [ | (x,y) ]; cbn; intros.
-    - destruct A2; inv H1; [reflexivity|].
-      destruct c, (gamma A2), s; cbn in *; inv H3.
+    - destruct A2 as [ | c A2 ]; inv H1; [reflexivity|].
+      destruct c, (gamma A2), l; cbn in *; inv H3.
     - destruct A2 as [ | (x',y')]; cbn in H1.
       + destruct (gamma A1), x; inv H1.
       + eapply (f_equal (@rev _)) in H1. repeat (autorewrite with list in H1; cbn in H1). inv H1.

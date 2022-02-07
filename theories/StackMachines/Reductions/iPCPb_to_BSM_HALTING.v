@@ -27,7 +27,7 @@ Fact tile_concat_itau ln lt : tile_concat ln lt = (itau1 lt (rev ln), itau2 lt (
 Proof.
   induction ln as [ | i ln IH ]; simpl; auto.
   rewrite itau1_app, itau2_app; simpl.
-  unfold card, string; generalize (nth i lt ([], [])); intros (a,b); rewrite IH.
+  generalize (nth i lt ([], [])); intros (a,b); rewrite IH.
   repeat rewrite <- app_nil_end; auto.
 Qed.
 

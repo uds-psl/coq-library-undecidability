@@ -7,10 +7,10 @@ Import ListNotations.
 
 
 (* A string is a list of symbols. *)
-Definition string X := list X.
+Notation string := list.
 
 (* A card a is a pair of the upper string x and the lower string y. *)
-Definition card X : Type := string X * string X.
+Notation card := (fun X => string X * string X)%type.
 
 (* A stack is a list of cards. *)
 Definition stack X := list (card X).

@@ -54,7 +54,7 @@ Proof.
   - intros (A & ? & ? & ?).
     exists (f P A). repeat split.
     + now intros ? (? & ? & ? % pos_length) % in_omap_iff. 
-    + destruct A; try congruence. cbn.
+    + destruct A as [ | c A ]; try congruence. cbn.
       assert (c el P) as [n ->] % (el_pos card_eq) by firstorder.
       congruence.
     + rewrite itau_tau1, H1, itau_tau2; eauto.
