@@ -62,15 +62,15 @@ Proof.
   have ? := almost_eq_false 0 _.
   have ? := almost_eq_false _ 0.
   case=> a ???? [] => [????|n1 n2] [].
-  - move=> ????. rewrite /step /=. case: (trans M _); last done.
+  - move=> ????. rewrite /step /=. case: (trans' M _); last done.
     move=> [[? ?] []] [] <- <- [] <- <- /=; by do ? constructor.
-  - move=> n'1 n'2. rewrite /step /=. case: (trans M _); last done.
+  - move=> n'1 n'2. rewrite /step /=. case: (trans' M _); last done.
     move=> [[? ?] []] [] <- <- [] <- <- /=; first by do ? constructor.
     move: n'1 n'2 => [|?] [|?] /=; by do ? constructor.
-  - move=> ????. rewrite /step /=. case: (trans M _); last done.
+  - move=> ????. rewrite /step /=. case: (trans' M _); last done.
     move=> [[? ?] []] [] <- <- [] <- <- /=; last by do ? constructor.
     move: n1 n2 => [|?] [|?] /=; by do ? constructor.
-  - move=> n'1 n'2. rewrite /step /=. case: (trans M _); last done.
+  - move=> n'1 n'2. rewrite /step /=. case: (trans' M _); last done.
     move=> [[? ?] []] [] <- <- [] <- <- /=.
     + move: n1 n2 => [|?] [|?] /=; by do ? constructor.
     + move: n'1 n'2 => [|?] [|?] /=; by do ? constructor.
@@ -83,7 +83,7 @@ Lemma almost_eq_tape_step_None M q t1 t2 :
 Proof.
   case=> a ???? [] => [????|n1 n2] [] >.
   all: rewrite /step /=.
-  all: case: (trans M _); last done.
+  all: case: (trans' M _); last done.
   all: by move=> [[? ?] ?].
 Qed.
 
@@ -115,4 +115,35 @@ Proof.
   - move=> Ht1t2.
     by move: E1 Ht1t2 E2 => /almost_eq_tape_step_None /[apply] ->.
   - done.
+Qed.
+
+Fixpoint seq_Vector (n : nat) : Vector.t (Fin.t n) n :=
+  match n return Vector.t (Fin.t n) n with
+  | 0 => Vector.nil (Fin.t 0)
+  | S n' => Vector.cons (Fin.t (S n')) (Fin.F1) n' (Vector.map (Fin.R 1) (seq_Vector n'))
+  end.
+
+Lemma seq_Vector_spec {n} (q : Fin.t n) : 
+  VectorDef.nth (seq_Vector n) q = q.
+Proof.
+  elim: q; first done.
+  move=> {}n q IH /=. 
+  by rewrite (Vector.nth_map _ _ q q erefl) IH.
+Qed.
+
+(* build transition table from transition function *)
+Definition construct_trans {n : nat}
+  (f : (Fin.t n) * bool -> option ((Fin.t n) * bool * direction)) :
+  Vector.t (
+    (option ((Fin.t n) * bool * direction)) *
+    (option ((Fin.t n) * bool * direction))) n :=
+  Vector.map (fun q => (f (q, true), f (q, false))) (seq_Vector n).
+
+Lemma construct_trans_spec {n : nat} 
+  (f : (Fin.t n) * bool -> option ((Fin.t n) * bool * direction)) :
+  forall x, trans' (Build_SBTM2 n (construct_trans f)) x = f x.
+Proof.
+  move=> /= [q a]. rewrite /trans' /construct_trans /=.
+  rewrite (Vector.nth_map _ _ q q erefl) seq_Vector_spec.
+  by case: a.
 Qed.

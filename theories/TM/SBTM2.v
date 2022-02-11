@@ -3,7 +3,7 @@
     Binary Single-tape Turing Machine Halting (SBTM2_HALT)
 *)
 
-Require Coq.Vectors.Fin ssrfun.
+Require Coq.Vectors.Fin Coq.Vectors.Vector ssrfun.
 Import ssrfun (obind).
 
 #[local] Open Scope list_scope.
@@ -28,7 +28,11 @@ Definition mv (d: direction) (t: (list bool * bool * list bool)) :=
 
 Record SBTM2 := Build_SBTM2 {
   num_states : nat;
-  trans : (Fin.t num_states) * bool -> option ((Fin.t num_states) * bool * direction) }.
+  (* transition table *)
+  trans : Vector.t (
+    (option ((Fin.t num_states) * bool * direction)) *
+    (option ((Fin.t num_states) * bool * direction)))
+    num_states }.
 
 Module SBTM2Notations.
   Notation tape := (list bool * bool * list bool).
@@ -38,10 +42,20 @@ End SBTM2Notations.
 
 Import SBTM2Notations.
 
+(* transition table presented as a finite function *)
+Definition trans' M : (state M) * bool -> option ((state M) * bool * direction) :=
+  fun '(q, a) => 
+    match a with
+    | true => fst
+    | false => snd
+    end (Vector.nth (trans M) q).
+
+Arguments trans' : simpl never.
+
 (* step function *)
 Definition step (M: SBTM2) : config M -> option (config M) :=
   fun '(q, (ls, a, rs)) => 
-    match trans M (q, a) with
+    match trans' M (q, a) with
     | None => None
     | Some (q', a', d) => Some (q', mv d (ls, a', rs))
     end.

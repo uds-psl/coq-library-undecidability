@@ -173,7 +173,7 @@ Section Construction.
   Definition M' : SBTM2.
   Proof using M.
     refine (Build_SBTM2 size
-      (fun '(q, a) => _)).
+      (construct_trans (fun '(q, a) => _))).
     (* in state q reading symbol a *)
     refine (
       match decode_space q with
@@ -272,16 +272,16 @@ Section Construction.
       case: m ob.
       + (* case Lmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
-        * exists 3. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
       + (* case Rmove *)
         move=> [b|] /= E.
-        * exists 3. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
-        * exists 3. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
       + (* case Nmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
-        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
     - (* case leftof *)
       move=> a rs.
       rewrite /TM_facts.step.
@@ -291,17 +291,17 @@ Section Construction.
       case: m ob.
       + (* case Lmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
-        * exists 3. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
       + (* case Rmove *)
         move=> [b|] /= E.
-        * exists 3. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
-        * exists 3. do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 3. do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
           by case: a.
       + (* case Nmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
-        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
     - (* case rightof *)
       move=> a ls.
       rewrite /TM_facts.step.
@@ -311,16 +311,16 @@ Section Construction.
       case: m ob.
       + (* case Lmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
-        * exists 3. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
       + (* case Rmove *)
         move=> [b|] /= E.
-        * exists 3. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
-        * exists 3. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
       + (* case Nmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
-        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
     - (* case midtape *)
       move=> ls a rs.
       rewrite /TM_facts.step.
@@ -330,27 +330,27 @@ Section Construction.
       case: m ob.
       + (* case Lmove *)
         move=> [b|] /= E.
-        * exists 1. do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
-          move: ls => [|l ls]; by do ? rewrite decode_encode_space.
-        * exists 1. do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
-          move: ls => [|l ls]; by do ? rewrite decode_encode_space.
+        * exists 1. do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+          move: ls => [|l ls]; by do ? rewrite construct_trans_spec decode_encode_space.
+        * exists 1. do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+          move: ls => [|l ls]; by do ? rewrite /= construct_trans_spec decode_encode_space.
       + (* case Rmove *)
         move=> [b|] /= E.
-        * exists 3. do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
-          move: rs => [|r rs]; by do ? rewrite /= decode_encode_space.
-        * exists 3. do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
-          move: rs => [|r rs]; by do ? rewrite /= decode_encode_space.
+        * exists 3. do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+          move: rs => [|r rs]; by do ? rewrite /= construct_trans_spec decode_encode_space.
+        * exists 3. do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+          move: rs => [|r rs]; by do ? rewrite /= construct_trans_spec decode_encode_space.
       + (* case Nmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
-        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= construct_trans_spec decode_encode_space ?E ?Hq.
   Qed.
 
   Lemma simulation_halt q t : TM.halt M q = true ->
     step (encode_state q, t) = None.
   Proof.
     move: t => [[? ?] ?] /= Hq.
-    by rewrite /= /step /= decode_encode_space ?Hq.
+    by rewrite /= /step /= construct_trans_spec decode_encode_space ?Hq.
   Qed.
 
   Lemma simulation q t :

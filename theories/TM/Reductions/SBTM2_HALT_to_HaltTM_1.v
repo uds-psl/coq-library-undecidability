@@ -52,7 +52,7 @@ Section Construction.
       | None => (None, | (None, TM.Nmove) | )
       end).
     refine (
-      match trans M (qM, get_symbol (Vector.hd bs)) with
+      match trans' M (qM, get_symbol (Vector.hd bs)) with
       | None => (None, | (None, TM.Nmove) | )
       | Some (q', a', d') => (Some q', | (Some a',encode_direction d') | )
       end).
@@ -97,7 +97,7 @@ Section Construction.
     move=> Ht1t2.
     rewrite /TM_facts.step /= -(get_symbol_canonize_tape Ht1t2).
     case: oq => [q|].
-    - move: (trans M _) => [[[q' a'] d']|] /=.
+    - move: (trans' M _) => [[[q' a'] d']|] /=.
       + move=> [] <- <- [] <- <-. split; first done.
         by apply: doAct_canonize_tape.
       + by move=> [] <- <- [] <- <-.
@@ -129,7 +129,7 @@ Section Construction.
       encode_tape t' = canonize_tape t'' }.
   Proof.
     rewrite /step /TM_facts.step /=.
-    move: t => [[ls a] rs] /=. case: (trans M _) => [[[? ?] d]|] /=; last done.
+    move: t => [[ls a] rs] /=. case: (trans' M _) => [[[? ?] d]|] /=; last done.
     move=> [] -> <-. case: d => /=.
     - case: ls => [|??] /=; eexists; split; reflexivity.
     - case: rs => [|??] /=; eexists; split; reflexivity.
@@ -140,7 +140,7 @@ Section Construction.
   Proof.
     rewrite /step /TM_facts.step /=.
     move: t => [[ls a] rs] /=.
-    by case: (trans M _) => [[[? ?] d]|] /=.
+    by case: (trans' M _) => [[[? ?] d]|] /=.
   Qed.
 
   Lemma simulation q t k :
@@ -161,7 +161,7 @@ Section Construction.
       move: E.
       rewrite /= /step /TM_facts.step /=.
       move: t => [[ls a] rs] /=.
-      by case: (trans M (q, a)) => [[[??]?]|].
+      by case: (trans' M (q, a)) => [[[??]?]|].
   Qed.
 
   Lemma inverse_simulation q t q' ts' :
