@@ -43,43 +43,16 @@ Section Construction.
     | (ls, a, rs) => TM.midtape ls a rs
     end.
 
-  
   Definition go_back (d : direction) :=
     match d with
     | go_left => go_right
     | go_right => go_left
     end.
 
-  Definition eqType_Fin n : eqType := @EqType (Fin.t n) Fin.eq_dec.
-
-  Lemma finTypeC_Fin n : finTypeC (eqType_Fin n).
-  Proof.
-    elim: n. { exists []. by apply: Fin.case0. }
-    move=> n [L HL]. exists (Fin.F1 :: (map (Fin.R 1) L)) => v.
-    pattern v. apply: Fin.caseS'.
-    { move=> /=. case: (Dec _); last done.
-      move=> _. congr S. by elim: (L). }
-    move=> v' /=. move: (1) (HL v'). elim: (L); first done.
-    move=> ? L' IH /=. case: (Dec (v' = _)).
-    - move=> <- []; first done.
-      move=> ? [] /IH ->. by case: (Dec _).
-    - move=> ?? /IH ->. case: (Dec _); last done.
-      by move=> /Fin.FS_inj.
-  Qed.
-
   #[local] Notation state' := (option (Fin.t ((num_states M)))).
 
   Definition finTypeC_state' : finType := 
     @finType_CS state' _ (CompoundFinTypes.finTypeC_Option _).
-
-  (*
-  Definition eqType_state' : eqType := @EqType state' Fin.eq_dec.
-  Definition finTypeC_state' : @finTypeC eqType_state' :=
-    FinTypeC (@enum_ok (eqType_Fin _) (finTypeC_Fin _)).
-*)
-  (*
-  Definition state' : finType := @FinType eqType_state' finTypeC_state'.
-*)
 
   Definition halt' (q : state') : bool := if q is None then true else false.
 
