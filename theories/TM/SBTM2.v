@@ -1,7 +1,6 @@
 (* 
   Problem(s):
     Binary Single-tape Turing Machine Halting (SBTM2_HALT)
-    Binary Single-tape Turing Machine Halting on Empty Tape (SBTM2_HALT0)
 *)
 
 Require Coq.Vectors.Fin ssrfun.
@@ -10,13 +9,10 @@ Import ssrfun (obind).
 #[local] Open Scope list_scope.
 #[local] Open Scope type_scope.
 
-(* the blank symbol is "false" *)
-Notation tape := (list bool * bool * list bool).
-
 Inductive direction : Type := go_left | go_right.
 
-(* the tape implicitly contains infinitely many blanks to the left and right *)
-Definition mv (d: direction) (t: tape) :=
+(* the tape implicitly contains blanks ("false") to the left and right *)
+Definition mv (d: direction) (t: (list bool * bool * list bool)) :=
   match d with
   | go_left =>
       match t with
@@ -30,12 +26,17 @@ Definition mv (d: direction) (t: tape) :=
       end
   end.
 
-Record SBTM2 := {
+Record SBTM2 := Build_SBTM2 {
   num_states : nat;
   trans : (Fin.t num_states) * bool -> option ((Fin.t num_states) * bool * direction) }.
 
-Notation state M := (Fin.t (num_states M)).
-Notation config M := ((state M) * tape).
+Module SBTM2Notations.
+  Notation tape := (list bool * bool * list bool).
+  Notation state M := (Fin.t (num_states M)).
+  Notation config M := ((state M) * tape).
+End SBTM2Notations.
+
+Import SBTM2Notations.
 
 (* step function *)
 Definition step (M: SBTM2) : config M -> option (config M) :=
@@ -44,6 +45,8 @@ Definition step (M: SBTM2) : config M -> option (config M) :=
     | None => None
     | Some (q', a', d) => Some (q', mv d (ls, a', rs))
     end.
+
+Arguments step : simpl never.
 
 (* iterated step function *)
 Definition steps (M: SBTM2) (k: nat) (x: config M) : option (config M) :=

@@ -1,5 +1,5 @@
 From Undecidability Require TM.TM TM.Util.TM_facts.
-From Undecidability Require Import TM.SBTM2.
+From Undecidability Require Import TM.SBTM2 TM.Util.SBTM2_facts.
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
 
 Require Import PeanoNat Lia.
@@ -8,7 +8,10 @@ Require Import PeanoNat Lia.
 #[local] Unset Strict Implicit.
 
 Require Import List ssreflect ssrbool ssrfun.
-Import ListNotations.
+Import ListNotations SBTM2Notations.
+
+Set Default Proof Using "Type".
+Set Default Goal Selector "!".
 
 Module SBTM2_facts.
 
@@ -25,92 +28,18 @@ Module SBTM2_facts.
     | (ls, a, rs) => (truncate ls, a, truncate rs)
     end.
 
-  Lemma iter_plus {X} (f : X -> X) (x : X) n m : Nat.iter (n + m) f x = Nat.iter m f (Nat.iter n f x).
-  Proof.
-    elim: m; first by rewrite Nat.add_0_r.
-    move=> m /= <-. by have ->: n + S m = S n + m by lia.
-  Qed.
-
-  (* two lists differ only in trailing false symbols *)
-  Inductive almost_eq : list bool -> list bool -> Prop :=
-  | almost_eq_cons a l1 l2 : almost_eq l1 l2 -> almost_eq (a :: l1) (a :: l2)
-  | almost_eq_false n1 n2 : almost_eq (repeat false n1) (repeat false n2).
-  
-  Inductive almost_eq_tape : tape -> tape -> Prop :=
-  | almost_eq_tape_intro a ls1 rs1 ls2 rs2 :
-      almost_eq ls1 ls2 -> almost_eq rs1 rs2 -> 
-      almost_eq_tape (ls1, a, rs1) (ls2, a, rs2).
-
-  Lemma almost_eq_tape_step_Some M q q1 q2 t1 t'1 t2 t'2 :
-    almost_eq_tape t1 t2 -> 
-    step M (q, t1) = Some (q1, t'1) ->
-    step M (q, t2) = Some (q2, t'2) ->
-    q1 = q2 /\ almost_eq_tape t'1 t'2.
-  Proof.
-    have ? := almost_eq_false 0 0.
-    have ? := almost_eq_false 0 _.
-    have ? := almost_eq_false _ 0.
-    case=> a ???? [] => [????|n1 n2] [].
-    - move=> ???? /=. case: (trans M _); last done.
-      move=> [[? ?] []] [] <- <- [] <- <- /=; by do ? constructor.
-    - move=> n'1 n'2 /=. case: (trans M _); last done.
-      move=> [[? ?] []] [] <- <- [] <- <- /=; first by do ? constructor.
-      move: n'1 n'2 => [|?] [|?] /=; by do ? constructor.
-    - move=> ???? /=. case: (trans M _); last done.
-      move=> [[? ?] []] [] <- <- [] <- <- /=; last by do ? constructor.
-      move: n1 n2 => [|?] [|?] /=; by do ? constructor.
-    - move=> n'1 n'2 /=. case: (trans M _); last done.
-      move=> [[? ?] []] [] <- <- [] <- <- /=.
-      + move: n1 n2 => [|?] [|?] /=; by do ? constructor.
-      + move: n'1 n'2 => [|?] [|?] /=; by do ? constructor.
-  Qed.
-
-  Lemma almost_eq_tape_step_None M q t1 t2 :
-    almost_eq_tape t1 t2 -> 
-    step M (q, t1) = None ->
-    step M (q, t2) = None.
-  Proof.
-    case=> a ???? [] => [????|n1 n2] [] > /=.
-    all: case: (trans M _); last done.
-    all: by move=> [[? ?] ?].
-  Qed.
-
-  Lemma almost_eq_refl l : almost_eq l l.
-  Proof.
-    elim: l => >.
-    - by apply: (almost_eq_false 0 0).
-    - by apply: almost_eq_cons.
-  Qed.
-
-  Lemma almost_eq_sym l1 l2 : almost_eq l1 l2 -> almost_eq l2 l1.
-  Proof. elim=> *; by constructor. Qed.
-
-  Lemma almost_eq_tape_sym t1 t2 : almost_eq_tape t1 t2 -> almost_eq_tape t2 t1.
-  Proof. move=> [] > /almost_eq_sym ? /almost_eq_sym ?. by constructor. Qed.
-
-  Lemma almost_eq_truncate l : almost_eq l (truncate l).
+  Lemma almost_eq_truncate l : almost_eq (truncate l) l. 
   Proof.
     have ? := almost_eq_refl.
     have ? := almost_eq_false 0 0.
-    have ? := almost_eq_false 1 0.
-    have ? := almost_eq_false 2 0.
+    have ? := almost_eq_false 0 1.
+    have ? := almost_eq_false 0 2.
     move: l => [|[] [|[] [|??]]] /=; by do ? constructor.
   Qed.
 
-  Lemma almost_eq_tape_truncate_tape t : almost_eq_tape t (truncate_tape t).
+  Lemma almost_eq_tape_truncate_tape t : almost_eq_tape (truncate_tape t) t.
   Proof.
     move: t => [[ls a] rs]. constructor; by apply: almost_eq_truncate.
-  Qed.
-
-  Lemma oiter_None {X : Type} (f : X -> option X) k : Nat.iter k (obind f) None = None.
-  Proof. elim: k; [done | by move=> /= ? ->]. Qed.
-
-  Lemma steps_plus {M} k1 k2 {x} :
-    steps M (k1 + k2) x = obind (fun y => steps M k2 y) (steps M k1 x).
-  Proof.
-    rewrite /steps iter_plus /=.
-    move: (Nat.iter k1 _ (Some x)) => [y|] /=; first done.
-    apply: oiter_None.
   Qed.
 
   #[local] Opaque step.
@@ -118,19 +47,8 @@ Module SBTM2_facts.
   Lemma steps_truncate {M k q t} :
     steps M k (q, truncate_tape t) = None <-> (steps M k (q, t) = None).
   Proof.
-    have := almost_eq_tape_truncate_tape t.
-    move: (truncate_tape t) => t'.
-    elim: k q t t'; first done.
-    move=> k IH q t t'. rewrite !(steps_plus 1 k) /=.
-    case E1: (step M (q, t)) => [[q2 t2]|];
-      case E2: (step M (q, t')) => [[q'2 t'2]|].
-    - move: E1 E2 => /almost_eq_tape_step_Some /[apply] /[apply].
-      move=> [<- /IH]. by apply.
-    - move=> /almost_eq_tape_sym Ht't.
-      by move: E2 Ht't E1 => /almost_eq_tape_step_None /[apply] ->.
-    - move=> Htt'.
-      by  move: E1 Htt' E2 => /almost_eq_tape_step_None /[apply] ->.
-    - done.
+    apply: almost_eq_tape_steps_None.
+    apply: almost_eq_tape_truncate_tape.
   Qed.
 
 End SBTM2_facts.
@@ -253,7 +171,7 @@ Section Construction.
     end.
 
   Definition M' : SBTM2.
-  Proof.
+  Proof using M.
     refine (Build_SBTM2 size
       (fun '(q, a) => _)).
     (* in state q reading symbol a *)
@@ -354,16 +272,16 @@ Section Construction.
       case: m ob.
       + (* case Lmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= decode_encode_space ?E ?Hq.
-        * exists 3. by do ? rewrite /= decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
       + (* case Rmove *)
         move=> [b|] /= E.
-        * exists 3. by do ? rewrite /= decode_encode_space ?E ?Hq.
-        * exists 3. by do ? rewrite /= decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
       + (* case Nmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= decode_encode_space ?E ?Hq.
-        * exists 1. by do ? rewrite /= decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
     - (* case leftof *)
       move=> a rs.
       rewrite /TM_facts.step.
@@ -373,17 +291,17 @@ Section Construction.
       case: m ob.
       + (* case Lmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= decode_encode_space ?E ?Hq.
-        * exists 3. by do ? rewrite /= decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
       + (* case Rmove *)
         move=> [b|] /= E.
-        * exists 3. by do ? rewrite /= decode_encode_space ?E ?Hq.
-        * exists 3. do ? rewrite /= decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+        * exists 3. do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
           by case: a.
       + (* case Nmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= decode_encode_space ?E ?Hq.
-        * exists 1. by do ? rewrite /= decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
     - (* case rightof *)
       move=> a ls.
       rewrite /TM_facts.step.
@@ -393,16 +311,16 @@ Section Construction.
       case: m ob.
       + (* case Lmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= decode_encode_space ?E ?Hq.
-        * exists 3. by do ? rewrite /= decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
       + (* case Rmove *)
         move=> [b|] /= E.
-        * exists 3. by do ? rewrite /= decode_encode_space ?E ?Hq.
-        * exists 3. by do ? rewrite /= decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+        * exists 3. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
       + (* case Nmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= decode_encode_space ?E ?Hq.
-        * exists 1. by do ? rewrite /= decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
     - (* case midtape *)
       move=> ls a rs.
       rewrite /TM_facts.step.
@@ -412,27 +330,27 @@ Section Construction.
       case: m ob.
       + (* case Lmove *)
         move=> [b|] /= E.
-        * exists 1. do ? rewrite /= decode_encode_space ?E ?Hq.
-          move: ls => [|l ls]; by do ? rewrite /= decode_encode_space.
-        * exists 1. do ? rewrite /= decode_encode_space ?E ?Hq.
-          move: ls => [|l ls]; by do ? rewrite /= decode_encode_space.
+        * exists 1. do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+          move: ls => [|l ls]; by do ? rewrite decode_encode_space.
+        * exists 1. do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+          move: ls => [|l ls]; by do ? rewrite decode_encode_space.
       + (* case Rmove *)
         move=> [b|] /= E.
-        * exists 3. do ? rewrite /= decode_encode_space ?E ?Hq.
+        * exists 3. do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
           move: rs => [|r rs]; by do ? rewrite /= decode_encode_space.
-        * exists 3. do ? rewrite /= decode_encode_space ?E ?Hq.
+        * exists 3. do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
           move: rs => [|r rs]; by do ? rewrite /= decode_encode_space.
       + (* case Nmove *)
         move=> [b|] /= E.
-        * exists 1. by do ? rewrite /= decode_encode_space ?E ?Hq.
-        * exists 1. by do ? rewrite /= decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
+        * exists 1. by do ? rewrite /= /step /= decode_encode_space ?E ?Hq.
   Qed.
 
   Lemma simulation_halt q t : TM.halt M q = true ->
     step (encode_state q, t) = None.
   Proof.
     move: t => [[? ?] ?] /= Hq.
-    by rewrite /= decode_encode_space ?Hq.
+    by rewrite /= /step /= decode_encode_space ?Hq.
   Qed.
 
   Lemma simulation q t :
@@ -457,29 +375,6 @@ Section Construction.
     move Hk1: (steps (S k1) x) => [[q''' t''']|] /=; last done.
     move=> [] <- Ht''' /(@steps_truncate M').
     rewrite -Ht'''. by move=> /steps_truncate.
-  Qed.
-
-  Lemma steps_None_mono {x} k2 k1 : steps k1 x = None -> k1 <= k2 -> steps k2 x = None.
-  Proof.
-    elim: k2 k1 x.
-    { move=> [|k1]; [done|lia]. }
-    move=> k2 IH [|k1] x + ?; first done.
-    rewrite (steps_plus 1 k1) (steps_plus 1 k2).
-    move: (steps 1 x) => [y|]; last done.
-    move=> /IH. apply. lia.
-  Qed.
-
-  Lemma steps_sync {k1 x k2 y} :
-    steps (S k1) x = None -> steps (S k2) x = Some y -> steps k1 y = None.
-  Proof.
-    elim: k1 k2 x.
-    { move=> k2 x. rewrite (steps_plus 1 k2). by move=> ->. }
-    move=> k1 IH k2 x.
-    rewrite (steps_plus 1 (S k1)) (steps_plus 1 k2).
-    move: (steps 1 x) => [z|]; last done.
-    move: k2 => [|k2].
-    { by move=> /= <- [<-]. }
-    move=> /IH H /H /(steps_None_mono (S k1)). apply. lia.
   Qed.
 
   Lemma inverse_simulation q t k :
@@ -512,7 +407,7 @@ Require Undecidability.TM.Reductions.Arbitrary_to_Binary.
 Theorem reduction :
   TM.HaltTM 1 ⪯ SBTM2_HALT.
 Proof.
-  apply: reduces_transitive. apply: Arbitrary_to_Binary.reduction.
+  apply: (reduces_transitive Arbitrary_to_Binary.reduction).
   exists (fun '(M, t) =>
     existT _ (M' M) (encode_config M (TM_facts.mk_mconfig (TM.start M) t))).
   move=> [M t]. split.
@@ -520,5 +415,3 @@ Proof.
     by move: Hk => /steps_truncate.
   - by move=> [k] /steps_truncate /inverse_simulation.
 Qed.
-
-Print Assumptions reduction.

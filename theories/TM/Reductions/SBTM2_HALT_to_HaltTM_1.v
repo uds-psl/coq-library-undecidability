@@ -1,5 +1,5 @@
 From Undecidability Require TM.TM TM.Util.TM_facts.
-From Undecidability Require Import TM.SBTM2.
+From Undecidability Require Import TM.SBTM2 TM.Util.SBTM2_facts.
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
 
 Require Import PeanoNat Lia.
@@ -8,29 +8,10 @@ Require Import PeanoNat Lia.
 #[local] Unset Strict Implicit.
 
 Require Import List ssreflect ssrbool ssrfun.
-Import ListNotations.
+Import ListNotations SBTM2Notations.
 
-Module SBTM2_facts.
-
-  Lemma iter_plus {X} (f : X -> X) (x : X) n m : Nat.iter (n + m) f x = Nat.iter m f (Nat.iter n f x).
-  Proof.
-    elim: m; first by rewrite Nat.add_0_r.
-    move=> m /= <-. by have ->: n + S m = S n + m by lia.
-  Qed.
-
-  Lemma oiter_None {X : Type} (f : X -> option X) k : Nat.iter k (obind f) None = None.
-  Proof. elim: k; [done | by move=> /= ? ->]. Qed.
-
-  Lemma steps_plus {M} k1 k2 {x} :
-    steps M (k1 + k2) x = obind (fun y => steps M k2 y) (steps M k1 x).
-  Proof.
-    rewrite /steps iter_plus /=.
-    move: (Nat.iter k1 _ (Some x)) => [y|] /=; first done.
-    apply: oiter_None.
-  Qed.
-End SBTM2_facts.
-
-Import SBTM2_facts.
+Set Default Proof Using "Type".
+Set Default Goal Selector "!".
 
 #[local] Notation "| a |" := (Vector.cons _ a 0 (Vector.nil _)).
 
@@ -41,12 +22,6 @@ Section Construction.
   Definition encode_tape (t : tape) : TM.tape (finType_CS bool) :=
     match t with
     | (ls, a, rs) => TM.midtape ls a rs
-    end.
-
-  Definition go_back (d : direction) :=
-    match d with
-    | go_left => go_right
-    | go_right => go_left
     end.
 
   #[local] Notation state' := (option (Fin.t ((num_states M)))).
@@ -69,7 +44,7 @@ Section Construction.
     end.
 
   Definition M' : TM.TM (finType_CS bool) 1.
-  Proof.
+  Proof using M q0.
     refine (@TM.Build_TM _ _ finTypeC_state' (fun '(q, bs) => _) (Some q0) halt').
     refine (
       match q with

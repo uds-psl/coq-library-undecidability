@@ -844,3 +844,6 @@ SOL/SOL_undec.v
 SOL/PA2_undec.v
 
 TM/SBTM2.v
+TM/Util/SBTM2_facts.v
+TM/Reductions/HaltTM_1_to_SBTM2_HALT.v
+TM/Reductions/SBTM2_HALT_to_HaltTM_1.v
