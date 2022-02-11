@@ -244,7 +244,7 @@ Section Construction.
 
   #[local] Notation "| a |" := (Vector.cons _ a 0 (Vector.nil _)).
 
-  #[local] Notation encode_state q := (Fin.FS (encode_space (space_base q))).
+  #[local] Notation encode_state q := (encode_space (space_base q)).
 
   Definition go_back (d : direction) :=
     match d with
@@ -255,79 +255,76 @@ Section Construction.
   Definition M' : SBTM2.
   Proof.
     refine (Build_SBTM2 size
-      (fun '(q, a) => Fin.caseS' q (fun=> option (Fin.t (S size) * bool * direction)) _ _)).
+      (fun '(q, a) => _)).
     (* in state q reading symbol a *)
-    - (* case initial state Fin.F1 *)
-      refine (Some (Fin.FS (encode_space (space_move (TM.start M) go_right false)), a, go_left)).
-    - intros q'.
+    refine (
+      match decode_space q with
+      | space_base q_base => _
+      | space_read q_read => _
+      (* move d twice *)
+      | space_move q' d true => 
+          Some (encode_space (space_move q' d false), a, d)
+      (* move d once *)
+      | space_move q' d false => 
+          Some (encode_state q', a, d)
+      (* test d in distance 1 *)
+      | space_test q' d true => 
+          Some (encode_space (space_test q' d false), a, d)
+      (* test *)
+      | space_test q' d false => 
+          match a with
+          | true => Some (encode_space (space_move q' go_right false), a, go_left)
+          | false => Some (encode_space (space_move q' (go_back d) false), a, go_back d)
+          end
+      (* write *)
+      | space_write q' b TM.Lmove =>
+          Some (encode_state q', b, go_left)
+      | space_write q' b TM.Rmove =>
+          Some (encode_space (space_move q' go_right true), b, go_right)
+      | space_write q' b TM.Nmove =>
+          Some (encode_state q', b, go_right)
+      end).
+    + (* case space_base *)
       refine (
-        match decode_space q' with
-        | space_base q_base => _
-        | space_read q_read => _
-        (* move d twice *)
-        | space_move q d true => 
-            Some (Fin.FS (encode_space (space_move q d false)), a, d)
-        (* move d once *)
-        | space_move q d false => 
-            Some (encode_state q, a, d)
-        (* test d in distance 1 *)
-        | space_test q d true => 
-            Some (Fin.FS (encode_space (space_test q d false)), a, d)
-        (* test *)
-        | space_test q d false => 
+        match TM.halt M q_base with
+        (* halting condition *)
+        | true => None
+        | false =>
             match a with
-            | true => Some (Fin.FS (encode_space (space_move q go_right false)), a, go_left)
-            | false => Some (Fin.FS (encode_space (space_move q (go_back d) false)), a, go_back d)
-            end
-        (* write *)
-        | space_write q b TM.Lmove =>
-            Some (encode_state q, b, go_left)
-        | space_write q b TM.Rmove =>
-            Some (Fin.FS (encode_space (space_move q go_right true)), b, go_right)
-        | space_write q b TM.Nmove =>
-            Some (encode_state q, b, go_right)
-        end).
-      + (* case space_base *)
-        refine (
-          match TM.halt M q_base with
-          (* halting condition *)
-          | true => None
-          | false =>
-              match a with
-              (* a = true, read actual symbol *)
-              | true => Some (Fin.FS (encode_space (space_read q_base)), true, go_left)
-              (* case a = false, no symbol *)
-              | false => 
-                match TM.trans M (q_base, | None |) with
-                | (q_next, result) =>
-                    match Vector.hd result with
-                    (* case write b, move *)
-                    | (Some b, m) => Some (Fin.FS (encode_space (space_write q_next b m)), true, go_left)
-                    (* case no write *)
-                    | (None, TM.Lmove) => Some (Fin.FS (encode_space (space_test q_next go_left true)), a, go_left)
-                    | (None, TM.Rmove) => Some (Fin.FS (encode_space (space_test q_next go_right true)), a, go_right)
-                    | (None, TM.Nmove) =>  Some (Fin.FS (encode_space (space_move q_next go_right false)), a, go_left)
-                    end
-                end
+            (* a = true, read actual symbol *)
+            | true => Some (encode_space (space_read q_base), true, go_left)
+            (* case a = false, no symbol *)
+            | false => 
+              match TM.trans M (q_base, | None |) with
+              | (q_next, result) =>
+                  match Vector.hd result with
+                  (* case write b, move *)
+                  | (Some b, m) => Some (encode_space (space_write q_next b m), true, go_left)
+                  (* case no write *)
+                  | (None, TM.Lmove) => Some (encode_space (space_test q_next go_left true), a, go_left)
+                  | (None, TM.Rmove) => Some (encode_space (space_test q_next go_right true), a, go_right)
+                  | (None, TM.Nmove) =>  Some (encode_space (space_move q_next go_right false), a, go_left)
+                  end
               end
-          end).
-      + (* case space_read *)
-        refine ( 
-          match TM.trans M (q_read, | Some a |) with
-          | (q_next, result) =>
-            match Vector.hd result with
-            (* case write bL, Lmove *)
-            | (Some bL, TM.Lmove) => Some (encode_state q_next, bL, go_left)
-            (* case write bR, Rmove *)
-            | (Some bR, TM.Rmove) => Some (Fin.FS (encode_space (space_move q_next go_right true)), bR, go_right)
-            (* case write bN, Nmove *)
-            | (Some bN, TM.Nmove) => Some (encode_state q_next, bN, go_right)
-            (* case no write *)
-            | (None, TM.Lmove) => Some (encode_state q_next, a, go_left)
-            | (None, TM.Rmove) => Some (Fin.FS (encode_space (space_move q_next go_right true)), a, go_right)
-            | (None, TM.Nmove) => Some (encode_state q_next, a, go_right)
             end
-          end).
+        end).
+    + (* case space_read *)
+      refine ( 
+        match TM.trans M (q_read, | Some a |) with
+        | (q_next, result) =>
+          match Vector.hd result with
+          (* case write bL, Lmove *)
+          | (Some bL, TM.Lmove) => Some (encode_state q_next, bL, go_left)
+          (* case write bR, Rmove *)
+          | (Some bR, TM.Rmove) => Some (encode_space (space_move q_next go_right true), bR, go_right)
+          (* case write bN, Nmove *)
+          | (Some bN, TM.Nmove) => Some (encode_state q_next, bN, go_right)
+          (* case no write *)
+          | (None, TM.Lmove) => Some (encode_state q_next, a, go_left)
+          | (None, TM.Rmove) => Some (encode_space (space_move q_next go_right true), a, go_right)
+          | (None, TM.Nmove) => Some (encode_state q_next, a, go_right)
+          end
+        end).
   Defined.
 
   #[local] Notation step := (step M').
@@ -506,12 +503,6 @@ Section Construction.
     move: (Vector.tl t). by apply: Vector.case0.
   Qed.
 
-  Lemma simulation_start t :
-    (omap (fun '(q', t') => (q', truncate_tape t')) (steps 2 (Fin.F1, encode_tape t))) =
-      Some (encode_state (TM.start M), truncate_tape (encode_tape t)).
-  Proof.
-    case: t => >; by do ? rewrite /= decode_encode_space.
-  Qed.
 End Construction.
 
 Require Import Undecidability.Synthetic.Definitions.
@@ -522,17 +513,12 @@ Theorem reduction :
   TM.HaltTM 1 ⪯ SBTM2_HALT.
 Proof.
   apply: reduces_transitive. apply: Arbitrary_to_Binary.reduction.
-  exists (fun '(M, t) => (M' M, encode_tape (Vector.hd t))).
-  move=> [M t].
-  have := simulation_start M (Vector.hd t).
-  move H0: (steps _ 2 _) => [[q' t']|] /=; last done.
-  move=> [] Hq' Ht'. split.
-  - move=> /simulation [k Hk]. exists (2+k). move: Hk.
-    by rewrite steps_plus H0 Hq' -steps_truncate -Ht' steps_truncate.
-  - move=> [[|k]]; first done.
-    move: H0 => /steps_sync /[apply].
-    rewrite Hq' -steps_truncate Ht' steps_truncate.
-    by move=> /inverse_simulation.
+  exists (fun '(M, t) =>
+    existT _ (M' M) (encode_config M (TM_facts.mk_mconfig (TM.start M) t))).
+  move=> [M t]. split.
+  - move=> /simulation [k Hk]. exists k.
+    by move: Hk => /steps_truncate.
+  - by move=> [k] /steps_truncate /inverse_simulation.
 Qed.
 
 Print Assumptions reduction.
