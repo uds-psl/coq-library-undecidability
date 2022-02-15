@@ -33,9 +33,6 @@ L/L_undec.v
 TM/TM.v
 TM/TM_undec.v
 
-TM/SBTM.v
-TM/SBTM_undec.v
-
 StackMachines/BSM.v
 StackMachines/BSM_undec.v
 
@@ -195,10 +192,7 @@ StringRewriting/SSTS_undec.v
 
 StringRewriting/Util/Definitions.v
 StringRewriting/Util/List_facts.v
-StringRewriting/Reductions/SRH_to_SR.v
 StringRewriting/Reductions/SR_to_PCSnf.v
-StringRewriting/Reductions/HaltSBTMu_to_SRH.v
-StringRewriting/Reductions/HaltSBTMu_to_TSR.v
 StringRewriting/Reductions/HaltTM_1_to_SR.v
 StringRewriting/Reductions/CM2_HALT_to_SSTS01/SR2ab.v
 StringRewriting/Reductions/CM2_HALT_to_SSTS01/SR2ab_facts.v
@@ -473,11 +467,6 @@ TM/Single/StepTM.v
 TM/Reductions/L_to_mTM.v
   
 TM/Reductions/Arbitrary_to_Binary.v
-
-TM/Reductions/HaltTM_1_to_HaltSBTM.v
-TM/Reductions/HaltSBTM_to_HaltSBTMu.v
-
-StackMachines/Reductions/HaltSBTM_to_HaltBSM.v
 
 TM/Univ/LookupAssociativeListTM.v
 TM/Univ/LowLevel.v
@@ -843,6 +832,13 @@ SOL/SOL_undec.v
 SOL/PA2_undec.v
 
 TM/SBTM2.v
+TM/SBTM2_undec.v
 TM/Util/SBTM2_facts.v
 TM/Reductions/HaltTM_1_to_SBTM2_HALT.v
 TM/Reductions/SBTM2_HALT_to_HaltTM_1.v
+StringRewriting/Reductions/SBTM2_HALT_to_SR.v
+StringRewriting/Reductions/SBTM2_HALT_to_TSR.v
+
+# TODO replace following files by SBTM2_HALT to HaltBSM
+TM/SBTM.v
+StackMachines/Reductions/HaltSBTM_to_HaltBSM.v

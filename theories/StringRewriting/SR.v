@@ -1,5 +1,5 @@
-
 Require Import List.
+(* why is this import here? *)
 Require Import Undecidability.PCP.PCP.
 
 (* A string is a list of symbols. *)
@@ -28,12 +28,6 @@ Inductive rewt {X : Type} (R : SRS X) : string X -> string X -> Prop :=
 Definition SR : SRS nat * string nat * string nat -> Prop :=
   fun '(R, x, y) => rewt R x y.
 
-(* String rewriting with a halting symbol SRH is
-  given a string rewriting system R, a string x and a symbol a,
-  determine whether x rewrites in R to some y that contains a. *)
-Definition SRH : SRS nat * string nat * nat -> Prop :=
-  fun '(R, x, a) => exists y, rewt R x y /\ In a y.
-
 Definition swap {X Y} : X * Y -> Y * X := fun '(x,y) => (y,x).
 
 (* Thue system reachability TSR is
@@ -41,9 +35,3 @@ Definition swap {X Y} : X * Y -> Y * X := fun '(x,y) => (y,x).
   determine whether x is equivalent to y in R. *)
 Definition TSR : SRS nat * string nat * string nat -> Prop :=
     fun '(R, x, y) => rewt (R ++ map swap R) x y.
-  
-(* Thue system reachability with a halting symbol TSRH is
-  given a string rewriting system R, a string x and a symbol a,
-  determine whether x is equivalent in R to somy y that contains a. *)
-Definition TSRH : SRS nat * string nat * nat -> Prop :=
-  fun '(R, x, a) => exists y, rewt (R ++ map swap R) x y /\ In a y.  
