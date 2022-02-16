@@ -270,7 +270,7 @@ End Construction.
 
 Require Import Undecidability.Synthetic.Definitions.
 
-Theorem SBTM_to_BSM :
+Theorem reduction :
   SBTM2_HALT ⪯ BSM_HALTING.
 Proof.
   exists (fun '(existT _ M (q, t)) =>
