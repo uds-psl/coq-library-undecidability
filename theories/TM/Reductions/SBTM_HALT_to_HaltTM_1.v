@@ -1,5 +1,5 @@
 From Undecidability Require TM.TM TM.Util.TM_facts.
-From Undecidability Require Import TM.SBTM2 TM.Util.SBTM2_facts.
+From Undecidability Require Import TM.SBTM TM.Util.SBTM_facts.
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
 
 Require Import PeanoNat Lia.
@@ -8,7 +8,7 @@ Require Import PeanoNat Lia.
 #[local] Unset Strict Implicit.
 
 Require Import List ssreflect ssrbool ssrfun.
-Import ListNotations SBTM2Notations.
+Import ListNotations SBTMNotations.
 
 Set Default Proof Using "Type".
 Set Default Goal Selector "!".
@@ -16,8 +16,8 @@ Set Default Goal Selector "!".
 #[local] Notation "| a |" := (Vector.cons _ a 0 (Vector.nil _)).
 
 Section Construction.
-  (* input SBTM2 and initial state *)
-  Context (M : SBTM2) (q0 : state M).
+  (* input SBTM and initial state *)
+  Context (M : SBTM) (q0 : state M).
 
   Definition encode_tape (t : tape) : TM.tape (finType_CS bool) :=
     match t with
@@ -184,7 +184,7 @@ End Construction.
 Require Import Undecidability.Synthetic.Definitions.
 
 Theorem reduction :
-  SBTM2_HALT ⪯ TM.HaltTM 1.
+  SBTM_HALT ⪯ TM.HaltTM 1.
 Proof.
   exists ((fun '(existT _ M (q, t)) =>
     existT2 _ _ (finType_CS bool) (M' M q) (| encode_tape t |)) ).

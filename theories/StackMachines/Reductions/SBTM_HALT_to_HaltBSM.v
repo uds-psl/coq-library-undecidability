@@ -1,10 +1,10 @@
 
 From Undecidability.StackMachines Require Import BSM BSM.bsm_defs.
-From Undecidability.TM Require Import SBTM2 Util.SBTM2_facts.
+From Undecidability.TM Require Import SBTM Util.SBTM_facts.
 From Undecidability.Shared.Libs.DLW Require Import subcode sss.
 
 Require Import List Lia.
-Import Vector.VectorNotations ListNotations SBTM2Notations.
+Import Vector.VectorNotations ListNotations SBTMNotations.
 #[local] Open Scope list_scope.
 
 Require Import ssreflect ssrbool ssrfun.
@@ -33,7 +33,7 @@ Qed.
 
 Section Construction.
 
-  Context (M : SBTM2) (q0 : state M).
+  Context (M : SBTM) (q0 : state M).
 
   #[local] Notation δ := (trans' M).
 
@@ -271,7 +271,7 @@ End Construction.
 Require Import Undecidability.Synthetic.Definitions.
 
 Theorem reduction :
-  SBTM2_HALT ⪯ BSM_HALTING.
+  SBTM_HALT ⪯ BSM_HALTING.
 Proof.
   exists (fun '(existT _ M (q, t)) =>
       existT _ 4 (existT _ 1 (existT _ (@P M q) (encode_tape t)))).

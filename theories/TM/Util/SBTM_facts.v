@@ -1,6 +1,6 @@
-From Undecidability Require Import TM.SBTM2.
+From Undecidability Require Import TM.SBTM.
 Require Import PeanoNat Lia List ssreflect ssrbool ssrfun.
-Import ListNotations SBTM2Notations.
+Import ListNotations SBTMNotations.
 
 Lemma iter_plus {X} (f : X -> X) (x : X) n m : Nat.iter (n + m) f x = Nat.iter m f (Nat.iter n f x).
 Proof.
@@ -141,7 +141,7 @@ Definition construct_trans {n : nat}
 
 Lemma construct_trans_spec {n : nat} 
   (f : (Fin.t n) * bool -> option ((Fin.t n) * bool * direction)) :
-  forall x, trans' (Build_SBTM2 n (construct_trans f)) x = f x.
+  forall x, trans' (Build_SBTM n (construct_trans f)) x = f x.
 Proof.
   move=> /= [q a]. rewrite /trans' /construct_trans /=.
   rewrite (Vector.nth_map _ _ q q erefl) seq_Vector_spec.
