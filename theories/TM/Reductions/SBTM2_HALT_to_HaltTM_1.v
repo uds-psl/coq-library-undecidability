@@ -182,7 +182,6 @@ Section Construction.
 End Construction.
 
 Require Import Undecidability.Synthetic.Definitions.
-Require Import Undecidability.Synthetic.ReducibilityFacts.
 
 Theorem reduction :
   SBTM2_HALT ⪯ TM.HaltTM 1.

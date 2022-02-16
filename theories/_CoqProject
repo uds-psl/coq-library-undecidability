@@ -831,6 +831,7 @@ SOL/Reductions/H10p_to_SOL.v
 SOL/SOL_undec.v
 SOL/PA2_undec.v
 
+# TODO move to correct places in _CoqProject
 TM/SBTM2.v
 TM/SBTM2_undec.v
 TM/Util/SBTM2_facts.v
@@ -838,7 +839,4 @@ TM/Reductions/HaltTM_1_to_SBTM2_HALT.v
 TM/Reductions/SBTM2_HALT_to_HaltTM_1.v
 StringRewriting/Reductions/SBTM2_HALT_to_SR.v
 StringRewriting/Reductions/SBTM2_HALT_to_TSR.v
-
-# TODO replace following files by SBTM2_HALT to HaltBSM
-TM/SBTM.v
-StackMachines/Reductions/HaltSBTM_to_HaltBSM.v
+StackMachines/Reductions/SBTM2_HALT_to_HaltBSM.v
