@@ -14,10 +14,10 @@ Set Default Goal Selector "!".
 
 #[local] Notation "P // s -[ k ]-> t" := (sss_steps (@bsm_sss _) P k s t).
 #[local] Notation "P // s ->> t" := (sss_compute (@bsm_sss _) P s t).
-#[local] Notation CURR := (Fin.FS (Fin.F1) : Fin.t 4).
-#[local] Notation LEFT := (Fin.F1 : Fin.t 4).
-#[local] Notation RIGHT := (Fin.FS (Fin.FS (Fin.F1)) : Fin.t 4).
-#[local] Notation ZERO := (Fin.FS (Fin.FS (Fin.FS (Fin.F1))) : Fin.t 4).
+#[local] Notation CURR := (@Fin.FS 3 (@Fin.F1 2)).
+#[local] Notation LEFT := (@Fin.F1 3).
+#[local] Notation RIGHT := (@Fin.FS 3 (@Fin.FS 2 (@Fin.F1 1))).
+#[local] Notation ZERO := (@Fin.FS 3 (@Fin.FS 2 (@Fin.FS 1 (@Fin.F1 0)))).
 
 (* transforms a goal (A -> B) -> C into goals A and B -> C *)
 Lemma unnest : forall (A B C : Type), A -> (B -> C) -> (A -> B) -> C.
@@ -60,7 +60,9 @@ Section Construction.
     | None => JMP 0
     | Some t => f t
     end.
-  
+
+  Definition CURR' := CURR. (* to distinguish duplicate operations for subcode_tac *)
+
   Definition PROG (q : state M) :=
     let off := !q in
   (*      off *) POP CURR (7 + off) (7 + off) ::
@@ -74,9 +76,9 @@ Section Construction.
 
   (*  7 + off *) box (q, false) (fun '(q', a', d) => PUSH (match d with go_left => RIGHT | go_right => LEFT end) a') ::
   (*  8 + off *) box (q, false) (fun '(q', a', d) => POP (match d with go_left => LEFT | go_right => RIGHT end) (11+off) (11+off)) ::
-  (*  9 + off *) PUSH CURR true ::
+  (*  9 + off *) PUSH CURR' true ::
   (* 10 + off *) JMP (12 + off) ::
-  (* 11 + off *) PUSH CURR false ::
+  (* 11 + off *) PUSH CURR' false ::
   (* 12 + off *) box (q, false) (fun '(q', a', d) => JMP (!q')) :: [].
 
   Lemma PROG_length q : length (PROG q) = c.
@@ -99,7 +101,17 @@ Section Construction.
     rewrite /= app_length flat_map_concat_map map_map -flat_map_concat_map H.
     by rewrite IH; [|lia].
   Qed.
-  
+
+  Lemma subcode_cons' {X : Type} i j x (l1 l2 : list X) :
+    (i, l1) <sc (j, l2) -> (S i, l1) <sc (j, x :: l2).
+  Proof.
+    move=> [l] [r] [-> ->]. apply: subcode_cons. exists l, r.
+    by split; [|lia].
+  Qed.
+
+  (*
+  #[local] Hint Resolve subcode_cons' : core.
+*)
   Lemma PROG_spec_Some q t q' t' : step M (q, t) = Some (q', t') ->
     (!q, PROG q) // (encode_config (q, t)) ->> (encode_config (q', t')).
   Proof.
@@ -146,38 +158,32 @@ Section Construction.
         bsm sss PUSH with RIGHT a''.
         case: ls => [|[] ls].
         * bsm sss POP empty with LEFT (11 + off) (11 + off).
-          bsm sss PUSH with CURR false. (* subcode_tac gets confused *)
-          { eexists [_; _; _; _; _; _; _; _; _; _; _], _; by split; [|cbn; lia]. }
+          bsm sss PUSH with CURR' false.
           bsm sss POP empty with ZERO !q' !q'.
           exists 0. by apply: in_sss_steps_0.
         * bsm sss POP one with LEFT (11 + off) (11 + off) ls.
-          bsm sss PUSH with CURR true. (* subcode_tac gets confused *)
-          { eexists [_; _; _; _; _; _; _; _; _], _; by split; [|cbn; lia]. }
+          bsm sss PUSH with CURR' true.
           bsm sss POP empty with ZERO (12 + off) (12 + off).
           bsm sss POP empty with ZERO !q' !q'.
           exists 0. by apply: in_sss_steps_0.
         * bsm sss POP zero with LEFT (11 + off) (11 + off) ls.
-          bsm sss PUSH with CURR false.  (* subcode_tac gets confused *)
-          { eexists [_; _; _; _; _; _; _; _; _; _; _], _; by split; [|cbn; lia]. }
+          bsm sss PUSH with CURR' false.
           bsm sss POP empty with ZERO !q' !q'.
           exists 0. by apply: in_sss_steps_0.
       + bsm sss POP zero with CURR (7 + off) (7 + off) (@nil bool).
         bsm sss PUSH with LEFT a''.
         case: rs => [|[] rs].
         * bsm sss POP empty with RIGHT (11 + off) (11 + off).
-          bsm sss PUSH with CURR false. (* subcode_tac gets confused *)
-          { eexists [_; _; _; _; _; _; _; _; _; _; _], _; by split; [|cbn; lia]. }
+          bsm sss PUSH with CURR' false.
           bsm sss POP empty with ZERO !q' !q'.
           exists 0. by apply: in_sss_steps_0.
         * bsm sss POP one with RIGHT (11 + off) (11 + off) rs.
-          bsm sss PUSH with CURR true. (* subcode_tac gets confused *)
-          { eexists [_; _; _; _; _; _; _; _; _], _; by split; [|cbn; lia]. }
+          bsm sss PUSH with CURR' true.
           bsm sss POP empty with ZERO (12 + off) (12 + off).
           bsm sss POP empty with ZERO !q' !q'.
           exists 0. by apply: in_sss_steps_0.
         * bsm sss POP zero with RIGHT (11 + off) (11 + off) rs.
-          bsm sss PUSH with CURR false. (* subcode_tac gets confused *)
-          { eexists [_; _; _; _; _; _; _; _; _; _; _], _; by split; [|cbn; lia]. }
+          bsm sss PUSH with CURR' false.
           bsm sss POP empty with ZERO !q' !q'.
           exists 0. by apply: in_sss_steps_0.
   Qed.
@@ -243,26 +249,6 @@ Section Construction.
     - by move: E => /simulation_step_None.
   Qed.
 
-  Lemma sss_compute_partial n m x y i v :
-    out_code i (1, P) ->
-    (1, P) // x -[m]-> y ->
-    (1, P) // x -[n]-> (i, v) ->
-    (1, P) // y -[n - m]-> (i, v).
-  Proof.
-    move=> Hi. elim: n m x.
-    { move=> [|m] x.
-      - by move=> /sss_steps_0_inv <-.
-      - move=> /sss_steps_S_inv' [z] [H1z H2z] /sss_steps_0_inv ?.
-        subst x. by move: H1z Hi => /sss_step_in_code /in_out_code. }
-    move=> n IH [|m].
-    { by move=> x /sss_steps_0_inv <-. }
-    move=> x /sss_steps_S_inv' [z1] [H1z1 H2z1] /sss_steps_S_inv' [z2] [H1z2 H2z2].
-    move: H2z1 H2z2. have ->: z1 = z2.
-    { move: H1z1 H1z2 => /sss_step_fun /[apply]. apply.
-      by exact: bsm_sss_fun. }
-    by move=> /IH /[apply].
-  Qed.
-
   Lemma inverse_simulation q t n i v :
     (1, P) // (encode_config (q, t)) -[n]-> (i, v) ->
     out_code i (1, P) ->
@@ -282,8 +268,11 @@ Section Construction.
       move: d ls rs => [] [|??] [|??] [] //=; congruence. }
     move=> Hn Hm Hi. have := (IH (n - m) ltac:(lia) q' t' _ Hi).
     apply: unnest. 
-    { have -> : n - m = S n - S m by done.
-      apply: sss_compute_partial; by eassumption. }
+    { move: Hn Hm Hi.
+      move=> /subcode_sss_subcode_inv /[apply] /[apply].
+      apply: unnest. { by exact: bsm_sss_fun. }
+      apply: unnest. { by apply: subcode_refl. }
+      move=> [n'] [?]. by have ->: n' = n - m by lia. }
     move=> [k Hk]. exists (1+k). by rewrite (steps_plus 1) /= E.
   Qed.
 
