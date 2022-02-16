@@ -256,8 +256,8 @@ Tactic Notation "bsm" "sss" "PUSH" "with" uconstr(a) constr(q) :=
 
 Tactic Notation "bsm" "sss" "stop" := exists 0; apply sss_steps_0; auto.
 
-Tactic Notation "bsm" "inv" "POP" "empty" "with" hyp(H) constr(a) constr(b) constr(c) constr(d) :=
-     apply bsm_steps_POP_E_inv with (x := a) (p := b) (q := c) (ll := d) in H; auto.
+Tactic Notation "bsm" "inv" "POP" "empty" "with" hyp(H) constr(a) constr(b) constr(c) :=
+     apply bsm_steps_POP_E_inv with (x := a) (p := b) (q := c) in H; auto.
 
 Tactic Notation "bsm" "inv" "POP" "zero" "with" hyp(H) constr(a) constr(b) constr(c) constr(d) :=
      apply bsm_steps_POP_0_inv with (x := a) (p := b) (q := c) (ll := d) in H; auto.
