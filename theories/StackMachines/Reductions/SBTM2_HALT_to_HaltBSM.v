@@ -102,16 +102,6 @@ Section Construction.
     by rewrite IH; [|lia].
   Qed.
 
-  Lemma subcode_cons' {X : Type} i j x (l1 l2 : list X) :
-    (i, l1) <sc (j, l2) -> (S i, l1) <sc (j, x :: l2).
-  Proof.
-    move=> [l] [r] [-> ->]. apply: subcode_cons. exists l, r.
-    by split; [|lia].
-  Qed.
-
-  (*
-  #[local] Hint Resolve subcode_cons' : core.
-*)
   Lemma PROG_spec_Some q t q' t' : step M (q, t) = Some (q', t') ->
     (!q, PROG q) // (encode_config (q, t)) ->> (encode_config (q', t')).
   Proof.
@@ -283,17 +273,16 @@ Require Import Undecidability.Synthetic.Definitions.
 Theorem SBTM_to_BSM :
   SBTM2_HALT ⪯ BSM_HALTING.
 Proof.
-  exists (fun '(existT _ M (q, t)) => 
+  exists (fun '(existT _ M (q, t)) =>
       existT _ 4 (existT _ 1 (existT _ (@P M q) (encode_tape t)))).
   move=> [M [q [[ls a] rs]]]. split.
   - move=> [k] /simulation => /(_ q) [v Hv] /=.
-    exists (0, v). split => /=; [|lia]. 
+    exists (0, v). split => /=; [|lia].
     rewrite /P.
     bsm sss POP empty with ZERO (encode_state M q) (encode_state M q).
   - move=> [] [i v] [] [?] H /= ?.
-    move: H => /bsm_steps_POP_E_inv => /(_ ZERO (encode_state M q) (encode_state M q)) [].
-    + by eexists [], _.
-    + reflexivity.
+    rewrite /P in H.
+    bsm inv POP empty with H ZERO (encode_state M q) (encode_state M q).
+    + move: H => [?] [?] /inverse_simulation. by apply.
     + move=> []. lia.
-    + move=> ? [?] /inverse_simulation. by apply.
 Qed.
