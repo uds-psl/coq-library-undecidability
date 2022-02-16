@@ -1,7 +1,6 @@
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.ReducibilityFacts.
 
 Require Import Undecidability.TM.TM.
-Require Import Undecidability.TM.SBTM.
 Require Import Undecidability.StringRewriting.SR.
 
 Require Undecidability.TM.Reductions.HaltTM_1_to_SBTM2_HALT.
