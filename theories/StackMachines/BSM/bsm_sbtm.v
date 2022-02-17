@@ -16,7 +16,7 @@ From Undecidability.StackMachines.BSM
   Require Import bsm_defs.
 
 From Undecidability.TM
-  Require Import SBTM2.
+  Require Import SBTM.
 
 Set Implicit Arguments.
 
@@ -77,7 +77,7 @@ Section Binary_Stack_Machines.
     Proof. reflexivity. Qed.
 
     Fact read_head_empty v :
-           v#>x = nil -> (i,read_head) // (i,v) ->> (j0,v).
+           v#>x = nil -> (i,read_head) // (i,v) -+> (j0,v).
     Proof.
       unfold read_head; intros H.
       bsm sss POP empty with x (4+i) (5+i).
@@ -87,7 +87,7 @@ Section Binary_Stack_Machines.
     Qed.
 
     Fact read_head_Zero v l :
-           v#>x = Zero::l -> (i,read_head) // (i,v) ->> (j0,v).
+           v#>x = Zero::l -> (i,read_head) // (i,v) -+> (j0,v).
     Proof.
       unfold read_head; intros H.
       bsm sss POP zero with x (4+i) (5+i) l.
@@ -100,7 +100,7 @@ Section Binary_Stack_Machines.
     Qed.
 
     Fact read_head_One v l :
-           v#>x = One::l -> (i,read_head) // (i,v) ->> (j1,v).
+           v#>x = One::l -> (i,read_head) // (i,v) -+> (j1,v).
     Proof.
       unfold read_head; intros H.
       bsm sss POP one with x (4+i) (5+i) l.
@@ -116,7 +116,7 @@ Section Binary_Stack_Machines.
            v = w 
         -> v#>x = b::l 
         -> k = (if b then j1 else j0)
-        -> (i,read_head) // (i,v) ->> (k,w).
+        -> (i,read_head) // (i,v) -+> (k,w).
     Proof.
       intros <- H ->.
       destruct b.
@@ -217,7 +217,7 @@ Section Binary_Stack_Machines.
 
   Hint Rewrite ovwrite_head_length : length_db.
 
-  Import SBTM2Notations.
+  Import SBTMNotations.
 
   Definition tape_eq_stacks (t : tape) (lft : list bool) (rt : list bool) :=
      match t with (l,x,r) => l = lft /\ x::r = rt end.
@@ -365,42 +365,202 @@ Section Binary_Stack_Machines.
        if head reads false, write b0, mv d0 and jump j0 *)
 
     Variable (x y : pos n) (Hxy : x <> y) (i : nat)
-       (b0 b1 : bool) (d0 d1 : direction) (j0 j1 : nat).
+       (o0 o1 : bool) (b0 b1 : bool) (d0 d1 : direction) (j0 j1 k : nat).
 
     Notation "t '~r' v" := (tape_eq_stacks t (v#>x) (v#>y)) (at level 70).
 
     Definition sbtm2_op :=
-    (*  0+i *) read_head y i (7+i) (25+i) ++
-    (*  7+i *) ovwrite_head y b0 (7+i) (11+i) ++ 
-    (* 11+i *) move_tape x y (11+i) j0 d0 ++
-    (* 25+i *) ovwrite_head y b1 (25+i) (29+i) ++ 
-    (* 29+i *) move_tape x y (11+i) j1 d1.
+    (*  0+i *) read_head y i (7+i) (27+i) ++
+    (*  7+i *) PUSH x o0 :: POP x k 0 ::
+    (*  9+i *) ovwrite_head y b0 (9+i) (13+i) ++ 
+    (* 13+i *) move_tape x y (13+i) j0 d0 ++
+    (* 27+i *) PUSH x o1 :: POP x k 1 ::
+    (* 29+i *) ovwrite_head y b1 (29+i) (33+i) ++ 
+    (* 33+i *) move_tape x y (33+i) j1 d1.
 
-    Fact sbtm2_op_length : length sbtm2_op = 43.
+    Fact sbtm2_op_length : length sbtm2_op = 47.
     Proof. unfold sbtm2_op; rew length; auto. Qed.
 
-  Definition rtape (t : tape) :=
-    match t with 
-      | (_,a,_) => a
-    end.
+    Definition rtape (t : tape) :=
+      match t with 
+        | (_,a,_) => a
+      end.
 
-  Definition utape (t : tape) (a : bool) :=
-    match t with 
-      | (l,_,r) => (l,a,r)
-    end.
+    Definition utape (t : tape) (a : bool) :=
+      match t with 
+        | (l,_,r) => (l,a,r)
+      end.
 
-  Fact sbtm2_spec t v w :
+    Fact sbtm2_op_spec t v w :
+       let o := if rtape t then o1 else o0 in
        let d := if rtape t then d1 else d0 in
        let b := if rtape t then b1 else b0 in
        let j := if rtape t then j1 else j0 
-       in   t ~r v
-         -> mv d (utape t b) ~r w 
+       in               t    ~r v
+         -> (o = true -> mv d (utape t b) ~r w) 
          -> (forall z, z <> x -> z <> y -> v#>z = w#>z)
-         -> (i,sbtm2_op) // (i,v) ->> (j,w).
-  Proof.
+         -> (i,sbtm2_op) // (i,v) -+> if o then (j,w) else (k,v).
+    Proof using Hxy.
+      intros o d b j H1 H2 H3.
+      unfold sbtm2_op.
+      destruct t as ((l,[]),r); simpl in * |-; unfold d, b, j, o in *; clear d b j o; destruct H1 as [ H0 H1 ].
+      + apply sss_progress_compute_trans with (st2 := (27+i,v)); auto.
+        1:{ apply subcode_sss_progress with (P := (i,read_head y i (7 + i) (27 + i))); auto.
+            eapply read_head_spec; eauto. }
+        bsm sss PUSH with x o1.
+        destruct o1.
+        * bsm sss POP one with x k 1 (v#>x); rew vec.
+          apply subcode_sss_compute_trans with (P := (29+i,ovwrite_head y b1 (29 + i) (33 + i)))
+                                               (st2 := (33+i,v[(b1::r)/y])); auto.
+          1: eapply ovwrite_head_spec; eauto.
+          apply subcode_sss_compute with (P := (33+i,move_tape x y (33 + i) j1 d1)); auto.
+          eapply move_tape_spec; eauto.
+          - split; rew vec.
+          - intros; rew vec.
+        * bsm sss POP zero with x k 1 (v#>x); rew vec.
+          bsm sss stop.
+      + apply sss_progress_compute_trans with (st2 := (7+i,v)); auto.
+        1:{ apply subcode_sss_progress with (P := (i,read_head y i (7 + i) (27 + i))); auto.
+            eapply read_head_spec; eauto. }
+        bsm sss PUSH with x o0.
+        destruct o0.
+        * bsm sss POP one with x k 0 (v#>x); rew vec.
+          apply subcode_sss_compute_trans with (P := (9+i,ovwrite_head y b0 (9 + i) (13 + i)))
+                                               (st2 := (13+i,v[(b0::r)/y])); auto.
+          1: eapply ovwrite_head_spec; eauto.
+          apply subcode_sss_compute with (P := (13+i,move_tape x y (13 + i) j0 d0)); auto.
+          eapply move_tape_spec; eauto.
+          - split; rew vec.
+          - intros; rew vec.
+        * bsm sss POP zero with x k 0 (v#>x); rew vec.
+          bsm sss stop.
+    Qed.
+
+  End sbtm2_op.
 
 End Binary_Stack_Machines.
 
-Print SBTM2.
+Section SBTM.
 
-  Check move_tape_spec.
+  Variable (M : SBTM).
+
+  Import SBTMNotations.
+
+  Let x : pos 2 := pos0.
+  Let y : pos 2 := pos1.
+
+  Let Hxy : x <> y. Proof. easy. Qed.
+
+  Check trans' M.
+
+  Let f (k : option (state M * bool * direction)) :=
+    match k with
+      | None => (false,false,go_left,0)
+      | Some (s,b,d) => (true,b,d,pos2nat s)
+    end.
+
+  Check trans.
+
+  Check sbtm2_op_spec Hxy.
+
+  Let g s := 
+   let '(o1,b1,d1,j1) := f (trans' M (s,true)) in
+   let '(o0,b0,d0,j0) := f (trans' M (s,false))
+   in sbtm2_op x y (1+47*pos2nat s) o0 o1 b0 b1 d0 d1 (1+47*j0) (1+47*j1) 0.
+
+  Let length_g s : length (g s) = 47.
+  Proof.
+    unfold g.
+    destruct (f (trans' M (s,true))) as (((?,?),?),?).
+    destruct (f (trans' M (s,false))) as (((?,?),?),?).
+    apply sbtm2_op_length.
+  Qed.
+
+  Let gs_sc l s r : (1+47*length l,g s) <sc (1,flat_map g (l++s::r)).
+  Proof.
+    exists (flat_map g l), (flat_map g r); split.
+    + rewrite flat_map_app; auto.
+    + f_equal; clear s r.
+      induction l as [ | s l IHl ]; simpl flat_map; auto.
+      rewrite app_length, <- IHl, length_g; simpl; lia.
+  Qed.
+
+  Definition sbtm2bsm := flat_map g (pos_list _).
+
+  Let P := sbtm2bsm.
+
+  Let pos_list_split n p : exists l r, pos_list n = l++p::r /\ length l = pos2nat p.
+  Proof. 
+    induction p as [ n | n p (l & r & H1 & H2) ].
+    + exists nil, (map pos_nxt (pos_list n)); auto.
+    + exists (pos0::map pos_nxt l), (map pos_nxt r); split; simpl.
+      * rewrite H1, map_app; simpl; auto.
+      * rewrite map_length, H2; auto.
+  Qed.
+
+  Let P_sc i : (1+47*pos2nat i, g i) <sc (1,P).
+  Proof.
+    unfold P, sbtm2bsm.
+    destruct (pos_list_split i) as (l & r & -> & <-).
+    apply gs_sc.
+  Qed.
+
+  Notation "t '~r' v" := (tape_eq_stacks t (v#>x) (v#>y)) (at level 70).
+
+  Fact sbtm2bsm_step_None i t v : 
+        step M (i,t) = None 
+     -> t ~r v 
+     -> (1,P) // (1+47*pos2nat i,v) -+> (0,v).
+  Proof.
+    intros H1 H2.
+    apply subcode_sss_progress with (1 := P_sc i).
+    destruct t as ((l,[]),r); unfold step in H1.
+    + revert H1; case_eq (trans' M (i,true)). 
+      1: now intros ((?,?),?).
+      unfold g; intros -> _.
+      unfold f at 1.
+      destruct (f (trans' M (i, Zero))) as (((o0,b0),d0),j0).
+      apply (sbtm2_op_spec Hxy (1+47*pos2nat i) o0 false b0 false d0 go_left (1+47*j0) (1+47*0) 0 (l,One,r) v v); auto.
+      simpl; easy.
+    + revert H1; case_eq (trans' M (i,false)). 
+      1: now intros ((?,?),?).
+      unfold g; intros -> _.
+      unfold f at 2.
+      destruct (f (trans' M (i, One))) as (((o1,b1),d1),j1).
+      apply (sbtm2_op_spec Hxy (1+47*pos2nat i) false o1 false b1 go_left d1 (1+47*0) (1+47*j1) 0 (l,Zero,r) _ v); auto.
+      simpl; easy.
+  Qed.
+
+  Fact sbtm2bsm_step_Some i t j t' v w : 
+        step M (i,t) = Some (j,t') 
+     -> t ~r v 
+     -> t' ~r w
+     -> (1,P) // (1+47*pos2nat i,v) -+> (1+47*pos2nat j,w).
+  Proof.
+    intros H1 H2 H3.
+    apply subcode_sss_progress with (1 := P_sc i).
+    destruct t as ((l,[]),r); unfold step in H1.
+    + revert H1; case_eq (trans' M (i,true)). 
+      2: easy.
+      unfold g; intros ((j1,b1),d1) -> H1.
+      inversion H1; subst j.
+      unfold f at 1.
+      destruct (f (trans' M (i, Zero))) as (((o0,b0),d0),j0).
+      apply (sbtm2_op_spec Hxy (1+47*pos2nat i) o0 true b0 b1 d0 d1 (1+47*j0) (1+47*pos2nat j1) 0 (l,One,r) v w); auto.
+      * simpl; subst; auto.
+      * intros z; repeat (invert pos z; try easy).
+    + revert H1; case_eq (trans' M (i,false)). 
+      2: easy.
+      unfold g; intros ((j0,b0),d0) -> H1.
+      inversion H1; subst j.
+      unfold f at 2.
+      destruct (f (trans' M (i, One))) as (((o1,b1),d1),j1).
+      apply (sbtm2_op_spec Hxy (1+47*pos2nat i) true o1 b0 b1 d0 d1 (1+47*pos2nat j0) (1+47*j1) 0 (l,Zero,r) v w); auto.
+      * simpl; subst; auto.
+      * intros z; repeat (invert pos z; try easy).
+  Qed.
+
+End SBTM.
+
+Check sbtm2bsm_step_None.
+Check sbtm2bsm_step_Some.

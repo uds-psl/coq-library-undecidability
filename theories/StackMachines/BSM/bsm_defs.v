@@ -21,14 +21,20 @@ Set Default Proof Using "Type".
 
 Tactic Notation "rew" "length" := autorewrite with length_db.
 
-Local Notation "e #> x" := (vec_pos e x).
-Local Notation "e [ v / x ]" := (vec_change e x v).
+#[local] Notation "e #> x" := (vec_pos e x).
+#[local] Notation "e [ v / x ]" := (vec_change e x v).
 
 (* ** Semantics results for BSM *)
+
+#[local] Notation "P // s -[ k ]-> t" := (sss_steps (@bsm_sss _) P k s t).
+#[local] Notation "P // s ->> t" := (sss_compute (@bsm_sss _) P s t).
+#[local] Notation "P // s -+> t" := (sss_progress (@bsm_sss _) P s t) (at level 70, no associativity).
 
 Section Binary_Stack_Machine.
 
   Variable (n : nat).
+
+  Implicit Type P : (nat*list (bsm_instr n))%type.
 
   Notation "i // s -1> t" := (@bsm_sss n i s t).
 
@@ -77,51 +83,98 @@ Section Binary_Stack_Machine.
     destruct (bsm_sss_total ii (q,v)) as (t & Ht).
     apply (H t); subst; apply in_sss_step; auto.
   Qed.
- 
-  Notation "P // s -[ k ]-> t" := (sss_steps (@bsm_sss n) P k s t).
-  Notation "P // s ->> t" := (sss_compute (@bsm_sss n) P s t).
+
+  Fact bsm_progress_POP_E P i x p q v st :
+         (i,POP x p q::nil) <sc P
+      -> v#>x = nil
+      -> P // (q,v) ->> st
+      -> P // (i,v) -+> st.
+  Proof.
+    intros H1 H2.
+    apply sss_progress_compute_trans.
+    apply subcode_sss_progress with (1 := H1).
+    exists 1; split; auto; apply sss_steps_1.
+    apply in_sss_step with (l := nil).
+    simpl; lia.
+    constructor; auto.
+  Qed.
+
+  Fact bsm_progress_POP_0 P i x p q ll v st :
+         (i,POP x p q::nil) <sc P
+      -> v#>x = Zero::ll
+      -> P // (p,v[ll/x]) ->> st
+      -> P // (i,v) -+> st.
+  Proof.
+    intros H1 H2.
+    apply sss_progress_compute_trans.
+    apply subcode_sss_progress with (1 := H1).
+    exists 1; split; auto; apply sss_steps_1.
+    apply in_sss_step with (l := nil).
+    simpl; lia.
+    constructor; auto.
+  Qed.
+
+  Fact bsm_progress_POP_1 P i x p q ll v st :
+         (i,POP x p q::nil) <sc P
+      -> v#>x = One::ll
+      -> P // (1+i,v[ll/x]) ->> st
+      -> P // (i,v) -+> st.
+  Proof.
+    intros H1 H2.
+    apply sss_progress_compute_trans.
+    apply subcode_sss_progress with (1 := H1).
+    exists 1; split; auto; apply sss_steps_1.
+    apply in_sss_step with (l := nil).
+    simpl; lia.
+    constructor; auto.
+  Qed.
+
+  Fact bsm_progress_PUSH P i x b v st :
+         (i,PUSH x b::nil) <sc P
+      -> P // (1+i,v[(b::v#>x)/x]) ->> st
+      -> P // (i,v) -+> st.
+  Proof.
+    intros H1.
+    apply sss_progress_compute_trans.
+    apply subcode_sss_progress with (1 := H1).
+    exists 1; split; auto; apply sss_steps_1.
+    apply in_sss_step with (l := nil).
+    simpl; lia.
+    constructor; auto.
+  Qed.
+
+  Hint Resolve bsm_progress_POP_E bsm_progress_POP_0 bsm_progress_POP_1 bsm_progress_PUSH : core.
+
+  Fact bsm_progress_POP_any P i x p q b ll v st :
+         (i,POP x p q::nil) <sc P
+      -> v#>x = b::ll
+      -> p = 1+i
+      -> P // (1+i,v[ll/x]) ->> st
+      -> P // (i,v) -+> st.
+  Proof. destruct b; intros H1 H2 H3; subst; eauto. Qed.
+
+  Hint Resolve bsm_progress_POP_any : core.
 
   Fact bsm_compute_POP_E P i x p q v st :
          (i,POP x p q::nil) <sc P
       -> v#>x = nil
       -> P // (q,v) ->> st
       -> P // (i,v) ->> st.
-  Proof.
-    intros H1 H2.
-    apply subcode_sss_compute_trans with (1 := H1).
-    exists 1; apply sss_steps_1.
-    apply in_sss_step with (l := nil).
-    simpl; lia.
-    constructor; auto.
-  Qed.
+  Proof. intros; apply sss_progress_compute; eauto. Qed.
 
   Fact bsm_compute_POP_0 P i x p q ll v st :
          (i,POP x p q::nil) <sc P
       -> v#>x = Zero::ll
       -> P // (p,v[ll/x]) ->> st
       -> P // (i,v) ->> st.
-  Proof.
-    intros H1 H2.
-    apply subcode_sss_compute_trans with (1 := H1).
-    exists 1; apply sss_steps_1.
-    apply in_sss_step with (l := nil).
-    simpl; lia.
-    constructor; auto.
-  Qed.
+  Proof. intros; apply sss_progress_compute; eauto. Qed.
 
   Fact bsm_compute_POP_1 P i x p q ll v st :
          (i,POP x p q::nil) <sc P
       -> v#>x = One::ll
       -> P // (1+i,v[ll/x]) ->> st
       -> P // (i,v) ->> st.
-  Proof.
-    intros H1 H2.
-    apply subcode_sss_compute_trans with (1 := H1).
-    exists 1; apply sss_steps_1.
-    apply in_sss_step with (l := nil).
-    simpl; lia.
-    constructor; auto.
-  Qed.
+  Proof. intros; apply sss_progress_compute; eauto. Qed.
 
   Fact bsm_compute_POP_any P i x p q b ll v st :
          (i,POP x p q::nil) <sc P
@@ -129,24 +182,13 @@ Section Binary_Stack_Machine.
       -> p = 1+i
       -> P // (1+i,v[ll/x]) ->> st
       -> P // (i,v) ->> st.
-  Proof.
-    destruct b; intros H1 H2 H3.
-    apply bsm_compute_POP_1 with p q; auto.
-    apply bsm_compute_POP_0 with q; subst; auto.
-  Qed.
+  Proof. intros; apply sss_progress_compute; eauto. Qed.
 
   Fact bsm_compute_PUSH P i x b v st :
          (i,PUSH x b::nil) <sc P
       -> P // (1+i,v[(b::v#>x)/x]) ->> st
       -> P // (i,v) ->> st.
-  Proof.
-    intros H1.
-    apply subcode_sss_compute_trans with (1 := H1).
-    exists 1; apply sss_steps_1.
-    apply in_sss_step with (l := nil).
-    simpl; lia.
-    constructor; auto.
-  Qed.
+  Proof. intros; apply sss_progress_compute; eauto. Qed.
 
   Fact bsm_steps_POP_0_inv a P i x p q ll v st :
          (i,POP x p q::nil) <sc P
@@ -240,6 +282,31 @@ Section Binary_Stack_Machine.
 End Binary_Stack_Machine.
 
 Tactic Notation "bsm" "sss" "POP" "empty" "with" uconstr(a) constr(b) constr(c) := 
+  match goal with
+    | |- _ // _ -+> _ => apply bsm_progress_POP_E with (x := a) (p := b) (q := c)
+    | |- _ // _ ->> _ => apply bsm_compute_POP_E with (x := a) (p := b) (q := c)
+  end; auto.
+
+Tactic Notation "bsm" "sss" "POP" "zero" "with" uconstr(a) constr(b) constr(c) uconstr(d) := 
+  match goal with
+    | |- _ // _ -+> _ => apply bsm_progress_POP_0 with (x := a) (p := b) (q := c) (ll := d)
+    | |- _ // _ ->> _ => apply bsm_compute_POP_0 with (x := a) (p := b) (q := c) (ll := d)
+  end; auto.
+
+Tactic Notation "bsm" "sss" "POP" "one" "with" uconstr(a) constr(b) constr(c) uconstr(d) := 
+  match goal with
+    | |- _ // _ -+> _ => apply bsm_progress_POP_1 with (x := a) (p := b) (q := c) (ll := d)
+    | |- _ // _ ->> _ => apply bsm_compute_POP_1 with (x := a) (p := b) (q := c) (ll := d)
+  end; auto.
+
+Tactic Notation "bsm" "sss" "PUSH" "with" uconstr(a) constr(q) := 
+  match goal with
+    | |- _ // _ -+> _ => apply bsm_progress_PUSH with (x := a) (b := q)
+    | |- _ // _ ->> _ => apply bsm_compute_PUSH with (x := a) (b := q)
+  end; auto.
+
+(*
+Tactic Notation "bsm" "sss" "POP" "empty" "with" uconstr(a) constr(b) constr(c) := 
      apply bsm_compute_POP_E with (x := a) (p := b) (q := c); auto.
 
 Tactic Notation "bsm" "sss" "POP" "zero" "with" uconstr(a) constr(b) constr(c) uconstr(d) := 
@@ -253,6 +320,7 @@ Tactic Notation "bsm" "sss" "POP" "any" "with" uconstr(a) constr(c) constr(d) co
 
 Tactic Notation "bsm" "sss" "PUSH" "with" uconstr(a) constr(q) := 
      apply bsm_compute_PUSH with (x := a) (b := q); auto.
+*)
 
 Tactic Notation "bsm" "sss" "stop" := exists 0; apply sss_steps_0; auto.
 
