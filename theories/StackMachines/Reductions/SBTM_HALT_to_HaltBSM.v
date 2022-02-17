@@ -1,7 +1,7 @@
 
 From Undecidability.StackMachines Require Import BSM BSM.bsm_defs.
 From Undecidability.TM Require Import SBTM Util.SBTM_facts.
-From Undecidability.Shared.Libs.DLW Require Import subcode sss.
+From Undecidability.Shared.Libs.DLW Require Import vec subcode sss.
 
 Require Import List Lia.
 Import Vector.VectorNotations ListNotations SBTMNotations.
@@ -18,10 +18,6 @@ Set Default Goal Selector "!".
 #[local] Notation LEFT := (@Fin.F1 3).
 #[local] Notation RIGHT := (@Fin.FS 3 (@Fin.FS 2 (@Fin.F1 1))).
 #[local] Notation ZERO := (@Fin.FS 3 (@Fin.FS 2 (@Fin.FS 1 (@Fin.F1 0)))).
-
-(* transforms a goal (A -> B) -> C into goals A and B -> C *)
-Lemma unnest : forall (A B C : Type), A -> (B -> C) -> (A -> B) -> C.
-Proof. auto. Qed.
 
 (* induction principle wrt. a decreasing measure f *)
 (* example: elim /(measure_ind length) : l. *)
@@ -46,7 +42,7 @@ Section Construction.
     | (ls, a, rs) => [ ls ; [a]%list ; rs ; []%list ]%vector
     end.
 
-  Definition encode_state (q : state M) := (sval (Fin.to_nat q) * c + 2).
+  Definition encode_state (q : state M) := (2 + sval (Fin.to_nat q) * c).
 
   #[local] Arguments encode_state : simpl never.
   #[local] Notation "! p" := (encode_state p) (at level 1).
@@ -102,104 +98,62 @@ Section Construction.
     by rewrite IH; [|lia].
   Qed.
 
-  Lemma PROG_spec_Some q t q' t' : step M (q, t) = Some (q', t') ->
-    (!q, PROG q) // (encode_config (q, t)) ->> (encode_config (q', t')).
+  Definition Q_step (Q : list (bsm_instr 4)) offset i v : option (bsm_state 4) :=
+    match nth_error Q i with
+    | None => None
+    | Some (bsm_pop x p' q') => Some (
+        match vec_pos v x with
+        | [] => (q', v)
+        | false :: l => (p', vec_change v x l)
+        | true :: l => ((S i) + offset, vec_change v x l)
+        end)
+    | Some (bsm_push x b) => Some ((S i) + offset, vec_change v x (b :: vec_pos v x))
+    end.
+
+  Arguments Q_step : simpl never.
+
+  Lemma Q_step_spec (Q : list (bsm_instr 4)) offset i v j w : 
+    Q_step Q offset i v = Some (j, w) ->
+    sss_step (bsm_sss (n:=4)) (offset, Q) (i + offset, v) (j, w).
   Proof.
-    move: t => [[ls []] rs]; rewrite /step /encode_config /PROG /box.
-    - set off := !q.
-      case: (δ (q, true)) => [[[q'' a''] d]|]; last done.
-      move: d => [] [-> <-].
-      + bsm sss POP one with CURR (7 + off) (7 + off) (@nil bool).
-        bsm sss PUSH with RIGHT a''.
-        case: ls => [|[] ls].
-        * bsm sss POP empty with LEFT (5 + off) (5 + off).
-          bsm sss PUSH with CURR false.
-          bsm sss POP empty with ZERO !q' !q'.
-          exists 0. by apply: in_sss_steps_0.
-        * bsm sss POP one with LEFT (5 + off) (5 + off) ls.
-          bsm sss PUSH with CURR true.
-          bsm sss POP empty with ZERO (6 + off) (6 + off).
-          bsm sss POP empty with ZERO !q' !q'.
-          exists 0. by apply: in_sss_steps_0.
-        * bsm sss POP zero with LEFT (5 + off) (5 + off) ls.
-          bsm sss PUSH with CURR false.
-          bsm sss POP empty with ZERO !q' !q'.
-          exists 0. by apply: in_sss_steps_0.
-      + bsm sss POP one with CURR (7 + off) (7 + off) (@nil bool).
-        bsm sss PUSH with LEFT a''.
-        case: rs => [|[] rs].
-        * bsm sss POP empty with RIGHT (5 + off) (5 + off).
-          bsm sss PUSH with CURR false.
-          bsm sss POP empty with ZERO !q' !q'.
-          exists 0. by apply: in_sss_steps_0.
-        * bsm sss POP one with RIGHT (5 + off) (5 + off) rs.
-          bsm sss PUSH with CURR true.
-          bsm sss POP empty with ZERO (6 + off) (6 + off).
-          bsm sss POP empty with ZERO !q' !q'.
-          exists 0. by apply: in_sss_steps_0.
-        * bsm sss POP zero with RIGHT (5 + off) (5 + off) rs.
-          bsm sss PUSH with CURR false.
-          bsm sss POP empty with ZERO !q' !q'.
-          exists 0. by apply: in_sss_steps_0.
-    - set off := !q.
-      case: (δ (q, false)) => [[[q'' a''] d]|]; last done.
-      move: d => [] [-> <-].
-      + bsm sss POP zero with CURR (7 + off) (7 + off) (@nil bool).
-        bsm sss PUSH with RIGHT a''.
-        case: ls => [|[] ls].
-        * bsm sss POP empty with LEFT (11 + off) (11 + off).
-          bsm sss PUSH with CURR' false.
-          bsm sss POP empty with ZERO !q' !q'.
-          exists 0. by apply: in_sss_steps_0.
-        * bsm sss POP one with LEFT (11 + off) (11 + off) ls.
-          bsm sss PUSH with CURR' true.
-          bsm sss POP empty with ZERO (12 + off) (12 + off).
-          bsm sss POP empty with ZERO !q' !q'.
-          exists 0. by apply: in_sss_steps_0.
-        * bsm sss POP zero with LEFT (11 + off) (11 + off) ls.
-          bsm sss PUSH with CURR' false.
-          bsm sss POP empty with ZERO !q' !q'.
-          exists 0. by apply: in_sss_steps_0.
-      + bsm sss POP zero with CURR (7 + off) (7 + off) (@nil bool).
-        bsm sss PUSH with LEFT a''.
-        case: rs => [|[] rs].
-        * bsm sss POP empty with RIGHT (11 + off) (11 + off).
-          bsm sss PUSH with CURR' false.
-          bsm sss POP empty with ZERO !q' !q'.
-          exists 0. by apply: in_sss_steps_0.
-        * bsm sss POP one with RIGHT (11 + off) (11 + off) rs.
-          bsm sss PUSH with CURR' true.
-          bsm sss POP empty with ZERO (12 + off) (12 + off).
-          bsm sss POP empty with ZERO !q' !q'.
-          exists 0. by apply: in_sss_steps_0.
-        * bsm sss POP zero with RIGHT (11 + off) (11 + off) rs.
-          bsm sss PUSH with CURR' false.
-          bsm sss POP empty with ZERO !q' !q'.
-          exists 0. by apply: in_sss_steps_0.
+    rewrite /Q_step. case E: (nth_error Q i) => [t|]; last done.
+    move: E => /(@nth_error_split (bsm_instr 4)) => - [l] [r] [-> <-].
+    move=> Ht. exists offset, l, t, r, v. split; [|split]; [done|congr pair; lia|].
+    move: t Ht => [].
+    - move=> x p' q' [<-]. 
+      move Ex: (vec_pos v x) => [|[] ?]; by auto using bsm_sss.
+    - move=> x b [<-] <-. by auto using bsm_sss.
+  Qed.
+
+  Arguments nth_error : simpl never.
+
+  Lemma PROG_spec_Some q t q' t' : step M (q, t) = Some (q', t') ->
+    exists k, (!q, PROG q) // (encode_config (q, t)) -[S k]-> (encode_config (q', t')).
+  Proof.
+    move: t => [[ls a] rs] /=. rewrite /step.
+    case E: (δ (q, a)) => [[[??]d]|]; last done.
+    move=> [<- <-]. have ->: !q = 0 + !q by done.
+    move: d a ls rs E => [] [] [|[] ls] [|[] rs] E.
+    all: eexists; rewrite /PROG /box E.
+    all: do ? ((by apply: in_sss_steps_0) || (apply: in_sss_steps_S; [by apply: Q_step_spec|])).
   Qed.
 
   Lemma PROG_spec_None q t : step M (q, t) = None ->
     exists v, (!q, PROG q) // (encode_config (q, t)) ->> (0, v).
   Proof.
-    move: t => [[ls []] rs]; rewrite /step /encode_config /PROG /box.
-    - set off := !q.
-      case: (δ (q, true)) => [[[q'' a''] d]|]; first done.
-      move=> _. exists [ ls ; []%list ; rs ; []%list ]%vector.
-      bsm sss POP one with CURR (7 + off) (7 + off) (@nil bool).
-      bsm sss POP empty with ZERO (0) (0).
-      exists 0. by apply: in_sss_steps_0.
-    - set off := !q.
-      case: (δ (q, false)) => [[[q'' a''] d]|]; first done.
-      move=> _. exists [ls ; []%list ; rs ; []%list ]%vector.
-      bsm sss POP zero with CURR (7 + off) (7 + off) (@nil bool).
-      bsm sss POP empty with ZERO (0) (0).
-      exists 0. by apply: in_sss_steps_0.
+    move: t => [[ls a] rs] /=. rewrite /step.
+    case E: (δ (q, a)) => [[[??]d]|]; first done.
+    move=> _. have ->: !q = 0 + !q by done.
+    move: a E => [] E.
+    all: exists [ ls ; []%list ; rs ; []%list ]%vector.
+    all: eexists; rewrite /PROG /box E.
+    all: do ? ((by apply: in_sss_steps_0) || (apply: in_sss_steps_S; [by apply: Q_step_spec|])).
   Qed.
 
   Lemma PROG_sc (q : state M) : (!q, PROG q) <sc (1, P).
   Proof.
     apply: subcode_cons. rewrite /P /encode_state [1+1]/=.
-    suff: forall n, (sval (Fin.to_nat q) * c + n, PROG q) <sc
+    suff: forall n, (n + sval (Fin.to_nat q) * c, PROG q) <sc
       (n, flat_map PROG (all_fins (num_states M))) by done.
     have := PROG_length. move: (num_states M) q (PROG) => ?.
     elim. { move=> /= *. by eexists [], _. }
@@ -214,9 +168,11 @@ Section Construction.
   Opaque P.
 
   Lemma simulation_step_Some q t q' t' : step M (q, t) = Some (q', t') ->
-    (1, P) // (encode_config (q, t)) ->> (encode_config (q', t')).
+    exists k, (1, P) // (encode_config (q, t)) -[S k]-> (encode_config (q', t')).
   Proof.
-    move=> /PROG_spec_Some. apply: subcode_sss_compute. by apply: PROG_sc.
+    move=> /PROG_spec_Some [k] H. exists k.
+    apply: subcode_sss_steps; [|by eassumption].
+    by apply: PROG_sc.
   Qed.
 
   Lemma simulation_step_None q t : step M (q, t) = None ->
@@ -234,8 +190,8 @@ Section Construction.
     move=> k IH q t. rewrite (steps_plus 1) /=.
     case E: (step M (q, t)) => [[q' t']|].
     - move=> /IH [v] Hv. exists v.
-      move: E => /simulation_step_Some.
-      move=> /sss_compute_trans. by apply.
+      move: E => /simulation_step_Some [?] /sss_steps_compute /sss_compute_trans.
+      by apply.
     - by move: E => /simulation_step_None.
   Qed.
 
@@ -249,21 +205,15 @@ Section Construction.
       rewrite /encode_state P_length (ltac:(done) : c = (S (c-1))).
       have := svalP (Fin.to_nat q). nia. }
     case E: (step M (q, t)) => [[q' t']|]; last by (move=> _; exists 1).
-    move: (E) => /simulation_step_Some [[|m]].
-    { move=> /sss_steps_0_inv [_ H]. exfalso.
-      move: t E H {IH} => [[ls a] rs]. rewrite /step.
-      case: (δ (q, a)) => [[[??]d]|]; last done.
-      move=> /= [_ <-].
-      have ? : forall (a : bool) l, l <> a :: l. { move=> > /(f_equal (@length bool)) /=. lia. } 
-      move: d ls rs => [] [|??] [|??] [] //=; congruence. }
+    move: (E) => /simulation_step_Some [m].
     move=> Hn Hm Hi. have := (IH (n - m) ltac:(lia) q' t' _ Hi).
-    apply: unnest. 
-    { move: Hn Hm Hi.
-      move=> /subcode_sss_subcode_inv /[apply] /[apply].
-      apply: unnest. { by exact: bsm_sss_fun. }
-      apply: unnest. { by apply: subcode_refl. }
-      move=> [n'] [?]. by have ->: n' = n - m by lia. }
-    move=> [k Hk]. exists (1+k). by rewrite (steps_plus 1) /= E.
+    case.
+    { move: Hn Hm Hi => /subcode_sss_subcode_inv /[apply] /[apply].
+      case.
+      - by exact: bsm_sss_fun.
+      - by apply: subcode_refl.
+      - move=> n' [?]. by have ->: n' = n - m by lia. }
+    move=> k Hk. exists (1+k). by rewrite (steps_plus 1) /= E.
   Qed.
 
 End Construction.
@@ -274,7 +224,7 @@ Theorem reduction :
   SBTM_HALT ⪯ BSM_HALTING.
 Proof.
   exists (fun '(existT _ M (q, t)) =>
-      existT _ 4 (existT _ 1 (existT _ (@P M q) (encode_tape t)))).
+    existT _ 4 (existT _ 1 (existT _ (@P M q) (encode_tape t)))).
   move=> [M [q [[ls a] rs]]]. split.
   - move=> [k] /simulation => /(_ q) [v Hv] /=.
     exists (0, v). split => /=; [|lia].
