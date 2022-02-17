@@ -44,7 +44,7 @@ Proof.
         * apply enumerator__T_Fin.
         * apply enumerator__T_bool.
         * apply (proj2_sig direction_enumeration). }
-  exists (fun n => ssrfun.omap SBTM_of_sigT (f n)).
+  exists (fun n => option_map SBTM_of_sigT (f n)).
   intros M.
   destruct (Hf (SBTM_to_sigT M)) as [n Hn].
   exists n. rewrite Hn. now destruct M.

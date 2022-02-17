@@ -34,6 +34,7 @@ TM/TM.v
 TM/TM_undec.v
 
 TM/SBTM.v
+TM/SBTM_enum.v
 TM/SBTM_undec.v
 
 StackMachines/BSM.v
