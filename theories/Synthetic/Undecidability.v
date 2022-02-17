@@ -1,7 +1,7 @@
 Require Export Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
-Require Import Undecidability.L.L.
+Require Import Undecidability.TM.SBTM.
 
 (*
   p is undecidable if decidability of p implies co-enumerability of L halting.
@@ -23,7 +23,7 @@ Require Import Undecidability.L.L.
       https://www.ps.uni-saarland.de/~forster/thesis.php
 *)
 Definition undecidable {X} (p : X -> Prop) :=
-  decidable p -> enumerable (complement HaltL).
+  decidable p -> enumerable (complement SBTM_HALT).
 
 Lemma undecidability_from_reducibility {X} {p : X -> Prop} {Y} {q : Y -> Prop} :
   undecidable p -> p ⪯ q -> undecidable q.
