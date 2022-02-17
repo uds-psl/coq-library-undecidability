@@ -177,7 +177,7 @@ Section BPCP_FIN_DEC_EQ_SAT.
 
     Let fot_sem_lb_app lb t φ : 
       match ⟦ t ⟧ φ with
-        | Some (exist m Hm) =>   
+        | Some (exist _ m Hm) =>   
           match le_lt_dec (S n) (length lb + length m) with
             | left _  => ⟦ lb_app lb t ⟧ φ = None
             | right _ => exists H, ⟦ lb_app lb t ⟧ φ = Some (exist _ (lb++m) H)

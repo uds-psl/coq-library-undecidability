@@ -57,10 +57,10 @@ Section Forward.
   Lemma fwd_sat rho phi :
     fol_sem M rho phi <-> rho ⊨ translate phi.
   Proof.
-    induction phi in rho |- *; try destruct p; try destruct f; cbn; try now intuition.
+    induction phi in rho |- *; try destruct p; try destruct f; cbn; try now intuition; try firstorder.
     - unfold sat. rewrite map_map. erewrite map_ext. 
       1:{ match goal with [ |- ?P <-> ?Q ] => enough (P = Q) as ->  end. 1: reflexivity. reflexivity. } 
-      symmetry. eapply fwd_eval.
+      eapply fwd_eval.
     - split; intros [d H]; exists d; apply IHphi.
       + eapply fol_sem_ext; try apply H. now intros [].
       + eapply sat_ext; try apply H. now intros [].
@@ -93,10 +93,10 @@ Section Backward.
   Lemma bwd_sat rho phi :
     fol_sem M2 rho phi <-> rho ⊨ translate phi.
   Proof.
-    induction phi in rho |- *; try destruct p; try destruct f; cbn; try now intuition.
+    induction phi in rho |- *; try destruct p; try destruct f; cbn; try now intuition; try firstorder.
     - unfold sat. rewrite map_map. erewrite map_ext.
       1:{ match goal with [ |- ?P <-> ?Q ] => enough (P = Q) as ->  end. 1: reflexivity. reflexivity. }
-      symmetry. eapply bwd_eval.
+      eapply bwd_eval.
     - split; intros [d H]; exists d; apply IHphi.
       + eapply fol_sem_ext; try apply H. now intros [].
       + eapply sat_ext; try apply H. now intros [].

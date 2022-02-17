@@ -4,19 +4,15 @@ From Undecidability.Synthetic Require Import
   DecidabilityFacts EnumerabilityFacts.
 Require Import Undecidability.L.Enumerators.term_enum.
 
-(** ** complement HaltL is undecidable *)
-
-Lemma complement_HaltL_undec :
-  undecidable (complement HaltL).
-Proof.
-  intros H.
-  now eapply (dec_count_enum H), enumerator_enumerable, enumerator__T_term.
-Qed.
+Require Import Undecidability.TM.TM.
+Require Import Undecidability.TM.TM_undec.
+Require Import Undecidability.L.Reductions.TM_to_L.
 
 (** ** HaltL is undecidable *)
 
 Lemma HaltL_undec :
   undecidable (HaltL).
 Proof.
-  intros H. now apply complement_HaltL_undec, dec_compl.
+  apply (undecidability_from_reducibility HaltMTM_undec).
+  eapply HaltMTM_to_HaltL.
 Qed.

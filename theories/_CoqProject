@@ -34,6 +34,7 @@ TM/TM.v
 TM/TM_undec.v
 
 TM/SBTM.v
+TM/SBTM_enum.v
 TM/SBTM_undec.v
 
 StackMachines/BSM.v
@@ -484,6 +485,8 @@ TM/PrettyBounds/SizeBounds.v
 TM/Reductions/mTM_to_TM.v
 TM/Reductions/HaltTM_1_to_SBTM_HALT.v
 TM/Reductions/SBTM_HALT_to_HaltTM_1.v
+
+TM/Enumerators/SBTM_HALT_enum.v
 
 TM/Hoare/Hoare.v
 TM/Hoare/HoareLogic.v
