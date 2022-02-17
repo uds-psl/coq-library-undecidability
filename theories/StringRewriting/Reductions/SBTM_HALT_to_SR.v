@@ -1,17 +1,17 @@
 From Undecidability Require StringRewriting.SR.
-From Undecidability Require Import TM.SBTM2 TM.Util.SBTM2_facts.
+From Undecidability Require Import TM.SBTM TM.Util.SBTM_facts.
 
 Require Import PeanoNat Lia.
 
 Require Import List ssreflect ssrbool ssrfun.
-Import ListNotations SBTM2Notations.
+Import ListNotations SBTMNotations.
 
 Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
 Section Construction.
-  (* input SBTM2 *)
-  Context (M : SBTM2).
+  (* input SBTM *)
+  Context (M : SBTM).
   #[local] Notation "⦇" := 0.
   #[local] Notation "⦈" := 1.
   Definition encode_symbol (a: bool) := if a then 2 else 3.
@@ -232,10 +232,9 @@ Section Construction.
 End Construction.
 
 Require Import Undecidability.Synthetic.Definitions.
-Require Import Undecidability.Synthetic.ReducibilityFacts.
 
 Theorem reduction :
-  SBTM2_HALT ⪯ SR.SR.
+  SBTM_HALT ⪯ SR.SR.
 Proof.
   exists ((fun '(existT _ M (q, t)) => (srs M, encode_config M q t, [1; 0]))).
   move=> [M [q t]] /=. split.

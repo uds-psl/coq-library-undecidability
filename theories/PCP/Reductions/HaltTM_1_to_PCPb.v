@@ -28,13 +28,13 @@ From Undecidability.PCP
   Require Import PCP.
 
 From Undecidability.TM
-  Require Import SBTM2.
+  Require Import SBTM.
 
 From Undecidability.TM.Reductions
-  Require HaltTM_1_to_SBTM2_HALT.
+  Require HaltTM_1_to_SBTM_HALT.
 
 From Undecidability.StringRewriting.Reductions
-  Require SBTM2_HALT_to_SR.
+  Require SBTM_HALT_to_SR.
 
 From Undecidability.PCP.Reductions
   Require SR_to_MPCP MPCP_to_PCP PCP_to_PCPb PCPb_iff_iPCPb.
@@ -42,11 +42,11 @@ From Undecidability.PCP.Reductions
 Import ReductionChainNotations UndecidabilityNotations.
 
 Lemma HaltTM_1_chain_iPCPb : 
-  ⎩ HaltTM 1 ⪯ₘ SBTM2_HALT ⪯ₘ SR ⪯ₘ MPCP ⪯ₘ PCP ⪯ₘ PCPb ⪯ₘ iPCPb ⎭.
+  ⎩ HaltTM 1 ⪯ₘ SBTM_HALT ⪯ₘ SR ⪯ₘ MPCP ⪯ₘ PCP ⪯ₘ PCPb ⪯ₘ iPCPb ⎭.
 Proof.
   msplit 5.
-  + apply HaltTM_1_to_SBTM2_HALT.reduction.
-  + apply SBTM2_HALT_to_SR.reduction.
+  + apply HaltTM_1_to_SBTM_HALT.reduction.
+  + apply SBTM_HALT_to_SR.reduction.
   + apply SR_to_MPCP.reduction.
   + apply MPCP_to_PCP.reduction.
   + apply PCP_to_PCPb.reduction.

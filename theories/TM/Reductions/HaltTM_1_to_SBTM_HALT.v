@@ -1,5 +1,5 @@
 From Undecidability Require TM.TM TM.Util.TM_facts.
-From Undecidability Require Import TM.SBTM2 TM.Util.SBTM2_facts.
+From Undecidability Require Import TM.SBTM TM.Util.SBTM_facts.
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
 
 Require Import PeanoNat Lia.
@@ -8,12 +8,12 @@ Require Import PeanoNat Lia.
 #[local] Unset Strict Implicit.
 
 Require Import List ssreflect ssrbool ssrfun.
-Import ListNotations SBTM2Notations.
+Import ListNotations SBTMNotations.
 
 Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
-Module SBTM2_facts.
+Module SBTM_facts.
 
   (* remove redundante false symbol *)
   Definition truncate (l : list bool) : list bool :=
@@ -51,7 +51,7 @@ Module SBTM2_facts.
     apply: almost_eq_tape_truncate_tape.
   Qed.
 
-End SBTM2_facts.
+End SBTM_facts.
 
 (* translate between Fin and a listable type *)
 Module ListFin.
@@ -85,7 +85,7 @@ Module ListFin.
   Proof. exact: (svalP (encode_sig HX HL x)). Qed.
 End ListFin.
 
-Import SBTM2_facts.
+Import SBTM_facts.
 
 Section Construction.
   (* input TM *)
@@ -170,9 +170,9 @@ Section Construction.
     | go_right => go_left
     end.
 
-  Definition M' : SBTM2.
+  Definition M' : SBTM.
   Proof using M.
-    refine (Build_SBTM2 size
+    refine (Build_SBTM size
       (construct_trans (fun '(q, a) => _))).
     (* in state q reading symbol a *)
     refine (
@@ -405,7 +405,7 @@ Require Import Undecidability.Synthetic.ReducibilityFacts.
 Require Undecidability.TM.Reductions.Arbitrary_to_Binary.
 
 Theorem reduction :
-  TM.HaltTM 1 ⪯ SBTM2_HALT.
+  TM.HaltTM 1 ⪯ SBTM_HALT.
 Proof.
   apply: (reduces_transitive Arbitrary_to_Binary.reduction).
   exists (fun '(M, t) =>

@@ -1,6 +1,6 @@
 From Undecidability.Synthetic Require Import DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts.
 From Undecidability.Shared Require Import Dec.
-From Undecidability.Shared Require Import ListAutomation.
+
 Require Import List.
 Import ListNotations.
 
@@ -9,6 +9,8 @@ Lemma enumerable_enum {X} {p : X -> Prop} :
 Proof.
   split. eapply enumerable_list_enumerable. eapply list_enumerable_enumerable.
 Qed.
+
+
 
 Lemma enumerable_disj X (p q : X -> Prop) :
   enumerable p -> enumerable q -> enumerable (fun x => p x \/ q x).
@@ -24,11 +26,11 @@ Proof.
       apply in_or_app. right. apply in_or_app. now right.
   - intros [m]. induction m.
     * inversion H1.
-    * inv_collect;
-      unfold list_enumerator in *; firstorder.
+    * apply in_app_iff in H1.
+      destruct H1 as [?|H1]; [now auto|].
+      apply in_app_iff in H1.
+      unfold list_enumerator in *; firstorder easy.
 Qed.
-
-
 
 Lemma enumerable_conj X (p q : X -> Prop) :
   discrete X -> enumerable p -> enumerable q -> enumerable (fun x => p x /\ q x).
@@ -45,8 +47,12 @@ Proof.
     * eapply Dec_auto. eapply cum_ge'; eauto; lia.
   + intros [m]. induction m.
     * inversion H1.
-    * inv_collect. eapply (list_enumerator_to_cumul H). eauto.
-      eapply (list_enumerator_to_cumul H0). eauto.
+    * apply in_app_iff in H1. destruct H1 as [?|H1]; [now auto|].
+      apply filter_In in H1. destruct H1 as [? H1].
+      split. 
+      ** eapply (list_enumerator_to_cumul H). eauto.
+      ** destruct (Dec _) in H1; [|easy].
+         eapply (list_enumerator_to_cumul H0). eauto.
 Qed.
 
 Lemma projection X Y (p : X * Y -> Prop) :
