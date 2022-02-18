@@ -37,6 +37,11 @@ TM/SBTM.v
 TM/SBTM_enum.v
 TM/SBTM_undec.v
 
+TM/PCTM.v
+TM/PCTM/pctm_defs.v
+TM/PCTM/pctm_sbtm.v
+
+
 StackMachines/BSM.v
 StackMachines/BSM_undec.v
 
