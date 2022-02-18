@@ -11,6 +11,9 @@ clean: Makefile.coq
 	@+$(MAKE) -f Makefile.coq clean
 	rm -f Makefile.coq Makefile.coq.conf
 
+superclean: clean
+	find \( -name "*.aux" -o -name "*.vo*" -o -name "*.glob" \) -exec rm -f {} \;
+
 Makefile.coq: _CoqProject
 	coq_makefile -f _CoqProject -o Makefile.coq
 
