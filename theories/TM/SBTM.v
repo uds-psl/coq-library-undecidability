@@ -3,8 +3,7 @@
     Binary Single-tape Turing Machine Halting (SBTM_HALT)
 *)
 
-Require Coq.Vectors.Fin Coq.Vectors.Vector ssrfun.
-Import ssrfun (obind).
+Require Coq.Vectors.Fin Coq.Vectors.Vector.
 
 #[local] Open Scope list_scope.
 #[local] Open Scope type_scope.
@@ -61,6 +60,9 @@ Definition step (M: SBTM) : config M -> option (config M) :=
     end.
 
 Arguments step : simpl never.
+
+#[local] Definition obind {X Y} (f : X -> option Y) (o : option X) := 
+  match o with None => None | Some x => f x end.
 
 (* iterated step function *)
 Definition steps (M: SBTM) (k: nat) (x: config M) : option (config M) :=

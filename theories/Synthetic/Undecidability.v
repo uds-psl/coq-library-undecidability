@@ -1,12 +1,12 @@
 Require Export Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
-Require Import Undecidability.L.L.
+Require Import Undecidability.TM.SBTM.
 
 (*
-  p is undecidable if decidability of p implies co-enumerability of L halting.
-  Since L halting is enumerable, its co-enumerability would imply its decidability.
-  Instead of L halting, any other enumerable, many-one equivalent problem to L halting suffices. 
+  p is undecidable if decidability of p implies co-enumerability of Turing machine halting.
+  Since Turing machine halting is enumerable, its co-enumerability would imply its decidability.
+  Instead of Turing machine halting, any other many-one equivalent problem suffices. 
   For example (cf. [2]):
     Post correspondence problem (cf. [1, Lemma 2.26]),
     binary stack machine halting,
@@ -23,7 +23,7 @@ Require Import Undecidability.L.L.
       https://www.ps.uni-saarland.de/~forster/thesis.php
 *)
 Definition undecidable {X} (p : X -> Prop) :=
-  decidable p -> enumerable (complement HaltL).
+  decidable p -> enumerable (complement SBTM_HALT).
 
 Lemma undecidability_from_reducibility {X} {p : X -> Prop} {Y} {q : Y -> Prop} :
   undecidable p -> p ⪯ q -> undecidable q.
