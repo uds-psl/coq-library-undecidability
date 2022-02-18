@@ -12,6 +12,9 @@ Require Import List Arith Lia Bool.
 From Undecidability.Shared.Libs.DLW 
   Require Import utils pos subcode sss.
 
+From Undecidability.Synthetic
+  Require Import Undecidability ReducibilityFacts.
+
 From Undecidability.TM 
   Require Import SBTM pctm_defs.
 
@@ -20,8 +23,6 @@ Import ListNotations SBTMNotations PCTMNotations.
 Set Implicit Arguments.
 
 Set Default Proof Using "Type".
-
-Tactic Notation "rew" "length" := autorewrite with length_db.
 
 #[local] Notation "i // s -1> t" := (pctm_sss i s t).
 #[local] Notation "P // s -[ k ]-> t" := (sss_steps pctm_sss P k s t).
@@ -154,29 +155,27 @@ Section SBTM_PCTM.
         rewrite app_length, <- IHl, length_g; simpl; lia.
     Qed.
 
-    Definition sbtm2pctm := flat_map g (pos_list _).
+    Let Q := flat_map g (pos_list _).
  
-    Fact sbtm2pctm_length : length sbtm2pctm = 9*num_states M.
+    Fact Q_length : length Q = 9*num_states M.
     Proof. 
-      unfold sbtm2pctm.
+      unfold Q.
       now rewrite fm_length, pos_list_length.
     Qed.
 
-    Let P := sbtm2pctm.
-
-    Let P_sc i : (2+9*pos2nat i, g i) <sc (2,P).
+    Let Q_sc i : (2+9*pos2nat i, g i) <sc (2,Q).
     Proof.
-      unfold P, sbtm2pctm.
+      unfold Q.
       destruct (pos_list_split i) as (l & r & -> & <-).
       apply gs_sc.
     Qed.
 
-    Fact sbtm2pctm_step_None i t : 
+    Let Q_step_None i t : 
           step M (i,t) = None 
-       -> (2,P) // (2+9*pos2nat i,t) -+> (0,t).
+       -> (2,Q) // (2+9*pos2nat i,t) -+> (0,t).
     Proof.
       intros H.
-      apply subcode_sss_progress with (1 := P_sc i).
+      apply subcode_sss_progress with (1 := Q_sc i).
       destruct t as ((l,[]),r); unfold step in H.
       + revert H; case_eq (trans' M (i,true)). 
         1: now intros ((?,?),?).
@@ -192,12 +191,12 @@ Section SBTM_PCTM.
         apply (sbtm_op_spec (2+9*pos2nat i) false o1 false b1 go_left d1 (2+9*0) (2+9*j1) 0 (l,false,r) eq_refl).
     Qed.
 
-    Fact sbtm2pctm_step_Some i t j t' : 
+    Let Q_step_Some i t j t' : 
           step M (i,t) = Some (j,t') 
-       -> (2,P) // (2+9*pos2nat i,t) -+> (2+9*pos2nat j,t').
+       -> (2,Q) // (2+9*pos2nat i,t) -+> (2+9*pos2nat j,t').
     Proof.
       intros H.
-      apply subcode_sss_progress with (1 := P_sc i).
+      apply subcode_sss_progress with (1 := Q_sc i).
       destruct t as ((l,[]),r); unfold step in H.
       + revert H; case_eq (trans' M (i,true)). 
         2: easy.
@@ -215,93 +214,106 @@ Section SBTM_PCTM.
         apply (sbtm_op_spec (2+9*pos2nat i) true o1 b0 b1 d0 d1 (2+9*pos2nat j0) (2+9*j1) 0 (l,false,r) eq_refl).
     Qed.
 
-  End sbtm.
+    Let steps_Q k i t : 
+      match steps M k (i,t) with
+        | None => exists t', (2,Q) // (2+9*pos2nat i,t) ->> (0,t') 
+        | Some (j,t') =>     (2,Q) // (2+9*pos2nat i,t) ->> (2+9*pos2nat j,t')
+      end.
+    Proof.
+      induction k as [ | k IHk ]; simpl steps.
+      + pctm sss stop.
+      + unfold SBTM.obind.
+        case_eq (steps M k (i,t)).
+        * intros (j1,t1) E1; rewrite E1 in IHk.
+          case_eq (step M (j1,t1)).
+          - intros (j2,t2) E2. 
+            apply sss_compute_trans with (1 := IHk).
+            now apply sss_progress_compute, Q_step_Some.
+          - intros E2.
+            exists t1.
+            apply sss_compute_trans with (1 := IHk).
+            now apply sss_progress_compute, Q_step_None.
+        * intros E1; rewrite E1 in IHk; auto.
+    Qed.
 
-  Fact sbtm2pctm_steps M k i t : 
-    match steps M k (i,t) with
-      | None => exists t', (2,sbtm2pctm M) // (2+9*pos2nat i,t) ->> (0,t') 
-      | Some (j,t') =>     (2,sbtm2pctm M) // (2+9*pos2nat i,t) ->> (2+9*pos2nat j,t')
-    end.
-  Proof.
-    induction k as [ | k IHk ]; simpl steps.
-    + pctm sss stop.
-    + unfold SBTM.obind.
-      case_eq (steps M k (i,t)).
-      * intros (j1,t1) E1; rewrite E1 in IHk.
-        case_eq (step M (j1,t1)).
-        - intros (j2,t2) E2. 
-          apply sss_compute_trans with (1 := IHk).
-          now apply sss_progress_compute, sbtm2pctm_step_Some.
-        - intros E2.
-          exists t1.
-          apply sss_compute_trans with (1 := IHk).
-          now apply sss_progress_compute, sbtm2pctm_step_None.
-      * intros E1; rewrite E1 in IHk; auto.
-  Qed.
-
-  Fact sbtm2pctm_steps_inv M i t :
-           (2,sbtm2pctm M) // (2+9*pos2nat i,t) ↓
+    Let Q_steps i t :
+           (2,Q) // (2+9*pos2nat i,t) ↓
         -> exists k, steps M k (i,t) = None.
-  Proof.
-    intros ((j,t') & (k & H1) & H2); unfold fst in H2; exists k.
-    revert i j t t' H1 H2.
-    induction on k as IH with measure k.
-    intros i j t t' H1 H2.
-    destruct k as [ | k ].
-    + apply sss_steps_0_inv in H1. 
-      apply f_equal with (f := fst) in H1; unfold fst in H1.
-      rewrite <- H1 in H2.
-      red in H2.
-      unfold code_start, code_end, fst, snd in H2.
-      rewrite sbtm2pctm_length in H2.
-      generalize (pos2nat_prop i); lia.
-    + unfold steps.
-      rewrite Natiter_S; simpl.
-      case_eq (step M (i,t)).
-      2:{ intros _; apply Natiter_fixpoint; auto. }
-      intros (j1,t1) H3.
-      apply sbtm2pctm_step_Some in H3.
-      destruct subcode_sss_progress_inv 
-         with (1 := pctm_sss_fun)
-              (4 := H3)
-              (5 := H1)
-         as (r & H4 & H5).
-      * simpl; auto.
-      * apply subcode_refl.
-      * apply IH in H5; auto.
-        unfold steps in H5.
-        replace k with (k-r+r) by lia.
+    Proof.
+      intros ((j,t') & (k & H1) & H2); unfold fst in H2; exists k.
+      revert i j t t' H1 H2.
+      induction on k as IH with measure k.
+      intros i j t t' H1 H2.
+      destruct k as [ | k ].
+      + apply sss_steps_0_inv in H1. 
+        apply f_equal with (f := fst) in H1; unfold fst in H1.
+        rewrite <- H1 in H2.
+        red in H2.
+        unfold code_start, code_end, fst, snd in H2.
+        rewrite Q_length in H2.
+        generalize (pos2nat_prop i); lia.
+      + unfold steps.
+        rewrite Natiter_S; simpl.
+        case_eq (step M (i,t)).
+        2:{ intros _; apply Natiter_fixpoint; auto. }
+        intros (j1,t1) H3.
+        apply Q_step_Some in H3.
+        destruct subcode_sss_progress_inv 
+          with (1 := pctm_sss_fun)
+               (4 := H3)
+               (5 := H1)
+          as (r & H4 & H5).
+        * simpl; auto.
+        * apply subcode_refl.
+        * apply IH in H5; auto.
+          unfold steps in H5.
+          replace k with (k-r+r) by lia.
         rewrite Natiter_add, H5.
         apply Natiter_fixpoint; auto.
-  Qed.
- 
-End SBTM_PCTM.
+    Qed.
 
-From Undecidability.Synthetic
-  Require Import Undecidability ReducibilityFacts.
+    Variable (i : pos (num_states M)).
+
+    Definition sbtm2pctm := (JMP (2+9*pos2nat i)::Q).
+
+    Lemma sbtm2pctm_sound k t : steps M k (i,t) = None -> exists t', (1,sbtm2pctm) // (1,t) ->> (0,t').
+    Proof.
+      intros H.
+      generalize (steps_Q k i t); rewrite H.
+      intros (t' & H1); exists t'.
+      unfold sbtm2pctm.
+      pctm sss JMP with (2 + 9 * pos2nat i).
+      revert H1; apply subcode_sss_compute; auto.
+    Qed.
+
+    Lemma sbtm2pctm_complete t : (1,sbtm2pctm) // (1,t) ↓ -> exists k, steps M k (i,t) = None.
+    Proof.
+      unfold sbtm2pctm.
+      intros H.
+      apply Q_steps.
+      apply subcode_sss_terminates_inv 
+        with (1 := pctm_sss_fun)
+             (P := (1,[JMP (2 + 9 * pos2nat i)]))
+             (st1 := (2+9*pos2nat i,t)) in H; auto.
+      * revert H; apply subcode_sss_terminates; auto.
+      * split; [ | simpl; lia ].
+        pctm sss JMP with (2+9*pos2nat i).
+        - apply subcode_refl.
+        - pctm sss stop.
+    Qed.
+
+  End sbtm.
+
+End SBTM_PCTM.
 
 Theorem SBTM_PCTM_reduction : SBTM_HALT ⪯ PCTM_HALT.
 Proof.
   apply reduces_dependent; exists.
   intros (M,(i,t)).
-  exists (JMP (2+9*pos2nat i)::sbtm2pctm M,t); split.
+  exists (sbtm2pctm M i,t); split.
   + intros (k & Hk).
-    generalize (sbtm2pctm_steps M k i t); rewrite Hk.
-    intros (t' & Ht').
-    exists (0,t'); split.
-    * pctm sss JMP with (2+9*pos2nat i).
-      revert Ht'.
-      apply subcode_sss_compute; auto.
-    * simpl; lia.
-  + intros H; unfold PCTM_HALT in H.
-    apply sbtm2pctm_steps_inv.
-    apply subcode_sss_terminates_inv 
-      with (1 := pctm_sss_fun)
-           (P := (1,[JMP (2 + 9 * pos2nat i)]))
-           (st1 := (2+9*pos2nat i,t)) in H; auto.
-    2:{ split; [ | simpl; lia ].
-        pctm sss JMP with (2+9*pos2nat i); auto.
-        + apply subcode_refl.
-        + pctm sss stop. }
-    revert H; apply subcode_sss_terminates; auto.
+    apply sbtm2pctm_sound in Hk as (t' & Ht').
+    exists (0,t'); split; auto; simpl; lia.
+  + apply sbtm2pctm_complete.
 Qed.
+
