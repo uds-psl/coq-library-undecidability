@@ -4,8 +4,8 @@
 
 The Coq Library of Undecidability Proofs contains mechanised reductions to establish undecidability results in Coq.
 The undecidability proofs are based on a synthetic approach to undecidability. 
-A problem `P` is considered [undecidable](theories/Synthetic/Undecidability.v#L25) if its [decidability](theories/Synthetic/Definitions.v#L15) in Coq implies the [enumerability](theories/Synthetic/Definitions.v#L24) of the complement of halting problem for Turing machines (`HALT_SBTM` in [`TM/SBTM.v`](theories/TM/SBTM.v)).
-Since the Turing machine halting is enumerable (`HALT_SBTM_enum` in [`TM/SBTM_enum.v`](theories/SBTM/SBTM_enum.v)), enumerability of its complement would classically imply its decidability.
+A problem `P` is considered [undecidable](theories/Synthetic/Undecidability.v#L25) if its [decidability](theories/Synthetic/Definitions.v#L15) in Coq implies the [enumerability](theories/Synthetic/Definitions.v#L24) of the complement of halting problem for Turing machines (`SBTM_HALT` in [`TM/SBTM.v`](theories/TM/SBTM.v)).
+Since the Turing machine halting is enumerable (`SBTM_HALT_enum` in [`TM/SBTM_enum.v`](theories/TM/SBTM_enum.v)), enumerability of its complement would classically imply its decidability.
 
 As in the traditional literature, undecidability of a problem `P` in the library is often established by constructing a [many-one reduction](theories/Synthetic/Definitions.v#L40) from an undecidable problem to `P`.
 
