@@ -9,10 +9,11 @@
 
 Require Import List Arith Lia Bool.
 
+From Undecidability.Synthetic
+  Require Import Undecidability ReducibilityFacts.
+
 From Undecidability.Shared.Libs.DLW 
   Require Import utils list_bool pos vec subcode sss compiler_correction.
-
-Check gen_compiler_correction.
 
 From Undecidability.StackMachines.BSM 
   Require Import bsm_defs.
@@ -406,20 +407,14 @@ Section PCTM_BSM2_compiler.
 
 End PCTM_BSM2_compiler.
 
-From Undecidability.Synthetic
-  Require Import Undecidability ReducibilityFacts.
-
 Theorem PCTM_BSM_reduction : PCTM_HALT ⪯ BSM_HALTING.
 Proof.
-  generalize (compiler_t_correct_term pctm_bsm2_compiler).
-  destruct pctm_bsm2_compiler as [ link code init out sound complete ]; simpl; intros correct.
   apply reduces_dependent; exists.
   intros (P,((l,b),r)).
-  set (Q := code (1,P) 1).
+  set (Q := gc_code pctm_bsm2_compiler (1,P) 1).
   set (w1 := l##(b::r)##vec_nil).
   exists (existT _ 2 (existT _ 1 (existT _ Q w1))); simpl.
-  apply correct.
-  unfold w1; simpl; auto.
+  apply compiler_t_term_equiv; split; auto.
 Qed.
 
 Check PCTM_BSM_reduction.
