@@ -12,6 +12,8 @@ Require Import List Arith Lia.
 From Undecidability.Shared.Libs.DLW.Utils Require Import utils.
 From Undecidability.Shared.Libs.DLW.Code Require Import subcode sss compiler.
 
+Import ListNotations.
+
 (* ** Semantic Correctness of Compiled Code *)
 
 Set Implicit Arguments.
@@ -44,7 +46,7 @@ Section comp.
                                                            also not a strong requirement
 
                                                            This can be removed because it can be deduced (where it
-                                                           is used) from Hilen1 & step_X_tot & Hicomp 
+                                                           is used) from Hilen & step_X_tot & Hicomp 
                                                          *)
 
   (* Semantics for X and Y instructions *)
@@ -126,10 +128,13 @@ Section comp.
         soundness and completeness of the compiled program Q wrt the
         source program P *)
 
-    Theorem compiler_sound i1 v1 i2 v2 w1 :
-                      v1 ⋈ w1 /\ P /X/ (i1,v1) ->> (i2,v2)
-        -> exists w2, v2 ⋈ w2 /\ Q /Y/ (linker i1,w1) ->> (linker i2,w2).
+    Definition compiled_sound := forall i₁ v₁ i₂ v₂ w₁,
+                      v₁ ⋈ w₁ /\ P /X/ (i₁,v₁) ->> (i₂,v₂)
+        -> exists w₂, v₂ ⋈ w₂ /\ Q /Y/ (linker i₁,w₁) ->> (linker i₂,w₂).
+
+    Theorem compiler_sound : compiled_sound.
     Proof.
+      intros i1 v1 i2 v2 w1.
       change i1 with (fst (i1,v1)) at 2; change v1 with (snd (i1,v1)) at 1.
       change i2 with (fst (i2,v2)) at 2; change v2 with (snd (i2,v2)) at 2.
       generalize (i1,v1) (i2,v2); clear i1 v1 i2 v2.
@@ -214,12 +219,12 @@ Section comp.
         exists 0; constructor.
     Qed.
 
-    Corollary compiler_complete' i1 v1 w1 st : 
-                            v1 ⋈ w1 /\ Q /Y/ (linker i1,w1) ~~> st
-        -> exists i2 v2 w2, v2 ⋈ w2 /\ P /X/ (i1,v1) ~~> (i2,v2)
-                                    /\ Q /Y/ (linker i2,w2) ~~> st.
+    Corollary compiler_complete' : forall i₁ v₁ w₁ st,
+                            v₁ ⋈ w₁ /\ Q /Y/ (linker i₁,w₁) ~~> st
+        -> exists i₂ v₂ w₂, v₂ ⋈ w₂ /\ P /X/ (i₁,v₁) ~~> (i₂,v₂)
+                                    /\ Q /Y/ (linker i₂,w₂) ~~> st. 
     Proof.
-      intros (H1 & H2).
+      intros i1 v1 w1 st (H1 & H2).
       destruct compiler_complete with (1 := H1) (2 := ex_intro (fun x => Q /Y/ (linker i1, w1) ~~> x) _ H2)
         as ((i2,v2) & H3 & H4).
       exists i2, v2.
@@ -230,100 +235,163 @@ Section comp.
       apply sss_compute_inv with (3 := H6); auto.
     Qed.
 
+    Definition compiled_complete := forall i₁ v₁ w₁ j₂ w₂,
+                         v₁ ⋈ w₁ /\ Q /Y/ (linker i₁,w₁) ~~> (j₂,w₂)
+        -> exists i₂ v₂, v₂ ⋈ w₂ /\ P /X/ (i₁,v₁) ~~> (i₂,v₂) /\ j₂ = linker i₂.
+
   End correctness.
 
-  (* ** A Syntactically Correct Compiler *)
+  Section compiler.
 
-  (* Now we build a correct linker & compiled program pair *)
+    Record compiler_t := MkGenComp {
+      gc_link     : (nat*list X) -> nat -> nat -> nat;
+      gc_code     : (nat*list X) -> nat -> list Y;
+      gc_fst      : forall P i, gc_link P i (fst P) = i;
+      gc_out      : forall P i j, out_code j P -> gc_link P i j = code_end (i,gc_code P i);  
+      gc_sound    : forall P i, compiled_sound (gc_link P i) P (i,gc_code P i);
+      gc_complete : forall P i, compiled_complete (gc_link P i) P (i,gc_code P i);
+    }.
 
-  Variable (P : nat * list X) (iQ : nat).
+    Theorem compiler_t_correct_term (c : compiler_t) P i v w :
+         v ⋈ w -> P /X/ (fst P,v) ↓ <-> (i,gc_code c P i) /Y/ (i,w) ↓.
+    Proof.
+      destruct c as [ lnk code first out sound complete ]; simpl.
+      intros H; split.
+      + intros ((j,v') & H1 & H2).
+        destruct sound with (1 := conj H H1) (i := i)
+          as (w' & H3 & H4).
+        exists (lnk P i j, w'); split; auto.
+        * rewrite first in H4; auto.
+        * simpl fst in H2 |- *; rewrite out; simpl; auto.
+      + intros ((j',w') & H1).
+        rewrite <- (first P i) in H1 at 3.
+        unfold compiled_complete in complete.
+        generalize (conj H H1); intros H2.
+        apply complete in H2 as (i' & v' & H3 & H4 & H5).
+        exists (i',v'); auto.
+    Qed.
 
-  Let iP := fst P.
-  Let cP := snd P.
+    Implicit Type P : nat*list X.
 
-  Let err := iQ+length_compiler ilen cP.
+    Let err P iQ  := iQ+length_compiler ilen (snd P).
+    Let link P iQ := linker ilen P iQ (err P iQ).
+    Let code P iQ := compiler icomp ilen P iQ (err P iQ).
 
-  Definition gen_linker := linker ilen (iP,cP) iQ err.
-  Definition gen_compiler := compiler icomp ilen (iP,cP) iQ err.
+    Let fst_ok : forall P i, link P i (fst P) = i.
+    Proof. intros [] ?; apply linker_code_start. Qed.
 
-  Notation cQ := gen_compiler.
-  Notation lnk := gen_linker.
+    Let out_ok : forall P i j, out_code j P -> link P i j = code_end(i,code P i).
+    Proof.
+      intros (iP,cP) iQ j H.
+      unfold link, code_end.
+      rewrite linker_out_err; unfold err; simpl; auto.
+      * unfold code; rewrite compiler_length; auto.
+      * lia.
+    Qed.
 
-  Let P_eq : P = (iP,cP).
-  Proof. unfold iP, cP; destruct P; auto. Qed.
+    Let sound : forall P i, compiled_sound (link P i) P (i,code P i).
+    Proof.
+      intros (iP,cP) iQ; apply compiler_sound.
+      intros; apply compiler_subcode; auto.
+    Qed.
 
-  Fact gen_linker_out i : out_code i (iP,cP) -> lnk i = iQ+length cQ.
-  Proof.
-    intros H.
-    unfold lnk.
-    rewrite linker_out_err; unfold err; simpl; auto.
-    * unfold cQ; rewrite compiler_length; auto.
-    * lia.
-  Qed.
+    Let complete : forall P i, compiled_complete (link P i) P (i,code P i).
+    Proof.
+      intros (iP,cP) iQ; unfold link, code.
+      intros i1 v1 w1 j2 w2 H1.
+      destruct compiler_complete' with (2 := H1) (P := (iP,cP))
+        as (i2 & v2 & w2' & H2 & H3 & H4 & H5); auto.
+      + intros; apply compiler_subcode; auto.
+      + exists i2, v2.
+        match type of H4 with _ /Y/ (?a,?b) ->> (?c,?d) => assert (a = c /\ b = d) as E end.
+        1:{ apply sss_compute_stop in H4.
+            * inversion H4; auto.
+            * simpl fst.
+              apply linker_out_code; auto.
+              - right; unfold err; lia.
+              - apply H3. }
+        destruct E as [ E -> ]; auto.
+    Qed.
 
-  Theorem gen_compiler_sound i1 v1 i2 v2 w1 : 
-                    v1 ⋈ w1 /\ (iP,cP) /X/ (i1,v1) ~~> (i2,v2)
+    Theorem generic_compiler : compiler_t.
+    Proof. exists link code; abstract auto. Defined.
+ 
+  End compiler.
+
+  Section gen_compiler. (* older formulation *)
+
+    Notation gc := generic_compiler.
+
+    Variable (P : nat * list X) (iQ : nat).
+
+    Definition gen_linker := gc_link gc P iQ.
+    Definition gen_compiler := gc_code gc P iQ.
+
+    Notation cQ := gen_compiler.
+    Notation lnk := gen_linker.
+
+    Fact gen_linker_out i : out_code i P -> lnk i = iQ+length cQ.
+    Proof. apply gc_out. Qed.
+ 
+    Theorem gen_compiler_sound i1 v1 i2 v2 w1 : 
+                    v1 ⋈ w1 /\ P /X/ (i1,v1) ~~> (i2,v2)
       -> exists w2, v2 ⋈ w2 /\ (iQ,cQ) /Y/ (lnk i1,w1) ~~> (lnk i2,w2).
-  Proof.
-    intros (H1 & H2 & H3).
-    destruct compiler_sound with (2 := conj H1 H2) (linker := gen_linker) (Q := (iQ,cQ))
-      as (w2 & G1 & G2).
-    + apply compiler_subcode; auto.
-    + simpl fst in H3.
-      exists w2; split; auto.
-      split; auto; simpl.
-      rewrite <- gen_linker_out with i2; auto.
-  Qed.
+    Proof. 
+      intros (H1 & H2 & H3).
+      destruct (@gc_sound gc P iQ i1 v1 i2 v2 w1) as (w2 & H4 & H5); auto.
+      exists w2; split; auto; split; auto.
+      apply (gc_out gc) with (i := iQ) in H3.
+      unfold fst, lnk, cQ in H3 |- *.
+      rewrite H3; right; simpl; lia.
+    Qed.
 
-  Theorem gen_compiler_complete i1 v1 w1 :
-            v1 ⋈ w1 -> (iQ,gen_compiler) /Y/ (gen_linker i1,w1) ↓ -> (iP,cP) /X/ (i1,v1) ↓.
-  Proof.
-    apply compiler_complete, compiler_subcode; auto.
-  Qed.
+    Theorem gen_compiler_complete i1 v1 w1 :
+            v1 ⋈ w1 -> (iQ,gen_compiler) /Y/ (gen_linker i1,w1) ↓ -> P /X/ (i1,v1) ↓.
+    Proof.
+      intros H1 ((j2,w2) & H2).
+      destruct (@gc_complete gc P iQ i1 v1 w1 j2 w2)
+        as (i2 & v2  & H3 & H4 & H5); auto.
+      exists (i2,v2); auto.
+    Qed.
 
-  Corollary gen_compiler_output v w i' v' : 
-        v ⋈ w -> (iP,cP) /X/ (iP,v) ~~> (i',v') -> exists w', (iQ,gen_compiler) /Y/ (iQ,w) ~~> (code_end (iQ,cQ),w') /\ v' ⋈ w'.
-  Proof.
-    intros H H1.
-    destruct gen_compiler_sound with (1 := conj H H1) as (w1 & H2 & H3).
-    exists w1.
-    simpl; rewrite <- gen_linker_out with i'.
-    + rewrite <- (linker_code_start ilen (iP,cP) iQ err) at 2; auto.
-    + apply H1.
-  Qed.
+    Theorem gen_compiler_output v w i' v' : 
+        v ⋈ w -> P /X/ (fst P,v) ~~> (i',v') -> exists w', (iQ,gen_compiler) /Y/ (iQ,w) ~~> (code_end (iQ,cQ),w') /\ v' ⋈ w'.
+    Proof.
+      intros H H1.
+      destruct gen_compiler_sound with (1 := conj H H1) as (w1 & H2 & H3).
+      exists w1; split; auto.
+      unfold cQ.
+      rewrite <- (gc_out gc) with (j := i').
+      + unfold lnk in H3; rewrite gc_fst in H3; auto.
+      + apply H1.
+    Qed.
 
-  Corollary gen_compiler_terminates v w : 
-          v ⋈ w -> (iQ,gen_compiler) /Y/ (iQ,w) ↓ -> (iP,cP) /X/ (iP,v) ↓.
-  Proof.
-    intros H (w' & H').
-    apply gen_compiler_complete with (1 := H).
-    unfold gen_linker; rewrite linker_code_start; auto; firstorder.
-  Qed.
+    Corollary gen_compiler_terminates v w : 
+          v ⋈ w -> (iQ,gen_compiler) /Y/ (iQ,w) ↓ -> P /X/ (fst P,v) ↓.
+    Proof.
+      intros H (w' & H').
+      apply gen_compiler_complete with (1 := H).
+      exists w'.
+      unfold lnk; rewrite gc_fst; auto.
+    Qed.
 
-  Theorem gen_compiler_correction : 
+    Theorem gen_compiler_correction : 
            { lnk : nat -> nat 
            & { Q | fst Q = iQ 
-                /\ lnk iP = iQ
+                /\ lnk (fst P) = iQ
                 /\ (forall i, out_code i P -> lnk i = code_end Q)
                 /\ (forall i1 v1 w1 i2 v2, v1 ⋈ w1 /\ P /X/ (i1,v1) ~~> (i2,v2)     -> exists w2,    v2 ⋈ w2 /\ Q /Y/ (lnk i1,w1) ~~> (lnk i2,w2)) 
                 /\ (forall i1 v1 w1 j2 w2, v1 ⋈ w1 /\ Q /Y/ (lnk i1,w1) ~~> (j2,w2) -> exists i2 v2, v2 ⋈ w2 /\ P /X/ (i1,v1) ~~> (i2,v2) /\ j2 = lnk i2) 
            } }.
-  Proof.
-    exists lnk, (iQ,cQ); split; auto; split; [ | split ].
-    + rewrite <- (linker_code_start ilen (iP,cP) iQ err); auto.
-    + rewrite P_eq; apply gen_linker_out.
-    + rewrite P_eq.
-      split.
-      * intros i1 v1 w1 i2 v2 H.
-        destruct gen_compiler_sound with (1 := H) as (w2 & H3 & H4).
-        exists w2; split; auto.
-      * intros i1 v1 w1 j2 w2 (H1 & H2).
-        destruct gen_compiler_complete with (1 := H1) (i1 := i1) 
-          as ((i3,v3) & H3).
-        - exists (j2,w2); auto.
-        - destruct gen_compiler_sound with (1 := conj H1 H3) as (w3 & H4 & H5).
-          generalize (sss_output_fun step_Y_fun H2 H5); inversion 1.
-          exists i3, v3; auto.
-  Qed.
+    Proof.
+      exists lnk, (iQ,cQ); split; auto; split; [ | split ].
+      + apply gc_fst.
+      + intros; apply gc_out; auto.
+      + split.
+        * intros ? ? ? ? ?; apply gen_compiler_sound.
+        * intros ? ? ? ? ?; apply (gc_complete gc).
+    Qed.
 
+  End gen_compiler.
+ 
 End comp.

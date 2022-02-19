@@ -760,6 +760,7 @@ StackMachines/BSM/bsm_utils.v
 StackMachines/BSM/bsm_pcp.v
 StackMachines/BSM/tiles_solvable.v
 StackMachines/BSM/bsm_sbtm.v
+StackMachines/BSM/bsm_pctm.v
 
 StackMachines/Util/Facts.v
 StackMachines/Util/Nat_facts.v
