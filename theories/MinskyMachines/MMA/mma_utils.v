@@ -59,6 +59,9 @@ Section Minsky_Machine_alt_utils.
       mma sss stop.
     Qed.
 
+    Fact mma_jump_spec i v : (i,JUMPₐ) // (i,v) ->> (j,v).
+    Proof. now apply sss_progress_compute, mma_jump_progress. Qed.
+
   End mma_jump.
 
   Notation JUMPₐ := mma_jump.
@@ -104,6 +107,65 @@ Section Minsky_Machine_alt_utils.
   Notation NULLₐ := mma_null.
 
   Hint Rewrite mma_null_length : length_db.
+
+  Section mma_null_list.
+
+    Fixpoint mma_null_list (l : list (pos n)) i :=
+      match l with 
+        | nil  => nil
+        | x::l => DECₐ x i :: mma_null_list l (S i)
+      end.
+
+    Fact mma_null_list_length l i : length (mma_null_list l i) = length l.
+    Proof. revert i; induction l; simpl; intro; f_equal; auto. Qed.
+  
+    Fact mma_null_list_spec l i v w :
+           (forall p, In p l -> w#>p = 0)
+        -> (forall p, ~ In p l -> w#>p = v#> p)
+        -> (i,mma_null_list l i) // (i,v) ->> (length l+i,w).
+    Proof.
+      revert i v w; induction l as [ | x l IHl ]; simpl; intros i v w H1 H2.
+      + replace w with v.
+        1: mma sss stop.
+        apply vec_pos_ext; intro p; rewrite H2; auto.
+      + apply subcode_sss_compute_trans 
+          with (P := (i,DECₐ x i::nil)) (st2 := (S i,v[0/x])); auto.
+        * apply sss_progress_compute, mma_null_progress; auto.
+        * apply subcode_sss_compute with (P := (S i, mma_null_list l (S i))); auto.
+          replace (S (length l+i)) with (length l+S i) by lia.
+          apply IHl.
+          - intros; apply H1; auto.
+          - intros p Hp.
+            dest p x.
+            apply H2; firstorder.
+    Qed.
+
+  End mma_null_list.
+
+  Section mma_null_all.
+  
+    Variable (i : nat).
+
+    Definition mma_null_all := mma_null_list (pos_list n) i.
+  
+    Fact mma_null_all_length : length mma_null_all = n.
+    Proof. 
+      unfold mma_null_all.
+      rewrite mma_null_list_length.
+      apply pos_list_length.
+    Qed.
+
+    Fact mma_null_all_spec v :
+          (i,mma_null_all) // (i,v) ->> (n+i,vec_zero).
+    Proof.
+      replace (n+i) with (length (pos_list n)+i).
+      + apply mma_null_list_spec.
+        * intros; apply vec_zero_spec.
+        * intros ? []; apply pos_list_prop.
+      + now rewrite pos_list_length.
+    Qed.
+
+  End mma_null_all.
 
   Section mma_incs.
 
