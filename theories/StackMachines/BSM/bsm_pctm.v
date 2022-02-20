@@ -368,7 +368,7 @@ Section PCTM_BSM2_compiler.
       + exact 2.
     Defined.
 
-    Definition pctm_bsm2_compiler : compiler_t (pctm_sss) (@bsm_sss 2) (fun t v => tape_eq_stacks t (v#>x) (v#>y)).
+    Theorem pctm_bsm2_compiler : compiler_t (pctm_sss) (@bsm_sss 2) (fun t v => tape_eq_stacks t (v#>x) (v#>y)).
     Proof.
       apply generic_compiler with icomp ilen.
       + intros ? ? []; simpl icomp; rew length; auto.
@@ -406,15 +406,3 @@ Section PCTM_BSM2_compiler.
   End compiler.
 
 End PCTM_BSM2_compiler.
-
-Theorem PCTM_BSM_reduction : PCTM_HALT ⪯ BSM_HALTING.
-Proof.
-  apply reduces_dependent; exists.
-  intros (P,((l,b),r)).
-  set (Q := gc_code pctm_bsm2_compiler (1,P) 1).
-  set (w1 := l##(b::r)##vec_nil).
-  exists (existT _ 2 (existT _ 1 (existT _ Q w1))); simpl.
-  apply compiler_t_term_equiv; split; auto.
-Qed.
-
-Check PCTM_BSM_reduction.

@@ -305,15 +305,3 @@ Section SBTM_PCTM.
   End sbtm.
 
 End SBTM_PCTM.
-
-Theorem SBTM_PCTM_reduction : SBTM_HALT ⪯ PCTM_HALT.
-Proof.
-  apply reduces_dependent; exists.
-  intros (M,(i,t)).
-  exists (sbtm2pctm M i,t); split.
-  + intros (k & Hk).
-    apply sbtm2pctm_sound in Hk as (t' & Ht').
-    exists (0,t'); split; auto; simpl; lia.
-  + apply sbtm2pctm_complete.
-Qed.
-

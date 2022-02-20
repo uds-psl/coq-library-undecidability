@@ -41,248 +41,205 @@ Local Notation "P '/MM/' s ->> t" := (sss_compute (@mm_sss _) P s t) (at level 7
 Local Notation "P '/MM/' s '~~>' t" := (sss_output (@mm_sss _) P s t) (at level 70, no associativity).
 Local Notation "P '/MM/' s ↓" := (sss_terminates (@mm_sss _) P s)(at level 70, no associativity).
 
-Section simulator.
+Section bsm_mm0_simulator.
 
   Ltac dest x y := destruct (pos_eq_dec x y) as [ | ]; [ subst x | ]; rew vec.
 
   Variables (m : nat).
-  
-  (* each stack of the BSM corresponds to a (unique) register in the MM 
-      and there are extra registers: tmp1, tmp2 which must have value 0 at start 
-      they might change value during a simulated BSM instruction but when
-      the instruction is finished, their values are back to 0 
 
-      This is expressed in the below bsm_state_enc invariant
-  *)
-  
+  (** We consider BSM with m stacks and build a compiler to MM with 2+m registers. 
+      Each stack i : pos m is encoded in registers 2+i : pos (2+m) using stack_enc.
+      The extra registers are tmp1 := pos0 and tmp2 := pos1. *)
+
+  (* The registers of the MM *)
+
   Let n := 2+m.
-  Local Definition tmp1 : pos n := pos0.
-  Local Definition tmp2 : pos n := pos1.
-  Local Definition reg p: pos n := pos_nxt (pos_nxt p).
+  Let tmp1 :  pos n := pos0.
+  Let tmp2 :  pos n := pos1.
+  Let reg p : pos n := pos_nxt (pos_nxt p).
    
-  Local Lemma Hv12 : tmp1 <> tmp2.             Proof. discriminate. Qed.
-  Local Lemma Hvr1 : forall p, reg p <> tmp1.  Proof. discriminate. Qed.
-  Local Lemma Hvr2 : forall p, reg p <> tmp2.  Proof. discriminate. Qed.
-  
-  Let Hreg : forall p q, reg p = reg q -> p = q.
-  Proof. intros; do 2 apply pos_nxt_inj; apply H. Qed. 
+  Local Fact Hv12 : tmp1 <> tmp2.             Proof. discriminate. Qed.
+  Local Fact Hvr1 : forall p, reg p <> tmp1.  Proof. discriminate. Qed.
+  Local Fact Hvr2 : forall p, reg p <> tmp2.  Proof. discriminate. Qed.
+  Local Fact Hreg : forall p q, reg p = reg q -> p = q.
+  Proof. intros; do 2 apply pos_nxt_inj; apply H. Qed.
 
-  Definition bsm_state_enc (v : vec (list bool) m) w := 
+  Hint Resolve Hv12 Hvr1 Hvr2 Hreg : core.
+
+  (* The encoding of BSM states *)
+
+  Definition bsm_state_enc (v : vec _ m) := 0##0##vec_map stack_enc v.
+
+  Definition bsm_state_equiv (v : vec _ m) w := 
             w#>tmp1 = 0
          /\ w#>tmp2 = 0
          /\ forall p, w#>(reg p) = stack_enc (v#>p).
 
-  (* i is the position in the source code *)
+  Infix "⋈" := bsm_state_equiv (at level 70, no associativity).
 
-  Definition bsm_instr_compile lnk i ii :=
-    match ii with
-      | PUSH s Zero => mm_push_Zero (reg s) tmp1 tmp2 (lnk i)
-      | PUSH s One  => mm_push_One  (reg s) tmp1 tmp2 (lnk i)
-      | POP  s j k  => mm_pop (reg s) tmp1 tmp2 (lnk i) (lnk j) (lnk (1+i)) (lnk k)
-    end.
-
-  Definition bsm_instr_compile_length (ii : bsm_instr m) :=
-    match ii with 
-      | PUSH _ Zero => 7
-      | PUSH _ One  => 8
-      | POP  _ _ _  => 16
-    end.
-
-  Fact bsm_instr_compile_length_eq lnk i ii : length (bsm_instr_compile lnk i ii) = bsm_instr_compile_length ii.
-  Proof. destruct ii as [ | ? [] ]; simpl; auto. Qed.
-    
-  Fact bsm_instr_compile_length_geq ii : 1 <= bsm_instr_compile_length ii.
-  Proof. destruct ii as [ | ? [] ]; simpl; auto; lia. Qed.
-
-  Hint Resolve bsm_instr_compile_length_eq bsm_instr_compile_length_geq : core.
-
-  (* This main soundness lemma per simulated instruction *)
-
-  Lemma bsm_instr_compile_sound : instruction_compiler_sound bsm_instr_compile (@bsm_sss _) (@mm_sss _) bsm_state_enc.
-  Proof.
-    intros lnk I i1 v1 i2 v2 w1 H; revert H w1.
-    change v1 with (snd (i1,v1)) at 2.
-    change i1 with (fst (i1,v1)) at 2 3 4 6 7 8.
-    change v2 with (snd (i2,v2)) at 2.
-    change i2 with (fst (i2,v2)) at 2.
-    generalize (i1,v1) (i2,v2); clear i1 v1 i2 v2.
-    induction 1 as    [ i p j k v Hv
-                      | i p j k v ll Hll 
-                      | i p j k v ll Hll
-                      | i p [] v
-                      ]; simpl; intros w1 H0 H; generalize H; intros (H1 & H2 & H3).
-
-    + exists w1; split; auto.
-      apply mm_pop_void_progress; auto using Hv12, Hvr1, Hvr2.
-      rewrite H3, Hv; auto.
-
-    + exists (w1[(stack_enc ll)/reg p]); repeat split; auto; rew vec.
-      * apply mm_pop_Zero_progress; auto using Hv12, Hvr1, Hvr2.
-        rewrite H3, Hll; auto.
-      * intros q; dest p q.
-        assert (reg p <> reg q); rew vec.
-    
-    + exists (w1[(stack_enc ll)/reg p]); repeat split; auto; rew vec.
-      * apply mm_pop_One_progress; auto using Hv12, Hvr1, Hvr2.
-        rewrite H3, Hll; auto.
-      * intros q; dest p q.
-        assert (reg p <> reg q); rew vec.
-   
-    + exists (w1[(stack_enc (One::v#>p))/reg p]); repeat split; auto; rew vec.
-      rewrite H0; apply mm_push_One_progress; auto using Hv12, Hvr1, Hvr2.
-      intros q; dest p q.
-      assert (reg p <> reg q); rew vec.
-
-    + exists (w1[(stack_enc (Zero::v#>p))/reg p]); repeat split; auto; rew vec.
-      rewrite H0; apply mm_push_Zero_progress; auto using Hv12, Hvr1, Hvr2.
-      intros q; dest p q.
-      assert (reg p <> reg q); rew vec.
+  Fact bsm_state_enc_spec v : v ⋈ bsm_state_enc v.
+  Proof. 
+    red; unfold tmp1, tmp2; repeat split; rew vec.
+    intros p; unfold reg; simpl.
+    rewrite vec_pos_map; trivial.
   Qed.
 
-  Hint Resolve bsm_instr_compile_sound : core.
+  (* The compiler from the generic one: we only need to
+     explain how to simulate each individual instruction *)
 
-  Section bsm_sim.
+  Section bsm_mm_compiler.
 
-    Variable (iP : nat) (cP : list (bsm_instr m)).
+    Implicit Type ρ : bsm_instr m.
 
-    Local Definition lnk_Q_pair := @gen_compiler_correction _ _ _ _ bsm_instr_compile_length_eq _ _ _ _  (@bsm_sss_total' _)
-                     (@mm_sss_fun _) _ bsm_instr_compile_sound (iP,cP) 1. 
+    Local Definition bsm_instr_compile lnk i ρ :=
+      match ρ with
+        | PUSH s Zero => mm_push_Zero (reg s) tmp1 tmp2 (lnk i)
+        | PUSH s One  => mm_push_One  (reg s) tmp1 tmp2 (lnk i)
+        | POP  s j k  => mm_pop (reg s) tmp1 tmp2 (lnk i) (lnk j) (lnk (1+i)) (lnk k)
+      end.
 
-    Local Definition lnk := projT1 lnk_Q_pair.
-    Local Definition Q := proj1_sig (projT2 lnk_Q_pair).
+    Local Definition bsm_instr_compile_length ρ :=
+      match ρ with 
+        | PUSH _ Zero => 7
+        | PUSH _ One  => 8
+        | POP  _ _ _  => 16
+      end.
 
-    Local Lemma Hlnk : fst Q = 1 /\ lnk iP = 1 /\ forall i, out_code i (iP,cP) -> lnk i = code_end Q.
+    Local Fact bsm_instr_compile_length_eq lnk i ρ : 
+          length (bsm_instr_compile lnk i ρ) = bsm_instr_compile_length ρ.
+    Proof. destruct ρ as [ | ? [] ]; simpl; auto. Qed.
+
+    Hint Resolve bsm_instr_compile_length_eq : core.
+
+    (* This main soundness lemma per simulated instruction *)
+
+    Lemma bsm_instr_compile_sound : 
+        instruction_compiler_sound bsm_instr_compile 
+                                   (@bsm_sss _) 
+                                   (@mm_sss _) 
+                                   bsm_state_equiv.
     Proof.
-      repeat split; apply (proj2_sig (projT2 lnk_Q_pair)).
+      intros lnk ρ i1 v1 i2 v2 w1 H; revert H w1.
+      change v1 with (snd (i1,v1)) at 2.
+      change i1 with (fst (i1,v1)) at 2 3 4 6 7 8.
+      change v2 with (snd (i2,v2)) at 2.
+      change i2 with (fst (i2,v2)) at 2.
+      generalize (i1,v1) (i2,v2); clear i1 v1 i2 v2.
+      induction 1 as    [ i p j k v Hv
+                        | i p j k v ll Hll 
+                        | i p j k v ll Hll
+                        | i p [] v
+                        ]; simpl; intros w1 H0 H; generalize H; intros (H1 & H2 & H3).
+
+      + exists w1; split; auto.
+        apply mm_pop_void_progress; auto using Hv12, Hvr1, Hvr2.
+        rewrite H3, Hv; auto.
+
+      + exists (w1[(stack_enc ll)/reg p]); repeat split; auto; rew vec.
+        * apply mm_pop_Zero_progress; auto using Hv12, Hvr1, Hvr2.
+          rewrite H3, Hll; auto.
+        * intros q; dest p q.
+          assert (reg p <> reg q); rew vec.
+    
+      + exists (w1[(stack_enc ll)/reg p]); repeat split; auto; rew vec.
+        * apply mm_pop_One_progress; auto using Hv12, Hvr1, Hvr2.
+          rewrite H3, Hll; auto.
+        * intros q; dest p q.
+          assert (reg p <> reg q); rew vec.
+   
+      + exists (w1[(stack_enc (One::v#>p))/reg p]); repeat split; auto; rew vec.
+        rewrite H0; apply mm_push_One_progress; auto using Hv12, Hvr1, Hvr2.
+        intros q; dest p q.
+        assert (reg p <> reg q); rew vec.
+
+      + exists (w1[(stack_enc (Zero::v#>p))/reg p]); repeat split; auto; rew vec.
+        rewrite H0; apply mm_push_Zero_progress; auto using Hv12, Hvr1, Hvr2.
+        intros q; dest p q.
+        assert (reg p <> reg q); rew vec.
     Qed.
 
-    Infix "⋈" := bsm_state_enc (at level 70, no associativity).
+    Hint Resolve bsm_instr_compile_sound : core.
 
-    Local Lemma HQ1 : forall i1 v1 w1 i2 v2, v1 ⋈ w1 /\ (iP,cP) /BSM/ (i1,v1) ~~> (i2,v2)     
-                    -> exists w2,    v2 ⋈ w2 /\ Q /MM/ (lnk i1,w1) ~~> (lnk i2,w2).
-    Proof. apply (proj2_sig (projT2 lnk_Q_pair)). Qed.
-
-    Local Lemma HQ2 : forall i1 v1 w1 j2 w2, v1 ⋈ w1 /\ Q /MM/ (lnk i1,w1) ~~> (j2,w2) 
-                    -> exists i2 v2, v2 ⋈ w2 /\ (iP,cP) /BSM/ (i1,v1) ~~> (i2,v2) /\ j2 = lnk i2.
-    Proof. apply (proj2_sig (projT2 lnk_Q_pair)). Qed.
-
-    Variable v : vec (list bool) m. 
-
-    Local Definition w := 0##0##vec_map stack_enc v.
-
-    Let w_prop : bsm_state_enc v w.
+    Theorem bsm_mm_compiler : compiler_t (@bsm_sss _) (@mm_sss _) bsm_state_equiv.
     Proof.
-      red; unfold w, tmp1, tmp2; repeat split; rew vec.
-      intros p; unfold reg; simpl. 
-      rewrite vec_pos_map; trivial.
-    Qed. 
-
-    (* (iQ,cQ) simulates termination of (iP,cP) while ensuring tmp1 and tmp2 stay void when it terminates *)
-
-    Local Lemma Q_spec1 : (iP,cP) /BSM/ (iP,v) ↓ -> exists w', Q /MM/ (1,w) ~~> (code_end Q, w') /\ w'#>tmp1 = 0 /\ w'#>tmp2 = 0.
-    Proof.
-      intros ((i1,v1) & H1).
-      destruct HQ1 with (1 := conj w_prop H1) as (w' & H2 & H3).
-      rewrite <- (proj2 (proj2 Hlnk) i1), <- (proj1 (proj2 Hlnk)).
-      * exists w'; split; auto; red in H2; tauto.
-      * apply H1.
+      apply generic_compiler 
+        with (icomp := bsm_instr_compile)
+             (ilen := bsm_instr_compile_length); auto.
+      + apply bsm_sss_total'.
+      + apply mm_sss_fun.
     Qed.
 
-    Local Lemma Q_spec2 : Q /MM/ (1,w) ↓ -> (iP,cP) /BSM/ (iP,v) ↓.
+  End bsm_mm_compiler.
+
+  (* Using the compiler, we can simulate any BSM with a MM *)
+
+  Theorem bsm_mm_simulator i (P : list (@bsm_instr m)) : 
+         { Q : list (@mm_instr (pos n)) 
+         | forall v w, v ⋈ w 
+         ->   (forall i' v', (i,P) /BSM/ (i,v) ~~> (i',v') -> exists w', (1,Q) /MM/ (1,w) ~~> (1+length Q,w') /\ v' ⋈ w')
+           /\ ((1,Q) /MM/ (1,w) ↓  -> (i,P) /BSM/ (i,v) ↓) 
+         }.
+  Proof.
+    exists (gc_code bsm_mm_compiler (i,P) 1).
+    intros v w Hw; split.
+    + intros ? ?; now apply (compiler_t_output_sound' bsm_mm_compiler). 
+    + apply compiler_t_term_equiv; auto.
+  Qed.
+
+  (* We simulate a BSM (i,P) with a MM (1,Q) such that
+        (i,P) terminates iff (1,Q) terminates iff (1,Q) terminates on zero *)
+
+  Section bsm_mm0_sim.
+
+    Variables (i : nat) (P : list (bsm_instr m)).
+
+    Let Q := proj1_sig (bsm_mm_simulator i P).
+    Let HQ := proj2_sig (bsm_mm_simulator i P).
+
+    Definition bsm_mm0_sim := Q ++ mm_zeroify tmp1 (code_end (1,Q)).
+
+    Notation R := bsm_mm0_sim.
+
+    Theorem bsm_mm0_sim_spec v w : 
+           v ⋈ w 
+        -> ((i,P) /BSM/ (i,v) ↓ -> (1,R) /MM/ (1,w) ~~> (0,vec_zero))
+        /\ ((1,R) /MM/ (1,w) ~~> (0,vec_zero) -> (1,R) /MM/ (1,w) ↓)
+        /\ ((1,R) /MM/ (1,w) ↓ -> (i,P) /BSM/ (i,v) ↓).
     Proof.
-      intros ((j,w2) & H1).
-      rewrite <- (proj1 (proj2 Hlnk)) in H1.
-      destruct HQ2 with (1 := conj w_prop H1) as (i2 & v2 & H2 & H3 & _).
-      exists (i2,v2); auto.
+      intros Hw; split; [ | split ].
+      + intros ((i',v') & H).
+        apply (HQ Hw) in H as (w' & (H1 & H2) & H3); fold Q in H1, H2; unfold fst in H2.
+        unfold bsm_mm0_sim; split; [ | simpl; lia ]. 
+        apply subcode_sss_compute_trans with (2 := H1); auto.
+        unfold code_end, fst, snd.
+        assert (w'#>tmp1 = 0) by apply H3.
+        apply sss_progress_compute, subcode_sss_progress with (2 := mm_zeroify_spec _ _ _ H); auto.
+      + exists (0,vec_zero); auto.
+      + intros H2; apply HQ with (1 := Hw).
+        revert H2; apply subcode_sss_terminates.
+        unfold R, Q; auto.
     Qed.
 
-    Local Definition bsm_mm_sim := snd Q.
+    Corollary bsm_mm0_terminates v w :
+        v ⋈ w -> (i,P) /BSM/ (i,v) ↓ <-> (1,R) /MM/ (1,w) ↓.
+    Proof. intros Hw; split; intro; repeat (apply bsm_mm0_sim_spec with (1 := Hw); auto). Qed.
 
-    Theorem bsm_mm_sim_spec : (iP,cP) /BSM/ (iP,v) ↓ <-> (1,bsm_mm_sim) /MM/ (1,w) ↓.
-    Proof.
-      rewrite <- (proj1 Hlnk) at 1.
-      rewrite <- surjective_pairing.
-      split; auto using Q_spec2.
-      intros H.
-      destruct (Q_spec1 H) as (w' & H1 & _).
-      exists (code_end Q, w'); auto.
-    Qed.
+    Corollary bsm_mm0_terminates_on_zero v w :
+        v ⋈ w -> (i,P) /BSM/ (i,v) ↓ <-> (1,R) /MM/ (1,w) ~~> (0,vec_zero).
+    Proof. intros Hw; split; intro; repeat (apply bsm_mm0_sim_spec with (1 := Hw); auto). Qed.
 
-    Local Definition iE := code_end Q.
+  End bsm_mm0_sim.
 
-    (* We complete (iQ,cQ) with some code nullifying all variables except tmp1 & tmp2 *)
+End bsm_mm0_simulator.
 
-    Local Definition cN := mm_nullify tmp1 iE (map (fun p => pos_nxt (pos_nxt p)) (pos_list m)).
-    Local Definition cE := cN ++ DEC tmp1 0 :: nil.
-  
-    Local Lemma E_spec w' : w'#>tmp1 = 0 -> w'#>tmp2 = 0 -> (iE,cE) /MM/ (iE,w') -+> (0,vec_zero).
-    Proof.
-      intros H1 H2.
-      unfold cE.
-      apply sss_compute_progress_trans with (length cN+iE,vec_zero).
-      + apply subcode_sss_compute with (P := (iE,cN)); auto.
-        apply mm_nullify_compute; auto.
-        * intros p Hp.
-          apply in_map_iff in Hp.
-          destruct Hp as (x & H3 & H4); subst; discriminate.
-        * intros p Hp.
-          apply in_map_iff in Hp.
-          destruct Hp as (x & H3 & H4); subst; apply vec_zero_spec.
-        * intros p Hp.
-          unfold n, tmp1, tmp2 in *; simpl in p.
-          pos_inv p; auto.
-          pos_inv p; auto.
-          destruct Hp; apply in_map_iff; exists p; split; auto.
-          apply pos_list_prop.
-      + apply subcode_sss_progress with (P := (length cN+iE,DEC tmp1 0::nil)); auto.
-        mm sss DEC zero with tmp1 0.
-        apply subcode_refl.
-        mm sss stop.
-    Qed.
-  
-    Definition bsm_mm := snd Q ++ cE.
-  
-    Let cQ_sim : Q <sc (1,bsm_mm).
-    Proof.
-      pose proof Hlnk as Hlnk.
-      unfold bsm_mm; destruct Q as (iQ,cQ); simpl in Hlnk.
-      simpl snd; rewrite (proj1 Hlnk); auto.
-    Qed.
-  
-    Let cE_sim : (iE,cE) <sc (1,bsm_mm).
-    Proof.
-      unfold iE, bsm_mm; subcode_tac; solve list eq.
-      rewrite (proj1 Hlnk); auto.
-    Qed.
+#[local] Hint Resolve bsm_state_enc_spec : core.
 
-    (* (1,bsm_sim) is a simulator for (iP,cP) *)
-  
-    Theorem bsm_mm_spec : (iP,cP) /BSM/ (iP,v) ↓ <-> (1,bsm_mm) /MM/ (1,w) ~~> (0,vec_zero).
-    Proof.
-      split.
-      * intros H1.
-        apply Q_spec1 in H1.
-        destruct H1 as (w' & (H1 & H0) & H2 & H3).
-        split.
-        2: simpl; lia.
-        apply sss_compute_trans with (st2 := (iE,w')).
-        revert H1; apply subcode_sss_compute; auto.
-        apply sss_progress_compute.
-        generalize (E_spec _ H2 H3); apply subcode_sss_progress; auto.
-      * intros H1.
-        apply Q_spec2.
-        apply subcode_sss_terminates with (1 := cQ_sim).
-        exists (0,vec_zero); auto.
-    Qed.
-
-  End bsm_sim.
-
-End simulator.
+(* Both compilers below produce the same code *)
 
 Theorem bsm_mm_compiler_1 n i (P : list (bsm_instr n)) :
-  { Q : list (mm_instr (pos (2+n))) | forall v, (i,P) /BSM/ (i,v) ↓ <-> (1,Q) /MM/ (1,0##0##vec_map stack_enc v) ↓ }.
-Proof. exists (bsm_mm_sim i P); apply bsm_mm_sim_spec. Qed.
+  { Q : list (mm_instr (pos (2+n))) | forall v, (i,P) /BSM/ (i,v) ↓ <-> (1,Q) /MM/ (1,bsm_state_enc v) ↓ }.
+Proof. exists (bsm_mm0_sim i P); intro; apply bsm_mm0_terminates; auto. Qed.
 
 Theorem bsm_mm_compiler_2 n i (P : list (bsm_instr n)) :
-  { Q : list (mm_instr (pos (2+n))) | forall v, (i,P) /BSM/ (i,v) ↓ <-> (1,Q) /MM/ (1,0##0##vec_map stack_enc v) ~~> (0,vec_zero) }.
-Proof. exists (bsm_mm i P); apply bsm_mm_spec. Qed.
+  { Q : list (mm_instr (pos (2+n))) | forall v, (i,P) /BSM/ (i,v) ↓ <-> (1,Q) /MM/ (1,bsm_state_enc v) ~~> (0,vec_zero) }.
+Proof. exists (bsm_mm0_sim i P); intro; apply bsm_mm0_terminates_on_zero; auto. Qed.
