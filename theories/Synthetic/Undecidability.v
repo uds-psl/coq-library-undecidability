@@ -4,9 +4,9 @@ Require Import Undecidability.Synthetic.DecidabilityFacts.
 Require Import Undecidability.TM.SBTM.
 
 (*
-  p is undecidable if decidability of p implies co-enumerability of L halting.
-  Since L halting is enumerable, its co-enumerability would imply its decidability.
-  Instead of L halting, any other enumerable, many-one equivalent problem to L halting suffices. 
+  p is undecidable if decidability of p implies co-enumerability of Turing machine halting.
+  Since Turing machine halting is enumerable, its co-enumerability would imply its decidability.
+  Instead of Turing machine halting, any other many-one equivalent problem suffices. 
   For example (cf. [2]):
     Post correspondence problem (cf. [1, Lemma 2.26]),
     binary stack machine halting,

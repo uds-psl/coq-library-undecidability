@@ -36,7 +36,8 @@ Section mma_sim.
 
   Variables (n : nat).
 
-  (* The identity compiler, just the jump address changes according to the linker *)
+  (* The identity compiler behaves a relinking the code so that the
+     output PC value is always at the code end *)
 
   Definition mma_instr_compile lnk (_ : nat) (ii : mm_instr (pos n)) :=
     match ii with
@@ -81,145 +82,73 @@ Section mma_sim.
 
   Hint Resolve mma_instr_compile_sound : core.
 
-  Section mma_sim.
-
-    Variable (iP : nat) (cP : list (mm_instr (pos n))).
-
-    Local Definition lnk_Q_pair := @gen_compiler_correction _ _ _ _ mma_instr_compile_length_eq _ _ _ _  (@mma_sss_total_ni _)
-                     (@mma_sss_fun _) _ mma_instr_compile_sound (iP,cP) 1. 
-
-    Local Definition lnk := projT1 lnk_Q_pair.
-    Local Definition Q := proj1_sig (projT2 lnk_Q_pair).
-
-    Local Lemma Hlnk : fst Q = 1 /\ lnk iP = 1 /\ forall i, out_code i (iP,cP) -> lnk i = code_end Q.
+  Theorem mma_auto_compiler : compiler_t (@mma_sss n) (@mma_sss n) eq.
     Proof.
-      repeat split; apply (proj2_sig (projT2 lnk_Q_pair)).
+      apply generic_compiler 
+        with (icomp := mma_instr_compile)
+             (ilen := mma_instr_compile_length); auto.
+      + apply mma_sss_total_ni.
+      + apply mma_sss_fun.
     Qed.
 
-    Infix "⋈" := (@eq (vec nat n)) (at level 70, no associativity).
+  (* While they compute the same output, the auto simulated MMA 
+     starts at PC value 1 and stops at a unique PC value (code_end), 
+     a more predictable outcome than the original MMA *)
 
-    Local Lemma HQ1 : forall i1 v1 w1 i2 v2, v1 ⋈ w1 /\ (iP,cP) //ₐ (i1,v1) ~~> (i2,v2)     
-                    -> exists w2,    v2 ⋈ w2 /\ Q //ₐ (lnk i1,w1) ~~> (lnk i2,w2).
-    Proof. apply (proj2_sig (projT2 lnk_Q_pair)). Qed.
-
-    Local Lemma HQ1' i1 v1 i2 v2 : (iP,cP) //ₐ (i1,v1) ~~> (i2,v2) 
-                        ->   Q //ₐ (lnk i1,v1) ~~> (lnk i2,v2).
-    Proof.
-      intros H; destruct (@HQ1 i1 v1 v1 i2 v2) as (w2 & <- & ?); auto.
-    Qed.
-
-    Local Lemma HQ2 : forall i1 v1 w1 j2 w2, v1 ⋈ w1 /\ Q //ₐ (lnk i1,w1) ~~> (j2,w2) 
-                    -> exists i2 v2, v2 ⋈ w2 /\ (iP,cP) //ₐ (i1,v1) ~~> (i2,v2) /\ j2 = lnk i2.
-    Proof. apply (proj2_sig (projT2 lnk_Q_pair)). Qed.
-
-    Local Lemma HQ2' i1 v1 j2 v2 :         Q //ₐ (lnk i1,v1) ~~> (j2,v2) 
-               -> exists i2, (iP,cP) //ₐ (i1,v1) ~~> (i2,v2) /\ j2 = lnk i2.
-    Proof.
-      intros H; destruct (@HQ2 i1 v1 v1 j2 v2) as (i2 & ? & <- & ? & ->); auto.
-      exists i2; auto.
-    Qed.
-
-    Variable v : vec nat n.
- 
-    (* Q simulates termination of (iP,cP) while ensuring tmp1 and tmp2 stay void when it terminates *)
-
-    Local Lemma Q_spec1 : (iP,cP) //ₐ (iP,v) ↓ -> exists w', Q //ₐ (1,v) ~~> (code_end Q, w').
-    Proof.
-      intros ((i1,v1) & H1).
-      exists v1.
-      rewrite <- (proj2 (proj2 Hlnk) i1), <- (proj1 (proj2 Hlnk)); auto using HQ1'.
-      destruct H1; auto.
-    Qed.
-
-    Local Lemma Q_spec2 : Q //ₐ (1,v) ↓ -> (iP,cP) //ₐ (iP,v) ↓.
-    Proof.
-      intros ((j,w2) & H1).
-      rewrite <- (proj1 (proj2 Hlnk)) in H1.
-      destruct HQ2' with (1 := H1) as (i2 & ? & ->).
-      exists (i2,w2); auto.
-    Qed.
-
-    Definition mma_sim := snd Q.
-    Definition mma_sim_end := code_end Q.
-
-    Theorem mma_sim_spec : ((iP,cP) //ₐ (iP,v) ↓ -> exists w', (1,mma_sim) //ₐ (1,v) ~~> (1+length mma_sim, w'))
-                        /\ ((1,mma_sim) //ₐ (1,v) ↓ -> (iP,cP) //ₐ (iP,v) ↓).
-    Proof.
-      replace (1+length mma_sim) with (code_end Q).
-      replace (1,mma_sim) with Q. 
-      + split; (auto using Q_spec1, Q_spec2).
-      + rewrite (surjective_pairing Q); f_equal; auto.
-        apply (proj1 Hlnk).
-      + unfold code_end; f_equal.
-        apply (proj1 Hlnk).
-    Qed.
-
-  End mma_sim.
+  Theorem mma_auto_simulator i (P : list (@mm_instr (pos n))) : 
+         { Q : list (@mm_instr (pos n)) 
+         | forall v, 
+              (forall i' v', (i,P) //ₐ (i,v) ~~> (i',v') -> (1,Q) //ₐ (1,v) ~~> (length Q+1,v'))
+           /\ ((1,Q) //ₐ (1,v) ↓  -> (i,P) //ₐ (i,v) ↓) 
+         }.
+  Proof.
+    exists (gc_code mma_auto_compiler (i,P) 1).
+    intros v; split.
+    + intros i' v' H. 
+      apply (compiler_t_output_sound' mma_auto_compiler) 
+        with (i := 1) (w := v) 
+        in H as (w' & H1 & <-); auto.
+      rewrite plus_comm; auto. 
+    + apply compiler_t_term_equiv; auto.
+  Qed.
 
 End mma_sim.
 
-Section mma2_simul.
+Section mma_mma0_sim.
 
-  (* To generalize for n register, we need a recursive nullifying code 
-     not complicated though *)
+  Variable (n i : nat) (P : list (mm_instr (pos (S n)))).
 
-  Variable (iP : nat) (cP : list (mm_instr (pos 2))).
+  Let Q := proj1_sig (mma_auto_simulator i P).
+  Let HQ := proj2_sig (mma_auto_simulator i P).
 
-  Let Q := mma_sim iP cP.
-  Local Definition eQ := 1+length Q.
+  Definition mma_mma0_sim := Q ++ mma_null_all _ (length Q+1) ++ mma_jump 0 pos0.
 
-  Local Definition cN : list (mm_instr (pos 2)) := mma_null pos0 eQ ++ mma_null pos1 (1+eQ) ++ mma_jump 0 pos0.
+  Notation R := mma_mma0_sim.
 
-  Local Definition L1 := @mma_null_length 2 pos0 eQ.
-  Local Definition L2 := @mma_null_length 2 pos1 (1+eQ).
+  Hint Rewrite mma_null_all_length : length_db.
 
-  Let N_spec v : (eQ,cN) //ₐ (eQ,v) -+> (0,vec_zero).
-  Proof.
-    unfold cN.
-    apply sss_progress_trans with (1+eQ,v[0/pos0]).
-    1: { apply subcode_sss_progress with (P := (eQ,mma_null pos0 eQ)); auto.
-         apply mma_null_progress; auto. }
-    apply sss_progress_trans with (2+eQ,(v[0/pos0])[0/pos1]).
-    1: { pose proof L1 as L1.
-         apply subcode_sss_progress with (P := (1+eQ,mma_null pos1 (1+eQ))); auto.
-         apply mma_null_progress; auto. }
-    replace ((v[0/pos0])[0/pos1]) with (@vec_zero 2).
-    2: { apply vec_pos_ext; intros p.
-         repeat (invert pos p; rew vec). }
-    pose proof L1 as L1. pose proof L2 as L2.
-    apply subcode_sss_progress with (P := (2+eQ,mma_jump 0 pos0)); auto. 
-    apply mma_jump_progress; auto.
-  Qed.
-
-  Definition mma2_simul := Q ++ cN.
-
-  Let cQ_sim : (1,Q) <sc (1,mma2_simul).
-  Proof. unfold mma2_simul; auto. Qed.
-  
-  Let cN_sim : (eQ,cN) <sc (1,mma2_simul).
-  Proof. unfold mma2_simul, eQ; auto. Qed.
-
-  Theorem mma2_simul_spec v : (iP,cP) //ₐ (iP,v) ↓ <-> (1,mma2_simul) //ₐ (1,v) ~~> (0,vec_zero).
+  Theorem mma_mma0_sim_spec v : (i,P) //ₐ (i,v) ↓ <-> (1,R) //ₐ (1,v) ~~> (0,vec_zero).
   Proof.
     split.
-    * intros H; apply mma_sim_spec in H; revert H.
-      intros (w & Hw & _).
-      split; try (simpl; lia).
-      apply sss_compute_trans with (eQ,w).
-      + revert Hw; apply subcode_sss_compute; auto.
-      + apply sss_progress_compute.
-        generalize (N_spec w).
-        apply subcode_sss_progress; auto.
-    * intros H1.
-      apply mma_sim_spec; fold Q.
-      apply subcode_sss_terminates with (1 := cQ_sim).
-      now exists (0,vec_zero).
+    + intros ((i',v') & H).
+      apply HQ in H; fold Q in H.
+      destruct H as [ H _ ].
+      split; [ | simpl; lia ].
+      unfold R.
+      apply subcode_sss_compute_trans with (2 := H); auto.
+      apply subcode_sss_compute_trans with (2 := mma_null_all_spec _ _); auto.
+      apply subcode_sss_compute with (2 := mma_jump_spec _ pos0 _ _); auto.
+    + intros H.
+      apply HQ; fold Q.
+      apply subcode_sss_terminates with (Q := (1,R)).
+      * unfold R; auto.
+      * exists (0,vec_zero); auto.
   Qed.
 
-End mma2_simul.
+End mma_mma0_sim.
 
 (* Termination can be simulated with termination on (0,vec_zero) *)
 
-Theorem mma2_simulator i (P : list (mm_instr (pos 2))) :
+Theorem mma2_simulator n i (P : list (mm_instr (pos (S n)))) :
   { Q | forall v, (i,P) //ₐ (i,v) ↓ <-> (1,Q) //ₐ (1,v) ~~> (0,vec_zero) }.
-Proof. exists (mma2_simul i P); apply mma2_simul_spec. Qed.
+Proof. exists (mma_mma0_sim i P); apply mma_mma0_sim_spec. Qed.

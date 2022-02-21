@@ -4,8 +4,8 @@
 
 The Coq Library of Undecidability Proofs contains mechanised reductions to establish undecidability results in Coq.
 The undecidability proofs are based on a synthetic approach to undecidability. 
-A problem `P` is considered [undecidable](theories/Synthetic/Undecidability.v#L25) if its [decidability](theories/Synthetic/Definitions.v#L15) in Coq implies the [enumerability](theories/Synthetic/Definitions.v#L24) of the complement of halting problem for the call-by-value lambda-calculus (`HaltL` in [`L/L.v`](theories/L/L.v)).
-Since the halting problem for the call-by-value lambda-calculus is enumerable (`HaltL_enum` in [`L/L_enum.v`](theories/L/L_enum.v)), enumerability of its complement would classically imply its decidability.
+A problem `P` is considered [undecidable](theories/Synthetic/Undecidability.v#L25) if its [decidability](theories/Synthetic/Definitions.v#L15) in Coq implies the [enumerability](theories/Synthetic/Definitions.v#L24) of the complement of halting problem for Turing machines (`SBTM_HALT` in [`TM/SBTM.v`](theories/TM/SBTM.v)).
+Since the Turing machine halting is enumerable (`SBTM_HALT_enum` in [`TM/SBTM_enum.v`](theories/TM/SBTM_enum.v)), enumerability of its complement would classically imply its decidability.
 
 As in the traditional literature, undecidability of a problem `P` in the library is often established by constructing a [many-one reduction](theories/Synthetic/Definitions.v#L40) from an undecidable problem to `P`.
 
@@ -26,6 +26,7 @@ Target problems are very expressive and thus work well as targets for reduction,
 
 ### Seed Problems
 
+- Halting problem for single-tape two-symbol Turing machines (`SBTM_HALT` in [`TM/SBTM.v`](theories/TM/SBTM.v))
 - Post correspondence problem (`PCP` in [`PCP/PCP.v`](theories/PCP/PCP.v))
 - Halting problem for two counters Minsky machines (`MM2_HALTING` in [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v)) 
 - Halting problem for FRACTRAN programs (`FRACTRAN_REG_HALTING` in [`FRACTRAN/FRACTRAN.v`](theories/FRACTRAN/FRACTRAN.v))
@@ -174,9 +175,11 @@ A Coq Library of Undecidable Problems. Yannick Forster, Dominique Larchey-Wendli
 
 ### Papers and abstracts on problems and proofs included in the library
 
+- Constructive Many-One Reduction from the Halting Problem to Semi-Unification. Andrej Dudenhefner. CSL2022. Subdirectory `SemiUnification`. https://drops.dagstuhl.de/opus/volltexte/2022/15738/
 - Undecidability, Incompleteness, and Completeness of Second-Order Logic in Coq. Mark Koch and Dominik Kirst. CPP 2022. Subdirectory `SOL`. https://www.ps.uni-saarland.de/extras/cpp22-sol/
 - Synthetic Undecidability of MSELL via FRACTRAN. Dominique Larchey-Wendling. FSCD 2021. File [`ILL/IMSELL.v`](theories/ILL/IMSELL.v). Also documents 
  the undecidability proof for 2-counters Minsky machines [`MinskyMachines/MM2.v`](theories/MinskyMachines/MM2.v) via FRACTRAN. https://github.com/uds-psl/coq-library-undecidability/releases/tag/FSCD-2021/ 
+- The Undecidability of System F Typability and Type Checking for Reductionists. Andrej Dudenhefner. LICS 2021. Subdirectory `SystemF`. https://ieeexplore.ieee.org/document/9470520
 - Trakhtenbrot's Theorem in Coq - A Constructive Approach to Finite Model Theory. Dominik Kirst and Dominique Larchey-Wendling. IJCAR 2020. Subdirectory `TRAKTHENBROT`. https://www.ps.uni-saarland.de/extras/fol-trakh/
 - Undecidability of Semi-Unification on a Napkin. Andrej Dudenhefner. FSCD 2020. Subdirectory `SemiUnification`. https://www.ps.uni-saarland.de/Publications/documents/Dudenhefner_2020_Semi-unification.pdf
 - Undecidability of Higher-Order Unification Formalised in Coq. Simon Spies and Yannick Forster. Technical report. Subdirectory `HOU`. https://www.ps.uni-saarland.de/Publications/details/SpiesForster:2019:UndecidabilityHOU.html

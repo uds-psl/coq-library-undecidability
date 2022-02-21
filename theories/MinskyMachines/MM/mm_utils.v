@@ -130,6 +130,32 @@ Section Minsky_Machine_utils.
 
   End mm_nullify.
 
+  Section mm_zeroify.
+
+    Variable (zero : pos n) (i : nat).
+
+    Let c p := if pos_eq_dec p zero then false else true.
+    Let l := filter c (pos_list n).
+
+    Definition mm_zeroify := mm_nullify zero i l ++ DEC zero 0 :: nil.
+
+    Fact mm_zeroify_spec v : v#>zero = 0 -> (i,mm_zeroify) // (i,v) -+> (0,vec_zero).
+    Proof.
+      intros H; unfold mm_zeroify.
+      apply sss_compute_progress_trans with (length (mm_nullify zero i l)+i,vec_zero).
+      + apply subcode_sss_compute with (P := (i,mm_nullify zero i l)); auto.
+        apply mm_nullify_compute; auto; unfold l; intros p; rewrite filter_In; unfold c;
+          destruct (pos_eq_dec p zero); subst; auto.
+        all: try rewrite vec_zero_spec; try rewrite H; auto.
+        * intros []; easy.
+        * intros []; split; auto; apply pos_list_prop.
+      + mm sss DEC zero with zero 0; auto.
+        * now rewrite vec_zero_spec.
+        * mm sss stop.
+    Qed.
+
+  End mm_zeroify.
+
   Section transfert.
 
     Variables (src dst zero : pos n).

@@ -30,7 +30,7 @@ Section BSM_MM_HALTS_ON_ZERO.
     intros (n & i & P & v).
     destruct (bsm_mm_compiler_2 i P) as (Q & _).
     exists (2+n), Q.
-    exact (0##0##vec_map stack_enc v).
+    exact (bsm_state_enc v).
   Defined.
 
   Theorem BSM_MM_HALTS_ON_ZERO : BSM_HALTING ⪯ MM_HALTS_ON_ZERO.
@@ -49,7 +49,7 @@ Section BSM_MM_HALTING.
     intros (n & i & P & v).
     destruct (bsm_mm_compiler_1 i P) as (Q & _).
     exists (2+n), Q.
-    exact (0##0##vec_map stack_enc v).
+    exact (bsm_state_enc v).
   Defined.
 
   Theorem BSM_MM_HALTING : BSM_HALTING ⪯ MM_HALTING.

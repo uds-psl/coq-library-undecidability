@@ -148,10 +148,10 @@ Section linker.
       rewrite (linker_app _ _ H1).
       red; simpl; rewrite compiler_length, H1, length_compiler_app.
       rewrite H1, app_length in H.
-      destruct mm. 
-      simpl in H; lia.
-      simpl.
-      generalize (Hlc x); lia.
+      destruct mm as [ | x mm ]. 
+      + simpl in H; lia.
+      + simpl.
+        generalize (Hlc x); lia.
     Qed.
 
   End linker_in_code.

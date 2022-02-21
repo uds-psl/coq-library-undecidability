@@ -37,6 +37,11 @@ TM/SBTM.v
 TM/SBTM_enum.v
 TM/SBTM_undec.v
 
+TM/PCTM.v
+TM/PCTM/pctm_defs.v
+TM/PCTM/pctm_sbtm.v
+
+
 StackMachines/BSM.v
 StackMachines/BSM_undec.v
 
@@ -485,6 +490,7 @@ TM/PrettyBounds/SizeBounds.v
 TM/Reductions/mTM_to_TM.v
 TM/Reductions/HaltTM_1_to_SBTM_HALT.v
 TM/Reductions/SBTM_HALT_to_HaltTM_1.v
+TM/Reductions/SBTM_HALT_to_PCTM_HALT.v
 
 TM/Enumerators/SBTM_HALT_enum.v
 
@@ -754,7 +760,7 @@ StackMachines/BSM/bsm_defs.v
 StackMachines/BSM/bsm_utils.v
 StackMachines/BSM/bsm_pcp.v
 StackMachines/BSM/tiles_solvable.v
-StackMachines/BSM/bsm_sbtm.v
+StackMachines/BSM/bsm_pctm.v
 
 StackMachines/Util/Facts.v
 StackMachines/Util/Nat_facts.v
@@ -772,6 +778,8 @@ StackMachines/Reductions/SMNdl_UB_to_CSSM_UB.v
 StackMachines/Reductions/HaltTM_1_to_CSSM_UB.v
 StackMachines/Reductions/iPCPb_to_BSM_HALTING.v
 StackMachines/Reductions/SBTM_HALT_to_HaltBSM.v
+StackMachines/Reductions/PCTM_HALT_to_BSM_HALTING.v
+
 
 SemiUnification/SemiU.v
 SemiUnification/SemiU_undec.v
