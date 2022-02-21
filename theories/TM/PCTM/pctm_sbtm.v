@@ -72,7 +72,7 @@ Section SBTM_PCTM.
        (o0 o1 : bool) (b0 b1 : bool) (d0 d1 : direction) (j0 j1 k : nat).
 
     Definition sbtm_op :=
-      (* 0+i *) JZ (5+i) ::
+      (* 0+i *) BR (1+i) (5+i) ::
       (* 1+i *) JMP (if o1 then 2+i else k) ::
       (* 2+i *) WR b1 ::
       (* 3+i *) MV d1 ::
@@ -97,17 +97,17 @@ Section SBTM_PCTM.
       intros o d b j ->.
       unfold sbtm_op.
       destruct t as ((l,[]),r); simpl in * |-; unfold d, b, j, o in *; clear d b j o.
-      + pctm sss JZ with (5+i); simpl rd.
+      + pctm sss BR with (1+i) (5+i); simpl rd.
         pctm sss JMP with (if o1 then 2+i else k).
-        destruct o1.
+        destruct o1; cbv match.
         * pctm sss WR with b1.
           pctm sss MV with d1.
           pctm sss JMP with j1.
           pctm sss stop.
         * pctm sss stop.
-      + pctm sss JZ with (5+i); simpl rd.
+      + pctm sss BR with (1+i) (5+i); simpl rd.
         pctm sss JMP with (if o0 then 6+i else k).
-        destruct o0.
+        destruct o0; cbv match.
         * pctm sss WR with b0.
           pctm sss MV with d0.
           pctm sss JMP with j0.

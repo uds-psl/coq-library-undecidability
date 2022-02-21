@@ -49,13 +49,12 @@ Section PC_based_Turing_Machine.
   Fact pctm_sss_total ρ s : { s' | ρ // s -1> s' }.
   Proof.
     destruct s as (i,t).
-    destruct ρ as [ d | b | j | j ].
+    destruct ρ as [ d | b | j p ].
     + exists (1+i,mv d t); constructor.
     + destruct t as ((l,x),r).
       exists (1+i,(l,b,r)); constructor.
     + destruct t as ((l,b),r).
-      exists (if b then 1+i else j,(l,b,r)); constructor.
-    + exists (j,t); constructor.
+      exists (if b then j else p,(l,b,r)); constructor.
   Qed. 
 
   Fact pctm_sss_total' ρ s : exists s', ρ // s -1> s'.
@@ -82,20 +81,15 @@ Section PC_based_Turing_Machine.
       -> P // (i,t) -+> st.
   Proof. solve progress. Qed.
 
-  Fact pctm_progress_JZ P i j t st :
-         (i,[JZ j]) <sc P
-      -> P // (if rd t then 1+i else j,t) ->> st
+  Fact pctm_progress_BR P i j p t st :
+         (i,[BR j p]) <sc P
+      -> P // (if rd t then j else p,t) ->> st
       -> P // (i,t) -+> st.
   Proof. solve progress. Qed.
 
- Fact pctm_progress_JMP P i j t st :
-         (i,[JMP j]) <sc P
-      -> P // (j,t) ->> st
-      -> P // (i,t) -+> st.
-  Proof. solve progress. Qed.
-
-  Hint Resolve pctm_progress_MV pctm_progress_WR 
-               pctm_progress_JZ pctm_progress_JMP : core.
+  Hint Resolve pctm_progress_MV 
+               pctm_progress_WR 
+               pctm_progress_BR : core.
 
   Tactic Notation "solve" "compute" :=
     intros; apply sss_progress_compute; eauto.
@@ -112,15 +106,9 @@ Section PC_based_Turing_Machine.
       -> P // (i,t) ->> st.
   Proof. solve compute. Qed.
 
-  Fact pctm_compute_JZ P i j t st :
-         (i,[JZ j]) <sc P
-      -> P // (if rd t then 1+i else j,t) ->> st
-      -> P // (i,t) ->> st.
-  Proof. solve compute. Qed.
-
-  Fact pctm_compute_JMP P i j t st :
-         (i,[JMP j]) <sc P
-      -> P // (j,t) ->> st
+  Fact pctm_compute_BR P i j p t st :
+         (i,[BR j p]) <sc P
+      -> P // (if rd t then j else p,t) ->> st
       -> P // (i,t) ->> st.
   Proof. solve compute. Qed.
 
@@ -138,17 +126,39 @@ Tactic Notation "pctm" "sss" "WR" "with" uconstr(a) :=
     | |- _ // _ ->> _ => apply pctm_compute_WR with (b := a)
   end; auto.
 
-Tactic Notation "pctm" "sss" "JZ" "with" uconstr(a) := 
+Tactic Notation "pctm" "sss" "BR" "with" uconstr(a) uconstr(b) := 
   match goal with
-    | |- _ // _ -+> _ => apply pctm_progress_JZ with (j := a)
-    | |- _ // _ ->> _ => apply pctm_compute_JZ with (j := a)
+    | |- _ // _ -+> _ => apply pctm_progress_BR with (j := a) (p := b)
+    | |- _ // _ ->> _ => apply pctm_compute_BR with (j := a) (p := b)
   end; auto.
+
+Tactic Notation "pctm" "sss" "stop" := exists 0; apply sss_steps_0; auto.
+
+Section extra.
+
+  Implicit Type P : (nat*list pctm_instr)%type.
+
+  Fact pctm_progress_JMP P i j t st : 
+        (i,[BR j j]) <sc P
+      -> P // (j,t) ->> st
+      -> P // (i,t) -+> st.
+  Proof.
+    intros.
+    pctm sss BR with j j.
+    destruct (rd t); auto.
+  Qed.
+
+  Fact pctm_compute_JMP P i j t st : 
+        (i,[BR j j]) <sc P
+      -> P // (j,t) ->> st
+      -> P // (i,t) ->> st.
+  Proof. intros; eapply sss_progress_compute, pctm_progress_JMP; eauto. Qed.
+
+End extra.
 
 Tactic Notation "pctm" "sss" "JMP" "with" uconstr(a) := 
   match goal with
     | |- _ // _ -+> _ => apply pctm_progress_JMP with (j := a)
     | |- _ // _ ->> _ => apply pctm_compute_JMP with (j := a)
   end; auto.
-
-Tactic Notation "pctm" "sss" "stop" := exists 0; apply sss_steps_0; auto.
 

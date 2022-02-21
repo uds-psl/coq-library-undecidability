@@ -21,19 +21,20 @@ Set Implicit Arguments.
 
 (** * Halting problem for (micro-programmed) Turing machines with a PC counter *)
 
-(* Four instructions: MV d | WR b | JZ i | JMP i *)
+(* Three instructions: MV d | WR b | BR i j *)
 Inductive pctm_instr : Set :=
   | pctm_mv  : direction -> pctm_instr
   | pctm_wr  : bool -> pctm_instr
-  | pctm_jz  : nat -> pctm_instr
-  | pctm_jmp : nat -> pctm_instr.
+  | pctm_br  : nat -> nat -> pctm_instr
+  .
 
 Module PCTMNotations.
 
   Notation MV  := pctm_mv.
   Notation WR  := pctm_wr.
-  Notation JZ  := pctm_jz.
-  Notation JMP := pctm_jmp.
+  Notation BR  := pctm_br.
+
+  Notation JMP j := (BR j j).
 
   Definition rd (t : tape) : bool   := let '(_,b,_) := t in b.
   Definition wr (t : tape) b : tape := let '(l,_,r) := t in (l,b,r).
@@ -52,10 +53,9 @@ Definition pctm_state := (nat * tape)%type.
     the state (i,t₁) into the state (j,t₂) *)
 
 Inductive pctm_sss : pctm_instr -> pctm_state -> pctm_state -> Prop :=
-  | pctm_sss_mv d i t :   MV d // (i,t) -1> (1+i,mv d t)       (* mv is from the TM/SBTM.v *)
-  | pctm_sss_wr b i t :   WR b // (i,t) -1> (1+i,wr t b)
-  | pctm_sss_jz i j t :   JZ j // (i,t) -1> (if rd t then 1+i else j,t)
-  | pctm_sss_jmp i j t : JMP j // (i,t) -1> (j,t)
+  | pctm_sss_mv d i t :      MV d // (i,t) -1> (1+i,mv d t)       (* mv is from the TM/SBTM.v *)
+  | pctm_sss_wr b i t :      WR b // (i,t) -1> (1+i,wr t b)
+  | pctm_sss_br i j p t :  BR j p // (i,t) -1> (if rd t then j else p,t)
 where "ρ // s -1> t" := (pctm_sss ρ s t).
 
 (** when P = (i,l) with (i = start PC value for instructions in l) 

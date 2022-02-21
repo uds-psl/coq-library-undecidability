@@ -70,41 +70,41 @@ Section PCTM_BSM2_compiler.
 
   Section read_head.
 
-    Variable (i : nat) (j : nat).
+    Variable (i j p : nat).
     
     (* Code for reading the head *)
 
     Definition read_head := 
       POP y (4+i) j :: 
       PUSH y One :: 
-      jump (7+i) ++
+      jump j ++
       PUSH y Zero ::
-      jump j.
+      jump p.
 
     Fact read_head_length : length read_head = 7.
     Proof. reflexivity. Qed.
 
     Fact read_head_Zero v l :
-           v#>y = Zero::l -> (i,read_head) // (i,v) -+> (j,v).
+           v#>y = Zero::l -> (i,read_head) // (i,v) -+> (p,v).
     Proof.
       unfold read_head; intros H.
       bsm sss POP zero with y (4+i) j l.
       bsm sss PUSH with y Zero.
-      apply subcode_sss_compute_trans with (P := (5+i,jump j))
-                                           (st2 := (j,v)); auto.
+      apply subcode_sss_compute_trans with (P := (5+i,jump p))
+                                           (st2 := (p,v)); auto.
       2: bsm sss stop.
       apply jump_spec'.
       rew vec; rewrite <- H; rew vec.
     Qed.
 
     Fact read_head_One v l :
-           v#>y = One::l -> (i,read_head) // (i,v) -+> (7+i,v).
+           v#>y = One::l -> (i,read_head) // (i,v) -+> (j,v).
     Proof.
       unfold read_head; intros H.
       bsm sss POP one with y (4+i) j l.
       bsm sss PUSH with y One.
-      apply subcode_sss_compute_trans with (P := (2+i,jump (7+i)))
-                                           (st2 := (7+i,v)); auto.
+      apply subcode_sss_compute_trans with (P := (2+i,jump j))
+                                           (st2 := (j,v)); auto.
       2: bsm sss stop.
       apply jump_spec'.
       rew vec; rewrite <- H; rew vec.
@@ -113,7 +113,7 @@ Section PCTM_BSM2_compiler.
     Fact read_head_spec v (b : bool) l w k :
            v = w 
         -> v#>y = b::l 
-        -> k = (if b then 7+i else j)
+        -> k = (if b then j else p)
         -> (i,read_head) // (i,v) -+> (k,w).
     Proof.
       intros <- H ->.
@@ -352,11 +352,10 @@ Section PCTM_BSM2_compiler.
 
     Let icomp (lnk : nat -> nat) (i : nat) : pctm_instr -> list (bsm_instr 2).
     Proof.
-      intros [ d | b | j | j ].
+      intros [ d | b | j p ].
       + exact (move_tape (lnk i) (lnk (1+i)) d).
       + exact (ovwrite_head b (lnk i) (lnk (1+i))).
-      + exact (read_head (lnk i) (lnk j)).
-      + exact (jump (lnk j)).
+      + exact (read_head (lnk i) (lnk j) (lnk p)).
     Defined.
 
     Let ilen : pctm_instr -> nat.
@@ -365,7 +364,6 @@ Section PCTM_BSM2_compiler.
       + exact 14.
       + exact 4.
       + exact 7.
-      + exact 2.
     Defined.
 
     Theorem pctm_bsm2_compiler : compiler_t (pctm_sss) (@bsm_sss 2) (fun t v => tape_eq_stacks t (v#>x) (v#>y)).
@@ -374,7 +372,7 @@ Section PCTM_BSM2_compiler.
       + intros ? ? []; simpl icomp; rew length; auto.
       + apply pctm_sss_total'.
       + apply bsm_sss_fun.
-      + intros lnk [ d | b | j | j ] i1 v1 i2 v2 w1 H1 H2 H3; simpl icomp.
+      + intros lnk [ d | b | j p ] i1 v1 i2 v2 w1 H1 H2 H3; simpl icomp.
         * case_eq (mv d v1); intros (l,b) r E.
           exists (l##(b::r)##vec_nil); split.
           - assert (i2 = 1+i1) as -> by (inversion H1; auto).
@@ -397,10 +395,6 @@ Section PCTM_BSM2_compiler.
             ++ subst; rewrite <- H4; auto.
             ++ destruct (rd v1); auto.
           - inversion H1; subst; split; auto.
-        * exists w1; split.
-          - inversion H1; subst.
-            apply jump_spec; auto.
-          - inversion H1; subst; auto.
     Qed.
 
   End compiler.
