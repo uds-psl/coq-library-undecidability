@@ -162,6 +162,20 @@ Section vector.
     + repeat rewrite vec_change_neq; auto.
   Qed.
 
+  Lemma vec_change_comm n v p q x y : p <> q ->
+    vec_change (@vec_change n v p x) q y = vec_change (vec_change v q y) p x.
+  Proof.
+    intros Hpq.
+    apply vec_pos_ext; intros r.
+    destruct (pos_eq_dec p r) as [?|Hpr].
+    + subst. rewrite (vec_change_neq _ _ (not_eq_sym Hpq)).
+      repeat rewrite vec_change_eq; auto.
+    + destruct (pos_eq_dec q r) as [?|Hqr].
+      * subst. rewrite (vec_change_neq _ _ Hpr).
+        repeat rewrite vec_change_eq; auto.
+      * repeat rewrite (vec_change_neq _ _ Hpr), (vec_change_neq _ _ Hqr); auto.
+  Qed.
+
   Variable eq_X_dec : forall x y : X, { x = y } + { x <> y }.
 
   Fixpoint vec_eq_dec n (u v : vec n) : { u = v } + { u <> v }.
