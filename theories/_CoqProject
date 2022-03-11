@@ -841,8 +841,12 @@ SOL/PA2_undec.v
 
 LambdaCalculus/wCBN.v
 LambdaCalculus/wCBN_undec.v
+LambdaCalculus/Krivine.v
+LambdaCalculus/Krivine_undec.v
 
 LambdaCalculus/Util/term_facts.v
 LambdaCalculus/Util/wCBN_facts.v
+LambdaCalculus/Util/Krivine_facts.v
 LambdaCalculus/Reductions/HaltLclosed_to_wCBNclosed.v
 LambdaCalculus/Reductions/wCBNclosed_to_wCBN.v
+LambdaCalculus/Reductions/wCBNclosed_to_KrivineMclosed_HALT.v
