@@ -838,3 +838,11 @@ SOL/Util/PA2_categoricity.v
 SOL/Reductions/H10p_to_SOL.v
 SOL/SOL_undec.v
 SOL/PA2_undec.v
+
+LambdaCalculus/wCBN.v
+LambdaCalculus/wCBN_undec.v
+
+LambdaCalculus/Util/term_facts.v
+LambdaCalculus/Util/wCBN_facts.v
+LambdaCalculus/Reductions/HaltLclosed_to_wCBNclosed.v
+LambdaCalculus/Reductions/wCBNclosed_to_wCBN.v
