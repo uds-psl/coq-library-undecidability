@@ -390,11 +390,12 @@ Qed.
 End Argument.
 
 Require Import Undecidability.Synthetic.Definitions.
-Require Undecidability.TM.Reductions.L_to_mTM.
+Require Undecidability.L.Reductions.HaltL_to_HaltLclosed.
+Import HaltL_to_HaltLclosed (HaltLclosed).
 #[local] Unset Asymmetric Patterns.
 
-(* note: currently HaltLclosed is defined in L_to_mTM *)
-Theorem reduction : L_to_mTM.HaltLclosed ⪯ wCBNclosed.
+(* note: currently HaltLclosed is defined in HaltL_to_HaltLclosed *)
+Theorem reduction : HaltLclosed ⪯ wCBNclosed.
 Proof.
   exists (fun '(exist _ s Hs) => exist _ (Argument.colon s (lam (var 0))) (Argument.closed'_colon Hs)).
   move=> [s Hs]. split.

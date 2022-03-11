@@ -11,13 +11,13 @@ From Undecidability.LambdaCalculus.Reductions Require
   HaltLclosed_to_wCBNclosed wCBNclosed_to_wCBN.
 
 Require Import Undecidability.L.L_undec.
-Require Undecidability.TM.Reductions.L_to_mTM.
+Require Undecidability.L.Reductions.HaltL_to_HaltLclosed.
 
 (* Undecidability of weak call-by-name leftmost outermost normalization of closed terms *)
 Theorem wCBNclosed_undec : undecidable wCBNclosed.
 Proof.
   apply (undecidability_from_reducibility HaltL_undec).
-  apply (reduces_transitive L_to_mTM.HaltL_HaltLclosed).
+  apply (reduces_transitive HaltL_to_HaltLclosed.reduction).
   exact HaltLclosed_to_wCBNclosed.reduction.
 Qed.
 
