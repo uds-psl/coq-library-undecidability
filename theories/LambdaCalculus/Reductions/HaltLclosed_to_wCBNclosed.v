@@ -66,7 +66,7 @@ Proof.
     apply: ext_ren_term. by case.
 Qed.
 
-Lemma cbv_cbn_subst sigma s : 
+Lemma cbv_cbn_subst sigma s :
   (forall n, match sigma n with | app _ _ => False | _ => True end) ->
   cbv_cbn (subst sigma s) = subst (funcomp Psi sigma) (cbv_cbn s).
 Proof.
@@ -142,18 +142,15 @@ Qed.
 
 Lemma bound_cbv_cbn k t : bound k t -> bound k (cbv_cbn t).
 Proof.
-  elim: t k.
-  - move=> n k /boundE H. rewrite /cbv_cbn. apply: dcllam.
-    apply: dclApp; apply: dclvar; lia.
-  - move=> ? IH1 ? IH2 k /boundE [/IH1 {}IH1 /IH2 {}IH2] /=.
-    apply: dcllam. apply: dclApp.
-    + apply: (bound_ren IH1). lia.
-    + apply: dcllam. apply: dclApp.
-      * rewrite !simpl_term /=. apply: (bound_ren IH2). lia.
-      * apply: dcllam. apply: dclApp; [apply: dclApp|]; apply: dclvar; lia.
-  - move=> ? IH k /boundE /IH {}IH /=.
-    apply: dcllam. apply: dclApp; [apply: dclvar; lia|].
-    apply: dcllam. apply: (bound_ren IH).
+  elim.
+  - move=> *. do 3 constructor; lia.
+  - move=> * /=. do 2 constructor.
+    + by apply: bound_ren; [eassumption|lia].
+    + do 2 constructor.
+      * rewrite !simpl_term /=. apply: bound_ren; [eassumption|lia].
+      * do 2 constructor; [constructor|]; constructor; lia.
+  - move=> * /=. do 3 constructor; first by lia.
+    apply: bound_ren; [eassumption|].
     move=> [|n] /=; lia.
 Qed.
 
@@ -296,9 +293,7 @@ Qed.
 Definition rcomp {X Y Z} (R : X -> Y -> Prop) (S : Y -> Z -> Prop) : X -> Z -> Prop :=
   fun x z => exists y, R x y /\ S y z.
 
-Definition pow X R n : X -> X -> Prop := Nat.iter n (rcomp R) eq.
-
-Lemma clos_refl_trans_pow s t : 
+Lemma clos_refl_trans_pow s t :
   clos_refl_trans step s t -> exists k, Nat.iter k (rcomp step) eq s t.
 Proof.
   move=> /(clos_rt_rt1n term). elim.
@@ -306,30 +301,21 @@ Proof.
   - move=> > ? ? [k Hk]. exists (S k). eexists. by split; [eassumption|].
 Qed.
 
-Lemma clos_trans_pow s t : 
-  clos_trans step s t -> exists k, Nat.iter (S k) (rcomp step) eq s t.
+Lemma iter_step_lt {k s s' t} :
+  Nat.iter k (rcomp step) eq s (lam t) ->
+  clos_trans step s s' ->
+  exists k', k' < k /\ Nat.iter k' (rcomp step) eq s' (lam t).
 Proof.
-  move=> /(clos_trans_t1n term). elim.
-  - move=> *. exists 0. eexists. by split; [eassumption|].
-  - move=> > ? ? [k Hk]. exists (S k). eexists. by split; [eassumption|].
-Qed.
-
-Lemma iter_step_sub k k' s s' t :
-  Nat.iter (S k) (rcomp step) eq s (lam t) ->
-  Nat.iter (S k') (rcomp step) eq s s' -> 
-  Nat.iter (k - k') (rcomp step) eq s' (lam t).
-Proof.
-  elim: k k' s s'.
-  - rewrite /rcomp /=. move=> k' s s' [u] [/step_fun Hsu ?]. subst u.
-    move=> [u] [/Hsu ?]. subst u.
-    case: k'; first done.
-    by move=> k /= [?] [/stepE].
-  - move=> k IH [|k'] s s' /= [u] [/step_fun Hsu] Hu [u'] [/Hsu ?].
+  move=> + /clos_trans_t1n_iff H. elim: H k; clear s s'.
+  - move=> s u /[dup] /stepE ? /step_fun Hsu [|k] /=.
     { move=> ?. by subst. }
-    subst. move=> /IH. by apply.
+    move=> [u'] [/Hsu <-] ?. exists k. by split; [lia|].
+  - move=> > /[dup] /stepE ? /step_fun H' ? IH [|k] /=.
+    { move=> ?. by subst. }
+    move=> [u'] [/H'] <- /IH [k'] [? ?]. exists k'. by split; [lia|].
 Qed.
 
-Lemma not_colon_lam s x t : colon s x = lam t -> False.
+Lemma not_colon_lam {s x t} : colon s x = lam t -> False.
 Proof.
   elim: s x; [done| |done].
   move=> [?|??|?]; by eauto with nocore.
@@ -354,37 +340,36 @@ Proof.
   { move=> -> *. exists s''. by apply: starR. }
   move=> /[dup] /[dup] /cbv_step_L_step H0s /simulate_cbv_step H1s /cbv_step_closed H2s _.
   move=> HSk /[dup] /H0s {}H0s /[dup] /H1s /(_ (lam (var 0))) {}H1s /H2s {}H2s.
-  move: H1s => /clos_trans_pow [k'].
-  move: HSk => /iter_step_sub /[apply] /IH.
-  move=> /(_ ltac:(lia) H2s) [t'] ?. exists t'.
+  move: HSk H1s H2s => /(iter_step_lt (k := S k)) /[apply].
+  move=> [k'] [/IH] /[apply] /[apply] - [t'] ?. exists t'.
   by apply: starC; eassumption.
 Qed.
 
-Lemma closed_colon {s u} : closed s -> closed u -> closed (colon s u).
+Lemma bound_colon {n s u} : bound n s -> bound n u -> bound n (colon s u).
 Proof.
-  elim: s u.
-  - by move=> > /not_closed_var.
-  - move=> s IH1 t IH2 u /closed_app /= [/[dup] Hs /IH1 {}IH1 /[dup] Ht /IH2 {}IH2] Hu.
-    case: s IH1 Hs.
-    + by move=> ?? /not_closed_var.
-    + move=> > IH1 ?. apply: IH1.
-      apply /closed_dcl. do ? constructor.
-      * move: Ht => /closed_dcl /bound_cbv_cbn /bound_ren. apply. lia.
-      * rewrite !simpl_term. move: Hu => /closed_dcl /bound_ren. apply. lia.
-    + move=> ? IH1 /closed_dcl /boundE H' /=.
-      apply: IH2. apply /closed_dcl. do ? constructor.
-      * move: H' => /bound_cbv_cbn /bound_ren. apply.
+  move=> H. elim: H u.
+  - move=> * /=. by constructor.
+  - move=> ? [?|??|?] ? IH'1 IH1 ? IH2 ??.
+    + done.
+    + move=> /=. apply: IH1. do 2 constructor.
+      * apply: bound_ren; [apply: bound_cbv_cbn; eassumption|lia].
+      * do 2 constructor; [do 2 constructor|]; [lia ..|].
+        rewrite simpl_term /=.
+        apply: bound_ren; [eassumption|lia].
+    + move=> /=. apply: IH2. do 2 constructor.
+      * do 2 constructor; [|lia].
+        move=> /boundE in IH'1.
+        apply: bound_ren; [apply: bound_cbv_cbn; eassumption|].
         move=> [|?] /=; lia.
-      * move: Hu => /closed_dcl /bound_ren. apply. lia.
-  - move=> ? _ ? /closed_dcl /boundE /bound_cbv_cbn ? ? /=.
-    apply: app_closed; first done.
-    apply /closed_dcl. by constructor.
+      * apply: bound_ren; [eassumption|lia].
+  - move=> * /=. constructor; [done|constructor].
+    by apply: bound_cbv_cbn.
 Qed.
 
-Lemma closed'_colon {s} : closed s -> forall sigma, subst sigma (colon s (lam (var 0))) = colon s (lam (var 0)).
+Lemma closed_colon {s} : closed s -> forall sigma, subst sigma (colon s (lam (var 0))) = colon s (lam (var 0)).
 Proof.
   move=> Hs sigma. rewrite subst_closed; last done.
-  by apply: (closed_colon Hs).
+  by apply /closed_dcl /bound_colon; apply /closed_dcl.
 Qed.
 
 End Argument.
@@ -397,7 +382,7 @@ Import HaltL_to_HaltLclosed (HaltLclosed).
 (* note: currently HaltLclosed is defined in HaltL_to_HaltLclosed *)
 Theorem reduction : HaltLclosed ⪯ wCBNclosed.
 Proof.
-  exists (fun '(exist _ s Hs) => exist _ (Argument.colon s (lam (var 0))) (Argument.closed'_colon Hs)).
+  exists (fun '(exist _ s Hs) => exist _ (Argument.colon s (lam (var 0))) (Argument.closed_colon Hs)).
   move=> [s Hs]. split.
   - move=> [t] /= /[dup] [[_ []]] t' ->.
     move=> /eval_iff /= /Argument.simulation.

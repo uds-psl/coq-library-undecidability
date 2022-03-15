@@ -7,29 +7,26 @@ Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
-Lemma stepE s t :
-  step s t ->
+Inductive stepLam_spec s t : term -> Prop :=
+  | stepLam_spec_intro : stepLam_spec s t (subst (scons t var) s).
+Inductive stepApp_spec s t : term -> Prop :=
+  | stepApp_spec_intro : forall s', step s s' -> stepApp_spec s t (app s' t).
+
+Lemma stepE {s t} : step s t ->
   match s with
-  | app (lam s1) s2 => t = subst (scons s2 var) s1
-  | app (app s1 s2) s3 => exists s', t = app s' s3 /\ step (app s1 s2) s'
+  | app (lam s') t' => stepLam_spec s' t' t
+  | app s' t' => stepApp_spec s' t' t
   | _ => False
   end.
-Proof.
-  elim; first done.
-  case; [done| |done].
-  case; [done| |].
-  - move=> > ? [?] [-> ?].
-    eexists. split; [done|by apply: stepApp].
-  - move=> > ? ->. eexists. split; [done|by apply: stepLam].
-Qed.
+Proof. by elim; [|case]. Qed.
 
 Lemma step_fun s t1 t2 : step s t1 -> step s t2 -> t1 = t2.
 Proof.
   move=> H. elim: H t2.
-  - by move=> > /stepE ->.
+  - by move=> > /stepE [].
   - case.
     + by move=> > /stepE.
-    + by move=> > ? IH t2 /stepE [?] [->] /IH ->.
+    + by move=> > ? IH ? /stepE [] ? /IH ->.
     + by move=> > /stepE.
 Qed.
 
