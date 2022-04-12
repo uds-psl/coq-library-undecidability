@@ -1,9 +1,17 @@
 From Undecidability.Synthetic Require Import DecidabilityFacts SemiDecidabilityFacts EnumerabilityFacts.
+Require Import Undecidability.Shared.Dec.
 Require Cantor.
 Require Import List.
 Import ListNotations.
 
 Set Default Proof Using "Type".
+
+#[global]
+Instance list_in_dec X (x : X) (A : list X) :
+  eq_dec X -> dec (In x A).
+Proof.
+  intros D. apply in_dec. exact D.
+Qed.
 
 Definition cumulative {X} (L: nat -> list X) :=
   forall n, exists A, L (S n) = L n ++ A.
@@ -182,9 +190,6 @@ Proof.
   intros. now rewrite <- to_cumul_spec.
 Qed.
 
-Require Import Undecidability.Shared.ListAutomation.
-Import ListAutomationNotations.
-
 Notation cumul := (to_cumul).
 
 Section L_list_def.
@@ -195,7 +200,7 @@ Fixpoint L_list (n : nat) : list (list X) :=
   match n
   with
   | 0 => [ [] ]
-  | S n => L_list n ++ [ x :: L | (x,L) ∈ (cumul L n × L_list n) ]
+  | S n => L_list n ++ map (fun '(x, L) => x :: L) (list_prod (cumul L n) (L_list n))
   end.
 End L_list_def.
 
@@ -212,8 +217,9 @@ Proof.
   - exists 0. cbn. eauto.
   - destruct IHl as [n IH].
     destruct (cumul_spec__T H a) as [m ?].
-    exists (1 + n + m). cbn. intros. in_app 2.
-    in_collect (a,l).
+    exists (1 + n + m). cbn. intros. apply in_app_iff. right.
+    apply (in_map (fun '(x, L) => x :: L) _ (a, l)).
+    apply in_prod.
     all: eapply cum_ge'; eauto using L_list_cumulative; lia.
 Qed.
 
@@ -225,20 +231,28 @@ Qed.
 
 #[export] Hint Extern 4 => match goal with [H : list_enumerator _ ?p |- ?p _ ] => eapply H end : core.
 
+Require Import Undecidability.Shared.Dec.
+
 Lemma enumerable_conj X (p q : X -> Prop) :
   discrete X -> enumerable p -> enumerable q -> enumerable (fun x => p x /\ q x).
 Proof.
   intros [] % discrete_iff [Lp] % enumerable_list_enumerable [Lq] % enumerable_list_enumerable.
   eapply list_enumerable_enumerable.
-  exists (fix f n := match n with 0 => [] | S n => f n ++ [ x | x ∈ cumul Lp n, x el cumul Lq n] end).
+  exists (fix f n := match n with 0 => [] | S n => f n ++ (filter (fun x => Dec (In x (cumul Lq n))) (cumul Lp n)) end).
   intros. split.
   + intros []. eapply (cumul_spec H) in H1 as [m1]. eapply (cumul_spec H0) in H2 as [m2].
-    exists (1 + m1 + m2). cbn. in_app 2. in_collect x.
-    eapply cum_ge'; eauto. lia.
-    eapply cum_ge'; eauto. lia.
+    exists (1 + m1 + m2). cbn. apply in_or_app. right.
+    apply filter_In. split.
+    * eapply cum_ge'; eauto; lia.
+    * eapply Dec_auto. eapply cum_ge'; eauto; lia.
   + intros [m]. induction m.
-    * inv H1.
-    * inv_collect; eauto.
+    * inversion H1.
+    * apply in_app_iff in H1. destruct H1 as [?|H1]; [now auto|].
+      apply filter_In in H1. destruct H1 as [? H1].
+      split. 
+      ** eapply (list_enumerator_to_cumul H). eauto.
+      ** destruct (Dec _) in H1; [|easy].
+         eapply (list_enumerator_to_cumul H0). eauto.
 Qed.
 
 Lemma projection X Y (p : X * Y -> Prop) :

@@ -34,6 +34,7 @@ TM/TM.v
 TM/TM_undec.v
 
 TM/SBTM.v
+TM/SBTM_enum.v
 TM/SBTM_undec.v
 
 StackMachines/BSM.v
@@ -47,7 +48,6 @@ MinskyMachines/MM_undec.v
 
 Shared/Dec.v
 Shared/ListAutomation.v
-Shared/FilterFacts.v
 Shared/embed_nat.v
 Shared/FinTypeEquiv.v
 Shared/FinTypeForallExists.v
@@ -196,16 +196,15 @@ StringRewriting/SSTS_undec.v
 
 StringRewriting/Util/Definitions.v
 StringRewriting/Util/List_facts.v
-StringRewriting/Reductions/SRH_to_SR.v
 StringRewriting/Reductions/SR_to_PCSnf.v
-StringRewriting/Reductions/HaltSBTMu_to_SRH.v
-StringRewriting/Reductions/HaltSBTMu_to_TSR.v
 StringRewriting/Reductions/HaltTM_1_to_SR.v
 StringRewriting/Reductions/CM2_HALT_to_SSTS01/SR2ab.v
 StringRewriting/Reductions/CM2_HALT_to_SSTS01/SR2ab_facts.v
 StringRewriting/Reductions/CM2_HALT_to_SSTS01/CM2_HALT_to_SR2ab.v
 StringRewriting/Reductions/CM2_HALT_to_SSTS01/SR2ab_to_SSTS01.v
 StringRewriting/Reductions/CM2_HALT_to_SSTS01.v
+StringRewriting/Reductions/SBTM_HALT_to_SR.v
+StringRewriting/Reductions/SBTM_HALT_to_TSR.v
 
 CFG/CFP.v
 CFG/CFP_undec.v
@@ -405,6 +404,7 @@ TM/Util/Prelim.v
 TM/Util/Relations.v
 TM/Util/ArithPrelim.v
 TM/Util/VectorPrelim.v
+TM/Util/SBTM_facts.v
 
 TM/Util/TM_facts.v
 
@@ -475,11 +475,6 @@ TM/Reductions/L_to_mTM.v
   
 TM/Reductions/Arbitrary_to_Binary.v
 
-TM/Reductions/HaltTM_1_to_HaltSBTM.v
-TM/Reductions/HaltSBTM_to_HaltSBTMu.v
-
-StackMachines/Reductions/HaltSBTM_to_HaltBSM.v
-
 TM/Univ/LookupAssociativeListTM.v
 TM/Univ/LowLevel.v
 TM/Univ/Univ.v
@@ -487,8 +482,11 @@ TM/Univ/Univ.v
 TM/PrettyBounds/MaxList.v
 TM/PrettyBounds/SizeBounds.v
 
-
 TM/Reductions/mTM_to_TM.v
+TM/Reductions/HaltTM_1_to_SBTM_HALT.v
+TM/Reductions/SBTM_HALT_to_HaltTM_1.v
+
+TM/Enumerators/SBTM_HALT_enum.v
 
 TM/Hoare/Hoare.v
 TM/Hoare/HoareLogic.v
@@ -772,6 +770,7 @@ StackMachines/Util/SMN_transform.v
 StackMachines/Reductions/SMNdl_UB_to_CSSM_UB.v
 StackMachines/Reductions/HaltTM_1_to_CSSM_UB.v
 StackMachines/Reductions/iPCPb_to_BSM_HALTING.v
+StackMachines/Reductions/SBTM_HALT_to_HaltBSM.v
 
 SemiUnification/SemiU.v
 SemiUnification/SemiU_undec.v

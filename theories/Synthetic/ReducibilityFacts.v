@@ -1,7 +1,8 @@
 From Undecidability.Synthetic Require Import DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts MoreEnumerabilityFacts.
-From Undecidability.Shared Require Import ListAutomation.
+
 Require Import List.
-Import ListNotations ListAutomationNotations.
+Import ListNotations.
+From Undecidability.Shared Require Import Dec.
 
 Set Implicit Arguments.
 
@@ -136,7 +137,7 @@ Section enum_red.
   Local Fixpoint L L' n :=
     match n with
     | 0 => []
-    | S n => L L' n ++ [ x | x ∈ cumul L' n , In (f x) (cumul Lq n) ]
+    | S n => L L' n ++ (filter (fun x => Dec (In (f x) (cumul Lq n))) (cumul L' n))
     end.
 
   Local Lemma enum_red L' :
@@ -147,13 +148,15 @@ Section enum_red.
     split.
     + intros H.
       eapply Hf in H. eapply (cumul_spec qe) in H as [m1]. destruct (cumul_spec__T HL' x) as [m2 ?]. 
-      exists (1 + m1 + m2). cbn. in_app 2.
-      in_collect x.
-      eapply cum_ge'; eauto; try lia.
-      eapply cum_ge'; eauto; try lia.
+      exists (1 + m1 + m2). cbn. apply in_app_iff. right.
+      apply filter_In. split.
+      * eapply cum_ge'; eauto; lia.
+      * eapply Dec_auto. eapply cum_ge'; eauto; lia.
     + intros [m H]. induction m.
       * inversion H.
-      * cbn in H. inv_collect. 
+      * cbn in H. apply in_app_or in H. destruct H; [now auto|].
+        apply filter_In in H. destruct H as [_ H].
+        destruct (Dec _) in H; [|easy].
         eapply Hf. eauto.
   Qed.
 

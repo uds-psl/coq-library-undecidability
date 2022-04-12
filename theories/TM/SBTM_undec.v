@@ -1,21 +1,26 @@
 Require Import Undecidability.Synthetic.Undecidability.
-Require Import Undecidability.TM.TM_undec.
+From Undecidability.Synthetic Require Import DecidabilityFacts EnumerabilityFacts.
+Require Import Undecidability.TM.SBTM.
+Require Undecidability.TM.Reductions.HaltTM_1_to_SBTM_HALT.
+Require Undecidability.TM.Enumerators.SBTM_HALT_enum.
 
-Require Undecidability.TM.Reductions.HaltTM_1_to_HaltSBTM.
-Require Undecidability.TM.Reductions.HaltSBTM_to_HaltSBTMu.
+(** ** complement SBTM_HALT is undecidable *)
 
-(** ** HaltSBTM is undecidable  *)
-
-Lemma HaltSBTM_undec :
-  undecidable SBTM.HaltSBTM.
+Lemma complement_SBTM_HALT_undec :
+  undecidable (complement SBTM_HALT).
 Proof.
-  apply (undecidability_from_reducibility HaltTM_1_undec).
-  eapply HaltTM_1_to_HaltSBTM.reduction.
+  intros H.
+  eapply (dec_count_enum H), enumerator_enumerable.
+  apply enumerator__T_sigT.
+  - now apply (proj2_sig SBTM_HALT_enum.SBTM_enumeration).
+  - intros M. now apply (proj2_sig (SBTM_HALT_enum.config_enumeration M)).
 Qed.
 
-Lemma HaltSBTMu_undec :
-  undecidable SBTM.HaltSBTMu.
+
+(** ** SBTM_HALT is undecidable  *)
+
+Lemma SBTM_HALT_undec :
+  undecidable SBTM_HALT.
 Proof.
-  apply (undecidability_from_reducibility HaltSBTM_undec).
-  apply HaltSBTM_to_HaltSBTMu.reduction.
+  intros H. now apply complement_SBTM_HALT_undec, dec_compl.
 Qed.
