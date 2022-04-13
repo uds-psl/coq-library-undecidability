@@ -641,124 +641,133 @@ Definition PROG (offset : nat) : list mm_instr :=
     (* lam s CASE *) let i := 1 + i in CASE_LAM offset i ::
     (* app s t CASE *) let i := CASE_LAM_len + i in CASE_APP offset i :: []).
 
-#[local] Arguments Krivine_step : simpl never.
-
-(* PROG corresponds to Krivine_step *)
-Lemma PROG_spec ts ctx t v ts' ctx' t' offset :
-  vec_pos v TS = enc_cs ts ->
-  vec_pos v CTX = enc_cs ctx ->
-  vec_pos v U = enc_term t ->
-  Krivine_step (ts, ctx, t) = Some (ts', ctx', t') ->
-  exists w, 
-    vec_pos w TS = enc_cs ts' /\
-    vec_pos w CTX = enc_cs ctx' /\
-    vec_pos w U = enc_term t' /\
-    (offset, PROG offset) // (offset, v) -+> (offset, w).
+Lemma PROG_VAR0_spec offset ts ctx ctx' t' :
+  (offset, PROG offset) //
+  (offset, 0 ## 0 ## enc_cs ts ## enc_cs (closure ctx t' :: ctx') ## enc_term (var 0) ## vec_nil) -+>
+  (offset, 0 ## 0 ## enc_cs ts ## enc_cs ctx ## enc_term t' ## vec_nil).
 Proof.
-  rewrite (counters_eta v) /= => -> -> ->.
-  exists (0 ## 0 ## (enc_cs ts') ## (enc_cs ctx') ## (enc_term t') ## Vector.nil _).
-  split; [done|split;[done|split;[done|]]].
   apply: sss_progress_compute_trans.
   { apply: sss_compute_progress.
     { by apply: (concat_sss_compute_trans 0); [apply JMP_spec | apply: sss_compute_refl]. }
     case. rewrite /JMP_len /=. lia. }
-  case: t H.
-  - move=> [|n] /=; (case: ctx; first done).
-    + (* case (var 0) *)
-      move=> [ctx'' t'' ?] [<- <- <-].
-      apply: (concat_sss_compute_trans 1). { by apply: UNPACK_spec. }
-      rewrite /= ?(Nat.add_assoc _ _ offset). apply: mma_step. apply: mma_step.
-      apply: (concat_sss_compute_trans 4). { by apply: CASE_VAR0_spec. }
-      by apply: sss_compute_refl.
-    + (* case (var (S n)) *)
-      move=> ? ctx'' [<- <- <-].
-      apply: (concat_sss_compute_trans 1). { by apply: UNPACK_spec. }
-      rewrite /= ?(Nat.add_assoc _ _ offset). apply: mma_step. apply: mma_step.
-      apply: (concat_sss_compute_trans 5). { by apply: CASE_VARS_spec. }
-      by apply: sss_compute_refl.
-  - (* case (app s t) *)
-    move=> s t [<- <- <-].
-    apply: (concat_sss_compute_trans 1). { by apply: UNPACK_spec. }
-    rewrite /= ?(Nat.add_assoc _ _ offset). apply: mma_step. apply: mma_step.
-    apply: (concat_sss_compute_trans 8). { by apply: CASE_APP_spec. }
-    by apply: sss_compute_refl.
-  - (* case (lam s) *)
-    move=> s. case: ts; first done.
-    move=> t'' ts'' [<- <- <-].
-    apply: (concat_sss_compute_trans 1). { by apply: UNPACK_spec. }
-    rewrite /= ?(Nat.add_assoc _ _ offset). apply: mma_step. apply: mma_step.
-    apply: (concat_sss_compute_trans 7). { by apply: CASE_LAM_spec. }
-    by apply: sss_compute_refl.
+  apply: (concat_sss_compute_trans 1). { by apply: UNPACK_spec. }
+  rewrite /= ?(Nat.add_assoc _ _ offset). apply: mma_step. apply: mma_step.
+  apply: (concat_sss_compute_trans 4). { by apply: CASE_VAR0_spec. }
+  by apply: sss_compute_refl.
 Qed.
 
-Lemma simulation {ts ctx t} v : halt_cbn ts ctx t ->
-  vec_pos v TS = enc_cs ts ->
-  vec_pos v CTX = enc_cs ctx ->
-  vec_pos v U = enc_term t ->
-  (sss_terminates (@mma_sss _) (1, PROG 1) (1, v)).
+Lemma PROG_VARS_spec offset ts ctx n u :
+  (offset, PROG offset) //
+  (offset, 0 ## 0 ## enc_cs ts ## enc_cs (u :: ctx) ## enc_term (var (S n)) ## vec_nil) -+>
+  (offset, 0 ## 0 ## enc_cs ts ## enc_cs ctx ## enc_term (var n) ## vec_nil).
 Proof.
-  rewrite (counters_eta v) /= => + -> -> ->.
-  move=> /Krivine_step_spec [k] [ctx'] [t']. elim: k v ts ctx t.
-  { move=> v ts ctx t [] -> -> ->.
-    eexists. split.
-    - apply: (concat_sss_compute_trans 0). { by apply: JMP_spec. }
+  apply: sss_progress_compute_trans.
+  { apply: sss_compute_progress.
+    { by apply: (concat_sss_compute_trans 0); [apply JMP_spec | apply: sss_compute_refl]. }
+    case. rewrite /JMP_len /=. lia. }
+  apply: (concat_sss_compute_trans 1). { by apply: UNPACK_spec. }
+  rewrite /= ?(Nat.add_assoc _ _ offset). apply: mma_step. apply: mma_step.
+  apply: (concat_sss_compute_trans 5). { by apply: CASE_VARS_spec. }
+  by apply: sss_compute_refl.
+Qed.
+
+Lemma PROG_APP_spec offset ts ctx s t :
+  (offset, PROG offset) //
+  (offset, 0 ## 0 ## enc_cs ts ## enc_cs ctx ## enc_term (app s t) ## vec_nil) -+>
+  (offset, 0 ## 0 ## enc_cs (closure ctx t :: ts) ## enc_cs ctx ## enc_term s ## vec_nil).
+Proof.
+  apply: sss_progress_compute_trans.
+  { apply: sss_compute_progress.
+    { by apply: (concat_sss_compute_trans 0); [apply JMP_spec | apply: sss_compute_refl]. }
+    case. rewrite /JMP_len /=. lia. }
+  apply: (concat_sss_compute_trans 1). { by apply: UNPACK_spec. }
+  rewrite /= ?(Nat.add_assoc _ _ offset). apply: mma_step. apply: mma_step.
+  apply: (concat_sss_compute_trans 8). { by apply: CASE_APP_spec. }
+  by apply: sss_compute_refl.
+Qed.
+
+Lemma PROG_LAM_spec offset t ts ctx s :
+  (offset, PROG offset) //
+  (offset, 0 ## 0 ## enc_cs (t :: ts) ## enc_cs ctx ## enc_term (lam s) ## vec_nil) -+>
+  (offset, 0 ## 0 ## enc_cs ts ## enc_cs (t :: ctx) ## enc_term s ## vec_nil).
+Proof.
+  apply: sss_progress_compute_trans.
+  { apply: sss_compute_progress.
+    { by apply: (concat_sss_compute_trans 0); [apply JMP_spec | apply: sss_compute_refl]. }
+    case. rewrite /JMP_len /=. lia. }
+  apply: (concat_sss_compute_trans 1). { by apply: UNPACK_spec. }
+  rewrite /= ?(Nat.add_assoc _ _ offset). apply: mma_step. apply: mma_step.
+  apply: (concat_sss_compute_trans 7). { by apply: CASE_LAM_spec. }
+  by apply: sss_compute_refl.
+Qed.
+
+Lemma sss_terminates_sss_compute P x y :
+  P // x ->> y ->
+  sss_terminates (mma_sss (n:=5)) P y ->
+  sss_terminates (mma_sss (n:=5)) P x.
+Proof.
+  move=> H [z [Hz ?]]. exists z. split; [|done].
+  apply: sss_compute_trans; eassumption.
+Qed.
+
+Lemma simulation {offset ts ctx t} : 0 < offset -> halt_cbn ts ctx t ->
+  let v := (0 ## 0 ## (enc_cs ts) ## (enc_cs ctx) ## (enc_term t) ## Vector.nil _) in
+  (sss_terminates (@mma_sss _) (offset, PROG offset) (offset, v)).
+Proof.
+  move=> ? H. elim: H; clear ts ctx t.
+  - move=> > _ /=. apply: sss_terminates_sss_compute.
+    apply: sss_progress_compute. by apply: PROG_VAR0_spec.
+  - move=> > _ /=. apply: sss_terminates_sss_compute.
+    apply: sss_progress_compute. by apply: PROG_VARS_spec.
+  - move=> > _ /=. apply: sss_terminates_sss_compute.
+    apply: sss_progress_compute. by apply: PROG_APP_spec.
+  - move=> > _ /=. apply: sss_terminates_sss_compute.
+    apply: sss_progress_compute. by apply: PROG_LAM_spec.
+  - move=> /= >. eexists. split.
+    + apply: (concat_sss_compute_trans 0). { by apply: JMP_spec. }
       apply: (concat_sss_compute_trans 1). { by apply: UNPACK_spec. }
-      rewrite /= ?(Nat.add_assoc _ _ 1). apply: mma_step. apply: mma_step.
+      rewrite /= ?(Nat.add_assoc _ _ offset). apply: mma_step. apply: mma_step.
       apply: (concat_sss_compute_trans 7). { by apply: CASE_LAM_spec'. }
       by apply: sss_compute_refl.
-    - by left. }
-  move=> n IH v ts ctx t. rewrite (iter_plus 1 n) /=.
-  case E: (Krivine_step _) => [[[ts'' ctx''] t''] | ]; last by rewrite oiter_None.
-  move=> IH'.
-  move: E => /PROG_spec => /(_ (Vector.hd v ## (Vector.hd (Vector.tl v)) ## enc_cs ts ## enc_cs ctx ## enc_term t ## Vector.nil _)).
-  move=> /(_ 1 erefl erefl erefl) [w].
-  move=> [+] [+] [+] /sss_progress_compute.
-  move: IH' => /(IH w). rewrite (counters_eta w) /= => + -> -> ->.
-  move=> [] st [] + ? /sss_compute_trans H => /H {}H.
-  by exists st.
+    + by left.
 Qed.
+
 
 #[local] Notation all := (fold_right and True).
 
-Lemma inverse_simulation ts ctx t v :
-  vec_pos v TS = enc_cs ts ->
-  vec_pos v CTX = enc_cs ctx ->
-  vec_pos v U = enc_term t ->
+Lemma boundS m n : L_facts.bound (S m) (var (S n)) -> L_facts.bound m (var n).
+Proof. move=> /term_facts.boundE ?. constructor. lia. Qed.
+
+Lemma inverse_simulation ts ctx t :
+  let v := (0 ## 0 ## (enc_cs ts) ## (enc_cs ctx) ## (enc_term t) ## Vector.nil _) in
   all (map eclosed ts) ->
   eclosed (closure ctx t) ->
   (sss_terminates (@mma_sss _) (1, PROG 1) (1, v)) ->
   halt_cbn ts ctx t.
 Proof.
-  suff : forall ts ctx t,
-  (sss_terminates (@mma_sss _) (1, PROG 1) (1, v)) ->
-  all (map eclosed ts) ->
-  eclosed (closure ctx t) ->
-  vec_pos (snd (1, v)) TS = enc_cs ts ->
-  vec_pos (snd (1, v)) CTX = enc_cs ctx ->
-  vec_pos (snd (1, v)) U = enc_term t ->
-    exists (k : nat) (ctx' : list eterm) (t' : term),
-    Nat.iter k (obind Krivine_step) (Some (ts, ctx, t)) =
-    Some ([], ctx', lam t').
-  { do 6 (move=> /[apply]). by move=> /Krivine_step_spec. }
-  move=> {}ts {}ctx {}t [] st [] [k] + Hst.
-  elim /(measure_ind id): k ts ctx t v.
-  move=> [|k].
-  { move=> _ > /sss_steps_0_inv ?. subst st.
-    exfalso. move: Hst => /=. lia. }
-  move=> IH ts ctx t v HSk.
-  case E: (Krivine_step (ts, ctx, t)) => [[[ts'' ctx''] t'']|]; first last.
-  { move: E => /Krivine_step_None /[apply] /[apply].
-    move=> [->] [t' ->] *. by eexists 0, _, _. }
-  move: (E) => /Krivine_step_eclosed /[apply] /[apply].
-  move=> [] /IH /[apply] {}IH.
-  move: (E) => /PROG_spec /[apply] /[apply] /[apply] /(_ 1).
-  move=> [w] [+] [+] [+] => /IH /[apply] /[apply] {}IH.
-  have : subcode.subcode (1, PROG 1) (1, PROG 1).
-  { by exists [], []. }
-  have := @mma_defs.mma_sss_fun 5.
-  move: Hst HSk => /subcode_sss_progress_inv /[apply] /[apply] /[apply] /[apply].
-  move=> [q] [] /IH /[apply] => - [k'] [ctx'] [t'] Hk'.
-  exists (1+k'), ctx', t'. by rewrite iter_plus /= E.
+  move=> v. move Ex: (1, v) => x ++ H. subst v.
+  move: x H ts ctx t Ex.
+  apply: sss_terminates_ind; [exact: mma_defs.mma_sss_fun| |].
+  { move=> [? ?] /= ? > []. lia. }
+  move=> [i' v'] IH ts ctx t [? ?].
+  move => /(_ _ _ (subcode.subcode_refl (1, PROG 1)) _ _ _ _ erefl) in IH.
+  subst i' v'. case: t IH.
+  - (* case (var n) *) case.
+    + case: ctx => [|[ctx' t'] ctx''].
+      { move=> IH _ /= [/term_facts.boundE]. lia. }
+      move=> IH ? /= [?] [? ?]. constructor. apply: IH; [|done|done].
+      by apply: PROG_VAR0_spec.
+    + move=> n. case: ctx => [|[ctx' t'] ctx''].
+      { move=> IH _ /= [/term_facts.boundE]. lia. }
+      move=> IH ? /= [/boundS ?] [? ?]. constructor. apply: IH; [|done|done].
+      by apply: PROG_VARS_spec.
+  - (* case app s t *)
+    move=> s t IH /= ? [/term_facts.boundE [? ?] ?]. constructor. apply: IH; [|done|done].
+    by apply: PROG_APP_spec.
+  - move=> s. case: ts => [|t' ts'].
+    { move=> *. by constructor. }
+    move=> IH /= [? ?] [/term_facts.boundE ? ?]. constructor. apply: IH; [|done|done].
+    by apply: PROG_LAM_spec.
 Qed.
 
 Definition input t :=
@@ -773,5 +782,5 @@ Proof.
   exists (fun '(exist _ t _) => (Argument.PROG 1, Argument.input t)).
   move=> [t /= /eclosed_closed Ht]. split.
   - move=> /Argument.simulation. by apply.
-  - move=> /Argument.inverse_simulation. by apply.
+  - move=> /(Argument.inverse_simulation nil nil). by apply.
 Qed.
