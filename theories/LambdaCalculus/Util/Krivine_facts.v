@@ -153,91 +153,10 @@ Proof.
     apply: halt_app. by apply: IH.
 Qed.
 
-Definition Krivine_step : (list eterm * list eterm * term) -> option (list eterm * list eterm * term) :=
-  fun '(ts, ctx, t) =>
-  match t with
-  | var 0 => 
-      match ctx with
-      | [] => None
-      | (closure ctx t)::_ => Some (ts, ctx, t)
-      end
-  | var (S n) =>
-      match ctx with
-      | [] => None
-      | _::ctx => Some (ts, ctx, var n)
-      end
-  | lam s =>
-      match ts with
-      | [] => None
-      | t::ts => Some (ts, t::ctx, s)
-      end
-  | app s t => Some ((closure ctx t)::ts, ctx, s)
-  end.
-
-Lemma iter_plus {X} {f : X -> X} {x : X} n m : Nat.iter (n + m) f x = Nat.iter m f (Nat.iter n f x).
-Proof.
-  elim: m; first by rewrite Nat.add_0_r.
-  move=> m /= <-. by have ->: n + S m = S n + m by lia.
-Qed.
-
-Lemma oiter_None {X : Type} (f : X -> option X) k : Nat.iter k (obind f) None = None.
-Proof. elim: k; [done | by move=> /= ? ->]. Qed.
-
-Lemma Krivine_step_spec ts ctx t : halt_cbn ts ctx t <-> 
-  exists k ctx' t', Nat.iter k (obind Krivine_step) (Some (ts, ctx, t)) = Some ([], ctx', lam t').
-Proof.
-  split.
-  - elim.
-    1-4: by move=> > ? [n] [ctx'] [t'] IH; exists (S n), ctx', t'; rewrite (iter_plus 1 n).
-    move=> >. exists 0. by do 2 eexists.
-  - move=> [k] [ctx'] [t'].
-    elim: k ts ctx t. { move=> > [-> -> ->]. by apply: halt_lam. }
-    move=> k IH ts ctx t. rewrite (iter_plus 1 k) /=.
-    case: t.
-    + move=> [|n].
-      * case: ctx; first by rewrite oiter_None.
-        move=> [? ?] ? /IH ?. by apply: halt_var_0.
-      * case: ctx; first by rewrite oiter_None.
-        move=> [? ?] ? /IH ?. by apply: halt_var_S.
-    + move=> ?? /IH ?. by apply: halt_app.
-    + move=> ?. case: ts; first by rewrite oiter_None.
-      move=> ?? /IH ?. by apply: halt_lam_ts.
-Qed.
-
 #[local] Notation all := (fold_right and True).
 
 Fixpoint eclosed (u : eterm) :=
   let '(closure ctx t) := u in bound (length ctx) t /\ all (map eclosed ctx).
-
-Lemma Krivine_step_eclosed ts ctx t ts' ctx' t' :
-  Krivine_step (ts, ctx, t) = Some (ts', ctx', t') ->
-  all (map eclosed ts) -> eclosed (closure ctx t) ->
-  all (map eclosed ts') /\ eclosed (closure ctx' t').
-Proof.
-  rewrite /Krivine_step. case: t.
-  - move=> [|n].
-    + case: ctx; first done.
-      move=> [? ?] ? [<- <- <-] /=. tauto.
-    + case: ctx; first done.
-      move=> [? ?] ? [<- <- <-] /= ? [/boundE ?] [[]] *.
-      split; [done|split;[|done]]. constructor. lia.
-  - move=> > [<- <- <-] /= ? [/boundE]. tauto.
-  - move=> ?. case: ts; first done.
-    move=> > [<- <- <-] /= ? [/boundE]. tauto.
-Qed.
-
-Lemma Krivine_step_None ts ctx t :
-  all (map eclosed ts) ->
-  eclosed (closure ctx t) ->
-  Krivine_step (ts, ctx, t) = None ->
-  ts = [] /\ exists t', t = lam t'.
-Proof.
-  case: t.
-  - move=> [|n]; (case: ctx; last by case); move=> _ [] /boundE /=; lia.
-  - done.
-  - case: ts; last done.
-    move=> *. by split; [|eexists].
-Qed.
 
 Lemma eclosed_closed t : 
   (forall sigma, subst sigma t = t) ->

@@ -21,7 +21,7 @@ From Undecidability.LambdaCalculus Require Import wCBN Util.term_facts Util.wCBN
 
 From Undecidability Require Import L.Util.L_facts.
 
-From Coq Require Import Relations List Lia.
+From Coq Require Import Relations Wellfounded.Transitive_Closure List Lia.
 Import L (term, var, app, lam).
 Import wCBN (subst, step, stepLam, stepApp).
 From Coq Require Import ssreflect ssrbool ssrfun.
@@ -179,15 +179,6 @@ Proof.
   - move=> > ? H /closed_app [? /H ?]. by apply: stepAppR.
 Qed.
 
-Lemma cbv_steps_eval s t : clos_refl_trans cbv_step s (lam t) -> closed s -> L.eval s (lam t).
-Proof.
-  move=> /(clos_rt_rt1n term) Hst Hs. apply /eval_iff. split; last by eexists.
-  move: (lam t) Hst Hs => t'. elim.
-  - move=> *. by apply: starR.
-  - move=> > /[dup] /cbv_step_closed H1 /cbv_step_L_step H2 _ H3.
-    by eauto using star with nocore.
-Qed.
-
 Lemma t_trans' {A : Type} {R : relation A} {x x' y z : A} : 
   x = x' -> clos_trans R x y -> clos_trans R y z -> clos_trans R x' z.
 Proof. move=> ->. by apply: t_trans. Qed.
@@ -276,73 +267,46 @@ Proof.
   - move=> *. apply: rt_trans; by eauto using cbv_steps_closed.
 Qed.
 
-Lemma colon_progress s t x : step (colon s x) t -> exists s', s = lam s' \/ cbv_step s s'.
+Lemma terminating_Acc s t : clos_refl_trans step s (lam t) -> Acc (fun t' s' => step s' t') s.
 Proof.
-  elim: s x t.
-  - by move=> > /stepE.
-  - move=> [n1|s1 s2|s1] IH1 s3 IH2 x t /=.
-    + by move=> /stepE.
-    + move=> /IH1 [s'] [|?]; first done.
-      eexists. right. apply: cbv_step_appL. by eassumption.
-    + move=> /IH2 [s'] [|].
-      * move=> ->. eexists. right. by apply: cbv_step_lam.
-      * move=> ?. eexists. right. apply: cbv_step_appR. by eassumption.
-  - move=> *. eexists. by left.
+  move Et': (lam t) => t' /(clos_rt_rt1n term) Hst'.
+  elim: Hst' t Et'.
+  { move=> ?? <-. by constructor => ? /stepE. }
+  move=> x y z Hxy Hyz IH t ?. constructor => y'.
+  move: Hxy => /step_fun /[apply] <-. apply: IH. by eassumption.
 Qed.
 
-Definition rcomp {X Y Z} (R : X -> Y -> Prop) (S : Y -> Z -> Prop) : X -> Z -> Prop :=
-  fun x z => exists y, R x y /\ S y z.
-
-Lemma clos_refl_trans_pow s t :
-  clos_refl_trans step s t -> exists k, Nat.iter k (rcomp step) eq s t.
+Lemma cbv_step_lam_or_progress {s} : closed s -> (exists s', s = lam s') \/ (exists t, cbv_step s t).
 Proof.
-  move=> /(clos_rt_rt1n term). elim.
-  - move=> ?. by exists 0.
-  - move=> > ? ? [k Hk]. exists (S k). eexists. by split; [eassumption|].
+  elim: s.
+  - by move=> ? /not_closed_var.
+  - move=> s IHs t IHt /closed_app [/IHs {}IHs /IHt {}IHt]. right.
+    case: IHs; case: IHt.
+    + move=> [? ->] [? ->]. eexists. by apply: cbv_step_lam.
+    + move=> [? ?] [? ->]. eexists. apply: cbv_step_appR. by eassumption.
+    + move=> [? ->] [? ?]. eexists. apply: cbv_step_appL. by eassumption.
+    + move=> [? ?] [? ?]. eexists. apply: cbv_step_appL. by eassumption.
+  - move=> *. left. by eexists.
 Qed.
 
-Lemma iter_step_lt {k s s' t} :
-  Nat.iter k (rcomp step) eq s (lam t) ->
-  clos_trans step s s' ->
-  exists k', k' < k /\ Nat.iter k' (rcomp step) eq s' (lam t).
-Proof.
-  move=> + /clos_trans_t1n_iff H. elim: H k; clear s s'.
-  - move=> s u /[dup] /stepE ? /step_fun Hsu [|k] /=.
-    { move=> ?. by subst. }
-    move=> [u'] [/Hsu <-] ?. exists k. by split; [lia|].
-  - move=> > /[dup] /stepE ? /step_fun H' ? IH [|k] /=.
-    { move=> ?. by subst. }
-    move=> [u'] [/H'] <- /IH [k'] [? ?]. exists k'. by split; [lia|].
-Qed.
-
-Lemma not_colon_lam {s x t} : colon s x = lam t -> False.
-Proof.
-  elim: s x; [done| |done].
-  move=> [?|??|?]; by eauto with nocore.
-Qed.
-
-Lemma measure_rect {X : Type} (f : X -> nat) (P : X -> Type) : 
-  (forall x, (forall y, f y < f x -> P y) -> P x) -> forall (x : X), P x.
-Proof.
-  exact: (well_founded_induction_type (Wf_nat.well_founded_lt_compat X f _ (fun _ _ => id)) P).
-Qed.
+Lemma clos_trans_swap s t : clos_trans step s t -> clos_trans (fun t' s' => step s' t') t s.
+Proof. elim; by eauto using @clos_trans with nocore. Qed.
 
 Lemma inverse_simulation s t :
   clos_refl_trans step (colon s (lam (var 0))) (lam t) -> closed s ->
   exists t', eval s t'.
 Proof.
-  move=> /clos_refl_trans_pow [k] H Hs.
+  move=> /terminating_Acc /(Acc_clos_trans term).
+  move Es': (colon s (lam (var 0))) => s' Hs'.
+  elim: Hs' s Es' => {}s' _ IH s ? Hs. subst s'.
   suff : exists t', star L_facts.step s (lam t').
   { move=> [t' ?]. by exists (lam t'). }
-  elim /(measure_rect id): k s t H Hs. rewrite /id.
-  move=> [|k] IH s t. { by move=> /not_colon_lam. }
-  move=> /[dup] /= - [s'] [/colon_progress] [s''] [].
-  { move=> -> *. exists s''. by apply: starR. }
-  move=> /[dup] /[dup] /cbv_step_L_step H0s /simulate_cbv_step H1s /cbv_step_closed H2s _.
-  move=> HSk /[dup] /H0s {}H0s /[dup] /H1s /(_ (lam (var 0))) {}H1s /H2s {}H2s.
-  move: HSk H1s H2s => /(iter_step_lt (k := S k)) /[apply].
-  move=> [k'] [/IH] /[apply] /[apply] - [t'] ?. exists t'.
-  by apply: starC; eassumption.
+  case: (cbv_step_lam_or_progress Hs).
+  { move=> [t' ->]. exists t'. by apply: starR. }
+  move=> [s'] /[dup] /cbv_step_L_step /(_ Hs) H0s.
+  move=> /[dup] /simulate_cbv_step /(_ Hs (lam (var 0))) /clos_trans_swap /IH H1s.
+  move=> /cbv_step_closed /(_ Hs) /H1s => /(_ erefl) [? [Hs't']] [t' ?].
+  subst. exists t'. by apply: starC; eassumption.
 Qed.
 
 Lemma bound_colon {n s u} : bound n s -> bound n u -> bound n (colon s u).
