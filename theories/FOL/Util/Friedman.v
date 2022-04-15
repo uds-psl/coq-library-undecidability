@@ -1,6 +1,7 @@
 (** ** Eliminating excluded middle *)
 
 Require Import List Lia.
+
 From Undecidability.FOL.Util Require Import Syntax Syntax_facts FullTarski FullTarski_facts FullDeduction_facts FullDeduction.
 Import Vector.VectorNotations.
 
@@ -366,14 +367,17 @@ Section Arithmetic.
   
   
   Definition Fr_pres T :=
-    forall D (I : interp D) P, I ⊨=T T -> forall Gamma, (forall psi, In psi Gamma -> T psi) -> (extend_interp I P) ⊫= Fr_ Gamma.
+    forall D (I : interp D) P, 
+      I ⊨=T T -> 
+      forall Gamma, (forall psi, In psi Gamma -> T psi) -> 
+                    (extend_interp I P) ⊫= Fr_ Gamma.
 
   Section Theory.
 
     Variable T : form -> Prop.
     Variable Incl : Q' <<= T.
-    Variable Std : interp_nat ⊨=T T.
-    Variable Pres : Fr_pres T.
+    Variable Std : 
+      forall Gamma P, (forall psi, In psi Gamma -> T psi) -> (extend_interp interp_nat P) ⊫= Fr_ Gamma.
     
     Lemma extract_from_class E :
       T ⊢TC embed E -> interp_nat ⊨= embed E.
@@ -384,7 +388,7 @@ Section Arithmetic.
       simpl in H'. apply H'.
       apply cast_embed. exact interp_nat.
       Unshelve.
-      now apply Pres.
+      now apply Std.
     Qed.
         
     Lemma reduction_theorem :
@@ -410,7 +414,7 @@ Section Arithmetic.
     Proof.
       intros [Gamma [H2 H % Fr_cl_to_min % soundness]].
       specialize (H nat (ext_nat False) (fun _ => 0)).
-      apply H. eapply Pres; eauto.
+      apply H. eapply Std; eauto.
     Qed.
     
     Theorem incompleteness_Q :
