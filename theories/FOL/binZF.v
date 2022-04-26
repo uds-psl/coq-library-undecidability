@@ -26,7 +26,7 @@ Open Scope syn'.
 Notation "x ∈' y" := (atom sig_empty sig_binary tt ([x; y])) (at level 35) : syn'.
 
 Definition eq' (x y : term') :=
-  ∀ x`[↑] ∈' $0 <~> y`[↑] ∈' $0.
+  ∀ x`[↑] ∈' $0 ↔ y`[↑] ∈' $0.
 
 Notation "x ≡' y" := (eq' x y) (at level 35) : syn'.
 
@@ -44,35 +44,35 @@ Definition is_eset (t : term') :=
   ∀ ¬ ($0 ∈' t`[↑]).
 
 Definition is_pair (x y t : term') :=
-  ∀ $0 ∈' t`[↑] <~> $0 ≡' x`[↑] ∨ $0 ≡' y`[↑].
+  ∀ $0 ∈' t`[↑] ↔ $0 ≡' x`[↑] ∨ $0 ≡' y`[↑].
 
 Definition is_union (x t : term') :=
-  ∀ $0 ∈' t`[↑] <~> ∃ $0 ∈' shift 2 x ∧ $1 ∈' $0.
+  ∀ $0 ∈' t`[↑] ↔ ∃ $0 ∈' shift 2 x ∧ $1 ∈' $0.
 
 Definition sub' (x y : term') :=
-  ∀ $0 ∈' x`[↑] ~> $0 ∈' y`[↑].
+  ∀ $0 ∈' x`[↑] → $0 ∈' y`[↑].
 
 Definition is_power (x t : term') :=
-  ∀ $0 ∈' t`[↑] <~> sub' $0 x`[↑].
+  ∀ $0 ∈' t`[↑] ↔ sub' $0 x`[↑].
 
 Definition is_sigma (x t : term') :=
-  ∀ $0 ∈' t`[↑] <~> $0 ∈' x`[↑] ∨ $0 ≡' x`[↑].
+  ∀ $0 ∈' t`[↑] ↔ $0 ∈' x`[↑] ∨ $0 ≡' x`[↑].
 
 Definition is_inductive (t : term') :=
-  (∃ is_eset $0 ∧ $0 ∈' t`[↑]) ∧ ∀ $0 ∈' t`[↑] ~> (∃ is_sigma $1 $0 ∧ $0 ∈' shift 2 t).
+  (∃ is_eset $0 ∧ $0 ∈' t`[↑]) ∧ ∀ $0 ∈' t`[↑] → (∃ is_sigma $1 $0 ∧ $0 ∈' shift 2 t).
 
 Definition is_om (t : term') :=
-  is_inductive t ∧ ∀ is_inductive $0 ~> sub' t`[↑] $0.
+  is_inductive t ∧ ∀ is_inductive $0 → sub' t`[↑] $0.
 
 
 
 (* ** Symbol-free axiomatisation *)
 
 Definition ax_ext' :=
-  ∀ ∀ sub' $1 $0 ~> sub' $0 $1 ~> $1 ≡' $0.
+  ∀ ∀ sub' $1 $0 → sub' $0 $1 → $1 ≡' $0.
 
 Definition ax_eq_elem' :=
-  ∀ ∀ ∀ ∀ $3 ≡' $1 ~> $2 ≡' $0 ~> $3 ∈' $2 ~> $1 ∈' $0.
+  ∀ ∀ ∀ ∀ $3 ≡' $1 → $2 ≡' $0 → $3 ∈' $2 → $1 ∈' $0.
 
 Definition ax_eset' :=
   ∃ is_eset $0.

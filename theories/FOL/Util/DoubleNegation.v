@@ -192,11 +192,11 @@ End translation.
   Context {t:preds}.
   Context {tv1 tv2 tv3 : Vector.t term (ar_preds t)}.
   Notation atm v := (atom t v).
-  Eval cbn in (translate_form ((atm tv1 ∧ atm tv1) ~> (atm tv1 ∧ atm tv1))).
-  Eval cbn in (translate_form ((atm tv1 ∨ atm tv1) ~> (atm tv1 ∧ atm tv1))).
-  Eval cbn in (translate_form ((atm tv1 ∧ atm tv1) ~> (∃ atm tv1 ∨ atm tv1))).
-  Eval cbn in (translate_form ((atm tv1 ∧ atm tv1) ~> ∀' ∀' atm tv2)).
-  Eval cbn in (translate_form ((atm tv1 ∧ atm tv1) ~> ∀' atm tv3 ~> ∃ atm tv2 ∧ atm tv1)).
+  Eval cbn in (translate_form ((atm tv1 ∧ atm tv1) → (atm tv1 ∧ atm tv1))).
+  Eval cbn in (translate_form ((atm tv1 ∨ atm tv1) → (atm tv1 ∧ atm tv1))).
+  Eval cbn in (translate_form ((atm tv1 ∧ atm tv1) → (∃ atm tv1 ∨ atm tv1))).
+  Eval cbn in (translate_form ((atm tv1 ∧ atm tv1) → ∀' ∀' atm tv2)).
+  Eval cbn in (translate_form ((atm tv1 ∧ atm tv1) → ∀' atm tv3 → ∃ atm tv2 ∧ atm tv1)).
 End Demo.*)
 
 

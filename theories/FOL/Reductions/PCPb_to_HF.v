@@ -33,14 +33,14 @@ Definition opair a b :=
   {{a; a}; {a; b}}.
 
 Definition pairing f A :=
-  ∀ $0 ∈ shift 1 f ~> ∃ ∃ $1 ∈ shift 3 A ∧ $2 ≡ opair $1 $0.
+  ∀ $0 ∈ shift 1 f → ∃ ∃ $1 ∈ shift 3 A ∧ $2 ≡ opair $1 $0.
 
 Definition function' f A :=
   pairing f A ∧ ∀ ∃ $0 ∈ shift 2 A ∧ opair $0 $1 ∈ shift 2 f
-                    ∧ ∀ opair $1 $0 ∈ shift 2f ~> $2 ≡ $0.
+                    ∧ ∀ opair $1 $0 ∈ shift 2f → $2 ≡ $0.
 
 Definition function f :=
-  ∀ ∀ ∀ opair $2 $1 ∈ shift 3 f ~> opair $2 $0 ∈ shift 3 f ~> $1 ≡ $0.
+  ∀ ∀ ∀ opair $2 $1 ∈ shift 3 f → opair $2 $0 ∈ shift 3 f → $1 ≡ $0.
 
 Definition enc_bool (x : bool) :=
   if x then {∅; ∅} else ∅.
@@ -61,7 +61,7 @@ Fixpoint enc_stack (B : BSRS) :=
   end.
 
 Definition is_rep phi a b :=
-  ∀ $0 ∈ shift 1 b <~> ∃ $0 ∈ shift 2 a ∧ phi.
+  ∀ $0 ∈ shift 1 b ↔ ∃ $0 ∈ shift 2 a ∧ phi.
 
 Definition comb_rel s t :=
   ∃ ∃ $2 ≡ opair $0 $1 ∧ $3 ≡ opair (prep_string s $0) (prep_string t $1).
@@ -74,14 +74,14 @@ Fixpoint combinations (B : BSRS) a b :=
   end.
 
 Definition solutions (B : BSRS) f n :=
-  opair ∅ (enc_stack B) ∈ f ∧ ∀ ∀ ∀ $2 ∈ shift 3 n ~> opair $2 $1 ∈ shift 3 f
-               ~> combinations B $1 $0 ~> opair (σ $2) $0 ∈ shift 3 f.
+  opair ∅ (enc_stack B) ∈ f ∧ ∀ ∀ ∀ $2 ∈ shift 3 n → opair $2 $1 ∈ shift 3 f
+               → combinations B $1 $0 → opair (σ $2) $0 ∈ shift 3 f.
 
 Definition transitive t :=
-  ∀ $0 ∈ shift 1 t ~> $0 ⊆ shift 1 t.
+  ∀ $0 ∈ shift 1 t → $0 ⊆ shift 1 t.
 
 Definition htransitive t :=
-  transitive t ∧ ∀ $0 ∈ shift 1 t ~> transitive $0.
+  transitive t ∧ ∀ $0 ∈ shift 1 t → transitive $0.
 
 Definition solvable (B : BSRS) :=
   ∃ ∃ ∃ ∃ htransitive $3 ∧ function $2 ∧ solutions B $2 $3 ∧ opair $3 $0 ∈ $2 ∧ opair $1 $1 ∈ $0.

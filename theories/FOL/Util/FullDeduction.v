@@ -23,8 +23,8 @@ Section ND_def.
   Implicit Type ff : falsity_flag.
 
   Inductive prv : forall (ff : falsity_flag) (p : peirce), list form -> form -> Prop :=
-  | II {ff} {p} A phi psi : phi::A ⊢ psi -> A ⊢ phi ~> psi
-  | IE {ff} {p} A phi psi : A ⊢ phi ~> psi -> A ⊢ phi -> A ⊢ psi
+  | II {ff} {p} A phi psi : phi::A ⊢ psi -> A ⊢ phi → psi
+  | IE {ff} {p} A phi psi : A ⊢ phi → psi -> A ⊢ phi -> A ⊢ psi
   | AllI {ff} {p} A phi : map (subst_form ↑) A ⊢ phi -> A ⊢ ∀ phi
   | AllE {ff} {p} A t phi : A ⊢ ∀ phi -> A ⊢ phi[t..]
   | ExI {ff} {p} A t phi : A ⊢ phi[t..] -> A ⊢ ∃ phi
@@ -37,7 +37,7 @@ Section ND_def.
   | DI1 {ff} {p} A phi psi : A ⊢ phi -> A ⊢ phi ∨ psi
   | DI2 {ff} {p} A phi psi : A ⊢ psi -> A ⊢ phi ∨ psi
   | DE {ff} {p} A phi psi theta : A ⊢ phi ∨ psi -> phi::A ⊢ theta -> psi::A ⊢ theta -> A ⊢ theta
-  | Pc {ff} A phi psi : prv class A (((phi ~> psi) ~> phi) ~> phi)
+  | Pc {ff} A phi psi : prv class A (((phi → psi) → phi) → phi)
   where "A ⊢ phi" := (prv _ A phi).
 
   Definition tprv `{falsity_flag} `{peirce} (T : form -> Prop) phi :=

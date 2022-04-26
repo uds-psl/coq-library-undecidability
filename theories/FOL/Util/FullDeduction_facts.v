@@ -109,7 +109,7 @@ Section ND_def.
   Qed.
 
   Lemma imps T phi psi :
-    T ⊢ phi ~> psi <-> (phi :: T) ⊢ psi.
+    T ⊢ phi → psi <-> (phi :: T) ⊢ psi.
   Proof.
     split; try apply II.
     intros H. apply IE with phi; auto. apply (Weak H). auto.
@@ -130,7 +130,7 @@ Section ND_def.
   Qed.
 
   Lemma switch_conj_imp alpha beta phi A :
-    A ⊢ alpha ∧ beta ~> phi <-> A ⊢ alpha ~> beta ~> phi.
+    A ⊢ alpha ∧ beta → phi <-> A ⊢ alpha → beta → phi.
   Proof.
     split; intros H.
     - apply II, II. eapply IE.
@@ -198,9 +198,9 @@ Local Hint Constructors prv : core.
 Lemma prv_ind_full {Σ_funcs : funcs_signature} {Σ_preds : preds_signature} :
   forall P : peirce -> list (form falsity_on) -> (form falsity_on) -> Prop,
     (forall (p : peirce) (A : list form) (phi psi : form),
-        (phi :: A) ⊢ psi -> P p (phi :: A) psi -> P p A (phi ~> psi)) ->
+        (phi :: A) ⊢ psi -> P p (phi :: A) psi -> P p A (phi → psi)) ->
     (forall (p : peirce) (A : list form) (phi psi : form),
-        A ⊢ phi ~> psi -> P p A (phi ~> psi) -> A ⊢ phi -> P p A phi -> P p A psi) ->
+        A ⊢ phi → psi -> P p A (phi → psi) -> A ⊢ phi -> P p A phi -> P p A psi) ->
     (forall (p : peirce) (A : list form) (phi : form),
         (map (subst_form ↑) A) ⊢ phi -> P p (map (subst_form ↑) A) phi -> P p A (∀ phi)) ->
     (forall (p : peirce) (A : list form) (t : term) (phi : form),
@@ -228,7 +228,7 @@ Lemma prv_ind_full {Σ_funcs : funcs_signature} {Σ_preds : preds_signature} :
         P p A (phi ∨ psi) ->
         (phi :: A) ⊢ theta ->
         P p (phi :: A) theta -> (psi :: A) ⊢ theta -> P p (psi :: A) theta -> P p A theta) ->
-    (forall (A : list form) (phi psi : form), P class A (((phi ~> psi) ~> phi) ~> phi)) ->
+    (forall (A : list form) (phi psi : form), P class A (((phi → psi) → phi) → phi)) ->
     forall (p : peirce) (l : list form) (f14 : form), l ⊢ f14 -> P p l f14.
 Proof.
   intros. specialize (prv_ind (fun ff => match ff with falsity_on => P | _ => fun _ _ _ => True end)). intros H'.
@@ -434,8 +434,8 @@ Section Enumerability.
     match n with
     | 0 => A
     | S n =>   L_ded A n ++
-    (* II *)   concat ([ [ phi ~> psi | psi ∈ L_ded (phi :: A) n ] | phi ∈ L_T form n ]) ++
-    (* IE *)   [ psi | (phi, psi) ∈ (L_ded A n × L_T form n) , (phi ~> psi el L_ded A n) ] ++
+    (* II *)   concat ([ [ phi → psi | psi ∈ L_ded (phi :: A) n ] | phi ∈ L_T form n ]) ++
+    (* IE *)   [ psi | (phi, psi) ∈ (L_ded A n × L_T form n) , (phi → psi el L_ded A n) ] ++
     (* AllI *) [ ∀ phi | phi ∈ L_ded (map (subst_form ↑) A) n ] ++
     (* AllE *) [ phi[t..] | (phi, t) ∈ (L_T form n × L_T term n), (∀ phi) el L_ded A n ] ++
     (* ExI *)  [ ∃ phi | (phi, t) ∈ (L_T form n × L_T term n), (phi[t..]) el L_ded A n ] ++
@@ -445,7 +445,7 @@ Section Enumerability.
                 [ phi | phi ∈ L_T form n, ⊥ el @L_ded _ falsity_on A n ]
                 | _ => fun _ => nil end A) ++
     (* Pc *)   (if p then
-                [ (((phi ~> psi) ~> phi) ~> phi) | (pair phi psi) ∈ (L_T form n × L_T form n)]
+                [ (((phi → psi) → phi) → phi) | (pair phi psi) ∈ (L_T form n × L_T form n)]
                 else nil) ++
     (* CI *)   [ phi ∧ psi | (phi, psi) ∈ (L_ded A n × L_ded A n) ] ++
     (* CE1 *)  [ phi | (phi, psi) ∈ (L_T form n × L_T form n), phi ∧ psi el L_ded A n] ++

@@ -88,7 +88,7 @@ Section Fsat.
   (** #&dollar;#p is the pair (#&dollar;#a,#&dollar;#b) *)
   Definition P p a b := P' p ∧ N a ∧ N b ∧ $a ## $p ∧ $p ## $b.
   (** #&dollar;#a and #&dollar;#b are first-order indistinguishable *)
-  Definition deq a b := ∀ ($0 ## $(S a) <~> $0 ## $(S b)) ∧ ( $(S a) ## $0 <~> $(S b) ## $0). 
+  Definition deq a b := ∀ ($0 ## $(S a) ↔ $0 ## $(S b)) ∧ ( $(S a) ## $0 ↔ $(S b) ## $0). 
   (** $a is less than $b *)
   Definition less a b := leq a b ∧ ¬ (deq a b). 
   (** (#&dollar;#a,#&dollar;#b)#&#35;#(#&dollar;#c,#&dollar;#d), that is, the pairs are related *)
@@ -97,19 +97,19 @@ Section Fsat.
   Definition succ l r z := rel l z r z.
 
   (** Axiom 1: less is transitive *)
-  Definition aTrans := ∀∀∀ less 2 1 ~> less 1 0 ~> less 2 0.
+  Definition aTrans := ∀∀∀ less 2 1 → less 1 0 → less 2 0.
   (** Axiom 2: non-zero numbers have predecessors *)
-  Definition aPred z:= ∀ N 0 ~> (¬(deq (S z) 0) ~> ∃ succ 0 1 (2+z)).
+  Definition aPred z:= ∀ N 0 → (¬(deq (S z) 0) → ∃ succ 0 1 (2+z)).
   (** Axiom 3: being successors implies there is no number inbetween *)
-  Definition aSucc z:= ∀∀ N 1 ~> N 0 ~> rel 1 (2+z) 0 (2+z) ~> 
-                        less 1 0 ∧ ∀ less 0 1 ~> leq 0 2.
+  Definition aSucc z:= ∀∀ N 1 → N 0 → rel 1 (2+z) 0 (2+z) → 
+                        less 1 0 ∧ ∀ less 0 1 → leq 0 2.
   (** Axiom 4: Strong axiom describing # relation on pairs (step) *)
-  Definition aDescr z := ∀∀∀∀ N 3 ~> N 2 ~> N 1 ~> N 0
-                           ~> (¬(deq (4+z) 2))
-                           ~> rel 3 2 1 0
-                       ~> ∃∃∃ succ 2 5 (7+z) ∧ succ 1 4 (7+z) ∧ rel 0 2 3 0 ∧ rel 6 2 1 0 ∧ less 0 3.
+  Definition aDescr z := ∀∀∀∀ N 3 → N 2 → N 1 → N 0
+                           → (¬(deq (4+z) 2))
+                           → rel 3 2 1 0
+                       → ∃∃∃ succ 2 5 (7+z) ∧ succ 1 4 (7+z) ∧ rel 0 2 3 0 ∧ rel 6 2 1 0 ∧ less 0 3.
   (** Axiom 5: Axiom describing # relation on pairs (tieback) *)
-  Definition aDescr2 z := ∀∀∀∀ N 3 ~> N 2 ~> N 1 ~> N 0 ~> rel 3 2 1 0 ~> deq 2 (4+z) ~> deq 0 (4+z).
+  Definition aDescr2 z := ∀∀∀∀ N 3 → N 2 → N 1 → N 0 → rel 3 2 1 0 → deq 2 (4+z) → deq 0 (4+z).
   (** This defines our reduction function *)
   Definition emplace_exists (n:nat) (f:form) := it (fun k => ∃ k) n f.
   Definition translate_single (h:h10upc) m := match h with
@@ -117,7 +117,7 @@ Section Fsat.
                     ∧ leq a m ∧ leq b m ∧ leq c m ∧ leq d m
   end.
   Fixpoint translate_list m (h10:list h10upc) := match h10 with
-     nil   => ⊥ ~> ⊥
+     nil   => ⊥ → ⊥
    | x::xr => translate_single x m ∧ translate_list m xr
   end.
   Definition F := ∃∃
@@ -905,7 +905,7 @@ Section result.
   Qed.
 
   (** FSAT on the small signature is undecidable *)
-  Lemma fval_reduction : reduction (fun k => @F k ~> falsity) (fun l => ~ (H10UPC_SAT l)) FVAL.
+  Lemma fval_reduction : reduction (fun k => @F k → falsity) (fun l => ~ (H10UPC_SAT l)) FVAL.
   Proof.
   intros Hl. split.
   - intros Hc D I rho [lst tdec] H. apply Hc.

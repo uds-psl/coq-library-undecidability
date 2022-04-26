@@ -25,7 +25,7 @@ Open Scope syn'.
 Notation "x ∈' y" := (atom sig_empty sig_binary tt ([x; y])) (at level 35) : syn'.
 
 Definition eq' (x y : term') :=
-  ∀ x`[↑] ∈' $0 <~> y`[↑] ∈' $0.
+  ∀ x`[↑] ∈' $0 ↔ y`[↑] ∈' $0.
 
 Notation "x ≡' y" := (eq' x y) (at level 35) : syn'.
 
@@ -37,16 +37,16 @@ Definition is_eset (t : term') :=
   ∀ ¬ ($0 ∈' t`[↑]).
 
 Definition is_adj (x y t : term') :=
-  ∀ $0 ∈' t`[↑] <~> $0 ∈' x`[↑] ∨ $0 ≡' y`[↑].
+  ∀ $0 ∈' t`[↑] ↔ $0 ∈' x`[↑] ∨ $0 ≡' y`[↑].
 
 Definition sub' (x y : term') :=
-  ∀ $0 ∈' x`[↑] ~> $0 ∈' y`[↑].
+  ∀ $0 ∈' x`[↑] → $0 ∈' y`[↑].
 
 Definition ax_ext' :=
-  ∀ ∀ sub' $1 $0 ~> sub' $0 $1 ~> $1 ≡' $0.
+  ∀ ∀ sub' $1 $0 → sub' $0 $1 → $1 ≡' $0.
 
 Definition ax_eq_elem' :=
-  ∀ ∀ ∀ ∀ $3 ≡' $1 ~> $2 ≡' $0 ~> $3 ∈' $2 ~> $1 ∈' $0.
+  ∀ ∀ ∀ ∀ $3 ≡' $1 → $2 ≡' $0 → $3 ∈' $2 → $1 ∈' $0.
 
 Definition ax_eset' :=
   ∃ is_eset $0.

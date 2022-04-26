@@ -13,7 +13,7 @@ Local Unset Strict Implicit.
 Local Hint Constructors prv : core.
 
 Definition ZF_to_FST phi :=
-  ax_pair' ~> ax_union' ~> ax_power' ~> ax_om' ~> phi.
+  ax_pair' → ax_union' → ax_power' → ax_om' → phi.
 
 Lemma bZF_elem { p : peirce } T x x' y y' :
   binZF <<= T -> T ⊢ x ≡' x' -> T ⊢ y ≡' y' -> T ⊢ x ∈' y -> T ⊢ x' ∈' y'.

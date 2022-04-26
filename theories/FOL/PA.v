@@ -63,15 +63,15 @@ Notation "x '⧀' y"  := (∃ (x[↑] ⊕ σ $0) == y) (at level 42) : PA_Notati
 (* ** Axioms of PA *)
 
 
-Definition ax_zero_succ := ∀  (zero == σ var 0 ~> falsity).
-Definition ax_succ_inj :=  ∀∀ (σ $1 == σ $0 ~> $1 == $0).
+Definition ax_zero_succ := ∀  (zero == σ var 0 → falsity).
+Definition ax_succ_inj :=  ∀∀ (σ $1 == σ $0 → $1 == $0).
 Definition ax_add_zero :=  ∀  (zero ⊕ $0 == $0).
 Definition ax_add_rec :=   ∀∀ ((σ $0) ⊕ $1 == σ ($0 ⊕ $1)).
 Definition ax_mult_zero := ∀  (zero ⊗ $0 == zero).
 Definition ax_mult_rec :=  ∀∀ (σ $1 ⊗ $0 == $0 ⊕ $1 ⊗ $0).
 
 Definition ax_induction (phi : form) :=
-  phi[zero..] ~> (∀ phi ~> phi[σ $0 .: S >> var]) ~> ∀ phi.
+  phi[zero..] → (∀ phi → phi[σ $0 .: S >> var]) → ∀ phi.
 
 
 
@@ -95,12 +95,12 @@ Inductive PA : form -> Prop :=
 (* Equality axioms for the PA signature *)
 
 Definition ax_refl :=  ∀   $0 == $0.
-Definition ax_sym :=   ∀∀  $1 == $0 ~> $0 == $1.
-Definition ax_trans := ∀∀∀ $2 == $1 ~> $1 == $0 ~> $2 == $0.
+Definition ax_sym :=   ∀∀  $1 == $0 → $0 == $1.
+Definition ax_trans := ∀∀∀ $2 == $1 → $1 == $0 → $2 == $0.
 
-Definition ax_succ_congr := ∀∀ $0 == $1 ~> σ $0 == σ $1.
-Definition ax_add_congr := ∀∀∀∀ $0 == $1 ~> $2 == $3 ~> $0 ⊕ $2 == $1 ⊕ $3.
-Definition ax_mult_congr := ∀∀∀∀ $0 == $1 ~> $2 == $3 ~> $0 ⊗ $2 == $1 ⊗ $3.
+Definition ax_succ_congr := ∀∀ $0 == $1 → σ $0 == σ $1.
+Definition ax_add_congr := ∀∀∀∀ $0 == $1 → $2 == $3 → $0 ⊕ $2 == $1 ⊕ $3.
+Definition ax_mult_congr := ∀∀∀∀ $0 == $1 → $2 == $3 → $0 ⊗ $2 == $1 ⊗ $3.
 
 
 Definition EQ :=

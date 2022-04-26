@@ -210,7 +210,7 @@ Proof.
 Qed.
 
 Lemma HF_bunion_inv' x y z :
-   HFeq ⊢ z ∈ x ∪ y ~> z ∈ x ∨ z ∈ y.
+   HFeq ⊢ z ∈ x ∪ y → z ∈ x ∨ z ∈ y.
 Proof.
   assert (TU : HFeq ⊢ ax_union) by (apply Ctx; firstorder). unfold ax_union in TU.
   eapply (AllE ({x; y})), (AllE z), CE1 in TU; cbn in TU; subsimpl_in TU.
@@ -349,7 +349,7 @@ Proof.
 Qed.
 
 Lemma bunion_use T x y z phi :
-  HFeq <<= T -> (x ∈ y :: T) ⊢ phi -> (x ≡ z :: T) ⊢ phi -> T ⊢ x ∈ y ∪ sing z ~> phi.
+  HFeq <<= T -> (x ∈ y :: T) ⊢ phi -> (x ≡ z :: T) ⊢ phi -> T ⊢ x ∈ y ∪ sing z → phi.
 Proof.
   intros HT H1 H2. apply II. eapply DE.
   - eapply HF_bunion_inv; auto.
@@ -360,7 +360,7 @@ Proof.
 Qed.
 
 Lemma HF_numeral_trans T n x y :
-  HFeq <<= T -> T ⊢ x ∈ tnumeral n ~> y ∈ x ~> y ∈ tnumeral n.
+  HFeq <<= T -> T ⊢ x ∈ tnumeral n → y ∈ x → y ∈ tnumeral n.
 Proof.
   intros HT. induction n; cbn.
   - apply II, Exp. eapply IE. apply HF_eset'. all: auto.
@@ -461,7 +461,7 @@ Proof.
 Qed.
 
 Lemma enc_derivations_functional B n x y y' :
-  HFeq ⊢ opair x y ∈ enc_derivations B n ~> opair x y' ∈ enc_derivations B n ~> y ≡ y'.
+  HFeq ⊢ opair x y ∈ enc_derivations B n → opair x y' ∈ enc_derivations B n → y ≡ y'.
 Proof.
   induction n; cbn -[derivations].
   - repeat apply II. eapply opair_inj2. auto. eapply HF_trans'. auto.
@@ -622,8 +622,8 @@ Proof.
 Qed.
 
 Lemma combinations_step B n (i x y : term) :
-  HFeq ⊢ i ∈ tnumeral n ~> opair i x ∈ enc_derivations B n
-     ~> combinations B x y ~> opair (σ i) y ∈ enc_derivations B n.
+  HFeq ⊢ i ∈ tnumeral n → opair i x ∈ enc_derivations B n
+     → combinations B x y → opair (σ i) y ∈ enc_derivations B n.
 Proof.
   induction n; cbn.
   - apply II. apply Exp.

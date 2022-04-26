@@ -47,7 +47,7 @@ Section Signature.
   (* New propositional variable and "double negation" with respect to it *)
   Definition Q := (@atom Σ_funcs extended_preds _ falsity_off Q_ ([])).
   Definition dn {ff} F phi : @form Σ_funcs extended_preds _ ff :=
-    (phi ~> F) ~> F.
+    (phi → F) → F.
 
   Fixpoint cast {ff} (phi : @form Σ_funcs Σ_preds _ ff) : @form Σ_funcs extended_preds _ falsity_off :=
     match phi with
@@ -62,7 +62,7 @@ Section Signature.
     match phi with
     | falsity => Q
     | atom P v => dn Q (@atom _ _ _ falsity_off (old_preds P) v)
-    | bin Impl phi psi => (Fr phi) ~> (Fr psi)
+    | bin Impl phi psi => (Fr phi) → (Fr psi)
     | bin Conj phi psi => (Fr phi) ∧ (Fr psi)
     | bin Disj phi psi => dn Q ((Fr phi) ∨ (Fr psi))
     | quant All phi => ∀ (Fr phi)
@@ -92,17 +92,17 @@ Section Signature.
       
 
   Lemma double_dn Gamma F phi :
-    Gamma ⊢M dn F (dn F phi) ~> dn F phi.
+    Gamma ⊢M dn F (dn F phi) → dn F phi.
   Proof.
-    apply II, II. eapply IE with (phi:= _ ~> _). { apply Ctx; firstorder. }
-    apply II. apply IE with (phi:= phi ~> F). all: apply Ctx; cbv;eauto.
+    apply II, II. eapply IE with (phi:= _ → _). { apply Ctx; firstorder. }
+    apply II. apply IE with (phi:= phi → F). all: apply Ctx; cbv;eauto.
   Qed.
 
   Lemma rm_dn Gamma F alpha beta :
     (alpha :: Gamma) ⊢M beta -> (dn F alpha :: Gamma) ⊢I dn F beta.
   Proof.
     intros H.
-    apply II. eapply IE with (phi:= _ ~> _). { apply Ctx; firstorder. }
+    apply II. eapply IE with (phi:= _ → _). { apply Ctx; firstorder. }
     apply II. eapply IE with (phi:= beta). {apply Ctx; cbv;eauto. }
     eapply Weak. 1:eassumption. apply ListAutomation.incl_shift, incl_tl, incl_tl, incl_refl.
   Qed.
@@ -119,13 +119,13 @@ Section Signature.
   Qed.                             
   
   Lemma dn_forall {F} Gamma phi :
-    F[↑] = F -> Gamma ⊢M dn F (∀ phi) ~> ∀ dn F phi.
+    F[↑] = F -> Gamma ⊢M dn F (∀ phi) → ∀ dn F phi.
   Proof.
     intros HF.
     apply II. constructor. apply II. cbn.
     change ((∀ phi[up ↑])) with ((∀ phi)[↑]).
     rewrite !HF.
-    eapply IE with (phi:= _ ~> _). { apply Ctx; auto. right. left. easy. }
+    eapply IE with (phi:= _ → _). { apply Ctx; auto. right. left. easy. }
     apply II. eapply IE with (phi:= phi). { apply Ctx; auto. right. left. easy. }
     cbn. rewrite <-form_up_var0_invar.
     apply AllE, Ctx; auto. left. easy.
@@ -138,10 +138,10 @@ Section Signature.
     end.
   
   Lemma exist_dn phi Gamma:
-    Gamma ⊢M ((∃ (dn Q phi)) ~> dn Q (∃ phi)). 
+    Gamma ⊢M ((∃ (dn Q phi)) → dn Q (∃ phi)). 
   Proof.
     apply II, II. eapply ExE. {apply Ctx; auto. right. now left. }
-    cbn; fold Q. apply IE with (phi:= phi ~> Q).
+    cbn; fold Q. apply IE with (phi:= phi → Q).
     {apply Ctx; auto. now left. }
     apply II. eapply IE with (phi:= ∃ _).
     {apply Ctx; auto. do 2 right. now left. }
@@ -152,7 +152,7 @@ Section Signature.
   Ltac try_lr := let rec H f := match f with S ?n => (try now left); right; H n | _ => idtac end in H 100.
 
   Lemma DNE_Fr {ff} :
-    forall phi Gamma, Gamma ⊢M dn Q (Fr phi) ~> @Fr ff phi. 
+    forall phi Gamma, Gamma ⊢M dn Q (Fr phi) → @Fr ff phi. 
   Proof.
     refine (size_ind size _ _). intros phi sRec.
     destruct phi; intros Gamma; unfold dn.
@@ -167,7 +167,7 @@ Section Signature.
           apply rm_dn. eapply CE2, Ctx; auto. now left.
       + apply double_dn.
       + apply II, II. eapply IE. apply sRec; cbn. 1: lia.
-        apply II. eapply IE with (phi:= _ ~> _). { apply Ctx; auto. try_lr. }
+        apply II. eapply IE with (phi:= _ → _). { apply Ctx; auto. try_lr. }
         apply II. eapply IE with (phi:= Fr phi2). { apply Ctx; auto. try_lr. }
         eapply IE with (phi:= Fr phi1); apply Ctx; auto. all: try_lr.
     - destruct q.
@@ -183,13 +183,13 @@ Section Signature.
       + apply double_dn.
   Qed.
   
-  Lemma Peirce_Fr {ff} Gamma phi psi : Gamma ⊢M @Fr ff (((phi ~> psi) ~> phi) ~> phi).
+  Lemma Peirce_Fr {ff} Gamma phi psi : Gamma ⊢M @Fr ff (((phi → psi) → phi) → phi).
   Proof.
     eapply IE. apply DNE_Fr. cbn.
     apply II. eapply IE. { apply Ctx; auto. try_lr. }
     apply II. eapply IE. { apply Ctx; auto. try_lr. }
     apply II. eapply IE. apply DNE_Fr. cbn; fold Q.
-    apply II. eapply IE with (phi:= _ ~> _). {apply Ctx; auto. try_lr. }
+    apply II. eapply IE with (phi:= _ → _). {apply Ctx; auto. try_lr. }
     apply II, Ctx; auto. try_lr.
   Qed.
     

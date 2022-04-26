@@ -148,10 +148,10 @@ Module FullSyntax.
   Notation "∃ Phi" := (@quant _ _ full_operators _ Ex Phi) (at level 50) : syn.
   Notation "A ∧ B" := (@bin _ _ full_operators _ Conj A B) (at level 41) : syn.
   Notation "A ∨ B" := (@bin _ _ full_operators _ Disj A B) (at level 42) : syn.
-  Notation "A '~>' B" := (@bin _ _ full_operators _ Impl A B) (at level 43, right associativity) : syn.
+  Notation "A '→' B" := (@bin _ _ full_operators _ Impl A B) (at level 43, right associativity) : syn.
   Notation "⊥" := (falsity) : syn.
-  Notation "¬ A" := (A ~> ⊥) (at level 42) : syn.
-  Notation "A '<~>' B" := ((A ~> B) ∧ (B ~> A)) (at level 43) : syn.
+  Notation "¬ A" := (A → ⊥) (at level 42) : syn.
+  Notation "A '↔' B" := ((A → B) ∧ (B → A)) (at level 43) : syn.
 
 End FullSyntax.
 

@@ -11,7 +11,7 @@ Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
 Definition add_om phi :=
-  ax_om1 ~> ax_om2 ~> phi.
+  ax_om1 → ax_om2 → phi.
 
 Theorem reduction_entailment phi :
   entailment_ZF' phi <-> entailment_HF (add_om phi).

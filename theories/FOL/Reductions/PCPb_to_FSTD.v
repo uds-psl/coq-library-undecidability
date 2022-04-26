@@ -246,7 +246,7 @@ Proof.
 Qed.
 
 Lemma FST_numeral_trans T n x y :
-  FSTeq <<= T -> T ⊢ x ∈ tnumeral n ~> y ∈ x ~> y ∈ tnumeral n.
+  FSTeq <<= T -> T ⊢ x ∈ tnumeral n → y ∈ x → y ∈ tnumeral n.
 Proof.
   intros HT. induction n; cbn.
   - apply II, Exp. eapply IE. apply FST_eset'. all: auto.
@@ -340,7 +340,7 @@ Proof.
 Qed.
 
 Lemma enc_derivations_functional B n x y y' :
-  FSTeq ⊢ opair x y ∈ enc_derivations B n ~> opair x y' ∈ enc_derivations B n ~> y ≡ y'.
+  FSTeq ⊢ opair x y ∈ enc_derivations B n → opair x y' ∈ enc_derivations B n → y ≡ y'.
 Proof.
   induction n; cbn -[derivations].
   - repeat apply II. eapply opair_inj2. auto. eapply FST_trans'. auto.
@@ -550,8 +550,8 @@ Proof.
 Qed.
 
 Lemma combinations_step B n (i x y : term) :
-  FSTeq ⊢ i ∈ tnumeral n ~> opair i x ∈ enc_derivations B n
-     ~> combinations B x y ~> opair (σ i) y ∈ enc_derivations B n.
+  FSTeq ⊢ i ∈ tnumeral n → opair i x ∈ enc_derivations B n
+     → combinations B x y → opair (σ i) y ∈ enc_derivations B n.
 Proof.
   induction n; cbn.
   - apply II. apply Exp.

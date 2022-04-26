@@ -41,7 +41,7 @@ Proof.
 Qed.
 
 Lemma loop_deductive { p : peirce } phi :
-  minZFeq' ⊢ phi <~> rm_const_fm (embed phi).
+  minZFeq' ⊢ phi ↔ rm_const_fm (embed phi).
 Proof.
   induction phi using form_ind_subst; cbn.
   - apply CI; apply II; auto.
@@ -107,7 +107,7 @@ Proof.
 Qed.
 
 Lemma minZF_sep { p : peirce } A phi :
-  minZFeq' <<= A -> A ⊢ ax_sep' (rm_const_fm phi) ~> rm_const_fm (ax_sep phi).
+  minZFeq' <<= A -> A ⊢ ax_sep' (rm_const_fm phi) → rm_const_fm (ax_sep phi).
 Proof.
   intros HA. apply II. assert1 H. cbn in *.
   eapply all_equiv. 2: apply Ctx; now left. intros [x|[]]. cbn.
@@ -146,7 +146,7 @@ Proof.
 Qed.
 
 Lemma minZF_rep { p : peirce } A phi :
-  minZFeq' <<= A -> A ⊢ ax_rep' (rm_const_fm phi) ~> rm_const_fm (ax_rep phi).
+  minZFeq' <<= A -> A ⊢ ax_rep' (rm_const_fm phi) → rm_const_fm (ax_rep phi).
 Proof.
   intros HA. apply II. assert1 H. cbn in *. eapply impl_equiv. 3: apply Ctx; now left.
   - intros B HB. apply all_equiv. intros [x|[]]. cbn. apply all_equiv. intros [y|[]]. cbn.
@@ -212,7 +212,7 @@ Proof.
 Qed.
 
 Lemma ZF_inductive_embed { p : peirce } t :
-  ZFeq' ⊢ inductive t <~> (embed (is_inductive $0))[t..].
+  ZFeq' ⊢ inductive t ↔ (embed (is_inductive $0))[t..].
 Proof.
   cbn. apply CI; apply II; apply CI.
   - apply (ExI ∅). cbn. subsimpl. apply CI; try apply (Weak ZF_eset); auto.

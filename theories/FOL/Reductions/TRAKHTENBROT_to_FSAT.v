@@ -28,7 +28,7 @@ Fixpoint translate (phi : form') : form :=
   | fol_atom tt v => atom tt (map translate_term v)
   | fol_bin fol_conj phi psi => translate phi ∧ translate psi
   | fol_bin fol_disj phi psi => translate phi ∨ translate psi
-  | fol_bin fol_imp phi psi => translate phi ~> translate psi
+  | fol_bin fol_imp phi psi => translate phi → translate psi
   | fol_quant fol_ex phi => ∃ translate phi
   | fol_quant fol_fa phi => ∀ translate phi
   end.

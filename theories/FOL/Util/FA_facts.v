@@ -42,7 +42,7 @@ Section FA_prv.
     apply IE. apply (Weak FAeq).
 
     pose (sigma := [x ; y] ∗ var ).
-    change (FAeq ⊢ _) with (FAeq ⊢ ($1 == $0 ~> $0 == $1)[sigma]).
+    change (FAeq ⊢ _) with (FAeq ⊢ ($1 == $0 → $0 == $1)[sigma]).
     
     eapply subst_forall_prv with 2.
     apply Ctx. all : firstorder.
@@ -57,7 +57,7 @@ Section FA_prv.
     apply Weak with FAeq.
 
     pose (sigma := [x ; y ; z] ∗ var).
-    change (FAeq ⊢ _) with (FAeq ⊢ ($2 == $1 ~> $1 == $0 ~> $2 == $0)[sigma]).
+    change (FAeq ⊢ _) with (FAeq ⊢ ($2 == $1 → $1 == $0 → $2 == $0)[sigma]).
     
     eapply subst_forall_prv with 3.
     apply Ctx. all : try firstorder.
@@ -70,7 +70,7 @@ Section FA_prv.
     apply IE. apply Weak with FAeq.
 
     pose (sigma := [y ; x] ∗ var ).
-    change (FAeq ⊢ _) with (FAeq ⊢ ($0 == $1 ~> σ $0 == σ $1)[sigma]).
+    change (FAeq ⊢ _) with (FAeq ⊢ ($0 == $1 → σ $0 == σ $1)[sigma]).
 
     eapply subst_forall_prv with 2.
     apply Ctx. all : firstorder.
@@ -85,7 +85,7 @@ Section FA_prv.
     apply Weak with FAeq.
 
     pose (sigma := [y2 ; y1 ; x2 ; x1] ∗ var).
-    change (FAeq ⊢ _) with (FAeq ⊢ ($0 == $1 ~> $2 == $3 ~> $0 ⊕ $2 == $1 ⊕ $3)[sigma]).
+    change (FAeq ⊢ _) with (FAeq ⊢ ($0 == $1 → $2 == $3 → $0 ⊕ $2 == $1 ⊕ $3)[sigma]).
 
     eapply subst_forall_prv with 4.
     apply Ctx. all: firstorder.
@@ -100,7 +100,7 @@ Section FA_prv.
     apply Weak with FAeq.
     
     pose (sigma := [y2 ; y1 ; x2 ; x1] ∗ var).
-    change (FAeq ⊢ _) with (FAeq ⊢ ($0 == $1 ~> $2 == $3 ~> $0 ⊗ $2 == $1 ⊗ $3)[sigma]).
+    change (FAeq ⊢ _) with (FAeq ⊢ ($0 == $1 → $2 == $3 → $0 ⊗ $2 == $1 ⊗ $3)[sigma]).
     
     eapply subst_forall_prv with 4.
     apply Ctx. all: firstorder.

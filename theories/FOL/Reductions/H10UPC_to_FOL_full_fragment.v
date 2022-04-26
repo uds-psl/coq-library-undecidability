@@ -59,13 +59,13 @@ Section validity.
   (** Axiom 1 - zero is a number *)
   Definition F_zero := N 0.
   (** Axiom 2 - we can build (left) successors: for each pair (a,0) we have a pair (S a, 0) *)
-  Definition F_succ_left := ∀ N 0 ~> ∃ ∃ ∃ P 2 3 4 ∧ P 0 1 4 ∧ Pr $2 $0.
+  Definition F_succ_left := ∀ N 0 → ∃ ∃ ∃ P 2 3 4 ∧ P 0 1 4 ∧ Pr $2 $0.
   (** Axiom 3 - we can build right successors: (x,y)#&#35;#(a,b) -> (x,S y)#&#35;#(S a,S (b+y)) *)
   Definition F_succ_right := ∀ ∀ ∀ ∀ ∀ ∀ ∀           (* 0 x 1 y 2 a 3 b 4 c 5 y' 6 a' 7 zero-const*)
-                             erel 0 1 2 3 ~>         (* (x,y) # (a,b) *)
-                            (erel 3 1 4 3 ~>         (* (b,y) # (c,b) *)
-                            (erel 1 7 5 7 ~>       (* (y,0) # (y',0) *)
-                            (erel 2 7 6 7 ~>       (* (a,0) # (a',0) *)
+                             erel 0 1 2 3 →         (* (x,y) # (a,b) *)
+                            (erel 3 1 4 3 →         (* (b,y) # (c,b) *)
+                            (erel 1 7 5 7 →       (* (y,0) # (y',0) *)
+                            (erel 2 7 6 7 →       (* (a,0) # (a',0) *)
                             (erel 0 5 6 4))))     (* (x,y') # (a',c) *).
   (** Generate n all quantifiers around i *)
   Definition emplace_exists (n:nat) (i:form) := it (fun k => ∃ k) n i.
@@ -86,7 +86,7 @@ Section validity.
   (** The actual reduction instance. If h10 is a yes-instance of H10UPC, this formula is valid and vice-versa
       The 3 variables are the zero constant and two arbitrary values which define the atomic predicate for 
       Friedman translation. *)
-  Definition F := ∀ F_zero ~> F_succ_left ~> F_succ_right ~> translate_constraints h10.
+  Definition F := ∀ F_zero → F_succ_left → F_succ_right → translate_constraints h10.
   (** We now define our standard model. *)
   Section InverseTransport.
     (** An element of the standard model is either a number or a pair. *)
