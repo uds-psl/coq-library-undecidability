@@ -261,6 +261,18 @@ FOL/Util/FST_model.v
 FOL/Util/Axiomatisations.v
 FOL/Util/Abstract.v
 
+FOL/Reification/GeneralReflection.v
+FOL/Reification/DemoPA.v
+FOL/Reification/DemoPAExtensional.v
+
+FOL/Proofmode/StringToIdent.v
+FOL/Proofmode/Hoas.v
+FOL/Proofmode/Theories.v
+FOL/Proofmode/ProofMode.v
+FOL/Proofmode/DemoPA.v
+FOL/Proofmode/DemoZF.v
+FOL/Proofmode/DemoMinZF.v
+
 FOL/Reductions/PCPb_to_FOL.v
 FOL/Reductions/PCPb_to_FOL_intu.v
 FOL/Reductions/PCPb_to_FOL_class.v
