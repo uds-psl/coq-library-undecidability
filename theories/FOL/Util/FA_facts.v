@@ -170,7 +170,7 @@ End FA_prv.
 
 
 Notation "x 'i=' y" := (i_atom (P:=Eq) [x ; y]) (at level 30) : PA_Notation.
-Notation "'iO'" := (i_func (f:=Zero) []) (at level 2) : PA_Notation.
+Notation "'iO'" := (i_func (Σ_funcs:=PA_funcs_signature) (f:=Zero) []) (at level 2) : PA_Notation.
 Notation "'iσ' d" := (i_func (f:=Succ) [d]) (at level 37) : PA_Notation.
 Notation "x 'i⊕' y" := (i_func (f:=Plus) [x ; y]) (at level 39) : PA_Notation.
 Notation "x 'i⊗' y" := (i_func (f:=Mult) [x ; y]) (at level 38) : PA_Notation.
@@ -184,7 +184,7 @@ Section FA_models.
   Hypothesis ext_model : extensional I.
   Hypothesis FA_model : forall ax rho, List.In ax FA -> rho ⊨ ax.
 
-
+  (** # <a id="imu" /> #*)
   Fixpoint iμ k := match k with
                    | O => iO
                    | S n => iσ (iμ n)
@@ -266,6 +266,7 @@ End FA_models.
 Arguments iμ {_ _} _.
 
 
+(** ** The standard model *)
 
 Section StdModel.
 
@@ -295,6 +296,17 @@ Section StdModel.
     all: cbn; try congruence. inversion H.
   Qed.
 
+  Lemma nat_is_Q_model : forall rho phi,  List.In phi Qeq -> sat interp_nat rho phi.
+  Proof.
+    intros rho phi. intros H.
+    repeat (destruct H as [<- | H]; auto).
+    all: cbn; try congruence.
+    2: inversion H.
+    induction d. now left.
+    right. destruct IHd.
+    exists 0. congruence.
+    exists d. reflexivity.
+  Qed.
 
   Fact nat_eval_num (sigma : env nat) n : @eval _ _ _ interp_nat sigma (num n) = n.
   Proof.

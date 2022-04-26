@@ -163,7 +163,7 @@ Definition Aom :=
 
 
 
-(** ** Intensional Axioms *)
+(*** ** Intensional Axioms *)
 
 (* Extensionality *)
 

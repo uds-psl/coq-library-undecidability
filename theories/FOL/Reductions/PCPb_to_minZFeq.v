@@ -1,4 +1,4 @@
-(* * Conservativity *)
+(** ** Variant allowing intensional models *)
 
 From Undecidability.FOL Require Import Util.FullTarski_facts Util.Syntax_facts Util.FullDeduction_facts.
 From Undecidability.FOL Require Import ZF Reductions.PCPb_to_ZF Reductions.PCPb_to_minZF minZF Reductions.PCPb_to_ZFeq.

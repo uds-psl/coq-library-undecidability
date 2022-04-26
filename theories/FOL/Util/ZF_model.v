@@ -1,10 +1,10 @@
-(** Instantiations of first-order axiomatisations *)
+(** ** Construction of standard models *)
 From Undecidability.FOL Require Import binZF ZF Reductions.PCPb_to_ZF.
 From Undecidability.FOL Require Import Aczel Aczel_CE Aczel_TD Syntax FullTarski_facts.
 
 Set Default Proof Using "Type".
 
-(** Model of ZF *)
+(** *** Extensional model of ZF using CE and TD *)
 
 Section ZFM.
 
@@ -108,9 +108,20 @@ Proof.
   - apply SET_rep.
 Qed.
 
+Lemma normaliser_model_eq :
+  CE -> TD -> exists V (M : interp V), extensional M /\ standard M /\ forall rho psi, ZFeq psi -> rho ⊨ psi.
+Proof.
+  intros H1 H2. assert (inhabited extensional_normaliser) as [H] by now apply TD_CE_normaliser.
+  exists SET, SET_interp. split; try apply SET_ext.
+  split; try apply SET_standard. intros rho psi [].
+  - destruct H0 as [<-|[<-|[<-|[<-|H0]]]]; cbn; try congruence. now apply SET_ZF'.
+  - apply SET_sep.
+  - apply SET_rep.
+Qed.
+
   
 
-(** Model of Z *)
+(** *** Extensional model of Z using CE *)
 
 Section ZM.
 
@@ -178,15 +189,27 @@ Section ZM.
 End ZM.
 
 Lemma extensionality_model :
-  CE -> exists V (M : interp V), extensional M /\ standard M /\ forall rho, rho ⊫ ZF'.
+  CE -> exists V (M : interp V), extensional M /\ standard M /\ forall rho phi, Z phi -> rho ⊨ phi.
 Proof.
   intros ce. exists SET', (SET_interp' ce). split; try apply SET_ext'.
-  split; try apply SET_standard'. apply SET'_ZF'.
+  split; try apply SET_standard'. intros rho phi [].
+  - now apply SET'_ZF'.
+  - apply SET_sep'.
+Qed.
+
+Lemma extensionality_model_eq :
+  CE -> exists V (M : interp V), extensional M /\ standard M /\ forall rho phi, Zeq phi -> rho ⊨ phi.
+Proof.
+  intros ce. exists SET', (SET_interp' ce). split; try apply SET_ext'.
+  split; try apply SET_standard'. intros rho phi [].
+  - destruct H as [<-|[<-|[<-|[<-|H0]]]]; cbn; try congruence.
+    now intros x x' y y' -> ->. now apply SET'_ZF'.
+  - apply SET_sep'.
 Qed.
 
 
 
-(** Intensional model of Z *)
+(** *** Intensional model of Z' without assumptions *)
 
 Section IM.
   

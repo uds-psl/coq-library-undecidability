@@ -1,11 +1,11 @@
-(* * Natural Deduction *)
+(** ** Natural Deduction *)
 
-From Undecidability Require Import FOL.Util.Syntax.
-Import FullSyntax.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
+From Undecidability Require Import FOL.Util.Syntax.
+Import FullSyntax.
+
 Local Set Implicit Arguments.
-Require Import Lia.
 
 Inductive peirce := class | intu.
 Existing Class peirce.
@@ -50,5 +50,8 @@ Notation "A ⊢ phi" := (prv A phi) (at level 55).
 Notation "A ⊢C phi" := (@prv _ _ _ class A phi) (at level 55).
 Notation "A ⊢I phi" := (@prv _ _ _ intu A phi) (at level 55).
 Notation "A ⊢M phi" := (@prv _ _ falsity_off intu A phi) (at level 55).
+Notation "T ⊢T phi" := (tprv T phi) (at level 55).
 Notation "T ⊢TI phi" := (@tprv _ _ _ intu T phi) (at level 55).
+Notation "T ⊢TC phi" := (@tprv _ _ _ class T phi) (at level 55).
+
 

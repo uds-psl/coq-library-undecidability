@@ -3,15 +3,13 @@
 Require Import Undecidability.FOL.Util.Syntax.
 Require Import Undecidability.FOL.Util.Syntax_facts.
 Require Import Undecidability.FOL.Util.FullTarski_facts.
-Require Import Undecidability.FOL.ZF.
+Require Import Undecidability.FOL.ZF Undecidability.FOL.FST.
 Require Import Lia.
 
 From Undecidability.PCP Require Import PCP Util.PCP_facts Reductions.PCPb_iff_dPCPb.
 
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
-
-Set Default Proof Using "Type".
 
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
@@ -29,7 +27,13 @@ Fixpoint shift n x :=
   end.
 
 Definition sing a :=
-  {a; a}.
+  a ::: ∅.
+
+Definition upair a b :=
+  a ::: (b ::: ∅).
+
+Notation "{ a ; b }" := (upair a b) (at level 31) : syn.
+Notation  "'σ' x" := (x ::: x) (at level 32) : syn.
 
 Definition opair a b :=
   {{a; a}; {a; b}}.
@@ -59,7 +63,7 @@ Definition enc_string (s : string bool) :=
 Fixpoint enc_stack (B : BSRS) :=
   match B with
   | nil => ∅
-  | (s,t)::B => enc_stack B ∪ sing (opair (enc_string s) (enc_string t))
+  | (s,t)::B => opair (enc_string s) (enc_string t) ::: enc_stack B
   end.
 
 Definition is_rep phi a b :=
@@ -68,10 +72,13 @@ Definition is_rep phi a b :=
 Definition comb_rel s t :=
   ∃ ∃ $2 ≡ opair $0 $1 ∧ $3 ≡ opair (prep_string s $0) (prep_string t $1).
 
+Definition is_bunion a b c :=
+  a ⊆ c ∧ b ⊆ c ∧ ∀ $0 ∈ c`[↑] ~> $0 ∈ a`[↑] ∨ $0 ∈ b`[↑].
+
 Fixpoint combinations (B : BSRS) a b :=
   match B with
   | nil => b ≡ ∅
-  | (s,t)::B => ∃ ∃ shift 2 b ≡ $0 ∪ $1 ∧ combinations B (shift 2 a) $1
+  | (s,t)::B => ∃ ∃ is_bunion $0 $1 (shift 2 b) ∧ combinations B (shift 2 a) $1
                    ∧ is_rep (comb_rel s t) (shift 2 a) $0
   end.
 
@@ -79,8 +86,14 @@ Definition solutions (B : BSRS) f n :=
   opair ∅ (enc_stack B) ∈ f ∧ ∀ ∀ ∀ $2 ∈ shift 3 n ~> opair $2 $1 ∈ shift 3 f
                ~> combinations B $1 $0 ~> opair (σ $2) $0 ∈ shift 3 f.
 
+Definition transitive t :=
+  ∀ $0 ∈ shift 1 t ~> $0 ⊆ shift 1 t.
+
+Definition htransitive t :=
+  transitive t ∧ ∀ $0 ∈ shift 1 t ~> transitive $0.
+
 Definition solvable (B : BSRS) :=
-  ∃ ∃ ∃ ∃ $3 ∈ ω ∧ function $2 ∧ solutions B $2 $3 ∧ opair $3 $0 ∈ $2 ∧ opair $1 $1 ∈ $0.
+  ∃ ∃ ∃ ∃ htransitive $3 ∧ function $2 ∧ solutions B $2 $3 ∧ opair $3 $0 ∈ $2 ∧ opair $1 $1 ∈ $0.
 
 Lemma bool_bound b n :
   bounded_t n (enc_bool b).
@@ -110,7 +123,7 @@ Proof.
 Qed.
 
 Lemma combinations_bound (B : BSRS) n k l :
-  n > 2 + l -> n > 4 + k -> bounded n (combinations B $k $l).
+  n > 3 + l -> n > 4 + k -> bounded n (combinations B $k $l).
 Proof.
   revert n k l. induction B as [|[s t] B IH]; cbn; repeat solve_bounds; trivial.
   apply IH; lia. all: apply prep_string_bound; solve_bounds.
@@ -139,144 +152,63 @@ Notation "x ∈ y" := (@i_atom _ _ _ _ elem (Vector.cons x (Vector.cons y Vector
 Notation "x ≡ y" := (@i_atom _ _ _ _ equal (Vector.cons x (Vector.cons y Vector.nil))) (at level 35) : sem.
 Notation "x ⊆ y" := (forall z, z ∈ x -> z ∈ y) (at level 34) : sem.
 
-Notation "∅" := (@i_func ZF_func_sig ZF_pred_sig _ _ eset Vector.nil) : sem.
-Notation "'ω'" := (@i_func ZF_func_sig _ _ _ om Vector.nil) : sem.
-Notation "{ x ; y }" := (@i_func ZF_func_sig _ _ _ pair (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : sem.
-Notation "⋃ x" := (@i_func ZF_func_sig _ _ _ union (Vector.cons x Vector.nil)) (at level 32) : sem.
-Notation "'PP' x" := (@i_func ZF_func_sig _ _ _ power (Vector.cons x Vector.nil)) (at level 31) : sem.
+Notation "∅" := (@i_func FST_func_sig ZF_pred_sig _ _ eset Vector.nil) : sem.
+Notation "x ::: y " := (@i_func FST_func_sig _ _ _ adj (Vector.cons x (Vector.cons y Vector.nil))) (at level 31) : sem.
 
-Notation "x ∪ y" := (⋃ {x; y}) (at level 32) : sem.
-Notation "'σ' x" := (x ∪ {x; x}) (at level 32) : sem.
+Notation "{ x ; y }" := (x ::: (y ::: ∅)) (at level 31) : sem.
+Notation "'σ' x" := (x ::: x) (at level 32) : sem.
 
 
 
 (* ** Internal axioms *)
 
-Section ZF.
+Section FST.
 
   Context { V : Type }.
   Context { M : interp V }.
 
-  Hypothesis M_ZF : forall rho, rho ⊫ ZF'.
+  Hypothesis M_FST : forall rho, rho ⊫ FST.
   Hypothesis VIEQ : extensional M.
   
   Lemma M_ext x y :
     x ⊆ y -> y ⊆ x -> x = y.
-  Proof using VIEQ M_ZF.
-    rewrite <- VIEQ. apply (@M_ZF (fun _ => ∅) ax_ext). cbn; tauto.
+  Proof.
+    rewrite <- VIEQ. apply (@M_FST (fun _ => ∅) ax_ext). cbn; tauto.
   Qed.
 
   Lemma M_eset x :
     ~ x ∈ ∅.
-  Proof using VIEQ M_ZF.
-    refine (@M_ZF (fun _ => ∅) ax_eset _ x). cbn; tauto.
+  Proof.
+    refine (@M_FST (fun _ => ∅) ax_eset _ x). cbn; tauto.
+  Qed.
+
+  Lemma M_adj x y z :
+    x ∈ y ::: z <-> x = y \/ x ∈ z.
+  Proof.
+    rewrite <- VIEQ. apply (@M_FST (fun _ => ∅) ax_adj). cbn; tauto.
   Qed.
 
   Lemma M_pair x y z :
     x ∈ {y; z} <-> x = y \/ x = z.
-  Proof using VIEQ M_ZF.
-    rewrite <- !VIEQ. apply (@M_ZF (fun _ => ∅) ax_pair). cbn; tauto.
-  Qed.
-
-  Lemma M_union x y :
-    x ∈ ⋃ y <-> exists z, z ∈ y /\ x ∈ z.
-  Proof using M_ZF.
-    apply (@M_ZF (fun _ => ∅) ax_union). cbn; tauto.
-  Qed.
-
-  Lemma M_power x y :
-    x ∈ PP y <-> x ⊆ y.
-  Proof using M_ZF.
-    apply (@M_ZF (fun _ => ∅) ax_power). cbn; tauto.
-  Qed.
-
-  Definition M_inductive x :=
-    ∅ ∈ x /\ forall y, y ∈ x -> σ y ∈ x.
-
-  Lemma M_om1 :
-    M_inductive ω.
-  Proof using M_ZF.
-    apply (@M_ZF (fun _ => ∅) ax_om1). cbn; tauto.
-  Qed.
-
-  Lemma M_om2 x :
-    M_inductive x -> ω ⊆ x.
-  Proof using M_ZF.
-    apply (@M_ZF (fun _ => ∅) ax_om2). cbn; tauto.
-  Qed.
-
-  Definition agrees_fun phi (P : V -> Prop) :=
-    forall x rho, P x <-> (x.:rho) ⊨ phi.
-
-  Definition def_pred (P : V -> Prop) :=
-    exists phi rho, forall d, P d <-> (d.:rho) ⊨ phi.
-
-  Lemma M_sep P x :
-    (forall phi rho, rho ⊨ ax_sep phi) -> def_pred P -> exists y, forall z, z ∈ y <-> z ∈ x /\ P z.
   Proof.
-    cbn. intros H [phi [rho Hp]].
-    destruct (H phi rho x) as [y H']; clear H.
-    exists y. intros z. specialize (H' z). setoid_rewrite sat_comp in H'.
-    rewrite (sat_ext _ _ (xi:=z.:rho)) in H'; try now intros [].
-    firstorder.
+    rewrite M_adj. rewrite M_adj. intuition. now apply M_eset in H.
   Qed.
 
   Definition M_is_rep R x y :=
     forall v, v ∈ y <-> exists u, u ∈ x /\ R u v.
 
-  Lemma is_rep_unique R x y y' :
-    M_is_rep R x y -> M_is_rep R x y' -> y = y'.
-  Proof using VIEQ M_ZF.
-    intros H1 H2. apply M_ext; intros v.
-    - intros H % H1. now apply H2.
-    - intros H % H2. now apply H1.
-  Qed.
-
-  Definition functional (R : V -> V -> Prop) :=
-    forall x y y', R x y -> R x y' -> y = y'.
-
-  Definition def_rel (R : V -> V -> Prop) :=
-    exists phi rho, forall x y, R x y <-> (x.:y.:rho) ⊨ phi.
-
-  Lemma M_rep R x :
-    (forall phi rho, rho ⊨ ax_rep phi) -> def_rel R -> functional R -> exists y, M_is_rep R x y.
-  Proof using VIEQ.
-    intros H1 [phi [rho Hp]]. intros H2.
-    cbn in H1. specialize (H1 phi rho). destruct H1 with x as [y Hy].
-    - intros a b b'. setoid_rewrite sat_comp.
-      erewrite sat_ext. rewrite <- (Hp a b). 2: now intros [|[]].
-      erewrite sat_ext. rewrite <- (Hp a b'). 2: now intros [|[]].
-      rewrite VIEQ. apply H2.
-    - exists y. intros v. split.
-      + intros [u[U1 U2]] % Hy. exists u. split; trivial.
-        setoid_rewrite sat_comp in U2. rewrite sat_ext in U2. rewrite (Hp u v). apply U2. now intros [|[]]; cbn.
-      + intros [u[U1 U2]]. apply Hy. exists u. split; trivial.
-        setoid_rewrite sat_comp. rewrite sat_ext. rewrite <- (Hp u v). apply U2. now intros [|[]]; cbn.
-  Qed.
 
 
-
-  (* ** Basic ZF *)
+  (* ** Basic HF *)
 
   Definition M_sing x :=
     {x; x}.
 
   Definition M_opair x y := ({{x; x}; {x; y}}).
 
-  Lemma binunion_el x y z :
-    x ∈ y ∪ z <-> x ∈ y \/ x ∈ z.
-  Proof using VIEQ M_ZF.
-    split.
-    - intros [u [H1 H2]] % M_union.
-      apply M_pair in H1 as [->| ->]; auto.
-    - intros [H|H].
-      + apply M_union. exists y. rewrite M_pair. auto.
-      + apply M_union. exists z. rewrite M_pair. auto.
-  Qed.
-
   Lemma sing_el x y :
     x ∈ M_sing y <-> x = y.
-  Proof using VIEQ M_ZF.
+  Proof.
     split.
     - now intros [H|H] % M_pair.
     - intros ->. apply M_pair. now left.
@@ -284,19 +216,19 @@ Section ZF.
 
   Lemma M_pair1 x y :
     x ∈ {x; y}.
-  Proof using VIEQ M_ZF.
+  Proof.
     apply M_pair. now left.
   Qed.
 
   Lemma M_pair2 x y :
     y ∈ {x; y}.
-  Proof using VIEQ M_ZF.
+  Proof.
     apply M_pair. now right.
   Qed.
 
   Lemma sing_pair x y z :
     {x; x} = {y; z} -> x = y /\ x = z.
-  Proof using VIEQ M_ZF.
+  Proof.
     intros He. split.
     - assert (H : y ∈ {y; z}) by apply M_pair1.
       rewrite <- He in H. apply M_pair in H. intuition.
@@ -306,14 +238,14 @@ Section ZF.
 
   Lemma opair_inj1 x x' y y' :
     M_opair x y = M_opair x' y' -> x = x'.
-  Proof using VIEQ M_ZF.
+  Proof.
     intros He. assert (H : {x; x} ∈ M_opair x y) by apply M_pair1.
     rewrite He in H. apply M_pair in H as [H|H]; apply (sing_pair H).
   Qed.
 
   Lemma opair_inj2 x x' y y' :
     M_opair x y = M_opair x' y' -> y = y'.
-  Proof using VIEQ M_ZF.
+  Proof.
     intros He. assert (y = x' \/ y = y') as [->| ->]; trivial.
     - assert (H : {x; y} ∈ M_opair x y) by apply M_pair2.
       rewrite He in H. apply M_pair in H as [H|H].
@@ -327,7 +259,7 @@ Section ZF.
 
   Lemma opair_inj x x' y y' :
     M_opair x y = M_opair x' y' -> x = x' /\ y = y'.
-  Proof using VIEQ M_ZF.
+  Proof.
     intros H. split.
     - eapply opair_inj1; eassumption.
     - eapply opair_inj2; eassumption.
@@ -335,68 +267,26 @@ Section ZF.
 
   Lemma sigma_el x y :
     x ∈ σ y <-> x ∈ y \/ x = y.
-  Proof using VIEQ M_ZF.
-    split.
-    - intros [H|H] % binunion_el; auto.
-      apply sing_el in H. now right.
-    - intros [H| ->]; apply binunion_el; auto.
-      right. now apply sing_el.
+  Proof.
+    rewrite M_adj. tauto.
   Qed.
 
   Lemma sigma_eq x :
     x ∈ σ x.
-  Proof using VIEQ M_ZF.
+  Proof.
     apply sigma_el. now right.
   Qed.
 
   Lemma sigma_sub x :
     x ⊆ σ x.
-  Proof using VIEQ M_ZF.
+  Proof.
     intros y H. apply sigma_el. now left.
-  Qed.
-
-  Lemma binunion_eset x :
-    x = ∅ ∪ x.
-  Proof using VIEQ M_ZF.
-    apply M_ext.
-    - intros y H. apply binunion_el. now right.
-    - intros y [H|H] % binunion_el.
-      + now apply M_eset in H.
-      + assumption.
   Qed.
 
   Lemma pair_com x y :
     {x; y} = {y; x}.
-  Proof using VIEQ M_ZF.
+  Proof.
     apply M_ext; intros z [->| ->] % M_pair; apply M_pair; auto.
-  Qed.
-
-  Lemma binunion_com x y :
-    x ∪ y = y ∪ x.
-  Proof using VIEQ M_ZF.
-    now rewrite pair_com.
-  Qed.
-
-  Lemma binunionl a x y :
-    a ∈ x -> a ∈ x ∪ y.
-  Proof using VIEQ M_ZF.
-    intros H. apply binunion_el. now left.
-  Qed.
-
-  Lemma binunionr a x y :
-    a ∈ y -> a ∈ x ∪ y.
-  Proof using VIEQ M_ZF.
-    intros H. apply binunion_el. now right.
-  Qed.
-
-  Hint Resolve binunionl binunionr : core.
-
-  Lemma binunion_assoc x y z :
-    (x ∪ y) ∪ z = x ∪ (y ∪ z).
-  Proof using VIEQ M_ZF.
-    apply M_ext; intros a [H|H] % binunion_el; eauto.
-    - apply binunion_el in H as [H|H]; eauto.
-    - apply binunion_el in H as [H|H]; eauto.
   Qed.
 
   
@@ -409,18 +299,12 @@ Section ZF.
     | S n => σ (numeral n)
     end.
 
-  Lemma numeral_omega n :
-    numeral n ∈ ω.
-  Proof using M_ZF.
-    induction n; cbn; now apply M_om1.
-  Qed.
-
   Definition trans x :=
     forall y, y ∈ x -> y ⊆ x.
 
   Lemma numeral_trans n :
     trans (numeral n).
-  Proof using VIEQ M_ZF.
+  Proof.
     induction n; cbn.
     - intros x H. now apply M_eset in H.
     - intros x [H| ->] % sigma_el; try apply sigma_sub.
@@ -429,7 +313,7 @@ Section ZF.
 
   Lemma numeral_wf n :
     ~ numeral n ∈ numeral n.
-  Proof using VIEQ M_ZF.
+  Proof.
     induction n.
     - apply M_eset.
     - intros [H|H] % sigma_el; fold numeral in *.
@@ -440,15 +324,48 @@ Section ZF.
 
   Lemma numeral_lt k l :
     k < l -> numeral k ∈ numeral l.
-  Proof using VIEQ M_ZF.
+  Proof.
     induction 1; cbn; apply sigma_el; auto.
   Qed.
 
   Lemma numeral_inj k l :
     numeral k = numeral l -> k = l.
-  Proof using VIEQ M_ZF.
+  Proof.
     intros Hk. assert (k = l \/ k < l \/ l < k) as [H|[H|H]] by lia; trivial.
     all: apply numeral_lt in H; rewrite Hk in H; now apply numeral_wf in H.
+  Qed.
+
+  Definition htrans x :=
+    trans x /\ forall y, y ∈ x -> trans y.
+
+  Lemma numeral_numeral n x :
+    x ∈ numeral n -> exists k, x = numeral k.
+  Proof.
+    intros H. induction n; cbn in *.
+    - now apply M_eset in H.
+    - apply sigma_el in H as [H|H].
+      + apply IHn, H.
+      + exists n. apply H.
+  Qed.
+
+  Lemma numeral_htrans n :
+    htrans (numeral n).
+  Proof.
+    split; try apply numeral_trans.
+    intros y [k ->] % numeral_numeral. apply numeral_trans.
+  Qed.
+
+  Lemma numeral_trans_sub x n :
+    (forall x y, (x ∈ y) + (~ x ∈ y)) -> x ⊆ numeral n -> trans x -> sig (fun n => x = numeral n).
+  Proof.
+    intros d. induction n; cbn.
+    - intros H _. exists 0. cbn. apply M_ext; trivial. intros y [] % M_eset.
+    - intros Hn Hx. destruct (d (numeral n) x) as [H|H].
+      + exists (S n). cbn. apply M_ext; trivial.
+        intros y [Hy| ->] % sigma_el; trivial.
+        now apply (Hx (numeral n)).
+      + apply IHn; trivial. intros y Hy.
+        specialize (Hn y Hy). apply sigma_el in Hn as [Hn| ->]; tauto.
   Qed.
 
 
@@ -475,14 +392,14 @@ Section ZF.
   Fixpoint M_enc_stack (B : BSRS) :=
     match B with
     | nil => ∅
-    | (s,t)::B => M_enc_stack B ∪ M_sing (M_enc_card s t)
+    | (s,t)::B => M_enc_card s t ::: M_enc_stack B
     end.
 
   (* Injectivity of encodings *)
 
   Lemma enc_bool_inj b c :
     M_enc_bool b = M_enc_bool c -> b = c.
-  Proof using VIEQ M_ZF.
+  Proof.
     destruct b, c; trivial; cbn.
     - intros H. contradiction (@M_eset ∅).
       pattern ∅ at 2. rewrite <- H. apply M_pair; auto.
@@ -492,7 +409,7 @@ Section ZF.
 
   Lemma enc_string_inj s t :
     M_enc_string s = M_enc_string t -> s = t.
-  Proof using VIEQ M_ZF.
+  Proof.
     induction s in t|-*; destruct t as [|b t]; cbn; trivial.
     - intros H. contradiction (M_eset (x:=M_sing (M_enc_bool b))).
       rewrite H. apply M_pair. now left.
@@ -507,7 +424,7 @@ Section ZF.
   Lemma eval_opair rho x y :
     eval rho (opair x y) = M_opair (eval rho x) (eval rho y).
   Proof.
-    reflexivity.
+    cbn. reflexivity.
   Qed.
 
   Lemma eval_enc_bool rho b :
@@ -532,38 +449,27 @@ Section ZF.
   Lemma eval_enc_stack rho B :
     eval rho (enc_stack B) = M_enc_stack B.
   Proof.
-    induction B; cbn; trivial. destruct a. unfold M_enc_card.
+    induction B; cbn; trivial. destruct a. cbn. unfold M_enc_card.
     now rewrite <- IHB, <- !eval_enc_string with (rho:=rho), <- eval_opair.
   Qed.
 
   (* Auxiliary lemmas for stack encodings *)
 
-  Lemma M_enc_stack_app A B :
-    M_enc_stack (A ++ B) = M_enc_stack A ∪ M_enc_stack B.
-  Proof using VIEQ M_ZF.
-    induction A as [|[s t] A IH]; cbn.
-    - apply binunion_eset.
-    - rewrite IH. rewrite !binunion_assoc.
-      now rewrite (binunion_com (M_enc_stack B) (M_sing (M_enc_card s t))).
-  Qed.
-
   Lemma enc_stack_el' x A :
     x ∈ M_enc_stack A -> exists s t, (s, t) el A /\ x = M_enc_card s t.
-  Proof using VIEQ M_ZF.
+  Proof.
     induction A as [|[s t] A IH]; cbn.
     - now intros H % M_eset.
-    - intros [H|H] % binunion_el.
+    - intros [->|H] % M_adj.
+      + exists s, t. intuition.
       + destruct (IH H) as (u&v&H'&->). exists u, v. intuition.
-      + apply sing_el in H as ->. exists s, t. intuition.
   Qed.
 
   Lemma enc_stack_el B s t :
     (s, t) el B -> M_enc_card s t ∈ M_enc_stack B.
-  Proof using VIEQ M_ZF.
+  Proof.
     induction B as [|[u b] B IH]; cbn; auto.
-    intros [H|H]; apply binunion_el.
-    - right. apply sing_el. congruence.
-    - left. apply IH, H.
+    intros [[=]|H]; subst; apply M_adj; auto.
   Qed.
 
   Lemma M_prep_enc s s' :
@@ -608,99 +514,123 @@ Section ZF.
   Fixpoint M_enc_derivations B n :=
     match n with 
     | O => M_sing (M_opair ∅ (M_enc_stack B))
-    | S n => M_enc_derivations B n ∪
-            M_sing (M_opair (numeral (S n)) (M_enc_stack (derivations B (S n))))
+    | S n => M_opair (numeral (S n)) (M_enc_stack (derivations B (S n))) ::: M_enc_derivations B n
     end.
 
   Lemma enc_derivations_base B n :
     M_opair ∅ (M_enc_stack B) ∈ M_enc_derivations B n.
-  Proof using VIEQ M_ZF.
+  Proof.
     induction n; cbn.
     - now apply sing_el.
-    - apply binunion_el. now left.
+    - apply M_adj. now right.
   Qed.
 
   Lemma enc_derivations_bound B n k x :
     M_opair k x ∈ M_enc_derivations B n -> k ∈ σ (numeral n).
-  Proof using VIEQ M_ZF.
+  Proof.
     induction n; cbn.
     - intros H % sing_el. apply opair_inj in H as [-> _].
       apply sigma_el. now right.
-    - intros [H|H] % binunion_el.
+    - intros [H|H] % M_adj.
+      + apply opair_inj in H as [-> _]. apply sigma_eq.
       + apply sigma_el. left. apply IHn, H.
-      + apply sing_el in H. apply opair_inj in H as [-> _]. apply sigma_eq.
-  Qed. 
+  Qed.
 
   Lemma enc_derivations_fun B n :
     forall k x y, M_opair k x ∈ M_enc_derivations B n -> M_opair k y ∈ M_enc_derivations B n -> x = y.
-  Proof using VIEQ M_ZF.
+  Proof.
     induction n; cbn -[derivations]; intros k x y.
     - intros H1 % sing_el H2 % sing_el.
       rewrite <- H2 in H1. now apply opair_inj in H1.
-    - intros [H1|H1 % sing_el] % binunion_el [H2|H2 % sing_el] % binunion_el.
-      + now apply (IHn k x y).
+    - intros [H1|H1] % M_adj [H2|H2] % M_adj.
+      + rewrite <- H2 in H1. now apply opair_inj in H1.
+      + exfalso. apply enc_derivations_bound in H2.
+        destruct (opair_inj H1) as [-> _]. now apply (@numeral_wf (S n)). 
       + exfalso. apply enc_derivations_bound in H1.
         destruct (opair_inj H2) as [-> _]. now apply (@numeral_wf (S n)).
-      + exfalso. apply enc_derivations_bound in H2.
-        destruct (opair_inj H1) as [-> _]. now apply (@numeral_wf (S n)).
-      + rewrite <- H2 in H1. now apply opair_inj in H1.
+      + now apply (IHn k x y).
   Qed.
 
   Lemma enc_derivations_el B n k x :
     M_opair k x ∈ M_enc_derivations B n -> exists l, k = numeral l /\ x = M_enc_stack (derivations B l).
-  Proof using VIEQ M_ZF.
+  Proof.
     induction n; cbn.
     - intros H % sing_el. exists 0. apply (opair_inj H).
-    - intros [H|H] % binunion_el.
+    - intros [H|H] % M_adj.
+      + exists (S n). apply (opair_inj H).
       + apply IHn, H.
-      + apply sing_el in H. exists (S n). apply (opair_inj H).
   Qed. 
 
   Lemma enc_derivations_step B n l :
     numeral l ∈ numeral n
     -> M_opair (σ (numeral l)) (M_enc_stack (derivations B (S l))) ∈ M_enc_derivations B n.
-  Proof using VIEQ M_ZF.
+  Proof.
     induction n; cbn -[derivations].
     - now intros H % M_eset.
-    - intros [H|H % sing_el] % binunion_el; apply binunion_el.
-      + left. apply IHn, H.
-      + right. apply numeral_inj in H as ->. now apply sing_el.
+    - intros [H|H] % M_adj; apply M_adj.
+      + left. now apply numeral_inj in H as ->.
+      + right. apply IHn, H.
+  Qed.
+
+  Definition M_is_bunion a b c :=
+    a ⊆ c /\ b ⊆ c /\ forall d, d ∈ c -> d ∈ a \/ d ∈ b.
+
+  Lemma M_enc_stack_app A B :
+    M_is_bunion (M_enc_stack A) (M_enc_stack B) (M_enc_stack (A ++ B)).
+  Proof.
+    induction A as [|[s t] A IH]; cbn.
+    - repeat split; auto. intros x [] % M_eset.
+    - repeat split.
+      + intros x [->|H] % M_adj; apply M_adj; auto. right. now apply IH in H.
+      + intros x H. apply M_adj. right. now apply IH in H.
+      + intros x [->|H] % M_adj; rewrite M_adj; auto. apply IH in H. tauto.
+  Qed.
+
+  Lemma M_bunion_unique a b c c' :
+    M_is_bunion a b c -> M_is_bunion a b c' -> c = c'.
+  Proof.
+    intros H1 H2. apply M_ext; firstorder.
   Qed.
 
   Lemma enc_stack_combinations B rho C x X Y :
     rho ⊨ combinations B X Y -> eval rho X = M_enc_stack C -> eval rho Y = x -> x = M_enc_stack (derivation_step B C).
-  Proof using VIEQ M_ZF.
+  Proof.
     induction B as [|[s t] B IH] in rho,C,x,X,Y |-*.
     - cbn. rewrite VIEQ. now intros -> _ <-.
     - intros [x1[x2[[H1 H2]H3]]] R1 R2; fold sat in *.
-      assert (x = x2 ∪ x1) as ->. { rewrite <- R2. cbn in H1. rewrite !eval_comp in H1. apply VIEQ, H1. } clear H1.
-      cbn. fold (derivation_step B C). rewrite M_enc_stack_app.
+      assert (M_is_bunion x2 x1 x). 
+      { rewrite <- R2. cbn in H1. destruct H1 as [[H1 H1'] H1'']. repeat split; intros y.
+        - specialize (H1 y). rewrite !eval_comp in H1. apply H1.
+        - specialize (H1' y). rewrite !eval_comp in H1'. apply H1'.
+        - specialize (H1'' y). rewrite !eval_comp in H1''. apply H1''. } clear H1.
+      cbn. fold (derivation_step B C). 
       enough (x1 = M_enc_stack (derivation_step B C)) as E1.
-      + enough (x2 = M_enc_stack (append_all C (s, t))) as E2 by now rewrite E1, E2.
+      + enough (x2 = M_enc_stack (append_all C (s, t))) as E2.
+        { eapply M_bunion_unique; try apply H. rewrite E1, E2. apply M_enc_stack_app. }
         apply M_ext; intros u Hu.
         * apply H3 in Hu as [v [Hv[a [b Ha]]]].
           cbn in Hv. erewrite !eval_comp, eval_ext, R1 in Hv; trivial.
-          apply enc_stack_el' in Hv as (s'&t'&H&H').
+          apply enc_stack_el' in Hv as (s'&t'&Hst&Hv).
           enough (u = M_enc_card (s++s') (t++t')) as ->.
           { apply enc_stack_el. apply in_map_iff. now exists (s', t'). }
           cbn in Ha. rewrite !VIEQ in Ha. destruct Ha as [D1 D2].
-          rewrite D1 in H'. unfold M_enc_card in H'. apply opair_inj in H' as [-> ->].
+          rewrite D1 in Hv. unfold M_enc_card in Hv. apply opair_inj in Hv as [-> ->].
           rewrite D2; unfold M_enc_card, M_opair; repeat f_equal.
           all: rewrite eval_prep_string; cbn. all: apply M_prep_enc.
-        * apply enc_stack_el' in Hu as (s'&t'&H&->).
-          unfold append_all in H. eapply in_map_iff in H as [[a b][H H']].
+        * apply enc_stack_el' in Hu as (s'&t'&Hst&->).
+          unfold append_all in H. eapply in_map_iff in Hst as [[a b][Ha Hb]].
           cbn in H. apply H3. exists (M_enc_card a b). split.
           { cbn. erewrite !eval_comp, eval_ext, R1; trivial. now apply enc_stack_el. }
           exists (M_enc_string b), (M_enc_string a). split.
           -- cbn. apply VIEQ. reflexivity.
           -- cbn. apply VIEQ. rewrite !eval_prep_string. cbn.
-             rewrite !M_prep_enc. injection H. intros -> ->. reflexivity.
+             rewrite !M_prep_enc. injection Ha. intros -> ->. reflexivity.
       + eapply IH; eauto. unfold shift. now erewrite !eval_comp, eval_ext, R1.
   Qed.
 
   Lemma enc_derivations_solutions B n rho a b :
     (a .: b .: M_enc_derivations B n .: numeral n .: rho) ⊨ solutions B $2 $3.
-  Proof using VIEQ M_ZF.
+  Proof.
     cbn. split.
     - rewrite eval_enc_stack. apply enc_derivations_base.
     - intros k x x' H1 H2 H3.
@@ -712,26 +642,25 @@ Section ZF.
 
   Lemma derivations_enc_derivations B n :
     M_opair (numeral n) (M_enc_stack (derivations B n)) ∈ M_enc_derivations B n.
-  Proof using VIEQ M_ZF.
+  Proof.
     induction n; cbn -[derivations].
     - now apply sing_el.
-    - apply binunion_el. right.
-      now apply sing_el.
+    - apply M_adj. now left.
   Qed.
 
   Lemma derivations_el B n s t :
     (s, t) el derivations B n -> M_enc_card s t ∈ M_enc_stack (derivations B n).
-  Proof using VIEQ M_ZF.
+  Proof.
     apply enc_stack_el.
   Qed.
 
-  Theorem PCP_ZF1 B s :
+  Theorem PCP_FST1 B s :
     derivable B s s -> forall rho, rho ⊨ solvable B.
-  Proof using VIEQ M_ZF.
+  Proof.
     intros H rho. destruct (derivable_derivations H) as [n Hn]. unfold solvable.
     exists (numeral n), (M_enc_derivations B n), (M_enc_string s), (M_enc_stack (derivations B n)).
     split; [split; [split; [split |] |] |].
-    - apply numeral_omega.
+    - apply numeral_htrans.
     - unfold function'. intros k x y H1 H2. apply VIEQ. apply (enc_derivations_fun H1 H2).
     - apply enc_derivations_solutions.
     - cbn. apply derivations_enc_derivations.
@@ -755,17 +684,18 @@ Section ZF.
   Fixpoint M_combinations B x y :=
     match B with
     | nil => y = ∅
-    | (s,t)::B => exists y1 y2, y = y2 ∪ y1 /\ M_combinations B x y1 /\ M_is_rep (M_comb_rel s t) x y2
+    | (s,t)::B => exists y1 y2, M_is_bunion y2 y1 y /\ M_combinations B x y1
+                          /\ M_is_rep (M_comb_rel s t) x y2
     end.
 
   Lemma M_combinations_spec B rho x y a b :
     M_combinations B x y -> eval rho a = x -> eval rho b = y -> rho ⊨ combinations B a b.
-  Proof using VIEQ.
+  Proof.
     induction B in y,a,b,rho|-*; cbn.
     - rewrite VIEQ. now intros -> _ ->.
-    - destruct a0 as [s t]. intros (y1&y2&H1&H2&H3) Ha Hb. exists y1, y2. repeat split.
-      + cbn. apply VIEQ. erewrite !eval_comp. unfold funcomp. cbn.
-        change (eval (fun x => rho x) b) with (eval rho b). now rewrite Hb.
+    - destruct a0 as [s t]. intros (y1&y2&H1&H2&H3) Ha Hb. exists y1, y2. split. split. 3: split.
+      + cbn. repeat split; intros d; rewrite !eval_comp; unfold funcomp; cbn.
+        all: change (eval (fun x => rho x) b) with (eval rho b); rewrite Hb; apply H1.
       + eapply (IHB _ y1); trivial. erewrite !eval_comp. unfold funcomp. cbn.
         change (eval (fun x => rho x) a) with (eval rho a). now rewrite Ha.
       + intros (u & Hu & c & d' & H) % H3. exists u. split.
@@ -781,7 +711,7 @@ Section ZF.
 
   Lemma comb_rel_rep C s t :
     M_is_rep (M_comb_rel s t) (M_enc_stack C) (M_enc_stack (append_all C (s, t))).
-  Proof using VIEQ M_ZF.
+  Proof.
     intros y. split.
     - intros (u&v&H&->) % enc_stack_el'.
       unfold append_all in H. apply in_map_iff in H as [[a b][H1 H2]]. cbn in H1.
@@ -796,16 +726,16 @@ Section ZF.
 
   Lemma M_combinations_step B C :
     M_combinations B (M_enc_stack C) (M_enc_stack (derivation_step B C)).
-  Proof using VIEQ M_ZF.
+  Proof.
     induction B as [|[s t] B IH]; cbn; trivial.
     exists (M_enc_stack (derivation_step B C)), (M_enc_stack (append_all C (s, t))).
-    rewrite M_enc_stack_app. split; trivial. split; trivial.
+    split; try apply M_enc_stack_app. split; trivial.
     apply comb_rel_rep.
   Qed.
 
   Lemma solutions_derivations B f n k :
     M_solutions B f (numeral n) -> k <= n -> M_opair (numeral k) (M_enc_stack (derivations B k)) ∈ f.
-  Proof using VIEQ M_ZF.
+  Proof.
     intros H Hk; induction k; cbn.
     - apply H.
     - assert (Hk' : k <= n) by lia. specialize (IHk Hk').
@@ -829,23 +759,23 @@ Section ZF.
     forall x y y', M_opair x y ∈ f -> M_opair x y' ∈ f -> y = y'.
 
   Definition standard :=
-    forall x, x ∈ ω -> exists n, x ≡ numeral n.
+    forall x, htrans x -> exists n, x ≡ numeral n.
 
   Lemma M_solutions_el B f k X p :
-    standard -> k ∈ ω -> M_function f -> M_solutions B f k -> M_opair k X ∈ f
+    standard -> htrans k -> M_function f -> M_solutions B f k -> M_opair k X ∈ f
     -> p ∈ X -> exists u v, p = M_enc_card u v /\ derivable B u v.
-  Proof using VIEQ M_ZF.
+  Proof.
     intros HS HO Hf Hk HX Hp. destruct (HS k HO) as [n -> % VIEQ].
     pose proof (H := solutions_derivations Hk (le_n n)).
     rewrite (Hf _ _ _ HX H) in Hp. apply enc_stack_el' in Hp as (s&t&H'&->).
     exists s, t. split; trivial. eapply derivations_derivable; eauto.
   Qed.
 
-  Theorem PCP_ZF2 B rho :
+  Theorem PCP_FST2 B rho :
     standard -> rho ⊨ solvable B -> exists s, derivable B s s.
-  Proof using VIEQ M_ZF.
+  Proof.
     intros VIN (n & f & s & X & [[[[H1 H2] H3] H4] H5]).
-    assert (H1' : n ∈ ω) by apply H1. clear H1.
+    assert (H1' : htrans n) by apply H1. clear H1.
     assert (H4' : M_opair n X ∈ f) by apply H4. clear H4.
     assert (H5' : M_opair s s ∈ X) by apply H5. clear H5.
     assert (H2' : M_function f).
@@ -858,7 +788,7 @@ Section ZF.
     now split. exists u. apply opair_inj in H1 as [H ->]. apply enc_string_inj in H as ->. apply H2.
   Qed.
   
-End ZF.
+End FST.
 
 
 
@@ -866,46 +796,13 @@ End ZF.
 
 Arguments standard {_} _.
 
-Theorem PCP_ZF' B :
-  (exists V (M : interp V), extensional M /\ standard M /\ forall rho, rho ⊫ ZF')
-  -> PCPb B <-> entailment_ZF' (solvable B).
+Theorem PCP_FST B :
+  (exists V (M : interp V), extensional M /\ standard M /\ forall rho, rho ⊫ FST)
+  -> PCPb B <-> entailment_FST (solvable B).
 Proof.
   intros HZF. rewrite PCPb_iff_dPCPb. split; intros H.
-  - clear HZF. destruct H as [s H]. intros M HM rho H1 H2. eapply PCP_ZF1; eauto.
+  - clear HZF. destruct H as [s H]. intros M HM rho H1 H2. eapply PCP_FST1; eauto.
   - destruct HZF as (M & H1 & H2 & H3 & H4).
     specialize (H M H1 (fun _ => @i_func _ _ _ _ eset Vector.nil) H2 H4).
-    apply PCP_ZF2 in H as [s Hs]; trivial. now exists s.
-Qed.
-
-Theorem PCP_Z B :
-  (exists V (M : interp V), extensional M /\ standard M /\ forall rho psi, Z psi -> rho ⊨ psi)
-  -> PCPb B <-> entailment_Z (solvable B).
-Proof.
-  intros HZF. rewrite PCPb_iff_dPCPb. split; intros H.
-  - clear HZF. destruct H as [s H]. intros M HM rho H1 H2.
-    eapply PCP_ZF1; eauto. intros sigma phi HP. apply H2. now constructor.
-  - destruct HZF as (M & H1 & H2 & H3 & H4).
-    specialize (H M H1 (fun _ => @i_func _ _ _ _ eset Vector.nil) H2 H4).
-    apply PCP_ZF2 in H as [s Hs]; trivial; try now exists s.
-    intros sigma phi HP. apply H4. now constructor.
-Qed.
-
-Theorem PCP_ZF B :
-  (exists V (M : interp V), extensional M /\ standard M /\ forall rho psi, ZF psi -> rho ⊨ psi)
-  -> PCPb B <-> entailment_ZF (solvable B).
-Proof.
-  intros HZF. rewrite PCPb_iff_dPCPb. split; intros H.
-  - clear HZF. destruct H as [s H]. intros M HM rho H1 H2.
-    eapply PCP_ZF1; eauto. intros sigma phi HP. apply H2. now constructor.
-  - destruct HZF as (M & H1 & H2 & H3 & H4).
-    specialize (H M H1 (fun _ => @i_func _ _ _ _ eset Vector.nil) H2 H4).
-    apply PCP_ZF2 in H as [s Hs]; trivial; try now exists s.
-    intros sigma phi HP. apply H4. now constructor.
-Qed.
-
-Lemma extensional_eq V (M : interp V) rho :
-  extensional M -> rho ⊫ ZF' -> rho ⊫ ZFeq'.
-Proof.
-  intros H1 H2 phi [<-|[<-|[<-|[<-|H]]]]; try now apply H2.
-  all: cbn; intros; rewrite !H1 in *; congruence.
+    apply PCP_FST2 in H as [s Hs]; trivial. now exists s.
 Qed.

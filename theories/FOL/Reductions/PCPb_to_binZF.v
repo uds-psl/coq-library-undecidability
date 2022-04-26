@@ -1,4 +1,4 @@
-(* * Conservativity *)
+(** ** Translation from ZF over Skolem signature *)
 
 From Undecidability.FOL Require Import Util.FullTarski_facts Util.Syntax_facts Util.FullDeduction_facts.
 From Undecidability.FOL Require Import ZF Reductions.PCPb_to_ZF binZF Util.sig_bin.
@@ -69,6 +69,9 @@ Fixpoint rm_const_fm {ff : falsity_flag} (phi : form) : form' :=
   | atom equal v => let v' := Vector.map rm_const_tm v in
                   ∃ (Vector.hd v') ∧ ∃ (Vector.hd (Vector.tl v'))[sshift 1] ∧ $1 ≡' $0
   end.
+
+Definition binsolvable S :=
+  rm_const_fm (solvable S).
 
 
 

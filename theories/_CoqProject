@@ -232,6 +232,10 @@ FOL/PA_undec.v
 FOL/FSAT.v
 FOL/FSAT_undec.v
 FOL/minFOL_undec.v
+FOL/FST.v
+FOL/FST_undec.v
+FOL/binFST.v
+FOL/binFST_undec.v
 
 FOL/Util/Syntax.v
 FOL/Util/Syntax_facts.v
@@ -248,25 +252,39 @@ FOL/Util/Aczel_TD.v
 FOL/Util/ZF_model.v
 FOL/Util/FA_facts.v
 FOL/Util/sig_bin.v
+
+FOL/Util/HF_model.v
 FOL/Util/DoubleNegation.v
+FOL/Util/Friedman.v
+FOL/Util/ZF_conservativity.v
+FOL/Util/FST_model.v
+FOL/Util/Axiomatisations.v
+FOL/Util/Abstract.v
 
 FOL/Reductions/PCPb_to_FOL.v
 FOL/Reductions/PCPb_to_FOL_intu.v
 FOL/Reductions/PCPb_to_FOL_class.v
 FOL/Reductions/PCPb_to_ZF.v
 FOL/Reductions/PCPb_to_ZFD.v
+FOL/Reductions/PCPb_to_ZFeq.v
+FOL/Reductions/ZF_to_HF.v
+FOL/Reductions/PCPb_to_HF.v
+FOL/Reductions/PCPb_to_HFD.v
 FOL/Reductions/PCPb_to_minZF.v
 FOL/Reductions/PCPb_to_minZFeq.v
 FOL/Reductions/PCPb_to_binZF.v
-FOL/Reductions/PCPb_to_ZFeq.v
 FOL/Reductions/H10p_to_FA.v
 FOL/Reductions/H10UPC_to_FOL.v
 FOL/Reductions/H10UPC_to_FOL_full_fragment.v
 FOL/Reductions/H10UPC_to_FSAT.v
 FOL/Reductions/H10UPC_to_FOL_minimal.v
-
+FOL/Reductions/binZF_to_binFST.v
+FOL/Reductions/ZF_to_FST.v
+FOL/Reductions/PCPb_to_FST.v
+FOL/Reductions/PCPb_to_FSTD.v
 FOL/Reductions/FSATd_to_FSATdc.v
 FOL/Reductions/TRAKHTENBROT_to_FSAT.v
+
 
 SeparationLogic/MSL.v
 SeparationLogic/SL.v
@@ -274,7 +292,6 @@ SeparationLogic/Reductions/MSLSAT_to_SLSAT.v
 SeparationLogic/Reductions/FSATdc_to_MSLSAT.v
 SeparationLogic/MSL_undec.v
 SeparationLogic/SL_undec.v
-
 MinskyMachines/MMA.v            
 
 MinskyMachines/ndMM2.v          

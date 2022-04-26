@@ -22,8 +22,11 @@ Require Import Undecidability.TM.SBTM.
       PhD Thesis. Faculty of Mathematics and Computer Science of Saarland University. 2021.
       https://www.ps.uni-saarland.de/~forster/thesis.php
 *)
+
+Definition computational_explosion := enumerable (complement SBTM_HALT).
+
 Definition undecidable {X} (p : X -> Prop) :=
-  decidable p -> enumerable (complement SBTM_HALT).
+  decidable p -> computational_explosion.
 
 Lemma undecidability_from_reducibility {X} {p : X -> Prop} {Y} {q : Y -> Prop} :
   undecidable p -> p ⪯ q -> undecidable q.

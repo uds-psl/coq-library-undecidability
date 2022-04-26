@@ -1,4 +1,5 @@
-(* * Definition of semantic and deductive ZF-Entailment in minimal signature *)
+(** * ZF set theory without Skolem function symbols *)
+(** ** Axiomatisations using membership and equality *)
 
 Require Import Undecidability.FOL.Util.Syntax.
 Require Import Undecidability.FOL.Util.FullTarski.
@@ -111,6 +112,18 @@ Definition fun_rel' phi :=
 Definition ax_rep' phi :=
   fun_rel' phi ~> ∀ ∃ ∀ $0 ∈' $1 <~> ∃ $0 ∈' $3 ∧ phi[$0 .: $1 .: Nat.add 4 >> var].
 
+(* Theory of Z including the separation and replacement schemes *)
+
+Inductive minZ : form' -> Prop :=
+| minZ_base phi : In phi minZF' -> minZ phi
+| minZ_sep phi : minZ (ax_sep' phi).
+
+(* Theory of Z plus equality axioms *)
+
+Inductive minZeq : form' -> Prop :=
+| minZeq_base phi : In phi minZFeq' -> minZeq phi
+| minZeq_sep phi : minZeq (ax_sep' phi).
+
 (* Theory of full ZF including the separation and replacement schemes *)
 
 Inductive minZF : form' -> Prop :=
@@ -139,7 +152,12 @@ Definition entailment_minZFeq' phi :=
 Definition entailment_minZF' phi :=
   forall D (M : @interp sig_empty _ D) (rho : nat -> D), extensional M -> (forall sigma psi, In psi minZF' -> sigma ⊨ psi) -> rho ⊨ phi.
 
-(* Semantic entailment restricted to extensional models. *)
+(* Semantic entailment for Z restricted to extensional models. *)
+
+Definition entailment_minZ phi :=
+  forall D (M : @interp sig_empty _ D) (rho : nat -> D), extensional M -> (forall sigma psi, minZ psi -> sigma ⊨ psi) -> rho ⊨ phi.
+
+(* Semantic entailment for ZF restricted to extensional models. *)
 
 Definition entailment_minZF phi :=
   forall D (M : @interp sig_empty _ D) (rho : nat -> D), extensional M -> (forall sigma psi, minZF psi -> sigma ⊨ psi) -> rho ⊨ phi.
@@ -149,7 +167,12 @@ Definition entailment_minZF phi :=
 Definition deduction_minZF' phi :=
   minZFeq' ⊢I phi.
 
-(* Deductive entailment restricted to intuitionistic rules. *)
+(* Deductive entailment for Z restricted to intuitionistic rules. *)
+
+Definition deduction_minZ phi :=
+  minZeq ⊢TI phi.
+
+(* Deductive entailment for ZF restricted to intuitionistic rules. *)
 
 Definition deduction_minZF phi :=
   minZFeq ⊢TI phi.

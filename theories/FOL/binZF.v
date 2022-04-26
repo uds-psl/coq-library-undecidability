@@ -1,4 +1,4 @@
-(* * Definition of semantic and deductive ZF-Entailment in binary signature *)
+(** ** Axiomatisation just using membership *)
 
 Require Import Undecidability.FOL.Util.Syntax.
 Require Import Undecidability.FOL.Util.sig_bin.

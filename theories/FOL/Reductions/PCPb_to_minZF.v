@@ -1,4 +1,4 @@
-(* * Conservativity *)
+(** ** Translation from ZF over Skolem signature *)
 
 From Undecidability.FOL Require Import Util.FullTarski_facts Util.Syntax_facts Util.FullDeduction_facts.
 From Undecidability.FOL Require Import ZF Reductions.PCPb_to_ZF minZF.
@@ -60,6 +60,9 @@ Fixpoint rm_const_fm {ff : falsity_flag} (phi : form) : form' :=
   | atom equal v => let v' := Vector.map rm_const_tm v in
                   ∃ (Vector.hd v') ∧ ∃ (Vector.hd (Vector.tl v'))[sshift 1] ∧ $1 ≡' $0
   end.
+
+Definition minsolvable S :=
+  rm_const_fm (solvable S).
 
 
 
@@ -296,14 +299,22 @@ Section Model.
           apply M_ext; trivial. all: intros y; rewrite sigma_el; trivial. all: rewrite <- !VIEQ; apply S1.
   Qed.
 
-  Lemma min_axioms :
-    (forall rho phi, ZF phi -> rho ⊨ phi) -> forall rho phi, minZF phi -> rho ⊨ phi.
-  Proof using VIEQ M_ZF.
+  Lemma min_axioms_Z :
+    (forall rho phi, Z phi -> rho ⊨ phi) -> forall rho phi, minZ phi -> rho ⊨ phi.
+  Proof using M_ZF VIEQ.
     intros H rho phi [].
     - now apply min_axioms'.
     - cbn. specialize (H rho (ax_sep (embed phi0))). cbn in H.
       setoid_rewrite (subst_ext _ _ (($0 .: (fun m : nat => S (S (S m))) >> var) >> embed_t)) in H; try now intros [].
-      rewrite <- embed_subst in H. setoid_rewrite min_embed in H. apply H. auto using ZF.
+      rewrite <- embed_subst in H. setoid_rewrite min_embed in H. apply H. auto using Z.
+  Qed.
+
+  Lemma min_axioms :
+    (forall rho phi, ZF phi -> rho ⊨ phi) -> forall rho phi, minZF phi -> rho ⊨ phi.
+  Proof using M_ZF VIEQ.
+    intros H rho phi [].
+    - now apply min_axioms'.
+    - apply min_axioms_Z; eauto using minZ. intros. apply H. destruct H0; eauto using ZF.
     - cbn. specialize (H rho (ax_rep (embed phi0))). cbn in H.
       setoid_rewrite (subst_ext _ _ (($2 .: $1 .: Nat.add 3 >> var) >> embed_t)) in H at 1; try now intros [|[]].
       setoid_rewrite (subst_ext _ _ (($2 .: $0 .: Nat.add 3 >> var) >> embed_t)) in H at 2; try now intros [|[]].
@@ -314,11 +325,25 @@ Section Model.
 
 End Model.
 
+Lemma ZF_to_minZF phi :
+  entailment_minZF' (rm_const_fm phi) -> entailment_ZF' phi.
+Proof.
+  intros H D M rho H1 H2. apply min_correct; trivial.
+  apply H; trivial. now apply min_axioms'.
+Qed.
+
 Lemma extensional_eq_min' V (M : @interp sig_empty _ V) rho :
   extensional M -> rho ⊫ minZF' -> rho ⊫ minZFeq'.
 Proof.
   intros H1 H2 phi [<-|[<-|[<-|[<-|H]]]]; try now apply H2.
   all: cbn; intros; rewrite !H1 in *; congruence.
+Qed.
+
+Lemma extensional_eq_min_Z V (M : @interp sig_empty _ V) rho :
+  extensional M -> (forall phi, minZ phi -> rho ⊨ phi) -> (forall phi, minZeq phi -> rho ⊨ phi).
+Proof.
+  intros H1 H2 phi []; try now apply H2; auto using minZ.
+  apply extensional_eq_min'; auto using minZ.
 Qed.
 
 Lemma extensional_eq_min V (M : @interp sig_empty _ V) rho :
