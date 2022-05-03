@@ -1,4 +1,4 @@
-Require Import List Arith Lia.
+Require Import List PeanoNat Lia.
 Import ListNotations.
 
 Require Import Undecidability.MinskyMachines.MM2.
@@ -27,23 +27,6 @@ Qed.
 Lemma mm2_instr_at_bounds {P: list mm2_instr} {mmi: mm2_instr} {i: nat} : 
   mm2_instr_at mmi i P -> 0 < i /\ i <= length P.
 Proof. move=> [l] [r] [-> <-]. rewrite app_length /=. by lia. Qed.
-
-Lemma mm2_step_or_halt (P: list mm2_instr) (x: mm2_config) : 
-  (exists y, mm2_step P x y) \/ (mm2_stop P x).
-Proof.
-  move: x => [i [a b]].
-  have [? | [? ?]] : ((i = 0 \/ i > length P) \/ (1 <= i /\ i <= length P)) by lia.
-  { right. move=> y [? [/mm2_instr_at_bounds]] /=. by lia. }
-  have [mmi ?] := mm2_mmi_lookup (i := i-1) (P := P) ltac:(lia).
-  have [y Hy] := mm2_progress (mmi := mmi) (x := (i, (a, b))).
-  left. exists y, mmi. constructor; last done.
-  eexists. eexists. constructor; first by eassumption.
-  rewrite firstn_length_le /=; by lia.
-Qed.
-
-Lemma mm2_step_neq {P: list mm2_instr} {x y: mm2_config} : 
-  mm2_step P x y -> x <> y.
-Proof. by move=> [[||j|j]] [_ +]; (case=> * []; lia). Qed.
 
 Lemma mm2_instr_at_unique {P: list mm2_instr} {i op op'} : mm2_instr_at op i P -> mm2_instr_at op' i P -> op = op'.
 Proof.

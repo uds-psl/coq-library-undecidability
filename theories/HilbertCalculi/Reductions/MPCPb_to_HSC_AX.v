@@ -146,7 +146,7 @@ Proof.
 Qed.
 
 (* derivability of an instance of a → b → a *)
-Definition adequate v w P n := 
+Definition adequate v w P n :=
   exists p q, der (Γ v w P) n (arr p (arr q p)).
 
 (* derivability of (v ++ v₁ ++...++ vₙ, w ++ w₁ ++...++ wₙ) *)
@@ -160,7 +160,7 @@ Definition solving (v w: list bool) P n :=
 
 Lemma adequate_step {v w P n} : adequate v w P (S n) -> adequate v w P n \/ solving v w P n.
 Proof.
-  move=> [p [q /derE]] => [[ζ [s [k [_]]]]].
+  move=> [p [q /derE]] => [[ζ [s [k]]]].
   rewrite {1}/Γ /In -/(In _ _). case. case; last case.
   (* case ⟨ a, a ⟩ *)
   {
@@ -192,7 +192,7 @@ Qed.
 
 Lemma solving_step {v w P n} : solving v w P (S n) -> adequate v w P n \/ solving v w P n \/ MPCPb ((v, w), P).
 Proof.
-  move=> [A [HA [ξ /derE]]]. move=> [ζ [s [k [_]]]].
+  move=> [A [HA [ξ /derE]]]. move=> [ζ [s [k]]].
   rewrite {1}/Γ /In -/(In _ _). case. case; last case.
   (* case ⟨ a, a ⟩ *)
   {
@@ -232,10 +232,10 @@ Proof.
 Qed.
 
 Lemma adequate0E {v w P} : not (adequate v w P 0).
-Proof. by move=> [? [?]] /der_0E. Qed.
+Proof. by move=> [? [?]] /derE. Qed.
 
 Lemma solving0E {v w P} : not (solving v w P 0).
-Proof. by move=> [? [? [?]]] /der_0E. Qed.
+Proof. by move=> [? [? [?]]] /derE. Qed.
 
 (* if ((v, w), P) is adequate, then MPCPb is solvable *)
 Lemma complete_adequacy {v w P n}: adequate v w P n -> MPCPb ((v, w), P).
@@ -283,9 +283,9 @@ Proof.
       substitute ζ (encode_pair (var 1) (var 1)) by done.
     apply: hsc_var.
     rewrite /Γ /In. by left. }
-  move=> [a b] A IH x y /incl_cons_inv [? ?].
+  move=> [a b] A IH x y /incl_cons_inv [? HA].
   rewrite /tau1 -/tau1 /tau2 -/tau2 ? app_assoc.
-  move /IH => /(_ ltac:(assumption)) ?.
+  move /IH => /(_ HA) ?.
   apply: hsc_arr; last eassumption.
   rewrite ? encode_word_app.
   pose ζ i := if i is 2 then encode_word x else if i is 3 then encode_word y else var i.

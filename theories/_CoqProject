@@ -790,14 +790,11 @@ DiophantineConstraints/Reductions/H10SQC_SAT_to_H10UC_SAT.v
 DiophantineConstraints/Reductions/H10UC_SAT_to_H10UPC_SAT.v
 
 SetConstraints/Util/Facts.v
-SetConstraints/Util/mset_eq_utils.v
-SetConstraints/Util/mset_poly_utils.v
 SetConstraints/Reductions/H10UC_SAT_to_FMsetC_SAT.v
 
 PolynomialConstraints/LPolyNC.v
 PolynomialConstraints/LPolyNC_undec.v
 
-PolynomialConstraints/Util/PolyFacts.v
 PolynomialConstraints/Reductions/FMsetC_SAT_to_LPolyNC_SAT.v
 
 HilbertCalculi/HSC.v

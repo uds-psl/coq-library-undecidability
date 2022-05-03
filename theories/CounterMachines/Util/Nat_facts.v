@@ -4,14 +4,6 @@ Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
 
-(* induction/recursion principle wrt. a decreasing measure f *)
-(* example: elim /(measure_rect length) : l. *)
-Lemma measure_rect {X : Type} (f : X -> nat) (P : X -> Type) : 
-  (forall x, (forall y, f y < f x -> P y) -> P x) -> forall (x : X), P x.
-Proof.
-  exact: (well_founded_induction_type (Wf_nat.well_founded_lt_compat X f _ (fun _ _ => id)) P).
-Qed.
-
 Lemma iter_plus {X: Type} {f: X -> X} {x: X} {n m: nat} : 
   Nat.iter (n + m) f x = Nat.iter m f (Nat.iter n f x).
 Proof. by rewrite Nat.add_comm /Nat.iter nat_rect_plus. Qed.

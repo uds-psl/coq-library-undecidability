@@ -363,7 +363,7 @@ Proof.
     list_sum (map (fun p => if f p is None then 1 else 0) (seq 0 l))).
   pose G := (fun (f : nat -> option nat) => 
     list_sum (map (fun p => if f p is Some c then c else 0) (seq 0 l))).
-  elim /(measure_ind F). elim /(measure_ind G).
+  elim /(measure_rect F). elim /(measure_rect G).
   move=> f IHG IHF. constructor => g Hgf.
   case: Hgf IHG IHF.
   - move=> {}f p c ? Hf IHG IHF.
