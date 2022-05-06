@@ -1,10 +1,10 @@
-(** ** Construction of standard models *)
+(* ** Construction of standard models *)
 From Undecidability.FOL Require Import binZF ZF Reductions.PCPb_to_ZF.
 From Undecidability.FOL Require Import Aczel Aczel_CE Aczel_TD Syntax FullTarski_facts.
 
 Set Default Proof Using "Type".
 
-(** *** Extensional model of ZF using CE and TD *)
+(* *** Extensional model of ZF using CE and TD *)
 
 Section ZFM.
 
@@ -121,7 +121,7 @@ Qed.
 
   
 
-(** *** Extensional model of Z using CE *)
+(* *** Extensional model of Z using CE *)
 
 Section ZM.
 
@@ -209,7 +209,7 @@ Qed.
 
 
 
-(** *** Intensional model of Z' without assumptions *)
+(* *** Intensional model of Z' without assumptions *)
 
 Section IM.
   

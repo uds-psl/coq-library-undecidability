@@ -1,5 +1,5 @@
-(** * ZF set theory with Skolem function symbols *)
-(** ** Axiomatisations *)
+(* * ZF set theory with Skolem function symbols *)
+(* ** Axiomatisations *)
 
 Require Import Undecidability.FOL.Util.Syntax.
 Require Import Undecidability.FOL.Util.FullTarski.

@@ -1,4 +1,4 @@
-(** ** Axiomatisation of finite set theory just using membership *)
+(* ** Axiomatisation of finite set theory just using membership *)
 
 Require Import Undecidability.FOL.Util.Syntax.
 Require Import Undecidability.FOL.Util.sig_bin.

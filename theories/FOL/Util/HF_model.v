@@ -1,4 +1,4 @@
-(** *** Constructive extensional model of finite ZF *)
+(* *** Constructive extensional model of finite ZF *)
 From Undecidability.FOL Require Import ZF Reductions.PCPb_to_HF.
 From Undecidability.FOL Require Import Syntax Syntax_facts FullTarski_facts.
 From Undecidability.TRAKHTENBROT Require Import hfs.
