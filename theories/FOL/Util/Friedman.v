@@ -384,6 +384,19 @@ Section Arithmetic.
       forall Gamma, (forall psi, In psi Gamma -> T psi) -> 
                     (extend_interp I P) ⊫= Fr_ Gamma.
 
+  Lemma Fr_pres_PA :
+    forall Gamma P, (forall psi, In psi Gamma -> PAeq psi) -> (extend_interp interp_nat P) ⊫= Fr_ Gamma.
+  Proof.
+    intros A P HA rho phi HP. apply in_map_iff in HP as [psi[<- [] % HA]].
+    + destruct H as [<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[<-|[]]]]]]]]]]]; cbn; intuition.
+    + cbn. intuition lia.
+    + cbn. intuition.
+    + cbn. rewrite <- !subst_Fr. intros IHB IHS. induction d.
+      * apply sat_comp in IHB. eapply sat_ext; try apply IHB. now intros [|].
+      * apply IHS in IHd. apply sat_comp in IHd.
+        eapply sat_ext; try apply IHd. now intros [|].
+  Qed.
+
   Section Theory.
 
     Variable T : form -> Prop.
