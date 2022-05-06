@@ -258,7 +258,6 @@ FOL/Util/DoubleNegation.v
 FOL/Util/Friedman.v
 FOL/Util/ZF_conservativity.v
 FOL/Util/FST_model.v
-FOL/Util/Axiomatisations.v
 FOL/Util/Abstract.v
 
 FOL/Reductions/PCPb_to_FOL.v

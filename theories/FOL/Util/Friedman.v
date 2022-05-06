@@ -245,7 +245,7 @@ End Signature.
 
 
 From Undecidability.Synthetic Require Import Definitions Undecidability.
-From Undecidability.FOL.Util Require Import FA_facts Axiomatisations.
+From Undecidability.FOL.Util Require Import FA_facts.
 From Undecidability.Synthetic Require Import Definitions EnumerabilityFacts.
 From Undecidability.FOL.Reductions Require Import H10p_to_FA.
 From Undecidability.H10 Require Import H10p H10p_undec.
@@ -295,13 +295,18 @@ Section Arithmetic.
       apply cast_extists_eq.
     Qed.
 
+    Definition list_theory (A : list form) :=
+      fun phi => In phi A.
+
+    Definition Q' := list_theory FAeq.
+
     Lemma sat_Fr_formula {P} phi rho :
       I ⊨=T Q' -> Q' phi -> sat (extend_interp I P) rho (Fr phi).
     Proof.
       intros axioms H.
       specialize (axioms phi). revert axioms.
       repeat (destruct H as [<-|H]).
-      all: cbn -[FAeq]; refine (fun A => let F := A _ rho in _); intuition.
+      all: cbn -[FAeq]; refine (fun A => let F := A _ rho in _); intuition. firstorder.
       destruct H.
       Unshelve. all: cbn; try tauto.
     Qed.
@@ -344,11 +349,15 @@ Section Arithmetic.
     destruct H.
   Qed.
 
+  Notation "S <<= S'" := (forall phi, S phi -> S' phi) (at level 10).
+
   Corollary T_class_Q_to_H10p (T : form -> Prop) (E : H10p_PROBLEM) :
     T <<= Q' -> T ⊢TC embed E -> H10p E.
   Proof.
-    intros ? [Gamma []]. eapply class_Q_to_H10p; intuition.
+    intros ? [Gamma []]. apply class_Q_to_H10p with Gamma; intuition.
   Qed.
+
+  Definition tprv_class T phi := T ⊢TC phi.
 
   Lemma H10p_to_class_Q :
     reduction embed H10p (tprv_class Q').
@@ -418,17 +427,6 @@ Section Arithmetic.
       intros [Gamma [H2 H % Fr_cl_to_min % soundness]].
       specialize (H nat (ext_nat False) (fun _ => 0)).
       apply H. eapply Std; eauto.
-    Qed.
-    
-    Theorem incompleteness_Q :
-      enumerable T -> complete T -> computational_explosion.
-    Proof.
-      intros HE HC. apply H10p_undec.
-      apply (@complete_reduction _ _ enum_PA_syms _ enum_PA_preds _ T HE) with embed.
-      - now apply std_T_consistent.
-      - apply HC.
-      - now apply reduction_theorem.
-      - apply embed_is_closed.
     Qed.
 
   End Theory.

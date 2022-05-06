@@ -129,11 +129,15 @@ Notation extensional M :=
 Definition entailment_FA phi :=
   valid_ctx FAeq phi.
 
-
 (* Deductive entailment restricted to intuitionistic rules and FA. *)
 
 Definition deduction_FA phi :=
   FAeq ⊢I phi.
+
+(* Classical deductive entailment restricted to FA. *)
+
+Definition cdeduction_FA phi :=
+  FAeq ⊢C phi.
 
 
 (* Semantic entailment restricted to Q *)
@@ -141,10 +145,15 @@ Definition deduction_FA phi :=
 Definition entailment_Q phi :=
   valid_ctx Qeq phi.
 
-(* Deductive entailment restricted to intuitionistic rules and FA. *)
+(* Deductive entailment restricted to intuitionistic rules and Q. *)
 
 Definition deduction_Q phi :=
   Qeq ⊢I phi.
+
+(* Classical deductive entailment restricted to Q. *)
+
+Definition cdeduction_Q phi :=
+  Qeq ⊢C phi.
 
 
 (* Semantic entailment for PA *)
@@ -152,14 +161,19 @@ Definition deduction_Q phi :=
 Definition entailment_PA phi :=
   forall D (I : interp D) rho, (forall psi rho, PAeq psi -> rho ⊨ psi) -> rho ⊨ phi.
 
-
 (* Semantic entailment restricted to extensional models of PA *)
 
 Definition ext_entailment_PA phi :=
   forall D (I : interp D) rho, extensional I -> (forall psi rho, PA psi -> rho ⊨ psi) -> rho ⊨ phi.
 
-
 (* Deductive entailment restricted to intuitionistic rules. *)
 
 Definition deduction_PA phi :=
   PAeq ⊢TI phi.
+
+(* Deductive entailment including classical rules. *)
+
+Definition cdeduction_PA phi :=
+  PAeq ⊢TC phi.
+
+
