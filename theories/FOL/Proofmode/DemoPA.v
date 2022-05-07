@@ -166,6 +166,8 @@ Notation "x '⊕' y" := (bFunc Plus (Vector.cons bterm x 1 (Vector.cons bterm y 
 Notation "x '⊗' y" := (bFunc Mult (Vector.cons bterm x 1 (Vector.cons bterm y 0 (Vector.nil bterm))) ) (at level 38) : hoas_scope. 
 Notation "x '==' y" := (bAtom Eq (Vector.cons bterm x 1 (Vector.cons bterm y 0 (Vector.nil bterm))) ) (at level 40) : hoas_scope.
 
+Open Scope PA_Notation.
+
 Definition leq a b := (∃' k, a ⊕ k == b)%hoas.
 Infix "≤" := leq (at level 45).
 
@@ -245,7 +247,7 @@ Proof.
     + frewrite (ax_mult_zero (σ y)). frewrite (ax_add_zero zero). fapply ax_refl.
     + fexists y. fapply ax_add_zero.
   - fintros "x" "IH" "y". fdestruct ("IH" y) as "[q [r [IH1 [k IH2]]]]".
-    fassert (r == y ∨ (r == y → ⊥)) as "[H|H]" by fapply pa_eq_dec.
+    fassert (<< r == y ∨ (r == y → ⊥)) as "[H|H]" by fapply pa_eq_dec.
     + fexists (σ q). fexists zero. fsplit.
       * frewrite (ax_add_zero (σ q ⊗ σ y)). frewrite (ax_mult_rec q (σ y)).
         frewrite (ax_add_rec (q ⊗ σ y) y). fapply ax_succ_congr.

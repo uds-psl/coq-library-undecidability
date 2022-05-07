@@ -1,4 +1,5 @@
-From Equations Require Import Equations DepElim.
+From Equations Require Import Equations.
+Require Equations.Type.DepElim.
 From Undecidability.Shared Require Import Dec.
 From Undecidability.FOL Require Import Util.Syntax Util.FullDeduction Util.FullTarski ZF.
 From Undecidability.FOL.Proofmode Require Import Theories ProofMode.
