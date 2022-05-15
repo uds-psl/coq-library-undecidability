@@ -1,0 +1,26 @@
+From Undecidability.Synthetic
+     Require Import Definitions Undecidability.
+
+From Undecidability.FOL.Basics
+     Require Import Axiomatizations.Sets.binFST
+                    Axiomatizations.Sets.binZF
+                    Axiomatizations.Sets.Models.FST_model.
+
+
+From Undecidability.FOL.Undecidability
+     Require Import Reductions.binZF_to_binFST FST_undec binZF_undec.
+
+
+Theorem undecidable_entailment_binFST :
+  undecidable entailment_binFST.
+Proof.
+  apply (undecidability_from_reducibility undecidable_entailment_binZF).
+  exists ZF_to_FST. intros phi. apply reduction_entailment.
+Qed.
+
+Theorem undecidable_deduction_binFST :
+  undecidable deduction_binFST.
+Proof.
+  apply (undecidability_from_reducibility undecidable_deduction_binZF).
+  exists ZF_to_FST. intros phi. apply reduction_deduction.
+Qed.

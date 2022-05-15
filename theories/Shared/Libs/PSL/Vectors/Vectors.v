@@ -426,6 +426,11 @@ Goal Vector.In (Fin.F1 (n := 10)) (map (Fin.FS) [|Fin0; Fin1; Fin2|]) -> False.
 Proof. intros H. simpl_vector_in. Qed.
 
 
+Inductive Vector_In2 {A : Type} (a : A) : forall {n}, t A n -> Type :=
+| vec_inB {n} (v : t A n) : Vector_In2 a (cons A a n v)
+| vec_inS a' {n} (v : t A n) : Vector_In2 a v -> Vector_In2 a (cons A a' n v).
+#[global] Hint Constructors Vector_In2 : core.
+
 
 (* Conversion between vectors and lists *)
 Module VecToListCoercion.
