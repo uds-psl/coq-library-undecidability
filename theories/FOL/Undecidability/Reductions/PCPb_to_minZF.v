@@ -1,9 +1,9 @@
 (** ** Translation from ZF over Skolem signature *)
 
-Require Import Undecidability.FOL.Basics.Syntax.Facts.
-Require Import Undecidability.FOL.Basics.Semantics.Tarski.FullFacts.
-From Undecidability.FOL.Basics.Axiomatizations.Sets Require Import minZF ZF.
-Require Import Undecidability.FOL.Basics.Axiomatizations.Sets.ZF.
+Require Import Undecidability.FOL.Syntax.Facts.
+Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
+From Undecidability.FOL.Axiomatizations.Sets Require Import minZF ZF.
+Require Import Undecidability.FOL.Axiomatizations.Sets.ZF.
 Require Import Undecidability.FOL.Undecidability.Reductions.PCPb_to_ZF.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.

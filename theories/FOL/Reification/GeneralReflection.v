@@ -1,7 +1,6 @@
 From MetaCoq.Template Require Import utils All Pretty Checker.
 Require Import List String Lia.
-From Undecidability.FOL Require Import FOL.
-From Undecidability.FOL.Util Require Import Syntax FullTarski.
+From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts.
 
 (** * Reification
       Please read the PDF file giving a detailed description.
@@ -209,7 +208,8 @@ Section AbstractReflectionDefinitions.
   (** Used if no instance of the above extension class can be found. Low priority *)
   Definition defaultExtensions tr : tarski_reflector_extensions tr := Build_tarski_reflector_extensions tr None None None None None None.
   (** Useful builder to build the main tarski_reflector class *)
-  Definition buildDefaultTarski {fs:funcs_signature} {ps:preds_signature} {D:Type} {I:@interp fs ps D} (point:D) (isD:Ast.term -> bool) := Build_tarski_reflector fs ps D I (fun n:nat => point) isD.
+  Definition buildDefaultTarski {fs:funcs_signature} {ps:preds_signature} {D:Type} {I:@interp fs ps D} (point:D) (isD:Ast.term -> bool)
+     := @Build_tarski_reflector fs ps D I (fun n:nat => point) isD.
 
   Fixpoint anyVariableOf (l:list ident) (t:Ast.term) := match l with nil => false | lx::lr =>
         if @Checker.eq_term config.default_checker_flags init_graph t (tVar lx) then true else anyVariableOf lr t end.
@@ -245,14 +245,14 @@ Section AbstractReflectionDefinitions.
                                      (fun t d => representsF d t rho) (fun t d => representsF d t rho) 
                                      (func c) (@i_func fs ps D I c).
   (* Hack to get these to use the proper type class instance *)
-  Notation term := (@Syntax.term (@fs tr)).
-  Notation form := (@Syntax.form (@fs tr) (@ps tr) full_operators ff).
-  Notation syms := (@Syntax.syms (@fs tr)).
-  Notation preds := (@Syntax.preds (@ps tr)).
+  Notation term := (@Core.term (@fs tr)).
+  Notation form := (@Core.form (@fs tr) (@ps tr) full_operators ff).
+  Notation syms := (@Core.syms (@fs tr)).
+  Notation preds := (@Core.preds (@ps tr)).
   Definition mergeTermProtoType (rho:nat -> D) (n:nat) (fZ:Vector.t term n -> term) (ifZ : Vector.t D n -> D) := 
          (forall v : Vector.t term n, @eval fs ps D I rho (fZ v) = ifZ (Vector.map (@eval fs ps D I rho) v))  
          -> @nary3GFunc n term D term D (fun t d => representsF d t rho) (fun t d => representsF d t rho) fZ ifZ.
-  Definition mergeTermProto (rho:nat -> D) (n:nat) (fZ:Vector.t term n -> term) (ifZ : Vector.t D n -> D) : mergeTermProtoType rho n fZ ifZ.
+  Definition mergeTermProto (rho:nat -> D) (n:nat) (fZ:Vector.t term n -> term) (ifZ : Vector.t D n -> D) : @mergeTermProtoType rho n fZ ifZ.
   Proof.
   intros H. induction n as [|n IH].
   * cbn. unfold representsF. rewrite H. cbn. easy.
@@ -269,7 +269,7 @@ Section AbstractReflectionDefinitions.
          (forall v : Vector.t term n, @sat fs ps D I ff rho (fZ v) = ifZ (Vector.map (@eval fs ps D I rho) v))  
          -> @nary3GFunc n term D form (naryProp 0) (fun t d => representsF d t rho) (fun t P => representsP t rho P) fZ ifZ.
   (** Proof that the functions built using the above helper actually represent the syntactic construct they are supposed to represent *)
-  Definition mergeFormProto (rho:nat -> D) (n:nat) (fZ:Vector.t term n -> form) (ifZ : Vector.t D n -> naryProp 0) : mergeFormProtoType rho n fZ ifZ.
+  Definition mergeFormProto (rho:nat -> D) (n:nat) (fZ:Vector.t term n -> form) (ifZ : Vector.t D n -> naryProp 0) : @mergeFormProtoType rho n fZ ifZ.
   Proof.
   intros H. induction n as [|n IH].
   * cbn. unfold representsP. rewrite H. cbn. easy.
@@ -283,7 +283,7 @@ Section AbstractReflectionDefinitions.
   MetaCoq Quote Definition qConstructForm := constructForm.
   MetaCoq Quote Definition qMergeForm := mergeForm.
 End AbstractReflectionDefinitions.
-
+#[global] Arguments representableP {_} {_} _ _.
 
 Section TarskiMerging.
   (** **TarskiMerging
@@ -292,10 +292,10 @@ Section TarskiMerging.
   Context {tr : tarski_reflector}.
   Context {te : tarski_reflector_extensions tr}.
   (* Hack to get these to use the proper type class instance *)
-  Notation term := (@Syntax.term (@fs tr)).
-  Notation form ff := (@Syntax.form (@fs tr) (@ps tr) full_operators ff).
-  Notation syms := (@Syntax.syms (@fs tr)).
-  Notation preds := (@Syntax.preds (@ps tr)).
+  Notation term := (@Core.term (@fs tr)).
+  Notation form ff := (@Core.form (@fs tr) (@ps tr) full_operators ff).
+  Notation syms := (@Core.syms (@fs tr)).
+  Notation preds := (@Core.preds (@ps tr)).
 
   (** For each connective, we have a "merger" that takes subproof that a term is represented by its reification, and proof that the larger term also represents its subterm.
       For falsity, there are not subterms, so we just prove that fal represents False, which is trivial *)

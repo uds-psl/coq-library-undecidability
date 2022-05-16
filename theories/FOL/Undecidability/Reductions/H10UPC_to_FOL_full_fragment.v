@@ -2,7 +2,7 @@
 
 From Undecidability.DiophantineConstraints Require Import H10C.
 From Undecidability.DiophantineConstraints.Util Require Import H10UPC_facts.
-From Undecidability.FOL.Basics Require Import Syntax.Facts Deduction.FullFacts Semantics.Tarski.FullSoundness Semantics.Tarski.FullFacts Syntax.BinSig.
+From Undecidability.FOL Require Import Syntax.Facts Deduction.FullFacts Semantics.Tarski.FullSoundness Semantics.Tarski.FullFacts Syntax.BinSig.
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
 From Coq Require Import Arith Lia List.

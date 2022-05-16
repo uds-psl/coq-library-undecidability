@@ -1,8 +1,8 @@
 (** ** Reduction from PCP to semantic entailment *)
 
-Require Import Undecidability.FOL.Basics.Syntax.Facts.
-Require Import Undecidability.FOL.Basics.Semantics.Tarski.FullFacts.
-Require Import Undecidability.FOL.Basics.Axiomatizations.Sets.ZF.
+Require Import Undecidability.FOL.Syntax.Facts.
+Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
+Require Import Undecidability.FOL.Axiomatizations.Sets.ZF.
 Require Import Lia.
 
 From Undecidability.PCP Require Import PCP Util.PCP_facts Reductions.PCPb_iff_dPCPb.

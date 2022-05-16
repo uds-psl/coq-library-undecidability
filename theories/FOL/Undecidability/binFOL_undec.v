@@ -1,11 +1,11 @@
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
 Require Import Undecidability.PCP.PCP_undec.
 From Undecidability.FOL.Undecidability Require Import binZF_undec FOL.
-From Undecidability.FOL.Basics.Axiomatizations.Sets Require Import binZF.
-Require Import Undecidability.FOL.Basics.Syntax.Core.
-Require Import Undecidability.FOL.Basics.Syntax.BinSig.
-Require Import Undecidability.FOL.Basics.Semantics.Tarski.FullFacts.
-Require Import Undecidability.FOL.Basics.Deduction.FullFacts.
+From Undecidability.FOL.Axiomatizations.Sets Require Import binZF.
+Require Import Undecidability.FOL.Syntax.Core.
+Require Import Undecidability.FOL.Syntax.BinSig.
+Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
+Require Import Undecidability.FOL.Deduction.FullFacts.
 
 Lemma binZF_binFOL_valid :
   entailment_binZF ⪯ binFOL_valid.

@@ -1,9 +1,7 @@
-Require Import Undecidability.FOL.Util.Syntax.
-Require Import Undecidability.FOL.Util.FullTarski.
-Require Import Undecidability.FOL.Util.FullTarski_facts.
-Require Import Undecidability.FOL.Util.FullDeduction.
+Require Import Undecidability.FOL.Syntax.Facts.
+Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
 Require Import Undecidability.FOL.Reification.GeneralReflection.
-Require Import Undecidability.FOL.PA.
+Require Import Undecidability.FOL.Axiomatizations.PA.PA.
 Import MetaCoq.Template.Ast MetaCoq.Template.TemplateMonad.Core.
 Import Vector.VectorNotations.
 Require Import String List.
@@ -24,7 +22,7 @@ Section ReificationExample.
   Instance PA_reflector : tarski_reflector := buildDefaultTarski 
                         (iO) (* we need a point in D *)
                         (anyVariableOf ("D'" :: nil)). (* We need to know when some type is D *)
-
+  Arguments D_fulfills _ _ _ : clear implicits.
   Lemma ieq_refl d : d i= d.
   Proof. apply (D_fulfills ax_refl (fun _ => iO)). apply PAeq_FA. now left. Qed.
   Lemma ieq_sym d d' : d i= d' -> d' i= d.
@@ -64,7 +62,7 @@ Section ReificationExample.
   Proof.
   specialize (D_fulfills ax_add_rec emptyEnv). cbn in D_fulfills.
   intros a b. apply D_fulfills.
-  apply (PAeq_FA ax_add_rec). do 7 right. now left.
+  apply (@PAeq_FA ax_add_rec). do 7 right. now left.
   Qed.
 
   Lemma add_zero_l b :  iO i⊕ b i= b.
@@ -193,7 +191,7 @@ Section ReificationExample.
     /\ True /\ True /\ True \/ False /\ True /\ True /\ True \/ False /\ ~False \/ True <-> True
     /\ True /\ True /\ True \/ False /\ True /\ True /\ True \/ False /\ ~False \/ True <-> True
     \/ True /\ True /\ True \/ False /\ True /\ True /\ True \/ False /\ ~False \/ True <-> True).
-  Proof. (* Time representNP. Restart. *) Time represent. Defined. 
+  Proof. (* Time representNP. Restart. *) (*Time*) represent. Defined. 
 
 
 

@@ -797,55 +797,59 @@ SOL/PA2_undec.v
 
 
 
-FOL/Basics/Syntax/Core.v
-FOL/Basics/Syntax/Facts.v
-FOL/Basics/Syntax/BinSig.v
+FOL/Syntax/Core.v
+FOL/Syntax/Facts.v
+FOL/Syntax/BinSig.v
 
-FOL/Basics/Semantics/Tarski/FragmentCore.v
-FOL/Basics/Semantics/Tarski/FragmentFacts.v
-FOL/Basics/Semantics/Tarski/FragmentSoundness.v
-FOL/Basics/Semantics/Tarski/FullCore.v
-FOL/Basics/Semantics/Tarski/FullFacts.v
-FOL/Basics/Semantics/Tarski/FullSoundness.v
-FOL/Basics/Semantics/FiniteTarski/Full.v
-FOL/Basics/Semantics/FiniteTarski/Fragment.v
-FOL/Basics/Semantics/FiniteTarski/DoubleNegation.v
+FOL/Semantics/Tarski/FragmentCore.v
+FOL/Semantics/Tarski/FragmentFacts.v
+FOL/Semantics/Tarski/FragmentSoundness.v
+FOL/Semantics/Tarski/FullCore.v
+FOL/Semantics/Tarski/FullFacts.v
+FOL/Semantics/Tarski/FullSoundness.v
+FOL/Semantics/FiniteTarski/Full.v
+FOL/Semantics/FiniteTarski/Fragment.v
+FOL/Semantics/FiniteTarski/DoubleNegation.v
 
-FOL/Basics/Semantics/Kripke/FragmentCore.v
-FOL/Basics/Semantics/Kripke/FragmentToTarski.v
-FOL/Basics/Semantics/Kripke/FragmentSoundness.v
-FOL/Basics/Semantics/Kripke/FullCore.v
-FOL/Basics/Semantics/Kripke/FullToTarski.v
-FOL/Basics/Semantics/Kripke/FullSoundness.v
+FOL/Semantics/Kripke/FragmentCore.v
+FOL/Semantics/Kripke/FragmentToTarski.v
+FOL/Semantics/Kripke/FragmentSoundness.v
+FOL/Semantics/Kripke/FullCore.v
+FOL/Semantics/Kripke/FullToTarski.v
+FOL/Semantics/Kripke/FullSoundness.v
 
-FOL/Basics/Deduction/FragmentCore.v
-FOL/Basics/Deduction/FragmentFacts.v
-FOL/Basics/Deduction/FullCore.v
-FOL/Basics/Deduction/FullFacts.v
+FOL/Deduction/FragmentCore.v
+FOL/Deduction/FragmentFacts.v
+FOL/Deduction/FullCore.v
+FOL/Deduction/FullFacts.v
 
-FOL/Basics/Axiomatizations/PA/Signature.v
-FOL/Basics/Axiomatizations/PA/FA.v
-FOL/Basics/Axiomatizations/PA/Robinson.v
-FOL/Basics/Axiomatizations/PA/PA.v
-FOL/Basics/Axiomatizations/PA/Problems.v
-FOL/Basics/Axiomatizations/PA/Metatheory/TarskiFacts.v
-FOL/Basics/Axiomatizations/PA/Metatheory/DeductionFacts.v
-FOL/Basics/Axiomatizations/PA/Models/NatModel.v
+FOL/Axiomatizations/PA/Signature.v
+FOL/Axiomatizations/PA/FA.v
+FOL/Axiomatizations/PA/Robinson.v
+FOL/Axiomatizations/PA/PA.v
+FOL/Axiomatizations/PA/Problems.v
+FOL/Axiomatizations/PA/Metatheory/TarskiFacts.v
+FOL/Axiomatizations/PA/Metatheory/DeductionFacts.v
+FOL/Axiomatizations/PA/Models/NatModel.v
 
-FOL/Basics/Axiomatizations/Sets/Signatures.v
-FOL/Basics/Axiomatizations/Sets/ZF.v
-FOL/Basics/Axiomatizations/Sets/minZF.v
-FOL/Basics/Axiomatizations/Sets/binZF.v
-FOL/Basics/Axiomatizations/Sets/FST.v
-FOL/Basics/Axiomatizations/Sets/binFST.v
+FOL/Axiomatizations/Sets/Signatures.v
+FOL/Axiomatizations/Sets/ZF.v
+FOL/Axiomatizations/Sets/minZF.v
+FOL/Axiomatizations/Sets/binZF.v
+FOL/Axiomatizations/Sets/FST.v
+FOL/Axiomatizations/Sets/binFST.v
 
-FOL/Basics/Axiomatizations/Sets/Models/Aczel.v
-FOL/Basics/Axiomatizations/Sets/Models/Aczel_CE.v
-FOL/Basics/Axiomatizations/Sets/Models/Aczel_TD.v
-FOL/Basics/Axiomatizations/Sets/Models/FST_model.v
-FOL/Basics/Axiomatizations/Sets/Models/ZF_model.v
-FOL/Basics/Axiomatizations/Sets/Models/HF_model.v
-FOL/Basics/Axiomatizations/Sets/Models/ZF_conservativity.v
+FOL/Axiomatizations/Sets/Models/Aczel.v
+FOL/Axiomatizations/Sets/Models/Aczel_CE.v
+FOL/Axiomatizations/Sets/Models/Aczel_TD.v
+FOL/Axiomatizations/Sets/Models/FST_model.v
+FOL/Axiomatizations/Sets/Models/ZF_model.v
+FOL/Axiomatizations/Sets/Models/HF_model.v
+FOL/Axiomatizations/Sets/Models/ZF_conservativity.v
+
+FOL/Utils/FriedmanTranslation.v
+FOL/Utils/Abstract.v
+FOL/Utils/Axiomatisations.v
 
 FOL/Undecidability/Reductions/PCPb_to_FST.v
 FOL/Undecidability/Reductions/PCPb_to_FSTD.v
@@ -885,24 +889,15 @@ FOL/Undecidability/FST_undec.v
 FOL/Undecidability/binFST_undec.v
 FOL/Undecidability/PA_undec.v
 
-FOL/Basics/Utils/FriedmanTranslation.v
-FOL/Basics/Utils/Abstract.v
-FOL/Basics/Utils/Axiomatisations.v
 
+FOL/Reification/GeneralReflection.v
+FOL/Reification/DemoPA.v
+FOL/Reification/DemoPAExtensional.v
 
-#FOL/Util/DoubleNegation.v
-#FOL/Util/Friedman.v
-#FOL/Util/Axiomatisations.v
-#FOL/Util/Abstract.v
-
-#FOL/Reification/GeneralReflection.v
-#FOL/Reification/DemoPA.v
-#FOL/Reification/DemoPAExtensional.v
-
-#FOL/Proofmode/StringToIdent.v
-#FOL/Proofmode/Hoas.v
-#FOL/Proofmode/Theories.v
-#FOL/Proofmode/ProofMode.v
-#FOL/Proofmode/DemoPA.v
-#FOL/Proofmode/DemoZF.v
-#FOL/Proofmode/DemoMinZF.v
+FOL/Proofmode/StringToIdent.v
+FOL/Proofmode/Hoas.v
+FOL/Proofmode/Theories.v
+FOL/Proofmode/ProofMode.v
+FOL/Proofmode/DemoPA.v
+FOL/Proofmode/DemoZF.v
+FOL/Proofmode/DemoMinZF.v

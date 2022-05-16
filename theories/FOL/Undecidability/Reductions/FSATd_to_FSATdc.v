@@ -1,4 +1,4 @@
-From Undecidability.FOL.Basics Require Import Syntax.Facts Syntax.BinSig Semantics.Tarski.FullFacts Semantics.FiniteTarski.Full.
+From Undecidability.FOL Require Import Syntax.Facts Syntax.BinSig Semantics.Tarski.FullFacts Semantics.FiniteTarski.Full.
 Require Import Undecidability.Synthetic.Definitions.
 Require Import Vector Lia.
 

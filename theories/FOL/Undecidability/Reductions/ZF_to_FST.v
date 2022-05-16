@@ -1,9 +1,9 @@
 (** ** Indirect reduction from ZF to finite set theory with Skolem functions *)
 
-From Undecidability.FOL.Basics
+From Undecidability.FOL
      Require Import Syntax.Facts Semantics.Tarski.FullFacts Deduction.FullFacts.
 
-From Undecidability.FOL.Basics.Axiomatizations.Sets
+From Undecidability.FOL.Axiomatizations.Sets
      Require Import Models.Aczel Models.ZF_model ZF minZF FST.
 
 From Undecidability.FOL.Undecidability.Reductions

@@ -1,6 +1,5 @@
-From Undecidability.FOL Require Import FSAT.
-From Undecidability.FOL.Util Require Import Syntax_facts FullTarski_facts sig_bin.
-Export Undecidability.FOL.Util.Syntax.FullSyntax.
+From Undecidability.FOL Require Import Semantics.FiniteTarski.Full.
+From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts Syntax.BinSig.
 From Undecidability.SeparationLogic Require Import MSL.
 
 From Undecidability Require Import Shared.ListAutomation.
@@ -101,6 +100,8 @@ Section Backwards.
   Definition squash P {d : dec P} :=
     if Dec P then True else False.
 
+  Arguments squash _ {_}.
+
   Lemma squash_iff P (d : dec P) :
     squash P <-> P.
   Proof.
@@ -147,7 +148,7 @@ Section Backwards.
     destruct x as [x Hx], y as [y Hy]; cbn.
     intros ->. f_equal. apply squash_pure.
   Qed.
-
+  Arguments env _ _ _ _ : clear implicits.
   Lemma update_stack_cons s h d0 d x :
     (d .: env s h d0) x = env (update_stack s (Some (proj1_sig d))) h d0 x.
   Proof.
@@ -223,13 +224,13 @@ Section Backwards.
     exists (dom_list h). intros x.
     induction h as [|[l[[l1|][l2|]]]]; cbn.
     - destruct x as [x Hx]. apply squash_iff in Hx. apply Hx.
-    - destruct x as [x Hx]. pose proof (proj1 (squash_iff _ _) Hx) as [H|H]; try discriminate.
+    - destruct x as [x Hx]. pose proof (proj1 (squash_iff _) Hx) as [H|H]; try discriminate.
       apply in_map_iff. exists (loc2dom H). split; try apply IHh. now apply dom_eq.
-    - destruct x as [x Hx]. pose proof (proj1 (squash_iff _ _) Hx) as [H|H]; try discriminate.
+    - destruct x as [x Hx]. pose proof (proj1 (squash_iff _) Hx) as [H|H]; try discriminate.
       apply in_map_iff. exists (loc2dom H). split; try apply IHh. now apply dom_eq.
-    - destruct x as [x Hx]. pose proof (proj1 (squash_iff _ _) Hx) as [H|H]; try discriminate.
+    - destruct x as [x Hx]. pose proof (proj1 (squash_iff _) Hx) as [H|H]; try discriminate.
       apply in_map_iff. exists (loc2dom H). split; try apply IHh. now apply dom_eq.
-    - destruct x as [x Hx]. pose proof (proj1 (squash_iff _ _) Hx) as [H|H].
+    - destruct x as [x Hx]. pose proof (proj1 (squash_iff _) Hx) as [H|H].
       + left. apply dom_eq. cbn. congruence.
       + right. apply in_map_iff. exists (loc2dom H). split; try apply IHh. now apply dom_eq.
   Qed.
@@ -335,7 +336,7 @@ Section Forwards.
     (forall n, s n = s' n) -> msp_sat s h P <-> msp_sat s' h P.
   Proof.
     induction P in s, s' |- *; intros HS; cbn.
-    - now setoid_rewrite (sp_eval_ext _ _ _ HS).
+    - now setoid_rewrite (sp_eval_ext _ HS).
     - tauto.
     - now rewrite (IHP1 s s'), (IHP2 s s').
     - now rewrite (IHP1 s s'), (IHP2 s s').
@@ -450,11 +451,11 @@ Section Forwards.
     all: apply in_map_iff in H as [d [H1 H2]].
     all: apply in_map_iff in H' as [d' [H3 H4]].
     - congruence.
-    - destruct d' as [d1 d2]. exfalso. apply (enc_point_pair d d1 d2). congruence.
-    - destruct d as [d1 d2]. exfalso. apply (enc_point_pair d' d1 d2). congruence.
+    - destruct d' as [d1 d2]. exfalso. apply (@enc_point_pair d d1 d2). congruence.
+    - destruct d as [d1 d2]. exfalso. apply (@enc_point_pair d' d1 d2). congruence.
     - destruct d, d', p, p'. injection H1. injection H3. intros. subst. repeat f_equal.
-      + eapply (enc_pair_inj d d0 d1 d2). congruence.
-      + eapply (enc_pair_inj d d0 d1 d2). congruence.
+      + eapply (@enc_pair_inj d d0 d1 d2). congruence.
+      + eapply (@enc_pair_inj d d0 d1 d2). congruence.
   Qed.
 
   Lemma guarded (d : D) :
@@ -504,18 +505,18 @@ Proof.
   intros HV. split.
   - intros (D & M & rho & [L HL] & [H2] % discrete_iff & [f H3] & H4).
     pose (f' (p : D * D) := let (d, e) := p in f ([d; e])).
-    destruct (discrete_nodup D L H2) as [L'[HL1 HL2]].
+    destruct (@discrete_nodup D L H2) as [L'[HL1 HL2]].
     assert (HL2' : forall x, x el L') by auto.
     assert (H3' : forall v, i_atom (P:=tt) v <-> f' (Vector.hd v, Vector.hd (Vector.tl v)) = true).
     { intros v. unfold decider, reflects in H3. now rewrite (H3 v), (vec_inv2 v) at 1. }
-    exists (env2stack D L' H2 rho), (interp2heap D L' H2 f'). split.
+    exists (@env2stack D L' H2 rho), (@interp2heap D L' H2 f'). split.
     + now eapply interp2heap_fun.
     + cbn. split; try now eapply reduction_forwards. apply guarded; trivial. exact (rho 0).
   - intros (s & h & _ & H). cbn in H. destruct H as [H' H]. destruct H' as (v & l & -> & Hl).
-    exists (dom h), (model h), (env s h (loc2dom Hl)). repeat split.
+    exists (dom h), (model h), (@env s h (loc2dom Hl)). repeat split.
     + apply dom_listable.
     + apply dom_discrete.
-    + apply model_dec.
+    + intros [ ]. apply model_dec.
     + apply reduction_backwards; trivial. setoid_rewrite HV. intros x [].
 Qed.
 

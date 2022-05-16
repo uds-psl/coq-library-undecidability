@@ -1,14 +1,14 @@
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
 
-From Undecidability.FOL.Basics
+From Undecidability.FOL
      Require Import Semantics.Tarski.FullFacts Semantics.Tarski.FullSoundness.
-From Undecidability.FOL.Basics.Axiomatizations.Sets.Models
+From Undecidability.FOL.Axiomatizations.Sets.Models
      Require Import Aczel_CE Aczel_TD ZF_model HF_model.
 
 From Undecidability.FOL.Undecidability.Reductions
      Require Import ZF_to_HF PCPb_to_HF PCPb_to_HFD PCPb_to_ZFeq PCPb_to_ZF PCPb_to_ZFD.
 
-Require Import Undecidability.FOL.Basics.Axiomatizations.Sets.ZF.
+Require Import Undecidability.FOL.Axiomatizations.Sets.ZF.
 
 From Undecidability.PCP
      Require Import PCP PCP_undec Util.PCP_facts Reductions.PCPb_iff_dPCPb.

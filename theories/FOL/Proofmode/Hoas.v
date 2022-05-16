@@ -1,4 +1,4 @@
-From Undecidability.FOL Require Import Util.Syntax Util.FullTarski.
+From Undecidability.FOL Require Import Syntax.Core Tarski.FullCore.
 Require Import Vector.
 
 Local Notation vec := Vector.t.
@@ -16,6 +16,9 @@ Inductive bform `{funcs_signature, preds_signature, operators, falsity_flag} :=
   | bQuant : quantop -> (bterm -> bform)  -> bform
   | bFree : (bterm -> bform)  -> bform
   | bEmbedForm : form -> bform.
+
+Arguments bFunc {_} _ _.
+Arguments bAtom {_} {_} {_} {_} _ _.
 
 Fixpoint conv_term `{funcs_signature} i (b : bterm) : term :=
   match b with
@@ -51,8 +54,8 @@ Notation "⊥" := (bFal) : hoas_scope.
 Notation "A ∧ B" := (bBin Conj A%hoas B%hoas) (at level 41) : hoas_scope.
 Notation "A ∨ B" := (bBin Disj A%hoas B%hoas) (at level 42) : hoas_scope.
 Notation "A '→' B" := (bBin Impl A%hoas B%hoas) (at level 43, right associativity) : hoas_scope.
-Notation "¬ A" := ((A → ⊥)%hoas) (at level 42) : syn.
-Notation "A '↔' B" := ((A → B)%hoas ∧ (B → A)%hoas) (at level 43) : syn.
+Notation "¬ A" := ((A → ⊥)%hoas) (at level 42) : hoas_scope.
+Notation "A '↔' B" := ((A → B)%hoas ∧ (B → A)%hoas) (at level 43) : hoas_scope.
 
 Definition convert `{funcs_signature, preds_signature, operators} f := (@conv _ _ _ 0 f).
 Arguments convert {_ _ _} f%hoas.
@@ -66,19 +69,3 @@ Definition vec_bterm `{funcs_signature} := Vector.t bterm.
 Definition vec_bEmbedT' `{funcs_signature} : forall n, vec_term n -> vec_bterm n := @Vector.map term bterm bEmbedT.
 Coercion vec_bEmbedT `{funcs_signature} := vec_bEmbedT'.
 Coercion bEmbedForm : form >-> bform.
-
-(*
-Section Test.
-  Require Import Undecidability.FOL.Util.FullDeduction.
-  Require Import List.
-
-  Variable p : peirce.
-
-  Goal forall phi, nil ⊢ ∀ phi.
-  Abort.
-  (* TODO: Why ist the `%hoas` needed? *)
-  Goal nil ⊢ << (∀' a, a == a)%hoas.
-  Abort.
-
-End Test.
-*)

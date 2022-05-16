@@ -1,7 +1,7 @@
 From Undecidability.DiophantineConstraints Require Import H10C H10C_undec.
-From Undecidability.FOL.Basics.Syntax Require Import Core BinSig.
-From Undecidability.FOL.Basics Require Semantics.Tarski.FragmentFacts Deduction.FragmentFacts Semantics.Kripke.FragmentCore Semantics.FiniteTarski.Fragment.
-From Undecidability.FOL.Basics Require Semantics.Tarski.FragmentFacts Deduction.FullFacts.
+From Undecidability.FOL.Syntax Require Import Core BinSig.
+From Undecidability.FOL Require Semantics.Tarski.FragmentFacts Deduction.FragmentFacts Semantics.Kripke.FragmentCore Semantics.FiniteTarski.Fragment.
+From Undecidability.FOL Require Semantics.Tarski.FragmentFacts Deduction.FullFacts.
 From Undecidability.FOL.Undecidability.Reductions Require H10UPC_to_FOL_minimal H10UPC_to_FSAT.
 From Undecidability.FOL.Undecidability.Reductions Require H10UPC_to_FOL_full_fragment.
 From Undecidability.Synthetic Require Import Definitions Undecidability ReducibilityFacts.
@@ -13,7 +13,7 @@ Definition minimalForm (ff:falsity_flag) := @form sig_empty sig_binary FragmentS
 
 Section full_fragment.
   Import H10UPC_to_FOL_full_fragment.
-  Import Undecidability.FOL.Basics.Semantics.Tarski.FullFacts.
+  Import Undecidability.FOL.Semantics.Tarski.FullFacts.
 
   Lemma minSignatureValiditiyUndec : @undecidable (@form sig_empty sig_binary FullSyntax.full_operators falsity_on) valid.
   Proof.

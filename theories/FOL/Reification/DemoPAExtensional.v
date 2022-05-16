@@ -1,13 +1,11 @@
-Require Import Undecidability.FOL.Util.Syntax.
-Require Import Undecidability.FOL.Util.FullTarski.
-Require Import Undecidability.FOL.Util.FullTarski_facts.
-Require Import Undecidability.FOL.Util.FullDeduction.
+Require Import Undecidability.FOL.Syntax.Facts.
+Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
 Require Import Undecidability.FOL.Reification.GeneralReflection.
-Require Import Undecidability.FOL.PA.
+Require Import Undecidability.FOL.Axiomatizations.PA.PA.
+Require Import Undecidability.FOL.Axiomatizations.PA.Problems.
 Import MetaCoq.Template.Ast MetaCoq.Template.TemplateMonad.Core.
 Import Vector.VectorNotations.
 Require Import String List.
-
 
 
 Fixpoint num n := match n with 0 => zero | S n => σ (num n) end.
@@ -47,7 +45,7 @@ Section ReificationExample.
     MetaCoq Quote Definition qMergeNum := mergeNum.
     MetaCoq Quote Definition qMergeTermNum := @num.
 
-    Definition mergeEqProp (rho:nat -> D) (d1 d2 : D) (t1 t2 : Syntax.term) : representsF d1 t1 rho -> representsF d2 t2 rho -> @representsP _ _ 0 (t1==t2) rho (d1 = d2).
+    Definition mergeEqProp (rho:nat -> D) (d1 d2 : D) (t1 t2 : Core.term) : representsF d1 t1 rho -> representsF d2 t2 rho -> @representsP _ _ 0 (t1==t2) rho (d1 = d2).
     Proof. intros pt1 pt2. cbn. unfold representsF in pt1, pt2. cbn in pt1, pt2. rewrite pt1, pt2. now rewrite D_ext.
     Defined.
     MetaCoq Quote Definition qMergeFormEq := (constructForm Eq).
@@ -82,7 +80,7 @@ Section ReificationExample.
   Lemma PA_induction (P:D -> Prop): representableP 1 P -> P iO -> (forall d:D, P d -> P (iS d)) -> forall d:D, P d.
   Proof.
   intros [phi [rho Prf]] H0 HS d.
-  pose (D_fulfills _ rho (PAeq_induction phi)) as Hind.
+  pose (@D_fulfills _ rho (PAeq_induction phi)) as Hind.
   cbn in Prf. cbn in Hind. rewrite Prf.
   apply Hind.
   - rewrite sat_comp. erewrite (@sat_ext _ _ _ _ _ _ (iO .: rho)).
@@ -105,15 +103,15 @@ Section ReificationExample.
   Lemma add_succ_l a b : (iS a) i⊕ b = iS (a i⊕ b).
   Proof.
   rewrite <- D_ext.
-  specialize (D_fulfills ax_add_rec emptyEnv). cbn in D_fulfills.
+  specialize (@D_fulfills ax_add_rec emptyEnv). cbn in D_fulfills.
   apply D_fulfills.
-  apply (PAeq_FA ax_add_rec). do 7 right. now left.
+  apply (@PAeq_FA ax_add_rec). do 7 right. now left.
   Qed.
 
   Lemma add_zero_l b : iO i⊕ b = b.
   Proof.
   rewrite <- D_ext.
-  specialize (D_fulfills ax_add_zero emptyEnv). cbn in D_fulfills.
+  specialize (@D_fulfills ax_add_zero emptyEnv). cbn in D_fulfills.
   apply D_fulfills.
   apply (PAeq_FA). do 6 right. now left.
   Qed.
@@ -155,13 +153,13 @@ Section ReificationExample.
   Lemma mul_zero_l a : iO i⊗ a = iO.
   Proof.
   rewrite <- D_ext.
-  apply (D_fulfills ax_mult_zero (fun _ => iO)). apply PAeq_FA. do 8 right. now left.
+  apply (@D_fulfills ax_mult_zero (fun _ => iO)). apply PAeq_FA. do 8 right. now left.
   Qed.
 
   Lemma mul_succ_l a b : iS a i⊗ b = b i⊕ a i⊗ b.
   Proof.
   rewrite <- D_ext.
-  apply (D_fulfills ax_mult_rec (fun _ => iO)). apply PAeq_FA. do 9 right. now left.
+  apply (@D_fulfills ax_mult_rec (fun _ => iO)). apply PAeq_FA. do 9 right. now left.
   Qed.
 
   Lemma mul_zero_r a : a i⊗ iO = iO.

@@ -2,7 +2,7 @@ Require Import Undecidability.FOL.Proofmode.StringToIdent.
 From Equations Require Import Equations.
 Require Import Equations.Type.DepElim.
 From Undecidability.Shared Require Import Dec ListAutomation.
-From Undecidability.FOL Require Import Util.Syntax Util.Syntax_facts Util.FullDeduction Util.FullDeduction_facts Util.FullTarski.
+From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts Deduction.FullFacts.
 From Undecidability.FOL.Proofmode Require Import Theories.
 
 Require Import List Lia String.
@@ -77,56 +77,60 @@ Class DeductionRules `{funcs_signature, preds_signature, falsity_flag} (context 
   DI2 A phi psi : ent A psi -> ent A (phi ∨ psi) ;
   DE A phi psi theta : ent A (phi ∨ psi) -> ent (cons phi A) theta -> ent (cons psi A) theta -> ent A theta ;
 }.
+Arguments DeductionRules {_} {_} {_} _ _ _ _ _.
 
 Class ClassicalDeductionRules `{funcs_signature, preds_signature, falsity_flag} (context : Type) (ent : context -> form -> Type) :=
 {
   Pc A phi psi : ent A (((phi → psi) → phi) → phi)
 }.
+Arguments ClassicalDeductionRules {_} {_} {_} _ _.
 
 Class FalsityDeductionRules `{funcs_signature, preds_signature} (context : Type) (ent : context -> form -> Type) :=
 {
   Exp A phi : ent A ⊥ -> ent A phi ;
 }.
+Arguments FalsityDeductionRules {_} {_} _ _.
 
 Class WeakClass `{funcs_signature, preds_signature, falsity_flag} (context : Type) (ent : context -> form -> Type) (incl : context -> context -> Prop) :=
 {
   Weak A B phi : ent A phi -> incl A B -> ent B phi
 }.
+Arguments WeakClass {_} {_} {_} _ _.
 
 #[global]
 Instance prv_DeductionRules `{funcs_signature, preds_signature, falsity_flag, peirce} : DeductionRules (list form) prv cons (@List.map form form) (@In form) := 
 {| 
-  II := FullDeduction.II ;
-  IE := FullDeduction.IE ;
-  AllI := FullDeduction.AllI ;
-  AllE := FullDeduction.AllE ;
-  ExI := FullDeduction.ExI ;
-  ExE := FullDeduction.ExE ;
-  Ctx := FullDeduction.Ctx ;
-  CI := FullDeduction.CI ;
-  CE1 := FullDeduction.CE1 ;
-  CE2 := FullDeduction.CE2 ;
-  DI1 := FullDeduction.DI1 ;
-  DI2 := FullDeduction.DI2 ;
-  DE := FullDeduction.DE ;
+  II := FullCore.II ;
+  IE := FullCore.IE ;
+  AllI := FullCore.AllI ;
+  AllE := FullCore.AllE ;
+  ExI := @FullCore.ExI _ _ _ _;
+  ExE := FullCore.ExE ;
+  Ctx := FullCore.Ctx ;
+  CI := FullCore.CI ;
+  CE1 := FullCore.CE1 ;
+  CE2 := FullCore.CE2 ;
+  DI1 := FullCore.DI1 ;
+  DI2 := FullCore.DI2 ;
+  DE := FullCore.DE ;
 |}.
 
 #[global]
 Instance prv_ClassicalDeductionRules `{funcs_signature, preds_signature, falsity_flag} : ClassicalDeductionRules (list form) (@prv _ _ _ class) := 
 {| 
-  Pc := FullDeduction.Pc
+  Pc := FullCore.Pc
 |}.
 
 #[global]
 Instance prv_FalsityDeductionRules `{funcs_signature, preds_signature, peirce} : FalsityDeductionRules (list form) (@prv _ _ falsity_on _) := 
 {| 
-  Exp := FullDeduction.Exp
+  Exp := FullCore.Exp
 |}.
 
 #[global]
 Instance prv_WeakClass `{funcs_signature, preds_signature, falsity_flag, peirce} : WeakClass (list form) prv (@List.incl form) := 
 {| 
-  Weak := FullDeduction_facts.Weak
+  Weak := FullFacts.Weak
 |}.
 
 (* TODO: Why doesn't this exist? *)
@@ -816,7 +820,7 @@ Section Fintro.
   Lemma intro_and_destruct_T T s t G :
     T ⊩ (s → t → G) -> T ⊩ (s ∧ t → G).
   Proof.
-    intros. apply II. apply (IE _ t). apply (IE _ s).
+    intros. apply II. apply (IE (phi := t)). apply (IE (phi := s)).
     eapply Weak. apply H. firstorder.
     eapply CE1, Ctx; firstorder.
     eapply CE2, Ctx; firstorder.
@@ -1197,13 +1201,13 @@ Section Fapply.
   Lemma fapply_equiv_l A phi psi :
     A ⊢ (phi ↔ psi) -> A ⊢ phi -> A ⊢ psi.
   Proof.
-    intros. apply (IE _ phi). eapply CE1. apply H. apply H0.
+    intros. apply (IE (phi := phi)). eapply CE1. apply H. apply H0.
   Qed.
 
   Lemma fapply_equiv_r A phi psi :
     A ⊢ (phi ↔ psi) -> A ⊢ psi -> A ⊢ phi.
   Proof.
-    intros. apply (IE _ psi). eapply CE2. apply H. apply H0.
+    intros. apply (IE (phi := psi)). eapply CE2. apply H. apply H0.
   Qed.
 
   Context {eq_dec_Funcs : eq_dec syms}.
@@ -1212,13 +1216,13 @@ Section Fapply.
   Lemma fapply_equiv_l_T A phi psi :
     A ⊩ (phi ↔ psi) -> A ⊩ phi -> A ⊩ psi.
   Proof.
-    intros. apply (IE _ phi). eapply CE1. apply H. apply H0.
+    intros. apply (IE (phi := phi)). eapply CE1. apply H. apply H0.
   Qed.
 
   Lemma fapply_equiv_r_T A phi psi :
     A ⊩ (phi ↔ psi) -> A ⊩ psi -> A ⊩ phi.
   Proof.
-    intros. apply (IE _ psi). eapply CE2. apply H. apply H0.
+    intros. apply (IE (phi := psi)). eapply CE2. apply H. apply H0.
   Qed.
 End Fapply.
 

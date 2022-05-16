@@ -1,9 +1,9 @@
 (** ** Variant allowing intensional models *)
 
-Require Import Undecidability.FOL.Basics.Syntax.Facts.
-Require Import Undecidability.FOL.Basics.Semantics.Tarski.FullFacts.
-From Undecidability.FOL.Basics.Axiomatizations.Sets Require Import minZF ZF.
-Require Import Undecidability.FOL.Basics.Axiomatizations.Sets.ZF.
+Require Import Undecidability.FOL.Syntax.Facts.
+Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
+From Undecidability.FOL.Axiomatizations.Sets Require Import minZF ZF.
+Require Import Undecidability.FOL.Axiomatizations.Sets.ZF.
 From Undecidability.FOL.Undecidability.Reductions Require Import PCPb_to_ZF PCPb_to_ZFeq PCPb_to_minZF.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.

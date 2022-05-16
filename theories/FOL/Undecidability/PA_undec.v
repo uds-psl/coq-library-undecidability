@@ -1,6 +1,6 @@
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
-Require Import Undecidability.FOL.Basics.Axiomatizations.PA.Problems.
-Require Import Undecidability.FOL.Basics.Axiomatizations.PA.Models.NatModel.
+Require Import Undecidability.FOL.Axiomatizations.PA.Problems.
+Require Import Undecidability.FOL.Axiomatizations.PA.Models.NatModel.
 From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts Deduction.FullFacts Semantics.Tarski.FullSoundness.
 From Undecidability.H10 Require Import H10p_undec.
 From Undecidability.FOL.Undecidability.Reductions Require Import H10p_to_FA.
@@ -28,8 +28,8 @@ Proof.
 Qed.
 
 
-Require Import Undecidability.FOL.Basics.Utils.FriedmanTranslation.
-Require Import Undecidability.FOL.Basics.Utils.Axiomatisations.
+Require Import Undecidability.FOL.Utils.FriedmanTranslation.
+Require Import Undecidability.FOL.Utils.Axiomatisations.
 From Undecidability.Synthetic Require Import Definitions EnumerabilityFacts.
 From Undecidability.FOL.Undecidability.Reductions Require Import H10p_to_FA.
 From Undecidability.H10 Require Import H10p H10p_undec.

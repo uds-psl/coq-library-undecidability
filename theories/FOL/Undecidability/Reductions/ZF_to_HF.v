@@ -1,9 +1,9 @@
 (** ** Reduction from ZF' to finite ZF *)
 
-From Undecidability.FOL.Basics
+From Undecidability.FOL
      Require Import Syntax.Facts Semantics.Tarski.FullFacts Deduction.FullFacts.
 
-From Undecidability.FOL.Basics.Axiomatizations.Sets
+From Undecidability.FOL.Axiomatizations.Sets
      Require Import ZF.
 
 Require Import Lia.

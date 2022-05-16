@@ -1,6 +1,6 @@
 (* * First-Order Logic *)
 
-From Undecidability.FOL.Basics Require Import Syntax.Facts Deduction.FragmentFacts Semantics.Tarski.FragmentFacts Semantics.Kripke.FragmentCore.
+From Undecidability.FOL Require Import Syntax.Facts Deduction.FragmentFacts Semantics.Tarski.FragmentFacts Semantics.Kripke.FragmentCore.
  
 (* ** Syntax as defined in Util/Syntax.v 
 
@@ -61,8 +61,8 @@ Definition FOL_prv_intu := @prv _ _ falsity_on intu nil.
 Definition FOL_prv_class := @prv _ _ falsity_on class nil.
 
 
-From Undecidability.FOL.Basics Require Import Syntax.BinSig Semantics.Tarski.FullCore. 
-From Undecidability.FOL.Basics Require Deduction.FullCore.
+From Undecidability.FOL Require Import Syntax.BinSig Semantics.Tarski.FullCore. 
+From Undecidability.FOL Require Deduction.FullCore.
 (* ** List of decision problems concerning validity, satisfiability and provability *)
 
 (* Validity of formulas with falsity in Tarski semantics *)

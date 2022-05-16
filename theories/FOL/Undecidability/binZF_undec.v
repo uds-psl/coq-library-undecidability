@@ -1,9 +1,9 @@
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
 Require Import Undecidability.FOL.Undecidability.ZF_undec.
-Require Import Undecidability.FOL.Basics.Axiomatizations.Sets.binZF.
-Require Import Undecidability.FOL.Basics.Axiomatizations.Sets.Models.ZF_model.
-Require Import Undecidability.FOL.Basics.Semantics.Tarski.FullFacts.
-Require Import Undecidability.FOL.Basics.Semantics.Tarski.FullSoundness.
+Require Import Undecidability.FOL.Axiomatizations.Sets.binZF.
+Require Import Undecidability.FOL.Axiomatizations.Sets.Models.ZF_model.
+Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
+Require Import Undecidability.FOL.Semantics.Tarski.FullSoundness.
 From Undecidability.FOL.Undecidability.Reductions Require Import PCPb_to_ZF PCPb_to_ZFeq PCPb_to_ZFD PCPb_to_binZF.
 
 From Undecidability.PCP Require Import PCP PCP_undec Util.PCP_facts Reductions.PCPb_iff_dPCPb.

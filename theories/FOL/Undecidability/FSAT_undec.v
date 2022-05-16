@@ -1,6 +1,6 @@
 From Undecidability.TRAKHTENBROT Require Import bpcp red_undec fo_sig.
 From Undecidability.Synthetic Require Import Undecidability ReducibilityFacts.
-From Undecidability.FOL.Basics.Semantics.FiniteTarski Require Import Full.
+From Undecidability.FOL.Semantics.FiniteTarski Require Import Full.
 From Undecidability.FOL.Undecidability Require Import Reductions.FSATd_to_FSATdc Reductions.TRAKHTENBROT_to_FSAT.
 
 Theorem FSAT_undec :
