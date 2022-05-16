@@ -3,7 +3,7 @@
 From Undecidability.FOL
      Require Import Syntax.Facts Semantics.Tarski.FullFacts Deduction.FullFacts.
 
-From Undecidability.FOL.Axiomatizations.Sets
+From Undecidability.FOL.Sets
      Require Import ZF.
 
 Require Import Lia.

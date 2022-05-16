@@ -3,7 +3,7 @@
 Require Import Undecidability.FOL.Syntax.Facts.
 Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
 Require Import Undecidability.FOL.Deduction.FullFacts.
-Require Import Undecidability.FOL.Axiomatizations.Sets.FST.
+Require Import Undecidability.FOL.Sets.FST.
 Require Import Undecidability.FOL.Undecidability.Reductions.PCPb_to_FST.
 
 From Undecidability.PCP Require Import PCP Util.PCP_facts Reductions.PCPb_iff_dPCPb.

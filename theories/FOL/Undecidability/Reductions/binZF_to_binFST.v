@@ -4,7 +4,7 @@ Require Import Undecidability.FOL.Syntax.Facts.
 Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
 Require Import Undecidability.FOL.Semantics.Tarski.FullSoundness.
 Require Import Undecidability.FOL.Deduction.FullFacts.
-From Undecidability.FOL.Axiomatizations.Sets Require Import binFST binZF.
+From Undecidability.FOL.Sets Require Import binFST binZF.
 Require Import Undecidability.FOL.Undecidability.Reductions.PCPb_to_binZF.
 
 Require Import Lia.

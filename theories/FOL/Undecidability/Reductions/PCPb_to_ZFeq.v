@@ -2,8 +2,8 @@
 
 Require Import Undecidability.FOL.Syntax.Facts.
 Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
-From Undecidability.FOL.Axiomatizations.Sets Require Import ZF.
-Require Import Undecidability.FOL.Axiomatizations.Sets.ZF.
+From Undecidability.FOL.Sets Require Import ZF.
+Require Import Undecidability.FOL.Sets.ZF.
 Require Import Undecidability.FOL.Undecidability.Reductions.PCPb_to_ZF.
 Require Import Lia.
 

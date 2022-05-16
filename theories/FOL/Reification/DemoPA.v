@@ -1,7 +1,7 @@
 Require Import Undecidability.FOL.Syntax.Facts.
 Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
 Require Import Undecidability.FOL.Reification.GeneralReflection.
-Require Import Undecidability.FOL.Axiomatizations.PA.PA.
+Require Import Undecidability.FOL.Arithmetics.PA.
 Import MetaCoq.Template.Ast MetaCoq.Template.TemplateMonad.Core.
 Import Vector.VectorNotations.
 Require Import String List.

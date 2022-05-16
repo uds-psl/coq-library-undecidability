@@ -1,7 +1,7 @@
 From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts Deduction.FullFacts.
-Require Import Undecidability.FOL.Axiomatizations.PA.FA.
-Require Import Undecidability.FOL.Axiomatizations.PA.Signature.
-Require Import Undecidability.FOL.Axiomatizations.PA.Problems.
+Require Import Undecidability.FOL.Arithmetics.FA.
+Require Import Undecidability.FOL.Arithmetics.Signature.
+Require Import Undecidability.FOL.Arithmetics.Problems.
 Require Import Lia List Vector.
 Import Vector.VectorNotations.
 

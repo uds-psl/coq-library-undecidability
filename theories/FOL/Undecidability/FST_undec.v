@@ -2,11 +2,11 @@ From Undecidability.Synthetic
      Require Import Definitions Undecidability.
 
 From Undecidability.FOL
-     Require Import Axiomatizations.Sets.FST
+     Require Import Sets.FST
                     Semantics.Tarski.FullFacts
                     Semantics.Tarski.FullSoundness
                     Deduction.FullFacts
-                    Axiomatizations.Sets.Models.FST_model.
+                    Sets.Models.FST_model.
 
 
 From Undecidability.FOL.Undecidability.Reductions

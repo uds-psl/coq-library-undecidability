@@ -1,7 +1,7 @@
 (** * Peano Arithmetic *)
 (* ** Problems in PA *)
 From Undecidability.FOL Require Import Syntax.Core.
-From Undecidability.FOL.Axiomatizations.PA Require Export Signature FA Robinson PA.
+From Undecidability.FOL.Arithmetics Require Export Signature FA Robinson PA.
 Require Import Undecidability.FOL.Deduction.FullCore.
 Require Import Undecidability.FOL.Semantics.Tarski.FullCore.
 Import Vector.VectorNotations.

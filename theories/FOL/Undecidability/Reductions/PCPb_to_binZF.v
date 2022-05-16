@@ -3,7 +3,7 @@
 Require Import Undecidability.FOL.Syntax.Facts.
 Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
 Require Import Undecidability.FOL.Deduction.FullFacts.
-From Undecidability.FOL.Axiomatizations.Sets Require Import binZF ZF.
+From Undecidability.FOL.Sets Require Import binZF ZF.
 Require Import Undecidability.FOL.Undecidability.Reductions.PCPb_to_ZF.
 
 From Undecidability Require Import Shared.ListAutomation.

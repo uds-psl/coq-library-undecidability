@@ -1,6 +1,6 @@
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
-Require Import Undecidability.FOL.Axiomatizations.PA.Problems.
-Require Import Undecidability.FOL.Axiomatizations.PA.Models.NatModel.
+Require Import Undecidability.FOL.Arithmetics.Problems.
+Require Import Undecidability.FOL.Arithmetics.Models.NatModel.
 From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts Deduction.FullFacts Semantics.Tarski.FullSoundness.
 From Undecidability.H10 Require Import H10p_undec.
 From Undecidability.FOL.Undecidability.Reductions Require Import H10p_to_FA.

@@ -2,9 +2,9 @@
 
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
 From Undecidability.FOL Require Import Syntax.Facts Deduction.FullFacts Semantics.Tarski.FullFacts Semantics.Tarski.FullSoundness.
-Require Import Undecidability.FOL.Axiomatizations.PA.Problems.
-From Undecidability.FOL.Axiomatizations.PA.Metatheory Require Import TarskiFacts DeductionFacts.
-From Undecidability.FOL.Axiomatizations.PA.Models Require Import NatModel.
+Require Import Undecidability.FOL.Arithmetics.Problems.
+From Undecidability.FOL.Arithmetics.Metatheory Require Import TarskiFacts DeductionFacts.
+From Undecidability.FOL.Arithmetics.Models Require Import NatModel.
 From Undecidability.H10 Require Import H10p.
 Require Import List Lia.
 

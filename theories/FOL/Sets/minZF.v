@@ -4,8 +4,8 @@
 Require Export Undecidability.FOL.Syntax.Core.
 Require Export Undecidability.FOL.Semantics.Tarski.FullFacts.
 Require Export Undecidability.FOL.Deduction.FullFacts.
-Require Export Undecidability.FOL.Axiomatizations.Sets.Signatures.
-Require Export Undecidability.FOL.Axiomatizations.Sets.ZF.
+Require Export Undecidability.FOL.Sets.Signatures.
+Require Export Undecidability.FOL.Sets.ZF.
 Import Vector.VectorNotations.
 Require Import List.
 

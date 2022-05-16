@@ -2,9 +2,9 @@ From Undecidability.Synthetic
      Require Import Definitions Undecidability.
 
 From Undecidability.FOL
-     Require Import Axiomatizations.Sets.binFST
-                    Axiomatizations.Sets.binZF
-                    Axiomatizations.Sets.Models.FST_model.
+     Require Import Sets.binFST
+                    Sets.binZF
+                    Sets.Models.FST_model.
 
 
 From Undecidability.FOL.Undecidability

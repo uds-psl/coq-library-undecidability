@@ -1,6 +1,6 @@
 (** * Summary File *)
 
-From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts Semantics.Tarski.FullSoundness Deduction.FullFacts.
+From Undecidability.FOL Require Import FullSyntax.
 From Undecidability.Synthetic Require Import Definitions Undecidability.
 From Undecidability.Synthetic Require Import DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
 From Undecidability.Synthetic Require Import ListEnumerabilityFacts MoreEnumerabilityFacts.
@@ -369,7 +369,7 @@ End FixSignature.
 
 (** *** Theorem 26 : H10 reduces to Q', Q, and PA *)
 
-From Undecidability.FOL.Axiomatizations.PA Require Import PA Metatheory.DeductionFacts Metatheory.TarskiFacts Models.NatModel.
+From Undecidability.FOL.Arithmetics Require Import PA Metatheory.DeductionFacts Metatheory.TarskiFacts Models.NatModel.
 From Undecidability.FOL.Undecidability.Reductions Require Import H10p_to_FA.
 From Undecidability.H10 Require Import H10p H10p_undec.
 
@@ -389,8 +389,6 @@ Proof.
 Qed.
 
 (* A model is standard if it is isomorphic to nat *)
-
-Print standard.
 
 Lemma PA_undec2 D (M : interp D) E :
   standard D M -> M ⊨=T Q' -> M ⊨= embed E -> H10p E.
@@ -512,7 +510,7 @@ Qed.
 (** *** Theorem 43 : PCP reduces to Z', Z, and ZF, assuming standard models *)
 
 From Undecidability.FOL.Undecidability.Reductions Require Import PCPb_to_ZFeq PCPb_to_ZF PCPb_to_ZFD.
-From Undecidability.FOL.Axiomatizations.Sets Require Import Models.Aczel_CE Models.ZF_model ZF.
+From Undecidability.FOL.Sets Require Import Models.Aczel_CE Models.ZF_model ZF.
 From Undecidability.PCP Require Import PCP PCP_undec.
 
 (* We first show the three hypotheses regarding Z' *)
@@ -533,7 +531,6 @@ Qed.
 
 (* A model is standard if all k ∈ om correspond to some n : nat *)
 
-Print standard.
 Open Scope sem.
 Lemma ZF_undec2 D (M : interp D) B :
   standard M -> M ⊨=T Z' -> M ⊨= solvable B -> PCPb B.

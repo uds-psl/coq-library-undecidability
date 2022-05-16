@@ -2,7 +2,7 @@
 
 Require Import List Lia.
 
-From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts Deduction.FullFacts.
+From Undecidability.FOL Require Import FullSyntax.
 Import Vector.VectorNotations.
 From Undecidability Require Import Synthetic.Undecidability.
 
