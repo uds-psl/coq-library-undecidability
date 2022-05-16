@@ -8,15 +8,13 @@ Set Default Proof Using "Type".
 Lemma unnest : forall (A B C : Type), A -> (B -> C) -> (A -> B) -> C.
 Proof. auto. Qed.
 
-(* induction principle wrt. a decreasing measure f *)
-(* example: elim /(measure_ind length) : l. *)
-Lemma measure_ind {X : Type} (f : X -> nat) (P : X -> Prop) : 
+(* induction/recursion principle wrt. a decreasing measure f *)
+(* example: elim /(measure_rect length) : l. *)
+Lemma measure_rect {X : Type} (f : X -> nat) (P : X -> Type) : 
   (forall x, (forall y, f y < f x -> P y) -> P x) -> forall (x : X), P x.
 Proof.
-  apply : well_founded_ind.
-  apply : Wf_nat.well_founded_lt_compat. move => *. by eassumption.
+  exact: (well_founded_induction_type (Wf_nat.well_founded_lt_compat X f _ (fun _ _ => id)) P).
 Qed.
-Arguments measure_ind {X}.
 
 Lemma prod_nat_nat_eq_dec (x y : nat * nat) : {x = y} + {x <> y}.
 Proof. by do ? decide equality. Qed.

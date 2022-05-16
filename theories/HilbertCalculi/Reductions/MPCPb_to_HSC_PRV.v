@@ -1,6 +1,6 @@
-(* 
+(*
   Autor(s):
-    Andrej Dudenhefner (1) 
+    Andrej Dudenhefner (1)
   Affiliation(s):
     (1) Saarland University, Saarbrücken, Germany
 *)
@@ -15,7 +15,7 @@
 Require Import List Lia.
 Import ListNotations.
 
-Require Import ssreflect ssrbool ssrfun. 
+Require Import ssreflect ssrbool ssrfun.
 
 Require Import Undecidability.HilbertCalculi.HSC.
 Require Import Undecidability.HilbertCalculi.Util.HSCFacts.
@@ -119,8 +119,8 @@ Proof.
 Qed.
 
 Lemma substitute_combine {ζ ξ r v x} :
-  ζ 0 = ξ 0 -> 
-  substitute ζ r = substitute ξ (encode_word v) -> 
+  ζ 0 = ξ 0 ->
+  substitute ζ r = substitute ξ (encode_word v) ->
   substitute ζ (append_word r x) = substitute ξ (encode_word (v ++ x)).
 Proof.
   move=> ?. elim: x v r.
@@ -193,8 +193,8 @@ Definition ΓPCP :=
 (* not ΓPCP ⊢ r → r → r *)
 Lemma not_ΓPCP_rrr n r : not (der ΓPCP n (arr r (arr r r))).
 Proof.
-  elim: n r; first by move=> ? /der_0E.
-  move=> n IH r /derE => [[ζ [s [k [_ [+ [+]]]]]]].
+  elim: n r; first by move=> ? /derE.
+  move=> n IH r /derE => [[ζ [s [k [+ [+]]]]]].
   rewrite /ΓPCP /In -/ΓPCP. case; last case; last case; last case; last case; last done.
   all: move=> <-.
   {
@@ -375,9 +375,9 @@ Lemma ΓPCP_completeness_ind {Q P x y v w n} : incl Q P ->
     (encode_pair (encode_word' bullet y) (encode_list encode_bool w))) -> 
   exists A, incl A P /\ x ++ v ++ tau1 A = y ++ w ++ tau2 A.
 Proof.
-  elim: n Q x y v w; first by move=> > _ /der_0E.
+  elim: n Q x y v w; first by move=> > _ /derE.
   move=> n IH Q x y v w HQ /derE.
-  move=> [ζ [s [k [_ [+ [+]]]]]].
+  move=> [ζ [s [k [+ [+]]]]].
   have Hu (r) : r = arr r (arr r r) -> False.
   { move /(f_equal size) => /=. by lia. }
   rewrite /ΓPCP /In -/ΓPCP. case; last case; last case; last case; last case; last done.
@@ -400,9 +400,9 @@ Proof.
     rewrite ? substitute_pairP.
     move=> [_ [[_ [H1 H2]] H3]].
     move: Hder. rewrite ? transparent_encode_pair //.
-    rewrite H1 H2 H4 H5 H6. move /IH. move /(_ ltac:(done)).
+    rewrite H1 H2 H4 H5 H6. move /IH => /(_ (incl_refl P)).
     move=> [A [HAP HxyA]].
-    move /(_ (v', w')). move /(_ ltac:(by left)) => ?.
+    move /(_ (v', w')). move /(_ (in_eq _ _)) => ?.
     move: v w Hv Hw => [|? ?] [|? ?].
     { exists ((v', w') :: A). 
       constructor; [by apply /incl_cons | by assumption]. }
@@ -425,7 +425,7 @@ Proof.
     move=> [_ [H3 H4]].
     move: Hder. rewrite ? transparent_encode_pair => //.
     rewrite H1 H2 H3 H4 H5 -encode_word'_last. move /IH.
-    rewrite -/(app [a] v). move /(_ ltac:(done)) => [A [?]].
+    rewrite -/(app [a] v). move /(_ HQ) => [A [?]].
     rewrite - ? app_assoc => ?. by exists A.
   }
   (* assoc y case *)
@@ -436,7 +436,7 @@ Proof.
     move=> [_ [H3 H4]].
     move: Hder. rewrite ? transparent_encode_pair => //.
     rewrite H1 H2 H3 H4 H5 -encode_word'_last. move /IH.
-    rewrite -/(app [a] w). move /(_ ltac:(done)) => [A [?]].
+    rewrite -/(app [a] w). move /(_ HQ) => [A [?]].
     rewrite - ? app_assoc => ?. by exists A.
   }
 Qed.
