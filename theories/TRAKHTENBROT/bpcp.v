@@ -12,7 +12,7 @@ Require Import List Arith Lia Bool.
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_list utils_nat finite.
 
-From Undecidability.PCP Require Import PCP.
+From Undecidability.PCP Require Import PCP Util.PCP_facts.
 
 Set Default Proof Using "Type".
 
@@ -93,7 +93,7 @@ Section pcp_hand_dec.
     Implicit Type (l m : list X).
 
     (* Notice that we could downgrade strict_suffix to Prop because
-       a and b could be computed from the knowledge of there existence *)
+       a and b could be computed from the knowledge of their existence *)
 
     Definition strict_suffix x y l m := { a : _ & { b | (a <> nil \/ b <> nil) /\ l = a++x /\ m = b++y } }.
     

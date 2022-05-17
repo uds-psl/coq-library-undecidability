@@ -613,16 +613,6 @@ HOU/concon/constants_consequences.v
 HOU/concon/enumerability.v
 HOU/concon/concon.v
 
-FOLP/Util/axioms.v
-FOLP/Util/unscoped.v
-FOLP/Util/Syntax.v
-FOLP/Util/FOL.v
-FOLP/Util/FullSyntax.v
-FOLP/Util/FullFOL.v
-FOLP/Util/FullTarski.v
-FOLP/FOLFS.v
-FOLP/Reductions/PCPb_to_FOLFS.v
-
 TRAKHTENBROT/notations.v
 TRAKHTENBROT/bpcp.v
 TRAKHTENBROT/utils.v
@@ -848,8 +838,6 @@ FOL/Sets/Models/HF_model.v
 FOL/Sets/Models/ZF_conservativity.v
 
 FOL/Utils/FriedmanTranslation.v
-FOL/Utils/Abstract.v
-FOL/Utils/Axiomatisations.v
 
 FOL/Undecidability/Reductions/PCPb_to_FST.v
 FOL/Undecidability/Reductions/PCPb_to_FSTD.v
@@ -868,6 +856,7 @@ FOL/Undecidability/Reductions/binZF_to_binFST.v
 
 FOL/Undecidability/Reductions/FSATd_to_FSATdc.v
 FOL/Undecidability/Reductions/TRAKHTENBROT_to_FSAT.v
+FOL/Undecidability/Reductions/PCPb_to_FSAT.v
 FOL/Undecidability/Reductions/PCPb_to_FOL.v
 FOL/Undecidability/Reductions/PCPb_to_FOL_class.v
 FOL/Undecidability/Reductions/PCPb_to_FOL_intu.v
@@ -882,12 +871,20 @@ FOL/Undecidability/FOL_undec.v
 FOL/Undecidability/binFOL_undec.v
 FOL/Undecidability/minFOL_undec.v
 FOL/Undecidability/FSAT_undec.v
+FOL/Undecidability/FSAT_direct_undec.v
 FOL/Undecidability/ZF_undec.v
 FOL/Undecidability/minZF_undec.v
 FOL/Undecidability/binZF_undec.v
 FOL/Undecidability/FST_undec.v
 FOL/Undecidability/binFST_undec.v
 FOL/Undecidability/PA_undec.v
+FOL/Undecidability/FSAT.v
+
+FOL/Incompleteness/Abstract.v
+FOL/Incompleteness/Axiomatisations.v
+FOL/Incompleteness/PA_incompleteness.v
+
+
 
 
 FOL/Reification/GeneralReflection.v

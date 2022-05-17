@@ -3,4 +3,5 @@ From Undecidability.FOL Require Export
   Semantics.Tarski.FragmentFacts Semantics.Tarski.FragmentSoundness
   Semantics.Kripke.FragmentCore Semantics.Kripke.FragmentSoundness
   Semantics.Kripke.FragmentToTarski
-  Deduction.FragmentFacts.
+  Deduction.FragmentFacts
+  Semantics.FiniteTarski.Fragment.
