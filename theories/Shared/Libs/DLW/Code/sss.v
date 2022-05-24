@@ -638,31 +638,6 @@ Section Small_Step_Semantics.
     destruct H4 as (q & ? & ?); exists q; split; auto; lia.
   Qed.
 
-  Section sss_terminates_ind.
-
-    Variable (P : code) (R : state -> Prop).
-
-    Hypothesis (HR0 : forall st, out_code (fst st) P -> R st)
-               (HR1 : forall st1, (forall Q st2, Q <sc P -> Q // st1 -+> st2 -> P // st2 ↓ -> R st2) -> R st1).
-
-    Theorem sss_terminates_ind st : P // st ↓ -> R st.
-    Proof.
-      intros (st2 & (k & H1) & H2); revert st st2 H1 H2.
-      induction k as [ k IH ] using (well_founded_induction_type lt_wf).
-      intros st1 st2 H1 H2.
-      destruct k as [ | k ].
-      + apply sss_steps_0_inv in H1.
-        subst; apply HR0; auto.
-      + apply HR1.
-        intros Q st2' HQ H5 (st3 & H6 & H7).
-        apply subcode_sss_progress_inv with (3 := H5) in H1; auto.
-        destruct H1 as (q & G1 & G2).
-        apply IH with (2 := G2); auto.
-        revert H2; apply subcode_out_code; auto.
-    Qed.
-
-  End sss_terminates_ind. 
- 
   Section sss_compute_max_ind.
 
     Variable (P : code) (R : state -> state -> Prop).
@@ -701,6 +676,38 @@ Section Small_Step_Semantics.
     apply subcode_sss_subcode_inv with (3 := H3) in H4; auto.
     destruct H4 as (q & _ & ?); exists q; auto.
   Qed.
+
+  Section sss_terminates_ind.
+
+  Variable (P : code) (R : state -> Prop).
+
+  Hypothesis (HR0 : forall st, out_code (fst st) P -> R st)
+             (HR1 : forall st1, (forall Q st2, Q <sc P -> Q // st1 -+> st2 -> R st2) -> R st1).
+
+  Theorem sss_terminates_ind st : P // st ↓ -> R st.
+  Proof.
+    intros (st2 & (k & H1) & H2); revert st st2 H1 H2.
+    induction k as [ k IH ] using (well_founded_induction_type lt_wf).
+    intros st1 st2 H1 H2.
+    destruct k as [ | k ].
+    + apply sss_steps_0_inv in H1.
+      subst; apply HR0; auto.
+    + apply HR1.
+      intros Q st2' HQ H5.
+      assert (P // st2' ↓) as (st3 & H6 & H7).
+      { assert (P // st1 ↓) as (st3' & H'6 & H'7).
+        { exists st2. split; [exists (S k)|]; assumption. }
+        apply (subcode_sss_progress _ HQ) in H5.
+        apply (sss_progress_compute) in H5.
+        assert (H8 := sss_compute_inv H'7 H5 H'6).
+        exists st3'. split; assumption. }
+      apply subcode_sss_progress_inv with (3 := H5) in H1; auto.
+      destruct H1 as (q & G1 & G2).
+      apply IH with (2 := G2); auto.
+      revert H2; apply subcode_out_code; auto.
+  Qed.
+
+  End sss_terminates_ind.
 
   Fact sss_compute_step_out_inv P k st1 st2 st3 :
            st1 <> st2

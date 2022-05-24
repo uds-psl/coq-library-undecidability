@@ -565,6 +565,13 @@ Proof. auto. Qed.
 Fact vec_one_fst n : @vec_one (S n) pos0 = 1##vec_zero.
 Proof. apply vec_pos_ext; intros p; pos_inv p; rew vec. Qed.
 
+Lemma vec_change_comm {X} n v p q x y : p <> q ->
+vec_change (@vec_change X n v p x) q y = vec_change (vec_change v q y) p x.
+Proof.
+  intros Hpq. apply vec_pos_ext; intros r.
+  destruct (pos_eq_dec r p); destruct (pos_eq_dec r q); subst; now rew vec.
+Qed.
+
 Fact vec_one_nxt n p : @vec_one (S n) (pos_nxt p) = 0##vec_one p.
 Proof.
   apply vec_pos_ext.
