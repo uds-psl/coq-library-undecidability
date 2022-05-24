@@ -79,7 +79,7 @@ Target problems are very expressive and thus work well as targets for reduction,
 - Uniform boundedness of deterministic, length-preserving stack machines (`SMNdl_UB` in [`StackMachines/SMN.v`](theories/StackMachines/SMN.v))
 - Semi-unification (`SemiU` in [`SemiUnification/SemiU.v`](theories/SemiUnification/SemiU.v))
 - System F Inhabitation (`SysF_INH` in [`SystemF/SysF.v`](theories/SystemF/SysF.v)), System F Typability (`SysF_TYP` in [`SystemF/SysF.v`](theories/SystemF/SysF.v)), System F Type Checking (`SysF_TC` in [`SystemF/SysF.v`](theories/SystemF/SysF.v))
-- Halting problem Krivine machines (`KrivineM_HALT` in [`LambdaCalculus/Krivine.v`](theories/LambdaCalculus/Krivine.v))
+- Halting problem for Krivine machines (`KrivineM_HALT` in [`LambdaCalculus/Krivine.v`](theories/LambdaCalculus/Krivine.v))
 
 ### Target Problems
 
