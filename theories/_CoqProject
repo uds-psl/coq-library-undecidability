@@ -486,6 +486,7 @@ TM/PrettyBounds/SizeBounds.v
 TM/Reductions/mTM_to_TM.v
 TM/Reductions/HaltTM_1_to_SBTM_HALT.v
 TM/Reductions/SBTM_HALT_to_HaltTM_1.v
+TM/Reductions/MMA_HALTING_n_to_HaltTM_n.v
 
 TM/Enumerators/SBTM_HALT_enum.v
 
