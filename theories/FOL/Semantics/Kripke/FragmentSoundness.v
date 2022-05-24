@@ -1,6 +1,6 @@
 (* * Kripke Semantics *)
 
-From Undecidability Require Import FOL.Semantics.Kripke.FragmentCore FOL.Deduction.FragmentCore.
+From Undecidability Require Import FOL.Semantics.Kripke.FragmentCore FOL.Deduction.FragmentND.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 

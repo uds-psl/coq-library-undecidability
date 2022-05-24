@@ -1,7 +1,7 @@
 (* * Intuitionistic FOL *)
 
 From Undecidability.PCP Require Import PCP Util.PCP_facts.
-From Undecidability.FOL Require Import Deduction.FragmentFacts Semantics.Tarski.FragmentFacts Syntax.Facts.
+From Undecidability.FOL Require Import Deduction.FragmentNDFacts Semantics.Tarski.FragmentFacts Syntax.Facts.
 From Undecidability.FOL.Semantics.Kripke Require Import FragmentCore FragmentSoundness FragmentToTarski.
 From Undecidability.FOL.Undecidability Require Import FOL.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts.

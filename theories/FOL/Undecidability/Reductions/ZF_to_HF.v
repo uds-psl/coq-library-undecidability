@@ -1,7 +1,7 @@
 (** ** Reduction from ZF' to finite ZF *)
 
 From Undecidability.FOL
-     Require Import Syntax.Facts Semantics.Tarski.FullFacts Deduction.FullFacts.
+     Require Import Syntax.Facts Semantics.Tarski.FullFacts Deduction.FullNDFacts.
 
 From Undecidability.FOL.Sets
      Require Import ZF.

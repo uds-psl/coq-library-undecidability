@@ -5,7 +5,7 @@ From Undecidability.FOL
      Require Import Sets.FST
                     Semantics.Tarski.FullFacts
                     Semantics.Tarski.FullSoundness
-                    Deduction.FullFacts
+                    Deduction.FullNDFacts
                     Sets.Models.FST_model.
 
 

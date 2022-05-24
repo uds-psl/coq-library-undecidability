@@ -1,10 +1,9 @@
 (** ** Reduction from H10 *)
 
 Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
-From Undecidability.FOL Require Import Syntax.Facts Deduction.FullFacts Semantics.Tarski.FullFacts Semantics.Tarski.FullSoundness.
+From Undecidability.FOL Require Import Syntax.Facts Deduction.FullNDFacts Semantics.Tarski.FullFacts Semantics.Tarski.FullSoundness.
 Require Import Undecidability.FOL.Arithmetics.Problems.
-From Undecidability.FOL.Arithmetics.Metatheory Require Import TarskiFacts DeductionFacts.
-From Undecidability.FOL.Arithmetics.Models Require Import NatModel.
+From Undecidability.FOL.Arithmetics Require Import TarskiFacts DeductionFacts NatModel.
 From Undecidability.H10 Require Import H10p.
 Require Import List Lia.
 

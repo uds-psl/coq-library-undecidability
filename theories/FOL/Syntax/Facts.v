@@ -239,6 +239,8 @@ Section Bounded.
 
   Arguments bounded {_} _ _.
 
+  Definition closed {ff:falsity_flag} phi := bounded 0 phi.
+
   Definition bounded_L {ff : falsity_flag} n A :=
     forall phi, phi el A -> bounded n phi.
 

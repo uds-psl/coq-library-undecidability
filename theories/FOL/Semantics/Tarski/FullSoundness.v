@@ -2,7 +2,7 @@
 
 Require Import Undecidability.FOL.Syntax.Facts.
 Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
-Require Import Undecidability.FOL.Deduction.FullCore.
+Require Import Undecidability.FOL.Deduction.FullND.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 Import ListNotations.

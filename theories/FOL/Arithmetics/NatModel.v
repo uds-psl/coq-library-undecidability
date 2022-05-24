@@ -1,4 +1,4 @@
-From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts Deduction.FullFacts.
+From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts Deduction.FullNDFacts.
 Require Import Undecidability.FOL.Arithmetics.FA.
 Require Import Undecidability.FOL.Arithmetics.Signature.
 Require Import Undecidability.FOL.Arithmetics.Problems.

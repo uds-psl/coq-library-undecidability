@@ -1,7 +1,7 @@
 (* * FOL Reductions *)
 Require Import Vector.
 From Undecidability.DiophantineConstraints Require Import H10C Util.H10UPC_facts.
-From Undecidability.FOL Require Import Syntax.Facts Deduction.FullFacts Semantics.Tarski.FullSoundness Semantics.Tarski.FullFacts Syntax.BinSig.
+From Undecidability.FOL Require Import Syntax.Facts Deduction.FullNDFacts Semantics.Tarski.FullSoundness Semantics.Tarski.FullFacts Syntax.BinSig.
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
 From Undecidability.Shared.Libs.DLW.Wf Require Import wf_finite.

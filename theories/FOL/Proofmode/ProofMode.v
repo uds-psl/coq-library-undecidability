@@ -2,7 +2,7 @@ Require Import Undecidability.FOL.Proofmode.StringToIdent.
 From Equations Require Import Equations.
 Require Import Equations.Type.DepElim.
 From Undecidability.Shared Require Import Dec ListAutomation.
-From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts Deduction.FullFacts.
+From Undecidability.FOL Require Import Syntax.Facts Semantics.Tarski.FullFacts Deduction.FullNDFacts.
 From Undecidability.FOL.Proofmode Require Import Theories.
 
 Require Import List Lia String.

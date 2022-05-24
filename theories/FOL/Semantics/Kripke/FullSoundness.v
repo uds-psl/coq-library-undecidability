@@ -1,6 +1,6 @@
 (* * Kripke Semantics *)
 
-From Undecidability Require Import FOL.Semantics.Kripke.FullCore FOL.Deduction.FullCore.
+From Undecidability Require Import FOL.Semantics.Kripke.FullCore FOL.Deduction.FullND.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 

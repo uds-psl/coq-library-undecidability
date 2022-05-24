@@ -369,7 +369,7 @@ End FixSignature.
 
 (** *** Theorem 26 : H10 reduces to Q', Q, and PA *)
 
-From Undecidability.FOL.Arithmetics Require Import PA Metatheory.DeductionFacts Metatheory.TarskiFacts Models.NatModel.
+From Undecidability.FOL.Arithmetics Require Import PA DeductionFacts TarskiFacts NatModel.
 From Undecidability.FOL.Undecidability.Reductions Require Import H10p_to_FA.
 From Undecidability.H10 Require Import H10p H10p_undec.
 
@@ -730,14 +730,14 @@ Lemma undec_class_binZ' :
   LEM -> reduction binsolvable PCPb (tprv_class binZ').
 Proof.
   intros lem. split; intros H.
-  - apply (@PCP_ZFD FullCore.class), (@rm_const_prv FullCore.class nil) in H. exists binZF. split; trivial.
+  - apply (@PCP_ZFD FullND.class), (@rm_const_prv FullND.class nil) in H. exists binZF. split; trivial.
   - destruct H as [A[H1 H2]]. apply PCP_ZFeq'; try apply intensional_model.
     apply (Weak (B:=binZF)) in H2; auto. apply soundness_class in H2; trivial.
     intros V M rho HM. apply min_correct; trivial. apply H2. now apply min_axioms'.
 Qed.
 
 Lemma undec_prv_class :
-  LEM -> undecidable (prv (p:=FullCore.class) nil).
+  LEM -> undecidable (prv (p:=FullND.class) nil).
 Proof.
   intros lem. apply (undecidability_from_reducibility PCPb_undec). eapply reduces_transitive.
   + exists binsolvable. now apply undec_class_binZ'.

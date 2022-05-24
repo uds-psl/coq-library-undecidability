@@ -177,9 +177,7 @@ Section ReificationExample.
   Definition proj1 {X:Type} {Y:X->Type} (H:{x:X&Y x}) : X := match H with existT x y => x end.
 
   Lemma example (a b : D) : representableP 0 (a i⊕ b i= b i⊕ a).
-  Proof. Time represent. Show Proof. Defined. (* Not opaque, so we can pull out the representative witness later *)
-
-  Eval cbn in (proj1 (example iO iO)).
+  Proof. represent. Defined. (* Not opaque, so we can pull out the representative witness later *)
 
   Lemma only_logic : representableP 0 (~(True <-> False)).
   Proof. represent. Defined.

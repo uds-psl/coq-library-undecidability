@@ -2,7 +2,7 @@
 
 
 From Undecidability.PCP Require Import PCP Util.PCP_facts.
-From Undecidability.FOL Require Import Deduction.FragmentFacts Semantics.Tarski.FragmentFacts Semantics.Tarski.FragmentSoundness Syntax.Core Syntax.Facts.
+From Undecidability.FOL Require Import Deduction.FragmentNDFacts Semantics.Tarski.FragmentFacts Semantics.Tarski.FragmentSoundness Syntax.Core Syntax.Facts.
 From Undecidability.FOL.Undecidability Require Import FOL.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
 Require Import Undecidability.FOL.Undecidability.Reductions.PCPb_to_FOL.

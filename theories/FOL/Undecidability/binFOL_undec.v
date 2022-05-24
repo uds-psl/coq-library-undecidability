@@ -5,7 +5,7 @@ From Undecidability.FOL.Sets Require Import binZF.
 Require Import Undecidability.FOL.Syntax.Core.
 Require Import Undecidability.FOL.Syntax.BinSig.
 Require Import Undecidability.FOL.Semantics.Tarski.FullFacts.
-Require Import Undecidability.FOL.Deduction.FullFacts.
+Require Import Undecidability.FOL.Deduction.FullNDFacts.
 
 Lemma binZF_binFOL_valid :
   entailment_binZF ⪯ binFOL_valid.

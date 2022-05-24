@@ -2,7 +2,7 @@
 
 Require Import Undecidability.FOL.Syntax.Facts.
 Require Import Undecidability.FOL.Semantics.Tarski.FragmentFacts.
-Require Import Undecidability.FOL.Deduction.FragmentCore.
+Require Import Undecidability.FOL.Deduction.FragmentND.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 Require Import Vector Lia.

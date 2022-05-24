@@ -1,7 +1,7 @@
 (** ** Conservativity Results for ZF *)
 
 From Undecidability.FOL
-     Require Import Semantics.Tarski.FullFacts Syntax.Facts Deduction.FullFacts.
+     Require Import Semantics.Tarski.FullFacts Syntax.Facts Deduction.FullNDFacts.
 
 From Undecidability.FOL.Sets
      Require Import ZF minZF.

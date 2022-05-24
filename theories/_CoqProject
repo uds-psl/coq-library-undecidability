@@ -808,19 +808,19 @@ FOL/Semantics/Kripke/FullCore.v
 FOL/Semantics/Kripke/FullToTarski.v
 FOL/Semantics/Kripke/FullSoundness.v
 
-FOL/Deduction/FragmentCore.v
-FOL/Deduction/FragmentFacts.v
-FOL/Deduction/FullCore.v
-FOL/Deduction/FullFacts.v
+FOL/Deduction/FragmentND.v
+FOL/Deduction/FragmentNDFacts.v
+FOL/Deduction/FullND.v
+FOL/Deduction/FullNDFacts.v
 
 FOL/Arithmetics/Signature.v
 FOL/Arithmetics/FA.v
 FOL/Arithmetics/Robinson.v
 FOL/Arithmetics/PA.v
 FOL/Arithmetics/Problems.v
-FOL/Arithmetics/Metatheory/TarskiFacts.v
-FOL/Arithmetics/Metatheory/DeductionFacts.v
-FOL/Arithmetics/Models/NatModel.v
+FOL/Arithmetics/TarskiFacts.v
+FOL/Arithmetics/DeductionFacts.v
+FOL/Arithmetics/NatModel.v
 
 FOL/Sets/Signatures.v
 FOL/Sets/ZF.v
@@ -902,3 +902,8 @@ FOL/Proofmode/Theories.v
 
 FOL/FullSyntax.v
 FOL/FragmentSyntax.v
+
+
+FOL/Deduction/FullSequent.v
+
+
