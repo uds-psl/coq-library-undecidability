@@ -473,7 +473,8 @@ TM/Code/BinNumbers/NTM.v
 TM/Single/EncodeTapes.v
 TM/Single/StepTM.v
 TM/Reductions/L_to_mTM.v
-  
+TM/Reductions/HaltL_to_HaltTM_5.v
+
 TM/Reductions/Arbitrary_to_Binary.v
 
 TM/Univ/LookupAssociativeListTM.v
