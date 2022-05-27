@@ -160,28 +160,6 @@ Shared/Libs/PSL/FiniteTypes/DepPairs.v
 Shared/Libs/PSL/FiniteTypes/Arbitrary.v
 Shared/Libs/PSL/FiniteTypes/VectorFin.v
 
-TM/L/Alphabets.v
-TM/L/CaseCom.v
-TM/L/HeapInterpreter/LookupTM.v
-TM/L/HeapInterpreter/StepTM.v
-TM/L/HeapInterpreter/M_LHeapInterpreter.v
-TM/L/HeapInterpreter/UnfoldClos.v
-TM/L/HeapInterpreter/JumpTargetTM.v
-TM/L/Transcode/Boollist_to_Enc.v
-TM/L/Transcode/Enc_to_Boollist.v
-TM/L/Transcode/BoollistEnc.v
-TM/L/Eval.v
-
-
-TM/L/CompilerBoolFuns/Compiler_spec.v
-TM/L/CompilerBoolFuns/LComp_to_TMComp.v
-TM/L/CompilerBoolFuns/Compiler_facts.v
-TM/L/CompilerBoolFuns/Compiler_nat_facts.v
-TM/L/CompilerBoolFuns/EncBoolsTM_boolList.v
-TM/L/CompilerBoolFuns/Compiler.v
-TM/L/CompilerBoolFuns/NaryApp.v
-TM/L/CompilerBoolFuns/ClosedLAdmissible.v
-
 PCP/Util/Facts.v
 PCP/Util/PCP_facts.v
 PCP/Reductions/MPCP_to_PCP.v
@@ -487,7 +465,6 @@ TM/Code/BinNumbers/NTM.v
 
 TM/Single/EncodeTapes.v
 TM/Single/StepTM.v
-TM/Reductions/L_to_mTM.v
 TM/Reductions/HaltL_to_HaltTM_5.v
 
 TM/Reductions/Arbitrary_to_Binary.v
