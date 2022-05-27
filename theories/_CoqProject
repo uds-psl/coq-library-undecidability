@@ -429,25 +429,13 @@ TM/Compound/Compare.v
 
 TM/Code/Code.v
 TM/Code/CodeTM.v
-TM/Code/WriteValue.v
 TM/Code/ChangeAlphabet.v
-TM/Code/Copy.v
-TM/Code/CompareValue.v
-TM/Code/ProgrammingTools.v
-
-TM/Code/CaseList.v
-TM/Code/CaseFin.v
-TM/Code/CasePair.v
 
 TM/Single/EncodeTapes.v
 TM/Single/StepTM.v
 TM/Reductions/HaltL_to_HaltTM_5.v
 
 TM/Reductions/Arbitrary_to_Binary.v
-
-TM/Univ/LookupAssociativeListTM.v
-TM/Univ/LowLevel.v
-TM/Univ/Univ.v
 
 TM/PrettyBounds/MaxList.v
 TM/PrettyBounds/SizeBounds.v
@@ -459,16 +447,6 @@ TM/Reductions/SBTM_HALT_to_PCTM_HALT.v
 TM/Reductions/MMA_HALTING_n_to_HaltTM_n.v
 
 TM/Enumerators/SBTM_HALT_enum.v
-
-TM/Hoare/Hoare.v
-TM/Hoare/HoareLogic.v
-TM/Hoare/HoareCombinators.v
-TM/Hoare/HoareRegister.v
-TM/Hoare/HoareTactics.v
-TM/Hoare/HoareTacticsView.v
-# TM/Hoare/HoareExamples.v
-TM/Hoare/HoareStdLib.v
-TM/Hoare/HoareLegacy.v
 
 L/Enumerators/term_enum.v
 
