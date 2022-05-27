@@ -548,27 +548,12 @@ L/Reductions/HaltL_to_HaltLclosed.v
 L/Complexity/UpToC.v
 L/Complexity/UpToCNary.v
 L/Complexity/GenericNary.v
-L/Complexity/ResourceMeasures.v
-L/Complexity/LinDecode/LTD_def.v
-L/Complexity/LinDecode/LTDnat.v
-L/Complexity/LinDecode/LTDlist.v
-L/Complexity/LinDecode/LTDbool.v
 
-L/AbstractMachines/LargestVar.v
-L/AbstractMachines/FlatPro/Programs.v
-L/AbstractMachines/FlatPro/ProgramsDef.v
-L/AbstractMachines/FlatPro/LM_heap_def.v
-L/AbstractMachines/FlatPro/LM_heap_correct.v
-L/AbstractMachines/FlatPro/UnfoldClos.v
-
-L/Computability/Acceptability.v
 L/Computability/Computability.v
 L/Computability/Decidability.v
 L/Computability/Enum.v
 L/Computability/Fixpoints.v
 L/Computability/MuRec.v
-L/Computability/Partial.v
-L/Computability/Por.v
 L/Computability/Seval.v
 L/Computability/Synthetic.v
 
