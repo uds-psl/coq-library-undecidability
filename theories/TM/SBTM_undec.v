@@ -1,7 +1,6 @@
 Require Import Undecidability.Synthetic.Undecidability.
 From Undecidability.Synthetic Require Import DecidabilityFacts EnumerabilityFacts.
 Require Import Undecidability.TM.SBTM.
-Require Undecidability.TM.Reductions.HaltTM_1_to_SBTM_HALT.
 Require Undecidability.TM.Enumerators.SBTM_HALT_enum.
 
 (** ** complement SBTM_HALT is undecidable *)

@@ -6,6 +6,7 @@ Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
 From Undecidability Require Import ArithPrelim.
 Require Import Undecidability.Shared.FinTypeEquiv Undecidability.Shared.FinTypeForallExists.
 
+
 Section fix_Sigma.
 
   Variable n : nat.
@@ -75,14 +76,15 @@ Fixpoint ReadB_canonical n :
 Proof.
   destruct n; cbn.
   - eexists. TM_Correct.
-  - eexists. eapply Switch_Realise. TM_Correct. cbn in *. intros [ | ].
+  - eexists. eapply Switch_Realise. { TM_Correct. }
+    cbn in *. intros [ | ].
     instantiate (1 := fun o => match o with None => _ | Some _ => _ end).
-    eapply Seq_Realise. TM_Correct.
-    eapply Switch_Realise. TM_Correct. cbn in *. intros [[] | ].
+    eapply Seq_Realise. { TM_Correct. }
+    eapply Switch_Realise. { TM_Correct. } cbn in *. intros [[] | ].
     instantiate (1 := fun o => match o with None => _ | Some true => _ | Some false => _ end). cbn in *.
     TM_Correct. eapply Switch_Realise. eapply (proj2_sig (ReadB_canonical n)).
     instantiate (1 := fun o => match o with None => _ | Some _ => _ end).
-    intros []; TM_Correct. TM_Correct. cbn. TM_Correct. 
+    intros []; TM_Correct. { TM_Correct. } cbn. TM_Correct.
 Defined. (* because definition *)
 
 Lemma ReadB_Realise n :
@@ -771,6 +773,40 @@ Proof.
   destruct ymid1. destruct_tapes. repeat eexists; eassumption.
 Qed.
 
+Section HaltTM_Σ_to_HaltTM_bool.
+
+Variables (Σ : finType) (M : TM Σ 1) (ts : Vector.t (tape Σ) 1).
+
+Definition Σ' := finType_CS bool.
+Definition M' : TM Σ' 1 := projT1 (StateWhile (@Step Σ M) (start M)).
+Definition ts' : Vector.t (tape Σ') 1 := Vector.map (fun t => encode_tape' t) ts.
+
+Lemma HaltTM_Σ_to_HaltTM_bool_correct : HaltsTM M ts <-> HaltsTM M' ts'.
+Proof.
+  unfold M', ts'. split.
+  - intros (q' & t' & [n H] % TM_eval_iff).
+    edestruct @Sim_Terminates with (M := (existT _ M (fun _ : state M => tt))) (T := fun tin k => tin = ts /\ k >= n).
+    + intros tin k [-> Hk]. cbn. exists (mk_mconfig q' t').  eapply @loop_monotone. exact H. eapply Hk.
+    + destruct H0 as [k H0]. cbn in H0. edestruct H0 as [[] H1].
+      -- exists (Vector.hd ts), n. split. reflexivity. split. 2: now unfold ge. split. 2:lia.
+          apply (Vector.caseS' ts). intros ?.
+          apply (Vector.case0). reflexivity.
+      -- exists cstate. eexists ctapes. eapply TM_eval_iff. exists (x * n + k). unfold Relabel, initc in H1. cbn in H1.
+          revert H1. apply (Vector.caseS' ts). intros ?. cbn.
+          intros t0. pattern t0. apply Vector.case0.
+          intros H1. exact H1.
+  - intros (q' & t' & [n H] % TM_eval_iff). 
+    eapply (Sim_Realise (M := (existT _ M (fun _ : state M => tt))) (R := fun tin '(_,tout) => exists q', eval M (start M) tin q' tout)) in H.
+    + revert H. apply (Vector.caseS' ts). intros ?. cbn.
+      intros t0. pattern t0. apply Vector.case0.
+      clear ts. rename h into t. intros H.
+      specialize (H t eq_refl) as [t'_sig [[q'_ H1] H2]]. cbn in H1. 
+      cbn in H2. subst. exists q'_, [|t'_sig|]. eassumption. 
+    + intros tin k [q'_ tout] Hter. cbn in *. exists q'_. eapply TM_eval_iff. exists k. exact Hter.
+Qed.
+
+End HaltTM_Σ_to_HaltTM_bool.
+
 Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts Undecidability.TM.Util.TM_facts.
 
@@ -778,26 +814,6 @@ Theorem reduction :
   HaltTM 1 ⪯ fun '(M,t) => @HaltsTM (finType_CS bool) 1 M t.
 Proof.
   unshelve eexists.
-  - intros [Σ M t]. split. exact (projT1 (StateWhile (@Step Σ M) (start M))).
-    exact (Vector.map (fun t => encode_tape' t) t).
-  - intros [Σ M t]. cbn. split.
-    + intros (q' & t' & [n H] % TM_eval_iff).
-      edestruct @Sim_Terminates with (M := (existT _ M (fun _ : state M => tt))) (T := fun tin k => tin = t /\ k >= n).
-      * intros tin k [-> Hk]. cbn. exists (mk_mconfig q' t').  eapply @loop_monotone. exact H. eapply Hk.
-      * destruct H0 as [k H0]. cbn in H0. edestruct H0 as [[] H1].
-        -- exists (Vector.hd t), n. split. reflexivity. split. 2: now unfold ge. split. 2:lia.
-           apply (Vector.caseS' t). intros ?.
-           apply (Vector.case0). reflexivity.
-        -- exists cstate. eexists ctapes. eapply TM_eval_iff. exists (x * n + k). unfold Relabel, initc in H1. cbn in H1.
-           revert H1. apply (Vector.caseS' t). intros ?. cbn.
-           intros t0. pattern t0. apply Vector.case0.
-           intros H1. exact H1.
-    + intros (q' & t' & [n H] % TM_eval_iff). 
-      eapply (Sim_Realise (M := (existT _ M (fun _ : state M => tt))) (R := fun tin '(_,tout) => exists q', eval M (start M) tin q' tout)) in H.
-      * revert H. apply (Vector.caseS' t). intros ?. cbn.
-        intros t0. pattern t0. apply Vector.case0.
-        clear t. rename h into t. intros H.
-        specialize (H t eq_refl) as [t'_sig [[q'_ H1] H2]]. cbn in H1. 
-        cbn in H2. subst. exists q'_, [|t'_sig|]. eassumption. 
-      * intros tin k [q'_ tout] Hter. cbn in *. exists q'_. eapply TM_eval_iff. exists k. exact Hter.
+  - intros [Σ M t]. exact (M' M, ts' t).
+  - intros [Σ M t]. now apply HaltTM_Σ_to_HaltTM_bool_correct.
 Qed.

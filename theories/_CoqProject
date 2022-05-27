@@ -34,6 +34,9 @@ L/L_undec.v
 TM/TM.v
 TM/TM_undec.v
 
+TM/UTM.v
+TM/UTM_undec.v
+
 TM/SBTM.v
 TM/SBTM_enum.v
 TM/SBTM_undec.v
@@ -445,6 +448,7 @@ TM/Reductions/HaltTM_1_to_SBTM_HALT.v
 TM/Reductions/SBTM_HALT_to_HaltTM_1.v
 TM/Reductions/SBTM_HALT_to_PCTM_HALT.v
 TM/Reductions/MMA_HALTING_n_to_HaltTM_n.v
+TM/Reductions/KrivineMclosed_HALT_to_HaltUTM.v
 
 TM/Enumerators/SBTM_HALT_enum.v
 
