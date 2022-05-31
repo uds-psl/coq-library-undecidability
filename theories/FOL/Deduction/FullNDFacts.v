@@ -1,7 +1,7 @@
 (* * Natural Deduction *)
 
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
-From Undecidability Require Import FOL.Syntax.Facts.
+From Undecidability Require Import FOL.Syntax.Facts FOL.Syntax.Theories.
 From Undecidability Require Export FOL.Deduction.FullND.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
@@ -459,3 +459,51 @@ Section Enumerability.
 
 End Enumerability.
 
+
+Section TheoryManipulation.
+
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+  Context {p : peirce} {ff : falsity_flag}.
+  Context {HF : eq_dec syms} {HP : eq_dec preds}.
+  Lemma prv_T_impl T phi psi :
+    (T ⋄ phi) ⊢T psi -> T ⊢T (phi → psi).
+  Proof using HF HP ff p Σ_funcs Σ_preds.
+    intros (A & HA1 & HA2). exists (remove (dec_form _ _ _ _) phi A); split.
+    - intros f [[] % HA1 Hf2] % in_remove; subst; intuition.
+    - eapply II, Weak. 1: apply HA2. transitivity (phi :: A). 1: eauto. intros a [-> | Ha].
+      + now left.
+      + destruct (dec_form _ _ _ _ a phi) as [->|Hr]. 1:now left.
+        right. now eapply in_in_remove.
+  Qed.
+
+  Lemma prv_T_remove T phi psi :
+    T ⊢T phi -> T ⋄ phi ⊢T psi -> T ⊢T psi.
+  Proof using HF HP ff p Σ_funcs Σ_preds.
+    intros (A & HA1 & HA2) (B & HB1 & HB2) % prv_T_impl.
+    use_theory (A ++ B).
+    - now intros psi1 [H1|H2]%in_app_iff; [apply HA1 | apply HB1].
+    - eapply IE; eapply Weak. 1,3: eassumption.
+      all: intros x Hx; apply in_app_iff; eauto.
+  Qed.
+
+  Lemma prv_T_comp T phi psi xi :
+    T ⋄ phi ⊢T xi -> T ⋄ psi ⊢T phi -> T ⋄ psi ⊢T xi.
+  Proof using HF HP.
+    intros (A & HA1 & HA2) % prv_T_impl (B & HB1 & HB2) % prv_T_impl.
+    use_theory (psi :: A ++ B).
+    - now intros psi1 [->|[H1|H2]%in_app_iff]; [now right | |]; left; [apply HA1 | apply HB1].
+    - eapply IE. 1: eapply Weak. 1: apply HA2. 2: eapply IE.
+      2-3: eapply Weak. 2: eapply HB2. 3: apply (@Ctx _ _ _ _ (psi::nil)); now left.
+      + intros a Ha; right; apply in_app_iff; now left.
+      + intros b Hb; right; apply in_app_iff; now right.
+      + intros x [->|[]]; now left.
+  Qed.
+
+  Lemma elem_prv T phi :
+    phi ∈ T -> T ⊢T phi.
+  Proof.
+    intros ?. use_theory [phi]. 2:apply Ctx; now left.
+    intros psi [->|[]]. apply H.
+  Qed.
+End TheoryManipulation.

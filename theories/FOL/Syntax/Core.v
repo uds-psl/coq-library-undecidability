@@ -11,6 +11,9 @@ Local Notation vec := t.
 Set Default Proof Using "Type".
 
 
+Inductive peirce := class | intu.
+Existing Class peirce.
+
 (* Some preliminary definitions for substitions  *)
 Definition scons {X: Type} (x : X) (xi : nat -> X) :=
   fun n => match n with

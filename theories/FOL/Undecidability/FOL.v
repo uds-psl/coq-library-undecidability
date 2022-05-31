@@ -71,5 +71,5 @@ Import BinSig Semantics.Tarski.FullCore.
 Definition binFOL_valid := @FullCore.valid sig_empty sig_binary falsity_on.
 
 (* Provability of formulas with falsity in ND with explosion *)
-Definition binFOL_prv_intu := @FullND.prv sig_empty sig_binary falsity_on FullND.intu nil.
+Definition binFOL_prv_intu := @FullND.prv sig_empty sig_binary falsity_on intu nil.
 

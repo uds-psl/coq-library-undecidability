@@ -888,7 +888,6 @@ End Fsat.
 
 (** Collect the undecidability results *)
 Section result.
-Check @F.
   (** F is a reduction function *)
   Lemma fsat_reduction : reduction (@F) H10UPC_SAT FSAT.
   Proof.

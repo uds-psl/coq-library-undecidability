@@ -192,6 +192,6 @@ Section ReificationExample.
   Definition test : representableP 0 (inum 5 = iS (iS (iS (iS (iS iO))))).
   Proof. represent. Defined.
   Definition proj1 {X:Type} {Y:X->Type} (H:{x:X&Y x}) : X := match H with existT x y => x end.
-  Eval cbn in (proj1 test).
+  (* Eval cbn in (proj1 test). *)
 
 End ReificationExample.

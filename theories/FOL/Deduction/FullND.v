@@ -8,9 +8,6 @@ Export FullSyntax.
 
 Local Set Implicit Arguments.
 
-Inductive peirce := class | intu.
-Existing Class peirce.
-
 Section ND_def.
 
   Context {Σ_funcs : funcs_signature}.

@@ -246,10 +246,10 @@ Section Instantiation.
     discrete {phi | closed phi}.
   Proof.
     apply decidable_iff. constructor. intros [[phi H1] [psi H2]].
+    unfold dec.
     destruct dec_form with falsity_on phi psi as [->|H]; eauto.
-    1,2: intros x y; unfold dec; decide equality.
-    - left. f_equal. apply closed_mere.
-    - right. intros [=]. tauto.
+    - left. f_equal. apply uip.
+    - right. injection. apply H.
   Qed.
 
   Lemma closed_enum :
@@ -274,8 +274,7 @@ Section Instantiation.
     - right. intros phi. congruence.
     - destruct b0. 1,2: right; intros phi; congruence.
       destruct dec_form with falsity_on phi2 ⊥ as [->|H]; eauto.
-      1,2: intros x y; unfold dec; decide equality.
-      right. intros phi. intros [=]. resolve_existT. now apply H.
+      right. intros psi. intros Heq. injection Heq. intros H1%Eqdep_dec.inj_pair2_eq_dec _. 2:decide equality. tauto.
     - right. intros psi. congruence.
   Qed.
 

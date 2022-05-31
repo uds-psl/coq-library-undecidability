@@ -327,6 +327,25 @@ Section Bounded.
       exists (k + l). intros t [<-|H]; eapply bounded_up; try eassumption; try (now apply Hk); lia.
   Qed.
 
+  Definition capture {ff:falsity_flag} (q:quantop) n phi := nat_rect _ phi (fun _ => quant q) n.
+
+  Lemma capture_captures {ff:falsity_flag} n m l q phi :
+    bounded n phi -> l >= n - m -> bounded l (capture q m phi).
+  Proof.
+    intros H Hl. induction m in l,Hl|-*; cbn. 
+    - rewrite <- Minus.minus_n_O in *. now eapply (@bounded_up _ n).
+    - constructor. eapply bounded_up; [apply IHm |]. 2: apply le_n. lia.
+  Qed.
+
+  Definition close {ff:falsity_flag} (q:quantop) phi := capture q (proj1_sig (find_bounded phi)) phi.
+
+  Lemma close_closed {ff:falsity_flag} q phi :
+    closed (close q phi).
+  Proof.
+    unfold close,closed. destruct (find_bounded phi) as [m Hm]; cbn.
+    apply (capture_captures q Hm). lia.
+  Qed.
+
   Lemma subst_up_var k x sigma :
     x < k -> (var x)`[iter up k sigma] = var x.
   Proof.
@@ -365,6 +384,15 @@ Section Bounded.
       change (up _) with (iter up (S n) sigma).
       apply IHbounded.
     - reflexivity.
+  Qed.
+
+  Lemma subst_closed {ff : falsity_flag} phi sigma :
+    closed phi -> phi[sigma] = phi.
+  Proof.
+    intros Hn.
+    erewrite <- (@subst_id _ _ _ _ phi var) at 2. 2:easy.
+    eapply bounded_subst. 1: apply Hn.
+    lia.
   Qed.
 
   Ltac invert_bounds :=
@@ -435,6 +463,35 @@ Section Bounded.
     - now constructor.
     - inversion H. apply Eqdep_dec.inj_pair2_eq_dec in H4 as ->; trivial.
       unfold Dec.dec. decide equality.
+  Qed.
+
+  Lemma subst_bounded_max_t {ff : falsity_flag} n m t sigma : 
+    (forall i, i < n -> bounded_t m (sigma i)) -> bounded_t n t -> bounded_t m (t`[sigma]).
+  Proof.
+    intros Hi. induction 1 as [|? ? ? IH].
+    - cbn. apply Hi. lia.
+    - cbn. econstructor. intros t [x [<- Hx]]%vect_in_map_iff.
+      now apply IH.
+  Qed.
+
+  Lemma subst_bounded_up_t {ff : falsity_flag} i m sigma : 
+    (forall i', i' < i -> bounded_t m (sigma i')) -> bounded_t (S m) (up sigma i).
+  Proof.
+    intros Hb. unfold up,funcomp,scons. destruct i.
+    - econstructor. lia.
+    - eapply subst_bounded_max_t. 2: apply Hb. 2:lia.
+      intros ii Hii. econstructor. lia.
+  Qed.
+
+  Lemma subst_bounded_max {ff : falsity_flag} n m phi sigma : 
+    (forall i, i < n -> bounded_t m (sigma i)) -> bounded n phi -> bounded m (phi[sigma]).
+  Proof. intros Hi.
+    induction 1 as [ff n P v H| bo ff n phi psi H1 IH1 H2 IH2| qo ff n phi H1 IH1| n] in Hi,sigma,m|-*; cbn; econstructor.
+    - intros t [x [<- Hx]]%vect_in_map_iff. eapply subst_bounded_max_t. 1: exact Hi. now apply H.
+    - apply IH1. easy.
+    - apply IH2. easy.
+    - apply IH1. intros l Hl.
+      apply subst_bounded_up_t. intros i' Hi'. apply Hi. lia.
   Qed.
 
 End Bounded.
@@ -530,6 +587,31 @@ Section EqDec.
   Proof using eq_dec_Funcs eq_dec_Preds eq_dec_quantop eq_dec_binop.
     intros phi psi. destruct (dec_form_dep phi psi); rewrite eq_dep_falsity in *; firstorder.
   Qed.
+
+  Lemma dec_full_logic_sym : eq_dec FullSyntax.full_logic_sym.
+  Proof.
+    cbv -[not]. decide equality.
+  Qed.
+
+  Lemma dec_full_logic_quant : eq_dec FullSyntax.full_logic_quant.
+  Proof.
+    cbv -[not]. decide equality.
+  Qed.
+
+  Lemma dec_frag_logic_binop : eq_dec FragmentSyntax.frag_logic_binop.
+  Proof.
+    cbv -[not]. decide equality.
+  Qed.
+
+  Lemma dec_frag_logic_quant : eq_dec FragmentSyntax.frag_logic_quant.
+  Proof.
+    cbv -[not]. decide equality.
+  Qed.
+
+  #[global] Existing Instance dec_full_logic_sym.
+  #[global] Existing Instance dec_full_logic_quant.
+  #[global] Existing Instance dec_frag_logic_binop.
+  #[global] Existing Instance dec_frag_logic_quant.
 
 End EqDec.
 

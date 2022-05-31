@@ -6,11 +6,14 @@ From Undecidability Require Import FOL.Syntax.Core.
 Import FullSyntax.
 Export FullSyntax.
 
+
 Local Set Implicit Arguments.
 Section FullSequent.
 
   Context {Σ_funcs : funcs_signature}.
   Context {Σ_preds : preds_signature}.
+
+  Reserved Notation "A ⊢f phi" (at level 61).
 
   Inductive fprv : list form -> form -> Prop :=
     (* Structural Rules *)
@@ -30,7 +33,8 @@ Section FullSequent.
   | AllL A phi psi t : fprv (phi [t ..] :: A) psi -> fprv (∀ phi :: A) psi
   | AllR A phi : fprv (map (subst_form ↑) A) phi -> fprv A (∀ phi)
   | ExL A phi psi : fprv (phi :: map (subst_form ↑) A) (subst_form ↑ psi) -> fprv (∃ phi :: A) psi
-  | ExR A phi t : fprv A (phi [t..]) -> fprv A (∃ phi).
+  | ExR A phi t : fprv A (phi [t..]) -> fprv A (∃ phi)
+  where "A ⊢f phi" := (fprv A phi).
 
   Definition tfprv (T : form -> Prop) phi :=
     exists A, (forall psi, psi el A -> T psi) /\ fprv A phi.

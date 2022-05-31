@@ -6,6 +6,7 @@ Require Import Coq.Setoids.Setoid.
 Import ListAutomationNotations.
 Require Import Arith Lia List.
 
+#[global]
 Create HintDb contains_theory.
 
 Section Theory.
@@ -36,8 +37,6 @@ Section Theory.
 
   Definition extend T (phi : form) := fun psi => T psi \/ psi = phi.
   Infix "⋄" := extend (at level 20).
-
-  Definition closed phi := bounded 0 phi.
 
   Definition closed_T (T : theory) := forall phi, contains phi T -> bounded 0 phi.
   Lemma closed_T_extend T phi :
@@ -98,23 +97,24 @@ Section TheoryMap.
       + intros (m & (phi & <- & Hphi) % in_map_iff). firstorder.
   Qed.
 
-Lemma tmap_contains_L (f : @form Σ_funcs1 Σ_preds1 ops1 ff1 -> @form Σ_funcs2 Σ_preds2 ops2 ff2) T A :
-  contains_L A (tmap f T) -> exists B, A = List.map f B /\ contains_L B T.
-Proof.
-  induction A.
-  - intros. now exists List.nil.
-  - intros H. destruct IHA as (B & -> & HB). 1: firstorder.
-    destruct (H a (or_introl eq_refl)) as (b & Hb & <-).
-    exists (b :: B). split. 1: auto. intros ? []; subst; auto.
-Qed.
+  Lemma tmap_contains_L (f : @form Σ_funcs1 Σ_preds1 ops1 ff1 -> @form Σ_funcs2 Σ_preds2 ops2 ff2) T A :
+    contains_L A (tmap f T) -> exists B, A = List.map f B /\ contains_L B T.
+  Proof.
+    induction A.
+    - intros. now exists List.nil.
+    - intros H. destruct IHA as (B & -> & HB). 1: firstorder.
+      destruct (H a (or_introl eq_refl)) as (b & Hb & <-).
+      exists (b :: B). split. 1: auto. intros ? []; subst; auto.
+  Qed.
 
-Hint Constructors Vector_In2 : contains_theory.
+End TheoryMap.
+#[global] Hint Constructors Vector_In2 : contains_theory.
 
 Infix "⊏" := contains_L (at level 20).
 Infix "⊑" := subset_T (at level 20).
 Infix "∈" := contains (at level 70).
 Infix "⋄" := extend (at level 20).
 
-Hint Resolve contains_nil contains_cons contains_cons2 contains_app : contains_theory.
-Hint Resolve contains_extend1 contains_extend2 contains_extend3 : contains_theory.
-Ltac use_theory A := exists A; split; [eauto 15 with contains_theory|].
+#[global] Hint Resolve contains_nil contains_cons contains_cons2 contains_app : contains_theory.
+#[global] Hint Resolve contains_extend1 contains_extend2 contains_extend3 : contains_theory.
+#[global] Ltac use_theory A := exists A; split; [eauto 15 with contains_theory|].

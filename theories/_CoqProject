@@ -790,6 +790,7 @@ SOL/PA2_undec.v
 FOL/Syntax/Core.v
 FOL/Syntax/Facts.v
 FOL/Syntax/BinSig.v
+FOL/Syntax/Theories.v
 
 FOL/Semantics/Tarski/FragmentCore.v
 FOL/Semantics/Tarski/FragmentFacts.v
@@ -905,5 +906,8 @@ FOL/FragmentSyntax.v
 
 
 FOL/Deduction/FullSequent.v
+FOL/Deduction/FullSequentFacts.v
+
+FOL/Completeness2/TarskiConstructions.v
 
 
