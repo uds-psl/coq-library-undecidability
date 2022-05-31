@@ -7,7 +7,6 @@ Require Import Undecidability.Synthetic.DecidabilityFacts.
 Require Import Vector Lia.
 
 Set Default Goal Selector "!".
-Set Default Proof Using "Type".
 
 (* Reduction from the TRAKHTENBROT development to the FSAT problems in FOL *)
 

@@ -5,8 +5,6 @@ Import ListNotations.
 From Undecidability.HOU.second_order Require Import diophantine_equations dowek.encoding.
 Require Import Undecidability.HOU.unification.nth_order_unification.
 
-Set Default Proof Using "Type".
-
 (* ** Equivalences *)
 Section EquationEquivalences.
 

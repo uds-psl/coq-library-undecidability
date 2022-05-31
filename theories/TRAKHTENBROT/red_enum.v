@@ -20,8 +20,6 @@ From Undecidability.TRAKHTENBROT
                  fol_ops fo_sig fo_terms fo_logic fo_enum decidable
                  fo_sat fo_sat_dec red_utils.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 (* * Collection of high-level enumerability results *)

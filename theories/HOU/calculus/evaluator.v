@@ -5,8 +5,6 @@ From Undecidability.HOU.calculus Require Import
   prelim terms syntax semantics confluence typing order normalisation. 
 
 
-Set Default Proof Using "Type".
-
 (* * Evaluator *)
 Section Evaluator.
 

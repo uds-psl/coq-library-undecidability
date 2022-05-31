@@ -31,7 +31,7 @@ Section vec_fill_tail.
   Variable (X : Type) (n : nat) (k : nat) (v : vec X k) (e : X).
 
   Definition vec_fill_tail : vec X n.
-  Proof.
+  Proof using v e.
     apply vec_set_pos; intros p.
     destruct (le_lt_dec k (pos2nat p)) as [ | H ].
     + exact e.
@@ -70,7 +70,7 @@ Section vec_first_half.
   Variable (X : Type) (n : nat) (k : nat) (Hk : k <= n).
 
   Definition vec_first_half (v : vec X n) : vec X k.
-  Proof.
+  Proof using Hk.
     apply vec_set_pos; intros p.
     refine (vec_pos v (@nat2pos _ (pos2nat p) _)).
     apply lt_le_trans with (2 := Hk), pos2nat_prop.
@@ -97,7 +97,7 @@ Section Sig_uniformize_rels.
   Variable (Σ : fo_signature) (n : nat) (Hn : forall r, ar_rels Σ r <= n).
 
   Definition Σunif : fo_signature.
-  Proof.
+  Proof using Σ n.
     exists (syms Σ) (rels Σ).
     + exact (ar_syms Σ).
     + exact (fun _ => n).
@@ -120,7 +120,7 @@ Section Sig_uniformize_rels.
     Variables (M : fo_model Σ X).
 
     Local Definition fom_uniformize : fo_model Σ' X.
-    Proof.
+    Proof using M Hn.
       split.
       + intros s; apply (fom_syms M s).
       + intros r v; exact (fom_rels M r (vec_first_half (Hn r) v)).
@@ -147,7 +147,7 @@ Section Sig_uniformize_rels.
     Variable (M' : fo_model Σ' X).
 
     Local Definition fom_specialize : fo_model Σ X.
-    Proof.
+    Proof using M' e.
       split.
       + intros s; apply (fom_syms M' s).
       + intros r v; exact (fom_rels M' r (vec_fill_tail n v e)).
@@ -219,7 +219,7 @@ Section Sig_uniformize_rels.
     Theorem fol_uniformize_complete A φ : 
           incl (fol_rels A) lr
        -> fol_sem M φ A <-> fol_sem M' φ (fol_uniformize A).
-    Proof.
+    Proof using Hlr.
       revert φ; induction A as [ | r v | b A HA B HB | q A HA ]; simpl; try tauto; intros phi Hr.
       + rewrite vec_map_fill_tail; rew fot.
         apply Hlr, Hr; simpl; auto.
@@ -237,7 +237,7 @@ Section Sig_uniformize_rels.
 
   Theorem Σuniformize_sound : fo_form_fin_dec_SAT_in A X
                            -> fo_form_fin_dec_SAT_in Σuniformize X.
-  Proof.
+  Proof using Hn.
     intros (M & H1 & H2 & phi & H).
     exists (fom_uniformize M), H1.
     exists.
@@ -251,7 +251,7 @@ Section Sig_uniformize_rels.
 
   Theorem Σuniformize_complete : fo_form_fin_dec_SAT_in Σuniformize X
                               -> fo_form_fin_dec_SAT_in A X.
-  Proof.
+  Proof using e HA.
     intros (M' & H1 & H2 & phi & H3 & H4).
     rewrite fol_all_uniform_after_spec in H3.
     exists (fom_specialize M'), H1.

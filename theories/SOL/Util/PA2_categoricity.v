@@ -7,8 +7,6 @@ From Undecidability.SOL.Util Require Import Syntax Subst Tarski PA2_facts.
 
 Import VectorNotations SubstNotations.
 
-Set Default Proof Using "Type".
-
 Unset Implicit Arguments.
 
 

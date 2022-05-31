@@ -18,8 +18,6 @@ From Undecidability Require Import TM.Code.List.Concat_Repeat.
 From Undecidability Require Import Cons_constant CaseCom CaseNat CaseList.
 
 
-Set Default Proof Using "Type".
-
 Module EncToBoollist.
   Section M.
     Import ProgrammingTools Combinators App CaseList CaseBool.

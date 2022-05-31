@@ -18,8 +18,6 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations decidable fol_ops membership hfs.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 (* * Construction of the Hereditary Finite Sets model *)

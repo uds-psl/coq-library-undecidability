@@ -8,8 +8,6 @@ Import ListAutomationNotations.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
-Set Default Proof Using "Type".
-
 Definition mu (p : nat -> Prop) :
   (forall x, dec (p x)) -> ex p -> sig p.
 Proof.

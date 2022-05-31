@@ -21,8 +21,6 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.Synthetic
   Require Import Definitions ReducibilityFacts.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 Local Infix "~p" := (@Permutation _) (at level 70).

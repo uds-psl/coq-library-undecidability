@@ -3,8 +3,6 @@ Require Import Undecidability.FOL.PA.
 Require Import Lia List Vector.
 Import Vector.VectorNotations.
 
-Set Default Proof Using "Type".
-
 Section FA_prv.
 
   Variable p : peirce.

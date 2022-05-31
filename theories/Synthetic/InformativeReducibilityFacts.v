@@ -1,7 +1,5 @@
 From Undecidability.Synthetic Require Import InformativeDefinitions DecidabilityFacts.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 (* ** Pre-order properties *)

@@ -136,7 +136,7 @@ Section Minsky.
   (* We define the semantics as in the paper ToCL 2013 (DLW & Galmiche) *)
 
   Local Definition s (x : eill_vars) (v : vec nat n) : Prop.
-  Proof.
+  Proof using P k.
     refine (match le_lt_dec n x with
                  | left H1  => match le_lt_dec (2*n) x with
                      | left _   => P // (x-2*n,v) ->> (k,vec_zero)
@@ -295,10 +295,10 @@ Section Minsky.
   Qed.
  
   Lemma Σ_zero c : In c Σ -> [[ ⦑c⦒  ]] vec_zero.
-  Proof. intros H; apply in_app_or in H as []; auto. Qed.
+  Proof using Hk. intros H; apply in_app_or in H as []; auto. Qed.
   
   Corollary ill_tps_Σ_zero : ill_tps_list s (map (fun c => !⦑c⦒) Σ) vec_zero.
-  Proof.
+  Proof using Hk.
     generalize Σ Σ_zero; intros S.
     induction S as [ | A S IHS ]; intros HS.
     + simpl; auto.
@@ -309,7 +309,7 @@ Section Minsky.
   Qed.
  
   Theorem lemma_5_5 v i : Σ; vec_map_list v rx ⊦ q i -> P // (i,v) ->> (k,vec_zero).
-  Proof.
+  Proof using Hk.
     intros H.
     apply G_eill_S_ill_wc in H.
     apply ill_tps_sound with (s := s) in H.
@@ -371,7 +371,7 @@ Section Minsky.
   Qed.
   
   Lemma lemma_5_3 i v : P // (i,v) ->> (k,vec_zero) -> Σ; vec_map_list v rx ⊦ q i.
-  Proof.
+  Proof using Hk.
     intros (r & Hr); revert i v Hr.
     induction r as [ | r IHr ]; intros i v Hr.
     + apply sss_steps_0_inv in Hr.
@@ -422,7 +422,7 @@ Section Minsky.
    
   Theorem G_eill_mm i v : P // (i,v) ->> (k,vec_zero) 
                       <-> Σ; vec_map_list v rx ⊦ q i.
-  Proof.
+  Proof using Hk.
     split.
     + apply lemma_5_3.
     + now apply lemma_5_5.

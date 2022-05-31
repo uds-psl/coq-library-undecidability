@@ -11,7 +11,8 @@
 
 (** * Halting problem for two counter Minsky machines MM2_HALTING  *)
 
-Require Import List Arith Relations.
+Require Import Relations.Relation_Operators.
+#[local] Open Scope list_scope.
 
 Set Implicit Arguments.
 

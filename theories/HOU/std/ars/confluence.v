@@ -7,8 +7,6 @@ Set Implicit Arguments.
 Require Import Morphisms FinFun.
 From Undecidability.HOU Require Import std.tactics std.misc std.ars.basic.
 
-Set Default Proof Using "Type".
-
 #[export] Hint Constructors star multiple counted : core.
 
 Section Confluence.

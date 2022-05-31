@@ -19,8 +19,6 @@ From Undecidability.H10.ArithLibs
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Local Notation power := (mscal mult 1).
 Local Notation expo := (mscal mult 1).
 

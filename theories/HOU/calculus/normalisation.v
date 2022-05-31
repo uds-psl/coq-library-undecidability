@@ -4,8 +4,6 @@ From Undecidability.HOU Require Import std.std.
 From Undecidability.HOU.calculus Require Import 
   prelim terms syntax semantics confluence typing order. 
 
-Set Default Proof Using "Type".
-
 (* * Weak Normalisation *)
 
 

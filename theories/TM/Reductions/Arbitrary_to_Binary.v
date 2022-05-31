@@ -6,7 +6,6 @@ Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
 From Undecidability Require Import ArithPrelim.
 Require Import Undecidability.Shared.FinTypeEquiv Undecidability.Shared.FinTypeForallExists.
 
-Set Default Proof Using "Type".
 Section fix_Sigma.
 
   Variable n : nat.

@@ -8,8 +8,6 @@ Local Set Implicit Arguments.
 Require Import Lia.
 
 
-Set Default Proof Using "Type".
-
 Ltac comp := repeat (progress (cbn in *; autounfold in *)).
 
 Section ND_def.

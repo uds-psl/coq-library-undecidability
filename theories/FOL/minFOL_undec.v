@@ -5,8 +5,6 @@ From Undecidability.FOL.Reductions Require H10UPC_to_FOL_minimal H10UPC_to_FSAT.
 From Undecidability.FOL.Reductions Require H10UPC_to_FOL_full_fragment.
 From Undecidability.Synthetic Require Import Definitions Undecidability ReducibilityFacts.
 
-Set Default Proof Using "Type".
-
 Definition minimalForm (ff:falsity_flag) := @form sig_empty sig_binary FragmentSyntax.frag_operators ff.
 
 

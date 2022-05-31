@@ -11,8 +11,6 @@ Require Import Arith Lia.
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Section nat_rev_ind.
 
   (* A reverse recursion principle *)

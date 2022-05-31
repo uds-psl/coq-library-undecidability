@@ -6,8 +6,6 @@ Import ListNotations.
 
 Tactic Notation "simplify" := Undecidability.HOU.std.tactics.simplify.  
 
-Set Default Proof Using "Type".
-
 (* * First-Order Unification *)
 
 (* ** Singlepoint Substitution *)

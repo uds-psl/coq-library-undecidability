@@ -20,8 +20,6 @@ From Undecidability.TRAKHTENBROT
 
 Import fol_notations.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 Local Notation ø := vec_nil.

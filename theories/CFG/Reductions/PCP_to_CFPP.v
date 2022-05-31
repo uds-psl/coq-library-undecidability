@@ -10,7 +10,6 @@ Require Import Undecidability.PCP.Util.PCP_facts.
 
 Require Import Undecidability.Synthetic.Definitions.
 
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
 (* * PCP to CFPP *)

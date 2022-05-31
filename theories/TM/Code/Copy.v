@@ -12,7 +12,6 @@ From Undecidability Require Import TM.Lifting.LiftAlphabet.
 
 
 Local Generalizable All Variables.
-Set Default Proof Using "Type".
 
 
 (* Don't simplify [skipn (S n) xs]; only, if the number and the lists are constructors *)

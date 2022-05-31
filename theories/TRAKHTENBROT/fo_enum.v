@@ -21,8 +21,6 @@ From Undecidability.TRAKHTENBROT
 
 Import fol_notations.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 (* * Enumerability of the type of FO formulas *)

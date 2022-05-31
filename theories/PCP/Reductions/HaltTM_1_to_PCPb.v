@@ -18,6 +18,7 @@ From Undecidability.Shared.Libs.DLW
 
 Require Import Undecidability.Synthetic.Undecidability.
 Require Import Undecidability.Synthetic.ReducibilityFacts.
+Require Import Undecidability.Synthetic.MoreReducibilityFacts.
 
 Require Import Undecidability.TM.TM.
 

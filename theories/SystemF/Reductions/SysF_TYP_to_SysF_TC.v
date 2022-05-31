@@ -19,7 +19,6 @@ From Undecidability.SystemF.Util Require Import Facts poly_type_facts pure_term_
 
 Require Import ssreflect ssrbool ssrfun.
 
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
 Module Argument.

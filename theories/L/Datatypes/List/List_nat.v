@@ -2,8 +2,6 @@ From Undecidability.L.Tactics Require Import LTactics.
 From Undecidability.L Require Import UpToC.
 From Undecidability.L.Datatypes Require Export List.List_enc LNat LOptions LBool.
 
-Set Default Proof Using "Type".
-
 Definition c__ntherror := 15.
 Definition nth_error_time (X : Type) (A : list X) (n : nat) := (min (length A) n + 1) * c__ntherror. 
 #[global]

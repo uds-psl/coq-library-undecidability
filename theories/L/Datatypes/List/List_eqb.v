@@ -4,8 +4,6 @@ From Undecidability.L Require Import Functions.EqBool.
 
 From Undecidability.L.Datatypes Require Export List.List_enc LBool LOptions LNat.
 
-Set Default Proof Using "Type".
-
 Section Fix_X.
   Variable (X:Type).
   Context {intX : registered X}.

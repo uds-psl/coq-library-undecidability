@@ -93,7 +93,6 @@ Require Import ssreflect ssrbool ssrfun.
 Require Import Undecidability.CounterMachines.Util.Facts.
 
 Set Default Goal Selector "!".
-Set Default Proof Using "Type".
 
 Section Construction.
 Variable M : Mpm2.

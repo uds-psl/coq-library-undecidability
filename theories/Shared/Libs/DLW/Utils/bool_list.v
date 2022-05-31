@@ -261,7 +261,7 @@ Set Implicit Arguments.
     Qed.
 
     Fact lb_pointwise_mono_left l m k : l ⪯  m -> lb_pointwise k l ⪯   lb_pointwise k m.
-    Proof.
+    Proof using Hf1 Hf2.
       intros H; revert m H k.
       induction l as [ | x l IHl ]; intros m H k; auto.
       destruct m as [ | y m ].

@@ -19,8 +19,6 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 (* Standard De Bruijn extension and De Bruijn projection *)
 
 (* Fixpoint instead of Definition because of better unfolding properties *)

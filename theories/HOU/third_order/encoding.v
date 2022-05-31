@@ -4,8 +4,6 @@ Require Import RelationClasses Morphisms List Lia
 From Undecidability.HOU Require Import std.std calculus.calculus third_order.pcp.
 Import ListNotations.
 
-Set Default Proof Using "Type".
-
 (* * Third-Order Encoding *)
 Section Encoding.
 

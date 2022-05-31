@@ -22,8 +22,6 @@ From Undecidability.MuRec Require Import recalg ra_utils recomp ra_recomp ra_dio
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Local Notation "P /MM/ s ↓" := (sss_terminates (@mm_sss _) P s) (at level 70, no associativity).
 Local Notation "l '/F/' x ↓" := (fractran_terminates l x) (at level 70, no associativity).
 Local Notation "'⟦' p '⟧'" := (fun φ ν => dp_eval φ ν p).

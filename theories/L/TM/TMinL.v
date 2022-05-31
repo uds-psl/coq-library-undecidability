@@ -5,8 +5,6 @@ From Undecidability.TM Require Import TM_facts.
 
 Require Import Undecidability.L.TM.TMinL.TMinL_extract.
 
-Set Default Proof Using "Type".
-
 Definition Halt' (Sigma : finType) n (M: TM Sigma n) (start: mconfig Sigma (state M) n) :=
   exists (f: mconfig _ (state M) _), halt (cstate f)=true /\ exists k, loopM start k = Some f.
 

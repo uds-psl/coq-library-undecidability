@@ -22,8 +22,6 @@ Import fol_notations.
 
 Require Import Undecidability.Shared.ListAutomation.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 Local Infix "∊" := In (at level 70, no associativity).

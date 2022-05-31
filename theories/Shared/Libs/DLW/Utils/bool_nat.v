@@ -1203,10 +1203,10 @@ Local Reserved Notation "'⟬' x '⟭'".
     Proof. rewrite Hr; apply (@power_mono_l 1 _ 2); lia. Qed.
 
     Fact nat_meet_powers_eq i a b : (a*power i r)⇣(b*power i r) = (a⇣b)*power i r.
-    Proof. rewrite Hr, <- power_mult, nat_meet_mult_power2; auto. Qed.
+    Proof using Hr. rewrite Hr, <- power_mult, nat_meet_mult_power2; auto. Qed.
 
     Fact binary_power_split i a : { u : nat & { v | a = u⇡(v*power i r) /\ forall k, u⇣(k*power i r) = 0 } }.
-    Proof.
+    Proof using Hq Hr.
       destruct (@euclid a (power i r)) as (u & v & H1 & H2).
       + generalize (@power_ge_1 i r); intros; lia.
       + exists v, u.
@@ -1222,7 +1222,7 @@ Local Reserved Notation "'⟬' x '⟭'".
         
 
     Fact binary_le_power_inv i a b : a ≲ b * power i r -> { a' | a = a' * power i r /\ a' ≲ b }.
-    Proof.
+    Proof using Hq Hr.
       intros H.
       destruct (binary_power_split i a) as (u & v & H1 & H2).
       exists (v⇣b).
@@ -1254,7 +1254,7 @@ Local Reserved Notation "'⟬' x '⟭'".
       Qed.
 
       Fact nat_meet_powers_neq i j a b : i <> j -> a < r -> b < r -> (a*power i r)⇣(b*power j r) = 0.
-      Proof.
+      Proof using Hq Hr.
         intros Hij Ha Hb.
         destruct (lt_eq_lt_dec i j) as [ [] | ]; try lia.
         + apply nat_meet_neq_powers; auto.
@@ -1268,7 +1268,7 @@ Local Reserved Notation "'⟬' x '⟭'".
                  (forall i, i < n -> f i < r) 
               -> (forall i j, i < n -> j < n -> e i = e j -> i = j)
               -> sum_powers r n f e = ⇧ r n f e.
-    Proof.
+    Proof using Hq Hr.
       revert f e; induction n as [ | n IHn ]; intros f e H1 H2.
       + do 2 rewrite msum_0; auto.
       + rewrite msum_S.
@@ -1299,7 +1299,7 @@ Local Reserved Notation "'⟬' x '⟭'".
       Qed.
 
       Fact double_sum_powers_ortho : ∑ n (fun i => sum_powers r i (f i) (e i)) = msum nat_join 0 n (fun i => ⇧ r i (f i) (e i)).
-      Proof.
+      Proof using Hq Hr Hf He.
         rewrite nat_ortho_sum_join.
         + apply msum_ext; intros; apply dsmpo_1; auto.
         + intros; do 2 (rewrite dsmpo_1; auto).
@@ -1311,7 +1311,7 @@ Local Reserved Notation "'⟬' x '⟭'".
     End double_sum_powers_ortho.
 
     Fact sinc_injective n f : (forall i j, i < j < n -> f i < f j) -> forall i j, i < n -> j < n -> f i = f j -> i = j.
-    Proof.
+    Proof using Hq Hr.
       intros Hf i j Hi Hj E.
       destruct (lt_eq_lt_dec i j) as [ [] | ]; auto.
       + generalize (Hf i j); intros; lia.
@@ -1329,7 +1329,7 @@ Local Reserved Notation "'⟬' x '⟭'".
 
       Fact meet_sum_powers : (sum_powers r n f e)⇣(sum_powers r n g e) 
                            = sum_powers r n (fun i => f i ⇣ g i) e.
-      Proof.
+      Proof using Hf Hg He Hq Hr.
         generalize (sinc_injective _ He); intros H0.
         simpl; do 3 (rewrite sum_powers_ortho; auto).
         rewrite nat_meet_joins.
@@ -1346,7 +1346,7 @@ Local Reserved Notation "'⟬' x '⟭'".
       Qed.
 
       Fact binary_le_sum_powers : sum_powers r n f e ≲ sum_powers r n g e <-> forall i, i < n -> f i ≲ g i.
-      Proof.
+      Proof using Hf Hg He Hq Hr.
         rewrite binary_le_nat_meet, meet_sum_powers.
         split. 
         + intros E i Hi.
@@ -1365,7 +1365,7 @@ Local Reserved Notation "'⟬' x '⟭'".
          -> (forall i j, i < j < n -> f i < f j)
          -> (forall i, i < n -> a i < power p 2)  -> ∑ n (fun i => a i * power (f i) r) 
                                                    ≲ (power p 2-1) * ∑ n (fun i => power (f i) r).
-    Proof.
+    Proof using Hq Hr.
       intros H1 H2 H3.
       generalize (sinc_injective _ H2); intros H4.
       rewrite <- sum_0n_scal_l.
@@ -1395,7 +1395,7 @@ Local Reserved Notation "'⟬' x '⟭'".
                      /\ (forall i, i < k -> g i <> 0 /\ g i ≲ f (h i))
                      /\ (forall i, i < k -> h i < n)
                      /\ (forall i j, i < j < k -> h i < h j) } } }.
-    Proof.
+    Proof using Hq Hr.
       intros H1 H2 H3.
       generalize (sinc_injective _ H2); intros H0.
       simpl in H3; rewrite sum_powers_ortho in H3; auto.
@@ -1432,7 +1432,7 @@ Local Reserved Notation "'⟬' x '⟭'".
               -> (forall i j, i < j < n -> e i < e j)
               -> m ≲ sum_powers r n f e
               -> { g | m = sum_powers r n g e /\ forall i, i < n -> g i ≲ f i }.
-    Proof.
+    Proof using Hq Hr.
       intros H1 H2 H3.
       generalize (sinc_injective _ H2); intros H0.
       simpl in H3; rewrite sum_powers_ortho in H3; auto.
@@ -1460,7 +1460,7 @@ Local Reserved Notation "'⟬' x '⟭'".
          -> m ≲ (power p 2-1) * ∑ n (fun i => power (f i) r)
          -> exists a, m = ∑ n (fun i => a i * power (f i) r) 
                    /\ forall i, i < n -> a i < power p 2.
-    Proof.
+    Proof using Hq Hr.
       intros H1 H2 H3 H4.
       rewrite <- sum_0n_scal_l in H4.
       apply binary_le_sum_powers_inv in H4; auto.

@@ -1,7 +1,5 @@
 From Undecidability Require Import TM.Util.Prelim TM.Util.Relations TM.Util.TM_facts.
 
-Set Default Proof Using "Type".
-
 (* * Tapes-Lift *)
 
 

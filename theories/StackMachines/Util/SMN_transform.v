@@ -21,7 +21,6 @@ From Undecidability.StackMachines.Util Require Import Facts List_facts SMN_facts
 
 Require Import ssreflect ssrbool ssrfun.
 
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
 Local Definition rt_rt1n := @clos_rt_rt1n_iff Config.

@@ -17,8 +17,6 @@ Require Import Undecidability.DiophantineConstraints.H10C.
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Section dc_list_h10c.
 
   (* Reduction from (l,ν) an instance of a DIO_ELEM_PROBLEM 

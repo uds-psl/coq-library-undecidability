@@ -13,7 +13,6 @@ Require Import Undecidability.Synthetic.Definitions.
 Import RuleNotation.
 
 Set Default Goal Selector "!".
-Set Default Proof Using "Type".
 
 (* * SR to MPCP *)
 Section SR_to_MPCP.

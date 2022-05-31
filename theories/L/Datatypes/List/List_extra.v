@@ -2,8 +2,6 @@ From Undecidability.L.Tactics Require Import LTactics.
 From Undecidability.L Require Import UpToC.
 From Undecidability.L.Datatypes Require Export List_enc List_in List_basics LBool LNat.
 
-Set Default Proof Using "Type".
-
 Definition lengthEq A :=
   fix f (t:list A) n :=
     match n,t with

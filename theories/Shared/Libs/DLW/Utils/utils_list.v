@@ -176,7 +176,7 @@ Section list_injective.
   Hypothesis (HP1 : forall x l, ~ In x l -> P l -> P (x::l)).
   
   Theorem list_injective_rect l : list_injective l -> P l.
-  Proof.
+  Proof using HP0 HP1.
     induction l as [ [ | x l ] IHl ] using (measure_rect (@length _)).
     intro; apply HP0.
     intros; apply HP1.
@@ -486,7 +486,7 @@ Section prefix. (* as an inductive predicate *)
               (HP1 : forall x l ll, l <p ll -> P l ll -> P (x::l) (x::ll)).
               
     Definition prefix_rect l ll : prefix l ll -> P l ll.
-    Proof.
+    Proof using HP0 HP1.
       revert l; induction ll as [ | x ll IHll ]; intros l H.
       
       replace l with (nil : list X).
@@ -606,7 +606,7 @@ Section list_first_dec.
   
   Theorem list_choose_dec ll : { l : _ & { x : _ & { r | ll = l++x::r /\ P x /\ forall y, In y l -> ~ P y } } }
                              + { forall x, In x ll -> ~ P x }.
-  Proof.
+  Proof using Pdec.
     induction ll as [ | a ll IH ];
       [ | destruct (Pdec a) as [ Ha | Ha ]; [ | destruct IH as [ (l & x & r & H1 & H2 & H3) | H ]] ].
     * right; intros _ [].
@@ -617,7 +617,7 @@ Section list_first_dec.
   Qed.
   
   Theorem list_first_dec a ll : P a -> In a ll -> { l : _ & { x : _ & { r | ll = l++x::r /\ P x /\ forall y, In y l -> ~ P y } } }.
-  Proof.
+  Proof using Pdec.
     intros H1 H2.
     destruct (list_choose_dec ll) as [ H | H ]; trivial.
     destruct (H _ H2 H1).
@@ -630,7 +630,7 @@ Section list_dec.
   Variable (X : Type) (P Q : X -> Prop) (H : forall x, { P x } + { Q x }).
   
   Theorem list_dec l : { x | In x l /\ P x } + { forall x, In x l -> Q x }.
-  Proof.
+  Proof using H.
     induction l as [ | x l IHl ].
     + right; intros _ [].
     + destruct (H x) as [ Hx | Hx ].
@@ -866,7 +866,7 @@ Section list_discrim.
   Variable (X : Type) (P Q : X -> Prop) (PQdec : forall x, { P x } + { Q x}).
 
   Definition list_discrim l : { lP : _ & { lQ | l ~p lP++lQ /\ Forall P lP /\ Forall Q lQ } }.
-  Proof.
+  Proof using PQdec.
     induction l as [ | x l (lP & lQ & H1 & H2 & H3) ].
     + exists nil, nil; simpl; auto.
     + destruct (PQdec x) as [ H | H ].

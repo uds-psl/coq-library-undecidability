@@ -15,8 +15,6 @@ From Undecidability.Shared.Libs.DLW.Utils
 From Undecidability.TRAKHTENBROT
   Require Import notations.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 (* * Kleene's greatest fixpoint of lia-continous operators *)

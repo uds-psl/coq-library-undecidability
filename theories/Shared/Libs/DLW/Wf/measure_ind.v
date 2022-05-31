@@ -64,14 +64,14 @@ Section measure_rect.
       of Acc irrelevant functionals *)
 
   Let Fix_F_Acc_irr : forall x f g, @Fix_F x f = Fix_F g.
-  Proof.
+  Proof using F_ext.
     apply Acc_irrelevance.
     intros; apply F_ext; auto.
   Qed.
 
   Theorem measure_rect_fix x : 
           measure_rect x = @F x (fun y _ => measure_rect y).
-  Proof.
+  Proof using F_ext.
     unfold measure_rect; rewrite Fix_F_fix.
     apply F_ext.
     intros; apply Fix_F_Acc_irr.
@@ -104,7 +104,7 @@ Section measure_double_rect.
     Let Q c := match c with (x,y) => P x y end.
 
     Theorem measure_double_rect_paired x y : P x y.
-    Proof.
+    Proof using F.
       change (Q (x,y)).
       generalize (x,y); clear x y; intros c.
 
@@ -154,7 +154,7 @@ Section measure_double_rect.
 
     Theorem measure_double_rect_fix x y : 
              measure_double_rect x y = @F x y (fun x' y' _ => measure_double_rect x' y').
-    Proof.
+    Proof using F_ext.
       unfold measure_double_rect; rewrite Fix_F_2_fix.
       apply F_ext.
       intros; apply Fix_F_2_Acc_irr.

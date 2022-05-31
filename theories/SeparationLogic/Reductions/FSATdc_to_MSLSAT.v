@@ -10,7 +10,6 @@ From Undecidability.Shared Require Import Dec.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
 
 Set Default Goal Selector "!".
-Set Default Proof Using "Type".
 
 
 

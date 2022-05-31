@@ -24,8 +24,6 @@ From Undecidability.TRAKHTENBROT
                  fol_ops fo_sig fo_terms fo_logic fo_sat 
                  Sig1_1 red_utils.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 Unset Strict Implicit.
 

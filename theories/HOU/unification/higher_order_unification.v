@@ -4,8 +4,6 @@ Import ListNotations.
 From Undecidability.HOU.calculus Require Import 
   prelim terms syntax semantics equivalence typing order evaluator. 
 
-Set Default Proof Using "Type".
-
 (* * Higher-Order Unification *)
 Section UnificationDefinitions.
 

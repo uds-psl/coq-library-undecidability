@@ -9,8 +9,6 @@
 Require Import Arith Lia List.
 From Undecidability.DiophantineConstraints Require Import H10C.
 
-Set Default Proof Using "Type".
-
 (** Utils for H10UPC *)
 
 (** This section contains useful functions and lemmas for proofs later on. *)

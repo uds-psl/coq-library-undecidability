@@ -43,8 +43,6 @@ From Undecidability.TRAKHTENBROT
                                                f_n and R_1 occur into Σ *)
                  .
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 (* * Collection of high-level synthetic undecidability results *)

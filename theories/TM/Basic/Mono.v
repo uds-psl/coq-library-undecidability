@@ -1,7 +1,5 @@
 From Undecidability.TM Require Import Util.TM_facts.
 
-Set Default Proof Using "Type".
-
 (* * Basic 1-Tape Machines *)
 
 

@@ -3,8 +3,6 @@ From Undecidability.L Require Import UpToC.
 From Undecidability.L.Datatypes Require Export List.List_enc LBool LNat.
 From Undecidability.Shared.Libs.PSL.Lists Require Export Filter.
 
-Set Default Proof Using "Type".
-
 Definition c__app := 16.
 #[global]
 Instance termT_append X {intX : registered X} : computableTime' (@List.app X) (fun A _ => (5,fun B _ => (length A * c__app + c__app,tt))).

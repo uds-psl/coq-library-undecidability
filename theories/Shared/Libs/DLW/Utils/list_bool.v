@@ -222,7 +222,7 @@ Section list_bool_succ_rect.
   Qed.
 
   Theorem list_bool_succ_rect : forall l, P l.
-  Proof. intro; apply list_bool_succ_rec with (1 := eq_refl). Qed.
+  Proof using HP0 HPS. intro; apply list_bool_succ_rec with (1 := eq_refl). Qed.
 
 End list_bool_succ_rect.
 

@@ -6,8 +6,6 @@ From Undecidability Require Import TM.Lifting.Lifting.
 
 From Undecidability Require Import TM.Compound.TMTac.
 
-Set Default Proof Using "Type".
-
 (* * Simple compound multi-tape Machines *)
 
 

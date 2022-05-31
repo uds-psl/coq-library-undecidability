@@ -36,7 +36,7 @@ Section Sig_remove_symbols.
       and add an (interpreted) equality *)
 
   Definition Σnosyms : fo_signature.
-  Proof.
+  Proof using Σ.
     exists Empty_set (unit + (syms Σ + rels Σ))%type.
     + intros [].
     + intros [ | [ s | r ] ].
@@ -273,7 +273,7 @@ Section Sig_remove_symbols.
   Local Fact fol_rel_fun_spec s φ : 
              fol_sem M φ (fol_rel_fun s) 
          <-> graph_fun (fun v x => fom_rels M (inr (inl s)) (x##v)).
-  Proof.
+  Proof using HM.
     unfold fol_rel_fun; simpl; split.
     + intros H v x y H1 H2.
       specialize (H x y).
@@ -328,7 +328,7 @@ Section Sig_remove_symbols.
   Local Fact fol_rels_are_functions_spec ls φ : 
              fol_sem M φ (fol_rels_are_functions ls) 
          <-> forall s, In s ls -> is_graph_function (fun v x => fom_rels M (inr (inl s)) (x##v)).
-  Proof.
+  Proof using HM.
     unfold fol_rels_are_functions.
     rewrite fol_sem_lconj; split.
     + intros H s Hs; red.
@@ -402,14 +402,11 @@ Section completeness.
       rewrite fol_rels_are_functions_spec in HM; auto.
     Qed.
 
-    Let HA : fol_sem M φ (fol_rem_syms A).
-    Proof. simpl in HM; apply proj2 in HM; auto. Qed.
-
     Let F (s : syms Σ) : In s ls -> { f | forall v x, fom_rels M (inr (inl s)) (x##v) <-> x = f v }.
     Proof. intro; apply graph_tot_reif; auto. Qed.
 
     Local Definition Σsyms_Σnosyms_rev_model : fo_model Σ X.
-    Proof.
+    Proof using Xfin Mdec He HM Hls.
       split.
       + intros s.
         destruct (Hls s) as [ H | H ].
@@ -419,8 +416,11 @@ Section completeness.
         exact (fom_rels M (inr (inr r))).
     Defined.
 
+    Let HA : fol_sem M φ (fol_rem_syms A).
+    Proof. simpl in HM; apply proj2 in HM; auto. Qed.
+
     Local Fact Σsyms_Σnosyms_complete_nested : fol_sem Σsyms_Σnosyms_rev_model φ A.
-    Proof.
+    Proof using Xfin Mdec He HM Hls HAls.
       apply fol_rem_syms_spec.
       revert HA.
       apply fo_model_projection' with (i := fun x => x) (j := fun x => x) (ls := nil) 
@@ -448,7 +448,7 @@ Section completeness.
   Theorem Σsyms_Σnosyms_complete : 
           @fo_form_fin_dec_eq_SAT_in (Σnosyms Σ) e eq_refl (Σsyms_Σnosyms ls A) X
        -> fo_form_fin_discr_dec_SAT_in A X.
-  Proof.
+  Proof using Hls HAls.
     intros (M & H1 & H2 & H3 & phi & H5).
     cbn in H3.
     exists.

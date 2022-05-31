@@ -10,7 +10,6 @@ Require Import PeanoNat Lia.
 Require Import List ssreflect ssrbool ssrfun.
 Import ListNotations SBTMNotations.
 
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
 #[local] Notation "| a |" := (Vector.cons _ a 0 (Vector.nil _)).

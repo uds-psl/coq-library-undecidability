@@ -15,8 +15,6 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.MinskyMachines.MM
   Require Import mm_defs. 
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 Tactic Notation "rew" "length" := autorewrite with length_db.

@@ -16,8 +16,6 @@ Local Unset Strict Implicit.
 
 Require Import Morphisms.
 
-Set Default Proof Using "Type".
-
 (* ** Internal axioms *)
 
 Section ZF.

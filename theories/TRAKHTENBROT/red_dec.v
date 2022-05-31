@@ -36,8 +36,6 @@ From Undecidability.TRAKHTENBROT
                  Sig1_1
                  Sig_discernable.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 Unset Strict Implicit.
 

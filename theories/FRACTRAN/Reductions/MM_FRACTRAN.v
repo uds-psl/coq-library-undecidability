@@ -21,8 +21,6 @@ From Undecidability.FRACTRAN
 Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 Section MM_HALTING_FRACTRAN_ALT_HALTING.

@@ -4,7 +4,6 @@ From Undecidability.L.Functions Require Import Encoding Equality.
 From Undecidability.L.Datatypes Require Import LNat Lists LProd.
 Require Import Undecidability.Shared.Libs.PSL.Base Nat List Datatypes.
 
-Set Default Proof Using "Type".
 Import Nat.
 (* ** Enumeratibility of L-terms *)
 #[global]

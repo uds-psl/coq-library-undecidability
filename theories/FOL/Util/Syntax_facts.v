@@ -11,8 +11,6 @@ Local Notation vec := t.
 
 From Undecidability Require Export FOL.Util.Syntax.
 
-Set Default Proof Using "Type".
-
 Section fix_signature.
 
   Context {Σ_funcs : funcs_signature}.

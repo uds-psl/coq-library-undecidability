@@ -253,7 +253,7 @@ Section finite.
     Variable (X : Type) (P : X -> Prop) (Pdec : forall x, { P x } + { ~ P x }).
     
     Theorem fin_t_dec Q : @fin_t X Q -> fin_t (fun x => P x /\ Q x).
-    Proof.
+    Proof using Pdec.
       intros (l & Hl).
       exists (filter (fun x => if Pdec x then true else false) l).
       intros x; rewrite filter_In, <- Hl.

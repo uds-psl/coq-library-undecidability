@@ -129,7 +129,7 @@ Section comp.
     Theorem compiler_sound i1 v1 i2 v2 w1 :
                       v1 ⋈ w1 /\ P /X/ (i1,v1) ->> (i2,v2)
         -> exists w2, v2 ⋈ w2 /\ Q /Y/ (linker i1,w1) ->> (linker i2,w2).
-    Proof.
+    Proof using HPQ Hilen Hicomp.
       change i1 with (fst (i1,v1)) at 2; change v1 with (snd (i1,v1)) at 1.
       change i2 with (fst (i2,v2)) at 2; change v2 with (snd (i2,v2)) at 2.
       generalize (i1,v1) (i2,v2); clear i1 v1 i2 v2.
@@ -163,7 +163,7 @@ Section comp.
                         /\ P /X/ st1 ->> st2
                         /\ Q /Y/ w2 -[q]-> w3
                         /\ q < p.
-    Proof.
+    Proof using HPQ Hicomp Hilen step_Y_fun step_X_tot.
       revert st1 w1 w3; intros (i1,v1) (j1,w1) (j3,w3); simpl fst; simpl snd.
       intros H1 H2 H3 H4 H5.
       destruct (in_code_subcode H3) as (I & HI).
@@ -198,7 +198,7 @@ Section comp.
 
     Theorem compiler_complete i1 v1 w1 : 
           v1 ⋈ w1 -> Q /Y/ (linker i1,w1) ↓ -> P /X/ (i1,v1) ↓.
-    Proof.
+    Proof using HPQ Hicomp Hilen step_Y_fun step_X_tot.
       intros H1 (st & (q & H2) & H3). 
       revert i1 v1 w1 H1 H2 H3.
       induction q as [ q IHq ] using (well_founded_induction lt_wf).
@@ -218,7 +218,7 @@ Section comp.
                             v1 ⋈ w1 /\ Q /Y/ (linker i1,w1) ~~> st
         -> exists i2 v2 w2, v2 ⋈ w2 /\ P /X/ (i1,v1) ~~> (i2,v2)
                                     /\ Q /Y/ (linker i2,w2) ~~> st.
-    Proof.
+    Proof using HPQ Hicomp Hilen step_Y_fun step_X_tot.
       intros (H1 & H2).
       destruct compiler_complete with (1 := H1) (2 := ex_intro (fun x => Q /Y/ (linker i1, w1) ~~> x) _ H2)
         as ((i2,v2) & H3 & H4).
@@ -253,7 +253,7 @@ Section comp.
   Proof. unfold iP, cP; destruct P; auto. Qed.
 
   Fact gen_linker_out i : out_code i (iP,cP) -> lnk i = iQ+length cQ.
-  Proof.
+  Proof using Hilen.
     intros H.
     unfold lnk.
     rewrite linker_out_err; unfold err; simpl; auto.
@@ -264,7 +264,7 @@ Section comp.
   Theorem gen_compiler_sound i1 v1 i2 v2 w1 : 
                     v1 ⋈ w1 /\ (iP,cP) /X/ (i1,v1) ~~> (i2,v2)
       -> exists w2, v2 ⋈ w2 /\ (iQ,cQ) /Y/ (lnk i1,w1) ~~> (lnk i2,w2).
-  Proof.
+  Proof using Hilen Hicomp.
     intros (H1 & H2 & H3).
     destruct compiler_sound with (2 := conj H1 H2) (linker := gen_linker) (Q := (iQ,cQ))
       as (w2 & G1 & G2).
@@ -277,13 +277,13 @@ Section comp.
 
   Theorem gen_compiler_complete i1 v1 w1 :
             v1 ⋈ w1 -> (iQ,gen_compiler) /Y/ (gen_linker i1,w1) ↓ -> (iP,cP) /X/ (i1,v1) ↓.
-  Proof.
+  Proof using Hilen Hicomp step_Y_fun step_X_tot.
     apply compiler_complete, compiler_subcode; auto.
   Qed.
 
   Corollary gen_compiler_output v w i' v' : 
         v ⋈ w -> (iP,cP) /X/ (iP,v) ~~> (i',v') -> exists w', (iQ,gen_compiler) /Y/ (iQ,w) ~~> (code_end (iQ,cQ),w') /\ v' ⋈ w'.
-  Proof.
+  Proof using Hilen Hicomp.
     intros H H1.
     destruct gen_compiler_sound with (1 := conj H H1) as (w1 & H2 & H3).
     exists w1.
@@ -294,7 +294,7 @@ Section comp.
 
   Corollary gen_compiler_terminates v w : 
           v ⋈ w -> (iQ,gen_compiler) /Y/ (iQ,w) ↓ -> (iP,cP) /X/ (iP,v) ↓.
-  Proof.
+  Proof using Hilen Hicomp step_Y_fun step_X_tot.
     intros H (w' & H').
     apply gen_compiler_complete with (1 := H).
     unfold gen_linker; rewrite linker_code_start; auto; firstorder.
@@ -308,7 +308,7 @@ Section comp.
                 /\ (forall i1 v1 w1 i2 v2, v1 ⋈ w1 /\ P /X/ (i1,v1) ~~> (i2,v2)     -> exists w2,    v2 ⋈ w2 /\ Q /Y/ (lnk i1,w1) ~~> (lnk i2,w2)) 
                 /\ (forall i1 v1 w1 j2 w2, v1 ⋈ w1 /\ Q /Y/ (lnk i1,w1) ~~> (j2,w2) -> exists i2 v2, v2 ⋈ w2 /\ P /X/ (i1,v1) ~~> (i2,v2) /\ j2 = lnk i2) 
            } }.
-  Proof.
+  Proof using Hilen Hicomp step_Y_fun step_X_tot.
     exists lnk, (iQ,cQ); split; auto; split; [ | split ].
     + rewrite <- (linker_code_start ilen (iP,cP) iQ err); auto.
     + rewrite P_eq; apply gen_linker_out.

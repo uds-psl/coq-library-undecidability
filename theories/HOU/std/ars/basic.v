@@ -7,8 +7,6 @@ Set Implicit Arguments.
 Require Import Morphisms FinFun.
 From Undecidability.HOU Require Import std.tactics.
 
-Set Default Proof Using "Type".
-
 Section ClosureRelations.
   Variables (X: Type).
   Implicit Types (R S: X -> X -> Prop) (x y z : X).

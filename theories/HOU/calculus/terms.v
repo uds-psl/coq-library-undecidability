@@ -2,8 +2,6 @@
 From Undecidability.HOU Require Import std.std.
 From Undecidability.HOU Require Export unscoped.
 
-Set Default Proof Using "Type".
-
 Section Terms.
 
   Inductive type  : Type :=

@@ -8,8 +8,6 @@ From Undecidability.Shared Require Import ListAutomation.
 Require Export Lia.
 Import ListAutomationNotations.
 
-Set Default Proof Using "Type".
-
 (* Coercion var_term : fin >-> term. *)
 
 Notation "phi --> psi" := (Impl phi psi) (right associativity, at level 55).

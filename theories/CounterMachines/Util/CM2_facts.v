@@ -7,7 +7,6 @@ Require Import Undecidability.CounterMachines.CM2.
 Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
-Set Default Proof Using "Type".
 
 Definition path M k x := map (fun n => steps M n x) (seq 0 k).
 

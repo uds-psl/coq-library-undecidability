@@ -13,7 +13,6 @@ Require Export smpl.Smpl Lia.
 
 Global Open Scope vector_scope.
 
-
 Section Loop.
   Variable (A : Type) (f : A -> A) (p : A -> bool).
 
@@ -92,7 +91,7 @@ Section LoopLift.
   Lemma loop_lift (k : nat) (a a' : A) :
     loop (A := A) f  h  a        k = Some a' ->
     loop (A := B) f' h' (lift a) k = Some (lift a').
-  Proof.
+  Proof using halt_lift_comp step_lift_comp.
     revert a. induction k as [ | k']; intros; cbn in *.
     - rewrite halt_lift_comp. destruct (h a); now inv H.
     - rewrite halt_lift_comp. destruct (h a) eqn:E.
@@ -103,7 +102,7 @@ Section LoopLift.
   Lemma loop_unlift (k : nat) (a : A) (b' : B) :
     loop f' h' (lift a) k = Some b' ->
     exists a' : A, loop f h a k = Some a' /\ b' = lift a'.
-  Proof.
+  Proof using halt_lift_comp step_lift_comp.
     revert a b'. induction k as [ | k']; intros; cbn in *.
     - rewrite halt_lift_comp in H.
       exists a. destruct (h a) eqn:E; now inv H.
@@ -130,7 +129,7 @@ Section LoopMerge.
     loop f h  a1 k1      = Some a2 ->
     loop f h' a2 k2      = Some a3 ->
     loop f h' a1 (k1+k2) = Some a3.
-  Proof.
+  Proof using halt_comp.
     revert a1 a2 a3. induction k1 as [ | k1' IH]; intros a1 a2 a3 HLoop1 HLoop2; cbn in HLoop1.
     - now destruct (h a1); inv HLoop1.
     - destruct (h a1) eqn:E.
@@ -144,7 +143,7 @@ Section LoopMerge.
       loop f h  a1 k1 = Some a2 /\
       loop f h' a2 k2 = Some a3 /\
       k1 + k2 <= k.
-  Proof.
+  Proof using halt_comp.
     revert a1 a3. revert k; refine (size_recursion id _); intros k IH. intros a1 a3 HLoop. cbv [id] in *.
     destruct k as [ | k']; cbn in *.
     - destruct (h' a1) eqn:E; inv HLoop.
