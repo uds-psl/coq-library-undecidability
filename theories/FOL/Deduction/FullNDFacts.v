@@ -506,4 +506,89 @@ Section TheoryManipulation.
     intros ?. use_theory [phi]. 2:apply Ctx; now left.
     intros psi [->|[]]. apply H.
   Qed.
+
+  Lemma Weak_T T1 T2 phi :
+    T1 ⊢T phi -> T1 ⊑ T2 -> T2 ⊢T phi.
+  Proof.
+    intros (A & HA1 & HA2) HT2. exists A. split. 2:easy. intros psi H; now apply HT2, HA1.
+  Qed.
 End TheoryManipulation.
+
+Section Closedness.
+
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+  Context {p : peirce} {ff : falsity_flag}.
+
+  Definition capture_subs n x := $(x + n).
+
+  Lemma capture_extract n A phi :
+    A ⊢ subst_form (capture_subs n) (capture All n phi) -> A ⊢ subst_form (capture_subs 0) phi.
+  Proof.
+    induction n; comp; intuition. apply IHn. apply (AllE (var n)) in H. rewrite subst_comp in H.
+    erewrite subst_ext. 1: apply H. intros [| x]; unfold capture_subs; cbn; f_equal; lia.
+  Qed.
+    
+  Context {Funcs_eq_dec : eq_dec Σ_funcs}.
+  Context {Preds_eq_dec : eq_dec Σ_preds}.
+
+  Lemma close_extract A phi :
+    A ⊢ close All phi -> A ⊢ phi.
+  Proof.
+    intros H. assert (Hclosed : closed (close All phi)) by apply close_closed.
+    unfold close in *. destruct (find_bounded phi) as [n Hn]; cbn in *.
+    erewrite <- subst_id with (sigma := fun x => $x) in H.
+    erewrite (@bounded_subst _ _ _ _ _ _ _ (capture_subs n)) in H.
+    2: exact Hclosed. 3:easy. 2: lia.
+    apply capture_extract in H. rewrite subst_id in H; intuition. unfold capture_subs. f_equal. lia.
+  Qed.
+
+End Closedness.
+
+Section DNFacts.
+
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+  Lemma DN A phi: A ⊢C (¬ (¬ phi)) -> A ⊢C phi.
+  Proof.
+    intros H. eapply IE. 1: apply Pc. eapply II.
+    apply Exp. eapply IE. 2: apply Ctx; now left.
+    eapply Weak. 1: apply H. intros a Ha; now right.
+  Qed.
+
+  Lemma XMc A (phi chi : form) : (phi::A) ⊢C chi -> ((¬ phi)::A) ⊢C chi -> A ⊢C chi.
+  Proof.
+    intros HA HB. eapply IE with ((phi → chi) → (¬phi → chi) → chi).
+    - eapply II. eapply IE. 1: eapply IE. 1: apply Ctx; now left.
+      1-2: eapply Weak; [eapply II|]. 1: apply HA. 2: apply HB. 1-2: intros a Ha; now right.
+    - eapply DN. apply II. eapply IE. 1: apply Ctx; now left. eapply II. eapply II.
+      eapply IE. 1: apply Ctx; now left.
+      eapply II. eapply IE. 1: apply Ctx; do 3 right; now left. do 2 eapply II.
+      eapply IE. 1: apply Ctx; right; now left.
+      apply Ctx; now eauto.
+  Qed.
+
+  Lemma XM A (phi : form) : A ⊢C (phi ∨ ¬ phi).
+  Proof.
+    apply (@XMc _ phi).
+    - apply DI1, Ctx. now left.
+    - apply DI2, Ctx. now left.
+  Qed.
+
+End DNFacts.
+
+Section RefutationComp.
+  Context {Σ_funcs : funcs_signature} {Σ_preds : preds_signature}.
+  Context {HF : eq_dec Σ_funcs} {HP : eq_dec Σ_preds}.
+  
+  Lemma refutation_prv T phi :
+    T ⊢TC phi <-> (T ⋄ ¬ phi) ⊢TC ⊥.
+  Proof using HF HP.
+    split.
+    - intros (A & HA1 & HA2). use_theory (¬ phi :: A).
+      + intros psi [<-|Ha]. 1: now right. left. now apply HA1.
+      + eapply IE. 1: apply Ctx; now left. eapply Weak. 1: apply HA2. intros a Ha; now right.
+    - intros (A & HA1 & HA2) % prv_T_impl. use_theory A. now apply DN.
+  Qed.
+End RefutationComp.
+

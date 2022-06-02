@@ -83,6 +83,18 @@ Section fix_signature.
     apply (form_ind_subst' (ff := falsity_on)).
   Qed.
 
+  Lemma form_ind_falsity  (P : form falsity_on -> Prop) :
+    P falsity ->
+    (forall  (P0 : Σ_preds ) (t : t term (ar_preds P0)), P (atom P0 t)) ->
+    (forall  (b0 : binop) (f1 : form), P f1 -> forall f2 : form, P f2 -> P (bin b0 f1 f2)) ->
+    (forall (q : quantop) (f2 : form), P f2 -> P (quant q f2)) ->
+    forall (f4 : form), P f4.
+  Proof.
+    intros H1 H2 H3 H4 phi.
+    change ((fun ff => match ff with falsity_on => fun phi => P phi | _ => fun _ => True end) falsity_on phi).
+    induction phi; try destruct b; [apply H1|easy| apply H2|easy|apply H3|easy|apply H4]. 1: apply IHphi1; assumption. 1: apply IHphi2; assumption. apply IHphi; assumption.
+  Qed.
+
 End fix_signature.
 
 
@@ -743,6 +755,50 @@ Section Enumerability.
     apply enum_enumT. exists L_form. apply enum_form.
   Defined.
 
+  Definition list_enumerator_full_logic_sym (n:nat) := [FullSyntax.Conj; FullSyntax.Disj; FullSyntax.Impl].
+  Lemma enum_full_logic_sym : 
+    list_enumerator__T list_enumerator_full_logic_sym FullSyntax.full_logic_sym.
+  Proof.
+    intros [| |]; exists 0; cbn; eauto.
+  Qed.
+  Lemma enumT_full_logic_sym : enumerable__T FullSyntax.full_logic_sym.
+  Proof.
+    apply enum_enumT. eexists. apply enum_full_logic_sym.
+  Qed.
+
+  Definition list_enumerator_full_logic_quant (n:nat) := [FullSyntax.All; FullSyntax.Ex].
+  Lemma enum_full_logic_quant : 
+    list_enumerator__T list_enumerator_full_logic_quant FullSyntax.full_logic_quant.
+  Proof.
+    intros [|]; exists 0; cbn; eauto.
+  Qed.
+  Lemma enumT_full_logic_quant : enumerable__T FullSyntax.full_logic_quant.
+  Proof.
+    apply enum_enumT. eexists. apply enum_full_logic_quant.
+  Qed.
+
+  Definition list_enumerator_frag_logic_binop (n:nat) := [FragmentSyntax.Impl].
+  Lemma enum_frag_logic_binop : 
+    list_enumerator__T list_enumerator_frag_logic_binop FragmentSyntax.frag_logic_binop.
+  Proof.
+    intros []; exists 0; cbn; eauto.
+  Qed.
+  Lemma enumT_frag_logic_binop : enumerable__T FragmentSyntax.frag_logic_binop.
+  Proof.
+    apply enum_enumT. eexists. apply enum_frag_logic_binop.
+  Qed.
+
+  Definition list_enumerator_frag_logic_quant (n:nat) := [FragmentSyntax.All].
+  Lemma enum_frag_logic_quant : 
+    list_enumerator__T list_enumerator_frag_logic_quant FragmentSyntax.frag_logic_quant.
+  Proof.
+    intros []; exists 0; cbn; eauto.
+  Qed.
+  Lemma enumT_frag_logic_quant : enumerable__T FragmentSyntax.frag_logic_quant.
+  Proof.
+    apply enum_enumT. eexists. apply enum_frag_logic_quant.
+  Qed.
+
 End Enumerability.
 
 Definition enumT_form' {ff : falsity_flag} {Σ_funcs : funcs_signature} {Σ_preds : preds_signature} {ops : operators} :
@@ -755,3 +811,48 @@ Proof.
   apply enum_enumT in H2 as [L4 HL4].
   exists (L_form HL1 HL2 HL3 HL4). apply enum_form.
 Qed.
+
+Section FlagsTransport.
+
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+  Context {ops : operators}.
+
+  Fixpoint transport_form_to_falsity {ff:falsity_flag} (phi : form) : @form _ _ _ falsity_on :=
+    match phi with
+      falsity => falsity
+    | atom P v => atom P v
+    | bin b f1 f2 => bin b (transport_form_to_falsity f1) (transport_form_to_falsity f2)
+    | quant q f => quant q (transport_form_to_falsity f)
+    end.
+Print atom.
+
+  Fixpoint transport_form_from_falsity {ff:falsity_flag} (default : form) (phi : @form _ _ _ falsity_on) : form. 
+  Proof.
+  refine (
+    match phi in @form _ _ _ f return match f with falsity_on => @form _ _ _ ff | falsity_off => True end with
+      falsity => _
+    | atom P v => _
+    | bin b f1 f2 => _
+    | quant q f => _
+    end).
+  - exact default.
+  - destruct f. 1: easy. exact (atom P v).
+  - destruct f. 1: easy. exact (bin b (transport_form_from_falsity ff default f1) (transport_form_from_falsity ff default f2)).
+  - destruct f0. 1: easy. exact (quant q (transport_form_from_falsity ff default f)).
+  Defined.
+
+  Lemma transport_form_invert_from_to d (phi : @form _ _ _ falsity_off) : transport_form_from_falsity d (transport_form_to_falsity phi) = phi.
+  Proof.
+    remember falsity_off as Hff.
+    induction phi; cbn; try discriminate.
+    - eauto.
+    - rewrite IHphi1. 2:easy. now rewrite IHphi2.
+    - now rewrite IHphi.
+  Qed.
+
+End FlagsTransport.
+
+
+
+

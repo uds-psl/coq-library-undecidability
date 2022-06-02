@@ -82,6 +82,13 @@ Proof.
   intros []. cbv. now exists 0.
 Qed. 
 
+Definition False_enum (n : nat) : option False := None.
+Lemma enumerator__T_False :
+  enumerator__T False_enum False.
+Proof.
+  intros [].
+Qed. 
+
 Definition bool_enum (n : nat) := Some (if! n is 0 then true else false).
 Lemma enumerator__T_bool :
   enumerator__T bool_enum bool.
@@ -239,6 +246,8 @@ Qed.
 #[global] Existing Instance enumerator__T_prod.
 #[global] Existing Instance enumerator__T_option.
 #[global] Existing Instance enumerator__T_bool.
+#[global] Existing Instance enumerator__T_False.
+#[global] Existing Instance enumerator__T_unit.
 #[global] Existing Instance enumerator__T_nat.
 #[global] Existing Instance enumerator__T_sigT.
 #[global] Existing Instance enumerator__T_sigT2.

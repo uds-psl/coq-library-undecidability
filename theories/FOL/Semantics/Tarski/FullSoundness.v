@@ -63,6 +63,36 @@ Section Soundness.
     intros (A & H1 & H2) D I rho HI. apply (soundness H2).
     intros psi HP. apply HI, H1, HP.
   Qed.
+
+  Lemma sound_for_classical_model {p:peirce} {ff : falsity_flag} A phi (D : Type) (I : interp D) (rho : env D) : 
+    (forall rho phi, (rho ⊨ phi) \/ ~(rho ⊨ phi)) -> A ⊢ phi -> rho ⊫ A -> rho ⊨ phi.
+  Proof.
+    intros LEM HD. revert LEM rho. induction HD; cbn; intros LEM rho HA.
+    - intros Hphi. apply IHHD; trivial. intros ? []; subst. assumption. now apply HA.
+    - now apply IHHD1, IHHD2.
+    - intros d. apply IHHD; trivial. intros psi [psi'[<- H' % HA]] % in_map_iff.
+      eapply sat_comp. now comp.
+    - eapply sat_comp, sat_ext. 2: apply (IHHD LEM rho HA (eval rho t)). now intros [].
+    - exists (eval rho t). cbn. specialize (IHHD LEM rho HA).
+      apply sat_comp in IHHD. eapply sat_ext; try apply IHHD. now intros [].
+    - edestruct IHHD1 as [d HD]; eauto.
+      assert (H' : forall psi, phi = psi \/ psi el List.map (subst_form ↑) A -> (d.:rho) ⊨ psi).
+      + intros P [<-|[psi'[<- H' % HA]] % in_map_iff]; trivial. apply sat_comp. apply H'.
+      + specialize (IHHD2 LEM (d.:rho) H'). apply sat_comp in IHHD2. apply IHHD2.
+    - apply (IHHD LEM) in HA. firstorder.
+    - firstorder.
+    - firstorder.
+    - firstorder.
+    - firstorder.
+    - firstorder.
+    - firstorder.
+    - edestruct IHHD1; eauto.
+      + apply IHHD2; trivial. intros xi [<-|HX]; auto.
+      + apply IHHD3; trivial. intros xi [<-|HX]; auto.
+    - intros H. 
+      destruct (LEM rho phi) as [Ht|Hf]. 1:easy.
+      destruct (LEM rho psi) as [Ht2|Hf2]; tauto.
+  Qed.
  
   Hypothesis LEM : forall P, P \/ ~ P.
 

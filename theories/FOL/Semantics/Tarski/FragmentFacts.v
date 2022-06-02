@@ -164,4 +164,14 @@ Section TM.
     - destruct q; firstorder.
   Qed.
 
+  Fact TM_sat_decidable {ff} (rho : nat -> unit) (phi : form ff) :
+    rho ⊨ phi \/ ~(rho ⊨ phi).
+  Proof.
+    revert rho. induction phi; cbn; intros rho; eauto.
+    - destruct b0. destruct (IHphi1 rho), (IHphi2 rho); tauto.
+    - destruct q. destruct (IHphi (tt .: rho)).
+      + left; now intros [].
+      + right; intros Hcc. apply H, Hcc.
+  Qed.
+
 End TM.

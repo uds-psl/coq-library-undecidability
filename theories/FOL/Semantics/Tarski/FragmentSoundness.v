@@ -56,7 +56,7 @@ Section Soundness.
   Lemma classical_soundness (LEM:forall P:Prop, P \/ ~P) {ff : falsity_flag} A phi :
     A ⊢C phi -> valid_ctx A phi.
   Proof.
-    induction 1; intros D I rho HA; comp.
+    induction 1; intros D I rho HA; cbn.
     - intros Hphi. apply IHprv; trivial. intros ? []; subst. assumption. now apply HA.
     - now apply IHprv1, IHprv2.
     - intros d. apply IHprv; trivial. intros psi [psi'[<- H' % HA]] % in_map_iff.
@@ -68,6 +68,21 @@ Section Soundness.
       destruct (LEM (rho ⊨ phi)) as [Ht|Hf]. 1:easy.
       destruct (LEM (rho ⊨ psi)) as [Ht2|Hf2]; tauto.
   Qed.
+
+  Lemma sound_for_classical_model {p:peirce} {ff : falsity_flag} A phi (D : Type) (I : interp D) (rho : env D) : 
+    classical I -> A ⊢ phi -> rho ⊫ A -> rho ⊨ phi.
+  Proof.
+    intros LEM HD. revert LEM rho. induction HD; cbn; intros LEM rho HA.
+    - intros Hphi. apply IHHD. 1:easy. intros a [<-|Ha]; try easy. now apply HA.
+    - now apply IHHD1, IHHD2.
+    - intros d. apply IHHD; trivial. intros psi [psi'[<- H' % HA]] % in_map_iff.
+      eapply sat_comp. now comp.
+    - eapply sat_comp, sat_ext. 2: apply (IHHD LEM rho HA (eval rho t)). now intros [].
+    - apply (IHHD) in HA; cbn in *; eauto.
+    - apply HA, H.
+    - intros H. unfold classical in LEM. cbn in LEM. eapply LEM. exact H.
+  Qed.
+
 
 
 End Soundness.

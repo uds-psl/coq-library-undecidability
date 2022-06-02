@@ -378,6 +378,12 @@ Section TheoryManipulation.
     intros ?. use_theory [phi]. 2:apply Ctx; now left.
     intros psi [->|[]]. apply H.
   Qed.
+
+  Lemma Weak_T T1 T2 phi :
+    T1 ⊢T phi -> T1 ⊑ T2 -> T2 ⊢T phi.
+  Proof.
+    intros (A & HA1 & HA2) HT2. exists A. split. 2:easy. intros psi H; now apply HT2, HA1.
+  Qed.
 End TheoryManipulation.
 
 Section Closedness.
@@ -410,3 +416,64 @@ Section Closedness.
   Qed.
 
 End Closedness.
+
+Section DNFacts.
+
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+  Lemma DN A phi: A ⊢C (¬ (¬ phi)) -> A ⊢C phi.
+  Proof.
+    intros H. eapply IE. 1: apply Pc. eapply II.
+    apply Exp. eapply IE. 2: apply Ctx; now left.
+    eapply Weak. 1: apply H. intros a Ha; now right.
+  Qed.
+
+  Lemma XMc A (phi chi : form) : (phi::A) ⊢C chi -> ((¬ phi)::A) ⊢C chi -> A ⊢C chi.
+  Proof.
+    intros HA HB. eapply IE with ((phi → chi) → (¬phi → chi) → chi).
+    - eapply II. eapply IE. 1: eapply IE. 1: apply Ctx; now left.
+      1-2: eapply Weak; [eapply II|]. 1: apply HA. 2: apply HB. 1-2: intros a Ha; now right.
+    - eapply DN. apply II. eapply IE. 1: apply Ctx; now left. eapply II. eapply II.
+      eapply IE. 1: apply Ctx; now left.
+      eapply II. eapply IE. 1: apply Ctx; do 3 right; now left. do 2 eapply II.
+      eapply IE. 1: apply Ctx; right; now left.
+      apply Ctx; now eauto.
+  Qed.
+
+End DNFacts.
+
+Section RefutationComp.
+  Context {Σ_funcs : funcs_signature} {Σ_preds : preds_signature}.
+  Context {HF : eq_dec Σ_funcs} {HP : eq_dec Σ_preds}.
+  
+  Lemma refutation_prv T phi :
+    T ⊢TC phi <-> (T ⋄ ¬ phi) ⊢TC ⊥.
+  Proof using HF HP.
+    split.
+    - intros (A & HA1 & HA2). use_theory (¬ phi :: A).
+      + intros psi [<-|Ha]. 1: now right. left. now apply HA1.
+      + eapply IE. 1: apply Ctx; now left. eapply Weak. 1: apply HA2. intros a Ha; now right.
+    - intros (A & HA1 & HA2) % prv_T_impl. use_theory A. now apply DN.
+  Qed.
+End RefutationComp.
+
+Section FlagsTransport.
+  Context {Σ_funcs : funcs_signature} {Σ_preds : preds_signature}.
+
+
+(*
+  Lemma transport_prv_to_falsity {p:peirce} {ff:falsity_flag} A phi : 
+    prv (ff := falsity_off) A phi -> prv (ff := falsity_on) (map transport_form_to_falsity A) (transport_form_to_falsity phi).
+  Proof.
+  intros Hprv; induction Hprv; cbn.
+  - eapply II. apply IHHprv.
+  - eapply IE; eauto.
+  - eapply AllI; eauto.
+    rewrite map_map. rewrite map_map in *. erewrite map_ext. 1: apply IHHprv. intros a. cbn.
+    admit.
+  - eapply AllE.
+  - eapply Exp.
+  - eapply Ctx.
+  - eapply Pc. *)
+
+End FlagsTransport.

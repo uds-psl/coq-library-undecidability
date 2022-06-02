@@ -189,4 +189,19 @@ Section TM.
     - destruct q; firstorder. exact tt.
   Qed.
 
+  Fact TM_sat_decidable {ff} (rho : nat -> unit) (phi : form ff) :
+    rho ⊨ phi \/ ~(rho ⊨ phi).
+  Proof.
+    revert rho. induction phi as [|? ? ?|ff [| |] phi IHphi psi IHpsi|ff [|] phi IHphi]; cbn; intros rho; eauto; try tauto.
+    - destruct (IHphi rho), (IHpsi rho); tauto.
+    - destruct (IHphi rho), (IHpsi rho); tauto.
+    - destruct (IHphi rho), (IHpsi rho); tauto.
+    - destruct (IHphi (tt .: rho)).
+      + left; now intros [].
+      + right; intros Hcc. apply H, Hcc.
+    - destruct (IHphi (tt .: rho)).
+      + left; now exists tt.
+      + right; now intros [[] Hx].
+  Qed.
+
 End TM.

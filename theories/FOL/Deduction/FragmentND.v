@@ -32,7 +32,8 @@ Section ND_def.
 
   Definition tprv `{falsity_flag} `{peirce} (T : form -> Prop) phi :=
     exists A, (forall psi, psi el A -> T psi) /\ A ⊢ phi.
-    
+  Definition consistent (p : peirce)  (T : form -> Prop) := ~ tprv T ⊥.
+
 End ND_def.
 
 

@@ -811,8 +811,10 @@ FOL/Semantics/Kripke/FullSoundness.v
 
 FOL/Deduction/FragmentND.v
 FOL/Deduction/FragmentNDFacts.v
+FOL/Deduction/FragmentNDConsistency.v
 FOL/Deduction/FullND.v
 FOL/Deduction/FullNDFacts.v
+FOL/Deduction/FullNDConsistency.v
 
 FOL/Arithmetics/Signature.v
 FOL/Arithmetics/FA.v
@@ -909,5 +911,7 @@ FOL/Deduction/FullSequent.v
 FOL/Deduction/FullSequentFacts.v
 
 FOL/Completeness2/TarskiConstructions.v
+FOL/Completeness2/Consistency.v
+FOL/Completeness2/TarskiCompleteness.v
 
 

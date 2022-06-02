@@ -1,6 +1,7 @@
 (* * Tarski Semantics *)
 
 Require Export Undecidability.FOL.Syntax.Core.
+Require Import Undecidability.FOL.Syntax.Theories.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 Require Import Vector.
@@ -70,7 +71,17 @@ Section Defs.
   Context {Σ_preds : preds_signature}.
   Context {ff : falsity_flag}.
 
+  Definition classical D (I : interp D) :=
+    forall rho phi psi, rho ⊨ (((phi → psi) → phi) → phi).
+
+  Definition valid_theory_C (C : forall D (I:interp D), Prop) (T:theory) phi :=
+      forall D (I : interp D) rho, C D I -> (forall psi, T psi -> rho ⊨ psi) -> rho ⊨ phi.
+  Definition valid_ctx_C (C : forall D (I:interp D), Prop) A phi := 
+      forall D (I : interp D) rho, C D I -> rho ⊫ A -> rho ⊨ phi.
+  Definition valid_C (C : forall D (I:interp D), Prop) phi :=
+      forall D (I : interp D) rho, C D I -> rho ⊨ phi.
   Definition valid_ctx A phi := forall D (I : interp D) rho, rho ⊫ A -> rho ⊨ phi.
+  Definition valid_theory (T:theory) phi := forall D (I : interp D) rho, (forall psi, T psi -> rho ⊨ psi) -> rho ⊨ phi.
   Definition valid phi := forall D (I : interp D) rho, rho ⊨ phi.
   Definition valid_L A := forall D (I : interp D) rho, rho ⊫ A.
   Definition satis phi := exists D (I : interp D) rho, rho ⊨ phi.
