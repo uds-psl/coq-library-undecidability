@@ -1,5 +1,5 @@
-From Undecidability.H10 Require Import H10 H10_undec Dio.dio_single H10p.
-From Undecidability.Synthetic Require Import Undecidability.
+From Undecidability.H10 Require Import H10 Dio.dio_single H10p.
+Require Import Undecidability.Synthetic.Definitions.
 Require Import Fin.
 Local Set Implicit Arguments.
 

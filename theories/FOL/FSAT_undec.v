@@ -1,11 +1,13 @@
 From Undecidability.TRAKHTENBROT Require Import bpcp red_undec fo_sig.
 From Undecidability.Synthetic Require Import Undecidability ReducibilityFacts.
 From Undecidability.FOL Require Import FSAT Reductions.FSATd_to_FSATdc Reductions.TRAKHTENBROT_to_FSAT.
+From Undecidability.PCP Require Import PCP_undec.
 
 Theorem FSAT_undec :
   undecidable FSAT.
 Proof.
-  apply (undecidability_from_reducibility BPCP_problem_undec).
+  apply (undecidability_from_reducibility dPCPb_undec).
+  apply (reduces_transitive dPCPb_to_BPCP).
   eapply reduces_transitive; try apply reduction. 
   apply (@FULL_TRAKHTENBROT_non_informative (Σrel 2)). left. exists tt. auto.
 Qed.
@@ -13,7 +15,8 @@ Qed.
 Theorem FSATd_undec :
   undecidable FSATd.
 Proof.
-  apply (undecidability_from_reducibility BPCP_problem_undec).
+  apply (undecidability_from_reducibility dPCPb_undec).
+  apply (reduces_transitive dPCPb_to_BPCP).
   eapply reduces_transitive; try apply reduction_disc.
   eapply reduces_transitive; try apply (@FULL_TRAKHTENBROT_non_informative (Σrel 2)).
   - left. exists tt. auto.

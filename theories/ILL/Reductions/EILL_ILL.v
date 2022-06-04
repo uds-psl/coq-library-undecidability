@@ -9,7 +9,7 @@
 
 Require Import List.
 
-Require Import Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts.
 
 From Undecidability.ILL

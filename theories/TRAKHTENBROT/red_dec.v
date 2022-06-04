@@ -39,6 +39,7 @@ From Undecidability.TRAKHTENBROT
 Set Default Proof Using "Type".
 
 Set Implicit Arguments.
+Unset Strict Implicit.
 
 Local Infix "≢" := discernable (at level 70, no associativity).
 

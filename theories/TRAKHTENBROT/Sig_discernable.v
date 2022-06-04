@@ -27,6 +27,7 @@ From Undecidability.TRAKHTENBROT
 Set Default Proof Using "Type".
 
 Set Implicit Arguments.
+Unset Strict Implicit.
 
 Import fol_notations.
 

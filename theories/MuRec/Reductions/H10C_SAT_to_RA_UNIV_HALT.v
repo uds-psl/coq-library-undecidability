@@ -16,7 +16,7 @@ Require Import Undecidability.MuRec.RA_UNIV_HALT.
 
 Require Import Undecidability.DiophantineConstraints.H10C.
 
-Require Import Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 
 Set Implicit Arguments.
 

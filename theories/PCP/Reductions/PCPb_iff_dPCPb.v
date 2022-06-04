@@ -1,4 +1,4 @@
-Require Import Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 
 From Undecidability.PCP
   Require Import PCP Util.Facts PCPX_iff_dPCP.
