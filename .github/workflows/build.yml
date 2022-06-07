@@ -34,7 +34,6 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
         opam repo add coq-released https://coq.inria.fr/opam/released
-        opam repo add coq-core-dev https://coq.inria.fr/opam/core-dev
         opam update
         opam upgrade
         opam pin add -n -y -k git coq-metacoq-template.dev+8.15 "https://github.com/MetaCoq/metacoq.git#9493bb6"
