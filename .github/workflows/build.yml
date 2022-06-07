@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 env:
   OCAML_VERSION: 4.07.1+flambda
-  CACHE_KEY: opam-flambda-8.15-metacoqrepo-${{github.base_ref}}-${{github.ref}} 
+  CACHE_KEY: opam-flambda-8.15-clearcache-${{github.base_ref}}-${{github.ref}} 
 jobs:
   build-deps:
     runs-on: ubuntu-latest
@@ -16,7 +16,7 @@ jobs:
         path: "~/.opam"
         key: ${{env.CACHE_KEY}}
         restore-keys: |
-          opam-flambda-8.15-metacoqrepo--refs/heads/${{github.base_ref}}
+          opam-flambda-8.15-clearcache--refs/heads/${{github.base_ref}}
 
     - name: Install OCaml
       if: steps.cache.outputs.cache-hit != 'true'
