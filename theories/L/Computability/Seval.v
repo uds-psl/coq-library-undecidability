@@ -9,6 +9,11 @@ Proof.
   intros [v [R lv]]. exists t.  rewrite v. subst. split. reflexivity. auto.
 Qed.
 
+Lemma converges_eval s : converges s -> exists t, eval s t.
+Proof.
+  intros [x [R ?]]. exists x. eauto using equiv_lambda. 
+Qed.
+
 #[export] Hint Resolve eval_converges : core.
 
 (* * Step indexed evaluation *)

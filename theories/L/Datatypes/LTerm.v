@@ -1,6 +1,5 @@
 From Undecidability.L.Datatypes Require Export LNat.
-From Undecidability.L Require Export Util.L_facts.
-From Undecidability.L.Tactics Require Import LTactics GenEncode.
+From Undecidability.L.Tactics Require Import GenEncode.
 
 (* ** Encoding for L-terms *)
 MetaCoq Run (tmGenEncodeInj "term_enc" term).

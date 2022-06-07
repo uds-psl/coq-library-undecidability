@@ -71,15 +71,10 @@ Proof with Lproc.
   eexists. split. reflexivity. Lrewrite in R. apply enc_extinj in R. apply eva_equiv in R. split. apply equiv_lambda;try Lproc.  assumption. assumption. 
 Qed.
 
-Lemma eval_converges s : converges s -> exists t, eval s t.
-Proof.
-  intros [x [R ?]]. exists x. eauto using equiv_lambda. 
-Qed.
-
 Lemma Eval_converges s : converges s <-> converges (Eval (ext s)).
 Proof with eauto.
   split; intros H. 
-  - destruct (eval_converges H) as [t Ht].
+  - destruct (Seval.converges_eval H) as [t Ht].
     pose proof (eval_Eval Ht) as He.
     rewrite He. eexists;split;[reflexivity|Lproc].
  - destruct H as [x [H l]]. apply Eval_eval in H;try Lproc. destruct H as [t' [? t]]. exists t'. destruct t. split. now rewrite H0. auto.
