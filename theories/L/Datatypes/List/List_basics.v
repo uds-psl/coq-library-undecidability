@@ -1,5 +1,4 @@
 From Undecidability.L.Tactics Require Import LTactics.
-From Undecidability.L Require Import UpToC.
 From Undecidability.L.Datatypes Require Export List.List_enc LBool LNat.
 From Undecidability.Shared.Libs.PSL.Lists Require Export Filter.
 
@@ -30,13 +29,6 @@ Lemma map_time_const {X} c (xs:list X):
   map_time (fun _ => c) xs = length xs * (c + c__map) + c__map.
 Proof.
   induction xs;cbn. all:lia.
-Qed.
-
-Lemma mapTime_upTo X (t__f : X -> nat):
-  map_time t__f <=c (fun l => length l + sumn (map t__f l) + 1 ).
-Proof.
-  unfold map_time. exists c__map; unfold c__map. 
-  induction x; cbn - [plus mult]; nia.
 Qed.
 
 #[global]
@@ -111,36 +103,5 @@ Section concat.
     specialize (rev_concat_rev xs acc) as H1%(f_equal (@length _)).
     autorewrite with list in H1. nia.
   Qed.
-
-  
-  Lemma _term_rev_concat :
-    { time : UpToC (fun l => sumn (map (@length _) l) + length l + 1) &
-             computableTime' (@rev_concat) (fun _ _ => (5,fun l _ => (time l,tt)))}.
-  Proof.      
-    evar (c1 : nat).
-    exists_UpToC (fun l => c1 * (sumn (map (@length _) l) + length l + 1) ).
-    { extract. recRel_prettify2.
-      all:cbn - [plus mult].
-      all:enough (c1>=20) by nia.
-      instantiate (c1:=20). all:subst c1;nia. 
-    }
-    smpl_upToC_solve.
-  Qed.
-  Global Instance term_rev_concat : computableTime' rev_concat _ := projT2 _term_rev_concat.
-
-  
-  Lemma _term_concat :
-    { time : UpToC (fun l => sumn (map (@length _) l) + length l + 1) &
-             computableTime' (@concat X) (fun l _ => (time l,tt))}.
-  Proof.
-    eexists_UpToC time. [time]: intros x.
-    eapply computableTimeExt with (x := fun l => rev (rev_concat [] l)).
-    -intros l;hnf. rewrite rev_concat_rev. easy.
-    -extract. solverec. unfold time. reflexivity.
-    -unfold time. smpl_upToC; try smpl_upToC_solve.
-     setoid_rewrite rev_concat_length. setoid_rewrite length_concat. smpl_upToC_solve.
-  Qed.
-
-  Global Instance term_concat : computableTime' (@concat X) _ := projT2 _term_concat.
 
 End concat.

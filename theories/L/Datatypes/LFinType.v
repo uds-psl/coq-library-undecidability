@@ -1,15 +1,15 @@
 From Undecidability.L.Tactics Require Import LTactics GenEncode.
 From Undecidability.L Require Import Datatypes.LNat Functions.EqBool.
-From Undecidability.L Require Import UpToC.
 
 Import Nat.
 Require Export Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
 
 (* *** Encoding finite types *)
 (* This is not an instance because we only want it for very specific types. *)
-Definition encodable_finType `{X : finType} : encodable X.
+Definition registered_finType `{X : finType} : registered X.
 Proof.
   eapply (registerAs index).
+  intros x y H. now apply injective_index.
 Defined. (*because registerAs*)
 
 Definition finType_eqb {X:finType} (x y : X) :=
@@ -23,7 +23,7 @@ Proof.
 Qed.
 
 Section finType_eqb.
-  Local Existing Instance encodable_finType.
+  Local Existing Instance registered_finType.
 
   Global Instance term_index (F:finType): computableTime' (@index F) (fun _ _=> (1, tt)).
   Proof.
@@ -73,10 +73,4 @@ Lemma size_finType_any_le (X:finType) `{encodable X} (x:X):
   L_facts.size (enc x) <= maxl (map (fun x => L_facts.size (enc x)) (elem X)).
 Proof.
   apply maxl_leq. eapply in_map_iff. eauto.
-Qed.
-
-Lemma size_finType_any_le_c (X:finType) `{encodable X}:
-  (fun (x:X) => L_facts.size (enc x)) <=c (fun _ => 1).
-Proof.
-  setoid_rewrite size_finType_any_le. smpl_upToC_solve.
 Qed.

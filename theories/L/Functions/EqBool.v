@@ -1,6 +1,4 @@
 From Undecidability.L Require Import L Tactics.LTactics LBool.
-(*From Undecidability.L.Complexity Require Import Monotonic UpToC.*)
-
 
 Class eqbClass X (eqb : X -> X -> bool): Type := 
   _eqb_spec : forall (x y:X), reflect (x=y) (eqb x y).

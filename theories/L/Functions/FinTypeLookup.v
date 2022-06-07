@@ -110,20 +110,3 @@ Proof.
    +split. 2:easy.
     now intros (?&[]). 
 Qed.
-
-
-Section finFun.
-  Context (X : finType) Y {reg__X:encodable X} {reg__Y:encodable Y}.
-  Context {eqbX : X -> X -> bool} `{eqbClass X eqbX} `{H0 : @eqbCompT X _ eqbX _}.
-    
-  Lemma finFun_computableTime_const (f:X -> Y) (d:Y):
-    {c & computableTime' f (fun _ _ => (c,tt))}.
-  Proof using H0.
-    evar (c:nat). exists c.
-    apply computableTimeExt with (x:= (fun c => lookup c (funTable f) d )).
-    { cbn. intros ?. now rewrite lookup_funTable. }
-    extract.
-    solverec. rewrite lookupTime_leq.
-    unfold funTable. rewrite map_length,size_finType_any_le. unfold c. reflexivity.
-  Qed.
-End finFun.

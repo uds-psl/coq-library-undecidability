@@ -527,10 +527,6 @@ L/Reductions/MuRec/MuRec_extract.v
 L/Reductions/MuRec.v
 L/Reductions/HaltL_to_HaltLclosed.v
 
-L/Complexity/UpToC.v
-L/Complexity/UpToCNary.v
-L/Complexity/GenericNary.v
-
 L/Computability/Computability.v
 L/Computability/Decidability.v
 L/Computability/Enum.v
