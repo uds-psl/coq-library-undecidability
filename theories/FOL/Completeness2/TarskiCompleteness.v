@@ -17,12 +17,9 @@ Section Completeness.
   Context {HeP : enumerator__T eP Σp}.
 
   #[local] Hint Constructors bounded : core.
-
-  Section BotModel.
-    #[local] Existing Instance falsity_on | 0.
-    Variable T : theory.
-    Hypothesis T_closed : closed_T T.
-    Hypothesis Hcon : consistent class T.
+  
+  Section Enumeration.
+  
 
     Definition list_enum_to_enum {X} (L : nat -> list X) (n : nat) : option X :=
       let (n, m) := Cantor.of_nat n in nth_error (L n) m.
@@ -78,6 +75,21 @@ Section Completeness.
       destruct Hx2 as [->|[]]. eapply bounded_up. 1: apply Hbo. lia.
     Qed.
 
+  End Enumeration.
+
+  Lemma help5 {ff:falsity_flag} phi t sigma :
+    phi[up sigma][t..] = phi[t.:sigma].
+  Proof.
+    rewrite subst_comp. apply subst_ext. intros [|]; cbn; trivial. unfold funcomp.
+    rewrite subst_term_comp. apply subst_term_id. now intros [].
+  Qed.
+
+
+  Section BotModel.
+    #[local] Existing Instance falsity_on | 0.
+    Variable T : theory.
+    Hypothesis T_closed : closed_T T.
+    Hypothesis Hcon : consistent class T.
 
     Definition input_bot : ConstructionInputs :=
       {|
@@ -104,13 +116,6 @@ Section Completeness.
       induction t in rho|-*.
       - easy.
       - cbn. easy.
-    Qed.
-
-    Lemma help5 phi t sigma :
-      phi[up sigma][t..] = phi[t.:sigma].
-    Proof.
-      rewrite subst_comp. apply subst_ext. intros [|]; cbn; trivial. unfold funcomp.
-      rewrite subst_term_comp. apply subst_term_id. now intros [].
     Qed.
 
     Lemma model_bot_correct phi rho :
@@ -220,11 +225,12 @@ Section Completeness.
       - intros Hcomp Hprv % Hcomp. apply (StrongSoundness Hprv).
         all: now intros _ ? ? [].
     Qed.
-  End ExplodingCompletenes.
+  End ExplodingCompletenes. *)
 
 (* *** Minimal Models **)
 
   Section FragmentModel.
+    #[local] Existing Instance falsity_off | 0.
     Variable T : theory.
     Hypothesis T_closed : closed_T T.
 
@@ -236,64 +242,64 @@ Section Completeness.
         NBot := GBot ;
         NBot_closed := GBot_closed ;
 
-        variant := lconst ;
+        variant := falsity_off ;
 
         In_T := T ;
         In_T_closed := T_closed ;
 
-        GenConstructions.enum := form_enum ;
-        enum_enum := form_enum_enumerates ;
-        enum_unused := form_enum_fresh
+        TarskiConstructions.enum := form_enum_with_default GBot;
+        TarskiConstructions.enum_enum := form_default_is_enum _;
+        TarskiConstructions.enum_bounded := form_default_is_bounded (GBot_closed)
       |}.
 
     Definition output_fragment := construct_construction input_fragment.
 
     Instance model_fragment : interp term :=
-      {| i_f := Func; i_P := fun P v => Pred P v ∈ Out_T output_fragment ;
-        i_F := ⊥ ∈ Out_T output_fragment |}.
-
-    Lemma eval_ident_fragment rho (t : term) :
-      eval rho t = subst_term rho t.
-    Proof.
-      induction t using strong_term_ind; comp; asimpl; try congruence. f_equal.
-    Qed.
+      {| i_func := func; i_atom := fun P v => atom P v ∈ Out_T output_fragment|}.
 
     Lemma model_fragment_correct phi rho :
       (phi[rho] ∈ Out_T output_fragment <-> rho ⊨ phi).
     Proof.
-      induction phi in rho |-*. 1,2,3: comp.
-      - tauto.
-      - now rewrite <- (vec_ext (fun x => eval_ident_fragment rho x)).
-      - rewrite <-IHphi1, <-IHphi2. now apply Out_T_impl.
-      - cbn. setoid_rewrite <-IHphi. rewrite Out_T_all.
-        split; intros H d; specialize (H d); comp; now asimpl in H.
+      revert rho. unfold model_fragment, output_fragment, input_fragment in *; cbn in *.
+      remember falsity_off as ff eqn:Hff.
+      induction phi; intros rho. 1,2,3: cbn.
+      - split; try tauto. discriminate Hff.
+      - erewrite (Vector.map_ext_in _ _ _ (eval rho)). 1:easy.
+        easy.
+      - destruct b0. rewrite <- IHphi1. rewrite <- IHphi2. apply Out_T_impl. 1-2:congruence.
+      - destruct q. cbn. setoid_rewrite <- IHphi. setoid_rewrite Out_T_all. 2:congruence.
+        cbn.
+        setoid_rewrite help5. easy.
     Qed.
 
     Lemma model_fragment_classical :
-      BLM model_fragment.
+      classical model_fragment.
     Proof.
       intros rho phi psi. apply model_fragment_correct, Out_T_prv.
       use_theory (nil : list form). apply Pc.
     Qed.
 
     Lemma valid_T_fragment phi :
-      phi ∈ T -> ids ⊨ phi.
+      phi ∈ T -> var ⊨ phi.
     Proof.
-      intros H % (Out_T_sub output_fragment). apply model_fragment_correct; now comp.
+      intros H % (Out_T_sub output_fragment). apply model_fragment_correct. rewrite subst_id. 1:easy. easy.
     Qed.
   End FragmentModel.
 
   Section FragmentCompleteness.
-
+    #[local] Existing Instance falsity_off | 0.
     Lemma semi_completeness_fragment T phi :
-      closed_T T -> closed phi -> T ⊫M phi -> T ⊩CL phi.
+      closed_T T -> closed phi -> valid_theory T phi -> T ⊢TC phi.
     Proof.
-      intros HT Hphi Hval. replace phi with (phi[ids]) in * by now comp.
-      apply (@Out_T_econsistent _ _ (output_fragment HT Hphi)); cbn. use_theory [phi[ids]]. 2: ctx.
-      intros ? [<- | []]. apply (model_fragment_correct HT Hphi phi ids). comp. rewrite instId_form in Hval.
-      apply Hval. 1: apply model_fragment_classical. intros ? ?. apply valid_T_fragment; intuition.
+      intros HT Hphi Hval.
+      apply (@Out_T_econsistent _ _ _ (@output_fragment T HT phi Hphi)).
+      use_theory [phi[var]]. 2: apply Ctx; left; now rewrite subst_id.
+      intros ? [<- | []].
+      apply (@model_fragment_correct T HT phi Hphi phi var).
+      apply Hval. intros psi Hpsi.
+      apply valid_T_fragment, Hpsi.
     Qed.
-  End FragmentCompleteness. *)
+  End FragmentCompleteness.
 End Completeness.
 
 (* ** Extending the Completeness Results *)
