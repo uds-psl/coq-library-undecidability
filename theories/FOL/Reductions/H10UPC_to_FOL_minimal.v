@@ -964,7 +964,7 @@ Section ksatisfiability.
   Qed.
 End ksatisfiability.
 
-Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 
 (** Final collection of undecidability reductions *)
 Section undecResults.

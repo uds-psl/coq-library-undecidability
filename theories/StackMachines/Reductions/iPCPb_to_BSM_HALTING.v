@@ -10,7 +10,7 @@
 Require Import List Arith Lia.
 Import ListNotations.
 
-Require Import Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import utils list_bool pos vec subcode sss.
