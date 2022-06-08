@@ -2,7 +2,9 @@ From Undecidability.H10 Require Import H10 dio_single dio_logic.
 Require Import Undecidability.PCP.Util.PCP_facts.
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes Undecidability.Shared.Libs.PSL.FiniteTypes.Arbitrary.
 From Undecidability.Synthetic Require Export DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
-From Undecidability.L.Datatypes Require Import LNat Lists LProd.
+From Undecidability.L.Datatypes Require Import LNat LProd.
+From Undecidability.L.Datatypes.List Require Import List_basics List_eqb List_fold List_enc.
+
 From Undecidability.L Require Import Tactics.LTactics Computability.MuRec Computability.Synthetic Tactics.GenEncode.
 From Undecidability.Shared.Libs.DLW.Vec Require Import pos.
 Import ListAutomationNotations.
@@ -246,4 +248,5 @@ Proof.
   - intros ( (p1, p2), (p1', p2')).
     destruct (poly_eqb_spec p1 p1'), (poly_eqb_spec p2 p2'); cbn; firstorder congruence.
 Qed.
+
 (* Print Assumptions eval_L_from. *)

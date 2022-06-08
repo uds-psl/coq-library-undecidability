@@ -69,4 +69,3 @@ Proof.
 Qed.
 
 Arguments dec_ldec {_} f {_} _.
-

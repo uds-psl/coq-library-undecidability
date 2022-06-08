@@ -6,41 +6,27 @@ Section Fix_XY.
 
   Variable X Y:Type.
   
-  Variable intX : encodable X.
-  Variable intY : encodable Y.
+  Variable intX : registered X.
+  Variable intY : registered Y.
 
   MetaCoq Run (tmGenEncode "sum_enc" (X + Y)).
   Hint Resolve sum_enc_correct : Lrewrite.
-
-  Global Instance encInj_sum_enc {H : encInj intX} {H' : encInj intY} : encInj (encodable_sum_enc).
-  Proof. register_inj. Qed. 
   
   (* now we must register the non-constant constructors*)
   
-  Global Instance term_inl : computableTime' (@inl X Y) (fun _ _ => (1,tt)).
+  Global Instance term_inl : computable (@inl X Y).
   Proof.
     extract constructor.
-    solverec.
   Qed.
 
-   Global Instance term_inr : computableTime' (@inr X Y) (fun _ _ => (1,tt)).
+   Global Instance term_inr : computable (@inr X Y).
   Proof.
     extract constructor.
-    solverec.
   Qed.
   
 End Fix_XY.
 
 #[export] Hint Resolve sum_enc_correct : Lrewrite.
-
-Lemma size_sum X Y `{encodable X} `{encodable Y} (l: X + Y):
-  size (enc l) = match l with inl x => size (enc x) + 5 | inr x => size (enc x) + 4 end.
-Proof.
-  unfold enc at 1.
-  destruct l as [x|x]. all:cbn.
-  all:lia. 
-Qed.
-
 
 Section sum_eqb.
 
@@ -70,35 +56,12 @@ From Undecidability Require Import EqBool.
 Section int.
 
   Variable X Y:Type.
-  Context {HX : encodable X} {HY : encodable Y}.
-
-  (*Global Instance term_sum_eqb : computableTime' (@sum_eqb X Y)
-                                                    (fun eqb eqbX => (1, (fun _ eqbY => (1,fun a _ => (1,fun b _ => (match a,b with
-                                                                                            inl a, inl b => callTime2 eqbX a b + 10
-                                                                                          | inr a, inr b => callTime2 eqbY a b + 10
-
-                                                                                          | _,_ => 9 end,tt)))))). 
-  Proof.
-    extract. solverec.
-  Defined. (*comment *) *)
+  Context {HX : registered X} {HY : registered Y}.
 
   Global Instance eqbSum f g `{eqbClass (X:=X) f} `{eqbClass (X:=Y) g}:
     eqbClass (sum_eqb f g).
   Proof.
     intros ? ?. eapply sum_eqb_spec. all:eauto using eqb_spec.
-  Qed.
-
-  Global Instance eqbComp_sum `{H:eqbCompT X (R:=HX)} `{H':eqbCompT Y (R:=HY)}:
-    eqbCompT (sum X Y).
-  Proof.
-    evar (c:nat). exists c. unfold sum_eqb.
-    change (eqb0) with (eqb (X:=X)).
-    change (eqb1) with (eqb (X:=Y)).
-    extract. unfold eqb,eqbTime.
-    all:set (f:=enc (X:=X + Y)); unfold enc in f;subst f;cbn - ["+"].
-    recRel_prettify2. all:cbn [size].
-    [c]:exact (c__eqbComp X + c__eqbComp Y + 6).
-    all:unfold c. all:nia. 
   Qed.
 
 End int.

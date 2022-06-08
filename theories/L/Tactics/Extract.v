@@ -1,6 +1,6 @@
-From Undecidability.L Require Import Util.L_facts Prelim.StringBase.
+From Undecidability.L Require Import Util.L_facts.
 From MetaCoq Require Import Template.All Template.Checker.
-Require Import Undecidability.Shared.Libs.PSL.Base. 
+Require Import Undecidability.Shared.Libs.PSL.Base.
 Require Import String Ascii.
 
 Open Scope string_scope.
@@ -75,6 +75,16 @@ Definition tmTryInfer (n : ident) (red : option reductionStrategy) (A : Type) : 
          (tmEval cbv ("open obligation " ++ n ++ " for it. You might want to register a instance before and rerun this.") >>= tmPrint);;
          tmLemma n A
     end.
+
+Fixpoint name_after_dot' (s : string) (r : string) :=
+  match s with
+  | EmptyString => r
+  | String "#" xs => name_after_dot' xs xs (* see Coq_name in a section *)
+  | String "." xs => name_after_dot' xs xs
+  | String _ xs => name_after_dot' xs r
+  end.
+
+Definition name_after_dot s := name_after_dot' s s.
 
 (* Generate a name for a quoted term *)
 Definition name_of (t : Ast.term) : ident :=

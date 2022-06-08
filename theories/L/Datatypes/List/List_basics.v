@@ -1,77 +1,47 @@
 From Undecidability.L.Tactics Require Import LTactics.
-From Undecidability.L.Datatypes Require Export List.List_enc LBool LNat.
+From Undecidability.L.Datatypes Require Export List.List_enc LBool LNat LOptions.
 From Undecidability.Shared.Libs.PSL.Lists Require Export Filter.
 
-Definition c__app := 16.
 #[global]
-Instance termT_append X {intX : encodable X} : computableTime' (@List.app X) (fun A _ => (5,fun B _ => (length A * c__app + c__app,tt))).
+Instance termT_append X {intX : registered X} : computable (@List.app X).
 Proof.
   extract.
-  solverec. all: now unfold c__app. 
 Qed.
-
-Definition c__map := 12. 
-Fixpoint map_time {X} (fT:X -> nat) xs :=
-  match xs with
-    [] => c__map
-  | x :: xs => fT x + map_time fT xs + c__map
-  end.
   
 #[global]
-Instance term_map (X Y:Type) (Hx : encodable X) (Hy:encodable Y): computableTime' (@map X Y) (fun _ fT => (1,fun l _ => (map_time (fun x => fst (fT x tt)) l,tt))).
-Proof.
-  extract.
-  solverec. all: unfold c__map; solverec. 
-Defined. (*because other extract*)
-
-
-Lemma map_time_const {X} c (xs:list X):
-  map_time (fun _ => c) xs = length xs * (c + c__map) + c__map.
-Proof.
-  induction xs;cbn. all:lia.
-Qed.
-
-#[global]
-Instance term_map_noTime (X Y:Type) (Hx : encodable X) (Hy:encodable Y): computable (@map X Y).
+Instance term_map (X Y:Type) (Hx : registered X) (Hy:registered Y): computable (@map X Y).
 Proof.
   extract.
 Defined. (*because other extract*)
-  
 
 #[global]
-Instance termT_rev_append X `{encodable X}: computableTime' (@rev_append X) (fun l _ => (5,fun res _ => (length l*13+4,tt))).
-extract.
-recRel_prettify.
-solverec.
+Instance termT_rev_append X `{registered X}: computable (@rev_append X).
+Proof.
+  extract.
 Qed.
 
-Definition c__rev := 13.
 #[global]
-Instance termT_rev X `{encodable X}: computableTime' (@rev X) (fun l _ => ((length l + 1) *c__rev,tt)).
-eapply computableTimeExt with (x:= fun l => rev_append l []).
-{intro. rewrite rev_alt. reflexivity. }
-extract. solverec. unfold c__rev; solverec. 
+Instance termT_rev X `{registered X}: computable (@rev X).
+Proof.
+  eapply computableExt with (x:= fun l => rev_append l []).
+  {intro. rewrite rev_alt. reflexivity. }
+  extract.
 Qed.
+
+(* seq *)
+#[global]
+Instance term_seq : computable seq. 
+Proof. 
+  extract.
+Qed. 
 
 Section Fix_X.
   Variable (X:Type).
-  Context {intX : encodable X}.
-
-  Global Instance term_filter: computableTime' (@filter X) (fun p pT => (1,fun l _ => (fold_right (fun x res => 16 + res + fst (pT x tt)) 8 l ,tt))).
-  Proof using intX.
-    change (filter (A:=X)) with ((fun (f : X -> bool) =>
-                                    fix filter (l : list X) : list X := match l with
-                                                                        | [] => []
-                                                                        | x :: l0 => (fun r => if f x then x :: r else r) (filter l0)
-                                                                        end)).
-    extract.
-    solverec. 
-  Defined. (*because other extract*)
+  Context {intX : registered X}.
 
   Global Instance term_filter_notime: computable (@filter X).
   Proof using intX.
-  pose (t:= extT (@filter X)). hnf in t. 
-    computable using t.
+    extract.
   Defined. (*because other extract*)
 
   Global Instance term_repeat: computable (@repeat X).
@@ -81,27 +51,38 @@ Section Fix_X.
   
 End Fix_X.
 
+#[global]
+Instance termT_nth_error (X:Type) (Hx : registered X): computable (@nth_error X). 
+Proof.
+  extract.
+Qed.
 
-Section concat.
-  Context X `{encodable X}.
+#[global]
+Instance termT_length X `{registered X} : computable (@length X).
+Proof.
+  extract.
+Qed.
 
-  Fixpoint rev_concat acc (xs : list (list X)) :=
-    match xs with
-      [] => acc
-    | x::xs => rev_concat (rev_append x acc) xs
-    end.
+#[global]
+Instance term_nth X (Hx : registered X) : computable (@nth X). 
+Proof.
+  extract.
+Qed.
 
-  Lemma rev_concat_rev xs acc:
-    rev (rev_concat acc xs) = rev acc ++ concat xs.
-  Proof.
-    induction xs in acc|-*. all:cbn. 2:rewrite IHxs,rev_append_rev. all:autorewrite with list in *. all:easy.
+(* prodLists *)
+Section fixprodLists. 
+  Variable (X Y : Type).
+  Context `{Xint : registered X} `{Yint : registered Y}.
+
+  #[global]
+  Instance term_prodLists : computable (@list_prod X Y). 
+  Proof. 
+    apply computableExt with (x := fix rec (A : list X) (B : list Y) : list (X * Y) := 
+      match A with 
+      | [] => []
+      | x :: A' => map (@pair X Y x) B ++ rec A' B 
+      end).
+    1: { unfold list_prod. change (fun x => ?h x) with h. intros l1 l2. induction l1; easy. }
+    extract. 
   Qed.
-
-  Lemma rev_concat_length xs acc:
-    length (rev_concat acc xs) = length acc + length (concat xs).
-  Proof.
-    specialize (rev_concat_rev xs acc) as H1%(f_equal (@length _)).
-    autorewrite with list in H1. nia.
-  Qed.
-
-End concat.
+End fixprodLists. 

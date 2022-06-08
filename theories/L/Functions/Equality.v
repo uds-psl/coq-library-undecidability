@@ -1,9 +1,5 @@
 From Undecidability.L Require Export Datatypes.LBool Datatypes.LNat Datatypes.LTerm.
-Require Import Nat.
 From Undecidability.L Require Import Tactics.LTactics Functions.EqBool.
-Import EqBool.
-(* * Extracted Functions *)
-
 
 (* ** Extracted equality of encoded terms *)
 
@@ -27,16 +23,11 @@ Qed.
 #[global]
 Instance eqbTerm : eqbClass term_eqb.
 Proof.
-  exact term_eqb_spec. 
+  exact term_eqb_spec.
 Qed.
 
-Global
-Instance eqbComp_nat : eqbCompT term.
+#[global]
+Instance term_term_eqb : computable (term_eqb).
 Proof.
-  evar (c:nat). exists c. unfold term_eqb.
-  extract. unfold eqb,eqbTime. cbn - ["+"].
-  [c]:exact (5 + c__eqbComp nat).
-  all:unfold c. set (c__eqbComp nat). 
-  solverec. all: set (f:=enc (X:=term)); unfold enc in f;subst f;cbn [size encodable_term_enc].
-  all:try nia. 
+  extract.
 Qed.

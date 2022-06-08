@@ -1,5 +1,7 @@
 From Undecidability.H10 Require Import H10 dio_single dio_logic.
-From Undecidability.L.Datatypes Require Import LNat Lists LOptions LSum.
+From Undecidability.L.Datatypes Require Import LNat LOptions LSum.
+From Undecidability.L.Datatypes.List Require Import List_basics List_eqb List_fold List_enc.
+
 From Undecidability.L Require Import Tactics.LTactics Computability.MuRec Computability.Synthetic Tactics.GenEncode.
 From Undecidability.Shared Require Import DLW.Utils.finite DLW.Vec.vec DLW.Vec.pos.
 From Undecidability.MuRec Require Import recalg ra_bs ra_sem_eq.
@@ -444,4 +446,5 @@ Proof.
     + unfold evalfun in *. exists x0. destruct eval; try destruct s; try congruence.
     + exists x0. unfold evalfun in *. destruct eval; try destruct s; try congruence.
 Qed.
+
 (* Print Assumptions MUREC_WCBV. *)

@@ -1,4 +1,6 @@
-From Undecidability.L.Datatypes Require Import LNat Lists LVector.
+From Undecidability.L.Datatypes Require Import LNat LVector.
+From Undecidability.L.Datatypes.List Require Import List_basics List_eqb List_fold List_enc.
+
 From Undecidability.L Require Import TM.TMEncoding.
 
 From Undecidability.TM Require Import Util.TM_facts.
@@ -6,68 +8,64 @@ From Undecidability.TM Require Import Util.TM_facts.
 
 Section fix_sig.
   Variable sig : Type.
-  Context `{reg_sig : encodable sig}.
+  Context `{reg_sig : registered sig}.
 
   Section reg_tapes.
 
-    Global Instance term_tape_move_left' : computableTime' (@tape_move_left' sig) (fun _ _ => (1, fun _ _ => (1,fun _ _ => (12,tt)))).
+    Global Instance term_tape_move_left' : computable (@tape_move_left' sig).
     Proof.
-      extract. solverec.
+      extract.
     Qed.
 
-    Global Instance term_tape_move_left : computableTime' (@tape_move_left sig) (fun _ _ => (23,tt)).
+    Global Instance term_tape_move_left : computable (@tape_move_left sig).
     Proof.
-      extract. solverec.
+      extract.
     Qed.
 
-    Global Instance term_tape_move_right' : computableTime' (@tape_move_right' sig) (fun _ _ => (1, fun _ _ => (1,fun _ _ => (12,tt)))).
+    Global Instance term_tape_move_right' : computable (@tape_move_right' sig).
     Proof.
-      extract. solverec.
+      extract.
     Qed.
 
-    Global Instance term_tape_move_right : computableTime' (@tape_move_right sig) (fun _ _ => (23,tt)).
+    Global Instance term_tape_move_right : computable (@tape_move_right sig).
     Proof.
-      extract. solverec.
+      extract.
     Qed.
 
-    Global Instance term_tape_move : computableTime' (@tape_move sig) (fun _ _ => (1,fun _ _ => (48,tt))).
+    Global Instance term_tape_move : computable (@tape_move sig).
     Proof.
-      extract. solverec.
+      extract.
     Qed.
 
-    Global Instance term_left : computableTime' (@left sig) (fun _ _ => (10,tt)).
+    Global Instance term_left : computable (@left sig).
     Proof.
-      extract. solverec.
+      extract.
     Qed.
 
-    Global Instance term_right : computableTime' (@right sig) (fun _ _ => (10,tt)).
+    Global Instance term_right : computable (@right sig).
     Proof.
-      extract. solverec.
+      extract.
     Qed.
 
-    Global Instance term_tape_write : computableTime' (@tape_write sig) ((fun _ _ => (1,fun _ _ => (28,tt)))).
+    Global Instance term_tape_write : computable (@tape_write sig).
     Proof.
-      extract. solverec.
+      extract.
     Qed.
 
-
-    
-    Global Instance term_tapeToList:  computableTime' (@tapeToList sig) (fun t _ => (sizeOfTape t*29 + 53,tt)).  
+    Global Instance term_tapeToList:  computable (@tapeToList sig).  
     Proof.
-    extract. recRel_prettify2. all:repeat (simpl_list;cbn -[plus mult]). 
-    all: unfold c__rev, c__app. all: try nia.
+      extract.
     Qed.
 
-
-    Global Instance term_sizeOfTape: computableTime' (@sizeOfTape sig) (fun t _ => (sizeOfTape t*40 + 65,tt)).
+    Global Instance term_sizeOfTape: computable (@sizeOfTape sig).
     Proof.
-      extract. unfold sizeOfTape. solverec. unfold c__length. solverec. 
+      extract.
     Qed.
 
     Import Nat.
 
     Global Instance term_sizeOfmTapes n:
-      computableTime' (@sizeOfmTapes sig n) (fun t _ => ((sizeOfmTapes t*105+101) * n + 56,tt)).
+      computable (@sizeOfmTapes sig n).
     Proof.
       set (f:= (fix sizeOfmTapes acc (ts : list (tape sig)) : nat :=
                   match ts with
@@ -80,51 +78,35 @@ Section fix_sig.
         induction x using Vector.t_ind;intros acc. cbn. nia.        
         cbn in *. rewrite <- IHx. unfold Vector.to_list. nia.
       }
-      assert (computableTime' f (fun acc _ => (5, fun t _ => ((max acc (fold_right max 0 (map (sizeOfTape (sig:=sig))t))*105 + 101) * (length t) + 49,tt)))).
-      { unfold f. extract. solverec. unfold c__max1, max_time, c__max2. solverec. }
+      assert (computable f).
+      { unfold f. extract. }
 
-      eapply computableTimeExt. exact H'.
-      extract. solverec. unfold sizeOfmTapes. rewrite vector_fold_left_to_list,fold_symmetric. 2,3:intros;nia.
-      rewrite vector_map_to_list,to_list_length.
-      set (List.fold_right _ _ _). nia. 
+      eapply computableExt. exact H'.
+      extract. 
     Qed.
 
-    Global Instance term_current: computableTime' ((current (Σ:=sig))) (fun _ _ => (10,tt)).
+    Global Instance term_current: computable ((current (Σ:=sig))).
     Proof.
       extract.
-      solverec.
     Qed.
 
-    Global Instance term_current_chars n: computableTime' (current_chars (sig:=sig) (n:=n))  (fun _ _ => (n * 22 +16,tt)).
+    Global Instance term_current_chars n: computable (current_chars (sig:=sig) (n:=n)).
+    Proof.
+      unfold current_chars.
+      extract.
+    Qed.
+
+    Global Instance term_doAct: computable (doAct (sig:=sig)).
     Proof.
       extract.
-      solverec.
-      rewrite map_time_const,to_list_length. unfold c__map. lia.
     Qed.
-
-    Global Instance term_doAct: computableTime' (doAct (sig:=sig)) (fun _ _ => (1,fun _ _ => (89,tt))).
-    Proof.
-      extract.
-      solverec.
-    Qed.
-
 
   End reg_tapes.
 End fix_sig.
 
-Fixpoint loopTime {X} `{encodable X} f (fT: timeComplexity (X -> X)) (p: X -> bool) (pT : timeComplexity (X -> bool)) (a:X) k :=
-  fst (pT a tt) +
-  match k with
-    0 => 7
-  |  S k =>
-     fst (fT a tt) + 13 + loopTime f fT p pT (f a) k
-  end.
-
 Global
-Instance term_loop A `{encodable A} :
-  computableTime' (@loop A)
-                 (fun f fT => (1,fun p pT => (1,fun a _ => (5,fun k _ =>(loopTime f fT p pT a k,tt))))).
+Instance term_loop A `{registered A} :
+  computable (@loop A).
 Proof.
   extract.
-  solverec.
 Qed.

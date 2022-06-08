@@ -3,15 +3,103 @@ From Undecidability.L Require Import Computability.MuRec.
 
 From Undecidability.TM Require Import TM_facts.
 
-Require Import Undecidability.L.TM.TMinL.TMinL_extract.
+From Undecidability.L.Datatypes Require LNat LProd LFinType LVector List.List_basics.
+From Undecidability.L.Functions Require FinTypeLookup EqBool.
+From Undecidability.L.TM Require TapeFuns.
+
+Module TMinL_extract.
+Import TapeFuns FinTypeLookup EqBool List.List_basics LProd LFinType.
+
+Local Notation L := TM.Lmove.
+Local Notation R := TM.Rmove.
+Local Notation N := TM.Nmove.
+
+Section loopM.
+  Context (sig : finType).
+  Let reg_sig := @registered_finType sig.
+  Existing Instance reg_sig.
+  
+  Let eqb_sig := eqbFinType_inst (X:=sig).
+  Existing Instance eqb_sig.
+  Variable n : nat.
+  Variable M : TM sig n.
+
+  Let reg_state := @registered_finType (state M).
+  Existing Instance reg_state.
+
+  Let eqb_state := eqbFinType_inst (X:=state M).
+  Existing Instance eqb_state.
+  Import Vector.
+  
+  #[local] Instance inst_eqbCompT_state_M : eqbCompT (state M).
+  Proof.
+    constructor. extract.
+  Qed.
+
+  #[local] Instance inst_eqbCompT_config_M : eqbCompT (finType_CS (state M * Vector.t (option sig) n)).
+  Proof.
+    constructor. unfold prod_eqb.
+    apply computableExt with (x := (fun a b : state M * t (option sig) n =>
+    finType_eqb (fst a) (fst b) && VectorEq.eqb (option_eqb finType_eqb) (snd a) (snd b))).
+    { now intros [??][??]. }
+    extract.
+  Qed.
+
+  (* *** Computability of transition relation *)
+  Global Instance term_trans : computable (trans (m:=M)).
+  Proof.
+    pose (t:= (funTable (trans (m:=M)))).
+    apply computableExt with (x:= (fun c => lookup c t (start M,Vector.const (None , N) _ ) )).
+    2:{ extract. }  
+    cbn -[t] ;intro. subst t. setoid_rewrite lookup_funTable. reflexivity.
+  Qed.
+
+  Definition step' (c :  mconfig sig (state M) n) : mconfig sig (state M) n :=
+    let (news, actions) := trans (cstate c, current_chars (ctapes c)) in
+    mk_mconfig news (doAct_multi (ctapes c) actions).
+
+  Global Instance term_doAct_multi: computable (doAct_multi (n:=n) (sig:=sig)).
+  Proof.
+    extract.
+  Qed.
+
+  Global Instance term_step' : computable (TM_facts.step (M:=M)).
+  Proof.
+    extract.
+  Qed.
+
+  Global Instance term_halt : computable (halt (m:=M)).
+  Proof.
+    pose (t:= (funTable (halt (m:=M)))).
+    apply computableExt with (x:= fun c => lookup c t false).
+    2:{ extract. }
+    cbn;intro. subst t. setoid_rewrite lookup_funTable. reflexivity.
+  Qed.
+
+  Global Instance term_haltConf : computable (haltConf (M:=M)).
+  Proof.
+    extract.
+  Qed.
+
+  (* *** Computability of step-ndexed interpreter *)
+  Global Instance term_loopM :
+    computable (loopM (M:=M)).
+  Proof.
+    unfold loopM. (* as loop is already an registered instance, this here is a bit out of the scope. Therefore, we unfold manually here. *)
+    extract.
+  Qed.
+
+  Instance term_test cfg :
+    computable (fun k => LOptions.isSome (loopM (M := M) cfg k)).
+  Proof.
+    extract.
+  Qed.
+
+End loopM.
+End TMinL_extract.
 
 Definition Halt' (Sigma : finType) n (M: TM Sigma n) (start: mconfig Sigma (state M) n) :=
   exists (f: mconfig _ (state M) _), halt (cstate f)=true /\ exists k, loopM start k = Some f.
-
-Definition Halt :{ '(Sigma, n) : finType * nat & TM Sigma n & tapes Sigma n} -> _ :=
-  fun '(existT2 (Sigma, n) M tp) =>
-    exists (f: mconfig _ (state M) _), halt (cstate f) = true
-                                   /\ exists k, loopM (mk_mconfig (start M) tp) k = Some f.
 
 Section loopM.
   Context (sig : finType) (n : nat) (M : TM sig n).

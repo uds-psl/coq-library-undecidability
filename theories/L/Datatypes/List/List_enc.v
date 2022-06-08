@@ -13,10 +13,9 @@ Section Fix_X.
 
   (* now we must register the non-constant constructors*)
   
-  Global Instance termT_cons : computableTime' (@cons X) (fun a aT => (1,fun A AT => (1,tt))).
+  Global Instance termT_cons : computable (@cons X).
   Proof.
     extract constructor.
-    solverec.
   Qed.
 End Fix_X.
 

@@ -1,10 +1,6 @@
 From Undecidability.L Require Export L Tactics.LTactics GenEncode.
-
 From Undecidability.L.Datatypes Require Import LBool.
-
 From Undecidability.L Require Import Functions.EqBool GenEncode.
-(*
-From Undecidability.L Require Import LNat.*)
 
 (* ** Encoding of pairs *)
 
@@ -12,29 +8,26 @@ Section Fix_XY.
 
   Variable X Y:Type.
   
-  Context {intX : encodable X}.
-  Context {intY : encodable Y}.
+  Context {intX : registered X}.
+  Context {intY : registered Y}.
 
   MetaCoq Run (tmGenEncode "prod_enc" (X * Y)).
   Hint Resolve prod_enc_correct : Lrewrite.
-
-  Global Instance encInj_prod_enc {H : encInj intX} {H' : encInj intY} : encInj (encodable_prod_enc).
-  Proof. register_inj. Qed. 
   
   (* now we must register the constructors*)
-  Global Instance term_pair : computableTime' (@pair X Y) (fun _ _ => (1,fun _ _ => (1,tt))).
+  Global Instance term_pair : computable (@pair X Y).
   Proof.
-    extract constructor. solverec. 
+    extract constructor.
   Qed.
 
-  Global Instance term_fst : computableTime' (@fst X Y) (fun _ _ => (5,tt)).
+  Global Instance term_fst : computable (@fst X Y).
   Proof.
-    extract. solverec.
+    extract.
   Qed.
 
-  Global Instance term_snd : computableTime' (@snd X Y) (fun _ _ => (5,tt)).
+  Global Instance term_snd : computable (@snd X Y).
   Proof.
-    extract. solverec.
+    extract.
   Qed.
 
   Definition prod_eqb f g (a b: X*Y):=
@@ -58,51 +51,20 @@ Section Fix_XY.
     intros ? ?. eapply prod_eqb_spec. all:eauto using eqb_spec.
   Qed.
 
-  
-  Global Instance eqbComp_Prod `{eqbCompT X (R:=intX)} `{eqbCompT Y (R:=intY)}:
-    eqbCompT (X*Y).
-  Proof.
-    evar (c:nat). exists c. unfold prod_eqb. 
-    unfold enc;cbn.
-    change (eqb0) with (eqb (X:=X)).
-    change (eqb1) with (eqb (X:=Y)).
-    extract. unfold eqb,eqbTime. fold @enc.
-    recRel_prettify2. easy.
-    [c]:exact (c__eqbComp X + c__eqbComp Y + 6).
-    all:unfold c. 
-    cbn [size]. nia.
-  Qed.
-
-
-  (*
-  Global Instance term_prod_eqb :
-    computableTime' prod_eqb
-                     (fun _ eqT1 =>
-                        (1,fun _ eqT2 =>
-                             (1,fun x _ =>
-                                  (1,fun y _ =>
-                                       (let '(k1,eqT1') := (eqT1 (fst x) tt) in
-                                                             k1 +fst (eqT1' (fst y) tt)
-                                       + (let '(k2,eqT2') := (eqT2 (snd x) tt) in
-                                           k2 +fst (eqT2' (snd y) tt)) + 14, tt))))).
-  Proof.
-    extract. solverec. 
-  Qed.
-
-  Global Instance term_prod_eqb_notime :
-    computable prod_eqb.
-  Proof.
-    extract. 
-  Qed. *)
-
-  
-  Lemma size_prod (w:X*Y):
-    size (enc w) = size (enc (fst w)) + size (enc (snd w)) + 4.
-  Proof.
-    destruct w. unfold enc at 1. now cbn.
-  Qed.
-
-  
 End Fix_XY.
+
+#[global]
+Instance term_prod_eqb X Y `{eqbCompT X} `{eqbCompT Y} : computable (@prod_eqb X Y eqb eqb).
+Proof.
+  apply computableExt with (x := fun a b : X * Y => eqb0 (fst a) (fst b) && eqb1 (snd a) (snd b)).
+  { now intros [??] [??]. }
+  extract.
+Qed.
+
+#[global]
+Instance inst_eqbCompT_prod X Y `{eqbCompT X} `{eqbCompT Y} : eqbCompT (X * Y).
+Proof.
+  constructor. now apply term_prod_eqb.
+Qed.
 
 #[export] Hint Resolve prod_enc_correct : Lrewrite.

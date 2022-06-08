@@ -1,6 +1,13 @@
-From Undecidability.L Require Export Functions.Subst Computability.Seval Computability.MuRec Datatypes.LOptions Datatypes.LTerm.
+From Undecidability.L Require Import 
+  Computability.Seval Computability.MuRec Datatypes.LOptions Datatypes.LTerm Functions.EqBool.
 
 (* ** Extracted step-indexed L-interpreter *)
+
+#[global]
+Instance term_substT : computable subst.
+Proof.
+  extract.
+Qed.
 
 #[global]
 Instance term_eva : computable eva.

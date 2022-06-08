@@ -1,4 +1,4 @@
-From Undecidability.L Require Export Prelim.ARS Prelim.MoreBase.
+From Undecidability.L Require Export Prelim.ARS.
 From Undecidability.Shared.Libs.PSL Require Export Base Bijection.
 From Undecidability.L Require Export L.
 
