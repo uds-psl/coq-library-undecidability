@@ -318,11 +318,4 @@ Proof.
   -rewrite eq. cbv. split.  auto. eexists. eauto.
 Qed.
 
-
-Fixpoint benchTerm x : rTerm :=
-  match x with
-    0 => (rLam (rVar 0))
-  | S x => (rLam (benchTerm x)) (rLam (rVar 0))
-  end.
-
 Close Scope LClos.

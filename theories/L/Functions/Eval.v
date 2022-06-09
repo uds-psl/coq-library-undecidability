@@ -1,5 +1,5 @@
 From Undecidability.L Require Import 
-  Computability.Seval Computability.MuRec Datatypes.LOptions Datatypes.LTerm Functions.EqBool.
+  Computability.Computability Computability.Seval Computability.MuRec Datatypes.LOptions Datatypes.LTerm Datatypes.LBool.
 
 (* ** Extracted step-indexed L-interpreter *)
 

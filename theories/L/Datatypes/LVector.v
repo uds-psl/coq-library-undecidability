@@ -1,6 +1,6 @@
 From Undecidability.L.Tactics Require Import LTactics GenEncode.
 From Undecidability.L.Datatypes Require Import LNat LFinType.
-From Undecidability.L.Datatypes.List Require Import List_basics List_eqb List_fold List_enc.
+From Undecidability.L.Datatypes.List Require Import List_basics List_eqb List_enc.
 
 Require Import Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 
@@ -58,7 +58,6 @@ Proof.
    cbn. f_equal. apply IHn.
 Qed.
 
-
 #[global]
 Instance term_vector_eqb X `{registered X} (n' m:nat) (eqb:X->X->bool):
   computable eqb
@@ -72,7 +71,7 @@ Proof.
   induction v in n',v'|-*;cbn;destruct v';cbn;try tauto. rewrite <- IHv. f_equal.
 Qed.
 
-From Undecidability.L Require Import Functions.EqBool.
+From Undecidability.L Require Import Datatypes.LBool.
 
 Global Instance eqbVector X eqbx `{eqbClass (X:=X) eqbx} n:
   eqbClass (VectorEq.eqb eqbx (n:=n) (m:=n)).

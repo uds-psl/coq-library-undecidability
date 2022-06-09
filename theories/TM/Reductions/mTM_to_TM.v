@@ -2,7 +2,6 @@ From Undecidability.TM Require Import Single.StepTM Code.CodeTM TM.
 Require Import Undecidability.Synthetic.Definitions.
 
 Set Default Goal Selector "!".
-Set Default Proof Using "Type".
 
 Lemma nTM_to_MTM n :
   HaltTM n ⪯ HaltMTM.

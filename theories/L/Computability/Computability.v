@@ -1,15 +1,7 @@
-From Undecidability.L Require Export L Datatypes.LNat Datatypes.LBool Functions.Encoding Computability.Seval.
+From Undecidability.L Require Export L Tactics.LTactics Computability.Seval.
 Require Import Coq.Logic.ConstructiveEpsilon.
 
 Definition cChoice := constructive_indefinite_ground_description_nat_Acc.
-
-Lemma eq_term_dec (s t : term) : (s = t) + (s <> t).
-Proof.
-  revert t. induction s; intros t; destruct t; try(right; intros H; inv H; fail).
-  - decide (n = n0). left. congruence. right. congruence.
-  - destruct (IHs1 t1), (IHs2 t2); try (right; congruence). left. congruence.
-  - destruct (IHs t). left; congruence. right; congruence.    
-Qed.
 
 Lemma enc_extinj {X} {R} {H:@encInj X R} (m n:X) : enc m == enc n -> m = n.
 Proof.
@@ -37,16 +29,3 @@ Proof.
     assert (lambda t) by now apply eva_lam in eq. apply eva_equiv in eq. rewrite H in eq. apply unique_normal_forms in eq;[|Lproc..].  congruence.
    +right. intros [y eq']. congruence.
 Qed.
-
-Definition bool_enc_inv b:=
-  match b with
-    | lam (lam (var 1)) => true
-    | _ => false
-  end.
-
-Lemma bool_enc_inv_correct : (forall x (y:bool), enc y = x -> y = bool_enc_inv x).
-Proof.
-  intros x [];intros;subst;reflexivity.
-Qed.
-
-Arguments lcomp_comp _{_} _ {_} _ _.

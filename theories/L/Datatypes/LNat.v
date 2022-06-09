@@ -2,7 +2,7 @@
 From Undecidability.L.Tactics Require Export LTactics GenEncode.
 
 Require Import Nat.
-From Undecidability.L Require Import Datatypes.LBool Functions.EqBool Datatypes.LProd.
+From Undecidability.L Require Import Datatypes.LBool Datatypes.LProd.
 Import GenEncode.
 (* ** Encoding of natural numbers *)
 

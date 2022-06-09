@@ -1,11 +1,12 @@
 From Undecidability.L.Tactics Require Import LTactics.
-From Undecidability.L.Datatypes Require Import LFinType LBool LProd.
-From Undecidability.L.Functions Require Import EqBool.
+From Undecidability.L.Datatypes Require Import LFinType LProd LBool.
 From Undecidability.L.Datatypes.List Require Import List_enc.
 
 Section Lookup.
   Variable X Y : Type.
-  Context `{HX : eqbCompT X}.
+  Variable eqbX : X -> X -> bool.
+  Context {HX : registered X}.
+  Context {H1eqbX : eqbClass eqbX} {H2eqbX : computable eqbX}.
 
   Fixpoint lookup (x:X) (A:list (X*Y)) d: Y :=
     match A with
@@ -16,7 +17,8 @@ Section Lookup.
 
   Global Instance term_lookup `{registered Y} :
     computable (lookup).
-  Proof using HX.
+  Proof using HX H1eqbX H2eqbX.
+    unfold lookup. unfold eqb.
     extract.
   Qed.
 
@@ -32,7 +34,7 @@ Section funTable.
     map (fun x => (x,f x)) (elem X).
 
   Variable (eqbX : X -> X -> bool).
-  Context `{eqbClass X eqbX}.
+  Context {HeqbX : eqbClass eqbX}.
 
   Lemma lookup_funTable x d:
     lookup x funTable d = f x.

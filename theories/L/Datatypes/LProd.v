@@ -1,6 +1,5 @@
-From Undecidability.L Require Export L Tactics.LTactics GenEncode.
-From Undecidability.L.Datatypes Require Import LBool.
-From Undecidability.L Require Import Functions.EqBool GenEncode.
+From Undecidability.L Require Import Tactics.LTactics.
+From Undecidability.L Require Import Datatypes.LBool GenEncode.
 
 (* ** Encoding of pairs *)
 
@@ -51,20 +50,19 @@ Section Fix_XY.
     intros ? ?. eapply prod_eqb_spec. all:eauto using eqb_spec.
   Qed.
 
+  Variable eqbX : X -> X -> bool.
+  Variable eqbY : Y -> Y -> bool.
+  Context {HeqbX : computable eqbX}.
+  Context {HeqbY : computable eqbY}.
+
+  #[global]
+  Instance term_prod_eqb : computable (prod_eqb eqbX eqbY).
+  Proof using HeqbX HeqbY.
+    apply computableExt with (x := fun a b : X * Y => eqbX (fst a) (fst b) && eqbY (snd a) (snd b)).
+    { now intros [??] [??]. }
+    extract.
+  Qed.
+
 End Fix_XY.
-
-#[global]
-Instance term_prod_eqb X Y `{eqbCompT X} `{eqbCompT Y} : computable (@prod_eqb X Y eqb eqb).
-Proof.
-  apply computableExt with (x := fun a b : X * Y => eqb0 (fst a) (fst b) && eqb1 (snd a) (snd b)).
-  { now intros [??] [??]. }
-  extract.
-Qed.
-
-#[global]
-Instance inst_eqbCompT_prod X Y `{eqbCompT X} `{eqbCompT Y} : eqbCompT (X * Y).
-Proof.
-  constructor. now apply term_prod_eqb.
-Qed.
 
 #[export] Hint Resolve prod_enc_correct : Lrewrite.

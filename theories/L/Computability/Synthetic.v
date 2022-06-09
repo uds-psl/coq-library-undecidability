@@ -1,6 +1,6 @@
-From Undecidability.L Require Import Computability.MuRec.
+From Undecidability.L Require Import Computability.Computability Computability.MuRec.
 From Undecidability.L.Datatypes Require Import LNat LOptions LProd.
-From Undecidability.L.Datatypes.List Require Import List_basics List_eqb List_fold List_enc.
+From Undecidability.L.Datatypes.List Require Import List_basics List_eqb List_enc.
 From Undecidability.Synthetic Require Import DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 
 Require Import Datatypes.

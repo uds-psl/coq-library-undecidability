@@ -19,8 +19,6 @@ Local Arguments Vector.to_list {A n} (!v).
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 
-
-
 Lemma removelast_cons (X : Type) (xs : list X) (x : X) :
   xs <> nil ->
   removelast (x :: xs) = x :: removelast xs.
@@ -29,17 +27,6 @@ Proof.
   - congruence.
   - intros _. auto.
 Qed.
-
-
-(* TODO: ~> somewhere else *)
-Lemma vector_to_list_inj (X : Type) (n : nat) (xs ys : Vector.t X n) :
-  vector_to_list xs = vector_to_list ys -> xs = ys.
-Proof.
-  revert ys. induction xs as [ | x n xs IH]; intros; cbn in *.
-  - destruct_vector. reflexivity.
-  - destruct_vector. cbn in *. inv H. f_equal. auto.
-Qed.
-
 
 Section Fin.
 

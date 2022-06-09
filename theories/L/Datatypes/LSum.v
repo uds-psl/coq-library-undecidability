@@ -51,8 +51,6 @@ Section sum_eqb.
   Qed.
 End sum_eqb.
 
-From Undecidability Require Import EqBool.
-
 Section int.
 
   Variable X Y:Type.

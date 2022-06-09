@@ -3,12 +3,12 @@ From Undecidability.L Require Import Computability.MuRec.
 
 From Undecidability.TM Require Import TM_facts.
 
-From Undecidability.L.Datatypes Require LNat LProd LFinType LVector List.List_basics.
-From Undecidability.L.Functions Require FinTypeLookup EqBool.
+From Undecidability.L.Datatypes Require LBool LNat LProd LFinType LVector List.List_basics.
+From Undecidability.L.Functions Require FinTypeLookup.
 From Undecidability.L.TM Require TapeFuns.
 
 Module TMinL_extract.
-Import TapeFuns FinTypeLookup EqBool List.List_basics LProd LFinType.
+Import TapeFuns FinTypeLookup LBool List.List_basics LProd LFinType.
 
 Local Notation L := TM.Lmove.
 Local Notation R := TM.Rmove.
@@ -30,27 +30,13 @@ Section loopM.
   Let eqb_state := eqbFinType_inst (X:=state M).
   Existing Instance eqb_state.
   Import Vector.
-  
-  #[local] Instance inst_eqbCompT_state_M : eqbCompT (state M).
-  Proof.
-    constructor. extract.
-  Qed.
-
-  #[local] Instance inst_eqbCompT_config_M : eqbCompT (finType_CS (state M * Vector.t (option sig) n)).
-  Proof.
-    constructor. unfold prod_eqb.
-    apply computableExt with (x := (fun a b : state M * t (option sig) n =>
-    finType_eqb (fst a) (fst b) && VectorEq.eqb (option_eqb finType_eqb) (snd a) (snd b))).
-    { now intros [??][??]. }
-    extract.
-  Qed.
 
   (* *** Computability of transition relation *)
   Global Instance term_trans : computable (trans (m:=M)).
   Proof.
     pose (t:= (funTable (trans (m:=M)))).
     apply computableExt with (x:= (fun c => lookup c t (start M,Vector.const (None , N) _ ) )).
-    2:{ extract. }  
+    2:{ extract. }
     cbn -[t] ;intro. subst t. setoid_rewrite lookup_funTable. reflexivity.
   Qed.
 

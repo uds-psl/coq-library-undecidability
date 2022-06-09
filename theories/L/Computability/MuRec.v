@@ -1,4 +1,4 @@
-From Undecidability.L Require Export Datatypes.LNat Datatypes.LBool Tactics.LTactics Computability.Computability Tactics.Lbeta.
+From Undecidability.L Require Export Datatypes.LNat Datatypes.LBool Tactics.LTactics.
 
 Section MuRecursor.
 
@@ -7,13 +7,6 @@ Hypothesis P_proc : proc P.
 Local Hint Resolve P_proc : LProc.
 
 Hypothesis dec'_P : forall (n:nat), (exists (b:bool), app P (ext n) == ext b ).
-
-Lemma dec_P : forall n:nat, {b:bool | app P (ext n) == ext b}.
-Proof using dec'_P.
-  intros. eapply lcomp_comp.
-  -apply bool_enc_inv_correct.
-  -apply dec'_P.
-Qed.
 
 Section hoas.
   Import HOAS_Notations.
@@ -55,8 +48,7 @@ Lemma mu'_sound v n: proc v -> mu' P (ext (n:nat)) == v ->
                                 /\ forall n', n' < n0 -> P (ext (n':nat)) == ext false.
 Proof using P_proc dec'_P.
   intros pv. intros R. apply equiv_lambda in R;try Lproc. apply star_pow in R. destruct R as [k R]. revert n R. apply complete_induction with (x:=k);clear k;intros k. intros IH n R H.
-  specialize (dec_P n).
-  destruct (dec_P n) as [[] eq].
+  destruct (dec'_P n) as [[] eq].
   -exists n;intuition. apply pow_star in R. apply star_equiv in R. rewrite <- R. now rewrite mu'_n_true.
   -assert (R':=mu'_n_false eq). apply star_pow in R'. destruct R' as [k' R'].
    destruct (parametrized_confluence uniform_confluence R R') as [x [l [u [le1 [le2 [R1 [R2 eq']]]]]]]. destruct x.
@@ -102,7 +94,7 @@ Proof using P_proc dec'_P.
   assert (forall n':nat, n'< n-(n-n0) -> P (ext n') == ext false) by (intros;lia).
   assert ((n-n0)+n0=n) by lia. remember (n-n0) as k. clear Heqk Heqn0 H0 n0. induction k.
   -simpl in *. subst. intros. eexists. unfold mu. Lsimpl. apply mu'_complete;eauto. intros. apply H. lia. 
-  -intros. destruct (dec_P (n-S k)) as [y P'].
+  -intros. destruct (dec'_P (n-S k)) as [y P'].
    destruct y.
    +eexists. unfold mu. Lsimpl. apply mu'_complete. exact P'. exact H.
    +apply IHk. intros. decide (n' = n - (S k)).

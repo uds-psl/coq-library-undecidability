@@ -108,7 +108,7 @@ Qed.
 #[global]
 Instance lambda_dec s : dec (lambda s).
 Proof.
-  destruct s;[right;intros C;inv C;congruence..|left;eexists;eauto].
+  destruct s; [right; intros [? H];discriminate H..|left;eexists;reflexivity].
 Defined. (* because instance *)
 
 

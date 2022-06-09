@@ -1,5 +1,5 @@
 From Undecidability.L.Tactics Require Import LTactics GenEncode.
-From Undecidability.L Require Import Datatypes.LNat Functions.EqBool.
+From Undecidability.L Require Import Datatypes.LNat Datatypes.LBool.
 
 Import Nat.
 Require Export Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.

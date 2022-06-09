@@ -1,5 +1,5 @@
 From Undecidability.L.Datatypes Require Import LNat LVector.
-From Undecidability.L.Datatypes.List Require Import List_basics List_eqb List_fold List_enc.
+From Undecidability.L.Datatypes.List Require Import List_basics List_eqb List_enc.
 
 From Undecidability.L Require Import TM.TMEncoding.
 

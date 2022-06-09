@@ -1,5 +1,4 @@
 From Undecidability.L Require Import Tactics.LTactics Datatypes.LBool Tactics.GenEncode.
-From Undecidability.L Require Import Functions.EqBool.
 
 (* ** Encoding of option type *)
 Section Fix_X.
@@ -14,7 +13,7 @@ Section Fix_X.
   Global Instance term_Some : computable (@Some X).
   Proof.
     extract constructor.
-  Defined. (*because next lemma*)
+  Qed.
 
 End Fix_X.
 

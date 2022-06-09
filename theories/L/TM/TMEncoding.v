@@ -1,13 +1,10 @@
 From Undecidability.L.Tactics Require Import LTactics GenEncode.
-From Undecidability.L.Datatypes Require Import LNat LProd LFinType LVector.
-From Undecidability.L.Datatypes.List Require Import List_basics List_eqb List_fold List_enc.
-
-From Undecidability.L Require Import Functions.EqBool.
+From Undecidability.L.Datatypes Require Import LBool LNat LProd LFinType LVector.
+From Undecidability.L.Datatypes.List Require Import List_basics List_eqb List_enc.
 
 From Undecidability.TM.Util Require Import VectorPrelim TM_facts.
 
 Require Import Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
-From Undecidability.TM Require PrettyBounds.SizeBounds.
 
 
 Import L_Notations.

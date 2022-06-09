@@ -426,9 +426,7 @@ TM/Compound/TMTac.v
 TM/Compound/Multi.v
 TM/Compound/WriteString.v
 TM/Compound/MoveToSymbol.v
-TM/Compound/CopySymbols.v
 TM/Compound/Shift.v
-TM/Compound/Compare.v
 
 TM/Code/Code.v
 TM/Code/CodeTM.v
@@ -439,9 +437,6 @@ TM/Single/StepTM.v
 TM/Reductions/HaltL_to_HaltTM_5.v
 
 TM/Reductions/Arbitrary_to_Binary.v
-
-TM/PrettyBounds/MaxList.v
-TM/PrettyBounds/SizeBounds.v
 
 TM/Reductions/mTM_to_TM.v
 TM/Reductions/HaltTM_1_to_SBTM_HALT.v
@@ -455,7 +450,6 @@ TM/Enumerators/SBTM_HALT_enum.v
 L/Enumerators/term_enum.v
 
 L/Prelim/ARS.v
-L/Prelim/MoreList.v
 
 L/Util/L_facts.v
 L/Util/Subterm.v
@@ -486,7 +480,6 @@ L/Datatypes/LBool.v
 L/Datatypes/List/List_basics.v
 L/Datatypes/List/List_enc.v
 L/Datatypes/List/List_eqb.v
-L/Datatypes/List/List_fold.v
 L/Datatypes/LNat.v
 L/Datatypes/LOptions.v
 L/Datatypes/LProd.v
@@ -495,8 +488,6 @@ L/Datatypes/LTerm.v
 L/Datatypes/LFinType.v
 L/Datatypes/LVector.v
 
-L/Functions/EqBool.v
-L/Functions/Equality.v
 L/Functions/Encoding.v
 L/Functions/Eval.v
 L/Functions/FinTypeLookup.v

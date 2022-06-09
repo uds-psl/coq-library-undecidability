@@ -1,7 +1,7 @@
 (* ** Abstract Reduction Systems *)
 (* from Semantics Lecture at Programming Systems Lab, https://www.ps.uni-saarland.de/courses/sem-ws13/ *)
 
-Require Export Undecidability.Shared.Libs.PSL.Base Lia Arith.
+Require Import Undecidability.Shared.Libs.PSL.Base Lia Arith.
 
 Module ARSNotations.
   Notation "p '<=1' q" := (forall x, p x -> q x) (at level 70).

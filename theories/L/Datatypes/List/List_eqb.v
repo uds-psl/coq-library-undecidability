@@ -1,7 +1,6 @@
 From Undecidability.L.Tactics Require Import LTactics.
-From Undecidability.L Require Import Functions.EqBool.
 
-From Undecidability.L.Datatypes Require Export List.List_enc LBool LOptions LNat.
+From Undecidability.L.Datatypes Require Export List.List_enc LBool LOptions LNat LBool.
 
 Section Fix_X.
   Variable (X:Type).
@@ -31,7 +30,7 @@ Section Fix_X.
   Global Instance term_inb_notime: computable inb.
   Proof.
     extract.
-  Defined. (*because other extract*)
+  Qed.
 
 End Fix_X.
 
@@ -71,6 +70,5 @@ Section int.
   Proof.
     intros ? ?. eapply list_eqb_spec. all:eauto using eqb_spec.
   Qed.
-  Import EqBool.
   
 End int.

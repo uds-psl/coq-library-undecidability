@@ -1,6 +1,6 @@
 From Undecidability.H10 Require Import H10 dio_single dio_logic.
 From Undecidability.L.Datatypes Require Import LNat LOptions LSum.
-From Undecidability.L.Datatypes.List Require Import List_basics List_eqb List_fold List_enc.
+From Undecidability.L.Datatypes.List Require Import List_basics List_eqb List_enc.
 
 From Undecidability.L Require Import Tactics.LTactics Computability.MuRec Computability.Synthetic Tactics.GenEncode.
 From Undecidability.Shared Require Import DLW.Utils.finite DLW.Vec.vec DLW.Vec.pos.
