@@ -47,7 +47,7 @@ Section Sig_n_Sig.
     Variables (X : Type) (M : fo_model Σ X).
 
     Local Definition M_enc_n : fo_model Σn X.
-    Proof.
+    Proof using M.
       exists; intros [] v.
       exact (fom_rels M r v).
     Defined.
@@ -86,7 +86,7 @@ Section Sig_n_Sig.
     Variables (X : Type) (Mn : fo_model Σn X) (x0 : X).
 
     Local Definition Mn_enc : fo_model Σ X.
-    Proof.
+    Proof using Mn x0.
       exists.
       + intros s v; apply x0.
       + intros r' v.

@@ -74,7 +74,7 @@ Section finite_discrete_choice.
   Theorem list_discrete_choice l :
             (forall x, In x l -> ex (R x))
          -> exists f, forall x (Hx : In x l), R x (f x Hx).
-  Proof.
+  Proof using X_discrete.
     induction l as [ | x l IHl ]; intros Hl.
     + exists (fun x (Hx : @In X x nil) => False_rect Y Hx).
       intros _ [].
@@ -95,7 +95,7 @@ Section finite_discrete_choice.
   Fact finite_discrete_choice :
          finite X 
       -> (forall x, ex (R x)) -> exists f, forall x, R x (f x).
-  Proof.
+  Proof using X_discrete.
     intros (l & Hl) H.
     destruct list_discrete_choice with (l := l) as (f & Hf); auto.
     exists (fun x => f x (Hl x)); auto.
@@ -133,7 +133,7 @@ Section finite_t_dec_choose_one.
            (Pdec : forall x, { P x } + { ~ P x }).
 
   Fact list_dec_choose_one l : (exists x, In x l /\ P x) -> { x | In x l /\ P x }.
-  Proof.
+  Proof using Pdec.
     clear HX Q HQ.
     induction l as [ | x l IHl ]; intros H.
     + exfalso; destruct H as (_ & [] & _).
@@ -146,7 +146,7 @@ Section finite_t_dec_choose_one.
  
   Fact fin_t_dec_choose_one : 
          (exists x, Q x /\ P x) -> { x | Q x /\ P x }.
-  Proof.
+  Proof using HQ Pdec.
     revert HQ; intros (l & Hl) H.
     destruct (list_dec_choose_one l) as (x & H1 & H2).
     + destruct H as (x & ? & ?); exists x; rewrite <- Hl; auto.
@@ -154,7 +154,7 @@ Section finite_t_dec_choose_one.
   Qed.
 
   Fact finite_t_dec_choose_one : ex P -> sig P. 
-  Proof.
+  Proof using HX Pdec.
     clear Q HQ.
     revert HX; intros (l & Hl) H.
     destruct (list_dec_choose_one l) as (x & H1 & H2); firstorder.

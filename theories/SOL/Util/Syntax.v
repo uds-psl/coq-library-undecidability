@@ -4,8 +4,6 @@ From Undecidability.Shared.Libs.PSL Require Import Vectors VectorForall.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 Require Import EqdepFacts Eqdep_dec.
 
-Set Default Proof Using "Type".
-
 Unset Implicit Arguments.
 
 #[global]

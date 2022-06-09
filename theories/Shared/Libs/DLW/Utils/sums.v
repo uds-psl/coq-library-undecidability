@@ -68,20 +68,20 @@ Section msum.
   Hypothesis Hmonoid : monoid_theory m u.
 
   Fact msum_1 f : ∑ 1 f = f 0.
-  Proof.
+  Proof using Hmonoid.
     destruct Hmonoid as [ H1 H2 ].
     rewrite msum_S, msum_0, H2; auto.
   Qed.
 
   Fact msum_plus a b f : ∑ (a+b) f = ∑ a f ⊕ ∑ b (fun i => f (a+i)).
-  Proof.
+  Proof using Hmonoid.
     destruct Hmonoid as [ H1 _ H3 ].
     revert f; induction a as [ | a IHa ]; intros f; simpl; auto.
     rewrite <- H3; f_equal; apply IHa.
   Qed.
 
   Fact msum_plus1 n f : ∑ (S n) f = ∑ n f ⊕ f n.
-  Proof.
+  Proof using Hmonoid.
     destruct Hmonoid as [ _ H2 _ ].
     replace (S n) with (n+1) by lia.
     rewrite msum_plus; simpl; f_equal.
@@ -96,14 +96,14 @@ Section msum.
   Qed.
 
   Fact msum_unit n : ∑ n (fun _ => u) = u.
-  Proof.
+  Proof using Hmonoid.
     destruct Hmonoid as [ H1 _ _ ].
     induction n as [ | n IHn ]; simpl; auto.
     rewrite IHn; auto.
   Qed.
 
   Fact msum_comm a n f : (forall i, i < n -> f i ⊕ a = a ⊕ f i) -> ∑ n f ⊕ a = a ⊕ ∑ n f.
-  Proof.
+  Proof using Hmonoid.
     destruct Hmonoid as [ H1 H2 H3 ].
     revert f; induction n as [ | n IHn ]; intros f H; simpl; auto.
     + rewrite H1, H2; auto.
@@ -114,7 +114,7 @@ Section msum.
   Qed.
 
   Fact msum_sum n f g : (forall i j, i < j < n -> f j ⊕ g i = g i ⊕ f j) -> ∑ n (fun i => f i ⊕ g i) = ∑ n f ⊕ ∑ n g.
-  Proof.
+  Proof using Hmonoid.
     destruct Hmonoid as [ H1 H2 H3 ].
     revert f g; induction n as [ | n IHn ]; intros f g H; simpl; auto.
     rewrite IHn.
@@ -126,7 +126,7 @@ Section msum.
   Qed.
 
   Fact msum_of_unit n f : (forall i, i < n -> f i = u) -> ∑ n f = u.
-  Proof.
+  Proof using Hmonoid.
     intros H.
     rewrite <- (msum_unit n).
     apply msum_ext; auto.
@@ -135,7 +135,7 @@ Section msum.
   Fact msum_only_one n f i : i < n
                           -> (forall j, j < n -> i <> j -> f j = u)
                           -> ∑ n f = f i.
-  Proof.
+  Proof using Hmonoid.
     destruct Hmonoid as [ M1 M2 M3 ].
     intros H1 H2.
     replace n with (i + 1 + (n-i-1)) by lia.
@@ -149,7 +149,7 @@ Section msum.
   Fact msum_msum n k f :
           (forall i1 j1 i2 j2, i1 < n -> j1 < k -> i2 < n -> j2 < k -> f i1 j1 ⊕ f i2 j2 = f i2 j2 ⊕ f i1 j1)
        -> ∑ n (fun i => ∑ k (f i)) = ∑ k (fun j => ∑ n (fun i => f i j)).
-  Proof.
+  Proof using Hmonoid.
     revert k f; induction n as [ | n IHn ]; intros k f Hf.
     + rewrite msum_0, msum_of_unit; auto.
     + rewrite msum_S, IHn.
@@ -162,7 +162,7 @@ Section msum.
   Qed.
 
   Fact msum_ends n f : (forall i, 0 < i <= n -> f i = u) -> ∑ (n+2) f = f 0 ⊕ f (S n).
-  Proof.
+  Proof using Hmonoid.
     destruct Hmonoid as [ H1 H2 H3 ].
     intros H.
     replace (n+2) with (1 + n + 1) by lia.
@@ -173,7 +173,7 @@ Section msum.
   Qed.
 
   Fact msum_first_two n f : 2 <= n -> (forall i, 2 <= i -> f i = u) -> ∑ n f = f 0 ⊕ f 1.
-  Proof.
+  Proof using Hmonoid.
     destruct Hmonoid as [ _ M2 _ ].
     intros Hn H1.
     destruct n as [ | [ | n ] ]; try lia.
@@ -192,28 +192,28 @@ Section msum.
   Proof. apply msum_S. Qed.
 
   Fact mscal_1 x : mscal 1 x = x.
-  Proof. 
+  Proof using Hmonoid.
     destruct Hmonoid as [ _ H2 _ ].
     rewrite mscal_S, mscal_0, H2; trivial.
   Qed.
 
   Fact mscal_of_unit n : mscal n u = u.
-  Proof. apply msum_of_unit; auto. Qed.
+  Proof using Hmonoid. apply msum_of_unit; auto. Qed.
 
   Fact mscal_plus a b x : mscal (a+b) x = mscal a x ⊕ mscal b x.
-  Proof. apply msum_plus. Qed.
+  Proof using Hmonoid. apply msum_plus. Qed.
 
   Fact mscal_plus1 n x : mscal (S n) x = mscal n x ⊕ x.
-  Proof. apply msum_plus1. Qed.
+  Proof using Hmonoid. apply msum_plus1. Qed.
 
   Fact mscal_comm n x y : x ⊕ y = y ⊕ x -> mscal n x ⊕ y = y ⊕ mscal n x.
-  Proof. intros H; apply msum_comm; auto. Qed.
+  Proof using Hmonoid. intros H; apply msum_comm; auto. Qed.
 
   Fact mscal_sum n x y : x ⊕ y = y ⊕ x -> mscal n (x ⊕ y) = mscal n x ⊕ mscal n y.
-  Proof. intro; apply msum_sum; auto. Qed.
+  Proof using Hmonoid. intro; apply msum_sum; auto. Qed.
 
   Fact mscal_mult a b x : mscal (a*b) x = mscal a (mscal b x).
-  Proof.
+  Proof using Hmonoid.
     induction a as [ | a IHa ]; simpl.
     + do 2 rewrite mscal_0; auto.
     + rewrite mscal_plus, IHa, mscal_S; auto.
@@ -221,7 +221,7 @@ Section msum.
 
   Fact msum_mscal n k f : (forall i j, i < n -> j < n -> f i ⊕ f j = f j ⊕ f i) 
                        -> ∑ n (fun i => mscal k (f i)) = mscal k (∑ n f).
-  Proof. intros H; apply msum_msum; auto. Qed.
+  Proof using Hmonoid. intros H; apply msum_msum; auto. Qed.
 
 End msum.
 
@@ -236,13 +236,13 @@ Section msum_morphism.
            (Hphi2 : forall x y, phi (m1 x y) = m2 (phi x) (phi y)).
 
   Fact msum_morph n f : phi (msum m1 u1 n f) = msum m2 u2 n (fun x => phi (f x)).
-  Proof.
+  Proof using Hphi1 Hphi2.
     revert f; induction n as [ | n IHn ]; intros f; simpl; auto.
     rewrite Hphi2, IHn; trivial.
   Qed.
 
   Fact mscal_morph n x : phi (mscal m1 u1 n x) = mscal m2 u2 n (phi x).
-  Proof. apply msum_morph. Qed.
+  Proof using Hphi1 Hphi2. apply msum_morph. Qed.
 
 End msum_morphism.
 
@@ -267,7 +267,7 @@ Section binomial_Newton.
              (distr_r : forall x y z, (y⊕z) ⊗ x = y⊗x ⊕ z⊗x).
 
   Fact times_zero_l x : z ⊗ x = z.
-  Proof.
+  Proof using M_sum M_times sum_cancel distr_r.
     destruct M_sum as [ S1 S2 S3 ].
     destruct M_times as [ T1 T2 T3 ].
     apply sum_cancel with (z⊗x).
@@ -275,7 +275,7 @@ Section binomial_Newton.
   Qed.
 
   Fact times_zero_r x : x ⊗ z = z.
-  Proof.
+  Proof using M_sum M_times sum_cancel distr_l.
     destruct M_sum as [ S1 S2 S3 ].
     destruct M_times as [ T1 T2 T3 ].
     apply sum_cancel with (x⊗z).
@@ -285,10 +285,10 @@ Section binomial_Newton.
   Notation "∑" := (msum sum zero).
 
   Fact sum_0n_scal n k f : ∑ n (fun i => scal k (f i)) = scal k (∑ n f).
-  Proof. apply msum_mscal; auto. Qed.
+  Proof using M_sum sum_comm. apply msum_mscal; auto. Qed.
 
   Fact scal_times k x y : scal k (x⊗y) = x⊗scal k y.
-  Proof.
+  Proof using M_sum M_times sum_cancel distr_l.
     destruct M_sum as [ S1 S2 S3 ].
     destruct M_times as [ T1 T2 T3 ].
     induction k as [ | k IHk ].
@@ -297,7 +297,7 @@ Section binomial_Newton.
   Qed.
 
   Fact scal_one_comm k x : scal k o ⊗ x = x ⊗ scal k o.
-  Proof.
+  Proof using M_sum M_times sum_cancel distr_r distr_l.
     destruct M_times as [ T1 T2 T3 ].
     induction k as [ | k IHk ].
     + rewrite mscal_0, times_zero_l, times_zero_r; auto.
@@ -306,7 +306,7 @@ Section binomial_Newton.
   Qed.
 
   Corollary scal_one k x : scal k x = scal k o ⊗ x.
-  Proof. 
+  Proof using M_sum M_times sum_cancel distr_r distr_l.
     destruct M_times as [ T1 T2 T3 ].
     rewrite <- (T2 x) at 1.
     rewrite scal_times.
@@ -314,14 +314,14 @@ Section binomial_Newton.
   Qed.
 
   Fact sum_0n_distr_l b n f : ∑ n (fun i => b⊗f i) = b⊗∑ n f.
-  Proof.
+  Proof using M_sum M_times sum_cancel distr_l.
     revert f; induction n as [ | n IHn ]; intros f.
     + do 2 rewrite msum_0; rewrite times_zero_r; auto.
     + do 2 rewrite msum_S; rewrite IHn, distr_l; auto.
   Qed.
 
   Fact sum_0n_distr_r b n f : ∑ n (fun i => f i⊗b) = ∑ n f ⊗ b.
-  Proof.
+  Proof using M_sum M_times sum_cancel distr_r.
     revert f; induction n as [ | n IHn ]; intros f.
     + do 2 rewrite msum_0; rewrite times_zero_l; auto.
     + do 2 rewrite msum_S; rewrite IHn, distr_r; auto.
@@ -340,7 +340,7 @@ Section binomial_Newton.
   Theorem binomial_Newton n a b :
         a ⊗ b = b ⊗ a
      -> expo n (a ⊕ b) = ∑ (S n) (fun i => scal (binomial n i) (expo (n - i) a ⊗ expo i b)).
-  Proof.
+  Proof using All.
     destruct M_sum as [ S1 S2 S3 ].
     destruct M_times as [ T1 T2 T3 ].
     intros Hab; induction n as [ | n IHn ].

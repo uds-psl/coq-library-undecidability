@@ -9,8 +9,6 @@ Require Import Undecidability.Shared.Dec.
 
 Import VectorNotations SubstNotations SOLNotations PA2Notations.
 
-Set Default Proof Using "Type".
-
 Arguments Vector.cons {_} _ {_} _, _ _ _ _.
 
 Unset Implicit Arguments.

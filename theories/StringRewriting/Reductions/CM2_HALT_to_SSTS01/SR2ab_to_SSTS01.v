@@ -9,7 +9,6 @@ Require Import Undecidability.StringRewriting.Util.List_facts.
 
 Require Import ssreflect ssrbool ssrfun.
 
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
 Local Arguments rt_trans {A R x y z}.

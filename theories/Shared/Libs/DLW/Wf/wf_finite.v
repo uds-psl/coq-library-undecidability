@@ -29,10 +29,10 @@ Section wf_strict_order_list.
   Implicit Type l : list X.
 
   Fact chain_trans n x y : chain R n x y -> n = 0 /\ x = y \/ R x y.
-  Proof. induction 1 as [ | ? ? ? ? ? ? [ [] | ] ]; subst; eauto. Qed.
+  Proof using Rtrans. induction 1 as [ | ? ? ? ? ? ? [ [] | ] ]; subst; eauto. Qed.
 
   Corollary chain_irrefl n x :~ chain R (S n) x x.
-  Proof.
+  Proof using Rirrefl Rtrans.
     intros H.
     apply chain_trans in H as [ (? & _) | H ]; try easy.
     revert H; apply Rirrefl.
@@ -45,14 +45,14 @@ Section wf_strict_order_list.
   Hint Resolve incl_nil_l incl_cons : core.
 
   Fact chain_list_incl l x y : chain_list R l x y -> l ⊆ m.
-  Proof. induction 1; simpl; eauto. Qed.
+  Proof using Hm. induction 1; simpl; eauto. Qed.
 
   (* Any chain of length above length m contains a duplicated
       value (by the PHP) hence a non nil sub-chain with identical 
       endpoints, contradicting chain_irrefl *)
 
   Lemma chain_bounded n x y : chain R n x y -> n <= length m.
-  Proof.
+  Proof using Hm Rirrefl Rtrans.
     intros H.
     destruct (le_lt_dec n (length m)) as [ | C ]; auto.
     destruct chain_chain_list with (1 := H)
@@ -76,7 +76,7 @@ Section wf_strict_order_list.
   Hint Resolve chain_bounded : core.
 
   Theorem wf_strict_order_list : well_founded R.
-  Proof. apply wf_chains; eauto. Qed.
+  Proof using Hm Rirrefl Rtrans. apply wf_chains; eauto. Qed.
 
 End wf_strict_order_list.
 
@@ -88,7 +88,7 @@ Section wf_strict_order_finite.
            (Rtrans : forall x y z, R x y -> R y z -> R x z).
 
   Theorem wf_strict_order_finite : well_founded R.
-  Proof.
+  Proof using HX Rirrefl Rtrans.
     destruct HX as (m & Hm).
     apply wf_strict_order_list with (m := m); auto.
   Qed.

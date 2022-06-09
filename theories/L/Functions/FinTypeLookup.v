@@ -2,8 +2,6 @@ From Undecidability.L.Tactics Require Import LTactics.
 From Undecidability.L.Datatypes Require Import LFinType LBool LProd Lists.
 From Undecidability.L.Functions Require Import EqBool.
 
-Set Default Proof Using "Type".
-
 Section Lookup.
   Variable X Y : Type.
   Context {eqbX : X -> X -> bool}.

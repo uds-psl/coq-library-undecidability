@@ -6,8 +6,6 @@ Require Import Arith Lia Vector.
 Import SubstNotations.
 Unset Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Arguments eval_function {_ _ _ _ _}.
 Arguments eval_predicate {_ _ _ _ _}.
 Arguments eval {_ _ _ _}.

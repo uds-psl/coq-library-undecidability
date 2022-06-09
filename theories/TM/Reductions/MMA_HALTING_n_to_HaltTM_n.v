@@ -32,7 +32,6 @@ Require Import List Vector Lia PeanoNat Compare_dec.
 Import ListNotations.
 Require Import ssreflect ssrbool ssrfun.
 
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
 Module Argument.

@@ -235,7 +235,7 @@ Section pos_left_right_rect.
              (HP2 : forall p, P (pos_right _ p)).
 
   Theorem pos_left_right_rect : forall p, P p.
-  Proof.
+  Proof using HP1 HP2.
     intros p.
     rewrite <- pos_lr_both.
     generalize (pos_both n m p); clear p; intros [|]; simpl; auto.

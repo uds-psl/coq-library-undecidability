@@ -150,7 +150,7 @@ Section wf_chains.
   Hypothesis (HR : forall x, exists k, forall n y, chain n y x -> n <= k). 
 
   Theorem wf_chains : well_founded R.
-  Proof.
+  Proof using HR.
     intros x.
     destruct (HR x) as (k & Hk).
     revert Hk; apply Acc_chains.

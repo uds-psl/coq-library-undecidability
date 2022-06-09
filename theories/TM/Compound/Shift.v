@@ -7,8 +7,6 @@ From Undecidability Require Import TM.Compound.Multi.
 From Coq Require Import FunInd.
 From Coq Require Import Recdef.
 
-Set Default Proof Using "Type".
-
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 

@@ -18,8 +18,6 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations utils fol_ops fo_sig fo_terms fo_logic fo_sat decidable.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 (* * Decidability results for FSAT *)

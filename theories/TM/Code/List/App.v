@@ -10,8 +10,6 @@ Local Arguments mult : simpl never.
 Local Arguments Encode_list : simpl never.
 Local Arguments Encode_nat : simpl never.
 
-Set Default Proof Using "Type".
-
 
 From Undecidability Require Import TM.Basic.Mono TM.Code.Copy.
 

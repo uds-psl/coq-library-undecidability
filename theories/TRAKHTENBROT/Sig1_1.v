@@ -90,7 +90,7 @@ Section Σ11_words.
   (* Signatures with arity always 1 for both syms and rels *)
 
   Definition Σ11 : fo_signature.
-  Proof.
+  Proof using X Y.
     exists X Y; intros _.
     + exact 1.
     + exact 1.
@@ -260,7 +260,7 @@ Section Σfull_mon_rem.
 
     Fact Σfull_mon_rec_sound φ : 
          fol_sem M' φ (Σfull_mon_rec A) <-> fol_sem M φ A.
-    Proof.
+    Proof using M HwA.
       revert φ HwA; induction A as [ | r v | b B HB C HC | q B HB ]; intros φ HA.
       + simpl; tauto.
       + simpl in v; unfold Σfull_mon_rec.
@@ -285,7 +285,7 @@ Section Σfull_mon_rem.
              (HA : fol_sem M φ A).
 
     Theorem Σfull_mon_rem_sound : fo_form_fin_dec_SAT_in Σfull_mon_red K.
-    Proof.
+    Proof using HwA Kfin Mdec HA.
       exists M', Kfin.
       exists.
       { intros [ (w,r) | r ]; simpl in r |- *; intro; apply Mdec. } 
@@ -328,7 +328,7 @@ Section Σfull_mon_rem.
 
       Fact Σfull_mon_rec_complete φ : 
         fol_sem M' φ (Σfull_mon_rec A) <-> fol_sem M φ A.
-      Proof.
+      Proof using HwA HM1' HM2'.
         revert φ HwA; induction A as [ | r v | b B HB C HC | q B HB ]; intros φ HwA.
         + simpl; tauto.
         + simpl in v; unfold Σfull_mon_rec.
@@ -357,7 +357,7 @@ Section Σfull_mon_rem.
              (HA : fol_sem M' φ Σfull_mon_red).
 
     Theorem Σfull_mon_rem_complete : fo_form_fin_dec_SAT_in A K.
-    Proof.
+    Proof using HwA Kfin M'dec HA.
       exists M, Kfin.
       exists.
       { intros r'; simpl in r'; intros v; apply M'dec. }
@@ -382,7 +382,7 @@ Section Σfull_mon_rem.
 
   Theorem Σfull_mon_red_correct : fo_form_fin_dec_SAT_in A K 
                               <-> fo_form_fin_dec_SAT_in Σfull_mon_red K.
-  Proof.
+  Proof using HwA.
     split.
     + intros (M & H1 & H2 & phi & H3).
       apply Σfull_mon_rem_sound with M phi; auto.
@@ -448,7 +448,7 @@ Section Σfull_mon_rem.
     Defined.
 
     Local Lemma Σfull_mon_red'_complete : fo_form_fin_dec_SAT_in Σfull_mon_red K.
-    Proof.
+    Proof using All.
       exists M', Kfin, Mdec, φ.
       simpl; split.
       + simpl in HA; generalize (proj1 HA).
@@ -476,7 +476,7 @@ Section Σfull_mon_rem.
   Theorem Σfull_mon_red'_correct : 
           fo_form_fin_dec_SAT_in A K
       <-> fo_form_fin_dec_SAT_in Σfull_mon_red' K.
-  Proof.
+  Proof using HwA.
     rewrite Σfull_mon_red_correct. 
     split.
     + apply Σfull_mon_red'_sound.
@@ -539,7 +539,7 @@ Section Σ11_Σ1.
 
   Theorem Σ11_Σ1_reduction : { B : fol_form (Σ11 Empty_set (list (pos n)*P + P)) 
                                  | fo_form_fin_dec_SAT A <-> fo_form_fin_dec_SAT B }.
-  Proof.
+  Proof using HY.
     destruct Σ_no_sym_correct with (A := Σ11_red HY A) as (B & HB).
     { rewrite Σ11_red_no_syms; apply incl_refl. }
     exists B; rewrite <- HB; split; intros (X & H); exists X; revert H; apply Σ11_red_correct.

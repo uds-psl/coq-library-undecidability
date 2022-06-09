@@ -14,8 +14,6 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Section iter.
 
   Variable (X : Type) (f : X -> X). 

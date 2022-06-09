@@ -11,7 +11,6 @@ Require Import Undecidability.PCP.Util.PCP_facts.
 Require Import Undecidability.Synthetic.Definitions.
 
 Set Default Goal Selector "!".
-Set Default Proof Using "Type".
 
 Local Notation "x 'el' A" := (In x A) (at level 70).
 Local Notation "A <<= B" := (incl A B) (at level 70).

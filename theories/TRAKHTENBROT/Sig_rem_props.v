@@ -33,7 +33,7 @@ Section remove_constants.
   Variable (Σ : fo_signature) (HΣ : forall r, ar_rels Σ r <= 1).
 
   Definition Σno_props : fo_signature.
-  Proof.
+  Proof using Σ.
     exists (syms Σ) (rels Σ).
     + apply ar_syms.
     + exact (fun _ => 1).
@@ -47,7 +47,7 @@ Section remove_constants.
   Proof. intros [ | [ | a ] ]; auto; right; lia. Qed.
 
   Fixpoint Σrem_props (n : nat) A { struct A } : fol_form Σ'.
-  Proof.
+  Proof using HΣ.
     refine (match A with
       | ⊥              => ⊥
       | fol_atom r v   => 
@@ -106,7 +106,7 @@ Section remove_constants.
                (HA : fol_sem M φ A).
 
     Local Lemma Σrem_props_soundness : fo_form_fin_dec_SAT_in (Σrem_props 0 A) X.
-    Proof.
+    Proof using Xfin Mdec HA.
       exists M', Xfin.
       exists.
       { intros r; simpl; intros v; simpl in *.
@@ -157,7 +157,7 @@ Section remove_constants.
                (HA : fol_sem M' φ (Σrem_props 0 A)).
 
     Local Lemma Σrem_props_completeness : fo_form_fin_dec_SAT_in A X.
-    Proof.
+    Proof using Xfin M'dec HA.
       exists M, Xfin.
       exists.
       { intros r v; simpl in *.

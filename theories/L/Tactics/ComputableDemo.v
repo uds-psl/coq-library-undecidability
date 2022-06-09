@@ -2,7 +2,6 @@ From Undecidability.L.Datatypes Require Import LOptions LBool LNat Lists.
 From Undecidability.L.Tactics Require Import LTactics ComputableTactics.
 Require Import Nat.
 
-Set Default Proof Using "Type".
 Section demo.
 
 (* for examples of usage see LBool/LNat/Lists/Option/Encoding etc*)

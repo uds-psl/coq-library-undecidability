@@ -21,8 +21,6 @@ Section Graph.
 
   Variable (A : finType) (B : Type) (f : A -> B).
 
-  Set Default Proof Using "Type".
-
   Definition graph_of_fun : list (A*B) := map (fun x => (x, f x)) enum.
 
   Lemma graph_of_fun_functional x y1 y2 :

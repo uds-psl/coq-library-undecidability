@@ -2,7 +2,6 @@ Require Import Lia List PeanoNat Permutation.
 Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
-Set Default Proof Using "Type".
 
 (* transforms a goal (A -> B) -> C into goals A and B -> C *)
 Lemma unnest : forall (A B C : Type), A -> (B -> C) -> (A -> B) -> C.

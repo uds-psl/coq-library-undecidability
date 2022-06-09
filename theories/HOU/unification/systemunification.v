@@ -3,8 +3,6 @@ Require Import List Lia.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.higher_order_unification.
 Import ListNotations.
 
-Set Default Proof Using "Type".
-
 (* * System Unification *)
 Section SystemUnification.
 

@@ -34,8 +34,6 @@ From Undecidability.H10.ArithLibs
 
 Require Import Undecidability.Synthetic.Definitions.
 
-Set Default Proof Using "Type".
-
 Local Definition inj k n := 4 * n + k.
 
 Lemma injection_spec k1 k2 n m : k1 < 4 -> k2 < 4 -> inj k1 n = inj k2 m -> k1 = k2 /\ n = m.

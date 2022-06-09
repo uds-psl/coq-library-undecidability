@@ -1,6 +1,7 @@
 -Q . Undecidability
 
 -arg -w -arg -notation-overridden
+-arg "-set" -arg "'Default Proof Using = Type'"
 COQDOCFLAGS = "--charset utf-8 -s --with-header ../website/resources/header.html --with-footer ../website/resources/footer.html --index indexpage"
 
 # coqdoc files
@@ -61,6 +62,7 @@ Synthetic/EnumerabilityFacts.v
 Synthetic/ListEnumerabilityFacts.v
 Synthetic/MoreEnumerabilityFacts.v
 Synthetic/ReducibilityFacts.v
+Synthetic/MoreReducibilityFacts.v
 Synthetic/InformativeReducibilityFacts.v
 Synthetic/Infinite.v
 

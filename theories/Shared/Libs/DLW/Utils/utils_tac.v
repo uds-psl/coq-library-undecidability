@@ -9,7 +9,6 @@
 
 Require Import Arith List Wellfounded Extraction.
 
-
 Set Implicit Arguments.
 
 Definition eqdec X := forall x y : X, { x = y } + { x <> y }.
@@ -64,7 +63,7 @@ Section forall_equiv.
   Variable (X : Type) (A P Q : X -> Prop) (HPQ : forall n, A n -> P n <-> Q n).
 
   Theorem forall_bound_equiv : (forall n, A n -> P n) <-> (forall n, A n -> Q n).
-  Proof.
+  Proof using HPQ.
     split; intros H n Hn; generalize (H _ Hn); apply HPQ; auto.
   Qed.
 
@@ -75,7 +74,7 @@ Section exists_equiv.
   Variable (X : Type) (P Q : X -> Prop) (HPQ : forall n, P n <-> Q n).
 
   Theorem exists_equiv : (exists n, P n) <-> (exists n, Q n).
-  Proof.
+  Proof using HPQ.
     split; intros (n & Hn); exists n; revert Hn; apply HPQ; auto.
   Qed.
 
@@ -90,7 +89,7 @@ Section measure_rect_123.
     Hypothesis F : forall x, (forall y, m y < m x -> P y) -> P x.
 
     Definition measure_rect x : P x.
-    Proof.
+    Proof using F.
       cut (Acc (fun x y => m x < m y) x).
       + revert x.
         refine (fix loop x H := @F x (fun x' H' => loop x' _)).
@@ -110,7 +109,7 @@ Section measure_rect_123.
     Let R c d := m' c < m' d.
 
     Definition measure_rect2 x y : P x y.
-    Proof.
+    Proof using F R.
       cut (Acc R (x,y)).
       + revert x y.
         refine (fix loop x y H := @F x y (fun x' y' H' => loop x' y' _)).
@@ -130,7 +129,7 @@ Section measure_rect_123.
     Let R c d := m' c < m' d.
 
     Definition measure_rect3 x y z : P x y z.
-    Proof.
+    Proof using F R.
       cut (Acc R (x,y,z)).
       + revert x y z.
         refine (fix loop x y z H := @F x y z (fun x' y' z' H' => loop x' y' z' _)).

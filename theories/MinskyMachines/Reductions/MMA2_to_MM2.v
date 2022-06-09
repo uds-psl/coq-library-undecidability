@@ -16,8 +16,6 @@ From Undecidability.MinskyMachines Require Import MM2 mma_defs.
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Tactic Notation "rew" "length" := autorewrite with length_db.
 
 Local Notation "e #> x" := (vec_pos e x).

@@ -14,8 +14,6 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 From Undecidability.PCP Require Import PCP.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 Section dec.

@@ -6,8 +6,6 @@ From Undecidability Require Import FOLP.FOLFS.
 Require Import Undecidability.Shared.ListAutomation.
 Import ListAutomationNotations.
 
-Set Default Proof Using "Type".
-
 (* ** Bounded boolean strings *)
 
 Lemma le_irrel' n :

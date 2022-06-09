@@ -81,7 +81,7 @@ Section linker.
     Qed.
     
     Fact comp_length i ll j : length (comp i ll j) = lsum ll.
-    Proof.
+    Proof using Hc.
       revert i j; induction ll as [ | x ll IH ]; simpl; intros i j; auto.
       rew length; rewrite IH, Hc; trivial.
     Qed.
@@ -133,14 +133,14 @@ Section linker.
   Definition compiler := comp linker (fst P) (snd P) i.
   
   Fact compiler_length : length compiler = length_compiler (snd P).
-  Proof. apply comp_length. Qed.
+  Proof using Hc. apply comp_length. Qed.
 
   Section linker_in_code.
 
     Hypothesis (Hlc : forall x, 1 <= lc x).
 
     Fact linker_in_code j : in_code j P -> in_code (linker j) (i,compiler).
-    Proof.
+    Proof using Hc Hlc.
       intros H; red in H; simpl in H.
       destruct (@list_split_length _ (snd P) (j - fst P)) as (ll & mm & H1 & H2);
         try lia.
@@ -160,7 +160,7 @@ Section linker.
           (j,x::nil) <sc P 
        -> (linker j, c linker j x) <sc (i,compiler)
        /\  linker (1+j) = lc x + linker j.
-  Proof.
+  Proof using Hc.
     case_eq P; intros iP lP HP (l & r & H1 & H2); simpl in H1.
     assert (linker j = lsum l + i) as Hj.
     { generalize (linker_app l (x::r)).
@@ -195,7 +195,7 @@ Section linker.
   
    Fact linker_out_code j : err < i \/ length_compiler (snd P) + i <= err 
                         -> out_code j P -> out_code (linker j) (i,compiler).
-  Proof.
+  Proof using Hc.
     intros H1 H2.
     red in H2.
     destruct (eq_nat_dec j (code_end P)) as [ H | H ].

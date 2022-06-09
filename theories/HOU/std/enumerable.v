@@ -4,8 +4,6 @@ Require Import List Arith Lia.
 From Undecidability.HOU Require Import std.decidable std.lists.basics std.lists.advanced std.tactics.
 Import ListNotations.
 
-Set Default Proof Using "Type".
-
 Notation "( A × B × .. × C )" :=
   (list_prod .. (list_prod A B) .. C) (at level 0, left associativity).
 

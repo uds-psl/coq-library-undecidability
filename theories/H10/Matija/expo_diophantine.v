@@ -22,8 +22,6 @@ From Undecidability.H10.Matija
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Local Notation expo := (mscal mult 1).
 
 Section expo_diophantine.

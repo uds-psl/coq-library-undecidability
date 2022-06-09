@@ -425,7 +425,7 @@ Section PHP_rel.
                           
   Theorem PHP_rel : exists a x b y c v, l = a++x::b++y::c
                                        /\ In v m /\ R x v /\ R y v.
-  Proof.
+  Proof using Hlm image_R_l.
     destruct image_R_l as (Rl & H1 & H2).
     destruct finite_pigeon_hole with (2 := H1) as (v & x & y & z & H).
     + apply Forall2_length in H2; lia.

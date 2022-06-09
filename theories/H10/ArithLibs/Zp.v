@@ -20,8 +20,6 @@ From Undecidability.H10.ArithLibs
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Section le_pirr.
 
   (* a dependent induction principle for le *)

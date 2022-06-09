@@ -8,8 +8,6 @@ Require Import Undecidability.Shared.Dec.
 
 Import ListNotations SOLNotations PA2Notations.
 
-Set Default Proof Using "Type".
-
 Fixpoint encode_number n := match n with 
   | 0 => zero 
   | S n => σ (encode_number n) 

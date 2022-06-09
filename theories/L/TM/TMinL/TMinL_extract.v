@@ -5,7 +5,6 @@ From Undecidability.L Require Import TM.TapeFuns.
 
 From Undecidability.TM Require Import TM_facts.
 
-Set Default Proof Using "Type".
 Local Notation L := TM.Lmove.
 Local Notation R := TM.Rmove.
 Local Notation N := TM.Nmove.

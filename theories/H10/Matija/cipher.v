@@ -16,8 +16,6 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Local Notation power := (mscal mult 1).
 Local Notation "∑" := (msum plus 0).
 Local Infix "≲" := binary_le (at level 70, no associativity).

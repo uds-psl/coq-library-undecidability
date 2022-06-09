@@ -2,8 +2,6 @@
 From Undecidability.FOL Require Import binZF ZF Reductions.PCPb_to_ZF.
 From Undecidability.FOL Require Import Aczel Aczel_CE Aczel_TD Syntax FullTarski_facts.
 
-Set Default Proof Using "Type".
-
 (** Model of ZF *)
 
 Section ZFM.

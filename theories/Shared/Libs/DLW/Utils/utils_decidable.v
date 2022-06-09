@@ -147,7 +147,7 @@ Section sinc_decidable.
 
   Theorem sinc_decidable : (forall n, exists k, n <= k /\ P k)
                          * (forall n, { P n } + { ~ P n }).
-  Proof. split; auto. Qed.
+  Proof using HP Hf. split; auto. Qed.
 
 End sinc_decidable.
 
@@ -217,7 +217,7 @@ Section decidable_sinc.
 
   Theorem decidable_sinc : { f | (forall n, f n < f (S n))
                               /\ (forall n, P n <-> exists k, n = f k) }.
-  Proof. exists f; auto. Qed.
+  Proof using Pdec Punb. exists f; auto. Qed.
 
 End decidable_sinc.
 

@@ -66,7 +66,7 @@ Section Sig2_SigSSn1_encoding.
   Theorem Σ2_ΣSSn1_correct A : 
            (forall x, In x (fol_vars A) -> R (φ x) (ψ x))
         -> fol_sem M2 φ A <-> fol_sem MSSn1 ψ (Σ2_ΣSSn1 d A).
-  Proof.
+  Proof using All.
     revert d φ ψ H2 H3.
     induction A as [ | [] v | b A HA B HB | [] A HA ];
       intros d φ ψ H2 H3 H.
@@ -218,7 +218,7 @@ Section Σ2_ΣSSn1_enc_sound.
   Hint Resolve finite_t_sum finite_t_bool finite_t_prod : core.
 
   Theorem Σ2_ΣSSn1_enc_sound : fo_form_fin_dec_SAT (Σ2_ΣSSn1_enc n A).
-  Proof.
+  Proof using HX M2_dec HA.
     exists Y, MSSn1.
     exists. { unfold Y; auto. }
     exists.
@@ -321,7 +321,7 @@ Section Σ2_ΣSSn1_enc_complete.
   Hypothesis HY : finite_t Y.
 
   Theorem Σ2_ΣSSn1_enc_complete : fo_form_fin_dec_SAT A.
-  Proof.
+  Proof using All.
     exists X, M2.
     exists. 
     { unfold X; apply fin_t_finite_t.

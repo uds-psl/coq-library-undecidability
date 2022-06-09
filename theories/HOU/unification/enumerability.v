@@ -2,8 +2,6 @@ Set Implicit Arguments.
 Require Import List Lia.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.higher_order_unification unification.nth_order_unification.
 
-Set Default Proof Using "Type".
-
 (* * Enumerability *)
 
 (* ** Terms, Types and Contexts *)

@@ -2,10 +2,8 @@
 
 From Undecidability.PCP Require Import PCP Util.PCP_facts.
 From Undecidability.FOL Require Import Util.Deduction Util.Tarski Util.Syntax_facts FOL.
-From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
+From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts MoreReducibilityFacts.
 Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
-
-Set Default Proof Using "Type".
 
 (* ** Validity *)
 

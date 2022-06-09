@@ -9,8 +9,6 @@ From Undecidability Require Import ArithPrelim.
 From Coq Require Import FunInd.
 From Coq Require Import Recdef.
 
-Set Default Proof Using "Type".
-
 (* * Move to a symbol and translate read symbols *)
 
 

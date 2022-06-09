@@ -4,8 +4,6 @@ Require Import Undecidability.FOL.PA.
 From Undecidability.H10 Require Import H10p.
 Require Import List Lia.
 
-Set Default Proof Using "Type".
-
 Fixpoint embed_poly p : term :=
     match p with
     | dp_nat_pfree n => num n

@@ -25,8 +25,6 @@ From Undecidability.DiophantineConstraints
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Local Notation "〚 c 〛" := (h10c_sem c).
 Local Notation " '⟪' c '⟫' " := (fun φ => h10uc_sem φ c).
 

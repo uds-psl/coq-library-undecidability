@@ -5,8 +5,6 @@ From Undecidability.HOU.calculus Require Import
   prelim terms syntax semantics confluence. 
 
 
-Set Default Proof Using "Type".
-
 (* * Equational Theory *)
 Section Equivalence.
   Context {X: Const}.

@@ -4,8 +4,6 @@ From Undecidability.HOU Require Import calculus.calculus unification.unification
 From Undecidability.HOU.second_order Require Export diophantine_equations goldfarb.encoding goldfarb.multiplication.
 Import ListNotations.
 
-Set Default Proof Using "Type".
-
 
 (* ** Equivalences *)
 Section EquationEquivalences.

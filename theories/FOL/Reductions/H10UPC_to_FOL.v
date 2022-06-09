@@ -23,7 +23,6 @@ Idea: The relation (#&#35;#) has the following properties:#<ul>#
 *)
 
 
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
 

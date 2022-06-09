@@ -7,7 +7,6 @@ From Undecidability.Shared.Libs.DLW.Wf Require Import wf_finite.
 From Undecidability.FOL Require Import FSAT.
 From Undecidability.Synthetic Require Import Definitions.
 
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 Set Mangle Names.
 Inductive syms_func : Type := .

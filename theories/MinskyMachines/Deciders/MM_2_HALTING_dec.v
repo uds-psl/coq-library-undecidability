@@ -25,7 +25,6 @@ Require Import Undecidability.CounterMachines.Util.Facts.
 Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
-Set Default Proof Using "Type".
 
 #[local] Notation "P // s ↓" := (sss_terminates (@mm_sss _) P s).
 #[local] Notation "P // r ->> s" := (sss_compute (@mm_sss _) P r s).

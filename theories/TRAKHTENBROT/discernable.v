@@ -15,8 +15,6 @@ From Undecidability.Shared.Libs.DLW.Utils
 From Undecidability.TRAKHTENBROT
   Require Import notations utils decidable.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 Local Infix "∊" := In (at level 70, no associativity).

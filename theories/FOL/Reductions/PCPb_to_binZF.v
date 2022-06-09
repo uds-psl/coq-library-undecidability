@@ -9,8 +9,6 @@ Local Unset Strict Implicit.
 
 Require Import Morphisms.
 
-Set Default Proof Using "Type".
-
 Local Notation vec := Vector.t.
 
 Local Hint Constructors prv : core.

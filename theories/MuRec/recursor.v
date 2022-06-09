@@ -12,8 +12,6 @@ From Undecidability.Shared.Libs.DLW
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Section recursor.
 
   Variables (F : nat -> Prop) 

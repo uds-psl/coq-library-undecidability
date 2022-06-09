@@ -109,7 +109,7 @@ Section remove_interpreted_symbol.
     Theorem Σ_noeq_complete : 
                fo_form_fin_dec_SAT (Σ_noeq A)
             -> fo_form_fin_dec_eq_SAT e H_ae A.
-    Proof.
+    Proof using HA1 HA2.
       intros (X & M & H1 & H2 & phi & H5 & H3).
       apply fol_sem_congruence in H5
         as ((H4 & H5) & (H6 & H8 & H7)).

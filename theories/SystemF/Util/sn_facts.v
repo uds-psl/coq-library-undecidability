@@ -4,8 +4,6 @@ From Undecidability.SystemF.Util Require Import typing_facts term_facts step.
 Require Import Setoid Morphisms.
 Require List.
 
-Set Default Proof Using "Type".
-
 Definition pw_iff {X} p q := (forall x : X, p x <-> q x).
 Notation "p == q" := (pw_iff p q) (at level 70).
 

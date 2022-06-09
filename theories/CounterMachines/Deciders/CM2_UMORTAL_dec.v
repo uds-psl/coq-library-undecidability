@@ -18,7 +18,6 @@ From Undecidability.CounterMachines.Util Require Import Facts CM2_facts.
 Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
-Set Default Proof Using "Type".
 
 Section Construction.
 

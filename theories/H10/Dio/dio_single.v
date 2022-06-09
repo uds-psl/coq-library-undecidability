@@ -19,8 +19,6 @@ From Undecidability.H10.Dio
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Local Notation "∑" := (msum plus 0).
 
 Section convexity.

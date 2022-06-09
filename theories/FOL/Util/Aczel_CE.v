@@ -4,8 +4,6 @@ From Undecidability.FOL Require Import Util.Aczel.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
-Set Default Proof Using "Type".
-
 (* Quotient construction assuming class extensionality (CE) *)
 
 Definition CE :=

@@ -19,7 +19,6 @@ From Undecidability.SemiUnification.Util Require Import Enumerable.
 
 Require Import ssreflect ssrfun ssrbool.
 
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
 Module Argument.

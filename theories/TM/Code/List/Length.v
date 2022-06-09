@@ -11,7 +11,6 @@ Local Arguments Encode_nat : simpl never.
 
 
 (* ** Length *)
-Set Default Proof Using "Type".
 
 Section Lenght.
 

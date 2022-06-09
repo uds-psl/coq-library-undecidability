@@ -12,8 +12,6 @@ Require Import List.
 From Undecidability.MinskyMachines 
   Require Import ndMM2.
 
-Set Default Proof Using "Type".
-
 Section ndMM2_monotonicity.
 
   Variables loc : Set.

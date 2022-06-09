@@ -165,7 +165,7 @@ Section vector.
   Variable eq_X_dec : forall x y : X, { x = y } + { x <> y }.
 
   Fixpoint vec_eq_dec n (u v : vec n) : { u = v } + { u <> v }.
-  Proof.
+  Proof using eq_X_dec.
     destruct u as [ | x n u ].
     + left.
       rewrite vec_0_nil; trivial.
@@ -672,7 +672,7 @@ Section vec_nat_induction.
   Hypothesis HP2 : forall v w, P v -> P w -> P (vec_plus v w).
   
   Theorem vec_nat_induction v : P v.
-  Proof.
+  Proof using HP0 HP1 HP2.
     induction v as [ v IHv ] using (measure_rect (@vec_sum n)).
     case_eq (vec_sum v).
     + intros Hv; apply vec_sum_is_zero in Hv; subst; auto.
@@ -798,7 +798,7 @@ Section map_vec_pos_equiv.
   Theorem map_vec_pos_equiv n (f : vec X n -> Y) : 
            (forall p v x y, R x y -> T (f (v[x/p])) (f (v[y/p])))
         -> forall v w, (forall p, R (v#>p) (w#>p)) -> T (f v) (f w).
-  Proof.
+  Proof using T_refl T_trans.
     revert f; induction n as [ | n IHn ]; intros f Hf v w H.
     + vec nil v; vec nil w; auto.
     + apply T_trans with (y := f (v[(w#>pos0)/pos0])).
