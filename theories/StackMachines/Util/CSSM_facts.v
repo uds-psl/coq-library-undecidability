@@ -20,7 +20,6 @@ Require Import Undecidability.StackMachines.SSM.
 
 From Undecidability.StackMachines.Util Require Import Facts.
 
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
 (* width of a configuration *)

@@ -9,7 +9,6 @@ Import Vector.VectorNotations ListNotations SBTMNotations.
 
 Require Import ssreflect ssrbool ssrfun.
 
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
 #[local] Notation "P // s -[ k ]-> t" := (sss_steps (@bsm_sss _) P k s t).

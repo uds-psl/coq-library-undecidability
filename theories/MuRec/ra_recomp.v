@@ -18,8 +18,6 @@ From Undecidability.MuRec Require Import recalg recomp prim_min ra_utils.
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Local Notation "'⟦' f '⟧'" := (@ra_rel _ f) (at level 0).
 Local Notation power := (mscal mult 1).
 

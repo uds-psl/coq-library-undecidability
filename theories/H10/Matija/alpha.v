@@ -17,8 +17,6 @@ From Undecidability.Shared.Libs.DLW.Utils
 From Undecidability.H10.ArithLibs 
   Require Import matrix Zp.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 Section Zp_alpha_2.

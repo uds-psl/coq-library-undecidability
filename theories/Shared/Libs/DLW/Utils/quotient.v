@@ -251,7 +251,7 @@ Section ep_quotient.
 
   Local Fact enum_quotient_rec : 
         { Y : Type & { _ : dec (@eq Y) & quotient R Y } }.
-  Proof.
+  Proof using HR1 HR2 Hf.
     exists Y, Y_discrete, cls, rpr; split; auto.
   Qed.
 

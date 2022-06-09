@@ -3,8 +3,6 @@ Require Import List Arith Lia Morphisms FinFun Init.Wf.
 From Undecidability.HOU Require Import std.decidable.
 Import ListNotations.
 
-Set Default Proof Using "Type".
-
 Arguments incl {_} _ _.
 Definition seteq {X: Type} (A B: list X) := incl A B /\ incl B A.
 Definition strict_incl {X: Type} (A B: list X) :=

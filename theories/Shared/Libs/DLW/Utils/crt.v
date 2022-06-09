@@ -29,7 +29,7 @@ Section Informative_Chinese_Remainder_theorems.
     Variable (u v a b : nat) (Hu : u <> 0) (Hv : v <> 0) (Huv : is_gcd u v 1).
 
     Theorem CRT_bin_informative : { w | rem w u = rem a u /\ rem w v = rem b v /\ 2 < w }.
-    Proof.
+    Proof using Hu Hv Huv.
       destruct bezout_rel_prime with (1 := Huv) as (x & y & H1).
       assert (rem (x*u) v = rem 1 v) as H2.
       { rewrite rem_plus_div with (a := 1) (b := u*v); auto.

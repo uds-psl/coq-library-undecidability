@@ -20,8 +20,6 @@ From Undecidability.TRAKHTENBROT
 
 Require Import Undecidability.Shared.ListAutomation.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 (* * The syntax and semantics of FO logic *)

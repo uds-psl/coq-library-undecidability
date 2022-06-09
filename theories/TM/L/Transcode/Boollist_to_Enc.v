@@ -15,8 +15,6 @@ From Coq Require Import Lia Ring Arith.
 
 From Undecidability Require Import TM.Code.List.Concat_Repeat.
 
-Set Default Proof Using "Type".
-
 Module BoollistToEnc.
   Section M.
     Import ProgrammingTools Combinators App CaseList CaseBool.

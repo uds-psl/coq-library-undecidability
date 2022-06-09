@@ -8,8 +8,6 @@ From Undecidability.Synthetic Require Export DecidabilityFacts EnumerabilityFact
 From Undecidability.FOLP Require Export Syntax unscoped.
 Require Export Lia.
 
-Set Default Proof Using "Type".
-
 (* **** Notation *)
 
 Notation "phi --> psi" := (Impl phi psi) (right associativity, at level 55).

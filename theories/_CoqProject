@@ -1,6 +1,7 @@
 -Q . Undecidability
 
 -arg -w -arg -notation-overridden
+-arg "-set" -arg "'Default Proof Using = Type'"
 COQDOCFLAGS = "--charset utf-8 -s --with-header ../website/resources/header.html --with-footer ../website/resources/footer.html --index indexpage"
 
 # coqdoc files
@@ -66,6 +67,7 @@ Synthetic/EnumerabilityFacts.v
 Synthetic/ListEnumerabilityFacts.v
 Synthetic/MoreEnumerabilityFacts.v
 Synthetic/ReducibilityFacts.v
+Synthetic/MoreReducibilityFacts.v
 Synthetic/InformativeReducibilityFacts.v
 Synthetic/Infinite.v
 
@@ -297,6 +299,7 @@ MinskyMachines/Reductions/MUREC_MM.v
 MinskyMachines/Reductions/BSM_HALTING_to_MM2_HALTING.v
 MinskyMachines/Reductions/MM2_to_ndMM2_ACCEPT.v
 MinskyMachines/Reductions/MMA2_to_ndMM2_ACCEPT.v
+MinskyMachines/Reductions/KrivineMclosed_HALT_to_MMA_HALTING.v
 
 MinskyMachines/Deciders/MPM2_HALT_dec.v
 MinskyMachines/Deciders/MM_2_HALTING_dec.v
@@ -477,7 +480,8 @@ TM/Code/BinNumbers/NTM.v
 TM/Single/EncodeTapes.v
 TM/Single/StepTM.v
 TM/Reductions/L_to_mTM.v
-  
+TM/Reductions/HaltL_to_HaltTM_5.v
+
 TM/Reductions/Arbitrary_to_Binary.v
 
 TM/Univ/LookupAssociativeListTM.v
@@ -491,6 +495,7 @@ TM/Reductions/mTM_to_TM.v
 TM/Reductions/HaltTM_1_to_SBTM_HALT.v
 TM/Reductions/SBTM_HALT_to_HaltTM_1.v
 TM/Reductions/SBTM_HALT_to_PCTM_HALT.v
+TM/Reductions/MMA_HALTING_n_to_HaltTM_n.v
 
 TM/Enumerators/SBTM_HALT_enum.v
 
@@ -577,6 +582,7 @@ L/Reductions/TM_to_L.v
 L/Reductions/H10_to_L.v
 L/Reductions/MuRec/MuRec_extract.v
 L/Reductions/MuRec.v
+L/Reductions/HaltL_to_HaltLclosed.v
 
 L/Complexity/UpToC.v
 L/Complexity/UpToCNary.v
@@ -799,14 +805,11 @@ DiophantineConstraints/Reductions/H10SQC_SAT_to_H10UC_SAT.v
 DiophantineConstraints/Reductions/H10UC_SAT_to_H10UPC_SAT.v
 
 SetConstraints/Util/Facts.v
-SetConstraints/Util/mset_eq_utils.v
-SetConstraints/Util/mset_poly_utils.v
 SetConstraints/Reductions/H10UC_SAT_to_FMsetC_SAT.v
 
 PolynomialConstraints/LPolyNC.v
 PolynomialConstraints/LPolyNC_undec.v
 
-PolynomialConstraints/Util/PolyFacts.v
 PolynomialConstraints/Reductions/FMsetC_SAT_to_LPolyNC_SAT.v
 
 HilbertCalculi/HSC.v
@@ -850,3 +853,15 @@ SOL/Util/PA2_categoricity.v
 SOL/Reductions/H10p_to_SOL.v
 SOL/SOL_undec.v
 SOL/PA2_undec.v
+
+LambdaCalculus/wCBN.v
+LambdaCalculus/wCBN_undec.v
+LambdaCalculus/Krivine.v
+LambdaCalculus/Krivine_undec.v
+
+LambdaCalculus/Util/term_facts.v
+LambdaCalculus/Util/wCBN_facts.v
+LambdaCalculus/Util/Krivine_facts.v
+LambdaCalculus/Reductions/HaltLclosed_to_wCBNclosed.v
+LambdaCalculus/Reductions/wCBNclosed_to_wCBN.v
+LambdaCalculus/Reductions/wCBNclosed_to_KrivineMclosed_HALT.v

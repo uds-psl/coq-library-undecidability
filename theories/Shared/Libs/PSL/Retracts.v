@@ -4,7 +4,6 @@
 
 From Undecidability.Shared.Libs.PSL Require Import Base.
 
-
 (*
  * A retraction between types [A] and [B] is a tuple of two functions,
  * [f : A -> B] (called the injection function) and [g : B -> option A] (called the retract function),
@@ -353,7 +352,7 @@ Section Join.
   Hypothesis disjoint : forall (a : A) (b : B), Retr_f _ a <> Retr_f _ b.
 
   Lemma retract_join : retract retract_join_f retract_join_g.
-  Proof.
+  Proof using disjoint.
     unfold retract_join_f, retract_join_g. hnf; intros s z; split.
     - destruct s as [a|b]; intros H.
       + destruct (Retr_g retr1 z) eqn:E.

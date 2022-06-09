@@ -21,8 +21,6 @@ Import Coq.Init.Datatypes List.
 Open Scope string_scope.
 Require Import String.
 
-Set Default Proof Using "Type".
-
 From Undecidability Require Cons_constant.
 
 Module Private_UnfoldClos.

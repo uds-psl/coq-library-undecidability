@@ -11,8 +11,6 @@ From Undecidability Require Import TM.Util.VectorPrelim.
 From Undecidability Require Import EncodeTapes TM.Util.VectorPrelim.
 Require Import FunInd.
 
-Set Default Proof Using "Type".
-
 Local Set Printing Coercions.
 
 (* Avoid using [Vector.to_list], because it doesn't [cbn] good. Use [vector_to_list] instead. *)
@@ -340,8 +338,7 @@ Section BookKeepingForRead.
 
   Variable sig : Type.
 
-  Set Default Proof Using "Type".
-
+  
   Fixpoint knowsFirstSymbols {n' : nat} (readSymbols : Vector.t (option sig) n') (tps : list (tape sig)) {struct readSymbols} : Prop :=
     match readSymbols, tps with
     | Vector.nil _,  nil => True /\ True /\ True

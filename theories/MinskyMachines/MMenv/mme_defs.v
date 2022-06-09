@@ -17,8 +17,6 @@ From Undecidability.MinskyMachines.MMenv Require Import env.
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 (* * Minsky Machines
 
     A Minsky machine has n registers and there are just two instructions

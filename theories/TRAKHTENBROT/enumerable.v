@@ -23,8 +23,6 @@ From Undecidability.TRAKHTENBROT
 
 (* * Enumerability and closure properties *)
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 (* We develop a basic theory of enumeration, ie empty types or

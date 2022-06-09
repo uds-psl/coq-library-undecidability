@@ -376,7 +376,7 @@ Section nat_sorted.
   Hypothesis (HP2 : forall x y l, x < y -> P (y::l) -> P (x::y::l)).
   
   Theorem nat_sorted_rect l : nat_sorted l -> P l.
-  Proof.
+  Proof using HP0 HP1 HP2.
     induction l as [ [ | x [ | y l ] ] IHl ] using (measure_rect (@length _)).
     intro; apply HP0.
     intro; apply HP1.
@@ -541,7 +541,7 @@ Section nat_rev_bounded_ind.
   Variables (k : nat) (P : nat -> Prop) (HP : forall n, S n <= k -> P (S n) -> P n).
   
   Fact nat_rev_bounded_ind x y : x <= y <= k -> P y -> P x.
-  Proof.
+  Proof using HP.
     intros H1 H2.
     refine (proj1 (@nat_rev_ind (fun n => P n /\ n <= k) _ x y _ _)).
     clear x y H1 H2; intros n (H1 & H2); split; auto; lia.
@@ -580,7 +580,7 @@ Section nat_minimize.
     Qed.
 
     Definition min_dec : (exists n, P n) -> { m | P m /\ forall x, P x -> m <= x }.
-    Proof.
+    Proof using HP.
       intros H.
       destruct (@min_rec 0) as (m & H1 & H2).
       * destruct H as (n & Hn).
@@ -595,7 +595,7 @@ Section nat_minimize.
   End nat_min.
 
   Fact first_which : (exists x, P x) -> { m | P m /\ forall x, x < m -> ~ P x }.
-  Proof.
+  Proof using HP.
     intros H.
     destruct (min_dec H) as (m & H1 & H2).
     exists m; split; auto.
@@ -626,7 +626,7 @@ Section first_which_ni.
   Hypothesis HP : forall n, P n \/ ~ P n.
 
   Fact first_which_ni : (exists x, P x) -> exists m, P m /\ forall x, x < m -> ~ P x.
-  Proof.
+  Proof using HP.
     intros (n & Hn).
     destruct (@bounded_search_ni (S n)) as [ H1 | (m & H1 & H2 & H3) ].
     + intros; auto.

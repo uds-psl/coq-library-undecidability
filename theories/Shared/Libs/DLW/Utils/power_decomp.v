@@ -41,7 +41,7 @@ Section power_decomp.
         -> (forall i, i < n -> f i < q)
         -> (forall i, i < n -> a i < p)
         -> ∑ n (fun i => a i * power (f i) p) < power q p.
-  Proof.
+  Proof using Hp.
     revert q; induction n as [ | n IHn ]; intros q Hf1 Hf2 Ha.
     + rewrite msum_0; apply power_ge_1; lia.
     + rewrite msum_plus1; auto.
@@ -65,7 +65,7 @@ Section power_decomp.
            (forall i j, i < j < n -> f i < f j)
         -> (forall i, i < n -> a i < p)
         ->  forall i, i < n -> is_digit (∑ n (fun i => a i * power (f i) p)) p (f i) (a i).
-  Proof.
+  Proof using Hp.
     intros Hf Ha.
     induction n as [ | n IHn ]; intros i Hi.
     + lia.
@@ -95,7 +95,7 @@ Section power_decomp.
          -> ∑ n (fun i => a i * power (f i) p)
           = ∑ n (fun i => b i * power (f i) p)
          -> forall i, i < n -> a i = b i.
-  Proof.
+  Proof using Hp.
     intros Hf Ha Hb E i Hi.
     generalize (power_decomp_is_digit _ _ Hf Ha Hi)
                (power_decomp_is_digit _ _ Hf Hb Hi).
@@ -113,7 +113,7 @@ Section power_decomp_uniq.
         -> ∑ (S n) (fun i => a i * power (f i) p) 
          = ∑ n (fun i => a (S i) * power (f (S i) - f 0 - 1) p) * power (S (f 0)) p
          + a 0 * power (f 0) p.
-  Proof.
+  Proof using Hp.
     intros Hf.
     rewrite msum_S, plus_comm; f_equal.
     rewrite <- sum_0n_scal_r.
@@ -141,7 +141,7 @@ Section power_decomp_uniq.
          -> ∑ n (fun i => a i * power (f i) p)
           = ∑ n (fun i => b i * power (f i) p)
          -> forall i, i < n -> a i = b i.
-  Proof.
+  Proof using Hp.
     revert f a b.
     induction n as [ | n IHn ]; intros f a b Hf Ha Hb.
     + intros; lia.

@@ -3,8 +3,6 @@ Require Import List Lia.
 Import ListNotations.
 From Undecidability.HOU Require Import calculus.terms calculus.prelim std.std.
 
-Set Default Proof Using "Type".
-
 (* * Syntax *)
 Definition isVar X (e: exp X) :=
   match e with var _ => True | _ => False end.

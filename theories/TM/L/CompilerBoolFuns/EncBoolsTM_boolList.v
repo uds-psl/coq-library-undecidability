@@ -13,8 +13,6 @@ From Undecidability.TM Require Import TM_facts Hoare ProgrammingTools.
 From Undecidability.TM.Code Require Import CaseBool CaseList WriteValue Copy ListTM.
 
 
-Set Default Proof Using "Type".
-
 
 Module Boollist2encBoolsTM.
 Section Fix.

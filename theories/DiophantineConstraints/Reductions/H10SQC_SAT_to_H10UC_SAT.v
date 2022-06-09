@@ -20,7 +20,6 @@ Require Import Undecidability.DiophantineConstraints.H10C.
 
 Require Import ssreflect ssrbool ssrfun.
 
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
 Module Argument.
@@ -130,7 +129,7 @@ Lemma v_spec : φ' (v 0) = 0 /\ φ' (v 1) = 1.
 Proof using Hφ'.
   move: (Hφ'). rewrite -Forall_forall /ucs Forall_app /v012.
   move=> [/Forall_cons_iff [+]] /Forall_cons_iff [+] /Forall_cons_iff [+] _ _ => /=.
-  by lia.
+  by nia.
 Qed.
 
 Lemma h10sqc_of_h10ucs_spec {c} : Forall (h10uc_sem φ') (h10sqc_to_h10ucs c) -> h10sqc_sem φ c.

@@ -36,9 +36,8 @@ From Undecidability.TRAKHTENBROT
                  Sig1_1
                  Sig_discernable.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
+Unset Strict Implicit.
 
 Local Infix "≢" := discernable (at level 70, no associativity).
 

@@ -30,7 +30,7 @@ Section Σ1_model.
   Variable (V : Type) (n : nat) (HV : V -> False).
 
   Definition ΣP1 : fo_signature.
-  Proof.
+  Proof using V n.
     exists V (pos n); intros _.
     + exact 1.
     + exact 1.
@@ -111,7 +111,7 @@ Section Σ1_model.
                                  (M' : fo_model ΣP1 (sig (fun v => Q v = true)))
                                  (_ : fo_model_dec M') psi,
                                  fol_sem M' psi A.
-  Proof.
+  Proof using Mdec HX HA HV.
     exists K, M'.
     exists.
     { unfold M'; intros p v; simpl; apply bool_dec. }

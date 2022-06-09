@@ -9,7 +9,7 @@
 
 Require Import List.
 
-From Undecidability.Synthetic Require Import Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_tac utils_nat.
@@ -22,8 +22,6 @@ From Undecidability.H10
 
 From Undecidability.MuRec 
   Require Import recalg ra_dio_poly.
-
-Set Default Proof Using "Type".
 
 Section H10_MUREC_HALTING.
 

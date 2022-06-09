@@ -21,8 +21,6 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations utils fol_ops.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 (* * Decidability and discreteness and closure properties *)

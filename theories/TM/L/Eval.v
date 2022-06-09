@@ -19,8 +19,6 @@ From Undecidability.TM.L Require Import UnfoldClos.
 
 Import CasePair Code.CaseList.
 
-Set Default Proof Using "Type".
-
 
 Module EvalL.
 Section Fix.

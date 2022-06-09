@@ -12,7 +12,6 @@ Require Recdef.
 
 (* This two-tape machines reads symbols from the tapes. It moves right, until the read symbols are not equal, or one of the read symbol is a stop symbol. It returns [true] if both last read symbols are stop symbols. It returns [false] If one (or both) tapes finally are off the tape, or the last read symbols differ. *)
 
-Set Default Proof Using "Type".
 Section Compare.
   Import Recdef.
 

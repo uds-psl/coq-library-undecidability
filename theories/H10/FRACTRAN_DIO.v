@@ -11,7 +11,7 @@
 
 Require Import List.
 
-From Undecidability.Synthetic Require Import Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts.
 
 From Undecidability.Shared.Libs.DLW

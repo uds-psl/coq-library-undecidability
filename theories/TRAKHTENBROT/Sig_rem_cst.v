@@ -34,7 +34,7 @@ Section remove_constants.
            (ls : list (syms Σ)).
 
   Definition Σrem_cst : fo_signature.
-  Proof.
+  Proof using Σ.
     exists Empty_set (rels Σ).
     + intros [].
     + apply ar_rels.
@@ -69,7 +69,7 @@ Section remove_constants.
     Variable (X : Type) (M : fo_model Σ X).
 
     Definition Σrem_cst_model : fo_model Σ' X.
-    Proof.
+    Proof using M.
       split.
       + intros [].
       + apply (fom_rels M).
@@ -133,7 +133,7 @@ Section remove_constants.
     Variable (X : Type) (M' : fo_model Σ' X).
 
     Definition Σadd_cst_model σ (ψ : nat -> X) : fo_model Σ X.
-    Proof.
+    Proof using M'.
       split.
       + intros s _; exact (ψ (σ s)).
       + apply (fom_rels M').
@@ -248,14 +248,14 @@ Section reduction.
     Local Fact syms_map : { σ  : syms Σ -> nat           & 
                           { f  : nat -> option (syms Σ)  |
                             forall s, In s ls -> f (σ s) = Some s } }.
-    Proof. exists σ, f; auto. Qed.
+    Proof using Σd. exists σ, f; auto. Qed.
  
   End syms_map.
 
   Hint Resolve incl_refl : core.
 
   Theorem Sig_rem_cst_dep_red A : { B | @fo_form_fin_dec_SAT Σ A <-> @fo_form_fin_dec_SAT (Σrem_cst Σ) B }.
-  Proof.
+  Proof using Σ0 Σd.
     generalize (fol_vars_max_spec A).
     set (m := fol_vars_max A); intros Hm.
     destruct (syms_map A) as (g & f & Hfg).

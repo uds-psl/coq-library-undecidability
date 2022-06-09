@@ -3,8 +3,6 @@ Require Import Morphisms Lia List.
 From Undecidability.HOU Require Import calculus.calculus.
 Import ListNotations.
 
-Set Default Proof Using "Type".
-
 (* * Conservativity *)
 
 Section Constants.

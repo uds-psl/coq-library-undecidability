@@ -3,8 +3,6 @@ Require Import List Lia.
 From Undecidability.HOU Require Import std.std axioms.
 Import ListNotations.
 
-Set Default Proof Using "Type".
-
 (* ** Multiplication Motivation  *)
 Section Motivation.
 

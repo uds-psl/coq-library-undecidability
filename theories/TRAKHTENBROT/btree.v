@@ -32,8 +32,6 @@ From Undecidability.Shared.Libs.DLW.Wf
 From Undecidability.TRAKHTENBROT
   Require Import notations fol_ops.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 (* * Binary trees as concrete Hereditary Finite Sets *)

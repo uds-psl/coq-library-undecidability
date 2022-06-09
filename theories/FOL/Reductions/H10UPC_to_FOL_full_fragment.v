@@ -6,7 +6,7 @@ From Undecidability.FOL Require Import Util.Syntax Util.FullTarski Util.FullTars
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
 From Coq Require Import Arith Lia List.
-Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 
 
 (* ** Validity *)
@@ -22,7 +22,6 @@ Idea: The relation (#&#35;#) has the following properties:#<ul>#
 *)
 
 
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
 (** Some utils for iteration *)

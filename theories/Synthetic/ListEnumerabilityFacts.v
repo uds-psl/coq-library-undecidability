@@ -4,8 +4,6 @@ Require Cantor.
 Require Import List.
 Import ListNotations.
 
-Set Default Proof Using "Type".
-
 #[global]
 Instance list_in_dec X (x : X) (A : list X) :
   eq_dec X -> dec (In x A).

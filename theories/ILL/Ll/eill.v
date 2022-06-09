@@ -187,7 +187,7 @@ Section g_eill_complete_bound.
   Theorem G_eill_complete_bound x : 
             [< map (fun c => !⦑c⦒) Σ ++ map £ Γ |- £ x >] vec_zero 
          -> Σ; Γ ⊦ x.
-  Proof.
+  Proof using w_surj.
     intros H.
     do 2 red in H.
     destruct (@Hrx Γ) as (v & Hv).
@@ -277,7 +277,7 @@ Section g_eill_complete.
             (Hvalid : forall n s, @ill_sequent_tps n s (map (fun c => !⦑c⦒) Σ ++ map £ Γ) (£ x) vec_zero).
 
   Theorem G_eill_complete : Σ; Γ ⊦ x.
-  Proof.
+  Proof using Hvalid.
     apply G_eill_complete_bound with (1 := w_surj), Hvalid.
   Qed.
 

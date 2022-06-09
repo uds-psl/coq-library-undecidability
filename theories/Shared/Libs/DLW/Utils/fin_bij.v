@@ -72,7 +72,7 @@ Section list_discr_vec.
   Variable (X : Type) (D : forall x y : X, { x = y } + { x <> y }).
 
   Fact vec_search n (v : vec X n) x : { p | x = vec_pos v p } + { ~ in_vec x v }.
-  Proof.
+  Proof using D.
     induction v as [ | y n v [ (p & ->) | H ] ].
     + right; simpl; auto.
     + left; exists (pos_nxt p); auto.
@@ -104,7 +104,7 @@ Section list_discr_vec.
          /\ (forall x, In x ll <-> f x <> None) 
          /\ (forall p, f (vec_pos v p) = Some p)
          /\ (forall x p, f x = Some p -> vec_pos v p = x) } } }.
-  Proof.
+  Proof using D.
     exists (length l), v, f; msplit 3.
     + intro; rewrite in_vec_list, Hv; apply Hl2.
     + intros x; rewrite <- Hl2.

@@ -2,8 +2,6 @@ Require Import List Lia Morphisms.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.higher_order_unification unification.systemunification.
 Import ListNotations.
 
-Set Default Proof Using "Type".
-
 (* * Nth-Order Unification *)
 Section NthOrderUnificationDefinition.
 

@@ -32,8 +32,6 @@ Import fol_notations.
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 (* * Reduction from BPCP to specialized FSAT *)
 
 Local Notation ø := vec_nil.

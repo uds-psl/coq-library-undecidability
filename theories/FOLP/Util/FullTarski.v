@@ -3,8 +3,6 @@
 From Undecidability.FOLP Require Export FullFOL.
 Require Import Undecidability.Shared.ListAutomation.
 
-Set Default Proof Using "Type".
-
 (* *** Tarki Models **)
 
 Section Tarski.

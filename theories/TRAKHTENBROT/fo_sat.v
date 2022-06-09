@@ -18,8 +18,6 @@ From Undecidability.Shared.Libs.DLW.Vec
 From Undecidability.TRAKHTENBROT
   Require Import notations utils decidable fol_ops fo_sig fo_terms fo_logic.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 Local Notation ø := vec_nil.

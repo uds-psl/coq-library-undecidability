@@ -18,7 +18,6 @@ From Undecidability.CounterMachines.Util Require Import Facts CM2_facts.
 Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".
-Set Default Proof Using "Type".
 
 Section Construction.
 
@@ -68,7 +67,7 @@ Theorem decision (M: Cm2) : (uniformly_mortal M) + (not (uniformly_mortal M)).
 Proof.
   case: (CM2_UBOUNDED_dec.decision M).
   - move=> /constructive_indefinite_ground_description.
-    move=> /(_ id id ltac:(done) (CM2_UBOUNDED_dec.fixed_decision M)).
+    move=> /(_ id id (fun=> erefl) (CM2_UBOUNDED_dec.fixed_decision M)).
     by move=> [K /uniform_decision].
   - move=> H. right. move=> [k Hk]. apply: H. exists k => x.
     apply: mortal_bounded. by apply: Hk.

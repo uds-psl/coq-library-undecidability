@@ -13,7 +13,6 @@ Require Import ssreflect ssrbool ssrfun.
 
 Require Import Undecidability.DiophantineConstraints.H10C.
 
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
 (* Uniform Diophantine pairs constraints are of shape:  

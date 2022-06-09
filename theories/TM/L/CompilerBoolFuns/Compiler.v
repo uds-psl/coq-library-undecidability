@@ -9,8 +9,6 @@ From Undecidability.TM Require Import TM_facts ProgrammingTools WriteValue CaseL
 From Undecidability.TM.L Require Import Alphabets Eval.
 From Undecidability.TM.L.CompilerBoolFuns Require Import Compiler_spec Compiler_facts ClosedLAdmissible.
 
-Set Default Proof Using "Type".
-
 Section APP_right.
 
   Definition APP_right : pTM (sigPro)^+ unit 2 :=

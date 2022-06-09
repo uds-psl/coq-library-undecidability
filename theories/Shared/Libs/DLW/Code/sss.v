@@ -88,7 +88,7 @@ Section Small_Step_Semantics.
   (* Functionality of one step computations *)
 
   Fact sss_step_fun P s t1 t2 : P // s :1> t1 -> P // s :1> t2 -> t1 = t2.
-  Proof.
+  Proof using sss_fun.
     intros (k1 & l1 & i1 & r1 & d1 & ? & ? & H1)
            (k2 & l2 & i2 & r2 & d2 & ? & ? & H2).
     subst.
@@ -144,7 +144,7 @@ Section Small_Step_Semantics.
   (* sss_step is decidable *)
   
   Fact sss_step_dec P st1 st2 : { P // st1 :1> st2 } + { ~ P // st1 :1> st2 }.
-  Proof.
+  Proof using sss_fun sss_dec.
     destruct st1 as (j,d).
     destruct P as (k,ll).
     destruct (le_lt_dec k j) as [ H1 | H1 ].
@@ -245,7 +245,7 @@ Section Small_Step_Semantics.
          P // s -[k]-> t1 
       -> P // s -[k]-> t2 
       -> t1 = t2.
-  Proof.
+  Proof using sss_fun.
     intros H; revert H t2; induction 1 as [ | ? ? st2 ? H1 H2 IH2 ]; simpl; intros t2 Ht2; auto.
     inversion Ht2; auto.
     inversion Ht2; subst.
@@ -430,7 +430,7 @@ Section Small_Step_Semantics.
       -> P // s1 -[p]-> s2 
       -> P // s1 -[q]-> s2
       -> p = q.
-  Proof.
+  Proof using sss_fun.
     intros H1 H2; revert H2 q.
     induction 1 as [ s1 | p s1 s2 s3 H2 H3 IH3 ];
       intros q H5.
@@ -596,7 +596,7 @@ Section Small_Step_Semantics.
         -> P // st1 -[p]-> st2
         -> Q // st1 -[k]-> st3
         -> exists q, k = p+q /\ Q // st2 -[q]-> st3.
-  Proof.
+  Proof using sss_fun.
     revert P Q st3; intros P (j,cj) (n,d) H1 H2 H3.
     simpl in H1.
     revert k.
@@ -618,7 +618,7 @@ Section Small_Step_Semantics.
         -> P <sc Q
         -> P // st ~~> st1
         -> Q // st1 ↓.
-  Proof.
+  Proof using sss_fun.
     intros (st3 & (k & H1) & H2) H3 ((p & H4) & H5).
     destruct subcode_sss_subcode_inv with (2 := H3) (3 := H4) (4 := H1)
       as (q & _ & H6).
@@ -632,37 +632,12 @@ Section Small_Step_Semantics.
         -> P // st1 -+> st2
         -> Q // st1 -[p]-> st3
         -> exists q, q < p /\ Q // st2 -[q]-> st3.
-  Proof.
+  Proof using sss_fun.
     intros H1 H2 (k & ? & H3) H4.
     apply subcode_sss_subcode_inv with (3 := H3) in H4; auto.
     destruct H4 as (q & ? & ?); exists q; split; auto; lia.
   Qed.
 
-  Section sss_terminates_ind.
-
-    Variable (P : code) (R : state -> Prop).
-
-    Hypothesis (HR0 : forall st, out_code (fst st) P -> R st)
-               (HR1 : forall st1, (forall Q st2, Q <sc P -> Q // st1 -+> st2 -> P // st2 ↓ -> R st2) -> R st1).
-
-    Theorem sss_terminates_ind st : P // st ↓ -> R st.
-    Proof.
-      intros (st2 & (k & H1) & H2); revert st st2 H1 H2.
-      induction k as [ k IH ] using (well_founded_induction_type lt_wf).
-      intros st1 st2 H1 H2.
-      destruct k as [ | k ].
-      + apply sss_steps_0_inv in H1.
-        subst; apply HR0; auto.
-      + apply HR1.
-        intros Q st2' HQ H5 (st3 & H6 & H7).
-        apply subcode_sss_progress_inv with (3 := H5) in H1; auto.
-        destruct H1 as (q & G1 & G2).
-        apply IH with (2 := G2); auto.
-        revert H2; apply subcode_out_code; auto.
-    Qed.
-
-  End sss_terminates_ind. 
- 
   Section sss_compute_max_ind.
 
     Variable (P : code) (R : state -> state -> Prop).
@@ -671,7 +646,7 @@ Section Small_Step_Semantics.
                (HQ1 : forall st1 st3, (forall Q st2, Q <sc P -> Q // st1 -+> st2 -> P // st2 -]] st3 -> R st2 st3) -> R st1 st3).
 
     Theorem sss_compute_max_ind st1 st3 : P // st1 -]] st3 -> R st1 st3.
-    Proof.
+    Proof using sss_fun HQ0 HQ1.
       intros ((k & H1) & H2); revert st1 H1.
       induction k as [ k IH ] using (well_founded_induction_type lt_wf).
       intros st1 H1.
@@ -696,11 +671,43 @@ Section Small_Step_Semantics.
           -> P // st1 ->> st2
           -> P // st1 ->> st3
           -> P // st2 ->> st3.
-  Proof.
+  Proof using sss_fun.
     intros H2 (p & H3) (k & H4).
     apply subcode_sss_subcode_inv with (3 := H3) in H4; auto.
     destruct H4 as (q & _ & ?); exists q; auto.
   Qed.
+
+  Section sss_terminates_ind.
+
+  Variable (P : code) (R : state -> Prop).
+
+  Hypothesis (HR0 : forall st, out_code (fst st) P -> R st)
+             (HR1 : forall st1, (forall Q st2, Q <sc P -> Q // st1 -+> st2 -> R st2) -> R st1).
+
+  Theorem sss_terminates_ind st : P // st ↓ -> R st.
+  Proof using sss_fun HR0 HR1.
+    intros (st2 & (k & H1) & H2); revert st st2 H1 H2.
+    induction k as [ k IH ] using (well_founded_induction_type lt_wf).
+    intros st1 st2 H1 H2.
+    destruct k as [ | k ].
+    + apply sss_steps_0_inv in H1.
+      subst; apply HR0; auto.
+    + apply HR1.
+      intros Q st2' HQ H5.
+      assert (P // st2' ↓) as (st3 & H6 & H7).
+      { assert (P // st1 ↓) as (st3' & H'6 & H'7).
+        { exists st2. split; [exists (S k)|]; assumption. }
+        apply (subcode_sss_progress _ HQ) in H5.
+        apply (sss_progress_compute) in H5.
+        assert (H8 := sss_compute_inv H'7 H5 H'6).
+        exists st3'. split; assumption. }
+      apply subcode_sss_progress_inv with (3 := H5) in H1; auto.
+      destruct H1 as (q & G1 & G2).
+      apply IH with (2 := G2); auto.
+      revert H2; apply subcode_out_code; auto.
+  Qed.
+
+  End sss_terminates_ind.
 
   Fact sss_compute_step_out_inv P k st1 st2 st3 :
            st1 <> st2
@@ -708,7 +715,7 @@ Section Small_Step_Semantics.
         -> P // st1 ->> st2
         -> P // st1 -[k]-> st3
         -> exists q, q < k /\ P // st2 -[q]-> st3.
-  Proof.
+  Proof using sss_fun.
     intros H1 H2 (p & H3) H4.
     apply subcode_sss_subcode_inv with (3 := H3) in H4; auto.
     destruct H4 as (q & H4 & H5).
@@ -726,7 +733,7 @@ Section Small_Step_Semantics.
         -> P // st1 ->> st2
         -> Q // st1 -[k]-> st3
         -> exists q, q < k /\ Q // st2 -[q]-> st3.
-  Proof.
+  Proof using sss_fun.
     intros H H0 H1 H2 (p & H3) H4.
     apply subcode_sss_subcode_inv with (2 := H2) (3 := H3) in H4; auto.
     destruct H4 as (q & Hq & H4).
@@ -742,7 +749,7 @@ Section Small_Step_Semantics.
      -> (fst st1,i::nil) <sc P
      -> P // st1 -[k]-> st3
      -> exists k', k = S k' /\ P // st2 -[k']-> st3.
-  Proof.
+  Proof using sss_fun.
     intros H1 H2 H3 H4.
     apply sss_steps_inv in H4.
     destruct H4 as [ (_ & H4) | (k' & st & ? & H4 & ?) ].
@@ -788,7 +795,7 @@ Section Small_Step_Semantics.
           -> P // st1 -[a]-> st2
           -> P // st1 -[b]-> st3 
           -> a = b /\ st2 = st3.
-  Proof.
+  Proof using sss_fun.
     intros H1 H2 H3 H4.
     assert (a = b) as Hab.
     { destruct subcode_sss_subcode_inv with (3 := H3) (4 := H4)
@@ -806,7 +813,7 @@ Section Small_Step_Semantics.
           -> P // st1 ->> st2
           -> P // st1 ->> st3 
           -> st2 = st3.
-  Proof.
+  Proof using sss_fun.
     intros ? ? (a & H1) (b & H2).
     revert H1 H2; apply sss_steps_stop_fun; auto.
   Qed.
@@ -815,13 +822,13 @@ Section Small_Step_Semantics.
              P // st1 ~[a]~> st2
           -> P // st1 ~[b]~> st3 
           -> a = b /\ st2 = st3.
-  Proof.
+  Proof using sss_fun.
     intros (H1 & H2) (H3 & H4).
     revert H1 H3; apply sss_steps_stop_fun; auto.
   Qed.
 
   Fact sss_output_fun P st st1 st2 : P // st ~~> st1 -> P // st ~~> st2 -> st1 = st2.
-  Proof.
+  Proof using sss_fun.
     intros (H1 & H2) (H3 & H4); revert H2 H4 H1 H3; apply sss_compute_fun.
   Qed.
 
@@ -835,7 +842,7 @@ Section Small_Step_Semantics.
   Qed.
 
   Fact sss_progress_non_termination P st : P // st -+> st -> ~ P // st ↓.
-  Proof.
+  Proof using sss_fun.
     intros (a & H1 & H2) (st' & (b & H3) & H4).
     assert (P // st -[a+b]-> st') as H5.
     { apply sss_steps_trans with (1 := H2); auto. }
@@ -860,7 +867,7 @@ Section Small_Step_Semantics.
     Theorem sss_loop_sound x : pre x 
                             -> (exists n, C2 (iter f x n)) 
                             -> exists n y, P // (i,x) ->> (p,y) /\ spec (iter f x n) y.
-    Proof.
+    Proof using HP1 HP2 HC.
       intros H (n & Hn); revert x H Hn.
       induction n as [ | n IHn ]; intros x Hx Hn.
       simpl; exists 0; apply HP2; auto.
@@ -879,7 +886,7 @@ Section Small_Step_Semantics.
                                    -> out_code q P 
                                    -> P // (i,x) ->> (q,y) 
                                    -> p = q /\ exists n, C2 (iter f x n) /\ spec (iter f x n) y.
-    Proof.
+    Proof using sss_fun HP1 HP2 HC Hp Hf.
       intros Hx Hq (k & Hk); revert x Hx y q Hq Hk.
       induction k as [ k IHk ] using (well_founded_induction lt_wf); intros x Hx y q Hq Hk.
       destruct (HC Hx) as [ H | H ].

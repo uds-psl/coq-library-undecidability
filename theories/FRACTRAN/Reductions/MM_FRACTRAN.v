@@ -18,10 +18,8 @@ From Undecidability.MinskyMachines
 From Undecidability.FRACTRAN
   Require Import FRACTRAN fractran_utils mm_fractran prime_seq.
 
-Require Import Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts.
-
-Set Default Proof Using "Type".
 
 Set Implicit Arguments.
 

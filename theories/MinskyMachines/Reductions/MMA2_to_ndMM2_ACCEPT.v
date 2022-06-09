@@ -20,8 +20,6 @@ From Undecidability.Synthetic
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Local Tactic Notation "vec2" hyp(v) "into" ident(x) ident(y) :=
     vec split v with x; vec split v with y; vec nil v; clear v.
 

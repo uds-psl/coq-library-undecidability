@@ -7,7 +7,6 @@ From Coq.Vectors Require Import Fin Vector.
 From Undecidability.Shared.Libs.PSL Require Import Vectors.FinNotation.
 From Undecidability.Shared.Libs.PSL Require Export Vectors.Fin.
 
-
 (* Vector.nth should not reduce with simpl, except the index is given with a constructor *)
 Arguments Vector.nth {A} {m} (v') !p. 
 Arguments Vector.map {A B} f {n} !v. 
@@ -166,7 +165,7 @@ Section In_Dec.
   Qed.
 
   Global Instance In_dec (n : nat) (x : X) (xs : Vector.t X n) : dec (In x xs).
-  Proof. eapply dec_transfer. eapply in_dec_correct. auto. Defined.
+  Proof using X_dec. eapply dec_transfer. eapply in_dec_correct. auto. Defined.
 
 End In_Dec.
 

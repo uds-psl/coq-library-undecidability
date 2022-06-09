@@ -4,8 +4,6 @@ From Undecidability.HOU Require Import std.std calculus.calculus unification.uni
 From Undecidability.HOU Require Import third_order.pcp third_order.encoding.
 Import ListNotations.
 
-Set Default Proof Using "Type".
-
 Definition MPCP' '(c, C) :=
   exists I, I ⊆ nats (length C) /\
        hd c ++ @concat symbol (select I (heads C)) = tl c ++ concat (select I (tails C)).

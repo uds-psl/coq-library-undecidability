@@ -49,7 +49,7 @@ Section discrete_to_finite_fix.
   Qed.
 
   Definition Σ_fin : fo_signature.
-  Proof.
+  Proof using HΣ1 HΣ2 ls lr.
     exists (sig Fn) (sig Re).
     + exact (fun s => ar_syms _ (proj1_sig s)).
     + exact (fun r => ar_rels _ (proj1_sig r)).
@@ -120,7 +120,7 @@ Section discrete_to_finite_fix.
              (M2' : fo_model_dec M') (x0 : X).
 
     Local Definition Σ_finite_rev_model1 : fo_model Σ X.
-    Proof.
+    Proof using HΣ1 HΣ2 x0 ls lr M'.
       split.
       + intros s.
         destruct (in_dec HΣ1 s ls) as [ H | H ].
@@ -172,7 +172,7 @@ Section discrete_to_finite_fix.
              (M2 : fo_model_dec M).
 
     Local Definition Σ_finite_rev_model2 : fo_model Σ' X.
-    Proof.
+    Proof using M.
       split.
       + intros (s & ?); apply (fom_syms M s).
       + intros (r & ?); apply (fom_rels M r).
@@ -293,7 +293,7 @@ Section discrete_to_finite.
               { _  : forall r, In (ir r) (fol_rels A) & 
               { B  : fol_form Σ'            
               | fo_form_fin_dec_SAT A <-> fo_form_fin_dec_SAT B } } } } } } } } } } } } } }.
-  Proof.
+  Proof using HΣ1 HΣ2.
     exists (Σ_fin Σ HΣ1 HΣ2 (fol_syms A) (fol_rels A)).
     exists. { apply Σ_fin_finite_syms. }
     exists. { apply Σ_fin_finite_rels. }
@@ -417,7 +417,7 @@ Section discr_finite_to_pos.
                (HA : fol_sem M φ A).
 
     Local Fact convert_soundness : fo_form_fin_dec_SAT_in (convert A) X.
-    Proof.
+    Proof using Xfin Mdec HA.
       exists M', Xfin.
       exists. { intros ? ?; apply Mdec. }
       exists φ.
@@ -469,7 +469,7 @@ Section discr_finite_to_pos.
                (HA : fol_sem M' φ (convert A)).
 
     Local Fact convert_completeness : fo_form_fin_dec_SAT_in A X.
-    Proof.
+    Proof using Xfin M'dec HA.
       exists M, Xfin.
       exists. { intros ? ?; apply M'dec. }
       exists φ.
@@ -490,7 +490,7 @@ Section discr_finite_to_pos.
               { B  : fol_form (Σpos Σ is ir)            
               | forall X, fo_form_fin_dec_SAT_in A X 
                       <-> fo_form_fin_dec_SAT_in B X } } } } } } } } }.
-  Proof.
+  Proof using All.
     exists n, m, js, jr.
     exists. { intros s s' E; rewrite <- (Hijs s), E, Hijs; auto. }
     exists. { simpl; auto. }
@@ -525,7 +525,7 @@ Section combine_the_two.
               { B  : fol_form (Σpos Σ is ir)            
               | fo_form_fin_dec_SAT A 
             <-> fo_form_fin_dec_SAT B } } } } } } } } } } }.
-  Proof.
+  Proof using HΣ1 HΣ2.
     destruct (Σ_finite_full HΣ1 HΣ2 A (incl_refl _) (incl_refl _)) as (B & HB).
     destruct Σ_finite_to_pos with (A := B)
       as (n & m & i & j & F1 & F2 & F3 & F4 & C & HC).
@@ -560,7 +560,7 @@ Section combine_the_two.
               { B  : fol_form (Σpos Σ i j)
               | fo_form_fin_dec_SAT A 
             <-> fo_form_fin_dec_SAT B } } } } }.
-  Proof.
+  Proof using HΣ1 HΣ2.
     destruct (Σ_discrete_to_pos' A) as (n & m & i & j & _ & _ & _ & _ & _ & _ & B & HB).
     exists n, m, i, j, B; auto.
   Qed.

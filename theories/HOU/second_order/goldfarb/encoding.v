@@ -4,8 +4,6 @@ From Undecidability.HOU Require Import calculus.calculus second_order.diophantin
   systemunification nth_order_unification.
 Import ListNotations.
 
-Set Default Proof Using "Type".
-
 (* * Second-Order Realisation *)
 
 (* ** Goldfarb Numerals *)

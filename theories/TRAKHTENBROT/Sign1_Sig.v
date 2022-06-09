@@ -46,7 +46,7 @@ Section Sig_n1_Sig.
   Defined.
 
   Fixpoint Σn1_Σ (A : fol_form Σ) : fol_form Σ'.
-  Proof.
+  Proof using Hf Hp.
     refine (match A with
       | ⊥              => ⊥
       | fol_atom   _ v => fol_atom p (vec_map convert_t (cast v _))
@@ -108,7 +108,7 @@ Section Sig_n1_Sig.
                (HA : fol_sem M phi A).
 
     Local Fact convert_soundness : fo_form_fin_dec_SAT (convert A).
-    Proof.
+    Proof using Xfin Mdec HA.
       exists X, M', Xfin.
       exists.
       { intros r v; simpl in *.
@@ -160,7 +160,7 @@ Section Sig_n1_Sig.
                (HA : fol_sem M' phi (convert A)).
 
     Local Fact convert_completeness : fo_form_fin_dec_SAT A.
-    Proof.
+    Proof using Xfin M'dec HA.
       exists X, M, Xfin.
       exists.
       { intros [] v; apply M'dec. }

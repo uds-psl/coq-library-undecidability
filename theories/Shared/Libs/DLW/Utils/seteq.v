@@ -306,7 +306,7 @@ Section seteq.
               (HP5 : forall l m k, l ≃ₛ m -> P l m -> m ≃ₛ k -> P m k -> P l k).
 
     Theorem lequiv_ind l m : l ≃ₛ m -> P l m.
-    Proof. rewrite <- lseq_lequiv_iff; induction 1; eauto. Qed.
+    Proof using All. rewrite <- lseq_lequiv_iff; induction 1; eauto. Qed.
 
   End lequiv_ind.
 

@@ -1,6 +1,6 @@
-(* 
+(*
   Autor(s):
-    Andrej Dudenhefner (1) 
+    Andrej Dudenhefner (1)
   Affiliation(s):
     (1) Saarland University, Saarbrücken, Germany
 *)
@@ -20,9 +20,9 @@
     is [s₁,...,sₙ] ⊢ a → b → a derivable?
 
   References:
-    [1] Grigoriy V. Bokov: Undecidable problems for propositional calculi with implication. 
+    [1] Grigoriy V. Bokov: Undecidable problems for propositional calculi with implication.
       Logic Journal of the IGPL, 24(5):792–806, 2016. doi:10.1093/jigpal/jzw013
-    [2] Andrej Dudenhefner, Jakob Rehof: Lower End of the Linial-Post Spectrum. 
+    [2] Andrej Dudenhefner, Jakob Rehof: Lower End of the Linial-Post Spectrum.
       TYPES 2017: 2:1-2:15. doi: 10.4230/LIPIcs.TYPES.2017.2
 *)
 

@@ -2,13 +2,11 @@ Require Import PeanoNat Lia Vector List.
 From Undecidability.SOL Require Import SOL PA2.
 From Undecidability.Shared.Libs.PSL Require Import Vectors VectorForall.
 From Undecidability.SOL.Util Require Import Syntax Subst Tarski PA2_facts PA2_categoricity.
-From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts Undecidability.
+From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 From Undecidability.H10 Require Import H10p.
 Require Import Undecidability.Shared.Dec.
 
 Import ListNotations SOLNotations PA2Notations.
-
-Set Default Proof Using "Type".
 
 Fixpoint encode_number n := match n with 
   | 0 => zero 

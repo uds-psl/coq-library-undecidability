@@ -21,7 +21,6 @@ Idea: The relation (#&#35;#) has the following properties:#<ul>#
 *)
 
 
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
 
@@ -964,7 +963,7 @@ Section ksatisfiability.
   Qed.
 End ksatisfiability.
 
-Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 
 (** Final collection of undecidability reductions *)
 Section undecResults.

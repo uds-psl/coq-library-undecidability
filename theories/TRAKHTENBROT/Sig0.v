@@ -31,7 +31,7 @@ Section Σ_Σ0.
            (HΣ : forall r, ar_rels Σ r = 0).
 
   Definition Σ0 : fo_signature.
-  Proof.
+  Proof using Σ.
     exists Empty_set (rels Σ); exact (fun _ => 0).
   Defined.
 
@@ -77,7 +77,7 @@ Section Σ_Σ0.
                (HA : fol_sem M phi A).
 
     Local Lemma Σ_Σ0_soundness : fo_form_fin_dec_SAT (Σ_Σ0 A).
-    Proof.
+    Proof using HΣ Mdec HA.
       exists unit, M', finite_t_unit.
       exists. { intros r v; simpl; apply Mdec. }
       exists (fun _ => tt).
@@ -117,7 +117,7 @@ Section Σ_Σ0.
                (HA : fol_sem M' psi (Σ_Σ0 A)).
 
     Local Lemma Σ_Σ0_completeness : fo_form_fin_dec_SAT A.
-    Proof.
+    Proof using M'dec HA.
       exists unit, M, finite_t_unit.
       exists. { intros r v; simpl; apply M'dec. }
       exists (fun _ => tt).
@@ -127,7 +127,7 @@ Section Σ_Σ0.
   End completeness.
 
   Theorem Σ_Σ0_correct A : fo_form_fin_dec_SAT A <-> fo_form_fin_dec_SAT (Σ_Σ0 A).
-  Proof.
+  Proof using HΣ.
     split.
     + intros (X & M & _ & G2 & phi & G3).
       apply Σ_Σ0_soundness with X M phi; auto.
@@ -181,7 +181,7 @@ Section Σ0_Σ.
                (HA : fol_sem M φ A).
 
     Local Lemma Σ0_Σ_soundness : fo_form_fin_dec_SAT (Σ0_Σ A).
-    Proof.
+    Proof using Mdec HA.
       exists unit, M', finite_t_unit.
       exists. { intros r v; simpl; apply Mdec. }
       exists (fun _ => tt).
@@ -223,7 +223,7 @@ Section Σ0_Σ.
                (HA : fol_sem M phi (Σ0_Σ A)).
 
     Local Lemma Σ0_Σ_completeness : fo_form_fin_dec_SAT A.
-    Proof.
+    Proof using Mdec HA.
       exists unit, M', finite_t_unit.
       exists. { intros r v; simpl; apply Mdec. }
       exists (fun _ => tt).

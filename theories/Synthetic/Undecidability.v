@@ -1,6 +1,6 @@
 Require Export Undecidability.Synthetic.Definitions.
-Require Import Undecidability.Synthetic.ReducibilityFacts.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
+Require Import Undecidability.Synthetic.ReducibilityFacts.
 Require Import Undecidability.TM.SBTM.
 
 (*

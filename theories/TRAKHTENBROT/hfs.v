@@ -21,8 +21,6 @@ From Undecidability.Shared.Libs.DLW.Wf
 From Undecidability.TRAKHTENBROT
   Require Import notations fol_ops membership btree.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 (* * The Type Hereditary finite sets *)

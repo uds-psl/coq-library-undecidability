@@ -252,7 +252,7 @@ Section restriction_by_list.
   Theorem DEC_PER_list_proj_finite_discrete :
        { D & { _ : dec (@eq D) & { _ : finite_t D & { f : X -> D 
              | forall x y, In x l -> In y l -> R x y <-> f x = f y } } } }.
-  Proof.
+  Proof using Rper Rdec Hl.
     destruct decidable_PER_fp_quotient with (R := T) (l := l)
       as [ n cls repr G1 G2 G3 ]; auto.
     exists (option (pos n)).

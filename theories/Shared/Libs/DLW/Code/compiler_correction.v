@@ -136,7 +136,7 @@ Section comp.
         -> exists w₂, v₂ ⋈ w₂ /\ Q /Y/ (linker i₁,w₁) ->> (linker i₂,w₂).
 
     Theorem compiler_sound : compiled_sound.
-    Proof.
+    Proof using HPQ Hilen Hicomp.
       intros i1 v1 i2 v2 w1.
       change i1 with (fst (i1,v1)) at 2; change v1 with (snd (i1,v1)) at 1.
       change i2 with (fst (i2,v2)) at 2; change v2 with (snd (i2,v2)) at 2.
@@ -171,7 +171,7 @@ Section comp.
                         /\ P /X/ st1 ->> st2
                         /\ Q /Y/ w2 -[q]-> w3
                         /\ q < p.
-    Proof.
+    Proof using HPQ Hicomp Hilen step_Y_fun step_X_tot.
       revert st1 w1 w3; intros (i1,v1) (j1,w1) (j3,w3); simpl fst; simpl snd.
       intros H1 H2 H3 H4 H5.
       destruct (in_code_subcode H3) as (I & HI).
@@ -206,7 +206,7 @@ Section comp.
 
     Theorem compiler_complete i1 v1 w1 : 
           v1 ⋈ w1 -> Q /Y/ (linker i1,w1) ↓ -> P /X/ (i1,v1) ↓.
-    Proof.
+    Proof using HPQ Hicomp Hilen step_Y_fun step_X_tot.
       intros H1 (st & (q & H2) & H3). 
       revert i1 v1 w1 H1 H2 H3.
       induction q as [ q IHq ] using (well_founded_induction lt_wf).
@@ -226,7 +226,7 @@ Section comp.
                             v₁ ⋈ w₁ /\ Q /Y/ (linker i₁,w₁) ~~> st
         -> exists i₂ v₂ w₂, v₂ ⋈ w₂ /\ P /X/ (i₁,v₁) ~~> (i₂,v₂)
                                     /\ Q /Y/ (linker i₂,w₂) ~~> st. 
-    Proof.
+    Proof using HPQ Hicomp Hilen step_Y_fun step_X_tot.
       intros i1 v1 w1 st (H1 & H2).
       destruct compiler_complete with (1 := H1) (2 := ex_intro (fun x => Q /Y/ (linker i1, w1) ~~> x) _ H2)
         as ((i2,v2) & H3 & H4).
@@ -300,7 +300,7 @@ Section comp.
     Qed.
 
     Theorem generic_compiler : compiler_t.
-    Proof. exists link code; abstract auto. Defined.
+    Proof using sound complete. exists link code; abstract auto. Defined.
  
   End compiler.
 
@@ -322,13 +322,15 @@ Section comp.
            -> P /X/ (fst P,v) ~~> (i',v') 
            -> exists w', (i,gc_code c P i) /Y/ (i,w) ~~> (code_end (i,gc_code c P i),w') 
                        /\ v' ⋈ w'.
-  Proof.
+  Proof using Hilen Hicomp.
     intros H H1.
     destruct (@compiler_t_output_sound c P i) with (1 := conj H H1) as (w1 & H2 & H3).
     exists w1; split; auto.
     rewrite gc_fst, gc_out in H3; auto.
     apply H1.
   Qed.
+
+  Check compiler_t_output_sound'.
 
   Theorem compiler_t_term_correct (c : compiler_t) P i j v w :
          v ⋈ w -> P /X/ (j,v) ↓ <-> (i,gc_code c P i) /Y/ (gc_link c P i j,w) ↓.
@@ -355,3 +357,5 @@ Section comp.
   Qed.
 
 End comp.
+
+Print Implicit compiler_t_output_sound'.

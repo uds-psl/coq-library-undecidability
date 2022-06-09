@@ -17,8 +17,6 @@ From Undecidability.MinskyMachines.MMA
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Tactic Notation "rew" "length" := autorewrite with length_db.
 
 Local Notation "e #> x" := (vec_pos e x).
@@ -104,8 +102,10 @@ Section mma_sim.
   Proof.
     exists (gc_code mma_auto_compiler (i,P) 1).
     intros v; split.
-    + intros i' v' H. 
-      apply (compiler_t_output_sound' mma_auto_compiler) 
+    + intros i' v' H.
+      Check compiler_t_output_sound'.
+      Check mma_auto_compiler. 
+      apply (compiler_t_output_sound' _ _ _ mma_auto_compiler) 
         with (i := 1) (w := v) 
         in H as (w' & H1 & <-); auto.
       rewrite plus_comm; auto. 

@@ -81,7 +81,7 @@ Section FCI.
   Qed.
 
   Definition F (A : list X) : list X.
-  Proof.
+  Proof using sigma R.
     destruct (pick A) as [[x _]|_].
     - exact (x::A).
     - exact A.

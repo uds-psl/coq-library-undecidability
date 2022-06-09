@@ -16,8 +16,6 @@ From Undecidability.Shared.Libs.DLW.Utils
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Section rings.
 
   Variable (R : Type) (Rzero Rone : R) (Rplus Rmult Rminus : R -> R -> R) (Ropp : R -> R)

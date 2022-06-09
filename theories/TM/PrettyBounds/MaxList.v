@@ -2,8 +2,6 @@
 
 From Undecidability.TM.Util Require Export Prelim ArithPrelim.
 
-Set Default Proof Using "Type".
-
 (* ** Basic lemmas about upper bounds *)
 
 (* An upper bound of a list is either in the list, or it is not in the list and is a strict upper bound *)

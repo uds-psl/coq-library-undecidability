@@ -2,8 +2,6 @@ Require Import List Arith Lia.
 Import ListNotations.
 From Undecidability.HOU Require Import std.tactics std.lists.basics std.decidable. 
 
-Set Default Proof Using "Type".
-
 (* nth *)
 Notation nth := nth_error. 
 Section Nth.

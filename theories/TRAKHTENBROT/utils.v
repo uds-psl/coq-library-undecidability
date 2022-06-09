@@ -12,8 +12,6 @@ Require Import List Arith Lia Bool Eqdep_dec.
 From Undecidability.Shared.Libs.DLW.Utils
   Require Import utils_list finite.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 (* * Utilities for the Full Trakhtenbrot project *)

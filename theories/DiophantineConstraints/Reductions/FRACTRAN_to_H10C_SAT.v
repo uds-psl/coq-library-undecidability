@@ -9,15 +9,13 @@
 
 Require Import List Arith Lia Max.
 
-Require Import Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 
 From Undecidability Require Import Shared.Libs.DLW.Utils.utils H10.Dio.dio_logic H10.Dio.dio_elem.
 From Undecidability Require Import H10.FRACTRAN_DIO FRACTRAN.FRACTRAN.
 Require Import Undecidability.DiophantineConstraints.H10C.
 
 Set Implicit Arguments.
-
-Set Default Proof Using "Type".
 
 Section dc_list_h10c.
 
