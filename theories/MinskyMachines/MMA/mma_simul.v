@@ -103,8 +103,8 @@ Section mma_sim.
     exists (gc_code mma_auto_compiler (i,P) 1).
     intros v; split.
     + intros i' v' H.
-      eapply compiler_t_output_sound' 
-        with (c := mma_auto_compiler) (i := 1) (w := v) 
+      apply (compiler_t_output_sound' mma_auto_compiler)
+        with (i := 1) (w := v) 
         in H as (w' & H1 & <-); eauto.
       rewrite plus_comm; auto. 
     + apply compiler_t_term_equiv; auto.
