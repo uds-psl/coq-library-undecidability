@@ -307,7 +307,7 @@ Section comp.
   Theorem compiler_t_output_sound c P i i₁ v₁ i₂ v₂ w₁ : 
                     v₁ ⋈ w₁ /\ P /X/ (i₁,v₁) ~~> (i₂,v₂)
       -> exists w₂, v₂ ⋈ w₂ /\ (i,gc_code c P i) /Y/ (gc_link c P i i₁,w₁) ~~> (gc_link c P i i₂,w₂).
-  Proof.
+  Proof using Hicomp Hilen.
     destruct c as [ lnk code first out sound complete ]; simpl.
     intros (H1 & H2 & H3).
     destruct (sound P i i₁ v₁ i₂ v₂ w₁) as (w2 & H4 & H5); auto.
@@ -330,11 +330,9 @@ Section comp.
     apply H1.
   Qed.
 
-  Check compiler_t_output_sound'.
-
   Theorem compiler_t_term_correct (c : compiler_t) P i j v w :
          v ⋈ w -> P /X/ (j,v) ↓ <-> (i,gc_code c P i) /Y/ (gc_link c P i j,w) ↓.
-  Proof.
+  Proof using .
     destruct c as [ lnk code first out sound complete ]; simpl.
     intros H; split.
     + intros ((j',v') & H1 & H2).
@@ -351,7 +349,7 @@ Section comp.
 
   Theorem compiler_t_term_equiv (c : compiler_t) P i v w :
          v ⋈ w -> P /X/ (fst P,v) ↓ <-> (i,gc_code c P i) /Y/ (i,w) ↓.
-  Proof.
+  Proof using .
     rewrite <- (gc_fst c P i) at 3.
     apply compiler_t_term_correct.
   Qed.
