@@ -1,6 +1,3 @@
-Require Import Undecidability.Shared.Libs.PSL.Base Lia Ring. 
-Require Import ZArith.
-
 Tactic Notation "destruct" "_":= 
   match goal with
     | [ |- context[match ?X with _ => _ end] ] => destruct X
