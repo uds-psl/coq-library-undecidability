@@ -312,7 +312,8 @@ MinskyMachines/MM/mm_no_self.v
 MinskyMachines/MMA/mma_defs.v       
 MinskyMachines/MMA/mma_utils.v      
 MinskyMachines/MMA/mma_simul.v      
-MinskyMachines/MMA/fractran_mma.v   
+MinskyMachines/MMA/fractran_mma.v  
+MinskyMachines/MMA/mma3_mma2.v 
 
 MinskyMachines/MMenv/env.v          
 MinskyMachines/MMenv/mme_defs.v     
