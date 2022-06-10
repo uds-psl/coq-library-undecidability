@@ -6,7 +6,6 @@ Require Import Undecidability.StackMachines.Reductions.CM1_HALT_to_SMNdl_UB.SMX.
 
 Require Import ssreflect ssrbool ssrfun.
 
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
 Section SMX_facts.

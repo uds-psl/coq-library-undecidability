@@ -18,7 +18,7 @@ From Undecidability.MinskyMachines
 From Undecidability.FRACTRAN
   Require Import FRACTRAN fractran_utils mm_fractran prime_seq.
 
-Require Import Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts.
 
 Set Implicit Arguments.
@@ -97,5 +97,3 @@ Section FRACTRAN_REG_FRACTRAN_HALTING.
 End FRACTRAN_REG_FRACTRAN_HALTING.
 
 Check FRACTRAN_REG_FRACTRAN_HALTING.
-
-

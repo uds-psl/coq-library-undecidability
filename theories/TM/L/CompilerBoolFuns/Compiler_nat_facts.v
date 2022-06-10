@@ -1,4 +1,3 @@
-From Equations Require Import Equations.
 From Undecidability.Shared.Libs.PSL Require Import Vectors.
 
 From Coq Require Import Vector List.
@@ -84,7 +83,7 @@ induction v; cbn; try fold (Vector.to_list v) in *; try fold (validate (Vector.t
 - split.
   + intros [H1 [v' ->] % IHv] % andb_true_iff. eapply validate_spec_help in H1 as [m ->].
     now exists (m :: v').
-  + intros (v' & H). dependent elimination v'. cbn in H.
+  + intros (v' & H). revert H. apply (caseS' v'). cbn. intros ? ? H.
     eapply Vector.cons_inj in H as [-> ->]. eapply andb_true_iff. split.
     * clear. rename h0 into n. induction n; cbn; congruence.
     * eapply IHv. eauto.
@@ -218,9 +217,12 @@ Proof.
         specialize (H (Vector.map (repeat true) v)) as [H2 _]. specialize (H2 (repeat true m)) as [_ (v' & m' & Hv' & Hm' & HR)].
         * exists q, t. rewrite Vector.map_map. eapply H1.
         * eapply (f_equal (@length bool)) in Hm'. rewrite !repeat_length in Hm'. subst. 
-          clear - Hv' HR. induction v ; dependent elimination v'. exact HR. inversion Hv'.
-          eapply (f_equal (@length bool)) in H0. rewrite !repeat_length in H0. subst. eapply IHv.
-          2:eassumption. eapply Eqdep_dec.inj_pair2_eq_dec in H1. eassumption. eapply nat_eq_dec.
+          clear - Hv' HR. induction v.
+          ** revert Hv' HR. pattern v'. now apply case0.
+          ** revert Hv' HR. apply (caseS' v'). cbn. intros ? ? Hv' HR.
+             inversion Hv'.
+             eapply (f_equal (@length bool)) in H0. rewrite !repeat_length in H0. subst. eapply IHv.
+             2:eassumption. eapply Eqdep_dec.inj_pair2_eq_dec in H1. eassumption. eapply nat_eq_dec.
     - intros q t H1. erewrite Vector.map_ext in H1. 2: intros; eapply encBools_nat_TM.
       destruct (H (Vector.map (repeat true) v)) as [H3 [m H2]].
       * rewrite Vector.map_map. eapply H1.

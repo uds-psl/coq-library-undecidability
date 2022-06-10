@@ -8,10 +8,8 @@ Import ListAutomationNotations.
 
 From Undecidability.Shared Require Import Dec.
 Require Import Undecidability.Synthetic.DecidabilityFacts.
-From Equations Require Import Equations.
 
 Set Default Goal Selector "!".
-Set Default Proof Using "Type".
 
 
 
@@ -38,30 +36,31 @@ Definition encode' (phi : form) : msp_form :=
 
 (** backwards direction **)
 
-Derive Signature for Vector.t.
-
 Lemma map_hd X Y n (f : X -> Y) (v : Vector.t X (S n)) :
   Vector.hd (Vector.map f v) = f (Vector.hd v).
 Proof.
-  dependent elimination v. reflexivity.
+  now apply (Vector.caseS' v).
 Qed.
 
 Lemma map_tl X Y n (f : X -> Y) (v : Vector.t X (S n)) :
   Vector.tl (Vector.map f v) = Vector.map f (Vector.tl v).
 Proof.
-  dependent elimination v. reflexivity.
+  now apply (Vector.caseS' v).
 Qed.
 
 Lemma in_hd X n (v : Vector.t X (S n)) :
   Vector.In (Vector.hd v) v.
 Proof.
-  dependent elimination v. constructor.
+  apply (Vector.caseS' v).
+  intros. constructor.
 Qed.
 
 Lemma in_hd_tl X n (v : Vector.t X (S (S n))) :
   Vector.In (Vector.hd (Vector.tl v)) v.
 Proof.
-  dependent elimination v. constructor. dependent elimination t. constructor.
+  apply (Vector.caseS' v). intros ? w.
+  apply (Vector.caseS' w).
+  constructor. constructor.
 Qed.
 
 Definition FV_term (t : term) : nat :=
@@ -476,13 +475,16 @@ Import Vector.VectorNotations.
 Lemma vec_inv1 {X} (v : Vector.t X 1) :
   v = [Vector.hd v].
 Proof.
-  repeat depelim v. cbn. reflexivity.
+  apply (Vector.caseS' v). intros ?.
+  now apply Vector.case0.
 Qed.
 
 Lemma vec_inv2 {X} (v : Vector.t X 2) :
   v = [Vector.hd v; Vector.hd (Vector.tl v)].
 Proof.
-  repeat depelim v. cbn. reflexivity.
+  apply (Vector.caseS' v). intros x w.
+  apply (Vector.caseS' w). intros ?.
+  now apply Vector.case0.
 Qed.
 
 Lemma discrete_nodup X (L : list X) :

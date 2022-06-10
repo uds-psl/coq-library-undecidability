@@ -10,7 +10,7 @@
 Require Import List Arith Lia.
 Import ListNotations.
 
-Require Import Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 
 From Undecidability.Shared.Libs.DLW 
   Require Import utils list_bool pos vec subcode sss.
@@ -20,8 +20,6 @@ From Undecidability.StackMachines.BSM
 
 From Undecidability.PCP 
   Require Import PCP PCP_facts.
-
-Set Default Proof Using "Type".
 
 Fact tile_concat_itau ln lt : tile_concat ln lt = (itau1 lt (rev ln), itau2 lt (rev ln)).
 Proof.

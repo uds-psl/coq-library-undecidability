@@ -5,8 +5,6 @@ From Undecidability.TM Require Import ProgrammingTools.
 
 Local Arguments plus : simpl never. Local Arguments mult : simpl never.
 
-Set Default Proof Using "Type".
-
 
 Lemma tl_length (X : Type) (xs : list X) :
   length (tl xs) = pred (length xs).
@@ -19,8 +17,6 @@ Section CaseList.
   Variable X : Type.
   Variable (sigX : finType).
   Hypothesis (cX : codable sigX X).
-
-  Set Default Proof Using "Type".
 
   Definition stop (s: (sigList sigX)^+) :=
     match s with

@@ -7,7 +7,6 @@ Import ListAutomationNotations.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
-From Equations Require Import Equations.
 Require Import Morphisms.
 
 Local Notation vec := Vector.t.
@@ -73,48 +72,52 @@ Fixpoint rm_const_fm {ff : falsity_flag} (phi : form) : form' :=
 
 (* ** Vector inversion lemmas *)
 
-Derive Signature for vec.
-
 Lemma vec_nil_eq X (v : vec X 0) :
   v = Vector.nil.
 Proof.
-  depelim v. reflexivity.
+  revert v. now apply Vector.case0.
 Qed.
 
 Lemma map_hd X Y n (f : X -> Y) (v : vec X (S n)) :
   Vector.hd (Vector.map f v) = f (Vector.hd v).
 Proof.
-  depelim v. reflexivity.
+  now apply (Vector.caseS' v).
 Qed.
 
 Lemma map_tl X Y n (f : X -> Y) (v : vec X (S n)) :
   Vector.tl (Vector.map f v) = Vector.map f (Vector.tl v).
 Proof.
-  depelim v. reflexivity.
+  now apply (Vector.caseS' v).
 Qed.
 
 Lemma in_hd X n (v : vec X (S n)) :
   Vector.In (Vector.hd v) v.
 Proof.
-  depelim v. constructor.
+  apply (Vector.caseS' v).
+  intros. constructor.
 Qed.
 
 Lemma in_hd_tl X n (v : vec X (S (S n))) :
   Vector.In (Vector.hd (Vector.tl v)) v.
 Proof.
-  depelim v. constructor. depelim v. constructor.
+  apply (Vector.caseS' v). intros ? w.
+  apply (Vector.caseS' w).
+  constructor. constructor.
 Qed.
 
 Lemma vec_inv1 X (v : vec X 1) :
   v = Vector.cons (Vector.hd v) Vector.nil.
 Proof.
-  repeat depelim v. cbn. reflexivity.
+  apply (Vector.caseS' v). intros ?.
+  now apply Vector.case0.
 Qed.
 
 Lemma vec_inv2 X (v : vec X 2) :
   v = Vector.cons (Vector.hd v) (Vector.cons (Vector.hd (Vector.tl v)) Vector.nil).
 Proof.
-  repeat depelim v. cbn. reflexivity.
+  apply (Vector.caseS' v). intros x w.
+  apply (Vector.caseS' w). intros ?.
+  now apply Vector.case0.
 Qed.
 
 
@@ -132,7 +135,7 @@ Section Model.
   Hypothesis M_ZF : forall rho, rho ⊫ ZFeq'.
 
   Instance min_model : interp sig_empty sig_binary V.
-  Proof.
+  Proof using I.
     split.
     - intros [].
     - intros [] v. exact (@i_atom _ _ _ _ elem v).
@@ -190,7 +193,7 @@ Section Model.
 
   Lemma eq_equiv x y :
     x ≈ y <-> x ≡ y.
-  Proof.
+  Proof using M_ZF.
     split.
     - intros H. apply sing_el; trivial. apply H.
       apply sing_el; trivial. now apply set_equiv_equiv.
@@ -199,11 +202,13 @@ Section Model.
 
   Lemma inductive_sat (rho : nat -> V) x :
     (x .: rho) ⊨ is_inductive $0 -> M_inductive x.
-  Proof.
+  Proof using M_ZF.
     cbn. setoid_rewrite eq_equiv. split.
     - destruct H as [[y Hy] _]. enough (H : ∅ ≡ y).
       { eapply set_equiv_elem; eauto. now apply set_equiv_equiv. apply Hy. }
-      apply M_ext; trivial; intros z Hz; exfalso; intuition. now apply M_eset in Hz.
+      apply M_ext; trivial; intros z Hz; exfalso.
+      + now apply M_eset in Hz.
+      + firstorder easy.
     - intros y [z Hz] % H. enough (Hx : σ y ≡ z).
       { eapply set_equiv_elem; eauto. now apply set_equiv_equiv. apply Hz. }
       apply M_ext; trivial.
@@ -213,13 +218,13 @@ Section Model.
 
   Lemma M_om1 :
     M_inductive ω.
-  Proof.
+  Proof using M_ZF.
     apply (@M_ZF (fun _ => ∅) ax_om1). cbn; tauto.
   Qed.
 
   Lemma inductive_sat_om (rho : nat -> V) :
     (ω .: rho) ⊨ is_inductive $0.
-  Proof.
+  Proof using M_ZF.
     cbn. setoid_rewrite eq_equiv. split.
     - exists ∅. split; try apply M_eset; trivial. now apply M_om1.
     - intros d Hd. exists (σ d). split; try now apply M_om1. intros d'. now apply sigma_el.
@@ -227,44 +232,45 @@ Section Model.
 
   Instance set_equiv_equiv' :
     Equivalence set_equiv.
-  Proof.
+  Proof using M_ZF.
     now apply set_equiv_equiv.
   Qed.
 
   Instance set_equiv_elem' :
     Proper (set_equiv ==> set_equiv ==> iff) set_elem.
-  Proof.
+  Proof using M_ZF.
     now apply set_equiv_elem.
   Qed.
 
   Instance set_equiv_sub' :
     Proper (set_equiv ==> set_equiv ==> iff) set_sub.
-  Proof.
+  Proof using M_ZF.
     now apply set_equiv_sub.
   Qed.
 
   Instance equiv_union' :
     Proper (set_equiv ==> set_equiv) union.
-  Proof.
+  Proof using M_ZF.
     now apply equiv_union.
   Qed.
 
   Instance equiv_power' :
     Proper (set_equiv ==> set_equiv) power.
-  Proof.
+  Proof using M_ZF.
     now apply equiv_power.
   Qed.
 
   Lemma rm_const_tm_sat (rho : nat -> V) (t : term) x :
     (x .: rho) ⊨ embed (rm_const_tm t) <-> set_equiv x (eval rho t).
-  Proof.
+  Proof using M_ZF.
     induction t in x |- *; try destruct F; cbn; split;
     try rewrite (vec_inv1 v); try rewrite (vec_inv2 v); cbn.
     - now apply eq_equiv.
     - now apply eq_equiv.
     - rewrite (vec_nil_eq (Vector.map (eval rho) v)).
-      intros H. apply M_ext; trivial; intros y Hy; exfalso; intuition.
-      now apply M_eset in Hy. 
+      intros H. apply M_ext; trivial; intros y Hy; exfalso.
+      + firstorder easy.
+      + now apply M_eset in Hy. 
     - rewrite (vec_nil_eq (Vector.map (eval rho) v)).
       change (set_equiv x ∅ -> forall d : V, set_elem d x -> False).
       intros H d. rewrite H. now apply M_eset.
@@ -309,11 +315,13 @@ Section Model.
       + intros d Hd. change (set_sub x d). rewrite H. unfold set_sub.
         apply M_om2; trivial. apply inductive_sat with rho. apply Hd.
   Qed.
-
+(*From Equations Require Import Equations.*)
   Lemma rm_const_sat (rho : nat -> V) (phi : form) :
     rho ⊨ phi <-> rho ⊨ embed (rm_const_fm phi).
-  Proof.
-    induction phi in rho |- *; try destruct P; try destruct b0; try destruct q; cbn. 1,4-6: intuition.
+  Proof using M_ZF.
+    induction phi in rho |- *; try destruct P; try destruct b0; try destruct q; cbn.
+    1: firstorder easy.
+    3-5: specialize (IHphi1 rho); specialize (IHphi2 rho); intuition easy.
     - rewrite (vec_inv2 t). cbn. split.
       + intros H. exists (eval rho (Vector.hd t)). rewrite rm_const_tm_sat. split; try reflexivity.
         exists (eval rho (Vector.hd (Vector.tl t))). now rewrite embed_sshift, sat_sshift1, rm_const_tm_sat.
@@ -327,19 +335,21 @@ Section Model.
       + intros (x & Hx & y & Hy & H). apply rm_const_tm_sat in Hx.
         change (set_equiv (eval rho (Vector.hd t)) (eval rho (Vector.hd (Vector.tl t)))).
         rewrite embed_sshift, sat_sshift1, rm_const_tm_sat in Hy. rewrite <- Hx, <- Hy. now apply eq_equiv.
-    - split; intros; intuition.
+    - split; intros.
+      + now apply IHphi.
+      + now apply IHphi, H.
     - firstorder eauto.
   Qed.
 
   Theorem min_correct (rho : nat -> V) (phi : form) :
     sat I rho phi <-> sat min_model rho (rm_const_fm phi).
-  Proof.
+  Proof using M_ZF.
     rewrite <- min_embed. apply rm_const_sat.
   Qed.
 
   Lemma min_axioms' (rho : nat -> V) :
     rho ⊫ binZF.
-  Proof.
+  Proof using M_ZF.
     intros A [<-|[<-|[<-|[<-|[<-|[<-|[<-|[]]]]]]]]; cbn.
     - intros x y H1 H2. apply eq_equiv. now apply M_ext.
     - intros x y u v H1 % eq_equiv H2 % eq_equiv. now apply set_equiv_elem'.
@@ -551,7 +561,7 @@ Proof.
     + apply minZF_elem; trivial; now apply minZF_Leibniz_tm.
     + apply minZF_sym in HXY; trivial. apply minZF_elem; trivial; now apply minZF_Leibniz_tm.
   - destruct b0.
-    + apply and_equiv; intuition.
+    + apply and_equiv; firstorder easy.
     + apply or_equiv; intros B HB.
       * apply IHphi1. now rewrite HA. now apply (Weak HXY).
       * apply IHphi2. now rewrite HA. now apply (Weak HXY).
@@ -1022,7 +1032,7 @@ Section Deduction.
         * eapply rm_const_tm_swap. now rewrite HA, HB. apply (Weak Hx). now rewrite HB.
         * intros [|[]]; reflexivity.
         * intros [|[]]; trivial. now destruct x as [|[]].
-    - apply and_equiv; intuition.
+    - apply and_equiv; firstorder easy.
     - apply or_equiv; intros B HB.
       + apply IHphi1. now rewrite HA. now apply (Weak Hx).
       + apply IHphi2. now rewrite HA. now apply (Weak Hx).
@@ -1040,7 +1050,7 @@ Section Deduction.
       erewrite subst_comp, subst_ext, <- subst_comp, (rm_const_fm_subst ($(S n)..)). setoid_rewrite subst_ext at 2.
       rewrite H0. erewrite rm_const_fm_subst, !subst_comp, subst_ext. reflexivity.
       all: intros [|[]]; cbn; try reflexivity. rewrite subst_term_comp, subst_term_id; reflexivity.
-  Qed. 
+  Qed.
 
   Lemma ZF_subst sigma :
     map (subst_form sigma) ZFeq' = ZFeq'.

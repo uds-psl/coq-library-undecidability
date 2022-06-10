@@ -3,7 +3,6 @@ From Undecidability.L Require Import UpToC.
 From Undecidability.L Require Import Functions.EqBool.
 
 From Undecidability.L.Datatypes Require Export List.List_enc.
-Set Default Proof Using "Type".
 
 Section list_in.
   Variable (X : Type). 

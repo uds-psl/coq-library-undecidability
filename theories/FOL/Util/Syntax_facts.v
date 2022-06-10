@@ -5,12 +5,11 @@ From Undecidability.Synthetic Require Import Definitions DecidabilityFacts Enume
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 
+From Coq Require Import Eqdep_dec.
 Require Import Coq.Vectors.Vector.
 Local Notation vec := t.
 
 From Undecidability Require Export FOL.Util.Syntax.
-
-From Equations Require Import Equations.
 
 Section fix_signature.
 
@@ -84,8 +83,6 @@ Section fix_signature.
     revert rho; induction phi; intros rho; cbn; congruence.
   Qed.
 
-  Derive Signature for form.
-
   Lemma form_ind_subst :
     forall P : form -> Prop,
       P falsity ->
@@ -94,14 +91,24 @@ Section fix_signature.
       (forall (q : quantop) (f2 : form), (forall sigma, P (subst_form sigma f2)) -> P (quant q f2)) ->
       forall (f4 : form), P f4.
   Proof.
-    intros P H1 H2 H3 H4 phi. induction phi using (@size_ind _ size). depelim phi; trivial.
-    - injection H. intros -> % Eqdep_dec.inj_pair2_eq_dec; trivial. decide equality.
-    - apply H3; apply H; cbn; lia.
-    - apply H4. intros sigma. apply H. cbn. rewrite subst_size. lia.
+    enough (H : forall (ff : falsity_flag) (P : (@form Σ_funcs Σ_preds ops ff) -> Prop),
+      (match ff return ((@form Σ_funcs Σ_preds ops ff) -> Prop) -> Prop with 
+      | falsity_off => fun _ => True
+      | falsity_on => fun P' => P' falsity
+      end) P ->
+      (forall P0 (t : vec term (ar_preds P0)), P (atom P0 t)) ->
+      (forall (b0 : binop) (f1 : form), P f1 -> forall f2 : form, P f2 -> P (bin b0 f1 f2)) ->
+      (forall (q : quantop) (f2 : form), (forall sigma, P (subst_form sigma f2)) -> P (quant q f2)) ->
+      forall (f4 : form), P f4) by apply H.
+    intros ff P H1 H2 H3 H4 phi. induction phi using (@size_ind _ size).
+    destruct phi; cbn in *.
+    - easy.
+    - apply H2.
+    - apply H3; apply H; lia.
+    - apply H4. intros sigma. apply H. rewrite subst_size. lia.
   Qed.
 
 End fix_signature.
-
 
 
 (* ** Substituion lemmas *)
@@ -280,7 +287,7 @@ Section Bounded.
 
   Lemma bounded_up_t {n t k} :
     bounded_t n t -> k >= n -> bounded_t k t.
-  Proof.
+  Proof using Σ_preds ops.
     induction 1; intros Hk; constructor; try lia. firstorder.
   Qed.
 
@@ -292,24 +299,30 @@ Section Bounded.
     - apply IHbounded. lia.
   Qed.
 
-  Derive Signature for In.
+  Lemma In_inv {n} {t} {v : vec term n} :
+    In t v ->
+    (match n return vec term n -> Prop with
+    | 0 => fun _ => False
+    | S n => fun v' => (t = Vector.hd v') \/ (In t (Vector.tl v'))
+    end) v.
+  Proof. intros []; cbn; tauto. Qed.
 
   Lemma find_bounded_step n (v : vec term n) :
     (forall t : term, vec_in t v -> {n : nat | bounded_t n t}) -> { n | forall t, In t v -> bounded_t n t }.
-  Proof.
+  Proof using Σ_preds ops.
     induction v; cbn; intros HV.
     - exists 0. intros t. inversion 1.
     - destruct IHv as [k Hk], (HV h) as [l Hl]; try left.
       + intros t Ht. apply HV. now right.
-      + exists (k + l). intros t H. depelim H; cbn in *.
-        * injection H. intros _ <-. apply (bounded_up_t Hl). lia.
-        * injection H0. intros -> % Eqdep_dec.inj_pair2_eq_dec _; try decide equality.
-          apply (bounded_up_t (Hk t H)). lia.
+      + exists (k + l). intros t H.
+        destruct (In_inv H) as [->|H'].
+        * cbn. apply (bounded_up_t Hl). lia.
+        * cbn in H'. apply (bounded_up_t (Hk t H')). lia.
   Qed.
 
   Lemma find_bounded_t t :
     { n | bounded_t n t }.
-  Proof.
+  Proof using Σ_preds ops.
     induction t using term_rect.
     - exists (S x). constructor. lia.
     - apply find_bounded_step in X as [n H]. exists n. now constructor.
@@ -396,7 +409,9 @@ Lemma vec_cons_inv X n (v : Vector.t X n) x y :
 Proof.
   inversion 1; subst.
   - now left.
-  - apply EqDec.inj_right_pair in H3 as ->. now right.
+  - apply inj_pair2_eq_dec in H3 as ->.
+    + now right.
+    + decide equality.
 Qed.
 
 Ltac solve_bounds :=
@@ -428,11 +443,13 @@ Ltac resolve_existT := try
 Lemma dec_vec_in X n (v : vec X n) :
   (forall x, vec_in x v -> forall y, dec (x = y)) -> forall v', dec (v = v').
 Proof with subst; try (now left + (right; intros[=])).
-  intros Hv. induction v; intros v'; dependent elimination v'...
-  destruct (Hv h (vec_inB h v) h0)... edestruct IHv.
-  - intros x H. apply Hv. now right.
-  - left. f_equal. apply e.
-  - right. intros H. inversion H. resolve_existT. tauto.
+  intros Hv. induction v; intros v'.
+  - pattern v'. apply Vector.case0...
+  - apply (Vector.caseS' v'). clear v'. intros h0 v'.
+    destruct (Hv h (vec_inB h v) h0)... edestruct IHv.
+    + intros x H. apply Hv. now right.
+    + left. f_equal. apply e.
+    + right. intros H. inversion H. resolve_existT. tauto.
 Qed.
 
 #[global]
@@ -453,7 +470,8 @@ Section EqDec.
   Hypothesis eq_dec_quantop : eq_dec quantop.
 
   Global Instance dec_term : eq_dec term.
-  Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence)).
+  Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence))
+    using eq_dec_Funcs.
     intros t. induction t as [ | ]; intros [|? v']...
     - decide (x = n)... 
     - decide (F = f)... destruct (dec_vec_in _ _ _ X v')...
@@ -473,7 +491,8 @@ Section EqDec.
   Qed.
 
   Lemma dec_form_dep {b1 b2} phi1 phi2 : dec (eq_dep falsity_flag (@form _ _ _) b1 phi1 b2 phi2).
-  Proof with subst; try (now left + (right; intros ? % eq_sigT_iff_eq_dep; resolve_existT; congruence)).
+  Proof with subst; try (now left + (right; intros ? % eq_sigT_iff_eq_dep; resolve_existT; congruence))
+    using eq_dec_Funcs eq_dec_Preds eq_dec_quantop eq_dec_binop.
     unfold dec. revert phi2; induction phi1; intros; try destruct phi2.
     all: try now right; inversion 1. now left.
     - decide (b = b0)... decide (P = P0)... decide (t = t0)... right.
@@ -489,7 +508,7 @@ Section EqDec.
   Qed.
 
   Global Instance dec_form {ff : falsity_flag} : eq_dec form.
-  Proof.
+  Proof using eq_dec_Funcs eq_dec_Preds eq_dec_quantop eq_dec_binop.
     intros phi psi. destruct (dec_form_dep phi psi); rewrite eq_dep_falsity in *; firstorder.
   Qed.
 
@@ -549,10 +568,11 @@ Section Enumerability.
   Proof.
     induction n; cbn.
     - split.
-      + intros. left. now dependent elimination v.
+      + intros. left. pattern v. now apply Vector.case0.
       + intros [<- | []] x H. inv H.
     - split.
-      + intros. dependent elimination v. in_collect (pair h t0); destruct (IHn t0).
+      + intros. revert H. apply (Vector.caseS' v).
+        clear v. intros ? t0 H. in_collect (pair h t0); destruct (IHn t0).
         eauto using vec_inB. apply H0. intros x Hx. apply H. now right. 
       + intros Hv. apply in_map_iff in Hv as ([h v'] & <- & (? & ? & [= <- <-] & ? & ?) % list_prod_in).
         intros x H. inv H; destruct (IHn v'); eauto. apply H2; trivial. now resolve_existT.
@@ -582,7 +602,7 @@ Section Enumerability.
 
   Lemma enumT_term :
     enumerable__T term.
-  Proof.
+  Proof using enum_Funcs'.
     apply enum_enumT. exists L_term. apply enum_term.
   Qed.
 
@@ -617,9 +637,8 @@ Section Enumerability.
 
   Lemma enumT_form {ff : falsity_flag} :
     enumerable__T form.
-  Proof.
+  Proof using enum_Funcs' enum_Preds' enum_binop' enum_quantop'.
     apply enum_enumT. exists L_form. apply enum_form.
   Defined.
 
 End Enumerability.
- 

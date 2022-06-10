@@ -4,7 +4,6 @@ From Undecidability.L Require Import TM.TMEncoding.
 From Undecidability.TM Require Import Util.TM_facts.
 
 
-Set Default Proof Using "Type".
 Section fix_sig.
   Variable sig : Type.
   Context `{reg_sig : registered sig}.

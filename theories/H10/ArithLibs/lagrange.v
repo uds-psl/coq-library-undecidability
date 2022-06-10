@@ -17,8 +17,6 @@ From Undecidability.H10.ArithLibs
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Section utils.
 
   Fact prime_2_or_odd p : prime p -> p = 2 \/ exists n, 0 < n /\ p = 2*n+1.

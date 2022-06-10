@@ -16,8 +16,6 @@ Local Unset Strict Implicit.
 
 Require Import Morphisms.
 
-
-
 (* ** Internal axioms *)
 
 Section ZF.
@@ -44,7 +42,7 @@ Section ZF.
 
   Instance set_equiv_equiv :
     Equivalence set_equiv.
-  Proof.
+  Proof using M_ZF.
     split.
     - apply (@M_ZF (fun _ => ∅) ax_refl). cbn; tauto.
     - apply (@M_ZF (fun _ => ∅) ax_sym). cbn; tauto.
@@ -53,7 +51,7 @@ Section ZF.
 
   Instance set_equiv_elem :
     Proper (set_equiv ==> set_equiv ==> iff) set_elem.
-  Proof.
+  Proof using M_ZF.
     intros x x' Hx y y' Hy. split.
     - apply (@M_ZF (fun _ => ∅) ax_eq_elem); cbn; tauto.
     - symmetry in Hx, Hy. apply (@M_ZF (fun _ => ∅) ax_eq_elem); cbn; tauto.
@@ -61,20 +59,20 @@ Section ZF.
 
   Instance set_equiv_sub :
     Proper (set_equiv ==> set_equiv ==> iff) set_sub.
-  Proof.
+  Proof using M_ZF.
     intros x x' Hx y y' Hy. unfold set_sub.
     setoid_rewrite Hx. setoid_rewrite Hy. tauto.
   Qed.
 
   Lemma set_equiv_refl' x :
     x ≡' x.
-  Proof.
+  Proof using M_ZF.
     apply set_equiv_equiv.
   Qed.
 
   Lemma set_equiv_refl x :
     x ≡ x.
-  Proof.
+  Proof using M_ZF.
     apply set_equiv_equiv.
   Qed.
   
@@ -82,19 +80,19 @@ Section ZF.
   
   Lemma M_ext x y :
     x ⊆' y -> y ⊆' x -> x ≡' y.
-  Proof.
+  Proof using M_ZF.
     apply (@M_ZF (fun _ => ∅) ax_ext). cbn; tauto.
   Qed.
 
   Lemma M_eset x :
     ~ x ∈' ∅.
-  Proof.
+  Proof using M_ZF.
     refine (@M_ZF (fun _ => ∅) ax_eset _ x). cbn; tauto.
   Qed.
 
   Lemma M_pair x y z :
     x ∈' {y; z} <-> x ≡' y \/ x ≡' z.
-  Proof.
+  Proof using M_ZF.
     apply (@M_ZF (fun _ => ∅) ax_pair). cbn; tauto.
   Qed.
 
@@ -103,7 +101,7 @@ Section ZF.
 
   Instance set_equiv_pair :
     Proper (set_equiv ==> set_equiv ==> set_equiv) pair.
-  Proof.
+  Proof using M_ZF.
     intros x x' Hx y y' Hy. unfold pair.
     apply M_ext; unfold set_sub.
     all: setoid_rewrite M_pair.
@@ -112,7 +110,7 @@ Section ZF.
 
   Instance set_equiv_opair :
     Proper (set_equiv ==> set_equiv ==> set_equiv) M_opair.
-  Proof.
+  Proof using M_ZF.
     intros x x' Hx y y' Hy. unfold M_opair.
     change ({pair x x; pair x y} ≡' {pair x' x'; pair x' y'}).
     apply M_ext; unfold set_sub.
@@ -122,7 +120,7 @@ Section ZF.
 
   Lemma M_union x y :
     x ∈' ⋃ y <-> exists z, z ∈' y /\ x ∈' z.
-  Proof.
+  Proof using M_ZF.
     apply (@M_ZF (fun _ => ∅) ax_union). cbn; tauto.
   Qed.
 
@@ -131,7 +129,7 @@ Section ZF.
 
   Instance equiv_union :
     Proper (set_equiv ==> set_equiv) union.
-  Proof.
+  Proof using M_ZF.
     intros x x' Hx. unfold union.
     apply M_ext; unfold set_sub.
     all: setoid_rewrite M_union.
@@ -140,7 +138,7 @@ Section ZF.
 
   Lemma M_power x y :
     x ∈' PP y <-> x ⊆' y.
-  Proof.
+  Proof using M_ZF.
     apply (@M_ZF (fun _ => ∅) ax_power). cbn; tauto.
   Qed.
 
@@ -149,7 +147,7 @@ Section ZF.
 
   Instance equiv_power :
     Proper (set_equiv ==> set_equiv) power.
-  Proof.
+  Proof using M_ZF.
     intros x x' Hx. unfold power.
     apply M_ext; unfold set_sub.
     all: setoid_rewrite M_power.
@@ -158,13 +156,13 @@ Section ZF.
 
   Lemma M_om1 :
     M_inductive ω.
-  Proof.
+  Proof using M_ZF.
     apply (@M_ZF (fun _ => ∅) ax_om1). cbn; tauto.
   Qed.
 
   Lemma M_om2 x :
     M_inductive x -> ω ⊆ x.
-  Proof.
+  Proof using M_ZF.
     apply (@M_ZF (fun _ => ∅) ax_om2). cbn; tauto.
   Qed.
 
@@ -179,7 +177,7 @@ Section ZF.
 
   Lemma binunion_el x y z :
     x ∈' y ∪ z <-> x ∈' y \/ x ∈' z.
-  Proof.
+  Proof using M_ZF.
     split.
     - intros [u [H1 H2]] % M_union.
       apply M_pair in H1 as [<-| <-]; auto.
@@ -190,7 +188,7 @@ Section ZF.
 
   Instance equiv_bunion :
     Proper (set_equiv ==> set_equiv ==> set_equiv) M_binunion.
-  Proof.
+  Proof using M_ZF.
     intros x x' Hx y y' Hy. unfold M_binunion.
     apply M_ext; unfold set_sub.
     all: setoid_rewrite binunion_el.
@@ -199,7 +197,7 @@ Section ZF.
 
   Lemma sing_el x y :
     x ∈' M_sing y <-> x ≡' y.
-  Proof.
+  Proof using M_ZF.
     split.
     - now intros [H|H] % M_pair.
     - intros ->. apply M_pair. now left.
@@ -207,19 +205,19 @@ Section ZF.
 
   Lemma M_pair1 x y :
     x ∈' {x; y}.
-  Proof.
+  Proof using M_ZF.
     apply M_pair. now left.
   Qed.
 
   Lemma M_pair2 x y :
     y ∈' {x; y}.
-  Proof.
+  Proof using M_ZF.
     apply M_pair. now right.
   Qed.
 
   Lemma sing_pair x y z :
     {x; x} ≡' {y; z} -> x ≡' y /\ x ≡' z.
-  Proof.
+  Proof using M_ZF.
     intros He. split.
     - assert (H : y ∈' {y; z}) by apply M_pair1.
       rewrite <- He in H. apply M_pair in H. intuition.
@@ -229,14 +227,14 @@ Section ZF.
 
   Lemma opair_inj1 x x' y y' :
     M_opair x y ≡' M_opair x' y' -> x ≡' x'.
-  Proof.
+  Proof using M_ZF.
     intros He. assert (H : {x; x} ∈' M_opair x y) by apply M_pair1.
     rewrite He in H. apply M_pair in H as [H|H]; apply (sing_pair H).
   Qed.
 
   Lemma opair_inj2 x x' y y' :
     M_opair x y ≡' M_opair x' y' -> y ≡' y'.
-  Proof.
+  Proof using M_ZF.
     intros He. assert (y ≡' x' \/ y ≡' y') as [Hy | Hy]; trivial.
     - assert (H : {x; y} ∈' M_opair x y) by apply M_pair2.
       rewrite He in H. apply M_pair in H as [H|H].
@@ -251,7 +249,7 @@ Section ZF.
 
   Lemma opair_inj x x' y y' :
     M_opair x y ≡' M_opair x' y' -> x ≡' x' /\ y ≡' y'.
-  Proof.
+  Proof using M_ZF.
     intros H. split.
     - eapply opair_inj1; eassumption.
     - eapply opair_inj2; eassumption.
@@ -259,7 +257,7 @@ Section ZF.
 
   Lemma sigma_el x y :
     x ∈' σ y <-> x ∈' y \/ x ≡' y.
-  Proof.
+  Proof using M_ZF.
     split.
     - intros [H|H] % binunion_el; auto.
       apply sing_el in H. now right.
@@ -269,7 +267,7 @@ Section ZF.
 
   Lemma binunion_eset x :
     x ≡' ∅ ∪ x.
-  Proof.
+  Proof using M_ZF.
     apply M_ext.
     - intros y H. apply binunion_el. now right.
     - intros y [H|H] % binunion_el.
@@ -279,25 +277,25 @@ Section ZF.
 
   Lemma pair_com x y :
     {x; y} ≡' {y; x}.
-  Proof.
+  Proof using M_ZF.
     apply M_ext; intros z; rewrite !M_pair; tauto.
   Qed.
 
   Lemma binunion_com x y :
     x ∪' y ≡' y ∪' x.
-  Proof.
+  Proof using M_ZF.
     apply equiv_union, pair_com.
   Qed.
 
   Lemma binunionl a x y :
     a ∈' x -> a ∈' x ∪' y.
-  Proof.
+  Proof using M_ZF.
     intros H. apply binunion_el. now left.
   Qed.
 
   Lemma binunionr a x y :
     a ∈' y -> a ∈' x ∪' y.
-  Proof.
+  Proof using M_ZF.
     intros H. apply binunion_el. now right.
   Qed.
 
@@ -305,7 +303,7 @@ Section ZF.
 
   Lemma binunion_assoc x y z :
     (x ∪' y) ∪' z ≡' x ∪' (y ∪' z).
-  Proof.
+  Proof using M_ZF.
     apply M_ext; intros a [H|H] % binunion_el; eauto.
     - apply binunion_el in H as [H|H]; eauto.
     - apply binunion_el in H as [H|H]; eauto.
@@ -313,7 +311,7 @@ Section ZF.
 
   Lemma numeral_lt k l :
     k < l -> numeral k ∈ numeral l.
-  Proof.
+  Proof using M_ZF.
     induction 1; cbn; apply sigma_el; auto.
   Qed.
 
@@ -323,7 +321,7 @@ Section ZF.
 
   Lemma enc_bool_inj b c :
     M_enc_bool b ≡' M_enc_bool c -> b = c.
-  Proof.
+  Proof using M_ZF.
     destruct b, c; trivial; cbn.
     - intros H. contradiction (@M_eset ∅).
       rewrite <- H at 2. apply M_pair; auto.
@@ -333,7 +331,7 @@ Section ZF.
 
   Lemma enc_string_inj s t :
     M_enc_string s ≡' M_enc_string t -> s = t.
-  Proof.
+  Proof using M_ZF.
     induction s in t|-*; destruct t as [|b t]; cbn; trivial.
     - intros H. contradiction (M_eset (x:=M_sing (M_enc_bool b))).
       rewrite H. apply M_pair. now left.
@@ -345,7 +343,7 @@ Section ZF.
 
   Instance equiv_prep :
     Proper (eq ==> set_equiv ==> set_equiv) M_prep_string.
-  Proof.
+  Proof using M_ZF.
     intros s s' <- x x' Hx.
     induction s; cbn; trivial.
     now rewrite IHs.
@@ -353,7 +351,7 @@ Section ZF.
 
   Lemma M_enc_stack_app A B :
     M_enc_stack (A ++ B) ≡' M_enc_stack A ∪' M_enc_stack B.
-  Proof.
+  Proof using M_ZF.
     induction A as [|[s t] A IH]; cbn.
     - apply binunion_eset.
     - change (M_enc_stack (A ++ B) ∪' M_sing (M_enc_card s t)
@@ -364,7 +362,7 @@ Section ZF.
 
   Lemma enc_stack_el' x A :
     x ∈ M_enc_stack A -> exists s t, (s, t) el A /\ x ≡' M_enc_card s t.
-  Proof.
+  Proof using M_ZF.
     induction A as [|[s t] A IH]; cbn.
     - now intros H % M_eset.
     - intros [H|H] % binunion_el.
@@ -374,7 +372,7 @@ Section ZF.
 
   Lemma enc_stack_el B s t :
     (s, t) el B -> M_enc_card s t ∈ M_enc_stack B.
-  Proof.
+  Proof using M_ZF.
     induction B as [|[u b] B IH]; cbn; auto.
     intros [H|H]; apply binunion_el.
     - right. apply sing_el. injection H. now intros -> ->.
@@ -403,7 +401,7 @@ Section ZF.
 
   Lemma M_combinations_spec B rho x y a b :
     M_combinations B x y -> eval rho a = x -> eval rho b = y -> rho ⊨ combinations B a b.
-  Proof.
+  Proof using M_ZF.
     induction B in y,a,b,rho|-*; cbn.
     - now intros -> _ ->.
     - destruct a0 as [s t]. intros (y1&y2&H1&H2&H3) Ha Hb. exists y1, y2. repeat split.
@@ -424,13 +422,13 @@ Section ZF.
 
   Instance equiv_solutions :
     Proper (eq ==> eq ==> set_equiv ==> iff) M_solutions.
-  Proof.
+  Proof using M_ZF.
     intros B B' <- f f' <- x x' Hx. unfold M_solutions. setoid_rewrite Hx. tauto.
   Qed.
 
   Lemma comb_rel_rep C s t :
     M_is_rep (M_comb_rel s t) (M_enc_stack C) (M_enc_stack (append_all C (s, t))).
-  Proof.
+  Proof using M_ZF.
     intros y. split.
     - intros (u&v&H&H') % enc_stack_el'.
       unfold append_all in H. apply in_map_iff in H as [[a b][H1 H2]]. cbn in H1.
@@ -446,7 +444,7 @@ Section ZF.
 
   Lemma M_combinations_step B C :
     M_combinations B (M_enc_stack C) (M_enc_stack (derivation_step B C)).
-  Proof.
+  Proof using M_ZF.
     induction B as [|[s t] B IH]; cbn; trivial.
     exists (M_enc_stack (derivation_step B C)), (M_enc_stack (append_all C (s, t))).
     rewrite M_enc_stack_app. split; trivial. split; trivial.
@@ -455,7 +453,7 @@ Section ZF.
 
   Lemma solutions_derivations B f n k :
     M_solutions B f (numeral n) -> k <= n -> M_opair (numeral k) (M_enc_stack (derivations B k)) ∈ f.
-  Proof.
+  Proof using M_ZF.
     intros H Hk; induction k; cbn.
     - apply H.
     - assert (Hk' : k <= n) by lia. specialize (IHk Hk').
@@ -470,7 +468,7 @@ Section ZF.
   Lemma M_solutions_el B f k X p :
     standard M -> k ∈ ω -> M_function f -> M_solutions B f k -> M_opair k X ∈' f
     -> p ∈' X -> exists u v, p ≡' M_enc_card u v /\ derivable B u v.
-  Proof.
+  Proof using M_ZF.
     intros HS HO Hf Hk HX Hp. destruct (HS k HO) as [n Hn].
     change (k ≡' numeral n) in Hn. rewrite Hn in Hk. rewrite Hn in HX.
     pose proof (H := solutions_derivations Hk (le_n n)).
@@ -480,7 +478,7 @@ Section ZF.
 
   Theorem PCP_ZF2 B rho :
     standard M -> rho ⊨ solvable B -> exists s, derivable B s s.
-  Proof.
+  Proof using M_ZF.
     intros VIN (n & f & s & X & [[[[H1 H2] H3] H4] H5]).
     assert (H1' : n ∈ ω) by apply H1. clear H1.
     assert (H4' : M_opair n X ∈ f) by apply H4. clear H4.

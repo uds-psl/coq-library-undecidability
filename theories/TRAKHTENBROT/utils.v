@@ -60,7 +60,7 @@ Section graphs.
              (H3 : forall x y, { R x y } + { ~ R x y }).
 
   Definition graph_tot_reif : is_graph_function -> { f | forall x y, R x y <-> y = f x }.
-  Proof.
+  Proof using H3 H1.
     intros (H2 & H4). 
     destruct finite_t_dec_choice with (3 := H4) as (f & Hf); auto.
     exists f; intros x y; split.
@@ -86,7 +86,7 @@ Section graphs_equiv.
              (H6 : forall x y1 y2, y1 ≈ y2 -> R x y2 -> R x y1).
 
   Definition graph_equiv_function_reif : is_graph_equiv_function -> { f | forall x y, R x y <-> y ≈ f x }.
-  Proof.
+  Proof using H6 H3 H1.
     intros (H2 & H4). 
     destruct finite_t_dec_choice with (3 := H4) as (f & Hf); auto.
     exists f; intros x y; split.
@@ -95,4 +95,3 @@ Section graphs_equiv.
   Qed.
 
 End graphs_equiv.
-

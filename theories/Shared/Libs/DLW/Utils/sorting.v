@@ -64,7 +64,7 @@ Section php_fun.
   Variable (n : nat) (f : nat -> nat) (Hf : forall i, i <= n -> f i < n).
 
   Theorem php_fun : exists i j, i < j <= n /\ f i = f j.
-  Proof.
+  Proof using Hf.
     destruct PHP_rel with (R := fun x y => y = f x) (l := list_an 0 (S n)) (m := list_an 0 n)
       as (a & i & b & j & c & v & H1 & H2 & H3 & H4).
     + intros x; rewrite list_an_spec; simpl; intros [ _ H ].
@@ -139,7 +139,7 @@ Section split_interval.
                                                  /\ (forall j, g (h j) = j)
                                                  /\ (forall j, h (g j) = j) 
                                                  /\ g i = n } }.
-  Proof.
+  Proof using Hi.
     exists g, h.
     split; [ | split; [ | split; [ | split ] ] ]; auto.
     + intros j; unfold h. 

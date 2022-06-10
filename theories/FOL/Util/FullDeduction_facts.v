@@ -8,8 +8,6 @@ Local Set Implicit Arguments.
 Require Import Lia.
 
 
-
-
 Ltac comp := repeat (progress (cbn in *; autounfold in *)).
 
 Section ND_def.
@@ -305,5 +303,3 @@ Ltac prv_all x :=
 
 Ltac use_exists H x :=
   apply (ExE _ H); edestruct nameless_equiv_ex as [x ->]; cbn; subsimpl.
-
-

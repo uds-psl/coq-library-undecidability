@@ -1,13 +1,10 @@
 Set Implicit Arguments.
 
-From Equations Require Import Equations.
 Require Import List Lia Arith Init.Wf Morphisms Program.Program.
 From Undecidability.HOU Require Import unification.unification concon.conservativity calculus.calculus.
 Import ListNotations.
 
 Tactic Notation "simplify" := Undecidability.HOU.std.tactics.simplify.  
-
-Set Default Proof Using "Type".
 
 (* * First-Order Unification *)
 
@@ -413,7 +410,7 @@ Section Unification.
 
     Definition subvars := MR strict_incl (@Vars' X).
 
-    Instance wf_subvars : WellFounded subvars.
+    Lemma wf_subvars : well_founded subvars.
     Proof. eapply measure_wf, wf_strict_incl, eq_dec. Qed.
 
     Notation "( a ; b )" := (exist _ a b).
@@ -448,38 +445,6 @@ Section Unification.
       - right; intros [σ H']; inv H'; [congruence|].
         rewrite H in H0. inv H0. eauto.
     Qed.
-
-   (* Bug in Equations?
-      Global Obligation Tactic := idtac.
-      Equations? unif (E: list (exp X * exp X)) : { sigma | E ↦ sigma } + ({ sigma | E ↦ sigma } -> False) by wf E subvars :=
-      unif E1 with remember (decomp' E1) => {
-        unif E2 (Some nil ; H) := inl (var ; _) ;
-        unif E3 (Some ((var x1, s1) :: E') ; H)
-          with (x1 el vars s1, isFree x1, dec_all isFree (vars s1)) => {
-          unif E4 (Some ((var x2, s2) :: E'') ; H') (right H1, left H2, left H3)
-            with (unif (update x2 s2 var •₊₊ E'')) => {
-            unif E5 (Some ((var x3, s3) :: E') ; H'') (right H1', left H2', left H3') (inl (sigma1;HH))
-            := inl (update x3 (sigma1 • s3) sigma1 ; _);
-            unif a b c d := inr _
-          };
-          unif E5 a1 b1 := inr _
-        };
-        unif E6 a2 => inr _
-      }.
-    Proof.
-      all: try now intros [σ H]; inv H; intuition congruence.
-      - now econstructor.
-      - unfold subvars, MR. eapply Vars_decomp' in H.
-        split.
-        + rewrite singlepoint_subst_Vars'. cbn in H. lauto.
-        + exists x. split. cbn in H; lauto. intros ? % singlepoint_subst_Vars'_variable.
-          intuition.
-      - econstructor; eauto.
-      - intros [σ H]; inv H.  intuition congruence.
-        rewrite unknown0 in H0. inv H0; eauto.
-      - intros [σ H]; inv H. congruence.
-        rewrite unknown0 in H0. inv H0; eauto.
-    Qed. *)
     
   End Computability.
 

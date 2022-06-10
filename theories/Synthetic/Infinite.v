@@ -60,7 +60,7 @@ Section Inf.
 
     Lemma LX_len n :
       length (LX n) = S n.
-    Proof.
+    Proof using Hf.
       induction n; cbn; eauto.
     Qed.
 
@@ -76,7 +76,7 @@ Section Inf.
 
     Lemma LX_NoDup n :
       NoDup (LX n).
-    Proof.
+    Proof using Hf.
       induction n; cbn; repeat constructor; auto.
       intros (n'&H1&H2) % LX_el.
       apply Hf in H2. lia.
@@ -84,7 +84,7 @@ Section Inf.
 
     Lemma sub_dec (A B : list X) :
       (A <<= B) + {x | x el A /\ ~ x el B}.
-    Proof.
+    Proof using HX.
       revert B. induction A; intros B; cbn; auto.
       destruct (IHA B); decide (a el B); auto.
       - right. exists a. split; auto.
@@ -95,7 +95,7 @@ Section Inf.
 
     Lemma X_gen :
       generating X.
-    Proof.
+    Proof using Hf HX.
       intros A. destruct (sub_dec (LX (length A)) A) as [H|H].
       - apply NoDup_incl_length in H; try apply LX_NoDup.
         rewrite LX_len in H. lia.
@@ -110,12 +110,12 @@ Section Inf.
 
   Instance el_dec :
     forall (A : list X) x, dec (x el A).
-  Proof.
+  Proof using HX.
     intros A x. induction A; cbn; auto.
   Qed.
 
   Definition dummy : X.
-  Proof.
+  Proof using Hg Hf'.
     pose (p := fun n => exists x, f' n = Some x).
     destruct (@mu p) as [n Hn].
     - intros n. destruct (f' n) eqn : H.
@@ -141,7 +141,7 @@ Section Inf.
 
   Lemma gen (A : list X) :
     { x | ~ x el A /\ forall y, ~ y el A -> le_f x y}.
-  Proof.
+  Proof using HX.
     pose (p := fun n => ~ f n el A).
     assert (H1 : forall x, dec (p x)).
     { intros n. destruct (el_dec A (f n)) as [H|H].

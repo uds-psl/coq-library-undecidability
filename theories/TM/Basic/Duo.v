@@ -2,7 +2,6 @@
 
 From Undecidability.TM Require Import Util.TM_facts.
 
-
 (* ** Read two symbols *)
 
 
@@ -51,7 +50,7 @@ Section ReadChar2.
       y = (current t[@Fin0], current t[@Fin1]) /\
       t' = t.
 
-  Definition ReadChar2_Sem : ReadChar2 ⊨c(1) ReadChar2_Rel.
+  Lemma ReadChar2_Sem : ReadChar2 ⊨c(1) ReadChar2_Rel.
   Proof.
     eapply RealiseIn_monotone.
     - apply CaseChar2_Sem.

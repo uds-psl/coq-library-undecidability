@@ -115,7 +115,7 @@ Section ZM.
   Hypothesis ce : CE.
   
   Instance SET_interp' : interp SET'.
-  Proof.
+  Proof using ce.
     split; intros [].
     - intros _. exact empty.
     - intros v. exact (upair ce (Vector.hd v) (Vector.hd (Vector.tl v))).

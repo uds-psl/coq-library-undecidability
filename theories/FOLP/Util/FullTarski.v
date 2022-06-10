@@ -158,5 +158,3 @@ Notation "rho ⊨ phi" := (sat rho phi) (at level 20).
 
 Arguments valid_T {_} _ _ _.
 Notation "T '⊫<' C '>' phi" := (valid_T C T phi) (at level 50).
-
-

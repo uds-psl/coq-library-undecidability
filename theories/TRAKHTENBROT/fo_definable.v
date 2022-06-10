@@ -376,6 +376,3 @@ Section extra.
   Qed.
 
 End extra.
-
-
-

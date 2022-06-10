@@ -14,8 +14,6 @@ From Undecidability.Shared.Libs.DLW
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Local Notation power := (mscal mult 1).
 
 Section div_mult.

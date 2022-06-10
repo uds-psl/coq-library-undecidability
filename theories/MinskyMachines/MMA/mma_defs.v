@@ -14,8 +14,6 @@ From Undecidability.Shared.Libs.DLW
 
 From Undecidability.MinskyMachines Require Export MM.
 
-Set Default Proof Using "Type".
-
 Set Implicit Arguments.
 
 Tactic Notation "rew" "length" := autorewrite with length_db.

@@ -1,6 +1,4 @@
 (* * Trakhtenbrot's Theorem *)
-
-From Equations Require Import Equations.
 Require Import Lia Arith.
 
 Require Import Undecidability.PCP.PCP.
@@ -8,28 +6,18 @@ From Undecidability Require Import FOLP.FOLFS.
 Require Import Undecidability.Shared.ListAutomation.
 Import ListAutomationNotations.
 
-
 (* ** Bounded boolean strings *)
-
-Derive Signature for le.
 
 Lemma le_irrel' n :
   forall H : n <= n, H = le_n n.
 Proof.
-  induction n; depelim H.
-  - reflexivity.
-  - assert (H = eq_refl) as -> by apply Eqdep_dec.UIP_refl_nat.
-    cbn in H1. assumption.
-  - exfalso. lia.
+  intros H. now apply le_unique.
 Qed.
 
 Lemma le_irrel k l :
   forall H1 H2 : k <= l, H1 = H2.
 Proof.
-  induction l; depelim H1.
-  - intros H2. now rewrite le_irrel'.
-  - intros H2. now rewrite le_irrel'.
-  - depelim H2; try apply le_irrel'. f_equal. apply IHl.
+  intros. now apply le_unique.
 Qed.
 
 Local Notation "| s |" := (length s) (at level 100).
@@ -42,7 +30,7 @@ Lemma string_nil (s : string bool) :
 Proof.
   destruct s; cbn.
   - split; trivial; lia.
-  - split; try congruence. intros H. depelim H.
+  - split; try congruence. intros H. lia.
 Qed.
 
 Definition bnil n :
@@ -184,7 +172,7 @@ Section FIB.
     end.
   
   Global Instance FIB n : interp (obstring n).
-  Proof.
+  Proof using R.
     split.
     - intros [k H]; cbn. inversion H; subst.
       + intros v. exact (ccons H0 (Vector.hd v)).
@@ -243,7 +231,8 @@ Section FIB.
     destruct x as [ [x HX]|], y as [ [y HY]|]; split; cbn; auto.
     { intros H. exists x, y. repeat setoid_rewrite obstring_ienc. now repeat split. }
     all: intros (s&t&H1&H2&H3&H4&H5). all: try unshelve setoid_rewrite obstring_ienc in H2; try unshelve setoid_rewrite obstring_ienc in H3; auto.
-    all: try discriminate. depelim H2. depelim H3. assumption.
+    all: try discriminate.
+    revert H2 H3. now intros [= ->] [= ->].
   Qed.
 
   Definition obembed n (s : obstring n) : obstring (S n) :=
@@ -346,7 +335,7 @@ Section FIB.
     Proof.
       destruct x as [ [s HS] |], y as [ [t HT]|]; cbn.
       all: repeat destruct le_dec; cbn. all: try congruence.
-      intros _ H. depelim H. split; trivial. f_equal. now apply bstring_eq.
+      intros _ [= -> ->]. split; trivial. f_equal. now apply bstring_eq.
     Qed.
 
     Lemma None_dec X (x : option X) :
@@ -434,7 +423,7 @@ Section Conv.
       
   Lemma ienc_inj s t :
     ienc s <> dum -> ienc s = ienc t -> s = t.
-  Proof.
+  Proof using HF3 HF2 HF1.
     revert t. induction s; intros [|]; cbn; trivial.
     - intros _ H. symmetry in H. now apply HF1 in H.
     - intros _ H. now apply HF1 in H.
@@ -447,14 +436,14 @@ Section Conv.
   
   Lemma sub_acc_pred L x y :
     sub y x -> Acc (sub' L) x -> Acc (sub' L) y.
-  Proof.
+  Proof using HS2.
     intros H H'. constructor. intros z [H1 H2].
     apply H'. split; trivial. now apply (HS2 H1).
   Qed.
 
   Lemma sub_acc_cons L x y :
     Acc (sub' L) x -> ~ sub y x -> Acc (sub' (y::L)) x.
-  Proof.
+  Proof using HS2 HD.
     induction 1 as [x HX IH]. intros H.
     constructor. intros z [H1[->|H2] ].
     - contradiction.
@@ -463,14 +452,14 @@ Section Conv.
 
   Lemma sub_acc_cons' L x y :
     sub y x -> Acc (sub' L) x -> Acc (sub' (y::L)) y.
-  Proof.
+  Proof using HS2 HS1 HD.
     intros H1 H2. apply sub_acc_cons; trivial.
     now apply (sub_acc_pred H1).
   Qed.
 
   Lemma sub_acc_step L a x :
     Acc (sub' L) x -> Acc (sub' (a::L)) x.
-  Proof.
+  Proof using HS2 HS1 HD.
     induction 1 as [x HX IH].
     constructor. intros y [H [->|H'] ].
     - now apply (sub_acc_cons' H).
@@ -479,7 +468,7 @@ Section Conv.
 
   Lemma sub_acc' L x :
     Acc (sub' L) x.
-  Proof.
+  Proof using HS2 HS1 HD.
     induction L.
     - constructor. intros y [_ [] ].
     - apply sub_acc_step, IHL.
@@ -487,7 +476,7 @@ Section Conv.
 
   Lemma sub_acc x :
     Acc (fun a b => sub a b) x.
-  Proof.
+  Proof using HS2 HS1 HD.
     destruct HD as [L HL].
     induction (sub_acc' L x) as [x _ IH].
     constructor. intros y H. now apply IH.
@@ -500,7 +489,7 @@ Section Conv.
 
   Lemma psub_acc p :
     Acc psub p.
-  Proof.
+  Proof using HS2 HS1 HD.
     destruct p as [x y]. revert y.
     induction (sub_acc x) as [x HX IHX]. intros y.
     induction (sub_acc y) as [y HY IHY]. constructor.
@@ -515,7 +504,7 @@ Section Conv.
 
   Lemma P_drv' p :
     i_P (fst p) (snd p) -> exists s t, derivable R s t /\ fst p = ienc s /\ snd p = ienc t.
-  Proof.
+  Proof using HS2 HS1 HI HD.
     intros H. induction (psub_acc p) as [ [x' y'] _ IH]; cbn in *.
     destruct (HI H) as [(s&t&H1&H2&H3)|(s&t&u&v&H1&H2&H3&H4&H5)]; subst.
     - exists s, t. repeat split; trivial. now constructor.
@@ -526,13 +515,13 @@ Section Conv.
 
   Lemma P_drv x y :
     i_P x y -> exists s t, derivable R s t /\ x = ienc s /\ y = ienc t.
-  Proof.
+  Proof using HS2 HS1 HI HD.
     apply P_drv' with (p:=(x,y)).
   Qed.
 
   Lemma P_BPCP x :
     i_P x x -> dPCPb R.
-  Proof.
+  Proof using HS2 HS1 HP HI HF3 HF2 HF1 HD.
     intros H. destruct (P_drv H) as (s&t&H1&H2&H3); subst.
     apply ienc_inj in H3 as ->; try apply (HP H). now exists t.
   Qed.

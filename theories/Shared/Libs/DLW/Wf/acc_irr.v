@@ -40,7 +40,7 @@ Section Acc_irrelevance.
                                ->  f (Acc_intro x H1) = f (Acc_intro x H2)).
 
   Theorem Acc_irrelevance x H1 H2 : @f x H1 = f H2.
-  Proof.
+  Proof using Hf.
     generalize (Acc_eq_total H1 H2).
     induction 1 as [ x H1 H2 _ IH ].
     apply Hf, IH.

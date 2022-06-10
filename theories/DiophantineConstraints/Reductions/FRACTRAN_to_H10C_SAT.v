@@ -9,7 +9,7 @@
 
 Require Import List Arith Lia Max.
 
-Require Import Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 
 From Undecidability Require Import Shared.Libs.DLW.Utils.utils H10.Dio.dio_logic H10.Dio.dio_elem.
 From Undecidability Require Import H10.FRACTRAN_DIO FRACTRAN.FRACTRAN.
@@ -86,7 +86,7 @@ Section dc_list_h10c.
     Local Lemma dc_h10c_equiv c : 
                 (forall n, In n (0::dee_const (snd c)) -> Ψ (even n) = n)
              -> dc_eval φ ν c <-> h10c_sem (dc_h10c c) Ψ.
-    Proof.
+    Proof using Hpsy_odd Hpsy_0.
       destruct c as (x,[ n | y | p | [] y z ]); unfold dc_eval; simpl; intros H.
       + do 2 (rewrite H; auto); rewrite Hpsy_odd; lia.
       + rewrite H; auto; do 2 rewrite Hpsy_odd; lia.

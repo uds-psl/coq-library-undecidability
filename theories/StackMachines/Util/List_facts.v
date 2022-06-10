@@ -36,23 +36,6 @@ Proof. done. Qed.
 Lemma app_repeat_cons {X: Type} {n: nat} {x: X} {l: list X} : repeat x (1+n) ++ l = x :: (repeat x n ++ l).
 Proof. done. Qed.
 
-Lemma nth_error_Some_In_combineP {X: Type} {i} {x: X} {L: list X} : 
-  nth_error L i = Some x <-> In (i, x) (combine (seq 0 (length L)) L).
-Proof.
-  suff: forall j, nth_error L i = Some x <-> In (j+i, x) (combine (seq j (length L)) L) by move /(_ 0).
-  elim: L i.
-  { by move=> [|i] j. }
-  move=> y L IH [|i] j /=.
-  - constructor.
-    + move=> [->]. left. f_equal. by lia.
-    + case; first by move=> [_ ->].
-      move /(@in_combine_l nat X). rewrite in_seq. by lia.
-  - rewrite (IH i (S j)). 
-    have ->: S j + i = j + S i by lia. constructor.
-    + move=> ?. by right.
-    + by case; [move=> []; lia |].
-Qed.
-
 Lemma nth_error_combine_SomeP {X: Type} {i} {x: X} {L: list X} : 
   nth_error L i = Some x <-> nth_error (combine (seq 0 (length L)) L) i = Some (i, x).
 Proof.
@@ -63,6 +46,18 @@ Proof.
     by constructor; move=> [->].
   - have ->: j + S i = S j + i by lia.
     by apply: IH.
+Qed.
+
+Lemma nth_error_Some_In_combineP {X: Type} {i} {x: X} {L: list X} : 
+  nth_error L i = Some x <-> In (i, x) (combine (seq 0 (length L)) L).
+Proof.
+  rewrite nth_error_combine_SomeP. split; first by apply: nth_error_In.
+  move=> /(@In_nth_error (nat * X)) [j Hj].
+  suff: j = i. { move=> ?. by subst j. }
+  suff: forall k, nth_error (combine (seq k (length L)) L) j = Some (i, x) -> k + j = i.
+  { move=> /(_ 0). by apply. }
+  clear Hj. elim: L j i; first by case.
+  move=> y L IH [|j] i /= ? => [[]|/IH]; lia.
 Qed.
 
 Lemma nth_error_appP {X: Type} {l1 l2: list X} {i: nat} {x: X} : 

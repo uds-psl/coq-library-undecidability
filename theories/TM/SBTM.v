@@ -1,59 +1,73 @@
-(** * Halting problem for simple binary single-tape Turing machines HaltSBTM *)
+(* 
+  Problem(s):
+    Binary Single-tape Turing Machine Halting (SBTM_HALT)
+*)
 
-Require Import List Bool Nat.
-Require Coq.Vectors.Fin.
-Import ListNotations.
+Require Coq.Vectors.Fin Coq.Vectors.Vector.
 
-Definition tape : Type := list bool * option bool * list bool.
+#[local] Open Scope list_scope.
+#[local] Open Scope type_scope.
 
-Definition left '( (ls, m, rs) : tape) : list bool := ls.
+Inductive direction : Type := go_left | go_right.
 
-Definition right '((ls, m, rs) : tape) := rs.
-
-Definition curr '((ls, m, rs) : tape) := m.
-
-Definition wr (o : option bool) (t : tape) := 
-  match o with
-  | Some c => (left t, Some c, right t)
-  | None => t
-  end.
-  
-Inductive move : Type := 
-    | Lmove : move 
-    | Rmove : move 
-    | Nmove : move.
-
-Definition mv (m : move) (t : tape) :=
-  match m with
-  | Lmove => match left t, curr t with
-             | l :: ls, None => (ls, Some l, right t)
-             | l :: ls, Some c => (ls, Some l, c :: right t)
-             | [], Some c => ([], None, c :: right t)
-             | _, _ => t
-             end
-  | Rmove => match curr t, right t with
-             | None, r :: rs => (left t, Some r, rs) 
-             | Some c, r :: rs => (c :: left t, Some r, rs)
-             | Some c, [] => (c :: left t, None, [])
-             | _ , _ => t
-             end
-  | Nmove => t
+(* the tape implicitly contains blanks ("false") to the left and right *)
+Definition mv (d: direction) (t: (list bool * bool * list bool)) :=
+  match d with
+  | go_left =>
+      match t with
+      | (l :: ls, a, rs) => (ls, l, a :: rs)
+      | (nil, a, rs) => (nil, false, a :: rs)
+      end
+  | go_right =>
+      match t with
+      | (ls, a, r :: rs) => (a :: ls, r, rs)
+      | (ls, a, nil) => (a :: ls, false, nil)
+      end
   end.
 
-Record SBTM :=  { num_states : nat ; trans : Fin.t (S num_states) * option bool -> option (Fin.t (S num_states) * option bool * move)}.
+Record SBTM := Build_SBTM {
+  num_states : nat;
+  (* transition table *)
+  trans : Vector.t (
+    (option ((Fin.t num_states) * bool * direction)) *
+    (option ((Fin.t num_states) * bool * direction)))
+    num_states }.
 
-Notation state M := (Fin.t (S (num_states M))).
+Module SBTMNotations.
+  Notation tape := (list bool * bool * list bool).
+  Notation state M := (Fin.t (num_states M)).
+  Notation config M := ((state M) * tape).
+End SBTMNotations.
 
-Inductive eval (M : SBTM) : state M -> tape -> state M -> tape -> Prop :=
-| eval_halt q t :
-    trans M (q, (curr t)) = None ->
-    eval M q t q t
-| eval_step q t q' w m  q'' t' :
-    trans M (q, curr t) = Some (q', w, m) ->
-    eval M q' (mv m (wr w t)) q'' t' ->
-    eval M q t q'' t'.
+Import SBTMNotations.
 
-Definition HaltSBTM '( (M, t) : SBTM * tape) :=
-  exists q' t', eval M (Fin.F1) t q' t'.
+(* transition table presented as a finite function *)
+Definition trans' M : (state M) * bool -> option ((state M) * bool * direction) :=
+  fun '(q, a) => 
+    match a with
+    | true => fst
+    | false => snd
+    end (Vector.nth (trans M) q).
 
-Definition HaltSBTMu : { M : SBTM & {q : state M | forall c, trans M (q,c) = None /\ forall q', trans M (q',c) = None -> q' = q }} * tape -> Prop := fun '((existT _ M (exist _ q H)), t) => exists t', eval M Fin.F1 t q t'.
+Arguments trans' : simpl never.
+
+(* step function *)
+Definition step (M: SBTM) : config M -> option (config M) :=
+  fun '(q, (ls, a, rs)) => 
+    match trans' M (q, a) with
+    | None => None
+    | Some (q', a', d) => Some (q', mv d (ls, a', rs))
+    end.
+
+Arguments step : simpl never.
+
+#[local] Definition obind {X Y} (f : X -> option Y) (o : option X) := 
+  match o with None => None | Some x => f x end.
+
+(* iterated step function *)
+Definition steps (M: SBTM) (k: nat) (x: config M) : option (config M) :=
+  Nat.iter k (obind (step M)) (Some x).
+
+(* SBTM halting problem *)
+Definition SBTM_HALT : { M : SBTM & config M } -> Prop :=
+  fun '(existT _ M x) => exists k, steps M k x = None.

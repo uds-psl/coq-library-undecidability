@@ -2,8 +2,6 @@ From Undecidability.L.Tactics Require Import LTactics.
 From Undecidability.L Require Import UpToC.
 From Undecidability.L.Datatypes Require Export List_enc LBool.
 
-Set Default Proof Using "Type".
-
 Section forallb. 
   Variable (X : Type).
   Context (H : registered X).

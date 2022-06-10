@@ -2,8 +2,6 @@ Require Import Undecidability.SOL.SOL.
 Require Import Undecidability.Shared.Dec.
 From Undecidability.Shared.Libs.PSL Require Import Vectors VectorForall.
 From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
-From Equations Require Import Equations.
-From Equations.Prop Require Import DepElim.
 Require Import EqdepFacts Eqdep_dec.
 
 Unset Implicit Arguments.
@@ -266,7 +264,7 @@ Section Bounded.
 
   Lemma bounded_indi_term_up n m t :
     m >= n -> bounded_indi_term n t -> bounded_indi_term m t.
-  Proof.
+  Proof using Σ_pred ops.
     intros H1. induction t; intros H2; cbn in *.
     lia. induction v; firstorder. induction v; firstorder.
   Qed.
@@ -328,27 +326,29 @@ Section Bounded.
 
   Lemma find_bounded_indi_step n (v : vec term n) :
     (ForallT (fun t => { n | bounded_indi_term n t }) v) -> { n | Forall (bounded_indi_term n) v }.
-  Proof.
-    intros [v' H]%ForallT_translate. induction v; dependent elimination v'; cbn in *.
+  Proof using Σ_pred ops.
+    intros [v' H]%ForallT_translate. induction v; cbn in *.
     - now exists 0.
-    - destruct (IHv t) as [h1 H1]. apply H. exists (max h0 h1). split. 
-      eapply bounded_indi_term_up. 2: apply H. lia. apply Forall_in. intros t' H2.
+    - revert H. apply (Vector.caseS' v'). intros.
+      destruct (IHv t) as [h1 H1]. apply H. exists (max h0 h1). split. 
+      eapply bounded_indi_term_up. 2: apply H. cbn. lia. apply Forall_in. intros t' H2.
       eapply Forall_in in H2. eapply bounded_indi_term_up. 2: apply H2. 2: apply H1. lia.
   Qed.
 
   Lemma find_bounded_func_step n ar (v : vec term n) :
     (ForallT (fun t => { n | bounded_func_term ar n t }) v) -> { n | Forall (bounded_func_term ar n) v }.
   Proof.
-    intros [v' H]%ForallT_translate. induction v; dependent elimination v'; cbn in *.
+    intros [v' H]%ForallT_translate. induction v; cbn in *.
     - now exists 0.
-    - destruct (IHv t) as [h1 H1]. apply H. exists (max h0 h1). split. 
-      eapply bounded_func_term_up. 2: apply H. lia. apply Forall_in. intros t' H2.
+    - revert H. apply (Vector.caseS' v'). intros.
+      destruct (IHv t) as [h1 H1]. apply H. exists (max h0 h1). split. 
+      eapply bounded_func_term_up. 2: apply H. cbn. lia. apply Forall_in. intros t' H2.
       eapply Forall_in in H2. eapply bounded_func_term_up. 2: apply H2. 2: apply H1. lia.
   Qed.
 
   Lemma find_bounded_indi_term t :
     { n | bounded_indi_term n t }.
-  Proof.
+  Proof using Σ_pred ops.
     induction t using term_rect'; cbn.
     - exists (S n). lia.
     - apply find_bounded_indi_step, IH.
@@ -502,7 +502,7 @@ Section EqDec.
 
   Lemma dec_function_dep ar1 ar2 (f1 : function ar1) (f2 : function ar2) :
     dec (eq_dep _ _ ar1 f1 ar2 f2).
-  Proof.
+  Proof using syms_eq_dec.
     destruct f1, f2.
     - destruct (PeanoNat.Nat.eq_dec ar ar0) as [->|].
       destruct (PeanoNat.Nat.eq_dec n n0) as [->|].
@@ -522,7 +522,7 @@ Section EqDec.
 
   Lemma dec_predicate_dep ar1 ar2 (P1 : predicate ar1) (P2 : predicate ar2) :
     dec (eq_dep _ _ ar1 P1 ar2 P2).
-  Proof.
+  Proof using preds_eq_dec.
     destruct P1, P2.
     - destruct (PeanoNat.Nat.eq_dec ar ar0) as [->|].
       destruct (PeanoNat.Nat.eq_dec n n0) as [->|].
@@ -543,7 +543,7 @@ Section EqDec.
   #[global]
   Instance function_eq_dec ar :
     eq_dec (function ar).
-  Proof.
+  Proof using syms_eq_dec.
     intros f1 f2. destruct (dec_function_dep _ _ f1 f2).
     - left. now apply function_eq_dep.
     - right. now intros H%function_eq_dep.
@@ -552,7 +552,7 @@ Section EqDec.
   #[global]
   Instance predicate_eq_dec ar :
     eq_dec (predicate ar).
-  Proof.
+  Proof using preds_eq_dec.
     intros P1 P2. destruct (dec_predicate_dep _ _ P1 P2).
     - left. now apply predicate_eq_dep.
     - right. now intros H%predicate_eq_dep.
@@ -561,17 +561,19 @@ Section EqDec.
   #[global]
   Instance term_eq_dec :
     eq_dec term.
-  Proof.
+  Proof using syms_eq_dec.
     fix IH 1. intros [] []; try (right; congruence).
     - destruct (PeanoNat.Nat.eq_dec n n0) as [->|]. now left. right; congruence.
     - destruct (PeanoNat.Nat.eq_dec ar ar0) as [->|]. 2: right; congruence.
       destruct (function_eq_dec ar0 f f0) as [->|].
       + assert ({v = v0} + {v <> v0}) as [->|]. {
-          clear f0. induction v; dependent elimination v0. now left.
-          destruct (IH h h0) as [->|]. 2: right; congruence.
-          destruct (IHv t) as [->|]. now left. right. intros H. apply n.
-          enough (Vector.tl (Vector.cons term h0 n0 v) = Vector.tl (Vector.cons term h0 n0 t)) by easy.
-          now rewrite H. }
+          clear f0. induction v.
+          * left. pattern v0. now apply Vector.case0.
+          * apply (Vector.caseS' v0). intros.
+            destruct (IH h h0) as [->|]. 2: right; congruence.
+            destruct (IHv t) as [->|]. now left. right. intros H. apply n0.
+            enough (Vector.tl (Vector.cons term h0 n v) = Vector.tl (Vector.cons term h0 n t)) by easy.
+            now rewrite H. }
         now left. right. intros H. apply n. inversion H.
         apply inj_pair2_eq_dec in H1. exact H1. decide equality.
       + right. intros H. apply n. inversion H.
@@ -581,17 +583,19 @@ Section EqDec.
   #[global]
   Instance form_eq_dec :
     eq_dec form.
-  Proof.
+  Proof using syms_eq_dec quantop_eq_dec preds_eq_dec binop_eq_dec.
     induction x; intros []; try (right; congruence).
     - now left.
     - destruct (PeanoNat.Nat.eq_dec ar ar0) as [->|]. 2: right; congruence.
       destruct (predicate_eq_dec ar0 p p0) as [->|].
       + rename t into v. rename t0 into v0. assert ({v = v0} + {v <> v0}) as [->|]. {
-          clear p0. induction v; dependent elimination v0. now left.
-          destruct (term_eq_dec h h0) as [->|]. 2: right; congruence.
-          destruct (IHv t) as [->|]. now left. right. intros H. apply n.
-          enough (Vector.tl (Vector.cons term h0 n0 v) = Vector.tl (Vector.cons term h0 n0 t)) by easy.
-          now rewrite H. }
+          clear p0. induction v.
+          * left. pattern v0. now apply Vector.case0.
+          * apply (Vector.caseS' v0). intros.
+            destruct (term_eq_dec h h0) as [->|]. 2: right; congruence.
+            destruct (IHv t) as [->|]. now left. right. intros H. apply n0.
+            enough (Vector.tl (Vector.cons term h0 n v) = Vector.tl (Vector.cons term h0 n t)) by easy.
+            now rewrite H. }
         now left. right. intros H. apply n. inversion H.
         apply inj_pair2_eq_dec in H1. exact H1. decide equality.
       + right. intros H. apply n. inversion H. apply inj_pair2_eq_dec in H1. exact H1. decide equality.
@@ -688,10 +692,10 @@ Section Enumerability.
   Proof.
     induction n; cbn.
     - split.
-      + intros. left. now dependent elimination v.
+      + intros. left. pattern v. now apply Vector.case0.
       + now intros [<-|[]].
     - split.
-      + intros. dependent elimination v. in_collect (h, t); destruct (IHn t).
+      + intros. revert H. apply (Vector.caseS' v). intros. in_collect (h, t); destruct (IHn t).
         apply H. apply H0. apply H.
       + intros Hv. apply in_map_iff in Hv as ([h v'] & <- & (? & ? & [= <- <-] & ? & ?) % list_prod_in).
         split. easy. destruct (IHn v'). now apply H2.
@@ -777,7 +781,7 @@ Section Enumerability'.
 
   Lemma form_enumerable :
     enumerable__T form.
-  Proof.
+  Proof using enumerable_quantop enumerable_preds enumerable_funcs enumerable_binop.
     apply enum_enumT.
     apply enum_enumT in enumerable_funcs as [Lf HLf].
     apply enum_enumT in enumerable_preds as [Lp HLp].
@@ -805,13 +809,13 @@ Section Enumerability'.
 
   Lemma form_enumerable_firstorder :
     enumerable (fun phi => first_order phi).
-  Proof.
+  Proof using enumerable_quantop enumerable_preds enumerable_funcs enumerable_binop.
     apply enumerable_decidable. apply form_enumerable. apply decidable_if, first_order_dec.
   Qed.
 
   Lemma form_enumerable_funcfree :
     enumerable (fun phi => funcfree phi).
-  Proof.
+  Proof using enumerable_quantop enumerable_preds enumerable_funcs enumerable_binop.
     apply enumerable_decidable. apply form_enumerable. apply decidable_if, funcfree_dec.
   Qed.
 

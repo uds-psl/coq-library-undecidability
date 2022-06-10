@@ -2,7 +2,6 @@
 
 Require Import PeanoNat Lia Vector.
 From Undecidability.SOL Require Import SOL PA2.
-From Equations.Prop Require Import DepElim.
 From Undecidability.Shared.Libs.PSL Require Import Vectors VectorForall.
 From Undecidability.SOL.Util Require Import Syntax Subst Tarski PA2_facts.
 
@@ -47,7 +46,7 @@ Section Categoricity.
 
   Lemma F_inv1 x :
     F (S1 x) O2 -> False.
-  Proof.
+  Proof using M2_correct M1_correct.
     intros H. inversion H.
     + now apply (zero_succ M1 M1_correct x).
     + now apply (zero_succ M2 M2_correct y).
@@ -55,7 +54,7 @@ Section Categoricity.
 
   Lemma F_inv2 y :
     F O1 (S2 y) -> False.
-  Proof.
+  Proof using M2_correct M1_correct.
     intros H. inversion H.
     + now apply (zero_succ M2 M2_correct y).
     + now apply (zero_succ M1 M1_correct x).
@@ -63,7 +62,7 @@ Section Categoricity.
 
   Lemma F_inv3 y :
     F O1 y -> y = O2.
-  Proof.
+  Proof using M2_correct M1_correct.
     destruct (case_analysis M2 M2_correct y) as [->|[y' ->]].
     - easy.
     - now intros H%F_inv2.
@@ -71,7 +70,7 @@ Section Categoricity.
 
   Lemma F_inv4 x :
     F x O2 -> x = O1.
-  Proof.
+  Proof using M2_correct M1_correct.
     destruct (case_analysis M1 M1_correct x) as [->|[x' ->]].
     - easy.
     - now intros H%F_inv1.
@@ -79,7 +78,7 @@ Section Categoricity.
 
   Lemma F_inv5 :
     forall x y, F (S1 x) y -> exists y', y = S2 y'.
-  Proof.
+  Proof using M2_correct M1_correct.
     intros x y. destruct (case_analysis M2 M2_correct y) as [->|[y' ->]].
     - now intros H%F_inv1.
     - intros _. now exists y'.
@@ -87,7 +86,7 @@ Section Categoricity.
 
   Lemma F_inv6 :
     forall x y, F x (S2 y) -> exists x', x = S1 x'.
-  Proof.
+  Proof using M2_correct M1_correct.
     intros x y. destruct (case_analysis M1 M1_correct x) as [->|[x' ->]].
     - now intros H%F_inv2.
     - intros _. now exists x'.
@@ -95,7 +94,7 @@ Section Categoricity.
 
   Lemma F_inv7 x y :
     F (S1 x) (S2 y) -> F x y.
-  Proof.
+  Proof using M2_correct M1_correct.
     intros H. inversion H.
     + exfalso. now apply (zero_succ M1 M1_correct x).
     + apply (succ_inj M1 M1_correct) in H0 as ->.
@@ -106,7 +105,7 @@ Section Categoricity.
 
   Lemma F_total :
     forall x, exists y, F x y.
-  Proof.
+  Proof using M2_correct M1_correct.
     apply (induction M1 M1_correct).
     - exists O2. exact F_O.
     - intros x [y IH]. exists (S2 y). now apply F_S.
@@ -114,7 +113,7 @@ Section Categoricity.
 
   Lemma F_surjective :
     forall y, exists x, F x y.
-  Proof.
+  Proof using M2_correct.
     apply (induction M2 M2_correct).
     - exists O1. exact F_O.
     - intros y [x IH]. exists (S1 x). now apply F_S.
@@ -122,7 +121,7 @@ Section Categoricity.
 
   Lemma F_functional :
     forall x y y', F x y -> F x y' -> y = y'.
-  Proof.
+  Proof using M2_correct M1_correct.
     apply (induction M1 M1_correct (fun x => forall y y', F x y -> F x y' -> y = y')).
     - intros y y' H1 H2. now rewrite (F_inv3 y), (F_inv3 y').
     - intros x IH y y' H1 H2. 
@@ -132,7 +131,7 @@ Section Categoricity.
 
   Lemma F_injective :
     forall x x' y, F x y -> F x' y -> x = x'.
-  Proof.
+  Proof using M2_correct M1_correct.
     intros x x' y. revert y x x'. 
     apply (induction M2 M2_correct (fun y => forall x x', F x y -> F x' y -> x = x')).
     - intros x x'' H1 H2. now rewrite (F_inv4 x), (F_inv4 x'').
@@ -144,7 +143,7 @@ Section Categoricity.
 
   Lemma F_add :
     forall x x' y y', F x y -> F x' y' -> F (x i⊕1 x') (y i⊕2 y').
-  Proof.
+  Proof using M2_correct M1_correct.
     apply (induction M1 M1_correct (fun x => forall x' y y', F x y -> F x' y' -> F (x i⊕1 x') (y i⊕2 y'))).
     - intros x' y y' H1 H2. rewrite (F_inv3 y H1).
       now rewrite (add_zero M1), (add_zero M2).
@@ -155,7 +154,7 @@ Section Categoricity.
 
   Lemma F_mul :
     forall x x' y y', F x y -> F x' y' -> F (x i⊗1 x') (y i⊗2 y').
-  Proof.
+  Proof using M2_correct M1_correct.
     apply (induction M1 M1_correct (fun x => forall x' y y', F x y -> F x' y' -> F (x i⊗1 x') (y i⊗2 y'))).
     - intros x' y y' H1 H2. rewrite (F_inv3 y H1).
       rewrite (mul_zero M1), (mul_zero M2); try easy.
@@ -167,7 +166,7 @@ Section Categoricity.
 
   Lemma F_eq :
     forall x x' y y', F x y -> F x' y' -> (x =1= x' <-> y =2= y').
-  Proof.
+  Proof using M2_correct M1_correct.
     apply (induction M1 M1_correct (fun x => forall x' y y', F x y -> F x' y' -> (x =1= x' <-> y =2= y'))).
     - intros x' y y' H1 H2. split. 
       + intros H3%eq1_sem. rewrite <- H3 in H2. rewrite (F_inv3 y H1). 
@@ -237,18 +236,23 @@ Section Categoricity.
 
   Lemma iso_vec_eq1 ar (v1 v1' : vec D1 ar) v2 :
     v1 ≈ v2 -> v1' ≈ v2 -> v1 = v1'.
-  Proof.
-    intros H1 H2. induction v1; dependent elimination v1'. 
-    reflexivity. f_equal. eapply F_injective. apply H1. apply H2.
-    eapply IHv1. apply H1. apply H2.
+  Proof using M2_correct M1_correct.
+    intros H1 H2. induction v1 as [|? n ? IHv1].
+    - pattern v1'. now apply Vector.case0.
+    - revert H2. apply (Vector.caseS' v1'). intros.
+      f_equal. eapply F_injective. apply H1. apply H2.
+      eapply IHv1. apply H1. apply H2.
   Qed.
 
   Lemma iso_vec_eq2 ar (v1 : vec D1 ar) v2 v2' :
     v1 ≈ v2 -> v1 ≈ v2' -> v2 = v2'.
-  Proof.
-    intros H1 H2. induction v2; dependent elimination v2'; dependent elimination v1. 
-    reflexivity. f_equal. eapply F_functional. apply H1. apply H2.
-    eapply IHv2. apply H1. apply H2.
+  Proof using M2_correct M1_correct.
+    intros H1 H2. induction v2 as [|? ? ? IHv2].
+    - pattern v2'. now apply Vector.case0.
+    - revert H2. apply (Vector.caseS' v2').
+      revert H1.  apply (Vector.caseS' v1).
+      intros. f_equal. eapply F_functional. apply H1. apply H2.
+      eapply IHv2. apply H1. apply H2.
   Qed.
 
 
@@ -257,27 +261,29 @@ Section Categoricity.
 
   Lemma P1_to_P2 ar (P1 : vec D1 ar -> Prop) :
     { P2 | P1 ≈ P2 }.
-  Proof.
+  Proof using M2_correct M1_correct.
     exists (fun v => forall v', Forall2 F v' v -> P1 v').
     intros v1 v2 H1. split.
-    - intros H2 v' H3. induction v'; dependent elimination v1.
-      + exact H2.
-      + assert (h = h0) as ->. { apply eq1_sem. easy. eapply F_eq. apply H3. apply H1. now apply eq2_sem. }
-        assert (v' = t0) as ->. { eapply IHv'. apply H1. reflexivity. apply H3. } 
+    - intros H2 v' H3. induction v' as [|? ? ? IHv'].
+      + revert H2. pattern v1. now apply Vector.case0.
+      + revert H1 H2. apply (Vector.caseS' v1). intros. 
+        assert (h = h0) as ->. { apply eq1_sem. easy. eapply F_eq. apply H3. apply H1. now apply eq2_sem. }
+        assert (v' = t) as ->. { eapply IHv'. apply H1. reflexivity. apply H3. } 
         exact H2.
     - firstorder.
   Qed.
 
   Lemma P2_to_P1 ar (P2 : vec D2 ar -> Prop) :
     { P1 | P1 ≈ P2 }.
-  Proof.
+  Proof using M2_correct M1_correct.
     exists (fun v => forall v', Forall2 F v v' -> P2 v').
     intros v1 v2 H1. split.
     - firstorder.
-    - intros H2 v' H3. induction v'; dependent elimination v2.
-      + exact H2.
-      + dependent elimination v1.
-        assert (h = h0) as ->. { apply eq2_sem. easy. eapply F_eq. apply H3. apply H1. now apply eq1_sem. }
+    - intros H2 v' H3. induction v' as [|? ? ? IHv'].
+      + revert H2. pattern v2. now apply Vector.case0.
+      + revert H1 H2 H3. apply (Vector.caseS' v2).
+        apply (Vector.caseS' v1). intros. 
+        assert (h = h1) as ->. { apply eq2_sem. easy. eapply F_eq. apply H3. apply H1. now apply eq1_sem. }
         assert (v' = t0) as ->. { eapply IHv'. apply H1. reflexivity. apply H3. } 
         exact H2.
   Qed.
@@ -289,7 +295,7 @@ Section Categoricity.
 
   Lemma v1_to_v2_ex ar (v1 : vec D1 ar) :
     exists v2, v1 ≈ v2.
-  Proof.
+  Proof using M2_correct M1_correct.
     induction v1.
     - now exists [].
     - destruct IHv1 as [v2 IH]. destruct (F_total h) as [y H]. 
@@ -298,29 +304,36 @@ Section Categoricity.
 
   Lemma v2_to_v1_ex ar (v2 : vec D2 ar) :
     exists v1, v1 ≈ v2.
-  Proof.
+  Proof using M2_correct.
     induction v2.
     - now exists [].
     - destruct IHv2 as [v1 IH]. destruct (F_surjective h) as [x H]. 
       now exists (x::v1).
   Qed.
 
-
   (* The isomorphism also respects evaluation of terms under
       isomorphic environments *)
 
   Lemma F_term rho1 rho2 t :
     rho1 ≈ rho2 -> F (eval rho1 t) (eval rho2 t).
-  Proof.
+  Proof using M2_correct M1_correct.
     revert t. apply (term_ind (fun t => rho1 ≈ rho2 -> F (eval rho1 t) (eval rho2 t))); intros.
     - apply H.
     - apply H, Forall2_Forall. induction v. easy.
       split. now apply IH. apply IHv, IH.
-    - destruct f; repeat depelim v; cbn in *.
-      + exact F_O.
-      + apply F_S. now apply IH.
-      + apply F_add; now apply IH.
-      + apply F_mul; now apply IH.
+    - destruct f; cbn in v; revert IH.
+      + pattern v. apply Vector.case0. intros. exact F_O.
+      + apply (Vector.caseS' v). intros ? v0.
+        pattern v0. apply Vector.case0. intros IH.
+        apply F_S. now apply IH.
+      + apply (Vector.caseS' v). intros ? v1.
+        apply (Vector.caseS' v1). intros ? v0.
+        pattern v0. apply Vector.case0. intros IH.
+        apply F_add; now apply IH.
+      + apply (Vector.caseS' v). intros ? v1.
+        apply (Vector.caseS' v1). intros ? v0.
+        pattern v0. apply Vector.case0. intros IH.
+        apply F_mul; now apply IH.
   Qed.
 
 
@@ -349,26 +362,38 @@ Section Categoricity.
 
   Lemma F_term_funcfree rho1 rho2 t :
     rho1 ≈FF rho2 -> funcfreeTerm t -> F (eval rho1 t) (eval rho2 t).
-  Proof.
+  Proof using M2_correct M1_correct.
     induction t; intros.
     - apply H.
     - easy.
-    - destruct f; repeat depelim v; cbn in *.
-      + exact F_O.
-      + apply F_S. now apply IH.
-      + apply F_add; now apply IH.
-      + apply F_mul; now apply IH.
+    - destruct f; cbn in v; revert IH H0.
+      + pattern v. apply Vector.case0. intros. exact F_O.
+      + apply (Vector.caseS' v). intros ? v0.
+        pattern v0. apply Vector.case0. cbn. intros.
+        apply F_S. now apply IH.
+      + apply (Vector.caseS' v). intros ? v1.
+        apply (Vector.caseS' v1). intros ? v0.
+        pattern v0. apply Vector.case0. cbn. intros.
+        apply F_add; now apply IH.
+      + apply (Vector.caseS' v). intros ? v1.
+        apply (Vector.caseS' v1). intros ? v0.
+        pattern v0. apply Vector.case0. cbn. intros.
+        apply F_mul; now apply IH.
   Qed.
 
   Theorem sat_iff_funcfree rho1 rho2 phi : 
     rho1 ≈FF rho2 -> funcfree phi -> rho1 ⊨ phi <-> rho2 ⊨ phi.
-  Proof.
+  Proof using M2_correct M1_correct.
     revert phi rho1 rho2. induction phi; intros rho1 rho2 H F; cbn.
     - easy.
     - destruct p; cbn.
       + apply H. induction t; cbn. easy. split. apply F_term_funcfree. apply H. 
         apply F. apply IHt, F. 
-      + destruct P; repeat depelim t; cbn in *. now apply F_eq; apply F_term_funcfree.
+      + destruct P. cbn in t. revert F.
+        apply (Vector.caseS' t). intros ? t1.
+        apply (Vector.caseS' t1). intros ? t0.
+        pattern t0. apply Vector.case0. cbn. intros.
+        now apply F_eq; apply F_term_funcfree. 
     - destruct F as [F1 F2]. 
       specialize (IHphi1 rho1 rho2 H F1); specialize (IHphi2 rho1 rho2 H F2).
       destruct b; tauto.

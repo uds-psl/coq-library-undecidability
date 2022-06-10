@@ -26,8 +26,6 @@ Section StepMachine.
   Variable retr_closures_step : Retract (sigList sigHClos) sigStep.
   Variable retr_heap_step : Retract sigHeap sigStep.
 
-  Set Default Proof Using "Type".
-
   (* Retracts *)
   (* Closures *)
   Local Definition retr_clos_step : Retract sigHClos sigStep := ComposeRetract retr_closures_step _.

@@ -14,8 +14,6 @@ Require Import List.
 Import ListNotations.
 Require Import Relation_Operators.
 
-Set Default Proof Using "Type".
-
 Section SMX.
   Context {State Symbol : Set}.
 

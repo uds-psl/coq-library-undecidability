@@ -3,14 +3,10 @@ From Undecidability.FOL Require Import Util.Syntax Util.FullDeduction Util.FullT
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
 From Coq Require Import Arith Lia List.
-From Equations Require Import Equations.
 From Undecidability.Shared.Libs.DLW.Wf Require Import wf_finite.
 From Undecidability.FOL Require Import FSAT.
 From Undecidability.Synthetic Require Import Definitions.
-Set Equations With UIP.
 
-
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 Set Mangle Names.
 Inductive syms_func : Type := .

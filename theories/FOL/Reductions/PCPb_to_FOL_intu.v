@@ -1,6 +1,6 @@
 (* * Intuitionistic FOL *)
 
-From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
+From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts MoreReducibilityFacts.
 From Undecidability.FOL Require Import FOL Util.Kripke Util.Deduction Util.Syntax Util.Tarski PCPb_to_FOL.
 
 From Undecidability.PCP Require Import PCP Reductions.PCPb_iff_dPCPb.

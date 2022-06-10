@@ -14,8 +14,6 @@ From Undecidability.MuRec Require Import recalg.
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Reserved Notation "  '[' f ';' v ']' '-[' n '>>' x " (at level 70).
 
 (* The intuitive meaning of [f;v] -[n>> x is

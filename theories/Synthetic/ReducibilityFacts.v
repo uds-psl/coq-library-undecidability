@@ -1,7 +1,4 @@
-From Undecidability.Synthetic Require Import DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts MoreEnumerabilityFacts.
-From Undecidability.Shared Require Import ListAutomation.
-Require Import List.
-Import ListNotations ListAutomationNotations.
+Require Import Undecidability.Synthetic.Definitions.
 
 Set Implicit Arguments.
 
@@ -21,7 +18,7 @@ Section Properties.
     unfold reduces, reduction.
     intros (f & Hf) (g & Hg).
     exists (fun x => g (f x)).
-    intro; rewrite Hf, Hg; tauto.
+    firstorder easy.
   Qed.
 
   (* ** An equivalent dependent definition *)
@@ -43,6 +40,20 @@ Section Properties.
   Qed.
 
 End Properties.
+
+Lemma dec_red X (p : X -> Prop) Y (q : Y -> Prop) :
+  p ⪯ q -> decidable q -> decidable p.
+Proof.
+  unfold decidable, decider, reduces, reduction, reflects.
+  intros [f] [d]. exists (fun x => d (f x)).
+  firstorder easy.
+Qed.
+
+Lemma red_comp X (p : X -> Prop) Y (q : Y -> Prop) :
+  p ⪯ q -> (fun x => ~ p x) ⪯ (fun y => ~ q y).
+Proof.
+  intros [f Hf]. exists f. firstorder easy.
+Qed.
 
 Module ReductionChainNotations.
 
@@ -106,80 +117,3 @@ Tactic Notation "red" "chain" "app" constr(H) := apply reduction_chain_app with 
 *)
 
 End ReductionChainNotations.
-
-Lemma dec_red X (p : X -> Prop) Y (q : Y -> Prop) :
-  p ⪯ q -> decidable q -> decidable p.
-Proof.
-  unfold decidable, decider, reduces, reduction, reflects.
-  intros [f] [d]. exists (fun x => d (f x)). intros x. rewrite H. eapply H0.
-Qed.
-
-Lemma red_comp X (p : X -> Prop) Y (q : Y -> Prop) :
-  p ⪯ q -> (fun x => ~ p x) ⪯ (fun y => ~ q y).
-Proof.
-  intros [f]. exists f. intros x. red in H. now rewrite H.
-Qed.
-
-Section enum_red.
-
-  Variables (X Y : Type) (p : X -> Prop) (q : Y -> Prop).
-  Variables (f : X -> Y) (Hf : forall x, p x <-> q (f x)).
-
-  Variables (Lq : _) (qe : list_enumerator Lq q).
-
-  Variables (x0 : X).
-  
-  Variables (d : eq_dec Y).
-  
-  Local Fixpoint L L' n :=
-    match n with
-    | 0 => []
-    | S n => L L' n ++ [ x | x ∈ cumul L' n , In (f x) (cumul Lq n) ]
-    end.
-
-  Local Lemma enum_red L' :
-    list_enumerator__T L' X ->
-    list_enumerator (L L') p.
-  Proof.
-    intros HL'.
-    split.
-    + intros H.
-      eapply Hf in H. eapply (cumul_spec qe) in H as [m1]. destruct (cumul_spec__T HL' x) as [m2 ?]. 
-      exists (1 + m1 + m2). cbn. in_app 2.
-      in_collect x.
-      eapply cum_ge'; eauto; try lia.
-      eapply cum_ge'; eauto; try lia.
-    + intros [m H]. induction m.
-      * inversion H.
-      * cbn in H. inv_collect. 
-        eapply Hf. eauto.
-  Qed.
-
-End enum_red.
-
-Lemma enumerable_red X Y (p : X -> Prop) (q : Y -> Prop) :
-  p ⪯ q -> enumerable__T X -> discrete Y -> enumerable q -> enumerable p.
-Proof.
-  intros [f] [] % enum_enumT [] % discrete_iff [L] % enumerable_enum.
-  eapply list_enumerable_enumerable.
-  eexists. eapply enum_red; eauto.
-Qed.
-
-Theorem not_decidable X Y (p : X -> Prop) (q : Y -> Prop) :
-  p ⪯ q -> enumerable__T X -> ~ enumerable (complement p) ->
-  ~ decidable q /\ ~ decidable (complement q).
-Proof.
-  intros. split; intros ?.
-  - eapply H1. eapply dec_red in H2; eauto.
-    eapply dec_compl in H2. eapply dec_count_enum; eauto.
-  - eapply H1. eapply dec_red in H2; eauto.
-    eapply dec_count_enum; eauto. now eapply red_comp.
-Qed.
-
-Theorem not_coenumerable X Y (p : X -> Prop) (q : Y -> Prop) :
-  p ⪯ q -> enumerable__T X -> ~ enumerable (complement p) -> discrete Y ->
-  ~ enumerable (complement q).
-Proof.
-  intros. intros ?. eapply H1. eapply enumerable_red in H3; eauto.
-  now eapply red_comp.
-Qed.

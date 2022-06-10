@@ -15,7 +15,7 @@ authors: ["Yannick Forster"
           "Simon Spies"
           "Dominik Wehr"
           "Maximilian Wuttke"]
-license: "CeCILL"
+license: "CECILL-2.1"
 build: [
   [make "-j%{jobs}%"]
 ]
@@ -23,8 +23,8 @@ install: [
   [make "install"]
 ]
 depends: [
-  "coq" {= "8.15+rc1"}
-  "coq-equations" {= "dev+8.15"}
+  "coq" {= "8.15.0"}
+  "coq-equations" {= "1.3+8.15"}
   "ocaml"
   "coq-smpl" {>= "8.15"}
   "coq-metacoq-template" {= "dev+8.15"}

@@ -20,8 +20,6 @@ From Undecidability.MinskyMachines.MM
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Tactic Notation "rew" "length" := autorewrite with length_db.
 
 Local Notation "e #> x" := (vec_pos e x).

@@ -2,7 +2,6 @@
 
 From Undecidability.TM Require Import ProgrammingTools.
 
-Set Default Proof Using "Type".
 (* TODO: ~> base *)
 Lemma pair_eq (A B : Type) (a1 a2 : A) (b1 b2 : B) :
   (a1, b1) = (a2, b2) ->

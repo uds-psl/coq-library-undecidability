@@ -3,8 +3,6 @@ Require Import Lia List.
 From Undecidability.HOU Require Import std.lists.basics std.misc std.enumerable std.decidable.
 Import ListNotations.
 
-Set Default Proof Using "Type".
-
 Section Reductions.
 
   Variable (X Y Z: Type).

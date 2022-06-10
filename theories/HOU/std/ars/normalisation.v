@@ -1,8 +1,6 @@
 Set Implicit Arguments.
 From Undecidability.HOU Require Import std.ars.basic.
 
-Set Default Proof Using "Type".
-
 (* Strong normalisation *)
 Section StrongNormalisation.
 

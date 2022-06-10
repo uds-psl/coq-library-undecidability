@@ -95,7 +95,7 @@ Section decidable_fun_pos_bool.
   Qed.
 
   Theorem fa_fun_pos_bool_decidable : decidable (forall P, K P).
-  Proof.
+  Proof using HK Dfa.
     destruct Dfa as [ H | H ].
     + left. 
       intros P; generalize (H (vec_set_pos P)).
@@ -105,7 +105,7 @@ Section decidable_fun_pos_bool.
   Qed.
 
   Theorem ex_fun_pos_bool_decidable : decidable (exists P, K P).
-  Proof.
+  Proof using HK Dex.
     destruct Dex as [ H | H ].
     + left.
       destruct H as (v & Hv).
@@ -154,7 +154,7 @@ Section decidable_fun_finite_bool.
   Proof. apply Dec. Qed.
 
   Theorem fa_fun_bool_decidable : decidable (forall P, K P).
-  Proof.
+  Proof using HK H2 H1 Dec.
     assert (H : decidable (forall P, T P)).
     { apply fa_fun_pos_bool_decidable; auto. }
     destruct H as [ H | H ]; [ left | right ].
@@ -165,7 +165,7 @@ Section decidable_fun_finite_bool.
   Qed.
 
   Theorem ex_fun_bool_decidable : decidable (exists P, K P).
-  Proof.
+  Proof using HK H2 H1 Dec.
     assert (H : decidable (exists P, T P)).
     { apply ex_fun_pos_bool_decidable; auto. }
     destruct H as [ H | H ]; [ left | right ].
@@ -193,7 +193,7 @@ Section decidable_upto.
   Theorem decidable_list_upto_fa l :
              (forall x, exists y, In y l /\ R x y)
           -> decidable (forall x, P x).
-  Proof.
+  Proof using HR HP.
     intros Hl.
     destruct list_dec with (P := fun x => ~ P x) (Q := P) (l := l)
       as [ (x & H1 & H2) | H ].
@@ -207,7 +207,7 @@ Section decidable_upto.
   Theorem decidable_list_upto_ex l :
              (forall x, exists y, In y l /\ R x y)
           -> decidable (exists x, P x).
-  Proof.
+  Proof using HR HP.
     intros Hl.
     destruct list_dec with (1 := HP) (l := l)
       as [ (x & H1 & H2) | H ].
@@ -231,7 +231,7 @@ Section fun_pos_finite_t_upto.
   Variable (X : Type) (HX : finite_t X).
  
   Theorem fun_pos_finite_t_upto n : finite_t_upto (pos n -> X) (@fun_ext _ _).
-  Proof.
+  Proof using HX.
     assert (H : finite_t (vec X n)).
     { apply finite_t_vec; auto. }
     destruct H as (l & Hl).
@@ -258,7 +258,7 @@ Section fun_finite_t_upto.
   Qed.
 
   Theorem fun_finite_t_upto : finite_t_upto (X -> Y) (@fun_ext _ _).
-  Proof.
+  Proof using HY HX2 HX1.
     destruct finite_t_discrete_bij_t_pos with X
       as (n & i & j & Hji & Hij); auto.
     destruct fun_pos_finite_t_upto with Y n
@@ -293,7 +293,7 @@ Section dec_pred_finite_t_upto.
 
   Theorem pred_finite_t_upto : finite_t_upto { p : X -> Prop & forall x, decidable (p x) }
                                (fun p q => prop_ext (projT1 p) (projT1 q)).
-  Proof.
+  Proof using HX2 HX1.
     destruct fun_finite_t_upto with X bool as (l & Hl); auto.
     exists (map bool_prop l).
     intros (p & Hp).
@@ -330,7 +330,7 @@ Section finite_t_valuations.
   Defined.
 
   Theorem finite_t_valuations ln : finite_t_upto _ (R ln).
-  Proof.
+  Proof using x HX1.
     induction ln as [ | n ln IH ].
     + exists ((fun _ => x)::nil).
       intros f; exists (fun _ => x); split; simpl; auto.
@@ -387,7 +387,7 @@ Section finite_t_model.
   Defined. 
 
   Theorem finite_t_model ls : finite_t_upto funs (R ls).
-  Proof.
+  Proof using y  Hsyms HY HX2 HX1.
     induction ls as [ | s ls IH ].
     + exists ((fun _ _ => y) :: nil).
       intros f; exists (fun _ _ => y); split; simpl; auto.

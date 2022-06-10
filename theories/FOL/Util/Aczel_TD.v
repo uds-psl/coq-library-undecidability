@@ -7,8 +7,6 @@ Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
 
-
-
 (* ** Quotient Model *)
 
 Class extensional_normaliser :=

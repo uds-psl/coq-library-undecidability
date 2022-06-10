@@ -27,7 +27,6 @@ Require Import Undecidability.DiophantineConstraints.H10C.
 
 Require Import ssreflect ssrbool ssrfun.
 
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
 Local Arguments nth_error_In {A l n x}.

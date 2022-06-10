@@ -15,18 +15,18 @@ From Undecidability.DiophantineConstraints Require Import H10C.
 Section Utils.
 
   (** In the relation h10upc_sem_direct ((a,b),(c,d)), d is a function of b. *)
-  Definition c2_full (x:nat) : {y:nat | x * S x = y+y}.
+  Lemma c2_full (x:nat) : {y:nat | x * S x = y+y}.
   Proof. 
     induction x as [|x [y' IH]].
     - exists 0. lia.
     - exists (y'+x+1). nia.
-  Defined.
+  Qed.
 
   Definition c2 (x:nat) := match (c2_full x) with exist _ y _ => y end.
 
-  Definition c2_descr (x:nat) : x * S x = c2 x + c2 x.
+  Lemma c2_descr (x:nat) : x * S x = c2 x + c2 x.
   Proof.
-  unfold c2. now destruct (c2_full x).
+    unfold c2. now destruct (c2_full x).
   Qed. 
 
   (** Inversion lemma for h10upc_sem_direct (basically axiom 2) *)

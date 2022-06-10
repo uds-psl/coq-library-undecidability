@@ -5,8 +5,6 @@ From Undecidability.HOU Require Import std.std calculus.calculus second_order.di
 From Undecidability.HOU.unification Require Import 
   systemunification nth_order_unification.
 
-Set Default Proof Using "Type".
-
 (* * Higher-Order Motivation *)
 
 (* ** Church Numerals *)

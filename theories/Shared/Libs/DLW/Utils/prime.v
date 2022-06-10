@@ -215,7 +215,7 @@ Section prime.
               (HPm : forall x y, P x -> P y -> P (x*y)).
 
     Theorem prime_rect n : P n.
-    Proof.
+    Proof using HP0 HP1 HPp HPm.
       induction on n as IHn with measure n.
       destruct n as [ | [ | n ] ]; auto.
       destruct (@prime_factor (S (S n))) as (p & H1 & H2); try lia.
@@ -407,7 +407,7 @@ Section base_decomp.
     Proof. apply (proj2_sig (base_p_full n)). Qed.
 
     Fact base_p_uniq l1 l2 : Forall2 (fun x y => x < p /\ y < p) l1 l2 -> expand p l1 = expand p l2 -> l1 = l2.
-    Proof.
+    Proof using Hp.
       induction 1 as [ | x1 x2 l1 l2 H1 H2 IH2 ]; auto; simpl; intros H3.
       rewrite (plus_comm x1), (plus_comm x2), (mult_comm p), (mult_comm p) in H3.
       apply div_rem_uniq in H3; try lia.

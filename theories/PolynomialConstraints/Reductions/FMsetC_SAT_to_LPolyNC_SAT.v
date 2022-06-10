@@ -12,16 +12,13 @@
     Linear Polynomial (over N) Constraint Solvability (LPolyNC_SAT)
 *)
 
-Require Import List PeanoNat Lia.
+Require Import List PeanoNat Lia Permutation.
 Import ListNotations.
 
 Require Import Undecidability.SetConstraints.FMsetC.
 Require Import Undecidability.PolynomialConstraints.LPolyNC.
 
 Require Import Undecidability.Synthetic.Definitions.
-
-From Undecidability.PolynomialConstraints.Util Require Import PolyFacts.
-Require Undecidability.SetConstraints.Util.mset_eq_utils.
 
 Require Import ssreflect ssrbool ssrfun.
 
@@ -32,6 +29,9 @@ Local Arguments poly_add !p !q.
 
 Local Notation "p ≃ q" := (poly_eq p q) (at level 65).
 Local Notation "A ≡ B" := (mset_eq A B) (at level 65).
+
+Lemma poly_add_nthP {i p q} : nth i (poly_add p q) 0 = (nth i p 0) + (nth i q 0).
+Proof. elim: i p q => [|i IH] [|a p [|b q]] /=; by [|lia]. Qed.
 
 Definition encode_msetc (c : msetc) : polyc :=
   match c with
@@ -74,27 +74,24 @@ Proof.
   case: i=> /=; by lia.
 Qed.
 
-Lemma poly_shiftI {p} : (0 :: p) ≃ poly_mult [0; 1] p.
+Lemma poly_shiftI {p} : poly_mult [0; 1] p ≃ (0 :: p).
 Proof.
-  rewrite /poly_mult.
-  have ->: map (fun x => 0 * x) p = repeat 0 (length p).
-  { elim: p; [done | by move=> > /= ->]. }
-  rewrite [poly_add (repeat _ _) _] poly_add_comm.
-  apply: poly_add_0I; first by apply: repeat_0P.
-  under map_ext => a do have -> : 1 * a = a by lia.
-  rewrite -/(poly_eq _ _) map_id. apply: poly_eq_consI; first done.
-  apply: poly_add_0I; last done.
-  by apply: (repeat_0P (n := 1)).
+  rewrite /poly_mult => i /=. rewrite poly_add_nthP /=.
+  have ->: nth i (map (fun=> 0) p) 0 = 0. { by elim: i p => [|i IH] [|? p] /=. }
+  move: i => [|i] /=; first done.
+  rewrite poly_add_nthP.
+  have ->: nth i [0] 0 = 0. { by move: i => [|[|i]]. }
+  elim: i p => [|i IH] [|? p] /=; by [|lia].
 Qed.
 
 Lemma mset_to_poly_eqI {A B} : A ≡ B -> mset_to_poly A ≃ mset_to_poly B.
 Proof.
-  elim: A B.
-  - by move=> B /mset_eq_utils.eq_nilE ->.
-  - move=> a A IH B /mset_eq_utils.eq_consE [B1 [B2 [-> /IH {}IH]]].
-    apply: poly_eq_sym.
-    apply: (poly_eq_trans mset_to_poly_shift) => /=. 
-    move=> i. move: (IH i). rewrite ?poly_add_nthP. by lia.
+  move=> /Permutation_count_occ. elim: A B.
+  - by move=> B /Permutation_nil ->.
+  - move=> a A IH B /[dup] /(Permutation_in a) /(_ (in_eq _ _)).
+    move=> /(@in_split nat) [B1 [B2 ->]] /(@Permutation_cons_app_inv nat) /IH {}IH i.
+    move: (IH i) (@mset_to_poly_shift a B1 B2 i).
+    rewrite /= !poly_add_nthP. by lia.
 Qed.
 
 Lemma completeness {l} : FMsetC_SAT l -> LPolyNC_SAT (map encode_msetc l).
@@ -102,14 +99,14 @@ Proof.
   move=> [φ]. rewrite -Forall_forall => Hφ.
   exists (fun x => mset_to_poly (φ x)). rewrite -Forall_forall Forall_map.
   apply: Forall_impl; last by eassumption. case.
-  - by move=> x /= /mset_eq_utils.eq_symm /mset_eq_utils.eq_singletonE ->.
-  - move=> x y z /= /mset_to_poly_eqI. move /poly_eq_trans. apply.
+  - by move=> x /= /mset_to_poly_eqI.
+  - move=> x y z /= /mset_to_poly_eqI + i => /(_ i) ->.
     by apply mset_to_poly_appP.
-  - move=> x y /= /mset_to_poly_eqI. move /poly_eq_trans. apply.
-    apply: (poly_eq_trans _ poly_shiftI).
+  - move=> x y /= /mset_to_poly_eqI + i => /(_ i) ->.
+    move: (@poly_shiftI (mset_to_poly (φ y)) i) => /= ->.
     by apply: mset_to_poly_mapP.
 Qed.
-    
+
 Fixpoint poly_to_mset (p: list nat) := 
   match p with
   | [] => []
@@ -139,16 +136,17 @@ Proof. done. Qed.
 
 Lemma soundness {l} : LPolyNC_SAT (map encode_msetc l) -> FMsetC_SAT l.
 Proof.
+  have eq_trans A B C : A ≡ B -> B ≡ C -> A ≡ C.
+  { move=> H1 H2 c. by rewrite (H1 c) (H2 c). }
   move=> [ψ]. rewrite -Forall_forall Forall_map => Hψ.
   exists (fun x => poly_to_mset (ψ x)). rewrite -Forall_forall.
   apply: Forall_impl; last by eassumption. case.
   - by move=> x /= /poly_to_mset_eqI.
-  - move=> x y z /= /poly_to_mset_eqI. move /mset_eq_utils.eq_trans. apply.
+  - move=> x y z /= /poly_to_mset_eqI. move /eq_trans. apply.
     by apply: poly_to_mset_addP.
-  - move=> x y /= /poly_to_mset_eqI. move /mset_eq_utils.eq_trans. apply.
+  - move=> x y /= /poly_to_mset_eqI. move /eq_trans. apply.
     move: (ψ y) => p. rewrite -poly_to_mset_consP. apply: poly_to_mset_eqI.
-    apply: poly_eq_sym.
-    by apply: (poly_eq_trans _ poly_shiftI).
+    by apply: poly_shiftI.
 Qed.
 
 End Argument.

@@ -2,8 +2,6 @@ Set Implicit Arguments.
 
 From Undecidability.HOU Require Import std.misc std.decidable.
 
-Set Default Proof Using "Type".
-
 Class retract (X Y: Type) :=
   { I: X -> Y;
     R: Y -> option X;

@@ -3,7 +3,6 @@ Import ListNotations.
 
 Require Import ssreflect ssrbool ssrfun.
 
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
 (* Generic facts *)

@@ -3,6 +3,7 @@
 From Undecidability Require Import FOL.Util.Deduction FOL.Util.Tarski FOL.Util.Syntax.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
+
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 
@@ -188,6 +189,3 @@ Section ToTarski.
   Qed.
 
 End ToTarski.
-
-
-

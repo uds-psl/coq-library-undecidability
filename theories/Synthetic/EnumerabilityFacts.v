@@ -114,6 +114,30 @@ Proof.
   - exists 0. reflexivity.
 Qed.
 
+Definition sigT_enum {X: Type} {P : X -> Type}
+  (f : nat -> option X) (fP : forall x, nat -> option (P x)) (n : nat) : 
+    option {x : X & P x} :=
+  let (nx, nP) := Cantor.of_nat n in
+  match f nx with
+  | Some x =>
+    match fP x nP with
+    | Some y => Some (existT P x y)
+    | _ => None
+    end
+  | None => None
+  end.
+Lemma enumerator__T_sigT {X: Type} {P : X -> Type} f fP :
+  enumerator__T f X -> (forall x, enumerator__T (fP x) (P x)) ->
+  enumerator__T (sigT_enum f fP) {x : X & P x}.
+Proof.
+  intros Hf HfP [x HPx].
+  destruct (Hf x) as [nx Hnx].
+  destruct (HfP x (HPx)) as [nP HnP].
+  exists (Cantor.to_nat (nx, nP)).
+  unfold sigT_enum.
+  now rewrite !Cantor.cancel_of_to, Hnx, HnP.
+Qed.
+
 Definition sigT2_enum {X: Type} {P : X -> Type} {Q : X -> Type}
   (f : nat -> option X) (fP : forall x, nat -> option (P x)) (fQ : forall x, nat -> option (Q x)) (n : nat) : 
     option {x : X & P x & Q x} :=
@@ -156,6 +180,52 @@ Proof.
     + destruct (IH H) as [n Hn]. now exists (S n).
 Qed.
 
+Fixpoint all_fins (n : nat) : list (Fin.t n) :=
+  match n with
+  | 0 => nil
+  | S n => Fin.F1 :: map Fin.FS (all_fins n)
+  end.
+
+Definition Fin_enum {k: nat} (n : nat) : option (Fin.t k) :=
+  nth_error (all_fins k) n.
+Lemma enumerator__T_Fin {k: nat} :
+  enumerator__T Fin_enum (Fin.t k).
+Proof.
+  intros t. exists (proj1_sig (Fin.to_nat t)).
+  unfold Fin_enum. induction t as [n|n t IH].
+  { reflexivity. }
+  cbn. destruct (Fin.to_nat t) as [t' H']. cbn in *.
+  now rewrite nth_error_map, IH.
+Qed.
+
+Opaque Cantor.to_nat Cantor.of_nat.
+
+Fixpoint Vector_enum {X: Type} {k: nat} (f : nat -> option X) (n : nat) : option (Vector.t X k) :=
+  match k return option (Vector.t X k) with
+  | 0 => Some (@Vector.nil X)
+  | S k' => 
+    let (nx, m) := Cantor.of_nat n in
+    match f nx with
+    | Some x =>
+      match (@Vector_enum X k' f m) with
+      | Some v => Some (@Vector.cons X x k' v)
+      | _ => None
+      end
+    | None => None
+    end
+  end.
+Lemma enumerator__T_Vector {X: Type} {k: nat} (f : nat -> option X) :
+  enumerator__T f X -> enumerator__T (Vector_enum f) (Vector.t X k).
+Proof.
+  intros Hf. induction k as [|k IH].
+  { intros t. pattern t. apply (Vector.case0). now exists 0. }
+  intros t. rewrite (Vector.eta t).
+  destruct (Hf (VectorDef.hd t)) as [nx Hnx].
+  destruct (IH (VectorDef.tl t)) as [m Hm].
+  exists (Cantor.to_nat (nx, m)).
+  cbn. now rewrite Cantor.cancel_of_to, Hnx, Hm.
+Qed.
+
 Existing Class enumerator__T'.
 (* Existing Class enumerable__T. *)
 
@@ -166,14 +236,13 @@ Proof.
 Qed.
 #[export] Hint Resolve enumerator_enumerable : core.
 
-Global Existing Instance enumerator__T_prod.
-#[global]
-Existing Instance enumerator__T_option.
-#[global]
-Existing Instance enumerator__T_bool.
-#[global]
-Existing Instance enumerator__T_nat.
-#[global]
-Existing Instance enumerator__T_sigT2.
-#[global]
-Existing Instance enumerator__T_finType.
+#[global] Existing Instance enumerator__T_prod.
+#[global] Existing Instance enumerator__T_option.
+#[global] Existing Instance enumerator__T_bool.
+#[global] Existing Instance enumerator__T_nat.
+#[global] Existing Instance enumerator__T_sigT.
+#[global] Existing Instance enumerator__T_sigT2.
+#[global] Existing Instance enumerator__T_finType.
+#[global] Existing Instance enumerator__T_finType.
+#[global] Existing Instance enumerator__T_Fin.
+#[global] Existing Instance enumerator__T_Vector.

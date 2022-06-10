@@ -137,7 +137,7 @@ Section ndmm2_imsell.
             c ∊ Σ
         ->  ⟬Σ,x,y⟭  ⊢ A 
        <-> ![∞]⟬c⟭ :: ⟬Σ,x,y⟭  ++ nil ⊢ A.
-  Proof.
+  Proof using Hi.
     intros H; rewrite <- app_nil_end.
     apply S_imsell_extract; auto.
     apply in_app_iff; left.
@@ -151,7 +151,7 @@ Section ndmm2_imsell.
   Hint Resolve ndmm2_imsell_perm1 ndmm2_imsell_perm2 in_imsell_ax : core.
 
   Theorem ndmm2_imsell_sound Σ x y p : Σ //ₙ x ⊕ y ⊦ p -> ⟬Σ,x,y⟭  ⊢ ⌊p⌋.
-  Proof.
+  Proof using Hi Hbi Hai.
     induction 1 as [ p H1 
                    | x y p q H1 H2 IH2 | x y p q H1 H2 IH2 
                    | x y p q H1 H2 IH2 | x y p q H1 H2 IH2
@@ -277,27 +277,27 @@ Section ndmm2_imsell.
   Qed. 
 
   Local Fact HKa x y : K a (x##y##vec_nil) <-> y = 0.
-  Proof.
+  Proof using sem Hba Ha.
     split; unfold K; simpl.
     + intros []; auto.
     + intros ->; msplit 2; auto; intros; tauto.
   Qed.
 
   Local Fact HKb x y : K b (x##y##vec_nil) <-> x = 0.
-  Proof.
+  Proof using sem Hb Hab.
     split; unfold K; simpl.
     + intros (? & ? & ?); auto.
     + intros ->; msplit 2; auto; tauto.
   Qed.
 
   Local Fact HKi : forall x, K ∞ x -> x = ⦳.
-  Proof.
+  Proof using Hbi Hai.
     intro pair as x y; unfold K; simpl.
     intros (H1 & H2 & ?); rewrite H1, H2; auto.
   Qed.
 
   Local Lemma sem_Σ c : c ∊ Σ -> ⟦⟬ c⟭⟧ ⦳.
-  Proof.
+  Proof using Hba Hb Hab Ha.
     intros H.
     destruct c as [ p | [] p q | [] p q | [] p q ]; simpl; 
       apply imsell_tps_imp_zero; intro pair as x y; simpl; intros H1.
@@ -326,14 +326,14 @@ Section ndmm2_imsell.
   Hint Resolve HK1 HK2 HK3 HK4 HKa HKb HKi sem_Σ : core.
 
   Local Fact sem_Σ_zero : ⟪map (fun c => ![∞]⟬ c⟭) Σ⟫ ⦳.
-  Proof.
+  Proof using Hba Hb Hab Ha.
     apply imsell_tps_list_zero.
     intros A; rewrite in_map_iff.
     intros (c & <- & Hc); simpl; auto. 
   Qed.
 
   Theorem ndmm2_imsell_complete p x y : ⟬Σ,x,y⟭  ⊢ ⌊p⌋ -> Σ //ₙ x ⊕ y ⊦ p.
-  Proof.
+  Proof using Hba Hb Hab Ha.
     intros Hxy; apply imsell_tps_sound with (s := sem) (K := K) in Hxy; eauto.
     specialize (Hxy (x##y##vec_nil)).
     rewrite vec_plus_comm, vec_zero_plus in Hxy.
@@ -359,7 +359,7 @@ Section ndmm2_imsell.
   Hint Resolve ndmm2_imsell_sound ndmm2_imsell_complete : core.
 
   Theorem ndmm2_imsell_correct p x y : Σ //ₙ x ⊕ y ⊦ p <-> ⟬Σ,x,y⟭  ⊢ ⌊p⌋.
-  Proof. split; auto. Qed.
+  Proof using Hi Hbi Hba Hb Hai Hab Ha. split; auto. Qed.
 
 End ndmm2_imsell.
 
@@ -379,4 +379,3 @@ Proof.
   destruct S as (S & HS).
   apply conditional_reduction, HS.
 Qed.
-

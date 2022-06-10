@@ -141,7 +141,7 @@ Section rel_iter_bound.
   Notation "∑" := (msum plus 0).
 
   Lemma rel_iter_iter_bound n x y : rel_iter R n x y -> rel_iter_bound n x y.
-  Proof.
+  Proof using Hk1.
     intros H.
     apply rel_iter_sequence in H.
     destruct H as (f & H1 & H2 & H3).
@@ -195,7 +195,7 @@ Section rel_iter_bound.
      (to be proved in dio_expo.v) when the relation R does not grow more that linearly *)
 
   Theorem rel_iter_bound_equiv n x y : rel_iter R n x y <-> rel_iter_bound n x y.
-  Proof. split; auto. Qed.
+  Proof using Hk1. split; auto. Qed.
 
 End rel_iter_bound.
 

@@ -10,7 +10,6 @@ Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Shared.ListAutomation.
 
 Set Default Goal Selector "!".
-Set Default Proof Using "Type".
 
 (* * MPCP to PCP *)
 Section MPCP_PCP.

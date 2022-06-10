@@ -2,8 +2,6 @@ Set Implicit Arguments.
 Require Import List Lia.
 From Undecidability.HOU Require Import calculus.calculus concon.conservativity unification.unification.
 
-Set Default Proof Using "Type".
-
 (* * Enumerability from Conservativity *)
 
 (* ** Nth-Order Unification  *)

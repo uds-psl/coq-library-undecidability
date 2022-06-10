@@ -7,7 +7,6 @@ Import ListAutomationNotations.
 Local Set Implicit Arguments.
 Require Import Lia.
 
-
 Ltac comp := repeat (progress (cbn in *; autounfold in *)).
 
 Inductive peirce := class | intu.

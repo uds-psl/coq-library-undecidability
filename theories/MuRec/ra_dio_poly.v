@@ -20,8 +20,6 @@ From Undecidability.H10.Dio
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Local Notation "'⟦' f '⟧'" := (@ra_rel _ f) (at level 0).
 
 Section dio_poly.

@@ -5,7 +5,7 @@
 From Undecidability.TM.Util Require Export Prelim Relations.
 Require Import Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 Require Export Undecidability.TM.TM.
-       
+
 Section Fix_Sigma.
 
   Variable sig : Type.
@@ -535,7 +535,7 @@ Section MapTape.
   Variable g : tau -> sig.
 
   Definition mapTape : tape tau -> tape sig.
-  Proof.
+  Proof using g.
     destruct 1 eqn:E1.
     - apply niltape.
     - apply leftof.  apply (g t). apply (List.map g l).

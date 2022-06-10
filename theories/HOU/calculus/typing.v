@@ -3,8 +3,6 @@ Require Import List Lia.
 From Undecidability.HOU Require Import std.std.
 From Undecidability.HOU.calculus Require Import prelim terms syntax semantics.
 
-Set Default Proof Using "Type".
-
 (* * Simple Typing *)
 
 Section Typing.

@@ -1,22 +1,20 @@
-(* 
+(*
   Autor(s):
-    Andrej Dudenhefner (1) 
+    Andrej Dudenhefner (1)
   Affiliation(s):
     (1) Saarland University, Saarbrücken, Germany
 *)
 
 Require Import ssreflect ssrbool ssrfun.
-Require Import Arith Psatz.
-Require Import List.
+Require Import PeanoNat Lia Permutation List.
 Import ListNotations.
 
-Set Default Proof Using "Type".
 Set Default Goal Selector "!".
 
 (* misc facts *)
 
 (* induction/recursion principle wrt. a decreasing measure f *)
-(* example: elim /(measure_rect length) : l. *)
+(* example: elim /(measure_rect length) : l.  *)
 Lemma measure_rect {X : Type} (f : X -> nat) (P : X -> Type) : 
   (forall x, (forall y, f y < f x -> P y) -> P x) -> forall (x : X), P x.
 Proof.
@@ -27,53 +25,35 @@ Qed.
 Lemma unnest {A B C: Prop} : A -> (B -> C) -> (A -> B) -> C.
 Proof. auto. Qed.
 
-(* duplicates argument *)
-Lemma copy {A: Prop} : A -> A * A.
-Proof. done. Qed.
-
-Lemma eta_reduction {X Y: Type} (f: X -> Y) : (fun x => f x) = f.
-Proof. done. Qed.
-
 (* list facts *)
+Lemma map_id' {X : Type} (f : X -> X) l : (forall x, f x = x) -> map f l = l.
+Proof. move=> ?. elim: l => /=; congruence. Qed.
 
-Lemma nil_or_ex_max (A : list nat) : A = [] \/ exists a, In a A /\ Forall (fun b => a >= b) A.
-Proof.
-  elim: A; first by left.
-  move=> a A [-> | [b [? Hb]]]; right.
-  - exists a. constructor; by [left | constructor].
-  - case: (le_lt_dec a b)=> ?.
-    + exists b. constructor; by [right | constructor].
-    + exists a. constructor; first by left.
-      constructor; first done.
-      apply: Forall_impl Hb. by lia.
-Qed.
-
-(* count_occ facts *)
-Lemma count_occ_cons {X : Type} {D : forall x y : X, {x = y} + {x <> y}} {A a c}:
-count_occ D (a :: A) c = count_occ D (locked [a]) c + count_occ D A c.
+Lemma count_occ_cons {X : Type} {D : forall x y : X, {x = y} + {x <> y}} {A a c} :
+  count_occ D (a :: A) c = count_occ D (locked [a]) c + count_occ D A c.
 Proof.
   rewrite /count_occ /is_left -lock. by case: (D a c).
 Qed.
 
-(* Forall facts *)
-Lemma Forall_singleton_iff {X: Type} {P: X -> Prop} {x} : Forall P [x] <-> P x.
-Proof.
-  rewrite Forall_cons_iff. by constructor; [case |].
-Qed.
-
-(* usage: rewrite ? Forall_norm *)
-Definition Forall_norm := (@Forall_app, @Forall_singleton_iff, @Forall_cons_iff, @Forall_nil_iff).
-
-(* seq facts *)
 Lemma seq_last start length : seq start (S length) = (seq start length) ++ [start + length].
 Proof.
-  by rewrite (ltac:(lia) : S length = length + 1) seq_app.
+  by rewrite -/(1 + length) (Nat.add_comm 1 length) seq_app.
 Qed.
 
-(* repeat facts *)
-Lemma Forall_repeat {X: Type} {a} {A: list X} : Forall (fun b => a = b) A -> A = repeat a (length A).
+(* Permutation facts *)
+Ltac Permutation_trivial :=
+  apply /(Permutation_count_occ Nat.eq_dec) => ?; rewrite ?(count_occ_app, count_occ_cons); lia.
+
+Lemma Permutation_refl' {X : Type} (l l' : list X) : l = l' -> Permutation l l'.
+Proof. by move=> ->. Qed.
+
+Lemma Permutation_map_lt_nil {A f} :
+  (forall n, n < f n) -> Permutation (map f A) A -> A = [].
 Proof.
-  elim: A; first done.
-  move=> b A IH. rewrite Forall_norm => [[? /IH ->]]. subst b.
-  cbn. by rewrite repeat_length.
+  move=> Hf /Permutation_sym /(@Permutation_in nat).
+  move: A => [|a A]; first done.
+  move: (a :: A) (in_eq a A) => {}A + HA.
+  elim /(measure_rect id): a.
+  move=> a IH /HA /in_map_iff [b] [?]. subst a.
+  by apply: (IH b (Hf b)).
 Qed.

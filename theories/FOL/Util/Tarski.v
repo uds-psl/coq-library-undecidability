@@ -190,7 +190,3 @@ Section TM.
   Qed.
 
 End TM.
-
-
-
-

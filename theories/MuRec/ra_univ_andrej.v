@@ -20,8 +20,6 @@ From Undecidability.DiophantineConstraints
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 Local Notation "'⟦' f '⟧'" := (@ra_rel _ f) (at level 0).
 
 Definition h10uc_eq a' b' (c : nat*nat*nat) :=

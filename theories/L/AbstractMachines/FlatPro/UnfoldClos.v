@@ -1,7 +1,6 @@
 From Undecidability.L.AbstractMachines.FlatPro Require Import LM_heap_correct LM_heap_def.
 From Undecidability.L.Prelim Require Import LoopSum.
 
-Set Default Proof Using "Type".
 Section fixH.
   Variable H : Heap.
 

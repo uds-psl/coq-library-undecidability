@@ -1,4 +1,4 @@
-Require Export List Undecidability.Shared.Dec Undecidability.Shared.FilterFacts.
+Require Export List Undecidability.Shared.Dec.
 Export List.ListNotations.
 
 Module ListAutomationNotations.
@@ -21,6 +21,15 @@ Instance list_in_dec X (x : X) (A : list X) :
   eq_dec X -> dec (x el A).
 Proof.
   intros D. apply in_dec. exact D.
+Qed.
+
+Lemma in_filter_iff (X : Type) (x : X) p A :
+  x el filter p A <-> x el A /\ p x = true.
+Proof. 
+  induction A as [|y A]; cbn.
+  - tauto.
+  - destruct (p y) eqn:E; cbn;
+    rewrite IHA; intuition; subst; auto. congruence.
 Qed.
 
 Lemma in_concat_iff A l (a:A) : a el concat l <-> exists l', a el l' /\ l' el l.

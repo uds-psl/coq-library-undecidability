@@ -21,7 +21,7 @@ Section dec.
   Variable (X : Type) (eqX_dec : forall x y : X, { x = y } + { x <> y }).
 
   Fact is_a_head_dec (l t : list X) : { x | l = t++x } + { ~ exists x, l = t++x }.
-  Proof.
+  Proof using eqX_dec.
     revert t.
     induction l as [ | a l IHl ].
     + intros [ | t ]. 
@@ -39,7 +39,7 @@ Section dec.
   Qed.
  
   Fact is_a_tail_dec (l t : list X) : { exists x, x++t = l } + { ~ exists x, x++t = l }.
-  Proof.
+  Proof using eqX_dec.
     destruct (is_a_head_dec (rev l) (rev t)) as [ H | H ].
     + left; destruct H as (x & Hx).
       exists (rev x).
@@ -99,7 +99,7 @@ Section pcp_hand_dec.
              (IHP : forall l m, (forall l' m', strict_suffix l' m' l m -> P l' m') -> P l m).
 
     Theorem pcp_induction l m : P l m.
-    Proof.
+    Proof using IHP.
       induction on l m as IH with measure (length l + length m).
       apply IHP.
       intros l' m' (x & y & H & -> & ->).
@@ -128,7 +128,7 @@ Section pcp_hand_dec.
     (* Replaced induction on length p + length q with strict suffix pair induction *)
 
     Theorem pcp_hand_dec p q : { lc ⊳ p∕q } + { ~ lc ⊳ p∕q }.
-    Proof.
+    Proof using eqlX_dec eqX_dec eqXX_dec.
       revert p q; apply pcp_induction; intros p q dec.
 
       set (P (c : list X * list X) := let (x,y) := c 
@@ -181,15 +181,9 @@ Proof. apply pcp_hand_dec, bool_dec. Qed.
 Definition BPCP_input := list (list bool * list bool).
 Definition BPCP_problem (R : BPCP_input) := exists l, R ⊳ l∕l.
 
-From Undecidability.Synthetic Require Import Undecidability.
-From Undecidability.PCP Require Import PCP_undec.
+Require Import Undecidability.Synthetic.Definitions.
 
-Theorem BPCP_problem_undec :
-  undecidable BPCP_problem.
+Theorem dPCPb_to_BPCP : dPCPb ⪯ BPCP_problem.
 Proof.
-  apply (undecidability_from_reducibility dPCPb_undec).
   exists (fun R => R). intros R. tauto.
 Qed.
-
-
-

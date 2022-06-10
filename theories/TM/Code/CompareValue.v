@@ -12,8 +12,6 @@ From Undecidability Require Import TM.Lifting.LiftTapes.
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 
-Set Default Proof Using "Type".
-
 Lemma pair_inv (X Y : Type) (x1 x2 : X) (y1 y2 : Y) :
   (x1, y1) = (x2, y2) -> x1 = x2 /\ y1 = y2.
 Proof. intros H. now inv H. Qed.

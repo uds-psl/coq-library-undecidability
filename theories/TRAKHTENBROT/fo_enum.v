@@ -69,7 +69,7 @@ Section fol_enumerable.
   Qed.
 
   Lemma type_enum_t_fo_term : type_enum_t (fo_term (ar_syms Σ)).
-  Proof.
+  Proof using H3 H1.
     apply type_enum_t_by_measure with (m := @fo_term_height _ _).
     induction n as [ | n Hn ].
     + generalize Hnat.
@@ -98,7 +98,7 @@ Section fol_enumerable.
   Qed.
 
   Theorem type_enum_t_fol_form : type_enum_t (fol_form Σ).
-  Proof.
+  Proof using H4 H3 H2 H1.
     apply type_enum_t_by_measure with (m := @fol_height _).
     induction n as [ | n Hn ].
     + exists (fun n => None).

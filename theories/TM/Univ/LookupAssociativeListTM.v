@@ -8,7 +8,6 @@ From Undecidability.TM.Hoare Require Import Hoare HoareLegacy.
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 
-Set Default Proof Using "Type".
 (* * Lookup an entry in an associative list *)
 
 Section LookupAssociativeList.

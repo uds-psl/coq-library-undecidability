@@ -116,7 +116,7 @@ Section FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT.
 
   Theorem FIN_DISCR_DEC_SAT_FIN_DEC_EQ_NOSYMS_SAT :
           FSAT' Σ ⪯ᵢ @FSATEQ (Σnosyms Σ) (inl tt) eq_refl.
-  Proof.
+  Proof using HΣ.
     destruct HΣ as [ (l & Hl) | H ].
     - exists (fun A => Σsyms_Σnosyms l A).
       intros A; split; intros (X & HX); exists X; revert HX.
@@ -308,7 +308,7 @@ Section FINITARY_TO_BINARY.
   Hint Resolve finite_t_sum finite_sum finite_t_finite finite_t_unit : core.
 
   Theorem FINITARY_TO_BINARY : FSAT Σ ⪯ᵢ FSAT (Σrel 2).
-  Proof.
+  Proof using max_syms max_rels HΣ4 HΣ3 HΣ2 HΣ1.
     destruct max_syms as (ns & Hns).
     destruct max_rels as (nr & Hnr).
     set (m := lmax (2::(S ns)::nr::nil)).
@@ -342,7 +342,7 @@ Section DISCRETE_TO_BINARY.
   Hint Resolve finite_t_pos : core.
 
   Theorem DISCRETE_TO_BINARY : FSAT Σ ⪯ᵢ FSAT (Σrel 2).
-  Proof.
+  Proof using HΣ2 HΣ1.
     apply ireduces_dependent.
     intros A.
     destruct (Sig_discrete_to_pos HΣ1 HΣ2 A) as (n & m & i & j & B & HB).

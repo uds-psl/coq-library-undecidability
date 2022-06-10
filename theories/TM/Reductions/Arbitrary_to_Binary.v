@@ -6,7 +6,6 @@ Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
 From Undecidability Require Import ArithPrelim.
 Require Import Undecidability.Shared.FinTypeEquiv Undecidability.Shared.FinTypeForallExists.
 
-Set Default Proof Using "Type".
 Section fix_Sigma.
 
   Variable n : nat.
@@ -774,7 +773,6 @@ Qed.
 
 Require Import Undecidability.Synthetic.Definitions.
 Require Import Undecidability.Synthetic.ReducibilityFacts Undecidability.TM.Util.TM_facts.
-From Equations Require Import Equations.
 
 Theorem reduction :
   HaltTM 1 ⪯ fun '(M,t) => @HaltsTM (finType_CS bool) 1 M t.
@@ -787,13 +785,18 @@ Proof.
       edestruct @Sim_Terminates with (M := (existT _ M (fun _ : state M => tt))) (T := fun tin k => tin = t /\ k >= n).
       * intros tin k [-> Hk]. cbn. exists (mk_mconfig q' t').  eapply @loop_monotone. exact H. eapply Hk.
       * destruct H0 as [k H0]. cbn in H0. edestruct H0 as [[] H1].
-        -- exists (Vector.hd t), n. split. reflexivity. split. 2: now unfold ge. split. 2:lia. dependent elimination t. 
-           dependent elimination t. reflexivity.
+        -- exists (Vector.hd t), n. split. reflexivity. split. 2: now unfold ge. split. 2:lia.
+           apply (Vector.caseS' t). intros ?.
+           apply (Vector.case0). reflexivity.
         -- exists cstate. eexists ctapes. eapply TM_eval_iff. exists (x * n + k). unfold Relabel, initc in H1. cbn in H1.
-           repeat dependent elimination t. exact H1.
+           revert H1. apply (Vector.caseS' t). intros ?. cbn.
+           intros t0. pattern t0. apply Vector.case0.
+           intros H1. exact H1.
     + intros (q' & t' & [n H] % TM_eval_iff). 
       eapply (Sim_Realise (M := (existT _ M (fun _ : state M => tt))) (R := fun tin '(_,tout) => exists q', eval M (start M) tin q' tout)) in H.
-      * repeat dependent elimination t. rename h into t.
+      * revert H. apply (Vector.caseS' t). intros ?. cbn.
+        intros t0. pattern t0. apply Vector.case0.
+        clear t. rename h into t. intros H.
         specialize (H t eq_refl) as [t'_sig [[q'_ H1] H2]]. cbn in H1. 
         cbn in H2. subst. exists q'_, [|t'_sig|]. eassumption. 
       * intros tin k [q'_ tout] Hter. cbn in *. exists q'_. eapply TM_eval_iff. exists k. exact Hter.

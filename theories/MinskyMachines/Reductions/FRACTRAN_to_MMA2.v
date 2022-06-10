@@ -18,7 +18,7 @@
 
     The reduction goes via regular FRACTRAN termination *)
 
-Require Import Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 
 From Undecidability.Shared.Libs.DLW Require Import pos vec sss.
 
@@ -26,8 +26,6 @@ From Undecidability.FRACTRAN Require Import FRACTRAN.
 From Undecidability.MinskyMachines Require Import mma_defs fractran_mma.
 
 Set Implicit Arguments.
-
-Set Default Proof Using "Type".
 
 Local Notation "P //ₐ s ↓" := (sss_terminates (@mma_sss 2) P s) (at level 70, no associativity).
 

@@ -2,7 +2,7 @@
 
 From Undecidability.PCP Require Import PCP Util.PCP_facts.
 From Undecidability.FOL Require Import Util.Deduction Util.Tarski Util.Syntax_facts FOL.
-From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts.
+From Undecidability.Synthetic Require Import Definitions DecidabilityFacts EnumerabilityFacts ReducibilityFacts MoreReducibilityFacts.
 Require Import Undecidability.PCP.Reductions.PCPb_iff_dPCPb.
 
 (* ** Validity *)
@@ -65,7 +65,7 @@ Section validity.
   Qed.
   
   Global Instance IB : interp (string bool).
-  Proof.
+  Proof using R.
     split; intros [] v.
     - exact (b :: Vector.hd v).
     - exact nil.
@@ -308,7 +308,7 @@ Module NonStan. Section Nonstan.
   Context {ff : falsity_flag}.
 
   Instance IB : interp (option (string bool)).
-  Proof.
+  Proof using R.
     split; intros [] v.
     - exact (match Vector.hd v with Some u => Some (b :: u) | None => None end).
     - exact (Some nil).

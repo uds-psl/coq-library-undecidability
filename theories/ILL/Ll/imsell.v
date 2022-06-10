@@ -147,10 +147,10 @@ Section IMSELL.
     where "⟦ A ⟧" := (imsell_tps A).
 
     Fact imsell_tps_bang_zero m A : ⟦![m]A⟧ ⦳ <-> ⟦A⟧ ⦳.
-    Proof. simpl; split; auto; tauto. Qed.
+    Proof using HK_unit0. simpl; split; auto; tauto. Qed.
 
     Fact imsell_tps_bang_U u A : U u -> (forall v, ⟦![u]A⟧ v <-> v = ⦳) <-> ⟦A⟧ ⦳.
-    Proof.
+    Proof using HK_unit0 HK_unit1.
       intros Hu; split.
       + intros H; rewrite <- imsell_tps_bang_zero, H; auto.
       + intros H v; split; simpl.
@@ -235,7 +235,7 @@ Section IMSELL.
     Qed.
 
    Fact imsell_tps_lbang m Γ : m ≼ Γ -> ⟪‼Γ⟫ ⊆ K m.
-    Proof.
+    Proof using HK_unit0 HK_plus HK_antitone.
       induction Γ as [ | (v,A) Γ IH ]; simpl; intros H1 x.
       + intros <-; auto.
       + intros (y & z & -> & (G1 & G2) & G3).
@@ -247,7 +247,7 @@ Section IMSELL.
     Qed.
 
     Theorem imsell_tps_sound Γ A : Γ ⊢ A -> [< Γ |- A >] ⦳.
-    Proof.
+    Proof using All.
       induction 1 as [ A 
                      | Γ Δ A H1 H2 IH2
                      | Γ Δ A B C H1 IH1 H2 IH2

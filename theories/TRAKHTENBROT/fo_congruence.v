@@ -279,7 +279,7 @@ Section fol_congruence.
     Qed.
 
     Local Fact fol_congruent_rels : fol_rels fol_congruent ⊑ lr.
-    Proof.
+    Proof using He.
       unfold fol_congruent.
       rewrite fol_rels_bin.
       repeat rewrite fol_rels_bigop; simpl.
@@ -371,7 +371,7 @@ Section fol_congruence.
     Qed.
 
     Fact fol_congruence_rels : fol_rels fol_congruence ⊑ lr.
-    Proof.
+    Proof using He.
       unfold fol_congruence.
       rewrite fol_rels_bin.
       apply incl_app.
@@ -396,4 +396,3 @@ Section fol_congruence.
 End fol_congruence.
 
 Arguments fol_congruence { _ _ }.
-

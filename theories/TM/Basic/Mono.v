@@ -10,7 +10,7 @@ Section Mk_Mono.
   Variable (init : state) (fin : state -> bool).
 
   Definition Mk_Mono_TM : TM sig 1.
-  Proof.
+  Proof using mono_trans init fin.
     split with (state := state).
     - intros (q&tape).
       pose proof (mono_trans q (tape[@Fin0])) as (q', act).

@@ -11,7 +11,6 @@ From Coq Require Import ArithRing Lia.
 
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
-Set Default Proof Using "Type".
 
 Section Univ.
 

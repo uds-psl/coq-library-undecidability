@@ -31,7 +31,7 @@ Section no_syms.
   Variable Σ : fo_signature.
 
   Definition Σ_empty_syms : fo_signature.
-  Proof.
+  Proof using Σ.
     exists Empty_set (rels Σ).
     + exact (fun _ => 1).
     + exact (ar_rels Σ).
@@ -110,7 +110,7 @@ Section no_syms.
                  (H : fol_sem M phi A).
  
       Local Fact Σ_no_sym_soundness : fo_form_fin_dec_SAT_in (Σ_no_sym A HA) X.
-      Proof.
+      Proof using Xf Md H.
         exists M', Xf, Md, phi.
         revert H; apply Σ_no_sym_sound.
       Qed.
@@ -145,7 +145,7 @@ Section no_syms.
                  (H : fol_sem M' phi (Σ_no_sym A HA)).
  
       Local Fact Σ_no_sym_completeness : fo_form_fin_dec_SAT_in A X.
-      Proof.
+      Proof using Xf HA H M'd.
         exists M, Xf, M'd, phi.
         revert H; apply Σ_no_sym_complete.
       Qed.
@@ -155,7 +155,7 @@ Section no_syms.
   End semantics.
 
   Theorem Σ_no_sym_correct : { B : fol_form Σ' | fo_form_fin_dec_SAT A <-> fo_form_fin_dec_SAT B }.
-  Proof.
+  Proof using HA.
     exists (Σ_no_sym A HA).
     split.
     + intros (X & M & H1 & H2 & phi & H3); exists X; apply Σ_no_sym_soundness with M phi; auto.

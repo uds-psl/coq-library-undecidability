@@ -2,8 +2,7 @@
 
 Require Import Undecidability.Shared.ListAutomation.
 Import ListAutomationNotations.
-From Equations Require Import Equations.
-Require Import Equations.Prop.DepElim.
+From Coq Require Eqdep.
 Require Import Arith Undecidability.Shared.Libs.PSL.Numbers List Setoid.
 From Undecidability.Synthetic Require Export DecidabilityFacts EnumerabilityFacts ListEnumerabilityFacts ReducibilityFacts.
 From Undecidability.FOLP Require Export Syntax unscoped.
@@ -23,7 +22,6 @@ Notation vector := Vector.t.
 Import Vector.
 Arguments nil {A}.
 Arguments cons {A} _ {n}.
-Derive Signature for vector.
 
 (* **** Tactics *)
 
@@ -371,7 +369,7 @@ Section FOL.
     Lemma contains_extend3 A T phi :
       A ⊏ T -> A ⊏ (T ⋄ phi).
     Proof.
-      intros ? ? ?. left. intuition.
+      intros ? ? ?. left. firstorder.
     Qed.
   End ContainsAutomation.
 End FOL.
@@ -435,7 +433,8 @@ Proof.
     + intros. left. now eapply Vector.case0.
     + intros [<- | []] x H. inv H.
   - split.
-    + intros. dependent destruction v. in_collect (pair h v); destruct (IHn v). all: eauto using vec_in.
+    + intros. revert H. apply (Vector.caseS' v). clear v.
+      intros ? v H. in_collect (pair h v); destruct (IHn v). all: eauto using vec_in.
     + intros Hv. apply in_map_iff in Hv as ([h v'] & <- & (? & ? & [= <- <-] & ? & ?) % list_prod_in).
       intros x H. inv H; destruct (IHn v'); eauto.
 Qed.
@@ -532,8 +531,10 @@ End Enumerability.
 Lemma dec_vec_in X n (v : vector X n) :
   (forall x, vec_in x v -> forall y, dec (x = y)) -> forall v', dec (v = v').
 Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence)).
-  intros Hv. induction v; intros v'; dependent destruction v'...
-  destruct (Hv h (vec_inB h v) h0)... destruct (IHv (fun x H => Hv x (vec_inS h0 H)) v')...
+  intros Hv. induction v; intros v'.
+  - pattern v'. apply Vector.case0...
+  - apply (Vector.caseS' v'). clear v'. intros h0 v'.
+    destruct (Hv h (vec_inB h v) h0)... destruct (IHv (fun x H => Hv x (vec_inS h0 H)) v')...
 Qed.
 
 #[global]
@@ -549,14 +550,16 @@ Section EqDec.
   Hypothesis eq_dec_Preds : eq_dec Preds.
 
   Global Instance dec_term : eq_dec term.
-  Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence)).
+  Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence))
+    using eq_dec_Funcs.
     intros t. induction t using strong_term_ind; intros []...
     - decide (x = n)...
     - decide (F = f)... destruct (dec_vec_in X t)...
   Qed.
 
   Global Instance dec_form : eq_dec form.
-  Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence)).
+  Proof with subst; try (now left + (right; intros[=]; resolve_existT; congruence))
+    using eq_dec_Preds eq_dec_Funcs.
     intros phi. induction phi; intros []...
     - decide (P = P0)... decide (t = t0)...
     - decide (phi1 = f)... decide (phi2 = f0)...

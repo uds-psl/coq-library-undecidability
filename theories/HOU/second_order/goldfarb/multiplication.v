@@ -6,8 +6,6 @@ From Undecidability.HOU Require Import calculus.calculus second_order.goldfarb.e
 Require Import FinFun Coq.Arith.Wf_nat.
 Import ListNotations.
 
-Set Default Proof Using "Type".
-
 
 Section Multiplication.
 

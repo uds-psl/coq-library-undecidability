@@ -5,8 +5,6 @@ From Undecidability.HOU Require Import
         concon.conservativity_constants concon.conservativity.
 Import ListNotations.
 
-Set Default Proof Using "Type".
-
 (* * Constants *)
 (* ** Adding Constants *)
 Section Retracts.
@@ -199,7 +197,6 @@ Section RemoveConstants.
 
   Let inv_subst C (sigma: fin -> exp Y) (x: nat) :=
     inv_term C (sigma x).
-    Set Default Proof Using "Type".
 
   Section EncodingLemmas.
     Variable (C: list X) (n: nat).
@@ -284,14 +281,14 @@ Section RemoveConstants.
     unfold enc_ctx; erewrite map_nth_error; eauto.  
   Qed.
 
-  Unset Default Proof Using.
-
+  (* maybe a setoid bug *)
+  #[local] Unset Default Proof Using.
   Global Instance enc_proper:
     Proper (equiv (@step X) ++> equiv (@step Y)) (enc_term C).
   Proof.
     intros ?? H; unfold enc_term; now rewrite H.
   Qed.
-
+  #[local] Set Default Proof Using "Type".
 
   Global Instance inv_proper:
     Proper (equiv (@step Y) ++> equiv (@step X)) (inv_term C).
@@ -299,14 +296,15 @@ Section RemoveConstants.
     intros ?? H; unfold inv_term; now rewrite H.
   Qed.
 
-  Set Default Proof Using "Type".
+  
 
+  
   
   Lemma subst_consts_subst Z (s: exp X) sigma tau theta zeta (kappa: X -> exp Z):
     (forall x, x ∈ vars s -> sigma • subst_consts zeta (tau x) >* subst_consts kappa (theta x)) ->
     (forall x, x ∈ consts s -> sigma • zeta x >* kappa x) ->
     sigma • subst_consts zeta (tau • s) >* subst_consts kappa (theta • s).
-  Proof using ι n inv_term inv_subst enc_term enc_subst enc_const Y RE R' C.
+  Proof using n RE C.
     induction s in sigma, zeta, tau, kappa, theta |-*.
     - cbn; intros; eapply H; now econstructor.
     - cbn; intros; eapply H0; eauto.
@@ -445,7 +443,7 @@ Section RemoveConstants.
            (Consts [s₀; t₀]).
 
 
-  
+           
   Program Instance remove_constants n (I: orduni n X)
           (H: ord' (map (ctype X) (iConsts I)) < n) : orduni n Y :=
     {
@@ -466,7 +464,6 @@ Section RemoveConstants.
   Qed.
 
   
-
   Lemma remove_constants_forward n (I: orduni n X)
         (H: ord' (map (ctype X) (iConsts I)) < n):
     OU n X I -> OU n Y (remove_constants n I H).

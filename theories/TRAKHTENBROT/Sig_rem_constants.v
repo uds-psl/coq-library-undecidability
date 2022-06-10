@@ -31,7 +31,7 @@ Section remove_constants.
   Variable (Σ : fo_signature) (HΣ : forall s, ar_syms Σ s <= 1).
 
   Definition Σno_constants : fo_signature.
-  Proof.
+  Proof using Σ.
     exists (syms Σ) (rels Σ).
     + exact (fun _ => 1).
     + apply ar_rels.
@@ -122,7 +122,7 @@ Section remove_constants.
                (HA : fol_sem M φ A).
 
     Local Lemma Σrem_constants_soundness : fo_form_fin_dec_SAT_in (Σrem_constants 0 A) X.
-    Proof.
+    Proof using Xfin Mdec HA.
       exists M', Xfin, Mdec, φ.
       apply Σrem_constants_sound; auto.
     Qed.
@@ -180,7 +180,7 @@ Section remove_constants.
                (HA : fol_sem M' φ (Σrem_constants 0 A)).
 
     Local Lemma Σrem_constants_completeness : fo_form_fin_dec_SAT_in A X.
-    Proof.
+    Proof using Xfin M'dec HA.
       exists M, Xfin, M'dec, φ.
       revert HA; apply Σrem_constants_complete; auto.
     Qed.

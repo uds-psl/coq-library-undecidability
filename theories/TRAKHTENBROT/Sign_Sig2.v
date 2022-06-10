@@ -218,7 +218,7 @@ Section SAT2_SATn.
     Let R (x : sig P) (y : X) := π1 x = y.
 
     Local Lemma SAT2_to_SATn : exists Y, fo_form_fin_dec_SAT_in A Y.
-    Proof.
+    Proof using All.
       exists (sig P).
       simpl in HA. destruct HA as (H2 & H3 & H4).
       change (fol_sem M2 ψ (Σ2_non_empty 0)) in H2.
@@ -285,7 +285,7 @@ Section SATn_SAT2.
     Notation P := (fom_rels Mn tt).
 
     Local Lemma SATn_to_SAT2 : exists Y, fo_form_fin_dec_SAT_in (@Σn_Σ2_enc n A) Y.
-    Proof.
+    Proof using All.
       destruct reln_hfs with (R := P)
         as (Y & H1 & mem & H3 & d & r & i & s & H6 & H7 & H9); auto.
       exists Y, (bin_rel_Σ2 mem), H1, (bin_rel_Σ2_dec _ H3), d·r·(fun n => i (φ n)).

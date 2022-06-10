@@ -1,9 +1,8 @@
-Require Import Undecidability.Synthetic.Definitions Undecidability.Synthetic.Undecidability.
+Require Import Undecidability.Synthetic.Definitions.
 From Undecidability.FOL.Util Require Import Syntax Syntax_facts FullTarski FullTarski_facts FullDeduction_facts FullDeduction FA_facts.
 Require Import Undecidability.FOL.PA.
 From Undecidability.H10 Require Import H10p.
 Require Import List Lia.
-
 
 Fixpoint embed_poly p : term :=
     match p with
@@ -13,7 +12,7 @@ Fixpoint embed_poly p : term :=
     | dp_comp_pfree do_mul_pfree a b => (embed_poly a) ⊗ (embed_poly b)
     end.
 
-  
+
 (* We translate h10 problems to formulas in PA *)
 Definition embed_problem (E : H10p_PROBLEM) : form :=
   let (a, b) := E in embed_poly a == embed_poly b.
@@ -87,7 +86,7 @@ Section FA_ext_Model.
   Notation "'iO'" := (i_func (f:=Zero) (Vector.nil D)) (at level 2) : PA_Notation.
   
   Fact eval_poly sigma p : eval (sigma >> iμ) (embed_poly p) = iμ (dp_eval_pfree sigma p).
-    Proof.
+    Proof using ext_model FA_model.
       induction p; cbn.
       - now rewrite eval_num.
       - reflexivity.
@@ -97,7 +96,7 @@ Section FA_ext_Model.
     Qed.
 
     Lemma problem_to_ext_model : forall E sigma, H10p_sem E sigma -> (sigma >> iμ) ⊨ embed_problem E.
-    Proof.
+    Proof using ext_model FA_model.
       intros [a b] sigma Hs. cbn -[sat].
       unfold H10p_sem in *. cbn -[FA] in *.
       apply ext_model. rewrite !eval_poly. congruence.
@@ -119,7 +118,7 @@ Section FA_Model.
   Notation "'iO'" := (i_func (f:=Zero) (Vector.nil D)) (at level 2) : PA_Notation.
   
   Lemma problem_to_model E sigma : H10p_sem E sigma -> (sigma >> iμ) ⊨ embed_problem E.
-  Proof.
+  Proof using FA_model.
     intros HE%problem_to_prv%soundness.
     specialize (HE D I).
     setoid_rewrite sat_comp in HE.

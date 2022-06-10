@@ -5,8 +5,6 @@ From Undecidability.HOU Require Import calculus.calculus concon.conservativity_c
   unification.nth_order_unification.
 Import ListNotations.
 
-Set Default Proof Using "Type".
-
 Global Hint Rewrite @consts_Lam @consts_AppL @consts_AppR : simplify.
 
 (* ** Inhabiting Types *)

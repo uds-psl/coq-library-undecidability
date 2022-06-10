@@ -41,7 +41,7 @@ Section Uniform_arities_to_one.
            (a : nat) (Ha : forall r, ar_rels Σ r = a).
 
   Definition Σone_rel : fo_signature.
-  Proof.
+  Proof using Σ a.
     exists (rels Σ) unit.
     + exact (fun _ => 0).
     + exact (fun _ => S a).
@@ -95,7 +95,7 @@ Section Uniform_arities_to_one.
         constants *)
 
     Definition Σunif_one_rel_model : fo_model Σ' X'.
-    Proof.
+    Proof using Ha M x0.
       split.
       + exact (fun r _ => inr r).
       + exact (fun r v => 
@@ -179,7 +179,7 @@ Section Uniform_arities_to_one.
     (* The model is recovered using constants as indices for each relation *)
 
     Definition Σone_unif_rel_model : fo_model Σ X.
-    Proof.
+    Proof using M' Ha HΣ.
       split.
       + intros ? _; exfalso; auto.
       + exact (fun r v => fom_rels M' tt (fom_syms M' r ø##cast v (Ha _))).

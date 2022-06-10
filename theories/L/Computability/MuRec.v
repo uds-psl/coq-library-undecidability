@@ -1,6 +1,5 @@
 From Undecidability.L Require Export Datatypes.LNat Datatypes.LBool Tactics.LTactics Computability.Computability Tactics.Lbeta.
 
-Set Default Proof Using "Type".
 Section MuRecursor.
 
 Variable P : term.

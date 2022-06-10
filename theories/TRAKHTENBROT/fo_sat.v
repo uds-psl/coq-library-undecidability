@@ -77,5 +77,3 @@ Definition FSAT' := @fo_form_fin_discr_dec_SAT.
 
 Arguments FSAT : clear implicits.
 Arguments FSAT' : clear implicits.
-
-

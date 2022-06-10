@@ -60,7 +60,7 @@ Section Sig2_Sig_n_encoding.
     Hypothesis HP : forall x y, P2 x y <-> Pn x y.
 
     Lemma Σ2_Σn_correct (A : fol_form Σ2) φ : ⟪ A ⟫ φ <-> ⟪Σ2_Σn A⟫' φ.
-    Proof.
+    Proof using HP.
       revert φ.
       induction A as [ | [] v | b A HA B HB | q A HA ]; intros phi.
       + simpl; tauto.
@@ -94,7 +94,7 @@ Section Sig2_Sig_n_encoding.
     Defined.
  
     Local Lemma Σ2_Σn_sound_loc : fo_form_fin_dec_SAT (Σ2_Σn A).
-    Proof.
+    Proof using All.
       exists X, Mn, H1.
       exists. { intros [] ?; apply H2. }
       exists phi.
@@ -131,7 +131,7 @@ Section Sig2_Sig_n_encoding.
     Defined.
  
     Local Lemma Σ2_Σn_complete_loc : fo_form_fin_dec_SAT A.
-    Proof.
+    Proof using All.
       exists X, M2, H1.
       exists. { intros [] ?; apply H2. }
       exists phi.

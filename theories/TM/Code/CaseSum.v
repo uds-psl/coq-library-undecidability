@@ -6,7 +6,6 @@ Lemma tl_length (X : Type) (xs : list X) :
   length (tl xs) = pred (length xs).
 Proof. destruct xs; cbn; auto. Qed.
 
-Set Default Proof Using "Type".
 Section CaseSum.
 
   Variable X Y : Type.
