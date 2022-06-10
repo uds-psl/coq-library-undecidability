@@ -210,6 +210,29 @@ Proof.
   rewrite IHn; auto.
 Qed.
 
+Fact pos_left_right_neq n m p q : @pos_left n m p <> @pos_right n m q.
+Proof.
+  intros H.
+  apply f_equal with (f := @pos_both _ _) in H.
+  now rewrite pos_both_left, pos_both_right in H.
+Qed.
+
+Fact pos_left_inj n m p q : @pos_left n m p = @pos_left n m q -> p = q.
+Proof.
+  intros H.
+  apply f_equal with (f := @pos_both _ _) in H.
+  rewrite !pos_both_left in H.
+  now inversion H.
+Qed.
+
+Fact pos_right_inj n m p q : @pos_right n m p = @pos_right n m q -> p = q.
+Proof.
+  intros H.
+  apply f_equal with (f := @pos_both _ _) in H.
+  rewrite !pos_both_right in H.
+  now inversion H.
+Qed.
+
 (* A bijection between pos n + pos m <-> pos (n+m) **)
 
 Fact pos_both_lr n m p : @pos_both n m (pos_lr p) = p.
