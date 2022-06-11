@@ -355,5 +355,3 @@ Section comp.
   Qed.
 
 End comp.
-
-Print Implicit compiler_t_output_sound'.

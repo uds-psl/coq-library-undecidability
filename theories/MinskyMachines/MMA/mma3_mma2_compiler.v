@@ -18,7 +18,7 @@ From Undecidability.FRACTRAN
 From Undecidability.MinskyMachines.MMA
   Require Import mma_defs mma_utils.
 
-Local Definition combi_235 a b c := 2^a*(3^b*5^c).
+Definition combi_235 a b c := 2^a*(3^b*5^c).
 
 #[local] Notation "⦉ x , y , z ⦊ " := (combi_235 x y z) (at level 1, format "⦉ x , y , z ⦊ ").
 
