@@ -466,7 +466,6 @@ L/Tactics/Lproc.v
 L/Tactics/Lbeta.v
 L/Tactics/Reflection.v
 L/Tactics/LClos.v
-L/Tactics/LClos_Eval.v
 L/Tactics/Lrewrite.v
 L/Tactics/Lsimpl.v
 

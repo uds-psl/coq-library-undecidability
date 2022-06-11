@@ -1,5 +1,5 @@
 From Undecidability.L Require Export Util.L_facts.
-From Undecidability.L.Tactics Require Export LClos_Eval.
+From Undecidability.L.Tactics Require Import LClos.
 From Undecidability.L.Tactics Require Import mixedTactics.
 Require Import FunInd.
 
