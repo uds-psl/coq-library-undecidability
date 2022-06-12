@@ -158,7 +158,7 @@ Qed.
 Lemma stack_enum :
   enumerable__T (stack bool).
 Proof.
-  unfold stack, card. eauto.
+  unfold stack. eauto.
 Qed.
 
 Local Definition BSRS := list (card bool).
