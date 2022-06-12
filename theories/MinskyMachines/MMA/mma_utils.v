@@ -348,11 +348,13 @@ Section Minsky_Machine_alt_utils.
     Variable (x z : pos n) (Hxz : x <> z) (k i : nat).
 
     Definition mma_mult_cst_with_zero :=
-           MULT_CSTₐ x z k i
-        ++ TRANSFERTₐ z x (5+k+i).
+           MULT_CSTₐ x z k i ++ TRANSFERTₐ z x (5+k+i).
 
     Fact mma_mult_cst_with_zero_length :length mma_mult_cst_with_zero = 8+k.
     Proof. unfold mma_mult_cst_with_zero; rew length; lia. Qed.
+
+    (* v#>x is multiplied by k and the PC jumps to the
+       end of this (sub-)program *)
 
     Fact mma_mult_cst_with_zero_progress v st :
              v#>z = 0
@@ -703,17 +705,28 @@ Section Minsky_Machine_alt_utils.
 
     Variable (x z : pos n) (Hxz : x <> z) (k i j : nat).
 
-    Let p := 6+4*k+i.
+    Let p :=  6+4*k+i.
     Let q := 13+7*k+i.
 
+    (* The algorithm: 
+         - test the divisibility of x by k while
+           x is transfered to z
+         - if divisible jump to p
+           if not jump to q
+         - at p: divides z by k, result into x
+                 jump to j
+         - at q: transfer z to x *)
+
     Definition mma_div_branch :=
-                  MOD_CSTₐ x z p q k i
-      (* p *)  ++ DIV_CSTₐ z x k p
-               ++ JUMPₐ j z
-      (* q *)  ++ TRANSFERTₐ z x q.
+                   MOD_CSTₐ x z p q k i
+      (* p: *)  ++ DIV_CSTₐ z x k p ++ JUMPₐ j z
+      (* q: *)  ++ TRANSFERTₐ z x q.
 
     Fact mma_div_branch_length : length mma_div_branch = 16+7*k.
     Proof. unfold mma_div_branch; rew length; lia. Qed.
+
+    (* When k divides v#>x then it gets divided (by k)
+       and the PC jumps to j *)
 
     Fact mma_div_branch_0_progress a v st :
             v#>z = 0
@@ -737,6 +750,9 @@ Section Minsky_Machine_alt_utils.
       1:{ apply subcode_sss_progress with (P := (11+7*k+i,JUMPₐ j z)); auto.
           apply mma_jump_progress; auto. }
     Qed.
+
+    (* When k does not divide v#>x then registers are globally 
+       unmodified and the PC jumps to the end of this (sub-)program *)
 
     Fact mma_div_branch_1_progress v st :
             v#>z = 0
