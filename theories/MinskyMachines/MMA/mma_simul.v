@@ -46,10 +46,10 @@ Section mma_sim.
   Definition mma_instr_compile_length (ii : mm_instr (pos n)) := 1.
 
   Fact mma_instr_compile_length_eq lnk i ii : length (mma_instr_compile lnk i ii) = mma_instr_compile_length ii.
-  Proof using. destruct ii; simpl; auto. Qed.
+  Proof. destruct ii; simpl; auto. Qed.
     
   Fact mma_instr_compile_length_geq ii : 1 <= mma_instr_compile_length ii.
-  Proof using. cbv; lia. Qed.
+  Proof. cbv; lia. Qed.
 
   Hint Resolve mma_instr_compile_length_eq mma_instr_compile_length_geq : core.
   Hint Resolve subcode_refl : core.
@@ -57,7 +57,7 @@ Section mma_sim.
   (* This main soundness lemma per simulated instruction *)
 
   Lemma mma_instr_compile_sound : instruction_compiler_sound mma_instr_compile (@mma_sss _) (@mma_sss _) eq.
-  Proof using .
+  Proof.
     intros lnk I i1 v1 i2 v2 w1 H; revert H w1.
     change v1 with (snd (i1,v1)) at 2.
     change i1 with (fst (i1,v1)) at 2 3 4 6 7 8.
@@ -81,7 +81,7 @@ Section mma_sim.
   Hint Resolve mma_instr_compile_sound : core.
 
   Theorem mma_auto_compiler : compiler_t (@mma_sss n) (@mma_sss n) eq.
-    Proof using.
+    Proof.
       apply generic_compiler 
         with (icomp := mma_instr_compile)
              (ilen := mma_instr_compile_length); auto.
@@ -99,7 +99,7 @@ Section mma_sim.
               (forall i' v', (i,P) //ₐ (i,v) ~~> (i',v') -> (1,Q) //ₐ (1,v) ~~> (length Q+1,v'))
            /\ ((1,Q) //ₐ (1,v) ↓  -> (i,P) //ₐ (i,v) ↓) 
          }.
-  Proof using .
+  Proof.
     exists (gc_code mma_auto_compiler (i,P) 1).
     intros v; split.
     + intros i' v' H.
@@ -126,7 +126,7 @@ Section mma_mma0_sim.
   Hint Rewrite mma_null_all_length : length_db.
 
   Theorem mma_mma0_sim_spec v : (i,P) //ₐ (i,v) ↓ <-> (1,R) //ₐ (1,v) ~~> (0,vec_zero).
-  Proof using .
+  Proof.
     split.
     + intros ((i',v') & H).
       apply HQ in H; fold Q in H.
@@ -149,4 +149,4 @@ End mma_mma0_sim.
 
 Theorem mma2_simulator n i (P : list (mm_instr (pos (S n)))) :
   { Q | forall v, (i,P) //ₐ (i,v) ↓ <-> (1,Q) //ₐ (1,v) ~~> (0,vec_zero) }.
-Proof using . exists (mma_mma0_sim i P); apply mma_mma0_sim_spec. Qed.
+Proof. exists (mma_mma0_sim i P); apply mma_mma0_sim_spec. Qed.

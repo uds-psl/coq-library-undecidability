@@ -22,8 +22,6 @@ Import PCTMNotations SBTMNotations ListNotations.
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
 #[local] Notation "i // s -1> t" := (pctm_sss i s t).
 #[local] Notation "P // s -[ k ]-> t" := (sss_steps pctm_sss P k s t).
 #[local] Notation "P // s ->> t" := (sss_compute pctm_sss P s t).
