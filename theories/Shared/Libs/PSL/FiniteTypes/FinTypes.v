@@ -146,3 +146,29 @@ Lemma index_leq (A:finType) (x:A): index x <= length (elem A).
 Proof.
   eapply Nat.lt_le_incl,index_le.
 Qed.
+
+Lemma count_count_occ {X : Type} {HX : eq_dec X} (l : list X) x : count l x = count_occ HX l x.
+Proof.
+  induction l as [|y l IH]; [easy|].
+  cbn. rewrite IH. unfold Dec. now destruct (HX x y); destruct (HX y x); congruence.
+Qed.
+
+Lemma finite_n (F : finType) :
+    { n & { f : F -> Fin.t n & { g : Fin.t n -> F | (forall i, f (g i) = i) /\ forall x, g (f x) = x }}}.
+Proof.
+  destruct (pickx F) as [z|f].
+  - exists (length (elem F)).
+    exists (fun x => Fin.of_nat_lt (index_le x)).
+    exists (fun i => List.nth (proj1_sig (Fin.to_nat i)) (elem F) z).
+    split.
+    + intros i. apply Fin.to_nat_inj. rewrite Fin.to_nat_of_nat.
+      cbn. destruct (Fin.to_nat i) as [n Hn].
+      (*apply (getPosition_nth); now auto using dupfree_elements.*)
+      apply (getPosition_nth); [|easy].
+      apply dupfree_Nodup, (NoDup_count_occ' (@eqType_dec F)).
+      intros x _. rewrite <-count_count_occ. now apply enum_ok.
+    + intros x. rewrite Fin.to_nat_of_nat. now apply index_nth.
+  - exists 0, (fun x => match f x with end), (fun i => Fin.case0 _ i). split.
+    + intros i. apply (Fin.case0 _ i).
+    + intros x. destruct (f x).
+Qed.

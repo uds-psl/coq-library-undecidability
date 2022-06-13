@@ -4,7 +4,7 @@ Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
 (* the above imports sidestep the import of ProgrammingTools below to avoid the dependency on Hoare *)
 (*From Undecidability.TM Require Import ProgrammingTools.*)
 From Undecidability Require Import ArithPrelim.
-Require Import Undecidability.Shared.FinTypeEquiv Undecidability.Shared.FinTypeForallExists.
+Require Import Undecidability.Shared.FinTypeForallExists.
 
 
 Section fix_Sigma.
@@ -808,7 +808,6 @@ Qed.
 End HaltTM_Σ_to_HaltTM_bool.
 
 Require Import Undecidability.Synthetic.Definitions.
-Require Import Undecidability.Synthetic.ReducibilityFacts Undecidability.TM.Util.TM_facts.
 
 Theorem reduction :
   HaltTM 1 ⪯ fun '(M,t) => @HaltsTM (finType_CS bool) 1 M t.
