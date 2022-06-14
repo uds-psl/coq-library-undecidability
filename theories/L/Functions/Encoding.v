@@ -1,5 +1,5 @@
 From Undecidability.L.Tactics Require Import LTactics.
-From Undecidability.L.Datatypes Require Import LNat LTerm LBool.
+From Undecidability.L.Datatypes Require Import LNat LTerm.
 
 (* ** Extracted encoding of natural numbers *)
 

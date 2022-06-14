@@ -1,7 +1,4 @@
 From Undecidability.L Require Export Util.L_facts.
-
-Require Import Coq.Logic.ConstructiveEpsilon. 
-
 Import L_Notations.
 
 Lemma eval_converges s t : eval s t -> converges s.
@@ -301,6 +298,4 @@ Proof.
   eapply informative_seval in H as (?&H).
   induction H using seval_rect. easy.
   eapply HS. all:  eauto.
-Qed. 
-
-
+Qed.

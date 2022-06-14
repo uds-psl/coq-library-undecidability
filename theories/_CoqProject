@@ -494,8 +494,7 @@ L/TM/TMinL.v
 L/TM/TapeFuns.v
 L/Reductions/TM_to_L.v
 L/Reductions/H10_to_L.v
-L/Reductions/MuRec/MuRec_extract.v
-L/Reductions/MuRec.v
+L/Reductions/MUREC_HALTING_to_converges.v
 L/Reductions/HaltL_to_HaltLclosed.v
 
 L/Computability/Computability.v

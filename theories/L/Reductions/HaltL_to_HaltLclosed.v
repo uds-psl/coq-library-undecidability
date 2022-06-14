@@ -1,9 +1,10 @@
 
 Require Import Undecidability.Synthetic.Definitions.
-From Undecidability.L Require Import L Computability.Seval Functions.Eval Computability.MuRec.
+From Undecidability.L Require Import L Computability.Seval Functions.Eval.
+From Undecidability.L Require Import Datatypes.LTerm Tactics.LTactics Computability.MuRec.
 Import L_Notations.
 
-(* Halting problem for call-by-value lambda-calculus *)
+(* Halting problem for closed terms in the call-by-value lambda-calculus *)
 Definition HaltLclosed (s : {s : term | closed s}) := exists t, eval (proj1_sig s) t.
 
 Lemma reduction : HaltL ⪯ HaltLclosed.

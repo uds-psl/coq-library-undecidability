@@ -1,4 +1,4 @@
-From Undecidability.L Require Export Datatypes.LNat Datatypes.LBool Tactics.LTactics.
+From Undecidability.L Require Export Datatypes.LNat Datatypes.LBool.
 
 Section MuRecursor.
 

@@ -352,41 +352,6 @@ End FixX.
 #[global]
 Existing Instance star_PO.
 
-(* A notion of a reduction sequence which keeps track of the largest occuring state *)
-
-Inductive redWithMaxSize {X} (size:X -> nat) (step : X -> X -> Prop): nat -> X -> X -> Prop:=
-  redWithMaxSizeR m s: m = size s -> redWithMaxSize size step m s s 
-| redWithMaxSizeC s s' t m m': step s s' -> redWithMaxSize size step m' s' t -> m = max (size s) m' -> redWithMaxSize size step m s t.
-
-Lemma redWithMaxSize_ge X size step (s t:X) m:
-  redWithMaxSize size step m s t -> size s<= m /\ size t <= m.
-Proof.
-  induction 1;subst;firstorder (repeat eapply Nat.max_case_strong; try lia).
-Qed.
-
-Lemma redWithMaxSize_trans X size step (s t u:X) m1 m2 m3:
- redWithMaxSize size step m1 s t -> redWithMaxSize size step m2 t u -> max m1 m2 = m3 -> redWithMaxSize size step m3 s u.
-Proof.
-  induction 1 in m2,u,m3|-*;intros.
-  -specialize (redWithMaxSize_ge H0) as [].
-   revert H1;
-     repeat eapply Nat.max_case_strong; subst m;intros. all:replace m3 with m2 by lia. all:eauto.
-  - specialize (redWithMaxSize_ge H0) as [].
-    specialize (redWithMaxSize_ge H2) as [].
-    eassert (H1':=Max.le_max_l _ _);rewrite H3 in H1'.
-    eassert (H2':=Max.le_max_r _ _);rewrite H3 in H2'.
-    econstructor. eassumption.
-     
-    eapply IHredWithMaxSize. eassumption. reflexivity.
-    subst m;revert H3;repeat eapply Nat.max_case_strong;intros;try lia. 
-Qed.
-
-Lemma redWithMaxSize_star {X} f (step : X -> X -> Prop) n x y:
-  redWithMaxSize f step n x y -> star step x y.
-Proof.
-  induction 1;eauto using star.
-Qed.
-
 Lemma terminal_noRed {X} (R:X->X->Prop) x y :
   terminal R x -> star R x y -> x = y.
 Proof.
