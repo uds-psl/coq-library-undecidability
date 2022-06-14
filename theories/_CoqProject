@@ -301,6 +301,7 @@ MinskyMachines/Reductions/MM2_to_ndMM2_ACCEPT.v
 MinskyMachines/Reductions/MMA2_to_ndMM2_ACCEPT.v
 MinskyMachines/Reductions/KrivineMclosed_HALT_to_MMA_HALTING.v
 MinskyMachines/Reductions/MMA3_to_MMA2_HALTING.v
+MinskyMachines/Reductions/MMA4_to_MMA2_HALTING.v
 
 MinskyMachines/Deciders/MPM2_HALT_dec.v
 MinskyMachines/Deciders/MM_2_HALTING_dec.v
@@ -314,7 +315,10 @@ MinskyMachines/MMA/mma_defs.v
 MinskyMachines/MMA/mma_utils.v      
 MinskyMachines/MMA/mma_simul.v      
 MinskyMachines/MMA/fractran_mma.v  
+MinskyMachines/MMA/godel_coding.v
+MinskyMachines/MMA/mma_k_mma_2_compiler.v 
 MinskyMachines/MMA/mma3_mma2_compiler.v 
+MinskyMachines/MMA/mma4_mma2_compiler.v 
 
 MinskyMachines/MMenv/env.v          
 MinskyMachines/MMenv/mme_defs.v     

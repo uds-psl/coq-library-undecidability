@@ -355,3 +355,31 @@ Section comp.
   Qed.
 
 End comp.
+
+Section compiler_t_simul_equiv.
+
+  Variables (X Y : Set) (state_X state_Y : Type)
+            (step_X : X -> (nat*state_X) -> (nat*state_X) -> Prop)
+            (step_Y : Y -> (nat*state_Y) -> (nat*state_Y) -> Prop)
+            (sim1 sim2 : state_X -> state_Y -> Prop).
+
+  Theorem compiler_t_simul_equiv : 
+            (forall x y, sim1 x y <-> sim2 x y) 
+         -> compiler_t step_X step_Y sim1 
+         -> compiler_t step_X step_Y sim2.
+  Proof.
+    intros E [ gc_link gc_code gc_fst gc_out gc_sound gc_complete ].
+    exists gc_link gc_code; auto.
+    + intros P i i1 v1 i2 v2 w1 H1.
+      rewrite <- E in H1.
+      apply (gc_sound _ i) in H1 as (w2 & ?).
+      now exists w2; rewrite <- E.
+    + intros P i i1 v1 w1 j2 w2 H1.
+      rewrite <- E in H1.
+      apply (gc_complete _ i) in H1 as (i2 & v2 & ?).
+      now exists i2, v2; rewrite <- E.
+  Qed.
+
+End compiler_t_simul_equiv.
+      
+    
