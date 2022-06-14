@@ -64,13 +64,6 @@ Section SurjectInject.
 
 End SurjectInject.
 
-
-Corollary map_length_eq : forall (A B C : Type) (f : A -> C) (g : B -> C) (l1 : list A) (l2 : list B), map f l1 = map g l2 -> |l1| = |l2|.
-Proof.
-  intros. erewrite <- map_length. symmetry. erewrite <- map_length. symmetry. rewrite H. reflexivity.
-Qed.
-
-
 Section MapCode.
   Variable sig tau : Type.
   Variable retr : Retract sig tau.

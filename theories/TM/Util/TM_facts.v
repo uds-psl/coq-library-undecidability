@@ -29,11 +29,6 @@ Section Fix_Sigma.
     | midtape l c r => (List.rev l) ++ [c] ++ r 
     end.
 
-  Definition sizeOfTape t := |tapeToList t|.
-
-  Definition sizeOfmTapes n (v : tapes n) :=
-    Vector.fold_left max 0 (Vector.map sizeOfTape v).
-  
   Definition left :=
     fun (t : tape) =>
       match t with

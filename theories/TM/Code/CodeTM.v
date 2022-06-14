@@ -60,11 +60,6 @@ Section isVoid.
     isVoid t -> isVoid_size t (| tape_local_l t|).
   Proof. intros (x&r2&->). cbn. hnf. eauto. Qed.
 
-  Lemma isVoid_size_sizeOfTape (sig : Type) (t : tape sig) (s : nat) :
-    isVoid_size t s ->
-    sizeOfTape t <= 1 + s.
-  Proof. intros [m (r1&->&H)]. cbn. simpl_list; cbn. lia. Qed.
-
 End isVoid.
 
 Ltac isVoid_mono :=
@@ -160,21 +155,6 @@ Section Fix_Sig.
       intros (r1&->). cbn. hnf. eexists. split. reflexivity.
       apply Nat.eq_le_incl. simpl_list; cbn. unfold size. lia.
     Qed.
-
-    Lemma tape_contains_size_sizeOfTape (t : tape (sig^+)) x s :
-      tape_contains_size t x s ->
-      sizeOfTape t <= 2 + s + size x.
-    Proof. intros (rs&->&H). cbn. simpl_list; cbn. simpl_list; cbn. unfold size. lia. Qed.
-
-    Lemma tape_contains_rev_size_sizeOfTape (t : tape (sig^+)) x s :
-      tape_contains_rev_size t x s ->
-      sizeOfTape t <= 2 + s + size x.
-    Proof. intros (rs&->&H). cbn. simpl_list; cbn. simpl_list; cbn. unfold size. lia. Qed.
-
-    Lemma sizeOfTape_tape_contains_size (t : tape (sig^+)) (x:X) s :
-      tape_contains_size t x s ->
-      size x <= sizeOfTape t.
-    Proof. intros (rs&->&H). cbn. simpl_list; cbn. simpl_list; cbn. unfold size. lia. Qed.
 
   End Tape_Contains.
 
