@@ -263,11 +263,11 @@ Section comp.
     Let link P iQ := linker ilen P iQ (err P iQ).
     Let code P iQ := compiler icomp ilen P iQ (err P iQ).
 
-    Let fst_ok : forall P i, link P i (fst P) = i.
+    Local Fact fst_ok : forall P i, link P i (fst P) = i.
     Proof. intros [] ?; apply linker_code_start. Qed.
 
-    Let out_ok : forall P i j, out_code j P -> link P i j = code_end(i,code P i).
-    Proof.
+    Local Fact out_ok : forall P i j, out_code j P -> link P i j = code_end(i,code P i).
+    Proof using Hilen.
       intros (iP,cP) iQ j H.
       unfold link, code_end.
       rewrite linker_out_err; unfold err; simpl; auto.
@@ -275,14 +275,14 @@ Section comp.
       * lia.
     Qed.
 
-    Let sound : forall P i, compiled_sound (link P i) P (i,code P i).
-    Proof.
+    Local Fact sound : forall P i, compiled_sound (link P i) P (i,code P i).
+    Proof using Hilen Hicomp.
       intros (iP,cP) iQ; apply compiler_sound.
       intros; apply compiler_subcode; auto.
     Qed.
 
-    Let complete : forall P i, compiled_complete (link P i) P (i,code P i).
-    Proof.
+    Local Fact complete : forall P i, compiled_complete (link P i) P (i,code P i).
+    Proof using Hilen Hicomp step_Y_fun step_X_tot.
       intros (iP,cP) iQ; unfold link, code.
       intros i1 v1 w1 j2 w2 H1.
       destruct compiler_complete' with (2 := H1) (P := (iP,cP))
@@ -299,8 +299,12 @@ Section comp.
         destruct E as [ E -> ]; auto.
     Qed.
 
+    Hint Resolve fst_ok out_ok sound complete : core.
+
     Theorem generic_compiler : compiler_t.
-    Proof using sound complete. exists link code; abstract auto. Defined.
+    Proof using Hilen Hicomp step_Y_fun step_X_tot.
+      exists link code; auto. 
+    Defined.
  
   End compiler.
 
