@@ -58,7 +58,6 @@ MinskyMachines/MM_undec.v
 Shared/Dec.v
 Shared/ListAutomation.v
 Shared/embed_nat.v
-Shared/FinTypeForallExists.v
 
 Synthetic/Definitions.v
 Synthetic/InformativeDefinitions.v

@@ -172,3 +172,17 @@ Proof.
     + intros i. apply (Fin.case0 _ i).
     + intros x. destruct (f x).
 Qed.
+
+Lemma fintype_choice (F : finType) (Y : Type) (P : F -> Y -> Prop) :
+  (forall x : F, exists y, P x y) -> exists f : F -> Y, forall x, P x (f x).
+Proof.
+  intros FE.
+  enough (forall l, exists f : F -> Y, forall x : F, x el l -> P x (f x)) as H.
+  { destruct (H (elem F)) as [f Hf]. eexists. now eauto using elem_spec. }
+  intros l. destruct (pickx F) as [x'|f].
+  2: { exists (fun x => match f x with end). intros x. destruct (f x). }
+  induction l as [|x l [f Hf]].
+  - destruct (FE x') as [y' _]. now exists (fun _ => y').
+  - destruct (FE x) as [y Hxy]. exists (fun z => if Dec (x = z) then y else f z).
+    intros z [?|?]; destruct (Dec _); now (congruence || auto).
+Qed.
