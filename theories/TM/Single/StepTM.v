@@ -2,13 +2,8 @@
 Require Export Undecidability.TM.Code.CodeTM Undecidability.TM.Code.ChangeAlphabet.
 Require Export Undecidability.TM.Compound.TMTac Undecidability.TM.Compound.MoveToSymbol.
 Require Export Undecidability.TM.Basic.Mono Undecidability.TM.Compound.Multi.
-(* the above imports sidestep the import of ProgrammingTools below to avoid the dependency on Hoare *)
-(*From Undecidability.TM Require Import ProgrammingTools.*)
 From Undecidability Require Import ArithPrelim.
-From Undecidability Require Import TM.Compound.Shift.
-From Undecidability Require Import TM.Util.VectorPrelim.
-
-From Undecidability Require Import EncodeTapes TM.Util.VectorPrelim.
+From Undecidability.TM Require Import Compound.Shift Single.EncodeTapes Util.VectorPrelim.
 Require Import FunInd.
 
 Local Set Printing Coercions.
@@ -1296,35 +1291,6 @@ Section ToSingleTape.
         - intros ? (?&<-&?) % in_map_iff. cbn. reflexivity.
       }
     Qed.
-
-
-    (*
-    Definition tape_size (tp : tape sig) : nat :=
-      match tp with
-      | niltape _ => 1
-      | rightof l ls => 3 + length ls
-      | leftof r rs => 3 + length rs
-      | midtape ls m rs => 3 + length ls + length rs
-      end.
-
-    Fixpoint tapes_size (tps : list (tape sig)) : nat :=
-      match tps with
-      | nil => 1
-      | tp :: tps' => 1 + tape_size tp + tapes_size tps'
-      end.
-
-    Lemma tape_size_length (tp : tape sig) :
-      tape_size tp = length (encode_tape tp).
-    Proof. destruct tp eqn:E; cbn; simpl_list; cbn; auto. all: try lia. simpl_list. cbn. lia. Qed.
-
-    Lemma tapes_size_length (tps : list (tape sig)) :
-      tapes_size tps = length (encode_list _ tps).
-    Proof.
-      induction tps as [ | tp tsp].
-      - cbn. reflexivity.
-      - cbn.  simpl_list. rewrite <- IHtsp. cbn. rewrite <- tape_size_length. lia.
-    Qed.
-    *)
 
     Definition MoveToStart_steps (tps : list (tape sig)) :=
       8 + 4 * length (encode_list _ tps).

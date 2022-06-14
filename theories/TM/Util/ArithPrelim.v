@@ -1,6 +1,5 @@
 Require Import Lia.
-Require Export Psatz Arith.
-Require Export RelationClasses Morphisms.
+Require Export Arith RelationClasses Morphisms.
 
 (* Congruence Lemmatas over nat*)
 #[global]
@@ -22,4 +21,3 @@ Proof. repeat intro. repeat eapply Nat.max_case_strong;lia. Qed.
 #[global]
 Instance S_le_mono : Proper (le ==> le) S.
 Proof. repeat intro. lia. Qed.
-

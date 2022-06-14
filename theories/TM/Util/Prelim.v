@@ -2,12 +2,16 @@
 
 (* This file imports all shared libraries and defines [loop], lemmas about [loop], and some auxiliay functions. *)
 
-Require Export Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes Undecidability.Shared.Libs.PSL.FiniteTypes.BasicFinTypes Undecidability.Shared.Libs.PSL.FiniteTypes.CompoundFinTypes Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.
+Require Export Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes
+  Undecidability.Shared.Libs.PSL.FiniteTypes.BasicFinTypes
+  Undecidability.Shared.Libs.PSL.FiniteTypes.CompoundFinTypes
+  Undecidability.Shared.Libs.PSL.FiniteTypes.VectorFin.
 Require Export Undecidability.Shared.Libs.PSL.Vectors.FinNotation.
 Require Export Undecidability.Shared.Libs.PSL.Retracts.
 Require Export Undecidability.Shared.Libs.PSL.Inhabited.
 Require Export Undecidability.Shared.Libs.PSL.Base.
-Require Export Undecidability.Shared.Libs.PSL.Vectors.Vectors Undecidability.Shared.Libs.PSL.Vectors.VectorDupfree.
+Require Export Undecidability.Shared.Libs.PSL.Vectors.Vectors
+  Undecidability.Shared.Libs.PSL.Vectors.VectorDupfree.
 
 Require Export smpl.Smpl Lia.
 
@@ -207,38 +211,9 @@ Eval cbn in funcomp id id 1.
 
 Notation "g >> f" := (funcomp f g) (at level 40).
 
-
-
-
-(* We often use the vernacular commands
-<<
-Local Arguments plus : simpl never.
-Local Arguments mult : simpl never.
->>
-to avoid unfolding [*] and [+] in running time polynoms. However, this can break proofs that use [Fin.R], since the [plus] in the type of [Fin.R] doesn't simplify with [cbn] any more. To work around this problem, we have a copy of [Fin.R] and [plus], that isn't affected by these commands. *)
-
-Fixpoint plus' (n m : nat) { struct n } : nat :=
-  match n with
-  | 0 => m
-  | S p => S (plus' p m)
-  end.
-
-Fixpoint FinR {m} n (p : Fin.t m) : Fin.t (plus' n m) :=
-  match n with
-  | 0 => p
-  | S n' => Fin.FS (FinR n' p)
-  end.
-
-
-
 (* Folding for options *)
 Definition fold_opt (X Y : Type) : (X -> Y) -> Y -> option X -> Y :=
   fun f def o => match o with
               | Some o' => f o'
               | None => def
               end.
-
-
-Lemma map_opt_fold (X Y : Type) (f : X -> Y) (x : option X) :
-  map_opt f x = fold_opt (fun x => Some (f x)) None x.
-Proof. intros. destruct x; cbn; reflexivity. Qed.
