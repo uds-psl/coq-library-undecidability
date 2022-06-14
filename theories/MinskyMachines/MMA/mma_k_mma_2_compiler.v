@@ -18,6 +18,9 @@ From Undecidability.FRACTRAN
 From Undecidability.MinskyMachines.MMA
   Require Import mma_defs mma_utils godel_coding.
 
+Set Implicit Arguments.
+Set Default Goal Selector "!".
+
 #[local] Notation "e #> x" := (vec_pos e x).
 #[local] Notation "e [ v / x ]" := (vec_change e x v).
 

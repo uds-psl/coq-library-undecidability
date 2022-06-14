@@ -21,6 +21,8 @@ From Undecidability.MinskyMachines.MM
 
 Set Implicit Arguments.
 
+Set Default Goal Selector "!".
+
 (* ** BSM recues to MM *)
 
 Tactic Notation "rew" "length" := autorewrite with length_db.
@@ -60,7 +62,7 @@ Section bsm_mm0_simulator.
   Local Fact Hvr1 : forall p, reg p <> tmp1.  Proof. discriminate. Qed.
   Local Fact Hvr2 : forall p, reg p <> tmp2.  Proof. discriminate. Qed.
   Local Fact Hreg : forall p q, reg p = reg q -> p = q.
-  Proof. intros; do 2 apply pos_nxt_inj; apply H. Qed.
+  Proof. intros ? ? H; do 2 apply pos_nxt_inj; apply H. Qed.
 
   Hint Resolve Hv12 Hvr1 Hvr2 Hreg : core.
 
@@ -146,12 +148,12 @@ Section bsm_mm0_simulator.
           assert (reg p <> reg q); rew vec.
    
       + exists (w1[(stack_enc (One::v#>p))/reg p]); repeat split; auto; rew vec.
-        rewrite H0; apply mm_push_One_progress; auto using Hv12, Hvr1, Hvr2.
+        1: rewrite H0; apply mm_push_One_progress; auto using Hv12, Hvr1, Hvr2.
         intros q; dest p q.
         assert (reg p <> reg q); rew vec.
 
       + exists (w1[(stack_enc (Zero::v#>p))/reg p]); repeat split; auto; rew vec.
-        rewrite H0; apply mm_push_Zero_progress; auto using Hv12, Hvr1, Hvr2.
+        1: rewrite H0; apply mm_push_Zero_progress; auto using Hv12, Hvr1, Hvr2.
         intros q; dest p q.
         assert (reg p <> reg q); rew vec.
     Qed.

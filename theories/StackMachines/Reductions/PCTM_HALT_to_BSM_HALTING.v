@@ -23,9 +23,7 @@ From Undecidability.StackMachines.BSM
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
-Theorem PCTM_BSM_reduction : PCTM_HALT ⪯ BSM_HALTING.
+Theorem reduction : PCTM_HALT ⪯ BSM_HALTING.
 Proof.
   apply reduces_dependent; exists.
   intros (P,((l,b),r)).
@@ -34,5 +32,3 @@ Proof.
   exists (existT _ 2 (existT _ 1 (existT _ Q w1))); simpl.
   apply compiler_t_term_equiv; split; auto.
 Qed.
-
-Check PCTM_BSM_reduction.

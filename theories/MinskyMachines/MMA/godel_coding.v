@@ -15,6 +15,8 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.FRACTRAN
   Require Import prime_seq.
 
+Set Default Goal Selector "!".
+
 #[local] Notation "e #> x" := (vec_pos e x).
 #[local] Notation "e [ v / x ]" := (vec_change e x v).
 

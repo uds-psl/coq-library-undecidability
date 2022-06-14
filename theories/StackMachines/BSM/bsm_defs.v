@@ -17,6 +17,8 @@ From Undecidability.StackMachines
 
 Set Implicit Arguments.
 
+Set Default Goal Selector "!".
+
 Tactic Notation "rew" "length" := autorewrite with length_db.
 
 #[local] Notation "e #> x" := (vec_pos e x).
@@ -93,8 +95,8 @@ Section Binary_Stack_Machine.
     apply subcode_sss_progress with (1 := H1).
     exists 1; split; auto; apply sss_steps_1.
     apply in_sss_step with (l := nil).
-    simpl; lia.
-    constructor; auto.
+    + simpl; lia.
+    + constructor; auto.
   Qed.
 
   Fact bsm_progress_POP_0 P i x p q ll v st :
@@ -108,8 +110,8 @@ Section Binary_Stack_Machine.
     apply subcode_sss_progress with (1 := H1).
     exists 1; split; auto; apply sss_steps_1.
     apply in_sss_step with (l := nil).
-    simpl; lia.
-    constructor; auto.
+    + simpl; lia.
+    + constructor; auto.
   Qed.
 
   Fact bsm_progress_POP_1 P i x p q ll v st :
@@ -123,8 +125,8 @@ Section Binary_Stack_Machine.
     apply subcode_sss_progress with (1 := H1).
     exists 1; split; auto; apply sss_steps_1.
     apply in_sss_step with (l := nil).
-    simpl; lia.
-    constructor; auto.
+    + simpl; lia.
+    + constructor; auto.
   Qed.
 
   Fact bsm_progress_PUSH P i x b v st :
@@ -137,8 +139,8 @@ Section Binary_Stack_Machine.
     apply subcode_sss_progress with (1 := H1).
     exists 1; split; auto; apply sss_steps_1.
     apply in_sss_step with (l := nil).
-    simpl; lia.
-    constructor; auto.
+    + simpl; lia.
+    + constructor; auto.
   Qed.
 
   Hint Resolve bsm_progress_POP_E bsm_progress_POP_0 bsm_progress_POP_1 bsm_progress_PUSH : core.
@@ -198,11 +200,10 @@ Section Binary_Stack_Machine.
     intros H1 H2 H3 H4.
     apply sss_steps_inv in H4.
     destruct H4 as [ (_ & ?) | (b & H4) ]; subst.
-    destruct H3; auto.
+    1: destruct H3; auto.
     exists b.
     destruct H4 as (st2 & ? & H4 & H5); subst.
-    split.
-    lia.
+    split; try lia.
     apply sss_step_subcode_inv with (1 := H1) in H4.
     inversion H4; subst; try mydiscr; myinj.
   Qed.
@@ -217,11 +218,10 @@ Section Binary_Stack_Machine.
     intros H1 H2 H3 H4.
     apply sss_steps_inv in H4.
     destruct H4 as [ (_ & ?) | (b & H4) ]; subst.
-    destruct H3; auto.
+    1: destruct H3; auto.
     exists b.
     destruct H4 as (st2 & ? & H4 & H5); subst.
-    split.
-    lia.
+    split; try lia.
     apply sss_step_subcode_inv with (1 := H1) in H4.
     inversion H4; subst; try mydiscr; myinj.
   Qed.
@@ -236,8 +236,8 @@ Section Binary_Stack_Machine.
   Proof.
     intros.
     destruct b.
-    apply bsm_steps_POP_1_inv with p q; auto.
-    apply bsm_steps_POP_0_inv with i q; subst; auto.
+    + apply bsm_steps_POP_1_inv with p q; auto.
+    + apply bsm_steps_POP_0_inv with i q; subst; auto.
   Qed.
 
   Fact bsm_steps_POP_E_inv a P i x p q v st :
@@ -250,11 +250,10 @@ Section Binary_Stack_Machine.
     intros H1 H2 H3 H4.
     apply sss_steps_inv in H4.
     destruct H4 as [ (? & ?) | (b & H4) ]; subst; auto.
-    destruct H3; auto.
+    1: destruct H3; auto.
     exists b.
     destruct H4 as (st2 & ? & H4 & H5); subst.
-    split.
-    lia.
+    split; try lia.
     apply sss_step_subcode_inv with (1 := H1) in H4.
     inversion H4; subst; try mydiscr; myinj.
   Qed.
@@ -268,11 +267,10 @@ Section Binary_Stack_Machine.
     intros H1 H2 H4.
     apply sss_steps_inv in H4.
     destruct H4 as [ (? & ?) | (a & H4) ]; subst; auto.
-    destruct H2; auto.
+    1: destruct H2; auto.
     exists a.
     destruct H4 as (st2 & ? & H4 & H5); subst.
-    split.
-    lia.
+    split; try lia.
     apply sss_step_subcode_inv with (1 := H1) in H4.
     inversion H4; subst; auto.
   Qed.

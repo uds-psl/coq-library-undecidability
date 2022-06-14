@@ -17,6 +17,7 @@ Import ListNotations.
 (* ** Semantic Correctness of Compiled Code *)
 
 Set Implicit Arguments.
+Set Default Goal Selector "!".
 
 Section comp.
 
@@ -233,7 +234,7 @@ Section comp.
       exists i2, v2.
       destruct (compiler_sound (conj H1 H3)) as (w2 & H5 & H6).
       exists w2; do 2 (split; auto).
-      split; auto.
+      1: split; auto.
       destruct H2 as (H2 & H0); split; auto.
       apply sss_compute_inv with (3 := H6); auto.
     Qed.
