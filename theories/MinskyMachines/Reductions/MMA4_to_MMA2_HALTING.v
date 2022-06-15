@@ -8,10 +8,10 @@
 (**************************************************************)
 
 From Undecidability.Shared.Libs.DLW 
-  Require Import pos vec sss compiler_correction.
+  Require Import godel_coding pos vec sss compiler_correction.
 
 From Undecidability.MinskyMachines.MMA
-  Require Import mma_defs godel_coding mma4_mma2_compiler.
+  Require Import mma_defs mma4_mma2_compiler.
 
 From Undecidability.Synthetic
   Require Import Definitions ReducibilityFacts.

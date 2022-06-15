@@ -12,15 +12,13 @@ Require Import List Arith Lia.
 From Undecidability.Shared.Libs.DLW 
   Require Import utils gcd prime pos vec.
 
-From Undecidability.FRACTRAN
-  Require Import prime_seq.
-
+Set Implicit Arguments.
 Set Default Goal Selector "!".
 
 #[local] Notation "e #> x" := (vec_pos e x).
 #[local] Notation "e [ v / x ]" := (vec_change e x v).
 
-Record godel_coding {n} := {
+Record godel_coding n := {
   gc_pr : pos n -> nat;
   gc_enc : vec nat n -> nat;
   gc_pr_nz : forall p, 0 < gc_pr p;
@@ -30,7 +28,7 @@ Record godel_coding {n} := {
 
 Arguments godel_coding : clear implicits.
 
-Section prime_props.
+Section powers_of_2357_props.
 
   (* We use prime_bool_spec which is a crude Boolean primility test *)
 
@@ -41,10 +39,7 @@ Section prime_props.
 
   Hint Resolve prime_2 prime_3 prime_5 prime_7 : core.
 
-  Ltac does_not_divide_1 := 
-    intros H;
-    apply divides_pow in H; auto;
-    now apply prime_divides in H; auto.
+  Ltac does_not_divide_1 := now intros H%divides_pow%prime_divides.
 
   Local Fact not_divides_2_3 x : ~ divides 2 (3^x).   Proof. does_not_divide_1. Qed.
   Local Fact not_divides_2_5 x : ~ divides 2 (5^x).   Proof. does_not_divide_1. Qed.
@@ -62,7 +57,6 @@ Section prime_props.
   Local Fact not_divides_7_3 x : ~ divides 7 (3^x).   Proof. does_not_divide_1. Qed.
   Local Fact not_divides_7_5 x : ~ divides 7 (5^x).   Proof. does_not_divide_1. Qed.
 
-
   Hint Resolve not_divides_2_3 not_divides_2_5 not_divides_2_7
                not_divides_3_2 not_divides_3_5 not_divides_3_7
                not_divides_5_2 not_divides_5_3 not_divides_5_7 
@@ -71,10 +65,10 @@ Section prime_props.
   Local Fact not_divides_5_1 : ~ divides 5 1.
   Proof. apply not_divides_5_3 with (x := 0). Qed.
 
+  Ltac fold_not := match goal with |- ?t -> False => change (~ t) end.
   Ltac does_not_divide_2 :=
-    intros H;
-    apply prime_div_mult in H as [ H | H ]; auto;
-    match type of H with ?t => revert H; change (~ t) end; auto.
+    let H := fresh 
+    in intros [H|H]%prime_div_mult; auto; revert H; fold_not; auto.
 
   Local Fact not_divides_2_35 x y : ~ divides 2 (3^x*5^y).   Proof. does_not_divide_2. Qed.
   Local Fact not_divides_3_25 x y : ~ divides 3 (2^x*5^y).   Proof. does_not_divide_2. Qed.
@@ -84,21 +78,15 @@ Section prime_props.
   Hint Resolve not_divides_2_35 not_divides_3_5 not_divides_5_1 : core.
 
   Ltac does_not_divide_3 :=
-    intros H;
-    do 2 try apply prime_div_mult in H as [ H | H ]; auto;
-    match type of H with ?t => revert H; change (~ t) end; auto.
+    let H := fresh 
+    in intros H; do 2 try apply prime_div_mult in H as [H|H]; auto; revert H; fold_not; auto.
 
   Local Fact not_divides_2_357 x y z : ~ divides 2 (3^x*5^y*7^z). Proof. does_not_divide_3. Qed.
   Local Fact not_divides_3_257 x y z : ~ divides 3 (2^x*5^y*7^z). Proof. does_not_divide_3. Qed.
   Local Fact not_divides_5_237 x y z : ~ divides 5 (2^x*3^y*7^z). Proof. does_not_divide_3. Qed.
   Local Fact not_divides_7_235 x y z : ~ divides 7 (2^x*3^y*5^z). Proof. does_not_divide_3. Qed.
 
-End prime_props.
-
-Local Fact divides_left x k : divides x (x*k).
-Proof. apply divides_mult_r, divides_refl. Qed.
-
-#[local] Hint Resolve divides_left : core.
+End powers_of_2357_props.
 
 Section godel_coding_235.
 

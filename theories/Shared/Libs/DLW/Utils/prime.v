@@ -18,11 +18,14 @@ Set Implicit Arguments.
 
 Section prime.
 
-  Hint Resolve divides_0 divides_mult divides_refl divides_0_inv : core.
+  Hint Resolve divides_0 divides_1 divides_mult divides_refl divides_0_inv : core.
 
   Infix "<d" := divides (at level 70, no associativity).
 
   Definition prime p := p <> 1 /\ forall q, q <d p -> q = 1 \/ q = p.
+
+  Fact prime_divides p q : prime p -> prime q -> p <d q -> p = q.
+  Proof. now intros Hp Hq [ []%Hp | ]%Hq. Qed.
 
   Fact prime_2 : prime 2.
   Proof. 
@@ -171,6 +174,14 @@ Section prime.
     right; revert H H2; apply is_rel_prime_div.
   Qed.
 
+  Fact divides_pow p n k : prime p -> p <d n^k -> p <d n.
+  Proof.
+    intros Hp.
+    induction k as [ | k IHk ]; simpl.
+    + now intros ->%divides_1_inv.
+    + intros []%prime_div_mult; auto.
+  Qed.
+
   Definition prime_or_div p : 2 <= p -> { q | 2 <= q < p /\ q <d p } + { prime p }.
   Proof.
     intros Hp.
@@ -203,7 +214,7 @@ Section prime.
     2: exists n; auto.
     destruct (IHn q) as (p & H3 & H4); try lia.
     exists p; split; auto.
-    apply divides_trans with (1 := H4); auto.
+    now apply divides_trans with (1 := H4).
   Qed.
 
   Section prime_rect.

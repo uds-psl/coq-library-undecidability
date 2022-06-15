@@ -90,6 +90,7 @@ Shared/Libs/DLW/Utils/bool_list.v
 Shared/Libs/DLW/Utils/bool_nat.v
 Shared/Libs/DLW/Utils/gcd.v
 Shared/Libs/DLW/Utils/prime.v
+Shared/Libs/DLW/Utils/godel_coding.v
 Shared/Libs/DLW/Utils/power_decomp.v
 Shared/Libs/DLW/Utils/bounded_quantification.v
 Shared/Libs/DLW/Utils/php.v
@@ -315,7 +316,6 @@ MinskyMachines/MMA/mma_defs.v
 MinskyMachines/MMA/mma_utils.v      
 MinskyMachines/MMA/mma_simul.v      
 MinskyMachines/MMA/fractran_mma.v  
-MinskyMachines/MMA/godel_coding.v
 MinskyMachines/MMA/mma_k_mma_2_compiler.v 
 MinskyMachines/MMA/mma3_mma2_compiler.v 
 MinskyMachines/MMA/mma4_mma2_compiler.v 

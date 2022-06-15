@@ -7,13 +7,11 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List.
-
 From Undecidability.Shared.Libs.DLW 
-  Require Import utils_tac pos vec subcode sss compiler_correction.
+  Require Import utils_tac godel_coding pos vec sss compiler_correction.
 
 From Undecidability.MinskyMachines.MMA
-  Require Import mma_defs godel_coding mma3_mma2_compiler.
+  Require Import mma_defs mma3_mma2_compiler.
 
 From Undecidability.Synthetic
   Require Import Definitions ReducibilityFacts.

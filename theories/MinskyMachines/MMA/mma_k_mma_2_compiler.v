@@ -10,13 +10,10 @@
 Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW 
-  Require Import utils gcd prime pos vec subcode sss compiler_correction.
-
-From Undecidability.FRACTRAN
-  Require Import prime_seq.
+  Require Import utils godel_coding pos vec subcode sss compiler_correction.
 
 From Undecidability.MinskyMachines.MMA
-  Require Import mma_defs mma_utils godel_coding.
+  Require Import mma_defs mma_utils.
 
 Set Implicit Arguments.
 Set Default Goal Selector "!".

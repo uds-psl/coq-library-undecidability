@@ -10,10 +10,10 @@
 Require Import List Arith Lia.
 
 From Undecidability.Shared.Libs.DLW 
-  Require Import utils gcd prime pos vec subcode sss compiler_correction.
+  Require Import utils godel_coding pos vec sss compiler_correction.
 
 From Undecidability.MinskyMachines.MMA
-  Require Import mma_defs mma_utils mma_k_mma_2_compiler godel_coding.
+  Require Import mma_defs mma_k_mma_2_compiler.
 
 Set Default Goal Selector "!".
 
