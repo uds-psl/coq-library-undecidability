@@ -1,5 +1,5 @@
 From Undecidability.L Require Export Util.L_facts.
-From Undecidability.L.Tactics Require Import Reflection Computable mixedTactics.
+From Undecidability.L.Tactics Require Import Reflection ComputableTime mixedTactics.
 
 (* ** Symbolic simplification for L*)
 
@@ -37,7 +37,9 @@ Ltac Lproc' :=idtac;
   | |- lambda (match ?c with _ => _ end) => destruct c
   | |- lambda (@enc ?t ?H ?x) => exact_no_check (proc_lambda (@proc_enc t H x))
   | |- lambda (@ext ?X ?tt ?x ?H) => exact_no_check (proc_lambda (@proc_ext X tt x H))
+  | |- lambda (@extT ?X ?tt ?x ?f ?H) => exact_no_check (proc_lambda (@proc_extT X tt x f H))
   | |- lambda (app _ _) => fail
+  (*| |- lambda (@ext_ext ?X ?x ?H) => exact (proc_lambda (@proc_extT X tt x _))*)
   | |- lambda _ => (simple apply proc_lambda;(trivial with nocore LProc || tauto)) || tauto || (eexists;reflexivity)
   | |- rClosed ?phi _ => solve [simple apply rClosed_decb_correct;[assumption|reflexivity]]
   | |- L_facts.closed ?s => refine (proj2 (closed_dcl s) _)
@@ -45,6 +47,10 @@ Ltac Lproc' :=idtac;
   | |- bound _ (rho ?s) => simple apply rho_dcls
   | |- bound ?k (@ext ?X ?tt ?x ?H) =>
     exact_no_check (closed_dcl_x k (proc_closed (@proc_ext X tt x H)))
+  | |- bound ?k (@extT ?X ?tt ?x ?f ?H) =>
+    exact_no_check (closed_dcl_x k (proc_closed (@proc_extT X tt x f H)))
+  (*| |- bound ?k (@extT ?X ?tt ?x ?H) =>
+      exact (closed_dcl_x k (proc_closed (@extT_proc X tt x H)))*)
   | |- bound ?k (@enc ?t ?H ?x) =>
     exact_no_check (closed_dcl_x k (proc_closed (@proc_enc t H x)))
   | |- bound ?k ?s => (refine (@closed_dcl_x k s _); (trivial with LProc || (apply proc_closed;trivial with LProc || tauto) || tauto ))
@@ -59,6 +65,7 @@ Ltac Lproc := (* match goal with |- ?G => idtac G end ;time "Lproc"( *)
   | |- proc (app _ _) => fail
   | |- proc (@enc ?t ?H ?x) => exact_no_check (@proc_enc t H x)
   | |- proc (@ext ?X ?tt ?x ?H) => exact_no_check (@proc_ext X tt x H)
+  | |- proc (@extT ?X ?tt ?x ?f ?H) => exact_no_check (@proc_extT X tt x f H)
 
   | |- proc _ => refine (conj _ _);[|solve [Lproc]];Lproc
                                     

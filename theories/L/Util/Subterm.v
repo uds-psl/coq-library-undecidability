@@ -1,4 +1,5 @@
 From Undecidability.L Require Import L_facts.
+From Coq Require Import RelationClasses.
 
 Import L_Notations.
 

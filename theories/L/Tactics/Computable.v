@@ -1,5 +1,6 @@
 From Undecidability.L Require Export Util.L_facts Tactics.Extract.
 Require Import Undecidability.Shared.Libs.PSL.Bijection String.
+From Coq Require Import RelationClasses.
 
 (* * Correctness and time bounds *)
 
@@ -173,7 +174,7 @@ Lemma computesExt X (tt : TT X) (x x' : X) s:
   extEq x x' -> computes tt x s -> computes tt x' s.
 Proof.
   induction tt in x,x',s |-*;intros eq.
-  -inv eq. tauto.
+  - now destruct eq.
   -cbn in eq|-*. intros [H1 H2]. split. 1:tauto.
    intros y t exts.
    specialize (H2 y t exts) as (v&R&H2).

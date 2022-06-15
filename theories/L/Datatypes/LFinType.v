@@ -6,10 +6,9 @@ Require Export Undecidability.Shared.Libs.PSL.FiniteTypes.FinTypes.
 
 (* *** Encoding finite types *)
 (* This is not an instance because we only want it for very specific types. *)
-Definition registered_finType `{X : finType} : registered X.
+Definition encodable_finType `{X : finType} : encodable X.
 Proof.
   eapply (registerAs index).
-  intros x y H. now apply injective_index.
 Defined. (*because registerAs*)
 
 Definition finType_eqb {X:finType} (x y : X) :=
@@ -23,7 +22,7 @@ Proof.
 Qed.
 
 Section finType_eqb.
-  Local Existing Instance registered_finType.
+  Local Existing Instance encodable_finType.
 
   Global Instance term_index (F:finType): computable (@index F).
   Proof.

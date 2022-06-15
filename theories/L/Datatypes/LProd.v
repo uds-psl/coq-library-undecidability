@@ -7,11 +7,14 @@ Section Fix_XY.
 
   Variable X Y:Type.
   
-  Context {intX : registered X}.
-  Context {intY : registered Y}.
+  Context {intX : encodable X}.
+  Context {intY : encodable Y}.
 
   MetaCoq Run (tmGenEncode "prod_enc" (X * Y)).
   Hint Resolve prod_enc_correct : Lrewrite.
+  
+  Global Instance encInj_prod_enc {H : encInj intX} {H' : encInj intY} : encInj (encodable_prod_enc).
+  Proof. register_inj. Qed. 
   
   (* now we must register the constructors*)
   Global Instance term_pair : computable (@pair X Y).
@@ -40,8 +43,8 @@ Section Fix_XY.
     -> forall x y, reflect (x=y) (prod_eqb f g x y).
   Proof with try (constructor;congruence).
     intros Hf Hg [x1 y1] [x2 y2].
-    specialize (Hf x1 x2); specialize (Hg y1 y2);cbn. 
-    inv Hf;inv Hg;cbn...
+    specialize (Hf x1 x2); specialize (Hg y1 y2);cbn.
+    destruct Hf; subst; destruct Hg; subst; cbn...
   Qed.
 
   Global Instance eqbProd f g `{eqbClass (X:=X) f} `{eqbClass (X:=Y) g}:

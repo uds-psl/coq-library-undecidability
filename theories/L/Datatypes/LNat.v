@@ -1,12 +1,11 @@
 
 From Undecidability.L.Tactics Require Export LTactics GenEncode.
-
-Require Import Nat.
 From Undecidability.L Require Import Datatypes.LBool Datatypes.LProd.
+Require Import Nat.
 Import GenEncode.
 (* ** Encoding of natural numbers *)
 
-MetaCoq Run (tmGenEncode "nat_enc" nat).
+MetaCoq Run (tmGenEncodeInj "nat_enc" nat).
 #[export] Hint Resolve nat_enc_correct : Lrewrite.
 
 #[global]
@@ -40,7 +39,7 @@ Proof.
 Qed.
 
 #[global]
-Instance termT_leb : computable leb.
+Instance termT_leb : computable Nat.leb.
 Proof.
   extract.
 Qed.

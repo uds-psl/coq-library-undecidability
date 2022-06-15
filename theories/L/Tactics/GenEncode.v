@@ -1,3 +1,4 @@
+From Undecidability.Shared.Libs.PSL Require Import Base Bijection.
 From Undecidability.L Require Import L Tactics.Computable Tactics.ComputableTactics Tactics.Extract.
 From MetaCoq Require Import Template.All TemplateMonad.Core Template.Ast.
 Require Import String List.
@@ -99,7 +100,7 @@ Definition tmGenEncode' (n : ident) (A : Type) :=
   n2 <- tmEval cbv ((n ++ "_inj"));;
   i <- Core.tmLemma n2  (injective (@enc_f _ e)) ;;
   n3 <- tmEval cbv ("encodable_" ++ n) ;;
-  d <- tmInstanceRed n3 None  (@mk_registered A e p i);;
+  d <- tmInstanceRed n3 None  (@mk_encodable A e p i);;
   m <- tmMatchCorrect A ;; ret tt. *)
 
 (* TODO : use other methode instead, e.g. with typeclasses, as default obligation tactic is very fragile *)

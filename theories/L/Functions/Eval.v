@@ -48,7 +48,8 @@ Proof.
     *congruence. 
    +intros. eexists. Lsimpl. reflexivity.
   -intros [n [v' [H [eq lv']]]]. subst v. Lrewrite in H. Lsimpl. 
-    apply enc_extinj in H. destruct mu_complete with (P:=(lam ((ext doesHaltIn) (ext s) 0))) (n:=n);try Lproc.
+    apply enc_extinj in H.
+    destruct mu_complete with (P:=(lam ((ext doesHaltIn) (ext s) 0))) (n:=n);try Lproc.
    +intros n0. destruct (eva n0 s) eqn:eq;eexists; Lsimpl;reflexivity.
    + Lsimpl. unfold doesHaltIn. rewrite H. reflexivity.
    +rewrite H0. Lsimpl. apply mu_sound in H0. 2,4:Lproc.
@@ -75,7 +76,8 @@ Qed.
 Lemma Eval_eval (s t : term) : lambda t -> Eval (ext s) == t -> exists t', ext t' = t /\ eval s t'.
 Proof with Lproc.
   intros p H. rewrite Eval_correct in H;try Lproc. destruct H as [n [v [R [eq lv]]]]. subst t.
-  eexists. split. reflexivity. Lrewrite in R. apply enc_extinj in R. apply eva_equiv in R. split. apply equiv_lambda;try Lproc.  assumption. assumption. 
+  eexists. split. reflexivity. Lrewrite in R.
+  apply enc_extinj in R. apply eva_equiv in R. split; [|assumption]. now apply equiv_lambda.
 Qed.
 
 Lemma Eval_converges s : converges s <-> converges (Eval (ext s)).

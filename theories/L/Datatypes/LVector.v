@@ -7,25 +7,20 @@ Require Import Undecidability.Shared.Libs.PSL.Vectors.Vectors.
 (* *** Encoding vectors *)
 
 #[global]
-Instance register_vector X `{registered X} n : registered (Vector.t X n).
+Instance register_vector X `{encodable X} n : encodable (Vector.t X n).
 Proof.
   apply (registerAs VectorDef.to_list).
-  intros x. induction x.
-  - intros y. pattern y. revert y. eapply VectorDef.case0. cbn. reflexivity.
-  - intros y. clear H. revert h x IHx. pattern n, y. revert n y.
-    eapply Vector.caseS. intros h n y h0 x IHx [=].
-    subst. f_equal. eapply IHx. eassumption.
 Defined. (*because registerAs*)
 
 #[global]
-Instance term_to_list X `{registered X} n : computable (Vector.to_list (A:=X) (n:=n)).
+Instance term_to_list X `{encodable X} n : computable (Vector.to_list (A:=X) (n:=n)).
 Proof.
   apply cast_computable.
 Qed.
 
 Import Vector.
 #[global]
-Instance term_vector_map X Y `{registered X} `{registered Y} n (f:X->Y):
+Instance term_vector_map X Y `{encodable X} `{encodable Y} n (f:X->Y):
   computable f ->
   computable (VectorDef.map f (n:=n)).
 Proof.
@@ -37,7 +32,7 @@ Proof.
 Qed.
 
 Global
-Instance term_map2 n A B C `{registered A} `{registered B} `{registered C} (g:A -> B -> C):
+Instance term_map2 n A B C `{encodable A} `{encodable B} `{encodable C} (g:A -> B -> C):
   computable g -> computable (Vector.map2 g (n:=n)).
 Proof.
   intros ?.
@@ -59,7 +54,7 @@ Proof.
 Qed.
 
 #[global]
-Instance term_vector_eqb X `{registered X} (n' m:nat) (eqb:X->X->bool):
+Instance term_vector_eqb X `{encodable X} (n' m:nat) (eqb:X->X->bool):
   computable eqb
   -> computable
       (VectorEq.eqb eqb (A:=X) (n:=n') (m:=m)).

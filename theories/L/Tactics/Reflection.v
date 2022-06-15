@@ -1,5 +1,6 @@
+Require Import Undecidability.Shared.Libs.PSL.Base.
 From Undecidability.L Require Export Util.L_facts.
-From Undecidability.L.Tactics Require Import LClos.
+From Undecidability.L.Tactics Require Export LClos.
 From Undecidability.L.Tactics Require Import mixedTactics.
 Require Import FunInd.
 
@@ -186,10 +187,11 @@ Qed.
 
 Functional Scheme rCompSeval'_ind := Induction for rCompSeval' Sort Prop.
 
+
 Lemma rCompSeval_sound n phi s l:
   Proc phi -> let (k,t) := rCompSeval n (l,s) in k >= l /\ denoteComp phi s >[(k-l)] denoteComp phi t.
-Proof with (repeat inv_validComp;repeat (eassumption || constructor || intuition|| subst ; eauto using star || rewrite Nat.sub_diag in * || rewrite <- minus_n_O in *||cbn in *||lia)).
-intros. unfold rCompSeval.
+Proof with (repeat inv_validComp;repeat (eassumption || constructor || intuition|| subst ; eauto using star || rewrite Nat.sub_diag in * || rewrite <- minus_n_O in *||cbn in * )).
+  intros. unfold rCompSeval.
   pose (p:= (l,s)).
   change (let (k, t) := fst (rCompSeval' n p) in k >= fst p /\denoteComp phi  (snd p) >[(k-(fst p))] denoteComp phi t).
   generalize p. clear l s p. intros p.
@@ -199,7 +201,7 @@ intros. unfold rCompSeval.
   -rewrite e2,e5 in *...  eapply (CPow_trans (t:= denoteComp phi (s' t')))...
   -rewrite e2,e5 in *...  eapply (CPow_trans (t:= denoteComp phi (s' t')))...
   -rewrite <- map_nth...
-  -repeat destruct (rCompSeval' _ _)... destruct p. split... eapply CPow_trans...
+  -repeat destruct (rCompSeval' _ _)... destruct p... eapply CPow_trans...
 Qed.
 
 Lemma rCompBeta_rValidComp s t u phi : rValidComp phi s -> rValidComp phi t -> rCompBeta s t = Some u -> rValidComp phi u.
@@ -316,5 +318,12 @@ Proof.
   -now apply H.
   -rewrite eq. cbv. split.  auto. eexists. eauto.
 Qed.
+
+
+Fixpoint benchTerm x : rTerm :=
+  match x with
+    0 => (rLam (rVar 0))
+  | S x => (rLam (benchTerm x)) (rLam (rVar 0))
+  end.
 
 Close Scope LClos.

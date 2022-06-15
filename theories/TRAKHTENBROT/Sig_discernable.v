@@ -39,9 +39,9 @@ Local Infix "≡" := undiscernable (at level 70, no associativity).
 Section FSAT_equiv_discernable_rels.
 
   Variable Σ : fo_signature.
-  
-  Definition test K := @fol_atom Σ K (vec_set_pos (fun _ => £0)).
-  
+
+  Local Definition test K := @fol_atom Σ K (vec_set_pos (fun _ => £0)).
+
   Variables (P Q : rels Σ).
 
   Section model.

@@ -1,5 +1,4 @@
-From Undecidability.L Require Import Util.L_facts.
-Require Import ListTactics.
+Require Import ListTactics List Lia. Import ListNotations.
 From Undecidability.L.Tactics Require Import Lproc Reflection. 
 
 (* *** Lbeta: symbolic beta reduction *)

@@ -1,10 +1,11 @@
 From Undecidability.L.Tactics Require Import LTactics.
 
 From Undecidability.L.Datatypes Require Export List.List_enc LBool LOptions LNat LBool.
+From Coq Require Import List.
 
 Section Fix_X.
   Variable (X:Type).
-  Context {intX : registered X}.
+  Context {intX : encodable X}.
 
   Fixpoint inb eqb (x:X) (A: list X) :=
     match A with
@@ -21,7 +22,7 @@ Section Fix_X.
     -constructor. tauto.
     -simpl. destruct (X_eqb_spec a x).
     +constructor. tauto.
-    +inv IHA. destruct (X_eqb_spec a x).
+    +destruct IHA; subst. destruct (X_eqb_spec a x).
       *constructor. tauto.
       *constructor. tauto.
       *constructor. tauto.
@@ -58,11 +59,11 @@ End list_eqb.
 Section int.
 
   Context {X : Type}.
-  Context {HX : registered X}.
+  Context {HX : encodable X}.
 
   Global Instance term_list_eqb : computable (list_eqb (X:=X)).
   Proof.
-    extract.                                                                                        
+    extract.
   Qed.
 
   Global Instance eqbList f `{eqbClass (X:=X) f}:

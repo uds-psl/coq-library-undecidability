@@ -16,7 +16,7 @@ Local Notation N := TM.Nmove.
 
 Section loopM.
   Context (sig : finType).
-  Let reg_sig := @registered_finType sig.
+  Let reg_sig := @encodable_finType sig.
   Existing Instance reg_sig.
   
   Let eqb_sig := eqbFinType_inst (X:=sig).
@@ -24,7 +24,7 @@ Section loopM.
   Variable n : nat.
   Variable M : TM sig n.
 
-  Let reg_state := @registered_finType (state M).
+  Let reg_state := @encodable_finType (state M).
   Existing Instance reg_state.
 
   Let eqb_state := eqbFinType_inst (X:=state M).
@@ -71,7 +71,7 @@ Section loopM.
   Global Instance term_loopM :
     computable (loopM (M:=M)).
   Proof.
-    unfold loopM. (* as loop is already an registered instance, this here is a bit out of the scope. Therefore, we unfold manually here. *)
+    unfold loopM. (* as loop is already an encodable instance, this here is a bit out of the scope. Therefore, we unfold manually here. *)
     extract.
   Qed.
 

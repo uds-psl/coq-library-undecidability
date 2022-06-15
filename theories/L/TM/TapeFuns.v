@@ -6,7 +6,7 @@ From Undecidability.TM Require Import Util.TM_facts.
 
 Section fix_sig.
   Variable sig : Type.
-  Context `{reg_sig : registered sig}.
+  Context `{reg_sig : encodable sig}.
 
   Section reg_tapes.
 
@@ -75,7 +75,7 @@ Section fix_sig.
 End fix_sig.
 
 Global
-Instance term_loop A `{registered A} :
+Instance term_loop A `{encodable A} :
   computable (@loop A).
 Proof.
   extract.

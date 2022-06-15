@@ -1,5 +1,6 @@
 From Undecidability.L Require Import Tactics.Computable Lproc Lbeta ComputableTime mixedTactics.
 Import L_Notations.
+Require Import Lia.
 
 (* *** Lrewrite: simplification with correctness statements*)
 

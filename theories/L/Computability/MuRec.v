@@ -1,3 +1,4 @@
+Require Import Undecidability.Shared.Libs.PSL.Base.
 From Undecidability.L Require Export Datatypes.LNat Datatypes.LBool.
 
 Section MuRecursor.
@@ -41,7 +42,6 @@ Proof using P_proc.
   intros R. recStep mu'. Lsimpl. rewrite R. unfold K. now Lsimpl.
 Qed.
 
-(* TODO: mu' sound*)
 Lemma mu'_sound v n: proc v -> mu' P (ext (n:nat)) == v ->
                      (forall n', n' < n -> P (ext n') == ext false) ->
                      exists n0, n0 >= n /\ P (ext n0) == ext true /\ v == ext n0
@@ -54,7 +54,8 @@ Proof using P_proc dec'_P.
    destruct (parametrized_confluence uniform_confluence R R') as [x [l [u [le1 [le2 [R1 [R2 eq']]]]]]]. destruct x.
    +inv R1. apply IH in R2 as [n0 [ge1 [Rn0 [eq0 H0]]]].
     *exists n0. repeat split;try assumption;lia.
-    *decide (l=k);[|lia]. subst l. assert (k'=0) by lia. subst k'. inv R'. apply inj_enc in H1. lia.
+    *decide (l=k);[|lia]. subst l. assert (k'=0) by lia. subst k'. inv R'.
+     apply inj_enc in H1. lia.
     *intros. decide (n'=n). subst. tauto.  apply H. lia.
    +destruct R1 as [? [C _]]. destruct pv as [_ [v']]. subst v. inv C.
 Qed.

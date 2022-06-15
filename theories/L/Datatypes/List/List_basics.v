@@ -1,27 +1,28 @@
 From Undecidability.L.Tactics Require Import LTactics.
 From Undecidability.L.Datatypes Require Export List.List_enc LBool LNat LOptions.
 From Undecidability.Shared.Libs.PSL.Lists Require Export Filter.
+From Coq Require Import List. Import ListNotations.
 
 #[global]
-Instance termT_append X {intX : registered X} : computable (@List.app X).
+Instance termT_append X {intX : encodable X} : computable (@List.app X).
 Proof.
   extract.
 Qed.
   
 #[global]
-Instance term_map (X Y:Type) (Hx : registered X) (Hy:registered Y): computable (@map X Y).
+Instance term_map (X Y:Type) (Hx : encodable X) (Hy:encodable Y): computable (@map X Y).
 Proof.
   extract.
 Qed.
 
 #[global]
-Instance termT_rev_append X `{registered X}: computable (@rev_append X).
+Instance termT_rev_append X `{encodable X}: computable (@rev_append X).
 Proof.
   extract.
 Qed.
 
 #[global]
-Instance termT_rev X `{registered X}: computable (@rev X).
+Instance termT_rev X `{encodable X}: computable (@rev X).
 Proof.
   eapply computableExt with (x:= fun l => rev_append l []).
   {intro. rewrite rev_alt. reflexivity. }
@@ -37,7 +38,7 @@ Qed.
 
 Section Fix_X.
   Variable (X:Type).
-  Context {intX : registered X}.
+  Context {intX : encodable X}.
 
   Global Instance term_filter_notime: computable (@filter X).
   Proof using intX.
@@ -52,19 +53,19 @@ Section Fix_X.
 End Fix_X.
 
 #[global]
-Instance termT_nth_error (X:Type) (Hx : registered X): computable (@nth_error X). 
+Instance termT_nth_error (X:Type) (Hx : encodable X): computable (@nth_error X). 
 Proof.
   extract.
 Qed.
 
 #[global]
-Instance termT_length X `{registered X} : computable (@length X).
+Instance termT_length X `{encodable X} : computable (@length X).
 Proof.
   extract.
 Qed.
 
 #[global]
-Instance term_nth X (Hx : registered X) : computable (@nth X). 
+Instance term_nth X (Hx : encodable X) : computable (@nth X). 
 Proof.
   extract.
 Qed.
@@ -72,7 +73,7 @@ Qed.
 (* prodLists *)
 Section fixprodLists. 
   Variable (X Y : Type).
-  Context `{Xint : registered X} `{Yint : registered Y}.
+  Context `{Xint : encodable X} `{Yint : encodable Y}.
 
   #[global]
   Instance term_prodLists : computable (@list_prod X Y). 

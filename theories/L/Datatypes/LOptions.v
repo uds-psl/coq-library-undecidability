@@ -3,10 +3,13 @@ From Undecidability.L Require Import Tactics.LTactics Datatypes.LBool Tactics.Ge
 (* ** Encoding of option type *)
 Section Fix_X.
   Variable X:Type.
-  Context {intX : registered X}.
+  Context {intX : encodable X}.
 
   MetaCoq Run (tmGenEncode "option_enc" (option X)).
   Hint Resolve option_enc_correct : Lrewrite.
+
+  Global Instance encInj_option_enc {H : encInj intX} : encInj (encodable_option_enc).
+  Proof. register_inj. Qed. 
 
   (* now we must register the non-constant constructors*)
 
@@ -42,7 +45,7 @@ End option_eqb.
 Section int.
 
   Variable X:Type.
-  Context {HX : registered X}.
+  Context {HX : encodable X}.
 
   Global Instance term_option_eqb : computable (@option_eqb X).
   Proof.
@@ -59,7 +62,7 @@ End int.
 Definition isSome {T} (u : option T) := match u with Some _ => true | _ => false end.
 
 #[global]
-Instance term_isSome {T} `{registered T} : computable (@isSome T).
+Instance term_isSome {T} `{encodable T} : computable (@isSome T).
 Proof.
   extract.
 Qed.

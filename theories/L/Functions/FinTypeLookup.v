@@ -5,7 +5,7 @@ From Undecidability.L.Datatypes.List Require Import List_enc.
 Section Lookup.
   Variable X Y : Type.
   Variable eqbX : X -> X -> bool.
-  Context {HX : registered X}.
+  Context {HX : encodable X}.
   Context {H1eqbX : eqbClass eqbX} {H2eqbX : computable eqbX}.
 
   Fixpoint lookup (x:X) (A:list (X*Y)) d: Y :=
@@ -15,7 +15,7 @@ Section Lookup.
       if eqb x key then Lproc else lookup x A d
     end.
 
-  Global Instance term_lookup `{registered Y} :
+  Global Instance term_lookup `{encodable Y} :
     computable (lookup).
   Proof using HX H1eqbX H2eqbX.
     unfold lookup. unfold eqb.

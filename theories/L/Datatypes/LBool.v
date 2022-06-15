@@ -1,5 +1,7 @@
 From Undecidability.L Require Export Util.L_facts.
 From Undecidability.L.Tactics Require Import LTactics GenEncode.
+From Coq Require Export Bool.
+
 (* ** Encoding of booleans *)
 
 (* Definition bool_enc (b:bool) : term:= *)

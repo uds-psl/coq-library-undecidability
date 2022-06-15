@@ -1,3 +1,4 @@
+Require Import Undecidability.Shared.Libs.PSL.Base.
 From Undecidability.L Require Import Computability.Computability Computability.MuRec.
 From Undecidability.L.Datatypes Require Import LNat LOptions LProd.
 From Undecidability.L.Datatypes.List Require Import List_basics List_eqb List_enc.

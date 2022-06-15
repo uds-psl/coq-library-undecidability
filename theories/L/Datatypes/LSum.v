@@ -6,11 +6,14 @@ Section Fix_XY.
 
   Variable X Y:Type.
   
-  Variable intX : registered X.
-  Variable intY : registered Y.
+  Variable intX : encodable X.
+  Variable intY : encodable Y.
 
   MetaCoq Run (tmGenEncode "sum_enc" (X + Y)).
   Hint Resolve sum_enc_correct : Lrewrite.
+  
+  Global Instance encInj_sum_enc {H : encInj intX} {H' : encInj intY} : encInj (encodable_sum_enc).
+  Proof. register_inj. Qed. 
   
   (* now we must register the non-constant constructors*)
   
@@ -54,7 +57,7 @@ End sum_eqb.
 Section int.
 
   Variable X Y:Type.
-  Context {HX : registered X} {HY : registered Y}.
+  Context {HX : encodable X} {HY : encodable Y}.
 
   Global Instance eqbSum f g `{eqbClass (X:=X) f} `{eqbClass (X:=Y) g}:
     eqbClass (sum_eqb f g).

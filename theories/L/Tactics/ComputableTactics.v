@@ -1,5 +1,5 @@
-Require Import Undecidability.Shared.Libs.PSL.Bijection MetaCoq.Template.All Strings.Ascii.
-From Undecidability.L Require Import Prelim.StringBase.
+Require Import Undecidability.Shared.Libs.PSL.Base.
+Require Import Undecidability.Shared.Libs.PSL.Bijection MetaCoq.Template.All Strings.Ascii String.
 From Undecidability.L.Tactics Require Import Lproc Computable ComputableTime Lsimpl mixedTactics Lbeta Lrewrite.
 Require Export Ring Arith Lia.
 Import L_Notations.

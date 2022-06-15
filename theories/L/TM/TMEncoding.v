@@ -12,7 +12,7 @@ Import L_Notations.
 (* ** Extraction of Turing Machine interpreter  *)
 
 Import GenEncode.
-MetaCoq Run (tmGenEncode "move_enc" move).
+MetaCoq Run (tmGenEncodeInj "move_enc" move).
 #[export] Hint Resolve move_enc_correct : Lrewrite.
 
 Import TM.
@@ -44,7 +44,7 @@ Qed.
 (* *** Encoding Tapes *)
 Section reg_tapes.
   Variable sig : Type.
-  Context `{reg_sig : registered sig}.
+  Context `{reg_sig : encodable sig}.
 
   
   Implicit Type (t : TM.tape sig).
@@ -74,37 +74,36 @@ End reg_tapes.
 
 Section fix_sig.
   Variable sig : finType.
-  Context `{reg_sig : registered sig}.
+  Context `{reg_sig : encodable sig}.
 
 
   Definition mconfigAsPair {B : finType} {n} (c:mconfig sig B n):= let (x,y) := c in (x,y).
 
-  Global Instance registered_mconfig (B : finType) `{registered B} n: registered (mconfig sig B n).
+  Global Instance encodable_mconfig (B : finType) `{encodable B} n: encodable (mconfig sig B n).
   Proof using reg_sig.
-    eapply (registerAs mconfigAsPair). clear.
-    register_inj.
+    eapply (registerAs mconfigAsPair).
   Defined. (* because registerAs *)
 
-  Global Instance term_mconfigAsPair (B : finType) `{registered B} n: computable (@mconfigAsPair B n).
+  Global Instance term_mconfigAsPair (B : finType) `{encodable B} n: computable (@mconfigAsPair B n).
   Proof.
     apply cast_computable.
   Qed.
 
-  Global Instance term_cstate (B : finType) `{registered B} n: computable (@cstate sig B n).
+  Global Instance term_cstate (B : finType) `{encodable B} n: computable (@cstate sig B n).
   Proof.
     apply computableExt with (x:=fun x => fst (mconfigAsPair x)).
     2:{extract. }
     intros [];reflexivity.
   Qed.
 
-  Global Instance term_ctapes (B : finType) `{registered B} n: computable (@ctapes sig B n).
+  Global Instance term_ctapes (B : finType) `{encodable B} n: computable (@ctapes sig B n).
   Proof.
     apply computableExt with (x:=fun x => snd (mconfigAsPair x)).
     2:{extract. }
     intros [];reflexivity.
   Qed.
 
-  Global Instance registered_mk_mconfig (B : finType) `{registered B} n: computable (@mk_mconfig sig B n).
+  Global Instance encodable_mk_mconfig (B : finType) `{encodable B} n: computable (@mk_mconfig sig B n).
   Proof.
     computable_casted_result.
     extract.

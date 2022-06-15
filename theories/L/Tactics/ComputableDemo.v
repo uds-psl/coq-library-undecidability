@@ -1,6 +1,7 @@
-From Undecidability.L.Datatypes Require Import LOptions LBool LNat Lists.
+From Undecidability.L.Datatypes Require Import LOptions LBool LNat List.List_basics.
 From Undecidability.L.Tactics Require Import LTactics ComputableTactics.
-Require Import Nat.
+
+Require Import List Nat.
 
 Section demo.
 
@@ -138,7 +139,7 @@ Section PaperExample.
 
   
 
-  Import Datatypes.Lists.
+  
   Remove Hints term_map : typeclass_instances. 
 
   Lemma map_term A B  (Rx : encodable A)  (Ry: encodable B):
@@ -151,6 +152,7 @@ Section PaperExample.
     all:cstep.
   Qed.
 
+  (* computableTime
   (*comming up with the condition *)
 
    Lemma termT_map A B (Rx : encodable A)  (Ry: encodable B):
@@ -178,7 +180,7 @@ Section PaperExample.
     extract.
     solverec.
   Qed.
-
+  *)
   End PaperExample. 
 
 

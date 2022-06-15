@@ -40,7 +40,7 @@ Lemma MTM_TM_iff {sig n} {M : TM sig n} {ts : Vector.t (tape sig) n} :
 Proof. by apply: MTM_TM.MTM_to_stM_correct. Qed.
 
 Lemma MMA_TM_iff {n MM} {cs : Vector.t nat n}  : 
-  MMA_HALTING (MM, cs) <->
+  MMA_HALTING n (MM, cs) <->
   HaltsTM (MMA_TM.P MM) (MMA_TM.encode_counters cs).
 Proof.
   split.
@@ -50,7 +50,7 @@ Qed.
 
 Lemma KM_MMA_iff {tm} : (forall sigma, wCBN.subst sigma tm = tm) ->
   KrivineM_HALT tm <->
-  MMA_HALTING (KM_MMA.PROG 1, KM_MMA.input tm).
+  MMA_HALTING 5 (KM_MMA.PROG 1, KM_MMA.input tm).
 Proof.
   move=> /Krivine_facts.eclosed_closed ?. split.
   - by apply: KM_MMA.simulation.
