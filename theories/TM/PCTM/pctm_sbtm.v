@@ -21,6 +21,7 @@ From Undecidability.TM
 Import ListNotations SBTMNotations PCTMNotations.
 
 Set Implicit Arguments.
+Set Default Goal Selector "!".
 
 #[local] Notation "i // s -1> t" := (pctm_sss i s t).
 #[local] Notation "P // s -[ k ]-> t" := (sss_steps pctm_sss P k s t).
@@ -130,7 +131,7 @@ Section SBTM_PCTM.
       let '(o0,b0,d0,j0) := f (trans' M (s,false))
       in sbtm_op (2+9*pos2nat s) o0 o1 b0 b1 d0 d1 (2+9*j0) (2+9*j1) 0.
 
-    Let length_g s : length (g s) = 9.
+    Local Fact length_g s : length (g s) = 9.
     Proof.
       unfold g.
       destruct (f (trans' M (s,true))) as (((?,?),?),?).
@@ -138,13 +139,13 @@ Section SBTM_PCTM.
       apply sbtm_op_length.
     Qed.
 
-    Let fm_length l : length (flat_map g l) = 9*length l.
+    Local Fact fm_length l : length (flat_map g l) = 9*length l.
     Proof.
       induction l as [ | s l IHl ]; auto.
       simpl flat_map; rewrite app_length, IHl, length_g; simpl; lia.
     Qed.
 
-    Let gs_sc l s r : (2+9*length l,g s) <sc (2,flat_map g (l++s::r)).
+    Local Fact gs_sc l s r : (2+9*length l,g s) <sc (2,flat_map g (l++s::r)).
     Proof.
       exists (flat_map g l), (flat_map g r); split.
       + rewrite flat_map_app; auto.
@@ -155,20 +156,20 @@ Section SBTM_PCTM.
 
     Let Q := flat_map g (pos_list _).
  
-    Fact Q_length : length Q = 9*num_states M.
+    Local Fact Q_length : length Q = 9*num_states M.
     Proof. 
       unfold Q.
       now rewrite fm_length, pos_list_length.
     Qed.
 
-    Let Q_sc i : (2+9*pos2nat i, g i) <sc (2,Q).
+    Local Fact Q_sc i : (2+9*pos2nat i, g i) <sc (2,Q).
     Proof.
       unfold Q.
       destruct (pos_list_split i) as (l & r & -> & <-).
       apply gs_sc.
     Qed.
 
-    Let Q_step_None i t : 
+    Local Fact Q_step_None i t : 
           step M (i,t) = None 
        -> (2,Q) // (2+9*pos2nat i,t) -+> (0,t).
     Proof.
@@ -189,7 +190,7 @@ Section SBTM_PCTM.
         apply (sbtm_op_spec (2+9*pos2nat i) false o1 false b1 go_left d1 (2+9*0) (2+9*j1) 0 (l,false,r) eq_refl).
     Qed.
 
-    Let Q_step_Some i t j t' : 
+    Local Fact Q_step_Some i t j t' : 
           step M (i,t) = Some (j,t') 
        -> (2,Q) // (2+9*pos2nat i,t) -+> (2+9*pos2nat j,t').
     Proof.
@@ -212,7 +213,7 @@ Section SBTM_PCTM.
         apply (sbtm_op_spec (2+9*pos2nat i) true o1 b0 b1 d0 d1 (2+9*pos2nat j0) (2+9*j1) 0 (l,false,r) eq_refl).
     Qed.
 
-    Let steps_Q k i t : 
+    Local Fact steps_Q k i t : 
       match steps M k (i,t) with
         | None => exists t', (2,Q) // (2+9*pos2nat i,t) ->> (0,t') 
         | Some (j,t') =>     (2,Q) // (2+9*pos2nat i,t) ->> (2+9*pos2nat j,t')
@@ -234,7 +235,7 @@ Section SBTM_PCTM.
         * intros E1; rewrite E1 in IHk; auto.
     Qed.
 
-    Let Q_steps i t :
+    Local Fact Q_steps i t :
            (2,Q) // (2+9*pos2nat i,t) ↓
         -> exists k, steps M k (i,t) = None.
     Proof.
