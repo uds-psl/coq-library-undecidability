@@ -23,12 +23,12 @@ From Undecidability.StackMachines.BSM
 
 Set Implicit Arguments.
 
-Theorem reduction : PCTM_HALT ⪯ BSM_HALTING.
+Theorem reduction : PCTM_HALT ⪯ BSMn_HALTING 2.
 Proof.
   apply reduces_dependent; exists.
   intros (P,((l,b),r)).
   set (Q := gc_code pctm_bsm2_compiler (1,P) 1).
   set (w1 := l##(b::r)##vec_nil).
-  exists (existT _ 2 (existT _ 1 (existT _ Q w1))); simpl.
+  exists (existT _ 1 (existT _ Q w1)); simpl.
   apply compiler_t_term_equiv; split; auto.
 Qed.

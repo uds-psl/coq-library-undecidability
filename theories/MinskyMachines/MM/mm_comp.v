@@ -20,10 +20,9 @@ From Undecidability.MinskyMachines.MM
   Require Import mm_defs mm_utils.
 
 Set Implicit Arguments.
-
 Set Default Goal Selector "!".
 
-(* ** BSM recues to MM *)
+(* ** BSM reduces to MM *)
 
 Tactic Notation "rew" "length" := autorewrite with length_db.
 

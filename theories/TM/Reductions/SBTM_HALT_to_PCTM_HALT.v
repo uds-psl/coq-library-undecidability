@@ -20,9 +20,7 @@ From Undecidability.TM
 
 Set Implicit Arguments.
 
-Set Default Proof Using "Type".
-
-Theorem SBTM_PCTM_reduction : SBTM_HALT ⪯ PCTM_HALT.
+Theorem reduction : SBTM_HALT ⪯ PCTM_HALT.
 Proof.
   apply reduces_dependent; exists.
   intros (M,(i,t)).

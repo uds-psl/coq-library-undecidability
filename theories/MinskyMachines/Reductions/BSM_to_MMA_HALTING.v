@@ -8,18 +8,23 @@
 (**************************************************************)
 
 From Undecidability.Shared.Libs.DLW 
-  Require Import godel_coding pos vec sss compiler_correction.
+  Require Import utils list_bool pos vec sss compiler_correction.
+
+From Undecidability.StackMachines
+  Require Import bsm_defs.
 
 From Undecidability.MinskyMachines.MMA
-  Require Import mma_defs mma4_mma2_compiler.
+  Require Import mma_defs mma_utils_bsm bsm_mma.
 
 From Undecidability.Synthetic
   Require Import Definitions ReducibilityFacts.
 
-Theorem reduction : @MMA_HALTING 4 ⪯ @MMA_HALTING 2.
+Theorem reduction n : BSMn_HALTING n ⪯ MMA_HALTING (1+n).
 Proof.
   apply reduces_dependent; exists.
-  intros (P,v).
-  exists (gc_code mma4_mma2_compiler (1, P) 1, 0##gc_enc godel_coding_2357 v##vec_nil).
-  now apply (compiler_t_term_equiv mma4_mma2_compiler).
+  intros (i,(P,v)).
+  exists (gc_code (bsm_mma_compiler _) (i, P) 1, 0##vec_map stack_enc v).
+  apply (compiler_t_term_equiv (bsm_mma_compiler n) (i,P) 1); simpl; split; auto.
+  intros; rew vec.
 Qed.
+

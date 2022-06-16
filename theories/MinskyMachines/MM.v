@@ -43,12 +43,14 @@ Inductive mm_instr (X : Set) : Set :=
   | mm_dec : X -> nat -> mm_instr X
   .
 
+Arguments mm_inc {_}.
+Arguments mm_dec {_}.
+
 Notation INC := mm_inc.
 Notation DEC := mm_dec.
 
 Notation INCₐ := mm_inc.
 Notation DECₐ := mm_dec.
-
 
 (* ** Semantics for MM, restricted to X = pos n for some n *)
 
@@ -106,8 +108,8 @@ Section MMA_problems.
 
   Definition MMA_PROBLEM n := (list (mm_instr (pos n)) * vec nat n)%type.
 
-  Definition MMA_HALTS_ON_ZERO {n} (P : MMA_PROBLEM n) := (1,fst P) // (1,snd P) ~~> (0,vec_zero).
-  Definition MMA_HALTING {n} (P : MMA_PROBLEM n) := (1,fst P) // (1,snd P) ↓.
+  Definition MMA_HALTS_ON_ZERO n (P : MMA_PROBLEM n) := (1,fst P) // (1,snd P) ~~> (0,vec_zero).
+  Definition MMA_HALTING n (P : MMA_PROBLEM n) := (1,fst P) // (1,snd P) ↓.
 
   Definition MMA2_PROBLEM := MMA_PROBLEM 2.
 
@@ -115,4 +117,6 @@ Section MMA_problems.
   Definition MMA2_HALTING := @MMA_HALTING 2.
 
 End MMA_problems.
+
+Arguments MMA_HALTING : clear implicits.
 

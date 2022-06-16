@@ -290,6 +290,7 @@ MinskyMachines/MMA2_undec.v
 MinskyMachines/ndMM2_undec.v    
 
 MinskyMachines/Reductions/BSM_MM.v
+MinskyMachines/Reductions/BSM_to_MMA_HALTING.v
 MinskyMachines/Reductions/PCPb_to_MM.v
 MinskyMachines/Reductions/HaltTM_1_to_MM.v
 MinskyMachines/Reductions/FRACTRAN_to_MMA2.v
@@ -302,7 +303,7 @@ MinskyMachines/Reductions/MM2_to_ndMM2_ACCEPT.v
 MinskyMachines/Reductions/MMA2_to_ndMM2_ACCEPT.v
 MinskyMachines/Reductions/KrivineMclosed_HALT_to_MMA_HALTING.v
 MinskyMachines/Reductions/MMA3_to_MMA2_HALTING.v
-MinskyMachines/Reductions/MMA4_to_MMA2_HALTING.v
+MinskyMachines/Reductions/SBTM_to_MMA2_HALTING.v
 
 MinskyMachines/Deciders/MPM2_HALT_dec.v
 MinskyMachines/Deciders/MM_2_HALTING_dec.v
@@ -313,12 +314,13 @@ MinskyMachines/MM/mm_comp.v
 MinskyMachines/MM/mm_no_self.v      
 
 MinskyMachines/MMA/mma_defs.v       
-MinskyMachines/MMA/mma_utils.v      
-MinskyMachines/MMA/mma_simul.v      
+MinskyMachines/MMA/mma_utils.v
+MinskyMachines/MMA/mma_utils_bsm.v
+MinskyMachines/MMA/mma_simul.v
+MinskyMachines/MMA/bsm_mma.v
 MinskyMachines/MMA/fractran_mma.v  
 MinskyMachines/MMA/mma_k_mma_2_compiler.v 
 MinskyMachines/MMA/mma3_mma2_compiler.v 
-MinskyMachines/MMA/mma4_mma2_compiler.v 
 
 MinskyMachines/MMenv/env.v          
 MinskyMachines/MMenv/mme_defs.v     
