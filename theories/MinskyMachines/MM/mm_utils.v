@@ -389,9 +389,9 @@ Section Minsky_Machine_utils.
   Fact stack_enc_S s : { k | stack_enc s = S k }.
   Proof.
     induction s as [ | [] s (k & Hk) ].
-    exists 0; auto.
-    exists (2*stack_enc s); auto.
-    exists (S (2*k)); simpl; lia.
+    + exists 0; auto.
+    + exists (2*stack_enc s); auto.
+    + exists (S (2*k)); simpl; lia.
   Qed.
 
   Section push.
@@ -456,15 +456,15 @@ Section Minsky_Machine_utils.
 
   Section pop.
 
-(*
+    (*
 
-  div2 n a1 a2 addr1 addr2, suppose a1 = 0 et a2 = 0
+      div2 n a1 a2 addr1 addr2, suppose a1 = 0 et a2 = 0
 
-  H 001001 B -> 001001_1 -> 0 + 01001_1 || 2*n + 0 -> 0 & n si n <> 0
-  H 101001 B -> 101001_1 -> 1 + 01001_1 || 2*n + 1 -> 1 & n si n <> 0
-  H ø      B -> ø_1      -> ERROR       || n = 0 (impossible) et n = 1 error
+      H 001001 B -> 001001_1 -> 0 + 01001_1 || 2*n + 0 -> 0 & n si n <> 0
+      H 101001 B -> 101001_1 -> 1 + 01001_1 || 2*n + 1 -> 1 & n si n <> 0
+      H ø      B -> ø_1      -> ERROR       || n = 0 (impossible) et n = 1 error
 
-*)
+    *)
 
     Variables (src tmp1 tmp2 zero : pos n)
               (Hs1 : src <> tmp1) (Hs2 : src <> tmp2) (Hsz : src <> zero)

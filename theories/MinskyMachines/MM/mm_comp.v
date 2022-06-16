@@ -17,7 +17,7 @@ From Undecidability.StackMachines.BSM
   Require Import bsm_defs.
 
 From Undecidability.MinskyMachines.MM
-  Require Import mm_defs mm_utils. 
+  Require Import mm_defs mm_utils.
 
 Set Implicit Arguments.
 
