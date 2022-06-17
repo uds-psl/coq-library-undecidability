@@ -17,6 +17,7 @@ From Undecidability.Shared.Libs.DLW.Vec
   Require Import pos.
 
 Set Implicit Arguments.
+Set Default Goal Selector "!".
 
 Notation vec_nil := (@Vector.nil _).
 Notation "x ## v" := (@Vector.cons _ x _ v) (at level 60, right associativity).
@@ -101,12 +102,12 @@ Section vector.
   Fact vec_pos_ext n (v w : vec n) : (forall p, vec_pos v p = vec_pos w p) -> v = w.
   Proof.
     revert v w; induction n as [ | n IHn ]; intros v w H.
-    rewrite (vec_0_nil v), (vec_0_nil w); auto.
+    1: rewrite (vec_0_nil v), (vec_0_nil w); auto.
     revert H; rewrite (vec_head_tail v), (vec_head_tail w); f_equal.
     intros H; f_equal.
-    apply (H pos0).
-    apply IHn.
-    intros p; apply (H (pos_nxt p)).
+    + apply (H pos0).
+    + apply IHn.
+      intros p; apply (H (pos_nxt p)).
   Qed.
 
   Fixpoint vec_set_pos n : (pos n -> X) -> vec n :=
@@ -224,11 +225,11 @@ Section vector.
   Fact vec_list_inv n v x : In x (@vec_list n v) -> exists p, x = vec_pos v p.
   Proof.
     induction v as [ | n y v IHl ].
-    intros [].
+    1: intros [].
     intros [ H | H ]; subst.
-    exists pos0; auto.
-    destruct IHl as (p & Hp); auto.
-    subst; exists (pos_nxt p); auto.
+    + exists pos0; auto.
+    + destruct IHl as (p & Hp); auto.
+      subst; exists (pos_nxt p); auto.
   Qed.
  
   Fact vec_list_In_iff n v x : In x (@vec_list n v) <-> exists p, x = vec_pos v p.
@@ -621,7 +622,7 @@ Fixpoint vec_sum n (v : vec nat n) :=
 Fact vec_sum_plus n v w : @vec_sum n (vec_plus v w) = vec_sum v + vec_sum w.
 Proof.
   revert w; induction v; intros w.
-  rewrite (vec_0_nil (vec_plus _ _)), (vec_0_nil w); auto.
+  1: rewrite (vec_0_nil (vec_plus _ _)), (vec_0_nil w); auto.
   rewrite (vec_head_tail w), vec_plus_cons; simpl.
   rewrite IHv; lia.
 Qed.
@@ -632,13 +633,13 @@ Proof. induction n; simpl; auto. Qed.
 Fact vec_sum_one n p : @vec_sum n (vec_one p) = 1.
 Proof.
   revert p; induction n as [ | n IHn ]; intros p.
+  1: invert pos p.
   pos_inv p.
-  pos_inv p.
-  rewrite vec_one_fst.
-  simpl; f_equal; apply vec_sum_zero.
-  rewrite vec_one_nxt.
-  unfold vec_sum; fold vec_sum.
-  rewrite IHn; auto.
+  + rewrite vec_one_fst.
+    simpl; f_equal; apply vec_sum_zero.
+  + rewrite vec_one_nxt.
+    unfold vec_sum; fold vec_sum.
+    rewrite IHn; auto.
 Qed.
   
 Fact vec_sum_is_zero n v : @vec_sum n v = 0 -> v = vec_zero.
@@ -705,8 +706,8 @@ Section vec_map_list.
   Fact vec_map_list_one n p f : vec_map_list (@vec_one n p) f = f p :: @nil X.
   Proof.
     revert f; induction p; intro.
-    rewrite vec_one_fst; simpl; rewrite vec_map_list_zero; auto.
-    rewrite vec_one_nxt; simpl; rewrite IHp; auto.
+    + rewrite vec_one_fst; simpl; rewrite vec_map_list_zero; auto.
+    + rewrite vec_one_nxt; simpl; rewrite IHp; auto.
   Qed.
 
   (* The morphism *)

@@ -128,6 +128,32 @@ Section Minsky_Machine_utils.
 
   End mm_nullify.
 
+  Section mm_zeroify.
+
+    Variable (zero : pos n) (i : nat).
+
+    Let c p := if pos_eq_dec p zero then false else true.
+    Let l := filter c (pos_list n).
+
+    Definition mm_zeroify := mm_nullify zero i l ++ DEC zero 0 :: nil.
+
+    Fact mm_zeroify_spec v : v#>zero = 0 -> (i,mm_zeroify) // (i,v) -+> (0,vec_zero).
+    Proof.
+      intros H; unfold mm_zeroify.
+      apply sss_compute_progress_trans with (length (mm_nullify zero i l)+i,vec_zero).
+      + apply subcode_sss_compute with (P := (i,mm_nullify zero i l)); auto.
+        apply mm_nullify_compute; auto; unfold l; intros p; rewrite filter_In; unfold c;
+          destruct (pos_eq_dec p zero); subst; auto.
+        all: try rewrite vec_zero_spec; try rewrite H; auto.
+        * intros []; easy.
+        * intros []; split; auto; apply pos_list_prop.
+      + mm sss DEC zero with zero 0; auto.
+        * now rewrite vec_zero_spec.
+        * mm sss stop.
+    Qed.
+
+  End mm_zeroify.
+
   Section transfert.
 
     Variables (src dst zero : pos n).
@@ -363,9 +389,9 @@ Section Minsky_Machine_utils.
   Fact stack_enc_S s : { k | stack_enc s = S k }.
   Proof.
     induction s as [ | [] s (k & Hk) ].
-    exists 0; auto.
-    exists (2*stack_enc s); auto.
-    exists (S (2*k)); simpl; lia.
+    + exists 0; auto.
+    + exists (2*stack_enc s); auto.
+    + exists (S (2*k)); simpl; lia.
   Qed.
 
   Section push.
@@ -430,15 +456,15 @@ Section Minsky_Machine_utils.
 
   Section pop.
 
-(*
+    (*
 
-  div2 n a1 a2 addr1 addr2, suppose a1 = 0 et a2 = 0
+      div2 n a1 a2 addr1 addr2, suppose a1 = 0 et a2 = 0
 
-  H 001001 B -> 001001_1 -> 0 + 01001_1 || 2*n + 0 -> 0 & n si n <> 0
-  H 101001 B -> 101001_1 -> 1 + 01001_1 || 2*n + 1 -> 1 & n si n <> 0
-  H ø      B -> ø_1      -> ERROR       || n = 0 (impossible) et n = 1 error
+      H 001001 B -> 001001_1 -> 0 + 01001_1 || 2*n + 0 -> 0 & n si n <> 0
+      H 101001 B -> 101001_1 -> 1 + 01001_1 || 2*n + 1 -> 1 & n si n <> 0
+      H ø      B -> ø_1      -> ERROR       || n = 0 (impossible) et n = 1 error
 
-*)
+    *)
 
     Variables (src tmp1 tmp2 zero : pos n)
               (Hs1 : src <> tmp1) (Hs2 : src <> tmp2) (Hsz : src <> zero)

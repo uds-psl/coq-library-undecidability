@@ -7,20 +7,28 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import List Arith Relations Lia.
+Require Import List Bool.
 
-Require Import Undecidability.Synthetic.Definitions.
-Require Import Undecidability.Synthetic.ReducibilityFacts.
+From Undecidability.Synthetic
+  Require Import Undecidability ReducibilityFacts.
 
-From Undecidability.Shared.Libs.DLW Require Import utils pos vec sss subcode.
-From Undecidability.MinskyMachines Require Import mma_defs mma_simul.
+From Undecidability.Shared.Libs.DLW 
+  Require Import pos vec sss compiler_correction.
+
+From Undecidability.TM
+  Require Import PCTM.
+
+From Undecidability.StackMachines.BSM 
+  Require Import bsm_defs bsm_pctm.
 
 Set Implicit Arguments.
 
-Theorem MMA2_MMA2_HALTS_ON_ZERO : MMA2_HALTING ⪯ MMA2_HALTS_ON_ZERO.
+Theorem reduction : PCTM_HALT ⪯ BSMn_HALTING 2.
 Proof.
   apply reduces_dependent; exists.
-  intros (P,v).
-  destruct mma2_simulator with 1 1 P as (Q & HQ).
-  exists (Q,v); apply HQ.
-Qed. 
+  intros (P,((l,b),r)).
+  set (Q := gc_code pctm_bsm2_compiler (1,P) 1).
+  set (w1 := l##(b::r)##vec_nil).
+  exists (existT _ 1 (existT _ Q w1)); simpl.
+  apply compiler_t_term_equiv; split; auto.
+Qed.

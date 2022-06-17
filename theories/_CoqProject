@@ -38,6 +38,11 @@ TM/SBTM.v
 TM/SBTM_enum.v
 TM/SBTM_undec.v
 
+TM/PCTM.v
+TM/PCTM/pctm_defs.v
+TM/PCTM/pctm_sbtm.v
+
+
 StackMachines/BSM.v
 StackMachines/BSM_undec.v
 
@@ -85,6 +90,7 @@ Shared/Libs/DLW/Utils/bool_list.v
 Shared/Libs/DLW/Utils/bool_nat.v
 Shared/Libs/DLW/Utils/gcd.v
 Shared/Libs/DLW/Utils/prime.v
+Shared/Libs/DLW/Utils/godel_coding.v
 Shared/Libs/DLW/Utils/power_decomp.v
 Shared/Libs/DLW/Utils/bounded_quantification.v
 Shared/Libs/DLW/Utils/php.v
@@ -284,6 +290,7 @@ MinskyMachines/MMA2_undec.v
 MinskyMachines/ndMM2_undec.v    
 
 MinskyMachines/Reductions/BSM_MM.v
+MinskyMachines/Reductions/BSM_to_MMA_HALTING.v
 MinskyMachines/Reductions/PCPb_to_MM.v
 MinskyMachines/Reductions/HaltTM_1_to_MM.v
 MinskyMachines/Reductions/FRACTRAN_to_MMA2.v
@@ -295,6 +302,8 @@ MinskyMachines/Reductions/BSM_HALTING_to_MM2_HALTING.v
 MinskyMachines/Reductions/MM2_to_ndMM2_ACCEPT.v
 MinskyMachines/Reductions/MMA2_to_ndMM2_ACCEPT.v
 MinskyMachines/Reductions/KrivineMclosed_HALT_to_MMA_HALTING.v
+MinskyMachines/Reductions/MMA3_to_MMA2_HALTING.v
+MinskyMachines/Reductions/SBTM_to_MMA2_HALTING.v
 
 MinskyMachines/Deciders/MPM2_HALT_dec.v
 MinskyMachines/Deciders/MM_2_HALTING_dec.v
@@ -305,9 +314,13 @@ MinskyMachines/MM/mm_comp.v
 MinskyMachines/MM/mm_no_self.v      
 
 MinskyMachines/MMA/mma_defs.v       
-MinskyMachines/MMA/mma_utils.v      
-MinskyMachines/MMA/mma_simul.v      
-MinskyMachines/MMA/fractran_mma.v   
+MinskyMachines/MMA/mma_utils.v
+MinskyMachines/MMA/mma_utils_bsm.v
+MinskyMachines/MMA/mma_simul.v
+MinskyMachines/MMA/bsm_mma.v
+MinskyMachines/MMA/fractran_mma.v  
+MinskyMachines/MMA/mma_k_mma_2_compiler.v 
+MinskyMachines/MMA/mma3_mma2_compiler.v 
 
 MinskyMachines/MMenv/env.v          
 MinskyMachines/MMenv/mme_defs.v     
@@ -489,6 +502,7 @@ TM/PrettyBounds/SizeBounds.v
 TM/Reductions/mTM_to_TM.v
 TM/Reductions/HaltTM_1_to_SBTM_HALT.v
 TM/Reductions/SBTM_HALT_to_HaltTM_1.v
+TM/Reductions/SBTM_HALT_to_PCTM_HALT.v
 TM/Reductions/MMA_HALTING_n_to_HaltTM_n.v
 
 TM/Enumerators/SBTM_HALT_enum.v
@@ -760,6 +774,7 @@ StackMachines/BSM/bsm_defs.v
 StackMachines/BSM/bsm_utils.v
 StackMachines/BSM/bsm_pcp.v
 StackMachines/BSM/tiles_solvable.v
+StackMachines/BSM/bsm_pctm.v
 
 StackMachines/Util/Facts.v
 StackMachines/Util/Nat_facts.v
@@ -777,6 +792,8 @@ StackMachines/Reductions/SMNdl_UB_to_CSSM_UB.v
 StackMachines/Reductions/HaltTM_1_to_CSSM_UB.v
 StackMachines/Reductions/iPCPb_to_BSM_HALTING.v
 StackMachines/Reductions/SBTM_HALT_to_HaltBSM.v
+StackMachines/Reductions/PCTM_HALT_to_BSM_HALTING.v
+
 
 SemiUnification/SemiU.v
 SemiUnification/SemiU_undec.v

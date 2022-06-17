@@ -142,6 +142,11 @@ Section divides.
     rewrite mult_comm; apply divides_mult; auto.
   Qed.
 
+  Fact divides_left x k : divides x (x*k).
+  Proof.
+    apply divides_mult_r, divides_refl. 
+  Qed.
+
   Fact divides_mult_compat a b c d : a div b -> c div d -> a*c div b*d.
   Proof. 
     intros (u & ?) (v & ?); exists (u*v); subst.

@@ -7,8 +7,8 @@
 (*         CeCILL v2 FREE SOFTWARE LICENSE AGREEMENT          *)
 (**************************************************************)
 
-Require Import Undecidability.Synthetic.Definitions.
-Require Import Undecidability.Synthetic.ReducibilityFacts.
+From Undecidability.Synthetic 
+  Require Import Definitions ReducibilityFacts.
 
 From Undecidability.PCP              Require Import PCP PCPb_iff_iPCPb.
 From Undecidability.StackMachines    Require Import BSM iPCPb_to_BSM_HALTING.

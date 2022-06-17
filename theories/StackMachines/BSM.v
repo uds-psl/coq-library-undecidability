@@ -58,13 +58,17 @@ Section Binary_Stack_Machine.
 End Binary_Stack_Machine.
 
 (* The Halting problem for BSM *)
-  
-Definition BSM_PROBLEM := { n : nat & { i : nat & { P : list (bsm_instr n) & vec (list bool) n } } }.
+
+Definition BSMn_PROBLEM n := { i : nat & { P : list (bsm_instr n) & vec (list bool) n } }.
+Definition BSM_PROBLEM := { n : nat & BSMn_PROBLEM n }.
 
 Local Notation "P // s ↓" := (sss_terminates (@bsm_sss _) P s).
+
+Definition BSMn_HALTING n (P : BSMn_PROBLEM n) :=
+  match P with existT _ i (existT _ P v) => (i,P) // (i,v) ↓ end.
+
+Arguments BSMn_HALTING : clear implicits.
 
 Definition BSM_HALTING (P : BSM_PROBLEM) := 
   match P with existT _ n (existT _ i (existT _ P v)) => (i,P) // (i,v) ↓ end.
 
-
-     
