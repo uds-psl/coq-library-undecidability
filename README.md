@@ -43,9 +43,10 @@ Target problems are very expressive and thus work well as targets for reduction,
 - Halting problem for the weak call-by-value lambda-calculus (`HaltL` in [`L/L.v`](theories/L/L.v))
 - Halting problem for multi-tape Turing machines (`HaltMTM` in [`TM/TM.v`](theories/TM/TM.v))
 - Halting problem for single-tape Turing machines (`HaltTM 1` in [`TM/TM.v`](theories/TM/TM.v))
-- Halting problem for simple binary single-tape Turing machines (`HaltSBTM`) in [`TM/SBTM.v`](theories/TM/SBTM.v)
+- Halting problem for simple binary single-tape Turing machines (`HaltSBTM` in [`TM/SBTM.v`](theories/TM/SBTM.v))
+- Halting problem for program counter based binary single-tape Turing machines (`PCTM_HALT` in [`TM/PCTM.v`](theories/TM/PCTM.v))
 - Halting problem for Binary Stack Machines (`BSM_HALTING` in [`StackMachines/BSM.v`](theories/StackMachines/BSM.v))
-- Halting problem for Minsky machines (`MM_HALTING` in [`MinskyMachines/MM.v`](theories/MinskyMachines/MM.v))
+- Halting problems for Minsky machines (`MM_HALTING`, `MMA_HALTING n` and `MMA2_HALTING` in [`MinskyMachines/MM.v`](theories/MinskyMachines/MM.v))
 - Halting problem for partial recursive functions (`MUREC_HALTING` in [`MuRec/recalg.v`](theories/MuRec/recalg.v))
 - Halting problem for the weak call-by-name lambda-calculus (`wCBN` in [`LambdaCalculus/wCBN.v`](theories/LambdaCalculus/wCBN.v))
 
