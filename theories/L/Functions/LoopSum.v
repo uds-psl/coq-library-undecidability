@@ -4,8 +4,8 @@ Require Export Undecidability.L.Prelim.LoopSum.
 
 Section loopSum.
   Variable X Y : Type.
-  Context `{registered X}.
-  Context `{registered Y}.
+  Context `{encodable X}.
+  Context `{encodable Y}.
 
   Fixpoint time_loopSum (f: X -> X + Y) (fT : timeComplexity (X -> X + Y))
            (n:nat) (x : X) {struct n}:=
@@ -26,7 +26,7 @@ Section loopSum.
 End loopSum.
 
 
-Lemma time_loopSum_bound_onlyByN {X Y} (H : registered X) (H0 : registered Y) (f:X -> X + Y) fT (P: nat -> _ -> Prop) boundL boundR:
+Lemma time_loopSum_bound_onlyByN {X Y} (H : encodable X) (H0 : encodable Y) (f:X -> X + Y) fT (P: nat -> _ -> Prop) boundL boundR:
   (forall n x, P n x -> match f x with
               | inl x' => P (S n) x' /\ fst (fT x tt) <= boundL
               | inr y => forall n', n <= n' -> fst (fT x tt) <= boundL + boundR n'

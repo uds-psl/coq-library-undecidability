@@ -33,11 +33,16 @@ Proof.
   all:autorewrite with list. all:cbn. all:try lia.
 Qed.
 
+Lemma le_length_sizeT P :
+  length P <= sumn (map sizeT P).
+Proof.
+  unfold sizeP. induction P as [|[]];cbn in *;try Lia.lia.
+Qed.
 
 Lemma le_length_sizeP P :
   length P <= sizeP P.
 Proof.
-  unfold sizeP. induction P as [|[]];cbn in *;try Lia.lia.
+  rewrite le_length_sizeT. now unfold sizeP.
 Qed.
 
 

@@ -123,13 +123,14 @@ Proof.
   }
   {
     intros tin k (Q&t&HEncQ&HEncT&HRight&Hk). unfold App_Com_steps in Hk.
-    exists (Constr_nil_steps), (1 + Constr_cons_steps t + 1 + App_steps Q [t] + Reset_steps t). cbn. repeat split; try lia.
+    exists (Constr_nil_steps), (1 + Constr_cons_steps t + 1 + App_steps Q [t] + Reset_steps t). cbn.
+    repeat split; try lia.
     intros tmid_ () (HNil&HInjNil); TMSimp. modpon HNil.
     exists (Constr_cons_steps t), (1 + App_steps Q [t] + Reset_steps t). cbn. repeat split; try lia.
-    now eauto. now rewrite !Nat.add_assoc.
+    now eauto.
     unfold sigPro in *. intros tmid0 () (HCons&HInjCons); TMSimp. modpon HCons.
     exists (App_steps Q [t]), (Reset_steps t). cbn. repeat split; try lia.
-    hnf; cbn. do 2 eexists; repeat split; eauto. reflexivity. 
+    hnf; cbn. do 2 eexists; repeat split; eauto. 
     intros tmid1_ _ (HApp&HInjApp); TMSimp. modpon HApp.
     eexists. split; eauto.
   }

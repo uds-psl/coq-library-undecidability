@@ -92,12 +92,12 @@ Proof.
 Qed.
 
 #[global]
-Instance reg_is_extT ty (R : registered ty) (x : ty): computableTime x tt.
+Instance reg_is_extT ty (R : encodable ty) (x : ty): computableTime x tt.
 Proof.
   exists (enc x). split;constructor. 
 Defined. (* because ? *)
 
-Lemma computesTimeTyB (t:Type) (x:t) `{registered t}: computesTime (TyB t) x (extT x) tt.
+Lemma computesTimeTyB (t:Type) (x:t) `{encodable t}: computesTime (TyB t) x (extT x) tt.
 Proof.
   unfold extT. now destruct H.
 Qed.
@@ -120,7 +120,7 @@ Proof.
   destruct (fInts x xInt xT xInts) as (v&E&fxInts). apply E.
 Qed.
 
-Lemma extT_is_enc t1 (R:registered t1) (x: t1) xT (Hf : computableTime x xT) :
+Lemma extT_is_enc t1 (R:encodable t1) (x: t1) xT (Hf : computableTime x xT) :
   @extT _ _ x xT Hf = enc x.
 Proof.
   unfold extT. 
@@ -206,22 +206,22 @@ Proof.
   intros ? [s ?]. eexists. eauto using computesTimeExt.
 Defined. (* because ? *)
 
-Fixpoint changeResType_TimeComplexity t1 (tt1 : TT t1) Y {R: registered Y} {struct tt1}:
+Fixpoint changeResType_TimeComplexity t1 (tt1 : TT t1) Y {R: encodable Y} {struct tt1}:
   forall (fT: timeComplexity t1) , @timeComplexity _ (projT2 (changeResType tt1 (TyB Y))):= (
   match tt1 with
     @TyB t1 _ => fun fT => fT
   | TyArr _ _ tt11 tt12 => fun fT x xT => (fst (fT x xT),changeResType_TimeComplexity (snd (fT x xT)))
   end).
 
-Lemma cast_registeredAs_TimeComplexity t1 (tt1 : TT t1) Y (R: registered Y) fT (cast : projT1 (resType tt1) -> Y) (f:t1)
-      (Hc : injective cast) :
-  projT2 (resType tt1) = registerAs cast Hc ->
+Lemma cast_registeredAs_TimeComplexity t1 (tt1 : TT t1) Y (R: encodable Y) fT (cast : projT1 (resType tt1) -> Y) (f:t1)
+:
+  projT2 (resType tt1) = registerAs cast ->
   computableTime (ty:=projT2 (changeResType tt1 (TyB Y))) (insertCast R cast f) (changeResType_TimeComplexity fT)->
   computableTime f fT.
 Proof.
   intros H [s ints].
   eexists s.
-  induction tt1 in cast,f,fT,H,s,ints,Hc |- *.
+  induction tt1 in cast,f,fT,H,s,ints |- *.
   -cbn in H,ints|-*;unfold enc in *. rewrite H. exact ints.
   -destruct ints as (?&ints). split. assumption.
    intros x s__x int__x T__x.

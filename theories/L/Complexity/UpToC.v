@@ -8,6 +8,9 @@ From Coq Require Import CRelationClasses CMorphisms.
 Import CMorphisms.ProperNotations. 
 From Undecidability.Shared.Libs.PSL Require FinTypes.
 
+Local Set Universe Polymorphism. 
+
+
 Record leUpToC {X} (f g : X -> nat) : Type :=
   { c__leUpToC : nat;
     correct__leUpToC : forall x, f x <= c__leUpToC * g x
@@ -105,6 +108,16 @@ Lemma upToC_mul_c_r X c (f F : X -> nat):
 Proof.
   intros (c'&H). exists (c'*c). intros. rewrite H. nia. 
 Qed.
+
+Lemma upToC_mul_descend X (g g' f f' : X -> _):
+  g <=c  g'
+  -> f <=c  f'
+  -> (fun x => g x * f x) <=c (fun x => g' x * f' x).
+Proof.
+  intros [c Hc] [c' Hc']. exists (c*c'). intro.  rewrite Hc,Hc'. nia.
+Qed.
+
+
 
 Lemma upToC_c X c (F : X -> nat):
   (fun _ => 1) <=c F ->  

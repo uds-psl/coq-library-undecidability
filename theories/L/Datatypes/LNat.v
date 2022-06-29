@@ -7,7 +7,7 @@ From Undecidability.L Require Import Datatypes.LBool Functions.EqBool Datatypes.
 Import GenEncode. Import Nat.
 (* ** Encoding of natural numbers *)
 
-MetaCoq Run (tmGenEncode "nat_enc" nat).
+MetaCoq Run (tmGenEncodeInj "nat_enc" nat).
 #[export] Hint Resolve nat_enc_correct : Lrewrite.
 
 #[global]
@@ -187,13 +187,13 @@ Lemma size_nat_enc (n:nat) :
   size (enc n) = n * c__natsizeS + c__natsizeO.
 Proof.
   unfold c__natsizeS, c__natsizeO. 
-  induction n;cbv [enc registered_nat_enc] in *. all:cbn [size nat_enc] in *. all:solverec.
+  induction n;cbv [enc encodable_nat_enc] in *. all:cbn [size nat_enc] in *. all:solverec.
 Qed.
 
 Lemma size_nat_enc_r (n:nat) :
   n <= size (enc n).
 Proof.
-    induction n;cbv [enc registered_nat_enc] in *. all:cbn [size nat_enc] in *. all:solverec.
+    induction n;cbv [enc encodable_nat_enc] in *. all:cbn [size nat_enc] in *. all:solverec.
 Qed.
 
 

@@ -13,7 +13,7 @@ Import L_Notations.
 (* ** Extraction of Turing Machine interpreter  *)
 
 Import GenEncode.
-MetaCoq Run (tmGenEncode "move_enc" move).
+MetaCoq Run (tmGenEncodeInj "move_enc" move).
 #[export] Hint Resolve move_enc_correct : Lrewrite.
 
 Import TM.
@@ -80,13 +80,16 @@ Defined. (* because instance *) *)
 (* *** Encoding Tapes *)
 Section reg_tapes.
   Variable sig : Type.
-  Context `{reg_sig : registered sig}.
+  Context `{reg_sig : encodable sig}.
 
   
   Implicit Type (t : TM.tape sig).
   Import GenEncode.
   MetaCoq Run (tmGenEncode "tape_enc" (TM.tape sig)).
   Hint Resolve tape_enc_correct : Lrewrite.
+
+  Global Instance encInj_tape_enc {H : encInj reg_sig} : encInj (encodable_tape_enc).
+  Proof. register_inj. Qed. 
 
   (*Internalize constructors **)
 
@@ -111,37 +114,36 @@ End reg_tapes.
 
 Section fix_sig.
   Variable sig : finType.
-  Context `{reg_sig : registered sig}.
+  Context `{reg_sig : encodable sig}.
 
 
   Definition mconfigAsPair {B : finType} {n} (c:mconfig sig B n):= let (x,y) := c in (x,y).
 
-  Global Instance registered_mconfig (B : finType) `{registered B} n: registered (mconfig sig B n).
+  Global Instance encodable_mconfig (B : finType) `{encodable B} n: encodable (mconfig sig B n).
   Proof using reg_sig.
-    eapply (registerAs mconfigAsPair). clear.
-    register_inj.
-  Defined. (* because registerAs *)
+    eapply (registerAs mconfigAsPair).
+  Defined.
 
-  Global Instance term_mconfigAsPair (B : finType) `{registered B} n: computableTime' (@mconfigAsPair B n) (fun _ _ => (1,tt)).
+  Global Instance term_mconfigAsPair (B : finType) `{encodable B} n: computableTime' (@mconfigAsPair B n) (fun _ _ => (1,tt)).
   Proof.
     apply cast_computableTime.
   Qed.
 
-  Global Instance term_cstate (B : finType) `{registered B} n: computableTime' (@cstate sig B n) (fun _ _ => (7,tt)).
+  Global Instance term_cstate (B : finType) `{encodable B} n: computableTime' (@cstate sig B n) (fun _ _ => (7,tt)).
   Proof.
     apply computableTimeExt with (x:=fun x => fst (mconfigAsPair x)).
     2:{extract. solverec. }
     intros [];reflexivity.
   Qed.
 
-  Global Instance term_ctapes (B : finType) `{registered B} n: computableTime' (@ctapes sig B n) (fun _ _ => (7,tt)).
+  Global Instance term_ctapes (B : finType) `{encodable B} n: computableTime' (@ctapes sig B n) (fun _ _ => (7,tt)).
   Proof.
     apply computableTimeExt with (x:=fun x => snd (mconfigAsPair x)).
     2:{extract. solverec. }
     intros [];reflexivity.
   Qed.
 
-  Global Instance registered_mk_mconfig (B : finType) `{registered B} n: computableTime' (@mk_mconfig sig B n) (fun _ _ => (1,fun _ _ => (3,tt))).
+  Global Instance encodable_mk_mconfig (B : finType) `{encodable B} n: computableTime' (@mk_mconfig sig B n) (fun _ _ => (1,fun _ _ => (3,tt))).
   Proof.
     computable_casted_result.
     extract. solverec.
@@ -152,19 +154,16 @@ End fix_sig.
 
 Import PrettyBounds.SizeBounds.
 
-Lemma sizeOfTape_by_size {sig} `{registered sig} (t:(tape sig)) :
+Lemma sizeOfTape_by_size {sig} `{encodable sig} (t:(tape sig)) :
   sizeOfTape t <= size (enc t).
 Proof.
-  change (enc (X:=tape sig)) with (tape_enc (sig:=sig)). unfold tape_enc,sizeOfTape.
-  change (match H with
-          | @mk_registered _ enc _ _ => enc
-          end) with (enc (registered:=H)). change (list_enc (X:=sig)) with (enc (X:=list sig)).
-  destruct t. all:cbn [tapeToList length tape_enc size].
+  unfold enc;cbn.
+  destruct t;cbn [tapeToList sizeOfTape length size].
   all:rewrite ?app_length,?rev_length. all:cbn [length].
   all:ring_simplify. all:try rewrite !size_list_enc_r. all:try nia.
 Qed.
 
-Lemma sizeOfmTapes_by_size {sig} `{registered sig} n (t:tapes sig n) :
+Lemma sizeOfmTapes_by_size {sig} `{encodable sig} n (t:tapes sig n) :
   sizeOfmTapes t <= size (enc t).
 Proof.
   setoid_rewrite enc_vector_eq. rewrite Lists.size_list.

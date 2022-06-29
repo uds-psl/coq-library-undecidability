@@ -430,19 +430,21 @@ End Intern.
 
 Import Intern.
 
-Ltac register_inj :=   abstract (intros x; induction x; let y := fresh "y" in destruct y;simpl; intros eq; try (injection eq || discriminate eq);intros;f_equal;auto;try apply inj_enc;try easy).
+Ltac register_inj := 
+  abstract (intros x; induction x; let y := fresh "y" in destruct y;simpl; intros eq;
+    try (injection eq || discriminate eq);intros;f_equal;auto;try apply inj_enc;try easy).
 
 Ltac register_proc :=
   solve [
-  unfold enc_f; let x := fresh "x" in
+  let x := fresh "x" in
   (((intros x;induction x || intros *);
     cbn; fold_encs;Lproc
                         ))].
 
-Ltac register encf :=   refine (@mk_registered _ encf _ _);[
-                          (((let x := fresh "x" in induction x || intros);(let f := visibleHead encf in unfold f;cbn [f]);
-                            fold_encs;Lproc
-                        )) | try register_inj].
+Ltac register encf :=   refine (@mk_encodable _ encf _);[
+                          (((let x := fresh "x" in induction x || intros);(let f := Intern.visibleHead encf in unfold f;cbn [f]);
+                            Lproc
+                        ))].
 
 
 Tactic Notation "computable" "using" open_constr(Lter) :=
@@ -608,8 +610,8 @@ Local Ltac solverecTry :=       cbn [timeComplexity] in *;
 Ltac solverec :=   try abstract (solverecTry);solverecTry.
 
 
-Lemma cast_computable X Y `{registered Y} (cast : X -> Y) (Hc : injective cast) :
-  let _ := registerAs cast Hc in
+Lemma cast_computable X Y `{encodable Y} (cast : X -> Y) :
+  let _ := registerAs cast in
   computable cast.
 Proof.
   cbn.
@@ -617,8 +619,8 @@ Proof.
   computable using t.
 Qed.
 
-Lemma cast_computableTime X Y `{registered Y} (cast : X -> Y) (Hc : injective cast):
-  let _ := registerAs cast Hc in
+Lemma cast_computableTime X Y `{encodable Y} (cast : X -> Y):
+  let _ := registerAs cast in
   computableTime' cast (fun _ _ => (1,tt)).
 Proof.
   cbn.
@@ -631,12 +633,12 @@ Ltac computable_casted_result :=
   match goal with
     |- @computable _ _ _ => 
     simple notypeclasses refine (cast_registeredAs _ _);
-    [ | | | |
+    [ | | |
       cbn - [registerAs];reflexivity| ];
     cbn
   | |- @ComputableTime.computableTime _ _ _ _=>
     simple notypeclasses refine (cast_registeredAs_TimeComplexity _ _);
-    [ | | | |
+    [ | | |
       cbn - [registerAs];reflexivity| ];
     cbn
   end.

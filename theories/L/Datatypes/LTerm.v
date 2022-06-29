@@ -3,7 +3,7 @@ From Undecidability.L Require Export Util.L_facts.
 From Undecidability.L.Tactics Require Import LTactics GenEncode.
 
 (* ** Encoding for L-terms *)
-MetaCoq Run (tmGenEncode "term_enc" term).
+MetaCoq Run (tmGenEncodeInj "term_enc" term).
 #[export] Hint Resolve term_enc_correct : Lrewrite.
   
 (* register the non-constant constructors *)
@@ -30,7 +30,8 @@ Definition c__termsize := c__natsizeS + 7.
 Lemma size_term_enc (s:term) :
   size (enc s) <= size s *c__termsize.
 Proof.
-  induction s;cbv [enc registered_term_enc] in *. all:cbn [size term_enc] in *.
+  unfold enc;cbn.
+  induction s;cbn - ["+"].
   rewrite size_nat_enc. all: unfold c__termsize, c__natsizeS, c__natsizeO in *; solverec.
 Qed.
 
@@ -38,6 +39,6 @@ Qed.
 Lemma size_term_enc_r (s:term) :
   size s <= size (enc s).
 Proof.
-  induction s;cbv [enc registered_term_enc] in *. all:cbn [size term_enc] in *.
+  induction s;cbv [enc encodable_term_enc] in *. all:cbn [size] in *.
   rewrite <- size_nat_enc_r. all:solverec.
 Qed.

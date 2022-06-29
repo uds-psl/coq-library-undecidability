@@ -20,9 +20,9 @@ Definition enc_bool_nil := [lamT; lamT; varT 1; retT; retT].
 Definition enc_bool_closing :=  [appT; retT; retT].
 
 Lemma enc_bool_explicit (bs : list bool):
-  compile (Computable.enc bs) = flat_map enc_bool_perElem bs ++ enc_bool_nil ++ concat (repeat enc_bool_closing (length bs)).
+  compile (enc bs) = flat_map enc_bool_perElem bs ++ enc_bool_nil ++ concat (repeat enc_bool_closing (length bs)).
 Proof.
-  unfold Computable.enc. cbn. unfold Lists.list_enc. cbn. unfold LBool.bool_enc.
+  repeat unfold enc;cbn.
   induction bs as [ | b bs]. reflexivity.
   cbn - [concat repeat]. rewrite IHbs. replace (S (| bs |)) with (|bs|+1) by nia.
   destruct b;cbn - [concat repeat]. all:repeat (autorewrite with list; cbn - [concat repeat]). all:repeat f_equal.
@@ -44,6 +44,12 @@ Qed.
 Lemma boollist_size :( fun (bs:list bool) => Code.size bs) <=c (fun bs => length bs + 1).
 Proof.
   eexists. intros bs. rewrite size_list. erewrite (MoreBase.sumn_map_le_pointwise (f2:=fun _ => _)).
+  2:{ intros [] ?;cbv. all:reflexivity. } setoid_rewrite MoreList.sumn_map_c. instantiate (1:=2). nia.
+Qed.
+
+Lemma boollist_length: ( fun (bs:list bool) => length bs) <=c Code.size.
+Proof.
+  eexists. intros bs. rewrite size_list. erewrite <- (MoreBase.sumn_map_le_pointwise (f1:=fun _ => _)).
   2:{ intros [] ?;cbv. all:reflexivity. } setoid_rewrite MoreList.sumn_map_c. instantiate (1:=2). nia.
 Qed.
 

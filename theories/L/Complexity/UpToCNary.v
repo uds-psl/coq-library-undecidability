@@ -40,7 +40,7 @@ Section workaround.
 
 End workaround.
 
-Lemma upToC_add_nary (domain : list Set) F (f1 f2 : Rarrow domain nat) :
+Lemma upToC_add_nary (domain : list Type) F (f1 f2 : Rarrow domain nat) :
   Uncurry f1 <=c F
   -> Uncurry f2 <=c F
   -> Fun' (fun x => App f1 x + App f2 x) <=c F.
@@ -49,7 +49,7 @@ Proof.
 Qed.
 
 
-Lemma upToC_max_nary (domain : list Set) F (f1 f2 : Rarrow domain nat) :
+Lemma upToC_max_nary (domain : list Type) F (f1 f2 : Rarrow domain nat) :
   Uncurry f1 <=c F
   -> Uncurry f2 <=c F
   -> Fun' (fun x => max (App f1 x) (App f2 x)) <=c F.
@@ -57,7 +57,7 @@ Proof.
   prove_nary upToC_max.
 Qed.
 
-Lemma upToC_min_nary (domain : list Set) F (f1 f2 : Rarrow domain nat) :
+Lemma upToC_min_nary (domain : list Type) F (f1 f2 : Rarrow domain nat) :
   Uncurry f1 <=c F
   -> Uncurry f2 <=c F
   -> Fun' (fun x => min (App f1 x) (App f2 x)) <=c F.
@@ -66,20 +66,29 @@ Proof.
 Qed.
 
 
-Lemma upToC_mul_c_l_nary (domain : list Set)c F  (f : Rarrow domain nat):
+Lemma upToC_mul_c_l_nary (domain : list Type)c F  (f : Rarrow domain nat):
   Uncurry f <=c F
   -> Fun' (fun x => c * App f x) <=c F.
 Proof.
   prove_nary upToC_mul_c_l.
 Qed.
 
-Lemma upToC_mul_c_r_nary (domain : list Set)  c F (f : Rarrow domain nat):
+Lemma upToC_mul_c_r_nary (domain : list Type)  c F (f : Rarrow domain nat):
   Uncurry f <=c F -> Fun'(fun x => App f x * c) <=c F.
 Proof.
   prove_nary upToC_mul_c_r.
 Qed.
 
-Lemma upToC_c_nary (domain : list Set) c F:
+Lemma upToC_mul_descend_nary (domain : list Type) (f g : Rarrow domain nat) f' g':
+  Uncurry f <=c f'
+  -> Uncurry g <=c g'
+  -> Fun' (fun x => App f x * App g x)
+    <=c Fun' (fun x => f' x * g' x).
+Proof.
+  prove_nary upToC_mul_descend. 
+Qed.
+
+Lemma upToC_c_nary (domain : list Type) c F:
   (fun _ => 1) <=c F ->  
   Const' domain c <=c F.
 Proof.
@@ -87,7 +96,7 @@ Proof.
 Qed.
 
 
-Lemma upToC_S_nary (domain : list Set) F (f : Rarrow domain nat) :
+Lemma upToC_S_nary (domain : list Type) F (f : Rarrow domain nat) :
   Const' domain 1 <=c F
   -> Uncurry f <=c F
   -> Fun' (fun x => S (App f x)) <=c F.
@@ -95,7 +104,7 @@ Proof.
   prove_nary upToC_S.
 Qed.
 
-Lemma upToC_mul_nary (domain : list Set) (F1 F2 f1 f2 : Rarrow domain nat) :
+Lemma upToC_mul_nary (domain : list Type) (F1 F2 f1 f2 : Rarrow domain nat) :
   Uncurry f1 <=c Uncurry F1
   -> Uncurry f2 <=c Uncurry F2
   -> Fun' (fun x => App f1 x * App f2 x) <=c Fun' (fun x => App F1 x * App F2 x).
@@ -122,16 +131,18 @@ Qed.
 
 (* Applying n-ary leUpToC lemmas *)
 
-Ltac domain_of_prod S :=
+Ltac domain_of_prod universe S :=
   let S := constr:(S) in   
   let S := eval simpl in S in
-  list_of_tuple S.
+  list_of_tuple universe S.
 
 
 Ltac leUpToC_domain G :=
-  match G with
+  let universe := fresh in
+  evar (universe:Type);
+  lazymatch G with
   | @leUpToC ?F _ _ =>
-    let L := domain_of_prod F in
+    let L := domain_of_prod universe F in
     let L := constr:(L) in
     exact (Mk_domain_of_goal L)
   end.
@@ -140,12 +151,17 @@ Ltac leUpToC_domain G :=
 
 
 
-
+Ltac upToC_elimConstFactor := etransitivity;[
+  repeat first [nary simple apply upToC_mul_c_l_nary
+               |nary simple apply upToC_mul_c_r_nary
+               |nary simple apply upToC_mul_descend_nary
+               |apply CRelationClasses.reflexivity ]|cbn beta iota].
 
 
 Smpl Add 6 first [nary simple apply upToC_add_nary | nary simple apply upToC_mul_c_l_nary | nary simple apply upToC_mul_c_r_nary
                   | nary simple apply upToC_max_nary| nary simple apply upToC_min_nary
-                  | progress (nary simple apply upToC_c_nary) | _applyIfNotConst_nat (nary simple apply upToC_S_nary)] : upToC.
+                  | progress (nary simple apply upToC_c_nary) | _applyIfNotConst_nat (nary simple apply upToC_S_nary)
+                  | progress upToC_elimConstFactor] : upToC.
 
 
 Ltac destruct_pair_rec p :=

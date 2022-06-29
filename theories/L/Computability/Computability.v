@@ -11,12 +11,12 @@ Proof.
   - destruct (IHs t). left; congruence. right; congruence.    
 Qed.
 
-Lemma enc_extinj {X} {H:registered X} (m n:X) : enc m == enc n -> m = n.
+Lemma enc_extinj {X} {R} {H:@encInj X R} (m n:X) : enc m == enc n -> m = n.
 Proof.
   intros eq. apply unique_normal_forms in eq; try Lproc. now apply inj_enc.
 Qed.
 
-Lemma lcomp_comp Y {Ry:registered Y} (u:term) (g: term -> Y):
+Lemma lcomp_comp Y {Ry:encodable Y} (u:term) (g: term -> Y):
   (forall x (y:Y), enc y = x -> y = g x) ->
   (exists y:Y, u == enc y) -> {y:Y| u == enc y}.
 Proof.

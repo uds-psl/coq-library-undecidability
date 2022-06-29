@@ -23,9 +23,9 @@ Definition L_bool_computable_closed {k} (R : Vector.t (list bool) k -> (list boo
       (forall m, R v m <-> L.eval (Vector.fold_left (fun s n => L.app s (encBoolsL n)) s v) (encBoolsL m)) /\
       (forall o, L.eval (Vector.fold_left (fun s n => L.app s (encBoolsL n)) s v) o -> exists m, o = encBoolsL m).
 
-Local Instance vector_enc_bool {n} : computable (@enc (Vector.t (list bool) n) _).
+Local Instance vector_enc_bool {n} : computable (enc (X:=Vector.t (list bool) n)).
 Proof.
-  unfold enc. cbn. unfold enc. cbn. extract.
+  unfold enc. cbn. extract.
 Qed.
 
 Lemma logical {X} (P Q : X -> Prop) :
@@ -33,10 +33,10 @@ Lemma logical {X} (P Q : X -> Prop) :
 Proof. firstorder. Qed.
 
 
-Definition apply_to (s : L.term) {k} {X : Type} `{registered X} (v : Vector.t X k) :=
+Definition apply_to (s : L.term) {k} {X : Type} `{encodable X} (v : Vector.t X k) :=
   many_app s (Vector.map enc v).
 
-Lemma apply_to_cons (s : L.term) {k} {X : Type} `{registered X} (v : Vector.t X k) x :
+Lemma apply_to_cons (s : L.term) {k} {X : Type} `{encodable X} (v : Vector.t X k) x :
   apply_to s (x :: v) = apply_to (L.app s (enc x)) v.
 Proof.
   reflexivity.
@@ -48,7 +48,7 @@ Proof.
   intros H. split; now rewrite H.
 Qed.
 
-Lemma apply_to_equiv' s t {X k} (v : Vector.t X k) `{registered X} :
+Lemma apply_to_equiv' s t {X k} (v : Vector.t X k) `{encodable X} :
   s == t -> apply_to s v == apply_to t v.
 Proof.
   eapply equiv_many_app_L.
@@ -69,7 +69,7 @@ Qed.
 Section lemma.
 
   Context {X : Type}.
-  Context {Hr : registered X}.
+  Context {Hr : encodable X}.
   Context {Hcmp : computable (@enc X _)}.
 
 Definition apply_encs_to (s : term) k := ((Vector.fold_left (fun s n => ext L.app s (ext (@enc X _) (var n))) s (many_vars k))).

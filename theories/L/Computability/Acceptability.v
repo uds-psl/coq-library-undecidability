@@ -43,15 +43,15 @@ Lemma lacc_disj M N : lacc M -> lacc N -> lacc (disj M N).
 Proof.
   intros [u [[lam_u cls_u] Hu]] [v [[lam_v cls_v] Hv]].
   unfold lacc, disj.
-  exists (lam (Por ((ext app) (enc u) ((ext (term_enc) #0))) (((ext app) (enc v) ((ext (term_enc)) #0))))).
+  exists (lam (Por ((ext app) (enc u) ((ext (enc (X:=term)) #0))) (((ext app) (enc v) ((ext (enc (X:=term))) #0))))).
   split. Lproc. intros t.
 
   rewrite Hu, Hv; unfold pi.
   evar (t':term).
   (* todo: nicer way?*)
   assert (R':(lam(
-      (Por ((ext app) (ext u) ((ext (term_enc)) 0)))
-      ((ext app) (ext v) ((ext (term_enc)) 0))) (ext t)) >* t'). subst t'. now Lsimpl.
+      (Por ((ext app) (ext u) ((ext (enc (X:=term))) 0)))
+      ((ext app) (ext v) ((ext (enc (X:=term))) 0))) (ext t)) >* t'). subst t'. now Lsimpl.
   rewrite R'. subst t'.
   split. intros [A|B].
   -destruct (Por_correct_1a (v (enc t)) A) as [s [R ls]]. exists s. split;try Lproc. eassumption.

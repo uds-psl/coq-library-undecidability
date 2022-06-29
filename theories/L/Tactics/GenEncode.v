@@ -17,7 +17,7 @@ Fixpoint mkLApp (s : term) (L : list term) :=
 Definition encode_arguments (B : term) (a i : nat) A_j :=
       A <- tmUnquoteTyped Type A_j ;;
       name <- (tmEval cbv (name_of A_j ++ "_term") >>=  Core.tmFreshName)  ;;
-      E <- tmTryInfer name None (registered A);;
+      E <- tmTryInfer name None (encodable A);;
       t <- ret (@enc A E);;
       l <- tmQuote t;;
       ret (tApp l [tRel (a - i - 1) ]).
@@ -55,7 +55,7 @@ Definition tmMatchCorrect (A : Type) : Core.TemplateMonad Prop :=
               ret ( (* stack (map (tLambda (naAnon)) ctr_types) *)
                                (((fun s => mkAppList s C) (tRel (args + 2 * (num - i) - 1)))))
            ) ;;
-   E' <- Core.tmInferInstance None (registered A);;
+   E' <- Core.tmInferInstance None (encodable A);;
    E <- tmGetMyOption E' "failed" ;;        
    t' <- ret (@enc A E);;
    l <- tmQuote t';;
@@ -67,20 +67,28 @@ Definition tmMatchCorrect (A : Type) : Core.TemplateMonad Prop :=
 
 Definition matchlem n A := (Core.tmBind (tmMatchCorrect A) (fun m => tmLemma n m ;; ret tt)).
 
-Definition tmGenEncode (n : ident) (A : Type) : TemplateMonad unit :=
-  e <- tmEncode n A;;
+Definition tmGenEncode (n : ident) (A : Type) : TemplateMonad (encodable A) :=
+  e <- tmEncode A;;
   modpath <- tmCurrentModPath tt ;;
-  e <- tmUnquoteTyped (encodable A) (tConst (modpath, n) []);;
-  p <- Core.tmLemma (n ++ "_proc") (forall x : A, proc (@enc_f A e x)) ;;
-  n2 <- tmEval cbv ((n ++ "_inj"));;
-  i <- Core.tmLemma n2  (injective (@enc_f _ e)) ;;
-  n3 <- tmEval cbv ("registered_" ++ n) ;;
-  d <- tmInstanceRed n3 None (@mk_registered A e p i);;
+  p <- Core.tmLemma (n ++ "_proc") (forall x : A, proc (e x)) ;;
+  n3 <- tmEval cbv ("encodable_" ++ n) ;;
+  d <- tmInstanceRed n3 None (mk_encodable p);;
   m <- tmMatchCorrect A;;
   n4 <- tmEval cbv (n ++ "_correct") ;;
-  (Core.tmBind (tmMatchCorrect A) (fun m => tmLemma n4 m ;; ret tt)).
+  Core.tmBind (tmMatchCorrect A) (fun m' => tmLemma n4 m';;ret d).
 
 Arguments tmGenEncode _%string _%type.
+
+Definition tmGenEncodeInj (n : ident) (A : Type) : TemplateMonad unit :=
+  d <- tmGenEncode n A;;
+  n2 <- tmEval cbv ((n ++ "_inj"));;
+  i <- Core.tmLemma n2  (@encInj A d);;
+  n3 <- tmEval cbv ("encInj_" ++ n) ;;
+  d <- tmInstanceRed n3 None i;;
+  ret tt.
+
+Arguments tmGenEncodeInj _%string _%type.
+
 
 (*
 Definition tmGenEncode' (n : ident) (A : Type) :=
@@ -90,13 +98,14 @@ Definition tmGenEncode' (n : ident) (A : Type) :=
   p <- Core.tmLemma (n ++ "_proc") (forall x : A, proc (@enc_f A e x)) ;;
   n2 <- tmEval cbv ((n ++ "_inj"));;
   i <- Core.tmLemma n2  (injective (@enc_f _ e)) ;;
-  n3 <- tmEval cbv ("registered_" ++ n) ;;
+  n3 <- tmEval cbv ("encodable_" ++ n) ;;
   d <- tmInstanceRed n3 None  (@mk_registered A e p i);;
   m <- tmMatchCorrect A ;; ret tt. *)
 
 (* TODO : use other methode instead, e.g. with typeclasses, as default obligation tactic is very fragile *)
-Global Obligation Tactic := try fold (injective (enc_f)); match goal with
+Global Obligation Tactic := match goal with
                            | [ |- forall x : ?X, proc ?f ] => try register_proc
+                           | [ |- encInj _ ] => unfold encInj;register_inj
                            | [ |- injective ?f ] => register_inj
                            | [ |- context [_ >(<= _) _] ] => extract match
                            end || Tactics.program_simpl.

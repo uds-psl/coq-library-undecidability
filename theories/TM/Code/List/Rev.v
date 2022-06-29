@@ -14,7 +14,7 @@ Local Arguments Encode_nat : simpl never.
 Section Rev.
   (* Reversing is just consing and deconsing. We don't save the original list. *)
 
-  Variable (sig sigX : finType) (X : Type) (cX : codable sigX X).
+  Variable (sigX : finType) (sig X : Type) (cX : codable sigX X).
 
   Definition Rev_Step : pTM (sigList sigX)^+ (option unit) 3 :=
     If (CaseList _ @[|Fin0;Fin2|])
@@ -58,7 +58,7 @@ Section Rev.
     }
   Qed.
 
-  Definition Rev_Step_steps (xs : list X) : nat :=
+  Definition Rev_Step_steps {sigX X : Type} {cX : codable sigX X} (xs : list X) : nat :=
     match xs with
     | nil => 1 + CaseList_steps xs + ResetEmpty1_steps
     | x :: xs' => 2 + CaseList_steps xs + Constr_cons_steps x + Reset_steps x
@@ -117,7 +117,7 @@ Section Rev.
     }
   Qed.
 
-  Fixpoint Rev_Append_steps (xs : list X) : nat :=
+  Fixpoint Rev_Append_steps {sigX X : Type} {cX : codable sigX X} (xs : list X) : nat :=
     match xs with
     | nil => Rev_Step_steps xs
     | x :: xs' => 1 + Rev_Step_steps xs + Rev_Append_steps xs'
@@ -184,7 +184,7 @@ Section Rev.
       repeat split; auto. contains_ext. now simpl_list. }
   Qed.
 
-  Definition Rev_steps (xs : list X) := 1 + Constr_nil_steps + Rev_Append_steps xs.
+  Definition Rev_steps {sigX X : Type} {cX : codable sigX X}  (xs : list X) := 1 + Constr_nil_steps + Rev_Append_steps xs.
 
   Definition Rev_T : tRel (sigList sigX)^+ 3 :=
     fun tin k => exists (xs : list X),
@@ -219,10 +219,40 @@ End Rev.
 
 Import Hoare.
 
-Ltac hstep_App :=
+Ltac hstep_Rev :=
   lazymatch goal with
   | [ |- TripleT ?P ?k (Rev _) ?Q ] => eapply Rev_SpecT
   | [ |- TripleT ?P ?k (Rev_Append _) ?Q ] => refine (Rev_Append_SpecT _ _ _ _);shelve
   end.
 
-Smpl Add hstep_App : hstep_Spec.
+Smpl Add hstep_Rev : hstep_Spec.
+
+
+Arguments Rev_steps {sigX X cX} : simpl never.
+Arguments Rev_size {sigX X cX} : simpl never.
+
+From Undecidability.L.Complexity Require Import UpToC.
+
+Section Rev_nice.
+  Variable (sigX X : Type) (cX : codable sigX X).
+
+  Lemma Rev_Append_steps_nice :
+    Rev_Append_steps (cX:=cX) <=c size (X:=list X).
+  Proof.
+    eexists (82). intros xs. unfold Rev_steps.
+    induction xs;repeat (cbn in *;unfold Constr_nil_steps,CaseList_steps_nil ,Constr_cons_steps,Reset_steps 
+                        ,CaseList_steps,ResetEmpty1_steps,CaseList_steps_cons in * ).
+    all:rewrite Encode_list_hasSize in *;cbn.
+    nia.
+    ring_simplify. ring_simplify in IHxs. setoid_rewrite <- IHxs.  nia.
+  Qed.
+
+  Lemma Rev_steps_nice :
+    Rev_steps (cX:=cX) <=c size (X:=list X).
+  Proof.
+    unfold Rev_steps;cbn. smpl_upToC. 3:now apply Rev_Append_steps_nice.
+    all:eapply upToC_le;intros [].
+    all:rewrite Encode_list_hasSize;cbn;nia.
+  Qed.
+
+End Rev_nice.
