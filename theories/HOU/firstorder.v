@@ -1,8 +1,9 @@
 Set Implicit Arguments.
 
 Require Import List Lia Arith Init.Wf Morphisms Program.Program.
-From Undecidability.HOU Require Import unification.unification concon.conservativity calculus.calculus.
+From Undecidability.HOU Require Import concon.conservativity calculus.calculus.
 Import ListNotations.
+From Undecidability.HOU.unification Require Import systemunification nth_order_unification.
 
 Tactic Notation "simplify" := Undecidability.HOU.std.tactics.simplify.  
 

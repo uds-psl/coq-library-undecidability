@@ -296,10 +296,6 @@ Section RemoveConstants.
     intros ?? H; unfold inv_term; now rewrite H.
   Qed.
 
-  
-
-  
-  
   Lemma subst_consts_subst Z (s: exp X) sigma tau theta zeta (kappa: X -> exp Z):
     (forall x, x ∈ vars s -> sigma • subst_consts zeta (tau x) >* subst_consts kappa (theta x)) ->
     (forall x, x ∈ consts s -> sigma • zeta x >* kappa x) ->
