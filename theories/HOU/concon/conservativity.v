@@ -3,7 +3,7 @@ Require Import Lia List.
 From Undecidability.HOU Require Import calculus.calculus concon.conservativity_constants
   unification.higher_order_unification unification.systemunification
   unification.nth_order_unification.
-Import ListNotations.
+Import ListNotations ListInstances ArsInstances.
 
 Global Hint Rewrite @consts_Lam @consts_AppL @consts_AppR : simplify.
 
@@ -29,9 +29,9 @@ Section InhabitingTypes.
     intros H2. unfold inhab.
     destruct (type_decompose A) as (L & beta & ->); simplify in H2; cbn in H2.
     specialize (arity_decomposed L beta) as H3.
-    rewrite H3. eapply Lambda_ordertyping; eauto.
-    econstructor; cbn; eauto.
-    rewrite nth_error_app2; simplify; eauto; lia.
+    rewrite H3. eapply Lambda_ordertyping; trivial.
+    econstructor; cbn; trivial.
+    rewrite nth_error_app2; simplify; trivial; lia.
   Qed.
 
 
@@ -42,7 +42,7 @@ Section InhabitingTypes.
     intros H; unfold inhab in H.
     eapply Lambda_ordertyping_inv in H as (L & B & ? & ? & ?); subst.
     inv H. rewrite <-H1 in H3.
-    rewrite nth_error_app2 in H3; simplify in *; eauto.
+    rewrite nth_error_app2 in H3; simplify in *; trivial.
     destruct B; cbn in H1; try lia. now rewrite H3.
   Qed.
 
@@ -99,11 +99,11 @@ Section Conservativity.
                   | None => var x
                   end).
       exists (target' Delta). exists (sigma >> subst_exp tau). split; [|split].
-      - intros ???; eapply preservation_under_substitution; eauto.
+      - intros ???; eapply preservation_under_substitution; [eauto|].
         unfold tau; intros ?? EQ; rewrite EQ.
         eauto using ordertyping_soundness.
-      - erewrite <-compSubstSubst_exp; eauto. symmetry.
-        erewrite <-compSubstSubst_exp; eauto. symmetry.
+      - erewrite <-compSubstSubst_exp; trivial. symmetry.
+        erewrite <-compSubstSubst_exp; trivial. symmetry.
         now rewrite H0.
       - eauto.
     Qed.
@@ -126,17 +126,17 @@ Section Conservativity.
                     | None => var 0
                     end
                   end).
-      exists (target' (map (ctype X) C)). exists (sigma >> subst_consts zeta). intuition.
+      exists (target' (map (ctype X) C)). exists (sigma >> subst_consts zeta). intuition trivial.
       - intros ???. eapply ordertyping_preservation_consts.
         now eapply weakening_ordertyping_app, T.
         intros c H1. unfold zeta.
-        destruct (find c C0); eauto.
+        destruct (find c C0); trivial.
         + econstructor; eapply typing_constants; eauto.
         + eapply Consts_consts
             with (S := (map sigma (nats (length Gamma)))) in H1 as H2.
           unfold C; eapply find_in in H2 as [y H2]. rewrite H2.
-          eapply ordertyping_monotone, inhab_app, inhab_typing'; eauto.
-          erewrite map_nth_error; eauto. now eapply find_Some.
+          eapply ordertyping_monotone, inhab_app, inhab_typing'; trivial.
+          erewrite map_nth_error; trivial. now eapply find_Some.
           eapply in_map, lt_nats, nth_error_Some_lt; eauto.
       - rewrite !subst_const_comm_id. now rewrite EQ.
         all: eapply subst_consts_ident; intros x;
@@ -147,7 +147,7 @@ Section Conservativity.
         + cbn in H0; intuition; subst.
           eapply find_Some, nth_error_In in H1; exact H1.
         + destruct (find d C) eqn: H2.
-          all: rewrite ?consts_inhab in H0; cbn in H0; intuition.
+          all: rewrite ?consts_inhab in H0; cbn in H0; intuition trivial.
     Qed.
 
     Lemma downcast_constants Gamma s t Delta sigma:
@@ -156,9 +156,9 @@ Section Conservativity.
       ord' Sigma <= 1 /\ (forall x c, c ∈ consts (tau x) -> c ∈ Consts [s; t]).
     Proof using n Leq.
       intros [m H] % ordertypingSubst_complete EQ.
-      eapply ordertypingSubst_monotone with (m := S m) in H; eauto.
+      eapply ordertypingSubst_monotone with (m := S m) in H; trivial.
       eapply downcast_constants_ordered in H as (Sigma & tau & ?); [|lia|eauto].
-      exists Sigma; exists tau; intuition. eapply ordertypingSubst_soundness; eauto.
+      exists Sigma; exists tau; intuition trivial. eapply ordertypingSubst_soundness; eauto.
     Qed.
 
     Lemma ordertyping_from_basetyping Sigma u B:
@@ -167,7 +167,7 @@ Section Conservativity.
       Sigma ⊢(n) u : B.
     Proof.
       induction 2; [eauto|eauto| |].
-      - simplify; intros; econstructor; eapply IHtyping; intuition.
+      - simplify; intros; econstructor; eapply IHtyping; intuition trivial.
         eauto using normal_lam_elim. cbn; simplify; intuition.
       - intros; enough (ord A <= n).
         + econstructor; [eapply IHtyping1 | eapply IHtyping2].
@@ -175,7 +175,7 @@ Section Conservativity.
           1, 4: eauto using normal_app_r, normal_app_l.
           2, 4: eauto.
           1, 2: simplify; eauto; intuition.
-        + eapply head_atom in H0; eauto; cbn in H0.
+        + eapply head_atom in H0; [|easy]. cbn in H0.
           destruct (head_decompose s) as [T].
           rewrite H3 in H0_.
           eapply AppR_typing_inv in H0_ as (? & ? & ?).
@@ -184,7 +184,7 @@ Section Conservativity.
           destruct (head s); cbn in H0; eauto.
           all: inv H5.
           eapply ord'_elements in H2; eauto.
-          eapply H; cbn; simplify; cbn; intuition.
+          eapply H; cbn; simplify; cbn; intuition trivial.
     Qed.
 
 
@@ -201,10 +201,10 @@ Section Conservativity.
                       end).
     exists (Delta ++ target' Gamma). exists tau. split.
     - intros x B H'. unfold tau. rewrite H'; destruct dec_in.
-      eapply weakening_ordertyping_app, T; eauto.
+      eapply weakening_ordertyping_app, T; trivial.
       eapply ordertyping_monotone; eauto.
-    - rewrite !(subst_extensional) with (sigma := tau) (tau := sigma); eauto.
-      all: intros; unfold tau; destruct dec_in; eauto; simplify in *.
+    - rewrite !(subst_extensional) with (sigma := tau) (tau := sigma); trivial.
+      all: intros; unfold tau; destruct dec_in; trivial; simplify in *.
       all: exfalso; eauto.
   Qed.
 
@@ -216,13 +216,13 @@ Section Conservativity.
     intros T T1 T2 H.
     pose (P x := x ∈ vars s ++ vars t).
     edestruct (downcast_variables) as (Sigma' & tau' & T' & H' & O');
-      eauto; clear T H sigma Delta.
+      [eassumption..|]; clear T H sigma Delta.
     edestruct (downcast_constants) as (Sigma'' & tau'' & T'' & H'' & O'' & C'');
-      eauto; clear T' H' tau'.
-    edestruct (normalise_subst) as (tau''' & R & H & T); eauto.
+      [eassumption..|]; clear T' H' tau'.
+    edestruct (normalise_subst) as (tau''' & R & H & T); [eassumption|].
     eapply ordertyping_weak_ordertyping with (sigma := tau''').
     - intros. eapply ordertyping_from_basetyping.
-      + intros ?; erewrite consts_subset_steps; eauto.
+      + intros ?; erewrite consts_subset_steps; trivial.
         intros H2 % C''; cbn in H2; simplify in H2.
         destruct H2; eapply typing_constants; [|eauto| |eauto]; eauto.
       + eauto.
@@ -238,7 +238,7 @@ Section Conservativity.
   Proof.
     unfold linearize_terms. cbn; simplify.
     split; unfold Consts; intros ? [x] % in_flat_map; eapply in_flat_map.
-    all: intuition; try mapinj. eexists; intuition; eauto.
+    all: intuition; try mapinj. eexists; split; [eassumption|].
     now rewrite consts_ren in H1.
     exists (ren shift x); intuition. now rewrite consts_ren.
   Qed.
@@ -252,7 +252,7 @@ Section Conservativity.
     intros T1 T2 H.
     pose (P x := x ∈ Vars' E). pose (s := linearize_terms (left_side E)).
     pose (t := linearize_terms (right_side E)).
-    edestruct (downcast_variables) with (s := s) (t := t) as (Sigma' & tau' & T' & H' & O'); eauto.
+    edestruct (downcast_variables) with (s := s) (t := t) as (Sigma' & tau' & T' & H' & O'); [eassumption|..].
     1: unfold s, t; now rewrite !linearize_terms_subst, linearize_terms_equiv.
     clear T2 H sigma Delta.
     edestruct (downcast_constants) with (s := s) (t := t)
@@ -260,12 +260,12 @@ Section Conservativity.
     edestruct (normalise_subst) as (tau''' & R & H & T); eauto.
     edestruct ordertyping_weak_ordertyping with (s := s) (t := t) (sigma := tau''').
     - intros. eapply ordertyping_from_basetyping.
-      + intros ?; erewrite consts_subset_steps; eauto.
+      + intros ?; erewrite consts_subset_steps; trivial.
         intros H2 % C''. cbn [Consts flat_map] in H2.
         simplify in H2. unfold s, t in H2.
         rewrite !linearize_consts in H2.
         destruct H2; eapply typing_Consts.
-        eapply left_ordertyping; eauto. eauto.
+        eapply left_ordertyping; [eassumption|..]. eauto.
         eapply right_ordertyping; eauto. eauto.
       + eauto.
       + domin H0; eauto.
@@ -276,7 +276,7 @@ Section Conservativity.
           injection H1 as ->; eauto.
       + simplify; rewrite O', O''; cbn; eauto.
     - rewrite !subst_pointwise_equiv with (sigma := tau''') (tau := tau''); eauto.
-    - destruct H0 as [tau]. exists x. exists tau. destruct H0; split; eauto.
+    - destruct H0 as [tau]. exists x. exists tau. destruct H0; split; trivial.
       unfold s, t in H1; now rewrite <-linearize_terms_equiv, <-!linearize_terms_subst.
   Qed.
 
@@ -354,7 +354,7 @@ Section Conservativity.
     unfold OU.
     edestruct unification_downcast_eqs as (Sigma & tau & H1); eauto using equiv_pointwise_eqs, @H₀'.
     intros ???; eapply ordertyping_soundness; eauto.
-    exists Sigma, tau; intuition; eauto using equiv_eqs_pointwise.
+    exists Sigma, tau; intuition idtac. eauto using equiv_eqs_pointwise.
   Qed.
 
 
@@ -368,7 +368,7 @@ Section Conservativity.
   Lemma SU_conservative_forward n (I: ordsysuni X n):
     SOU X n I -> SU X (SU_conservative I).
   Proof.
-    intros (Delta & sigma & T & H). exists Delta; exists sigma. intuition.
+    intros (Delta & sigma & T & H). exists Delta; exists sigma. intuition trivial.
     eapply ordertypingSubst_soundness; eauto.
   Qed.
 
@@ -377,7 +377,7 @@ Section Conservativity.
   Proof.
     intros Leq (Delta & sigma & T & H).
     edestruct unification_downcast_eqs as (Sigma & tau & H1); eauto using equiv_pointwise_eqs, @H₀'.
-    exists Sigma, tau; intuition; eauto using equiv_eqs_pointwise.
+    exists Sigma, tau; intuition idtac. eauto using equiv_eqs_pointwise.
   Qed.
 
   Theorem unification_step n: 1 <= n -> OU n X ⪯ OU (S n) X.
@@ -413,7 +413,5 @@ Section Conservativity.
     intros H; exists SU_conservative; split;
       eauto using SU_conservative_forward, SU_conservative_backward.
   Qed.
-
-
 
 End Conservativity.

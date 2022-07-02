@@ -1,6 +1,6 @@
 Require Import List Lia Morphisms.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.higher_order_unification unification.systemunification.
-Import ListNotations.
+Import ListNotations ArsInstances.
 
 (* * Nth-Order Unification *)
 Section NthOrderUnificationDefinition.
@@ -69,7 +69,7 @@ Section NthOrderSystemUnification.
   Lemma ordertyping_combine Gamma n E L:
     Gamma ⊢₊(n) left_side E : L -> Gamma ⊢₊(n) right_side E : L -> Gamma ⊢₊₊(n) E : L.
   Proof.
-    intros H1 H2; induction E in L, H1, H2 |-*; inv H1; inv H2; eauto.
+    intros H1 H2; induction E in L, H1, H2 |-*; inv H1; inv H2; trivial.
     destruct a; eauto.
   Qed.
 
@@ -107,7 +107,7 @@ Section NthOrderSystemUnification.
     intros H; econstructor; eapply AppR_ordertyping with (L := L).
     eapply orderlisttyping_preservation_under_renaming; eauto.
     intros x ?; cbn; eauto.
-    econstructor; eauto; simplify; cbn; intuition.
+    econstructor; trivial; simplify; cbn; intuition.
   Qed.
 
 
@@ -136,18 +136,18 @@ Section NthOrderSystemUnification.
    Lemma OU_SOU n: OU n X ⪯ SOU n.
    Proof.
      exists (orduni_ordsysuni n); intros I.
-     split; intros (Delta & sigma & H1 & H2); exists Delta; exists sigma; intuition.
-     firstorder; injection H; intros; subst; eauto.
+     split; intros (Delta & sigma & H1 & H2); exists Delta; exists sigma; intuition idtac.
+     firstorder idtac; injection H; intros; subst; trivial.
      firstorder.
    Qed.
 
   Lemma SOU_OU n (I: ordsysuni n) (H: ord' L₀' < n):
     SOU n I <-> OU n X (ordsysuni_orduni I H).
   Proof.
-    split; intros (Delta & sigma & H1 & H2); exists Delta; exists sigma; intuition;
+    split; intros (Delta & sigma & H1 & H2); exists Delta; exists sigma; intuition idtac;
       cbn [s₀ t₀ ordsysuni_orduni] in *.
     rewrite !linearize_terms_subst, linearize_terms_equiv. now apply equiv_pointwise_eqs.
-     eapply equiv_eqs_pointwise; eauto.
+     eapply equiv_eqs_pointwise; [|eassumption].
      now rewrite <-linearize_terms_equiv, <-!linearize_terms_subst.
   Qed.
 
@@ -193,7 +193,7 @@ Section SubstitutionTransformations.
   Proof.
     intros H; eapply ordertypingSubst_soundness in H as H';
       eapply normalise_subst in H' as [tau].
-    exists tau; intuition. intros ???.
+    exists tau; intuition idtac. intros ???.
     eapply ordertyping_preservation_under_steps; [eapply H0 |].
     eapply H; eauto.
   Qed.
@@ -219,11 +219,11 @@ Section Normalisation.
     split; intros (Delta & sigma & H1 & H2); [| exists Delta; exists sigma; intuition].
     eapply normalise_subst in H1 as (tau & H5 & H6 & H7).
     pose (theta x := if nth (Gammaᵤ I) x then tau x else var x).
-    exists Delta. exists theta. intuition.
+    exists Delta. exists theta. intuition idtac.
     + intros ???; unfold theta; rewrite H; eapply H7; eauto.
     + rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma).
-      rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma); eauto.
-      all: intros ? H; eapply typing_variables in H; eauto; domin H.
+      rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma); trivial.
+      all: intros ? H; eapply typing_variables in H; trivial; domin H.
       all: unfold theta; now rewrite H, H5.
     + unfold theta; destruct nth eqn: ?; [|eauto].
       domin Heqo; eauto.
@@ -236,11 +236,11 @@ Section Normalisation.
     intros Leq; split; intros (Delta & sigma & H1 & H2); [| exists Delta; exists sigma; intuition].
     eapply ordertyping_normalise_subst in H1 as (tau & H5 & H6 & H7).
     pose (theta x := if nth (Gamma₀ I) x then tau x else var x).
-    exists Delta. exists theta. intuition.
+    exists Delta. exists theta. intuition idtac.
     + intros ???; unfold theta; rewrite H; eapply H7; eauto.
     + rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma).
-      rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma); eauto.
-      all: intros ? H; eapply typing_variables in H; eauto; domin H.
+      rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma); trivial.
+      all: intros ? H; eapply typing_variables in H; [|eauto]; domin H.
       all: unfold theta; now rewrite H, H5.
     + unfold theta; destruct nth eqn: ?; [|eauto]; domin Heqo; eauto.
   Qed.
@@ -251,11 +251,11 @@ Section Normalisation.
     intros Leq; split; intros (Delta & sigma & H1 & H2); [| exists Delta; exists sigma; intuition].
     eapply ordertyping_normalise_subst in H1 as (tau & H5 & H6 & H7).
     pose (theta x := if nth (@Gamma₀' _ _ I) x then tau x else var x).
-    exists Delta. exists theta. intuition.
+    exists Delta. exists theta. intuition idtac.
     + intros ???; unfold theta; rewrite H; eapply H7; eauto.
-    + intros; eauto.
+    + intros; trivial.
       rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma).
-      rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma); eauto.
+      rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma); [eauto|..].
       all: intros ? ?; enough (x ∈ dom Gamma₀') as D;
         [domin D; unfold theta; rewrite D; eauto|].
       all: eapply Vars_listtyping.
@@ -275,7 +275,7 @@ Section Normalisation.
     OU n X I -> OU n X I'.
   Proof.
     intros H1 H2 H3 H4; intros (Delta & sigma & T & N); exists Delta; exists sigma; split.
-    rewrite <-H3; eauto. now rewrite <-H1, <-H2, N.
+    rewrite <-H3; trivial. now rewrite <-H1, <-H2, N.
   Qed.
 
 
@@ -293,7 +293,7 @@ Section Normalisation.
     OU n X I <-> OU n X (orduni_normalise n I).
   Proof.
     split; intros H; [eapply @OU_reduction|eapply @OU_reduction with (I := orduni_normalise n I)].
-    all: eauto; cbn; eapply equiv_join.
+    all: trivial; cbn; eapply equiv_join.
     1, 3, 6, 8: rewrite eta₀_correct. all: reflexivity.
   Qed.
 

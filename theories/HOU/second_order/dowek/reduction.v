@@ -4,7 +4,7 @@ From Undecidability.HOU Require Import std.std calculus.calculus.
 Import ListNotations.
 From Undecidability.HOU.second_order Require Import diophantine_equations dowek.encoding.
 Require Import Undecidability.HOU.unification.nth_order_unification.
-
+Import ArsInstances.
 (* ** Equivalences *)
 Section EquationEquivalences.
 
@@ -27,7 +27,7 @@ Section EquationEquivalences.
     Lemma backward_vars x:
       sigma • fst (varEQ x) ≡ sigma • snd (varEQ x) ->  exists n, sigma x = enc n.
     Proof using N.
-      intros ?. eapply enc_characteristic; eauto.
+      intros ?. eapply enc_characteristic; trivial.
       cbn in H. asimpl. asimpl in H.
       unfold shift in *. unfold funcomp at 5 in H.
       asimpl in H. rewrite <-H.
@@ -131,7 +131,7 @@ Section Forward.
     remember (s,t) as q. clear Heqq.
     cbn in *. eapply in_Equations in H' as (e & ? & ?).
     eapply H in H0.
-    destruct e; cbn in *; intuition; subst.
+    destruct e; cbn in *; intuition idtac; subst.
     all: try eapply forward_add. all: try eapply forward_consts.
     all: try eapply forward_mult. all: try eapply forward_vars.
     all: unfold encs, funcomp; eauto. try eapply enc_sol_encodes.
@@ -157,7 +157,7 @@ Section Backward.
     sigma x = enc n -> sub_sol sigma x = n.
   Proof.
     intros H; unfold sub_sol; destruct dec_enc as [[m H']|H'].
-    rewrite H' in H; eapply enc_injective in H; eauto.
+    rewrite H' in H; eapply enc_injective in H; trivial.
     eapply H' in H; intuition.
   Qed.
 
@@ -177,13 +177,13 @@ Section Backward.
     2 - 3: eapply backward_vars in EQy as [m]; eauto.
     2 - 3: eapply backward_vars in EQz as [p]; eauto.
     all: repeat (erewrite sub_sol_enc; [|eauto]).
-    - eapply backward_consts; eauto.
+    - eapply backward_consts; [eauto|].
       eapply H, in_Equations; eexists; intuition eauto.
       cbn; intuition.
-    - eapply backward_add; eauto.
+    - eapply backward_add; [eauto..|].
       eapply H, in_Equations; eexists; intuition eauto.
       cbn; intuition.
-    - eapply backward_mult; eauto.
+    - eapply backward_mult; [eauto..|].
       eapply H, in_Equations; eexists; intuition eauto.
       cbn; intuition.
   Qed.

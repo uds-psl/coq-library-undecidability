@@ -3,7 +3,15 @@ From Undecidability.HOU Require Import calculus.calculus.
 From Undecidability.HOU Require Import
         unification.higher_order_unification unification.nth_order_unification
         concon.conservativity_constants concon.conservativity.
-Import ListNotations.
+Import ListNotations ListInstances ArsInstances.
+
+#[local] Fact ge_plus_l n m : n + m >= n.
+Proof. apply le_plus_l. Qed.
+
+#[local] Fact ge_plus_r n m : m + n >= n.
+Proof. apply le_plus_r. Qed.
+
+#[local] Hint Resolve ge_plus_l ge_plus_r : core.
 
 (* * Constants *)
 (* ** Adding Constants *)
@@ -189,7 +197,6 @@ Section RemoveConstants.
   Let enc_subst (C: list X) (sigma: fin -> exp X) (x: nat) :=
     enc_term C (sigma x).
 
-
   Let ι (y: Y) : exp X := const (I y). 
 
   Let inv_term C (s: exp Y) :=
@@ -207,9 +214,9 @@ Section RemoveConstants.
       (forall x, x ∈ consts s -> R' x = None -> x ∈ C) ->
       enc_ctx C Gamma ⊢(n) enc_term C s : enc_type C A.
     Proof using consts_agree O.
-      intros T H. eapply Lambda_ordertyping; simplify; eauto.
+      intros T H. eapply Lambda_ordertyping; simplify; trivial.
       eapply ordertyping_preservation_consts.
-      eapply ordertyping_weak_preservation_under_substitution; eauto.
+      eapply ordertyping_weak_preservation_under_substitution; [eassumption|..].
       - intros y B H1 H2. unfold enc_var.
         eapply AppR_ordertyping.
         + eapply map_var_typing with (L := map (ctype X) C). 
@@ -219,7 +226,7 @@ Section RemoveConstants.
             rewrite firstn_app; simplify.
             rewrite <-firstn_all; cbn; now simplify.
           * eauto.  
-        + econstructor; simplify; intuition.  
+        + econstructor; simplify; [split;[trivial|]|].  
           eapply vars_ordertyping_nth with (n := n) (Gamma := Gamma)
             in H1; eauto. 
           unfold enc_ctx;
@@ -296,6 +303,7 @@ Section RemoveConstants.
     intros ?? H; unfold inv_term; now rewrite H.
   Qed.
 
+  
   Lemma subst_consts_subst Z (s: exp X) sigma tau theta zeta (kappa: X -> exp Z):
     (forall x, x ∈ vars s -> sigma • subst_consts zeta (tau x) >* subst_consts kappa (theta x)) ->
     (forall x, x ∈ consts s -> sigma • zeta x >* kappa x) ->
@@ -305,8 +313,8 @@ Section RemoveConstants.
     - cbn; intros; eapply H; now econstructor.
     - cbn; intros; eapply H0; eauto.
     - cbn -[vars]; intros.
-      rewrite IHs with (kappa := kappa >> ren shift) (theta := up theta); eauto.
-      + intros []; cbn; eauto.
+      rewrite IHs with (kappa := kappa >> ren shift) (theta := up theta); [easy|..].
+      + intros []; cbn; [easy|].
         unfold funcomp at 2. 
         rewrite ren_subst_consts_commute.
         unfold funcomp at 2. rewrite ren_subst_consts_commute.
@@ -321,42 +329,42 @@ Section RemoveConstants.
       all: intros; eapply H0; cbn; simplify; intuition.
   Qed.
 
-
-
   Lemma enc_subst_term_reduce tau s:
     (forall x c, c ∈ consts (tau x) -> R' c = None -> c ∈ C) ->
     (forall x, x ∈ consts s -> R' x = None -> x ∈ C) ->
     enc_subst C tau • enc_term C s >* enc_term C (tau • s). 
   Proof using n.
     intros H1 H2; unfold enc_term. asimpl. eapply Lambda_steps_proper.
-    rewrite subst_consts_subst; eauto.
+    rewrite subst_consts_subst; trivial.
     - intros x ?. unfold funcomp at 1. 
       unfold enc_var.
       rewrite !subst_consts_AppR, AppR_subst; cbn.
-      rewrite it_up_ge; simplify; eauto.
+      rewrite it_up_ge; simplify; trivial.
       rewrite map_id_list; cbn.
       rewrite map_map; cbn. change (fun x => @var Y x) with (@var Y).
       unfold enc_subst at 1, enc_term. rewrite Lambda_ren.
-      rewrite AppR_Lambda'; simplify; eauto.
-      asimpl. rewrite subst_consts_subst; eauto.
+      rewrite AppR_Lambda'; simplify; trivial.
+      asimpl. rewrite subst_consts_subst; trivial.
       + intros ? ?; unfold funcomp.
-        unfold enc_var. rewrite idSubst_exp; eauto.
+        unfold enc_var. rewrite idSubst_exp; trivial.
         intros y; cbn.
         destruct (le_lt_dec (length C) y). 
-        rewrite it_up_ren_ge, le_plus_minus_r, sapp_ge_in; simplify; eauto.
-        erewrite it_up_ren_lt, nth_error_sapp; eauto.
+        rewrite it_up_ren_ge, le_plus_minus_r, sapp_ge_in; simplify; trivial.
+        erewrite it_up_ren_lt, nth_error_sapp; trivial.
         erewrite map_nth_error; eauto using nth_nats.
-      + unfold enc_const; intros c; destruct (R' c) eqn: ?; cbn; eauto.
-        intros [m H'] % H1 % find_in; eauto; rewrite H'.
+      + unfold enc_const; intros c; destruct (R' c) eqn: ?; cbn; trivial.
+        intros [m H'] % H1 % find_in; trivial; rewrite H'.
         eapply find_Some, nth_error_Some_lt in H'.
-        cbn; unfold funcomp; erewrite it_up_ren_lt, nth_error_sapp; eauto.
+        cbn; unfold funcomp; erewrite it_up_ren_lt, nth_error_sapp; trivial.
         erewrite map_nth_error; eauto using nth_nats.
       + intros ? ?; mapinj; mapinj; cbn; rewrite it_up_lt; eauto using nats_lt. 
-    - unfold enc_const; intros c; destruct (R' c) eqn: ?; cbn; eauto.
-      intros [m H'] % H2 % find_in; eauto; rewrite H'.
+    - unfold enc_const; intros c; destruct (R' c) eqn: ?; cbn; trivial.
+      intros [m H'] % H2 % find_in; trivial; rewrite H'.
       eapply find_Some, nth_error_Some_lt in H'.
-      cbn; erewrite it_up_lt; eauto.
+      now cbn; erewrite it_up_lt.
   Qed.
+
+  
 
   Lemma enc_term_app sigma s:
     (forall x, x ∈ consts s -> R' x = None -> x ∈ C) ->
@@ -364,7 +372,7 @@ Section RemoveConstants.
   Proof using n.
     intros H. unfold enc_term, inv_term.
     asimpl. rewrite subst_consts_Lambda.
-    rewrite AppR_Lambda'; simplify; eauto.
+    rewrite AppR_Lambda'; simplify; trivial.
     replace (ι >> _) with ι by (fext; intros ?; reflexivity).
     pose (theta x := AppR
               (subst_consts ι (ren (plus (length C)) (sigma x)))
@@ -377,7 +385,7 @@ Section RemoveConstants.
         rewrite subst_consts_AppR, subst_consts_comp.
         rewrite map_id_list.
         2: intros ??; mapinj; reflexivity. 
-        rewrite subst_consts_ident; eauto.
+        rewrite subst_consts_ident; trivial.
         replace (ι >> _) with (ι >> ren (plus (length C))).
         2: fext; intros c; unfold funcomp, enc_const, R';
           cbn; now rewrite tight_retr.
@@ -391,36 +399,35 @@ Section RemoveConstants.
           -- edestruct nth_error_None as [_ ->].
              edestruct nth_error_None as [_ ->].
              all: cbn; simplify; eauto. 
-          -- rewrite nth_nats; eauto; cbn.
-             destruct (nth_error_lt_Some _ m C) as [c H3]; eauto.
-             rewrite H3; cbn. erewrite nth_error_sapp; eauto.
+          -- rewrite nth_nats; trivial; cbn.
+             destruct (nth_error_lt_Some _ m C) as [c H3]; trivial.
+             rewrite H3; cbn. erewrite nth_error_sapp; trivial.
              erewrite map_nth_error; eauto.
       + intros ??. unfold funcomp.
         unfold enc_const.
         destruct (R' x) eqn: ?. cbn.
         eapply tight_is_tight in Heqo; now subst.
-        eapply H in H0; eauto.
+        eapply H in H0; trivial.
         eapply find_in in H0 as [m H0]; rewrite H0.
-        cbn. erewrite nth_error_sapp; eauto.
-        erewrite map_nth_error; eauto.
+        cbn. erewrite nth_error_sapp; trivial.
+        erewrite map_nth_error; trivial.
         eapply find_Some; eauto.
     - intros; unfold enc_var, theta.
       rewrite subst_consts_AppR; cbn.
-      rewrite AppR_subst; cbn; rewrite it_up_ge; eauto; simplify.
+      rewrite AppR_subst; cbn; rewrite it_up_ge; trivial; simplify.
       rewrite subst_consts_AppR, subst_consts_comp, subst_consts_ident.
       2: intros ?; unfold funcomp, enc_const, R'; cbn; now rewrite tight_retr.
       eapply refl_star. f_equal.
-      rewrite map_id_list; eauto.
+      rewrite map_id_list; trivial.
       intros ??; mapinj; mapinj; cbn.
       rewrite it_up_lt; eauto using nats_lt. 
     - intros. unfold enc_const. destruct (R' x) eqn: ?. cbn.
       eapply tight_is_tight in Heqo; now subst.
-      eapply H in H0; eauto. 
+      eapply H in H0; trivial. 
       eapply find_in in H0 as [m H0]; rewrite H0.
        eapply find_Some, nth_error_Some_lt in H0.
       cbn; erewrite it_up_lt; eauto.
   Qed.
-
 
   Lemma enc_inv_motivation s:
     (forall x, x ∈ consts s -> R' x = None -> x ∈ C) ->
@@ -449,12 +456,12 @@ Section RemoveConstants.
       Gamma₀ := enc_ctx (iConsts I) Gamma₀;
     }.
   Next Obligation.
-    eapply remove_constants_ordertyping; eauto using H1₀.
+    eapply remove_constants_ordertyping; trivial using H1₀.
     cbn; simplify; intuition.
     eapply filter_In; destruct eq_dec; intuition. 
   Qed.
   Next Obligation.
-    eapply remove_constants_ordertyping; eauto using H2₀.
+    eapply remove_constants_ordertyping; trivial using H2₀.
     cbn; simplify; intuition.
     eapply filter_In; destruct eq_dec; intuition. 
   Qed.
@@ -467,18 +474,18 @@ Section RemoveConstants.
     assert (1 <= n) as L by lia. 
     destruct I as [Gamma s t A H1 H2]; intros (Delta & tau' & T' & E'); cbn in *.
     eapply downcast_constants_ordered in T'
-      as (Sigma & tau & T & E & _ & Cs); eauto; clear tau' E'.
+      as (Sigma & tau & T & E & _ & Cs); [|eauto..]; clear tau' E'.
     pose (C := filter (fun x => if R' x == None then true else false)
           (Consts [s; t])).
     exists (enc_ctx C (Delta ++ Sigma)).
     exists (enc_subst C tau). split. 
-    - eapply remove_constants_ordertypingSubst; eauto.
+    - eapply remove_constants_ordertypingSubst; trivial.
       intros ? ? ? % Cs. intros ?; cbn; eapply filter_In.
       intuition. destruct eq_dec; intuition.
     - cbn [s₀ t₀ remove_constants iConsts Consts flat_map];
         simplify; unfold C.
       cbn in Cs; simplify in Cs. 
-      rewrite !enc_subst_term_reduce; eauto; intuition.
+      rewrite !enc_subst_term_reduce; trivial; intuition trivial.
       now rewrite E.
       all: eapply filter_In; destruct eq_dec; cbn; intuition.
       all: rewrite app_nil_r; eauto.
@@ -491,9 +498,9 @@ Section RemoveConstants.
   Proof.
     pose (C := iConsts I).
     destruct I as [Gamma s t A H1 H2]; intros (Delta & sigma & T & EQ).
-    exists Delta. exists (inv_subst C sigma). split; eauto using inv_subst_typing.
+    exists Delta. exists (inv_subst C sigma). split; [eauto using inv_subst_typing|].
     rewrite <-!enc_term_app. cbn [s₀ t₀ remove_constants] in EQ.
-    unfold C; now rewrite EQ.  all: eauto. 
+    unfold C; now rewrite EQ. 1,3: eauto. 
     all: intros; eapply filter_In; cbn; intuition; destruct eq_dec; intuition.
   Qed.
 

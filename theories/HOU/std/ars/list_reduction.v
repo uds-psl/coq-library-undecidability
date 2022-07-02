@@ -1,8 +1,7 @@
 Set Implicit Arguments.
 Require Import List Morphisms FinFun.
 From Undecidability.HOU Require Import std.tactics std.ars.basic std.ars.confluence.
-Import ListNotations.
-
+Import ListNotations ArsInstances.
 Section ListRelations.
 
   Variable (X : Type) (R: X -> X -> Prop).
@@ -52,7 +51,7 @@ Section ListRelations.
       + destruct (IHstar s t A' T); eauto.
   Qed.
   
-  Global Instance lsteps_cons :
+  #[export] Instance lsteps_cons :
     Proper (star R ++> star lstep ++> star lstep) cons. 
   Proof.
     intros ??; induction 1; intros ??; induction 1; eauto. 
@@ -63,9 +62,9 @@ Section ListRelations.
   Proof.
     intros conf ?. induction x; intros.
     - inv H. inv H0. exists nil; eauto. inv H. inv H1.
-    - destruct y, z; try solve [exfalso; eapply lsteps_cons_nil; eauto].
+    - destruct y, z; try solve [exfalso; eapply lsteps_cons_nil; eassumption].
       eapply lsteps_cons_inv in H; eapply lsteps_cons_inv in H0.
-      intuition; destruct (IHx _ _ H2 H3) as [V].
+      intuition idtac; destruct (IHx _ _ H2 H3) as [V].
       destruct (conf _ _ _ H1 H) as [v].
       exists (v :: V).
       now rewrite H5, H0. now rewrite H6, H4.
@@ -76,9 +75,9 @@ Section ListRelations.
   Lemma normal_lstep_in A:
     Normal lstep A -> forall x, In x A  -> Normal R x.
   Proof.
-    induction A; cbn; intuition; subst; eauto.
+    induction A; cbn; intuition idtac; subst; trivial.
     intros ? H1. eapply H. constructor. eassumption.
-    eapply IHA; eauto. intros ? H2. eapply H.
+    eapply IHA; trivial. intros ? H2. eapply H.
     econstructor 2; eauto. 
   Qed.
 
@@ -87,7 +86,7 @@ Section ListRelations.
   Lemma normal_in_lstep A:
     (forall x, In x A  -> Normal R x) -> Normal lstep A.
   Proof.
-    induction A; cbn; intuition. 
+    induction A; cbn; intuition idtac. 
     - intros ? H1. inv H1.
     - intros ? H1. inv H1.
       eapply H; eauto.
@@ -128,21 +127,21 @@ Section ListRelations.
     - subst. injection HeqT' as ??; subst; intuition.
     - subst. inv H.
       + destruct x'. eapply lstep_cons_nil in H1 as [].
-        edestruct IHstar; eauto. inv H1.
-        * intuition.
+        edestruct IHstar; trivial. inv H1.
+        * intuition idtac.
           transitivity x; eauto. 
-        * intuition. transitivity x'; eauto.
+        * intuition idtac. transitivity x'; eauto.
       + destruct x'. eapply lstep_nil_cons in H1 as [].
-        edestruct IHstar; eauto. inv H1; intuition. 
+        edestruct IHstar; trivial. inv H1; intuition idtac. 
         * transitivity x; eauto. 
         * transitivity x'; eauto. 
   Qed.
 
 
-  Global Instance equiv_lstep_cons_proper:
+  #[export] Instance equiv_lstep_cons_proper:
     Proper (equiv R ++> equiv lstep ++> equiv lstep) cons.
   Proof.
-    intros ??; induction 1; intros ??; induction 1; eauto.
+    intros ??; induction 1; intros ??; induction 1; [eauto|..].
     - rewrite <-IHstar. destruct H.
       eauto. symmetry. eauto.
     - rewrite <-(IHstar x0 x0); try reflexivity.
@@ -162,7 +161,7 @@ Section ListRelations.
     (forall s t S T, equiv R s t -> equiv lstep S T -> P S T -> P (s :: S) (t :: T)) ->
     forall S T, equiv lstep S T -> P S T.
   Proof.
-    intros B IH S T H; induction S in T, H |-*; destruct T; eauto.
+    intros B IH S T H; induction S in T, H |-*; destruct T; trivial.
     - exfalso; eapply not_equiv_lstep_nil_cons; eauto. 
     - exfalso; eapply not_equiv_lstep_nil_cons; symmetry; eauto. 
     - eapply equiv_lstep_cons_inv in H as (? & ?).

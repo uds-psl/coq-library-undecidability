@@ -1,7 +1,7 @@
 Set Implicit Arguments.
 Require Import List Lia.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.higher_order_unification.
-Import ListNotations.
+Import ListNotations ListInstances ArsInstances.
 
 (* * System Unification *)
 Section SystemUnification.
@@ -40,7 +40,7 @@ Section SystemUnification.
   Lemma typing_combine Gamma E L:
     Gamma ⊢₊ left_side E : L -> Gamma ⊢₊ right_side E : L -> Gamma ⊢₊₊ E : L.
   Proof.
-    intros H1 H2; induction E in L, H1, H2 |-*; inv H1; inv H2; eauto.
+    intros H1 H2; induction E in L, H1, H2 |-*; inv H1; inv H2; trivial.
     destruct a; eauto.
   Qed.
 
@@ -86,7 +86,7 @@ Section SystemUnification.
   Lemma equiv_eqs_pointwise sigma E:
     (sigma •₊ left_side E) ≡₊ (sigma •₊ right_side E) -> (forall s t, (s, t) ∈ E -> sigma • s ≡ sigma • t).
   Proof.
-    induction E; cbn; intuition; subst.
+    induction E; cbn; intuition idtac; subst.
     all: eapply equiv_lstep_cons_inv in H; intuition.
   Qed.
 
@@ -95,8 +95,8 @@ Section SystemUnification.
     (forall s t, (s, t) ∈ E -> sigma • s ≡ sigma • t) ->
     (sigma •₊ left_side E) ≡₊ (sigma •₊ right_side E).
   Proof.
-    induction E as [| [s t]]; cbn; intros; eauto; intuition.
-    rewrite H; intuition.
+    induction E as [| [s t]]; cbn; intros; [eauto|].
+    rewrite H; intuition idtac.
     rewrite IHE; intuition.
   Qed.
 
@@ -116,7 +116,7 @@ Section SystemUnification.
     all_terms P (e :: E) -> P (fst e) /\ P (snd e) /\ all_terms P E.
   Proof.
     destruct e as [s t]; intros H; cbn.
-    specialize (H s t) as H'; cbn in H'; intuition.
+    specialize (H s t) as H'; cbn in H'; intuition idtac.
     intros ???; eapply H; cbn; intuition.
   Qed.
 
@@ -126,7 +126,7 @@ Section SystemUnification.
   Proof.
     unfold all_eqs; cbn; split.
     - eauto using all_terms_cons.
-    - intros (? & ? & ?) ? ? [->|H']; firstorder.
+    - intros (? & ? & ?) ? ? [->|H']; firstorder idtac.
   Qed.
 
   Hint Rewrite all_terms_cons_iff : simplify.
@@ -186,9 +186,9 @@ Section SystemUnification.
     Gamma ⊢₊ S : L -> Gamma ⊢ linearize_terms S : (Arr (rev L) A) → A.
   Proof.
     intros H; econstructor; eapply AppR_typing with (L := L).
-    eapply listtyping_preservation_under_renaming; eauto.
-    intros x ?; cbn; eauto.
-    econstructor; eauto; simplify; cbn; intuition.
+    eapply listtyping_preservation_under_renaming; [eassumption|..].
+    intros x ?; cbn; trivial.
+    econstructor; trivial; simplify; cbn; intuition.
   Qed.
 
 
@@ -197,9 +197,9 @@ Section SystemUnification.
   Proof.
     split.
     - intros ? H % vars_varof. inv H. eapply varof_vars in H1.
-      rewrite AppR_vars in H1. simplify in H1. cbn in H1; intuition.
+      rewrite AppR_vars in H1. simplify in H1. cbn in H1; intuition idtac.
       discriminate. eapply in_flat_map in H as [? []].
-      mapinj. eapply vars_ren in H0 as []. intuition.
+      mapinj. eapply vars_ren in H0 as []. intuition idtac.
       injection H1 as ->. eapply in_flat_map. eexists; eauto.
     - intros x H. eapply varof_vars; econstructor; eapply vars_varof.
       rewrite AppR_vars; simplify; right.
@@ -229,18 +229,18 @@ Section SystemUnification.
    Lemma U_SU: U X ⪯ SU.
    Proof.
      exists (uni_sysuni); intros I.
-     split; intros (Delta & sigma & H1 & H2); exists Delta; exists sigma; intuition.
-     firstorder; injection H; intros; subst; eauto.
+     split; intros (Delta & sigma & H1 & H2); exists Delta; exists sigma; intuition idtac.
+     firstorder idtac; injection H; intros; subst; trivial.
      eapply H2; firstorder.
    Qed.
 
    Lemma SU_U: SU ⪯ U X.
    Proof.
      exists (sysuni_uni).
-     intros I; split; intros (Delta & sigma & H1 & H2); exists Delta; exists sigma; destruct I; intuition;
+     intros I; split; intros (Delta & sigma & H1 & H2); exists Delta; exists sigma; destruct I; intuition idtac;
        cbn [sᵤ tᵤ sysuni_uni] in *.
      rewrite !linearize_terms_subst, linearize_terms_equiv. now apply equiv_pointwise_eqs.
-     eapply equiv_eqs_pointwise; eauto.
+     eapply equiv_eqs_pointwise; [|eassumption].
      now rewrite <-linearize_terms_equiv, <-!linearize_terms_subst.
    Qed.
 
@@ -272,12 +272,12 @@ Proof.
   split; intros (Delta & sigma & H1 & H2); [| exists Delta; exists sigma; intuition].
   eapply normalise_subst in H1 as (tau & H5 & H6 & H7).
   pose (theta x := if nth (@Gammaᵤ' _ I) x then tau x else var x).
-  exists Delta. exists theta. intuition.
+  exists Delta. exists theta. intuition idtac.
   + intros ???; unfold theta; rewrite H; eapply H7; eauto.
   + rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma).
-    rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma); eauto.
+    rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma); [eauto|..].
     all: intros ? ?; enough (x ∈ dom Gammaᵤ') as D;
-      [domin D; unfold theta; rewrite D|]; eauto.
+      [domin D; unfold theta; rewrite D|]; [eauto|].
     all: eapply Vars_listtyping.
     2, 4: eapply in_flat_map; eexists; (intuition eauto).
     2: change t with (snd (s, t)); eapply in_map; eauto.

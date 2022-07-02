@@ -2,8 +2,7 @@ Set Implicit Arguments.
 Require Import RelationClasses Morphisms List Lia
       Arith Lia Init.Nat Setoid.
 From Undecidability.HOU Require Import std.std calculus.calculus third_order.pcp.
-Import ListNotations.
-
+Import ListNotations ArsInstances.
 (* * Third-Order Encoding *)
 Section Encoding.
 

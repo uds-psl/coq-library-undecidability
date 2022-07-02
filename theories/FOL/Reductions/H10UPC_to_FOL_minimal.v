@@ -6,7 +6,7 @@ From Undecidability.FOL Require Import Util.Syntax Util.Kripke Util.Deduction Ut
 From Undecidability.Shared Require Import Dec.
 From Undecidability.Shared.Libs.PSL Require Import Numbers.
 From Coq Require Import Arith Lia List.
-
+Import Undecidability.Shared.ListAutomation.ListInstances.
 
 (* ** Validity *)
 

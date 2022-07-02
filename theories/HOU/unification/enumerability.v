@@ -1,7 +1,7 @@
 Set Implicit Arguments.
 Require Import List Lia.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.higher_order_unification unification.nth_order_unification.
-
+Import ArsInstances.
 (* * Enumerability *)
 
 (* ** Terms, Types and Contexts *)
@@ -81,10 +81,10 @@ Section ListEnumerability.
     - eauto.
     - intros x.
       induction x using typing_strong_ind.
-      + exists 1. cbn. destruct dec; intuition. in_app 1. f_equal. 
+      + exists 1. cbn. destruct dec; intuition idtac. in_app 1. f_equal. 
         eapply Eqdep_dec.inj_pair2_eq_dec. eapply eq_dec. now destruct e, e0. 
       + exists 1. cbn. destruct dec; intuition; cbn. left.
-        unfold cast; rewrite <-Eqdep_dec.eq_rect_eq_dec; eauto. decide equality. decide equality.
+        unfold cast; rewrite <-Eqdep_dec.eq_rect_eq_dec; trivial. decide equality. decide equality.
       + edestruct IHx as [m]. exists (S m); cbn.
         in_app 2. now in_collect x.
       + edestruct IHx1 as [x1'], IHx2 as [x2'], (el_T A) as [x3'].
@@ -106,16 +106,16 @@ Section ListEnumerability.
 
   Lemma enum_typing:
     enum (fun '(Gamma, s, A) => Gamma ⊢ (s: exp X) : A) L_typing.
-  Proof with eauto using cum_ge'.
-    split; eauto.
+  Proof.
+    split; trivial.
     intros [[Gamma s] A]; split.
     - intros H. destruct (el_T Gamma) as [x1], (el_T s) as [x2], (el_T A) as [x3], (el_T H) as [x4]. exists (S (x1+x2+x3+x4)); cbn.
       in_app 2. in_collect (Gamma, s, A). 
       1 - 3: eapply cum_ge'; eauto; lia.
-      eapply dec_decb. eapply cum_ge' with (m := x1 + x2 + x3 + x4) in H3; eauto.
+      eapply dec_decb. eapply cum_ge' with (m := x1 + x2 + x3 + x4) in H3; [|eauto..].
       destruct (@L_T (Gamma ⊢ s : A) _ _); cbn; eauto.
     - intros [m H];  induction m in Gamma, s, A, H |-*; cbn in *. eauto.
-      inv_collect; injection H; intros; subst.  eapply decb_dec in H1; intuition; subst.
+      inv_collect; injection H; intros; subst.  eapply decb_dec in H1; intuition idtac; subst.
       destruct (@L_T (Gamma ⊢ s : A) _ m); intuition. 
   Qed.
 
@@ -130,15 +130,15 @@ Section ListEnumerability.
 
   Global Instance enumT_uni :
     enumT (uni X).
-  Proof using enumX with eauto using cum_ge'.
+  Proof using enumX.
     exists L_uni.
     - eauto.
     - intros [Gamma s t A H1 H2].
       destruct (el_T Gamma) as [x1], (el_T s) as [x2], (el_T t) as [x3], (el_T A) as [x4], (el_T H1) as [x5], (el_T H2) as [x6].
       exists (S (x1 + x2 + x3 + x4 + x5 + x6)); cbn. in_app 2.
-      eapply in_flat_map. exists (Gamma, s, t, A). intuition.
+      eapply in_flat_map. exists (Gamma, s, t, A). intuition idtac.
       + in_collect (Gamma, s, t, A); eapply cum_ge'; eauto;lia.
-      + in_collect (H1, H2)...
+      + in_collect (H1, H2); eauto using cum_ge'.
   Qed.
 
 
@@ -156,21 +156,21 @@ Section ListEnumerability.
     enum (fun '(Delta, sigma, Gamma) => Delta ⊩ (sigma: fin -> exp X) : Gamma /\ forall x, x >= | Gamma | -> sigma x = tau x) (L_subst tau).
   Proof.
     destruct enum_typing as [_ E'].
-    split; eauto; intros [[Delta sigma] Gamma]; split.
+    split; trivial; intros [[Delta sigma] Gamma]; split.
     - intros [H1 H2].
       induction Gamma as [| A Gamma] in sigma, tau, H1, H2 |-*.  
       + destruct (el_T Delta) as [x]; exists (S x); cbn.
-        in_app 2. in_collect Delta; eauto. repeat f_equal. symmetry; fext; intros; eapply H2; cbn; lia.
-      + specialize (IHGamma (S >> tau) (S >> sigma) ); mp IHGamma; [| mp IHGamma]; eauto.
+        in_app 2. in_collect Delta; trivial. repeat f_equal. symmetry; fext; intros; eapply H2; cbn; lia.
+      + specialize (IHGamma (S >> tau) (S >> sigma) ); mp IHGamma; [| mp IHGamma]; trivial.
         * intros ???. now eapply H1.
         * intros; unfold funcomp; eapply H2; cbn; lia.
         * assert (Delta ⊢ sigma 0 : A) by eauto. 
           specialize (E' (Delta, sigma 0, A)); cbn in E'. eapply E' in H as [x1].
           destruct IHGamma as [x2]. exists (1 + x1 + x2); cbn.
-          in_app 3. in_collect ((Delta, S >> sigma, Gamma), (Delta, sigma 0, A)); eauto using cum_ge'.
+          in_app 3. in_collect ((Delta, S >> sigma, Gamma), (Delta, sigma 0, A)); [|eauto using cum_ge'..].
           repeat f_equal; fext; now intros [].
-    - intros [m H]; induction m in tau, sigma, Gamma, H |-*; cbn in H; eauto.
-      inv_collect; try injection H; intros; subst; eauto.
+    - intros [m H]; induction m in tau, sigma, Gamma, H |-*; cbn in H; [eauto|].
+      inv_collect; try injection H; intros; subst; trivial.
       1 - 2: eapply IHm in H; intuition.
       + intros []?; cbn; discriminate.
       + eapply decb_dec in H1; subst. eapply typingSubst_cons.
@@ -194,7 +194,7 @@ Section ListEnumerability.
 
   Lemma enum_unification' : enum Uextended L_Uextended.
   Proof.
-    split; eauto.
+    split; trivial.
     intros [[I Delta] sigma]. unfold Uextended; cbn; split.
     - intros (H3 & H4 & H5). destruct (el_T I) as [x1].
       destruct (enum_substs var) as [_ E].
@@ -211,20 +211,20 @@ Section ListEnumerability.
       + eapply cum_ge'; eauto; lia.
       + eapply xi_monotone with (m := x1 + x2 + x3 + x4) in H0; [|lia].
         eapply xi_monotone with (m := x1 + x2 + x3 + x4) in H1; [|lia].
-        eapply dec_decb; intuition; try congruence.
+        eapply dec_decb; intuition idtac; try congruence.
         rewrite H0, H1. f_equal. destruct E1, E2.
         rewrite H2, H7 in H4. eapply equiv_unique_normal_forms; eauto.
-    - intros [m H]; induction m; cbn in H; eauto.
+    - intros [m H]; induction m; cbn in H; [eauto|].
       eapply (inhabited_ind id). 
       inv_collect; injection H; intros; subst.
-      eapply decb_dec in H1. intuition; subst.
+      eapply decb_dec in H1. intuition idtac; subst.
       destruct (enum_substs var) as [_ H'].
       specialize (H' (Delta, sigma, Gammaᵤ)) as [_ H']; cbn in H'.
-      mp H'; eauto. eapply inhabits; intuition.
-      destruct (xi m (sigma • sᵤ)) eqn: Hs; intuition.
-      destruct (xi m (sigma • tᵤ)) eqn: Ht; intuition.
+      mp H'; eauto. eapply inhabits; intuition idtac.
+      destruct (xi m (sigma • sᵤ)) eqn: Hs; intuition idtac.
+      destruct (xi m (sigma • tᵤ)) eqn: Ht; intuition idtac.
       injection H6 as <-.
-      eapply equiv_huet_backward with (v1 := e) (v2 := e); eauto.
+      eapply equiv_huet_backward with (v1 := e) (v2 := e); trivial.
       all: eapply xi_correct; now (exists m).
   Qed.
 
@@ -238,10 +238,10 @@ Proof.
   rewrite enum_enumT. intros [EX].
   eapply enumerable_iff with (P := fun I => exists Delta sigma, Uextended (I, Delta, sigma)).
   - intros [Gamma s t A ? ?]; unfold Uextended, U; cbn; split; intros [Delta [sigma []]].
-    exists Delta; exists sigma; intuition.
-    pose (tau x := if nth Gamma x then sigma x else var x). exists Delta; exists tau; intuition.
+    exists Delta; exists sigma; intuition idtac.
+    pose (tau x := if nth Gamma x then sigma x else var x). exists Delta; exists tau; intuition idtac.
     unfold tau; intros ?? H'; rewrite H'; eauto.
-    repeat rewrite subst_extensional with (sigma := tau) (tau := sigma); eauto.
+    repeat rewrite subst_extensional with (sigma := tau) (tau := sigma); trivial.
     1 - 2: intros ? H'; assert (x ∈ dom Gamma) as H1 by eauto using typing_variables; unfold tau; now domin H1.
     unfold tau. now eapply nth_error_None in H1 as ->.
   - eapply projection with (p := fun x: uni X * ctx => exists sigma, let (I, Delta) := x in Uextended (I, Delta, sigma)).

@@ -4,7 +4,7 @@ Import ListNotations.
 From Undecidability.HOU Require Import std.std calculus.calculus second_order.diophantine_equations.
 From Undecidability.HOU.unification Require Import 
   systemunification nth_order_unification.
-
+Import ArsInstances.
 (* * Higher-Order Motivation *)
 
 (* ** Church Numerals *)
@@ -75,8 +75,8 @@ Section ChurchEncoding.
   Lemma typing_enc Gamma n: Gamma ⊢(3) enc n : alpha → (alpha → alpha) → alpha.
   Proof.
     unfold enc. econstructor. econstructor.
-    eapply AppL_ordertyping_repeated; eauto.
-    eapply repeated_ordertyping; simplify; eauto.
+    eapply AppL_ordertyping_repeated; [|eauto].
+    eapply repeated_ordertyping; simplify; trivial.
     intros ? <- % repeated_in; eauto. 
   Qed.
 
@@ -84,7 +84,7 @@ Section ChurchEncoding.
   Lemma enc_app n s t:
     enc n s t ≡ AppL (repeat t n) s.
   Proof.
-    unfold enc. do 2 (rewrite stepBeta; asimpl; cbn; eauto).
+    unfold enc. do 2 (rewrite stepBeta; asimpl; cbn; trivial).
     now rewrite !repeated_map; cbn. 
   Qed.
 
@@ -114,7 +114,7 @@ Section ChurchEncoding.
   Lemma enc_add' n m s f:
     enc (n + m) s f ≡ (enc n) (enc m s f) f.
   Proof.
-    induction n; cbn; simplify; eauto.
+    induction n; cbn; simplify; [eauto|].
     now rewrite IHn.
   Qed.
 
@@ -147,8 +147,8 @@ Section ChurchEncoding.
     enc n = enc m -> n = m.
   Proof.
     injection 1 as H.
-    induction n in m, H |-*; destruct m; try discriminate; eauto.
-    erewrite IHn; eauto.
+    induction n in m, H |-*; destruct m; try discriminate; trivial.
+    erewrite IHn; trivial.
     injection H; eauto.
   Qed.
 
@@ -165,7 +165,7 @@ Section ChurchEncoding.
   Lemma enc_equiv_injective n m:
     enc n ≡ enc m -> n = m.
   Proof.
-    intros ? % equiv_unique_normal_forms; eauto.
+    intros ? % equiv_unique_normal_forms; trivial.
     eapply enc_injective; eauto.
   Qed.
   
@@ -178,7 +178,7 @@ Section ChurchEncoding.
     destruct s...  
     enough ({ n | s = AppL (repeat (var 0) n) (var 1)} +
             forall n, s <> AppL (repeat (var 0) n) (var 1)).
-    - destruct H; [left|right]; intuition.
+    - destruct H; [left|right]; intuition idtac.
       destruct s0 as [n]; exists n; now subst.
       injection H; eapply n; eauto. 
     - induction s...  
@@ -208,32 +208,32 @@ Proof.
   intros H'; Injection H'. clear H'. Injection H. clear H. rename H0 into H.
   asimpl in H. 
   destruct k as [|[|[]]]; cbn in H.
-  - eapply equiv_app_elim in H; intuition.
+  - eapply equiv_app_elim in H; (intuition idtac); [|eauto|].
     symmetry in H1; eapply equiv_neq_var_app in H1 as [].
     all: cbn; simplify; destruct a; cbn in isA; eauto.
-  - do 2 (rewrite stepBeta in H; asimpl; eauto).
-    eapply equiv_app_elim in H; intuition.
+  - do 2 (rewrite stepBeta in H; asimpl; trivial).
+    eapply equiv_app_elim in H; (intuition idtac); [|eauto|].
     symmetry in H1; eapply equiv_neq_var_app in H1 as [].
     all: cbn; simplify; destruct a as [[] | | |]; cbn in isA; eauto.  
   - rewrite <-AppR_subst in H. remember (AppR a T) as t. clear isA a T Heqt.
-    do 4 (rewrite stepBeta in H; asimpl; cbn; asimpl; eauto).
+    do 4 (rewrite stepBeta in H; asimpl; cbn; asimpl; trivial).
     rewrite idSubst_exp in H; [|intros [|[]]; cbn; eauto].  eapply normal_Lambda in N.
     pose (sigma := @var X 0 .: var 0 (var 1) .: shift >> (shift >> var)). fold sigma in H.
     enough (exists n, t = AppL (repeat (var 0) n) (var 1)) as [n ->] by now (exists n).
     induction t as [[| [|]] | | |]; cbn in H; try solve [unfold funcomp in H; Discriminate].
     + exists 0; reflexivity.
-    + eapply head_atom in N as isA; eauto. 
-      eapply equiv_app_elim in H as [EQ1 EQ2]; eauto.
-      2: eapply atom_head_lifting; eauto.
+    + eapply head_atom in N as isA; [|eauto]. 
+      eapply equiv_app_elim in H as [EQ1 EQ2]; [|eauto|].
+      2: eapply atom_head_lifting; trivial.
       2: intros [| [| []]]; cbn; eauto.
       destruct t1 as [[| [|]] | | |]; cbn in EQ1; try Discriminate.
       * mp IHt2; [eauto using normal_app_r|]. specialize (IHt2 EQ2). 
         destruct IHt2 as [n IHt2]; exists (S n); cbn; now rewrite IHt2.
       * unfold funcomp in EQ1; Injection EQ1. discriminate.
       * eapply equiv_neq_var_app in EQ1 as [].
-        eapply atom_head_lifting; eauto.
+        eapply atom_head_lifting; trivial.
         intros [| [| []]]; cbn; eauto.
-  - repeat (rewrite stepBeta in H; cbn; asimpl; eauto).
+  - repeat (rewrite stepBeta in H; cbn; asimpl; trivial).
     Discriminate. 
 Qed.
 
@@ -316,7 +316,7 @@ Section Encoding.
     Proof.
       intros; unfold constEQ.
       split; cbn [fst snd].
-      + econstructor; eauto. 
+      + econstructor; trivial. 
         eapply Gamma__dwk_nth, Vars__de_in; eauto; cbn; intuition.
       + eapply typing_enc. 
     Qed.
@@ -345,7 +345,7 @@ Section Encoding.
     Lemma typing_equations d e:
       e ∈ E -> d ∈ eqs e -> Gamma__dwk ⊢₂(3) d : alpha → (alpha → alpha) → alpha. 
     Proof.
-      intros H H1; destruct e; cbn in H1; intuition; subst.
+      intros H H1; destruct e; cbn in H1; intuition idtac; subst.
       all: eauto using typing_constEQ, typing_addEQ, typing_mulEQ. 
       all: eapply typing_varEQ, Vars__de_in; eauto; cbn; intuition.
     Qed. 
@@ -373,5 +373,3 @@ Next Obligation.
   all: intros ? ?; mapinj;
     eapply in_Equations in H1 as [? []];eapply typing_equations; eauto.
 Qed.
-
-

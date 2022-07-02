@@ -1,7 +1,7 @@
 Set Implicit Arguments.
 Require Import Morphisms Lia List.
 From Undecidability.HOU Require Import calculus.calculus.
-Import ListNotations.
+Import ListNotations ListInstances ArsInstances.
 
 (* * Conservativity *)
 
@@ -36,13 +36,13 @@ Section Constants.
     Lemma consts_ren delta s:
       consts (ren delta s) = consts s.
     Proof.
-      induction s in delta |-*; cbn; intuition; congruence.
+      induction s in delta |-*; cbn; intuition idtac; congruence.
     Qed.
 
     Lemma vars_subst_consts x s sigma:
       x ∈ vars s -> consts (sigma x) ⊆ consts (sigma • s).
     Proof.
-      intros H % vars_varof; induction H in sigma |-*; cbn; intuition.
+      intros H % vars_varof; induction H in sigma |-*; cbn; [auto with listdb..|].
       rewrite <-IHvarof; cbn; unfold funcomp; now rewrite consts_ren.
     Qed.
 
@@ -53,14 +53,14 @@ Section Constants.
       induction s in sigma |-*.
       - right; exists f; intuition.
       - cbn; intuition.
-      - intros H % IHs; cbn -[vars]; intuition.
-        destruct H0 as [[]]; cbn -[vars] in *; intuition.
-        right. exists n. intuition.
+      - intros H % IHs; cbn -[vars]; intuition idtac.
+        destruct H0 as [[]]; cbn -[vars] in *; intuition idtac.
+        right. exists n. intuition eauto with listdb.
         unfold funcomp in H1; now rewrite consts_ren in H1.
-      - cbn; simplify; intuition.
-        + specialize (IHs1 _ H0); intuition.
+      - cbn; simplify; intuition idtac.
+        + specialize (IHs1 _ H0); intuition idtac.
           destruct H as [y]; right; exists y; intuition.
-        + specialize (IHs2 _ H0); intuition.
+        + specialize (IHs2 _ H0); intuition idtac.
           destruct H as [y]; right; exists y; intuition.
     Qed.
 
@@ -68,7 +68,7 @@ Section Constants.
     Lemma consts_subset_step s t:
       s > t -> consts t ⊆ consts s.
     Proof.
-      induction 1; cbn; intuition.
+      induction 1; cbn; [|auto with listdb..].
       subst. unfold beta.
       intros x ? % consts_subst_in; simplify.
       destruct H; [tauto|].
@@ -86,7 +86,7 @@ Section Constants.
     Lemma consts_subst_vars sigma s:
       consts (sigma • s) ⊆ consts s ++ Consts (map sigma (vars s)).
     Proof.
-      intros x [|[y]] % consts_subst_in; simplify; intuition.
+      intros x [|[y]] % consts_subst_in; simplify; intuition idtac.
       right; eapply Consts_consts; eauto using in_map.
     Qed.
 
@@ -99,15 +99,15 @@ Section Constants.
     Lemma consts_AppL S t:
       consts (AppL S t) === Consts S ++ consts t.
     Proof.
-      induction S; cbn; intuition.
+      induction S; cbn; [trivial with listdb|].
       rewrite IHS; now rewrite app_assoc.
     Qed.
 
     Lemma consts_AppR s T:
       consts (AppR s T) === consts s ++ Consts T.
     Proof.
-      induction T; cbn; intuition.
-      rewrite IHT. intuition.
+      induction T; cbn; [auto with listdb|].
+      rewrite IHT.
       split; intros c; simplify; intuition.
     Qed.
 
@@ -132,7 +132,7 @@ Section Constants.
     Lemma ren_subst_consts_commute X Y (zeta: X -> exp Y) delta s:
       subst_consts (zeta >> ren delta) (ren delta s) = ren delta (subst_consts zeta s).
     Proof.
-      induction s in delta, zeta |-*; cbn; eauto.
+      induction s in delta, zeta |-*; cbn; trivial.
       - f_equal. rewrite <-IHs. f_equal.
         asimpl. reflexivity.
       - now rewrite IHs1, IHs2.
@@ -143,7 +143,7 @@ Section Constants.
       subst_consts kappa (subst_consts zeta s) =
       subst_consts (zeta >> subst_consts kappa) s.
     Proof.
-      induction s in zeta, kappa |-*; cbn; eauto.
+      induction s in zeta, kappa |-*; cbn; trivial.
       - f_equal. rewrite IHs. f_equal. fext.
         unfold funcomp at 4; unfold funcomp at 4.
         intros; rewrite <-ren_subst_consts_commute.
@@ -155,11 +155,11 @@ Section Constants.
     Lemma subst_consts_ident Y zeta s:
       (forall x: Y, x ∈ consts s -> zeta x = const x) -> subst_consts zeta s = s.
     Proof.
-      intros; induction s in zeta, H |-*; cbn; eauto.
-      eapply H; cbn; eauto.
-      rewrite IHs; eauto.
+      intros; induction s in zeta, H |-*; cbn; trivial.
+      eapply H; cbn; tauto.
+      rewrite IHs; trivial.
       unfold funcomp; now intros x -> % H.
-      rewrite IHs1, IHs2; eauto.
+      rewrite IHs1, IHs2; trivial.
       all: intros; apply H; cbn; simplify; intuition.
     Qed.
 
@@ -171,13 +171,13 @@ Section Constants.
       induction s in zeta, sigma, delta |-*; intros H; cbn.
       - reflexivity.
       - unfold funcomp; asimpl.
-        rewrite idSubst_exp; eauto.
+        rewrite idSubst_exp; trivial.
         intros y; unfold funcomp; cbn.
         rewrite H; reflexivity.
       - f_equal. erewrite IHs with (delta := 0 .: delta >> shift).
-        2: intros []; cbn; unfold funcomp; eauto; rewrite H; reflexivity.
+        2: intros []; cbn; unfold funcomp; trivial; rewrite H; reflexivity.
         f_equal; [| now asimpl].
-        fext; intros []; cbn; eauto.
+        fext; intros []; cbn; trivial.
         unfold funcomp at 2.
         now rewrite ren_subst_consts_commute.
       - erewrite IHs1, IHs2; eauto.
@@ -187,7 +187,7 @@ Section Constants.
     Global Instance step_subst_consts X Y:
       Proper (Logic.eq ++> step ++> step) (@subst_consts X Y).
     Proof.
-      intros ? zeta -> s t H; induction H in zeta |-*; cbn; eauto.
+      intros ? zeta -> s t H; induction H in zeta |-*; cbn; [|eauto..].
       econstructor; subst; unfold beta.
       erewrite subst_const_comm with (delta := shift).
       f_equal. fext.
@@ -198,14 +198,14 @@ Section Constants.
     Global Instance steps_subst_consts X Y:
       Proper (Logic.eq ++> star step ++> star step) (@subst_consts X Y).
     Proof.
-      intros ? zeta -> s t H; induction H in zeta |-*; cbn; eauto; rewrite H; eauto.
+      intros ? zeta -> s t H; induction H in zeta |-*; cbn; trivial; rewrite H; eauto.
     Qed.
 
 
     Global Instance equiv_subst_consts X Y:
       Proper (Logic.eq ++> equiv step ++> equiv step) (@subst_consts X Y).
     Proof.
-      intros ? zeta -> s t [v [H1 H2]] % church_rosser; eauto;
+      intros ? zeta -> s t [v [H1 H2]] % church_rosser; trivial;
         now rewrite H1, H2.
     Qed.
 
@@ -213,10 +213,10 @@ Section Constants.
     Lemma subst_consts_consts X Y (zeta: X -> exp Y) (s: exp X):
       consts (subst_consts zeta s) === Consts (map zeta (consts s)).
     Proof.
-      unfold Consts; induction s in zeta |-*; cbn; simplify; intuition.
+      unfold Consts; induction s in zeta |-*; cbn; simplify; [eauto with listdb|eauto with listdb|..].
       - rewrite IHs.
         unfold funcomp; rewrite <-map_map, !flat_map_concat_map, map_map.
-        erewrite map_ext with (g := consts); intuition.
+        erewrite map_ext with (g := consts); intuition eauto with listdb.
         now rewrite consts_ren.
       - rewrite IHs1, IHs2, !flat_map_concat_map; simplify.
         now rewrite concat_app.
@@ -234,7 +234,7 @@ Section Constants.
     Lemma subst_consts_up Y Z (zeta: Y -> exp Z) (sigma: fin -> exp Y):
       up (sigma >> subst_consts zeta) = up sigma >> subst_consts (zeta >> ren shift).
     Proof.
-      fext; intros []; cbn; eauto.
+      fext; intros []; cbn; trivial.
       unfold funcomp at 1 2.
       now rewrite <-ren_subst_consts_commute.
     Qed.
@@ -243,9 +243,9 @@ Section Constants.
       subst_consts zeta s = s ->
       (sigma >> subst_consts zeta) • s = subst_consts zeta (sigma • s).
     Proof.
-      induction s in zeta, sigma |-*; cbn; eauto.
+      induction s in zeta, sigma |-*; cbn; [trivial|congruence|..].
       - injection 1 as H. f_equal.
-        rewrite <-IHs; eauto.
+        rewrite <-IHs; trivial.
         now rewrite subst_consts_up.
       - injection 1 as H. f_equal; eauto.
     Qed.
@@ -255,7 +255,7 @@ Section Constants.
     Lemma typing_constants X n Gamma s A :
       Gamma ⊢(n) s : A -> forall c, c ∈ consts s -> ord (ctype X c) <= S n.
     Proof.
-      induction 1; cbn;  intuition; subst; eauto.
+      induction 1; cbn;  intuition idtac; subst; trivial.
       simplify in H1; intuition.
     Qed.
 
@@ -273,13 +273,13 @@ Section Constants.
       Gamma ⊢ s : A -> (forall x, x ∈ consts s -> Gamma ⊢ zeta x : ctype X x) ->
       Gamma ⊢ subst_consts zeta s : A.
     Proof.
-      induction 1 in zeta |-*; cbn; eauto.
+      induction 1 in zeta |-*; cbn; [eauto|eauto|..].
       - intros H'. econstructor. eapply IHtyping.
-        intros; eapply preservation_under_renaming; eauto.
+        intros; eapply preservation_under_renaming; [eauto|].
         intros ?; cbn; eauto.
       - intros H'. econstructor.
-        eapply IHtyping1; intros ??; eapply H'; simplify; intuition.
-        eapply IHtyping2; intros ??; eapply H'; simplify; intuition.
+        eapply IHtyping1; intros ??; eapply H'; simplify; intuition idtac.
+        eapply IHtyping2; intros ??; eapply H'; simplify; intuition idtac.
     Qed.
 
 
@@ -287,19 +287,19 @@ Section Constants.
       Gamma ⊢(n) s : A -> (forall x, x ∈ consts s -> Gamma ⊢(n) zeta x : ctype X x) ->
       Gamma ⊢(n) subst_consts zeta s : A.
     Proof.
-      induction 1 in zeta |-*; cbn; eauto.
+      induction 1 in zeta |-*; cbn; [eauto|eauto|..].
       - intros H'. econstructor. eapply IHordertyping.
-        intros; eapply ordertyping_preservation_under_renaming; eauto.
+        intros; eapply ordertyping_preservation_under_renaming; [eauto|].
         intros ?; cbn; eauto.
       - intros H'. econstructor.
-        eapply IHordertyping1; intros ??; eapply H'; simplify; intuition.
-        eapply IHordertyping2; intros ??; eapply H'; simplify; intuition.
+        eapply IHordertyping1; intros ??; eapply H'; simplify; intuition idtac.
+        eapply IHordertyping2; intros ??; eapply H'; simplify; intuition idtac.
     Qed.
 
     Lemma subst_consts_Lambda Y Z (zeta: Y -> exp Z) k s:
         subst_consts zeta (Lambda k s) = Lambda k (subst_consts (zeta >> ren (plus k)) s).
     Proof.
-        induction k in zeta |-*; cbn; asimpl; eauto.
+        induction k in zeta |-*; cbn; asimpl; trivial.
         f_equal. rewrite IHk. f_equal. f_equal.
         asimpl. fext; intros x; unfold funcomp; f_equal; fext; intros ?.
         unfold shift; simplify; f_equal; lia.

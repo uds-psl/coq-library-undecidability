@@ -67,24 +67,24 @@ Section ClosureRelations.
     induction 1; cbn; eauto.
   Qed.
 
-  Global Instance multiple_transitive R:
+  #[local] Instance multiple_transitive R:
     Transitive (multiple R).
   Proof.
     intros ?; eapply multiple_trans.
   Qed.
 
-  Global Instance star_preorder R: PreOrder (star R).
+  #[local] Instance star_preorder R: PreOrder (star R).
   Proof.
     constructor; hnf; eauto using star_trans.
   Qed.
 
-  Global Instance star_exp R:
+  #[local] Instance star_exp R:
     R <<= star R.
   Proof.
     unfold subrelation; eauto.
   Qed.
 
-  Global Instance multiple_exp R:
+  #[local] Instance multiple_exp R:
     R <<= multiple R.
   Proof.
     unfold subrelation; eauto.
@@ -98,7 +98,7 @@ Section ClosureRelations.
   Qed.
 
 
-  Global Instance multiple_star R : multiple R <<= star R.
+  #[local] Instance multiple_star R : multiple R <<= star R.
   Proof.
     induction 1; eauto.
   Qed.
@@ -132,21 +132,21 @@ Section ClosureRelations.
        multiple_exp counted_exp : core.
 
 
-  Global Instance star_mono R S :
+  #[local] Instance star_mono R S :
     R <<= S -> star R <<= star S.
   Proof.
     intros H x y.
     induction 1; eauto.
   Qed.
 
-  Global Instance multiple_mono R S :
+  #[local] Instance multiple_mono R S :
     R <<= S -> multiple R <<= multiple S.
   Proof.
     intros H x y.
     induction 1; eauto.
   Qed.
 
-  Global Instance eval_subrel R:
+  #[local] Instance eval_subrel R:
     (evaluates R) <<= (star R).
   Proof. intros x y []. assumption. Qed. 
 
@@ -198,7 +198,7 @@ Section ClosureRelations.
     intros []; eauto using sym.
   Qed.
 
-  Global Instance sym_Symmetric R:
+  #[local] Instance sym_Symmetric R:
     Symmetric (sym R).
   Proof.
     firstorder using sym_symmetric.
@@ -230,13 +230,13 @@ Section ClosureRelations.
   Qed.
 
 
-  Global Instance equiv_star R:
+  #[local] Instance equiv_star R:
     star R <<= equiv R.
   Proof.
     induction 1; unfold equiv in *; eauto using sym, star.
   Qed.
 
-  Global Instance equiv_rel R:
+  #[local] Instance equiv_rel R:
     R <<= equiv R.
   Proof.
     transitivity (star R); typeclasses eauto. 
@@ -266,7 +266,7 @@ Section ClosureRelations.
   Proof. intros ->;eapply refl_equiv. Qed.
 
 
-  Global Instance equiv_equivalence R:
+  #[local] Instance equiv_equivalence R:
     Equivalence (equiv R).
   Proof.
     constructor; firstorder using refl_equiv, equiv_trans, equiv_symm.
@@ -312,3 +312,18 @@ End ClosureRelations.
 #[export] Hint Constructors star multiple counted : core.
 #[export] Hint Resolve star_trans multiple_trans counted_trans star_exp
      multiple_exp counted_exp equiv_join : core.
+
+Module ArsInstances.
+#[export] Existing Instance multiple_transitive.
+#[export] Existing Instance star_preorder.
+#[export] Existing Instance star_exp.
+#[export] Existing Instance multiple_exp.
+#[export] Existing Instance multiple_star.
+#[export] Existing Instance star_mono.
+#[export] Existing Instance multiple_mono.
+#[export] Existing Instance eval_subrel.
+#[export] Existing Instance sym_Symmetric.
+#[export] Existing Instance equiv_star.
+#[export] Existing Instance equiv_rel.
+#[export] Existing Instance equiv_equivalence.
+End ArsInstances.

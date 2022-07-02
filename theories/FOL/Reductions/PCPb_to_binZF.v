@@ -3,7 +3,7 @@
 From Undecidability.FOL Require Import Util.FullTarski_facts Util.Syntax_facts Util.FullDeduction_facts.
 From Undecidability.FOL Require Import ZF Reductions.PCPb_to_ZF binZF Util.sig_bin.
 From Undecidability Require Import Shared.ListAutomation.
-Import ListAutomationNotations.
+Import ListAutomationNotations. Import ListInstances.
 Local Set Implicit Arguments.
 Local Unset Strict Implicit.
 

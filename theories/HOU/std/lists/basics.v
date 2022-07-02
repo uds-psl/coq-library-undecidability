@@ -50,16 +50,16 @@ Section BasicLemmas.
   Proof. firstorder. Qed.
 
   
-  Global Instance incl_preorder: PreOrder (@incl X). 
+  #[local] Instance incl_preorder: PreOrder (@incl X). 
   Proof. firstorder. Qed.
 
-  Global Instance strict_incl_transitive: Transitive (@strict_incl X).
+  #[local] Instance strict_incl_transitive: Transitive (@strict_incl X).
   Proof. firstorder. Qed.
 
-  Global Instance seteq_preorder: PreOrder (@seteq X).
+  #[local] Instance seteq_preorder: PreOrder (@seteq X).
   Proof. firstorder. Qed.
 
-  Global Instance seteq_equivalence: Equivalence (@seteq X).
+  #[local] Instance seteq_equivalence: Equivalence (@seteq X).
   Proof. firstorder. Qed.
 
   Hint Resolve incl_refl seteq_refl : listdb.
@@ -79,22 +79,22 @@ Section BasicLemmas.
       intuition; subst; intuition.
   Qed.
 
-  Global Instance proper_in_incl: Proper (eq ++> incl ==> Basics.impl) (@In X).
+  #[local] Instance proper_in_incl: Proper (eq ++> incl ==> Basics.impl) (@In X).
   Proof.
     intros ?? -> ???. firstorder.   
   Qed.
 
-  Global Instance in_seteq_proper: Proper (eq ++> seteq ++> iff) (@In X).
+  #[local] Instance in_seteq_proper: Proper (eq ++> seteq ++> iff) (@In X).
   Proof.
     intros ?? -> ???. firstorder.
   Qed.
 
 
   (* ⊆ *)
-  Global Instance subrel_incl_seteq: subrelation seteq (@incl X).
+  #[local] Instance subrel_incl_seteq: subrelation seteq (@incl X).
   Proof. intros ??; firstorder. Qed.
 
-  Global Instance incl_seteq_proper: Proper (seteq ++> seteq ++> iff) (@incl X).
+  #[local] Instance incl_seteq_proper: Proper (seteq ++> seteq ++> iff) (@incl X).
   Proof. firstorder. Qed.
 
   
@@ -150,10 +150,10 @@ Section BasicLemmas.
   Proof. intros; eapply incl_app; intuition. Qed.
 
 
-  Global Instance incl_cons_proper: Proper (eq ++> incl ++> incl) (@cons X).
+  #[local] Instance incl_cons_proper: Proper (eq ++> incl ++> incl) (@cons X).
   Proof. intros ??-> ???; firstorder. Qed.
 
-  Global Instance seteq_cons_proper: Proper (eq ++> seteq ++> seteq) (@cons X).
+  #[local] Instance seteq_cons_proper: Proper (eq ++> seteq ++> seteq) (@cons X).
   Proof. intros ??-> ???; firstorder. Qed.
 
  
@@ -178,7 +178,7 @@ Section BasicLemmas.
   Lemma strict_incl_project A B: A ⊊ B -> exists x, x ∈ B /\ ~ x ∈ A.
   Proof. firstorder. Qed.
 
-  Global Instance strict_incl_incl_subrel:
+  #[local] Instance strict_incl_incl_subrel:
     subrelation (@strict_incl X) (@incl X).
   Proof. firstorder. Qed.
 
@@ -207,12 +207,12 @@ Section BasicLemmas.
   End WellFoundedStrictInclusion.
     
   (* app *)
-  Global Instance proper_app_incl: Proper (incl ++> incl ++> incl) (@app X).
+  #[local] Instance proper_app_incl: Proper (incl ++> incl ++> incl) (@app X).
   Proof.
     intros A A' H1 B B' H2; induction A; firstorder auto with *.
   Qed.
   
-  Global Instance proper_app_seteq: Proper (seteq ++> seteq ++> seteq) (@app X).
+  #[local] Instance proper_app_seteq: Proper (seteq ++> seteq ++> seteq) (@app X).
   Proof.
     intros A A' [H1 H2] B B' [H3 H4].
     split; eapply proper_app_incl; firstorder. 
@@ -237,18 +237,18 @@ Section BasicLemmas.
     induction A; cbn; autorewrite with listdb; intuition.
   Qed.
 
-  Global Instance proper_incl_seteq: Proper (@seteq X ++> @seteq X ++> iff) incl.
+  #[local] Instance proper_incl_seteq: Proper (@seteq X ++> @seteq X ++> iff) incl.
   Proof.
     intros ??????; firstorder.
   Qed.
 
-  Global Instance proper_rev_incl: Proper (incl ++> incl) (@rev X).
+  #[local] Instance proper_rev_incl: Proper (incl ++> incl) (@rev X).
   Proof.
     intros A B H. now rewrite rev_seteq, H, rev_seteq. 
   Qed.
   
   
-  Global Instance proper_rev_seteq: Proper (seteq ++> seteq) (@rev X).
+  #[local] Instance proper_rev_seteq: Proper (seteq ++> seteq) (@rev X).
   Proof.
     intros A B [H1 H2]; split; eapply proper_rev_incl; eauto.  
   Qed.
@@ -276,7 +276,7 @@ Section BasicLemmas.
     reflexivity.
   Qed.
 
-  Global Instance map_incl_proper : Proper (eq ++> incl ++> incl) (@map Y X).
+  #[local] Instance map_incl_proper : Proper (eq ++> incl ++> incl) (@map Y X).
   Proof.
     intros ?? -> A B H.
     induction A; cbn; eauto with listdb.
@@ -284,7 +284,7 @@ Section BasicLemmas.
     eapply in_map; firstorder.
   Qed.      
 
-  Global Instance map_seteq_proper : Proper (eq ++> seteq ++> seteq) (@map Y X).
+  #[local] Instance map_seteq_proper : Proper (eq ++> seteq ++> seteq) (@map Y X).
   Proof.
     intros ?? -> A B [H1 H2]; split; apply map_incl_proper; firstorder. 
   Qed.      
@@ -308,7 +308,7 @@ Section BasicLemmas.
   Proof. induction A; cbn; [ constructor | ]; destruct (p a); cbn; lia. Qed.
 
 
-  Global Instance filter_incl_proper: Proper (eq ++> incl ++> incl) (@filter X).
+  #[local] Instance filter_incl_proper: Proper (eq ++> incl ++> incl) (@filter X).
   Proof.
     intros ?? ->  A B H2; induction A; cbn; eauto with listdb.
     destruct y eqn: H1; eauto with listdb. 
@@ -316,7 +316,7 @@ Section BasicLemmas.
     eapply filter_In; intuition. 
   Qed.
 
-  Global Instance filter_seqteq_proper: Proper (eq ++> seteq ++> seteq) (@filter X).
+  #[local] Instance filter_seqteq_proper: Proper (eq ++> seteq ++> seteq) (@filter X).
   Proof.
     intros f g -> A B [H2 H3]; split; apply filter_incl_proper; firstorder. 
   Qed.
@@ -349,3 +349,26 @@ Tactic Notation "lsimpl" "in" hyp_list(H) := autorewrite with listdb in H.
 Tactic Notation "lsimpl" "in" "*" := autorewrite with listdb in *. 
 
 Ltac lauto  := eauto with listdb. 
+
+Module ListInstances.
+#[export] Existing Instance incl_preorder.
+#[export] Existing Instance strict_incl_transitive.
+#[export] Existing Instance seteq_preorder.
+#[export] Existing Instance seteq_equivalence.
+#[export] Existing Instance proper_in_incl.
+#[export] Existing Instance in_seteq_proper.
+#[export] Existing Instance subrel_incl_seteq.
+#[export] Existing Instance incl_seteq_proper.
+#[export] Existing Instance incl_cons_proper.
+#[export] Existing Instance seteq_cons_proper.
+#[export] Existing Instance strict_incl_incl_subrel.
+#[export] Existing Instance proper_app_incl.
+#[export] Existing Instance proper_app_seteq.
+#[export] Existing Instance proper_incl_seteq.
+#[export] Existing Instance proper_rev_incl.
+#[export] Existing Instance proper_rev_seteq.
+#[export] Existing Instance map_incl_proper.
+#[export] Existing Instance map_seteq_proper.
+#[export] Existing Instance filter_incl_proper.
+#[export] Existing Instance filter_seqteq_proper.
+End ListInstances.
