@@ -6,7 +6,7 @@ http://www.ps.uni-saarland.de/courses/sem-ws17/confluence.v
 Set Implicit Arguments.
 Require Import Morphisms FinFun.
 From Undecidability.HOU Require Import std.tactics std.misc std.ars.basic.
-
+Import ArsInstances.
 #[export] Hint Constructors star multiple counted : core.
 
 Section Confluence.

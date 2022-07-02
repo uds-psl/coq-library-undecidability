@@ -2,7 +2,7 @@ Set Implicit Arguments.
 Require Import RelationClasses Morphisms List Lia Init.Nat Setoid.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.unification.
 From Undecidability.HOU Require Import third_order.pcp third_order.encoding.
-Import ListNotations.
+Import ListNotations ArsInstances.
 
 Definition MPCP' '(c, C) :=
   exists I, I ⊆ nats (length C) /\
@@ -51,13 +51,13 @@ Section SimplifiedReduction.
     - intros x A. destruct x as [| [|]]; try discriminate; cbn.
       injection 1 as ?; subst. 
       eapply finst_typing; eauto.
-    - cbn -[enc]. rewrite !enc_subst_id; eauto. 
-      rewrite !AppR_subst, !Enc_subst_id; eauto.
+    - cbn -[enc]. rewrite !enc_subst_id; trivial. 
+      rewrite !AppR_subst, !Enc_subst_id; trivial.
       cbn; rewrite !ren_plus_base, !ren_plus_combine;
         change (1 + 1) with 2.
       erewrite <-map_length at 1. symmetry.
       erewrite <-map_length at 1. erewrite !finst_equivalence.
-      all: simplify; eauto.
+      all: simplify; trivial.
       now rewrite <-!enc_app, EQ. 
   Qed.  
 
@@ -67,22 +67,22 @@ Section SimplifiedReduction.
   Proof.
     destruct P as [c C].
     intros (Delta & sigma & T1 & EQ).
-    specialize (T1 0 (Arr (repeat (alpha → alpha) (length C)) alpha)); mp T1; eauto.
+    specialize (T1 0 (Arr (repeat (alpha → alpha) (length C)) alpha)); mp T1; trivial.
     eapply ordertyping_preservation_under_renaming with (delta := add 2) (Delta := alpha :: alpha :: Delta) in T1.
     2: intros ??; cbn; eauto. 
-    eapply main_lemma with (u := 0) (v := 1) in T1 as (I & S & H); eauto.
+    eapply main_lemma with (u := 0) (v := 1) in T1 as (I & S & H); trivial.
     2, 3: intros (?&?&?) % vars_ren; discriminate. 
-    exists I. intuition.
-    revert EQ. cbn -[enc]. rewrite !enc_subst_id; eauto. 
-    rewrite !AppR_subst; rewrite ?Enc_subst_id; eauto; cbn -[add].
+    exists I. intuition idtac.
+    revert EQ. cbn -[enc]. rewrite !enc_subst_id; trivial. 
+    rewrite !AppR_subst; rewrite ?Enc_subst_id; trivial; cbn -[add].
     all: unfold funcomp; cbn -[add]; rewrite !ren_plus_base, !ren_plus_combine;
       change (1 + 1) with 2.
-    specialize (H (heads C)) as H1; mp H1; simplify; eauto.
-    specialize (H (tails C)) as H2; mp H2; simplify; eauto.
+    specialize (H (heads C)) as H1; mp H1; simplify; trivial.
+    specialize (H (tails C)) as H2; mp H2; simplify; trivial.
     destruct H1 as [t' [-> H1]], H2 as [t'' [-> H2]].
     rewrite <-!select_map, !enc_concat, <-!enc_app.
     intros EQ % equiv_lam_elim % equiv_lam_elim.
-    eapply enc_eq in EQ. 1 - 2: intuition. lia.
+    eapply enc_eq in EQ. 1 - 2: intuition idtac. lia.
     all: intros s; try eapply H1; try eapply H2.
   Qed.
 

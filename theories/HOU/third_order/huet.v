@@ -2,7 +2,7 @@ Set Implicit Arguments.
 Require Import RelationClasses Morphisms List Arith Lia Init.Nat Setoid.
 From Undecidability.HOU Require Import std.std calculus.calculus unification.unification.
 From Undecidability.HOU Require Import third_order.pcp third_order.encoding.
-Import ListNotations.
+Import ListNotations ArsInstances.
 
 (* * Huet Reduction *)
 Section HuetReduction.
@@ -20,30 +20,30 @@ Section HuetReduction.
     (lambda lambda lambda h (AppR f (Enc 1 2 (heads S))) (AppR f (repeat (var (u 1)) (length S)))) :
     ((alpha → alpha) → (alpha → alpha) → (alpha → alpha → alpha) →  alpha).
   Proof.
-    do 4 econstructor. econstructor. econstructor; cbn; (eauto 1); cbn; (eauto 2).
+    do 4 econstructor. econstructor. econstructor; cbn; trivial; cbn; trivial.
     - eapply AppR_ordertyping with (L := repeat (alpha → alpha)  (length S) ); simplify.
       erewrite <-map_length; eapply Enc_typing.
-      all: econstructor; (eauto 2).
-      simplify; cbn; (eauto 3). 
+      all: econstructor; trivial.
+      simplify; cbn; eauto. 
     - eapply AppR_ordertyping. 
       + eapply repeated_ordertyping; simplify; [|eauto]. 
         intros s H'. eapply repeated_in in H'. subst.
         econstructor; cbn. 2: eauto. eauto.
-      + econstructor; simplify; (eauto 3).
+      + econstructor; simplify; eauto.
   Qed.
 
   Lemma HGamma₀t₀A₀ (S: list card) : 
     [Arr (repeat (alpha → alpha) (length S)) alpha; (alpha → alpha) → alpha] ⊢( 3) 
     (lambda lambda lambda h (AppR f (Enc 1 2 (tails S))) (var (u 1) (g (var (u 1))))) :
     ((alpha → alpha) → (alpha → alpha) → (alpha → alpha → alpha) →  alpha).
-  Proof with cbn [ord' ord alpha]; simplify; cbn; (eauto 3).
+  Proof with cbn [ord' ord alpha]; simplify; cbn; (eauto 2).
     do 4 econstructor. econstructor. econstructor; (eauto 2)...
     cbn; (eauto 4). 
     2: do 2 econstructor...
     2 - 3: econstructor...
     eapply AppR_ordertyping with (L := repeat (alpha → alpha) (length S)); simplify.
     erewrite <-map_length; eapply Enc_typing.
-    all: econstructor...
+    all: econstructor; trivial; simplify; cbn; lia.
   Qed.
 
   (* ** Reduction Function *)
@@ -191,9 +191,9 @@ Section HuetReduction.
     simplify in EQ1 EQ2; rewrite !AppR_app in EQ1; rewrite !AppR_app in EQ2.
     simplify in H1; assert (length S1 = l) as H2 by lia; clear H1; subst.
     rewrite !AppR_Lambda' in EQ1, EQ2; simplify; (eauto 2).
-    rewrite AppR_Lambda' in EQ2; simplify; (eauto 2).
-    rewrite it_up_var_sapp in EQ1; simplify; intros; try lia.
-    rewrite !it_up_var_sapp in EQ2; simplify; intros; try lia. 
+    rewrite AppR_Lambda' in EQ2; simplify; trivial.
+    rewrite it_up_var_sapp in EQ1; simplify; intros; [|lia..].
+    rewrite !it_up_var_sapp in EQ2; simplify; intros; [|lia..].
 
     destruct (AppL_decomposition (AppR x T') (|S2|)) as [[I t] (H1&H2&H3)]. 
     rewrite H2 in EQ1, EQ2.
@@ -218,11 +218,10 @@ Section HuetReduction.
       3, 5, 9: eauto. 3, 4, 6:eauto.
       (* close var goals *)
       2 - 3: intros; cbn; unfold funcomp, u, v; intuition discriminate.
-      exists I; intuition; eauto using nats_lt; (eauto 2).
+      exists I; intuition idtac.
       2: rewrite <-!select_map; (eauto 2). 
       subst; cbn [map select concat AppL] in H6, EQ1.
-      eapply end_is_var in EQ1 as (? & ? & ? & ?);
-        eauto; simplify.
+      eapply end_is_var in EQ1 as (? & ? & ? & ?); trivial.
       eapply H3; cbn; (eauto 1); cbn; now simplify in *.
       intros; cbn; intuition; discriminate.
       intros ? ? % repeated_in; subst; (eauto 2).
@@ -233,8 +232,8 @@ Section HuetReduction.
         assert (i < length S2 \/ i >= length S2) as [H42|H42] by lia.
         ** rewrite nth_error_app1, nth_error_repeated in H6; simplify; (eauto 2).
            injection H6 as H6. eapply (f_equal ord) in H6. simplify in H6.
-           symmetry in H6; eapply Nat.eq_le_incl in H6; simplify in H6.
-           intuition. cbn in H6. lia. 
+           symmetry in H6; eapply Nat.eq_le_incl in H6. simplify in H6.
+           cbn in H6. lia. 
         ** rewrite <-H2 in EQ1. asimpl in EQ1. rewrite sapp_ge_in in EQ1; simplify; (eauto 2).
            eapply equiv_head_equal in EQ1; simplify; cbn; (eauto 2).
            simplify in EQ1; cbn in EQ1. discriminate EQ1.

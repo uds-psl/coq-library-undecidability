@@ -3,6 +3,7 @@ Import ListNotations.
 
 From Undecidability.HOU.calculus Require Import 
   prelim terms syntax semantics equivalence typing order evaluator. 
+Import ArsInstances.
 
 (* * Higher-Order Unification *)
 Section UnificationDefinitions.
@@ -59,9 +60,9 @@ Section Normalisation.
               | right _ => sigma x
               end).
       split; [| split].
-      1-2: intros x; destruct dec_in; intuition.
+      1-2: intros x; destruct dec_in; intuition trivial.
       eapply eta_correct. eapply eta_normal. 
-      intros x B H. destruct dec_in; intuition.
+      intros x B H. destruct dec_in; [|eauto].
       destruct I; cbn. generalize (T x x0 e).
       rewrite H in e; injection e as ->.
       eapply eta_typing.
@@ -80,11 +81,11 @@ Section Normalisation.
     split; intros (Delta & sigma & H1 & H2); [| exists Delta; exists sigma; intuition].
     eapply normalise_subst in H1 as (tau & H5 & H6 & H7).
     pose (theta x := if nth (Gammaᵤ I) x then tau x else var x).
-    exists Delta. exists theta. intuition.
+    exists Delta. exists theta. intuition idtac.
     + intros ???; unfold theta; rewrite H; eapply H7; eauto.
     + rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma).
-      rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma); eauto.
-      all: intros ? H; eapply typing_variables in H; eauto; domin H.
+      rewrite subst_pointwise_equiv with (sigma := theta) (tau := sigma); trivial.
+      all: intros ? H; eapply typing_variables in H; trivial; domin H.
       all: unfold theta; now rewrite H, H5.
     + unfold theta; destruct nth eqn: ?; [|eauto].
       domin Heqo; eauto.  
@@ -96,7 +97,7 @@ Section Normalisation.
     U X I -> U X I'.
   Proof.
     intros H1 H2 H3 H4; intros (Delta & sigma & T & N); exists Delta; exists sigma; split.
-    rewrite <-H3; eauto. now rewrite <-H1, <-H2, N. 
+    rewrite <-H3; trivial. now rewrite <-H1, <-H2, N. 
   Qed.
 
   
@@ -114,7 +115,7 @@ Section Normalisation.
     U X I <-> U X (uni_normalise I).
   Proof.
     split; intros H; [eapply @U_reduction|eapply @U_reduction with (I := uni_normalise I)].
-    all: eauto; cbn; eapply equiv_join.
+    all: trivial; cbn; eapply equiv_join.
     1, 3, 6, 8: rewrite eta_correct. all: reflexivity. 
   Qed.
 

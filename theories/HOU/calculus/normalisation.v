@@ -3,7 +3,7 @@ Require Import Morphisms Lia.
 From Undecidability.HOU Require Import std.std.
 From Undecidability.HOU.calculus Require Import 
   prelim terms syntax semantics confluence typing order. 
-
+Import ArsInstances.
 (* * Weak Normalisation *)
 
 

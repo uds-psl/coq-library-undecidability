@@ -1,8 +1,9 @@
 Set Implicit Arguments.
 
 Require Import List Lia Arith Init.Wf Morphisms Program.Program.
-From Undecidability.HOU Require Import unification.unification concon.conservativity calculus.calculus.
-Import ListNotations.
+From Undecidability.HOU Require Import concon.conservativity calculus.calculus.
+Import ListNotations ListInstances.
+From Undecidability.HOU.unification Require Import systemunification nth_order_unification.
 
 Tactic Notation "simplify" := Undecidability.HOU.std.tactics.simplify.  
 
@@ -90,7 +91,7 @@ Section LambdaFreeness.
     Gamma ⊢ s : A -> nf s -> ord A <= 1 -> isAtom (head s).
   Proof.
     destruct 2; subst; intros.
-    destruct k; cbn; simplify; eauto.
+    destruct k; cbn; simplify; [eauto|].
     inv H. now eapply ord_arr_one in H0.
   Qed.
 
@@ -110,8 +111,8 @@ Section LambdaFreeness.
         * inv H3. rewrite H6 in H7.
           simplify in H7. lia.
       + eapply orderlisttyping_element in H2 as [B []]. 2:now eauto.
-        eapply H; eauto.
-        eapply ordertyping_one_atom; eauto.
+        eapply H; [eauto..|].
+        eapply ordertyping_one_atom; [eauto..|].
         eapply ord'_elements; eauto.
   Qed.
 
@@ -120,9 +121,9 @@ Section LambdaFreeness.
     (Delta ⊢(1) sigma x : A) -> ord A <= 1 ->
     normal (sigma x) -> lambda_free (sigma x).
   Proof.
-    intros H1  H3 H4; eapply order_one_lambda_free; eauto.
+    intros H1  H3 H4; eapply order_one_lambda_free; [eauto..|].
     eapply head_atom; eauto.
-    destruct sigma; cbn; intuition.
+    destruct sigma; cbn; intuition idtac.
     inv H1. eapply ord_arr_one; eauto.
   Qed.
 
@@ -646,7 +647,7 @@ Section Unification.
       decomp s t = None -> lambda_free s -> lambda_free t -> ~ unifies sigma s t.
     Proof.
       decomp_ind.
-      1 - 2: intros; destruct t; unfold unifies; eauto; cbn; congruence.
+      1 - 2: intros; destruct t; unfold unifies; cbn; solve [congruence | eauto].
       1 - 2: intros ?? _ H1 H2; inv H1; inv H2.
       1 - 2: intros ???? _ H H1 H2 U; inv H1; inv H2;
         eapply H; eauto; unfold unifies in *; cbn in *; congruence.
@@ -699,7 +700,7 @@ Section Unification.
     Lemma size_subst tau s:
       size (tau • s) = size s + Sum (map (tau >> size) (vars s)).
     Proof.
-      induction s in tau |-*; cbn; simplify; eauto.  
+      induction s in tau |-*; cbn; simplify; trivial.  
       - rewrite IHs. f_equal. f_equal. clear IHs.  generalize (vars s) as A.
         induction A as [|[] ?]; cbn; eauto.
         + destruct eq_dec; rewrite IHA; intuition.
@@ -756,7 +757,8 @@ Section Unification.
       decomp' E = Some E' -> forall u v, (u,v) ∈ E' -> u <> v.
     Proof.
       decomp_ind. all: intuition idtac; simplify in *.
-      subst; destruct H2; eauto; eapply decomp_irrefl; eauto.
+      subst; destruct H2; [|eauto].
+      eapply decomp_irrefl; eauto.
     Qed.
 
     Lemma eqs_size_induction P:
@@ -785,7 +787,7 @@ Section Unification.
         eapply Vars_decomp' in DE as H9; simplify in H9; cbn in H9.
         assert (Vars' (update x s var •₊₊ E') ⊆ Vars' E) by
             (rewrite singlepoint_subst_Vars'; eapply incl_cons_project_r; eauto).
-        destruct (IH (update x s var •₊₊ E') x) as [tau]; eauto.
+        destruct (IH (update x s var •₊₊ E') x) as [tau]; trivial.
         + eapply H9; firstorder.
         + intros ? % singlepoint_subst_Vars'_variable; intuition. 
         + rewrite equi_unifiable_cons in U'.

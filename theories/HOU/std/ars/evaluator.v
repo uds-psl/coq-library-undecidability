@@ -6,7 +6,7 @@ http://www.ps.uni-saarland.de/courses/sem-ws17/confluence.v
 Set Implicit Arguments.
 Require Import Morphisms FinFun ConstructiveEpsilon.
 From Undecidability.HOU Require Import std.tactics std.decidable std.misc std.ars.basic std.ars.confluence.
-
+Import ArsInstances.
 Section Evaluator.
 
   Variables (X: Type) (R: X -> X -> Prop) (rho: X -> X). 

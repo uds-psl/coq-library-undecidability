@@ -2,7 +2,7 @@ From Undecidability.LambdaCalculus Require Import wCBN Util.term_facts.
 Import L.L (term, var, app, lam).
 Require Import Undecidability.L.Util.L_facts.
 Import wCBN (subst, step, stepApp, stepLam).
-Require Import Relations.
+Require Import Relations Lia.
 Require Import ssreflect ssrbool ssrfun.
 
 Set Default Goal Selector "!".

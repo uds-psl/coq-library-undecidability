@@ -7,11 +7,11 @@
 
 From Undecidability.LambdaCalculus Require Import
   wCBN Krivine Util.term_facts Util.wCBN_facts Util.Krivine_facts.
+Require Import List Relations.
 Import Undecidability.L.L (term, var, app, lam).
 Import Undecidability.L.Util.L_facts.
 Import wCBN (subst, step).
 
-Require Import Relations.
 Require Import ssreflect.
 
 Set Default Goal Selector "!".

@@ -4,7 +4,7 @@ From Undecidability.HOU Require Import std.std axioms.
 Require Import RelationClasses Morphisms Init.Wf Init.Nat Setoid.
 From Undecidability.HOU Require Import calculus.calculus second_order.goldfarb.encoding.
 Require Import FinFun Coq.Arith.Wf_nat.
-Import ListNotations.
+Import ListNotations ArsInstances.
 
 
 Section Multiplication.

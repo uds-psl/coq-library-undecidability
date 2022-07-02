@@ -2,7 +2,7 @@ Set Implicit Arguments.
 Require Import RelationClasses Morphisms Init.Wf List Lia Init.Nat Setoid.
 From Undecidability.HOU Require Import calculus.calculus unification.unification.
 From Undecidability.HOU.second_order Require Export diophantine_equations goldfarb.encoding goldfarb.multiplication.
-Import ListNotations.
+Import ListNotations ArsInstances.
 
 
 (* ** Equivalences *)
@@ -222,7 +222,7 @@ Section Backward.
       all: repeat (erewrite decode_subst_encodes;[|eauto]).
       + eapply backward_consts; (eauto 4).
       + eapply backward_add; (eauto 1); eapply EQs; (eauto 5).
-      + eapply backward_mult; (eauto 1); eapply EQs; intuition.
+      + eapply backward_mult; (eauto 1); eapply EQs; intuition idtac.
   Qed.
 End Backward.
 
@@ -311,16 +311,16 @@ Proof.
     all: eapply H10_to_SOU.
   - intros E. split.
     + intros H % H10_SU. destruct H as (Delta & sigma & H1 & H2).
-      exists Delta. exists sigma. intuition. eapply foldeqs_correct, equiv_pointwise_eqs; (eauto 2).
+      exists Delta. exists sigma. intuition idtac. eapply foldeqs_correct, equiv_pointwise_eqs; (eauto 2).
       cbn. intros s1 s2 (d&H3&H4) % in_flat_map.
-      destruct d; cbn in H4; intuition.
+      destruct d; cbn in H4; intuition idtac.
       all: change s1 with (fst (s1, s2)); rewrite <-?H, <-?H0.
       all: change s2 with (snd (s1, s2)); rewrite <-?H, <-?H0.
       all: cbn; (eauto 2).
     + intros (Delta & sigma & T & EQ). eapply SU_H10. exists Delta, sigma.
-      intuition.  eapply equiv_eqs_pointwise; (eauto 1); eapply foldeqs_correct; (eauto 2).
+      intuition idtac.  eapply equiv_eqs_pointwise; (eauto 1); eapply foldeqs_correct; (eauto 2).
       cbn. intros s1 s2 (d&H3&H4) % in_flat_map.
-      destruct d; cbn in H4; intuition.
+      destruct d; cbn in H4; intuition idtac.
       all: change s1 with (fst (s1, s2)); rewrite <-?H1, <-?H0.
       all: change s2 with (snd (s1, s2)); rewrite <-?H1, <-?H0.
       all: cbn; (eauto 2).

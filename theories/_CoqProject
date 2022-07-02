@@ -683,7 +683,6 @@ HOU/concon/conservativity_consequences.v
 HOU/concon/constants.v
 HOU/concon/constants_consequences.v
 HOU/concon/enumerability.v
-HOU/concon/concon.v
 
 FOLP/Util/axioms.v
 FOLP/Util/unscoped.v

@@ -152,7 +152,7 @@ Section Inf.
     exists (f (mu' H1 H2)). split; try apply proj2_sig.
     intros y Hy. exists (mu' H1 H2). split; trivial.
     intros n <-. apply mu_least, Hy.
-  Defined.
+  Qed.
 
   Definition gen' A :=
     proj1_sig (gen A).

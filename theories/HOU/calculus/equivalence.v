@@ -3,7 +3,7 @@ Require Import Morphisms Lia FinFun.
 From Undecidability.HOU Require Import std.std.
 From Undecidability.HOU.calculus Require Import 
   prelim terms syntax semantics confluence. 
-
+Import ArsInstances.
 
 (* * Equational Theory *)
 Section Equivalence.
@@ -17,7 +17,7 @@ Section Equivalence.
     Global Instance equiv_lam_proper:
       Proper (equiv step ++> equiv step) (@lam X).
     Proof.
-      intros ? ? (v & H1 & H2) % church_rosser; eauto. 
+      intros ? ? (v & H1 & H2) % church_rosser; trivial. 
       rewrite H1, H2. reflexivity. 
     Qed.
 
@@ -25,15 +25,14 @@ Section Equivalence.
     Global Instance equiv_app_proper:
       Proper (equiv step ++> equiv step ++> equiv step) (@app X).
     Proof.
-      intros ? ? (v & H1 & H2) % church_rosser ? ? (v' & H3 & H4) % church_rosser;
-        eauto.
+      intros ? ? (v & H1 & H2) % church_rosser ? ? (v' & H3 & H4) % church_rosser; trivial.
       rewrite H1, H2, H3, H4. reflexivity.
     Qed.
 
     Lemma ren_equiv s t delta:
       s ≡ t -> ren delta s ≡ ren delta t.
     Proof.
-      intros (v & ? & ?) % church_rosser; eauto.
+      intros (v & ? & ?) % church_rosser; trivial.
       transitivity (ren delta v); [| symmetry].
       all: eapply equiv_star, ren_steps; eauto.
     Qed.
@@ -47,7 +46,7 @@ Section Equivalence.
     Lemma subst_equiv s t sigma:
       s ≡ t -> sigma • s ≡ sigma • t.
     Proof.
-      intros (v & ? & ?) % church_rosser; eauto.
+      intros (v & ? & ?) % church_rosser; trivial.
       transitivity (sigma • v); [| symmetry].
       all: eapply equiv_star, subst_steps; eauto.
     Qed.
@@ -61,7 +60,7 @@ Section Equivalence.
     Lemma subst_pointwise_equiv (s: exp X) sigma tau:
       (forall x, x ∈ vars s -> sigma x ≡ tau x) -> sigma • s ≡ tau • s.
     Proof.
-      induction s in sigma, tau |-*; cbn -[vars]; eauto.
+      induction s in sigma, tau |-*; cbn -[vars]; [eauto|eauto|..].
       - intros H; eapply equiv_lam_proper, IHs.
         intros []; cbn -[vars]. reflexivity.
         intros ? % vars_varof % varofLambda % varof_vars % H.
@@ -78,46 +77,47 @@ Section Equivalence.
     Lemma equiv_var_eq (x y: fin):
       var x ≡ var y -> x = y.
     Proof.
-      intros; eapply equiv_unique_normal_forms in H; eauto.
+      intros; eapply equiv_unique_normal_forms in H; trivial.
       congruence.
     Qed.
       
     Lemma equiv_const_eq (x y: X):
       const x ≡ const y -> x = y.
     Proof.
-      intros; eapply equiv_unique_normal_forms in H; eauto.
+      intros; eapply equiv_unique_normal_forms in H; trivial.
       congruence.
     Qed.
 
     Lemma equiv_lam_elim (s t: exp X):
       lambda s ≡ lambda t -> s ≡ t.
     Proof.
-      intros (v & [] %steps_lam & [] %steps_lam) % church_rosser; intuition; subst.
+      intros (v & [] %steps_lam & [] %steps_lam) % church_rosser; [|eauto].
+      intuition idtac; subst.
       injection H as ->; eauto. 
     Qed.
 
     Lemma equiv_app_elim (s s' t t': exp X):
       s t ≡ s' t' ->  isAtom (head s) -> isAtom (head s') -> s ≡ s' /\ t ≡ t'.
     Proof.
-      intros (v & [] % steps_app & [] % steps_app) % church_rosser H3; eauto.
-      * do 2 destruct H, H0; intuition; subst;
+      intros (v & [] % steps_app & [] % steps_app) % church_rosser H3; trivial.
+      * do 2 destruct H, H0; intuition idtac; subst;
           injection H as -> ->; eauto.
-      * do 2 destruct H; destruct H0; intuition; subst.
+      * do 2 destruct H; destruct H0; intuition idtac; subst.
         all: destruct (head s'); cbn in *; intuition.
-      * do 2 destruct H0; destruct H; intuition; subst.
+      * do 2 destruct H0; destruct H; intuition idtac; subst.
         all: destruct (head s); cbn in *; intuition.
-      * destruct H, H0; intuition.
+      * destruct H, H0; intuition idtac.
         all: destruct (head s); cbn in *; intuition.
     Qed.
 
     Lemma equiv_anti_ren delta (s t: exp X):
       Injective delta -> ren delta s ≡ ren delta t -> s ≡ t.
     Proof.
-      intros ? (v & H1 & H2) % church_rosser; eauto.
+      intros ? (v & H1 & H2) % church_rosser; trivial.
       eapply steps_anti_ren in H1 as [].
       eapply steps_anti_ren in H2 as [].
-      intuition; subst.
-      eapply anti_ren in H4; eauto.
+      intuition idtac; subst.
+      eapply anti_ren in H4; trivial.
       subst; eauto. 
     Qed.
   
@@ -130,46 +130,46 @@ Section Equivalence.
       var x ≡ s t -> isAtom (head s) -> False.
     Proof.
       intros EQ.
-      destruct (head s) as [y | | | ] eqn: H'; intuition.                   
-      all: eapply church_rosser in EQ as (v & L & R); eauto.
-      all: inv L; firstorder using normal_var.  
+      destruct (head s) as [y | | | ] eqn: H'; intuition idtac.
+      all: eapply church_rosser in EQ as (v & L & R); trivial.
+      all: inv L; firstorder idtac using normal_var.  
       all: eapply steps_app in R as [R|R].
       1, 3: destruct R as (? & ? & ? & ?); discriminate.
-      all:  destruct R; intuition; rewrite H' in *; syn.
+      all:  destruct R; intuition idtac; rewrite H' in *; syn.
     Qed.
 
     Lemma equiv_neq_lambda_app (s' s t: exp X):
       lambda s' ≡ s t -> isAtom (head s) -> False.
     Proof.
       intros EQ. 
-      destruct (head s) as [y | | | ] eqn: H'; intuition. 
-      all: eapply church_rosser in EQ as (v & L & R); eauto.
+      destruct (head s) as [y | | | ] eqn: H'; intuition idtac. 
+      all: eapply church_rosser in EQ as (v & L & R); trivial.
       all: eapply steps_lam in L as (v' & ? & ?); subst. 
       all: eapply steps_app in R as [R|R].
       1, 3: destruct R as (? & ? & ? & ?); discriminate.
-      all: destruct R; intuition; rewrite H' in *; syn.
+      all: destruct R; intuition idtac; rewrite H' in *; syn.
     Qed.
 
     Lemma equiv_neq_var_lambda (x: nat) s: ~ var x ≡ lambda s.
     Proof.
-      intros (v & ? & ?) % church_rosser; eauto.
-      inv H; firstorder using normal_var.
-      eapply steps_lam in H0 as []; intuition; discriminate.
+      intros (v & ? & ?) % church_rosser; trivial.
+      inv H; firstorder idtac using normal_var.
+      eapply steps_lam in H0 as []; intuition idtac; discriminate.
     Qed.
 
     Lemma equiv_neq_var_const (x: nat) c: ~ var x ≡ const c.
     Proof.
-      intros (v & ? & ?) % church_rosser; eauto.
-      inv H; firstorder using normal_var.
+      intros (v & ? & ?) % church_rosser; trivial.
+      inv H; firstorder idtac using normal_var.
       inv H0. inv H.
     Qed.
 
 
     Lemma equiv_neq_const_lam  s c: ~ const c ≡ lambda s.
     Proof.
-      intros (v & ? & ?) % church_rosser; eauto.
-      inv H; firstorder using normal_var.
-      eapply steps_lam in H0 as []; intuition; discriminate.
+      intros (v & ? & ?) % church_rosser; trivial.
+      inv H; firstorder idtac using normal_var.
+      eapply steps_lam in H0 as []; intuition idtac; discriminate.
       inv H1. 
     Qed.
 
@@ -177,12 +177,12 @@ Section Equivalence.
       const c ≡ s t -> isAtom (head s) -> False.
     Proof.
       intros EQ.
-      destruct (head s) as [y | | | ] eqn: H'; intuition.                   
-      all: eapply church_rosser in EQ as (v & L & R); eauto.
-      all: inv L; firstorder using normal_const.  
+      destruct (head s) as [y | | | ] eqn: H'; intuition idtac.                   
+      all: eapply church_rosser in EQ as (v & L & R); trivial.
+      all: inv L; firstorder idtac using normal_const.  
       all: eapply steps_app in R as [R|R].
       1, 3: destruct R as (? & ? & ? & ?); discriminate.
-      all:  destruct R; intuition; rewrite H' in *; syn.
+      all:  destruct R; intuition idtac; rewrite H' in *; syn.
     Qed.
 
   End DisjointnessProperties.
@@ -198,8 +198,8 @@ Section Equivalence.
       s ≡ t ->  v1 = v2.
     Proof using E1 E2.
       destruct E1 as [H1 N1], E2 as [H2 N2].
-      intros H; eapply equiv_unique_normal_forms; eauto.
-      now rewrite <-H1, <-H2.  
+      intros H; eapply equiv_unique_normal_forms; trivial.
+      now rewrite <-H1, <-H2.
     Qed.
 
     Lemma equiv_huet_backward:
@@ -261,7 +261,7 @@ Ltac Discriminate :=
 Lemma equiv_head_equal X (s t: exp X):
   s ≡ t -> isAtom (head s) -> isAtom (head t) -> head s = head t.
 Proof.
-  induction s in t |-*; destruct t; intros; try Discriminate; Injection H; subst; eauto.
-  - cbn in *; intuition.
+  induction s in t |-*; destruct t; intros; try Discriminate; Injection H; subst; trivial.
+  - cbn in *; intuition idtac.
   - cbn; eapply IHs1; eauto. 
 Qed. 
