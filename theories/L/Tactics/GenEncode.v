@@ -1,10 +1,10 @@
 From Undecidability.L Require Import L Tactics.Computable Tactics.ComputableTactics Tactics.Extract.
 From MetaCoq Require Import Template.All TemplateMonad.Core Template.Ast.
-Require Import String List.
-Export String.StringSyntax.
+Require Import List.
+From MetaCoq Require Export bytestring.
 
 Import MCMonadNotation.
-Local Open Scope string_scope.
+Local Open Scope bs.
 
 (* *** Generation of encoding functions *)
 
@@ -77,7 +77,7 @@ Definition tmGenEncode (n : ident) (A : Type) : TemplateMonad (encodable A) :=
   n4 <- tmEval cbv (n ++ "_correct") ;;
   Core.tmBind (tmMatchCorrect A) (fun m' => tmLemma n4 m';;ret d).
 
-Arguments tmGenEncode _%string _%type.
+Arguments tmGenEncode _%bs _%type.
 
 Definition tmGenEncodeInj (n : ident) (A : Type) : TemplateMonad unit :=
   d <- tmGenEncode n A;;
@@ -87,7 +87,7 @@ Definition tmGenEncodeInj (n : ident) (A : Type) : TemplateMonad unit :=
   d <- tmInstanceRed n3 None i;;
   ret tt.
 
-Arguments tmGenEncodeInj _%string _%type.
+Arguments tmGenEncodeInj _%bs _%type.
 
 
 (*
