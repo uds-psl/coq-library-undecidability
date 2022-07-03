@@ -40,6 +40,9 @@ Goal dupfree ([| Fin4; Fin8; Fin15; Fin16; Fin23; Fin42 |] : Vector.t (Fin.t 43)
 Proof. vector_dupfree. Qed.
 *)
 
+Lemma dupfree_singleton (X : Type) (x : X) : dupfree [| x |].
+Proof. now constructor; [|constructor]. Qed. 
+
 Lemma dupfree_cons (X : Type) (n : nat) (x : X) (xs : Vector.t X n) :
   dupfree (x ::: xs) -> dupfree xs /\ ~ In x xs.
 Proof.

@@ -77,4 +77,4 @@ Ltac smpl_TM_Duo :=
   | [ |- projT1 (ReadChar2) ↓ _] => eapply RealiseIn_TerminatesIn; eapply ReadChar2_Sem
   end.
 
-Smpl Add smpl_TM_Duo : TM_Correct.
+(* Smpl Add smpl_TM_Duo : TM_Correct. *)

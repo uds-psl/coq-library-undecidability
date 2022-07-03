@@ -187,16 +187,16 @@ Section MoveToSymbol.
     destruct t; cbn in *; auto. all: try now inv HEq1.
   Qed.
 
-
+  #[local] Hint Extern 0 (MoveToSymbol_Step ⊨ _) => eapply RealiseIn_Realise, MoveToSymbol_Step_Sem : tm.
+  #[local] Hint Extern 0 (projT1 MoveToSymbol_Step ↓ _) => eapply RealiseIn_TerminatesIn, MoveToSymbol_Step_Sem : tm.
+  
   Local Arguments plus : simpl never. Local Arguments mult : simpl never.
 
   Lemma MoveToSymbol_Terminates :
     projT1 MoveToSymbol ↓ (fun tin k => MoveToSymbol_steps (tin[@Fin0]) <= k).
   Proof.
     eapply TerminatesIn_monotone.
-    { unfold MoveToSymbol. TM_Correct.
-      1-2: eapply Realise_total; eapply MoveToSymbol_Step_Sem.
-    }
+    { unfold MoveToSymbol. eauto with tm. }
     {
       apply WhileCoInduction; intros. cbn.
       exists 3. repeat split.
@@ -303,7 +303,12 @@ Ltac smpl_TM_MoveToSymbol :=
   | [ |- projT1 (MoveToSymbol_L _ _) ↓ _ ] => eapply MoveToSymbol_L_Terminates
   end.
 
-Smpl Add smpl_TM_MoveToSymbol : TM_Correct.
+(* Smpl Add smpl_TM_MoveToSymbol : TM_Correct. *)
+
+#[export] Hint Extern 0 (MoveToSymbol   _ _ ⊨ _) => apply MoveToSymbol_Realise : tm.
+#[export] Hint Extern 0 (MoveToSymbol_L _ _ ⊨ _) => apply MoveToSymbol_L_Realise : tm.
+#[export] Hint Extern 0 (projT1 (MoveToSymbol   _ _) ↓ _) => apply MoveToSymbol_Terminates : tm.
+#[export] Hint Extern 0 (projT1 (MoveToSymbol_L _ _) ↓ _) => apply MoveToSymbol_L_Terminates : tm.
 
 Section MoveToSymbol_Sem.
 

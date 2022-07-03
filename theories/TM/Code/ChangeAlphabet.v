@@ -294,4 +294,4 @@ Ltac smpl_TM_ChangeAlphabet :=
   end.
 
 
-Smpl Add smpl_TM_ChangeAlphabet : TM_Correct.
+(* Smpl Add smpl_TM_ChangeAlphabet : TM_Correct. *)

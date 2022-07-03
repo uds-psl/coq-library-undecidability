@@ -24,7 +24,7 @@ Section Nop.
   Lemma Nop_Sem : Nop ⊨c(0) Nop_Rel.
   Proof.
     eapply RealiseIn_monotone.
-    { unfold Nop. TM_Correct. }
+    { unfold Nop. eauto with tm. }
     { reflexivity. }
     {
       intros tin ((), tout) (_&HInj). cbn in *.
@@ -37,6 +37,8 @@ Arguments Nop_Rel {sig n} x y/.
 Arguments Nop {sig n}.
 Arguments Nop : simpl never.
 
+#[local] Hint Extern 0 (Nop ⊨c(_) _) => eapply Nop_Sem : tm.
+#[local] Hint Extern 0 (Nop ⊨ _) => eapply RealiseIn_Realise, Nop_Sem : tm.
 
 (* ** Diverge *)
 
@@ -49,10 +51,11 @@ Section Diverge.
   Definition Diverge_Rel : pRel sig unit n :=
     ignoreParam (fun t t' => False).
 
+    
   Lemma Diverge_Realise : Diverge ⊨ Diverge_Rel.
   Proof.
     eapply Realise_monotone.
-    { unfold Diverge. TM_Correct. eapply RealiseIn_Realise. apply Nop_Sem. }
+    { unfold Diverge. eauto with tm. }
     { eapply WhileInduction; intros; cbn in *; TMSimp; auto. }
   Qed.
 
@@ -61,8 +64,6 @@ End Diverge.
 Arguments Diverge_Rel {sig n} x y/.
 Arguments Diverge {sig n}.
 Arguments Diverge : simpl never.
-
-
 
 (* ** Move two tapes *)
 
@@ -79,11 +80,11 @@ Section MovePar.
     LiftTapes (Move D1) [|Fin0|];; LiftTapes (Move D2) [|Fin1|].
 
     
-
+   
   Lemma MovePar_Sem : MovePar ⊨c(3) MovePar_R.
   Proof.
     eapply RealiseIn_monotone.
-    { unfold MovePar. TM_Correct. }
+    { unfold MovePar. eauto with tm. }
     { reflexivity. }
     { hnf in *. intros tin (yout&tout) H. now TMSimp. }
   Qed.
@@ -159,14 +160,11 @@ Section ReadChar.
       yout = current tin[@k] /\
       tout = tin.
 
-
-
-
   Lemma ReadChar_at_Sem :
     ReadChar_at ⊨c(1) ReadChar_at_Rel.
   Proof.
     eapply RealiseIn_monotone.
-    { unfold ReadChar_at. TM_Correct. }
+    { unfold ReadChar_at. eauto with tm. }
     { cbn. reflexivity. }
     {
       intros tin (yout, tout) H.
@@ -207,4 +205,18 @@ Ltac smpl_TM_Multi :=
   | [ |- projT1 (ReadChar_at _) ↓ _ ] => eapply RealiseIn_TerminatesIn; eapply ReadChar_at_Sem
   end.
 
-Smpl Add smpl_TM_Multi : TM_Correct.
+(* Smpl Add smpl_TM_Multi : TM_Correct. *)
+
+#[export] Hint Extern 0 (Nop ⊨ _) => eapply RealiseIn_Realise, Nop_Sem : tm.
+#[export] Hint Extern 0 (Nop ⊨c(_) _) => apply Nop_Sem : tm.
+#[export] Hint Extern 0 (projT1 (Nop) ↓ _) => eapply RealiseIn_TerminatesIn, Nop_Sem : tm.
+#[export] Hint Extern 0 (Diverge ⊨ _) => apply Diverge_Realise : tm.
+#[export] Hint Extern 0 (MovePar _ _ ⊨ _) => eapply RealiseIn_Realise, MovePar_Sem : tm.
+#[export] Hint Extern 0 (MovePar _ _ ⊨c(_) _) => apply MovePar_Sem : tm.
+#[export] Hint Extern 0 (projT1 (MovePar _ _) ↓ _) => eapply RealiseIn_TerminatesIn, MovePar_Sem : tm.
+#[export] Hint Extern 0 (CopyChar _ ⊨ _) => eapply RealiseIn_Realise, CopyChar_Sem : tm.
+#[export] Hint Extern 0 (CopyChar _ ⊨c(_) _) => apply CopyChar_Sem : tm.
+#[export] Hint Extern 0 (projT1 (CopyChar _) ↓ _) => eapply RealiseIn_TerminatesIn, CopyChar_Sem : tm.
+#[export] Hint Extern 0 (ReadChar_at _ ⊨ _) => eapply RealiseIn_Realise, ReadChar_at_Sem : tm.
+#[export] Hint Extern 0 (ReadChar_at _ ⊨c(_) _) => apply ReadChar_at_Sem : tm.
+#[export] Hint Extern 0 (projT1 (ReadChar_at _) ↓ _) => eapply RealiseIn_TerminatesIn, ReadChar_at_Sem : tm.

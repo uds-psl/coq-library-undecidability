@@ -7,7 +7,6 @@ From Coq Require Import List.
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 
-
 (* The correctness and definition of [WriteString] is non-standard, because it is defined (and verified) by recursion (or induction). *)
 Section Write_String.
 
@@ -51,16 +50,16 @@ Section Write_String.
 
   Definition WriteString_steps l :=
     2 * l - 1.
-    
+
   Lemma WriteString_fix_Sem (str : list sig) :
     WriteString str ⊨c(WriteString_steps (length str)) (WriteString_sem_fix str).
   Proof.
     induction str as [ | s [ | s' str'] IH ].
-    - cbn. change (2 * 0 - 1) with 0. TM_Correct.
-    - cbn. change (2 * 1 - 1) with 1. TM_Correct.
+    - cbn. change (2 * 0 - 1) with 0. eauto with tm.
+    - cbn. change (2 * 1 - 1) with 1. eauto with tm.
     - change (WriteString (s :: s' :: str')) with (WriteMove s D;; WriteString (s' :: str')).
       eapply RealiseIn_monotone.
-      { TM_Correct. TM_Correct. apply IH. }
+      { eauto with tm. }
       { unfold WriteString_steps. cbn. lia. }
       { intros t1 t3 H. destruct H as (()&t2&H1&H2).
         change (WriteString_sem_fix (s :: s' :: str')) with (WriteMove_Rel s D |_tt ∘ WriteString_sem_fix (s' :: str')).
@@ -170,3 +169,7 @@ Proof.
   - rewrite IH. autorewrite with list. setoid_rewrite app_assoc at 1 2.
     rewrite !hd_app with (xs:=(map Some (rev str') ++ map Some [s'])). easy. all:intros (?&[=])%app_eq_nil.
 Qed.
+
+#[export] Hint Extern 0 (WriteString _ _ ⊨ _) => eapply RealiseIn_Realise, WriteString_Sem : tm.
+#[export] Hint Extern 0 (WriteString _ _ ⊨c(_) _) => apply WriteString_Sem : tm.
+#[export] Hint Extern 0 (projT1 (WriteString _ _) ↓ _) => eapply RealiseIn_TerminatesIn, WriteString_Sem : tm.

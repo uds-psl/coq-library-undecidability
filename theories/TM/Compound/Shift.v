@@ -10,7 +10,6 @@ From Coq Require Import Recdef.
 Local Arguments plus : simpl never.
 Local Arguments mult : simpl never.
 
-
 Section Shift.
 
   Variable sig : finType.
@@ -42,12 +41,15 @@ Section Shift.
     { unfold Shift_Step.
       eapply Switch_RealiseIn with
           (R2 := fun (c : option sig) => match c with Some c => if f c then _ else _ | None => _ end).
-      - TM_Correct.
-      - intros [ c | ]; [ destruct (f c) | ]; TM_Correct. }
+      - eauto with tm.
+      - intros [ c | ]; [ destruct (f c) | ]; eauto with tm. }
     { reflexivity. }
-    {intros tin (yout, tout) H. TMSimp. TMCrush; TMSolve 1. }
+    { intros tin (yout, tout) H. TMSimp. TMCrush; TMSolve 1. }
   Qed.
 
+  #[local] Hint Extern 0 (Shift_Step _ ⊨c(_) _) => apply Shift_Step_Sem : tm.
+  #[local] Hint Extern 0 (Shift_Step _ ⊨ _) => eapply RealiseIn_Realise, Shift_Step_Sem : tm.
+  #[local] Hint Extern 0 (projT1 (Shift_Step _) ↓ _) => eapply RealiseIn_TerminatesIn, Shift_Step_Sem : tm.
 
   Definition Shift := StateWhile Shift_Step.
 
@@ -80,10 +82,12 @@ Section Shift.
       rewrite Shift_fun_equation; cbn; auto. now rewrite Ea.
   Qed.
 
+
+
   Lemma Shift_Realise (s : sig) : Shift s ⊨ Shift_Rel s.
   Proof.
     eapply Realise_monotone.
-    { unfold Shift. TM_Correct. intros. eapply RealiseIn_Realise. apply Shift_Step_Sem. }
+    { unfold Shift. eauto with tm. }
     {
       apply StateWhileInduction; intros; cbn in *.
       - destruct (current tin[@Fin0]) eqn:E.
@@ -145,10 +149,7 @@ Section Shift.
            (fun tin k => Shift_steps (tape_local tin[@Fin0]) <= k).
   Proof.
     eapply TerminatesIn_monotone.
-    { unfold Shift. TM_Correct.
-      - intros ?s. eapply RealiseIn_Realise. apply Shift_Step_Sem.
-      - intros ?s. eapply RealiseIn_TerminatesIn. apply Shift_Step_Sem.
-    }
+    { unfold Shift. eauto with tm. }
     {
       revert s. apply StateWhileCoInduction; intros s; intros. exists 3. split. reflexivity.
       intros [ s' | [] ]; intros; cbn in *.
@@ -165,6 +166,10 @@ Section Shift.
     }
   Qed.
 
+  #[local] Hint Extern 0 (Shift _ ⊨ _) => apply Shift_Realise : tm.
+  #[local] Hint Extern 0 (projT1 (Shift _) ↓ _) => apply Shift_TerminatesIn : tm.
+
+  
 
   (* ** Shift to left *)
 
@@ -219,7 +224,7 @@ Section Shift.
   Lemma Shift_L_Realise (s : sig) : Shift_L s ⊨ Shift_L_Rel s.
   Proof.
     eapply Realise_monotone.
-    { unfold Shift_L. TM_Correct. apply Shift_Realise. }
+    { unfold Shift_L. eauto with tm. }
     {
       intros tin ([], tout) H. hnf in H; hnf.
       destruct_tapes; cbn in *. now apply Shift_fun_mirror in H.
@@ -257,7 +262,7 @@ Section Shift.
            (fun tin k => Shift_steps (tape_local_l tin[@Fin0]) <= k).
   Proof.
     eapply TerminatesIn_monotone.
-    { unfold Shift_L. TM_Correct. apply Shift_TerminatesIn. }
+    { unfold Shift_L. auto with tm. }
     { intros tin k Hk. hnf. now simpl_tape in *. }
   Qed.
 
@@ -273,4 +278,9 @@ Ltac smpl_TM_Shift :=
   | [ |- projT1 (Shift_L _ _) ↓ _ ] => eapply Shift_L_TerminatesIn
   end.
 
-Smpl Add smpl_TM_Shift : TM_Correct.
+#[export] Hint Extern 0 (Shift   _ _ ⊨ _) => apply Shift_Realise : tm.
+#[export] Hint Extern 0 (Shift_L _ _ ⊨ _) => apply Shift_L_Realise : tm.
+#[export] Hint Extern 0 (projT1 (Shift   _ _) ↓ _) => apply Shift_TerminatesIn : tm.
+#[export] Hint Extern 0 (projT1 (Shift_L _ _) ↓ _) => apply Shift_L_TerminatesIn : tm.
+  
+(* Smpl Add smpl_TM_Shift : TM_Correct. *)

@@ -205,4 +205,22 @@ Ltac smpl_TM_Mono :=
   | [ |- projT1 (ReadChar) ↓ _] => eapply RealiseIn_TerminatesIn; eapply ReadChar_Sem
   end.
 
-Smpl Add smpl_TM_Mono : TM_Correct.
+(* Smpl Add smpl_TM_Mono : TM_Correct. *)
+#[export] Hint Extern 0 (DoAct _ ⊨ _) => eapply RealiseIn_Realise, DoAct_Sem : tm.
+#[export] Hint Extern 0 (DoAct _ ⊨c(_) _) => apply DoAct_Sem : tm.
+#[export] Hint Extern 0 (projT1 (DoAct _) ↓ _) => eapply RealiseIn_TerminatesIn, DoAct_Sem : tm.
+#[export] Hint Extern 0 (Write _ ⊨ _) => eapply RealiseIn_Realise, Write_Sem : tm.
+#[export] Hint Extern 0 (Write _ ⊨c(_) _) => apply Write_Sem : tm.
+#[export] Hint Extern 0 (projT1 (Write _) ↓ _) => eapply RealiseIn_TerminatesIn, Write_Sem : tm.
+#[export] Hint Extern 0 (Move _ ⊨ _) => eapply RealiseIn_Realise, Move_Sem : tm.
+#[export] Hint Extern 0 (Move _ ⊨c(_) _) => apply Move_Sem : tm.
+#[export] Hint Extern 0 (projT1 (Move _) ↓ _) => eapply RealiseIn_TerminatesIn, Move_Sem : tm.
+#[export] Hint Extern 0 (WriteMove _ _ ⊨ _) => eapply RealiseIn_Realise, WriteMove_Sem : tm.
+#[export] Hint Extern 0 (WriteMove _ _ ⊨c(_) _) => apply WriteMove_Sem : tm.
+#[export] Hint Extern 0 (projT1 (WriteMove _ _) ↓ _) =>  eapply RealiseIn_TerminatesIn, WriteMove_Sem : tm.
+#[export] Hint Extern 0 (CaseChar _ ⊨ _) => eapply RealiseIn_Realise, CaseChar_Sem : tm.
+#[export] Hint Extern 0 (CaseChar _ ⊨c(_) _) => apply CaseChar_Sem : tm.
+#[export] Hint Extern 0 (projT1 (CaseChar _) ↓ _) => eapply RealiseIn_TerminatesIn, CaseChar_Sem: tm.
+#[export] Hint Extern 0 (ReadChar ⊨ _) => eapply RealiseIn_Realise, ReadChar_Sem : tm.
+#[export] Hint Extern 0 (ReadChar ⊨c(_) _) => apply ReadChar_Sem : tm.
+#[export] Hint Extern 0 (projT1 (ReadChar) ↓ _) => eapply RealiseIn_TerminatesIn, ReadChar_Sem : tm.

@@ -370,7 +370,8 @@ Ltac smpl_TM_LiftN :=
   | [ |- LiftTapes _ _ ⊨c(_) _] => apply LiftTapes_RealiseIn; [ smpl_dupfree | ]
   | [ |- projT1 (LiftTapes _ _) ↓ _] => apply LiftTapes_Terminates; [ smpl_dupfree | ]
   end.
-Smpl Add smpl_TM_LiftN : TM_Correct.
+
+(* Smpl Add smpl_TM_LiftN : TM_Correct. *)
 
 
 Ltac is_num_const n :=
@@ -551,3 +552,7 @@ Ltac simpl_not_in_vector := repeat simpl_not_in_vector_one.
 
 
 Ltac simpl_not_in := repeat simpl_not_in_vector.
+
+#[export] Hint Extern 1 (LiftTapes _ _ ⊨c(_) _) => apply LiftTapes_RealiseIn : tm.
+#[export] Hint Immediate dupfreeVN : tm.
+#[export] Hint Immediate dupfree_singleton : tm.

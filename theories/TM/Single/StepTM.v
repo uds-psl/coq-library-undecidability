@@ -554,19 +554,20 @@ Section ToSingleTape.
     Definition IsCons : pTM sigSim bool 1 :=
       Switch ReadChar
              (fun (s : option sigSim) =>
-                match s with
-                | Some (inr (sigList_cons)) => Return Nop true
-                | Some (inr (sigList_nil)) => Return Nop false
-                | _ => Return Nop default
-                end).
+                Return Nop
+                  match s with
+                  | Some (inr (sigList_cons)) => true
+                  | Some (inr (sigList_nil)) => false
+                  | _ => default
+                  end).
 
     Definition IsCons_steps := 2.
 
     Lemma IsCons_Sem : IsCons ⊨c(IsCons_steps) IsCons_Rel.
     Proof.
       unfold IsCons_steps. eapply RealiseIn_monotone.
-      { unfold IsCons. TM_Correct. }
-      { Unshelve. 4-5: reflexivity. all: reflexivity. }
+      { unfold IsCons. now eauto with tm. } 
+      { reflexivity. }
       {
         intros tin (yout, tout) H. split.
         { (* [cons] case *) intros tps1 tps2 tp HCons. unfold atCons in *. TMSimp. auto. }
@@ -581,42 +582,39 @@ Section ToSingleTape.
           atCons_current tout[@Fin0] tps1 tps2 tp /\
           yout = tape_dir tp.
 
-
     Definition GoToCurrent : pTM sigSim (option move) 1 :=
       MoveToSymbol isMarked' id;;
       Switch ReadChar
       (fun (c : option sigSim) =>
-         match c with
-         | Some (inr (sigList_X (RightBlank true))) => Return Nop (Some Rmove)
-         | Some (inr (sigList_X (LeftBlank true))) => Return Nop (Some Lmove)
-         | Some (inr (sigList_X (MarkedSymbol _))) => Return Nop (Some Nmove)
-         | Some (inr (sigList_X NilBlank)) => Return Nop (None)
-         | _ => Return Nop None
+        Return Nop
+        match c with
+         | Some (inr (sigList_X (RightBlank true))) => Some Rmove
+         | Some (inr (sigList_X (LeftBlank true))) => Some Lmove
+         | Some (inr (sigList_X (MarkedSymbol _))) => Some Nmove
+         | _ => None
          end).
 
     Lemma GoToCurrent_Realise : GoToCurrent ⊨ GoToCurrent_Rel.
     Proof.
       eapply Realise_monotone.
-      { unfold GoToCurrent. TM_Correct. }
+      { unfold GoToCurrent. now eauto with tm. }
       {
         intros tin (yout, tout) H. intros tps1 tps2 tp HCons. unfold atCons in *. TMSimp.
-        rename H1 into H.
         destruct tp as [ | r rs | l ls | ls m rs]; cbn in *; TMSimp.
         - (* tp = niltape *)
-          do 2 ( rewrite MoveToSymbol_Fun_equation in *; cbn in * ). TMSimp.
-          split; eauto. hnf. reflexivity.
+          now do 2 ( rewrite MoveToSymbol_Fun_equation in *; cbn in * ).
         - (* tp = leftof r rs *) 
-          do 2 ( rewrite MoveToSymbol_Fun_equation in *; cbn in * ). TMSimp.
-          split; auto. hnf. cbn. f_equal. rewrite !List.map_map, !map_app, <- !app_assoc, !List.map_map. cbn. reflexivity.
+          do 2 ( rewrite MoveToSymbol_Fun_equation in *; cbn in * ).
+          split; [|reflexivity]. hnf. now rewrite !List.map_map, !map_app, <- !app_assoc, !List.map_map.
         - (* tp = rightof l ls *)
           replace (inr (sigList_X (LeftBlank false)) ::
                        map inr (map sigList_X (map UnmarkedSymbol (rev ls) ++ [UnmarkedSymbol l; RightBlank true])) ++
                        map inr (encode_list (Encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP]) with
               ((inr (sigList_X (LeftBlank false)) :: map inr (map sigList_X (map UnmarkedSymbol (rev ls) ++ [UnmarkedSymbol l])))
                  ++ inr (sigList_X (RightBlank true)) :: (map inr (encode_list (Encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP]))
-            in H by (now simpl_list; cbn; rewrite <- !app_assoc).
-          rewrite MoveToSymbol_correct_midtape in H; cbn; auto.
-          + cbn in *. TMSimp. split; auto. hnf. f_equal.
+            by (now simpl_list; cbn; rewrite <- !app_assoc).
+          rewrite MoveToSymbol_correct_midtape; cbn; auto.
+          + split; auto. hnf.
             rewrite !map_id, !List.map_map. cbv [id].
             rewrite !map_app; cbn. rewrite !List.map_map. rewrite rev_app_distr. cbn. rewrite !map_rev, rev_involutive, <- app_assoc. reflexivity.
           + rewrite !map_app, !List.map_map. cbn. intros ? [<- | [(?&<-&?)%in_map_iff | [<- | ?]] % in_app_iff ]; cbn; auto.
@@ -626,16 +624,15 @@ Section ToSingleTape.
               ((inr (sigList_X (LeftBlank false)) :: map inr (map sigList_X (map UnmarkedSymbol (rev ls))))
                  ++ inr (sigList_X (MarkedSymbol m)) ::
                  (map inr (map sigList_X (map UnmarkedSymbol rs ++ [RightBlank false])) ++
-                      map inr (encode_list (Encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP])) in H.
-          rewrite MoveToSymbol_correct_midtape in H; cbn; auto.
-          + cbn in *. TMSimp. split; auto. hnf.
+                      map inr (encode_list (Encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP])).
+          rewrite MoveToSymbol_correct_midtape; cbn; auto.
+          + split; auto. hnf.
             rewrite !map_id, !List.map_map. cbv [id].
             rewrite !map_app; cbn. rewrite !List.map_map, <- !app_assoc. rewrite map_rev, rev_involutive. f_equal.
           + rewrite !List.map_map. intros ? [ <- | (?&<-&?) % in_map_iff]; cbn; auto.
-          + simpl_list. cbn. f_equal. f_equal. f_equal. rewrite !map_app, <- !app_assoc. cbn. f_equal.
+          + cbn. now do 2 (rewrite !map_app, <- !app_assoc; cbn).
       }
     Qed.
-
 
     Definition GoToCurrent_steps' (tp : tape sig) :=
       match tp with
@@ -654,7 +651,7 @@ Section ToSingleTape.
     Lemma GoToCurrent_Terminates : projT1 GoToCurrent ↓ GoToCurrent_T.
     Proof.
       eapply TerminatesIn_monotone.
-      { unfold GoToCurrent. TM_Correct. }
+      { unfold GoToCurrent. now eauto with tm. }
       { intros tin k (tps1&tps2&tp&HCons&Hk). unfold GoToCurrent_steps in Hk.
         exists (GoToCurrent_steps' tp), 2. cbn.
         repeat split. 2: lia.
@@ -670,7 +667,7 @@ Section ToSingleTape.
                    ++ inr (sigList_X (RightBlank true)) :: (map inr (encode_list (Encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP]))
               by (now simpl_list; cbn; rewrite <- !app_assoc).
             rewrite MoveToSymbol_steps_midtape; cbn; auto.
-            simpl_list. cbn. rewrite Nat.mul_succ_r. cbn. lia.
+            simpl_list. cbn. lia.
           - (* tp = midtape ls m rs *)
             replace (inr (sigList_X (LeftBlank false)) ::
                          map inr (map sigList_X (map UnmarkedSymbol (rev ls) ++ MarkedSymbol m :: map UnmarkedSymbol rs ++ [RightBlank false])) ++ map inr (encode_list (Encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP]) with
@@ -679,15 +676,20 @@ Section ToSingleTape.
                    (map inr (map sigList_X (map UnmarkedSymbol rs ++ [RightBlank false])) ++
                         map inr (encode_list (Encode_tape (eqType_X (type sig))) tps2) ++ [inl STOP])).
             rewrite MoveToSymbol_steps_midtape; cbn; auto.
-            + simpl_list. cbn. lia.
-            + simpl_list. cbn. f_equal. f_equal. f_equal. rewrite !map_app, <- !app_assoc. cbn. f_equal.
+            + simpl_list. lia.
+            + cbn. now do 2 (rewrite !map_app, <- !app_assoc; cbn).
         }
-        { intros ? [] ?. exists 1, 0. repeat split. lia. lia. intros ? ? (->&->). destruct *; reflexivity. }
+        { intros ? [] ?. exists 1, 0. repeat split. lia. lia. intros ? ? (->&->). reflexivity. }
       }
     Qed.
 
   End GoToCurrent.
 
+  #[local] Hint Extern 0 (IsCons ⊨ _) => eapply RealiseIn_Realise, IsCons_Sem : tm.
+  #[local] Hint Extern 0 (IsCons ⊨c(_) _) => apply IsCons_Sem : tm.
+  #[local] Hint Extern 0 (projT1 (IsCons) ↓ _) => eapply RealiseIn_TerminatesIn, IsCons_Sem : tm.
+  #[local] Hint Extern 0 (GoToCurrent ⊨ _) => apply GoToCurrent_Realise : tm.
+  #[local] Hint Extern 0 (projT1 GoToCurrent ↓ _) => apply GoToCurrent_Terminates : tm.
 
   Section GoToNext.
 
@@ -716,7 +718,8 @@ Section ToSingleTape.
     Lemma GoToNext_Realise : GoToNext ⊨ GoToNext_Rel.
     Proof.
       eapply Realise_monotone.
-      { unfold GoToNext. TM_Correct. eapply RealiseIn_Realise. apply IsCons_Sem. }
+      { unfold GoToNext. now eauto with tm. }
+
       {
         intros tin (yout, tout) H. intros tps1 tps2 tp HCons. unfold atCons_current in *. TMSimp.
         TMSimp. rename H1 into H.
@@ -839,7 +842,7 @@ Section ToSingleTape.
     Lemma GoToNext_Terminates : projT1 GoToNext ↓ GoToNext_T.
     Proof.
       eapply TerminatesIn_monotone.
-      { unfold GoToNext. TM_Correct. eapply RealiseIn_TerminatesIn. apply IsCons_Sem. }
+      { unfold GoToNext. now eauto with tm. }
       { intros tin k (tps1&tps2&tp&HCons&Hk). hnf in HCons. unfold GoToNext_steps in Hk.
         exists (GoToNext_steps' tp), 2. repeat split. 2: lia. 2: intros _ _ _; reflexivity.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; hnf in HCons; TMSimp.
@@ -878,6 +881,8 @@ Section ToSingleTape.
 
   End GoToNext.
 
+  #[local] Hint Extern 0 (GoToNext ⊨ _) => apply GoToNext_Realise : tm.
+  #[local] Hint Extern 0 (projT1 GoToNext ↓ _) => apply GoToNext_Terminates : tm.
 
   (* Read the current symbols *)
   Section ReadCurrentSymbols.
@@ -888,10 +893,11 @@ Section ToSingleTape.
     Definition ReadCurrent : pTM sigSim (option sig) 1 :=
       Switch ReadChar
              (fun (s : option sigSim) =>
-                match s with
-                | Some (inr (sigList_X (MarkedSymbol s))) => Return Nop (Some s)
-                | _ => Return Nop None
-                end).
+                Return Nop 
+                  match s with
+                  | Some (inr (sigList_X (MarkedSymbol s))) => Some s
+                  | _ => None
+                  end).
 
     Definition ReadCurrent_Rel : pRel sigSim (option sig) 1 :=
       fun tin '(yout, tout) =>
@@ -905,15 +911,18 @@ Section ToSingleTape.
     Lemma ReadCurrent_Sem : ReadCurrent ⊨c(ReadCurrent_steps) ReadCurrent_Rel.
     Proof.
       unfold ReadCurrent_steps. eapply RealiseIn_monotone.
-      { unfold ReadCurrent. TM_Correct. }
-      { Unshelve. 4,5: reflexivity. all: reflexivity. }
+      { unfold ReadCurrent. now auto with tm. }
+      { reflexivity. }
       { intros tin (yout, tout) H. intros tps1 tps2 tp HCons.
         unfold atCons_current in *. TMSimp.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; hnf in HCons; TMSimp.
         all: (split; hnf; auto).
       }
     Qed.
-        
+
+    #[local] Hint Extern 0 (ReadCurrent ⊨ _) => eapply RealiseIn_Realise, ReadCurrent_Sem : tm.
+    #[local] Hint Extern 0 (ReadCurrent ⊨c(_) _) => apply ReadCurrent_Sem : tm.
+    #[local] Hint Extern 0 (projT1 ReadCurrent ↓ _) => eapply RealiseIn_TerminatesIn, ReadCurrent_Sem : tm.
 
     Definition ReadCurrentSymbols_Step_Rel (st : Vector.t (option sig) n * Fin.t n) :
       pRel sigSim (Vector.t (option sig) n * Fin.t n + Vector.t (option sig) n) 1 :=
@@ -955,16 +964,11 @@ Section ToSingleTape.
                                 inl (insertKnownSymbol readSymbols i c, i')
                               end)))
            (Return Nop (inr readSymbols)).
-      
+
     Lemma ReadCurrentSymbols_Step_Realise : forall st, ReadCurrentSymbols_Step st ⊨ ReadCurrentSymbols_Step_Rel st.
     Proof.
       intros (readSymbols,i). eapply Realise_monotone.
-      { unfold ReadCurrentSymbols_Step. TM_Correct_step; [ | TM_Correct_step | TM_Correct].
-        - eapply RealiseIn_Realise. apply IsCons_Sem.
-        - apply GoToCurrent_Realise.
-        - apply Switch_Realise.
-          + eapply RealiseIn_Realise. apply ReadCurrent_Sem.
-          + intros c. apply Return_Realise. apply GoToNext_Realise. }
+      { unfold ReadCurrentSymbols_Step. now eauto 7 with tm. }
       {
         intros tin (yout, tout). TMSimp. split.
         {
@@ -999,7 +1003,6 @@ Section ToSingleTape.
       }
     Qed.
 
-
     Definition ReadCurrentSymbols_Step_steps_cons tp :=
       3 + IsCons_steps + GoToCurrent_steps tp + ReadCurrent_steps + GoToNext_steps tp.
 
@@ -1013,16 +1016,7 @@ Section ToSingleTape.
     Lemma ReadCurrentSymbols_Step_Terminates st : projT1 (ReadCurrentSymbols_Step st) ↓ ReadCurrentSymbols_Step_T.
     Proof.
       destruct st as [readSymbols i]. eapply TerminatesIn_monotone.
-      { unfold ReadCurrentSymbols_Step. TM_Correct_step.
-        { eapply RealiseIn_Realise. apply IsCons_Sem. }
-        { eapply RealiseIn_TerminatesIn. apply IsCons_Sem. }
-        { TM_Correct_step. apply GoToCurrent_Realise. apply GoToCurrent_Terminates.
-          apply Switch_TerminatesIn.
-          - eapply RealiseIn_Realise. apply ReadCurrent_Sem.
-          - eapply RealiseIn_TerminatesIn. apply ReadCurrent_Sem.
-          - intros st. apply Return_Terminates. apply GoToNext_Terminates. }
-        { TM_Correct. }
-      }
+      { unfold ReadCurrentSymbols_Step. now eauto 6 with tm. }
       {
         intros tin k. intros [ (tps1&tps2&tp&HCons&Hk) | (tps&HNil&Hk) ].
         { (* cons case *) unfold ReadCurrentSymbols_Step_steps_cons in Hk.
@@ -1040,8 +1034,6 @@ Section ToSingleTape.
       }
     Qed.
           
-
-
     Definition ReadCurrentSymbols_Loop := StateWhile ReadCurrentSymbols_Step.
 
     Definition ReadCurrentSymbols_Loop_Rel (st : Vector.t (option sig) n * Fin.t n) :
@@ -1061,10 +1053,14 @@ Section ToSingleTape.
             atNil tout[@Fin0] tps /\
             yout = (fst st)).
 
+    #[local] Hint Extern 0 (ReadCurrentSymbols_Step _ ⊨ _) => apply ReadCurrentSymbols_Step_Realise : tm.
+    #[local] Hint Extern 0 (projT1 (ReadCurrentSymbols_Step _) ↓ _) => apply ReadCurrentSymbols_Step_Terminates : tm.
+  
     Lemma ReadCurrentSymbols_Loop_Realise st : ReadCurrentSymbols_Loop st ⊨ ReadCurrentSymbols_Loop_Rel st.
     Proof.
       eapply Realise_monotone.
-      { unfold ReadCurrentSymbols_Loop. TM_Correct. apply ReadCurrentSymbols_Step_Realise. }
+      { unfold ReadCurrentSymbols_Loop. now eauto with tm. }
+      
       { revert st. apply StateWhileInduction; intros; rename l into st.
         {
           destruct st as [ readSymbols i]; cbn in *.
@@ -1129,9 +1125,7 @@ Section ToSingleTape.
     Lemma ReadCurrentSymbols_Loop_Terminates st : projT1 (ReadCurrentSymbols_Loop st) ↓ ReadCurrentSymbols_Loop_T st.
     Proof.
       eapply TerminatesIn_monotone.
-      { unfold ReadCurrentSymbols_Loop. TM_Correct.
-        - apply ReadCurrentSymbols_Step_Realise.
-        - apply ReadCurrentSymbols_Step_Terminates. }
+      { unfold ReadCurrentSymbols_Loop. now eauto with tm. }
       {
         revert st. apply StateWhileCoInduction. intros (readSymbols&i). intros. unfold ReadCurrentSymbols_Loop_T in *. unfold ReadCurrentSymbols_Step_T in *.
         destruct HT as [ (tps1&tps2&tp&HL1&HL2&HRead&HCons&Hk) | (tps&HNil&Hk)].
@@ -1164,7 +1158,9 @@ Section ToSingleTape.
       }
     Qed.
 
-
+    #[local] Hint Extern 0 (ReadCurrentSymbols_Loop _ ⊨ _) => apply ReadCurrentSymbols_Loop_Realise : tm.
+    #[local] Hint Extern 0 (projT1 (ReadCurrentSymbols_Loop _) ↓ _) => apply ReadCurrentSymbols_Loop_Terminates : tm.
+  
     Definition ReadCurrentSymbols :=
       match (finMin_opt n) with
       | None => Return (Move Rmove) (Vector.const None n) (* Nothing to do, just move from the start to the nil symbol *)
@@ -1185,7 +1181,7 @@ Section ToSingleTape.
       destruct (finMin_opt n) as [min| ] eqn:E; swap 1 2.
       {
         eapply Realise_monotone.
-        { TM_Correct. }
+        { now eauto with tm. }
         { intros tin (yout, tout) H. intros T HEncT. unfold contains_tapes in *. TMSimp.
           clear_except E. apply finMin_opt_None in E as ->. destruct_tapes. cbn.
           split; cbn; auto. hnf. reflexivity.
@@ -1193,7 +1189,7 @@ Section ToSingleTape.
       }
       {
         eapply Realise_monotone.
-        { TM_Correct. apply ReadCurrentSymbols_Loop_Realise. }
+        { now eauto with tm. }
         { intros tin (yout, tout) H. intros T HEncT. unfold contains_tapes in *. TMSimp.
           rename H0 into HLoop_cons, H1 into HLoop_nil. clear HLoop_nil.
           pose proof finMin_opt_Some E as (n'&E'). pose (T' := Vector.cast T E').
@@ -1229,7 +1225,7 @@ Section ToSingleTape.
       unfold ReadCurrentSymbols.
       destruct (finMin_opt n) as [min| ] eqn:E.
       { eapply TerminatesIn_monotone.
-        { TM_Correct. eapply ReadCurrentSymbols_Loop_Terminates. }
+        { now eauto with tm. }
         {
           intros tin k (T&HEncT&Hk).
           pose proof finMin_opt_Some E as (n'&E'). pose proof finMin_opt_Some_val E as E_val.
@@ -1246,7 +1242,7 @@ Section ToSingleTape.
         }
       }
       { eapply TerminatesIn_monotone.
-        { TM_Correct. }
+        { now eauto with tm. }
         {
           intros tin k (T&HEnc&Hk). rewrite <- Hk. apply finMin_opt_None in E. clear_except E. subst. destruct_tapes. cbn. unfold ReadCurrentSymbols_Loop_steps_nil, ReadCurrentSymbols_Step_steps_nil. lia.
         }
@@ -1255,6 +1251,8 @@ Section ToSingleTape.
       
   End ReadCurrentSymbols.
 
+  #[local] Hint Extern 0 (ReadCurrentSymbols ⊨ _) => apply ReadCurrentSymbols_Realise : tm.
+  #[local] Hint Extern 0 (projT1 ReadCurrentSymbols ↓ _) => apply ReadCurrentSymbols_Terminates : tm.
 
   (* Move from the nil symbol back to the start symbol *)
   Section MoveToStart.
@@ -1278,7 +1276,7 @@ Section ToSingleTape.
     Lemma MoveToStart_Realise : MoveToStart ⊨ MoveToStart_Rel.
     Proof.
       eapply Realise_monotone.
-      { unfold MoveToStart. TM_Correct. }
+      { unfold MoveToStart. now eauto with tm. }
       {
         intros tin (yout, tout) H. intros tps HNil. unfold atNil, atStart in *. TMSimp. clear_all.
         rewrite MoveToSymbol_L_correct_midtape; cbn; auto.
@@ -1312,7 +1310,7 @@ Section ToSingleTape.
     Lemma MoveToStart_Terminates : projT1 MoveToStart ↓ MoveToStart_T.
     Proof.
       eapply TerminatesIn_monotone.
-      { unfold MoveToStart. TM_Correct. }
+      { unfold MoveToStart. now eauto with tm. }
       {
         intros tin k (tps&HNil&Hk). hnf in HNil. TMSimp. rewrite MoveToSymbol_L_steps_midtape; cbn; auto. simpl_list. cbn.
         rewrite <- Hk. rewrite removelast_length. unfold MoveToStart_steps. lia.
@@ -1332,6 +1330,8 @@ Section ToSingleTape.
 
   End MoveToStart.
 
+  #[local] Hint Extern 0 (MoveToStart ⊨ _) => apply MoveToStart_Realise : tm.
+  #[local] Hint Extern 0 (projT1 MoveToStart ↓ _) => apply MoveToStart_Terminates : tm.
 
   Section DoActions.
 
@@ -1381,7 +1381,7 @@ Section ToSingleTape.
     Lemma DoWrite_Realise (d : option move) (s : sig) : DoWrite d s ⊨ DoWrite_Rel d s.
     Proof.
       unfold DoWrite. destruct d as [ [ | | ] | ].
-      { (* Some Lmove (leftof) *) eapply Realise_monotone. TM_Correct.
+      { (* Some Lmove (leftof) *) eapply Realise_monotone. now eauto with tm.
         intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons. unfold atCons_current in *. TMSimp.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp. simpl_tape.
         unfold atCons_current_leftof in HCons. TMSimp.
@@ -1392,7 +1392,7 @@ Section ToSingleTape.
         - rewrite map_rev, rev_involutive.
           intros ? [ [ (?&<-&?) % in_map_iff | [ <- | ] ] % in_app_iff | [ <- | ] ] % in_app_iff; cbn; auto.
       }
-      { (* Some Rmove (rightof) *) eapply Realise_monotone. TM_Correct.
+      { (* Some Rmove (rightof) *) eapply Realise_monotone. now eauto with tm.
         intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons. unfold atCons_current in *. TMSimp.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp. simpl_tape.
         unfold atCons_current_rightof in HCons. TMSimp.
@@ -1401,13 +1401,13 @@ Section ToSingleTape.
         - hnf. cbn. f_equal. f_equal. rewrite map_id, rev_app_distr; cbn. now rewrite rev_involutive.
         - intros ? [ (?&<-&?) % in_rev % in_map_iff | [ <- | ] ] % in_app_iff; cbn; auto.
       }
-      { (* Some Nmove (midtape) *) eapply Realise_monotone. TM_Correct.
+      { (* Some Nmove (midtape) *) eapply Realise_monotone. now eauto with tm.
         intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons. unfold atCons_current in *. TMSimp.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp.
         unfold atCons_current_midtape in HCons. TMSimp.
         hnf. cbn. reflexivity.
       }
-      { (* None (niltape) *) eapply Realise_monotone. TM_Correct.
+      { (* None (niltape) *) eapply Realise_monotone. now eauto 7 with tm.
         intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons. unfold atCons_current in *. TMSimp.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp.
         unfold atCons_current_niltape in HCons. TMSimp.
@@ -1437,7 +1437,7 @@ Section ToSingleTape.
     Lemma DoWrite_Terminates (d : option move) (s : sig) : projT1 (DoWrite d s) ↓ DoWrite_T d.
     Proof.
       unfold DoWrite. destruct d as [ [ | | ] | ].
-      { (* [d = Some Lmove] (leftof) *) eapply TerminatesIn_monotone. TM_Correct.
+      { (* [d = Some Lmove] (leftof) *) eapply TerminatesIn_monotone. now eauto with tm.
         intros tin k (tps1&tps2&tp&HDir&HCons&Hk). cbn in *.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir.
         unfold atCons_current_leftof in HCons. TMSimp.
@@ -1450,7 +1450,7 @@ Section ToSingleTape.
         { lia. }
         intros ? [] ?. exists 1, 1. repeat split. reflexivity. reflexivity. intros _ _ _. reflexivity.
       }
-      { (* [d = Some Rmove] (rightof) *) eapply TerminatesIn_monotone. TM_Correct.
+      { (* [d = Some Rmove] (rightof) *) eapply TerminatesIn_monotone. now eauto with tm.
         intros tin k (tps1&tps2&tp&HDir&HCons&Hk). cbn in *.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir.
         unfold atCons_current_rightof in HCons. TMSimp.
@@ -1463,10 +1463,10 @@ Section ToSingleTape.
         { lia. }
         intros ? [] ?. exists 1, 1. repeat split. reflexivity. reflexivity. intros _ _ _. reflexivity.
       }
-      { (* [d = Somme Nmove] (midtape) *) eapply TerminatesIn_monotone. TM_Correct.
+      { (* [d = Somme Nmove] (midtape) *) eapply TerminatesIn_monotone. now eauto with tm.
         intros tin k (tps1&tps2&tp&HDir&HCons&Hk). cbn in *. assumption.
       }
-      { (* [d = None] (niltapp) *) eapply TerminatesIn_monotone. TM_Correct.
+      { (* [d = None] (niltapp) *) eapply TerminatesIn_monotone. now eauto 7 with tm.
         intros tin k (tps1&tps2&tp&HDir&HCons&Hk). cbn in *.
         destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir.
         unfold atCons_current_niltape in HCons. TMSimp.
@@ -1520,14 +1520,27 @@ Section ToSingleTape.
                 | _ => Nop
                 end).
 
+    Definition option_sigSim_sigList_X {X} {x0 : X} {x1} :=
+      fun (s : option sigSim) =>
+        match s with
+        | Some (inr (sigList_X m)) =>x1 m
+        | _ => x0
+        end.
+
     Lemma ToggleMarked_Sem : ToggleMarked ⊨c(3) ToggleMarked_Rel.
     Proof.
       eapply RealiseIn_monotone.
-      { unfold ToggleMarked. TM_Correct. }
-      { Unshelve. 4, 11: reflexivity. all: lia. }
+      { unfold ToggleMarked.
+        eapply (Switch_RealiseIn (k2 := 1) (R2 := option_sigSim_sigList_X)); [now eauto with tm|].
+        intros [[|[| |]]|].
+        all: eapply RealiseIn_monotone'.
+        all: eauto using le with tm nocore. }
+      { reflexivity. }
       { intros tin ([], tout) H. intros ls m rs Hmidtape. TMCrush; TMSolve 1. }
     Qed.
 
+    #[local] Hint Extern 0 (ToggleMarked ⊨c(_) _) => apply ToggleMarked_Sem : tm.
+  
     (* this should take constant time *)
     Definition DoMove (d : option move) (m : move) : pTM sigSim unit 1 :=
       match d with
@@ -1557,34 +1570,35 @@ Section ToSingleTape.
       unfold DoMove_steps. unfold DoMove. destruct d as [ [ | | ] | ].
       { (* [leftof] *)
         destruct m; cbn.
-        { eapply RealiseIn_monotone. TM_Correct. lia. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
+        { eapply RealiseIn_monotone. now eauto with tm. lia. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
           destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp.
           unfold atCons_current_leftof in *. TMSimp. f_equal. }
-        { eapply RealiseIn_monotone. TM_Correct; apply ToggleMarked_Sem. lia. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
+        { eapply RealiseIn_monotone. now eauto with tm. lia.
+          intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
           destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp.
           unfold atCons_current_leftof, atCons_current_midtape in *. TMSimp.
           specialize H with (1 := eq_refl); TMSimp; specialize H1 with (1 := eq_refl); TMSimp. f_equal. }
-        { eapply RealiseIn_monotone. TM_Correct. lia. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
+        { eapply RealiseIn_monotone. now eauto with tm. lia. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
           destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp.
           unfold atCons_current_leftof in *. TMSimp. f_equal. }
       }
       { (* [rightof] *)
         destruct m; cbn.
-        { eapply RealiseIn_monotone. TM_Correct; apply ToggleMarked_Sem. lia. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
+        { eapply RealiseIn_monotone. now eauto with tm. lia. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
           destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp.
           unfold atCons_current_rightof, atCons_current_midtape in *. TMSimp.
           specialize H with (1 := eq_refl); TMSimp; specialize H1 with (1 := eq_refl); TMSimp. f_equal. }
-        { eapply RealiseIn_monotone. TM_Correct. lia. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
+        { eapply RealiseIn_monotone. now eauto with tm. lia. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
           destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp.
           unfold atCons_current_rightof in *. TMSimp. f_equal. }
-        { eapply RealiseIn_monotone. TM_Correct. lia. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
+        { eapply RealiseIn_monotone. now eauto with tm. lia. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
           destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp.
           unfold atCons_current_rightof in *. TMSimp. f_equal. }
       }
       { (* midtape *)
         destruct m; cbn.
         { (* [Lmove] *)
-          eapply RealiseIn_monotone. TM_Correct; apply ToggleMarked_Sem. lia. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
+          eapply RealiseIn_monotone. now eauto with tm. lia. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
           destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp.
           unfold atCons_current_midtape, atCons_current_midtape in *. TMSimp.
           specialize H with (1 := eq_refl); TMSimp.
@@ -1593,7 +1607,7 @@ Section ToSingleTape.
           { specialize H1 with (1 := eq_refl). TMSimp. hnf. f_equal. }
         }
         { (* [Rmove] *)
-          eapply RealiseIn_monotone. TM_Correct; apply ToggleMarked_Sem. lia. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
+          eapply RealiseIn_monotone. now eauto with tm. lia. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
           destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp.
           unfold atCons_current_midtape in *. TMSimp.
           specialize H with (1 := eq_refl); TMSimp.
@@ -1602,12 +1616,12 @@ Section ToSingleTape.
           { specialize H1 with (1 := eq_refl). TMSimp. hnf. f_equal. }
         }
         { (* [Nmove] *)
-          eapply RealiseIn_monotone. TM_Correct; apply ToggleMarked_Sem. lia. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
+          eapply RealiseIn_monotone. now eauto with tm. lia. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
           destruct tp as [ | r rs | l ls | ls m rs ]; cbn in *; inv HDir; TMSimp.
           unfold atCons_current_midtape in *. TMSimp. f_equal. }
       }
       { (* [niltape] *)
-        eapply RealiseIn_monotone. TM_Correct; apply ToggleMarked_Sem. lia. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
+        eapply RealiseIn_monotone. now eauto with tm. lia. intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons.
         destruct tp as [ | r rs | l ls | ls m' rs ]; cbn in *; inv HDir; TMSimp.
         now simpl_tape in *.
       }
@@ -1615,6 +1629,11 @@ Section ToSingleTape.
 
     Arguments DoMove : simpl never.
 
+    #[local] Hint Extern 0 (DoMove _ _ ⊨ _) => eapply RealiseIn_Realise, DoMove_Sem : tm.
+    #[local] Hint Extern 0 (DoMove _ _ ⊨c(_) _) => apply DoMove_Sem : tm.
+    #[local] Hint Extern 0 (projT1 (DoMove _ _) ↓ _) => eapply RealiseIn_TerminatesIn, DoMove_Sem : tm.
+    #[local] Hint Extern 0 (DoWrite _ _ ⊨ ?R1) => apply DoWrite_Realise : tm.
+    #[local] Hint Extern 0 (projT1 (DoWrite _ _) ↓ _) => apply DoWrite_Terminates : tm.
 
     (* First write, then move *)
     Definition DoAction_Rel (d : option move) (a : option sig * move) : pRel sigSim unit 1 :=
@@ -1636,14 +1655,14 @@ Section ToSingleTape.
     Proof.
       unfold DoAction. destruct a as [[ w | ] m]; cbn.
       { (* Write [w] and move [m] *)
-        eapply Realise_monotone. TM_Correct. apply DoWrite_Realise. eapply RealiseIn_Realise. apply DoMove_Sem.
+        eapply Realise_monotone. now eauto with tm.
         intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons. TMSimp.
         rename H into HWrite, H0 into HMove.
         specialize HWrite with (1 := eq_refl) (2 := HCons).
         specialize (HMove tps1 tps2 (midtape (left tp) w (right tp))). cbn in *. auto.
       }
       { (* Just move [m] *)
-        eapply Realise_monotone. eapply RealiseIn_Realise. apply DoMove_Sem.
+        eapply Realise_monotone. now eauto with tm.
         intros tin ([], tout) H. intros tps1 tps2 tp HDir HCons. TMSimp.
         specialize H with (1 := eq_refl) (2 := HCons). auto.
       }
@@ -1663,21 +1682,19 @@ Section ToSingleTape.
     Proof.
       unfold DoAction. destruct a as [ [ w | ] m]; cbn in *.
       { (* Write and Move *) eapply TerminatesIn_monotone.
-        { TM_Correct.
-          - apply DoWrite_Realise.
-          - apply DoWrite_Terminates.
-          - eapply RealiseIn_TerminatesIn. apply DoMove_Sem. }
+        { now eauto with tm. }
         { intros tin k. intros (tps1&tps2&tp&HDir&HCons&Hk). cbn in *. exists (DoWrite_steps d tps1 tps2), DoMove_steps. repeat split; try lia.
           { hnf. do 3 eexists. repeat split; eauto. }
         }
       }
       { (* Only Move *) eapply TerminatesIn_monotone.
-        { eapply RealiseIn_TerminatesIn. apply DoMove_Sem. }
+        { now eauto with tm. }
         { intros tin k. intros (tps1&tps2&tp&HDir&HCons&Hk). cbn in *. assumption. }
       }
     Qed.
-      
 
+    #[local] Hint Extern 0 (DoAction _ _ ⊨ _) => apply DoAction_Realise : tm.
+    #[local] Hint Extern 0 (projT1 (DoAction _ _) ↓ _) => apply DoAction_Terminates : tm.
 
     Definition DoActions_Step_Rel (i : Fin.t n) : pRel sigSim (Fin.t n + unit) 1 :=
       fun tin '(yout, tout) =>
@@ -1717,15 +1734,7 @@ Section ToSingleTape.
     Lemma DoActions_Step_Realise (i : Fin.t n) : DoActions_Step i ⊨ DoActions_Step_Rel i.
     Proof.
       eapply Realise_monotone.
-      { apply If_Realise.
-        { eapply RealiseIn_Realise. apply IsCons_Sem. }
-        { apply Switch_Realise.
-          - apply GoToCurrent_Realise.
-          - intros d. TM_Correct.
-            + apply DoAction_Realise.
-            + apply GoToNext_Realise. }
-        { TM_Correct. }
-      }
+      { unfold DoActions_Step. now eauto 6 with tm. }
       {
         intros tin (yout, tout) H; split.
         { (* [cons] case *)
@@ -1771,13 +1780,7 @@ Section ToSingleTape.
     Lemma DoActions_Step_Terminates (i : Fin.t n) : projT1 (DoActions_Step i) ↓ DoActions_Step_T i.
     Proof.
       eapply TerminatesIn_monotone.
-      { unfold DoActions_Step. TM_Correct_step.
-        { eapply RealiseIn_Realise. apply IsCons_Sem. }
-        { eapply RealiseIn_TerminatesIn. apply IsCons_Sem. }
-        { apply Switch_TerminatesIn. apply GoToCurrent_Realise. apply GoToCurrent_Terminates. intros i'.
-          TM_Correct. apply DoAction_Realise. apply DoAction_Terminates. apply GoToNext_Terminates. }
-        { TM_Correct. }
-      }
+      { unfold DoActions_Step. now eauto 6 with tm. }
       {
         intros tin k [ (tps1&tps2&tp&HL1&HL2&HCons&Hk) | (tps&HNil&Hk) ].
         { (* cons case *) unfold DoActions_Step_steps_cons in Hk.
@@ -1798,6 +1801,8 @@ Section ToSingleTape.
       }
     Qed.
 
+    #[local] Hint Extern 0 (DoActions_Step _ ⊨ _) => apply DoActions_Step_Realise : tm.
+    #[local] Hint Extern 0 (projT1 (DoActions_Step _) ↓ _) => apply DoActions_Step_Terminates : tm.
 
     Definition DoActions_Loop : Fin.t n -> pTM sigSim unit 1 := StateWhile DoActions_Step.
 
@@ -1816,8 +1821,7 @@ Section ToSingleTape.
     Lemma DoActions_Loop_Realise (i : Fin.t n) : DoActions_Loop i ⊨ DoActions_Loop_Rel i.
     Proof.
       eapply Realise_monotone.
-      { unfold DoActions_Loop. TM_Correct.
-        - apply DoActions_Step_Realise. }
+      { unfold DoActions_Loop. now eauto with tm. }
       {
         revert i; apply StateWhileInduction; intros; rename l into i.
         { (* [cons] case *)
@@ -1890,9 +1894,7 @@ Section ToSingleTape.
     Lemma DoActions_Loop_Terminates (i : Fin.t n) : projT1 (DoActions_Loop i) ↓ DoActions_Loop_T i.
     Proof.
       eapply TerminatesIn_monotone.
-      { unfold DoActions_Loop. TM_Correct.
-        - apply DoActions_Step_Realise.
-        - apply DoActions_Step_Terminates. }
+      { unfold DoActions_Loop. now eauto with tm. }
       {
         revert i. apply StateWhileCoInduction; intros i; intros. destruct HT as [ (tps1&tps2&tp&HL1&HL2&HCons&Hk) | (tps&HNil&Hk) ].
         { (* cons case *)
@@ -1922,7 +1924,8 @@ Section ToSingleTape.
       }
     Qed.
 
-    
+    #[local] Hint Extern 0 (DoActions_Loop _ ⊨ _) => apply DoActions_Loop_Realise : tm.
+    #[local] Hint Extern 0 (projT1 (DoActions_Loop _) ↓ _) => apply DoActions_Loop_Terminates : tm.
 
     Definition DoActions_Rel : pRel sigSim unit 1 :=
       ignoreParam
@@ -1948,7 +1951,7 @@ Section ToSingleTape.
       destruct (finMin_opt n) as [ i | ] eqn:E; swap 1 2.
       {
         eapply Realise_monotone.
-        { TM_Correct. }
+        { now eauto with tm. }
         {
           intros tin ([], tout) H. intros tps HL HStart. cbn in *. intros. TMSimp.
           unfold atStart in HStart. TMSimp.
@@ -1959,7 +1962,7 @@ Section ToSingleTape.
       }
       {
         eapply Realise_monotone.
-        { TM_Correct. apply DoActions_Loop_Realise. }
+        { now eauto with tm. }
         {
           intros tin ([], tout) H. intros tps HL HStart. TMSimp.
           rename H0 into HLoop_Nil, H1 into HLoop_Cons. clear HLoop_Cons.
@@ -1993,7 +1996,7 @@ Section ToSingleTape.
       clear pM F.
       unfold DoActions. unfold DoActions_T, DoActions_steps. destruct (finMin_opt n) as [ i | ] eqn:Ei.
       { eapply TerminatesIn_monotone.
-        { TM_Correct. apply DoActions_Loop_Terminates. }
+        { now eauto with tm. }
         { intros tin k. intros (tps&HL&HStart&Hk). hnf in HStart. TMSimp.
           destruct tps as [ | tp tps]; cbn in *.
           { exfalso. clear acts Hk. destruct n; cbn in *; congruence. }
@@ -2002,11 +2005,13 @@ Section ToSingleTape.
           hnf. now simpl_list.
         }
       }
-      { eapply TerminatesIn_monotone. TM_Correct. now intros tin k (?&?&?&H). }
+      { eapply TerminatesIn_monotone. now eauto with tm. now intros tin k (?&?&?&H). }
     Qed.
 
   End DoActions.
 
+  #[local] Hint Extern 0 (DoActions _ ⊨ _) => apply DoActions_Realise : tm.
+  #[local] Hint Extern 0 (projT1 (DoActions _) ↓ _) => apply DoActions_Terminates : tm.
 
   Section Step.
 
@@ -2036,17 +2041,12 @@ Section ToSingleTape.
       unfold Step, Step_Rel. destruct (halt q).
       { (* halting state *)
         eapply Realise_monotone.
-        { TM_Correct. }
+        { now eauto with tm. }
         { intros tin (yout, tout) H. intros T HEncT. TMSimp. eauto. }
       }
       { (* non-halting state *)
         eapply Realise_monotone.
-        { eapply Switch_Realise.
-          - apply ReadCurrentSymbols_Realise.
-          - intros cs. TM_Correct.
-            + apply MoveToStart_Realise.
-            + apply DoActions_Realise.
-            + apply MoveToStart_Realise. }
+        { now eauto with tm. }
         {
           intros tin (yout, tout) H. intros T HEncT.
           unfold step. cbn. destruct (trans (q, current_chars T)) as [q' act] eqn:E'.
@@ -2079,19 +2079,10 @@ Section ToSingleTape.
     Proof.
       unfold Step, Step_T. destruct (halt q).
       { eapply TerminatesIn_monotone.
-        { TM_Correct. }
+        { now eauto with tm. }
         { intros tin k _. lia. } }
       { eapply TerminatesIn_monotone.
-        { unfold Step. apply Switch_TerminatesIn.
-          - apply ReadCurrentSymbols_Realise.
-          - apply ReadCurrentSymbols_Terminates.
-          - intros cs. TM_Correct.
-            + apply MoveToStart_Realise.
-            + apply MoveToStart_Terminates.
-            + apply DoActions_Realise.
-            + apply DoActions_Terminates.
-            + apply MoveToStart_Terminates.
-        }
+        { now eauto with tm. }
         {
           intros tin k (T&HEnc&Hk). unfold Step_steps in Hk. destruct (trans (m := projT1 pM) (q, current_chars T)) as (q'&act) eqn:E.
           exists (ReadCurrentSymbols_steps T), (2 + MoveToStart_steps (vector_to_list T) + DoActions_steps act (vector_to_list T) + MoveToStart_steps (vector_to_list (doAct_multi T act))).
@@ -2176,7 +2167,7 @@ Section ToSingleTape.
     Lemma Loop_Terminates q : projT1 (Loop q) ↓ Loop_T q.
     Proof.
       eapply TerminatesIn_monotone.
-      { unfold Loop. TM_Correct.
+      { unfold Loop. apply StateWhile_TerminatesIn.
         - apply Step_Realise.
         - apply Step_Terminates. }
       { revert q. apply StateWhileCoInduction; intros q; intros. destruct HT as (T&kn&outc&HLoop&HEncT&Hk). rewrite Loop_steps_eq in Hk. unfold Step_T, Step_Rel.

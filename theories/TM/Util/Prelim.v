@@ -13,7 +13,7 @@ Require Export Undecidability.Shared.Libs.PSL.Base.
 Require Export Undecidability.Shared.Libs.PSL.Vectors.Vectors
   Undecidability.Shared.Libs.PSL.Vectors.VectorDupfree.
 
-Require Export smpl.Smpl Lia.
+Require Export (* smpl.Smpl *) Lia.
 
 Global Open Scope vector_scope.
 

@@ -139,4 +139,4 @@ Ltac smpl_TM_Mirror :=
   | [ |- projT1 (Mirror _) ↓ _ ] => eapply Mirror_Terminates
   end.
 
-Smpl Add smpl_TM_Mirror : TM_Correct.
+(* Smpl Add smpl_TM_Mirror : TM_Correct. *)

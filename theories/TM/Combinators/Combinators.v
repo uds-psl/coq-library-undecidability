@@ -230,4 +230,27 @@ Ltac smpl_TM_Combinators :=
   | [ |- projT1 (Return _ _) ↓ _] => eapply Return_Terminates
   end.
 
-Smpl Add smpl_TM_Combinators : TM_Correct.
+(* Smpl Add smpl_TM_Combinators : TM_Correct. *)
+
+#[export] Hint Extern 2 (Switch _ _ ⊨ _) => apply Switch_Realise : tm.
+#[export] Hint Extern 2 (Switch _ _ ⊨c(_) _) => apply Switch_RealiseIn : tm.
+#[export] Hint Extern 2 (projT1 (Switch _ _) ↓ _) => apply Switch_TerminatesIn : tm.
+#[export] Hint Extern 2 (If _ _ _ ⊨ _) => apply If_Realise : tm.
+#[export] Hint Extern 2 (If _ _ _ ⊨c(_) _) => apply If_RealiseIn : tm.
+#[export] Hint Extern 2 (projT1 (If _ _ _) ↓ _) => apply If_TerminatesIn : tm.
+#[export] Hint Extern 2 (Seq _ _ ⊨ _) => apply Seq_Realise : tm.
+#[export] Hint Extern 2 (Seq _ _ ⊨c(_) _) => apply Seq_RealiseIn : tm.
+#[export] Hint Extern 2 (projT1 (Seq _ _) ↓ _) => apply Seq_TerminatesIn : tm.
+#[export] Hint Extern 1 (While _ ⊨ _) => apply While_Realise : tm.
+#[export] Hint Extern 1 (projT1 (While _) ↓ _) => apply While_TerminatesIn : tm.
+#[export] Hint Extern 1 (StateWhile _ _ ⊨ _) => apply StateWhile_Realise : tm.
+#[export] Hint Extern 1 (projT1 (StateWhile _ _) ↓ _) => apply StateWhile_TerminatesIn : tm.
+#[export] Hint Extern 1 (Mirror _ ⊨ _) => apply Mirror_Realise : tm.
+#[export] Hint Extern 1 (Mirror _ ⊨c(_) _) => apply Mirror_RealiseIn : tm.
+#[export] Hint Extern 1 (projT1 (Mirror _) ↓ _) => apply Mirror_Terminates : tm.
+#[export] Hint Extern 1 (Relabel _ _ ⊨ _) => apply Relabel_Realise : tm.
+#[export] Hint Extern 1 (Relabel _ _ ⊨c(_) _) => apply Relabel_RealiseIn : tm.
+#[export] Hint Extern 1 (projT1 (Relabel _ _) ↓ _) => apply Relabel_Terminates : tm.
+#[export] Hint Extern 1 (Return _ _ ⊨ _) => apply Return_Realise : tm.
+#[export] Hint Extern 1 (Return _ _ ⊨c(_) _) => apply Return_RealiseIn : tm.
+#[export] Hint Extern 1 (projT1 (Return _ _) ↓ _) => apply Return_Terminates : tm.

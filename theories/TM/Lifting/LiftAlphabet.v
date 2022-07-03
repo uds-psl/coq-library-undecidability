@@ -220,4 +220,5 @@ Ltac smpl_TM_LiftAlphabetSigma :=
   | [ |- LiftAlphabet _ _ _ ⊨c(_) _] => eapply LiftAlphabet_RealiseIn; swap 1 2
   | [ |- projT1 (LiftAlphabet _ _ _) ↓ _] => eapply LiftAlphabet_TerminatesIn; swap 1 2
   end.
-Smpl Add smpl_TM_LiftAlphabetSigma : TM_Correct.
+
+(* Smpl Add smpl_TM_LiftAlphabetSigma : TM_Correct. *)

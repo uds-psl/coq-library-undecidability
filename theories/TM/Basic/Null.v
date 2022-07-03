@@ -37,4 +37,8 @@ Ltac smpl_TM_Null :=
   | [ |- projT1 (Null) ↓ _] => eapply RealiseIn_TerminatesIn; eapply Null_Sem
   end.
 
-Smpl Add smpl_TM_Null : TM_Correct.
+
+#[export] Hint Extern 0 (Null ⊨c(_) _) => apply Null_Sem : tm.
+#[export] Hint Extern 0 (Null ⊨ _) => eapply RealiseIn_Realise, Null_Sem : tm.
+
+(* Smpl Add smpl_TM_Null : TM_Correct. *)
