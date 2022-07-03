@@ -12,9 +12,7 @@
 Require Import List Bool.
 
 From Undecidability.Shared.Libs.DLW 
-  Require Import list_bool pos vec sss.
-
-Set Implicit Arguments.
+  Require Import list_bool pos vec.
 
 (** * Halting problem for binary stack machines BSM_HALTING  *)
 
@@ -34,26 +32,48 @@ Inductive bsm_instr n : Set :=
   | bsm_push : pos n -> bool -> bsm_instr n
   .
 
-Notation POP  := bsm_pop.
-Notation PUSH := bsm_push.
-
 (* ** Semantics for BSM *)
 
 Section Binary_Stack_Machine.
 
   Variable (n : nat).
 
-  Definition bsm_state := (nat*vec (list bool) n)%type.
+  Notation POP  := (bsm_pop n).
+  Notation PUSH := (bsm_push n).
 
   Local Notation "e #> x" := (vec_pos e x).
-  Local Notation "e [ v / x ]" := (vec_change e x v).
+  Local Notation "e [ x := v ]" := (vec_change e x v) (no associativity, at level 50).
 
-  Inductive bsm_sss : bsm_instr n -> bsm_state -> bsm_state -> Prop :=
-    | in_bsm_sss_pop_E : forall i x p q v,    v#>x = nil      -> POP x p q // (i,v) -1> (  q,v)
-    | in_bsm_sss_pop_0 : forall i x p q v ll, v#>x = Zero::ll -> POP x p q // (i,v) -1> (  p,v[ll/x])
-    | in_bsm_sss_pop_1 : forall i x p q v ll, v#>x = One ::ll -> POP x p q // (i,v) -1> (1+i,v[ll/x])
-    | in_bsm_sss_push  : forall i x b v,                         PUSH x b  // (i,v) -1> (1+i,v[(b::v#>x)/x])
-  where "i // s -1> t" := (bsm_sss i s t).
+  Local Reserved Notation "P // e ▷ v" (at level 50, no associativity).
+
+  Inductive eval : nat * list (bsm_instr n) -> (nat*vec (list bool) n) -> (nat*vec (list bool) n) -> Prop :=
+  | eval_bsm_out i P c v :
+      c < i \/ i + length P <= c ->
+  (* ---------------------------- *)
+      (i,P) // (c, v) ▷ (c, v)
+  | eval_bsm_push i P c v j b c' v' :
+      c >= i -> nth_error P (c - i) = Some (PUSH j b) ->
+      (i, P) // (c + 1, v[j := b :: v #> j]) ▷ (c', v') ->
+  (* -------------------------------------------------- *)
+     (i,P) // (c, v) ▷ (c', v')
+  | eval_bsm_pop_true i P c v j c1 c2 c' v' l :
+      c >= i -> nth_error P (c - i) = Some (POP j c1 c2) ->
+      v #> j = true :: l -> (i, P) // (c +1, v [j := l]) ▷ (c',v') ->
+  (* -------------------------------------------------- *)
+      (i,P) // (c, v) ▷ (c', v')
+
+  | eval_bsm_pop_false i P c v j c1 c2 c' v' l :
+      c >= i -> nth_error P (c - i) = Some (POP j c1 c2) ->
+      v #> j = false :: l -> (i, P) // (c1, v [j := l]) ▷ (c',v') ->
+  (* -------------------------------------------------- *)
+      (i,P) // (c, v) ▷ (c', v')
+  | eval_bsm_pop_empty i P c v j c1 c2 c' v' :
+      c >= i -> nth_error P (c - i) = Some (POP j c1 c2) ->
+      v #> j = nil -> (i, P) // (c2, v) ▷ (c',v') ->
+  (* -------------------------------------------------- *)
+      (i,P) // (c, v) ▷ (c', v')
+
+  where "P // e ▷ v" := (eval P e v).
 
 End Binary_Stack_Machine.
 
@@ -62,13 +82,6 @@ End Binary_Stack_Machine.
 Definition BSMn_PROBLEM n := { i : nat & { P : list (bsm_instr n) & vec (list bool) n } }.
 Definition BSM_PROBLEM := { n : nat & BSMn_PROBLEM n }.
 
-Local Notation "P // s ↓" := (sss_terminates (@bsm_sss _) P s).
-
-Definition BSMn_HALTING n (P : BSMn_PROBLEM n) :=
-  match P with existT _ i (existT _ P v) => (i,P) // (i,v) ↓ end.
-
-Arguments BSMn_HALTING : clear implicits.
-
-Definition BSM_HALTING (P : BSM_PROBLEM) := 
-  match P with existT _ n (existT _ i (existT _ P v)) => (i,P) // (i,v) ↓ end.
-
+Definition Halt_BSM :
+  { n : nat & { i : nat & { P : list (bsm_instr n) & vec (list bool) n } } } -> Prop:=
+  fun '(existT _ n (existT _ i (existT _ P v))) => exists c' v', eval n (i,P) (i,v) (c', v').

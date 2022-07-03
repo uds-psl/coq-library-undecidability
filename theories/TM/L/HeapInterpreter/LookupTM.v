@@ -264,6 +264,9 @@ There are (more than) three possible ways how to encode [nat] on the [Heap] alph
       eexists (b,n,_). repeat apply conj. 
       + subst F. cbn. tspec_ext.
       + reflexivity. 
+(* ======= *)
+(*       + intros. subst F'. fold Lookup_steps. cbn. reflexivity. *)
+(* >>>>>>> forthethesis *)
       +intros. subst F. reflexivity.
   Qed.
   

@@ -182,12 +182,12 @@ Section mk_init_one.
        rewrite (correct__leUpToC (Rev_steps_nice _)).
        rewrite (correct__leUpToC (BoollistEnc.boollist_size)).
        do 3 rewrite (correct__leUpToC (correct__UpToC _)).
-       rewrite rev_length.
+       rewrite rev_length. 
 
-       (*
-       rewrite LMBoundsLoop.size_le_sizeP.
-        } 
-    unfold f. smpl_upToC. *)
+       
+    (*    setoid_rewrite size_le_sizeP. *)
+    (*     }  *)
+    (* unfold f. smpl_upToC. *)
   Admitted.
 
 End  mk_init_one.

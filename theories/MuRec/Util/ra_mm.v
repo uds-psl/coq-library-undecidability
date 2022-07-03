@@ -15,7 +15,7 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.MinskyMachines 
   Require Import env mm_defs mme_defs mme_utils.
 
-From Undecidability.MuRec 
+From Undecidability.MuRec.Util 
   Require Import recalg ra_mm_env.
 
 Set Implicit Arguments.

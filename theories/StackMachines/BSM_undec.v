@@ -13,11 +13,11 @@ From Undecidability.PCP
   Require Import PCP PCP_undec.
 
 From Undecidability.StackMachines 
-  Require Import BSM iPCPb_to_BSM_HALTING.
+  Require Import BSM iPCPb_to_BSM_HALTING BSM_sss.
 
 (** ** BSM_HALTING is undecidable *)
 
-Theorem BSM_undec : undecidable (BSM_HALTING).
+Theorem BSM_undec : undecidable Halt_BSM.
 Proof.
   apply (undecidability_from_reducibility iPCPb_undec).
   apply iPCPb_to_BSM_HALTING.

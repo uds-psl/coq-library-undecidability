@@ -18,8 +18,8 @@ From Undecidability.Shared.Libs.DLW
 From Undecidability.TM
   Require Import PCTM.
 
-From Undecidability.StackMachines.BSM 
-  Require Import bsm_defs bsm_pctm.
+From Undecidability.StackMachines 
+  Require Import bsm_defs bsm_pctm BSM_sss.
 
 Set Implicit Arguments.
 

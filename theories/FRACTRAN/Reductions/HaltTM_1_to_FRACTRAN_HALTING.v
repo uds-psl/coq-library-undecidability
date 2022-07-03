@@ -7,7 +7,7 @@ From Undecidability.MinskyMachines
   Require Import MM HaltTM_1_to_MM.
 
 From Undecidability.FRACTRAN
-  Require Import FRACTRAN Reductions.MM_FRACTRAN.
+  Require Import FRACTRAN Reductions.MM_FRACTRAN FRACTRAN_sss.
 
 (** ** HaltTM_1 reduces to FRACTRAN_HALTING  *)
 
@@ -19,7 +19,7 @@ Proof.
 Qed.
 
 (* Many-one reduction from Turing machine halting to FRACTRAN halting *)
-Lemma HaltTM_to_FRACTRAN_HALTING : HaltTM 1 ⪯ FRACTRAN_HALTING.
+Lemma HaltTM_to_FRACTRAN_HALTING : HaltTM 1 ⪯ Halt_FRACTRAN.
 Proof.
   apply (reduces_transitive HaltTM_to_MM_HALTING).
   exact MM_FRACTRAN_HALTING.

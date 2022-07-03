@@ -227,7 +227,7 @@ Section bsm_mm0_simulator.
         v ⋈ w -> (i,P) /BSM/ (i,v) ↓ <-> (1,R) /MM/ (1,w) ~~> (0,vec_zero).
     Proof. intros Hw; split; intro; repeat (apply bsm_mm0_sim_spec with (1 := Hw); auto). Qed.
 
-  End bsm_mm0_sim.
+    End bsm_mm0_sim.
 
 End bsm_mm0_simulator.
 

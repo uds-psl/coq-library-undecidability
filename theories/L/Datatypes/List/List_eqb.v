@@ -85,6 +85,11 @@ Section int.
     solverec.                                                                                             
   Qed.
 
+  Global Instance term_list_eqb_notime : computable(list_eqb (X:=X)).
+  Proof.
+    extract.                                     
+  Defined.
+
   Definition list_eqbTime_leq (eqbT: timeComplexity (X -> X -> bool)) (A B:list X) k:
     (forall a b, callTime2 eqbT a b <= k)
     -> list_eqbTime eqbT A B <= length A * (k+22) + 9.

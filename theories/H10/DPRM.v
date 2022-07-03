@@ -15,10 +15,10 @@ From Undecidability.Shared.Libs.DLW
   Require Import utils_tac utils_list sums pos vec subcode sss.
 
 From Undecidability.MinskyMachines Require Import mm_defs.
-From Undecidability.FRACTRAN Require Import FRACTRAN mm_fractran prime_seq.
+From Undecidability.FRACTRAN Require Import FRACTRAN mm_fractran prime_seq FRACTRAN_sss.
 From Undecidability.H10.Fractran Require Import fractran_dio.
 From Undecidability.H10.Dio Require Import dio_logic dio_elem dio_single.
-From Undecidability.MuRec Require Import recalg ra_utils recomp ra_recomp ra_dio_poly ra_mm ra_simul.
+From Undecidability.MuRec.Util Require Import recalg ra_utils recomp ra_recomp ra_dio_poly ra_mm ra_simul.
 
 Set Implicit Arguments.
 

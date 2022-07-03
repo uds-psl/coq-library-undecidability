@@ -10,7 +10,7 @@
 Require Import Arith Eqdep_dec.
 
 From Undecidability.Shared Require Import DLW.Utils.utils DLW.Vec.vec DLW.Vec.pos.
-From Undecidability.MuRec Require Import recalg.
+From Undecidability.MuRec.Util Require Import recalg.
 
 Set Implicit Arguments.
 
