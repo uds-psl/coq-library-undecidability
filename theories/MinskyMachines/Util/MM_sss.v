@@ -109,9 +109,9 @@ Proof.
   generalize (c, v) as cv.
   generalize (c', v') as c'v'. clear.
   induction 1 as [ i P c v
-                 | i P c v j b c' v' H1 H2 H IH
-                 | i P c v j c1 c2 c' v' l H1 H2 H3 H IH
-                 | i P c v j c1 c2 c' v' H1 H2 H3 H IH]; cbn in *.
+                 | i P c v j b c' v' H1 H2 H 
+                 | i P c v j c1 c2 c' v' l H1 H2 H3 H 
+                 | i P c v j c1 c2 c' v' H1 H2 H3 H ]; cbn in *.
   all: lia.
 Qed.
 

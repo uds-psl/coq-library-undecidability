@@ -15,7 +15,7 @@ Proof.
   destruct (list_eqb_spec Bool.eqb_spec l1 l2); firstorder congruence.
 Qed.
 
-Instance comp_eqb_list : computable blist_eqb.
+#[export] Instance comp_eqb_list : computable blist_eqb.
 Proof.
   unfold blist_eqb. extract.
 Defined.
@@ -23,7 +23,7 @@ Defined.
 Definition stack_eqb :=
   list_eqb (prod_eqb (list_eqb Bool.eqb) (list_eqb Bool.eqb)).
 
-Instance computable_stack_eqb : computable stack_eqb.
+#[export] Instance computable_stack_eqb : computable stack_eqb.
 Proof.
   unfold stack_eqb. extract.
 Qed.
@@ -34,7 +34,7 @@ Proof.
   destruct (list_eqb_spec (prod_eqb_spec (list_eqb_spec Bool.eqb_spec) (list_eqb_spec Bool.eqb_spec)) l1 l2); firstorder congruence.
 Qed.
 
-Instance computable_bool_enum : computable bool_enum.
+#[export] Instance computable_bool_enum : computable bool_enum.
 Proof.
   extract.
 Qed.
@@ -46,7 +46,7 @@ Definition of_list_enum {X} (f : nat -> list X) := (fun n : nat => let (n0, m) :
 Definition unembed' := (fix F (k : nat) := 
   match k with 0 => (0,0) | S n => match fst (F n) with 0 => (S (snd (F n)), 0) | S x => (x, S (snd (F n))) end end).
 
-Instance unembed_computable : computable unembed.
+#[export] Instance unembed_computable : computable unembed.
 Proof.
   eapply computableExt with (x := unembed'). 2:extract.
   intros n. cbn. induction n; cbn.
@@ -54,7 +54,7 @@ Proof.
   - fold (unembed n). rewrite IHn. now destruct (unembed n).
 Qed.
 
-Instance computable_of_list_enum {X} `{encodable X} :
+#[export] Instance computable_of_list_enum {X} `{encodable X} :
   computable (@of_list_enum X).
 Proof.
   extract.
@@ -66,19 +66,19 @@ Definition to_list_enum {X} (f : nat -> option X) :=
    | None => []
    end) .
 
-Instance computable_to_list_enum {X} `{encodable X} :
+#[export] Instance computable_to_list_enum {X} `{encodable X} :
   computable (@to_list_enum X).
 Proof.
   extract.
 Qed.
 
-Instance computable_to_cumul {X} `{encodable X} :
+#[export] Instance computable_to_cumul {X} `{encodable X} :
   computable (@to_cumul X).
 Proof.
   extract.
 Qed.
 (* 
-Instance computable_list_prod {X} `{encodable X} {Y} `{encodable Y} :
+#[export] Instance computable_list_prod {X} `{encodable X} {Y} `{encodable Y} :
   computable (@list_prod X Y).
 Proof.
   unfold list_prod.
@@ -87,13 +87,13 @@ Proof.
 
 Definition cons' {X} : X * list X -> list X := fun '(pair x L0) => cons x L0.
 
-Instance computable_cons' {X} `{encodable X} :
+#[export] Instance computable_cons' {X} `{encodable X} :
   computable (@cons' X).
 Proof.
   extract.
 Qed.
 
-Instance computable_L_list {X} `{encodable X} :
+#[export] Instance computable_L_list {X} `{encodable X} :
   computable (@L_list X).
 Proof.
   change (computable (fun (L : forall _ : nat, list X) =>
@@ -107,7 +107,7 @@ Proof.
     end)). extract.
 Qed.
 
-Instance computable_prod_enum {X} `{encodable X} {Y} `{encodable Y} :
+#[export] Instance computable_prod_enum {X} `{encodable X} {Y} `{encodable Y} :
   computable (@prod_enum X Y).
 Proof.
   unfold prod_enum.
@@ -118,7 +118,7 @@ Qed.
 Definition stack_enum n := 
   of_list_enum (L_list (to_list_enum (prod_enum (of_list_enum (L_list (to_list_enum bool_enum))) (of_list_enum (L_list (to_list_enum bool_enum)))))) n.
 
-Instance computable_stack_enum : computable stack_enum.
+#[export] Instance computable_stack_enum : computable stack_enum.
 Proof.
   extract.
 Qed.
@@ -137,13 +137,13 @@ Fixpoint tau1' (A : list (list bool * list bool)) : list bool :=
   | (x,y) :: A0 => x ++ tau1' A0
   end.
 
-Instance computable_tau1' :
+#[export] Instance computable_tau1' :
   computable tau1'.
 Proof.
   extract.
 Qed.
 
-Instance computable_tau1 : computable (@tau1 bool).
+#[export] Instance computable_tau1 : computable (@tau1 bool).
 Proof.
   eapply computableExt with (x := tau1'). 2:exact _.
   intros n. cbn. induction n as [ | [] ]; cbn; congruence.
@@ -165,13 +165,13 @@ Proof.
   induction A as [ | []]; cbn; congruence.
 Qed.
 
-Instance computable_tau2' :
+#[export] Instance computable_tau2' :
   computable tau2'.
 Proof.
   extract.
 Qed.
 
-Instance computable_tau2 : computable (@tau2 bool).
+#[export] Instance computable_tau2 : computable (@tau2 bool).
 Proof.
   eapply computableExt with (x := tau2'). 2:exact _.
   intros n. cbn. induction n as [ | [] ]; cbn; congruence.
@@ -180,7 +180,7 @@ Qed.
 Definition my_inb (P : stack bool) :=
   (list_in_decb ((prod_eqb (list_eqb Bool.eqb) (list_eqb Bool.eqb))) P).
 
-Instance computable_myinb :
+#[export] Instance computable_myinb :
   computable my_inb.
 Proof.
   extract.
@@ -198,7 +198,7 @@ Proof.
   induction A; cbn; congruence.
 Qed.
 
-Instance computable_subsetb :
+#[export] Instance computable_subsetb :
   computable subsetb.
 Proof.
   extract.
@@ -208,7 +208,7 @@ Opaque blist_eqb subsetb.
 
 Definition sdec_PCPb := (fun (P : PCP.stack bool) n => match stack_enum n with Some [] | None => false | Some A => andb (subsetb A P) (blist_eqb (tau1' A) (tau2' A)) end).
 
-Instance computable_sdec_PCPb :
+#[export] Instance computable_sdec_PCPb :
   computable sdec_PCPb.
 Proof.
   extract.
