@@ -890,3 +890,8 @@ StackMachines/Util/BSM_computable.v
 StackMachines/Util/BSM_sss.v
 TM/Reductions/L_computable_to_TM_computable.v
 TM/Util/TM_computable.v
+
+TM/KOSBTM/HaltKOSBTM_to_HaltBSM.v
+TM/KOSBTM/HaltKOSBTM_to_HaltKOSBTMu.v
+TM/KOSBTM/HaltTM_1_to_HaltKOSBTM.v
+TM/KOSBTM/KOSBTM.v
