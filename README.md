@@ -126,7 +126,7 @@ Then the following commands install the library:
 ```
 opam repo add coq-released https://coq.inria.fr/opam/released
 opam update
-opam pin add -n -y -k git coq-metacoq-template.dev+8.15 "https://github.com/MetaCoq/metacoq.git#9493bb6"
+opam pin add -n -y -k git coq-metacoq-template.dev+8.15 "https://github.com/MetaCoq/metacoq.git#f170ec6"
 opam pin add coq-library-undecidability.dev+8.15 "https://github.com/uds-psl/coq-library-undecidability.git#coq-8.15"
 ```
 
@@ -139,7 +139,7 @@ opam switch create coq-library-undecidability 4.07.1+flambda
 eval $(opam env)
 opam repo add coq-released https://coq.inria.fr/opam/released
 opam update
-opam pin add -n -y -k git coq-metacoq-template.dev+8.15 "https://github.com/MetaCoq/metacoq.git#9493bb6"
+opam pin add -n -y -k git coq-metacoq-template.dev+8.15 "https://github.com/MetaCoq/metacoq.git#f170ec6"
 opam install . --deps-only
 ```
 
