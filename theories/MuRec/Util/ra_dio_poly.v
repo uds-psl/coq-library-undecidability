@@ -174,34 +174,6 @@ Section dio_poly.
     intros [H1 H2]. eauto.
   Qed.
 
-  (* Admitted.
-  Proof.
-    simpl; unfold s_min.
-    rewrite μ_min_eq.
-    - intros [[H1 _] % ra_dio_poly_test_rel (ν & H2)].
-      exists (project n e). split. rewrite project_inject.
-      specialize (H1 eq_refl).
-      cbn [vec_head vec_tail] in *.
-      eexists.
-      edestruct (ra_dio_poly_test_val) as [x [Hx1 [_ <-]]].
-      + split. 2: eauto.
-      + erewrite dp_eval_ext.
-        * rewrite H1. eapply dp_eval_ext.
-          -- intros. now rewrite project_inject.
-          -- intros. now rewrite project_inject.
-        * intros. cbn. now rewrite project_inject.
-        * intros. cbn. now rewrite project_inject.
-    - intros (v & Hv). split.
-      edestruct (ra_dio_poly_test_val) as [x [Hx1 [_ <-]]].
-      + eauto.
-      + erewrite dp_eval_ext.
-        * rewrite H1. eapply dp_eval_ext.
-          -- intros. now rewrite project_inject.
-          -- intros. now rewrite project_inject.
-        * intros. cbn. now rewrite project_inject.
-        * intros. cbn. now rewrite project_inject.
-  Qed. *)
-
   (* ra_dio_poly_find terminates on w iff some solution of p(w,x1,...,xn) = q(w,x1,...,xn) exists 
 
       so termination of ra_dio_poly_find terminates on w simulates the existence of a solution
@@ -248,12 +220,6 @@ Section dio_poly.
     intros.
     eapply ra_dio_poly_find_spec. eauto.
   Qed.
-
-  (* Theorem ra_dio_poly_find_spec_strong e w : ⟦ra_dio_poly_find⟧ w e <->
-                                      dp_eval (vec_pos (project n e)) (vec_pos w) p 
-                                    = dp_eval (vec_pos (project n e)) (vec_pos w) q.
-  Proof.
-  Admitted. *)
 
 End dio_poly.
 
