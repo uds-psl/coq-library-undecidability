@@ -110,8 +110,10 @@ Qed.
 Instance computable_prod_enum {X} `{encodable X} {Y} `{encodable Y} :
   computable (@prod_enum X Y).
 Proof.
+  unfold prod_enum.
+  change Cantor.of_nat with unembed.
   extract.
-Admitted.
+Qed.
 
 Definition stack_enum n := 
   of_list_enum (L_list (to_list_enum (prod_enum (of_list_enum (L_list (to_list_enum bool_enum))) (of_list_enum (L_list (to_list_enum bool_enum)))))) n.
