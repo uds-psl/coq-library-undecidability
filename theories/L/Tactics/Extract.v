@@ -1,9 +1,10 @@
-From Undecidability.L Require Import Util.L_facts Prelim.StringBase.
+From Undecidability.L Require Import Util.L_facts Prelim.StringBase. 
 From MetaCoq Require Import Template.All Template.Checker.
 Require Import Undecidability.Shared.Libs.PSL.Base. 
-Require Import String Ascii.
+From MetaCoq Require Import bytestring.
 
-Open Scope string_scope.
+Open Scope bs.
+
 Import MCMonadNotation.
 
 Unset Universe Minimization ToSet.
@@ -47,6 +48,8 @@ Definition stack {X : Type} (l : list (X -> X)) (x : X) := fold_right (fun f x =
 
 (*  Auxiliary monadic functions *)
 
+Open Scope bs.
+
 (* Get the head of a list *)
 Definition hd {X : Type} (l : list X) : TemplateMonad X :=
   match l with
@@ -79,9 +82,9 @@ Definition tmTryInfer (n : ident) (red : option reductionStrategy) (A : Type) : 
 (* Generate a name for a quoted term *)
 Definition name_of (t : Ast.term) : ident :=
   match t with
-    tConst (modp, n) _ => name_after_dot n
-  | tConstruct (mkInd (modp, n) _) i _ => "cnstr_"  ++ name_after_dot n ++ string_of_int i
-  | tInd (mkInd (modp, n) _) _ => "type_" ++ name_after_dot n
+    tConst (modp, n) _ => String.of_string (name_after_dot (String.to_string n))
+  | tConstruct (mkInd (modp, n) _) i _ => "cnstr_"  ++ String.of_string (name_after_dot (String.to_string n)) ++ string_of_int i
+  | tInd (mkInd (modp, n) _) _ => "type_" ++ String.of_string (name_after_dot (String.to_string n))
   | tVar i => "var_" ++ i
   | _ => "no_name" 
   end.
@@ -138,8 +141,8 @@ Fixpoint argument_types (B : Ast.term) :=
 (* Split an inductive types applied to parameters into the naked inductive, the number of parameters and the list of parameters *)
 Definition split_head_symbol A : option (inductive * list term) :=
   match A with
-  | tApp (tInd ind u) R => ret (ind, R)
-  | tInd ind u => ret (ind, [])
+  | tApp (tInd ind u) R => Some (ind, R)
+  | tInd ind u => Some (ind, [])
   | _ => None
   end.
 
@@ -154,7 +157,7 @@ Definition list_constructors (ind : inductive) : TemplateMonad (list (ident * te
 (* determine whether two inductives are equal, based on their name *)
 Definition eq_inductive (hs hs2 : inductive) :=
   match hs, hs2 with
-  | mkInd k _, mkInd k2 _ => if kername_eq_dec k k2 then true else false
+  | mkInd k _, mkInd k2 _ => if eq_constant k k2 then true else false
   end.
 
 (* Get the argument types for a constructor (specified by inductive and index) *)
@@ -536,9 +539,10 @@ Fixpoint extract (env : nat -> nat) (s : Ast.term) (fuel : nat) : TemplateMonad 
   | tInd a _ =>  tmPrint a;;tmFail "tInd is not supported (probably there is a type not in prenex-normal form)" 
   | tProj _ _ =>   tmFail "tProj is not supported"
   | tCoFix _ _ =>  tmFail "tCoFix is not supported"
-  | tInt _ =>  tmFail "tInt is not supported"
+  (* | tInt _ =>  tmFail "tInt is not supported"
   | tFloat _ =>  tmFail "tFloat is not supported"
-  end end.
+   *)
+   end end.
 
 Fixpoint head_of_const (t : term) :=
   match t with

@@ -386,7 +386,7 @@ Qed.
 
 (* Equivalence *)
 
-Reserved Notation "s '==' t" (at level 50).
+Reserved Notation "s '==' t" (at level 70).
 
 Inductive equiv : term -> term -> Prop :=
   | eqStep s t : step s t -> s == t
