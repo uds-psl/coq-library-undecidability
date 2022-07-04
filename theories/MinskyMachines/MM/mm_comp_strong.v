@@ -78,6 +78,15 @@ Section simulator.
          /\ w#>tmp3 = 0
          /\ forall p, w#>(reg p) = stack_enc (v#>p).
 
+  Fact bsm_state_enc_fun (v : vec (list bool) m) w1 w2 :
+       bsm_state_enc v w1 -> bsm_state_enc v w2 -> w1 = w2.
+  Proof using cases.
+    intros (H0 & H1 & H2 & H3) (H4 & H5 & H6 & H7).
+    apply vec_pos_ext; intros p.
+    destruct (cases p) as [ [ [ -> | -> ] | -> ] | (q & ->) ]; try lia.
+    now rewrite H3, H7.
+  Qed.
+
   (* i is the position in the source code *)
 
   Definition bsm_instr_compile lnk i ii :=
@@ -159,112 +168,41 @@ Section simulator.
 
   Hint Resolve bsm_instr_compile_sound : core.
 
-  Section bsm_sim.
+  Theorem bsm_mm_compiler : compiler_t (@bsm_sss _) (@mm_sss _) bsm_state_enc.
+  Proof using Hvr3 Hvr2 Hvr1 Hv23 Hv13 Hv12 Hreg.
+    apply generic_compiler 
+        with (icomp := bsm_instr_compile)
+             (ilen := bsm_instr_compile_length); auto.
+      + apply bsm_sss_total'.
+      + apply mm_sss_fun.
+  Qed.
 
-    Variable (iP : nat) (cP : list (bsm_instr m)) (iQ : nat).
+  Theorem bsm_mm_simulator i (P : list (@bsm_instr m)) j : 
+         { Q : list (@mm_instr (pos n)) 
+         | forall v w, bsm_state_enc v w 
+         ->   (forall i' v', (i,P) /BSM/ (i,v) ~~> (i',v') -> exists w', (j,Q) /MM/ (j,w) ~~> (j+length Q,w') /\ bsm_state_enc v' w')
+           /\ ((j,Q) /MM/ (j,w) ↓  -> (i,P) /BSM/ (i,v) ↓) 
+         }.
+  Proof using Hvr3 Hvr2 Hvr1 Hv23 Hv13 Hv12 Hreg.
+    exists (gc_code bsm_mm_compiler (i,P) j).
+    intros v w Hw; split.
+    + intros ? ?; now apply (compiler_t_output_sound' bsm_mm_compiler). 
+    + apply compiler_t_term_equiv; auto.
+  Qed.
 
-    Local Definition lnk_Q_pair := @generic_compiler _ _ _ _ bsm_instr_compile_length_eq _ _ _ _  (@bsm_sss_total' _)
-                     (@mm_sss_fun _) _ bsm_instr_compile_sound. (*  (iP,cP) iQ. *) 
-(* 
-    Local Definition lnk := gc_link lnk_Q_pair.
-    Local Definition Q := proj1_sig (projT2 lnk_Q_pair).
-    
-    Local Lemma code_endQ : code_end Q = iQ + length (snd Q).
-    Proof.
-      unfold Q, lnk_Q_pair. cbn.
-      f_equal. now destruct gen_compiler_correction as (? & ? & ? & ?); cbn.
-    Qed.
+  Definition vec_enc v := vec_set_pos (fun p => match cases p with inl _ => 0 | inr (exist _ q _) => (stack_enc (v#>q)) end).
 
-    Local Lemma Hlnk : fst Q = iQ /\ lnk iP = iQ /\ forall i, out_code i (iP,cP) -> lnk i = code_end Q.
-    Proof.
-      repeat split; apply (proj2_sig (projT2 lnk_Q_pair)).
-    Qed.
-
-    Infix "⋈" := bsm_state_enc (at level 70, no associativity).
-
-    Local Lemma HQ1 : forall i1 v1 w1 i2 v2, v1 ⋈ w1 /\ (iP,cP) /BSM/ (i1,v1) ~~> (i2,v2)     
-                    -> exists w2,    v2 ⋈ w2 /\ Q /MM/ (lnk i1,w1) ~~> (lnk i2,w2).
-    Proof. apply (proj2_sig (projT2 lnk_Q_pair)). Qed.
-
-    Local Lemma HQ2 : forall i1 v1 w1 j2 w2, v1 ⋈ w1 /\ Q /MM/ (lnk i1,w1) ~~> (j2,w2) 
-                    -> exists i2 v2, v2 ⋈ w2 /\ (iP,cP) /BSM/ (i1,v1) ~~> (i2,v2) /\ j2 = lnk i2.
-    Proof. apply (proj2_sig (projT2 lnk_Q_pair)). Qed.
-
-    Variable v : vec (list bool) m. 
- *)
-    Definition vec_enc v := vec_set_pos (fun p => match cases p with inl _ => 0 | inr (exist _ q _) => (stack_enc (v#>q)) end).
- (* 
-    Local Definition w := vec_enc v.
- *)
-    Let vec_enc_spec : forall v, bsm_state_enc v (vec_enc v).
-    Proof.
-      red; unfold vec_enc; repeat split; rew vec.
-      - destruct (cases tmp1) as [[ | ] | [q Hq]]; try firstorder congruence.
-      - destruct (cases tmp2) as [[ | ] | [q Hq]]; try firstorder congruence.
-      - destruct (cases tmp3) as [[ | ] | [q Hq]]; try firstorder congruence.
-      - intros p. rewrite vec_pos_set.  destruct (cases (reg p)) as [[ | ] | [q Hq]]; try now firstorder congruence.
-    Qed.
-(* 
-    Let w_prop : bsm_state_enc v w.
-    Proof.
-      eapply vec_enc_spec.
-    Qed. *)
-
-    (* (iQ,cQ) simulates termination of (iP,cP) while ensuring tmp1 and tmp2 stay void when it terminates *)
-(* 
-    Local Lemma Q_spec1 : (iP,cP) /BSM/ (iP,v) ↓ -> exists w', Q /MM/ (iQ,w) ~~> (code_end Q, w') /\ w'#>tmp1 = 0 /\ w'#>tmp2 = 0.
-    Proof.
-      intros ((i1,v1) & H1).
-      destruct HQ1 with (1 := conj w_prop H1) as (w' & H2 & H3).
-      rewrite <- (proj2 (proj2 Hlnk) i1), <- (proj1 (proj2 Hlnk)).
-      * exists w'; split; auto; red in H2; tauto.
-      * apply H1.
-    Qed.
-
-    Local Lemma Q_spec1_strong i1 v1 : (iP,cP) /BSM/ (iP,v) ~~> (i1, v1) -> Q /MM/ (iQ,w) ~~> (code_end Q, vec_enc v1).
-    Proof.
-      intros H1.
-      destruct HQ1 with (1 := conj w_prop H1) as (w' & H2 & H3).
-      rewrite <- (proj2 (proj2 Hlnk) i1), <- (proj1 (proj2 Hlnk)).
-      * eenough (w' = vec_enc v1) as <- by eassumption.
-        destruct H2 as (H2 & H4 & H5 & H6).
-        eapply vec_pos_ext. intros p. unfold vec_enc. rewrite vec_pos_set.
-        destruct (cases p) as [[[E | E] | E ] | [q E]]; subst; rew vec.
-      * apply H1.
-    Qed.    
-
-    Local Lemma Q_spec2 : Q /MM/ (iQ,w) ↓ -> (iP,cP) /BSM/ (iP,v) ↓.
-    Proof.
-      intros ((j,w2) & H1).
-      rewrite <- (proj1 (proj2 Hlnk)) in H1.
-      destruct HQ2 with (1 := conj w_prop H1) as (i2 & v2 & H2 & H3 & _).
-      exists (i2,v2); auto.
-    Qed.
-
-    Definition bsm_mm_sim := snd Q.
-
-    Theorem bsm_mm_sim_spec : (iP,cP) /BSM/ (iP,v) ↓ <-> (iQ,bsm_mm_sim) /MM/ (iQ,w) ↓.
-    Proof.
-      rewrite <- (proj1 Hlnk) at 1.
-      rewrite <- surjective_pairing.
-      split; auto using Q_spec2.
-      intros H.
-      destruct (Q_spec1 H) as (w' & H1 & _).
-      exists (code_end Q, w'); auto.
-    Qed.
-
-    Theorem bsm_mm_sim_spec_strong i1 v1 : (iP,cP) /BSM/ (iP,v) ~~> (i1, v1) -> (iQ,bsm_mm_sim) /MM/ (iQ,w) ~~> (iQ + length bsm_mm_sim, vec_enc v1).
-    Proof.
-      rewrite <- (proj1 Hlnk) at 1.
-      rewrite <- surjective_pairing.
-      unfold bsm_mm_sim. rewrite <- code_endQ.
-      apply Q_spec1_strong.
-    Qed.
- *)
-    End bsm_sim.
+  Local Fact vec_enc_spec : forall v, bsm_state_enc v (vec_enc v).
+  Proof using Hvr3 Hvr2 Hvr1 Hv23 Hv13 Hv12 Hreg.
+    red; unfold vec_enc; repeat split; rew vec.
+    - destruct (cases tmp1) as [[ | ] | [q Hq]]; try firstorder congruence.
+    - destruct (cases tmp2) as [[ | ] | [q Hq]]; try firstorder congruence.
+    - destruct (cases tmp3) as [[ | ] | [q Hq]]; try firstorder congruence.
+    - intros p. rewrite vec_pos_set.  destruct (cases (reg p)) as [[ | ] | [q Hq]]; try now firstorder congruence.
+  Qed.
 
 End simulator.
- 
+
 Theorem bsm_mm_compiler_strong n i (P : list (bsm_instr n)) (tmp1 tmp2 tmp3 : pos (n + 3)) (reg : pos n -> pos (n + 3)) iQ :
   tmp1 <> tmp2 -> (forall p, tmp1 <> reg p) -> (forall p, tmp2 <> reg p) -> (forall p q, reg p = reg q -> p = q) ->
   tmp1 <> tmp3 -> tmp2 <> tmp3 -> (forall p, tmp3 <> reg p) ->
@@ -273,10 +211,20 @@ Theorem bsm_mm_compiler_strong n i (P : list (bsm_instr n)) (tmp1 tmp2 tmp3 : po
                                       forall v j w, (i,P) /BSM/ (i,v) ~~> (j,w) -> (iQ,Q) /MM/ (iQ, @vec_enc _ tmp1 tmp2 tmp3 reg cases v) ~~> (iQ + length Q, @vec_enc _ tmp1 tmp2 tmp3 reg cases w) }.
 Proof. 
   intros.
-Admitted. (* 
-  unshelve eexists (@bsm_mm_sim _ tmp1 tmp2 tmp3 reg _ _ _ _ _ _ _ i P _); eauto.
-  split.
-  - apply bsm_mm_sim_spec.
-  - intros. match goal with [ |- context[ iQ + length ?Q ]] => change (iQ + length Q) with (code_end (iQ, Q)) end.
-    eapply bsm_mm_sim_spec_strong; eauto.
-Qed. *)
+  destruct bsm_mm_simulator with (tmp1 := tmp1) (tmp2 := tmp2) (tmp3 := tmp3) (reg := reg) (i := i) (P := P) (j := iQ)
+    as (Q & HQ); auto.
+  exists Q; split.
+  + intros v; split.
+    * intros ((j,w) & Hw).
+      apply (HQ v (vec_enc _ cases v)) in Hw as (w' & Hw' & _).
+      2: apply vec_enc_spec; auto.
+      now exists (iQ+length Q,w').
+    * apply HQ, vec_enc_spec; auto.
+  + intros v j w G.
+    destruct (HQ v (vec_enc _ cases v)) as [ HQ' _ ]. 
+    1: apply vec_enc_spec; auto.
+    destruct HQ' with (1 := G) as (w' & Hw1 & Hw2).
+    assert (vec_enc _ cases w = w') as ->; auto.
+    apply bsm_state_enc_fun with (3 := Hw2); auto.
+    apply vec_enc_spec; auto.
+Qed.
