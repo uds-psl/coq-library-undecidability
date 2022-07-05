@@ -3,7 +3,7 @@ name: CI
 on: [push, pull_request]
 
 env:
-  CACHE_KEY: opam-8.15-metacoqfl-${{github.base_ref}}-${{github.ref}} 
+  CACHE_KEY: opam-8.15-metacoqrelease-${{github.base_ref}}-${{github.ref}} 
 jobs:
   build-deps:
     runs-on: ubuntu-latest
@@ -15,7 +15,7 @@ jobs:
         path: "~/.opam"
         key: ${{env.CACHE_KEY}}
         restore-keys: |
-          opam-8.15-metacoqfl--refs/heads/${{github.base_ref}}
+          opam-8.15-metacoqrelease--refs/heads/${{github.base_ref}}
 
     - name: Install OCaml
       if: steps.cache.outputs.cache-hit != 'true'
