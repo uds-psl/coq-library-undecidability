@@ -19,7 +19,7 @@ jobs:
 
     - name: Install OCaml
       if: steps.cache.outputs.cache-hit != 'true'
-      uses: avsm/setup-ocaml@v1
+      uses: avsm/setup-ocaml@v2
       with:
         ocaml-compiler:  ocaml-variants.4.13.1+options
 
