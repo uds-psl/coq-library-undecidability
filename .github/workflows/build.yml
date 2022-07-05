@@ -22,7 +22,7 @@ jobs:
       uses: avsm/setup-ocaml@v1
       with:
         ocaml-compiler: ocaml-variants.4.13.1+options,ocaml-option-flambda
-\
+
     - name: Checkout code
       if: steps.cache.outputs.cache-hit != 'true'
       uses: actions/checkout@v2
