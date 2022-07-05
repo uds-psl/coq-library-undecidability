@@ -21,7 +21,7 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       uses: avsm/setup-ocaml@v1
       with:
-        ocaml-compiler: "ocaml-variants.4.13.1+options,ocaml-option-flambda"
+        ocaml-compiler: ocaml-variants.4.13.1+options
 
     - name: Checkout code
       if: steps.cache.outputs.cache-hit != 'true'
