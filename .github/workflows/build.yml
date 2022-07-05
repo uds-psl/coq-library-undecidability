@@ -52,11 +52,6 @@ jobs:
     - name: Check sucess of cache restoration
       if: steps.cache.outputs.cache-hit != 'true'
       run: exit
-      
-    - name: Install OCaml
-      uses: avsm/setup-ocaml@v1
-      with:
-        ocaml-version: ${{env.OCAML_VERSION}}
   
     - name: Checkout code
       uses: actions/checkout@v2
