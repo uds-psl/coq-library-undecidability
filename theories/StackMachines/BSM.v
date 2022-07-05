@@ -85,3 +85,12 @@ Definition BSM_PROBLEM := { n : nat & BSMn_PROBLEM n }.
 Definition Halt_BSM :
   { n : nat & { i : nat & { P : list (bsm_instr n) & vec (list bool) n } } } -> Prop:=
   fun '(existT _ n (existT _ i (existT _ P v))) => exists c' v', eval n (i,P) (i,v) (c', v').
+
+Import ListNotations Vector.VectorNotations.
+
+Definition BSM_computable {k} (R : Vector.t nat k -> nat -> Prop) := 
+  exists n : nat, exists i : nat, exists P : list (bsm_instr (1 + k + n)),
+    forall v : Vector.t nat k,
+      (forall m, R v m <->
+         exists c v', BSM.eval (1 + k + n) (i, P) (i, (@List.nil bool :: Vector.map (fun n => List.repeat true n) v) ++ Vector.const (@List.nil bool) n) (c, List.repeat true m :: v'))
+    /\ (forall c v', BSM.eval (1 + k + n) (i, P) (i, (@List.nil bool :: Vector.map (fun n => List.repeat true n) v) ++ Vector.const (@List.nil bool) n) (c, v') -> exists m v'', v' = List.repeat true m :: v'').    

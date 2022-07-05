@@ -1,11 +1,7 @@
-From Undecidability.MuRec Require Import MuRec.
+From Undecidability.MuRec Require Export MuRec.
 
 From Coq Require Import List Vector Nat.
 Import ListNotations Vector.VectorNotations.
-
-Definition MuRec_computable {k} (R : Vector.t nat k -> nat -> Prop) := 
-  exists f : recalg k, forall v : Vector.t nat k, 
-        forall m, R v m <-> ra_bs f v m.
 
 Definition functional {X Y} (R : X -> Y -> Prop) :=
   forall x y1 y2, R x y1 -> R x y2 -> y1 = y2.

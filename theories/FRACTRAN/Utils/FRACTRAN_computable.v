@@ -1,20 +1,9 @@
-Require Import Undecidability.FRACTRAN.FRACTRAN.
+Require Export Undecidability.FRACTRAN.FRACTRAN.
 
 From Coq Require Import List Vector Nat Arith Lia.
 From Undecidability.FRACTRAN Require Import prime_seq.
 Import ListNotations Vector.VectorNotations.
 From Undecidability Require Import Utils.gcd Utils.prime FRACTRAN_sss Code.sss fractran_utils.
-
-Fixpoint enc {k} i (v : Vector.t nat k) : nat := 
-  match v with
-  | @nil _ => 1
-  | x :: v => (qs i) ^ x * enc (S i) v
-  end.
-
-Definition FRACTRAN_computable {k} (R : Vector.t nat k -> nat -> Prop) := 
-  exists P : list (nat * nat), fractran_regular P /\
-    forall v : Vector.t nat k,
-      (forall m, R v m <-> exists j, fractran_eval P (ps 1 * enc 2 v) (j * (qs 1)^m) /\ ~ divides (qs 1) j).
 
 Lemma FRACTRAN_computable_functional {k} (R : Vector.t nat k -> nat -> Prop) :
   FRACTRAN_computable R -> forall v m1 m2, R v m1 -> R v m2 -> m1 = m2.

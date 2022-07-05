@@ -54,3 +54,7 @@ where " [ f ; v ] ▹ x " := (@ra_bs _ f v x).
 
 Definition Halt_murec (a : { n : nat & recalg n & Vector.t nat n }) : Prop :=
     let (n, f, v) := a in exists x, [f ; v ] ▹ x.
+
+Definition MuRec_computable {k} (R : Vector.t nat k -> nat -> Prop) := 
+  exists f : recalg k, forall v : Vector.t nat k, 
+        forall m, R v m <-> ra_bs f v m.

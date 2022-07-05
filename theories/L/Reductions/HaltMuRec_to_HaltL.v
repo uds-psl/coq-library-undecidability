@@ -546,6 +546,8 @@ Proof.
   induction v; cbn; f_equal; eassumption.
 Qed.  
 
+Require Import Undecidability.L.Reductions.MuRec.MuRec_extract.
+
 Lemma eval_mono c min k (v : Vector.t nat k) (f : recalg k) o :
   eval c min (erase f) (vec_list v) = Some (inl o) -> forall c', c' >= c -> eval c' min (erase f) (vec_list v) = Some (inl o).
 Proof.

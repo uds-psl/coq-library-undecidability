@@ -86,3 +86,11 @@ Definition MM_PROBLEM := { n : nat & { P : list (mm_instr (pos n)) & vec nat n }
 
 Definition Halt_MM (P : MM_PROBLEM) :=
   match P with existT _ n (existT _ P v) => exists c v', eval (1, P) (1, v) (c, v') end.
+
+Import ListNotations Vector.VectorNotations.
+
+Definition MM_computable {k} (R : Vector.t nat k -> nat -> Prop) := 
+  exists n : nat, exists P : list (mm_instr (Fin.t (1 + k + n))),
+    forall v : Vector.t nat k,
+      (forall m, R v m <->
+         exists c v', @MM.eval (1 + k + n) (1, P) (1, (0 :: v) ++ Vector.const 0 n) (c, m :: v')).

@@ -1,7 +1,7 @@
 From Coq Require List Vector.
 
-From Undecidability.L Require Import L Datatypes.Lists Datatypes.LNat.
-From Undecidability Require Export Util.L_computable.
+From Undecidability.L Require Export L.
+From Undecidability.L Require Import Datatypes.Lists Datatypes.LNat.
 From Undecidability.TM Require Import TM Util.TM_facts.
 From Undecidability Require Export TM_computable.
 

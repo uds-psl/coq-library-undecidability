@@ -22,8 +22,6 @@ Notation "l '/F/' x ↓ " := (fractran_terminates l x) (at level 70, no associat
 Definition FRACTRAN_PROBLEM := (list (nat*nat) * nat)%type.
 Definition FRACTRAN_HALTING (P : FRACTRAN_PROBLEM) := let (l,x) := P in l /F/ x ↓.
  
-Definition fractran_regular (l : list (nat * nat)) := Forall (fun c => snd c <> 0) l.
-
 Definition FRACTRAN_REG_PROBLEM := 
   { l : list (nat*nat) & { _ : nat | fractran_regular l } }.
 Definition FRACTRAN_REG_HALTING (P : FRACTRAN_REG_PROBLEM) : Prop.
