@@ -3,7 +3,7 @@ name: CI
 on: [push, pull_request]
 
 env:
-  CACHE_KEY: opam-flambda-8.15-metacoqpre-${{github.base_ref}}-${{github.ref}} 
+  CACHE_KEY: opam-8.15-metacoqpre-${{github.base_ref}}-${{github.ref}} 
 jobs:
   build-deps:
     runs-on: ubuntu-latest
@@ -15,13 +15,13 @@ jobs:
         path: "~/.opam"
         key: ${{env.CACHE_KEY}}
         restore-keys: |
-          opam-flambda-8.15-metacoqpre--refs/heads/${{github.base_ref}}
+          opam-8.15-metacoqpre--refs/heads/${{github.base_ref}}
 
     - name: Install OCaml
       if: steps.cache.outputs.cache-hit != 'true'
       uses: avsm/setup-ocaml@v1
       with:
-        ocaml-compiler: ocaml-variants.4.13.1+options
+        ocaml-compiler:  ocaml-variants.4.13.1+options
 
     - name: Checkout code
       if: steps.cache.outputs.cache-hit != 'true'
