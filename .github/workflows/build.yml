@@ -3,6 +3,7 @@ name: CI
 on: [push, pull_request]
 
 env:
+  OCAML_VERSION: 4.11.0
   CACHE_KEY: opam-8.15-metacoqrelease-${{github.base_ref}}-${{github.ref}} 
 jobs:
   build-deps:
@@ -18,13 +19,9 @@ jobs:
           opam-8.15-metacoqrelease--refs/heads/${{github.base_ref}}
 
     - name: Install OCaml
-      if: steps.cache.outputs.cache-hit != 'true'
-      uses: avsm/setup-ocaml@v2
+      uses: avsm/setup-ocaml@v1
       with:
-        ocaml-compiler:  ocaml-variants.4.13.1+options,ocaml-option-flambda
-        cache-prefix: ${{env.CACHE_KEY}}
-        opam-repositories: |
-          coq-released: https://coq.inria.fr/opam/released
+        ocaml-version: ${{env.OCAML_VERSION}}
 
     - name: Checkout code
       if: steps.cache.outputs.cache-hit != 'true'
@@ -35,6 +32,9 @@ jobs:
     - name: Build dependencies
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
+        opam repo add coq-released https://coq.inria.fr/opam/released
+        opam update
+        opam upgrade
         opam install . --deps-only --with-doc --with-test 
         opam list --installed
 
@@ -52,12 +52,11 @@ jobs:
     - name: Check sucess of cache restoration
       if: steps.cache.outputs.cache-hit != 'true'
       run: exit
-    
+      
     - name: Install OCaml
-      uses: avsm/setup-ocaml@v2
+      uses: avsm/setup-ocaml@v1
       with:
-        ocaml-compiler:  ocaml-variants.4.13.1+options,ocaml-option-flambda
-        cache-prefix: ${{env.CACHE_KEY}}
+        ocaml-version: ${{env.OCAML_VERSION}}
   
     - name: Checkout code
       uses: actions/checkout@v2
