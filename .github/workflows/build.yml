@@ -35,6 +35,7 @@ jobs:
         opam repo add coq-released https://coq.inria.fr/opam/released
         opam update
         opam upgrade
+        opam unpin coq-metacoq-template
         opam install . --deps-only --with-doc --with-test 
         opam list --installed
   
