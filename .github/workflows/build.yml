@@ -3,7 +3,6 @@ name: CI
 on: [push, pull_request]
 
 env:
-  OCAML_VERSION: 4.07.1+flambda
   CACHE_KEY: opam-flambda-8.15-metacoqpre-${{github.base_ref}}-${{github.ref}} 
 jobs:
   build-deps:
@@ -22,8 +21,8 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       uses: avsm/setup-ocaml@v1
       with:
-        ocaml-version: ${{env.OCAML_VERSION}}
-
+        ocaml-compiler: ocaml-variants.4.13.1+options,ocaml-option-flambda
+\
     - name: Checkout code
       if: steps.cache.outputs.cache-hit != 'true'
       uses: actions/checkout@v2
