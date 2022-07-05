@@ -56,9 +56,10 @@ jobs:
       run: exit
     
     - name: Install OCaml
-      uses: avsm/setup-ocaml@v1
+      uses: avsm/setup-ocaml@v2
       with:
-        ocaml-version: ${{env.OCAML_VERSION}}
+        ocaml-compiler:  ocaml-variants.4.13.1+options
+  
     - name: Checkout code
       uses: actions/checkout@v2
       with:
