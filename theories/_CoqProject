@@ -902,3 +902,5 @@ TM/KOSBTM/HaltKOSBTM_to_HaltBSM.v
 TM/KOSBTM/HaltKOSBTM_to_HaltKOSBTMu.v
 TM/KOSBTM/HaltTM_1_to_HaltKOSBTM.v
 TM/KOSBTM/KOSBTM.v
+
+Synthetic/Models_Equivalent.v

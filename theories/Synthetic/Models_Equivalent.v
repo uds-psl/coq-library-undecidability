@@ -8,9 +8,8 @@ Require Import
   Undecidability.MuRec.MuRec.
 
 From Undecidability Require Import
-  L_computable_to_TM_computable
-  (* TM_computable_to_BSM_computable *)
-  (* BSM_computable_to_MM_computable *)
+  TM_computable_to_BSM_computable
+  BSM_computable_to_MM_computable
   MM_computable_to_FRACTRAN_computable
   FRACTRAN_computable_to_Diophantine
   Diophantine
@@ -18,17 +17,27 @@ From Undecidability Require Import
   MuRec_computable_to_L_computable.
 
 Theorem equivalence {k} (R : Vector.t nat k -> nat -> Prop) :
-  (L_computable R -> TM_computable R) /\
+  (TM_computable R -> BSM_computable R) /\
+  (BSM_computable R -> MM_computable R) /\
   (MM_computable R -> FRACTRAN_computable R) /\
   (FRACTRAN_computable R -> Diophantine' R /\ functional R) /\
   (Diophantine' R /\ functional R -> MuRec_computable R) /\
   (MuRec_computable R -> L_computable R).
 Proof.
   repeat split.
-  - apply L_computable_to_TM_computable.
+  - apply TM_computable_to_BSM_computable.
+  - apply BSM_computable_to_MM_computable.
   - apply MM_computable_to_FRACTRAN_computable.
   - eapply FRACTRAN_computable_to_Diophantine; assumption.
   - intros ? ? ? ? ?. eapply FRACTRAN_computable.FRACTRAN_computable_functional; eauto.
   - intros []. eapply Diophantine_to_MuRec_computable; eauto.
   - eapply MuRec_computable_to_L_computable.
 Qed.
+
+(* From Undecidability Require Import L_computable_to_TM_computable. *)
+
+(* Theorem equivalence' {k} (R : Vector.t nat k -> nat -> Prop) : *)
+(*   L_computable R -> TM_computable R. *)
+(* Proof. *)
+(*   eapply L_computable_to_TM_computable.L_computable_to_TM_computable. *)
+(* Qed. *)
