@@ -175,3 +175,33 @@ Section TM.
   Qed.
 
 End TM.
+
+Section Bottom.
+
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+
+  Variable D : Type.
+  Variable I : interp D.
+
+  Definition interp_bot (F_P : Prop) (i : @interp Σ_funcs Σ_preds D) : @interp Σ_funcs (@Σ_preds_bot Σ_preds) D := {|
+    i_func := @i_func _ _ D i;
+    i_atom := fun (P : (@preds (@Σ_preds_bot Σ_preds))) => match P with inl _ => fun v => F_P | inr P => fun v => @i_atom _ _ D i P v end
+  |}.
+
+  Definition sat_bot {ff : falsity_flag} (F_P : Prop) (rho : env D) (phi : form) : Prop 
+    := @sat _ Σ_preds_bot D (interp_bot F_P I) falsity_off rho (falsity_to_pred phi).
+
+  Lemma sat_bot_False {ff:falsity_flag} rho phi : sat_bot False rho phi <-> sat rho phi.
+  Proof.
+    induction phi in rho|-*.
+    - easy.
+    - easy.
+    - destruct b0. unfold sat_bot, falsity_to_pred in *. cbn.
+      split; intros H H1 %IHphi1; apply IHphi2; apply H, H1.
+    - destruct q. unfold sat_bot, falsity_to_pred in *. cbn.
+      split; intros H d; apply IHphi, H.
+  Qed.
+
+End Bottom.
+

@@ -2,6 +2,7 @@
 
 Require Import Undecidability.FOL.Semantics.Tarski.FragmentFacts.
 Require Export Undecidability.FOL.Semantics.Tarski.FragmentCore.
+Require Export Undecidability.FOL.Syntax.Facts.
 From Undecidability Require Import Shared.ListAutomation.
 Import ListAutomationNotations.
 
@@ -117,3 +118,51 @@ Notation "rho  '⊩(' u ')'  phi" := (ksat u rho phi) (at level 20).
 Notation "rho '⊩(' u , M ')' phi" := (@ksat _ _ _ M _ u rho phi) (at level 20).
 
 Arguments ksat {_ _ _ _ _} _ _ _, {_ _ _} _ {_} _ _ _.
+
+
+Section Bottom.
+
+  Context {Σ_funcs : funcs_signature}.
+  Context {Σ_preds : preds_signature}.
+
+  Context {domain : Type}.
+  Context {M : kmodel domain}.
+  Program Definition kmodel_bot 
+    (F_P : @nodes _ _ _ M -> Prop)
+    (mon_F : forall u v, reachable u v -> F_P u -> F_P v)
+     : @kmodel Σ_funcs (@Σ_preds_bot Σ_preds) domain := {|
+    nodes := @nodes _ _ _ M ;
+    reachable := @reachable _ _ _ M ;
+    k_interp := interp_bot False (@k_interp _ _ _ M) ;
+    k_P := fun n P => match P with inl _ => fun _ => F_P n | inr P' => @k_P _ _ _ M n P' end
+  |}.
+  Next Obligation. apply reach_refl. Qed.
+  Next Obligation. now apply reach_tran with v. Qed.
+  Next Obligation. destruct P as [|P'].
+    + now apply mon_F with u.
+    + now apply mon_P with u.
+  Qed.
+
+  Definition ksat_bot 
+    {ff : falsity_flag} (F_P : @nodes _ _ _ M -> Prop)
+    (mon_F : forall u v, reachable u v -> F_P u -> F_P v)
+    u (rho : env domain) (phi : form) : Prop 
+    := @ksat _ Σ_preds_bot domain (kmodel_bot mon_F) falsity_off u rho (falsity_to_pred phi).
+
+  Lemma sat_bot_False {ff:falsity_flag} u rho phi
+    (e : forall u v, reachable u v -> False -> False)
+    : @ksat_bot ff (fun _ => False) e u rho phi <-> @ksat _ _ domain M ff u rho phi.
+  Proof.
+    induction phi in rho,u|-*.
+    - easy.
+    - easy.
+    - destruct b0. unfold sat_bot, falsity_to_pred in *. cbn.
+      split; intros H v Hreach H1 %IHphi1; apply IHphi2; now apply H, H1.
+    - destruct q. unfold sat_bot, falsity_to_pred in *. cbn.
+      split; intros H d; apply IHphi, H.
+  Qed.
+
+End Bottom.
+
+
+

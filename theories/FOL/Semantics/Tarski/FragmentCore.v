@@ -32,7 +32,7 @@ Section Tarski.
     Class interp := B_I
       {
         i_func : forall f : syms, vec domain (ar_syms f) -> domain ;
-        i_atom : forall P : preds, vec domain (ar_preds P) -> Prop ;
+        i_atom : forall P : preds, vec domain (ar_preds P) -> Prop
       }.
 
     Definition env := nat -> domain.
