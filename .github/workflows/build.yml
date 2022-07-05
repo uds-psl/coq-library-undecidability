@@ -22,6 +22,7 @@ jobs:
       uses: avsm/setup-ocaml@v2
       with:
         ocaml-compiler:  ocaml-variants.4.13.1+options,ocaml-option-flambda
+        cache-prefix: ${{env.CACHE_KEY}}
 
     - name: Checkout code
       if: steps.cache.outputs.cache-hit != 'true'
@@ -58,6 +59,7 @@ jobs:
       uses: avsm/setup-ocaml@v2
       with:
         ocaml-compiler:  ocaml-variants.4.13.1+options,ocaml-option-flambda
+        cache-prefix: ${{env.CACHE_KEY}}
   
     - name: Checkout code
       uses: actions/checkout@v2
