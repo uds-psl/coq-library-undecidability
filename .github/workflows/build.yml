@@ -23,6 +23,8 @@ jobs:
       with:
         ocaml-compiler:  ocaml-variants.4.13.1+options,ocaml-option-flambda
         cache-prefix: ${{env.CACHE_KEY}}
+        opam-repositories: |
+          coq-released: https://coq.inria.fr/opam/released
 
     - name: Checkout code
       if: steps.cache.outputs.cache-hit != 'true'
@@ -33,13 +35,8 @@ jobs:
     - name: Build dependencies
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
-        opam repo add coq-released https://coq.inria.fr/opam/released
-        opam update
-        opam upgrade
-        opam unpin coq-metacoq-template
         opam install . --deps-only --with-doc --with-test 
         opam list --installed
-  
 
   build-full:
     needs: build-deps
@@ -51,6 +48,7 @@ jobs:
       with:
         path: "~/.opam"
         key: ${{env.CACHE_KEY}}
+        
     - name: Check sucess of cache restoration
       if: steps.cache.outputs.cache-hit != 'true'
       run: exit
