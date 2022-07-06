@@ -117,7 +117,7 @@ You can use `opam` to install the current state of this branch as follows.
 We recommend creating a fresh opam switch:
 
 ```
-opam switch create coq-library-undecidability 4.07.1+flambda
+opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.0+options,ocaml-option-flambda
 eval $(opam env)
 ```
 
@@ -126,7 +126,6 @@ Then the following commands install the library:
 ```
 opam repo add coq-released https://coq.inria.fr/opam/released
 opam update
-opam pin add -n -y -k git coq-metacoq-template.dev+8.15 "https://github.com/MetaCoq/metacoq.git#f170ec6"
 opam pin add coq-library-undecidability.dev+8.15 "https://github.com/uds-psl/coq-library-undecidability.git#coq-8.15"
 ```
 
@@ -135,11 +134,10 @@ opam pin add coq-library-undecidability.dev+8.15 "https://github.com/uds-psl/coq
 You need `Coq 8.15` built on OCAML `>= 4.07.1`, the [Smpl](https://github.com/uds-psl/smpl) package, the [Equations](https://mattam82.github.io/Coq-Equations/) package, and the [MetaCoq](https://metacoq.github.io/metacoq/) package for Coq. If you are using opam 2 you can use the following commands to install the dependencies on a new switch:
 
 ```
-opam switch create coq-library-undecidability 4.07.1+flambda
+opam switch create coq-library-undecidability --packages=ocaml-variants.4.14.0+options,ocaml-option-flambda
 eval $(opam env)
 opam repo add coq-released https://coq.inria.fr/opam/released
 opam update
-opam pin add -n -y -k git coq-metacoq-template.dev+8.15 "https://github.com/MetaCoq/metacoq.git#f170ec6"
 opam install . --deps-only
 ```
 
